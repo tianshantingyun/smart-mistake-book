@@ -117,6 +117,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--from", dest="src", type=Path, required=True,
                     help="逐页产物目录（<学科>/pNNNN.jsonl）")
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--strict", action="store_true",
+                    help="有页未并入时返回非零（要用它当门禁时加）")
     args = ap.parse_args(argv)
 
     if not args.src.exists():
@@ -139,10 +141,14 @@ def main(argv: list[str] | None = None) -> int:
         print(f"   {mark} p{r['page']:<4d} → {Path(r['file']).name}"
               f"（区间 {r['span'][0]}-{r['span'][1]}，文件共 {r['total_in_file']} 页，{r['records']} 条记录）")
     if problems:
-        print(f"\n★ 失败 {len(problems)} 条（未并入）：")
+        # 坏文件**报出来，但不再带倒整批**（2026-09-27 实测：470 页已并入，仅 1 行 JSON 非法转义，
+        # 却让"并入"整步失败、把运行带倒）。默认退出 0——未并入的页会在账本里体现为缺失/不过闸；
+        # 要用它当门禁就加 --strict（那时才返回 1）。
+        print(f"\n★ 有 {len(problems)} 页未并入（其余已并入；未并入的页在账本里会是缺失/不过闸）：")
         for p in problems[:10]:
             print("   !", p)
-        return 1
+        print("（未写盘；加 --write 生效）" if not args.write else "（已写盘）")
+        return 1 if args.strict else 0
     print("（未写盘；加 --write 生效）" if not args.write else "（已写盘）")
     return 0
 

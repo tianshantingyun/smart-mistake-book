@@ -191,5 +191,32 @@ class RealArtifactTest(unittest.TestCase):
         self.assertEqual("20", m[("MATH", 550)]["items_min"], "单页行的清点数照用")
         self.assertEqual("ACCEPT", m[("MATH", 60)]["verdict"])
 
+
+    def test_same_page_records_are_joined_not_overwritten(self):
+        # 实测 2026-09-27：一页通常有 5–15 个块（每块一行），旧实现只留最后一条 →
+        # 账本看到的"整页正文"其实是最后一块（中位 3.4 字/条、322 页被计数闸误判）。
+        import json as _json, tempfile, pathlib as _pl
+        tmp = _pl.Path(tempfile.mkdtemp(prefix="led-j-"))
+        (tmp / "MATH").mkdir()
+        book = tmp / "MATH" / "书"
+        book.mkdir()
+        (book / "range_0001_0002.jsonl").write_text("\n".join([
+            _json.dumps({"page": 1, "heading": "块1", "text": "第一块正文"}, ensure_ascii=False),
+            _json.dumps({"page": 1, "heading": "块2", "text": "第二块正文"}, ensure_ascii=False),
+            _json.dumps({"page": 1, "heading": "块3", "text": "第三块正文"}, ensure_ascii=False),
+            _json.dumps({"page": 2, "heading": "", "text": "第二页正文"}, ensure_ascii=False),
+        ]) + "\n", encoding="utf-8")
+        old = tl.TRANSCRIPTS
+        tl.TRANSCRIPTS = tmp
+        try:
+            got = tl.load_transcripts()
+        finally:
+            tl.TRANSCRIPTS = old
+        self.assertIn("第一块正文", got[("MATH", 1)]["text"])
+        self.assertIn("第二块正文", got[("MATH", 1)]["text"])
+        self.assertIn("第三块正文", got[("MATH", 1)]["text"])
+        self.assertEqual("第二页正文", got[("MATH", 2)]["text"])
+        self.assertEqual("0001_0002", got[("MATH", 1)]["span"])
+
 if __name__ == "__main__":
     unittest.main()

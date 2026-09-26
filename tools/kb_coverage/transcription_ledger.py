@@ -77,7 +77,12 @@ def load_manifest() -> list[dict]:
 
 
 def load_transcripts() -> dict[tuple[str, int], dict]:
-    """(subject, page) -> {span, text}；容忍代理常见的行尾逗号。"""
+    """(subject, page) -> {span, text}；容忍代理常见的行尾逗号。
+
+    **同一页的多条记录要拼接**（一页通常有 5–15 个块，每块一行）——曾经只保留最后一条，
+    于是账本看到的"整页正文"其实是最后一块：实测中位数掉到 3.4 字/条、322 页被计数闸误判、
+    入块库还被错误拦掉 2500 多条记录（2026-09-27 修）。
+    """
     out: dict[tuple[str, int], dict] = {}
     if not TRANSCRIPTS.exists():
         return out
@@ -95,8 +100,14 @@ def load_transcripts() -> dict[tuple[str, int], dict]:
             except json.JSONDecodeError:
                 continue
             page = rec.get("page")
-            if isinstance(page, int):
-                out[(subject, page)] = {"span": span, "text": rec.get("text") or ""}
+            if not isinstance(page, int):
+                continue
+            text = rec.get("text") or ""
+            key = (subject, page)
+            if key in out:
+                out[key]["text"] += "\n" + text
+            else:
+                out[key] = {"span": span, "text": text}
     return out
 
 
