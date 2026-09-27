@@ -1,0 +1,77 @@
+{
+ "dir": "knowledge-production\\2027-53-pilot",
+ "pages": [
+  {
+   "subject": "BIOLOGY",
+   "page": 1,
+   "records": 6,
+   "chars": 1449,
+   "items_min": 0,
+   "items_numbered": 0,
+   "numbered_in_text": 0,
+   "formulas": 0,
+   "figs": 6,
+   "uncertainties": 0,
+   "gate": "pass",
+   "problems": []
+  },
+  {
+   "subject": "BIOLOGY",
+   "page": 15,
+   "records": 4,
+   "chars": 4163,
+   "items_min": 64,
+   "items_numbered": 29,
+   "numbered_in_text": 29,
+   "formulas": 16,
+   "figs": 13,
+   "uncertainties": 0,
+   "gate": "pass",
+   "problems": []
+  },
+  {
+   "subject": "CHEMISTRY",
+   "page": 2,
+   "records": 8,
+   "chars": 10871,
+   "items_min": 150,
+   "items_numbered": 129,
+   "numbered_in_text": 60,
+   "formulas": 170,
+   "figs": 1,
+   "uncertainties": 0,
+   "gate": "pass",
+   "problems": []
+  },
+  {
+   "subject": "CHEMISTRY",
+   "page": 27,
+   "records": 8,
+   "chars": 4743,
+   "items_min": 63,
+   "items_numbered": 45,
+   "numbered_in_text": 51,
+   "formulas": 87,
+   "figs": 5,
+   "uncertainties": 0,
+   "gate": "pass",
+   "problems": []
+  },
+  {
+   "subject": "MATH",
+   "page": 162,
+   "records": 4,
+   "chars": 2784,
+   "items_min": 32,
+   "items_numbered": 14,
+   "numbered_in_text": 21,
+   "formulas": 83,
+   "figs": 1,
+   "uncertainties": 0,
+   "gate": "pass",
+   "problems": []
+  }
+ ],
+ "passed": 5,
+ "failed": 0
+}
