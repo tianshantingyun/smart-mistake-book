@@ -16,9 +16,9 @@ LiteRT（`org.tensorflow.lite.Interpreter`）**只吃 `.tflite`**，不吃 ONNX�
 | 项 | 要求 | 依据 |
 |---|---|---|
 | 输入名 | `input_ids` / `attention_mask` / `token_type_ids`（int64） | `export_bge_int8.py` 的导出签名 |
-| 输入长度 | 定长 ≥ 512，或动态 `[1, seq]` | 定长 < 512 会被 `LiteRtDenseQueryEncoder.open` **拒绝**（长输入静默截短 = 与离线口径不一致） |
+| 输入长度 | 定长 **≥ 128**（= 端侧 `DENSE_MAX_SEQUENCE_LENGTH`，Stage-6 右尺寸后的口径），或动态 `[1, seq]` | 定长 < `DENSE_MAX_SEQUENCE_LENGTH` 会被 `LiteRtDenseQueryEncoder.open` **拒绝**（长输入静默截短 = 与离线口径不一致）。**定长比口径宽是允许的**：随包现件就是"模型定长 512、端侧按 128 截断 + 右 PAD 到 512"，掩码在位 ⇒ 与离线同结果（实测两种窗口的输出逐字节相同，见 `docs/kb-stage6-report-2026-09-26.md` §1.2），代价只是 PAD 位白算（宿主 p50 差 4.3×） |
 | 输出 | 单个 float32 输出，`numElements = 512`（**随包那一档的维度**；换档时按档取：base 档 = 768。图内已含 CLS 池化 + L2 归一） | 实测 ONNX 计算图：`Gather(0) → ReduceL2 → Clip → Expand → Div`；端侧测试的维度取自 `encoder-parity.json` 的 `dim`，不写死 |
-| 数值 | 真机逐条对拍冻结参考向量（`DenseEncoderParityInstrumentedTest`，n=290）**min cosine ≥ 0.999** | 实测 min **0.99963** / median 0.99978 / p95 0.99984（全过） |
+| 数值 | 真机逐条对拍冻结参考向量（`DenseEncoderParityInstrumentedTest`，n=290）**min cosine ≥ 0.999** | 实测 min **0.99963** / median 0.99978 / p95 0.99984（全过）——**这是 Stage-3 的 2 线程 + 512 窗口口径**；Stage-6 把生产线程改成 `min(4, 核数)`、口径窗口改成 128，**这条真机读数要按新口径重量**（Stage-6 真机阶段被共享工作树阻断，未跑，见 `docs/kb-stage6-report-2026-09-26.md` §3/§6） |
 
 **换件纪律**：任何一次换模型件都必须**重跑** `DenseEncoderParityInstrumentedTest`（真机硬门
 ≥0.999）与 `GoldenRetrievalInstrumentedTest`（对拍 `build/stage3-device-expectation.json`），
@@ -57,3 +57,18 @@ APK 内 stored 不压缩，本报告已用 `zipfile` 复核），判据③（门
 换件后重生成 fixture 即可（`python tools/dense_build/gen_device_parity_fixture.py --model <档>`）。
 **换件未落地的第二重原因**：本轮 Kotlin 侧编译/test 任务被另一条会话在 `core/database` 的飞行改动
 阻断（KSP `MissingType`，与本目录无关），故"换件后必跑的真机硬门"本轮**无法执行**——落地待共享工作树恢复。
+
+**2026-09-26/27 Stage-6（窗口/线程右尺寸 + 参考向量链收口）**——**本目录仍是一件未动**，但有两项要先知道：
+
+1. **口径变了（已进口径层，未随包）**：序列窗口 512 → **128**（`dense_asset.maxLen` 与端侧
+   `DENSE_MAX_SEQUENCE_LENGTH`），端侧推理线程 2 → **`min(4, 核数)`**（`DenseQueryEncoder.resolveEncoderThreads`，
+   装配点 `DenseRecallAssembly` 显式传）。**随包件仍是 512 窗口的那一份**（`015b2315…`），所以现在端侧跑的是
+   "按 128 截断 + 右 PAD 到 512"——**结果正确但白算 4 倍**（宿主 p50：小档 2552ms → 128 窗口件 590ms）。
+   128 窗口的小档新件已过宿主对拍（min **0.999587**，n=290）备在 `build/tflite-work/`，
+   **待用户一句话批准后可单独提交**（提交动作 = `convert_onnx_to_tflite.py --model bge-small-zh-v1.5
+   --seq-len 128 --install` + 真机硬门 + 更新本表）；真机硬门当前被共享工作树阻断。
+2. **参考向量链收口**（改的是 `build/` 中间物与 androidTest fixture 的溯源字段，**随包字节一个没动**）：
+   `int8-{docs,queries}.npy` 曾被 Stage-5 的 base 导出覆盖成 768 维，本阶段按随包小档**逐字节恢复**
+   （`e8d6e0f5…` / `fac31f0c…`），并重生成 `encoder-parity.json` 使三处逐字节自洽
+   （只动 `textSource.sha256` 一行；`vectorsFile` 封存值未变）。全表见
+   `docs/kb-stage6-report-2026-09-26.md` §4.4。

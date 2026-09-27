@@ -21,6 +21,9 @@ README §7 只能"用散文描述"这条链 —— 换件时没有可执行的�
 build/tflite-venv/Scripts/python.exe tools/dense_build/convert_onnx_to_tflite.py            # 默认档
 build/tflite-venv/Scripts/python.exe tools/dense_build/convert_onnx_to_tflite.py --install  # 并落到 assets
 build/tflite-venv/Scripts/python.exe tools/dense_build/convert_onnx_to_tflite.py --model bge-small-zh-v1.5
+# 同一档位并存多个（窗口 × 路线）产物时必须带 --work-tag，隔离 build/tflite-work/<stem>-<tag>/：
+build/tflite-venv/Scripts/python.exe tools/dense_build/convert_onnx_to_tflite.py \
+    --model bge-base-zh-v1.5 --seq-len 128 --route flatbuffer_direct_keepint8 --work-tag win128-keepint8
 ```
 
 产物：`build/tflite-work/<档>/…_float32.tflite`（onnx2tf 同时出一个 float16 变体，**不采用**：
@@ -138,13 +141,13 @@ def fold_constant_dequant(path_in: str, path_out: str) -> dict:
                      "Gather→DequantizeLinear（嵌入表）保留")
 
 
-def assert_no_flex(path) -> dict:
+def assert_no_flex(path, threads=D.DEFAULT_INTERPRETER_THREADS) -> dict:
     """断言产物里没有 Flex/CUSTOM 算子（端侧 LiteRT 不带 Flex delegate）。"""
     import collections
 
     from ai_edge_litert.interpreter import Interpreter
 
-    interpreter = Interpreter(model_path=str(path))
+    interpreter = Interpreter(model_path=str(path), **interpreter_kwargs(threads))
     interpreter.allocate_tensors()
     if not hasattr(interpreter, "_get_ops_details"):
         raise SystemExit("无法枚举产物算子（Interpreter 私有 API 变了）——**不当作已通过**")
@@ -162,7 +165,7 @@ def assert_no_flex(path) -> dict:
                                     if "int8" in np.dtype(detail["dtype"]).name))
 
 
-def inspect_weight_dtype(path) -> dict:
+def inspect_weight_dtype(path, threads=D.DEFAULT_INTERPRETER_THREADS) -> dict:
     """数一数产物里"大块 int8 张量"到底有多少元素（= 权重是不是真的以 int8 存储）。
 
     只看张量 dtype 与元素个数，不看文件大小——`flatbuffer_direct_keepint8` 的卖点是
@@ -170,7 +173,7 @@ def inspect_weight_dtype(path) -> dict:
     """
     from ai_edge_litert.interpreter import Interpreter
 
-    interpreter = Interpreter(model_path=str(path))
+    interpreter = Interpreter(model_path=str(path), **interpreter_kwargs(threads))
     interpreter.allocate_tensors()
     int8_count = 0
     int8_elements = 0
@@ -189,6 +192,21 @@ def inspect_weight_dtype(path) -> dict:
         int8_tensors.append([detail["name"], shape, elements])
     return dict(int8TensorCount=int8_count, int8Elements=int8_elements,
                 int8Tensors=sorted(int8_tensors, key=lambda row: -row[2])[:8])
+
+
+def interpreter_kwargs(threads) -> dict:
+    """`--threads` → `Interpreter(...)` 实参。
+
+    本脚本的 Interpreter 只用于**读图**（算子枚举 / dtype 直方图），不做推理，所以线程数
+    不影响这里的判定；显式设它是为了让"宿主探针一律带线程坐标"这条口径在三个脚本上一致
+    （宿主历史读数没设线程，等于把"不设 = 几线程"这个变量混进了"宿主 vs 端侧"的比值里）。
+
+    默认值 = `dense_asset.DEFAULT_INTERPRETER_THREADS`（= 4，Stage-6 判据的端侧坐标），
+    **不再依赖解释器默认**：本 venv 的绑定把 `num_threads=None` 折成 1 线程
+    （`ai_edge_litert/interpreter.py:497/520`），"不设"就是"1 线程"而不是"按硬件"。
+    `threads=None` 这条分支保留给刻意量"不设"那一列的调用方。
+    """
+    return {} if threads is None else dict(num_threads=int(threads))
 
 
 def guarded(root: Path, path: Path) -> Path:
@@ -212,6 +230,15 @@ def main() -> int:
                              "flatbuffer_direct_keepint8 = 同一条命令但保留 int8 权重存储）")
     parser.add_argument("--install", action="store_true",
                         help="转换后拷到档位的 assets 路径（core/data/src/main/assets/dense/…）")
+    parser.add_argument("--threads", type=int, default=D.DEFAULT_INTERPRETER_THREADS,
+                        help="自检/寻检用的 Interpreter 线程数（显式设 num_threads）。"
+                             "默认 %d（与另两个宿主探针同源：dense_asset.DEFAULT_INTERPRETER_THREADS）；"
+                             "本脚本不推理，这个值只影响'宿主探针一律带线程坐标'这条口径"
+                             % D.DEFAULT_INTERPRETER_THREADS)
+    parser.add_argument("--work-tag", default=None,
+                        help="工作目录后缀：产物落到 build/tflite-work/<stem>-<tag>/out/。"
+                             "同一档位要并存多个（窗口 × 路线）产物时必须给，否则 out/ 里会"
+                             "同时留着多份 *_float32.tflite，'应恰好产出一个'的断言当场红")
     args = parser.parse_args()
     root = D.repo_root(args.repo_root)
     profile = D.model_profile(args.model)
@@ -220,9 +247,11 @@ def main() -> int:
     source = root.joinpath(*D.model_paths(profile)["int8"].split("/"))
     if not source.is_file():
         raise SystemExit("缺 int8 ONNX %s（先跑 export_bge_int8.py --model %s）" % (source, profile["key"]))
-    print("档位=%s（dim=%d seq=%d 路线=%s）" % (profile["key"], profile["dim"], seq_len, route))
+    print("档位=%s（dim=%d seq=%d 路线=%s 线程=%s）"
+          % (profile["key"], profile["dim"], seq_len, route, args.threads))
 
-    work = guarded(root, root / "build" / "tflite-work" / profile["modelStem"])
+    stem = profile["modelStem"] + ("-" + args.work_tag if args.work_tag else "")
+    work = guarded(root, root / "build" / "tflite-work" / stem)
     out_dir = guarded(root, work / "out")
     work.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -256,7 +285,7 @@ def main() -> int:
             raise SystemExit("应恰好产出一个 *_dynamic_range_quant.tflite，实测 %r"
                              % [p.name for p in produced])
         tflite = produced[0]
-        inspection = assert_no_flex(tflite)
+        inspection = assert_no_flex(tflite, threads=args.threads)
         print("产物算子自检：无 Flex/CUSTOM；算子总数 %d；int8 张量 %d 个；输入 %s；输出 %s"
               % (inspection["opCount"], inspection["int8TensorCount"],
                  inspection["inputs"], inspection["output"]))
@@ -302,7 +331,7 @@ def main() -> int:
         if route == "flatbuffer_direct_keepint8":
             # 这条路线的卖点就是"权重以 int8 存储"——必须从产物本身读出大块 int8 张量，
             # 否则说明折叠又发生了（体积会回到 fp32 量级）。当场断言，不靠肉眼。
-            int8_info = inspect_weight_dtype(tflite)
+            int8_info = inspect_weight_dtype(tflite, threads=args.threads)
             print("int8 存储自检：int8 张量 %d 个 / %d 个元素（%.1f MiB）"
                   % (int8_info["int8TensorCount"], int8_info["int8Elements"],
                      int8_info["int8Elements"] / 2**20))

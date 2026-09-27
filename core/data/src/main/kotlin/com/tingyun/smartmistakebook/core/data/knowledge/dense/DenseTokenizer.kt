@@ -27,7 +27,8 @@ package com.tingyun.smartmistakebook.core.data.knowledge.dense
  *    （标点**独立成段**，保留）；
  * 6. WordPiece：单段码点数 > 100 ⇒ 整段 `[UNK]`；否则"最长匹配 + `##` 续接前缀"贪心切分，
  *    任一步匹配不到 ⇒ 整段 `[UNK]`（不是部分 `[UNK]`）；
- * 7. 后处理 + 截断：`[CLS] + ids + [SEP]`，总长 ≤ 512（特殊符**占额度**；实测 513 字中文 ⇒ 512）。
+ * 7. 后处理 + 截断：`[CLS] + ids + [SEP]`，总长 ≤ [DENSE_MAX_SEQUENCE_LENGTH]（特殊符**占额度**；
+ *    实测 2000 字中文 ⇒ 窗口长）。窗口是**端侧与离线共用的那个数**，见该常量的说明。
  *
  * 空串/纯空白输入在参考实现里没有定义（tokenizers 后端对 `""` 直接 `TypeError`），端侧只要求
  * **不崩**：归一化后无段 ⇒ 返回 `[CLS][SEP]`（纯空白输入与参考行为一致）。
@@ -77,8 +78,9 @@ internal class DenseTokenizer(
     /**
      * 编码 + 右侧 PAD 到 [length]（定长输入后端用）。
      *
-     * [length] 不许小于本串编码长度：定长模型比 512 短时**不截断后假装对齐**——那会让端侧
-     * 输入与参考口径不一致而不报错（调用方按"模型的定长 < 512"直接判不可用）。
+     * [length] 不许小于本串编码长度：定长模型比窗口短时**不截断后假装对齐**——那会让端侧
+     * 输入与参考口径不一致而不报错（调用方按"模型的定长 < [DENSE_MAX_SEQUENCE_LENGTH]"
+     * 直接判不可用；见 [LiteRtDenseQueryEncoder.open] 的 require）。
      */
     fun encodePadded(text: String, length: Int): IntArray {
         val ids = encode(text)
@@ -222,8 +224,17 @@ internal const val MASK_TOKEN = "[MASK]"
 internal const val CONTINUING_SUBWORD_PREFIX = "##"
 internal const val MAX_INPUT_CHARS_PER_WORD = 100
 
-/** 序列上限（含 `[CLS]`/`[SEP]`）：bge-small-zh-v1.5 的 `max_position_embeddings`。 */
-internal const val DENSE_MAX_SEQUENCE_LENGTH = 512
+/**
+ * 序列窗口（含 `[CLS]`/`[SEP]`）：**端侧与离线共用的那一个数**。
+ *
+ * - 词表侧的上限是模型自己的 `max_position_embeddings` = 512，端侧**不再**按它截断；
+ * - Stage-6 右尺寸定为 **128**（实测：金标查询含前缀的 token 上限 81、语料上限 26，
+ *   128 = 81 × 1.6 余量；窗口由冻结件定长决定，缩小它直接削掉按窗口比例白算的 PAD）；
+ * - 三处必须同步改：本常量、`tools/dense_build/dense_asset.py` 的 `maxLen`（离线截断 +
+ *   转换 `--seq-len` 默认）、随包 `.tflite` 的定长（由 `freeze_onnx_static.py` 冻结）。
+ *   [LiteRtDenseQueryEncoder.open] 会拒绝"定长 < 本常量"的模型件，即拒绝静默截断。
+ */
+internal const val DENSE_MAX_SEQUENCE_LENGTH = 128
 
 /** 参考 tokenizer 的特殊符（added vocabulary）：`special_tokens_map.json` 的 5 个。 */
 internal val SPECIAL_TOKENS = listOf(CLS_TOKEN, SEP_TOKEN, UNK_TOKEN, PAD_TOKEN, MASK_TOKEN)

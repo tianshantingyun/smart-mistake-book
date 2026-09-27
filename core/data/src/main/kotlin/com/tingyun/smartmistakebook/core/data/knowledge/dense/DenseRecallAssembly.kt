@@ -120,10 +120,16 @@ object DenseRecallAssembly {
             return DenseVectorAsset.read(bytes, expectedSha256 = VECTOR_ASSET_SHA256)
         }
 
+        /**
+         * 生产装配点：线程数**显式**交给编码器（口径来源仍是
+         * [LiteRtDenseQueryEncoder.DEFAULT_THREADS]，这里只是把它摆在装配点上让"端侧跑几线程"
+         * 一眼可见、A/B 时只动这一处形参）。Stage-6 前这里不传 ⇒ 恒 2 线程。
+         */
         private fun loadEncoder(): DenseQueryEncoder = LiteRtDenseQueryEncoder.openFromAssets(
             context = context,
             assetPath = MODEL_ASSET_PATH,
             tokenizer = tokenizer(),
+            threads = LiteRtDenseQueryEncoder.DEFAULT_THREADS,
         )
 
         private fun readResourceBytes(path: String): ByteArray {

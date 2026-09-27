@@ -48,16 +48,22 @@ python tools/dense_build/gen_tokenizer_fixture.py          # 写 fixture + 打�
 脚本内自证（不通过即 SystemExit，不落盘）：
 - 词表 sha256 == `dense_asset.VOCAB_SHA256`、tokenizer.json sha256 == `TOKENIZER_JSON_SHA256`；
 - 90 条查询**按 export_bge_int8.py 的批式口径**（`padding=True, truncation=True,
-  max_length=512` 一次 64 条）编码后剥掉尾部 PAD，逐条等于本 fixture 的单条形式
+  max_length=maxLen` 一次 64 条）编码后剥掉尾部 PAD，逐条等于本 fixture 的单条形式
   —— 证明 fixture 记的不是"另一套调用"。
 
-## 换件后要不要重生成（Stage-5，2026-09-25 实测）
+## 换件后要不要重生成（Stage-5，2026-09-25 实测 / Stage-6 补）
 
-**不用。** 换到 bge-base-zh-v1.5 后本 fixture 一字不改仍成立，两条实测依据：
+**换模型档位不用**。换到 bge-base-zh-v1.5 后本 fixture 一字不改仍成立，两条实测依据：
 1. 两档 vocab.txt **逐字节相同**（sha256 `45bbac6b…`）⇒ WordPiece 词表同一份；
 2. 用 bge-base 的 tokenizer（`do_lower_case=true` = 包内 `sentence_bert_config.json`）
    重编码本 fixture 的**全部 333 条**（query 90 / surface 200 / edge 18 / stage 25），
    与冻结 ids **逐条相同**（`export_bge_int8.py` 在换档导出时当场断言，不一致即停）。
+
+**改序列窗口要重生成**（Stage-6，512 → 128）：`ids` 里的截断口径就是这个窗口，6 条截断探针
+（`e_long_cjk_509/510/511/512/513/2000`）的期望值当场变（509 → 511 变 128；510 及以上从
+"截到 512"变"截到 128"）。其余 327 条不受影响（实测 query 上限 81 / surface 上限 26 < 128）。
+窗口来自 `dense_asset.MODEL_SHARED["maxLen"]`——它就是端侧 `DENSE_MAX_SEQUENCE_LENGTH` 的
+对应物，本脚本不再写死第二个数（写死过一次：header 里的 `max_length=512`）。
 """
 from __future__ import annotations
 
@@ -278,7 +284,8 @@ def main():
         % __import__("transformers").__version__,
         "# normalizer=BertNormalizer(clean_text=True, handle_chinese_chars=True, strip_accents=False, lowercase=True)",
         "# pre_tokenizer=BertPreTokenizer()  model=WordPiece(prefix=##, unk=[UNK], max_input_chars_per_word=100)",
-        "# post_processor=TemplateProcessing([CLS] $A [SEP])  截断=truncation max_length=512（含特殊符）",
+        "# post_processor=TemplateProcessing([CLS] $A [SEP])  截断=truncation max_length=%d（含特殊符）"
+        % D.BGE_MAX_LEN,
         "# 列：kind \\t caseId \\t meta \\t text \\t ids(空格分隔) \\t tokens(\\u0001 分隔；text/tokens 转义 \\\\ \\t \\n \\r)",
         "# 词表 sha256=%s" % vocab_sha,
         "# tokenizer.json sha256=%s" % tokenizer_json_sha,
@@ -305,7 +312,7 @@ def main():
             preTokenizer="BertPreTokenizer()",
             model="WordPiece(continuing_subword_prefix=##, unk_token=[UNK], max_input_chars_per_word=100)",
             postProcessor="TemplateProcessing(single=[CLS]:0 $A:0 [SEP]:0)",
-            truncation="truncation=True, max_length=512（含 [CLS]/[SEP]）",
+            truncation="truncation=True, max_length=%d（含 [CLS]/[SEP]）= 序列窗口" % D.BGE_MAX_LEN,
             padding="padding=True（批式；fixture 记录剥掉尾部 PAD 的单条形式）",
             backendVersion=__import__("tokenizers").__version__,
         ),

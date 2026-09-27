@@ -13,7 +13,7 @@
     "preTokenizer": "BertPreTokenizer()",
     "model": "WordPiece(continuing_subword_prefix=##, unk_token=[UNK], max_input_chars_per_word=100)",
     "postProcessor": "TemplateProcessing(single=[CLS]:0 $A:0 [SEP]:0)",
-    "truncation": "truncation=True, max_length=512（含 [CLS]/[SEP]）",
+    "truncation": "truncation=True, max_length=128（含 [CLS]/[SEP]）= 序列窗口",
     "padding": "padding=True（批式；fixture 记录剥掉尾部 PAD 的单条形式）",
     "backendVersion": "0.23.2"
   },
@@ -52,12 +52,12 @@
   "files": {
     "cases": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-cases.txt",
-      "sha256": "3e68c577ec1d647e0809edbfeeeec0f26da15af685c852454fedbae2aeb6751b",
+      "sha256": "5f7169cad6428eb49d2f738821df870d0da85c7fda71ee774685d5372cd6af8c",
       "rows": 333
     },
     "stages": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-stages.txt",
-      "sha256": "4f14579b8d67bc43bc9b8afd12dadf0c9bd90c1649545bc0f355dcf491da1703",
+      "sha256": "5b9ad5fbf72f6b4cbf046d5479f8759810f1704e368678db1ce4d445dd006d5c",
       "rows": 68
     }
   }

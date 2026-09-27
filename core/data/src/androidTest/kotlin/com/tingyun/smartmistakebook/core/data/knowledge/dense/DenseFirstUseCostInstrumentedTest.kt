@@ -80,7 +80,8 @@ class DenseFirstUseCostInstrumentedTest {
 
         // ---- Stage-5 延迟探针：同一查询串重复编码 N=10（口径 = `DenseEncoderParityInstrumentedTest`
         // 的"单条编码耗时"：`LiteRtDenseQueryEncoder.encode` → 端侧分词 + LiteRT 推理 + L2 归一，
-        // 走生产同一入口 `openFromAssets`（assets mmap）、同一 2 线程设置）----
+        // 走生产同一入口 `openFromAssets`（assets mmap）、同一**生产默认线程数**
+        // （Stage-6 起 = `resolveEncoderThreads(核数)` = min(4, 核数)，旧值是常量 2）----
         val encodeMillis = mutableListOf<Long>()
         repeat(ENCODE_REPEATS) { index ->
             val started = SystemClock.elapsedRealtimeNanos()
@@ -103,7 +104,7 @@ class DenseFirstUseCostInstrumentedTest {
             "机型=" + Build.MODEL + " sdk=" + Build.VERSION.SDK_INT + " abi=" +
                 Build.SUPPORTED_ABIS.first() + " 宿主报告核数=" +
                 Runtime.getRuntime().availableProcessors() + " LiteRT线程数=" +
-                LiteRtDenseQueryEncoder.DEFAULT_THREADS,
+                LiteRtDenseQueryEncoder.DEFAULT_THREADS + "（= min(" + MAX_ENCODER_THREADS + ", 核数)）",
         )
         println("逐样本(ms)=" + encodeMillis.joinToString(","))
         println(

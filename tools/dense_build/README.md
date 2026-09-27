@@ -492,3 +492,207 @@ vs 小档 **2,582 ms**（比值 **6.75×** = 两档 FLOPs 比），按小档"宿
 （回退清单 0 个文件），判据③（门重定标）未触发、旧门一字未改。落地待共享工作树恢复：
 本轮 Kotlin 侧编译/测试被另一条会话在 `core/database` 的飞行改动阻断（KSP `MissingType`），
 "换件后必跑的真机硬门"因此无法执行（UNVERIFIED，外部阻塞）。
+
+## 9. Stage-6（2026-09-26）：序列窗口右尺寸（512 → 128）+ 宿主线程坐标
+
+### 9.1 为什么动窗口：right-size 到实测需求
+
+现役两档一律把查询 PAD 到 512，而**真实 token 数远小于窗口**（本轮实测，同一份冻结 tokenizer）：
+
+| 输入 | n | p50 | p95 | max |
+|---|---|---|---|---|
+| 金标查询（含 BGE 查询前缀） | 90 | 55 | 70.5 | **81** |
+| 语料 surface（fixture 抽样 200 条） | 200 | 14 | 21 | **26** |
+
+⇒ 512 窗口下查询只有 ~11% 的位置是真 token（**89% 是 PAD，全部白算**）；窗口取
+**128 = 81 × 1.6 余量**（2 的幂，转换链/后端对长度友好）后真 token 占比升到 ~43%。
+
+**三个口径必须是同一个数，改一处即三处一起动**：`dense_asset.MODEL_SHARED["maxLen"]`
+（离线分词截断 + `--seq-len` 默认）、随包 `.tflite` 的冻结定长、端侧 Kotlin 常量
+`DENSE_MAX_SEQUENCE_LENGTH`（`DenseTokenizer.kt`；`LiteRtDenseQueryEncoder.open` 拒绝
+"定长 < 它"的件 = 拒绝静默截断）。**本轮的随包件仍是 512 窗口**（换件/冻结件落地时才换），
+所以 `.vec.json` 旁车与 `model-manifest.json` 里记的 `maxLen: 512` 描述的是**随包字节**
+（不要按它去改端侧口径）；`check_asset.py` 的 10 道门与本轮一致（不读 maxLen）。
+改窗口后 fixture 的 6 条截断探针按新窗口重生成（333 条：query 90 / surface 200 / edge 18 /
+stage 25，条数不变），两档 tokenizer × 新 fixture **逐条同 id**（复算
+`build/stage6_fixture_crosscheck.py`）——这条正是 `export_bge_int8.py:assert_tokenizer_matches_frozen`
+的断言口径。
+
+### 9.2 窗口缩小是"数值同一性"，不是"近似"（实测）
+
+同一份 int8 ONNX、同一批 290 条 fixture 行（query 90 + surface 200；新窗口下 ids 全部 ≤ 128），
+逐条按"右 PAD 到窗口 + 掩码 + token_type_ids 全 0"编码两次（窗口 512 / 窗口 128）：
+**逐条 1-cos max = 1.0e-12、mean = 1.0e-12**（两档都是；等于位同，远低于判读线 1e-6）。
+⇒ attention mask 在位时右 PAD 不影响结果，"窗口缩小 = 只省白算"这件事成立。
+**6 条截断探针**（`e_long_cjk_509/510/511/512/513/2000`）是**设计内**的语义变化（旧窗口
+ids 长 512、新窗口 128），单独列出：1-cos ≈ 0.06–0.08（cosine ≈ 0.92–0.94），不算数值抖动。
+复算：`build/stage6_refvec_window.py`（读数 `build/stage6/refvec-window-*.json`）。
+
+### 9.3 新窗口的对拍（硬门 ≥0.999，全量 290 条）
+
+| 件 | 体积 | tflite vs int8 ONNX（n=290） | 对齐自证 |
+|---|---|---|---|
+| 小档 keepint8 win128 | 22.8 MiB | **min 0.999587** / 中位 0.999783 | 0.999146（跨臂参考，见下） |
+| 小档 flatbuffer_direct win128 | 58.8 MiB | **min 0.999587** / 中位 0.999783 | 0.999146 |
+| base keepint8 win128 | 126.0 MiB | **min 0.999778** / 中位 0.999897 | 0.999918 |
+| base flatbuffer_direct win128 | 340.8 MiB | **min 0.999778** / 中位 0.999897 | 0.999918 |
+
+两条路线的数**逐位相同**（不同字节、不同体积的件给出同一组 cosine）——与"`keepint8` 只是
+把 int8 权重留在 flatbuffer 里、算式与 int8 ONNX 同一条"这个设计一致。
+
+**小档的对齐自证用的是 Stage-2 离线臂** `build/stage2-dense-work/vectors/bge-queries.npy`
+（fp32 torch，独立臂；manifest 记 0.99919）：`build/dense-model/int8-queries.npy` 这个文件名
+**两档共用**，Stage-5 换件导出后里面是 base 档（768 维）的，小档那份已被覆盖 ⇒ 小档没有同档
+int8 npy 可对。`check_tflite_parity.py` 现在**按维度闸住**跨档对拍（`--frozen-queries` 显式指路），
+不再可能拿错档的 npy 静默比出低 cosine。
+
+### 9.4 宿主 A/B 矩阵（p50 ms，n=12，逐条 + 右 PAD + 掩码 + token_type_ids 全 0）
+
+`build/stage6_host_matrix.py`（探针函数在 `build/latency_probe.py`，两者共用一份实现）：
+
+| 档 / 路线 | 窗口 | 体积 | 1 线程 | 2 | 4 | 8 | 512→128 |
+|---|---|---|---|---|---|---|---|
+| 小档 / flatbuffer_direct | 512 | 59.5 MiB | 2536 | 2541 | 2522 | 2541 | **4.42×** |
+| 小档 / flatbuffer_direct | 128 | 58.8 MiB | 566 | 569 | **571** | 567 | |
+| 小档 / keepint8 | 512 | 23.0 MiB | 2554 | 2553 | 2552 | 2571 | **4.32×** |
+| 小档 / keepint8 | 128 | 22.8 MiB | 614 | 592 | 590 | 597 | |
+| base / flatbuffer_direct | 512 | 342.0 MiB | 16868 | 16887 | 17167 | 17440 | **4.38×** |
+| base / flatbuffer_direct | 128 | 340.8 MiB | 3926 | 3947 | **3920** | 3921 | |
+| base / keepint8 | 512 | 126.2 MiB | 16946 | 16926 | 17024 | 17005 | **4.18×** |
+| base / keepint8 | 128 | 126.0 MiB | 4108 | 4160 | **4076** | 4096 | |
+
+三条读数（本轮同一时刻、同一负载下量）：
+
+1. **窗口是有效的杠杆，且对两档两条路线一致**：512→128 的 p50 比 **4.18–4.42×**（与
+   "512/128 = 4"的白算比例同量级；宿主上这两条路线的成本都近似正比于窗口）。
+   历史读数也被复现：小档 `flatbuffer_direct`@512 = 2,522–2,541ms（旧记 2,545/2,570）、
+   base `keepint8`@512 = 16,926–17,024ms（旧记 16,843/17,437）。
+2. **线程在宿主上不可解析**（**不是**"4 线程没用"）：本机 `ai_edge_litert` 的 Interpreter
+   把这张图**串行**执行——`num_threads` 是真参数（签名已核），但 1 线程与 8 线程的
+   `cpu/wall` 都是 **0.99–1.00**（8 线程没有用上第二个核），所以 1/2/4/8 四列的差 ≤5%
+   全是噪声（venv 里没有 XNNPACK 动态库；端侧真机是 XNNPACK 开，这条只能在真机上量）。
+3. **base/small 的比值不随窗口变**：512 下 6.6–6.9×、128 下 6.9–7.0×（两档同比例受益）。
+   按小档历史"宿主 2,545ms → 真机 71ms（≈36×）"外推，base@128 真机 ≈ **110ms**
+   （**外推，真机数不存在**）⇒ 判据的绝对线（≤400ms）看起来有余量，但**"≤3× 小档"这条
+   按宿主比值（≈6.9×）不达**——窗口右尺寸改不了"模型大 6.75 倍"这件事。
+
+**哪条路线哪一档最快（4 线程、窗口 128，宿主）**：小档 `flatbuffer_direct` = **571ms**（全场最快）；
+base 档 `flatbuffer_direct` = 3920ms，比 base `keepint8`（4076ms）快 **3.8%**（在噪声量级内），
+但它 **340.8 MiB vs 126.0 MiB**。⇒ 宿主上两条路线**打平**，路线选择由体积决定 ⇒ 可发货组合是
+**base / keepint8 / 窗口 128**（126.0 MiB、4.076s、对拍 min 0.999778）。
+
+### 9.5 本轮新增/改动的脚本参数（都用显式线程坐标，避免"宿主没设线程"的老坑）
+
+| 脚本 | 新增 | 作用 |
+|---|---|---|
+| `convert_onnx_to_tflite.py` | `--threads` / `--work-tag` | 自检/寻检的 Interpreter 显式线程（**默认 = `dense_asset.DEFAULT_INTERPRETER_THREADS` = 4**，不再依赖解释器默认）；`--work-tag` 把产物落到 `build/tflite-work/<stem>-<tag>/`，让同一档位的多个（窗口 × 路线）产物并存（否则 out/ 里多份 `*_float32.tflite` 会让"应恰好产出一个"当场红） |
+| `check_tflite_parity.py` | `--threads` / `--max-len` / `--frozen-queries` | 对拍侧的线程与窗口坐标（**`--threads` 默认 4**）；跨档 npy 的显式指路 + 维度闸 |
+| `latency_probe.py`（build/，scratch） | `--threads` / `--window` / `--n` | 单件耗时（**`--threads` 默认 4**）；`--window` 必须等于模型定长，不符即报错（拒绝量错窗口） |
+
+### 9.6 线程右尺寸（WP2，2026-09-27）：端侧 2 → `min(4, 核数)`，宿主默认值显式化
+
+**端侧（改的是行为）**：`DenseQueryEncoder.kt` 的 `DEFAULT_THREADS = 2`（硬编码 且 生产装配
+不传）换成纯函数 `resolveEncoderThreads(核数)` = `min(4, 核数)`（下限 1）；线程数在
+`open`/`openFromAssets` 上显式参数化，唯一生产装配 `DenseRecallAssembly.loadEncoder` 按名字
+把同一值传下去（口径只有一处来源，装配点一眼可见）。**可调点 = 那一处**（或用调用侧的
+`threads =` 形参做真机 A/B）。JVM 门：`DenseEncoderThreadsTest`（上限/跟随核数/异常核数/默认=解析值
+四条）——模型推理的 `.so` 不在 JVM 里，端侧这条解析以前只有仪表化才跑得到，而仪表化只打印不断言。
+
+**宿主（只改读数口径，不改任何判定）**：三个探针的 `--threads` 默认值从"不设"改成显式的
+`dense_asset.DEFAULT_INTERPRETER_THREADS` = 4（= 判据的端侧坐标，也是本机 32 核下
+`min(4, 核数)` 的解析值）。**"不设"到底是几线程**：不是"按硬件并发"，而是 **1 线程**——
+本 venv 的 Python 绑定把 `num_threads=None` 折成 `int(num_threads or 1)` 再交给 C++ wrapper
+（`ai_edge_litert/interpreter.py:497`、`:520`，本轮读源码复核），所以复现 Stage-5/6 历史读数写
+`--threads 1`（与"不设"逐字节等价）。§9.5 里"按硬件并发"的旧说法据此纠正。
+
+**"生效"是怎么证的（本轮实测，不是读代码推断）**：对三个探针分别传非法值 `--threads 0`，
+绑定在 `Interpreter(...)` 构造处直接抛 `ValueError: num_threads should >= 1`
+（`check_tflite_parity.tflite_vectors` / `convert.assert_no_flex` / `convert.inspect_weight_dtype`
+/ `latency_probe.bench` 四处都实测到）——只有该值真的进了 `Interpreter(num_threads=…)` 才可能抛。
+
+**独立复量（WP2，`build/stage6/wp2_thread_matrix.py` → `wp2-thread-matrix.json`）**：同一坐标
+（win128 / keepint8 / n=12 / 同一个 `latency_probe.bench`）重跑一遍 {2,4,8}，与 §9.4 的 WP1 矩阵对照：
+
+| 档 | WP2 2 线程 | 4 | 8 | WP1（2 / 4 / 8） |
+|---|---|---|---|---|
+| 小档 keepint8 win128 | 609 | 614 | 602 | 592 / 590 / 597 |
+| base keepint8 win128 | 4233 | 4223 | **4504** | 4160 / 4076 / 4096 |
+| base/small 比值 | 6.95× | 6.88× | 7.49× | 7.03× / 6.90× / 6.86× |
+
+两次的差（小档 ≤3%、base ≤10%）就是宿主负载噪声的量级（量的时候另一会话在同时跑 Gradle）⇒
+**"宿主线程列不可解析"这条结论复现了**，不是单次量的偶然；能用的只有比值（≈6.9×）。
+
+**这条改动的边界（诚实说明）**：§9.4 第 2 条已实测"线程在宿主上不可解析"（本机 `ai_edge_litert`
+把这张图基本串行执行，1/2/4/8 四列差 ≤5% 全是噪声，venv 无 XNNPACK）⇒ §9.4 那张表的线程列
+**不能**用来判断"端侧 4 线程比 2 线程快多少"。端侧 {2,4,8} 的真机差值与判据线（≤400ms、≤3× 小档）
+**本轮没有量**（真机件不在本轮手上；判据 ② 的判定要在设备上做）。
+
+**本轮产物坐标**（全部在 `build/`，不入库；`--work-tag` 见目录名）：
+
+| 件 | 路径（`build/tflite-work/`） | 体积 | sha256 |
+|---|---|---|---|
+| 小档 keepint8 win128 | `bge-small-zh-v1.5-win128-keepint8/out/static-128-sim_float32.tflite` | 23,893,696 B | `bae00209accfd349…` |
+| 小档 flatbuffer_direct win128 | `bge-small-zh-v1.5-win128-fbdir/out/static-128-sim_float32.tflite` | 61,608,136 B | `056d4262b59f93b2…` |
+| base keepint8 win128 | `bge-base-zh-v1.5-win128-keepint8/out/static-128-sim_float32.tflite` | 132,078,768 B | `77336c93589d1ddc…` |
+| base flatbuffer_direct win128 | `bge-base-zh-v1.5-win128-fbdir/out/static-128-sim_float32.tflite` | 357,403,856 B | `5ca07c7af8523e82…` |
+| 小档 keepint8 win512 | `bge-small-zh-v1.5-win512-keepint8/out/static-512-sim_float32.tflite` | 24,092,224 B | `04951eae2f358c1b…` |
+| base flatbuffer_direct win512 | `bge-base-zh-v1.5-win512-fbdir/out/static-512-sim_float32.tflite` | 358,585,424 B | `0724776809e2d3b2…` |
+
+源件哈希两次断言未变（`bge-small…int8.onnx` `4d3b3135…` / `bge-base…int8.onnx` `1994768d…`）。
+
+**未落地**（随包侧一件未动）：随包件（仍是 512 窗口的那一份）、`.vec`/旁车、清单顶层镜像保持原样——
+换件动作（`convert --install` + 真机硬门 + 旁车/镜像更新）留到用户批准或换档落地那一步。
+参考向量链的收口（被 base 导出覆盖的 `int8-*.npy` 恢复成**随包小档**、fixture 重生成到逐字节自洽）
+**已在本阶段完成**，见 §9.8。
+
+### 9.7 三条方法学修正（本阶段定稿；本目录的宿主读数都按这三条读）
+
+1. **宿主探针必须显式设线程**："不设"不是"按硬件并发"，而是 **1 线程**——`ai_edge_litert` 的 Python 绑定把
+   `num_threads=None` 折成 `int(num_threads or 1)`（`interpreter.py:497/520`）。三个探针的默认值统一到
+   **一处来源** `dense_asset.DEFAULT_INTERPRETER_THREADS = 4`（= 判据的端侧坐标，也是 `min(4, 核数)` 的解析值）；
+   复现 Stage-5/6 的历史读数写 `--threads 1`（与本绑定下的"不设"逐字节等价）。**动过这条之后，
+   "宿主比值外推真机"这条链上才只有一个线程坐标**；端侧同一条修正见 §9.6（`DEFAULT_THREADS` 2 → `min(4,核数)`）。
+2. **窗口必须右尺寸**：512 窗口下 90 条金标查询的真 token 占比只有 **10.8%**（实测分布：query p50 55 /
+   p95 70.5 / max 81；surface p95 21 / max 26），窗口取 **128 = 81 × 1.6**（2 的幂）⇒ 占比升到 43.2%，
+   宿主 p50 的 512→128 比 **4.16–4.48×**（§9.4）。缩窗口**不是近似**：同一份 ONNX、同一批 290 行、
+   掩码在位，两种 PAD 宽度的输出**逐字节相同**（290/290；本阶段复算 `build/stage6_npy_diag.py`，
+   读数 `build/stage6/wp5-npy-diag.log`）。设计内的例外只有 6 条截断探针（`edge`，不在金标查询里）。
+3. **内存不设门**：本阶段判据只有质量（≥0.7444）与延迟（≤400ms 且 ≤3× 小档同口径），体积**只报告**
+   （22.8 MiB / 59.5 MiB / 126.0 MiB / 340.8 MiB 四档见 §9.4）。把体积做成门，会把"延迟不达 / 真机未测"
+   的否决理由替换成一个任务书里没有的判据。
+
+**三条的边界**：第 1 条只改**读数口径**（不改任何判定），第 2 条改的是三个口径共用的那个数（§9.1），
+第 3 条是**不做判定**的声明。宿主线程列仍然不可解析（本机绑定把这张图基本串行执行，1/2/4/8 差 ≤5%）——
+第 1 条的作用是"读数有坐标"，**不是**"线程有效用"；端侧线程收益只能真机量。
+
+### 9.8 收口（WP5）：参考向量的三处逐字节自洽 + 随包侧一件未动
+
+**污染**：`core/data/src/androidTest/assets/dense/encoder-parity.json` 记的参考向量 sha
+（小档 `fac31f0c…` / `e8d6e0f5…`）与 `build/dense-model/int8-{docs,queries}.npy` 的**实际** sha
+（768 维 **base** 档 `cbbc989e…` / `e527608c…`）不一致——Stage-5 的 base 导出把这两个**两档共用文件名**的
+ndarray 覆盖了，而**没有任何门会红**（仪表化测试只比 cosine、不校验 npy 的维度/sha；
+`check_tflite_parity.py` 的维度闸只拦"拿 npy 去对拍"那条路，不拦 fixture 的溯源字段）。
+
+**收口动作**（本阶段结局 = 未换档 ⇒ 按"一次导出只有一个有效档"把 npy 恢复成**随包小档**）：
+`build/stage6_restore_small_npy.py`（逐行镜像 `export_bge_int8.py` 产 npy 的那几段：BATCH_SIZE=64 的
+`padding=True / truncation=True / max_length=maxLen` 分词 + ORT 跑 int8 ONNX + torch CLS+L2 参考；
+**不重导出 ONNX、不重量化、不写清单**；脚本内钉死"小档 int8 ONNX 的 sha 必须是 `4d3b3135…`，否则拒绝重算"）
+⇒ **逐字节复现原 sha**（int8-vs-torch 的读数 `0.9990096092224121` / `0.9991949796676636` 也与清单里记的小档值
+逐位相同 ⇒ 不是"另算一份能过门的"）：
+
+| 文件 | 收口后 sha256（本轮实测） | 关系 |
+|---|---|---|
+| `build/dense-model/int8-docs.npy`（28,931×512） | `e8d6e0f5630bf1f1…`（污染时是 768 维的 `e527608c…`） | = json `referenceVectors.docs.sha256` ✅ |
+| `build/dense-model/int8-queries.npy`（90×512） | `fac31f0c29c14a7e…`（污染时是 768 维的 `cbbc989e…`） | = json `referenceVectors.queries.sha256` ✅ |
+| `build/dense-model/fp32-docs.npy` / `fp32-queries.npy` | `8a364c05557836ac…` / `3f84b78e6f353887…` | 与 Stage-2 离线臂 `bge-{docs,queries}.npy` **逐字节相同** |
+
+**fixture 重生成**（`python tools/dense_build/gen_device_parity_fixture.py --model bge-small-zh-v1.5`）后
+`git diff` **只有一行**：`textSource.sha256` `3e68c577…` → `5f7169ca…`（§9.1 改窗口后 tokenizer fixture 变了）；
+`vectorsFile`（`c4e82beb…`）、`casesFile`（`425d08d0…`）、`referenceVectors`、行对齐自检 `min`
+（`0.999999881`，floor 0.9999）**全部未变** ⇒ 端侧对照的封存值没换，真机硬门的比对对象没变。
+
+**随包侧一件未动**：`bge-small-zh-v1.5-int8.tflite` 62,396,488 B / `015b2315…`（= §9.4 矩阵里
+`small / flatbuffer_direct / win512` 那一格，逐字节相同）、`.vec` + 旁车 `cdf93650…`、清单顶层镜像
+`maxLen: 512`（它描述的是**随包字节**）；`check_asset.py` **10 道门全 OK**。base 的四份 npy 在覆盖前
+原样备份到 `build/backup-stage6-wp5/base-polluted-*.npy`。全表与复核命令见
+`docs/kb-stage6-report-2026-09-26.md` §4.4 与 §7。

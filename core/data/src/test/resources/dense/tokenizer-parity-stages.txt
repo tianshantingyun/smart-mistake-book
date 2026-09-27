@@ -2,7 +2,7 @@
 # 参考实现：transformers 5.17.0 的 BertTokenizer == TokenizersBackend
 # normalizer=BertNormalizer(clean_text=True, handle_chinese_chars=True, strip_accents=False, lowercase=True)
 # pre_tokenizer=BertPreTokenizer()  model=WordPiece(prefix=##, unk=[UNK], max_input_chars_per_word=100)
-# post_processor=TemplateProcessing([CLS] $A [SEP])  截断=truncation max_length=512（含特殊符）
+# post_processor=TemplateProcessing([CLS] $A [SEP])  截断=truncation max_length=128（含特殊符）
 # 列：kind \t caseId \t meta \t text \t ids(空格分隔) \t tokens(\u0001 分隔；text/tokens 转义 \\ \t \n \r)
 # 词表 sha256=45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c
 # tokenizer.json sha256=48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26

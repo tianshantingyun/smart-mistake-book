@@ -10,7 +10,7 @@
   },
   "textSource": {
     "path": "core\\data\\src\\test\\resources\\dense\\tokenizer-parity-cases.txt",
-    "sha256": "3e68c577ec1d647e0809edbfeeeec0f26da15af685c852454fedbae2aeb6751b",
+    "sha256": "5f7169cad6428eb49d2f738821df870d0da85c7fda71ee774685d5372cd6af8c",
     "note": "query 行含 BGE 查询前缀；surface 行是向量集原文（节点名/别名）"
   },
   "referenceVectors": {

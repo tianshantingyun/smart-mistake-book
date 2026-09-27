@@ -75,7 +75,25 @@ GOLDEN_SHA256 = "7c004b763bdd49556e11ff1c9500c9461b09a7383b77f230fa8fd35754e6ae3
 MODEL_SHARED = dict(
     license="mit（基座许可证；可再分发）",
     pooling="cls", normalize="l2", docPrefix=None,
-    maxLen=512,
+    # ---- 序列窗口（Stage-6 右尺寸：512 → 128；两档同一个值） ----
+    #
+    # 它同时是三个口径，必须是同一个数，改一处即三处一起动：
+    #   ① 离线分词截断上限（export_bge_int8.py / gen_tokenizer_fixture.py 的
+    #      `truncation max_length=maxLen`）；
+    #   ② 冻结/转换的定长（convert_onnx_to_tflite.py `--seq-len` 的默认值 = 这里）；
+    #   ③ 端侧 Kotlin 常量 `DENSE_MAX_SEQUENCE_LENGTH`（DenseTokenizer.kt：端侧按它截断，
+    #      DenseQueryEncoder 拒绝"模型定长 < 它"的件，即拒绝静默截断）。
+    # 三者一旦不同，端侧跑的就不是离线口径的输入，而且**没有任何门会红**。
+    #
+    # **为什么是 128（实测依据，2026-09-26）**：冻结 fixture 里 90 条金标查询（含 BGE 查询
+    # 前缀）的 token 上限 = **81**，200 条语料 surface 的上限 = **26**（同一份 tokenizer 实测）；
+    # 512 的窗口让每次推理有 ~4/5 的 token 位是 PAD，而端侧一律按窗口 PAD（白算）。取
+    # **128 = 81 × 1.58 ≈ 1.6× 余量**（且 128 是 2 的幂，转换链/后端对长度友好）。
+    # 窗口能否缩小到 128 的前提是"attention mask 在位 ⇒ 右 PAD 不影响前 128 位的结果"——
+    # 这条不是推断：本阶段用同一份 int8 ONNX 在窗口 512 与 128 下逐条重算参考向量，290 条
+    # × 两档的 1-cos max = 1e-12（复算 build/stage6_refvec_window.py，读数
+    # build/stage6/refvec-window-*.json）。
+    maxLen=128,
     queryPrefix="为这个句子生成表示以用于检索相关文章：",
     inputs=["input_ids", "attention_mask", "token_type_ids"],
     output="sentence_embedding",
@@ -183,6 +201,23 @@ MODEL_PROFILES = {
 # 随包资产（`.vec` / 旁车 / `.tflite` / `DenseRecallAssembly` 常量）与它保持一致；
 # 清单顶层镜像同理，只由 `export_bge_int8.py --publish` 显式改写。
 DEFAULT_MODEL_KEY = "bge-small-zh-v1.5"
+
+# ---- 宿主探针共用坐标：LiteRT `num_threads`（三个探针同一个默认值） ----
+#
+# **为什么必须显式、且只有一处**：宿主侧历史上一直"不设线程"，而"不设"的语义只存在于绑定
+# 实现里——`ai_edge_litert` 的 Python 绑定把 `num_threads=None` 折成 `int(num_threads or 1)`，
+# 即**不设 ≡ 1 线程**（venv 内 `ai_edge_litert/interpreter.py:497` 与 `:520`）。
+# 三个探针各写各的默认值 ⇒ 改口径时漏改一处，矩阵里就混进两种线程坐标而没人发现
+# （WP1 的 docstring 曾把它写成"按硬件并发"，与绑定实现不符）。
+#
+# - **4** = Stage-6 判据的端侧坐标（4 线程 + 右尺寸窗口），也是端侧
+#   `core/data/.../dense/DenseQueryEncoder.kt` 的 `resolveEncoderThreads()` 在 32 核机器上
+#   解析出的值（`min(4, availableProcessors)`）；
+# - **复现 Stage-5/6 历史读数**（那些读数是"未设"口径）：显式写 `--threads 1`
+#   ——与本绑定下的"不设"逐字节等价（同一个整数 1 进 `CreateWrapperFromFile`）。
+#
+# 只影响宿主探针的读数口径，不影响任何端侧行为。
+DEFAULT_INTERPRETER_THREADS = 4
 
 
 def model_profile(key=None) -> dict:
