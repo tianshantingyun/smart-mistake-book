@@ -33,12 +33,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tingyun.smartmistakebook.core.domain.ConfirmedMistakeOrganization
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseNotReadyException
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationPreparation
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
+import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.model.ModelEgressManifest
 import com.tingyun.smartmistakebook.core.model.ModelEgressPurpose
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
@@ -77,6 +80,11 @@ internal fun MistakeOrganizationSection(
     catalogEntries: List<StudyCatalogEntry> = emptyList(),
     onOpenRelatedMistake: (String) -> Unit = {},
     onOpenModelSettings: () -> Unit,
+    /**
+     * 知识能力就绪位（D-Q3）。未就绪时本屏不发起整理（改前是 prepare 内联触发一次安装，
+     * 首装 16.7 秒卡在这里），只如实说"准备中"；就绪后本组合自动重来一遍。
+     */
+    knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
 ) {
     val scope = rememberCoroutineScope()
     var provider by remember { mutableStateOf<ProviderCapabilitySnapshot?>(null) }
@@ -319,8 +327,18 @@ internal fun MistakeOrganizationSection(
         }
     }
 
-    LaunchedEffect(key, provider, attempt, organizationDisabledByUser, recoveryComplete) {
+    LaunchedEffect(
+        key,
+        provider,
+        attempt,
+        organizationDisabledByUser,
+        recoveryComplete,
+        // D-Q3：就绪位进 key——内容就位后本效果自动重跑，学生不必手动再点一次（"就绪后自动放行"）。
+        knowledgeBaseAvailability,
+    ) {
         if (!recoveryComplete) return@LaunchedEffect
+        // 知识内容没就位：不发起（也不在这里自己装一次），下方渲染"准备中"卡。
+        if (!knowledgeBaseAvailability.isReady) return@LaunchedEffect
         val availableProvider = provider ?: return@LaunchedEffect
         if (
             organizationDisabledByUser ||
@@ -346,6 +364,14 @@ internal fun MistakeOrganizationSection(
             )
         } catch (cancelled: CancellationException) {
             throw cancelled
+        } catch (notReady: KnowledgeBaseNotReadyException) {
+            // 竞态兜底（就绪位在发起的一瞬间变了）：这是"还没准备好"，不是"模型没配好"。
+            // 不写 error、也不改 message——就绪位自己是事实来源，它会驱动本屏渲染
+            // KnowledgePreparing 卡；这里只留下日志，方便把学生的反馈对上原因。
+            android.util.Log.i(
+                "MistakeOrganization",
+                "prepare withheld: knowledge base not ready (${notReady.availability})",
+            )
         } catch (_: Exception) {
             error = appFailure(
                 code = AppFailureCode.PROVIDER_NOT_CONFIGURED,
@@ -417,6 +443,7 @@ internal fun MistakeOrganizationSection(
             taskRequestId = task?.request?.requestId,
             hasUsableOutput = output != null,
             applyState = applyState,
+            knowledgeBaseAvailability = knowledgeBaseAvailability,
         ),
     )
     // 整理与拍照/讲题同口径：准备完成即发起（发起即发送），不再逐次确认。
@@ -444,6 +471,11 @@ internal fun MistakeOrganizationSection(
 
         MistakeOrganizationSurfaceState.ProviderUnavailable ->
             ModelUnavailable(onOpenModelSettings)
+
+        // D-Q3：内容没就位时说的话，与"模型没配好"是两句不同的话，出路也不同。
+        is MistakeOrganizationSurfaceState.KnowledgePreparing -> KnowledgePreparingCard(
+            availability = state.availability,
+        )
 
         is MistakeOrganizationSurfaceState.Consent -> {
             OrganizationConsentCard(
@@ -609,7 +641,6 @@ private fun ModelTaskRequest.renewOrganizationRequest(
             approvedAtEpochMillis = maxOf(approvedAtEpochMillis, occurredAtEpochMillis),
             assets = emptyList(),
             disclosedData = ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.PROBLEM_ORGANIZATION_PROHIBITED_DATA,
         )
         ModelExecutionLocation.LOCAL_NO_EGRESS -> null
         ModelExecutionLocation.UNAVAILABLE -> error("Organization provider is unavailable")
@@ -807,6 +838,44 @@ private fun ModelUnavailable(onOpenModelSettings: () -> Unit) {
     }
 }
 
+/**
+ * 知识内容还没就位（D-Q3）。
+ *
+ * 两句话分开：[KnowledgeBaseAvailability.Preparing] 是"等一会就好"，
+ * [KnowledgeBaseAvailability.Unavailable] 是"这次没准备好"（出路在顶部横幅的重试）。
+ * 两者都不出现"知识包/安装/索引"这类内部词，也不把学生指向模型设置页——这里和模型配置无关。
+ */
+@Composable
+private fun KnowledgePreparingCard(availability: KnowledgeBaseAvailability) {
+    val message = when (availability) {
+        KnowledgeBaseAvailability.Ready -> return
+        KnowledgeBaseAvailability.Preparing ->
+            "整理要用的知识目录还在准备中，准备好后这里会自动开始。"
+        is KnowledgeBaseAvailability.Unavailable ->
+            "整理要用的知识目录这次没能准备好，可以点上方提示里的重试再试一次。"
+    }
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("mistake_organization_knowledge_preparing"),
+        color = JadeSoft.copy(alpha = 0.35f),
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(1.dp, Outline),
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (availability == KnowledgeBaseAvailability.Preparing) {
+                CircularProgressIndicator(modifier = Modifier.height(20.dp), strokeWidth = 2.dp)
+            }
+            Text(
+                text = message,
+                modifier = Modifier.padding(start = 10.dp),
+                color = InkSecondary,
+            )
+        }
+    }
+}
+
 @Composable
 private fun ModelCapabilityFailure(
     onRetry: () -> Unit,
@@ -842,6 +911,14 @@ private fun OrganizationConsentCard(
     } else {
         ""
     }
+    // 第六号消费点（D-Q3）：零命中此前完全无声——确认卡悄悄少一项，学生无从知道
+    // "这次没有匹配到知识点"。就绪门已经把"内容还没装好"挡在外面，所以走到这里的
+    // 零命中是真结论，如实说出来即可（它不改变发送范围，只是把范围讲清楚）。
+    val knowledgeScopeNote = if (preparation.knowledgeContextCount > 0) {
+        null
+    } else {
+        "这次没有匹配到对应的知识目录，只整理板块和题目之间的关系。"
+    }
     Surface(
         modifier = Modifier.fillMaxWidth().testTag(
             if (isPaused) "mistake_organization_paused" else "mistake_organization_consent",
@@ -863,6 +940,14 @@ private fun OrganizationConsentCard(
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
+            knowledgeScopeNote?.let { note ->
+                Text(
+                    text = note,
+                    modifier = Modifier.testTag("mistake_organization_no_knowledge_scope"),
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(onClick = onCancel, enabled = !isRunning) { Text("暂不整理") }
                 Button(

@@ -1,7 +1,12 @@
 package com.tingyun.smartmistakebook.core.data.mistake
 
+import com.tingyun.smartmistakebook.core.data.study.FakeStudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseNotReadyException
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationRelationKey
+import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.UserProblemClassification
 import com.tingyun.smartmistakebook.core.model.BindingAcceptanceSource
 import com.tingyun.smartmistakebook.core.model.AtomicKnowledgeSuggestion
@@ -14,6 +19,11 @@ import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
 import com.tingyun.smartmistakebook.core.model.KnowledgeGroundingRequest
 import com.tingyun.smartmistakebook.core.model.ProblemClassificationSuggestion
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
+import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
+import com.tingyun.smartmistakebook.core.model.ModelTaskKind
+import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationOutput
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationPlan
 import com.tingyun.smartmistakebook.core.model.ProblemRelationKind
@@ -26,10 +36,97 @@ import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RoomMistakeOrganizationRepositoryTest {
+    /**
+     * 消灭的失败（D-Q3，消费点①）：改前 prepare() 第一行就是
+     * `BundledKnowledgeBaseInstaller.install(database)`——首装 16.7 秒卡在学生点"整理"的
+     * 关键路径上，装失败还会被上层统一 catch 成"provider 未配置"。现在没就绪就抛出可识别的
+     * 类型，调用方据此说"准备中"。
+     */
+    @Test
+    fun prepareRefusesWhileTheKnowledgeBaseIsNotReady() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        val repository = RoomMistakeOrganizationRepository(
+            database = port,
+            knowledgeBaseAvailability = MutableStateFlow(KnowledgeBaseAvailability.Preparing),
+        )
+
+        val failure = runCatching { repository.prepareForTest() }.exceptionOrNull()
+
+        assertTrue(
+            "未就绪必须是可识别的类型，不能是任意异常（更不是 PROVIDER_NOT_CONFIGURED）: $failure",
+            failure is KnowledgeBaseNotReadyException,
+        )
+        assertEquals(
+            KnowledgeBaseAvailability.Preparing,
+            (failure as KnowledgeBaseNotReadyException).availability,
+        )
+    }
+
+    @Test
+    fun prepareReportsTheConcreteUnavailableStateRatherThanRetryingAnInstall() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        val repository = RoomMistakeOrganizationRepository(
+            database = port,
+            knowledgeBaseAvailability = MutableStateFlow(
+                KnowledgeBaseAvailability.Unavailable("startup:knowledge:42"),
+            ),
+        )
+
+        val failure = runCatching { repository.prepareForTest() }.exceptionOrNull()
+
+        assertEquals(
+            "失败态要原样带出来（出路是横幅重试，不是这里再装一次）",
+            KnowledgeBaseAvailability.Unavailable("startup:knowledge:42"),
+            (failure as KnowledgeBaseNotReadyException).availability,
+        )
+    }
+
+    /** 就绪时门放行：空库会走到真正的业务校验（版本不再当前），而不是停在就绪门。 */
+    @Test
+    fun preparePassesTheGateOnceTheKnowledgeBaseIsReady() = runBlocking {
+        val repository = RoomMistakeOrganizationRepository(
+            database = FakeStudyDatabasePort(),
+            knowledgeBaseAvailability = MutableStateFlow(KnowledgeBaseAvailability.Ready),
+        )
+
+        val failure = runCatching { repository.prepareForTest() }.exceptionOrNull()
+
+        assertNotNull("就绪后应继续走到业务校验并失败在那里", failure)
+        assertFalse(
+            "就绪后不得再停在就绪门: $failure",
+            failure is KnowledgeBaseNotReadyException,
+        )
+    }
+
+    /** 一次 prepare 的最小调用形状：这些用例只关心就绪门发生在哪一步。 */
+    private suspend fun RoomMistakeOrganizationRepository.prepareForTest() = prepare(
+        key = MistakeRevisionKey(
+            entryId = "entry-1",
+            problemId = "problem-1",
+            problemRevisionId = "revision-1",
+        ),
+        profile = StudyProfileOverview(),
+        provider = ProviderCapabilitySnapshot(
+            providerId = "provider:test",
+            providerDisplayName = "测试模型",
+            modelId = "model:test",
+            supportedTasks = setOf(ModelTaskKind.PROBLEM_CLASSIFY),
+            supportsImageInput = false,
+            supportsStructuredOutput = true,
+            supportsStreaming = true,
+            executionLocation = ModelExecutionLocation.EXTERNAL_PROVIDER,
+            providerConfigurationVersion = "cfg-v1",
+        ),
+        attempt = 0,
+        occurredAtEpochMillis = 1_000,
+        approvedAtEpochMillis = 1_000,
+    )
+
     @Test
     fun modelJudgedDifficultyTierBecomesAPerQuestionAdvisoryRow() {
         // spec batch-intake-spec §2 L2：模型判的难度档要能被排程按题读回。

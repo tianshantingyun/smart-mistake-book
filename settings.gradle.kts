@@ -19,8 +19,6 @@ rootProject.name = "SmartMistakeBook"
 include(
     ":app",
     ":core:model",
-    ":core:visual-runtime",
-    ":core:visual-ui",
     ":core:domain",
     ":core:database",
     ":core:data",
@@ -31,6 +29,5 @@ include(
     ":feature:tutor",
     ":feature:library",
     ":feature:profile",
-    ":quality:visual-benchmark",
     ":benchmark",
 )

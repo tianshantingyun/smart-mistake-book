@@ -69,7 +69,6 @@ import com.tingyun.smartmistakebook.core.domain.TutorKnowledgeContextLoader
 import com.tingyun.smartmistakebook.core.domain.TutorSessionDisposition
 import com.tingyun.smartmistakebook.core.domain.TutorTeachingReferenceRepository
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
-import com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope
 import com.tingyun.smartmistakebook.core.domain.toContiguousTutorHistory
 import com.tingyun.smartmistakebook.core.domain.toTutorConversationMemory
 import android.util.Log
@@ -92,11 +91,6 @@ import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import com.tingyun.smartmistakebook.core.model.TutorTurnHistoryEntry
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualTurnAnchor
-import com.tingyun.smartmistakebook.core.model.TutorVisualTurnSurface
 import com.tingyun.smartmistakebook.core.model.AppFailure
 import com.tingyun.smartmistakebook.core.model.AppFailureCode
 import com.tingyun.smartmistakebook.core.model.isModelEgressApprovalFresh
@@ -156,7 +150,6 @@ fun CapturedTutorSessionRoute(
         key = "tutor-session-$sessionId",
         factory = TutorSessionViewModelFactory(
             repository = repository,
-            conversations = conversations,
             sessionId = sessionId,
         ),
     )
@@ -279,9 +272,6 @@ private fun CapturedTutorSessionContent(
                 endError = endError,
                 onSave = onSave,
                 onRequestEnd = onRequestEnd,
-                visualSourceAssetsReader = {
-                    repository.readTutorVisualSourceAssets(state.session.sessionId)
-                },
                 attachedImageResolver = attachedImageResolver,
                 imageIntake = imageIntake,
                 attachedQuestionReader = attachedQuestionReader,
@@ -361,9 +351,6 @@ internal fun ReadyCapturedSession(
     endError: AppFailure? = null,
     onSave: (ConfirmedTutorSession) -> Unit,
     onRequestEnd: () -> Unit = {},
-    visualSourceAssetsReader: suspend () -> List<TutorVisualSourceAssetScope> = {
-        emptyList()
-    },
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
     imageIntake: LobbyMessageImageIntake? = null,
     /** 加号菜单「从错题库选择」选中后的题面读取器；null 时该菜单项不出现。 */
@@ -462,7 +449,6 @@ internal fun ReadyCapturedSession(
         ),
         profile = profile,
         modelTasks = modelTasks,
-        visualSourceAssetsReader = visualSourceAssetsReader,
         attachedImageResolver = attachedImageResolver,
         imageIntake = imageIntake,
         attachedQuestionReader = attachedQuestionReader,
@@ -474,7 +460,6 @@ internal fun ReadyCapturedSession(
         onRequestEnd = onRequestEnd,
         onOpenMistakeNotebook = onOpenMistakeNotebook,
         onOpenProfile = onOpenProfile,
-        onOpenVisualOriginal = { sourceExpanded = true },
         onOpenModelSettings = onOpenModelSettings,
         clock = clock,
         conversationEnabled = !session.isEndedWithoutSave,

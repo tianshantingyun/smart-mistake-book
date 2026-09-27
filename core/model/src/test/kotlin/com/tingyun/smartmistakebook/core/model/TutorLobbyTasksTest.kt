@@ -118,7 +118,6 @@ class TutorLobbyTasksTest {
                 approvedAtEpochMillis = 1_000,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
             ),
         )
 
@@ -164,7 +163,6 @@ class TutorLobbyTasksTest {
                 ),
             ),
             disclosedData = ModelEgressManifest.TUTOR_LOBBY_IMAGE_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.TUTOR_LOBBY_IMAGE_PROHIBITED_DATA,
         )
         val request = request(
             manifest = manifest,
@@ -213,7 +211,6 @@ class TutorLobbyTasksTest {
                     ),
                 ),
                 disclosedData = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
             )
         }.exceptionOrNull()
 

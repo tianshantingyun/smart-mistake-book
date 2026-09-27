@@ -3,13 +3,16 @@ package com.tingyun.smartmistakebook.core.data.knowledge
 import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATES
 import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtractor
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.TutorKnowledgeContextLoader
 import com.tingyun.smartmistakebook.core.domain.TutorKnowledgeContextResult
+import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.model.MAX_SESSION_KNOWLEDGE_CODES
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import android.util.Log
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * [TutorKnowledgeContextLoader] 的 Room 实现：两段式检索与错题归类同源
@@ -23,9 +26,14 @@ import kotlinx.coroutines.CancellationException
  * 降级口径（SavedMistakeTutorRoute 模板的修正版）：读取失败**不静默**——Log.w +
  * `loadFailed = true`，由 prompt 显式披露"教学材料未加载"；检索零命中是**合法空注入**
  * （`loadFailed = false`，维持现状语义）。
+ *
+ * 第三种情况（D-Q3）：知识内容还在后台就位（首装期）。改前它落进零命中那一档——学生拿到
+ * 的是一句"没有相关材料"的假话。现在明确区分：`loadFailed = true`（材料确实没加载，
+ * prompt 照旧不假设手里有资料）+ `knowledgeBasePreparing = true`（原因是"还没准备完"）。
  */
 internal class RoomTutorKnowledgeContextLoader(
     private val database: StudyDatabasePort,
+    private val knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
 ) : TutorKnowledgeContextLoader {
 
     override suspend fun knowledgePreDisclosure(
@@ -33,6 +41,19 @@ internal class RoomTutorKnowledgeContextLoader(
         confirmedBindingNodeIds: List<String>,
         questionText: String?,
     ): TutorKnowledgeContextResult = try {
+        val availability = knowledgeBaseAvailability.value
+        if (!availability.isReady) {
+            Log.i(
+                "TutorKnowledgeContext",
+                "knowledge base not ready ($availability): pre-disclosure withheld for subject=$subject",
+            )
+            return TutorKnowledgeContextResult(
+                preDisclosures = emptyList(),
+                candidateNodeIds = emptyList(),
+                loadFailed = true,
+                knowledgeBasePreparing = true,
+            )
+        }
         val (primaryIds, primaryRole) = if (confirmedBindingNodeIds.isNotEmpty()) {
             confirmedBindingNodeIds to TutorKnowledgeCodeRole.CONFIRMED_BINDING
         } else {
@@ -112,6 +133,9 @@ internal class RoomTutorKnowledgeContextLoader(
 }
 
 object TutorKnowledgeContextLoaderFactory {
-    fun create(database: StudyDatabasePort): TutorKnowledgeContextLoader =
-        RoomTutorKnowledgeContextLoader(database)
+    fun create(
+        database: StudyDatabasePort,
+        knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
+    ): TutorKnowledgeContextLoader =
+        RoomTutorKnowledgeContextLoader(database, knowledgeBaseAvailability)
 }

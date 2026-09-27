@@ -8,6 +8,7 @@ import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.data.model.FakeModelGateway
 import com.tingyun.smartmistakebook.core.data.model.RoomModelTaskRepository
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
@@ -238,6 +239,7 @@ abstract class CaptureWorkflowTestBase {
             stepDelayMillis = 0,
             classifyProblemKind = ImagePipelineProblemKind.WITH_FIGURE,
         ),
+        knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
     )
 
     protected fun clearOwnedFlatDirectory(

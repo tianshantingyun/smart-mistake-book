@@ -379,7 +379,6 @@ class RealProviderProtocolTest {
             approvedAtEpochMillis = System.currentTimeMillis(),
             assets = emptyList(),
             disclosedData = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
         )
 
         assertEquals("openai", manifest.providerId)

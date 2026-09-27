@@ -1,6 +1,5 @@
 package com.tingyun.smartmistakebook.core.data.model
 
-import com.tingyun.smartmistakebook.core.model.MODEL_EGRESS_MAX_ASSET_BYTES
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -15,6 +14,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.ByteString.Companion.decodeBase64
 import java.util.concurrent.TimeUnit
+import com.tingyun.smartmistakebook.core.model.MODEL_EGRESS_MAX_ASSET_BYTES
 
 /**
  * Image-to-image channel that calls an OpenAI-compatible

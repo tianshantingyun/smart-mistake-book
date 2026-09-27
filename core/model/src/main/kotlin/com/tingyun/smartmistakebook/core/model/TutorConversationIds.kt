@@ -5,5 +5,8 @@ package com.tingyun.smartmistakebook.core.model
  * 必须来自同一处，否则结算会去读一个不存在的对话、静默拿不到判词。
  */
 object TutorConversationIds {
-    fun captured(sessionId: String): String = "tutor-conv:captured:$sessionId"
+    /** 讲题会话（拍照会话 / 错题讲题）的对话 id 前缀；读侧据此把会话 id 还原出来。 */
+    const val CAPTURED_PREFIX = "tutor-conv:captured:"
+
+    fun captured(sessionId: String): String = "$CAPTURED_PREFIX$sessionId"
 }

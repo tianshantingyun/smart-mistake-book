@@ -28,7 +28,6 @@ import com.tingyun.smartmistakebook.core.data.model.ModelTaskRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.model.RestrictedModelAssetSourceFactory
 import com.tingyun.smartmistakebook.core.data.model.UnavailableModelGateway
 import com.tingyun.smartmistakebook.core.data.study.StudyExperienceRepositoryFactory
-import com.tingyun.smartmistakebook.core.data.study.VisualInteractionEventSinkFactory
 import com.tingyun.smartmistakebook.core.data.tutor.TutorInteractionRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.tutor.TutorConversationRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.settings.DataStoreModelConfigurationStore
@@ -46,6 +45,8 @@ import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityTester
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailabilityTracker
 import com.tingyun.smartmistakebook.core.domain.LibraryCatalogRepository
 import com.tingyun.smartmistakebook.core.domain.ReviewReminderRepository
 import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
@@ -58,7 +59,6 @@ import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorKnowledgeContextLoader
 import com.tingyun.smartmistakebook.core.domain.TutorTeachingReferenceRepository
-import com.tingyun.smartmistakebook.core.domain.visual.VisualInteractionEventSink
 import com.tingyun.smartmistakebook.feature.capture.CaptureCacheMaintenance
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -70,6 +70,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class SmartMistakeBookApplication : Application() {
     // SupervisorJob stops sibling cancellation but does NOT swallow a child's
@@ -83,6 +84,21 @@ class SmartMistakeBookApplication : Application() {
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default + coroutineCrashBackstop)
 
     val startupState = MutableStateFlow<StartupState>(StartupState.Initializing)
+
+    /**
+     * 知识能力就绪位（决策台账 D-Q3：首装后台化）。
+     *
+     * **与 [startupState] 分开放**：`Ready` 是"错题与复习立刻可用"的秒开语义，本就绪位说的是
+     * 另一件事——本机知识内容有没有准备好。首装那十几秒两者短暂不同步，正是本次要**如实**
+     * 表达的状态：学习能力照常，依赖知识库的能力说"准备中"。
+     *
+     * 唯一写入方是本类的安装协程（成功→[KnowledgeBaseAvailability.Ready]，失败→
+     * [KnowledgeBaseAvailability.Unavailable]，重试前回到 Preparing）；消费方只读。
+     */
+    private val knowledgeBaseAvailabilityTracker = KnowledgeBaseAvailabilityTracker()
+
+    val knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability> =
+        knowledgeBaseAvailabilityTracker.state
 
     lateinit var studyRepository: StudyExperienceRepository
     lateinit var schedulingSettingsStore: SchedulingSettingsStore
@@ -101,14 +117,6 @@ class SmartMistakeBookApplication : Application() {
 
     val studyDatabase: StudyDatabasePort
         get() = database
-
-    /** Best-effort sink for visual-interaction attempts; null until the database opens. */
-    val visualInteractionSink: VisualInteractionEventSink?
-        get() = if (::database.isInitialized) visualInteractionSinkLazy else null
-
-    private val visualInteractionSinkLazy: VisualInteractionEventSink by lazy {
-        VisualInteractionEventSinkFactory.create(database)
-    }
 
     lateinit var mistakeDetailRepository: MistakeDetailRepository
 
@@ -204,13 +212,19 @@ class SmartMistakeBookApplication : Application() {
             tutorAttachedQuestionReader = TutorAttachedQuestionReaderFactory.create(
                 mistakeDetailRepository,
             )
-            mistakeOrganizationRepository = MistakeOrganizationRepositoryFactory.create(database)
+            mistakeOrganizationRepository = MistakeOrganizationRepositoryFactory.create(
+                database = database,
+                knowledgeBaseAvailability = knowledgeBaseAvailability,
+            )
             tutorInteractionRepository = TutorInteractionRepositoryFactory.create(database)
             tutorConversationRepository = TutorConversationRepositoryFactory.create(database)
             lobbyMessageImageIntake = LobbyMessageImageIntakeFactory.create(this, database)
             tutorTeachingReferenceRepository =
                 TutorTeachingReferenceRepositoryFactory.create(database)
-            tutorKnowledgeContextLoader = TutorKnowledgeContextLoaderFactory.create(database)
+            tutorKnowledgeContextLoader = TutorKnowledgeContextLoaderFactory.create(
+                database = database,
+                knowledgeBaseAvailability = knowledgeBaseAvailability,
+            )
             libraryCatalogRepository = LibraryCatalogRepositoryFactory.create(database)
             val roomSplitImportRepository = SplitImportRepositoryFactory.createConcrete(database)
             splitImportRepository = roomSplitImportRepository
@@ -263,6 +277,9 @@ class SmartMistakeBookApplication : Application() {
             modelTaskRepository = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = gateway,
+                // 工具环里的 KNOWLEDGE_READ 读这个就绪位：内容没就位时回"还在准备"，
+                // 而不是"知识库里没有匹配的知识点"（D-Q3 的六号消费点）。
+                knowledgeBaseAvailability = knowledgeBaseAvailability,
             )
             captureRepository = CaptureWorkflowRepositoryFactory.create(
                 context = this,
@@ -347,12 +364,41 @@ class SmartMistakeBookApplication : Application() {
             )
             return
         }
+        // 首装的全量解析（实测 16.7s）挪出启动关键路径（D-Q3）：这条协程只负责"内容就位"，
+        // 与下面那条"学习记录就绪"**并行**——学生的学习能力不必等知识内容解析完。
+        // 就绪前依赖知识库的能力读 [knowledgeBaseAvailability]，如实说"准备中"。
         applicationScope.launch {
+            knowledgeBaseAvailabilityTracker.markPreparing()
             try {
                 BundledKnowledgeBaseInstaller.install(database)
                 // R4a：调和全部完成，数据已在 Room——释放包对象图驻留（~40MB 级）。
                 // 后续 install() 命中快路径（戳一致）时零解析，释放安全。
                 BundledKnowledgeBaseInstaller.releaseResidentPacks()
+                knowledgeBaseAvailabilityTracker.markReady()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Throwable) {
+                android.util.Log.e(
+                    "SmartMistakeBook",
+                    "Bundled knowledge install failed",
+                    failure,
+                )
+                val diagnosticId = "startup:knowledge:${failure.hashCode().toUInt()}"
+                // 同一编号贯穿横幅与就绪位：学生点"重试"时能对上日志里的这一次失败。
+                knowledgeBaseAvailabilityTracker.markUnavailable(diagnosticId)
+                startupState.value = StartupState.RecoverableFailure(
+                    title = "本地知识包尚未准备好",
+                    message = "错题和复习可以继续使用，自动分类会暂缓。",
+                    diagnosticId = diagnosticId,
+                    errorCategory = StartupErrorCategory.KNOWLEDGE_BASE,
+                )
+            }
+        }
+        // 学习记录就绪与知识内容安装解耦：改前 install() 排在 initialize() 之前，
+        // 首装那十几秒里连"书"都打不开。失败由仓库自己的快照（StudyDataStatus.ERROR +
+        // 状态行）报给学生，不再借用知识包横幅——那会把学习数据故障误报成知识包问题。
+        applicationScope.launch {
+            try {
                 studyRepository.initialize()
                 if (startupState.value is StartupState.Ready) {
                     startupState.value = StartupState.Ready
@@ -368,14 +414,8 @@ class SmartMistakeBookApplication : Application() {
             } catch (failure: Throwable) {
                 android.util.Log.e(
                     "SmartMistakeBook",
-                    "Bundled knowledge install failed",
+                    "Study experience initialization failed",
                     failure,
-                )
-                startupState.value = StartupState.RecoverableFailure(
-                    title = "本地知识包尚未准备好",
-                    message = "错题和复习可以继续使用，自动分类会暂缓。",
-                    diagnosticId = "startup:knowledge:${failure.hashCode().toUInt()}",
-                    errorCategory = StartupErrorCategory.KNOWLEDGE_BASE,
                 )
             }
         }
@@ -413,17 +453,23 @@ class SmartMistakeBookApplication : Application() {
                 currentStartup.errorCategory == StartupErrorCategory.KNOWLEDGE_BASE
             ) {
                 // 知识包失败是横幅重试唯一有实效的场景：重新安装，成功则收起横幅。
+                // 就绪位同步走"准备中 → 就绪 / 仍旧不可用"：重试期间依赖知识库的能力
+                // 回到"准备中"（而不是继续显示一个已经过期的成功态）。
+                knowledgeBaseAvailabilityTracker.markPreparing()
                 try {
                     BundledKnowledgeBaseInstaller.install(database)
                     // 与启动协程同口径：重试成功后驻留对象图同样释放。
                     BundledKnowledgeBaseInstaller.releaseResidentPacks()
+                    knowledgeBaseAvailabilityTracker.markReady()
                     if (startupState.value == currentStartup) {
                         startupState.value = StartupState.Ready
                     }
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (_: Throwable) {
-                    // 保持失败横幅，学生可再次点击重试。
+                    // 保持失败横幅，学生可再次点击重试；就绪位停在"不可用"（编号沿用
+                    // 横幅上那一个，重试失败不产生第二个编号让学生无从对照）。
+                    knowledgeBaseAvailabilityTracker.markUnavailable(currentStartup.diagnosticId)
                 }
             }
             try {

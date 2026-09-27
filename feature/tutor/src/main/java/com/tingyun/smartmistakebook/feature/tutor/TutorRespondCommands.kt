@@ -5,14 +5,11 @@ import com.tingyun.smartmistakebook.core.domain.BindStudentMessageQuestionComman
 import com.tingyun.smartmistakebook.core.model.AttachedRoundQuestion
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
 import com.tingyun.smartmistakebook.core.domain.AppendTutorStudentMessageCommand
-import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.TutorSendAction
 import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
-import com.tingyun.smartmistakebook.core.domain.TutorContextComposer
-import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorTurnSendStateMachine
 import com.tingyun.smartmistakebook.core.model.ActionType
@@ -34,7 +31,6 @@ import com.tingyun.smartmistakebook.core.model.Retryability
 import com.tingyun.smartmistakebook.core.model.appFailure
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal fun tutorRespondInProgressError(): AppFailure = appFailure(
@@ -56,12 +52,18 @@ internal fun tutorRespondLimitError(): AppFailure = appFailure(
 )
 
 /**
- * 会话层的轮次号分配：该会话**全部** RESPOND 任务（不按题过滤）里最大的号 +1。
+ * **派发槽位号**分配：该会话全部 RESPOND 任务（不按题过滤）里最大的号 +1。
  *
  * 消灭的失败：此前序号按当前题派生（只在该题的任务里取 max），同一会话换了题就从 1 重新
- * 开始。而 `model_task` 的唯一槽是 `(subject_id, task_kind, tutor_response_ordinal)`，
- * `subject_id` 就是会话 id；`tutor_message` 的唯一键是 `(conversation_id, ordinal)`，而消息
- * 序号由 `responseOrdinal*2-1` 算出。两处都会在"会话里的第二道题"上撞号并抛冲突。
+ * 开始，而 `model_task` 的唯一槽是
+ * `(subject_id, task_kind, tutor_response_ordinal)`，于是"会话里的第二道题"的第一轮
+ * 会与第一道题的第一轮撞槽。
+ *
+ * **它不是消息序号**（K1c 之后两者分工明确）：`tutor_message.ordinal` 是会话级单调 ordinal，
+ * 由会话行 `last_turn_ordinal` 统一分配（`TutorConversationDao.appendStudentMessage` 与
+ * 轮次行 `TutorInteractionDao.ensureRoundRow`），不再由本函数的号算术派生
+ * （旧的 `responseOrdinal * 2 - 1` 已废弃）。本函数的号只用来占一次派发槽位、
+ * 并进入请求标识（重试同号 = 同一次派发）。
  *
  * [sessionId] 由本函数自己过滤，而不是只信调用方给的那份列表：传进来一份"全库任务"不会
  * 静默算出一个把别的会话的号也数进去的错号，而是照常只按本会话算。
@@ -171,6 +173,7 @@ internal class TutorRespondCommands(
                     when (snapshot.status) {
                         ModelTaskStatus.SUCCEEDED -> {
                             bindRoundQuestionIfNeeded(request, snapshot)
+                            recordAssistantTurnIfNeeded(request, snapshot)
                             sink.setTutorSendState(
                                 TutorTurnSendStateMachine.reduce(
                                     sink.tutorSendState(),
@@ -263,11 +266,12 @@ internal class TutorRespondCommands(
         // （ordinal = responseOrdinal*2-1）。
         val responseOrdinal = nextTutorResponseOrdinal(question.sessionId, sessionRespondTasks)
         // 原样保留能装下的轮次，装不下的压成摘要：长会话里模型不再"忘记"前面讲过什么。
-        val context = TutorContextComposer.compose(
-            tutorChatExchanges(
-                respondTasks,
-                answerExposureKeys = sink.answerExposureKeys(),
-            ),
+        // 文本从**消息流**取（K1a 唯一对话文本权威），装配仍走同一条 TutorContextComposer；
+        // 只有"完整答案学生还没真的看到"这一道闸门读账本（曝光事实本来就在账本上）。
+        val context = tutorSessionContext(
+            messages = sink.sessionMessages(),
+            respondTasks = respondTasks,
+            answerExposureKeys = sink.answerExposureKeys(),
         )
         val currentInput = sink.currentInput()
         val visibleContext = visibleTutorContextMarkdown(
@@ -330,6 +334,40 @@ internal class TutorRespondCommands(
     }
 
     /**
+     * 把这一轮的**助手正文与思考块**落进 `tutor_message`（K1a：消息行是唯一对话文本权威）。
+     *
+     * 消灭的失败：切换之前，助手正文只活在 `model_task.output_snapshot` 里，而学生气泡与
+     * 讲题区正文都从快照渲染——同一条会话文本有两个去处（消息行、快照），重试/重放/删除之后
+     * 两边会不一致；历史列表的标题、会话导出的文本也读不到这一轮的正文。落库后：
+     * 渲染、标题、提示词历史读的是同一行。
+     *
+     * 幂等由消息 id（= 请求 id 派生）保证：同一次派发重放多少次都只有一行。失败/取消的轮次
+     * 不落行——那一轮没有正文，只有账本上的状态（界面据此渲染失败卡）。
+     */
+    private suspend fun recordAssistantTurnIfNeeded(
+        request: ModelTaskRequest,
+        snapshot: ModelTaskSnapshot,
+    ) {
+        val conversations = sink.conversations ?: return
+        val input = request.input as? TutorRespondInput ?: return
+        val output = snapshot.output as? TutorRespondOutput ?: return
+        recordTutorAssistantTurn(
+            conversations = conversations,
+            sessionId = input.sessionId,
+            questionDocumentId = input.questionDocument.id,
+            revisionNumber = input.draftRevisionNumber,
+            questionTitle = input.questionDocument.title,
+            requestId = request.requestId,
+            // 助手行回复的是这一轮学生消息（同一次逻辑操作的学生行）。
+            replyToMessageId = tutorStudentMessageId(request.requestId),
+            bodyMarkdown = output.messageMarkdown,
+            thinkingMarkdown = output.thinkingMarkdown,
+            occurredAtEpochMillis = request.occurredAtEpochMillis,
+            completedAtEpochMillis = snapshot.updatedAtEpochMillis,
+        )
+    }
+
+    /**
      * 本轮绑定的题落到消息层。
      *
      * 时机：只能在**模型回复到手之后**——绑定 = 模型声明 + 本地两条校验，两者都要等回复。
@@ -356,6 +394,9 @@ internal class TutorRespondCommands(
             candidates = input.boundQuestionCandidates,
             declaration = output.boundQuestion,
             studentMessage = input.studentMessage,
+            // 学生显式附加了题的一轮：附加题被钉住，落库的绑定因此不可能指向菜单里的别的题
+            // （与解析层同一把闸门——这里是耐久记录前的第二次裁决）。
+            pinnedQuestion = input.attachedQuestion?.toCandidate(),
         ) ?: return
         runCatching {
             conversations.bindStudentMessageQuestion(
@@ -401,9 +442,9 @@ internal class TutorRespondCommands(
                 AppendTutorStudentMessageCommand(
                     conversationId = TutorConversationIds.captured(input.sessionId),
                     messageId = "tutor-message:${request.requestId}",
-                    // 学生第 n 轮固定是第 2n-1 条：序号由请求自身决定，不用"当前最大 +1"。
-                    // 恢复重放同一条请求时必须逐字相同，否则唯一索引/冲突校验会炸。
-                    ordinal = input.responseOrdinal * 2 - 1,
+                    // 会话级单调 ordinal（K1c）：由会话计数器分配（`null`），不再由派发槽位号
+                    // 算术派生（旧的 `responseOrdinal * 2 - 1`）。序号只影响排序与唯一键，
+                    // 幂等由 message_id（= 请求 id）保证——重放同一条请求读回的是同一行。
                     bodyMarkdown = message,
                     logicalOperationId = request.requestId,
                     createdAtEpochMillis = request.occurredAtEpochMillis,
@@ -420,27 +461,22 @@ internal class TutorRespondCommands(
     }
 
     /**
-     * 会话行不存在时按本轮题面派生锚点建一行；已存在（拍照会话由 [TutorSessionViewModel]
-     * 创建、大厅由发送路径创建）时原样复用——同锚点幂等、异锚点冲突，所以只有"确认没有"
-     * 的时候才建，不能无条件建。
+     * 会话行不存在时按本轮题面派生锚点建一行；已存在时原样复用——同锚点幂等、异锚点冲突，
+     * 所以只有"确认没有"的时候才建，不能无条件建。
      */
     private suspend fun ensureStudentConversation(
         conversations: TutorConversationRepository,
         input: TutorRespondInput,
         occurredAtEpochMillis: Long,
     ) {
-        val conversationId = TutorConversationIds.captured(input.sessionId)
-        if (conversations.observeConversation(conversationId).first() != null) return
-        conversations.createConversation(
-            CreateTutorConversationCommand(
-                conversationId = conversationId,
-                anchorKind = TutorConversationAnchorKind.EPHEMERAL_DRAFT,
-                anchorId = input.sessionId,
-                // 与会话页同一口径：锚点 = 本轮题面 + 题面修订号。
-                anchorRevisionId = "${input.questionDocument.id}:${input.draftRevisionNumber}",
-                title = input.questionDocument.title,
-                createdAtEpochMillis = occurredAtEpochMillis,
-            ),
+        ensureTutorConversation(
+            conversations = conversations,
+            sessionId = input.sessionId,
+            // 与会话页同一口径：锚点 = 本轮题面 + 题面修订号。
+            questionDocumentId = input.questionDocument.id,
+            revisionNumber = input.draftRevisionNumber,
+            title = input.questionDocument.title,
+            occurredAtEpochMillis = occurredAtEpochMillis,
         )
     }
 
@@ -500,4 +536,14 @@ internal class TutorRespondSink(
      * 此时不落库，写侧门控按空语料 fail-closed，不会误放行任何正向判定。
      */
     val conversations: TutorConversationRepository? = null,
+    /**
+     * 这条会话的消息流（K1a 唯一文本权威）：提示词历史从它装配。
+     *
+     * 与 [tutorRespondTasks] 是两个不同的东西，不能互换：快照是**派发台账**（状态、重试、
+     * 结构化载荷），消息流是**对话事实**。读的时候要从 backing state 取（组合期快照会停在
+     * 第一帧）。
+     */
+    val sessionMessages: () -> List<com.tingyun.smartmistakebook.core.domain.TutorMessage> = {
+        emptyList()
+    },
 )

@@ -70,10 +70,6 @@ class KnowledgeReviewRequestTest {
         assertEquals(setOf(ModelTaskKind.KNOWLEDGE_QUIZ), manifest.authorizedTaskKinds)
         assertEquals("MATH", manifest.subjectId)
         assertEquals(ModelEgressManifest.KNOWLEDGE_QUIZ_DISCLOSURE, manifest.disclosedData)
-        assertEquals(
-            ModelEgressManifest.KNOWLEDGE_QUIZ_PROHIBITED_DATA,
-            manifest.prohibitedData,
-        )
         assertEquals(ModelPromptPolicyVersions.KNOWLEDGE_QUIZ, manifest.promptPolicyVersion)
         assertEquals(9_000, manifest.approvedAtEpochMillis)
     }

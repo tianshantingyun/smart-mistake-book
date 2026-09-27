@@ -27,6 +27,7 @@ import com.tingyun.smartmistakebook.core.database.dao.ProblemDao
 import com.tingyun.smartmistakebook.core.database.dao.ProblemOrganizationDao
 import com.tingyun.smartmistakebook.core.database.dao.ProblemDraftEditWorkspaceDao
 import com.tingyun.smartmistakebook.core.database.dao.ProblemDraftTransactionDao
+import com.tingyun.smartmistakebook.core.database.dao.AgentPendingRequestDao
 import com.tingyun.smartmistakebook.core.database.dao.ProjectionTransactionDao
 import com.tingyun.smartmistakebook.core.database.dao.ReviewDao
 import com.tingyun.smartmistakebook.core.database.dao.ReviewPlanTransactionDao
@@ -34,7 +35,6 @@ import com.tingyun.smartmistakebook.core.database.dao.SplitImportDao
 import com.tingyun.smartmistakebook.core.database.dao.TutorInteractionDao
 import com.tingyun.smartmistakebook.core.database.dao.TutorExposureDao
 import com.tingyun.smartmistakebook.core.database.dao.TutorConversationDao
-import com.tingyun.smartmistakebook.core.database.dao.VisualInteractionAttemptDao
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentEvidenceAttributionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentEvidenceSnapshotEntity
@@ -56,7 +56,6 @@ import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEnti
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLatticeView
 import com.tingyun.smartmistakebook.core.database.entity.StudentModelPredictionEntity
 import com.tingyun.smartmistakebook.core.database.entity.PredictionOutcomeEntity
-import com.tingyun.smartmistakebook.core.database.entity.VisualInteractionAttemptEntity
 import com.tingyun.smartmistakebook.core.database.entity.CanonicalSourceAssetEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptCorrectionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptEventEntity
@@ -110,12 +109,10 @@ import com.tingyun.smartmistakebook.core.database.entity.ReviewQueueItemEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewSessionAdvanceReceiptEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewSessionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewSessionRevisionEntity
-import com.tingyun.smartmistakebook.core.database.entity.TutorSessionEntity
-import com.tingyun.smartmistakebook.core.database.entity.TutorTurnResponseEntity
-import com.tingyun.smartmistakebook.core.database.entity.TutorSessionProblemAnchorEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureOutcomeEntity
 import com.tingyun.smartmistakebook.core.database.entity.AppliedTutorAnswerExposureRecordEntity
+import com.tingyun.smartmistakebook.core.database.entity.AgentPendingRequestEntity
 import com.tingyun.smartmistakebook.core.database.dao.ContentInstallStateDao
 import com.tingyun.smartmistakebook.core.database.entity.ContentInstallStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSearchIndexStateEntity
@@ -123,7 +120,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 51
+internal const val STUDY_DATABASE_VERSION = 52
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -195,9 +192,6 @@ internal object SplitImportLedgerStrings {
         ModelTaskOperationEntity::class,
         ModelTaskEntity::class,
         ModelTaskEventEntity::class,
-        TutorSessionEntity::class,
-        TutorTurnResponseEntity::class,
-        TutorSessionProblemAnchorEntity::class,
         TutorAnswerExposureEntity::class,
         TutorAnswerExposureOutcomeEntity::class,
         AppliedTutorAnswerExposureRecordEntity::class,
@@ -211,7 +205,6 @@ internal object SplitImportLedgerStrings {
         LibrarySearchOutboxEntity::class,
         StudentModelPredictionEntity::class,
         PredictionOutcomeEntity::class,
-        VisualInteractionAttemptEntity::class,
         SplitImportJobEntity::class,
         SplitImportQuestionEntity::class,
         ReviewLogEntity::class,
@@ -219,6 +212,7 @@ internal object SplitImportLedgerStrings {
         com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity::class,
         ContentInstallStateEntity::class,
         KnowledgeSearchIndexStateEntity::class,
+        AgentPendingRequestEntity::class,
     ],
     version = STUDY_DATABASE_VERSION,
     exportSchema = true,
@@ -273,13 +267,13 @@ internal abstract class StudyDatabase : RoomDatabase() {
 
     abstract fun tutorConversationDao(): TutorConversationDao
 
+    abstract fun agentPendingRequestDao(): AgentPendingRequestDao
+
     abstract fun libraryQueryDao(): LibraryQueryDao
 
     abstract fun libraryFtsSearchDao(): LibraryFtsSearchDao
 
     abstract fun predictionAuditDao(): PredictionAuditDao
-
-    abstract fun visualInteractionAttemptDao(): VisualInteractionAttemptDao
 
     abstract fun splitImportDao(): SplitImportDao
 
@@ -355,6 +349,7 @@ object StudyDatabaseFactory {
             TUTOR_MESSAGE_BOUND_QUESTION_MIGRATION_48_49,
             CHAT_EVIDENCE_ANCHOR_CLASS_MIGRATION_49_50,
             KNOWLEDGE_SEARCH_INDEX_STATE_MIGRATION_50_51,
+            TUTOR_CONVERSATION_AREA_MIGRATION_51_52,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

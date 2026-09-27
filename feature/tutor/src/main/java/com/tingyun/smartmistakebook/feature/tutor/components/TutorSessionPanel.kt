@@ -53,11 +53,11 @@ import com.tingyun.smartmistakebook.core.domain.TutorSendAction
 import com.tingyun.smartmistakebook.core.domain.TutorSendPhase
 import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.domain.TutorTurnSendStateMachine
-import com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope
 import com.tingyun.smartmistakebook.core.domain.toContiguousTutorHistory
 import com.tingyun.smartmistakebook.core.domain.toTutorConversationMemory
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
@@ -67,7 +67,6 @@ import com.tingyun.smartmistakebook.core.model.ActionType
 import com.tingyun.smartmistakebook.core.model.AppFailure
 import com.tingyun.smartmistakebook.core.model.AppFailureCode
 import com.tingyun.smartmistakebook.core.model.Retryability
-import com.tingyun.smartmistakebook.core.model.appFailure
 import com.tingyun.smartmistakebook.core.model.TutorConversationMemory
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
@@ -77,15 +76,11 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTurnHistoryEntry
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualTurnAnchor
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import com.tingyun.smartmistakebook.core.model.AttachedRoundQuestion
-import com.tingyun.smartmistakebook.core.model.TutorVisualTurnSurface
+import com.tingyun.smartmistakebook.core.model.appFailure
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
@@ -121,6 +116,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 
@@ -130,9 +126,6 @@ internal fun TutorModelPanel(
     question: TutorQuestionContext,
     profile: StudyProfileOverview,
     modelTasks: ModelTaskRepository,
-    visualSourceAssetsReader: suspend () -> List<TutorVisualSourceAssetScope> = {
-        emptyList()
-    },
     interactions: TutorInteractionRepository,
     /**
      * 学生会话的对话仓库：学生每一轮文字都要落进 `tutor_message`，供写侧门控
@@ -153,7 +146,6 @@ internal fun TutorModelPanel(
     onRequestEnd: () -> Unit = {},
     onOpenMistakeNotebook: () -> Unit = {},
     onOpenProfile: () -> Unit = {},
-    onOpenVisualOriginal: () -> Unit = {},
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
     /**
      * 学生消息附图的读取器：既用于把选中的图片登记成规范资产，也用于在气泡里回显。
@@ -195,29 +187,24 @@ internal fun TutorModelPanel(
     val sessionContext = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val persistedTasks by remember(question.sessionId) {
-        modelTasks.observeBySubject(question.sessionId, ModelTaskKind.TUTOR_PLAN)
+        modelTasks.observeBySubject(TutorConversationIds.captured(question.sessionId), ModelTaskKind.TUTOR_PLAN)
     }.collectAsState(initial = emptyList())
+    /**
+     * 这条会话的**消息流**：正文、思考块与学生气泡的唯一渲染源（K1a）。
+     *
+     * 任务快照仍然订阅：状态、失败卡、重试入口、受门控的结构化载荷（选择题 / 完整讲解 /
+     * 另一种方法）与在途实时流都靠它，但它不再是文本源。
+     */
+    val conversationSnapshot by remember(question.sessionId, conversations) {
+        if (conversations == null) {
+            flowOf(null)
+        } else {
+            conversations.observeConversation(TutorConversationIds.captured(question.sessionId))
+        }
+    }.collectAsState(initial = null)
     val persistedRespondTasks by remember(question.sessionId) {
-        modelTasks.observeBySubject(question.sessionId, ModelTaskKind.TUTOR_RESPOND)
+        modelTasks.observeBySubject(TutorConversationIds.captured(question.sessionId), ModelTaskKind.TUTOR_RESPOND)
     }.collectAsState(initial = emptyList())
-    val persistedVisualGenerationTasks by remember(question.sessionId) {
-        modelTasks.observeBySubject(question.sessionId, ModelTaskKind.TUTOR_VISUAL_GENERATE)
-    }.collectAsState(initial = emptyList())
-    val persistedVisualReviewTasks by remember(question.sessionId) {
-        modelTasks.observeBySubject(question.sessionId, ModelTaskKind.TUTOR_VISUAL_REVIEW)
-    }.collectAsState(initial = emptyList())
-    var visualSourceAssets by remember(question.sessionId, question.revisionNumber) {
-        mutableStateOf<List<TutorVisualSourceAssetScope>>(emptyList())
-    }
-    LaunchedEffect(
-        question.sessionId,
-        question.revisionNumber,
-        question.questionDocument.document.id,
-    ) {
-        visualSourceAssets = runCatching { visualSourceAssetsReader() }
-            .getOrDefault(emptyList())
-            .sortedBy(TutorVisualSourceAssetScope::pageIndex)
-    }
     val longTermWritesBlocked = persistedRespondTasks.blocksTutorLongTermWrites()
     LaunchedEffect(longTermWritesBlocked) {
         if (longTermWritesBlocked) onLongTermWritesBlocked()
@@ -254,12 +241,6 @@ internal fun TutorModelPanel(
     var attachMenuOpen by remember(question.sessionId) { mutableStateOf(false) }
     var pendingCameraImageUri by remember(question.sessionId) { mutableStateOf<String?>(null) }
     val sessionImageEnabled = imageIntake != null
-    var reportedVisualSceneIds by rememberSaveable(
-        question.sessionId,
-        question.revisionNumber,
-        question.questionDocument.document.id,
-    ) { mutableStateOf(emptyList<String>()) }
-
     LaunchedEffect(question.sessionId) {
         try {
             provider = modelTasks.capabilities()
@@ -297,12 +278,14 @@ internal fun TutorModelPanel(
         persistedTasks,
         persistedRespondTasks,
         persistedResponses,
+        conversationSnapshot,
     ) {
         buildTutorConversationProjection(
             question = question,
             planTasks = persistedTasks,
             respondTasks = persistedRespondTasks,
             responses = persistedResponses,
+            messages = conversationSnapshot?.messages.orEmpty(),
         )
     }
     val tutorTasks = conversationProjection.planTasks
@@ -354,6 +337,9 @@ internal fun TutorModelPanel(
                 clock = clock,
                 planTasks = { tutorTasks },
                 modelTasks = modelTasks,
+                // 讲题轮的正文写进会话消息行（K1a）；会话行按需创建（K1b），所以这里给的是
+                // 会话仓库本身而不是某一条已经建好的会话。
+                conversations = conversations,
             ),
         )
     }
@@ -477,116 +463,6 @@ internal fun TutorModelPanel(
             task.status.isTutorExecutionPending()
     }
     val liveTurn = rememberTutorLiveTurn(modelTasks, recoverableRespondTask?.request?.requestId)
-    val visualWorkSeeds = remember(tutorTasks, tutorRespondTasks) {
-        // 2D/3D 结构化场景已隔离：不再生成视觉任务。改 TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED 恢复。
-        if (TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED) {
-            emptyList()
-        } else {
-            tutorVisualWorkSeeds(
-                planTasks = tutorTasks,
-                respondTasks = tutorRespondTasks,
-            )
-        }
-    }
-    val visualWorkPlan = remember(visualWorkSeeds) {
-        planTutorVisualWork(visualWorkSeeds)
-    }
-    var visualGenerateBuildFailures by remember(question.sessionId) {
-        mutableStateOf<Set<TutorVisualTurnAnchor>>(emptySet())
-    }
-    var visualReviewBuildFailures by remember(question.sessionId) {
-        mutableStateOf<Set<TutorVisualTurnAnchor>>(emptySet())
-    }
-    val resolvedVisualScenes = remember(
-        visualWorkSeeds,
-        persistedVisualGenerationTasks,
-        persistedVisualReviewTasks,
-        question.sessionId,
-        question.revisionNumber,
-        question.questionDocument.document.id,
-        reportedVisualSceneIds,
-    ) {
-        visualWorkSeeds.mapNotNull { seed ->
-            (resolveTutorVisual(
-                anchor = seed.anchor,
-                question = question,
-                generationTasks = persistedVisualGenerationTasks,
-                reviewTasks = persistedVisualReviewTasks,
-            ) as? TutorVisualResolution.Ready)?.let { ready ->
-                ready.scene
-                    .takeUnless { scene -> scene.sceneId in reportedVisualSceneIds }
-                    ?.let { scene -> seed.anchor to scene }
-            }
-        }.toMap()
-    }
-    val visualItemNotices = remember(
-        visualWorkPlan,
-        question.sessionId,
-        question.revisionNumber,
-        question.questionDocument.document.id,
-        visualGenerateBuildFailures,
-        visualReviewBuildFailures,
-        persistedVisualGenerationTasks,
-        persistedVisualReviewTasks,
-    ) {
-        tutorVisualItemNotices(
-            selectedSeeds = visualWorkPlan.selectedSeeds,
-            question = question,
-            requestBuildFailedAnchors = visualGenerateBuildFailures + visualReviewBuildFailures,
-            generationTasks = persistedVisualGenerationTasks,
-            reviewTasks = persistedVisualReviewTasks,
-        ).associateBy(TutorVisualItemNotice::anchor)
-    }
-    val visualOverflowMessage = remember(visualWorkPlan) {
-        tutorVisualOverflowMessage(visualWorkPlan.overflowCount)
-    }
-    fun reportVisualIncorrect(sceneId: String) {
-        if (sceneId !in reportedVisualSceneIds) {
-            reportedVisualSceneIds = reportedVisualSceneIds + sceneId
-            onOpenVisualOriginal()
-        }
-    }
-
-    val visualWork = remember(question.sessionId) {
-        TutorVisualWorkCommands(
-            sink = TutorVisualWorkSink(
-                currentProvider = { currentProvider },
-                question = { question },
-                clock = clock,
-                sourceAssets = { visualSourceAssets },
-                selectedSeeds = { visualWorkPlan.selectedSeeds },
-                generationTasks = { persistedVisualGenerationTasks },
-                reviewTasks = { persistedVisualReviewTasks },
-                setGenerateBuildFailures = { visualGenerateBuildFailures = it },
-                setReviewBuildFailures = { visualReviewBuildFailures = it },
-                modelTasks = modelTasks,
-            ),
-        )
-    }
-
-    LaunchedEffect(
-        visualWorkSeeds,
-        visualSourceAssets,
-        currentProvider?.providerId,
-        currentProvider?.modelId,
-        currentProvider?.providerConfigurationVersion,
-        persistedVisualGenerationTasks,
-    ) {
-        visualWork.dispatchGenerate()
-    }
-
-    LaunchedEffect(
-        visualWorkSeeds,
-        visualSourceAssets,
-        currentProvider?.providerId,
-        currentProvider?.modelId,
-        currentProvider?.providerConfigurationVersion,
-        persistedVisualGenerationTasks,
-        persistedVisualReviewTasks,
-    ) {
-        visualWork.dispatchReview()
-    }
-
     /**
      * 本轮候选菜单（派发前组好）：学生本轮显式添加的题 + 上一轮绑定的题 + 本地文本检索前 N 条。
      *
@@ -656,6 +532,9 @@ internal fun TutorModelPanel(
                 chatSending = { chatSending },
                 modelTasks = modelTasks,
                 conversations = conversations,
+                // 提示词历史从消息流装配（K1a）。读的是 backing state 而不是组合期的快照：
+                // 这个 lambda 由 remember 捕获一次，组合期的列表会永远停在第一帧。
+                sessionMessages = { conversationSnapshot?.messages.orEmpty() },
             ),
         )
     }
@@ -1077,16 +956,6 @@ internal fun TutorModelPanel(
                 content = leadingContent,
             )
         }
-        visualOverflowMessage?.let { message ->
-            item("tutor_visual_work_limit") {
-                TutorPrompt(
-                    text = message,
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .testTag("tutor_visual_work_limit"),
-                )
-            }
-        }
         items(timeline, key = TutorConversationTimelineItem::stableId) { timelineItem ->
             val isTail = timelineItem.stableId == tailId
             when (timelineItem) {
@@ -1100,21 +969,12 @@ internal fun TutorModelPanel(
                     val executionMatches = currentProvider?.let(
                         timelineItem.task::matchesTutorProvider,
                     ) == true
-                    val planOutput = timelineItem.task.output as? TutorPlanOutput
-                    val planVisualAnchor = planOutput?.let { output ->
-                        TutorVisualTurnAnchor(
-                            surface = TutorVisualTurnSurface.PLAN,
-                            cycleOrdinal = output.cycleOrdinal,
-                            turnOrdinal = output.turnOrdinal,
-                        )
-                    }
-                    val resolvedVisualScene = planVisualAnchor?.let(resolvedVisualScenes::get)
-                    val planVisualNotice = planVisualAnchor?.let(visualItemNotices::get)
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     TutorTaskContent(
                         task = timelineItem.task,
-                        resolvedVisualScene = resolvedVisualScene,
                         response = response,
+                        // 正文从消息行来（K1a）；旧行没有消息行时才回落账本。
+                        openingMarkdown = timelineItem.bodyMarkdown,
                         solutionRevealPreviewed = timelineItem.task.toPlanSolutionPreviewKey()
                             ?.let { it in planSolutionPreviewKeys } == true,
                         awaitingContinuation = false,
@@ -1140,16 +1000,8 @@ internal fun TutorModelPanel(
                         onRevealSolution = { revealCurrentSolution() },
                         onRestartCycle = ::restartCurrentCycle,
                         onOpenModelSettings = onOpenModelSettings,
-                        onOpenVisualOriginal = onOpenVisualOriginal,
-                        onReportVisualIncorrect = ::reportVisualIncorrect,
                         solutionBottomModifier = solutionBottomModifier(timelineItem.stableId),
                     )
-                    planVisualNotice?.let { notice ->
-                        TutorPrompt(
-                            text = notice.studentMessage(),
-                            modifier = Modifier.testTag("tutor_visual_item_error"),
-                        )
-                    }
                     }
                 }
 
@@ -1189,14 +1041,6 @@ internal fun TutorModelPanel(
                     val recoveryEnabled = isTail && executionMatches &&
                         !chatSending && !interactionBusy &&
                         (opensLocalSettings || respondAgentAuthorized)
-                    val replyVisualAnchor = (timelineItem.task.request.input as? TutorRespondInput)?.let { input ->
-                        TutorVisualTurnAnchor(
-                            surface = TutorVisualTurnSurface.FOLLOW_UP,
-                            cycleOrdinal = input.cycleOrdinal,
-                            turnOrdinal = input.turnOrdinal,
-                            responseOrdinal = input.responseOrdinal,
-                        )
-                    }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     // 这一轮讲的是哪一道（多题会话里必备）：只在本地确实知道这一轮的题时出现
                     // （附加题 / 模型声明核过的绑定），会话题自己的轮次不挂，避免噪声。
@@ -1211,7 +1055,10 @@ internal fun TutorModelPanel(
                     }
                     TutorChatExchange(
                         task = timelineItem.task,
-                        resolvedVisualScene = replyVisualAnchor?.let(resolvedVisualScenes::get),
+                        // 气泡与正文的唯一来源是消息行（K1a）；旧行由时间线项回落到账本/派发原文。
+                        studentBodyMarkdown = timelineItem.studentBodyMarkdown,
+                        assistantBodyMarkdown = timelineItem.bodyMarkdown,
+                        assistantThinkingMarkdown = timelineItem.thinkingMarkdown,
                         awaitingContinuation = !respondAgentAuthorized &&
                             timelineItem.task.status.isTutorExecutionPending(),
                         interactionEnabled = isTail && taskAllowsInteraction &&
@@ -1221,10 +1068,8 @@ internal fun TutorModelPanel(
                         executionMatchesCurrentProvider = executionMatches,
                         onRetry = { retryTutorResponse(timelineItem.task) },
                         onOpenModelSettings = onOpenModelSettings,
-                        onOpenVisualOriginal = onOpenVisualOriginal,
                         attachedImageResolver = attachedImageResolver,
                         studentImageIntake = imageIntake,
-                        onReportVisualIncorrect = ::reportVisualIncorrect,
                         onMove = { move ->
                             executeTutorResponse(
                                 message = move.label,
@@ -1253,12 +1098,6 @@ internal fun TutorModelPanel(
                         },
                         assistantBottomModifier = solutionBottomModifier(timelineItem.stableId),
                     )
-                    replyVisualAnchor?.let(visualItemNotices::get)?.let { notice ->
-                        TutorPrompt(
-                            text = notice.studentMessage(),
-                            modifier = Modifier.testTag("tutor_visual_item_error"),
-                        )
-                    }
                     }
                 }
             }

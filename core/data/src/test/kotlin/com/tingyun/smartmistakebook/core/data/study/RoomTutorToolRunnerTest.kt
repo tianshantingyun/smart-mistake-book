@@ -5,8 +5,10 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeB
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
+import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
@@ -15,6 +17,8 @@ import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -36,6 +40,16 @@ import org.junit.Test
 class RoomTutorToolRunnerTest {
 
     private val learnerId = "learner:local"
+
+    /**
+     * 本文件钉的是工具环的判定与执行，不是知识内容的就绪门（D-Q3）：一律按"已就绪"构造。
+     * 未就绪时的行为由 [knowledgeReadIsWithheldWhileTheKnowledgeBaseIsPreparing] 单独钉。
+     */
+    private fun runner(
+        port: StudyDatabasePort,
+        availability: StateFlow<KnowledgeBaseAvailability> =
+            MutableStateFlow(KnowledgeBaseAvailability.Ready),
+    ) = RoomTutorToolRunner(port, availability)
 
     private fun anchoredPort(nodeId: String = "kc-monotonicity") = FakeStudyDatabasePort().apply {
         knowledgeNodes += KnowledgeNodeSeedRecord(
@@ -99,7 +113,7 @@ class RoomTutorToolRunnerTest {
         port.tutorMessages += studentMessage("我把两边都乘以了2")
         port.tutorMessages += studentMessage("因为斜率相等所以平行")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把两边都乘以了2\"，随后独立写出\"因为斜率相等所以平行\"。",
             ),
@@ -123,7 +137,7 @@ class RoomTutorToolRunnerTest {
         port.tutorMessages += studentMessage("我把两边都乘以了2")
         port.tutorMessages += studentMessage("因为斜率相等所以平行")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把两边都乘以了2\"，随后独立写出\"因为斜率相等所以平行\"。",
             ),
@@ -144,7 +158,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorMessages += studentMessage("我把两边都乘以了2")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把两边都乘以了2\"。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -187,7 +201,7 @@ class RoomTutorToolRunnerTest {
         }
         port.tutorMessages += studentMessage("动量守恒我推导过了")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"动量守恒我推导过了\"。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -226,7 +240,7 @@ class RoomTutorToolRunnerTest {
         }
         port.knowledgeNodes += knowledgeNode("kc-peifang", "配方法", "MATH")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把两边都乘以了2\"。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -253,7 +267,7 @@ class RoomTutorToolRunnerTest {
             assign(TutorKnowledgeCode("kc-discovered", "二次函数图像", TutorKnowledgeCodeRole.TOOL_DISCOVERED))
         }
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把两边都乘以了2\"。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -293,7 +307,7 @@ class RoomTutorToolRunnerTest {
 
         // 两个检索词各锚一个召回节点：路由 = v1 生产形状（裸 B 路 limit=5，B512→select
         // 统一路由已回滚，见 KD-24）——fake port 按插入序返回候选，两个节点都进 top-5。
-        val outcome = RoomTutorToolRunner(port)
+        val outcome = runner(port)
             .run(knowledgeReadCall(terms = listOf("单调性", "切线")), context(registry = registry))
 
         assertTrue("expected ok outcome but was $outcome", outcome.ok)
@@ -310,11 +324,60 @@ class RoomTutorToolRunnerTest {
         assertTrue(text.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS)
     }
 
+    /**
+     * 消灭的失败（D-Q3）：知识内容还在后台就位时，`KNOWLEDGE_READ` 会回
+     * "知识库里没有匹配的知识点"——把"还没准备好"说成"没有"，模型据此告诉学生
+     * "你的书上没这个知识点"，而事实上内容只是还没解析完。
+     */
+    @Test
+    fun knowledgeReadIsWithheldWhileTheKnowledgeBaseIsPreparing() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        port.recallCandidates += knowledgeNode("kc-a", "函数单调性", "MATH")
+        val registry = TutorKnowledgeCodeRegistry()
+
+        val outcome = runner(port, MutableStateFlow(KnowledgeBaseAvailability.Preparing)).run(
+            knowledgeReadCall(terms = listOf("单调性")),
+            context(registry = registry),
+        )
+
+        assertTrue("准备中不是工具失败，不需要 errorKind: $outcome", outcome.ok)
+        assertNull(outcome.errorKind)
+        assertTrue(
+            "必须如实说'还在准备'而不是'没有': ${outcome.summaryMarkdown}",
+            outcome.summaryMarkdown.contains("准备中"),
+        )
+        assertFalse(
+            "不得回零命中那句假话: ${outcome.summaryMarkdown}",
+            outcome.summaryMarkdown.contains("没有匹配"),
+        )
+        // 检索没跑（内容未就位），所以没有任何节点被披露进会话代号表。
+        assertTrue(
+            "未就绪时不得披露任何代号: ${registry.disclosedCodes()}",
+            registry.disclosedCodes().isEmpty(),
+        )
+    }
+
+    /** 安装失败（可重试）同样走"准备中"这条诚实话术，不冒充零命中。 */
+    @Test
+    fun knowledgeReadIsWithheldWhenTheInstallFailed() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        port.recallCandidates += knowledgeNode("kc-a", "函数单调性", "MATH")
+
+        val outcome = runner(
+            port,
+            MutableStateFlow(KnowledgeBaseAvailability.Unavailable("startup:knowledge:1")),
+        ).run(knowledgeReadCall(terms = listOf("单调性")), context())
+
+        assertTrue(outcome.ok)
+        assertTrue(outcome.summaryMarkdown.contains("准备中"))
+        assertFalse(outcome.summaryMarkdown.contains("没有匹配"))
+    }
+
     @Test
     fun masteredWithoutAnchorsIsRejectedAndStillAudited() = runBlocking {
         val port = anchoredPort()
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(rationale = "看起来学生已经掌握了这个知识点。"),
             context(),
         )
@@ -332,7 +395,7 @@ class RoomTutorToolRunnerTest {
     fun aBareClaimOfUnderstandingDoesNotCountAsAnAnchor() = runBlocking {
         val port = anchoredPort()
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(rationale = "学生说\"懂了\"，也说了\"会了\"。"),
             context(),
         )
@@ -349,7 +412,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorMessages += studentMessage("我把负号漏掉了")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把负号漏掉了\"，这次自己纠正了。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -369,7 +432,7 @@ class RoomTutorToolRunnerTest {
     fun negativeLapseNeedsNoAnchor() = runBlocking {
         val port = anchoredPort()
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生把符号搞反了。",
                 understanding = TutorUnderstandingTier.STRUGGLING,
@@ -391,7 +454,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorTurnResponses += turnResponse(cycleOrdinal = 1, selectionWasCorrect = false)
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(rationale = "学生独立完成了这一步。", understanding = TutorUnderstandingTier.CONFIDENT),
             sessionContext(),
         )
@@ -410,7 +473,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorTurnResponses += turnResponse(cycleOrdinal = 1, selectionWasCorrect = false)
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把两边都乘以了2\"，随后独立写出\"因为斜率相等所以平行\"。",
                 understanding = TutorUnderstandingTier.MASTERED,
@@ -428,7 +491,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorTurnResponses += turnResponse(cycleOrdinal = 1, selectionWasCorrect = true)
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生选了\"选项 A\"，这一步独立完成。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -447,7 +510,7 @@ class RoomTutorToolRunnerTest {
         port.tutorTurnResponses += turnResponse(cycleOrdinal = 1, selectionWasCorrect = false)
         port.tutorTurnResponses += turnResponse(cycleOrdinal = 2, selectionWasCorrect = true)
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生选了\"选项 A\"，这一步独立完成。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -464,7 +527,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorTurnResponses += turnResponse(cycleOrdinal = 1, selectionWasCorrect = false)
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生把符号搞反了。",
                 understanding = TutorUnderstandingTier.STRUGGLING,
@@ -485,7 +548,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorTurnResponses += turnResponse(cycleOrdinal = 1, selectionWasCorrect = false)
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(rationale = "学生独立完成了这一步。", understanding = TutorUnderstandingTier.CONFIDENT),
             context(),
         )
@@ -503,7 +566,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorMessages += studentMessage("我觉得是先配方再开方")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我觉得是先配方再开方\"，这一步他自己想到了。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -520,7 +583,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorMessages += studentMessage("我觉得是先配方再开方")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我很清楚这是余弦定理\"，思路完整。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -542,7 +605,7 @@ class RoomTutorToolRunnerTest {
         port.tutorMessages += studentMessage("我把负号漏掉了")
         port.tutorMessages += studentMessage("因为斜率相等所以平行")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把正号写错了\"，随后\"因为截距相等所以平行\"。",
                 understanding = TutorUnderstandingTier.MASTERED,
@@ -565,7 +628,7 @@ class RoomTutorToolRunnerTest {
         port.tutorMessages += studentMessage("我把负号漏掉了")
         port.tutorMessages += studentMessage("因为斜率相等所以平行")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把负号漏掉了\"，随后\"因为斜率相等所以平行\"。",
                 understanding = TutorUnderstandingTier.MASTERED,
@@ -591,7 +654,7 @@ class RoomTutorToolRunnerTest {
             selectedChoiceMarkdown = "因为斜率相等所以平行",
         )
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生选了\"因为斜率相等所以平行\"，随后\"我把负号漏掉了\"。",
                 understanding = TutorUnderstandingTier.MASTERED,
@@ -609,7 +672,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorMessages += studentMessage("我把负号漏掉了", role = "ASSISTANT")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把负号漏掉了\"，随后\"因为斜率相等所以平行\"。",
                 understanding = TutorUnderstandingTier.MASTERED,
@@ -628,7 +691,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.tutorMessages += studentMessage("我把负号漏掉了")
 
-        val paraphrased = RoomTutorToolRunner(port).run(
+        val paraphrased = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把符号问题处理好了\"。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -638,7 +701,7 @@ class RoomTutorToolRunnerTest {
         assertEquals(false, paraphrased.ok)
         assertEquals("rejected:POSITIVE_WITHOUT_EVIDENCE_ANCHOR", paraphrased.errorKind)
 
-        val verbatim = RoomTutorToolRunner(port).run(
+        val verbatim = runner(port).run(
             masteryCall(
                 rationale = "学生说\"我把负号漏掉了\"，现在自己找到了。",
                 understanding = TutorUnderstandingTier.CONFIDENT,
@@ -663,7 +726,7 @@ class RoomTutorToolRunnerTest {
             ),
         )
 
-        val outcome = RoomTutorToolRunner(port).run(masteryReadCall(), context())
+        val outcome = runner(port).run(masteryReadCall(), context())
 
         assertTrue("expected ok outcome but was $outcome", outcome.ok)
         val text = outcome.summaryMarkdown
@@ -683,7 +746,7 @@ class RoomTutorToolRunnerTest {
         port.publishSubjectMastery("MATH", listOf(masteryRow(nodeId = "kc-1", name = "函数单调性")))
         port.reviewableKnowledgeNodeCount = 97
 
-        val outcome = RoomTutorToolRunner(port).run(masteryReadCall(), context())
+        val outcome = runner(port).run(masteryReadCall(), context())
 
         assertTrue(outcome.summaryMarkdown, outcome.summaryMarkdown.contains("另有 96 个"))
     }
@@ -712,7 +775,7 @@ class RoomTutorToolRunnerTest {
             lastAcceptedModelEvidenceAtEpochMillis = null,
         )
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryReadCall(terms = listOf("函数单调性")),
             context(),
         )
@@ -734,7 +797,7 @@ class RoomTutorToolRunnerTest {
         port.publishSubjectMastery("MATH", listOf(masteryRow(nodeId = "kc-other", name = "函数奇偶性")))
         port.recallCandidates += knowledgeNode("kc-unmeasured", "导数与切线", "MATH")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryReadCall(terms = listOf("导数与切线")),
             context(),
         )
@@ -750,7 +813,7 @@ class RoomTutorToolRunnerTest {
         port.publishSubjectMastery("MATH", listOf(masteryRow(nodeId = "kc-math", name = "函数单调性")))
         port.publishSubjectMastery("PHYSICS", listOf(masteryRow(nodeId = "kc-physics", name = "动量守恒")))
 
-        val outcome = RoomTutorToolRunner(port).run(masteryReadCall(), context())
+        val outcome = runner(port).run(masteryReadCall(), context())
 
         assertTrue(outcome.summaryMarkdown, outcome.summaryMarkdown.contains("函数单调性"))
         assertTrue(
@@ -764,7 +827,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.publishSubjectMastery("MATH", listOf(masteryRow(nodeId = "kc-math", name = "函数单调性")))
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryReadCall(),
             context().copy(subject = null),
         )
@@ -785,7 +848,7 @@ class RoomTutorToolRunnerTest {
             },
         )
 
-        val outcome = RoomTutorToolRunner(port).run(masteryReadCall(), context())
+        val outcome = runner(port).run(masteryReadCall(), context())
 
         assertTrue("expected ok outcome but was $outcome", outcome.ok)
         assertTrue(
@@ -808,8 +871,8 @@ class RoomTutorToolRunnerTest {
             },
         )
 
-        val plain = RoomTutorToolRunner(port).run(masteryReadCall(), context())
-        val extended = RoomTutorToolRunner(port).run(
+        val plain = runner(port).run(masteryReadCall(), context())
+        val extended = runner(port).run(
             masteryReadCall(extendedResult = true),
             context(),
         )
@@ -836,7 +899,7 @@ class RoomTutorToolRunnerTest {
             },
         )
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             masteryReadCall(extendedResult = true),
             context().copy(allowsExtendedResult = false),
         )
@@ -859,7 +922,7 @@ class RoomTutorToolRunnerTest {
         port.libraryRows += libraryRow(title = "二次函数最值综合题", subject = "MATH")
         port.libraryRows += libraryRow(title = "向量数量积的应用", subject = "MATH")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             notebookRead(terms = listOf("二次函数")),
             context(),
         )
@@ -879,7 +942,7 @@ class RoomTutorToolRunnerTest {
         val port = anchoredPort()
         port.libraryRows += libraryRow(title = "二次函数最值综合题", subject = "MATH")
 
-        val outcome = RoomTutorToolRunner(port).run(
+        val outcome = runner(port).run(
             notebookRead(terms = listOf("二次函数")),
             context().copy(roundDisclosesQuestionCandidates = true),
         )

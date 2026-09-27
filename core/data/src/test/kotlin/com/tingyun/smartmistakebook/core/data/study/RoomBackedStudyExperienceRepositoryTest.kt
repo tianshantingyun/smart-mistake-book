@@ -116,7 +116,6 @@ import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBind
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
-import com.tingyun.smartmistakebook.core.database.port.VisualInteractionAttemptRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
@@ -444,165 +443,6 @@ class RoomBackedStudyExperienceRepositoryTest {
             assertTrue(plan.queue.none { it.knowledgeNodeId == "pseudo:MATH" })
             assertEquals("MATH", plan.queue.single().subject)
             assertEquals("函数单调性", plan.queue.single().displayName)
-        } finally {
-            repository.close()
-            applicationScope.cancel()
-        }
-    }
-
-    @Test
-    fun feasibleVisualAttemptIsIngestedOnceWithDirectKnowledgeAttribution() = runBlocking {
-        val database = FakeStudyDatabasePort().apply {
-            addMistake(visualIngestMistake())
-            addPracticeUnitKnowledgeBinding(visualIngestBinding())
-            addVisualInteractionAttempt(
-                visualAttemptRecord(attemptId = "visual-a", feasible = true),
-            )
-        }
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
-
-        try {
-            repository.initialize()
-
-            val created = repository.ingestVisualInteractionAttempts()
-
-            // initialize() already consumed the pending visual attempt into the
-            // ledger (startup ingestion, audit §12); the manual sweep therefore
-            // finds nothing new, and the single attempt was recorded exactly once.
-            assertEquals(0, created)
-            assertEquals(1, database.recordedAttemptCount)
-            val command = requireNotNull(database.lastAttemptCommand)
-            assertEquals(0.25, command.evidence?.weight ?: -1.0, 0.0)
-            assertEquals(LearningEvidenceDirection.POSITIVE, command.evidence?.direction)
-            assertEquals(ProblemMemoryOutcome.ASSISTED_RECALL, command.problemMemoryOutcome)
-            assertEquals(
-                "visual:SATISFIED",
-                (requireNotNull(command.submittedResponse) as AttemptSubmittedResponse.Choice)
-                    .choiceId,
-            )
-            val attribution = requireNotNull(
-                database.lastEvidenceSnapshot?.attributions?.singleOrNull(),
-            )
-            assertEquals("binding-v", attribution.bindingId)
-            assertEquals("knowledge:visual", attribution.knowledgeNodeId)
-            assertEquals(0.6, attribution.weight, 0.0)
-            assertEquals(EvidenceAttributionRole.PRIMARY, attribution.role)
-            assertEquals(EvidenceAttributionCertainty.DIRECT, attribution.certainty)
-            assertEquals("revision-v", attribution.basisRevisionId)
-        } finally {
-            repository.close()
-            applicationScope.cancel()
-        }
-    }
-
-    @Test
-    fun violatedVisualAttemptCreatesNegativeEvidence() = runBlocking {
-        val database = FakeStudyDatabasePort().apply {
-            addMistake(visualIngestMistake())
-            addPracticeUnitKnowledgeBinding(visualIngestBinding())
-            addVisualInteractionAttempt(
-                visualAttemptRecord(
-                    attemptId = "visual-b",
-                    feasible = false,
-                    feedback = "直线未通过目标点",
-                ),
-            )
-        }
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
-
-        try {
-            repository.initialize()
-
-            val created = repository.ingestVisualInteractionAttempts()
-
-            assertEquals(0, created)
-            val command = requireNotNull(database.lastAttemptCommand)
-            assertEquals(0.5, command.evidence?.weight ?: -1.0, 0.0)
-            assertEquals(
-                LearningEvidenceReason.VISUAL_INTERACTION_VIOLATED,
-                command.evidence?.reason,
-            )
-            assertEquals(LearningEvidenceDirection.NEGATIVE, command.evidence?.direction)
-            assertEquals(ProblemMemoryOutcome.RETRIEVAL_FAILURE, command.problemMemoryOutcome)
-            assertEquals(
-                "visual:VIOLATED",
-                (requireNotNull(command.submittedResponse) as AttemptSubmittedResponse.Choice)
-                    .choiceId,
-            )
-            assertEquals(
-                "直线未通过目标点",
-                (requireNotNull(command.submittedResponse) as AttemptSubmittedResponse.Choice)
-                    .choiceMarkdown,
-            )
-        } finally {
-            repository.close()
-            applicationScope.cancel()
-        }
-    }
-
-    @Test
-    fun repeatedVisualIngestionSweepsDoNotDoubleCount() = runBlocking {
-        val database = FakeStudyDatabasePort().apply {
-            addMistake(visualIngestMistake())
-            addPracticeUnitKnowledgeBinding(visualIngestBinding())
-            addVisualInteractionAttempt(
-                visualAttemptRecord(attemptId = "visual-c", feasible = true),
-            )
-        }
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
-
-        try {
-            repository.initialize()
-
-            // Startup ingestion already recorded the pending attempt; both
-            // repeat sweeps stay idempotent and report zero new creations.
-            assertEquals(0, repository.ingestVisualInteractionAttempts())
-            assertEquals(0, repository.ingestVisualInteractionAttempts())
-            assertEquals(1, database.recordedAttemptCount)
-        } finally {
-            repository.close()
-            applicationScope.cancel()
-        }
-    }
-
-    @Test
-    fun conservativeVisualIngestionSkipsUndecidableAndUnboundAttempts() = runBlocking {
-        val database = FakeStudyDatabasePort().apply {
-            addMistake(visualIngestMistake())
-            addMistake(
-                visualIngestMistake(
-                    entryId = "entry-w",
-                    practiceUnitId = "unit-w",
-                    problemRevisionId = "revision-w",
-                ),
-            )
-            addPracticeUnitKnowledgeBinding(visualIngestBinding())
-            addVisualInteractionAttempt(
-                visualAttemptRecord(
-                    attemptId = "visual-measure",
-                    actionKind = "Measure",
-                    feasible = true,
-                ),
-            )
-            addVisualInteractionAttempt(
-                visualAttemptRecord(
-                    attemptId = "visual-unbound",
-                    problemRevisionId = "revision-w",
-                    feasible = false,
-                ),
-            )
-        }
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
-
-        try {
-            repository.initialize()
-
-            assertEquals(0, repository.ingestVisualInteractionAttempts())
-            assertEquals(0, database.recordedAttemptCount)
         } finally {
             repository.close()
             applicationScope.cancel()
@@ -1299,54 +1139,6 @@ class RoomBackedStudyExperienceRepositoryTest {
         fixtureSource = M1CuratedFixtureSource,
     )
 
-    private fun visualIngestMistake(
-        entryId: String = "entry-v",
-        practiceUnitId: String = "unit-v",
-        problemRevisionId: String = "revision-v",
-    ) = MistakeRecord(
-        entryId = entryId,
-        problemId = "problem-v",
-        problemRevisionId = problemRevisionId,
-        practiceUnitId = practiceUnitId,
-        sourceKey = "capture:visual",
-        subject = "MATH",
-        title = "几何作图题",
-        problemMarkdown = "作出满足条件的图形。",
-        status = "ACTIVE",
-        createdAtEpochMillis = 1_000,
-        nextReviewAtEpochMillis = null,
-        retrievability = null,
-        knowledgeNodeIds = setOf("knowledge:visual"),
-    )
-
-    private fun visualIngestBinding(
-        practiceUnitId: String = "unit-v",
-        basisRevisionId: String = "revision-v",
-    ) = PracticeUnitKnowledgeBindingRecord(
-        bindingId = "binding-v",
-        practiceUnitId = practiceUnitId,
-        knowledgeNodeId = "knowledge:visual",
-        basisRevisionId = basisRevisionId,
-        taxonomyVersion = "taxonomy-v1",
-        acceptedAtEpochMillis = 900,
-    )
-
-    private fun visualAttemptRecord(
-        attemptId: String,
-        feasible: Boolean,
-        actionKind: String = "DragPoint",
-        problemRevisionId: String = "revision-v",
-        feedback: String = "操作判定记录",
-    ) = VisualInteractionAttemptRecord(
-        attemptId = attemptId,
-        problemRevisionId = problemRevisionId,
-        actionKind = actionKind,
-        actionPayload = "{}",
-        feasible = feasible,
-        feedback = feedback,
-        attemptedAtEpochMillis = 1_500,
-    )
-
     private companion object {
         /** Curated M1 unit whose artifact carries a knowledge-node scope (spec §2.16 fixtures). */
         const val M1_LEECH_PRACTICE_UNIT_ID = "practice:m1:closed-interval-extrema:whole"
@@ -1420,7 +1212,6 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
     val tutorExposureReconcileLearners = mutableListOf<String>()
     val recordedPredictions = mutableListOf<StudentModelPredictionRecord>()
     val resolvedPredictionOutcomes = mutableListOf<ResolvedPredictionOutcomeCall>()
-    val visualAttempts = mutableListOf<VisualInteractionAttemptRecord>()
     val practiceUnitBindings = mutableListOf<PracticeUnitKnowledgeBindingRecord>()
     val knowledgeNodes = mutableListOf<KnowledgeNodeSeedRecord>()
     val knowledgeNodeRelations = mutableListOf<KnowledgeNodeRelationRecord>()
@@ -1526,11 +1317,6 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
             prediction.modelId == modelId && prediction.modelVersion == modelVersion
         }
 
-    override suspend fun readVisualInteractionAttempts(
-        problemRevisionId: String,
-    ): List<VisualInteractionAttemptRecord> =
-        visualAttempts.filter { it.problemRevisionId == problemRevisionId }
-
     override suspend fun readPracticeUnitKnowledgeBindings(
         practiceUnitId: String,
     ): List<PracticeUnitKnowledgeBindingRecord> =
@@ -1545,10 +1331,6 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
 
     val recordedAttemptCount: Int
         get() = attemptsBySubmission.size
-
-    fun addVisualInteractionAttempt(attempt: VisualInteractionAttemptRecord) {
-        visualAttempts += attempt
-    }
 
     fun addPracticeUnitKnowledgeBinding(binding: PracticeUnitKnowledgeBindingRecord) {
         practiceUnitBindings += binding

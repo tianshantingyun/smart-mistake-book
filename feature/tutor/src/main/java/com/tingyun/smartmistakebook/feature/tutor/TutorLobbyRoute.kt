@@ -233,18 +233,10 @@ internal fun TutorLobbyRoute(
         lobbyCameraLauncher.launch(uri)
     }
 
-    LaunchedEffect(conversations) {
-        if (activeConversationId.isNotBlank()) return@LaunchedEffect
-        conversations.observeRecent(MAX_RECENT_CONVERSATIONS).first { recent ->
-            recent.firstOrNull { conversation ->
-                conversation.anchorKind == TutorConversationAnchorKind.TEXT_ONLY &&
-                    conversation.status.name !in setOf("COMPLETED", "ARCHIVED")
-            }?.let { conversation ->
-                activeConversationId = conversation.conversationId
-                return@first true
-            } ?: false
-        }
-    }
+    // 进栏一律新对话（决策台账 D-Q6-4）、空会话不落库（K1b）：进入本页**不认领任何旧会话**，
+    // 也不为"只是进来看一眼"建会话行——会话行由第一条消息自己保证（见 `startMessage` 的
+    // 惰性建行与 `RoomTutorConversationRepository.observeRecent` 的"只列有消息的会话"）。
+    // 从历史列表点进来的入口仍然有效：那条路径给的是显式的 `initialConversationId`。
 
     LaunchedEffect(activeConversationId) {
         if (activeConversationId.isBlank()) return@LaunchedEffect
@@ -356,8 +348,9 @@ internal fun TutorLobbyRoute(
         val replyTo = conversationMessages.lastOrNull {
             it.role == TutorMessageRole.STUDENT
         }
-        val assistantOrdinal =
-            (conversationSnapshot?.conversation?.lastTurnOrdinal ?: 0) + 1
+        val assistantOrdinal = nextTutorMessageOrdinals(
+            conversationSnapshot?.conversation?.lastTurnOrdinal ?: 0,
+        ).student
         scope.launch {
             try {
                 dispatchLobbyTurn(
@@ -510,9 +503,12 @@ internal fun TutorLobbyRoute(
                         ),
                     )
                 }
-                val studentOrdinal = lastTurnOrdinal + 1
-                val assistantOrdinal = studentOrdinal + 1
-                val logicalTurnOrdinal = (lastTurnOrdinal / 2) + 1
+                // 会话级单调 ordinal（K1c）：报号规则只有一处（nextTutorMessageOrdinals），
+                // 学生与助手各占一位；请求里的轮次号就是这条学生消息的号。
+                val ordinals = nextTutorMessageOrdinals(lastTurnOrdinal)
+                val studentOrdinal = ordinals.student
+                val assistantOrdinal = ordinals.assistant
+                val messageOrdinal = studentOrdinal
                 val messageId = "tutor-message:${UUID.randomUUID()}"
                 val logicalOperationId = "tutor-lobby-op:${UUID.randomUUID()}"
                 val studentMessage = conversations.appendStudentMessage(
@@ -534,7 +530,7 @@ internal fun TutorLobbyRoute(
                     buildTutorLobbyRequest(
                         provider = currentProvider,
                         conversationId = conversationId,
-                        messageOrdinal = logicalTurnOrdinal,
+                        messageOrdinal = messageOrdinal,
                         studentMessage = effectiveMessage,
                         priorMessages = context.recent,
                         priorDigest = context.digest,
@@ -614,13 +610,12 @@ internal fun TutorLobbyRoute(
                 ) {
                     return@launch
                 }
-                // 逻辑轮次按"这是第几条学生消息"数，而不是按 ordinal 推算：一旦某次派发
-                // 异常导致助手行缺失，ordinal 的奇偶就会错位，进而把两轮映射成同一个请求标识。
-                val logicalTurnOrdinal = snapshot.messages.count {
-                    it.role == TutorMessageRole.STUDENT
-                }
+                // 轮次号 = **这条学生消息自己的会话序号**（K1c 单数轴）：重发必须与原派发同号，
+                // 否则会重建出第二个请求标识、把同一条消息派发两次。按"第几条学生消息"数
+                // 则会在任何一条助手行缺失/多出时错位。
+                val messageOrdinal = studentMessage.ordinal
                 val attempt = conversationTasks.count { task ->
-                    (task.request.input as? TutorLobbyInput)?.messageOrdinal == logicalTurnOrdinal
+                    (task.request.input as? TutorLobbyInput)?.messageOrdinal == messageOrdinal
                 }
                 // 附图从资产库读回元数据：图被清理或被改动时按纯文字重发，
                 // 而不是让整条消息发不出去。
@@ -635,7 +630,7 @@ internal fun TutorLobbyRoute(
                     buildTutorLobbyRequest(
                         provider = currentProvider,
                         conversationId = conversationId,
-                        messageOrdinal = logicalTurnOrdinal,
+                        messageOrdinal = messageOrdinal,
                         studentMessage = studentMessage.bodyMarkdown,
                         priorMessages = context.recent,
                         priorDigest = context.digest,
@@ -1091,7 +1086,6 @@ internal suspend fun List<TutorMessage>.toContextImages(
 
 private const val MAX_VISIBLE_MESSAGES = 20
 private const val MAX_PERSISTED_TASKS = 64
-private const val MAX_RECENT_CONVERSATIONS = 20
 
 /** 终态失败：这三种状态下这一轮不会再有输出，必须落一条学生看得见的交代。 */
 private val TERMINAL_FAILURE_STATUSES = setOf(

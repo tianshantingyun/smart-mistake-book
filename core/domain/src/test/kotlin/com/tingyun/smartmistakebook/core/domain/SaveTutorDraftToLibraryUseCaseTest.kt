@@ -136,10 +136,6 @@ private class FakeSaveRepository(
     override suspend fun readTutorSession(sessionId: String): ConfirmedTutorSession? =
         current.takeIf { it.sessionId == sessionId }
 
-    override suspend fun readTutorVisualSourceAssets(
-        sessionId: String,
-    ): List<TutorVisualSourceAssetScope> = emptyList()
-
     override suspend fun saveTutorSession(
         request: SaveTutorSessionRequest,
     ): CapturedProblemCommitSummary {

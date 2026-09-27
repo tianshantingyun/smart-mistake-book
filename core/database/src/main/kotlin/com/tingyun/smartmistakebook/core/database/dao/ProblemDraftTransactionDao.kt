@@ -41,11 +41,12 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftSourceAsset
 import com.tingyun.smartmistakebook.core.database.entity.ProblemEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionSourceAssetEntity
-import com.tingyun.smartmistakebook.core.database.entity.TutorSessionEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
 import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjection
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
@@ -105,7 +106,28 @@ internal abstract class ProblemDraftTransactionDao {
     protected abstract suspend fun insertCommitReceipt(entity: ProblemDraftCommitReceiptEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract suspend fun insertTutorSession(entity: TutorSessionEntity): Long
+    protected abstract suspend fun insertConversation(entity: TutorConversationEntity): Long
+
+    /**
+     * 把"这份草稿修订已经被某个讲题会话绑定"写进会话行（K1：原 `tutor_session` 的
+     * `draft_id`/`draft_revision_number` 两列并入会话行）。只在还没绑定时写：
+     * 一个草稿只能有一个进行中的讲题会话，能改就等于历史可以被改写。
+     */
+    @Query(
+        """
+        UPDATE tutor_conversation
+        SET capture_draft_id = :draftId,
+            capture_draft_revision_number = :revisionNumber,
+            updated_at_epoch_millis = MAX(updated_at_epoch_millis, :updatedAtEpochMillis)
+        WHERE conversation_id = :conversationId AND capture_draft_id IS NULL
+        """,
+    )
+    protected abstract suspend fun writeCaptureDraftBinding(
+        conversationId: String,
+        draftId: String,
+        revisionNumber: Int,
+        updatedAtEpochMillis: Long,
+    ): Int
 
     @Query("SELECT * FROM canonical_source_asset WHERE source_asset_id = :sourceAssetId LIMIT 1")
     protected abstract suspend fun findSourceAsset(sourceAssetId: String): CanonicalSourceAssetEntity?
@@ -205,11 +227,17 @@ internal abstract class ProblemDraftTransactionDao {
         updatedAtEpochMillis: Long,
     ): Int
 
-    @Query("SELECT * FROM tutor_session WHERE session_id = :sessionId LIMIT 1")
-    protected abstract suspend fun findTutorSessionById(sessionId: String): TutorSessionEntity?
+    @Query("SELECT * FROM tutor_conversation WHERE conversation_id = :conversationId LIMIT 1")
+    protected abstract suspend fun findConversationEntity(conversationId: String): TutorConversationEntity?
 
-    @Query("SELECT * FROM tutor_session WHERE draft_id = :draftId LIMIT 1")
-    protected abstract suspend fun findTutorSessionByDraft(draftId: String): TutorSessionEntity?
+    @Query("SELECT * FROM tutor_conversation WHERE capture_draft_id = :draftId LIMIT 1")
+    protected abstract suspend fun findConversationByDraft(draftId: String): TutorConversationEntity?
+
+    protected suspend fun findTutorSessionById(sessionId: String): TutorConversationEntity? =
+        findConversationEntity(TutorConversationIds.captured(sessionId))
+
+    protected suspend fun findTutorSessionByDraft(draftId: String): TutorConversationEntity? =
+        findConversationByDraft(draftId)
 
     @Query(
         """
@@ -604,13 +632,16 @@ internal abstract class ProblemDraftTransactionDao {
 
         val existingById = findTutorSessionById(command.sessionId)
         val existingByDraft = findTutorSessionByDraft(command.draftId)
-        if (existingById != null && existingByDraft != null && existingById != existingByDraft) {
+        if (
+            existingById != null && existingByDraft != null &&
+            existingById.conversationId != existingByDraft.conversationId
+        ) {
             throw ImmutablePayloadConflictException("tutor_session", command.sessionId)
         }
         val existing = existingById ?: existingByDraft
         if (existing != null) {
             if (!existing.hasSameConfirmation(command)) {
-                throw ImmutablePayloadConflictException("tutor_session", existing.sessionId)
+                throw ImmutablePayloadConflictException("tutor_session", command.sessionId)
             }
             return TutorSessionWriteResult(
                 created = false,
@@ -631,22 +662,42 @@ internal abstract class ProblemDraftTransactionDao {
                 revision = command.confirmedRevision,
             ),
         )
-        val entity = TutorSessionEntity(
-            sessionId = command.sessionId,
-            draftId = command.draftId,
-            draftRevisionNumber = command.confirmedRevision.revisionNumber,
+        val conversationId = TutorConversationIds.captured(command.sessionId)
+        val candidate = TutorConversationEntity(
+            conversationId = conversationId,
+            conversationArea = TUTOR_CONVERSATION_AREA_AGENT,
+            anchorKind = "EPHEMERAL_DRAFT",
+            anchorId = command.sessionId,
+            anchorRevisionId = "${command.draftId}:${command.confirmedRevision.revisionNumber}",
+            captureDraftId = command.draftId,
+            captureDraftRevisionNumber = command.confirmedRevision.revisionNumber,
+            status = "ACTIVE",
+            title = null,
             createdAtEpochMillis = command.createdAtEpochMillis,
+            updatedAtEpochMillis = command.createdAtEpochMillis,
+            lastTurnOrdinal = 0,
+            studentDraft = null,
         )
-        if (insertTutorSession(entity) == -1L) {
-            val winner = findTutorSessionByDraft(command.draftId)
-                ?: findTutorSessionById(command.sessionId)
-                ?: throw ImmutablePayloadConflictException("tutor_session", command.sessionId)
-            if (!winner.hasSameConfirmation(command)) {
-                throw ImmutablePayloadConflictException("tutor_session", winner.sessionId)
+        var created = insertConversation(candidate) != -1L
+        if (!created) {
+            // 会话行可能先被讲题区/界面按需建过（没有草稿绑定）：补写绑定，仍然只写一次。
+            if (writeCaptureDraftBinding(
+                    conversationId = conversationId,
+                    draftId = command.draftId,
+                    revisionNumber = command.confirmedRevision.revisionNumber,
+                    updatedAtEpochMillis = command.createdAtEpochMillis,
+                ) == 1
+            ) {
+                created = true
             }
-            return TutorSessionWriteResult(created = false, session = loadTutorSession(winner))
         }
-        return TutorSessionWriteResult(created = true, session = loadTutorSession(entity))
+        val stored = findTutorSessionByDraft(command.draftId)
+            ?: findTutorSessionById(command.sessionId)
+            ?: throw ImmutablePayloadConflictException("tutor_session", command.sessionId)
+        if (!stored.hasSameConfirmation(command)) {
+            throw ImmutablePayloadConflictException("tutor_session", command.sessionId)
+        }
+        return TutorSessionWriteResult(created = created, session = loadTutorSession(stored))
     }
 
     @Transaction
@@ -710,17 +761,23 @@ internal abstract class ProblemDraftTransactionDao {
         DatabaseContractValidator.validateEndTutorSession(command)
         val entity = findTutorSessionById(command.sessionId)
             ?: throw ImmutablePayloadConflictException("tutor_session", command.sessionId)
-        val draft = findDraftEntity(entity.draftId)
-            ?: throw ImmutablePayloadConflictException("problem_draft", entity.draftId)
-        val receipt = findCommitReceiptByDraft(entity.draftId)
+        val draftId = requireNotNull(entity.captureDraftId) {
+            "Capture session conversation lost its draft binding"
+        }
+        val draftRevisionNumber = requireNotNull(entity.captureDraftRevisionNumber) {
+            "Capture session conversation lost its draft revision binding"
+        }
+        val draft = findDraftEntity(draftId)
+            ?: throw ImmutablePayloadConflictException("problem_draft", draftId)
+        val receipt = findCommitReceiptByDraft(draftId)
         return when (draft.status) {
             StudyDbValue.ProblemDraftStatus.EDITING -> {
                 if (
                     receipt != null ||
-                    draft.currentRevisionNumber != entity.draftRevisionNumber ||
+                    draft.currentRevisionNumber != draftRevisionNumber ||
                     markDraftAbandoned(
-                        draftId = entity.draftId,
-                        expectedRevisionNumber = entity.draftRevisionNumber,
+                        draftId = draftId,
+                        expectedRevisionNumber = draftRevisionNumber,
                         abandonedAtEpochMillis = command.endedAtEpochMillis,
                     ) != 1
                 ) {
@@ -731,13 +788,13 @@ internal abstract class ProblemDraftTransactionDao {
                 }
                 EndTutorSessionResult(
                     sessionId = command.sessionId,
-                    draftId = entity.draftId,
+                    draftId = draftId,
                     endedAtEpochMillis = command.endedAtEpochMillis,
                     created = true,
                 )
             }
             StudyDbValue.ProblemDraftStatus.ABANDONED -> {
-                if (receipt != null || draft.currentRevisionNumber != entity.draftRevisionNumber) {
+                if (receipt != null || draft.currentRevisionNumber != draftRevisionNumber) {
                     throw ImmutablePayloadConflictException(
                         "tutor_session_end",
                         command.sessionId,
@@ -745,7 +802,7 @@ internal abstract class ProblemDraftTransactionDao {
                 }
                 EndTutorSessionResult(
                     sessionId = command.sessionId,
-                    draftId = entity.draftId,
+                    draftId = draftId,
                     endedAtEpochMillis = draft.updatedAtEpochMillis,
                     created = false,
                 )
@@ -754,7 +811,7 @@ internal abstract class ProblemDraftTransactionDao {
                 "tutor_session_already_saved",
                 command.sessionId,
             )
-            else -> throw ImmutablePayloadConflictException("problem_draft_status", entity.draftId)
+            else -> throw ImmutablePayloadConflictException("problem_draft_status", draftId)
         }
     }
 
@@ -1029,17 +1086,26 @@ internal abstract class ProblemDraftTransactionDao {
         val errorBookEntryId: String,
     )
 
-    private suspend fun loadTutorSession(entity: TutorSessionEntity): TutorSessionRecord {
-        val draft = findDraftEntity(entity.draftId)
-            ?: throw ImmutablePayloadConflictException("problem_draft", entity.draftId)
+    private suspend fun loadTutorSession(entity: TutorConversationEntity): TutorSessionRecord {
+        val sessionId = requireNotNull(entity.anchorId) {
+            "Capture session conversation lost its session id"
+        }
+        val draftId = requireNotNull(entity.captureDraftId) {
+            "Capture session conversation lost its draft binding"
+        }
+        val draftRevisionNumber = requireNotNull(entity.captureDraftRevisionNumber) {
+            "Capture session conversation lost its draft revision binding"
+        }
+        val draft = findDraftEntity(draftId)
+            ?: throw ImmutablePayloadConflictException("problem_draft", draftId)
         if (draft.origin != StudyDbValue.CaptureOrigin.TUTOR) {
-            throw ImmutablePayloadConflictException("tutor_session_origin", entity.sessionId)
+            throw ImmutablePayloadConflictException("tutor_session_origin", sessionId)
         }
-        if (draft.currentRevisionNumber != entity.draftRevisionNumber) {
-            throw ImmutablePayloadConflictException("tutor_session_revision", entity.sessionId)
+        if (draft.currentRevisionNumber != draftRevisionNumber) {
+            throw ImmutablePayloadConflictException("tutor_session_revision", sessionId)
         }
-        val revision = findDraftRevision(entity.draftId, entity.draftRevisionNumber)
-            ?: throw ImmutablePayloadConflictException("problem_draft_revision", entity.draftId)
+        val revision = findDraftRevision(draftId, draftRevisionNumber)
+            ?: throw ImmutablePayloadConflictException("problem_draft_revision", draftId)
         val revisionRecord = revision.toRecord()
         if (
             revision.author != StudyDbValue.ProblemDraftAuthor.USER ||
@@ -1053,29 +1119,29 @@ internal abstract class ProblemDraftTransactionDao {
                 revisionRecord.questionDocument,
             ).isNotEmpty()
         ) {
-            throw ImmutablePayloadConflictException("tutor_session_confirmation", entity.sessionId)
+            throw ImmutablePayloadConflictException("tutor_session_confirmation", sessionId)
         }
         val sourceAsset = findSourceAsset(draft.sourceAssetId)
             ?: throw ImmutablePayloadConflictException("canonical_source_asset", draft.sourceAssetId)
-        val receipt = findCommitReceiptByDraft(entity.draftId)
+        val receipt = findCommitReceiptByDraft(draftId)
         when (draft.status) {
             StudyDbValue.ProblemDraftStatus.EDITING -> if (receipt != null) {
-                throw ImmutablePayloadConflictException("tutor_session_commit", entity.sessionId)
+                throw ImmutablePayloadConflictException("tutor_session_commit", sessionId)
             }
             StudyDbValue.ProblemDraftStatus.COMMITTED -> if (
-                receipt == null || receipt.draftRevisionNumber != entity.draftRevisionNumber
+                receipt == null || receipt.draftRevisionNumber != draftRevisionNumber
             ) {
-                throw ImmutablePayloadConflictException("tutor_session_commit", entity.sessionId)
+                throw ImmutablePayloadConflictException("tutor_session_commit", sessionId)
             }
             StudyDbValue.ProblemDraftStatus.ABANDONED -> if (receipt != null) {
-                throw ImmutablePayloadConflictException("tutor_session_commit", entity.sessionId)
+                throw ImmutablePayloadConflictException("tutor_session_commit", sessionId)
             }
-            else -> throw ImmutablePayloadConflictException("problem_draft_status", entity.draftId)
+            else -> throw ImmutablePayloadConflictException("problem_draft_status", draftId)
         }
         return TutorSessionRecord(
-            sessionId = entity.sessionId,
-            draftId = entity.draftId,
-            draftRevisionNumber = entity.draftRevisionNumber,
+            sessionId = sessionId,
+            draftId = draftId,
+            draftRevisionNumber = draftRevisionNumber,
             createdAtEpochMillis = entity.createdAtEpochMillis,
             origin = draft.origin,
             draftStatus = draft.status,
@@ -1085,13 +1151,21 @@ internal abstract class ProblemDraftTransactionDao {
         )
     }
 
-    private suspend fun TutorSessionEntity.hasSameConfirmation(
+    /**
+     * 幂等判据（原 `tutor_session` 的四条）：草稿、修订号、创建时刻，以及**那份修订的内容**
+     * 逐字段相同。内容比对仍按提交内容查库，不看会话行里的缓存列。
+     */
+    private suspend fun TutorConversationEntity.hasSameConfirmation(
         command: ConfirmTutorSessionCommand,
-    ): Boolean =
-        draftId == command.draftId &&
+    ): Boolean {
+        val draftId = captureDraftId ?: return false
+        val draftRevisionNumber = captureDraftRevisionNumber ?: return false
+        return anchorId == command.sessionId &&
+            draftId == command.draftId &&
             draftRevisionNumber == command.confirmedRevision.revisionNumber &&
             createdAtEpochMillis == command.createdAtEpochMillis &&
             findDraftRevision(draftId, draftRevisionNumber) == command.confirmedRevision.toEntity()
+    }
 
     private suspend fun replacementMatches(
         command: ReplaceProblemDraftCommand,

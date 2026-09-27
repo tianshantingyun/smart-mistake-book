@@ -194,12 +194,6 @@ class RoomBackedStudyExperienceRepository(
         studyZoneId = studyZoneId,
         fixtureSource = fixtureSource,
     )
-    private val visualInteractionIngestor = VisualInteractionIngestor(
-        database = database,
-        learnerId = learnerId,
-        reviewLogSink = reviewLogSink,
-        writeContext = writeContext,
-    )
     private val submissionPreparer = StudySubmissionPreparer(
         database = database,
         learnerId = learnerId,
@@ -363,14 +357,6 @@ class RoomBackedStudyExperienceRepository(
                 }
             }
             initialized = true
-            try {
-                visualInteractionIngestor.ingestPending(latestMistakes)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (failure: Throwable) {
-                // Visual-evidence ingestion degrades silently, mirroring the
-                // shadow audit loop: it must never block startup (audit §12).
-            }
             publishReadySnapshot(latestMistakes)
         }
     }
@@ -872,23 +858,6 @@ class RoomBackedStudyExperienceRepository(
     }
 
     /** Calibration for the shadow student-model generation writing predictions today. */
-    /**
-     * Visual-interaction attempts become ledger attempts exactly once per
-     * recorded attemptId (audit §12 / PR-11): the stable submission id makes
-     * [StudyDatabasePort.recordAttempt] replay-safe, so repeated sweeps can
-     * never double-count an interaction.
-     */
-    override suspend fun ingestVisualInteractionAttempts(): Int = runOperation {
-        val mistakes = database.observeMistakes().first()
-        latestMistakes = mistakes
-        initialized = true
-        val created = visualInteractionIngestor.ingestPending(mistakes)
-        if (created > 0) {
-            publishReadySnapshot(latestMistakes)
-        }
-        created
-    }
-
     /**
      * L1 rollout (spec batch-intake-spec §6): feed one real answer attempt's
      * observed duration into the shared duration model, bucketed by

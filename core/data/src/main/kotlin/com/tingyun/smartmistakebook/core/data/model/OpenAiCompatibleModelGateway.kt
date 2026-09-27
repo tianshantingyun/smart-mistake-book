@@ -29,8 +29,9 @@ import com.tingyun.smartmistakebook.core.model.FigurePoint
 import com.tingyun.smartmistakebook.core.model.FigurePolyline
 import com.tingyun.smartmistakebook.core.model.FigureSchema
 import com.tingyun.smartmistakebook.core.model.FigureSeriesStyle
-import com.tingyun.smartmistakebook.core.model.ModelEgressAuthorizationException
 import com.tingyun.smartmistakebook.core.model.MODEL_EGRESS_MAX_ASSET_BYTES
+import com.tingyun.smartmistakebook.core.model.MODEL_TASK_STATUS_MESSAGE_MAX_CHARS
+import com.tingyun.smartmistakebook.core.model.ModelEgressAuthorizationException
 import com.tingyun.smartmistakebook.core.model.ModelEgressPolicy
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
 import com.tingyun.smartmistakebook.core.model.ModelExecutionPermit
@@ -42,9 +43,6 @@ import com.tingyun.smartmistakebook.core.model.ModelRequestBudgetExceededExcepti
 import com.tingyun.smartmistakebook.core.model.ModelRequestPayloadBudget
 import com.tingyun.smartmistakebook.core.model.ModelTaskFailure
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
-import com.tingyun.smartmistakebook.core.model.MODEL_TASK_STATUS_MESSAGE_MAX_CHARS
-import com.tingyun.smartmistakebook.core.model.agentConsentMatches
-import com.tingyun.smartmistakebook.core.model.requiresImageInput
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import com.tingyun.smartmistakebook.core.model.ModelTaskStage
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
@@ -59,17 +57,6 @@ import com.tingyun.smartmistakebook.core.model.StructuredContentLimits
 import com.tingyun.smartmistakebook.core.model.StructuredContentSanitizer
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorChoice
-import com.tingyun.smartmistakebook.core.model.TutorComparisonRow
-import com.tingyun.smartmistakebook.core.model.TutorComparisonScene
-import com.tingyun.smartmistakebook.core.model.TutorConceptMapScene
-import com.tingyun.smartmistakebook.core.model.TutorConceptRelation
-import com.tingyun.smartmistakebook.core.model.TutorCircularMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorDiagramAnchor
-import com.tingyun.smartmistakebook.core.model.TutorDiagramEdge
-import com.tingyun.smartmistakebook.core.model.TutorDiagramEdgeStyle
-import com.tingyun.smartmistakebook.core.model.TutorDiagramNode
-import com.tingyun.smartmistakebook.core.model.TutorDiagramNodeShape
-import com.tingyun.smartmistakebook.core.model.TutorEvidenceChainScene
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorDebriefInput
@@ -77,46 +64,12 @@ import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
-import com.tingyun.smartmistakebook.core.model.TutorEvidencePoint
-import com.tingyun.smartmistakebook.core.model.TutorEvidencePointKind
-import com.tingyun.smartmistakebook.core.model.TutorFormulaDerivationScene
-import com.tingyun.smartmistakebook.core.model.TutorFormulaDerivationStep
 import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
-import com.tingyun.smartmistakebook.core.model.TutorLinearMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorOscillationMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorProcessStage
-import com.tingyun.smartmistakebook.core.model.TutorProcessTimelineScene
-import com.tingyun.smartmistakebook.core.model.TutorProjectileMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorSceneEmphasis
-import com.tingyun.smartmistakebook.core.model.TutorSceneStep
-import com.tingyun.smartmistakebook.core.model.TutorSpatialDiagramScene
-import com.tingyun.smartmistakebook.core.model.TutorStepFlowScene
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTurnPlan
-import com.tingyun.smartmistakebook.core.model.TutorVisualScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerationDecision
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerationRequest
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewDecision
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualEntityCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualEntityShape
-import com.tingyun.smartmistakebook.core.model.TutorVisualExpression
-import com.tingyun.smartmistakebook.core.model.TutorVisualExpressionOperation
-import com.tingyun.smartmistakebook.core.model.TutorVisualFormulaCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualLineStyle
-import com.tingyun.smartmistakebook.core.model.TutorVisualLinkCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualMetricCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualNoteCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualParameter
-import com.tingyun.smartmistakebook.core.model.TutorVisualPathCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualProgramScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualTableCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualVectorCommand
 import com.tingyun.smartmistakebook.core.model.WritingLayer
+import com.tingyun.smartmistakebook.core.model.agentConsentMatches
+import com.tingyun.smartmistakebook.core.model.requiresImageInput
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -231,8 +184,6 @@ internal class OpenAiCompatibleModelGateway(
                                     is TutorPlanInput -> "模型正在准备当前题的讲解"
                                     is TutorLobbyInput -> "模型正在理解你的消息"
                                     is TutorRespondInput -> "模型正在回应你对当前题的追问"
-                                    is TutorVisualGenerateInput -> "正在核对题图并组织直观讲解"
-                                    is TutorVisualReviewInput -> "正在复核图中的关键关系"
                                     is TutorDebriefInput -> "正在安静地整理这次讲题的要点"
                                     is com.tingyun.smartmistakebook.core.model.KnowledgeQuizInput -> "模型正在按知识点出复习题"
                                     is ProblemOrganizationInput -> "模型正在提出待确认的分类和题目联系"
@@ -533,8 +484,6 @@ private fun ModelConfigurationSnapshot.toCapabilities(): ProviderCapabilitySnaps
             if (verification.supportsImageInput) {
                 add(ModelTaskKind.CAPTURE_ASSESS)
                 add(ModelTaskKind.CAPTURE_PARSE)
-                add(ModelTaskKind.TUTOR_VISUAL_GENERATE)
-                add(ModelTaskKind.TUTOR_VISUAL_REVIEW)
             }
         }
     }
@@ -604,8 +553,6 @@ private fun ModelGatewayExecution.requireImageRequestFits(
         }
         is CaptureParseInput -> input.sourceAssets.sortedBy { it.pageIndex }.map { it.assetId }
         is ImagePipelineClassifyInput -> listOf(input.sourceAssetId)
-        is TutorVisualGenerateInput -> input.sourceAssets.sortedBy { it.pageIndex }.map { it.assetId }
-        is TutorVisualReviewInput -> input.sourceAssets.sortedBy { it.pageIndex }.map { it.assetId }
         // 本条消息的图在前，上文图片在后（顺序与提示词里的说明一致，模型据此区分）。
         is TutorLobbyInput -> (
             input.sourceImageAssetRefs.sortedBy { it.pageIndex } +

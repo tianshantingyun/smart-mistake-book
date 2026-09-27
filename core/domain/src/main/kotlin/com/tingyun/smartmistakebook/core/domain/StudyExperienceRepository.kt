@@ -439,15 +439,6 @@ interface StudyExperienceRepository : AutoCloseable {
         occurredAtEpochMillis: Long,
     ): StudyReviewSessionProgress?
 
-    /**
-     * Ingests locally judged visual-interaction attempts as ledger evidence
-     * (audit §12 / PR-11). Only decisive verdicts for active saved questions
-     * with confirmed knowledge bindings are converted; everything else is
-     * skipped so visual evidence can never be mis-attributed.
-     * @return number of newly created ledger attempts.
-     */
-    suspend fun ingestVisualInteractionAttempts(): Int = 0
-
     /** Calibration of the shadow student model over resolved predictions (audit §6.3 / PR-07). */
     suspend fun calibrationReport(): CalibrationReport = CalibrationReport(
         modelVersion = LearningModelVersion(

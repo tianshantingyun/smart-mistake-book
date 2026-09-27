@@ -569,7 +569,6 @@ class MistakeOrganizationInstrumentedTest {
                         approvedAtEpochMillis = approvedAtEpochMillis,
                         assets = emptyList(),
                         disclosedData = ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
-                        prohibitedData = ModelEgressManifest.PROBLEM_ORGANIZATION_PROHIBITED_DATA,
                     ),
                 ),
                 relatedCandidateTitles = listOf("二次函数变式"),
@@ -701,7 +700,6 @@ class MistakeOrganizationInstrumentedTest {
                 approvedAtEpochMillis = approvedAtEpochMillis,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.PROBLEM_ORGANIZATION_PROHIBITED_DATA,
             ),
         )
     }

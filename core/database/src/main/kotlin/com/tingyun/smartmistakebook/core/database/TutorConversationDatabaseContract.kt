@@ -1,7 +1,11 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.database.dao.TUTOR_CONVERSATION_AREA_AGENT
+
 data class TutorConversationRecord(
     val conversationId: String,
+    /** 会话区（K1）：会话按栏隔离的判别列。 */
+    val conversationArea: String = TUTOR_CONVERSATION_AREA_AGENT,
     val anchorKind: String,
     val anchorId: String?,
     val anchorRevisionId: String?,
@@ -13,6 +17,11 @@ data class TutorConversationRecord(
     val studentDraft: String?,
     /** 真实消息行数（列表展示用；last_turn_ordinal 是序号语义，讲题会话有空洞）。 */
     val messageCount: Int = 0,
+    /**
+     * 首条**有正文**的消息的正文（K1c 会话标题的读侧输入；本地事件行正文为空，天然被排除）。
+     * 只由列表读侧填充——`observeRecent` 需要它算标题，单条会话的读侧不付这次查询。
+     */
+    val firstMessageBodyMarkdown: String? = null,
 )
 
 data class TutorMessageRecord(
@@ -35,6 +44,11 @@ data class TutorMessageRecord(
 
 data class CreateTutorConversationDatabaseCommand(
     val conversationId: String,
+    /**
+     * 会话区（K1）：AGENT / REVIEW_MISTAKE / REVIEW_KNOWLEDGE，集合开放。
+     * 默认 AGENT；复习栏两个入口由创建方显式给出 REVIEW_*（阶段 5 接线）。
+     */
+    val conversationArea: String = TUTOR_CONVERSATION_AREA_AGENT,
     val anchorKind: String,
     val anchorId: String?,
     val anchorRevisionId: String?,
@@ -45,7 +59,8 @@ data class CreateTutorConversationDatabaseCommand(
 data class AppendTutorStudentMessageDatabaseCommand(
     val conversationId: String,
     val messageId: String,
-    val ordinal: Int,
+    /** `null` = 由会话计数器分配（会话行 `last_turn_ordinal + 1`）；见 K1c 单数轴。 */
+    val ordinal: Int? = null,
     val bodyMarkdown: String,
     val logicalOperationId: String,
     val createdAtEpochMillis: Long,
@@ -89,7 +104,14 @@ data class TutorMessageSourceAssetRecord(
 data class AppendTutorAssistantMessageDatabaseCommand(
     val conversationId: String,
     val messageId: String,
-    val ordinal: Int,
+    /**
+     * `null` = 由会话计数器分配（会话行 `last_turn_ordinal + 1`）；见 K1c 单数轴。
+     *
+     * 助手行与用户行同一条数轴：讲题区一轮的助手正文是在模型回复到手后才写的，那时会话里
+     * 可能已经有别的写入（大厅与讲题真的会写进同一条会话），调用方自己按观察到的快照号
+     * 推算就会撞号；号由会话计数器在写入的同一个事务里给出，才是唯一不会撞的分配方式。
+     */
+    val ordinal: Int? = null,
     val replyToMessageId: String?,
     val bodyMarkdown: String,
     val thinkingMarkdown: String? = null,

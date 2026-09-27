@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.mistake
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ErrorBookEntrySeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
@@ -65,7 +66,11 @@ class MistakeOrganizationRepositoryInstrumentedTest {
         context.deleteDatabase(databaseName)
         database = StudyDatabaseFactory.open(context, databaseName)
         database.seedFixture(seed())
-        repository = RoomMistakeOrganizationRepository(database)
+        repository = RoomMistakeOrganizationRepository(
+            database = database,
+            // 这些用例钉的是整理结果的本地落库与幂等，不是就绪门（D-Q3）：按已就绪构造。
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+        )
     }
 
     @After

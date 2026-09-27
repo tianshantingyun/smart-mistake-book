@@ -309,10 +309,13 @@ abstract class CapturedTutorSessionTestBase {
                 command: AppendTutorStudentMessageCommand,
             ): TutorMessage {
                 recordedStudentMessages += command
+                // 与内核同一口径（K1c）：未给号时由会话计数器分配下一位。
+                val ordinal = command.ordinal
+                    ?: ((snapshot.value?.conversation?.lastTurnOrdinal ?: 0) + 1)
                 val message = TutorMessage(
                     messageId = command.messageId,
                     conversationId = command.conversationId,
-                    ordinal = command.ordinal,
+                    ordinal = ordinal,
                     role = TutorMessageRole.STUDENT,
                     bodyMarkdown = command.bodyMarkdown,
                     status = TutorMessageStatus.PERSISTED,
@@ -326,7 +329,7 @@ abstract class CapturedTutorSessionTestBase {
                     current.copy(
                         conversation = current.conversation.copy(
                             updatedAtEpochMillis = command.createdAtEpochMillis,
-                            lastTurnOrdinal = command.ordinal,
+                            lastTurnOrdinal = ordinal,
                         ),
                         messages = current.messages + message,
                     )
@@ -337,10 +340,13 @@ abstract class CapturedTutorSessionTestBase {
             override suspend fun appendAssistantMessage(
                 command: AppendTutorAssistantMessageCommand,
             ): TutorMessage {
+                // 与内核同一口径（K1c 单数轴）：未给号时由会话计数器分配下一位。
+                val ordinal = command.ordinal
+                    ?: ((snapshot.value?.conversation?.lastTurnOrdinal ?: 0) + 1)
                 val message = TutorMessage(
                     messageId = command.messageId,
                     conversationId = command.conversationId,
-                    ordinal = command.ordinal,
+                    ordinal = ordinal,
                     role = TutorMessageRole.ASSISTANT,
                     bodyMarkdown = command.bodyMarkdown,
                     status = command.status,
@@ -355,7 +361,7 @@ abstract class CapturedTutorSessionTestBase {
                         conversation = current.conversation.copy(
                             updatedAtEpochMillis = command.completedAtEpochMillis
                                 ?: command.createdAtEpochMillis,
-                            lastTurnOrdinal = command.ordinal,
+                            lastTurnOrdinal = ordinal,
                         ),
                         messages = current.messages + message,
                     )

@@ -65,10 +65,9 @@ jobs:
         # modules use `test`; Android library modules use the debug variant.
         run: >
           ./gradlew testLocalFirstDebugUnitTest testStrictOfflineDebugUnitTest
-          :core:domain:test :core:model:test :core:visual-runtime:test
-          :quality:visual-benchmark:test
+          :core:domain:test :core:model:test
           :core:data:testDebugUnitTest :core:database:testDebugUnitTest
-          :core:export:testDebugUnitTest :core:visual-ui:testDebugUnitTest
+          :core:export:testDebugUnitTest
           :feature:capture:testDebugUnitTest :feature:library:testDebugUnitTest
           :feature:tutor:testDebugUnitTest :feature:profile:testDebugUnitTest
           :feature:review:testDebugUnitTest --console=plain
@@ -102,7 +101,7 @@ jobs:
         run: >
           ./gradlew lintLocalFirstDebug lintStrictOfflineDebug
           :core:data:lintDebug :core:database:lintDebug :core:export:lintDebug
-          :core:ui:lintDebug :core:visual-ui:lintDebug
+          :core:ui:lintDebug
           :feature:capture:lintDebug :feature:library:lintDebug
           :feature:profile:lintDebug :feature:review:lintDebug
           :feature:tutor:lintDebug
@@ -148,7 +147,7 @@ jobs:
 
   instrumented:
     runs-on: ubuntu-latest
-    # 模拟器启动最长可占约 30 分钟（boot timeout 1800s），再加 9 个 connected 测试任务，
+    # 模拟器启动最长可占约 30 分钟（boot timeout 1800s），再加 8 个 connected 测试任务，
     # 60 分钟余量不足，放宽到 90 分钟。
     timeout-minutes: 90
     steps:
@@ -191,7 +190,7 @@ jobs:
           # continuations do NOT work - the trailing backslash is passed to
           # Gradle as a literal task name. Keep gradle on a single line.
           script: |
-            ./gradlew :core:database:connectedDebugAndroidTest :core:data:connectedDebugAndroidTest :core:visual-ui:connectedDebugAndroidTest :core:export:connectedDebugAndroidTest :feature:capture:connectedDebugAndroidTest :feature:tutor:connectedDebugAndroidTest :feature:library:connectedDebugAndroidTest :app:connectedLocalFirstDebugAndroidTest :app:connectedStrictOfflineDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.ciSlowRunner=1 --continue --console=plain
+            ./gradlew :core:database:connectedDebugAndroidTest :core:data:connectedDebugAndroidTest :core:export:connectedDebugAndroidTest :feature:capture:connectedDebugAndroidTest :feature:tutor:connectedDebugAndroidTest :feature:library:connectedDebugAndroidTest :app:connectedLocalFirstDebugAndroidTest :app:connectedStrictOfflineDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.ciSlowRunner=1 --continue --console=plain
       - name: Fail if any benchmark/beta gate is hardcoded (moved to targets)
         run: |
           if rg -q "assertTrue.*1500L|return 1500L|0.5 // Placeholder|dataRecoveryDrillGate" benchmark app; then

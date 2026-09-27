@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 import java.io.File
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
-import com.tingyun.smartmistakebook.core.database.port.VisualInteractionAttemptRecord
+import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeQuestionLatticeRecord
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
@@ -351,15 +351,6 @@ internal class RoomStudyDatabase(
 
     override suspend fun findLastPredictionLatencyMs(practiceUnitId: String): Long? =
         studentModel.findLastLatencyMs(practiceUnitId)
-
-    override suspend fun recordVisualInteractionAttempt(
-        attempt: VisualInteractionAttemptRecord,
-    ) = studentModel.recordVisualInteractionAttempt(attempt)
-
-    override suspend fun readVisualInteractionAttempts(
-        problemRevisionId: String,
-    ): List<VisualInteractionAttemptRecord> =
-        studentModel.readVisualInteractionAttempts(problemRevisionId)
 
     override suspend fun readPracticeUnitKnowledgeBindings(
         practiceUnitId: String,
@@ -988,6 +979,32 @@ internal class RoomStudyDatabase(
     override suspend fun deleteTutorConversation(conversationId: String) {
         database.tutorConversationDao().deleteConversation(conversationId)
     }
+
+    override suspend fun createAgentPendingRequest(
+        command: CreateAgentPendingRequestDatabaseCommand,
+    ): AgentPendingRequestRecord =
+        database.agentPendingRequestDao().createRequest(command)
+
+    override suspend fun resolveAgentPendingRequest(
+        command: ResolveAgentPendingRequestDatabaseCommand,
+    ): AgentPendingRequestRecord =
+        database.agentPendingRequestDao().resolveRequest(command)
+
+    override fun observePendingAgentRequests(
+        conversationArea: String?,
+    ): Flow<List<AgentPendingRequestRecord>> =
+        database.agentPendingRequestDao().observePending(conversationArea)
+
+    override suspend fun readPendingAgentRequests(
+        conversationArea: String?,
+    ): List<AgentPendingRequestRecord> =
+        database.agentPendingRequestDao().readPending(conversationArea)
+
+    override suspend fun readResolvedAgentPendingRequests(
+        conversationArea: String,
+        limit: Int,
+    ): List<AgentPendingRequestRecord> =
+        database.agentPendingRequestDao().readResolved(conversationArea = conversationArea, limit = limit)
 
     override suspend fun saveTutorConversationDraft(
         conversationId: String,

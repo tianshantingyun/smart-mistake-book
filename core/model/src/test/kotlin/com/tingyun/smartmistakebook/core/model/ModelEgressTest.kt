@@ -86,7 +86,6 @@ class ModelEgressTest {
         val failure = runCatching {
             manifest().copy(
                 disclosedData = ModelEgressManifest.CAPTURE_IMAGE_DISCLOSURE + extra,
-                prohibitedData = ModelEgressManifest.CAPTURE_PROHIBITED_DATA - extra,
             )
         }.exceptionOrNull()
 
@@ -149,8 +148,6 @@ class ModelEgressTest {
                 legacyTutorPlanManifest().copy(
                     authorizedTaskKinds = setOf(ModelTaskKind.TUTOR_RESPOND),
                     disclosedData = ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE,
-                    prohibitedData = ModelEgressManifest.SCHEMA_V1_DATA_CLASSES -
-                        ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE,
                 )
             }.isFailure,
         )
@@ -160,14 +157,16 @@ class ModelEgressTest {
     fun persistedSchemaTwoTutorPlanManifestKeepsItsOriginalDisclosure() {
         val legacyManifest = legacyTutorPlanManifest().copy(
             schemaVersion = 2,
-            prohibitedData = ModelEgressManifest.dataClassUniverseForSchema(2) -
-                ModelEgressManifest.LEGACY_TUTOR_PLAN_DISCLOSURE,
         )
         val request = legacyTutorPlanRequest().copy(
             schemaVersion = 2,
             egressManifest = legacyManifest,
         )
         val encoded = ModelTaskCodec.encodeRequest(request)
+        // 当年这份 schema 2 行的形状：`prohibitedData` 是**派生键**（schema 2 的宇宙 − 已披露）。
+        // 数组内容**手工写出**（不从生产代码算），这样本用例才能真正钉住"复原出来的是当年那份字节"：
+        // schema 2 的宇宙 = 全枚举 − MODEL_AUTHORED_VISUAL_CANDIDATE（schema<5 的清单不含该成员），
+        // 已披露 = LEGACY_TUTOR_PLAN_DISCLOSURE（题面 / 学习证据 / 题级学习证据）。
         val legacyJson = encoded.replace(",\"priorCycleStudentMessages\":[]", "")
             .replace(",\"agentConsentGranted\":false", "")
             // schema 2 时代还没有 schema 13 引入的 Plan 载体键——当年的编码不含它们。
@@ -175,6 +174,16 @@ class ModelEgressTest {
             .replace(",\"toolRoundResults\":[]", "")
             .replace(",\"knowledgeCodes\":[]", "")
             .replace(",\"teachingReferencesLoadFailed\":false", "")
+            .replace(
+                ",\"disclosedData\":[\"CONFIRMED_QUESTION_DOCUMENT\",\"RELEVANT_LEARNING_EVIDENCE\"," +
+                    "\"QUESTION_LEARNING_EVIDENCE\"]",
+                ",\"disclosedData\":[\"CONFIRMED_QUESTION_DOCUMENT\",\"RELEVANT_LEARNING_EVIDENCE\"," +
+                    "\"QUESTION_LEARNING_EVIDENCE\"],\"prohibitedData\":[\"SANITIZED_IMAGE_BYTES\"," +
+                    "\"IMAGE_DIMENSIONS\",\"SELECTED_IMAGE_REGION\",\"RELATED_QUESTION_CANDIDATES\"," +
+                    "\"SUBJECT_KNOWLEDGE_BASE\",\"OTHER_CAPTURE_ASSETS\",\"FULL_LEARNING_HISTORY\"," +
+                    "\"API_CREDENTIALS\",\"CAPTURE_METADATA\",\"STUDENT_TUTOR_MESSAGE\"," +
+                    "\"TUTOR_CONVERSATION_CONTEXT\"]",
+            )
         val expectedFingerprint = MessageDigest.getInstance("SHA-256")
             .digest(legacyJson.toByteArray(StandardCharsets.UTF_8))
             .joinToString("") { "%02x".format(it) }
@@ -235,34 +244,21 @@ class ModelEgressTest {
                 manifest.copy(
                     disclosedData = manifest.disclosedData -
                         ModelEgressDataClass.TUTOR_CONVERSATION_CONTEXT,
-                    prohibitedData = manifest.prohibitedData +
-                        ModelEgressDataClass.TUTOR_CONVERSATION_CONTEXT,
                 )
             }.isFailure,
         )
     }
 
-    @Test
-    fun staleOrFutureApprovalIsRejectedBeforeExternalExecution() {
-        val expired = runCatching {
-            ModelEgressPolicy.authorize(
-                request(manifest()),
-                externalProvider(),
-                101 + MODEL_EGRESS_APPROVAL_TTL_MILLIS + 1,
-            )
-        }.exceptionOrNull() as ModelEgressAuthorizationException
-        val future = runCatching {
-            ModelEgressPolicy.authorize(
-                request(manifest().copy(approvedAtEpochMillis = 10_000_000)),
-                externalProvider(),
-                101,
-            )
-        }.exceptionOrNull() as ModelEgressAuthorizationException
-
-        assertEquals(ModelFailureCode.EGRESS_AUTHORIZATION_INVALID, expired.failureCode)
-        assertEquals(ModelFailureCode.EGRESS_AUTHORIZATION_INVALID, future.failureCode)
-    }
-
+    // ---- D-K4 删除的授权时效用例（manifest 路径不再核对 TTL）----
+    //
+    // 此前这里有一条 `staleOrFutureApprovalIsRejectedBeforeExternalExecution`：过期（+15 分钟）
+    // 与未来时刻（+2 分钟时钟偏移）都被拒。它跟着 `requireAuthorizes` 的
+    // `isModelEgressApprovalFresh` 调用一起删除：清单时刻（`approvedAtEpochMillis`）的唯一来源是
+    // 客户端自己刚写的当前时间，所有派发/恢复点都在同一帧重盖（研究报告 §4.6 R5），判据在运行时
+    // 永远成立——它拦不住任何真实请求。保留的时效语义只有两处：
+    // ① `TutorAutoStartAuthorization.matches` 的"刚拍完可以直接开始讲题"租约（独立测试）；
+    // ② 下面两条 tutor 轮的"授权可以早于请求"豁免，以及大厅那条"授权不得早于请求"的断言
+    //    （`approvedAtEpochMillis >= occurredAtEpochMillis`，仍在 requireAuthorizes 里）。
     @Test
     fun tutorConversationGrantMayPrecedeANewMessageWhileItIsStillFresh() {
         val manifest = tutorRespondManifest().copy(approvedAtEpochMillis = 90)
@@ -346,7 +342,6 @@ class ModelEgressTest {
                 ),
             ),
             disclosedData = ModelEgressManifest.TUTOR_LOBBY_IMAGE_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.TUTOR_LOBBY_IMAGE_PROHIBITED_DATA,
         )
 
         val authorized = ModelEgressPolicy.authorize(
@@ -422,7 +417,6 @@ class ModelEgressTest {
             ModelEgressDataClass.SANITIZED_IMAGE_BYTES,
             ModelEgressDataClass.IMAGE_DIMENSIONS,
         ),
-        prohibitedData = ModelEgressManifest.CAPTURE_PROHIBITED_DATA,
     )
 
     private fun legacyTutorPlanRequest() = ModelTaskRequest(
@@ -442,7 +436,7 @@ class ModelEgressTest {
     private fun legacyTutorPlanManifest() = ModelEgressManifest(
         schemaVersion = 1,
         authorizationId = "tutor-plan-legacy-approval",
-        subjectId = "tutor-session-1",
+        subjectId = TutorConversationIds.captured("tutor-session-1"),
         purpose = ModelEgressPurpose.TUTORING,
         authorizedTaskKinds = setOf(ModelTaskKind.TUTOR_PLAN),
         providerId = "provider-1",
@@ -452,8 +446,6 @@ class ModelEgressTest {
         approvedAtEpochMillis = 101,
         assets = emptyList(),
         disclosedData = ModelEgressManifest.LEGACY_TUTOR_PLAN_DISCLOSURE,
-        prohibitedData = ModelEgressManifest.SCHEMA_V1_DATA_CLASSES -
-            ModelEgressManifest.LEGACY_TUTOR_PLAN_DISCLOSURE,
     )
 
     /**
@@ -517,7 +509,7 @@ class ModelEgressTest {
 
     private fun currentTutorPlanManifest() = ModelEgressManifest(
         authorizationId = "tutor-plan-current-approval",
-        subjectId = "tutor-session-1",
+        subjectId = TutorConversationIds.captured("tutor-session-1"),
         purpose = ModelEgressPurpose.TUTORING,
         authorizedTaskKinds = setOf(ModelTaskKind.TUTOR_PLAN),
         providerId = "provider-1",
@@ -527,19 +519,20 @@ class ModelEgressTest {
         approvedAtEpochMillis = 101,
         assets = emptyList(),
         disclosedData = ModelEgressManifest.TUTOR_PLAN_DISCLOSURE,
-        prohibitedData = ModelEgressManifest.TUTOR_PLAN_PROHIBITED_DATA,
     )
 
-    // ---- 披露两态：无题 / 有题（外加候选菜单与大厅附图两个正交加成）----
-    // 每一态都断言**两件事**：disclosedData == expected，且 prohibited == 全集 − 已披露。
-    // 披露集合是精确相等校验的，任何一边单独改动都会在这里对不上。
+    // ---- 披露口径（测试锁，不是运行时门）----
+    // 每一态断言"disclosedData == expected"：这是**共享口径**本身（`TutorRoundDisclosure` 是唯一
+    // 计算入口，`ModelEgressManifest.init` 逐 kind 要求披露集合精确等于它），任何一边单独改动都会
+    // 在这里对不上。此前每条还断言"未披露集 == 全集 − 已披露"——那个派生键（`prohibitedData`）
+    // 已随 D-K4 删除（研究报告 §4.6 R6：生产读取 0 处），它的守恒由 init 的精确相等校验蕴含，
+    // 不再需要一份常量副本。
     //
     // 这里此前还有一条 `a question round with an image additionally discloses image classes`
     // 的逐态用例。它测的是**生产里不可达**的组合（题轮 + 图字节）：三个校验调用点没有一个能
     // 传入这一组合（init 里两个标志由同一个 kind 派生而互斥、Respond 分支硬编码无图且
     // `assets` 必须为空、Lobby 分支 carriesQuestion=false），函数收敛成两个具名入口之后
     // 这个组合**构造不出来**，所以用例随之删除——它不是被放宽，而是不再有对应的状态。
-    // 那条边界仍由 `a question round manifest still refuses image assets` 在清单层钉住。
 
     @Test
     fun `a no-question round discloses no question document`() {
@@ -547,10 +540,6 @@ class ModelEgressTest {
 
         assertEquals(ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE, expected)
         assertFalse(ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT in expected)
-        assertEquals(
-            ModelEgressDataClass.entries.toSet() - expected,
-            ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
-        )
     }
 
     @Test
@@ -559,14 +548,10 @@ class ModelEgressTest {
 
         assertEquals(ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE, expected)
         assertTrue(ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT in expected)
-        // 题轮在清单路径上永不带图字节（`require(assets.isEmpty())`）：它的披露集合里
-        // **没有**图片类目，也没有"带图"这一维可传。
+        // 题轮不带图片类目：生产里题轮根本不走清单路径（agent-eligible，走全局同意通道），
+        // 图字节的边界由请求侧资产 + provider 图片能力 + 资产源逐字节核对共同把住。
         assertFalse(ModelEgressDataClass.SANITIZED_IMAGE_BYTES in expected)
         assertFalse(ModelEgressDataClass.IMAGE_DIMENSIONS in expected)
-        assertEquals(
-            ModelEgressDataClass.entries.toSet() - expected,
-            ModelEgressManifest.TUTOR_RESPOND_PROHIBITED_DATA,
-        )
     }
 
     @Test
@@ -576,10 +561,6 @@ class ModelEgressTest {
 
         assertEquals(ModelEgressManifest.TUTOR_LOBBY_IMAGE_DISCLOSURE, expected)
         assertFalse(ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT in expected)
-        assertEquals(
-            ModelEgressDataClass.entries.toSet() - expected,
-            ModelEgressManifest.TUTOR_LOBBY_IMAGE_PROHIBITED_DATA,
-        )
     }
 
     @Test
@@ -621,22 +602,7 @@ class ModelEgressTest {
             tutorLobbyManifest().copy(
                 schemaVersion = ModelEgressManifest.CURRENT_SCHEMA_VERSION,
                 disclosedData = covered,
-                prohibitedData = ModelEgressDataClass.entries.toSet() - covered,
                 includesQuestionCandidates = true,
-            )
-        }
-    }
-
-    @Test
-    fun `a manifest that understates the candidate menu is rejected`() {
-        // 请求里带着菜单，清单却说"没有候选菜单"——少报就是真实的越界披露，必须被拒。
-        assertThrows(IllegalArgumentException::class.java) {
-            ModelEgressPolicy.authorize(
-                request = tutorRespondRequestWithMenu(
-                    tutorRespondManifest().copy(includesQuestionCandidates = false),
-                ),
-                provider = tutorProvider(ModelTaskKind.TUTOR_RESPOND),
-                nowEpochMillis = 101,
             )
         }
     }
@@ -647,65 +613,35 @@ class ModelEgressTest {
             ModelEgressDataClass.RELATED_QUESTION_CANDIDATES
         val manifest = tutorRespondManifest().copy(
             disclosedData = covered,
-            prohibitedData = ModelEgressDataClass.entries.toSet() - covered,
             includesQuestionCandidates = true,
         )
 
         val execution = ModelEgressPolicy.authorize(
             request = tutorRespondRequestWithMenu(manifest),
             provider = tutorProvider(ModelTaskKind.TUTOR_RESPOND),
-            // 授权新鲜度是短时窗口，测试时钟必须与 approvedAtEpochMillis 对齐。
             nowEpochMillis = 101,
         )
 
         assertTrue(execution.permit is ModelExecutionPermit.External)
     }
 
-    @Test
-    fun `a manifest that overstates the candidate menu is rejected too`() {
-        // 反向：清单说覆盖了菜单，请求里却没有菜单 —— 多报同样与请求不一致。
-        val covered = ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE +
-            ModelEgressDataClass.RELATED_QUESTION_CANDIDATES
-        val manifest = tutorRespondManifest().copy(
-            disclosedData = covered,
-            prohibitedData = ModelEgressDataClass.entries.toSet() - covered,
-            includesQuestionCandidates = true,
-        )
-
-        assertThrows(IllegalArgumentException::class.java) {
-            ModelEgressPolicy.authorize(
-                request = tutorRespondRequest(manifest),
-                provider = tutorProvider(ModelTaskKind.TUTOR_RESPOND),
-                nowEpochMillis = 101,
-            )
-        }
-    }
-
-    @Test
-    fun `a question round manifest still refuses image assets`() {
-        // 这条既有断言（在 requireAuthorizes 里）正是"有题带图"这一态在**清单路径上**不可达的
-        // 原因：Respond 的附图只走全局同意通道。把它钉住，免得有人以为那一态已经接线、
-        // 或者反过来悄悄放宽它。
-        val manifest = tutorRespondManifest().copy(
-            assets = listOf(
-                ModelEgressAssetGrant(
-                    assetId = "asset-1",
-                    sha256 = "a".repeat(64),
-                    byteSize = 1_024,
-                    width = 100,
-                    height = 100,
-                ),
-            ),
-        )
-
-        assertThrows(IllegalArgumentException::class.java) {
-            ModelEgressPolicy.authorize(
-                request = tutorRespondRequest(manifest),
-                provider = tutorProvider(ModelTaskKind.TUTOR_RESPOND),
-                nowEpochMillis = 101,
-            )
-        }
-    }
+    // ---- D-K4 删除的三个"逐次核对"用例（**没有**对应的运行时门了，故不留测试）----
+    //
+    // ① `a manifest that understates the candidate menu is rejected` /
+    //    `a manifest that overstates the candidate menu is rejected too`：两条都由
+    //    `requireAuthorizes` 的 Respond 分支持核对 `includesQuestionCandidates` 与请求是否一致。
+    //    该分支不可达——**生产里题轮不带清单**（`TutorModelTaskPolicy` 的 `egressManifest = null`，
+    //    agent-eligible 走全局同意通道），所以它拦不住任何真实请求：要给这两条用例造出场景，
+    //    必须手工拼一份生产不存在的"题轮 + 清单"。真正的边界在请求侧事实本身
+    //    （`disclosesQuestionCandidates()` 由 `core:data` 的 NOTEBOOK_READ 消费）与 init 的
+    //    schema 门（schema<7 的旧清单不得声称覆盖菜单），后两条仍有测试。
+    // ② `a question round manifest still refuses image assets`：同样只在那条不可达分支里成立。
+    //    有题带图的图字节边界在别处：请求侧真的带了哪个资产（`studentImageAssetRefs`）+
+    //    provider 支持图片输入（`agentConsentMatches`/`requiresImageInput`）+ 资产源逐字节核对
+    //    （`AndroidRestrictedModelAssetSource`，`core:data` 有独立测试）。
+    //
+    // 这份说明是删除依据，不是"测试锁"：被删掉的行为已经不存在，留一条会绿的用例只会让人
+    // 以为那两道门还在。
 
     @Test
     fun `a legacy manifest cannot claim to cover a candidate menu`() {
@@ -767,7 +703,9 @@ class ModelEgressTest {
 
     private fun tutorRespondManifest() = ModelEgressManifest(
         authorizationId = "tutor-respond-approval",
-        subjectId = "tutor-session-1",
+        // 清单主语必须与 `TutorRespondInput.subjectId` 同口径（K1c：会话 id 的派生对话 id），
+        // 否则清单在 requireAuthorizes 的主语核对上就被拒——这正是那条断言要拦的错配。
+        subjectId = TutorConversationIds.captured("tutor-session-1"),
         purpose = ModelEgressPurpose.TUTORING,
         authorizedTaskKinds = setOf(ModelTaskKind.TUTOR_RESPOND),
         providerId = "provider-1",
@@ -777,7 +715,6 @@ class ModelEgressTest {
         approvedAtEpochMillis = 101,
         assets = emptyList(),
         disclosedData = ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE,
-        prohibitedData = ModelEgressManifest.TUTOR_RESPOND_PROHIBITED_DATA,
     )
 
     private fun tutorLobbyRequest(manifest: ModelEgressManifest) = ModelTaskRequest(
@@ -803,7 +740,6 @@ class ModelEgressTest {
         approvedAtEpochMillis = approvedAtEpochMillis,
         assets = emptyList(),
         disclosedData = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE,
-        prohibitedData = ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
     )
 
     private fun confirmedQuestion() = QuestionDocument(

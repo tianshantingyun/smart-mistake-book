@@ -3,7 +3,6 @@ package com.tingyun.smartmistakebook.feature.tutor
 import com.tingyun.smartmistakebook.core.domain.ConfirmedTutorSession
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.StudyQuestionMemory
-import com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope
 import com.tingyun.smartmistakebook.core.domain.TutorAnswerExposureKey
 import com.tingyun.smartmistakebook.core.domain.TutorAnswerExposureSurfaceKind
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
@@ -33,20 +32,32 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorTurnHistoryEntry
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualTurnAnchor
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 
 internal const val TUTOR_PROMPT_POLICY_VERSION = ModelPromptPolicyVersions.TUTOR_PLAN
 internal const val TUTOR_RESPOND_PROMPT_POLICY_VERSION = ModelPromptPolicyVersions.TUTOR_RESPOND
-internal const val TUTOR_VISUAL_GENERATE_PROMPT_POLICY_VERSION =
-    ModelPromptPolicyVersions.TUTOR_VISUAL_GENERATE
-internal const val TUTOR_VISUAL_REVIEW_PROMPT_POLICY_VERSION =
-    ModelPromptPolicyVersions.TUTOR_VISUAL_REVIEW
+
+/**
+ * 会话级单调 ordinal（K1c）的唯一分配规则：**每条消息取会话计数器的下一位**。
+ *
+ * 消灭的失败：此前两个入口各有一套数轴——大厅按 `last_turn_ordinal` 步长 2 走并把序号整除
+ * 推回轮次（`(last/2)+1`），讲题区按派发槽位号算 `responseOrdinal*2-1`。同一条会话里
+ * （讲题会话真的会两条路都写）两套号会在 `(conversation_id, ordinal)` 唯一键上互撞，
+ * 而"由序号整除推回轮次"还额外要求序号永远保持奇偶配对，一旦某一行缺失就整体错位。
+ *
+ * 现在只有一个数轴：学生与助手各占下一位，轮次号就是那条消息的号。
+ */
+internal data class TutorMessageOrdinals(
+    val student: Int,
+    val assistant: Int,
+)
+
+internal fun nextTutorMessageOrdinals(lastTurnOrdinal: Int): TutorMessageOrdinals {
+    require(lastTurnOrdinal >= 0) { "Tutor conversation ordinal must not be negative" }
+    val student = lastTurnOrdinal + 1
+    return TutorMessageOrdinals(student = student, assistant = student + 1)
+}
 
 internal fun ModelTaskStatus.isTutorExecutionPending(): Boolean = when (this) {
     ModelTaskStatus.WAITING_FOR_MODEL,
@@ -505,160 +516,6 @@ internal fun buildTutorRespondRequest(
     )
 }
 
-internal fun tutorVisualGenerateRequestId(
-    question: TutorQuestionContext,
-    provider: ProviderCapabilitySnapshot,
-    sourceAssets: List<TutorVisualSourceAssetScope>,
-    anchor: TutorVisualTurnAnchor,
-    focusMarkdown: String,
-    explanationMarkdown: String,
-): String {
-    val contentFingerprint = sha256Hex(
-        buildString {
-            appendLengthPrefixed(question.sessionId)
-            appendLengthPrefixed(question.questionDocument.document.id)
-            appendLengthPrefixed(question.revisionNumber.toString())
-            appendLengthPrefixed(question.subject)
-            appendLengthPrefixed(anchor.surface.name)
-            appendLengthPrefixed(anchor.cycleOrdinal.toString())
-            appendLengthPrefixed(anchor.turnOrdinal.toString())
-            appendLengthPrefixed(anchor.responseOrdinal?.toString())
-            appendLengthPrefixed(focusMarkdown)
-            appendLengthPrefixed(explanationMarkdown)
-            sourceAssets.sortedBy(TutorVisualSourceAssetScope::pageIndex).forEach { asset ->
-                appendLengthPrefixed(asset.pageIndex.toString())
-                appendLengthPrefixed(asset.assetId)
-                appendLengthPrefixed(asset.sha256)
-                appendLengthPrefixed(asset.selectedRegion?.let { region ->
-                    "${region.left},${region.top},${region.right},${region.bottom}"
-                })
-            }
-            appendLengthPrefixed(provider.providerId)
-            appendLengthPrefixed(provider.modelId)
-            appendLengthPrefixed(provider.providerConfigurationVersion)
-            appendLengthPrefixed(TUTOR_VISUAL_GENERATE_PROMPT_POLICY_VERSION)
-            appendLengthPrefixed(TutorVisualScene.DOCUMENT_SCHEMA_VERSION.toString())
-        },
-    ).take(32)
-    return "tutor-visual-generate:$contentFingerprint"
-}
-
-internal fun buildTutorVisualGenerateRequest(
-    question: TutorQuestionContext,
-    provider: ProviderCapabilitySnapshot,
-    sourceAssets: List<TutorVisualSourceAssetScope>,
-    anchor: TutorVisualTurnAnchor,
-    focusMarkdown: String,
-    explanationMarkdown: String,
-    occurredAtEpochMillis: Long,
-): ModelTaskRequest {
-    require(provider.supports(ModelTaskKind.TUTOR_VISUAL_GENERATE))
-    val orderedAssets = sourceAssets.sortedBy(TutorVisualSourceAssetScope::pageIndex)
-    require(orderedAssets.map(TutorVisualSourceAssetScope::pageIndex) == orderedAssets.indices.toList())
-    val requestId = tutorVisualGenerateRequestId(
-        question = question,
-        provider = provider,
-        sourceAssets = orderedAssets,
-        anchor = anchor,
-        focusMarkdown = focusMarkdown,
-        explanationMarkdown = explanationMarkdown,
-    )
-    val input = TutorVisualGenerateInput(
-        sessionId = question.sessionId,
-        draftRevisionNumber = question.revisionNumber,
-        subject = question.subject,
-        questionDocument = question.questionDocument.document,
-        sourceAssets = orderedAssets.map(TutorVisualSourceAssetScope::toSourceRef),
-        anchor = anchor,
-        focusMarkdown = focusMarkdown,
-        explanationMarkdown = explanationMarkdown,
-    )
-    // 配置模型 = 全局同意：视觉区域裁剪是受支持的运行时输入，region 随 input 的
-    // sourceAssets 携带，egress 由 authorize() 依据 agentConsentGranted 授权。
-    return ModelTaskRequest(
-        requestId = requestId,
-        input = input,
-        occurredAtEpochMillis = occurredAtEpochMillis,
-        agentConsentGranted =
-            provider.executionLocation == ModelExecutionLocation.EXTERNAL_PROVIDER,
-        egressManifest = null,
-    )
-}
-
-internal fun tutorVisualReviewRequestId(
-    generationRequestId: String,
-    provider: ProviderCapabilitySnapshot,
-    generated: TutorVisualGenerateOutput,
-    reviewReasonCodes: Set<String>,
-): String {
-    val fingerprint = sha256Hex(
-        buildString {
-            appendLengthPrefixed(generationRequestId)
-            appendLengthPrefixed(generated.modelVersion)
-            appendLengthPrefixed(generated.scene?.sceneId)
-            reviewReasonCodes.sorted().forEach(::appendLengthPrefixed)
-            appendLengthPrefixed(provider.providerId)
-            appendLengthPrefixed(provider.modelId)
-            appendLengthPrefixed(provider.providerConfigurationVersion)
-            appendLengthPrefixed(TUTOR_VISUAL_REVIEW_PROMPT_POLICY_VERSION)
-        },
-    ).take(32)
-    return "tutor-visual-review:$fingerprint"
-}
-
-internal fun buildTutorVisualReviewRequest(
-    question: TutorQuestionContext,
-    provider: ProviderCapabilitySnapshot,
-    sourceAssets: List<TutorVisualSourceAssetScope>,
-    generationRequest: ModelTaskRequest,
-    generated: TutorVisualGenerateOutput,
-    reviewReasonCodes: Set<String>,
-    occurredAtEpochMillis: Long,
-): ModelTaskRequest {
-    require(provider.supports(ModelTaskKind.TUTOR_VISUAL_REVIEW))
-    val generationInput = generationRequest.input as? TutorVisualGenerateInput
-        ?: error("Tutor visual review requires the originating generation input")
-    val candidate = requireNotNull(generated.scene) {
-        "Tutor visual review requires a generated candidate"
-    }
-    require(generationInput.sessionId == question.sessionId)
-    require(generationInput.draftRevisionNumber == question.revisionNumber)
-    require(generated.sessionId == question.sessionId)
-    require(generated.draftRevisionNumber == question.revisionNumber)
-    require(generated.questionDocumentId == question.questionDocument.document.id)
-    require(generated.anchor == generationInput.anchor)
-    val orderedAssets = sourceAssets.sortedBy(TutorVisualSourceAssetScope::pageIndex)
-    require(
-        orderedAssets.map(TutorVisualSourceAssetScope::toSourceRef) == generationInput.sourceAssets,
-    ) { "Tutor visual review must reuse the exact generation image scope" }
-    val requestId = tutorVisualReviewRequestId(
-        generationRequestId = generationRequest.requestId,
-        provider = provider,
-        generated = generated,
-        reviewReasonCodes = reviewReasonCodes,
-    )
-    val input = TutorVisualReviewInput(
-        sessionId = generationInput.sessionId,
-        draftRevisionNumber = generationInput.draftRevisionNumber,
-        subject = generationInput.subject,
-        questionDocument = generationInput.questionDocument,
-        sourceAssets = generationInput.sourceAssets,
-        anchor = generationInput.anchor,
-        focusMarkdown = generationInput.focusMarkdown,
-        explanationMarkdown = generationInput.explanationMarkdown,
-        candidateScene = candidate,
-        reviewReasonCodes = reviewReasonCodes,
-    )
-    return ModelTaskRequest(
-        requestId = requestId,
-        input = input,
-        occurredAtEpochMillis = occurredAtEpochMillis,
-        agentConsentGranted =
-            provider.executionLocation == ModelExecutionLocation.EXTERNAL_PROVIDER,
-        egressManifest = null,
-    )
-}
-
 /** Builds only what was already rendered; hidden solutions and alternate methods never leak here. */
 internal fun visibleTutorContextMarkdown(
     output: TutorPlanOutput,
@@ -679,12 +536,6 @@ internal fun visibleTutorContextMarkdown(
         choice.selectionWasCorrect?.let { correct ->
             append("\n\n系统核对：这道检查题学生")
             append(if (correct) "答对了" else "答错了")
-        }
-    }
-    val sceneWasVisible = output.plan.diagnosticItem == null || response?.hasChoicePayload == true
-    if (sceneWasVisible) {
-        output.plan.visualScene?.let { scene ->
-            append("\n\n已显示图解：").append(scene.title)
         }
     }
     if (response?.requestedMove == TutorMoveType.CHANGE_REPRESENTATION) {

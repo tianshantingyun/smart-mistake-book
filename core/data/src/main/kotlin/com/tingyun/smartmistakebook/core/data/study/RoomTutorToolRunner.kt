@@ -25,7 +25,10 @@ import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.domain.isReady
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 
 /**
@@ -72,7 +75,14 @@ private const val TRUNCATION_NOTE_RESERVE_CHARS = 240
  * digest — the model never sees raw rows, and failures become error
  * outcomes instead of exceptions so the loop can continue.
  */
-internal class RoomTutorToolRunner(private val port: StudyDatabasePort) {
+internal class RoomTutorToolRunner(
+    private val port: StudyDatabasePort,
+    /**
+     * 知识能力就绪位（D-Q3）：只有 KNOWLEDGE_READ 读它。内容还在后台就位时，
+     * 回"还在准备"而不是"没有匹配的知识点"——后者把"还没好"说成了"没有"。
+     */
+    private val knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
+) {
     /** 观测面：工具环协议测试断言执行器确实被调用。 */
     var executedCallCount: Int = 0
         private set
@@ -204,6 +214,21 @@ internal class RoomTutorToolRunner(private val port: StudyDatabasePort) {
         terms: List<String>,
         context: Context,
     ): TutorToolOutcome {
+        // D-Q3：内容还在后台就位（首装中 / 上次失败待重试）时如实说"准备中"。
+        // ok=true 是有意的：适配层只渲染 ok=true 的 summary（失败形态只给 `[失败 kind]`），
+        // 这里需要模型把"稍后再查"讲给学生，所以不能走失败形态。
+        val availability = knowledgeBaseAvailability.value
+        if (!availability.isReady) {
+            android.util.Log.i(
+                "TutorKnowledgeContext",
+                "KNOWLEDGE_READ withheld: knowledge base not ready ($availability)",
+            )
+            return TutorToolOutcome(
+                tool = TutorToolName.KNOWLEDGE_READ,
+                ok = true,
+                summaryMarkdown = "知识库还在准备中，本次没有可读的知识点；稍后再查一次即可。",
+            )
+        }
         val questionText = terms.joinToString(" ")
         val features = KnowledgeSearchFeatureExtractor.fromQuestion(questionText)
         val nodes = port.readSubjectKnowledgeRecallCandidates(

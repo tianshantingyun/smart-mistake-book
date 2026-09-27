@@ -138,7 +138,6 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:database"))
     implementation(project(":core:ui"))
-implementation(project(":core:visual-ui"))
     implementation(project(":feature:capture"))
     implementation(project(":feature:review"))
     implementation(project(":feature:tutor"))

@@ -123,11 +123,6 @@ internal fun buildTutorLobbyRequest(
             disclosedData = TutorRoundDisclosure.noQuestionRound(
                 includesImage = includesImage,
             ),
-            // 未披露集＝全集 − 已披露：两者必须互补，任何一边单独改都会在这里对不上。
-            prohibitedData = ModelEgressDataClass.entries.toSet() -
-                TutorRoundDisclosure.noQuestionRound(
-                    includesImage = includesImage,
-                ),
         )
     } else {
         null

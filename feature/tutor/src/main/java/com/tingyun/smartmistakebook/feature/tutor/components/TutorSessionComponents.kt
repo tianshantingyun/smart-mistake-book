@@ -20,7 +20,6 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
@@ -79,8 +78,11 @@ internal fun TutorStoredChoiceFeedback(
 @Composable
 internal fun TutorTaskContent(
     task: ModelTaskSnapshot,
-    resolvedVisualScene: TutorVisualDocumentScene? = null,
     response: TutorTurnResponse?,
+    /**
+     * 本轮讲解的正文（K1a：消息行是唯一文本权威）。null = 旧行没有消息行，回落账本。
+     */
+    openingMarkdown: String? = null,
     solutionRevealPreviewed: Boolean = false,
     awaitingContinuation: Boolean = false,
     interactionEnabled: Boolean,
@@ -95,8 +97,6 @@ internal fun TutorTaskContent(
     onRevealSolution: () -> Unit,
     onRestartCycle: () -> Unit,
     onOpenModelSettings: () -> Unit,
-    onOpenVisualOriginal: () -> Unit = {},
-    onReportVisualIncorrect: (String) -> Unit = {},
     solutionBottomModifier: Modifier,
     modifier: Modifier = Modifier,
 ) {
@@ -118,15 +118,13 @@ internal fun TutorTaskContent(
                 TutorTurnContent(
                     output = output,
                     modifier = modifier,
+                    openingMarkdown = openingMarkdown ?: output.plan.openingMarkdown,
                     response = response,
                     solutionRevealPreviewed = solutionRevealPreviewed,
                     interactionEnabled = interactionEnabled,
                     splitChoiceFeedback = splitChoiceFeedback,
                     interactionBusy = interactionBusy,
                     interactionError = interactionError,
-                    resolvedVisualScene = resolvedVisualScene,
-                    onOpenVisualOriginal = onOpenVisualOriginal,
-                    onReportVisualIncorrect = onReportVisualIncorrect,
                     onSubmitChoice = onSubmitChoice,
                     onRequestHint = onRequestHint,
                     onContinue = onContinue,

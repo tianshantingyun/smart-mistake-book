@@ -569,7 +569,6 @@ class ModelTasksTest {
             ),
         ),
         disclosedData = ModelEgressManifest.CAPTURE_IMAGE_DISCLOSURE,
-        prohibitedData = ModelEgressManifest.CAPTURE_PROHIBITED_DATA,
     )
 
     private fun capturedDocument(

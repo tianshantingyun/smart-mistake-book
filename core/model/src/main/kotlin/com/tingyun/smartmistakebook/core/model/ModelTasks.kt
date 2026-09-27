@@ -5,6 +5,7 @@ import java.security.MessageDigest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.SetSerializer
 import kotlinx.serialization.json.Json
 
 @Serializable
@@ -15,8 +16,6 @@ enum class ModelTaskKind {
     PROBLEM_RELATE,
     TUTOR_PLAN,
     TUTOR_RESPOND,
-    TUTOR_VISUAL_GENERATE,
-    TUTOR_VISUAL_REVIEW,
     TUTOR_LOBBY,
     TUTOR_EVALUATE,
     REVIEW_RERANK,
@@ -380,6 +379,15 @@ data class ModelTaskRequest(
      * agent-eligible round (capture assess/parse/classify or tutor plan/respond/visual)
      * may egress to the configured provider without a per-item egress manifest. Only
      * meaningful at schemaVersion >= [AGENT_CONSENT_SCHEMA_VERSION].
+     *
+     * 「配置模型 = 同意」（D-K4 §3.1b 的发送判据）**只有这一个判据、两半**：
+     * - 这一位（生产者回答的那半）：应用层说"这个 build 现在配置了模型、允许外发"；
+     * - provider 那一半（`executionLocation == EXTERNAL_PROVIDER`、`supports(kind)` 与
+     *   `supportsImageInput`）：由 [ModelEgressPolicy.authorize] 用 provider 能力**统一判**，
+     *   不由调用点各算一套——调用点在派发前拿不到 provider 快照，各算必然分叉。
+     *
+     * 生产者一律传应用层开关的实值（不要写死 `true`：那会让"开关关了还能发"只靠调用点之外的
+     * 前置 return 挡着，改一次控制流就静默失效）。
      */
     val agentConsentGranted: Boolean = false,
 ) {
@@ -401,10 +409,6 @@ data class ModelTaskRequest(
             schemaVersion >= CAPTURE_PAGE_RELATION_SCHEMA_VERSION ||
                 (input as? CaptureAssessmentInput)?.followingSourceAssets.isNullOrEmpty(),
         ) { "Legacy capture requests cannot compare adjacent pages" }
-        require(
-            schemaVersion >= TUTOR_VISUAL_SCHEMA_VERSION ||
-                input !is TutorVisualGenerateInput && input !is TutorVisualReviewInput,
-        ) { "Legacy model task requests cannot contain tutor visual work" }
         require(
             schemaVersion >= TUTOR_ROUND_BINDING_SCHEMA_VERSION ||
                 (input as? TutorRespondInput)?.boundQuestionCandidates.isNullOrEmpty(),
@@ -439,7 +443,6 @@ data class ModelTaskRequest(
         const val EGRESS_SCHEMA_VERSION = 2
         const val TUTOR_STUDENT_CONTEXT_SCHEMA_VERSION = 3
         const val CAPTURE_PAGE_RELATION_SCHEMA_VERSION = 4
-        const val TUTOR_VISUAL_SCHEMA_VERSION = 5
         const val TUTOR_TOOL_CARRIER_SCHEMA_VERSION = 6
         /** Schema at which the consent flag was introduced (as `captureEgressConsentGranted`). */
         const val CONSENT_INTRODUCED_SCHEMA_VERSION = 7
@@ -668,7 +671,7 @@ object ModelTaskCodec {
         json.encodeToString(ModelTaskRequest.serializer(), value).bounded()
 
     fun decodeRequest(value: String): ModelTaskRequest {
-        val bounded = value.bounded()
+        val bounded = value.bounded().withoutLegacyEgressProhibitedData()
         return try {
             json.decodeFromString(ModelTaskRequest.serializer(), bounded)
         } catch (failure: SerializationException) {
@@ -795,6 +798,9 @@ private fun ModelTaskRequest.fingerprintPayload(): String =
     } else {
         ModelTaskCodec.encodeRequest(this).let { encoded ->
             encoded
+                // 每一条清单行都带着当年的派生键（prohibitedData 从 schema 1 起就没有默认值，
+                // 必然落键），所以这一条**不按 request schemaVersion 门控**，只按"有没有清单"。
+                .withLegacyEgressProhibitedData(egressManifest)
                 .let {
                     if (schemaVersion < ModelTaskRequest.TUTOR_STUDENT_CONTEXT_SCHEMA_VERSION) {
                         it.withoutLegacyTutorStudentContext(input)
@@ -1044,6 +1050,56 @@ private fun String.withoutEmptyPlanToolCarrier(input: ModelTaskInput): String =
     } else {
         this
     }
+
+/**
+ * 抹掉旧行里 `egressManifest.prohibitedData` 这个**已删除的派生键**（D-K4 / 研究报告 §4.6 R6）。
+ *
+ * 它当年的取值由 `schemaVersion` 与 `disclosedData` 唯一决定（全集 − 已披露），生产读取 0 处，
+ * 所以字段面删掉；但旧行的 JSON 里还带着它，而 `ModelTaskCodec` 的 `ignoreUnknownKeys = false`
+ * 会让未知键直接抛 `SerializationException`——不抹掉，任何一条带清单的旧行（组织 / 大厅 / 知识
+ * 点复习）升级后都读不出来。
+ *
+ * 键名只出现在清单里（输入与请求级都没有同名键），所以按名删键是安全的；数组里只有枚举名，
+ * 不含 `]`。**新行**编码里本来就没有这个键，本 strip 对它们是无操作——两边的读回口径一致。
+ */
+private fun String.withoutLegacyEgressProhibitedData(): String =
+    replace(LEGACY_EGRESS_PROHIBITED_DATA, "")
+
+private val LEGACY_EGRESS_PROHIBITED_DATA = Regex(",\"prohibitedData\":\\[[^\\]]*]")
+
+/**
+ * 把旧行里的 `egressManifest.prohibitedData` 键**复原**进请求指纹负载（D-K4 的字段删除）。
+ *
+ * 与上面那条 strip 成对：读库时抹掉它（字段面已不存在），算**请求指纹**时再按当年的形状补回去。
+ * 理由是旧行的存库指纹就是"带着这个键"的那份字节的 SHA-256，而 `ModelTaskSnapshot.init` /
+ * `CreateModelTaskCommand.init` 都会用当前编码重算并与存库值比对——不复原，旧行一读回就抛
+ * `ModelTaskRequest fingerprint does not match its request`（bf8be888 的同一类事故）。
+ *
+ * 复原是**确定**的，不是猜：当年 init 强制 `prohibitedData == dataClassUniverseForSchema(schemaVersion)
+ * - disclosedData`（集合相等），而生产唯一的构造方式（`X_PROHIBITED_DATA` 常量与
+ * `TutorLobbyModelTaskPolicy` 的内联计算）都是 `entries.toSet() - 披露`，即**枚举声明序**；
+ * 这里用同一个 `dataClassUniverseForSchema - disclosedData` 计算、用同配置的 Json 渲染，所以
+ * 补出来的字节与当年写库的那一份逐字相同（`ModelEgressTest`/`ModelTaskFingerprintStabilityTest`
+ * 里用**删字段之前真实编码出来的整行 JSON**做基准钉住这一点）。
+ *
+ * 对**新行**同样生效：新行写入时的指纹就是这份"带派生键"的形状，读回才算得一样——一条口径，
+ * 不对旧行/新行分两套。清单不存在时是无操作（v1 行的请求级负载里根本没有清单）。
+ */
+private fun String.withLegacyEgressProhibitedData(manifest: ModelEgressManifest?): String {
+    if (manifest == null) return this
+    val anchor = ",\"disclosedData\":["
+    val anchorStart = indexOf(anchor)
+    check(anchorStart >= 0) { "Egress manifest payload is missing its disclosure set" }
+    val arrayEnd = indexOf(']', anchorStart + anchor.length)
+    check(arrayEnd > anchorStart) { "Egress manifest disclosure set is malformed" }
+    val derived = ModelEgressManifest.dataClassUniverseForSchema(manifest.schemaVersion) -
+        manifest.disclosedData
+    val rendered = legacyFingerprintJson.encodeToString(
+        SetSerializer(ModelEgressDataClass.serializer()),
+        derived,
+    )
+    return StringBuilder(this).insert(arrayEnd + 1, ",\"prohibitedData\":$rendered").toString()
+}
 
 internal fun NormalizedSourceRegion.isValidModelRegion(): Boolean =
     left.isFinite() && top.isFinite() && right.isFinite() && bottom.isFinite() &&

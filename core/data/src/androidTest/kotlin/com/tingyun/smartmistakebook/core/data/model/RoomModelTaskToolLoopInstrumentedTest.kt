@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.model
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.database.ErrorBookEntrySeedRecord
 import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
@@ -27,6 +28,7 @@ import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
 import com.tingyun.smartmistakebook.core.model.SubjectKind
+import com.tingyun.smartmistakebook.core.model.TRUNCATED_OUTCOME_NOTE
 import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorMemoryPreference
@@ -39,7 +41,6 @@ import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import com.tingyun.smartmistakebook.core.model.TutorToolRoundResult
-import com.tingyun.smartmistakebook.core.model.TRUNCATED_OUTCOME_NOTE
 import com.tingyun.smartmistakebook.core.data.study.RoomTutorToolRunner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
@@ -116,7 +117,6 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 approvedAtEpochMillis = 1_000L,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
             )
         } else {
             null
@@ -252,6 +252,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             repository.execute(questionRoundRequest()).toList()
 
@@ -294,6 +295,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             repository.execute(request()).toList()
 
@@ -375,6 +377,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val snapshots = repository.execute(request())
                 .toList()
@@ -402,6 +405,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             repository.execute(request()).toList()
 
@@ -492,6 +496,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val snapshots = repository.execute(planRequest("tutor-plan:direct")).toList()
 
@@ -519,6 +524,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val snapshots = repository.execute(planRequest("tutor-plan:kread")).toList()
 
@@ -559,6 +565,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             repository.execute(request()).toList()
 
@@ -592,6 +599,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             repository.execute(request()).toList()
 
@@ -641,6 +649,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val snapshots = repository.execute(request()).toList()
 

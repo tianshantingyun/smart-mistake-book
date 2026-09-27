@@ -51,7 +51,6 @@ class ProblemOrganizationTasksTest {
             approvedAtEpochMillis = 2,
             assets = emptyList(),
             disclosedData = ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.PROBLEM_ORGANIZATION_PROHIBITED_DATA,
         )
         val request = ModelTaskRequest(
             requestId = "organization-request",

@@ -59,7 +59,6 @@ internal fun buildKnowledgeQuizRequest(
             approvedAtEpochMillis = occurredAtEpochMillis,
             assets = emptyList(),
             disclosedData = ModelEgressManifest.KNOWLEDGE_QUIZ_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.KNOWLEDGE_QUIZ_PROHIBITED_DATA,
         )
         ModelExecutionLocation.LOCAL_NO_EGRESS -> null
         ModelExecutionLocation.UNAVAILABLE -> error("Knowledge quiz provider is unavailable")

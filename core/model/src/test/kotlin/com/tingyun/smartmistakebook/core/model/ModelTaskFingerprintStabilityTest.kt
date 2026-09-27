@@ -686,6 +686,54 @@ class ModelTaskFingerprintStabilityTest {
         assertTrue("v12 Respond 行不得携带代号披露", respondRejected.isFailure)
     }
 
+    @Test
+    fun aManifestRowWrittenBeforeTheProhibitedDataFieldWasDeletedStillValidates() {
+        // D-K4 删掉了 `egressManifest.prohibitedData`（派生键，生产读取 0 处）。旧行还带着它：
+        // ① `ModelTaskCodec` 的 ignoreUnknownKeys=false 会让未知键直接抛异常 → decode 前必须 strip；
+        // ② 存库的**请求指纹**是当年那份带键字节的摘要，而 `ModelTaskSnapshot.init` /
+        //    `CreateModelTaskCommand.init` 都会用当前编码重算并与存库值比对 → 算指纹时还要按当年
+        //    的形状补回去（见 ModelTasks.kt 的 withLegacyEgressProhibitedData）。
+        //
+        // 下面这份 JSON 不是"用今天的编码器拼出来的近似形状"：它是**删字段之前**由
+        // `ModelTaskCodec.encodeRequest` 真实编码出来的整行（组织路线，manifest schema 7），
+        // 原样贴在这里做金标准——这样它既钉住 strip，也钉住"补回去的字节与当年写库的那一份逐字相同"。
+        val legacyJson = legacyOrganizationManifestRowJson()
+
+        val decoded = ModelTaskCodec.decodeRequest(legacyJson)
+
+        assertEquals(ModelTaskRequest.CURRENT_SCHEMA_VERSION, decoded.schemaVersion)
+        assertEquals(
+            ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
+            requireNotNull(decoded.egressManifest).disclosedData,
+        )
+        assertEquals(sha256Hex(legacyJson), ModelTaskFingerprint.of(decoded))
+        // 字段已删：新编码不再落这个键（新行的指纹形状 == 旧行的形状，两边同一个哈希口径）。
+        assertFalse("\"prohibitedData\"" in ModelTaskCodec.encodeRequest(decoded))
+    }
+
+    /** 删字段之前真实编码出来的整行 JSON（逐字复制，未做任何重排）。 */
+    private fun legacyOrganizationManifestRowJson(): String = listOf(
+        """{"schemaVersion":14,"requestId":"problem-organization:capture-fixture","input":""",
+        """{"type":"problem_organization","problemId":"problem-1","problemRevisionId":""",
+        """"revision-1","practiceUnitId":"unit-1","subject":"MATH","questionDocument":""",
+        """{"id":"question-1","title":null,"blocks":[{"type":"paragraph","id":"stem",""",
+        """"markdown":"求函数的单调区间"}]},"relevantLearningEvidence":[],""",
+        """"relationCandidates":[],"knowledgeBaseNodes":[]},"occurredAtEpochMillis":1000,""",
+        """"egressManifest":{"schemaVersion":7,"authorizationId":""",
+        """"authorization:capture-fixture","subjectId":"revision-1","purpose":"CLASSIFICATION",""",
+        """"authorizedTaskKinds":["PROBLEM_CLASSIFY"],"providerId":"provider-1",""",
+        """"modelId":"vision-model-1","providerConfigurationVersion":"provider-config-v1",""",
+        """"promptPolicyVersion":"problem-organization-v4-atomic","approvedAtEpochMillis":1000,""",
+        """"assets":[],"disclosedData":["CONFIRMED_QUESTION_DOCUMENT",""",
+        """"RELATED_QUESTION_CANDIDATES","SUBJECT_KNOWLEDGE_BASE"],"prohibitedData":[""",
+        """"SANITIZED_IMAGE_BYTES","IMAGE_DIMENSIONS","SELECTED_IMAGE_REGION",""",
+        """"RELEVANT_LEARNING_EVIDENCE","QUESTION_LEARNING_EVIDENCE","OTHER_CAPTURE_ASSETS",""",
+        """"FULL_LEARNING_HISTORY","API_CREDENTIALS","CAPTURE_METADATA",""",
+        """"STUDENT_TUTOR_MESSAGE","TUTOR_CONVERSATION_CONTEXT",""",
+        """"MODEL_AUTHORED_VISUAL_CANDIDATE"],"includesQuestionCandidates":false},""",
+        """"agentConsentGranted":false}""",
+    ).joinToString(separator = "")
+
     private fun sha256Hex(value: String): String = MessageDigest.getInstance("SHA-256")
         .digest(value.toByteArray(StandardCharsets.UTF_8))
         .joinToString(separator = "") { byte -> "%02x".format(byte) }

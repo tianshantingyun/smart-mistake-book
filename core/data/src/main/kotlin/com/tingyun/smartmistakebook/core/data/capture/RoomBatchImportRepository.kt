@@ -589,7 +589,10 @@ internal class RoomBatchImportRepository(
                 followingSourceAssets = followingRefs,
             ),
             occurredAtEpochMillis = occurredAtEpochMillis,
-            agentConsentGranted = true,
+            // 「配置模型 = 同意」的发送判据只有一处（`core:model` 的 agentConsentGranted KDoc）：
+            // 这里只回答自己知道的那一半——应用层开关，且取实值（`organizeBatch` 的前置门已经
+            // 把"未配置模型"挡在外面；写死 true 会让那条门成为唯一屏障）。
+            agentConsentGranted = modelEgressAllowed(),
         )
     }
 

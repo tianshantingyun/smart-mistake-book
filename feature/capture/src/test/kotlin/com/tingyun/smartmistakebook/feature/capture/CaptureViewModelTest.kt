@@ -436,10 +436,6 @@ private class FakeCaptureRepository(
 
     override suspend fun readTutorSession(sessionId: String): ConfirmedTutorSession? = null
 
-    override suspend fun readTutorVisualSourceAssets(
-        sessionId: String,
-    ): List<com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope> = emptyList()
-
     override suspend fun saveTutorSession(
         request: com.tingyun.smartmistakebook.core.domain.SaveTutorSessionRequest,
     ): com.tingyun.smartmistakebook.core.domain.CapturedProblemCommitSummary = error("not used")

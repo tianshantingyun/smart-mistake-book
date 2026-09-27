@@ -83,7 +83,14 @@ internal abstract class ProblemDraftEditWorkspaceDao {
         expectedWorkspaceFingerprint: String,
     ): Int
 
-    @Query("SELECT EXISTS(SELECT 1 FROM tutor_session WHERE draft_id = :draftId)")
+    /**
+     * 这份草稿是否已经有一个讲题会话绑着它（K1：原 `tutor_session.draft_id` 的判定，
+     * 现在落在会话行的 `capture_draft_id` 上）。工作区是"草稿的临时编辑态"，
+     * 还有人用它就不能被当作死重清掉。
+     */
+    @Query(
+        "SELECT EXISTS(SELECT 1 FROM tutor_conversation WHERE capture_draft_id = :draftId)",
+    )
     protected abstract suspend fun hasTutorSession(draftId: String): Boolean
 
     @Transaction

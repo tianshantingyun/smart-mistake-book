@@ -49,7 +49,7 @@ import com.tingyun.smartmistakebook.core.ui.SmartColors
 fun KnowledgeReviewSessionScreen(
     plan: KnowledgeReviewSessionPlan,
     onBack: () -> Unit,
-    loadQuiz: suspend (KnowledgeReviewQueueEntry) -> TutorAssessmentItem?,
+    loadQuiz: suspend (KnowledgeReviewQueueEntry) -> KnowledgeQuizLoadResult,
     submitAnswer: suspend (
         requestId: String,
         knowledgeNodeId: String,
@@ -121,9 +121,28 @@ fun KnowledgeReviewSessionScreen(
                 style = MaterialTheme.typography.bodyMedium,
             )
             KnowledgeQuizLoadStatus.FAILED -> KnowledgeQuizLoadFailure(
+                message = "这道知识点暂时没有生成出来。",
                 onRetry = {
                     viewModel.loadCurrentQuiz(loadQuiz)
                 },
+                onSkip = viewModel::skipCurrentNode,
+                onBack = onBack,
+            )
+            // D-Q3：知识内容还在后台就位。与失败同一张卡片，但话说的是实话，
+            // 且进程重建后会回到 IDLE 自动重取（那时内容多半已就位）。
+            KnowledgeQuizLoadStatus.KNOWLEDGE_PREPARING -> KnowledgeQuizLoadFailure(
+                message = "这个知识点的题目还在准备中，稍后再试一次。",
+                onRetry = {
+                    viewModel.loadCurrentQuiz(loadQuiz)
+                },
+                onSkip = viewModel::skipCurrentNode,
+                onBack = onBack,
+            )
+            // 没有讲解材料 ≠ 失败：重试不会有不同结果，所以不给"重试出题"，
+            // 只留"跳过这个知识点"和返回。
+            KnowledgeQuizLoadStatus.NO_MATERIAL -> KnowledgeQuizLoadFailure(
+                message = "这个知识点暂时没有可用的讲解材料，先跳过它吧。",
+                onRetry = null,
                 onSkip = viewModel::skipCurrentNode,
                 onBack = onBack,
             )
@@ -319,25 +338,32 @@ private fun KnowledgeQuizVerdict(result: KnowledgeQuizFeedbackResult) {
     }
 }
 
+/**
+ * 取不到题时的卡片：话说的是**这一种**原因（[message]），出路随之不同——
+ * [onRetry] 为 null 表示"重试不会有不同结果"（比如没有讲解材料），此时只给跳过与返回。
+ */
 @Composable
 private fun KnowledgeQuizLoadFailure(
-    onRetry: () -> Unit,
+    message: String,
+    onRetry: (() -> Unit)?,
     onSkip: () -> Unit,
     onBack: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth()) {
         Text(
-            text = "这道知识点暂时没有生成出来。",
+            text = message,
             modifier = Modifier.testTag("knowledge_review_load_failed"),
             color = SmartColors.InkSecondary,
             style = MaterialTheme.typography.bodyLarge,
         )
-        Spacer(Modifier.height(16.dp))
-        PrimaryActionButton(
-            text = "重试出题",
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().testTag("knowledge_review_retry"),
-        )
+        if (onRetry != null) {
+            Spacer(Modifier.height(16.dp))
+            PrimaryActionButton(
+                text = "重试出题",
+                onClick = onRetry,
+                modifier = Modifier.fillMaxWidth().testTag("knowledge_review_retry"),
+            )
+        }
         Spacer(Modifier.height(8.dp))
         OutlinedButton(
             onClick = onSkip,

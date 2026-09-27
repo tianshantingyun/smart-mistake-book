@@ -17,9 +17,12 @@ import org.junit.Test
  * install() 的三条路径（首装 / 戳变 / 戳同）+ 驻留释放的观测面。
  *
  * 对应验收（R4a，决策台账 D13）：
- * - 戳同 → 快路径：零解析、零内容写入、零戳重写。错题归类路径
- *   （`RoomMistakeOrganizationRepository` 每次归类前都调 install()）靠它零解析；
+ * - 戳同 → 快路径：零解析、零内容写入、零戳重写。启动安装协程与横幅重试靠它零解析；
  * - 首装（无进度行）/ 戳变 → 全量路径：解析 + 逐包调和 + 写戳。
+ *
+ * D-Q3 之后**消费点不再触发安装**（错题归类此前每次 prepare 前都调一次 install()，首装
+ * 那一次正是 16.7 秒阻塞的来源）：本对象现在只有 app 层启动/重试两条调用路径，快路径仍是
+ * 稳态启动每次都跑的那条。
  *
  * fake 的 `applyKnowledgeContentUpdate` 按"调和即全部接收"实现，对这些用例够用：
  * 这里测的是 install 的顺序与快路径判定，不是逐对象调和行为
@@ -73,7 +76,7 @@ class BundledKnowledgeBaseInstallerTest {
 
         BundledKnowledgeBaseInstaller.install(countingPort)
 
-        // 归类路径（每次归类前 install()）依赖这条：戳一致 = 零解析
+        // 稳态启动（每次冷启动 app 的安装协程）依赖这条：戳一致 = 零解析
         assertEquals("快路径不触碰驻留 holder", parseCountBefore, BundledKnowledgePackResources.fullParseCount)
         assertEquals("快路径零内容更新命令", 0, countingPort.contentUpdateCalls)
         assertEquals("快路径不重写进度戳", 1, countingPort.stateRecordWrites.size)

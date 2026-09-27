@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.TutorTeachingReferenceRepository
@@ -16,6 +17,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -130,9 +132,11 @@ class KnowledgeReviewQuizLoaderTest {
         val loader = KnowledgeReviewQuizLoader(
             modelTasks = modelTasks,
             references = LoaderFakeReferences(listOf(material())),
+            knowledgeBaseAvailability = readyAvailability(),
         )
 
-        val item = loader.loadQuiz(entry)
+        val loaded = loader.loadQuiz(entry)
+        val item = (loaded as KnowledgeQuizLoadResult.Ready).item
 
         assertEquals("kc-monotonicity", item?.knowledgeNodeIds?.single())
         assertEquals("A", item?.correctChoiceId)
@@ -141,31 +145,68 @@ class KnowledgeReviewQuizLoaderTest {
         assertEquals("函数单调性讲解", input.materialTitle)
     }
 
+    /**
+     * 消灭的失败（D-Q3，消费点④）：改前所有原因都挤成一个 null——学生只看到"这道知识点
+     * 暂时没有生成出来"，分不清"没有材料"和"内容还没准备好"。现在各归各的因。
+     */
     @Test
-    fun noMaterialForTheNodeYieldsNull() = runTest {
+    fun noMaterialForTheNodeIsReportedAsNoMaterial() = runTest {
         val loader = KnowledgeReviewQuizLoader(
             modelTasks = LoaderFakeModelTasks(externalProvider(), quizOutput()),
             references = LoaderFakeReferences(emptyList()),
+            knowledgeBaseAvailability = readyAvailability(),
         )
-        assertNull(loader.loadQuiz(entry))
+        assertEquals(KnowledgeQuizLoadResult.NoMaterial, loader.loadQuiz(entry))
     }
 
     @Test
-    fun providerWithoutQuizSupportYieldsNull() = runTest {
+    fun knowledgeBasePreparingIsNotReportedAsMissingMaterial() = runTest {
+        val modelTasks = LoaderFakeModelTasks(externalProvider(), quizOutput())
+        val loader = KnowledgeReviewQuizLoader(
+            modelTasks = modelTasks,
+            references = LoaderFakeReferences(listOf(material())),
+            knowledgeBaseAvailability = MutableStateFlow(KnowledgeBaseAvailability.Preparing),
+        )
+
+        assertEquals(KnowledgeQuizLoadResult.KnowledgePreparing, loader.loadQuiz(entry))
+        // 连模型都没问：内容没就位时不该派发一个注定没有材料的请求。
+        assertNull("未就绪不得发起任务", modelTasks.executedRequest)
+    }
+
+    @Test
+    fun knowledgeBaseUnavailableIsAlsoReportedAsPreparing() = runTest {
+        val loader = KnowledgeReviewQuizLoader(
+            modelTasks = LoaderFakeModelTasks(externalProvider(), quizOutput()),
+            references = LoaderFakeReferences(listOf(material())),
+            knowledgeBaseAvailability = MutableStateFlow(
+                KnowledgeBaseAvailability.Unavailable("startup:knowledge:1"),
+            ),
+        )
+
+        assertEquals(KnowledgeQuizLoadResult.KnowledgePreparing, loader.loadQuiz(entry))
+    }
+
+    @Test
+    fun providerWithoutQuizSupportIsReportedAsUnavailable() = runTest {
         val provider = externalProvider().copy(supportedTasks = emptySet())
         val loader = KnowledgeReviewQuizLoader(
             modelTasks = LoaderFakeModelTasks(provider, quizOutput()),
             references = LoaderFakeReferences(listOf(material())),
+            knowledgeBaseAvailability = readyAvailability(),
         )
-        assertNull(loader.loadQuiz(entry))
+        assertEquals(KnowledgeQuizLoadResult.Unavailable, loader.loadQuiz(entry))
     }
 
     @Test
-    fun failedModelTaskYieldsNull() = runTest {
+    fun failedModelTaskIsReportedAsUnavailable() = runTest {
         val loader = KnowledgeReviewQuizLoader(
             modelTasks = LoaderFakeModelTasks(externalProvider(), output = null),
             references = LoaderFakeReferences(listOf(material())),
+            knowledgeBaseAvailability = readyAvailability(),
         )
-        assertNull(loader.loadQuiz(entry))
+        assertEquals(KnowledgeQuizLoadResult.Unavailable, loader.loadQuiz(entry))
     }
+
+    private fun readyAvailability() =
+        MutableStateFlow(KnowledgeBaseAvailability.Ready)
 }

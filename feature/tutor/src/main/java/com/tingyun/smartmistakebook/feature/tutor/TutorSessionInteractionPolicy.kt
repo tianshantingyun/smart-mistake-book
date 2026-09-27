@@ -50,9 +50,7 @@ internal fun tutorAgentChatEnabled(
     if (candidate.executionLocation == ModelExecutionLocation.UNAVAILABLE) return false
     if (!candidate.supports(kind)) return false
     if (candidate.executionLocation == ModelExecutionLocation.LOCAL_NO_EGRESS) return true
-    val kindNeedsImage = kind == ModelTaskKind.TUTOR_VISUAL_GENERATE ||
-        kind == ModelTaskKind.TUTOR_VISUAL_REVIEW
-    return !kindNeedsImage || candidate.supportsImageInput
+    return true
 }
 
 internal const val TUTOR_RESPOND_IN_PROGRESS_TITLE = "这条消息还在处理中"

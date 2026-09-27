@@ -2,12 +2,10 @@ package com.tingyun.smartmistakebook.core.database
 
 import com.tingyun.smartmistakebook.core.database.entity.PredictionOutcomeEntity
 import com.tingyun.smartmistakebook.core.database.entity.StudentModelPredictionEntity
-import com.tingyun.smartmistakebook.core.database.entity.VisualInteractionAttemptEntity
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
-import com.tingyun.smartmistakebook.core.database.port.VisualInteractionAttemptRecord
 
-/** Prediction-audit trail and visual interaction attempts (student-model domain). */
+/** Prediction-audit trail (student-model domain). */
 internal class RoomStudentModelStore(
     private val database: StudyDatabase,
 ) {
@@ -79,37 +77,4 @@ internal class RoomStudentModelStore(
 
     suspend fun findLastLatencyMs(practiceUnitId: String): Long? =
         database.predictionAuditDao().findLastLatencyMs(practiceUnitId)
-
-    suspend fun recordVisualInteractionAttempt(
-        attempt: VisualInteractionAttemptRecord,
-    ) {
-        database.visualInteractionAttemptDao().insertAttempt(
-            VisualInteractionAttemptEntity(
-                attemptId = attempt.attemptId,
-                problemRevisionId = attempt.problemRevisionId,
-                actionKind = attempt.actionKind,
-                actionPayload = attempt.actionPayload,
-                feasible = attempt.feasible,
-                feedback = attempt.feedback,
-                attemptedAtEpochMillis = attempt.attemptedAtEpochMillis,
-            ),
-        )
-    }
-
-    suspend fun readVisualInteractionAttempts(
-        problemRevisionId: String,
-    ): List<VisualInteractionAttemptRecord> =
-        database.visualInteractionAttemptDao()
-            .findForProblemRevision(problemRevisionId)
-            .map { row ->
-                VisualInteractionAttemptRecord(
-                    attemptId = row.attemptId,
-                    problemRevisionId = row.problemRevisionId,
-                    actionKind = row.actionKind,
-                    actionPayload = row.actionPayload,
-                    feasible = row.feasible,
-                    feedback = row.feedback,
-                    attemptedAtEpochMillis = row.attemptedAtEpochMillis,
-                )
-            }
 }

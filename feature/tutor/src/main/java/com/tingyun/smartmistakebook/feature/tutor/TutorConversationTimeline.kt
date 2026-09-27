@@ -1,8 +1,10 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
+import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 
@@ -12,11 +14,29 @@ internal sealed interface TutorConversationTimelineItem {
 
     data class Plan(
         val task: ModelTaskSnapshot,
+        /**
+         * 本轮正文的消息行（K1a 唯一文本权威）。迁移前的旧轮次没有消息行——那时讲题区从不写
+         * 助手行——所以可空，读侧按 [bodyMarkdown] 回落到账本让旧会话照常可读。
+         */
+        val message: TutorMessage? = null,
     ) : TutorConversationTimelineItem {
         private val input = task.request.input as TutorPlanInput
+        private val output = task.output as? TutorPlanOutput
 
         override val occurredAtEpochMillis: Long = task.request.occurredAtEpochMillis
         override val stableId: String = "plan:${input.cycleOrdinal}:${input.turnOrdinal}:${task.request.requestId}"
+
+        /**
+         * 本轮讲解的正文。消息行优先；旧行回落到账本里的开场白。
+         *
+         * 完整讲解 / 另一种方法 / 选择题**刻意不从消息行读**：它们是受曝光门控的结构化载荷
+         * （选择项要能点、完整讲解必须等揭示且学生真的看到），不是这一轮的"说过的话"。
+         */
+        val bodyMarkdown: String?
+            get() = message?.bodyMarkdown ?: output?.plan?.openingMarkdown
+
+        val thinkingMarkdown: String?
+            get() = message?.thinkingMarkdown ?: output?.plan?.thinkingMarkdown
     }
 
     data class ChoiceFeedback(
@@ -31,9 +51,27 @@ internal sealed interface TutorConversationTimelineItem {
 
     data class Reply(
         val task: ModelTaskSnapshot,
+        /** 这一轮助手正文的消息行（见 [Plan.message]）。 */
+        val message: TutorMessage? = null,
+        /** 这一轮学生气泡的消息行（唯一权威；旧行回落到派发请求里的原文）。 */
+        val studentMessage: TutorMessage? = null,
     ) : TutorConversationTimelineItem {
+        private val output = task.output as? TutorRespondOutput
+        private val input = task.request.input as TutorRespondInput
+
         override val occurredAtEpochMillis: Long = task.request.occurredAtEpochMillis
         override val stableId: String = "reply:${task.request.requestId}"
+
+        /** 助手正文：消息行优先，旧行回落到账本（新写入只会落在消息行上）。 */
+        val bodyMarkdown: String?
+            get() = message?.bodyMarkdown ?: output?.messageMarkdown
+
+        val thinkingMarkdown: String?
+            get() = message?.thinkingMarkdown ?: output?.thinkingMarkdown
+
+        /** 学生气泡正文：消息行优先，旧行回落到派发时的那条原文。 */
+        val studentBodyMarkdown: String
+            get() = studentMessage?.bodyMarkdown ?: input.studentMessage
 
         /**
          * 这一轮讲的是哪一道题（标题）；会话题自己那一轮为 null。
@@ -142,6 +180,11 @@ internal fun buildTutorConversationProjection(
     planTasks: List<ModelTaskSnapshot>,
     respondTasks: List<ModelTaskSnapshot>,
     responses: List<TutorTurnResponse>,
+    /**
+     * 这条会话的消息流（K1a 唯一文本权威）。正文/思考/学生气泡从它取，任务快照只留
+     * 状态与结构化载荷；旧行（没有消息行）由时间线项自己回落到账本。
+     */
+    messages: List<TutorMessage> = emptyList(),
 ): TutorConversationProjection {
     val exactPlanTasks = planTasks.filter { task ->
         task.matches(question) && task.request.input is TutorPlanInput
@@ -180,6 +223,7 @@ internal fun buildTutorConversationProjection(
             planTasks = latestPlans,
             respondTasks = latestResponses,
             responses = exactResponses,
+            messages = messages,
         ),
         currentCycle = currentCycle,
         currentCyclePlanTasks = currentCyclePlans,
@@ -194,23 +238,33 @@ internal fun buildTutorConversationTimeline(
     planTasks: List<ModelTaskSnapshot>,
     respondTasks: List<ModelTaskSnapshot>,
     responses: List<TutorTurnResponse>,
+    messages: List<TutorMessage> = emptyList(),
 ): List<TutorConversationTimelineItem> = buildTutorConversationProjection(
     question = question,
     planTasks = planTasks,
     respondTasks = respondTasks,
     responses = responses,
+    messages = messages,
 ).timeline
 
 private fun buildExactTutorConversationTimeline(
     planTasks: List<ModelTaskSnapshot>,
     respondTasks: List<ModelTaskSnapshot>,
     responses: List<TutorTurnResponse>,
+    messages: List<TutorMessage>,
 ): List<TutorConversationTimelineItem> {
     val plansByTurn = planTasks.associateBy { task ->
         (task.request.input as TutorPlanInput).turnKey()
     }
     val items = buildList {
-        planTasks.forEach { add(TutorConversationTimelineItem.Plan(it)) }
+        planTasks.forEach { task ->
+            add(
+                TutorConversationTimelineItem.Plan(
+                    task = task,
+                    message = messages.assistantTurnOf(task.request.requestId),
+                ),
+            )
+        }
         responses
             .asSequence()
             .filter(TutorTurnResponse::hasChoicePayload)
@@ -222,8 +276,14 @@ private fun buildExactTutorConversationTimeline(
                     ),
                 )
             }
-        respondTasks.forEach {
-            add(TutorConversationTimelineItem.Reply(it))
+        respondTasks.forEach { task ->
+            add(
+                TutorConversationTimelineItem.Reply(
+                    task = task,
+                    message = messages.assistantTurnOf(task.request.requestId),
+                    studentMessage = messages.studentTurnOf(task.request.requestId),
+                ),
+            )
         }
     }
     return items.sortedWith(

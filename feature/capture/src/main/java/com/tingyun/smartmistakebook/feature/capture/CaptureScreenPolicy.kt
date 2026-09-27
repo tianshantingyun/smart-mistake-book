@@ -103,38 +103,6 @@ internal fun nextCaptureTaskRetry(status: ModelTaskStatus?): CaptureTaskRetry {
 }
 
 
-internal sealed interface CaptureRecoveryApplication {
-    data class Assessment(
-        val request: ModelTaskRequest,
-        val sourceAssetId: String,
-        val pageSnapshots: List<ModelTaskSnapshot?>,
-    ) : CaptureRecoveryApplication
-
-    data class Parse(
-        val request: ModelTaskRequest,
-    ) : CaptureRecoveryApplication
-}
-
-internal fun captureRecoveryApplication(
-    recoveryRequest: ModelTaskRequest,
-    sourcePages: List<CaptureSourcePage>,
-    pageSnapshots: List<ModelTaskSnapshot?>,
-): CaptureRecoveryApplication = when (recoveryRequest.input.kind) {
-    ModelTaskKind.CAPTURE_ASSESS -> {
-        val sourceAssetId = (recoveryRequest.input as CaptureAssessmentInput).sourceAssetId
-        CaptureRecoveryApplication.Assessment(
-            request = recoveryRequest,
-            sourceAssetId = sourceAssetId,
-            pageSnapshots = pageSnapshots.mapIndexed { index, existing ->
-                if (sourcePages.getOrNull(index)?.sourceAssetId == sourceAssetId) null else existing
-            },
-        )
-    }
-    ModelTaskKind.CAPTURE_PARSE -> CaptureRecoveryApplication.Parse(recoveryRequest)
-    else -> error("Unexpected capture recovery task")
-}
-
-
 internal enum class CaptureAcquisitionLaunchDecision {
     FLUSH_WORKSPACE_FIRST,
     BUSY,

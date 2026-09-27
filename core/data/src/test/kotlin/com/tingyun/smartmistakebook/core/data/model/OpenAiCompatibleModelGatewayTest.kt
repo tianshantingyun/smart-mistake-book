@@ -33,8 +33,6 @@ import com.tingyun.smartmistakebook.core.model.ModelFailureCode
 import com.tingyun.smartmistakebook.core.model.ModelGatewayEvent
 import com.tingyun.smartmistakebook.core.model.ModelLiveKind
 import com.tingyun.smartmistakebook.core.model.ModelGatewayExecution
-import com.tingyun.smartmistakebook.core.model.MODEL_EGRESS_APPROVAL_TTL_MILLIS
-import com.tingyun.smartmistakebook.core.model.MODEL_EGRESS_MAX_CLOCK_SKEW_MILLIS
 import com.tingyun.smartmistakebook.core.model.ModelPromptPolicyVersions
 import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
@@ -46,15 +44,10 @@ import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationOutput
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
 import com.tingyun.smartmistakebook.core.model.SubjectKind
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceLevel
-import com.tingyun.smartmistakebook.core.model.TutorComparisonScene
-import com.tingyun.smartmistakebook.core.model.TutorCircularMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorConceptMapScene
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
 import com.tingyun.smartmistakebook.core.model.TutorConversationMemory
-import com.tingyun.smartmistakebook.core.model.TutorEvidenceChainScene
-import com.tingyun.smartmistakebook.core.model.TutorFormulaDerivationScene
-import com.tingyun.smartmistakebook.core.model.TutorLinearMotionScene
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorMemoryPreference
@@ -63,34 +56,13 @@ import com.tingyun.smartmistakebook.core.model.TutorRequestedLocalCapability
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeEvidence
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
-import com.tingyun.smartmistakebook.core.model.TutorProcessTimelineScene
-import com.tingyun.smartmistakebook.core.model.TutorProjectileMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorOscillationMotionScene
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.AttachedImage
 import com.tingyun.smartmistakebook.core.model.AttachedImageKind
-import com.tingyun.smartmistakebook.core.model.TutorSpatialDiagramScene
-import com.tingyun.smartmistakebook.core.model.TutorStepFlowScene
 import com.tingyun.smartmistakebook.core.model.TutorTurnHistoryEntry
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
-import com.tingyun.smartmistakebook.core.model.TutorVisualScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualProgramScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
-import com.tingyun.smartmistakebook.core.model.TutorVisual2DNodeElement
-import com.tingyun.smartmistakebook.core.model.TutorVisual2DNodeKind
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerationDecision
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewDecision
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualPanel
-import com.tingyun.smartmistakebook.core.model.TutorVisualPanelKind
-import com.tingyun.smartmistakebook.core.model.TutorVisualStep
-import com.tingyun.smartmistakebook.core.model.TutorVisualTurnAnchor
-import com.tingyun.smartmistakebook.core.model.TutorVisualTurnSurface
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import com.tingyun.smartmistakebook.core.model.MODEL_TASK_STATUS_MESSAGE_MAX_CHARS
 import java.io.ByteArrayInputStream
@@ -229,59 +201,16 @@ class OpenAiCompatibleModelGatewayTest {
         )
     }
 
-    @Test
-    fun approvalExpiringDuringImagePreparationFailsClosedBeforeTransport() = runBlocking {
-        var nowEpochMillis = AUTHORIZATION_NOW
-        var transportCalled = false
-        val gateway = OpenAiCompatibleModelGateway(
-            configurationStore = FakeConfigurationStore(CONFIGURATION),
-            assetSource = assetSource { _, _ ->
-                nowEpochMillis = AUTHORIZATION_APPROVED_AT +
-                    MODEL_EGRESS_APPROVAL_TTL_MILLIS + 1
-                asset()
-            },
-            transport = modelTransport { _ ->
-                transportCalled = true
-                ModelHttpResponse(200, envelope(assessmentPayload()))
-            },
-            clock = { nowEpochMillis },
-        )
-
-        val events = gateway.execute(authorizedAssessment(gateway)).toList()
-
-        assertFalse(transportCalled)
-        assertEquals(
-            ModelFailureCode.EGRESS_AUTHORIZATION_INVALID,
-            (events.last() as ModelGatewayEvent.Failed).failure.code,
-        )
-    }
-
-    @Test
-    fun approvalTooFarInFutureAfterImagePreparationFailsClosedBeforeTransport() = runBlocking {
-        var nowEpochMillis = AUTHORIZATION_NOW
-        var transportCalled = false
-        val gateway = OpenAiCompatibleModelGateway(
-            configurationStore = FakeConfigurationStore(CONFIGURATION),
-            assetSource = assetSource { _, _ ->
-                nowEpochMillis = AUTHORIZATION_APPROVED_AT -
-                    MODEL_EGRESS_MAX_CLOCK_SKEW_MILLIS - 1
-                asset()
-            },
-            transport = modelTransport { _ ->
-                transportCalled = true
-                ModelHttpResponse(200, envelope(assessmentPayload()))
-            },
-            clock = { nowEpochMillis },
-        )
-
-        val events = gateway.execute(authorizedAssessment(gateway)).toList()
-
-        assertFalse(transportCalled)
-        assertEquals(
-            ModelFailureCode.EGRESS_AUTHORIZATION_INVALID,
-            (events.last() as ModelGatewayEvent.Failed).failure.code,
-        )
-    }
+    // ---- D-K4 删除的授权时效用例（清单路径不再核对 TTL）----
+    //
+    // 此前这里有两条：`approvalExpiringDuringImagePreparationFailsClosedBeforeTransport`（图片准备期间
+    // 时钟越过 15 分钟 TTL）与 `approvalTooFarInFutureAfterImagePreparationFailsClosedBeforeTransport`
+    // （授权时刻在未来超过 2 分钟时钟偏移）——都断言"到不了 transport"。随 `requireAuthorizes` 的
+    // `isModelEgressApprovalFresh` 调用一起删除：它们构造的是 capture 轮 + 逐次清单这一**生产不存在**
+    // 的状态（capture 是 agent-eligible，一律走全局同意通道、不带清单），而且清单时刻的唯一来源是
+    // 客户端自己刚写的当前时间（研究报告 §4.6 R5），判据在运行时永远成立。
+    // "外发前重新核对、失败关闭"这条机制本身仍由下面的凭据清除/轮换用例钉住（它们走的是 provider
+    // 配置与能力核对，那部分保留了）。
 
     @Test
     fun credentialClearedDuringEndpointPreparationFailsClosedBeforeEnqueue() = runBlocking {
@@ -337,33 +266,7 @@ class OpenAiCompatibleModelGatewayTest {
         )
     }
 
-    @Test
-    fun approvalExpiresDuringEndpointPreparationFailsClosedBeforeEnqueue() = runBlocking {
-        var nowEpochMillis = AUTHORIZATION_NOW
-        val transport = BlockingBeforeEnqueueTransport(
-            ModelHttpResponse(200, envelope(assessmentPayload())),
-        )
-        val gateway = OpenAiCompatibleModelGateway(
-            configurationStore = FakeConfigurationStore(CONFIGURATION),
-            assetSource = assetSource { _, _ -> asset() },
-            transport = transport,
-            clock = { nowEpochMillis },
-        )
-        val execution = authorizedAssessment(gateway)
-
-        val pendingEvents = async { gateway.execute(execution).toList() }
-        withTimeout(5_000L) { transport.endpointPrepared.await() }
-        nowEpochMillis = AUTHORIZATION_APPROVED_AT + MODEL_EGRESS_APPROVAL_TTL_MILLIS + 1
-        transport.continueToEnqueue.complete(Unit)
-        val events = pendingEvents.await()
-
-        assertEquals(0, transport.networkEnqueueCount)
-        assertEquals(
-            ModelFailureCode.EGRESS_AUTHORIZATION_INVALID,
-            (events.last() as ModelGatewayEvent.Failed).failure.code,
-        )
-    }
-
+    // `approvalExpiresDuringEndpointPreparationFailsClosedBeforeEnqueue` 同批复删（同为 TTL；见上）。
     @Test
     fun localOnlyPermitNeverReachesNetworkEnqueue() = runBlocking {
         val transport = BlockingBeforeEnqueueTransport(
@@ -790,10 +693,6 @@ class OpenAiCompatibleModelGatewayTest {
         assertFalse(sentBody.contains("data:image"))
         assertTrue(sentBody.contains("严禁生成新题、同类题、变式题、校准题"))
         assertTrue(sentBody.contains("diagnosticQuestion是可选的当前题内交互块"))
-        assertTrue(sentBody.contains("visualRequest可选且最多一个"))
-        assertTrue(sentBody.contains("本次不得返回visualScene"))
-        assertTrue(sentBody.contains("后续视觉任务会另行读取题图"))
-        assertFalse(sentBody.contains("visual_program"))
         assertTrue(sentBody.contains("ID或未列出的字段"))
         assertTrue(sentBody.contains("不得出现图片、SVG、HTML、CSS、JS、代码"))
         assertTrue(sentBody.contains("inferredKnowledgeLabels给当前题涉及的1到8个知识标签"))
@@ -824,7 +723,6 @@ class OpenAiCompatibleModelGatewayTest {
             .output as TutorPlanOutput
 
         assertEquals(null, output.plan.diagnosticItem)
-        assertNull(output.plan.visualScene)
         assertTrue(output.plan.solutionMarkdown.contains("符号不等式"))
         assertTrue(output.plan.alternateMethodMarkdown.contains("符号表"))
     }
@@ -836,123 +734,6 @@ class OpenAiCompatibleModelGatewayTest {
         ).last().let { it as ModelGatewayEvent.Completed }.output as TutorPlanOutput
 
         assertTrue(output.plan.suggestedMoves.isEmpty())
-    }
-
-    @Test
-    fun tutorPlanReconstructsEveryAllowedSceneWithStableLocalIds() = runBlocking {
-        val scenes = listOf(
-            parsedTutorScene(stepFlowScenePayload()),
-            parsedTutorScene(comparisonScenePayload()),
-            parsedTutorScene(evidenceChainScenePayload()),
-            parsedTutorScene(processTimelineScenePayload()),
-            parsedTutorScene(conceptMapScenePayload()),
-            parsedTutorScene(formulaDerivationScenePayload()),
-            parsedTutorScene(spatialDiagramScenePayload()),
-            parsedTutorScene(circuitDiagramScenePayload()),
-            parsedTutorScene(linearMotionScenePayload()),
-            parsedTutorScene(projectileMotionScenePayload()),
-            parsedTutorScene(circularMotionScenePayload()),
-            parsedTutorScene(oscillationMotionScenePayload()),
-            parsedTutorScene(visualProgramScenePayload()),
-        )
-        val expectedSceneId = "tutor-scene-${stableTutorSuffix(tutorInput())}"
-
-        scenes.forEach { scene ->
-            assertEquals(expectedSceneId, scene.sceneId)
-            assertEquals(TutorVisualScene.SCHEMA_VERSION, scene.schemaVersion)
-        }
-        assertEquals(
-            listOf("$expectedSceneId-step-1", "$expectedSceneId-step-2"),
-            (scenes[0] as TutorStepFlowScene).steps.map { it.stepId },
-        )
-        assertEquals(
-            listOf("$expectedSceneId-row-1"),
-            (scenes[1] as TutorComparisonScene).rows.map { it.rowId },
-        )
-        assertEquals(
-            listOf("$expectedSceneId-point-1", "$expectedSceneId-point-2"),
-            (scenes[2] as TutorEvidenceChainScene).evidence.map { it.pointId },
-        )
-        assertEquals(
-            listOf("$expectedSceneId-stage-1", "$expectedSceneId-stage-2"),
-            (scenes[3] as TutorProcessTimelineScene).stages.map { it.stageId },
-        )
-        assertEquals(
-            listOf("$expectedSceneId-relation-1", "$expectedSceneId-relation-2"),
-            (scenes[4] as TutorConceptMapScene).relations.map { it.relationId },
-        )
-        assertEquals(
-            listOf("$expectedSceneId-derivation-1", "$expectedSceneId-derivation-2"),
-            (scenes[5] as TutorFormulaDerivationScene).steps.map { it.stepId },
-        )
-        assertEquals(
-            listOf(
-                "$expectedSceneId-node-1",
-                "$expectedSceneId-node-2",
-                "$expectedSceneId-node-3",
-            ),
-            (scenes[6] as TutorSpatialDiagramScene).nodes.map { it.nodeId },
-        )
-        assertEquals(
-            listOf("$expectedSceneId-edge-1", "$expectedSceneId-edge-2"),
-            (scenes[6] as TutorSpatialDiagramScene).edges.map { it.edgeId },
-        )
-        assertEquals(
-            listOf(
-                "JUNCTION",
-                "RESISTOR",
-                "JUNCTION",
-                "LAMP",
-                "JUNCTION",
-                "BATTERY",
-                "JUNCTION",
-                "SWITCH_OPEN",
-            ),
-            (scenes[7] as TutorSpatialDiagramScene).nodes.map { it.shape.name },
-        )
-        assertEquals(2.0, (scenes[8] as TutorLinearMotionScene).durationSeconds, 0.0)
-        assertEquals(10.0, (scenes[9] as TutorProjectileMotionScene).gravityMetersPerSecondSquared, 0.0)
-        assertEquals(2.0, (scenes[10] as TutorCircularMotionScene).radiusMeters, 0.0)
-        assertEquals(4.0, (scenes[11] as TutorOscillationMotionScene).periodSeconds, 0.0)
-        val visualProgram = scenes[12] as TutorVisualProgramScene
-        assertEquals("$expectedSceneId-parameter-1", visualProgram.parameters.single().parameterId)
-        assertEquals("$expectedSceneId-entity-1", visualProgram.commands.first().commandId)
-    }
-
-    @Test
-    fun tutorPlanRejectsScenesOutsideTheExactReadOnlyAllowlist() = runBlocking {
-        val invalidScenes = listOf<JsonElement>(
-            buildJsonObject {
-                put("kind", "spatial_canvas")
-                put("title", "任意画布")
-            },
-            buildJsonArray { add(stepFlowScenePayload()) },
-            stepFlowScenePayload(sceneExtras = mapOf("schemaVersion" to JsonPrimitive(1))),
-            stepFlowScenePayload(sceneExtras = mapOf("imageUrl" to JsonPrimitive("asset.png"))),
-            stepFlowScenePayload(stepExtras = mapOf("action" to JsonPrimitive("run"))),
-            stepFlowScenePayload(bodyMarkdown = "完整答案在 https://example.com"),
-            stepFlowScenePayload(bodyMarkdown = "<div>完整答案</div>"),
-            stepFlowScenePayload(bodyMarkdown = "`println(1)`"),
-            processTimelineScenePayload(lastTransitionMarkdown = "不存在的下一阶段"),
-            spatialDiagramScenePayload(fromIndex = 0),
-            spatialDiagramScenePayload(nodeAnchor = "FREE_POSITION"),
-            linearMotionScenePayload(durationSeconds = 31.0),
-            linearMotionScenePayload(extra = "pixels" to JsonPrimitive(320)),
-        )
-
-        invalidScenes.forEach { scene ->
-            val failed = executeTutorPayload(tutorPayload(visualScene = scene)).last()
-                as ModelGatewayEvent.Failed
-            assertEquals(ModelFailureCode.INVALID_RESPONSE, failed.failure.code)
-            assertFalse(failed.failure.retryable)
-        }
-        val topLevelExtra = executeTutorPayload(
-            tutorPayload(
-                visualScene = stepFlowScenePayload(),
-                extraTopLevel = "imageUrl" to JsonPrimitive("asset.png"),
-            ),
-        ).last() as ModelGatewayEvent.Failed
-        assertEquals(ModelFailureCode.INVALID_RESPONSE, topLevelExtra.failure.code)
     }
 
     @Test
@@ -989,9 +770,6 @@ class OpenAiCompatibleModelGatewayTest {
         assertTrue(sentBody.contains("不要默认给最终答案"))
         assertTrue(sentBody.contains("solutionRevealed是必填的JSON布尔值"))
         assertTrue(sentBody.contains("不得返回diagnosticQuestion、选择题"))
-        assertTrue(sentBody.contains("visualRequest可省略"))
-        assertTrue(sentBody.contains("本次不得返回visualScene"))
-        assertFalse(sentBody.contains("visual_program"))
         assertTrue(sentBody.contains("不得返回ID或schemaVersion"))
         assertFalse(sentBody.contains(TUTOR_SESSION_ID))
         assertFalse(sentBody.contains("node-derivative"))
@@ -1003,135 +781,7 @@ class OpenAiCompatibleModelGatewayTest {
         assertEquals(3, output.turnOrdinal)
         assertFalse(output.solutionRevealed)
         assertEquals(TutorMessageIntent.CURRENT_QUESTION_HELP, output.intentDecision.intent)
-        assertNull(output.visualScene)
         assertTrue(output.suggestedMoves.isEmpty())
-    }
-
-    @Test
-    fun tutorVisualGenerationReadsOnlyGrantedImagesAndParsesTheV2Document() = runBlocking {
-        var openedAssetId: String? = null
-        var sentBody = ""
-        val gateway = OpenAiCompatibleModelGateway(
-            configurationStore = FakeConfigurationStore(CONFIGURATION),
-            assetSource = assetSource { _, assetId ->
-                openedAssetId = assetId
-                asset()
-            },
-            transport = modelTransport { request ->
-                val body = request.body
-                sentBody = body
-                ModelHttpResponse(
-                    200,
-                    envelope(
-                        Json.encodeToString(
-                            buildJsonObject {
-                                put("decision", TutorVisualGenerationDecision.GENERATED.name)
-                                put("confidence", 0.96)
-                                put("scene", visualDocumentPayload())
-                            },
-                        ),
-                    ),
-                )
-            },
-            clock = { AUTHORIZATION_NOW },
-        )
-
-        val output = gateway.execute(authorizedTutorVisualGenerate(gateway)).toList().last()
-            .let { it as ModelGatewayEvent.Completed }
-            .output as TutorVisualGenerateOutput
-
-        assertEquals(ASSET_ID, openedAssetId)
-        assertTrue(sentBody.contains("为一条已经先展示文字的当前题讲解生成可交互图形"))
-        assertTrue(sentBody.contains("visualDocument固定为"))
-        assertTrue(sentBody.contains("聚焦函数图象中的增减关系"))
-        assertFalse(sentBody.contains(TUTOR_SESSION_ID))
-        assertEquals(TutorVisualGenerationDecision.GENERATED, output.decision)
-        assertEquals("关系图", requireNotNull(output.scene).title)
-        assertTrue(requireNotNull(output.scene).sceneId.startsWith("tutor-visual-"))
-    }
-
-    @Test
-    fun tutorVisualGenerationRejectsUnknownFieldsAndVisibleIllustrativeValues() = runBlocking {
-        val unknownFieldScene = visualDocumentPayload(
-            extra = "imageUrl" to JsonPrimitive("asset.png"),
-        )
-        val illustrativeScene = visualDocumentPayload(
-            variables = buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("variableId", "animation-only")
-                        put("label", "速度")
-                        put("value", 2.0)
-                        put("dimension", "SPEED")
-                        put("source", "ILLUSTRATIVE")
-                        put("display", false)
-                    },
-                )
-            },
-            nodeValueVariableId = "animation-only",
-        )
-
-        listOf(unknownFieldScene, illustrativeScene).forEach { scene ->
-            val gateway = OpenAiCompatibleModelGateway(
-                configurationStore = FakeConfigurationStore(CONFIGURATION),
-                assetSource = assetSource { _, _ -> asset() },
-                transport = modelTransport { _ ->
-                    ModelHttpResponse(
-                        200,
-                        envelope(
-                            Json.encodeToString(
-                                buildJsonObject {
-                                    put("decision", TutorVisualGenerationDecision.GENERATED.name)
-                                    put("confidence", 0.96)
-                                    put("scene", scene)
-                                },
-                            ),
-                        ),
-                    )
-                },
-                clock = { AUTHORIZATION_NOW },
-            )
-
-            val failed = gateway.execute(authorizedTutorVisualGenerate(gateway)).toList().last()
-                as ModelGatewayEvent.Failed
-
-            assertEquals(ModelFailureCode.INVALID_RESPONSE, failed.failure.code)
-            assertFalse(failed.failure.retryable)
-        }
-    }
-
-    @Test
-    fun tutorVisualReviewCanApproveWithoutRepeatingTheCandidate() = runBlocking {
-        var sentBody = ""
-        val gateway = OpenAiCompatibleModelGateway(
-            configurationStore = FakeConfigurationStore(CONFIGURATION),
-            assetSource = assetSource { _, _ -> asset() },
-            transport = modelTransport { request ->
-                val body = request.body
-                sentBody = body
-                ModelHttpResponse(
-                    200,
-                    envelope(
-                        Json.encodeToString(
-                            buildJsonObject {
-                                put("decision", TutorVisualReviewDecision.APPROVED.name)
-                                put("confidence", 0.98)
-                            },
-                        ),
-                    ),
-                )
-            },
-            clock = { AUTHORIZATION_NOW },
-        )
-
-        val output = gateway.execute(authorizedTutorVisualReview(gateway)).toList().last()
-            .let { it as ModelGatewayEvent.Completed }
-            .output as TutorVisualReviewOutput
-
-        assertTrue(sentBody.contains("唯一一次修复机会"))
-        assertTrue(sentBody.contains("candidateScene"))
-        assertEquals(TutorVisualReviewDecision.APPROVED, output.decision)
-        assertNull(output.scene)
     }
 
     @Test
@@ -1236,7 +886,6 @@ class OpenAiCompatibleModelGatewayTest {
         )
         assertEquals(listOf("函数", "单调性"), output.intentDecision.lookupTerms)
         assertFalse(output.solutionRevealed)
-        assertNull(output.visualScene)
     }
 
     @Test
@@ -1378,38 +1027,10 @@ class OpenAiCompatibleModelGatewayTest {
     }
 
     @Test
-    fun tutorResponseReconstructsStableSceneAndMoveIdsLocally() = runBlocking {
-        val payload = tutorRespondPayload(
-            visualScene = stepFlowScenePayload(),
-            nextMoves = buildJsonArray {
-                add(buildJsonObject {
-                    put("label", "换成符号表表示")
-                    put("type", "CHANGE_REPRESENTATION")
-                })
-            },
-        )
-        val first = parsedTutorResponse(payload)
-        val second = parsedTutorResponse(payload)
-        val suffix = stableTutorRespondSuffix(tutorRespondInput())
-        val expectedSceneId = "tutor-scene-$suffix"
-
-        assertEquals(first, second)
-        assertEquals(expectedSceneId, requireNotNull(first.visualScene).sceneId)
-        assertEquals(
-            listOf("$expectedSceneId-step-1", "$expectedSceneId-step-2"),
-            (first.visualScene as TutorStepFlowScene).steps.map { it.stepId },
-        )
-        assertEquals(
-            listOf("tutor-respond-move-$suffix-1"),
-            first.suggestedMoves.map { it.id },
-        )
-    }
-
-    @Test
     fun tutorResponseRejectsUnknownOrActiveOutputFields() = runBlocking {
         val invalidPayloads = listOf(
             tutorRespondPayload(
-                visualScene = buildJsonObject {
+                extraTopLevel = "scene" to buildJsonObject {
                     put("kind", "spatial_canvas")
                     put("title", "任意画布")
                 },
@@ -1661,7 +1282,6 @@ class OpenAiCompatibleModelGatewayTest {
                 )
             },
             disclosedData = ModelEgressManifest.CAPTURE_IMAGE_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.CAPTURE_PROHIBITED_DATA,
         )
         val request = ModelTaskRequest(
             requestId = "oversized-parse-request",
@@ -1683,7 +1303,9 @@ class OpenAiCompatibleModelGatewayTest {
             occurredAtEpochMillis = REQUEST_OCCURRED_AT,
             egressManifest = ModelEgressManifest(
                 authorizationId = "tutor-authorization",
-                subjectId = TUTOR_SESSION_ID,
+                // K1c：讲题任务的槽键/发送范围主语是**会话 id**（会话行身份），
+                // 不再是讲题会话 id——清单主语必须与请求主语同源（ModelEgress.kt 的校验）。
+                subjectId = TutorConversationIds.captured(TUTOR_SESSION_ID),
                 purpose = ModelEgressPurpose.TUTORING,
                 authorizedTaskKinds = setOf(ModelTaskKind.TUTOR_PLAN),
                 providerId = capabilities.providerId,
@@ -1693,7 +1315,6 @@ class OpenAiCompatibleModelGatewayTest {
                 approvedAtEpochMillis = AUTHORIZATION_APPROVED_AT,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.TUTOR_PLAN_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.TUTOR_PLAN_PROHIBITED_DATA,
             ),
         )
         return ModelEgressPolicy.authorize(request, capabilities, AUTHORIZATION_NOW)
@@ -1742,7 +1363,7 @@ class OpenAiCompatibleModelGatewayTest {
             occurredAtEpochMillis = REQUEST_OCCURRED_AT,
             egressManifest = ModelEgressManifest(
                 authorizationId = "tutor-respond-authorization",
-                subjectId = TUTOR_SESSION_ID,
+                subjectId = TutorConversationIds.captured(TUTOR_SESSION_ID),
                 purpose = ModelEgressPurpose.TUTORING,
                 authorizedTaskKinds = setOf(ModelTaskKind.TUTOR_RESPOND),
                 providerId = capabilities.providerId,
@@ -1752,117 +1373,9 @@ class OpenAiCompatibleModelGatewayTest {
                 approvedAtEpochMillis = AUTHORIZATION_APPROVED_AT,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.TUTOR_RESPOND_PROHIBITED_DATA,
             ),
         )
         return ModelEgressPolicy.authorize(request, capabilities, AUTHORIZATION_NOW)
-    }
-
-    private suspend fun authorizedTutorVisualGenerate(
-        gateway: OpenAiCompatibleModelGateway,
-    ): ModelGatewayExecution {
-        val capabilities = gateway.capabilities()
-        val input = tutorVisualGenerateInput()
-        val request = ModelTaskRequest(
-            requestId = "tutor-visual-generate-request",
-            input = input,
-            occurredAtEpochMillis = REQUEST_OCCURRED_AT,
-            egressManifest = tutorVisualManifest(
-                capabilities = capabilities,
-                requestId = "tutor-visual-generate",
-                kind = ModelTaskKind.TUTOR_VISUAL_GENERATE,
-            ),
-        )
-        return ModelEgressPolicy.authorize(request, capabilities, AUTHORIZATION_NOW)
-    }
-
-    private suspend fun authorizedTutorVisualReview(
-        gateway: OpenAiCompatibleModelGateway,
-    ): ModelGatewayExecution {
-        val capabilities = gateway.capabilities()
-        val generated = tutorVisualGenerateInput()
-        val input = TutorVisualReviewInput(
-            sessionId = generated.sessionId,
-            draftRevisionNumber = generated.draftRevisionNumber,
-            subject = generated.subject,
-            questionDocument = generated.questionDocument,
-            sourceAssets = generated.sourceAssets,
-            anchor = generated.anchor,
-            focusMarkdown = generated.focusMarkdown,
-            explanationMarkdown = generated.explanationMarkdown,
-            candidateScene = visualDocumentScene(),
-            reviewReasonCodes = setOf("multiple_synchronized_views"),
-        )
-        val request = ModelTaskRequest(
-            requestId = "tutor-visual-review-request",
-            input = input,
-            occurredAtEpochMillis = REQUEST_OCCURRED_AT,
-            egressManifest = tutorVisualManifest(
-                capabilities = capabilities,
-                requestId = "tutor-visual-review",
-                kind = ModelTaskKind.TUTOR_VISUAL_REVIEW,
-            ),
-        )
-        return ModelEgressPolicy.authorize(request, capabilities, AUTHORIZATION_NOW)
-    }
-
-    private fun tutorVisualGenerateInput() = TutorVisualGenerateInput(
-        sessionId = TUTOR_SESSION_ID,
-        draftRevisionNumber = 3,
-        subject = "MATH",
-        questionDocument = tutorInput().questionDocument,
-        sourceAssets = listOf(
-            CaptureSourceAssetRef(
-                assetId = ASSET_ID,
-                sha256 = SHA,
-                width = 100,
-                height = 200,
-                pageIndex = 0,
-            ),
-        ),
-        anchor = TutorVisualTurnAnchor(
-            surface = TutorVisualTurnSurface.PLAN,
-            cycleOrdinal = 1,
-            turnOrdinal = 1,
-        ),
-        focusMarkdown = "聚焦函数图象中的增减关系",
-        explanationMarkdown = "沿横轴从左到右观察函数值的变化。",
-    )
-
-    private fun tutorVisualManifest(
-        capabilities: com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot,
-        requestId: String,
-        kind: ModelTaskKind,
-    ): ModelEgressManifest {
-        val disclosed = when (kind) {
-            ModelTaskKind.TUTOR_VISUAL_GENERATE ->
-                ModelEgressManifest.tutorVisualGenerateDisclosure(false)
-            ModelTaskKind.TUTOR_VISUAL_REVIEW ->
-                ModelEgressManifest.tutorVisualReviewDisclosure(false)
-            else -> error("Visual manifest test helper received a non-visual task")
-        }
-        return ModelEgressManifest(
-            authorizationId = "$requestId-authorization",
-            subjectId = TUTOR_SESSION_ID,
-            purpose = ModelEgressPurpose.TUTORING,
-            authorizedTaskKinds = setOf(kind),
-            providerId = capabilities.providerId,
-            modelId = capabilities.modelId,
-            providerConfigurationVersion = capabilities.providerConfigurationVersion,
-            promptPolicyVersion = requireNotNull(ModelPromptPolicyVersions.currentFor(kind)),
-            approvedAtEpochMillis = AUTHORIZATION_APPROVED_AT,
-            assets = listOf(
-                ModelEgressAssetGrant(
-                    assetId = ASSET_ID,
-                    sha256 = SHA,
-                    byteSize = IMAGE.size.toLong(),
-                    width = 100,
-                    height = 200,
-                ),
-            ),
-            disclosedData = disclosed,
-            prohibitedData = ModelEgressDataClass.entries.toSet() - disclosed,
-        )
     }
 
     private suspend fun authorizedTutorLobby(
@@ -1896,7 +1409,6 @@ class OpenAiCompatibleModelGatewayTest {
                 approvedAtEpochMillis = AUTHORIZATION_APPROVED_AT,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
             ),
         )
         return ModelEgressPolicy.authorize(request, capabilities, AUTHORIZATION_NOW)
@@ -1983,7 +1495,6 @@ class OpenAiCompatibleModelGatewayTest {
                 approvedAtEpochMillis = AUTHORIZATION_APPROVED_AT,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.PROBLEM_ORGANIZATION_PROHIBITED_DATA,
             ),
         )
         return ModelEgressPolicy.authorize(request, capabilities, AUTHORIZATION_NOW)
@@ -2004,8 +1515,6 @@ class OpenAiCompatibleModelGatewayTest {
         approvedAtEpochMillis = AUTHORIZATION_APPROVED_AT,
         assets = listOf(ModelEgressAssetGrant(ASSET_ID, SHA, IMAGE.size.toLong(), 100, 200)),
         disclosedData = ModelEgressManifest.CAPTURE_IMAGE_DISCLOSURE,
-        prohibitedData = ModelEgressDataClass.entries.toSet() -
-            ModelEgressManifest.CAPTURE_IMAGE_DISCLOSURE,
     )
 
     private fun asset() = RestrictedModelAsset(
@@ -2524,89 +2033,9 @@ class OpenAiCompatibleModelGatewayTest {
         put("x", x)
         put("y", y)
     }
-
-    private fun visualDocumentPayload(
-        extra: Pair<String, JsonElement>? = null,
-        variables: JsonElement = buildJsonArray {},
-        nodeValueVariableId: String? = null,
-    ): JsonObject = buildJsonObject {
-        put("kind", "visual_document")
-        put("title", "关系图")
-        put(
-            "panels",
-            buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("panelId", "panel")
-                        put("kind", "DIAGRAM_2D")
-                    },
-                )
-            },
-        )
-        put("variables", variables)
-        put(
-            "elements",
-            buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("type", "node_2d")
-                        put("elementId", "object")
-                        put("panelId", "panel")
-                        put("kind", "RECTANGLE")
-                        put("label", "对象")
-                        nodeValueVariableId?.let { put("valueVariableId", it) }
-                    },
-                )
-            },
-        )
-        put("bindings", buildJsonArray {})
-        put(
-            "steps",
-            buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("stepId", "focus")
-                        put("label", "先看对象")
-                        put("focusElementIds", buildJsonArray { add(JsonPrimitive("object")) })
-                        put("primaryRelationElementId", "object")
-                    },
-                )
-            },
-        )
-        put("durationSeconds", 0.0)
-        put("fallbackMarkdown", "先观察对象之间的关系。")
-        put("accessibilitySummary", "一个标有对象的矩形。")
-        extra?.let { put(it.first, it.second) }
-    }
-
-    private fun visualDocumentScene() = TutorVisualDocumentScene(
-        sceneId = "candidate-scene",
-        title = "关系图",
-        panels = listOf(TutorVisualPanel("panel", TutorVisualPanelKind.DIAGRAM_2D)),
-        elements = listOf(
-            TutorVisual2DNodeElement(
-                elementId = "object",
-                panelId = "panel",
-                kind = TutorVisual2DNodeKind.RECTANGLE,
-                label = "对象",
-            ),
-        ),
-        steps = listOf(
-            TutorVisualStep(
-                stepId = "focus",
-                label = "先看对象",
-                focusElementIds = listOf("object"),
-                primaryRelationElementId = "object",
-            ),
-        ),
-        fallbackMarkdown = "先观察对象之间的关系。",
-        accessibilitySummary = "一个标有对象的矩形。",
-    )
-
     private fun tutorPayload(
         includeDiagnostic: Boolean = true,
         includeNextMoves: Boolean = true,
-        visualScene: JsonElement? = null,
         extraTopLevel: Pair<String, JsonElement>? = null,
     ): String = Json.encodeToString(
         buildJsonObject {
@@ -2640,7 +2069,6 @@ class OpenAiCompatibleModelGatewayTest {
                     },
                 )
             }
-            visualScene?.let { put("visualScene", it) }
             put("solutionMarkdown", "求导并解符号不等式，再写出单调区间。")
             put("alternateMethodMarkdown", "画导函数符号表，从图像变化理解单调性。")
             put("difficultyReasonMarkdown", "区分正负对应错误和变号遗漏。")
@@ -2678,7 +2106,6 @@ class OpenAiCompatibleModelGatewayTest {
     private fun tutorRespondPayload(
         messageMarkdown: String = "导数符号决定原函数在当前区间内的增减方向。",
         solutionRevealed: Boolean = false,
-        visualScene: JsonElement? = null,
         nextMoves: JsonElement? = null,
         intentDecision: JsonElement? = tutorIntentPayload(),
         extraTopLevel: Pair<String, JsonElement>? = null,
@@ -2687,7 +2114,6 @@ class OpenAiCompatibleModelGatewayTest {
             intentDecision?.let { put("intentDecision", it) }
             put("messageMarkdown", messageMarkdown)
             put("solutionRevealed", solutionRevealed)
-            visualScene?.let { put("visualScene", it) }
             nextMoves?.let { put("nextMoves", it) }
             extraTopLevel?.let { (key, value) -> put(key, value) }
         },
@@ -2712,356 +2138,6 @@ class OpenAiCompatibleModelGatewayTest {
                 lookupTerms.forEach { term -> add(JsonPrimitive(term)) }
             },
         )
-    }
-
-    private fun stepFlowScenePayload(
-        bodyMarkdown: String = "先确定导数为正与为负的区间。",
-        sceneExtras: Map<String, JsonElement> = emptyMap(),
-        stepExtras: Map<String, JsonElement> = emptyMap(),
-    ): JsonObject = buildJsonObject {
-        put("kind", "step_flow")
-        put("title", "解题路径")
-        put(
-            "steps",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("label", "判断符号")
-                    put("bodyMarkdown", bodyMarkdown)
-                    put("formula", "f'(x)>0")
-                    put("emphasis", "KEY")
-                    stepExtras.forEach { (key, value) -> put(key, value) }
-                })
-                add(buildJsonObject {
-                    put("label", "写出结论")
-                    put("bodyMarkdown", "把符号区间对应到原函数的增减性。")
-                    put("emphasis", "CHECK")
-                })
-            },
-        )
-        sceneExtras.forEach { (key, value) -> put(key, value) }
-    }
-
-    private fun comparisonScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "comparison")
-        put("title", "符号与增减对照")
-        put("leftTitle", "导数为正")
-        put("rightTitle", "导数为负")
-        put(
-            "rows",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("criterion", "原函数变化")
-                    put("leftMarkdown", "原函数递增")
-                    put("rightMarkdown", "原函数递减")
-                    put("takeawayMarkdown", "先看导数符号，再对应增减性。")
-                })
-            },
-        )
-    }
-
-    private fun evidenceChainScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "evidence_chain")
-        put("title", "推理依据")
-        put("claimMarkdown", "函数在目标区间内先增后减。")
-        put(
-            "evidence",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("kind", "GIVEN")
-                    put("markdown", "导数在分界点两侧由正变负。")
-                })
-                add(buildJsonObject {
-                    put("kind", "INFERENCE")
-                    put("markdown", "导数正负分别对应原函数递增和递减。")
-                })
-            },
-        )
-        put("conclusionMarkdown", "因此原函数先增后减。")
-    }
-
-    private fun processTimelineScenePayload(
-        lastTransitionMarkdown: String? = null,
-    ): JsonObject = buildJsonObject {
-        put("kind", "process_timeline")
-        put("title", "反应变化过程")
-        put(
-            "stages",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("label", "开始")
-                    put("bodyMarkdown", "反应物充分接触。")
-                    put("transitionMarkdown", "达到反应条件")
-                })
-                add(buildJsonObject {
-                    put("label", "变化后")
-                    put("bodyMarkdown", "生成物比例趋于稳定。")
-                    lastTransitionMarkdown?.let { put("transitionMarkdown", it) }
-                })
-            },
-        )
-    }
-
-    private fun conceptMapScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "concept_map")
-        put("title", "函数关系")
-        put("centerMarkdown", "导数符号")
-        put(
-            "relations",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("relationLabel", "决定")
-                    put("targetMarkdown", "原函数增减性")
-                })
-                add(buildJsonObject {
-                    put("relationLabel", "发生改变时")
-                    put("targetMarkdown", "可能出现极值")
-                    put("detailMarkdown", "还要核对定义域和变号方向。")
-                })
-            },
-        )
-    }
-
-    private fun formulaDerivationScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "formula_derivation")
-        put("title", "配方过程")
-        put("startFormula", "x^2+4x+1")
-        put(
-            "steps",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("reasonMarkdown", "先补成完全平方。")
-                    put("resultFormula", "x^2+4x+4-3")
-                })
-                add(buildJsonObject {
-                    put("reasonMarkdown", "把前三项写成平方。")
-                    put("resultFormula", "(x+2)^2-3")
-                })
-            },
-        )
-    }
-
-    private fun spatialDiagramScenePayload(
-        fromIndex: Int = 1,
-        nodeAnchor: String = "CENTER",
-    ): JsonObject = buildJsonObject {
-        put("kind", "spatial_diagram")
-        put("title", "物体受到哪些力")
-        put(
-            "nodes",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("label", "物体")
-                    put("anchor", nodeAnchor)
-                    put("shape", "BLOCK")
-                })
-                add(buildJsonObject {
-                    put("label", "N")
-                    put("anchor", "TOP")
-                    put("shape", "CIRCLE")
-                })
-                add(buildJsonObject {
-                    put("label", "G")
-                    put("anchor", "BOTTOM")
-                    put("shape", "CIRCLE")
-                })
-            },
-        )
-        put(
-            "edges",
-            buildJsonArray {
-                add(buildJsonObject {
-                    put("fromIndex", fromIndex)
-                    put("toIndex", 2)
-                    put("label", "支持力")
-                    put("style", "ARROW")
-                })
-                add(buildJsonObject {
-                    put("fromIndex", 1)
-                    put("toIndex", 3)
-                    put("label", "重力")
-                    put("style", "ARROW")
-                })
-            },
-        )
-        put("captionMarkdown", "箭头从受力物体出发。")
-    }
-
-    private fun circuitDiagramScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "spatial_diagram")
-        put("title", "串联电路中的元件")
-        put(
-            "nodes",
-            buildJsonArray {
-                listOf(
-                    Triple("接点", "TOP_LEFT", "JUNCTION"),
-                    Triple("电阻", "TOP", "RESISTOR"),
-                    Triple("接点", "TOP_RIGHT", "JUNCTION"),
-                    Triple("灯泡", "RIGHT", "LAMP"),
-                    Triple("接点", "BOTTOM_RIGHT", "JUNCTION"),
-                    Triple("电源", "BOTTOM", "BATTERY"),
-                    Triple("接点", "BOTTOM_LEFT", "JUNCTION"),
-                    Triple("开关", "LEFT", "SWITCH_OPEN"),
-                ).forEach { (label, anchor, shape) ->
-                    add(buildJsonObject {
-                        put("label", label)
-                        put("anchor", anchor)
-                        put("shape", shape)
-                    })
-                }
-            },
-        )
-        put(
-            "edges",
-            buildJsonArray {
-                listOf(
-                    1 to 2,
-                    2 to 3,
-                    3 to 4,
-                    4 to 5,
-                    5 to 6,
-                    6 to 7,
-                    7 to 8,
-                    8 to 1,
-                ).forEach { (from, to) ->
-                    add(buildJsonObject {
-                        put("fromIndex", from)
-                        put("toIndex", to)
-                        put("style", "LINE")
-                    })
-                }
-            },
-        )
-        put("captionMarkdown", "开关目前断开，闭合后电流流过电阻和灯泡。")
-    }
-
-    private fun linearMotionScenePayload(
-        durationSeconds: Double = 2.0,
-        extra: Pair<String, JsonElement>? = null,
-    ): JsonObject = buildJsonObject {
-        put("kind", "linear_motion")
-        put("title", "匀加速直线运动")
-        put("durationSeconds", durationSeconds)
-        put("initialPositionMeters", 0.0)
-        put("initialVelocityMetersPerSecond", 2.0)
-        put("accelerationMetersPerSecondSquared", 1.0)
-        extra?.let { (key, value) -> put(key, value) }
-    }
-
-    private fun projectileMotionScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "projectile_motion")
-        put("title", "平抛运动")
-        put("durationSeconds", 2.0)
-        put("initialHeightMeters", 5.0)
-        put("horizontalVelocityMetersPerSecond", 4.0)
-        put("verticalVelocityMetersPerSecond", 0.0)
-        put("gravityMetersPerSecondSquared", 10.0)
-    }
-
-    private fun circularMotionScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "circular_motion")
-        put("title", "匀速圆周运动")
-        put("durationSeconds", 4.0)
-        put("radiusMeters", 2.0)
-        put("angularVelocityRadiansPerSecond", 1.57)
-        put("initialAngleRadians", 0.0)
-    }
-
-    private fun oscillationMotionScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "oscillation_motion")
-        put("title", "简谐运动")
-        put("durationSeconds", 4.0)
-        put("equilibriumPositionMeters", 0.0)
-        put("amplitudeMeters", 1.0)
-        put("periodSeconds", 4.0)
-        put("initialPhaseRadians", 0.0)
-    }
-
-    private fun visualProgramScenePayload(): JsonObject = buildJsonObject {
-        put("kind", "visual_program")
-        put("title", "位置随时间变化")
-        put("accessibilitySummary", "小球沿横轴向右移动，位置随时间增大。")
-        put(
-            "parameters",
-            buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("label", "速度")
-                        put("value", 2.0)
-                        put("unit", "m/s")
-                    },
-                )
-            },
-        )
-        put(
-            "commands",
-            buildJsonArray {
-                add(
-                    buildJsonObject {
-                        put("kind", "entity")
-                        put("label", "小球")
-                        put("shape", "CIRCLE")
-                        put(
-                            "x",
-                            buildJsonObject {
-                                put("op", "MULTIPLY")
-                                put(
-                                    "left",
-                                    buildJsonObject {
-                                        put("op", "PARAMETER")
-                                        put("parameterIndex", 1)
-                                    },
-                                )
-                                put("right", buildJsonObject { put("op", "TIME") })
-                            },
-                        )
-                        put(
-                            "y",
-                            buildJsonObject {
-                                put("op", "CONSTANT")
-                                put("value", 0.0)
-                            },
-                        )
-                    },
-                )
-                add(
-                    buildJsonObject {
-                        put("kind", "path")
-                        put("targetIndex", 1)
-                    },
-                )
-                add(
-                    buildJsonObject {
-                        put("kind", "metric")
-                        put("label", "位置")
-                        put(
-                            "value",
-                            buildJsonObject {
-                                put("op", "MULTIPLY")
-                                put(
-                                    "left",
-                                    buildJsonObject {
-                                        put("op", "PARAMETER")
-                                        put("parameterIndex", 1)
-                                    },
-                                )
-                                put("right", buildJsonObject { put("op", "TIME") })
-                            },
-                        )
-                        put("unit", "m")
-                    },
-                )
-            },
-        )
-        put("durationSeconds", 3.0)
-        put("showAxes", true)
-        put("xUnit", "m")
-    }
-
-    private suspend fun parsedTutorScene(scene: JsonElement): TutorVisualScene {
-        val output = executeTutorPayload(tutorPayload(visualScene = scene)).last()
-            .let { it as ModelGatewayEvent.Completed }
-            .output as TutorPlanOutput
-        return requireNotNull(output.plan.visualScene)
     }
 
     private suspend fun executeTutorPayload(payload: String): List<ModelGatewayEvent> {

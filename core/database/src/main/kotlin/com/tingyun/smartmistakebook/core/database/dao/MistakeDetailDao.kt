@@ -203,8 +203,8 @@ internal abstract class MistakeDetailDao {
             revision.content_fingerprint,
             entry.user_note,
             entry.status AS entry_status,
-            tutor.session_id AS tutor_session_id,
-            tutor.draft_revision_number AS tutor_question_revision_number
+            tutor.anchor_id AS tutor_session_id,
+            tutor.capture_draft_revision_number AS tutor_question_revision_number
         FROM error_book_entry AS entry
         JOIN problem AS problem
             ON problem.problem_id = entry.problem_id
@@ -213,9 +213,9 @@ internal abstract class MistakeDetailDao {
             AND revision.problem_id = entry.problem_id
         LEFT JOIN problem_draft_commit_receipt AS receipt
             ON receipt.problem_revision_id = revision.revision_id
-        LEFT JOIN tutor_session AS tutor
-            ON tutor.draft_id = receipt.draft_id
-            AND tutor.draft_revision_number = receipt.draft_revision_number
+        LEFT JOIN tutor_conversation AS tutor
+            ON tutor.capture_draft_id = receipt.draft_id
+            AND tutor.capture_draft_revision_number = receipt.draft_revision_number
         WHERE entry.entry_id = :errorBookEntryId
         LIMIT 1
         """,
@@ -237,8 +237,8 @@ internal abstract class MistakeDetailDao {
             revision.content_fingerprint,
             entry.user_note,
             entry.status AS entry_status,
-            tutor.session_id AS tutor_session_id,
-            tutor.draft_revision_number AS tutor_question_revision_number
+            tutor.anchor_id AS tutor_session_id,
+            tutor.capture_draft_revision_number AS tutor_question_revision_number
         FROM error_book_entry AS entry
         JOIN problem AS problem
             ON problem.problem_id = entry.problem_id
@@ -247,9 +247,9 @@ internal abstract class MistakeDetailDao {
             AND revision.problem_id = entry.problem_id
         LEFT JOIN problem_draft_commit_receipt AS receipt
             ON receipt.problem_revision_id = revision.revision_id
-        LEFT JOIN tutor_session AS tutor
-            ON tutor.draft_id = receipt.draft_id
-            AND tutor.draft_revision_number = receipt.draft_revision_number
+        LEFT JOIN tutor_conversation AS tutor
+            ON tutor.capture_draft_id = receipt.draft_id
+            AND tutor.capture_draft_revision_number = receipt.draft_revision_number
         WHERE entry.entry_id = :entryId
           AND entry.problem_id = :problemId
         LIMIT 1

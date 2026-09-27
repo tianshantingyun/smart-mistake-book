@@ -54,6 +54,7 @@ fun TutorHistoryRoute(
 ) {
     val recent by conversations.observeRecent(100)
         .collectAsState(initial = emptyList())
+    val visible = tutorHistoryConversations(recent)
     var deleteTarget by remember { mutableStateOf<String?>(null) }
     Column(
         modifier = modifier
@@ -86,7 +87,7 @@ fun TutorHistoryRoute(
             )
         }
         PaperDivider()
-        if (recent.isEmpty()) {
+        if (visible.isEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -111,7 +112,7 @@ fun TutorHistoryRoute(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 items(
-                    items = recent,
+                    items = visible,
                     key = TutorConversation::conversationId,
                 ) { conversation ->
                     TutorHistoryRow(
@@ -188,7 +189,7 @@ private fun TutorHistoryRow(
                     .padding(12.dp),
             ) {
                 Text(
-                    text = conversation.title ?: conversationTitle(conversation),
+                    text = tutorConversationTitle(conversation),
                     color = Ink,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 2,
@@ -226,7 +227,30 @@ private fun TutorHistoryRow(
     }
 }
 
-private fun conversationTitle(conversation: TutorConversation): String = when (
+/**
+ * 历史列表的内容（K1b）：**只列有消息的会话**。
+ *
+ * 写侧已经不再为"进入页面"建行（`TutorSessionViewModel` 不建、会话行由第一条消息按需创建），
+ * 但旧安装的存量行、以及任何写侧漏网的行仍可能没有一条消息；列表是这条规则对学生的唯一出口，
+ * 所以在这里再挡一次。判定用真实消息行数（`messageCount`）而不是 `last_turn_ordinal`——
+ * 后者是序号语义，讲题会话的序号有空洞会多报。
+ */
+internal fun tutorHistoryConversations(
+    conversations: List<TutorConversation>,
+): List<TutorConversation> = conversations.filter { conversation ->
+    conversation.messageCount > 0
+}
+
+/**
+ * 会话标题（K1c）：写侧记下的标题优先（拍照/错题会话记的是题目标题），否则**读时从首条消息
+ * 截取**——不调模型生成、也不在写侧生成。两者都没有（空正文）才回落到入口标签。
+ */
+private fun tutorConversationTitle(conversation: TutorConversation): String =
+    conversation.title?.takeIf(String::isNotBlank)
+        ?: tutorConversationTitleOf(conversation.firstMessageBodyMarkdown)
+        ?: conversationAnchorLabel(conversation)
+
+private fun conversationAnchorLabel(conversation: TutorConversation): String = when (
     conversation.anchorKind
 ) {
     TutorConversationAnchorKind.TEXT_ONLY -> "文字讲题"

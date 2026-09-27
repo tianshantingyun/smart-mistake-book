@@ -66,6 +66,15 @@ interface KnowledgeReadPort {
      */
     suspend fun readKnowledgeNodeSuccessors(): Map<String, String>
 
+    /**
+     * Accepted knowledge bindings for one practice unit. Judged visual
+     * evidence may only enter the mastery ledger through a confirmed
+     * binding; an empty list keeps the evidence audit-only.
+     */
+    suspend fun readPracticeUnitKnowledgeBindings(
+        practiceUnitId: String,
+    ): List<PracticeUnitKnowledgeBindingRecord> = emptyList()
+
     suspend fun readSubjectKnowledgeNodeRelations(
         subject: String,
         limit: Int,
@@ -184,6 +193,21 @@ interface KnowledgeWritePort {
     suspend fun resolveKnowledgeGrounding(
         command: ResolveKnowledgeGroundingCommand,
     ): KnowledgeGroundingResolutionRecord
+
+    /**
+     * Pseudo-KC fallback (spec mastery-scheduling §3.4): idempotently ensures
+     * the subject-scoped pseudo knowledge node (`pseudo:<subject>`) and a
+     * practice-unit binding for this exact revision/taxonomy pair exist, so
+     * an unbound question can carry mastery evidence through the standard
+     * attribution path. Returns the binding record to attribute against.
+     */
+    suspend fun ensurePseudoKnowledgeBinding(
+        practiceUnitId: String,
+        problemRevisionId: String,
+        taxonomyVersion: String,
+        subject: String,
+        acceptedAtEpochMillis: Long,
+    ): PracticeUnitKnowledgeBindingRecord? = null
 }
 
 /**

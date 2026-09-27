@@ -52,6 +52,7 @@ import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionSummary
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
@@ -92,6 +93,8 @@ fun MistakeDetailRoute(
     onTutor: (MistakeRevisionKey) -> Unit,
     onOpenRelatedMistake: (String) -> Unit,
     onOpenModelSettings: () -> Unit,
+    /** 知识能力就绪位（D-Q3）：未就绪时智能整理如实说"准备中"，不发起、也不误报模型未配置。 */
+    knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
 ) {
     var selectedRevisionId by rememberSaveable(errorBookEntryId) {
@@ -144,6 +147,7 @@ fun MistakeDetailRoute(
         onOpenRelatedMistake = onOpenRelatedMistake,
         onOpenModelSettings = onOpenModelSettings,
         modifier = modifier,
+        knowledgeBaseAvailability = knowledgeBaseAvailability,
     )
 }
 
@@ -163,6 +167,7 @@ internal fun MistakeDetailContent(
     onSelectRevision: (MistakeRevisionSummary) -> Unit = {},
     onOpenRelatedMistake: (String) -> Unit = {},
     onOpenModelSettings: () -> Unit = {},
+    knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
 ) {
     RootPageColumn(
@@ -198,6 +203,7 @@ internal fun MistakeDetailContent(
                 onSelectRevision = onSelectRevision,
                 onOpenRelatedMistake = onOpenRelatedMistake,
                 onOpenModelSettings = onOpenModelSettings,
+                knowledgeBaseAvailability = knowledgeBaseAvailability,
             )
             is MistakeDetailState.Legacy -> LegacyDetail(state.detail)
             is MistakeDetailState.CorruptSnapshot -> CorruptDetail(state.identity)
@@ -309,6 +315,7 @@ private fun ReadyDetail(
     onSelectRevision: (MistakeRevisionSummary) -> Unit,
     onOpenRelatedMistake: (String) -> Unit,
     onOpenModelSettings: () -> Unit,
+    knowledgeBaseAvailability: KnowledgeBaseAvailability,
 ) {
     Column(
         modifier = Modifier.testTag("mistake_detail_ready"),
@@ -410,6 +417,7 @@ private fun ReadyDetail(
                 catalogEntries = catalogEntries,
                 onOpenRelatedMistake = onOpenRelatedMistake,
                 onOpenModelSettings = onOpenModelSettings,
+                knowledgeBaseAvailability = knowledgeBaseAvailability,
             )
         }
         if (!isViewingHistoricalRevision && organizationRepository != null) {

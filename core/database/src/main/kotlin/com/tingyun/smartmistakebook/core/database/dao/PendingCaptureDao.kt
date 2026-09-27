@@ -106,13 +106,13 @@ internal interface PendingCaptureDao {
                ws.workspace_fingerprint AS workspace_fingerprint,
                ws.created_at_epoch_millis AS workspace_created_at_epoch_millis,
                ws.updated_at_epoch_millis AS workspace_updated_at_epoch_millis,
-               ts.session_id AS tutor_session_id,
-               ts.draft_revision_number AS tutor_session_draft_revision_number
+               tc.anchor_id AS tutor_session_id,
+               tc.capture_draft_revision_number AS tutor_session_draft_revision_number
         FROM problem_draft d
         LEFT JOIN problem_draft_revision revision
                ON revision.draft_id = d.draft_id
               AND revision.revision_number = d.current_revision_number
-        LEFT JOIN tutor_session ts ON ts.draft_id = d.draft_id
+        LEFT JOIN tutor_conversation tc ON tc.capture_draft_id = d.draft_id
         LEFT JOIN problem_draft_edit_snapshot ws ON ws.draft_id = d.draft_id
         WHERE d.status = 'EDITING'
         ORDER BY COALESCE(ws.updated_at_epoch_millis, d.updated_at_epoch_millis) DESC,
@@ -204,8 +204,8 @@ internal interface PendingCaptureDao {
                ws.workspace_fingerprint AS workspace_fingerprint,
                ws.created_at_epoch_millis AS workspace_created_at_epoch_millis,
                ws.updated_at_epoch_millis AS workspace_updated_at_epoch_millis,
-               ts.session_id AS tutor_session_id,
-               ts.draft_revision_number AS tutor_session_draft_revision_number,
+               tc.anchor_id AS tutor_session_id,
+               tc.capture_draft_revision_number AS tutor_session_draft_revision_number,
                (
                    SELECT mt.request_id
                    FROM model_task mt
@@ -229,7 +229,7 @@ internal interface PendingCaptureDao {
                    LIMIT 1
                ) AS latest_parse_request_id
         FROM problem_draft d
-        LEFT JOIN tutor_session ts ON ts.draft_id = d.draft_id
+        LEFT JOIN tutor_conversation tc ON tc.capture_draft_id = d.draft_id
         LEFT JOIN problem_draft_edit_snapshot ws ON ws.draft_id = d.draft_id
         WHERE d.status = 'EDITING' AND d.draft_id = :draftId
         LIMIT 1

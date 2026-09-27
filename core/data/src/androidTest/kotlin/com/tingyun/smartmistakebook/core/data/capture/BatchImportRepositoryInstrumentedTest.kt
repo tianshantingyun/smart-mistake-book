@@ -14,6 +14,7 @@ import android.provider.MediaStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.core.content.FileProvider
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
@@ -351,6 +352,7 @@ class BatchImportRepositoryInstrumentedTest {
             val modelTasks = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = gateway,
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val repository = BatchImportRepositoryFactory.create(
                 context = context,
@@ -413,6 +415,7 @@ class BatchImportRepositoryInstrumentedTest {
             val modelTasks = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = PageRelationGateway(CapturePageRelation.UNSURE),
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val repository = BatchImportRepositoryFactory.create(
                 context = context,
@@ -486,7 +489,7 @@ class BatchImportRepositoryInstrumentedTest {
                     database = database,
                     capture = captureRepository(database),
                     processingScope = processingScope,
-                    modelTasks = ModelTaskRepositoryFactory.create(database, gateway),
+                    modelTasks = ModelTaskRepositoryFactory.create(database, gateway, readyKnowledgeBaseAvailability()),
                     modelEgressAllowed = { true },
                 )
                 val created = repository.createBatchImport(
@@ -599,6 +602,7 @@ class BatchImportRepositoryInstrumentedTest {
             val modelTasks = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = SplitRegionGateway(),
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val repository = BatchImportRepositoryFactory.create(
                 context = context,
@@ -727,7 +731,7 @@ class BatchImportRepositoryInstrumentedTest {
                 database = database,
                 capture = captureRepository(database),
                 processingScope = driveScope,
-                modelTasks = ModelTaskRepositoryFactory.create(database, SplitRegionGateway()),
+                modelTasks = ModelTaskRepositoryFactory.create(database, SplitRegionGateway(), readyKnowledgeBaseAvailability()),
                 splitImports = SplitImportRepositoryFactory.createConcrete(database),
                 modelEgressAllowed = { true },
             )
@@ -987,6 +991,7 @@ class BatchImportRepositoryInstrumentedTest {
                 modelTasks = ModelTaskRepositoryFactory.create(
                     database = database,
                     gateway = gateway,
+                    knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
                 ),
                 splitImports = SplitImportRepositoryFactory.createConcrete(database),
                 modelEgressAllowed = { false },

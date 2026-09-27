@@ -99,6 +99,16 @@ internal abstract class TutorConversationDao {
 
     @Query(
         """
+        SELECT * FROM tutor_message
+        WHERE conversation_id = :conversationId AND body_markdown != ''
+        ORDER BY ordinal ASC, message_id ASC
+        LIMIT 1
+        """,
+    )
+    protected abstract suspend fun findFirstMessageBody(conversationId: String): TutorMessageEntity?
+
+    @Query(
+        """
         UPDATE tutor_conversation
         SET updated_at_epoch_millis = MAX(updated_at_epoch_millis, :updatedAtEpochMillis),
             last_turn_ordinal = MAX(last_turn_ordinal, :ordinal)
@@ -176,7 +186,13 @@ internal abstract class TutorConversationDao {
         require(limit > 0) { "Tutor conversation limit must be positive" }
         return observeRecentEntities(limit).map { rows ->
             rows.map { entity ->
-                entity.toRecord(messageCount = countMessages(entity.conversationId))
+                entity.toRecord(
+                    messageCount = countMessages(entity.conversationId),
+                    // 标题的读侧输入：首条有正文的消息（本地事件行正文为空，天然被排除）。
+                    // K1c 的"标题 = 首条消息截取"在读侧算，写侧不再生成标题。
+                    firstMessageBodyMarkdown = findFirstMessageBody(entity.conversationId)
+                        ?.bodyMarkdown,
+                )
             }
         }
     }
@@ -241,6 +257,7 @@ internal abstract class TutorConversationDao {
             "Tutor conversation insert was not readable"
         }
         if (
+            existing.conversationArea != entity.conversationArea ||
             existing.anchorKind != entity.anchorKind ||
             existing.anchorId != entity.anchorId ||
             existing.anchorRevisionId != entity.anchorRevisionId
@@ -256,7 +273,7 @@ internal abstract class TutorConversationDao {
     ): TutorMessageRecord {
         require(command.conversationId.isNotBlank())
         require(command.messageId.isNotBlank())
-        require(command.ordinal > 0)
+        require(command.ordinal == null || command.ordinal > 0)
         require(command.bodyMarkdown.isNotBlank())
         require(command.logicalOperationId.isNotBlank())
         require(command.createdAtEpochMillis >= 0L)
@@ -264,7 +281,12 @@ internal abstract class TutorConversationDao {
             "Tutor student message carries too many images"
         }
         requireBoundQuestionPair(command.boundProblemId, command.boundProblemRevisionId)
-        val entity = command.toEntity()
+        // 会话级单调 ordinal（K1c）：没给号就从会话计数器取下一个。号与写入在同一个事务里，
+        // 所以两个写入方（大厅、讲题）不会各走一套数轴，也不会在事务之间读到同一个号。
+        val ordinal = command.ordinal ?: (
+            (findConversation(command.conversationId)?.lastTurnOrdinal ?: 0) + 1
+            )
+        val entity = command.toEntity(ordinal)
         if (insertMessage(entity) != -1L) {
             if (command.sourceImageAssetIds.isNotEmpty()) {
                 insertMessageSourceAssetRows(
@@ -279,7 +301,7 @@ internal abstract class TutorConversationDao {
             }
             touchConversation(
                 conversationId = command.conversationId,
-                ordinal = command.ordinal,
+                ordinal = ordinal,
                 updatedAtEpochMillis = command.createdAtEpochMillis,
             )
             return entity.toRecord()
@@ -364,14 +386,18 @@ internal abstract class TutorConversationDao {
     ): TutorMessageRecord {
         require(command.conversationId.isNotBlank())
         require(command.messageId.isNotBlank())
-        require(command.ordinal > 0)
+        require(command.ordinal == null || command.ordinal > 0)
         require(command.bodyMarkdown.isNotBlank())
         require(command.createdAtEpochMillis >= 0L)
-        val entity = command.toEntity()
+        // 号与学生消息同一条数轴、同一个分配点（K1c）：没给号就取会话计数器的下一位。
+        val ordinal = command.ordinal ?: (
+            (findConversation(command.conversationId)?.lastTurnOrdinal ?: 0) + 1
+            )
+        val entity = command.toEntity(ordinal)
         if (insertMessage(entity) != -1L) {
             touchConversation(
                 conversationId = command.conversationId,
-                ordinal = command.ordinal,
+                ordinal = ordinal,
                 updatedAtEpochMillis = command.createdAtEpochMillis,
             )
             return entity.toRecord()
@@ -483,6 +509,7 @@ internal abstract class TutorConversationDao {
 
 private fun CreateTutorConversationDatabaseCommand.toEntity() = TutorConversationEntity(
     conversationId = conversationId,
+    conversationArea = conversationArea,
     anchorKind = anchorKind,
     anchorId = anchorId,
     anchorRevisionId = anchorRevisionId,
@@ -494,7 +521,9 @@ private fun CreateTutorConversationDatabaseCommand.toEntity() = TutorConversatio
     studentDraft = null,
 )
 
-private fun AppendTutorStudentMessageDatabaseCommand.toEntity() = TutorMessageEntity(
+private fun AppendTutorStudentMessageDatabaseCommand.toEntity(
+    ordinal: Int,
+) = TutorMessageEntity(
     messageId = messageId,
     conversationId = conversationId,
     ordinal = ordinal,
@@ -510,7 +539,9 @@ private fun AppendTutorStudentMessageDatabaseCommand.toEntity() = TutorMessageEn
     boundProblemRevisionId = boundProblemRevisionId,
 )
 
-private fun AppendTutorAssistantMessageDatabaseCommand.toEntity() = TutorMessageEntity(
+private fun AppendTutorAssistantMessageDatabaseCommand.toEntity(
+    ordinal: Int,
+) = TutorMessageEntity(
     messageId = messageId,
     conversationId = conversationId,
     ordinal = ordinal,
@@ -527,8 +558,10 @@ private fun AppendTutorAssistantMessageDatabaseCommand.toEntity() = TutorMessage
 
 internal fun TutorConversationEntity.toRecord(
     messageCount: Int = 0,
+    firstMessageBodyMarkdown: String? = null,
 ) = TutorConversationRecord(
     conversationId = conversationId,
+    conversationArea = conversationArea,
     anchorKind = anchorKind,
     anchorId = anchorId,
     anchorRevisionId = anchorRevisionId,
@@ -539,6 +572,7 @@ internal fun TutorConversationEntity.toRecord(
     lastTurnOrdinal = lastTurnOrdinal,
     studentDraft = studentDraft,
     messageCount = messageCount,
+    firstMessageBodyMarkdown = firstMessageBodyMarkdown,
 )
 
 internal fun TutorMessageEntity.toRecord() = TutorMessageRecord(

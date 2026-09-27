@@ -149,7 +149,6 @@ class TutorE2EProtocolTest {
             approvedAtEpochMillis = System.currentTimeMillis(),
             assets = emptyList(),
             disclosedData = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.TUTOR_LOBBY_PROHIBITED_DATA,
         )
 
         assertEquals("openai", manifest.providerId)
@@ -234,7 +233,6 @@ class TutorE2EProtocolTest {
             approvedAtEpochMillis = System.currentTimeMillis(),
             assets = emptyList(),
             disclosedData = ModelEgressManifest.TUTOR_PLAN_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.TUTOR_PLAN_PROHIBITED_DATA,
         )
 
         assertEquals(ModelPromptPolicyVersions.TUTOR_PLAN, manifest.promptPolicyVersion)

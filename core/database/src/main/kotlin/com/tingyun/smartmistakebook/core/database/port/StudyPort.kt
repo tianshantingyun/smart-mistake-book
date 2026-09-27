@@ -41,48 +41,6 @@ interface PredictionAuditPort {
     suspend fun findLastPredictionLatencyMs(practiceUnitId: String): Long? = null
 }
 
-/**
- * Port for the visual-interaction audit trail (PR-11).
- */
-interface VisualInteractionPort {
-    /** Persist one locally judged visual-interaction attempt (audit PR-11). */
-    suspend fun recordVisualInteractionAttempt(
-        attempt: VisualInteractionAttemptRecord,
-    ) = Unit
-
-    /** Visual-interaction attempts recorded for one problem revision. */
-    suspend fun readVisualInteractionAttempts(
-        problemRevisionId: String,
-    ): List<VisualInteractionAttemptRecord> = emptyList()
-
-    /**
-     * Accepted knowledge bindings for one practice unit. Judged visual
-     * evidence may only enter the mastery ledger through a confirmed
-     * binding; an empty list keeps the evidence audit-only.
-     */
-    suspend fun readPracticeUnitKnowledgeBindings(
-        practiceUnitId: String,
-    ): List<PracticeUnitKnowledgeBindingRecord> = emptyList()
-
-    /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */
-    suspend fun readDatabaseVersion(): Int = 0
-
-    /**
-     * Pseudo-KC fallback (spec mastery-scheduling §3.4): idempotently ensures
-     * the subject-scoped pseudo knowledge node (`pseudo:<subject>`) and a
-     * practice-unit binding for this exact revision/taxonomy pair exist, so
-     * an unbound question can carry mastery evidence through the standard
-     * attribution path. Returns the binding record to attribute against.
-     */
-    suspend fun ensurePseudoKnowledgeBinding(
-        practiceUnitId: String,
-        problemRevisionId: String,
-        taxonomyVersion: String,
-        subject: String,
-        acceptedAtEpochMillis: Long,
-    ): PracticeUnitKnowledgeBindingRecord? = null
-}
-
 /** Port-level prediction record for the student-model audit loop (PR-07). */
 data class StudentModelPredictionRecord(
     val predictionId: String,
@@ -109,17 +67,6 @@ data class ResolvedStudentModelPredictionRecord(
     val conservativeScore: Double,
     val wasIndependentCorrect: Boolean,
     val observedAtEpochMillis: Long,
-)
-
-/** Port-level record for the visual-interaction audit trail (PR-11). */
-data class VisualInteractionAttemptRecord(
-    val attemptId: String,
-    val problemRevisionId: String,
-    val actionKind: String,
-    val actionPayload: String,
-    val feasible: Boolean,
-    val feedback: String,
-    val attemptedAtEpochMillis: Long,
 )
 
 /** Port-level record of one accepted practice-unit/knowledge binding. */

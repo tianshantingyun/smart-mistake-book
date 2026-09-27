@@ -50,14 +50,12 @@ class TutorSessionViewModelTest {
     }
 
     @Test
-    fun loadReadySessionCreatesAnchoredConversationOnce() =
+    fun loadReadySessionReadsTheSessionWithoutTouchingConversations() =
         runTest(dispatcher.scheduler) {
             val repository = FakeCaptureWorkflowRepository(session = session())
-            val conversations = FakeTutorConversationRepository()
             val viewModel = TutorSessionViewModel(
                 savedStateHandle = SavedStateHandle(mapOf("sessionId" to "session-1")),
                 repository = repository,
-                conversations = conversations,
                 ioDispatcher = dispatcher,
             )
 
@@ -67,9 +65,13 @@ class TutorSessionViewModelTest {
                 TutorSessionUiState.Ready(session()),
                 viewModel.uiState.value,
             )
-            assertEquals(1, conversations.createCount)
-            assertEquals("tutor-conv:captured:session-1", conversations.lastConversationId)
-            assertEquals("session-1", conversations.lastAnchorId)
+            // K1b：进入页面**不建会话行**。会话行由第一条消息自己保证（讲题轮正文写入器 /
+            // 学生消息写入器），所以"只看了一眼题面"不会在讲题历史里留下一条空记录。
+            //
+            // 这条规则现在是**结构性**的：本 ViewModel 根本没有对话仓库（切换前它在这里
+            // "打开即建"）。真正的行为钉在写入侧——`TutorTurnMessagesTest`（建行只发生在写
+            // 第一条消息时）与 `RoomTutorConversationRepository.observeRecent` 的读侧过滤
+            // （历史只列有消息的会话）。
         }
 
     @Test
@@ -79,7 +81,6 @@ class TutorSessionViewModelTest {
             val viewModel = TutorSessionViewModel(
                 savedStateHandle = SavedStateHandle(mapOf("sessionId" to "session-1")),
                 repository = repository,
-                conversations = FakeTutorConversationRepository(),
                 ioDispatcher = dispatcher,
             )
             advanceUntilIdle()
@@ -99,7 +100,6 @@ class TutorSessionViewModelTest {
             val viewModel = TutorSessionViewModel(
                 savedStateHandle = SavedStateHandle(mapOf("sessionId" to "session-1")),
                 repository = repository,
-                conversations = FakeTutorConversationRepository(),
                 ioDispatcher = dispatcher,
             )
             advanceUntilIdle()
@@ -191,10 +191,6 @@ private class FakeCaptureWorkflowRepository(
     override suspend fun readTutorSession(sessionId: String): ConfirmedTutorSession? =
         session.takeIf { it.sessionId == sessionId }
 
-    override suspend fun readTutorVisualSourceAssets(
-        sessionId: String,
-    ): List<com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope> = emptyList()
-
     override suspend fun saveTutorSession(
         request: com.tingyun.smartmistakebook.core.domain.SaveTutorSessionRequest,
     ): CapturedProblemCommitSummary {
@@ -230,68 +226,4 @@ private class FakeCaptureWorkflowRepository(
         cleanImageBytes: ByteArray,
         cleanImageMimeType: String,
     ): Boolean = error("not used")
-}
-
-private class FakeTutorConversationRepository : TutorConversationRepository {
-    var createCount = 0
-    var lastConversationId: String? = null
-    var lastAnchorId: String? = null
-
-    override fun observeRecent(limit: Int): Flow<List<TutorConversation>> =
-        flowOf(emptyList())
-
-    override fun observeConversation(
-        conversationId: String,
-    ): Flow<TutorConversationSnapshot?> = flowOf(null)
-
-    override suspend fun createConversation(
-        command: CreateTutorConversationCommand,
-    ): TutorConversation {
-        createCount += 1
-        lastConversationId = command.conversationId
-        lastAnchorId = command.anchorId
-        return TutorConversation(
-            conversationId = command.conversationId,
-            anchorKind = TutorConversationAnchorKind.EPHEMERAL_DRAFT,
-            anchorId = command.anchorId,
-            anchorRevisionId = command.anchorRevisionId,
-            status = TutorConversationStatus.ACTIVE,
-            title = command.title,
-            createdAtEpochMillis = command.createdAtEpochMillis,
-            updatedAtEpochMillis = command.createdAtEpochMillis,
-            lastTurnOrdinal = 0,
-        )
-    }
-
-    override suspend fun appendStudentMessage(
-        command: com.tingyun.smartmistakebook.core.domain.AppendTutorStudentMessageCommand,
-    ): com.tingyun.smartmistakebook.core.domain.TutorMessage = error("not used")
-
-    override suspend fun appendAssistantMessage(
-        command: com.tingyun.smartmistakebook.core.domain.AppendTutorAssistantMessageCommand,
-    ): com.tingyun.smartmistakebook.core.domain.TutorMessage = error("not used")
-
-    override suspend fun updateMessageStatus(
-        command: com.tingyun.smartmistakebook.core.domain.UpdateTutorMessageStatusCommand,
-    ): com.tingyun.smartmistakebook.core.domain.TutorMessage = error("not used")
-
-    override suspend fun pauseConversation(
-        command: com.tingyun.smartmistakebook.core.domain.PauseTutorConversationCommand,
-    ): TutorConversation = error("not used")
-
-    override suspend fun archiveConversation(
-        command: com.tingyun.smartmistakebook.core.domain.ArchiveTutorConversationCommand,
-    ): TutorConversation = error("not used")
-
-    override suspend fun deleteConversation(
-        command: com.tingyun.smartmistakebook.core.domain.DeleteTutorConversationCommand,
-    ) = error("not used")
-
-    override suspend fun saveDraft(
-        command: com.tingyun.smartmistakebook.core.domain.SaveTutorConversationDraftCommand,
-    ) = error("not used")
-
-    override suspend fun clearDraft(
-        command: com.tingyun.smartmistakebook.core.domain.ClearTutorConversationDraftCommand,
-    ) = error("not used")
 }

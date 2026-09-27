@@ -3,11 +3,11 @@ package com.tingyun.smartmistakebook.core.data.model
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ReserveModelTaskRemoteDispatchCommand
 import com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS
-import com.tingyun.smartmistakebook.core.model.disclosesQuestionCandidates
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import com.tingyun.smartmistakebook.core.data.study.TutorKnowledgeCodeRegistry
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.domain.ModelGateway
 import com.tingyun.smartmistakebook.core.domain.masteryUpdateCodeWhitelist
@@ -35,8 +35,6 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import com.tingyun.smartmistakebook.core.model.TutorToolRoundResult
-import com.tingyun.smartmistakebook.core.model.tutorToolRoundResult
-import com.tingyun.smartmistakebook.core.model.tutorToolAuthorization
 import com.tingyun.smartmistakebook.core.data.study.RoomTutorToolRunner
 import com.tingyun.smartmistakebook.core.model.ModelTaskInput
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
@@ -49,6 +47,9 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
+import com.tingyun.smartmistakebook.core.model.disclosesQuestionCandidates
+import com.tingyun.smartmistakebook.core.model.tutorToolAuthorization
+import com.tingyun.smartmistakebook.core.model.tutorToolRoundResult
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
@@ -58,6 +59,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -71,8 +73,13 @@ class RoomModelTaskRepository internal constructor(
     private val database: StudyDatabasePort,
     private val gateway: ModelGateway,
     private val clock: () -> Long = System::currentTimeMillis,
+    /**
+     * 知识能力就绪位（D-Q3）：工具环的 KNOWLEDGE_READ 在内容没就位时回"还在准备"。
+     * 必需参数（无默认）：落一个默认值就等于留一条"忘了接线 → 静默零命中"的后门。
+     */
+    knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
 ) : ModelTaskRepository {
-    internal val toolRunner = RoomTutorToolRunner(database)
+    internal val toolRunner = RoomTutorToolRunner(database, knowledgeBaseAvailability)
 
     /**
      * 会话级知识点代号注册表（单一代号通道，ADR 0001 / D5）：sessionId → 注册表，进程内
@@ -553,10 +560,6 @@ class RoomModelTaskRepository internal constructor(
                     is TutorLobbyInput -> "回复已准备好"
                     is com.tingyun.smartmistakebook.core.model.TutorDebriefInput -> "讲题要点已整理"
                     is TutorRespondInput -> "回复已准备好"
-                    is com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput ->
-                        "图形讲解已准备好"
-                    is com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput ->
-                        "图形讲解已复核"
                     is com.tingyun.smartmistakebook.core.model.KnowledgeQuizInput -> "复习题已准备好"
                     is ProblemOrganizationInput -> "分类和题目联系建议已生成，请确认后再保存"
                 },
@@ -895,9 +898,11 @@ object ModelTaskRepositoryFactory {
     fun create(
         database: StudyDatabasePort,
         gateway: ModelGateway,
+        knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
     ): ModelTaskRepository = RoomModelTaskRepository(
         database = database,
         gateway = gateway,
+        knowledgeBaseAvailability = knowledgeBaseAvailability,
     )
 }
 

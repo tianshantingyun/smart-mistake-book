@@ -478,7 +478,6 @@ class ModelTaskDatabaseInstrumentedTest {
             approvedAtEpochMillis = approvedAtEpochMillis,
             assets = emptyList(),
             disclosedData = ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.TUTOR_RESPOND_PROHIBITED_DATA,
         ),
     )
 

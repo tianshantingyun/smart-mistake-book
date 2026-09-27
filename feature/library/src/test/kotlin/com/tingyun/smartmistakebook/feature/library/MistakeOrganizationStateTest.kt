@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -213,10 +214,70 @@ class MistakeOrganizationStateTest {
         )
     }
 
+    /**
+     * D-Q3（消费点①）：知识内容没就位时，本屏要说"准备中"，既不能去发起整理，
+     * 也不能退回"模型没配好"那句误报。就绪后同一批事实自动落到 Consent/PreparationLoading。
+     */
+    @Test
+    fun knowledgeContentNotReadyOwnsTheSurfaceUntilItIsReady() {
+        assertEquals(
+            MistakeOrganizationSurfaceState.KnowledgePreparing(KnowledgeBaseAvailability.Preparing),
+            resolveMistakeOrganizationSurface(
+                readyFacts().copy(
+                    knowledgeBaseAvailability = KnowledgeBaseAvailability.Preparing,
+                ),
+            ),
+        )
+        assertEquals(
+            MistakeOrganizationSurfaceState.KnowledgePreparing(
+                KnowledgeBaseAvailability.Unavailable("startup:knowledge:3"),
+            ),
+            resolveMistakeOrganizationSurface(
+                readyFacts().copy(
+                    knowledgeBaseAvailability =
+                        KnowledgeBaseAvailability.Unavailable("startup:knowledge:3"),
+                ),
+            ),
+        )
+        // 就绪后回到原本的流程：准备中 → 发起 → 确认卡。
+        assertEquals(
+            MistakeOrganizationSurfaceState.PreparationLoading,
+            resolveMistakeOrganizationSurface(
+                readyFacts().copy(knowledgeBaseAvailability = KnowledgeBaseAvailability.Ready),
+            ),
+        )
+    }
+
+    /**
+     * 恢复既有请求走的是"重放已持久化的请求"，不需要知识内容——就绪门不能把它挡掉，
+     * 否则学生手里那份已经发出的整理会平白停住。
+     */
+    @Test
+    fun recoveringAPersistedRequestDoesNotWaitForKnowledgeContent() {
+        assertEquals(
+            MistakeOrganizationSurfaceState.PreparationRetry,
+            resolveMistakeOrganizationSurface(
+                readyFacts().copy(
+                    hasRecoveredRequest = true,
+                    knowledgeBaseAvailability = KnowledgeBaseAvailability.Preparing,
+                ),
+            ),
+        )
+        assertEquals(
+            MistakeOrganizationSurfaceState.Consent(paused = true, running = false),
+            resolveMistakeOrganizationSurface(
+                readyFacts().copy(
+                    hasPreparation = true,
+                    hasRecoveredRequest = true,
+                    knowledgeBaseAvailability = KnowledgeBaseAvailability.Preparing,
+                ),
+            ),
+        )
+    }
+
     private fun readyFacts() = MistakeOrganizationSurfaceFacts(
         providerAvailability = OrganizationProviderAvailability.READY,
     )
-
     private fun successfulFacts() = readyFacts().copy(
         hasPreparation = true,
         taskStatus = ModelTaskStatus.SUCCEEDED,

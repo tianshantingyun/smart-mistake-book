@@ -43,6 +43,13 @@ data class TutorConversation(
     val studentDraft: String? = null,
     /** 真实消息行数（列表展示用；讲题会话的序号有空洞，不能当条数）。 */
     val messageCount: Int = 0,
+    /**
+     * 首条**有正文**的消息（K1c 会话标题的读侧输入）。
+     *
+     * 标题不再由写侧生成：历史列表按"首条消息截取"读时算，所以这里只需要原文，
+     * 截断与兜底留在界面层（同一份原文可以被不同入口以不同长度使用）。
+     */
+    val firstMessageBodyMarkdown: String? = null,
 ) {
     init {
         require(conversationId.isNotBlank()) { "Tutor conversation id must not be blank" }
@@ -162,7 +169,12 @@ data class CreateTutorConversationCommand(
 data class AppendTutorStudentMessageCommand(
     val conversationId: String,
     val messageId: String,
-    val ordinal: Int,
+    /**
+     * 会话级单调 ordinal（K1c）。`null` = 由会话计数器分配下一位（会话行 `last_turn_ordinal + 1`），
+     * 调用方不需要自己维护数轴；显式给值仍然支持（大厅按自己观察到的会话快照号发请求，
+     * 请求里的轮次号必须与消息号同源）。
+     */
+    val ordinal: Int? = null,
     val bodyMarkdown: String,
     val logicalOperationId: String,
     val createdAtEpochMillis: Long,
@@ -180,7 +192,7 @@ data class AppendTutorStudentMessageCommand(
     init {
         require(conversationId.isNotBlank()) { "Tutor conversation id must not be blank" }
         require(messageId.isNotBlank()) { "Tutor message id must not be blank" }
-        require(ordinal > 0) { "Tutor message ordinal must be positive" }
+        require(ordinal == null || ordinal > 0) { "Tutor message ordinal must be positive" }
         require(bodyMarkdown.isNotBlank()) { "Tutor message body must not be blank" }
         require(logicalOperationId.isNotBlank()) { "Tutor logical operation id must not be blank" }
         require(createdAtEpochMillis >= 0L) { "Tutor message creation time must not be negative" }
@@ -227,7 +239,12 @@ data class BindStudentMessageQuestionCommand(
 data class AppendTutorAssistantMessageCommand(
     val conversationId: String,
     val messageId: String,
-    val ordinal: Int,
+    /**
+     * 会话级单调 ordinal（K1c 单数轴）。`null` = 由会话计数器分配下一位，与
+     * [AppendTutorStudentMessageCommand.ordinal] 同一个分配点；助手正文在模型回复到手后才写，
+     * 那时会话里可能已经有别的写入，调用方按自己观察到的快照号推算就会撞号。
+     */
+    val ordinal: Int? = null,
     val replyToMessageId: String?,
     val bodyMarkdown: String,
     /** 模型给出的思考轨迹；随消息一起展示（折叠），失败/中断的回复不落。 */
@@ -241,7 +258,7 @@ data class AppendTutorAssistantMessageCommand(
     init {
         require(conversationId.isNotBlank()) { "Tutor conversation id must not be blank" }
         require(messageId.isNotBlank()) { "Tutor message id must not be blank" }
-        require(ordinal > 0) { "Tutor message ordinal must be positive" }
+        require(ordinal == null || ordinal > 0) { "Tutor message ordinal must be positive" }
         require(bodyMarkdown.isNotBlank()) { "Tutor message body must not be blank" }
         require(
             logicalOperationId == null || logicalOperationId.isNotBlank(),

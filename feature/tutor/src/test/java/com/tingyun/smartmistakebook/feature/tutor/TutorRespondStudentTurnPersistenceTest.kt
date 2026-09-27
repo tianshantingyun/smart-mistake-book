@@ -91,7 +91,9 @@ class TutorRespondStudentTurnPersistenceTest {
         val studentMessage = conversations.studentMessages.single()
         assertEquals("tutor-conv:captured:$SESSION_ID", studentMessage.conversationId)
         assertEquals(STUDENT_MESSAGE, studentMessage.bodyMarkdown)
-        assertEquals(1, studentMessage.ordinal)
+        // 序号由会话计数器分配（K1c）：这条会话此前没有任何消息，所以是第 1 位。
+        assertEquals(1, conversations.studentTurns.single().ordinal)
+        assertNull(studentMessage.ordinal)
         assertEquals(request().requestId, studentMessage.logicalOperationId)
         // 落库失败不该拖住派发。
         assertEquals(1, modelTasks.executedRequests.size)
@@ -207,6 +209,46 @@ class TutorRespondStudentTurnPersistenceTest {
 
         // 与"学生轮次落库失败"同一条纪律：簿记失败不阻断对话，也不该冒出一个与模型无关的报错。
         assertEquals(1, conversations.studentMessages.size)
+        assertNull(chatStartError)
+    }
+
+    @Test
+    fun assistantTurnTextIsPersistedOncePerLogicalOperation() = runTest {
+        val conversations = TutorConversationRows()
+        val modelTasks = ExecutingModelTasks()
+        val sink = sink(conversations, modelTasks)
+        val commands = TutorRespondCommands(scope = this, sink = sink)
+
+        commands.collect(request = request(), clearDraftOnPersist = true)
+        advanceUntilIdle()
+        // 同一次派发被重放（恢复、重载后再收集）：消息 id 命中既有行，不落第二行。
+        commands.collect(request = request(), clearDraftOnPersist = true)
+        advanceUntilIdle()
+
+        // K1a：助手正文与思考块落在消息行上，id 由逻辑操作派生（幂等的支点）。
+        val assistantTurn = conversations.assistantTurns.single()
+        assertEquals("tutor-message-assistant:${request().requestId}", assistantTurn.messageId)
+        assertEquals("先看临界点两侧的符号。", assistantTurn.bodyMarkdown)
+        assertEquals("tutor-message:${request().requestId}", assistantTurn.replyToMessageId)
+        assertEquals(request().requestId, assistantTurn.logicalOperationId)
+        // 序号由会话计数器分配：学生行占 1，助手行接着占 2（K1c 单数轴）。
+        assertEquals(2, assistantTurn.ordinal)
+        assertEquals(2, conversations.assistantMessages.size)
+    }
+
+    @Test
+    fun aFailedAssistantWriteStillLetsTheTurnSucceed() = runTest {
+        val conversations = TutorConversationRows().apply { assistantFailure = IllegalStateException("no write") }
+        val modelTasks = ExecutingModelTasks()
+        val sink = sink(conversations, modelTasks)
+        val commands = TutorRespondCommands(scope = this, sink = sink)
+
+        commands.collect(request = request(), clearDraftOnPersist = true)
+        advanceUntilIdle()
+
+        // 与"学生轮次落库失败"同一条纪律：簿记失败不阻断对话、不冒与模型无关的报错。
+        assertTrue(conversations.assistantTurns.isEmpty())
+        assertEquals(1, modelTasks.executedRequests.size)
         assertNull(chatStartError)
     }
 
@@ -358,9 +400,15 @@ class TutorRespondStudentTurnPersistenceTest {
         private val conversations = MutableStateFlow<Map<String, TutorConversation>>(emptyMap())
         val createCommands = mutableListOf<CreateTutorConversationCommand>()
         val studentMessages = mutableListOf<AppendTutorStudentMessageCommand>()
+        /** 落库后的学生消息（含**分配到的**会话序号，K1c：序号由会话计数器给出）。 */
+        val studentTurns = mutableListOf<TutorMessage>()
+        /** 落库后的**助手**消息（K1a：助手正文的耐久文本）。 */
+        val assistantMessages = mutableListOf<AppendTutorAssistantMessageCommand>()
+        val assistantTurns = mutableListOf<TutorMessage>()
         val boundQuestions = mutableListOf<BindStudentMessageQuestionCommand>()
         var appendFailure: Throwable? = null
         var bindFailure: Throwable? = null
+        var assistantFailure: Throwable? = null
 
         suspend fun seed(conversation: TutorConversation) {
             conversations.update { rows -> rows + (conversation.conversationId to conversation) }
@@ -415,18 +463,20 @@ class TutorRespondStudentTurnPersistenceTest {
             }
             studentMessages += command
             val existing = conversations.value.getValue(command.conversationId)
+            // 与内核同一口径：没给号就由会话计数器分配下一位（K1c 单数轴）。
+            val ordinal = command.ordinal ?: (existing.lastTurnOrdinal + 1)
             conversations.update { rows ->
                 rows + (
                     command.conversationId to existing.copy(
                         updatedAtEpochMillis = command.createdAtEpochMillis,
-                        lastTurnOrdinal = command.ordinal,
+                        lastTurnOrdinal = ordinal,
                     )
                     )
             }
             return TutorMessage(
                 messageId = command.messageId,
                 conversationId = command.conversationId,
-                ordinal = command.ordinal,
+                ordinal = ordinal,
                 role = TutorMessageRole.STUDENT,
                 bodyMarkdown = command.bodyMarkdown,
                 status = TutorMessageStatus.PERSISTED,
@@ -435,7 +485,7 @@ class TutorRespondStudentTurnPersistenceTest {
                 createdAtEpochMillis = command.createdAtEpochMillis,
                 completedAtEpochMillis = command.createdAtEpochMillis,
                 errorCode = null,
-            )
+            ).also(studentTurns::add)
         }
 
         override suspend fun bindStudentMessageQuestion(
@@ -451,7 +501,43 @@ class TutorRespondStudentTurnPersistenceTest {
 
         override suspend fun appendAssistantMessage(
             command: AppendTutorAssistantMessageCommand,
-        ): TutorMessage = error("No assistant write expected")
+        ): TutorMessage {
+            assistantFailure?.let { failure -> throw failure }
+            // 与 Room 同一形状：消息 id 命中既有行 = 幂等返回（同一次派发重放不落第二行）；
+            // 否则按会话计数器分配序号（K1c 单数轴，助手行与学生行同一条数轴）。
+            assistantMessages += command
+            val existingRow = assistantTurns.firstOrNull { row ->
+                row.messageId == command.messageId
+            }
+            if (existingRow != null) return existingRow
+            check(command.conversationId in conversations.value) {
+                "FOREIGN KEY constraint failed (code 787)"
+            }
+            val existing = conversations.value.getValue(command.conversationId)
+            val ordinal = command.ordinal ?: (existing.lastTurnOrdinal + 1)
+            conversations.update { rows ->
+                rows + (
+                    command.conversationId to existing.copy(
+                        updatedAtEpochMillis = command.createdAtEpochMillis,
+                        lastTurnOrdinal = ordinal,
+                    )
+                    )
+            }
+            return TutorMessage(
+                messageId = command.messageId,
+                conversationId = command.conversationId,
+                ordinal = ordinal,
+                role = TutorMessageRole.ASSISTANT,
+                bodyMarkdown = command.bodyMarkdown,
+                thinkingMarkdown = command.thinkingMarkdown,
+                status = TutorMessageStatus.SUCCEEDED,
+                logicalOperationId = command.logicalOperationId,
+                replyToMessageId = command.replyToMessageId,
+                createdAtEpochMillis = command.createdAtEpochMillis,
+                completedAtEpochMillis = requireNotNull(command.completedAtEpochMillis),
+                errorCode = null,
+            ).also(assistantTurns::add)
+        }
 
         override suspend fun updateMessageStatus(
             command: UpdateTutorMessageStatusCommand,

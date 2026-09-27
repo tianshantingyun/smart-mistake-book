@@ -15,7 +15,6 @@ enum class ModelEgressPurpose {
     CAPTURE_TO_DOCUMENT,
     TUTORING,
     CLASSIFICATION,
-    REVIEW_PLANNING,
 }
 
 @Serializable
@@ -41,13 +40,11 @@ enum class ModelEgressDataClass {
 object ModelPromptPolicyVersions {
     const val CAPTURE_DOCUMENT = "capture-document-policy-v1"
     /** v12：单一代号通道映射表 + Plan 工具环 + 教学材料加载失败披露（ADR 0001 / D5-D8）。 */
-    const val TUTOR_PLAN = "tutor-plan-v12-knowledge-code-channel"
+    const val TUTOR_PLAN = "tutor-plan-v13-visual-fields-removed"
     /** v19：写工具改收代号（原始 id 退出提示词）+ 代号映射表 + 无题轮不结构性拒写（D5/D6）。 */
-    const val TUTOR_RESPOND = "tutor-respond-v19-knowledge-code-channel"
-    const val TUTOR_VISUAL_GENERATE = "tutor-visual-generate-v1-bounded-semantic-document"
-    const val TUTOR_VISUAL_REVIEW = "tutor-visual-review-v1-one-repair"
+    const val TUTOR_RESPOND = "tutor-respond-v20-visual-fields-removed"
     /** v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。 */
-    const val TUTOR_LOBBY = "tutor-lobby-v8-knowledge-code-channel"
+    const val TUTOR_LOBBY = "tutor-lobby-v9-visual-fields-removed"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"
@@ -59,8 +56,6 @@ object ModelPromptPolicyVersions {
         -> CAPTURE_DOCUMENT
         ModelTaskKind.TUTOR_PLAN -> TUTOR_PLAN
         ModelTaskKind.TUTOR_RESPOND -> TUTOR_RESPOND
-        ModelTaskKind.TUTOR_VISUAL_GENERATE -> TUTOR_VISUAL_GENERATE
-        ModelTaskKind.TUTOR_VISUAL_REVIEW -> TUTOR_VISUAL_REVIEW
         ModelTaskKind.TUTOR_LOBBY -> TUTOR_LOBBY
         ModelTaskKind.LEARNING_SUMMARIZE -> LEARNING_SUMMARIZE
         ModelTaskKind.PROBLEM_CLASSIFY -> PROBLEM_ORGANIZATION
@@ -89,10 +84,10 @@ object ModelPromptPolicyVersions {
  * 怀疑那条既有断言过时），所以删掉分支、把两个真实状态拆成两个具名函数：不合法的组合从此
  * **构造不出来**，而不是靠注释提醒。
  *
- * 若将来"有题轮带图字节"真的要接线，不是给这里补一个参数就行：`TutorRespondInput` 分支的
- * `require(assets.isEmpty())`、图片能力门与清单 schema 都要一起动，那时再让这一态显式出现。
- * 今天这条边界由 `a question round manifest still refuses image assets` 钉住。
- *
+ * 〔D-K4 补正〕清单路径上的逐 kind 核对（含"Respond 清单不得带图字节"）已随 7 个不可达分支持
+ * 删除：真正的边界在 **init**（披露集合必须精确等于本 kind 的口径）与**资产源逐字节核对**
+ * （`AndroidRestrictedModelAssetSource`）。图字节能不能出去由"请求侧真的带了哪个资产 +
+ * provider 支持图片输入 + 该资产在清单 grant 内且内容未变"三件事共同决定，不再由 kind 分支复述。
  * 两条分档仍按 schema 走（schema<4 的 Respond 行当年没有 SUBJECT_KNOWLEDGE_BASE；schema<6 的
  * 大厅行不能带图）：旧行 decode 时会重跑这条校验，漏掉 legacy 分档就会让升级后的旧行直接抛
  * 异常（bf8be888 的同一类事故）。
@@ -114,8 +109,8 @@ object TutorRoundDisclosure {
     /**
      * 有题轮（Respond）：题面 / 学习证据 / 学科知识库，带候选菜单时追加菜单类目。
      *
-     * 没有"图片"这一维：清单路径上的题轮**永不带图字节**（`TutorRespondInput` 分支的
-     * `require(assets.isEmpty())`），所以没有"带不带图"可选。
+     * 没有"图片"这一维：生产里题轮**不带清单**（agent-eligible，走全局同意通道；见
+     * `TutorModelTaskPolicy` 的 `egressManifest = null`），所以没有"带不带图"可选。
      */
     fun questionRound(
         includesQuestionCandidates: Boolean,
@@ -136,7 +131,8 @@ object TutorRoundDisclosure {
  * 无题轮没有菜单字段，一票否决。
  *
  * 谁在消费它：
- * - 清单侧：`requireAuthorizes` 的 Respond 分支按它核对 `includesQuestionCandidates`（多了少了都拒）；
+ * - 清单侧：大厅分支仍按它核对 `includesQuestionCandidates`（无题轮没有菜单字段，"清单说覆盖了"
+ *   就是多报）；
  * - 产出侧：`core:data` 的 `NOTEBOOK_READ` 按它决定结果形态——披露面覆盖菜单时才逐条点名别的题，
  *   否则只给条数与检索词（错题本条目标题属于这一类的可识别内容）。
  *
@@ -182,6 +178,12 @@ data class ModelEgressAssetGrant(
 /**
  * Immutable proof of what the student approved for one exact capture and provider configuration.
  * It intentionally contains no URI, local path, API key, question history, or free-form prompt.
+ *
+ * 只声明**已披露**什么（[disclosedData]，精确等于本轮口径）。此前这里还有一个"未披露集"
+ * `prohibitedData` 字段：它由 `schemaVersion` 与 [disclosedData] 唯一决定（全集 − 已披露），
+ * 生产**读取 0 处**、没有任何决策消费它（研究报告 §4.6 R6），D-K4 删除。旧行仍带着那个键，
+ * 读回路径见 [ModelTaskCodec.decodeRequest] 的 strip；旧行的存库指纹复原见
+ * `ModelTasks.kt` 的 `withLegacyEgressProhibitedData`。
  */
 @Serializable
 data class ModelEgressManifest(
@@ -197,7 +199,6 @@ data class ModelEgressManifest(
     val approvedAtEpochMillis: Long,
     val assets: List<ModelEgressAssetGrant>,
     val disclosedData: Set<ModelEgressDataClass>,
-    val prohibitedData: Set<ModelEgressDataClass>,
     /**
      * 本次授权是否覆盖**本轮候选菜单**（错题本里别的题面）。它是请求侧的事实，不是策略选择：
      * `TutorRespondInput.boundQuestionCandidates` 非空就必须为 true，否则披露集合会少报一个
@@ -237,11 +238,7 @@ data class ModelEgressManifest(
             "Egress asset ids must be unique"
         }
         require(disclosedData.isNotEmpty()) { "Egress disclosure set must not be empty" }
-        require(disclosedData.intersect(prohibitedData).isEmpty()) {
-            "Egress data cannot be both disclosed and prohibited"
-        }
-        val dataClassUniverse = dataClassUniverseForSchema(schemaVersion)
-        require((disclosedData + prohibitedData).all { it in dataClassUniverse }) {
+        require(disclosedData.all { it in dataClassUniverseForSchema(schemaVersion) }) {
             "Egress manifest references a data class outside its schema"
         }
         require(
@@ -267,9 +264,6 @@ data class ModelEgressManifest(
             require(disclosedData == expectedDisclosure) {
                 "Capture egress disclosure must match the exact approved image scope"
             }
-            require(prohibitedData == dataClassUniverse - expectedDisclosure) {
-                "Capture egress must prohibit every data class outside the approved image scope"
-            }
         }
         if (purpose == ModelEgressPurpose.TUTORING) {
             val tutoringKind = authorizedTaskKinds.singleOrNull()
@@ -277,8 +271,6 @@ data class ModelEgressManifest(
                 tutoringKind == ModelTaskKind.TUTOR_PLAN ||
                     schemaVersion >= 2 && tutoringKind == ModelTaskKind.TUTOR_RESPOND ||
                     schemaVersion >= 4 && tutoringKind == ModelTaskKind.TUTOR_LOBBY ||
-                    schemaVersion >= 5 && tutoringKind == ModelTaskKind.TUTOR_VISUAL_GENERATE ||
-                    schemaVersion >= 5 && tutoringKind == ModelTaskKind.TUTOR_VISUAL_REVIEW ||
                     schemaVersion >= 5 && tutoringKind == ModelTaskKind.KNOWLEDGE_QUIZ,
             ) {
                 "Tutor egress must authorize exactly one supported tutoring task"
@@ -297,10 +289,6 @@ data class ModelEgressManifest(
                     schemaVersion = schemaVersion,
                 )
                 ModelTaskKind.TUTOR_PLAN -> tutorPlanDisclosureForSchema(schemaVersion)
-                ModelTaskKind.TUTOR_VISUAL_GENERATE ->
-                    tutorVisualGenerateDisclosure(assets.any { it.selectedRegion != null })
-                ModelTaskKind.TUTOR_VISUAL_REVIEW ->
-                    tutorVisualReviewDisclosure(assets.any { it.selectedRegion != null })
                 ModelTaskKind.KNOWLEDGE_QUIZ -> KNOWLEDGE_QUIZ_DISCLOSURE
             }
             if (tutoringKind == ModelTaskKind.TUTOR_LOBBY && assets.isNotEmpty()) {
@@ -315,9 +303,6 @@ data class ModelEgressManifest(
             require(disclosedData == expectedDisclosure) {
                 "Tutor egress disclosure must exactly match the authorized tutoring task"
             }
-            require(prohibitedData == dataClassUniverseForSchema(schemaVersion) - expectedDisclosure) {
-                "Tutor egress must prohibit every data class outside its bounded context"
-            }
         }
         if (purpose == ModelEgressPurpose.CLASSIFICATION) {
             require(authorizedTaskKinds == setOf(ModelTaskKind.PROBLEM_CLASSIFY)) {
@@ -329,10 +314,6 @@ data class ModelEgressManifest(
             require(disclosedData == PROBLEM_ORGANIZATION_DISCLOSURE) {
                 "Classification egress disclosure must match the bounded organization context"
             }
-            require(
-                prohibitedData ==
-                    dataClassUniverse - PROBLEM_ORGANIZATION_DISCLOSURE,
-            ) { "Classification egress must prohibit every undisclosed data class" }
         }
     }
 
@@ -368,9 +349,6 @@ data class ModelEgressManifest(
             ModelEgressDataClass.IMAGE_DIMENSIONS,
         )
 
-        val CAPTURE_PROHIBITED_DATA =
-            ModelEgressDataClass.entries.toSet() - CAPTURE_IMAGE_DISCLOSURE
-
         val LEGACY_TUTOR_PLAN_DISCLOSURE = setOf(
             ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT,
             ModelEgressDataClass.RELEVANT_LEARNING_EVIDENCE,
@@ -384,9 +362,6 @@ data class ModelEgressManifest(
 
         val TUTOR_PLAN_DISCLOSURE = SCHEMA_THREE_TUTOR_PLAN_DISCLOSURE +
             ModelEgressDataClass.SUBJECT_KNOWLEDGE_BASE
-
-        val TUTOR_PLAN_PROHIBITED_DATA =
-            ModelEgressDataClass.entries.toSet() - TUTOR_PLAN_DISCLOSURE
 
         internal fun tutorPlanDisclosureForSchema(
             schemaVersion: Int,
@@ -407,17 +382,11 @@ data class ModelEgressManifest(
         val TUTOR_RESPOND_DISCLOSURE = LEGACY_TUTOR_RESPOND_DISCLOSURE +
             ModelEgressDataClass.SUBJECT_KNOWLEDGE_BASE
 
-        val TUTOR_RESPOND_PROHIBITED_DATA =
-            ModelEgressDataClass.entries.toSet() - TUTOR_RESPOND_DISCLOSURE
-
         /** Knowledge review quiz discloses only the bounded node material + prior mastery. */
         val KNOWLEDGE_QUIZ_DISCLOSURE = setOf(
             ModelEgressDataClass.SUBJECT_KNOWLEDGE_BASE,
             ModelEgressDataClass.RELEVANT_LEARNING_EVIDENCE,
         )
-
-        val KNOWLEDGE_QUIZ_PROHIBITED_DATA =
-            ModelEgressDataClass.entries.toSet() - KNOWLEDGE_QUIZ_DISCLOSURE
 
         internal fun tutorRespondDisclosureForSchema(
             schemaVersion: Int,
@@ -432,14 +401,8 @@ data class ModelEgressManifest(
             ModelEgressDataClass.TUTOR_CONVERSATION_CONTEXT,
         )
 
-        val TUTOR_LOBBY_PROHIBITED_DATA =
-            ModelEgressDataClass.entries.toSet() - TUTOR_LOBBY_DISCLOSURE
-
         /** 附图消息的披露：在纯文本范围上追加图片类目（首次一次性说明后长期有效）。 */
         val TUTOR_LOBBY_IMAGE_DISCLOSURE = TUTOR_LOBBY_DISCLOSURE + CAPTURE_IMAGE_DISCLOSURE
-
-        val TUTOR_LOBBY_IMAGE_PROHIBITED_DATA =
-            ModelEgressDataClass.entries.toSet() - TUTOR_LOBBY_IMAGE_DISCLOSURE
 
         /**
          * Lobby 披露按请求是否附图与 schema 版本选择：旧 schema 行读回时仍按纯文本
@@ -455,29 +418,20 @@ data class ModelEgressManifest(
                 TUTOR_LOBBY_DISCLOSURE
             }
 
-        private val TUTOR_VISUAL_GENERATE_BASE_DISCLOSURE = setOf(
-            ModelEgressDataClass.SANITIZED_IMAGE_BYTES,
-            ModelEgressDataClass.IMAGE_DIMENSIONS,
-            ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT,
-            ModelEgressDataClass.TUTOR_CONVERSATION_CONTEXT,
-        )
-
-        fun tutorVisualGenerateDisclosure(
-            includesSelectedRegion: Boolean,
-        ): Set<ModelEgressDataClass> = TUTOR_VISUAL_GENERATE_BASE_DISCLOSURE + if (
-            includesSelectedRegion
-        ) {
-            setOf(ModelEgressDataClass.SELECTED_IMAGE_REGION)
-        } else {
-            emptySet()
-        }
-
-        fun tutorVisualReviewDisclosure(
-            includesSelectedRegion: Boolean,
-        ): Set<ModelEgressDataClass> =
-            tutorVisualGenerateDisclosure(includesSelectedRegion) +
-                ModelEgressDataClass.MODEL_AUTHORED_VISUAL_CANDIDATE
-
+        /**
+         * 版本化宇宙：**只用于旧行读回校验**，不是当前能力的清单。
+         *
+         * 两个消费者都在旧行路径上：① `disclosedData` 必须落在本 schema 的词汇表内；
+         * ② 旧行的存库指纹复原——当年写库的 `prohibitedData` 数组正是
+         * `dataClassUniverseForSchema(schemaVersion) - disclosedData`（删掉这个函数就复原不出来，
+         * 旧行的请求指纹校验会直接抛完整性异常）。
+         *
+         * `MODEL_AUTHORED_VISUAL_CANDIDATE` 保留在枚举里（结构化视觉链已随 D-Q5 删除，没有任何
+         * 披露口径再产出它）：它是**已持久化的词汇表成员**——schema≥5 的旧清单把它写进
+         * `prohibitedData`，删掉这个枚举值会让那些行在 `ModelTaskCodec.decodeRequest` 时因未知
+         * 枚举名直接抛异常（旧行不再可读），指纹复原也会少一个成员。
+         * schema<5 的分支也照旧保留：那时的清单确实不含该成员。
+         */
         internal fun dataClassUniverseForSchema(
             schemaVersion: Int,
         ): Set<ModelEgressDataClass> = when {
@@ -493,9 +447,6 @@ data class ModelEgressManifest(
             ModelEgressDataClass.RELATED_QUESTION_CANDIDATES,
             ModelEgressDataClass.SUBJECT_KNOWLEDGE_BASE,
         )
-
-        val PROBLEM_ORGANIZATION_PROHIBITED_DATA =
-            ModelEgressDataClass.entries.toSet() - PROBLEM_ORGANIZATION_DISCLOSURE
     }
 }
 
@@ -506,7 +457,7 @@ sealed interface ModelExecutionPermit {
 
     /**
      * Granted for agent-eligible kinds (capture assess/parse/classify and tutor
-     * plan/respond/visual) when the user has enabled global model-agent consent in
+     * plan/respond) when the user has enabled global model-agent consent in
      * Settings ("configuring the model = consent"). Carries no per-asset grant: the
      * request's own asset refs plus the consent flag authorize the read. Lobby and
      * the organization/summarize routes always require a manifest.
@@ -685,9 +636,10 @@ private fun ModelEgressManifest.requireAuthorizes(
     require(currentPromptPolicy != null && promptPolicyVersion == currentPromptPolicy) {
         "Egress prompt policy changed"
     }
-    require(isModelEgressApprovalFresh(nowEpochMillis)) {
-        "Egress approval expired or has an invalid timestamp"
-    }
+    // 授权时效（15 分钟 TTL / 2 分钟时钟偏移）此前在这里逐次核对，D-K4 删除：清单时刻的唯一来源
+    // 是客户端自己刚写的当前时间，所有派发/恢复点都在同一帧重盖（研究报告 §4.6 R5），判据永远成立。
+    // `isModelEgressApprovalFresh` 本体保留——`TutorAutoStartAuthorization` 用它表达"自动开始讲题"
+    // 的独立租约语义，与清单路径无关。nowEpochMillis 仍是本函数的入参（调用方时钟口径不变）。
     // Tutor consent is a short-lived, question-bound conversation lease. The UI must hold a
     // current in-memory lease; the manifest still binds every exact plan/response payload here.
     if (request.input !is TutorPlanInput && request.input !is TutorRespondInput) {
@@ -695,127 +647,11 @@ private fun ModelEgressManifest.requireAuthorizes(
             "Egress approval predates the request"
         }
     }
+    // 清单路径上只剩两条**真的会被走到**的路线（其余 kind 一律在 authorize 里走全局同意通道，
+    // 见 ModelExecutionPermit.ProviderConsented；不可达分支已于 D-K4 删除）：
+    // - 大厅（TUTOR_LOBBY）：非 agent-consent-eligible，逐次披露清单是它唯一的出网授权；
+    // - 组织（PROBLEM_CLASSIFY）：同上，确认过的题面走逐次清单。
     when (val input = request.input) {
-        is TutorDebriefInput -> {
-            require(purpose == ModelEgressPurpose.TUTORING)
-        }
-        is KnowledgeQuizInput -> {
-            require(purpose == ModelEgressPurpose.TUTORING)
-            require(assets.isEmpty()) { "Knowledge quiz is text-only and never ships image assets" }
-        }
-        is CaptureAssessmentInput -> {
-            require(purpose == ModelEgressPurpose.CAPTURE_TO_DOCUMENT)
-            val expectedAssetIds = buildSet {
-                add(input.sourceAssetId)
-                input.followingSourceAssets.forEach { add(it.assetId) }
-            }
-            require(
-                input.followingSourceAssets.isEmpty() ||
-                    assets.mapTo(mutableSetOf()) { it.assetId } == expectedAssetIds,
-            ) {
-                "Page-comparison asset scope changed"
-            }
-            val grant = assets.singleOrNull { it.assetId == input.sourceAssetId }
-                ?: error("Assessment asset is outside egress scope")
-            require(grant.width == input.imageWidth && grant.height == input.imageHeight) {
-                "Assessment dimensions changed after approval"
-            }
-            input.followingSourceAssets.forEach { source ->
-                val followingGrant = assets.singleOrNull { it.assetId == source.assetId }
-                    ?: error("Following assessment asset is outside egress scope")
-                require(
-                    followingGrant.sha256 == source.sha256 &&
-                        followingGrant.width == source.width &&
-                        followingGrant.height == source.height &&
-                        followingGrant.selectedRegion == source.selectedRegion,
-                ) { "Following assessment asset changed after approval" }
-            }
-        }
-
-        is ImagePipelineClassifyInput -> {
-            require(purpose == ModelEgressPurpose.CAPTURE_TO_DOCUMENT)
-            val grant = assets.singleOrNull { it.assetId == input.sourceAssetId }
-                ?: error("Image pipeline classify asset is outside egress scope")
-            require(grant.width == input.imageWidth && grant.height == input.imageHeight) {
-                "Image pipeline classify dimensions changed after approval"
-            }
-        }
-
-        is CaptureParseInput -> {
-            require(purpose == ModelEgressPurpose.CAPTURE_TO_DOCUMENT)
-            require(input.sourceAssets.size == assets.size) { "Parse asset scope changed" }
-            input.sourceAssets.forEach { source ->
-                val grant = assets.singleOrNull { it.assetId == source.assetId }
-                    ?: error("Parse asset is outside egress scope")
-                require(
-                    grant.sha256 == source.sha256 &&
-                        grant.width == source.width &&
-                        grant.height == source.height &&
-                        grant.selectedRegion == source.selectedRegion,
-                ) { "Parse asset changed after approval" }
-            }
-        }
-
-        is TutorPlanInput -> {
-            require(purpose == ModelEgressPurpose.TUTORING)
-            require(assets.isEmpty()) { "Tutor plan cannot disclose image assets" }
-            val expectedDisclosure = ModelEgressManifest.tutorPlanDisclosureForSchema(schemaVersion)
-            require(disclosedData == expectedDisclosure)
-            val dataClassUniverse = ModelEgressManifest.dataClassUniverseForSchema(schemaVersion)
-            require(prohibitedData == dataClassUniverse - expectedDisclosure)
-        }
-
-        is TutorRespondInput -> {
-            require(schemaVersion >= 2) { "Tutor response requires egress manifest schema two" }
-            require(purpose == ModelEgressPurpose.TUTORING)
-            require(assets.isEmpty()) { "Tutor response cannot disclose image assets" }
-            // 候选菜单是错题本里**别人的**题面：它比本题多一个 RELATED_QUESTION_CANDIDATES 类目。
-            // 两条都要成立才算授权：
-            // ① 清单自己声明覆盖了候选菜单（否则清单就是在少报——请求里带着菜单而清单说没有）；
-            // ② 清单的披露集合与"本轮真的带了什么"逐字相等。
-            val carriesQuestionCandidates = input.disclosesQuestionCandidates()
-            require(includesQuestionCandidates == carriesQuestionCandidates) {
-                "Egress manifest candidate-menu scope disagrees with the request"
-            }
-            val expectedDisclosure = TutorRoundDisclosure.questionRound(
-                includesQuestionCandidates = carriesQuestionCandidates,
-                schemaVersion = schemaVersion,
-            )
-            require(disclosedData == expectedDisclosure)
-            require(
-                prohibitedData ==
-                    ModelEgressManifest.dataClassUniverseForSchema(schemaVersion) - expectedDisclosure,
-            )
-        }
-
-        is TutorVisualGenerateInput -> {
-            require(schemaVersion >= 5) { "Tutor visual generation requires egress schema five" }
-            require(purpose == ModelEgressPurpose.TUTORING)
-            requireVisualAssetScope(input.sourceAssets)
-            val expectedDisclosure = ModelEgressManifest.tutorVisualGenerateDisclosure(
-                includesSelectedRegion = input.sourceAssets.any { it.selectedRegion != null },
-            )
-            require(disclosedData == expectedDisclosure)
-            require(
-                prohibitedData ==
-                    ModelEgressManifest.dataClassUniverseForSchema(schemaVersion) - expectedDisclosure,
-            )
-        }
-
-        is TutorVisualReviewInput -> {
-            require(schemaVersion >= 5) { "Tutor visual review requires egress schema five" }
-            require(purpose == ModelEgressPurpose.TUTORING)
-            requireVisualAssetScope(input.sourceAssets)
-            val expectedDisclosure = ModelEgressManifest.tutorVisualReviewDisclosure(
-                includesSelectedRegion = input.sourceAssets.any { it.selectedRegion != null },
-            )
-            require(disclosedData == expectedDisclosure)
-            require(
-                prohibitedData ==
-                    ModelEgressManifest.dataClassUniverseForSchema(schemaVersion) - expectedDisclosure,
-            )
-        }
-
         is TutorLobbyInput -> {
             require(schemaVersion >= 4) { "Tutor lobby requires egress manifest schema four" }
             require(purpose == ModelEgressPurpose.TUTORING)
@@ -861,42 +697,30 @@ private fun ModelEgressManifest.requireAuthorizes(
                 schemaVersion = schemaVersion,
             )
             require(disclosedData == expectedDisclosure)
-            require(
-                prohibitedData ==
-                    ModelEgressManifest.dataClassUniverseForSchema(schemaVersion) - expectedDisclosure,
-            )
         }
 
         is ProblemOrganizationInput -> {
             require(purpose == ModelEgressPurpose.CLASSIFICATION)
             require(assets.isEmpty()) { "Problem organization cannot disclose image assets" }
             require(disclosedData == ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE)
-            val dataClassUniverse = ModelEgressManifest.dataClassUniverseForSchema(schemaVersion)
-            require(
-                prohibitedData == dataClassUniverse - ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
-            )
         }
 
+        // 其余 kind 没有清单路径：agent-eligible 轮次带 `agentConsentGranted`、不带
+        // `egressManifest`（见 feature 各 ModelTaskPolicy），要在清单路径上给它们伪造一份清单，
+        // 生产代码也造不出来。删掉的 7 个分支持此前逐 kind 复述的断言（purpose / assets 为空 /
+        // 披露集合）要么由 init 的精确相等校验蕴含、要么需要一份生产不存在的清单，运行时拦不住
+        // 任何东西。
+        else -> Unit
     }
 }
 
-private fun ModelEgressManifest.requireVisualAssetScope(
-    sourceAssets: List<CaptureSourceAssetRef>,
-) {
-    require(sourceAssets.size == assets.size) { "Tutor visual asset scope changed" }
-    sourceAssets.forEach { source ->
-        val grant = assets.singleOrNull { it.assetId == source.assetId }
-            ?: error("Tutor visual image is outside egress scope")
-        require(
-            grant.sha256 == source.sha256 &&
-                grant.width == source.width &&
-                grant.height == source.height &&
-                grant.selectedRegion == source.selectedRegion,
-        ) { "Tutor visual image changed after approval" }
-    }
-}
-
-/** Short-lived consent prevents a persisted request from silently sending long after approval. */
+/**
+ * 授权时刻是否还在短时窗口内（15 分钟 TTL / 2 分钟时钟偏移）。
+ *
+ * 消费方只剩 `TutorAutoStartAuthorization.matches`：那是"刚拍完的题可以直接开始第一次讲题、
+ * 不必二次确认"的一次性租约。清单路径**不再**核对它（D-K4：清单时刻的唯一来源就是客户端自己
+ * 刚写的当前时间，运行时到不了过期状态；研究报告 §4.6 R5）。
+ */
 fun ModelEgressManifest.isModelEgressApprovalFresh(nowEpochMillis: Long): Boolean {
     return isModelEgressApprovalFresh(approvedAtEpochMillis, nowEpochMillis)
 }

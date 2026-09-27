@@ -25,6 +25,8 @@ interface TutorKnowledgeContextLoader {
      * @param loadFailed 数据读取失败（区别于零命中的合法空集）：调用方必须把它显式披露进
      *   prompt（"教学材料未加载"），不得静默降级——静默 catch{emptyList()} 是审计指出的
      *   失败模式（SavedMistakeTutorRoute 既有模板的修正版）。
+     *   知识内容尚未就位（D-Q3）走同一条披露路径（材料确实没加载），另外在
+     *   [TutorKnowledgeContextResult.knowledgeBasePreparing] 上留下"原因是还没准备好"。
      */
     suspend fun knowledgePreDisclosure(
         subject: String,
@@ -37,9 +39,15 @@ interface TutorKnowledgeContextLoader {
  * 预披露结果。[preDisclosures] 顺序 = 提示词映射表顺序（确认绑定 / 检索候选 在前，
  * 前置在后）；[candidateNodeIds] 供调用方喂 `referencesFor`（材料注入）与
  * `TutorQuestionContext.relatedKnowledgeNodeIds`（其构造契约要求材料节点 ⊆ 该集合）。
+ *
+ * [knowledgeBasePreparing]（D-Q3）把"内容还没准备好"与"这次真的没有材料"分开：
+ * 前者等一会就好，后者是合法空集。它**不进任何模型输入字段**（调用方仍按 [loadFailed]
+ * 决定披露），所以不触发 manifest/schema 指纹变更——一个只给本地判断用的标记。
  */
 data class TutorKnowledgeContextResult(
     val preDisclosures: List<TutorKnowledgeCode>,
     val candidateNodeIds: List<String>,
     val loadFailed: Boolean,
+    /** 知识库尚未就绪（[KnowledgeBaseAvailability]≠Ready）：空结果的**原因是"还没好"**。 */
+    val knowledgeBasePreparing: Boolean = false,
 )

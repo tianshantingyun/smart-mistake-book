@@ -22,7 +22,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
+import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.model.AppFailure
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
@@ -48,11 +50,22 @@ internal fun LearningMasteryScreen(
     nowEpochMillis: Long = System.currentTimeMillis(),
     failure: AppFailure? = null,
     onRetry: (() -> Unit)? = null,
+    knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
 ) {
     val summaries = (overview.weaknesses + overview.strengths)
         .distinctBy(StudyKnowledgeSummary::knowledgeNodeId)
     val pageState: PageState? = when {
         failure != null -> pageStateForFailure(failure, onRetry)
+        learningMasteryEmptyReason(
+            summaryCount = summaries.size,
+            hasLearningEvidence = overview.hasLearningEvidence,
+            knowledgeBaseAvailability = knowledgeBaseAvailability,
+        ) == LearningMasteryEmptyReason.KNOWLEDGE_PREPARING -> PageState.Empty(
+            // D-Q3：知识内容还在后台就位时，掌握总览的三个计数恒为 0。改前这里显示
+            // "还没有学习记录"——把"还没准备好"说成了"你没有记录"。
+            title = "掌握分析还在准备中",
+            supportingText = "整理到知识点的题会自动纳入分析，准备好后这里会显示你的掌握情况。",
+        )
         summaries.isEmpty() -> PageState.Empty(
             title = "还没有学习记录",
             supportingText = "你做过并保存的题会自动整理到相应科目和知识点，不需要手动填写。",
@@ -92,6 +105,34 @@ internal fun LearningMasteryScreen(
             }
         }
     }
+}
+
+/**
+ * 学习掌握页"为什么是空的"（D-Q3）。
+ *
+ * 掌握总览的计数来自知识点掌握状态，而知识点状态要先有**知识内容 + 归类**。所以
+ * "一条都没有"有两种完全不同的原因，改前被合并成同一句"还没有学习记录"：
+ * 真的没有记录，与"分析依赖的知识内容还在后台就位"。
+ *
+ * 学生已经有学习记录（[hasLearningEvidence]）而内容还没就位时才说"准备中"：
+ * 一个还没做过题的学生，即便内容正在准备，"还没有学习记录"也是真话，且更有用。
+ */
+internal fun learningMasteryEmptyReason(
+    summaryCount: Int,
+    hasLearningEvidence: Boolean,
+    knowledgeBaseAvailability: KnowledgeBaseAvailability,
+): LearningMasteryEmptyReason = when {
+    summaryCount > 0 -> LearningMasteryEmptyReason.NONE
+    hasLearningEvidence && !knowledgeBaseAvailability.isReady ->
+        LearningMasteryEmptyReason.KNOWLEDGE_PREPARING
+    else -> LearningMasteryEmptyReason.NO_RECORDS
+}
+
+/** 空态的原因；[NONE] = 有内容可显示，不渲染空态。 */
+internal enum class LearningMasteryEmptyReason {
+    NONE,
+    NO_RECORDS,
+    KNOWLEDGE_PREPARING,
 }
 
 @Composable

@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 
 internal enum class OrganizationProviderAvailability {
@@ -21,6 +23,11 @@ internal data class MistakeOrganizationSurfaceFacts(
     val taskRequestId: String? = null,
     val hasUsableOutput: Boolean = false,
     val applyState: AutomaticOrganizationState = AutomaticOrganizationState.Idle,
+    /**
+     * 知识能力就绪位（D-Q3）。默认 [KnowledgeBaseAvailability.Ready] = 只看模型侧事实，
+     * 生产接线由 app 层传真实就绪位（见 MistakeOrganizationSection 的调用点）。
+     */
+    val knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
 )
 
 internal sealed interface MistakeOrganizationSurfaceState {
@@ -29,6 +36,17 @@ internal sealed interface MistakeOrganizationSurfaceState {
     data object ProviderUnavailable : MistakeOrganizationSurfaceState
     data object PreparationLoading : MistakeOrganizationSurfaceState
     data object PreparationRetry : MistakeOrganizationSurfaceState
+
+    /**
+     * 知识内容还没就位（D-Q3）。
+     *
+     * 它消灭的失败：改前"整理"在 prepare() 里**自己触发一次安装**并阻塞（首装 16.7 秒），
+     * 装失败还会被上层统一 catch 成"暂时无法准备智能整理 + 去配置模型"——把学生指向一个
+     * 与故障无关的页面。现在如实说"准备中"，就绪后本屏自动继续。
+     */
+    data class KnowledgePreparing(
+        val availability: KnowledgeBaseAvailability,
+    ) : MistakeOrganizationSurfaceState
 
     data class Consent(
         val paused: Boolean,
@@ -63,6 +81,12 @@ internal fun resolveMistakeOrganizationSurface(
     )
 
     facts.hasRecoveredRequest -> MistakeOrganizationSurfaceState.PreparationRetry
+
+    // D-Q3：知识内容还没就位 → 不发起整理、也不把学生指向模型设置页；就绪后本屏自动继续。
+    // 位置在"恢复既有请求"之后：那条路是**重放已持久化的请求**，不需要知识内容。
+    !facts.knowledgeBaseAvailability.isReady -> MistakeOrganizationSurfaceState.KnowledgePreparing(
+        facts.knowledgeBaseAvailability,
+    )
 
     !facts.hasPreparation && (facts.isPreparing || !facts.preparationDismissed) ->
         MistakeOrganizationSurfaceState.PreparationLoading

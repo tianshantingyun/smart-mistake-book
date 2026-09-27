@@ -4,7 +4,9 @@ import com.tingyun.smartmistakebook.core.data.study.FakeStudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeRelationRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -19,7 +21,10 @@ import org.junit.Test
  */
 class RoomTutorKnowledgeContextLoaderTest {
 
-    private fun loaderFor(port: StudyDatabasePort) = RoomTutorKnowledgeContextLoader(port)
+    private fun loaderFor(
+        port: StudyDatabasePort,
+        availability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
+    ) = RoomTutorKnowledgeContextLoader(port, MutableStateFlow(availability))
 
     private fun node(
         id: String,
@@ -134,6 +139,55 @@ class RoomTutorKnowledgeContextLoaderTest {
         )
 
         assertTrue("读取失败必须显式标记（prompt 披露『教学材料未加载』）", result.loadFailed)
+        assertTrue(result.preDisclosures.isEmpty())
+        assertFalse(
+            "读取失败不是'内容还没准备好'：两者不能混成一个原因",
+            result.knowledgeBasePreparing,
+        )
+    }
+
+    /**
+     * D-Q3：内容还在后台就位时**不能**落进"零命中 = 合法空注入"那一档——那句话在这里是假的
+     * （材料不是"没有"，是"还没好"）。对调用方的契约：材料确实没加载（loadFailed = true，
+     * prompt 照旧不假设手里有资料），但原因标成"还没准备好"，页面据此说"准备中"。
+     */
+    @Test
+    fun `knowledge base still preparing is distinct from no material`() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        // 库里有节点、题面也检索得到：内容一旦就位，这条路径本会注入候选——
+        // 所以若结果为空，唯一原因是就绪门，而不是"真的没有"。
+        port.knowledgeNodes += node("kc-cand", "配方法")
+
+        val result = loaderFor(port, KnowledgeBaseAvailability.Preparing)
+            .knowledgePreDisclosure(
+                subject = "MATH",
+                confirmedBindingNodeIds = listOf("kc-cand"),
+                questionText = "用配方法求函数的单调区间",
+            )
+
+        assertTrue(result.knowledgeBasePreparing)
+        assertTrue("材料没加载：prompt 不能假设手里有资料", result.loadFailed)
+        assertTrue(result.preDisclosures.isEmpty())
+        assertTrue(result.candidateNodeIds.isEmpty())
+    }
+
+    /** 安装失败（可重试）与"准备中"同样归到 [TutorKnowledgeContextResult.knowledgeBasePreparing]。 */
+    @Test
+    fun `knowledge base unavailable also reports as preparing rather than no material`() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        port.knowledgeNodes += node("kc-cand", "配方法")
+
+        val result = loaderFor(
+            port,
+            KnowledgeBaseAvailability.Unavailable("startup:knowledge:7"),
+        ).knowledgePreDisclosure(
+            subject = "MATH",
+            confirmedBindingNodeIds = listOf("kc-cand"),
+            questionText = "用配方法求函数的单调区间",
+        )
+
+        assertTrue(result.knowledgeBasePreparing)
+        assertTrue(result.loadFailed)
         assertTrue(result.preDisclosures.isEmpty())
     }
 

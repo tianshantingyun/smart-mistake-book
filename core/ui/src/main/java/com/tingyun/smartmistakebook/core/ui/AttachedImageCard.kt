@@ -126,7 +126,8 @@ internal suspend fun resolveAttachedImages(
  * the figures fill in (or show a "生成中/未生成" placeholder) without blocking.
  *
  * This is the lightweight standalone pipeline for model-authored bitmap figures —
- * it does not enter the structured-scene [TutorVisualSceneRenderer] path.
+ * structured scene rendering was deleted with the visual chain (D-Q5), so this is
+ * the only figure path a reply has.
  */
 @Composable
 fun AttachedImagesSection(

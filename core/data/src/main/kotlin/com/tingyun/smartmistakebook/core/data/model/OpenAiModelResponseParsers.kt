@@ -28,8 +28,8 @@ import com.tingyun.smartmistakebook.core.model.FigureSchema
 import com.tingyun.smartmistakebook.core.model.FigureSeriesStyle
 import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyOutput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
-import com.tingyun.smartmistakebook.core.model.ModelEgressAuthorizationException
 import com.tingyun.smartmistakebook.core.model.MODEL_EGRESS_MAX_ASSET_BYTES
+import com.tingyun.smartmistakebook.core.model.ModelEgressAuthorizationException
 import com.tingyun.smartmistakebook.core.model.ModelEgressPolicy
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
 import com.tingyun.smartmistakebook.core.model.ModelExecutionPermit
@@ -57,17 +57,6 @@ import com.tingyun.smartmistakebook.core.model.TutorChoice
 import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
-import com.tingyun.smartmistakebook.core.model.TutorComparisonRow
-import com.tingyun.smartmistakebook.core.model.TutorComparisonScene
-import com.tingyun.smartmistakebook.core.model.TutorConceptMapScene
-import com.tingyun.smartmistakebook.core.model.TutorConceptRelation
-import com.tingyun.smartmistakebook.core.model.TutorCircularMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorDiagramAnchor
-import com.tingyun.smartmistakebook.core.model.TutorDiagramEdge
-import com.tingyun.smartmistakebook.core.model.TutorDiagramEdgeStyle
-import com.tingyun.smartmistakebook.core.model.TutorDiagramNode
-import com.tingyun.smartmistakebook.core.model.TutorDiagramNodeShape
-import com.tingyun.smartmistakebook.core.model.TutorEvidenceChainScene
 import com.tingyun.smartmistakebook.core.model.TutorDebriefInput
 import com.tingyun.smartmistakebook.core.model.TutorDebriefOutput
 import com.tingyun.smartmistakebook.core.model.AttachedImage
@@ -82,45 +71,9 @@ import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRoundQuestionDeclaration
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
-import com.tingyun.smartmistakebook.core.model.TutorEvidencePoint
-import com.tingyun.smartmistakebook.core.model.TutorEvidencePointKind
-import com.tingyun.smartmistakebook.core.model.TutorFormulaDerivationScene
-import com.tingyun.smartmistakebook.core.model.TutorFormulaDerivationStep
 import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
-import com.tingyun.smartmistakebook.core.model.TutorLinearMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorOscillationMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorProcessStage
-import com.tingyun.smartmistakebook.core.model.TutorProcessTimelineScene
-import com.tingyun.smartmistakebook.core.model.TutorProjectileMotionScene
-import com.tingyun.smartmistakebook.core.model.TutorSceneEmphasis
-import com.tingyun.smartmistakebook.core.model.TutorSceneStep
-import com.tingyun.smartmistakebook.core.model.TutorSpatialDiagramScene
-import com.tingyun.smartmistakebook.core.model.TutorStepFlowScene
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTurnPlan
-import com.tingyun.smartmistakebook.core.model.TutorVisualScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerationDecision
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerationRequest
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewDecision
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewOutput
-import com.tingyun.smartmistakebook.core.model.TutorVisualEntityCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualEntityShape
-import com.tingyun.smartmistakebook.core.model.TutorVisualExpression
-import com.tingyun.smartmistakebook.core.model.TutorVisualExpressionOperation
-import com.tingyun.smartmistakebook.core.model.TutorVisualFormulaCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualLineStyle
-import com.tingyun.smartmistakebook.core.model.TutorVisualLinkCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualMetricCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualNoteCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualParameter
-import com.tingyun.smartmistakebook.core.model.TutorVisualPathCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualProgramScene
-import com.tingyun.smartmistakebook.core.model.TutorVisualTableCommand
-import com.tingyun.smartmistakebook.core.model.TutorVisualVectorCommand
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -387,8 +340,6 @@ internal fun JsonObject.toTutorPlan(
             knowledgeNodeIds = emptySet(),
         )
     }
-    val visualScene = optionalObject("visualScene")?.toTutorVisualScene(stableSuffix)
-    val visualRequest = optionalObject("visualRequest")?.toTutorVisualGenerationRequest()
     val disclosedLabels = input.relevantLearningEvidence.mapTo(hashSetOf()) { it.displayName }
     val targetedLabels = array("targetedEvidenceLabels")
         .map { it.jsonPrimitive.content }
@@ -413,8 +364,6 @@ internal fun JsonObject.toTutorPlan(
         plan = TutorTurnPlan(
             openingMarkdown = requiredString("openingMarkdown"),
             diagnosticItem = diagnosticItem,
-            visualScene = visualScene,
-            visualRequest = visualRequest,
             solutionMarkdown = requiredString("solutionMarkdown"),
             alternateMethodMarkdown = requiredString("alternateMethodMarkdown"),
             difficultyReasonMarkdown = requiredString("difficultyReasonMarkdown"),
@@ -472,8 +421,6 @@ internal fun JsonObject.toTutorRespond(
         turnOrdinal = input.turnOrdinal,
         messageMarkdown = requiredString("messageMarkdown"),
         solutionRevealed = requiredBoolean("solutionRevealed"),
-        visualScene = optionalObject("visualScene")?.toTutorVisualScene(stableSuffix),
-        visualRequest = optionalObject("visualRequest")?.toTutorVisualGenerationRequest(),
         suggestedMoves = suggestedMoves,
         intentDecision = intentDecision,
         thinkingMarkdown = optionalString("thinkingMarkdown"),
@@ -564,8 +511,6 @@ internal val TUTOR_DEBRIEF_WIRE_KEYS = setOf(
 internal val TUTOR_PLAN_WIRE_KEYS = setOf(
     "openingMarkdown",
     "diagnosticQuestion",
-    "visualScene",
-    "visualRequest",
     "solutionMarkdown",
     "alternateMethodMarkdown",
     "difficultyReasonMarkdown",
@@ -580,8 +525,6 @@ internal val TUTOR_RESPOND_WIRE_KEYS =
         "intentDecision",
         "messageMarkdown",
         "solutionRevealed",
-        "visualScene",
-        "visualRequest",
         "nextMoves",
         "thinkingMarkdown",
         "attachedImages",

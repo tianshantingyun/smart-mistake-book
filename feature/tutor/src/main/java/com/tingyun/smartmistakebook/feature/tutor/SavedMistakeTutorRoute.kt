@@ -45,6 +45,7 @@ import com.tingyun.smartmistakebook.core.model.AttachedImage
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjection
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.TutorDebriefOutput
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
@@ -343,7 +344,11 @@ internal fun SavedMistakeTutorContent(
     }
     LaunchedEffect(question.sessionId, modelTasks) {
         modelTasks
-            .observeRecentBySubject(question.sessionId, ModelTaskKind.TUTOR_PLAN, limit = 8)
+            .observeRecentBySubject(
+                TutorConversationIds.captured(question.sessionId),
+                ModelTaskKind.TUTOR_PLAN,
+                limit = 8,
+            )
             .distinctUntilChanged()
             .collect { tasks ->
                 tasks.forEach { task ->
@@ -362,7 +367,11 @@ internal fun SavedMistakeTutorContent(
     }
     LaunchedEffect(question.sessionId, modelTasks) {
         modelTasks
-            .observeRecentBySubject(question.sessionId, ModelTaskKind.TUTOR_RESPOND, limit = 20)
+            .observeRecentBySubject(
+                TutorConversationIds.captured(question.sessionId),
+                ModelTaskKind.TUTOR_RESPOND,
+                limit = 20,
+            )
             .distinctUntilChanged()
             .collect { tasks ->
                 val transcript = tasks

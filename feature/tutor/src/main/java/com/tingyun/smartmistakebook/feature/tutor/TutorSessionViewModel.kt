@@ -5,14 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.ConfirmedTutorSession
-import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.EndTutorSessionWithoutSaveRequest
 import com.tingyun.smartmistakebook.core.domain.SaveTutorDraftRequest
 import com.tingyun.smartmistakebook.core.domain.SaveTutorDraftToLibraryUseCase
-import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
-import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorSessionDisposition
-import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.ActionType
 import com.tingyun.smartmistakebook.core.model.AppFailure
 import com.tingyun.smartmistakebook.core.model.AppFailureCode
@@ -27,10 +23,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * 拍照会话页的状态机：读会话、保存、不保存退出。
+ *
+ * **不再持有对话仓库**（K1b/K1d）：进入页面**不建会话行**——空会话不落库，会话行由第一条
+ * 消息自己保证（讲题轮的正文写入器 `recordTutorAssistantTurn` 与学生的
+ * `ensureTutorConversation` 都按需建行）。此前这里"打开即建"，于是只看了一眼题面、
+ * 一句话都没说，讲题历史里就多出一条记录。
+ */
 internal class TutorSessionViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: CaptureWorkflowRepository,
-    private val conversations: TutorConversationRepository,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val saveToLibrary: SaveTutorDraftToLibraryUseCase =
         SaveTutorDraftToLibraryUseCase(repository),
@@ -87,24 +90,6 @@ internal class TutorSessionViewModel(
                     throw cancelled
                 } catch (_: Exception) {
                     TutorSessionUiState.Unavailable
-                }
-            }
-            val ready = _uiState.value as? TutorSessionUiState.Ready
-            if (ready != null && sessionId.isNotBlank()) {
-                runCatching {
-                    withContext(ioDispatcher) {
-                        conversations.createConversation(
-                            CreateTutorConversationCommand(
-                                conversationId = TutorConversationIds.captured(sessionId),
-                                anchorKind = TutorConversationAnchorKind.EPHEMERAL_DRAFT,
-                                anchorId = sessionId,
-                                anchorRevisionId =
-                                    "${ready.session.draftId}:${ready.session.draftRevisionNumber}",
-                                title = ready.session.title,
-                                createdAtEpochMillis = ready.session.createdAtEpochMillis,
-                            ),
-                        )
-                    }
                 }
             }
         }

@@ -506,7 +506,10 @@ class RoomCaptureWorkflowRepository internal constructor(
                     subjectIdOverride = subjectId,
                 ),
                 occurredAtEpochMillis = System.currentTimeMillis(),
-                agentConsentGranted = true,
+                // 「配置模型 = 同意」的发送判据只有一处（`core:model` 的 agentConsentGranted KDoc）：
+                // 这里只回答自己知道的那一半——应用层开关，且取实值。写死 true 会把"开关关了
+                // 还能发"变成只靠上面那条前置 return 挡着，改一次控制流就静默失效。
+                agentConsentGranted = captureEgressAllowed(),
             )
             val terminal = tasks.execute(classifyRequest).last()
             terminal.status == ModelTaskStatus.SUCCEEDED &&
@@ -578,39 +581,6 @@ class RoomCaptureWorkflowRepository internal constructor(
             val record = database.readProblemDraft(session.draftId)?.sourceAsset
                 ?: return@withContext null
             runCatching { assetVault.resolve(record).readBytes() }.getOrNull()
-        }
-
-    override suspend fun readTutorVisualSourceAssets(
-        sessionId: String,
-    ): List<com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope> =
-        withContext(Dispatchers.IO) {
-            require(sessionId.isNotBlank()) { "Tutor session id must not be blank" }
-            val session = database.readTutorSession(sessionId)
-                ?: return@withContext emptyList()
-            val draft = database.readProblemDraft(session.draftId)
-                ?: return@withContext emptyList()
-            val regionsByAsset = session.confirmedRevision.questionDocument.blockEvidence
-                .mapNotNull { evidence ->
-                    evidence.sourceRegion?.let { region -> evidence.sourceAssetId to region }
-                }
-                .groupBy(
-                    keySelector = { it.first },
-                    valueTransform = { it.second },
-                )
-            draft.sourceAssets.map { page ->
-                val asset = page.sourceAsset
-                com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope(
-                    pageIndex = page.pageIndex,
-                    assetId = asset.sourceAssetId,
-                    sha256 = asset.contentSha256,
-                    byteSize = asset.byteSize,
-                    width = asset.width,
-                    height = asset.height,
-                    selectedRegion = regionsByAsset[asset.sourceAssetId]
-                        ?.takeIf(List<NormalizedSourceRegion>::isNotEmpty)
-                        ?.boundingRegion(),
-                )
-            }
         }
 
     override suspend fun saveTutorSession(

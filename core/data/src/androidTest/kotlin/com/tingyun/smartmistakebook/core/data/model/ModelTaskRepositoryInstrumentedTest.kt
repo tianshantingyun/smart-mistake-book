@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.model
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.model.CaptureAssessment
@@ -88,6 +89,7 @@ class ModelTaskRepositoryInstrumentedTest {
             database = database,
             gateway = FakeModelGateway(stepDelayMillis = 0),
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         val states = repository.execute(request()).toList()
@@ -107,6 +109,7 @@ class ModelTaskRepositoryInstrumentedTest {
             database = database,
             gateway = FakeModelGateway(stepDelayMillis = 60_000),
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         val interrupted = interruptedRepository.execute(request()).first {
             it.status == ModelTaskStatus.RUNNING
@@ -117,6 +120,7 @@ class ModelTaskRepositoryInstrumentedTest {
             database = database,
             gateway = FakeModelGateway(stepDelayMillis = 0),
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         val completed = resumedRepository.execute(request()).toList().last()
 
@@ -140,6 +144,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         repeat(4) {
@@ -159,6 +164,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         val firstExternalFailure = externalRepository.execute(
             externalRequest(
@@ -193,6 +199,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         val originalRequest = externalRequest(provider = externalCapabilities)
         val budget = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES
@@ -244,6 +251,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         val budget = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES
         val envelopes = (1..budget + 1).map { ordinal ->
@@ -292,6 +300,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { 2_750L },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         val failed = repository.execute(
@@ -319,6 +328,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { authorizationTime },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         val budget = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES
         (1..budget).forEach { expectedAttempt ->
@@ -344,6 +354,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { authorizationTime },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         val exhausted = guardedRepository.execute(originalRequest).toList().last()
@@ -376,6 +387,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { authorizationTime },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         (1..3).forEach { expectedAttempt ->
             interruptedRepository.execute(originalRequest).first { snapshot ->
@@ -388,6 +400,7 @@ class ModelTaskRepositoryInstrumentedTest {
             database = database,
             gateway = FakeModelGateway(stepDelayMillis = 0),
             clock = { authorizationTime },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         ).execute(originalRequest).toList().last()
 
         assertEquals(ModelTaskStatus.SUCCEEDED, completed.status)
@@ -409,6 +422,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { 3_000L },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         val completed = repository.execute(request()).toList().last()
@@ -437,6 +451,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { 4_000L },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         val completed = repository.execute(request()).toList().last()
@@ -463,6 +478,7 @@ class ModelTaskRepositoryInstrumentedTest {
                 }
             },
             clock = { 4_500L },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         val completed = repository.execute(request()).toList().last()
@@ -474,8 +490,8 @@ class ModelTaskRepositoryInstrumentedTest {
 
     @Test
     fun concurrentRepositoriesNeverRewriteTheWinnerAsRetryableFailure() = runBlocking {
-        val first = RoomModelTaskRepository(database, FakeModelGateway(stepDelayMillis = 5))
-        val second = RoomModelTaskRepository(database, FakeModelGateway(stepDelayMillis = 5))
+        val first = RoomModelTaskRepository(database, FakeModelGateway(stepDelayMillis = 5), knowledgeBaseAvailability = readyKnowledgeBaseAvailability())
+        val second = RoomModelTaskRepository(database, FakeModelGateway(stepDelayMillis = 5), knowledgeBaseAvailability = readyKnowledgeBaseAvailability())
 
         coroutineScope {
             val executions = listOf(
@@ -511,6 +527,7 @@ class ModelTaskRepositoryInstrumentedTest {
                         delegate.execute(execution)
                     }
             },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
 
         val winner = async { repository.execute(request()).toList() }
@@ -586,6 +603,7 @@ class ModelTaskRepositoryInstrumentedTest {
                     }
                 },
                 clock = { now.incrementAndGet().toLong() },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val seen = mutableListOf<ModelLiveText?>()
             val collector = launch {
@@ -657,7 +675,6 @@ class ModelTaskRepositoryInstrumentedTest {
                 ),
             ),
             disclosedData = ModelEgressManifest.CAPTURE_IMAGE_DISCLOSURE,
-            prohibitedData = ModelEgressManifest.CAPTURE_PROHIBITED_DATA,
         ),
     )
 

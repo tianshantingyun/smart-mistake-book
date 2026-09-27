@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuizFeedbackResult
+import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizLoadResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
@@ -55,7 +56,7 @@ class KnowledgeReviewSessionInstrumentedTest {
                 KnowledgeReviewSessionScreen(
                     plan = KnowledgeReviewSessionPlan(queue = listOf(node)),
                     onBack = {},
-                    loadQuiz = { quizItem },
+                    loadQuiz = { KnowledgeQuizLoadResult.Ready(quizItem) },
                     submitAnswer = { requestId, knowledgeNodeId, correctChoiceId, selectedChoiceId, _, _ ->
                         submitted = knowledgeNodeId to selectedChoiceId
                         KnowledgeQuizFeedbackResult(
@@ -97,7 +98,11 @@ class KnowledgeReviewSessionInstrumentedTest {
                     onBack = {},
                     loadQuiz = {
                         attempts += 1
-                        if (attempts == 1) null else quizItem
+                        if (attempts == 1) {
+                            KnowledgeQuizLoadResult.Unavailable
+                        } else {
+                            KnowledgeQuizLoadResult.Ready(quizItem)
+                        }
                     },
                     submitAnswer = { _, _, _, _, _, _ -> KnowledgeQuizFeedbackResult(true, true) },
                     onFinished = {},

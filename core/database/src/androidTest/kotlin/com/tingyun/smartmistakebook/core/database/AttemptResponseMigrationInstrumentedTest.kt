@@ -91,7 +91,9 @@ class AttemptResponseMigrationInstrumentedTest {
             try {
                 assertEquals(0, database.rowCount("tutor_answer_exposure"))
                 assertEquals(0, database.rowCount("tutor_answer_exposure_outcome"))
-                assertEquals(0, database.rowCount("tutor_session_problem_anchor"))
+                // 51→52 之后锚落在会话行上（`tutor_session_problem_anchor` 退役）：
+                // "没有锚定任何题"= 没有任何会话带着锚块。
+                assertEquals(0, database.anchoredConversationCount())
             } finally {
                 database.close()
             }
@@ -219,6 +221,14 @@ class AttemptResponseMigrationInstrumentedTest {
         } finally {
             database.close()
         }
+    }
+
+    private fun SQLiteDatabase.anchoredConversationCount(): Int = rawQuery(
+        "SELECT COUNT(*) FROM tutor_conversation WHERE anchor_problem_revision_id IS NOT NULL",
+        null,
+    ).use { cursor ->
+        check(cursor.moveToFirst())
+        cursor.getInt(0)
     }
 
     private fun SQLiteDatabase.rowCount(tableName: String): Int = rawQuery(

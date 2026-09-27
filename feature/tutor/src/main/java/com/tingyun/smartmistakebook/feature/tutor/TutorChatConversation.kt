@@ -20,7 +20,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorAnswerExposureKey
-import com.tingyun.smartmistakebook.core.domain.TutorHistoryBudget
+import com.tingyun.smartmistakebook.core.domain.TutorContextComposer
+import com.tingyun.smartmistakebook.core.domain.TutorContextWindow
+import com.tingyun.smartmistakebook.core.domain.TutorMessage
+import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.model.AttachedImage
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
@@ -30,10 +33,9 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
 import com.tingyun.smartmistakebook.core.model.canExposeSolutionFor
-import com.tingyun.smartmistakebook.core.model.requiresRoundQuestionBinding
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
+import com.tingyun.smartmistakebook.core.model.requiresRoundQuestionBinding
 import com.tingyun.smartmistakebook.core.ui.AttachedImagesSection
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
@@ -45,7 +47,6 @@ import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.ThinkingCollapsibleCard
 import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
-import com.tingyun.smartmistakebook.core.ui.TutorVisualSceneRenderer
 
 private data class TutorRespondExchangeKey(
     val sessionId: String,
@@ -95,44 +96,58 @@ private fun ModelTaskSnapshot.requiresTutorModelSettings(): Boolean {
     return code.requiresModelSettings()
 }
 
-internal fun tutorChatHistory(
-    tasks: List<ModelTaskSnapshot>,
+/**
+ * 讲题会话的**提示词历史**（K1a）：文本只从消息行取，装配走同一条 [TutorContextComposer]。
+ *
+ * 消灭的失败：此前这里是**第二份**文本源——从模型任务快照重新拼一遍学生消息与助手正文
+ * （`input.studentMessage` / `output.messageMarkdown`），与 `tutor_message` 各存一份；
+ * 重试、重放、删除之后两边会不一致，而模型读的是快照那一份、学生看的是消息那一份。
+ * 现在消息行是唯一权威，未裁剪的整轮由装配器压成摘要（不是先裁再摘要）。
+ *
+ * 唯一保留的账本读法是**答案门**（见 [hidingUnexposedTutorAnswers]）：曝光事实本来就在
+ * 账本上，它决定"学生有没有真的看到完整答案"。
+ */
+internal fun tutorSessionContext(
+    messages: List<TutorMessage>,
+    respondTasks: List<ModelTaskSnapshot>,
     answerExposureKeys: Set<TutorAnswerExposureKey>,
-): List<TutorChatHistoryEntry> = TutorHistoryBudget.bounded(
-    tutorChatExchanges(tasks, answerExposureKeys),
+): TutorContextWindow = TutorContextComposer.compose(
+    messages.hidingUnexposedTutorAnswers(respondTasks, answerExposureKeys),
 )
 
 /**
- * 会话里所有已成功的完整轮次（不裁剪）。装配器要拿到**未裁剪**的列表才能把被挤出原样
- * 窗口的轮次压成摘要；先裁剪再摘要就等于让它们无声消失。
+ * 把"揭示了完整答案、而学生还没真的看到"的助手正文换成占位。
+ *
+ * 门控（与升级前同一条件，逐条列出）：
+ * 1. 本地判定这一轮**确实揭示了答案**（`output.solutionRevealed`）；
+ * 2. 这一轮的答案**可以被展示**（`canExposeSolutionFor`，含"本轮有没有绑定题"这一维）；
+ * 3. 学生**真的看到了**：曝光账本里有这一轮的键——或者这一轮讲的是学生自己附加的题
+ *    （附加轮的暴露刻意不落账，见 [TutorSolutionExposureTarget.recordsExposure]）。
+ *
+ * 三条都过才保留原文；否则换成 [HIDDEN_TUTOR_ANSWER_CONTEXT]——否则模型会以为学生读过了
+ * 那段它其实没看到的完整解答。
  */
-internal fun tutorChatExchanges(
-    tasks: List<ModelTaskSnapshot>,
+internal fun List<TutorMessage>.hidingUnexposedTutorAnswers(
+    respondTasks: List<ModelTaskSnapshot>,
     answerExposureKeys: Set<TutorAnswerExposureKey>,
-): List<TutorChatHistoryEntry> {
-    val succeeded = latestTutorRespondTasks(tasks).mapNotNull { task ->
-        val input = task.request.input as TutorRespondInput
-        val output = task.output as? TutorRespondOutput
-        if (task.status != ModelTaskStatus.SUCCEEDED || output == null) return@mapNotNull null
+): List<TutorMessage> {
+    if (isEmpty() || respondTasks.isEmpty()) return this
+    val tasksByRequestId = respondTasks.associateBy { task -> task.request.requestId }
+    return map { message ->
+        if (message.role != TutorMessageRole.ASSISTANT) return@map message
+        val task = message.logicalOperationId?.let(tasksByRequestId::get) ?: return@map message
+        val input = task.request.input as? TutorRespondInput ?: return@map message
+        val output = task.output as? TutorRespondOutput ?: return@map message
+        if (!output.solutionRevealed) return@map message
         val answerWasExposed = output.canExposeSolutionFor(
             input,
             requiresRoundQuestionBinding = task.request.requiresRoundQuestionBinding,
         ) && (
-            // 附加轮的暴露**刻意不落账**（见 `TutorSolutionExposureTarget.recordsExposure`）：
-            // 这里因此不看账本，只认本地事实——学生看到的正是所附之题的答案，重载之后（账本里
-            // 没有它的记录）正文也必须原样保留，否则会话记忆会白白回退。
-            input.attachedQuestion != null || task.toRespondAnswerExposureKey() in answerExposureKeys
+            input.attachedQuestion != null ||
+                task.toRespondAnswerExposureKey() in answerExposureKeys
             )
-        TutorChatHistoryEntry(
-            studentMessage = input.studentMessage,
-            assistantMarkdown = if (output.solutionRevealed && !answerWasExposed) {
-                HIDDEN_TUTOR_ANSWER_CONTEXT
-            } else {
-                output.messageMarkdown
-            },
-        )
+        if (answerWasExposed) message else message.copy(bodyMarkdown = HIDDEN_TUTOR_ANSWER_CONTEXT)
     }
-    return succeeded
 }
 
 private const val HIDDEN_TUTOR_ANSWER_CONTEXT =
@@ -188,7 +203,14 @@ internal fun priorCycleStudentMessages(tasks: List<ModelTaskSnapshot>): List<Str
 @Composable
 internal fun TutorChatExchange(
     task: ModelTaskSnapshot,
-    resolvedVisualScene: TutorVisualDocumentScene? = null,
+    /**
+     * 学生气泡正文（K1a：消息行是唯一文本权威）。旧行没有消息行时由时间线项回落到派发原文。
+     */
+    studentBodyMarkdown: String,
+    /** 助手正文；旧行回落到账本。 */
+    assistantBodyMarkdown: String?,
+    /** 思考块正文；旧行回落到账本。 */
+    assistantThinkingMarkdown: String?,
     awaitingContinuation: Boolean = false,
     interactionEnabled: Boolean,
     recoveryEnabled: Boolean,
@@ -198,8 +220,6 @@ internal fun TutorChatExchange(
     onMove: (TutorSuggestedMove) -> Unit,
     onRevealSolution: (TutorSuggestedMove) -> Unit,
     localIntentContent: @Composable (TutorRespondInput, TutorRespondOutput) -> Unit = { _, _ -> },
-    onOpenVisualOriginal: () -> Unit = {},
-    onReportVisualIncorrect: (String) -> Unit = {},
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
     /** 学生消息附图的规范资产读取器；为 null 时不渲染气泡里的图片。 */
     studentImageIntake: LobbyMessageImageIntake? = null,
@@ -212,13 +232,15 @@ internal fun TutorChatExchange(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         TutorStudentMessageBubble(
-            message = input.studentMessage,
+            message = studentBodyMarkdown,
             modifier = Modifier.testTag("tutor_chat_user_${input.responseOrdinal}"),
             attachedAssetIds = input.studentImageAssetRefs,
             imageIntake = studentImageIntake,
         )
         TutorAssistantReplyBubble(
             task = task,
+            bodyMarkdown = assistantBodyMarkdown,
+            thinkingMarkdown = assistantThinkingMarkdown,
             awaitingContinuation = awaitingContinuation,
             showActions = interactionEnabled,
             recoveryEnabled = recoveryEnabled,
@@ -228,9 +250,6 @@ internal fun TutorChatExchange(
             onMove = onMove,
             onRevealSolution = onRevealSolution,
             localIntentContent = localIntentContent,
-            resolvedVisualScene = resolvedVisualScene,
-            onOpenVisualOriginal = onOpenVisualOriginal,
-            onReportVisualIncorrect = onReportVisualIncorrect,
             attachedImageResolver = attachedImageResolver,
             assistantBottomModifier = assistantBottomModifier,
         )
@@ -277,6 +296,8 @@ private fun TutorStudentMessageBubble(
 @Composable
 private fun TutorAssistantReplyBubble(
     task: ModelTaskSnapshot,
+    bodyMarkdown: String?,
+    thinkingMarkdown: String?,
     awaitingContinuation: Boolean,
     showActions: Boolean,
     recoveryEnabled: Boolean,
@@ -286,9 +307,6 @@ private fun TutorAssistantReplyBubble(
     onMove: (TutorSuggestedMove) -> Unit,
     onRevealSolution: (TutorSuggestedMove) -> Unit,
     localIntentContent: @Composable (TutorRespondInput, TutorRespondOutput) -> Unit,
-    resolvedVisualScene: TutorVisualDocumentScene?,
-    onOpenVisualOriginal: () -> Unit,
-    onReportVisualIncorrect: (String) -> Unit,
     attachedImageResolver: (suspend (AttachedImage) -> String?)?,
     assistantBottomModifier: Modifier,
 ) {
@@ -336,11 +354,11 @@ private fun TutorAssistantReplyBubble(
                             }
                         } else {
                             ThinkingCollapsibleCard(
-                                thinkingMarkdown = output.thinkingMarkdown,
+                                thinkingMarkdown = thinkingMarkdown,
                                 thinking = false,
                             )
                             TutorReplyMarkdown(
-                                markdown = output.messageMarkdown,
+                                markdown = bodyMarkdown.orEmpty(),
                                 modifier = Modifier.fillMaxWidth(),
                             )
                             attachedImageResolver?.let { resolver ->
@@ -353,22 +371,7 @@ private fun TutorAssistantReplyBubble(
                                         )
                                     }
                             }
-                            if (!TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED) {
-                                resolvedVisualScene?.let { scene ->
-                                    TutorVisualSceneRenderer(
-                                        scene = scene,
-                                        onOpenOriginal = onOpenVisualOriginal,
-                                        onReportIncorrect = {
-                                            onReportVisualIncorrect(scene.sceneId)
-                                        },
-                                    )
-                                }
-                            }
                             localIntentContent(input, output)
-                            // 2D/3D 结构化场景已隔离：不渲染模型直接输出的 visualScene。
-                            if (!TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED) {
-                                output.visualScene?.let { TutorVisualSceneRenderer(it) }
-                            }
                             if (output.solutionRevealed) {
                                 Box(
                                     modifier = Modifier

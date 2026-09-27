@@ -90,7 +90,7 @@ class KnowledgeReviewSessionViewModelTest {
         try {
             viewModel.loadCurrentQuiz { entry ->
                 loaded += entry.knowledgeNodeId
-                quizItem(entry.knowledgeNodeId)
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
             }
             advanceUntilIdle()
 
@@ -112,12 +112,12 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { error("模型暂时不可用") }
+            viewModel.loadCurrentQuiz { error("模型暂时不可用") }  // 抛异常仍归 FAILED
             advanceUntilIdle()
             assertEquals(KnowledgeQuizLoadStatus.FAILED, viewModel.loadStatus)
             assertEquals("kc-confl", viewModel.currentEntry?.knowledgeNodeId)
 
-            viewModel.loadCurrentQuiz { quizItem(it.knowledgeNodeId) }
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
             advanceUntilIdle()
             assertEquals(KnowledgeQuizLoadStatus.LOADED, viewModel.loadStatus)
         } finally {
@@ -188,6 +188,53 @@ class KnowledgeReviewSessionViewModelTest {
         }
     }
 
+    /**
+     * D-Q3（消费点④）：取不到题的两种原因必须是两个状态——"内容还在准备"（等一会再试）
+     * 与"这个知识点没有材料"（重试没用，跳过它）。改前它们都是 FAILED。
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun theTwoCannotLoadReasonsBecomeDistinctStatuses() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val viewModel = KnowledgeReviewSessionViewModel(
+            savedStateHandle = SavedStateHandle(),
+            plan = plan,
+        )
+
+        try {
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.KnowledgePreparing }
+            advanceUntilIdle()
+            assertEquals(KnowledgeQuizLoadStatus.KNOWLEDGE_PREPARING, viewModel.loadStatus)
+            assertNull(viewModel.currentItem)
+
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.NoMaterial }
+            advanceUntilIdle()
+            assertEquals(KnowledgeQuizLoadStatus.NO_MATERIAL, viewModel.loadStatus)
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    /**
+     * "还在准备"在进程重建后回到 IDLE：那时内容多半已经就位，Screen 会重走 loader——
+     * 这就是"就绪后自动放行"，而不是停在准备态等学生自己发现。
+     */
+    @Test
+    fun restoredKnowledgePreparingReopensTheLoadPath() {
+        val handle = SavedStateHandle().apply {
+            set(
+                KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
+                KnowledgeQuizLoadStatus.KNOWLEDGE_PREPARING.name,
+            )
+        }
+        val viewModel = KnowledgeReviewSessionViewModel(
+            savedStateHandle = handle,
+            plan = plan,
+        )
+
+        assertEquals(KnowledgeQuizLoadStatus.IDLE, viewModel.loadStatus)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun correctAnswerRecordsVerdictAndAllowsContinue() = runTest {
@@ -199,7 +246,7 @@ class KnowledgeReviewSessionViewModelTest {
         val submitted = mutableListOf<Triple<String, String, String>>()
 
         try {
-            viewModel.loadCurrentQuiz { quizItem(it.knowledgeNodeId) }
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(
@@ -233,7 +280,7 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { quizItem(it.knowledgeNodeId) }
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
             advanceUntilIdle()
             viewModel.select("B")
             viewModel.submitAnswer(
@@ -266,7 +313,7 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { quizItem(it.knowledgeNodeId) }
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(
@@ -300,7 +347,7 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { quizItem(it.knowledgeNodeId) }
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(
@@ -329,7 +376,7 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { quizItem(it.knowledgeNodeId) }
+            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(

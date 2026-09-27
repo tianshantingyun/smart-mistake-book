@@ -16,19 +16,44 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * 轮次号必须**按会话单调**，不能按题派生。
+ * K1c 之后的两条号轴，各自单一：
  *
- * 缺陷现场：会话侧序号取"当前这道题的任务"的最大号 +1。可在产品裁定里，一个会话可以跨题
- * （`docs/tutor-surface-unification.md` §5.3：会话不再绑题）。换了题以后 max 从 0 开始，
- * 第二道题的第一轮又分配 1——而
- * - `model_task` 的唯一槽是 `(subject_id, task_kind, tutor_response_ordinal)`，`subject_id`
- *   就是会话 id（`ModelTaskTransactionDao.create` 的槽位校验会抛冲突）；
- * - `tutor_message` 的唯一键是 `(conversation_id, ordinal)`，而消息序号由
- *   `responseOrdinal*2-1` 算出（学生第 n 轮 = 第 2n-1 条）。
+ * 1. **消息序号 = 会话级单调 ordinal**（`nextTutorMessageOrdinals`）：每条消息取会话计数器的
+ *    下一位，学生与助手各占一位。旧口径是两套——大厅 `last_turn_ordinal` 步长 2 再把序号整除
+ *    推回轮次（`(last/2)+1`），讲题区 `responseOrdinal*2-1`——同一条会话里（讲题会话两条路都写）
+ *    两套号会在 `tutor_message` 的唯一键 `(conversation_id, ordinal)` 上互撞。
+ * 2. **派发槽位号 = 会话内 RESPOND 任务的最大号 +1**（`nextTutorResponseOrdinal`）：不再按题派生
+ *    （换题后 max 从 0 开始会让"第二道题的第一轮"与"第一道题的第一轮"撞 `model_task` 的槽
+ *    `(subject_id, task_kind, tutor_response_ordinal)`）。它**不再**参与消息序号
+ *    （旧的 `*2-1` 已废弃），只用来占一次派发槽位并进入请求标识。
  *
- * 所以这里断言的是"会话里第二道题的第一轮不是 1"。
+ * 槽键主语（`subjectId`）是会话 id（`TutorConversationIds.captured`），与 `tutor_message`
+ * 的唯一键同一个 id 空间——K1 之前这里是讲题会话 id，两个键空间并存。
  */
 class TutorResponseOrdinalTest {
+
+    @Test
+    fun `message ordinals advance one per message from the conversation counter`() {
+        val first = nextTutorMessageOrdinals(lastTurnOrdinal = 0)
+        assertEquals(1, first.student)
+        assertEquals(2, first.assistant)
+
+        // 一轮结束后计数器停在助手的号上，下一轮接着往下走（不再有步长 2 的隐含约定）。
+        val second = nextTutorMessageOrdinals(lastTurnOrdinal = first.assistant)
+        assertEquals(3, second.student)
+        assertEquals(4, second.assistant)
+    }
+
+    @Test
+    fun `a message ordinal is never derived from the dispatch slot ordinal`() {
+        // 回归防线：旧口径下学生第 n 轮的消息号是 `responseOrdinal*2-1`（1,3,5…）。
+        // 新口径下号只由会话计数器决定，与派发槽位号无关——槽位号 3 的一轮
+        // 拿到的消息号取决于会话已经写了多少条消息，而不是 5。
+        val ordinals = nextTutorMessageOrdinals(lastTurnOrdinal = 1)
+        assertEquals(2, ordinals.student)
+        assertEquals(3, ordinals.assistant)
+        assertEquals(3, nextTutorResponseOrdinal("session-1", listOf(respondTask("session-1", "question-a", 1), respondTask("session-1", "question-a", 2))))
+    }
 
     @Test
     fun `an empty session starts at the first round`() {
@@ -80,6 +105,36 @@ class TutorResponseOrdinalTest {
 
         assertEquals(2, nextTutorResponseOrdinal("session-1", sessionTasks))
         assertEquals(10, nextTutorResponseOrdinal("session-2", sessionTasks))
+    }
+
+    @Test
+    fun `the dispatch slot subject is the conversation id`() {
+        // K1c：槽键主语 = 会话 id（会话行身份），不是讲题会话 id。
+        val respond = TutorRespondInput(
+            sessionId = "session-1",
+            draftRevisionNumber = 1,
+            subject = "数学",
+            questionDocument = QuestionDocument(
+                id = "question-a",
+                blocks = listOf(ContentBlock.Paragraph("stem", "求单调区间")),
+            ),
+            relevantLearningEvidence = emptyList(),
+            projectionIsCurrent = true,
+            responseOrdinal = 1,
+            studentMessage = "这一步怎么来的",
+        )
+        assertEquals("tutor-conv:captured:session-1", respond.subjectId)
+        assertEquals(
+            "tutor-conv:captured:session-1",
+            com.tingyun.smartmistakebook.core.model.TutorPlanInput(
+                sessionId = "session-1",
+                draftRevisionNumber = 1,
+                subject = "数学",
+                questionDocument = respond.questionDocument,
+                relevantLearningEvidence = emptyList(),
+                projectionIsCurrent = true,
+            ).subjectId,
+        )
     }
 
     private fun respondTask(

@@ -7,38 +7,6 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 @Entity(
-    tableName = "tutor_session_problem_anchor",
-    foreignKeys = [
-        ForeignKey(
-            entity = PracticeUnitEntity::class,
-            parentColumns = ["practice_unit_id", "problem_revision_id"],
-            childColumns = ["practice_unit_id", "problem_revision_id"],
-            onDelete = ForeignKey.RESTRICT,
-        ),
-    ],
-    indices = [
-        Index(value = ["learner_id"]),
-        Index(value = ["practice_unit_id", "problem_revision_id"]),
-        Index(value = ["problem_revision_id"]),
-    ],
-)
-internal data class TutorSessionProblemAnchorEntity(
-    @PrimaryKey
-    @ColumnInfo(name = "session_id")
-    val sessionId: String,
-    @ColumnInfo(name = "learner_id")
-    val learnerId: String,
-    @ColumnInfo(name = "problem_revision_id")
-    val problemRevisionId: String,
-    @ColumnInfo(name = "practice_unit_id")
-    val practiceUnitId: String,
-    @ColumnInfo(name = "anchor_source")
-    val anchorSource: String,
-    @ColumnInfo(name = "anchored_at_epoch_millis")
-    val anchoredAtEpochMillis: Long,
-)
-
-@Entity(
     tableName = "tutor_answer_exposure",
     foreignKeys = [
         ForeignKey(
@@ -91,12 +59,6 @@ internal data class TutorAnswerExposureEntity(
             onDelete = ForeignKey.RESTRICT,
         ),
         ForeignKey(
-            entity = TutorSessionProblemAnchorEntity::class,
-            parentColumns = ["session_id"],
-            childColumns = ["session_id"],
-            onDelete = ForeignKey.RESTRICT,
-        ),
-        ForeignKey(
             entity = PracticeUnitEntity::class,
             parentColumns = ["practice_unit_id", "problem_revision_id"],
             childColumns = ["practice_unit_id", "problem_revision_id"],
@@ -133,6 +95,20 @@ internal data class TutorAnswerExposureOutcomeEntity(
     val problemRevisionId: String,
     @ColumnInfo(name = "practice_unit_id")
     val practiceUnitId: String,
+    /**
+     * 本轮选择题判对结果（原 `tutor_turn_response.selection_was_correct`，51→52 迁入）。
+     * NULL = 本轮没有选择题（或旧行无法回填）。
+     */
+    @ColumnInfo(name = "selection_was_correct")
+    val selectionWasCorrect: Boolean? = null,
+    /**
+     * 会话锚定来源（原 `tutor_session_problem_anchor.anchor_source`，51→52 迁入）。
+     * NULL = 旧行无锚（旧拍照会话路径）。
+     */
+    @ColumnInfo(name = "anchor_source")
+    val anchorSource: String? = null,
+    @ColumnInfo(name = "anchored_at_epoch_millis")
+    val anchoredAtEpochMillis: Long? = null,
     @ColumnInfo(name = "event_sequence")
     val eventSequence: Long,
     @ColumnInfo(name = "canonical_fingerprint")

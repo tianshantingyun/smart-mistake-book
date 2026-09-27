@@ -16,12 +16,13 @@ import com.tingyun.smartmistakebook.core.database.entity.ModelTaskEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureOutcomeEntity
-import com.tingyun.smartmistakebook.core.database.entity.TutorSessionProblemAnchorEntity
-import com.tingyun.smartmistakebook.core.database.entity.TutorTurnResponseEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.model.LearningLedgerFingerprint
 import com.tingyun.smartmistakebook.core.model.ModelTaskCodec
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
@@ -36,19 +37,60 @@ internal const val EVENT_KIND_TUTOR_ANSWER_EXPOSURE = "TUTOR_ANSWER_EXPOSURE_OUT
 @Dao
 internal abstract class TutorExposureDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract suspend fun insertAnchor(anchor: TutorSessionProblemAnchorEntity): Long
+    protected abstract suspend fun insertConversation(conversation: TutorConversationEntity): Long
 
-    @Query("SELECT * FROM tutor_session_problem_anchor WHERE session_id = :sessionId LIMIT 1")
-    protected abstract suspend fun findAnchor(sessionId: String): TutorSessionProblemAnchorEntity?
+    @Query("SELECT * FROM tutor_conversation WHERE conversation_id = :conversationId LIMIT 1")
+    protected abstract suspend fun findConversation(conversationId: String): TutorConversationEntity?
+
+    @Query(
+        """
+        UPDATE tutor_conversation
+        SET anchor_learner_id = :learnerId,
+            anchor_problem_revision_id = :problemRevisionId,
+            anchor_practice_unit_id = :practiceUnitId,
+            anchor_source = :source,
+            anchored_at_epoch_millis = :anchoredAtEpochMillis,
+            updated_at_epoch_millis = MAX(updated_at_epoch_millis, :anchoredAtEpochMillis)
+        WHERE conversation_id = :conversationId
+          AND (
+            anchor_problem_revision_id IS NULL
+            OR (
+                anchor_problem_revision_id = :problemRevisionId
+                AND anchor_practice_unit_id = :practiceUnitId
+            )
+          )
+        """,
+    )
+    protected abstract suspend fun writeAnchor(
+        conversationId: String,
+        learnerId: String,
+        problemRevisionId: String,
+        practiceUnitId: String,
+        source: String,
+        anchoredAtEpochMillis: Long,
+    ): Int
+
+    @Query(
+        """
+        SELECT * FROM tutor_conversation
+        WHERE conversation_id = :conversationId AND anchor_problem_revision_id IS NOT NULL
+        LIMIT 1
+        """,
+    )
+    protected abstract suspend fun findAnchor(conversationId: String): TutorConversationEntity?
 
     /**
      * 该学习者最近一次锚定到这道题的讲题会话。讲题判定结算靠它把"刚讲完的会话"
-     * 与"复习队列当前这一项"对上；anchor 表一直有数据，此前只有内部写路径能读到。
+     * 与"复习队列当前这一项"对上。
+     *
+     * 锚是**会话级**事实（D-K1 §5），51→52 之后落在 `tutor_conversation` 的锚块上：
+     * 一个会话一个锚，读锚就是读会话行，不再有第二张表，也就不会出现"锚表有、会话行没有"
+     * 的分叉。
      */
     @Query(
         """
-        SELECT * FROM tutor_session_problem_anchor
-        WHERE practice_unit_id = :practiceUnitId AND learner_id = :learnerId
+        SELECT * FROM tutor_conversation
+        WHERE anchor_practice_unit_id = :practiceUnitId AND anchor_learner_id = :learnerId
         ORDER BY anchored_at_epoch_millis DESC
         LIMIT 1
         """,
@@ -56,14 +98,14 @@ internal abstract class TutorExposureDao {
     protected abstract suspend fun findLatestAnchorForPracticeUnit(
         practiceUnitId: String,
         learnerId: String,
-    ): TutorSessionProblemAnchorEntity?
+    ): TutorConversationEntity?
 
     /** 结算用的公开读取：把锚定记录映射成端口记录，找不到返回 null。 */
     open suspend fun readLatestAnchorForPracticeUnit(
         practiceUnitId: String,
         learnerId: String,
     ): TutorSessionProblemAnchorRecord? =
-        findLatestAnchorForPracticeUnit(practiceUnitId, learnerId)?.toRecord()
+        findLatestAnchorForPracticeUnit(practiceUnitId, learnerId)?.toAnchorRecord()
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun insertExposure(exposure: TutorAnswerExposureEntity): Long
@@ -92,19 +134,24 @@ internal abstract class TutorExposureDao {
     @Query("SELECT * FROM model_task WHERE request_id = :requestId LIMIT 1")
     protected abstract suspend fun findModelTask(requestId: String): ModelTaskEntity?
 
+    /**
+     * 本轮的讲题轮次行（51→52 之后在 `tutor_message` 上，见 [TutorInteractionDao]）。
+     * 曝光面校验只多需要"该轮是否已揭示解法"与题面口径——读轮次行，不另存第二份。
+     */
     @Query(
         """
-        SELECT * FROM tutor_turn_response
-        WHERE session_id = :sessionId AND cycle_ordinal = :cycleOrdinal
-          AND turn_ordinal = :turnOrdinal
+        SELECT * FROM tutor_message
+        WHERE conversation_id = :conversationId
+          AND round_cycle_ordinal = :cycleOrdinal
+          AND round_turn_ordinal = :turnOrdinal
         LIMIT 1
         """,
     )
-    protected abstract suspend fun findTurnResponse(
-        sessionId: String,
+    protected abstract suspend fun findRoundRow(
+        conversationId: String,
         cycleOrdinal: Int,
         turnOrdinal: Int,
-    ): TutorTurnResponseEntity?
+    ): TutorMessageEntity?
 
     @Query("SELECT * FROM tutor_answer_exposure_outcome WHERE exposure_id = :exposureId LIMIT 1")
     internal abstract suspend fun findOutcomeByExposure(
@@ -120,29 +167,36 @@ internal abstract class TutorExposureDao {
         """
         SELECT exposure.*
         FROM tutor_answer_exposure AS exposure
-        JOIN tutor_session_problem_anchor AS anchor ON anchor.session_id = exposure.session_id
+        JOIN tutor_conversation AS anchor ON anchor.conversation_id = :conversationId
         LEFT JOIN tutor_answer_exposure_outcome AS outcome ON outcome.exposure_id = exposure.exposure_id
-        WHERE exposure.session_id = :sessionId AND outcome.exposure_id IS NULL
+        WHERE exposure.session_id = :sessionId
+          AND anchor.anchor_problem_revision_id IS NOT NULL
+          AND outcome.exposure_id IS NULL
         ORDER BY exposure.exposed_at_epoch_millis ASC, exposure.exposure_id ASC
         """,
     )
     protected abstract suspend fun findPendingForSession(
         sessionId: String,
+        conversationId: String,
     ): List<TutorAnswerExposureEntity>
 
     @Query(
         """
         SELECT exposure.*
         FROM tutor_answer_exposure AS exposure
-        JOIN tutor_session_problem_anchor AS anchor ON anchor.session_id = exposure.session_id
+        JOIN tutor_conversation AS anchor
+          ON anchor.conversation_id = :capturedConversationPrefix || exposure.session_id
         LEFT JOIN tutor_answer_exposure_outcome AS outcome ON outcome.exposure_id = exposure.exposure_id
-        WHERE anchor.learner_id = :learnerId AND outcome.exposure_id IS NULL
+        WHERE exposure.learner_id = :learnerId
+          AND anchor.anchor_problem_revision_id IS NOT NULL
+          AND outcome.exposure_id IS NULL
         ORDER BY exposure.exposed_at_epoch_millis ASC, exposure.exposure_id ASC
         LIMIT :limit
         """,
     )
     protected abstract suspend fun findPendingForLearner(
         learnerId: String,
+        capturedConversationPrefix: String,
         limit: Int,
     ): List<TutorAnswerExposureEntity>
 
@@ -182,30 +236,55 @@ internal abstract class TutorExposureDao {
         next: Long,
     ): Int
 
+    /**
+     * 锚定一个会话（原 `tutor_session_problem_anchor` 的写入，51→52 之后落在会话行上）。
+     *
+     * 幂等：同一个会话 + 同一道题重复锚定是成功的空操作；同一个会话锚到**另一道题**是冲突
+     * （锚是全会话唯一的事实，能改就等于历史可以被改写）。
+     */
     @Transaction
     open suspend fun bindAnchor(
         command: PersistTutorSessionAnchorCommand,
     ): TutorSessionProblemAnchorRecord {
-        val candidate = TutorSessionProblemAnchorEntity(
-            sessionId = command.sessionId,
+        val conversationId = conversationIdOf(command.sessionId)
+        findConversation(conversationId) ?: run {
+            // 会话行通常已由讲题区按需建过；这里兜底建行时把**锚修订**填成这次锚定的题修订
+            // （错题讲题的锚就是那道题的修订），会话锚三列随后由 writeAnchor 补齐。
+            insertConversation(
+                TutorConversationEntity(
+                    conversationId = conversationId,
+                    conversationArea = TUTOR_CONVERSATION_AREA_AGENT,
+                    anchorKind = "EPHEMERAL_DRAFT",
+                    anchorId = command.sessionId,
+                    anchorRevisionId = command.problemRevisionId,
+                    status = "ACTIVE",
+                    title = null,
+                    createdAtEpochMillis = command.anchoredAtEpochMillis,
+                    updatedAtEpochMillis = command.anchoredAtEpochMillis,
+                    lastTurnOrdinal = 0,
+                    studentDraft = null,
+                ),
+            )
+        }
+        writeAnchor(
+            conversationId = conversationId,
             learnerId = command.learnerId,
             problemRevisionId = command.problemRevisionId,
             practiceUnitId = command.practiceUnitId,
-            anchorSource = command.source,
+            source = command.source,
             anchoredAtEpochMillis = command.anchoredAtEpochMillis,
         )
-        insertAnchor(candidate)
-        val stored = checkNotNull(findAnchor(command.sessionId))
-        if (stored.learnerId != candidate.learnerId ||
-            stored.problemRevisionId != candidate.problemRevisionId ||
-            stored.practiceUnitId != candidate.practiceUnitId
+        val stored = checkNotNull(findAnchor(conversationId))
+        if (stored.anchorLearnerId != command.learnerId ||
+            stored.anchorProblemRevisionId != command.problemRevisionId ||
+            stored.anchorPracticeUnitId != command.practiceUnitId
         ) {
-            throw ImmutablePayloadConflictException("tutor_session_problem_anchor", command.sessionId)
+            throw ImmutablePayloadConflictException("tutor_conversation_anchor", command.sessionId)
         }
-        findPendingForSession(command.sessionId).forEach { exposure ->
+        findPendingForSession(command.sessionId, conversationId).forEach { exposure ->
             materialize(exposure, stored)
         }
-        return stored.toRecord()
+        return stored.toAnchorRecord()
     }
 
     @Transaction
@@ -222,7 +301,9 @@ internal abstract class TutorExposureDao {
                 command.modelTaskRequestId,
             )
         }
-        findAnchor(command.sessionId)?.let { anchor -> materialize(stored, anchor) }
+        findAnchor(conversationIdOf(command.sessionId))?.let { anchor ->
+            materialize(stored, anchor)
+        }
         return stored.toRecord(findOutcomeByExposure(stored.exposureId)?.outcomeId)
     }
 
@@ -232,10 +313,11 @@ internal abstract class TutorExposureDao {
         require(limit in 1..1_000)
         var reconciled = 0
         while (true) {
-            val pending = findPendingForLearner(learnerId, limit)
+            val pending = findPendingForLearner(learnerId, TutorConversationIds.CAPTURED_PREFIX, limit)
             if (pending.isEmpty()) return reconciled
             pending.forEach { exposure ->
-                val anchor = checkNotNull(findAnchor(exposure.sessionId)) {
+                val conversationId = conversationIdOf(exposure.sessionId)
+                val anchor = checkNotNull(findAnchor(conversationId)) {
                     "Anchored pending tutor exposure lost its session anchor"
                 }
                 if (materialize(exposure, anchor)) reconciled++
@@ -275,8 +357,8 @@ internal abstract class TutorExposureDao {
         val surfaceMatches = when (command.surfaceKind) {
             "PLAN_SOLUTION" -> {
                 val input = request.input as? TutorPlanInput
-                val turn = findTurnResponse(
-                    command.sessionId,
+                val turn = findRoundRow(
+                    conversationIdOf(command.sessionId),
                     command.cycleOrdinal,
                     command.turnOrdinal,
                 )
@@ -287,10 +369,11 @@ internal abstract class TutorExposureDao {
                     input.cycleOrdinal == command.cycleOrdinal &&
                     input.turnOrdinal == command.turnOrdinal &&
                     turn != null &&
-                    turn.questionDocumentId == command.questionDocumentId &&
-                    turn.revisionNumber == command.revisionNumber &&
+                    turn.roundQuestionDocumentId == command.questionDocumentId &&
+                    turn.roundRevisionNumber == command.revisionNumber &&
                     turn.solutionRevealed &&
-                    command.occurredAtEpochMillis >= turn.updatedAtEpochMillis
+                    command.occurredAtEpochMillis >=
+                    (turn.completedAtEpochMillis ?: turn.createdAtEpochMillis)
             }
             "RESPOND_REPLY" -> {
                 val input = request.input as? TutorRespondInput
@@ -317,18 +400,27 @@ internal abstract class TutorExposureDao {
         }
     }
 
+    /**
+     * 把一次已确认的曝光物化成账本行。锚（会话行）提供题目与练习单元，轮次行提供本轮选择题的
+     * 本地判对结果——两个都是**快照**：账本行一旦落库就不再随会话/轮次改动而变，所以
+     * [TutorAnswerExposureOutcomeEntity.selectionWasCorrect] 与锚来源列不参与
+     * [LearningLedgerFingerprint]（它们是随附事实，不是账本身份）。
+     */
     private suspend fun materialize(
         exposure: TutorAnswerExposureEntity,
-        anchor: TutorSessionProblemAnchorEntity,
+        anchor: TutorConversationEntity,
     ): Boolean {
-        if (exposure.learnerId != anchor.learnerId) {
+        val anchorLearnerId = requireNotNull(anchor.anchorLearnerId) {
+            "Anchored tutor conversation lost its learner"
+        }
+        if (exposure.learnerId != anchorLearnerId) {
             throw ImmutablePayloadConflictException("tutor_answer_exposure_learner", exposure.exposureId)
         }
         findOutcomeByExposure(exposure.exposureId)?.let { existing ->
             verifyMaterialized(existing)
             return false
         }
-        val sequence = allocateSequence(anchor.learnerId)
+        val sequence = allocateSequence(anchorLearnerId)
         val outcome = TutorAnswerExposureOutcome(
             outcomeId = outcomeId(exposure.exposureId),
             exposureId = exposure.exposureId,
@@ -337,13 +429,24 @@ internal abstract class TutorExposureDao {
             questionRevisionNumber = exposure.questionRevisionNumber,
             cycleOrdinal = exposure.cycleOrdinal,
             turnOrdinal = exposure.turnOrdinal,
-            problemRevisionId = anchor.problemRevisionId,
-            practiceUnitId = anchor.practiceUnitId,
+            problemRevisionId = requireNotNull(anchor.anchorProblemRevisionId),
+            practiceUnitId = requireNotNull(anchor.anchorPracticeUnitId),
             occurredAtEpochMillis = exposure.exposedAtEpochMillis,
             eventSequence = sequence,
         )
         val fingerprint = LearningLedgerFingerprint.tutorAnswerExposure(outcome)
-        val entity = outcome.toEntity(anchor.learnerId, fingerprint)
+        val round = findRoundRow(
+            conversationId = anchor.conversationId,
+            cycleOrdinal = exposure.cycleOrdinal,
+            turnOrdinal = exposure.turnOrdinal,
+        )
+        val entity = outcome.toEntity(
+            learnerId = anchorLearnerId,
+            canonicalFingerprint = fingerprint,
+            selectionWasCorrect = round?.choiceWasCorrect,
+            anchorSource = anchor.anchorSource,
+            anchoredAtEpochMillis = anchor.anchoredAtEpochMillis,
+        )
         insertOutcome(entity)
         insertOutbox(entity.toOutbox())
         return true
@@ -396,13 +499,13 @@ private fun TutorAnswerExposureEntity.sameIdentity(other: TutorAnswerExposureEnt
         surfaceKind == other.surfaceKind && modelTaskRequestId == other.modelTaskRequestId &&
         responseOrdinal == other.responseOrdinal
 
-private fun TutorSessionProblemAnchorEntity.toRecord() = TutorSessionProblemAnchorRecord(
-    learnerId = learnerId,
-    sessionId = sessionId,
-    problemRevisionId = problemRevisionId,
-    practiceUnitId = practiceUnitId,
-    source = anchorSource,
-    anchoredAtEpochMillis = anchoredAtEpochMillis,
+private fun TutorConversationEntity.toAnchorRecord() = TutorSessionProblemAnchorRecord(
+    learnerId = requireNotNull(anchorLearnerId),
+    sessionId = requireNotNull(anchorId),
+    problemRevisionId = requireNotNull(anchorProblemRevisionId),
+    practiceUnitId = requireNotNull(anchorPracticeUnitId),
+    source = requireNotNull(anchorSource),
+    anchoredAtEpochMillis = requireNotNull(anchoredAtEpochMillis),
 )
 
 private fun TutorAnswerExposureEntity.toRecord(outcomeId: String?) = TutorAnswerExposureRecord(
@@ -423,6 +526,9 @@ private fun TutorAnswerExposureEntity.toRecord(outcomeId: String?) = TutorAnswer
 private fun TutorAnswerExposureOutcome.toEntity(
     learnerId: String,
     canonicalFingerprint: String,
+    selectionWasCorrect: Boolean?,
+    anchorSource: String?,
+    anchoredAtEpochMillis: Long?,
 ) = TutorAnswerExposureOutcomeEntity(
     outcomeId = outcomeId,
     exposureId = exposureId,
@@ -434,6 +540,9 @@ private fun TutorAnswerExposureOutcome.toEntity(
     turnOrdinal = turnOrdinal,
     problemRevisionId = problemRevisionId,
     practiceUnitId = practiceUnitId,
+    selectionWasCorrect = selectionWasCorrect,
+    anchorSource = anchorSource,
+    anchoredAtEpochMillis = anchoredAtEpochMillis,
     eventSequence = eventSequence,
     canonicalFingerprint = canonicalFingerprint,
     occurredAtEpochMillis = occurredAtEpochMillis,

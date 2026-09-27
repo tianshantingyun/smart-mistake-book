@@ -246,8 +246,16 @@ data class TutorPlanInput(
     override val isAgentConsentEligible: Boolean
         get() = true
 
+    /**
+     * `model_task` 的槽键主语 = **会话 id**（K1c）：一个会话一个模型任务槽空间。
+     *
+     * 此前这里返回讲题会话 id，而 `tutor_message` 的唯一键是 `(conversation_id, ordinal)`——
+     * 两个键空间并存，槽位与消息各按各的号走。K1 之后"会话"只有一个身份（会话行），
+     * 槽键与消息键统一到同一个 id 空间；讲题会话 id 与会话 id 的对应关系是仓库既有约定
+     * （`TutorConversationIds.captured`），可确定性派生，不需要额外持久化。
+     */
     override val subjectId: String
-        get() = sessionId
+        get() = TutorConversationIds.captured(sessionId)
 
     init {
         sessionId.requireSafeModelText("Tutor session id", ModelTaskRequest.MAX_ID_CHARS, false)
@@ -464,8 +472,9 @@ data class TutorRespondInput(
     override val isAgentConsentEligible: Boolean
         get() = true
 
+    /** 槽键主语 = 会话 id（K1c），与 [TutorPlanInput.subjectId] 同一口径。 */
     override val subjectId: String
-        get() = sessionId
+        get() = TutorConversationIds.captured(sessionId)
 
     /**
      * 消息带图时要求 provider 具备图片输入能力。Respond 属于 agent-eligible，
@@ -778,10 +787,6 @@ data class TutorTurnPlan(
     val openingMarkdown: String,
     /** Optional interaction about the confirmed question; explanation-only turns omit it. */
     val diagnosticItem: TutorAssessmentItem? = null,
-    /** Optional single local-rendered scene; the complete Markdown solution remains the fallback. */
-    val visualScene: TutorVisualScene? = null,
-    /** Optional asynchronous v2 visual request; text remains immediately usable without it. */
-    val visualRequest: TutorVisualGenerationRequest? = null,
     val solutionMarkdown: String,
     val alternateMethodMarkdown: String,
     val difficultyReasonMarkdown: String,
@@ -792,9 +797,6 @@ data class TutorTurnPlan(
     val thinkingMarkdown: String? = null,
 ) {
     init {
-        require(visualScene == null || visualRequest == null) {
-            "A tutor turn cannot return a legacy scene and an asynchronous visual request together"
-        }
         openingMarkdown.requireTutorMarkdown("Tutor opening", MAX_OPENING_CHARS)
         solutionMarkdown.requireTutorMarkdown("Tutor solution", MAX_SOLUTION_CHARS)
         alternateMethodMarkdown.requireTutorMarkdown("Tutor alternate method", MAX_SOLUTION_CHARS)
@@ -904,8 +906,6 @@ data class TutorRespondOutput(
     val messageMarkdown: String,
     /** True only when this exact reply displays the current question's answer or full solution. */
     val solutionRevealed: Boolean = false,
-    val visualScene: TutorVisualScene? = null,
-    val visualRequest: TutorVisualGenerationRequest? = null,
     val suggestedMoves: List<TutorSuggestedMove> = emptyList(),
     val intentDecision: TutorIntentDecision = TutorIntentDecision.ambiguousDefault(),
     /** Optional student-visible reasoning trace; folded by default, never re-fed to the model. */
@@ -924,9 +924,6 @@ data class TutorRespondOutput(
     val modelVersion: String,
 ) : ModelTaskOutput {
     init {
-        require(visualScene == null || visualRequest == null) {
-            "A tutor response cannot return a legacy scene and an asynchronous visual request together"
-        }
         sessionId.requireSafeModelText("Tutor response output session id", ModelTaskRequest.MAX_ID_CHARS, false)
         require(draftRevisionNumber > 0) {
             "Tutor response output draft revision must be positive"
@@ -1032,30 +1029,6 @@ private fun String.requireTutorRespondText(label: String, maxChars: Int) {
     requireTutorSceneText(label, maxChars, true)
 }
 
-internal fun requireTutorSceneHeader(
-    sceneId: String,
-    title: String,
-    schemaVersion: Int,
-    expectedSchemaVersion: Int = TutorVisualScene.SCHEMA_VERSION,
-) {
-    sceneId.requireTutorSceneId("Tutor visual scene id")
-    title.requireTutorSceneText("Tutor visual scene title", TutorVisualScene.MAX_TITLE_CHARS, false)
-    require(schemaVersion == expectedSchemaVersion) {
-        "Unsupported tutor visual scene schema version"
-    }
-}
-
-internal fun String.requireTutorSceneId(label: String) {
-    requireSafeModelText(label, ModelTaskRequest.MAX_ID_CHARS, false)
-}
-
-internal fun String.requireTutorSceneFormula(label: String) {
-    requireTutorSceneText(label, TutorVisualScene.MAX_FORMULA_CHARS, false)
-    require(!RestrictedFormulaText.hasUnsupportedCommand(this)) {
-        "$label contains an unsupported formula command"
-    }
-}
-
 internal fun String.requireTutorSceneText(label: String, maxChars: Int, allowLineBreaks: Boolean) {
     requireSafeModelText(label, maxChars, allowLineBreaks)
     StudentFacingLanguagePolicy.requirePlainLanguage(this, label)
@@ -1065,17 +1038,6 @@ internal fun String.requireTutorSceneText(label: String, maxChars: Int, allowLin
     require(!TUTOR_SCENE_REFERENCE_LINK.containsMatchIn(this)) { "$label contains a reference link" }
     require(!TUTOR_SCENE_IMAGE_MARKER.containsMatchIn(this)) { "$label contains image markup" }
     require(!SafeInlineMarkdown.BARE_URL.containsMatchIn(this)) { "$label contains a URL" }
-}
-
-internal fun requireUniqueTutorSceneIds(sceneId: String, itemIds: List<String>) {
-    val allIds = listOf(sceneId) + itemIds
-    require(allIds.distinct().size == allIds.size) { "Tutor visual scene ids must be unique" }
-}
-
-internal fun requireTutorSceneTextBudget(parts: List<String>) {
-    require(parts.sumOf(String::length) <= TutorVisualScene.MAX_TOTAL_TEXT_CHARS) {
-        "Tutor visual scene exceeds its total text budget"
-    }
 }
 
 private val TUTOR_SCENE_HTML = Regex("(?is)<!--|<\\s*/?\\s*[a-z][^>]*>")

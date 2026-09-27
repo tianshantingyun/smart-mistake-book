@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.database.port.AgentPendingRequestPort
 import com.tingyun.smartmistakebook.core.database.port.AttemptWritePort
 import com.tingyun.smartmistakebook.core.database.port.BackupPort
 import com.tingyun.smartmistakebook.core.database.port.BatchImportReadPort
@@ -28,7 +29,6 @@ import com.tingyun.smartmistakebook.core.database.port.TutorAnswerExposurePort
 import com.tingyun.smartmistakebook.core.database.port.TutorReadPort
 import com.tingyun.smartmistakebook.core.database.port.TutorSessionPort
 import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
-import com.tingyun.smartmistakebook.core.database.port.VisualInteractionPort
 
 const val MAX_REVIEW_COMPLETION_HISTORY_DAYS = 1_500
 const val MAX_KNOWLEDGE_RECALL_CANDIDATES = 512
@@ -65,9 +65,13 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     CaptureReadPort, CaptureWritePort, KnowledgeReadPort, KnowledgeWritePort,
     ReviewReadPort, MistakeReadPort, BackupPort, BatchImportReadPort, BatchImportWritePort,
     DraftReadPort, OrganizationReadPort,
-    LearningLedgerPort, PredictionAuditPort, VisualInteractionPort, MasteryAdvisoryPort,
+    LearningLedgerPort, PredictionAuditPort, MasteryAdvisoryPort,
     KnowledgeQuestionLatticePort, TutorMasteryOverviewPort,
     DraftWritePort, TutorSessionPort, TutorAnswerExposurePort,
     SeedAssessmentPort, AttemptWritePort, OrganizationWritePort,
-    LearningProjectionPort, ReviewWritePort, SplitImportPort {
+    LearningProjectionPort, ReviewWritePort, SplitImportPort,
+    AgentPendingRequestPort {
+
+    /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */
+    suspend fun readDatabaseVersion(): Int = 0
 }

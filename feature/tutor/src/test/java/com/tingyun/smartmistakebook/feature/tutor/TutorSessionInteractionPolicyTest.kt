@@ -172,7 +172,7 @@ class TutorSessionInteractionPolicyTest {
     }
 
     @Test
-    fun agentGateGovernsPlanDispatchAndContinueAndVisualProvider() {
+    fun agentGateGovernsPlanDispatchAndContinue() {
         val external = provider()
         val local = provider(executionLocation = ModelExecutionLocation.LOCAL_NO_EGRESS)
 
@@ -203,16 +203,10 @@ class TutorSessionInteractionPolicyTest {
         assertTrue(tutorContinueAfterMove(hasChoicePayload = true, nextHistorySize = 1))
         assertFalse(tutorContinueAfterMove(hasChoicePayload = false, nextHistorySize = 1))
         assertFalse(tutorContinueAfterMove(hasChoicePayload = true, nextHistorySize = 8))
-        assertFalse(
-            tutorVisualProviderCanExecute(
-                provider = null,
-                taskKind = ModelTaskKind.TUTOR_VISUAL_GENERATE,
-            ),
-        )
     }
 
     @Test
-    fun configuredProviderIsTheSingleLiveGateAcrossPlanRespondAndVisual() {
+    fun configuredProviderIsTheSingleLiveGateAcrossPlanAndRespond() {
         val externalImage = provider()
         val externalStructuredOnly = provider(supportsImageInput = false)
         val local = provider(executionLocation = ModelExecutionLocation.LOCAL_NO_EGRESS)
@@ -220,8 +214,6 @@ class TutorSessionInteractionPolicyTest {
         listOf(
             ModelTaskKind.TUTOR_PLAN,
             ModelTaskKind.TUTOR_RESPOND,
-            ModelTaskKind.TUTOR_VISUAL_GENERATE,
-            ModelTaskKind.TUTOR_VISUAL_REVIEW,
         ).forEach { kind ->
             assertFalse(tutorAgentChatEnabled(provider = null, kind = kind))
             // A provider the app cannot currently execute against fails closed even though
@@ -249,18 +241,6 @@ class TutorSessionInteractionPolicyTest {
         )
         assertTrue(
             tutorAgentChatEnabled(
-                provider = externalImage,
-                kind = ModelTaskKind.TUTOR_VISUAL_GENERATE,
-            ),
-        )
-        assertTrue(
-            tutorAgentChatEnabled(
-                provider = externalImage,
-                kind = ModelTaskKind.TUTOR_VISUAL_REVIEW,
-            ),
-        )
-        assertTrue(
-            tutorAgentChatEnabled(
                 provider = externalStructuredOnly,
                 kind = ModelTaskKind.TUTOR_PLAN,
             ),
@@ -269,18 +249,6 @@ class TutorSessionInteractionPolicyTest {
             tutorAgentChatEnabled(
                 provider = externalStructuredOnly,
                 kind = ModelTaskKind.TUTOR_RESPOND,
-            ),
-        )
-        assertFalse(
-            tutorAgentChatEnabled(
-                provider = externalStructuredOnly,
-                kind = ModelTaskKind.TUTOR_VISUAL_GENERATE,
-            ),
-        )
-        assertFalse(
-            tutorAgentChatEnabled(
-                provider = externalStructuredOnly,
-                kind = ModelTaskKind.TUTOR_VISUAL_REVIEW,
             ),
         )
     }
@@ -297,8 +265,6 @@ class TutorSessionInteractionPolicyTest {
             add(ModelTaskKind.TUTOR_PLAN)
             add(ModelTaskKind.TUTOR_RESPOND)
             add(ModelTaskKind.TUTOR_LOBBY)
-            add(ModelTaskKind.TUTOR_VISUAL_GENERATE)
-            add(ModelTaskKind.TUTOR_VISUAL_REVIEW)
             if (!supportsPlan) remove(ModelTaskKind.TUTOR_PLAN)
         },
         supportsImageInput = supportsImageInput,

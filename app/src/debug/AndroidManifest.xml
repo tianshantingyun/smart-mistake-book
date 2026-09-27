@@ -7,9 +7,6 @@
             android:name=".FormatTestActivity"
             android:exported="false"
             android:label="格式测试" />
-        <activity
-            android:name=".debug.DynamicGuiPerformanceActivity"
-            android:exported="false" />
         <!-- 模型配置注入桩：只随 <flavor>Debug 变体安装，供 QA 用 adb 播种模型配置
              （示例见 TestSeedModelConfigReceiver 的 KDoc）。导出是 adb 驱动所必需，
              边界靠本清单所属的 debug 源集，而不是 exported 标志。 -->

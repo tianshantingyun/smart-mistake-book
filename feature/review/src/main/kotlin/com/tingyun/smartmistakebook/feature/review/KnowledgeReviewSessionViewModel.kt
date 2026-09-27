@@ -19,6 +19,18 @@ internal enum class KnowledgeQuizLoadStatus {
     LOADING,
     LOADED,
     FAILED,
+
+    /**
+     * 知识内容还在后台就位（D-Q3）。与 [FAILED] 分开：这里不需要"再试一次"的技术措辞，
+     * 实话是"还在准备，等一下就好"，且进程重建后回到 [IDLE] 自动重取。
+     */
+    KNOWLEDGE_PREPARING,
+
+    /**
+     * 这个知识点没有可用的讲解材料（合法空集，区别于失败）：重试不会有不同结果，
+     * 出路是跳过它。
+     */
+    NO_MATERIAL,
 }
 
 /** 知识点复习：当前知识点作答的回写状态。 */
@@ -111,7 +123,7 @@ internal class KnowledgeReviewSessionViewModel(
      * 幂等：同一节点多次调用只派发一次（RECORDING 中忽略）。
      */
     fun loadCurrentQuiz(
-        load: suspend (KnowledgeReviewQueueEntry) -> TutorAssessmentItem?,
+        load: suspend (KnowledgeReviewQueueEntry) -> KnowledgeQuizLoadResult,
     ) {
         val entry = currentEntry ?: return
         if (loadStatus == KnowledgeQuizLoadStatus.LOADING) return
@@ -119,12 +131,23 @@ internal class KnowledgeReviewSessionViewModel(
         updateLoadStatus(KnowledgeQuizLoadStatus.LOADING)
         viewModelScope.launch {
             try {
-                val item = load(entry) ?: error("知识考察生成失败")
-                check(item.knowledgeNodeIds.contains(entry.knowledgeNodeId)) {
-                    "Generated quiz must stay anchored to the reviewed knowledge node"
+                when (val result = load(entry)) {
+                    is KnowledgeQuizLoadResult.Ready -> {
+                        val item = result.item
+                        check(item.knowledgeNodeIds.contains(entry.knowledgeNodeId)) {
+                            "Generated quiz must stay anchored to the reviewed knowledge node"
+                        }
+                        currentItem = item
+                        updateLoadStatus(KnowledgeQuizLoadStatus.LOADED)
+                    }
+                    // 每种"不能出题"各自成态：学生看到的话与出路都不同（D-Q3）。
+                    KnowledgeQuizLoadResult.KnowledgePreparing ->
+                        updateLoadStatus(KnowledgeQuizLoadStatus.KNOWLEDGE_PREPARING)
+                    KnowledgeQuizLoadResult.NoMaterial ->
+                        updateLoadStatus(KnowledgeQuizLoadStatus.NO_MATERIAL)
+                    KnowledgeQuizLoadResult.Unavailable ->
+                        updateLoadStatus(KnowledgeQuizLoadStatus.FAILED)
                 }
-                currentItem = item
-                updateLoadStatus(KnowledgeQuizLoadStatus.LOADED)
             } catch (cancelled: CancellationException) {
                 updateLoadStatus(KnowledgeQuizLoadStatus.IDLE)
                 throw cancelled
@@ -251,6 +274,9 @@ internal class KnowledgeReviewSessionViewModel(
             // 由 Screen 重新走 loader（loader 先观察既有任务、再决定是否新派发）。
             KnowledgeQuizLoadStatus.LOADING,
             KnowledgeQuizLoadStatus.LOADED,
+            // "内容还在准备"同样回到 IDLE：重建时知识内容多半已经就位，
+            // 自动重取就是 D-Q3 要的"就绪后自动放行"。
+            KnowledgeQuizLoadStatus.KNOWLEDGE_PREPARING,
             -> KnowledgeQuizLoadStatus.IDLE
             else -> restored
         }

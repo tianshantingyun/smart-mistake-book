@@ -156,10 +156,6 @@ private class FakeResetCaptureRepository : CaptureWorkflowRepository {
 
     override suspend fun readTutorSession(sessionId: String): ConfirmedTutorSession? = null
 
-    override suspend fun readTutorVisualSourceAssets(
-        sessionId: String,
-    ): List<com.tingyun.smartmistakebook.core.domain.TutorVisualSourceAssetScope> = emptyList()
-
     override suspend fun saveTutorSession(
         request: com.tingyun.smartmistakebook.core.domain.SaveTutorSessionRequest,
     ): CapturedProblemCommitSummary = error("not used in this test")

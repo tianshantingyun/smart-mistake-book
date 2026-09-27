@@ -170,16 +170,6 @@ object ModelTaskCompletionValidator {
         } else {
             listOf(typeMismatch())
         }
-        is TutorVisualGenerateInput -> if (output is TutorVisualGenerateOutput) {
-            validateTutorVisualGenerate(input, output)
-        } else {
-            listOf(typeMismatch())
-        }
-        is TutorVisualReviewInput -> if (output is TutorVisualReviewOutput) {
-            validateTutorVisualReview(input, output)
-        } else {
-            listOf(typeMismatch())
-        }
         is TutorLobbyInput -> if (output is TutorLobbyOutput) {
             validateTutorLobby(input, output)
         } else {
@@ -370,8 +360,6 @@ object ModelTaskCompletionValidator {
                 output.intentDecision.intent != TutorMessageIntent.CURRENT_QUESTION_HELP &&
                     (
                         output.solutionRevealed ||
-                            output.visualScene != null ||
-                            output.visualRequest != null ||
                             output.suggestedMoves.isNotEmpty()
                         )
                 )
@@ -383,36 +371,6 @@ object ModelTaskCompletionValidator {
             )
         }
     }
-
-    private fun validateTutorVisualGenerate(
-        input: TutorVisualGenerateInput,
-        output: TutorVisualGenerateOutput,
-    ): List<ModelTaskCompletionIssue> =
-        if (
-            output.sessionId == input.sessionId &&
-            output.draftRevisionNumber == input.draftRevisionNumber &&
-            output.questionDocumentId == input.questionDocument.id &&
-            output.anchor == input.anchor
-        ) {
-            emptyList()
-        } else {
-            listOf(ModelTaskCompletionIssue(ModelTaskCompletionIssueCode.TUTOR_CONTEXT_MISMATCH))
-        }
-
-    private fun validateTutorVisualReview(
-        input: TutorVisualReviewInput,
-        output: TutorVisualReviewOutput,
-    ): List<ModelTaskCompletionIssue> =
-        if (
-            output.sessionId == input.sessionId &&
-            output.draftRevisionNumber == input.draftRevisionNumber &&
-            output.questionDocumentId == input.questionDocument.id &&
-            output.anchor == input.anchor
-        ) {
-            emptyList()
-        } else {
-            listOf(ModelTaskCompletionIssue(ModelTaskCompletionIssueCode.TUTOR_CONTEXT_MISMATCH))
-        }
 
     private fun validateTutorLobby(
         input: TutorLobbyInput,

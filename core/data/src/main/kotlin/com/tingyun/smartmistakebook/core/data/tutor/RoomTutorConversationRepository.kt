@@ -35,6 +35,11 @@ import kotlinx.coroutines.withContext
 internal class RoomTutorConversationRepository(
     private val database: StudyDatabasePort,
 ) : TutorConversationRepository {
+    /**
+     * 最近会话（按更新时间倒序）。**不在这里过滤"有没有消息"**：这条读法是通用的会话读法，
+     * 列表策略（K1b「历史只列有内容的会话」）在界面层落地（`TutorHistoryRoute` 的
+     * `tutorHistoryConversations`），那里能按列表的语义逐条测。
+     */
     override fun observeRecent(limit: Int): Flow<List<TutorConversation>> {
         require(limit > 0) { "Tutor conversation limit must be positive" }
         return database.observeRecentTutorConversations(limit)
@@ -220,6 +225,7 @@ private fun TutorConversationRecord.toDomain() = TutorConversation(
     lastTurnOrdinal = lastTurnOrdinal,
     studentDraft = studentDraft,
     messageCount = messageCount,
+    firstMessageBodyMarkdown = firstMessageBodyMarkdown,
 )
 
 private fun TutorMessageRecord.toDomain(

@@ -31,8 +31,6 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorDebriefInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualGenerateInput
-import com.tingyun.smartmistakebook.core.model.TutorVisualReviewInput
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -147,8 +145,6 @@ class FakeModelGateway(
         is TutorDebriefInput -> error("The capture-only demo provider cannot summarize tutor debriefs")
         is TutorLobbyInput -> error("The capture-only demo provider cannot answer tutor lobby messages")
         is TutorRespondInput -> error("The capture-only demo provider cannot answer tutor messages")
-        is TutorVisualGenerateInput -> error("The capture-only demo provider cannot generate tutor visuals")
-        is TutorVisualReviewInput -> error("The capture-only demo provider cannot review tutor visuals")
         is com.tingyun.smartmistakebook.core.model.KnowledgeQuizInput -> error(
             "The capture-only demo provider cannot compose knowledge quizzes",
         )

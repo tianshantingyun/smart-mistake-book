@@ -58,6 +58,7 @@ import com.tingyun.smartmistakebook.core.data.model.AttachedImageGeneratorFactor
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.currentCapabilityVerification
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
+import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.domain.StudyReviewAdvanceResult
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
 import com.tingyun.smartmistakebook.core.domain.PrerequisiteRemediation
@@ -145,6 +146,10 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
     val activity = context.findActivity()
     val application = context.applicationContext as SmartMistakeBookApplication
     val startupState by application.startupState.collectAsStateWithLifecycle()
+    // 知识能力就绪位（D-Q3）：与 startupState 分开——秒开语义由 startupState 保证，
+    // 依赖知识库的入口读这一位，未就绪时如实说"准备中"，就绪后组合自动放行。
+    val knowledgeBaseAvailability by application.knowledgeBaseAvailability
+        .collectAsStateWithLifecycle()
     if (startupState is StartupState.FatalFailure) {
         // 数据库初始化失败时仓库等 lateinit 尚未就绪，任何触碰都会在组合期崩溃；
         // 这里只渲染错误卡，让用户看到"应用数据无法打开"而不是闪退。
@@ -561,6 +566,9 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     KnowledgeReviewQuizLoader(
                         modelTasks = application.modelTaskRepository,
                         references = application.tutorTeachingReferenceRepository,
+                        // 传 flow 而不是当前值：loader 在每次取题时读当时的值，
+                        // 学生的"重试"因此不必等这里重组。
+                        knowledgeBaseAvailability = application.knowledgeBaseAvailability,
                     )
                 }
                 when {
@@ -568,6 +576,10 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                         ReviewSessionGateMessage("正在打开知识点复习…")
                     experience.status != StudyDataStatus.READY ->
                         ReviewSessionGateMessage("学习记录暂时不可用，知识点复习已暂停。")
+                    // D-Q3：知识内容还在后台就位时如实说"准备中"，不放进会话去撞一鼻子
+                    // "这道题没有材料"。就绪后本组合自动重来一遍——这就是"就绪后自动放行"。
+                    !knowledgeBaseAvailability.isReady ->
+                        ReviewSessionGateMessage("知识点资料还在准备中，稍后就能开始。")
                     else -> when (val state = planState) {
                         KnowledgeReviewPlanState.Loading ->
                             ReviewSessionGateMessage("正在准备今天的知识点复习…")
@@ -791,6 +803,7 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     onOpenRelatedMistake = { relatedEntryId ->
                         navController.navigate(Routes.mistakeDetail(relatedEntryId))
                     },
+                    knowledgeBaseAvailability = knowledgeBaseAvailability,
                     onOpenModelSettings = { navController.navigate(Routes.Capability) },
                 )
             }
@@ -832,6 +845,7 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                 LearningMasteryScreen(
                     overview = experience.profile,
                     onBack = navController::popBackStack,
+                    knowledgeBaseAvailability = knowledgeBaseAvailability,
                 )
             }
             composable(Routes.Privacy) {

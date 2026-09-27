@@ -43,24 +43,13 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.SubjectKind
-import com.tingyun.smartmistakebook.core.model.TutorConceptMapScene
-import com.tingyun.smartmistakebook.core.model.TutorConceptRelation
-import com.tingyun.smartmistakebook.core.model.TutorFormulaDerivationScene
-import com.tingyun.smartmistakebook.core.model.TutorFormulaDerivationStep
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
-import com.tingyun.smartmistakebook.core.model.TutorProcessStage
-import com.tingyun.smartmistakebook.core.model.TutorProcessTimelineScene
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRoundQuestionDeclaration
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
-import com.tingyun.smartmistakebook.core.model.TutorSceneEmphasis
-import com.tingyun.smartmistakebook.core.model.TutorSceneStep
-import com.tingyun.smartmistakebook.core.model.TutorStepFlowScene
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
-import com.tingyun.smartmistakebook.core.model.TutorVisualScene
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.TutorVisualSceneRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -414,133 +403,6 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             assertEquals(true, response.value?.solutionRevealed)
             assertEquals(null, response.value?.selectedChoiceId)
         }
-    }
-
-    @Test
-    fun visualSceneAppearsAfterARealCurrentQuestionChoiceAndNeverBeforeIt() {
-        val response = mutableStateOf<TutorTurnResponse?>(null)
-        val output = tutorOutput().copy(
-            plan = tutorOutput().plan.copy(
-                visualScene = TutorStepFlowScene(
-                    sceneId = "scene-1",
-                    title = "从条件走到结论",
-                    steps = listOf(
-                        TutorSceneStep(
-                            stepId = "scene-1-step-1",
-                            label = "确定范围",
-                            bodyMarkdown = "先确定函数的定义域。",
-                        ),
-                        TutorSceneStep(
-                            stepId = "scene-1-step-2",
-                            label = "判断符号",
-                            bodyMarkdown = "再判断导数正负。",
-                            emphasis = TutorSceneEmphasis.KEY,
-                        ),
-                    ),
-                ),
-            ),
-        )
-        composeRule.setContent {
-            MaterialTheme {
-                RootPageColumn {
-                    TutorTurnContent(output = output, response = response.value)
-                }
-            }
-        }
-
-        composeRule.onNodeWithText("从条件走到结论").assertDoesNotExist()
-        composeRule.runOnIdle { response.value = tutorResponse("choice-1") }
-        if (TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED) {
-            // D-001 2026-09-06 增补：结构化场景渲染已隔离，TutorTurnContent 不再渲染
-            // visualScene。本测试在隔离期验证"确实不渲染"，翻转 STRUCTURED_SCENE_ISOLATED
-            // 后自动恢复下面的原断言（场景在真实选择后出现）。
-            composeRule.onNodeWithText("从条件走到结论").assertDoesNotExist()
-            composeRule.onNodeWithText("再判断导数正负。").assertDoesNotExist()
-            return
-        }
-        composeRule.onNodeWithText("从条件走到结论").performScrollTo().assertExists()
-        composeRule.onNodeWithText("再判断导数正负。").performScrollTo().assertExists()
-    }
-
-    @Test
-    fun processConceptAndFormulaScenesRenderAsLocalBoundedGui() {
-        val process = TutorProcessTimelineScene(
-            sceneId = "process",
-            title = "反应如何达到平衡",
-            stages = listOf(
-                TutorProcessStage(
-                    stageId = "process-start",
-                    label = "开始反应",
-                    bodyMarkdown = "正反应速率较快。",
-                    transitionMarkdown = "反应物减少，生成物增加",
-                ),
-                TutorProcessStage(
-                    stageId = "process-balanced",
-                    label = "动态平衡",
-                    bodyMarkdown = "正、逆反应速率相等，浓度保持稳定。",
-                ),
-            ),
-        )
-        val concept = TutorConceptMapScene(
-            sceneId = "concept",
-            title = "导数符号关联什么",
-            centerMarkdown = "导数符号",
-            relations = listOf(
-                TutorConceptRelation(
-                    relationId = "concept-monotonicity",
-                    relationLabel = "决定",
-                    targetMarkdown = "原函数增减性",
-                ),
-                TutorConceptRelation(
-                    relationId = "concept-extreme",
-                    relationLabel = "变号时",
-                    targetMarkdown = "可能出现极值",
-                    detailMarkdown = "仍需核对定义域与变号方向。",
-                ),
-            ),
-        )
-        val formula = TutorFormulaDerivationScene(
-            sceneId = "formula",
-            title = "配方时每一步为什么成立",
-            startFormula = "x^2+4x+1",
-            steps = listOf(
-                TutorFormulaDerivationStep(
-                    stepId = "formula-complete-square",
-                    reasonMarkdown = "补上 4，再减去 4，式子的值不变。",
-                    resultFormula = "x^2+4x+4-3",
-                ),
-                TutorFormulaDerivationStep(
-                    stepId = "formula-factor",
-                    reasonMarkdown = "前三项正好组成完全平方。",
-                    resultFormula = "(x+2)^2-3",
-                ),
-            ),
-        )
-        val scene = mutableStateOf<TutorVisualScene>(process)
-        composeRule.setContent {
-            MaterialTheme {
-                RootPageColumn {
-                    TutorVisualSceneRenderer(scene.value)
-                }
-            }
-        }
-
-        composeRule.onNodeWithText("反应如何达到平衡").assertExists()
-        composeRule.onNodeWithText("反应物减少，生成物增加").assertExists()
-        composeRule.onNodeWithContentDescription("第 1 个阶段，共 2 个阶段").assertExists()
-        captureCurrentTutorScreen("tutor-process-timeline-current.png")
-        composeRule.runOnIdle { scene.value = concept }
-        composeRule.onNodeWithTag("tutor-concept-center-concept").assertExists()
-        composeRule.onNodeWithTag("tutor-concept-relation-concept-extreme").assertExists()
-        composeRule.onNodeWithText("仍需核对定义域与变号方向。").assertExists()
-        captureCurrentTutorScreen("tutor-concept-map-current.png")
-        composeRule.runOnIdle { scene.value = formula }
-        composeRule.onNodeWithTag("tutor-formula-derivation-start-formula").assertExists()
-        composeRule.onNodeWithTag(
-            "tutor-formula-derivation-result-formula-factor",
-        ).assertExists()
-        composeRule.onNodeWithContentDescription("第 2 次变形，共 2 次").assertExists()
-        captureCurrentTutorScreen("tutor-formula-derivation-current.png")
     }
 
     @Test

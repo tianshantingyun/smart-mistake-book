@@ -2,6 +2,9 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.domain.ConfirmedTutorSession
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
+import com.tingyun.smartmistakebook.core.domain.TutorMessage
+import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
+import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.domain.TutorAnswerExposureSurfaceKind
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.model.AttachedRoundQuestion
@@ -533,6 +536,125 @@ class TutorConversationTimelineTest {
             replies.map { it.questionTitle },
         )
     }
+
+    // ---- 渲染源唯一性（K1a）：正文、思考块、学生气泡读消息行，不读任务快照 ----
+
+    /**
+     * 反证：把 `Reply.bodyMarkdown` / `studentBodyMarkdown` 换回 `output.messageMarkdown` /
+     * `input.studentMessage`（切换前就是从快照渲染的），本用例转红。
+     */
+    @Test
+    fun replyBodyThinkingAndStudentBubbleComeFromTheMessageRow() {
+        val task = respondTask(
+            requestId = "reply-message-source",
+            occurredAtEpochMillis = 200,
+            studentMessage = "快照里的学生话",
+        )
+        val messages = listOf(
+            tutorMessageRow(
+                messageId = tutorStudentMessageId(task.request.requestId),
+                logicalOperationId = task.request.requestId,
+                ordinal = 1,
+                role = TutorMessageRole.STUDENT,
+                bodyMarkdown = "消息行里的学生话",
+            ),
+            tutorMessageRow(
+                messageId = tutorAssistantMessageId(task.request.requestId),
+                logicalOperationId = task.request.requestId,
+                ordinal = 2,
+                role = TutorMessageRole.ASSISTANT,
+                bodyMarkdown = "消息行里的助手正文",
+                thinkingMarkdown = "消息行里的思考",
+            ),
+        )
+
+        val reply = buildTutorConversationTimeline(
+            question = question,
+            planTasks = emptyList(),
+            respondTasks = listOf(task),
+            responses = emptyList(),
+            messages = messages,
+        ).filterIsInstance<TutorConversationTimelineItem.Reply>().single()
+
+        assertEquals("消息行里的助手正文", reply.bodyMarkdown)
+        assertEquals("消息行里的思考", reply.thinkingMarkdown)
+        assertEquals("消息行里的学生话", reply.studentBodyMarkdown)
+    }
+
+    @Test
+    fun planOpeningComesFromTheMessageRowToo() {
+        val task = planTask(requestId = "plan-message-source", occurredAtEpochMillis = 200)
+        val messages = listOf(
+            tutorMessageRow(
+                messageId = tutorAssistantMessageId(task.request.requestId),
+                logicalOperationId = task.request.requestId,
+                ordinal = 1,
+                role = TutorMessageRole.ASSISTANT,
+                bodyMarkdown = "消息行里的讲解开场",
+            ),
+        )
+
+        val plan = buildTutorConversationTimeline(
+            question = question,
+            planTasks = listOf(task),
+            respondTasks = emptyList(),
+            responses = emptyList(),
+            messages = messages,
+        ).filterIsInstance<TutorConversationTimelineItem.Plan>().single()
+
+        assertEquals("消息行里的讲解开场", plan.bodyMarkdown)
+    }
+
+    /**
+     * 迁移前的旧轮次没有消息行（那时讲题区从不写助手行）：正文回落到账本，旧会话照常可读。
+     *
+     * 这不是第二渲染源——新写入只会落在消息行上，回落只在"这一轮确实没有消息行"时生效。
+     */
+    @Test
+    fun legacyTurnsWithoutAMessageRowStillRenderTheLedgerText() {
+        val replyTask = respondTask("reply-legacy", 200)
+        val planTask = planTask("plan-legacy", 100)
+
+        val timeline = buildTutorConversationTimeline(
+            question = question,
+            planTasks = listOf(planTask),
+            respondTasks = listOf(replyTask),
+            responses = emptyList(),
+            messages = emptyList(),
+        )
+
+        val reply = timeline.filterIsInstance<TutorConversationTimelineItem.Reply>().single()
+        assertEquals("因为符号在这里改变。", reply.bodyMarkdown)
+        assertEquals("为什么这样做？", reply.studentBodyMarkdown)
+        val plan = timeline.filterIsInstance<TutorConversationTimelineItem.Plan>().single()
+        assertEquals("讲解 plan-legacy", plan.bodyMarkdown)
+    }
+
+    private fun tutorMessageRow(
+        messageId: String,
+        logicalOperationId: String,
+        ordinal: Int,
+        role: TutorMessageRole,
+        bodyMarkdown: String,
+        thinkingMarkdown: String? = null,
+    ) = TutorMessage(
+        messageId = messageId,
+        conversationId = "tutor-conv:${question.sessionId}",
+        ordinal = ordinal,
+        role = role,
+        bodyMarkdown = bodyMarkdown,
+        thinkingMarkdown = thinkingMarkdown,
+        status = if (role == TutorMessageRole.STUDENT) {
+            TutorMessageStatus.PERSISTED
+        } else {
+            TutorMessageStatus.SUCCEEDED
+        },
+        logicalOperationId = logicalOperationId,
+        replyToMessageId = null,
+        createdAtEpochMillis = ordinal.toLong(),
+        completedAtEpochMillis = ordinal.toLong(),
+        errorCode = null,
+    )
 
     /** 学生本轮显式附加了别的一道题的一轮回复（会话身份不变，题面/科目跟随附加题）。 */
     private fun attachedRespondTask(

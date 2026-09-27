@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.capture
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.data.model.FakeModelGateway
 import com.tingyun.smartmistakebook.core.data.model.RoomModelTaskRepository
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
@@ -408,6 +409,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             database = database,
             gateway = FakeModelGateway(stepDelayMillis = 0),
             clock = { ++now },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
         val assessmentRequest = ModelTaskRequest(
             requestId = "pending-demo-assessment",

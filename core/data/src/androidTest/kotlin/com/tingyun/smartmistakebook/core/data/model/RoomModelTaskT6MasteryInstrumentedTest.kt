@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.model
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.ModelGatewayEvent
@@ -189,6 +190,7 @@ class RoomModelTaskT6MasteryInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val snapshots = repository.execute(request("tutor-respond:t6-legal-code")).toList()
 
@@ -239,6 +241,7 @@ class RoomModelTaskT6MasteryInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val snapshots = repository.execute(request("tutor-respond:t6-noquestion")).toList()
 
@@ -286,6 +289,7 @@ class RoomModelTaskT6MasteryInstrumentedTest {
                 database = database,
                 gateway = gateway,
                 clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
             )
             val snapshots = repository.execute(request("tutor-respond:t6-fabricated")).toList()
 

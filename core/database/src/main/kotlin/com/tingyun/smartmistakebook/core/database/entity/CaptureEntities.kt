@@ -179,33 +179,6 @@ internal data class ProblemDraftEditWorkspaceEntity(
 
 /** A tutoring session owns one exact, user-confirmed draft revision without formalizing it. */
 @Entity(
-    tableName = "tutor_session",
-    foreignKeys = [
-        ForeignKey(
-            entity = ProblemDraftRevisionEntity::class,
-            parentColumns = ["draft_id", "revision_number"],
-            childColumns = ["draft_id", "draft_revision_number"],
-            onDelete = ForeignKey.RESTRICT,
-        ),
-    ],
-    indices = [
-        Index(value = ["draft_id"], unique = true),
-        Index(value = ["draft_id", "draft_revision_number"]),
-    ],
-)
-internal data class TutorSessionEntity(
-    @PrimaryKey
-    @ColumnInfo(name = "session_id")
-    val sessionId: String,
-    @ColumnInfo(name = "draft_id")
-    val draftId: String,
-    @ColumnInfo(name = "draft_revision_number")
-    val draftRevisionNumber: Int,
-    @ColumnInfo(name = "created_at_epoch_millis")
-    val createdAtEpochMillis: Long,
-)
-
-@Entity(
     tableName = "problem_revision_source_asset",
     primaryKeys = ["problem_revision_id", "source_asset_id", "role"],
     foreignKeys = [

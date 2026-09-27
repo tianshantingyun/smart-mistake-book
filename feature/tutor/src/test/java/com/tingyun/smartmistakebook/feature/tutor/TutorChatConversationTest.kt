@@ -2,6 +2,9 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.domain.ConfirmedTutorSession
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
+import com.tingyun.smartmistakebook.core.domain.TutorMessage
+import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
+import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
@@ -210,7 +213,11 @@ class TutorChatConversationTest {
             )
         }
 
-        val history = tutorChatHistory(tasks, answerExposureKeys = emptySet())
+        val history = tutorSessionContext(
+            messages = messagesOf(tasks),
+            respondTasks = tasks,
+            answerExposureKeys = emptySet(),
+        ).recent
 
         val firstRetainedOrdinal = taskCount - TutorRespondInput.MAX_PRIOR_MESSAGES + 1
         assertEquals(
@@ -243,7 +250,11 @@ class TutorChatConversationTest {
             ),
         )
 
-        val history = tutorChatHistory(tasks, answerExposureKeys = emptySet())
+        val history = tutorSessionContext(
+            messages = messagesOf(tasks),
+            respondTasks = tasks,
+            answerExposureKeys = emptySet(),
+        ).recent
 
         assertEquals(
             listOf(
@@ -275,7 +286,11 @@ class TutorChatConversationTest {
             ),
         )
 
-        val history = tutorChatHistory(tasks, answerExposureKeys = emptySet())
+        val history = tutorSessionContext(
+            messages = messagesOf(tasks),
+            respondTasks = tasks,
+            answerExposureKeys = emptySet(),
+        ).recent
 
         assertEquals(
             listOf("n" to almostMaximumAssistant),
@@ -287,22 +302,52 @@ class TutorChatConversationTest {
     fun historyPreservesLeadingAndTrailingWhitespaceAndNewlinesExactly() {
         val studentMessage = " \n  Why does this step work?  \n\n"
         val assistantMarkdown = "\n  Because the sign changes here.  \n "
-
-        val history = tutorChatHistory(
-            listOf(
-                succeededResponse(
-                    responseOrdinal = 1,
-                    studentMessage = studentMessage,
-                    assistantMarkdown = assistantMarkdown,
-                ),
-            ),
-            answerExposureKeys = emptySet(),
+        val task = succeededResponse(
+            responseOrdinal = 1,
+            studentMessage = studentMessage,
+            assistantMarkdown = assistantMarkdown,
         )
+
+        val history = tutorSessionContext(
+            messages = messagesOf(task),
+            respondTasks = listOf(task),
+            answerExposureKeys = emptySet(),
+        ).recent
 
         assertEquals(
             listOf(studentMessage to assistantMarkdown),
             history.map { it.studentMessage to it.assistantMarkdown },
         )
+    }
+
+    /**
+     * 渲染源唯一性（K1a）：历史读的是**消息行**，不是任务快照。
+     *
+     * 反证：把 `tutorSessionContext` 换回从快照重拼（`input.studentMessage` /
+     * `output.messageMarkdown`），本用例转红——那正是切换前的第二份文本。
+     */
+    @Test
+    fun historyTextComesFromTheMessageRowNotFromTheTaskSnapshot() {
+        val task = succeededResponse(
+            responseOrdinal = 1,
+            studentMessage = "快照里的学生话",
+            assistantMarkdown = "快照里的助手正文",
+        )
+        val messages = messagesOf(task).map { message ->
+            when (message.role) {
+                TutorMessageRole.STUDENT -> message.copy(bodyMarkdown = "消息行里的学生话")
+                else -> message.copy(bodyMarkdown = "消息行里的助手正文")
+            }
+        }
+
+        val history = tutorSessionContext(
+            messages = messages,
+            respondTasks = listOf(task),
+            answerExposureKeys = emptySet(),
+        ).recent
+
+        assertEquals("消息行里的学生话", history.single().studentMessage)
+        assertEquals("消息行里的助手正文", history.single().assistantMarkdown)
     }
 
     @Test
@@ -314,7 +359,11 @@ class TutorChatConversationTest {
             solutionRevealed = true,
         )
 
-        val history = tutorChatHistory(listOf(task), answerExposureKeys = emptySet())
+        val history = tutorSessionContext(
+            messages = messagesOf(task),
+            respondTasks = listOf(task),
+            answerExposureKeys = emptySet(),
+        ).recent
 
         assertEquals("请告诉我答案", history.single().studentMessage)
         assertFalse(history.single().assistantMarkdown.contains("42"))
@@ -331,8 +380,15 @@ class TutorChatConversationTest {
             assistantMarkdown = "因为跨过零点后符号改变。",
             thinkingMarkdown = thinking,
         )
+        val messages = messagesOf(task)
+        // 思考块确实落在消息行上（否则本用例是空的）：它随行耐久保存，但不进历史。
+        assertEquals(thinking, messages.last().thinkingMarkdown)
 
-        val history = tutorChatHistory(listOf(task), answerExposureKeys = emptySet())
+        val history = tutorSessionContext(
+            messages = messages,
+            respondTasks = listOf(task),
+            answerExposureKeys = emptySet(),
+        ).recent
 
         assertEquals(1, history.size)
         val entry = history.single()
@@ -351,7 +407,11 @@ class TutorChatConversationTest {
         )
         val exposureKey = requireNotNull(task.toRespondAnswerExposureKey())
 
-        val history = tutorChatHistory(listOf(task), answerExposureKeys = setOf(exposureKey))
+        val history = tutorSessionContext(
+            messages = messagesOf(task),
+            respondTasks = listOf(task),
+            answerExposureKeys = setOf(exposureKey),
+        ).recent
 
         assertEquals("完整答案是 42", history.single().assistantMarkdown)
     }
@@ -379,7 +439,11 @@ class TutorChatConversationTest {
         )
         val exposureKey = requireNotNull(task.toRespondAnswerExposureKey())
 
-        val history = tutorChatHistory(listOf(task), answerExposureKeys = setOf(exposureKey))
+        val history = tutorSessionContext(
+            messages = messagesOf(task),
+            respondTasks = listOf(task),
+            answerExposureKeys = setOf(exposureKey),
+        ).recent
 
         assertEquals("完整答案是 42", history.single().assistantMarkdown)
     }
@@ -399,7 +463,11 @@ class TutorChatConversationTest {
         )
         val exposureKey = requireNotNull(task.toRespondAnswerExposureKey())
 
-        val history = tutorChatHistory(listOf(task), answerExposureKeys = setOf(exposureKey))
+        val history = tutorSessionContext(
+            messages = messagesOf(task),
+            respondTasks = listOf(task),
+            answerExposureKeys = setOf(exposureKey),
+        ).recent
 
         assertFalse(history.single().assistantMarkdown.contains("42"))
         assertTrue(history.single().assistantMarkdown.contains("还没有完整看到"))
@@ -410,7 +478,7 @@ class TutorChatConversationTest {
      * 这里钉住它的另一半：不落账不等于在会话记忆里装作没见过——学生看到的正是所附之题的完整答案，
      * 所以重载之后（账本里没有它的记录）正文必须原样保留。
      *
-     * 反证：把 `tutorChatExchanges` 里附加轮那条本地规则去掉，本用例转红（正文被占位顶替）。
+     * 反证：把 `hidingUnexposedTutorAnswers` 里附加轮那条本地规则去掉，本用例转红。
      */
     @Test
     fun anAttachedRoundsAnswerStaysInHistoryEvenThoughItsExposureIsNeverRecorded() {
@@ -434,7 +502,11 @@ class TutorChatConversationTest {
             attachedQuestion = attached,
         )
 
-        val history = tutorChatHistory(listOf(task), answerExposureKeys = emptySet())
+        val history = tutorSessionContext(
+            messages = messagesOf(task),
+            respondTasks = listOf(task),
+            answerExposureKeys = emptySet(),
+        ).recent
 
         assertEquals("完整答案是 42", history.single().assistantMarkdown)
     }
@@ -468,10 +540,13 @@ class TutorChatConversationTest {
         )
         val firstExposureKey = requireNotNull(firstReply.toRespondAnswerExposureKey())
 
-        val history = tutorChatHistory(
-            tasks = listOf(secondReply, firstReply),
+        val history = tutorSessionContext(
+            // 轮次顺序由**消息行**决定（ordinal）；任务列表的顺序不再影响历史顺序——
+            // 这里刻意给反序，钉住"装配读消息流，不读任务列表的顺序"。
+            messages = messagesOf(firstReply, secondReply),
+            respondTasks = listOf(secondReply, firstReply),
             answerExposureKeys = setOf(firstExposureKey),
-        )
+        ).recent
 
         assertEquals("第一个完整答案", history[0].assistantMarkdown)
         assertFalse(history[1].assistantMarkdown.contains("第二个完整答案"))
@@ -538,6 +613,52 @@ class TutorChatConversationTest {
             priorCycleStudentMessages(characterLimited.reversed()),
         )
     }
+
+    /**
+     * 把任务快照**翻译成它的消息行**（K1a：消息行才是对话文本权威）。
+     *
+     * 派生式与写侧一致：学生行 / 助手行的 `logicalOperationId` 都是这次派发的请求 id，
+     * 消息 id 由 [tutorStudentMessageId] / [tutorAssistantMessageId] 派生。用例若想表达
+     * "消息行与快照不一致"，直接改这里产出的正文即可（见渲染源唯一性那条用例）。
+     */
+    private fun messagesOf(vararg tasks: ModelTaskSnapshot): List<TutorMessage> =
+        messagesOf(tasks.toList())
+
+    private fun messagesOf(tasks: List<ModelTaskSnapshot>): List<TutorMessage> =
+        tasks.flatMapIndexed { index, task ->
+            val input = task.request.input as TutorRespondInput
+            val output = task.output as TutorRespondOutput
+            val at = index.toLong() * 10
+            listOf(
+                TutorMessage(
+                    messageId = tutorStudentMessageId(task.request.requestId),
+                    conversationId = "tutor-conv:current-question-session",
+                    ordinal = index * 2 + 1,
+                    role = TutorMessageRole.STUDENT,
+                    bodyMarkdown = input.studentMessage,
+                    status = TutorMessageStatus.PERSISTED,
+                    logicalOperationId = task.request.requestId,
+                    replyToMessageId = null,
+                    createdAtEpochMillis = at,
+                    completedAtEpochMillis = at,
+                    errorCode = null,
+                ),
+                TutorMessage(
+                    messageId = tutorAssistantMessageId(task.request.requestId),
+                    conversationId = "tutor-conv:current-question-session",
+                    ordinal = index * 2 + 2,
+                    role = TutorMessageRole.ASSISTANT,
+                    bodyMarkdown = output.messageMarkdown,
+                    thinkingMarkdown = output.thinkingMarkdown,
+                    status = TutorMessageStatus.SUCCEEDED,
+                    logicalOperationId = task.request.requestId,
+                    replyToMessageId = tutorStudentMessageId(task.request.requestId),
+                    createdAtEpochMillis = at,
+                    completedAtEpochMillis = at,
+                    errorCode = null,
+                ),
+            )
+        }
 
     private fun succeededResponse(
         responseOrdinal: Int,

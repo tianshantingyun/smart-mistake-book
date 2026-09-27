@@ -534,42 +534,6 @@ data class ConfirmedTutorSession(
         }
 }
 
-/** Exact canonical image scope available for one independent tutor-visual request. */
-data class TutorVisualSourceAssetScope(
-    val pageIndex: Int,
-    val assetId: String,
-    val sha256: String,
-    val byteSize: Long,
-    val width: Int,
-    val height: Int,
-    val selectedRegion: NormalizedSourceRegion? = null,
-) {
-    init {
-        require(pageIndex >= 0)
-        require(assetId.isNotBlank())
-        require(sha256.matches(Regex("[a-f0-9]{64}")))
-        require(byteSize > 0)
-        require(width > 0 && height > 0)
-    }
-
-    fun toSourceRef() = CaptureSourceAssetRef(
-        assetId = assetId,
-        sha256 = sha256,
-        width = width,
-        height = height,
-        pageIndex = pageIndex,
-        selectedRegion = selectedRegion,
-    )
-
-    fun toEgressGrant() = ModelEgressAssetGrant(
-        assetId = assetId,
-        sha256 = sha256,
-        byteSize = byteSize,
-        width = width,
-        height = height,
-        selectedRegion = selectedRegion,
-    )
-}
 
 enum class TutorSessionDisposition {
     ACTIVE,
@@ -645,10 +609,6 @@ interface CaptureWorkflowRepository {
     ): ConfirmedTutorSession
 
     suspend fun readTutorSession(sessionId: String): ConfirmedTutorSession?
-
-    suspend fun readTutorVisualSourceAssets(
-        sessionId: String,
-    ): List<TutorVisualSourceAssetScope> = emptyList()
 
     /**
      * Reads the current question's source-image bytes (its photographed sheet) for

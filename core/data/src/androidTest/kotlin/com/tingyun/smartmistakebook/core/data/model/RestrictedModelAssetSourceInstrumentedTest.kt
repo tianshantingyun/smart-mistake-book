@@ -138,7 +138,6 @@ class RestrictedModelAssetSourceInstrumentedTest {
             ModelEgressDataClass.SANITIZED_IMAGE_BYTES,
             ModelEgressDataClass.IMAGE_DIMENSIONS,
         ),
-        prohibitedData = ModelEgressManifest.CAPTURE_PROHIBITED_DATA,
     )
 
     private fun provider() = ProviderCapabilitySnapshot(

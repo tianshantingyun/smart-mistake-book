@@ -1,6 +1,5 @@
 package com.tingyun.smartmistakebook.core.data.mistake
 
-import com.tingyun.smartmistakebook.core.data.knowledge.BundledKnowledgeBaseInstaller
 import com.tingyun.smartmistakebook.core.data.knowledge.KnowledgeContextRetriever
 import com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepository
 import com.tingyun.smartmistakebook.core.database.ConfirmProblemOrganizationCommand
@@ -17,8 +16,13 @@ import com.tingyun.smartmistakebook.core.database.ProblemOrganizationAuthorityCo
 import com.tingyun.smartmistakebook.core.database.ProblemRelationSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.model.PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS
+import com.tingyun.smartmistakebook.core.model.PROBLEM_ORGANIZATION_RELATION_KINDS
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseNotReadyException
+import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.domain.ConfirmedMistakeOrganization
 import com.tingyun.smartmistakebook.core.domain.ConfirmedProblemClassification
 import com.tingyun.smartmistakebook.core.domain.ConfirmedProblemRelation
@@ -58,8 +62,6 @@ import com.tingyun.smartmistakebook.core.model.ProblemStepKnowledgeAttribution
 import com.tingyun.smartmistakebook.core.model.ProblemClassificationSuggestion
 import com.tingyun.smartmistakebook.core.model.ProblemRelationSuggestion
 import com.tingyun.smartmistakebook.core.model.ProblemRelationKind
-import com.tingyun.smartmistakebook.core.model.PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS
-import com.tingyun.smartmistakebook.core.model.PROBLEM_ORGANIZATION_RELATION_KINDS
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjection
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
@@ -69,6 +71,7 @@ import java.security.MessageDigest
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -118,6 +121,14 @@ internal fun buildDifficultyTierAdvisory(
 
 internal class RoomMistakeOrganizationRepository(
     private val database: StudyDatabasePort,
+    /**
+     * 知识能力就绪位（D-Q3）。改前本类在 prepare() 里**自己触发一次安装**并阻塞：
+     * 首装 16.7 秒卡在学生点"整理"的关键路径上，装失败还会被上层统一 catch 成
+     * "provider 未配置"。现在只读就绪位（安装由 app 层后台跑），没就绪就抛
+     * [KnowledgeBaseNotReadyException]——调用方按 [KnowledgeBaseNotReadyException.availability]
+     * 显示"准备中"并在就绪后自动放行。
+     */
+    private val knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
 ) : MistakeOrganizationRepository {
     override suspend fun prepare(
         key: MistakeRevisionKey,
@@ -127,7 +138,12 @@ internal class RoomMistakeOrganizationRepository(
         occurredAtEpochMillis: Long,
         approvedAtEpochMillis: Long,
     ): MistakeOrganizationPreparation = withContext(Dispatchers.IO) {
-        BundledKnowledgeBaseInstaller.install(database)
+        // 就绪门在 provider 门之前：知识内容没就位时，本次整理拿不到知识节点菜单，
+        // 产出的会是一份"零命中"的假准备——那正是本类要消灭的失败形态之一。
+        val availability = knowledgeBaseAvailability.value
+        if (!availability.isReady) {
+            throw KnowledgeBaseNotReadyException(availability)
+        }
         require(attempt >= 0) { "attempt must not be negative" }
         require(provider.supports(ModelTaskKind.PROBLEM_CLASSIFY)) {
             "Current provider does not support problem organization"
@@ -211,6 +227,18 @@ internal class RoomMistakeOrganizationRepository(
         val parentNames = knowledgeRecords.associate { record ->
             record.knowledgeNodeId to record.canonicalName
         }
+        // 第六号消费点（D-Q3）：归类检索零命中此前**无声无息**——模型拿到的候选菜单是空的，
+        // 学生看到的确认卡悄悄少了"学科知识目录"那一项，没有任何地方记下"这次为什么没有"。
+        // 就绪门（本方法开头）已经把"内容没装好"挡在门外，所以走到这里的零命中只有两种：
+        // 真的没有匹配，或包内容对这道题覆盖为空——两者都该在日志里留下计数与检索词。
+        if (knowledgeRecords.isEmpty()) {
+            android.util.Log.w(
+                "KnowledgeOrganization",
+                "no knowledge context for subject=${current.subject} " +
+                    "recalled=${recallCandidates.size} " +
+                    "features=${KnowledgeSearchFeatureExtractor.fromQuestion(questionText)}",
+            )
+        }
         val selectedKnowledgeIds = knowledgeRecords.mapTo(hashSetOf()) { it.knowledgeNodeId }
         val prerequisitesByDependent = knowledgeRelations
             .filter { relation ->
@@ -270,7 +298,6 @@ internal class RoomMistakeOrganizationRepository(
                 approvedAtEpochMillis = approvedAtEpochMillis,
                 assets = emptyList(),
                 disclosedData = ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
-                prohibitedData = ModelEgressManifest.PROBLEM_ORGANIZATION_PROHIBITED_DATA,
             )
         } else {
             null
@@ -680,8 +707,11 @@ internal data class OfflineCorrectionFacts(
 )
 
 object MistakeOrganizationRepositoryFactory {
-    fun create(database: StudyDatabasePort): MistakeOrganizationRepository =
-        RoomMistakeOrganizationRepository(database)
+    fun create(
+        database: StudyDatabasePort,
+        knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
+    ): MistakeOrganizationRepository =
+        RoomMistakeOrganizationRepository(database, knowledgeBaseAvailability)
 }
 
 private data class PersistedOrganizationTask(

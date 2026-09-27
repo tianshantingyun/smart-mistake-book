@@ -25,7 +25,6 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
-import com.tingyun.smartmistakebook.core.model.TutorVisualDocumentScene
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
@@ -33,21 +32,22 @@ import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
-import com.tingyun.smartmistakebook.core.ui.TutorVisualSceneRenderer
 
 @Composable
 internal fun TutorTurnContent(
     output: TutorPlanOutput,
     modifier: Modifier = Modifier,
+    /**
+     * 本轮讲解的正文（K1a：消息行是唯一文本权威）。默认取账本里的开场白，供旧行与直接调用
+     * 方使用；会话面板传消息行的正文。
+     */
+    openingMarkdown: String = output.plan.openingMarkdown,
     response: TutorTurnResponse? = null,
     solutionRevealPreviewed: Boolean = false,
     interactionEnabled: Boolean = true,
     splitChoiceFeedback: Boolean = false,
     interactionBusy: Boolean = false,
     interactionError: String? = null,
-    resolvedVisualScene: TutorVisualDocumentScene? = null,
-    onOpenVisualOriginal: () -> Unit = {},
-    onReportVisualIncorrect: (String) -> Unit = {},
     onSubmitChoice: (String) -> Unit = {},
     onRequestHint: (() -> Unit)? = null,
     onContinue: (TutorMoveType) -> Unit = {},
@@ -87,22 +87,7 @@ internal fun TutorTurnContent(
             .testTag("captured_tutor_model_ready"),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        SafeMarkdownText(plan.openingMarkdown, style = MaterialTheme.typography.bodyLarge)
-        // 2D/3D 结构化场景已隔离：不渲染。
-        if (!TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED) {
-            resolvedVisualScene?.let { scene ->
-                TutorVisualSceneRenderer(
-                    scene = scene,
-                    onOpenOriginal = onOpenVisualOriginal,
-                    onReportIncorrect = { onReportVisualIncorrect(scene.sceneId) },
-                )
-            }
-            if (item == null) {
-                plan.visualScene?.let { scene ->
-                    TutorVisualSceneRenderer(scene)
-                }
-            }
-        }
+        SafeMarkdownText(openingMarkdown, style = MaterialTheme.typography.bodyLarge)
         item?.let { interaction ->
             SafeMarkdownText(interaction.stemMarkdown, style = MaterialTheme.typography.bodyLarge)
             interaction.promptMarkdown?.let {
@@ -211,12 +196,6 @@ internal fun TutorTurnContent(
                 requireNotNull(submittedResponse.feedbackMarkdown),
                 style = MaterialTheme.typography.bodyMedium,
             )
-            // 2D/3D 结构化场景已隔离：不渲染。
-            if (!TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED) {
-                plan.visualScene?.let { scene ->
-                    TutorVisualSceneRenderer(scene)
-                }
-            }
             TutorMoveButtons(
                 moves = plan.suggestedMoves,
                 requestedMove = submittedResponse.requestedMove,
@@ -310,10 +289,6 @@ internal fun TutorChoiceFeedbackContent(
             requireNotNull(response.feedbackMarkdown),
             style = MaterialTheme.typography.bodyMedium,
         )
-        // 2D/3D 结构化场景已隔离：不渲染。
-        if (!TutorVisualIsolation.STRUCTURED_SCENE_ISOLATED) {
-            plan.visualScene?.let { scene -> TutorVisualSceneRenderer(scene) }
-        }
         TutorMoveButtons(
             moves = plan.suggestedMoves,
             requestedMove = response.requestedMove,

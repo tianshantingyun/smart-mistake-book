@@ -96,8 +96,6 @@ class TutorTeachingReferenceTest {
             approvedAtEpochMillis = 1,
             assets = emptyList(),
             disclosedData = legacyDisclosure,
-            prohibitedData =
-                ModelEgressManifest.dataClassUniverseForSchema(3) - legacyDisclosure,
         )
 
         assertEquals(3, manifest.schemaVersion)
