@@ -57,7 +57,15 @@ def main(argv: list[str] | None = None) -> int:
     if not AUDITS.exists():
         print(f"没有裁定表：{AUDITS}")
         return 2
-    audit_mtime = AUDITS.stat().st_mtime
+    # 时间锚点 = 裁定表与**队列文件**里较新的那个。为什么不能只用裁定表：这一轮里
+    # collect/queue_defective 会在**派工之前**重写裁定表，于是"稿晚于裁定表"永远不成立
+    # （2026-09-28 实测：35 页已重转且机械面全过，判决却一页没撤）。队列文件是派工时刻写的，
+    # 它才是"这批页是在判决之后重转的"那个时刻。
+    anchor = AUDITS.stat().st_mtime
+    if (REPO / "tools/kb_coverage/tables/retranscribe_queue.csv").exists():
+        anchor = max(anchor,
+                     (REPO / "tools/kb_coverage/tables/retranscribe_queue.csv").stat().st_mtime)
+    audit_mtime = anchor
     rows = tl.build_rows()
     tr = tl.load_transcripts()
     flips: list[tuple[str, int, str]] = []

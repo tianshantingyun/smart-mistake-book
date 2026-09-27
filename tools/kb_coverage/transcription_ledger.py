@@ -46,8 +46,8 @@ AUDITS = REPO / "tools/kb_coverage/tables/transcript_audits.csv"
 LEDGER = REPO / "tools/kb_coverage/tables/transcription_pages.csv"
 
 COLUMNS = ("subject", "pdf_rel", "page", "span", "status", "page_kind", "plan",
-           "chars", "formulas", "figs", "numbered", "uncertainties", "truncated",
-           "items_min", "verdict", "gate", "note")
+           "chars", "formulas", "figs", "numbered", "index_lines", "uncertainties",
+           "truncated", "items_min", "verdict", "gate", "note")
 
 # 版面编号条数的确定性判据（进闸门分母的 `numbered`）。
 #
@@ -58,6 +58,9 @@ COLUMNS = ("subject", "pdf_rel", "page", "span", "status", "page_kind", "plan",
 # 只按行首数也不行：代理把一块内容写成一两行时，行内编号（`②离子方程式：…`）会被漏掉，
 # 试点里 CHEMISTRY p27 因此从 34 掉到"低于应有多少"的假象。两个口径都错，所以要分开判。
 _ITEM_MARK = re.compile(r"(?m)(?:^\s*[（(]?\d{1,3}[.、)）])|(?:[①-⑳]|[⒈-⒛])")
+# 索引/目录行：`条目名……473`（点线 + 页号收尾）。实测 MATH p22 目录页 149 行里 145 行如此，
+# 而它的"编号+公式+图"都是 0——不把这 145 条算成"写出来的单位"，计数闸就对目录页结构性误判。
+_INDEX_LINE = re.compile(r"(?m)(?:…+|\.{2,})\s*\d{1,4}\s*$")
 _CIRCLED = re.compile(r"[①-⑳]")
 _FORMULA = re.compile(r"\$[^$\n]{1,400}\$")
 
@@ -155,6 +158,7 @@ def signals(text: str) -> dict:
         "formulas": len(_FORMULA.findall(t)),
         "figs": t.count("【图"),
         "numbered": len(_ITEM_MARK.findall(t)),
+        "index_lines": len(_INDEX_LINE.findall(t)),
         "circled": len(_CIRCLED.findall(t)),
         "uncertainties": t.count("【不确定"),
     }
@@ -186,9 +190,10 @@ def compute_gate(row: dict, text: str = "") -> str:
             # 分母曾经只用「行首编号 + 圈号」——**在无编号页上结构性假阳性**：叙述/表格/例题页的
             # 条目本来就不带印刷编号（实测 CHEMISTRY p0208：印刷编号 9 处，按最小式/条口径 45 条，
             # 45 > 9×3 机械上不可能过，子代理如实上报而不是把清点压小）。改成**复合分母**：
-            # 编号 + `$…$` 公式数 + 【图：…】块数——三者都是"稿子里真写出来的单位"。
+            # 编号 + `$…$` 公式数 + 【图：…】块数 + 索引行（`条目名……473`）——都是"稿子里真写出来的单位"。
+            # 索引行是后加的：目录页（MATH p22 实测 143 条索引 / 编号与公式都是 0）曾被结构性误判。
             written = (row.get("numbered", 0) or 0) + (row.get("formulas", 0) or 0) \
-                + (row.get("figs", 0) or 0)
+                + (row.get("figs", 0) or 0) + (row.get("index_lines", 0) or 0)
             if claimed > max(written, 1) * 3:
                 return "fail"
             # 另一条独立下限：每个条目至少得有几个字。实测真坏页长这样——清点 187 条 / 字数 483
@@ -254,7 +259,7 @@ def build_rows() -> list[dict]:
             rec = tr.get((subject, page))
             sig = signals(rec["text"]) if rec else {"chars": 0, "formulas": 0, "figs": 0,
                                                     "numbered": 0, "circled": 0,
-                                                    "uncertainties": 0}
+                                                    "index_lines": 0, "uncertainties": 0}
             aud = audits.get((subject, page), {})
             row = {
                 "subject": subject, "pdf_rel": sub["pdf_rel"], "page": page,
@@ -262,7 +267,7 @@ def build_rows() -> list[dict]:
                 "status": "done" if rec else "missing",
                 "page_kind": kinds.get((subject, page), ""),
                 "chars": sig["chars"], "formulas": sig["formulas"], "figs": sig["figs"],
-                "numbered": sig["numbered"] + sig["circled"],
+                "numbered": sig["numbered"] + sig["circled"], "index_lines": sig["index_lines"],
                 "uncertainties": sig["uncertainties"],
                 "truncated": "yes" if (subject, page) in span_tail else "",
                 "items_min": aud.get("items_min", ""),
