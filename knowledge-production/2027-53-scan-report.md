@@ -261,7 +261,7 @@
 |---|---|---|
 | 转写完成 | **1205 / 1205 页**（缺失 0；数学 552、物理 203、化学 235、生物 215） | `transcription_ledger --write` |
 | 页级机械门 | **1205 / 1205 过闸** | `check_transcripts`（输出「全部通过」） |
-| 入块库 | 累计 **6,296 块**（本轮新增 867，四科 `pages_blocked` 均为 0） | `store_53_transcripts.py` |
+| 入块库 | 累计 **8,874 块**（数学 2302 / 物理 1558 / 化学 2960 / 生物 2054；四科 `pages_blocked` 均为 0） | `store_53_transcripts.py` |
 | 提取状态账本 | **0 问题** | `extraction_state.verify()` |
 | 成品包 | **23 门全绿**（含新增 `boundary_text_defect`） | `kb_build.gate` |
 
