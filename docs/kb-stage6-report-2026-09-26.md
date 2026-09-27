@@ -353,3 +353,102 @@ build/tflite-venv/Scripts/python.exe tools/dense_build/check_tflite_parity.py \
 `build/stage6/wp5-parity-packaged-win512.log`）。
 **没跑成的**：`./gradlew :core:data:testDebugUnitTest`（整模块，无过滤）——`core/database` 的 KSP 增量缓存损坏
 （`CorruptedException`，§6.2.1），与本阶段改动无关。
+
+---
+
+## 8. 阻断解除后的设备补测（2026-09-28 增补，本阶段唯一改动的仍是本报告这一份文件）
+
+> **性质**：§3 与 §6.1 把"真机门"整块记成了 UNVERIFIED（外部阻塞）。提交 `773e6e8f` 推送后，**共享工作树的
+> 编译阻断在那段时间恰好可用**（`[MissingType]`/迁移常量那族签名消失），于是补跑了两个设备门。
+> 本节是**同一提交之后的独立补测**，把"WP1/WP2 的端侧改动到底跑不跑得动、量的还是不是随包那一档"从
+> UNVERIFIED 变成**有读数**；**判据 ② 的真机判定仍然没有**（线程轴仍未解，见 §8.3）。
+> 本节所有读数均为本轮实跑（命令见 §8.5），没有一句引自他处。
+
+### 8.1 补测到的硬事实：设备对拍硬门**过**
+
+`./gradlew :core:data:connectedDebugAndroidTest`（`DenseEncoderParityInstrumentedTest` +
+`DenseFirstUseCostInstrumentedTest`，模拟器 `test_device` API 34 x86_64）**BUILD SUCCESSFUL，2/2 通过**。
+
+`DenseEncoderParityInstrumentedTest`（硬门 ≥0.999，n=290）：
+
+| 项 | 读数 |
+|---|---|
+| 逐条 cosine | **min=0.9995842786898838 / median=0.9997850489425515 / p95=0.9998405938495096 / mean=0.9997806841903171** |
+| 不达标的条数 | **0**（判据"逐条 ≥ 0.999"） |
+| 模型件运行期身份 | `dense/bge-small-zh-v1.5-int8.tflite` bytes=**62396488** sha256=`015b231580dd850e…` = **随包 512 窗口件**（与 §4.2 那一格同字节） |
+| fixture 封存 | `vectorsFileSha256=c4e82bebd88dbba7…`（assets 复核通过） |
+| 端侧分词 id 范围 | min=0 max=13529 < vocabSize=21129（无越界） |
+| mmap vs 直接缓冲 | 前 5 条 **mmapEqualsDirect=true**（09-24 那次 mmap SIGSEGV 现象本轮**不复现**） |
+| 单条编码耗时（本探针，n=290） | p50=**116140us** p95=150582us max=237260us |
+
+**这条数字的独立复现**：同日 17:04 再跑一次同一条测试，cosine 的 min/median/p95/mean **四位小数逐位相同**
+（0.9995842786898838 / 0.9997850489425515 / 0.9998405938495096 / 0.9997806841903171）⇒ 端侧数值侧
+**可复现**，不是碰巧过线。
+
+**这一段闭合的是**：WP1 的"参考向量三处自洽之后，端侧量的还是不是同一档"与 WP2 的"线程/窗口改动之后
+端侧还能不能过对拍硬门"——两者此前都记 UNVERIFIED，现在**都过了**。
+
+### 8.2 设备延迟读数（以及为什么它**不能**当判据 ② 的真机数）
+
+`DenseFirstUseCostInstrumentedTest` 同一探针两次读数（同一查询串，N=10，生产入口 `openFromAssets`，
+生产默认线程=`min(4,核数)`）：
+
+| 轮次 | 宿主负载 | 逐样本(ms) | p50 / p95 / 稳态 p50 / max | 旧线 213ms |
+|---|---|---|---|---|
+| A（17:57 UTC，紧跟对拍之后） | ~60% | 261,223,230,229,224,186,206,256,184,192 | **223 / 256 / 223 / 261** | 超线 |
+| B（18:00 UTC，单独跑） | 31–56% | 121,149,120,140,145,143,147,135,126,157 | **140 / 149 / 143 / 157** | 过线 |
+
+机型行（测试自己打的运行期身份）：`机型=sdk_gphone64_x86_64 sdk=34 abi=x86_64 宿主报告核数=4
+LiteRT线程数=4（= min(4, 核数)）`。
+
+**读法的三点硬约束**（否则这两个数会被误用）：
+
+1. **同一配置两次差 1.6×**（223 vs 140）⇒ 这台模拟器（4 vCPU、x86_64 直跑宿主 CPU、宿主负载 31–69% 波动）
+   **在本次条件下不是可靠的延迟仪器**。§2 的宿主矩阵是同一台机器上的另一条腿，两者都不能单独当"真机 p50"。
+2. **与 Stage-3 的 71ms 不可直接比**：那是 `2 线程 + 512 窗口`口径的读数（§4.3），本轮是 `4 线程 + 128 截断`；
+   而且容器同一段代码的计算量**没变**——见 8.3。差异里混着线程数、宿主负载与可能的模拟器节流，**不可归因**。
+3. **模拟器线程列仍不可解析**（与 §1.1 同源）：4 线程在 4 vCPU 的模拟器上本身就可能**过订阅**（测试进程、
+   UI、模拟器自身也在抢同一批 vCPU），所以"223 vs 140"里到底有多少是线程数、多少是负载，**本轮没有量出来**。
+
+### 8.3 为什么窗口右尺寸的收益**在设备上还没兑现**（机制，不是推测）
+
+`LiteRtDenseQueryEncoder.encode` 的定长路是 `tokenizer.encodePadded(text, fixedSequenceLength)`
+（`DenseQueryEncoder.kt:93~95`），`fixedSequenceLength` 取自**模型输入张量的第 2 维**（`:163`）。
+随包件是 512 窗口 ⇒ 端侧现在跑的是"按 128 截断 + **右 PAD 到 512**"——**正确但仍在白算 4 倍**（§5 表已列）。
+所以：**设备上要拿到 §2 那 4.2~4.5×，唯一动作是把 128 窗口的件装进随包路径**（件已在 `build/tflite-work/` 备好，
+两条路线都过宿主对拍）。本轮**没有**装（按 §5 的约定，这一步待批准）。
+
+### 8.4 本轮补测的账：三次运行、一次失败、未定性
+
+| 时刻（UTC） | 运行 | 结果 |
+|---|---|---|
+| 16:57 | 对拍 + 首用（同一 gradle 调用） | **2/2 通过**（8.1/8.2 的 A） |
+| 17:00 | 首用 ×2 | **通过**（8.2 的 B，另一次被覆盖） |
+| 17:02 | 对拍 | **FAILED**（1m22s，**原因未留住**：GRADLE 输出只留了 `Task … FAILED`，没出现 `Tests x/y completed` 那行；设备 logcat 已轮转、dropbox 无记录 ⇒ 取证失败） |
+| 17:04 | 对拍（重试） | **通过**，且 cosine 四位逐位与 16:57 相同 |
+| 17:07 起 | 对拍 ×3（本想要的抖动统计） | **编不过**：`core:data:compileDebugAndroidTestKotlin FAILED`——另一会话在飞的测试源改动（`RoomTutorToolRunnerTest`/`RoomTutorKnowledgeContextLoaderTest` 等**非本阶段文件**），与本次改动无关 |
+
+**对 17:02 那次失败的定性：不确定，不当作"门不稳"也不当作"偶发基础设施"。** 可说的只有两点：
+①重试通过了，且**数值侧逐位相同**（说明被测对象没变）；②当时与随后，共享树里的**测试源集在另一会话手里
+反复进出可编译状态**（17:07 起直接编不过）⇒ 同期存在并发 gradle 活动这一环境事实。是否由此引起，**本轮没有证据**。
+**结论**：这条失败是**已知缺口**，登记为"对拍硬门在共享树+模拟器环境下的稳定性未知（3 次通过 / 1 次失败 / 失败原因未留证）"。
+
+### 8.5 复核命令（可重跑）
+
+```bash
+# 设备对拍硬门 + 首用/延迟探针（两条，一条 gradle 调用）
+./gradlew :core:data:connectedDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseEncoderParityInstrumentedTest,com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseFirstUseCostInstrumentedTest
+# 读数落点（含 System.out 的 println 与机型行）：
+#   core/data/build/outputs/androidTest-results/connected/debug/test_device(AVD) - 14/logcat-*Dense*.txt
+```
+
+**补测的诚实边界**（与 §6 并列，不互相顶替）：
+
+1. **判据 ② 的真机判定仍然没有**：base 档一行的真机数不存在（base 的件从未随包，设备上只有小档可量），
+   线程轴（2 vs 4 vs 8）在当前仪器上不可解析（8.2）。
+2. **本轮补测只覆盖小档 + 随包 512 窗口件**：128 窗口件的设备读数不存在（因为没装）。
+3. **对拍门在共享树里的稳定性未知**（8.4）。
+4. **`§6.2.1` 的整模块单测阻断本轮变化**：从"KSP 缓存损坏"变成了"另一会话的测试源未同步"
+   （`No value passed for parameter 'knowledgeBaseAvailability'`，`RoomTutorToolRunnerTest.kt` 等）——
+   **不是本阶段的文件**，没有动。主源集 `:core:data:compileDebugKotlin` **BUILD SUCCESSFUL**（本轮实跑）。
