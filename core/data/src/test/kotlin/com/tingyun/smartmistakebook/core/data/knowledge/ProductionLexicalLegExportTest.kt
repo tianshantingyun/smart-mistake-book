@@ -247,12 +247,16 @@ class ProductionLexicalLegExportTest {
     private companion object {
         const val PACK_ID = "moe-2025-four-subjects-v1"
         const val GOLDEN_REPO_DIR = "tools/kb_coverage/tables"
-        const val GOLDEN_FILE_NAME = "golden_queries_v1.json"
+        const val GOLDEN_FILE_NAME = "golden_queries_v2.json"
         const val TSV_RELATIVE_PATH = "build/production-lexical-leg.tsv"
         const val QUERY_TSV_RELATIVE_PATH = "build/production-lexical-leg-queries.tsv"
 
-        /** Stage-2 规格 §1.2 的封存值（本测试复核，不改）。 */
-        const val FROZEN_GOLDEN_SHA256 = "7c004b763bdd49556e11ff1c9500c9461b09a7383b77f230fa8fd35754e6ae39"
+        /**
+         * 判官封存值。**2026-09-28 随 v1→v2 扩集迁移**（90→130 条，见
+         * `docs/kb-golden-v2-protocol.md`）；v1 的 `7c004b76…` 是历史封存，只在 v1 文件仍在时有效。
+         * 本测试复核的是"当前生效判官"的 sha，所以它必须跟着判官走。
+         */
+        const val FROZEN_GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
 
         /** 生产 v1（裸 B 路 limit=5、D1 形 = matched 优先）的判读数：`build/golden-jvm-metrics.txt` 的 B 段。 */
         const val B_ROUTE = "B-route-mirror(v1-bare-B5, matched-first)"

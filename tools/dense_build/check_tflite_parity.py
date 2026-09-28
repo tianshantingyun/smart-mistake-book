@@ -219,9 +219,12 @@ def main() -> int:
     print("onnx  =%s（sha256=%s）" % (onnx_path, D.sha256_file(onnx_path)[:16]))
 
     cases = load_cases(root)
-    if len(cases) != 290:
-        raise SystemExit("fixture 文本应为 290 条（query 90 + surface 200），实测 %d" % len(cases))
     query_count = sum(1 for case in cases if case[1] == "query")
+    golden_count = len(D.goldens(root))   # 判官现取：扩集时 fixture 必须一起重生成
+    if query_count != golden_count:
+        raise SystemExit("fixture 的 query 行 %d 应等于金标条数 %d"
+                         "（先在冻结集上重跑 gen_tokenizer_fixture.py）" % (query_count, golden_count))
+    surface_count = len(cases) - query_count
 
     # 参考（批式，与导出链**同一批划分**）：只用来做 id/行对齐自证。
     # 必须只喂查询行：导出链的查询批是"64 + 26"两批，若把 surface 混进同一批，PAD 宽度按

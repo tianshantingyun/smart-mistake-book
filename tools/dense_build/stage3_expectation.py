@@ -239,12 +239,13 @@ def main():
 
     leg_path = root.joinpath(*D.LEXICAL_LEG_RELATIVE.split("/"))
     leg = lexical_rows(leg_path)
-    if len(leg) != 90 or any(not v for v in leg.values()):
-        raise SystemExit("生产词面腿应覆盖 90 题且每题有命中，实测 %d 题" % len(leg))
+    golden_count = len(D.goldens(root))   # 判官现取：扩集后词面腿与期望都要一起重生成
+    if len(leg) != golden_count or any(not v for v in leg.values()):
+        raise SystemExit("生产词面腿应覆盖 %d 题且每题有命中，实测 %d 题" % (golden_count, len(leg)))
 
     query_int8 = np.load(root / "build" / "dense-model" / "int8-queries.npy")
-    if query_int8.shape != (90, profile["dim"]):
-        raise SystemExit("查询向量形状应为 (90, %d)，实测 %s" % (profile["dim"], query_int8.shape))
+    if query_int8.shape != (golden_count, profile["dim"]):
+        raise SystemExit("查询向量形状应为 (%d, %d)，实测 %s" % (golden_count, profile["dim"], query_int8.shape))
     query_norm = query_int8 / np.maximum(np.linalg.norm(query_int8, axis=1, keepdims=True), 1e-12)
 
     # ---- 两条腿的逐题分数 ----

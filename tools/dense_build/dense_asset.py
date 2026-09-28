@@ -61,8 +61,8 @@ VOCAB_RELATIVE = "tools/dense_build/vocab/bge-small-zh-v1.5-vocab.txt"
 TOKENIZER_RELATIVE = "tools/dense_build/vocab/bge-small-zh-v1.5-tokenizer.json"
 MODEL_MANIFEST_RELATIVE = "tools/dense_build/model-manifest.json"
 LEXICAL_LEG_RELATIVE = "build/production-lexical-leg.tsv"
-GOLDEN_RELATIVE = "tools/kb_coverage/tables/golden_queries_v1.json"
-GOLDEN_SHA256 = "7c004b763bdd49556e11ff1c9500c9461b09a7383b77f230fa8fd35754e6ae39"
+GOLDEN_RELATIVE = "tools/kb_coverage/tables/golden_queries_v2.json"
+GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
 
 # ---- 模型档位（Stage-5 参数化：换件只换"哪一档"与档位坐标，路径名一律不动） ----
 #
@@ -322,8 +322,11 @@ def goldens(root):
     if actual != GOLDEN_SHA256:
         raise SystemExit("金标集 sha256 不符：%s != %s（判官冻结纪律：不改金标）" % (actual, GOLDEN_SHA256))
     cases = json.loads(path.read_text(encoding="utf-8"))
-    if len(cases) != 90:
-        raise SystemExit("金标条数应为 90，实测 %d" % len(cases))
+    # **不写条数**：sha 已经逐字节钉住内容，条数断言只会跟着判官一起腐烂——
+    # 2026-09-28 的 v1→v2 扩集（90→130）实测要在 6 个文件里同步改条数，漏一处就是硬故障。
+    # 需要条数的地方用 `len(goldens(root))` 现取。
+    if not isinstance(cases, list) or not cases:
+        raise SystemExit("金标集不是非空数组：%s" % path)
     return cases
 
 

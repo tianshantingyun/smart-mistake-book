@@ -493,8 +493,8 @@ class GoldenRetrievalInstrumentedTest {
     private fun List<Long>.percentile95(): Long = percentile(95)
 
     private companion object {
-        const val ASSET_JSON = "golden/golden_queries_v1.json"
-        const val ASSET_SHA256 = "golden/golden_queries_v1.json.sha256"
+        const val ASSET_JSON = "golden/golden_queries_v2.json"
+        const val ASSET_SHA256 = "golden/golden_queries_v2.json.sha256"
         const val SCORED_TOP_K = 5
 
         /**

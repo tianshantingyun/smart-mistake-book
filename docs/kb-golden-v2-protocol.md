@@ -90,15 +90,18 @@ python tools/kb_coverage/check_golden_candidate.py \
 ```
 
 # 2) 合入并冻结新集（**这一步才动判官**）
-#    产物：tools/kb_coverage/tables/golden_queries_v2.json + golden_queries_v2.json.sha256
-#    同时把 v1 原样留档（改名 v1-frozen-2026-09-25.json 或保持不动 + 记录新文件名），并在本文件记录：
-#      - v1 sha 7c004b76…（90 条）、v2 sha（130 条）
-#      - 语料快照 sha（主包 + sidecar index + update-manifest）
-#      - 新增 40 条的来源说明（起草方式、复核人）
+python tools/kb_coverage/freeze_golden_v2.py        # 先 --dry-run 看读数，再去掉它真写
+#    产物：tools/kb_coverage/tables/golden_queries_v2.json + .sha256（LF、sha 从磁盘字节回读）
+#    并**切换 §6 表里那 16 处消费点**（漏一处 = 某个消费者读旧集，且未必有门会红）
 
-# 3) 参考向量重算（离线，档=随包小档）
-python tools/dense_build/export_bge_int8.py --model bge-small-zh-v1.5      # 刷新 build/dense-model/*
-#    → 新的 int8-queries.npy 覆盖 130 条查询（docs: 逐行与题面同序）
+# 3) 参考向量重算（离线，档=随包小档）——**不要重跑 export_bge_int8.py**！
+#    重导出会重建 int8 ONNX，而它的 sha（4d3b3135…）被 .vec 旁车与 model-manifest 钉着，
+#    扰动它会连带让 dense 资产陈旧性门变红。正确做法是"只重算参考向量、钉住 ONNX sha"：
+python build/stage6_restore_small_npy.py --model bge-small-zh-v1.5 --write
+#    → int8-queries.npy 覆盖新集（行数 == len(goldens)）；int8-docs.npy 与词表无关，应逐字节不变
+#    ⚠ **已知缺口**：这一步目前依赖 `build/` 下的 scratch 脚本（**未入库**，`build/` 被 gitignore）；
+#      判官下次变更前应把它提升为 `tools/dense_build/` 下的工具（否则换台机器/清过 build 就跑不了）。
+#      2026-09-28 实测它还会因"与 Stage-2 历史臂行数不一致"崩——已在脚本里改成如实记 N/A。
 
 # 4) 设备对拍 fixture 重生成（两档 tokenizer 逐条同 id 必须复跑）
 python tools/dense_build/gen_device_parity_fixture.py --model bge-small-zh-v1.5
@@ -178,3 +181,55 @@ CHEMISTRY 各有一个"——这是**知识的正常重复**（节点 id 按科�
 **尚缺（人类判断，不能机械替代）**：40 条题面的**内容质量**需你过目——机械断言只能证明
 "slug 真、章归属真、不重复、不像照结果反推"，证不了"这道题是不是学生真会问的、是不是错题本场景里
 会出现的那种题"。这一条过完，就可以走 §3 第 2 步开始的冻结链。
+
+---
+
+## 6. v2 生效记录（2026-09-28，用户批准后执行）
+
+**判官**：`tools/kb_coverage/tables/golden_queries_v2.json` —— **130 条 / 20 章**，
+sha256 **`89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d`**（35,315 B，CRLF=0）。
+科分布 MATH 40 / PHYSICS 39 / CHEMISTRY 36 / BIOLOGY 15。v1（90 条 / `7c004b76…`）**原样留档**，
+未被改动（`git status` 可证）⇒ 回退 = 把下面的消费点指回 v1。
+
+**冻结动作**：`tools/kb_coverage/freeze_golden_v2.py`（新增）。它做三件事：核对 v1 与旁车一致
+（防止在被动过的基线上合并）、合并后**复用 `check_golden_candidate.py` 的机械断言**复核、
+按 v1 的字节约定落盘并产出旁车。
+
+**消费点切换（共 16 处，逐处清单）**：
+
+| # | 位置 | 改法 |
+|---|---|---|
+| 1 | `tools/dense_build/dense_asset.py`（`GOLDEN_RELATIVE`/`GOLDEN_SHA256`） | 指 v2 + 新 sha |
+| 2 | `tools/dense_build/dense_asset.py`（`goldens()` 的条数断言） | **删掉条数写死**（sha 已逐字节钉住内容；数量改由 `len(goldens(root))` 现取） |
+| 3 | `tools/dense_build/pack_dense_asset.py`（queries 形状） | 用 `len(D.goldens(root))` |
+| 4 | `tools/dense_build/check_tflite_parity.py`（fixture 行数） | query 行 == 判官条数（surface 200 是本 fixture 自己的抽样规模） |
+| 5 | `tools/dense_build/gen_device_parity_fixture.py`（`GOLDEN` 常量） | 指 v2（**这处不走 `dense_asset`，第一遍枚举时漏过，靠复扫发现**） |
+| 6 | 同上（query/surface 条数与 `query_ref.shape`） | 条数现取 |
+| 7 | `tools/dense_build/stage3_expectation.py`（词面腿 90 题 / 查询向量形状） | 条数现取 |
+| 8 | `tools/kb_coverage/retrieval_significance.py`（`--golden` 默认） | 指 v2 |
+| 9 | `tools/kb_coverage/check_golden_candidate.py`（`--golden` 默认） | 指 v2 |
+| 10 | `core/data/src/test/.../GoldenRetrievalJvmTest.kt`（`GOLDEN_FILE_NAMES`） | 指 v2 |
+| 11 | `core/data/src/test/.../ProductionLexicalLegExportTest.kt`（NAME + `FROZEN_GOLDEN_SHA256`） | 指 v2 + 新 sha（注释标"随 v2 迁移、v1 是历史封存"） |
+| 12 | `core/data/src/test/.../Stage2LexicalScoresExportTest.kt`（同上） | 同上 |
+| 13 | `core/data/src/test/.../Stage1LexicalLabTest.kt`（NAME） | 指 v2（其历史锚待新基线出来后重钉） |
+| 14 | `core/data/src/androidTest/.../GoldenRetrievalInstrumentedTest.kt`（`ASSET_JSON`/`ASSET_SHA256`） | 指 v2 的 assets 副本 |
+| 15 | `core/data/src/androidTest/assets/golden/golden_queries_v2.json(.sha256)` | 新增副本（与权威源**逐字节相同**，`sha 89c1d5b5…` 双侧核实） |
+| 16 | （v1 的 assets 副本） | 保留不动（历史判官的镜像；生效判官只认 v2 那份） |
+
+**过程中抓到的一个真 bug（值得记住）**：`Path.write_text` 在 Windows 上会把 `\n` 翻成 `\r\n`，
+而 sha 若在**内存字符串**上算，旁车记录的就不是磁盘上那份字节——**每个消费方的 sha 校验都会红，
+而文件"看起来是对的"**（实测：v1 是 0 个 CRLF、我的第一版 v2 是 782 个 CRLF，sha 对不上）。
+修法两条一起上：落盘显式 `newline="\n"`，且 **sha 一律从落盘后的字节回读**（`freeze_golden_v2.py`
+的 `write_with_lf()` + read-back）。判据：`CRLF=0` 且 `sha256(磁盘字节) == 旁车`。
+
+**链的完成状态（2026-09-28）**：
+- ✅ 判官冻结 + 16 处切换 + assets 镜像（逐字节复核）
+- ✅ 离线参考向量：`build/dense-model/int8-queries.npy` 90→130 行（脚本 `build/stage6_restore_small_npy.py`
+  逐行镜像导出链、**钉住 int8 ONNX sha `4d3b3135…`**、不重导出 ONNX/不改清单）
+- ⏳ 设备对拍 fixture（330 行）与两台对拍门
+- ⛔ **阻塞**：词面腿导出（`ProductionLexicalLegExportTest`）→ 设备期望（`stage3_expectation.py`）→
+  **基线** → **重锚**，全部要 JVM 测试源集能编译；当前被他线在飞的
+  `RoomBackedStudyExperienceRepositoryTest.kt`（`FakeStudyDatabasePort` 未实现抽象成员 +
+  `observeRecentTutorConversations` overrides nothing）挡着。**触发条件**：该文件编译通过 ⇒
+  按 §3 第 1→8 步一次跑完，然后把基线与新线写进本节与该报告。
+

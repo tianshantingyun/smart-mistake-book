@@ -265,7 +265,7 @@ class GoldenRetrievalJvmTest {
         /** 金标集权威源（D12 判官冻结）与 androidTest assets 副本的位置，两侧都相对仓库根。 */
         const val GOLDEN_REPO_DIR = "tools/kb_coverage/tables"
         const val GOLDEN_ASSET_DIR = "core/data/src/androidTest/assets/golden"
-        val GOLDEN_FILE_NAMES = listOf("golden_queries_v1.json", "golden_queries_v1.json.sha256")
+        val GOLDEN_FILE_NAMES = listOf("golden_queries_v2.json", "golden_queries_v2.json.sha256")
 
         /** 指标文件的路线分段头（`== 路线 ==`）。 */
         val SECTION_HEADER = Regex("^== (.+) ==$")

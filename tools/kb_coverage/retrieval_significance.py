@@ -166,7 +166,7 @@ def report_single(name: str, rows, reps: int, rng) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="金标检索的不确定性（CI + 配对检验）")
-    parser.add_argument("--golden", type=Path, default=REPO / "tools/kb_coverage/tables/golden_queries_v1.json")
+    parser.add_argument("--golden", type=Path, default=REPO / "tools/kb_coverage/tables/golden_queries_v2.json")
     parser.add_argument("--misses", type=Path, required=True, help="A 路（或单集）的 MISS 账本")
     parser.add_argument("--misses-b", type=Path, default=None, help="给了就做 A/B 配对检验")
     parser.add_argument("--reps", type=int, default=20000)

@@ -74,13 +74,18 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="金标候选批次的机械校验")
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--golden", type=Path,
-                        default=REPO / "tools/kb_coverage/tables/golden_queries_v1.json")
+                        default=REPO / "tools/kb_coverage/tables/golden_queries_v2.json")
     parser.add_argument("--pack", type=Path,
                         default=REPO / "core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json")
     parser.add_argument("--misses", type=Path, default=None)
     parser.add_argument("--near-dup-ratio", type=float, default=0.80)
     parser.add_argument("--leak-ratio", type=float, default=0.60)
+    parser.add_argument("--skip-batch-rules", action="store_true",
+                        help="校验**已合并的判官**（v1+候选）时用：批次级规则只对新起草的批次成立"
+                             "（题面长度下限 15、风格代理量、slug 使用 ≤2、与 v1 的重合/近似/泄漏检查"
+                             "对合并集自比自会全红）——这些规则不该拿去卡一份冻结的判官。")
     args = parser.parse_args(argv)
+    batch_rules = not args.skip_batch_rules
 
     candidate = json.loads(args.candidate.read_text(encoding="utf-8"))
     existing = json.loads(args.golden.read_text(encoding="utf-8"))
@@ -100,13 +105,14 @@ def main(argv: list[str] | None = None) -> int:
             if not isinstance(row[key], str) or not row[key].strip():
                 failures.append(f"C1 #{position} {key} 不是非空字符串：{row[key]!r}")
 
-    # C2 题面（规则 15–60 字，比 v1 的 4–60 更严）
+    # C2 题面（起草批次：15–60 字；已合并的判官：4–60 字，照 v1 自己的口径）
+    min_len = 15 if batch_rules else 4
     for position, row in enumerate(candidate, 1):
         if set(row) != set(KEYS):
             continue
         query = row["query"]
-        if not (15 <= len(query) <= 60):
-            failures.append(f"C2 #{position} 题面长度 {len(query)} 不在 15–60：{query[:40]}")
+        if not (min_len <= len(query) <= 60):
+            failures.append(f"C2 #{position} 题面长度 {len(query)} 不在 {min_len}–60：{query[:40]}")
         if not CJK.search(query):
             failures.append(f"C2 #{position} 题面没有汉字：{query[:40]}")
         if "\n" in query or "\r" in query:
@@ -134,17 +140,19 @@ def main(argv: list[str] | None = None) -> int:
         if count > 1:
             failures.append(f"C5 候选内部题面重复 ×{count}：{text[:40]}")
     existing_queries = {row["query"] for row in existing}
-    for text in queries:
-        if text in existing_queries:
-            failures.append(f"C5 与现有金标题面逐字重合：{text[:40]}")
+    if batch_rules:
+        for text in queries:
+            if text in existing_queries:
+                failures.append(f"C5 与现有金标题面逐字重合：{text[:40]}")
     pairs = collections.Counter((row["query"], row["expectedSlug"]) for row in candidate if set(row) == set(KEYS))
     for pair, count in pairs.items():
         if count > 1:
             failures.append(f"C5 (query, slug) 重复 ×{count}：{pair[0][:30]}")
-    slug_counts = collections.Counter(row["expectedSlug"] for row in candidate if set(row) == set(KEYS))
-    for slug, count in slug_counts.items():
-        if count > 2:
-            failures.append(f"C5 slug 使用 {count} 次（上限 2）：{slug}")
+    if batch_rules:
+        slug_counts = collections.Counter(row["expectedSlug"] for row in candidate if set(row) == set(KEYS))
+        for slug, count in slug_counts.items():
+            if count > 2:
+                failures.append(f"C5 slug 使用 {count} 次（上限 2）：{slug}")
     by_chapter: dict[str, list[str]] = collections.defaultdict(list)
     for row in candidate:
         if set(row) == set(KEYS):
@@ -154,15 +162,16 @@ def main(argv: list[str] | None = None) -> int:
         if duplicated:
             failures.append(f"C5 同章内 slug 重复：{chapter} → {duplicated}")
 
-    # C6 近似重复（对现有金标）
-    for text in queries:
-        close = difflib.get_close_matches(text, existing_queries, n=1, cutoff=args.near_dup_ratio)
-        if close:
-            ratio = difflib.SequenceMatcher(None, text, close[0]).ratio()
-            failures.append(f"C6 与现有金标近似（{ratio:.2f}）：\n        候选 {text[:40]}\n        现有 {close[0][:40]}")
+    # C6 近似重复（对现有金标）——只对**新起草批次**成立
+    if batch_rules:
+        for text in queries:
+            close = difflib.get_close_matches(text, existing_queries, n=1, cutoff=args.near_dup_ratio)
+            if close:
+                ratio = difflib.SequenceMatcher(None, text, close[0]).ratio()
+                failures.append(f"C6 与现有金标近似（{ratio:.2f}）：\n        候选 {text[:40]}\n        现有 {close[0][:40]}")
 
-    # C7 泄漏检查（候选 vs 真机 MISS 账本）
-    if args.misses is not None:
+    # C7 泄漏检查（候选 vs 真机 MISS 账本）——只对**新起草批次**成立
+    if args.misses is not None and batch_rules:
         missed = load_miss_queries(args.misses)
         for text in queries:
             close = difflib.get_close_matches(text, missed, n=1, cutoff=args.leak_ratio)
@@ -172,13 +181,13 @@ def main(argv: list[str] | None = None) -> int:
                                 f"        候选 {text[:40]}\n        MISS {close[0][:40]}")
         notes.append(f"C7 泄漏检查：对照 {len(missed)} 条 MISS 题面，阈值 {args.leak_ratio}")
 
-    # C8 风格代理量
+    # C8 风格代理量（起草批次的写作配额；合并后的判官不再按它卡）
     numeric = sum(1 for t in queries if NUMERIC.search(t))
     discern = sum(1 for t in queries if DISCERN.search(t))
-    notes.append(f"C8 含数值/公式符号 {numeric} 条（规则 ≥12）；辨析式 {discern} 条（规则 ≥8）")
-    if numeric < 12:
+    notes.append(f"C8 含数值/公式符号 {numeric} 条（起草规则 ≥12）；辨析式 {discern} 条（规则 ≥8）")
+    if batch_rules and numeric < 12:
         failures.append(f"C8 含数值/公式符号只有 {numeric} 条（规则 ≥12）")
-    if discern < 8:
+    if batch_rules and discern < 8:
         failures.append(f"C8 辨析式只有 {discern} 条（规则 ≥8）")
 
     # 配额概览

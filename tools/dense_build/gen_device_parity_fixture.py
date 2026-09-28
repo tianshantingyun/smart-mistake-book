@@ -56,7 +56,7 @@ OUT_VECTORS = OUT_DIR / "encoder-parity-vectors.f32"
 OUT_META = OUT_DIR / "encoder-parity.json"
 QUERY_REF = Path("build/dense-model/int8-queries.npy")
 DOC_REF = Path("build/dense-model/int8-docs.npy")
-GOLDEN = Path("tools/kb_coverage/tables/golden_queries_v1.json")
+GOLDEN = Path("tools/kb_coverage/tables/golden_queries_v2.json")
 
 # 档位坐标（`--model` 选；默认 = 仓库当前随包那一档）。`DIM`/`ONNX_MODEL`/`MAX_LEN` 都是
 # 运行时从档位解析出来的——换件只换这一处来源，fixture 的形状（N×dim）随档走。
@@ -151,13 +151,18 @@ def main() -> int:
     queries = [r for r in rows if r["kind"] == "query"]
     surfaces = [r for r in rows if r["kind"] == "surface"]
     print("文本来源：query=%d surface=%d" % (len(queries), len(surfaces)))
-    if len(queries) != 90 or len(surfaces) != 200:
-        raise SystemExit("文本条数不符（应为 90 + 200）")
+    golden_count = len(D.goldens(root))   # 判官现取：扩集时 fixture 必须一起重生成
+    if len(queries) != golden_count:
+        raise SystemExit("fixture 的 query 行 %d 应等于金标条数 %d（先重跑 gen_tokenizer_fixture.py）"
+                         % (len(queries), golden_count))
+    if len(surfaces) != 200:
+        # 200 是**本 fixture 自己的抽样规模**（节点名/别名抽 200 条），与判官条数无关。
+        raise SystemExit("surface 行应为 200，实测 %d" % len(surfaces))
 
     query_ref = np.load(QUERY_REF).astype(np.float32)
     doc_ref = np.load(DOC_REF, mmap_mode="r")
-    if query_ref.shape != (90, DIM):
-        raise SystemExit("int8-queries.npy 形状不符：%s" % (query_ref.shape,))
+    if query_ref.shape != (golden_count, DIM):
+        raise SystemExit("int8-queries.npy 形状不符：%s（应 %d 行）" % (query_ref.shape, golden_count))
     if doc_ref.shape[1] != DIM:
         raise SystemExit("int8-docs.npy 形状不符：%s" % (doc_ref.shape,))
 

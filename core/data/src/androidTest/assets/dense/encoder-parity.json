@@ -3,20 +3,20 @@
   "threshold": 0.999,
   "thresholdMeaning": "端侧编码向量与参考向量的逐条 cosine 下限（任务书硬门）",
   "dim": 512,
-  "count": 290,
+  "count": 330,
   "byKind": {
-    "query": 90,
+    "query": 130,
     "surface": 200
   },
   "textSource": {
     "path": "core\\data\\src\\test\\resources\\dense\\tokenizer-parity-cases.txt",
-    "sha256": "5f7169cad6428eb49d2f738821df870d0da85c7fda71ee774685d5372cd6af8c",
+    "sha256": "589152df2ace27f6e0a34d093c75a187a4d9514ef6fc49c47ed024cd5bb947cc",
     "note": "query 行含 BGE 查询前缀；surface 行是向量集原文（节点名/别名）"
   },
   "referenceVectors": {
     "queries": {
       "path": "build\\dense-model\\int8-queries.npy",
-      "sha256": "fac31f0c29c14a7eca8018840d0c388e84a4d29b834af7eb53111c23aaeb54fd"
+      "sha256": "14144f1af9a6efb19c84303a504fc9dd0cb86564b246ed156e42f5de8d3f3d12"
     },
     "docs": {
       "path": "build\\dense-model\\int8-docs.npy",
@@ -26,8 +26,8 @@
     "modelSha256": "4d3b31355a3df4ff923db83bc76181f8581592de10f67502be825f519d2fa213"
   },
   "golden": {
-    "path": "tools\\kb_coverage\\tables\\golden_queries_v1.json",
-    "sha256": "7c004b763bdd49556e11ff1c9500c9461b09a7383b77f230fa8fd35754e6ae39"
+    "path": "tools\\kb_coverage\\tables\\golden_queries_v2.json",
+    "sha256": "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
   },
   "alignmentSelfCheck": {
     "note": "用同一份 int8 ONNX 现场重跑 fixture 的 ids，与冻结 npy 逐行比 cosine",
@@ -37,11 +37,11 @@
   },
   "casesFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-cases.tsv",
-    "sha256": "425d08d05af3b68b9a921ba80e857ec1ec13ac072476c63720e8979b4ef35e55"
+    "sha256": "fbed78d3632f82013aea031dbd79d2e66caa4405fd9fe2f1e819aa559a62b271"
   },
   "vectorsFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-vectors.f32",
-    "sha256": "c4e82bebd88dbba78d3519c489b193a99f7d396083ab2f6e32e2eefafb3bf911",
+    "sha256": "84e8d2c3bc11ca5fbf46799676befecf24e43d9568e256faab1febebad299488",
     "layout": "little-endian float32, row-major, N×512",
     "l2NormRange": [
       0.999999463558197,

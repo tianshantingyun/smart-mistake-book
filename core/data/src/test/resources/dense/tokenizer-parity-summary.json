@@ -22,8 +22,8 @@
     "vocabSha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c",
     "tokenizerJsonPath": "tools/dense_build/vocab/bge-small-zh-v1.5-tokenizer.json",
     "tokenizerJsonSha256": "48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26",
-    "goldenPath": "tools/kb_coverage/tables/golden_queries_v1.json",
-    "goldenSha256": "7c004b763bdd49556e11ff1c9500c9461b09a7383b77f230fa8fd35754e6ae39",
+    "goldenPath": "tools/kb_coverage/tables/golden_queries_v2.json",
+    "goldenSha256": "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d",
     "surfaceSample": {
       "count": 200,
       "seed": 20260924,
@@ -32,9 +32,9 @@
     }
   },
   "counts": {
-    "total": 333,
+    "total": 373,
     "byKind": {
-      "query": 90,
+      "query": 130,
       "surface": 200,
       "edge": 18,
       "stage": 25
@@ -52,12 +52,12 @@
   "files": {
     "cases": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-cases.txt",
-      "sha256": "5f7169cad6428eb49d2f738821df870d0da85c7fda71ee774685d5372cd6af8c",
-      "rows": 333
+      "sha256": "589152df2ace27f6e0a34d093c75a187a4d9514ef6fc49c47ed024cd5bb947cc",
+      "rows": 373
     },
     "stages": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-stages.txt",
-      "sha256": "5b9ad5fbf72f6b4cbf046d5479f8759810f1704e368678db1ce4d445dd006d5c",
+      "sha256": "39b6b4b39d5783a0238e57e04144ed80b2dc61f2ea3080f8c6f0709104db4f96",
       "rows": 68
     }
   }

@@ -115,8 +115,9 @@ def main():
     queries = np.load(queries_path)
     if docs.shape != (28931, dim):
         raise SystemExit("文档向量形状应为 (28931, %d)，实测 %s" % (dim, docs.shape))
-    if queries.shape != (90, dim):
-        raise SystemExit("查询向量形状应为 (90, %d)，实测 %s" % (dim, queries.shape))
+    golden_count = len(D.goldens(root))   # 条数从判官现取，不写死（一次扩集曾要同步改 6 处 90）
+    if queries.shape != (golden_count, dim):
+        raise SystemExit("查询向量形状应为 (%d, %d)，实测 %s" % (golden_count, dim, queries.shape))
     if not (np.isfinite(docs).all() and np.isfinite(queries).all()):
         raise SystemExit("向量里出现非有限值")
     norms = np.linalg.norm(docs, axis=1)

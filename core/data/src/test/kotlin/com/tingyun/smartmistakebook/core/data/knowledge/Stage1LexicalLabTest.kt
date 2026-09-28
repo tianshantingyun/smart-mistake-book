@@ -341,7 +341,7 @@ class Stage1LexicalLabTest {
     private companion object {
         const val PACK_ID = "moe-2025-four-subjects-v1"
         const val GOLDEN_REPO_DIR = "tools/kb_coverage/tables"
-        const val GOLDEN_FILE_NAME = "golden_queries_v1.json"
+        const val GOLDEN_FILE_NAME = "golden_queries_v2.json"
 
         val VERDICT_JSON = Json { ignoreUnknownKeys = false }
 

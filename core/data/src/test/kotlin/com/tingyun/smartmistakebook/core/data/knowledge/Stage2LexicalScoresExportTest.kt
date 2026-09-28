@@ -216,12 +216,16 @@ class Stage2LexicalScoresExportTest {
     private companion object {
         const val PACK_ID = "moe-2025-four-subjects-v1"
         const val GOLDEN_REPO_DIR = "tools/kb_coverage/tables"
-        const val GOLDEN_FILE_NAME = "golden_queries_v1.json"
+        const val GOLDEN_FILE_NAME = "golden_queries_v2.json"
         const val TSV_RELATIVE_PATH = "build/stage2-dense-offline-lexical.tsv"
         const val QUERY_TSV_RELATIVE_PATH = "build/stage2-dense-offline-lexical-queries.tsv"
 
-        /** Stage-2 规格 §1.2 的封存值（本测试复核，不改）。 */
-        const val FROZEN_GOLDEN_SHA256 = "7c004b763bdd49556e11ff1c9500c9461b09a7383b77f230fa8fd35754e6ae39"
+        /**
+         * 判官封存值。**2026-09-28 随 v1→v2 扩集迁移**（90→130 条，见
+         * `docs/kb-golden-v2-protocol.md`）；v1 的 `7c004b76…` 是历史封存。
+         * 本测试复核的是"当前生效判官"的 sha，所以它必须跟着判官走。
+         */
+        const val FROZEN_GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
 
         /** Stage-1 判读数（`build/stage1-metrics-A.txt`）——回读重算必须逐位复现。 */
         const val ARM_A_MAIN = 0.6555555555555556
