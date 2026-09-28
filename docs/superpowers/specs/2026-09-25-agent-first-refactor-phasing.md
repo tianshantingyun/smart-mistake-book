@@ -1,7 +1,7 @@
 # 智能错题本 · 智能体优先重构 — 分阶段划分
 
-> **内核算法线总入口**：`docs/research/2026-09-28-kernel-execution-steps.md`（执行步骤说明）。
-> 本文件的阶段 3 已细分为 3A/3B/3C，其内部顺序（Wave 0–5）以该入口文档为准。
+> **总入口**：`docs/REFACTOR-MASTER-LINE.md`（全软件完成的总路线）。本文件是其"阶段划分"的
+> 展开；内核算法线总入口另见 `docs/research/2026-09-28-kernel-execution-steps.md`。
 
 - 日期：2026-09-25
 - 状态：待用户确认
