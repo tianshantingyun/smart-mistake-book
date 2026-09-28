@@ -1,0 +1,620 @@
+<title>内核审计拍板清单</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ground:#f6f7f9; --surface:#fff; --surface-2:#fbfcfd;
+    --ink:#15181e; --muted:#5a6270; --line:#dde1e8; --line-strong:#c6ccd7;
+    --accent:#2d5aa8; --accent-soft:#e8eefa;
+    --ok:#1d6f52; --ok-soft:#e6f2ed;
+    --warn:#9a5514; --warn-soft:#f8efe3;
+    --stop:#8d2b2b; --stop-soft:#f8eaea;
+    --shadow:0 1px 2px rgba(21,24,30,.05), 0 8px 24px -12px rgba(21,24,30,.18);
+    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0f1115; --surface:#16191f; --surface-2:#13161b;
+      --ink:#e7e9ee; --muted:#98a0af; --line:#262b34; --line-strong:#333a45;
+      --accent:#7ba7e6; --accent-soft:#1a2434;
+      --ok:#4fb98d; --ok-soft:#132420;
+      --warn:#d99a4e; --warn-soft:#241c12;
+      --stop:#e07070; --stop-soft:#2a1618;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0f1115; --surface:#16191f; --surface-2:#13161b;
+    --ink:#e7e9ee; --muted:#98a0af; --line:#262b34; --line-strong:#333a45;
+    --accent:#7ba7e6; --accent-soft:#1a2434;
+    --ok:#4fb98d; --ok-soft:#132420;
+    --warn:#d99a4e; --warn-soft:#241c12;
+    --stop:#e07070; --stop-soft:#2a1618;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding-block:0 64px;
+    background:var(--ground); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:60rem; margin:0 auto; padding-inline:20px}
+
+  header.masthead{border-bottom:1px solid var(--line); background:var(--surface); padding-block:44px 30px}
+  .eyebrow{
+    font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 14px;
+  }
+  h1{font-size:clamp(1.6rem,4vw,2.3rem); line-height:1.2; margin:0 0 14px; letter-spacing:-.01em; text-wrap:balance}
+  .standfirst{font-size:1.02rem; color:var(--muted); margin:0; max-width:44rem}
+  .standfirst code{font-family:var(--mono); font-size:.9em; background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:.05em .35em}
+
+  /* ledger strip */
+  .ledger{display:flex; flex-wrap:wrap; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:28px}
+  .ledger div{flex:1 1 9rem; background:var(--surface); padding:14px 16px}
+  .ledger dt{font-family:var(--mono); font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+  .ledger dd{margin:0; font-size:1.5rem; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.1}
+  .ledger dd small{display:block; font-size:.76rem; font-weight:400; color:var(--muted); margin-top:3px}
+
+  main{padding-top:44px}
+  h2{font-size:1.15rem; margin:0 0 6px; letter-spacing:-.005em}
+  .sec-note{color:var(--muted); font-size:.92rem; margin:0 0 22px}
+
+  /* decision cards */
+  .decisions{display:flex; flex-direction:column; gap:18px; margin:0 0 52px}
+  .decision{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    border-left:3px solid var(--accent); box-shadow:var(--shadow); overflow:hidden;
+  }
+  .decision-head{display:flex; gap:14px; align-items:baseline; padding:20px 22px 0}
+  .num{
+    font-family:var(--mono); font-size:.82rem; font-weight:600; color:var(--accent);
+    background:var(--accent-soft); border-radius:6px; padding:.3em .55em; flex:none; line-height:1;
+  }
+  .decision-head h3{margin:0; font-size:1.06rem; line-height:1.4; font-weight:600}
+  .decision-body{padding:10px 22px 22px}
+  .situation{margin:0 0 16px; color:var(--ink); max-width:52rem}
+  .situation code, .opt code, .unlocks code{font-family:var(--mono); font-size:.88em; background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:.05em .34em}
+  .id-label{font-family:var(--mono); font-size:.74rem; color:var(--muted); font-weight:500}
+
+  fieldset{border:0; margin:0; padding:0; min-width:0}
+  legend{
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--muted); padding:0 0 8px; font-weight:600;
+  }
+  .options{display:flex; flex-direction:column; gap:8px}
+  .opt{
+    display:flex; gap:11px; align-items:flex-start; padding:12px 14px;
+    border:1px solid var(--line); border-radius:9px; background:var(--surface-2);
+    cursor:pointer; transition:border-color .12s ease, background .12s ease;
+  }
+  .opt:hover{border-color:var(--line-strong)}
+  .opt:has(input:checked){border-color:var(--accent); background:var(--accent-soft)}
+  .opt input{margin:.34em 0 0; flex:none; accent-color:var(--accent); width:15px; height:15px}
+  .opt-pick{font-weight:600; font-size:.95rem}
+  .opt-cost{
+    display:inline-block; font-family:var(--mono); font-size:.68rem; font-weight:600;
+    letter-spacing:.05em; text-transform:uppercase; border-radius:4px; padding:.12em .42em;
+    margin-left:8px; vertical-align:.06em; border:1px solid currentColor;
+  }
+  .cost-low{color:var(--ok)} .cost-mid{color:var(--warn)} .cost-high{color:var(--stop)}
+  .opt-why{display:block; color:var(--muted); font-size:.9rem; margin-top:4px}
+  .rec{font-family:var(--mono); font-size:.68rem; font-weight:600; color:var(--accent); margin-left:8px; letter-spacing:.05em}
+
+  .advice{
+    margin:18px 0 0; padding:13px 15px; border-radius:9px;
+    background:var(--accent-soft); border:1px solid transparent;
+  }
+  .advice p{margin:0; font-size:.93rem}
+  .advice b{font-weight:600}
+
+  .unlocks{margin:16px 0 0; font-size:.86rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:7px; align-items:center}
+  .unlocks .lbl{font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase}
+  .chip{
+    font-family:var(--mono); font-size:.75rem; border:1px solid var(--line-strong);
+    border-radius:999px; padding:.16em .62em; color:var(--ink); background:var(--surface-2);
+  }
+
+  /* done section */
+  .done{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:24px 24px 8px; margin-bottom:40px}
+  .done h2{margin-bottom:14px}
+  .done-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:18px 26px; padding-bottom:16px}
+  .done-grid h4{
+    margin:0 0 6px; font-size:.72rem; font-family:var(--mono); letter-spacing:.09em;
+    text-transform:uppercase; color:var(--ok); font-weight:600;
+  }
+  .done-grid ul{margin:0; padding-left:1.05em; font-size:.91rem; color:var(--ink)}
+  .done-grid li{margin-bottom:3px}
+  .done-grid li code{font-family:var(--mono); font-size:.87em; color:var(--muted)}
+  .verify{
+    border-top:1px solid var(--line); padding:14px 0 16px; font-size:.88rem; color:var(--muted);
+  }
+  .verify code{font-family:var(--mono); font-size:.9em}
+
+  /* summary */
+  .summary-sec{border-top:1px solid var(--line); padding-top:30px}
+  .summary{
+    font-family:var(--mono); font-size:.84rem; line-height:1.75; white-space:pre-wrap;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:18px 20px; margin:14px 0 0; color:var(--ink); overflow-x:auto;
+  }
+  .summary .pending{color:var(--muted)}
+  .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+  button{
+    font-family:var(--sans); font-size:.87rem; font-weight:500; color:var(--ink);
+    background:var(--surface); border:1px solid var(--line-strong); border-radius:8px;
+    padding:8px 14px; cursor:pointer;
+  }
+  button:hover{border-color:var(--accent); color:var(--accent)}
+  button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .hint{font-size:.85rem; color:var(--muted); margin:12px 0 0}
+
+  footer{border-top:1px solid var(--line); margin-top:44px; padding-top:20px; font-size:.85rem; color:var(--muted)}
+
+  @media (max-width:520px){
+    .decision-head{flex-direction:column; gap:8px; padding:18px 18px 0}
+    .decision-body{padding:8px 18px 20px}
+    .done{padding:20px 18px 4px}
+    .opt-cost,.rec{margin-left:0; display:inline-block; margin-top:5px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">smart mistake book · 内核就绪度审计 · 2026-09-14</p>
+    <h1>内核审计拍板清单</h1>
+    <p class="standfirst">
+      这一页做两件事：把这条分支<strong>已经验证过</strong>的修复摆在一处，再剩下的<strong>五条只有你能定的取舍</strong>逐条列出——
+      每条附选项、真实成本、我的建议，以及它<strong>解锁哪条链</strong>。之所以是「拍板」而不是「待办」：
+      剩下的东西不是还没排到，而是每一条都停在产品口径上；继续施工就等于替你定口径。
+    </p>
+    <dl class="ledger">
+      <div><dt>本分支提交</dt><dd>40<small>基于 <code>dc12065</code></small></dd></div>
+      <div><dt>带取证结论的提交</dt><dd>39<small>／ 40，每条可追到审计项</small></dd></div>
+      <div><dt>等你拍板</dt><dd>5<small>条，按依赖排序</small></dd></div>
+      <div><dt>其中可先做</dt><dd>1<small>N-30，方向无歧义</small></dd></div>
+    </dl>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="done">
+    <h2>已经落地的（都有当前证据）</h2>
+    <p class="sec-note">这一节不是要你复核，是让你知道哪一半不再需要你花时间。每条都能在审计文档里找到对应的取证块。</p>
+    <div class="done-grid">
+      <div>
+        <h4>算法与口径</h4>
+        <ul>
+          <li>F-01 衰减取法收口到一处，删掉三个会静默回退出厂值的默认参数，并给「第 20 号」加值钉</li>
+          <li>F-02 读侧「已经过天数」统一到<strong>学习者本地日历日</strong>——两个读侧出口现在给出同一个 R</li>
+          <li>N-18 从 ≤v31 升级上来的库永久搜不到题：<code>countIndexed()</code> 改读 FTS 影子表</li>
+          <li>N-24 未投影单元的第二条视觉证据 <code>delta_t</code> 不再归零</li>
+        </ul>
+      </div>
+      <div>
+        <h4>取证缺口</h4>
+        <ul>
+          <li>N-27 标定回路的消费者：三个方向终于有断言（含「被拒的那次不得写回」）</li>
+          <li>N-28 配图通道走共享闸门，有证据了</li>
+          <li>N-19 取一道题的 KC 范围不再整读目录（共用同一份 SQL 的定向查询）</li>
+        </ul>
+      </div>
+      <div>
+        <h4>状态与启动</h4>
+        <ul>
+          <li>N-21「重试」重跑失败的那一步，成功后横幅收回</li>
+          <li>R-13 报告不再在「没有测量来源」时编造 <code>PASS</code>；AAB 体积写进模板真正引用的列</li>
+          <li>N-31 状态页写明判定只覆盖本次真跑过的门</li>
+        </ul>
+      </div>
+      <div>
+        <h4>结构</h4>
+        <ul>
+          <li>R-01 两个文件拆到线内：1396 → <strong>844</strong>、1132 → <strong>821</strong>、1076 → <strong>727</strong></li>
+          <li>R-02 <code>PagingSource</code> 移出 <code>core:domain</code>（该模块零命中 Paging）</li>
+          <li>R-06 第一批死代码清理；R-09／R-07 的「占位／零读者」写在声明处</li>
+        </ul>
+      </div>
+    </div>
+    <p class="verify">
+      <strong>验证</strong>：每次改动都跑真实套件——<code>:core:database</code> 67/0、<code>:core:data</code> 418/0、
+      <code>:core:domain</code> 415/0、<code>:core:model</code> 299/0、<code>:feature:library</code> 33/0、<code>:app</code> 77/0；
+      每次恢复都以 md5 逐字节核对，每个新断言都做过变异（先预测红集再量）。
+      本分支最后两个提交只动 CI 工具与模板，未触代码，故上述回归仍代表当前代码。
+      <strong>一处例外</strong>：<code>tools/tests</code> 的 6 条契约<strong>CI 不跑</strong>（workflow 无该步骤），目前只能手跑——
+      这一条并入下面②一起定。
+    </p>
+  </section>
+
+  <h2>五条待拍板</h2>
+  <p class="sec-note">
+    顺序是<strong>依赖序</strong>不是优先级：① 定完，A3 与 N-20 的第二半立刻可执行；② 定完，报告语义与 §5.5.6 一起收口。
+    每张卡选一个选项即可，页面会在最下面拼出一份纯文本摘要供你复制回给我。
+  </p>
+
+  <form class="decisions" id="decisions">
+
+    <!-- ① -->
+    <article class="decision">
+      <div class="decision-head">
+        <span class="num">①</span>
+        <h3>「开场重教」这条通道要不要存在？</h3>
+      </div>
+      <div class="decision-body">
+        <p class="situation">
+          <span class="id-label">N-16</span>　　这条通道按规格是「必经步骤」，但它的范围取自<strong>策展件</strong>
+          （只存在于 <code>src/debug/</code> 的 <code>M1CuratedFixtureSource</code>），而 release 里那个源恒为
+          <code>EmptyStudyFixtureSource</code>——所以它在真机上恒为 <code>null</code>；更要紧的是，
+          <strong>只有策展屏渲染过它</strong>（<span style="color:var(--stop)">⚠️ 此处原文写的是「没有任何一屏渲染过它」，2026-09-14 已订正——见页脚</span>）。它同时是 A3／N-20「取材料那一半」的前置：那一半想只认库内绑定，
+          就必须再加一个「按 practice_unit 取科目＋范围」的缝，而缝值不值得建，取决于这条通道会不会被渲染。
+        </p>
+        <fieldset data-key="d1">
+          <legend>你的决定</legend>
+          <div class="options">
+            <label class="opt">
+              <input type="radio" name="d1" value="接线并渲染">
+              <span><span class="opt-pick">接线并渲染它</span><span class="opt-cost cost-mid">成本 中</span>
+                <span class="opt-why">新增那条缝 ＋ 一屏 UI ＋ 用例。换到：规格里写着的「必经步骤」真的存在。顺序必须是先定 UI、再做缝。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d1" value="删掉这条通道">
+              <span><span class="opt-pick">删掉这条通道</span><span class="opt-cost cost-low">成本 低</span><span class="rec">我的建议</span>
+                <span class="opt-why">删 <code>reTeachOpening</code> ＋ 策展件回退（＋相关夹具），用编译与 grep 举证。换到：debug/release 的行为差消失，A3 不再需要新缝，N-20 只剩 A／B 的展示口径。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d1" value="保留现状（已登记）">
+              <span><span class="opt-pick">保留现状，只登记</span><span class="opt-cost cost-low">成本 0</span>
+                <span class="opt-why">代价：一条没人渲染的通道 ＋ 一个只在 debug 存在的分支，继续留在内核里等着被后来者读成「已经有了」。</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <div class="advice">
+          <p><b>建议选「删掉」</b>——除非重教开场确实在你接下来的计划里。S-5 已经判定「范围应取自题库自身，不取自策展夹具」；
+          而一条没有渲染方的通道留在内核里，正是这份审计反复在治的那种「读起来像已经有」的漂移源。
+          若确实要做，就选「接线并渲染」，并把 N-20 的缝与 UI 放在同一次里做——<b>先加缝后决定要不要渲染，等于白做一遍</b>。</p>
+        </div>
+        <p class="unlocks"><span class="lbl">解锁</span>
+          <span class="chip">A3 取材料那一半</span><span class="chip">N-20 第二半</span><span class="chip">N-16</span></p>
+      </div>
+    </article>
+
+    <!-- ② -->
+    <article class="decision">
+      <div class="decision-head">
+        <span class="num">②</span>
+        <h3>状态页的 PASS 覆盖什么——以及那六类恒空的行由谁产？</h3>
+      </div>
+      <div class="decision-body">
+        <p class="situation">
+          <span class="id-label">N-31 余三条 ＋ §5.5.6</span>　　生成器已经不再编造 <code>PASS</code>，模板也写明了「只覆盖本次真跑过的门」。
+          仍开放三件：<b>(i)</b> 迁移矩阵、安全检查、宏基准／内存、AAB 体积那批行<strong>没有任何赋值来源</strong>
+          （证据在另一个 job，两个 job 之间不传工件），于是恒为 <code>NOT_MEASURED</code>；
+          <b>(ii)</b> 只有绿的那次才提交 <code>status.md</code>，于是 main 上是一块<strong>永远绿的铭牌</strong>，失败只进 artifact；
+          <b>(iii)</b> 要不要引入第三个词（<code>PARTIAL</code>／未测）。
+        </p>
+        <fieldset data-key="d2">
+          <legend>恒空的那六类行怎么处理（i）</legend>
+          <div class="options">
+            <label class="opt">
+              <input type="radio" name="d2" value="跨 job 传工件，让它们真的被测到">
+              <span><span class="opt-pick">跨 job 传工件，真的测</span><span class="opt-cost cost-mid">成本 中</span><span class="rec">我的建议（若这些门要留）</span>
+                <span class="opt-why">把 <code>instrumented</code> job 的证据传给报告 job，六类行从此有真值。顺带把 <code>tools/tests</code> 那 6 条契约接进 CI——否则它们永远是手跑契约。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d2" value="删列并改 release-gates 口径">
+              <span><span class="opt-pick">删列，并改 release-gates 的说法</span><span class="opt-cost cost-low">成本 低</span><span class="rec">我的建议（若这些门本来就靠别的机制）</span>
+                <span class="opt-why">从模板删掉那六类行，同时改掉 release-gates 里「迁移矩阵通过／安全检查通过」的措辞——它现在声称的正是报告里没有证据的那部分。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d2" value="留着不动">
+              <span><span class="opt-pick">留着不动</span><span class="opt-cost cost-low">成本 0</span>
+                <span class="opt-why">我不建议这一条：恒 <code>NOT_MEASURED</code> 的行比没有行更坏——它让报告显得覆盖了实际没覆盖的东西。</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <fieldset data-key="d2b" style="margin-top:16px">
+          <legend>顺带（ii）／（iii）</legend>
+          <div class="options">
+            <label class="opt">
+              <input type="checkbox" name="d2b-ii" value="让 FAIL 也提交到 main">
+              <span><span class="opt-pick">让 FAIL 也提交到 main</span><span class="opt-cost cost-low">成本 低</span><span class="rec">倾向做</span>
+                <span class="opt-why">否则 main 上的铭牌永不反映失败。代价是失败会留在公开文件里——这取决于你要不要。</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" name="d2b-iii" value="引入第三个词 PARTIAL">
+              <span><span class="opt-pick">引入第三个词 <code>PARTIAL</code></span><span class="opt-cost cost-mid">成本 中</span><span class="rec">倾向不做</span>
+                <span class="opt-why">作用域写明之后它的信息量与现在相同，却会同时动到告警口径与历史可比性。建议先不做。</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <p class="unlocks"><span class="lbl">解锁</span>
+          <span class="chip">N-31</span><span class="chip">§5.5.6</span><span class="chip">R-13 残留</span><span class="chip">tools 测试进 CI</span></p>
+      </div>
+    </article>
+
+    <!-- ③ -->
+    <article class="decision">
+      <div class="decision-head">
+        <span class="num">③</span>
+        <h3>四个校准接口：接线，还是删除？</h3>
+      </div>
+      <div class="decision-body">
+        <p class="situation">
+          <span class="id-label">R-07 · B7</span>　　标定回路的五个出口在<strong>生产里一个读者都没有</strong>
+          （这句话现在已经写在声明处，不再是隐藏事实）。两条路都成立，但方向相反：接线是功能，删除会撤掉「我们有标定」这句话。
+        </p>
+        <fieldset data-key="d3">
+          <legend>你的决定</legend>
+          <div class="options">
+            <label class="opt">
+              <input type="radio" name="d3" value="分层：纯数据形状的留着并接线写侧，只为被读的删除">
+              <span><span class="opt-pick">分层处理</span><span class="opt-cost cost-mid">成本 中</span><span class="rec">我的建议</span>
+                <span class="opt-why">纯数据形状的那几个（闸门输入／观测／判定）留着<b>并接线写侧</b>，让证据先积累——写侧接线是几十行、不需要 UI；只为被读而存在的接口直接删。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d3" value="全部接线（做成功能）">
+              <span><span class="opt-pick">全部接线，做成功能</span><span class="opt-cost cost-high">成本 高</span>
+                <span class="opt-why">那是一个完整特性（采集＋呈现＋回写），值得单独立项，而不是塞进审计分支。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d3" value="全部删除">
+              <span><span class="opt-pick">全部删除</span><span class="opt-cost cost-low">成本 低</span>
+                <span class="opt-why">干净，但会撤掉 spec §2.5 承诺的能力；如果标定是你后面要做的事，删了还得重建。</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <div class="advice">
+          <p><b>建议选「分层处理」</b>：先写后读是可分的两步，先把证据攒起来成本低且不回退；
+          而没有任何读取计划的接口留在库里，就是②里同一种「看起来已经有」的毛病。</p>
+        </div>
+        <p class="unlocks"><span class="lbl">解锁</span>
+          <span class="chip">R-07</span><span class="chip">N-27 正向覆盖</span><span class="chip">N-22</span></p>
+      </div>
+    </article>
+
+    <!-- ④ -->
+    <article class="decision">
+      <div class="decision-head">
+        <span class="num">④</span>
+        <h3>三条口径：搜索预算、契约注册表、保持率建议读哪组参数</h3>
+      </div>
+      <div class="decision-body">
+        <p class="situation">
+          三条彼此独立，放在一张卡里只因为它们都属「口径」而不是「实现」。
+        </p>
+        <fieldset data-key="d4a">
+          <legend>N-17　搜索延迟预算——真机数据出来前，任何数字都是把断言改成与观察相符</legend>
+          <div class="options">
+            <label class="opt">
+              <input type="radio" name="d4a" value="先在真机上测一轮，再定预算">
+              <span><span class="opt-pick">先在真机（或带档位声明的加速器）上测一轮，再定预算</span><span class="opt-cost cost-mid">成本 中</span><span class="rec">我的建议</span>
+                <span class="opt-why">现在的诚实状态是预算标 <code>NOT_MEASURED</code>。真机达标 ⇒ 按<strong>设备档位</strong>重定预算并写明档位；真机也不达标 ⇒ 这是一条要修的性能问题，而不是预算问题。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d4a" value="按现在的模拟器数字重定预算">
+              <span><span class="opt-pick">按本机模拟器的数字重定预算</span><span class="opt-cost cost-low">成本 低</span>
+                <span class="opt-why">不建议：本机只有一台软件渲染 AVD，「它是否代表真机」没有证据。照它写预算，等于让断言与观察相符。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d4a" value="当作性能问题直接立项修">
+              <span><span class="opt-pick">当作性能问题直接立项修</span><span class="opt-cost cost-high">成本 高</span>
+                <span class="opt-why">有一条可用的诊断起点：目录侧两条都在预算内、FTS 侧三条全超 ⇒ 问题在 MATCH ⨝ content ⨝ catalog 这条链，不在目录视图本身。</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <div class="advice">
+          <p><b>量到的数（两次运行的区间）</b>：10k 行搜索 P95 <b>1619–1678ms</b>（预算 500ms ⇒ 3.2–3.4 倍）、
+          中文搜索 P95 <b>2013–2018ms</b>（⇒ 约 4 倍）、<b>并发那条 17730–20903ms</b>（预算 1000ms ⇒ <b>17.7–20.9 倍</b>）；
+          而首屏 20 行分页与全表 facet 两条<strong>都在预算内</strong>。这个不对称本身就是诊断线索。
+          <span class="id-label">（审计文档里这条原先写着「3–42 倍」与「3–18 倍」两个互相打架的数，都不等于上表；已按表订正为 3.2–20.9 倍。）</span></p>
+        </div>
+        <fieldset data-key="d4b" style="margin-top:16px">
+          <legend>N-23　任务契约注册表：生产零读者</legend>
+          <div class="options">
+            <label class="opt">
+              <input type="radio" name="d4b" value="让测试成为承重读者">
+              <span><span class="opt-pick">让它承重：注册即被断言</span><span class="opt-cost cost-low">成本 低</span><span class="rec">我的建议</span>
+                <span class="opt-why">把「每个任务类型都注册过」变成测试里会响的断言，注册表就从摆设变成闸门。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d4b" value="删掉注册表">
+              <span><span class="opt-pick">删掉它</span><span class="opt-cost cost-low">成本 低</span>
+                <span class="opt-why">如果它要表达的约束别处已经表达，删掉即可。</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <div class="advice" style="background:var(--ok-soft)">
+          <p><span class="id-label">N-30</span>　<b>这一条我建议直接做，不算决策</b>：「保持率建议」读设置存储里的参数，
+          而曲线读的是构造时那一组——同一族参数在生产里有<strong>第三个来源</strong>。让建议读曲线<strong>真正在用</strong>的那一组，
+          方向没有歧义、成本低，我把它列进可执行项。</p>
+        </div>
+        <p class="unlocks"><span class="lbl">解锁</span>
+          <span class="chip">R-12 硬门</span><span class="chip">N-17／N-23／N-30</span><span class="chip">N-30 可直接做</span></p>
+      </div>
+    </article>
+
+    <!-- ⑤ -->
+    <article class="decision">
+      <div class="decision-head">
+        <span class="num">⑤</span>
+        <h3>变基：S-2 同意门在 main 上已经被换了形态</h3>
+      </div>
+      <div class="decision-body">
+        <p class="situation">
+          <span class="id-label">R-11 · S-2</span>　　这条分支的同意门修复用的是 <code>ModelAgentConsentStore</code>；
+          而 <code>main</code> 已经把这个类型删掉了（配置模型即同意）。两个决定各自自洽，但<strong>变基时不能并存</strong>——
+          这是我在读 <code>main</code> 自己的代码时发现的，不是从摘要里推断的。
+        </p>
+        <fieldset data-key="d5">
+          <legend>你的决定</legend>
+          <div class="options">
+            <label class="opt">
+              <input type="radio" name="d5" value="变基到 main，并把 S-2 用 main 的语言重写">
+              <span><span class="opt-pick">变基到 main，用它的语言重写 S-2</span><span class="opt-cost cost-mid">成本 中</span><span class="rec">我的建议</span>
+                <span class="opt-why">采纳「配置模型＝同意」，把 S-2 改成「关掉模型配置即等于撤回同意」。要防的失效（撤销后仍上传原图）在两种口径下都存在，<b>防法变了、目标没变</b>。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d5" value="保持分支独立，暂不变基">
+              <span><span class="opt-pick">保持分支独立</span><span class="opt-cost cost-low">成本 0</span>
+                <span class="opt-why">分支可继续用，但合并会一直挂着一个语义冲突；R-11 也一直悬着。</span></span>
+            </label>
+            <label class="opt">
+              <input type="radio" name="d5" value="cherry-pick 需要的提交">
+              <span><span class="opt-pick">只 cherry-pick 需要的提交</span><span class="opt-cost cost-mid">成本 中</span>
+                <span class="opt-why">适合只想取其中几条修复的情形；代价是失去「一条分支一个决定」的可读性。</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <p class="unlocks"><span class="lbl">解锁</span>
+          <span class="chip">合并本身</span><span class="chip">R-11</span></p>
+      </div>
+    </article>
+
+  </form>
+
+  <section class="summary-sec">
+    <h2>你的选择（纯文本）</h2>
+    <p class="sec-note">选中选项后这里会拼出摘要。复制它贴回给我即可——不需要保存，也不必给我链接。</p>
+    <pre class="summary" id="summary">（还没有选择）</pre>
+    <div class="btnrow">
+      <button type="button" id="copy">全选摘要</button>
+      <button type="button" id="clear">清空选择</button>
+    </div>
+    <p class="hint" id="hint">选择只存在你这台机器的浏览器里，不会发送到任何地方。</p>
+  </section>
+
+  <footer>
+    证据都在这条分支的审计文档 <code>docs/audit-2026-09-12-kernel-readiness.md</code> 里，逐条带 commit 与命令。
+    本页只做索引与取舍，不替代那份记录。<br>
+    <strong>2026-09-14 状态</strong>：①④⑤⑥ 已按你的裁定落地；②（跨 job 传工件）量完发现是工作流重构，
+    未动手；③（校准接线）是特性级，且它的 go/no-go 门判据有已知缺陷，需先修判据。详见审计 §13.9／§13.10。
+    <br><strong>另订正一处</strong>：①卡里原先断言「没有任何一屏渲染过它」是错的——策展屏确实渲染它，
+    错的是「只有演示内容能走到渲染」。你据此选择的「删掉」若执行会删掉一条已在渲染、有两条用例的功能；
+    我在删除前读目标时发现，改为按「修好它」执行。
+  </footer>
+</main>
+
+<script>
+(function(){
+  var KEY = "smb-kernel-decisions-v1";
+  var form = document.getElementById("decisions");
+  if (!form) return;
+  var out = document.getElementById("summary");
+  var hint = document.getElementById("hint");
+
+  function read(){
+    try { return JSON.parse(localStorage.getItem(KEY) || "{}") || {}; }
+    catch (e) { return {}; }
+  }
+  function write(state){
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var TITLES = {
+    d1:  "① 开场重教通道",
+    d2:  "② 恒空行的处理",
+    d2b: "② 附带",
+    d3:  "③ 四个校准接口",
+    d4a: "④ N-17 搜索预算",
+    d4b: "④ N-23 契约注册表",
+    d5:  "⑤ 变基与 S-2"
+  };
+  var ORDER = ["d1","d2","d2b","d3","d4a","d4b","d5"];
+
+  // Each group lists its exact input names. A prefix match would be wrong here:
+  // group "d2" would also swallow the "d2b-*" checkboxes and report them twice.
+  var NAMES = {
+    d1: ["d1"], d2: ["d2"], d2b: ["d2b-ii", "d2b-iii"],
+    d3: ["d3"], d4a: ["d4a"], d4b: ["d4b"], d5: ["d5"]
+  };
+
+  function collect(){
+    var s = {};
+    ORDER.forEach(function(g){
+      var picked = [];
+      (NAMES[g] || []).forEach(function(n){
+        Array.prototype.forEach.call(form.querySelectorAll('[name="' + n + '"]'), function(b){
+          if (b.checked) picked.push(b.value);
+        });
+      });
+      if (picked.length) s[g] = picked;
+    });
+    return s;
+  }
+
+  function render(){
+    var s = collect();
+    var lines = ["【内核审计拍板清单 — 我的选择】", ""];
+    var pending = [];
+    ORDER.forEach(function(g){
+      if (s[g] && s[g].length) {
+        lines.push(TITLES[g] + "：" + s[g].join("；"));
+      } else {
+        pending.push(TITLES[g]);
+      }
+    });
+    var any = lines.length > 2;
+    if (!any) { out.textContent = "（还没有选择）"; return; }
+    if (pending.length){
+      lines.push("");
+      lines.push("（还没定：" + pending.join("、") + "）");
+    }
+    out.textContent = lines.join("\n");
+  }
+
+  function restore(){
+    var s = read();
+    ORDER.forEach(function(g){
+      var picked = s[g] || [];
+      (NAMES[g] || []).forEach(function(n){
+        Array.prototype.forEach.call(form.querySelectorAll('[name="' + n + '"]'), function(b){
+          if (picked.indexOf(b.value) !== -1) b.checked = true;
+        });
+      });
+    });
+  }
+
+  form.addEventListener("change", function(){
+    write(collect());
+    render();
+  });
+
+  // keep the browser's own restore (back/forward) in sync with ours
+  form.addEventListener("input", render);
+
+  var copyBtn = document.getElementById("copy");
+  if (copyBtn){
+    copyBtn.addEventListener("click", function(){
+      try {
+        var range = document.createRange();
+        range.selectNodeContents(out);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        hint.textContent = "已选中——按 Ctrl/Cmd+C 复制。";
+      } catch (e) {
+        hint.textContent = "请手动选中上面的文本复制。";
+      }
+    });
+  }
+
+  var clearBtn = document.getElementById("clear");
+  if (clearBtn){
+    clearBtn.addEventListener("click", function(){
+      Array.prototype.forEach.call(form.querySelectorAll("input"), function(b){ b.checked = false; });
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      out.textContent = "（还没有选择）";
+      hint.textContent = "已清空。选择只存在你这台机器的浏览器里。";
+    });
+  }
+
+  restore();
+  render();
+})();
+</script>
