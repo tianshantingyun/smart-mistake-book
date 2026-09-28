@@ -23,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, "tools")
 from kb_build import gate, pack_io  # noqa: E402
+from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
 FIELDS = ("title", "summaryMarkdown", "applicabilityMarkdown",
           "contentMarkdown", "boundaryMarkdown")
@@ -30,7 +31,7 @@ BACKSLASH = chr(92)
 BASH_LITERAL = re.compile(r"/usr/bin/bash|/bin/bash")
 LONG_NUMBER = re.compile(r"(?<![\d.])\d{5,7}(?![\d.])")
 MATH_SPAN = re.compile(r"\$[^$]{1,400}\$")
-CHUNK_STORE = Path("tools/kb_coverage/tables/extracted_chunks.jsonl")
+CHUNK_STORE = POOL_PATH
 
 
 def norm_formula(text: str) -> str:

@@ -147,6 +147,36 @@ class StoreGateTest(unittest.TestCase):
         self.assertEqual(first, self.chunks.read_text(encoding="utf-8"), "重跑必须按 fp 去重")
         self.assertEqual(0, json.loads(out.strip().splitlines()[-1])["new_chunks"])
 
+    def test_continues_sequence_after_existing_rows(self):
+        # 回归：旧实现每轮从 001 重排 cid，池里已有 base-005 时新块又写 base-001 → 撞键。
+        # 新实现必须读该 rel 已有最大序号并从其后续排。
+        base = st._chunk_id("数学/book.pdf")
+        seed = {"heading": "既有", "text": "池里已有的块内容（与新页文字不同）。",
+                "rel_path": "数学/book.pdf", "subject": "数学",
+                "chunk_id": f"{base}-005", "fp": st._fp("池里已有的块内容（与新页文字不同）。"),
+                "source_page": 1}
+        self.chunks.write_text(json.dumps(seed, ensure_ascii=False) + "\n", encoding="utf-8")
+        rc, out, err = self._run()
+        self.assertEqual(0, rc, err)
+        chunks = self._chunks()
+        self.assertEqual(f"{base}-006", chunks[-1]["chunk_id"], chunks)
+        keys = [(c["rel_path"], c["chunk_id"]) for c in chunks]
+        self.assertEqual(len(keys), len(set(keys)), "块池 (rel_path, chunk_id) 必须唯一")
+
+    def test_assert_unique_keys_rejects_collisions(self):
+        # 写前撞键断言：内部重复、与已有池键相撞都要拒绝（宁可拒写，不静默丢块）
+        with self.assertRaises(ValueError):
+            st.assert_unique_keys(
+                [{"rel_path": "a.pdf", "chunk_id": "x-001"},
+                 {"rel_path": "a.pdf", "chunk_id": "x-001"}], set())
+        with self.assertRaises(ValueError):
+            st.assert_unique_keys(
+                [{"rel_path": "a.pdf", "chunk_id": "x-001"}], {("a.pdf", "x-001")})
+        # 合法批次不抛
+        st.assert_unique_keys(
+            [{"rel_path": "a.pdf", "chunk_id": "x-001"},
+             {"rel_path": "a.pdf", "chunk_id": "x-002"}], {("b.pdf", "y-001")})
+
 
 if __name__ == "__main__":
     unittest.main()

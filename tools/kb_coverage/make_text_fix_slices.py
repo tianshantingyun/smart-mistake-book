@@ -40,12 +40,13 @@ from pathlib import Path
 
 sys.path.insert(0, "tools")
 from kb_build import gate, pack_io  # noqa: E402
+from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
 FIELDS = ("title", "summaryMarkdown", "applicabilityMarkdown",
           "contentMarkdown", "boundaryMarkdown")
 OUT_DIR = Path("tools/kb_coverage/text_fix_slices")
 FIX_ROOT = Path("tools/kb_coverage/text_fixes")
-CHUNK_STORE = Path("tools/kb_coverage/tables/extracted_chunks.jsonl")
+CHUNK_STORE = POOL_PATH
 CHUNK_EXCERPT = 2600
 OTHER_EXCERPT = 1400
 BACKSLASH = chr(92)

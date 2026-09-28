@@ -3,11 +3,33 @@
 本文是块池"全量判定入库"的**冻结判定规则与落盘格式**。所有判定代理（切片判定轮）与合并/预筛工具
 都以此为准。规则编号与 2026-09-28 P0.1 冻结版一致，后续修改须显式改本文件并升级版本。
 
+---
+
+## ⚠️ 池路径迁移（2026-09-29 P0.2 块键唯一化）——所有代理先读这里
+
+**当前生效块池 = `tools/kb_coverage/tables/extracted_chunks.rekeyed.jsonl`**。
+P0.2 已把块池按 rel 确定性重编号：186,635 行 / 186,635 唯一键（四本 2027 版 53 的
+2,309 个重复键全部消除，映射表 `tools/kb_coverage/tables/key_remap.csv`）。所有工具
+一律经 `kb_coverage/pool_path.py` 的 `POOL_PATH` 读取生效池，**禁止再各自写死池路径**。
+
+旧名 `extracted_chunks.jsonl` 是重排**前**的原始池（含重复键，勿再读取用于判定），
+其文件句柄被宿主进程持有（rename/replace 均报 WinError 5/32），暂时无法改名或删除，
+**任何工具不得写旧名文件**。收尾计划（P4 验收）：旧句柄放开后把 rekeyed 名 rename 回
+规范名并更新 `pool_path.py`；若届时仍锁，保留双名并在验收报告"遗留"写明，旧文件删除
+等用户明令，不自行删除。
+
+判定表 `material_judgments.csv` 16,625 行的 chunk_id 已按映射表重映射并逐行 fp 对拍：
+0 行改写（判定行全部指向非 53 块，键未变）、0 失配（`fp_mismatch.csv` 不存在）。
+下文 §一 的"现状实测值"是 P0.1 在重排前旧池上测得的，键级数字以重排后为准。
+
+---
+
 涉及文件（现状实测值，2026-09-28）：
 
-- 块池：`tools/kb_coverage/tables/extracted_chunks.jsonl` — 186,635 行；排除已判定键
+- 块池：`tools/kb_coverage/tables/extracted_chunks.rekeyed.jsonl`（P0.2 重排后生效名；
+  见顶部迁移公告）— 186,635 行；排除已判定键
   （`material_judgments.csv` 命中 11,745 个）后**未判定 174,890 行 / 171,461 个唯一键**
-  （174,890 − 3,429 个重复键行）。
+  （174,890 − 3,429 个重复键行——该 3,429 个重复键行已于 P0.2 重编号消除）。
 - 预筛：`tools/kb_coverage/prescreen_chunks.py`（机械分流，只报告不写块池），
   报告 `tools/kb_coverage/tables/prescreen_report.json`。
 - 判定表：`tools/kb_coverage/tables/material_judgments.csv`（判定行的唯一落盘处）。

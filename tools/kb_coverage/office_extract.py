@@ -31,8 +31,9 @@ import zipfile
 from pathlib import Path
 
 from kb_coverage import extraction_state as es
+from kb_coverage.pool_path import POOL_PATH
 
-CHUNKS = Path(__file__).resolve().parent / "tables" / "extracted_chunks.jsonl"
+CHUNKS = POOL_PATH
 ROOT = Path.home() / "Desktop" / "知识库原始数据资料"
 MAX_CHARS = 700
 MIN_CJK = 20

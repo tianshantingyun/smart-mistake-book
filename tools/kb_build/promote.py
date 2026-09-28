@@ -32,9 +32,12 @@ import argparse
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 
-from kb_build import check_pack_contract, gate, pack_io, roundtrip, update_manifest
+REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "tools"))
+from kb_build import check_pack_contract, gate, pack_io, roundtrip, update_manifest  # noqa: E402
 
 
 class PromoteError(Exception):

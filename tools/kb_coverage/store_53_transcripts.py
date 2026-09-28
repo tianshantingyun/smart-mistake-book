@@ -10,7 +10,10 @@
 - 读 `build/2027-53-transcripts/<subject>/<书>/range_*.jsonl`（子代理产物，每行
   `{heading, text, page}`），按 `fp`（内容 sha256）去重后追加到 `extracted_chunks.jsonl`；
 - `chunk_id` = `sha256(rel_path)[:10]-NNN`（与 `office_extract` 同一套编号，rel_path 是
-  该 PDF 相对源根的路径）；
+  该 PDF 相对源根的路径）。NNN 按 rel **续排**：先读该 rel 在块池里已用的最大序号，
+  从 N+1 继续——**绝不从 001 重头排**（重头排会让 (rel_path, chunk_id) 撞键，而
+  materialize 以该键建 dict 会静默只留末行、丢先写的块内容；2026-09 四本 53 实测
+  撞出 2,309 个重复键 / 5,738 行受影响）；
 - 给这 4 本 PDF 在 `source_inventory.csv`（**追加，不动旧行**）与 `extraction_state.csv`
   建行并标 `CHUNKED`（已切块、待语义判定）——**不是 EXTRACTED，不 materialize，不进成品包**。
 
@@ -20,7 +23,9 @@
 本轮明确"先不要写入知识库"，所以终态停在 `CHUNKED`（已切块待判定），下一步（判定+materialize）
 由后续轮次单独做。这样状态机如实反映"扫出来存好了，但还没进知识库"。
 
-幂等：按 `fp` 去重（同一文字只入一次）、inventory/state 按 rel_path 去重（已有行不动）。
+幂等：按 `fp` 去重（同一文字只入一次）、inventory/state 按 rel_path 去重（已有行不动）、
+chunk_id 按 rel 续排（重跑时新块接在已有最大序号之后）。写盘前有撞键断言：
+新块键内部重复、或与池内已有键相撞，一律拒绝写盘（exit 3），不静默丢块。
 只写 `extracted_chunks.jsonl` / `source_inventory.csv` / `extraction_state.csv` 三个既有存储，
 不碰成品包，不碰 `build/` 以外的临时目录。
 
@@ -49,8 +54,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_coverage import transcription_ledger as tl  # noqa: E402
+from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
-CHUNKS = REPO / "tools/kb_coverage/tables/extracted_chunks.jsonl"
+CHUNKS = POOL_PATH
 INV = REPO / "tools/kb_coverage/source_inventory.csv"
 STATE = REPO / "tools/kb_coverage/tables/extraction_state.csv"
 MANIFEST = REPO / "build/2027-53-pages/manifest.json"
@@ -74,16 +80,47 @@ def gate_map() -> dict[tuple[str, int], str]:
     return {(r["subject"], r["page"]): r["gate"] for r in tl.build_rows()}
 
 
-def load_existing_fps() -> set[str]:
+def load_existing() -> tuple[set[str], set[tuple[str, str]], dict[str, int]]:
+    """读已有块池：内容指纹集合、`(rel_path, chunk_id)` 键集合、每 rel 已用最大序号。
+
+    最大序号是"续排"的依据：同一 rel 的块键必须唯一连续，新写入从 max+1 续。
+    """
     fps: set[str] = set()
+    keys: set[tuple[str, str]] = set()
+    maxseq: dict[str, int] = {}
     if CHUNKS.exists():
         for line in CHUNKS.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 try:
-                    fps.add(json.loads(line).get("fp", ""))
+                    rec = json.loads(line)
                 except json.JSONDecodeError:
                     pass
-    return fps
+                else:
+                    fps.add(rec.get("fp", ""))
+                    rel = rec.get("rel_path", "")
+                    cid = rec.get("chunk_id", "")
+                    if rel and cid:
+                        keys.add((rel, cid))
+                        suffix = cid.rsplit("-", 1)[-1]
+                        if suffix.isdigit():
+                            maxseq[rel] = max(maxseq.get(rel, 0), int(suffix))
+    return fps, keys, maxseq
+
+
+def assert_unique_keys(new_chunks: list[dict],
+                       existing_keys: set[tuple[str, str]]) -> None:
+    """写前撞键断言：新块键内部不重复、且不与池内已有键相撞，否则抛 ValueError。
+
+    必须拒绝写盘而不是静默吞：撞键的 (rel_path, chunk_id) 落到 materialize 的
+    dict 里只会留末行，先写的块内容就丢了。
+    """
+    new_keys = [(c["rel_path"], c["chunk_id"]) for c in new_chunks]
+    dup = {k for k in new_keys if new_keys.count(k) > 1}
+    if dup:
+        raise ValueError(f"新块内部撞键 {len(dup)} 个，例：{sorted(dup)[:3]}")
+    collide = {k for k in new_keys if k in existing_keys}
+    if collide:
+        raise ValueError(f"新块与已有池键相撞 {len(collide)} 个，例：{sorted(collide)[:3]}")
 
 
 def split_text(text: str) -> list[str]:
@@ -126,12 +163,13 @@ def main(argv: list[str] | None = None) -> int:
     inv_seen = {r["rel_path"] for r in inv_rows}
     state_rows = list(csv.DictReader(open(STATE, encoding="utf-8"))) if STATE.exists() else []
     state_seen = {r["rel_path"] for r in state_rows}
-    existing_fps = load_existing_fps()
+    existing_fps, existing_keys, rel_maxseq = load_existing()
     gates = gate_map()
 
     now = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M:%S")
     new_chunks: list[dict] = []
     summary = []
+    seq = dict(rel_maxseq)  # 每 rel 续排计数器（从池内已有最大序号起）
 
     for sub in manifest.get("subjects", []):
         subject = sub.get("subject")
@@ -181,7 +219,8 @@ def main(argv: list[str] | None = None) -> int:
                 fp = _fp(piece)
                 if fp in existing_fps:
                     continue
-                cid = f"{base}-{added + 1:03d}"
+                seq[rel] = seq.get(rel, 0) + 1  # 按 rel 续排，不从 001 重头
+                cid = f"{base}-{seq[rel]:03d}"
                 new_chunks.append({
                     "heading": (rec.get("heading") or "").strip()[:80],
                     "text": piece,
@@ -216,6 +255,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[{subject}] {stem}: 转写 {len(lines)} 条知识点 → 新块 {added}", file=sys.stderr)
 
     if not args.dry_run:
+        try:
+            assert_unique_keys(new_chunks, existing_keys)
+        except ValueError as e:
+            print(f"拒绝写盘：{e}", file=sys.stderr)
+            return 3
         with CHUNKS.open("a", encoding="utf-8") as fh:
             for c in new_chunks:
                 fh.write(json.dumps(c, ensure_ascii=False) + "\n")

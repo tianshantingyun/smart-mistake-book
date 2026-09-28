@@ -28,12 +28,13 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from kb_build import pack_io
+from kb_coverage.pool_path import POOL_PATH
 
 REPO = Path(pack_io.REPO).resolve()
 AGENT_INPUT = REPO / "build" / "agent-input"
 OUT_CSV = AGENT_INPUT / "merged_text_batch.csv"
 OUT_NEW = AGENT_INPUT / "text_new_nodes.json"
-CHUNKS = REPO / "tools" / "kb_coverage" / "tables" / "extracted_chunks.jsonl"
+CHUNKS = POOL_PATH
 HDR = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title", "summary",
        "applicability", "content", "boundary", "note", "midx"]
 TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "WORKED_EXAMPLE", "COMPLETE_SOLUTION",

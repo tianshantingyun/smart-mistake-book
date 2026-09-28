@@ -33,12 +33,15 @@ import argparse
 import csv
 import hashlib
 import re
+import sys
 import time
 from pathlib import Path
 
-from kb_build import pack_io
-from kb_coverage import extraction_state as es
-from kb_coverage.office_extract import CHUNKS, load_chunks
+REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "tools"))
+from kb_build import pack_io  # noqa: E402
+from kb_coverage import extraction_state as es  # noqa: E402
+from kb_coverage.office_extract import load_chunks  # noqa: E402
 
 JUDGMENTS = Path(__file__).resolve().parent / "tables" / "material_judgments.csv"
 COLUMNS = ("chunk_rel", "chunk_id", "action", "node_slug", "type", "title",

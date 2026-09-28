@@ -41,8 +41,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_build import audit_material_examples as ame  # noqa: E402
+from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
-CHUNKS = REPO / "tools/kb_coverage/tables/extracted_chunks.jsonl"
+CHUNKS = POOL_PATH
 JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
 
 MIN_CHARS = 40
