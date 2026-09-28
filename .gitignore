@@ -53,6 +53,8 @@ tools/kb_coverage/tables/extracted_chunks.rekeyed.jsonl
 tools/kb_coverage/tables/extracted_chunks.jsonl.bak
 # 预筛汇总报告（prescreen_chunks.py 每次运行可确定性重生成）
 tools/kb_coverage/tables/prescreen_report.json
+# 判定切片（make_judgment_slices.py 每次运行可确定性重生成）
+tools/kb_coverage/tables/judgment_slices/
 
 # 2027版《53知识清单》扫描件转写原文（教辅原文，按来源政策不入版本控制；与 extracted_chunks.jsonl 同口径）
 knowledge-production/2027-53-transcripts/
@@ -65,3 +67,6 @@ knowledge-production/2027-53-pilot/**/*.reconcile.json
 
 # 53 扫描件补齐的中间产物（转写原文 + 代理自己裁的图，都不入版本控制）
 knowledge-production/2027-53-fill/
+
+# 判定结论收口（判定工作流产出的 verdicts，与切片同源可确定性重生成）
+knowledge-production/judgment-verdicts/

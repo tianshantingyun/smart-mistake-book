@@ -45,6 +45,10 @@ from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
 CHUNKS = POOL_PATH
 JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
+REJUDGE = REPO / "tools/kb_coverage/tables/rejudge_queue.csv"
+
+# 分流哨兵：已判定键的行不参与分流（下游只关心 SKIP/JUDGE）。
+JUDGED = "JUDGED"
 
 MIN_CHARS = 40
 # 非知识形态（确定性形态，不是内容判断）
@@ -97,52 +101,83 @@ def load_judged_keys() -> set[tuple[str, str]]:
     return keys
 
 
+def load_rejudge_keys() -> set[tuple[str, str]]:
+    """重判队列键（坏 type 待重判）。供 count_unjudged / make_judgment_slices 共用：
+    这些键虽在判定表里，但判定作废、按未判定处理。"""
+    import csv
+
+    keys: set[tuple[str, str]] = set()
+    if not REJUDGE.exists():
+        return keys
+    with REJUDGE.open(encoding="utf-8-sig", newline="") as fh:
+        for r in csv.DictReader(fh):
+            keys.add(((r.get("chunk_rel") or "").strip(), (r.get("chunk_id") or "").strip()))
+    return keys
+
+
+def iter_classified(chunks_path: Path, judged: set[tuple[str, str]]):
+    """逐行读块池并分流，产出 `(rec, verdict, why)`。
+
+    已判定键 → verdict=JUDGED（不参与分流）；未判定键按序应用判据：
+    同内容指纹重复 → SKIP-重复、同 (源,chunk_id) 重复行 → SKIP-重复键、
+    其余 `classify_chunk` → SKIP / JUDGE。判据顺序与模块 docstring 一致。
+
+    从 main 抽出来是给 make_judgment_slices / count_unjudged 共用同一份分流，
+    消灭"两个工具各写一遍判据、口径漂移"的失败。
+    """
+    seen_fp: set[str] = set()
+    seen_key: set[tuple[str, str]] = set()
+    with chunks_path.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            key = ((rec.get("rel_path") or "").strip(), (rec.get("chunk_id") or "").strip())
+            if key in judged:
+                yield rec, JUDGED, ""
+                continue
+            fp = rec.get("fp") or ""
+            if fp and fp in seen_fp:
+                yield rec, "SKIP-重复", "同内容指纹重复（只留首次）"
+            else:
+                seen_fp.add(fp)
+                if key in seen_key:
+                    yield rec, "SKIP-重复键", "同 (源,chunk_id) 重复行"
+                else:
+                    seen_key.add(key)
+                    verdict, why = classify_chunk(rec.get("heading") or "", rec.get("text") or "")
+                    yield rec, verdict, why
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--json", type=Path, help="把机器可读汇总写到这个路径")
     args = ap.parse_args(argv)
 
     judged = load_judged_keys()
-    seen_fp: set[str] = set()
-    seen_key: set[tuple[str, str]] = set()
     verdicts = collections.Counter()
     reasons = collections.Counter()
     by_source: dict[str, collections.Counter] = {}
     samples: dict[str, list[str]] = collections.defaultdict(list)
-    rows = unjudged = dup_rows = 0
+    rows = unjudged = 0
 
-    with CHUNKS.open(encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            rows += 1
-            try:
-                rec = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            key = (rec.get("rel_path") or "", rec.get("chunk_id") or "")
-            if key in judged:
-                continue
-            unjudged += 1
-            src = (rec.get("rel_path") or "?").split("/")[0]
-            fp = rec.get("fp") or ""
-            if fp and fp in seen_fp:
-                verdict, why = "SKIP-重复", "同内容指纹重复（只留首次）"
-                dup_rows += 1
-            else:
-                seen_fp.add(fp)
-                if key in seen_key:
-                    verdict, why = "SKIP-重复键", "同 (源,chunk_id) 重复行"
-                else:
-                    seen_key.add(key)
-                    verdict, why = classify_chunk(rec.get("heading") or "", rec.get("text") or "")
-            verdicts[verdict] += 1
-            if why:
-                reasons[why] += 1
-            by_source.setdefault(src, collections.Counter())[verdict] += 1
-            if why and len(samples[why]) < 2:
-                samples[why].append(f"{src} | {(rec.get('heading') or '')[:30]} | {(rec.get('text') or '')[:60]}")
+    for rec, verdict, why in iter_classified(CHUNKS, judged):
+        rows += 1
+        if verdict == JUDGED:
+            continue
+        unjudged += 1
+        verdicts[verdict] += 1
+        if why:
+            reasons[why] += 1
+        src = (rec.get("rel_path") or "?").split("/")[0]
+        by_source.setdefault(src, collections.Counter())[verdict] += 1
+        if why and len(samples[why]) < 2:
+            samples[why].append(f"{src} | {(rec.get('heading') or '')[:30]} | {(rec.get('text') or '')[:60]}")
+    dup_rows = verdicts.get("SKIP-重复", 0)
 
     judge = verdicts.get("JUDGE", 0)
     print(f"块池 {rows} 行；已判定跳过；**未判定 {unjudged} 块**")

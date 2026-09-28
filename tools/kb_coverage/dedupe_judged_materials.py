@@ -47,8 +47,11 @@ def slug_of(rel: str, chunk_id: str, midx: str) -> str | None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--dry-run", action="store_true", help="只报告不写盘（无开关时的默认行为；与 --write 互斥）")
     ap.add_argument("--write", action="store_true")
     args = ap.parse_args(argv)
+    if args.dry_run and args.write:
+        ap.error("--dry-run 与 --write 互斥")
 
     rows = list(csv.DictReader(JUDGMENTS.open(encoding="utf-8-sig")))
     cols = list(rows[0].keys())
