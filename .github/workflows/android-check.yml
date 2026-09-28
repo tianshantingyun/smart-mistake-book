@@ -49,10 +49,15 @@ jobs:
       - uses: android-actions/setup-android@v4
       - name: Grant Gradle wrapper permission
         run: chmod +x gradlew
-      # 知识库构建侧：30+ 手术工具 + 22 道质量门 + 五张权威表一致性 + roundtrip。
-      # 纯 stdlib Python，不需要 Android 工具链；放在 Gradle 步骤前，让"门红"
-      # 在几分钟内可见而不是等完整构建。CI 无 staging（build/ 不入版本控制），
-      # run_kb_checks 自动回退到成品目录校验。
+      # 知识库构建侧：30+ 手术工具 + 内容门（数量以 kb_build.gate.evaluate() 为准）+
+      # 五张权威表一致性 + roundtrip。纯 stdlib Python（PDF 后端见下一步），不需要
+      # Android 工具链；放在 Gradle 步骤前，让"门红"在几分钟内可见而不是等完整构建。
+      # CI 无 staging（build/ 不入版本控制），run_kb_checks 自动回退到成品目录校验。
+      # 2026-09-28：`tools/curriculum_coverage`（课标对照表线）在**导入期**就要 pypdf，
+      # 缺它会让整个 `tests.test_curriculum_coverage` 模块加载失败（check job 因此红，
+      # 进而 status.md 的 commit-back 被 `if: success()` 挡在门外——实测就是这么冻结到 09-21 的）。
+      - name: Install KB toolchain PDF backend
+        run: python3 -m pip install --disable-pip-version-check pypdf
       - name: Knowledge build toolchain tests
         run: python3 -m unittest discover -s tools/tests -t tools
       - name: Knowledge pack gate and table-pack consistency

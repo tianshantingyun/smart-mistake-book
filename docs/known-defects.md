@@ -1049,3 +1049,65 @@ git 里没有全文可恢复。门的 `field_text_defects` 只被用在**材料*
 
 **Reopen condition.** 该判据加入门后若再次出现非 0 的 boundary 缺陷——说明补全只治了存量、
 生成侧仍在写截断文本，须回头改生成器（而不是再补一批）。
+
+## KD-27 (open) · CI 的 `check` job 长期红 ⇒ status.md 的 commit-back 被 `if: success()` 永久冻结（实测冻结自 2026-09-21）
+
+**Symptom.** `gh run view 36337107924`（main 推送，含 Stage-6 换件提交）实测：`check` job 的
+`Knowledge build toolchain tests` 步骤 **红**（`FAILED (failures=7, errors=27, skipped=1)`），
+`instrumented` job 也红（`feature:library` 的 `MistakeExportInstrumentedTest` 断言失败 +
+测试进程计数通胀 43→49 的已知资源形态）。因为 `.github/workflows/android-check.yml` 的
+commit-back 步骤条件是 `if: success()`，**任何一处红都会让 `docs/status.md` 不再被写回**——
+仓库里那份停在 `74626e8` / 2026-09-21，KB 段与 gate 行数为 **0**（实测 `grep -c` = 0）。
+后果是"门全绿"这句话在 09-21 之后**没有任何随仓库的凭据**。
+
+**归因（三条，全部有 CI 日志原文）**：
+1. **`chapter_map.csv` 5 行坏 slug**（已提交那一版）：`ValueError: chapter_map.csv: 5 行的 slug
+   在知识包中不存在（可能写成了 name）：[('CHEMISTRY','水电离出的c(H+)（或c(OH-)）的计算'),
+   ('CHEMISTRY','装置气密性检查方法'), ('PHYSICS','游标卡尺的读数'), ('PHYSICS','库仑力作用下的平衡'),
+   ('MATH','三角形垂心的向量特征')]` —— 单这一条就吃掉 **17 个测试**（content_audit / build_generator /
+   align_chapter_locators / delete_points / verdicts 都是经 `tables.py:98 validate_chapter_map_slugs` 连坐）。
+   **修法已在工作树里但未提交**（另一会话的 `chapter_map.csv` 本地改动），非本条目负责人可改。
+2. **artifact 依赖的测试在干净检出上结构性不可过**（约 12 条）：`test_kb_transcription_ledger.*` /
+   `test_kb_check_transcripts.RealArtifactTest` 要求 `scan_render_pages.py` 产出的 manifest
+   （`SystemExit: 缺 manifest`）；`test_kb_materialize.PlanTest` 要求扫描件块清单里存在
+   `('2026年新高考资料/…/1.1集合的概念（讲义）（学生版）.docx','9a51501f22-001')`。这些产物在
+   `build/`（按设计不入库）⇒ CI 永远看不到。
+3. **`pypdf` 未安装**：`tools/curriculum_coverage/extractor.py` 导入期即要求它，
+   `tests.test_curriculum_coverage` 整个模块加载失败（`ModuleNotFoundError`）。
+
+**Fix（本代理已做，2026-09-28）**：③ 在 CI 加 `pip install pypdf`；另修两处**平台/口径**缺陷：
+`tools/tests/test_kb_build.py` 的"仓库外路径"探针从 `C:/Windows/...`（Linux 上退化成相对路径
+→ FileNotFoundError 而不是预期的 ValueError）改成 `tempfile.gettempdir()`；门数分母从写死的
+`/22` 改为从 `gate.evaluate()` 现算（实际 23，真跑会打印 `23/22`），并给 status.md 加"权威表
+sha256"一行（同一张 `chapter_map.csv` 本地绿 / CI 红——读数必须带它对应哪版表）。
+**未做（不属本会话可改范围）**：①②；`feature:library` 的断言失败。
+**本轮交付**：本地重生成 `docs/status.md`（23/23 逐门读数 + 权威表 sha + 472/472 工具测试），
+使"门全绿"重新有随仓库的凭据——但它**不是 CI 产物**，触发方式为 `local-manual`。
+
+**Reopen condition.** ①②被对方修好后，CI `check` job 应转绿；若届时 commit-back 仍不写回，
+说明还有第三条红未归因——按 `gh run view <id> --json jobs` 的步骤级结论重新归因，不要猜。
+
+## KD-28 (open, 2026-09-28 判为**接受边界**) · `kb_build` 的 9 科白名单仍抄两份（`KnowledgeBaseImportContract` 与 `SubjectKind` 各一份）
+
+**Symptom.** 2026-09-21 架构审计 P7/R5-3 点名：`core/database/.../KnowledgeBaseImportContract.kt:17-23`
+是一份 9 科 `private val subjects = setOf(...)`，与 `SubjectKind` 是第二份清单。
+
+**Disposition（2026-09-28，本代理裁定）**：**接受为边界，不收敛**。理由：① 实际范围是四科
+（用户 2026-09 已裁"九科补完永久取消"），多出来的 5 科在当前数据里恒为空集，**没有任何可观测失败**；
+② 该文件在 `core/database`——另一会话正在做 in-flight 重构，改它会在共享树上制造冲突，
+收益（消除一份暂未漂移的重复）不抵代价。
+**Reopen condition.** 出现第五科、或白名单需要按科放行（例如整科下架/按科开关）时，收敛到
+`SubjectKind` 必须做；届时两份清单的**漂移**就是判据（先证漂移，再改）。
+
+## KD-29 (open, 2026-09-28 登记) · AI 生成合成内容标识未落：材料与展示层没有"AI 整理"标识
+
+**Symptom.** 随包材料的来源是"AI 从教辅/讲义/扫描件整理"，而材料字段、来源登记与 UI 展示层
+**都没有**任何 AI 标识。外部依据：《人工智能生成合成内容标识办法》由网信办等四部门发布，
+**2025-09-01 起施行**（`cac.gov.cn/2025-03/14/c_1743654685896173.htm` 等公开来源）。
+
+**Disposition（2026-09-28，用户裁定）**：**暂不处理，登记为已知边界**——不声称已合规。
+本条的存在就是为了让"未标识"是一个**被记录的取舍**，而不是一个没人知道的缺口。
+
+**Reopen condition.** 对外分发/上架前必须重开（届时按"内容侧标注 + UI 一句说明"的最小形态落）；
+或监管口径/应用分发渠道的要求发生变化时。
+

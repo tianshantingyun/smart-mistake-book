@@ -59,13 +59,15 @@
 
 ## Knowledge Base
 
-### Content Quality Gates（22 道门，kb_build.gate 对随包成品实测）
+### Content Quality Gates（kb_build.gate 对随包成品实测；门数以本表行数为准，不另写数字）
 
 | Gate key | 门 | 状态 | 缺陷数 |
 |----------|----|------|--------|
 {{KB_GATE_ROWS}}
 
 通过 {{GATES_OK_COUNT}} 项；全部为 0 才算绿。
+
+{{KB_AUTHORITY_SHAS}}
 
 ### Tools Tests（Python，tools/tests 套件）
 

@@ -19,7 +19,7 @@ LiteRT（`org.tensorflow.lite.Interpreter`）**只吃 `.tflite`**，不吃 ONNX�
 | 输入名 | `input_ids` / `attention_mask` / `token_type_ids`（int64） | `export_bge_int8.py` 的导出签名 |
 | 输入长度 | 定长 **≥ 128**（= 端侧 `DENSE_MAX_SEQUENCE_LENGTH`，Stage-6 右尺寸后的口径），或动态 `[1, seq]` | 定长 < `DENSE_MAX_SEQUENCE_LENGTH` 会被 `LiteRtDenseQueryEncoder.open` **拒绝**（长输入静默截短 = 与离线口径不一致）。**随包现件就是定长 = 128（等于口径，无白算）**；"定长比口径宽"也允许（Stage-6 之前的 512 窗口件就是这种形态：端侧按 128 截断 + 右 PAD 到 512，掩码在位 ⇒ 与离线同结果，实测两种窗口输出逐字节相同，见 `docs/kb-stage6-report-2026-09-26.md` §1.2），代价只是 PAD 位白算（宿主 p50 差 4.3×） |
 | 输出 | 单个 float32 输出，`numElements = 512`（**随包那一档的维度**；换档时按档取：base 档 = 768。图内已含 CLS 池化 + L2 归一） | 实测 ONNX 计算图：`Gather(0) → ReduceL2 → Clip → Expand → Div`；端侧测试的维度取自 `encoder-parity.json` 的 `dim`，不写死 |
-| 数值 | 真机逐条对拍冻结参考向量（`DenseEncoderParityInstrumentedTest`，n=290）**min cosine ≥ 0.999** | **新件（128 窗口）的宿主对拍已跑**：`check_tflite_parity.py --max-len 128` 对**已安装字节** n=290 **min 0.999587 / median 0.999783 / p95 0.999841**（门 0.999，exit 0，`build/stage6/install-parity-installed.log`）——与候选件读数一致。**真机对拍（`DenseEncoderParityInstrumentedTest`）本轮未跑**：共享工作树的测试源集被另一会话 in-flight 改动挡着（编译错 34 处，非本目录文件），按"外部阻塞"记 UNVERIFIED，见文末 2026-09-28 段。历史参照：512 窗口件在 Stage-3 的 2 线程 + 512 窗口口径下真机 min 0.99963 / median 0.99978 / p95 0.99984（全过） |
+| 数值 | 真机逐条对拍冻结参考向量（`DenseEncoderParityInstrumentedTest`，n=290）**min cosine ≥ 0.999** | **宿主对拍**（已安装字节）：`check_tflite_parity.py --max-len 128` n=290 **min 0.999587 / median 0.999783 / p95 0.999841**（门 0.999，exit 0）。**真机对拍已跑并过**（2026-09-28，模拟器 API 34 x86_64）：n=290 **min 0.9995842786898838 / median 0.9997850489425515 / p95 0.9998405938495096 / 不达标 0 条**——与 512 窗口件的真机读数**逐位相同**（换窗口对质量零影响，见文末 2026-09-28 段） |
 
 **换件纪律**：任何一次换模型件都必须**重跑** `DenseEncoderParityInstrumentedTest`（真机硬门
 ≥0.999）与 `GoldenRetrievalInstrumentedTest`（对拍 `build/stage3-device-expectation.json`），
@@ -94,20 +94,15 @@ APK 内 stored 不压缩，本报告已用 `zipfile` 复核），判据③（门
 | 输入签名 == 口径 | `ai_edge_litert` 读 `get_input_details()` | `[1,128]` × 3，`require(定长 ≥ DENSE_MAX_SEQUENCE_LENGTH=128)` 成立 |
 | 装载核实（真的随包了） | `:app:assembleLocalFirstDebug` + `zipfile` 读 `assets/dense/bge-small-zh-v1.5-int8.tflite` | 条目 **stored（compress_type=0）**、`file_size=61608136`、**sha256 `056d4262…` 逐位相同** |
 
-**未跑的闸（外部阻塞，不当作通过）**：`DenseEncoderParityInstrumentedTest`（真机硬门）与
-`GoldenRetrievalInstrumentedTest`（对拍 `build/stage3-device-expectation.json`）——共享工作树的
-**测试源集**被另一会话 in-flight 改动挡着（`compileDebugAndroidTestKotlin` 报 34 处
-`No value passed for parameter 'knowledgeBaseAvailability'`，全在**非本目录**文件里）。
-⇒ 这两条按纪律记 **UNVERIFIED（外部阻塞）**，下面是可用为止的替代证据与触发条件：
+**真机腿已补跑并全过（2026-09-28，模拟器 API 34 x86_64）**——原先记的"外部阻塞"已解除（另一会话同步了测试源集），三条腿的读数：
 
-- **替代证据**（都不等于真机门）：① 上面那条**对已安装字节**的宿主对拍 n=290 min 0.999587；
-  ② 窗口变化对向量是**位同**（同一份 ONNX 在 512/128 两种窗口下逐条重算，290/290 行**逐字节相同**，
-  §1.2）；③ 同一路线、同一签名形态的 512 窗口件曾在真机过 0.999（Stage-3：min 0.99963）。
-- **期望的真机结果**：`encoder-parity.json` 的 `dim: 512` 与 `.vec` 的 dim 512 未变、fixture 未变
-  ⇒ 真机门应当报与 8.1 相同的 cosine 分布（缺的只是"这台设备上确实如此"这一条实证）。
-- **一旦测试源集恢复可编译**：跑
-  `./gradlew :core:data:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseEncoderParityInstrumentedTest`
-  与同名的 `GoldenRetrievalInstrumentedTest`；任一不达 ⇒ 按下面的回退件退回，并把结果写回本表。
+| 腿 | 读数 |
+|---|---|
+| `DenseEncoderParityInstrumentedTest`（换件硬门） | **290/290 过**：min **0.9995842786898838** / median 0.9997850489425515 / p95 0.9998405938495096，不达标 **0** 条；模型件运行期 sha `056d4262…`（= 本目录新件） |
+| `GoldenRetrievalInstrumentedTest`（融合路由对拍冻结期望） | 主集 Recall@5 **0.7444444（67/90）**、MRR **0.6109259259**、逐章最小 **0.4444**（化学·铁与金属材料 4/9、物理·相互作用 4/9）——**与换件前的记录逐位相同**；`denseLegLive=true`、p95 204ms（预算 250）/ p50 78ms（预算 150） |
+| `DenseFirstUseCostInstrumentedTest`（端侧延迟） | 单条编码 **p50 38ms / p95 52ms**（N=10 同串）；同一次运行里对拍探针 290 条 **p50 32.3ms**；openEncoder 34ms、firstOrder 1036ms、secondOrder 97ms。**对照**：同一台模拟器、同一探针在 512 窗口件下是 p50 140–223ms ⇒ 端侧提速 **≈4–5.8×**，与宿主 4.32–4.42× 同量级 |
+
+**期望的真机结果**与实测一致（`.vec`/fixture 未变 ⇒ 质量位同），**替代证据链至此不再需要**。日志：`build/stage7/device-dense-golden.log` + `core/data/build/outputs/androidTest-results/connected/debug/…/logcat-*Dense*|*Golden*.txt`。
 
 **回退**：换件前的字节 = `git show HEAD~<本次提交>:core/data/src/main/assets/dense/bge-small-zh-v1.5-int8.tflite`
 （sha `015b2315…` / 62,396,488 B；本次执行时留了一份副本在 `build/backup-stage6-install/`，`build/` 不入库）。

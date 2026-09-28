@@ -166,10 +166,12 @@ def kover_coverage(module: str) -> tuple[str, str]:
     return percentage("LINE"), percentage("BRANCH")
 
 
-def kb_gate_rows() -> tuple[str, bool, int]:
-    """Run the 22 knowledge-base content gates (kb_build.gate) on the bundled pack.
+def kb_gate_rows() -> tuple[str, bool, int, int]:
+    """Run the knowledge-base content gates (kb_build.gate) on the bundled pack.
 
-    Returns (template table rows, all-green, ok count). A crash while evaluating
+    Returns (template table rows, all-green, ok count, total count). 门数**从 gate.evaluate()
+    现算**、不在调用处写死：它从 22 长到 23 的那一刻，四处写死的 "22" 就同时变成了假话
+    （2026-09-28 实测：真跑会打印 `23/22`）。A crash while evaluating
     is reported as red, never as unmeasured: F-05's lesson is that a status
     report which cannot say what happened must not say "PASS".
     """
@@ -178,7 +180,7 @@ def kb_gate_rows() -> tuple[str, bool, int]:
         from kb_build import gate
         metrics = gate.evaluate()
     except Exception as exc:  # noqa: BLE001 - crash = red, with the reason visible
-        return f"| gate evaluation crashed | FAIL | {exc} |", False, 0
+        return f"| gate evaluation crashed | FAIL | {exc} |", False, 0, 0
     rows = []
     ok_count = 0
     for metric in metrics:
@@ -187,7 +189,37 @@ def kb_gate_rows() -> tuple[str, bool, int]:
         rows.append(
             f"| `{metric.key}` | {metric.title} | {'OK' if metric.ok else 'FAIL'} | {metric.value} |"
         )
-    return "\n".join(rows), ok_count == len(metrics), ok_count
+    return "\n".join(rows), ok_count == len(metrics), ok_count, len(metrics)
+
+
+def kb_authority_shas() -> str:
+    """权威表（kb_build.tables 加载的那几张）逐表 sha256 前 12 位，一行。
+
+    存在的理由（2026-09-28 实测）：同一份 `chapter_map.csv`，本地读到的是**工作树里那一版**
+    （绿），CI 读到的是**已提交那一版**（红）——"门全绿"这个数字本身不携带"对应哪版权威表"
+    的信息，而权威表恰恰是最常被并发改动的一层。表不在位时写 `missing`，不当作通过。
+    """
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        from kb_build import tables as tables_mod
+    except Exception as exc:  # noqa: BLE001
+        return f"权威表 sha256：NOT_MEASURED（{type(exc).__name__}）"
+    names = (
+        tables_mod.CHAPTER_MAP,
+        tables_mod.CHAPTER_BY_SOURCE,
+        tables_mod.ALIAS_MAP,
+        tables_mod.BOUNDARY_MAP,
+        tables_mod.PREREQ_MAP,
+        tables_mod.MATERIAL_BINDINGS,
+    )
+    parts = []
+    for name in names:
+        path = tables_mod.TABLES_DIR / name
+        if not path.is_file():
+            parts.append(f"`{name}`=missing")
+            continue
+        parts.append(f"`{name}`=`{hashlib.sha256(path.read_bytes()).hexdigest()[:12]}`")
+    return "权威表 sha256（前 12 位）：" + " · ".join(parts)
 
 
 def tools_test_summary() -> tuple[str, str, str, bool]:
@@ -331,16 +363,17 @@ def main() -> int:
         release_rows.setdefault("AAB_SIZE_PLACEHOLDER", f"{first_aab / (1024 * 1024):.1f} MB")
     values.update(release_rows)
 
-    # Knowledge base: the 22 content gates run here (kb_build.gate), the Python
-    # tools suite is summarized here, and the retrieval benchmark file written
+    # Knowledge base: the content gates run here (kb_build.gate, count computed not hardcoded),
+    # the Python tools suite is summarized here, and the retrieval benchmark file written
     # by :core:data's JVM test is embedded verbatim. Overall must not be PASS
     # unless all of these are measured AND green — that is the F-05 root fix:
     # a PASS that only tracked the build job's status could never reflect the
     # state of the knowledge base at all.
-    gates_rows, gates_ok, gates_ok_count = kb_gate_rows()
+    gates_rows, gates_ok, gates_ok_count, gates_total = kb_gate_rows()
     tools_total, tools_passed, tools_failed, tools_ok = tools_test_summary()
     values["KB_GATE_ROWS"] = gates_rows
-    values["GATES_OK_COUNT"] = f"{gates_ok_count}/22"
+    values["KB_AUTHORITY_SHAS"] = kb_authority_shas()
+    values["GATES_OK_COUNT"] = f"{gates_ok_count}/{gates_total}"
     values["TOOLS_TESTS_TOTAL"] = tools_total
     values["TOOLS_TESTS_PASSED"] = tools_passed
     values["TOOLS_TESTS_FAILED"] = tools_failed
@@ -351,7 +384,7 @@ def main() -> int:
     values["OVERALL_STATUS"] = overall
     values["OVERALL_BREAKDOWN"] = " · ".join((
         f"build job: {'OK' if job_ok else 'FAIL'}",
-        f"KB 22 gates: {'all OK' if gates_ok else f'{gates_ok_count}/22 OK or crashed'}",
+        f"KB gates: {'all OK' if gates_ok else f'{gates_ok_count}/{gates_total} OK or crashed'}",
         f"tools tests: {tools_passed}/{tools_total} passed"
         if tools_ok else f"tools tests: {tools_failed}/{tools_total} failed or run failed",
     ))

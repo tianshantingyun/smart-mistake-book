@@ -34,8 +34,16 @@ class RoundTripTest(unittest.TestCase):
         self.assertFalse(text.endswith("\n"))
 
     def test_path_outside_repository_is_rejected(self):
+        """探针路径必须**跨平台**：`C:/Windows/...` 只在 Windows 上是绝对路径，在 Linux 上
+        会被当成相对路径 → 得到 FileNotFoundError 而不是预期的 ValueError（2026-09-28 CI 实测）。
+        用 tempfile：它在任何平台上都指向仓库之外，且不依赖平台专有前缀。"""
+        outside = (Path(tempfile.gettempdir()) / "kb-path-guard-probe.json").resolve()
+        self.assertNotIn(
+            pack_io.REPO.resolve(), outside.parents,
+            f"探针路径落在仓库内，这条测试就测不到守卫：{outside}",
+        )
         with self.assertRaises(ValueError):
-            pack_io.load_json(Path("C:/Windows/System32/drivers/etc/hosts"))
+            pack_io.load_json(outside)
 
 
 class PackShapeTest(unittest.TestCase):

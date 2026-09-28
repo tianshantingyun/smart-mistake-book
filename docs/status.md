@@ -4,10 +4,10 @@
 
 ## Build Information
 
-- **Commit SHA**: `74626e968279f03be5f66565f7b3d60f1f7afdf1`
-- **Build Date**: `2026-09-21`
+- **Commit SHA**: `e95ec5c3bd85d5ad9e8bb691bc931377a722dbde`
+- **Build Date**: `2026-09-28`
 - **Branch**: `main`
-- **Triggered By**: `push`
+- **Triggered By**: `local-manual`
 
 ## Build Results
 
@@ -28,34 +28,103 @@
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | 67 | 67 | 0 | - |
-| `:core:data` | 478 | 478 | 0 | - |
-| `:feature:library` | 33 | 33 | 0 | - |
-| `:feature:capture` | 108 | 108 | 0 | - |
-| `:feature:tutor` | 136 | 136 | 0 | - |
+| `:core:database` | 78 | 78 | 0 | - |
+| `:core:data` | 536 | 536 | 0 | - |
+| `:feature:library` | 35 | 35 | 0 | - |
+| `:feature:capture` | 106 | 106 | 0 | - |
+| `:feature:tutor` | 154 | 154 | 0 | - |
 
 ### Lint
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `lintLocalFirstDebug` | OK | 0 | 43 |
-| `lintStrictOfflineDebug` | OK | 0 | 42 |
+| `lintLocalFirstDebug` | OK | 0 | 11 |
+| `lintStrictOfflineDebug` | OK | 0 | 10 |
 
 ### Release Build
 
 | Flavor | Status | APK Size | AAB Size |
 |--------|--------|----------|----------|
-| `localFirst` | OK | 114.9 MB | NOT_MEASURED |
-| `strictOffline` | OK | 114.9 MB | NOT_MEASURED |
+| `localFirst` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `strictOffline` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 
 ### APK/AAB Hashes
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | d6a482b45f747cbcada220f034d9e7382d9e422e30519658c28ecb3c5c59308c |
-| `localFirst-release.apk` | 27fe96877f0c6150f616dd4719f9453cc6035e2375a977c93e6120e68ffcb38a |
-| `strictOffline-debug.apk` | 36344bb50555159e7ff6a024bb3983041083ac634a14b2bfcf027a8bc09b777a |
-| `strictOffline-release.apk` | 0a5b0e28b36bf4ce6a1f6e8528f3da017ba055a79a78405e391722e465781c7f |
+| `localFirst-debug.apk` | ada73bdb0181cec13732c64f6ad815e58fb2cfbe10c75391c3534a5702342d99 |
+| `localFirst-release.apk` | NOT_MEASURED |
+| `strictOffline-debug.apk` | d000275d42a16700a0d63672ac54cf22fda277664d0934e53a442bea5518f82a |
+| `strictOffline-release.apk` | NOT_MEASURED |
+
+## Knowledge Base
+
+### Content Quality Gates（kb_build.gate 对随包成品实测；门数以本表行数为准，不另写数字）
+
+| Gate key | 门 | 状态 | 缺陷数 |
+|----------|----|------|--------|
+| `bad_names` | 名称不是知识点名 | OK | 0 |
+| `starred_names` | 名称含 ★ 难度星号 | OK | 0 |
+| `duplicate_names` | 同名重复知识点（需合并掉的份数） | OK | 0 |
+| `unbound_points` | 无教学材料绑定的知识点 | OK | 0 |
+| `unbound_materials` | 无任何绑定的教学材料 | OK | 0 |
+| `ghost_aliases` | 幽灵别名（与当前绑定脱节） | OK | 0 |
+| `alias_collision` | 别名与同学科另一节点主名相同（歧义） | OK | 0 |
+| `undeclared_prereq` | 未在权威表中声明的前置 | OK | 0 |
+| `boundary_excerpt` | boundary 含第三方原文摘录（分发风险） | OK | 0 |
+| `locator_boundary` | boundary 只有定位串/占位，没有真边界 | OK | 0 |
+| `boundary_text_defect` | boundary 含文本残迹（非法转义 / $ 不成对 / shell 展开） | OK | 0 |
+| `latex_damage` | LaTeX 命令丢失反斜杠 | OK | 0 |
+| `invalid_escape` | 材料含非法转义（反斜杠后不是合法命令或符号） | OK | 0 |
+| `shell_expansion` | 材料文本含 shell 展开残迹（$0/$$/$ 不成对） | OK | 0 |
+| `dollar_unbalanced` | 材料文本的 $ 不成对（数学分隔符被吃掉） | OK | 0 |
+| `control_chars` | 材料含控制字符 | OK | 0 |
+| `chapter_uncovered_units` | 章节表未覆盖的来源单元 | OK | 0 |
+| `chapter_locator_mismatch` | 定位串与章节表（含节点级覆盖）不一致的节点 | OK | 0 |
+| `chapter_no_book` | 归属缺失（册/章为空）的节点 | OK | 0 |
+| `chapter_split_missing_override` | 标记为跨章拆分却缺节点级覆盖的节点 | OK | 0 |
+| `topic_parent_after_child` | topic 的父级排在它之后（会让安装撞外键） | OK | 0 |
+| `topic_name_carries_path` | 主题名重复了父名的路径 | OK | 0 |
+| `chapter_layer_has_points` | 章层直接挂了知识点（应归到主题） | OK | 0 |
+
+通过 23/23 项；全部为 0 才算绿。
+
+权威表 sha256（前 12 位）：`chapter_map.csv`=`12d33ceaa50d` · `chapter_by_source.csv`=`caa77eacaef3` · `alias_map.csv`=`8bc62dd5824a` · `boundary_map.csv`=`281fd657284b` · `prereq_map.csv`=`78e28392d305` · `material_bindings.csv`=`5b621c220297`
+
+### Tools Tests（Python，tools/tests 套件）
+
+| 总数 | 通过 | 失败 |
+|------|------|------|
+| 472 | 472 | 0 |
+
+### Retrieval Benchmark（:core:data 单测写入 build/benchmark-metrics.txt，逐字嵌入）
+
+```
+Recall@5=0.95
+Precision@5=0.76
+MRR=0.9166666666666666
+crossSubject=0
+[MATH] 求函数 f(x)=x²-2x-3 的单调递增区间 -> [三角函数的图象与性质, 函数的单调性, 导数法求函数单调区间的步骤]
+[MATH] 计算等差数列 1,3,5,7 的前100项和 -> [等差数列的常用性质, 等差数列前项和的常用性质, 求解等差数列基本量的策略]
+[MATH] 椭圆 x²/16+y²/9=1 的离心率是多少 -> [椭圆的离心率, 椭圆, 双曲线的离心率]
+[MATH] 求集合 A={1,2,3} 与 B={3,4,5} 的交集 -> [子集的个数问题, 利用元素与集合的关系求参数, 集合的含义与表示]
+[MATH] 已知 sinα=3/5 求 tanα -> [函数y=Asin(ωx+φ)的图象, 同角三角函数的基本关系, 由Sn求an的步骤]
+[PHYSICS] 物体自由下落5秒末速度 -> [速度, 关联速度的分析——运动分解的核心思想, 运动性质]
+[PHYSICS] 两物体碰撞前后动量守恒 -> [动量守恒定律, 创新实验验证动量守恒, 动量定理]
+[PHYSICS] 电磁感应中磁通量变化产生感应电动势 -> [法拉第电磁感应定律, 电磁感应中的电路问题, 电磁感应中的图像问题]
+[PHYSICS] 带电粒子在匀强磁场中做圆周运动的轨道半径 -> [带电粒子在磁场中的运动, 带电粒子在匀强电场中偏转的两个分运动, 带电粒子在交变电磁场中的运动：]
+[PHYSICS] 变压器原副线圈电压比与匝数比 -> [变压器, 理想变压器的基本关系, 探究变压器原副线圈电压与匝数的关系]
+[CHEMISTRY] 钠与水反应的现象和产物 -> [钠与水及酸、碱、盐溶液的反应, 氧化还原反应规律及其应用, 碳酸钠、碳酸氢钠与酸反应的特点]
+[CHEMISTRY] 计算 2mol 氯化钠的质量 -> [摩尔质量的计算方法, 有关物质的量浓度的计算, 电化学综合计算的三种常用方法]
+[CHEMISTRY] 盐酸与氢氧化钠发生中和反应 -> [中和热测定注意事项, 过氧化钠, 氧化还原反应方程式的配平方法]
+[CHEMISTRY] 苯的分子式和结构 -> [有机物分子分子式的确定, 有机物分子式和结构确定易混易错点, 商余法确定烃的分子式]
+[CHEMISTRY] 原电池中锌铜电极的电子流向 -> [原电池, 判断原电池正、负极的方法, 电极反应式]
+[BIOLOGY] 细胞器中含DNA的有哪些 -> [细胞器的结构和功能, DNA的复制, 细胞膜的结构和功能]
+[BIOLOGY] 孟德尔分离定律的实质 -> [分离定律, 分离定律的概率计算（含自交与自由交配）, 孟德尔的豌豆杂交实验过程分析]
+[BIOLOGY] 光合作用暗反应需要什么原料 -> [光合作用的原理, 光合作用的影响因素, 影响光合作用强度的环境因素]
+[BIOLOGY] 免疫系统对付病毒的途径 -> [病毒, 免疫系统的组成和功能, 免疫系统]
+[BIOLOGY] 种群密度的调查方法 -> [种群密度, 种群的数量特征, 种群数量的变化]
+```
 
 ## Performance Metrics
 
@@ -78,9 +147,9 @@
 
 | Module | Line Coverage | Branch Coverage |
 |--------|---------------|-----------------|
-| `:core:database` | 4.9% | 6.5% |
-| `:core:data` | 55.4% | 41.3% |
-| `:core:domain` | 74.1% | 53.8% |
+| `:core:database` | NOT_MEASURED | NOT_MEASURED |
+| `:core:data` | NOT_MEASURED | NOT_MEASURED |
+| `:core:domain` | NOT_MEASURED | NOT_MEASURED |
 
 ## Migration Tests
 
@@ -100,7 +169,9 @@ NOT_MEASURED
 
 **PASS**
 
+build job: OK · KB gates: all OK · tools tests: 472/472 passed
+
 ---
 
-*Generated by CI at 2026-09-21T18:50:37.165706+00:00*
+*Generated by CI at 2026-09-28T15:25:14.072030+00:00*
 *Report version: 1.0*

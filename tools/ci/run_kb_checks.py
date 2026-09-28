@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""知识库构建侧统一检查入口：22 门 + 五表一致性 + round-trip + 台账。
+"""知识库构建侧统一检查入口：内容门 + 五表一致性 + round-trip + 台账。
+
+门数不写死在本文档里（写死的数字会腐烂：2026-09-28 实测门已是 23 道而四处文档仍写 22）——
+以 `kb_build.gate.evaluate()` 返回的 Metric 数为唯一真值。
 
 CI（android-check workflow）与本地档 1 都调这一个脚本，避免"门在 CI 上跑的是
 另一套参数"的漂移。检查对象是**晋升候选**：本地默认 `build/kb-staging/`
@@ -77,7 +80,7 @@ def run(root: Path) -> dict:
 
         # dense 向量资产门（Stage-3）：`core/data/src/main/resources/knowledge/dense/` 下的
         # `.vec` 是**随包分发的资产**，它的向量是按某一版包与词表生成的。包或词表内容变了而
-        # 向量没跟着重生成，端侧就会拿"旧内容的向量"比"新词条的文本"——而现有 22 门只查包
+        # 向量没跟着重生成，端侧就会拿"旧内容的向量"比"新词条的文本"——而内容门只查包
         # 自身的契约，看不到这个文件。这一节把三者钉在一起（旁车哈希 == 当前包/词表/.vec）。
         dense_result = check_asset.evaluate(REPO)
         sections["dense"] = {

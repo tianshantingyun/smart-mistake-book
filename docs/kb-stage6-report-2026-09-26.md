@@ -489,12 +489,15 @@ LiteRT线程数=4（= min(4, 核数)）`。
 | 输出维度 | `[1,512]` ⇒ 与 `.vec` 的 `dim=512`、fixture 的 `dim: 512` 一致 |
 | 装载核实（真的随包了） | `:app:assembleLocalFirstDebug` → BUILD SUCCESSFUL；`zipfile` 读 APK 内 `assets/dense/bge-small-zh-v1.5-int8.tflite`：**stored（compress_type=0）**、`file_size=61608136`、**sha256 `056d4262…` 逐位相同** |
 
-**没跑（外部阻塞；不当作通过）**：`DenseEncoderParityInstrumentedTest`（真机硬门）与
-`GoldenRetrievalInstrumentedTest`——`compileDebugAndroidTestKotlin` 报 34 处
-`No value passed for parameter 'knowledgeBaseAvailability'`，**全在非本目录文件**（另一会话 in-flight）。
-这是 `assets/dense/README.md` 的"换件纪律"里要求的两条腿，**本轮缺**，登记为 UNVERIFIED；
-替代证据与触发条件写在该 README 的 2026-09-28 段（三条：对已安装字节的宿主对拍 0.999587；
-窗口对向量位同 290/290 逐字节相同；同形态 512 窗口件的 Stage-3 真机 min 0.99963）。
+**真机腿已补跑并全过（2026-09-28，Stage-7 首步；测试源集恢复后立刻跑）**：
+
+| 腿 | 读数 |
+|---|---|
+| `DenseEncoderParityInstrumentedTest`（换件硬门 ≥0.999） | **290/290**：min **0.9995842786898838** / median 0.9997850489425515 / p95 0.9998405938495096，不达标 **0** 条；模型件运行期 sha `056d4262…` = 已安装新件 |
+| `GoldenRetrievalInstrumentedTest`（对拍 `build/stage3-device-expectation.json`） | 主集 **0.7444444（67/90）**、MRR **0.6109259259**、逐章最小 **0.4444**——**与换件前逐位相同**；`denseLegLive=true`，p95 204ms（预算 250）/ p50 78ms（预算 150） |
+| `DenseFirstUseCostInstrumentedTest` | 单条编码 **p50 38ms / p95 52ms**（N=10）；对拍探针 290 条 **p50 32.3ms**；openEncoder 34ms / firstOrder 1036ms / secondOrder 97ms。**对照 512 窗口件的 p50 140–223ms ⇒ 端侧 ≈4–5.8×** |
+
+三条腿全过 ⇒ 2026-09-28 换件**在设备侧闭环**（先前的 UNVERIFIED 由 Stage-7 首步补上；日志 `build/stage7/device-dense-golden.log`）。
 
 ### 9.3 回退
 
@@ -505,6 +508,6 @@ LiteRT线程数=4（= min(4, 核数)）`。
 ### 9.4 收益（宿主，已实测）
 
 512→128 的 p50 比 **4.32–4.42×**（§2）：小档 `flatbuffer_direct` 2522.5 → **570.8 ms**@4 线程、
-`keepint8` 2551.6 → 590.4 ms。质量零变化（向量位同 + 对拍同级）。**端侧收益的直接读数仍然缺**
-（§8.2 的仪器约束：模拟器在宿主争用下 p50 漂 116–223 ms）——要拿端侧数，得等测试源集恢复后跑
-`DenseFirstUseCostInstrumentedTest`，或换一台不被争用的主机/真机。
+`keepint8` 2551.6 → 590.4 ms。质量零变化（向量位同 + 对拍同级 + 真机金标逐位复现）。
+**端侧收益已实测（2026-09-28）**：单条编码 **p50 38ms**（512 窗口件同机 140–223ms）⇒ **≈4–5.8×**，
+与宿主比例同量级；端侧数仍须带宿主负载读（本轮宿主负载 17%，是相对干净的一次）。
