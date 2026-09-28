@@ -21,6 +21,9 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 
 from kb_build import apply_boundary_fixes as ap  # noqa: E402
+from kb_build import pack_io  # noqa: E402
+
+ap.pack_io = pack_io          # 便于用例把写盘目标指到临时目录
 
 CUR = "定位：数学必修第一册 第三章。翻折别记反：$f(|x|)$ 只改变原来在 $y$ 轴左侧的部分（沿 $y$ 轴翻到右侧）；"
 CUR_DELIM = "定位：CHEMISTRY 综合。换算成绝对质量（失=m_起始\\times$ 残留率），只拿比值算容易算错。"
@@ -109,6 +112,23 @@ class MainTest(unittest.TestCase):
             p = mock.patch.object(ap, name, val)
             p.start()
             self.addCleanup(p.stop)
+        # 关键：执行器 --write 会写 **staging 包**（本仓手术工具的既定路数）。测试必须把它
+        # 也指到临时目录——否则一次 `unittest` 就会把合成值写进真实 staging（2026-09-25 实测
+        # 发生过：`函数图象的翻折变换` 被写成测试里的 88 字合成值，把后续裁定校验的基线带偏）。
+        self.staging_pack = self.tmp / "staging-moe-2025-four-subjects-v1.json"
+        self.staging_pack.write_text(json.dumps(_pack(CUR), ensure_ascii=False), encoding="utf-8")
+        p = mock.patch.object(ap.pack_io, "pack_path", lambda: self.staging_pack)
+        p.start()
+        self.addCleanup(p.stop)
+        p = mock.patch.object(ap.pack_io, "load_json",
+                              lambda path: json.loads(Path(path).read_text(encoding="utf-8")))
+        p.start()
+        self.addCleanup(p.stop)
+        p = mock.patch.object(ap.pack_io, "dump_json",
+                              lambda doc, path: Path(path).write_text(
+                                  json.dumps(doc, ensure_ascii=False), encoding="utf-8"))
+        p.start()
+        self.addCleanup(p.stop)
         tail = "$f(|x|)$ 只改变原来在 $y$ 轴右侧的部分。"
         self.mats = {"函数图象的翻折变换": [{"contentMarkdown": tail}]}
         p = mock.patch.object(ap.mk, "load_pack", lambda: _pack(CUR))

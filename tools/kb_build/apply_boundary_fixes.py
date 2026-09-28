@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
-"""W7 执行器：校验补好的 boundary，写进权威表 `boundary_map.csv`。
+"""W7 执行器：校验补好的 boundary，写权威表 `boundary_map.csv`，并把覆盖写进 staging。
 
 ## 它消灭的失败
 
 子代理补好的 20 条 boundary 若直接手改成品包，就同时破坏两件事：① 权威源（`boundary_map.csv`
-才是知识点的边界来源，`build.py` 读它、`promote` 才写成品目录）；② 可复核性（谁改了什么
-无从重放）。本工具是这份裁定的**常驻执行器**：校验通过才写权威表，成品包由 `build` + `promote`
-按既有生成链重放。
+才是知识点的边界来源）；② 可复核性（谁改了什么无从重放）。本工具把这份裁定变成**常驻执行器**：
+逐条校验 → 写权威表 → 把覆盖写进 **staging**（`build/kb-staging`），落成品仍走唯一的 `promote`
+（22 门 + 表↔包一致性 + roundtrip 全绿才落盘）。
+
+为什么不经 `build.py`：那条全量生成链当前跑不起来（`new_points.csv` 与包内同名、`materials.jsonl`
+的类型白名单两处堵点，见登记册 W-04），而边界覆盖只是"就地改字段"，不需要重建整包——
+本仓其它手术工具（如 `apply_round4_verdicts`）也是直接写 staging。写盘前复算 `boundary_text_defect`
+口径（应归零）与点数不变，任一不过即不写。
 
 ## 校验（任一不过即整批拒绝，不写任何表）
 
@@ -162,8 +167,41 @@ def main(argv: list[str] | None = None) -> int:
             w = csv.DictWriter(fh, fieldnames=list(MAP_COLUMNS), lineterminator="\n")
             w.writeheader()
             w.writerows(rows_out)
-        print(f"\n→ 已写 {BOUNDARY_MAP}（{len(rows_out)} 行覆盖）。"
-              f"接下来：build.py --write（写 staging）→ promote（跑门后落成品）")
+        print(f"\n→ 已写 {BOUNDARY_MAP}（{len(rows_out)} 行覆盖）")
+
+        # 再把覆盖写进 **staging**（本仓手术工具的既定路数：写 staging，唯一落成品的是 promote）。
+        # 不依赖 build.py 那条全量生成链——它当前跑不起来（new_points 冲突 + materials.jsonl 类型
+        # 白名单两处堵点，见问题登记册 W-04），而边界覆盖是"就地改字段"，不需要重建整包。
+        from kb_build import pack_io
+        path = pack_io.pack_path()
+        pack = pack_io.load_json(path)
+        before = len({(s, p["slug"]) for s, _t, p in pack_io.iter_points(pack)})
+        pts = {(s, p["slug"]): p for s, _t, p in pack_io.iter_points(pack)}
+        applied = missing = 0
+        for r in rows_out:
+            key = (r["subject"], r["slug"])
+            p = pts.get(key)
+            if p is None:
+                missing += 1
+                continue
+            p["boundary"] = r["boundary"]
+            applied += 1
+        after = len({(s, p["slug"]) for s, _t, p in pack_io.iter_points(pack)})
+        if after != before:
+            print("无损校验失败：点数变了，不写 staging")
+            return 1
+        if missing:
+            print(f"有 {missing} 行的知识点在包里找不到，不写 staging")
+            return 1
+        left = sum(1 for _s, _t, p in pack_io.iter_points(pack)
+                   if gate.field_text_defects(p.get("boundary") or ""))
+        print(f"复算门口径：staging 里仍有边界残迹 {left} 条（应为 0）")
+        if left:
+            print("（仍有残余，不写 staging——先查裁定表）")
+            return 1
+        pack_io.dump_json(pack, path)
+        print(f"→ 已把 {applied} 条边界写进 staging（{path}）。"
+              f"接下来：promote（跑门 + 表↔包一致性 + roundtrip 后落成品）")
     else:
         print("\n（未写盘；加 --write 生效）")
     return 0
