@@ -178,7 +178,7 @@ class MergeCandidateVerdictsTest(unittest.TestCase):
         """节点已有 ≥4 条材料（合规规范 §4.4：第 5 条起不可见）→ 补料不写，落 capacity_blocked。"""
         doc = json.loads((self.tmp / "moe-2025-teaching-support-v2-01.json")
                          .read_text(encoding="utf-8"))
-        for i in range(2):
+        for i in range(4):
             doc["materials"].append({
                 "slug": "m-extra-%d" % i, "subject": "MATH", "type": "METHOD_MODEL",
                 "title": "补位材料%d" % i, "summaryMarkdown": "s", "applicabilityMarkdown": "a",
