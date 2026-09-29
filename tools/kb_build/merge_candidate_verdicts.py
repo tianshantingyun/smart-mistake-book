@@ -153,6 +153,18 @@ def build(root: Path, verdicts_dir: Path | None = None,
             mapping[topic.get("slug") or ""] = topic.get("slug") or ""
         topic_slugs[subject] = mapping
     registered = A.mz._existing_source_entries()
+    # 每节点只展示前 MAX_VISIBLE 条材料（合规规范 §4.4 MAX_TEACHING_REFERENCES）——
+    # 已满的节点再补料永远不可见：白占体积、且让"缺口已补"失真。满节点单独登记，
+    # 处理方式是先清理该节点内的跑题材料（见 FINDINGS.md §2），而不是硬塞。
+    MAX_VISIBLE = 4
+    counts: dict[tuple[str, str], int] = {}
+    for doc in A.mz._sidecar_state()["docs"].values():
+        for mat in doc.get("materials") or []:
+            for binding in mat.get("bindings") or []:
+                parts = (binding.get("knowledgeNodeId") or "").split(":")
+                if len(parts) >= 5:
+                    key = (parts[-3].upper(), parts[-1])
+                    counts[key] = counts.get(key, 0) + 1
 
     materials: list[dict] = []
     new_points: list[dict] = []
@@ -160,6 +172,7 @@ def build(root: Path, verdicts_dir: Path | None = None,
     rejects: list[dict] = []
     quarantine: list[dict] = []
     placement: list[dict] = []
+    capacity_blocked: list[dict] = []
     used_point_slugs: set[tuple[str, str]] = set()
 
     def add_material(material: dict, tag: str, extra: dict) -> None:
@@ -171,6 +184,18 @@ def build(root: Path, verdicts_dir: Path | None = None,
             quarantine.append({"source": tag, "slug": material["slug"],
                                "reasons": "; ".join(errs[:3])})
             return
+        node_slug = material["bindings"][0]["knowledgeNodeId"].split(":")[-1]
+        key = (material["subject"], node_slug)
+        if counts.get(key, 0) >= MAX_VISIBLE:
+            capacity_blocked.append({
+                "source": tag, "subject": material["subject"], "node_slug": node_slug,
+                "slug": material["slug"], "title": material["title"],
+                "existing_materials": counts.get(key, 0),
+                "reason": f"节点已有 {counts.get(key, 0)} 条材料（≥{MAX_VISIBLE}，新料不可见）——"
+                          "先清理该节点内的跑题材料再补，不硬塞",
+            })
+            return
+        counts[key] = counts.get(key, 0) + 1
         materials.append(material)
 
     for row in dir_rows:
@@ -260,7 +285,7 @@ def build(root: Path, verdicts_dir: Path | None = None,
 
     return {"errors": errors, "materials": materials, "new_points": new_points,
             "coverage": coverage, "rejects": rejects, "quarantine": quarantine,
-            "placement": placement,
+            "placement": placement, "capacity_blocked": capacity_blocked,
             "counts": {"dir_rows": len(dir_rows), "mat_rows": len(mat_rows)}}
 
 
@@ -288,11 +313,14 @@ def write_all(root: Path, out_dir: Path, built: dict) -> None:
     dump_csv("rejects.csv", built["rejects"],
              ["source", "subject", "name", "verdict", "evidence", "reason", "covering_material_slug"])
     dump_csv("quarantine.csv", built["quarantine"], ["source", "slug", "reasons"])
+    dump_csv("capacity_blocked.csv", built["capacity_blocked"],
+             ["source", "subject", "node_slug", "slug", "title", "existing_materials", "reason"])
     summary = {
         "dir_rows": built["counts"]["dir_rows"], "mat_rows": built["counts"]["mat_rows"],
         "authored_materials": len(built["materials"]), "new_points": len(built["new_points"]),
         "coverage": len(built["coverage"]), "rejects": len(built["rejects"]),
         "quarantine": len(built["quarantine"]), "placement_review": len(built["placement"]),
+        "capacity_blocked": len(built["capacity_blocked"]),
         "header_errors": built["errors"],
     }
     (out_dir / "summary.json").write_text(
@@ -312,7 +340,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"裁决行：目录层 {counts['dir_rows']}，材料层 {counts['mat_rows']}；"
           f"材料 {len(built['materials'])}，新点 {len(built['new_points'])}，"
           f"覆盖证据 {len(built['coverage'])}，驳回 {len(built['rejects'])}，"
-          f"隔离 {len(built['quarantine'])}，归属待判 {len(built['placement'])}")
+          f"隔离 {len(built['quarantine'])}，归属待判 {len(built['placement'])}，"
+          f"节点满额不写 {len(built['capacity_blocked'])}")
     for err in built["errors"][:5]:
         print("  - 表头错：", err)
     if not args.write:

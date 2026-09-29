@@ -174,5 +174,30 @@ class MergeCandidateVerdictsTest(unittest.TestCase):
         self.assertEqual(["m-cover"], [r["evidence"] for r in coverage])
 
 
+    def test_capacity_blocked_node_not_written(self):
+        """节点已有 ≥4 条材料（合规规范 §4.4：第 5 条起不可见）→ 补料不写，落 capacity_blocked。"""
+        doc = json.loads((self.tmp / "moe-2025-teaching-support-v2-01.json")
+                         .read_text(encoding="utf-8"))
+        for i in range(2):
+            doc["materials"].append({
+                "slug": "m-extra-%d" % i, "subject": "MATH", "type": "METHOD_MODEL",
+                "title": "补位材料%d" % i, "summaryMarkdown": "s", "applicabilityMarkdown": "a",
+                "contentMarkdown": "c", "boundaryMarkdown": "b",
+                "derivationKind": "REVIEWED_SYNTHESIS",
+                "sourceId": "registry-kb-math-knowledge-list:math",
+                "sourceLocator": "loc", "reviewedAtEpochMillis": 2000,
+                "bindings": [{"knowledgeNodeId": "kb:test-pack:math:atomic:node-a",
+                              "role": "PRIMARY"}]})
+        (self.tmp / "moe-2025-teaching-support-v2-01.json").write_text(
+            json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+        built = self._build()
+        blocked = built["capacity_blocked"]
+        self.assertEqual(3, len(blocked))          # GAP + MATERIAL_ONLY + PROMOTE 全绑 node-a
+        self.assertEqual({"node-a"}, {b["node_slug"] for b in blocked})
+        self.assertEqual({4}, {b["existing_materials"] for b in blocked})
+        slugs = [m["slug"] for m in built["materials"]]
+        self.assertEqual(["cmp-mat-00003"], slugs)  # 只剩绑新点的那条
+
+
 if __name__ == "__main__":
     unittest.main()
