@@ -76,3 +76,4 @@ knowledge-production/candidate-merge/dir_entries.jsonl
 knowledge-production/candidate-merge/dir_batches/
 knowledge-production/candidate-merge/mat_entries.jsonl
 knowledge-production/candidate-merge/pack_nodes.csv
+knowledge-production/candidate-merge/node_materials.csv

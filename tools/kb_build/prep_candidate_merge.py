@@ -19,8 +19,10 @@
 ## 产出（默认 dry-run 只报数；--write 落盘）
 
 `knowledge-production/candidate-merge/` 下：`dir_entries.jsonl`（逐条裁决输入，
-命中节点时内联该节点与其材料摘要）、`dir_batches/batch_NNN.jsonl`（按 80 条切批）、
-`mat_entries.jsonl`（未入包材料，逐条）、`mat_ops.csv`（10,356 条分类）、`summary.json`。
+命中节点时内联该节点与其材料**样本**）、`dir_batches/batch_NNN.jsonl`（按 80 条切批）、
+`mat_entries.jsonl`（未入包材料，逐条）、`mat_ops.csv`（10,356 条分类）、
+`pack_nodes.csv`（包内节点索引）、`node_materials.csv`（节点→**全量**材料索引，
+覆盖判定以此为准）、`summary.json`。
 """
 
 from __future__ import annotations
@@ -71,7 +73,11 @@ def load_pack_index(root: Path):
 
 
 def load_node_materials(root: Path):
-    """{（subject, slug): [{title, summary, content, type}...]}，按绑定取前 4 条。"""
+    """{(subject, slug): [该节点全部材料行...]}（title+summary 截断，供覆盖判定）。
+
+    内联进批次的是**前 4 条样本**；全量在同一份 `node_materials.csv` 里落盘——
+    节点材料数可达几十条（实测最多 53），只给样本会诱导裁决员误判 GAP（样本实测教训）。
+    """
     out: dict[tuple[str, str], list[dict]] = {}
     for path in pack_io.sidecar_paths():
         data = pack_io.load_json(path)
@@ -82,15 +88,13 @@ def load_node_materials(root: Path):
                 if len(parts) < 5:
                     continue
                 key = (parts[-3].upper(), parts[-1])
-                bucket = out.setdefault(key, [])
-                if len(bucket) < 4:
-                    bucket.append({
-                        "slug": mat.get("slug"),
-                        "type": mat.get("type"),
-                        "title": mat.get("title"),
-                        "summary": (mat.get("summaryMarkdown") or "")[:400],
-                        "content": (mat.get("contentMarkdown") or "")[:400],
-                    })
+                out.setdefault(key, []).append({
+                    "slug": mat.get("slug"),
+                    "type": mat.get("type"),
+                    "title": mat.get("title"),
+                    "summary": (mat.get("summaryMarkdown") or "")[:200],
+                    "content": (mat.get("contentMarkdown") or "")[:400],
+                })
     return out
 
 
@@ -179,10 +183,10 @@ def classify_dir_entries(entries, index, nodes, node_materials):
                 "boundary": (point.get("boundary") or "")[:300],
                 "aliases": (point.get("aliases") or [])[:10],
             }
-            entry["node_materials"] = node_materials.get((subject, slug), [])
+            entry["node_materials_sample"] = node_materials.get((subject, slug), [])[:4]
         else:
             entry["node"] = None
-            entry["node_materials"] = []
+            entry["node_materials_sample"] = []
     return stats
 
 
@@ -269,6 +273,13 @@ def main(argv=None) -> int:
             writer.writerow([subject, slug, point.get("name"), point.get("kind"),
                              "|".join(point.get("aliases") or []),
                              (point.get("boundary") or "")[:200]])
+    with (out_dir / "node_materials.csv").open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(["subject", "node_slug", "material_slug", "type", "title", "summary"])
+        for (subject, slug), rows in sorted(node_materials.items()):
+            for row in rows:
+                writer.writerow([subject, slug, row["slug"], row["type"],
+                                 row["title"], row["summary"]])
     (out_dir / "summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"已写入 {out_dir}")

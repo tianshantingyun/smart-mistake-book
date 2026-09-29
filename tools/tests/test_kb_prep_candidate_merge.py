@@ -111,7 +111,7 @@ class PrepCandidateMergeTest(unittest.TestCase):
         hit = by_name["节点甲"]
         self.assertEqual(hit["mech"], "name_hit")
         self.assertEqual(hit["node"]["slug"], "node-a")
-        self.assertEqual([m["slug"] for m in hit["node_materials"]], ["m-in", "m-diff"])
+        self.assertEqual([m["slug"] for m in hit["node_materials_sample"]], ["m-in", "m-diff"])
         self.assertEqual(by_name["别名甲"]["mech"], "alias_hit")
         self.assertEqual(by_name["节点甲★★☆☆☆"]["mech"], "star_hit")
         self.assertEqual(by_name["正式区没有的考点"]["mech"], "unmatched")
@@ -133,6 +133,10 @@ class PrepCandidateMergeTest(unittest.TestCase):
             (out / "pack_nodes.csv").open(encoding="utf-8", newline="")))
         self.assertEqual([row["slug"] for row in pack_nodes], ["node-a"])
         self.assertEqual(pack_nodes[0]["aliases"], "别名甲")
+        node_mats = list(csv.DictReader(
+            (out / "node_materials.csv").open(encoding="utf-8", newline="")))
+        self.assertEqual(sorted(row["material_slug"] for row in node_mats), ["m-diff", "m-in"])
+        self.assertEqual({row["node_slug"] for row in node_mats}, {"node-a"})
 
     def test_dry_run_writes_nothing(self):
         rc = P.main(["--root", str(self.tmp)])
