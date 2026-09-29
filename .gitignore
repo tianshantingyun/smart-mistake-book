@@ -70,3 +70,9 @@ knowledge-production/2027-53-fill/
 
 # 判定结论收口（判定工作流产出的 verdicts，与切片同源可确定性重生成）
 knowledge-production/judgment-verdicts/
+
+# 候选区合并的裁决输入（由 tools/kb_build/prep_candidate_merge.py 确定性重生成）
+knowledge-production/candidate-merge/dir_entries.jsonl
+knowledge-production/candidate-merge/dir_batches/
+knowledge-production/candidate-merge/mat_entries.jsonl
+knowledge-production/candidate-merge/pack_nodes.csv

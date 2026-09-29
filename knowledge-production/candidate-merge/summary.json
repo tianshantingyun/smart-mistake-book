@@ -1,0 +1,20 @@
+{
+ "dir_total": 3536,
+ "dir": {
+  "name_hit": 2291,
+  "alias_hit": 6,
+  "star_hit": 95,
+  "unmatched": 1144,
+  "star": 96,
+  "long": 977,
+  "ambiguous": 0
+ },
+ "material_total": 10356,
+ "material": {
+  "already_in": 9747,
+  "divergent": 234,
+  "missing": 375
+ },
+ "batches": 45,
+ "batch_size": 80
+}
