@@ -52,7 +52,7 @@
 | F4 | 作答前 L2 封顶**无本地强制层**（只靠 prompt 声明） | `OpenAiModelTaskAdapters.kt:306-318` | 新建本地执行层强制 | 阶段 2 |
 | F5 | 模式切换需动 `TutorModelTaskPolicy`（mode+level 进请求指纹，否则同文本换档位命中旧缓存）+ `FsrsEvidenceRatingMapper`；`ModelEgress` 基本不动 | `TutorModelTaskPolicy.kt:189-239,369-423` | 请求指纹纳入 mode+level | 阶段 2 |
 | F6 | 卡点检测缺：attempt 级档位历史、展示时长、按 presentation 的连续失败聚合查询 | — | 与 P3/P4 同批补 | 阶段 2/5 |
-| F7 | pretest×引导模式交叉未裁（pretest 阶段是否允许 L1/L2） | `PretestRouting.kt:22-31`（无生产调用方） | 3A 前裁决 | 3A 前 |
+| F7 | pretest×引导模式交叉（已裁：pretest 不给提示、封顶 L0，台账裁决 2） | `PretestRouting.kt:22-31`（无生产调用方） | 已裁 | 已裁 |
 | F8 | **L0–L4 脚手架与 FSRS 四档是两套数轴**，接入必须显式区分（否则被 P6 的逆向映射搅在一起） | `FsrsScheduleMath.kt:196-201` | 设计文档显式声明两套数轴边界 | 阶段 2 |
 
 ---
@@ -115,7 +115,7 @@
 - **3B**：Q2（投影版本回退/防降级）、S5/S6/S8（重放路径）、S2/S11（投影存储口径）。
 - **3C**：P11 的预测审计修正、S9（MASTERY_READ 预聚合）、S17/S18/S20（错题本/快照物化，与阶段 4 联动）。
 - **阶段 2/5（智能体面/复习栏）**：F1/F2/F4/F5/F6/F8（D-Q9 引导模式地基）、P3/P4/P6 的采集侧。
-- **3A 前裁决新增**：F7（pretest×引导模式交叉）。
+- **3A 前裁决新增**：F7（pretest×引导模式交叉）——已裁（pretest 不给提示，台账裁决 2）。
 
 ## 7. 对 fix-plan 的修正声明
 
