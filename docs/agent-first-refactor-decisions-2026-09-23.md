@@ -1441,6 +1441,24 @@ gradlew.bat --offline --console=plain testDebugUnitTest test \
 4. **两个「重试」入口**（列表失败卡 + 输入区）待 UX 收敛 → 归阶段 7 前的体验收口。
 5. **`MistakeDetailState.tutorConversation` 在 feature 层已无消费者**（core:data 仍在产出）→ 随阶段 4/7 清扫。
 
+## 阶段 3A 号段登记（2026-09-29，主会话）
+
+阶段 3A（内核算法与数值重做，按 `docs/research/2026-09-28-kernel-execution-steps.md` Step 4–7 与
+`…-kernel-remediation-roadmap.md` Wave 0–3 执行）**开始前先占号**，避免与另一条会话撞语义资源：
+
+| 资源 | 现值 | 本阶段占用 | 用途 |
+|---|---|---|---|
+| `STUDY_DATABASE_VERSION` | 53 | **54 / 55 / 56** | 54=Wave 0 `projection_archive`；55=Wave 2 `review_log.state`；56=Wave 3 `learner_knowledge_mastery_state` 的 `success_weight`/`failure_weight` |
+| `LearningCoreVersions.PROJECTOR` | `projector-v7` | **`projector-v8`** | Wave 3 投影公式变更（必须 bump，否则旧库不会全量重放） |
+| `LearningCoreVersions.EVIDENCE` | `evidence-v4` | **`evidence-v5`** | Wave 1 证据定价语义（`persistedAssistance` 链 + 看答案口径） |
+
+**边界核对（开工前实做）**：`git status --porcelain` 显示 `core/domain`、`core/data/.../study`、
+`core/data/.../model`、`core/database/src/main` **无任何在飞改动**；内核文件 2026-09-29 17:00 之后无人改动；
+工作树仅有对方未跟踪产物（`%TEMP%/`、`.agent_audit_crops/` 等，一律不动）。
+
+**纪律复述**（roadmap §0）：动投影公式必 bump 版本；加模型输入字段必抹平空载体 + 4 用例；
+动 schema 必非破坏迁移 + 导出新 JSON；**「待裁」值不得自行取值**——先验/θ/ε/γ/fuzz/FSRS-7 一律过你裁定。
+
 ### 本阶段实际动过的关键文件（按模块分组）
 
 口径：工作区相对 HEAD 的未提交差异（`git status --porcelain`）；阶段 1 已由 `bd873eed` 提交、
