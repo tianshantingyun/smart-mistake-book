@@ -1418,6 +1418,29 @@ gradlew.bat --offline --console=plain testDebugUnitTest test \
 对终态任务直接短路（`:214`），把 `CANCELLED` 纳入可重试谓词只会得到一个点了没反应的按钮；
 真正的支持需要为停掉的回合**开一次新的逻辑操作**，与回合生命周期一起留给阶段 5。
 
+### 阶段 2 出口门的实测结论与遗留（2026-09-29 主会话）
+
+**门禁实测**（最终树）：`:core:database:connectedDebugAndroidTest` 179 例 / 0 失败、
+`:feature:tutor:connectedDebugAndroidTest` 64 例 / 0 失败（这两个模块的仪器化在阶段 2 期间
+从 59 条失败收到 0，过程中拓出并修掉 5 个 JVM 单测结构性看不见的真缺陷）；`lintLocalFirstDebug`
+0 errors / 14 warnings（含既有的 `OldTargetApi`）；两个 debug APK 构建成功。
+设备走查（emulator-5554）确认：统一交互面、共享标题栏、进入即新会话、空态能力目录（每条能力带可点示例）、
+无模型时输入区常驻并给「先完成模型配置和能力测试」+ 去设置出口、模式开关可切到「一步步引导」。
+
+**未跑（如实标注）**：`:app:connectedLocalFirstDebugAndroidTest`（app 侧仪器化从未跑过）；
+`assembleRelease`（R8）；模型依赖路径（本机未配模型 key，发送/流式/工具轮/确认卡执行未在设备上验证）。
+
+**遗留清单（各自归属已定，不在阶段 2 收）**：
+1. **`onOpenProfile` 是一条**既有**死链**（早于阶段 2）：`TutorRoute`/`TutorLobbyRoute`/
+   `CapturedTutorSessionRoute`（3 处）/`SavedMistakeTutorRoute`（2 处）声明它、app 四处传真实导航，
+   但统一标题栏没有 profile 入口、没有任何地方读它 → 归阶段 7 死重清扫。
+2. **讲题侧发不出 `OPEN_PROBLEM` 拼写**：`TutorConversationViewModel` 传 `requestedActions = emptyList()`，
+   `TutorRespondInput` 无该字段，`RoomModelTaskRepository.withToolRoundProgress` 的 `is TutorRespondInput` 分支
+   丢弃 `newLocalActions`；该页目前靠工具孪生 `NOTEBOOK_WRITE` 走通（D-K2e 的两种拼写）→ 归阶段 3/5 的输入契约。
+3. **选择题反馈自己的时间戳**在阶段 1 的记录表合并中丢失（消费者在校准链）→ 归阶段 3A。
+4. **两个「重试」入口**（列表失败卡 + 输入区）待 UX 收敛 → 归阶段 7 前的体验收口。
+5. **`MistakeDetailState.tutorConversation` 在 feature 层已无消费者**（core:data 仍在产出）→ 随阶段 4/7 清扫。
+
 ### 本阶段实际动过的关键文件（按模块分组）
 
 口径：工作区相对 HEAD 的未提交差异（`git status --porcelain`）；阶段 1 已由 `bd873eed` 提交、
