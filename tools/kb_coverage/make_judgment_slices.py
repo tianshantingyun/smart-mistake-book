@@ -53,6 +53,16 @@ def slice_filename_source(src: str) -> str:
     return _FN_BAD.sub("_", src).rstrip(" .") or "unknown"
 
 
+# 来源排序：53 知识清单四本最高优先（用户 2026-09-30 指定：知识更全、更权威、
+# 提炼效率更高）——切片清单顺序即判定队列顺序，最优先来源排最前，组内按来源名稳定排序。
+_PRIORITY_SOURCES = ("53知识清单",)
+
+
+def source_priority(src: str) -> tuple[int, str]:
+    rank = 0 if any(tag in src for tag in _PRIORITY_SOURCES) else 1
+    return (rank, src)
+
+
 def slice_row(rec: dict) -> dict:
     """池记录 → 切片行（行 schema：chunk_rel,chunk_id,heading,text,subject,fp）。"""
     out: dict = {}
@@ -92,9 +102,13 @@ def classify_pool() -> tuple[dict[str, list[dict]], list[dict]]:
 
 
 def plan_slices(by_source: dict[str, list[dict]], size: int, pilot: bool) -> list[tuple[Path, list[dict]]]:
-    """按来源分组、每片 ≤ size 块；pilot 时每来源只出第 1 片。文件名稳定幂等。"""
+    """按来源分组、每片 ≤ size 块；pilot 时每来源只出第 1 片。文件名稳定幂等。
+
+    来源顺序按 `source_priority`（53 知识清单最优先），保证判定队列从最优先来源开跑。
+    """
     plan: list[tuple[Path, list[dict]]] = []
-    for src, rows in by_source.items():
+    for src in sorted(by_source, key=source_priority):
+        rows = by_source[src]
         fsrc = slice_filename_source(src)
         for i in range(0, len(rows), size):
             plan.append((SLICES_DIR / f"{fsrc}__{i // size + 1}.jsonl", rows[i:i + size]))

@@ -217,5 +217,44 @@ class JudgedAndRejudgeTests(unittest.TestCase):
             self.assertEqual(["q1"], [r["chunk_id"] for r in rows])
 
 
+class PriorityOrderTests(unittest.TestCase):
+    """53 知识清单来源最高优先：切片清单顺序即判定队列顺序（用户 2026-09-30 指定）。"""
+
+    def test_priority_source_sorts_first(self):
+        self.assertLess(mjs.source_priority("2027版高中《53知识清单》彩色版（数学）"),
+                        mjs.source_priority("2026年新高考资料"))
+        self.assertLess(mjs.source_priority("53知识清单·化学"), mjs.source_priority("27版五三"))
+
+    def test_list_puts_priority_source_first(self):
+        with tempfile.TemporaryDirectory() as td:
+            import contextlib
+            import io
+
+            pool = Path(td) / "chunks.jsonl"
+            judged = Path(td) / "judged.csv"
+            rejudge = Path(td) / "rejudge.csv"
+            slices = Path(td) / "slices"
+            skips = Path(td) / "mechanical_skips.csv"
+            _write_pool(pool, [
+                {"rel_path": "2026年新高考资料/1.docx", "chunk_id": "x1", "fp": "fx",
+                 "heading": "加速度", "text": GOOD_TEXT},
+                {"rel_path": "2027版高中《53知识清单》彩色版（数学）/a.pdf", "chunk_id": "m1",
+                 "fp": "fm", "heading": "知识点01", "text": GOOD_TEXT},
+            ])
+            _write_csv(judged, JUDGMENT_COLS, [])
+            _write_csv(rejudge, ["chunk_rel", "chunk_id", "midx", "node_slug", "type", "note"], [])
+            buf = io.StringIO()
+            with mock.patch.object(pc, "CHUNKS", pool), \
+                    mock.patch.object(pc, "JUDGMENTS", judged), \
+                    mock.patch.object(pc, "REJUDGE", rejudge), \
+                    mock.patch.object(mjs, "SLICES_DIR", slices), \
+                    mock.patch.object(mjs, "MECH_SKIPS", skips), \
+                    contextlib.redirect_stdout(buf):
+                rc = mjs.main(["--size", "10", "--list"])
+            self.assertEqual(0, rc)
+            names = [Path(line).name for line in buf.getvalue().splitlines()]
+            self.assertTrue(names[0].startswith("2027版高中"), names)
+
+
 if __name__ == "__main__":
     unittest.main()
