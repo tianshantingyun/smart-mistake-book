@@ -1,7 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.domain.TutorSendAction
-import com.tingyun.smartmistakebook.core.domain.TutorSendPhase
 import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.domain.TutorTurnSendStateMachine
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
@@ -33,6 +32,30 @@ internal fun tutorPlanAttemptCount(
 ): Int = matchingTaskCount.coerceAtLeast(0)
 
 /**
+ * 进入即自动开首轮的判据（A1）。
+ *
+ * [tasksObserved] 是"这条会话的计划任务流**已经发过至少一帧**"的信号。`observedTask == null`
+ * 有两个完全不同的含义——"确实还没有这一轮的任务"（可以开轮）与"还没读到"（**不许**开轮）。
+ * 没有这个信号时，provider 早于任务流首帧到达的那一次组合会把后者读成前者：同一轮被派发
+ * 两遍（首次派发的任务还在路上，第二次派发又发了一条同类的计划请求）。首帧一到（哪怕那一帧
+ * 是空列表——那是"确实没有任务"这件真事实）这个判据才说得清"要不要开轮"。
+ *
+ * 为什么不能靠延时/重试盖：延时只是把窗口缩小，竞态仍在；缺的本来就是"任务流读到第几帧了"
+ * 这一件事实，补上它比猜一个足够长的等待更小也更准。
+ */
+internal fun tutorAutoStartsFirstTurn(
+    autoStartFirstTurn: Boolean,
+    conversationEnabled: Boolean,
+    tasksObserved: Boolean,
+    hasObservedTask: Boolean,
+    provider: ProviderCapabilitySnapshot?,
+): Boolean = autoStartFirstTurn &&
+    conversationEnabled &&
+    tasksObserved &&
+    !hasObservedTask &&
+    tutorAgentChatEnabled(provider, ModelTaskKind.TUTOR_PLAN)
+
+/**
  * The single live agent gate for a tutor send surface. One place decides whether a send
  * may reach the provider right now: a local provider always dispatches (it never egresses),
  * while an external provider dispatches when it supports the kind and, for image-bearing
@@ -53,10 +76,6 @@ internal fun tutorAgentChatEnabled(
     return true
 }
 
-internal const val TUTOR_RESPOND_IN_PROGRESS_TITLE = "这条消息还在处理中"
-internal const val TUTOR_RESPOND_IN_PROGRESS_MESSAGE = "这条消息还在处理中，请稍后重试。"
-internal const val TUTOR_RESPOND_LIMIT_TITLE = "发送次数已到上限"
-internal const val TUTOR_RESPOND_LIMIT_MESSAGE = "这条消息的发送次数已到上限，请稍后再试。"
 internal const val TUTOR_RESPOND_VALIDATION_TITLE = "消息格式需要调整"
 internal const val TUTOR_RESPOND_VALIDATION_MESSAGE = "这条消息包含暂时无法发送的字符，请调整后再试。"
 internal const val TUTOR_RESPOND_NETWORK_TITLE = "这条消息还没有发出"
@@ -92,41 +111,35 @@ internal fun tutorRespondCollectCanStart(
     return !chatSubmitPending
 }
 
-internal sealed interface TutorRespondSendAdvance {
-    data object InProgressBudgetExhausted : TutorRespondSendAdvance
-    data object DispatchLimitReached : TutorRespondSendAdvance
-    data class Ready(val nextState: TutorSendState) : TutorRespondSendAdvance
-}
-
+/**
+ * 派发一轮学生消息时推进发送状态（B5）。
+ *
+ * 这里曾经有一道**界面自己的派遣预算**：`InProgressBudgetExhausted`（上一轮还没落地就不许再发）
+ * 与 `DispatchLimitReached`（这个界面自数到第 3 次就不许再发）。两者都删了——预算只有一个主人，
+ * 是内核账本（`ModelTasks.MAX_DISPATCHES`）；界面自数一套只会比内核先到顶，把学生拦在一句
+ * "发送次数已到上限"前面，而他的消息其实还能发。
+ *
+ * 现在的语义只有两条：**新学生消息一律开新回合**（先 [TutorSendAction.Reset] 回到空闲，再落
+ * 这一轮的标识），**重试沿用原标识**（同一次派发的重放不该变成第二次派发）。
+ */
 internal fun tutorRespondSendAdvance(
     sendState: TutorSendState,
     logicalOperationId: String,
     messageId: String,
     isRetry: Boolean,
-): TutorRespondSendAdvance {
-    val nextState = if (isRetry) {
+): TutorSendState = if (isRetry) {
+    TutorTurnSendStateMachine.reduce(
+        sendState,
+        TutorSendAction.ConsentGranted(logicalOperationId, messageId),
+    )
+} else {
+    TutorTurnSendStateMachine.reduce(
         TutorTurnSendStateMachine.reduce(
-            sendState,
-            TutorSendAction.ConsentGranted(logicalOperationId, messageId),
-        )
-    } else {
-        val persisted = TutorTurnSendStateMachine.reduce(
-            sendState,
+            TutorTurnSendStateMachine.reduce(sendState, TutorSendAction.Reset),
             TutorSendAction.StudentMessagePersisted(logicalOperationId, messageId),
-        )
-        if (persisted.phase == TutorSendPhase.PERMANENT_FAILURE) {
-            return TutorRespondSendAdvance.InProgressBudgetExhausted
-        }
-        TutorTurnSendStateMachine.reduce(
-            persisted,
-            TutorSendAction.ConsentGranted(logicalOperationId, messageId),
-        )
-    }
-    return if (nextState.phase == TutorSendPhase.DISPATCHING) {
-        TutorRespondSendAdvance.Ready(nextState)
-    } else {
-        TutorRespondSendAdvance.DispatchLimitReached
-    }
+        ),
+        TutorSendAction.ConsentGranted(logicalOperationId, messageId),
+    )
 }
 
 internal fun tutorRespondExecuteCanStart(

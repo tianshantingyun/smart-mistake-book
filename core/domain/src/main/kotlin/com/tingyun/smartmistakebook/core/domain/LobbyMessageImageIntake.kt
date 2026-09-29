@@ -41,5 +41,16 @@ interface LobbyMessageImageIntake {
      * 新图"一条路，于是重发只能丢图（学生看到的就是失败后重发没有图），或者干脆重打一遍。
      * 资产缺失或被改动时返回 null：调用方按"这张图不再出网"处理，而不是让整条消息发不出去。
      */
-    suspend fun describeImage(assetId: String): LobbyMessageImage?
+    suspend fun describeImage(assetId: String): LobbyMessageImage? 
+
+    /**
+     * 把已登记资产交给**录入链路**（A4 的 ③：学生确认把聊天里附的图收进错题本）。
+     *
+     * 消灭的失败：聊天附图进了规范资产库之后，**没有任何"上库"接续**——图只能看，不能变成
+     * 一道待处理的题。这里给出的是录入链路真正接受的形状（本应用私有 provider 的
+     * `content://` URI）：单页走草稿导入、多页走批量导入，由 [TutorAttachedImageIntake] 决定。
+     *
+     * 资产缺失或被改动时返回 null（调用方如实说"这张图不在了"，而不是伪造一次成功）。
+     */
+    suspend fun resolveIntakeUri(assetId: String): String? = null
 }

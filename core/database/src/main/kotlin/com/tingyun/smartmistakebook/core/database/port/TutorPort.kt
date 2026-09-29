@@ -20,6 +20,7 @@ import com.tingyun.smartmistakebook.core.database.AppendTutorAssistantMessageDat
 import com.tingyun.smartmistakebook.core.database.AppendTutorStudentMessageDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.BindStudentMessageQuestionDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.CreateTutorConversationDatabaseCommand
+import com.tingyun.smartmistakebook.core.database.SetTutorInteractionModeDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.TutorConversationRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
@@ -31,7 +32,13 @@ import kotlinx.coroutines.flow.Flow
  */
 interface TutorReadPort {
     fun observeTutorTurnResponses(sessionId: String): Flow<List<TutorTurnResponseRecord>>
-    fun observeRecentTutorConversations(limit: Int): Flow<List<TutorConversationRecord>>
+
+    /** 某个会话区（AGENT / REVIEW_*）里最近的会话；跨区不可见（K1 会话区隔离）。 */
+    fun observeRecentTutorConversations(
+        limit: Int,
+        conversationArea: String,
+    ): Flow<List<TutorConversationRecord>>
+
     fun observeTutorMessages(conversationId: String): Flow<List<TutorMessageRecord>>
     fun observeTutorConversation(conversationId: String): Flow<TutorConversationRecord?>
 }
@@ -60,6 +67,11 @@ interface TutorWritePort {
     suspend fun updateTutorMessageStatus(
         command: UpdateTutorMessageStatusDatabaseCommand,
     ): TutorMessageRecord
+
+    /** 切换交互模式（D-Q9）：学生自己选的那一下（可反复换）。 */
+    suspend fun setTutorInteractionMode(
+        command: SetTutorInteractionModeDatabaseCommand,
+    ): TutorConversationRecord
 
     suspend fun pauseTutorConversation(
         conversationId: String,

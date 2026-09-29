@@ -1,107 +1,56 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.outlined.CameraAlt
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.PhotoLibrary
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.tingyun.smartmistakebook.core.domain.LobbyMessageImage
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
+import com.tingyun.smartmistakebook.core.domain.MAX_TUTOR_MESSAGE_IMAGES
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
-import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
-import com.tingyun.smartmistakebook.core.domain.AppendTutorAssistantMessageCommand
-import com.tingyun.smartmistakebook.core.domain.AppendTutorStudentMessageCommand
-import com.tingyun.smartmistakebook.core.domain.ClearTutorConversationDraftCommand
-import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
-import com.tingyun.smartmistakebook.core.domain.MAX_TUTOR_MESSAGE_IMAGES
-import com.tingyun.smartmistakebook.core.domain.SaveTutorConversationDraftCommand
-import com.tingyun.smartmistakebook.core.domain.TutorContextComposer
-import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
-import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
-import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
+import com.tingyun.smartmistakebook.core.model.ActionType
 import com.tingyun.smartmistakebook.core.model.ModelFailureCode
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
-import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
-import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
-import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
-import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
-import com.tingyun.smartmistakebook.core.model.ActionType
-import com.tingyun.smartmistakebook.core.model.AppFailure
-import com.tingyun.smartmistakebook.core.model.AppFailureCode
-import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
-import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
-import com.tingyun.smartmistakebook.core.model.TutorRequestedLocalCapability
-import com.tingyun.smartmistakebook.core.model.Retryability
-import com.tingyun.smartmistakebook.core.model.appFailure
 import com.tingyun.smartmistakebook.core.model.recoverableByResending
-import com.tingyun.smartmistakebook.core.model.requiresModelSettings
-import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
-import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.Paper
-import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
-import com.tingyun.smartmistakebook.core.ui.ThinkingCollapsibleCard
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.draw.clip
-import androidx.core.content.FileProvider
 import java.io.File
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
- * 智能体页面无题轮（大厅）。标题栏用全页面唯一的 [TutorPageHeader]：它与拍照会话、错题讲题
- * 是**同一个页面**的同一个头，学生换入口不换页面。
+ * 智能体栏（无题轮）的**薄壳**：只做三件入口自己的事——建 [TutorConversationViewModel]、
+ * 接拍照/相册的返回、把空态换成能力目录；其余全部由一个交互面组件
+ * [TutorConversationScreen] 渲染（C1）。
+ *
+ * 状态全在 [TutorConversationViewModel] 里（C2）：这一层只剩渲染与"把意图转成调用"。
+ * 从前散在这里的 14 个裸 `remember`、会话/任务/实时三条订阅的接线、以及发送路径的三份复制，
+ * 都已经搬进那个 ViewModel；这里因此不再持有任何跨重建会丢的对话状态。
  */
 @Composable
 internal fun TutorLobbyRoute(
@@ -113,7 +62,6 @@ internal fun TutorLobbyRoute(
     conversations: TutorConversationRepository,
     modelTasks: ModelTaskRepository,
     catalogEntries: List<StudyCatalogEntry>,
-    profile: StudyProfileOverview,
     imageIntake: LobbyMessageImageIntake? = null,
     initialConversationId: String? = null,
     /**
@@ -121,102 +69,47 @@ internal fun TutorLobbyRoute(
      * 交给讲题页面：不换页面，只是这一轮有了要讲的那道题。
      */
     onOpenMistakeTutor: (MistakeRevisionKey) -> Unit = {},
+    /**
+     * 确认卡的落库端口（A4 / 插眼 5）。null = 这个入口不接确认卡：模型申请的本地动作仍然
+     * 如实出现在正文里，只是没有可点的卡（与"静默丢弃"不同——丢弃是连话都不说）。
+     */
+    pendingRequests: AgentPendingRequestRepository? = null,
+    /** 确认卡三条执行路径的落点（见 [tutorLocalActionLandings]）。 */
+    localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
     modifier: Modifier = Modifier,
 ) {
-    val scope = rememberCoroutineScope()
-    var activeConversationId by rememberSaveable {
-        mutableStateOf(initialConversationId.orEmpty())
-    }
-    val conversationSnapshot by remember(activeConversationId) {
-        if (activeConversationId.isBlank()) {
-            flowOf(null)
-        } else {
-            conversations.observeConversation(activeConversationId)
-        }
-    }.collectAsState(initial = null)
-    val conversationMessages = conversationSnapshot?.messages.orEmpty()
-    val persistedTasks by remember(modelTasks, activeConversationId) {
-        if (activeConversationId.isBlank()) {
-            flowOf(emptyList())
-        } else {
-            modelTasks.observeRecentBySubject(
-                activeConversationId,
-                ModelTaskKind.TUTOR_LOBBY,
-                MAX_PERSISTED_TASKS,
-            )
-        }
-    }.collectAsState(initial = emptyList())
-    val conversationTasks = remember(persistedTasks) {
-        persistedTasks
-            .mapNotNull { task ->
-                (task.request.input as? TutorLobbyInput)?.let { input -> input.messageOrdinal to task }
-            }
-            .groupBy({ it.first }, { it.second })
-            .mapNotNull { (_, attempts) -> attempts.maxByOrNull(ModelTaskSnapshot::updatedAtEpochMillis) }
-            .sortedBy { task -> (task.request.input as TutorLobbyInput).messageOrdinal }
-    }
-    val visibleTasks = remember(conversationTasks) { conversationTasks.takeLast(MAX_VISIBLE_MESSAGES) }
-    var provider by remember { mutableStateOf<ProviderCapabilitySnapshot?>(null) }
-    var providerLoadFailed by rememberSaveable { mutableStateOf(false) }
-    var draft by rememberSaveable(activeConversationId) { mutableStateOf("") }
-    var sendError by remember { mutableStateOf<AppFailure?>(null) }
-    // 发送是本组合内的瞬时行为，不应跨进程/重建保留——残留 true 会永久锁死输入框。
-    var sendInFlight by remember { mutableStateOf(false) }
-    // 最近一次发送失败的消息文本：可重试失败的"重试"按钮据此重发。
-    var lastFailedMessage by rememberSaveable { mutableStateOf<String?>(null) }
-    var resumingTaskId by remember { mutableStateOf<String?>(null) }
-    var draftPersistJob by remember { mutableStateOf<Job?>(null) }
-    // 会话任务可能因离开页面被取消而停在非终态（协程已死、DB 无终态）：
-    // 这样的任务必须给出"继续回复"的恢复出口，否则输入框永久禁用。
-    val stalledTask = conversationTasks.lastOrNull { task ->
-        task.status in TUTOR_LIVE_TASK_STATUSES
-    }
-    val hasActiveTask = stalledTask != null || sendInFlight || resumingTaskId != null
-    // 唯一的一条实时流（讲题会话同一套）：在途任务的请求标识一变就换订阅，不再在途就清空。
-    val liveTurn = rememberTutorLiveTurn(modelTasks, stalledTask?.request?.requestId)
-    // 还没有逐 token 文本时的那一行兜底文案，来自任务快照自己带的状态。
-    val liveStatusText = stalledTask?.tutorLiveStatusText()
-
-    // 消息附图（学生裁定：加号打开"拍照/相册"二选一，一次最多 9 张）。
-    val context = LocalContext.current
-    // 待发附件跨重建保留：选好图之后切走或进程被回收再回来，图不该消失（发送成功才清空）。
-    var pendingImages by rememberSaveable(
-        stateSaver = listSaver<List<PendingMessageImage>, String>(
-            save = { images -> images.map(PendingMessageImage::localUri) },
-            restore = { uris -> uris.map(::PendingMessageImage) },
+    // 这条交互面长在哪一栏（K1 的判别列）：会话行按它写，一张配置对象说了算——
+    // ViewModel 建会话行时读它（下面的 factory），屏幕的配置也带它，两处不会漂。
+    val surfaceArea = TutorConversationAreas.AGENT
+    val viewModel: TutorConversationViewModel = viewModel(
+        factory = TutorConversationViewModelFactory(
+            conversations = conversations,
+            modelTasks = modelTasks,
+            imageIntake = imageIntake,
+            // 显式恢复的唯一入口：历史列表点回来。默认 null = 本轮新开（A1）。
+            initialConversationId = initialConversationId,
+            area = surfaceArea,
+            pendingRequests = pendingRequests,
+            localActionLandings = localActionLandings,
         ),
-    ) { mutableStateOf(emptyList()) }
-    var attachMenuOpen by remember { mutableStateOf(false) }
-    // 「从错题库选择」（加号里的一项，以及空态里的快捷按钮）：在本页直接挑题，
-    // 而不是跳去错题本再自己找回来。
-    var mistakePickerOpen by remember { mutableStateOf(false) }
-    // 模型这一轮申请了"查错题本"：给一个能点的入口，而不是让申请无声落地。
-    var notebookLookupRequested by remember { mutableStateOf(false) }
-    // 相机结果要回填到发起拍照时约定的目标 URI，跨重建也必须还在，否则拍完的照片无处安放。
-    var pendingCameraImageUri by rememberSaveable { mutableStateOf<String?>(null) }
+    )
+    val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     val lobbyImageEnabled = imageIntake != null
 
-    fun remainingImageSlots(): Int = MAX_TUTOR_MESSAGE_IMAGES - pendingImages.size
-
-    fun addPendingImages(uris: List<String>) {
-        if (uris.isEmpty()) return
-        pendingImages = (pendingImages + uris.map { PendingMessageImage(it) })
-            .take(MAX_TUTOR_MESSAGE_IMAGES)
-    }
+    // 每次进入这个页面都重读一次模型能力：学生可能刚从设置里换了模型/配了 Key，而能力是
+    // 外部事实、不在库里。VM 只订阅它、不缓存它。
+    LaunchedEffect(Unit) { viewModel.refreshProvider() }
 
     val lobbyCameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
     ) { saved ->
-        val uri = pendingCameraImageUri
-        pendingCameraImageUri = null
-        if (saved && uri != null) {
-            addPendingImages(listOf(uri))
-        }
+        viewModel.onCameraResult(saved)
     }
     val lobbyGalleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia(MAX_TUTOR_MESSAGE_IMAGES),
     ) { selected ->
-        addPendingImages(selected.take(remainingImageSlots()).map { it.toString() })
+        viewModel.onGalleryResult(selected.map { it.toString() })
     }
 
     fun launchLobbyCamera() {
@@ -229,457 +122,28 @@ internal fun TutorLobbyRoute(
             "${context.packageName}.capture.fileprovider",
             file,
         )
-        pendingCameraImageUri = uri.toString()
+        // 目标 uri 先交给 VM 记着（跨进程保留）：拍完的照片要回填到发起拍照时约定的位置。
+        viewModel.onCameraLaunching(uri.toString())
         lobbyCameraLauncher.launch(uri)
     }
 
     // 进栏一律新对话（决策台账 D-Q6-4）、空会话不落库（K1b）：进入本页**不认领任何旧会话**，
-    // 也不为"只是进来看一眼"建会话行——会话行由第一条消息自己保证（见 `startMessage` 的
-    // 惰性建行与 `RoomTutorConversationRepository.observeRecent` 的"只列有消息的会话"）。
-    // 从历史列表点进来的入口仍然有效：那条路径给的是显式的 `initialConversationId`。
+    // 也不为"只是进来看一眼"建会话行——会话行由第一条消息自己保证。这些规则现在落在
+    // [TutorConversationViewModel] 的初始状态里（默认空会话 id + 自己创建会话行）。
 
-    LaunchedEffect(activeConversationId) {
-        if (activeConversationId.isBlank()) return@LaunchedEffect
-        draft = conversations.observeConversation(activeConversationId)
-            .first()
-            ?.conversation
-            ?.studentDraft
-            .orEmpty()
+    val capabilities = remember(onCapture, onOpenMistakeNotebook) {
+        agentCapabilityDirectory(
+            onCapture = onCapture,
+            onPickMistake = viewModel::onOpenMistakePicker,
+            onOpenMistakeNotebook = onOpenMistakeNotebook,
+        )
     }
-
-    LaunchedEffect(modelTasks) {
-        try {
-            provider = modelTasks.capabilities()
-            providerLoadFailed = false
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            providerLoadFailed = true
-        }
-    }
-
-    /**
-     * 派发一轮大厅对话并消费它的状态流：终态落一条助手消息；生成过程中的实时文本由
-     * [rememberTutorLiveTurn] 订阅同一条实时通道渲染，这里不再自己抄一遍。
-     *
-     * 新发送、失败重发、继续未完成任务三条入口共用这一处。它们此前各自实现过一次，而两份
-     * 实现已经漂移——正常发送路径从不读 `task.userMessage`，所以学生发出消息后只看到一句
-     * 永远不变的"正在发送…"，只有"继续回复"路径看得到实时状态。实时流只接一处，就不会再
-     * 出现"哪条路径忘了接"。
-     */
-    suspend fun dispatchLobbyTurn(
-        request: ModelTaskRequest,
-        conversationId: String,
-        replyToMessageId: String?,
-        assistantOrdinal: Int,
-        logicalOperationId: String,
-    ) {
-        var terminalHandled = false
-        modelTasks.execute(request).collect { task ->
-            if (terminalHandled) return@collect
-            val output = task.output as? TutorLobbyOutput
-            when {
-                task.status == ModelTaskStatus.SUCCEEDED && output != null -> {
-                    terminalHandled = true
-                    // 模型申请"查错题本"时，界面必须给出可点的一步。此前这条申请被解析、被校验、
-                    // 然后被丢掉：学生看到模型说"我去看看你的错题本"，界面上没有任何入口。
-                    notebookLookupRequested = output.intentDecision.requestedLocalCapability ==
-                        TutorRequestedLocalCapability.READ_MISTAKE_NOTEBOOK
-                    conversations.appendAssistantMessage(
-                        AppendTutorAssistantMessageCommand(
-                            conversationId = conversationId,
-                            messageId = "tutor-message:${UUID.randomUUID()}",
-                            ordinal = assistantOrdinal,
-                            replyToMessageId = replyToMessageId,
-                            bodyMarkdown = output.messageMarkdown,
-                            thinkingMarkdown = output.thinkingMarkdown,
-                            logicalOperationId = logicalOperationId,
-                            status = TutorMessageStatus.SUCCEEDED,
-                            createdAtEpochMillis = request.occurredAtEpochMillis,
-                            completedAtEpochMillis = task.updatedAtEpochMillis,
-                            errorCode = null,
-                        ),
-                    )
-                }
-
-                task.status in TERMINAL_FAILURE_STATUSES -> {
-                    terminalHandled = true
-                    conversations.appendAssistantMessage(
-                        AppendTutorAssistantMessageCommand(
-                            conversationId = conversationId,
-                            messageId = "tutor-message:${UUID.randomUUID()}",
-                            ordinal = assistantOrdinal,
-                            replyToMessageId = replyToMessageId,
-                            bodyMarkdown = TUTOR_LOBBY_FAILED_REPLY_BODY,
-                            logicalOperationId = logicalOperationId,
-                            status = TutorMessageStatus.FAILED,
-                            createdAtEpochMillis = request.occurredAtEpochMillis,
-                            completedAtEpochMillis = task.updatedAtEpochMillis,
-                            errorCode = task.failure?.code?.name,
-                        ),
-                    )
-                }
-            }
-        }
-        if (!terminalHandled) {
-            conversations.appendAssistantMessage(
-                AppendTutorAssistantMessageCommand(
-                    conversationId = conversationId,
-                    messageId = "tutor-message:${UUID.randomUUID()}",
-                    ordinal = assistantOrdinal,
-                    replyToMessageId = replyToMessageId,
-                    bodyMarkdown = TUTOR_LOBBY_INTERRUPTED_REPLY_BODY,
-                    logicalOperationId = logicalOperationId,
-                    status = TutorMessageStatus.FAILED,
-                    createdAtEpochMillis = request.occurredAtEpochMillis,
-                    completedAtEpochMillis = System.currentTimeMillis(),
-                    errorCode = "UNKNOWN",
-                ),
-            )
-        }
-    }
-
-    fun resumeStalledTask() {
-        val task = stalledTask ?: return
-        val conversationId = activeConversationId
-        if (conversationId.isBlank() || resumingTaskId != null || sendInFlight) return
-        resumingTaskId = task.request.requestId
-        sendError = null
-        val replyTo = conversationMessages.lastOrNull {
-            it.role == TutorMessageRole.STUDENT
-        }
-        val assistantOrdinal = nextTutorMessageOrdinals(
-            conversationSnapshot?.conversation?.lastTurnOrdinal ?: 0,
-        ).student
-        scope.launch {
-            try {
-                dispatchLobbyTurn(
-                    request = task.request,
-                    conversationId = conversationId,
-                    replyToMessageId = replyTo?.messageId,
-                    assistantOrdinal = assistantOrdinal,
-                    logicalOperationId = task.request.requestId,
-                )
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (e: Exception) {
-                android.util.Log.e("TutorLobby", "Failed to resume stalled reply", e)
-                sendError = appFailure(
-                    code = AppFailureCode.NETWORK_UNAVAILABLE,
-                    title = "暂时没有恢复成功",
-                    message = "这条回复还没有完成，可以再试一次。",
-                    dataPreserved = true,
-                    retryability = Retryability.RETRYABLE,
-                    primaryAction = ActionType.RETRY,
-                )
-            } finally {
-                resumingTaskId = null
-            }
-        }
-    }
-
-    /**
-     * 发送入口的时间戳只取一次：同一个时刻既作"学生做出发送决定"的授权时刻，也作请求发生时刻。
-     *
-     * `ModelEgressManifest.requireAuthorizes` 要求 `approvedAtEpochMillis >= occurredAtEpochMillis`。
-     * 这两个值此前各自读一次时钟，于是"两次读秒是否落在同一毫秒"决定了发送成败：毫秒一错开，
-     * 请求就在任何网络动作之前被本地拒掉（stage=PREPARING、attempt=0），学生看到的是
-     * "刚发出去一秒就说没准备好"。一次用户动作只产生一个时刻，用结构保证不等式成立，
-     * 而不是放宽这条校验。
-     */
-    fun startMessage(message: String, decidedAtEpochMillis: Long = System.currentTimeMillis()) {
-        val currentProvider = provider
-        if (currentProvider == null && !providerLoadFailed) {
-            // 首帧：模型能力还没读回来，别把它误报成"当前模型不能处理对话"。
-            sendError = appFailure(
-                code = AppFailureCode.TUTOR_PROVIDER_UNAVAILABLE,
-                title = "正在读取模型配置",
-                message = "模型配置还在读取中，稍等片刻再发送。",
-                dataPreserved = true,
-                retryability = Retryability.RETRYABLE,
-                primaryAction = ActionType.RETRY,
-            )
-            return
-        }
-        if (currentProvider == null || !currentProvider.supports(ModelTaskKind.TUTOR_LOBBY)) {
-            sendError = appFailure(
-                code = if (providerLoadFailed) {
-                    AppFailureCode.PROVIDER_NOT_CONFIGURED
-                } else {
-                    AppFailureCode.PROVIDER_CAPABILITY_MISMATCH
-                },
-                title = if (providerLoadFailed) {
-                    "暂时读不到模型配置"
-                } else {
-                    "当前模型还不能处理对话"
-                },
-                message = if (providerLoadFailed) {
-                    "暂时读不到模型配置，请检查后再试。"
-                } else {
-                    "当前模型还不能处理对话，请先完成模型配置和能力测试。"
-                },
-                dataPreserved = true,
-                primaryAction = ActionType.OPEN_SETTINGS,
-            )
-            return
-        }
-        if (sendInFlight || resumingTaskId != null) return
-        val sentImages = pendingImages
-        if (sentImages.isNotEmpty() && currentProvider.supportsImageInput != true) {
-            sendError = appFailure(
-                code = AppFailureCode.PROVIDER_CAPABILITY_MISMATCH,
-                title = "当前模型不支持看图",
-                message = "去掉图片或更换支持图片的模型后再发送。",
-                dataPreserved = true,
-                primaryAction = ActionType.OPEN_SETTINGS,
-            )
-            return
-        }
-        sendInFlight = true
-        if (message.isNotBlank()) lastFailedMessage = message
-        // 与"发送决定"同刻：不再二次读时钟，见 startMessage 的说明。
-        val occurredAt = decidedAtEpochMillis
-        val currentConversationId = activeConversationId
-
-        scope.launch {
-            try {
-                // 附图与拍照/讲题同口径：学生选择图片并点发送本身就是本次知情，
-                // 不再弹确认卡（配置模型 = 唯一条件）。
-                val intake = imageIntake
-                draft = ""
-                sendError = null
-                // 新一轮：上一轮模型申请的查错题本提示随消息一起过期。
-                notebookLookupRequested = false
-                // 发送时登记：图片字节进私有资产库并拿到 egress 证明所需的哈希/尺寸。
-                // 资产库按内容寻址，同一张照片被选两次会拿到同一个 assetId，而请求契约
-                // 要求 assetId 互不重复；这里按 assetId 去重（保留首次出现的位置），
-                // 而不是让重复选择把整条消息顶成发送失败。
-                val imageAssets = if (sentImages.isNotEmpty() && intake != null) {
-                    sentImages
-                        .map { pending ->
-                            intake.registerImage(pending.localUri, System.currentTimeMillis())
-                        }
-                        .distinctBy { it.assetId }
-                } else {
-                    emptyList()
-                }
-                // 纯图消息给一句可读的兜底文本（消息体不能为空）。
-                val effectiveMessage = message.ifBlank { "请帮我看看这些图片。" }
-                // 活跃会话可能已被用户从历史页删除：先确认存在，不存在则静默
-                // 开新会话，消息照常发出——而不是向外键冲突抛错、谎称已保留。
-                val freshSnapshot = currentConversationId.takeIf { it.isNotBlank() }?.let {
-                    runCatching {
-                        conversations.observeConversation(it).first()
-                    }.getOrNull()
-                }
-                val conversationId: String
-                val lastTurnOrdinal: Int
-                val freshMessages: List<TutorMessage>
-                if (freshSnapshot != null) {
-                    conversationId = currentConversationId
-                    lastTurnOrdinal = freshSnapshot.conversation.lastTurnOrdinal
-                    freshMessages = freshSnapshot.messages
-                } else {
-                    val created = conversations.createConversation(
-                        CreateTutorConversationCommand(
-                            conversationId = "tutor-conv:${UUID.randomUUID()}",
-                            anchorKind = TutorConversationAnchorKind.TEXT_ONLY,
-                            anchorId = null,
-                            anchorRevisionId = null,
-                            title = null,
-                            createdAtEpochMillis = occurredAt,
-                        ),
-                    )
-                    conversationId = created.conversationId
-                    lastTurnOrdinal = created.lastTurnOrdinal
-                    freshMessages = emptyList()
-                    activeConversationId = conversationId
-                }
-                scope.launch {
-                    conversations.clearDraft(
-                        ClearTutorConversationDraftCommand(
-                            conversationId = conversationId,
-                            occurredAtEpochMillis = occurredAt,
-                        ),
-                    )
-                }
-                // 会话级单调 ordinal（K1c）：报号规则只有一处（nextTutorMessageOrdinals），
-                // 学生与助手各占一位；请求里的轮次号就是这条学生消息的号。
-                val ordinals = nextTutorMessageOrdinals(lastTurnOrdinal)
-                val studentOrdinal = ordinals.student
-                val assistantOrdinal = ordinals.assistant
-                val messageOrdinal = studentOrdinal
-                val messageId = "tutor-message:${UUID.randomUUID()}"
-                val logicalOperationId = "tutor-lobby-op:${UUID.randomUUID()}"
-                val studentMessage = conversations.appendStudentMessage(
-                    AppendTutorStudentMessageCommand(
-                        conversationId = conversationId,
-                        messageId = messageId,
-                        ordinal = studentOrdinal,
-                        bodyMarkdown = effectiveMessage,
-                        logicalOperationId = logicalOperationId,
-                        createdAtEpochMillis = occurredAt,
-                        sourceImageAssetIds = imageAssets.map { it.assetId },
-                    ),
-                )
-                pendingImages = emptyList()
-                lastFailedMessage = null
-                val context = TutorContextComposer.compose(freshMessages)
-                val contextImages = freshMessages.toContextImages(intake, studentOrdinal)
-                val request = try {
-                    buildTutorLobbyRequest(
-                        provider = currentProvider,
-                        conversationId = conversationId,
-                        messageOrdinal = messageOrdinal,
-                        studentMessage = effectiveMessage,
-                        priorMessages = context.recent,
-                        priorDigest = context.digest,
-                        occurredAtEpochMillis = occurredAt,
-                        approvedAtEpochMillis = decidedAtEpochMillis,
-                        imageAssets = imageAssets,
-                        contextImageAssets = contextImages,
-                    )
-                } catch (_: IllegalArgumentException) {
-                    // 契约违规不是网络问题：重试会逐字重放同一个非法请求，所以如实说
-                    // 是格式问题，并且不给重试按钮（给了也必然再失败一次）。
-                    sendError = appFailure(
-                        code = AppFailureCode.VALIDATION_FAILED,
-                        title = "这条消息暂时发不出去",
-                        message = "这条消息的格式需要调整，改一下再发送。",
-                        dataPreserved = true,
-                    )
-                    return@launch
-                }
-
-                dispatchLobbyTurn(
-                    request = request,
-                    conversationId = conversationId,
-                    replyToMessageId = studentMessage.messageId,
-                    assistantOrdinal = assistantOrdinal,
-                    logicalOperationId = logicalOperationId,
-                )
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (e: Exception) {
-                android.util.Log.e("TutorLobby", "Failed to send message", e)
-                sendError = appFailure(
-                    code = AppFailureCode.NETWORK_UNAVAILABLE,
-                    title = "这条消息已经保留",
-                    message = "这条消息已经保留，但暂时没有发出去。",
-                    dataPreserved = true,
-                    retryability = Retryability.RETRYABLE,
-                    primaryAction = ActionType.RETRY,
-                )
-            } finally {
-                sendInFlight = false
-                // 生成结束：清掉实时文本，避免下一次发送在首个状态到达前闪出上一条的残留。
-            }
-        }
-    }
-
-    /**
-     * 原样重发一条已经失败的消息：同一句原文、同一批附图，以新的 attempt 重新签发授权。
-     *
-     * 与"新发送"只有两点不同。一是不再追加学生消息——原文已经在对话里，重发不该让它出现
-     * 两次。二是 attempt 递增：同一逻辑轮的每次派发必须是不同的请求标识，否则仓库按任务
-     * 标识直接返回上一次的终态，"重新发送"会变成一次静默的空操作。
-     */
-    fun resendMessage(studentMessage: TutorMessage) {
-        val currentProvider = provider
-        if (currentProvider == null || !currentProvider.supports(ModelTaskKind.TUTOR_LOBBY)) return
-        if (sendInFlight || resumingTaskId != null) return
-        val conversationId = activeConversationId
-        if (conversationId.isBlank() || studentMessage.conversationId != conversationId) return
-        sendInFlight = true
-        sendError = null
-        notebookLookupRequested = false
-        // 同一次用户动作取一次时钟：授权时刻与请求时刻必须同刻（见 startMessage 的说明）。
-        val decidedAtEpochMillis = System.currentTimeMillis()
-        scope.launch {
-            try {
-                val snapshot = runCatching {
-                    conversations.observeConversation(conversationId).first()
-                }.getOrNull() ?: return@launch
-                // 只允许重发"最后一条学生消息"：界面按钮同样只在这时出现，这里再挡一次是因为
-                // 渲染与点击之间学生可能已经发了新消息——那时重发就会把一个更晚的轮次，
-                // 连同它的回复一起塞进这次请求的上下文里。
-                if (snapshot.messages.any { message ->
-                        message.role == TutorMessageRole.STUDENT &&
-                            message.ordinal > studentMessage.ordinal
-                    }
-                ) {
-                    return@launch
-                }
-                // 轮次号 = **这条学生消息自己的会话序号**（K1c 单数轴）：重发必须与原派发同号，
-                // 否则会重建出第二个请求标识、把同一条消息派发两次。按"第几条学生消息"数
-                // 则会在任何一条助手行缺失/多出时错位。
-                val messageOrdinal = studentMessage.ordinal
-                val attempt = conversationTasks.count { task ->
-                    (task.request.input as? TutorLobbyInput)?.messageOrdinal == messageOrdinal
-                }
-                // 附图从资产库读回元数据：图被清理或被改动时按纯文字重发，
-                // 而不是让整条消息发不出去。
-                val imageAssets = studentMessage.sourceImageAssetIds
-                    .mapNotNull { assetId -> imageIntake?.describeImage(assetId) }
-                val context = TutorContextComposer.compose(snapshot.messages)
-                val contextImages = snapshot.messages.toContextImages(
-                    intake = imageIntake,
-                    beforeOrdinal = studentMessage.ordinal,
-                )
-                val request = try {
-                    buildTutorLobbyRequest(
-                        provider = currentProvider,
-                        conversationId = conversationId,
-                        messageOrdinal = messageOrdinal,
-                        studentMessage = studentMessage.bodyMarkdown,
-                        priorMessages = context.recent,
-                        priorDigest = context.digest,
-                        occurredAtEpochMillis = decidedAtEpochMillis,
-                        approvedAtEpochMillis = decidedAtEpochMillis,
-                        attempt = attempt,
-                        imageAssets = imageAssets,
-                        contextImageAssets = contextImages,
-                    )
-                } catch (_: IllegalArgumentException) {
-                    sendError = appFailure(
-                        code = AppFailureCode.VALIDATION_FAILED,
-                        title = "这条消息暂时发不出去",
-                        message = "这条消息的格式需要调整，改一下再发送。",
-                        dataPreserved = true,
-                    )
-                    return@launch
-                }
-                dispatchLobbyTurn(
-                    request = request,
-                    conversationId = conversationId,
-                    replyToMessageId = studentMessage.messageId,
-                    assistantOrdinal = snapshot.conversation.lastTurnOrdinal + 1,
-                    logicalOperationId = studentMessage.logicalOperationId ?: request.requestId,
-                )
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (e: Exception) {
-                android.util.Log.e("TutorLobby", "Failed to resend message", e)
-                sendError = appFailure(
-                    code = AppFailureCode.NETWORK_UNAVAILABLE,
-                    title = "这条消息已经保留",
-                    message = "这条消息已经保留，但暂时没有发出去。",
-                    dataPreserved = true,
-                    retryability = Retryability.RETRYABLE,
-                    primaryAction = ActionType.RETRY,
-                )
-            } finally {
-                sendInFlight = false
-            }
-        }
-    }
-
-    fun submitDraft() {
-        val message = draft.trim()
-        val hasImages = pendingImages.isNotEmpty()
-        if ((message.isBlank() && !hasImages) || hasActiveTask || sendInFlight) return
-        startMessage(message)
-    }
+    val composerBlock = TutorComposerAvailability(
+        providerReady = state.provider?.supports(ModelTaskKind.TUTOR_LOBBY) == true,
+        providerLoadFailed = state.providerLoadFailed,
+        // 残留任务是"发送被挡住"的第五种情况：给一句人话 + 「继续回复」出口，不许静默吞掉点击。
+        stalledTurnReason = state.stalledTurnBlockReason,
+    ).block()
 
     Column(
         modifier = modifier
@@ -688,152 +152,159 @@ internal fun TutorLobbyRoute(
             .imePadding()
             .testTag("tutor_lobby"),
     ) {
-        TutorConversationFrame(
-            header = {
-                TutorPageHeader(
-                    onOpenCapabilitySettings = onOpenCapabilitySettings,
-                    onOpenHistory = onOpenHistory,
-                )
-            },
-            // 每来一条消息、每次状态变化都重新贴住最新。大厅此前没有这条逻辑：回答到达后
-            // 画面停在旧位置（真机截图确认）。贴尾逻辑在屏幕组件里，两处共用一套。
-            autoScrollVersion = listOf(
-                conversationMessages.size,
-                conversationMessages.lastOrNull()?.messageId,
-                conversationMessages.lastOrNull()?.status,
-                visibleTasks.lastOrNull()?.stateVersion,
-                notebookLookupRequested,
-                sendError,
-                liveTurn,
+        TutorConversationScreen(
+            config = TutorSurfaceConfig(
+                area = surfaceArea,
+                header = {
+                    TutorPageHeader(
+                        onOpenCapabilitySettings = onOpenCapabilitySettings,
+                        onOpenHistory = onOpenHistory,
+                    )
+                    // 交互模式（D-Q9）：这条会话现在按哪种形态答复，以及换过去的那一下。
+                    TutorInteractionModeSwitch(
+                        mode = state.interactionMode,
+                        onSwitch = viewModel::onSwitchInteractionMode,
+                    )
+                },
+                composerPlaceholder = "输入题目、困惑，或说你现在想做什么",
+                liveAnswerTestTag = "tutor_lobby_streaming_reply",
+                // 空态 = 能力目录（A1）：进入即新会话，先告诉学生"它能干什么"。
+                // 「试一句」（S5）点了就作为首条消息发出去，不是填进输入框。
+                emptyState = {
+                    TutorCapabilityDirectory(
+                        capabilities = capabilities,
+                        onExample = viewModel::onExampleMessage,
+                    )
+                },
             ),
-            modifier = Modifier
-                .weight(1f)
-                .testTag("tutor_screen"),
-            // 在途状态（思考卡 / 逐 token 回答 / 工具进度）由屏幕组件渲染，与会话同一套。
-            liveTurn = liveTurn.takeIf { resumingTaskId != null || sendInFlight },
-            liveStatusText = liveStatusText,
-            livePlaceholder = if (resumingTaskId != null) {
-                TUTOR_LIVE_PLACEHOLDER
-            } else {
-                "正在发送…"
-            },
-            liveAnswerTestTag = "tutor_lobby_streaming_reply",
             composer = {
-                TutorChatComposer(
-                    value = draft,
-                    enabled = !hasActiveTask,
-                    sending = sendInFlight || resumingTaskId != null,
-                    onValueChange = { value ->
-                        val next = value.take(TutorLobbyInput.MAX_STUDENT_MESSAGE_CHARS)
-                        draft = next
-                        val conversationId = activeConversationId
-                        if (conversationId.isNotBlank()) {
-                            draftPersistJob?.cancel()
-                            draftPersistJob = scope.launch {
-                                val occurredAt = System.currentTimeMillis()
-                                if (next.isBlank()) {
-                                    conversations.clearDraft(
-                                        ClearTutorConversationDraftCommand(
-                                            conversationId = conversationId,
-                                            occurredAtEpochMillis = occurredAt,
-                                        ),
-                                    )
-                                } else {
-                                    conversations.saveDraft(
-                                        SaveTutorConversationDraftCommand(
-                                            conversationId = conversationId,
-                                            draft = next,
-                                            occurredAtEpochMillis = occurredAt,
-                                        ),
-                                    )
-                                }
-                            }
+                TutorSurfaceComposer(
+                    value = state.draft,
+                    onValueChange = viewModel::onDraftChange,
+                    onSend = viewModel::onSubmitDraft,
+                    sending = state.sending || state.resumingRequestId != null,
+                    block = composerBlock,
+                    onAction = { action ->
+                        when (action.kind) {
+                            TutorComposerActionKind.RETRY -> viewModel.onRetryFailedMessage()
+                            TutorComposerActionKind.OPEN_SETTINGS -> onOpenCapabilitySettings
+                            TutorComposerActionKind.RESUME -> viewModel.onResumeStalledTask()
                         }
                     },
-                    onSend = ::submitDraft,
+                    actionTestTags = { kind ->
+                        when (kind) {
+                            TutorComposerActionKind.RETRY -> "tutor_lobby_retry_send"
+                            TutorComposerActionKind.OPEN_SETTINGS -> "tutor_lobby_open_model_settings"
+                            TutorComposerActionKind.RESUME -> "tutor_lobby_resume_turn"
+                        }
+                    },
                     placeholder = "输入题目、困惑，或说你现在想做什么",
                     onOpenAttachMenu = if (lobbyImageEnabled) {
-                        { attachMenuOpen = true }
+                        viewModel::onOpenAttachMenu
                     } else {
                         null
                     },
-                    attachmentPreview = if (pendingImages.isNotEmpty()) {
+                    attachmentPreview = if (state.pendingImages.isNotEmpty()) {
                         {
                             PendingMessageImagesRow(
-                                images = pendingImages,
-                                onRemove = { index ->
-                                    pendingImages = pendingImages.filterIndexed { i, _ -> i != index }
-                                },
+                                images = state.pendingImages,
+                                onRemove = viewModel::onRemovePendingImage,
                                 testTagPrefix = "lobby",
                             )
                         }
                     } else {
                         null
                     },
-                    attachmentCount = pendingImages.size,
+                    attachmentCount = state.pendingImages.size,
                 )
             },
-        ) {
-            if (conversationMessages.isEmpty() && visibleTasks.isEmpty()) {
-                item(key = "lobby-intro") {
-                    TutorPrompt(
-                        text = "把题目、推导或困惑发来。你也可以直接拍题，或从错题本选一道题。",
-                        modifier = Modifier.testTag("tutor_empty_state"),
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        OutlineActionChip(
-                            text = "拍题讲解",
-                            onClick = onCapture,
-                            modifier = Modifier
-                                .weight(1f)
-                                .testTag("tutor_capture_shortcut"),
-                            contentDescription = "拍照或选择题目图片开始讲解",
-                        )
-                        OutlineActionChip(
-                            text = "从错题本选择",
-                            // 就在这个页面里挑，挑中的题作为"这一轮要讲的那道题"带进同一个
-                            // 页面；此前这里只是 navigate(Routes.Library)——跳去错题本、自己
-                            // 找、点进详情、再点「讲解这道题」，四步之后才回到讲题，而"选择"
-                            // 这个动作本身不返回任何东西。
-                            onClick = { mistakePickerOpen = true },
-                            icon = Icons.AutoMirrored.Outlined.MenuBook,
-                            modifier = Modifier
-                                .weight(1f)
-                                .testTag("tutor_choose_existing_button"),
-                            contentDescription = "在错题库里挑一道题，作为这一轮要讲的题",
-                        )
+            // 发送路径上的错误与输入框同一个常驻块：学生正在这里按，就在这里告诉他。
+            attachments = if (state.error != null) {
+                {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        state.error?.let { message ->
+                            TutorSurfaceStartError(
+                                message = message.message,
+                                modifier = Modifier.padding(bottom = 6.dp),
+                                testTag = "tutor_lobby_send_error",
+                            )
+                            if (message.primaryAction?.actionType == ActionType.RETRY) {
+                                OutlineActionChip(
+                                    text = TUTOR_SURFACE_RETRY_LABEL,
+                                    onClick = viewModel::onRetryFailedMessage,
+                                    modifier = Modifier
+                                        .padding(bottom = 6.dp)
+                                        .testTag("tutor_lobby_retry_send"),
+                                )
+                            } else {
+                                OutlineActionChip(
+                                    text = TUTOR_SURFACE_OPEN_SETTINGS_LABEL,
+                                    onClick = onOpenCapabilitySettings,
+                                    modifier = Modifier
+                                        .padding(bottom = 6.dp)
+                                        .testTag("tutor_lobby_open_model_settings"),
+                                )
+                            }
+                        }
                     }
                 }
-            }
+            } else {
+                null
+            },
+            modifier = Modifier
+                .weight(1f)
+                .testTag("tutor_screen"),
+            // 在途状态（思考卡 / 逐 token 回答 / 工具进度）由屏幕组件渲染，与讲题同一套、
+            // 同一条实时流（A3）。「停止」也长在这一块里（A2）：这一轮还没有消息行可挂动作条。
+            liveTurn = state.visibleLiveTurn,
+            liveStatusText = state.stalledTask?.tutorLiveStatusText(),
+            livePlaceholder = if (state.resumingRequestId != null) {
+                TUTOR_LIVE_PLACEHOLDER
+            } else {
+                "正在发送…"
+            },
+            liveTurnStopAction = viewModel::onStopGenerating,
+            emptyStateVisible = state.messages.isEmpty() && state.tasks.isEmpty(),
+            autoScrollVersion = listOf(
+                state.messages.size,
+                state.messages.lastOrNull()?.messageId,
+                state.messages.lastOrNull()?.status,
+                state.tasks.lastOrNull()?.stateVersion,
+                state.notebookLookupRequested,
+                state.error,
+                state.liveTurn,
+            ),
+        ) {
+            // 整条会话都列出来（B6）：长会话里前面的轮次不能被静默截掉——学生往上翻，
+            // 讲过的每一轮都还在。
             items(
-                items = conversationMessages.takeLast(MAX_VISIBLE_MESSAGES),
+                items = state.messages,
                 key = { it.messageId },
             ) { message ->
-                TutorLobbyMessageItem(
+                TutorSurfaceMessageItem(
                     message = message,
                     imageIntake = imageIntake,
                     onOpenCapabilitySettings = onOpenCapabilitySettings,
-                    resendTarget = message.resendTargetOrNull(conversationMessages),
-                    onResend = ::resendMessage,
+                    resendTarget = message.resendTargetOrNull(state.messages),
+                    onResend = viewModel::onResendMessage,
+                    // 统一动作条（A2）：成功 / 已停止 / 失败三种状态共用同一个「重试」，目标都是
+                    // 它回复的那条学生消息（= 重发同类请求，同一逻辑操作的下一次尝试）。
+                    retryTarget = message.retryTargetOrNull(state.messages),
+                    onRetry = viewModel::onResendMessage,
                     modifier = Modifier.padding(top = 12.dp),
                 )
             }
-            if (stalledTask != null && resumingTaskId == null && !sendInFlight) {
+            if (state.resumeStalledTurnVisible) {
                 item(key = "lobby-stalled") {
                     Column(Modifier.padding(top = 12.dp)) {
                         Text(
                             text = "上一条回复没有完成",
                             color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                         )
                         OutlineActionChip(
-                            text = "继续回复",
-                            onClick = ::resumeStalledTask,
+                            text = TUTOR_RESUME_TURN_LABEL,
+                            onClick = viewModel::onResumeStalledTask,
                             modifier = Modifier
                                 .padding(top = 8.dp)
                                 .testTag("tutor_lobby_resume"),
@@ -841,174 +312,73 @@ internal fun TutorLobbyRoute(
                     }
                 }
             }
-            sendError?.let { message ->
-                item(key = "lobby-send-error") {
-                    Text(
-                        text = message.message,
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .testTag("tutor_lobby_send_error"),
-                        color = ErrorWarm,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    if (message.primaryAction?.actionType == ActionType.RETRY) {
-                        OutlineActionChip(
-                            text = "重试",
-                            onClick = {
-                                lastFailedMessage?.let { text ->
-                                    startMessage(text)
-                                }
-                            },
-                            modifier = Modifier
-                                .padding(top = 8.dp)
-                                .testTag("tutor_lobby_retry_send"),
-                        )
-                    } else {
-                        OutlineActionChip(
-                            text = "检查模型设置",
-                            onClick = onOpenCapabilitySettings,
-                            modifier = Modifier
-                                .padding(top = 8.dp)
-                                .testTag("tutor_lobby_open_model_settings"),
-                        )
-                    }
-                }
-            }
-            if (notebookLookupRequested && !hasActiveTask) {
+            if (state.notebookLookupRequested && !state.hasActiveTask) {
                 item(key = "lobby-notebook-lookup") {
                     OutlineActionChip(
                         text = "打开错题本",
-                        icon = Icons.AutoMirrored.Outlined.MenuBook,
                         onClick = onOpenMistakeNotebook,
                         modifier = Modifier
                             .padding(top = 10.dp)
                             .testTag("tutor_lobby_open_notebook"),
-                        contentDescription = "打开错题本，查看模型提到的题",
                     )
                 }
-            }        }
+            }
+            // 确认卡（A4）：模型申请的本地动作落成一张**库里的行**，学生点了才执行。
+            // 卡挂在会话流末尾（这一轮刚问完），裁决后行进终态、卡自己消失。
+            state.pendingRequestCards.forEach { request ->
+                item(key = "lobby-pending-${request.requestId}") {
+                    TutorPendingRequestCard(
+                        request = request,
+                        modifier = Modifier.padding(top = 12.dp),
+                        enabled = !state.hasActiveTask,
+                        onDecide = { decision -> viewModel.onDecidePendingRequest(request, decision) },
+                    )
+                }
+            }
+            state.pendingRequestDetail?.let { detail ->
+                item(key = "lobby-pending-detail") {
+                    Text(
+                        text = detail,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .testTag("tutor_lobby_pending_detail"),
+                        color = InkSecondary,
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        }
     }
-    if (attachMenuOpen) {
+    if (state.attachMenuOpen) {
         MessageAttachmentDialog(
-            onDismiss = { attachMenuOpen = false },
+            onDismiss = viewModel::onDismissAttachMenu,
             onLaunchCamera = {
-                attachMenuOpen = false
+                viewModel.onDismissAttachMenu()
                 launchLobbyCamera()
             },
             onLaunchGallery = {
-                attachMenuOpen = false
+                viewModel.onDismissAttachMenu()
                 lobbyGalleryLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                 )
             },
             testTagPrefix = "lobby",
             onPickFromLibrary = if (catalogEntries.isNotEmpty()) {
-                {
-                    attachMenuOpen = false
-                    mistakePickerOpen = true
-                }
+                viewModel::onOpenMistakePicker
             } else {
                 null
             },
         )
     }
-    if (mistakePickerOpen) {
+    if (state.mistakePickerOpen) {
         TutorMistakePickerDialog(
             entries = catalogEntries,
             onPick = { entry ->
-                mistakePickerOpen = false
+                viewModel.onDismissMistakePicker()
                 onOpenMistakeTutor(entry.toMistakeRevisionKey())
             },
-            onDismiss = { mistakePickerOpen = false },
+            onDismiss = viewModel::onDismissMistakePicker,
             testTagPrefix = "lobby",
-        )
-    }
-}
-
-@Composable
-private fun TutorLobbyMessageItem(
-    message: TutorMessage,
-    imageIntake: LobbyMessageImageIntake? = null,
-    onOpenCapabilitySettings: () -> Unit = {},
-    /** 可原样重发时，这里是要重发的那条学生消息；否则为 null（不渲染重发按钮）。 */
-    resendTarget: TutorMessage? = null,
-    onResend: (TutorMessage) -> Unit = {},
-    modifier: Modifier = Modifier,
-) {
-    if (message.role == TutorMessageRole.STUDENT) {
-        Box(
-            modifier = modifier.fillMaxWidth(),
-            contentAlignment = Alignment.CenterEnd,
-        ) {
-            Surface(
-                color = JadeSoft.copy(alpha = 0.62f),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth(0.86f)
-                    .testTag("tutor_lobby_student_message"),
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
-                    if (message.sourceImageAssetIds.isNotEmpty() && imageIntake != null) {
-                        MessageImagesRow(
-                            assetIds = message.sourceImageAssetIds,
-                            imageIntake = imageIntake,
-                            testTagPrefix = "lobby",
-                        )
-                    }
-                    Text(
-                        text = message.bodyMarkdown,
-                        modifier = Modifier.padding(
-                            top = if (message.sourceImageAssetIds.isEmpty()) 0.dp else 8.dp,
-                        ),
-                        color = Ink,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-        }
-        return
-    }
-
-    when (message.status) {
-        TutorMessageStatus.SUCCEEDED -> Column(modifier = modifier) {
-            // 思考轨迹先于正文出现、默认折叠，不抢正文；模型没给思考时这块不渲染。
-            ThinkingCollapsibleCard(
-                thinkingMarkdown = message.thinkingMarkdown,
-                thinking = false,
-            )
-            TutorPrompt(
-                text = message.bodyMarkdown,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("tutor_lobby_assistant_message"),
-            )
-        }
-        TutorMessageStatus.FAILED, TutorMessageStatus.CANCELLED -> {
-            val failureCode = message.errorCode
-                ?.let { raw -> runCatching { ModelFailureCode.valueOf(raw) }.getOrNull() }
-            val resendTo = resendTarget
-            // 失败卡与讲题会话是同一个组件（此前两处各画一遍，出口的形状还不一样）。
-            TutorTurnFailureCard(
-                detail = message.bodyMarkdown,
-                reason = lobbyFailureReasonText(failureCode),
-                reasonTestTag = "tutor_lobby_failure_reason",
-                primaryActionLabel = if (failureCode?.requiresModelSettings() == true) {
-                    "检查模型设置"
-                } else {
-                    null
-                },
-                primaryActionTestTag = "tutor_lobby_failure_open_model_settings",
-                onPrimaryAction = onOpenCapabilitySettings,
-                // 原样再发一次：同一句原文、同一批附图，以新的 attempt 重新签发授权。
-                secondaryActionLabel = if (resendTo != null) "重新发送" else null,
-                secondaryActionTestTag = "tutor_lobby_resend",
-                onSecondaryAction = { resendTo?.let(onResend) },
-                modifier = modifier.testTag("tutor_lobby_task_failure"),
-            )
-        }
-        else -> TutorPrompt(
-            text = message.bodyMarkdown,
-            modifier = modifier.testTag("tutor_lobby_task_progress"),
         )
     }
 }
@@ -1061,43 +431,3 @@ internal fun TutorMessage.resendTargetOrNull(
         candidate.messageId == repliedTo && candidate.role == TutorMessageRole.STUDENT
     }
 }
-
-/**
- * 上文图片：最近一条带图学生消息的图片，[beforeOrdinal] 之前的那些消息里找。
- *
- * 消灭的失败：学生先发题图问"解一下这个题吧"，再追问"第三题"时上下文里只剩文字——模型
- * 自己在回答里写了「这道题的题面细节我这边看不到」，追问全部落空。图片属于那条历史消息，
- * 只是随本次发送一并回去；读不回元数据的图（被清理或被改动）按"这张不再出网"跳过，
- * 不让它把整条消息顶成发送失败。
- */
-internal suspend fun List<TutorMessage>.toContextImages(
-    intake: LobbyMessageImageIntake?,
-    beforeOrdinal: Int?,
-): List<LobbyMessageImage> {
-    if (intake == null) return emptyList()
-    val latest = sortedBy { it.ordinal }
-        .filter { message -> beforeOrdinal == null || message.ordinal < beforeOrdinal }
-        .lastOrNull { message ->
-            message.role == TutorMessageRole.STUDENT && message.sourceImageAssetIds.isNotEmpty()
-        }
-        ?: return emptyList()
-    return latest.sourceImageAssetIds.mapNotNull { assetId -> intake.describeImage(assetId) }
-}
-
-private const val MAX_VISIBLE_MESSAGES = 20
-private const val MAX_PERSISTED_TASKS = 64
-
-/** 终态失败：这三种状态下这一轮不会再有输出，必须落一条学生看得见的交代。 */
-private val TERMINAL_FAILURE_STATUSES = setOf(
-    ModelTaskStatus.RETRYABLE_FAILURE,
-    ModelTaskStatus.PERMANENT_FAILURE,
-    ModelTaskStatus.CANCELLED,
-)
-
-/**
- * 失败卡正文只说"消息还在"这句确定的话；**为什么失败、下一步怎么走**由失败卡按
- * `errorCode` 逐条给出（[lobbyFailureReasonText]）。此前只有这一句通用文案，而唯一
- * 真正发生的失败码（授权过期）不在原因表的任何一支里，学生看到的就是"没有准备好"。
- */
-private const val TUTOR_LOBBY_FAILED_REPLY_BODY = "这次回复没有准备好，你的消息已经保留。"
-private const val TUTOR_LOBBY_INTERRUPTED_REPLY_BODY = "这条消息已经保留，暂时没有收到讲解。"

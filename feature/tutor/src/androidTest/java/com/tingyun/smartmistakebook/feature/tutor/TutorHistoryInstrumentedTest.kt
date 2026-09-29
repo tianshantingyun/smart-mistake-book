@@ -17,6 +17,8 @@ import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorConversationSnapshot
 import com.tingyun.smartmistakebook.core.domain.TutorConversationStatus
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
+import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
+import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.domain.UpdateTutorMessageStatusCommand
 import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
 import kotlinx.coroutines.flow.Flow
@@ -131,15 +133,59 @@ class TutorHistoryInstrumentedTest {
     ) : TutorConversationRepository {
         private val state = MutableStateFlow(initial)
 
+        /**
+         * 每条会话的**消息行**（K1a/K1c）：历史列表按真实消息条数决定列不列它
+         * （`tutorHistoryConversations` 只看 `messageCount > 0`），而 `messageCount` 是读侧
+         * 从消息表数出来的。替身不给行，学生就会出现"明明说过话，历史里找不到这条会话"。
+         */
+        private val messages: Map<String, List<TutorMessage>> = initial.associate { conversation ->
+            conversation.conversationId to (1..conversation.lastTurnOrdinal).map { ordinal ->
+                TutorMessage(
+                    messageId = "${conversation.conversationId}-message-$ordinal",
+                    conversationId = conversation.conversationId,
+                    ordinal = ordinal,
+                    role = if (ordinal == 1) {
+                        TutorMessageRole.STUDENT
+                    } else {
+                        TutorMessageRole.ASSISTANT
+                    },
+                    bodyMarkdown = "${conversation.title} · 第 $ordinal 句",
+                    status = TutorMessageStatus.SUCCEEDED,
+                    logicalOperationId = "${conversation.conversationId}-op-$ordinal",
+                    replyToMessageId = null,
+                    createdAtEpochMillis = 1_000L + ordinal,
+                    completedAtEpochMillis = 1_000L + ordinal,
+                    errorCode = null,
+                )
+            }
+        }
+
         fun recent(): List<TutorConversation> = state.value
 
-        override fun observeRecent(limit: Int): Flow<List<TutorConversation>> = state
+        override fun observeRecent(
+            limit: Int,
+            area: String,
+        ): Flow<List<TutorConversation>> = state.map { rows ->
+            rows.filter { conversation -> conversation.area == area }
+                .take(limit)
+                .map { conversation ->
+                    // 与真实 DAO 同一口径：条数是数出来的，不是列上自带的。
+                    conversation.copy(
+                        messageCount = messages[conversation.conversationId].orEmpty().size,
+                    )
+                }
+        }
 
         override fun observeConversation(
             conversationId: String,
         ): Flow<TutorConversationSnapshot?> = state.map { list ->
             list.firstOrNull { it.conversationId == conversationId }
-                ?.let { TutorConversationSnapshot(it, emptyList()) }
+                ?.let { row ->
+                    TutorConversationSnapshot(
+                        row.copy(messageCount = messages[row.conversationId].orEmpty().size),
+                        messages[row.conversationId].orEmpty(),
+                    )
+                }
         }
 
         override suspend fun createConversation(

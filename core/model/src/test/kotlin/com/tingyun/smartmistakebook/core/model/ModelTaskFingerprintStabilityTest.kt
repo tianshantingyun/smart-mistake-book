@@ -186,6 +186,163 @@ class ModelTaskFingerprintStabilityTest {
     }
 
     @Test
+    fun lobbyLocalActionCarrierKeepsTheFingerprintStableAcrossSchemaVersions() {
+        // A4 回喂字段（schema 15）：空值下不得改变指纹——升级后要能读回 schema 14 的行，
+        // 而那一行的哈希是当年按"没有 localActionOutcomes 这个键"算出来的（bf8be888 教训）。
+        val v14 = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.TUTOR_ATTACHED_QUESTION_SCHEMA_VERSION,
+            requestId = "lobby:v14",
+            input = lobbyInput(),
+            occurredAtEpochMillis = 1_000,
+        )
+        val v15 = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.CURRENT_SCHEMA_VERSION,
+            requestId = "lobby:v15",
+            input = lobbyInput(),
+            occurredAtEpochMillis = 1_000,
+        )
+
+        assertEquals(
+            ModelTaskLogicalOperationFingerprint.of(v14.input),
+            ModelTaskLogicalOperationFingerprint.of(v15.input),
+        )
+        // request 级指纹另外要保证"旧行 decode 后重算 == 存库值"：v14 行按 v14 的 strip 重算。
+        val reDecoded = ModelTaskCodec.decodeRequest(ModelTaskCodec.encodeRequest(v14))
+        assertEquals(14, reDecoded.schemaVersion)
+        assertEquals(ModelTaskFingerprint.of(v14), ModelTaskFingerprint.of(reDecoded))
+    }
+
+    @Test
+    fun aRealLocalActionOutcomeStillChangesTheFingerprint() {
+        // 反向要求：strip 只抹平空载体。真的带了一条裁决结果，就是另一次输入——否则重放会命中
+        // 旧请求，把"学生点过什么"留在旧那一轮里。
+        val withOutcome = lobbyInput().copy(
+            localActionOutcomes = listOf(
+                TutorLobbyLocalActionOutcome(
+                    kind = "SAVE_TO_NOTEBOOK",
+                    decision = "ACCEPTED",
+                    detail = "已经加入错题本。",
+                ),
+            ),
+        )
+
+        assertNotEquals(
+            ModelTaskLogicalOperationFingerprint.of(lobbyInput()),
+            ModelTaskLogicalOperationFingerprint.of(withOutcome),
+        )
+    }
+
+    @Test
+    fun lobbyInteractionModeKeepsTheFingerprintStableAcrossSchemaVersions() {
+        // D-Q9 的两个新键（schema 16）：**默认载体**下不得改变指纹——升级后要能读回 schema 15
+        // 的行，而那一行的哈希是当年按"没有 interactionMode / scaffoldLevel 这两个键"算出来的
+        // （bf8be888 教训）。这里用 schema 15 的行做往返，等于把当年那条 strip 也钉住。
+        val v15 = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.TUTOR_LOCAL_ACTION_OUTCOME_SCHEMA_VERSION,
+            requestId = "lobby:v15",
+            input = lobbyInput(),
+            occurredAtEpochMillis = 1_000,
+        )
+        val current = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.CURRENT_SCHEMA_VERSION,
+            requestId = "lobby:v16",
+            input = lobbyInput(),
+            occurredAtEpochMillis = 1_000,
+        )
+
+        assertEquals(
+            ModelTaskLogicalOperationFingerprint.of(v15.input),
+            ModelTaskLogicalOperationFingerprint.of(current.input),
+        )
+        val reDecoded = ModelTaskCodec.decodeRequest(ModelTaskCodec.encodeRequest(v15))
+        assertEquals(15, reDecoded.schemaVersion)
+        assertEquals(ModelTaskFingerprint.of(v15), ModelTaskFingerprint.of(reDecoded))
+    }
+
+    @Test
+    fun aRealInteractionModeChangeIsAnotherLogicalOperation() {
+        // 反向要求：默认载体才被抹平。真的切到引导模式（或带上了起步档）就是另一次输入——
+        // 提示词不同，重放不能命中旧请求。
+        val guided = lobbyInput().copy(
+            interactionMode = TutorInteractionMode.GUIDED,
+            scaffoldLevel = TutorScaffoldLevel.L2,
+        )
+
+        assertNotEquals(
+            ModelTaskLogicalOperationFingerprint.of(lobbyInput()),
+            ModelTaskLogicalOperationFingerprint.of(guided),
+        )
+    }
+
+    @Test
+    fun legacyRequestCannotCarryAnInteractionModeOrAScaffoldLevel() {
+        listOf(
+            lobbyInput().copy(interactionMode = TutorInteractionMode.GUIDED),
+            // 起步档只存在于引导模式里（输入自身的守卫），所以这条样板也带着模式。
+            lobbyInput().copy(
+                interactionMode = TutorInteractionMode.GUIDED,
+                scaffoldLevel = TutorScaffoldLevel.L2,
+            ),
+            lobbyInput().copy(
+                requestedLocalActions = listOf(TutorLocalActionRequest(TutorLocalAction.OPEN_PROBLEM)),
+            ),
+        ).forEach { legacyInput ->
+            val failure = runCatching {
+                ModelTaskRequest(
+                    schemaVersion = ModelTaskRequest.TUTOR_LOCAL_ACTION_OUTCOME_SCHEMA_VERSION,
+                    requestId = "lobby:v15-with-dq9",
+                    input = legacyInput,
+                    occurredAtEpochMillis = 1_000,
+                )
+            }.exceptionOrNull()
+            assertTrue(failure is IllegalArgumentException)
+        }
+    }
+
+    @Test
+    fun aNormalModeRoundCarriesTheModeInItsFingerprintExactlyLikeANewSchemaRow() {
+        // 新行（schema 16）与旧行（schema 15）在默认载体下等价；换成引导模式后又要能区分——
+        // 两条都走过同一个编码器，这条用例是上一对断言的"另一半"。
+        val guidedNewSchema = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.CURRENT_SCHEMA_VERSION,
+            requestId = "lobby:guided",
+            input = lobbyInput().copy(
+                interactionMode = TutorInteractionMode.GUIDED,
+                scaffoldLevel = TutorScaffoldLevel.L1,
+            ),
+            occurredAtEpochMillis = 1_000,
+        )
+        val normalNewSchema = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.CURRENT_SCHEMA_VERSION,
+            requestId = "lobby:normal",
+            input = lobbyInput(),
+            occurredAtEpochMillis = 1_000,
+        )
+
+        assertNotEquals(ModelTaskFingerprint.of(normalNewSchema), ModelTaskFingerprint.of(guidedNewSchema))
+    }
+
+    @Test
+    fun legacyRequestCannotCarryLocalActionOutcomes() {
+        // 与上面同一条纪律的另一半：只 strip 不够，还要禁止"旧 schema 的行带着新字段"这种
+        // 自相矛盾的行进状态机。
+        val failure = runCatching {
+            ModelTaskRequest(
+                schemaVersion = ModelTaskRequest.TUTOR_ATTACHED_QUESTION_SCHEMA_VERSION,
+                requestId = "lobby:v14-with-outcome",
+                input = lobbyInput().copy(
+                    localActionOutcomes = listOf(
+                        TutorLobbyLocalActionOutcome(kind = "SAVE_TO_NOTEBOOK", decision = "DECLINED"),
+                    ),
+                ),
+                occurredAtEpochMillis = 1_000,
+            )
+        }.exceptionOrNull()
+
+        assertTrue(failure is IllegalArgumentException)
+    }
+
+    @Test
     fun legacyV5RequestFingerprintSurvivesCodecRoundTrip() {
         // 旧 v5 行 decode 后 schemaVersion=5 保留；重新指纹必须与存库值一致
         val chat = TutorChatHistoryEntry(
@@ -701,7 +858,9 @@ class ModelTaskFingerprintStabilityTest {
 
         val decoded = ModelTaskCodec.decodeRequest(legacyJson)
 
-        assertEquals(ModelTaskRequest.CURRENT_SCHEMA_VERSION, decoded.schemaVersion)
+        // 那一行是 schema 14（TUTOR_ATTACHED_QUESTION）时代写下的整行：decode 后保留它自己的
+        // 版本号（schema 15 引入的 localActionOutcomes 与它无关），指纹仍与当年的字节一致。
+        assertEquals(ModelTaskRequest.TUTOR_ATTACHED_QUESTION_SCHEMA_VERSION, decoded.schemaVersion)
         assertEquals(
             ModelEgressManifest.PROBLEM_ORGANIZATION_DISCLOSURE,
             requireNotNull(decoded.egressManifest).disclosedData,

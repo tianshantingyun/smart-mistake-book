@@ -128,33 +128,63 @@ class TutorConversationTimelineTest {
         assertEquals(400L, item.occurredAtEpochMillis)
     }
 
+    /**
+     * B6：过滤只看**会话**。
+     *
+     * 此前要求题面文档与修订号逐一相等，于是"同一会话里题面换过一次修订"就等于把此前所有
+     * 轮次从屏幕上抹掉——学生接着问，前面的讲解整段消失（而它们还在库里）。现在同一会话的
+     * 每一轮都在；别的会话仍然排在外面（会话区隔离）。
+     */
     @Test
-    fun exactQuestionIdentityFiltersPlanReplyAndChoiceTogether() {
-        val otherQuestion = question(
+    fun everyRoundOfThisSessionStaysOnTheTimelineAndOtherSessionsStayOut() {
+        val sameSessionOtherRevision = question(
             sessionId = question.sessionId,
             revisionNumber = question.revisionNumber + 1,
             documentId = "other-document",
         )
+        val otherSessionSameRevision = question(
+            sessionId = "other-session",
+            revisionNumber = question.revisionNumber,
+            documentId = question.questionDocument.document.id,
+        )
         val ownPlan = planTask("own-plan", 100)
-        val otherPlan = planTask("other-plan", 110, target = otherQuestion)
+        // 换过修订的那一轮用**另一个轮次号**：轮次号在会话内唯一，同号的两轮只留最新一次
+        // （这是既有的"重试只留最新尝试"规则，与本题无关）。
+        val otherRevisionPlan = planTask(
+            "other-revision-plan",
+            110,
+            turnOrdinal = 2,
+            target = sameSessionOtherRevision,
+        )
+        val foreignPlan = planTask("foreign-plan", 90, target = otherSessionSameRevision)
         val ownReply = respondTask("own-reply", 200)
-        val otherReply = respondTask("other-reply", 210, target = otherQuestion)
+        val otherRevisionReply = respondTask(
+            "other-revision-reply",
+            210,
+            target = sameSessionOtherRevision,
+        )
         val ownChoice = choiceResponse(choiceSubmittedAtEpochMillis = 300)
-        val otherChoice = choiceResponse(
+        val otherRevisionChoice = choiceResponse(
             choiceSubmittedAtEpochMillis = 310,
-            target = otherQuestion,
+            target = sameSessionOtherRevision,
         )
 
         val timeline = buildTutorConversationTimeline(
             question = question,
-            planTasks = listOf(otherPlan, ownPlan),
-            respondTasks = listOf(otherReply, ownReply),
-            responses = listOf(otherChoice, ownChoice),
+            planTasks = listOf(foreignPlan, otherRevisionPlan, ownPlan),
+            respondTasks = listOf(otherRevisionReply, ownReply),
+            responses = listOf(otherRevisionChoice, ownChoice),
         )
 
-        assertEquals(3, timeline.size)
         assertEquals(
-            listOf("plan:1:1:own-plan", "reply:own-reply", "choice:1:1"),
+            listOf(
+                "plan:1:1:own-plan",
+                "plan:1:2:other-revision-plan",
+                "reply:own-reply",
+                "reply:other-revision-reply",
+                "choice:document-1:2:1:1",
+                "choice:other-document:3:1:1",
+            ),
             timeline.map { it.stableId },
         )
     }
@@ -193,7 +223,7 @@ class TutorConversationTimelineTest {
         assertSame(ownPlan, projection.observedPlanTask)
         assertSame(ownResponse, projection.responsesByTurn[TutorTurnKey(1, 1)])
         assertEquals(
-            listOf("plan:1:1:own-plan", "reply:own-reply", "choice:1:1"),
+            listOf("plan:1:1:own-plan", "reply:own-reply", "choice:document-1:2:1:1"),
             projection.timeline.map(TutorConversationTimelineItem::stableId),
         )
     }
@@ -232,7 +262,7 @@ class TutorConversationTimelineTest {
         )
 
         assertEquals(
-            listOf("plan:1:1:plan", "choice:1:1", "reply:reply"),
+            listOf("plan:1:1:plan", "choice:document-1:2:1:1", "reply:reply"),
             timeline.map { it.stableId },
         )
     }
@@ -606,12 +636,16 @@ class TutorConversationTimelineTest {
     }
 
     /**
-     * 迁移前的旧轮次没有消息行（那时讲题区从不写助手行）：正文回落到账本，旧会话照常可读。
+     * 渲染源收敛（K1a）：**没有消息行就没有正文**。
      *
-     * 这不是第二渲染源——新写入只会落在消息行上，回落只在"这一轮确实没有消息行"时生效。
+     * 此前有一条"旧行回落到账本"的路径（正文取 `output.plan.openingMarkdown` /
+     * `output.messageMarkdown` / 派发请求里的 `studentMessage`）。它让同一条文本有两个去处：
+     * 旧行读账本、新行读消息行，两处一漂就是"学生看到的"与"库里记下的"不是同一句话；
+     * 而真正需要读回的旧文本本来就已经在消息行里（迁移把助手行补齐了）。所以三条回落全删，
+     * 这里钉住新的契约：没有消息行时正文与学生气泡都是 null（界面对应的地方不渲染）。
      */
     @Test
-    fun legacyTurnsWithoutAMessageRowStillRenderTheLedgerText() {
+    fun turnsWithoutAMessageRowHaveNoRenderedText() {
         val replyTask = respondTask("reply-legacy", 200)
         val planTask = planTask("plan-legacy", 100)
 
@@ -623,11 +657,14 @@ class TutorConversationTimelineTest {
             messages = emptyList(),
         )
 
+        // 账本里仍然有这些文本（它还是原始输出账本）；渲染源不再是它。
         val reply = timeline.filterIsInstance<TutorConversationTimelineItem.Reply>().single()
-        assertEquals("因为符号在这里改变。", reply.bodyMarkdown)
-        assertEquals("为什么这样做？", reply.studentBodyMarkdown)
+        assertNull(reply.bodyMarkdown)
+        assertNull(reply.studentBodyMarkdown)
+        assertNull(reply.thinkingMarkdown)
         val plan = timeline.filterIsInstance<TutorConversationTimelineItem.Plan>().single()
-        assertEquals("讲解 plan-legacy", plan.bodyMarkdown)
+        assertNull(plan.bodyMarkdown)
+        assertNull(plan.thinkingMarkdown)
     }
 
     private fun tutorMessageRow(

@@ -81,7 +81,7 @@ internal class CatalogTutorRoundQuestionRetriever(
  * 文本检索打分。刻意与两处既有打分同构，而不是另起一套：
  *
  * - 词命中按字段分档（标题 60 / 知识点 50 / 章节 40 / 科目 30），与
- *   `TutorLocalReadProjection.StudyCatalogEntry.matchScore` 同序——学生打字时最可能引用的是
+ *   已被删除的本地读取投影里 `StudyCatalogEntry.matchScore` 的同一套打分同序——学生打字时最可能引用的是
  *   标题里的名词；
  * - 分档间距取 ×10 量级，保留 `RoomMistakeOrganizationRepository.relationCandidateScore` 的
  *   "知识层压过文本层"相对关系（那边是知识点 ×100 + 标题字对 ≤20），免得标题里一个常用词

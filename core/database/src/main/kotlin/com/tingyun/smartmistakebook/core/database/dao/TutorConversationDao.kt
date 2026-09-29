@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.database.ClearTutorConversationDraftDat
 import com.tingyun.smartmistakebook.core.database.CreateTutorConversationDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
 import com.tingyun.smartmistakebook.core.database.SaveTutorConversationDraftDatabaseCommand
+import com.tingyun.smartmistakebook.core.database.SetTutorInteractionModeDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.TutorConversationRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.UpdateTutorMessageStatusDatabaseCommand
@@ -29,10 +30,13 @@ internal const val MAX_STUDENT_MESSAGE_IMAGES = 9
 @Dao
 internal abstract class TutorConversationDao {
     @Query(
-        "SELECT * FROM tutor_conversation ORDER BY updated_at_epoch_millis DESC, conversation_id DESC " +
-            "LIMIT :limit",
+        "SELECT * FROM tutor_conversation WHERE conversation_area = :conversationArea " +
+            "ORDER BY updated_at_epoch_millis DESC, conversation_id DESC LIMIT :limit",
     )
-    protected abstract fun observeRecentEntities(limit: Int): Flow<List<TutorConversationEntity>>
+    protected abstract fun observeRecentEntities(
+        limit: Int,
+        conversationArea: String,
+    ): Flow<List<TutorConversationEntity>>
 
     @Query(
         "SELECT * FROM tutor_message WHERE conversation_id = :conversationId " +
@@ -182,9 +186,10 @@ internal abstract class TutorConversationDao {
         errorCode: String?,
     ): Int
 
-    fun observeRecent(limit: Int): Flow<List<TutorConversationRecord>> {
+    fun observeRecent(limit: Int, conversationArea: String): Flow<List<TutorConversationRecord>> {
         require(limit > 0) { "Tutor conversation limit must be positive" }
-        return observeRecentEntities(limit).map { rows ->
+        require(conversationArea.isNotBlank()) { "Tutor conversation area must not be blank" }
+        return observeRecentEntities(limit, conversationArea).map { rows ->
             rows.map { entity ->
                 entity.toRecord(
                     messageCount = countMessages(entity.conversationId),
@@ -388,6 +393,9 @@ internal abstract class TutorConversationDao {
         require(command.messageId.isNotBlank())
         require(command.ordinal == null || command.ordinal > 0)
         require(command.bodyMarkdown.isNotBlank())
+        require(command.toolTraceJson == null || command.toolTraceJson.isNotBlank()) {
+            "An assistant message tool trace must be null or non-blank"
+        }
         require(command.createdAtEpochMillis >= 0L)
         // 号与学生消息同一条数轴、同一个分配点（K1c）：没给号就取会话计数器的下一位。
         val ordinal = command.ordinal ?: (
@@ -450,6 +458,37 @@ internal abstract class TutorConversationDao {
     }
 
     @Transaction
+    /**
+     * 切换交互模式（D-Q9）：学生自己选的那一下。模式**是可变事实**（与会话区相反——会话区在
+     * 创建后不变，模式随时可换），所以它不进 [createConversation] 的不可变冲突判定。
+     */
+    open suspend fun setInteractionMode(
+        command: SetTutorInteractionModeDatabaseCommand,
+    ): TutorConversationRecord {
+        require(command.conversationId.isNotBlank())
+        require(command.interactionMode.isNotBlank())
+        updateInteractionMode(
+            conversationId = command.conversationId,
+            interactionMode = command.interactionMode,
+            updatedAtEpochMillis = command.updatedAtEpochMillis,
+        )
+        return checkNotNull(findConversation(command.conversationId)).toRecord()
+    }
+
+    @Query(
+        """
+        UPDATE tutor_conversation
+        SET interaction_mode = :interactionMode,
+            updated_at_epoch_millis = MAX(updated_at_epoch_millis, :updatedAtEpochMillis)
+        WHERE conversation_id = :conversationId
+        """,
+    )
+    protected abstract suspend fun updateInteractionMode(
+        conversationId: String,
+        interactionMode: String,
+        updatedAtEpochMillis: Long,
+    ): Int
+
     open suspend fun pauseConversation(
         conversationId: String,
         updatedAtEpochMillis: Long,
@@ -510,6 +549,7 @@ internal abstract class TutorConversationDao {
 private fun CreateTutorConversationDatabaseCommand.toEntity() = TutorConversationEntity(
     conversationId = conversationId,
     conversationArea = conversationArea,
+    interactionMode = interactionMode,
     anchorKind = anchorKind,
     anchorId = anchorId,
     anchorRevisionId = anchorRevisionId,
@@ -548,6 +588,7 @@ private fun AppendTutorAssistantMessageDatabaseCommand.toEntity(
     role = "ASSISTANT",
     bodyMarkdown = bodyMarkdown,
     thinkingMarkdown = thinkingMarkdown,
+    toolTraceJson = toolTraceJson,
     status = status,
     logicalOperationId = logicalOperationId,
     replyToMessageId = replyToMessageId,
@@ -562,6 +603,7 @@ internal fun TutorConversationEntity.toRecord(
 ) = TutorConversationRecord(
     conversationId = conversationId,
     conversationArea = conversationArea,
+    interactionMode = interactionMode,
     anchorKind = anchorKind,
     anchorId = anchorId,
     anchorRevisionId = anchorRevisionId,
@@ -584,6 +626,18 @@ internal fun TutorMessageEntity.toRecord() = TutorMessageRecord(
     thinkingMarkdown = thinkingMarkdown,
     boundProblemId = boundProblemId,
     boundProblemRevisionId = boundProblemRevisionId,
+    roundCycleOrdinal = roundCycleOrdinal,
+    roundTurnOrdinal = roundTurnOrdinal,
+    roundQuestionDocumentId = roundQuestionDocumentId,
+    roundRevisionNumber = roundRevisionNumber,
+    choiceStemMarkdown = choiceStemMarkdown,
+    choiceSelectedId = choiceSelectedId,
+    choiceSelectedMarkdown = choiceSelectedMarkdown,
+    choiceWasCorrect = choiceWasCorrect,
+    choiceFeedbackMarkdown = choiceFeedbackMarkdown,
+    solutionRevealed = solutionRevealed,
+    requestedMove = requestedMove,
+    toolTraceJson = toolTraceJson,
     status = status,
     logicalOperationId = logicalOperationId,
     replyToMessageId = replyToMessageId,

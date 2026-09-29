@@ -371,15 +371,21 @@ internal fun SavedMistakeTutorDestination(
                     savedMistakeSheetBytes(application.mistakeDetailRepository, key)
                 },
             ),
-            // 意图确认按钮的落地动作（此前是默认的 {}，点了没反应）：
-            // 「确认加入错题本」——这道题本来就在错题本里，把学生带到它所在的地方；
-            // 「确认结束且不保存」——离开这次讲题，题与对话都已保存，不会丢弃任何东西。
-            onRequestSave = {
-                navController.navigate(Routes.Library) { launchSingleTop = true }
-            },
-            onRequestEnd = navController::popBackStack,
-            onOpenMistakeNotebook = {
-                navController.navigate(Routes.Library) { launchSingleTop = true }
+            // 确认卡（A4）：模型在这一页申请的本地动作挂成库里的行；学生点了才执行，落点是
+            // 这一页既有的真实出口（打开错题本——这道题已经在里面），回喂如实说"已经在错题本里"。
+            // 此前这一页没有这个端口：模型的本地动作请求在这条路由上没有出口。
+            pendingRequests = application.agentPendingRequestRepository,
+            // A4 执行路径 ③：这一页的附图（模型申请"把这一轮的图存进错题本"）走与拍照入口
+            // 同一条录入管线。
+            attachedImageIntake = application.tutorAttachedImageIntake,
+            // A4 执行路径 ②：卡里带的是这道题在错题本里的条目 id（与错题详情同一条入口的键），
+            // 有它就直达那道题；没有（还没入库的轮次）只打开列表。
+            onOpenMistakeNotebook = { problemId ->
+                val target = problemId
+                    ?.takeIf(String::isNotBlank)
+                    ?.let(Routes::mistakeDetail)
+                    ?: Routes.Library
+                navController.navigate(target) { launchSingleTop = true }
             },
             onOpenProfile = {
                 navController.navigate(Routes.Profile) { launchSingleTop = true }

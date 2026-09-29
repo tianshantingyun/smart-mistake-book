@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS
 import com.tingyun.smartmistakebook.core.domain.ModelApiKey
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationMutationResult
@@ -1675,18 +1676,63 @@ class OpenAiCompatibleModelGatewayTest {
     }
 
     @Test
-    fun liveFramesCarryThinkingAndAnswerAsTheyGrowWithoutTouchingThePersistedChannel() = runBlocking {
-        // 学生等待时该看到两件事同时长出来：模型在想什么，以及答案写到哪了。这条通道不落库、
-        // 不计入事件上限，所以它可以按轮询节奏直接发——不再受"24 帧 / 500 字"的限制。
+    fun aRouteBRoundNeverPutsItsEnvelopeOnTheAnswerChannel() = runBlocking {
+        // Route B（json_object / prompt 信封，Anthropic/Gemini/Responses 恒走）：这一轮的 content
+        // 增量是**信封**，把它当正文流出去，学生看到的就是一段 JSON（A6）。思考链照常流。
         val gateway = OpenAiCompatibleModelGateway(
             configurationStore = FakeConfigurationStore(CONFIGURATION),
             assetSource = assetSource { _, _ -> asset() },
             transport = modelTransport { request ->
                 request.onReasoningDelta?.invoke("先判断定义域。")
+                request.onContentDelta?.invoke("{\"intentDecision\":{\"intent\":\"CURRENT_QUESTION_HELP\"}")
+                delay(400)
+                request.onContentDelta?.invoke(",\"messageMarkdown\":\"第一步：求导。\"}")
+                delay(400)
+                ModelHttpResponse(
+                    statusCode = 200,
+                    body = envelope(tutorPayload()),
+                    streamChunks = listOf("{\"intentDecision\":{\"intent\":\"CURRENT_QUESTION_HELP\"}"),
+                )
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val events = gateway.execute(authorizedTutor(gateway)).toList()
+        val live = events.filterIsInstance<ModelGatewayEvent.LiveProgress>()
+
+        assertTrue(
+            "思考链必须照常逐 token 流出来",
+            live.any { it.kind == ModelLiveKind.THINKING && it.text.contains("定义域") },
+        )
+        assertTrue(
+            "Route B 回合的 ANSWER 通道必须为空（信封不是正文）：" +
+                live.filter { it.kind == ModelLiveKind.ANSWER }.map { it.text },
+            live.none { it.kind == ModelLiveKind.ANSWER },
+        )
+        // 终态照常解析出正文（信封在解析层被拆开，学生最终读到的是 messageMarkdown）。
+        assertEquals(
+            TUTOR_SESSION_ID,
+            ((events.last() as ModelGatewayEvent.Completed).output as TutorPlanOutput).sessionId,
+        )
+    }
+
+    @Test
+    fun aRouteAAnswerRoundStillStreamsItsBodyCharacterByCharacter() = runBlocking {
+        // Route A（原生 tools 且端点被证明支持）：content 增量才是逐字长出来的正文——这条通道
+        // 不能因为 Route B 的修复被一起关掉（A3：任何地方都有流）。
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(
+                CONFIGURATION.copy(
+                    capabilityVerification = requireNotNull(CONFIGURATION.capabilityVerification)
+                        .copy(supportsFunctionCalling = true),
+                ),
+            ),
+            assetSource = assetSource { _, _ -> asset() },
+            transport = modelTransport { request ->
                 request.onContentDelta?.invoke("第一步：")
-                delay(500)
+                delay(400)
                 request.onContentDelta?.invoke("求导。")
-                delay(500)
+                delay(400)
                 ModelHttpResponse(
                     statusCode = 200,
                     body = envelope(tutorPayload()),
@@ -1696,28 +1742,64 @@ class OpenAiCompatibleModelGatewayTest {
             clock = { AUTHORIZATION_NOW },
         )
 
-        val events = gateway.execute(authorizedTutor(gateway)).toList()
+        val events = gateway.execute(
+            authorizedTutor(
+                gateway,
+                input = tutorInput().copy(toolDeclarations = TUTOR_TOOL_DECLARATIONS.toList()),
+            ),
+        ).toList()
+        val answerFrames = events.filterIsInstance<ModelGatewayEvent.LiveProgress>()
+            .filter { it.kind == ModelLiveKind.ANSWER }
+            .map { it.text }
+
+        assertEquals("第一步：求导。", answerFrames.lastOrNull())
+    }
+
+    @Test
+    fun aNativeToolRoundMovesItsNarrationOutOfTheBodyIntoTheToolUnit() = runBlocking {
+        // Route A 的工具轮：模型一边说"我先查一下错题本"一边申请工具。那句话是**叙述**，属于
+        // 查阅单元；正文位置必须被撤回（发一条空正文），否则它会留在回答里冒充答案。
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(
+                CONFIGURATION.copy(
+                    capabilityVerification = requireNotNull(CONFIGURATION.capabilityVerification)
+                        .copy(supportsFunctionCalling = true),
+                ),
+            ),
+            assetSource = assetSource { _, _ -> asset() },
+            transport = modelTransport { request ->
+                request.onContentDelta?.invoke("我先查一下错题本。")
+                // 先让它按正文发出去（轮询周期 120ms），再报出工具调用增量：这正是"叙述
+                // 曾经留在正文位置"的那条路径，撤回必须发生。
+                delay(400)
+                request.onToolCallDelta?.invoke()
+                delay(400)
+                ModelHttpResponse(
+                    statusCode = 200,
+                    body = envelope(tutorPayload()),
+                    streamChunks = emptyList(),
+                )
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val events = gateway.execute(
+            authorizedTutor(
+                gateway,
+                input = tutorInput().copy(toolDeclarations = TUTOR_TOOL_DECLARATIONS.toList()),
+            ),
+        ).toList()
         val live = events.filterIsInstance<ModelGatewayEvent.LiveProgress>()
-        val answerFrames = live.filter { it.kind == ModelLiveKind.ANSWER }.map { it.text }
 
         assertTrue(
-            "思考必须以逐 token 通道出现",
-            live.any { it.kind == ModelLiveKind.THINKING && it.text.contains("定义域") },
-        )
-        assertTrue("回答必须以逐 token 通道增长：$answerFrames", answerFrames.contains("第一步："))
-        assertEquals("最后一条实时文本是完整前缀", "第一步：求导。", answerFrames.last())
-        // 两条通道的差别是"截断与否"：持久化进度每帧都要落库，所以只给被截断的前缀；
-        // 逐 token 通道才是学生真正读到的那份完整文本。
-        val persistedAnswerFrames = events.filterIsInstance<ModelGatewayEvent.Progress>()
-            .map { it.userMessage }
-            .filter { it.contains("第一步") }
-        assertTrue(
-            "持久化进度里的回答必须仍是被截断的前缀",
-            persistedAnswerFrames.all { it.length <= MODEL_TASK_STATUS_MESSAGE_MAX_CHARS },
+            "工具轮的叙述必须出现在查阅单元（TOOL 通道）：" +
+                live.filter { it.kind == ModelLiveKind.TOOL }.map { it.text },
+            live.any { it.kind == ModelLiveKind.TOOL && it.text.contains("我先查一下错题本") },
         )
         assertEquals(
-            TUTOR_SESSION_ID,
-            ((events.last() as ModelGatewayEvent.Completed).output as TutorPlanOutput).sessionId,
+            "正文位置必须被撤回（最后一条 ANSWER 是空的）",
+            "",
+            live.filter { it.kind == ModelLiveKind.ANSWER }.lastOrNull()?.text,
         )
     }
 

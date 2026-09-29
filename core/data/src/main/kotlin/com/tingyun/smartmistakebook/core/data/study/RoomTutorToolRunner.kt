@@ -70,6 +70,23 @@ private const val MASTERY_FOCUS_RESOLUTION_LIMIT = 24
 private const val TRUNCATION_NOTE_RESERVE_CHARS = 240
 
 /**
+ * 一次工具执行的本地结果：**模型可见的**那半（[outcome]）与**只在本地用的**那半（[resultCount]）。
+ *
+ * 为什么分成两个字段而不是塞进 [TutorToolOutcome]：outcome 是模型输入的一部分
+ * （工具轮结果会随下一轮 prompt 走，参与 `ModelTaskFingerprint`），新增字段就要动模型输入的
+ * 指纹；而"这次拿到了几行"只是学生那行小字要用的东西（B1 的痕迹），模型根本不需要它。
+ * 分成两半之后，模型可见的形状与指纹一个字节都没变。
+ */
+internal data class TutorToolExecution(
+    val outcome: TutorToolOutcome,
+    /**
+     * 这次拿到的结果条数（行/节点）。`0` 是有意义的取值（查了、没有匹配：B4 的"无可读范围"），
+     * null = 该调用不产出行集（写工具，或被拒而根本没执行）。
+     */
+    val resultCount: Int? = null,
+)
+
+/**
  * Executes locally authorized read tools for the tutor tool loop
  * (spec model-intent-routing §2/§4). Every outcome is a capped markdown
  * digest — the model never sees raw rows, and failures become error
@@ -149,7 +166,7 @@ internal class RoomTutorToolRunner(
          * - MASTERY_UPDATE 的 `terms[0]` 是代号，由此解析回原始 id 后才进门（anchor_class
          *   按角色机械确立，非 CONFIRMED 的权重减半在写入时施加）。
          * null = 直调/无会话（大厅）：KNOWLEDGE_READ 无代号可发（回退序号形态），
-         * MASTERY_UPDATE 没有已披露代号 → 结构性拒。
+         * MASTERY_UPDATE 没有可写的目标 → **空范围**（ok=true + "本轮无可写目标"，K2a）。
          */
         val knowledgeCodeRegistry: TutorKnowledgeCodeRegistry? = null,
     ) {
@@ -159,18 +176,26 @@ internal class RoomTutorToolRunner(
         }
     }
 
-    suspend fun run(call: TutorToolCall, context: Context): TutorToolOutcome {
+    suspend fun run(call: TutorToolCall, context: Context): TutorToolOutcome =
+        runTraced(call, context).outcome
+
+    /**
+     * 与 [run] 同一件事，另外把**只在本地存在**的结果条数带出来（B1 的痕迹用它）。
+     *
+     * 无范围时的形态是**裁定过的**（K2a / spec §3.1）：读工具返回"本轮无可读范围"、写工具返回
+     * "无可写目标"，**都是 ok=true**——不报错、不消耗额外预算。消灭的失败是"无题轮每个工具都
+     * 注定失败"：模型被教导的是"调用=失败"，于是下一轮换着法再试，白烧派遣预算（台账 D-K2 ②）。
+     */
+    suspend fun runTraced(call: TutorToolCall, context: Context): TutorToolExecution {
         executedCallCount += 1
         return try {
         when (call.tool) {
             TutorToolName.KNOWLEDGE_READ -> {
                 val subject = context.subject
                 if (subject.isNullOrBlank()) {
-                    TutorToolOutcome(
+                    emptyScopeRead(
                         tool = call.tool,
-                        ok = false,
-                        summaryMarkdown = "当前会话没有科目上下文，无法查询知识库。",
-                        errorKind = "no_subject",
+                        what = "这个知识点",
                     )
                 } else {
                     knowledgeRead(subject, call.terms, context)
@@ -184,14 +209,46 @@ internal class RoomTutorToolRunner(
     } catch (cancelled: CancellationException) {
         throw cancelled
     } catch (failure: Exception) {
-        TutorToolOutcome(
-            tool = call.tool,
-            ok = false,
-            summaryMarkdown = "查询没有完成，可以换个说法再试。",
-            errorKind = "failed",
+        TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = call.tool,
+                ok = false,
+                summaryMarkdown = "查询没有完成，可以换个说法再试。",
+                errorKind = "failed",
+            ),
         )
     }
     }
+
+    /**
+     * 无范围读（K2a）：ok=true + "本轮无可读范围"。
+     *
+     * [resultCount] = 0 是刻意的：它让痕迹那一行说"本轮无可读范围"而不是"0 条"（B4 的话术），
+     * 也让 [TutorToolTraceEntry] 的不变量（被拒才没有条数）在空范围上仍然成立。
+     */
+    private fun emptyScopeRead(tool: TutorToolName, what: String): TutorToolExecution =
+        TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = tool,
+                ok = true,
+                summaryMarkdown = "本轮无可读范围：这次对话还没有科目上下文，读不到$what。" +
+                    "不必重复查询，直接回答学生的问题。",
+            ),
+            resultCount = 0,
+        )
+
+    /**
+     * 无范围写（K2a）：ok=true + "无可写目标"——**仍不写**，只是把"没有可写的目标"如实说出来
+     * 而不是报错。写不写由本地门决定，与这句话无关。
+     */
+    private fun emptyScopeWrite(tool: TutorToolName, reason: String): TutorToolExecution =
+        TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = tool,
+                ok = true,
+                summaryMarkdown = "本轮无可写目标：$reason。不必重复尝试，直接回答学生的问题。",
+            ),
+        )
 
     /**
      * 读知识点（KNOWLEDGE_READ）：检索 → 返回**代号 + 名称 + 边界前 80 字 + 绑定材料摘要**。
@@ -213,7 +270,7 @@ internal class RoomTutorToolRunner(
         subject: String,
         terms: List<String>,
         context: Context,
-    ): TutorToolOutcome {
+    ): TutorToolExecution {
         // D-Q3：内容还在后台就位（首装中 / 上次失败待重试）时如实说"准备中"。
         // ok=true 是有意的：适配层只渲染 ok=true 的 summary（失败形态只给 `[失败 kind]`），
         // 这里需要模型把"稍后再查"讲给学生，所以不能走失败形态。
@@ -223,10 +280,13 @@ internal class RoomTutorToolRunner(
                 "TutorKnowledgeContext",
                 "KNOWLEDGE_READ withheld: knowledge base not ready ($availability)",
             )
-            return TutorToolOutcome(
-                tool = TutorToolName.KNOWLEDGE_READ,
-                ok = true,
-                summaryMarkdown = "知识库还在准备中，本次没有可读的知识点；稍后再查一次即可。",
+            return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.KNOWLEDGE_READ,
+                    ok = true,
+                    summaryMarkdown = "知识库还在准备中，本次没有可读的知识点；稍后再查一次即可。",
+                ),
+                resultCount = 0,
             )
         }
         val questionText = terms.joinToString(" ")
@@ -238,10 +298,13 @@ internal class RoomTutorToolRunner(
             queryText = questionText,
         )
         if (nodes.isEmpty()) {
-            return TutorToolOutcome(
-                tool = TutorToolName.KNOWLEDGE_READ,
-                ok = true,
-                summaryMarkdown = "知识库里没有匹配的知识点。",
+            return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.KNOWLEDGE_READ,
+                    ok = true,
+                    summaryMarkdown = "知识库里没有匹配的知识点。",
+                ),
+                resultCount = 0,
             )
         }
         val registry = context.knowledgeCodeRegistry
@@ -266,10 +329,13 @@ internal class RoomTutorToolRunner(
         } else {
             "知识点候选 ${nodes.size} 个："
         }
-        return TutorToolOutcome(
-            tool = TutorToolName.KNOWLEDGE_READ,
-            ok = true,
-            summaryMarkdown = "$header\n${lines.joinToString("\n")}",
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = TutorToolName.KNOWLEDGE_READ,
+                ok = true,
+                summaryMarkdown = "$header\n${lines.joinToString("\n")}",
+            ),
+            resultCount = nodes.size,
         )
     }
 
@@ -322,7 +388,7 @@ internal class RoomTutorToolRunner(
      *   解法是收紧产出，**不是**放宽披露集合：要不要把这一档披露出去，是用户的裁定。
      *   要更丰富的错题本结果，先改披露边界（加类目并按 bf8be888 的纪律升 manifest schema）。
      */
-    private suspend fun notebookRead(terms: List<String>, context: Context): TutorToolOutcome {
+    private suspend fun notebookRead(terms: List<String>, context: Context): TutorToolExecution {
         val searchText = terms.joinToString(" ").take(120)
         val rows = port.libraryCatalogPage(
             searchText = searchText,
@@ -335,31 +401,40 @@ internal class RoomTutorToolRunner(
             limit = 6,
         )
         if (rows.isEmpty()) {
-            return TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_READ,
-                ok = true,
-                summaryMarkdown = "错题本里没有匹配的条目。",
+            return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.NOTEBOOK_READ,
+                    ok = true,
+                    summaryMarkdown = "错题本里没有匹配的条目。",
+                ),
+                resultCount = 0,
             )
         }
         if (!context.roundDisclosesQuestionCandidates) {
             val termNote = terms.takeIf(List<String>::isNotEmpty)
                 ?.let { "（检索词：${it.joinToString("、")}）" }
                 .orEmpty()
-            return TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_READ,
-                ok = true,
-                summaryMarkdown = "错题本里匹配 ${rows.size} 条$termNote。本轮披露范围不含别的题的标题，" +
-                    "故只给条数；不要臆造或复述任何题目标题，" +
-                    "需要具体某道题时请学生在错题本里查看或从错题本选择。",
+            return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.NOTEBOOK_READ,
+                    ok = true,
+                    summaryMarkdown = "错题本里匹配 ${rows.size} 条$termNote。本轮披露范围不含别的题的标题，" +
+                        "故只给条数；不要臆造或复述任何题目标题，" +
+                        "需要具体某道题时请学生在错题本里查看或从错题本选择。",
+                ),
+                resultCount = rows.size,
             )
         }
         val lines = rows.mapIndexed { index, row ->
             "${index + 1}. ${row.title}（${row.subject}）"
         }
-        return TutorToolOutcome(
-            tool = TutorToolName.NOTEBOOK_READ,
-            ok = true,
-            summaryMarkdown = "错题本匹配 ${rows.size} 条：\n${lines.joinToString("\n")}",
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = TutorToolName.NOTEBOOK_READ,
+                ok = true,
+                summaryMarkdown = "错题本匹配 ${rows.size} 条：\n${lines.joinToString("\n")}",
+            ),
+            resultCount = rows.size,
         )
     }
 
@@ -368,42 +443,50 @@ internal class RoomTutorToolRunner(
      * 学生确认门已在授权层（explicitActionRequest）把关；此处只做"当前会话确有已识别题面
      * → 校验 → commit"。题面来源强锚定到 draft（学生手机上识别过的真实题），不是模型凭空
      * 生成——防臆造。commitTutorSession 内部幂等（已保存则只返回，不重复落库）。
+     *
+     * 无会话（无题轮/大厅）时走 [emptyScopeWrite]（K2a）：**没有可写目标**是正常形态，不是错误。
+     * 会话在、但题面还没识别出来（reference_not_found）或还没就绪（not_ready）仍是真错误——
+     * 那两种情况"有目标但目标不成立"，与"根本没有目标"不是一回事。
      */
-    private suspend fun notebookWrite(context: Context): TutorToolOutcome {
+    private suspend fun notebookWrite(context: Context): TutorToolExecution {
         val sessionId = context.tutorSessionId
         if (sessionId.isNullOrBlank()) {
-            return TutorToolOutcome(
+            return emptyScopeWrite(
                 tool = TutorToolName.NOTEBOOK_WRITE,
-                ok = false,
-                summaryMarkdown = "当前会话没有可保存的题目。",
-                errorKind = "no_conversation",
+                reason = "这次对话没有正在处理的题目",
             )
         }
         // 解析真实 draftId：tutor session 的 sessionId ≠ draftId，需先经
         // readTutorSession(sessionId) 拿记录里的 draftId，再用它读题面 draft。
         val tutorSession = port.readTutorSession(sessionId)
-            ?: return TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_WRITE,
-                ok = false,
-                summaryMarkdown = "当前会话未建立完整讲题上下文，无法保存。",
-                errorKind = "no_tutor_session",
+            ?: return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = TutorToolName.NOTEBOOK_WRITE,
+                    ok = false,
+                    summaryMarkdown = "当前会话未建立完整讲题上下文，无法保存。",
+                    errorKind = "no_tutor_session",
+                ),
             )
         val draftId = tutorSession.draftId
         val draft = port.readProblemDraft(draftId)
-            ?: return TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_WRITE,
-                ok = false,
-                summaryMarkdown = "当前会话还没有识别出题目，无法保存。",
-                errorKind = "reference_not_found",
+            ?: return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = TutorToolName.NOTEBOOK_WRITE,
+                    ok = false,
+                    summaryMarkdown = "当前会话还没有识别出题目，无法保存。",
+                    errorKind = "reference_not_found",
+                ),
             )
         val revision = draft.currentRevision
         val issues = CapturedQuestionDocumentValidator.validateForCommit(revision.questionDocument)
         if (issues.isNotEmpty()) {
-            return TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_WRITE,
-                ok = false,
-                summaryMarkdown = "题目尚未准备就绪，无法保存。",
-                errorKind = "not_ready",
+            return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = TutorToolName.NOTEBOOK_WRITE,
+                    ok = false,
+                    summaryMarkdown = "题目尚未准备就绪，无法保存。",
+                    errorKind = "not_ready",
+                ),
             )
         }
         val now = System.currentTimeMillis()
@@ -424,19 +507,21 @@ internal class RoomTutorToolRunner(
                 ),
             ),
         )
-        return if (result.created) {
-            TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_WRITE,
-                ok = true,
-                summaryMarkdown = "已保存到错题本。",
-            )
-        } else {
-            TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_WRITE,
-                ok = true,
-                summaryMarkdown = "这道题已在错题本里。",
-            )
-        }
+        return TutorToolExecution(
+            outcome = if (result.created) {
+                TutorToolOutcome(
+                    tool = TutorToolName.NOTEBOOK_WRITE,
+                    ok = true,
+                    summaryMarkdown = "已保存到错题本。",
+                )
+            } else {
+                TutorToolOutcome(
+                    tool = TutorToolName.NOTEBOOK_WRITE,
+                    ok = true,
+                    summaryMarkdown = "这道题已在错题本里。",
+                )
+            },
+        )
     }
 
     /**
@@ -464,22 +549,24 @@ internal class RoomTutorToolRunner(
         call: TutorToolCall,
         context: Context,
         allowsExtendedResult: Boolean,
-    ): TutorToolOutcome {
+    ): TutorToolExecution {
         val subject = context.subject?.takeIf(String::isNotBlank)
         if (subject == null) {
-            return TutorToolOutcome(
+            // K2a：无题轮/大厅没有科目上下文 = 无范围，不是失败（成功形态走 emptyScopeRead）。
+            return emptyScopeRead(
                 tool = TutorToolName.MASTERY_READ,
-                ok = false,
-                summaryMarkdown = "当前会话没有科目上下文，无法读取掌握情况。",
-                errorKind = "no_subject",
+                what = "这个学生的掌握情况",
             )
         }
         val rows = port.readSubjectMastery(context.learnerId, subject)
         if (rows.isEmpty()) {
-            return TutorToolOutcome(
-                tool = TutorToolName.MASTERY_READ,
-                ok = true,
-                summaryMarkdown = "还没有足够的学习记录来评估掌握情况。",
+            return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.MASTERY_READ,
+                    ok = true,
+                    summaryMarkdown = "还没有足够的学习记录来评估掌握情况。",
+                ),
+                resultCount = 0,
             )
         }
         val budget = if (call.extendedResult && allowsExtendedResult) {
@@ -494,11 +581,14 @@ internal class RoomTutorToolRunner(
             resolveFocusNodes(subject, call.terms)
         }
         if (focusNodes != null && focusNodes.isEmpty()) {
-            return TutorToolOutcome(
-                tool = TutorToolName.MASTERY_READ,
-                ok = true,
-                summaryMarkdown = "没有找到与${call.terms.joinToString("、")}匹配的知识点，" +
-                    "可以换用材料或题面里的原词再试。",
+            return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.MASTERY_READ,
+                    ok = true,
+                    summaryMarkdown = "没有找到与${call.terms.joinToString("、")}匹配的知识点，" +
+                        "可以换用材料或题面里的原词再试。",
+                ),
+                resultCount = 0,
             )
         }
         val selected = (if (focusNodes == null) rows else rows.filter { it.knowledgeNodeId in focusNodes })
@@ -521,19 +611,22 @@ internal class RoomTutorToolRunner(
         }
         val unmeasured = focusNodes.orEmpty()
             .filterKeys { nodeId -> selected.none { it.knowledgeNodeId == nodeId } }
-        return TutorToolOutcome(
-            tool = TutorToolName.MASTERY_READ,
-            ok = true,
-            summaryMarkdown = renderMasteryRead(
-                subject = subject,
-                rows = selected,
-                aggregates = aggregates,
-                unmeasuredNodes = unmeasured,
-                subjectNodeCount = port.countReviewableKnowledgeNodes(subject),
-                focused = focusNodes != null,
-                atEpochMillis = now,
-                budgetChars = budget,
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = TutorToolName.MASTERY_READ,
+                ok = true,
+                summaryMarkdown = renderMasteryRead(
+                    subject = subject,
+                    rows = selected,
+                    aggregates = aggregates,
+                    unmeasuredNodes = unmeasured,
+                    subjectNodeCount = port.countReviewableKnowledgeNodes(subject),
+                    focused = focusNodes != null,
+                    atEpochMillis = now,
+                    budgetChars = budget,
+                ),
             ),
+            resultCount = selected.size,
         )
     }
 
@@ -657,7 +750,7 @@ internal class RoomTutorToolRunner(
     }
 
 
-    private suspend fun masteryUpdate(call: TutorToolCall, context: Context): TutorToolOutcome {
+    private suspend fun masteryUpdate(call: TutorToolCall, context: Context): TutorToolExecution {
         // 模型只给语义元素（direction/understanding/代号锚），weight 与
         // 一切门控由本地 MasteryWriteGate 决定——模型无数值权，无关键词猜测。
         // TutorToolCall.init 已强制 MASTERY_UPDATE 必须带 direction/understanding；
@@ -668,15 +761,27 @@ internal class RoomTutorToolRunner(
         // 白名单前哨在仓库的轮次判定（Route B 背底）与 native schema enum（Route A 约束
         // 解码）；这里是解析落点——代号 → 原始 id + 角色（anchor_class 由角色机械确立）。
         val codeTerm = call.terms.firstOrNull().orEmpty()
-        val resolved = context.knowledgeCodeRegistry?.resolve(codeTerm)
+        val registry = context.knowledgeCodeRegistry
+        if (registry == null) {
+            // K2a：这次对话根本没有代号通道（大厅 / 无会话）＝**没有已披露的知识点**，
+            // 也就没有可写目标。这是正常形态，不是"调用失败"；写口一如既往什么都没有发生。
+            return emptyScopeWrite(
+                tool = TutorToolName.MASTERY_UPDATE,
+                reason = "这次对话还没有已披露的知识点",
+            )
+        }
+        val resolved = registry.resolve(codeTerm)
         if (resolved == null) {
             // 结构性拒（协议错误路径）：编造/未披露代号没有可解析的目标，不进 gate、
-            // 不落任何观察行（没有知识节点可以挂靠审计）。
-            return TutorToolOutcome(
-                tool = TutorToolName.MASTERY_UPDATE,
-                ok = false,
-                summaryMarkdown = "该代号不在本会话已披露的知识点中，未执行。",
-                errorKind = "invalid_knowledge_code",
+            // 不落任何观察行（没有知识节点可以挂靠审计）。有代号通道而代号对不上，
+            // 与"没有通道"是两回事——前者是协议错误，后者是空范围（上面那支）。
+            return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = TutorToolName.MASTERY_UPDATE,
+                    ok = false,
+                    summaryMarkdown = "该代号不在本会话已披露的知识点中，未执行。",
+                    errorKind = "invalid_knowledge_code",
+                ),
             )
         }
         val knowledgeNodeId = resolved.knowledgeNodeId
@@ -690,11 +795,13 @@ internal class RoomTutorToolRunner(
             knowledgeNodeId = knowledgeNodeId,
         )
         if (direction == null || understanding == null) {
-            return TutorToolOutcome(
-                tool = TutorToolName.MASTERY_UPDATE,
-                ok = false,
-                summaryMarkdown = "这条学习证据缺少模型的方向/理解判断，未计入掌握度。",
-                errorKind = "rejected:missing_semantics",
+            return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = TutorToolName.MASTERY_UPDATE,
+                    ok = false,
+                    summaryMarkdown = "这条学习证据缺少模型的方向/理解判断，未计入掌握度。",
+                    errorKind = "rejected:missing_semantics",
+                ),
             )
         }
 
@@ -783,10 +890,12 @@ internal class RoomTutorToolRunner(
                     anchor_class = anchorClass,
                 )
                 port.recordChatEvidence(listOf(entry))
-                return TutorToolOutcome(
-                    tool = TutorToolName.MASTERY_UPDATE,
-                    ok = true,
-                    summaryMarkdown = "学习证据已记录：${direction.name} weight=$effectiveWeight",
+                return TutorToolExecution(
+                    outcome = TutorToolOutcome(
+                        tool = TutorToolName.MASTERY_UPDATE,
+                        ok = true,
+                        summaryMarkdown = "学习证据已记录：${direction.name} weight=$effectiveWeight",
+                    ),
                 )
             }
             is MasteryWriteGate.GateResult.Rejected -> {
@@ -808,11 +917,13 @@ internal class RoomTutorToolRunner(
                     anchor_class = anchorClass,
                 )
                 port.recordChatEvidence(listOf(entry))
-                return TutorToolOutcome(
-                    tool = TutorToolName.MASTERY_UPDATE,
-                    ok = false,
-                    summaryMarkdown = "这条学习证据未通过校验，未计入掌握度（${result.reason.name}）。",
-                    errorKind = "rejected:${result.reason.name}",
+                return TutorToolExecution(
+                    outcome = TutorToolOutcome(
+                        tool = TutorToolName.MASTERY_UPDATE,
+                        ok = false,
+                        summaryMarkdown = "这条学习证据未通过校验，未计入掌握度（${result.reason.name}）。",
+                        errorKind = "rejected:${result.reason.name}",
+                    ),
                 )
             }
         }

@@ -56,7 +56,7 @@ object TutorRoundQuestionBindingPolicy {
      * 1. **候选在菜单内**：按 `problemId` + `problemRevisionId` 精确匹配。同一道题的另一个
      *    修订不算命中——题面变了就是另一道题，答案与证据都不可搬。
      * 2. **学生消息里有可核对的词**：声明的每一个锚词都要在学生这一轮的消息里逐字出现
-     *    （沿用 `TutorIntentAuthority.actionIsBoundTo`/`lookupTerms` 的逐字锚纪律），并且
+     *    （沿用当年意图授权里 actionIsBoundTo / lookupTerms 的逐字锚纪律），并且
      *    至少一个锚词要能在**该题自身**（标题或题面）里找到。前一条挡住"模型替学生编了
      *    一句他没说过的话"，后一条挡住"词是学生说的、但说的不是这道题"。
      * 3. **不许从被钉住的题上切走**（[pinnedQuestion] 非空时）：学生显式附加了题的那一轮，

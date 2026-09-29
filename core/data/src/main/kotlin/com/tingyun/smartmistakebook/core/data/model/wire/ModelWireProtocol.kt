@@ -36,6 +36,22 @@ internal interface ModelWireProtocol {
     fun streamDelta(payload: String): String?
 
     /**
+     * 这一轮是否走 **Route A（原生 tools）**——即 `content` 增量可能是逐字长出来的正文。
+     *
+     * 消灭的失败（A6）：实时文本此前不看协议路由，把 Route B 的 `content` 增量（json_object /
+     * prompt 信封 `{"intentDecision":…,"messageMarkdown":…}`）当正文流出去，学生看到一段 JSON。
+     * 默认 false：非 OpenAI 协议族恒走 Route B（见 [supportsNativeTools]）。
+     */
+    fun usesNativeToolRoute(input: ModelTaskInput, enableNativeTools: Boolean): Boolean = false
+
+    /**
+     * SSE 单帧里是否出现**原生工具调用增量**（`delta.tool_calls`）：用来在流式期间认出"这一轮
+     * 是工具轮"。工具轮的 `content` 是模型附带的叙述（"我先查一下错题本"），它属于查阅单元，
+     * 不属于回答正文。协议族不区分则默认 false。
+     */
+    fun streamToolCallDelta(payload: String): Boolean = false
+
+    /**
      * SSE 单帧里的思考链增量（推理模型把思考和答案分开发流）。协议族若不区分，返回 null，
      * 界面就只显示答案本身。
      */

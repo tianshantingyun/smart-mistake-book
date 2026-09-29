@@ -43,8 +43,12 @@ object ModelPromptPolicyVersions {
     const val TUTOR_PLAN = "tutor-plan-v13-visual-fields-removed"
     /** v19：写工具改收代号（原始 id 退出提示词）+ 代号映射表 + 无题轮不结构性拒写（D5/D6）。 */
     const val TUTOR_RESPOND = "tutor-respond-v20-visual-fields-removed"
-    /** v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。 */
-    const val TUTOR_LOBBY = "tutor-lobby-v9-visual-fields-removed"
+    /**
+     * v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。
+     * v10（A4）：允许申请 OFFER_SAVE_CURRENT_QUESTION（本地渲染确认卡、学生点了才执行），
+     * 并回喂上一轮确认卡的裁决结果。v9 及更早的轮次没有这两段文本。
+     */
+    const val TUTOR_LOBBY = "tutor-lobby-v10-local-action-confirmation"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"

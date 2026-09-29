@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.database.entity
 
+import com.tingyun.smartmistakebook.core.database.dao.TUTOR_INTERACTION_MODE_NORMAL
 import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
@@ -51,6 +52,17 @@ internal data class TutorConversationEntity(
      */
     @ColumnInfo(name = "conversation_area", defaultValue = "'AGENT'")
     val conversationArea: String,
+    /**
+     * 交互模式（D-Q9，52→53 加列）：NORMAL / GUIDED，集合开放（与会话区同一手法，存字符串）。
+     *
+     * 默认值给 NORMAL，理由与 [conversationArea] 相同：迁移前的旧行当年只有正常模式这一种形态，
+     * 迁移**不回填、不猜测**（默认值就是当年的事实）。新行由创建方显式给出（复习栏默认引导属阶段 5）。
+     *
+     * Kotlin 侧的默认值只服务**三条自动建行路径**（采集会话绑定 / 曝光账本 / 轮次行）：它们建的
+     * 都是 `AGENT` 区的会话，模式就是正常。复习栏在阶段 5 引入时由创建方显式给 GUIDED。
+     */
+    @ColumnInfo(name = "interaction_mode", defaultValue = "'NORMAL'")
+    val interactionMode: String = TUTOR_INTERACTION_MODE_NORMAL,
     @ColumnInfo(name = "anchor_kind")
     val anchorKind: String,
     @ColumnInfo(name = "anchor_id")
@@ -192,6 +204,15 @@ internal data class TutorMessageEntity(
      */
     @ColumnInfo(name = "requested_move")
     val requestedMove: String? = null,
+    /**
+     * 这一轮**智能体查阅了什么**的痕迹（B1，52→53 加列）：工具、条数、通过还是被拒（含拒因）。
+     * NULL = 没有痕迹（旧行、以及这一轮没发起过工具调用）——迁移不回填、不猜测。
+     *
+     * 存的是本地形状的 JSON（[com.tingyun.smartmistakebook.core.model.TutorTurnToolTrace]），
+     * 只进界面、不进模型：它不参与任何模型输入的指纹。
+     */
+    @ColumnInfo(name = "tool_trace_json")
+    val toolTraceJson: String? = null,
     val status: String,
     @ColumnInfo(name = "logical_operation_id")
     val logicalOperationId: String?,

@@ -432,6 +432,18 @@ data class ModelTaskRequest(
             schemaVersion >= TUTOR_ATTACHED_QUESTION_SCHEMA_VERSION ||
                 respondInput?.attachedQuestion == null,
         ) { "Legacy tutor requests cannot carry an explicitly attached question" }
+        require(
+            schemaVersion >= TUTOR_LOCAL_ACTION_OUTCOME_SCHEMA_VERSION ||
+                (input as? TutorLobbyInput)?.localActionOutcomes.isNullOrEmpty(),
+        ) { "Legacy tutor requests cannot carry local action outcomes" }
+        require(
+            schemaVersion >= TUTOR_INTERACTION_MODE_SCHEMA_VERSION ||
+                (input as? TutorLobbyInput)?.let { lobby ->
+                    lobby.interactionMode == TutorInteractionMode.NORMAL &&
+                        lobby.scaffoldLevel == null &&
+                        lobby.requestedLocalActions.isEmpty()
+                } != false,
+        ) { "Legacy tutor requests cannot carry an interaction mode, a scaffold level or local actions" }
         require(requestId.isNotBlank()) { "Model task request id must not be blank" }
         require(requestId.length <= MAX_ID_CHARS) { "Model task request id exceeds budget" }
         require(input.subjectId.isNotBlank()) { "Model task subject id must not be blank" }
@@ -474,7 +486,18 @@ data class ModelTaskRequest(
          * exposure all attribute to it).
          */
         const val TUTOR_ATTACHED_QUESTION_SCHEMA_VERSION = 14
-        const val CURRENT_SCHEMA_VERSION = TUTOR_ATTACHED_QUESTION_SCHEMA_VERSION
+        /**
+         * Schema at which a lobby round may carry the **local action decisions** of the previous
+         * round (`localActionOutcomes`, A4 / D-K2e：本地动作 ≈ 工具的一种，执行结果回喂模型上下文)。
+         */
+        const val TUTOR_LOCAL_ACTION_OUTCOME_SCHEMA_VERSION = 15
+        /**
+         * Schema at which a lobby round carries the **interaction mode** and the locally computed
+         * scaffold level (`interactionMode` / `scaffoldLevel`, D-Q9)：同一段对话在两种模式下
+         * 是不同的逻辑操作（提示词不同），所以它必须进指纹；旧行读回按"当年没有这两个键"重算。
+         */
+        const val TUTOR_INTERACTION_MODE_SCHEMA_VERSION = 16
+        const val CURRENT_SCHEMA_VERSION = TUTOR_INTERACTION_MODE_SCHEMA_VERSION
         const val MAX_ID_CHARS = 256
     }
 }
@@ -747,7 +770,10 @@ object ModelTaskLogicalOperationFingerprint {
                     .withoutEmptyKnownRoundQuestion(input)
                     .withoutEmptyKnowledgeCodes(input)
                     .withoutEmptyPlanToolCarrier(input)
-                    .withoutEmptyAttachedQuestion(input),
+                    .withoutEmptyAttachedQuestion(input)
+                    .withoutEmptyLocalActionOutcomes(input)
+                    .withoutEmptyRequestedLocalActions(input)
+                    .withoutDefaultInteractionMode(input),
             )
         }
 }
@@ -795,6 +821,11 @@ private fun ModelTaskRequest.fingerprintPayload(): String =
             .withoutEmptyKnowledgeCodes(input)
             .withoutEmptyPlanToolCarrier(input)
             .withoutEmptyAttachedQuestion(input)
+            // 同上：v1 编码器不认识 schema 15 引入的本轮本地动作裁决结果。
+            .withoutEmptyLocalActionOutcomes(input)
+            // v1 编码器不认识 schema 16 引入的三件：交互模式 / 起步档（默认载体）与已提出的本地动作（空载体）。
+            .withoutEmptyRequestedLocalActions(input)
+            .withoutDefaultInteractionMode(input)
     } else {
         ModelTaskCodec.encodeRequest(this).let { encoded ->
             encoded
@@ -878,6 +909,26 @@ private fun ModelTaskRequest.fingerprintPayload(): String =
                         it
                     }
                 }
+                .let {
+                    if (schemaVersion <
+                        ModelTaskRequest.TUTOR_LOCAL_ACTION_OUTCOME_SCHEMA_VERSION
+                    ) {
+                        it.withoutEmptyLocalActionOutcomes(input)
+                    } else {
+                        it
+                    }
+                }
+                // schema 16 的已提出本地动作：空列表不落键（旧行当年没有这个键）。
+                .let {
+                    if (schemaVersion < ModelTaskRequest.TUTOR_INTERACTION_MODE_SCHEMA_VERSION) {
+                        it.withoutEmptyRequestedLocalActions(input)
+                    } else {
+                        it
+                    }
+                }
+                // schema 16 的交互模式 / 起步档：不加 schemaVersion 门控（守卫保证旧行只可能是
+                // 默认值，这条 strip 对非默认值是无操作——见函数注释）。
+                .withoutDefaultInteractionMode(input)
         }
     }
 
@@ -1047,6 +1098,50 @@ private fun String.withoutEmptyPlanToolCarrier(input: ModelTaskInput): String =
         replace(",\"toolDeclarations\":[]", "")
             .replace(",\"toolRoundResults\":[]", "")
             .replace(",\"teachingReferencesLoadFailed\":false", "")
+    } else {
+        this
+    }
+
+/**
+ * 抹平本轮本地动作裁决结果的空载体（A4 / schema 15）。
+ *
+ * 与上面几条同一条纪律（`bf8be888` 教训）：空列表在指纹里不落键，否则升级后读回旧行算出的哈希
+ * 与当年存库值不一致，而 `toSnapshot` 把不一致当完整性事故抛出——表现就是"一进智能体页即崩"。
+ */
+private fun String.withoutEmptyLocalActionOutcomes(input: ModelTaskInput): String =
+    if (input is TutorLobbyInput) {
+        replace(",\"localActionOutcomes\":[]", "")
+    } else {
+        this
+    }
+
+/**
+ * 抹平 D-Q9 新增键的**默认载体**（schema 16：`interactionMode` / `scaffoldLevel`）。
+ *
+ * 与"空载体"那几条不同：正常模式是枚举的默认值，它照样落键——"默认值"在这里就是那个空载体，
+ * 所以抹平的对象是"键取默认值时的键本身"：`interactionMode=NORMAL` 与 `scaffoldLevel=null`
+ * 被抹掉，**非默认值（GUIDED / Lx）原样留下**。schema < 16 的行当年编码里没有这两个键，
+ * 而 [ModelTaskRequest] 的守卫保证那些行只可能是默认值（否则构造都构造不出来），于是这条 strip
+ * 可以不加 schemaVersion 门控地用在两条指纹路径上：旧行读回、新行的正常模式轮、旧编码器
+ * 三条路径因此算出同一个哈希；引导模式轮**不同**（提示词不同，是另一次逻辑操作）。
+ */
+private fun String.withoutDefaultInteractionMode(input: ModelTaskInput): String =
+    if (input is TutorLobbyInput) {
+        replace(",\"interactionMode\":\"NORMAL\"", "")
+            .replace(",\"scaffoldLevel\":null", "")
+    } else {
+        this
+    }
+
+/**
+ * 抹平"已提出的本地动作"空载体（D-K2e，schema 16 引入的输入键）。
+ *
+ * 与 [withoutEmptyLocalActionOutcomes] 同一条纪律：空列表不落键，旧行读回按"当年没有这个键"
+ * 重算指纹（`bf8be888` 教训）。
+ */
+private fun String.withoutEmptyRequestedLocalActions(input: ModelTaskInput): String =
+    if (input is TutorLobbyInput) {
+        replace(",\"requestedLocalActions\":[]", "")
     } else {
         this
     }

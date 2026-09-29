@@ -200,9 +200,10 @@ internal class RoomStudyDatabase(
 
     override fun observeRecentTutorConversations(
         limit: Int,
+        conversationArea: String,
     ): Flow<List<TutorConversationRecord>> {
         require(limit > 0) { "Tutor conversation limit must be positive" }
-        return database.tutorConversationDao().observeRecent(limit)
+        return database.tutorConversationDao().observeRecent(limit, conversationArea)
     }
 
     override fun observeTutorMessages(
@@ -959,6 +960,10 @@ internal class RoomStudyDatabase(
     override suspend fun updateTutorMessageStatus(
         command: UpdateTutorMessageStatusDatabaseCommand,
     ): TutorMessageRecord = database.tutorConversationDao().updateMessageStatus(command)
+
+    override suspend fun setTutorInteractionMode(
+        command: SetTutorInteractionModeDatabaseCommand,
+    ): TutorConversationRecord = database.tutorConversationDao().setInteractionMode(command)
 
     override suspend fun pauseTutorConversation(
         conversationId: String,

@@ -78,13 +78,17 @@ internal class TutorPlanCommands(
                     sessionId = question.sessionId,
                     questionDocumentId = question.questionDocument.document.id,
                     revisionNumber = question.revisionNumber,
-                    questionTitle = question.title,
                     requestId = request.requestId,
                     replyToMessageId = null,
                     bodyMarkdown = output.plan.openingMarkdown,
                     thinkingMarkdown = output.plan.thinkingMarkdown,
                     occurredAtEpochMillis = request.occurredAtEpochMillis,
                     completedAtEpochMillis = snapshot.updatedAtEpochMillis,
+                    // B1：这一轮查阅了什么的痕迹，与正文同一次写入。
+                    toolTraceJson = toolTraceJsonFor(sink.modelTasks, request.requestId),
+                    // S2：本轮披露的课本材料标题（来源标签的核对基准）。
+                    disclosedMaterialTitles = question.reviewedTeachingReferences
+                        .map { reference -> reference.title },
                 )
             }
         }

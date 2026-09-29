@@ -36,6 +36,40 @@ data class TutorLobbyInput(
     val toolDeclarations: List<TutorToolName> = emptyList(),
     /** Results of prior tool rounds; round 1 dispatch always leaves this empty. */
     val toolRoundResults: List<TutorToolRoundResult> = emptyList(),
+    /**
+     * 上一轮本地动作（确认卡）的裁决结果（A4 回喂，D-K2e）：本地动作 ≈ 工具的一种，执行结果
+     * 照常回喂模型上下文——否则模型下一轮会重新请求同一件事，或者以为学生点了。
+     *
+     * **空载体必须抹平**（`bf8be888` 教训）：空列表在指纹里不落键，否则升级读回旧行即崩。
+     */
+    val localActionOutcomes: List<TutorLobbyLocalActionOutcome> = emptyList(),
+    /**
+     * 本轮的交互模式（D-Q9）：正常 = 有问即答，引导 = 按脚手架刻度给。
+     *
+     * 由**会话行**决定（[TutorInteractionMode.AREA_DEFAULT_NAME] 是智能体栏的默认，复习栏默认
+     * 引导属阶段 5），学生在会话里可以切换；本地把它连同 [scaffoldLevel] 一起送进提示词。
+     * 非空载体（枚举的默认值就是正常模式），但**旧行读回必须按"当年没有这个键"重算指纹**
+     * （见 `ModelTaskRequest.TUTOR_INTERACTION_MODE_SCHEMA_VERSION`）。
+     */
+    val interactionMode: TutorInteractionMode = TutorInteractionMode.NORMAL,
+    /**
+     * 本轮起步的脚手架档（引导模式才有；**本地纯策略算出来的**，不是模型填的）：
+     * 卡点自动升档的结论（[tutorScaffoldDirective]）。null = 无阶梯（正常模式，或引导模式下
+     * 还没算出起步档）——空载体不落键、不渲染（`bf8be888` 教训）。
+     */
+    val scaffoldLevel: TutorScaffoldLevel? = null,
+    /**
+     * 本**逻辑操作**里模型已经提出过的本地动作（白名单），最近一轮的在后：
+     * 它们在等学生点确认卡，**不是已经完成的事实**（提示词据此要求模型不要重复提出）。
+     *
+     * 为什么它要在输入里（而不只在输出里）：原生 tool_calls 路由的模型把动作表达成一次
+     * 函数调用，那一轮的 `content` 是空的——动作请求唯一可靠的落点就是"下一轮输入"。
+     * 大厅 Route B 的信封路由则直接落在 [TutorLobbyOutput.localActions]；两条路由最后都到
+     * 本地同一个挂卡入口（`TutorLocalActionDispatcher`）。
+     *
+     * **空载体必须抹平**（`bf8be888`）：空列表在指纹路径里不落键。
+     */
+    val requestedLocalActions: List<TutorLocalActionRequest> = emptyList(),
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_LOBBY
@@ -119,12 +153,63 @@ data class TutorLobbyInput(
         ) {
             "Tutor lobby tool round ordinals must be sequential from one"
         }
+        require(localActionOutcomes.size <= MAX_LOCAL_ACTION_OUTCOMES) {
+            "Tutor lobby carries too many local action outcomes"
+        }
+        require(requestedLocalActions.size <= MAX_REQUESTED_LOCAL_ACTIONS) {
+            "Tutor lobby carries too many requested local actions"
+        }
+        require(requestedLocalActions.distinct().size == requestedLocalActions.size) {
+            "Tutor lobby must not repeat a requested local action"
+        }
+        require(
+            interactionMode == TutorInteractionMode.GUIDED || scaffoldLevel == null,
+        ) {
+            "A normal-mode lobby round carries no scaffold level"
+        }
     }
 
     companion object {
         const val MAX_STUDENT_MESSAGE_CHARS = TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS
         const val MAX_PRIOR_MESSAGES = TutorRespondInput.MAX_PRIOR_MESSAGES
         const val MAX_PRIOR_MESSAGE_CHARS = TutorRespondInput.MAX_PRIOR_MESSAGE_CHARS
+
+        /**
+         * 一次回喂带几条裁决结果：确认卡是给学生看的**一张**卡，回喂的是"上一轮那几张"，
+         * 不是可翻页的历史（与 `AgentPendingRequestRepository.MAX_RESOLVED_PENDING_REQUESTS` 同量级）。
+         */
+        const val MAX_LOCAL_ACTION_OUTCOMES = 8
+
+        /**
+         * 一次派发里最多带几条"已提出、在等确认"的本地动作。与
+         * [MAX_LOCAL_ACTION_REQUESTS_PER_ROUND] 同量级再留一点余量：工具环最多 5 轮，每轮最多
+         * 两个动作，但同一个动作重复提出会被去重、且模型没有理由每轮都提。
+         */
+        const val MAX_REQUESTED_LOCAL_ACTIONS = 4
+    }
+}
+
+/**
+ * 一条本地动作的裁决结果（回喂模型的那一行）。
+ *
+ * [kind] / [decision] 存的是**枚举名**（`AgentPendingRequestKind` / `AgentPendingRequestStatus`）：
+ * 落在输入里的是稳定字符串，`core:model` 不反向依赖 `core:domain` 的枚举类型。
+ * [detail] 是**留痕里那一句话**（`agent_pending_request.resolution_note`）：它既是学生看到的
+ * 结果/被拒理由，也是模型读到的"本地到底做成了没有"——一份文本，不写两遍，也不额外加一个
+ * 需要与它保持一致的布尔位。
+ */
+@Serializable
+data class TutorLobbyLocalActionOutcome(
+    val kind: String,
+    val decision: String,
+    val detail: String? = null,
+) {
+    init {
+        require(kind.isNotBlank()) { "A local action outcome needs a kind" }
+        require(decision.isNotBlank()) { "A local action outcome needs a decision" }
+        require(detail == null || detail.isNotBlank()) {
+            "A local action outcome detail must be null or non-blank"
+        }
     }
 }
 
@@ -140,6 +225,15 @@ data class TutorLobbyOutput(
     val thinkingMarkdown: String? = null,
     /** Optional locally-rendered figures the model asked for; drawn after the body, never in markdown. */
     val attachedImages: List<AttachedImage> = emptyList(),
+    /**
+     * 模型这一轮申请的本地动作（规格 §3.2 白名单；D-K2e）。**模型的输出**，不是本地事实：
+     * 每一项都要过本地的权限档（ask → 确认卡）与目标解析（本轮有没有可执行的东西）才会
+     * 变成一张卡；模型**不得**在正文里声称已经做过（提示词明说，见
+     * [TutorLocalAction.purposeDescription]）。
+     *
+     * 排序即模型的提出顺序（本地按顺序挂卡，学生按顺序看到）。空列表不落键（`bf8be888`）。
+     */
+    val localActions: List<TutorLocalActionRequest> = emptyList(),
     val modelVersion: String,
 ) : ModelTaskOutput {
     init {
@@ -157,6 +251,12 @@ data class TutorLobbyOutput(
         thinkingMarkdown.requireThinkingMarkdown("Tutor thinking")
         require(attachedImages.size <= AttachedImage.MAX_ATTACHED_IMAGES) {
             "A tutor lobby reply may attach at most ${AttachedImage.MAX_ATTACHED_IMAGES} figures"
+        }
+        require(localActions.size <= MAX_LOCAL_ACTION_REQUESTS_PER_ROUND) {
+            "A tutor lobby reply may request at most $MAX_LOCAL_ACTION_REQUESTS_PER_ROUND local actions"
+        }
+        require(localActions.distinct().size == localActions.size) {
+            "A tutor lobby reply must not request the same local action twice"
         }
         require(intentDecision.requestedLocalCapability in ALLOWED_LOCAL_CAPABILITIES) {
             "Tutor lobby cannot request a local write or current-question action"

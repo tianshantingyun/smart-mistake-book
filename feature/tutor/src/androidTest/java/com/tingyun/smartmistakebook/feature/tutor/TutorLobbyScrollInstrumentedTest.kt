@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -106,7 +107,6 @@ class TutorLobbyScrollInstrumentedTest {
                     conversations = conversations,
                     modelTasks = inertModelTasks(),
                     catalogEntries = emptyList(),
-                    profile = StudyProfileOverview(),
                     initialConversationId = LobbyConversationRows.CONVERSATION_ID,
                 )
             }
@@ -201,8 +201,15 @@ class TutorLobbyScrollInstrumentedTest {
             lastTurnOrdinal = lastTurnOrdinal,
         )
 
-        override fun observeRecent(limit: Int): Flow<List<TutorConversation>> =
-            snapshot.map { current -> current?.conversation?.let(::listOf).orEmpty() }
+        override fun observeRecent(
+            limit: Int,
+            area: String,
+        ): Flow<List<TutorConversation>> = snapshot.map { current ->
+            current?.conversation
+                ?.takeIf { conversation -> conversation.area == area }
+                ?.let(::listOf)
+                .orEmpty()
+        }
 
         override fun observeConversation(
             conversationId: String,

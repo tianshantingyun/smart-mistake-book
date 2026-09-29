@@ -1332,3 +1332,166 @@ D 时间与配额裂缝（跨时区同日误判/两套日口径/配额空串桶�
   `START_EXPORT` payload 白名单校验 + 链路复用验证 + 干净图块进导出。
 - 实施契约：`docs/research/2026-09-28-imagegen-and-export-design.md`（A1–A6 / B1–B6，八段模板）。
 - 阶段归属：**阶段 4B**（依赖 2、4A）；phasing 已更新。
+
+---
+
+## 阶段 2 收口（执行记录）
+
+**记录日期**：2026-09-29。**执行方式**：动态工作流串行跑 2a → 2b → 2c（共享工作树，不并行写同一片文件），
+每段带快速档/中档门禁与有界修复循环；2d 出口门（仪器化、lint、走查、提交）留给主会话。
+脚本：草稿 `.zcode/workflow-drafts/阶段2-智能体一条交互面.dwf.ts`，运行副本
+`.zcode/workflow-runs/dwfrun-883b0236-3096-4822-bc93-a2c2ab5838df.mjs`。
+
+### 各工作流过门情况
+
+| 工作流 | 结果 |
+|---|---|
+| 2a 状态与订阅收敛（C2/B3/B5/B6/B7/渲染源收敛/A1 机制） | 未过门 |
+| 2b 交互面合一（C1/A1/A3/A5） | 未过门 |
+| 2b 致命档（A2/A4/A6） | 未过门 |
+| 2c 工具痕迹与无题轮（B1/B2/B4 + schema 53） | 未过门 |
+| 2c 本地动作通道 + 引导模式 + 死重删除 | 未过门 |
+
+### 强档门禁
+
+**未通过**。门禁命令（工作流实跑）：
+
+```text
+gradlew.bat --offline --console=plain testDebugUnitTest test \
+  testLocalFirstDebugUnitTest testStrictOfflineDebugUnitTest \
+  :app:assembleLocalFirstDebug :app:assembleStrictOfflineDebug
+```
+
+**归因（主会话复核，2026-09-29）**：工作流每次门禁的唯一红是 `:core:data:testDebugUnitTest` 里的
+**5 条 KB 金标检索测试**，不是本阶段引入的——`52e0065d`（KB 判官 v1→v2，90→130 条）换了夹具与封存值、
+未跟上条数与锚值期望；四条工作流代理各自独立核实后按裁定**保持原样未动**（未改、未跳过、未放宽，归 KB 线）。
+主会话单跑同一条命令复核：除该 5 条外全部模块 JVM 单测 up-to-date 绿，两个 debug 打包成功。
+另有环境事实：CI 的 `testLocalFirstDebugUnitTest testStrictOfflineDebugUnitTest` 按任务名只命中 `app`，
+`:core:data:testDebugUnitTest` 不在其中，所以这个红不拦 CI。
+
+### 独立复核确认后的未闭合项（5 条，均 status=verified；逐条列 where / what）
+
+1. **where**：`feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/SavedMistakeTutorRoute.kt:518-530`（severity: medium）
+   **what**：错题讲题入口在题面来自拍照会话时，`savedMistakeTutorQuestion` 以旧会话 id 作为本次讲题会话
+   （进入即接管同一 conversationId、旧消息一起渲染），而不是「进入即新开、只有显式 conversationId 才恢复」，
+   A1 验收条对该类错题不成立。
+2. **where**：`feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/TutorPendingRequestCommands.kt:248,271-276`（severity: medium）
+   **what**：生产接线里确认卡的 captureSessionId 恒为 null（唯一来源 `anchoredCaptureSessionId` 无任何生产调用方传值），
+   因此 `TutorPendingRequestCommands.execute` 的 `SAVE_CAPTURE_DRAFT` 分支（:159-164）在生产不可达
+   ——A4 的「草稿保存」落点只能被单元测试直接构造的 context 触发。
+3. **where**：`feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/components/TutorSessionPanel.kt:965-987`（severity: medium）
+   **what**：A2 的「停止」（即取消这一轮）与助手动作条「复制」只在智能体栏（大厅）可达：
+   两个讲题入口（拍照讲题 `CapturedTutorSessionRoute`、错题讲题 `SavedMistakeTutorRoute`）渲染同一交互面时
+   不传 `liveTurnStopAction`、其逐轮渲染器也不含 `TutorMessageActionBar`，
+   讲题侧没有任何 UI 能触达 `modelTasks.cancel` / 剪贴板复制。
+4. **where**：`feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/components/TutorSessionPanel.kt:154-224`（severity: medium）
+   **what**：「对话状态只有一个持有者（`TutorConversationViewModel`）」对两个讲题入口不成立：
+   草稿、待发附件、发送状态机、首发失败文案等仍由 `TutorSessionPanel` 的十余个 `remember` 持有；
+   且非就绪态渲染的是 `TutorConversationFrame` 而不是共享交互面。
+5. **where**：`feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/TutorLobbyRoute.kt:296-313`（`TutorConversationUiState.kt:63-67`、`TutorConversationViewModel.kt:387/492`）（severity: medium）
+   **what**：任务残留（tasks 里有非终态快照、sending/resumingRequestId 均 false）时「继续回复」出口恒不出现
+   ——渲染条件与 `hasActiveTask` 的定义自相矛盾而不可满足，唯一调用点 `onResumeStalledTask` 因此不可达；
+   同时发送键仍可点，按下去在 `onSubmitDraft` 的 `hasActiveTask` 早退处被静默吞掉，学生既发不出也恢复不了。
+
+未获确认的复核建议：无。
+
+### 上述 5 条的后续处置（2026-09-29，主会话；逐条已关闭）
+
+1. **A1 例外删除**：`savedMistakeTutorQuestion` 一律用本次进入的显式 `sessionId` 与
+   `identity.revisionNumber`（顺带修掉旧例外把本轮修订号换成旧会话值、丢掉提醒两个连带缺陷）；
+   钉旧行为的单测改写为「进入即新开、旧会话不接管」。
+2. **A4 拍照锚真正接上**：`TutorSurfaceConfig.captureSessionId` → `tutorSurfaceConversationViewModel`
+   → ViewModel → 协调器 → 命令（路由与测试同一个装配函数）；并修掉途中发现的真死路——
+   `allowedTools = emptySet()` 让确认卡恒挂不出来（改为 `awaitingConsentTools(toolTrace)`）。
+   新增用例走真实接线，断言 ACCEPT 后草稿真落库。
+3. **讲题侧补上动作条与「停止」**：三入口共用唯一判据 `TutorReplyActionShape`/`TutorReplyActionBar`；
+   讲题侧新增「已停止」灰字分支与停止出口（停的是界面正在渲染的那一轮）。
+4. **讲题侧状态迁入 ViewModel**：19 个 `remember`/`rememberSaveable` 全部改读 `viewModel.uiState`；
+   非就绪态也渲染共享交互面 + 常驻输入区（不可用时给人话原因）。
+   规模：`TutorConversationViewModel` 993→589 行（发送族拆到 `TutorLobbySendCommands`），
+   `TutorSessionPanel` 1127→944 行（输入区/附件区/弹层拆到 `components/TutorSessionInputs`）。
+5. **「继续回复」可达 + 发送不再静默**：新增 `resumableStalledTask` / `resumeStalledTurnVisible` /
+   `stalledTurnBlockReason`，删掉 `stalledTask != null && !hasActiveTask` 那条恒假式；
+   发送族（新发送/重发/继续/试一句）共用同一判据——挡住发送的原因与挡住它的判据同源，写在输入框上方。
+
+**一处明确不做（记账，别当缺陷）**：停下回合后**不提供**「重试」——`RoomModelTaskRepository.execute`
+对终态任务直接短路（`:214`），把 `CANCELLED` 纳入可重试谓词只会得到一个点了没反应的按钮；
+真正的支持需要为停掉的回合**开一次新的逻辑操作**，与回合生命周期一起留给阶段 5。
+
+### 本阶段实际动过的关键文件（按模块分组）
+
+口径：工作区相对 HEAD 的未提交差异（`git status --porcelain`）；阶段 1 已由 `bd873eed` 提交、
+另一会话的 KB 生产线文件（`knowledge/`、dense/golden 资源）已提交且不在本表；下列现存文件的修改时间
+落在 2026-09-28 23:53 – 2026-09-29 09:06（本阶段执行窗口）。「新增/修改/删除」即 git 状态。
+
+**app**（`app/src/main/kotlin/com/tingyun/smartmistakebook/`）
+- 修改（2）：`SmartMistakeBookApplication.kt`、`SmartMistakeBookRoot.kt`
+
+**core/domain**（`core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/`）
+- 新增（3）：`TutorAttachedImageIntake.kt`、`TutorLocalActionAdmission.kt`、`TutorLocalActionExecution.kt`
+- 修改（7）：`AgentPendingRequest.kt`、`LobbyMessageImageIntake.kt`、`ModelGateway.kt`、
+  `TutorConversationRepository.kt`、`TutorPermissionPolicy.kt`、`TutorRoundQuestionBindingPolicy.kt`、
+  `TutorTurnSendStateMachine.kt`
+- 删除（2）：`TutorIntentAuthority.kt`、`TutorLocalReadProjection.kt`
+- 测试：新增 `TutorLocalActionAdmissionTest.kt`、`TutorLocalActionExecutionTest.kt`；
+  修改 `AgentPendingRequestTest.kt`、`TutorConsentRequestsTest.kt`、`TutorTurnSendStateMachineTest.kt`；
+  删除 `TutorIntentAuthorityTest.kt`、`TutorLocalReadProjectionTest.kt`
+
+**core/model**（`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/`）
+- 新增（3）：`TutorInteractionMode.kt`、`TutorSourceLabels.kt`、`TutorToolTrace.kt`
+- 修改（6）：`ModelEgress.kt`、`ModelTasks.kt`、`TutorLobbyTasks.kt`、`TutorLocalAction.kt`、
+  `TutorTasks.kt`、`TutorToolLoop.kt`
+- 测试：新增 `TutorScaffoldPolicyTest.kt`、`TutorSourceLabelsTest.kt`、`TutorToolTraceTest.kt`；
+  修改 `ModelTaskFingerprintStabilityTest.kt`
+
+**core/database**（`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/`）
+- schema（1，新增）：`core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/53.json`
+  （`STUDY_DATABASE_VERSION = 53`）；历史 schema 文件未改动
+- 新增（1）：`TutorMessageToolTraceMigration.kt`
+- 修改（7）：`RoomStudyDatabase.kt`、`StudyDatabase.kt`、`TutorConversationDatabaseContract.kt`、
+  `dao/TutorConversationDao.kt`、`dao/TutorInteractionDao.kt`、`entity/TutorConversationEntities.kt`、
+  `port/TutorPort.kt`
+- 测试：新增 `TutorInteractionModeMigrationContractTest.kt`、`TutorMessageToolTraceMigrationContractTest.kt`；
+  修改 `RoomStudyDatabaseMappingsTest.kt`、androidTest `AgentPendingRequestInstrumentedTest.kt`
+
+**core/data**（`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/`）
+- 新增（5）：`model/ModelTaskLiveChannels.kt`、`model/RoomModelTaskToolRounds.kt`、`model/TutorToolContext.kt`、
+  `model/TutorToolRoundPermissions.kt`、`tutor/RoomTutorAttachedImageIntake.kt`
+- 修改（14）：`model/OpenAiCompatibleModelGateway.kt`、`model/OpenAiModelProtocol.kt`、
+  `model/OpenAiModelResponseParsers.kt`、`model/OpenAiModelTaskAdapters.kt`、`model/OpenAiModelTransport.kt`、
+  `model/OpenAiSse.kt`、`model/RoomModelTaskRepository.kt`、`model/wire/ModelWireProtocol.kt`、
+  `model/wire/OpenAiChatCompletionsProtocol.kt`、`study/RoomTutorToolRunner.kt`、
+  `tutor/RoomLobbyMessageImageIntake.kt`、`tutor/RoomTutorConversationRepository.kt`、
+  `tutor/RoomTutorInteractionRepository.kt`、`tutor/TutorRoundQuestionCandidateRetriever.kt`
+- 测试：新增 `model/TutorLocalActionAdvertisementParityTest.kt`、`model/TutorLocalActionParserTest.kt`、
+  `tutor/TutorConversationSnapshotTest.kt`；修改 `model/OpenAiCompatibleModelGatewayTest.kt`、
+  `model/TutorConversationPromptTest.kt`、`model/TutorToolRoundGateTest.kt`、
+  `study/RoomBackedStudyExperienceRepositoryTest.kt`、`study/RoomTutorToolRunnerTest.kt`、
+  `tutor/RoomAgentPendingRequestRepositoryTest.kt`；androidTest 新增
+  `tutor/TutorLocalActionLandingInstrumentedTest.kt`、修改 `model/RoomModelTaskToolLoopInstrumentedTest.kt`
+
+**core/ui**（`core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/`）
+- 新增（1）：`TutorToolTraceLine.kt`
+- 修改（1）：`ThinkingCollapsibleCard.kt`
+
+**feature/tutor**（`feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/`）
+- 新增（14）：`TutorCapabilityDirectory.kt`、`TutorConversationSavedState.kt`、`TutorConversationScreen.kt`、
+  `TutorConversationUiState.kt`、`TutorConversationViewModel.kt`、`TutorConversationViewModelFactory.kt`、
+  `TutorInteractionModeSwitch.kt`、`TutorLocalActionWiring.kt`、`TutorPendingRequestCard.kt`、
+  `TutorPendingRequestCommands.kt`、`TutorRoundStopCommands.kt`、`TutorScaffoldEvidence.kt`、
+  `TutorSurfaceComposer.kt`、`TutorSurfaceMessages.kt`
+- 修改（17）：`CapturedTutorSessionRoute.kt`、`SavedMistakeTutorRoute.kt`、`TutorChatConversation.kt`、
+  `TutorConversationSurface.kt`、`TutorConversationTimeline.kt`、`TutorGeneratedTurn.kt`、
+  `TutorHistoryRoute.kt`、`TutorLobbyModelTaskPolicy.kt`、`TutorLobbyRoute.kt`、`TutorPlanCommands.kt`、
+  `TutorRespondCommands.kt`、`TutorRoute.kt`、`TutorSessionInteractionPolicy.kt`、`TutorSessionWritePolicy.kt`、
+  `TutorTurnMessages.kt`、`components/TutorSessionComponents.kt`、`components/TutorSessionPanel.kt`
+- 删除（2）：`TutorLocalIntentPanel.kt`、`TutorViewModel.kt`
+- 测试：新增 `TutorConversationViewModelTest.kt`、`TutorMessageActionsTest.kt`、
+  `TutorPendingRequestCommandsTest.kt`、`TutorScaffoldEvidenceTest.kt`、`TutorSurfacePolicyTest.kt`；
+  修改 `TutorConversationTimelineTest.kt`、`TutorHistoryConversationTest.kt`、`TutorLiveTurnTest.kt`、
+  `TutorModelTaskPolicyTest.kt`、`TutorRespondStudentTurnPersistenceTest.kt`、
+  `TutorSessionInteractionPolicyTest.kt`、`TutorTurnMessagesTest.kt`
+- androidTest：新增 `TutorConversationScreenInstrumentedTest.kt`；修改
+  `CapturedTutorSessionExposureInstrumentedTest.kt`、`CapturedTutorSessionInstrumentedTest.kt`、
+  `CapturedTutorSessionTestBase.kt`、`TutorHistoryInstrumentedTest.kt`、`TutorLobbyScrollInstrumentedTest.kt`；
+  删除 `TutorLocalIntentPanelInstrumentedTest.kt`

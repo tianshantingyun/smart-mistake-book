@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.database.PersistTutorChoiceCommand
 import com.tingyun.smartmistakebook.core.database.PersistTutorMoveCommand
 import com.tingyun.smartmistakebook.core.database.PersistTutorRevealCommand
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
+import com.tingyun.smartmistakebook.core.database.toTurnRecordOrNull
 import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.model.TutorConversationIds
@@ -371,6 +372,13 @@ internal abstract class TutorInteractionDao {
 /** 会话区（K1）默认值：智能体栏。复习栏两个入口由创建方显式给出 REVIEW_*。 */
 internal const val TUTOR_CONVERSATION_AREA_AGENT = "AGENT"
 
+/**
+ * 交互模式的持久取值（D-Q9）：NORMAL / GUIDED。与会话区同一手法（存字符串、集合开放），
+ * 迁移的默认值就是 [TUTOR_INTERACTION_MODE_NORMAL]（迁移前的会话只有正常模式）。
+ */
+internal const val TUTOR_INTERACTION_MODE_NORMAL = "NORMAL"
+internal const val TUTOR_INTERACTION_MODE_GUIDED = "GUIDED"
+
 internal fun conversationIdOf(sessionId: String): String = TutorConversationIds.captured(sessionId)
 
 /**
@@ -416,20 +424,11 @@ private fun TutorMessageEntity.requireSameQuestion(
  * `completed_at` = 后续动作推进到的时刻；记录里的 `choiceSubmittedAt` 只在确实有选择载荷时给出，
  * 与旧表 `choice_submitted_at_epoch_millis` 同义。
  */
-internal fun TutorMessageEntity.toTurnRecord(sessionId: String) = TutorTurnResponseRecord(
-    sessionId = sessionId,
-    questionDocumentId = requireNotNull(roundQuestionDocumentId),
-    revisionNumber = requireNotNull(roundRevisionNumber),
-    cycleOrdinal = requireNotNull(roundCycleOrdinal),
-    turnOrdinal = requireNotNull(roundTurnOrdinal),
-    diagnosticStemMarkdown = choiceStemMarkdown,
-    selectedChoiceId = choiceSelectedId,
-    selectedChoiceMarkdown = choiceSelectedMarkdown,
-    selectionWasCorrect = choiceWasCorrect,
-    feedbackMarkdown = choiceFeedbackMarkdown,
-    requestedMove = requestedMove,
-    solutionRevealed = solutionRevealed,
-    choiceSubmittedAtEpochMillis = createdAtEpochMillis.takeIf { hasChoicePayload },
-    submittedAtEpochMillis = createdAtEpochMillis,
-    updatedAtEpochMillis = completedAtEpochMillis ?: createdAtEpochMillis,
-)
+/**
+ * 轮次行 → 轮次记录。映射只有一处（[TutorMessageRecord.toTurnRecordOrNull]）：无论从
+ * `tutor_message` 的会话读侧进来，还是从 `TutorInteractionDao.observe(sessionId)` 进来，
+ * 拿到的都是同一份事实。
+ */
+internal fun TutorMessageEntity.toTurnRecord(sessionId: String) = checkNotNull(
+    toRecord().toTurnRecordOrNull(sessionId),
+) { "A tutor round row is missing its round ordinal columns" }

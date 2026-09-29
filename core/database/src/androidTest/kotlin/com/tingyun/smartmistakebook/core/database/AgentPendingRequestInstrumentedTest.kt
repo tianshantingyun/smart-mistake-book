@@ -56,12 +56,12 @@ class AgentPendingRequestInstrumentedTest {
         store.createAgentPendingRequest(command())
 
         val failure = runCatching {
-            store.createAgentPendingRequest(command(payloadJson = """{"problemRevisionId":"rev-2"}"""))
+            store.createAgentPendingRequest(command(payloadJson = """{"libraryProblemId":"rev-2"}"""))
         }.exceptionOrNull()
 
         assertEquals(ImmutablePayloadConflictException::class.java, failure?.javaClass)
         assertEquals(
-            listOf("""{"problemRevisionId":"rev-1"}"""),
+            listOf("""{"libraryProblemId":"rev-1"}"""),
             store.readPendingAgentRequests().map { it.payloadJson },
         )
     }
@@ -219,7 +219,7 @@ class AgentPendingRequestInstrumentedTest {
         seedConversation()
         val first = store.createAgentPendingRequest(command())!!
         val second = store.createAgentPendingRequest(
-            command(logicalOperationId = "logical-2", payloadJson = """{"problemRevisionId":"rev-2"}"""),
+            command(logicalOperationId = "logical-2", payloadJson = """{"libraryProblemId":"rev-2"}"""),
         )!!
         store.resolveAgentPendingRequest(
             ResolveAgentPendingRequestDatabaseCommand(
@@ -274,7 +274,7 @@ class AgentPendingRequestInstrumentedTest {
         conversationId: String = "conversation-1",
         conversationArea: String = "AGENT",
         logicalOperationId: String = "logical-1",
-        payloadJson: String = """{"problemRevisionId":"rev-1"}""",
+        payloadJson: String = """{"libraryProblemId":"rev-1"}""",
         createdAtEpochMillis: Long = 100L,
     ) = CreateAgentPendingRequestDatabaseCommand(
         requestId = "agent-req:$logicalOperationId:OPEN_PROBLEM:${logicalOperationId.length}",

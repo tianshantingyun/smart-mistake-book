@@ -4,7 +4,9 @@ import com.tingyun.smartmistakebook.core.model.CaptureSourceAssetRef
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
+import com.tingyun.smartmistakebook.core.model.TutorInteractionMode
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+import com.tingyun.smartmistakebook.core.model.TutorScaffoldLevel
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -91,6 +93,26 @@ class TutorConversationPromptTest {
             secondPrompt.startsWith(stablePrefix),
         )
         assertTrue("当前消息必须在最后", secondPrompt.endsWith("学生：第三题呢？\n"))
+    }
+
+    @Test
+    fun theInteractionModeAndTheScaffoldLevelReachTheModel() {
+        // D-Q9：模式与本地算出来的起步档都在请求里——它们**改变提示词**，所以也就是另一次
+        // 逻辑操作（request 级与逻辑操作级指纹都会变，见 core:model 的稳定性用例）。
+        val normal = OpenAiModelTaskAdapters.prompt(lobby(studentMessage = "这一步怎么来的？"))
+        val guided = OpenAiModelTaskAdapters.prompt(
+            lobby(studentMessage = "这一步怎么来的？").copy(
+                interactionMode = TutorInteractionMode.GUIDED,
+                scaffoldLevel = TutorScaffoldLevel.L2,
+            ),
+        )
+
+        assertTrue(normal.contains("交互模式：正常"))
+        assertTrue(guided.contains("交互模式：引导"))
+        assertTrue(guided.contains("本轮起步档：${TutorScaffoldLevel.L2.name}"))
+        // 引导模式的阶梯逐级都在（L0 最小帮助 → L4 完整解法），正常模式一条都不出现。
+        assertTrue(guided.contains(TutorScaffoldLevel.L4.name))
+        assertFalse(normal.contains(TutorScaffoldLevel.L4.name))
     }
 
     @Test

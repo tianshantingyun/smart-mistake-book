@@ -186,28 +186,9 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
     )
     val applicationUiScope = rememberCoroutineScope()
     val experience by repository.snapshot.collectAsStateWithLifecycle()
-    val tutorArtifactLoad by produceState(
-        initialValue = TeachingArtifactLoad(),
-        key1 = experience.status,
-        key2 = experience.tutorPracticeUnitId,
-    ) {
-        val requestedId = experience.tutorPracticeUnitId
-        value = TeachingArtifactLoad(practiceUnitId = requestedId)
-        val loadedArtifact = requestedId
-            ?.takeIf { experience.status == StudyDataStatus.READY }
-            ?.let { repository.teachingArtifact(it) }
-        currentCoroutineContext().ensureActive()
-        value = TeachingArtifactLoad(
-            practiceUnitId = requestedId,
-            artifact = loadedArtifact,
-            isLoaded = true,
-        )
-    }
-    val tutorArtifact = tutorArtifactLoad.artifact.takeIf {
-        experience.status == StudyDataStatus.READY &&
-            tutorArtifactLoad.isLoaded &&
-            tutorArtifactLoad.practiceUnitId == experience.tutorPracticeUnitId
-    }
+    // 讲题页的 artifact 装载器随"第三路径"一起删除（阶段 2c）：`experience.tutorPracticeUnitId`
+    // 在生产里恒为 null，装载器每次都只是空转；错题复习那一侧有它自己的装载器
+    // （SmartMistakeBookDestinations 里的同一个 `TeachingArtifactLoad`）。
     val navController = rememberNavController()
     var pendingLibraryExportEntryIds by rememberSaveable {
         mutableStateOf<List<String>>(emptyList())
@@ -363,30 +344,9 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                 }
             }
             composable(Routes.Tutor) {
+                // 讲题页只有一条交互面（阶段 2c 删掉了 artifact 分支与 TutorViewModel）：
+                // 会话内容由 TutorConversationViewModel 持有，这里只给入口自己的接线。
                 TutorRoute(
-                    isSaved = experience.tutorExampleSaved,
-                    capabilities = capabilities,
-                    practiceUnitId = experience.tutorPracticeUnitId.orEmpty(),
-                    teachingArtifact = tutorArtifact,
-                    adaptiveDecision = experience.tutorDecision.takeIf {
-                        experience.status == StudyDataStatus.READY
-                    },
-                    profile = experience.profile,
-                    onSave = {
-                        val practiceUnitId = experience.tutorPracticeUnitId.orEmpty()
-                        applicationUiScope.launch {
-                            repository.saveTutorProblem(
-                                com.tingyun.smartmistakebook.core.domain.SaveTutorProblemCommand(
-                                    conversationId = practiceUnitId.ifBlank { "lobby-tutor" },
-                                    ephemeralProblemId = practiceUnitId.ifBlank { "lobby-tutor" },
-                                    sourceAssetIds = emptyList(),
-                                    logicalOperationId = "lobby-save",
-                                ),
-                            )
-                        }
-                    },
-                    onSubmitChoice = repository::submitChoice,
-                    onRevealAnswer = repository::revealAnswer,
                     onCapture = { navController.navigate(Routes.CaptureTutor) },
                     onOpenCapabilitySettings = { navController.navigate(Routes.Capability) },
                     onOpenMistakeNotebook = { navController.navigate(Routes.Library) },
@@ -399,6 +359,12 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     modelTasks = application.modelTaskRepository,
                     catalogEntries = experience.catalog,
                     imageIntake = application.lobbyMessageImageIntake,
+                    // 确认卡（A4）：模型申请的本地动作挂成库里的行；学生点了才执行，三条
+                    // 落点（拍照草稿 / 错题本 / 聊天附图）都是既有的真实路径。
+                    pendingRequests = application.agentPendingRequestRepository,
+                    captureRepository = application.captureRepository,
+                    attachedImageIntake = application.tutorAttachedImageIntake,
+                    onOpenLibraryProblem = { navController.navigate(Routes.Library) },
                     modifier = Modifier.testTag("root_tutor"),
                 )
             }
@@ -446,27 +412,6 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     return@composable
                 }
                 TutorRoute(
-                    isSaved = false,
-                    capabilities = capabilities,
-                    practiceUnitId = "",
-                    teachingArtifact = null,
-                    adaptiveDecision = null,
-                    profile = experience.profile,
-                    onSave = {
-                        val id = conversationId.ifBlank { "captured-tutor" }
-                        applicationUiScope.launch {
-                            repository.saveTutorProblem(
-                                com.tingyun.smartmistakebook.core.domain.SaveTutorProblemCommand(
-                                    conversationId = id,
-                                    ephemeralProblemId = id,
-                                    sourceAssetIds = emptyList(),
-                                    logicalOperationId = "captured-save",
-                                ),
-                            )
-                        }
-                    },
-                    onSubmitChoice = repository::submitChoice,
-                    onRevealAnswer = repository::revealAnswer,
                     onCapture = { navController.navigate(Routes.CaptureTutor) },
                     onOpenCapabilitySettings = { navController.navigate(Routes.Capability) },
                     onOpenMistakeNotebook = { navController.navigate(Routes.Library) },
@@ -479,6 +424,12 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     catalogEntries = experience.catalog,
                     imageIntake = application.lobbyMessageImageIntake,
                     initialConversationId = conversationId,
+                    // 确认卡（A4）：模型申请的本地动作挂成库里的行；学生点了才执行，三条
+                    // 落点（拍照草稿 / 错题本 / 聊天附图）都是既有的真实路径。
+                    pendingRequests = application.agentPendingRequestRepository,
+                    captureRepository = application.captureRepository,
+                    attachedImageIntake = application.tutorAttachedImageIntake,
+                    onOpenLibraryProblem = { navController.navigate(Routes.Library) },
                     modifier = Modifier.testTag("root_tutor"),
                 )
             }
@@ -779,6 +730,9 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     // 拍照讲题知识注入（ADR 0001 / D5、审计 R2 断链一）：两段式检索候选 + 材料。
                     knowledgeContextLoader = application.tutorKnowledgeContextLoader,
                     teachingReferenceRepository = application.tutorTeachingReferenceRepository,
+                    // 确认卡（A4 执行路径 ①）：这条会话锚着本次拍照，模型申请"加入错题本"时
+                    // 挂出的卡执行的就是"把这次拍照的草稿存进错题本"（真实落库）。
+                    pendingRequests = application.agentPendingRequestRepository,
                 )
             }
             composable(Routes.MistakeDetail) { entry ->

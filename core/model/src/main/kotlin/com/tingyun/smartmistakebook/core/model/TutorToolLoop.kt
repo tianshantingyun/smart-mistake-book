@@ -336,13 +336,30 @@ data class TutorToolRequestsOutput(
     val intentDecision: TutorIntentDecision,
     val calls: List<TutorToolCall>,
     val modelVersion: String,
+    /**
+     * 这一轮里模型申请的**本地动作**（D-K2e 白名单）：原生 tool_calls 路由下，本地动作与工具
+     * 是同一个 `tools` 数组里的两种函数——工具走工具环（本地执行、结果回喂），本地动作**不走
+     * 工具环**（执行要等学生点确认卡），所以它们在这一层就被分出来，不进入 [calls]。
+     *
+     * 空列表不落键（`bf8be888`）：Route B 信封与本类型早期的编码里都没有这个键。
+     */
+    val localActions: List<TutorLocalActionRequest> = emptyList(),
 ) : ModelTaskOutput {
     init {
-        require(calls.isNotEmpty() && calls.size <= MAX_TOOL_CALLS_PER_ROUND) {
+        require(calls.isNotEmpty() || localActions.isNotEmpty()) {
+            "A tool round must request at least one tool call or local action"
+        }
+        require(calls.size <= MAX_TOOL_CALLS_PER_ROUND) {
             "A tool round must request 1..$MAX_TOOL_CALLS_PER_ROUND calls"
         }
         require(calls.distinctBy(TutorToolCall::tool).size == calls.size) {
             "A tool round must not request the same tool twice"
+        }
+        require(localActions.size <= MAX_LOCAL_ACTION_REQUESTS_PER_ROUND) {
+            "A tool round must not request too many local actions"
+        }
+        require(localActions.distinct().size == localActions.size) {
+            "A tool round must not request the same local action twice"
         }
         modelVersion.requireSafeModelText(
             label = "Tutor tool request model version",

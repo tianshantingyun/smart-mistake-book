@@ -9,8 +9,9 @@ import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.TutorSendAction
 import com.tingyun.smartmistakebook.core.domain.TutorSendState
-import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
+import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.domain.TutorTurnSendStateMachine
 import com.tingyun.smartmistakebook.core.model.ActionType
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
@@ -32,24 +33,6 @@ import com.tingyun.smartmistakebook.core.model.appFailure
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
-internal fun tutorRespondInProgressError(): AppFailure = appFailure(
-    code = AppFailureCode.DISPATCH_BUDGET_EXHAUSTED,
-    title = TUTOR_RESPOND_IN_PROGRESS_TITLE,
-    message = TUTOR_RESPOND_IN_PROGRESS_MESSAGE,
-    dataPreserved = true,
-    retryability = Retryability.RETRYABLE,
-    primaryAction = ActionType.RETRY,
-)
-
-internal fun tutorRespondLimitError(): AppFailure = appFailure(
-    code = AppFailureCode.DISPATCH_BUDGET_EXHAUSTED,
-    title = TUTOR_RESPOND_LIMIT_TITLE,
-    message = TUTOR_RESPOND_LIMIT_MESSAGE,
-    dataPreserved = true,
-    retryability = Retryability.RETRYABLE,
-    primaryAction = ActionType.RETRY,
-)
 
 /**
  * **派发槽位号**分配：该会话全部 RESPOND 任务（不按题过滤）里最大的号 +1。
@@ -140,24 +123,16 @@ internal class TutorRespondCommands(
         }
         val logicalOperationId = request.requestId
         val messageId = request.requestId
-        when (
-            val advance = tutorRespondSendAdvance(
+        // 没有"上一轮还在处理中 / 次数到上限"这两条界面拒绝路径（B5）：能不能再发由内核账本
+        // 与界面自己的 in-flight 标记裁决，这里只推进"当前是哪一轮"的状态。
+        sink.setTutorSendState(
+            tutorRespondSendAdvance(
                 sendState = sink.tutorSendState(),
                 logicalOperationId = logicalOperationId,
                 messageId = messageId,
                 isRetry = isRetry,
-            )
-        ) {
-            TutorRespondSendAdvance.InProgressBudgetExhausted -> {
-                sink.setChatStartError(tutorRespondInProgressError())
-                return
-            }
-            TutorRespondSendAdvance.DispatchLimitReached -> {
-                sink.setChatStartError(tutorRespondLimitError())
-                return
-            }
-            is TutorRespondSendAdvance.Ready -> sink.setTutorSendState(advance.nextState)
-        }
+            ),
+        )
         sink.setChatSubmitPending(true)
         sink.setLocallyStartedRespondRequestId(request.requestId)
         sink.setChatStartError(null)
@@ -174,6 +149,9 @@ internal class TutorRespondCommands(
                         ModelTaskStatus.SUCCEEDED -> {
                             bindRoundQuestionIfNeeded(request, snapshot)
                             recordAssistantTurnIfNeeded(request, snapshot)
+                            // 回合收尾（A4）：模型这一轮申请了本地动作就挂卡。放在正文落库之后
+                            // ——卡上的那一轮身份与痕迹都来自这一次写入。
+                            sink.onTurnRecorded(request, snapshot)
                             sink.setTutorSendState(
                                 TutorTurnSendStateMachine.reduce(
                                     sink.tutorSendState(),
@@ -356,7 +334,6 @@ internal class TutorRespondCommands(
             sessionId = input.sessionId,
             questionDocumentId = input.questionDocument.id,
             revisionNumber = input.draftRevisionNumber,
-            questionTitle = input.questionDocument.title,
             requestId = request.requestId,
             // 助手行回复的是这一轮学生消息（同一次逻辑操作的学生行）。
             replyToMessageId = tutorStudentMessageId(request.requestId),
@@ -364,6 +341,12 @@ internal class TutorRespondCommands(
             thinkingMarkdown = output.thinkingMarkdown,
             occurredAtEpochMillis = request.occurredAtEpochMillis,
             completedAtEpochMillis = snapshot.updatedAtEpochMillis,
+            // B1：这一轮查阅了什么的痕迹，与正文同一次写入。
+            toolTraceJson = toolTraceJsonFor(sink.modelTasks, request.requestId),
+            // S2：本轮披露的课本材料标题（来源标签的核对基准）——只有这一轮真给过模型的
+            // 标题才允许留在正文里。
+            disclosedMaterialTitles = input.reviewedTeachingReferences
+                .map { reference -> reference.title },
         )
     }
 
@@ -461,8 +444,11 @@ internal class TutorRespondCommands(
     }
 
     /**
-     * 会话行不存在时按本轮题面派生锚点建一行；已存在时原样复用——同锚点幂等、异锚点冲突，
-     * 所以只有"确认没有"的时候才建，不能无条件建。
+     * 会话行不存在时按本轮题面派生锚点建一行；已存在时由仓库的创建判定（同 id 同锚幂等、
+     * 异锚冲突）。
+     *
+     * 会话 id 是**显式**的（`TutorConversationIds.captured(sessionId)`，与读侧同一约定）；
+     * 会话区显式给 AGENT。标题不写（B7）：标题 = 首条消息截取。
      */
     private suspend fun ensureStudentConversation(
         conversations: TutorConversationRepository,
@@ -471,11 +457,11 @@ internal class TutorRespondCommands(
     ) {
         ensureTutorConversation(
             conversations = conversations,
-            sessionId = input.sessionId,
+            conversationId = TutorConversationIds.captured(input.sessionId),
+            area = TutorConversationAreas.AGENT,
             // 与会话页同一口径：锚点 = 本轮题面 + 题面修订号。
-            questionDocumentId = input.questionDocument.id,
-            revisionNumber = input.draftRevisionNumber,
-            title = input.questionDocument.title,
+            anchorId = input.sessionId,
+            anchorRevisionId = "${input.questionDocument.id}:${input.draftRevisionNumber}",
             occurredAtEpochMillis = occurredAtEpochMillis,
         )
     }
@@ -536,6 +522,11 @@ internal class TutorRespondSink(
      * 此时不落库，写侧门控按空语料 fail-closed，不会误放行任何正向判定。
      */
     val conversations: TutorConversationRepository? = null,
+    /**
+     * 一轮助手回复**已落库**之后的收尾（A4）：模型在这一轮申请了本地动作（工具拼写
+     * `awaiting_consent`）时挂一张待确认的卡。默认空实现 = 这个界面不接确认卡。
+     */
+    val onTurnRecorded: (ModelTaskRequest, ModelTaskSnapshot) -> Unit = { _, _ -> },
     /**
      * 这条会话的消息流（K1a 唯一文本权威）：提示词历史从它装配。
      *

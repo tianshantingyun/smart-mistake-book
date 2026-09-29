@@ -159,22 +159,53 @@ class TutorModelTaskPolicyTest {
         assertNotEquals(first, second)
     }
 
+    /**
+     * A1：会话 id 由调用方**显式**给出，不再从"题面 id + 修订号"派生。
+     *
+     * 判别格是"同一道题的两次进入"：派生式下它们拿到同一个会话 id（= 静默接管上一次），
+     * 显式 id 下是两个会话——学生每次进入都是从零开始的一次讲题。
+     */
     @Test
-    fun savedMistakeUsesStableMemoryForExactRevisionAndSeparatesChangedRevision() {
-        val first = savedMistakeTutorQuestion(savedMistakeState("revision-3", revisionNumber = 3))
-        val reopened = savedMistakeTutorQuestion(savedMistakeState("revision-3", revisionNumber = 3))
-        val corrected = savedMistakeTutorQuestion(savedMistakeState("revision-4", revisionNumber = 4))
+    fun savedMistakeUsesTheExplicitSessionIdInsteadOfDerivingOneFromTheQuestion() {
+        val first = savedMistakeTutorQuestion(
+            sessionId = "mistake-tutor-entry-1",
+            state = savedMistakeState("revision-3", revisionNumber = 3),
+        )
+        val secondEntry = savedMistakeTutorQuestion(
+            sessionId = "mistake-tutor-entry-2",
+            state = savedMistakeState("revision-3", revisionNumber = 3),
+        )
+        val sameEntryAgain = savedMistakeTutorQuestion(
+            sessionId = "mistake-tutor-entry-1",
+            state = savedMistakeState("revision-3", revisionNumber = 3),
+        )
 
-        assertEquals(first.sessionId, reopened.sessionId)
-        assertEquals(first.questionDocument, reopened.questionDocument)
-        assertFalse(first.sessionId == corrected.sessionId)
-        assertEquals(4, corrected.revisionNumber)
+        assertEquals("mistake-tutor-entry-1", first.sessionId)
+        assertEquals(first.sessionId, sameEntryAgain.sessionId)
+        assertEquals(first.questionDocument, sameEntryAgain.questionDocument)
+        assertFalse(first.sessionId == secondEntry.sessionId)
+        assertEquals(
+            4,
+            savedMistakeTutorQuestion(
+                sessionId = "mistake-tutor-entry-3",
+                state = savedMistakeState("revision-4", revisionNumber = 4),
+            ).revisionNumber,
+        )
     }
 
+    /**
+     * A1 的最后一格：**来自拍照会话的错题也没有例外**。
+     *
+     * 判别格是"同一道题、详情里带着保存前那次讲题的会话联结"：进入仍然是一次新会话——本次
+     * 进入的显式 id、这道题自己的修订号；那条联结（`tutorConversation`）只是"这道题从哪来"
+     * 的留痕，不构成本次会话的身份，旧会话的上下文与助手行一律不接管（D-Q6-4：进任何入口
+     * 都是新对话）。
+     */
     @Test
-    fun savedCapturedMistakeReusesTheConversationThatCreatedIt() {
+    fun aMistakeSavedFromACaptureSessionStillStartsANewConversationOnEntry() {
         val question = savedMistakeTutorQuestion(
-            savedMistakeState(
+            sessionId = "mistake-tutor-entry-this-one",
+            state = savedMistakeState(
                 problemRevisionId = "revision-3",
                 revisionNumber = 3,
                 tutorConversation = TutorConversationReference(
@@ -182,15 +213,20 @@ class TutorModelTaskPolicyTest {
                     questionRevisionNumber = 2,
                 ),
             ),
+            priorTeachingAdvisories = listOf("上次讲题留下的提醒"),
         )
 
-        assertEquals("tutor-session-before-save", question.sessionId)
-        assertEquals(2, question.revisionNumber)
+        // 本次进入的 id（不是旧会话的）；修订号是页面上摆着的那一版（不是旧会话里的数字）。
+        assertEquals("mistake-tutor-entry-this-one", question.sessionId)
+        assertEquals(3, question.revisionNumber)
+        // 旧会话的上下文一件都没被接管：本轮的提醒照常带进这一轮。
+        assertEquals(listOf("上次讲题留下的提醒"), question.priorTeachingAdvisories)
     }
 
     @Test
     fun savedMistakeTutorRequestBindsExactQuestionDocumentWithoutSourceAssets() {
         val question = savedMistakeTutorQuestion(
+            sessionId = "mistake-tutor-entry-1",
             state = savedMistakeState("revision-3", revisionNumber = 3),
             relatedKnowledgeNodeIds = setOf("knowledge-current"),
         )
@@ -479,7 +515,8 @@ class TutorModelTaskPolicyTest {
             projectionIsCurrent = true,
         )
         val question = savedMistakeTutorQuestion(
-            savedMistakeState("revision-3", revisionNumber = 3),
+            sessionId = "mistake-tutor-entry-1",
+            state = savedMistakeState("revision-3", revisionNumber = 3),
             learningMemory = memory,
         )
 

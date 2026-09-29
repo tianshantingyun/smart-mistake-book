@@ -162,17 +162,25 @@ internal class OpenAiCompatibleModelGateway(
                         val protocol = protocolFor(credential.configuration.protocol)
                         val baseUrl = credential.configuration.baseUrl.toHttpUrlOrNull()
                             ?: throw UnsafeModelEndpointException()
+                        // Route A（原生 tools）：仅当探测证明端点支持原生工具往返、
+                        // 且协议族支持原生工具时才启用。nativeToolSchemas 对未声明工具
+                        // 的输入/空声明返回 null → 无 tools 字段，回落 Route B 信封；
+                        // 故此处可安全地按能力位宽放，不会污染非工具环 dispatch。
+                        val enableNativeTools = provider.supportsFunctionCalling &&
+                            protocol.supportsNativeTools
                         val requestBody = protocol.requestBody(
                             modelId = provider.modelId,
                             input = execution.request.input,
                             images = images,
                             stream = stream,
-                            // Route A（原生 tools）：仅当探测证明端点支持原生工具往返、
-                            // 且协议族支持原生工具时才启用。nativeToolSchemas 对未声明工具
-                            // 的输入/空声明返回 null → 无 tools 字段，回落 Route B 信封；
-                            // 故此处可安全地按能力位宽放，不会污染非工具环 dispatch。
-                            enableNativeTools = provider.supportsFunctionCalling &&
-                                protocol.supportsNativeTools,
+                            enableNativeTools = enableNativeTools,
+                        )
+                        // 实时文本的通道按**协议路由**分流（A6）：Route B 回合的 content 增量是
+                        // json_object / prompt 信封，不进正文通道；只有 Route A 才可能逐字长出正文。
+                        val liveTextRoute = liveTextRoute(
+                            protocol = protocol,
+                            input = execution.request.input,
+                            enableNativeTools = enableNativeTools,
                         )
                         emit(
                             ModelGatewayEvent.Progress(
@@ -209,7 +217,8 @@ internal class OpenAiCompatibleModelGateway(
                         )
                         val response = awaitWithLiveStream(
                             stream = stream,
-                            post = { onReasoningDelta, onContentDelta ->
+                            route = liveTextRoute,
+                            post = { onReasoningDelta, onContentDelta, onToolCallDelta ->
                                 transport.post(
                                     WireRequest(
                                         url = protocol.endpoint(baseUrl, provider.modelId, stream),
@@ -219,6 +228,7 @@ internal class OpenAiCompatibleModelGateway(
                                         protocol = protocol,
                                         onReasoningDelta = onReasoningDelta,
                                         onContentDelta = onContentDelta,
+                                        onToolCallDelta = onToolCallDelta,
                                     ),
                                     beforeEnqueue = {
                                         requireCurrentAuthorizationBeforeEnqueue(
@@ -628,6 +638,27 @@ private fun java.io.InputStream.readExactlyBounded(expectedBytes: Long): ByteArr
 private fun failure(value: ModelTaskFailure): ModelGatewayEvent = ModelGatewayEvent.Failed(value)
 
 /**
+ * 实时文本走哪条通道（A6）：由**协议路由 + 轮次**决定，不由"有没有流"决定。
+ */
+private enum class LiveTextRoute {
+    /** Route A（原生 tools）：`content` 增量可能是逐字长出来的回答正文。 */
+    NATIVE_TOOLS,
+
+    /** Route B（json_object / prompt 信封）：`content` 增量是信封，不是正文。 */
+    ENVELOPE,
+}
+
+private fun liveTextRoute(
+    protocol: ModelWireProtocol,
+    input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
+    enableNativeTools: Boolean,
+): LiveTextRoute = if (protocol.usesNativeToolRoute(input, enableNativeTools)) {
+    LiveTextRoute.NATIVE_TOOLS
+} else {
+    LiveTextRoute.ENVELOPE
+}
+
+/**
  * 发送请求，并在流式读取期间**实时**转发两条通道：思考链与回答正文（推理模型先吐很久思考、
  * 最后才给答案；学生该在等待时就看见它在想什么、在写什么）。增量由传输层在读取线程回调进
  * 同步缓冲区，主协程轮询转发——发射始终发生在 flow 的收集协程里，不跨协程 emit。
@@ -635,28 +666,44 @@ private fun failure(value: ModelTaskFailure): ModelGatewayEvent = ModelGatewayEv
  * 两条通道的代价不同，所以节奏也不同：逐 token 的 [ModelGatewayEvent.LiveProgress] 不落库、
  * 不计入事件上限，按轮询节奏直接发；[ModelGatewayEvent.Progress] 每帧都要落一行状态与审计，
  * 保持稀疏，只负责进程重启后的"进行中/恢复"。
+ *
+ * 正文通道按 [route] 分流（A6，消灭"信封当正文流出去"）：
+ * - [LiveTextRoute.ENVELOPE]：本轮 `content` 是信封，**连回调都不注册**——增量根本不进正文通道；
+ * - [LiveTextRoute.NATIVE_TOOLS]：`content` 先按正文发；一旦这条流上出现原生工具调用增量，
+ *   这一轮就是工具轮，`content` 是模型附带的叙述：把已经发到正文的那段**撤回**（发一条空正文），
+ *   叙述改发查阅单元（[ModelLiveKind.TOOL]）。
  */
 private suspend fun awaitWithLiveStream(
     stream: Boolean,
+    route: LiveTextRoute,
     post: suspend (
         onReasoningDelta: ((String) -> Unit)?,
         onContentDelta: ((String) -> Unit)?,
+        onToolCallDelta: (() -> Unit)?,
     ) -> ModelHttpResponse,
     emit: suspend (ModelGatewayEvent) -> Unit,
 ): ModelHttpResponse {
-    if (!stream) return post(null, null)
+    if (!stream) return post(null, null, null)
     val reasoning = Collections.synchronizedList(ArrayList<String>())
     val answer = Collections.synchronizedList(ArrayList<String>())
+    val toolCallSeen = java.util.concurrent.atomic.AtomicBoolean(false)
     return coroutineScope {
         val call = async {
             post(
                 { delta -> reasoning.add(delta) },
-                { delta -> answer.add(delta) },
+                if (route == LiveTextRoute.ENVELOPE) {
+                    null
+                } else {
+                    { delta -> answer.add(delta) }
+                },
+                { toolCallSeen.set(true) },
             )
         }
         var emittedPersistedFrames = 0
         var lastLiveReasoningChars = -1
         var lastLiveAnswerChars = -1
+        var answerWasPublished = false
+        var narrationMovedToTool = false
         var observedDeltas = 0
         var nextPersistedEmitAtMillis = 0L
         var backoffMillis = LIVE_REASONING_FIRST_EMIT_MILLIS
@@ -671,9 +718,29 @@ private suspend fun awaitWithLiveStream(
                 lastLiveReasoningChars = reasoningText.length
                 emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.THINKING, reasoningText))
             }
+            // 工具轮的判定与撤回**每一轮都看**，不搭在"正文还在长"上：工具调用增量常常在正文
+            // 停下来之后才到（模型先说一句、再申请工具）。落在这里做的事：撤回正文位置上那一段
+            // （发一条空正文），把叙述整体挪进查阅单元（思考卡里的"正在查阅…"那一块）。
+            if (toolCallSeen.get() && !narrationMovedToTool) {
+                narrationMovedToTool = true
+                if (answerWasPublished) {
+                    emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.ANSWER, ""))
+                    answerWasPublished = false
+                }
+                if (answerText.isNotEmpty()) {
+                    emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.TOOL, answerText))
+                }
+            }
             if (answerText.length != lastLiveAnswerChars) {
                 lastLiveAnswerChars = answerText.length
-                emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.ANSWER, answerText))
+                if (answerText.isNotEmpty()) {
+                    if (narrationMovedToTool) {
+                        emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.TOOL, answerText))
+                    } else {
+                        emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.ANSWER, answerText))
+                        answerWasPublished = true
+                    }
+                }
             }
             // 持久化通道：仓库会给每次 Progress 写状态行与审计行，且单任务事件数有上限，
             // 所以这里保持稀疏（少数几帧、间隔递增），进程重启后的"进行中/恢复"靠它。

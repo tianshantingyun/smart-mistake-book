@@ -2,6 +2,11 @@ package com.tingyun.smartmistakebook.core.domain
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 /**
  * 待确认请求（插眼 5，`docs/research/2026-09-25-mastery-mechanism-review.md` §5）：
@@ -193,23 +198,56 @@ data class AgentPendingRequestOutcome(
 const val MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS = 2_000
 
 /**
- * payload 的公共校验（形状无关）：必须是**参数对象**（JSON object），有大小上限、不含控制字符。
+ * payload 的公共校验：必须是**参数对象**（JSON object）、有大小上限、不含控制字符，
+ * 并且**按 kind 逐字核对固定字段形状**——键必须在
+ * [agentPendingRequestPayloadKeys] 声明的集合里、值必须是非空字符串（附图 id 是非空字符串数组）。
  *
  * 为什么在这一层把关：payload 会进数据库、会在卡上渲染、会回喂模型。让模型正文流进来 =
  * 卡片变成第二个会话流，且是绕过一切结果预算的通道（工具结果有 4k/轮的上限，卡上文本没有）。
- * 每种 kind 的**固定字段形状**随本地动作通道（阶段 2）落地时在这里补齐——那时它才真的有形状。
+ * 形状核对是**白名单的第二半**：动作 id 由 [com.tingyun.smartmistakebook.core.model.TutorLocalAction]
+ * 收口（模型只能选不能造），参数形状由这里收口——一份"看着差不多"的 payload（多一个键、
+ * 值是对象、值是空串）不是"将被忽略的额外信息"，它是**没有按契约说话的本地请求**，
+ * 落库口一律拒（拒在挂卡前，不拒在渲染时）。
  */
 fun requireAgentPendingRequestPayload(kind: AgentPendingRequestKind, payloadJson: String) {
     require(payloadJson.length <= MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS) {
         "$kind payload exceeds $MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS chars"
     }
-    require(payloadJson.startsWith("{") && payloadJson.endsWith("}")) {
-        "$kind payload must be a JSON object of fixed parameters"
-    }
     require(payloadJson.isNotBlank() && payloadJson.none(Char::isISOControl)) {
         "$kind payload must not carry control characters"
     }
+    val root = runCatching {
+        agentPendingRequestPayloadJson.parseToJsonElement(payloadJson) as? JsonObject
+    }.getOrNull()
+    require(root != null) { "$kind payload must be a JSON object of fixed parameters" }
+    val allowedKeys = agentPendingRequestPayloadKeys(kind)
+    root.forEach { (key, value) ->
+        require(key in allowedKeys) {
+            "$kind payload carries a field this action does not declare: $key"
+        }
+        when (key) {
+            KEY_IMAGE_ASSET_IDS -> {
+                val assetIds = value as? JsonArray
+                require(assetIds != null) { "$kind payload field $key must be an array" }
+                require(
+                    assetIds.isNotEmpty() && assetIds.all { element ->
+                        (element as? JsonPrimitive)?.takeIf(JsonPrimitive::isString)
+                            ?.contentOrNull?.isNotBlank() == true
+                    },
+                ) { "$kind payload field $key must be a non-empty array of asset ids" }
+            }
+            else -> {
+                val text = (value as? JsonPrimitive)?.takeIf(JsonPrimitive::isString)
+                    ?.contentOrNull
+                require(text != null && text.isNotBlank()) {
+                    "$kind payload field $key must be a non-blank string"
+                }
+            }
+        }
+    }
 }
+
+private val agentPendingRequestPayloadJson = Json { isLenient = false }
 
 /**
  * 待确认请求的持久化端口（core:data 用 Room 实现，界面层只读得到 [Flow]）。

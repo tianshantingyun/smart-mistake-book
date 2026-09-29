@@ -50,6 +50,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.ConfirmedTutorSession
@@ -63,6 +64,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorInteractionRepository
 import com.tingyun.smartmistakebook.core.domain.TutorKnowledgeContextLoader
@@ -143,6 +145,11 @@ fun CapturedTutorSessionRoute(
     /** 拍照讲题知识注入（D5/审计 R2 断链一）；null 时维持零注入旧行为。 */
     knowledgeContextLoader: TutorKnowledgeContextLoader? = null,
     teachingReferenceRepository: TutorTeachingReferenceRepository? = null,
+    /**
+     * 确认卡的落库端口（A4 路径 ①）：这条会话锚着本次拍照，模型申请"加入错题本"时挂出的卡
+     * 执行的就是"把这次拍照的草稿存进错题本"。null = 这个入口不接确认卡。
+     */
+    pendingRequests: AgentPendingRequestRepository? = null,
     modifier: Modifier = Modifier,
 ) {
     var showEndConfirmation by rememberSaveable(sessionId) { mutableStateOf(false) }
@@ -190,11 +197,15 @@ fun CapturedTutorSessionRoute(
         onLongTermWritesBlocked = viewModel::markLongTermWritesBlocked,
         onOpenModelSettings = onOpenModelSettings,
         onOpenHistory = onOpenHistory,
-        onOpenMistakeNotebook = onOpenMistakeNotebook,
-        onOpenProfile = onOpenProfile,
         onBack = onBack,
         knowledgeContextLoader = knowledgeContextLoader,
         teachingReferenceRepository = teachingReferenceRepository,
+        pendingRequests = pendingRequests,
+        // 确认卡执行路径 ① 的落点：草稿 → 错题本条目（既有的 SaveTutorDraftToLibraryUseCase）。
+        localActionLandings = tutorLocalActionLandings(
+            openNotebook = { onOpenMistakeNotebook() },
+            captureRepository = repository,
+        ),
         modifier = modifier,
     )
 
@@ -261,6 +272,10 @@ private fun CapturedTutorSessionContent(
     onBack: () -> Unit,
     knowledgeContextLoader: TutorKnowledgeContextLoader? = null,
     teachingReferenceRepository: TutorTeachingReferenceRepository? = null,
+    /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡。 */
+    pendingRequests: AgentPendingRequestRepository? = null,
+    /** 确认卡三条执行路径的落点；装配处注入（见 [tutorLocalActionLandings]）。 */
+    localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
     modifier: Modifier = Modifier,
 ) {
     when (state) {
@@ -284,20 +299,39 @@ private fun CapturedTutorSessionContent(
                 onLongTermWritesBlocked = onLongTermWritesBlocked,
                 onOpenModelSettings = onOpenModelSettings,
                 onOpenHistory = onOpenHistory,
-                onOpenMistakeNotebook = onOpenMistakeNotebook,
-                onOpenProfile = onOpenProfile,
                 onBack = onBack,
                 knowledgeContextLoader = knowledgeContextLoader,
                 teachingReferenceRepository = teachingReferenceRepository,
+                pendingRequests = pendingRequests,
+                localActionLandings = localActionLandings,
                 modifier = modifier.testTag("captured_tutor_session_screen"),
             )
 
-        else -> TutorConversationFrame(
-            header = {
-                TutorPageHeader(
-                    onOpenCapabilitySettings = onOpenModelSettings,
-                    onOpenHistory = onOpenHistory,
-                    onBack = onBack,
+        // 非就绪帧（加载中 / 找不到 / 读不出来）也走**同一条交互面**：输入区常驻（A5），
+        // 只是此刻确实还没有可以发过去的对象——原因写在输入区里，而不是整块消失。
+        else -> TutorConversationScreen(
+            config = TutorSurfaceConfig(
+                header = {
+                    TutorPageHeader(
+                        onOpenCapabilitySettings = onOpenModelSettings,
+                        onOpenHistory = onOpenHistory,
+                        onBack = onBack,
+                    )
+                },
+                composerPlaceholder = "这道题还没有打开",
+                liveAnswerTestTag = "captured_tutor_non_ready_reply",
+            ),
+            composer = {
+                TutorSurfaceComposer(
+                    value = "",
+                    onValueChange = {},
+                    onSend = {},
+                    block = TutorComposerAvailability(
+                        providerReady = true,
+                        questionNotReady = true,
+                    ).block(),
+                    placeholder = "这道题还没有打开",
+                    reasonTestTag = "captured_tutor_non_ready_reason",
                 )
             },
             autoScrollVersion = state,
@@ -375,6 +409,10 @@ internal fun ReadyCapturedSession(
      */
     knowledgeContextLoader: TutorKnowledgeContextLoader? = null,
     teachingReferenceRepository: TutorTeachingReferenceRepository? = null,
+    /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡。 */
+    pendingRequests: AgentPendingRequestRepository? = null,
+    /** 确认卡三条执行路径的落点；装配处注入（见 [tutorLocalActionLandings]）。 */
+    localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
     clock: () -> Long = System::currentTimeMillis,
     modifier: Modifier = Modifier,
 ) {
@@ -456,107 +494,114 @@ internal fun ReadyCapturedSession(
         conversations = conversations,
         catalogEntries = catalogEntries,
         onLongTermWritesBlocked = onLongTermWritesBlocked,
-        onRequestSave = { onSave(session) },
-        onRequestEnd = onRequestEnd,
-        onOpenMistakeNotebook = onOpenMistakeNotebook,
-        onOpenProfile = onOpenProfile,
         onOpenModelSettings = onOpenModelSettings,
+        pendingRequests = pendingRequests,
+        localActionLandings = localActionLandings,
         clock = clock,
         conversationEnabled = !session.isEndedWithoutSave,
-        // 同一个页面标题栏：拍照会话与大堂、错题讲题长得一模一样。
-        headerContent = {
-            TutorPageHeader(
-                onOpenCapabilitySettings = onOpenModelSettings,
-                onOpenHistory = onOpenHistory,
-                onBack = onBack,
-            )
-        },
-        leadingContent = {
-            LocalModeLine(text = tutorSessionStatusLine(session))
-            SectionHeader(
-                title = session.title,
-                modifier = Modifier.padding(top = 10.dp),
-                action = if (session.disposition == TutorSessionDisposition.ENDED_WITHOUT_SAVE) {
-                    null
-                } else {
-                    {
-                        OutlineActionChip(
-                            text = if (longTermWritesBlocked) {
-                                "本次不记录"
-                            } else {
-                                tutorSessionSaveLabel(
-                                    session.isSaved,
-                                    saveInProgress,
-                                    saveError != null,
-                                )
-                            },
-                            onClick = { onSave(session) },
-                            enabled = session.disposition == TutorSessionDisposition.ACTIVE &&
-                                !saveInProgress && !endInProgress && !longTermWritesBlocked,
-                            icon = Icons.Outlined.LibraryAddCheck,
-                            contentDescription = when {
-                                longTermWritesBlocked -> "本次不会存入错题本"
-                                session.isSaved -> "本题已存入错题本"
-                                else -> "将本题存入错题本"
-                            },
-                            modifier = Modifier.testTag("captured_tutor_save"),
-                        )
-                    }
-                },
-            )
-            Text(
-                text = session.subject.studentSubjectLabel(),
-                modifier = Modifier.padding(top = 4.dp),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Spacer(Modifier.height(14.dp))
-            StructuredContentRenderer(
-                document = session.questionDocument.document,
-                choicesEnabled = false,
-            )
-            InlineSourceImage(
-                imageUri = session.sourceImageUri,
-                onClick = { sourceExpanded = true },
-                modifier = Modifier.padding(top = 14.dp),
-            )
-            if (session.isEndedWithoutSave) EndedTutorSessionNotice()
-        },
-        trailingContent = {
-            saveError?.let { message ->
-                Text(
-                    text = message.message,
-                    modifier = Modifier.testTag("captured_tutor_save_error"),
-                    color = ErrorWarm,
-                    style = MaterialTheme.typography.bodySmall,
+        // 这条交互面的差异（C1）：标题栏、题面卡（含原图与"结束且不保存"的壳按钮）。
+        // 会话内容本身与智能体栏、错题讲题共用同一条交互面。
+        surface = TutorSurfaceConfig(
+            area = TutorConversationAreas.AGENT,
+            header = {
+                TutorPageHeader(
+                    onOpenCapabilitySettings = onOpenModelSettings,
+                    onOpenHistory = onOpenHistory,
+                    onBack = onBack,
                 )
-            }
-            if (session.disposition == TutorSessionDisposition.ACTIVE) {
-                OutlineActionChip(
-                    text = if (endInProgress) {
-                        "正在结束"
-                    } else if (endError != null) {
-                        "重试结束且不保存"
+            },
+            composerPlaceholder = "问这道题，或说出你卡住的步骤",
+            autoStartFirstTurn = true,
+            // A4 执行路径 ① 的锚：这条交互面锚着**本次拍照**——模型申请"加入错题本"时那张卡
+            // 执行的就是"把这次拍照的草稿存进错题本"（生产里唯一给得出这个 id 的入口）。
+            captureSessionId = session.sessionId,
+            leadingContent = {
+                LocalModeLine(text = tutorSessionStatusLine(session))
+                SectionHeader(
+                    title = session.title,
+                    modifier = Modifier.padding(top = 10.dp),
+                    action = if (session.disposition == TutorSessionDisposition.ENDED_WITHOUT_SAVE) {
+                        null
                     } else {
-                        "结束且不保存"
+                        {
+                            OutlineActionChip(
+                                text = if (longTermWritesBlocked) {
+                                    "本次不记录"
+                                } else {
+                                    tutorSessionSaveLabel(
+                                        session.isSaved,
+                                        saveInProgress,
+                                        saveError != null,
+                                    )
+                                },
+                                onClick = { onSave(session) },
+                                enabled = session.disposition == TutorSessionDisposition.ACTIVE &&
+                                    !saveInProgress && !endInProgress && !longTermWritesBlocked,
+                                icon = Icons.Outlined.LibraryAddCheck,
+                                contentDescription = when {
+                                    longTermWritesBlocked -> "本次不会存入错题本"
+                                    session.isSaved -> "本题已存入错题本"
+                                    else -> "将本题存入错题本"
+                                },
+                                modifier = Modifier.testTag("captured_tutor_save"),
+                            )
+                        }
                     },
-                    onClick = onRequestEnd,
-                    enabled = !saveInProgress && !endInProgress,
-                    icon = Icons.Outlined.DeleteOutline,
-                    contentDescription = "结束本次临时讲题且不存入错题本",
-                    modifier = Modifier.testTag("captured_tutor_end_without_save"),
                 )
-            }
-            endError?.let { message ->
                 Text(
-                    text = message.message,
-                    modifier = Modifier.testTag("captured_tutor_end_error"),
-                    color = ErrorWarm,
+                    text = session.subject.studentSubjectLabel(),
+                    modifier = Modifier.padding(top = 4.dp),
+                    color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
-            }
-            Spacer(Modifier.height(12.dp))
-        },
+                Spacer(Modifier.height(14.dp))
+                StructuredContentRenderer(
+                    document = session.questionDocument.document,
+                    choicesEnabled = false,
+                )
+                InlineSourceImage(
+                    imageUri = session.sourceImageUri,
+                    onClick = { sourceExpanded = true },
+                    modifier = Modifier.padding(top = 14.dp),
+                )
+                if (session.isEndedWithoutSave) EndedTutorSessionNotice()
+            },
+            trailingContent = {
+                saveError?.let { message ->
+                    Text(
+                        text = message.message,
+                        modifier = Modifier.testTag("captured_tutor_save_error"),
+                        color = ErrorWarm,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                if (session.disposition == TutorSessionDisposition.ACTIVE) {
+                    OutlineActionChip(
+                        text = if (endInProgress) {
+                            "正在结束"
+                        } else if (endError != null) {
+                            "重试结束且不保存"
+                        } else {
+                            "结束且不保存"
+                        },
+                        onClick = onRequestEnd,
+                        enabled = !saveInProgress && !endInProgress,
+                        icon = Icons.Outlined.DeleteOutline,
+                        contentDescription = "结束本次临时讲题且不存入错题本",
+                        modifier = Modifier.testTag("captured_tutor_end_without_save"),
+                    )
+                }
+                endError?.let { message ->
+                    Text(
+                        text = message.message,
+                        modifier = Modifier.testTag("captured_tutor_end_error"),
+                        color = ErrorWarm,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+            },
+        ),
         modifier = modifier,
     )
     if (sourceExpanded) {

@@ -55,6 +55,22 @@ internal object OpenAiSse {
     }
 
     /**
+     * 这一帧是否携带**原生工具调用增量**（`choices[0].delta.tool_calls` 非空）。
+     *
+     * 只回答"这一轮是工具轮吗"这一个问题（A6）：是工具轮，则同一轮里流出来的 `content` 是
+     * 模型附带的叙述（"我先查一下错题本"），属于查阅单元，不属于回答正文。参数增量本身不进
+     * 任何学生可见通道——工具调用的真实意图仍由终态解析产出。
+     */
+    fun deltaHasToolCalls(payload: String): Boolean {
+        val root = runCatching { json.parseToJsonElement(payload) as? JsonObject }.getOrNull()
+            ?: return false
+        val choices = root["choices"] as? JsonArray ?: return false
+        val first = choices.firstOrNull() as? JsonObject ?: return false
+        val delta = first["delta"] as? JsonObject ?: return false
+        return (delta["tool_calls"] as? JsonArray)?.isNotEmpty() == true
+    }
+
+    /**
      * Incremental delta bodies in transport order. Each emission is the raw content that arrived in
      * one SSE frame; a frame never contributes the [DONE] terminator or a blank body. Malformed
      * frames are skipped so a stray byte cannot poison an otherwise well-formed stream.

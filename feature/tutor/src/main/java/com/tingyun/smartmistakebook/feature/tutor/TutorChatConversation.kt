@@ -1,20 +1,9 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -37,16 +26,7 @@ import com.tingyun.smartmistakebook.core.model.canExposeSolutionFor
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.model.requiresRoundQuestionBinding
 import com.tingyun.smartmistakebook.core.ui.AttachedImagesSection
-import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
-import com.tingyun.smartmistakebook.core.ui.Paper
-import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
-import com.tingyun.smartmistakebook.core.ui.ThinkingCollapsibleCard
-import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
 
 private data class TutorRespondExchangeKey(
     val sessionId: String,
@@ -200,17 +180,31 @@ internal fun priorCycleStudentMessages(tasks: List<ModelTaskSnapshot>): List<Str
     }.asReversed()
 }
 
+/**
+ * 一轮讲题的渲染：学生气泡 + 助手回复，两件都走交互面那一套共用件（[TutorSurfaceStudentBubble] /
+ * [TutorSurfaceAssistantReply]）。
+ *
+ * 消灭的失败：这一处此前自己画了两套气泡（另一种圆角、另一种底色、另一套失败卡），与智能体栏
+ * 的同一条回复长得不一样；重试按钮的文案在这里叫"重试"、在智能体栏叫"重新发送"。现在视觉与
+ * 文案只有一套，本函数只剩"把这一轮的状态翻译成那套件要的形状"。
+ */
 @Composable
 internal fun TutorChatExchange(
     task: ModelTaskSnapshot,
     /**
-     * 学生气泡正文（K1a：消息行是唯一文本权威）。旧行没有消息行时由时间线项回落到派发原文。
+     * 学生气泡正文（K1a：消息行是唯一文本权威）。null = 这一轮的学生行没有落库，
+     * 气泡整段不渲染——**不回落派发请求里的原文**，否则同一句话会有第二个来源。
      */
-    studentBodyMarkdown: String,
-    /** 助手正文；旧行回落到账本。 */
+    studentBodyMarkdown: String?,
+    /** 助手正文；null = 这一轮没有消息行（同样不回落账本）。 */
     assistantBodyMarkdown: String?,
     /** 思考块正文；旧行回落到账本。 */
     assistantThinkingMarkdown: String?,
+    /**
+     * 这一轮的工具痕迹（B1，来自助手消息行）：加粗灰色小字内联、点开可看详情（含被拒理由）。
+     * null = 这一轮没有发起工具调用（或旧行没有痕迹）。
+     */
+    assistantToolTraceJson: String? = null,
     awaitingContinuation: Boolean = false,
     interactionEnabled: Boolean,
     recoveryEnabled: Boolean,
@@ -219,254 +213,198 @@ internal fun TutorChatExchange(
     onOpenModelSettings: () -> Unit,
     onMove: (TutorSuggestedMove) -> Unit,
     onRevealSolution: (TutorSuggestedMove) -> Unit,
-    localIntentContent: @Composable (TutorRespondInput, TutorRespondOutput) -> Unit = { _, _ -> },
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
     /** 学生消息附图的规范资产读取器；为 null 时不渲染气泡里的图片。 */
     studentImageIntake: LobbyMessageImageIntake? = null,
     assistantBottomModifier: Modifier = Modifier,
+    /**
+     * 助手动作条（A2：复制 / 已停止）的标签；null = 按轮次号给讲题侧那一个
+     * （`tutor_chat_message_actions_<轮次号>`）。
+     */
+    replyActionTestTag: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val input = task.request.input as TutorRespondInput
+    val output = task.output as? TutorRespondOutput
+    val replyTestTag = "tutor_chat_assistant_${input.responseOrdinal}"
+    val actionTestTag = replyActionTestTag
+        ?: "tutor_chat_message_actions_${input.responseOrdinal}"
+    val succeededOutput = if (task.status == ModelTaskStatus.SUCCEEDED) output else null
+    val answerMustStayHidden = succeededOutput != null && succeededOutput.solutionRevealed &&
+        !succeededOutput.canExposeSolutionFor(
+            input,
+            requiresRoundQuestionBinding = task.request.requiresRoundQuestionBinding,
+        )
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        TutorStudentMessageBubble(
-            message = studentBodyMarkdown,
-            modifier = Modifier.testTag("tutor_chat_user_${input.responseOrdinal}"),
-            attachedAssetIds = input.studentImageAssetRefs,
-            imageIntake = studentImageIntake,
-        )
-        TutorAssistantReplyBubble(
-            task = task,
-            bodyMarkdown = assistantBodyMarkdown,
-            thinkingMarkdown = assistantThinkingMarkdown,
-            awaitingContinuation = awaitingContinuation,
-            showActions = interactionEnabled,
-            recoveryEnabled = recoveryEnabled,
-            executionMatchesCurrentProvider = executionMatchesCurrentProvider,
-            onRetry = onRetry,
-            onOpenModelSettings = onOpenModelSettings,
-            onMove = onMove,
-            onRevealSolution = onRevealSolution,
-            localIntentContent = localIntentContent,
-            attachedImageResolver = attachedImageResolver,
-            assistantBottomModifier = assistantBottomModifier,
-        )
-    }
-}
-
-@Composable
-private fun TutorStudentMessageBubble(
-    message: String,
-    modifier: Modifier = Modifier,
-    attachedAssetIds: List<String> = emptyList(),
-    imageIntake: LobbyMessageImageIntake? = null,
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(0.86f),
-            color = JadeSoft.copy(alpha = 0.72f),
-            shape = RoundedCornerShape(14.dp, 14.dp, 4.dp, 14.dp),
-        ) {
-            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp)) {
-                if (attachedAssetIds.isNotEmpty() && imageIntake != null) {
-                    MessageImagesRow(
-                        assetIds = attachedAssetIds,
-                        imageIntake = imageIntake,
-                        testTagPrefix = "session",
-                    )
-                }
-                Text(
-                    text = message,
-                    modifier = Modifier.padding(
-                        top = if (attachedAssetIds.isEmpty()) 0.dp else 8.dp,
-                    ),
-                    color = Ink,
-                    style = MaterialTheme.typography.bodyMedium,
+        studentBodyMarkdown?.let { studentMessage ->
+            TutorSurfaceStudentBubble(
+                body = studentMessage,
+                imageAssetIds = input.studentImageAssetRefs,
+                imageIntake = studentImageIntake,
+                testTag = "tutor_chat_user_${input.responseOrdinal}",
+            )
+        }
+        when {
+            task.status == ModelTaskStatus.SUCCEEDED && succeededOutput == null -> {
+                TutorSurfaceAssistantReply(
+                    bodyMarkdown = null,
+                    testTag = replyTestTag,
+                    failure = TutorSurfaceFailure(detail = TUTOR_REPLY_INCOMPLETE_DETAIL),
                 )
             }
-        }
-    }
-}
 
-@Composable
-private fun TutorAssistantReplyBubble(
-    task: ModelTaskSnapshot,
-    bodyMarkdown: String?,
-    thinkingMarkdown: String?,
-    awaitingContinuation: Boolean,
-    showActions: Boolean,
-    recoveryEnabled: Boolean,
-    executionMatchesCurrentProvider: Boolean,
-    onRetry: () -> Unit,
-    onOpenModelSettings: () -> Unit,
-    onMove: (TutorSuggestedMove) -> Unit,
-    onRevealSolution: (TutorSuggestedMove) -> Unit,
-    localIntentContent: @Composable (TutorRespondInput, TutorRespondOutput) -> Unit,
-    attachedImageResolver: (suspend (AttachedImage) -> String?)?,
-    assistantBottomModifier: Modifier,
-) {
-    val input = task.request.input as TutorRespondInput
-    val output = task.output as? TutorRespondOutput
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth(0.94f)
-            .testTag("tutor_chat_assistant_${input.responseOrdinal}"),
-        color = Paper,
-        shape = RoundedCornerShape(14.dp, 14.dp, 14.dp, 4.dp),
-        border = BorderStroke(1.dp, Outline),
-    ) {
-        Box {
-            Column(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                when (task.status) {
-                    ModelTaskStatus.SUCCEEDED -> {
-                        if (output == null) {
-                            TutorTurnFailureCard(detail = TUTOR_REPLY_INCOMPLETE_DETAIL)
-                        } else if (
-                            output.solutionRevealed &&
-                            !output.canExposeSolutionFor(
-                                input,
-                                requiresRoundQuestionBinding =
-                                task.request.requiresRoundQuestionBinding,
+            answerMustStayHidden -> {
+                TutorSurfaceAssistantReply(
+                    bodyMarkdown = UNAUTHORIZED_TUTOR_ANSWER_MESSAGE,
+                    testTag = replyTestTag,
+                    extras = {
+                        if (interactionEnabled) {
+                            OutlineActionChip(
+                                text = LOCAL_REVEAL_SOLUTION_MOVE.label,
+                                onClick = {
+                                    onRevealSolution(LOCAL_REVEAL_SOLUTION_MOVE)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("tutor_chat_local_reveal_solution"),
                             )
-                        ) {
-                            SafeMarkdownText(
-                                markdown = UNAUTHORIZED_TUTOR_ANSWER_MESSAGE,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            if (showActions) {
+                        }
+                    },
+                )
+            }
+
+            succeededOutput != null -> {
+                val ready = succeededOutput
+                TutorSurfaceAssistantReply(
+                    bodyMarkdown = assistantBodyMarkdown,
+                    thinkingMarkdown = assistantThinkingMarkdown,
+                    // B1：这一轮查阅了什么的痕迹，跟着这一轮的回复一起出现（不混进思考卡）。
+                    toolTraceJson = assistantToolTraceJson,
+                    testTag = replyTestTag,
+                    // 答案曝光的定位点：只有真揭示了完整答案的那一轮才有它
+                    // （"精确底部进视口"才落账，见 TutorSolutionExposureTracker）。
+                    bottomAnchor = assistantBottomModifier.takeIf { ready.solutionRevealed },
+                    extras = {
+                        attachedImageResolver?.let { resolver ->
+                            ready.attachedImages
+                                .takeIf { it.isNotEmpty() }
+                                ?.let { images ->
+                                    AttachedImagesSection(
+                                        images = images,
+                                        resolve = resolver,
+                                    )
+                                }
+                        }
+                        if (interactionEnabled) {
+                            ready.suggestedMoves.forEach { move ->
                                 OutlineActionChip(
-                                    text = LOCAL_REVEAL_SOLUTION_MOVE.label,
+                                    text = move.label,
                                     onClick = {
-                                        onRevealSolution(LOCAL_REVEAL_SOLUTION_MOVE)
+                                        if (move.type == TutorMoveType.REVEAL_SOLUTION) {
+                                            onRevealSolution(move)
+                                        } else {
+                                            onMove(move)
+                                        }
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .testTag("tutor_chat_local_reveal_solution"),
+                                        .testTag("tutor_chat_move_${move.id}"),
                                 )
                             }
-                        } else {
-                            ThinkingCollapsibleCard(
-                                thinkingMarkdown = thinkingMarkdown,
-                                thinking = false,
-                            )
-                            TutorReplyMarkdown(
-                                markdown = bodyMarkdown.orEmpty(),
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            attachedImageResolver?.let { resolver ->
-                                output.attachedImages
-                                    .takeIf { it.isNotEmpty() }
-                                    ?.let { images ->
-                                        AttachedImagesSection(
-                                            images = images,
-                                            resolve = resolver,
-                                        )
-                                    }
-                            }
-                            localIntentContent(input, output)
-                            if (output.solutionRevealed) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(1.dp)
-                                        .testTag("tutor_chat_assistant_bottom_${input.responseOrdinal}")
-                                        .then(assistantBottomModifier),
-                                )
-                            }
-                            if (showActions) {
-                                output.suggestedMoves.forEach { move ->
-                                    OutlineActionChip(
-                                        text = move.label,
-                                        onClick = {
-                                            if (move.type == TutorMoveType.REVEAL_SOLUTION) {
-                                                onRevealSolution(move)
-                                            } else {
-                                                onMove(move)
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .testTag("tutor_chat_move_${move.id}"),
-                                    )
-                                }
-                            }
                         }
-                    }
+                        // 动作条（A2）：讲题入口与智能体栏同一条——「复制」复制的是消息行里的
+                        // **原文 markdown**（渲染后的文本会丢格式）。重试沿用既有的重发口径
+                        // （只有可重试的那一轮才有），所以这一条不会长出一个点了没反应的按钮。
+                        TutorReplyActionBar(
+                            shape = tutorReplyActionShape(
+                                bodyMarkdown = assistantBodyMarkdown,
+                                retryable = interactionEnabled && task.canRetryTutorResponse(),
+                            ),
+                            onRetry = onRetry,
+                            testTagPrefix = actionTestTag,
+                        )
+                    },
+                )
+            }
 
-                    ModelTaskStatus.RETRYABLE_FAILURE,
-                    ModelTaskStatus.PERMANENT_FAILURE,
-                    ModelTaskStatus.CANCELLED,
-                    -> {
-                        val settingsRequired = task.requiresTutorModelSettings()
-                        val actionLabel = when {
-                            recoveryEnabled && executionMatchesCurrentProvider && settingsRequired ->
-                                "检查模型设置"
-                            showActions && task.canRetryTutorResponse() -> "重试"
-                            else -> null
-                        }
-                        TutorTurnFailureCard(
-                            detail = when {
-                                !executionMatchesCurrentProvider -> "旧配置中的回复没有完成。"
-                                settingsRequired -> "模型设置需要更新，题目已经保存。"
-                                else -> TUTOR_REPLY_INCOMPLETE_DETAIL
-                            },
-                            primaryActionLabel = actionLabel,
-                            primaryActionTestTag = if (settingsRequired) {
-                                "tutor_chat_model_settings"
-                            } else {
-                                "tutor_chat_retry"
-                            },
-                            onPrimaryAction = if (settingsRequired) {
-                                onOpenModelSettings
-                            } else {
-                                onRetry
-                            },
-                        )
-                    }
+            // 学生按了停止（A2）：一行灰字「已停止」，**不是**失败卡的红字——这一轮不是模型
+            // 失败，也不是学生做错了什么。这一轮没有答出来的正文，所以没有「复制」可给。
+            task.status == ModelTaskStatus.CANCELLED -> TutorSurfaceAssistantReply(
+                bodyMarkdown = null,
+                testTag = replyTestTag,
+                extras = {
+                    TutorReplyActionBar(
+                        shape = tutorReplyActionShape(
+                            bodyMarkdown = null,
+                            stopped = true,
+                        ),
+                        testTagPrefix = actionTestTag,
+                    )
+                },
+            )
 
-                    else -> if (executionMatchesCurrentProvider && awaitingContinuation) {
-                        Text(
-                            "回复已暂停，点下方“继续对话”后接着完成。",
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.testTag("tutor_chat_reply_paused"),
-                        )
-                    } else if (executionMatchesCurrentProvider) {
-                        // 逐 token 的思考链与回答正文由屏幕组件的在途区统一渲染（同一条实时流，
-                        // 与大厅同一套）：这里只留一个"还在生成"的紧凑指示，同一段文本不渲染两次。
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .testTag("tutor_chat_reply_progress"),
-                                color = JadeActive,
-                                strokeWidth = 2.dp,
-                            )
-                            Text(
-                                TUTOR_LIVE_PLACEHOLDER,
-                                color = InkSecondary,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    } else {
-                        Text(
-                            "旧配置中的回复未完成",
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.testTag("tutor_chat_legacy_incomplete"),
-                        )
-                    }
+            task.status == ModelTaskStatus.RETRYABLE_FAILURE ||
+                task.status == ModelTaskStatus.PERMANENT_FAILURE ||
+                task.status == ModelTaskStatus.CANCELLED -> {
+                val settingsRequired = task.failure?.code?.requiresModelSettings() == true
+                val actionLabel = when {
+                    recoveryEnabled && executionMatchesCurrentProvider && settingsRequired ->
+                        TUTOR_SURFACE_OPEN_SETTINGS_LABEL
+                    interactionEnabled && task.canRetryTutorResponse() -> TUTOR_SURFACE_RETRY_LABEL
+                    else -> null
                 }
+                TutorSurfaceAssistantReply(
+                    bodyMarkdown = null,
+                    testTag = replyTestTag,
+                    failure = TutorSurfaceFailure(
+                        detail = when {
+                            !executionMatchesCurrentProvider -> "旧配置中的回复没有完成。"
+                            settingsRequired -> "模型设置需要更新，题目已经保存。"
+                            else -> TUTOR_REPLY_INCOMPLETE_DETAIL
+                        },
+                        primaryActionLabel = actionLabel,
+                        primaryActionTestTag = if (settingsRequired) {
+                            "tutor_chat_model_settings"
+                        } else {
+                            "tutor_chat_retry"
+                        },
+                        onPrimaryAction = if (settingsRequired) {
+                            onOpenModelSettings
+                        } else {
+                            onRetry
+                        },
+                    ),
+                )
+            }
+
+            else -> {
+                val progress = when {
+                    executionMatchesCurrentProvider && awaitingContinuation -> TutorSurfaceProgress(
+                        text = "回复已暂停，点下方“继续对话”后接着完成。",
+                        textTestTag = "tutor_chat_reply_paused",
+                        spinning = false,
+                    )
+                    // 逐 token 的思考链与回答正文由屏幕组件的在途区统一渲染（同一条实时流，
+                    // 与智能体栏同一套）：这里只留一个"还在生成"的紧凑指示。
+                    executionMatchesCurrentProvider -> TutorSurfaceProgress(
+                        text = TUTOR_LIVE_PLACEHOLDER,
+                        spinnerTestTag = "tutor_chat_reply_progress",
+                    )
+
+                    else -> TutorSurfaceProgress(
+                        text = "旧配置中的回复未完成",
+                        textTestTag = "tutor_chat_legacy_incomplete",
+                        spinning = false,
+                    )
+                }
+                TutorSurfaceAssistantReply(
+                    bodyMarkdown = null,
+                    testTag = replyTestTag,
+                    progress = progress,
+                )
             }
         }
     }

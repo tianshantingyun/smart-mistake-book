@@ -17,6 +17,10 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.domain.UpdateTutorMessageStatusCommand
+import com.tingyun.smartmistakebook.core.model.TutorToolName
+import com.tingyun.smartmistakebook.core.model.TutorToolTraceEntry
+import com.tingyun.smartmistakebook.core.model.TutorTurnToolTrace
+import com.tingyun.smartmistakebook.core.model.encodeTutorTurnToolTrace
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -42,7 +46,6 @@ class TutorTurnMessagesTest {
             sessionId = SESSION_ID,
             questionDocumentId = "question-1",
             revisionNumber = 2,
-            questionTitle = "函数单调性",
             requestId = REQUEST_ID,
             replyToMessageId = null,
             bodyMarkdown = "先看临界点两侧的符号。",
@@ -56,7 +59,6 @@ class TutorTurnMessagesTest {
             sessionId = SESSION_ID,
             questionDocumentId = "question-1",
             revisionNumber = 2,
-            questionTitle = "函数单调性",
             requestId = REQUEST_ID,
             replyToMessageId = null,
             bodyMarkdown = "先看临界点两侧的符号。",
@@ -70,6 +72,9 @@ class TutorTurnMessagesTest {
         assertEquals(TutorConversationAnchorKind.EPHEMERAL_DRAFT, created.anchorKind)
         assertEquals(SESSION_ID, created.anchorId)
         assertEquals("question-1:2", created.anchorRevisionId)
+        // B7：写侧不再把题名当会话标题——标题 = 首条消息截取 + 时间，读时算。
+        assertNull(created.title)
+        assertEquals("agent", created.area.lowercase())
 
         val turn = conversations.assistantTurns.single()
         assertEquals("tutor-message-assistant:$REQUEST_ID", turn.messageId)
@@ -78,8 +83,50 @@ class TutorTurnMessagesTest {
         assertEquals(REQUEST_ID, turn.logicalOperationId)
         // 序号由会话计数器分配（没给号），由 DAO 落库时给出——调用方自己不排号。
         assertNull(turn.requestedOrdinal)
+        // B1：这一轮没有发起工具调用 → 痕迹为 null（空载体不落列）。
+        assertNull(turn.toolTraceJson)
     }
 
+    @Test
+    fun aRecordedTurnCarriesItsToolTraceOnTheSameRow() = runTest {
+        // B1：痕迹与正文**同一次写入**（分两次写就会出现"有正文没痕迹"的中间态），
+        // 且它就是 core:model 编码出来的那一份（重开会话读回来的是同一个渲染函数）。
+        val conversations = TutorConversationRows()
+        val traceJson = requireNotNull(
+            encodeTutorTurnToolTrace(
+                TutorTurnToolTrace(
+                    entries = listOf(
+                        TutorToolTraceEntry(
+                            tool = TutorToolName.NOTEBOOK_READ,
+                            resultCount = 2,
+                            ok = true,
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        recordTutorAssistantTurn(
+            conversations = conversations,
+            sessionId = SESSION_ID,
+            questionDocumentId = "question-1",
+            revisionNumber = 2,
+            requestId = REQUEST_ID,
+            replyToMessageId = null,
+            bodyMarkdown = "错题本里有两道同类题。",
+            thinkingMarkdown = null,
+            occurredAtEpochMillis = 100,
+            completedAtEpochMillis = 120,
+            toolTraceJson = traceJson,
+        )
+
+        assertEquals(traceJson, conversations.assistantTurns.single().toolTraceJson)
+    }
+
+    /**
+     * A1：命中即复用**只可能命中调用方点名的那条会话**——会话 id 由调用方显式给（不再由
+     * 题面派生），所以"已经在了"就是"这条会话确实存在"，原样复用、不重写它的锚。
+     */
     @Test
     fun anExistingConversationIsReusedInsteadOfBeingRecreated() = runTest {
         val conversations = TutorConversationRows()
@@ -102,7 +149,6 @@ class TutorTurnMessagesTest {
             sessionId = SESSION_ID,
             questionDocumentId = "question-1",
             revisionNumber = 2,
-            questionTitle = "函数单调性",
             requestId = REQUEST_ID,
             replyToMessageId = null,
             bodyMarkdown = "接着看第二段。",
@@ -124,7 +170,6 @@ class TutorTurnMessagesTest {
             sessionId = SESSION_ID,
             questionDocumentId = "question-1",
             revisionNumber = 2,
-            questionTitle = null,
             requestId = REQUEST_ID,
             replyToMessageId = null,
             bodyMarkdown = "   ",
@@ -145,7 +190,6 @@ class TutorTurnMessagesTest {
             sessionId = SESSION_ID,
             questionDocumentId = "question-1",
             revisionNumber = 2,
-            questionTitle = null,
             requestId = REQUEST_ID,
             replyToMessageId = null,
             bodyMarkdown = "正文",
@@ -191,7 +235,8 @@ private class TutorConversationRows : TutorConversationRepository {
         conversations.update { rows -> rows + (conversation.conversationId to conversation) }
     }
 
-    override fun observeRecent(limit: Int): Flow<List<TutorConversation>> = flowOf(emptyList())
+    override fun observeRecent(limit: Int, area: String): Flow<List<TutorConversation>> =
+        flowOf(emptyList())
 
     override fun observeConversation(
         conversationId: String,
@@ -249,6 +294,7 @@ private class TutorConversationRows : TutorConversationRepository {
             messageId = command.messageId,
             bodyMarkdown = command.bodyMarkdown,
             thinkingMarkdown = command.thinkingMarkdown,
+            toolTraceJson = command.toolTraceJson,
             replyToMessageId = command.replyToMessageId,
             logicalOperationId = command.logicalOperationId,
             requestedOrdinal = command.ordinal,
@@ -282,6 +328,8 @@ private data class RecordedAssistantTurn(
     val messageId: String,
     val bodyMarkdown: String,
     val thinkingMarkdown: String?,
+    /** 这一轮的工具痕迹（B1）：与正文同一次写入。 */
+    val toolTraceJson: String?,
     val replyToMessageId: String?,
     val logicalOperationId: String?,
     val requestedOrdinal: Int?,
@@ -293,6 +341,7 @@ private data class RecordedAssistantTurn(
         role = TutorMessageRole.ASSISTANT,
         bodyMarkdown = bodyMarkdown,
         thinkingMarkdown = thinkingMarkdown,
+        toolTraceJson = toolTraceJson,
         status = TutorMessageStatus.SUCCEEDED,
         logicalOperationId = logicalOperationId,
         replyToMessageId = replyToMessageId,

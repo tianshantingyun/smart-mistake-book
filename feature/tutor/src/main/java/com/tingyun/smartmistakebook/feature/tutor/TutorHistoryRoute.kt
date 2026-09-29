@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.TutorConversation
 import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorConversationStatus
 import com.tingyun.smartmistakebook.core.ui.Ink
@@ -52,7 +53,8 @@ fun TutorHistoryRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val recent by conversations.observeRecent(100)
+    // 只列智能体栏（本会话区）的会话：复习栏两个入口各有一个区，历史互不相串（D-Q1F/M10）。
+    val recent by conversations.observeRecent(100, TutorConversationAreas.AGENT)
         .collectAsState(initial = emptyList())
     val visible = tutorHistoryConversations(recent)
     var deleteTarget by remember { mutableStateOf<String?>(null) }
@@ -242,12 +244,15 @@ internal fun tutorHistoryConversations(
 }
 
 /**
- * 会话标题（K1c）：写侧记下的标题优先（拍照/错题会话记的是题目标题），否则**读时从首条消息
- * 截取**——不调模型生成、也不在写侧生成。两者都没有（空正文）才回落到入口标签。
+ * 会话标题（K1c/B7）：**首条消息截取**（同一份原文按 [TUTOR_CONVERSATION_TITLE_MAX_CHARS] 截断）。
+ *
+ * 写侧不再把题名塞进 `title`（B7），所以标题的第一来源是首条消息、**不是** `title` 列；
+ * `title` 只作为旧行的兜底（升级前写下的行带着题名），两者都没有才回落到入口标签。
+ * 时间由列表行给出（[historySubtitle]）——这就是"首条消息截取 + 时间"里的那一半。
  */
-private fun tutorConversationTitle(conversation: TutorConversation): String =
-    conversation.title?.takeIf(String::isNotBlank)
-        ?: tutorConversationTitleOf(conversation.firstMessageBodyMarkdown)
+internal fun tutorConversationTitle(conversation: TutorConversation): String =
+    tutorConversationTitleOf(conversation.firstMessageBodyMarkdown)
+        ?: conversation.title?.takeIf(String::isNotBlank)
         ?: conversationAnchorLabel(conversation)
 
 private fun conversationAnchorLabel(conversation: TutorConversation): String = when (
@@ -266,5 +271,16 @@ private fun historySubtitle(conversation: TutorConversation): String {
         TutorConversationStatus.ARCHIVED -> "已归档"
     }
     // 用真实消息行数，而不是 last_turn_ordinal 序号（讲题会话的序号有空洞会多报）。
-    return "$status · 共 ${conversation.messageCount} 条消息"
+    // 时间与标题配对出现（K1c 的"首条消息截取 + 时间"）：两条会话的开头一样时，只有
+    // 时间能把它们分开。
+    return "$status · 共 ${conversation.messageCount} 条消息 · ${historyTimestamp(conversation)}"
 }
+
+/** 会话最近一次更新的本地时间（列表时区 = 设备时区，读时算，不落库）。 */
+private fun historyTimestamp(conversation: TutorConversation): String =
+    java.time.Instant.ofEpochMilli(conversation.updatedAtEpochMillis)
+        .atZone(java.time.ZoneId.systemDefault())
+        .format(
+            java.time.format.DateTimeFormatter.ofPattern("M月d日 HH:mm")
+                .withLocale(java.util.Locale.getDefault()),
+        )

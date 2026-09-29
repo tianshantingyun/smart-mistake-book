@@ -33,7 +33,8 @@ class TutorConsentRequestsTest {
         subject: TutorPermissionSubject = TutorPermissionSubject.LocalAction(
             TutorLocalAction.OPEN_PROBLEM,
         ),
-        payloadJson: String = """{"problemRevisionId":"rev-1"}""",
+        // OPEN_PROBLEM 的形状：只允许"是哪道题"（payload 按 kind 逐字核对）。
+        payloadJson: String = """{"libraryProblemId":"rev-1"}""",
         context: TutorRoundPermissionContext = TutorRoundPermissionContext(),
         occurredAtEpochMillis: Long = 100L,
     ) = SuspendTurnForConsentCommand(
@@ -136,7 +137,7 @@ class TutorConsentRequestsTest {
         val first = consent.suspend(state = turn(), command = suspendCommand())!!
         val second = consent.suspend(
             state = turn(),
-            command = suspendCommand(payloadJson = """{"problemRevisionId":"rev-2"}"""),
+            command = suspendCommand(payloadJson = """{"libraryProblemId":"rev-2"}"""),
         )!!
 
         assertEquals(2, requests.rows.size)
@@ -161,7 +162,6 @@ class TutorConsentRequestsTest {
         assertEquals(200L, resolved.request.resolvedAtEpochMillis)
         assertEquals("学生点了确认", resolved.request.resolutionNote)
         assertEquals(TutorSendPhase.DISPATCHING, resolved.state.phase)
-        assertEquals(1, resolved.state.dispatchAttemptCount)
         // 回喂通道的行与落库的行同源。
         assertEquals(resolved.request.status, resolved.outcome.status)
         assertEquals(suspended.request.requestId, resolved.outcome.requestId)
@@ -199,8 +199,7 @@ class TutorConsentRequestsTest {
         val first = consent.decide(state = suspended.state, command = command)!!
         val second = consent.decide(state = first.state, command = command)!!
 
-        assertEquals(1, first.state.dispatchAttemptCount)
-        assertEquals(1, second.state.dispatchAttemptCount)
+        assertEquals(TutorSendPhase.DISPATCHING, first.state.phase)
         assertEquals(TutorSendPhase.DISPATCHING, second.state.phase)
         assertEquals(200L, second.request.resolvedAtEpochMillis)
     }
@@ -210,7 +209,7 @@ class TutorConsentRequestsTest {
     fun aDecisionOnAMovedOnTurnLeavesTheTraceWithoutTouchingThePhase() =
         runBlocking {
             val suspended = consent.suspend(state = turn(), command = suspendCommand())!!
-            val idle = TutorTurnSendStateMachine.reduce(TutorSendState(), TutorSendAction.Reset())
+            val idle = TutorTurnSendStateMachine.reduce(TutorSendState(), TutorSendAction.Reset)
 
             val resolved = consent.decide(
                 state = idle,
@@ -263,7 +262,6 @@ class TutorConsentRequestsTest {
 
         assertEquals(TutorSendPhase.AWAITING_CONSENT, rebuilt.state.phase)
         assertEquals(suspended.request.requestId, rebuilt.request.requestId)
-        assertEquals(0, rebuilt.state.dispatchAttemptCount)
     }
 
     @Test

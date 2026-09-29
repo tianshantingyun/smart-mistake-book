@@ -52,7 +52,8 @@ class RoomAgentPendingRequestRepositoryTest {
                 subject = TutorPermissionSubject.LocalAction(TutorLocalAction.START_EXPORT),
                 conversationArea = "REVIEW_MISTAKE",
                 conversationId = "conversation-1",
-                payloadJson = """{"scope":"subjects"}""",
+                // START_EXPORT 的形状是空形状（导出由学生在本地勾选）。
+                payloadJson = """{}""",
                 occurredAtEpochMillis = 100L,
                 context = TutorRoundPermissionContext(),
             ),
@@ -67,7 +68,8 @@ class RoomAgentPendingRequestRepositoryTest {
                 logicalOperationId = "logical-1",
                 messageId = "message-1",
                 kind = AgentPendingRequestKind.START_EXPORT,
-                payloadJson = """{"scope":"subjects"}""",
+                // START_EXPORT 的形状是空形状（导出由学生在本地勾选）。
+                payloadJson = """{}""",
             ).requestId(),
             command.requestId,
         )
@@ -87,7 +89,7 @@ class RoomAgentPendingRequestRepositoryTest {
                 subject = TutorPermissionSubject.LocalAction(TutorLocalAction.ADD_TO_REVIEW_PLAN),
                 conversationArea = "AGENT",
                 conversationId = "conversation-1",
-                payloadJson = """{"problemRevisionId":"rev-1"}""",
+                payloadJson = """{"libraryProblemId":"rev-1"}""",
                 occurredAtEpochMillis = 100L,
             ),
         )!!
@@ -156,7 +158,7 @@ class RoomAgentPendingRequestRepositoryTest {
                     subject = TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_WRITE),
                     conversationArea = "AGENT",
                     conversationId = "conversation-1",
-                    payloadJson = """{"problemRevisionId":"rev-1"}""",
+                    payloadJson = """{"libraryProblemId":"rev-1"}""",
                     occurredAtEpochMillis = 100L,
                 ),
             ),
@@ -178,7 +180,7 @@ class RoomAgentPendingRequestRepositoryTest {
         logicalOperationId = "logical-1",
         messageId = "message-1",
         kind = "OPEN_PROBLEM",
-        payloadJson = """{"problemRevisionId":"rev-1"}""",
+        payloadJson = """{"libraryProblemId":"rev-1"}""",
         status = status,
         createdAtEpochMillis = 100L,
         resolvedAtEpochMillis = if (status == "PENDING") null else 200L,

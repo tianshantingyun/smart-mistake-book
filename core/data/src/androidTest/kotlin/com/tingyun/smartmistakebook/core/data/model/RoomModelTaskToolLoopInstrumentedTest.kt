@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -582,10 +583,10 @@ class RoomModelTaskToolLoopInstrumentedTest {
     }
 
     @Test
-    fun aLobbyRoundMasteryReadReachesTheRunnerAndFailsOnSubjectBoundary() = runBlocking {
-        // D7 MASTERY_READ 无场景分支的端到端证明：大厅轮次申请 MASTERY_READ 不再被
-        // 轮次层 not_authorized 拒发——它到达执行器，按科目边界失败关闭（no_subject），
-        // 与题内同一条 renderMasteryRead 路径。
+    fun aLobbyRoundMasteryReadReachesTheRunnerAndReadsAsAnEmptyScope() = runBlocking {
+        // D7 MASTERY_READ 无场景分支的端到端证明 + B4/K2a 的空范围形态：大厅轮次申请
+        // MASTERY_READ 不再被轮次层 not_authorized 拒发——它到达执行器，因为这次对话没有
+        // 科目上下文而返回**本轮无可读范围**（ok=true，不是失败、也不再是 no_subject 错误）。
         val context = ApplicationProvider.getApplicationContext<Context>()
         val databaseName = "lobby-mastery-read-${System.nanoTime()}.db"
         context.deleteDatabase(databaseName)
@@ -607,10 +608,11 @@ class RoomModelTaskToolLoopInstrumentedTest {
             val second = gateway.dispatchLog[1].input as TutorLobbyInput
             val outcome = second.toolRoundResults[0].outcomes.single()
             assertEquals(TutorToolName.MASTERY_READ, outcome.tool)
-            assertEquals(
-                "大厅 MASTERY_READ 到达执行器，按科目边界失败（不是场景拒）：${outcome.errorKind}",
-                "no_subject",
-                outcome.errorKind,
+            assertTrue("空范围是 ok=true（不是失败）：$outcome", outcome.ok)
+            assertNull("空范围没有错误种类", outcome.errorKind)
+            assertTrue(
+                "要如实说'本轮无可读范围'：${outcome.summaryMarkdown}",
+                outcome.summaryMarkdown.contains("本轮无可读范围"),
             )
         } finally {
             database.close()

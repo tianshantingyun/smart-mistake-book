@@ -55,6 +55,8 @@ import com.tingyun.smartmistakebook.core.model.StructuredContentSanitizer
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorChoice
 import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
+import com.tingyun.smartmistakebook.core.model.TutorLocalAction
+import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
 import com.tingyun.smartmistakebook.core.model.TutorDebriefInput
@@ -487,9 +489,61 @@ internal fun JsonObject.toTutorLobby(
         intentDecision = objectValue("intentDecision").toTutorIntentDecision(),
         thinkingMarkdown = optionalString("thinkingMarkdown"),
         attachedImages = optionalArray("attachedImages").map(JsonElement::toAttachedImage),
+        localActions = optionalArray("localActions").map(JsonElement::toLocalActionRequest),
         modelVersion = modelVersion,
     )
 }
+
+/**
+ * 一条本地动作请求的解析（**模型只能选不能造**）。
+ *
+ * 消灭的具体失败：动作 id 与参数此前没有任何形状核对——一个"看着像"的动作会被当成未知动作
+ * 静默放过，或者带着一堆本地不认识的键走到落库口。这里的规则是**逐字**的：
+ *
+ * - `action` 必须是白名单里**逐字相同**的 id（大小写 / 别名一律无效）；
+ * - 参数键必须在该动作**声明过的参数形状**里（本版四个动作的形状都是空集，所以任何参数键都是
+ *   无效输出）；值必须是非空字符串；
+ * - 声明为必填的参数不能缺。
+ *
+ * 任何一条不满足 → [InvalidModelResponseException]：这不是"忽略掉多余信息"，这是**这条输出没有
+ * 按契约说话**——与工具轮 `requireOnlyKeys` 同一口径（宁可让这一轮失败重来，也不让一条形状不对的
+ * 请求走到"挂卡 / 执行"那一步）。
+ */
+internal fun JsonElement.toLocalActionRequest(): TutorLocalActionRequest {
+    val element = objectValue()
+    val actionId = element.requiredString(LOCAL_ACTION_WIRE_ACTION_KEY)
+    val parameters = JsonObject(element.filterKeys { key -> key != LOCAL_ACTION_WIRE_ACTION_KEY })
+    return localActionRequest(actionId = actionId, arguments = parameters)
+}
+
+/**
+ * 动作 id + 参数对象 → 动作请求；两条路由**共用这一处形状核对**（Route B 的 `action` 键、
+ * Route A 的原生函数名），免得"合法的动作请求"有两套口径。
+ */
+internal fun localActionRequest(
+    actionId: String,
+    arguments: JsonObject,
+): TutorLocalActionRequest {
+    val action = TutorLocalAction.fromActionId(actionId)
+        ?: throw InvalidModelResponseException()
+    val declared = action.parameters
+    val declaredNames = declared.map { parameter -> parameter.parameterName }.toSet()
+    val parameters = buildMap {
+        arguments.forEach { (key, value) ->
+            if (key !in declaredNames) throw InvalidModelResponseException()
+            put(key, value.requiredPrimitiveString())
+        }
+    }
+    declared.filter { parameter -> parameter.required }.forEach { parameter ->
+        if (parameters[parameter.parameterName].isNullOrBlank()) {
+            throw InvalidModelResponseException()
+        }
+    }
+    return TutorLocalActionRequest(action = action, parameters = parameters)
+}
+
+/** 动作请求里的动作 id 键；其余键一律来自该动作声明的参数形状。 */
+internal const val LOCAL_ACTION_WIRE_ACTION_KEY = "action"
 
 internal fun JsonObject.toTutorIntentDecision(): TutorIntentDecision {
     requireOnlyKeys(TUTOR_INTENT_WIRE_KEYS)
@@ -562,7 +616,7 @@ internal fun JsonObject.toBoundQuestionDeclaration(): TutorRoundQuestionDeclarat
     )
 }
 internal val TUTOR_LOBBY_WIRE_KEYS =
-    setOf("intentDecision", "messageMarkdown", "thinkingMarkdown", "attachedImages")
+    setOf("intentDecision", "messageMarkdown", "thinkingMarkdown", "attachedImages", "localActions")
 internal val ATTACHED_IMAGE_WIRE_KEYS =
     setOf("imageId", "kind", "description", "accessibilityText")
 

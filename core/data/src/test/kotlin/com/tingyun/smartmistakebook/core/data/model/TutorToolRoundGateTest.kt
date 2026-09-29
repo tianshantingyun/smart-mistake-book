@@ -14,6 +14,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import com.tingyun.smartmistakebook.core.model.disclosesQuestionCandidates
 import com.tingyun.smartmistakebook.core.model.tutorToolAuthorization
+import com.tingyun.smartmistakebook.core.data.study.TutorToolExecution
 import kotlinx.coroutines.runBlocking
 import com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS
 import org.junit.Assert.assertEquals
@@ -56,8 +57,11 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertEquals(listOf(TutorToolName.MASTERY_UPDATE), outcomes.map(TutorToolOutcome::tool))
-        assertTrue("无题轮的写调用不再被轮次层结构性拒", outcomes.single().ok)
+        assertEquals(
+            listOf(TutorToolName.MASTERY_UPDATE),
+            outcomes.map { execution -> execution.outcome.tool },
+        )
+        assertTrue("无题轮的写调用不再被轮次层结构性拒", outcomes.single().outcome.ok)
         assertEquals(listOf(TutorToolName.MASTERY_UPDATE), ran)
     }
 
@@ -82,7 +86,7 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertTrue(outcomes.single().ok)
+        assertTrue(outcomes.single().outcome.ok)
         assertEquals(listOf(TutorToolName.MASTERY_UPDATE), ran)
     }
 
@@ -108,7 +112,7 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertTrue("越界题锚不再结构性拒写", outcomes.single().ok)
+        assertTrue("越界题锚不再结构性拒写", outcomes.single().outcome.ok)
         assertEquals(listOf(TutorToolName.MASTERY_UPDATE), ran)
     }
 
@@ -146,7 +150,7 @@ class TutorToolRoundGateTest {
         assertEquals(
             "轮次门不再按场景拒读工具",
             listOf(true, true, true),
-            outcomes.map(TutorToolOutcome::ok),
+            outcomes.map { execution -> execution.outcome.ok },
         )
         assertEquals(
             listOf(TutorToolName.MASTERY_READ, TutorToolName.KNOWLEDGE_READ, TutorToolName.NOTEBOOK_READ),
@@ -175,8 +179,8 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertFalse(outcomes.single().ok)
-        assertEquals("not_authorized", outcomes.single().errorKind)
+        assertFalse(outcomes.single().outcome.ok)
+        assertEquals("not_authorized", outcomes.single().outcome.errorKind)
         assertTrue(ran.isEmpty())
     }
 
@@ -211,7 +215,7 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertTrue("有题轮的原生写调用不得因『模型没复述题锚』被拒", outcomes.single().ok)
+        assertTrue("有题轮的原生写调用不得因『模型没复述题锚』被拒", outcomes.single().outcome.ok)
         assertEquals(listOf(TutorToolName.MASTERY_UPDATE), ran)
     }
 
@@ -239,7 +243,7 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertTrue("无题轮的写调用放行到执行器（统一门在 runner 内）", outcomes.single().ok)
+        assertTrue("无题轮的写调用放行到执行器（统一门在 runner 内）", outcomes.single().outcome.ok)
         assertEquals(listOf(TutorToolName.MASTERY_UPDATE), ran)
     }
 
@@ -266,7 +270,7 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertTrue(outcomes.single().ok)
+        assertTrue(outcomes.single().outcome.ok)
         assertEquals(listOf(TutorToolName.MASTERY_UPDATE), ran)
     }
 
@@ -294,15 +298,16 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertFalse(outcomes.single().ok)
-        assertEquals("invalid_knowledge_code", outcomes.single().errorKind)
+        assertFalse(outcomes.single().outcome.ok)
+        assertEquals("invalid_knowledge_code", outcomes.single().outcome.errorKind)
         assertTrue("编造代号不得触达执行器", ran.isEmpty())
     }
 
     @Test
-    fun `a lobby round without any disclosed code refuses the write structurally`() = runBlocking {
-        // 大厅没有科目上下文与预披露节点（映射表不含节点）：白名单为空，任何代号都是
-        // 编造——结构性拒。模型被提示词教会先确认科目，而不是这里分叉场景。
+    fun `a lobby round without any disclosed code reads as no writable target`() = runBlocking {
+        // 大厅没有科目上下文与预披露节点（映射表不含节点）：白名单为空 = **没有可写的目标**。
+        // B4/K2a 的裁定是"写工具在无锚时返回『无可写目标』"——它不再报错，因为报错会让模型
+        // 下一轮换着法再试（白烧派遣预算）；写口一如既往什么都没有发生（没触达执行器）。
         val ran = mutableListOf<TutorToolName>()
         val lobbyInput = TutorLobbyInput(
             conversationId = "conv-1",
@@ -326,12 +331,29 @@ class TutorToolRoundGateTest {
             consumeExtendedResult = {},
         )
 
-        assertFalse("无披露集的大厅写调用结构性拒", outcomes.single().ok)
-        assertEquals("invalid_knowledge_code", outcomes.single().errorKind)
-        assertTrue(ran.isEmpty())
+        assertTrue("无披露集的大厅写调用是空范围，不是失败", outcomes.single().outcome.ok)
+        assertNull(outcomes.single().outcome.errorKind)
+        assertTrue(
+            outcomes.single().outcome.summaryMarkdown.contains("本轮无可写目标"),
+        )
+        assertTrue("空范围也不许触达执行器（没有可写的目标）", ran.isEmpty())
         // 输入类型不参与这条判定（D6 零场景分叉）：同样的调用形状在题内输入上行为一致——
-        // 白名单为空就拒，非空就放行到执行器。
+        // 白名单为空就是空范围，非空才放行到执行器。
         assertFalse(lobbyInput.disclosesQuestionCandidates())
+    }
+
+    @Test
+    fun `the round gate carries how many rows each call returned`() = runBlocking {
+        // 条数是 B1 痕迹的输入（"查到了几条"）：它必须穿过轮次闸门原样到达调用方。
+        val outcomes = tutorToolRoundOutcomes(
+            calls = listOf(notebookReadCall(terms = listOf("二次函数"))),
+            authorizedTools = TUTOR_TOOL_DECLARATIONS,
+            disclosedKnowledgeCodes = disclosed,
+            runTool = { call, _ -> TutorToolExecution(outcome = ok(call.tool).outcome, resultCount = 3) },
+            consumeExtendedResult = {},
+        )
+
+        assertEquals(3, outcomes.single().resultCount)
     }
 
     private fun masteryUpdateCall(anchor: TutorRoundQuestionDeclaration?) = TutorToolCall(
@@ -351,11 +373,19 @@ class TutorToolRoundGateTest {
              "arguments":"{\"terms\":[\"K1\"],\"rationale\":\"学生说理解了\",\"direction\":\"POSITIVE\",\"understanding\":\"CONFIDENT\",\"confidence\":0.85}"}}]}}]}
     """.trimIndent()
 
-    private fun ok(tool: TutorToolName) = TutorToolOutcome(
-        tool = tool,
-        ok = true,
-        summaryMarkdown = "已执行",
-        errorKind = null,
+    private fun ok(tool: TutorToolName) = TutorToolExecution(
+        outcome = TutorToolOutcome(
+            tool = tool,
+            ok = true,
+            summaryMarkdown = "已执行",
+            errorKind = null,
+        ),
+    )
+
+    private fun notebookReadCall(terms: List<String>) = TutorToolCall(
+        tool = TutorToolName.NOTEBOOK_READ,
+        rationale = "学生想找错题本里的题",
+        terms = terms,
     )
 
     private fun candidate() = RelatedProblemCandidate(

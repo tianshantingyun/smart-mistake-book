@@ -25,6 +25,7 @@ import com.tingyun.smartmistakebook.core.domain.SaveTutorConversationDraftComman
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.TutorAnswerExposureSurfaceKind
 import com.tingyun.smartmistakebook.core.domain.TutorConversation
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorConversationSnapshot
 import com.tingyun.smartmistakebook.core.domain.TutorConversationStatus
@@ -35,6 +36,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.domain.UpdateTutorMessageStatusCommand
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
 import com.tingyun.smartmistakebook.core.model.ModelFailureCode
@@ -271,25 +273,99 @@ abstract class CapturedTutorSessionTestBase {
     }
 
     /**
+     * 会话替身（K1a 之后：正文 / 思考块 / 学生气泡 / 工具痕迹的唯一权威都在这条表上）。
+     *
+     * 两条与内核同口径的行为，缺任何一条都会让"界面上的气泡"与"库里的事实"分叉：
+     *
+     * 1. **写入按消息 id 幂等**：真实 DAO 的插入冲突按 id 命中即返回既有行，同一次派发重放
+     *    多少次都只有一行。替身若按次追加，同一条逻辑操作写两遍就会攒出两条同 id 的行——
+     *    而界面按 `messageId` 做列表键，那是直接崩；
+     * 2. **可预置已落库的行**（[FakeTutorConversations.seed]）：页面重建 / 进程重开时读到的是
+     *    这一份。"上一轮已经答过"这类用例只能靠它——正文不再从任务快照回落。
+     *
      * @param recordedStudentMessages 可选：把每次 `appendStudentMessage` 的命令记下来，
      *   供"学生文字必须落库"的用例断言（写侧门控的引文核对依赖这些行）。
      */
-    protected fun emptyConversations(
-        recordedStudentMessages: MutableList<AppendTutorStudentMessageCommand> = mutableListOf(),
-    ): TutorConversationRepository =
-        object : TutorConversationRepository {
-            private val snapshot = MutableStateFlow<TutorConversationSnapshot?>(null)
+    protected class FakeTutorConversations(
+        private val recordedStudentMessages: MutableList<AppendTutorStudentMessageCommand> =
+            mutableListOf(),
+        private val recordedAssistantMessages: MutableList<AppendTutorAssistantMessageCommand> =
+            mutableListOf(),
+        seedMessages: List<TutorMessage> = emptyList(),
+    ) : TutorConversationRepository {
+        private val snapshot = MutableStateFlow(
+            seedMessages.takeIf(List<TutorMessage>::isNotEmpty)?.let { messages ->
+                TutorConversationSnapshot(
+                    conversation = conversationRow(messages),
+                    messages = messages,
+                )
+            },
+        )
 
-            override fun observeRecent(limit: Int): Flow<List<TutorConversation>> =
-                snapshot.map { it?.conversation?.let(::listOf).orEmpty() }
+        /**
+         * 写入顺序（与 `RecordingTutorInteractions.writeOrder` 同一手法）：钉住"学生文字在派发
+         * **之前**就落库"（写侧门控的引文核对要读得到它），以及"助手行在这一轮成功之后才落"。
+         */
+        val writeOrder = mutableListOf<String>()
 
-            override fun observeConversation(
-                conversationId: String,
-            ): Flow<TutorConversationSnapshot?> = snapshot
+        fun recordEvent(event: String) {
+            writeOrder += event
+        }
 
-            override suspend fun createConversation(
-                command: CreateTutorConversationCommand,
-            ): TutorConversation {
+        /** 当前落库的全部消息行（断言"这一轮的行真的存在"用它，不去读私有快照）。 */
+        fun messages(): List<TutorMessage> = snapshot.value?.messages.orEmpty()
+
+        /** 预置 / 追加**已落库**的消息行（非 suspend：装配期与 runOnIdle 里用，替身没有真 IO）。 */
+        fun seed(messages: List<TutorMessage>) {
+            val existing = snapshot.value?.messages.orEmpty()
+            val merged = existing + messages.filterNot { candidate ->
+                existing.any { it.messageId == candidate.messageId }
+            }
+            if (merged == existing) return
+            snapshot.value = TutorConversationSnapshot(
+                conversation = conversationRow(merged),
+                messages = merged,
+            )
+        }
+
+        /** 会话计数器分配的下一位（K1c 单数轴）：与真实 DAO 的 `last_turn_ordinal + 1` 同一口径。 */
+        fun nextOrdinal(): Int = (snapshot.value?.messages?.maxOfOrNull(TutorMessage::ordinal) ?: 0) + 1
+
+        private fun conversationRow(messages: List<TutorMessage>) = TutorConversation(
+            conversationId = messages.firstOrNull()?.conversationId
+                ?: TutorConversationIds.captured("session-1"),
+            anchorKind = TutorConversationAnchorKind.EPHEMERAL_DRAFT,
+            anchorId = "session-1",
+            anchorRevisionId = "document-1:2",
+            status = TutorConversationStatus.ACTIVE,
+            title = null,
+            // 建行时间 = 首条消息的时间（真实 DAO 就在那一刻建行），没有消息时给一个基准值。
+            createdAtEpochMillis = messages.minOfOrNull(TutorMessage::createdAtEpochMillis) ?: 1_000,
+            updatedAtEpochMillis = maxOf(
+                messages.minOfOrNull(TutorMessage::createdAtEpochMillis) ?: 1_000,
+                messages.maxOfOrNull(TutorMessage::createdAtEpochMillis) ?: 1_000,
+            ),
+            lastTurnOrdinal = messages.maxOfOrNull(TutorMessage::ordinal) ?: 0,
+            messageCount = messages.size,
+        )
+
+        override fun observeRecent(
+            limit: Int,
+            area: String,
+        ): Flow<List<TutorConversation>> = snapshot.map { current ->
+            current?.conversation
+                ?.takeIf { conversation -> conversation.area == area }
+                ?.let(::listOf)
+                .orEmpty()
+        }
+
+        override fun observeConversation(
+            conversationId: String,
+        ): Flow<TutorConversationSnapshot?> = snapshot
+
+        override suspend fun createConversation(
+            command: CreateTutorConversationCommand,
+        ): TutorConversation {
                 val conversation = TutorConversation(
                     conversationId = command.conversationId,
                     anchorKind = command.anchorKind,
@@ -309,6 +385,11 @@ abstract class CapturedTutorSessionTestBase {
                 command: AppendTutorStudentMessageCommand,
             ): TutorMessage {
                 recordedStudentMessages += command
+                writeOrder += "student-message"
+                // 幂等按消息 id（真实 DAO 的插入冲突口径）：同一次派发重放多少次都只有一行。
+                snapshot.value?.messages
+                    ?.firstOrNull { message -> message.messageId == command.messageId }
+                    ?.let { existing -> return existing }
                 // 与内核同一口径（K1c）：未给号时由会话计数器分配下一位。
                 val ordinal = command.ordinal
                     ?: ((snapshot.value?.conversation?.lastTurnOrdinal ?: 0) + 1)
@@ -325,14 +406,19 @@ abstract class CapturedTutorSessionTestBase {
                     completedAtEpochMillis = command.createdAtEpochMillis,
                     errorCode = null,
                 )
-                snapshot.value = snapshot.value?.let { current ->
+                snapshot.value = ensureConversationRow().let { current ->
                     current.copy(
                         conversation = current.conversation.copy(
-                            updatedAtEpochMillis = command.createdAtEpochMillis,
+                            // 行的时间戳不许倒退（`TutorConversation` 的不变量）：派生行的时间
+                            // 早于建行时以建行时间为准（真实 DAO 里这两列同样不允许倒挂）。
+                            updatedAtEpochMillis = maxOf(
+                                current.conversation.createdAtEpochMillis,
+                                command.createdAtEpochMillis,
+                            ),
                             lastTurnOrdinal = ordinal,
                         ),
                         messages = current.messages + message,
-                    )
+                    ).withMessageCount()
                 }
                 return message
             }
@@ -340,6 +426,12 @@ abstract class CapturedTutorSessionTestBase {
             override suspend fun appendAssistantMessage(
                 command: AppendTutorAssistantMessageCommand,
             ): TutorMessage {
+                recordedAssistantMessages += command
+                writeOrder += "assistant-message"
+                // 幂等按消息 id（同上）：同一条逻辑操作的助手行只有一行。
+                snapshot.value?.messages
+                    ?.firstOrNull { message -> message.messageId == command.messageId }
+                    ?.let { existing -> return existing }
                 // 与内核同一口径（K1c 单数轴）：未给号时由会话计数器分配下一位。
                 val ordinal = command.ordinal
                     ?: ((snapshot.value?.conversation?.lastTurnOrdinal ?: 0) + 1)
@@ -349,25 +441,47 @@ abstract class CapturedTutorSessionTestBase {
                     ordinal = ordinal,
                     role = TutorMessageRole.ASSISTANT,
                     bodyMarkdown = command.bodyMarkdown,
+                    thinkingMarkdown = command.thinkingMarkdown,
                     status = command.status,
                     logicalOperationId = command.logicalOperationId,
                     replyToMessageId = command.replyToMessageId,
                     createdAtEpochMillis = command.createdAtEpochMillis,
                     completedAtEpochMillis = command.completedAtEpochMillis,
                     errorCode = command.errorCode,
+                    toolTraceJson = command.toolTraceJson,
                 )
-                snapshot.value = snapshot.value?.let { current ->
+                snapshot.value = ensureConversationRow().let { current ->
                     current.copy(
                         conversation = current.conversation.copy(
-                            updatedAtEpochMillis = command.completedAtEpochMillis
-                                ?: command.createdAtEpochMillis,
+                            updatedAtEpochMillis = maxOf(
+                                current.conversation.createdAtEpochMillis,
+                                command.completedAtEpochMillis ?: command.createdAtEpochMillis,
+                            ),
                             lastTurnOrdinal = ordinal,
                         ),
                         messages = current.messages + message,
-                    )
+                    ).withMessageCount()
                 }
                 return message
             }
+
+            /**
+             * 写入前保证会话行在（K1b：行由第一条消息自己保证）。
+             *
+             * 零消息时 [TutorConversationSnapshot] 为 null；真实仓库在这一刻会按 `createConversation`
+             * 建行，所以替身在这里补一行，之后 `messages.size` 与 `messageCount` 同步推进——
+             * 历史列表按消息条数过滤（`tutorHistoryConversations`），行数对不上就会"明明说过话
+             * 却在历史里找不到"。
+             */
+            private fun ensureConversationRow(): TutorConversationSnapshot =
+                snapshot.value ?: TutorConversationSnapshot(
+                    conversation = conversationRow(emptyList()),
+                    messages = emptyList(),
+                )
+
+            private fun TutorConversationSnapshot.withMessageCount() = copy(
+                conversation = conversation.copy(messageCount = messages.size),
+            )
 
             override suspend fun updateMessageStatus(
                 command: UpdateTutorMessageStatusCommand,
@@ -444,6 +558,82 @@ abstract class CapturedTutorSessionTestBase {
                 }
             }
         }
+
+    /**
+     * 会话替身工厂（见 [FakeTutorConversations]）。
+     *
+     * @param recordedStudentMessages 学生消息写入的命令流水（"学生文字必须落库"的用例断言它）。
+     * @param seedMessages 预置的**已落库消息行**：正文 / 思考块 / 学生气泡的唯一来源。
+     */
+    protected fun emptyConversations(
+        recordedStudentMessages: MutableList<AppendTutorStudentMessageCommand> = mutableListOf(),
+        recordedAssistantMessages: MutableList<AppendTutorAssistantMessageCommand> = mutableListOf(),
+        seedMessages: List<TutorMessage> = emptyList(),
+    ): FakeTutorConversations = FakeTutorConversations(
+        recordedStudentMessages = recordedStudentMessages,
+        recordedAssistantMessages = recordedAssistantMessages,
+        seedMessages = seedMessages,
+    )
+
+    /**
+     * 一条**已落库**的助手行：消息 id 与逻辑操作都由请求 id 派生（与写侧
+     * `tutorAssistantMessageId` / `recordTutorAssistantTurn` 同一式），时间线按
+     * `logicalOperationId` 找它——所以替身造的行必须与生产写下的行逐位同形。
+     */
+    protected fun persistedAssistantTurn(
+        requestId: String,
+        bodyMarkdown: String,
+        ordinal: Int,
+        thinkingMarkdown: String? = null,
+        toolTraceJson: String? = null,
+        replyToMessageId: String? = null,
+        conversationId: String = TutorConversationIds.captured("session-1"),
+        createdAtEpochMillis: Long = ordinal.toLong(),
+    ) = TutorMessage(
+        messageId = tutorAssistantMessageId(requestId),
+        conversationId = conversationId,
+        ordinal = ordinal,
+        role = TutorMessageRole.ASSISTANT,
+        bodyMarkdown = bodyMarkdown,
+        thinkingMarkdown = thinkingMarkdown,
+        status = TutorMessageStatus.SUCCEEDED,
+        logicalOperationId = requestId,
+        replyToMessageId = replyToMessageId,
+        createdAtEpochMillis = createdAtEpochMillis,
+        completedAtEpochMillis = createdAtEpochMillis,
+        errorCode = null,
+        toolTraceJson = toolTraceJson,
+    )
+
+    /** 一条**已落库**的学生行（写侧 `tutorStudentMessageId` 同一式）。 */
+    protected fun persistedStudentTurn(
+        requestId: String,
+        bodyMarkdown: String,
+        ordinal: Int,
+        conversationId: String = TutorConversationIds.captured("session-1"),
+        createdAtEpochMillis: Long = ordinal.toLong(),
+    ) = TutorMessage(
+        messageId = tutorStudentMessageId(requestId),
+        conversationId = conversationId,
+        ordinal = ordinal,
+        role = TutorMessageRole.STUDENT,
+        bodyMarkdown = bodyMarkdown,
+        status = TutorMessageStatus.PERSISTED,
+        logicalOperationId = requestId,
+        replyToMessageId = null,
+        createdAtEpochMillis = createdAtEpochMillis,
+        completedAtEpochMillis = createdAtEpochMillis,
+        errorCode = null,
+    )
+
+    /**
+     * 助手回复底部的**曝光锚点**（1dp 定位点；"底部进视口才落账"的判据挂在它上面）。
+     *
+     * 标签 = `tutor_solution_bottom_<轮次 stableId>`（见 `TutorSessionPanel.solutionBottomModifier`），
+     * 回复轮的 stableId = `reply:<请求 id>`（见 `TutorConversationTimelineItem.Reply`）。
+     */
+    protected fun replyBottomAnchorTag(requestId: String): String =
+        "tutor_solution_bottom_reply:$requestId"
 
     protected fun tutorResponse(choiceId: String): TutorTurnResponse {
         val output = tutorOutput()
@@ -741,7 +931,16 @@ abstract class CapturedTutorSessionTestBase {
         externalProvider: Boolean = false,
         currentCapabilities: ProviderCapabilitySnapshot? = null,
         private val holdRespondExecution: Boolean = false,
+        /**
+         * 会话替身（K1a）：**恢复出来的轮次**在真实世界里早就有自己的消息行，替身按生产的
+         * 派生式把它们补上——正文 / 思考块 / 学生气泡只有消息行这一个来源，替身不给行，
+         * 界面上那个气泡就根本不存在（"上一轮已经答过"的用例会直接断言不到）。
+         *
+         * 派发路径上的行不在这里写：那条路走的是内核自己的写入器（面板拿到同一个仓库）。
+         */
+        conversations: FakeTutorConversations? = null,
     ) : ModelTaskRepository {
+        private val conversations: FakeTutorConversations? = conversations
         private val provider = ProviderCapabilitySnapshot(
             providerId = "configured-provider",
             providerDisplayName = "已配置模型",
@@ -821,6 +1020,16 @@ abstract class CapturedTutorSessionTestBase {
             require(restoredFailureCode == null || restoredFailureStatus != null)
             val restoredMessage = restoredPendingMessage ?: restoredSucceededMessage
                 ?: restoredFailureStatus?.let { restoredFailureMessage }
+            // 恢复出来的轮次对应的**已落库消息行**（K1a：正文只有这一个来源），见构造函数注释。
+            val persistedTurns = mutableListOf<TutorMessage>()
+            if (includeInitialPlan && restoredPlanStatus == ModelTaskStatus.SUCCEEDED) {
+                // 首轮讲解的正文 = 计划的 openingMarkdown（写侧 `TutorPlanCommands` 同一处）。
+                persistedTurns += persistedAssistantTurn(
+                    requestId = planRequest.requestId,
+                    bodyMarkdown = tutorOutput().plan.openingMarkdown,
+                    ordinal = persistedTurns.size + 1,
+                )
+            }
             if (restoredMessage != null) {
                 val restoredRequest = buildTutorRespondRequest(
                     question = session.toTutorQuestionContext(),
@@ -870,7 +1079,24 @@ abstract class CapturedTutorSessionTestBase {
                         stateVersion = if (restoredSucceeded) 3 else 1,
                     ),
                 )
+                // K1a：这一轮**已经写下的**消息行（学生行在派发前就落，助手行在这一轮成功时落）。
+                // 取消 / 失败的轮次没有助手行——那一轮没有正文，只有账本上的状态。
+                persistedTurns += persistedStudentTurn(
+                    requestId = restoredRequest.requestId,
+                    bodyMarkdown = restoredMessage,
+                    ordinal = persistedTurns.size + 1,
+                )
+                if (restoredSucceeded) {
+                    persistedTurns += persistedAssistantTurn(
+                        requestId = restoredRequest.requestId,
+                        bodyMarkdown = "先看导数在临界点两侧的符号。",
+                        ordinal = persistedTurns.size + 1,
+                        replyToMessageId = tutorStudentMessageId(restoredRequest.requestId),
+                    )
+                }
             }
+            // 首轮讲解也是"已经答过"的一轮：它的正文同样只在消息行里。
+            conversations?.seed(persistedTurns)
         }
 
         override suspend fun capabilities(): ProviderCapabilitySnapshot =
@@ -895,6 +1121,7 @@ abstract class CapturedTutorSessionTestBase {
                 is TutorPlanInput -> {
                     executePlanCalls += 1
                     planRequests += request
+                    conversations?.recordEvent("dispatch")
                     val running = planSnapshot.copy(
                         request = request,
                         requestFingerprint = ModelTaskFingerprint.of(request),
@@ -925,6 +1152,7 @@ abstract class CapturedTutorSessionTestBase {
                 is TutorRespondInput -> {
                     executeRespondCalls += 1
                     respondRequests += request
+                    conversations?.recordEvent("dispatch")
                     val running = responseSnapshot(
                         request = request,
                         status = ModelTaskStatus.RUNNING,
@@ -960,6 +1188,19 @@ abstract class CapturedTutorSessionTestBase {
         fun publishRestoredSolutionReply(messageMarkdown: String = "先看完整推导。") {
             val current = respondTasks.value.last()
             val input = current.request.input as TutorRespondInput
+            // 这一轮**此刻才成功**：助手行按生产的派生式补上（同一次派发只有一行，重复 publish 幂等）。
+            conversations?.let { repository ->
+                repository.seed(
+                    listOf(
+                        persistedAssistantTurn(
+                            requestId = current.request.requestId,
+                            bodyMarkdown = messageMarkdown,
+                            ordinal = repository.nextOrdinal(),
+                            replyToMessageId = tutorStudentMessageId(current.request.requestId),
+                        ),
+                    ),
+                )
+            }
             upsert(
                 responseSnapshot(
                     request = current.request,

@@ -28,6 +28,12 @@ strictOffline   no model network access
 ./gradlew :app:assembleLocalFirstDebug :app:assembleStrictOfflineDebug
 ```
 
+The two flavor-scoped unit-test tasks exist only in `:app` — `:app` is the only
+module that declares product flavors (`app/build.gradle.kts:33-34`) — so
+`testLocalFirstDebugUnitTest` / `testStrictOfflineDebugUnitTest` cover the `:app`
+module only. To run all JVM unit tests across every module, use
+`./gradlew testDebugUnitTest test`.
+
 Room schema files are exported under `core/database/schemas/`. Any database
 change must be accompanied by the exported schema JSON and a non-destructive
 migration. Normally Room exports schema JSON; never hand-edit the identity hash.

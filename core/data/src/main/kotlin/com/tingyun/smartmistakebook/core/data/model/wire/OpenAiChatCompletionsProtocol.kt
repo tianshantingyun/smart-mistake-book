@@ -51,6 +51,16 @@ internal object OpenAiChatCompletionsProtocol : ModelWireProtocol {
 
     override fun streamDelta(payload: String): String? = OpenAiSse.deltaContent(payload)
 
+    /**
+     * Route A 的判定与请求体里的 `tools` 字段同源（[OpenAiModelProtocol.declaresNativeTools]）：
+     * 声明了工具、且端点被证明支持原生工具往返，这一轮才可能逐字长出正文；否则是 json_object
+     * 信封（Route B），实时文本不得进正文通道（A6）。
+     */
+    override fun usesNativeToolRoute(input: ModelTaskInput, enableNativeTools: Boolean): Boolean =
+        enableNativeTools && OpenAiModelProtocol.declaresNativeTools(input)
+
+    override fun streamToolCallDelta(payload: String): Boolean = OpenAiSse.deltaHasToolCalls(payload)
+
     override fun streamReasoningDelta(payload: String): String? = OpenAiSse.deltaReasoning(payload)
 
     override fun reconstructedBody(rawSse: String): String = OpenAiSse.reconstructedChatCompletion(rawSse)

@@ -14,8 +14,9 @@ import org.junit.Test
 class AgentPendingRequestTest {
     private fun draft(
         logicalOperationId: String = "logical-1",
-        kind: AgentPendingRequestKind = AgentPendingRequestKind.START_EXPORT,
-        payloadJson: String = """{"scope":"subjects"}""",
+        kind: AgentPendingRequestKind = AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
+        // 形状必须是这个 kind 声明过的（按 kind 逐字核对是落库口的一部分）。
+        payloadJson: String = """{"captureSessionId":"session-1"}""",
         conversationArea: String = "AGENT",
         conversationId: String = "conversation-1",
         messageId: String = "message-1",
@@ -33,13 +34,13 @@ class AgentPendingRequestTest {
         resolvedAtEpochMillis: Long? = if (status.isTerminal) 200L else null,
         resolutionNote: String? = if (status == AgentPendingRequestStatus.PENDING) null else "note",
     ) = AgentPendingRequest(
-        requestId = "agent-req:logical-1:START_EXPORT:0000000000000000",
+        requestId = "agent-req:logical-1:SAVE_TO_NOTEBOOK:0000000000000000",
         conversationArea = "AGENT",
         conversationId = "conversation-1",
         logicalOperationId = "logical-1",
         messageId = "message-1",
-        kind = AgentPendingRequestKind.START_EXPORT,
-        payloadJson = """{"scope":"subjects"}""",
+        kind = AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
+        payloadJson = """{"captureSessionId":"session-1"}""",
         status = status,
         createdAtEpochMillis = 100L,
         resolvedAtEpochMillis = resolvedAtEpochMillis,
@@ -52,8 +53,15 @@ class AgentPendingRequestTest {
     fun theSameRequestAlwaysDerivesTheSameId() {
         assertEquals(draft().requestId(), draft().requestId())
         assertEquals(
-            agentPendingRequestId("logical-1", AgentPendingRequestKind.START_EXPORT, """{"a":1}"""),
-            draft(logicalOperationId = "logical-1", payloadJson = """{"a":1}""").requestId(),
+            agentPendingRequestId(
+                "logical-1",
+                AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
+                """{"captureSessionId":"session-1"}""",
+            ),
+            draft(
+                logicalOperationId = "logical-1",
+                payloadJson = """{"captureSessionId":"session-1"}""",
+            ).requestId(),
         )
     }
 
@@ -62,11 +70,14 @@ class AgentPendingRequestTest {
         assertNotEquals(draft().requestId(), draft(logicalOperationId = "logical-2").requestId())
         assertNotEquals(
             draft().requestId(),
-            draft(kind = AgentPendingRequestKind.OPEN_PROBLEM).requestId(),
+            draft(
+                kind = AgentPendingRequestKind.OPEN_PROBLEM,
+                payloadJson = """{"libraryProblemId":"p1"}""",
+            ).requestId(),
         )
         assertNotEquals(
             draft().requestId(),
-            draft(payloadJson = """{"scope":"sections"}""").requestId(),
+            draft(payloadJson = """{"captureSessionId":"session-2"}""").requestId(),
         )
     }
 
@@ -87,7 +98,7 @@ class AgentPendingRequestTest {
     fun aPayloadMustBeABoundedJsonObject() {
         requireAgentPendingRequestPayload(
             AgentPendingRequestKind.OPEN_PROBLEM,
-            """{"problemId":"p1"}""",
+            """{"libraryProblemId":"p1"}""",
         )
 
         val rejected = listOf(
@@ -95,9 +106,9 @@ class AgentPendingRequestTest {
             "[1,2,3]",
             "{unterminated",
             "",
-            """{"note":"line
+            """{"libraryProblemId":"line
 break"}""",
-            """{"note":"""" + "x".repeat(MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS) + """}""",
+            """{"libraryProblemId":"""" + "x".repeat(MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS) + """}""",
         )
         rejected.forEach { payload ->
             val failure = runCatching {

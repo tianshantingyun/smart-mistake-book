@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
@@ -34,7 +36,9 @@ import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.StudyQuestionMemory
+import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorInteractionRepository
 import com.tingyun.smartmistakebook.core.domain.TutorKnowledgeContextLoader
@@ -57,8 +61,7 @@ import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer
 import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
+import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -91,7 +94,13 @@ fun SavedMistakeTutorRoute(
     learningMemory: StudyQuestionMemory? = null,
     /** 学生消息附图的资产读取器；null 时会话页不提供附图入口。 */
     imageIntake: LobbyMessageImageIntake? = null,
-    onOpenMistakeNotebook: () -> Unit = {},
+    /** 附图上库的落点（A4 执行路径 ③）：null = 这一页不接"把图存进错题本"。 */
+    attachedImageIntake: TutorAttachedImageIntake? = null,
+    /**
+     * 打开错题本：给 id 就打开那道题的详情，给 null 只打开列表——与确认卡落点的
+     * `openNotebook(problemId)` 同语义（A4 执行路径 ② 直达那道题，不再只落到列表）。
+     */
+    onOpenMistakeNotebook: (problemId: String?) -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onOpenModelSettings: () -> Unit,
     /** 讲题历史入口；与大厅、拍照会话共用同一个页面标题栏，所以三个入口都有它。 */
@@ -111,12 +120,13 @@ fun SavedMistakeTutorRoute(
      */
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
     /**
-     * 意图确认按钮的动作。默认值都指向本页真实存在的动作，不留空实现：
-     * 这道题已经在错题本里，「确认加入错题本」打开错题本（它就在里面）；
-     * 「确认结束且不保存」离开这次讲题（题与对话都已经保存，页面不会谎称丢弃了什么）。
+     * 确认卡的落库端口（A4）：null = 这个入口不接确认卡（无库界面与测试替身）。
+     *
+     * 接上之后这一页与拍照入口、智能体栏走**同一条**本地动作通道：模型提出请求 → 挂一张
+     * **落库**的卡 → 学生点了才执行 → 裁决落终态并回喂下一轮。此前这一页没有它，模型在这一页
+     * 申请的本地动作（"把这一轮的题存进错题本"）没有出口，只能在界面流里消失。
      */
-    onRequestSave: () -> Unit = onOpenMistakeNotebook,
-    onRequestEnd: () -> Unit = onBack,
+    pendingRequests: AgentPendingRequestRepository? = null,
     modifier: Modifier = Modifier,
 ) {
     val stateFlow: Flow<MistakeDetailState> = remember(key, repository) {
@@ -180,12 +190,31 @@ fun SavedMistakeTutorRoute(
 
     when (val current = state) {
         is MistakeDetailState.Ready -> if (organization == null) {
-            TutorConversationFrame(
-                header = {
-                    TutorPageHeader(
-                        onOpenCapabilitySettings = onOpenModelSettings,
-                        onOpenHistory = onOpenHistory,
-                        onBack = onBack,
+            // 非就绪帧（知识点归位还没读出来）也走**同一条交互面**：输入区常驻（A5），
+            // 只是此刻确实还没有可以发过去的对象——原因写在输入区里。
+            TutorConversationScreen(
+                config = TutorSurfaceConfig(
+                    header = {
+                        TutorPageHeader(
+                            onOpenCapabilitySettings = onOpenModelSettings,
+                            onOpenHistory = onOpenHistory,
+                            onBack = onBack,
+                        )
+                    },
+                    composerPlaceholder = "这道题还没有打开",
+                    liveAnswerTestTag = "saved_mistake_non_ready_reply",
+                ),
+                composer = {
+                    TutorSurfaceComposer(
+                        value = "",
+                        onValueChange = {},
+                        onSend = {},
+                        block = TutorComposerAvailability(
+                            providerReady = true,
+                            questionNotReady = true,
+                        ).block(),
+                        placeholder = "这道题还没有打开",
+                        reasonTestTag = "saved_mistake_non_ready_reason",
                     )
                 },
                 autoScrollVersion = current,
@@ -218,18 +247,35 @@ fun SavedMistakeTutorRoute(
                 onRecordMisconception = onRecordMisconception,
                 priorTeachingAdvisories = priorTeachingAdvisories,
                 attachedImageResolver = attachedImageResolver,
-                onRequestSave = onRequestSave,
-                onRequestEnd = onRequestEnd,
+                pendingRequests = pendingRequests,
                 modifier = modifier.testTag("saved_mistake_tutor_screen"),
             )
         }
 
-        else -> TutorConversationFrame(
-            header = {
-                TutorPageHeader(
-                    onOpenCapabilitySettings = onOpenModelSettings,
-                    onOpenHistory = onOpenHistory,
-                    onBack = onBack,
+        // 找不到 / 旧快照 / 读不出来：同样是这条交互面 + 常驻输入区（A5），原因写在输入区里。
+        else -> TutorConversationScreen(
+            config = TutorSurfaceConfig(
+                header = {
+                    TutorPageHeader(
+                        onOpenCapabilitySettings = onOpenModelSettings,
+                        onOpenHistory = onOpenHistory,
+                        onBack = onBack,
+                    )
+                },
+                composerPlaceholder = "这道题还没有打开",
+                liveAnswerTestTag = "saved_mistake_non_ready_reply",
+            ),
+            composer = {
+                TutorSurfaceComposer(
+                    value = "",
+                    onValueChange = {},
+                    onSend = {},
+                    block = TutorComposerAvailability(
+                        providerReady = true,
+                        questionNotReady = true,
+                    ).block(),
+                    placeholder = "这道题还没有打开",
+                    reasonTestTag = "saved_mistake_non_ready_reason",
                 )
             },
             autoScrollVersion = current,
@@ -280,10 +326,11 @@ internal fun SavedMistakeTutorContent(
     profile: StudyProfileOverview,
     learningMemory: StudyQuestionMemory?,
     imageIntake: LobbyMessageImageIntake? = null,
+    attachedImageIntake: TutorAttachedImageIntake? = null,
     relatedKnowledgeNodeIds: Set<String> = emptySet(),
     reviewedTeachingReferences: List<TutorTeachingReference> = emptyList(),
     knowledgePreDisclosures: List<TutorKnowledgeCode> = emptyList(),
-    onOpenMistakeNotebook: () -> Unit = {},
+    onOpenMistakeNotebook: (problemId: String?) -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onOpenModelSettings: () -> Unit,
     onOpenHistory: (() -> Unit)? = null,
@@ -298,22 +345,28 @@ internal fun SavedMistakeTutorContent(
     priorTeachingAdvisories: List<String> = emptyList(),
     /** 模型要求的配图解析器；null 时会话页不渲染这类图（见 [SavedMistakeTutorRoute]）。 */
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
-    /** 意图确认按钮的动作（见 [SavedMistakeTutorRoute]）。 */
-    onRequestSave: () -> Unit = onOpenMistakeNotebook,
-    onRequestEnd: () -> Unit = onBack,
+    /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡（见 [SavedMistakeTutorRoute]）。 */
+    pendingRequests: AgentPendingRequestRepository? = null,
     clock: () -> Long = System::currentTimeMillis,
     modifier: Modifier = Modifier,
 ) {
+    // A1（进入不接管旧会话）：这次进入用的讲题会话 id 是显式的，每进入一次新开一个。
+    // `rememberSaveable` 保证旋转/进程死亡之后仍是**同一次进入**的同一个会话（换一个 id
+    // 就等于把学生正在说的这一轮丢掉），而"从历史列表点回来"走的是另一条显式 id 的路径。
+    val entrySessionId = rememberSaveable(state.detail.identity) {
+        "mistake-tutor:${UUID.randomUUID()}"
+    }
     val question = remember(
         state.detail.identity,
-        state.detail.tutorConversation,
         state.questionDocument,
+        entrySessionId,
         learningMemory,
         relatedKnowledgeNodeIds,
         reviewedTeachingReferences,
         knowledgePreDisclosures,
     ) {
         savedMistakeTutorQuestion(
+            sessionId = entrySessionId,
             state = state,
             learningMemory = learningMemory,
             relatedKnowledgeNodeIds = relatedKnowledgeNodeIds,
@@ -420,45 +473,66 @@ internal fun SavedMistakeTutorContent(
         roundQuestionRetriever = roundQuestionRetriever,
         attachedQuestionReader = attachedQuestionReader,
         imageIntake = imageIntake,
-        onOpenMistakeNotebook = onOpenMistakeNotebook,
-        onOpenProfile = onOpenProfile,
         onOpenModelSettings = onOpenModelSettings,
         // 模型要的配图（重绘图 / 过程图）要在这一页渲染出来：此前这里没传，整段被跳过。
         attachedImageResolver = attachedImageResolver,
-        // 意图确认按钮：此前这两个动作默认 {}，学生点了没反应。
-        onRequestSave = onRequestSave,
-        onRequestEnd = onRequestEnd,
+        // 确认卡（A4）：模型在这一页申请的本地动作挂成库里的行，学生点了才执行。
+        pendingRequests = pendingRequests,
+        // 三条执行路径的落点：这一页的真实出口就是"打开错题本"（这道题已经在里面），
+        // 与拍照入口、智能体栏是**同一个**装配函数，不另写一套。
+        localActionLandings = tutorLocalActionLandings(
+            openNotebook = onOpenMistakeNotebook,
+            attachedImageIntake = attachedImageIntake,
+        ),
         clock = clock,
-        // 同一个页面标题栏：错题讲题与大堂、拍照会话长得一模一样。
-        headerContent = {
-            TutorPageHeader(
-                onOpenCapabilitySettings = onOpenModelSettings,
-                onOpenHistory = onOpenHistory,
-                onBack = onBack,
-            )
-        },
-        leadingContent = {
-            LocalModeLine("已存入错题本 · 再次打开会接着上次讲题")
-            SectionHeader(question.title, modifier = Modifier.padding(top = 10.dp))
-            Text(
-                text = question.subject.studentSubjectLabel(),
-                modifier = Modifier.padding(top = 4.dp),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Spacer(Modifier.height(14.dp))
-            StructuredContentRenderer(
-                document = question.questionDocument.document,
-                choicesEnabled = false,
-            )
-            learningMemory?.let { memory ->
-                TutorQuestionMemoryCard(
-                    memory = memory,
-                    modifier = Modifier.padding(top = 16.dp),
+        // 这条交互面的差异（C1）：同一个页面标题栏、这道题的题面卡、以及"打开错题本"出口。
+        // 会话内容本身与智能体栏、拍照会话共用同一条交互面。
+        surface = TutorSurfaceConfig(
+            area = TutorConversationAreas.AGENT,
+            header = {
+                TutorPageHeader(
+                    onOpenCapabilitySettings = onOpenModelSettings,
+                    onOpenHistory = onOpenHistory,
+                    onBack = onBack,
                 )
-            }
-        },
-        trailingContent = { Spacer(Modifier.height(12.dp)) },
+            },
+            composerPlaceholder = "问这道题，或说出你卡住的步骤",
+            // 这一条**不自动开首轮**（与拍照入口相反）：错题本这条路的合同是"入库后不自动讲题、
+            // 由学生显式发起"（`docs/product-information-architecture.md` §错题本、
+            // `docs/m1-exhaustive-product-contract.md` 的"自动开始讲题"一栏）。学生进来看到的是
+            // 这道题的题面与记忆卡，第一轮由他说出问题才开始——页面不替他发问。
+            autoStartFirstTurn = false,
+            onOpenAttachedQuestionDetail = { onOpenMistakeNotebook(null) },
+            // 这一页锚着的那道**已在错题本里**的题（A4 执行路径 ②）：模型申请"存/打开这一轮
+            // 这道题"时，本地可执行的目标就是它——没有它，这类申请连卡都挂不出来（本地没有
+            // 目标就不该出现一张点了无处落地的卡，见 `tutorLocalActionAdmission`），
+            // 于是只能在界面流里消失。用错题本条目 id（与错题详情同一条入口的键）。
+            libraryProblemId = identity.errorBookEntryId,
+            leadingContent = {
+                // A1：进入即新会话，不再接管上一次。文案跟着改——旧文案承诺"再次打开会接着
+                // 上次讲题"，而那正是被删掉的行为。
+                LocalModeLine("已存入错题本 · 这一轮从这道题开始")
+                SectionHeader(question.title, modifier = Modifier.padding(top = 10.dp))
+                Text(
+                    text = question.subject.studentSubjectLabel(),
+                    modifier = Modifier.padding(top = 4.dp),
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Spacer(Modifier.height(14.dp))
+                StructuredContentRenderer(
+                    document = question.questionDocument.document,
+                    choicesEnabled = false,
+                )
+                learningMemory?.let { memory ->
+                    TutorQuestionMemoryCard(
+                        memory = memory,
+                        modifier = Modifier.padding(top = 16.dp),
+                    )
+                }
+            },
+            trailingContent = { Spacer(Modifier.height(12.dp)) },
+        ),
         modifier = modifier,
     )
 }
@@ -475,7 +549,25 @@ internal fun savedMistakeTutorAnchor(
     anchoredAtEpochMillis = anchoredAtEpochMillis,
 )
 
+/**
+ * 这道错题这一轮的讲题上下文。
+ *
+ * [sessionId] 是**显式**的（A1）：由本页这次进入的人给（路由每进入一次新开一个，
+ * `rememberSaveable` 保证旋转/进程死亡后仍是同一次进入的同一个会话）。**没有例外**——
+ * 这道题当初是不是从拍照会话确认存下来的、详情里有没有一条会话联结（
+ * `MistakeDetailState.Ready.tutorConversation`），都不改变"进入即新开"：那是**上一次**
+ * 讲题，而 D-Q6-4 定的是"进任何入口都是新对话，不续旧会话"，页面上那句「这一轮从这道题
+ * 开始」说的也是同一件事。
+ *
+ * 这里此前自己从"题面 id + 修订号"派生出 `mistake-tutor-<hash>`：同一个题面进来的人因此
+ * 都会拿到同一个会话 id，而会话行是按 id 建的——于是"进入即新开"变成了"进入即静默接管
+ * 上一次"，上一次的上下文、上一次的助手行全都接着用。派生式已删；随后那条"来自拍照会话就
+ * 用旧会话 id"的例外也删了——它把同一个失败换了个触发条件，还顺带把本轮修订号换成旧会话
+ * 里的那个数字（页面上摆着的是 `identity.revisionNumber` 那一版），并丢掉本轮的
+ * `priorTeachingAdvisories`。
+ */
 internal fun savedMistakeTutorQuestion(
+    sessionId: String,
     state: MistakeDetailState.Ready,
     learningMemory: StudyQuestionMemory? = null,
     relatedKnowledgeNodeIds: Set<String> = emptySet(),
@@ -484,28 +576,8 @@ internal fun savedMistakeTutorQuestion(
     knowledgeCodes: List<TutorKnowledgeCode> = emptyList(),
 ): TutorQuestionContext {
     val identity = state.detail.identity
-    state.detail.tutorConversation?.let { conversation ->
-        return TutorQuestionContext(
-            sessionId = conversation.sessionId,
-            revisionNumber = conversation.questionRevisionNumber,
-            subject = identity.subject,
-            title = identity.title,
-            questionDocument = state.questionDocument,
-            learningMemory = learningMemory,
-            relatedKnowledgeNodeIds = relatedKnowledgeNodeIds,
-            reviewedTeachingReferences = reviewedTeachingReferences,
-            knowledgeCodes = knowledgeCodes,
-        )
-    }
-    val stableSessionId = MessageDigest.getInstance("SHA-256")
-        .digest(
-            "${identity.problemId}\n${identity.problemRevisionId}"
-                .toByteArray(StandardCharsets.UTF_8),
-        )
-        .joinToString("") { "%02x".format(it) }
-        .take(32)
     return TutorQuestionContext(
-        sessionId = "mistake-tutor-$stableSessionId",
+        sessionId = sessionId,
         revisionNumber = identity.revisionNumber,
         subject = identity.subject,
         title = identity.title,

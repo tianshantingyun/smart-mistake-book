@@ -21,6 +21,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStage
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -35,6 +36,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ModelTaskDatabaseInstrumentedTest {
     private lateinit var store: StudyDatabasePort
+
+    /**
+     * 讲题轮的槽键主语（K1c）：`TutorRespondInput.subjectId` = `TutorConversationIds.captured(sessionId)`，
+     * **不是**裸会话 id。读侧同口径（`TutorSessionPanel` 按 `TutorConversationIds.captured(...)` 观察，
+     * `TutorConversationWiring` 同一处约定），所以这里按派生出来的会话 id 查。
+     */
+    private val tutorRespondSubject = TutorConversationIds.captured(TUTOR_SESSION_ID)
 
     @Before
     fun setUp() {
@@ -146,7 +154,7 @@ class ModelTaskDatabaseInstrumentedTest {
             assertEquals(initialWrite.snapshot, replayWrite.snapshot)
             assertEquals(
                 listOf(initialWrite.snapshot),
-                store.observeModelTasks("tutor-session-1", ModelTaskKind.TUTOR_RESPOND).first(),
+                store.observeModelTasks(tutorRespondSubject, ModelTaskKind.TUTOR_RESPOND).first(),
             )
         }
 
@@ -173,7 +181,7 @@ class ModelTaskDatabaseInstrumentedTest {
         assertEquals(original.input, reauthorized.input)
         assertEquals(
             listOf(original.requestId, reauthorized.requestId),
-            store.observeModelTasks("tutor-session-1", ModelTaskKind.TUTOR_RESPOND)
+            store.observeModelTasks(tutorRespondSubject, ModelTaskKind.TUTOR_RESPOND)
                 .first()
                 .map { it.request.requestId },
         )
@@ -258,7 +266,7 @@ class ModelTaskDatabaseInstrumentedTest {
         }
 
         val recent = store.observeRecentModelTasks(
-            "tutor-session-1",
+            tutorRespondSubject,
             ModelTaskKind.TUTOR_RESPOND,
             limit = 3,
         ).first()
@@ -453,7 +461,7 @@ class ModelTaskDatabaseInstrumentedTest {
     ) = ModelTaskRequest(
         requestId = requestId,
         input = TutorRespondInput(
-            sessionId = "tutor-session-1",
+            sessionId = TUTOR_SESSION_ID,
             draftRevisionNumber = 2,
             subject = "MATH",
             questionDocument = QuestionDocument(
@@ -492,4 +500,8 @@ class ModelTaskDatabaseInstrumentedTest {
         executionLocation = ModelExecutionLocation.EXTERNAL_PROVIDER,
         isDemo = true,
     )
+
+    private companion object {
+        const val TUTOR_SESSION_ID = "tutor-session-1"
+    }
 }

@@ -1,11 +1,17 @@
 package com.tingyun.smartmistakebook.core.database
 
 import com.tingyun.smartmistakebook.core.database.dao.TUTOR_CONVERSATION_AREA_AGENT
+import com.tingyun.smartmistakebook.core.database.dao.TUTOR_INTERACTION_MODE_NORMAL
 
 data class TutorConversationRecord(
     val conversationId: String,
     /** 会话区（K1）：会话按栏隔离的判别列。 */
     val conversationArea: String = TUTOR_CONVERSATION_AREA_AGENT,
+    /**
+     * 交互模式（D-Q9，52→53 的 `interaction_mode`）。默认 NORMAL 只为旧行读回服务
+     * （迁移前的会话只有正常模式）；新行由创建方显式给出。
+     */
+    val interactionMode: String = TUTOR_INTERACTION_MODE_NORMAL,
     val anchorKind: String,
     val anchorId: String?,
     val anchorRevisionId: String?,
@@ -24,6 +30,39 @@ data class TutorConversationRecord(
     val firstMessageBodyMarkdown: String? = null,
 )
 
+/**
+ * 轮次事实 → 轮次记录；**不是轮次行时返回 null**（普通学生/助手消息没有轮次列）。
+ *
+ * [sessionId] 是会话锚里那条讲题会话的 id（轮次行与 `tutor_message` 的其余行同存一张表，
+ * 会话本身只记锚，所以由读侧把锚还原成套件里的会话 id）。这与
+ * `TutorInteractionDao.observe(sessionId)` 是同一次映射，只是入口从会话侧进来。
+ */
+fun TutorMessageRecord.toTurnRecordOrNull(sessionId: String): TutorTurnResponseRecord? {
+    val cycle = roundCycleOrdinal ?: return null
+    val turn = roundTurnOrdinal ?: return null
+    return TutorTurnResponseRecord(
+        sessionId = sessionId,
+        questionDocumentId = requireNotNull(roundQuestionDocumentId),
+        revisionNumber = requireNotNull(roundRevisionNumber),
+        cycleOrdinal = cycle,
+        turnOrdinal = turn,
+        diagnosticStemMarkdown = choiceStemMarkdown,
+        selectedChoiceId = choiceSelectedId,
+        selectedChoiceMarkdown = choiceSelectedMarkdown,
+        selectionWasCorrect = choiceWasCorrect,
+        feedbackMarkdown = choiceFeedbackMarkdown,
+        requestedMove = requestedMove,
+        solutionRevealed = solutionRevealed,
+        choiceSubmittedAtEpochMillis = createdAtEpochMillis.takeIf { choiceStemMarkdown != null },
+        submittedAtEpochMillis = createdAtEpochMillis,
+        updatedAtEpochMillis = completedAtEpochMillis ?: createdAtEpochMillis,
+    )
+}
+
+/** 轮次行是本地事件（正文为空），不是会话消息：对话流只列学生/助手消息。 */
+val TutorMessageRecord.isTutorRoundRow: Boolean
+    get() = roundCycleOrdinal != null && roundTurnOrdinal != null
+
 data class TutorMessageRecord(
     val messageId: String,
     val conversationId: String,
@@ -34,6 +73,29 @@ data class TutorMessageRecord(
     /** 本轮绑定的题（学生消息行）；两列同时为空表示无题轮。 */
     val boundProblemId: String? = null,
     val boundProblemRevisionId: String? = null,
+    /**
+     * 轮次事实（51→52 由 `tutor_turn_response` 并入本表；非轮次行为 null）。
+     *
+     * 放在消息记录上，是为了让"这条会话说了什么"与"这一轮发生了什么"从**同一次读**里出来
+     * （见 `TutorConversationSnapshot.turns`）：调用方不需要第二条订阅去别的投影取轮次。
+     */
+    val roundCycleOrdinal: Int? = null,
+    val roundTurnOrdinal: Int? = null,
+    val roundQuestionDocumentId: String? = null,
+    val roundRevisionNumber: Int? = null,
+    /** 检查题题干、学生所选选项与本地判对结果。 */
+    val choiceStemMarkdown: String? = null,
+    val choiceSelectedId: String? = null,
+    val choiceSelectedMarkdown: String? = null,
+    val choiceWasCorrect: Boolean? = null,
+    val choiceFeedbackMarkdown: String? = null,
+    val solutionRevealed: Boolean = false,
+    val requestedMove: String? = null,
+    /**
+     * 这一轮智能体查阅了什么的痕迹（B1，52→53 的 `tool_trace_json`）。
+     * null = 没有痕迹（旧行、或这一轮没发起过工具调用）。
+     */
+    val toolTraceJson: String? = null,
     val status: String,
     val logicalOperationId: String?,
     val replyToMessageId: String?,
@@ -49,12 +111,33 @@ data class CreateTutorConversationDatabaseCommand(
      * 默认 AGENT；复习栏两个入口由创建方显式给出 REVIEW_*（阶段 5 接线）。
      */
     val conversationArea: String = TUTOR_CONVERSATION_AREA_AGENT,
+    /**
+     * 交互模式（D-Q9）：创建方显式给出，不从会话区反推（复习栏默认引导在阶段 5 由入口给）。
+     * 默认 NORMAL 服务"智能体栏"这一条主路径。
+     */
+    val interactionMode: String = TUTOR_INTERACTION_MODE_NORMAL,
     val anchorKind: String,
     val anchorId: String?,
     val anchorRevisionId: String?,
     val title: String?,
     val createdAtEpochMillis: Long,
 )
+
+/** 切换交互模式（D-Q9）：学生自己选的那一下，落库、随下一轮请求进模型。 */
+data class SetTutorInteractionModeDatabaseCommand(
+    val conversationId: String,
+    /** NORMAL / GUIDED（集合开放，与 conversation_area 同一手法）。 */
+    val interactionMode: String,
+    val updatedAtEpochMillis: Long,
+) {
+    init {
+        require(conversationId.isNotBlank()) { "Tutor conversation id must not be blank" }
+        require(interactionMode.isNotBlank()) { "Tutor interaction mode must not be blank" }
+        require(updatedAtEpochMillis >= 0L) {
+            "Tutor conversation mode update time must not be negative"
+        }
+    }
+}
 
 data class AppendTutorStudentMessageDatabaseCommand(
     val conversationId: String,
@@ -115,6 +198,11 @@ data class AppendTutorAssistantMessageDatabaseCommand(
     val replyToMessageId: String?,
     val bodyMarkdown: String,
     val thinkingMarkdown: String? = null,
+    /**
+     * 这一轮的工具痕迹（B1）：与正文同一次写入，因为它是"这一轮查过什么"这一条事实的另一半。
+     * null = 这一轮没有发起工具调用（空载体不落列）。
+     */
+    val toolTraceJson: String? = null,
     val logicalOperationId: String?,
     val status: String,
     val createdAtEpochMillis: Long,

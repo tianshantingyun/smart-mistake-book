@@ -80,9 +80,15 @@ internal fun TutorTaskContent(
     task: ModelTaskSnapshot,
     response: TutorTurnResponse?,
     /**
-     * 本轮讲解的正文（K1a：消息行是唯一文本权威）。null = 旧行没有消息行，回落账本。
+     * 本轮讲解的正文（K1a：消息行是唯一文本权威）。null = 这一轮没有消息行；
+     * **不回落账本**（回落就是第二份文本源，见 `TutorTurnContent`）。
      */
-    openingMarkdown: String? = null,
+    openingMarkdown: String?,
+    /**
+     * 这一轮的工具痕迹（B1，与正文同来自消息行）：加粗灰色小字内联、点开可看详情。
+     * null = 这一轮没有发起工具调用（或旧行没有痕迹）。
+     */
+    toolTraceJson: String? = null,
     solutionRevealPreviewed: Boolean = false,
     awaitingContinuation: Boolean = false,
     interactionEnabled: Boolean,
@@ -105,20 +111,24 @@ internal fun TutorTaskContent(
         ModelTaskStatus.SUCCEEDED -> {
             val output = task.output as? TutorPlanOutput
             if (output == null) {
-                TutorModelStatusCard(
-                    title = "这次讲解暂时没准备好",
-                    detail = "题目已经保存，可以再试一次。",
-                    modifier = modifier,
-                    actionLabel = "重新生成".takeIf {
+                // 失败卡只有一套（`TutorTurnFailureCard`），出口文案也只有一套
+                // （`TUTOR_SURFACE_RETRY_LABEL`）——此前这里是第二种形状 + "重新生成"这个第三种叫法。
+                TutorTurnFailureCard(
+                    detail = "这次讲解暂时没准备好。",
+                    reason = "题目已经保存，可以再试一次。",
+                    primaryActionLabel = TUTOR_SURFACE_RETRY_LABEL.takeIf {
                         interactionEnabled && executionMatchesCurrentProvider
                     },
-                    onAction = onRetry,
+                    primaryActionTestTag = "tutor_plan_retry",
+                    onPrimaryAction = onRetry,
+                    modifier = modifier,
                 )
             } else {
                 TutorTurnContent(
                     output = output,
                     modifier = modifier,
-                    openingMarkdown = openingMarkdown ?: output.plan.openingMarkdown,
+                    openingMarkdown = openingMarkdown,
+                    toolTraceJson = toolTraceJson,
                     response = response,
                     solutionRevealPreviewed = solutionRevealPreviewed,
                     interactionEnabled = interactionEnabled,
@@ -137,21 +147,20 @@ internal fun TutorTaskContent(
         ModelTaskStatus.PERMANENT_FAILURE,
         ModelTaskStatus.RETRYABLE_FAILURE,
         ModelTaskStatus.CANCELLED,
-        -> TutorModelStatusCard(
-            title = if (executionMatchesCurrentProvider) {
-                "这次讲解暂时没完成"
+        -> TutorTurnFailureCard(
+            detail = if (executionMatchesCurrentProvider) {
+                "这次讲解暂时没完成。"
             } else {
-                "旧配置中的回复未完成"
+                "旧配置中的回复没有完成。"
             },
-            detail = if (!executionMatchesCurrentProvider) {
+            reason = if (!executionMatchesCurrentProvider) {
                 "之前的内容仍保留，可从当前配置继续这道题。"
             } else if (requiresModelSettings) {
                 "模型设置需要更新，题目已经保存。"
             } else {
                 "题目已经保存，可以再试一次。"
             },
-            modifier = modifier,
-            actionLabel = if (
+            primaryActionLabel = if (
                 !interactionEnabled || !executionMatchesCurrentProvider ||
                 (task.status != ModelTaskStatus.RETRYABLE_FAILURE &&
                     task.status != ModelTaskStatus.PERMANENT_FAILURE &&
@@ -159,15 +168,21 @@ internal fun TutorTaskContent(
             ) {
                 null
             } else if (requiresModelSettings) {
-                "检查模型设置"
+                TUTOR_SURFACE_OPEN_SETTINGS_LABEL
             } else {
-                "重新生成"
+                TUTOR_SURFACE_RETRY_LABEL
             },
-            onAction = if (requiresModelSettings) {
+            primaryActionTestTag = if (requiresModelSettings) {
+                "tutor_plan_model_settings"
+            } else {
+                "tutor_plan_retry"
+            },
+            onPrimaryAction = if (requiresModelSettings) {
                 onOpenModelSettings
             } else {
                 onRetry
             },
+            modifier = modifier,
         )
         else -> if (executionMatchesCurrentProvider && awaitingContinuation) {
             TutorModelStatusCard(

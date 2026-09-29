@@ -170,7 +170,7 @@ internal fun List<TutorAnswerExposureRecord>.matchingAnswerExposureKeys(
     }
 }
 
-private fun TutorTurnResponseRecord.toDomain() = TutorTurnResponse(
+internal fun TutorTurnResponseRecord.toDomain() = TutorTurnResponse(
     sessionId = sessionId,
     questionDocumentId = questionDocumentId,
     revisionNumber = revisionNumber,

@@ -29,6 +29,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyQuestionMemory
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.TutorAnswerExposureSurfaceKind
+import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.model.AttachedRoundQuestion
 import com.tingyun.smartmistakebook.core.model.ContentBlock
@@ -101,7 +102,6 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                     conversations = emptyConversations(),
                     modelTasks = modelTasks,
                     catalogEntries = emptyList(),
-                    profile = StudyProfileOverview(),
                 )
             }
         }
@@ -203,6 +203,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                 RootPageColumn {
                     TutorTurnContent(
                         output = tutorOutput(),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         response = response.value,
                         onSubmitChoice = { choiceId ->
                             response.value = tutorResponse(choiceId)
@@ -237,6 +238,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                 RootPageColumn {
                     TutorTurnContent(
                         output = tutorOutput(),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         onSubmitChoice = submittedChoiceIds::add,
                     )
                 }
@@ -263,6 +265,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                 RootPageColumn {
                     TutorTurnContent(
                         output = tutorOutput(),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         onSubmitChoice = submittedChoiceIds::add,
                     )
                 }
@@ -291,6 +294,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                 RootPageColumn {
                     TutorTurnContent(
                         output = tutorOutput(),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         response = persistedResponse.collectAsState().value,
                         interactionBusy = interactionBusy.value,
                         onSubmitChoice = { interactionBusy.value = true },
@@ -326,6 +330,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                 RootPageColumn {
                     TutorTurnContent(
                         output = tutorOutput(),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         onSubmitChoice = { submittedChoiceId = it },
                         onRequestHint = { hintRequests += 1 },
                     )
@@ -351,6 +356,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                 RootPageColumn {
                     TutorTurnContent(
                         output = tutorOutput(),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         response = tutorResponse("choice-2"),
                         onContinue = { continued = it },
                     )
@@ -375,6 +381,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                         output = tutorOutput().copy(
                             plan = tutorOutput().plan.copy(diagnosticItem = null),
                         ),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         response = response.value,
                         onContinue = { move ->
                             requestedMove = move
@@ -415,7 +422,12 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         )
         composeRule.setContent {
             MaterialTheme {
-                RootPageColumn { TutorTurnContent(output = output) }
+                RootPageColumn {
+                    TutorTurnContent(
+                        output = output,
+                        openingMarkdown = output.plan.openingMarkdown,
+                    )
+                }
             }
         }
 
@@ -433,6 +445,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                         output = tutorOutput().copy(
                             plan = tutorOutput().plan.copy(diagnosticItem = null),
                         ),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
                         response = actionResponse(
                             requestedMove = TutorMoveType.CHANGE_REPRESENTATION,
                             solutionRevealed = true,
@@ -599,6 +612,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                 RootPageColumn {
                     TutorTurnContent(
                         output = output.value,
+                        openingMarkdown = output.value.plan.openingMarkdown,
                         response = response.value,
                         onSubmitChoice = { choiceId -> response.value = tutorResponse(choiceId) },
                     )
@@ -656,9 +670,10 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         // 学生文字必须真的落库——否则纯文字（开放式）作答的语料恒为空，MASTERED 机械不可达，
         // 提示词里"引文会被本地逐条比对"也形同虚设。
         val session = session()
-        val modelTasks = ChatModelTaskRepository(session)
         val interactions = RecordingTutorInteractions()
         val recordedStudentMessages = mutableListOf<AppendTutorStudentMessageCommand>()
+        val conversations = emptyConversations(recordedStudentMessages)
+        val modelTasks = ChatModelTaskRepository(session = session, conversations = conversations)
         val exactMessage = "我觉得先把两边同时开方"
 
         composeRule.setContent {
@@ -671,7 +686,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                     onSave = {},
                     modelTasks = modelTasks,
                     interactions = interactions,
-                    conversations = emptyConversations(recordedStudentMessages),
+                    conversations = conversations,
                     profile = StudyProfileOverview(),
                     onOpenModelSettings = {},
                 )
@@ -687,9 +702,29 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         val command = recordedStudentMessages.single()
         assertEquals(TutorConversationIds.captured(session.sessionId), command.conversationId)
         assertEquals(exactMessage, command.bodyMarkdown)
-        // 学生第 n 轮固定落在第 2n-1 条：序号由请求自身决定，恢复重放不会因"当前最大 +1"漂移。
-        assertEquals(1, command.ordinal)
+        // K1c 之后序号由**会话计数器**分配（命令里是 null，不再由调用方按"当前最大 +1"推算）。
+        assertEquals(null, command.ordinal)
+        // 学生这一轮落在计数器给的下一位（这一页已经有一条计划行，所以学生是第 2 位、助手是第 3 位）；
+        // 恢复重放按消息 id（= 请求 id 派生）读回同一行，不会因"当前最大 +1"漂移。
+        val persisted = conversations.messages()
+            .single { message -> message.role == TutorMessageRole.STUDENT }
+        assertEquals(command.messageId, persisted.messageId)
+        assertEquals(exactMessage, persisted.bodyMarkdown)
+        assertEquals(
+            listOf(1, 2, 3),
+            conversations.messages().map { message -> message.ordinal },
+        )
+        assertEquals(
+            listOf(TutorMessageRole.ASSISTANT, TutorMessageRole.STUDENT, TutorMessageRole.ASSISTANT),
+            conversations.messages().map { message -> message.role },
+        )
         assertTrue(command.messageId.startsWith("tutor-message:"))
+        // 顺序也是事实：学生行在派发**之前**就落库（写侧门控的引文核对读的就是它），
+        // 助手行在这一轮成功之后才落。
+        assertEquals(
+            listOf("student-message", "dispatch", "assistant-message"),
+            conversations.writeOrder,
+        )
     }
 
     /**
@@ -1157,7 +1192,8 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
     @Test
     fun freeTextReplyPreservesExactMessageRestoresLocallyAndDoesNotWriteLearningEvidence() {
         val session = session()
-        val modelTasks = ChatModelTaskRepository(session)
+        val conversations = emptyConversations()
+        val modelTasks = ChatModelTaskRepository(session = session, conversations = conversations)
         val interactions = RecordingTutorInteractions()
         val mounted = mutableStateOf(true)
         val exactMessage = "  x < 3 时为什么？\n参考 https://example.com 和 `f'(x)`  "
@@ -1172,6 +1208,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                             onSave = {},
                             modelTasks = modelTasks,
                             interactions = interactions,
+                            conversations = conversations,
                             profile = StudyProfileOverview(),
                             onOpenModelSettings = {},
                         )
@@ -1251,11 +1288,13 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             label = "直接展示完整答案",
             type = TutorMoveType.REVEAL_SOLUTION,
         )
+        val conversations = emptyConversations()
         val modelTasks = ChatModelTaskRepository(
             session = session,
             restoredSucceededMessage = "我还是不明白，请给我一个可选动作",
             restoredSucceededSuggestedMoves = listOf(revealMove),
             holdRespondExecution = true,
+            conversations = conversations,
         )
         val interactions = RecordingTutorInteractions()
         composeRule.setContent {
@@ -1268,6 +1307,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
                     onSave = {},
                     modelTasks = modelTasks,
                     interactions = interactions,
+                    conversations = conversations,
                     profile = StudyProfileOverview(),
                     onOpenModelSettings = {},
                 )
@@ -1307,9 +1347,10 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             assertTrue(interactions.exposureCommands.isEmpty())
         }
 
-        composeRule.onNodeWithTag("tutor_chat_assistant_bottom_2")
-            .performScrollTo()
-            .assertIsDisplayed()
+        // 曝光锚点：这一轮是学生点动作之后**派发出去**的那一轮，它的请求 id 在这一刻才知道。
+        composeRule.onNodeWithTag(
+            replyBottomAnchorTag(modelTasks.respondRequests.single().requestId),
+        ).performScrollTo().assertIsDisplayed()
         composeRule.waitUntil(timeoutMillis = 5_000) {
             interactions.recordedExposureKeys.size == 1
         }

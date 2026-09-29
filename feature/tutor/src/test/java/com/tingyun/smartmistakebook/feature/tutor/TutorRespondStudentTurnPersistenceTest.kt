@@ -414,10 +414,15 @@ class TutorRespondStudentTurnPersistenceTest {
             conversations.update { rows -> rows + (conversation.conversationId to conversation) }
         }
 
-        override fun observeRecent(limit: Int): Flow<List<TutorConversation>> =
-            conversations.map { rows ->
-                rows.values.sortedByDescending(TutorConversation::updatedAtEpochMillis).take(limit)
-            }
+        override fun observeRecent(
+            limit: Int,
+            area: String,
+        ): Flow<List<TutorConversation>> = conversations.map { rows ->
+            rows.values
+                .filter { conversation -> conversation.area == area }
+                .sortedByDescending(TutorConversation::updatedAtEpochMillis)
+                .take(limit)
+        }
 
         override fun observeConversation(
             conversationId: String,

@@ -265,10 +265,12 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
     @Test
     fun longAnswerExposureWaitsForTheReplyBottomAndRecordsOnlyOnce() {
         val session = longSession()
+        val conversations = emptyConversations()
         val modelTasks = ChatModelTaskRepository(
             session = session,
             restoredPendingMessage = "请直接告诉我这道题的答案",
             holdRespondExecution = true,
+            conversations = conversations,
         )
         val interactions = RecordingTutorInteractions()
         composeRule.setContent {
@@ -281,6 +283,7 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
                     onSave = {},
                     modelTasks = modelTasks,
                     interactions = interactions,
+                    conversations = conversations,
                     profile = StudyProfileOverview(),
                     onOpenModelSettings = {},
                 )
@@ -326,7 +329,7 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
             )
         }
 
-        composeRule.onNodeWithTag("tutor_chat_assistant_bottom_1")
+        composeRule.onNodeWithTag(replyBottomAnchorTag("tutor-respond-restored"))
             .performScrollTo()
             .assertIsDisplayed()
         composeRule.waitUntil(timeoutMillis = 5_000) {
@@ -335,7 +338,7 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
 
         composeRule.onNodeWithTag("tutor_conversation_list").performScrollToIndex(0)
         composeRule.onNodeWithTag("tutor_conversation_list").performScrollToIndex(2)
-        composeRule.onNodeWithTag("tutor_chat_assistant_bottom_1")
+        composeRule.onNodeWithTag(replyBottomAnchorTag("tutor-respond-restored"))
             .performScrollTo()
             .assertIsDisplayed()
         composeRule.waitForIdle()
@@ -383,9 +386,11 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
     fun restoredPendingReplyAutoResumesAndExecutesItsExactRequestOnce() {
         val session = session()
         val exactMessage = "我不明白为什么要分区间"
+        val conversations = emptyConversations()
         val modelTasks = ChatModelTaskRepository(
             session = session,
             restoredPendingMessage = exactMessage,
+            conversations = conversations,
         )
         composeRule.setContent {
             MaterialTheme {
@@ -397,6 +402,7 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
                         onSave = {},
                         modelTasks = modelTasks,
                         interactions = RecordingTutorInteractions(),
+                        conversations = conversations,
                         profile = StudyProfileOverview(),
                         onOpenModelSettings = {},
                     )
@@ -618,6 +624,12 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
         }
     }
 
+    /**
+     * 取消（学生按了「停止」）的那一轮**不给**重试出口。
+     *
+     * A2 之后它的渲染是灰字「已停止」——不是失败卡的红字，重试按钮属于失败卡那条路，
+     * 所以这里断言的是"这一条根本没有那条出口"，而不是"按钮被藏起来了"。
+     */
     @Test
     fun cancelledReplyNeverOffersAConflictingRetry() {
         val session = session()
@@ -641,7 +653,10 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
             }
         }
 
-        composeRule.onNodeWithText("这次回复没有完成。").performScrollTo().assertExists()
+        composeRule.onNodeWithTag("tutor_chat_message_actions_1_stopped")
+            .performScrollTo()
+            .assertExists()
+        composeRule.onNodeWithText(TUTOR_SURFACE_STOPPED_LABEL).assertExists()
         composeRule.onNodeWithTag("tutor_chat_retry").assertDoesNotExist()
         composeRule.runOnIdle { assertEquals(0, modelTasks.executeRespondCalls) }
     }
@@ -649,9 +664,11 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
     @Test
     fun cachedTeachingRemainsVisibleWhenTheCurrentProviderIsUnavailable() {
         val session = session()
+        val conversations = emptyConversations()
         val modelTasks = ChatModelTaskRepository(
             session = session,
             restoredSucceededMessage = "之前保存的问题",
+            conversations = conversations,
             currentCapabilities = ProviderCapabilitySnapshot(
                 providerId = "unconfigured",
                 providerDisplayName = "尚未配置模型",
@@ -673,6 +690,7 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
                         onSave = {},
                         modelTasks = modelTasks,
                         interactions = RecordingTutorInteractions(),
+                        conversations = conversations,
                         profile = StudyProfileOverview(),
                         onOpenModelSettings = {},
                     )
@@ -686,7 +704,9 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
             .performScrollTo()
             .assertExists()
         composeRule.onNodeWithText("需要先连接大模型").assertDoesNotExist()
-        composeRule.onNodeWithTag("tutor_chat_composer").assertDoesNotExist()
+        // A5：当前模型不可用也不再让输入框消失——它留着，并在输入区里说清原因。
+        composeRule.onNodeWithTag("tutor_chat_composer").assertExists()
+        composeRule.onNodeWithTag("tutor_chat_block_reason").assertExists()
     }
 
     @Test
@@ -753,7 +773,8 @@ class CapturedTutorSessionExposureInstrumentedTest : CapturedTutorSessionTestBas
 
         composeRule.onNodeWithTag("tutor_conversation_list").assertExists()
         composeRule.onNodeWithTag("tutor_chat_composer").assertIsDisplayed()
-        composeRule.onNodeWithText("已存入错题本 · 再次打开会接着上次讲题").assertExists()
+        // A1：进入即新会话，文案不再承诺"接着上次讲题"（那条行为已删）。
+        composeRule.onNodeWithText("已存入错题本 · 这一轮从这道题开始").assertExists()
     }
 
     @Test

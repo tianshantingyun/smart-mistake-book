@@ -215,6 +215,17 @@ internal object OpenAiModelProtocol {
      * model answers inside the json_object envelope (Route B fallback) — the two
      * routes are response-driven and coexist.
      */
+    /**
+     * 这一轮的输入是否**声明了工具**（= 请求体里会带 `tools`，Route A 成立）。
+     *
+     * 与 [nativeToolSchemas] 同一判据，抽成具名函数是为了让"实时文本走哪条通道"（A6）与"请求体
+     * 里有没有 tools"读同一处事实——两处各判一次，就会出现"请求是 Route A，实时文本按 Route B
+     * 分流"这种自相矛盾的组合。
+     */
+    fun declaresNativeTools(
+        input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
+    ): Boolean = nativeToolSchemas(input) != null
+
     private fun nativeToolSchemas(
         input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
     ): JsonArray? {
@@ -225,7 +236,8 @@ internal object OpenAiModelProtocol {
             is com.tingyun.smartmistakebook.core.model.TutorPlanInput -> input.toolDeclarations
             else -> return null
         }
-        if (declarations.isEmpty()) return null
+        val localActionSchemas = localActionSchemas(input)
+        if (declarations.isEmpty() && localActionSchemas == null) return null
         // 单一代号通道（D5）：MASTERY_UPDATE 的 terms[0] 用本会话已披露代号做 enum 白名单
         // （Structured Outputs 约束解码——非法代号在解码层即不可产生）；空集合（大厅 /
         // 无预披露）不出 enum，越界仍由服务端结构性拒兜底。
@@ -247,6 +259,73 @@ internal object OpenAiModelProtocol {
                                 put(
                                     "parameters",
                                     strictFunctionSchema(tool, disclosedCodes),
+                                )
+                            },
+                        )
+                    },
+                )
+            }
+            localActionSchemas?.forEach { schema -> add(schema) }
+        }
+    }
+
+    /**
+     * **本地动作**在 Route A 里的广告（D-K2e 白名单第一版 / §3.2）：与 Route B 的提示词块
+     * （`OpenAiModelTaskAdapters.localActionPromptBlock`）读同一份声明
+     * （`core:model` 的 [com.tingyun.smartmistakebook.core.model.TutorLocalAction]）——
+     * 名字、用途、参数形状都只有那一处出处，`TutorLocalActionAdvertisementParityTest` 对拍两套。
+     *
+     * 形状放行**只给大厅轮**：确认卡（本地动作的执行面）目前长在智能体栏这一条交互面上；
+     * 讲题/计划轮还没有卡的生产者，声明了就是"广告一个没人接的东西"（与"点了没反应"同罪）。
+     * 复习栏两个入口在阶段 5 接上各自的卡时，把它们的输入类型加到这里即可。
+     *
+     * 参数形状用的是 `strict` 口径：所有声明的参数进 `required`、`additionalProperties=false`、
+     * 空形状时 `properties` 为空对象（模型因此**结构性地**造不出参数）。
+     */
+    private fun localActionSchemas(
+        input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
+    ): JsonArray? {
+        if (input !is com.tingyun.smartmistakebook.core.model.TutorLobbyInput) return null
+        return buildJsonArray {
+            com.tingyun.smartmistakebook.core.model.TutorLocalAction.entries.forEach { action ->
+                add(
+                    buildJsonObject {
+                        put("type", "function")
+                        put(
+                            "function",
+                            buildJsonObject {
+                                put("name", action.actionId)
+                                put("description", action.nativePurposeDescription)
+                                put(
+                                    "parameters",
+                                    buildJsonObject {
+                                        put("type", "object")
+                                        put(
+                                            "properties",
+                                            buildJsonObject {
+                                                action.parameters.forEach { parameter ->
+                                                    put(
+                                                        parameter.parameterName,
+                                                        buildJsonObject {
+                                                            put("type", "string")
+                                                            put("description", parameter.description)
+                                                        },
+                                                    )
+                                                }
+                                            },
+                                        )
+                                        put(
+                                            "required",
+                                            buildJsonArray {
+                                                action.parameters
+                                                    .filter { parameter -> parameter.required }
+                                                    .forEach { parameter ->
+                                                        add(JsonPrimitive(parameter.parameterName))
+                                                    }
+                                            },
+                                        )
+                                        put("additionalProperties", JsonPrimitive(false))
+                                    },
                                 )
                             },
                         )
@@ -464,7 +543,23 @@ internal object OpenAiModelProtocol {
         responseContent: String?,
         modelVersion: String,
     ): TutorToolRequestsOutput {
-        val calls = map { element ->
+        // 原生 tool_calls 与本地动作共用同一个 `tools` 数组（D-K2e 白名单的两套广告之一），
+        // 所以这里**先分流**：工具名进工具环（execute / 回喂），动作名进本地动作通道
+        // （挂确认卡）。名字对不上任何一边 = 模型造了一个不存在的函数，与 Route B 的
+        // "未知键"同一条处置：整条输出无效，不是"忽略一下"。
+        val toolCallElements = mutableListOf<JsonElement>()
+        val actionCallElements = mutableListOf<JsonElement>()
+        forEach { element ->
+            val name = element.objectValue().objectValue("function").requiredString("name")
+            when {
+                com.tingyun.smartmistakebook.core.model.TutorLocalAction.fromActionId(name) != null ->
+                    actionCallElements += element
+                enumValues<com.tingyun.smartmistakebook.core.model.TutorToolName>()
+                    .any { tool -> tool.name == name } -> toolCallElements += element
+                else -> throw InvalidModelResponseException()
+            }
+        }
+        val calls = toolCallElements.map { element ->
             val call = element.objectValue()
             val function = call.objectValue("function")
             val toolName = enumValue<TutorToolName>(function.requiredString("name"))
@@ -490,6 +585,15 @@ internal object OpenAiModelProtocol {
         return TutorToolRequestsOutput(
             intentDecision = intentDecision,
             calls = calls,
+            localActions = actionCallElements.map { element ->
+                // 参数走同一份声明（`core:model` 的参数形状）：转发到同一个解析器，免得两条路由
+                // 对"合法的动作请求"有两套口径。动作 id 在原生路由里由**函数名**给出。
+                val function = element.objectValue().objectValue("function")
+                localActionRequest(
+                    actionId = function.requiredString("name"),
+                    arguments = parseObject(function.requiredString("arguments")),
+                )
+            },
             modelVersion = modelVersion,
         )
     }

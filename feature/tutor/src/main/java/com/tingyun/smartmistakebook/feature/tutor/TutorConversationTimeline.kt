@@ -4,7 +4,6 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
-import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 
@@ -15,28 +14,27 @@ internal sealed interface TutorConversationTimelineItem {
     data class Plan(
         val task: ModelTaskSnapshot,
         /**
-         * 本轮正文的消息行（K1a 唯一文本权威）。迁移前的旧轮次没有消息行——那时讲题区从不写
-         * 助手行——所以可空，读侧按 [bodyMarkdown] 回落到账本让旧会话照常可读。
+         * 本轮正文的消息行（K1a 唯一文本权威）。null = 这一轮没有消息行（例如写入失败、
+         * 或这一轮的正文本来就没有落库）；**不回落账本**——回落会让同一条文本有两个去处。
          */
         val message: TutorMessage? = null,
     ) : TutorConversationTimelineItem {
         private val input = task.request.input as TutorPlanInput
-        private val output = task.output as? TutorPlanOutput
 
         override val occurredAtEpochMillis: Long = task.request.occurredAtEpochMillis
         override val stableId: String = "plan:${input.cycleOrdinal}:${input.turnOrdinal}:${task.request.requestId}"
 
         /**
-         * 本轮讲解的正文。消息行优先；旧行回落到账本里的开场白。
+         * 本轮讲解的正文，只从消息行来（K1a）。
          *
          * 完整讲解 / 另一种方法 / 选择题**刻意不从消息行读**：它们是受曝光门控的结构化载荷
          * （选择项要能点、完整讲解必须等揭示且学生真的看到），不是这一轮的"说过的话"。
          */
         val bodyMarkdown: String?
-            get() = message?.bodyMarkdown ?: output?.plan?.openingMarkdown
+            get() = message?.bodyMarkdown
 
         val thinkingMarkdown: String?
-            get() = message?.thinkingMarkdown ?: output?.plan?.thinkingMarkdown
+            get() = message?.thinkingMarkdown
     }
 
     data class ChoiceFeedback(
@@ -46,32 +44,38 @@ internal sealed interface TutorConversationTimelineItem {
         override val occurredAtEpochMillis: Long = requireNotNull(
             response.choiceSubmittedAtEpochMillis,
         )
-        override val stableId: String = "choice:${response.cycleOrdinal}:${response.turnOrdinal}"
+
+        /**
+         * 键里带**题面身份**（B6 之后时间线按会话过滤）：同一会话里题面换过修订时，
+         * 两个修订的 (cycle, turn) 可以相同，只用轮次号做键会让两条反馈撞同一个列表键。
+         */
+        override val stableId: String =
+            "choice:${response.questionDocumentId}:${response.revisionNumber}:" +
+                "${response.cycleOrdinal}:${response.turnOrdinal}"
     }
 
     data class Reply(
         val task: ModelTaskSnapshot,
         /** 这一轮助手正文的消息行（见 [Plan.message]）。 */
         val message: TutorMessage? = null,
-        /** 这一轮学生气泡的消息行（唯一权威；旧行回落到派发请求里的原文）。 */
+        /** 这一轮学生气泡的消息行（唯一权威）。 */
         val studentMessage: TutorMessage? = null,
     ) : TutorConversationTimelineItem {
-        private val output = task.output as? TutorRespondOutput
         private val input = task.request.input as TutorRespondInput
 
         override val occurredAtEpochMillis: Long = task.request.occurredAtEpochMillis
         override val stableId: String = "reply:${task.request.requestId}"
 
-        /** 助手正文：消息行优先，旧行回落到账本（新写入只会落在消息行上）。 */
+        /** 助手正文：只有消息行这一个来源（K1a）。 */
         val bodyMarkdown: String?
-            get() = message?.bodyMarkdown ?: output?.messageMarkdown
+            get() = message?.bodyMarkdown
 
         val thinkingMarkdown: String?
-            get() = message?.thinkingMarkdown ?: output?.thinkingMarkdown
+            get() = message?.thinkingMarkdown
 
-        /** 学生气泡正文：消息行优先，旧行回落到派发时的那条原文。 */
-        val studentBodyMarkdown: String
-            get() = studentMessage?.bodyMarkdown ?: input.studentMessage
+        /** 学生气泡正文：只有消息行这一个来源；这一轮的写入没有落库时为 null。 */
+        val studentBodyMarkdown: String?
+            get() = studentMessage?.bodyMarkdown
 
         /**
          * 这一轮讲的是哪一道题（标题）；会话题自己那一轮为 null。
@@ -115,24 +119,26 @@ private fun TutorPlanInput.turnKey() = TutorTurnKey(cycleOrdinal, turnOrdinal)
 
 private fun TutorTurnResponse.turnKey() = TutorTurnKey(cycleOrdinal, turnOrdinal)
 
+/**
+ * 这一条任务/轮次行属不属于**本会话**（B6）。
+ *
+ * 过滤只看会话：此前还要求题面文档与修订号逐一相等，于是"同一会话里题面被重新编辑/换了一次
+ * 修订"就等于把此前所有轮次从屏幕上抹掉——学生接着问，前面的讲解整段消失（而它们还在库里）。
+ * 会话是轮次的容器；同一会话里的每一轮各自带自己的题面修订（轮次行上就有），不需要用会话
+ * 级的修订号去筛。
+ */
 private fun ModelTaskSnapshot.matches(question: TutorQuestionContext): Boolean = when (
     val input = request.input
 ) {
-    is TutorPlanInput -> input.sessionId == question.sessionId &&
-        input.draftRevisionNumber == question.revisionNumber &&
-        input.questionDocument.id == question.questionDocument.document.id
+    is TutorPlanInput -> input.sessionId == question.sessionId
 
-    is TutorRespondInput -> input.sessionId == question.sessionId &&
-        input.draftRevisionNumber == question.revisionNumber &&
-        input.questionDocument.id == question.questionDocument.document.id
+    is TutorRespondInput -> input.sessionId == question.sessionId
 
     else -> false
 }
 
 private fun TutorTurnResponse.matches(question: TutorQuestionContext): Boolean =
-    sessionId == question.sessionId &&
-        revisionNumber == question.revisionNumber &&
-        questionDocumentId == question.questionDocument.document.id
+    sessionId == question.sessionId
 
 internal fun latestTutorPlanTasks(
     question: TutorQuestionContext,

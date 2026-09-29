@@ -16,7 +16,6 @@ private val PENDING_CAPTURE_TABLES = arrayOf(
     "problem_draft_source_asset",
     "canonical_source_asset",
     "problem_draft_edit_snapshot",
-    "tutor_session",
     "model_task",
 )
 

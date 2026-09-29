@@ -29,6 +29,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 
 /**
@@ -62,7 +65,13 @@ fun ThinkingCollapsibleCard(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .clickable { expanded = !expanded }
+                // B2：折叠头是**按钮**，不是一段能点的文字——读屏要能听到"按钮"、能听到
+                // 展开/收起的状态、能听到点下去会发生什么。视觉一动不动（学生看不出差别）。
+                .clickable(
+                    role = Role.Button,
+                    onClickLabel = if (expanded) "收起思考过程" else "展开思考过程",
+                ) { expanded = !expanded }
+                .semantics { stateDescription = if (expanded) "已展开" else "已收起" }
                 .fillMaxWidth()
                 .padding(vertical = 2.dp),
         ) {

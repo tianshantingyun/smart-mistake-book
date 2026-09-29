@@ -51,7 +51,11 @@ import com.tingyun.smartmistakebook.core.model.ModelLiveText
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
+import com.tingyun.smartmistakebook.core.model.TutorToolTraceDisplay
+import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
+import com.tingyun.smartmistakebook.core.model.tutorToolTraceDisplay
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
@@ -60,7 +64,9 @@ import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.SmartDimens
 import com.tingyun.smartmistakebook.core.ui.ThinkingCollapsibleCard
 import com.tingyun.smartmistakebook.core.ui.TutorStreamingReply
+import com.tingyun.smartmistakebook.core.ui.TutorToolTraceLine
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -76,17 +82,34 @@ internal data class TutorLiveTurn(
     val thinking: String? = null,
     val answer: String? = null,
     val toolNote: String? = null,
+    /**
+     * 这一轮的工具痕迹（B1）：来自 [ModelTaskRepository.observeToolTrace]，已经编码截断好的
+     * `TutorTurnToolTrace` JSON。它比 [toolNote] 多两样东西——**可展开的明细**（每条查到了几条、
+     * 被拒的是为什么）与**稳定的形状**（重开会话后从消息行读回来的是同一份）。
+     */
+    val toolTraceJson: String? = null,
 ) {
-    /** 思考卡正文：思考链与工具进度合在一起；两条都空时返回 null。 */
+    /**
+     * 思考卡正文：**只有思考链**。工具行不再混进来（B1）：思考是模型在推理，查阅是它对外做的事，
+     * 合成一段之后学生分不出"它在想"和"它去查了"（而且工具行要能点开看详情，混进卡片就点不到了）。
+     */
     val thinkingText: String?
-        get() = listOfNotNull(thinking, toolNote)
-            .filter(String::isNotBlank)
-            .takeIf { it.isNotEmpty() }
-            ?.joinToString("\n\n")
+        get() = thinking?.takeIf(String::isNotBlank)
 
     /** 回答是否已经开始写：一开始写，思考卡就从"正在思考…"收起。 */
     val hasAnswer: Boolean
         get() = !answer.isNullOrBlank()
+
+    /**
+     * 实时那一轮的工具小字：有痕迹就用痕迹（含明细），痕迹还没到时用流里的那句文本
+     * （"正在查阅错题本…"）——两种都走同一个渲染模型，界面只有一条路径。
+     */
+    val toolTraceDisplay: TutorToolTraceDisplay?
+        get() = decodeTutorTurnToolTrace(toolTraceJson)
+            ?.let(::tutorToolTraceDisplay)
+            ?: toolNote
+                ?.takeIf(String::isNotBlank)
+                ?.let { text -> TutorToolTraceDisplay(headline = text, rows = emptyList()) }
 
     companion object {
         val EMPTY = TutorLiveTurn()
@@ -96,13 +119,58 @@ internal data class TutorLiveTurn(
 /**
  * 把一条实时文本折进在途状态：同一个请求上后到的通道覆盖前一条，没被覆盖的那条保留
  * （回答开始写之后，思考链仍然留在卡里，供学生回看）。
+ *
+ * 正文通道过 [answersWithModelEnvelope] 这一道（A6）：信封不是正文。发生在界面这一层的
+ * 那半件事是**兜底**——网关已经按协议路由分流（Route B 的 content 根本不进正文通道），
+ * 但 Route A 的终答轮同样把信封放在 `content` 里（prompt 只要求精确 JSON），所以"永不渲染
+ * 信封 JSON"这条要求必须在这一层也成立。
  */
 internal fun TutorLiveTurn.withLive(live: ModelLiveText?): TutorLiveTurn = when (live?.kind) {
     ModelLiveKind.THINKING -> copy(thinking = live.text)
-    ModelLiveKind.ANSWER -> copy(answer = live.text)
+    ModelLiveKind.ANSWER -> copy(answer = live.text.takeIf(String::answersWithModelEnvelope))
     ModelLiveKind.TOOL -> copy(toolNote = live.text)
     null -> this
 }
+
+/**
+ * 这段文本是不是**学生能看的正文**（而不是模型信封）。
+ *
+ * 判据只有一条却足够稳：去围栏后以 `{` 开头，且第一个键名与其后的名字**是信封固定键的前缀**
+ * ——流式期间键名本身就是逐字长出来的（`{"intentDec`），所以必须按前缀判。真实正文里以 `{"`
+ * 开头的句子只在它是 JSON 时才出现。
+ */
+internal fun String.answersWithModelEnvelope(): Boolean = !looksLikeModelEnvelopeJson(this)
+
+/** [answersWithModelEnvelope] 的否定式，名字直白：这段文本就是信封。 */
+internal fun looksLikeModelEnvelopeJson(text: String): Boolean {
+    val trimmed = text.trimStart()
+        .removePrefix("```json")
+        .removePrefix("```")
+        .trimStart()
+    if (!trimmed.startsWith("{")) return false
+    val key = trimmed.drop(1).trimStart()
+    if (!key.startsWith("\"")) return false
+    val name = key.drop(1).takeWhile { it != '"' }
+    if (name.isEmpty()) return true
+    return MODEL_ENVELOPE_KEYS.any { known -> known.startsWith(name) }
+}
+
+/**
+ * 模型信封的固定键（各任务信封的首键之一）。判据取"是其中某个键的前缀"，所以流式期间半个键名
+ * 也算信封——不会因为还没长全就先当正文渲染出来。
+ */
+private val MODEL_ENVELOPE_KEYS = setOf(
+    "intentDecision",
+    "messageMarkdown",
+    "thinkingMarkdown",
+    "toolRequests",
+    "plan",
+    "assessment",
+    "questionDocument",
+    "organization",
+    "quiz",
+    "debrief",
+)
 
 /**
  * 唯一的一条实时流：网关把逐 token 文本发到这条通道上（不落库、不计事件上限），这里把它折成
@@ -113,17 +181,52 @@ internal suspend fun ModelTaskRepository.observeTutorLiveTurn(
     onTurn: (TutorLiveTurn) -> Unit,
 ) {
     var turn = TutorLiveTurn.EMPTY
-    observeLiveText(requestId).collect { live ->
-        val next = turn.withLive(live)
-        if (next != turn) {
-            turn = next
-            onTurn(next)
+    // 两条通道合流（B1）：逐 token 文本（思考/正文）与这一轮的工具痕迹。痕迹比文本晚到一步
+    // （文本在派发前就说"正在查阅…"，痕迹要等工具跑完），所以两条都要订，缺一条就会
+    // "生成中看得到、明细点不开"或者反过来。
+    combine(
+        observeLiveText(requestId),
+        observeToolTrace(requestId),
+    ) { live, toolTrace -> turn.withLive(live).copy(toolTraceJson = toolTrace) }
+        .collect { next ->
+            if (next != turn) {
+                turn = next
+                onTurn(next)
+            }
         }
-    }
 }
 
 /**
- * 订阅"当前在途那一轮"的实时文本：请求标识一变就换订阅，不再在途时清空。
+ * 本会话当前活跃的一轮（A3）：**会话 id + 在途任务的请求 id** 一起作订阅键。
+ *
+ * 消灭的失败：实时订阅此前只挂"回应轮"的结果，讲题侧的**计划/讲解阶段**读的一直是快照里那个
+ * 旧状态串——同一段等待，有的阶段有逐 token 的流、有的阶段只有一句"正在准备"（学生原话：
+ * "别分什么 plan，这个流是在任何地方它都需要有"）。现在按**本会话当前在途的那一条任务**订阅，
+ * 计划 / 回应 / 智能体栏三种任务一视同仁。
+ */
+internal data class TutorActiveLiveTurn(
+    val conversationKey: String,
+    val requestId: String,
+) {
+    /** 订阅键：会话变了、或者换了在途任务，就是另一次订阅。 */
+    val subscriptionKey: String get() = "$conversationKey#$requestId"
+}
+
+/**
+ * 本会话当前在途的那一轮：取更新时间最新的一条非终态任务。
+ *
+ * 入参是**同一个会话下的全部任务**（不按任务类型分桶）——分桶正是"只有回应轮有流"的成因。
+ */
+internal fun activeTutorLiveTurn(
+    conversationKey: String,
+    tasks: List<ModelTaskSnapshot>,
+): TutorActiveLiveTurn? = tasks
+    .filter(ModelTaskSnapshot::isTutorLiveStatus)
+    .maxByOrNull(ModelTaskSnapshot::updatedAtEpochMillis)
+    ?.let { task -> TutorActiveLiveTurn(conversationKey, task.request.requestId) }
+
+/**
+ * 订阅"本会话当前在途那一轮"的实时文本：会话或在途任务一变就换订阅，不再在途时清空。
  *
  * 订阅放在组合里而不是某一条派发路径的协程里：会话有三条派发路径（新发送 / 失败重试 / 恢复
  * 未完成任务），只接其中一条就会出现"哪条路径忘了接"——那正是大厅此前自己踩过的坑
@@ -132,11 +235,11 @@ internal suspend fun ModelTaskRepository.observeTutorLiveTurn(
 @Composable
 internal fun rememberTutorLiveTurn(
     modelTasks: ModelTaskRepository,
-    inFlightRequestId: String?,
+    active: TutorActiveLiveTurn?,
 ): TutorLiveTurn {
-    var turn by remember(inFlightRequestId) { mutableStateOf(TutorLiveTurn.EMPTY) }
-    LaunchedEffect(modelTasks, inFlightRequestId) {
-        val requestId = inFlightRequestId ?: return@LaunchedEffect
+    var turn by remember(active?.subscriptionKey) { mutableStateOf(TutorLiveTurn.EMPTY) }
+    LaunchedEffect(modelTasks, active?.subscriptionKey) {
+        val requestId = active?.requestId ?: return@LaunchedEffect
         modelTasks.observeTutorLiveTurn(requestId) { live -> turn = live }
     }
     return turn
@@ -160,8 +263,16 @@ internal val TUTOR_LIVE_TASK_STATUSES = setOf(
  */
 internal fun ModelTaskSnapshot.tutorLiveStatusText(): String? {
     if (status !in TUTOR_LIVE_TASK_STATUSES) return null
+    // 状态行也是学生看得见的文本：流式期间它可能是被截断的正文前缀（= 信封），同样不许渲染
+    // （A6：UI 侧永不渲染信封 JSON）。
     return when (request.input) {
-        is TutorRespondInput, is TutorLobbyInput -> userMessage.takeIf { it.isNotBlank() }
+        is TutorRespondInput, is TutorLobbyInput -> userMessage
+            .takeIf { it.isNotBlank() && it.answersWithModelEnvelope() }
+        // A3：计划阶段也要有话说——它此前读同一份快照却什么都拿不到，于是计划阶段在屏幕上
+        // 只有一句没有信息的占位。任务自己的状态行优先，没有就给这句。
+        is TutorPlanInput -> userMessage
+            .takeIf { it.isNotBlank() && it.answersWithModelEnvelope() }
+            ?: "正在准备这道题的讲解…"
         else -> null
     }
 }
@@ -179,12 +290,25 @@ internal fun TutorLiveTurnBlock(
     statusText: String? = null,
     placeholder: String = TUTOR_LIVE_PLACEHOLDER,
     answerTestTag: String = "tutor_streaming_reply",
+    /**
+     * 正在生成时的「停止」（A2）：非 null 就在这一轮底下露出来。停止是**动作**不是状态，
+     * 所以它长在在途块里（此时还没有那条助手消息行可挂动作条）。
+     */
+    onStop: (() -> Unit)? = null,
+    stopTestTag: String = "tutor_live_stop",
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         val thinkingText = turn.thinkingText ?: statusText
+        val toolTraceDisplay = remember(turn.toolTraceJson, turn.toolNote) { turn.toolTraceDisplay }
         ThinkingCollapsibleCard(
             thinkingMarkdown = thinkingText,
             thinking = !turn.hasAnswer,
+        )
+        // 工具痕迹**单独一行**（B1）：不混进思考卡，点开可看明细。它比回答先出现、随流更新。
+        TutorToolTraceLine(
+            display = toolTraceDisplay,
+            modifier = Modifier.padding(top = 2.dp),
+            testTag = "tutor_live_tool_trace",
         )
         turn.answer?.takeIf(String::isNotBlank)?.let { answer ->
             TutorStreamingReply(
@@ -194,10 +318,19 @@ internal fun TutorLiveTurnBlock(
                     .testTag(answerTestTag),
             )
         }
-        if (thinkingText == null && !turn.hasAnswer) {
+        if (thinkingText == null && toolTraceDisplay == null && !turn.hasAnswer) {
             TutorPrompt(
                 text = placeholder,
                 modifier = Modifier.padding(top = 6.dp),
+            )
+        }
+        onStop?.let { stop ->
+            OutlineActionChip(
+                text = TUTOR_SURFACE_STOP_LABEL,
+                onClick = stop,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .testTag(stopTestTag),
             )
         }
     }
@@ -278,6 +411,26 @@ internal fun TutorTurnFailureCard(
 private const val TUTOR_TAIL_FOLLOW_ATTEMPTS = 3
 
 /**
+ * 这个列表是不是**真的**在末尾（D6）。
+ *
+ * 判据是"**末条完整落在视口内**"（可见项的偏移 + 尺寸 <= 视口底），不是"末条的序号出现在
+ * 可见项里"。后者在末条只露出一点时也成立，于是 [followTutorTail] 会在落点还差几百像素时
+ * 就收手——刚加载完的长会话里末条的高度只能靠估算，第一滚必然偏短，而这次判真让"再滚一次
+ * 才是真正的末尾"那一步永远不发生。真机上表现为"最新那条只露了个头"，用例里则是
+ * `assertIsDisplayed` 判它整段被裁掉（`boundsInRoot` 为零）。
+ *
+ * 内容比视口短时恒为真；末条本身比视口还高（一整段很长的讲解）时永远不为真——那时滚到末条
+ * 即到位，循环按次数上限退出，与收紧之前的行为一致。
+ */
+private fun LazyListState.isAtTail(): Boolean {
+    val layout = layoutInfo
+    if (layout.totalItemsCount == 0) return true
+    val last = layout.visibleItemsInfo.lastOrNull() ?: return false
+    return last.index == layout.totalItemsCount - 1 &&
+        last.offset + last.size <= layout.viewportEndOffset
+}
+
+/**
  * 滚到列表真正的末尾。
  *
  * 消灭的失败（D6 残留）：`scrollToItem(末条)` 对**还没测量过**的末条用的是估算高度，落点会停在
@@ -291,10 +444,7 @@ private suspend fun followTutorTail(listState: LazyListState) {
             .first { it > 0 }
         listState.scrollToItem(itemCount - 1)
         withFrameNanos { }
-        val layout = listState.layoutInfo
-        val atTail = layout.totalItemsCount == 0 ||
-            layout.visibleItemsInfo.lastOrNull()?.index == layout.totalItemsCount - 1
-        if (atTail) return
+        if (listState.isAtTail()) return
     }
 }
 
@@ -322,6 +472,9 @@ internal fun TutorConversationFrame(
     liveStatusText: String? = null,
     livePlaceholder: String = TUTOR_LIVE_PLACEHOLDER,
     liveAnswerTestTag: String = "tutor_streaming_reply",
+    /** 在途一轮的「停止」（A2）：null = 这个入口这一轮不提供停止。 */
+    liveTurnStopAction: (() -> Unit)? = null,
+    liveTurnStopTestTag: String = "tutor_live_stop",
     composer: (@Composable () -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
@@ -409,6 +562,8 @@ internal fun TutorConversationFrame(
                             statusText = liveStatusText,
                             placeholder = livePlaceholder,
                             answerTestTag = liveAnswerTestTag,
+                            onStop = liveTurnStopAction,
+                            stopTestTag = liveTurnStopTestTag,
                         )
                     }
                 }
@@ -485,8 +640,13 @@ internal fun TutorChatComposer(
     attachmentPreview: (@Composable () -> Unit)? = null,
     /** 已选好待发送的附件数：纯图消息也能发出（正文由调用方补一句兜底文本）。 */
     attachmentCount: Int = 0,
+    /**
+     * 此刻发不出去（A5）：原因写在输入区里，发送键同时变灰——输入框本身照常可用，
+     * 学生可以先打字，但不会出现"按下去什么也不发生"的假按钮。
+     */
+    sendBlocked: Boolean = false,
 ) {
-    val canSend = enabled && !sending && (value.isNotBlank() || attachmentCount > 0)
+    val canSend = !sendBlocked && enabled && !sending && (value.isNotBlank() || attachmentCount > 0)
     Column(modifier = modifier.fillMaxWidth()) {
         attachmentPreview?.invoke()
         OutlinedTextField(

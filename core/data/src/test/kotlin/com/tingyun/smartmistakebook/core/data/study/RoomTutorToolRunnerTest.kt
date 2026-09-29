@@ -823,17 +823,120 @@ class RoomTutorToolRunnerTest {
     }
 
     @Test
-    fun masteryReadWithoutASubjectFailsClosed() = runBlocking {
+    fun masteryReadWithoutASubjectReadsAsAnEmptyScope() = runBlocking {
+        // B4（K2a / spec §3.1）：无题轮/大厅没有科目上下文 = **本轮无可读范围**，不是失败。
+        // 此前它是 no_subject 错误：模型被教导"调用=失败"，下一轮换着法再试，白烧派遣预算。
         val port = anchoredPort()
         port.publishSubjectMastery("MATH", listOf(masteryRow(nodeId = "kc-math", name = "函数单调性")))
 
-        val outcome = runner(port).run(
+        val execution = runner(port).runTraced(
             masteryReadCall(),
             context().copy(subject = null),
         )
 
-        assertEquals(false, outcome.ok)
-        assertEquals("no_subject", outcome.errorKind)
+        assertEquals(true, execution.outcome.ok)
+        assertNull(execution.outcome.errorKind)
+        assertTrue(
+            "空范围要如实说：${execution.outcome.summaryMarkdown}",
+            execution.outcome.summaryMarkdown.contains("本轮无可读范围"),
+        )
+        assertEquals("空范围 = 0 条（痕迹据此说'无可读范围'而不是'0 条'）", 0, execution.resultCount)
+    }
+
+    @Test
+    fun knowledgeReadWithoutASubjectReadsAsAnEmptyScope() = runBlocking {
+        val port = anchoredPort()
+
+        val execution = runner(port).runTraced(
+            knowledgeReadCall(),
+            context().copy(subject = null),
+        )
+
+        assertEquals(true, execution.outcome.ok)
+        assertNull(execution.outcome.errorKind)
+        assertTrue(execution.outcome.summaryMarkdown.contains("本轮无可读范围"))
+        assertEquals(0, execution.resultCount)
+    }
+
+    @Test
+    fun masteryUpdateWithoutACodeChannelReadsAsNoWritableTargetAndWritesNothing() = runBlocking {
+        // K2a 的第四支（大厅无注册表）：这次对话根本没有代号通道 = 没有可写的目标。
+        // 直调者（无注册表）走到这里；轮次层的那一支由 TutorToolRoundGateTest 钉住。
+        val port = anchoredPort()
+
+        val execution = runner(port).runTraced(
+            masteryCall(
+                rationale = "学生说\"我把两边都乘以了2\"。",
+                understanding = TutorUnderstandingTier.CONFIDENT,
+                terms = "K1",
+            ),
+            context(registry = null),
+        )
+
+        assertEquals(true, execution.outcome.ok)
+        assertNull(execution.outcome.errorKind)
+        assertTrue(
+            "写工具要说'无可写目标'：${execution.outcome.summaryMarkdown}",
+            execution.outcome.summaryMarkdown.contains("本轮无可写目标"),
+        )
+        assertTrue("空范围不落任何证据行", port.recordedChatEvidence.isEmpty())
+    }
+
+    @Test
+    fun notebookWriteWithoutASessionReadsAsAnEmptyScopeAndWritesNothing() = runBlocking {
+        // K2a：写工具在无锚时返回"无可写目标"——**仍不写**。这条测试同时钉住后半句：
+        // 这个假库的 commitTutorSession 一被调用就抛（"Capture is outside…"），所以
+        // "返回 ok"本身就证明了没走到写路径（走到了就会变成 failed）。
+        val port = anchoredPort()
+
+        val execution = runner(port).runTraced(
+            TutorToolCall(
+                tool = TutorToolName.NOTEBOOK_WRITE,
+                rationale = "学生说把这道题存起来",
+                terms = listOf("这道题"),
+            ),
+            context().copy(tutorSessionId = null),
+        )
+
+        assertEquals(true, execution.outcome.ok)
+        assertNull(execution.outcome.errorKind)
+        assertTrue(
+            "写工具要说'无可写目标'：${execution.outcome.summaryMarkdown}",
+            execution.outcome.summaryMarkdown.contains("本轮无可写目标"),
+        )
+        assertNull("写工具没有条数可言", execution.resultCount)
+    }
+
+    @Test
+    fun everyReadCarriesHowManyRowsItFound() = runBlocking {
+        // B1 的痕迹要说"查到了几条"：条数由执行器本地给出（模型可见字段一个字节都没变）。
+        val port = anchoredPort()
+        port.publishSubjectMastery("MATH", listOf(masteryRow(nodeId = "kc-math", name = "函数单调性")))
+        port.libraryRows += listOf(
+            libraryRow(title = "二次函数最值综合题"),
+            libraryRow(title = "二次函数图像题"),
+        )
+        port.recallCandidates += knowledgeNode("kc-recall", "函数单调性", "MATH")
+
+        val subjectRunner = runner(port)
+
+        assertEquals(2, subjectRunner.runTraced(notebookRead(terms = listOf("二次函数")), context()).resultCount)
+        assertEquals(1, subjectRunner.runTraced(masteryReadCall(), context()).resultCount)
+        assertEquals(1, subjectRunner.runTraced(knowledgeReadCall(), context()).resultCount)
+    }
+
+    @Test
+    fun anEmptyReadSaysZeroRowsInsteadOfHidingIt() = runBlocking {
+        // 查了、没匹配：ok=true + 条数 0（"没有匹配"与"没查过"在痕迹里必须看得出区别）。
+        val port = anchoredPort()
+
+        val execution = runner(port).runTraced(
+            notebookRead(terms = listOf("二次函数")),
+            context(),
+        )
+
+        assertEquals(true, execution.outcome.ok)
+        assertEquals(0, execution.resultCount)
     }
 
     @Test

@@ -300,6 +300,10 @@ class TutorInteractionDatabaseInstrumentedTest {
 
         val recorded = store.recordTutorChoice(choice)
 
+        // 时间口径（阶段 1：`tutor_turn_response` 并进 `tutor_message`）：一行只有一列创建时间，
+        // `created_at` = 本轮**第一次动作**的时刻，记录里的 `choiceSubmittedAt` 由它派生
+        // （旧表那列独立的 `choice_submitted_at_epoch_millis` 随表退役）。这一轮先 reveal(1200)
+        // 再 choice(1300)，所以记回来的 choiceSubmittedAt 是行创建时刻，而不是选择自己的 1300。
         assertEquals(
             revealed.copy(
                 diagnosticStemMarkdown = choice.diagnosticStemMarkdown,
@@ -307,7 +311,7 @@ class TutorInteractionDatabaseInstrumentedTest {
                 selectedChoiceMarkdown = choice.selectedChoiceMarkdown,
                 selectionWasCorrect = choice.selectionWasCorrect,
                 feedbackMarkdown = choice.feedbackMarkdown,
-                choiceSubmittedAtEpochMillis = choice.choiceSubmittedAtEpochMillis,
+                choiceSubmittedAtEpochMillis = revealed.submittedAtEpochMillis,
             ),
             recorded,
         )
@@ -343,6 +347,7 @@ class TutorInteractionDatabaseInstrumentedTest {
 
         val recorded = store.recordTutorChoice(choice)
 
+        // 同一口径：这一轮先 move(1100) 再 choice(1200)，choiceSubmittedAt 派自行创建时刻。
         assertEquals(
             moved.copy(
                 diagnosticStemMarkdown = choice.diagnosticStemMarkdown,
@@ -350,7 +355,7 @@ class TutorInteractionDatabaseInstrumentedTest {
                 selectedChoiceMarkdown = choice.selectedChoiceMarkdown,
                 selectionWasCorrect = choice.selectionWasCorrect,
                 feedbackMarkdown = choice.feedbackMarkdown,
-                choiceSubmittedAtEpochMillis = choice.choiceSubmittedAtEpochMillis,
+                choiceSubmittedAtEpochMillis = moved.submittedAtEpochMillis,
             ),
             recorded,
         )
@@ -486,7 +491,9 @@ class TutorInteractionDatabaseInstrumentedTest {
             val revealThenMove = persistentStore.recordTutorMove(
                 move.copy(turnOrdinal = 2, occurredAtEpochMillis = 1_250),
             )
-            assertEquals(1_250, revealThenMove.submittedAtEpochMillis)
+            // 本轮第一次动作是 reveal(1300)——行由它建，created_at 就是 1300；随后的 move(1250)
+            // 只把 completed_at 推到 1300（旧表的 `submitted_at = MIN(动作时刻)` 口径已退役）。
+            assertEquals(1_300, revealThenMove.submittedAtEpochMillis)
             assertEquals(1_300, revealThenMove.updatedAtEpochMillis)
             assertTrue(revealThenMove.solutionRevealed)
 

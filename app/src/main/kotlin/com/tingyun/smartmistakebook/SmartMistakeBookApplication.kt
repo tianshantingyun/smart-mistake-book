@@ -9,6 +9,8 @@ import com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryFacto
 import com.tingyun.smartmistakebook.core.data.backup.BackupRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery
 import com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryAttention
+import com.tingyun.smartmistakebook.core.data.tutor.AgentPendingRequestRepositoryFactory
+import com.tingyun.smartmistakebook.core.data.tutor.TutorAttachedImageIntakeFactory
 import com.tingyun.smartmistakebook.core.data.tutor.LobbyMessageImageIntakeFactory
 import com.tingyun.smartmistakebook.core.data.backup.RestoreStartupOutcome
 import com.tingyun.smartmistakebook.core.data.backup.attentionRequired
@@ -19,6 +21,8 @@ import com.tingyun.smartmistakebook.core.data.library.LibraryCatalogRepositoryFa
 import com.tingyun.smartmistakebook.core.data.tutor.TutorAttachedQuestionReaderFactory
 import com.tingyun.smartmistakebook.core.data.tutor.TutorRoundQuestionRetrieverFactory
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
+import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
+import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionRetriever
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeDetailRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeOrganizationRepositoryFactory
@@ -146,6 +150,20 @@ class SmartMistakeBookApplication : Application() {
     lateinit var lobbyMessageImageIntake: LobbyMessageImageIntake
         private set
 
+    /**
+     * 待确认请求（A4 / 插眼 5）：确认卡落库的端口。挂起的卡是**行**，不是内存里的开关——
+     * 进程死亡后重建的是同一张卡。
+     */
+    lateinit var agentPendingRequestRepository: AgentPendingRequestRepository
+        private set
+
+    /**
+     * 聊天附图的上库接续（A4 的执行路径 ③）：把消息附带的图片送进既有录入链路
+     * （单页 → 待处理草稿；多页 → 批量导入任务）。
+     */
+    lateinit var tutorAttachedImageIntake: TutorAttachedImageIntake
+        private set
+
     lateinit var tutorTeachingReferenceRepository: TutorTeachingReferenceRepository
         private set
 
@@ -219,6 +237,8 @@ class SmartMistakeBookApplication : Application() {
             tutorInteractionRepository = TutorInteractionRepositoryFactory.create(database)
             tutorConversationRepository = TutorConversationRepositoryFactory.create(database)
             lobbyMessageImageIntake = LobbyMessageImageIntakeFactory.create(this, database)
+            // 确认卡（A4 / 插眼 5）：模型申请的本地动作挂成一张**库里的行**（进程死亡后读得回来）。
+            agentPendingRequestRepository = AgentPendingRequestRepositoryFactory.create(database)
             tutorTeachingReferenceRepository =
                 TutorTeachingReferenceRepositoryFactory.create(database)
             tutorKnowledgeContextLoader = TutorKnowledgeContextLoaderFactory.create(
@@ -318,6 +338,12 @@ class SmartMistakeBookApplication : Application() {
                 onWorkScheduled = { BatchImportDriver.enqueue(this) },
             )
             backupRepository = BackupRepositoryFactory.create(this, database)
+            // 确认卡执行路径 ③（A4）：聊天附图 → 既有录入链路。放在批量和采集之后——它两者都用到。
+            tutorAttachedImageIntake = TutorAttachedImageIntakeFactory.create(
+                images = lobbyMessageImageIntake,
+                capture = captureRepository,
+                batchImports = batchImportRepository,
+            )
             OrphanAssetGc.enqueue(this)
             // An import interrupted by a process kill is resumed without waiting
             // for the student to reopen the screen; the worker no-ops quickly when

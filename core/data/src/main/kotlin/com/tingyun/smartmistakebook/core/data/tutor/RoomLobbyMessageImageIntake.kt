@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.data.tutor
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.content.FileProvider
 import com.tingyun.smartmistakebook.core.data.capture.AndroidBatchImportSourceStaging
 import com.tingyun.smartmistakebook.core.data.capture.AndroidCanonicalAssetVault
 import com.tingyun.smartmistakebook.core.data.capture.batchImportProviderAuthority
@@ -9,8 +10,12 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImage
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+/** 交图给录入链路时的暂存目录：与大厅拍照落盘的目录同一个（capture provider 覆盖它）。 */
+private const val INTAKE_STAGING_DIRECTORY = "captured_images"
 
 /**
  * 消息附图摄取：相机拍照与相册选择都统一落到规范资产库。
@@ -68,6 +73,46 @@ internal class RoomLobbyMessageImageIntake(
                 height = record.height,
             )
         }
+
+    /**
+     * 把已登记资产交给录入链路（A4 的 ③）：规范资产库里的文件 → 本应用私有 provider 的
+     * `content://` URI。
+     *
+     * 为什么要有这一步：vault 的目录**不在任何 FileProvider 的 paths 配置里**（这正是它"私有"
+     * 的含义），而录入链路（批量导入的 staging、草稿导入的 vault 入口）只接受本应用 provider 的
+     * content URI。于是把字节有界复制到相机/相册那条既有的暂存目录（`cache/captured_images/`，
+     * capture provider 已覆盖），文件名按 sha256 取——同一张图重复执行不会堆副本。
+     *
+     * 资产缺失或被改动时返回 null：调用方如实说"这张图不在了"。
+     */
+    override suspend fun resolveIntakeUri(assetId: String): String? = withContext(Dispatchers.IO) {
+        val record = database.readCanonicalSourceAsset(assetId) ?: return@withContext null
+        val source = runCatching { vault.resolve(record) }.getOrNull() ?: return@withContext null
+        val directory = File(appContext.cacheDir, INTAKE_STAGING_DIRECTORY).apply {
+            if (!isDirectory) mkdirs()
+        }
+        val extension = record.relativePath.substringAfterLast('.', "jpg")
+        val destination = File(directory, "lobby-intake-${record.contentSha256}.$extension")
+        if (!destination.isFile || destination.length() != record.byteSize) {
+            runCatching {
+                source.inputStream().use { input ->
+                    destination.outputStream().use { output -> input.copyTo(output) }
+                }
+            }.getOrElse {
+                destination.delete()
+                return@withContext null
+            }
+        }
+        if (destination.length() != record.byteSize) {
+            destination.delete()
+            return@withContext null
+        }
+        FileProvider.getUriForFile(
+            appContext,
+            "${appContext.packageName}.capture.fileprovider",
+            destination,
+        ).toString()
+    }
 
     private fun isVaultImportable(localUri: String): Boolean {
         val uri = Uri.parse(localUri)

@@ -15,6 +15,9 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+import com.tingyun.smartmistakebook.core.model.TutorInteractionMode
+import com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome
+import com.tingyun.smartmistakebook.core.model.TutorScaffoldLevel
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -35,6 +38,21 @@ internal fun buildTutorLobbyRequest(
     contextImageAssets: List<LobbyMessageImage> = emptyList(),
     /** 更早轮次的确定性摘要；空表示没有轮次被挤出原样窗口。 */
     priorDigest: String? = null,
+    /**
+     * 已裁决的本地动作结果（A4 回喂，D-K2e）：本地动作 ≈ 工具的一种，执行结果照常回喂模型。
+     * 空列表 = 没有可回喂的裁决（首次派发、或不接确认卡的入口）。
+     */
+    localActionOutcomes: List<TutorLobbyLocalActionOutcome> = emptyList(),
+    /**
+     * 本轮的交互模式（D-Q9）：由**会话行**决定（[TutorInteractionMode.AREA_DEFAULT_NAME] 是
+     * 默认），学生在会话里随时可换。模式进输入 = 进指纹（提示词不同就是另一次逻辑操作）。
+     */
+    interactionMode: TutorInteractionMode = TutorInteractionMode.NORMAL,
+    /**
+     * 本轮起步的脚手架档（引导模式才有）：本地纯策略 [tutorScaffoldDirective] 的结论。
+     * 正常模式恒为 null（模式与档位互斥由 [TutorLobbyInput] 的守卫兜底）。
+     */
+    scaffoldLevel: TutorScaffoldLevel? = null,
 ): ModelTaskRequest {
     require(conversationId.isNotBlank()) { "Tutor lobby conversation id must not be blank" }
     require(provider.supports(ModelTaskKind.TUTOR_LOBBY)) {
@@ -77,6 +95,11 @@ internal fun buildTutorLobbyRequest(
         // 声明集按页面给，可用性交给既有的授权矩阵（意图 × 置信度 × 声明集）。写工具另有一道
         // 本地门控——只有"本轮有绑定题"才执行，而大厅轮次没有绑定题，等于必然被拒。
         toolDeclarations = TUTOR_TOOL_DECLARATIONS.toList(),
+        // 已裁决的本地动作结果（A4 回喂）：空列表在指纹里被抹平（schema 15），所以"没有可回喂
+        // 的裁决"与升级前的行算出同一个哈希。
+        localActionOutcomes = localActionOutcomes.take(TutorLobbyInput.MAX_LOCAL_ACTION_OUTCOMES),
+        interactionMode = interactionMode,
+        scaffoldLevel = scaffoldLevel,
     )
     val requestHash = sha256(
         buildString {
@@ -93,6 +116,16 @@ internal fun buildTutorLobbyRequest(
             (imageRefs + contextImageRefs).forEach { ref ->
                 append(ref.assetId).append(':').append(ref.sha256).append('\n')
             }
+            // 回喂的裁决结果同样是输入的一部分：内容不同就必须是另一个请求标识，否则
+            // "同一个 requestId 两种输入"会被落库层判成完整性事故（不可变输入冲突）。
+            input.localActionOutcomes.forEach { outcome ->
+                append(outcome.kind).append(':').append(outcome.decision).append('\n')
+                append(outcome.detail.orEmpty()).append('\n')
+            }
+            // 模式与起步档同样改变提示词：换模式之后重发同一句话是**另一次**逻辑操作，
+            // 不能沿用旧请求标识（那会把"同一个 requestId 两种输入"落到完整性校验上）。
+            append(input.interactionMode.name).append('\n')
+            append(input.scaffoldLevel?.name.orEmpty()).append('\n')
             append(provider.providerConfigurationVersion)
         },
     ).take(24)

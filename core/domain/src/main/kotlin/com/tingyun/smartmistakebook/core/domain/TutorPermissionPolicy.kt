@@ -130,3 +130,20 @@ fun agentPendingRequestKind(subject: TutorPermissionSubject): AgentPendingReques
             TutorLocalAction.ADD_TO_REVIEW_PLAN -> AgentPendingRequestKind.ADD_TO_REVIEW_PLAN
         }
     }
+
+/**
+ * [agentPendingRequestKind] 的逆：一个待确认 kind 回到它对应的**策略对象**（两种拼写各自回到
+ * 自己那一边——工具拼写回工具面、动作拼写回本地动作面）。
+ *
+ * 消费者只有一处：交互面读工具痕迹里那条"在等学生确认"的 `NOTEBOOK_WRITE`，把它送回同一个
+ * 准入函数挂出**同一张卡**（见 `TutorPendingRequestCoordinator.suspendRequestedActionsIfAny`）。
+ */
+fun tutorPermissionSubject(kind: AgentPendingRequestKind): TutorPermissionSubject = when (kind) {
+    AgentPendingRequestKind.NOTEBOOK_WRITE -> TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_WRITE)
+    AgentPendingRequestKind.SAVE_TO_NOTEBOOK ->
+        TutorPermissionSubject.LocalAction(TutorLocalAction.SAVE_TO_NOTEBOOK)
+    AgentPendingRequestKind.OPEN_PROBLEM -> TutorPermissionSubject.LocalAction(TutorLocalAction.OPEN_PROBLEM)
+    AgentPendingRequestKind.START_EXPORT -> TutorPermissionSubject.LocalAction(TutorLocalAction.START_EXPORT)
+    AgentPendingRequestKind.ADD_TO_REVIEW_PLAN ->
+        TutorPermissionSubject.LocalAction(TutorLocalAction.ADD_TO_REVIEW_PLAN)
+}

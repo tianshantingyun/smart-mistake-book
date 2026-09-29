@@ -631,7 +631,7 @@ data class AttachedRoundQuestion(
  * [anchorTerms] 每一条都要在学生这一轮的消息里逐字出现、且至少一条能在该题自身
  * （标题或题面）里找到。核不过就是无题轮。
  *
- * [anchorTerms] 沿用 `TutorIntentAuthority.actionIsBoundTo`/`lookupTerms` 的逐字锚纪律：
+ * [anchorTerms] 沿用当年意图授权里 actionIsBoundTo / lookupTerms 的逐字锚纪律：
  * 模型给出词、本地逐字比对，模型不能只给一个"我觉得是这道"的判断。
  *
  * @property problemId 声明指向的题目 id；必须在本地候选菜单内。

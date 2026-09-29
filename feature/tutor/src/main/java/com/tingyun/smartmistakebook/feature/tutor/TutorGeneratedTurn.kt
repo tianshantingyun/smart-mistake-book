@@ -32,16 +32,24 @@ import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
+import com.tingyun.smartmistakebook.core.ui.TutorToolTraceLine
+import com.tingyun.smartmistakebook.core.ui.rememberTutorToolTraceDisplay
 
 @Composable
 internal fun TutorTurnContent(
     output: TutorPlanOutput,
     modifier: Modifier = Modifier,
     /**
-     * 本轮讲解的正文（K1a：消息行是唯一文本权威）。默认取账本里的开场白，供旧行与直接调用
-     * 方使用；会话面板传消息行的正文。
+     * 本轮讲解的正文（K1a：消息行是唯一文本权威）。null = 这一轮没有消息行，**不回落账本**：
+     * 回落会让同一条文本有两个去处（旧行读账本、新行读消息行），两处一漂就是"学生看到的"
+     * 与"库里记下的"不是同一句话。结构化载荷（完整讲解 / 另一种方法 / 选择题）不受影响。
      */
-    openingMarkdown: String = output.plan.openingMarkdown,
+    openingMarkdown: String?,
+    /**
+     * 这一轮的工具痕迹（B1，同样来自消息行）：加粗灰色小字内联、点开可看详情（含被拒理由）。
+     * null = 这一轮没有发起工具调用（或旧行没有痕迹），整行不渲染。
+     */
+    toolTraceJson: String? = null,
     response: TutorTurnResponse? = null,
     solutionRevealPreviewed: Boolean = false,
     interactionEnabled: Boolean = true,
@@ -54,6 +62,8 @@ internal fun TutorTurnContent(
     onRevealSolution: () -> Unit = {},
     onRestartCycle: () -> Unit = {},
     solutionBottomModifier: Modifier = Modifier,
+    /** 讲解正文那条动作条（A2）的标签。 */
+    planActionTestTag: String = "captured_tutor_plan_actions",
 ) {
     val plan = output.plan
     val item = plan.diagnosticItem
@@ -87,7 +97,17 @@ internal fun TutorTurnContent(
             .testTag("captured_tutor_model_ready"),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        SafeMarkdownText(openingMarkdown, style = MaterialTheme.typography.bodyLarge)
+        openingMarkdown?.let { markdown ->
+            SafeMarkdownText(markdown, style = MaterialTheme.typography.bodyLarge)
+            // 动作条（A2）：讲解这一轮的正文与讲题侧的回复共用同一条——「复制」复制的是消息行
+            // 里的原文 markdown（渲染后的文本会丢格式）。
+            TutorReplyActionBar(
+                shape = tutorReplyActionShape(bodyMarkdown = markdown),
+                testTagPrefix = planActionTestTag,
+            )
+        }
+        // B1：这一轮查阅了什么，单独一行小字（不混进思考卡），点开看明细。
+        TutorToolTraceLine(display = rememberTutorToolTraceDisplay(toolTraceJson))
         item?.let { interaction ->
             SafeMarkdownText(interaction.stemMarkdown, style = MaterialTheme.typography.bodyLarge)
             interaction.promptMarkdown?.let {

@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.database
 
 import com.tingyun.smartmistakebook.core.database.dao.CanonicalSourceAssetRow
 import com.tingyun.smartmistakebook.core.database.dao.MistakeRow
+import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
+import com.tingyun.smartmistakebook.core.database.dao.toRecord
 import com.tingyun.smartmistakebook.core.database.dao.ReviewPlanAggregate
 import com.tingyun.smartmistakebook.core.database.dao.ReviewQueueAggregate
 import com.tingyun.smartmistakebook.core.database.entity.ActiveReviewPlanSlotEntity
@@ -14,6 +16,10 @@ import com.tingyun.smartmistakebook.core.database.entity.ReviewQueueReasonEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewSessionEntity
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -291,6 +297,79 @@ class RoomStudyDatabaseMappingsTest {
         reasonSnapshot = "",
         status = "PENDING",
     )
+
+    /**
+     * 轮次事实（51→52 由 `tutor_turn_response` 并入 `tutor_message`）在行映射上逐列存活：
+     * 少映一列就等于"这一轮学生选了什么 / 揭示了没有"读不回来，而写入侧是好的——症状会
+     * 出现在离改动很远的地方（时间线的选项反馈、曝光面校验）。
+     */
+    @Test
+    fun tutorMessageRoundColumnsSurviveTheRowMapping() {
+        val entity = TutorMessageEntity(
+            messageId = "tutor-round:session-1:1:1",
+            conversationId = "tutor-conv:captured:session-1",
+            ordinal = 2,
+            role = "LOCAL_EVENT",
+            bodyMarkdown = "",
+            roundCycleOrdinal = 1,
+            roundTurnOrdinal = 1,
+            roundQuestionDocumentId = "question-1",
+            roundRevisionNumber = 2,
+            choiceStemMarkdown = "关键一步是什么？",
+            choiceSelectedId = "choice-2",
+            choiceSelectedMarkdown = "先判断符号",
+            choiceWasCorrect = true,
+            choiceFeedbackMarkdown = "这个判断是对的。",
+            solutionRevealed = true,
+            requestedMove = null,
+            status = "PERSISTED",
+            logicalOperationId = null,
+            replyToMessageId = null,
+            createdAtEpochMillis = 5,
+            completedAtEpochMillis = 6,
+            errorCode = null,
+        )
+
+        val record = entity.toRecord()
+
+        assertNotNull(record.toTurnRecordOrNull("session-1"))
+        assertEquals(1, record.roundCycleOrdinal)
+        assertEquals(1, record.roundTurnOrdinal)
+        assertEquals("question-1", record.roundQuestionDocumentId)
+        assertEquals(2, record.roundRevisionNumber)
+        assertEquals("关键一步是什么？", record.choiceStemMarkdown)
+        assertEquals("choice-2", record.choiceSelectedId)
+        assertEquals("先判断符号", record.choiceSelectedMarkdown)
+        assertEquals(true, record.choiceWasCorrect)
+        assertEquals("这个判断是对的。", record.choiceFeedbackMarkdown)
+        assertEquals(true, record.solutionRevealed)
+        assertNull(record.requestedMove)
+        assertTrue(record.isTutorRoundRow)
+    }
+
+    /** 普通的对话消息不是轮次行：它不进 turns（此前它会被当成轮次行喂给域模型而抛不变式）。 */
+    @Test
+    fun aPlainConversationMessageIsNotARoundRow() {
+        val entity = TutorMessageEntity(
+            messageId = "tutor-message:1",
+            conversationId = "tutor-conv:captured:session-1",
+            ordinal = 1,
+            role = "STUDENT",
+            bodyMarkdown = "这题怎么做",
+            status = "PERSISTED",
+            logicalOperationId = "op-1",
+            replyToMessageId = null,
+            createdAtEpochMillis = 1,
+            completedAtEpochMillis = 1,
+            errorCode = null,
+        )
+
+        val record = entity.toRecord()
+
+        assertNull(record.toTurnRecordOrNull("session-1"))
+        assertFalse(record.isTutorRoundRow)
+    }
+
 
     private fun reviewQueueRecord(
         knowledgeNodeIds: Set<String>,

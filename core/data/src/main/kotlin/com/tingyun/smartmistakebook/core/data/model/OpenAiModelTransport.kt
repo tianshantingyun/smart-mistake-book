@@ -56,6 +56,13 @@ internal class WireRequest(
      * 读完才回放，于是学生在生成过程中看不到正在写出来的答案。
      */
     val onContentDelta: ((String) -> Unit)? = null,
+    /**
+     * 流式读取期间**首次出现原生工具调用增量**时调用一次（`delta.tool_calls`）。
+     *
+     * 只回答"这一轮是工具轮吗"（A6）：工具轮里同一条流上的 content 是模型附带的叙述，不是回答
+     * 正文——网关据此把它挪进查阅单元，而不是让它留在正文位置。
+     */
+    val onToolCallDelta: (() -> Unit)? = null,
 )
 
 internal fun interface ModelHttpTransport {
@@ -125,6 +132,7 @@ internal class OkHttpModelTransport : ModelHttpTransport {
                 beforeEnqueue = beforeEnqueue,
                 onReasoningDelta = request.onReasoningDelta,
                 onContentDelta = request.onContentDelta,
+                onToolCallDelta = request.onToolCallDelta,
             )
         } else {
             call.awaitBoundedResponse(beforeEnqueue)
@@ -260,6 +268,7 @@ internal suspend fun Call.awaitBoundedSseResponse(
     protocol: ModelWireProtocol,
     onReasoningDelta: ((String) -> Unit)? = null,
     onContentDelta: ((String) -> Unit)? = null,
+    onToolCallDelta: (() -> Unit)? = null,
     beforeEnqueue: suspend () -> Unit,
 ): ModelHttpResponse {
     beforeEnqueue()
@@ -282,6 +291,9 @@ internal suspend fun Call.awaitBoundedSseResponse(
                                 }
                                 protocol.streamDelta(frame)?.let { delta ->
                                     onContentDelta?.invoke(delta)
+                                }
+                                if (protocol.streamToolCallDelta(frame)) {
+                                    onToolCallDelta?.invoke()
                                 }
                             }
                             val body = if (it.code in 200..299) {
