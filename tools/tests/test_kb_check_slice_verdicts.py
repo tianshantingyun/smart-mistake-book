@@ -71,20 +71,30 @@ class CheckSliceVerdictsTest(unittest.TestCase):
                                            boundary="", note="题目派生")])
         self.assertEqual([], self._check())
 
+    def test_multi_material_block_passes(self):
+        """同一块出多条材料（midx ''/b/c）是协议允许的：键数==切片块数即通过。"""
+        _write_csv(self.csv, [
+            _row(),                                   # a1 第一条
+            _row(midx="b", node_slug="node-a"),       # a1 第二条（midx=b，合法）
+            _row(chunk_id="a2", action="SKIP", node_slug="", type="", title="", summary="",
+                 applicability="", content="", boundary="", note="装饰页"),
+        ])
+        self.assertEqual([], self._check())
+
     def test_defects_reported(self):
         _write_csv(self.csv, [
             _row(chunk_id="a2", type="DERIVATION"),
             _row(chunk_id="zz"),                      # 键不在切片
-            _row(chunk_id="a1", node_slug="不存在"),
-            _row(chunk_id="a1", content="1\\n2\\n3\\n4\\n5"),
-            _row(chunk_id="a1", boundary="定位：待补。"),
-            _row(chunk_id="a1", title='含 "引号"'),
-            _row(chunk_id="a1", action="SKIP", note="NEW:WRONG/x"),
-            _row(chunk_id="a1", action="SKIP", note=""),
-            _row(chunk_id="a1", summary=""),
+            _row(chunk_id="a1", midx="b", node_slug="不存在"),
+            _row(chunk_id="a1", midx="b", content="1\\n2\\n3\\n4\\n5"),
+            _row(chunk_id="a1", midx="b", boundary="定位：待补。"),
+            _row(chunk_id="a1", midx="b", title='含 "引号"'),
+            _row(chunk_id="a1", midx="b", action="SKIP", note="NEW:WRONG/x"),
+            _row(chunk_id="a1", midx="b", action="SKIP", note=""),
+            _row(chunk_id="a1", midx="b", summary=""),
         ])
         joined = "; ".join(self._check())
-        self.assertIn("行数", joined)
+        self.assertIn("同键 midx 重复", joined)
         self.assertIn("键不在切片", joined)
         self.assertIn("非法 type", joined)
         self.assertIn("节点不存在", joined)

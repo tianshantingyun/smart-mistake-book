@@ -60,17 +60,19 @@ def check_one(csv_path: Path, slice_path: Path, nodes: dict[str, set[str]]) -> l
         want += 1
         slice_keys.add((rec["chunk_rel"], rec["chunk_id"]))
         subject_of[(rec["chunk_rel"], rec["chunk_id"])] = rec.get("subject") or ""
-    if len(rows) != want:
-        errors.append(f"行数 {len(rows)} ≠ 切片 {want}")
+    if len(slice_keys) != want:
+        errors.append(f"切片键数异常：{len(slice_keys)} ≠ {want}")
+    if len(rows) < want:
+        errors.append(f"行数 {len(rows)} < 切片块数 {want}")
     seen: set[tuple[str, str]] = set()
+    midx_by_key: dict[tuple[str, str], list[str]] = {}
     for row in rows:
         key = (row.get("chunk_rel") or "", row.get("chunk_id") or "")
         tag = f"{key[0].split('/')[-1]}#{key[1]}"
         if key not in slice_keys:
             errors.append(f"{tag}: 键不在切片里")
-        elif key in seen:
-            errors.append(f"{tag}: 键重复")
         seen.add(key)
+        midx_by_key.setdefault(key, []).append((row.get("midx") or "").strip())
         action = (row.get("action") or "").strip()
         if action not in ("MATERIAL", "SKIP"):
             errors.append(f"{tag}: 非法 action {action!r}")
@@ -99,6 +101,9 @@ def check_one(csv_path: Path, slice_path: Path, nodes: dict[str, set[str]]) -> l
         for field in ("title", "summary", "applicability", "content", "boundary"):
             if '"' in (row.get(field) or ""):
                 errors.append(f"{tag}: {field} 含 ASCII 双引号")
+    for key, midxs in midx_by_key.items():
+        if len(set(midxs)) != len(midxs):
+            errors.append(f"{key[1]}: 同键 midx 重复 {midxs}")
     return errors
 
 
