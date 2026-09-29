@@ -59,3 +59,23 @@
 包内文本把 `\varphi` 转义丢失成 `arphi`；`math-mo-jiBuChongFen-yiBuBiYao` 包内 content 有 `\not`
 被写成换行+`ot` 的同源损坏。建议并入 §2 的绑定/文本审计。
 
+## 7. 写入窗口①结果与 dense 资产状态（2026-09-30）
+
+**已写入并晋升**（详见 `WRITE-WINDOW.md`）：
+- 81 条作者型补料 → staging 侧车卷 10（该卷 1,231 条材料）；别名 25,359 → **25,436**（65 个节点变更，alias_map.csv 同步）；
+- 23 道门 + 契约 + roundtrip 全绿 → `promote` 写成品包 13 个文件，**version 5**，内容戳 `42a2ab7e10859cad`；
+- 未写入的：91 条满额节点补料（`capacity_blocked.csv`，需先清该节点内跑题材料）、1 条完全重复（`duplicate_dropped.csv`）；
+- 全量 Python 套件 560 项：559 绿 + **1 红（dense 资产陈旧门）**——见下。
+
+**dense 向量资产落后于包（+77 个 id）——重打被既有红阻断（UNVERIFIED/阻塞）**：
+- 门报：`packSha256` 不一致、`layout` ids 28,931 vs 包布局 29,008（首差 idx 2151）；
+- 按 `tools/dense_build/README.md` §1 重打，第①步 `ProductionLexicalLegExportTest` **红**：
+  `冻结金标集条数应为 90 expected:<90> but was:<130>`——判官 v2 金标集迁移后测试断言未同步，
+  属**既有红**（`kb-judge-v2-five-red-tests`：已点名归因、明令不许改）；
+- 因此本轮**不伪造绿门**：不动那 5 条既有红，.vec 保持旧件，④ 的设备期望值同样未刷新
+  （设备硬门在重打完成前不得引用旧期望值）；
+- 恢复条件（按序）：① 由有权者处理该既有红（或裁定跳过）→ ② `export_bge_int8.py` →
+  ③ `pack_dense_asset.py` → ④ `stage3_expectation.py` → ⑤ 套件与 dense 门复绿；
+  段2 的 P3 重打会遇到同一个阻断，须先解开它。
+
+

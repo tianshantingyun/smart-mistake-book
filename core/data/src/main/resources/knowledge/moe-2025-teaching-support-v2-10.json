@@ -49,6 +49,70 @@
    "licenseExpression": null,
    "licenseUri": null,
    "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "registry-kb-math-knowledge-list:math",
+   "subject": "MATH",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "registry-kb-math-knowledge-list:math",
+   "publisher": "教辅汇编",
+   "edition": "2027版",
+   "sourceUri": "https://www.example.edu/material",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "9EE829AD6BF919AD290AE96063BAFE2AD4D52CB75B338186E0578BD629942420",
+   "importedAtEpochMillis": 1784908740000,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
+  },
+  {
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "subject": "PHYSICS",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "registry-kb-physics-knowledge-list:physics",
+   "publisher": "教辅汇编",
+   "edition": "2027版",
+   "sourceUri": "https://www.example.edu/material",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "141BC7543D1F60756E0F118EADD2C3B63A93922A2762DCA19AA52040CC410CF9",
+   "importedAtEpochMillis": 1784908740000,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
+  },
+  {
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "subject": "CHEMISTRY",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "registry-kb-chemistry-knowledge-list:chemistry",
+   "publisher": "教辅汇编",
+   "edition": "2027版",
+   "sourceUri": "https://www.example.edu/material",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "F6083391F02ADA8E93E19E23A959E727D59D7787F86ACAD1CF4F7AD916CFA744",
+   "importedAtEpochMillis": 1784908740000,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
+  },
+  {
+   "sourceId": "registry-kb-biology-knowledge-list:biology",
+   "subject": "BIOLOGY",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "registry-kb-biology-knowledge-list:biology",
+   "publisher": "教辅汇编",
+   "edition": "2027版",
+   "sourceUri": "https://www.example.edu/material",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "788D64E5292E7DE3265F837EFD76D4C3CFFF3ACFF718D262616C9765D4EEC38E",
+   "importedAtEpochMillis": 1784908740000,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
   }
  ],
  "materials": [
@@ -23048,6 +23112,1626 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:自然资源的开发利用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-mat-00065",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "直棱柱、正棱柱、正棱锥与正四面体的定义与反向辨析",
+   "summaryMarkdown": "侧棱垂直于底面的是直棱柱；底面再取正多边形的是正棱柱；顶点在底面的射影为底面中心的是正棱锥；各棱长都相等的正三棱锥是正四面体。",
+   "applicabilityMarkdown": "侧棱垂直于底面的是直棱柱；底面再取正多边形的是正棱柱；顶点在底面的射影为底面中心的是正棱锥；各棱长都相等的正三棱锥是正四面体。",
+   "contentMarkdown": "①判断直棱柱只看侧棱是否垂直于底面；在此基础上要求底面为正多边形，就得到正棱柱，此时侧面全为矩形。\n②判断正棱锥只看顶点在底面的射影是不是底面正多边形的中心；正三棱锥再要求各棱长都相等时称为正四面体。\n③三个反向陷阱：侧面都是平行四边形的几何体未必是棱柱；侧面都是梯形的几何体未必是棱台；棱台的各条侧棱延长后必须交于一点。",
+   "boundaryMarkdown": "只用于判定与辨析直棱柱、正棱柱、正棱锥、正四面体这四个特殊多面体；不含表面积与体积计算，也不替代一般棱柱、棱锥、棱台的结构特征。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-math-knowledge-list:math",
+   "sourceLocator": "知识清单（学生版）  · 特殊的棱柱和棱锥",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:特殊的棱柱和棱锥",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-mat-00167",
+   "subject": "MATH",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "使用不等式性质前必须核验的三类前提条件",
+   "summaryMarkdown": "用不等式基本性质推理前先核验前提：两端同乘同除一个数式要判断其正负（乘负数变号、除以零无意义）、两不等式相乘须同向且两边均为正、两端同时 n 次方须两边均为正。",
+   "applicabilityMarkdown": "用不等式基本性质推理前先核验前提：两端同乘同除一个数式要判断其正负（乘负数变号、除以零无意义）、两不等式相乘须同向且两边均为正、两端同时 n 次方须两边均为正。",
+   "contentMarkdown": "①两端同乘或同除同一个数（式）：必须先判断其正负，乘除负数要改变不等号方向，取零无意义；符号未定时不能直接运算。\n②两不等式相乘：须同向且两边均为正，如 a>b>0 且 c>d>0 才有 ac>bd；方向不同或含负数时不能相乘。\n③两端同时 n 次方：须两边均为正，如 a>b>0 才有 aⁿ>bⁿ（n≥2）；含负数时结论可能不成立。\n④判断不等式命题真假的通用做法：逐条核对上述条件，条件不满足时举反例否定。",
+   "boundaryMarkdown": "只涉及不等式基本性质（可乘性、同向同正可乘性、同正乘方性）使用前提的核验与错误纠正；不含一元二次不等式与分式不等式的具体解法，也不涉及基本不等式求最值的取等条件。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-math-knowledge-list:math",
+   "sourceLocator": "知识清单（学生版）  · 忽视不等式性质成立的条件致错",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:忽视不等式性质成立的条件致错",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-mat-00280",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "直棱柱、正棱柱、正棱锥与正四面体的定义与反向辨析",
+   "summaryMarkdown": "直棱柱只看侧棱是否垂直于底面，底面再为正多边形才是正棱柱；正棱锥看顶点在底面的射影是否为底面正多边形中心，并澄清三个常见反向陷阱。",
+   "applicabilityMarkdown": "直棱柱只看侧棱是否垂直于底面，底面再为正多边形才是正棱柱；正棱锥看顶点在底面的射影是否为底面正多边形中心，并澄清三个常见反向陷阱。",
+   "contentMarkdown": "①判断直棱柱只看侧棱是否垂直于底面，在此基础上再要求底面为正多边形，才得到正棱柱，此时侧面全为矩形。\n②判断正棱锥只看顶点在底面的射影是不是底面正多边形的中心；正三棱锥再要求各棱长都相等时称为正四面体。\n③三个反向陷阱：侧面都是平行四边形的几何体不一定是棱柱；侧面都是梯形的几何体不一定是棱台；棱台的各条侧棱延长后必须交于一点。",
+   "boundaryMarkdown": "只限定常见多面体的定义与结构判定（含反向反例辨析），不含侧面积、体积公式以及截面、外接球等计算内容。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-math-knowledge-list:math",
+   "sourceLocator": "知识清单（学生版）  · 特殊的棱柱和棱锥",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:特殊的棱柱和棱锥",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-mat-00342",
+   "subject": "MATH",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "建系前必须证明三条坐标轴两两垂直",
+   "summaryMarkdown": "空间直角坐标系要求三条坐标轴两两垂直，题目未直接给出垂直条件时必须先证明，不能凭图形直观建系。",
+   "applicabilityMarkdown": "空间直角坐标系要求三条坐标轴两两垂直，题目未直接给出垂直条件时必须先证明，不能凭图形直观建系。",
+   "contentMarkdown": "①建系前先核对题设是否给出垂直条件；没有直接给出时，必须先证明所用三条坐标轴两两垂直（一个线面垂直加底面两条线垂直），这一步不能省略。\n②只凭图形看起来垂直就写坐标，得到的点坐标与法向量都不可靠，后续求空间角、求距离会整体出错。\n③缺条件时的常规路径：由全等、等腰三角形的三线合一或已知的面面垂直先证出一条线面垂直，再在该平面内作交线的垂线得到第三条坐标轴。\n④建系后回看关键点的坐标是否满足题设的长度与垂直关系，作为自检。",
+   "boundaryMarkdown": "只处理建系前垂直条件的确认与证明；不含坐标运算、求角求距的具体步骤以及共点三垂直等其它建系技巧。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-math-knowledge-list:math",
+   "sourceLocator": "知识清单（学生版）  · 忽略建系的条件而出错",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:忽略建系的条件而出错",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00533",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "坐标系及其与参考系的区别",
+   "summaryMarkdown": "坐标系是在选定参考系后用原点、正方向和单位长度定量描述物体位置及位置变化的数学工具，一维运动取直线坐标轴、平面运动取平面直角坐标系。",
+   "applicabilityMarkdown": "坐标系是在选定参考系后用原点、正方向和单位长度定量描述物体位置及位置变化的数学工具，一维运动取直线坐标轴、平面运动取平面直角坐标系。",
+   "contentMarkdown": "①作用：参考系只确定描述运动所依据的物体，坐标系才把位置与位置变化定量化，给出位置的数值表示。\n②建立要素：原点、正方向与单位长度；物体位置变化量等于末位置坐标减初位置坐标。\n③常见形式：描述直线运动用一维直线坐标系，描述平面内运动用平面直角坐标系；坐标轴的正方向要与该过程的运动方向约定一致。",
+   "boundaryMarkdown": "只讲坐标系的定义、建立要素、常见形式及它与参考系的区别；不含小船渡河、平抛、正交分解等具体问题中的建系技巧。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 坐标系",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:坐标系",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00569",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "四种基本相互作用的作用范围与力的相互性",
+   "summaryMarkdown": "自然界只有四种基本相互作用：引力与电磁相互作用为长程力，强、弱相互作用只在原子核与粒子尺度的极短力程内起作用；力不能脱离物体存在。",
+   "applicabilityMarkdown": "自然界只有四种基本相互作用：引力与电磁相互作用为长程力，强、弱相互作用只在原子核与粒子尺度的极短力程内起作用；力不能脱离物体存在。",
+   "contentMarkdown": "①引力相互作用与电磁相互作用是长程力，作用范围不受距离限制；强相互作用与弱相互作用的力程极短，只在原子核及粒子内部表现出来。\n②力是物体之间的相互作用：施力物体同时也是受力物体；相互接触的物体之间不一定有力的作用（接触而无挤压），不接触的物体之间也可能有力的作用（如重力、电磁力）。\n③力不能离开物体而独立存在，单独一个物体不存在力的作用，力的作用总是成对出现。",
+   "boundaryMarkdown": "只说明四种基本相互作用各自的作用范围与力的相互性、接触力与非接触力的辨析，不含重力、弹力、摩擦力的具体性质、方向与计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 四种基本相互作用：引力相互作用、电磁相互作用、强相互作用和弱相互作用。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:四种基本相互作用-引力相互作用-电磁相互作用-强相互作用和弱相互作用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00572",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "重力的方向及三个易混点",
+   "summaryMarkdown": "重力的方向总是竖直向下，即垂直于水平面向下；竖直向下不等于垂直于接触面，也不一定指向地心。",
+   "applicabilityMarkdown": "重力的方向总是竖直向下，即垂直于水平面向下；竖直向下不等于垂直于接触面，也不一定指向地心。",
+   "contentMarkdown": "①重力的方向总是竖直向下，竖直向下以水平面为参照，即与水平面垂直。\n②竖直向下不等于与接触面垂直：斜面上物体所受重力方向仍竖直向下，与斜面并不垂直。\n③重力的方向不一定指向地心：由于地球自转，除赤道与两极外，物体所受重力的方向一般不过地心。\n④重力的方向由地球吸引决定，不随物体运动状态或其他受力情况改变。",
+   "boundaryMarkdown": "只说明重力方向的表述与“竖直向下与水平面垂直、与接触面无关、不一定指向地心”三个易混点，不含重力大小、重心位置与重心确定方法。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 方向：总是竖直向下（竖直向下是和水平面垂直，不一定和接触面垂直，也不一定指向地心）",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:方向-总是竖直向下-竖直向下是和水平面垂直-不一定和接触面垂直-也不一定指向地心",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00588",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "力的分解的本质与矢量运算法则",
+   "summaryMarkdown": "力的分解是力的合成的逆运算，同样遵循平行四边形定则（可简化为三角形定则），其实质是用几个分力等效替代原来的一个力。",
+   "applicabilityMarkdown": "力的分解是力的合成的逆运算，同样遵循平行四边形定则（可简化为三角形定则），其实质是用几个分力等效替代原来的一个力。",
+   "contentMarkdown": "①力的合成是把几个力用一个力等效替代，力的分解是把一个力用几个力等效替代，两者互为逆运算。\n②分解与合成遵循同一套矢量运算法则：平行四边形定则，也可简化为三角形定则。\n③没有附加条件时同一个力的分解结果有无数种，因此分解必须依据力的实际作用效果或解题需要附加限制条件才能唯一确定。",
+   "boundaryMarkdown": "只说明力的分解的本质、所遵循的矢量法则与分解结果的不确定性，不含按效果分解与正交分解的具体操作步骤与典型实例。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 本质： 是力的合成的逆运算。同样遵循矢量运算法则。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:本质-是力的合成的逆运算-同样遵循矢量运算法则",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00603",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "加速度方向突变引起的静摩擦力突变",
+   "summaryMarkdown": "物体与接触面一起变速时，加速度方向骤变会使相对运动趋势方向随之改变，静摩擦力立即反向并按新的合外力重新确定大小。",
+   "applicabilityMarkdown": "物体与接触面一起变速时，加速度方向骤变会使相对运动趋势方向随之改变，静摩擦力立即反向并按新的合外力重新确定大小。",
+   "contentMarkdown": "①情景：物体与接触面一起做变速运动，加速度方向突然改变，如汽车急转弯（向心力由静摩擦力提供）、电梯启动或制动瞬间（超重或失重改变正压力与相对运动趋势）。\n②突变：加速度方向改变的瞬间，物体相对接触面的运动趋势方向改变，提供该加速度的静摩擦力方向立即反转，大小按新的 F合=ma 重新确定。\n③检验：求出所需的静摩擦力后须用 |f|≤fmax 检验，若超过最大静摩擦力，物体与接触面发生相对滑动，摩擦力转为滑动摩擦力。",
+   "boundaryMarkdown": "只处理加速度方向突变引起摩擦力方向与大小改变这一类情形，不重复静—动、动—静、动—动突变与正压力突变的结论。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 加速度方向突变：",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:加速度方向突变",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00624",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "超重、失重与视重的定义式",
+   "summaryMarkdown": "加速度竖直向上时为超重，视重大于重力，FN=mg+ma；加速度竖直向下时为失重，FN=mg-ma；a=g 时视重为零即完全失重。",
+   "applicabilityMarkdown": "加速度竖直向上时为超重，视重大于重力，FN=mg+ma；加速度竖直向下时为失重，FN=mg-ma；a=g 时视重为零即完全失重。",
+   "contentMarkdown": "①超重：物体具有竖直向上的加速度时，它对支持面的压力（或对悬挂物的拉力）大于自身重力，FN=mg+ma。\n②失重：加速度竖直向下时 FN=mg-ma；当 a=g 时 FN=0，物体处于完全失重状态。\n③视重：物体挂在弹簧测力计下或放在水平台秤上时，测力计或台秤的示数称为视重，大小等于测力计受到的拉力或台秤受到的压力。\n④超重与失重只改变视重，物体本身的重力并不改变。",
+   "boundaryMarkdown": "只给出超重、失重、完全失重与视重的定义式和判断依据，不涉及拱形桥、凹形桥、卫星运行等具体模型。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 超重：物体有向上的加速度称物体处于超重。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:超重-物体有向上的加速度称物体处于超重",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00737",
+   "subject": "PHYSICS",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "机械能守恒条件的三点辨析",
+   "summaryMarkdown": "只有重力或弹力做功说的是做功情况，不等于只受重力或弹力作用，也不等于合力的功为零或物体所受合力为零。",
+   "applicabilityMarkdown": "只有重力或弹力做功说的是做功情况，不等于只受重力或弹力作用，也不等于合力的功为零或物体所受合力为零。",
+   "contentMarkdown": "1. 条件说的是做功而非受力：物体除重力或弹力外还受其他力时，只要其他力不做功或做功的代数和为零，机械能仍守恒。\n2. 不等于合力的功等于零：合力的功为零只保证动能不变，势能仍可变化，机械能不一定守恒。\n3. 不等于物体所受合力为零：合力为零对应静止或匀速直线运动，与机械能是否守恒没有必然联系。",
+   "boundaryMarkdown": "只辨析机械能守恒条件的三类常见误读，不涉及三种判断方法的具体操作，也不涉及具体过程的能量转化计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 守恒条件",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:守恒条件",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00758",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "系统、内力与外力的概念界定",
+   "summaryMarkdown": "把相互作用的两个或多个物体整体选为研究对象即系统，系统内物体间的相互作用力是内力，系统外物体对系统内物体的作用力是外力。",
+   "applicabilityMarkdown": "把相互作用的两个或多个物体整体选为研究对象即系统，系统内物体间的相互作用力是内力，系统外物体对系统内物体的作用力是外力。",
+   "contentMarkdown": "1. 系统：把内部存在相互作用的两个或多个物体整体选取为研究对象，也称力学系统。\n2. 内力：系统内部各物体之间的相互作用力。\n3. 外力：系统以外的物体对系统内物体施加的力。\n4. 选取系统的意义：内力不必逐一求解，可把复杂的多物体相互作用化为一个整体来分析，再据此判断能否使用动量守恒定律。",
+   "boundaryMarkdown": "只界定系统、内力与外力的含义与划分依据，不涉及动量守恒条件的判定，也不涉及碰撞、爆炸等具体过程的定量计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 系统、内力和外力",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:系统-内力和外力",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00812",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "两种电荷、电荷量与元电荷及物体带电的微观解释",
+   "summaryMarkdown": "自然界只存在正负两种电荷且同种电荷相互排斥、异种电荷相互吸引，电荷量单位是库仑，e 约 1.60×10⁻¹⁹ C 是最小电荷量即元电荷，物体带电可用原子结构与自由电子的得失解释。",
+   "applicabilityMarkdown": "自然界只存在正负两种电荷且同种电荷相互排斥、异种电荷相互吸引，电荷量单位是库仑，e 约 1.60×10⁻¹⁹ C 是最小电荷量即元电荷，物体带电可用原子结构与自由电子的得失解释。",
+   "contentMarkdown": "①用丝绸摩擦过的玻璃棒带正电荷，用毛皮摩擦过的橡胶棒带负电荷；同种电荷相互排斥，异种电荷相互吸引。\n②电荷量描述带电体带电的多少，符号为 Q 或 q，国际单位是库仑（C）；元电荷 e 约 1.60×10⁻¹⁹ C 是最小电荷量，任何带电体的电荷量都是 e 的整数倍；电子的电荷量与其质量之比称为电子的比荷。\n③原子由带正电的原子核与核外电子组成，核内质子数与核外电子数相等时原子对外呈电中性；金属中最外层电子容易脱离束缚成为自由电子，失去自由电子的原子成为带正电的离子，物体得失电子是其带电的微观原因。",
+   "boundaryMarkdown": "只覆盖两种电荷的规定与电荷间相互作用、电荷量与元电荷、物体带电的微观解释；不含三种起电方式的分类过程与电荷守恒定律的表述（由节点 电荷守恒定律 与节点 三种起电方式 的既有材料覆盖）。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 电荷",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电荷",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00937",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "二极管与发光二极管的单向导电性与发光特性",
+   "summaryMarkdown": "普通二极管具有单向导电性；发光二极管除单向导电外还能把电能直接转化为光能，其正向导通电压大于 1.8 V。",
+   "applicabilityMarkdown": "普通二极管具有单向导电性；发光二极管除单向导电外还能把电能直接转化为光能，其正向导通电压大于 1.8 V。",
+   "contentMarkdown": "①普通二极管正向导通、反向截止，即具有单向导电性。\n②发光二极管同样具有单向导电性，导电时还能发光，把电能直接转化为光能，常用磷化镓、磷砷化镓等半导体材料制成。\n③发光二极管的正向导通电压大于 1.8 V，使用时必须按正向接入电路。",
+   "boundaryMarkdown": "只说明普通二极管与发光二极管的基本特性（单向导电、导电时发光与正向导通电压），不涉及用多用电表欧姆挡判断正负极的操作，也不涉及整流电路的分析。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 普通二极管和发光二极管",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:普通二极管和发光二极管",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-00960",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "固有振动、固有频率与自由振动的界定",
+   "summaryMarkdown": "不受外力时系统自身的振动叫固有振动，其频率即固有频率；既不受外力也不受阻力的自由振动，其频率就是系统的固有频率。",
+   "applicabilityMarkdown": "不受外力时系统自身的振动叫固有振动，其频率即固有频率；既不受外力也不受阻力的自由振动，其频率就是系统的固有频率。",
+   "contentMarkdown": "1. 固有振动：振动系统在不受外力作用下的振动，其频率由系统本身决定。\n2. 固有频率：固有振动的频率，是系统的固有属性，与外界驱动力的频率无关。\n3. 自由振动（无阻尼振动）：系统既不受外力也不受任何阻力，只在自身回复力作用下的振动，其频率叫系统的固有频率。\n4. 辨析：受迫振动的频率等于驱动力的频率；只有自由振动（固有振动）的频率才等于系统的固有频率。",
+   "boundaryMarkdown": "只界定固有振动、固有频率与自由振动三个概念及其与受迫振动的频率差别；不涉及阻尼振动的能量衰减方式、共振曲线与受迫振动中的能量转化。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 固有振动和固有频率",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:固有振动和固有频率",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01040",
+   "subject": "PHYSICS",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "黑体与热辐射的理想化模型（空腔小孔近似）",
+   "summaryMarkdown": "黑体是能完全吸收入射电磁波的理想化模型，绝对黑体并不存在，可用空腔壁上的小孔近似代替，且黑体看上去不一定是黑的。",
+   "applicabilityMarkdown": "黑体是能完全吸收入射电磁波的理想化模型，绝对黑体并不存在，可用空腔壁上的小孔近似代替，且黑体看上去不一定是黑的。",
+   "contentMarkdown": "①一切物体都在辐射电磁波，热辐射的强度按波长的分布随物体温度的不同而有所不同。\n②黑体指能完全吸收入射的各种波长的电磁波而不发生反射的物体，它是理想化的物理模型，绝对的黑体实际上并不存在。\n③黑体可用空腔壁上开的小孔近似代替：射入小孔的电磁波在空腔内表面多次反射并被吸收，几乎不再从小孔射出。\n④黑体看上去不一定是黑的，判断是否为黑体要看它对入射电磁波的吸收本领，不能只看颜色。",
+   "boundaryMarkdown": "只讲热辐射与黑体的定义、黑体的理想化模型性质与空腔小孔近似以及黑体颜色这一常见误解；不重复黑体辐射强度分布的实验规律与能量子假说。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 原子结构与波粒二象性",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:原子结构与波粒二象性",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01137",
+   "subject": "PHYSICS",
+   "type": "METHOD_MODEL",
+   "title": "油膜法估测油酸分子直径的数据处理三式",
+   "summaryMarkdown": "油膜法数据处理依次求一滴溶液的平均体积 V0＝V/n、一滴溶液中纯油酸的体积 V＝V0·c 与油膜面积 S＝n′·a²，再代入 d＝V/S。",
+   "applicabilityMarkdown": "油膜法数据处理依次求一滴溶液的平均体积 V0＝V/n、一滴溶液中纯油酸的体积 V＝V0·c 与油膜面积 S＝n′·a²，再代入 d＝V/S。",
+   "contentMarkdown": "①一滴溶液的平均体积：由量筒中 n 滴溶液的总体积 V 求平均，V0＝V/n。\n②一滴溶液中纯油酸的体积：按溶液浓度 c 折算，V＝V0·c，不能直接用一滴溶液的体积代替纯油酸的体积。\n③油膜面积：在坐标纸上数小正方形，S＝n′·a²，其中 n′ 为有效格数、a 为小正方形边长，不足半格舍去、超过半格算一格。\n④把 V 与 S 代入 d＝V/S，得到油酸分子的直径。",
+   "boundaryMarkdown": "只给出油膜法估测油酸分子直径的数据处理关系式与各量含义，不含实验原理、操作步骤与误差偏差方向的讨论。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 数据处理",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:数据处理-x1",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01234",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "系统、内力与外力的定义与判断",
+   "summaryMarkdown": "一个力学系统由两个或多个相互作用的物体组成，系统内物体间的相互作用力是内力，系统外物体施加给系统内物体的力是外力，取系统要看研究需要。",
+   "applicabilityMarkdown": "一个力学系统由两个或多个相互作用的物体组成，系统内物体间的相互作用力是内力，系统外物体施加给系统内物体的力是外力，取系统要看研究需要。",
+   "contentMarkdown": "①系统：由两个或多个相互作用的物体构成的整体称为力学系统。\n②内力：系统中物体之间的相互作用力。\n③外力：系统以外的物体施加给系统内物体的力。\n④选取原则：研究多个物体相互作用且逐个分析受力困难时，把它们取为一个系统可使问题简化，取谁为系统由研究需要与求解目标决定。",
+   "boundaryMarkdown": "只界定系统、内力、外力的含义与选取系统的原则；不涉及动量守恒条件的分层判断、内力大小的计算与各具体模型。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 系统、内力和外力",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:系统-内力和外力",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01285",
+   "subject": "PHYSICS",
+   "type": "METHOD_MODEL",
+   "title": "连接体问题中动力学与能量观点的四个分析与选用",
+   "summaryMarkdown": "用动力学和能量观点解连接体问题要做受力、运动、做功与能量转化四个分析，再按所求量选择动力学方法、动能定理或能量守恒定律。",
+   "applicabilityMarkdown": "用动力学和能量观点解连接体问题要做受力、运动、做功与能量转化四个分析，再按所求量选择动力学方法、动能定理或能量守恒定律。",
+   "contentMarkdown": "①四个分析：受力分析、运动分析、做功分析与能量转化分析，缺一不可。\n②规律选用：受恒力求某一时刻的力、加速度或时间时用牛顿运动定律；涉及功、能和位移时，研究单个物体用动能定理，研究对象为连接体时用功能关系或能量守恒定律；题目中出现相对位移时优先用能量守恒定律。\n③能量守恒列式：先确定初、末状态并分清有哪几种形式的能在转化，再判断哪种能减少、哪种能增加，无外力做功时用减少量等于增加量列式。",
+   "boundaryMarkdown": "只用于连接体问题中动力学与能量观点的选用、四个分析与能量守恒式 ΔE减＝ΔE增 的列法；不含板块模型、传送带等具体模型的位移关系与动量观点内容。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 能量观点和动量观点的应用条件",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量观点和动量观点的应用条件",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01317",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "正负电荷、电荷量与物质的微观结构",
+   "summaryMarkdown": "自然界只有正、负两种电荷，同种相斥异种相吸；电荷量以库仑为单位，物质由原子构成，金属中能自由移动的电子使电荷可以转移。",
+   "applicabilityMarkdown": "自然界只有正、负两种电荷，同种相斥异种相吸；电荷量以库仑为单位，物质由原子构成，金属中能自由移动的电子使电荷可以转移。",
+   "contentMarkdown": "①两种电荷与相互作用：自然界只存在正、负两种电荷，同种电荷相互排斥、异种电荷相互吸引；用丝绸摩擦过的玻璃棒带正电，用毛皮摩擦过的橡胶棒带负电。\n②电荷量：电荷的多少叫电荷量，用 Q 或 q 表示，国际单位是库仑（符号 C）。\n③物质的微观结构：原子由带正电的原子核和核外带负电的电子组成，原子核中正电荷的数量与核外电子数相等时，整个原子对外呈电中性。\n④自由电子：金属中离原子核最远、能脱离束缚自由活动的电子叫自由电子，失去自由电子的原子成为带正电的离子。",
+   "boundaryMarkdown": "只讲电荷的种类、电荷量的单位与原子、自由电子层面的微观结构；元电荷的数值与比荷、三种起电方式、电荷守恒定律不在本条范围内。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 电荷",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电荷",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01436",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "固有振动、自由振动与固有频率的定义及频率来源",
+   "summaryMarkdown": "固有振动是系统不受外力作用时的振动，其频率称为固有频率；自由振动（无阻尼振动）只在自身回复力作用下进行，频率也等于系统的固有频率。",
+   "applicabilityMarkdown": "固有振动是系统不受外力作用时的振动，其频率称为固有频率；自由振动（无阻尼振动）只在自身回复力作用下进行，频率也等于系统的固有频率。",
+   "contentMarkdown": "①固有振动：振动系统不受外力作用时的振动。\n②固有频率：固有振动的频率，只由振动系统本身的性质决定（如弹簧振子的质量与劲度系数、单摆的摆长与当地重力加速度），与振幅无关。\n③自由振动（无阻尼振动）：系统不受外力、也不受任何阻力，只在自身回复力作用下的振动，其频率就是系统的固有频率。\n④与受迫振动的区别：受迫振动稳定后的频率等于驱动力的频率，与固有频率无关；阻尼振动中频率仍等于固有频率，只是振幅逐渐减小。",
+   "boundaryMarkdown": "只界定固有振动、自由振动与固有频率三者的含义，并说明固有频率只由系统本身决定这一来源，不展开受迫振动与共振曲线的定量分析，也不重复阻尼振动能量衰减的两种方式。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 固有振动和固有频率",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:固有振动和固有频率",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01520",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "普通二极管与发光二极管的单向导电性与发光特性",
+   "summaryMarkdown": "普通二极管与发光二极管都具有单向导电性；发光二极管用磷化镓、磷砷化镓等半导体材料制成，正向导通时把电能直接转化为光能，且正向导通电压大于 1.8 V。",
+   "applicabilityMarkdown": "普通二极管与发光二极管都具有单向导电性；发光二极管用磷化镓、磷砷化镓等半导体材料制成，正向导通时把电能直接转化为光能，且正向导通电压大于 1.8 V。",
+   "contentMarkdown": "①共同点：普通二极管与发光二极管都具有单向导电性，加正向电压时导通、加反向电压时截止。\n②发光二极管除单向导电外，正向导通时还能发光，它由磷化镓、磷砷化镓等半导体材料制成，把电能直接转化为光能。\n③发光二极管的正向导通电压大于 1.8 V。",
+   "boundaryMarkdown": "只覆盖普通二极管与发光二极管在导电性与发光上的差别（单向导电、发光二极管的材料与发光、正向导通电压大于 1.8 V），不含用欧姆挡判断二极管正负极的操作与黑箱检测。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 普通二极管和发光二极管",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:普通二极管和发光二极管",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01541",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "互感现象的发生范围与影响",
+   "summaryMarkdown": "互感不限于绕在同一铁芯上的两个线圈，任何两个相互靠近的电路之间都可能发生互感，因此互感既可用于传递能量，也可能干扰电路的正常工作。",
+   "applicabilityMarkdown": "互感不限于绕在同一铁芯上的两个线圈，任何两个相互靠近的电路之间都可能发生互感，因此互感既可用于传递能量，也可能干扰电路的正常工作。",
+   "contentMarkdown": "①互感现象不仅发生于绕在同一铁芯上的两个线圈之间，也可以发生于任何两个相互靠近的电路之间。\n②互感可以把能量从一个线圈传递到另一个线圈，在电工技术与电子技术中广泛利用；同时也可能在相邻电路之间引入干扰而影响电路的工作。",
+   "boundaryMarkdown": "只覆盖互感的发生范围（任意两个相互靠近的电路）与有利、不利两种影响，不含互感的定义与原理表述、互感器与自感现象。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 危害：互感现象能发生在任何两个相互靠近的电路之间，互感现象有时会影响电路的工作。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应现象及其应用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-phy-01547",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "电磁阻尼的应用：磁电式电表指针的快速稳定",
+   "summaryMarkdown": "磁电式电表利用电磁阻尼使指针迅速停在读数位置：线圈在磁场中摆动时产生的感应电流受到阻碍运动的安培力，摆动很快衰减。",
+   "applicabilityMarkdown": "磁电式电表利用电磁阻尼使指针迅速停在读数位置：线圈在磁场中摆动时产生的感应电流受到阻碍运动的安培力，摆动很快衰减。",
+   "contentMarkdown": "①磁电式电表指针转轴的摩擦力矩很小，若不采取其他措施，线圈与指针会在所示值附近来回摆动，不易读数。\n②线圈在磁场中摆动时产生感应电流，感应电流所受的安培力总是阻碍线圈的运动，使摆动迅速衰减，指针很快稳定在读数位置。\n③这就是电磁阻尼的应用，与电磁驱动一样都属电磁感应现象并遵循楞次定律。",
+   "boundaryMarkdown": "只覆盖电磁阻尼在磁电式电表中的应用及其阻碍运动的作用原理，不复述电磁阻尼与电磁驱动的定义、涡流的产生与能量转化过程。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-physics-knowledge-list:physics",
+   "sourceLocator": "知识清单（学生版）  · 能量转化：导体克服安培力做功，其他形式能转化为电能，最终转化为内能。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁阻尼与电磁驱动",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-01816",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "酸与碱的化学通性及常见例外",
+   "summaryMarkdown": "酸的通性为显色、与活泼金属、碱性氧化物、碱及弱酸盐反应；碱的通性为显色、与酸性氧化物、酸及可溶性盐反应。",
+   "applicabilityMarkdown": "酸的通性为显色、与活泼金属、碱性氧化物、碱及弱酸盐反应；碱的通性为显色、与酸性氧化物、酸及可溶性盐反应。",
+   "contentMarkdown": "①酸的通性：使指示剂变色；与金属活动性顺序中氢之前的金属反应生成盐和氢气；与碱性氧化物反应生成盐和水；与碱发生中和反应；与弱酸根离子反应生成弱酸或气体（强酸制弱酸）。\n②碱的通性：使指示剂变色；与酸性氧化物反应生成盐和水；与酸发生中和反应；与可溶性盐反应生成难溶性碱。\n③通性有例外：SiO2 等酸性氧化物不与水反应，难溶性碱一般不与水反应且受热易分解。",
+   "boundaryMarkdown": "只归纳酸与碱的化学通性及常见例外，不重复酸性氧化物与碱性氧化物的通性以及单质到盐的转化规律。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 各类物质的化学通性",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:各类物质的化学通性",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-01822",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "元素组成与纯净物、混合物判断的补充误区",
+   "summaryMarkdown": "冰水混合物与结晶水合物属于纯净物、高分子化合物属于混合物，由同位素的不同原子构成的物质仍属纯净物。",
+   "applicabilityMarkdown": "冰水混合物与结晶水合物属于纯净物、高分子化合物属于混合物，由同位素的不同原子构成的物质仍属纯净物。",
+   "contentMarkdown": "①由同位素的不同原子构成的单质或化合物是纯净物，如 H2 与 D2、H2O 与 D2O 以及由 12C 和 13C 构成的石墨。\n②冰水混合物只含 H2O 一种物质，结晶水合物有固定组成，二者都是纯净物；高分子化合物因聚合度不同属于混合物，如聚乙烯。\n③只含一种元素的物质不一定是单质，如 O2 和 O3 的混合物、金刚石与石墨的混合物；只含一种元素的纯净物才是单质。",
+   "boundaryMarkdown": "只纠正元素组成与纯净物、混合物判断中的常见误区，不涉及物质分类方法与氧化物的再分类。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 对物质的元素组成的几个误区",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对物质的元素组成的几个误区",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-01993",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "中和滴定指示剂的选择与无需指示剂的滴定",
+   "summaryMarkdown": "指示剂要变色灵敏、范围小且与滴定终点酸碱性一致；强酸强碱互滴用甲基橙或酚酞，一般不用石蕊，个别滴定可用标准液自身颜色指示终点。",
+   "applicabilityMarkdown": "指示剂要变色灵敏、范围小且与滴定终点酸碱性一致；强酸强碱互滴用甲基橙或酚酞，一般不用石蕊，个别滴定可用标准液自身颜色指示终点。",
+   "contentMarkdown": "①选择依据：变色要灵敏、变色范围要小，且变色范围尽量与滴定终点溶液的酸碱性一致。\n②强酸与强碱相互滴定，可选用甲基橙或酚酞；反应生成强酸弱碱盐（终点呈酸性）一般选甲基橙，生成强碱弱酸盐（终点呈碱性）一般选酚酞。\n③一般不用石蕊作指示剂，因其颜色变化不明显且变色范围过宽。\n④并不是所有滴定都需要指示剂，如用标准Na2SO3溶液滴定KMnO4溶液时，KMnO4溶液的紫红色褪去且半分钟不恢复即为滴定终点。",
+   "boundaryMarkdown": "只讲中和滴定指示剂的选择依据、常见选择与个别无需指示剂的情形，不含滴定仪器与试剂的组成、滴定管的使用方法与精度。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 实验用品",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验用品",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02001",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "溶质为酸的溶液中水电离出的离子浓度关系",
+   "summaryMarkdown": "溶质为酸的溶液中 OH－ 只来自水的电离，故由水电离出的 c(H＋) 与 c(OH－) 都等于溶液中的 c(OH－)，可由 Kw 与溶液中的 c(H＋) 求出。",
+   "applicabilityMarkdown": "溶质为酸的溶液中 OH－ 只来自水的电离，故由水电离出的 c(H＋) 与 c(OH－) 都等于溶液中的 c(OH－)，可由 Kw 与溶液中的 c(H＋) 求出。",
+   "contentMarkdown": "①溶质为酸时 H＋ 来自酸与水的电离、OH－ 只来自水的电离，故 c水(H＋)＝c水(OH－)＝c(OH－)溶液，且 c(H＋)溶液＝c(H＋)酸＋c(H＋)水。\n②算式：c水(H＋)＝c水(OH－)＝Kw除以c(H＋)溶液（忽略水电离出的 H＋，把酸电离出的 H＋ 浓度当作溶液中总 c(H＋)）。\n③示例：pH＝2 的盐酸中 c(H＋)溶液＝10－2 mol·L－1，c(OH－)溶液＝1.0×10－14除以1.0×10－2＝10－12 mol·L－1，由水电离出的 c(H＋)＝c(OH－)＝10－12 mol·L－1。",
+   "boundaryMarkdown": "只适用于溶质为酸的溶液（强酸、弱酸及以电离为主的酸式盐体系）中水电离出浓度的计算，不含碱溶液与可水解盐溶液的情形，也不用于由水电离出的浓度反推溶液酸碱性。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 溶质为酸的溶液：OH－全部来自水的电离。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶质为酸的溶液-oh-全部来自水的电离",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02003",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "三类盐溶液中由水电离出的离子浓度",
+   "summaryMarkdown": "水解呈酸性的盐溶液中 H＋ 全部来自水的电离，水解呈碱性的盐溶液中 OH－ 全部来自水的电离，中性盐溶液中水电离出的两种离子相等且与溶液的 c(H＋) 相同。",
+   "applicabilityMarkdown": "水解呈酸性的盐溶液中 H＋ 全部来自水的电离，水解呈碱性的盐溶液中 OH－ 全部来自水的电离，中性盐溶液中水电离出的两种离子相等且与溶液的 c(H＋) 相同。",
+   "contentMarkdown": "①水解呈酸性的盐溶液：H＋ 全部来自水的电离、部分 OH－ 被弱碱阳离子结合，故 c(H＋)溶液＝c(H＋)水＝c(OH－)水 而 c(OH－)溶液小于 c(OH－)水；如 pH＝5 的 NH4Cl 溶液中由水电离出的 c(H＋)＝10－5 mol·L－1，溶液中 c(OH－)＝10－9 mol·L－1。\n②水解呈碱性的盐溶液：OH－ 全部来自水的电离，故 c(OH－)溶液＝c(OH－)水＝c(H＋)水 而 c(H＋)溶液小于 c(H＋)水；如 pH＝12 的 Na2CO3 溶液中由水电离出的 c(OH－)＝10－2 mol·L－1，溶液中 c(H＋)＝10－12 mol·L－1。\n③中性盐溶液（如 NaCl）：c(H＋)溶液＝c(OH－)溶液＝c水(H＋)＝c水(OH－)。\n④判据：先找出只由水电离提供的那种离子，它在溶液中的浓度就等于水电离出的对应离子浓度。",
+   "boundaryMarkdown": "覆盖水解呈酸性、水解呈碱性与中性三类盐溶液中水电离出浓度的判据与算式，不讨论盐溶液酸碱性成因、水解程度大小比较，也不含酸、碱溶液中的情形。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 盐溶液",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02037",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "浓硫酸与铜加热反应制二氧化硫的实验与方程式",
+   "summaryMarkdown": "铜与浓硫酸在加热条件下反应生成硫酸铜、二氧化硫和水，可用品红溶液检验二氧化硫，尾气须用碱液吸收，硫酸变稀后反应停止。",
+   "applicabilityMarkdown": "铜与浓硫酸在加热条件下反应生成硫酸铜、二氧化硫和水，可用品红溶液检验二氧化硫，尾气须用碱液吸收，硫酸变稀后反应停止。",
+   "contentMarkdown": "①操作：铜片与浓硫酸共热，生成的气体通入品红溶液检验 SO2，尾气用 NaOH 溶液吸收。\n②现象：铜片逐渐溶解，试管中有气体生成，品红溶液褪色，加热后品红恢复红色。\n③方程式：Cu＋2H2SO4(浓)在加热条件下生成 CuSO4＋SO2↑＋2H2O，硫元素由 ＋6 价降为 ＋4 价，浓硫酸既表现强氧化性又表现酸性。\n④随反应进行硫酸浓度变小，铜与稀硫酸不再反应，故 1 mol Cu 与含 2 mol H2SO4 的浓硫酸充分反应生成的 SO2 小于 1 mol。",
+   "boundaryMarkdown": "只覆盖铜与浓硫酸加热制二氧化硫的操作、现象、方程式与浓度变稀后反应停止的结论；不含浓硫酸与碳、其他金属的反应，也不含二氧化硫的其他制法与尾气处理方法。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 浓硫酸转化为二氧化硫",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓硫酸转化为二氧化硫",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02103",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "铁及其化合物价类二维图的三类转化规律",
+   "summaryMarkdown": "以物质类别与铁元素化合价为两个维度，铁及其化合物的转化分为横向、纵向与斜向三类，横向是同价态不同类别物质之间的转化。",
+   "applicabilityMarkdown": "以物质类别与铁元素化合价为两个维度，铁及其化合物的转化分为横向、纵向与斜向三类，横向是同价态不同类别物质之间的转化。",
+   "contentMarkdown": "①横向转化：同一价态、不同类别的物质之间的转化——碱性氧化物 FeO、Fe2O3 能溶于酸转化为盐；Fe2+、Fe3+ 与碱反应生成对应的氢氧化物；难溶性碱受热易分解为对应的氧化物，但难溶性碱性氧化物一般不与水反应生成碱。\n②纵向转化：不同价态、同一类别的物质之间的转化，主要体现物质的氧化性或还原性。\n③斜向转化：不同价态、不同类别之间的转化，同样由物质的氧化性和还原性决定。\n④应用要领：先确定物质所属类别（单质、氧化物、碱、盐）与铁元素的价态（0、+2、+3），再判断该步转化需要加氧化剂还是还原剂。",
+   "boundaryMarkdown": "只梳理铁及其化合物价类二维图中横向、纵向、斜向三类转化的含义与横向转化的三条具体规律，不展开具体反应方程式的书写，也不涉及铁的检验与除杂等应用。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 铁及其化合物的转化",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁及其化合物的转化",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02162",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "分子的溶解性——相似相溶、氢键与憎水基",
+   "summaryMarkdown": "相似相溶：非极性溶质一般溶于非极性溶剂、极性溶质一般溶于极性溶剂；溶质与溶剂间形成氢键时溶解度增大，溶质分子中憎水基增大则水中溶解度减小。",
+   "applicabilityMarkdown": "相似相溶：非极性溶质一般溶于非极性溶剂、极性溶质一般溶于极性溶剂；溶质与溶剂间形成氢键时溶解度增大，溶质分子中憎水基增大则水中溶解度减小。",
+   "contentMarkdown": "①非极性溶质一般能溶于非极性溶剂，极性溶质一般能溶于极性溶剂，即相似相溶规律。\n②若溶剂和溶质分子之间可以形成氢键，则溶质的溶解度增大。\n③随着溶质分子中憎水基的增大，溶质在水中的溶解度减小：甲醇、乙醇与水以任意比互溶，而戊醇在水中的溶解度明显减小。",
+   "boundaryMarkdown": "只讲分子溶解性的三条规律，不含手性分子、手性碳与无机含氧酸酸性的判断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 分子的性质",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的性质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02188",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "空间结构判断的三个易混点",
+   "summaryMarkdown": "价层电子对互斥模型含孤电子对、与分子空间结构在有孤对时不一致；杂化轨道只用于成σ键或容纳孤对、π键电子对不计入；四原子与五原子分子的构型未必是平面三角形、三角锥形或正四面体。",
+   "applicabilityMarkdown": "价层电子对互斥模型含孤电子对、与分子空间结构在有孤对时不一致；杂化轨道只用于成σ键或容纳孤对、π键电子对不计入；四原子与五原子分子的构型未必是平面三角形、三角锥形或正四面体。",
+   "contentMarkdown": "①价层电子对互斥模型描述的是价层电子对（含孤电子对）的空间结构，分子的空间结构指成键电子对的空间结构：中心原子无孤电子对时两者一致，有孤电子对时不一致。\n②杂化轨道只用于形成σ键或容纳未参与成键的孤电子对，π键电子对不计入中心原子的价层电子对数；杂化前后轨道数目不变而能量改变。\n③四原子分子不都是平面三角形或三角锥形，如 H2O2 为书页形、白磷 P4 为正四面体形；五原子分子不都是正四面体，如 CH3Cl、CH2Cl2、CHCl3 因碳原子所连四个原子不同而键角不全相等。",
+   "boundaryMarkdown": "只梳理 VSEPR 模型与分子空间结构的区别、杂化轨道的用途与数目、四原子与五原子分子的例外构型，不重复具体微粒的价层电子对数计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 分子（离子）的空间结构判断易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子-离子-的空间结构判断易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02207",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "介质对氧化性强弱的影响——以高铁酸钾为例",
+   "summaryMarkdown": "碱性条件下氯气可氧化氢氧化铁生成高铁酸钾（此时氧化性 Cl2 大于 FeO4 2－），酸性条件下高铁酸根又能把氯离子氧化为氯气，说明同种物质的氧化性强弱受介质酸碱性影响。",
+   "applicabilityMarkdown": "碱性条件下氯气可氧化氢氧化铁生成高铁酸钾（此时氧化性 Cl2 大于 FeO4 2－），酸性条件下高铁酸根又能把氯离子氧化为氯气，说明同种物质的氧化性强弱受介质酸碱性影响。",
+   "contentMarkdown": "①碱性条件：3Cl2＋2Fe(OH)3＋10KOH===2K2FeO4＋6KCl＋8H2O，Cl2 作氧化剂、FeO4 2－ 为氧化产物，此时氧化性 Cl2＞FeO4 2－。\n②酸性条件：向 K2FeO4 溶液中滴加盐酸有 Cl2 产生，FeO4 2－ 作氧化剂、Cl－ 被氧化，此时氧化性 FeO4 2－＞Cl2。\n③两次结论相反的原因是介质酸碱性不同：酸性增强使高铁酸根的氧化性增强，故比较氧化性强弱必须指明介质条件。",
+   "boundaryMarkdown": "只讲高铁酸钾的制备与性质探究所体现的介质酸碱性对氧化性强弱的影响，不展开高铁酸盐的其他制备工艺与净水应用。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 实验室制备高铁酸钾(K2FeO4)并探究其性质。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验室制备高铁酸钾-k2feo4-并探究其性质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02215",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "氧化性还原性强弱理解的两点注意",
+   "summaryMarkdown": "强弱取决于物质本身得失电子的难易程度而不取决于一个原子得失电子数目的多少；具有氧化性的物质不一定是氧化剂、具有还原性的物质不一定是还原剂，应视具体反应而定。",
+   "applicabilityMarkdown": "强弱取决于物质本身得失电子的难易程度而不取决于一个原子得失电子数目的多少；具有氧化性的物质不一定是氧化剂、具有还原性的物质不一定是还原剂，应视具体反应而定。",
+   "contentMarkdown": "①物质氧化性、还原性的相对强弱取决于物质本身得失电子的难易程度，与一个原子得失电子数目的多少无关：Na 失去 1 个电子比 Al 失去 3 个电子容易，故还原性 Na＞Al。\n②具有氧化性的物质不一定是氧化剂，具有还原性的物质不一定是还原剂，应视具体反应而定：如浓硫酸有氧化性，与 SO2 相遇时二者并不发生氧化还原反应。\n③处于中间价态的物质通常既有氧化性又有还原性，但具体表现由反应决定。",
+   "boundaryMarkdown": "只纠正氧化性、还原性强弱理解中的两处常见错误认识，不重复强弱比较的具体依据与常见强弱顺序。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 理解物质氧化性、还原性强弱的注意事项",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:理解物质氧化性-还原性强弱的注意事项",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02258",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "常见物质显色原因的归因分析",
+   "summaryMarkdown": "同一颜色可来自不同致色成分：工业盐酸显黄色是溶有 Fe3+，浓硝酸显黄色是溶有 NO2，判断时必须按物质来源区分致色微粒。",
+   "applicabilityMarkdown": "同一颜色可来自不同致色成分：工业盐酸显黄色是溶有 Fe3+，浓硝酸显黄色是溶有 NO2，判断时必须按物质来源区分致色微粒。",
+   "contentMarkdown": "①工业盐酸显黄色：Fe3+ 是致色微粒，属杂质离子致色。\n②浓硝酸显黄色：硝酸见光或受热分解生成的 NO2 溶于其中而显黄色，属分解产物致色；通入 O2 可使 NO2 转化为硝酸而褪色，故应保存在棕色试剂瓶中并置于阴凉处。\n③判断要点：见到黄色先确定致色微粒是 Fe3+ 还是 NO2，二者来源不同，不能把浓硝酸变黄的原因归到铁离子上。",
+   "boundaryMarkdown": "只分辨工业盐酸变黄（溶有 Fe3+）与浓硝酸变黄（溶有 NO2）两类显色原因及浓硝酸变黄的消除与保存，不涉及其他物质的颜色反应、沉淀颜色与焰色试验。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 工业上制备的盐酸显黄色是因为溶有Fe3＋，而浓HNO3显黄色是因为溶有NO2。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业上制备的盐酸显黄色是因为溶有fe3-而浓hno3显黄色是因为溶有no2",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02317",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "溶液中微粒种类的判断方法",
+   "summaryMarkdown": "判断溶液中微粒种类要先写全该溶液的全部电离方程式（包括水的电离）与水解方程式，再结合溶质本身列出存在的分子与离子。",
+   "applicabilityMarkdown": "判断溶液中微粒种类要先写全该溶液的全部电离方程式（包括水的电离）与水解方程式，再结合溶质本身列出存在的分子与离子。",
+   "contentMarkdown": "①步骤：先写出溶质在水中发生的全部电离方程式（不要丢掉水的电离）和全部水解方程式，再结合溶质本身确定溶液中存在的分子与离子种类。\n②示例（NaHCO3 溶液）：有三种电离（NaHCO3 的完全电离、HCO3− 的电离、水的电离）与一种水解（HCO3− 的水解），故微粒为 Na+、H+、HCO3−、CO32−、OH− 以及 H2CO3、H2O。\n③用途：确定微粒种类是比较微粒浓度大小、书写电荷守恒与物料守恒式的前置步骤。",
+   "boundaryMarkdown": "只讲如何由电离方程式与水解方程式（含水的电离）判定溶液中存在的分子与离子种类，不给出各微粒浓度的大小排序，也不涉及微粒数目的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 溶液中微粒种类的判断",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒种类的判断",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02322",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "(NH4)2SO4溶液中粒子浓度的关系与三大守恒",
+   "summaryMarkdown": "0.1 mol/L (NH4)2SO4 溶液的粒子浓度大小顺序以及电荷守恒、物料守恒、质子守恒三种表达式。",
+   "applicabilityMarkdown": "0.1 mol/L (NH4)2SO4 溶液的粒子浓度大小顺序以及电荷守恒、物料守恒、质子守恒三种表达式。",
+   "contentMarkdown": "①大小关系：c(NH4＋)＞c(SO42－)＞c(H＋)＞c(OH－)，溶液显酸性因 NH4＋ 水解。\n②电荷守恒：c(NH4＋)＋c(H＋)＝2c(SO42－)＋c(OH－)。\n③物料守恒：c(NH4＋)＋c(NH3·H2O)＝2c(SO42－)。\n④质子守恒：c(H＋)＝c(OH－)＋c(NH3·H2O)。",
+   "boundaryMarkdown": "只给出 (NH4)2SO4 这一种单一盐溶液的粒子浓度大小关系与三种守恒表达式，不含混合溶液的处理与其他盐溶液的示例。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 0.1 mol·L－1的(NH4)2SO4溶液中各粒子浓度的关系：",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:0-1-mol-l-1的-nh4-2so4溶液中各粒子浓度的关系",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02327",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "盐类水解认识上的三个误区",
+   "summaryMarkdown": "水解平衡正向移动不等于水解程度增大、弱酸强碱盐不一定显碱性、可水解的盐溶液蒸干不一定得不到原溶质三处常见误判与正确结论。",
+   "applicabilityMarkdown": "水解平衡正向移动不等于水解程度增大、弱酸强碱盐不一定显碱性、可水解的盐溶液蒸干不一定得不到原溶质三处常见误判与正确结论。",
+   "contentMarkdown": "①水解平衡向正向移动不等于水解程度一定增大：向 FeCl3 溶液中加入少量 FeCl3 固体，平衡向水解方向移动，但 c(Fe3＋) 增大是主要因素，Fe3＋ 的水解程度反而减小。\n②弱酸强碱盐不一定因水解而显碱性：NaHSO3 溶液中 HSO3－ 的电离程度大于水解程度，溶液显酸性。\n③可水解的盐溶液蒸干不一定得不到原溶质：水解程度不大且水解产物不离开平衡体系时（如 Al2(SO4)3），溶液蒸干仍得到原溶质。",
+   "boundaryMarkdown": "只澄清水解程度、盐溶液酸碱性、蒸干产物这三处认识误区，不含水解方程式书写规范与水解平衡常数的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 盐类水解的三个误区",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐类水解的三个误区",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02344",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "氧化铝与氢氧化铝两性在检验鉴别和分离除杂中的应用",
+   "summaryMarkdown": "用过量 NaOH 溶液检验 Al3＋ 并鉴别 AlCl3 与 MgCl2、用互滴法区分 AlCl3 与 NaOH 溶液，以及用 NaOH 溶液除去含铝杂质的四类操作。",
+   "applicabilityMarkdown": "用过量 NaOH 溶液检验 Al3＋ 并鉴别 AlCl3 与 MgCl2、用互滴法区分 AlCl3 与 NaOH 溶液，以及用 NaOH 溶液除去含铝杂质的四类操作。",
+   "contentMarkdown": "①检验与鉴别：向试液中逐滴加入 NaOH 溶液并过量，先出现白色沉淀后沉淀溶解，说明溶液含 Al3＋；AlCl3 溶液加过量 NaOH 时沉淀最终溶解而 MgCl2 溶液不溶解，可用过量 NaOH 溶液区分二者；AlCl3 溶液与 NaOH 溶液可用互滴法鉴别，因滴加顺序不同现象不同，NaAlO2 溶液与盐酸同理。\n②分离与除杂：Mg 中混 Al、Fe2O3 中混 Al2O3、Mg(OH)2 中混 Al(OH)3 均加足量 NaOH 溶液后过滤；含 Mg2＋ 与 Al3＋ 的溶液加过量 NaOH 溶液使铝转为 [Al(OH)4]－、Mg2＋ 生成沉淀，过滤后再把沉淀溶于相应的酸。\n③实验室制备 Al(OH)3 不用 NaOH 溶液，因为 Al(OH)3 只溶于强酸或强碱而不溶于弱碱氨水与弱酸碳酸，用氨水或 CO2 容易控制产物。",
+   "boundaryMarkdown": "只讲两性在检验、鉴别、除杂与实验室制备中的试剂与操作选择，不含铝三角的方程式书写与氢氧化铝沉淀图像的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 氧化铝、氢氧化铝两性的重要应用",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化铝-氢氧化铝两性的重要应用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02368",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "乙烷脱氢制乙烯的条件调控与催化剂选择",
+   "summaryMarkdown": "乙烷脱氢吸热且气体体积增大，升温、减压或移出氢气可提高平衡转化率；引入氧气可降低反应温度并减少积碳，但需选择能降低生成乙烯主反应活化能的催化剂以减少过度氧化。",
+   "applicabilityMarkdown": "乙烷脱氢吸热且气体体积增大，升温、减压或移出氢气可提高平衡转化率；引入氧气可降低反应温度并减少积碳，但需选择能降低生成乙烯主反应活化能的催化剂以减少过度氧化。",
+   "contentMarkdown": "①乙烷脱氢制乙烯 C2H6(g)⇌C2H4(g)＋H2(g) ΔH＞0，是吸热且气体体积增大的反应，升高温度、减小压强或及时分离出氢气都能提高乙烷的平衡转化率。\n②向原料中引入 O2 可把直接脱氢转为放热的氧化脱氢，从而降低反应温度、减少积碳，但氧气也会使乙烯深度氧化生成 CO 造成过度氧化。\n③为减少过度氧化，应选择能选择性降低生成乙烯的主反应活化能的催化剂，使主反应优先加快而副反应被抑制；温度升高时乙烯在含碳产物中的百分数下降，说明高温下深度氧化副反应加剧、乙烯的选择性降低。",
+   "boundaryMarkdown": "只讲乙烷脱氢制乙烯在温度、压强、引入氧气与催化剂选择性方面的条件调控，不含工业生产条件选择的一般原则与平衡常数的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 乙烯是石油化工最基本的原料之一。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:乙烯是石油化工最基本的原料之一",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02397",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "三类固体混合物除杂的试剂操作与方程式",
+   "summaryMarkdown": "CaCO3(SiO2) 加足量 NaOH 溶液、SiO2(CaCO3) 加足量稀盐酸、SiO2(NH4Cl) 直接加热，三种固体除杂的试剂、操作与反应方程式。",
+   "applicabilityMarkdown": "CaCO3(SiO2) 加足量 NaOH 溶液、SiO2(CaCO3) 加足量稀盐酸、SiO2(NH4Cl) 直接加热，三种固体除杂的试剂、操作与反应方程式。",
+   "contentMarkdown": "①CaCO3 中混 SiO2：加入足量 NaOH 溶液，SiO2 溶解而 CaCO3 不溶，过滤、洗涤、干燥，反应为 SiO2＋2NaOH＝Na2SiO3＋H2O。\n②SiO2 中混 CaCO3：加入足量稀盐酸，CaCO3 溶解而 SiO2 不溶，过滤、洗涤、干燥，反应为 CaCO3＋2HCl＝CaCl2＋H2O＋CO2↑。\n③SiO2 中混 NH4Cl：直接加热，NH4Cl 受热分解为 NH3 与 HCl 气体逸出，反应为 NH4Cl 受热分解生成 NH3↑＋HCl↑。",
+   "boundaryMarkdown": "只含这三种固体混合物除杂的试剂、操作与反应方程式，不含气体除杂、溶液除杂与除杂的一般原则。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 写出除去下列固体粉末中混有杂质(括号内为杂质)可采取的方法，写出有关反应的方程式。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:写出除去下列固体粉末中混有杂质-括号内为杂质-可采取的方法-写出有关反应的方程式",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02404",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "纯硅制备路线的关键反应与无水无氧要求",
+   "summaryMarkdown": "纯硅制备以碳高温还原SiO2得粗硅、粗硅转化为中间氯化物、再用H2高温还原为主线，中间物易水解，全过程须严格控制无水无氧。",
+   "applicabilityMarkdown": "纯硅制备以碳高温还原SiO2得粗硅、粗硅转化为中间氯化物、再用H2高温还原为主线，中间物易水解，全过程须严格控制无水无氧。",
+   "contentMarkdown": "①制粗硅：SiO2与焦炭在高温下反应生成粗Si和CO。\n②粗硅转化为中间物：Si与干燥HCl在加热下生成SiHCl3并放出H2，或Si与干燥Cl2反应生成SiCl4。\n③制纯硅：SiHCl3或SiCl4与过量H2在高温下反应生成纯Si并放出HCl。\n④SiHCl3、SiCl4遇水均剧烈水解生成H2SiO3和HCl，故原料与设备必须充分干燥；H2中混入O2在高温下会发生剧烈反应，可能引起爆炸。",
+   "boundaryMarkdown": "只覆盖以SiO2为起点、经中间氯化物再用H2还原制纯硅的实验主线及其试剂、除水与安全要求，不含硅酸盐产品与其他含硅材料。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 设计制备纯硅的实验题中重要的知识点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:设计制备纯硅的实验题中重要的知识点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02477",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "元素组成与纯净物判断的补充误区",
+   "summaryMarkdown": "冰水混合物与结晶水合物属于纯净物，高分子化合物属于混合物，由同位素的不同原子构成的物质仍按纯净物处理。",
+   "applicabilityMarkdown": "冰水混合物与结晶水合物属于纯净物，高分子化合物属于混合物，由同位素的不同原子构成的物质仍按纯净物处理。",
+   "contentMarkdown": "①由不同同位素原子构成的单质或化合物是纯净物，如H2与D2、H2O与D2O、由12C与13C构成的石墨。\n②冰水混合物只含H2O一种物质，结晶水合物有固定组成，二者都是纯净物；高分子化合物因聚合度不同属于混合物，如聚乙烯。\n③只含一种元素的物质不一定是单质，如O2与O3的混合物、金刚石与石墨的混合物；只含一种元素的纯净物才是单质。",
+   "boundaryMarkdown": "只纠正元素组成与纯净物、混合物判断中的常见误区，不涉及物质分类方法与氧化物的再分类。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 对物质的元素组成的几个误区",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对物质的元素组成的几个误区",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02518",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "铝盐与氨水反应的产物与用量无关",
+   "summaryMarkdown": "铝盐溶液中滴加氨水，无论少量还是过量都只生成Al(OH)3沉淀，因为Al(OH)3不溶于弱碱。",
+   "applicabilityMarkdown": "铝盐溶液中滴加氨水，无论少量还是过量都只生成Al(OH)3沉淀，因为Al(OH)3不溶于弱碱。",
+   "contentMarkdown": "①离子方程式：Al3+＋3NH3·H2O===Al(OH)3↓＋3NH4+，与氨水的用量无关。\n②原因：NH3·H2O是弱碱，Al(OH)3只溶于强酸和强碱，不溶于弱碱，故氨水过量也不会使沉淀溶解生成AlO2-。\n③对比：向铝盐溶液中改加NaOH溶液则与用量有关，少量NaOH时生成Al(OH)3沉淀，NaOH过量时沉淀溶解生成AlO2-。",
+   "boundaryMarkdown": "只讲铝盐与氨水这一类与量无关的离子反应及其与NaOH过量情形的区别，不含CO2通入苯酚钠与NaClO与NaAlO2等溶液的情形。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 常见的与量无关的离子反应",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的与量无关的离子反应",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02535",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "高铁酸钾制备与介质对氧化性强弱的影响",
+   "summaryMarkdown": "碱性条件下Cl2可把Fe(OH)3氧化为K2FeO4，酸性条件下FeO42-又能把Cl-氧化为Cl2，说明同种物质的氧化性强弱随介质改变。",
+   "applicabilityMarkdown": "碱性条件下Cl2可把Fe(OH)3氧化为K2FeO4，酸性条件下FeO42-又能把Cl-氧化为Cl2，说明同种物质的氧化性强弱随介质改变。",
+   "contentMarkdown": "①制备反应为3Cl2＋2Fe(OH)3＋10KOH===2K2FeO4＋6KCl＋8H2O，由此得出碱性条件下氧化性Cl2大于FeO42-。\n②用盐酸酸化K2FeO4溶液时有Cl2产生，说明酸性条件下氧化性FeO42-大于Cl2，与①的结论相反。\n③两个结论并不矛盾：同种物质的氧化性强弱受介质酸碱性影响，比较氧化性强弱必须指明条件。",
+   "boundaryMarkdown": "只讲高铁酸钾制备与酸化后氧化氯离子两个反应所体现的介质对氧化性强弱的影响，不含高铁酸钾的工业制法、净水应用与其他氧化还原方程式的配平。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 实验室制备高铁酸钾(K2FeO4)并探究其性质。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验室制备高铁酸钾-k2feo4-并探究其性质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02543",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "氧化性还原性强弱判断的两点注意",
+   "summaryMarkdown": "强弱只取决于得失电子的难易程度而不是一个原子得失电子的数目，且有氧化性或还原性的物质不一定作氧化剂或还原剂。",
+   "applicabilityMarkdown": "强弱只取决于得失电子的难易程度而不是一个原子得失电子的数目，且有氧化性或还原性的物质不一定作氧化剂或还原剂。",
+   "contentMarkdown": "①物质氧化性与还原性的相对强弱取决于物质本身得失电子的难易程度，不取决于一个原子得失电子数目的多少，如Na只失1个电子却比失3个电子的Al还原性强。\n②具有氧化性的物质不一定是氧化剂，具有还原性的物质不一定是还原剂，应视具体反应而定，如H2O2在有的反应中作氧化剂、在有的反应中作还原剂。",
+   "boundaryMarkdown": "只讲氧化性与还原性强弱判断中的这两点注意事项，不含浓度与温度与酸碱性对强弱的影响以及常见强弱顺序。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 理解物质氧化性、还原性强弱的注意事项",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:理解物质氧化性-还原性强弱的注意事项",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02639",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "乙烷脱氢制乙烯的条件调控与催化剂选择",
+   "summaryMarkdown": "乙烷脱氢吸热，升温、减压或移出氢气可提高平衡转化率；引入氧气可降低反应温度并减少积碳，但需选择能选择性降低生成乙烯的主反应活化能的催化剂以减少过度氧化。",
+   "applicabilityMarkdown": "乙烷脱氢吸热，升温、减压或移出氢气可提高平衡转化率；引入氧气可降低反应温度并减少积碳，但需选择能选择性降低生成乙烯的主反应活化能的催化剂以减少过度氧化。",
+   "contentMarkdown": "①乙烷脱氢制乙烯 C2H6(g)⇌C2H4(g)＋H2(g) ΔH>0，是吸热且气体体积增大的反应，升高温度、减小压强或及时分离出氢气都能提高乙烷的平衡转化率。\n②向原料中引入 O2 可把直接脱氢转为放热的氧化脱氢，从而降低反应温度、减少积碳，但氧气也会使乙烯深度氧化生成 CO 而造成过度氧化。\n③为减少过度氧化，应选用能选择性降低生成乙烯的主反应活化能的催化剂，使主反应优先加快而副反应被抑制；温度升高时乙烯在含碳产物中的百分数下降，说明高温下深度氧化加剧、乙烯的选择性降低。",
+   "boundaryMarkdown": "只讲乙烷脱氢制乙烯在温度、压强、引入氧气与催化剂选择性方面的条件调控，不含工业生产条件选择的一般原则与平衡常数计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 乙烯是石油化工最基本的原料之一。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:乙烯是石油化工最基本的原料之一",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02731",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "氧化铝、氢氧化铝两性在检验鉴别与除杂中的应用",
+   "summaryMarkdown": "利用 Al(OH)3 只溶于强酸强碱的性质，可用过量 NaOH 溶液检验 Al3+ 并鉴别 AlCl3 与 MgCl2 溶液，也可用足量 NaOH 溶液除去 Mg、Fe2O3、Mg(OH)2 中的铝及其化合物杂质。",
+   "applicabilityMarkdown": "利用 Al(OH)3 只溶于强酸强碱的性质，可用过量 NaOH 溶液检验 Al3+ 并鉴别 AlCl3 与 MgCl2 溶液，也可用足量 NaOH 溶液除去 Mg、Fe2O3、Mg(OH)2 中的铝及其化合物杂质。",
+   "contentMarkdown": "①检验与鉴别：向试液中逐滴加入 NaOH 溶液至过量，先产生白色沉淀后沉淀溶解，说明原溶液含 Al3+；用过量 NaOH 溶液可鉴别 AlCl3 溶液与 MgCl2 溶液，前者沉淀最终溶解、后者不溶；互滴法可鉴别 AlCl3 溶液与 NaOH 溶液。\n②分离与除杂：Mg(Al)、Fe2O3(Al2O3)、Mg(OH)2[Al(OH)3] 均加足量 NaOH 溶液后过滤，铝及其氧化物、氢氧化物溶于强碱而 Mg、Fe2O3、Mg(OH)2 不溶；Mg2+(Al3+) 加过量 NaOH 溶液过滤，再加相应酸充分溶解。\n③制备的试剂选择：制备 Al(OH)3 不选用 NaOH 溶液，因为 Al(OH)3 只溶于强酸、强碱而不溶于弱碱（氨水）和弱酸（碳酸），用氨水或通入 CO2 容易控制产物。",
+   "boundaryMarkdown": "只讲两性带来的检验鉴别、除杂与制备试剂选择，不重复 Al(OH)3 与酸碱反应的方程式与铝三角的相互转化。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 氧化铝、氢氧化铝两性的重要应用",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化铝-氢氧化铝两性的重要应用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02740",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "足量铝与等物质的量盐酸、氢氧化钠溶液反应的比例关系",
+   "summaryMarkdown": "足量的铝分别与等物质的量的 HCl 和 NaOH 反应时，消耗铝的物质的量之比与生成 H2 的物质的量之比都是 1:3。",
+   "applicabilityMarkdown": "足量的铝分别与等物质的量的 HCl 和 NaOH 反应时，消耗铝的物质的量之比与生成 H2 的物质的量之比都是 1:3。",
+   "contentMarkdown": "①等物质的量的 HCl 与 NaOH 分别与足量铝反应，消耗铝的物质的量之比为 1:3。\n②生成 H2 的物质的量之比为 1:3。\n③原因是两个反应的计量关系不同：2Al+6HCl=2AlCl3+3H2↑ 中 6 mol HCl 消耗 2 mol Al 并放出 3 mol H2；2Al+2NaOH+2H2O=2NaAlO2+3H2↑ 中 2 mol NaOH 消耗 2 mol Al 并放出 3 mol H2，故等物质的量（如各 6 mol）的酸碱分别消耗 2 mol 与 6 mol Al、放出 3 mol 与 9 mol H2。\n④计算时按不足量物质求算生成氢气的量，可用于反向判断过量情况。",
+   "boundaryMarkdown": "只讨论足量铝与等物质的量酸碱反应时的消耗量与产氢量之比，不含一定量铝与一定量酸碱的过量判断与图像分析。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 足量的铝分别与等物质的量的HCl和NaOH反应：",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:足量的铝分别与等物质的量的hcl和naoh反应",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02767",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "烷烃的习惯命名与系统命名规则",
+   "summaryMarkdown": "烷烃习惯命名按碳数用甲、乙、丙等加烷表示并用正、异、新区分同分异构体，系统命名按选最长碳链为主链、从离支链最近一端编号、取代基位次最小的三步完成。",
+   "applicabilityMarkdown": "烷烃习惯命名按碳数用甲、乙、丙等加烷表示并用正、异、新区分同分异构体，系统命名按选最长碳链为主链、从离支链最近一端编号、取代基位次最小的三步完成。",
+   "contentMarkdown": "①习惯命名：碳原子数在 1 至 10 之间依次用甲、乙、丙、丁、戊、己、庚、辛、壬、癸表示，碳原子数大于 10 时直接用数字加烷表示；碳原子数相同时用正（直链）、异（带一个支链）、新（带两个支链）区分。\n②系统命名：选最长碳链为主链，支链作为取代基；从离支链最近的一端开始编号，使取代基位次之和最小。\n③名称按取代基位次、数目、名称加母体名称的顺序书写，相同取代基的数目用二、三、四等数字表示，位次与名称之间用短横线连接。",
+   "boundaryMarkdown": "只讲烷烃的习惯命名与系统命名规则，不涉及烯烃、炔烃、芳香烃与烃的含氧衍生物的命名。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 烷烃的命名",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:烷烃的命名",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02798",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "有机物分类易混点的补充辨析",
+   "summaryMarkdown": "酯基与羧基的连接方式不同、饱和烃与不饱和烃按是否含不饱和键划分、苯环与环烯烃的区别决定是否属于芳香族化合物、含多个官能团的物质可同时归入不同类别。",
+   "applicabilityMarkdown": "酯基与羧基的连接方式不同、饱和烃与不饱和烃按是否含不饱和键划分、苯环与环烯烃的区别决定是否属于芳香族化合物、含多个官能团的物质可同时归入不同类别。",
+   "contentMarkdown": "①酯基（—COO—）与羧基（—COOH）有区别：含 —COOH 的属于羧酸，含 —COO— 的属于酯，两者不能混判。\n②按碳原子是否饱和可把烃分为饱和烃（烷烃、环烷烃）与不饱和烃（烯烃、炔烃、芳香烃）。\n③含苯环的化合物一定属于芳香族化合物；苯环与环烯烃（含碳碳双键的脂环）结构不同，不能混为一谈，脂环化合物不属于芳香族化合物。\n④同一物质按不同分类方法可属于不同类别，含多个官能团的物质（如同时含羧基与羟基）可分别归入羧酸与醇。",
+   "boundaryMarkdown": "只补充列举易被混判的类别归属，不重复官能团书写规范、苯环不属于官能团与含醛基物质不一定属于醛类等本节点已有材料覆盖的条目。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 有机物分类易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物分类易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02838",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "脂肪烃结构与性质易错结论辨析",
+   "summaryMarkdown": "通式为 CnH2n 的烃不一定是烯烃，单键可旋转而双键三键不能，键线式省略碳上氢，溴的四氯化碳与酸性高锰酸钾褪色分属加成与氧化。",
+   "applicabilityMarkdown": "通式为 CnH2n 的烃不一定是烯烃，单键可旋转而双键三键不能，键线式省略碳上氢，溴的四氯化碳与酸性高锰酸钾褪色分属加成与氧化。",
+   "contentMarkdown": "①通式为CnH2n的烃可能是烯烃也可能是环烷烃；丙烯中3个碳原子共平面而所有原子不共面；CH4、CCl4为正四面体，CH3Cl、CH2Cl2、CHCl3只是四面体。\n②碳碳、碳氢、碳氧等单键可绕键轴旋转，形成双键、三键的原子不能绕轴旋转，对原子的空间结构起固定作用。\n③键线式以短线表示碳碳键，拐点与端点代表碳原子，碳上的氢省略不写，其他原子及其上的氢必须写出。\n④乙烯使溴的四氯化碳溶液褪色属加成反应、使酸性高锰酸钾溶液褪色属氧化反应；高锰酸钾溶液只适合鉴别，乙烯被氧化生成CO2故不能用于除杂；烯烃在一定条件下也能发生取代，如丙烯加热时发生甲基上的取代。",
+   "boundaryMarkdown": "只辨析脂肪烃的类别归属、共面与四面体判断、键的旋转性、键线式写法与褪色反应类型，不重复各类烃的反应方程式与实验室制法。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 脂肪烃的结构和性质易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:脂肪烃的结构和性质易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02847",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "卤代烃的用途与氟氯代烷对臭氧层的破坏",
+   "summaryMarkdown": "卤代烃可作制冷剂、灭火剂、溶剂、麻醉剂和有机合成原料；氟氯代烷在紫外线作用下分解出的氯原子自由基对臭氧层造成长久破坏。",
+   "applicabilityMarkdown": "卤代烃可作制冷剂、灭火剂、溶剂、麻醉剂和有机合成原料；氟氯代烷在紫外线作用下分解出的氯原子自由基对臭氧层造成长久破坏。",
+   "contentMarkdown": "①卤代烃的主要用途：作制冷剂、灭火剂、溶剂、麻醉剂和合成有机化合物的原料。\n②环境危害：氟氯代烷受强紫外线照射分解，生成的氯原子自由基会长期破坏大气臭氧层。",
+   "boundaryMarkdown": "只覆盖卤代烃的用途清单与氟氯代烷破坏臭氧层的危害，不展开卤代烃的水解反应、消去反应与卤素原子的检验。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 卤代烃的用途与危害",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤代烃的用途与危害",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02850",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "卤代烃应用中的分离、制取与检验要点",
+   "summaryMarkdown": "多氯代甲烷中只有 CCl4 为正四面体并用蒸馏分离，制氯乙烷选乙烯与 HCl 加成，检验溴乙烷中的溴需先水解再酸化后加 AgNO3，1-溴丙烷经消去、加成、水解可制 1，2-丙二醇。",
+   "applicabilityMarkdown": "多氯代甲烷中只有 CCl4 为正四面体并用蒸馏分离，制氯乙烷选乙烯与 HCl 加成，检验溴乙烷中的溴需先水解再酸化后加 AgNO3，1-溴丙烷经消去、加成、水解可制 1，2-丙二醇。",
+   "contentMarkdown": "①多氯代甲烷中只有CCl4的分子构型为正四面体，工业上分离这些多氯代物采用蒸馏（分馏）。\n②制取氯乙烷最好的方法是乙烯与氯化氢加成；氯乙烷可作喷雾止痛剂，溴乙烷用于汽油的乙基化、冷冻剂和麻醉剂。\n③检验溴乙烷中的溴元素：加NaOH水溶液加热水解，冷却后用稀硝酸酸化，再滴加AgNO3溶液，产生浅黄色沉淀。\n④由1-溴丙烷制1，2-丙二醇：先与NaOH的乙醇溶液共热消去生成丙烯，再与溴加成生成1，2-二溴丙烷，最后在NaOH水溶液中水解得到1，2-丙二醇。",
+   "boundaryMarkdown": "只覆盖卤代烃在生产生活中应用类的要点（多氯代物的分离、氯乙烷的制取、溴元素检验、由1-溴丙烷制备1，2-丙二醇），不含卤代烃水解与消去反应的机理和条件比较。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 卤代烃在生产生活中具有广泛的应用。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤代烃在生产生活中具有广泛的应用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02861",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "小分子醛酮易溶于水的原因",
+   "summaryMarkdown": "小分子的醛、酮都易溶于水，原因是分子碳链短，羰基氧能与水分子形成氢键。",
+   "applicabilityMarkdown": "小分子的醛、酮都易溶于水，原因是分子碳链短，羰基氧能与水分子形成氢键。",
+   "contentMarkdown": "①小分子的醛、酮均易溶于水。\n②溶解的原因：分子中碳链较短，羰基氧可与水分子之间形成氢键。",
+   "boundaryMarkdown": "只解释小分子醛、酮易溶于水的原因，不涉及甲醛、乙醛、丙酮的具体结构与化学性质。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 几种重要的醛、酮",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:几种重要的醛-酮",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02865",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "羧酸的组成、官能团与通式",
+   "summaryMarkdown": "羧酸由烃基或氢原子与羧基相连构成，官能团是羧基；一元羧酸的结构通式为 R—COOH，饱和链状一元羧酸的分子通式为 CnH2nO2。",
+   "applicabilityMarkdown": "羧酸由烃基或氢原子与羧基相连构成，官能团是羧基；一元羧酸的结构通式为 R—COOH，饱和链状一元羧酸的分子通式为 CnH2nO2。",
+   "contentMarkdown": "①组成：由烃基（或氢原子）与羧基相连而构成的有机化合物。\n②官能团：羧基（—COOH）。\n③一元羧酸的结构通式写作R—COOH（R为氢原子或烃基）；饱和链状一元羧酸的分子通式为CnH2nO2（n≥1）。",
+   "boundaryMarkdown": "只覆盖羧酸的组成、官能团与通式，不涉及羧酸的酸性强弱比较、酯化等化学性质与羧酸衍生物。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 羧酸的组成和结构",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:羧酸的组成和结构",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02875",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "胺的概念、结构通式与铵盐之间的转化",
+   "summaryMarkdown": "胺是烃基取代氨分子中的氢原子形成的化合物，官能团是氨基；有三种结构通式，胺显弱碱性，与酸生成铵盐而铵盐遇碱又转化为胺。",
+   "applicabilityMarkdown": "胺是烃基取代氨分子中的氢原子形成的化合物，官能团是氨基；有三种结构通式，胺显弱碱性，与酸生成铵盐而铵盐遇碱又转化为胺。",
+   "contentMarkdown": "①概念：氨分子中的氢原子被烃基取代所形成的化合物称为胺，也可看作烃分子中的氢被氨基或取代氨基替代的产物，官能团是氨基。\n②结构通式有三种：R—NH2、R—NHR′、R—NR′R″。\n③碱性：胺具有弱碱性，能与酸反应生成类似铵盐的化合物，如乙胺与盐酸反应生成氯化乙铵；向铵盐溶液中加碱，又转化为胺。",
+   "boundaryMarkdown": "只覆盖胺的概念、官能团、结构通式以及胺与铵盐之间的相互转化，不展开碱性强弱的比较规律与酰胺的水解反应。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 胺、酰胺的结构和性质",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胺-酰胺的结构和性质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02889",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "氨、胺、酰胺与铵盐的组成与性质对照",
+   "summaryMarkdown": "氨与胺的官能团都是氨基、显碱性可与酸成盐，酰胺是羧酸衍生物能水解，铵盐是离子化合物、与强碱共热放出氨气。",
+   "applicabilityMarkdown": "氨与胺的官能团都是氨基、显碱性可与酸成盐，酰胺是羧酸衍生物能水解，铵盐是离子化合物、与强碱共热放出氨气。",
+   "contentMarkdown": "①氨与胺都含氨基：氨是无机物，胺是氨分子中的氢被烃基取代的产物、属于烃的衍生物，二者都显碱性并能与酸反应成盐。\n②酰胺含酰胺基，是羧酸分子中羟基被氨基取代的产物、属于羧酸衍生物，在酸或碱条件下加热可水解，它与酸作用时发生的是水解而不是成盐。\n③铵盐由铵根与酸根构成，是离子化合物，与强碱共热能放出氨气。\n④四类物质的边界：氨与胺属碱，酰胺属羧酸衍生物，铵盐属盐，据此可分类与鉴别。",
+   "boundaryMarkdown": "只做氨、胺、酰胺与铵盐在组成、官能团与主要性质上的对照，不展开胺的制备、酰胺的水解机理与铵盐的工业用途。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 胺、酰的结构和性质",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胺-酰的结构和性质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02892",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "含醛基物质与醛类的辨析",
+   "summaryMarkdown": "含醛基的有机物都能发生银镜反应，但不一定属于醛类，甲酸、甲酸酯与葡萄糖都因含醛基而能发生银镜反应。",
+   "applicabilityMarkdown": "含醛基的有机物都能发生银镜反应，但不一定属于醛类，甲酸、甲酸酯与葡萄糖都因含醛基而能发生银镜反应。",
+   "contentMarkdown": "①能发生银镜反应或与新制氢氧化铜反应，只能说明分子中含有醛基，不能据此判断该物质属于醛类。\n②甲酸、甲酸酯以及葡萄糖等分子中都含醛基，都能发生银镜反应，但它们分别属于羧酸、酯与糖类，不是醛。\n③醛基还能与溴水、酸性高锰酸钾溶液反应，分子中同时有醛基和碳碳双键时必须先用弱氧化剂氧化醛基并酸化后再检验双键。",
+   "boundaryMarkdown": "只辨析醛基与醛类的从属关系以及醛基对双键检验的干扰，不重复银镜反应与新制氢氧化铜的实验操作细节。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 醛和酮的结构和性质易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醛和酮的结构和性质易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02893",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "羧酸与酯易错点补充：甲酸与矿物油",
+   "summaryMarkdown": "甲酸含醛基能发生银镜反应，羧酸的元数由羧基数目决定，矿物油是烃类而植物油是酯类。",
+   "applicabilityMarkdown": "甲酸含醛基能发生银镜反应，羧酸的元数由羧基数目决定，矿物油是烃类而植物油是酯类。",
+   "contentMarkdown": "①甲酸分子中既有羧基又有醛基，能发生银镜反应、也能与新制氢氧化铜反应生成红色沉淀，但它仍属于羧酸。\n②只有羧基能电离出氢离子，烃基不能电离，故乙酸是一元酸，羧酸的元数由分子中羧基的数目决定。\n③矿物油的主要成分是烃类，植物油的主要成分是酯类；皂化反应专指油脂在碱性条件下的水解，低级酯的碱性水解不称为皂化反应。",
+   "boundaryMarkdown": "只补充羧酸与酯的易错判断，不重复酚酯的耗碱量、冰醋酸是纯净物与除去乙酸乙酯中乙酸的方法。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 羧酸和酯的结构和性质易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:羧酸和酯的结构和性质易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02914",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "高分子的分类与结构对应的性质特点",
+   "summaryMarkdown": "高分子按来源分为天然与合成两类，合成高分子材料按用途和性能分为通用与功能两类，线型高分子有热塑性、体型高分子有热固性。",
+   "applicabilityMarkdown": "高分子按来源分为天然与合成两类，合成高分子材料按用途和性能分为通用与功能两类，线型高分子有热塑性、体型高分子有热固性。",
+   "contentMarkdown": "①按来源，高分子化合物分为天然高分子化合物（淀粉、纤维素、蛋白质、天然橡胶）与合成高分子化合物。\n②合成高分子材料按用途和性能分为通用高分子材料（塑料、合成橡胶、合成纤维、黏合剂、涂料等）与功能高分子材料（高分子分离膜、导电高分子、医用高分子、高吸水性树脂等）。\n③塑料、合成橡胶、合成纤维合称三大合成材料。\n④线型高分子具有热塑性、可反复加热熔融加工，体型高分子具有热固性、只能一次成型。",
+   "boundaryMarkdown": "只梳理高分子的分类线索与线型、体型结构对应的性质特点，不涉及具体聚合反应与单体推断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 高分子的分类及性质特点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:高分子的分类及性质特点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02923",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "高分子的常见变化：降解、橡胶硫化与催化裂化",
+   "summaryMarkdown": "高分子可发生降解、橡胶硫化与催化裂化等变化，硫化把线型橡胶变为网状结构，降解与催化裂化则使高分子变成小分子。",
+   "applicabilityMarkdown": "高分子可发生降解、橡胶硫化与催化裂化等变化，硫化把线型橡胶变为网状结构，降解与催化裂化则使高分子变成小分子。",
+   "contentMarkdown": "①降解：在一定条件下高分子材料分解为小分子，如聚甲基丙烯酸甲酯热解为甲基丙烯酸甲酯、聚苯乙烯分解为苯乙烯；常见方法有生物降解、化学降解与光降解。\n②橡胶硫化：天然橡胶经硫化后碳碳双键被破坏并形成二硫键，线型结构转化为网状结构，强度与弹性提高。\n③催化裂化：塑料经催化裂化可得到柴油、煤油、汽油及可燃性气体。\n④按分子结构，合成高分子可分为线型、支链型与网状结构三类，结构不同则溶解性与热塑性不同。",
+   "boundaryMarkdown": "只归纳高分子的降解、橡胶硫化与催化裂化三类变化及三种分子结构，不重复加聚与缩聚反应的方程式书写。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 合成高分子的结构和性质",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子的结构和性质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02925",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "糖类易错结论补充：甜味、水解与纤维素",
+   "summaryMarkdown": "糖类不都有甜味，只有二糖和多糖能水解，淀粉、纤维素与蛋白质属于高分子而单糖、二糖和油脂不属于，人体内没有水解纤维素的酶。",
+   "applicabilityMarkdown": "糖类不都有甜味，只有二糖和多糖能水解，淀粉、纤维素与蛋白质属于高分子而单糖、二糖和油脂不属于，人体内没有水解纤维素的酶。",
+   "contentMarkdown": "①并不是所有糖类都有甜味，淀粉与纤维素没有甜味；也不是有甜味的物质就一定属于糖类。\n②只有二糖和多糖在一定条件下能水解，单糖是最简单的糖类物质，不能水解。\n③淀粉、纤维素与蛋白质属于高分子化合物，单糖、二糖与油脂都不属于高分子化合物。\n④人体内没有水解纤维素的酶，故纤维素在人体内不能水解吸收，但它能促进胃肠蠕动。",
+   "boundaryMarkdown": "只纠正糖类的甜味、水解能力与高分子归属三类误判，不重复淀粉水解实验的操作与产物检验流程。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 糖类的结构和性质易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:糖类的结构和性质易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02926",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "蛋白质易错点补充：元素组成、加酶洗涤剂与核糖",
+   "summaryMarkdown": "氨基酸一定含 C、H、O、N 但不一定含 S，加酶洗衣粉会使蚕丝织物水解，核糖与脱氧核糖相差一个氧原子、不互为同分异构体。",
+   "applicabilityMarkdown": "氨基酸一定含 C、H、O、N 但不一定含 S，加酶洗衣粉会使蚕丝织物水解，核糖与脱氧核糖相差一个氧原子、不互为同分异构体。",
+   "contentMarkdown": "①蛋白质一定含有 C、H、O、N 四种元素，但不一定含 S；并不是所有的氨基酸都含 S 元素。\n②氨基酸与蛋白质都含有氨基和羧基，具有两性，既能与盐酸反应也能与氢氧化钠溶液反应。\n③加酶洗衣粉中的酶能使蚕丝织物（蛋白质）水解，故不能用加酶洗衣粉洗涤蚕丝织物；温度过高会使酶变性而失去催化作用。\n④核糖与脱氧核糖的分子式相差一个氧原子，二者不互为同分异构体。",
+   "boundaryMarkdown": "只补充蛋白质与氨基酸的易错判断结论，不重复盐析与变性的区别以及显色、灼烧检验。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 有关蛋白质的易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关蛋白质的易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02927",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "合成高分子易错点补充：混合物、橡胶老化与聚氯乙烯",
+   "summaryMarkdown": "高分子的相对分子质量不确定、属于混合物，橡胶老化源于链上不饱和键被氧化，聚氯乙烯因含增塑剂等辅料不能直接接触食品。",
+   "applicabilityMarkdown": "高分子的相对分子质量不确定、属于混合物，橡胶老化源于链上不饱和键被氧化，聚氯乙烯因含增塑剂等辅料不能直接接触食品。",
+   "contentMarkdown": "①高分子的聚合度 n 值不确定，相对分子质量是一个范围，所以高分子化合物是混合物；单体与聚合物是两种不同的物质，性质不相同。\n②加聚反应的单体必须含碳碳双键或碳碳三键等不饱和键，加聚过程没有副产物，链节的化学组成与单体相同。\n③橡胶老化是因为高分子链上的不饱和键被空气中的氧气氧化，使橡胶变硬变脆。\n④聚氯乙烯塑料因添加增塑剂、防老剂等辅料而有毒性，不可用于包装食品，聚乙烯保鲜膜则可直接接触食品。",
+   "boundaryMarkdown": "只补充高分子是混合物、单体与聚合物的关系、橡胶老化与聚氯乙烯的食品包装限制，不重复加聚与缩聚的区分以及线型、网状结构的性质差别。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 有关合成高分子的易混易错点",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关合成高分子的易混易错点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02959",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "有机合成与推断题的四个审读要点",
+   "summaryMarkdown": "分析有机合成与推断题要抓住箭头上标注的条件与试剂、有机物的化学式、转化条件与结构简式四个要点。",
+   "applicabilityMarkdown": "分析有机合成与推断题要抓住箭头上标注的条件与试剂、有机物的化学式、转化条件与结构简式四个要点。",
+   "contentMarkdown": "①箭头：箭头上方一般标注反应条件或试剂，可用来推测官能团的转化与反应类型。\n②化学式：由分子式确定不饱和度，推测可能的官能团及其转化方向。\n③转化条件：由试剂与条件推测反应类型，进而推测未知有机物的结构简式。\n④结构简式：用正推、逆推或中间推等方法确定未知物的结构及转化过程。",
+   "boundaryMarkdown": "只给出审读有机合成与推断题的四个观察要点，不涉及具体试剂与反应类型的对应表。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 分析有机合成与推断类题的“四要点”",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析有机合成与推断类题的-四要点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02974",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "托盘天平、容量瓶与量筒的规范操作与精度",
+   "summaryMarkdown": "配制溶液的主要仪器各有精度与禁忌：托盘天平精确到 0.1 g 且左物右码，容量瓶只能定容不能溶解或反应，量筒不能用于稀释。",
+   "applicabilityMarkdown": "配制溶液的主要仪器各有精度与禁忌：托盘天平精确到 0.1 g 且左物右码，容量瓶只能定容不能溶解或反应，量筒不能用于稀释。",
+   "contentMarkdown": "①托盘天平精确度为 0.1 g，称量前先调零，称量时左盘放物品、右盘放砝码，砝码用镊子夹取。\n②容量瓶是细颈梨形平底玻璃瓶，配磨口塞，瓶体标有温度、容量与刻度线；使用前必须检漏。\n③容量瓶只能配制其规定容积的溶液，不能在瓶内溶解固体或稀释液体，也不能作反应容器或长期贮存溶液。\n④量筒用于量取液体体积且精确到 0.1 mL，不能在量筒内稀释或溶解，读数时视线与凹液面最低处相平。",
+   "boundaryMarkdown": "只讲托盘天平、容量瓶与量筒的构造、精度与规范操作，不含仪器的加热方式与其他玻璃仪器的选择依据。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 主要仪器",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:主要仪器",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02981",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "最简式与摩尔质量相同的混合物求微粒数目",
+   "summaryMarkdown": "混合物求目标微粒数目时先比最简式，最简式相同就按最简式的物质的量换算，最简式不同再看摩尔质量是否相同。",
+   "applicabilityMarkdown": "混合物求目标微粒数目时先比最简式，最简式相同就按最简式的物质的量换算，最简式不同再看摩尔质量是否相同。",
+   "contentMarkdown": "①先求混合物中各物质的最简式；最简式相同时只求最简式的物质的量，再换算目标微粒数目。\n②最简式不同时比较两物质的摩尔质量；摩尔质量相同时按总质量整体换算。\n③常考最简式相同的组合有 O2 与 O3、二氧化氮与四氧化二氮、乙烯与丙烯；常考摩尔质量相同的组合有氮气与一氧化碳、乙烯与氮气。",
+   "boundaryMarkdown": "只覆盖混合物求微粒数目时的最简式与摩尔质量两条判断依据，不含混合物中元素质量分数与平均摩尔质量的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 淀粉（或纤维素）中含有的羟基数为3n",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:淀粉-或纤维素-中含有的羟基数为3n",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02982",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "物质中化学键数目判断的注意点",
+   "summaryMarkdown": "化学键数目判断要区分共用电子对数与双键数、同分异构体与连接方式，特殊物质按结构记键数，电解质溶液还要算上电离与水解。",
+   "applicabilityMarkdown": "化学键数目判断要区分共用电子对数与双键数、同分异构体与连接方式，特殊物质按结构记键数，电解质溶液还要算上电离与水解。",
+   "contentMarkdown": "①共用电子对数即共价键数，双键与三键按实际成键数目计入。\n②同分异构体分子式相同而连接方式不同，所含化学键数目可能不同；同一通式的物质也因连接方式不同而键数不同。\n③特殊物质按结构记忆：1 mol 白磷含 6 mol 磷磷键、1 mol 金刚石含 2 mol 碳碳键、1 mol 二氧化硅晶体含 4 mol 硅氧键。\n④电解质溶液中判断微粒数目还要考虑溶质是否部分电离或水解、溶剂水带来的粒子以及溶液体积是否已知。",
+   "boundaryMarkdown": "只覆盖阿伏加德罗常数类题中化学键数目与电解质溶液微粒数目的判断要点，不含结构式与电子式的书写。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 物质的化学键",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的化学键",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02991",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "只给浓度未给体积时的微粒数目判断禁忌",
+   "summaryMarkdown": "题干只给出物质的量浓度而未给溶液体积时，溶质的物质的量无法确定，不能把溶液体积默认成 1 L。",
+   "applicabilityMarkdown": "题干只给出物质的量浓度而未给溶液体积时，溶质的物质的量无法确定，不能把溶液体积默认成 1 L。",
+   "contentMarkdown": "①用 c 等于 n 比 V 计算微粒数目必须同时知道浓度与溶液体积，缺体积时 n 无法确定。\n②溶液的均一性只说明取出任意体积时浓度不变，不能说明溶液总体积是多少。\n③命题常用只给浓度不给体积的形式设置陷阱，遇到这类选项应先检查体积是否已知，再看粒子种类。",
+   "boundaryMarkdown": "只讲已知浓度而缺体积时的判断禁忌，不含体积已知时的浓度换算与计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 误将溶液体积看作1L",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:误将溶液体积看作1l",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02995",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "气体摩尔体积计算前对温度与压强的审查",
+   "summaryMarkdown": "使用 22.4 L 每摩前先审查题干给出的温度与压强是否为标准状况，出现常温常压或室温等条件时不能直接换算。",
+   "applicabilityMarkdown": "使用 22.4 L 每摩前先审查题干给出的温度与压强是否为标准状况，出现常温常压或室温等条件时不能直接换算。",
+   "contentMarkdown": "①22.4 L 每摩只适用于标准状况即 0 ℃、101 kPa 下的气体，题干出现常温常压、室温、25 ℃等条件时不能使用。\n②非标准状况下气体体积与物质的量之间只能由题给条件或气体状态方程换算。\n③审查顺序是先看条件再看物质状态，两个条件同时满足才能代入 22.4 L 每摩。",
+   "boundaryMarkdown": "只讲以温度与压强为核心的条件审查，不含标准状况下物质是否为气体的判断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 审题抓关键条件（状态、温度、压强）",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:审题抓关键条件-状态-温度-压强",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02996",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "气体单质与过氧化钠的微粒构成",
+   "summaryMarkdown": "气体单质除双原子分子外还有单原子与三原子分子，过氧化钠由钠离子与过氧根离子构成而不是钠离子与氧离子。",
+   "applicabilityMarkdown": "气体单质除双原子分子外还有单原子与三原子分子，过氧化钠由钠离子与过氧根离子构成而不是钠离子与氧离子。",
+   "contentMarkdown": "①气体单质有单原子分子如氦与氖、双原子分子如氧气与氮气、三原子分子如臭氧，计算时按题干所指微粒计数。\n②过氧化钠由钠离子与过氧根离子构成，不是由钠离子与氧离子构成；1 mol 过氧化钠含 2 mol 钠离子与 1 mol 过氧根离子。\n③判断微粒数目先写出物质的构成微粒，再按物质的量换算成目标粒子数目。",
+   "boundaryMarkdown": "只辨析气体单质与过氧化钠的构成微粒，不含电子数、中子数与化学键数目的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 分析粒子种类（分子/离子/电子）",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析粒子种类-分子-离子-电子",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-02997",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "过氧化钠与氯气相关反应中转移电子数目的判断",
+   "summaryMarkdown": "过氧化钠与二氧化碳或水的反应以及氯气与氢氧化钠的反应中转移电子数都要按歧化反应的实际得失电子判断。",
+   "applicabilityMarkdown": "过氧化钠与二氧化碳或水的反应以及氯气与氢氧化钠的反应中转移电子数都要按歧化反应的实际得失电子判断。",
+   "contentMarkdown": "①过氧化钠与二氧化碳或水的反应中氧元素发生歧化，1 mol 过氧化钠转移 1 mol 电子。\n②氯气与水的反应为可逆反应，与氢氧化钠的反应中 1 mol 氯气转移 1 mol 电子。\n③判断电子转移数目先标出元素化合价的变化，再按实际参与变化的微粒量计算，不能直接按方程式系数相乘。",
+   "boundaryMarkdown": "只覆盖过氧化钠与氯气相关反应中转移电子数目的判断，不含电化学中的电子转移计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 验证计算过程（比例关系）",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:验证计算过程-比例关系",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-03070",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "中和滴定的指示剂选择规则与不用指示剂的情形",
+   "summaryMarkdown": "中和滴定所选指示剂应变色灵敏、变色范围小且变色范围与终点酸碱性一致，强酸强碱互滴可用酚酞或甲基橙，一般不用石蕊，个别滴定可靠标准液自身的颜色变化判断终点。",
+   "applicabilityMarkdown": "中和滴定所选指示剂应变色灵敏、变色范围小且变色范围与终点酸碱性一致，强酸强碱互滴可用酚酞或甲基橙，一般不用石蕊，个别滴定可靠标准液自身的颜色变化判断终点。",
+   "contentMarkdown": "①选择标准：指示剂变色要灵敏、变色范围要小，且变色范围尽量与滴定终点溶液的酸碱性一致。\n②强酸与强碱相互滴定，酚酞或甲基橙均可；反应生成强酸弱碱盐（终点显酸性）时一般选甲基橙，生成强碱弱酸盐（终点显碱性）时一般选酚酞。\n③石蕊颜色变化不明显且变色范围过宽，一般不作滴定指示剂。\n④并非所有滴定都需外加指示剂：用标准亚硫酸钠溶液滴定高锰酸钾溶液时，高锰酸钾自身颜色褪去且半分钟不恢复原色即为终点。",
+   "boundaryMarkdown": "只覆盖中和滴定中指示剂的选择依据、常用指示剂与不需外加指示剂的情形，不含滴定仪器清单、滴定管选用与读数操作。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 实验用品",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验用品",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-03078",
+   "subject": "CHEMISTRY",
+   "type": "METHOD_MODEL",
+   "title": "酸溶液中由水电离的离子浓度计算",
+   "summaryMarkdown": "溶质为酸的溶液中氢氧根全部来自水的电离，故由水电离出的 c(H＋) 与 c(OH－) 都等于溶液中的 c(OH－)，可由水的离子积与溶液的 c(H＋) 换算求得。",
+   "applicabilityMarkdown": "溶质为酸的溶液中氢氧根全部来自水的电离，故由水电离出的 c(H＋) 与 c(OH－) 都等于溶液中的 c(OH－)，可由水的离子积与溶液的 c(H＋) 换算求得。",
+   "contentMarkdown": "①关系式：c(OH－)溶液＝c(OH－)水＝c(H＋)水，而 c(H＋)溶液＝c(H＋)酸＋c(H＋)水，其中水电离出的部分可忽略。\n②求算路径：由酸溶液的 pH 求出 c(H＋)溶液，再用 c(OH－)＝Kw/c(H＋) 得到溶液中的 c(OH－)，该值即等于由水电离出的 c(H＋) 与 c(OH－)。\n③示例：常温下 pH＝2 的盐酸中 c(OH－)＝10－12 mol/L，由水电离出的 c(H＋)＝c(OH－)＝10－12 mol/L。",
+   "boundaryMarkdown": "只处理溶质为酸（含强酸与强酸酸式盐）的溶液中由水电离出的离子浓度计算，碱溶液与能水解的盐溶液中的同类计算不在本条范围。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 溶质为酸的溶液：OH－全部来自水的电离。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶质为酸的溶液-oh-全部来自水的电离",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-03080",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "盐溶液中由水电离的离子浓度关系",
+   "summaryMarkdown": "水解显酸性的盐溶液中氢离子全部来自水的电离、水解显碱性的盐溶液中氢氧根全部来自水的电离，中性盐溶液中溶液里的两种离子与水电离出的两种离子都相等。",
+   "applicabilityMarkdown": "水解显酸性的盐溶液中氢离子全部来自水的电离、水解显碱性的盐溶液中氢氧根全部来自水的电离，中性盐溶液中溶液里的两种离子与水电离出的两种离子都相等。",
+   "contentMarkdown": "①水解呈酸性的盐溶液（如 NH4Cl）：c(H＋)溶液＝c(H＋)水＝c(OH－)水，而 c(OH－)溶液＜c(OH－)水，因为部分 OH－ 被弱碱阳离子结合；pH＝5 的 NH4Cl 溶液中由水电离的 c(H＋)＝10－5 mol/L，溶液中 c(OH－)＝10－9 mol/L。\n②水解呈碱性的盐溶液（如 Na2CO3）：c(OH－)溶液＝c(OH－)水＝c(H＋)水，而 c(H＋)溶液＜c(H＋)水；pH＝12 的 Na2CO3 溶液中由水电离出的 c(OH－)＝10－2 mol/L。\n③不水解的中性盐溶液：c(H＋)溶液＝c(H＋)水＝c(OH－)水＝c(OH－)溶液。",
+   "boundaryMarkdown": "只归纳盐溶液中由水电离出的离子浓度与溶液中离子浓度的关系（分呈酸性、呈碱性与中性三类），不涉及盐溶液酸碱性的判断步骤与水解方程式的书写。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 盐溶液",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-03118",
+   "subject": "CHEMISTRY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "盐类水解的三个误区",
+   "summaryMarkdown": "水解平衡正向移动不等于水解程度一定增大，弱酸强碱盐并不都因水解显碱性，可水解的盐溶液蒸干也不一定得不到原溶质。",
+   "applicabilityMarkdown": "水解平衡正向移动不等于水解程度一定增大，弱酸强碱盐并不都因水解显碱性，可水解的盐溶液蒸干也不一定得不到原溶质。",
+   "contentMarkdown": "①加入少量 FeCl3 固体后水解平衡虽右移，Fe3＋ 的水解程度却反而减小，说明平衡移动方向与水解程度的变化不是一回事。\n②NaHSO3 溶液显酸性，说明弱酸强碱盐并不都因水解显碱性，酸式盐的酸碱性取决于酸式酸根电离程度与水解程度的相对大小。\n③只有水解生成易挥发性酸且水解能进行到底时，蒸干才得不到原溶质；水解程度不大且水解产物留在体系中的盐（如硫酸铝）蒸干后仍得到原溶质。",
+   "boundaryMarkdown": "只纠正水解平衡移动与水解程度、弱酸强碱盐的酸碱性、可水解盐溶液蒸干产物三处误判，不含水解方程式的书写规范与水解平衡常数的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 盐类水解的三个误区",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐类水解的三个误区",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-03279",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "浓硫酸与铜加热制二氧化硫的实验现象与方程式",
+   "summaryMarkdown": "浓硫酸与铜片共热生成CuSO4、SO2和水，铜片逐渐溶解、溶液变蓝并在管底出现灰白色固体，品红溶液褪色。",
+   "applicabilityMarkdown": "浓硫酸与铜片共热生成CuSO4、SO2和水，铜片逐渐溶解、溶液变蓝并在管底出现灰白色固体，品红溶液褪色。",
+   "contentMarkdown": "①反应方程式：Cu＋2H2SO4(浓)=Δ=CuSO4＋SO2↑＋2H2O，浓硫酸在此反应中既表现强氧化性又表现酸性。\n②实验现象：加热后铜片逐渐溶解，试管中溶液变蓝，试管底部出现灰白色固体；导出的气体使品红溶液褪色，加热后品红溶液又恢复原色。\n③反应条件与限制：必须用浓硫酸并加热，稀硫酸不与该反应；随反应进行浓硫酸变稀，反应会逐渐停止。",
+   "boundaryMarkdown": "只讲浓硫酸与铜加热生成SO2的反应方程式与实验现象及条件限制，不含硫代硫酸盐遇酸分解、SO2的工业制取与SO2性质检验的系统归纳。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · 浓硫酸转化为二氧化硫",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓硫酸转化为二氧化硫",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-che-03294",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "NOx的来源、酸雨形成与汽车尾气催化转化",
+   "summaryMarkdown": "NOx 是汽车尾气的主要污染物之一，NO2 与水反应生成硝酸而形成酸雨，尾气催化转化器在空气不足时把 NOx 还原为 N2 排出。",
+   "applicabilityMarkdown": "NOx 是汽车尾气的主要污染物之一，NO2 与水反应生成硝酸而形成酸雨，尾气催化转化器在空气不足时把 NOx 还原为 N2 排出。",
+   "contentMarkdown": "①汽车尾气中的 NOx 主要来自气缸内高温下 N2 与 O2 的反应，是主要的大气污染物之一。\n②NO2 与水反应生成硝酸：3NO2＋H2O===2HNO3＋NO，这是硝酸型酸雨的主要来源。\n③汽车尾气系统中安装催化转化器，尾气中空气不足时 NOx 被还原为 N2 排出：2NO＋2CO=催化剂=N2＋2CO2。",
+   "boundaryMarkdown": "只覆盖 NOx 的来源、酸雨形成反应与汽车尾气催化转化的反应原理，不涉及碱液吸收的定量条件、氮氧化物本身的制备与氮氧化物溶于水的计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
+   "sourceLocator": "知识清单（学生版）  · NOx是汽车尾气中的主要污染物之一。",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:nox是汽车尾气中的主要污染物之一",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "cmp-bio-03483",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "五大有机物的氧化分解终产物",
+   "summaryMarkdown": "DNA 与 RNA 彻底氧化分解生成二氧化碳、水和尿酸等，蛋白质生成二氧化碳、水和尿素，糖类与脂肪生成二氧化碳和水。",
+   "applicabilityMarkdown": "DNA 与 RNA 彻底氧化分解生成二氧化碳、水和尿酸等，蛋白质生成二氧化碳、水和尿素，糖类与脂肪生成二氧化碳和水。",
+   "contentMarkdown": "1. DNA、RNA 含有氮和磷，彻底氧化分解除生成二氧化碳和水外还产生尿酸等含氮废物。\n2. 蛋白质含有氮（有的含硫），氧化分解终产物为二氧化碳、水和尿素。\n3. 淀粉与脂肪只含碳、氢、氧，氧化分解终产物均为二氧化碳和水；注意与水解产物区分：淀粉初步水解为麦芽糖、彻底水解为葡萄糖，脂肪彻底水解为甘油和脂肪酸。",
+   "boundaryMarkdown": "适用于题干要求填写或判断初步水解产物、彻底水解产物与氧化分解产物三类产物的设问；水解与氧化分解是两条不同过程，产物不可混答。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "registry-kb-biology-knowledge-list:biology",
+   "sourceLocator": "知识清单（学生版）  · DNA、RNA、蛋白质等的水解产物和氧化产物（归纳总结）",
+   "reviewedAtEpochMillis": 1790704279001,
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna-rna-蛋白质等的水解产物和氧化产物-归纳总结",
      "role": "PRIMARY"
     }
    ]

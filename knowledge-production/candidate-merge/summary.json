@@ -1,20 +1,14 @@
 {
- "dir_total": 3536,
- "dir": {
-  "name_hit": 2291,
-  "alias_hit": 6,
-  "star_hit": 95,
-  "unmatched": 1144,
-  "star": 96,
-  "long": 977,
-  "ambiguous": 0
- },
- "material_total": 10356,
- "material": {
-  "already_in": 9747,
-  "divergent": 234,
-  "missing": 375
- },
- "batches": 45,
- "batch_size": 80
+ "dir_rows": 3536,
+ "mat_rows": 375,
+ "authored_materials": 81,
+ "new_points": 0,
+ "coverage": 2779,
+ "rejects": 959,
+ "quarantine": 0,
+ "placement_review": 0,
+ "capacity_blocked": 91,
+ "duplicate_dropped": 1,
+ "near_duplicate_review": 2,
+ "header_errors": []
 }
