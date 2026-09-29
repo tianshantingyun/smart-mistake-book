@@ -1536,3 +1536,46 @@ gradlew.bat --offline --console=plain testDebugUnitTest test \
   `CapturedTutorSessionExposureInstrumentedTest.kt`、`CapturedTutorSessionInstrumentedTest.kt`、
   `CapturedTutorSessionTestBase.kt`、`TutorHistoryInstrumentedTest.kt`、`TutorLobbyScrollInstrumentedTest.kt`；
   删除 `TutorLocalIntentPanelInstrumentedTest.kt`
+
+---
+
+## 3A 前裁决门 · 逐项裁定（2026-09-29，裁决会话）
+
+**门口径（用户认可"走"）**：阶段 0 研究"必须补 9 项"中，不确定度量化已排期 KF-09/10（3A P1 组），
+视为已裁；其余 **8 项必须补 + 路线图待裁 8 项**（看答案语义 / β-二项先验 / MASTERED θ·ε / L2 γ /
+fuzz / FSRS-7 / 排程权重离线模拟 / F7）逐项过用户。净 **16 项**；文档里出现的"18 项"是双重计数
+（路线图待裁表第 7 行即"必须补"组本身），**口径以本清单为准**。
+
+### 裁决 1 · 看答案语义 = B（评 AGAIN 计一次遗忘失败）
+
+- 问题（KF-03，roadmap 待裁 #1）：`projectAnswerReveal` 的语义。候选 A = 不计掌握证据 + 记忆侧降
+  S′ 不进 lapseCount（不惩罚求助）；候选 B = 评 AGAIN / lapse++，policy 侧计一次失败。
+- **裁定：B**（用户未采纳 fix-plan §6 的推荐 A）。
+- 落地（W1-4 的 B 分支）：`review_log` 增独立 `REVEAL` 值；`fittableReviewSamples` 仍排除 reveal 行
+  （A/B 共同部分）；看答案后答对不再记独立答对（与 KF-02 联动）；记忆侧按 AGAIN 走 `nextForgetStability`。
+- 号段联动：另一会话已为"看答案口径"占号 `evidence-v5`，本裁定为其补齐语义来源。
+
+### 裁决 2 · F7 pretest×引导模式 = pretest 阶段不给提示（封顶 L0）
+
+- 问题（补充卷 F7，此前零推荐）：摸底测试阶段是否允许 L1/L2 提示。
+- **裁定：不给**。pretest 期间引导刻度封顶 L0（裸能力摸底）；L1/L2 仅作答后的正式学习阶段可用。
+- 后果：roadmap 待裁表第 9 行"F7 阶段 2 前"的过期要求就此解除（阶段 2 已收口、引导模式开关已落地）。
+
+### 裁决 3 · P3/P4/P6 采集侧 = 后移至阶段 5 新复习栏
+
+- 问题：毫秒时长（P3 采集端 `ReviewSessionScreen`）、展示时长（P4）、hint 上报链（P6/F3）都长在
+  旧复习屏上，阶段 5 将重建复习栏。
+- **裁定：采集侧不提前做**，随阶段 5 新复习栏一并实现（不为快删界面做抛弃式工作）。
+- 后果：roadmap W1-1/W1-2 及 KF-14/15（RT/RTE 进证据门）的实施依赖后移的采集，阶段 5 采集就位前
+  不可实施；不影响 Wave 0–3 其余项。
+- 边界：core:data 提交链修复（KF-02 `revealedBeforeAnswer` 真值、`persistedAssistance` 组装）**不在
+  后移之列**——属证据定价语义，随 3A Wave 1 做（号段 `evidence-v5` 已占）。
+
+### 裁决 4 · S2/S11 = 不删不归档、校验不降频
+
+- 问题：账本（review_log / projection_consumption / chat_evidence）只增不删——S11 是否按年归档、
+  S2 全窗口校验是否降频。
+- **裁定：不删、不归档、不降频**。保留全量历史与全窗口校验强度（回放/审计能力优先）。
+- 后果：S11、S2 从修复清单移除（无界增长与校验开销为已知接受成本）；规模化压力由 S5 联表批量读等消化。
+- 备注：若"不删"仅指保留数据、并不排斥 S2 校验降频，用户可后续单裁；本记录按保守口径（两件都不动）。
+
