@@ -1588,3 +1588,15 @@ fuzz / FSRS-7 / 排程权重离线模拟 / F7）逐项过用户。净 **16 项**
   阈值参数届时另裁（不自行取值）。
 - 后果：KF-14、KF-15 两项合一，仍记 3A 后置依赖（阶段 5）；不影响 Wave 0–3。
 
+### 裁决 6 · KF-21 HLR = 删（B）
+
+- 问题：未训练的 HLR 半衰期回归（11 维 θ = DEFAULT 常量）该补完、删掉还是冻结。
+- **裁定：B（删）**。删除未训练 HLR 预测器及其影子审计（`HalfLifeRegression` /
+  `HLRPredictionAuditService` / `RoomPredictionAuditSink` 及配套测试与消费点）；个性化单一来源
+  = FSRS-6 拟合（W2 已立项）。
+- 依据：未训练 θ 输出任意数、审计对照无意义；训练它 = Wave X 再建一条拟合+晋升管线（重复建设）；
+  单学生 400 样本训 11 维 θ 偏薄；A 级证据出自多学习者规模（Settles & Meeder，Duolingo 量级）。
+- 后果：fix-plan KF-21 由"训练与晋升"改为"删除"；实施时先列全消费点（`ReviewPlanner` /
+  `ReviewPlannerV2` / `StudySchedulingCalibration` 等处 half-life 提及）逐个移除或改走 FSRS 路径；
+  P11（预测审计轨）与之联动收口；研究附录 D 保留出处，将来多用户数据出现可回炉。
+
