@@ -1,0 +1,81 @@
+idx,subject,name,verdict,node_slug,point_name,kind,parent_hint,material_title,material_type,material_summary,material_content,material_boundary,evidence,reason
+1200,PHYSICS,由测定加速度延伸为测定动摩擦因数。,COVERED,,,,,,,,,,ext-phy-044888a025-016、ext-phy-7bd52b56f2-011、phys-fx-mu-measure-basic-principle、phys-fx-mu-measure-innovation-schemes,
+1201,PHYSICS,由测定加速度延伸为测定交流电的频率。,COVERED,,,,,,,,,,ext-phy-da0bf5731b-012,definition 为动量守恒实验题干（三个落点 M、N、P 与四问设问），与考点名不匹配；考点本身 由测加速度延伸测交流电频率 已被节点唯一材料 ext-phy-da0bf5731b-012 覆盖，故按已覆盖处理题干错挂。
+1202,PHYSICS,创新实验解决相关误差——质量关系,COVERED,,,,,,,,,,ext-phy-b6feafc5c0-018c、ext-phy-cd54c26115-002、phys-mo-l12-exp-acceleration-b-2,definition 含部分填空设问；其器材创新（气垫导轨、光电门、力传感器、位移传感器）与直接测合力后不再要求远小于条件已由节点材料覆盖。
+1203,PHYSICS,有效数字与小数位数的保留,COVERED,,,,,,,,,,phys-kb-significant-figures-rule、ext-phy-7dba225a31-003b、ext-phy-3a6293013c-003、ext-phy-a7c2ce19cd-005,definition 第 2 项 小数 属数学背景定义不构成考点实质；有效数字的判定（首位非零、中间零、末尾零、科学记数法）已被节点 10 条材料覆盖。
+1204,PHYSICS,逐差法原理,COVERED,,,,,,,,,,ext-phy-33071c56c1-002、ext-phy-2ac3394660-003、ext-phy-7bd52b56f2-006,
+1205,PHYSICS,“逐差法”的实际应用及小技巧,COVERED,,,,,,,,,,ext-phy-71f609071a-012b、ext-phy-a7c2ce19cd-006、ext-phy-7dba225a31-006、ext-phy-33071c56c1-003,
+1206,PHYSICS,图像法在处理实验数据方面的应用,COVERED,,,,,,,,,,ext-phy-a7c2ce19cd-002c、ext-phy-bb9f538752-006、ext-phy-7bd52b56f2-006b、ext-phy-ae5f9c6292-002d、ext-phy-206fb04353-015b,
+1207,PHYSICS,原理,COVERED,,,,,,,,,,ext-phy-964a525282-001、phys-hj2-youbmogu-shiyan-yuanli、ext-phy-dedc65d07c-002,条目名为截断的 原理，definition 为油膜法原理；包内 用油膜法估测油酸分子的大小 等节点材料已给出球形紧密排布假设与 d=V/S。
+1208,PHYSICS,实验步骤,COVERED,,,,,,,,,,ext-phy-964a525282-002、ext-phy-c6a0b386da-002、ext-phy-dedc65d07c-002,
+1209,PHYSICS,数据处理,COVERED,,,,,,,,,,ext-phy-dedc65d07c-003、ext-phy-a61d4f03ad-002、phys-hj2-youbmogu-shiyan-wucha,
+1210,PHYSICS,误差分析,COVERED,,,,,,,,,,ext-phy-db15b62862-001b、phys-hj2-youbmogu-shiyan-wucha、ext-phy-26a9bdfe30-025,
+1211,PHYSICS,实验步骤,COVERED,,,,,,,,,,ext-phy-db15b62862-002、ext-phy-a61d4f03ad-005、ext-phy-288e1effad-013,
+1212,PHYSICS,注意事项,COVERED,,,,,,,,,,ext-phy-b61822db21-008、ext-phy-db15b62862-003b,
+1213,PHYSICS,数据处理,COVERED,,,,,,,,,,ext-phy-db15b62862-003、ext-phy-61d1d14b26-016、phys-hj3-gas-pv-exp-notes,
+1214,PHYSICS,误差分析,COVERED,,,,,,,,,,ext-phy-db15b62862-003b、ext-phy-db15b62862-009,
+1215,PHYSICS,实验步骤：,COVERED,,,,,,,,,,ext-phy-db15b62862-004、ext-phy-c56670d412-002、ext-phy-702e632325-006,
+1216,PHYSICS,数据处理：,COVERED,,,,,,,,,,ext-phy-c56670d412-003、ext-phy-db15b62862-008、phys-hj2-zheshel-shiyan-shuju-sanfa,
+1217,PHYSICS,注意事项：,COVERED,,,,,,,,,,ext-phy-c56670d412-004、ext-phy-db15b62862-004b、phys-hj2-zheshel-shiyan-wucha-zhuyi,
+1218,PHYSICS,若边线宽度不等于玻璃砖宽度时引起的误差分析。,COVERED,,,,,,,,,,ext-phy-a06efabe52-007b、phys-hj2-zheshel-shiyan-wucha-zhuyi,definition 主体为测定玻璃折射率实验的题干与设问；同名节点材料 ext-phy-a06efabe52-007b 直接给出界面间距偏大使折射率偏小、整体平移不影响结果的结论。
+1219,PHYSICS,实验原理：条纹间距Δx与光波长λ，双缝间距d及双缝与屏的距离l，有关系式为：，,COVERED,,,,,,,,,,phys-double-slit-fringe-spacing、phys-kb-double-slit-wavelength-experiment、phys-hj2-shuangfeng-ganshe-tiaojian-jianju,包内存在同名节点 实验原理-条纹间距δx与光波长λ，其材料已给出 Δx=lλ/d 与由 λ=dΔx/l 测波长。
+1220,PHYSICS,注意事项：（1）调节各器件的高度，使光源灯丝发出的光能沿遮光筒轴线到达光屏,COVERED,,,,,,,,,,ext-phy-db15b62862-006、ext-phy-0f51f06768-010、ext-phy-1b60b9022b-009,包内存在同名节点 注意事项-1-调节各器件的高度（双缝干涉实验的操作要点），材料覆盖共轴调节、单缝与双缝平行及条纹间距累积测量。
+1221,PHYSICS,创新实验方法测玻璃砖的折射率,COVERED,,,,,,,,,,ext-phy-f2e0c679f9-003、ext-phy-db15b62862-008、phys-hj2-zheshel-shiyan-shuju-sanfa,
+1222,PHYSICS,热学实验中的误差分析,COVERED,,,,,,,,,,ext-phy-db15b62862-009、ext-phy-db15b62862-003b、phys-hj2-youbmogu-shiyan-wucha,
+1223,PHYSICS,光学实验中的误差分析,COVERED,,,,,,,,,,ext-phy-779e0c8228-011、ext-phy-db15b62862-009b、ext-phy-a06efabe52-007b,
+1224,PHYSICS,图像法在处理实验数据方面的应用,COVERED,,,,,,,,,,ext-phy-1c32f23915-003、ext-phy-7bd52b56f2-006b、ext-phy-db15b62862-003,definition 为等温变化实验的题干（选择与填空）无知识陈述；其考点 图像法在处理实验数据方面的应用 已由节点 35 条材料覆盖（化曲为直、图线不过原点与弯曲的异常分析），等温 p-1/V 结论见 ext-phy-db15b62862-003。
+1225,PHYSICS,动量和动量定理,COVERED,,,,,,,,,,ext-phy-69ce327dcf-001,
+1226,PHYSICS,性质：,COVERED,,,,,,,,,,wusan-phy-v-30240a2e、phys-hj3-impulse-understanding、phys-kb-impulse-definition-calc、phys-hj3-momentum-understanding,条目名为截断的 性质：，definition 为冲量的定义、性质与理解；材料已覆盖矢量性、过程量、与参考系无关以及动量与动能的关系。
+1227,PHYSICS,冲量的计算方法,COVERED,,,,,,,,,,phys-hj2-chongliang-sizhong-jisuan、phys-hj3-impulse-four-methods、phys-fx-f-t-graph-impulse-area、ext-phy-3628073593-003b,
+1228,PHYSICS,动量变化量的理解和计算,COVERED,,,,,,,,,,ext-phy-2b63d7a05b-001c、phys-fx-momentum-change-vector、phys-hj-087-momentum-change,
+1229,PHYSICS,定义：物体在一个过程中所受合外力的冲量等于该物体在这个过程中动量的变化量。,COVERED,,,,,,,,,,phys-kb-momentum-theorem、phys-fx-momentum-theorem-understanding,mech=unmatched 但包内存在真实节点 动量定理，其材料给出动量定理的内容（合外力冲量等于动量变化量）与矢量式、变力取平均值。
+1230,PHYSICS,表达式：I=p2-p1或Ft=mv2-mv1。,COVERED,,,,,,,,,,ext-phy-5969dc8eeb-036、phys-fx-momentum-theorem-understanding、phys-hj2-dongliang-dingli-liijie-yingyong,定义式 I=p2-p1 或 Ft=mv2-mv1、矢量式含大小相等方向相同两重含义、变力取平均值，已由上述材料逐条覆盖。
+1231,PHYSICS,关于I=Δp=p2-p1的几点说明,COVERED,,,,,,,,,,ext-phy-69ce327dcf-004、ext-phy-3628073593-010,
+1232,PHYSICS,定性分析有关现象：,COVERED,,,,,,,,,,phys-fx-momentum-theorem-qualitative、ext-phy-4d59397285-006、phys-hj3-momentum-theorem-life,
+1233,PHYSICS,定量计算某过程中合外力的冲量或动量变化量：,COVERED,,,,,,,,,,ext-phy-4d59397285-006、ext-phy-3628073593-011、phys-fluid-microelement-momentum,
+1234,PHYSICS,系统、内力和外力,GAP,系统-内力和外力,,,,系统、内力与外力的定义与判断,CONCEPT_EXPLANATION,一个力学系统由两个或多个相互作用的物体组成，系统内物体间的相互作用力是内力，系统外物体施加给系统内物体的力是外力，取系统要看研究需要。,①系统：由两个或多个相互作用的物体构成的整体称为力学系统。\n②内力：系统中物体之间的相互作用力。\n③外力：系统以外的物体施加给系统内物体的力。\n④选取原则：研究多个物体相互作用且逐个分析受力困难时，把它们取为一个系统可使问题简化，取谁为系统由研究需要与求解目标决定。,只界定系统、内力、外力的含义与选取系统的原则；不涉及动量守恒条件的分层判断、内力大小的计算与各具体模型。,definition 给出系统、内力、外力三个定义与 把若干个物体看成一个系统 的选取原则；命中节点 系统-内力和外力 的全部 2 条材料 phys-zhengtifa-you-xian-chang-jing 与 phys-mo-l25-momentum-consv-b-3 分别只讲整体法优先场景与爆炸过程，全量索引检索 内力和外力、系统、内力 均无术语定义类材料。,命中节点但该节点全部材料未覆盖三个基础定义，判 GAP 补一条概念材料。
+1235,PHYSICS,动量守恒定律,COVERED,,,,,,,,,,phys-kb-momentum-conservation-law、ext-phy-c6475f9319-003、ext-phy-c6475f9319-002、phys-mo-l25-momentum-consv-b,
+1236,PHYSICS,动量守恒定律的推导,GAP,动量守恒定律的推导,,,,由牛顿第二定律与牛顿第三定律推导动量守恒定律,METHOD_MODEL,两球碰撞中分别对两球列动量定理，再用牛顿第三定律把两球间的作用力联系起来，即可导出系统总动量保持不变。,①设两球质量 m1、m2，碰前速度 v1、v2 且 v2 大于 v1，碰后速度 v1′、v2′。\n②两球相互作用时间 t 内分别用动量定理：F1t＝m1(v1′－v1)，F2t＝m2(v2′－v2)。\n③两球间的作用力是相互作用力，由牛顿第三定律 F1＝－F2 得 m1v1′－m1v1＝m2v2－m2v2′。\n④整理得 m1v1＋m2v2＝m1v1′＋m2v2′，即系统总动量保持不变，说明动量守恒定律可由牛顿第二定律与牛顿第三定律导出。,只给两体一维碰撞情形下由牛顿第二定律与牛顿第三定律导出动量守恒的过程；不含实验验证方案、守恒条件的分层讨论与各模型的推广应用。,definition 即两球碰撞的完整推导（F1t＝m1(v1′－v1)、F2t＝m2(v2′－v2)、F1＝－F2 得 m1v1＋m2v2＝m1v1′＋m2v2′）；命中节点 动量守恒定律的推导 的全部 6 条材料只覆盖五个特性（phys-hj-094-momentum-conservation-features、phys-hj2-dongliang-shouheng-wu-texing、phys-hj3-momentum-conservation-five-properties）、内容与守恒条件（phys-hj2-dongliang-shouheng-tiaojian）、验证数据处理（phys-hj3-momentum-exp-dataprocess）与三个条件层次（phys-fx-momentum-conservation-conditions），全量索引无任何材料给出该推导。,命中节点但节点材料只覆盖性质、条件与验证数据处理，未覆盖公式来源的推导，判 GAP 补一条推导类材料。
+1237,PHYSICS,动量守恒中的速度,COVERED,,,,,,,,,,ext-phy-2b63d7a05b-005b、phys-hj2-dongliang-shouheng-wu-texing、ext-phy-b0e295f813-003,
+1238,PHYSICS,碰撞中的“时间极短”的含义,COVERED,,,,,,,,,,ext-phy-69ce327dcf-009、ext-phy-f869288c0f-003,
+1239,PHYSICS,多物体、多过程问题中动量守恒定律的应用,COVERED,,,,,,,,,,phys-system-two-conservations、phys-hj3-multi-object-multiphase-analysis、phys-hj-096-recoil-motion、phys-hj3-recoil-three-notes,
+1240,PHYSICS,规律,COVERED,,,,,,,,,,phys-hj2-baozha-fanchong-guilv、phys-fx-explosion-recoil-model、ext-phy-2b63d7a05b-007b,definition 尾部含粒子动量大小的两问设问；爆炸的三条规律（动量守恒、动能增加、位置不变）已由上述材料覆盖。
+1241,PHYSICS,定义：碰撞指的是两个物体在很短的时间内发生相互作用。,COVERED,,,,,,,,,,ext-phy-2b63d7a05b-006b、ext-phy-c6475f9319-008、ext-phy-b0e295f813-010、ext-phy-f869288c0f-003,包内存在同名节点 定义-碰撞指的是两个物体在很短的时间内发生相互作用，其材料覆盖碰撞的时间、受力、动量、位移、能量特点与三条遵循原则。
+1242,PHYSICS,对心碰撞,COVERED,,,,,,,,,,ext-phy-9fe9f2553b-010,
+1243,PHYSICS,弹性碰撞,COVERED,,,,,,,,,,phys-elastic-collision-general-formula、phys-elastic-one-moving-one-static、phys-equal-mass-velocity-swap、phys-fx-elastic-collision-mass-cases,
+1244,PHYSICS,非弹性碰撞和完全非弹性碰撞,COVERED,,,,,,,,,,phys-kb-completely-inelastic-collision、ext-phy-b0e295f813-012、phys-perfectly-inelastic-formula、phys-fx-collision-types-energy,
+1245,PHYSICS,滑块（小球）—弹簧模型,COVERED,,,,,,,,,,phys-kb-slider-spring-model、phys-hj2-huakuai-tanhuang-moxing、phys-fx-slider-spring-two-states,
+1246,PHYSICS,子弹打木块模型,COVERED,,,,,,,,,,phys-kb-bullet-block-model、phys-fx-bullet-block-two-scenarios、ext-phy-5fb1d7d884-001,definition 仅为 模型图例（图题残片）无实质文本；节点材料已覆盖子弹打木块的守恒本质与嵌入、穿透两种情境。
+1247,PHYSICS,模型特点,COVERED,,,,,,,,,,phys-bullet-model-essence、phys-kb-bullet-block-model,
+1248,PHYSICS,情景分析：,COVERED,,,,,,,,,,phys-bullet-embeds-block、ext-phy-4c006f942c-008、ext-phy-b6bd732b19-096b,
+1249,PHYSICS,结果讨论,COVERED,,,,,,,,,,phys-fx-bullet-block-two-scenarios、phys-hj-102-bullet-penetration-case、ext-phy-b6bd732b19-097,
+1250,PHYSICS,滑块-木板模型的临界问题,COVERED,,,,,,,,,,phys-fx-block-on-plank-momentum、ext-phy-248a1203f9-003c、ext-phy-161b81ec34-003,
+1251,PHYSICS,动量定理的应用——流体类模型,COVERED,,,,,,,,,,phys-fluid-microelement-momentum、phys-kb-fluid-particle-momentum、phys-fx-fluid-column-model,
+1252,PHYSICS,流体模型,COVERED,,,,,,,,,,phys-hj2-liuti-chongji-zhuzhuang-moxing、ext-phy-b6bd732b19-089、phys-kb-fluid-particle-momentum,
+1253,PHYSICS,微粒类问题分析步骤,COVERED,,,,,,,,,,ext-phy-69ce327dcf-023、ext-phy-3628073593-015、ext-phy-3c79595ae6-015,
+1254,PHYSICS,“人船模型”,COVERED,,,,,,,,,,phys-hj3-man-boat-model、ext-phy-3f3afa1008-004、ext-phy-2b63d7a05b-008、ext-phy-b0e295f813-019,
+1255,PHYSICS,滑块-斜面（曲面）模型——相对运动与临界问题,COVERED,,,,,,,,,,phys-kb-slider-curve-surface-model、phys-fx-slider-curved-surface-two-states、phys-hj3-block-curve-surface-model,definition 仅为 模型图例 无实质文本；节点材料覆盖水平方向动量守恒、机械能守恒与最高点共速、返回最低点相当于弹性碰撞。
+1256,PHYSICS,模型解读：,COVERED,,,,,,,,,,phys-kb-slider-curve-surface-model、phys-fx-block-curved-surface-model、ext-phy-9b21b08c37-013,
+1257,PHYSICS,模型临界问题：,COVERED,,,,,,,,,,ext-phy-5092c47fcd-005、ext-phy-b6bd732b19-101、phys-fx-slider-curved-surface-two-states,
+1258,PHYSICS,动力学三大观点的基本理解和应用,COVERED,,,,,,,,,,phys-three-viewpoints-overview、phys-kb-three-views-selection、ext-phy-9e20b9b678-010,definition 仅为章节标题 一、动力学三大观点 无实质文本；节点材料覆盖三大观点的对应规律与选用原则。
+1259,PHYSICS,能量观点：用动能定理和能量守恒观点解题，可处理非匀变速运动问题．,COVERED,,,,,,,,,,ext-phy-9e20b9b678-010、ext-phy-4d6588152e-001,
+1260,PHYSICS,常见的图象,COVERED,,,,,,,,,,ext-phy-fc6ffa52f7-002,
+1261,PHYSICS,图象的应用,COVERED,,,,,,,,,,ext-phy-fc6ffa52f7-003、ext-phy-4d4c5ba463-004c、ext-phy-d1e7b55724-004,
+1262,PHYSICS,动力学中的经典模型,COVERED,,,,,,,,,,phys-sheng-lianjieti-deng-jiasudu、ext-phy-fc6ffa52f7-005、ext-phy-28d96980f3-007b,definition 仅为章节标题 一、轻绳连接体模型；轻绳连接体的动力学计算与内力分配已由 同条件同加速度轻绳连接体动力学的计算问题、同速率轻绳连接体动力学的计算问题 两节点的材料覆盖。
+1263,PHYSICS,同条件同加速度轻绳连接体动力学的计算问题,COVERED,,,,,,,,,,ext-phy-28d96980f3-007b、ext-phy-2f1b8bb7d5-007、phys-dongli-fenpei-neili-an-zhiliang,
+1264,PHYSICS,同速率轻绳连接体动力学的计算问题,COVERED,,,,,,,,,,ext-phy-fc6ffa52f7-005、ext-phy-2f1b8bb7d5-007b,
+1265,PHYSICS,判断滑块和模板运动状态的技巧：,COVERED,,,,,,,,,,ext-phy-ae445151cc-016、ext-phy-b6feafc5c0-017b,
+1266,PHYSICS,技巧突破点,COVERED,,,,,,,,,,ext-phy-fc6ffa52f7-006、phys-fx-block-plank-solve-key,
+1267,PHYSICS,分析板块模型的思路,COVERED,,,,,,,,,,phys-block-board-strategy、ext-phy-893c61cfa9-018、ext-phy-248a1203f9-005,definition 仅为 三、斜面曲面模型 与 模型图例 两类标题串，无实质文本；节点 19 条材料覆盖板块模型的分析思路与求解方法。
+1268,PHYSICS,模型解读：,COVERED,,,,,,,,,,phys-kb-slider-curve-surface-model、phys-fx-block-curved-surface-model、ext-phy-9b21b08c37-013,
+1269,PHYSICS,模型临界问题：,COVERED,,,,,,,,,,ext-phy-5092c47fcd-005、ext-phy-b6bd732b19-101,
+1270,PHYSICS,模型特点,COVERED,,,,,,,,,,phys-bullet-model-essence、phys-kb-bullet-block-model,
+1271,PHYSICS,情景分析：,COVERED,,,,,,,,,,phys-bullet-embeds-block、ext-phy-4c006f942c-008,
+1272,PHYSICS,结果讨论,COVERED,,,,,,,,,,phys-fx-bullet-block-two-scenarios、phys-hj-102-bullet-penetration-case,
+1273,PHYSICS,弹簧锁定模型：,COVERED,,,,,,,,,,phys-hj2-pingheng-weizhi-tezheng、ext-phy-206fb04353-074b、phys-spring-natural-length-max-speed,definition 为弹簧特殊位置的三条结论：弹力为零的原长、合力为零处速度最大、偏离平衡位置时加速度的变化，已分别由上述材料与 弹簧振子模型 节点材料覆盖。
+1274,PHYSICS,弹簧不锁定模型,COVERED,,,,,,,,,,ext-phy-fc6ffa52f7-010、phys-kb-slider-spring-model、phys-fx-slider-spring-two-states,
+1275,PHYSICS,倾斜传送带,COVERED,,,,,,,,,,phys-hj2-chuansongdai-henhen-changdu、ext-phy-b9301f3dcb-002b、phys-fx-belt-relative-displacement-scratch,definition 即传送带划痕长度的计算规则，已被上述三条划痕长度材料逐条覆盖（一次取位移差、两次同向相加、反向取较长者）。
+1276,PHYSICS,功能关系分析：,COVERED,,,,,,,,,,phys-hj2-chuansongdai-gongneng-guanxi、ext-phy-6e1bf27e5d-002b、ext-phy-206fb04353-032b,definition 给出的 W＝ΔEk＋ΔEp＋Q、传送带克服摩擦力做功 W＝fx传 与 Q＝fx相对 已由上述功能关系材料覆盖。
+1277,PHYSICS,如果要列出各物理量在某一时刻的关系式，可用牛顿第二定律。,COVERED,,,,,,,,,,ext-phy-9e20b9b678-011、ext-phy-2b63d7a05b-014b、ext-phy-516193c503-001,
+1278,PHYSICS,若单独利用动量观点(或能量观点)无法解决问题，可尝试两种观点结合联立方程求解。,COVERED,,,,,,,,,,ext-phy-2b63d7a05b-014b、phys-hj2-san-da-guandian-xuanze-yuanze、ext-phy-9e20b9b678-010,
+1279,PHYSICS,动力学三大观点在多体问题和多过程运动中的应用,COVERED,,,,,,,,,,phys-kb-multi-body-multi-process-method、phys-hj3-three-views-multiphase-steps、ext-phy-4081c14ff4-010,
