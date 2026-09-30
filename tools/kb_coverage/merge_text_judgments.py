@@ -250,7 +250,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--apply", action="store_true",
                     help="把合并结果幂等追加进判定表（既有键跳过）")
     args = ap.parse_args(argv)
-    directory = args.dir if (args.dir is not None or args.dir_mode) else None
+    directory = args.dir if args.dir is not None else (VERDICTS_DIR if args.dir_mode else None)
     res = merge(args.only, directory)
     print(f"输入文件 {res['files']} 个；输入行 {res['stats']['rows_in']}；块 {res['stats']['chunks']}；"
           f"合并行 {res['stats']['rows_after_dedupe']}")
