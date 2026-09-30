@@ -34,11 +34,13 @@ REPO = Path(pack_io.REPO).resolve()
 AGENT_INPUT = REPO / "build" / "agent-input"
 OUT_CSV = AGENT_INPUT / "merged_text_batch.csv"
 OUT_NEW = AGENT_INPUT / "text_new_nodes.json"
+VERDICTS_DIR = REPO / "knowledge-production" / "judgment-verdicts"
+JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
 CHUNKS = POOL_PATH
 HDR = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title", "summary",
        "applicability", "content", "boundary", "note", "midx"]
-TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "WORKED_EXAMPLE", "COMPLETE_SOLUTION",
-         "DERIVATION", "MISCONCEPTION_GUIDE", "REPRESENTATION_GUIDE"}
+# 协议 v1.1：type 白名单收紧到 3 值（此前 7 值是冻结规则前的历史口径）。
+TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "MISCONCEPTION_GUIDE"}
 
 
 def within_repo(path: Path) -> Path:
@@ -63,14 +65,22 @@ def load_chunk_registry() -> tuple[set[tuple[str, str]], dict[str, str]]:
     return known, by_hash
 
 
-def collect_files(only: str = "") -> list[Path]:
-    """文本判定产物：`.agent_t_*`（化学/生物第一批）、`.agent_t2_*`（其第二批）、
-    `.agent_mp_*`（数学/物理第一批）、`.agent_mp2_*`（数学/物理第二批），都在仓库根。
-    `only` 非空时只收名字里含该片段的前缀（避免把上一批已入库的产物再合并一遍）。"""
+def collect_files(only: str = "", directory: Path | None = None) -> list[Path]:
+    """文本判定产物。
+
+    - `directory` 给定（切片判定轮）：收该目录下的 `*.csv`（判定员逐片产物）；
+    - 否则回退旧口径：仓库根的 `.agent_t_*` / `.agent_t2_*` / `.agent_mp_*` / `.agent_mp2_*`
+      （早期分两批的产物）。`only` 非空时只收名字里含该片段的文件。
+    """
+    if directory is not None:
+        found = sorted(p for p in within_repo(directory).glob("*.csv") if p.is_file())
+        if only:
+            found = [p for p in found if only in p.name]
+        return sorted(found)
     prefixes = [".agent_t_*.csv", ".agent_t2_*.csv", ".agent_mp_*.csv", ".agent_mp2_*.csv"]
     if only:
         prefixes = [p for p in prefixes if only in p]
-    found: list[Path] = []
+    found = []
     for prefix in prefixes:
         found += sorted(REPO.glob(prefix))
     return [within_repo(p) for p in found if p.is_file()]
@@ -83,7 +93,7 @@ def subject_of(rel: str) -> str | None:
     return None
 
 
-def merge(only: str = "") -> dict:
+def merge(only: str = "", directory: Path | None = None) -> dict:
     known, by_hash = load_chunk_registry()
     pack = pack_io.load_json(pack_io.pack_path())
     slug_by = {s["subject"]: {kp["slug"] for t in s["topics"] for kp in (t.get("knowledgePoints") or [])}
@@ -96,7 +106,7 @@ def merge(only: str = "") -> dict:
     problems: list[str] = []
     repairs: Counter[str] = Counter()
     rows: list[dict] = []
-    files = collect_files(only)
+    files = collect_files(only, directory)
     for f in files:
         with f.open(encoding="utf-8") as fh:
             data = list(csv.reader(fh))
@@ -117,6 +127,15 @@ def merge(only: str = "") -> dict:
                 else:
                     problems.append(f"{f.name}:{j} 块不存在 {rel[:40]} / {cid}")
                     continue
+            if rec["action"] == "SKIP":
+                # 协议：SKIP 是显式裁定，同样落表防重判——保留（note 必须有理由）。
+                if not (rec.get("note") or "").strip():
+                    problems.append(f"{f.name}:{j} SKIP 缺理由")
+                    continue
+                rows.append(rec)
+                stats["rows_in"] += 1
+                stats["skips"] += 1
+                continue
             if rec["action"] != "MATERIAL":
                 problems.append(f"{f.name}:{j} action={rec['action']}")
                 continue
@@ -166,14 +185,54 @@ def merge(only: str = "") -> dict:
     within_repo(OUT_NEW).write_text(
         json.dumps({"new": dict(new_names)}, ensure_ascii=False, indent=1), encoding="utf-8")
     return {"files": len(files), "stats": stats, "problems": problems, "repairs": repairs,
-            "new": new_names}
+            "new": new_names, "merged": merged}
+
+
+def apply_to_judgments(merged: list[dict], target: Path | None = None) -> dict:
+    """把合并结果**幂等**追加进判定表：既有 (chunk_rel, chunk_id) 一律跳过。
+
+    判定行一旦落表，块就不再重判（协议 §三）——所以这里的幂等键是键而非 midx，
+    重复跑同一批产物不会产生第二份材料。
+    """
+    path = within_repo(target or JUDGMENTS)
+    rows: list[dict] = []
+    existing: set[tuple[str, str]] = set()
+    if path.exists():
+        with path.open(encoding="utf-8-sig", newline="") as fh:
+            for row in csv.DictReader(fh):
+                rows.append({k: (row.get(k) or "") for k in HDR})
+                existing.add((row.get("chunk_rel") or "", row.get("chunk_id") or ""))
+    added = skipped = 0
+    table_keys = set(existing)
+    for rec in merged:
+        key = (rec["chunk_rel"], rec["chunk_id"])
+        # 判重看**键**：块已判过就整块跳过（协议：判定行一旦落表不再重判）；
+        # 但同一批里同块的多条材料（midx ''/b/c）必须全部落表——所以只在表内键上判重。
+        if key in table_keys:
+            skipped += 1
+            continue
+        rows.append({k: (rec.get(k) or "") for k in HDR})
+        added += 1
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=HDR)
+        writer.writeheader()
+        writer.writerows(rows)
+    return {"added": added, "skipped_existing": skipped, "total": len(rows)}
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--only", default="", help="只收文件名含该片段的前缀，例如 mp")
+    ap.add_argument("--only", default="", help="只收文件名含该片段的文件，例如 mp")
+    ap.add_argument("--dir", type=Path, default=None,
+                    help="切片判定产物目录（默认 knowledge-production/judgment-verdicts）")
+    ap.add_argument("--dir-mode", action="store_true",
+                    help="显式启用 --dir 口径（不传 --only 时也收目录内全部 CSV）")
+    ap.add_argument("--apply", action="store_true",
+                    help="把合并结果幂等追加进判定表（既有键跳过）")
     args = ap.parse_args(argv)
-    res = merge(args.only)
+    directory = args.dir if (args.dir is not None or args.dir_mode) else None
+    res = merge(args.only, directory)
     print(f"输入文件 {res['files']} 个；输入行 {res['stats']['rows_in']}；块 {res['stats']['chunks']}；"
           f"合并行 {res['stats']['rows_after_dedupe']}")
     print("修复：", dict(res["repairs"]))
@@ -184,6 +243,10 @@ def main(argv: list[str] | None = None) -> int:
     for n, c in res["new"].most_common(12):
         print(f"   {n[:44]} ×{c}")
     print(f"→ {OUT_CSV}")
+    if args.apply:
+        applied = apply_to_judgments(res["merged"])
+        print(f"追加进判定表：新增 {applied['added']} 行，跳过既有键 {applied['skipped_existing']} 行，"
+              f"表内共 {applied['total']} 行 → {JUDGMENTS.name}")
     return 0
 
 
