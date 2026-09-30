@@ -117,10 +117,11 @@ class TutorJudgedReviewSettleInstrumentedTest {
             assertEquals(1, memory.assistedRecallCount)
             assertTrue(memory.nextReviewAtEpochMillis > 3_000)
 
-            // 复习日志按独立来源落库（校准通道单列，不进 FSRS 参数拟合）。
+            // 复习日志按**判定来源**落库：这条会话留下的是本地核对（检查题自带标准答案），
+            // 因此是 LOCAL_CHECKED——台账裁决 18 解除其拟合排除；模型判词才保持 MODEL_JUDGED。
             val samples = database.readReviewLogSamples(learnerId, limit = 10)
             assertEquals(1, samples.size)
-            assertEquals("MODEL_JUDGED", samples.single().sourceKind)
+            assertEquals("LOCAL_CHECKED", samples.single().sourceKind)
             assertEquals(2, samples.single().rating) // FSRS 序数 2 = HARD：判对也不越过 Hard
             assertEquals(0.5, samples.single().evidenceWeight, 1e-6)
 

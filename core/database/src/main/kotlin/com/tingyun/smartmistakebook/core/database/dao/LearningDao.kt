@@ -19,6 +19,7 @@ import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
 import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.LearningLedgerIntegrityException
 import com.tingyun.smartmistakebook.core.database.PersistedAttemptP0
+import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealP0
 import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
@@ -277,6 +278,28 @@ internal abstract class LearningDao {
 
     @Query("SELECT * FROM answer_reveal_outcome WHERE outcome_id = :outcomeId LIMIT 1")
     protected abstract suspend fun findAnswerRevealEntity(outcomeId: String): AnswerRevealOutcomeEntity?
+
+    /**
+     * W1-3/KF-02：该呈现上**已经发生**的答案揭示（轻量事实，按揭示时间取最新一条）。
+     *
+     * 揭示与它的 outcome/outbox 由 `materializeAnswerReveal` 在同一事务里落库，
+     * 这里只取证据定价分支需要的三个事实，不做 P0 完整性校验（那是 [readAnswerReveal] 的语义）。
+     * `(learner_id, presentation_id)` 上的唯一索引保证同一呈现至多一份揭示。
+     */
+    @Query(
+        """
+        SELECT outcome_id AS outcomeId, event_sequence AS eventSequence,
+               occurred_at_epoch_millis AS occurredAtEpochMillis
+        FROM answer_reveal_outcome
+        WHERE learner_id = :learnerId AND presentation_id = :presentationId
+        ORDER BY event_sequence DESC
+        LIMIT 1
+        """,
+    )
+    abstract suspend fun findAnswerRevealFact(
+        learnerId: String,
+        presentationId: String,
+    ): PersistedAnswerRevealFact?
 
     @Query("SELECT * FROM assessment_evidence_snapshot WHERE snapshot_id = :snapshotId LIMIT 1")
     protected abstract suspend fun findEvidenceSnapshotEntity(

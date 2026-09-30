@@ -514,7 +514,10 @@ class RoomBackedStudyExperienceRepository(
         if (writeResult.created) {
             reviewLogSink.record(
                 practiceUnitId = submission.practiceUnitId,
-                evidence = prepared.command.evidence,
+                // W1-5/KF-06：review_log 落**账本里实际发生**的那份证据（post-causality）——
+                // 揭示后的作答会被 DB 权威规范化（`canonicalizeAttemptForPresentation`），
+                // 用提交前的 decision 落日志会与账本分叉（看答案后答对曾落成 GOOD）。
+                evidence = writeResult.attempt.evidence,
                 occurredAtEpochMillis = submission.occurredAtEpochMillis,
                 durationSeconds = submission.durationSeconds,
                 studyDay = prepared.command.studyDay,
@@ -593,7 +596,8 @@ class RoomBackedStudyExperienceRepository(
         if (writeResult.attempt.created) {
             reviewLogSink.record(
                 practiceUnitId = submission.practiceUnitId,
-                evidence = prepared.command.evidence,
+                // W1-5/KF-06：同 submitChoice——落账本里权威化的那份证据，不落提交前的 decision。
+                evidence = writeResult.attempt.attempt.evidence,
                 occurredAtEpochMillis = submission.occurredAtEpochMillis,
                 durationSeconds = submission.durationSeconds,
                 studyDay = prepared.command.studyDay,

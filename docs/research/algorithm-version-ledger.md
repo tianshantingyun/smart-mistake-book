@@ -65,6 +65,16 @@
 | 测试证据 | 待实施（合成数据恢复测试：参数能训回真值——Wave 2 退出门） |
 | archive | 待实施（若该波 bump 投影版本，bump 前必须已有 `projection_archive` 行；届时按 `docs/research/kernel-projection-rollback.md` 执行） |
 
+## 3.4 Wave 1（2026-09-30）：证据定价语义接通——**未 bump 任何版本串**
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` 54 | **未 bump** | 无 schema 变化：揭示事实读取是纯查询（`answer_reveal_outcome` 已有全部列）；review_log 无新列 | W1-3/KF-02 的修法边界（fix-plan：「无 schema 变化」） | JVM 全套 + 两处仪器化（见台账「Wave 1 完成记录」） | ➖ 无覆盖发生 |
+| `LearningCoreVersions.EVIDENCE` | **预留未用**（维持 `evidence-v4`） | 本轮接通的是**分支可达**而非语义变更：揭示后的作答在 DB 层本就被权威规范化（`canonicalizeAttemptForPresentation`），账本行（含规范指纹）逐位不变；W1-3 只是让域侧决策与落库事实一致、review_log 与 revealedBeforeAnswer 落真值 | 台账裁决 1(B)、裁决 18；fix-plan KF-02「投影/迁移影响：无 schema 变化」 | `StudyDatabaseInstrumentedTest.answerRevealFactsAreReadableByPresentationBeforeSubmission`（真库揭示读取）；`RoomBackedStudyExperienceRepositoryTest` 的揭示后答对/答错两条（EXCLUDED w=0 / INCORRECT_AFTER_REVEAL w=0.6，review_log rating=AGAIN） | ➖ 无重放、无覆盖 |
+| `PROJECTOR` / `REVIEW_PLANNER` / `SKIP_POLICY` | **未 bump** | `StudyDayMath` 只是同一算术的单源化（写路径 stamp 值、投影重放值、review_log 的 delta_t 三源由构造保证相同，交叉验证测试钉住）；`toFixedDays` 行为不变（tie 用例钉住 half-to-even） | 审计 P1/P10；roadmap W1-6 | `StudyDayMathTest`（7 探针 × 两推导逐值相同）、`FsrsScheduleMathTest` tie 用例（2.5→2、3.5→4） | ➖ |
+
+**W1-1 / W1-2 不在本波**：台账裁决 3 把采集侧（毫秒时长、展示时长、hint 上报链）后移到阶段 5 新复习栏一并实现；`evidence-v5` 号段继续保留给届时（或 Wave 3）的语义变更。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

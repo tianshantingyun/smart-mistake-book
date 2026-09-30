@@ -13,6 +13,7 @@ import com.tingyun.smartmistakebook.core.database.ReviewLogEntry
 import com.tingyun.smartmistakebook.core.database.ReviewLogSampleRecord
 import com.tingyun.smartmistakebook.core.database.AttemptWriteResult
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
+import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealP0
 import com.tingyun.smartmistakebook.core.database.PersistedAttemptP0
 import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
@@ -55,6 +56,18 @@ interface AttemptWritePort {
         learnerId: String,
         limit: Int = 100,
     ): List<AnswerRevealWriteResult>
+
+    /**
+     * 读该呈现上**已经发生**的答案揭示（W1-3/KF-02）：提交前的证据定价分支要据此判断
+     * "本次作答之前答案是否已被揭示"。没有揭示返回 null。
+     *
+     * 刻意与 [recordAnswerReveal] 同置一处：揭示的读与写共享同一语义（揭示让呈现终止，
+     * 其后的每次作答都算"看过答案"）；轻量事实、不走 P0 校验链（那是审计读回的语义）。
+     */
+    suspend fun findAnswerRevealForPresentation(
+        learnerId: String,
+        presentationId: String,
+    ): PersistedAnswerRevealFact?
 
     suspend fun appendAttemptCorrection(correction: AttemptCorrectionRecord): AttemptCorrectionResult
 

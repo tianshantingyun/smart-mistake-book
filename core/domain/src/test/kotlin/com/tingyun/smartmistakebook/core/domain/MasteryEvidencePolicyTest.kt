@@ -254,4 +254,60 @@ class MasteryEvidencePolicyTest {
             persistedAssistance = listOf(PersistedAssessmentAssistance(foreignHint, 11)),
         )
     }
+
+    /**
+     * 先后顺序是**序号空间内的比较**，不是"有没有传进来"（W1-3/KF-02 的接线前提）。
+     *
+     * 落库的协助事件序号是账本的全局序号（`learning_sequence` 分配），所以传进
+     * [AssessmentSubmissionContext] 的协助序号必须是**同一空间**的值、且
+     * [AssessmentSubmissionContext.responseSequence] 要取"本次作答将占的序号"那一侧——
+     * 把每呈现的小序号（`responseOrdinal`）塞进去会让任何已发生的协助都被过滤掉，
+     * 分支永远不可达（这正是 KF-02 的失效形态）。
+     */
+    @Test
+    fun `assistance ordered after the response is not consumed`() {
+        val revealAfterResponse = AssessmentAssistanceEvent(
+            eventId = "reveal-late",
+            assessmentItemId = "item-1",
+            presentationId = "presentation-1",
+            kind = TutorAssistanceKind.ANSWER_REVEAL,
+            contentMarkdown = "作答之后才揭示",
+            occurredAtEpochMillis = 10,
+            eventSequence = 41,
+        )
+        val context = AssessmentSubmissionContext(
+            assessmentItemId = "item-1",
+            selectedChoiceId = "a",
+            presentationId = "presentation-1",
+            responseSequence = 40, // 作答发生在揭示之前（同一次账本序号空间）
+            persistedAssistance = listOf(PersistedAssessmentAssistance(revealAfterResponse, 11)),
+        )
+
+        assertFalse("揭示在作答之后 → 不得当成本次作答的协助", context.answerWasRevealed)
+        assertTrue("但它确实被传进来了（校验只管归属与去重）", context.persistedAssistance.isNotEmpty())
+        assertEquals(MasteryEvidenceKind.INDEPENDENT, MasteryEvidencePolicy.evaluate(item, context).kind)
+    }
+
+    @Test
+    fun `a reveal in the same ledger sequence space is consumed when the response follows it`() {
+        val reveal = AssessmentAssistanceEvent(
+            eventId = "reveal-early",
+            assessmentItemId = "item-1",
+            presentationId = "presentation-1",
+            kind = TutorAssistanceKind.ANSWER_REVEAL,
+            contentMarkdown = "先揭示、后作答",
+            occurredAtEpochMillis = 10,
+            eventSequence = 41,
+        )
+        val context = AssessmentSubmissionContext(
+            assessmentItemId = "item-1",
+            selectedChoiceId = "a",
+            presentationId = "presentation-1",
+            responseSequence = 42,
+            persistedAssistance = listOf(PersistedAssessmentAssistance(reveal, 11)),
+        )
+
+        assertTrue(context.answerWasRevealed)
+        assertEquals(MasteryEvidenceKind.EXCLUDED, MasteryEvidencePolicy.evaluate(item, context).kind)
+    }
 }

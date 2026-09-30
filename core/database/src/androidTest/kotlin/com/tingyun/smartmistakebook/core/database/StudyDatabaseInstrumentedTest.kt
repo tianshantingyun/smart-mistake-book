@@ -241,6 +241,37 @@ class StudyDatabaseInstrumentedTest {
         )
     }
 
+    /**
+     * W1-3/KF-02：提交前的证据定价按 `(learner, presentation)` 读揭示事实——真 Room 上
+     * 的存在性、序号与时刻；没有揭示的呈现必须返回 null（EXCLUDED 分支据此保持不可达）。
+     */
+    @Test
+    fun answerRevealFactsAreReadableByPresentationBeforeSubmission() = runBlocking {
+        val reveal = store.recordAnswerReveal(
+            answerRevealCommand(
+                assessmentEventId = "reveal-fact-event-1",
+                presentationId = "reveal-fact-presentation",
+            ),
+        )
+
+        val fact = requireNotNull(
+            store.findAnswerRevealForPresentation(
+                learnerId = LEARNER,
+                presentationId = "reveal-fact-presentation",
+            ),
+        )
+        assertEquals(reveal.outcome.outcomeId, fact.outcomeId)
+        assertEquals(reveal.outcome.eventSequence, fact.eventSequence)
+        assertEquals(reveal.outcome.occurredAtEpochMillis, fact.occurredAtEpochMillis)
+
+        assertNull(
+            store.findAnswerRevealForPresentation(
+                learnerId = LEARNER,
+                presentationId = "no-reveal-presentation",
+            ),
+        )
+    }
+
     @Test
     fun attemptReplayRequiresExactSubmittedResponseBeforeRevealCanonicalization() = runBlocking {
         val presentationId = "response-replay-presentation"

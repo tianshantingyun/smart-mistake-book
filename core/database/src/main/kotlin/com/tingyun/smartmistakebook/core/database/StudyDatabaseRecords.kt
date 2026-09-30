@@ -1380,6 +1380,21 @@ data class PersistedAnswerRevealP0(
     val outbox: ProjectionOutboxRecord,
 )
 
+/**
+ * 一份"该呈现上**已经发生**的答案揭示"的轻量事实（W1-3/KF-02）。
+ *
+ * 提交前的证据定价只需要三个事实：有没有揭示、揭示发生在账本序号几、发生在何时。
+ * 刻意**不**走 [PersistedAnswerRevealP0] 那条链——那条链要求 outbox 行与规范指纹
+ * （P0 审计读回的完整性语义），而这里是每次提交都要走的热路径，且揭示行由
+ * `materializeAnswerReveal` 与 outbox 在同一事务里落库，存在性已由外键保证。
+ * 序号语义：账本全局序号（`learning_sequence` 分配），与 attempt 的 event_sequence 同一空间、可比。
+ */
+data class PersistedAnswerRevealFact(
+    val outcomeId: String,
+    val eventSequence: Long,
+    val occurredAtEpochMillis: Long,
+)
+
 data class PersistedIncrementalLearningEvent(
     val event: IncrementalLearningEvent,
     val canonicalFingerprint: String,

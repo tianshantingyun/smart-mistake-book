@@ -182,7 +182,13 @@ internal class TutorJudgedReviewSettler(
                 occurredAtEpochMillis = settlement.occurredAtEpochMillis,
                 durationSeconds = durationSeconds,
                 studyDay = writeContext.studyDayAt(settlement.occurredAtEpochMillis),
-                sourceKind = ReviewLogSink.SOURCE_KIND_MODEL_JUDGED,
+                sourceKind = if (verdict.fromLocalCheck) {
+                    // 裁决 18：本地核对是干净信号，单独落档并**参与** FSRS 参数拟合。
+                    ReviewLogSink.SOURCE_KIND_LOCAL_CHECKED
+                } else {
+                    // 模型判词保持排除（κ≈0.70 判定噪声），校准单列一档。
+                    ReviewLogSink.SOURCE_KIND_MODEL_JUDGED
+                },
                 sourceId = writeResult.attempt.attempt.attemptId,
                 priorMemory = priorMemory,
                 plannedReason = queueItem.reasonSnapshot.takeIf(String::isNotBlank),
@@ -230,6 +236,8 @@ internal class TutorJudgedReviewSettler(
                 return Verdict(
                     isCorrect = !record.contradictsPositiveClaim,
                     atEpochMillis = judgedAt,
+                    // 本地核对：检查题自带标准答案，判定是确定性的（台账裁决 18）。
+                    fromLocalCheck = true,
                 )
             }
         }
@@ -243,10 +251,20 @@ internal class TutorJudgedReviewSettler(
             LearningEvidenceDirection.NEGATIVE.name -> false
             else -> return null
         }
-        return Verdict(isCorrect = isCorrect, atEpochMillis = evidence.created_at_epoch_millis)
+        return Verdict(
+            isCorrect = isCorrect,
+            atEpochMillis = evidence.created_at_epoch_millis,
+            // 模型判词：开放作答，κ≈0.70 的判定噪声（台账裁决 18）。
+            fromLocalCheck = false,
+        )
     }
 
-    private data class Verdict(val isCorrect: Boolean, val atEpochMillis: Long)
+    private data class Verdict(
+        val isCorrect: Boolean,
+        val atEpochMillis: Long,
+        /** 判定来源：true=本地核对（进拟合集），false=模型判词（保持排除）。 */
+        val fromLocalCheck: Boolean,
+    )
 
     internal companion object {
         /**

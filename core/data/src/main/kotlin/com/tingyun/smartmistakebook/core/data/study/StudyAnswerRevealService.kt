@@ -56,7 +56,11 @@ internal class StudyAnswerRevealService(
                 occurredAtEpochMillis = request.occurredAtEpochMillis,
                 durationSeconds = 0,
                 studyDay = writeContext.studyDayAt(request.occurredAtEpochMillis),
-                sourceKind = ReviewLogSink.SOURCE_KIND_ATTEMPT,
+                // W1-4/KF-03：揭示行必须与真实作答分开落 `source_kind`，否则它在拟合集里
+                // 冒充一次 AGAIN 的真实作答（rating 由 ANSWER_REVEALED 映射成 AGAIN，见
+                // `FsrsEvidenceRatingMapper`）；`SchedulingEvaluation.fittableReviewSamples`
+                // 按本档排除。
+                sourceKind = ReviewLogSink.SOURCE_KIND_REVEAL,
                 sourceId = writeResult.outcome.outcomeId,
                 priorMemory = priorMemory,
             )

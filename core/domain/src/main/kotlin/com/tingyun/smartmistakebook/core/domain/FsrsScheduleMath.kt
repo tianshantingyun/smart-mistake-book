@@ -85,7 +85,19 @@ object FsrsScheduleMath {
         return raw.toFixedDays()
     }
 
-    private fun Double.toFixedDays(): Int {
+    /**
+     * 整日化（W1-6/P10）：半值**向偶**舍入（banker's rounding），与 py-fsrs 的 `_next_interval`
+     * （Python `round`）一致，并夹在 `1..MAXIMUM_INTERVAL_DAYS`。
+     *
+     * 口径来源是 `kotlin.math.round` = `Math.rint`（half-to-even）——审计
+     * `…-kernel-scale-precision-audit.md` §2 的 P10 曾按"Kotlin round = 四舍五入"记，这里用
+     * `FsrsScheduleMathTest` 的 tie 用例把真实口径钉死（x.5 且整数部分奇/偶各一例）：改这一行
+     * 或改委托对象都会当场红，不再依赖"谁记得 stdlib 怎么舍入"。
+     *
+     * 可见性从 `private` 放宽到 `internal` 只为这条回归用例（同一模块的测试可直接调用）；
+     * 生产调用点仍只有 [intervalDays] 一处。
+     */
+    internal fun Double.toFixedDays(): Int {
         val whole = kotlin.math.round(this).toInt()
         return whole.coerceIn(1, MAXIMUM_INTERVAL_DAYS)
     }

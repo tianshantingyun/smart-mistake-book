@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.domain.FsrsEvidenceRatingMapper
 import com.tingyun.smartmistakebook.core.domain.FsrsRating
 import com.tingyun.smartmistakebook.core.domain.ReviewSample
 import com.tingyun.smartmistakebook.core.domain.SourceCalibration
+import com.tingyun.smartmistakebook.core.domain.StudyDayMath
 import com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarness
 import com.tingyun.smartmistakebook.core.domain.TimeBucket
 import com.tingyun.smartmistakebook.core.domain.TimeBucketSplit
@@ -61,16 +62,19 @@ internal class ReviewLogSink(
                 // Calendar-day delta (learner-local), matching FSRS delta_t semantics: a review
                 // crossing local midnight is a new study day even under 24 wall-clock hours.
                 //
-                // 上一复习的本地日**从它的时间戳按学习时区现算**，不读 `priorMemory.lastReviewedEpochDay`：
+                // 上一复习的本地日**由它的时间戳现算**，不读 `priorMemory.lastReviewedEpochDay`：
                 // 该字段是派生态，任何没显式写它的通道都会把默认的 UTC 日序留在状态里
                 // （`projectTutorAnswerExposure` 曾如此，审计 AUDIT-ALGORITHM §3.7）。review_log
                 // 正是 FSRS 参数优化器的训练数据，被污染的 delta_t 会直接进入离线拟合，
                 // 所以这里必须与投影口径同源且不受写入方影响。
-                val previousEpochDay = java.time.Instant
-                    .ofEpochMilli(priorMemory.lastReviewedAtEpochMillis)
-                    .atZone(studyZoneId)
-                    .toLocalDate()
-                    .toEpochDay()
+                //
+                // W1-6/P1：现算走**同一个函数**（`StudyDayMath`，与写路径盖进账本的日序、
+                // 投影重放派生的日序同源），且两个端点用同一个偏移（本次事件的偏移）——
+                // delta_t 是"同一本地时间轴上的日历日差"，混用两个偏移会在跨时区时造出日跳变。
+                val previousEpochDay = StudyDayMath.localEpochDayOf(
+                    priorMemory.lastReviewedAtEpochMillis,
+                    studyDay.utcOffsetMinutes,
+                )
                 (studyDay.epochDay - previousEpochDay)
                     .coerceAtLeast(0)
                     .toDouble()
@@ -265,6 +269,26 @@ internal class ReviewLogSink(
          * （见 `SchedulingEvaluationHarness`），校准走 `calibrateSources` 单列一源。
          */
         const val SOURCE_KIND_MODEL_JUDGED = "MODEL_JUDGED"
+
+        /**
+         * 讲题判定通道里**本地核对**来源的复习行（台账裁决 18 = A，W1-4 落地）：检查题有
+         * 标准答案、判定噪声≈0，与模型判词（[SOURCE_KIND_MODEL_JUDGED]，κ≈0.70）分开落库。
+         * 本档**参与** FSRS 参数拟合（`ReviewSample.LOCAL_CHECKED_KIND` 同值，裁决 18 解除排除）。
+         */
+        const val SOURCE_KIND_LOCAL_CHECKED = "LOCAL_CHECKED"
+
+        /**
+         * 答案揭示（看答案）单独一档（W1-4/KF-03；台账裁决 1 = B）。
+         *
+         * 揭示行落库里 rating 是 AGAIN、`evidence_weight` 是 0——按裁决 B，看答案**算一次失败**
+         * （记忆侧按 AGAIN 走 `nextForgetStability`），但它**不是一次回忆尝试**：它没有可用的
+         * delta_t、没有作答耗时、也不该被当作"真答错"进 FSRS 参数拟合。此前它与真实作答共用
+         * [SOURCE_KIND_ATTEMPT]，拟合集里因此混进了一批"半真"的 AGAIN 行（KF-03 的原始证据）。
+         *
+         * 拟合侧由 `SchedulingEvaluation.fittableReviewSamples` 排除本档（与 MODEL_JUDGED 同列）；
+         * 时长预热只认 [SOURCE_KIND_ATTEMPT]（揭示行 `durationMs` 恒为 0，本来也进不去）。
+         */
+        const val SOURCE_KIND_REVEAL = "REVEAL"
 
         private const val AVOIDANCE_LOOKBACK_MILLIS = 30L * 24 * 60 * 60 * 1000
         private const val AVOIDANCE_MIN_OCCURRENCES = 2

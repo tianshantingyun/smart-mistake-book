@@ -1088,7 +1088,12 @@ internal data class ReviewLogEntity(
     val durationMs: Long,
     @ColumnInfo(name = "reviewed_at_utc")
     val reviewedAtUtc: Long,
-    /** ATTEMPT / SELF_REPORT / VISUAL / TUTOR_EXPOSURE. */
+    /**
+     * 落库值的口径（W1-4 起与写入方同源，见 `ReviewLogSink.SOURCE_KIND_*` 与
+     * `ReviewSample.*_KIND`）：ATTEMPT（真实作答）/ LOCAL_CHECKED（讲题本地核对，进拟合）/
+     * MODEL_JUDGED（讲题模型判词，拟合排除）/ REVEAL（看答案，拟合排除）。
+     * SELF_REPORT / VISUAL 是保留字面量，暂无生产写入方；列本身无 CHECK 约束。
+     */
     @ColumnInfo(name = "source_kind")
     val sourceKind: String,
     /** Idempotency key (attempt id / outcome id / exposure outcome id). */

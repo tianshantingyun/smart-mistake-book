@@ -54,7 +54,9 @@ class TutorJudgedReviewSettlerTest {
             database.lastAttemptCommand?.problemMemoryOutcome,
         )
         assertEquals(
-            ReviewLogSink.SOURCE_KIND_MODEL_JUDGED,
+            // 台账裁决 18：这条判定的来源是**本地核对**（检查题作答），不是模型判词——
+            // source_kind 因此是 LOCAL_CHECKED（参与拟合），MODEL_JUDGED 留给开放作答的模型判词。
+            ReviewLogSink.SOURCE_KIND_LOCAL_CHECKED,
             database.reviewLogEntries.single().sourceKind,
         )
         assertTrue(result.created)

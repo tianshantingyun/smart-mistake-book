@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.domain.StudyDayMath
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import java.nio.charset.StandardCharsets
@@ -34,10 +35,14 @@ internal class StudyWriteContext(
         check(local.offset.totalSeconds % 60 == 0) {
             "Study time-zone offset must be minute-aligned"
         }
+        val offsetMinutes = local.offset.totalSeconds / 60
         return StudyDayContext(
-            epochDay = local.toLocalDate().toEpochDay(),
+            // W1-6/P1：日序由"时间戳 + 偏移"派生（`StudyDayMath`），不再用 `toLocalDate()`——
+            // 落库的这个值与投影重放时算出来的值由构造保证相同（同一函数、同一输入）。
+            // zone 规则只用在**这一刻**：把当时的偏移取出来。
+            epochDay = StudyDayMath.localEpochDayOf(occurredAtEpochMillis, offsetMinutes),
             timeZoneId = studyZoneId.id,
-            utcOffsetMinutes = local.offset.totalSeconds / 60,
+            utcOffsetMinutes = offsetMinutes,
         )
     }
 

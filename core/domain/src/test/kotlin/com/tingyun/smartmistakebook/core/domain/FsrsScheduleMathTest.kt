@@ -336,4 +336,31 @@ class FsrsScheduleMathTest {
 
         assertEquals(expected, FsrsScheduleMath.retention(20.0, 10.0), 1e-12)
     }
+
+    /**
+     * W1-6/P10：整日化的半值口径 = **银行家舍入**（与 py-fsrs 的 `_next_interval` 一致）。
+     *
+     * 审计 P10 曾按"Kotlin round = 四舍五入"记，这两条用例把真实口径钉死：x.5 且整数部分为偶
+     * → 下取，为奇 → 上取。改委托对象（`round` → `roundToInt()`）或改夹取范围都会当场红。
+     */
+    @Test
+    fun `half values round to the even whole day like py-fsrs`() {
+        with(FsrsScheduleMath) {
+            assertEquals("2.5 → 2（整数部分为偶，下取）", 2, 2.5.toFixedDays())
+            assertEquals("3.5 → 4（整数部分为奇，上取）", 4, 3.5.toFixedDays())
+            assertEquals("4.5 → 4", 4, 4.5.toFixedDays())
+            assertEquals("5.5 → 6", 6, 5.5.toFixedDays())
+            assertEquals("12.5 → 12", 12, 12.5.toFixedDays())
+            assertEquals("13.5 → 14", 14, 13.5.toFixedDays())
+        }
+    }
+
+    @Test
+    fun `whole-day rounding keeps the one-day floor and the interval ceiling`() {
+        with(FsrsScheduleMath) {
+            assertEquals("不足一天的间隔也至少一天", 1, 0.4.toFixedDays())
+            assertEquals("整数不动", 7, 7.0.toFixedDays())
+            assertEquals("上限夹住", MAXIMUM_INTERVAL_DAYS, 1e9.toFixedDays())
+        }
+    }
 }

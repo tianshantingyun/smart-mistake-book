@@ -908,8 +908,10 @@ class LearningProjector(
         // `LearningProjectorTest.a review after an answer exposure stays on its own learner-local day`
         // 锁定该失败）。本事件自带 studyDay（含 utcOffsetMinutes），据此换算得到的是确定值：
         // 重放读同一事件，结果逐位相同，不依赖任何写入方是否记得盖章。
+        // W1-6/P1：换算函数单源在 `StudyDayMath`（与写路径盖进账本的日序、review_log 的 delta_t
+        // 同一实现），本文件不再保留私有副本。
         val previousEpochDay = previous?.let {
-            localEpochDayOf(it.lastReviewedAtEpochMillis, eventUtcOffsetMinutes)
+            StudyDayMath.localEpochDayOf(it.lastReviewedAtEpochMillis, eventUtcOffsetMinutes)
         } ?: eventEpochDay
         val elapsedCalendarDays = (eventEpochDay - previousEpochDay)
             .toDouble().coerceAtLeast(0.0)
@@ -1239,16 +1241,8 @@ class LearningProjector(
         }
     }
 
-    /**
-     * Learner-local calendar day (epoch day) of [epochMillis] under [utcOffsetMinutes].
-     *
-     * 把"日期"从时间戳现算，而不是持久化一个可由不同写入方按不同口径覆盖的派生字段。
-     * 这正是审计 §3.7 的失败类别：`lastReviewedEpochDay` 一旦被某条通道按 UTC 写入，
-     * 所有读它的地方都会跟着错，而错误只在那条通道被使用时才显形。这里时间戳与 UTC 偏移
-     * 都来自**当前事件自身**（事件溯源的确定性输入），因此重放结果稳定。
-     */
-    private fun localEpochDayOf(epochMillis: Long, utcOffsetMinutes: Int): Long =
-        Math.floorDiv(epochMillis + utcOffsetMinutes.toLong() * 60_000L, DAY_MILLIS)
+    // W1-6/P1：`localEpochDayOf` 私有副本已删除——日序换算单源在 `StudyDayMath`（同算术、同口径，
+    // 原有 KDoc 的理由记录在 `StudyDayMath` 文件头）。删除即编译错，保证没有第三份换算再长出来。
 
     companion object {
         const val VERSION = LearningCoreVersions.PROJECTION_COMPOSITE

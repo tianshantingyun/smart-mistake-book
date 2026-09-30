@@ -17,7 +17,7 @@ data class ReviewSample(
     val reviewedAtEpochMillis: Long,
     val rating: FsrsRating,
     val durationMs: Long = 0,
-    /** ATTEMPT / SELF_REPORT / VISUAL — source calibration key (spec §2.5). */
+    /** ATTEMPT / LOCAL_CHECKED / MODEL_JUDGED / REVEAL / SELF_REPORT / VISUAL — source calibration key (spec §2.5). */
     val sourceKind: String = ATTEMPT_KIND,
     /** Planner reason snapshot carried onto the attempt (spec §6 calibration). */
     val plannedReason: String? = null,
@@ -44,12 +44,28 @@ data class ReviewSample(
         const val ATTEMPT_KIND = "ATTEMPT"
 
         /**
-         * 讲题判定通道的 source kind。与 ATTEMPT 分开落库，且在校准达标前**不参与**
-         * FSRS 参数拟合（[SchedulingEvaluationHarness.evaluate] / [FsrsParameterOptimizer.optimize]
-         * 显式排除）——Anki 官方口径：四键评分即拟合信号，把一种新评分混进去会让所有间隔
-         * 被系统性拉偏。校准走 [SchedulingEvaluationHarness.calibrateSources] 单独一档。
+         * 讲题判定通道（模型判词）的 source kind。与 ATTEMPT 分开落库，且**不参与**
+         * FSRS 参数拟合（[fittableReviewSamples] 显式排除）——开放作答的判词有 κ≈0.70 的
+         * 判定噪声（台账裁决 18），Anki 官方口径下混进拟合会把所有间隔系统性拉偏。
+         * 校准走 [SchedulingEvaluationHarness.calibrateSources] 单独一档；κ 达标后由
+         * Wave X 用真实校准数据另裁是否解除。
          */
         const val MODEL_JUDGED_KIND = "MODEL_JUDGED"
+
+        /**
+         * 讲题判定通道（**本地核对**）的 source kind（台账裁决 18 = A，随 Wave 1 落地）：
+         * 检查题有标准答案、判定确定性≈0 噪声，与模型判词同用 MODEL_JUDGED 会把干净数据
+         * 一起扔掉。**参与拟合**（与 ATTEMPT 同列）；权重仍是保守的 0.5，定价校准另议。
+         */
+        const val LOCAL_CHECKED_KIND = "LOCAL_CHECKED"
+
+        /**
+         * 答案揭示（看答案）的 source kind（W1-4/KF-03；台账裁决 1 = B）。揭示行 rating=AGAIN
+         * 但**不是回忆尝试**（无可用 delta_t、无作答耗时），必须与真实作答分开，
+         * 且**不参与拟合**——否则拟合集里混进一批"半真"的 AGAIN 行。
+         */
+        const val REVEAL_KIND = "REVEAL"
+
         /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`（本文件要 Double，故在此别名一次）。 */
         private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
     }
@@ -182,8 +198,20 @@ object SchedulingReplay {
  * 它可以进（见 [ReviewSample.MODEL_JUDGED_KIND] 的说明）。调用方的"有没有数据"判断
  * 必须用同一口径，否则只做过讲题判定复习的学习者会在报告路径上被空集绊倒。
  */
+/**
+ * FSRS 参数拟合的样本口径（W1-4/KF-03 + 台账裁决 18）：
+ * - 排除 [ReviewSample.MODEL_JUDGED_KIND]——开放作答的模型判词带 κ≈0.70 判定噪声，混进拟合
+ *   会系统性拉偏所有间隔（Anki 官方口径：评分即拟合信号）；
+ * - 排除 [ReviewSample.REVEAL_KIND]——看答案行 rating 是 AGAIN 但不是一次回忆尝试；
+ * - 保留 [ReviewSample.ATTEMPT_KIND] 与 [ReviewSample.LOCAL_CHECKED_KIND]——真实作答与
+ *   有标准答案的本地核对都是干净的拟合信号（裁决 18：本地核对解除排除）。
+ *
+ * 每一个"有没有数据/可不可拟合"的判断都必须走这一条（不再各自手写口径）。
+ */
 fun fittableReviewSamples(samples: List<ReviewSample>): List<ReviewSample> =
-    samples.filterNot { it.sourceKind == ReviewSample.MODEL_JUDGED_KIND }
+    samples.filterNot {
+        it.sourceKind == ReviewSample.MODEL_JUDGED_KIND || it.sourceKind == ReviewSample.REVEAL_KIND
+    }
 
 /**
  * Backtest harness (spec §2.20): replays the real review ledger under FSRS-6

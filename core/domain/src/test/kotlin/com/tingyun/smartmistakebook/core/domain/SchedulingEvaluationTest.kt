@@ -336,6 +336,27 @@ class SchedulingEvaluationHarnessTest {
         )
     }
 
+    /**
+     * W1-4/KF-03 + 台账裁决 18：拟合样本口径——真实作答与**本地核对**保留，
+     * 模型判词与**看答案**排除。口径只此一处（`fittableReviewSamples`）。
+     */
+    @Test
+    fun `fittable samples keep real attempts and local checks but drop model verdicts and reveals`() {
+        val samples = listOf(
+            sample("unit-1", DAY * 0, FsrsRating.GOOD, sourceKind = ReviewSample.ATTEMPT_KIND),
+            sample("unit-1", DAY * 1, FsrsRating.GOOD, sourceKind = ReviewSample.LOCAL_CHECKED_KIND),
+            sample("unit-1", DAY * 2, FsrsRating.HARD, sourceKind = ReviewSample.MODEL_JUDGED_KIND),
+            sample("unit-1", DAY * 3, FsrsRating.AGAIN, sourceKind = ReviewSample.REVEAL_KIND),
+        )
+
+        val fittable = fittableReviewSamples(samples)
+
+        assertEquals(
+            listOf(ReviewSample.ATTEMPT_KIND, ReviewSample.LOCAL_CHECKED_KIND),
+            fittable.map(ReviewSample::sourceKind),
+        )
+    }
+
     private fun sample(
         unitId: String,
         at: Long,

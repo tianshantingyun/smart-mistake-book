@@ -1838,3 +1838,46 @@ fuzz / FSRS-7 / 排程权重离线模拟 / F7）逐项过用户。净 **16 项**
 - 归档只发生在全量重放路径：增量提交不改投影版本、无覆盖发生，无需归档（与 roadmap W0-1 ② 的语义一致）。
 - 号段不变：本波未动任何投影公式，`PROJECTOR` / `EVIDENCE` / `REVIEW_PLANNER` 均未 bump（版本清单 §3.2）。
 
+---
+
+## 阶段 3A · Wave 1 完成记录（2026-09-30，本线）
+
+**退出门对照**（roadmap「退出门（Wave 1）」：W1-3/4/5 全绿 + W1-6 口径用例绿；W1-1/2 已被裁决 3 后移）：**满足**。
+
+### 交付物
+
+| 项 | 内容 | 落点 |
+|---|---|---|
+| W1-3（KF-02）persistedAssistance 链 | 新增揭示事实读取（`findAnswerRevealForPresentation`，轻量三事实：outcomeId/序号/时刻）；`StudySubmissionPreparer` 提交前组装 `PersistedAssessmentAssistance` 递进 `MasteryEvidencePolicy`（此前 `persistedAssistance` 恒空、`revealedBeforeAnswer` 硬编码 false，两个分支不可达）；`revealedBeforeAnswer` 取真值落 `attempt_event` | `LearningDao.kt`、`LearningProjectionPort.kt`、`RoomStudyDatabase.kt`、`StudyDatabaseRecords.kt`、`StudySubmissionPreparer.kt` |
+| W1-4（KF-03 + 裁决 1B/18）看答案与判定来源分档 | 揭示行独立落 `source_kind=REVEAL`（不再冒充 ATTEMPT 的 AGAIN 行进拟合）；讲题判定按来源分档：本地核对落 `LOCAL_CHECKED`（**解除拟合排除**），模型判词保持 `MODEL_JUDGED`（排除）；`fittableReviewSamples` 只认 ATTEMPT + LOCAL_CHECKED | `StudyAnswerRevealService.kt`、`TutorJudgedReviewSettler.kt`（`Verdict.fromLocalCheck`）、`ReviewLogSink.kt`、`SchedulingEvaluation.kt` |
+| W1-5（KF-06）契约回写 | review_log 改落**账本里权威化的**那份证据（`writeResult.attempt.evidence`，post-causality）——提交前的 decision 与 DB 规范化分叉的通道就此关闭 | `RoomBackedStudyExperienceRepository.kt`（submitChoice / submitReviewChoice） |
+| W1-6（P1/P10）口径统一 | 新建 `StudyDayMath` 单源（时间戳+偏移→日序）；写路径 stamp、投影重放、review_log 的 delta_t 三源同函数（两个端点取同一偏移=FSRS 参照口径）；投影私有副本删除；`toFixedDays` 可见性放宽 + tie 用例钉住 half-to-even（审计 P10 的"Kotlin round=四舍五入"记载与实测不符，用例为准） | `StudyDayMath.kt`（新）、`StudyWriteContext.kt`、`ReviewLogSink.kt`、`LearningProjector.kt`、`FsrsScheduleMath.kt` |
+
+### 版本影响（版本清单 §3.4）
+
+**零 bump**：揭示后的作答在 DB 层本就被权威规范化，账本行与规范指纹逐位不变；本轮接通的是"分支可达"。
+`evidence-v5` 号段继续预留（W1-1/2 后移到阶段 5 时或 Wave 3 语义变更时使用）。指纹四用例不适用：
+揭示事实不进提交形状、不进模型输入（在 preparer 内部从库读取组装），无指纹面。
+
+### 测试证据（2026-09-30 夜，本机实测）
+
+| 门 | 结果 |
+|---|---|
+| `:core:domain:testDebugUnitTest --rerun` | **505/0**（496 + `StudyDayMathTest` 4 例：三源同一时间戳同结果 / 跨午夜 / 偏移决定日序；`MasteryEvidencePolicyTest` 2 例：序号空间先后比较——这正是 KF-02 的失效形态；`FsrsScheduleMathTest` tie 2 例：2.5→2、3.5→4） |
+| `:core:database:testDebugUnitTest --rerun` | 93/0 |
+| `:core:data:testDebugUnitTest --rerun` | **565/5**（563 + KF-02 两条：揭示后答对 EXCLUDED w=0、review_log=AGAIN 不再是 GOOD；揭示后答错 INCORRECT_AFTER_REVEAL w=0.6——5 条红全部是 KB 既有红，study 侧 0 失败；`TutorJudgedReviewSettlerTest` 的 sourceKind 断言按裁决 18 更新为 LOCAL_CHECKED） |
+| `:core:model` / `:app:testLocalFirstDebugUnitTest --rerun` | 387/0、53/0 |
+| 仪器化（targeted） | `StudyDatabaseInstrumentedTest#answerRevealFactsAreReadableByPresentationBeforeSubmission` **1/1**（真库：揭示按呈现可读、序号/时刻逐位、无揭示返回 null）；`TutorJudgedReviewSettleInstrumentedTest` **2/2**（本地核对结算落 LOCAL_CHECKED，同裁决 18 更新） |
+
+### 边界 / 遗留（如实登记，不改行为）
+
+1. review_log 的揭示行此前也喂进了 `confidenceAtErrorByPracticeUnit` / `timeOfDayProfile` /
+   `avoidancePracticeUnitIds`——这些读取**不看 source_kind**，本轮改动后它们读到的行集与改前逐位相同
+   （揭示行改前也是 rating=1 的 ATTEMPT 行）。把揭示行从这三处剔除属 P6/P7 同族的口径收敛，随 Wave 3。
+2. `backfillPredictionOutcome(wasIndependentCorrect = prepared.isCorrect)` 仍用原始对错：预测审计轨的
+   独立性语义属 P11（预测审计语义修正或删除，Wave 3-3），本轮不动。
+3. 揭示→提交的**完整真 Room 链**（服务层 `revealAnswer` 之后立即提交）没有专门用例：揭示落库与
+   读取各自已被真库用例覆盖、DB 规范化保证账本正确性，但"两步串起来"的组合行为无仪器化证据。
+4. hint 通道依旧无生产写入方（`assessment_event` 是悬空表、`StudyChoiceSubmission.hintCount` 无 UI 赋值）：
+   W1-3 的接线把 `hintWasUsed` 分支修成可达，但真实数据仍为 0——等阶段 5 采集就位（裁决 3）。
+

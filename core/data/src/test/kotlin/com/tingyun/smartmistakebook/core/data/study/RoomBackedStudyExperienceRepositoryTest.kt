@@ -93,6 +93,7 @@ import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.KnowledgeGroundingSummaryRecord
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.ModelTaskWriteResult
+import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealP0
 import com.tingyun.smartmistakebook.core.database.PersistedAttemptP0
 import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
@@ -580,6 +581,121 @@ class RoomBackedStudyExperienceRepositoryTest {
 
             assertTrue(submitted.attempt.created)
             assertEquals(1, database.resolvedPredictionOutcomes.last().hintCount)
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /**
+     * W1-3/KF-02 + W1-5/KF-06 + 裁决 1(B)：提交前该呈现已发生答案揭示 → 这次答对**不是**独立回忆
+     * ——policy 判 EXCLUDED（w=0、reason=ANSWER_REVEALED），review_log 落账本里权威化的那份
+     * （rating=AGAIN，不再冒充 GOOD/GOOD 系的独立答对），attempt_event 落 revealedBeforeAnswer=true。
+     * 揭示事实由测试直接播种（真 Room 的揭示落库/读取由仪器化用例覆盖）。
+     */
+    @Test
+    fun `a correct response after the answer was revealed is priced as post-reveal`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        val startedAt = Instant.parse("2026-01-02T08:05:00Z").toEpochMilli()
+
+        try {
+            repository.initialize()
+            val started = requireNotNull(
+                repository.startOrResumeReviewSession("reveal-correct-start", startedAt),
+            )
+            val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
+            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
+                .assessmentItems.single()
+            val presentationId = "review-presentation:reveal-correct"
+            database.answerRevealFacts[presentationId] = PersistedAnswerRevealFact(
+                outcomeId = "reveal-fact-1",
+                eventSequence = 41L, // 账本全局序号：揭示发生在这次作答之前
+                occurredAtEpochMillis = startedAt,
+            )
+
+            val submitted = repository.submitReviewChoice(
+                sessionId = started.sessionId,
+                expectedStateVersion = started.stateVersion,
+                submission = StudyChoiceSubmission(
+                    requestId = "reveal-correct-choice",
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    selectedChoiceId = item.correctChoiceId,
+                    responseOrdinal = 1,
+                    durationSeconds = 12,
+                    occurredAtEpochMillis = startedAt + 1,
+                ),
+            )
+
+            assertTrue(submitted.attempt.created)
+            assertTrue(submitted.attempt.isCorrect)
+            assertEquals(
+                "揭示后答对 = EXCLUDED（不是独立答对）",
+                LearningEvidenceReason.ANSWER_REVEALED,
+                submitted.attempt.evidenceReason,
+            )
+            assertEquals(
+                "revealedBeforeAnswer 取真值落 attempt_event",
+                true,
+                database.lastAttemptCommand?.revealedBeforeAnswer,
+            )
+            val logRow = database.reviewLogEntries.single { it.practiceUnitId == practiceUnitId }
+            assertEquals("看答案后答对的 review_log 不得再是 GOOD 系", 1, logRow.rating)
+            assertEquals("揭示后答对的证据权重为 0", 0.0, logRow.evidenceWeight, 0.0)
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /** 同一条门的错答半边：揭示后答错 = INCORRECT_AFTER_REVEAL（w=0.6，仍是一次失败）。 */
+    @Test
+    fun `an incorrect response after the reveal is priced as incorrect-after-reveal`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        val startedAt = Instant.parse("2026-01-02T08:05:00Z").toEpochMilli()
+
+        try {
+            repository.initialize()
+            val started = requireNotNull(
+                repository.startOrResumeReviewSession("reveal-wrong-start", startedAt),
+            )
+            val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
+            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
+                .assessmentItems.single()
+            val presentationId = "review-presentation:reveal-wrong"
+            database.answerRevealFacts[presentationId] = PersistedAnswerRevealFact(
+                outcomeId = "reveal-fact-2",
+                eventSequence = 41L,
+                occurredAtEpochMillis = startedAt,
+            )
+
+            val submitted = repository.submitReviewChoice(
+                sessionId = started.sessionId,
+                expectedStateVersion = started.stateVersion,
+                submission = StudyChoiceSubmission(
+                    requestId = "reveal-wrong-choice",
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    selectedChoiceId = item.choices.first { it.id != item.correctChoiceId }.id,
+                    responseOrdinal = 1,
+                    durationSeconds = 12,
+                    occurredAtEpochMillis = startedAt + 1,
+                ),
+            )
+
+            assertTrue(submitted.attempt.created)
+            assertFalse(submitted.attempt.isCorrect)
+            assertEquals(
+                LearningEvidenceReason.INCORRECT_AFTER_REVEAL,
+                submitted.attempt.evidenceReason,
+            )
+            val logRow = database.reviewLogEntries.single { it.practiceUnitId == practiceUnitId }
+            assertEquals(1, logRow.rating)
+            assertEquals(0.6, logRow.evidenceWeight, 0.0)
         } finally {
             repository.close()
             scope.cancel()
@@ -2629,6 +2745,18 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
     override suspend fun readCorrectionP0(correctionId: String): PersistedCorrectionP0? = null
 
     override suspend fun readAnswerRevealP0(outcomeId: String): PersistedAnswerRevealP0? = null
+
+    /**
+     * 这些聚焦用例里揭示事实由**测试直接播种**（[recordAnswerReveal] 仍 error——它的
+     * 落库/账本语义属真 Room，由仪器化用例覆盖）；这里只回放"该呈现已有揭示"这一输入，
+     * 供 KF-02 的提交前读取（W1-3 接线）取用。
+     */
+    val answerRevealFacts = mutableMapOf<String, PersistedAnswerRevealFact>()
+
+    override suspend fun findAnswerRevealForPresentation(
+        learnerId: String,
+        presentationId: String,
+    ): PersistedAnswerRevealFact? = answerRevealFacts[presentationId]
 
     override fun close() = Unit
 

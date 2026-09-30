@@ -11,6 +11,7 @@ import com.tingyun.smartmistakebook.core.database.dao.ReviewLogSampleProjection
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLatticeView
 import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEntity
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
+import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
@@ -1387,6 +1388,11 @@ internal class RoomStudyDatabase(
 
     override suspend fun readAnswerRevealP0(outcomeId: String): PersistedAnswerRevealP0? =
         database.learningDao().readAnswerReveal(outcomeId)
+
+    override suspend fun findAnswerRevealForPresentation(
+        learnerId: String,
+        presentationId: String,
+    ): PersistedAnswerRevealFact? = database.learningDao().findAnswerRevealFact(learnerId, presentationId)
 
     override fun observeConfirmedProblemOrganization(
         problemId: String,
