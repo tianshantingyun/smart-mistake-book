@@ -89,6 +89,27 @@ class MergeTextJudgmentsSliceModeTest(unittest.TestCase):
         self.assertEqual("NEW:完全不存在", res["merged"][0]["node_slug"])
         self.assertEqual(1, res["repairs"]["未知节点转 NEW"])
 
+    def test_new_proposal_becomes_skip_row(self):
+        """`NEW:` 行不落表为 MATERIAL（表内实测 0 条 NEW、materialize 不认）——转 SKIP+note，草稿另存。"""
+        _write_csv(self.vdir / "s1.csv", [_row(node_slug="NEW:MATH/某新点")])
+        res = self._merge()
+        orig = M.OUT_NEW_FULL
+        M.OUT_NEW_FULL = self.tmp / "new_full.csv"
+        try:
+            applied = M.apply_to_judgments(res["merged"], self.target)
+        finally:
+            M.OUT_NEW_FULL = orig
+        self.assertEqual(1, applied["added"])
+        self.assertEqual(1, applied["new_proposals"])
+        rows = list(csv.DictReader(self.target.open(encoding="utf-8-sig", newline="")))
+        self.assertEqual("SKIP", rows[0]["action"])
+        self.assertEqual("", rows[0]["node_slug"])
+        self.assertTrue(rows[0]["note"].startswith("NEW:MATH/某新点"))
+        self.assertEqual("", rows[0]["content"])
+        full = list(csv.DictReader((self.tmp / "new_full.csv").open(encoding="utf-8-sig", newline="")))
+        self.assertEqual(1, len(full))
+        self.assertEqual("NEW:MATH/某新点", full[0]["node_slug"])
+
     def test_apply_is_idempotent(self):
         _write_csv(self.vdir / "s1.csv", [_row(), _row(action="SKIP", node_slug="", type="",
                                                        title="", summary="", applicability="",

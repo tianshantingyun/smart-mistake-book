@@ -34,6 +34,7 @@ REPO = Path(pack_io.REPO).resolve()
 AGENT_INPUT = REPO / "build" / "agent-input"
 OUT_CSV = AGENT_INPUT / "merged_text_batch.csv"
 OUT_NEW = AGENT_INPUT / "text_new_nodes.json"
+OUT_NEW_FULL = AGENT_INPUT / "new_proposals_full.csv"
 VERDICTS_DIR = REPO / "knowledge-production" / "judgment-verdicts"
 JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
 CHUNKS = POOL_PATH
@@ -191,8 +192,10 @@ def merge(only: str = "", directory: Path | None = None) -> dict:
 def apply_to_judgments(merged: list[dict], target: Path | None = None) -> dict:
     """把合并结果**幂等**追加进判定表：既有 (chunk_rel, chunk_id) 一律跳过。
 
-    判定行一旦落表，块就不再重判（协议 §三）——所以这里的幂等键是键而非 midx，
-    重复跑同一批产物不会产生第二份材料。
+    两条与表实况对齐的约定（实测：表内 0 条 `NEW:` 行、materialize 不认 `NEW:`）：
+    - `node_slug` 以 `NEW:` 开头的行**转 SKIP**，提案原文写进 `note`（块不重判、材料不落）；
+      完整行（含材料草稿）另存 `new_proposals_full.csv` 供建点闭环取用。
+    - 同块多条材料（midx ''/b/c）整批落表；判重只看表内既有键。
     """
     path = within_repo(target or JUDGMENTS)
     rows: list[dict] = []
@@ -202,23 +205,39 @@ def apply_to_judgments(merged: list[dict], target: Path | None = None) -> dict:
             for row in csv.DictReader(fh):
                 rows.append({k: (row.get(k) or "") for k in HDR})
                 existing.add((row.get("chunk_rel") or "", row.get("chunk_id") or ""))
-    added = skipped = 0
+    added = skipped = proposals = 0
     table_keys = set(existing)
+    full: list[dict] = []
     for rec in merged:
         key = (rec["chunk_rel"], rec["chunk_id"])
-        # 判重看**键**：块已判过就整块跳过（协议：判定行一旦落表不再重判）；
-        # 但同一批里同块的多条材料（midx ''/b/c）必须全部落表——所以只在表内键上判重。
         if key in table_keys:
             skipped += 1
             continue
-        rows.append({k: (rec.get(k) or "") for k in HDR})
+        out = {k: (rec.get(k) or "") for k in HDR}
+        if out["node_slug"].startswith("NEW:"):
+            full.append(out)
+            proposals += 1
+            note = out["note"].strip()
+            out = {k: "" for k in HDR}
+            out["chunk_rel"], out["chunk_id"] = rec["chunk_rel"], rec["chunk_id"]
+            out["action"] = "SKIP"
+            out["note"] = rec["node_slug"] + (("；" + note) if note else "")
+        rows.append(out)
         added += 1
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=HDR)
         writer.writeheader()
         writer.writerows(rows)
-    return {"added": added, "skipped_existing": skipped, "total": len(rows)}
+    if full:
+        prop_path = within_repo(OUT_NEW_FULL)
+        prop_path.parent.mkdir(parents=True, exist_ok=True)
+        with prop_path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=HDR)
+            writer.writeheader()
+            writer.writerows(full)
+    return {"added": added, "skipped_existing": skipped, "total": len(rows),
+            "new_proposals": proposals}
 
 
 def main(argv: list[str] | None = None) -> int:
