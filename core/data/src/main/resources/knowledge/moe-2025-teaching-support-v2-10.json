@@ -2876,10 +2876,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（福建专用）/第06讲 力的合成与分解（复习讲义）（福建专用）（学生版）.docx（块 eaffbd3f7f-008）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的正交分解法",
      "role": "PRIMARY"
     }
    ]
@@ -5956,10 +5956,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/【6】2026届高三数学一轮复习（知识梳理+满分技巧+考点突破+课后巩固） 人教A版新高考专用/专题6   对数运算与对数函数、幂函数（学生版）.docx（块 d526b3fb2b-002）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对数运算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对数混合运算的一般原则",
      "role": "PRIMARY"
     }
    ]
@@ -11176,10 +11176,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第16讲 功与功率  动能定理及应用（复习讲义）（安徽专用）（学生版）.docx（块 91bac4cabf-017）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:应用动能定理求解步骤",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能定理在多过程问题中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -18356,10 +18356,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮备考·学霸培优练习（新高考通用）/资料/第六章 §6.2　等差数列（学生版）.docx（块 4621e44142-001）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定方法",
      "role": "PRIMARY"
     }
    ]
@@ -19736,10 +19736,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习·知识清单（新高考通用）/资料/第1讲 万有引力定律及其应用（学生版）.docx（块 9ade384fa8-003）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:天上-星球上空距离星体中心r-r-h处的重力加速度为g",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:星体表面与上空的重力加速度",
      "role": "PRIMARY"
     }
    ]
@@ -19776,10 +19776,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习·知识清单（新高考通用）/资料/第1讲 万有引力定律及其应用（学生版）.docx（块 9ade384fa8-003）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:万有引力的-两点理解-和-两个推论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:万有引力与重力的关系",
      "role": "PRIMARY"
     }
    ]
@@ -21356,10 +21356,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习讲义+练习+课件（新教材新高考）/2026版/第七章 动量守恒定律/第25讲 动量和动量定理（复习讲义）（全国通用）（学生版）.docx（块 3628073593-009）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用动量定理解释两类现象",
      "role": "PRIMARY"
     }
    ]
@@ -21836,10 +21836,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第23讲 圆周运动的临界问题-（讲义）（学生版）.docx（块 40c49b3ca6-009）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜面上圆周运动的类型与处理",
      "role": "PRIMARY"
     }
    ]

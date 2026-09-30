@@ -100,16 +100,17 @@ class PromoteGreenTest(PromoteTestBase):
 
     def test_version_never_decreases_across_promotes(self):
         root, release = self._fresh("mono")
-        # 成品 version 被人为抬高到 5：晋升不得回退
         mpath = release / um.MANIFEST_NAME
         doc = json.loads(mpath.read_text(encoding="utf-8"))
-        doc["version"] = 5
+        staging_version = json.loads((root / um.MANIFEST_NAME).read_text(encoding="utf-8"))["version"]
+        # 成品 version 被人为抬到比 staging 更高：晋升不得回退到 staging+1，而取"两者更大值 + 1"。
+        doc["version"] = staging_version + 2
         mpath.write_text(json.dumps(doc, ensure_ascii=False, indent=1),
                          encoding="utf-8")
         code, _result = promote.promote(root, release)
         self.assertEqual(0, code)
         after = json.loads(mpath.read_text(encoding="utf-8"))
-        self.assertEqual(6, after["version"])
+        self.assertEqual(staging_version + 3, after["version"])
 
     def test_second_promote_increments_version_again(self):
         root, release = self._fresh("twice")

@@ -45176,10 +45176,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-049）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -55536,10 +55536,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第06讲  力的合成与分解（复习讲义）（湖南专用）（学生版）.docx（块 3a8af85e91-007）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:正交分解法",
      "role": "PRIMARY"
     }
    ]

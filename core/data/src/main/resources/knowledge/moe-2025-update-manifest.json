@@ -1,8 +1,8 @@
 {
  "schemaVersion": 2,
  "packId": "moe-2025-four-subjects-v1",
- "version": 6,
- "contentVersion": "f8eba9c7e79173b2",
+ "version": 7,
+ "contentVersion": "79ddb5e63beed1bf",
  "retired": [
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质-x1",

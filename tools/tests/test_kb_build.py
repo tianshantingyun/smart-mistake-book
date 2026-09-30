@@ -19,9 +19,11 @@ from kb_build import gate, pack_io, roundtrip, tables, textfix
 class RoundTripTest(unittest.TestCase):
     def test_every_bundled_file_round_trips(self):
         targets = [pack_io.pack_path(), *pack_io.sidecar_paths()]
-        # sidecar 按单卷 2.5M 字符上限滚动：2026-09-19 文本判定两轮后滚到 v2-10 → 1 树 + 10 卷。
-        # 卷数随材料入库增长，断言的是"当前成品构成"，滚动入库时随更新（台账可查）。
-        self.assertEqual(11, len(targets), "知识库应由 1 个知识树 + 10 个 sidecar 组成")
+        # 卷数随材料入库增长（单卷 2.5M 字符上限滚动）；不再写死卷数，改为与**索引**（Kotlin loader
+        # 读的同一份清单）逐名对齐——索引多列/少列一卷这里就会红，比硬编码数字更强、且不必随滚动改。
+        index = pack_io.load_json(pack_io.sidecar_index_path())
+        expected = {pack_io.PACK_NAME, *(name.rsplit("/", 1)[-1] for name in index["sidecars"])}
+        self.assertEqual(expected, {p.name for p in targets}, "成品文件集应与索引一致（1 树 + 索引列出的各卷）")
         for path in targets:
             with self.subTest(path=path.name):
                 ok, message = roundtrip.verify_file(path)

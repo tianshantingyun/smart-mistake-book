@@ -2588,10 +2588,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第06讲 受力分析和力的平衡（高效培优讲义）（学生版）.docx（块 c8d7f6c61f-001）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:受力分析多力漏力-受力分析方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:受力分析的三个技巧",
      "role": "PRIMARY"
     }
    ]
@@ -2688,10 +2688,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第68讲 原子结构和原子核（复习讲义）（湖南专用）（学生版）.docx（块 baf18087a8-013）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:质量亏损",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:核能的计算方法",
      "role": "PRIMARY"
     }
    ]
@@ -2768,10 +2768,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习讲义·培优练习（新高考通用）/资料/第三章　第11课时　牛顿第一定律　牛顿第二定律（学生版）.docx（块 2890a8a6ef-010）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对超重和失重的理解应当注意的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:超重与失重的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -3808,10 +3808,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（四川专用）/第06讲 力的合成与分解（复习讲义）（四川专用）（学生版）.docx（块 ff426b02e4-009）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:正交分解法",
      "role": "PRIMARY"
     }
    ]
@@ -8308,10 +8308,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮备考·学霸培优练习（新高考通用）/资料/第六章 §6.3　等比数列（学生版）.docx（块 89e05e8765-002）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列前项和的常用性质",
      "role": "PRIMARY"
     }
    ]
@@ -9648,10 +9648,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮备考·学霸培优练习（新高考通用）/资料/第八章　§8.9　直线与圆锥曲线的位置关系（学生版）.docx（块 9e06c77f62-001）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:硬解定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线的弦长公式",
      "role": "PRIMARY"
     }
    ]
@@ -11468,10 +11468,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第54讲 理想变压器 电能的输送（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 e7ae1dda3f-018）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变压器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究变压器电压与匝数关系的实验",
      "role": "PRIMARY"
     }
    ]
@@ -12268,10 +12268,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第33讲 电学实验必须熟练掌握的基本技能（复习讲义）（安徽专用）（学生版）.docx（块 aa3eac86a6-002）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:必备实验仪器的原理及使用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:螺旋测微器的原理与读数",
      "role": "PRIMARY"
     }
    ]
@@ -12968,10 +12968,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习·知识清单（新高考通用）/资料/第1讲　重力　弹力　摩擦力（学生版）.docx（块 b8d5634019-006）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力的定义及产生条件",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力有无的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -14388,10 +14388,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/【6】2026届高中物理一轮总复习讲义+单元检测（适合印发给学生使用）/15.1 量子论 光子说 波粒二象性（学生版）.docx（块 83aaecb372-004）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:波粒二象性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的波粒二象性",
      "role": "PRIMARY"
     }
    ]
@@ -16748,10 +16748,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习讲义·培优练习（新高考通用）/资料/第四章　第19课时　实验五：探究平抛运动的特点（学生版）.docx（块 af45d1db73-006）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点实验的注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -17648,10 +17648,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习讲义·培优练习（新高考通用）/资料/第十章 第52课时　电学实验基础（学生版）.docx（块 f42dc02f15-002）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:必备实验仪器的原理及使用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:螺旋测微器的原理与读数",
      "role": "PRIMARY"
     }
    ]
@@ -17708,10 +17708,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习讲义·培优练习（新高考通用）/资料/第十章 第52课时　电学实验基础（学生版）.docx（块 f42dc02f15-009）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实物图连接的注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -18108,10 +18108,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年体育单招数学零基础一轮总复习/资料/重点04分式不等式与集合（学生版）.docx（块 6a743128b0-001）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解分数不等式忽略分母不为零致错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分式不等式的解法",
      "role": "PRIMARY"
     }
    ]
@@ -18808,10 +18808,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第60讲 光的折射 全反射（复习讲义）（湖南专用）（学生版）.docx（块 6249360606-006）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:全反射",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:条件-①光从光密介质射入光疏介质-②入射角大于或等于临界角",
      "role": "PRIMARY"
     }
    ]
@@ -20228,10 +20228,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/【3】2026年高考物理一轮复习力学部分讲义人教版（新高考通用）/第01讲 重力弹力摩擦力讲义（思维导图+知识点+技巧方法+题型归纳+巩固练习）（新高考通用）-学生版.docx（块 f2e423daf2-005）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力大小的计算方法",
      "role": "PRIMARY"
     }
    ]
@@ -21868,10 +21868,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（四川专用）/第44讲 电磁感应中的动量问题（复习讲义）（四川专用）（学生版）.docx（块 9626018097-002）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应中的三大动力学观点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量定理在电磁感应中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -24768,10 +24768,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第39讲 机械波-（讲义）（学生版）.docx（块 7105d033a5-004）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传播方向和振动方向的判断-图像理解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像的综合分析",
      "role": "PRIMARY"
     }
    ]
@@ -32648,10 +32648,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第17讲 万有引力定律及其应用（复习讲义）（湖南专用）（学生版）.docx（块 1e87c34de3-008）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:天上-星球上空距离星体中心r-r-h处的重力加速度为g",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:星体表面与上空的重力加速度",
      "role": "PRIMARY"
     }
    ]
@@ -35128,10 +35128,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题28 近代物理（学生版）.docx（块 0e06a470ac-005）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:波粒二象性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的波粒二象性",
      "role": "PRIMARY"
     }
    ]
@@ -37508,10 +37508,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/【2】2026届高考物理一轮复习模型解读与针对性训练/资料/专题22 带电粒子在电场中运动 讲义-高考物理一轮复习电学压轴题模型解读与针对性训练/22.带电粒子在电场中运动-高考电学压轴题模型解读与针对性训练/22.带电粒子在电场中的运动（学生版）高考电学压轴题模型解读与针对性训练.docx（块 6dcd554e9e-001）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在匀强电场中偏转的两个分运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:两个重要结论",
      "role": "PRIMARY"
     }
    ]
@@ -38088,10 +38088,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026物理高考大一轮总复习讲义（全国）/资料/专题04：力的合成和分解（全国）学生版.docx（块 445f88143b-008）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解的多解问题",
      "role": "PRIMARY"
     }
    ]
@@ -39768,10 +39768,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第18讲 万有引力定律及其应用（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 b7fee3d991-003）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:万有引力定律的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:万有引力与重力的关系",
      "role": "PRIMARY"
     }
    ]
@@ -45088,10 +45088,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第02讲 匀变速直线运动（高效培优讲义）（学生版）.docx（块 202a7903f4-006）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究小车速度随时间变化的规律",
      "role": "PRIMARY"
     }
    ]

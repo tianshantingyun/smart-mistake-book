@@ -47988,10 +47988,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:chemistry",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.化学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/专题七化学反应与电能/专题PDF/专题七  化学反应与电能.pdf（块 02e43d3aeb-001）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:o2作为原电池的正极反应物时-其电极反应在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
      "role": "PRIMARY"
     }
    ]
@@ -49088,10 +49088,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:chemistry",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.化学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/专题三元素及其化合物/专题PDF/专题三  元素及其化合物.pdf（块 15fcabc7cf-030）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:循环物质的确定方法",
      "role": "PRIMARY"
     }
    ]
@@ -55888,10 +55888,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:chemistry",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.化学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/专题十有机物的结构  烃和烃的衍生物/专题PDF/专题十  有机物的结构  烃和烃的衍生物.pdf（块 a4f995ac24-002）",
-   "reviewedAtEpochMillis": 1790769151331,
+   "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:乙烯",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:乙烯的实验室制法",
      "role": "PRIMARY"
     }
    ]
