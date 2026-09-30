@@ -9,12 +9,15 @@ import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestDecision
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestKind
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestStatus
+import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.DecidePendingRequestCommand
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.ModelGateway
 import com.tingyun.smartmistakebook.core.domain.SuspendTurnForConsentCommand
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConsentRequests
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.TutorLocalActionContext
 import com.tingyun.smartmistakebook.core.domain.TutorPermissionSubject
 import com.tingyun.smartmistakebook.core.domain.TutorSendAction
@@ -51,6 +54,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.security.MessageDigest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -143,12 +147,28 @@ class TutorLocalActionLandingInstrumentedTest : CaptureWorkflowTestBase() {
         )
         val context = TutorLocalActionContext(attachedImageAssetIds = listOf("asset-1"))
 
+        // 卡挂在一个**真的存在**的会话上：`agent_pending_request.conversation_id` 是指向
+        // `tutor_conversation` 的外键（CASCADE）。生产里这张卡永远长在一回合里，而一回合必然
+        // 先有会话行；此前这条用例直接用一个不存在的会话 id，插入在 SQL 层就被外键拒掉
+        // （SQLiteConstraintException: FOREIGN KEY constraint failed），断言根本没跑到。
+        TutorConversationRepositoryFactory.create(database).createConversation(
+            CreateTutorConversationCommand(
+                conversationId = TEST_CONVERSATION_ID,
+                area = TutorConversationAreas.AGENT,
+                anchorKind = TutorConversationAnchorKind.TEXT_ONLY,
+                anchorId = null,
+                anchorRevisionId = null,
+                title = null,
+                createdAtEpochMillis = 5,
+            ),
+        )
+
         val suspension = consent.suspend(
             state = state,
             command = SuspendTurnForConsentCommand(
                 subject = TutorPermissionSubject.LocalAction(TutorLocalAction.SAVE_TO_NOTEBOOK),
                 conversationArea = "AGENT",
-                conversationId = "conversation-1",
+                conversationId = TEST_CONVERSATION_ID,
                 payloadJson = context.toAgentPendingRequestPayload(),
                 occurredAtEpochMillis = 10,
             ),
@@ -185,7 +205,12 @@ class TutorLocalActionLandingInstrumentedTest : CaptureWorkflowTestBase() {
             gateway = gateway,
             knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
         )
-        val request = request()
+        // `agentConsentGranted = true` = 生产里"这个 build 已配置模型、允许外发"的那一位
+        // （见 core:model 的 KDoc：配置模型 = 同意）。假的远端网关（EXTERNAL_PROVIDER）没有它
+        // 就走不到派遣：`ModelEgressPolicy.authorize` 会先按 EGRESS_AUTHORIZATION_REQUIRED 把
+        // 这一轮写成 PERMANENT_FAILURE（在 PREPARING 阶段），任务永远进不了 RUNNING——这条用例
+        // 要证的"取消不动派发账本"必须让这一轮**真的占过一次派遣**才有意义（attemptCount ≥ 1）。
+        val request = request(agentConsentGranted = true)
         val running = CompletableDeferred<Unit>()
 
         val execution = launch(Dispatchers.IO) {
@@ -198,6 +223,10 @@ class TutorLocalActionLandingInstrumentedTest : CaptureWorkflowTestBase() {
             withTimeoutOrNull(10_000) { running.await() },
         )
         val beforeStop = database.readModelTask(request.requestId)
+        assertTrue(
+            "假远端网关这一轮必须先占过一次派遣，否则'取消不花预算'是空断言",
+            (beforeStop?.attemptCount ?: 0) >= 1,
+        )
 
         repository.cancel(request.requestId)
 
@@ -216,40 +245,70 @@ class TutorLocalActionLandingInstrumentedTest : CaptureWorkflowTestBase() {
         gateway.release()
     }
 
+    /**
+     * 停止之后的**可重发边界**（阶段 2 的裁定）：被停的那一轮落 `CANCELLED` 终态，
+     * `RoomModelTaskRepository.execute` 对终态行**直接短路**，所以**同一个 requestId 不再重派**；
+     * 学生侧的可重发保证是**同一逻辑操作的下一次请求**（新 requestId）立刻能发——不被进程内的
+     * "同操作在跑"锁、也不被上一次的终态挡住。
+     *
+     * 原名 `theSameOperationCanBeDispatchedAgainImmediatelyAfterAStop` 只说了后半句，措辞与裁定
+     * 冲突（听起来像"同一个 requestId 可以再派"）。这里把两半都钉住：同一个 requestId 重放只
+     * 回放它的终态、不花派遣；新的一次请求立刻跑完。
+     */
     @Test
-    fun theSameOperationCanBeDispatchedAgainImmediatelyAfterAStop() = runBlocking {
-        val hanging = RoomModelTaskRepository(
-            database = database,
-            gateway = HangingModelGateway(),
-            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
-        )
-        val first = request()
-        val running = CompletableDeferred<Unit>()
-        val execution = launch(Dispatchers.IO) {
-            hanging.execute(first).collect { snapshot ->
-                if (snapshot.status == ModelTaskStatus.RUNNING) running.complete(Unit)
+    fun aStoppedRequestIdStaysTerminalWhileTheNextRequestForTheSameOperationRunsImmediately() =
+        runBlocking {
+            val hanging = RoomModelTaskRepository(
+                database = database,
+                gateway = HangingModelGateway(),
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+            )
+            val first = request(agentConsentGranted = true)
+            val running = CompletableDeferred<Unit>()
+            val execution = launch(Dispatchers.IO) {
+                hanging.execute(first).collect { snapshot ->
+                    if (snapshot.status == ModelTaskStatus.RUNNING) running.complete(Unit)
+                }
             }
+            assertNotNull(
+                "这一轮必须真的跑起来（Started 已发）",
+                withTimeoutOrNull(10_000) { running.await() },
+            )
+            hanging.cancel(first.requestId)
+            execution.cancel()
+
+            val stoppedRow = database.readModelTask(first.requestId)
+            assertEquals(ModelTaskStatus.CANCELLED, stoppedRow?.status)
+
+            // 同一个 requestId 再执行：只回放终态，不重派、不花派遣（裁定说的"终态直接短路"）。
+            val replay = hanging.execute(first).toList()
+            assertEquals(listOf(ModelTaskStatus.CANCELLED), replay.map { it.status })
+            assertEquals(stoppedRow?.attemptCount, database.readModelTask(first.requestId)?.attemptCount)
+            assertNull(
+                "终态短路不得重新跑起来",
+                replay.firstOrNull { it.status == ModelTaskStatus.RUNNING },
+            )
+
+            // 立刻再发：同一条逻辑操作的下一次尝试必须马上能跑（不被上一次的进程内锁挡住）。
+            val immediate = RoomModelTaskRepository(
+                database = database,
+                gateway = ImmediateModelGateway(),
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+            )
+            val statuses = immediate.execute(first.copy(requestId = "${first.requestId}:retry"))
+                .toList()
+
+            assertEquals(ModelTaskStatus.SUCCEEDED, statuses.last().status)
         }
-        withTimeoutOrNull(10_000) { running.await() }
-        hanging.cancel(first.requestId)
-        execution.cancel()
-
-        // 立刻再发：同一条逻辑操作的下一次尝试必须马上能跑（不被上一次的进程内锁挡住）。
-        val immediate = RoomModelTaskRepository(
-            database = database,
-            gateway = ImmediateModelGateway(),
-            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
-        )
-        val statuses = immediate.execute(first.copy(requestId = "${first.requestId}:retry"))
-            .toList()
-
-        assertEquals(ModelTaskStatus.SUCCEEDED, statuses.last().status)
-    }
 
     private fun stoppedScope(): CoroutineScope =
         CoroutineScope(SupervisorJob().also { it.cancel() } + Dispatchers.Default)
 
-    private fun request() = ModelTaskRequest(
+    /**
+     * [agentConsentGranted] 的默认值保持 false（"没配置模型"的那一半），需要**真的外发**的用例
+     * 显式传 true：判据只有 core:model 那一位，测试也不在本地重算一套。
+     */
+    private fun request(agentConsentGranted: Boolean = false) = ModelTaskRequest(
         requestId = "capture-assess:cancellation",
         input = CaptureAssessmentInput(
             draftId = "draft-cancellation",
@@ -259,7 +318,13 @@ class TutorLocalActionLandingInstrumentedTest : CaptureWorkflowTestBase() {
             imageHeight = 1440,
         ),
         occurredAtEpochMillis = 1_000,
+        agentConsentGranted = agentConsentGranted,
     )
+
+    private companion object {
+        /** 外键要求卡必须挂在一个真的存在的会话行上。 */
+        const val TEST_CONVERSATION_ID = "conversation-1"
+    }
 }
 
 private val TEST_GATEWAY_CAPABILITIES = ProviderCapabilitySnapshot(

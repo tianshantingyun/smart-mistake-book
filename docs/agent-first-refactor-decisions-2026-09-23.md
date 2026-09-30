@@ -1459,6 +1459,50 @@ gradlew.bat --offline --console=plain testDebugUnitTest test \
 **纪律复述**（roadmap §0）：动投影公式必 bump 版本；加模型输入字段必抹平空载体 + 4 用例；
 动 schema 必非破坏迁移 + 导出新 JSON；**「待裁」值不得自行取值**——先验/θ/ε/γ/fuzz/FSRS-7 一律过你裁定。
 
+### 阶段 1/2 未跑项收尾（2026-09-30，主会话）
+
+**A1 基线**（首次本地全跑从未跑过的仪器化：`:app` 两 flavor + `core:data`/`core:export`/`feature:capture`/`feature:library`，
+44m39s）：7 条失败，全部定位——
+3 条是预期的（`RootTutorFailClosedInstrumentedTest` 在等阶段 2 故意删掉的判定面标签）；
+1 条陈旧标签（`RootExperienceInstrumentedTest`：能力目录把入口排到折叠线以下，`performClick` 落在窗口外、静默不生效）；
+3 条 `core:data` 本地动作落点（`agent_pending_request.conversation_id` 是指向 `tutor_conversation` 的外键 → 用例用不存在的会话 id，
+插入即被拒；以及取消用例的请求缺 `agentConsentGranted` → `ModelEgressPolicy` 在 PREPARING 阶段就写成 `PERMANENT_FAILURE`，
+任务永远到不了 `RUNNING`）；1 条 KB 既有红（`GoldenRetrievalInstrumentedTest` 的「金标集 90→130 超过 D12 上限」）。
+
+**A2 收口**（**全部改动在测试侧，生产代码零改动**）：三类目标各 0 失败；
+`:app` localFirst **43 / 0 / 0**、strictOffline **43 / 0 / 0**（各 6 条按 flavor 能力 skip）；
+`:core:data` **130 / 1**（唯一红即上述 KB 既有红，未改未跳未放宽）。
+
+三条 fail-closed 不变量的**新落点**（理由与证据写进测试注释）：
+① 陈旧/未校验载荷不得注入题面——仍钉根讲题页，且该页根本不为这个载荷去读产物；
+② 延迟产物不得配到更新的单元——落到复习会话的 `TeachingArtifactLoad`（今天 `teachingArtifact(` 的唯一消费者）；
+③ 揭示身份不得泄漏——同一会话两次揭示各自 practiceUnitId + 不同 presentationId。
+旧字面形态（"在途产物跨单元被当成新单元"）**结构性不可观测**，理由：装载期间页内没有可点的推进面、
+结果按请求 id 落戳、渲染门比对 practiceUnitId、被取消的生产者被 `ensureActive()` 丢弃，
+而能违反它的第三路径已随阶段 2 删除（`StudySnapshotBuilder` 恒置 null + 装载器移除）。
+
+**语义核实（重要）**：「停后可重派」那条钉的是**新逻辑操作立即可派发**（新 requestId 跑到 `SUCCEEDED`）
+**且**同 requestId 只回放 `CANCELLED`、`attemptCount` 不变——与阶段 2 裁定一致（机制：`RoomModelTaskRepository.kt:214`）。
+
+**一次 flake（未复现、未改任何代码、不得记作已修）**：A1 基线里
+`CapabilityScreenInstrumentedTest.clearingHasItsOwnProgressCopyAndLocksTheWholeForm` 报 20s `waitUntil` 超时；
+重跑 strictOffline 全量 43/0 通过，且该类源码里的 `waitUntil` 全是 5s（与失败形态不符）→ 判为模拟器侧偶发，CI 若再现按同类处理。
+
+**观察（未改，待定性）**：开一次复习会话会把当前题的产物**读两次**（同 id 幂等、结果正确，由页面重组合触发）。
+
+**A3 R8 / release 冒烟（本步的真实产出：一个只在 release 存在的真缺口）**：
+两个 flavor 的 `assembleRelease` + `bundleRelease` 全部成功（本地用仓库外一次性 keystore，四个 `RELEASE_*` 环境变量注入，
+不入库），随后把两个 **release APK 真正装进模拟器启动**——此前 release 变体**从来只被 assemble、从未启动过**，所以下面这条一直没人看见：
+启动 logcat 报三条 `NoSuchMethodException`（`ComponentDiscovery`：`CommonComponentRegistrar` / `TextRegistrar` /
+`VisionCommonRegistrar`）——ML Kit（`com.google.mlkit:text-recognition-chinese:16.0.1`，中文识别=拍照录入那条路）
+的组件注册器由系统按类名反射实例化，R8 full mode 把"没人直接 new"的无参构造器剥掉了，组件因此根本没注册。
+debug 变体不过 R8，所以这是 **release-only** 缺口。
+**修**：`app/proguard-rules.pro` 增加三条 `-keep class … { <init>(); }`（与 2026-09-06 那条 WorkManager/Room 规则同一类，
+注释里写清"只在 release 上存在、2026-09-30 第一次装机启动才发现"）。**验证**：重建后两个 release APK 重新装进同一模拟器启动，
+`ComponentDiscovery` / `NoSuchMethod` / `FATAL` 计数 **0**（修前 3 条），启动 `Status: ok`、MainActivity 已 resumed。
+**未验证**：OCR 在 release 下的**功能级**行为（要拍照驱动；keep 规则修的是注册失败，功能面未走查）。
+**未跑**：`tools/ci/check_release_manifest.py`（本地调用被 PreToolUse hook 判成"写源码"拦下）——留给 CI。
+
 ### 本阶段实际动过的关键文件（按模块分组）
 
 口径：工作区相对 HEAD 的未提交差异（`git status --porcelain`）；阶段 1 已由 `bd873eed` 提交、

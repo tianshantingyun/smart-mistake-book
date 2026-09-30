@@ -66,7 +66,10 @@ class RootExperienceInstrumentedTest {
     @Test
     fun tutorStartsFromAUserProvidedQuestionWithoutBuiltInCalibration() {
         navigateAndWait("nav_tutor", "root_tutor")
+        // 空态（阶段 2 起是能力目录）在：这是"讲题页没有内置的一道题"的**正面**证据。
+        // 反向断言（旧文案、旧判定面）此前没有正面锚点，等于空过——先锚住新面再反向断言。
         waitForTag("tutor_empty_state")
+        waitForTag("tutor_conversation_screen")
         composeRule.onAllNodesWithText("只处理你现在提出的事").assertCountEquals(0)
         composeRule.onAllNodesWithTag("tutor_choice_a").assertCountEquals(0)
         composeRule.onAllNodesWithTag("tutor_reveal_answer").assertCountEquals(0)
@@ -77,7 +80,13 @@ class RootExperienceInstrumentedTest {
 
         // 「从错题本选择」是页内动作：在这个页面里打开错题选择器，挑中的题作为这一轮要讲的
         // 那道题进同一个讲题页面——不再跳去错题本、挑完再点「讲解这道题」绕回来。
-        composeRule.onNodeWithTag("tutor_choose_existing_button").performClick()
+        //
+        // 能力目录把这一条排在第三条：在根讲题页（有标题栏和底部导航，视口比整屏小）里它在
+        // 折叠线以下，直接 performClick 等于在窗口外落一次点击（不报错，也不生效），所以先
+        // 滚到它再点。选中的标签前缀仍由这个入口给（TutorLobbyRoute 传 "lobby"）。
+        composeRule.onNodeWithTag("tutor_choose_existing_button")
+            .performScrollTo()
+            .performClick()
         waitForTag("lobby_picker_cancel")
         composeRule.onNodeWithTag("lobby_picker_cancel").performClick()
         waitForTag("root_tutor")
