@@ -125,9 +125,11 @@ import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
+import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealRequest
 import com.tingyun.smartmistakebook.core.domain.StudyChoiceSubmission
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
+import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptSubmittedResponse
@@ -588,10 +590,10 @@ class RoomBackedStudyExperienceRepositoryTest {
     }
 
     /**
-     * W1-3/KF-02 + W1-5/KF-06 + 裁决 1(B)：提交前该呈现已发生答案揭示 → 这次答对**不是**独立回忆
-     * ——policy 判 EXCLUDED（w=0、reason=ANSWER_REVEALED），review_log 落账本里权威化的那份
-     * （rating=AGAIN，不再冒充 GOOD/GOOD 系的独立答对），attempt_event 落 revealedBeforeAnswer=true。
-     * 揭示事实由测试直接播种（真 Room 的揭示落库/读取由仪器化用例覆盖）。
+     * W1-3/KF-02 + W1-5/KF-06 + 裁决 1(B)：走**真 revealAnswer 链**落揭示（本用例同时钉住
+     * 揭示行自己的 review_log 落 `REVEAL` 档——审查发现该落库值此前无任何测试），随后的
+     * 提交必须被定价为揭示后：policy 判 EXCLUDED（w=0），review_log 落账本里权威化的那份
+     * （rating=AGAIN，不再冒充 GOOD 系的独立答对），attempt_event 落 revealedBeforeAnswer=true。
      */
     @Test
     fun `a correct response after the answer was revealed is priced as post-reveal`() = runBlocking {
@@ -606,15 +608,25 @@ class RoomBackedStudyExperienceRepositoryTest {
                 repository.startOrResumeReviewSession("reveal-correct-start", startedAt),
             )
             val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
-            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
-                .assessmentItems.single()
             val presentationId = "review-presentation:reveal-correct"
-            database.answerRevealFacts[presentationId] = PersistedAnswerRevealFact(
-                outcomeId = "reveal-fact-1",
-                eventSequence = 41L, // 账本全局序号：揭示发生在这次作答之前
-                occurredAtEpochMillis = startedAt,
+
+            val revealed = repository.revealAnswer(
+                StudyAnswerRevealRequest(
+                    requestId = "reveal-request-1",
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    occurredAtEpochMillis = startedAt,
+                ),
+            )
+            assertTrue("揭示首次落库必须 created", revealed.created)
+            assertEquals(
+                "揭示行单独落 REVEAL 档（否则冒充真实 AGAIN 进拟合）",
+                ReviewLogSink.SOURCE_KIND_REVEAL,
+                database.reviewLogEntries.single().sourceKind,
             )
 
+            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
+                .assessmentItems.single()
             val submitted = repository.submitReviewChoice(
                 sessionId = started.sessionId,
                 expectedStateVersion = started.stateVersion,
@@ -641,9 +653,9 @@ class RoomBackedStudyExperienceRepositoryTest {
                 true,
                 database.lastAttemptCommand?.revealedBeforeAnswer,
             )
-            val logRow = database.reviewLogEntries.single { it.practiceUnitId == practiceUnitId }
-            assertEquals("看答案后答对的 review_log 不得再是 GOOD 系", 1, logRow.rating)
-            assertEquals("揭示后答对的证据权重为 0", 0.0, logRow.evidenceWeight, 0.0)
+            val answerRow = database.reviewLogEntries.single { it.sourceKind == ReviewLogSink.SOURCE_KIND_ATTEMPT }
+            assertEquals("看答案后答对的 review_log 不得再是 GOOD 系", 1, answerRow.rating)
+            assertEquals("揭示后答对的证据权重为 0", 0.0, answerRow.evidenceWeight, 0.0)
         } finally {
             repository.close()
             scope.cancel()
@@ -664,15 +676,18 @@ class RoomBackedStudyExperienceRepositoryTest {
                 repository.startOrResumeReviewSession("reveal-wrong-start", startedAt),
             )
             val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
-            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
-                .assessmentItems.single()
             val presentationId = "review-presentation:reveal-wrong"
-            database.answerRevealFacts[presentationId] = PersistedAnswerRevealFact(
-                outcomeId = "reveal-fact-2",
-                eventSequence = 41L,
-                occurredAtEpochMillis = startedAt,
+            repository.revealAnswer(
+                StudyAnswerRevealRequest(
+                    requestId = "reveal-request-2",
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    occurredAtEpochMillis = startedAt,
+                ),
             )
 
+            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
+                .assessmentItems.single()
             val submitted = repository.submitReviewChoice(
                 sessionId = started.sessionId,
                 expectedStateVersion = started.stateVersion,
@@ -693,9 +708,9 @@ class RoomBackedStudyExperienceRepositoryTest {
                 LearningEvidenceReason.INCORRECT_AFTER_REVEAL,
                 submitted.attempt.evidenceReason,
             )
-            val logRow = database.reviewLogEntries.single { it.practiceUnitId == practiceUnitId }
-            assertEquals(1, logRow.rating)
-            assertEquals(0.6, logRow.evidenceWeight, 0.0)
+            val answerRow = database.reviewLogEntries.single { it.sourceKind == ReviewLogSink.SOURCE_KIND_ATTEMPT }
+            assertEquals(1, answerRow.rating)
+            assertEquals(0.6, answerRow.evidenceWeight, 0.0)
         } finally {
             repository.close()
             scope.cancel()
@@ -2485,8 +2500,41 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
         }
     }
 
-    override suspend fun recordAnswerReveal(command: AnswerRevealWriteCommand): AnswerRevealWriteResult =
-        error("recordAnswerReveal is not used by these focused tests")
+    override suspend fun recordAnswerReveal(command: AnswerRevealWriteCommand): AnswerRevealWriteResult {
+        // 幂等语义与真 Room 对齐：同一呈现至多一份揭示（唯一索引），重放返回 created=false。
+        answerRevealFacts[command.presentationId]?.let { existing ->
+            val outcome = answerRevealOutcomes.getValue(existing.outcomeId)
+            return AnswerRevealWriteResult(
+                created = false,
+                outcome = outcome,
+                canonicalFingerprint = "fake-fingerprint",
+                outboxId = "fake-outbox-${existing.outcomeId}",
+            )
+        }
+        val snapshot = requireNotNull(evidenceSnapshots[command.assessmentSnapshotId]) {
+            "Fake recordAnswerReveal requires the evidence snapshot to be saved first"
+        }
+        val outcome = AnswerRevealOutcome(
+            outcomeId = "reveal-fact-${answerRevealFacts.size + 1}",
+            presentationId = command.presentationId,
+            assessmentSnapshot = snapshot,
+            occurredAtEpochMillis = command.occurredAtEpochMillis,
+            studyDay = command.studyDay,
+            eventSequence = (answerRevealFacts.size + 1).toLong(),
+        )
+        answerRevealOutcomes[outcome.outcomeId] = outcome
+        answerRevealFacts[command.presentationId] = PersistedAnswerRevealFact(
+            outcomeId = outcome.outcomeId,
+            eventSequence = outcome.eventSequence,
+            occurredAtEpochMillis = outcome.occurredAtEpochMillis,
+        )
+        return AnswerRevealWriteResult(
+            created = true,
+            outcome = outcome,
+            canonicalFingerprint = "fake-fingerprint",
+            outboxId = "fake-outbox-${outcome.outcomeId}",
+        )
+    }
 
     override suspend fun reconcileAnswerRevealOutcomes(
         learnerId: String,
@@ -2747,11 +2795,12 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
     override suspend fun readAnswerRevealP0(outcomeId: String): PersistedAnswerRevealP0? = null
 
     /**
-     * 这些聚焦用例里揭示事实由**测试直接播种**（[recordAnswerReveal] 仍 error——它的
-     * 落库/账本语义属真 Room，由仪器化用例覆盖）；这里只回放"该呈现已有揭示"这一输入，
-     * 供 KF-02 的提交前读取（W1-3 接线）取用。
+     * 揭示事实与揭示 outcome 由 [recordAnswerReveal] 真实记录（幂等语义与真 Room 对齐），
+     * 供 KF-02 的提交前读取（W1-3 接线）与 review_log 的 REVEAL 行断言使用；
+     * 揭示 outcome 的账本/outbox 语义（指纹、批量读回）属真 Room，由仪器化用例覆盖。
      */
     val answerRevealFacts = mutableMapOf<String, PersistedAnswerRevealFact>()
+    private val answerRevealOutcomes = mutableMapOf<String, AnswerRevealOutcome>()
 
     override suspend fun findAnswerRevealForPresentation(
         learnerId: String,

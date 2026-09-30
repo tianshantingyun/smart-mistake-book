@@ -110,6 +110,12 @@ class TutorJudgedReviewSettlerTest {
             LearningEvidenceReason.MODEL_JUDGED_CORRECT,
             database.lastAttemptCommand?.evidence?.reason,
         )
+        assertEquals(
+            // 审查补的半边：模型判词必须仍落 MODEL_JUDGED 档（拟合排除）。若 fromLocalCheck
+            // 被写反/恒 true，κ≈0.70 噪声的开放作答会**静默进拟合集**，这条断言就是唯一会红的门。
+            ReviewLogSink.SOURCE_KIND_MODEL_JUDGED,
+            database.reviewLogEntries.single().sourceKind,
+        )
     }
 
     @Test

@@ -350,11 +350,11 @@ class ReviewPlanner(
         val currentSupportedEvidenceMass = state.independentCorrectObservations
             .filter { it.calibrationSupportAt(now) == CalibrationSupport.SUPPORTED }
             .sumOf { it.evidenceWeight }
+        val lastEvidenceAt = state.lastEvidenceAtEpochMillis
         val stale = state.status == MasteryStatus.STALE ||
-            state.lastEvidenceAtEpochMillis == null ||
-            now < (state.lastEvidenceAtEpochMillis ?: 0) ||
-            now - (state.lastEvidenceAtEpochMillis ?: now) >
-            ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
+            lastEvidenceAt == null ||
+            now < lastEvidenceAt ||
+            now - lastEvidenceAt > ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
         return when {
             state.status == MasteryStatus.CONFLICTED -> {
                 reasons += ReviewReason.CONFLICTED_KNOWLEDGE

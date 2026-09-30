@@ -113,12 +113,6 @@ internal class StudyReviewPlannerService(
 
 
     /**
-     * Days until the nearest declared exam (any subject), or null when no
-     * exam is ahead — the catch-up input of [NewIntroductionPolicy] (spec
-     * `batch-intake-spec.md` §2): near an exam, intake converts by
-     * ceil(remaining backlog / days) instead of the fixed time share.
-     */
-    /**
      * L2 tier baseline (spec §2): map the FSRS difficulty (1..10) onto the
      * same EASY/MEDIUM/HARD bands the planner uses (ceilings 4/7) and return
      * the model-tier baseline seconds for never-attempted questions.
@@ -142,6 +136,12 @@ internal class StudyReviewPlannerService(
             ?.let { stored -> runCatching { TutorDifficultyTier.valueOf(stored) }.getOrNull() }
 
 
+    /**
+     * Days until the nearest declared exam (any subject), or null when no
+     * exam is ahead — the catch-up input of [NewIntroductionPolicy] (spec
+     * `batch-intake-spec.md` §2): near an exam, intake converts by
+     * ceil(remaining backlog / days) instead of the fixed time share.
+     */
     suspend fun daysUntilNearestExam(localDayEpochDay: Long): Int? {
         val store = schedulingSettingsStore ?: return null
         return store.exams.first()

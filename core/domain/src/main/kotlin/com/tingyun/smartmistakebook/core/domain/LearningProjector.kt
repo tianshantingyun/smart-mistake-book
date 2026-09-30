@@ -360,9 +360,21 @@ class LearningProjector(
                 LearnerSnapshotFreshness.STALE
             },
             projectionStatus = projectionStatus,
-            appliedAttemptRecords = boundedRecords(attemptRecords),
-            appliedAnswerRevealRecords = boundedAnswerRevealRecords(revealRecords),
-            appliedTutorAnswerExposureRecords = boundedTutorAnswerExposureRecords(tutorExposureRecords),
+            appliedAttemptRecords = boundedRecords(
+                attemptRecords,
+                AppliedAttemptRecord::eventSequence,
+                AppliedAttemptRecord::attemptId,
+            ),
+            appliedAnswerRevealRecords = boundedRecords(
+                revealRecords,
+                AppliedAnswerRevealRecord::eventSequence,
+                AppliedAnswerRevealRecord::outcomeId,
+            ),
+            appliedTutorAnswerExposureRecords = boundedRecords(
+                tutorExposureRecords,
+                AppliedTutorAnswerExposureRecord::eventSequence,
+                AppliedTutorAnswerExposureRecord::outcomeId,
+            ),
         )
         val outputPresentationStates = presentationProjectionStates.mapValues { (_, state) ->
             state.copy(asOfLedgerSequence = checkpoint.lastSequence)
@@ -589,10 +601,26 @@ class LearningProjector(
             correctionWatermarkEpochMillis = correctionWatermark,
             freshness = LearnerSnapshotFreshness.CURRENT,
             projectionStatus = ProjectionStatus.CURRENT,
-            appliedAttemptRecords = boundedRecords(attemptRecords),
-            appliedCorrectionRecords = boundedCorrectionRecords(correctionRecords),
-            appliedAnswerRevealRecords = boundedAnswerRevealRecords(revealRecords),
-            appliedTutorAnswerExposureRecords = boundedTutorAnswerExposureRecords(tutorExposureRecords),
+            appliedAttemptRecords = boundedRecords(
+                attemptRecords,
+                AppliedAttemptRecord::eventSequence,
+                AppliedAttemptRecord::attemptId,
+            ),
+            appliedCorrectionRecords = boundedRecords(
+                correctionRecords,
+                AppliedCorrectionRecord::eventSequence,
+                AppliedCorrectionRecord::correctionId,
+            ),
+            appliedAnswerRevealRecords = boundedRecords(
+                revealRecords,
+                AppliedAnswerRevealRecord::eventSequence,
+                AppliedAnswerRevealRecord::outcomeId,
+            ),
+            appliedTutorAnswerExposureRecords = boundedRecords(
+                tutorExposureRecords,
+                AppliedTutorAnswerExposureRecord::eventSequence,
+                AppliedTutorAnswerExposureRecord::outcomeId,
+            ),
         )
 
         // Generate predictions for audit trail
@@ -1150,39 +1178,21 @@ class LearningProjector(
         return (probability - uncertainty).coerceIn(0.0, probability)
     }
 
-    private fun boundedRecords(records: Map<String, AppliedAttemptRecord>): Map<String, AppliedAttemptRecord> =
-        records.values
-            .sortedByDescending(AppliedAttemptRecord::eventSequence)
-            .take(MAX_APPLIED_RECORDS)
-            .sortedBy(AppliedAttemptRecord::eventSequence)
-            .associateBy(AppliedAttemptRecord::attemptId)
-
-    private fun boundedCorrectionRecords(
-        records: Map<String, AppliedCorrectionRecord>,
-    ): Map<String, AppliedCorrectionRecord> = records.values
-        .sortedByDescending(AppliedCorrectionRecord::eventSequence)
+    /**
+     * Bounding invariant for the applied-record audit windows, shared by all
+     * four record kinds so the window cannot diverge between them: keep the
+     * newest [MAX_APPLIED_RECORDS] rows by event sequence and re-order
+     * ascending.
+     */
+    private fun <T> boundedRecords(
+        records: Map<String, T>,
+        eventSequence: (T) -> Long,
+        id: (T) -> String,
+    ): Map<String, T> = records.values
+        .sortedByDescending(eventSequence)
         .take(MAX_APPLIED_RECORDS)
-        .sortedBy(AppliedCorrectionRecord::eventSequence)
-        .associateBy(AppliedCorrectionRecord::correctionId)
-
-    private fun boundedAnswerRevealRecords(
-        records: Map<String, AppliedAnswerRevealRecord>,
-    ): Map<String, AppliedAnswerRevealRecord> = records.values
-        .sortedByDescending(AppliedAnswerRevealRecord::eventSequence)
-        .take(MAX_APPLIED_RECORDS)
-        .sortedBy(AppliedAnswerRevealRecord::eventSequence)
-        .associateBy(AppliedAnswerRevealRecord::outcomeId)
-
-    private fun boundedTutorAnswerExposureRecords(
-        records: Map<String, AppliedTutorAnswerExposureRecord>,
-    ): Map<String, AppliedTutorAnswerExposureRecord> = records.values
-        .sortedByDescending(AppliedTutorAnswerExposureRecord::eventSequence)
-        .take(MAX_APPLIED_RECORDS)
-        .sortedBy(AppliedTutorAnswerExposureRecord::eventSequence)
-        .associateBy(AppliedTutorAnswerExposureRecord::outcomeId)
-
-    private fun safeAdd(value: Long, increment: Long): Long =
-        if (Long.MAX_VALUE - value < increment) Long.MAX_VALUE else value + increment
+        .sortedBy(eventSequence)
+        .associateBy(id)
 
     /**
      * Generate predictions for audit trail. These are shadow predictions that

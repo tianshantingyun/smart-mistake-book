@@ -1851,7 +1851,7 @@ fuzz / FSRS-7 / 排程权重离线模拟 / F7）逐项过用户。净 **16 项**
 | W1-3（KF-02）persistedAssistance 链 | 新增揭示事实读取（`findAnswerRevealForPresentation`，轻量三事实：outcomeId/序号/时刻）；`StudySubmissionPreparer` 提交前组装 `PersistedAssessmentAssistance` 递进 `MasteryEvidencePolicy`（此前 `persistedAssistance` 恒空、`revealedBeforeAnswer` 硬编码 false，两个分支不可达）；`revealedBeforeAnswer` 取真值落 `attempt_event` | `LearningDao.kt`、`LearningProjectionPort.kt`、`RoomStudyDatabase.kt`、`StudyDatabaseRecords.kt`、`StudySubmissionPreparer.kt` |
 | W1-4（KF-03 + 裁决 1B/18）看答案与判定来源分档 | 揭示行独立落 `source_kind=REVEAL`（不再冒充 ATTEMPT 的 AGAIN 行进拟合）；讲题判定按来源分档：本地核对落 `LOCAL_CHECKED`（**解除拟合排除**），模型判词保持 `MODEL_JUDGED`（排除）；`fittableReviewSamples` 只认 ATTEMPT + LOCAL_CHECKED | `StudyAnswerRevealService.kt`、`TutorJudgedReviewSettler.kt`（`Verdict.fromLocalCheck`）、`ReviewLogSink.kt`、`SchedulingEvaluation.kt` |
 | W1-5（KF-06）契约回写 | review_log 改落**账本里权威化的**那份证据（`writeResult.attempt.evidence`，post-causality）——提交前的 decision 与 DB 规范化分叉的通道就此关闭 | `RoomBackedStudyExperienceRepository.kt`（submitChoice / submitReviewChoice） |
-| W1-6（P1/P10）口径统一 | 新建 `StudyDayMath` 单源（时间戳+偏移→日序）；写路径 stamp、投影重放、review_log 的 delta_t 三源同函数（两个端点取同一偏移=FSRS 参照口径）；投影私有副本删除；`toFixedDays` 可见性放宽 + tie 用例钉住 half-to-even（审计 P10 的"Kotlin round=四舍五入"记载与实测不符，用例为准） | `StudyDayMath.kt`（新）、`StudyWriteContext.kt`、`ReviewLogSink.kt`、`LearningProjector.kt`、`FsrsScheduleMath.kt` |
+| W1-6（P1/P10）口径统一 | 新建 `StudyDayMath` 单源（时间戳+偏移→日序）；写路径 stamp、投影重放、review_log 的 delta_t 三源同函数（两个端点取同一偏移——**依据是与投影器既有算术单源化+账本可复算，不是 py-fsrs**：审查核实 py-fsrs 的 delta_t 是绝对时长取整，无日历日差口径）；投影私有副本删除；`toFixedDays` 可见性放宽 + tie 用例钉住 half-to-even（审计 P10 的"Kotlin round=四舍五入"记载与实测不符，用例为准） | `StudyDayMath.kt`（新）、`StudyWriteContext.kt`、`ReviewLogSink.kt`、`LearningProjector.kt`、`FsrsScheduleMath.kt` |
 
 ### 版本影响（版本清单 §3.4）
 
@@ -1876,8 +1876,27 @@ fuzz / FSRS-7 / 排程权重离线模拟 / F7）逐项过用户。净 **16 项**
    （揭示行改前也是 rating=1 的 ATTEMPT 行）。把揭示行从这三处剔除属 P6/P7 同族的口径收敛，随 Wave 3。
 2. `backfillPredictionOutcome(wasIndependentCorrect = prepared.isCorrect)` 仍用原始对错：预测审计轨的
    独立性语义属 P11（预测审计语义修正或删除，Wave 3-3），本轮不动。
-3. 揭示→提交的**完整真 Room 链**（服务层 `revealAnswer` 之后立即提交）没有专门用例：揭示落库与
-   读取各自已被真库用例覆盖、DB 规范化保证账本正确性，但"两步串起来"的组合行为无仪器化证据。
+3. ~~揭示→提交的**完整真 Room 链**没有专门用例~~ → 2026-10-01 审查修复后：JVM 层已走真 `revealAnswer`→提交
+   组合链（Fake 记录揭示事实+幂等语义）；真 Room 层的揭示落库/读取各有仪器化用例，账本正确性由 DB 规范化兜住。
 4. hint 通道依旧无生产写入方（`assessment_event` 是悬空表、`StudyChoiceSubmission.hintCount` 无 UI 赋值）：
    W1-3 的接线把 `hintWasUsed` 分支修成可达，但真实数据仍为 0——等阶段 5 采集就位（裁决 3）。
+
+### Wave 1 代码审查（2026-10-01）与修复
+
+接线/算法侧由独立评审代理全量核对（`b8901ab4..4fe60ca5`）：**APPROVE_WITH_NITS**。核心论证全部成立——
+序号下界（`allocateSequence` CAS 单调、事务内分配）、域决策与 DB 规范化**逐值等价**（两个 P0 候选均被否定）、
+W1-5 字段链正确、拟合口径完整、`toFixedDays` half-to-even 声明正确（并 clone py-fsrs main 核实其
+`_next_interval` 确为 Python `round`）；数据库侧（迁移 DDL 对照 54.json、`foreign_keys` 时机、
+`answer_reveal_outcome` 的 `(learner_id, presentation_id)` 唯一索引、参数绑定、字面量残留扫描）由主会话自查收口。
+5 条 P2 + 3 条 nit，处置如下：
+
+| 发现 | 处置 |
+|---|---|
+| 模型判词半边失去全部 sourceKind 断言（`fromLocalCheck` 写反会**静默**把 κ 噪声放进拟合） | ✅ 修复：`openEndedSessionFallsBackToTheGateAcceptedModelVerdict` 补 `MODEL_JUDGED` 断言 |
+| REVEAL 落库值无任何测试钉住（改回 ATTEMPT 不会红） | ✅ 修复：Fake 的 `recordAnswerReveal` 变真（幂等 + 记事实），KF-02 用例改走真 `revealAnswer` 链并断言揭示行 `sourceKind=REVEAL`；原边界 3 随之关闭（JVM 层的组合链已有） |
+| `StudyDayMath` KDoc 误引 py-fsrs（其 delta_t 是绝对时长取整，非日历日差） | ✅ 修复：依据改写为"与投影器既有算术单源化 + 账本可复算"，如实登记跨 DST 复习对与旧落库值可差 1 天的行为边界；本表 W1-6 行同步订正 |
+| 桥接态（terminal 无 outcome 行）下两口径分叉 + 读取/写入竞态窗口（均生产休眠，账本被 DB 兜住） | ✅ 以注释登记为契约边界（`StudySubmissionPreparer`），不改行为 |
+| `optimize` 内注释只提 MODEL_JUDGED、未提 REVEAL/LOCAL_CHECKED | ✅ 注释更新 |
+| `calibrateSources` 的 REVEAL 全零校准行在 app 校准区常驻一条"样本不足"（rating=AGAIN<HARD 被配对循环跳过，`hasSufficientPairs=false` 短路，NaN 不参与比较） | ⏸ 不改（无害噪音）；从校准区过滤零配对档随 Wave 3 P6/P7 口径收敛一并做 |
+| `StudyDayMath.calendarDaysBetween` 无生产调用方 | ✅ 删除（ ReviewLogSink 内联即生产实现，"新增必先指认"），测试改用 `localEpochDayOf` 差值表达 |
 

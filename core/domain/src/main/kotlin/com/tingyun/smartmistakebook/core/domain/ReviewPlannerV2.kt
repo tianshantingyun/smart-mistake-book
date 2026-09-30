@@ -297,7 +297,6 @@ class ReviewPlannerV2(
             val restUsedFamilies = rest.groupingBy { it.candidate.itemFamilyId }.eachCount()
             val restUsedSources = rest.mapNotNull { it.candidate.sourceBundleId }
                 .groupingBy { it }.eachCount()
-            var improved = false
             for (unselectedItem in unselected) {
                 val newTime = currentSelection.sumOf { it.candidate.estimatedDurationSeconds } -
                     timeDelta + unselectedItem.candidate.estimatedDurationSeconds
@@ -332,11 +331,9 @@ class ReviewPlannerV2(
 
                 if (incomingValue > outgoingValue) {
                     currentSelection = newSelection
-                    improved = true
                     break
                 }
             }
-            if (improved) continue
         }
 
         return currentSelection
@@ -506,11 +503,11 @@ class ReviewPlannerV2(
             val currentSupportedEvidenceMass = state.independentCorrectObservations
                 .filter { it.calibrationSupportAt(now) == CalibrationSupport.SUPPORTED }
                 .sumOf { it.evidenceWeight }
+            val lastEvidenceAt = state.lastEvidenceAtEpochMillis
             val stale = state.status == com.tingyun.smartmistakebook.core.model.MasteryStatus.STALE ||
-                state.lastEvidenceAtEpochMillis == null ||
-                now < (state.lastEvidenceAtEpochMillis ?: 0) ||
-                now - (state.lastEvidenceAtEpochMillis ?: now) >
-                ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
+                lastEvidenceAt == null ||
+                now < lastEvidenceAt ||
+                now - lastEvidenceAt > ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
             when {
                 state.status == com.tingyun.smartmistakebook.core.model.MasteryStatus.CONFLICTED -> {
                     reasons += ReviewReason.CONFLICTED_KNOWLEDGE

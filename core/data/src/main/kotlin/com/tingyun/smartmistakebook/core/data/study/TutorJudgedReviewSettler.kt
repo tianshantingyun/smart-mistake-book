@@ -193,8 +193,6 @@ internal class TutorJudgedReviewSettler(
                 priorMemory = priorMemory,
                 plannedReason = queueItem.reasonSnapshot.takeIf(String::isNotBlank),
             )
-        }
-        if (writeResult.attempt.created) {
             durationModel.record(
                 learnerId = learnerId,
                 subjectId = mistake.subject,

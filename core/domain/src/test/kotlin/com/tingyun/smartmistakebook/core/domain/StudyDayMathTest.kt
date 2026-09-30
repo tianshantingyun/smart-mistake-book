@@ -52,7 +52,8 @@ class StudyDayMathTest {
         assertEquals(
             "跨本地午夜 = 1 个日历日（哪怕相隔只有 30 分钟）",
             1L,
-            StudyDayMath.calendarDaysBetween(beforeMidnight, afterMidnight, offset),
+            StudyDayMath.localEpochDayOf(afterMidnight, offset) -
+                StudyDayMath.localEpochDayOf(beforeMidnight, offset),
         )
     }
 
@@ -65,7 +66,8 @@ class StudyDayMathTest {
         assertEquals(
             "同一天内的两次作答 delta_t = 0（时间跨了约 14 小时也一样）",
             0L,
-            StudyDayMath.calendarDaysBetween(morning, night, offset),
+            StudyDayMath.localEpochDayOf(night, offset) -
+                StudyDayMath.localEpochDayOf(morning, offset),
         )
     }
 

@@ -56,6 +56,11 @@ internal class StudySubmissionPreparer(
         // 只有把揭示事实真的递进来才可达（此前本类从不传 persistedAssistance，
         // revealedBeforeAnswer 也硬编码 false，两个分支因此不可达，审计 KF-02 的原始证据）。
         //
+        // 已知边界（2026-10-01 审查登记）：判定以 **outcome 表的存在性**为准——legacy 桥接
+        // （`importLegacyAnswerRevealAssessmentEvent`/`reconcileAnswerRevealOutcomes`，当前均无
+        // 生产调用方）物化前的 "terminal 但无 outcome 行" 会两头分叉；读取与写入之间的竞态窗口
+        // 同理。两者中账本证据都由 DB 权威规范化兜住，只有 revealedBeforeAnswer 审计列可能欠账。
+        //
         // 序号空间：揭示的 eventSequence 是账本全局序号（learning_sequence 分配，与本次作答的
         // event_sequence 同一计数器），responseSequence 必须落在它之后本次比较才成立。本次作答的
         // 真实序号由 DB 事务内分配（此刻还不存在），"揭示序号 + 1" 是它的下界：真实值 ≥ 下界。

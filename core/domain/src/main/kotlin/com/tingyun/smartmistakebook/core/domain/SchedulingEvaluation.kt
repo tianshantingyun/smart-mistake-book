@@ -193,6 +193,13 @@ object SchedulingReplay {
 
 }
 
+/** Same-file single copy: both the harness and the optimizer cut at the same index pick. */
+private fun quantile(sorted: List<Long>, fraction: Double): Long {
+    if (sorted.isEmpty()) return 0
+    val index = (fraction * (sorted.size - 1)).toInt().coerceIn(0, sorted.size - 1)
+    return sorted[index]
+}
+
 /**
  * 可参与评估/拟合的复习样本：排除讲题判定行，直到 `calibrateSources` 的配对结果证明
  * 它可以进（见 [ReviewSample.MODEL_JUDGED_KIND] 的说明）。调用方的"有没有数据"判断
@@ -375,7 +382,7 @@ object SchedulingEvaluationHarness {
                 lastReviewedAt = sample.reviewedAtEpochMillis
                 continue
             }
-            val probability = pow(0.9, elapsedDays / stability)
+            val probability = Math.pow(0.9, elapsedDays / stability)
             predictions += probability to sample.isCorrect
             stability = if (sample.isCorrect) {
                 stability * 2.6 + 0.25
@@ -386,14 +393,6 @@ object SchedulingEvaluationHarness {
         }
         return predictions
     }
-
-    private fun quantile(sorted: List<Long>, fraction: Double): Long {
-        if (sorted.isEmpty()) return 0
-        val index = (fraction * (sorted.size - 1)).toInt().coerceIn(0, sorted.size - 1)
-        return sorted[index]
-    }
-
-    private fun pow(base: Double, exponent: Double): Double = Math.pow(base, exponent)
 
 }
 
@@ -435,7 +434,9 @@ object FsrsParameterOptimizer {
         iterations: Int = DEFAULT_ITERATIONS,
     ): Result {
         // 讲题判定行是新的评分来源，校准达标前不进拟合器（口径见
-        // ReviewSample.MODEL_JUDGED_KIND）：拟合参数会被一种偏离标尺的评分整体拉偏。
+        // ReviewSample.MODEL_JUDGED_KIND；W1-4 起看答案行 REVEAL 与之同列，
+        // 本地核对 LOCAL_CHECKED 则保留——完整口径只在 fittableReviewSamples 一处）：
+        // 拟合参数会被一种偏离标尺的评分整体拉偏。
         // 过滤后为空不是调用错误——只做过讲题判定复习的学习者就该拿到"数据不足"，
         // 而不是异常；下面 predictableSampleCount=0 会走 INSUFFICIENT_DATA 分支。
         val fittingSamples = fittableReviewSamples(samples)
@@ -590,12 +591,6 @@ object FsrsParameterOptimizer {
             }
         }
         return best to bestLoss
-    }
-
-    private fun quantile(sorted: List<Long>, fraction: Double): Long {
-        if (sorted.isEmpty()) return 0
-        val index = (fraction * (sorted.size - 1)).toInt().coerceIn(0, sorted.size - 1)
-        return sorted[index]
     }
 
     /**

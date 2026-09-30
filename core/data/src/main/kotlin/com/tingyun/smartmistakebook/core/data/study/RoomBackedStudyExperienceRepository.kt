@@ -929,13 +929,5 @@ class RoomBackedStudyExperienceRepository(
         /** 知识点复习范围材料读取上限（对齐 KnowledgeTeachingMaterialDao 的 1..64 约束）。 */
         /** Rollback switch for the V2 review planner; see [useReviewPlannerV2]. */
         private const val DEFAULT_USE_REVIEW_PLANNER_V2 = true
-        /** Difficulty mid-point on the FSRS 1..10 domain (spec 3.2). */
-        private const val VISUAL_VIOLATED_WEIGHT = 0.5
-        private const val PRIMARY_VISUAL_ATTRIBUTION_WEIGHT = 0.6
-        private const val SECONDARY_VISUAL_ATTRIBUTION_WEIGHT_POOL = 0.4
-        private const val VISUAL_ASSESSMENT_ITEM_ID_PREFIX = "local-visual-interaction:"
-        private const val VISUAL_ANSWER_SPEC_ID = "local-visual-interaction-v1"
-        private const val VISUAL_ITEM_FAMILY_ID = "local-visual-interaction"
-        /** Spec 2.7 cooldowns: subjective reports 6h, visual interactions 1h. */
     }
 }
