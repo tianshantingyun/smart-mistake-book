@@ -12232,10 +12232,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:physics",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.物理.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/专题六  机械能守恒定律/专题PDF/06：专题六  PDF.pdf（块 5ba7f10b79-019）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能定理在多过程问题中的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:应用动能定理求解步骤",
      "role": "PRIMARY"
     }
    ]
@@ -20952,10 +20952,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/二轮复习/2026版物理二轮复习/2026版物理 复习讲义扫描版【通用版】/物理大二轮【专题复习】.pdf（块 206fb04353-053）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电偏转与磁偏转的比较",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在组合场-电场与磁场各位于一定的区域内-并不重叠-中的运动",
      "role": "PRIMARY"
     }
    ]
@@ -22092,10 +22092,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/二轮复习/2026版物理二轮复习/2026版物理 复习讲义扫描版【通用版】/物理大二轮【专题复习】.pdf（块 206fb04353-086）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:核能的计算方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:比结合能",
      "role": "PRIMARY"
     }
    ]
@@ -22672,10 +22672,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/二轮复习/2026版物理二轮复习/2026版物理 复习讲义扫描版【通用版】/物理大二轮【专题复习】.pdf（块 206fb04353-105）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究变压器原副线圈电压与匝数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变压器",
      "role": "PRIMARY"
     }
    ]
@@ -24272,10 +24272,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:physics",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.物理.5·3A版/一、本书精品电子资源/第七章动量守恒定律/1_专题资料包/1_讲册PDF 07-第七章 动量守恒定律.pdf（块 2b63d7a05b-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-木板模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-木板模型的临界问题",
      "role": "PRIMARY"
     }
    ]
@@ -26092,10 +26092,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:physics",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.物理.5·3A版/一、本书精品电子资源/第二章相互作用/1_专题资料包/1_讲册PDF 02-第二章 相互作用.pdf（块 59dd10c06b-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力有无的判断方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力",
      "role": "PRIMARY"
     }
    ]
@@ -26172,10 +26172,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:physics",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.物理.5·3A版/一、本书精品电子资源/第二章相互作用/1_专题资料包/1_讲册PDF 02-第二章 相互作用.pdf（块 59dd10c06b-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力有无及方向的判断方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力",
      "role": "PRIMARY"
     }
    ]
@@ -27272,10 +27272,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:physics",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.物理.5·3A版/一、本书精品电子资源/第十一章磁场/1_专题资料包/1_讲册PDF 11-第十一章 磁场.pdf（块 df69780a4e-016）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:回旋加速器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场中的仪器",
      "role": "PRIMARY"
     }
    ]
@@ -28552,10 +28552,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:physics",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.物理.5·3A版/一、本书精品电子资源/第十五章热学/1_专题资料包/1_讲册PDF 15-第十五章 热学.pdf（块 61d1d14b26-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:气体状态变化图像的分析方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:热力学图像问题",
      "role": "PRIMARY"
     }
    ]
@@ -29632,10 +29632,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:physics",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.物理.5·3A版/一、本书精品电子资源/第十章电路及其应用/1_专题资料包/1_讲册PDF 10-第十章 电路及其应用.pdf（块 504a241474-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:含电容器电路的分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电容器",
      "role": "PRIMARY"
     }
    ]
@@ -31372,10 +31372,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习备考题型归纳讲义/资料/第7讲：函数的奇偶性（5个题型）（学生版）.docx（块 ad72a3be75-002）",
-   "reviewedAtEpochMillis": 1789846597495,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用奇偶性求解析式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用奇偶性求值-将待求函数值或不等式利用奇偶性转化为已知区间上的函数值求解",
      "role": "PRIMARY"
     }
    ]
@@ -35672,10 +35672,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【20】2026年高考数学二轮复习教考衔接教材命题点探源学案/教考衔接十 直线与圆（学生版）.docx（块 9346e3d003-008）",
-   "reviewedAtEpochMillis": 1789846597495,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的参数方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的方程",
      "role": "PRIMARY"
     }
    ]
@@ -35832,10 +35832,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-e35c96096a:math",
    "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【3】2026年高考数学二轮专题复习讲义/培优点02：奔驰定理与三角形的四心（知识梳理+题型归纳）（学生版）.docx（块 2c4c1b3df0-003）",
-   "reviewedAtEpochMillis": 1789846597495,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形四心的向量表示",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:奔驰定理",
      "role": "PRIMARY"
     }
    ]

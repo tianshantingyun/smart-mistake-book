@@ -57216,10 +57216,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题8 基因的分离定律和自由组合定律/专题PDF/专题8 基因的分离定律和自由组合定律 《分层训练》PDF.pdf（块 636de2a928-021）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:从性遗传与限性遗传",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的特殊类型",
      "role": "PRIMARY"
     }
    ]
@@ -60576,10 +60576,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题15 免疫调节.pdf（块 94a83ecf21-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自身免疫病与免疫缺陷病",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:免疫失调",
      "role": "PRIMARY"
     }
    ]

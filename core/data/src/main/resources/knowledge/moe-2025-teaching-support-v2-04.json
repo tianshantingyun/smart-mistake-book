@@ -50216,10 +50216,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题三 导数及其应用/培优5 极值点偏移问题/训练册PDF/培优5　极值点偏移问题.pdf（块 756b0344d1-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极值点偏移的对称化构造法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极值点偏移问题",
      "role": "PRIMARY"
     }
    ]
@@ -51076,10 +51076,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题二 函数及其性质/2.4函数的零点与方程的根/训练册PDF/2.4　函数的零点与方程的根.pdf（块 a0656377b5-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:根据零点个数求参数的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对勾函数",
      "role": "PRIMARY"
     }
    ]
@@ -56416,10 +56416,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优7 解三角形中的最值和范围问题/训练册PDF/培优7　解三角形中的最值和范围问题.pdf（块 47f6cc7b06-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值与范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对勾函数",
      "role": "PRIMARY"
     }
    ]
@@ -56576,10 +56576,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优7 解三角形中的最值和范围问题/训练册PDF/培优7　解三角形中的最值和范围问题.pdf（块 47f6cc7b06-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值与范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对勾函数",
      "role": "PRIMARY"
     }
    ]
@@ -62276,10 +62276,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题六 数列/题型透析/讲解册PDF/专题六　数列.pdf（块 9e21a7e47c-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列",
      "role": "PRIMARY"
     }
    ]
@@ -62296,10 +62296,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题六 数列/题型透析/讲解册PDF/专题六　数列.pdf（块 9e21a7e47c-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列",
      "role": "PRIMARY"
     }
    ]
@@ -62896,10 +62896,10 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/培优7 解三角形中的最值和范围问题/讲解册PDF/培优7　解三角形中的最值和范围问题.pdf（块 c0a639908a-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1790769151331,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值与范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对勾函数",
      "role": "PRIMARY"
     }
    ]
