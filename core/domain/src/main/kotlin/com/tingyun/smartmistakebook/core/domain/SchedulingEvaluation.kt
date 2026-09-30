@@ -129,21 +129,39 @@ data class SchedulingEvaluationReport(
     }
 }
 
-/** Replay one card's ordered samples and emit (predicted R, actual) pairs. */
+/** Replay one card's ordered samples and emit the sequence-end prediction pair. */
 object SchedulingReplay {
+
+    /**
+     * W2-5①（fsrs-optimizer 对齐，附录 B）：每卡序列只输出**一对**——序列里最后一次长程复习
+     * 的（预测 R, 实际结果）。官方 BPTT 的 loss 只取每序列末态（`outputs[seq_lens−1]`），
+     * 长程对之外的同日重复只推进状态、不再各发一对。此前"每个长程复习各发一对"会让 loss
+     * 被同卡强相关的历史对灌满，官方口径下每卡的监督只有一个末态点。
+     *
+     * 偏离官方的一处（有意，见台账 Wave 2 记录）：官方末态取 `outputs[seq_lens−1]` 的
+     * **后序列状态**；我们取**该复习发生前的状态**（`R(gap, S_before)`）——无泄漏、与逐复习
+     * 的概率语义一致，且同日尾行不参与末态对（它们本无长程信号，spec §2.15）。
+     */
+    data class EndStatePrediction(
+        val probability: Double,
+        val correct: Boolean,
+        /** 末次长程复习本身：时间切分（训练/验证桶）按它的时间戳。 */
+        val target: ReviewSample,
+    )
 
     fun predict(
         history: List<ReviewSample>,
         parameters: DoubleArray = FsrsScheduleMath.DEFAULT_PARAMETERS,
-        desiredRetention: Double = FsrsMemoryUpdateModel.DEFAULT_DESIRED_RETENTION,
-    ): List<Pair<Double, Boolean>> {
+    ): EndStatePrediction? {
         require(history.isNotEmpty()) { "Replay requires a non-empty review history" }
+        // W2-1/KF-01：decay 显式来自本次重放/拟合的参数集，不再隐式吃默认 w20。
+        val decay = -parameters[20]
         val ordered = history.sortedBy(ReviewSample::reviewedAtEpochMillis)
         var stability = 0.0
         var difficulty = 0.0
         var hasState = false
         var lastReviewedAt = 0L
-        val predictions = mutableListOf<Pair<Double, Boolean>>()
+        var endState: EndStatePrediction? = null
         for (sample in ordered) {
             if (!hasState) {
                 stability = FsrsScheduleMath.initialStability(sample.rating, parameters)
@@ -162,8 +180,8 @@ object SchedulingReplay {
                 lastReviewedAt = sample.reviewedAtEpochMillis
                 continue
             }
-            val retrievability = FsrsScheduleMath.retention(elapsedDays, stability)
-            predictions += retrievability to sample.isCorrect
+            val retrievability = FsrsScheduleMath.retention(elapsedDays, stability, decay)
+            endState = EndStatePrediction(retrievability, sample.isCorrect, sample)
             stability = if (sample.rating == FsrsRating.AGAIN) {
                 FsrsScheduleMath.nextForgetStability(difficulty, stability, retrievability, parameters)
             } else {
@@ -178,7 +196,7 @@ object SchedulingReplay {
             difficulty = FsrsScheduleMath.nextDifficulty(difficulty, sample.rating, parameters)
             lastReviewedAt = sample.reviewedAtEpochMillis
         }
-        return predictions
+        return endState
     }
 
     fun bceLogLoss(predictions: List<Pair<Double, Boolean>>): Double {
@@ -318,14 +336,15 @@ object SchedulingEvaluationHarness {
         val legacyTrain = mutableListOf<Pair<Double, Boolean>>()
         val legacyTest = mutableListOf<Pair<Double, Boolean>>()
         perCard.forEach { history ->
-            val predictions = SchedulingReplay.predict(history, parameters)
-            predictions.forEachIndexed { index, pair ->
-                val sample = history[index + 1]
-                if (sample.reviewedAtEpochMillis <= cutoff) fsrsTrain += pair else fsrsTest += pair
+            // W2-5①：两个模型都只出序列末态一对，按末次长程复习的时间戳分桶——
+            // 训练/验证协议对两模型逐位同构。
+            SchedulingReplay.predict(history, parameters)?.let { pair ->
+                (if (pair.target.reviewedAtEpochMillis <= cutoff) fsrsTrain else fsrsTest) +=
+                    pair.probability to pair.correct
             }
-            legacy(history).forEachIndexed { index, pair ->
-                val sample = history[index + 1]
-                if (sample.reviewedAtEpochMillis <= cutoff) legacyTrain += pair else legacyTest += pair
+            legacy(history)?.let { pair ->
+                (if (pair.target.reviewedAtEpochMillis <= cutoff) legacyTrain else legacyTest) +=
+                    pair.probability to pair.correct
             }
         }
         val evaluationSamples = fsrsTest.size
@@ -349,20 +368,20 @@ object SchedulingEvaluationHarness {
      * stability multipliers, fed ratings mapped back to outcomes.
      *
      * The replay mirrors [SchedulingReplay.predict] so both models score the
-     * exact same prediction pairs (spec §2.20 parity): the first sample only
+     * exact same end-state prediction pair (spec §2.20 parity): the first sample only
      * seeds state, and a same-day repeat (elapsed < 1 day) carries no
      * long-run retention signal — it advances state without emitting a
      * prediction pair.
      */
-    internal fun legacyPredictionsForTest(history: List<ReviewSample>): List<Pair<Double, Boolean>> =
+    internal fun legacyPredictionsForTest(history: List<ReviewSample>): SchedulingReplay.EndStatePrediction? =
         legacy(history)
 
-    private fun legacy(history: List<ReviewSample>): List<Pair<Double, Boolean>> {
+    private fun legacy(history: List<ReviewSample>): SchedulingReplay.EndStatePrediction? {
         val ordered = history.sortedBy(ReviewSample::reviewedAtEpochMillis)
         var stability = 0.5
         var hasState = false
         var lastReviewedAt = 0L
-        val predictions = mutableListOf<Pair<Double, Boolean>>()
+        var endState: SchedulingReplay.EndStatePrediction? = null
         for (sample in ordered) {
             if (!hasState) {
                 hasState = true
@@ -383,7 +402,7 @@ object SchedulingEvaluationHarness {
                 continue
             }
             val probability = Math.pow(0.9, elapsedDays / stability)
-            predictions += probability to sample.isCorrect
+            endState = SchedulingReplay.EndStatePrediction(probability, sample.isCorrect, sample)
             stability = if (sample.isCorrect) {
                 stability * 2.6 + 0.25
             } else {
@@ -391,7 +410,7 @@ object SchedulingEvaluationHarness {
             }
             lastReviewedAt = sample.reviewedAtEpochMillis
         }
-        return predictions
+        return endState
     }
 
 }
@@ -399,8 +418,9 @@ object SchedulingEvaluationHarness {
 /**
  * Local FSRS-6 parameter optimizer (spec §2.11/B6): bounded Adam with
  * central-difference gradients over the replay log-loss, honoring the
- * fsrs-rs data-volume thresholds (fewer than 8 samples: keep defaults;
- * fewer than 64: fit only initial stability).
+ * official hard gate (fewer than the 400 predictable-sample floor: keep
+ * defaults; KF-05/台账裁决). Wave 2 aligns the objective with fsrs-optimizer
+ * (附录 B): sequence-end loss, L2 prior penalty, no early stopping.
  */
 object FsrsParameterOptimizer {
 
@@ -427,7 +447,7 @@ object FsrsParameterOptimizer {
         val optimizedParameterIndices: List<Int>,
     )
 
-    enum class Mode { INSUFFICIENT_DATA, INITIAL_STABILITY_ONLY, FULL_FIT }
+    enum class Mode { INSUFFICIENT_DATA, FULL_FIT }
 
     fun optimize(
         samples: List<ReviewSample>,
@@ -441,11 +461,8 @@ object FsrsParameterOptimizer {
         // 而不是异常；下面 predictableSampleCount=0 会走 INSUFFICIENT_DATA 分支。
         val fittingSamples = fittableReviewSamples(samples)
         require(samples.isNotEmpty()) { "Optimization requires review samples" }
-        // The data-volume thresholds (fsrs-rs 8/64; spec §2.11b unlock floor)
-        // exist to keep the fit honest relative to how many outcomes the
-        // replay can actually score. First samples and same-day repeats never
-        // produce a prediction pair, so raw row counts over-state the learnable
-        // data; count the predictable (long-run) samples instead.
+        // W2-2/KF-05：官方 400 硬门（原 8/64 双门槛废止）。门槛按可预测（长程）样本计——
+        // 首样与同日重复不产生预测对，行数会虚高；口径与 predictableSampleCount 一致。
         val predictableSampleCount = predictableSampleCount(fittingSamples)
         if (predictableSampleCount < MIN_SAMPLES_FOR_FITTING) {
             return Result(
@@ -457,11 +474,9 @@ object FsrsParameterOptimizer {
                 emptyList(),
             )
         }
-        val baseIndices = if (predictableSampleCount < MIN_SAMPLES_FOR_FULL_FIT) {
-            (0..5).toList()
-        } else {
-            (0..14).toList() + listOf(20)
-        }
+        // W2-3/KF-12：w3 与 w16 并列剔除——三档评级（裁决）下 EASY 结构性消失，w3 的训练集
+        // 为空，拟合它是不可辨识的自由参数；w16 此前已钉 1.0（研究 2026-09-09 §7/§8）。
+        val baseIndices = (0..2).toList() + (4..14).toList() + listOf(20)
 
         // Chronological hold-out (srs-benchmark protocol): each card's FULL
         // history is replayed once and the prediction points are bucketed by
@@ -478,8 +493,7 @@ object FsrsParameterOptimizer {
             .filter { it.size >= 2 }
             .map { history -> history.sortedBy(ReviewSample::reviewedAtEpochMillis) }
 
-        var (bestParams, bestValidationLoss) = fit(cards, cutoff, baseIndices, iterations)
-        var bestTrainLoss = lossFor(cards, cutoff, bestParams, wantValidation = false)
+        var (bestParams, bestValidationObjective) = fit(cards, cutoff, baseIndices, iterations)
         var fittedIndices = baseIndices
 
         // Spec §2.11b: unlock the hard-penalty coefficient (w15) only when the sample
@@ -495,29 +509,44 @@ object FsrsParameterOptimizer {
             fittingSamples.count { it.rating == FsrsRating.HARD } >= MIN_HARD_SAMPLES_FOR_W15
         ) {
             val extendedIndices = (baseIndices + 15).distinct()
-            val (extendedParams, extendedValidationLoss) = fit(cards, cutoff, extendedIndices, iterations)
-            val relativeGain = (bestValidationLoss - extendedValidationLoss) / bestValidationLoss
-            if (bestValidationLoss.isFinite() && relativeGain > UNLOCK_W15_W16_GAIN_MARGIN) {
+            val (extendedParams, extendedValidationObjective) = fit(cards, cutoff, extendedIndices, iterations)
+            val relativeGain = (bestValidationObjective - extendedValidationObjective) / bestValidationObjective
+            if (bestValidationObjective.isFinite() && relativeGain > UNLOCK_W15_W16_GAIN_MARGIN) {
                 bestParams = extendedParams
-                bestValidationLoss = extendedValidationLoss
-                bestTrainLoss = lossFor(cards, cutoff, bestParams, wantValidation = false)
                 fittedIndices = extendedIndices
             }
         }
 
-        val mode = if (predictableSampleCount < MIN_SAMPLES_FOR_FULL_FIT) {
-            Mode.INITIAL_STABILITY_ONLY
-        } else {
-            Mode.FULL_FIT
-        }
+        // 上报口径 = 纯 BCE（采纳门/UI 的"log loss"语义）；含 L2 的 objective 只在拟合内部用。
         return Result(
             bestParams,
-            mode,
-            bestTrainLoss,
-            bestValidationLoss,
+            Mode.FULL_FIT,
+            bceFor(cards, cutoff, bestParams, wantValidation = false),
+            bceFor(cards, cutoff, bestParams, wantValidation = true),
             predictableSampleCount,
             fittedIndices,
         )
+    }
+
+    /**
+     * W2-2 采纳门的比较口径：对**任意**参数集在同一时间切分协议（fittable → 每卡全历史重放 →
+     * 80% 时间分位切桶）下的验证桶 log loss。候选参数与存量参数都必须走这同一个函数，
+     * "不劣于才写入"的比较才同构；无验证对（分位之上没有可预测样本）返回 null。
+     */
+    fun validationLogLoss(samples: List<ReviewSample>, parameters: DoubleArray): Double? {
+        val fittingSamples = fittableReviewSamples(samples)
+        val cards = fittingSamples.groupBy(ReviewSample::practiceUnitId)
+            .values
+            .filter { it.size >= 2 }
+            .map { history -> history.sortedBy(ReviewSample::reviewedAtEpochMillis) }
+        if (cards.isEmpty()) return null
+        val cutoff = quantile(
+            fittingSamples.map(ReviewSample::reviewedAtEpochMillis).sorted(),
+            TRAIN_FRACTION,
+        )
+        val pairs = endStatePairs(cards, cutoff, parameters, wantValidation = true)
+        if (pairs.isEmpty()) return null
+        return SchedulingReplay.bceLogLoss(pairs)
     }
 
     /**
@@ -548,7 +577,10 @@ object FsrsParameterOptimizer {
 
     /**
      * Runs one bounded-Adam fit over [fittedIndices] and returns the best parameters plus their
-     * validation log-loss. The default parameters seed every fit so each stage is independent.
+     * validation objective. The default parameters seed every fit so each stage is independent.
+     *
+     * W2-5③（附录 B）：**无早停**——固定跑满 [iterations]（原"连续 5 步无改善即断"删除），
+     * best 仍按验证 objective 保留（官方 best_w 按最低 eval loss）。
      */
     private fun fit(
         cards: List<List<ReviewSample>>,
@@ -559,66 +591,90 @@ object FsrsParameterOptimizer {
         var parameters = FsrsScheduleMath.DEFAULT_PARAMETERS.copyOf()
         val firstMoment = DoubleArray(FsrsScheduleMath.PARAMETER_COUNT)
         val secondMoment = DoubleArray(FsrsScheduleMath.PARAMETER_COUNT)
-        var bestLoss = lossFor(cards, cutoff, parameters, wantValidation = true)
+        var bestLoss = objectiveFor(cards, cutoff, parameters, wantValidation = true)
         var best = parameters.copyOf()
-        var stepsSinceImprovement = 0
-        var step = 0
         for (iteration in 0 until iterations) {
-            step += 1
             val gradient = DoubleArray(FsrsScheduleMath.PARAMETER_COUNT)
             for (index in fittedIndices) {
                 val upper = parameters.copyOf().also { it[index] = it[index] + EPSILON }
                 val lower = parameters.copyOf().also { it[index] = it[index] - EPSILON }
-                gradient[index] = (lossFor(cards, cutoff, upper, wantValidation = false) -
-                    lossFor(cards, cutoff, lower, wantValidation = false)) / (2 * EPSILON)
+                gradient[index] = (objectiveFor(cards, cutoff, upper, wantValidation = false) -
+                    objectiveFor(cards, cutoff, lower, wantValidation = false)) / (2 * EPSILON)
             }
             for (index in fittedIndices) {
                 firstMoment[index] = BETA1 * firstMoment[index] + (1 - BETA1) * gradient[index]
                 secondMoment[index] = BETA2 * secondMoment[index] + (1 - BETA2) * gradient[index] * gradient[index]
-                val firstCorrection = firstMoment[index] / (1 - Math.pow(BETA1, step.toDouble()))
-                val secondCorrection = secondMoment[index] / (1 - Math.pow(BETA2, step.toDouble()))
+                val firstCorrection = firstMoment[index] / (1 - Math.pow(BETA1, (iteration + 1).toDouble()))
+                val secondCorrection = secondMoment[index] / (1 - Math.pow(BETA2, (iteration + 1).toDouble()))
                 parameters[index] -= LEARNING_RATE * firstCorrection / (sqrt(secondCorrection) + 1e-8)
                 parameters[index] = parameters[index].coerceIn(LOWER_BOUNDS[index], UPPER_BOUNDS[index])
             }
-            val currentLoss = lossFor(cards, cutoff, parameters, wantValidation = true)
+            val currentLoss = objectiveFor(cards, cutoff, parameters, wantValidation = true)
             if (currentLoss < bestLoss - 1e-9) {
                 bestLoss = currentLoss
                 best = parameters.copyOf()
-                stepsSinceImprovement = 0
-            } else {
-                stepsSinceImprovement += 1
-                if (stepsSinceImprovement >= EARLY_STOP_PATIENCE) break
             }
         }
         return best to bestLoss
     }
 
     /**
-     * BCE over one bucket of the chronological split. Each card's full
-     * history is replayed (so validation keeps train-segment memory) and a
-     * prediction belongs to the bucket of the review it predicted.
+     * W2-5②/附录 B 的目标函数：桶内 BCE 均值 + L2 先验罚项。
+     * 罚项 `γ·Σ((w−w_init)²/σ²)`，逐字对齐 fsrs-optimizer v6.5.0
+     * `src/fsrs_optimizer/fsrs_optimizer.py`（γ 默认 1：:446/:1424；σ=DEFAULT_PARAMS_STDDEV_TENSOR：
+     * :79-100；训练罚项 ：514-523）。官方训练目标是 sum-BCE + γ·罚项（minibatch 按比例摊进
+     * epoch）；全批等价形式 = mean BCE + γ·罚项/N——与官方 eval 形式
+     * （`BCE.mean() + penalty·γ/train_set_size`，:579-584）逐项同构，故 N 取桶内对数。
+     * 数值梯度按全目标求差分，罚项随之自动进入梯度。
      */
-    private fun lossFor(
+    /** 纯 BCE（不含 L2）——[Result] 的上报口径与 W2-2 采纳门的比较口径。 */
+    private fun bceFor(
         cards: List<List<ReviewSample>>,
         cutoff: Long,
         parameters: DoubleArray,
         wantValidation: Boolean,
     ): Double {
-        val predictions = cards.flatMap { history ->
-            val reviewed = history.drop(1)
-            SchedulingReplay.predict(history, parameters)
-                .zip(reviewed) { pair, sample -> pair to sample }
-                .filter { (_, sample) ->
-                    (sample.reviewedAtEpochMillis > cutoff) == wantValidation
-                }
-                .map { (pair, _) -> pair }
-        }
-        val loss = SchedulingReplay.bceLogLoss(predictions)
-        return if (loss.isNaN()) 10.0 else loss
+        val pairs = endStatePairs(cards, cutoff, parameters, wantValidation)
+        return if (pairs.isEmpty()) 10.0 else SchedulingReplay.bceLogLoss(pairs)
     }
 
-    const val MIN_SAMPLES_FOR_FITTING = 8
-    const val MIN_SAMPLES_FOR_FULL_FIT = 64
+    private fun objectiveFor(
+        cards: List<List<ReviewSample>>,
+        cutoff: Long,
+        parameters: DoubleArray,
+        wantValidation: Boolean,
+    ): Double {
+        val pairs = endStatePairs(cards, cutoff, parameters, wantValidation)
+        val bce = SchedulingReplay.bceLogLoss(pairs)
+        if (pairs.isEmpty() || bce.isNaN()) return 10.0
+        var penalty = 0.0
+        for (index in parameters.indices) {
+            val delta = parameters[index] - FsrsScheduleMath.DEFAULT_PARAMETERS[index]
+            penalty += (delta / PARAMETER_SIGMA[index]) * (delta / PARAMETER_SIGMA[index])
+        }
+        return bce + L2_GAMMA * penalty / pairs.size
+    }
+
+    /**
+     * One end-state pair per card (W2-5①), bucketed by the predicted review's
+     * timestamp — the chronological hold-out protocol: each card's FULL
+     * history is replayed once (so validation keeps train-segment memory) and
+     * the pair belongs to the bucket of the review it predicted.
+     */
+    private fun endStatePairs(
+        cards: List<List<ReviewSample>>,
+        cutoff: Long,
+        parameters: DoubleArray,
+        wantValidation: Boolean,
+    ): List<Pair<Double, Boolean>> =
+        cards.mapNotNull { history ->
+            SchedulingReplay.predict(history, parameters)
+                ?.takeIf { (it.target.reviewedAtEpochMillis > cutoff) == wantValidation }
+        }
+            .map { it.probability to it.correct }
+
+    /** W2-2/KF-05：官方 400 硬门（Anki 口径），取代原 8/64 双门槛。 */
+    const val MIN_SAMPLES_FOR_FITTING = 400
     /** Spec §2.11b: unlock w15/w16 only at this sample volume. */
     const val UNLOCK_W15_W16_MIN_SAMPLES = 5_000
     /**
@@ -631,7 +687,20 @@ object FsrsParameterOptimizer {
     const val UNLOCK_W15_W16_GAIN_MARGIN = 0.02
     const val DEFAULT_ITERATIONS = 24
     const val TRAIN_FRACTION = 0.8
-    const val EARLY_STOP_PATIENCE = 5
+    /**
+     * W2-5② L2 先验罚项的 γ（裁决 14：对齐官方默认）。取证：fsrs-optimizer
+     * **v6.5.0**（2026-02-02 release）`src/fsrs_optimizer/fsrs_optimizer.py`，
+     * `gamma: float = 1`（:446 Trainer.__init__）/ `gamma: float = 1.0`（:1424）。
+     */
+    const val L2_GAMMA = 1.0
+    /**
+     * W2-5② 罚项的分母 σ：逐参数先验标准差，逐字对齐 fsrs-optimizer v6.5.0
+     * `DEFAULT_PARAMS_STDDEV_TENSOR`（`fsrs_optimizer.py:79-100`）。
+     */
+    val PARAMETER_SIGMA = doubleArrayOf(
+        6.43, 9.66, 17.58, 27.85, 0.57, 0.28, 0.6, 0.12, 0.39, 0.18,
+        0.33, 0.3, 0.09, 0.16, 0.57, 0.25, 1.03, 0.31, 0.32, 0.14, 0.27,
+    )
     private const val EPSILON = 1e-4
     private const val LEARNING_RATE = 2e-3
     private const val BETA1 = 0.9

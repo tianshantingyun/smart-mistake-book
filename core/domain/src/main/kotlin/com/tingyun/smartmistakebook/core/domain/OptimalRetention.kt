@@ -98,17 +98,20 @@ object OptimalRetention {
         var memorized = 0.0
         var reviews = 0.0
         val horizon = horizonDays.toDouble()
+        // W2-1/KF-01：模拟的 decay 来自本次推荐所用的参数集（recommend 的调用方
+        // 传优化参数即个性化衰减），不再隐式默认。
+        val decay = -parameters[20]
         cards.forEach { card ->
             var stability = card.stabilityDays
             var elapsed = 0.0
             while (elapsed < horizon) {
                 val interval = FsrsScheduleMath
-                    .intervalDays(stability, desiredRetention)
+                    .intervalDays(stability, desiredRetention, decay)
                     .toDouble()
                     .coerceAtLeast(1.0)
                 val span = minOf(interval, horizon - elapsed)
-                memorized += averageRetention(span, stability) * span
-                val retrievabilityAtReview = FsrsScheduleMath.retention(interval, stability)
+                memorized += averageRetention(span, stability, decay) * span
+                val retrievabilityAtReview = FsrsScheduleMath.retention(interval, stability, decay)
                 // Lapse force (fsrs-rs CMRR): a review succeeds only with
                 // probability R. The expected cost of the cycle includes the
                 // relearning review(s) after a failure, and the expected next
@@ -144,9 +147,8 @@ object OptimalRetention {
      * Mean of R(t,S) = (1 + FACTOR·t/S)^DECAY over `[0, span]`, from the closed
      * form of the integral (DECAY + 1 is never zero for the FSRS-6 default).
      */
-    private fun averageRetention(span: Double, stabilityDays: Double): Double {
+    private fun averageRetention(span: Double, stabilityDays: Double, decay: Double): Double {
         if (span <= 0.0) return 0.0
-        val decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20]
         val factor = FsrsScheduleMath.factor(decay)
         val exponent = decay + 1.0
         val scaled = 1.0 + factor * span / stabilityDays

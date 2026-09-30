@@ -986,9 +986,11 @@ class LearningProjector(
             // Spec §2.10 graduation: once the streak is long enough and the
             // regular interval reaches ninety days, schedule maintenance at a
             // lower target retention instead.
+            // W2-1/KF-01：间隔反函数用**当前模型**的 decay（个性化 w20），不再隐式默认。
             val regularIntervalDays = FsrsScheduleMath.intervalDays(
                 stability,
                 memoryUpdateModel.desiredRetention,
+                memoryUpdateModel.decay,
             )
             if (regularIntervalDays >= GRADUATION_MIN_INTERVAL_DAYS) {
                 nextReviewAt = forgettingCurve.reviewAtTargetRetention(

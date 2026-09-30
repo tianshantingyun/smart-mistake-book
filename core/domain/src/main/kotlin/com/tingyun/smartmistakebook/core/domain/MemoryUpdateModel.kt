@@ -52,6 +52,13 @@ class FsrsMemoryUpdateModel(
 
     override val algorithmId: String = ALGORITHM_ID
 
+    /**
+     * W2-1/KF-01：本模型的遗忘曲线衰减 `-w20`。稳定性/难度更新的 retrievability 与间隔反函数
+     * 都必须用它（个性化参数),不再隐式吃 `FsrsScheduleMath` 的默认值；投影器的毕业间隔
+     * （`LearningProjector` 里 `memoryUpdateModel is FsrsMemoryUpdateModel` 分支）也从这里取。
+     */
+    val decay: Double = -parameters[20]
+
     init {
         FsrsScheduleMath.requireValid(parameters)
         require(desiredRetention in 0.7..0.97) {
@@ -83,14 +90,14 @@ class FsrsMemoryUpdateModel(
                 FsrsScheduleMath.nextForgetStability(
                     difficulty = previous.difficulty,
                     stability = previous.stabilityDays,
-                    retrievability = FsrsScheduleMath.retention(elapsedDays, previous.stabilityDays),
+                    retrievability = FsrsScheduleMath.retention(elapsedDays, previous.stabilityDays, decay),
                     parameters = parameters,
                 )
             } else {
                 FsrsScheduleMath.nextRecallStability(
                     difficulty = previous.difficulty,
                     stability = previous.stabilityDays,
-                    retrievability = FsrsScheduleMath.retention(elapsedDays, previous.stabilityDays),
+                    retrievability = FsrsScheduleMath.retention(elapsedDays, previous.stabilityDays, decay),
                     rating = rating,
                     parameters = parameters,
                 )
@@ -98,7 +105,7 @@ class FsrsMemoryUpdateModel(
             // Difficulty updates on every review, including same-day ones.
             difficulty = FsrsScheduleMath.nextDifficulty(previous.difficulty, rating, parameters)
         }
-        val intervalDays = FsrsScheduleMath.intervalDays(stability, desiredRetention).coerceAtLeast(1)
+        val intervalDays = FsrsScheduleMath.intervalDays(stability, desiredRetention, decay).coerceAtLeast(1)
         val nextReviewAt = addDays(effectiveAttemptAtEpochMillis, intervalDays.toLong())
         return MemoryUpdateResult(
             stabilityDays = stability,

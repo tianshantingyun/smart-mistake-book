@@ -60,27 +60,35 @@ object FsrsScheduleMath {
         require(parameters.all { it.isFinite() }) { "FSRS parameters must be finite" }
     }
 
-    /** R(t,S) = (1 + FACTOR·t/S)^(−w20) with FACTOR = 0.9^(1/DECAY) − 1. */
-    fun retention(elapsedDays: Double, stabilityDays: Double, decay: Double = -DEFAULT_PARAMETERS[20]): Double {
+    /**
+     * R(t,S) = (1 + FACTOR·t/S)^(−w20) with FACTOR = 0.9^(1/DECAY) − 1.
+     *
+     * W2-1/KF-01：[decay] **无默认值**——此前的隐式默认让拟合 loss 对 w20 的梯度恒为零、
+     * 在线间隔反函数写死默认衰减（fix-plan KF-01 的原始证据）。每个调用点必须显式声明
+     * 它的 decay 来源（个性化模型传 `-parameters[20]`，无参数上下文的调用点显式传
+     * `-DEFAULT_PARAMETERS[20]` 并注明边界），删除本函数的默认值即让漏网变成编译错。
+     */
+    fun retention(elapsedDays: Double, stabilityDays: Double, decay: Double): Double {
         require(stabilityDays > 0.0) { "Stability must be positive" }
         val factor = factor(decay)
         val clampedElapsed = elapsedDays.coerceAtLeast(0.0)
         return (1.0 + factor * clampedElapsed / stabilityDays).pow(decay).coerceIn(0.0, 1.0)
     }
 
-    fun factor(decay: Double = -DEFAULT_PARAMETERS[20]): Double = 0.9.pow(1.0 / decay) - 1.0
+    fun factor(decay: Double): Double = 0.9.pow(1.0 / decay) - 1.0
 
     /**
      * Interval inverse I(r*, S) = (S/FACTOR)·(r*^(1/DECAY) − 1), rounded to a
      * whole day with the py-fsrs `_next_interval` behavior (round to nearest,
      * at least one day, at most the maximum interval).
+     *
+     * W2-1/KF-01：decay 显式传参（原实现在函数体内硬吃默认 w20，个性化参数永远进不了间隔）。
      */
-    fun intervalDays(stabilityDays: Double, desiredRetention: Double): Int {
+    fun intervalDays(stabilityDays: Double, desiredRetention: Double, decay: Double): Int {
         require(stabilityDays > 0.0) { "Stability must be positive" }
         require(desiredRetention in 0.0..1.0 && desiredRetention != 0.0 && desiredRetention != 1.0) {
             "Desired retention must be strictly between zero and one"
         }
-        val decay = -DEFAULT_PARAMETERS[20]
         val raw = (stabilityDays / factor(decay)) * (desiredRetention.pow(1.0 / decay) - 1.0)
         return raw.toFixedDays()
     }

@@ -19,15 +19,17 @@ class SchedulingEvaluationHarnessTest {
             sample("unit-1", DAY * 0 + 30 * 60_000L, FsrsRating.GOOD, deltaTDays = 1.0),
         )
 
-        val predictions = SchedulingReplay.predict(history)
+        val endState = SchedulingReplay.predict(history)
 
-        // A 30-minute gap under a wall-clock floor would be same-day (0 predictions); the
-        // collected calendar-day delta of 1.0 must yield exactly one long-run prediction.
-        assertEquals(1, predictions.size)
+        // A 30-minute gap under a wall-clock floor would be same-day (no end-state pair); the
+        // collected calendar-day delta of 1.0 must yield the long-run end-state pair.
+        assertNotNull(endState)
+        assertEquals(history[1].reviewedAtEpochMillis, endState!!.target.reviewedAtEpochMillis)
     }
 
     @Test
-    fun `replay emits one prediction per repeat review skipping the first`() {
+    fun `replay emits only the sequence end pair for the last long range review`() {
+        // W2-5①：末态口径——每卡一个监督点，来自序列里最后一次长程复习。
         val history = listOf(
             sample("unit-1", DAY * 0, FsrsRating.GOOD),
             sample("unit-1", DAY * 2, FsrsRating.GOOD),
@@ -35,10 +37,22 @@ class SchedulingEvaluationHarnessTest {
             sample("unit-1", DAY * 9, FsrsRating.GOOD),
         )
 
-        val predictions = SchedulingReplay.predict(history)
+        val endState = SchedulingReplay.predict(history)
 
-        assertEquals(3, predictions.size)
-        assertTrue(predictions.all { (probability, _) -> probability in 0.0..1.0 })
+        assertNotNull(endState)
+        assertEquals("监督点是末次长程复习", history[3].reviewedAtEpochMillis, endState!!.target.reviewedAtEpochMillis)
+        assertFalse("末次复习答对 → correct", !endState.correct)
+        assertTrue(endState.probability in 0.0..1.0)
+    }
+
+    @Test
+    fun `replay returns null when no long range review exists`() {
+        val history = listOf(
+            sample("unit-1", DAY * 0, FsrsRating.GOOD, deltaTDays = null),
+            sample("unit-1", DAY * 0 + 60_000L, FsrsRating.GOOD, deltaTDays = 0.0),
+        )
+
+        assertNull("全部同日复习没有长程监督点", SchedulingReplay.predict(history))
     }
 
     @Test
@@ -94,24 +108,28 @@ class SchedulingEvaluationHarnessTest {
     }
 
     @Test
-    fun `optimizer fits initial stability only in the narrow band`() {
-        val samples = syntheticHistory(cardCount = 10)
+    fun `optimizer refuses to fit below the 400 predictable sample hard gate`() {
+        // W2-2/KF-05：官方 400 硬门取代 8/64 双门槛。100 卡 × 6 行 = 500 可预测样本
+        // 远超门槛；但门下的窄带模式（INITIAL_STABILITY_ONLY）已废止——不足 400 就是
+        // INSUFFICIENT_DATA，不存在"少拟合几个参数"的中间档。
+        val samples = syntheticHistory(cardCount = 100)
 
-        val result = FsrsParameterOptimizer.optimize(samples, iterations = 6)
+        val result = FsrsParameterOptimizer.optimize(samples, iterations = 4)
 
-        assertEquals(FsrsParameterOptimizer.Mode.INITIAL_STABILITY_ONLY, result.mode)
-        assertEquals(listOf(0, 1, 2, 3, 4, 5), result.optimizedParameterIndices)
+        assertEquals(FsrsParameterOptimizer.Mode.FULL_FIT, result.mode)
+        assertTrue(result.sampleCount >= 400)
         assertTrue(result.trainLogLoss.isFinite())
     }
 
     @Test
     fun `optimizer full fit improves or preserves the default log loss on learnable data`() {
-        val samples = biasedHistory(correctStabilityGrowth = true, cardCount = 30)
+        val samples = biasedHistory(correctStabilityGrowth = true, cardCount = 100)
 
         val defaultLoss = SchedulingReplay.bceLogLoss(
             samples.groupBy(ReviewSample::practiceUnitId).values
                 .filter { it.size >= 2 }
-                .flatMap { SchedulingReplay.predict(it) },
+                .mapNotNull { SchedulingReplay.predict(it) }
+                .map { it.probability to it.correct },
         )
         val result = FsrsParameterOptimizer.optimize(samples, iterations = 12)
 
@@ -130,6 +148,29 @@ class SchedulingEvaluationHarnessTest {
         assertEquals(0.02, FsrsParameterOptimizer.UNLOCK_W15_W16_GAIN_MARGIN, 1e-9)
         // 研究 2026-09-09 §8: the HARD bucket must itself be populated.
         assertEquals(100, FsrsParameterOptimizer.MIN_HARD_SAMPLES_FOR_W15)
+    }
+
+    /**
+     * W2-1/KF-01 的回归钉：扰动 w20 必须改变同一批数据上的 log loss——w20 一旦有了梯度，
+     * 拟合才可能触到 decay；若有人把 decay 接线改回隐式默认（loss 对 w20 恒定），这条会红。
+     */
+    @Test
+    fun `loss responds to w20 perturbations on a fixed dataset`() {
+        val samples = syntheticHistory(cardCount = 100)
+
+        val atDefault = FsrsParameterOptimizer.validationLogLoss(
+            samples,
+            FsrsScheduleMath.DEFAULT_PARAMETERS,
+        )!!
+        val perturbedParameters = FsrsScheduleMath.DEFAULT_PARAMETERS.copyOf().also {
+            it[20] = FsrsScheduleMath.DEFAULT_PARAMETERS[20] + 0.08
+        }
+        val perturbed = FsrsParameterOptimizer.validationLogLoss(samples, perturbedParameters)!!
+
+        assertTrue(
+            "w20 +0.08 必须移动 loss：default=$atDefault perturbed=$perturbed",
+            atDefault != perturbed,
+        )
     }
 
     @Test
@@ -152,14 +193,19 @@ class SchedulingEvaluationHarnessTest {
             ),
             1e-9,
         )
-        val samples = syntheticHistory(cardCount = 30)
+        val samples = syntheticHistory(cardCount = 100)
         val result = FsrsParameterOptimizer.optimize(samples, iterations = 6)
         assertTrue(16 !in result.optimizedParameterIndices)
+        // W2-3/KF-12：w3 与 w16 并列剔除——三档评级下 EASY 结构性消失，w3 同为不可辨识参数。
+        assertTrue(3 !in result.optimizedParameterIndices)
+        // 被剔除的维度必须停留在默认值上（拟合不许碰它们）。
+        assertEquals(FsrsScheduleMath.DEFAULT_PARAMETERS[3], result.parameters[3], 1e-12)
+        assertEquals(FsrsScheduleMath.DEFAULT_PARAMETERS[16], result.parameters[16], 1e-12)
     }
 
     @Test
     fun `optimizer below the w15 w16 floor never fits those coefficients`() {
-        val samples = syntheticHistory(cardCount = 30)  // well under 5000
+        val samples = syntheticHistory(cardCount = 100)  // well under 5000
 
         val result = FsrsParameterOptimizer.optimize(samples, iterations = 6)
 
@@ -263,7 +309,7 @@ class SchedulingEvaluationHarnessTest {
 
     @Test
     fun `optimizer reports a finite validation loss under the hold out protocol`() {
-        val samples = syntheticHistory(cardCount = 12)
+        val samples = syntheticHistory(cardCount = 100)
 
         val result = FsrsParameterOptimizer.optimize(samples, iterations = 6)
 
@@ -284,20 +330,21 @@ class SchedulingEvaluationHarnessTest {
             sample("unit-1", DAY * 3, FsrsRating.GOOD, deltaTDays = 3.0),
         )
 
-        val fsrsPredictions = SchedulingReplay.predict(history)
-        val legacyPredictions = SchedulingEvaluationHarness.legacyPredictionsForTest(history)
+        val fsrsEndState = SchedulingReplay.predict(history)
+        val legacyEndState = SchedulingEvaluationHarness.legacyPredictionsForTest(history)
 
-        assertEquals("same-day repeats must not create legacy prediction pairs", fsrsPredictions.size, legacyPredictions.size)
+        assertEquals(
+            "same-day repeats must not create legacy prediction pairs",
+            fsrsEndState == null,
+            legacyEndState == null,
+        )
     }
 
     @Test
     fun `optimizer thresholds count predictable samples not raw rows`() {
-        // Thirty-six cards × (first sample + two same-day repeats + one
-        // cross-day review): 144 raw rows cross the 64-row FULL_FIT floor, but
-        // only the final review per card is predictable — 36 predictable
-        // samples still sit in the 8..63 INITIAL_STABILITY_ONLY band. Judging
-        // the band on raw rows would wrongly claim FULL_FIT and fit 16
-        // parameters to 36 data points.
+        // W2-2/KF-05 的 400 门按**可预测样本**计，不按行数：36 卡 × 4 行 = 144 行里有
+        // 大量同日重复，可预测样本只有 36——若按行数判门，144 行会被误当成可拟合，
+        // 拿 36 个数据点去解 15 个自由参数。
         val samples = (0 until 36).flatMap { card ->
             listOf(
                 sample("unit-$card", DAY * card, FsrsRating.GOOD, deltaTDays = null),
@@ -309,9 +356,32 @@ class SchedulingEvaluationHarnessTest {
 
         val result = FsrsParameterOptimizer.optimize(samples, iterations = 4)
 
-        assertEquals(FsrsParameterOptimizer.Mode.INITIAL_STABILITY_ONLY, result.mode)
-        assertEquals(listOf(0, 1, 2, 3, 4, 5), result.optimizedParameterIndices)
-        assertTrue(result.trainLogLoss.isFinite())
+        assertEquals(FsrsParameterOptimizer.Mode.INSUFFICIENT_DATA, result.mode)
+        assertEquals(36, result.sampleCount)
+        assertTrue(20 in result.parameters.indices)
+        assertEquals(
+            FsrsScheduleMath.DEFAULT_PARAMETERS.toList(),
+            result.parameters.toList(),
+        )
+    }
+
+    @Test
+    fun `optimizer crosses the gate exactly at 400 predictable samples`() {
+        // W2-2/KF-05 的边界钉：399 不拟合、400 拟合（每卡 2 行=1 个可预测样本）。
+        fun gateFixture(cardCount: Int) = (0 until cardCount).flatMap { card ->
+            listOf(
+                sample("unit-$card", DAY * card, FsrsRating.GOOD, deltaTDays = null),
+                sample("unit-$card", DAY * (card + 2), FsrsRating.GOOD, deltaTDays = 2.0),
+            )
+        }
+
+        val below = FsrsParameterOptimizer.optimize(gateFixture(399), iterations = 4)
+        val at = FsrsParameterOptimizer.optimize(gateFixture(400), iterations = 4)
+
+        assertEquals(FsrsParameterOptimizer.Mode.INSUFFICIENT_DATA, below.mode)
+        assertEquals(FsrsParameterOptimizer.Mode.FULL_FIT, at.mode)
+        assertEquals(399, below.sampleCount)
+        assertEquals(400, at.sampleCount)
     }
 
     @Test

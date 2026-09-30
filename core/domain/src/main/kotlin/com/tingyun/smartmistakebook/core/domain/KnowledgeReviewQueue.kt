@@ -120,6 +120,9 @@ fun knowledgeRecallRiskByNode(
             FsrsScheduleMath.retention(
                 elapsedDays = elapsedDays,
                 stabilityDays = memory.stabilityDays,
+                // W2-1/KF-01：decay 显式。风险排序在规划层进行，尚无个性化参数上下文
+                // （登记边界）：用默认 w20；规划侧个性化随 Wave 3 模型改造。
+                decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
             )
         }
         .minOrNull()

@@ -13,16 +13,17 @@ class FsrsScheduleMathTest {
     fun `power law retention is ninety percent at one stability interval`() {
         assertEquals(
             0.9,
-            FsrsScheduleMath.retention(elapsedDays = 10.0, stabilityDays = 10.0),
+            FsrsScheduleMath.retention(elapsedDays = 10.0, stabilityDays = 10.0, decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20]),
             1e-9,
         )
     }
 
     @Test
     fun `power law retention decays monotonically toward zero`() {
-        val oneDay = FsrsScheduleMath.retention(1.0, 10.0)
-        val tenDays = FsrsScheduleMath.retention(10.0, 10.0)
-        val hundredDays = FsrsScheduleMath.retention(100.0, 10.0)
+        val decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20]
+        val oneDay = FsrsScheduleMath.retention(1.0, 10.0, decay)
+        val tenDays = FsrsScheduleMath.retention(10.0, 10.0, decay)
+        val hundredDays = FsrsScheduleMath.retention(100.0, 10.0, decay)
 
         assertTrue(oneDay > tenDays)
         assertTrue(tenDays > hundredDays)
@@ -34,7 +35,7 @@ class FsrsScheduleMathTest {
         for (stability in listOf(0.212, 2.3065, 30.0, 365.0)) {
             assertEquals(
                 stability,
-                FsrsScheduleMath.intervalDays(stability, 0.9).toDouble(),
+                FsrsScheduleMath.intervalDays(stability, 0.9, -FsrsScheduleMath.DEFAULT_PARAMETERS[20]).toDouble(),
                 1.0,
             )
         }
@@ -316,7 +317,7 @@ class FsrsScheduleMathTest {
         var difficulty = FsrsScheduleMath.clampDifficulty(FsrsScheduleMath.initialDifficulty(FsrsRating.GOOD))
         assertTrue(stability > 0.0)
         for (day in 1..40) {
-            val retrievability = FsrsScheduleMath.retention(day.toDouble(), stability)
+            val retrievability = FsrsScheduleMath.retention(day.toDouble(), stability, -FsrsScheduleMath.DEFAULT_PARAMETERS[20])
             stability = if (day % 3 == 0) {
                 FsrsScheduleMath.nextForgetStability(difficulty, stability, retrievability)
             } else {
@@ -331,10 +332,10 @@ class FsrsScheduleMathTest {
     @Test
     fun `power law matches the closed form factor`() {
         val decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20]
-        val factor = FsrsScheduleMath.factor()
+        val factor = FsrsScheduleMath.factor(-FsrsScheduleMath.DEFAULT_PARAMETERS[20])
         val expected = (1.0 + factor * 20.0 / 10.0).pow(decay)
 
-        assertEquals(expected, FsrsScheduleMath.retention(20.0, 10.0), 1e-12)
+        assertEquals(expected, FsrsScheduleMath.retention(20.0, 10.0, -FsrsScheduleMath.DEFAULT_PARAMETERS[20]), 1e-12)
     }
 
     /**

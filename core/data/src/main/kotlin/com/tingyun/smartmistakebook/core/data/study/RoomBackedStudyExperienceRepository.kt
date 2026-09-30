@@ -119,12 +119,17 @@ class RoomBackedStudyExperienceRepository(
     private val knowledgeNames = fixtureBundle?.knowledgeNodes
         ?.associate { it.knowledgeNodeId to it.displayName }
         ?: emptyMap()
+    // W2-1/KF-01：学生侧遗忘曲线（FSRS 分支）的 decay 来自个性化参数集；无优化参数时
+    // 等于默认 w20。与 memoryUpdateModel 的 decay 同源，禁止各自另算。
+    private val activeFsrsDecay =
+        -(optimizedFsrsParameters ?: FsrsScheduleMath.DEFAULT_PARAMETERS)[20]
     private val forgettingCurve = ForgettingCurve(
         algorithm = if (schedulingOptions.useFsrsScheduling) {
             ForgettingCurveAlgorithm.FSRS6_POWER_LAW
         } else {
             ForgettingCurveAlgorithm.LEGACY_EXPONENTIAL
         },
+        decay = activeFsrsDecay,
     )
     private val reviewPlanner = ReviewPlanner()
     /**
@@ -142,6 +147,7 @@ class RoomBackedStudyExperienceRepository(
             } else {
                 ForgettingCurveAlgorithm.LEGACY_EXPONENTIAL
             },
+            decay = activeFsrsDecay,
         ),
         durationModel = durationModel,
     )

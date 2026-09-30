@@ -235,11 +235,13 @@ class FsrsProjectionBehaviorTest {
                 val regularInterval = FsrsScheduleMath.intervalDays(
                     memory.stabilityDays,
                     FsrsMemoryUpdateModel.DEFAULT_DESIRED_RETENTION,
+                    -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
                 )
                 if (regularInterval >= 90) {
                     val maintenanceInterval = FsrsScheduleMath.intervalDays(
                         memory.stabilityDays,
                         LearningProjector.GRADUATION_TARGET_RETENTION,
+                        -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
                     )
                     val scheduledInterval =
                         (memory.nextReviewAtEpochMillis - occurredAt) / DAY_MILLIS
