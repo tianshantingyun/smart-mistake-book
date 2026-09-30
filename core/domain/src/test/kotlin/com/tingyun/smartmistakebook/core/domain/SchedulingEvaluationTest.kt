@@ -318,6 +318,34 @@ class SchedulingEvaluationHarnessTest {
     }
 
     @Test
+    fun `persisted Learning state overrides the elapsed heuristic in replay`() {
+        // W2-4/KF-23：state 是"同日重复 vs 长程复习"的权威判据。口径变更前的历史行可能
+        // 墙钟跨日却仍属同一学习日（04:00 日界），按 elapsed 会多发一个长程对。
+        val persisted = listOf(
+            sample("unit-1", DAY * 0, FsrsRating.GOOD, state = ReviewSample.STATE_NEW),
+            sample("unit-1", DAY * 3, FsrsRating.GOOD, state = ReviewSample.STATE_LEARNING),
+        )
+        assertNull("state=Learning → 不发长程对（哪怕墙钟跨了 3 天）", SchedulingReplay.predict(persisted))
+
+        val legacyRows = listOf(
+            sample("unit-1", DAY * 0, FsrsRating.GOOD),
+            sample("unit-1", DAY * 3, FsrsRating.GOOD),
+        )
+        assertNotNull("旧行（state=null）沿用 elapsed 启发式", SchedulingReplay.predict(legacyRows))
+    }
+
+    @Test
+    fun `persisted Review state makes a short gap eligible for a long range pair`() {
+        // 反向对照：墙钟只隔 1 小时，但落库状态是 Review（跨学习日发生在 04:00 前后）
+        // → 仍然产生长程监督对。
+        val history = listOf(
+            sample("unit-1", DAY * 0, FsrsRating.GOOD, state = ReviewSample.STATE_NEW),
+            sample("unit-1", DAY * 0 + 3_600_000, FsrsRating.GOOD, state = ReviewSample.STATE_REVIEW),
+        )
+        assertNotNull(SchedulingReplay.predict(history))
+    }
+
+    @Test
     fun `legacy baseline skips same day repeats so both models score the same prediction pairs`() {
         // A history whose every long-run prediction is preceded by a same-day
         // repeat. The legacy baseline must skip the same-day review (it
@@ -433,12 +461,14 @@ class SchedulingEvaluationHarnessTest {
         rating: FsrsRating,
         sourceKind: String = ReviewSample.ATTEMPT_KIND,
         deltaTDays: Double? = null,
+        state: Int? = null,
     ) = ReviewSample(
         practiceUnitId = unitId,
         reviewedAtEpochMillis = at,
         rating = rating,
         sourceKind = sourceKind,
         deltaTDays = deltaTDays,
+        state = state,
     )
 
     private companion object {

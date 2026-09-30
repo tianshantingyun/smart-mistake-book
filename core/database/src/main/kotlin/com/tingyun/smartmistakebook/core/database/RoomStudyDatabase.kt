@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLattic
 import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEntity
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
+import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
@@ -1275,6 +1276,13 @@ internal class RoomStudyDatabase(
         practiceUnitId: String,
         sourceKind: String,
     ): Long? = database.learningDao().readLastReviewLogAt(learnerId, practiceUnitId, sourceKind)
+
+    override suspend fun findLastReviewLogRow(
+        learnerId: String,
+        practiceUnitId: String,
+    ): PersistedReviewLogLast? = database.learningDao()
+        .findLastReviewLogRow(learnerId, practiceUnitId)
+        ?.let { PersistedReviewLogLast(it.lastRating, it.lastReviewedAtUtc) }
 
     override suspend fun findAttemptAdvanceProof(
         attemptId: String,

@@ -115,10 +115,18 @@ data class ReviewLogSampleProjection(
     val interruptionCount: Int,
     @ColumnInfo(name = "away_millis")
     val awayMillis: Long,
+    @ColumnInfo(name = "state")
+    val state: Int?,
     @ColumnInfo(name = "planned_reason")
     val plannedReason: String?,
     @ColumnInfo(name = "delta_t_days")
     val deltaTDays: Double?,
+)
+
+/** W2-4/KF-23：该卡最近一次复习行的两个事实（state 派生依据）。 */
+data class ReviewLogLastRowProjection(
+    val lastRating: Int,
+    val lastReviewedAtUtc: Long,
 )
 
 
@@ -180,11 +188,25 @@ internal abstract class LearningDao {
     @Query(
         "SELECT card_id AS practice_unit_id, reviewed_at_utc, rating, duration_ms, time_bucket, " +
             "source_kind, evidence_weight, scroll_up_count, edit_count, interruption_count, " +
-            "away_millis, planned_reason, delta_t_days FROM review_log " +
+            "away_millis, planned_reason, delta_t_days, state FROM review_log " +
             "WHERE learner_id = :learnerId " +
             "ORDER BY reviewed_at_utc ASC, review_log_id ASC LIMIT :limit",
     )
     abstract suspend fun readReviewLogSamples(learnerId: String, limit: Int): List<ReviewLogSampleProjection>
+
+    /**
+     * W2-4/KF-23：该卡最近一次复习行的（rating, 时间戳）——review_log.state 的派生依据
+     * （前条 AGAIN→Relearning、同学习日→Learning、跨学习日→Review、无前条→New）。
+     */
+    @Query(
+        "SELECT rating AS lastRating, reviewed_at_utc AS lastReviewedAtUtc FROM review_log " +
+            "WHERE learner_id = :learnerId AND card_id = :practiceUnitId " +
+            "ORDER BY reviewed_at_utc DESC, review_log_id DESC LIMIT 1",
+    )
+    abstract suspend fun findLastReviewLogRow(
+        learnerId: String,
+        practiceUnitId: String,
+    ): ReviewLogLastRowProjection?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun insertTeachingAdvisories(entries: List<LlmTeachingAdvisoryEntity>)

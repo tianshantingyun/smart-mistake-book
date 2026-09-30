@@ -487,6 +487,7 @@ internal fun ReviewLogEntry.toEntity() = ReviewLogEntity(
     evidenceWeight = evidenceWeight,
     schedulingEligible = schedulingEligible,
     timeBucket = timeBucket,
+    state = state,
     scrollUpCount = scrollUpCount,
     editCount = editCount,
     interruptionCount = interruptionCount,
@@ -509,4 +510,5 @@ internal fun ReviewLogSampleProjection.toRecord() = ReviewLogSampleRecord(
     awayMillis = awayMillis,
     plannedReason = plannedReason,
     deltaTDays = deltaTDays,
+    state = state,
 )

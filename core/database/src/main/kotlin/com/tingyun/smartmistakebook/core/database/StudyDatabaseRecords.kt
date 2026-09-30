@@ -1228,7 +1228,13 @@ data class ReviewLogEntry(
     val evidenceWeight: Double,
     val schedulingEligible: Boolean = true,
     val timeBucket: String,
-    /** Silent interaction signals (spec §2.14); never surfaced as UI prompts. */
+    /**
+     * W2-4/KF-23（v54→55）：该行复习时卡片所处的 FSRS 状态（0..3，取值常量见
+     * `ReviewSample.STATE_*`），由写入方派生并盖章。无默认值——每个写入方必须显式
+     * 决定派生口径；迁移对存量行按同一规则回填（无前条=0、前条 AGAIN=3、同日=1、跨日=2）。
+     */
+    val state: Int,
+    /** Silent interaction signals (spec 2.14); never surfaced as UI prompts. */
     val scrollUpCount: Int = 0,
     val editCount: Int = 0,
     val interruptionCount: Int = 0,
@@ -1268,6 +1274,14 @@ data class ReviewLogSampleRecord(
     val awayMillis: Long = 0,
     val plannedReason: String? = null,
     val deltaTDays: Double? = null,
+    /** W2-4/KF-23：FSRS 状态（0..3）；null=迁移前的旧行口径不明，重放走 elapsed 启发式。 */
+    val state: Int? = null,
+)
+
+/** W2-4/KF-23：该卡最近一次复习行的两个事实（review_log.state 的派生依据）。 */
+data class PersistedReviewLogLast(
+    val rating: Int,
+    val reviewedAtEpochMillis: Long,
 )
 
 data class AnswerRevealWriteCommand(

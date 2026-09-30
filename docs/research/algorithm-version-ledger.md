@@ -29,11 +29,12 @@
 
 | 资源 | Wave 0 前 | 3A 占用 | 用途 | 状态 |
 |---|---|---|---|---|
-| `STUDY_DATABASE_VERSION` | 53 | **54** | Wave 0：`projection_archive` 新表 + `review_plan` 指纹列合并 | ✅ 已用（本波） |
-| `STUDY_DATABASE_VERSION` | 53 | 55 | Wave 2：`review_log.state` | 未用 |
+| `STUDY_DATABASE_VERSION` | 53 | **54** | Wave 0：`projection_archive` 新表 + `review_plan` 指纹列合并 | ✅ 已用（Wave 0） |
+| `STUDY_DATABASE_VERSION` | 53 | **55** | Wave 2：`review_log.state`（v54→55 迁移，含回填） | ✅ 已用（Wave 2） |
 | `STUDY_DATABASE_VERSION` | 53 | 56 | Wave 3：`learner_knowledge_mastery_state` 的 `success_weight`/`failure_weight` | 未用 |
-| `LearningCoreVersions.PROJECTOR` | `projector-v7` | `projector-v8` | Wave 3 投影公式变更 | 未用 |
-| `LearningCoreVersions.EVIDENCE` | `evidence-v4` | `evidence-v5` | Wave 1 证据定价语义（`persistedAssistance` 链 + 看答案口径） | 未用 |
+| `LearningCoreVersions.PROJECTOR` | `projector-v7` | **`projector-v8`** | **Wave 2**：w20 个性化接线 + 学习日界 04:00（两处数值口径变更合并为一次 bump） | ✅ 已用（Wave 2） |
+| `LearningCoreVersions.PROJECTOR` | `projector-v8` | `projector-v9` | Wave 3 投影公式变更（β-二项等）——**顺延占号**（原 v8 被 Wave 2 用掉） | 未用 |
+| `LearningCoreVersions.EVIDENCE` | `evidence-v4` | `evidence-v5` | Wave 1 证据定价语义（`persistedAssistance` 链 + 看答案口径） | 未用（W1 无 bump，见 §3.4） |
 
 **Wave 0 不动版本串**：本波只做回退能力、读时校验、常数收敛与清单，**没有任何投影输出变化**，
 所以 `PROJECTOR` / `EVIDENCE` / `REVIEW_PLANNER` 一律不动（改公式才 bump）。
@@ -54,26 +55,27 @@
 | `STUDY_DATABASE_VERSION` 53 → **54** | 加表 `projection_archive`（W0-1 ③）；`review_plan` 去掉 `input_fingerprint`（W0-2，两列恒同值） | **无算法公式变更**：投影输出、计划指纹、计划 id 逐位不变 | roadmap W0-1/W0-2；审计 Q2/Q4/Q5 | `KernelWave0SchemaContractTest`（5 例，绿）；`FullMigrationMatrixInstrumentedTest`（1→54 矩阵 + 合并保行 + 归档落库，绿） | ➖ 本波建立归档能力；`PROJECTOR` 未 bump，因此没有跨版本重放要归档 |
 | `PROJECTOR` / `EVIDENCE` / `REVIEW_PLANNER` / `SKIP_POLICY` 等 | **未 bump** | 常数收敛（W0-4）只删同值副本，值一个没改 | roadmap W0-4；审计 Q5 | `core:domain` 496 / `core:database` 93 / `core:data` 563（既有红 5 条 KB 金标）——`ReviewPlannerTest` / `ReviewPlannerV2Test` 全绿（指纹与选序逐位不变） | ➖ |
 
-### 3.3 预留：Wave 2 · L2 罚项 γ（**尚未取值**）
+### 3.3 Wave 2 · L2 罚项 γ 与 σ（**已取值，2026-10-01**）
 
 | 项 | 内容 |
 |---|---|
-| 版本串 | 待实施（`fsrs-optimizer` 侧；若其取值改变排程输出，另需按 §0 规则判断是否 bump `PROJECTOR`/`REVIEW_PLANNER`） |
-| 变更公式 | `fsrs-optimizer` 的 **L2 罚项**（权重正则项）：`loss = Σ(预测误差项) + γ · Σ(w_i²)` 一类的罚项系数 γ |
-| **取值口径（裁定，不得自行取值）** | **取官方默认值**；实施时**记录所用 `fsrs-optimizer` 的版本号 + 默认值出处（文件与行号）**，写入本表"数据来源"栏。依据：台账裁决 14「L2 γ = 对齐 fsrs-optimizer 官方默认（实施时溯源记台账）」。本波（Wave 0）**只建文件与表格，不取数值** |
-| 数据来源 | 台账「3A 前裁决门 · 收口」裁决 14；roadmap 附录 B（fsrs-optimizer 对齐三件） |
-| 测试证据 | 待实施（合成数据恢复测试：参数能训回真值——Wave 2 退出门） |
-| archive | 待实施（若该波 bump 投影版本，bump 前必须已有 `projection_archive` 行；届时按 `docs/research/kernel-projection-rollback.md` 执行） |
+| 变更公式 | `FsrsParameterOptimizer` 的拟合目标改为 `mean BCE + γ·Σ((w−w_init)/σ)²/N`（序列末态 loss，官方 BPTT 口径） |
+| **取值（裁定 14：对齐官方默认）** | **γ = 1.0**；σ = 官方 `DEFAULT_PARAMS_STDDEV_TENSOR` 的 21 个先验标准差（6.43, 9.66, 17.58, 27.85, 0.57, 0.28, 0.6, 0.12, 0.39, 0.18, 0.33, 0.3, 0.09, 0.16, 0.57, 0.25, 1.03, 0.31, 0.32, 0.14, 0.27），逐字落 `FsrsParameterOptimizer.PARAMETER_SIGMA` |
+| **数据来源（溯源）** | `open-spaced-repetition/fsrs-optimizer` **v6.5.0**（release 2026-02-02），`src/fsrs_optimizer/fsrs_optimizer.py`：γ 默认 `gamma: float = 1`（:446，Trainer.__init__）/ `gamma: float = 1.0`（:1424）；罚项 `Σ((w − w_init)²/σ²)·γ·batch/epoch`（:514-523 训练）、`BCE.mean() + penalty·γ/train_set_size`（:579-584 评估）；σ 定义 :79-100 |
+| 测试证据 | `FsrsParameterRecoveryTest`（800 卡合成数据，w20 回到真值 ±0.08；loss 随 w20 变化）；`SchedulingEvaluationTest` 的采纳门/门槛/剔除用例 |
+| archive | ➖ 本波 `PROJECTOR` bump 走 W0-1 的归档 → 重放路径（首次实战） |
 
-## 3.4 Wave 1（2026-09-30）：证据定价语义接通——**未 bump 任何版本串**
+### 3.4 Wave 2（2026-10-01）：一次 bump 覆盖两处数值变更
 
 | 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
 |---|---|---|---|---|---|
-| `STUDY_DATABASE_VERSION` 54 | **未 bump** | 无 schema 变化：揭示事实读取是纯查询（`answer_reveal_outcome` 已有全部列）；review_log 无新列 | W1-3/KF-02 的修法边界（fix-plan：「无 schema 变化」） | JVM 全套 + 两处仪器化（见台账「Wave 1 完成记录」） | ➖ 无覆盖发生 |
-| `LearningCoreVersions.EVIDENCE` | **预留未用**（维持 `evidence-v4`） | 本轮接通的是**分支可达**而非语义变更：揭示后的作答在 DB 层本就被权威规范化（`canonicalizeAttemptForPresentation`），账本行（含规范指纹）逐位不变；W1-3 只是让域侧决策与落库事实一致、review_log 与 revealedBeforeAnswer 落真值 | 台账裁决 1(B)、裁决 18；fix-plan KF-02「投影/迁移影响：无 schema 变化」 | `StudyDatabaseInstrumentedTest.answerRevealFactsAreReadableByPresentationBeforeSubmission`（真库揭示读取）；`RoomBackedStudyExperienceRepositoryTest` 的揭示后答对/答错两条（EXCLUDED w=0 / INCORRECT_AFTER_REVEAL w=0.6，review_log rating=AGAIN） | ➖ 无重放、无覆盖 |
-| `PROJECTOR` / `REVIEW_PLANNER` / `SKIP_POLICY` | **未 bump** | `StudyDayMath` 只是同一算术的单源化（写路径 stamp 值、投影重放值、review_log 的 delta_t 三源由构造保证相同，交叉验证测试钉住）；`toFixedDays` 行为不变（tie 用例钉住 half-to-even） | 审计 P1/P10；roadmap W1-6 | `StudyDayMathTest`（7 探针 × 两推导逐值相同）、`FsrsScheduleMathTest` tie 用例（2.5→2、3.5→4） | ➖ |
+| `STUDY_DATABASE_VERSION` 54 → **55** | `review_log` 加 `state INTEGER NOT NULL DEFAULT 0` + **回填**（无前条=New/前条 AGAIN=Relearning/同日=Learning/跨日=Review） | 无算法数值变更（新增列是拟合侧输入；`delta_t_days` 语义不变） | roadmap W2-4/KF-23；fix-plan KF-23（回填口径 UNVERIFIED → 真库用例核验） | `KernelWave2SchemaContractTest`（3 例）；`KernelWave2MigrationInstrumentedTest`（真库回填 [0,1,2,1,3]）；`ReviewLogStateTest`（写侧同口径） | ➖ |
+| `PROJECTOR` v7 → **v8**（`PROJECTION_COMPOSITE` → `learning-core-v8(...)`） | ①W2-1/KF-01：`retention/factor/intervalDays` 去隐式默认，稳定性更新/间隔反函数/投影器毕业间隔全部走模型自己的 `-w20`；②W2-4/KF-25：学习日界 00:00 → 04:00（`StudyDayMath.DAY_START_HOUR`） | 有优化参数的学习者在线 R/间隔口径随之个性化；跨 00:00–04:00 的复习归属前一学习日 → `elapsedCalendarDays`/streak/毕业判定随口径变化 | roadmap W2-1/W2-4；审计 KF-01/KF-25 | `FsrsParameterRecoveryTest`（恢复+灵敏度）；`StudyDayMathTest`（04:00 边界 5 例）；`FsrsProjectionBehaviorTest`（跨日/毕业/leech 夹具按新口径重定基）；JVM 全套 + 全量 `:core:database` 仪器化门 | ✅ 本波首次实战：bump 触发全量重放，`projection_archive` 先归档旧投影 |
+| `REVIEW_COMPOSITE` 同步（含 `PROJECTOR` 与 `review-planner-v6`） | 当日计划按新学习日口径留位；`isCurrentPlannerVersion` 读时校验会把旧计划判 STALE 重排 | — | W0-2 的读时门 + 本波口径变更 | `RoomBackedStudyExperienceRepositoryTest` 的版本门对照用例 | ➖ |
+| `EVIDENCE` | **未 bump**（维持 `evidence-v4`） | 揭示链路（Wave 1）账本逐位不变，见 §3.4 尾注 | 台账裁决 1(B)/18 | — | ➖ |
 
-**W1-1 / W1-2 不在本波**：台账裁决 3 把采集侧（毫秒时长、展示时长、hint 上报链）后移到阶段 5 新复习栏一并实现；`evidence-v5` 号段继续保留给届时（或 Wave 3）的语义变更。
+**W1-1 / W1-2 不在本波**：台账裁决 3 把采集侧（毫秒时长、展示时长、hint 上报链）后移到阶段 5
+新复习栏一并实现；`evidence-v5` 号段继续保留给届时（或 Wave 3）的语义变更。
 
 ## 4. 谁在什么时候写这一行
 

@@ -149,6 +149,7 @@ class StudySchedulingCalibrationTest {
         sourceId = "$unitId-attempt-$index",
         evidenceWeight = 1.0,
         timeBucket = "MORNING",
+        state = com.tingyun.smartmistakebook.core.domain.ReviewSample.STATE_REVIEW,
         recordedAtEpochMillis = at,
     )
 

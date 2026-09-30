@@ -169,7 +169,7 @@ class KernelWave0SchemaContractTest {
     }
 
     private companion object {
-        const val CURRENT_PROJECTOR_VERSION = "learning-core-v7(projector-v7,evidence-v4)"
+        const val CURRENT_PROJECTOR_VERSION = "learning-core-v8(projector-v8,evidence-v4)"
 
         val json = Json { ignoreUnknownKeys = true }
         /** 只认真正的列定义（反引号列名 + 类型），不认 PRIMARY KEY / FOREIGN KEY 子句里的列名。 */

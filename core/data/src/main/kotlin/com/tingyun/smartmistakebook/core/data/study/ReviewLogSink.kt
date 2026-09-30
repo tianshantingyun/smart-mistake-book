@@ -87,6 +87,19 @@ internal class ReviewLogSink(
             // Good while scheduling used Hard). The learner's own key survives
             // verbatim in evidence_weight (0.9/0.8/0.7/1.0).
             val rating = FsrsEvidenceRatingMapper.schedulingRatingFor(evidence.reason, evidence.weight)
+            // W2-4/KF-23：派生本行复习时卡片所处的状态（与迁移回填**同一口径**）：
+            // 无前条=New(0)、前条 AGAIN=Relearning(3)、同一学习日=Learning(1)、跨学习日=Review(2)。
+            // 学习日比较用本函数的单源日序（04:00 日界随 StudyDayMath 自动生效）。
+            val previous = database.findLastReviewLogRow(learnerId, practiceUnitId)
+            val state = when {
+                previous == null -> ReviewSample.STATE_NEW
+                previous.rating == WRONG_ATTEMPT_RATING -> ReviewSample.STATE_RELEARNING
+                StudyDayMath.localEpochDayOf(
+                    previous.reviewedAtEpochMillis,
+                    studyDay.utcOffsetMinutes,
+                ) == studyDay.epochDay -> ReviewSample.STATE_LEARNING
+                else -> ReviewSample.STATE_REVIEW
+            }
             database.recordReviewLogEntries(
                 listOf(
                     ReviewLogEntry(
@@ -101,6 +114,7 @@ internal class ReviewLogSink(
                         evidenceWeight = evidence.weight,
                         schedulingEligible = schedulingEligible,
                         timeBucket = bucketNameAt(occurredAtEpochMillis),
+                        state = state,
                         scrollUpCount = scrollUpCount,
                         editCount = editCount,
                         interruptionCount = interruptionCount,
@@ -131,6 +145,7 @@ internal class ReviewLogSink(
                     sourceKind = row.sourceKind,
                     plannedReason = row.plannedReason,
                     deltaTDays = row.deltaTDays,
+                    state = row.state,
                 )
             }
 

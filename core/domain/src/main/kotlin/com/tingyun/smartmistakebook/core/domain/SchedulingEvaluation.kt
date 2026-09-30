@@ -27,6 +27,12 @@ data class ReviewSample(
      * floor over [reviewedAtEpochMillis].
      */
     val deltaTDays: Double? = null,
+    /**
+     * W2-4/KF-23：该行复习时卡片所处的 FSRS 状态（[STATE_NEW]..[STATE_RELEARNING]）。
+     * null=迁移前的旧行口径不明，重放走 `elapsed<1` 墙钟启发式；非 null 时 state 是
+     * "同日重复 vs 长程复习"的权威判据（替换启发式）。
+     */
+    val state: Int? = null,
 ) {
     val isCorrect: Boolean get() = rating != FsrsRating.AGAIN
 
@@ -42,6 +48,12 @@ data class ReviewSample(
 
     companion object {
         const val ATTEMPT_KIND = "ATTEMPT"
+
+        /** W2-4/KF-23 的 FSRS 状态取值（对应 `review_log.state` INTEGER 列的 0..3）。 */
+        const val STATE_NEW = 0
+        const val STATE_LEARNING = 1
+        const val STATE_REVIEW = 2
+        const val STATE_RELEARNING = 3
 
         /**
          * 讲题判定通道（模型判词）的 source kind。与 ATTEMPT 分开落库，且**不参与**
@@ -173,7 +185,10 @@ object SchedulingReplay {
                 continue
             }
             val elapsedDays = sample.elapsedDaysSince(lastReviewedAt)
-            if (elapsedDays < 1.0) {
+            // W2-4/KF-23：有落库 state 时它是权威判据（同日重复=Learning 不发长程对）；
+            // 旧行（state=null）沿用 elapsed<1 的墙钟启发式。
+            val sameDayRepeat = sample.state?.let { it == ReviewSample.STATE_LEARNING } ?: (elapsedDays < 1.0)
+            if (sameDayRepeat) {
                 // Same-day repeats carry no long-run prediction (spec §2.15).
                 stability = FsrsScheduleMath.shortTermStability(stability, sample.rating, parameters)
                 difficulty = FsrsScheduleMath.nextDifficulty(difficulty, sample.rating, parameters)
@@ -389,7 +404,10 @@ object SchedulingEvaluationHarness {
                 continue
             }
             val elapsedDays = sample.elapsedDaysSince(lastReviewedAt)
-            if (elapsedDays < 1.0) {
+            // W2-4/KF-23：与 FSRS 重放同一判据（state 权威、旧行 elapsed 启发式），
+            // 两模型必须评同一组预测对（spec §2.20 parity）。
+            val sameDayRepeat = sample.state?.let { it == ReviewSample.STATE_LEARNING } ?: (elapsedDays < 1.0)
+            if (sameDayRepeat) {
                 // Same-day repeats carry no long-run prediction (spec §2.15);
                 // advance state exactly like the FSRS replay does so the two
                 // models evaluate identical prediction sets.
@@ -568,7 +586,9 @@ object FsrsParameterOptimizer {
                 var lastReviewedAt = ordered.first().reviewedAtEpochMillis
                 for (sample in ordered.drop(1)) {
                     val elapsedDays = sample.elapsedDaysSince(lastReviewedAt)
-                    if (elapsedDays >= 1.0) count += 1
+                    val sameDayRepeat =
+                        sample.state?.let { it == ReviewSample.STATE_LEARNING } ?: (elapsedDays < 1.0)
+                    if (!sameDayRepeat) count += 1
                     lastReviewedAt = sample.reviewedAtEpochMillis
                 }
             }

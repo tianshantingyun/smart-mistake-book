@@ -1107,6 +1107,15 @@ internal data class ReviewLogEntity(
     /** MORNING/NOON/AFTERNOON/EVENING/NIGHT at review time (spec 2.12). */
     @ColumnInfo(name = "time_bucket")
     val timeBucket: String,
+    /**
+     * W2-4/KF-23（v54→55 加列）：该行复习时卡片所处的 FSRS 状态
+     * （0=New / 1=Learning / 2=Review / 3=Relearning，取值常量见
+     * `ReviewSample.STATE_*`）。由写入方按"前一行 rating + 学习日间隔"派生并盖章；
+     * 迁移对存量行按同一规则回填（无前条=0、前条 AGAIN=3、同日=1、跨日=2）。
+     * 拟合侧重放按它选初始稳定度分支，替换 `elapsed<1` 的墙钟启发式。
+     */
+    @ColumnInfo(name = "state", defaultValue = "0")
+    val state: Int = 0,
     /** Silent interaction signals (spec 2.14), collected without UI prompts. */
     @ColumnInfo(name = "scroll_up_count", defaultValue = "0")
     val scrollUpCount: Int = 0,

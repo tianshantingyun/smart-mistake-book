@@ -219,10 +219,12 @@ class FsrsProjectionBehaviorTest {
         var sequence = 0L
         // Drive the card through enough successful cross-day reviews for a
         // ninety-day interval; the graduation override must then kick in.
-        var nextAt = 0L
+        // W2-4/KF-25：夹具用贴近真实日期的时间基（04:00 日界下纪元附近的时刻会落到负日序，
+        // 而 ProblemMemoryState 的日序不变量要求 ≥ 0）。
+        var nextAt = BASE_AT_MILLIS
         for (index in 1..14) {
             sequence += 1
-            val occurredAt = if (index == 1) 0 else nextAt
+            val occurredAt = nextAt
             val result = projector.project(
                 snapshot,
                 listOf(attempt("a-$index", sequence, easyEvidence(), occurredAt = occurredAt)),
@@ -291,7 +293,9 @@ class FsrsProjectionBehaviorTest {
 
     private fun seededCrossDay(): LearningProjectionResult {
         var snapshot = LearnerSnapshot.empty("learner-1")
-        var nextAt = 0L
+        // W2-4/KF-25：夹具用贴近真实日期的时间基（04:00 日界下纪元附近的时刻会落到负日序，
+        // 而 ProblemMemoryState 的日序不变量要求 ≥ 0）。
+        var nextAt = BASE_AT_MILLIS
         for (index in 1..3) {
             val result = projector.project(
                 snapshot,
@@ -356,7 +360,14 @@ class FsrsProjectionBehaviorTest {
             problemMemoryOutcome = outcome,
             occurredAtEpochMillis = occurredAt,
             durationSeconds = 60,
-            studyDay = StudyDayContext(occurredAt / DAY_MILLIS, "UTC", 0),
+            // W2-4/KF-25：夹具的日序必须与生产写路径同源（`StudyDayMath`，04:00 日界）——
+            // 手写 `occurredAt / DAY_MILLIS` 是旧的 00:00 口径，投影器按新口径推导上一复习日时
+            // 会把同一学习日误判成跨日。
+            studyDay = StudyDayContext(
+                epochDay = StudyDayMath.localEpochDayOf(occurredAt, utcOffsetMinutes = 0),
+                timeZoneId = "UTC",
+                utcOffsetMinutes = 0,
+            ),
             eventSequence = sequence,
         )
     }
@@ -375,5 +386,8 @@ class FsrsProjectionBehaviorTest {
 
     private companion object {
         const val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
+
+        /** W2-4/KF-25：夹具时间基——2026-01-05 09:00 UTC（远离纪元，04:00 学习日界下日序为正）。 */
+        const val BASE_AT_MILLIS = 1_767_603_600_000L
     }
 }

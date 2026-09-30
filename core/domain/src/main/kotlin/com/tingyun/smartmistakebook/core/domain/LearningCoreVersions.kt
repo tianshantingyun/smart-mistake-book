@@ -18,8 +18,15 @@ object LearningCoreVersions {
      * 曾让该字段落入 UTC 日序默认值，使同一本地日的复习被误判为跨日）。这是一次
      * **数值口径变更**：受影响的卡（曝光态之后的复习、以及 v42 迁移按 UTC 回填过
      * 日序的存量行）必须重算，否则新旧混用。
+     *
+     * v7 → v8（2026-10-01，Wave 2）：两处**数值口径变更**合并为一次 bump——
+     * ①W2-1/KF-01 在线投影的 R 与间隔反函数接入个性化 w20（此前隐式吃默认 decay，
+     * 有优化参数的学习者其在线口径与拟合口径不一致）；②W2-4/KF-25 学习日界从本地
+     * 00:00 移到 04:00（`StudyDayMath.DAY_START_HOUR`，官方 day_start）。两者都改变
+     * 投影输出：旧快照必须全量重放（W0 的 `projection_archive` 会先归档旧投影），
+     * 否则新旧口径混用。`REVIEW_COMPOSITE` 同步变化 → 当日计划按新口径重排。
      */
-    const val PROJECTOR = "projector-v7"
+    const val PROJECTOR = "projector-v8"
     const val FORGETTING_CURVE = "curve-v3"
     const val SKIP_POLICY = "skip-v3"
     const val ATTRIBUTION = "attribution-v2"
@@ -29,9 +36,9 @@ object LearningCoreVersions {
     const val SELECTOR = "selector-v6"
 
     const val PROJECTION_COMPOSITE =
-        "learning-core-v7($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
+        "learning-core-v8($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
     const val REVIEW_COMPOSITE =
-        "learning-core-v7($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
+        "learning-core-v8($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
     const val SELECTOR_COMPOSITE =
-        "learning-core-v7($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
+        "learning-core-v8($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }

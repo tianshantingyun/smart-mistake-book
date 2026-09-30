@@ -107,6 +107,7 @@ class MasterySchedulingMigrationInstrumentedTest {
                         evidenceWeight = 0.8,
                         schedulingEligible = true,
                         timeBucket = "MORNING",
+                        state = 2,
                         recordedAtEpochMillis = 11_000,
                     ),
                 ),

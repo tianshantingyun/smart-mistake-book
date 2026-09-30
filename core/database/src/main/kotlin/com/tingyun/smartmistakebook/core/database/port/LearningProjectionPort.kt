@@ -18,6 +18,7 @@ import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealP0
 import com.tingyun.smartmistakebook.core.database.PersistedAttemptP0
 import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
+import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import com.tingyun.smartmistakebook.core.database.ProjectionArchiveRecord
 import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionCommit
@@ -86,6 +87,16 @@ interface AttemptWritePort {
         practiceUnitId: String,
         sourceKind: String,
     ): Long?
+
+    /**
+     * W2-4/KF-23：该卡**最近一次**复习行的（rating, 时间戳）——写入方据此派生新行的
+     * `review_log.state`（前条 AGAIN→Relearning、同学习日→Learning、跨学习日→Review、
+     * 无前条→New），与迁移回填同一口径。
+     */
+    suspend fun findLastReviewLogRow(
+        learnerId: String,
+        practiceUnitId: String,
+    ): PersistedReviewLogLast?
 
     suspend fun findAttemptPersistence(submissionId: String): AttemptPersistenceRecord?
 

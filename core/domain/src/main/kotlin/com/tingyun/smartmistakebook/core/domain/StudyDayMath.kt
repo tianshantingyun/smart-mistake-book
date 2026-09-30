@@ -32,7 +32,18 @@ object StudyDayMath {
     private const val MILLIS_PER_MINUTE = 60_000L
 
     /**
-     * 本地日序：`floorDiv(时间戳 + 偏移, 一天)`。
+     * 学习日起点（W2-4/KF-25，官方 day_start=4）：本地 00:00–04:00 归**前一个学习日**。
+     * Anki 同款语义——跨午夜但未到 04:00 的复习仍算"昨天"的学习，学生不会在深夜
+     * 刷题时被突然塞进新一天的全量队列。可调设置项不在本波（阶段 6 设置整理）。
+     */
+    const val DAY_START_HOUR = 4
+
+    /** 学习日界相对本地午夜的偏移（毫秒）。 */
+    const val DAY_START_OFFSET_MILLIS = DAY_START_HOUR * 3_600_000L
+
+    /**
+     * **学习日**序：`floorDiv(时间戳 + 偏移 − 04:00, 一天)`——即"本地墙钟减去 day_start
+     * 偏移后"的日历日（W2-4/KF-25 起日界从 00:00 移到 04:00）。
      *
      * 用 `floorDiv` 而不是 `/`：纪元前的负时间戳也要向下取整到"那一天"，否则 1970 年前的时间戳
      * 会在日界上偏一天（`Long` 除法向零取整）。
@@ -42,5 +53,8 @@ object StudyDayMath {
      * 消费方，不设第二个入口。
      */
     fun localEpochDayOf(epochMillis: Long, utcOffsetMinutes: Int): Long =
-        Math.floorDiv(epochMillis + utcOffsetMinutes.toLong() * MILLIS_PER_MINUTE, AlgorithmConstants.DAY_MILLIS)
+        Math.floorDiv(
+            epochMillis + utcOffsetMinutes.toLong() * MILLIS_PER_MINUTE - DAY_START_OFFSET_MILLIS,
+            AlgorithmConstants.DAY_MILLIS,
+        )
 }

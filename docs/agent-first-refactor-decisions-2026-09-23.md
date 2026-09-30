@@ -1900,3 +1900,47 @@ W1-5 字段链正确、拟合口径完整、`toFixedDays` half-to-even 声明正
 | `calibrateSources` 的 REVEAL 全零校准行在 app 校准区常驻一条"样本不足"（rating=AGAIN<HARD 被配对循环跳过，`hasSufficientPairs=false` 短路，NaN 不参与比较） | ⏸ 不改（无害噪音）；从校准区过滤零配对档随 Wave 3 P6/P7 口径收敛一并做 |
 | `StudyDayMath.calendarDaysBetween` 无生产调用方 | ✅ 删除（ ReviewLogSink 内联即生产实现，"新增必先指认"），测试改用 `localEpochDayOf` 差值表达 |
 
+
+
+---
+
+## 阶段 3A · Wave 2 完成记录（2026-10-01，本线）
+
+**退出门对照**（roadmap「退出门（Wave 2）」：W2-1~5 全绿 + 个性化参数真实生效）：**满足**（全量仪器化门见下）。
+
+### 交付物
+
+| 项 | 内容 | 落点 |
+|---|---|---|
+| W2-1（KF-01）w20 显式接线 | `retention`/`factor` 去隐式默认 decay、`intervalDays` 加 decay 形参（删默认值=漏网即编译错）；`FsrsMemoryUpdateModel` 暴露 `decay`，稳定性更新×2 + 间隔反函数 + 投影器毕业间隔全走个性化 w20；`SchedulingReplay.predict`/`OptimalRetention`/`ForgettingCurve`/`KnowledgeReviewQueue` 逐点显式（无参数上下文的规划侧传默认 w20 并登记为边界）；学生投影路径的两条 `ForgettingCurve` 传个性化 decay | 域/data 共 6 文件 |
+| W2-2（KF-04/05）采纳门 | 优化器侧：`MIN_SAMPLES_FOR_FITTING=400` 单门槛（8/64 与 INITIAL_STABILITY_ONLY 废止）；写侧：候选与存量在**同一批样本、同一时间切分协议**下比较（新公开口径 `validationLogLoss`），不劣于才写入；存量更优或任一侧不可测 → 保守保留；**拒绝路径不写 null**（DataStore set(null)=清空）；窗口截断移到 fittable 过滤之后；P2 rider：30 天观察窗改用注入 Clock | `StudySchedulingCalibration`、`SchedulingEvaluation` |
+| W2-3（KF-12）w3 剔除 | `fittedIndices = (0..2)+(4..14)+[20]`，w3 与 w16 并列不拟合（三档评级下 EASY 结构性消失） | `SchedulingEvaluation` |
+| W2-4（KF-23/24/25）state / 每日首条 / day_start | v54→55 迁移加 `review_log.state` + **回填**（无前条=New/前条 AGAIN=Relearning/同日=Learning/跨日=Review）；写侧同口径派生（`ReviewLogSink` 经 `findLastReviewLogRow`）；拟合侧 state 是"同日重复 vs 长程复习"的权威判据（替换 elapsed 启发式，"每日首条"由此自然成立）；学习日界 00:00 → **04:00**（`StudyDayMath.DAY_START_HOUR`），planningContext/当日计划同步对齐 | 数据库 6 文件 + 域 2 文件 + data 3 文件 |
+| W2-5（附录 B）拟合目标对齐 | `predict` 改每卡序列**末态一对**（`EndStatePrediction`，目标样本供分桶；取该复习的**前态**预测对，无泄漏——与官方 `outputs[seq_len-1]` 后态的偏离已登记）；objective = mean BCE + L2 `γ·Σ((w−w_init)/σ)²/N`；删 5 步早停、保留 best-by-eval；γ/σ 官方取值与溯源见版本清单 §3.3 | `SchedulingEvaluation` |
+| 版本 bump | **一次 bump 覆盖两处数值变更**：`PROJECTOR → projector-v8`（`PROJECTION_COMPOSITE → learning-core-v8(...)`），Wave 3 顺延 `projector-v9`；`STUDY_DATABASE_VERSION 54 → 55` | `LearningCoreVersions`、`StudyDatabase` |
+
+### 测试证据（2026-10-01，本机实测）
+
+| 门 | 结果 |
+|---|---|
+| `:core:domain:test --rerun` | 511/0——含 `FsrsParameterRecoveryTest`（800 卡合成数据，w20 回到真值 ±0.08 + 灵敏度钉）、399/400 边界、w3/w16 恒默认、`StudyDayMathTest`（04:00 边界 5 例） |
+| `:core:database:testDebugUnitTest --rerun` | 96/0——含 `KernelWave2SchemaContractTest`（state 只在 55 出现 / ALTER 与 55.json 同形 / 回填四分支形状） |
+| `:core:data:testDebugUnitTest --rerun` | 570/5（红全部为 KB 既有）——含 `StudySchedulingCalibrationTest`（400 门/空存量写入/三次稳定/shouldAdopt 六分支）、`ReviewLogStateTest`（写侧四态） |
+| `:core:model:test` / `:app:testLocalFirstDebugUnitTest --rerun` | 387/0、53/0 |
+| 仪器化（targeted） | `KernelWave2MigrationInstrumentedTest` 1/1（真库回填 [0,1,2,1,3]） |
+| 全量仪器化门 | `:core:database:connectedDebugAndroidTest` 全量（含 1→55 迁移矩阵），见下 |
+
+### 落地时的口径订正与新登记边界
+
+1. **测试夹具的日序必须与写路径同源**：04:00 日界让"手写 `occurredAt / DAY_MILLIS`"的旧夹具与投影器推导分叉
+   （同一学习日被误判跨日）；`FsrsProjectionBehaviorTest` 的夹具已改走 `StudyDayMath` 并把时间基移到
+   2026-01（纪元附近的时刻在新日界下会落到负日序，触发 `ProblemMemoryState` 的 ≥0 不变量）。
+2. **fixture 时间基**：纪元后 0–4 小时内的时刻在新日界下属前一个学习日（日序可为 −1）——生产时间戳
+   远离纪元不受影响，但夹具必须避开。
+3. **规划侧 decay 仍是默认值**（`ReviewPlanner`/`ReviewPlannerV2`/`HLRPredictionAuditService` 构造的
+   `ForgettingCurve` 与 `knowledgeRecallRiskByNode`）：这些调用方没有个性化参数上下文，已登记；
+   规划侧个性化随 Wave 3 模型改造。
+4. **与官方的有意偏离**：末态 loss 取"末次长程复习的**前态**预测对"（官方取序列末态后态）；
+   理由是避免泄漏与同日尾行语义纠缠——见 `SchedulingReplay.EndStatePrediction` KDoc。
+5. **`ForgettingCurve`/`OptimalRetention` 的 FSRS 分支已有 decay 形参**，但 `KnowledgeReviewQueue`
+   等规划侧传默认值——替换启发式与个性化是两件事，别混。

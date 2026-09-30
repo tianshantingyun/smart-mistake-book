@@ -8,12 +8,14 @@ import com.tingyun.smartmistakebook.core.database.ReviewPlanRecord
 import com.tingyun.smartmistakebook.core.database.ReviewQueueItemRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewCandidate
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.core.domain.extractReviewKnowledgeScope
 import com.tingyun.smartmistakebook.core.domain.knowledgeRecallRiskByNode
 import com.tingyun.smartmistakebook.core.domain.selectKnowledgeReviewQueue
+import com.tingyun.smartmistakebook.core.domain.StudyDayMath
 import com.tingyun.smartmistakebook.core.domain.ReviewScopeQuestion
 import com.tingyun.smartmistakebook.core.domain.HLRPredictionAuditService
 import com.tingyun.smartmistakebook.core.domain.IntakeDurationBaseline
@@ -164,7 +166,7 @@ internal class StudyReviewPlannerService(
      *
      * 取值来源是**两个 planner 自己写的那个串**（`ReviewPlanner.plan` /
      * `ReviewPlannerV2.plan` 都写 `plannerVersion = VERSION`）：V1 是
-     * `LearningCoreVersions.REVIEW_COMPOSITE`（如 `learning-core-v7(review-planner-v6,...)`），
+     * `LearningCoreVersions.REVIEW_COMPOSITE`（如 `learning-core-v8(review-planner-v6,...)`），
      * V2 是它自己的 `review-planner-v2`。所以期望值随 [useReviewPlannerV2] 现算——
      * "V1 排的计划被 V2 续跑"与"上一版算法的计划被这一版续跑"是同一种错，同一道门一起挡。
      */
@@ -483,8 +485,16 @@ internal class StudyReviewPlannerService(
 
     fun planningContext(learnerSnapshot: LearnerSnapshot): PlanningContext {
         val referenceAt = maxOf(clock.millis(), learnerSnapshot.decisionWatermarkEpochMillis)
-        val localDate = Instant.ofEpochMilli(referenceAt).atZone(studyZoneId).toLocalDate()
-        val startOfDay = localDate.atStartOfDay(studyZoneId).toInstant().toEpochMilli()
+        val local = Instant.ofEpochMilli(referenceAt).atZone(studyZoneId)
+        val offsetMinutes = local.offset.totalSeconds / 60
+        // W2-4/KF-25：今日的学习日与写路径/投影同一口径（04:00 日界，`StudyDayMath` 单源）——
+        // 本地 00:00–04:00 仍算前一个学习日，否则复习跨日 streak 与"当日计划"会在深夜分叉
+        // （P1 同类的口径分叉）。
+        val studyDayEpochDay = StudyDayMath.localEpochDayOf(referenceAt, offsetMinutes)
+        val localDate = LocalDate.ofEpochDay(studyDayEpochDay)
+        // 学习日的开始时刻 = 该学习日本地 04:00：日序×一天 − 偏移 + 04:00 偏移量。
+        val startOfDay = studyDayEpochDay * AlgorithmConstants.DAY_MILLIS -
+            offsetMinutes.toLong() * 60_000L + StudyDayMath.DAY_START_OFFSET_MILLIS
         return PlanningContext(
             localDate = localDate,
             planningAtEpochMillis = maxOf(startOfDay, learnerSnapshot.decisionWatermarkEpochMillis),

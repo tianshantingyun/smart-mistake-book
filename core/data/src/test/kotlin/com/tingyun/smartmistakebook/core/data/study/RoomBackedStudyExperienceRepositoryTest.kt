@@ -94,6 +94,7 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeGroundingSummaryRecor
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.ModelTaskWriteResult
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
+import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealP0
 import com.tingyun.smartmistakebook.core.database.PersistedAttemptP0
 import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
@@ -2587,6 +2588,8 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
                     timeBucket = entry.timeBucket,
                     sourceKind = entry.sourceKind,
                     evidenceWeight = entry.evidenceWeight,
+                    deltaTDays = entry.deltaTDays,
+                    state = entry.state,
                 )
             }
 
@@ -2602,6 +2605,14 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
                 it.schedulingEligible
         }
         .maxOfOrNull { it.reviewedAtEpochMillis }
+
+    override suspend fun findLastReviewLogRow(
+        learnerId: String,
+        practiceUnitId: String,
+    ): PersistedReviewLogLast? = reviewLogEntries
+        .filter { it.learnerId == learnerId && it.practiceUnitId == practiceUnitId }
+        .maxByOrNull(ReviewLogEntry::reviewedAtEpochMillis)
+        ?.let { PersistedReviewLogLast(it.rating, it.reviewedAtEpochMillis) }
 
     override suspend fun ensurePseudoKnowledgeBinding(
         practiceUnitId: String,
