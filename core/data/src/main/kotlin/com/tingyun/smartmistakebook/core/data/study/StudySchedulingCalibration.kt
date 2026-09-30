@@ -64,7 +64,8 @@ internal class StudySchedulingCalibration(
         )
         val rejected = database.countRejectedChatEvidenceByReason(learnerId)
         // 30 天观察窗的每小时分布（校准看近期行为，不看全部历史）。
-        val hourWindowStart = System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
+        // P2 修正（审计 2026-09-28）：全用注入 Clock，不再直接读系统时钟。
+        val hourWindowStart = clock.millis() - 30L * 24 * 60 * 60 * 1000
         val perHour = database.countAcceptedChatEvidencePerHour(learnerId, hourWindowStart)
         val observation = ChatEvidenceGateCalibration.GateObservation(
             acceptedCount = acceptedTotal,
@@ -85,11 +86,48 @@ internal class StudySchedulingCalibration(
         }
         // Phone-safe bound: numeric-gradient fitting replays the history many
         // times, so optimization runs on the most recent window only.
-        val samples = reviewLogSink.reviewSamples().takeLast(MAX_OPTIMIZE_SAMPLES)
-        val result = FsrsParameterOptimizer.optimize(samples)
+        // W2-2 修正：窗口截断在**过滤之后**——否则 MODEL_JUDGED/REVEAL 行占比高时，
+        // 真实作答行会被挤出窗口，20k 行里可能凑不出 400 个可拟合样本。
+        val fittingSamples = fittableReviewSamples(reviewLogSink.reviewSamples())
+            .takeLast(MAX_OPTIMIZE_SAMPLES)
+        val result = FsrsParameterOptimizer.optimize(fittingSamples)
         if (result.mode == FsrsParameterOptimizer.Mode.INSUFFICIENT_DATA) return null
+
+        // W2-2/KF-04 采纳门：候选参数在同一批数据、同一时间切分协议下**不劣于**存量参数
+        // 才写入（官方采纳门）；存量更优或无法同协议比较时保守保留存量。
+        // 拒绝路径**不得调用** setOptimizedParameters(null)——那会把学习者已有的参数清空。
+        val existing = store.optimizedParameters.first()
+        val candidateLoss = FsrsParameterOptimizer.validationLogLoss(fittingSamples, result.parameters)
+        val existingLoss = existing?.let {
+            FsrsParameterOptimizer.validationLogLoss(fittingSamples, it)
+        }
+        if (!shouldAdopt(candidateLoss, existing, existingLoss)) {
+            android.util.Log.i(
+                LOG_TAG,
+                "adoption gate kept stored parameters: candidate=$candidateLoss existing=$existingLoss",
+            )
+            return null
+        }
         store.setOptimizedParameters(result.parameters)
         return result
+    }
+
+    /**
+     * W2-2/KF-04 的采纳判定（纯函数，分支各有用例）：
+     * - 候选不可测（无验证对）→ 拒绝：拿不到同协议证据就不许覆盖存量；
+     * - 存量为空 → 首次写入；
+     * - 存量在但不可测（历史参数在其时点无验证对）→ 保守保留；
+     * - 都可测 → 不劣于（≤）才写。
+     */
+    internal fun shouldAdopt(
+        candidateLoss: Double?,
+        existingParameters: DoubleArray?,
+        existingLoss: Double?,
+    ): Boolean = when {
+        candidateLoss == null -> false
+        existingParameters == null -> true
+        existingLoss == null -> false
+        else -> candidateLoss <= existingLoss
     }
 
 
@@ -139,5 +177,6 @@ internal class StudySchedulingCalibration(
 
     private companion object {
         const val MAX_OPTIMIZE_SAMPLES = 20_000
+        const val LOG_TAG = "StudySchedulingCalibration"
     }
 }
