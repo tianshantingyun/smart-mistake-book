@@ -45,5 +45,6 @@ object MasterySmoothing {
             .coerceIn(0.0, 1.0)
     }
 
-    private const val DAY_MILLIS = 86_400_000.0
+    /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`（本文件要 Double，故在此别名一次）。 */
+    private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
 }

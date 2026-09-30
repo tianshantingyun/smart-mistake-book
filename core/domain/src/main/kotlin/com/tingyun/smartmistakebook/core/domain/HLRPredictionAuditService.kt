@@ -119,7 +119,8 @@ class HLRPredictionAuditService(
         const val MODEL_ID = "hlr-shadow-v1"
         const val MODEL_VERSION_STRING = "0.1.0-experimental"
         const val ALGORITHM_HASH = "hlr-recall-v1"
-        const val DEFAULT_PREDICTION_WINDOW_MILLIS = 7L * 86_400_000L
+        /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`。 */
+        const val DEFAULT_PREDICTION_WINDOW_MILLIS = 7L * AlgorithmConstants.DAY_MILLIS
         const val DEFAULT_CONSERVATIVE_COEFFICIENT = 0.9
     }
 }
@@ -133,8 +134,8 @@ internal fun extractHlrFeaturesForShadow(
     lastResponseDurationSeconds: Int? = null,
 ): HLRFeatures {
     val daysSinceFirstSeen = (nowEpochMillis -
-        (memory.lastReviewedAtEpochMillis - memory.stabilityDays * 86_400_000L))
-        .toDouble() / 86_400_000.0
+        (memory.lastReviewedAtEpochMillis - memory.stabilityDays * AlgorithmConstants.DAY_MILLIS))
+        .toDouble() / AlgorithmConstants.DAY_MILLIS.toDouble()
     val timeBetweenReviewsDays = memory.stabilityDays
     val consecutiveCorrectStreak =
         (memory.independentCorrectCount - memory.lapseCount).coerceAtLeast(0).toDouble()

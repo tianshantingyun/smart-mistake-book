@@ -387,14 +387,41 @@ class LearningProjector(
         )
     }
 
-    /** Corrections require the complete gap-free ledger so their effects can be replayed safely. */
+    /**
+     * Corrections require the complete gap-free ledger so their effects can be replayed safely.
+     *
+     * **版本守卫（内核修复路线图 W0-1/Q2）**：增量投影 `project()` 一直拒绝"在别的投影版本的快照上
+     * 继续算"（[requireCompatibleSnapshot]），但重放没有这道门——重放会整份覆盖存储快照，于是
+     * 旧版本二进制可以静默把新版本的投影换掉。两份信息补上这道门：
+     *
+     * - [displacedSnapshot]：本次重放将要替换掉的存储快照（调用方知道，重放本身从空快照起算）。
+     *   版本与当前二进制一致或它就是空快照 → 照旧放行；
+     * - [displacedSnapshotArchived]：调用方**已经**把 [displacedSnapshot] 落进
+     *   `projection_archive`。跨版本替换只有在"被替换的那份已经存档"时才是合法的：
+     *   覆盖不可逆，存档才让"改数值"可回退（回退流程见
+     *   `docs/research/kernel-projection-rollback.md`）。
+     *
+     * 这道门挡的是**调用方**：任何新调用点想跨版本覆盖又没有先归档，会在这里当场抛错；
+     * 它挡不住"不含这道门的旧二进制"——那属于部署事实，只能靠归档把损失变成"可恢复"
+     * （roadmap W0-1 目标②），不能靠运行期检查（见台账 W0-1 记录）。
+     */
     fun replay(
         learnerId: String,
         ledger: List<LearningLedgerEvent>,
         /** 与 [project] 同义：合并重定向。重放与增量必须用**同一份**映射，否则两条路会分叉。 */
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors = KnowledgeNodeSuccessors.EMPTY,
+        displacedSnapshot: LearnerSnapshot? = null,
+        displacedSnapshotArchived: Boolean = false,
     ): LearningProjectionResult {
         require(learnerId.isNotBlank()) { "Learner id must not be blank" }
+        displacedSnapshot?.let { previous ->
+            if (previous.checkpoint.projectorVersion == VERSION) return@let
+            require(displacedSnapshotArchived) {
+                "Replaying over a snapshot from ${previous.checkpoint.projectorVersion} requires " +
+                    "archiving it first (projection_archive): " +
+                    "a projector-version change requires replay from an empty snapshot"
+            }
+        }
         val ordered = ledger.sortedBy(LearningLedgerEvent::eventSequence)
         require(ordered.map(LearningLedgerEvent::eventSequence) == (1L..ordered.size.toLong()).toList()) {
             "Full replay requires a unique, continuous ledger beginning at sequence one"
@@ -1185,7 +1212,7 @@ class LearningProjector(
                         predictedScore = mastery.masteryScore,
                         conservativeScore = mastery.conservativeMasteryScore,
                         predictionWindowStartEpochMillis = projectedAt,
-                        predictionWindowEndEpochMillis = projectedAt + 7 * 86_400_000L, // 7-day window
+                        predictionWindowEndEpochMillis = projectedAt + 7L * DAY_MILLIS, // 7-day window
                         predictedAtEpochMillis = projectedAt,
                     )
                     predictions.add(prediction)
@@ -1231,7 +1258,8 @@ class LearningProjector(
 
         private const val UNCERTAINTY_SCALE = 1.2
         private const val MAX_APPLIED_RECORDS = 4_096
-        private const val DAY_MILLIS = 86_400_000L
+        /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`。 */
+        private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
         private const val GRADUATION_MIN_INTERVAL_DAYS = 90
         const val GRADUATION_TARGET_RETENTION = 0.8
         const val TUTOR_EXPOSURE_REASON = "TUTOR_EXPOSURE"

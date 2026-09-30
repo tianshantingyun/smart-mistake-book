@@ -612,7 +612,6 @@ internal object DatabaseContractValidator {
         known(plan.status, "plan.status", reviewStatuses)
         id(plan.plannerVersion, "plannerVersion")
         nonNegative(plan.projectionCheckpoint, "projectionCheckpoint")
-        id(plan.inputFingerprint, "inputFingerprint")
         id(plan.planFingerprint, "planFingerprint")
         requireContract(plan.reviewPlanId == "plan-${plan.planFingerprint}") {
             "reviewPlanId must use the domain-provided full plan fingerprint"
@@ -744,12 +743,33 @@ internal object DatabaseContractValidator {
 
     fun validateLedgerRequest(learnerId: String) = id(learnerId, "learnerId")
 
+    /** 归档写入请求的形状（W0-1 ③）：坏值不许进归档表——回退工具只会照着它信任地写回。 */
+    fun validateProjectionArchive(record: ProjectionArchiveRecord) {
+        id(record.projectionName, "projectionName")
+        id(record.learnerId, "learnerId")
+        nonNegative(record.archivedAtEpochMillis, "archivedAtEpochMillis")
+        id(record.projectorVersion, "projectorVersion")
+        requireContract(record.snapshotJson.isNotBlank()) { "Archived snapshot JSON must not be blank" }
+    }
+
     fun validateProjectionCommit(commit: ProjectionCommit) {
         id(commit.projectionName, "projectionName")
         id(commit.learnerId, "learnerId")
         nonNegative(commit.expectedPreviousCheckpoint, "expectedPreviousCheckpoint")
         nonNegative(commit.expectedPreviousStateVersion, "expectedPreviousStateVersion")
         nonNegative(commit.knownLedgerHeadSequence, "knownLedgerHeadSequence")
+        // 拒绝降级写（内核修复路线图 W0-1/Q2）：提交里带的快照必须是**当前二进制**算出来的那一个。
+        // 旧版本二进制重放会把整份投影改回旧口径并静默覆盖新投影——这条断言让那次写只能以
+        // "带着自己版本的快照"为姿态度进来，而不是夹带一份别的版本的状态。
+        // 它的作用域是"提交与二进制版本一致"；跨版本替换的正路是 archive + 显式重放
+        // （见 `LearningProjector.replay` 与 `Research/kernel-projection-rollback.md`）。
+        id(commit.expectedProjectorVersion, "expectedProjectorVersion")
+        requireContract(
+            commit.snapshot.checkpoint.projectorVersion == commit.expectedProjectorVersion,
+        ) {
+            "Projection commit carries ${commit.snapshot.checkpoint.projectorVersion} but the " +
+                "current binary expects ${commit.expectedProjectorVersion}"
+        }
         requireContract(
             commit.knownLedgerHeadSequence == commit.snapshot.knownLedgerHeadSequence,
         ) { "Projection commit and snapshot known ledger heads differ" }

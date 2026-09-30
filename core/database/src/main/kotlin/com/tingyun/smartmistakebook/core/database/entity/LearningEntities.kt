@@ -668,6 +668,49 @@ internal data class LearnerProjectionSnapshotEntity(
     val projectionStatus: String,
 )
 
+/**
+ * 投影归档（内核修复路线图 W0-1/Q2）：`LearningProjector.replay` 覆盖存储投影**之前**，
+ * 把被替换的那一份整份落在这里。
+ *
+ * 为什么是一张新表而不是给 `learner_projection_snapshot` 加列：归档是**追加的历史**（SCD2），
+ * 而存储快照是**唯一当前值**（主键 `projection_name + learner_id`，每次提交原地覆盖）。
+ * 两者生命周期不同——把历史塞进当前值那张表，要么被下一次提交冲掉，要么破坏唯一槽语义。
+ *
+ * 各列的分工都是"回退时要用到"才存在：`snapshot_json` 是快照本体（[LearnerSnapshotJson] 编码），
+ * `projector_version` 回答"这份 JSON 属于哪个投影版本"，`schema_ddl` 记下当时的投影表 DDL
+ * （写回时用来判断表结构是否还兼容），`archived_at_epoch_millis` 用来挑最近一份。
+ * 恢复流程见 `docs/research/kernel-projection-rollback.md`。
+ *
+ * 只增不改：生产代码只 insert（读侧留给回退工具），所以它不会破坏任何既有不变量。
+ * 代价是"每次全量重放落一行"——重放由修正事件与版本不匹配触发，行数随快照大小线性增长；
+ * 保留策略不在 Wave 0（记为遗留项，见台账）。
+ */
+@Entity(
+    tableName = "projection_archive",
+    indices = [
+        Index(
+            value = ["projection_name", "learner_id", "archived_at_epoch_millis"],
+        ),
+    ],
+)
+internal data class ProjectionArchiveEntity(
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "archive_id")
+    val archiveId: Long = 0,
+    @ColumnInfo(name = "projection_name")
+    val projectionName: String,
+    @ColumnInfo(name = "learner_id")
+    val learnerId: String,
+    @ColumnInfo(name = "archived_at_epoch_millis")
+    val archivedAtEpochMillis: Long,
+    @ColumnInfo(name = "snapshot_json")
+    val snapshotJson: String,
+    @ColumnInfo(name = "projector_version")
+    val projectorVersion: String,
+    @ColumnInfo(name = "schema_ddl")
+    val schemaDdl: String,
+)
+
 @Entity(
     tableName = "learner_problem_memory_state",
     primaryKeys = ["projection_name", "learner_id", "practice_unit_id"],

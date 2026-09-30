@@ -1793,3 +1793,48 @@ fuzz / FSRS-7 / 排程权重离线模拟 / F7）逐项过用户。净 **16 项**
 - 实施：证据链新增判定来源区分（LOCAL_CHECKED vs MODEL_VERDICT 或等价列/字段），随 Wave 1
   证据定价语义（号段 `evidence-v5`）落地；`fittableReviewSamples` 按来源过滤。
 
+---
+
+## 阶段 3A · Wave 0 完成记录（2026-09-30，本线）
+
+**退出门对照**（roadmap「退出门（Wave 0）」：W0-1/2 用例全绿 + W0-3 文件在 + W0-4 权重表单源）：**全部满足**。
+
+### 交付物
+
+| 项 | 内容 | 落点 |
+|---|---|---|
+| W0-1 ② 防降级写 | `ProjectionCommit.expectedProjectorVersion`（**无默认值**，每个调用点必须显式声明）+ `validateProjectionCommit` 断言快照版本 == 期望版本 | `StudyDatabaseRecords.kt:1449+`、`DatabaseContract.kt:761+` |
+| W0-1 ③ 覆盖前归档 | `projection_archive` 新表（v53→54）+ `commitFullReplay` **先归档后重放** + `LearningProjector.replay` 入口要求跨版本覆盖先声明"已归档" | `KernelWave0Migration_53_54.kt`、`StudyProjectionDrainer.kt:162+`、`LearningProjector.kt:390+` |
+| W0-2 读时校验 | `review_plan` 两列指纹合并为 `plan_fingerprint`（重建表迁移）+ `StudySnapshotBuilder` 保留计划前按 `plannerVersion` 校验（不符 → 重排）；**进行中会话刻意不挡**（两道边界写在注释里） | `KernelWave0Migration_53_54.kt`、`StudyReviewPlannerService.kt:163+`、`StudySnapshotBuilder.kt:47+` |
+| W0-3 版本清单 | `docs/research/algorithm-version-ledger.md`（追溯登记 + 号段占用 + Wave 0 记录） | 新文件 |
+| W0-4 常数注册表 | `AlgorithmConstants`（`DAY_MILLIS` / `Mastery` / `ReviewScoring`）；两张排程权重表、θ/证据量门槛、6 处日长别名全部指向它；`core:model` 与 androidTest 两处不收（依赖方向早于 core:domain，文件头已如实记） | `AlgorithmConstants.kt`（新）+ 约 20 文件 |
+| 配套 | 投影回退**手工流程**文档（工具化排后续波次，文档里已诚实标注） | `docs/research/kernel-projection-rollback.md`（新） |
+
+### 测试证据（2026-09-30 夜，本机实测）
+
+| 门 | 结果 |
+|---|---|
+| `:core:domain:testDebugUnitTest --rerun` | **496/0**（含 `ProjectionVersionGuardTest` 3 例：拒跨版本覆盖 / 归档后放行 / 同版本不变） |
+| `:core:database:testDebugUnitTest --rerun` | **93/0**（含 `KernelWave0SchemaContractTest` 5 例：DDL 与 54.json 同形 / 拒降级写 / 指纹列只在 54 消失 / 重建逐列搬运） |
+| `:core:data:testDebugUnitTest --rerun` | 563/**5**——5 条全部是 `core.data.knowledge.*` 的 KB 既有红（判官 v2 迁移遗留，另线收口，未动）；study 侧 0 失败 |
+| `:core:model` / `:app:testLocalFirstDebugUnitTest --rerun` | 387/0、53/0 |
+| `:core:database:connectedDebugAndroidTest`（5 类 43 例） | **43/43 全绿，0 失败 0 跳过（1h37m）**：1→54 全版本迁移矩阵、v53 旧行指纹合并保行（含子表不级联删除——`PRAGMA foreign_keys=ON` 在 `onOpen`、迁移期间外键是关的，真库实测）、归档行落库可读（JSON 逐位解回 + `schema_ddl` 同事务现读）、投影/掌握库/最弱排序回归 |
+
+**证据归属**：仪器化 43 例跑在**只含 Wave 0 改动**的构建上（测试 APK 在本轮 Wave 1 编辑开始前已装好），JVM 门亦在 Wave 1 编辑前用 `--rerun` 重跑。
+
+### 本波补记的两个事实
+
+1. **迁移矩阵首跑曾红过一次**（2026-09-30 20:58）：`reviewPlanFingerprintMergeKeepsExistingPlanAndQueueRows`
+   的夹具在 SQL 字面量里写了 `20_000`（SQLite 不认下划线分隔数字 → `unrecognized token`）。
+   改为 `20000` 后重跑全绿。修复前那次完整矩阵跑（11:45–12:58，54 个版本全部过）结论与本次一致，以本次重跑为准。
+2. **R8 与 kotlinx-serialization**：W0-1 让 `core:model` 的投影状态全部 `@Serializable` 并走 `LearnerSnapshotJson`
+   归档。已核实 `kotlinx-serialization-core-jvm:1.9.0` 自带 `META-INF/proguard/kotlinx-serialization-common.pro`
+   （R8 自动消费，覆盖 `$$serializer` / `Companion` / `serializer()`），**仓库无需自写 keep 规则**；
+   但归档路径在 release 构建上仍未被任何测试走到（A4 冒烟只证启动），列为遗留验证项。
+
+### 遗留 / 边界（不阻塞退出门）
+
+- 归档表只增不改、无保留策略（`ProjectionArchiveEntity` 注释已记；随回退工具化一并裁定）。
+- 归档只发生在全量重放路径：增量提交不改投影版本、无覆盖发生，无需归档（与 roadmap W0-1 ② 的语义一致）。
+- 号段不变：本波未动任何投影公式，`PROJECTOR` / `EVIDENCE` / `REVIEW_PLANNER` 均未 bump（版本清单 §3.2）。
+

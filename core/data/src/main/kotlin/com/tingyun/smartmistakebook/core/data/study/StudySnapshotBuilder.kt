@@ -44,14 +44,22 @@ internal class StudySnapshotBuilder(
         ) { "Cannot publish a study snapshot from a stale or incomplete learning projection" }
 
         val planningContext = plannerService.planningContext(projection)
+        // W0-2/Q4 读时校验：版本门只落在**非进行中**的那条读回上——进行中的会话必须与显示队列
+        // 同一份计划（`recordReviewAttempt` 按 ordinal 认队列项，显示另一份计划会让作答被拒），
+        // 拿版本去挡它会让学生卡在唯一活跃会话的不变量上。见
+        // `StudyReviewPlannerService.isCurrentPlannerVersion` 的两道边界注释。
+        // 版本不符 → 不保留 → 下面的 `createReviewPlan` 重排一份（指纹含算法版本，落成新行）。
         val activePlan = database.observeActiveReviewPlan(learnerId).first()
         val retainedPlan = activePlan ?: database.observeCurrentReviewPlan(
             learnerId = learnerId,
             localDayEpochDay = planningContext.localDate.toEpochDay(),
             timeZoneId = studyZoneId.id,
         ).first()?.takeIf { current ->
-            current.activeSession != null ||
-                current.latestSession?.status == StudyDbValue.ReviewStatus.COMPLETED
+            plannerService.isCurrentPlannerVersion(current) &&
+                (
+                    current.activeSession != null ||
+                        current.latestSession?.status == StudyDbValue.ReviewStatus.COMPLETED
+                    )
         }
         val reviewBundle = retainedPlan ?: plannerService.createReviewPlan(
             mistakes = mistakes,

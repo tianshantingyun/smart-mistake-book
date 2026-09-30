@@ -306,6 +306,7 @@ class KnowledgeContextRetrievalInstrumentedTest {
             knownLedgerHeadSequence = 0,
             consumedLedgerEvents = emptyList(),
             presentationProjectionStates = emptyMap(),
+            expectedProjectorVersion = PROJECTOR_VERSION,
             snapshot = snapshot,
         )
     }

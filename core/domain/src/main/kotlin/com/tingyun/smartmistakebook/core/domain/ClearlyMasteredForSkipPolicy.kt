@@ -26,13 +26,21 @@ data class MasteryDecisionPolicy(
     }
 
     companion object {
+        /**
+         * 阈值单源在 [AlgorithmConstants.Mastery]（W0-4）：这些名字是对外的既有 API，
+         * 值本身只在注册表里写一次。
+         *
+         * `minimumDirectObservations`（Int 字段，历史形态）取的是同一个证据量门槛的整数形态：
+         * 注册表里的门槛是**权重总量 2.0**（与 `state.evidenceMass` 直接比较），而这里的字段类型是
+         * Int——`toInt()` 是编译期常量折叠、2.0 → 2 精确，不是四舍五入的近似。
+         */
         val DEFAULT = MasteryDecisionPolicy(
             policyVersion = "mastery-v1",
-            minimumLowerBound = 0.85,
-            minimumDirectObservations = 2,
-            minimumItemFamilies = 2,
-            minimumStudyDays = 2,
-            maximumEvidenceAgeDays = 45,
+            minimumLowerBound = AlgorithmConstants.Mastery.LOWER_BOUND,
+            minimumDirectObservations = AlgorithmConstants.Mastery.MIN_EVIDENCE_MASS.toInt(),
+            minimumItemFamilies = AlgorithmConstants.Mastery.MIN_ITEM_FAMILIES,
+            minimumStudyDays = AlgorithmConstants.Mastery.MIN_STUDY_DAYS,
+            maximumEvidenceAgeDays = AlgorithmConstants.Mastery.MAX_EVIDENCE_AGE_DAYS,
         )
     }
 }
@@ -40,11 +48,12 @@ data class MasteryDecisionPolicy(
 /** Shared, time-aware threshold contract used by projection and adaptive teaching decisions. */
 object ClearlyMasteredForSkipPolicy {
     const val VERSION = LearningCoreVersions.SKIP_POLICY
-    const val LOWER_BOUND = 0.85
-    const val EVIDENCE_MASS = 2.0
-    const val REQUIRED_FAMILIES = 2
-    const val REQUIRED_STUDY_DAYS = 2
-    const val MAX_EVIDENCE_AGE_MILLIS = 45L * 86_400_000L
+    const val LOWER_BOUND = AlgorithmConstants.Mastery.LOWER_BOUND
+    const val EVIDENCE_MASS = AlgorithmConstants.Mastery.MIN_EVIDENCE_MASS
+    const val REQUIRED_FAMILIES = AlgorithmConstants.Mastery.MIN_ITEM_FAMILIES
+    const val REQUIRED_STUDY_DAYS = AlgorithmConstants.Mastery.MIN_STUDY_DAYS
+    const val MAX_EVIDENCE_AGE_MILLIS =
+        AlgorithmConstants.Mastery.MAX_EVIDENCE_AGE_DAYS * AlgorithmConstants.DAY_MILLIS
 
     fun isSatisfied(
         state: KnowledgeMasteryState,
@@ -53,7 +62,7 @@ object ClearlyMasteredForSkipPolicy {
     ): Boolean {
         require(atEpochMillis >= 0) { "Mastery decision time must not be negative" }
         val lastEvidenceAt = state.lastEvidenceAtEpochMillis ?: return false
-        val maxAgeMillis = policy.maximumEvidenceAgeDays.toLong() * 86_400_000L
+        val maxAgeMillis = policy.maximumEvidenceAgeDays.toLong() * AlgorithmConstants.DAY_MILLIS
         if (atEpochMillis < lastEvidenceAt || atEpochMillis - lastEvidenceAt > maxAgeMillis) {
             return false
         }

@@ -574,7 +574,7 @@ data class ReviewPlanRecord(
     val status: String,
     val plannerVersion: String,
     val projectionCheckpoint: Long,
-    val inputFingerprint: String,
+    /** W0-2/Q4：唯一的计划指纹列（`input_fingerprint` 与它恒同值，已随 v53→54 合并掉）。 */
     val planFingerprint: String,
     val planRevision: Int,
     val createdAtEpochMillis: Long,
@@ -1449,6 +1449,16 @@ data class ProjectionCommit(
     /** Projector output; incremental commits return touched states, full replay returns all states. */
     val presentationProjectionStates: Map<String, PresentationProjectionState>,
     val snapshot: LearnerSnapshot,
+    /**
+     * 提交这份投影的**当前二进制**版本串（`LearningProjector.VERSION`）。
+     *
+     * 内核修复路线图 W0-1/Q2 的"拒绝降级写"：落库前断言
+     * `snapshot.checkpoint.projectorVersion == expectedProjectorVersion`。
+     * 它挡的是"提交里带的快照不是这个二进制算出来的"——旧二进制静默覆盖新投影的通道里，
+     * 这一步是唯一还能落库前被拦住的关口（重放入口那一道见 `LearningProjector.replay`）。
+     * 故意**不给默认值**：调用点必须显式声明它期望的版本，否则这道断言可以被无声跳过。
+     */
+    val expectedProjectorVersion: String,
 )
 
 data class PersistedLearnerSnapshot(
@@ -1456,6 +1466,22 @@ data class PersistedLearnerSnapshot(
     val stateVersion: Long,
     val knownLedgerHeadSequence: Long,
     val snapshot: LearnerSnapshot,
+)
+
+/**
+ * 一行投影归档的**写入请求**（内核修复路线图 W0-1/Q2，表 `projection_archive`）。
+ *
+ * [snapshotJson] 由 `LearnerSnapshotJson` 编码；`schema_ddl` **不在这里**——它是落库行的一部分，
+ * 但调用方不该自己拼 DDL 字符串：DAO 在同一事务里从 `sqlite_master` 读当时的真 DDL
+ * （写回时用来判断表结构还兼不兼容，见 `docs/research/kernel-projection-rollback.md`）。
+ * 少一个自由字段就少一个"手抄 DDL 与真表漂开"的失败面。
+ */
+data class ProjectionArchiveRecord(
+    val projectionName: String,
+    val learnerId: String,
+    val snapshotJson: String,
+    val projectorVersion: String,
+    val archivedAtEpochMillis: Long,
 )
 
 data class ReviewPlanBundle(

@@ -62,7 +62,8 @@ object SleepWindowInference {
         ((atMillis - lastEnd).coerceAtLeast(0) / DAY_MILLIS).toInt()
     }
 
-    private const val DAY_MILLIS = 86_400_000L
+    /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`。 */
+    private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
 }
 
 /** Durable activity journal owned by the data layer (DataStore in production). */

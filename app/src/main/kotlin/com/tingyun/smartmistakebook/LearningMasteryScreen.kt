@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
 import com.tingyun.smartmistakebook.core.domain.isReady
@@ -416,7 +417,8 @@ internal fun recentActivityLabel(
 }
 
 private const val MAX_RECENT_CHANGES = 4
-private const val DAY_MILLIS = 86_400_000L
+/** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`（内核常数注册表）。 */
+private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
 
 /** Audit §6.2: descriptive evidence labels instead of raw probabilities. */
 private fun masteryEvidenceLabel(summary: StudyKnowledgeSummary): String = when {

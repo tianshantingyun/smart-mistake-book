@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook
 
+import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -110,7 +111,7 @@ class LearningMasteryScreenInstrumentedTest {
     )
 
     private companion object {
-        const val DAY_MILLIS = 86_400_000L
+        const val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
 
         val FORBIDDEN_STUDENT_TERMS = listOf(
             "原子知识",

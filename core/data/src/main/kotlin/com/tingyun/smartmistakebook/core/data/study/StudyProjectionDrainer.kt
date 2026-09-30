@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.ConsumedLedgerEventReceipt
 import com.tingyun.smartmistakebook.core.database.LearningLedgerIntegrityException
 import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
+import com.tingyun.smartmistakebook.core.database.ProjectionArchiveRecord
 import com.tingyun.smartmistakebook.core.database.ProjectionBatchStopReason
 import com.tingyun.smartmistakebook.core.database.ProjectionCasConflictException
 import com.tingyun.smartmistakebook.core.database.ProjectionCommit
@@ -16,8 +17,10 @@ import com.tingyun.smartmistakebook.core.model.AttemptCorrection
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshotFreshness
+import com.tingyun.smartmistakebook.core.model.LearnerSnapshotJson
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
+import java.time.Clock
 
 /**
  * Drains the immutable learning ledger into the learner projection (spec §6):
@@ -30,6 +33,8 @@ internal class StudyProjectionDrainer(
     private val database: StudyDatabasePort,
     private val learnerId: String,
     private val learningProjector: LearningProjector,
+    /** 归档行的 `archived_at_epoch_millis` 取这里的当前时刻（不猜、不借用投影时刻）。 */
+    private val clock: Clock,
 ) {
 
     suspend fun drain(): PersistedLearnerSnapshot? {
@@ -128,6 +133,7 @@ internal class StudyProjectionDrainer(
                             },
                             presentationProjectionStates = result.presentationProjectionStates,
                             snapshot = result.snapshot,
+                            expectedProjectorVersion = LearningProjector.VERSION,
                         )
                         try {
                             database.commitProjection(commit)
@@ -153,10 +159,18 @@ internal class StudyProjectionDrainer(
                 ledger.detail ?: "Full replay blocked at ${ledger.blockedAtSequence}",
             )
         }
+        // W0-1 ③：重放会原地覆盖投影表，被覆盖的那份必须先整份落进 `projection_archive`
+        // （`current` 读的是重放前的状态，所以这一行就是"旧投影"）。顺序即机制：先归档再重放，
+        // 反过来就只剩新值——而"改数值可回退"正是 Wave 0 要建立的前提。
+        val displacedSnapshot = current?.snapshot
+        val archived = archiveDisplacedSnapshot(displacedSnapshot)
         val result = learningProjector.replay(
             learnerId = learnerId,
             ledger = ledger.validPrefix.map { it.event },
             knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+            // W0-1 ①：跨版本覆盖要在重放入口声明"被替换的那份已经归档"（同版本或空库无需声明）。
+            displacedSnapshot = displacedSnapshot,
+            displacedSnapshotArchived = archived,
         )
         val expectedCheckpoint = current?.snapshot?.checkpoint?.lastSequence ?: 0L
         val consumed = ledger.validPrefix
@@ -173,8 +187,30 @@ internal class StudyProjectionDrainer(
                 consumedLedgerEvents = consumed,
                 presentationProjectionStates = result.presentationProjectionStates,
                 snapshot = result.snapshot,
+                expectedProjectorVersion = LearningProjector.VERSION,
             ),
         )
+    }
+
+    /**
+     * 把即将被重放覆盖的投影整份归档；返回"是否落了行"。
+     *
+     * 空库/首次投影（[snapshot] 为 null）没有可归档的东西，返回 false —— 那时重放不是替换，
+     * 而是从空开始，入口守卫也据此放行（`LearningProjector.replay` 的契约）。
+     * 归档失败**不吞**：重放马上要覆盖它，吞掉就等于把这一版投影悄悄丢掉。
+     */
+    private suspend fun archiveDisplacedSnapshot(snapshot: LearnerSnapshot?): Boolean {
+        if (snapshot == null) return false
+        database.archiveProjectionSnapshot(
+            ProjectionArchiveRecord(
+                projectionName = PROJECTION_NAME,
+                learnerId = learnerId,
+                snapshotJson = LearnerSnapshotJson.encode(snapshot),
+                projectorVersion = snapshot.checkpoint.projectorVersion,
+                archivedAtEpochMillis = clock.millis(),
+            ),
+        )
+        return true
     }
 
     private fun com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent.toReceipt() =

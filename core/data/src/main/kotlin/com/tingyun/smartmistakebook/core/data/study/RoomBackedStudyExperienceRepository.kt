@@ -162,6 +162,7 @@ class RoomBackedStudyExperienceRepository(
         database = database,
         learnerId = learnerId,
         learningProjector = learningProjector,
+        clock = clock,
     )
     private val predictionAuditService = HLRPredictionAuditService()
 

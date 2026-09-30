@@ -102,6 +102,7 @@ import com.tingyun.smartmistakebook.core.database.ProjectionBatchStopReason
 import com.tingyun.smartmistakebook.core.database.ProjectionCommit
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRecord
 import com.tingyun.smartmistakebook.core.database.ProblemDraftWriteResult
+import com.tingyun.smartmistakebook.core.database.ProjectionArchiveRecord
 import com.tingyun.smartmistakebook.core.database.ReviewPlanBundle
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteCommand
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteResult
@@ -159,6 +160,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -1120,6 +1122,105 @@ class RoomBackedStudyExperienceRepositoryTest {
     }
 
     /**
+     * W0-2/Q4 读时校验：落库计划由**别的算法版本**排出来 → 不当作今日计划（不续排），
+     * `StudySnapshotBuilder` 因此重排一份。
+     *
+     * 这是"升级 App 之后，昨天/刚才那份旧算法排的计划还会被当成今天的计划用"那条缺口的机器门。
+     * 布局上刻意只让**版本串**不同：同样一份"今天已完成"的计划，版本一致时必须被保留
+     * （见下一条用例），版本不符时必须被重排——两条用例互为对照。
+     */
+    @Test
+    fun `a plan written by another planner version is replanned instead of continued`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        try {
+            repository.initialize()
+            val currentVersion = database.savedPlans.last().plan.plannerVersion
+            val displaced = displacedPlan(database.savedPlans.last(), "$currentVersion-previous")
+            database.savedPlans.clear()
+            database.savedPlans += displaced
+
+            repository.initialize()
+
+            assertEquals(
+                "版本不符 → 重排（旧计划不再被当成今日计划）：" +
+                    database.savedPlans.map { it.plan.reviewPlanId },
+                2,
+                database.savedPlans.size,
+            )
+            val replanned = database.savedPlans.last()
+            assertNotEquals(displaced.plan.reviewPlanId, replanned.plan.reviewPlanId)
+            assertEquals(currentVersion, replanned.plan.plannerVersion)
+            assertEquals(replanned.plan.reviewPlanId, repository.snapshot.value.review.planId)
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /** 同一条门对照的另一半：版本一致 → 保留原计划（checkpoint 与版本都匹配 → 续跑）。 */
+    @Test
+    fun `a plan from the current planner version is kept as today's plan`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        try {
+            repository.initialize()
+            val currentVersion = database.savedPlans.last().plan.plannerVersion
+            val retained = displacedPlan(database.savedPlans.last(), currentVersion)
+            database.savedPlans.clear()
+            database.savedPlans += retained
+
+            repository.initialize()
+
+            assertEquals(
+                "版本一致 → 不重排：${database.savedPlans.map { it.plan.reviewPlanId }}",
+                1,
+                database.savedPlans.size,
+            )
+            assertEquals(retained.plan.reviewPlanId, repository.snapshot.value.review.planId)
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /**
+     * 造一份"升级前落下的"今日计划（今日已完成，只有版本不同）：
+     * 版本串换成上一版算法的，指纹与计划 id 一并换成那一版的形态——真实降级路径上这三者
+     * 都是旧算法算出来的；只改版本串会造出组合上不存在的行，重排时反而会撞上指纹一致性检查。
+     */
+    private fun displacedPlan(
+        stored: ReviewPlanBundle,
+        plannerVersion: String,
+    ): ReviewPlanBundle {
+        val planId = "plan-displaced-${plannerVersion.substringAfterLast('-')}"
+        return stored.copy(
+            plan = stored.plan.copy(
+                reviewPlanId = planId,
+                planFingerprint = "displaced-${plannerVersion.substringAfterLast('-')}",
+                plannerVersion = plannerVersion,
+            ),
+            queue = stored.queue.map { item -> item.copy(reviewPlanId = planId) },
+            activeSession = null,
+            latestSession = ReviewSessionRecord(
+                reviewSessionId = "session-displaced",
+                reviewPlanId = planId,
+                status = StudyDbValue.ReviewStatus.COMPLETED,
+                startedAtEpochMillis = stored.plan.planningAtEpochMillis,
+                lastActiveAtEpochMillis = stored.plan.planningAtEpochMillis,
+                completedAtEpochMillis = stored.plan.planningAtEpochMillis,
+                currentOrdinal = stored.queue.size,
+                timeBudgetSeconds = stored.plan.timeBudgetSeconds,
+                projectionCheckpoint = stored.plan.projectionCheckpoint,
+                stateVersion = stored.queue.size.toLong(),
+            ),
+            isCurrent = true,
+        )
+    }
+
+    /**
      * 把两个 KC 的掌握度写进当前投影（实现在 [FakeStudyDatabasePort.publishMastery]，
      * 那里才能碰到私有的投影字段）。
      */
@@ -1371,6 +1472,29 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
             snapshot = snapshot,
         )
         learningLedgerHead.value = 1
+    }
+
+    /** W0-1 ③ 的写入记录：drainer 必须**先归档、再提交**。 */
+    val archivedProjectionSnapshots = mutableListOf<ProjectionArchiveRecord>()
+
+    /** 投影写路径的实际顺序（只记 archive / commit 两类，用来说明"归档早于覆盖"）。 */
+    val projectionWriteOrder = mutableListOf<String>()
+
+    /**
+     * 发布一份"上一个二进制留下的"投影（W0-1/Q2 的跨版本场景）：快照侧带旧版本串，
+     * 用来触发 `requiresReplay → commitFullReplay`——正常路径造不出这个状态。
+     *
+     * 账本头**保持 0**：这个 fake 没有真账本（`loadLearningLedger` 恒返回空 COMPLETE），
+     * 把账本头抬到快照的序列会让排空在下一步读到 GAP（那是另一个失败面，不是本用例要钉的）。
+     */
+    fun publishDisplacedProjection(snapshot: LearnerSnapshot) {
+        persistedLearnerSnapshot = PersistedLearnerSnapshot(
+            projectionName = "study-experience-v1",
+            stateVersion = 1,
+            knownLedgerHeadSequence = snapshot.knownLedgerHeadSequence,
+            snapshot = snapshot,
+        )
+        learningLedgerHead.value = 0
     }
 
     /**
@@ -2378,8 +2502,23 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
         learnerId: String,
     ): PersistedLearnerSnapshot? = persistedLearnerSnapshot
 
-    override suspend fun commitProjection(commit: ProjectionCommit): PersistedLearnerSnapshot =
-        error("commitProjection is not used by these focused tests")
+    override suspend fun commitProjection(commit: ProjectionCommit): PersistedLearnerSnapshot {
+        projectionWriteOrder += "commit"
+        val persisted = PersistedLearnerSnapshot(
+            projectionName = commit.projectionName,
+            stateVersion = commit.expectedPreviousStateVersion + 1,
+            knownLedgerHeadSequence = commit.knownLedgerHeadSequence,
+            snapshot = commit.snapshot,
+        )
+        // 真 DAO 会落库，下一次排空读到的是新投影；fake 必须一样，否则排空会在旧值上打转。
+        persistedLearnerSnapshot = persisted
+        return persisted
+    }
+
+    override suspend fun archiveProjectionSnapshot(record: ProjectionArchiveRecord) {
+        projectionWriteOrder += "archive"
+        archivedProjectionSnapshots += record
+    }
 
     override suspend fun saveReviewPlan(bundle: ReviewPlanBundle) {
         val session = latestSessions[bundle.plan.reviewPlanId]

@@ -1337,6 +1337,9 @@ internal class RoomStudyDatabase(
         commit: ProjectionCommit,
     ): PersistedLearnerSnapshot = database.projectionTransactionDao().commitProjection(commit)
 
+    override suspend fun archiveProjectionSnapshot(record: ProjectionArchiveRecord) =
+        database.projectionTransactionDao().archiveProjectionSnapshot(record)
+
     override suspend fun saveReviewPlan(bundle: ReviewPlanBundle) {
         DatabaseContractValidator.validateReviewBundle(bundle)
         database.reviewPlanTransactionDao().savePlan(

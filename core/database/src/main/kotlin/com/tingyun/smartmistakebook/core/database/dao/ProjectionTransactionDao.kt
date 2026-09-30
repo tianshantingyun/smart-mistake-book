@@ -24,6 +24,7 @@ import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
 import com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent
 import com.tingyun.smartmistakebook.core.database.PersistedIncrementalLearningEvent
+import com.tingyun.smartmistakebook.core.database.ProjectionArchiveRecord
 import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionBatchStopReason
 import com.tingyun.smartmistakebook.core.database.ProjectionCasConflictException
@@ -83,6 +84,7 @@ import com.tingyun.smartmistakebook.core.database.entity.LearnerProblemMemorySta
 import com.tingyun.smartmistakebook.core.database.entity.LearnerProjectionSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.LearningSequenceEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProjectionArchiveEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionConsumptionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.PresentationProjectionStateEntity
@@ -1190,5 +1192,61 @@ internal abstract class ProjectionTransactionDao {
     private suspend fun <T> List<T>.insertWhenNotEmpty(insert: suspend (List<T>) -> Unit) {
         if (isNotEmpty()) insert(this)
     }
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    protected abstract suspend fun insertArchive(rows: List<ProjectionArchiveEntity>)
+
+    @Query(
+        """
+        SELECT `sql` FROM sqlite_master
+        WHERE type = 'table' AND name IN (:tableNames)
+        ORDER BY name ASC
+        """,
+    )
+    protected abstract suspend fun findTableDdl(tableNames: List<String>): List<String>
+
+    /**
+     * 归档一份投影（内核修复路线图 W0-1/Q2 ③）：把**即将被重放覆盖**的那份存储投影整份留下。
+     *
+     * 写入时机是 `StudyProjectionDrainer.commitFullReplay` 里、调用 `LearningProjector.replay`
+     * **之前**——顺序是这条机制的全部价值：重放会原地覆盖 9 张投影表，归档晚一步就只剩新值。
+     *
+     * `schema_ddl` 在同一个事务里从 `sqlite_master` 现读，不由调用方传：手抄的 DDL 迟早与真表漂开，
+     * 而回退流程要靠它判断"这份 JSON 能不能原样写回现在的表"。
+     */
+    @Transaction
+    open suspend fun archiveProjectionSnapshot(record: ProjectionArchiveRecord) {
+        DatabaseContractValidator.validateProjectionArchive(record)
+        insertArchive(
+            listOf(
+                ProjectionArchiveEntity(
+                    projectionName = record.projectionName,
+                    learnerId = record.learnerId,
+                    archivedAtEpochMillis = record.archivedAtEpochMillis,
+                    snapshotJson = record.snapshotJson,
+                    projectorVersion = record.projectorVersion,
+                    schemaDdl = findTableDdl(PROJECTION_ARCHIVE_TABLES).joinToString("\n\n"),
+                ),
+            ),
+        )
+    }
 }
+
+/**
+ * 归档要连同 DDL 一起记下的表 = 一份 [LearnerSnapshot] 的全部载体
+ * （与 `readCurrentSnapshot`/`commitProjection` 读写的 9 张表逐一对应：头部 1 张 + 状态 3 张 +
+ * 已应用记录 4 张 + 呈现态 1 张）。回退工具要按这份清单判断"当时的表结构还兼不兼容"，
+ * 所以清单短一张，回退时就多一处盲区。
+ */
+internal val PROJECTION_ARCHIVE_TABLES: List<String> = listOf(
+    "applied_answer_reveal_record",
+    "applied_attempt_record",
+    "applied_correction_record",
+    "applied_tutor_answer_exposure_record",
+    "independent_correct_observation",
+    "learner_knowledge_mastery_state",
+    "learner_problem_memory_state",
+    "learner_projection_snapshot",
+    "presentation_projection_state",
+)
 

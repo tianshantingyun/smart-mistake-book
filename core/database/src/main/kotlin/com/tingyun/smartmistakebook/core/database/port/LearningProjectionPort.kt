@@ -17,6 +17,7 @@ import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealP0
 import com.tingyun.smartmistakebook.core.database.PersistedAttemptP0
 import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
+import com.tingyun.smartmistakebook.core.database.ProjectionArchiveRecord
 import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionCommit
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteCommand
@@ -110,4 +111,12 @@ interface LearningProjectionPort {
     ): PersistedLearnerSnapshot?
 
     suspend fun commitProjection(commit: ProjectionCommit): PersistedLearnerSnapshot
+
+    /**
+     * 归档一份即将被重放覆盖的投影（内核修复路线图 W0-1 ③）。
+     *
+     * 调用点在 `StudyProjectionDrainer.commitFullReplay` 里、`LearningProjector.replay` **之前**：
+     * 顺序本身就是机制——重放原地覆盖投影表，晚一步归档就只剩新值。
+     */
+    suspend fun archiveProjectionSnapshot(record: ProjectionArchiveRecord)
 }

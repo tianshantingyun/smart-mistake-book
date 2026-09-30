@@ -274,7 +274,6 @@ class RoomStudyDatabaseMappingsTest {
         status = "ACTIVE",
         plannerVersion = "v2",
         projectionCheckpoint = 7L,
-        inputFingerprint = "in-fp",
         planFingerprint = "plan-fp",
         planRevision = 1,
         createdAtEpochMillis = 1_000L,

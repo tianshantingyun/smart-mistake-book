@@ -578,29 +578,33 @@ class ReviewPlanner(
             ReviewDifficultyBand.EASY,
             ReviewDifficultyBand.HARD,
         )
-        private const val EASY_DIFFICULTY_CEILING = 4.0
-        private const val MEDIUM_DIFFICULTY_CEILING = 7.0
-        private const val WEAKNESS_THRESHOLD = 0.35
-        private const val DUE_WEIGHT = 5.0
-        private const val WEAKNESS_WEIGHT = 3.0
-        private const val LAPSE_WEIGHT = 1.0
-        private const val REPEAT_MISTAKE_WEIGHT = 2.0
-        private const val AVOIDANCE_WEIGHT = 1.0
-        private const val EXAM_WEIGHT = 2.0
-        private const val WAITING_WEIGHT = 1.5
-        private const val FAMILY_PENALTY_WEIGHT = 0.3
-        private const val SOURCE_PENALTY_WEIGHT = 0.2
-        private const val MAX_DIVERSITY_PENALTY = 1.5
+        // W0-4（审计 Q5）：权重表**单源**在 `AlgorithmConstants.ReviewScoring`。
+        // 这些名字保留（调用点可读性 + 对外既有 API），但值不再在本文件写第二遍——
+        // 此前 V1/V2 各写一份同值表，改一处另一处照旧跑，是静默分叉。
+        private const val EASY_DIFFICULTY_CEILING = AlgorithmConstants.ReviewScoring.EASY_DIFFICULTY_CEILING
+        private const val MEDIUM_DIFFICULTY_CEILING = AlgorithmConstants.ReviewScoring.MEDIUM_DIFFICULTY_CEILING
+        private const val WEAKNESS_THRESHOLD = AlgorithmConstants.ReviewScoring.WEAKNESS_THRESHOLD
+        private const val DUE_WEIGHT = AlgorithmConstants.ReviewScoring.DUE_WEIGHT
+        private const val WEAKNESS_WEIGHT = AlgorithmConstants.ReviewScoring.WEAKNESS_WEIGHT
+        private const val LAPSE_WEIGHT = AlgorithmConstants.ReviewScoring.LAPSE_WEIGHT
+        private const val REPEAT_MISTAKE_WEIGHT = AlgorithmConstants.ReviewScoring.REPEAT_MISTAKE_WEIGHT
+        private const val AVOIDANCE_WEIGHT = AlgorithmConstants.ReviewScoring.AVOIDANCE_WEIGHT
+        private const val EXAM_WEIGHT = AlgorithmConstants.ReviewScoring.EXAM_WEIGHT
+        private const val WAITING_WEIGHT = AlgorithmConstants.ReviewScoring.WAITING_WEIGHT
+        private const val FAMILY_PENALTY_WEIGHT = AlgorithmConstants.ReviewScoring.FAMILY_PENALTY_WEIGHT
+        private const val SOURCE_PENALTY_WEIGHT = AlgorithmConstants.ReviewScoring.SOURCE_PENALTY_WEIGHT
+        private const val MAX_DIVERSITY_PENALTY = AlgorithmConstants.ReviewScoring.MAX_DIVERSITY_PENALTY
         /**
          * An exam may pull a card forward only below this predicted recall
          * (spec 2.17 defines the exam queue as `R < r*_exam`; 研究 2026-09-09 §5:
          * the FSRS stability gain is e^{w10(1−R)}−1).
          */
-        private const val EARLY_REVIEW_MAX_RETRIEVABILITY = 0.8
-        private const val DAY_MILLIS = 86_400_000.0
-        private const val RECENT_LAPSE_WINDOW_MILLIS = 30L * 86_400_000L
-        private const val WAITING_GRACE_DAYS = 7.0
-        private const val WAITING_BONUS_RAMP_DAYS = 83.0
+        private const val EARLY_REVIEW_MAX_RETRIEVABILITY =
+            AlgorithmConstants.ReviewScoring.EARLY_REVIEW_MAX_RETRIEVABILITY
+        private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
+        private const val RECENT_LAPSE_WINDOW_MILLIS = AlgorithmConstants.ReviewScoring.RECENT_LAPSE_WINDOW_MILLIS
+        private const val WAITING_GRACE_DAYS = AlgorithmConstants.ReviewScoring.WAITING_GRACE_DAYS
+        private const val WAITING_BONUS_RAMP_DAYS = AlgorithmConstants.ReviewScoring.WAITING_BONUS_RAMP_DAYS
         /** Days of evidence age at which a knowledge node's due risk saturates. */
         private const val KNOWLEDGE_DUE_RAMP_DAYS = 30.0
         private const val PLAN_FINGERPRINT_SCHEMA_VERSION = "review-plan-canonical-v5"

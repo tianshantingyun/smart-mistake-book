@@ -26,7 +26,7 @@ import org.junit.Test
 
 class LearningProjectorTest {
     private val projector = LearningProjector()
-    private val DAY_MILLIS = 86_400_000L
+    private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
 
     @Test
     fun `attempt ids are idempotent and weighted bindings update every knowledge node`() {

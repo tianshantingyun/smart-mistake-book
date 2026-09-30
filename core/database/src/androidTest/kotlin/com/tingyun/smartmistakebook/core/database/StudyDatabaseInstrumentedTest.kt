@@ -458,6 +458,7 @@ class StudyDatabaseInstrumentedTest {
                     knownLedgerHeadSequence = 2,
                     consumedLedgerEvents = emptyList(),
                     presentationProjectionStates = emptyMap(),
+                    expectedProjectorVersion = PROJECTOR_VERSION,
                     snapshot = currentSnapshot,
                 ),
             )
@@ -508,6 +509,7 @@ class StudyDatabaseInstrumentedTest {
                 presentationProjectionStates = projectedPresentationStates(
                     ledger.validPrefix.map { it.event },
                 ),
+                expectedProjectorVersion = PROJECTOR_VERSION,
                 snapshot = snapshot,
             ),
         )
@@ -560,6 +562,7 @@ class StudyDatabaseInstrumentedTest {
                 knownLedgerHeadSequence = 1,
                 consumedLedgerEvents = emptyList(),
                 presentationProjectionStates = emptyMap(),
+                expectedProjectorVersion = PROJECTOR_VERSION,
                 snapshot = auditEvicted,
             ),
         )
@@ -1717,6 +1720,7 @@ class StudyDatabaseInstrumentedTest {
             )
         },
         presentationProjectionStates = projectedPresentationStates(events.map { it.event }),
+        expectedProjectorVersion = PROJECTOR_VERSION,
         snapshot = snapshot,
     )
 
@@ -1846,7 +1850,6 @@ class StudyDatabaseInstrumentedTest {
                 status = StudyDbValue.ReviewStatus.PLANNED,
                 plannerVersion = "planner-v2",
                 projectionCheckpoint = 0,
-                inputFingerprint = "input-$fingerprint",
                 planFingerprint = fingerprint,
                 planRevision = 1,
                 createdAtEpochMillis = OCCURRED_AT,

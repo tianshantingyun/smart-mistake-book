@@ -43,8 +43,12 @@ internal data class ReviewPlanEntity(
     val plannerVersion: String,
     @ColumnInfo(name = "projection_checkpoint")
     val projectionCheckpoint: Long,
-    @ColumnInfo(name = "input_fingerprint")
-    val inputFingerprint: String,
+    /**
+     * 计划的唯一指纹（W0-2/Q4 合并后的单列）：`plan_id = "plan-$planFingerprint"`，
+     * 也是"这份计划按哪份输入、由哪个算法版本算出"的机器可读凭据。
+     * 原先并列的 `input_fingerprint` 与它**恒同值**（`StudyReviewPlannerService` 一直写同一个值），
+     * 已随 v53→54 迁移删掉——留两列只会让"哪一列才权威"变成一个可以被写错的问题。
+     */
     @ColumnInfo(name = "plan_fingerprint")
     val planFingerprint: String,
     @ColumnInfo(name = "plan_revision")

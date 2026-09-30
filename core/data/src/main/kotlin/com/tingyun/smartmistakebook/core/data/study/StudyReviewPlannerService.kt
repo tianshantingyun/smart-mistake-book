@@ -159,6 +159,41 @@ internal class StudyReviewPlannerService(
         timeZoneId = studyZoneId.id,
     ).first()
 
+    /**
+     * 当前二进制会给今天这份计划盖的算法版本（W0-2/Q4 读时校验的期望值）。
+     *
+     * 取值来源是**两个 planner 自己写的那个串**（`ReviewPlanner.plan` /
+     * `ReviewPlannerV2.plan` 都写 `plannerVersion = VERSION`）：V1 是
+     * `LearningCoreVersions.REVIEW_COMPOSITE`（如 `learning-core-v7(review-planner-v6,...)`），
+     * V2 是它自己的 `review-planner-v2`。所以期望值随 [useReviewPlannerV2] 现算——
+     * "V1 排的计划被 V2 续跑"与"上一版算法的计划被这一版续跑"是同一种错，同一道门一起挡。
+     */
+    private val expectedPlannerVersion: String
+        get() = if (useReviewPlannerV2) ReviewPlannerV2.VERSION else ReviewPlanner.VERSION
+
+    /**
+     * 读时校验（W0-2/Q4）：这份落库计划是不是**当前二进制的算法**排出来的。
+     *
+     * 落点是 `StudySnapshotBuilder` 那条"保留还是重排"的读回——它是唯一一个"读回为 null 会
+     * 触发重排"的地方：版本不符 → 不保留 → 重排一份（指纹含算法版本，落成新行、槽位随之更新）。
+     * 其余读今日计划的地方（`startOrResumeReviewSession`、`currentKnowledgeReviewPlan`）都在
+     * 同一次操作里先经过 `publishReadySnapshot`，此时槽位已经是当前算法排的那一份，
+     * 所以它们读到的东西不会是被挡下的旧计划——除了下面第一条边界里的"进行中会话"。
+     *
+     * 两道边界，都是刻意的：
+     * - **进行中的会话不在这道门内**（`StudySnapshotBuilder` 对 active plan 不加版本判断）：
+     *   一次 IN_PROGRESS 会话是已提交的学习事务，而且今日的显示队列必须与它会话的队列一致
+     *   （`recordReviewAttempt` 按 ordinal 认队列项，显示另一份计划会让作答被拒）；弃掉它还会
+     *   把学生卡在唯一活跃会话的不变量上（`ReviewDao.requireInitialSession` 要求该 learner 没有
+     *   别的 IN_PROGRESS 会话，`RoomStudyDatabase.observeActiveReviewPlan` 遇到多个直接 fail-closed）。
+     *   它只能靠完成会话自行收口。
+     * - 这道门挡的是**续排**，不是历史：旧计划行照旧留在库里（`plan_fingerprint` 唯一索引按
+     *   指纹各留一份），已完成的会话与"今天已完成"状态由 `observeCompletedReviewLocalDays`
+     *   独立给出，不受它影响。
+     */
+    internal fun isCurrentPlannerVersion(plan: ReviewPlanBundle): Boolean =
+        plan.plan.plannerVersion == expectedPlannerVersion
+
 
     suspend fun createReviewPlan(
         mistakes: List<MistakeRecord>,
@@ -338,7 +373,6 @@ internal class StudyReviewPlannerService(
                 status = StudyDbValue.ReviewStatus.PLANNED,
                 plannerVersion = plan.plannerVersion,
                 projectionCheckpoint = plan.projectionCheckpoint.lastSequence,
-                inputFingerprint = plan.planFingerprint,
                 planFingerprint = plan.planFingerprint,
                 planRevision = 1,
                 createdAtEpochMillis = plan.generatedAtEpochMillis,

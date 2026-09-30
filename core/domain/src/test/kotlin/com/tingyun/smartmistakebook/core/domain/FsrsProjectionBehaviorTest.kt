@@ -372,6 +372,6 @@ class FsrsProjectionBehaviorTest {
     )
 
     private companion object {
-        const val DAY_MILLIS = 86_400_000L
+        const val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
     }
 }

@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.core.model
 
+import kotlinx.serialization.Serializable
+
 enum class LearningEvidenceDirection {
     POSITIVE,
     NEGATIVE,
@@ -137,6 +139,7 @@ enum class CalibrationSupport {
 }
 
 /** Versioned calibration assertion. Support expires instead of sticking to mastery forever. */
+@Serializable
 data class CalibrationSnapshot(
     val support: CalibrationSupport,
     val sourceId: String,
@@ -504,6 +507,7 @@ data class AttemptCorrection(
         get() = correctionId
 }
 
+@Serializable
 data class ProjectionCheckpoint(
     val lastSequence: Long,
     val projectorVersion: String,
@@ -524,6 +528,7 @@ data class ProjectionCheckpoint(
     }
 }
 
+@Serializable
 data class ProblemMemoryState(
     val practiceUnitId: String,
     val stabilityDays: Double,
@@ -635,6 +640,7 @@ enum class EventTimeTrust {
     IMPORTED_UNVERIFIED,
 }
 
+@Serializable
 data class IndependentCorrectObservation(
     val itemFamilyId: String,
     val studyDayEpochDay: Long,
@@ -661,6 +667,7 @@ data class IndependentCorrectObservation(
     fun calibrationSupportAt(atEpochMillis: Long): CalibrationSupport = calibration.supportAt(atEpochMillis)
 }
 
+@Serializable
 data class KnowledgeMasteryState(
     val knowledgeNodeId: String,
     val masteryScore: Double,
@@ -719,6 +726,7 @@ enum class ProjectionStatus {
     CONFLICTED,
 }
 
+@Serializable
 data class AppliedAttemptRecord(
     val attemptId: String,
     val canonicalFingerprint: String,
@@ -735,6 +743,7 @@ data class AppliedAttemptRecord(
     }
 }
 
+@Serializable
 data class AppliedCorrectionRecord(
     val correctionId: String,
     val attemptId: String,
@@ -749,6 +758,7 @@ data class AppliedCorrectionRecord(
     }
 }
 
+@Serializable
 data class AppliedAnswerRevealRecord(
     val outcomeId: String,
     val presentationId: String,
@@ -763,6 +773,7 @@ data class AppliedAnswerRevealRecord(
     }
 }
 
+@Serializable
 data class AppliedTutorAnswerExposureRecord(
     val outcomeId: String,
     val exposureId: String,
@@ -782,6 +793,7 @@ data class AppliedTutorAnswerExposureRecord(
  * It remains outside [LearnerSnapshot] so unbounded presentation history is never embedded in
  * every learner snapshot.
  */
+@Serializable
 data class PresentationProjectionState(
     val presentationId: String,
     val asOfLedgerSequence: Long,
@@ -803,6 +815,16 @@ data class PresentationProjectionState(
     }
 }
 
+/**
+ * 学习投影的完整值对象（问题记忆 + 知识点掌握 + 已应用记录 + 检查点）。
+ *
+ * `@Serializable` 的唯一用途是 **投影归档**（`projection_archive.snapshot_json`，内核修复路线图
+ * W0-1/Q2）：`LearningProjector.replay` 覆盖存储快照前，先把被替换的那一份整份序列化落库，
+ * 于是"每次 bump 前旧投影可恢复"成为事实而不是承诺——回退流程见
+ * `docs/research/kernel-projection-rollback.md`。序列化形状因此是**对外契约**：改字段名等于改归档格式，
+ * 必须跟着走版本纪律（见 `docs/research/algorithm-version-ledger.md`）。
+ */
+@Serializable
 data class LearnerSnapshot(
     val learnerId: String,
     val problemMemoryStates: Map<String, ProblemMemoryState> = emptyMap(),

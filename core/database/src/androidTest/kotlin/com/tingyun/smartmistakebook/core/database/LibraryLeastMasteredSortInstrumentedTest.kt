@@ -221,6 +221,7 @@ class LibraryLeastMasteredSortInstrumentedTest {
         knownLedgerHeadSequence = 0,
         consumedLedgerEvents = emptyList(),
         presentationProjectionStates = emptyMap(),
+        expectedProjectorVersion = PROJECTOR_VERSION,
         snapshot = LearnerSnapshot(
             learnerId = LEARNER,
             problemMemoryStates = MASTERY.keys.associate { node ->
