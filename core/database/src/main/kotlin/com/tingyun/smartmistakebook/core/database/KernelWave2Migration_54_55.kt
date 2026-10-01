@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.database
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
+import com.tingyun.smartmistakebook.core.model.StoredReviewRating
 
 /**
  * v54→55：**内核 Wave 2** 的 `review_log.state` 列（roadmap W2-4 / KF-23）。
@@ -43,11 +44,20 @@ private const val PREVIOUS_RATING_SUBQUERY = """
      LIMIT 1)
 """
 
+/**
+ * `review_log.rating` 的 AGAIN 落库值（P9）：值取自 `core:model` 的唯一基址枚举。
+ *
+ * **必须是 `val` 不是 `const val`**——取枚举实例属性不是编译期常量（Kotlin 直接编译错，
+ * 探针实测 2026-10-01）；插值在类初始化时完成，值仍为 1，
+ * `KernelWave2SchemaContractTest` 的 `"= 1 THEN 3"` 字符串断言原样通过。
+ */
+private val AGAIN_STORED = StoredReviewRating.AGAIN.value
+
 internal val REVIEW_LOG_STATE_DDL_54_55: List<String> = listOf(
     "ALTER TABLE `review_log` ADD COLUMN `state` INTEGER NOT NULL DEFAULT 0",
     """
     UPDATE `review_log` SET `state` = CASE
-        WHEN $PREVIOUS_RATING_SUBQUERY = 1 THEN 3
+        WHEN $PREVIOUS_RATING_SUBQUERY = $AGAIN_STORED THEN 3
         WHEN $PREVIOUS_RATING_SUBQUERY IS NULL THEN 0
         WHEN `review_log`.`delta_t_days` = 0 THEN 1
         ELSE 2

@@ -77,4 +77,21 @@ object KnowledgeReadiness {
         prerequisitesByNode = prerequisitesByNode,
         masteryScoreOf = masteryScoreOf,
     )?.gap ?: 0.0
+
+    /**
+     * KF-16（台账裁决 7，E 口径重述，2026-09-30）：后继的**有效记忆稳定度** =
+     * min(自身 S, 各先修 S 的最小值)。只做**下行压制**、不做完整图推断；先修恢复（S 回升）即
+     * 自动解除——"有效值"由读取侧现算，存储的投影保持自身真相（投影没有前置图，也不为此引图）。
+     *
+     * 未知（null）稳定度**不算缺失**（沿用本文件"未知 ≠ 不会"的同一约定）：忽略该先修；
+     * 自身无卡（null）则无有效值可言。同一快照下纯函数、结果确定（min 与遍历顺序无关）。
+     */
+    fun effectiveStabilityDays(
+        selfStabilityDays: Double?,
+        prerequisiteStabilityDays: Collection<Double?>,
+    ): Double? {
+        val self = selfStabilityDays ?: return null
+        val weakestPrerequisite = prerequisiteStabilityDays.filterNotNull().minOrNull() ?: return self
+        return minOf(self, weakestPrerequisite)
+    }
 }

@@ -262,7 +262,12 @@ private fun WeaknessSection(
             if (index > 0) PaperDivider(Modifier.padding(start = 64.dp))
             WeaknessRow(
                 title = weakness.displayName,
-                detail = "${weakness.status.displayLabel()} · 根据多次独立作答估计",
+                // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同源的唯一文案函数）。
+                detail = "${weakness.status.displayLabel()} · 根据多次独立作答估计 · " +
+                    com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
+                        weakness.conservativeMasteryScore,
+                        weakness.masteryIntervalUpper,
+                    ),
                 mastery = weakness.conservativeMasteryScore.toFloat(),
                 icon = if (index % 2 == 0) Icons.Outlined.Functions else Icons.Outlined.Bolt,
                 modifier = if (index == 0) Modifier.padding(top = 10.dp) else Modifier,

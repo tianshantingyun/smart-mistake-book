@@ -43,6 +43,10 @@ internal interface MasteryOverviewDao {
             mastery.last_evidence_at_epoch_millis,
             mastery.last_evidence_direction,
             mastery.last_independent_error_at_epoch_millis,
+            mastery.success_weight,
+            mastery.failure_weight,
+            mastery.memory_stability_days,
+            mastery.last_attempt_at_epoch_millis,
             (
                 SELECT COUNT(DISTINCT binding.practice_unit_id)
                 FROM practice_unit_knowledge_binding AS binding
@@ -192,6 +196,16 @@ internal data class SubjectMasteryRow(
     val lastIndependentErrorAtEpochMillis: Long?,
     @ColumnInfo(name = "bound_question_count")
     val boundQuestionCount: Int,
+    /** KF-20（批次 2 §2.1 #1）：区间由 s/f 重算的原料——读面重算、不落派生列。 */
+    @ColumnInfo(name = "success_weight")
+    val successWeight: Double,
+    @ColumnInfo(name = "failure_weight")
+    val failureWeight: Double,
+    /** 知识点记忆卡（E 判据的展示依据；从未作答 → NULL）。 */
+    @ColumnInfo(name = "memory_stability_days")
+    val memoryStabilityDays: Double?,
+    @ColumnInfo(name = "last_attempt_at_epoch_millis")
+    val lastAttemptAtEpochMillis: Long?,
 )
 
 internal data class IndependentCorrectAggregateRow(

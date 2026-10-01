@@ -93,7 +93,7 @@ internal class ReviewLogSink(
             val previous = database.findLastReviewLogRow(learnerId, practiceUnitId)
             val state = when {
                 previous == null -> ReviewSample.STATE_NEW
-                previous.rating == WRONG_ATTEMPT_RATING -> ReviewSample.STATE_RELEARNING
+                FsrsRating.storedIsAgain(previous.rating) -> ReviewSample.STATE_RELEARNING
                 StudyDayMath.localEpochDayOf(
                     previous.reviewedAtEpochMillis,
                     studyDay.utcOffsetMinutes,
@@ -105,7 +105,7 @@ internal class ReviewLogSink(
                     ReviewLogEntry(
                         learnerId = learnerId,
                         practiceUnitId = practiceUnitId,
-                        rating = rating.ordinal + 1,
+                        rating = rating.storedRating,
                         deltaTDays = deltaDays,
                         durationMs = durationSeconds * 1000L,
                         reviewedAtEpochMillis = occurredAtEpochMillis,
@@ -140,7 +140,7 @@ internal class ReviewLogSink(
                 ReviewSample(
                     practiceUnitId = row.practiceUnitId,
                     reviewedAtEpochMillis = row.reviewedAtEpochMillis,
-                    rating = ratingForOrdinal(row.rating),
+                    rating = FsrsRating.fromStored(row.rating),
                     durationMs = row.durationMs,
                     sourceKind = row.sourceKind,
                     plannedReason = row.plannedReason,
@@ -173,8 +173,10 @@ internal class ReviewLogSink(
             .asSequence()
             .filter { now - it.reviewedAtEpochMillis in 0..AVOIDANCE_LOOKBACK_MILLIS }
             .filter {
-                it.interruptionCount >= AttentionSignal.AVOIDANCE_SWITCH_THRESHOLD &&
-                    it.rating <= AttentionSignal.AVOIDANCE_MAX_RATING
+                AttentionSignal.isAvoidanceSignal(
+                    switchCount = it.interruptionCount,
+                    rating = FsrsRating.fromStored(it.rating),
+                )
             }
             .groupBy(ReviewLogSampleRecord::practiceUnitId)
             .filterValues { rows -> rows.size >= AVOIDANCE_MIN_OCCURRENCES }
@@ -194,7 +196,7 @@ internal class ReviewLogSink(
         return database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
             .asSequence()
             .filter { now - it.reviewedAtEpochMillis in 0..AVOIDANCE_LOOKBACK_MILLIS }
-            .filter { it.rating == WRONG_ATTEMPT_RATING }
+            .filter { FsrsRating.storedIsAgain(it.rating) }
             .groupBy(ReviewLogSampleRecord::practiceUnitId)
             .mapValues { (_, rows) ->
                 val lastWrong = rows.maxBy(ReviewLogSampleRecord::reviewedAtEpochMillis)
@@ -255,7 +257,7 @@ internal class ReviewLogSink(
             ?: return null
         return TimeOfDayObservation(
             bucket = bucket,
-            isCorrect = row.rating > 1,
+            isCorrect = !FsrsRating.storedIsAgain(row.rating),
             durationMs = row.durationMs,
         )
     }
@@ -266,10 +268,6 @@ internal class ReviewLogSink(
     private fun localHourAt(epochMillis: Long): Int =
         ((epochMillis + studyZoneId.rules.getOffset(Instant.ofEpochMilli(epochMillis)).totalSeconds * 1000L) /
             3_600_000L).mod(24L).toInt()
-
-    private fun ratingForOrdinal(rating: Int): FsrsRating = FsrsRating.entries[
-        (rating - 1).coerceIn(0, FsrsRating.entries.size - 1)
-    ]
 
     private val bucketSplit = TimeBucketSplit()
 
@@ -308,8 +306,6 @@ internal class ReviewLogSink(
         private const val AVOIDANCE_LOOKBACK_MILLIS = 30L * 24 * 60 * 60 * 1000
         private const val AVOIDANCE_MIN_OCCURRENCES = 2
 
-        /** review_log rating ordinal for AGAIN — a wrong attempt (FSRS 1-based). */
-        private const val WRONG_ATTEMPT_RATING = 1
         private const val REVIEW_LOG_SAMPLE_LIMIT = 100_000
     }
 }

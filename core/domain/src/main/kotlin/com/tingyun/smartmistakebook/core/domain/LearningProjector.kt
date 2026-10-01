@@ -49,7 +49,6 @@ data class LearningProjectionResult(
     val conflictedTutorAnswerExposureOutcomeIds: Set<String> = emptySet(),
     val deferredTutorAnswerExposureOutcomeIds: Set<String> = emptySet(),
     val presentationProjectionStates: Map<String, PresentationProjectionState> = emptyMap(),
-    val predictions: List<com.tingyun.smartmistakebook.core.model.StudentModelPrediction> = emptyList(),
 )
 
 /** Deterministic projection of a gap-free append-only attempt prefix into learner state. */
@@ -623,9 +622,6 @@ class LearningProjector(
             ),
         )
 
-        // Generate predictions for audit trail
-        val predictions = generatePredictions(snapshot, ordered, projectedAt)
-
         val outputPresentationStates = presentationProjectionStates.mapValues { (_, state) ->
             state.copy(asOfLedgerSequence = lastSequence)
         }
@@ -639,7 +635,6 @@ class LearningProjector(
             appliedAnswerRevealOutcomeIds = revealRecords.keys.toSet(),
             appliedTutorAnswerExposureOutcomeIds = tutorExposureRecords.keys.toSet(),
             presentationProjectionStates = outputPresentationStates,
-            predictions = predictions,
         )
     }
 
@@ -1092,13 +1087,14 @@ class LearningProjector(
                         bindingId = attribution.bindingId,
                         evidenceWeight = weight,
                         calibration = attempt.assessmentSnapshot.calibration,
-                        timeTrust = when {
-                            effectiveAtEpochMillis == attempt.occurredAtEpochMillis ->
-                                EventTimeTrust.TRUSTED
-                            effectiveAtEpochMillis > attempt.occurredAtEpochMillis ->
-                                EventTimeTrust.CLOCK_ROLLBACK_CLAMPED
-                            else ->
-                                EventTimeTrust.FUTURE_TIMESTAMP_CLAMPED
+                        timeTrust = if (effectiveAtEpochMillis == attempt.occurredAtEpochMillis) {
+                            EventTimeTrust.TRUSTED
+                        } else {
+                            // P11：`FUTURE_TIMESTAMP_CLAMPED` 分支已删——不可达可证：
+                            // 事件循环里 `effectiveAt = maxOf(projectedAt, occurredAt)`，
+                            // effective 永不早于 occurred，`else` 分支在任何输入下取不到。
+                            // 枚举值保留为历史持久化 token（core:model 有注明）。
+                            EventTimeTrust.CLOCK_ROLLBACK_CLAMPED
                         },
                     ),
                 )
@@ -1233,62 +1229,11 @@ class LearningProjector(
         .sortedBy(eventSequence)
         .associateBy(id)
 
-    /**
-     * Generate predictions for audit trail. These are shadow predictions that
-     * can be compared with actual outcomes later for calibration.
-     */
-    private fun generatePredictions(
-        snapshot: LearnerSnapshot,
-        events: List<LearningLedgerEvent>,
-        projectedAt: Long,
-    ): List<com.tingyun.smartmistakebook.core.model.StudentModelPrediction> {
-        val predictions = mutableListOf<com.tingyun.smartmistakebook.core.model.StudentModelPrediction>()
-        val modelVersion = com.tingyun.smartmistakebook.core.model.LearningModelVersion(
-            modelId = "projection-v1",
-            version = VERSION,
-            algorithmHash = "mastery-projection-v1",
-        )
-
-        // Generate predictions for each knowledge node that was updated
-        for (event in events.filterIsInstance<Attempt>()) {
-            for (attribution in event.assessmentSnapshot.attributions) {
-                val mastery = snapshot.knowledgeMasteryStates[attribution.knowledgeNodeId]
-                if (mastery != null) {
-                    val prediction = com.tingyun.smartmistakebook.core.model.StudentModelPrediction(
-                        predictionId = "pred-${event.attemptId}-${attribution.knowledgeNodeId}",
-                        modelVersion = modelVersion,
-                        practiceUnitId = event.assessmentSnapshot.practiceUnitId,
-                        knowledgeNodeId = attribution.knowledgeNodeId,
-                        featureFingerprint = computeFeatureFingerprint(mastery, event),
-                        predictedScore = mastery.masteryScore,
-                        conservativeScore = mastery.conservativeMasteryScore,
-                        predictionWindowStartEpochMillis = projectedAt,
-                        predictionWindowEndEpochMillis = projectedAt + 7L * DAY_MILLIS, // 7-day window
-                        predictedAtEpochMillis = projectedAt,
-                    )
-                    predictions.add(prediction)
-                }
-            }
-        }
-
-        return predictions
-    }
-
-    /**
-     * Compute a fingerprint of the features used for prediction.
-     */
-    private fun computeFeatureFingerprint(
-        mastery: KnowledgeMasteryState,
-        attempt: Attempt,
-    ): String {
-        return buildString {
-            append("mass=${mastery.evidenceMass}")
-            append(";prob=${mastery.masteryScore}")
-            append(";independent=${mastery.independentCorrectObservations.size}")
-            append(";attempt=${attempt.evidence.weight}")
-            append(";family=${attempt.itemFamilyId}")
-        }
-    }
+    // P11（2026-09-30）：`generatePredictions` 影子预测与特征指纹已删除——它的输出
+    // （`LearningProjectionResult.predictions`）在生产与测试里都没有消费方，而"预测审计轨"
+    // 的语义修正（批终态 vs 预测时刻）按审计归属 3C 的独立工作线上处理
+    // （`RoomPredictionAuditSink` / `StudySchedulingCalibration.readResolvedStudentModelPredictions`
+    // 那条链保持原样，不在本波）。
 
     // W1-6/P1：`localEpochDayOf` 私有副本已删除——日序换算单源在 `StudyDayMath`（同算术、同口径，
     // 原有 KDoc 的理由记录在 `StudyDayMath` 文件头）。删除即编译错，保证没有第三份换算再长出来。

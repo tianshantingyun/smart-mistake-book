@@ -736,6 +736,10 @@ class RoomTutorToolRunnerTest {
             "weakest node must come first, got: $text",
             text.indexOf("函数单调性") < text.indexOf("函数奇偶性"),
         )
+        // KF-20（批次 2 §2.2）：列头有「区间」，行内含 s/f 现算的 Wilson 区间
+        // （夹具 s=8, f=0 → 下界 0.605809→0.61、上界 0.99471→0.99）。
+        assertTrue("列头必须列出区间列, got: $text", text.contains("保守掌握度|区间|证据量"))
+        assertTrue("行内必须带区间，got: $text", text.contains("0.61~0.99"))
     }
 
     @Test
@@ -749,6 +753,11 @@ class RoomTutorToolRunnerTest {
         val outcome = runner(port).run(masteryReadCall(), context())
 
         assertTrue(outcome.summaryMarkdown, outcome.summaryMarkdown.contains("另有 96 个"))
+        // KF-20：无记忆卡（从未作答）不得输出记忆行。
+        assertTrue(
+            "无记忆卡不得输出记忆行, got: ${outcome.summaryMarkdown}",
+            !outcome.summaryMarkdown.contains("记忆：稳定度"),
+        )
     }
 
     @Test
@@ -757,7 +766,14 @@ class RoomTutorToolRunnerTest {
         port.publishSubjectMastery(
             "MATH",
             listOf(
-                masteryRow(nodeId = "kc-weak", name = "函数单调性", lowerBound = 0.21),
+                // KF-20（批次 2 §2.2）：带记忆卡的聚焦行——下钻必须给出记忆行。
+                masteryRow(
+                    nodeId = "kc-weak",
+                    name = "函数单调性",
+                    lowerBound = 0.21,
+                    memoryStabilityDays = 12.3,
+                    lastAttemptAtEpochMillis = 1_000L,
+                ),
                 masteryRow(nodeId = "kc-other", name = "函数奇偶性", lowerBound = 0.33),
             ),
         )
@@ -787,6 +803,8 @@ class RoomTutorToolRunnerTest {
         assertTrue("item-family breadth missing: $text", text.contains("3 个题目族"))
         assertTrue("independent-error aggregate missing: $text", text.contains("独立错误 2 次"))
         assertTrue("model-evidence split missing: $text", text.contains("接受 3 条、被拒 1 条"))
+        // KF-20（批次 2 §2.2）：聚焦下钻必须给出记忆行（稳定度/上次作答）。
+        assertTrue("memory line missing: $text", text.contains("记忆：稳定度 12.3 天"))
     }
 
     @Test
@@ -1095,6 +1113,10 @@ class RoomTutorToolRunnerTest {
         name: String,
         lowerBound: Double = 0.30,
         status: String = "LEARNING",
+        successWeight: Double = 8.0,
+        failureWeight: Double = 0.0,
+        memoryStabilityDays: Double? = null,
+        lastAttemptAtEpochMillis: Long? = null,
     ) = SubjectMasteryRecord(
         knowledgeNodeId = nodeId,
         displayName = name,
@@ -1108,6 +1130,10 @@ class RoomTutorToolRunnerTest {
         lastEvidenceDirection = null,
         lastIndependentErrorAtEpochMillis = null,
         boundQuestionCount = 1,
+        successWeight = successWeight,
+        failureWeight = failureWeight,
+        memoryStabilityDays = memoryStabilityDays,
+        lastAttemptAtEpochMillis = lastAttemptAtEpochMillis,
     )
 
     /**

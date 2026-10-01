@@ -146,10 +146,15 @@ fun ReviewRoute(
             profile.weaknesses.take(2).forEachIndexed { index, weakness ->
                 WeakPointRow(
                     title = weakness.displayName,
+                    // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同一文案函数）。
                     detail = "独立作答把握：" +
                         com.tingyun.smartmistakebook.core.ui.masteryBandLabel(
                             weakness.conservativeMasteryScore,
-                        ),
+                        ) + "（" +
+                        com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
+                            weakness.conservativeMasteryScore,
+                            weakness.masteryIntervalUpper,
+                        ) + "）",
                     icon = if (index == 0) {
                         Icons.AutoMirrored.Outlined.ShowChart
                     } else {

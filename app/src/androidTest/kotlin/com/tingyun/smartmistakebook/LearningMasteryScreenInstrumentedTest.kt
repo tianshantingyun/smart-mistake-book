@@ -72,6 +72,10 @@ class LearningMasteryScreenInstrumentedTest {
         composeRule.onNodeWithTag("learning_mastery_recent").assertIsDisplayed()
         composeRule.onNodeWithText("今天").assertIsDisplayed()
         composeRule.onNodeWithText("昨天").assertIsDisplayed()
+        // 批次 2 / P8（规格 §1.4 锚 4）：两行各出现自己的粗粒度区间文案
+        // （0.58→「约 5–8 成」；0.86→「约 8–10 成」，各只出现一次）。
+        composeRule.onAllNodesWithText("约 5–8 成", substring = true).assertCountEquals(1)
+        composeRule.onAllNodesWithText("约 8–10 成", substring = true).assertCountEquals(1)
         FORBIDDEN_STUDENT_TERMS.forEach { term ->
             composeRule.onAllNodesWithText(term, substring = true).assertCountEquals(0)
         }
@@ -103,6 +107,8 @@ class LearningMasteryScreenInstrumentedTest {
         displayName = name,
         status = status,
         conservativeMasteryScore = confidence,
+        // 批次 2 / P8（规格 §1.4 锚 4）：区间上界由夹具给出 → 行内出现粗粒度区间文案。
+        masteryIntervalUpper = (confidence + 0.2).coerceAtMost(1.0),
         evidenceMass = 4.0,
         independentCorrectObservationCount = 3,
         lastEvidenceAtEpochMillis = lastEvidenceAtEpochMillis,
@@ -131,6 +137,10 @@ class LearningMasteryScreenInstrumentedTest {
             "模型候选",
             "前置边",
             "分类依据",
+            // 批次 2 / P8（规格 §1.3）：内部术语不得随新区间文案漏到学生面。
+            "保守分",
+            "下界",
+            "Wilson",
         )
     }
 }

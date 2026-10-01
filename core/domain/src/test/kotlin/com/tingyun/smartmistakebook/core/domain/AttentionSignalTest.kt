@@ -31,9 +31,12 @@ class AttentionSignalTest {
 
     @Test
     fun `avoidance signal needs repeated switches and a poor grade`() {
-        assertTrue(AttentionSignal.isAvoidanceSignal(switchCount = 2, schedulingRating = 1))
-        assertTrue(AttentionSignal.isAvoidanceSignal(switchCount = 3, schedulingRating = 2))
-        assertFalse(AttentionSignal.isAvoidanceSignal(switchCount = 1, schedulingRating = 1))
-        assertFalse(AttentionSignal.isAvoidanceSignal(switchCount = 2, schedulingRating = 3))
+        // P9：形参已是 FsrsRating（基址进类型）——PoorGrade 四格（AGAIN|HARD 命中、
+        // GOOD|EASY 不命中）都在本用例内。
+        assertTrue(AttentionSignal.isAvoidanceSignal(switchCount = 2, rating = FsrsRating.AGAIN))
+        assertTrue(AttentionSignal.isAvoidanceSignal(switchCount = 3, rating = FsrsRating.HARD))
+        assertFalse(AttentionSignal.isAvoidanceSignal(switchCount = 1, rating = FsrsRating.AGAIN))
+        assertFalse(AttentionSignal.isAvoidanceSignal(switchCount = 2, rating = FsrsRating.GOOD))
+        assertFalse(AttentionSignal.isAvoidanceSignal(switchCount = 2, rating = FsrsRating.EASY))
     }
 }

@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
+import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -262,7 +263,8 @@ class LibraryLeastMasteredSortInstrumentedTest {
     private companion object {
         const val LEARNER = "learner-sort-test"
         const val PROJECTION = "study-experience-v1"
-        const val PROJECTOR_VERSION = "learning-core-v7"
+        // 批次 2 / 规格 §4.2：绑真实当前版（原为陈旧占位 learning-core-v7）。
+        const val PROJECTOR_VERSION = LearningProjector.VERSION
         const val TAXONOMY_VERSION = "taxonomy-sort-v1"
 
         /**

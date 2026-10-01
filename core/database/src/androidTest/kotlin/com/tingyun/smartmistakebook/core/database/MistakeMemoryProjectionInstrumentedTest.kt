@@ -8,6 +8,7 @@ import com.tingyun.smartmistakebook.core.model.LearnerSnapshotFreshness
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
+import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -162,7 +163,8 @@ class MistakeMemoryProjectionInstrumentedTest {
          */
         const val LEARNER = "learner-test"
         const val PROJECTION = "study-experience-v1"
-        const val PROJECTOR_VERSION = "learning-core-v6"
+        // 批次 2 / 规格 §4.2：绑真实当前版（原为陈旧占位 learning-core-v6）。
+        const val PROJECTOR_VERSION = LearningProjector.VERSION
         const val PROBLEM_ID = "problem-1"
         const val REVISION_ID = "revision-1"
         const val UNIT_ID = "unit-1"

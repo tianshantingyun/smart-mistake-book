@@ -50,10 +50,12 @@ object AttentionSignal {
      * Avoidance signal (spec §6): the card was repeatedly switched away from
      * AND graded poorly — an aversion/difficulty marker that routes the item
      * toward re-teaching rather than plain rescheduling.
+     *
+     * P9（2026-09-30）：形参从裸 `Int` 收紧为 [FsrsRating]——基址进类型。
+     * 旧签名把"1-based、≤ HARD"的约定藏在调用与测试里，改基址/枚举序时静默漂移。
      */
-    fun isAvoidanceSignal(switchCount: Int, schedulingRating: Int): Boolean =
-        switchCount >= AVOIDANCE_SWITCH_THRESHOLD && schedulingRating <= AVOIDANCE_MAX_RATING
+    fun isAvoidanceSignal(switchCount: Int, rating: FsrsRating): Boolean =
+        switchCount >= AVOIDANCE_SWITCH_THRESHOLD && rating.isPoorGrade
 
     const val AVOIDANCE_SWITCH_THRESHOLD = 2
-    const val AVOIDANCE_MAX_RATING = 2
 }

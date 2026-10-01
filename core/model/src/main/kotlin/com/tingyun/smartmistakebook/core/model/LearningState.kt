@@ -634,7 +634,14 @@ enum class EventTimeTrust {
     TRUSTED,
     /** Device clock rolled back; effective time was clamped forward to projection watermark. */
     CLOCK_ROLLBACK_CLAMPED,
-    /** Device clock jumped far ahead; effective time was clamped back to projection watermark. */
+    /**
+     * Device clock jumped far ahead; effective time was clamped back to projection watermark.
+     *
+     * P11（2026-09-30）：该值的**派生分支**已从投影器删除——不可达可证（事件循环
+     * `effectiveAt = maxOf(projectedAt, occurredAt)`，有效时间永不早于原始时间）。枚举值
+     * 本身保留为**历史持久化 token**（`independent_correct_observation.time_trust` 列可能存有
+     * 旧行），删除会让旧库读取即抛。
+     */
     FUTURE_TIMESTAMP_CLAMPED,
     /** Event was imported from an external source without verified time. */
     IMPORTED_UNVERIFIED,

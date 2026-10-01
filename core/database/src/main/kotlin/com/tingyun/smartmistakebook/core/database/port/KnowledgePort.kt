@@ -286,6 +286,12 @@ data class SubjectMasteryRecord(
     val lastEvidenceDirection: String?,
     val lastIndependentErrorAtEpochMillis: Long?,
     val boundQuestionCount: Int,
+    /** KF-20（批次 2 §2.1 #2）：β-二项 s/f——区间在端口下游重算（`MasteryEstimateMath`）。 */
+    val successWeight: Double,
+    val failureWeight: Double,
+    /** 知识点记忆卡（E 判据展示依据；从未作答 → null）。 */
+    val memoryStabilityDays: Double?,
+    val lastAttemptAtEpochMillis: Long?,
 )
 
 /**

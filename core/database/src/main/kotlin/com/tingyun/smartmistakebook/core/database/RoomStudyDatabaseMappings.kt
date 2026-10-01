@@ -473,6 +473,10 @@ internal fun SubjectMasteryRow.toRecord() = SubjectMasteryRecord(
     lastEvidenceDirection = lastEvidenceDirection,
     lastIndependentErrorAtEpochMillis = lastIndependentErrorAtEpochMillis,
     boundQuestionCount = boundQuestionCount,
+    successWeight = successWeight,
+    failureWeight = failureWeight,
+    memoryStabilityDays = memoryStabilityDays,
+    lastAttemptAtEpochMillis = lastAttemptAtEpochMillis,
 )
 
 internal fun ReviewLogEntry.toEntity() = ReviewLogEntity(

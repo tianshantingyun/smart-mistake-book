@@ -120,6 +120,14 @@ data class StudyKnowledgeSummary(
     val displayName: String,
     val status: MasteryStatus,
     val conservativeMasteryScore: Double,
+    /**
+     * 区间上界（P8/规格 §1-C）：与 [conservativeMasteryScore]（= 下界）由**同一次**
+     * `MasteryEstimateMath.interval(s, f)` 产出，读面重算、不落库（规格 §1-D）。
+     * null = 无证据（s + f <= 0）。
+     */
+    val masteryIntervalUpper: Double? = null,
+    /** 知识点记忆卡稳定度（天；E 判据的展示依据）：null = 从未作答。 */
+    val memoryStabilityDays: Double? = null,
     val evidenceMass: Double = 0.0,
     val independentCorrectObservationCount: Int = 0,
     val lastEvidenceAtEpochMillis: Long? = null,
@@ -134,6 +142,15 @@ data class StudyKnowledgeSummary(
             conservativeMasteryScore.isFinite() &&
                 conservativeMasteryScore in 0.0..1.0,
         ) { "Knowledge summary lower bound must be between zero and one" }
+        require(
+            masteryIntervalUpper == null || (
+                masteryIntervalUpper.isFinite() &&
+                    masteryIntervalUpper in conservativeMasteryScore..1.0
+                ),
+        ) { "Knowledge summary interval upper must be at or above the lower bound" }
+        require(memoryStabilityDays == null || (memoryStabilityDays.isFinite() && memoryStabilityDays > 0.0)) {
+            "Knowledge summary memory stability must be positive when provided"
+        }
         require(evidenceMass.isFinite() && evidenceMass >= 0.0) {
             "Knowledge summary evidence mass must not be negative"
         }

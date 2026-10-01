@@ -35,12 +35,15 @@ import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
+import com.tingyun.smartmistakebook.core.ui.MASTERY_FAIR_THRESHOLD
+import com.tingyun.smartmistakebook.core.ui.MASTERY_STRONG_THRESHOLD
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.PageState
 import com.tingyun.smartmistakebook.core.ui.PageStateFrame
 import com.tingyun.smartmistakebook.core.ui.Track
+import com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel
 import com.tingyun.smartmistakebook.core.ui.pageStateForFailure
 import com.tingyun.smartmistakebook.core.ui.studentLabel
 
@@ -349,7 +352,8 @@ private fun KnowledgeMasteryRow(
             .semantics(mergeDescendants = true) {
                 contentDescription = "${summary.displayName}，掌握证据：${masteryEvidenceLabel(summary)}，" +
                     "近期独立作答：${recentPracticeLabel(summary)}，" +
-                    "当前遗忘风险：${forgettingRiskLabel(summary)}"
+                    "当前遗忘风险：${forgettingRiskLabel(summary)}，" +
+                    "估计区间：${masteryIntervalLabel(summary.conservativeMasteryScore, summary.masteryIntervalUpper)}"
             }
             .testTag("learning_mastery_point:${summary.knowledgeNodeId}"),
     ) {
@@ -377,6 +381,13 @@ private fun KnowledgeMasteryRow(
                 .height(5.dp),
             color = JadeActive,
             trackColor = Track,
+        )
+        // P8（规格 §1.2）：行内小字区间文案——复用既有样式，不新造视觉组件。
+        Text(
+            text = masteryIntervalLabel(summary.conservativeMasteryScore, summary.masteryIntervalUpper),
+            color = InkSecondary,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 3.dp),
         )
     }
 }
@@ -420,9 +431,14 @@ private const val MAX_RECENT_CHANGES = 4
 /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`（内核常数注册表）。 */
 private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS
 
+/** Audit §6.2 evidence thresholds（值不改；P8 收口为单处常量，此前是行内字面量）。 */
+private const val STRONG_EVIDENCE_MASS = 1.0
+private const val STRONG_EVIDENCE_OBSERVATIONS = 2
+
 /** Audit §6.2: descriptive evidence labels instead of raw probabilities. */
 private fun masteryEvidenceLabel(summary: StudyKnowledgeSummary): String = when {
-    summary.evidenceMass >= 1.0 && summary.independentCorrectObservationCount >= 2 -> "较强"
+    summary.evidenceMass >= STRONG_EVIDENCE_MASS &&
+        summary.independentCorrectObservationCount >= STRONG_EVIDENCE_OBSERVATIONS -> "较强"
     summary.independentCorrectObservationCount > 0 -> "有限"
     else -> "不足"
 }
@@ -437,8 +453,14 @@ private fun recentPracticeLabel(summary: StudyKnowledgeSummary): String {
     return parts.joinToString("、").ifEmpty { "暂无记录" }
 }
 
-private fun forgettingRiskLabel(summary: StudyKnowledgeSummary): String = when {
-    summary.conservativeMasteryScore >= 0.7 -> "低"
-    summary.conservativeMasteryScore >= 0.4 -> "中"
+/**
+ * 遗忘风险档（审计 R-03）：与掌握档（`masteryBandLabel`）必须落在**同一对切点**上——
+ * 切点单源在 `core:ui`（[MASTERY_STRONG_THRESHOLD] / [MASTERY_FAIR_THRESHOLD]）；
+ * 此前这里各写一份 0.7/0.4，改一处不改另一处时同一张卡会同时显示「较稳」与「风险 高」。
+ * `internal`（而非 private）供 `app/src/test` 的 R-03 一致性用例断言。
+ */
+internal fun forgettingRiskLabel(summary: StudyKnowledgeSummary): String = when {
+    summary.conservativeMasteryScore >= MASTERY_STRONG_THRESHOLD -> "低"
+    summary.conservativeMasteryScore >= MASTERY_FAIR_THRESHOLD -> "中"
     else -> "高"
 }

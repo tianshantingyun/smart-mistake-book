@@ -111,11 +111,11 @@ object FsrsScheduleMath {
     }
 
     fun initialStability(rating: FsrsRating, parameters: DoubleArray = DEFAULT_PARAMETERS): Double =
-        parameters[rating.ordinal].coerceIn(STABILITY_MIN, INITIAL_STABILITY_MAX)
+        parameters[rating.parameterIndex].coerceIn(STABILITY_MIN, INITIAL_STABILITY_MAX)
 
     /** D0(G) = w4 − e^(w5·(G−1)) + 1; py-fsrs clamps only for the initial state. */
     fun initialDifficulty(rating: FsrsRating, parameters: DoubleArray = DEFAULT_PARAMETERS): Double =
-        parameters[4] - exp(parameters[5] * (rating.ordinal)) + 1.0
+        parameters[4] - exp(parameters[5] * rating.parameterIndex) + 1.0
 
     fun clampDifficulty(difficulty: Double): Double = difficulty.coerceIn(DIFFICULTY_MIN, DIFFICULTY_MAX)
 
@@ -128,7 +128,7 @@ object FsrsScheduleMath {
     fun shortTermStability(stability: Double, rating: FsrsRating, parameters: DoubleArray = DEFAULT_PARAMETERS): Double {
         // py-fsrs `_short_term_stability` uses the 1-based rating; FsrsRating.ordinal is 0-based,
         // so (ordinal - 2) equals (rating - 3).
-        val multiplier = exp(parameters[17] * (rating.ordinal - 2 + parameters[18])) *
+        val multiplier = exp(parameters[17] * (rating.gradeMinusThree + parameters[18])) *
             stability.pow(-parameters[19])
         val floored = if (rating == FsrsRating.AGAIN) multiplier else multiplier.coerceAtLeast(1.0)
         return clampStability(stability * floored)
@@ -181,17 +181,46 @@ object FsrsScheduleMath {
         val meanReversionTarget = initialDifficulty(FsrsRating.EASY, parameters)
         // py-fsrs `_next_difficulty` uses the 1-based rating; FsrsRating.ordinal is 0-based,
         // so (ordinal - 2) equals (rating - 3).
-        val delta = -(parameters[6] * (rating.ordinal - 2))
+        val delta = -(parameters[6] * rating.gradeMinusThree)
         val linearDamped = difficulty + (10.0 - difficulty) * delta / 9.0
         return clampDifficulty(parameters[7] * meanReversionTarget + (1.0 - parameters[7]) * linearDamped)
     }
 }
 
+/**
+ * 算法侧评级：**0-based 枚举序**是唯一口径（py-fsrs 的 G 由换算成员派生）。
+ *
+ * P9（2026-09-30）：四个换算成员是**全仓唯一**的基址换算面——
+ * `storedRating`（落库 1-based）、`parameterIndex`（w0..w3 索引 = G−1）、
+ * `gradeMinusThree`（py-fsrs 的 G−3）、`isPoorGrade`（差评档语义）。
+ * 各处不许再手写 `ordinal + 1` / `ordinal - 2` 之类的算术。
+ */
 enum class FsrsRating {
     AGAIN,
     HARD,
     GOOD,
     EASY,
+    ;
+
+    /** 落库值（1-based）：替代 `ReviewLogSink` 的 `ordinal + 1` 写路径。 */
+    val storedRating: Int get() = ordinal + 1
+
+    /** w0..w3 参数索引（= G−1，py-fsrs 口径）。 */
+    val parameterIndex: Int get() = ordinal
+
+    /** py-fsrs 的 (G−3)：shortTerm / nextDifficulty 的档差。 */
+    val gradeMinusThree: Int get() = ordinal - 2
+
+    /** 差评档（AGAIN 或 HARD）：avoidance 等"表现不佳"语义的唯一判据（替代 `AVOIDANCE_MAX_RATING`）。 */
+    val isPoorGrade: Boolean get() = this == AGAIN || this == HARD
+
+    companion object {
+        /** 1-based 落库值 → 枚举；越界夹取（沿用 `ReviewLogSink.ratingForOrdinal` 的既有语义）。 */
+        fun fromStored(value: Int): FsrsRating = entries[(value - 1).coerceIn(0, entries.size - 1)]
+
+        /** 落库值是否为 AGAIN（替代 `== WRONG_ATTEMPT_RATING` 与 `> 1` 两处手写语义）。 */
+        fun storedIsAgain(value: Int): Boolean = fromStored(value) == AGAIN
+    }
 }
 
 /**

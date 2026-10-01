@@ -189,6 +189,39 @@ class MasteryMemoryCardTest {
     }
 
     @Test
+    fun `prerequisite suppression blocks a durable dependent until the prerequisite recovers`() {
+        // KF-16（裁决 7，E 口径重述）：有先修上下文时，判据按有效稳定度 = min(自身, 先修最小值)。
+        val decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20]
+        // 自身 S=44 达标；先修 S=10（未达 21 天门）→ 有效 10 → 不判掌握。
+        assertFalse(
+            ClearlyMasteredForSkipPolicy.meetsMemoryCriterion(
+                44.0, 0L, 0L, decay,
+                prerequisiteStabilityDays = listOf(10.0),
+            ),
+        )
+        // 先修恢复（S=30）→ 有效 30 → 达标（恢复即解除）。
+        assertTrue(
+            ClearlyMasteredForSkipPolicy.meetsMemoryCriterion(
+                44.0, 0L, 0L, decay,
+                prerequisiteStabilityDays = listOf(30.0),
+            ),
+        )
+        // 多先修取最弱；未知先修（null）不算缺失。
+        assertFalse(
+            ClearlyMasteredForSkipPolicy.meetsMemoryCriterion(
+                44.0, 0L, 0L, decay,
+                prerequisiteStabilityDays = listOf(30.0, 5.0),
+            ),
+        )
+        assertTrue(
+            ClearlyMasteredForSkipPolicy.meetsMemoryCriterion(
+                44.0, 0L, 0L, decay,
+                prerequisiteStabilityDays = listOf(null, 30.0),
+            ),
+        )
+    }
+
+    @Test
     fun `reveals lapse the problem card while the knowledge card follows the post reveal answer`() {
         // 架构边界（2026-09-30 核实）：独立"看答案"事件（`AnswerRevealOutcome`）只走题卡
         // （weight=0、ANSWER_REVEALED，裁决 1 的落点）；KC 层唯一能吃到的"看答案"是**看答案

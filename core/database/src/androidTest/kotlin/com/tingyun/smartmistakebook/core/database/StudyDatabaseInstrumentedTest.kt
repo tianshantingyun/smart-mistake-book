@@ -31,6 +31,7 @@ import com.tingyun.smartmistakebook.core.model.PresentationProjectionState
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
+import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
@@ -2008,9 +2009,11 @@ class StudyDatabaseInstrumentedTest {
 
     companion object {
         private const val LEARNER = "learner-1"
-        private const val PROJECTION = "learning-core-v2"
-        private const val PROJECTOR_VERSION =
-            "learning-core-v2(projector-v2,evidence-v2,curve-v2,skip-v2,attribution-v1)"
+        // 批次 2 / 规格 §4.1 #8：投影名对齐生产名（生产先例「study-experience-v1」；
+        // 旧值 learning-core-v2 是"投影名=复合串"时代的遗留命名）。
+        private const val PROJECTION = "study-experience-v1"
+        // 规格 §4.2：绑真实当前版（原为陈旧占位 learning-core-v2(...)）。
+        private const val PROJECTOR_VERSION = LearningProjector.VERSION
         private const val PROBLEM_ID = "problem-1"
         private const val REVISION_ID = "revision-1"
         private const val UNIT_ID = "unit-1"

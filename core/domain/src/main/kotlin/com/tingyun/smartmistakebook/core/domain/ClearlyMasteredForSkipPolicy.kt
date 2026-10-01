@@ -70,6 +70,10 @@ object ClearlyMasteredForSkipPolicy {
      * E 判据核心（纯函数，投影与读取共用这一处定义）：稳定度 ≥ 门槛 ∧ **当前**召回概率 ≥ 门槛。
      * 当前召回概率由 `atEpochMillis − lastAttemptAtEpochMillis` 与稳定度重算——"掌握是活的"：
      * 久不复习 → 概率跌破 → 自动降档；复习一次 → 立刻恢复；又错新题 → 记忆卡 lapse 掉档。
+     *
+     * KF-16（裁决 7）：`prerequisiteStabilityDays` 给定时先做**下行压制**——有效稳定度 =
+     * [KnowledgeReadiness.effectiveStabilityDays]（min(自身 S, 各先修 S 最小值)）；门槛与
+     * 召回概率都按有效值算。无图上下文（投影器内部）不传 = 不压制。
      */
     fun meetsMemoryCriterion(
         memoryStabilityDays: Double?,
@@ -77,12 +81,17 @@ object ClearlyMasteredForSkipPolicy {
         atEpochMillis: Long,
         decay: Double,
         policy: MasteryDecisionPolicy = MasteryDecisionPolicy.DEFAULT,
+        prerequisiteStabilityDays: Collection<Double?> = emptyList(),
     ): Boolean {
-        if (memoryStabilityDays == null || lastAttemptAtEpochMillis == null) return false
-        if (memoryStabilityDays + VALUE_EPSILON < policy.minimumStabilityDays) return false
+        val effectiveStabilityDays = KnowledgeReadiness.effectiveStabilityDays(
+            selfStabilityDays = memoryStabilityDays,
+            prerequisiteStabilityDays = prerequisiteStabilityDays,
+        )
+        if (effectiveStabilityDays == null || lastAttemptAtEpochMillis == null) return false
+        if (effectiveStabilityDays + VALUE_EPSILON < policy.minimumStabilityDays) return false
         if (atEpochMillis + TIME_EPSILON_MILLIS < lastAttemptAtEpochMillis) return false
         val elapsedDays = (atEpochMillis - lastAttemptAtEpochMillis) / ONE_DAY_MILLIS
-        val retention = FsrsScheduleMath.retention(elapsedDays, memoryStabilityDays, decay)
+        val retention = FsrsScheduleMath.retention(elapsedDays, effectiveStabilityDays, decay)
         return retention + VALUE_EPSILON >= policy.minimumCurrentRetention
     }
 
@@ -90,6 +99,7 @@ object ClearlyMasteredForSkipPolicy {
         state: KnowledgeMasteryState,
         atEpochMillis: Long,
         policy: MasteryDecisionPolicy = MasteryDecisionPolicy.DEFAULT,
+        prerequisiteStabilityDays: Collection<Double?> = emptyList(),
     ): Boolean {
         require(atEpochMillis >= 0) { "Mastery decision time must not be negative" }
         return state.status == MasteryStatus.MASTERED &&
@@ -99,6 +109,7 @@ object ClearlyMasteredForSkipPolicy {
                 atEpochMillis = atEpochMillis,
                 decay = policy.decay,
                 policy = policy,
+                prerequisiteStabilityDays = prerequisiteStabilityDays,
             )
     }
 

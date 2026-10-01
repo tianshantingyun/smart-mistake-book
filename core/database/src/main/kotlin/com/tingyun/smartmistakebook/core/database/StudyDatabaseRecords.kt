@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.model.LearningLedgerEvent
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
 import com.tingyun.smartmistakebook.core.model.PresentationProjectionState
+import com.tingyun.smartmistakebook.core.model.StoredReviewRating
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
 
@@ -1243,7 +1244,10 @@ data class ReviewLogEntry(
     val recordedAtEpochMillis: Long,
 ) {
     init {
-        require(rating in 1..4) { "Review-log rating must be within 1..4" }
+        // P9：范围来自 core:model 的唯一基址枚举（原为字面量 1..4）。
+        require(rating in StoredReviewRating.MIN..StoredReviewRating.MAX) {
+            "Review-log rating must be within ${StoredReviewRating.MIN}..${StoredReviewRating.MAX}"
+        }
         require(scrollUpCount >= 0 && editCount >= 0 && interruptionCount >= 0) {
             "Interaction counts must not be negative"
         }

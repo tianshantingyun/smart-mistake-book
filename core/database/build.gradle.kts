@@ -40,6 +40,9 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.kotlinx.coroutines.android)
+    // 批次 2 / 规格 §4.2：仪器化夹具把「当前投影版本」绑到 `LearningProjector.VERSION`
+    // （消灭陈旧占位 v6/v7——与真实当前版脱钩且无测试钉住）。只进测试类路径，生产依赖不变。
+    androidTestImplementation(project(":core:domain"))
 }
 
 room3 {

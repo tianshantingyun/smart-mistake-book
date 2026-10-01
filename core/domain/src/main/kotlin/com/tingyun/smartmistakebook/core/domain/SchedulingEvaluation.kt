@@ -281,7 +281,9 @@ object SchedulingEvaluationHarness {
             var correctNext = 0
             perCard.values.forEach { history ->
                 history.forEachIndexed { index, sample ->
-                    if (sample.sourceKind != sourceKind || sample.rating < FsrsRating.HARD) {
+                    // P9：原 `rating < FsrsRating.HARD` 依赖枚举序的大小比较（等价于"仅 AGAIN"，
+                    // 不是 isPoorGrade——HARD 属正向报读档，换成 isPoorGrade 会把 HARD 剔出正向样本）。
+                    if (sample.sourceKind != sourceKind || sample.rating == FsrsRating.AGAIN) {
                         return@forEachIndexed
                     }
                     positiveReports += 1

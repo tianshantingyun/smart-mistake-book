@@ -148,4 +148,46 @@ class KnowledgeReadinessTest {
 
         assertEquals(0.0, gap, 1e-9)
     }
+
+    @Test
+    fun `effective stability is suppressed by the weakest prerequisite`() {
+        // KF-16（裁决 7，E 口径重述）：有效稳定度 = min(自身 S, 各先修 S 最小值)。
+        // 台账锚点（原以"下界"表述，0.4/0.9）：先修弱 → 有效取先修；先修恢复 → 解除。
+        assertEquals(
+            0.4,
+            requireNotNull(KnowledgeReadiness.effectiveStabilityDays(0.9, listOf(0.4))),
+            1e-9,
+        )
+        assertEquals(
+            0.4,
+            requireNotNull(KnowledgeReadiness.effectiveStabilityDays(0.9, listOf(0.4, 30.0))),
+            1e-9,
+        )
+        assertEquals(
+            0.9,
+            requireNotNull(KnowledgeReadiness.effectiveStabilityDays(0.9, listOf(30.0))),
+            1e-9,
+        )
+    }
+
+    @Test
+    fun `unknown prerequisite stability is not treated as missing`() {
+        // 与"未知 ≠ 不会"同一约定：没有记忆卡的前置不参与压制（否则新绑定会立刻压死后继）。
+        assertEquals(
+            0.9,
+            requireNotNull(KnowledgeReadiness.effectiveStabilityDays(0.9, listOf(null, 30.0))),
+            1e-9,
+        )
+        assertEquals(
+            0.9,
+            requireNotNull(KnowledgeReadiness.effectiveStabilityDays(0.9, emptyList())),
+            1e-9,
+        )
+    }
+
+    @Test
+    fun `a dependent without its own card has no effective stability`() {
+        assertNull(KnowledgeReadiness.effectiveStabilityDays(null, listOf(0.4)))
+        assertNull(KnowledgeReadiness.effectiveStabilityDays(null, emptyList()))
+    }
 }

@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
+import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.domain.tutorSessionObjectiveRecord
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
@@ -675,17 +676,20 @@ internal class RoomTutorToolRunner(
             append('。')
         }
         body.add(header)
-        body.add("列：序号. 名称|粒度|保守掌握度|证据量|状态|最近证据|最近独立错误|绑定错题数")
+        body.add("列：序号. 名称|粒度|保守掌握度|区间|证据量|状态|最近证据|最近独立错误|绑定错题数")
         rows.forEachIndexed { index, row ->
             body.add(
                 "${index + 1}. ${row.displayName}|${row.granularity}|" +
                     "${"%.2f".format(row.lowerBoundIndependentCorrect)}|" +
+                    "${masteryIntervalText(row)}|" +
                     "${"%.2f".format(row.evidenceMass)}|${row.status}|" +
                     "${TutorEvidenceRecency.of(row.lastEvidenceAtEpochMillis, atEpochMillis)}|" +
                     "${TutorEvidenceRecency.of(row.lastIndependentErrorAtEpochMillis, atEpochMillis)}|" +
                     "${row.boundQuestionCount}",
             )
-            aggregates[row.knowledgeNodeId]?.let { detail -> appendAggregateDetail(body, detail, atEpochMillis) }
+            aggregates[row.knowledgeNodeId]?.let { detail ->
+                appendAggregateDetail(body, detail, row, atEpochMillis)
+            }
         }
         unmeasuredNodes.entries.sortedBy { it.value }.forEach { (_, name) ->
             body.add("$name|尚无学习证据")
@@ -696,9 +700,20 @@ internal class RoomTutorToolRunner(
         )
     }
 
+    /**
+     * KF-20（批次 2 §2.2）：区间列由 s/f **现算**（`MasteryEstimateMath.interval`，两位小数）。
+     * 无证据（s + f <= 0）退化为 `—`——"没有证据"不是"区间很宽"。
+     */
+    private fun masteryIntervalText(row: SubjectMasteryRecord): String {
+        if (row.successWeight + row.failureWeight <= 0.0) return "—"
+        val interval = MasteryEstimateMath.interval(row.successWeight, row.failureWeight)
+        return "${"%.2f".format(interval.lower)}~${"%.2f".format(interval.upper)}"
+    }
+
     private fun appendAggregateDetail(
         body: BudgetedLines,
         detail: MasteryAggregateRecord,
+        row: SubjectMasteryRecord,
         atEpochMillis: Long,
     ) {
         body.add(
@@ -716,6 +731,15 @@ internal class RoomTutorToolRunner(
                 "被拒 ${detail.rejectedModelEvidenceCount} 条，最近接受 " +
                 "${TutorEvidenceRecency.of(detail.lastAcceptedModelEvidenceAtEpochMillis, atEpochMillis)}",
         )
+        // KF-20（批次 2 §2.2）：记忆行（E 判据的展示依据）——无记忆卡时不输出该行。
+        val stability = row.memoryStabilityDays
+        val lastAttempt = row.lastAttemptAtEpochMillis
+        if (stability != null && lastAttempt != null) {
+            body.add(
+                "   记忆：稳定度 ${"%.1f".format(stability)} 天，上次作答 " +
+                    TutorEvidenceRecency.of(lastAttempt, atEpochMillis),
+            )
+        }
     }
 
     /**

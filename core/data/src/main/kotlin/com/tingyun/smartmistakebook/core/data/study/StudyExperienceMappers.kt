@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.database.ReviewSessionRecord
 import com.tingyun.smartmistakebook.core.database.ReviewedKnowledgeCoverageRecord
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.ForgettingCurve
+import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.domain.ReviewCompletionStreak
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeCoverageGap
@@ -102,13 +103,22 @@ internal fun LearnerSnapshot.toProfileOverview(
         )
         .map { state ->
             val context = resolvedKnowledgeContexts[state.knowledgeNodeId]
+            // P8（规格 §1-C）：保守分与区间上界由**同一次** interval(s, f) 产出——
+            // 下界写回 conservativeMasteryScore（排序与档位在用它），读面重算、不落库。
+            val interval = MasteryEstimateMath.interval(state.successWeight, state.failureWeight)
             StudyKnowledgeSummary(
                 knowledgeNodeId = state.knowledgeNodeId,
                 displayName = context?.displayName
                     ?: fallbackKnowledgeNames[state.knowledgeNodeId]
                     ?: state.knowledgeNodeId,
                 status = state.status,
-                conservativeMasteryScore = state.conservativeMasteryScore,
+                conservativeMasteryScore = interval.lower,
+                masteryIntervalUpper = if (state.successWeight + state.failureWeight > 0.0) {
+                    interval.upper
+                } else {
+                    null
+                },
+                memoryStabilityDays = state.memoryStabilityDays,
                 evidenceMass = state.evidenceMass,
                 independentCorrectObservationCount =
                     state.independentCorrectObservations.size,
@@ -127,13 +137,21 @@ internal fun LearnerSnapshot.toProfileOverview(
         )
         .map { state ->
             val context = resolvedKnowledgeContexts[state.knowledgeNodeId]
+            // P8（规格 §1-C）：与 weaknesses 同一口径（同一次 interval(s, f)，下界回写）。
+            val interval = MasteryEstimateMath.interval(state.successWeight, state.failureWeight)
             StudyKnowledgeSummary(
                 knowledgeNodeId = state.knowledgeNodeId,
                 displayName = context?.displayName
                     ?: fallbackKnowledgeNames[state.knowledgeNodeId]
                     ?: state.knowledgeNodeId,
                 status = state.status,
-                conservativeMasteryScore = state.conservativeMasteryScore,
+                conservativeMasteryScore = interval.lower,
+                masteryIntervalUpper = if (state.successWeight + state.failureWeight > 0.0) {
+                    interval.upper
+                } else {
+                    null
+                },
+                memoryStabilityDays = state.memoryStabilityDays,
                 evidenceMass = state.evidenceMass,
                 independentCorrectObservationCount =
                     state.independentCorrectObservations.size,

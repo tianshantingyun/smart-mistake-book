@@ -23,6 +23,7 @@ import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
+import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import java.time.Instant
 import java.time.ZoneId
@@ -76,6 +77,12 @@ class MasteryOverviewInstrumentedTest {
         assertEquals(listOf("kc-weak", "kc-strong"), rows.map { it.knowledgeNodeId })
         assertEquals("函数单调性", rows.first().displayName)
         assertEquals(0.21, rows.first().lowerBoundIndependentCorrect, 1e-9)
+        // 批次 2 / KF-20（规格 §2.4 锚 3）：新四列（s/f + 记忆卡）经 DAO SELECT 端到端可达——
+        // SQL 列名写错时这里当场炸（JVM 映射用例覆盖不到 Room 查询）。
+        assertEquals(8.0, rows.first().successWeight, 1e-9)
+        assertEquals(0.0, rows.first().failureWeight, 1e-9)
+        assertEquals(12.3, requireNotNull(rows.first().memoryStabilityDays), 1e-9)
+        assertEquals(OCCURRED_AT - DAY_MILLIS, requireNotNull(rows.first().lastAttemptAtEpochMillis))
         // 物理的知识点绝不能出现在数学会话里。
         assertTrue(
             "another subject leaked: ${rows.map { it.knowledgeNodeId }}",
@@ -263,6 +270,11 @@ class MasteryOverviewInstrumentedTest {
         masteryScore = score,
         conservativeMasteryScore = score,
         evidenceMass = 1.5,
+        // 批次 2 / KF-20：s/f 与记忆卡（新列断言用固定值）。
+        successWeight = 8.0,
+        failureWeight = 0.0,
+        memoryStabilityDays = 12.3,
+        lastAttemptAtEpochMillis = OCCURRED_AT - DAY_MILLIS,
         independentCorrectObservations = if (status == MasteryStatus.MASTERED) {
             listOf(
                 IndependentCorrectObservation(
@@ -387,7 +399,8 @@ class MasteryOverviewInstrumentedTest {
     private companion object {
         const val LEARNER = "learner:test"
         const val PROJECTION = "study-experience-v1"
-        const val PROJECTOR_VERSION = "learning-core-v6"
+        // 批次 2 / 规格 §4.2：绑真实当前版（原为陈旧占位 learning-core-v6）。
+        const val PROJECTOR_VERSION = LearningProjector.VERSION
         const val PROBLEM_ID = "problem-1"
         const val REVISION_ID = "revision-1"
         const val UNIT_ID = "unit-1"

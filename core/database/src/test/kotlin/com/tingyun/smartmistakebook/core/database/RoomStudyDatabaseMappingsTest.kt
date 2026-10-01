@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.database
 import com.tingyun.smartmistakebook.core.database.dao.CanonicalSourceAssetRow
 import com.tingyun.smartmistakebook.core.database.dao.MistakeRow
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
+import com.tingyun.smartmistakebook.core.database.dao.SubjectMasteryRow
 import com.tingyun.smartmistakebook.core.database.dao.toRecord
 import com.tingyun.smartmistakebook.core.database.dao.ReviewPlanAggregate
 import com.tingyun.smartmistakebook.core.database.dao.ReviewQueueAggregate
@@ -194,6 +195,42 @@ class RoomStudyDatabaseMappingsTest {
         assertEquals(200, record.height)
         assertEquals("CAMERA", record.sourceType)
         assertEquals(1_000L, record.createdAtEpochMillis)
+    }
+
+    @Test
+    fun subjectMasteryRowToRecordCarriesEveryFieldIncludingTheIntervalInputs() {
+        // 批次 2 / KF-20（规格 §2.4 锚 2）：新四列逐字段直拷——漏拷时区间与记忆行
+        // 会在工具面静默缺失（读面从端口拿原料）。
+        val row = SubjectMasteryRow(
+            knowledgeNodeId = "kc-a",
+            displayName = "函数单调性",
+            granularity = "ATOMIC",
+            nodeKind = "CONCEPT",
+            probabilityIndependentCorrect = 0.93,
+            lowerBoundIndependentCorrect = 0.61,
+            evidenceMass = 8.0,
+            status = "LEARNING",
+            lastEvidenceAtEpochMillis = 1_000L,
+            lastEvidenceDirection = "POSITIVE",
+            lastIndependentErrorAtEpochMillis = 500L,
+            boundQuestionCount = 2,
+            successWeight = 8.0,
+            failureWeight = 0.0,
+            memoryStabilityDays = 12.3,
+            lastAttemptAtEpochMillis = 900L,
+        )
+
+        val record = row.toRecord()
+
+        assertEquals("kc-a", record.knowledgeNodeId)
+        assertEquals(0.93, record.probabilityIndependentCorrect, 0.0)
+        assertEquals(0.61, record.lowerBoundIndependentCorrect, 0.0)
+        assertEquals(8.0, record.evidenceMass, 0.0)
+        assertEquals(2, record.boundQuestionCount)
+        assertEquals(8.0, record.successWeight, 0.0)
+        assertEquals(0.0, record.failureWeight, 0.0)
+        assertEquals(12.3, requireNotNull(record.memoryStabilityDays), 0.0)
+        assertEquals(900L, requireNotNull(record.lastAttemptAtEpochMillis))
     }
 
     @Test
