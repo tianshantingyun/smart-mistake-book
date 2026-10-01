@@ -525,6 +525,42 @@ class ReviewPlannerV2Test {
         )
     }
 
+    @Test
+    fun `a chat-fresh but card-overdue knowledge node still raises the stale review risk`() {
+        // 裁决 28 双钟回归（V2 候选路径）：知识点的 lastEvidenceAt 刚被聊天证据刷新，但记忆卡
+        // 的最后作答在 60 天前——风险分支必须按 STALE_KNOWLEDGE 计。旧代码看 lastEvidenceAt
+        // 的新鲜度（45 天窗），一次讲题对话就能把已忘的知识点从复习压力里抹掉。
+        val overdueKc = KnowledgeMasteryState(
+            knowledgeNodeId = "kc-a",
+            masteryScore = 0.95,
+            conservativeMasteryScore = 0.9,
+            evidenceMass = 2.0,
+            memoryStabilityDays = 30.0,
+            memoryDifficulty = 6.0,
+            lastAttemptAtEpochMillis = now - 60 * DAY_MILLIS,
+            lastAttemptStudyDayEpochDay = (now - 60 * DAY_MILLIS) / DAY_MILLIS,
+            status = MasteryStatus.MASTERED,
+            calibrationSupport = CalibrationSupport.SUPPORTED,
+            projectorVersion = LearningProjector.VERSION,
+            checkpointSequence = 4,
+            lastEvidenceAtEpochMillis = now,
+        )
+        val chatFreshSnapshot = LearnerSnapshot(
+            learnerId = "learner-1",
+            problemMemoryStates = emptyMap(),
+            knowledgeMasteryStates = mapOf("kc-a" to overdueKc),
+            checkpoint = ProjectionCheckpoint(4, LearningProjector.VERSION, now),
+            generatedAtEpochMillis = now,
+        )
+
+        val plan = planner.plan(
+            request(listOf(candidate("unit-a", "family-a", null, 5.5, 60)), 120, chatFreshSnapshot),
+        )
+
+        val reasons = plan.queueItems.single().reasons
+        assertTrue("记忆卡过期必须带 STALE_KNOWLEDGE，实际：$reasons", ReviewReason.STALE_KNOWLEDGE in reasons)
+    }
+
     private fun snapshotWith(vararg states: KnowledgeMasteryState) = LearnerSnapshot(
         learnerId = "learner-1",
         problemMemoryStates = emptyMap(),

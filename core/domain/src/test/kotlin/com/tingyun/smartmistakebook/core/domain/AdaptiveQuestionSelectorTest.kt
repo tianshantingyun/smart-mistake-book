@@ -129,10 +129,15 @@ class AdaptiveQuestionSelectorTest {
 
     @Test
     fun `unknown and conflicted mastery never skips`() {
-        listOf(MasteryStatus.UNKNOWN, MasteryStatus.CONFLICTED).forEach { status ->
+        // 裁决 28：UNKNOWN 的读侧定义 = 证据量 < 1（与投影写入侧同轴；耐久卡 + UNKNOWN 的
+        // 组合在投影里不可能出现——卡由作答流喂出时证据量必然 ≥ 1）。CONFLICTED 则无论卡多
+        // 耐久都保持最高优先级（写入侧事实，读侧不改判）。
+        val unknown = masteredState().copy(status = MasteryStatus.UNKNOWN, evidenceMass = 0.0)
+        val conflicted = masteredState().copy(status = MasteryStatus.CONFLICTED)
+        listOf(unknown, conflicted).forEach { state ->
             val decision = selector.select(
                 AdaptiveSelectionRequest(
-                    learnerSnapshot = snapshot(masteredState().copy(status = status)),
+                    learnerSnapshot = snapshot(state),
                     targetKnowledgeNodeIds = setOf("kc-a"),
                     requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
                     userRequestedQuestion = true,

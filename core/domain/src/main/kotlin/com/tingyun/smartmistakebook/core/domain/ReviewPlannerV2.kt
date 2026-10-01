@@ -499,32 +499,41 @@ class ReviewPlannerV2(
             reasons += ReviewReason.CALIBRATION_CHECK
         }
 
-        // Mastery risk
+        // Mastery risk —— 裁决 28（读侧语义闭合）：状态判断由
+        // `ClearlyMasteredForSkipPolicy.effectiveStatus` 现算，CONFLICTED/UNKNOWN/STALE 三个
+        // 高风险分支与展示面、V1 跳过判据读同一个出口；此前的 45 天窗（lastEvidenceAt 口径）
+        // 并入该出口，chat "评论钟"把知识点从复习压力里抹掉的洞随之关闭。
+        // KF-16 压制：先修未恢复的节点按有效稳定度判"已掌握"（此处压制意味着不再走低风险路径，
+        // 而不是让它变成"未知"）。
         val masteryRisks = masteryStates.map { state ->
-            val currentSupportedEvidenceMass = state.independentCorrectObservations
-                .filter { it.calibrationSupportAt(now) == CalibrationSupport.SUPPORTED }
-                .sumOf { it.evidenceWeight }
-            val lastEvidenceAt = state.lastEvidenceAtEpochMillis
-            val stale = state.status == com.tingyun.smartmistakebook.core.model.MasteryStatus.STALE ||
-                lastEvidenceAt == null ||
-                now < lastEvidenceAt ||
-                now - lastEvidenceAt > ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
+            val prerequisiteStabilities = knowledgePrerequisites[state.knowledgeNodeId]
+                .orEmpty()
+                .map { prerequisiteId ->
+                    snapshot.knowledgeMasteryStates[prerequisiteId]?.memoryStabilityDays
+                }
+            val resolved = ClearlyMasteredForSkipPolicy.effectiveStatus(
+                state = state,
+                atEpochMillis = now,
+                decay = forgettingCurve.decay,
+                prerequisiteStabilityDays = prerequisiteStabilities,
+            )
             when {
-                state.status == com.tingyun.smartmistakebook.core.model.MasteryStatus.CONFLICTED -> {
+                resolved == com.tingyun.smartmistakebook.core.model.MasteryStatus.CONFLICTED -> {
                     reasons += ReviewReason.CONFLICTED_KNOWLEDGE
                     reasons += ReviewReason.CALIBRATION_CHECK
                     1.0
                 }
-                state.status == com.tingyun.smartmistakebook.core.model.MasteryStatus.UNKNOWN -> {
+                resolved == com.tingyun.smartmistakebook.core.model.MasteryStatus.UNKNOWN -> {
                     reasons += ReviewReason.CALIBRATION_CHECK
                     1.0
                 }
-                stale -> {
+                resolved == com.tingyun.smartmistakebook.core.model.MasteryStatus.STALE -> {
                     reasons += ReviewReason.STALE_KNOWLEDGE
                     reasons += ReviewReason.CALIBRATION_CHECK
                     1.0
                 }
-                currentSupportedEvidenceMass <= 0.0 -> {
+                state.independentCorrectObservations
+                    .none { it.calibrationSupportAt(now) == CalibrationSupport.SUPPORTED } -> {
                     reasons += ReviewReason.CALIBRATION_CHECK
                     1.0
                 }
@@ -866,7 +875,13 @@ class ReviewPlannerV2(
     }
 
     companion object {
-        const val VERSION = "review-planner-v3"
+        /**
+         * v3 → v4（裁决 28 读侧语义闭合，2026-10-01）：掌握风险分支的状态判断改由
+         * `ClearlyMasteredForSkipPolicy.effectiveStatus` 现算（45 天窗并入出口，KF-16 先修
+         * 压制接线）——风险值与理由集变化 → 计划输出变化，旧计划重排
+         * （指纹 canonical-v8 → v9 同步）。
+         */
+        const val VERSION = "review-planner-v4"
         // W0-4（审计 Q5）：与 V1 共用的权重值**单源**在 `AlgorithmConstants.ReviewScoring`。
         // 名字保留（调用点可读性），值不再在本文件写第二遍——此前两张表各写一份同值，
         // 改一处另一处照旧跑，正是"权重表已分叉"那条证据。仅 V2 使用的常数留在本处（无分叉面）。
@@ -908,7 +923,7 @@ class ReviewPlannerV2(
         private const val RECENT_LAPSE_WINDOW_MILLIS = AlgorithmConstants.ReviewScoring.RECENT_LAPSE_WINDOW_MILLIS
         private const val WAITING_GRACE_DAYS = AlgorithmConstants.ReviewScoring.WAITING_GRACE_DAYS
         private const val WAITING_BONUS_RAMP_DAYS = AlgorithmConstants.ReviewScoring.WAITING_BONUS_RAMP_DAYS
-        private const val PLAN_FINGERPRINT_SCHEMA_VERSION = "review-plan-canonical-v8"
+        private const val PLAN_FINGERPRINT_SCHEMA_VERSION = "review-plan-canonical-v9"
         private const val MAX_BEAM_STEPS = 20
     }
 }

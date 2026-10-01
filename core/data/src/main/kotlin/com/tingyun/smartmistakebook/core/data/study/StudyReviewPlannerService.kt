@@ -573,6 +573,16 @@ internal class StudyReviewPlannerService(
             nowEpochMillis = planningContext.planningAtEpochMillis,
             decay = planningDecay,
         )
+        // KF-16 读侧接线（裁决 28）：知识点先修稳定度表——先修未恢复的点按有效稳定度压制，
+        // 不被"已掌握则跳过"的判据放行（此前 `prerequisiteStabilityDays` 全仓无生产调用点）。
+        val prerequisiteStabilityDaysByNode = knowledgePrerequisites
+            .graphFor(candidateIds)
+            .prerequisitesByDependent
+            .mapValues { (_, prerequisiteIds) ->
+                prerequisiteIds.map { prerequisiteId ->
+                    learnerSnapshot.knowledgeMasteryStates[prerequisiteId]?.memoryStabilityDays
+                }
+            }
         val selected = selectKnowledgeReviewQueue(
             planner = reviewPlanner,
             candidates = candidateIds.map { knowledgeNodeId ->
@@ -587,6 +597,7 @@ internal class StudyReviewPlannerService(
             },
             now = planningContext.planningAtEpochMillis,
             timeBudgetSeconds = reviewTimeBudgetSeconds,
+            prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
         )
         if (selected.isEmpty()) return KnowledgeReviewSessionPlan()
         return KnowledgeReviewSessionPlan(

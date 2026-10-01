@@ -169,7 +169,15 @@ class KernelWave0SchemaContractTest {
     }
 
     private companion object {
-        const val CURRENT_PROJECTOR_VERSION = "learning-core-v8(projector-v8,evidence-v4)"
+        /**
+         * 测试内自洽的"当前版本"字面量（提交与期望同用一个常量，validator 只比对两者相等）。
+         * 2026-10-01 订正：此前停在 `learning-core-v8(projector-v8,evidence-v4)`（Wave 2 时代），
+         * 与实际值脱节——"名字说当前、值却过时"。此处不可引用 `core:domain` 的
+         * `LearningCoreVersions.PROJECTION_COMPOSITE`（依赖方向不允许），修改内核版本串时
+         * 请同步本字面量。
+         */
+        const val CURRENT_PROJECTOR_VERSION =
+            "learning-core-v10(projector-v10,evidence-v4,curve-v3,skip-v4,attribution-v2,ledger-v2)"
 
         val json = Json { ignoreUnknownKeys = true }
         /** 只认真正的列定义（反引号列名 + 类型），不认 PRIMARY KEY / FOREIGN KEY 子句里的列名。 */

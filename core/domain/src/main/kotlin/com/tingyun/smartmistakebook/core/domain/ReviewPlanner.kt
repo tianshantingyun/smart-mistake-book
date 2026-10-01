@@ -128,7 +128,7 @@ class ReviewPlanner(
         }
         val now = request.planningAtEpochMillis
         val scored = request.candidates.mapNotNull { candidate ->
-            scoreCandidate(candidate, request.learnerSnapshot, now)
+            scoreCandidate(candidate, request.learnerSnapshot, now, request.knowledgePrerequisites)
         }
         val remaining = scored.toMutableList()
         val selected = mutableListOf<ScoredCandidate>()
@@ -213,6 +213,7 @@ class ReviewPlanner(
         candidate: ReviewCandidate,
         snapshot: LearnerSnapshot,
         now: Long,
+        knowledgePrerequisites: Map<String, Set<String>> = emptyMap(),
     ): ScoredCandidate? {
         val memory = snapshot.problemMemoryStates[candidate.practiceUnitId]
         val masteryStates = candidate.knowledgeNodeIds.mapNotNull(snapshot.knowledgeMasteryStates::get)
@@ -256,7 +257,16 @@ class ReviewPlanner(
             reasons += ReviewReason.CALIBRATION_CHECK
         }
         val masteryRisks = masteryStates.map { state ->
-            masteryRiskFor(state, now, reasons)
+            masteryRiskFor(
+                state = state,
+                now = now,
+                reasons = reasons,
+                prerequisiteStabilityDays = knowledgePrerequisites[state.knowledgeNodeId]
+                    .orEmpty()
+                    .map { prerequisiteId ->
+                        snapshot.knowledgeMasteryStates[prerequisiteId]?.memoryStabilityDays
+                    },
+            )
         }
         val weakness = (masteryRisks + List(
             maxOf(missingKnowledgeCount, if (candidate.knowledgeNodeIds.isEmpty()) 1 else 0),
@@ -341,43 +351,49 @@ class ReviewPlanner(
      * is high risk; otherwise the weakness is the 7-day-half-life smoothed
      * mastery. Adds the matching reasons to [reasons]. Used both by
      * [scoreCandidate] (per bound node) and [scoreKnowledgeNode] (node itself).
+     *
+     * 裁决 28（读侧语义闭合，2026-10-01）：状态判断改由
+     * [ClearlyMasteredForSkipPolicy.effectiveStatus] 现算——CONFLICTED/UNKNOWN/STALE 三个
+     * 高风险分支与展示面、跳过策略读**同一个出口**；此前的 45 天窗（`lastEvidenceAt` 口径）
+     * 并入该出口（锚点 = `lastAttemptAt ?: lastEvidenceAt`），chat 通道只改 comment 时钟
+     * 就把知识点从复习压力里抹掉的"双钟"洞随之关闭。
      */
     private fun masteryRiskFor(
         state: com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState,
         now: Long,
         reasons: MutableSet<ReviewReason>,
+        prerequisiteStabilityDays: Collection<Double?> = emptyList(),
     ): Double {
+        val resolved = ClearlyMasteredForSkipPolicy.effectiveStatus(
+            state = state,
+            atEpochMillis = now,
+            decay = forgettingCurve.decay,
+            prerequisiteStabilityDays = prerequisiteStabilityDays,
+        )
+        if (resolved == MasteryStatus.CONFLICTED) {
+            reasons += ReviewReason.CONFLICTED_KNOWLEDGE
+            reasons += ReviewReason.CALIBRATION_CHECK
+            return 1.0
+        }
+        if (resolved == MasteryStatus.UNKNOWN) {
+            reasons += ReviewReason.CALIBRATION_CHECK
+            return 1.0
+        }
+        if (resolved == MasteryStatus.STALE) {
+            reasons += ReviewReason.STALE_KNOWLEDGE
+            reasons += ReviewReason.CALIBRATION_CHECK
+            return 1.0
+        }
         val currentSupportedEvidenceMass = state.independentCorrectObservations
             .filter { it.calibrationSupportAt(now) == CalibrationSupport.SUPPORTED }
             .sumOf { it.evidenceWeight }
-        val lastEvidenceAt = state.lastEvidenceAtEpochMillis
-        val stale = state.status == MasteryStatus.STALE ||
-            lastEvidenceAt == null ||
-            now < lastEvidenceAt ||
-            now - lastEvidenceAt > ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
-        return when {
-            state.status == MasteryStatus.CONFLICTED -> {
-                reasons += ReviewReason.CONFLICTED_KNOWLEDGE
-                reasons += ReviewReason.CALIBRATION_CHECK
-                1.0
-            }
-            state.status == MasteryStatus.UNKNOWN -> {
-                reasons += ReviewReason.CALIBRATION_CHECK
-                1.0
-            }
-            stale -> {
-                reasons += ReviewReason.STALE_KNOWLEDGE
-                reasons += ReviewReason.CALIBRATION_CHECK
-                1.0
-            }
-            currentSupportedEvidenceMass <= 0.0 -> {
-                reasons += ReviewReason.CALIBRATION_CHECK
-                1.0
-            }
-            // Spec 2.18: weakness input is the 7-day half-life smoothed
-            // mastery, damping single-day swings.
-            else -> 1.0 - MasterySmoothing.smoothedMasteryScore(state, now)
+        if (currentSupportedEvidenceMass <= 0.0) {
+            reasons += ReviewReason.CALIBRATION_CHECK
+            return 1.0
         }
+        // Spec 2.18: weakness input is the 7-day half-life smoothed
+        // mastery, damping single-day swings.
+        return 1.0 - MasterySmoothing.smoothedMasteryScore(state, now)
     }
 
     /**
@@ -402,6 +418,11 @@ class ReviewPlanner(
          * with time inside the fresh window.
          */
         recallRisk: Double? = null,
+        /**
+         * KF-16（裁决 28 读侧接线）：该节点先修的记忆稳定度（未知 = null，忽略）。给定时
+         * 跳过判据按**有效稳定度** = min(自身, 先修最小值) 计算——先修未恢复，后继不跳过。
+         */
+        prerequisiteStabilityDays: Collection<Double?> = emptyList(),
     ): ScoredKnowledgeNode? {
         require(recallRisk == null || recallRisk.isFinite() && recallRisk in 0.0..1.0) {
             "Knowledge-node recall risk must be between zero and one"
@@ -444,7 +465,14 @@ class ReviewPlanner(
             }
         }
         val masteryRisk = state
-            ?.let { masteryRiskFor(it, now, reasons) }
+            ?.let {
+                masteryRiskFor(
+                    state = it,
+                    now = now,
+                    reasons = reasons,
+                    prerequisiteStabilityDays = prerequisiteStabilityDays,
+                )
+            }
             ?: run {
                 reasons += ReviewReason.MISSING_KNOWLEDGE_EVIDENCE
                 reasons += ReviewReason.CALIBRATION_CHECK
@@ -453,18 +481,22 @@ class ReviewPlanner(
         val weakness = maxOf(dueRisk, masteryRisk)
         if (weakness >= WEAKNESS_THRESHOLD) reasons += ReviewReason.WEAK_KNOWLEDGE
 
-        // Skip a node that is mastered, fresh, and not otherwise early/weak.
-        val lastEvidenceForSkip = state?.lastEvidenceAtEpochMillis
-        val masteredFresh = state != null &&
-            state.status == MasteryStatus.MASTERED &&
-            lastEvidenceForSkip != null &&
-            now - lastEvidenceForSkip <= ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
+        // Skip a node that is **currently** clearly mastered (E 判据此刻成立，含 KF-16 压制)
+        // and not otherwise early/weak. 裁决 28：此前是"存储态 MASTERED + 证据 ≤ 45 天"，两个
+        // 判据不同源（双钟：chat 证据算新鲜、记忆卡已过期也照样跳过）；现在与展示面、风险
+        // 分支共用 [ClearlyMasteredForSkipPolicy.effectiveStatus] 一个出口——已忘的点回到队列。
+        val clearlyMastered = state != null && ClearlyMasteredForSkipPolicy.effectiveStatus(
+            state = state,
+            atEpochMillis = now,
+            decay = forgettingCurve.decay,
+            prerequisiteStabilityDays = prerequisiteStabilityDays,
+        ) == MasteryStatus.MASTERED
         val hasEarlyReason = reasons.any { reason ->
             reason == ReviewReason.CONFLICTED_KNOWLEDGE ||
                 reason == ReviewReason.STALE_KNOWLEDGE ||
                 reason == ReviewReason.CALIBRATION_CHECK
         }
-        if (masteredFresh && !hasEarlyReason) return null
+        if (clearlyMastered && !hasEarlyReason) return null
         if (reasons.isEmpty()) return null
 
         val score = (
@@ -607,6 +639,6 @@ class ReviewPlanner(
         private const val WAITING_BONUS_RAMP_DAYS = AlgorithmConstants.ReviewScoring.WAITING_BONUS_RAMP_DAYS
         /** Days of evidence age at which a knowledge node's due risk saturates. */
         private const val KNOWLEDGE_DUE_RAMP_DAYS = 30.0
-        private const val PLAN_FINGERPRINT_SCHEMA_VERSION = "review-plan-canonical-v5"
+        private const val PLAN_FINGERPRINT_SCHEMA_VERSION = "review-plan-canonical-v6"
     }
 }

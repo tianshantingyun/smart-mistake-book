@@ -153,12 +153,18 @@ class AdaptiveQuestionSelector {
 
         val requiresCalibration = targetStates.size != request.targetKnowledgeNodeIds.size ||
             targetStates.any {
-                it.status == MasteryStatus.UNKNOWN ||
-                    it.status == MasteryStatus.CONFLICTED ||
-                    it.status == MasteryStatus.STALE ||
-                    !hasFreshEvidence(it, request.decisionAtEpochMillis) ||
+                // 裁决 28：状态与"证据过期"由读侧唯一出口现算（此前是存储态三项 + 45 天窗
+                // `hasFreshEvidence` 各自判断）。UNKNOWN/CONFLICTED/STALE 都先校准再出题。
+                val resolved = ClearlyMasteredForSkipPolicy.effectiveStatus(
+                    state = it,
+                    atEpochMillis = request.decisionAtEpochMillis,
+                    decay = MasteryDecisionPolicy.DEFAULT.decay,
+                )
+                resolved == MasteryStatus.UNKNOWN ||
+                    resolved == MasteryStatus.CONFLICTED ||
+                    resolved == MasteryStatus.STALE ||
                     !hasCurrentCalibration(it, request.decisionAtEpochMillis)
-        }
+            }
         if (requiresCalibration) {
             return noCandidateDecision(request, setOf("LEARNING_EVIDENCE_NOT_CURRENT"))
         }
@@ -178,12 +184,6 @@ class AdaptiveQuestionSelector {
             candidate.assessmentItemId,
             setOf("TARGET_MATCH", "SAFE_VERIFIED_CANDIDATE", "HARD_CHALLENGE_CORRIDOR"),
         )
-    }
-
-    private fun hasFreshEvidence(state: KnowledgeMasteryState, atEpochMillis: Long): Boolean {
-        val evidenceAt = state.lastEvidenceAtEpochMillis ?: return false
-        return atEpochMillis >= evidenceAt &&
-            atEpochMillis - evidenceAt <= ClearlyMasteredForSkipPolicy.MAX_EVIDENCE_AGE_MILLIS
     }
 
     private fun hasCurrentCalibration(state: KnowledgeMasteryState, atEpochMillis: Long): Boolean =

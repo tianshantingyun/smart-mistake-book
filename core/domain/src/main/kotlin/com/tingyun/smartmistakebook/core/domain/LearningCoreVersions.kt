@@ -51,9 +51,21 @@ object LearningCoreVersions {
      * v6 → v7（批次 3，2026-10-01）：排程曲线 FSRS 唯一化（legacy 指数算法删除）+
      * V1 曲线接投影同源的个性化 decay（KF-11 跟进项）——V1 的计划输出变化，
      * 旧计划按读时校验重排。
+     *
+     * v7 → v8（裁决 28 读侧语义闭合，2026-10-01）：V1 的跳过/风险判据改由
+     * `ClearlyMasteredForSkipPolicy.effectiveStatus` 现算（E 判据此刻成立才算"已掌握"，
+     * 45 天窗并入出口；chat 证据不再单独构成"新鲜"）。跳过集合变化 → 计划输出变化，
+     * 旧计划重排（V1 指纹 canonical-v5 → v6 同步）。
      */
-    const val REVIEW_PLANNER = "review-planner-v7"
-    const val SELECTOR = "selector-v6"
+    const val REVIEW_PLANNER = "review-planner-v8"
+
+    /**
+     * 自适应出题选择器的版本串（`AdaptiveQuestionSelector.VERSION`）。
+     *
+     * v6 → v7（裁决 28 读侧语义闭合，2026-10-01）：`requiresCalibration` 的状态门槛与
+     * "证据是否新鲜"改由 `effectiveStatus` 现算（45 天窗统一），决策输出可能变化。
+     */
+    const val SELECTOR = "selector-v7"
 
     const val PROJECTION_COMPOSITE =
         "learning-core-v10($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"

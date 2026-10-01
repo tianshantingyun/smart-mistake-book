@@ -139,6 +139,11 @@ fun selectKnowledgeReviewQueue(
     candidates: List<KnowledgeReviewCandidate>,
     now: Long,
     timeBudgetSeconds: Int,
+    /**
+     * KF-16（裁决 28 读侧接线）：节点 → 其先修的记忆稳定度（取不到 = null，忽略；无条目 =
+     * 无已知先修）。先修未恢复的节点按有效稳定度压制、不被跳过——延续"未知 ≠ 缺失"约定。
+     */
+    prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
 ): List<ReviewPlanner.ScoredKnowledgeNode> {
     require(timeBudgetSeconds >= 0) { "Knowledge review time budget must not be negative" }
     val pool = candidates
@@ -148,6 +153,8 @@ fun selectKnowledgeReviewQueue(
                 state = candidate.state,
                 now = now,
                 recallRisk = candidate.recallRisk,
+                prerequisiteStabilityDays =
+                    prerequisiteStabilityDaysByNode[candidate.knowledgeNodeId].orEmpty(),
             )?.let { scored -> scored to candidate }
         }
         .toMutableList()
