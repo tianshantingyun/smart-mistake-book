@@ -461,10 +461,11 @@ class ReviewPlannerV2Test {
     }
 
     @Test
-    fun `a candidate whose prerequisite is missing is demoted and explained as such`() {
-        // spec §2.9 / §6-L4. 这条断言的存在理由是它曾经**从来不可能通过**：生产调用点
-        // 从不填 `knowledgePrerequisites`，于是 prereqGap 恒为 0、PREREQ_GAP 理由从不出现。
-        // 因此本测试同时锁两件事——喂入图之后闸门确实起作用，以及缺前置的题会被降权。
+    fun `a candidate whose prerequisite is missing is hard gated`() {
+        // spec §2.9 / §6-L4 + KF-08（2026-10-01）：前置未就绪 ⇒ **排除**（此前是降权）。
+        // 这条断言的存在理由是它曾经**从来不可能通过**：生产调用点从不填
+        // `knowledgePrerequisites`，于是 prereqGap 恒为 0、闸门从不生效。
+        // 因此本测试同时锁两件事——喂入图之后闸门确实起作用，以及缺前置的题被排除。
         val snapshot = snapshotWith(
             masteryState("kc-needs-prereq", mastery = 0.9, conservative = 0.9),
             masteryState("kc-ready", mastery = 0.9, conservative = 0.9),
@@ -478,25 +479,31 @@ class ReviewPlannerV2Test {
         val blocked = candidate("unit-blocked", "family-blocked", null, 5.5, 60, kc = "kc-needs-prereq")
         val ready = candidate("unit-ready", "family-ready", null, 5.5, 60, kc = "kc-ready")
 
-        // 预算只够一题：两题的 KC 掌握度、难度、时长、等待时间全都相同，唯一的差别是
-        // 前置——缺前置的那题必须排后面。
+        // 预算只够一题：缺前置的那题被排除，只剩 ready。
         val contested = planner.plan(
             request(listOf(blocked, ready), 60, snapshot, prerequisites),
         )
         assertEquals(listOf("unit-ready"), contested.queueItems.map { it.practiceUnitId })
 
-        // 池子够大时它不是被剔除，而是带着可解释的理由进来（spec §2.9 要求降权而非排除）。
+        // 池子够大时它**仍然**不进计划——KF-08 的语义就是硬过滤，不是"排后面"。
         val both = planner.plan(request(listOf(blocked, ready), 120, snapshot, prerequisites))
-        val blockedItem = both.queueItems.single { it.practiceUnitId == "unit-blocked" }
-        assertTrue(
-            "缺前置的题必须能说明自己为什么被降权",
-            ReviewReason.PREREQ_GAP in blockedItem.reasons,
+        assertEquals(listOf("unit-ready"), both.queueItems.map { it.practiceUnitId })
+    }
+
+    @Test
+    fun `a candidate returns to the plan once its prerequisite recovers`() {
+        // KF-08 的"解除"半句：先修恢复（gap 回 0）后同一候选自动回池——闸门是纯函数
+        // of（当前图 × 当前掌握），不需要任何额外状态。
+        val snapshot = snapshotWith(
+            masteryState("kc-needs-prereq", mastery = 0.9, conservative = 0.9),
+            masteryState("kc-prereq-becoming-ready", mastery = 0.8, conservative = 0.65),
         )
-        val readyItem = both.queueItems.single { it.practiceUnitId == "unit-ready" }
-        assertTrue(
-            "前置已具备的题不该带前置缺口理由",
-            ReviewReason.PREREQ_GAP !in readyItem.reasons,
-        )
+        val prerequisites = mapOf("kc-needs-prereq" to setOf("kc-prereq-becoming-ready"))
+        val dependent = candidate("unit-blocked", "family-blocked", null, 5.5, 60, kc = "kc-needs-prereq")
+
+        // conservative 0.65 ≥ τ_ready 0.6：先修已具备 → 候选在池。
+        val plan = planner.plan(request(listOf(dependent), 120, snapshot, prerequisites))
+        assertEquals(listOf("unit-blocked"), plan.queueItems.map { it.practiceUnitId })
     }
 
     @Test

@@ -464,7 +464,7 @@ class RoomBackedStudyExperienceRepository(
      * 前置补救（spec §2.9）：本题的某个前置 KC 未达可学门槛时，返回**那个前置 KC** 的讲解
      * 材料，供会话在题干旁并列呈现。
      *
-     * 判定用 [KnowledgeReadiness]——与排程侧给该题降权、打 `PREREQ_GAP` 理由用的是同一条
+     * 判定用 [KnowledgeReadiness]——与排程侧的前置硬过滤（KF-08）用的是同一条
      * 规则。两处各写一遍阈值会让"排程认为缺前置、会话却不给补救"成为可能。
      *
      * 材料按**前置 KC 自己的科目**检索：`TutorTeachingReferenceSelector` 会按 subject 过滤，

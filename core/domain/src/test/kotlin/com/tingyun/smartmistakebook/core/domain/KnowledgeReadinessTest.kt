@@ -5,7 +5,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * spec §2.9 的前置判定。这是排程侧（降权 + `PREREQ_GAP` 理由）与会话侧（注入补救材料）
+ * spec §2.9 的前置判定。这是排程侧（KF-08 硬过滤）与会话侧（注入补救材料）
  * 共用的唯一权威，因此这里锁定的既包括数值口径，也包括"哪一个是阻塞前置"的选择规则。
  */
 class KnowledgeReadinessTest {

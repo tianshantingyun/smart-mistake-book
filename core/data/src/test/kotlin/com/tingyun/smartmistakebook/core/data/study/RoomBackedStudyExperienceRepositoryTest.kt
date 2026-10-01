@@ -924,10 +924,11 @@ class RoomBackedStudyExperienceRepositoryTest {
     }
 
     @Test
-    fun theDailyPlanDemotesAndLabelsAQuestionWhosePrerequisiteIsMissing() = runBlocking {
-        // 端到端接线证明（spec §2.9）。这条断言此前**不可能通过**：生产调用点从不给
+    fun theDailyPlanGatesOutAQuestionWhosePrerequisiteIsMissing() = runBlocking {
+        // 端到端接线证明（spec §2.9 + KF-08）。这条断言此前**不可能通过**：生产调用点从不给
         // `ReviewPlanningRequest.knowledgePrerequisites` 赋值，前置门恒等于"无前置"。
-        // 上面那些测试验的是规则本身，这一条验的是"规则真的被喂到了数据"。
+        // KF-08（2026-10-01）起语义是**硬过滤**——缺前置的题不进计划（先修达标后自动回池，
+        // 反例见下一条）。
         val database = prerequisitePlannedDatabase(prerequisiteMastery = 0.2)
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val repository = repository(database, applicationScope, initialFixture = null)
@@ -935,11 +936,10 @@ class RoomBackedStudyExperienceRepositoryTest {
         try {
             repository.initialize()
 
-            val item = database.savedPlans.single().queue.single()
-            assertEquals(PREREQ_DEPENDENT_UNIT_ID, item.practiceUnitId)
+            val queue = database.savedPlans.singleOrNull()?.queue.orEmpty()
             assertTrue(
-                "缺前置的题必须带着可解释的理由进计划，实际理由：${item.reasons}",
-                "PREREQ_GAP" in item.reasons,
+                "缺前置的题不得进入计划，实际：${queue.map { it.practiceUnitId }}",
+                queue.none { it.practiceUnitId == PREREQ_DEPENDENT_UNIT_ID },
             )
         } finally {
             repository.close()

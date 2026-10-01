@@ -8,8 +8,8 @@ package com.tingyun.smartmistakebook.core.domain
  * 解锁下一主题"的具体数值（`docs/research/leech-remediation-research.md` §4）。因此禁止在
  * 代码注释或产品文案里写成"科学研究表明"。
  *
- * 为什么单独成一处：这条规则有两个消费方——排程侧按 gap 给候选降权并打 `PREREQ_GAP`
- * 理由（`ReviewPlannerV2`），会话侧按同一个 gap 决定给谁注入前置补救材料
+ * 为什么单独成一处：这条规则有两个消费方——排程侧按 gap **硬过滤**候选（KF-08，
+ * 缺前置的候选不进计划）、会话侧按同一个 gap 决定给谁注入前置补救材料
  * （[PrerequisiteRemediationPolicy]）。两处各写一遍阈值与取值口径，就会分裂成"排程认为缺
  * 前置、会话却认为不缺"——同一规则两处权威正是审计 §3.9 关掉的那类缺陷。
  */

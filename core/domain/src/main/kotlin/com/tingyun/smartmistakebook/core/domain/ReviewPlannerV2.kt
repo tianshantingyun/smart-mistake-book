@@ -439,15 +439,16 @@ class ReviewPlannerV2(
         val missingKnowledgeCount = candidate.knowledgeNodeIds.size - masteryStates.size
         val reasons = linkedSetOf<ReviewReason>()
 
-        // Spec 2.9 prerequisite gate: a KC whose weakest prerequisite sits
-        // below the ready threshold reduces this candidate's value and asks
-        // for remedial teaching instead of pure repetition.
+        // Spec 2.9 prerequisite gate —— KF-08（2026-10-01，fix-plan）：前置未就绪 ⇒ **硬过滤**。
+        // 此前是 `PREREQ_GAP_WEIGHT × gap` 的减项（降权但不排除），被降权的题仍会进入会话：
+        // 学生还没掌握前置，反复做后继只是无效重复。先修恢复（gap 回 0）后该候选自动回到池里；
+        // 没有前置图的调用 gap 恒 0，不产生任何过滤（"不知道前置" ≠ "缺前置"）。
         val prereqGap = prerequisiteGap(
             candidate = candidate,
             snapshot = snapshot,
             knowledgePrerequisites = knowledgePrerequisites,
         )
-        if (prereqGap > 0.0) reasons += ReviewReason.PREREQ_GAP
+        if (prereqGap > 0.0) return null
 
         // Spec 2.10 graduation: a graduated card reaching its (long) due date
         // enters the queue as maintenance, explained as such.
@@ -611,8 +612,7 @@ class ReviewPlannerV2(
                 AVOIDANCE_WEIGHT * (if (candidate.avoidance) 1.0 else 0.0) +
                 KC_DROP_WEIGHT * kcDropPressure +
                 EXAM_WEIGHT * candidate.examPriority +
-                WAITING_WEIGHT * waitingScore -
-                PREREQ_GAP_WEIGHT * prereqGap
+                WAITING_WEIGHT * waitingScore
             ).coerceAtLeast(0.0) * leechRankFactor
 
         return ScoredCandidate(
@@ -866,7 +866,7 @@ class ReviewPlannerV2(
     }
 
     companion object {
-        const val VERSION = "review-planner-v2"
+        const val VERSION = "review-planner-v3"
         // W0-4（审计 Q5）：与 V1 共用的权重值**单源**在 `AlgorithmConstants.ReviewScoring`。
         // 名字保留（调用点可读性），值不再在本文件写第二遍——此前两张表各写一份同值，
         // 改一处另一处照旧跑，正是"权重表已分叉"那条证据。仅 V2 使用的常数留在本处（无分叉面）。
@@ -874,7 +874,6 @@ class ReviewPlannerV2(
         private const val MEDIUM_DIFFICULTY_CEILING = AlgorithmConstants.ReviewScoring.MEDIUM_DIFFICULTY_CEILING
         private const val WEAKNESS_THRESHOLD = AlgorithmConstants.ReviewScoring.WEAKNESS_THRESHOLD
         private const val CONFUSABLE_MASTERY_GAP = 0.2
-        private const val PREREQ_GAP_WEIGHT = 2.0
         private const val CONFUSABLE_BONUS = 1.5
         private const val MAX_PER_KNOWLEDGE_NODE_PER_SESSION = 2
         private const val SAME_KC_EXHAUSTION_PENALTY = 10.0
@@ -909,7 +908,7 @@ class ReviewPlannerV2(
         private const val RECENT_LAPSE_WINDOW_MILLIS = AlgorithmConstants.ReviewScoring.RECENT_LAPSE_WINDOW_MILLIS
         private const val WAITING_GRACE_DAYS = AlgorithmConstants.ReviewScoring.WAITING_GRACE_DAYS
         private const val WAITING_BONUS_RAMP_DAYS = AlgorithmConstants.ReviewScoring.WAITING_BONUS_RAMP_DAYS
-        private const val PLAN_FINGERPRINT_SCHEMA_VERSION = "review-plan-canonical-v7"
+        private const val PLAN_FINGERPRINT_SCHEMA_VERSION = "review-plan-canonical-v8"
         private const val MAX_BEAM_STEPS = 20
     }
 }

@@ -13,6 +13,11 @@ enum class ReviewReason {
     STALE_KNOWLEDGE,
     CLOCK_ANOMALY,
     LONG_WAITING,
+    /**
+     * KF-08（2026-10-01）起已**退场**：缺前置的候选被硬过滤（`ReviewPlannerV2` 直接排除），
+     * 该理由不再产生。保留为历史计划行的持久化 token——删值会让旧计划解码即抛，
+     * 且并入它项的语义会改写历史行的含义。
+     */
     PREREQ_GAP,
     CONFUSABLE_PAIR,
     GRADUATED_MAINTENANCE,

@@ -20,9 +20,10 @@ internal data class KnowledgePrerequisiteGraph(
  * 把知识点 id 解析成前置关系图的唯一入口（spec §2.9、§6/L4）。
  *
  * 消灭的失败：`ReviewPlanningRequest.knowledgePrerequisites` 自声明"取自 PREREQUISITE_OF
- * 关系表"，但生产调用点从未填过它，于是 §2.9 的前置门恒等于"无前置"——`prereqGap` 永远是
- * 0.0、`ReviewReason.PREREQ_GAP` 从不出现、`PREREQ_GAP_WEIGHT × gap` 是一段死算术，连带
- * §6/C3 的"共享前置的易混对"通道也一起失效（两者读的是同一张图）。
+ * 关系表"，但生产调用点从未填过它，于是 §2.9 的前置门恒等于"无前置"（`prereqGap` 永远
+ * 是 0.0、`PREREQ_GAP_WEIGHT × gap` 曾是一段死算术），连带 §6/C3 的"共享前置的易混对"
+ * 通道也一起失效（两者读的是同一张图）。接线后 KF-08（2026-10-01）把闸门从"降权"改成
+ * **硬过滤**——缺前置的候选不进计划。
  *
  * 为什么不是各调用点自己查：排程侧（`StudyReviewPlannerService`）与会话侧
  * （`RoomBackedStudyExperienceRepository`）都要这张图，而"按科目分组 + 分块查询 + 上限"
