@@ -53,9 +53,7 @@ data class LearningProjectionResult(
 
 /** Deterministic projection of a gap-free append-only attempt prefix into learner state. */
 class LearningProjector(
-    private val forgettingCurve: ForgettingCurve = ForgettingCurve(
-        algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
-    ),
+    private val forgettingCurve: ForgettingCurve = ForgettingCurve(),
     private val memoryUpdateModel: MemoryUpdateModel = FsrsMemoryUpdateModel(
         desiredRetention = DEFAULT_DESIRED_RETENTION,
     ),

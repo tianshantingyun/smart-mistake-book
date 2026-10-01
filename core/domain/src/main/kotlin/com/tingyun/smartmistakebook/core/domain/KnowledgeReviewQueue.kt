@@ -110,6 +110,7 @@ fun knowledgeRecallRiskByNode(
     boundPracticeUnitIdsByNode: Map<String, List<String>>,
     memoryStates: Map<String, ProblemMemoryState>,
     nowEpochMillis: Long,
+    decay: Double,
 ): Map<String, Double> = boundPracticeUnitIdsByNode.mapNotNull { (nodeId, unitIds) ->
     unitIds.asSequence()
         .mapNotNull { unitId -> memoryStates[unitId] }
@@ -120,9 +121,10 @@ fun knowledgeRecallRiskByNode(
             FsrsScheduleMath.retention(
                 elapsedDays = elapsedDays,
                 stabilityDays = memory.stabilityDays,
-                // W2-1/KF-01：decay 显式。风险排序在规划层进行，尚无个性化参数上下文
-                // （登记边界）：用默认 w20；规划侧个性化随 Wave 3 模型改造。
-                decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
+                // W2-1/KF-01 + 批次 3（规划侧个性化）：decay 由调用方显式传入——
+                // `StudyReviewPlannerService.planningDecay` 即投影同一份 `activeFsrsDecay`，
+                // 风险排序与排程/投影同口径（此前的"默认 w20 边界"就此关闭）。
+                decay = decay,
             )
         }
         .minOrNull()

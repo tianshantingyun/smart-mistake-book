@@ -83,6 +83,7 @@ class KnowledgeReviewQueueTest {
             ),
             memoryStates = mapOf("unit-1" to memory),
             nowEpochMillis = now,
+            decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
         )
         // 一道稳定题的 R 很高（近 1），但仍是"已知记忆"。
         assertTrue(risks.getValue("kc-strong") > 0.9)
@@ -107,6 +108,7 @@ class KnowledgeReviewQueueTest {
             boundPracticeUnitIdsByNode = mapOf("kc-1" to listOf("unit-fresh", "unit-decayed")),
             memoryStates = mapOf("unit-fresh" to fresh, "unit-decayed" to decayed),
             nowEpochMillis = now,
+            decay = -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
         )
         assertTrue(risks.getValue("kc-1") < 0.8)
     }

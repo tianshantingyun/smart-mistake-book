@@ -39,7 +39,15 @@ object LearningCoreVersions {
     const val ATTRIBUTION = "attribution-v2"
     const val LEDGER = "ledger-v2"
     const val PREDICTION_INTERVAL = "prediction-interval-v1"
-    const val REVIEW_PLANNER = "review-planner-v6"
+    /**
+     * V1 排程器的计划版本串（**V2 的有效串在 `ReviewPlannerV2.VERSION`，两者独立**——
+     * bump 这里不会使 V2 计划失效，反之亦然）。
+     *
+     * v6 → v7（批次 3，2026-10-01）：排程曲线 FSRS 唯一化（legacy 指数算法删除）+
+     * V1 曲线接投影同源的个性化 decay（KF-11 跟进项）——V1 的计划输出变化，
+     * 旧计划按读时校验重排。
+     */
+    const val REVIEW_PLANNER = "review-planner-v7"
     const val SELECTOR = "selector-v6"
 
     const val PROJECTION_COMPOSITE =

@@ -14,7 +14,6 @@ import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.domain.ChatEvidenceGateCalibration
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.ForgettingCurve
-import com.tingyun.smartmistakebook.core.domain.ForgettingCurveAlgorithm
 import com.tingyun.smartmistakebook.core.domain.FsrsMemoryUpdateModel
 import com.tingyun.smartmistakebook.core.domain.FsrsParameterOptimizer
 import com.tingyun.smartmistakebook.core.domain.FsrsScheduleMath
@@ -125,10 +124,11 @@ class RoomBackedStudyExperienceRepository(
     // KF-11（2026-10-01）：`useFsrsScheduling` kill-switch 已删除，FSRS 唯一化——
     // 三处构造不再分支（legacy 曲线/模型随之蒸发）。
     private val forgettingCurve = ForgettingCurve(
-        algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
         decay = activeFsrsDecay,
     )
-    private val reviewPlanner = ReviewPlanner()
+    // 批次 3（规划侧个性化）：V1 排程器与投影共用同一份曲线实例（同源 FSRS + 个性化 decay）——
+    // 此前 `ReviewPlanner()` 默认构造拿到的是 legacy 曲线 + 默认 decay，与学生侧口径分叉。
+    private val reviewPlanner = ReviewPlanner(forgettingCurve = forgettingCurve)
     /**
      * ONE shared duration model (spec `batch-intake-spec.md` §6 L1 rollout):
      * fed by the submission paths below, consumed by BOTH the review planner
@@ -138,10 +138,8 @@ class RoomBackedStudyExperienceRepository(
      */
     private val durationModel = LogDurationModel()
     private val reviewPlannerV2 = ReviewPlannerV2(
-        forgettingCurve = ForgettingCurve(
-            algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
-            decay = activeFsrsDecay,
-        ),
+        // 批次 3：与投影/V1 共用同一份曲线实例（同源 FSRS + 个性化 decay）。
+        forgettingCurve = forgettingCurve,
         durationModel = durationModel,
     )
     private val learningProjector = LearningProjector(
@@ -157,7 +155,7 @@ class RoomBackedStudyExperienceRepository(
         learningProjector = learningProjector,
         clock = clock,
     )
-    private val predictionAuditService = HLRPredictionAuditService()
+    private val predictionAuditService = HLRPredictionAuditService(forgettingCurve = forgettingCurve)
 
     /**
      * Read-only reviewed teaching material for the re-teach opening (spec §2.16).
@@ -228,6 +226,7 @@ class RoomBackedStudyExperienceRepository(
         clock = clock,
         reviewTimeBudgetSeconds = reviewTimeBudgetSeconds,
         useReviewPlannerV2 = useReviewPlannerV2,
+        planningDecay = activeFsrsDecay,
         fixtureSource = fixtureSource,
         reviewPlanner = reviewPlanner,
         reviewPlannerV2 = reviewPlannerV2,

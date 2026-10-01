@@ -53,6 +53,8 @@ internal class StudyReviewPlannerService(
     private val clock: Clock,
     private val reviewTimeBudgetSeconds: Int,
     private val useReviewPlannerV2: Boolean,
+    /** 批次 3（规划侧个性化）：与投影同源的 FSRS decay（`activeFsrsDecay`）。 */
+    private val planningDecay: Double,
     private val fixtureSource: StudyFixtureSource,
     private val reviewPlanner: ReviewPlanner,
     private val reviewPlannerV2: ReviewPlannerV2,
@@ -569,6 +571,7 @@ internal class StudyReviewPlannerService(
             boundPracticeUnitIdsByNode = boundUnitsByNode,
             memoryStates = learnerSnapshot.problemMemoryStates,
             nowEpochMillis = planningContext.planningAtEpochMillis,
+            decay = planningDecay,
         )
         val selected = selectKnowledgeReviewQueue(
             planner = reviewPlanner,

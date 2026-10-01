@@ -5,6 +5,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * FSRS 遗忘曲线（spec mastery-scheduling §2.20）。
+ *
+ * KF-11 / 批次 3 收口（2026-10-01）：legacy 指数基线与 `ForgettingCurveAlgorithm` 已删除，
+ * 本文件只锁 FSRS 语义——0.9-at-S 契约、整日下取整、时间回拨夹取、逆函数整日化。
+ */
 class ForgettingCurveTest {
     private var now = 0L
     private val curve = ForgettingCurve(EpochMillisClock { now })
@@ -26,56 +32,27 @@ class ForgettingCurveTest {
     }
 
     @Test
-    fun `target date uses the same stability to retention contract`() {
-        val reviewedAt = DAY_MILLIS * 3
-        val dueAt = curve.reviewAtTargetRetention(
-            reviewedAtEpochMillis = reviewedAt,
-            stabilityDays = 7.5,
-        )
-
-        assertEquals(reviewedAt + (DAY_MILLIS * 7.5).toLong(), dueAt)
-    }
-
-    @Test
-    fun `fsrs power law retention is ninety percent at one stability interval`() {
-        val fsrsCurve = ForgettingCurve(
-            EpochMillisClock { now },
-            algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
-        )
-        val state = memory(stabilityDays = 4.0, lastReviewedAt = DAY_MILLIS)
-        now = DAY_MILLIS * 5
-
-        assertEquals(0.9, fsrsCurve.retentionNow(state), 1e-6)
-    }
-
-    @Test
-    fun `fsrs power law retention decays monotonically and floors whole days`() {
-        val fsrsCurve = ForgettingCurve(
-            EpochMillisClock { now },
-            algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
-        )
+    fun `retention floors elapsed to whole days and decays monotonically`() {
         val state = memory(stabilityDays = 3.0, lastReviewedAt = 0L)
         now = DAY_MILLIS / 2
 
         // py-fsrs floors elapsed time to whole days: half a day past the last
         // review is still day zero, so retention stays at one.
-        assertEquals(1.0, fsrsCurve.retentionNow(state), 0.0)
+        assertEquals(1.0, curve.retentionNow(state), 0.0)
         now = DAY_MILLIS * 30
-        val later = fsrsCurve.retentionNow(state)
+        val later = curve.retentionNow(state)
         now = DAY_MILLIS * 300
-        val muchLater = fsrsCurve.retentionNow(state)
+        val muchLater = curve.retentionNow(state)
 
         assertTrue(later > muchLater)
         assertTrue(muchLater > 0.0)
     }
 
     @Test
-    fun `fsrs interval inverse at default retention equals stability`() {
+    fun `interval inverse at default retention rounds to whole days of stability`() {
         val stabilityDays = 13.7
         val reviewedAt = DAY_MILLIS * 2
-        val dueAt = ForgettingCurve(
-            algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
-        ).reviewAtTargetRetention(
+        val dueAt = ForgettingCurve().reviewAtTargetRetention(
             reviewedAtEpochMillis = reviewedAt,
             stabilityDays = stabilityDays,
         )
