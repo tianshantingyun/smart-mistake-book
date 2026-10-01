@@ -49,7 +49,7 @@
 | F1 | 提示层级**零生产者**：`hint_level` 两列 schema 就绪但无写无读；`TutorAssistanceKind` 只有 HINT/ANSWER_REVEAL 二元 | `M1CuratedStudySeed.kt:348`（=0 种子）、`Assessment.kt:93-96` | 新增 level 字段（assistance 事件）+ 阶梯策略 + 模式状态——全部新建 | 阶段 2/5 |
 | F2 | 提示定价二元（用没用提示）；5 级→证据权重映射需新建 | `MasteryEvidencePolicy.kt:100-107,133-141` | 新建 hint 档位→weight/rating 映射表 | 阶段 2 |
 | F3 | **`hintWasUsed` 输入链断**——choice 路径从不传 persistedAssistance，现网连二元提示都不生效 | `StudySubmissionPreparer.kt:53-59` | 与 KF-02 同批修 | 3A |
-| F4 | 作答前 L2 封顶**无本地强制层**（只靠 prompt 声明） | `OpenAiModelTaskAdapters.kt:306-318` | 新建本地执行层强制 | 阶段 2 |
+| F4 | 作答前 L2 封顶——**机制已落（阶段 2）**：`TutorScaffoldLevel.cappedAt` + `tutorScaffoldDirective(ceiling=)` 本地强制（台账补记 2026-10-01）；复习流作答前接线属阶段 5 | `TutorInteractionMode.kt:92,138` | 机制已建；复习流接线随阶段 5 | 阶段 2/5 |
 | F5 | 模式切换需动 `TutorModelTaskPolicy`（mode+level 进请求指纹，否则同文本换档位命中旧缓存）+ `FsrsEvidenceRatingMapper`；`ModelEgress` 基本不动 | `TutorModelTaskPolicy.kt:189-239,369-423` | 请求指纹纳入 mode+level | 阶段 2 |
 | F6 | 卡点检测缺：attempt 级档位历史、展示时长、按 presentation 的连续失败聚合查询 | — | 与 P3/P4 同批补 | 阶段 2/5 |
 | F7 | pretest×引导模式交叉（已裁：pretest 不给提示、封顶 L0，台账裁决 2） | `PretestRouting.kt:22-31`（无生产调用方） | 已裁 | 已裁 |

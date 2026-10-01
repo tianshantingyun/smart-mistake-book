@@ -204,7 +204,9 @@
   下界 = ( p̂ + z²/(2n) − z·√( p̂(1−p̂)/n + z²/(4n²) ) ) / (1 + z²/n)   # n>0
   下界 = 先验均值   # n=0
   ```
-- **MASTERED 判据**：p̂ ≥ θ ∧ (上界−下界) ≤ ε（θ/ε **已裁**：0.85 保持 + 0.15 起步，裁决 13）。
+- **MASTERED 判据**：**已裁 E（2026-09-30 改判，见台账）**——MASTERED = 知识点自身记忆状态
+  （FSRS 稳定度 ≥21 天 ∧ 召回概率 ≥0.9），无 θ/ε 硬门；β-二项/Wilson 降为展示层
+  （研究证据 `docs/research/2026-09-30-mastery-criterion-evidence.md`）。
 - **完成判据**：小 n 边界手算对照（n=1/2/8）。
 
 ### W3-3（KF-11 + KF-08 + P5/P8/P9/P11）
@@ -233,6 +235,8 @@
   快照；toSnapshot 只比对指纹；drain 切 Dispatchers.Default。
 - **S19**：`knowledge_search_feature` 加 `(subject, search_feature)` 复合索引（DDL + 迁移）；
   退出门：检索 p95 下降、16.6s 长尾消失（真机实测）。
+- **S21**：首装/首访问索引重建并入构建产物预填充（与 S19 同批，KB 索引侧；补充卷 3C 归属以外的
+  漏排项一并补排于此）。
 - **3B：S5/S6/S8 + Q2 实战**：ledger 联表批量读；generatePredictions 删除；SHA-256 只在不信任
   边界重算。
 - **退出门（Wave 4）**：5000 候选基准 + 检索基准达标。
@@ -241,13 +245,17 @@
 
 ## Wave 5 · 监测与自动化（3C）：先看见，再自动
 
+- **KF-32（3B 收尾，先于本波 3C 项）**：重放期 attribution 按 practiceUnitId → 当前绑定重挂；
+  改绑落账本事件触发全量重放；upcaster 层解析旧 bindingId（successors 链）。**排最前的理由**：
+  KF-30 自锁打破会改绑定、其重放路径依赖本项——phasing"3C 依赖 3B"以此为准。
 - **KF-29**：`binding_audit_sample` 表 DDL（sample_id/practice_unit_id/binding_snapshot_json/
   status/verdict/reviewed_at）；抽样 = 每科每周首 5 条新绑定（后台任务）；复核屏 debug 专用。
 - **KF-30/KF-07**：自锁打破（auto 标签可被更高置信 auto 覆盖、user 不可）；兜底改落 pseudo。
 - **KF-31**：后台重审任务（每周，diff 当前绑定 vs 新提议，落建议清单）；**只有 KF-29 有真实
   错误率数据后才开放**。
-- **KF-32（3B）**：重放期 attribution 按 practiceUnitId → 当前绑定重挂；改绑落账本事件触发全量
-  重放；upcaster 层解析旧 bindingId（successors 链）。
+- **S9 / S17 / S18 / S20（补充卷 3C 归属，此前漏排，补排于此）**：S9 `MASTERY_READ` 预聚合；
+  S17 `observeActiveMistakes` 改 LEFT JOIN 聚合；S18 `library_catalog` 物化 mastery/标签列；
+  S20 驻留快照去抖/合并。与阶段 4 联动（错题本 UI 重建期同批）。
 - **退出门（Wave 5）**：监测管线有数据 + 自动重审在数据达标后开启。
 
 ---
@@ -309,7 +317,7 @@
 |---|---|---|
 | 1 | 看答案最终语义（A/B，W1-4） | **B**：评 AGAIN 计一次遗忘失败（裁决 1） |
 | 2 | β-二项先验 α/β | Jeffreys (0.5, 0.5) 起步（裁决 12） |
-| 3 | MASTERED 的 θ/ε（旧 0.85 为参照） | θ=0.85 保持 + ε=0.15 起步（裁决 13） |
+| 3 | MASTERED 的 θ/ε（旧 0.85 为参照） | **E（改判）**：稳定度 ≥21 天 ∧ 召回概率 ≥0.9，无 θ/ε 硬门（见台账 2026-09-30） |
 | 4 | L2 罚项 γ | 对齐 fsrs-optimizer 官方默认（裁决 14） |
 | 5 | fuzz 引入与否 | 不做（裁决 15） |
 | 6 | FSRS-6 vs FSRS-7 | 留在 FSRS-6；7 列 Wave X 评估项（裁决 16） |
