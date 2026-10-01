@@ -2187,3 +2187,33 @@ KF-35——裁决 20 写"随 Wave 1"，但 Wave 1 已零 bump 收口，口径过
     校准脚本）：**挂 Wave 5（3C 监测段）**——校准的燃料（金标集/校准报告/监测数据）全在 3C 域。
 - 后果：起步粗档（×1.0/0.7/0.5，临时假设）期间判词权重维持现状固定 0.5；金标就位后按实测
   判对率换档位系数（裁决 19 校准段）。悬空登记②闭合。
+
+---
+
+## 阶段 3A · Wave 3 批次 3 完成记录（2026-10-01，本线）
+
+**范围与提交**（批次 2 的余项，全部已过全量 JVM 验证）：
+- `f075a9bb` **KF-11**：删 `LegacyExponentialMemoryUpdateModel` + 整个 `useFsrsScheduling`
+  kill-switch（SchedulingOptions 字段 / RoomBacked 三处构造 / DataStore `fsrs_enabled` 键 /
+  设置页开关）——FSRS 唯一化，净删 161 行；零 bump（默认路径行为不变）。
+- `87035b3c` **KF-08**：`ReviewPlannerV2.scoreCandidate` 前置门改**硬过滤**（`prereqGap > 0 →
+  return null`），删 `PREREQ_GAP_WEIGHT` 减项与理由产生点（枚举值留作历史 token）；
+  `ReviewPlannerV2.VERSION → review-planner-v3`、`PLAN_FINGERPRINT_SCHEMA_VERSION →
+  review-plan-canonical-v8`。
+- `87230042` **排程侧 FSRS 唯一化 + 规划侧个性化**：`ForgettingCurve` 删 algorithm 形参与
+  `ForgettingCurveAlgorithm` 枚举（V1/HLR 此前默认拿到 legacy 曲线，与投影分叉——W2 登记的
+  "规划侧 decay 默认值"边界就此关闭）；V1/V2/HLR 与投影共用同一份曲线实例（同源
+  `activeFsrsDecay`）；`knowledgeRecallRiskByNode` 的 decay 改显式形参（`planningDecay`）；
+  `REVIEW_PLANNER v6 → v7`（**curve 归属记账**：`FORGETTING_CURVE` 保持 curve-v3——投影侧
+  FSRS 语义未变、避免无谓重放，规划侧变化记在本串上）。
+- `501935d4` **P5 + P6/P7**：首答不再计入跨日连击（毕业需真实 3 次跨日成功）；导师曝光路径
+  `answerRevealCount` 改为每条 +1（此前冻结在 1）；`FsrsEvidenceRatingMapper` 头注改定唯一
+  评级来源 = `review_log.rating`/`state`（删"原档可从 evidence_weight 逆读"的失效承诺，
+  代码本无该逆向读路径）；校准区过滤零配对档常驻噪音行。**`PROJECTOR v9 → v10`**（两处投影
+  输出变化 → 全量重放，archive 先归档）。
+
+**验证（当前轮）**：全量 JVM **2049 例 / 5 条失败**——全部为 KB 金标既有红（点名同前）。
+定向仪器化门（六套件 + app 两例）在批次 3 文档落盘后复跑；R8 冒烟随后。
+
+**悬空登记状态**：① KF-21/预测审计轨 → 仍待 3C 线同步（本线未动）；② KF-35/bandFactor →
+**已由另一线「裁决 23」闭合并重挂 Wave 5（3C 监测段）**，本线不再跟踪。
