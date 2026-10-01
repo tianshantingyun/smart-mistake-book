@@ -206,6 +206,11 @@ internal class StudyProjectionDrainer(
                 // W0-1 ①：跨版本覆盖要在重放入口声明"被替换的那份已经归档"（同版本或空库无需声明）。
                 displacedSnapshot = displacedSnapshot,
                 displacedSnapshotArchived = archived,
+                // S8：读边界（loadLearningLedger）已经用 SHA-256 校验过每行的规范指纹，重放直接复用，
+                // 不在投影 pass 里对同一批事件重算一遍（值仍会在提交侧与账本行比对）。
+                canonicalFingerprints = ledger.validPrefix.associate {
+                    it.event.ledgerEventId to it.canonicalFingerprint
+                },
             )
         }
         val expectedCheckpoint = current?.snapshot?.checkpoint?.lastSequence ?: 0L

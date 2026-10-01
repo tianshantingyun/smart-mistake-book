@@ -95,6 +95,12 @@ internal const val EVENT_KIND_ANSWER_REVEAL = "ANSWER_REVEAL_OUTCOME"
 internal const val EVENT_KIND_CHAT_EVIDENCE = "CHAT_EVIDENCE_SUBMITTED"
 internal const val SQLITE_PRESENTATION_ID_BATCH_SIZE = 900
 
+/**
+ * S5：账本批量读的分块大小。取在 SQLite 绑定变量上限（999）之下——每块的 outbox 行数同时是
+ * 各 `IN (:ids)` 批查询的 id 数上限（快照 id 去重后不会超过行数），也决定单事务的行数上界。
+ */
+internal const val LEDGER_READ_CHUNK_SIZE = 900
+
 internal data class AttemptPersistenceRow(
     @ColumnInfo(name = "learner_id")
     val learnerId: String,

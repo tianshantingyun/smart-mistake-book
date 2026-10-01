@@ -444,6 +444,16 @@ class LearningProjector(
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors = KnowledgeNodeSuccessors.EMPTY,
         displacedSnapshot: LearnerSnapshot? = null,
         displacedSnapshotArchived: Boolean = false,
+        /**
+         * S8（重放管道）：调用方**在读边界**（`loadLearningLedger`/`loadProjectionBatch`）已经用
+         * SHA-256 校验过的规范指纹，键 = `ledgerEventId`。给了就直接落进 applied 记录，本 pass
+         * 不再重算（同一事件整条管道原本算 3-4 次）；缺项/未给时按 id 在本 pass 内记忆化现算一次，
+         * 不改变任何既有调用方的行为（默认空映射）。
+         *
+         * 复用的前提是"值已经在读边界验过"，但信任仍不是无校验：写进 applied 记录的值会在提交侧
+         * （`verifyAppliedEventWindows`）与不可变账本行的指纹逐位比对，说错话在那里被 CAS 拒绝。
+         */
+        canonicalFingerprints: Map<String, String> = emptyMap(),
     ): LearningProjectionResult {
         require(learnerId.isNotBlank()) { "Learner id must not be blank" }
         displacedSnapshot?.let { previous ->
@@ -466,6 +476,11 @@ class LearningProjector(
         val corrections = linkedMapOf<String, AttemptCorrection>()
         val presentationOrdinals = mutableMapOf<String, Int>()
         val answerRevealSequences = mutableMapOf<String, Long>()
+        // S8：一次 pass 内每个事件指纹只解析一次；有读边界验过的值就直接复用。
+        val resolvedFingerprints = HashMap<String, String>()
+        fun fingerprintOf(event: LearningLedgerEvent): String = resolvedFingerprints.getOrPut(event.ledgerEventId) {
+            canonicalFingerprints[event.ledgerEventId] ?: LearningLedgerFingerprint.event(event)
+        }
         ordered.forEach { event ->
             when (event) {
                 is Attempt -> {
@@ -543,7 +558,7 @@ class LearningProjector(
                     )
                     attemptRecords[event.attemptId] = AppliedAttemptRecord(
                         attemptId = event.attemptId,
-                        canonicalFingerprint = LearningLedgerFingerprint.attempt(event),
+                        canonicalFingerprint = fingerprintOf(event),
                         eventSequence = event.eventSequence,
                         presentationId = event.presentationId,
                         responseOrdinal = event.responseOrdinal,
@@ -583,7 +598,7 @@ class LearningProjector(
                     revealRecords[event.outcomeId] = AppliedAnswerRevealRecord(
                         outcomeId = event.outcomeId,
                         presentationId = event.presentationId,
-                        canonicalFingerprint = LearningLedgerFingerprint.answerReveal(event),
+                        canonicalFingerprint = fingerprintOf(event),
                         eventSequence = event.eventSequence,
                     )
                     presentationProjectionStates[event.presentationId] = presentationState.copy(
@@ -601,7 +616,7 @@ class LearningProjector(
                     tutorExposureRecords[event.outcomeId] = AppliedTutorAnswerExposureRecord(
                         outcomeId = event.outcomeId,
                         exposureId = event.exposureId,
-                        canonicalFingerprint = LearningLedgerFingerprint.tutorAnswerExposure(event),
+                        canonicalFingerprint = fingerprintOf(event),
                         eventSequence = event.eventSequence,
                     )
                 }
@@ -618,7 +633,7 @@ class LearningProjector(
                     correctionRecords[event.correctionId] = AppliedCorrectionRecord(
                         correctionId = event.correctionId,
                         attemptId = event.attemptId,
-                        canonicalFingerprint = LearningLedgerFingerprint.correction(event),
+                        canonicalFingerprint = fingerprintOf(event),
                         eventSequence = event.eventSequence,
                     )
                     correctionWatermark = maxOf(correctionWatermark ?: 0L, effectiveAt)

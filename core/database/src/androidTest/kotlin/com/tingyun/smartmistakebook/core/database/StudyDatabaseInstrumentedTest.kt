@@ -8,6 +8,7 @@ import com.tingyun.smartmistakebook.core.model.AppliedAttemptRecord
 import com.tingyun.smartmistakebook.core.model.AppliedCorrectionRecord
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
+import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptSubmittedResponse
 import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
@@ -23,6 +24,7 @@ import com.tingyun.smartmistakebook.core.model.LearningEvidence
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
 import com.tingyun.smartmistakebook.core.model.LearningLedgerEvent
+import com.tingyun.smartmistakebook.core.model.LearningLedgerFingerprint
 import com.tingyun.smartmistakebook.core.model.LocalModelJudgedContract
 import com.tingyun.smartmistakebook.core.model.LocalReviewSelfReportContract
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
@@ -102,6 +104,46 @@ class StudyDatabaseInstrumentedTest {
         assertEquals(listOf(1L, 2L), store.loadLearningLedger(LEARNER).validPrefix.map { it.event.eventSequence })
         assertEquals(listOf(1L), store.loadLearningLedger("learner-2").validPrefix.map { it.event.eventSequence })
         assertEquals(first.attempt, store.readAttemptP0(first.attempt.attemptId)?.attempt)
+    }
+
+    @Test
+    fun loadLearningLedgerReadsAcrossChunkBoundariesWithTheSamePrefixAndFingerprints() = runBlocking {
+        // S5（重放路径批量读）：账本全量读改成"块外循环 + 每块一个短事务的 IN 批查询"，
+        // 块大小 900。这里放 910 条：跨过一次块边界、并留下一个不完整的尾块——序列、顺序、
+        // 指纹（读侧已重算比对过的那份）都必须与旧实现逐位一致。
+        val eventCount = 910
+        repeat(eventCount) { index ->
+            val ordinal = index + 1
+            store.recordAttempt(
+                attemptCommand(
+                    submissionId = "chunk-submission-$ordinal",
+                    attemptId = "chunk-attempt-$ordinal",
+                    presentationId = "chunk-presentation-$ordinal",
+                ),
+            )
+        }
+
+        val ledger = store.loadLearningLedger(LEARNER)
+
+        assertEquals(LearningLedgerReadStatus.COMPLETE, ledger.status)
+        assertEquals(eventCount, ledger.validPrefix.size)
+        assertEquals(
+            (1L..eventCount.toLong()).toList(),
+            ledger.validPrefix.map { it.event.eventSequence },
+        )
+        assertTrue(ledger.validPrefix.all { it.event is Attempt })
+        assertEquals(
+            "块读返回的指纹必须是读侧已校验的那份（逐行等于载荷重算）",
+            ledger.validPrefix.map { LearningLedgerFingerprint.event(it.event) },
+            ledger.validPrefix.map { it.canonicalFingerprint },
+        )
+
+        // 改后耗时（单次、真机模拟器；改前口径已不在二进制里，只报这一侧）：910 条跨 2 块。
+        val startedAt = System.nanoTime()
+        val timed = store.loadLearningLedger(LEARNER)
+        val elapsedMillis = (System.nanoTime() - startedAt) / 1_000_000
+        assertEquals(eventCount, timed.validPrefix.size)
+        println("W4-3/S5 loadLearningLedger 910 events (2 chunks) took ${elapsedMillis}ms")
     }
 
     @Test

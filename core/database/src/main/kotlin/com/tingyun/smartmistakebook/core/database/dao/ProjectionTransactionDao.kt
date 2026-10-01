@@ -40,6 +40,7 @@ import com.tingyun.smartmistakebook.core.model.AppliedTutorAnswerExposureRecord
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
 import com.tingyun.smartmistakebook.core.model.Attempt
+import com.tingyun.smartmistakebook.core.model.AttemptCorrection
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
@@ -54,6 +55,7 @@ import com.tingyun.smartmistakebook.core.model.LearnerSnapshotFreshness
 import com.tingyun.smartmistakebook.core.model.LearningEvidence
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
+import com.tingyun.smartmistakebook.core.model.LearningLedgerEvent
 import com.tingyun.smartmistakebook.core.model.LearningLedgerFingerprint
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
@@ -135,15 +137,6 @@ internal abstract class ProjectionTransactionDao {
         throughSequence: Long,
     ): List<ProjectionOutboxEntity>
 
-    @Query(
-        """
-        SELECT * FROM projection_outbox
-        WHERE learner_id = :learnerId
-        ORDER BY outbox_sequence ASC
-        """,
-    )
-    protected abstract suspend fun findAllOutbox(learnerId: String): List<ProjectionOutboxEntity>
-
     @Query("SELECT last_allocated_sequence FROM learning_sequence WHERE learner_id = :learnerId")
     protected abstract suspend fun lastAllocatedSequence(learnerId: String): Long?
 
@@ -180,6 +173,51 @@ internal abstract class ProjectionTransactionDao {
     )
     protected abstract suspend fun findAttributions(
         snapshotId: String,
+    ): List<AssessmentEvidenceAttributionEntity>
+
+    // S5（重放路径批量读）：下面这组 IN 批查询把账本逐行的 2-3 次取数压成每块每表一次。
+    // 调用方（readLedgerChunk）保证列表非空且长度 ≤ LEDGER_READ_CHUNK_SIZE。
+
+    // S5（重放路径批量读）：下面这组 IN 批查询把账本逐行的 2-3 次取数压成每块每表一次。
+    // 调用方（readLedgerChunk）保证列表非空且长度 ≤ LEDGER_READ_CHUNK_SIZE。
+
+    @Query("SELECT * FROM attempt_event WHERE attempt_id IN (:attemptIds)")
+    protected abstract suspend fun findAttemptsByIds(attemptIds: List<String>): List<AttemptEventEntity>
+
+    @Query("SELECT * FROM attempt_correction WHERE correction_id IN (:correctionIds)")
+    protected abstract suspend fun findCorrectionsByIds(
+        correctionIds: List<String>,
+    ): List<AttemptCorrectionEntity>
+
+    @Query("SELECT * FROM answer_reveal_outcome WHERE outcome_id IN (:outcomeIds)")
+    protected abstract suspend fun findAnswerRevealsByIds(
+        outcomeIds: List<String>,
+    ): List<AnswerRevealOutcomeEntity>
+
+    @Query("SELECT * FROM tutor_answer_exposure_outcome WHERE outcome_id IN (:outcomeIds)")
+    protected abstract suspend fun findTutorExposuresByIds(
+        outcomeIds: List<String>,
+    ): List<TutorAnswerExposureOutcomeEntity>
+
+    @Query("SELECT * FROM learner_chat_evidence WHERE evidence_id IN (:evidenceIds)")
+    protected abstract suspend fun findChatEvidencesByIds(
+        evidenceIds: List<String>,
+    ): List<LearnerChatEvidenceEntity>
+
+    @Query("SELECT * FROM assessment_evidence_snapshot WHERE snapshot_id IN (:snapshotIds)")
+    protected abstract suspend fun findEvidenceSnapshotsByIds(
+        snapshotIds: List<String>,
+    ): List<AssessmentEvidenceSnapshotEntity>
+
+    @Query(
+        """
+        SELECT * FROM assessment_evidence_attribution
+        WHERE snapshot_id IN (:snapshotIds)
+        ORDER BY snapshot_id ASC, binding_id ASC
+        """,
+    )
+    protected abstract suspend fun findAttributionsBySnapshotIds(
+        snapshotIds: List<String>,
     ): List<AssessmentEvidenceAttributionEntity>
 
     @Query(
@@ -633,40 +671,54 @@ internal abstract class ProjectionTransactionDao {
         }
     }
 
-    @Transaction
+    /**
+     * S5（重放路径批量读）：账本全量读不再是"一个事务里逐行 2-3 次查询"。
+     *
+     * - **批量**：每块把 outbox 行以及五类载荷表、证据快照、归因（1:N）按 `IN (:ids)` 各取一次，
+     *   行与载荷在内存里按键拼接（等价于 outbox↔payload 的联表读），查询数从 O(行数) 降到
+     *   O(块数)；
+     * - **事务外分块**：块循环（[readLedgerChunk] 的调用）在事务之外，每块一个短事务——
+     *   5 万行的账本不再把整本塞进一个长事务，内存峰值与锁持有时间都降到一块；
+     * - **语义不变**：outbox 是只增不改的追加日志，块读仍是按 `outbox_sequence` 升序的有效前缀；
+     *   每行的身份三连（learner/sequence/指纹列）与载荷 SHA-256 校验与旧实现逐字相同，
+     *   首个坏行的 GAP/CONFLICT 判定、尾部 `lastAllocatedSequence` 的完整性检查也原样保留。
+     */
     open suspend fun loadLearningLedger(learnerId: String): LearningLedgerRead {
         DatabaseContractValidator.validateLedgerRequest(learnerId)
         val prefix = mutableListOf<PersistedLearningLedgerEvent>()
         var expected = 1L
-        for (row in findAllOutbox(learnerId)) {
-            if (row.outboxSequence != expected) {
-                return LearningLedgerRead(
-                    learnerId = learnerId,
-                    validPrefix = prefix,
-                    status = LearningLedgerReadStatus.GAP,
-                    blockedAtSequence = expected,
-                    detail = "Expected sequence $expected but found ${row.outboxSequence}",
-                )
+        while (true) {
+            val chunk = readLedgerChunk(
+                learnerId = learnerId,
+                afterSequence = expected - 1,
+                limit = LEDGER_READ_CHUNK_SIZE,
+            )
+            if (chunk.isEmpty()) break
+            for (resolved in chunk) {
+                val row = resolved.outbox
+                if (row.outboxSequence != expected) {
+                    return LearningLedgerRead(
+                        learnerId = learnerId,
+                        validPrefix = prefix,
+                        status = LearningLedgerReadStatus.GAP,
+                        blockedAtSequence = expected,
+                        detail = "Expected sequence $expected but found ${row.outboxSequence}",
+                    )
+                }
+                val event = resolved.event
+                if (event == null) {
+                    return LearningLedgerRead(
+                        learnerId = learnerId,
+                        validPrefix = prefix,
+                        status = LearningLedgerReadStatus.CONFLICT,
+                        blockedAtSequence = expected,
+                        detail = "Ledger event ${row.eventId} is missing or conflicts with its outbox",
+                    )
+                }
+                prefix += PersistedLearningLedgerEvent(event, row.canonicalFingerprint)
+                expected++
             }
-            val event = when (row.eventKind) {
-                EVENT_KIND_ATTEMPT -> readAttempt(row)?.let { it.attempt }
-                EVENT_KIND_ANSWER_REVEAL -> readAnswerReveal(row)?.let { it.outcome }
-                EVENT_KIND_TUTOR_ANSWER_EXPOSURE -> readTutorAnswerExposure(row)
-                EVENT_KIND_CORRECTION -> readCorrection(row)?.let { it.correction }
-                EVENT_KIND_CHAT_EVIDENCE -> readChatEvidence(row)
-                else -> null
-            }
-            if (event == null) {
-                return LearningLedgerRead(
-                    learnerId = learnerId,
-                    validPrefix = prefix,
-                    status = LearningLedgerReadStatus.CONFLICT,
-                    blockedAtSequence = expected,
-                    detail = "Ledger event ${row.eventId} is missing or conflicts with its outbox",
-                )
-            }
-            prefix += PersistedLearningLedgerEvent(event, row.canonicalFingerprint)
-            expected++
+            if (chunk.size < LEDGER_READ_CHUNK_SIZE) break
         }
         val allocated = lastAllocatedSequence(learnerId) ?: 0L
         return if (allocated == expected - 1) {
@@ -679,6 +731,102 @@ internal abstract class ProjectionTransactionDao {
                 blockedAtSequence = expected,
                 detail = "Sequence $expected was allocated but has no immutable ledger event",
             )
+        }
+    }
+
+    /**
+     * 一个读块的短事务：取一块 outbox 行，并按表批量取回它们的载荷
+     * （见 [loadLearningLedger] 的口径注释）。载荷身份/指纹校验与单行读共用同一组
+     * [resolveXxx] 核心函数，判定逐位相同。
+     */
+    @Transaction
+    protected open suspend fun readLedgerChunk(
+        learnerId: String,
+        afterSequence: Long,
+        limit: Int,
+    ): List<LedgerChunkRow> {
+        val rows = findOutboxAfter(learnerId, afterSequence, limit)
+        if (rows.isEmpty()) return emptyList()
+        val attemptIds = rows.filter { it.eventKind == EVENT_KIND_ATTEMPT }.map { it.eventId }
+        val correctionIds = rows.filter { it.eventKind == EVENT_KIND_CORRECTION }.map { it.eventId }
+        val revealIds = rows.filter { it.eventKind == EVENT_KIND_ANSWER_REVEAL }.map { it.eventId }
+        val exposureIds = rows.filter { it.eventKind == EVENT_KIND_TUTOR_ANSWER_EXPOSURE }.map { it.eventId }
+        val chatIds = rows.filter { it.eventKind == EVENT_KIND_CHAT_EVIDENCE }.map { it.eventId }
+        val attempts = if (attemptIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findAttemptsByIds(attemptIds).associateBy(AttemptEventEntity::attemptId)
+        }
+        val corrections = if (correctionIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findCorrectionsByIds(correctionIds).associateBy(AttemptCorrectionEntity::correctionId)
+        }
+        val reveals = if (revealIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findAnswerRevealsByIds(revealIds).associateBy(AnswerRevealOutcomeEntity::outcomeId)
+        }
+        val exposures = if (exposureIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findTutorExposuresByIds(exposureIds).associateBy(TutorAnswerExposureOutcomeEntity::outcomeId)
+        }
+        val chatEvidences = if (chatIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findChatEvidencesByIds(chatIds).associateBy(LearnerChatEvidenceEntity::evidence_id)
+        }
+        val snapshotIds = (
+            attempts.values.map(AttemptEventEntity::assessmentSnapshotId) +
+                reveals.values.map(AnswerRevealOutcomeEntity::assessmentSnapshotId)
+            )
+            .distinct()
+        val snapshots = if (snapshotIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findEvidenceSnapshotsByIds(snapshotIds)
+                .associateBy(AssessmentEvidenceSnapshotEntity::snapshotId)
+        }
+        val attributions = if (snapshotIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findAttributionsBySnapshotIds(snapshotIds)
+                .groupBy(AssessmentEvidenceAttributionEntity::snapshotId)
+        }
+        return rows.map { row ->
+            val event = when (row.eventKind) {
+                EVENT_KIND_ATTEMPT -> {
+                    val payload = attempts[row.eventId]
+                    resolveAttempt(
+                        row = row,
+                        entity = payload,
+                        snapshot = payload?.let { snapshots[it.assessmentSnapshotId] },
+                        attributions = payload?.let { attributions[it.assessmentSnapshotId] }.orEmpty(),
+                    )
+                }
+
+                EVENT_KIND_CORRECTION ->
+                    resolveCorrection(row, corrections[row.eventId])
+
+                EVENT_KIND_ANSWER_REVEAL -> {
+                    val payload = reveals[row.eventId]
+                    resolveAnswerReveal(
+                        row = row,
+                        entity = payload,
+                        snapshot = payload?.let { snapshots[it.assessmentSnapshotId] },
+                        attributions = payload?.let { attributions[it.assessmentSnapshotId] }.orEmpty(),
+                    )
+                }
+
+                EVENT_KIND_TUTOR_ANSWER_EXPOSURE ->
+                    resolveTutorAnswerExposure(row, exposures[row.eventId])
+
+                EVENT_KIND_CHAT_EVIDENCE -> resolveChatEvidence(row, chatEvidences[row.eventId])
+
+                else -> null
+            }
+            LedgerChunkRow(outbox = row, event = event)
         }
     }
 
@@ -735,6 +883,14 @@ internal abstract class ProjectionTransactionDao {
         if (rows.size != expectedRows.size) {
             throw ProjectionCasConflictException("Committed ledger receipts do not cover the pending prefix")
         }
+        // S8（重放管道）：本笔提交里每一行只解析/重算一次指纹——回执校验刚验证过的行，
+        // 下面的 applied 窗口校验不再重复取数 + SHA（同一事务内这些行不可能变）。
+        val validated = ValidatedLedgerEvents(
+            attemptIds = commit.snapshot.appliedAttemptRecords.keys,
+            correctionIds = commit.snapshot.appliedCorrectionRecords.keys,
+            revealIds = commit.snapshot.appliedAnswerRevealRecords.keys,
+            exposureIds = commit.snapshot.appliedTutorAnswerExposureRecords.keys,
+        )
         rows.zip(expectedRows).forEach { (row, receipt) ->
             if (row.eventKind != receipt.eventKind ||
                 row.eventId != receipt.eventId ||
@@ -746,6 +902,7 @@ internal abstract class ProjectionTransactionDao {
                     "Ledger receipt differs from sequence ${receipt.eventSequence}",
                 )
             }
+            validated.record(row)
         }
         if (commit.mode == ProjectionCommitMode.INCREMENTAL &&
             rows.any {
@@ -756,7 +913,7 @@ internal abstract class ProjectionTransactionDao {
         ) {
             throw ProjectionCasConflictException("Incremental commit cannot cross a correction")
         }
-        verifyAppliedEventWindows(commit.snapshot, commit.learnerId)
+        verifyAppliedEventWindows(commit.snapshot, commit.learnerId, validated)
 
         val storedSnapshot = if (actualLedgerHead == commit.snapshot.knownLedgerHeadSequence) {
             commit.snapshot
@@ -1118,7 +1275,46 @@ internal abstract class ProjectionTransactionDao {
         }
     }
 
-    private suspend fun verifyAppliedEventWindows(snapshot: LearnerSnapshot, learnerId: String) {
+    /**
+     * S8：本笔提交中已经按账本行校验过的事件 id（按类型分开——同一串 id 可以是不同类型
+     * 的两行，不能互相顶替）。
+     *
+     * 只收集 [verifyAppliedEventWindows] 会再次问到的 id（applied 窗口 ≤4096/类），
+     * 内存与窗口同阶。校验语义不变：每个 id 第一次仍走完整的身份三连 + 载荷 SHA-256
+     * 重算；这里只是让同一事务内的第二次问询复用第一次的结论。
+     */
+    private class ValidatedLedgerEvents(
+        private val attemptIds: Set<String>,
+        private val correctionIds: Set<String>,
+        private val revealIds: Set<String>,
+        private val exposureIds: Set<String>,
+    ) {
+        private val attempts = linkedSetOf<String>()
+        private val corrections = linkedSetOf<String>()
+        private val reveals = linkedSetOf<String>()
+        private val exposures = linkedSetOf<String>()
+
+        fun record(row: ProjectionOutboxEntity) {
+            when (row.eventKind) {
+                EVENT_KIND_ATTEMPT -> if (row.eventId in attemptIds) attempts += row.eventId
+                EVENT_KIND_CORRECTION -> if (row.eventId in correctionIds) corrections += row.eventId
+                EVENT_KIND_ANSWER_REVEAL -> if (row.eventId in revealIds) reveals += row.eventId
+                EVENT_KIND_TUTOR_ANSWER_EXPOSURE ->
+                    if (row.eventId in exposureIds) exposures += row.eventId
+            }
+        }
+
+        fun attemptValidated(eventId: String): Boolean = eventId in attempts
+        fun correctionValidated(eventId: String): Boolean = eventId in corrections
+        fun revealValidated(eventId: String): Boolean = eventId in reveals
+        fun exposureValidated(eventId: String): Boolean = eventId in exposures
+    }
+
+    private suspend fun verifyAppliedEventWindows(
+        snapshot: LearnerSnapshot,
+        learnerId: String,
+        validated: ValidatedLedgerEvents,
+    ) {
         snapshot.appliedAttemptRecords.values.forEach { applied ->
             val attempt = findAttempt(applied.attemptId)
                 ?: throw ProjectionCasConflictException(
@@ -1127,7 +1323,7 @@ internal abstract class ProjectionTransactionDao {
             if (attempt.learnerId != learnerId ||
                 attempt.eventSequence != applied.eventSequence ||
                 attempt.canonicalFingerprint != applied.canonicalFingerprint ||
-                readAttempt(attempt.toOutbox()) == null
+                (!validated.attemptValidated(applied.attemptId) && readAttempt(attempt.toOutbox()) == null)
             ) {
                 throw ProjectionCasConflictException(
                     "Applied attempt ${applied.attemptId} differs from the immutable ledger",
@@ -1143,7 +1339,10 @@ internal abstract class ProjectionTransactionDao {
                 correction.attemptId != applied.attemptId ||
                 correction.eventSequence != applied.eventSequence ||
                 correction.canonicalFingerprint != applied.canonicalFingerprint ||
-                readCorrection(correction.toOutbox()) == null
+                (
+                    !validated.correctionValidated(applied.correctionId) &&
+                        readCorrection(correction.toOutbox()) == null
+                    )
             ) {
                 throw ProjectionCasConflictException(
                     "Applied correction ${applied.correctionId} differs from the immutable ledger",
@@ -1159,7 +1358,7 @@ internal abstract class ProjectionTransactionDao {
                 reveal.presentationId != applied.presentationId ||
                 reveal.eventSequence != applied.eventSequence ||
                 reveal.canonicalFingerprint != applied.canonicalFingerprint ||
-                readAnswerReveal(reveal.toOutbox()) == null
+                (!validated.revealValidated(applied.outcomeId) && readAnswerReveal(reveal.toOutbox()) == null)
             ) {
                 throw ProjectionCasConflictException(
                     "Applied answer reveal ${applied.outcomeId} differs from the immutable ledger",
@@ -1175,7 +1374,10 @@ internal abstract class ProjectionTransactionDao {
                 exposure.exposureId != applied.exposureId ||
                 exposure.eventSequence != applied.eventSequence ||
                 exposure.canonicalFingerprint != applied.canonicalFingerprint ||
-                readTutorAnswerExposure(exposure.toOutbox()) == null
+                (
+                    !validated.exposureValidated(applied.outcomeId) &&
+                        readTutorAnswerExposure(exposure.toOutbox()) == null
+                    )
             ) {
                 throw ProjectionCasConflictException(
                     "Applied tutor answer exposure ${applied.outcomeId} differs from the immutable ledger",
@@ -1193,17 +1395,110 @@ internal abstract class ProjectionTransactionDao {
         else -> false
     }
 
-    private suspend fun readAttempt(row: ProjectionOutboxEntity): PersistedAttemptP0? {
-        val entity = findAttempt(row.eventId) ?: return null
-        if (entity.learnerId != row.learnerId ||
-            entity.eventSequence != row.outboxSequence ||
-            entity.canonicalFingerprint != row.canonicalFingerprint
-        ) return null
-        val snapshot = findEvidenceSnapshot(entity.assessmentSnapshotId) ?: return null
+    /**
+     * 账本行的身份三连：学习者、序列、指纹列必须与 outbox 行逐位一致——这是"载荷行就是这一行
+     * 账本"的锚点。批量读（[readLedgerChunk]）与单行读共用，判定逐字相同。
+     */
+    private fun AttemptEventEntity.matchesOutbox(row: ProjectionOutboxEntity): Boolean =
+        learnerId == row.learnerId &&
+            eventSequence == row.outboxSequence &&
+            canonicalFingerprint == row.canonicalFingerprint
+
+    private fun AttemptCorrectionEntity.matchesOutbox(row: ProjectionOutboxEntity): Boolean =
+        learnerId == row.learnerId &&
+            eventSequence == row.outboxSequence &&
+            canonicalFingerprint == row.canonicalFingerprint
+
+    private fun AnswerRevealOutcomeEntity.matchesOutbox(row: ProjectionOutboxEntity): Boolean =
+        learnerId == row.learnerId &&
+            eventSequence == row.outboxSequence &&
+            canonicalFingerprint == row.canonicalFingerprint
+
+    private fun TutorAnswerExposureOutcomeEntity.matchesOutbox(row: ProjectionOutboxEntity): Boolean =
+        learnerId == row.learnerId &&
+            eventSequence == row.outboxSequence &&
+            canonicalFingerprint == row.canonicalFingerprint
+
+    /**
+     * 账本行 → [Attempt]（不含取数）：身份三连 + 载荷反序列化 + 载荷 SHA-256 重算。
+     * 任一环节不符返回 null（调用方按 CONFLICT 处理）。批量读与单行读共用本函数，
+     * 保证 [readLedgerChunk] 与 [readAttempt] 判定逐位一致。
+     */
+    private fun resolveAttempt(
+        row: ProjectionOutboxEntity,
+        entity: AttemptEventEntity?,
+        snapshot: AssessmentEvidenceSnapshotEntity?,
+        attributions: List<AssessmentEvidenceAttributionEntity>,
+    ): Attempt? {
+        if (entity == null || !entity.matchesOutbox(row)) return null
+        if (snapshot == null) return null
         val attempt = runCatching {
-            entity.toModel(snapshot.toModel(findAttributions(snapshot.snapshotId)))
+            entity.toModel(snapshot.toModel(attributions))
         }.getOrNull() ?: return null
         if (LearningLedgerFingerprint.attempt(attempt) != row.canonicalFingerprint) return null
+        return attempt
+    }
+
+    private fun resolveCorrection(
+        row: ProjectionOutboxEntity,
+        entity: AttemptCorrectionEntity?,
+    ): AttemptCorrection? {
+        if (entity == null || !entity.matchesOutbox(row)) return null
+        val correction = runCatching(entity::toModel).getOrNull() ?: return null
+        if (LearningLedgerFingerprint.correction(correction) != row.canonicalFingerprint) return null
+        return correction
+    }
+
+    private fun resolveAnswerReveal(
+        row: ProjectionOutboxEntity,
+        entity: AnswerRevealOutcomeEntity?,
+        snapshot: AssessmentEvidenceSnapshotEntity?,
+        attributions: List<AssessmentEvidenceAttributionEntity>,
+    ): AnswerRevealOutcome? {
+        if (entity == null || !entity.matchesOutbox(row)) return null
+        if (snapshot == null) return null
+        val outcome = runCatching {
+            entity.toModel(snapshot.toModel(attributions))
+        }.getOrNull() ?: return null
+        if (LearningLedgerFingerprint.answerReveal(outcome) != row.canonicalFingerprint) return null
+        return outcome
+    }
+
+    private fun resolveTutorAnswerExposure(
+        row: ProjectionOutboxEntity,
+        entity: TutorAnswerExposureOutcomeEntity?,
+    ): TutorAnswerExposureOutcome? {
+        if (entity == null || !entity.matchesOutbox(row)) return null
+        val outcome = runCatching(entity::toModel).getOrNull() ?: return null
+        if (LearningLedgerFingerprint.tutorAnswerExposure(outcome) != row.canonicalFingerprint) return null
+        return outcome
+    }
+
+    /**
+     * The evidence row carries the payload; the outbox row carries identity,
+     * sequence and fingerprint. The model event's sequence is the outbox
+     * sequence, so the recomputed fingerprint pins the pair together.
+     */
+    private fun resolveChatEvidence(
+        row: ProjectionOutboxEntity,
+        entity: LearnerChatEvidenceEntity?,
+    ): ChatEvidenceSubmitted? {
+        if (entity == null || entity.learner_id != row.learnerId) return null
+        val outcome = runCatching { entity.toChatEvidenceModel(row.outboxSequence) }.getOrNull() ?: return null
+        if (LearningLedgerFingerprint.chatEvidence(outcome) != row.canonicalFingerprint) return null
+        return outcome
+    }
+
+    private suspend fun readAttempt(row: ProjectionOutboxEntity): PersistedAttemptP0? {
+        val entity = findAttempt(row.eventId) ?: return null
+        if (!entity.matchesOutbox(row)) return null
+        val snapshot = findEvidenceSnapshot(entity.assessmentSnapshotId) ?: return null
+        val attempt = resolveAttempt(
+            row = row,
+            entity = entity,
+            snapshot = snapshot,
+            attributions = findAttributions(snapshot.snapshotId),
+        ) ?: return null
         return PersistedAttemptP0(
             learnerId = entity.learnerId,
             submissionId = entity.submissionId,
@@ -1215,12 +1510,7 @@ internal abstract class ProjectionTransactionDao {
 
     private suspend fun readCorrection(row: ProjectionOutboxEntity): PersistedCorrectionP0? {
         val entity = findCorrection(row.eventId) ?: return null
-        if (entity.learnerId != row.learnerId ||
-            entity.eventSequence != row.outboxSequence ||
-            entity.canonicalFingerprint != row.canonicalFingerprint
-        ) return null
-        val correction = runCatching(entity::toModel).getOrNull() ?: return null
-        if (LearningLedgerFingerprint.correction(correction) != row.canonicalFingerprint) return null
+        val correction = resolveCorrection(row, entity) ?: return null
         return PersistedCorrectionP0(
             learnerId = entity.learnerId,
             submissionId = entity.submissionId,
@@ -1232,15 +1522,14 @@ internal abstract class ProjectionTransactionDao {
 
     private suspend fun readAnswerReveal(row: ProjectionOutboxEntity): PersistedAnswerRevealP0? {
         val entity = findProjectionAnswerReveal(row.eventId) ?: return null
-        if (entity.learnerId != row.learnerId ||
-            entity.eventSequence != row.outboxSequence ||
-            entity.canonicalFingerprint != row.canonicalFingerprint
-        ) return null
+        if (!entity.matchesOutbox(row)) return null
         val snapshot = findEvidenceSnapshot(entity.assessmentSnapshotId) ?: return null
-        val outcome = runCatching {
-            entity.toModel(snapshot.toModel(findAttributions(snapshot.snapshotId)))
-        }.getOrNull() ?: return null
-        if (LearningLedgerFingerprint.answerReveal(outcome) != row.canonicalFingerprint) return null
+        val outcome = resolveAnswerReveal(
+            row = row,
+            entity = entity,
+            snapshot = snapshot,
+            attributions = findAttributions(snapshot.snapshotId),
+        ) ?: return null
         return PersistedAnswerRevealP0(
             learnerId = entity.learnerId,
             assessmentEventId = entity.assessmentEventId,
@@ -1252,29 +1541,13 @@ internal abstract class ProjectionTransactionDao {
 
     private suspend fun readTutorAnswerExposure(
         row: ProjectionOutboxEntity,
-    ): TutorAnswerExposureOutcome? {
-        val entity = findProjectionTutorExposure(row.eventId) ?: return null
-        if (entity.learnerId != row.learnerId ||
-            entity.eventSequence != row.outboxSequence ||
-            entity.canonicalFingerprint != row.canonicalFingerprint
-        ) return null
-        val outcome = runCatching(entity::toModel).getOrNull() ?: return null
-        if (LearningLedgerFingerprint.tutorAnswerExposure(outcome) != row.canonicalFingerprint) return null
-        return outcome
-    }
+    ): TutorAnswerExposureOutcome? = resolveTutorAnswerExposure(
+        row = row,
+        entity = findProjectionTutorExposure(row.eventId),
+    )
 
-    /**
-     * The evidence row carries the payload; the outbox row carries identity,
-     * sequence and fingerprint. The model event's sequence is the outbox
-     * sequence, so the recomputed fingerprint pins the pair together.
-     */
-    private suspend fun readChatEvidence(row: ProjectionOutboxEntity): ChatEvidenceSubmitted? {
-        val entity = findChatEvidence(row.eventId) ?: return null
-        if (entity.learner_id != row.learnerId) return null
-        val outcome = runCatching { entity.toChatEvidenceModel(row.outboxSequence) }.getOrNull() ?: return null
-        if (LearningLedgerFingerprint.chatEvidence(outcome) != row.canonicalFingerprint) return null
-        return outcome
-    }
+    private suspend fun readChatEvidence(row: ProjectionOutboxEntity): ChatEvidenceSubmitted? =
+        resolveChatEvidence(row, findChatEvidence(row.eventId))
 
     private suspend fun batchStop(
         projectionName: String,
@@ -1379,6 +1652,16 @@ internal abstract class ProjectionTransactionDao {
         )
     }
 }
+
+/**
+ * S5：账本批量读的一块。`event == null` 表示该行的载荷缺失或与 outbox 行冲突——
+ * 与单行读返回 null 同一判定，由 [ProjectionTransactionDao.loadLearningLedger] 映射为
+ * CONFLICT 状态。
+ */
+internal data class LedgerChunkRow(
+    val outbox: ProjectionOutboxEntity,
+    val event: LearningLedgerEvent?,
+)
 
 /**
  * 归档要连同 DDL 一起记下的表 = 一份 [LearnerSnapshot] 的全部载体

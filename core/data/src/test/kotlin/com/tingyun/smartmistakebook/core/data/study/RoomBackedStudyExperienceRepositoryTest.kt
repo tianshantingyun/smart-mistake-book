@@ -90,6 +90,7 @@ import com.tingyun.smartmistakebook.core.database.AttemptWriteCommand
 import com.tingyun.smartmistakebook.core.database.AttemptWriteResult
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
 import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
+import com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent
 import com.tingyun.smartmistakebook.core.database.KnowledgeGroundingSummaryRecord
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.ModelTaskWriteResult
@@ -2792,10 +2793,16 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
         )
     }
 
+    /**
+     * W4-3/S8：可选账本夹具（全量重放读源）。默认空账本——既有用例的 `loadLearningLedger`
+     * 行为逐字不变。
+     */
+    var projectionLedger: List<PersistedLearningLedgerEvent> = emptyList()
+
     override suspend fun loadLearningLedger(learnerId: String): LearningLedgerRead =
         LearningLedgerRead(
             learnerId = learnerId,
-            validPrefix = emptyList(),
+            validPrefix = projectionLedger,
             status = LearningLedgerReadStatus.COMPLETE,
         )
 
