@@ -163,13 +163,25 @@ internal class ReviewLogSink(
             .toList()
 
     /**
+     * S16（W4-1 组装批量化）：review_log 样本读一次、多处派生共用同一快照。
+     * `avoidancePracticeUnitIds` 与 `confidenceAtErrorByPracticeUnit` 此前各扫一遍
+     * 同一条查询（计划组装时的两倍读放大），这里把读与派生拆开。
+     */
+    suspend fun readReviewSamples(): List<ReviewLogSampleRecord> =
+        database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+
+    /**
      * Avoidance units (spec §6 / D'Mello 2013): cards switched away from at
      * least twice per attempt while graded poorly, twice within the recent
      * window - a difficulty or aversion marker that steers re-teaching.
      */
-    suspend fun avoidancePracticeUnitIds(): Set<String> {
+    suspend fun avoidancePracticeUnitIds(): Set<String> =
+        avoidancePracticeUnitIds(readReviewSamples())
+
+    /** [avoidancePracticeUnitIds] 的"样本已读出"变体（S16：与 confidence 共用一次读）。 */
+    internal fun avoidancePracticeUnitIds(samples: List<ReviewLogSampleRecord>): Set<String> {
         val now = clock.millis()
-        return database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+        return samples
             .asSequence()
             .filter { now - it.reviewedAtEpochMillis in 0..AVOIDANCE_LOOKBACK_MILLIS }
             .filter {
@@ -191,9 +203,15 @@ internal class ReviewLogSink(
      * errors introduce first — the hypercorrection ordering (Butterfield &
      * Metcalfe 2001). Cards with no wrong attempt are absent from the map.
      */
-    suspend fun confidenceAtErrorByPracticeUnit(): Map<String, ConfidenceLevel> {
+    suspend fun confidenceAtErrorByPracticeUnit(): Map<String, ConfidenceLevel> =
+        confidenceAtErrorByPracticeUnit(readReviewSamples())
+
+    /** [confidenceAtErrorByPracticeUnit] 的"样本已读出"变体（S16，同上）。 */
+    internal fun confidenceAtErrorByPracticeUnit(
+        samples: List<ReviewLogSampleRecord>,
+    ): Map<String, ConfidenceLevel> {
         val now = clock.millis()
-        return database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+        return samples
             .asSequence()
             .filter { now - it.reviewedAtEpochMillis in 0..AVOIDANCE_LOOKBACK_MILLIS }
             .filter { FsrsRating.storedIsAgain(it.rating) }

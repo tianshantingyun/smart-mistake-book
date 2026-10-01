@@ -60,11 +60,17 @@ class ReviewPlannerV2(
             }
         }
 
+        // S12/S13：备选池的池级事实（due 数量 / KC 频次）整个计划只算一次，
+        // beam 与 localSwap 用的都是同一个池（scoredWithPairs 本身），
+        // `antiOscillationPenalty` 的备选判定由此从 O(N) 每候选降到 O(|候选 KC|)。
+        val alternativePool = AlternativePool.of(scoredWithPairs)
+
         // Phase 1: Initial selection with beam search
         val selected = beamSearchSelection(
             candidates = scoredWithPairs,
             timeBudgetSeconds = request.timeBudgetSeconds,
             confusablePartners = confusablePartners,
+            alternativePool = alternativePool,
         )
 
         // Phase 2: Local swap optimization to improve diversity
@@ -73,6 +79,7 @@ class ReviewPlannerV2(
             scoredWithPairs,
             request.timeBudgetSeconds,
             confusablePartners,
+            alternativePool,
         )
         check(satisfiesHardConstraints(optimized)) {
             "Review plan violated the hard sequencing constraints (audit §7.2)"
@@ -125,6 +132,7 @@ class ReviewPlannerV2(
         timeBudgetSeconds: Int,
         confusablePartners: Map<String, Set<String>> = emptyMap(),
         beamWidth: Int = 3,
+        alternativePool: AlternativePool = AlternativePool.of(candidates),
     ): List<ScoredCandidate> {
         if (candidates.isEmpty()) return emptyList()
 
@@ -132,6 +140,14 @@ class ReviewPlannerV2(
         if (candidates.size <= beamWidth) {
             return greedySelection(candidates, timeBudgetSeconds, confusablePartners)
         }
+
+        // S12：步数按时间预算收敛。每步至多追加一题、每题至少 minDuration 秒，
+        // 所以第 s 步（0 基）能推进仅当 (s+1)·minDuration ≤ budget；预算装不下
+        // 第 s+1 个最小题时，所有状态的剩余预算都 < minDuration，`fitting` 必空、
+        // 原实现的 `!advanced` 回合必然退出 —— 这个上界只裁剪那些**注定不推进**的
+        // 回合，与不设界时的输出逐位一致。
+        val minDuration = candidates.minOf { it.candidate.estimatedDurationSeconds }.coerceAtLeast(1)
+        val maxSteps = minOf(MAX_BEAM_STEPS, timeBudgetSeconds / minDuration)
 
         // Initialize beam with empty selections
         val initial = BeamState(
@@ -148,11 +164,17 @@ class ReviewPlannerV2(
         // collapsing to an empty queue.
         var best = initial
 
-        for (step in 0 until MAX_BEAM_STEPS) {
-            val newBeam = mutableListOf<BeamState>()
+        for (step in 0 until maxSteps) {
+            val survivors = BeamSurvivors(beamWidth)
             var advanced = false
 
             for (state in beam) {
+                // S12：已选 id 集合**每个状态每步只建一次**。原来的 getter 在
+                // `fitting` 过滤器里对每个候选都重建一遍 `selected.map{}.toSet()`
+                // （O(K·N) 每步）；状态每步只有 ≤beamWidth 个，逐状态建一次即 O(K)。
+                val usedPracticeUnits = state.selected.mapTo(HashSet()) { it.candidate.practiceUnitId }
+                val context = SelectionContext(state.selected)
+
                 // Score EVERY fitting candidate with incremental utility
                 // (do not pre-prune by static score alone, or valuable
                 // diverse candidates would never enter the beam). Candidates
@@ -161,43 +183,40 @@ class ReviewPlannerV2(
                 // plan.
                 val fitting = candidates.filter {
                     it.candidate.estimatedDurationSeconds <= state.remainingSeconds &&
-                        it.candidate.practiceUnitId !in state.usedPracticeUnits &&
+                        it.candidate.practiceUnitId !in usedPracticeUnits &&
                         canAppend(state.selected, it)
                 }
 
                 if (fitting.isEmpty()) {
-                    newBeam.add(state)
+                    // 该状态无可追加候选：原样携带到下一轮（可能成为 best）。
+                    survivors.offerState(state)
                     continue
                 }
 
-                val candidateStates = fitting.mapNotNull { candidate ->
+                for (candidate in fitting) {
                     val familyPenalty = computeDynamicFamilyPenalty(candidate, state.usedFamilies)
                     val sourcePenalty = computeDynamicSourcePenalty(candidate, state.usedSources)
                     val adjustedScore = candidate.score - familyPenalty - sourcePenalty +
                         confusableBonus(candidate, state.selected, confusablePartners) -
-                        antiOscillationPenalty(candidate, state.selected, candidates)
-                    if (adjustedScore <= 0) return@mapNotNull null
+                        antiOscillationPenalty(candidate, context, alternativePool)
+                    if (adjustedScore <= 0) continue
 
-                    val newUsedFamilies = state.usedFamilies.increment(candidate.candidate.itemFamilyId)
-                    val newUsedSources = candidate.candidate.sourceBundleId
-                        ?.let { state.usedSources.increment(it) }
-                        ?: state.usedSources
-
-                    BeamState(
-                        selected = state.selected + candidate.copy(score = adjustedScore),
-                        usedFamilies = newUsedFamilies,
-                        usedSources = newUsedSources,
-                        remainingSeconds = state.remainingSeconds - candidate.candidate.estimatedDurationSeconds,
+                    advanced = true
+                    // S12：子状态**延迟物化** —— 原实现对每个 fitting 候选都立刻建
+                    // BeamState（含 selected 列表与两张频次 map 的整份拷贝），而 beam
+                    // 每步只留 beamWidth 个：5000 个子状态里 4997 个是白建的。
+                    // 这里只记 (总分, 父状态, 候选)，修剪后再物化 top-beamWidth 个。
+                    survivors.offer(
+                        candidate = candidate.copy(score = adjustedScore),
+                        parent = state,
                         totalScore = state.totalScore + adjustedScore,
                     )
                 }
-
-                if (candidateStates.isNotEmpty()) advanced = true
-                newBeam.addAll(candidateStates)
             }
 
-            // Keep top beamWidth states by total score
-            beam = newBeam.sortedByDescending(BeamState::totalScore).take(beamWidth)
+            // Keep top beamWidth states by total score（与原来
+            // `sortedByDescending(totalScore).take(beamWidth)` 同一条稳定规则）。
+            beam = survivors.materialize()
             if (beam.isEmpty()) break
             val stepBest = beam.first()
             if (stepBest.totalScore > best.totalScore) best = stepBest
@@ -232,12 +251,16 @@ class ReviewPlannerV2(
             }
             if (fitting.isEmpty()) break
 
+            // 备选池 = 本轮的 fitting 集（与原实现传给 antiOscillationPenalty 的
+            // 列表同一个）；n ≤ beamWidth 才有走到这里，池级预计算可忽略不计。
+            val fittingPool = AlternativePool.of(fitting)
+            val context = SelectionContext(selected)
             val adjustedCandidates = fitting.map { scored ->
                 val familyPenalty = computeDynamicFamilyPenalty(scored, usedFamilies)
                 val sourcePenalty = computeDynamicSourcePenalty(scored, usedSources)
                 val adjustedScore = scored.score - familyPenalty - sourcePenalty +
                     confusableBonus(scored, selected, confusablePartners) -
-                    antiOscillationPenalty(scored, selected, fitting)
+                    antiOscillationPenalty(scored, context, fittingPool)
                 scored.copy(score = adjustedScore.coerceAtLeast(0.0))
             }
 
@@ -276,30 +299,38 @@ class ReviewPlannerV2(
         allCandidates: List<ScoredCandidate>,
         timeBudgetSeconds: Int,
         confusablePartners: Map<String, Set<String>> = emptyMap(),
+        alternativePool: AlternativePool = AlternativePool.of(allCandidates),
     ): List<ScoredCandidate> {
         if (selected.size < 2) return selected
 
         var currentSelection = selected.toMutableList()
 
+        // S13：增量维护"选中集"的派生量。原实现每个换位位置重建一次
+        // `unselected`（O(N) 过滤）与整份 `sumOf`（每个候选对 O(K)），这里是
+        // 一次 O(K) 初始化 + 每次接受换位 O(1) 更新：
+        // - usedPracticeUnits：已选 id 集合（遍历 allCandidates 时原地跳过已选）；
+        // - totalSeconds：当前选中总时长（newTime 由它 O(1) 算出，与原来
+        //   `sumOf { duration } - timeDelta + incoming.duration` 的整数结果完全相同）。
+        val usedPracticeUnits = selected.mapTo(HashSet()) { it.candidate.practiceUnitId }
+        var totalSeconds = selected.sumOf { it.candidate.estimatedDurationSeconds }
+
         // Try swapping each selected item with each unselected item
         for (i in currentSelection.indices) {
             val currentItem = currentSelection[i]
             val timeDelta = currentItem.candidate.estimatedDurationSeconds
-            val usedPracticeUnits = currentSelection.map { it.candidate.practiceUnitId }.toSet()
-            val unselected = allCandidates.filter {
-                it.candidate.practiceUnitId !in usedPracticeUnits
-            }
             // The context every candidate is scored against: the selection
             // minus the position under swap. Both the outgoing and the
             // incoming item face the same context, which makes their marginal
             // scores directly comparable.
             val rest = currentSelection.filterIndexed { index, _ -> index != i }
+            val restContext = SelectionContext(rest)
             val restUsedFamilies = rest.groupingBy { it.candidate.itemFamilyId }.eachCount()
             val restUsedSources = rest.mapNotNull { it.candidate.sourceBundleId }
                 .groupingBy { it }.eachCount()
-            for (unselectedItem in unselected) {
-                val newTime = currentSelection.sumOf { it.candidate.estimatedDurationSeconds } -
-                    timeDelta + unselectedItem.candidate.estimatedDurationSeconds
+            for (unselectedItem in allCandidates) {
+                if (unselectedItem.candidate.practiceUnitId in usedPracticeUnits) continue
+                val newTime = totalSeconds - timeDelta +
+                    unselectedItem.candidate.estimatedDurationSeconds
                 if (newTime > timeBudgetSeconds) continue
 
                 val newSelection = currentSelection.toMutableList()
@@ -314,23 +345,27 @@ class ReviewPlannerV2(
                 // introduces) is accepted.
                 val outgoingValue = marginalValue(
                     candidate = currentItem,
-                    context = rest,
+                    restContext = restContext,
                     restUsedFamilies = restUsedFamilies,
                     restUsedSources = restUsedSources,
-                    allCandidates = allCandidates,
+                    alternativePool = alternativePool,
                     confusablePartners = confusablePartners,
                 )
                 val incomingValue = marginalValue(
                     candidate = unselectedItem,
-                    context = rest,
+                    restContext = restContext,
                     restUsedFamilies = restUsedFamilies,
                     restUsedSources = restUsedSources,
-                    allCandidates = allCandidates,
+                    alternativePool = alternativePool,
                     confusablePartners = confusablePartners,
                 )
 
                 if (incomingValue > outgoingValue) {
                     currentSelection = newSelection
+                    // 换位生效：增量更新已选集合与总时长（其余派生量按位置现算）。
+                    usedPracticeUnits.remove(currentItem.candidate.practiceUnitId)
+                    usedPracticeUnits.add(unselectedItem.candidate.practiceUnitId)
+                    totalSeconds += unselectedItem.candidate.estimatedDurationSeconds - timeDelta
                     break
                 }
             }
@@ -349,10 +384,10 @@ class ReviewPlannerV2(
      */
     private fun marginalValue(
         candidate: ScoredCandidate,
-        context: List<ScoredCandidate>,
+        restContext: SelectionContext,
         restUsedFamilies: Map<String, Int>,
         restUsedSources: Map<String, Int>,
-        allCandidates: List<ScoredCandidate>,
+        alternativePool: AlternativePool,
         confusablePartners: Map<String, Set<String>>,
     ): Double {
         // 与 greedy/beam 完全同构的边际判据：复用同一组动态罚 helper，
@@ -360,8 +395,8 @@ class ReviewPlannerV2(
         // 的 family/source 罚带同一 coerceAtMost 上限，不会一处封顶一处不封。
         val familyPenalty = computeDynamicFamilyPenalty(candidate, restUsedFamilies)
         val sourcePenalty = computeDynamicSourcePenalty(candidate, restUsedSources)
-        val confusable = confusableBonus(candidate, context, confusablePartners)
-        val antiOscillation = antiOscillationPenalty(candidate, context, allCandidates)
+        val confusable = confusableBonus(candidate, restContext.items, confusablePartners)
+        val antiOscillation = antiOscillationPenalty(candidate, restContext, alternativePool)
         return candidate.score - familyPenalty - sourcePenalty + confusable - antiOscillation
     }
 
@@ -505,7 +540,16 @@ class ReviewPlannerV2(
         // 并入该出口，chat "评论钟"把知识点从复习压力里抹掉的洞随之关闭。
         // KF-16 压制：先修未恢复的节点按有效稳定度判"已掌握"（此处压制意味着不再走低风险路径，
         // 而不是让它变成"未知"）。
-        val masteryRisks = masteryStates.map { state ->
+        // S15：observations 单遍扫描 —— 校准支持判定与平滑分共用同一个
+        // `MasterySmoothing.evaluate` 结果（原来 `.none { supported }`、风险分支的平滑分、
+        // 最弱掌握度的再一遍平滑分共三遍）；最弱掌握度也在同一个状态循环里随取随比。
+        val masteryRisks = ArrayList<Double>(masteryStates.size)
+        var weakestSmoothedMastery: Double? = null
+        for (state in masteryStates) {
+            val evaluation = MasterySmoothing.evaluate(state, now)
+            if (weakestSmoothedMastery == null || evaluation.score < weakestSmoothedMastery) {
+                weakestSmoothedMastery = evaluation.score
+            }
             val prerequisiteStabilities = knowledgePrerequisites[state.knowledgeNodeId]
                 .orEmpty()
                 .map { prerequisiteId ->
@@ -517,7 +561,7 @@ class ReviewPlannerV2(
                 decay = forgettingCurve.decay,
                 prerequisiteStabilityDays = prerequisiteStabilities,
             )
-            when {
+            masteryRisks += when {
                 resolved == com.tingyun.smartmistakebook.core.model.MasteryStatus.CONFLICTED -> {
                     reasons += ReviewReason.CONFLICTED_KNOWLEDGE
                     reasons += ReviewReason.CALIBRATION_CHECK
@@ -532,14 +576,13 @@ class ReviewPlannerV2(
                     reasons += ReviewReason.CALIBRATION_CHECK
                     1.0
                 }
-                state.independentCorrectObservations
-                    .none { it.calibrationSupportAt(now) == CalibrationSupport.SUPPORTED } -> {
+                !evaluation.hasSupportedObservation -> {
                     reasons += ReviewReason.CALIBRATION_CHECK
                     1.0
                 }
                 // Spec 2.18: weakness input is the 7-day half-life smoothed
                 // mastery, damping single-day swings.
-                else -> 1.0 - MasterySmoothing.smoothedMasteryScore(state, now)
+                else -> 1.0 - evaluation.score
             }
         }
 
@@ -629,9 +672,7 @@ class ReviewPlannerV2(
             score = score,
             reasons = reasons,
             difficultyBand = difficultyBand(candidate.difficulty),
-            weakestKnowledgeMastery = masteryStates.minOfOrNull { state ->
-                MasterySmoothing.smoothedMasteryScore(state, now)
-            },
+            weakestKnowledgeMastery = weakestSmoothedMastery,
         )
     }
 
@@ -652,42 +693,58 @@ class ReviewPlannerV2(
         },
     )
 
-    /** Confusable partner map: shared prerequisite and mastery gap below 0.2. */
+    /**
+     * Confusable partner map: shared prerequisite and mastery gap below 0.2.
+     *
+     * S14：从 O(N²) 全成对改成"共享先修倒排配只"。原实现内层的判定是
+     * `rightKcs.any { it in leftPrereqs } || leftKcs.any { l -> prereqs(l) ∩ rightKcs ≠ ∅ }`
+     * —— 两个子句**恒等**（都在问"左题某个 KC 的先修 r 同时是右题的 KC"），
+     * 第二个子句是重复推导；这里收成一条判定并倒排：建 `KC r → KC 含 r 的题`
+     * 索引，对每个左题的每个 (KC l, 先修 r) 组合直接枚举"含 r 的右题"，
+     * 只有真正可能成对的 (左, 右) 才进入掌握差判定。
+     * 配对判定本身（含左/右方向与 i<j 的遍历口径）逐字保持，输出集合不变。
+     */
     private fun computeConfusablePartners(
         scored: List<ScoredCandidate>,
         request: ReviewPlanningRequest,
     ): Map<String, Set<String>> {
         if (scored.size < 2) return emptyMap()
         val snapshot = request.learnerSnapshot
-        val masteryOf = { knowledgeNodeIds: Set<String> ->
-            knowledgeNodeIds.mapNotNull { snapshot.knowledgeMasteryStates[it]?.conservativeMasteryScore }
+        val masteryByIndex = scored.map { scoredCandidate ->
+            scoredCandidate.candidate.knowledgeNodeIds
+                .mapNotNull { snapshot.knowledgeMasteryStates[it]?.conservativeMasteryScore }
                 .minOrNull()
         }
+        // KC r → 所有 KC 集合含 r 的题下标（即：这些题可做"右题"）。
+        val candidateIndicesByKc = HashMap<String, MutableList<Int>>()
+        scored.forEachIndexed { index, scoredCandidate ->
+            for (knowledgeNodeId in scoredCandidate.candidate.knowledgeNodeIds) {
+                candidateIndicesByKc.getOrPut(knowledgeNodeId, ::mutableListOf).add(index)
+            }
+        }
         val partners = mutableMapOf<String, MutableSet<String>>()
-        scored.forEachIndexed { index, left ->
+        scored.forEachIndexed { leftIndex, left ->
             val leftKcs = left.candidate.knowledgeNodeIds
             if (leftKcs.isEmpty()) return@forEachIndexed
-            val leftPrereqs = leftKcs.flatMapTo(hashSetOf()) {
-                request.knowledgePrerequisites[it].orEmpty()
-            }
-            val leftMastery = masteryOf(leftKcs)
-            scored.drop(index + 1).forEach { right ->
-                val rightKcs = right.candidate.knowledgeNodeIds
-                if (rightKcs.isEmpty()) return@forEach
-                if (left.candidate.itemFamilyId == right.candidate.itemFamilyId) return@forEach
-                val sharedPrereq = rightKcs.any { it in leftPrereqs } ||
-                    leftKcs.any { knowledgeNodeId ->
-                        request.knowledgePrerequisites[knowledgeNodeId].orEmpty().any(rightKcs::contains)
+            val leftMastery = masteryByIndex[leftIndex]
+            for (knowledgeNodeId in leftKcs) {
+                for (prerequisite in request.knowledgePrerequisites[knowledgeNodeId].orEmpty()) {
+                    // rightIndex > leftIndex：与原 `scored.drop(index + 1)` 同一遍历口径。
+                    for (rightIndex in candidateIndicesByKc[prerequisite].orEmpty()) {
+                        if (rightIndex <= leftIndex) continue
+                        val right = scored[rightIndex]
+                        if (left.candidate.itemFamilyId == right.candidate.itemFamilyId) continue
+                        val rightMastery = masteryByIndex[rightIndex]
+                        if (
+                            leftMastery != null && rightMastery != null &&
+                            kotlin.math.abs(leftMastery - rightMastery) < CONFUSABLE_MASTERY_GAP
+                        ) {
+                            partners.getOrPut(left.candidate.practiceUnitId) { mutableSetOf() }
+                                .add(right.candidate.practiceUnitId)
+                            partners.getOrPut(right.candidate.practiceUnitId) { mutableSetOf() }
+                                .add(left.candidate.practiceUnitId)
+                        }
                     }
-                if (!sharedPrereq) return@forEach
-                val rightMastery = masteryOf(rightKcs)
-                if (leftMastery != null && rightMastery != null &&
-                    kotlin.math.abs(leftMastery - rightMastery) < CONFUSABLE_MASTERY_GAP
-                ) {
-                    partners.getOrPut(left.candidate.practiceUnitId) { mutableSetOf() }
-                        .add(right.candidate.practiceUnitId)
-                    partners.getOrPut(right.candidate.practiceUnitId) { mutableSetOf() }
-                        .add(left.candidate.practiceUnitId)
                 }
             }
         }
@@ -708,24 +765,26 @@ class ReviewPlannerV2(
      * Anti-oscillation damping (spec 2.18): at most two questions touching
      * the same KC per session, and the weakest-only reason may not exceed a
      * quarter of the session without due-risk support.
+     *
+     * S12/S13：备选池判定不再逐候选扫全池 —— `availableAlternatives` 的两条
+     * `any{}` 由 [AlternativePool] 的池级事实给出精确答案（池只建一次）；
+     * "弱点项在已选里占多少"由 [SelectionContext] 预计算，不再逐候选重扫 selected。
      */
     private fun antiOscillationPenalty(
         candidate: ScoredCandidate,
-        selected: List<ScoredCandidate>,
-        availableAlternatives: List<ScoredCandidate>,
+        context: SelectionContext,
+        alternativePool: AlternativePool,
     ): Double {
         val candidateKcs = candidate.candidate.knowledgeNodeIds
         if (candidateKcs.isEmpty()) return 0.0
+        val selected = context.items
         val sameKcCount = selected.count { selectedCandidate ->
             selectedCandidate.candidate.knowledgeNodeIds.any(candidateKcs::contains)
         }
         // The quota only steers the session when the backlog actually offers
         // candidates that touch other KCs; a single-KC backlog must still
         // fill the session.
-        val diverseAlternatives = availableAlternatives.any { alternative ->
-            alternative.candidate.practiceUnitId != candidate.candidate.practiceUnitId &&
-                alternative.candidate.knowledgeNodeIds.none(candidateKcs::contains)
-        }
+        val diverseAlternatives = alternativePool.hasDisjointAlternative(candidate)
         // Blocked-first phase (研究 2026-09-09 §2): a KC the student has not
         // learned yet benefits from 2-3 consecutive items before interleaving
         // helps (low prior knowledge is an "undesirable difficulty" moderator),
@@ -740,18 +799,11 @@ class ReviewPlannerV2(
         ) {
             return SAME_KC_EXHAUSTION_PENALTY
         }
-        val weaknessOnlySelected = selected.count { scoredCandidate ->
-            ReviewReason.WEAK_KNOWLEDGE in scoredCandidate.reasons &&
-                ReviewReason.DUE_RECALL_RISK !in scoredCandidate.reasons
-        }
         val candidateIsWeaknessOnly = ReviewReason.WEAK_KNOWLEDGE in candidate.reasons &&
             ReviewReason.DUE_RECALL_RISK !in candidate.reasons
-        val dueAlternatives = availableAlternatives.any { alternative ->
-            ReviewReason.DUE_RECALL_RISK in alternative.reasons &&
-                alternative.candidate.practiceUnitId != candidate.candidate.practiceUnitId
-        }
+        val dueAlternatives = alternativePool.hasDueAlternative(candidate)
         if (candidateIsWeaknessOnly && selected.isNotEmpty() && dueAlternatives) {
-            val share = weaknessOnlySelected.toDouble() / (selected.size + 1)
+            val share = context.weaknessOnlyCount.toDouble() / (selected.size + 1)
             if (share > MAX_WEAKNESS_ONLY_SHARE) return WEAKNESS_SHARE_PENALTY
         }
         return 0.0
@@ -869,9 +921,128 @@ class ReviewPlannerV2(
         val usedSources: Map<String, Int>,
         val remainingSeconds: Int,
         val totalScore: Double,
+    )
+
+    /**
+     * 一个"已选序列"的判据上下文（S12/S13）：把**与候选无关**的派生量预先算好，
+     * 不再对每个候选重扫一遍 `selected`。语义与逐候选现算完全相同（纯函数）。
+     */
+    private class SelectionContext(val items: List<ScoredCandidate>) {
+        /** `WEAK_KNOWLEDGE in reasons && DUE_RECALL_RISK !in reasons` 的选中项数。 */
+        val weaknessOnlyCount: Int = items.count { scoredCandidate ->
+            ReviewReason.WEAK_KNOWLEDGE in scoredCandidate.reasons &&
+                ReviewReason.DUE_RECALL_RISK !in scoredCandidate.reasons
+        }
+    }
+
+    /**
+     * 固定备选池的池级事实（S12/S13）。`antiOscillationPenalty` 的两条备选判定
+     * 原来对每个候选各扫一遍全池（beam 步的 O(N²) 残余项），这里把池级统计
+     * 一次算完，逐候选判定只做 O(|候选 KC|) 的**精确**运算：
+     *
+     * - due 备选：池里 due 项计数（排除候选自身）—— 精确；
+     * - 相异备选：`∃ x≠c: KCs(x) ∩ KCs(c) = ∅`。用 KC 频次做两条可判定短路
+     *   （某 KC 覆盖全池 ⇒ 无；频次和 < 池大小 ⇒ 有），无法判定时才退回精确扫描。
+     *
+     * 调用前提：被判定/被扫描的候选都取自本池（三处调用点都成立：beam 的全池、
+     * greedy 的 fitting 集、localSwap 的 allCandidates）。
+     */
+    private class AlternativePool(
+        private val members: List<ScoredCandidate>,
+        private val dueCount: Int,
+        private val kcFrequency: Map<String, Int>,
     ) {
-        val usedPracticeUnits: Set<String>
-            get() = selected.map { it.candidate.practiceUnitId }.toSet()
+        /** `availableAlternatives.any { DUE_RECALL_RISK in it.reasons && it.id != candidate.id }`。 */
+        fun hasDueAlternative(candidate: ScoredCandidate): Boolean =
+            dueCount > if (ReviewReason.DUE_RECALL_RISK in candidate.reasons) 1 else 0
+
+        /** `availableAlternatives.any { it.id != candidate.id && it.KCs.none(candidateKcs::contains) }`。 */
+        fun hasDisjointAlternative(candidate: ScoredCandidate): Boolean {
+            val candidateKcs = candidate.candidate.knowledgeNodeIds
+            if (candidateKcs.isEmpty()) {
+                // 空 KC 与任何成员都不相交；只要池里还有别的成员即可。
+                return members.size > 1
+            }
+            var frequencySum = 0
+            var frequencyMax = 0
+            for (kc in candidateKcs) {
+                val frequency = kcFrequency[kc] ?: 0
+                frequencySum += frequency
+                if (frequency > frequencyMax) frequencyMax = frequency
+            }
+            // 某 KC 出现在全池每个成员里 ⇒ 每个成员都与候选相交 ⇒ 无相异备选。
+            if (frequencyMax == members.size) return false
+            // 频次和的并集上界都小于池大小 ⇒ 至少一个成员与候选的 KC 全不相交；
+            // 且该成员必不是候选自身（候选 KC 非空 ⇒ 与自己相交）。
+            if (frequencySum < members.size) return true
+            return members.any { member ->
+                member.candidate.practiceUnitId != candidate.candidate.practiceUnitId &&
+                    member.candidate.knowledgeNodeIds.none(candidateKcs::contains)
+            }
+        }
+
+        companion object {
+            fun of(members: List<ScoredCandidate>): AlternativePool {
+                val frequencies = HashMap<String, Int>()
+                var due = 0
+                for (member in members) {
+                    for (kc in member.candidate.knowledgeNodeIds) {
+                        frequencies[kc] = (frequencies[kc] ?: 0) + 1
+                    }
+                    if (ReviewReason.DUE_RECALL_RISK in member.reasons) due += 1
+                }
+                return AlternativePool(members, due, frequencies)
+            }
+        }
+    }
+
+    /**
+     * beam 一步的"存活子状态"选择器（S12）：按 `totalScore` 降序、同分保持
+     * 生成顺序（与原 `sortedByDescending(totalScore).take(beamWidth)` 的稳定
+     * 排序同一规则），只对 top-[width] 物化 [BeamState]。
+     */
+    private class BeamSurvivors(private val width: Int) {
+        private class Ref(
+            val totalScore: Double,
+            val parent: BeamState,
+            /** null = 原状态自身被携带（该状态已无 fitting 候选）。 */
+            val candidate: ScoredCandidate?,
+        )
+
+        private val refs = ArrayList<Ref>(width + 1)
+
+        fun offerState(state: BeamState) {
+            offer(Ref(state.totalScore, state, null))
+        }
+
+        fun offer(candidate: ScoredCandidate, parent: BeamState, totalScore: Double) {
+            offer(Ref(totalScore, parent, candidate))
+        }
+
+        private fun offer(ref: Ref) {
+            var index = 0
+            while (index < refs.size && refs[index].totalScore >= ref.totalScore) index++
+            refs.add(index, ref)
+            if (refs.size > width) refs.removeAt(refs.size - 1)
+        }
+
+        fun materialize(): List<BeamState> = refs.map { ref ->
+            val candidate = ref.candidate
+            if (candidate == null) {
+                ref.parent
+            } else {
+                BeamState(
+                    selected = ref.parent.selected + candidate,
+                    usedFamilies = ref.parent.usedFamilies.increment(candidate.candidate.itemFamilyId),
+                    usedSources = candidate.candidate.sourceBundleId
+                        ?.let { ref.parent.usedSources.increment(it) }
+                        ?: ref.parent.usedSources,
+                    remainingSeconds = ref.parent.remainingSeconds -
+                        candidate.candidate.estimatedDurationSeconds,
+                    totalScore = ref.totalScore,
+                )
+            }
+        }
     }
 
     companion object {

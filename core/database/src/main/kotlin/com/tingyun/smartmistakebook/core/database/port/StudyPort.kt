@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.database.port
 
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 
 /**
@@ -94,4 +95,18 @@ interface MasteryAdvisoryPort {
         learnerId: String,
         practiceUnitId: String?,
     ): Flow<List<TeachingAdvisoryRecord>> = flowOf(emptyList())
+
+    /**
+     * 批量读一组题的咨询行（S16，W4-1 组装批量化）：一次查询取代逐题 N+1。
+     *
+     * 单题语义与 [observeTeachingAdvisories] 相同（每题只取最新 50 行、行内
+     * `created_at` 降序）；Room 实现用一条 `IN (...)` 查询 + 分组后截断复刻该口径。
+     * 默认实现退回逐题读，保证非 Room 实现（测试夹具）语义不变。
+     */
+    suspend fun readTeachingAdvisoriesForUnits(
+        learnerId: String,
+        practiceUnitIds: Collection<String>,
+    ): List<TeachingAdvisoryRecord> = practiceUnitIds.flatMap { practiceUnitId ->
+        observeTeachingAdvisories(learnerId, practiceUnitId).first()
+    }
 }

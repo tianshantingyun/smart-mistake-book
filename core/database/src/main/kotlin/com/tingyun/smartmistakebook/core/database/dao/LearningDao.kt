@@ -226,6 +226,23 @@ internal abstract class LearningDao {
         practiceUnitId: String?,
     ): Flow<List<LlmTeachingAdvisoryEntity>>
 
+    /**
+     * 批量读一组题的咨询行（S16，W4-1 组装批量化）：每个题的行按
+     * `created_at_epoch_millis DESC` 在前（`practice_unit_id ASC` 只是让结果
+     * 按题成组，方便调用方复刻 [observeTeachingAdvisories] 的单题口径）。
+     * 与单题查询不同，这里**不加 LIMIT**：每题的"最新 50 行"截止由调用方
+     * （`RoomStudyDatabase`）在分组后施加，保持与单题查询逐位同义。
+     */
+    @Query(
+        "SELECT * FROM llm_teaching_advisory WHERE learner_id = :learnerId " +
+            "AND practice_unit_id IN (:practiceUnitIds) " +
+            "ORDER BY practice_unit_id ASC, created_at_epoch_millis DESC",
+    )
+    abstract suspend fun readTeachingAdvisoriesForUnits(
+        learnerId: String,
+        practiceUnitIds: List<String>,
+    ): List<LlmTeachingAdvisoryEntity>
+
     @Query(
         "SELECT MAX(reviewed_at_utc) FROM review_log " +
             "WHERE learner_id = :learnerId AND card_id = :practiceUnitId " +

@@ -9,6 +9,7 @@ import com.tingyun.smartmistakebook.core.database.ReviewQueueItemRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
+import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewCandidate
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
@@ -97,16 +98,25 @@ internal class StudyReviewPlannerService(
 
 
     /**
-     * Exam-mode ramp (spec 2.17): during the fourteen days before a declared
-     * exam, matching candidates gain priority so they enter the queue before
-     * their regular due date. The ramp peaks at the exam day and falls back
-     * to zero automatically afterwards.
+     * S16（W4-1 组装批量化）：考试表**一次读出**，权重与最近考试都由纯函数从
+     * 同一份快照派生。原实现每个候选调一次考前权重、每次 `store.exams.first()`
+     * （N 次流读取），最近考试再读一次。
      */
-    suspend fun examPriorityFor(subject: String, localDayEpochDay: Long): Double {
-        val store = schedulingSettingsStore ?: return 0.0
-        val exams = store.exams.first().filter { it.subject == subject }
+    private suspend fun readExams(): List<ExamCalendarEntry> =
+        schedulingSettingsStore?.exams?.first().orEmpty()
+
+    /**
+     * Exam-mode ramp (spec 2.17)：十四天坡道，峰值在考试当天，之后自动归零。
+     * 纯函数形态，供 [createReviewPlan] 对已读出的考试表逐候选求值。
+     */
+    private fun examPriorityOf(
+        exams: List<ExamCalendarEntry>,
+        subject: String,
+        localDayEpochDay: Long,
+    ): Double {
         var best = 0.0
         for (exam in exams) {
+            if (exam.subject != subject) continue
             val daysUntil = exam.examEpochDay - localDayEpochDay
             if (daysUntil in 0..EXAM_RAMP_DAYS) {
                 best = maxOf(best, 1.0 - daysUntil.toDouble() / EXAM_RAMP_DAYS)
@@ -114,6 +124,16 @@ internal class StudyReviewPlannerService(
         }
         return best.coerceIn(0.0, 1.0)
     }
+
+
+    /** 最近考试天数的纯函数形态（catch-up 输入，与考前权重共用同一份考试快照）。 */
+    private fun daysUntilNearestExamOf(
+        exams: List<ExamCalendarEntry>,
+        localDayEpochDay: Long,
+    ): Int? = exams
+        .map { (it.examEpochDay - localDayEpochDay).toInt() }
+        .filter { it >= 0 }
+        .minOrNull()
 
 
     /**
@@ -125,33 +145,30 @@ internal class StudyReviewPlannerService(
         IntakeDurationBaseline.secondsFor(modelTier = null, fsrsDifficulty = difficulty)
 
     /**
-     * 这道新题有没有模型判过的难度档（整理任务写入的 DIFFICULTY_TIER 咨询行）。
+     * 这些新题有没有模型判过的难度档（整理任务写入的 DIFFICULTY_TIER 咨询行）。
      * 有 → L2 语义基线；没有 → 数值难度代理（[IntakeDurationBaseline] 的兜底口径）。
      *
      * 消灭的失败：新题没有记忆状态，[ReviewCandidate.difficulty] 恒为占位值 →
      * 每道新题都被估成中档 180s；模型在整理时早已给出的难度判断没有任何消费方，
      * 当日引入配额因此按错误的时长计算。
+     *
+     * S16（W4-1 组装批量化）：**一次批量读**取代逐题 `observeTeachingAdvisories`
+     * （原来每道新题一次数据库往返）。逐题取"第一条 DIFFICULTY_TIER 行"的口径
+     * 与单题读相同（`readTeachingAdvisoriesForUnits` 保证每题最新 50 行、降序）。
      */
-    private suspend fun modelDifficultyTier(practiceUnitId: String): TutorDifficultyTier? =
-        database.observeTeachingAdvisories(learnerId, practiceUnitId)
-            .first()
-            .firstOrNull { it.advisoryKind == TeachingAdvisoryRecord.KIND_DIFFICULTY_TIER }
-            ?.payloadMarkdown
-            ?.let { stored -> runCatching { TutorDifficultyTier.valueOf(stored) }.getOrNull() }
-
-
-    /**
-     * Days until the nearest declared exam (any subject), or null when no
-     * exam is ahead — the catch-up input of [NewIntroductionPolicy] (spec
-     * `batch-intake-spec.md` §2): near an exam, intake converts by
-     * ceil(remaining backlog / days) instead of the fixed time share.
-     */
-    suspend fun daysUntilNearestExam(localDayEpochDay: Long): Int? {
-        val store = schedulingSettingsStore ?: return null
-        return store.exams.first()
-            .map { (it.examEpochDay - localDayEpochDay).toInt() }
-            .filter { it >= 0 }
-            .minOrNull()
+    private suspend fun difficultyTierByUnit(
+        practiceUnitIds: List<String>,
+    ): Map<String, TutorDifficultyTier?> {
+        if (practiceUnitIds.isEmpty()) return emptyMap()
+        val advisoriesByUnit = database
+            .readTeachingAdvisoriesForUnits(learnerId, practiceUnitIds)
+            .groupBy(TeachingAdvisoryRecord::practiceUnitId)
+        return practiceUnitIds.associateWith { practiceUnitId ->
+            advisoriesByUnit[practiceUnitId]
+                ?.firstOrNull { it.advisoryKind == TeachingAdvisoryRecord.KIND_DIFFICULTY_TIER }
+                ?.payloadMarkdown
+                ?.let { stored -> runCatching { TutorDifficultyTier.valueOf(stored) }.getOrNull() }
+        }
     }
 
 
@@ -204,7 +221,15 @@ internal class StudyReviewPlannerService(
         learnerSnapshot: LearnerSnapshot,
         planningContext: PlanningContext,
     ): ReviewPlanBundle {
-        val avoidanceUnits = reviewLogSink.avoidancePracticeUnitIds()
+        val localDayEpochDay = planningContext.localDate.toEpochDay()
+        // S16（W4-1 组装批量化）：计划组装期的三处批量化解法 ——
+        // ① 考试表一次读出（原来逐候选 `store.exams.first()`）；
+        // ② review_log 样本一次读出，avoidance 与 confidenceAtError 共用同一快照
+        //    （原来各扫一遍同一条查询）；
+        // ③ 新题难度档一次批量读（原来逐题一次咨询行查询，见 `difficultyTierByUnit`）。
+        val exams = readExams()
+        val reviewLogSamples = reviewLogSink.readReviewSamples()
+        val avoidanceUnits = reviewLogSink.avoidancePracticeUnitIds(reviewLogSamples)
         // Spec 3.4: the pseudo knowledge node must exist in knowledge_node
         // BEFORE the plan persists its queue (review_queue_knowledge_node is
         // FK-restricted), so unbound questions materialize their pseudo KC
@@ -270,9 +295,10 @@ internal class StudyReviewPlannerService(
                         .coerceIn(0, MAX_REPEAT_CAPTURE_BONUS_COUNT).toDouble() /
                         MAX_REPEAT_CAPTURE_BONUS_COUNT,
                     eligibleSinceEpochMillis = mistake.createdAtEpochMillis,
-                    examPriority = examPriorityFor(
+                    examPriority = examPriorityOf(
+                        exams = exams,
                         subject = mistake.subject,
-                        localDayEpochDay = planningContext.localDate.toEpochDay(),
+                        localDayEpochDay = localDayEpochDay,
                     ),
                 )
             }
@@ -297,12 +323,13 @@ internal class StudyReviewPlannerService(
                 // Hypercorrection ordering input (spec §4): the multi-source
                 // confidence level of each card's most recent wrong attempt,
                 // judged from signals already stored in review_log.
-                val confidenceAtError = reviewLogSink.confidenceAtErrorByPracticeUnit()
+                // S16：与 avoidance 共用同一次样本读（不再各扫一遍）。
+                val confidenceAtError = reviewLogSink.confidenceAtErrorByPracticeUnit(
+                    reviewLogSamples,
+                )
                 // 冷启动估时优先用模型判过的难度档（L2 语义基线）；模型没判过才退回
-                // 数值难度代理。每道新题一次按题索引的咨询行读取。
-                val tierByUnit = fresh.associate { candidate ->
-                    candidate.practiceUnitId to modelDifficultyTier(candidate.practiceUnitId)
-                }
+                // 数值难度代理。S16：一次批量读，不再逐题一次按题索引的咨询行读取。
+                val tierByUnit = difficultyTierByUnit(fresh.map { it.practiceUnitId })
                 val decision = NewIntroductionPolicy.decide(
                     candidates = fresh.map { candidate ->
                         NewIntroductionPolicy.IntakeCandidate(
@@ -324,7 +351,7 @@ internal class StudyReviewPlannerService(
                         )
                     },
                     timeBudgetSeconds = reviewTimeBudgetSeconds,
-                    daysLeftToExam = daysUntilNearestExam(planningContext.localDate.toEpochDay()),
+                    daysLeftToExam = daysUntilNearestExamOf(exams, localDayEpochDay),
                 )
                 val introducedIds = decision.introduced.mapTo(hashSetOf()) { it.practiceUnitId }
                 // Introduced-today questions start accruing waiting pressure

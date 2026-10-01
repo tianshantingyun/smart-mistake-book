@@ -33,6 +33,18 @@ import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
 const val MAX_REVIEW_COMPLETION_HISTORY_DAYS = 1_500
 const val MAX_KNOWLEDGE_RECALL_CANDIDATES = 512
 
+/**
+ * S16（W4-1 组装批量化）：批量咨询行的两道界。
+ *
+ * - [MAX_TEACHING_ADVISORY_ROWS_PER_UNIT] 与单题查询
+ *   `LearningDao.observeTeachingAdvisories` 的 `LIMIT 50` 对齐——批量读分组后按它截断，
+ *   保持"每题只看最新 50 行"的逐位同义；
+ * - [MAX_TEACHING_ADVISORY_BATCH_UNITS] 是 `IN (...)` 的单查询题数上限（SQLite
+ *   bound parameter < 999 的安全取值）。
+ */
+const val MAX_TEACHING_ADVISORY_ROWS_PER_UNIT = 50
+const val MAX_TEACHING_ADVISORY_BATCH_UNITS = 400
+
 class AttemptIdempotencyConflictException(submissionId: String) :
     IllegalStateException("submissionId $submissionId was already used for a different payload")
 

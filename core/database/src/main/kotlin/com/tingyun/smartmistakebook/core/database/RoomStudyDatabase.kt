@@ -382,6 +382,31 @@ internal class RoomStudyDatabase(
         database.learningDao().observeTeachingAdvisories(learnerId, practiceUnitId)
             .map { rows -> rows.map(LlmTeachingAdvisoryEntity::toRecord) }
 
+    /**
+     * S16（W4-1 组装批量化）：一条 `IN (...)` 查询取回一组题的咨询行，按题分组后
+     * 截断到每题最新 [MAX_TEACHING_ADVISORY_ROWS_PER_UNIT] 行 —— 与单题查询
+     * （`... ORDER BY created_at DESC LIMIT 50`）逐位同义。SQLite 的 bound
+     * parameter 上限以下按块切分（[MAX_TEACHING_ADVISORY_BATCH_UNITS]）。
+     */
+    override suspend fun readTeachingAdvisoriesForUnits(
+        learnerId: String,
+        practiceUnitIds: Collection<String>,
+    ): List<TeachingAdvisoryRecord> {
+        if (practiceUnitIds.isEmpty()) return emptyList()
+        val advisories = mutableListOf<TeachingAdvisoryRecord>()
+        practiceUnitIds.toList().chunked(MAX_TEACHING_ADVISORY_BATCH_UNITS).forEach { chunk ->
+            val rows = database.learningDao()
+                .readTeachingAdvisoriesForUnits(learnerId, chunk)
+                .map(LlmTeachingAdvisoryEntity::toRecord)
+            rows.groupBy(TeachingAdvisoryRecord::practiceUnitId)
+                .values
+                .forEach { perUnitRows ->
+                    advisories += perUnitRows.take(MAX_TEACHING_ADVISORY_ROWS_PER_UNIT)
+                }
+        }
+        return advisories
+    }
+
     override fun observeKnowledgeQuestionLattice(
         learnerId: String,
     ): Flow<List<KnowledgeQuestionLatticeRecord>> =
