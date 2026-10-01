@@ -37,7 +37,7 @@
 | P8 | 同 KC 三种数值（raw EMA / conservative / smoothed）四个展示面；UI 档位（0.7/0.4）与 MASTERED 判据（0.85/mass 2.0）两套阈值 | `MasteryBands.kt:8-12`、`ClearlyMasteredForSkipPolicy.kt:43-44`、三处展示面一致（好）但内部口径三分 | 展示统一用 conservative+区间；阈值体系合并进 KF-09/20 | 3A/3B |
 | P9 | rating 基址三处手写换算（0/1-based）+ AVOIDANCE 常量基址语义悬空 | `ReviewLogSink.kt:91,251-253`、`FsrsScheduleMath.kt:109-113,162-164`、`AttentionSignal.kt:58` | 统一枚举与换算函数 | 3A |
 | P10 | **`toFixedDays` 半值舍入与 py-fsrs 不一致**（Kotlin round=四舍五入，Python round=银行家舍入）——修正修复计划对照表的"round ✓ 一致"，tie 用例未覆盖 | `FsrsScheduleMath.kt:88-91` | 对齐 py-fsrs 银行家舍入 + tie 对照测试 | 3A |
-| P11 | 预测审计轨用"批终态"当"预测时刻"；`FUTURE_TIMESTAMP_CLAMPED` 分支不可达 | `LearningProjector.kt:1162-1196`、`:244,446,1011-1013` | 预测语义修正或删除；死分支删除 | 3A/3C |
+| P11 | 预测审计轨用"批终态"当"预测时刻"；`FUTURE_TIMESTAMP_CLAMPED` 分支不可达 | `LearningProjector.kt:1162-1196`、`:244,446,1011-1013` | 预测语义修正或删除；死分支删除 | 3A（随 HLR 删除同批，Wave 3） |
 | P12 | 两指纹列恒同值、plannerVersion 无读时校验 | `StudyReviewPlannerService.kt:339-342` | 见 Q4 | 3A |
 
 ---
@@ -62,7 +62,7 @@
 | # | 缺口 | 证据 | 改法方向 | 阶段 |
 |---|---|---|---|---|
 | Q1 | 投影版本仅 3 次 bump 历史（v4→v7），无发布清单 | `LearningCoreVersions.kt:31-32` | 建立版本变更清单纪律 | 3A 起 |
-| Q2 | **无投影版本回退/防降级**：旧二进制会静默用旧 VERSION 重放并覆盖新投影（replay 不调 requireCompatibleSnapshot） | `StudyProjectionDrainer.kt:79-94`、`LearningProjector.kt:91,642-655` | ① replay 也做版本守卫；② 落库前比较版本，拒绝降级；③ 每次 bump 前落旧投影快照（SCD2） | **3B（高优先）** |
+| Q2 | **无投影版本回退/防降级**：旧二进制会静默用旧 VERSION 重放并覆盖新投影（replay 不调 requireCompatibleSnapshot） | `StudyProjectionDrainer.kt:79-94`、`LearningProjector.kt:91,642-655` | ① replay 也做版本守卫；② 落库前比较版本，拒绝降级；③ 每次 bump 前落旧投影快照（SCD2） | 3A Wave 0（已落地；archive 实战于 Wave 3） |
 | Q3 | 计划指纹 schema 双版本并存（v5/v7，V1/V2 切换时同表混存） | `ReviewPlannerV2.kt:911` vs `ReviewPlanner.kt:606` | M6 删 V1 后自然收敛；期间读时容错 | 3A |
 | Q4 | **指纹/plannerVersion 无读时校验**：旧计划跨算法版本续跑（有 checkpoint 保护，无算法版本保护） | `ReviewDao.kt:505` 只 CAS checkpoint | 读回时比对 plannerVersion/指纹，不匹配则重排 | **3A（高优先）** |
 | Q5 | 82 文件散落数值常数；两套排程权重表已分叉；DAY_MILLIS 至少 4 处重复 | `ReviewPlanner.kt:581-606` vs `ReviewPlannerV2.kt:872-912` 等 | 常数注册表（随 KF-13 扩容） | 3A |
@@ -113,7 +113,8 @@
   S1/S3/S4/S7/S10（投影热路径）+ S19（KB 索引）+ S12–S16（排程放大，与 KF-08 硬过滤同批）；
   F3（与 KF-02 同批）。
 - **3B**：Q2（投影版本回退/防降级）、S5/S6/S8（重放路径）、S2/S11（投影存储口径）。
-- **3C**：P11 的预测审计修正、S9（MASTERY_READ 预聚合）、S17/S18/S20（错题本/快照物化，与阶段 4 联动）。
+- **3C**：S9（MASTERY_READ 预聚合）、S17/S18/S20（错题本/快照物化，与阶段 4 联动）。（P11 预测审计
+  修正已随 3A Wave 3 的 HLR 删除同批收口，不在此。）
 - **阶段 2/5（智能体面/复习栏）**：F1/F2/F4/F5/F6/F8（D-Q9 引导模式地基）、P3/P4/P6 的采集侧。
 - **3A 前裁决新增**：F7（pretest×引导模式交叉）——已裁（pretest 不给提示，台账裁决 2）。
 
