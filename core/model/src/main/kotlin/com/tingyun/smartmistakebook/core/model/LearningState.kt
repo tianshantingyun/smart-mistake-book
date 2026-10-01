@@ -617,6 +617,16 @@ data class ProblemMemoryState(
     }
 }
 
+/**
+ * 知识点状态。
+ *
+ * 写入侧（`LearningProjector.projectMastery` / `projectChatEvidence`）在事件投影时设置
+ * UNKNOWN / LEARNING / MASTERED / CONFLICTED——这是"写入瞬间的真相"，不做时间刷新。
+ *
+ * [STALE] **没有写入方**：它是**读侧**姿态——`ClearlyMasteredForSkipPolicy.effectiveStatus`
+ * （裁决 28，读侧唯一状态出口）在"E 判据此刻不成立、且证据锚点缺失/时钟回拨/距锚点超过
+ * 45 天"时产出，表示"证据过期、需要重新确认"。消费点读该出口而非本枚举的存储值。
+ */
 enum class MasteryStatus {
     UNKNOWN,
     LEARNING,

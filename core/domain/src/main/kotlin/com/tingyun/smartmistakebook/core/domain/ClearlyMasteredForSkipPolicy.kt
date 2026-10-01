@@ -113,6 +113,57 @@ object ClearlyMasteredForSkipPolicy {
             )
     }
 
+    /**
+     * 读侧唯一状态出口（裁决 28，2026-10-01）：把**写入瞬间的快照** [KnowledgeMasteryState.status]
+     * 与**当前**记忆卡事实合成为"此刻该知识点处于什么状态"。
+     *
+     * 消灭的失败：`MasteryStatus` 只在投影写入时更新，全仓没有时间驱动的刷新路径——已忘的
+     * 知识点被展示成「强项」（strengths 按冻结 status 过滤）、被跳过策略当作「新鲜已掌握」；
+     * 各消费点只好各自用 45 天窗补救（同一规则四处现算，取值漂移）。本函数把这些读侧判断
+     * 收敛到一处。
+     *
+     * 规则（优先级从高到低）：
+     * 1. 无状态、或证据量 < 1 → UNKNOWN（与投影写入侧 `projectMastery` 同一分界）；
+     * 2. 存储态 CONFLICTED → CONFLICTED（未恢复的冲突是写入侧事实，读侧不改判）；
+     * 3. E 判据**此刻**成立（[meetsMemoryCriterion]，含 KF-16 先修压制）→ MASTERED；
+     * 4. 证据锚点（`lastAttemptAt ?: lastEvidenceAt`）缺失、时钟回拨、或距锚点超过
+     *    [MAX_EVIDENCE_AGE_MILLIS] → STALE（"证据过期"——此前散落在各调用点的 45 天窗
+     *    统一到这一处）；
+     * 5. 其余 → LEARNING。
+     *
+     * 投影侧仍写"自身真相"（无先修图、不做时间刷新，见 [KnowledgeReadiness.effectiveStabilityDays]
+     * 的同类约定）；本函数是**读侧**唯一权威。
+     */
+    fun effectiveStatus(
+        state: KnowledgeMasteryState?,
+        atEpochMillis: Long,
+        decay: Double,
+        policy: MasteryDecisionPolicy = MasteryDecisionPolicy.DEFAULT,
+        prerequisiteStabilityDays: Collection<Double?> = emptyList(),
+    ): MasteryStatus {
+        require(atEpochMillis >= 0) { "Mastery status time must not be negative" }
+        if (state == null) return MasteryStatus.UNKNOWN
+        if (state.status == MasteryStatus.CONFLICTED) return MasteryStatus.CONFLICTED
+        if (state.evidenceMass < 1.0) return MasteryStatus.UNKNOWN
+        if (
+            meetsMemoryCriterion(
+                memoryStabilityDays = state.memoryStabilityDays,
+                lastAttemptAtEpochMillis = state.lastAttemptAtEpochMillis,
+                atEpochMillis = atEpochMillis,
+                decay = decay,
+                policy = policy,
+                prerequisiteStabilityDays = prerequisiteStabilityDays,
+            )
+        ) {
+            return MasteryStatus.MASTERED
+        }
+        val anchor = state.lastAttemptAtEpochMillis ?: state.lastEvidenceAtEpochMillis
+        val evidenceIsStale = anchor == null ||
+            atEpochMillis < anchor ||
+            atEpochMillis - anchor > MAX_EVIDENCE_AGE_MILLIS
+        return if (evidenceIsStale) MasteryStatus.STALE else MasteryStatus.LEARNING
+    }
+
     internal fun hasIndependentBreadth(
         observations: List<IndependentCorrectObservation>,
         lastIndependentErrorAtEpochMillis: Long?,

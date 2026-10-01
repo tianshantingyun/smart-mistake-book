@@ -1001,6 +1001,96 @@ class RoomBackedStudyExperienceRepositoryTest {
         }
 
     @Test
+    fun profileStrengthsDropForgottenAndPrerequisiteSuppressedNodes() = runBlocking {
+        // 裁决 28（读侧语义闭合）端到端验收门：展示面 strengths 由**读时现算**的状态过滤——
+        // ①存的是 MASTERED 快照但记忆卡已过期（曾经掌握、久不作答）→ 掉出 strengths；
+        // ②先修未恢复的后继（KF-16 压制；读侧接线之前 `prerequisiteStabilityDays` 无生产
+        //   调用点，压制实际不生效）→ 同样掉出；③自身达标且无先修的点留在 strengths（对照）。
+        val now = Instant.parse("2026-01-02T08:00:00Z").toEpochMilli()
+        val day = 86_400_000L
+        val forgottenId = "knowledge:math.forgotten"
+        val strongId = "knowledge:math.strong"
+        val database = FakeStudyDatabasePort().apply {
+            addPrerequisiteRelation(
+                prerequisiteKnowledgeNodeId = PREREQ_NODE_ID,
+                dependentKnowledgeNodeId = PREREQ_DEPENDENT_KNOWLEDGE_NODE_ID,
+            )
+            addKnowledgeNode(PREREQ_NODE_ID, displayName = "从图像读取单调性")
+            addKnowledgeNode(forgottenId, displayName = "已忘的知识点")
+            addKnowledgeNode(strongId, displayName = "仍然掌握的知识点")
+            publishMasteryStates(
+                mapOf(
+                    forgottenId to durableMasteryState(
+                        forgottenId,
+                        stabilityDays = 40.0,
+                        lastAttemptAtEpochMillis = now - 60 * day,
+                    ),
+                    PREREQ_DEPENDENT_KNOWLEDGE_NODE_ID to durableMasteryState(
+                        PREREQ_DEPENDENT_KNOWLEDGE_NODE_ID,
+                        stabilityDays = 30.0,
+                        lastAttemptAtEpochMillis = now - day,
+                    ),
+                    PREREQ_NODE_ID to durableMasteryState(
+                        PREREQ_NODE_ID,
+                        stabilityDays = 5.0,
+                        lastAttemptAtEpochMillis = now - day,
+                    ),
+                    strongId to durableMasteryState(
+                        strongId,
+                        stabilityDays = 30.0,
+                        lastAttemptAtEpochMillis = now - day,
+                    ),
+                ),
+            )
+        }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, applicationScope, initialFixture = null)
+
+        try {
+            repository.initialize()
+
+            val profile = repository.snapshot.value.profile
+            assertEquals(
+                "只有自身达标且无先修的点留在 strengths，实际：${profile.strengths.map { it.knowledgeNodeId }}",
+                listOf(strongId),
+                profile.strengths.map { it.knowledgeNodeId },
+            )
+            val weakIds = profile.weaknesses.map { it.knowledgeNodeId }
+            assertTrue("已忘的点必须在 weaknesses，实际：$weakIds", forgottenId in weakIds)
+            assertTrue(
+                "被先修压制的后继必须在 weaknesses，实际：$weakIds",
+                PREREQ_DEPENDENT_KNOWLEDGE_NODE_ID in weakIds,
+            )
+            assertEquals(1, profile.newlyMasteredCount)
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    private fun durableMasteryState(
+        knowledgeNodeId: String,
+        stabilityDays: Double,
+        lastAttemptAtEpochMillis: Long,
+    ) = KnowledgeMasteryState(
+        knowledgeNodeId = knowledgeNodeId,
+        masteryScore = 0.95,
+        conservativeMasteryScore = 0.9,
+        evidenceMass = 2.0,
+        successWeight = 13.5,
+        failureWeight = 0.5,
+        memoryStabilityDays = stabilityDays,
+        memoryDifficulty = 6.0,
+        lastAttemptAtEpochMillis = lastAttemptAtEpochMillis,
+        lastAttemptStudyDayEpochDay = lastAttemptAtEpochMillis / 86_400_000L,
+        status = MasteryStatus.MASTERED,
+        calibrationSupport = CalibrationSupport.SUPPORTED,
+        projectorVersion = LearningProjector.VERSION,
+        checkpointSequence = 1,
+        lastEvidenceAtEpochMillis = lastAttemptAtEpochMillis,
+    )
+
+    @Test
     fun aMissingPrerequisiteOffersThatPrerequisitesMaterialBesideTheQuestion() = runBlocking {
         // spec §2.9：目标题绑定的 KC 有一个前置未达可学门槛时，注入**那个前置**的材料。
         // 此前这条通道从未接线——`ReviewPlanningRequest.knowledgePrerequisites` 在生产调用点
@@ -1720,6 +1810,31 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
         projectorVersion = LearningProjector.VERSION,
         checkpointSequence = 1,
     )
+
+    /**
+     * 裁决 28（读侧语义闭合）：直接铺一版**带记忆卡**的掌握状态，用于端到端验证
+     * 「已忘 / 被先修压制 ⇒ 掉出 strengths」的展示面闭环（`publishMastery` 的既有形状
+     * 无卡字段，不适合本组用例）。
+     */
+    fun publishMasteryStates(states: Map<String, KnowledgeMasteryState>) {
+        persistedLearnerSnapshot = PersistedLearnerSnapshot(
+            projectionName = "study-experience-v1",
+            stateVersion = 1,
+            knownLedgerHeadSequence = 1,
+            snapshot = LearnerSnapshot(
+                learnerId = "learner:local",
+                problemMemoryStates = emptyMap(),
+                knowledgeMasteryStates = states,
+                checkpoint = ProjectionCheckpoint(
+                    lastSequence = 1,
+                    projectorVersion = LearningProjector.VERSION,
+                    projectedAtEpochMillis = 1_000,
+                ),
+                generatedAtEpochMillis = 1_000,
+            ),
+        )
+        learningLedgerHead.value = 1
+    }
 
     override fun observeMistakes(): Flow<List<MistakeRecord>> = mistakes
 

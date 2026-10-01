@@ -260,6 +260,7 @@ class RoomBackedStudyExperienceRepository(
         curatedProblemIds = curatedProblemIds,
         forgettingCurve = forgettingCurve,
         plannerService = plannerService,
+        knowledgePrerequisites = knowledgePrerequisites,
         learnerSnapshot = { currentLearnerSnapshot() },
     )
     override val snapshot: StateFlow<StudyExperienceSnapshot> = _snapshot.asStateFlow()

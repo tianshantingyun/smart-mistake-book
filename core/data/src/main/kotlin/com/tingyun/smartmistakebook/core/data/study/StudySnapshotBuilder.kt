@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.data.knowledge.KnowledgePrerequisiteReader
 import com.tingyun.smartmistakebook.core.database.MAX_REVIEW_COMPLETION_HISTORY_DAYS
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
@@ -30,6 +31,11 @@ internal class StudySnapshotBuilder(
     private val curatedProblemIds: Set<String>,
     private val forgettingCurve: ForgettingCurve,
     private val plannerService: StudyReviewPlannerService,
+    /**
+     * KF-16 读侧接线（裁决 28）：展示面现算"此刻是否已掌握"需要先修稳定度做下行压制；
+     * 图按需解析（只查本次快照引用的 KC），与排程侧共用同一个解析器。
+     */
+    private val knowledgePrerequisites: KnowledgePrerequisiteReader,
     private val learnerSnapshot: suspend () -> LearnerSnapshot,
 ) {
     suspend fun build(
@@ -86,6 +92,16 @@ internal class StudySnapshotBuilder(
             addAll(projection.knowledgeMasteryStates.keys)
             orderedMistakes.forEach { mistake -> addAll(mistake.knowledgeNodeIds) }
         }
+        // 裁决 28（KF-16 读侧接线）：把先修图解析一次，供 catalog / profile 两处现算
+        // "此刻是否已掌握（含先修压制）"。图里查不到 = 无已知先修（"未知 ≠ 缺失"）。
+        val prerequisiteStabilityDaysByNode = knowledgePrerequisites
+            .graphFor(referencedKnowledgeNodeIds)
+            .prerequisitesByDependent
+            .mapValues { (_, prerequisiteIds) ->
+                prerequisiteIds.map { prerequisiteId ->
+                    projection.knowledgeMasteryStates[prerequisiteId]?.memoryStabilityDays
+                }
+            }
         val resolvedKnowledgeContexts = plannerService.resolveKnowledgeContexts(referencedKnowledgeNodeIds)
         val resolvedKnowledgeNames = knowledgeNames + resolvedKnowledgeContexts.mapValues {
             it.value.displayName
@@ -100,6 +116,7 @@ internal class StudySnapshotBuilder(
                     curatedProblemIds = curatedProblemIds,
                     forgettingCurve = forgettingCurve,
                     fixtureSource = fixtureSource,
+                    prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
                 )
             },
             pendingCorrectionCount = pendingCorrectionCount,
@@ -112,6 +129,9 @@ internal class StudySnapshotBuilder(
             profile = projection.toProfileOverview(
                 resolvedKnowledgeContexts = resolvedKnowledgeContexts,
                 fallbackKnowledgeNames = resolvedKnowledgeNames,
+                atEpochMillis = planningContext.planningAtEpochMillis,
+                decay = forgettingCurve.decay,
+                prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
             ),
             knowledgeCoverage = knowledgeCoverage,
             tutorExampleSaved = orderedMistakes.any {

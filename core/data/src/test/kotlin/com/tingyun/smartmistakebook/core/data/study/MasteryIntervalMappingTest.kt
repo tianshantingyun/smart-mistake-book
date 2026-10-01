@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.domain.MasteryDecisionPolicy
 import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState
@@ -45,6 +46,9 @@ class MasteryIntervalMappingTest {
         val summary = snapshot.toProfileOverview(
             resolvedKnowledgeContexts = emptyMap(),
             fallbackKnowledgeNames = emptyMap(),
+            atEpochMillis = 1_000,
+            decay = MasteryDecisionPolicy.DEFAULT.decay,
+            prerequisiteStabilityDaysByNode = emptyMap(),
         ).weaknesses.single()
 
         assertEquals(interval.lower, summary.conservativeMasteryScore, 1e-12)
@@ -71,7 +75,13 @@ class MasteryIntervalMappingTest {
             ),
         )
 
-        val summary = snapshot.toProfileOverview(emptyMap(), emptyMap()).weaknesses.single()
+        val summary = snapshot.toProfileOverview(
+            resolvedKnowledgeContexts = emptyMap(),
+            fallbackKnowledgeNames = emptyMap(),
+            atEpochMillis = 1_000,
+            decay = MasteryDecisionPolicy.DEFAULT.decay,
+            prerequisiteStabilityDaysByNode = emptyMap(),
+        ).weaknesses.single()
         assertEquals(null, summary.masteryIntervalUpper)
         assertEquals(null, summary.memoryStabilityDays)
     }

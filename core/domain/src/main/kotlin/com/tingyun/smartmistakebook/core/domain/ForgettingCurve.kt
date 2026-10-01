@@ -35,7 +35,13 @@ data class RetentionEstimate(
 class ForgettingCurve(
     private val clock: EpochMillisClock = SystemEpochMillisClock,
     private val stabilityRetention: Double = DEFAULT_STABILITY_RETENTION,
-    private val decay: Double = -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
+    /**
+     * FSRS 幂律衰减（`-w20`）。读取侧（`ClearlyMasteredForSkipPolicy.effectiveStatus`）要用
+     * **同一份** decay 重算当前召回概率——曲线实例是"同源个性化参数"的既有载体
+     * （`RoomBackedStudyExperienceRepository` 的 `activeFsrsDecay` 注入点），故公开读值，
+     * 免去各调用点自备一份参数、再次漂移（裁决 28 读侧闭合）。
+     */
+    val decay: Double = -FsrsScheduleMath.DEFAULT_PARAMETERS[20],
 ) {
     init {
         require(stabilityRetention in 0.0..1.0 && stabilityRetention != 0.0 && stabilityRetention != 1.0) {

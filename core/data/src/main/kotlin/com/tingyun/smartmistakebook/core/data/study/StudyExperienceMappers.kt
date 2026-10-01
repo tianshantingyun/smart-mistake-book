@@ -6,6 +6,7 @@ import com.tingyun.smartmistakebook.core.database.ReviewPlanBundle
 import com.tingyun.smartmistakebook.core.database.ReviewSessionRecord
 import com.tingyun.smartmistakebook.core.database.ReviewedKnowledgeCoverageRecord
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.domain.ClearlyMasteredForSkipPolicy
 import com.tingyun.smartmistakebook.core.domain.ForgettingCurve
 import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.domain.ReviewCompletionStreak
@@ -39,6 +40,8 @@ internal fun MistakeRecord.toCatalogEntry(
     curatedProblemIds: Set<String>,
     forgettingCurve: ForgettingCurve,
     fixtureSource: StudyFixtureSource,
+    /** KF-16 / 裁决 28：节点 → 其先修的记忆稳定度（无条目 = 无已知先修）。 */
+    prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
 ): StudyCatalogEntry {
     val memory = learnerSnapshot.problemMemoryStates[practiceUnitId]
     val artifact = fixtureSource.teachingArtifactForPracticeUnit(practiceUnitId)
@@ -62,7 +65,11 @@ internal fun MistakeRecord.toCatalogEntry(
                 resolvedKnowledgeNames[knowledgeNodeId] ?: knowledgeNodeId
             }
         },
-        masteryStatus = knowledgeStates.conservativeMasteryStatus(),
+        masteryStatus = knowledgeStates.conservativeMasteryStatus(
+            atEpochMillis = atEpochMillis,
+            decay = forgettingCurve.decay,
+            prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
+        ),
         nextReviewAtEpochMillis = memory?.nextReviewAtEpochMillis ?: nextReviewAtEpochMillis,
         retrievability = memory?.let { forgettingCurve.retentionAt(it, atEpochMillis) }
             ?: retrievability,
@@ -82,21 +89,55 @@ internal fun MistakeRecord.toCatalogEntry(
     )
 }
 
-internal fun List<KnowledgeMasteryState>.conservativeMasteryStatus(): MasteryStatus = when {
+/**
+ * 裁决 28（读侧语义闭合，2026-10-01）：列表级"保守状态"由**读时现算**的
+ * [ClearlyMasteredForSkipPolicy.effectiveStatus] 聚合，不再读写入瞬间的冻结 `status`
+ * （先把每个 state 换成此刻的有效状态，再按同一优先级聚合：CONFLICTED > STALE > LEARNING
+ * > 全 MASTERED > UNKNOWN）。
+ */
+internal fun List<KnowledgeMasteryState>.conservativeMasteryStatus(
+    atEpochMillis: Long,
+    decay: Double,
+    prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
+): MasteryStatus = when {
     isEmpty() -> MasteryStatus.UNKNOWN
-    any { it.status == MasteryStatus.CONFLICTED } -> MasteryStatus.CONFLICTED
-    any { it.status == MasteryStatus.STALE } -> MasteryStatus.STALE
-    any { it.status == MasteryStatus.LEARNING } -> MasteryStatus.LEARNING
-    all { it.status == MasteryStatus.MASTERED } -> MasteryStatus.MASTERED
+    any { it.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode) == MasteryStatus.CONFLICTED } ->
+        MasteryStatus.CONFLICTED
+    any { it.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode) == MasteryStatus.STALE } ->
+        MasteryStatus.STALE
+    any { it.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode) == MasteryStatus.LEARNING } ->
+        MasteryStatus.LEARNING
+    all { it.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode) == MasteryStatus.MASTERED } ->
+        MasteryStatus.MASTERED
     else -> MasteryStatus.UNKNOWN
 }
+
+/** 读侧单点状态（[conservativeMasteryStatus] 与 profile 过滤共用同一出口）。 */
+private fun KnowledgeMasteryState.resolvedStatus(
+    atEpochMillis: Long,
+    decay: Double,
+    prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>>,
+): MasteryStatus = ClearlyMasteredForSkipPolicy.effectiveStatus(
+    state = this,
+    atEpochMillis = atEpochMillis,
+    decay = decay,
+    prerequisiteStabilityDays = prerequisiteStabilityDaysByNode[knowledgeNodeId].orEmpty(),
+)
 
 internal fun LearnerSnapshot.toProfileOverview(
     resolvedKnowledgeContexts: Map<String, ResolvedKnowledgeContext>,
     fallbackKnowledgeNames: Map<String, String>,
+    /**
+     * 裁决 28：读时重算三件套——评估时刻（与排程同钟：`planningContext.planningAtEpochMillis`）、
+     * 同源 FSRS decay（`forgettingCurve.decay`）、先修稳定度表（KF-16 压制；无条目 = 无已知先修）。
+     * 不给默认值：漏传 = 编译失败，不允许再有"忘传就把已忘的点算成强项"的静默路径。
+     */
+    atEpochMillis: Long,
+    decay: Double,
+    prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>>,
 ): StudyProfileOverview {
     val weaknesses = knowledgeMasteryStates.values
-        .filter { it.status != MasteryStatus.MASTERED }
+        .filter { it.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode) != MasteryStatus.MASTERED }
         .sortedWith(
             compareBy<KnowledgeMasteryState> { it.conservativeMasteryScore }
                 .thenBy { it.knowledgeNodeId },
@@ -111,7 +152,7 @@ internal fun LearnerSnapshot.toProfileOverview(
                 displayName = context?.displayName
                     ?: fallbackKnowledgeNames[state.knowledgeNodeId]
                     ?: state.knowledgeNodeId,
-                status = state.status,
+                status = state.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode),
                 conservativeMasteryScore = interval.lower,
                 masteryIntervalUpper = if (state.successWeight + state.failureWeight > 0.0) {
                     interval.upper
@@ -130,7 +171,7 @@ internal fun LearnerSnapshot.toProfileOverview(
             )
         }
     val strengths = knowledgeMasteryStates.values
-        .filter { it.status == MasteryStatus.MASTERED }
+        .filter { it.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode) == MasteryStatus.MASTERED }
         .sortedWith(
             compareByDescending<KnowledgeMasteryState> { it.conservativeMasteryScore }
                 .thenBy { it.knowledgeNodeId },
@@ -144,7 +185,7 @@ internal fun LearnerSnapshot.toProfileOverview(
                 displayName = context?.displayName
                     ?: fallbackKnowledgeNames[state.knowledgeNodeId]
                     ?: state.knowledgeNodeId,
-                status = state.status,
+                status = state.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode),
                 conservativeMasteryScore = interval.lower,
                 masteryIntervalUpper = if (state.successWeight + state.failureWeight > 0.0) {
                     interval.upper
@@ -166,7 +207,7 @@ internal fun LearnerSnapshot.toProfileOverview(
         hasLearningEvidence = appliedAttemptRecords.isNotEmpty(),
         recordedAttemptCount = appliedAttemptRecords.size,
         newlyMasteredCount = knowledgeMasteryStates.values.count {
-            it.status == MasteryStatus.MASTERED
+            it.resolvedStatus(atEpochMillis, decay, prerequisiteStabilityDaysByNode) == MasteryStatus.MASTERED
         },
         weaknesses = weaknesses,
         strengths = strengths,
