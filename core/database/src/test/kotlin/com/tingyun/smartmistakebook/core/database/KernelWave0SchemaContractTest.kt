@@ -175,9 +175,11 @@ class KernelWave0SchemaContractTest {
          * 与实际值脱节——"名字说当前、值却过时"。此处不可引用 `core:domain` 的
          * `LearningCoreVersions.PROJECTION_COMPOSITE`（依赖方向不允许），修改内核版本串时
          * 请同步本字面量。
+         *
+         * 2026-10-02（W4-2 投影批）：同步 `projector-v11` / `evidence-v5` / `attribution-v3`。
          */
         const val CURRENT_PROJECTOR_VERSION =
-            "learning-core-v10(projector-v10,evidence-v4,curve-v3,skip-v4,attribution-v2,ledger-v2)"
+            "learning-core-v11(projector-v11,evidence-v5,curve-v3,skip-v4,attribution-v3,ledger-v2)"
 
         val json = Json { ignoreUnknownKeys = true }
         /** 只认真正的列定义（反引号列名 + 类型），不认 PRIMARY KEY / FOREIGN KEY 子句里的列名。 */

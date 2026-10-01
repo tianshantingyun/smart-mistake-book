@@ -6,6 +6,7 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
+import androidx.room3.Upsert
 import com.tingyun.smartmistakebook.core.database.AttemptAdvanceProofRecord
 import com.tingyun.smartmistakebook.core.database.AttemptCorrectionRecord
 import com.tingyun.smartmistakebook.core.database.AnswerRevealWriteCommand
@@ -344,68 +345,133 @@ internal abstract class ProjectionTransactionDao {
         projectionStatus: String,
     ): Int
 
-    @Query(
-        "DELETE FROM learner_problem_memory_state WHERE projection_name = :projectionName AND learner_id = :learnerId",
-    )
-    protected abstract suspend fun deleteMemoryStates(projectionName: String, learnerId: String)
+    // ---- S1（W4-2 投影热路径）：按主键差集删/改，取代"每批全删全插" ----
+    //
+    // 旧的 `deleteX(projectionName, learnerId)`（整表清空）已删除：提交路径现在只对
+    // **消失的主键**发删除、只对**变更的行**发 upsert（`applyProjectionTables`）。
 
     @Query(
-        "DELETE FROM independent_correct_observation WHERE projection_name = :projectionName AND learner_id = :learnerId",
+        """
+        DELETE FROM learner_problem_memory_state
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+          AND practice_unit_id IN (:practiceUnitIds)
+        """,
     )
-    protected abstract suspend fun deleteObservations(projectionName: String, learnerId: String)
-
-    @Query(
-        "DELETE FROM learner_knowledge_mastery_state WHERE projection_name = :projectionName AND learner_id = :learnerId",
-    )
-    protected abstract suspend fun deleteMasteryStates(projectionName: String, learnerId: String)
-
-    @Query(
-        "DELETE FROM applied_attempt_record WHERE projection_name = :projectionName AND learner_id = :learnerId",
-    )
-    protected abstract suspend fun deleteAppliedAttempts(projectionName: String, learnerId: String)
-
-    @Query(
-        "DELETE FROM applied_correction_record WHERE projection_name = :projectionName AND learner_id = :learnerId",
-    )
-    protected abstract suspend fun deleteAppliedCorrections(projectionName: String, learnerId: String)
-
-    @Query(
-        "DELETE FROM applied_answer_reveal_record WHERE projection_name = :projectionName AND learner_id = :learnerId",
-    )
-    protected abstract suspend fun deleteAppliedAnswerReveals(projectionName: String, learnerId: String)
-
-    @Query(
-        "DELETE FROM applied_tutor_answer_exposure_record WHERE projection_name = :projectionName AND learner_id = :learnerId",
-    )
-    protected abstract suspend fun deleteAppliedTutorAnswerExposures(
+    protected abstract suspend fun deleteMemoryStatesByIds(
         projectionName: String,
         learnerId: String,
+        practiceUnitIds: List<String>,
     )
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertMemoryStates(states: List<LearnerProblemMemoryStateEntity>)
+    @Query(
+        """
+        DELETE FROM independent_correct_observation
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+          AND knowledge_node_id = :knowledgeNodeId AND ordinal = :ordinal
+        """,
+    )
+    protected abstract suspend fun deleteObservation(
+        projectionName: String,
+        learnerId: String,
+        knowledgeNodeId: String,
+        ordinal: Int,
+    )
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertMasteryStates(states: List<LearnerKnowledgeMasteryStateEntity>)
+    @Query(
+        """
+        DELETE FROM learner_knowledge_mastery_state
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+          AND knowledge_node_id IN (:knowledgeNodeIds)
+        """,
+    )
+    protected abstract suspend fun deleteMasteryStatesByIds(
+        projectionName: String,
+        learnerId: String,
+        knowledgeNodeIds: List<String>,
+    )
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertObservations(
+    @Query(
+        """
+        DELETE FROM applied_attempt_record
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+          AND attempt_id IN (:attemptIds)
+        """,
+    )
+    protected abstract suspend fun deleteAppliedAttemptsByIds(
+        projectionName: String,
+        learnerId: String,
+        attemptIds: List<String>,
+    )
+
+    @Query(
+        """
+        DELETE FROM applied_correction_record
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+          AND correction_id IN (:correctionIds)
+        """,
+    )
+    protected abstract suspend fun deleteAppliedCorrectionsByIds(
+        projectionName: String,
+        learnerId: String,
+        correctionIds: List<String>,
+    )
+
+    @Query(
+        """
+        DELETE FROM applied_answer_reveal_record
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+          AND outcome_id IN (:outcomeIds)
+        """,
+    )
+    protected abstract suspend fun deleteAppliedAnswerRevealsByIds(
+        projectionName: String,
+        learnerId: String,
+        outcomeIds: List<String>,
+    )
+
+    @Query(
+        """
+        DELETE FROM applied_tutor_answer_exposure_record
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+          AND outcome_id IN (:outcomeIds)
+        """,
+    )
+    protected abstract suspend fun deleteAppliedTutorAnswerExposuresByIds(
+        projectionName: String,
+        learnerId: String,
+        outcomeIds: List<String>,
+    )
+
+    /**
+     * `@Upsert` 而非 REPLACE/全删全插：REPLACE 先删后插，而这几张表以 RESTRICT 引用不可变
+     * 账本行（attempt/correction/reveal/exposure）与知识节点——删了会被外键直接拒绝；
+     * **@Upsert 只写变更行**，未变行一字不动（S1 的核心收益）。
+     */
+    @Upsert
+    protected abstract suspend fun upsertMemoryStates(states: List<LearnerProblemMemoryStateEntity>)
+
+    @Upsert
+    protected abstract suspend fun upsertMasteryStates(states: List<LearnerKnowledgeMasteryStateEntity>)
+
+    /** 观察表增量 append：新序号的行走 upsert 插入，旧序号行原样保留（差集删除另发）。 */
+    @Upsert
+    protected abstract suspend fun upsertObservations(
         observations: List<IndependentCorrectObservationEntity>,
     )
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertAppliedAttempts(records: List<AppliedAttemptRecordEntity>)
+    @Upsert
+    protected abstract suspend fun upsertAppliedAttempts(records: List<AppliedAttemptRecordEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertAppliedCorrections(records: List<AppliedCorrectionRecordEntity>)
+    @Upsert
+    protected abstract suspend fun upsertAppliedCorrections(records: List<AppliedCorrectionRecordEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertAppliedAnswerReveals(
+    @Upsert
+    protected abstract suspend fun upsertAppliedAnswerReveals(
         records: List<AppliedAnswerRevealRecordEntity>,
     )
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertAppliedTutorAnswerExposures(
+    @Upsert
+    protected abstract suspend fun upsertAppliedTutorAnswerExposures(
         records: List<AppliedTutorAnswerExposureRecordEntity>,
     )
 
@@ -734,25 +800,11 @@ internal abstract class ProjectionTransactionDao {
         )
         verifyCommittedPresentationStates(commit, rows)
 
-        deleteObservations(commit.projectionName, commit.learnerId)
-        deleteMasteryStates(commit.projectionName, commit.learnerId)
-        deleteMemoryStates(commit.projectionName, commit.learnerId)
-        deleteAppliedAttempts(commit.projectionName, commit.learnerId)
-        deleteAppliedCorrections(commit.projectionName, commit.learnerId)
-        deleteAppliedAnswerReveals(commit.projectionName, commit.learnerId)
-        deleteAppliedTutorAnswerExposures(commit.projectionName, commit.learnerId)
-        storedSnapshot.toMemoryEntities(commit.projectionName).insertWhenNotEmpty(::insertMemoryStates)
-        val mastery = storedSnapshot.toMasteryEntities(commit.projectionName)
-        mastery.first.insertWhenNotEmpty(::insertMasteryStates)
-        mastery.second.insertWhenNotEmpty(::insertObservations)
-        storedSnapshot.toAppliedEntities(commit.projectionName)
-            .insertWhenNotEmpty(::insertAppliedAttempts)
-        storedSnapshot.toAppliedCorrectionEntities(commit.projectionName)
-            .insertWhenNotEmpty(::insertAppliedCorrections)
-        storedSnapshot.toAppliedAnswerRevealEntities(commit.projectionName)
-            .insertWhenNotEmpty(::insertAppliedAnswerReveals)
-        storedSnapshot.toAppliedTutorAnswerExposureEntities(commit.projectionName)
-            .insertWhenNotEmpty(::insertAppliedTutorAnswerExposures)
+        applyProjectionTables(
+            projectionName = commit.projectionName,
+            learnerId = commit.learnerId,
+            snapshot = storedSnapshot,
+        )
         rows.map { row ->
             ProjectionConsumptionEntity(
                 projectionName = commit.projectionName,
@@ -770,6 +822,102 @@ internal abstract class ProjectionTransactionDao {
             knownLedgerHeadSequence = actualLedgerHead,
             snapshot = storedSnapshot,
         )
+    }
+
+    /**
+     * S1（W4-2 投影热路径）：把 [snapshot] 的 7 张投影表写进库——**变更行 upsert、消失行按
+     * 主键差集删除**，不再每批全删全插。
+     *
+     * 不变量：提交后各表内容与旧实现（全删 + 全插同一份快照）逐位一致——差集比较用的是
+     * 行内容的完整相等（data class equality），未变行不动、变更行重写、消失行删除，
+     * 三种情况合起来恰好等于"清空重写"的结果，但写放大只与**变更量**成正比。
+     *
+     * 顺序约束来自外键：
+     * 1. 掌握态先于观察表（`independent_correct_observation` CASCADE 引用掌握态）；
+     * 2. 消失的掌握态先删（其观察行随 CASCADE 消失，随后差集删除是空操作）；
+     * 3. 已应用记录四表相互独立，各自差集。
+     * 崩溃安全不变：整个提交仍在一个 `@Transaction` 里，提交点即事务边界。
+     */
+    private suspend fun applyProjectionTables(
+        projectionName: String,
+        learnerId: String,
+        snapshot: LearnerSnapshot,
+    ) {
+        reconcileRows(
+            existing = findMemoryStates(projectionName, learnerId),
+            desired = snapshot.toMemoryEntities(projectionName),
+            keyOf = LearnerProblemMemoryStateEntity::practiceUnitId,
+            upsert = ::upsertMemoryStates,
+        ) { ids -> deleteMemoryStatesByIds(projectionName, learnerId, ids) }
+
+        val (masteryStates, observations) = snapshot.toMasteryEntities(projectionName)
+        reconcileRows(
+            existing = findMasteryStates(projectionName, learnerId),
+            desired = masteryStates,
+            keyOf = LearnerKnowledgeMasteryStateEntity::knowledgeNodeId,
+            upsert = ::upsertMasteryStates,
+        ) { ids -> deleteMasteryStatesByIds(projectionName, learnerId, ids) }
+
+        // 观察表：按 (knowledge_node_id, ordinal) 复合主键差集。增量下序号只增不改（append），
+        // 变更/消失只可能来自全量重放（修正事件让某题从正答变负答等）。
+        val existingObservations = findObservations(projectionName, learnerId)
+        val existingObservationByKey = existingObservations.associateBy {
+            it.knowledgeNodeId to it.ordinal
+        }
+        val changedObservations = observations.filter { observation ->
+            existingObservationByKey[observation.knowledgeNodeId to observation.ordinal] != observation
+        }
+        val desiredObservationKeys = observations.mapTo(hashSetOf()) { it.knowledgeNodeId to it.ordinal }
+        if (changedObservations.isNotEmpty()) upsertObservations(changedObservations)
+        existingObservations
+            .filter { (it.knowledgeNodeId to it.ordinal) !in desiredObservationKeys }
+            .forEach { deleteObservation(projectionName, learnerId, it.knowledgeNodeId, it.ordinal) }
+
+        reconcileRows(
+            existing = findAppliedAttempts(projectionName, learnerId),
+            desired = snapshot.toAppliedEntities(projectionName),
+            keyOf = AppliedAttemptRecordEntity::attemptId,
+            upsert = ::upsertAppliedAttempts,
+        ) { ids -> deleteAppliedAttemptsByIds(projectionName, learnerId, ids) }
+        reconcileRows(
+            existing = findAppliedCorrections(projectionName, learnerId),
+            desired = snapshot.toAppliedCorrectionEntities(projectionName),
+            keyOf = AppliedCorrectionRecordEntity::correctionId,
+            upsert = ::upsertAppliedCorrections,
+        ) { ids -> deleteAppliedCorrectionsByIds(projectionName, learnerId, ids) }
+        reconcileRows(
+            existing = findAppliedAnswerReveals(projectionName, learnerId),
+            desired = snapshot.toAppliedAnswerRevealEntities(projectionName),
+            keyOf = AppliedAnswerRevealRecordEntity::outcomeId,
+            upsert = ::upsertAppliedAnswerReveals,
+        ) { ids -> deleteAppliedAnswerRevealsByIds(projectionName, learnerId, ids) }
+        reconcileRows(
+            existing = findAppliedTutorAnswerExposures(projectionName, learnerId),
+            desired = snapshot.toAppliedTutorAnswerExposureEntities(projectionName),
+            keyOf = AppliedTutorAnswerExposureRecordEntity::outcomeId,
+            upsert = ::upsertAppliedTutorAnswerExposures,
+        ) { ids -> deleteAppliedTutorAnswerExposuresByIds(projectionName, learnerId, ids) }
+    }
+
+    /**
+     * 一张投影表的差集写：变更行 upsert、消失行按主键分批删除（`IN (:ids)` 受 SQLite 参数
+     * 上限约束，复用 [SQLITE_PRESENTATION_ID_BATCH_SIZE] 的分块口径）。未变行一个字节都不写。
+     */
+    private suspend fun <T, K> reconcileRows(
+        existing: List<T>,
+        desired: List<T>,
+        keyOf: (T) -> K,
+        upsert: suspend (List<T>) -> Unit,
+        delete: suspend (List<K>) -> Unit,
+    ) {
+        val existingByKey = existing.associateBy(keyOf)
+        val changed = desired.filter { existingByKey[keyOf(it)] != it }
+        if (changed.isNotEmpty()) upsert(changed)
+        val desiredKeys = desired.mapTo(hashSetOf(), keyOf)
+        val removed = existing
+            .map(keyOf)
+            .filterNot(desiredKeys::contains)
+        removed.chunked(SQLITE_PRESENTATION_ID_BATCH_SIZE).forEach { delete(it) }
     }
 
     private suspend fun applyPresentationAuthorityTransitions(

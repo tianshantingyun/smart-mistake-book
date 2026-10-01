@@ -2,7 +2,12 @@ package com.tingyun.smartmistakebook.core.domain
 
 /** Single source of truth for persisted learning-algorithm version identities. */
 object LearningCoreVersions {
-    const val EVIDENCE = "evidence-v4"
+    /**
+     * v4 → v5（W4-2 投影批，2026-10-02，裁决 26）：「看答案」补知识点归因——独立
+     * `AnswerRevealOutcome` 事件除题卡外也把该题绑定的知识点记忆卡按一次遗忘失败 lapse。
+     * 号段沿用 3A 登记的 `evidence-v5`（「看答案口径」），本批落用。
+     */
+    const val EVIDENCE = "evidence-v5"
 
     /**
      * v5 → v6（2026-09-11）：`projectChatEvidence` 开始写 `lastEvidenceAt` /
@@ -37,11 +42,24 @@ object LearningCoreVersions {
      * （`consecutiveCrossDaySuccess`：毕业连击不再被首答放水，实际要 3 次真实跨日成功）；
      * ②导师曝光路径的 `answerRevealCount` 改为**每条曝光 +1**（此前冻结在 1）。
      * 两者的存量行都带旧值、且被毕业/leech/特征输入消费 → 必须全量重放（archive 先归档）。
+     *
+     * v10 → v11（W4-2 投影批，2026-10-02）：两处投影输出变化——①裁决 26：独立「看答案」
+     * 事件新增知识点归因，reveal 也 lapse 该题绑定的知识点记忆卡（KC 卡的稳定度/难度/
+     * 上次作答被改写；`ATTRIBUTION` 同批 v2 → v3）；②KF-17（裁决 8）：同批/source 的
+     * 新建卡到期日按序 +1 天错峰（`nextReviewAtEpochMillis` 变化，不动 FSRS 参数）。
+     * 存量投影两处都不带新口径 → 必须全量重放（W0-1 的 `projection_archive` 先归档）。
      */
-    const val PROJECTOR = "projector-v10"
+    const val PROJECTOR = "projector-v11"
     const val FORGETTING_CURVE = "curve-v3"
     const val SKIP_POLICY = "skip-v4"
-    const val ATTRIBUTION = "attribution-v2"
+
+    /**
+     * 证据归因版本串。
+     *
+     * v2 → v3（W4-2 投影批，2026-10-02，裁决 26）：新增 **REVEAL → 知识点记忆卡** 归因路径
+     * （独立看答案事件的 DIRECT 归因也 feed 该知识点卡）。归因路径集合变化 → 本串同步。
+     */
+    const val ATTRIBUTION = "attribution-v3"
     const val LEDGER = "ledger-v2"
     const val PREDICTION_INTERVAL = "prediction-interval-v1"
     /**
@@ -68,9 +86,9 @@ object LearningCoreVersions {
     const val SELECTOR = "selector-v7"
 
     const val PROJECTION_COMPOSITE =
-        "learning-core-v10($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
+        "learning-core-v11($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
     const val REVIEW_COMPOSITE =
-        "learning-core-v10($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
+        "learning-core-v11($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
     const val SELECTOR_COMPOSITE =
-        "learning-core-v10($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
+        "learning-core-v11($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }

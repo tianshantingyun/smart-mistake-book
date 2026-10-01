@@ -235,7 +235,7 @@ internal abstract class ModelTaskTransactionDao {
         if (created) {
             insertEvent(persisted.toEvent(previousStatus = null))
         }
-        return ModelTaskWriteResult(applied = created, snapshot = persisted.toSnapshot())
+        return ModelTaskWriteResult(applied = created, snapshot = persisted.verifyIntegrity())
     }
 
     @Transaction
@@ -254,7 +254,7 @@ internal abstract class ModelTaskTransactionDao {
                 applied = false,
                 budgetExhausted = false,
                 logicalDispatchCount = operation.dispatchCount,
-                snapshot = current.toSnapshot(),
+                snapshot = current.verifyIntegrity(),
             )
         }
         require(command.occurredAtEpochMillis >= current.updatedAtEpochMillis) {
@@ -275,7 +275,7 @@ internal abstract class ModelTaskTransactionDao {
                 applied = false,
                 budgetExhausted = true,
                 logicalDispatchCount = updatedOperation.dispatchCount,
-                snapshot = current.toSnapshot(),
+                snapshot = current.verifyIntegrity(),
             )
         }
         val providerSnapshot = ModelTaskCodec.encodeProvider(command.provider)
@@ -306,7 +306,7 @@ internal abstract class ModelTaskTransactionDao {
             applied = true,
             budgetExhausted = false,
             logicalDispatchCount = updatedOperation.dispatchCount,
-            snapshot = persisted.toSnapshot(),
+            snapshot = persisted.verifyIntegrity(),
         )
     }
 
@@ -318,7 +318,7 @@ internal abstract class ModelTaskTransactionDao {
             current.stateVersion != command.expectedStateVersion ||
             current.status != command.expectedStatus.name
         ) {
-            return ModelTaskWriteResult(applied = false, snapshot = current.toSnapshot())
+            return ModelTaskWriteResult(applied = false, snapshot = current.verifyIntegrity())
         }
         require(command.occurredAtEpochMillis >= current.updatedAtEpochMillis) {
             "Model task transition time must be monotonic"
@@ -346,7 +346,7 @@ internal abstract class ModelTaskTransactionDao {
         if (applied) {
             insertEvent(persisted.toEvent(previousStatus = current.status))
         }
-        return ModelTaskWriteResult(applied = applied, snapshot = persisted.toSnapshot())
+        return ModelTaskWriteResult(applied = applied, snapshot = persisted.verifyIntegrity())
     }
 }
 
@@ -390,20 +390,43 @@ private fun ModelTaskRequest.withoutTutorResponseTiming(): ModelTaskRequest {
     )
 }
 
-internal fun ModelTaskEntity.toSnapshot(): ModelTaskSnapshot {
+/**
+ * S7（W4-2 投影热路径）：**读路径不再重算正直性**。
+ *
+ * 旧行为是"读到即重算"：每次 observe/read 都重新计算操作指纹 SHA-256 并逐列核对快照，
+ * 于是 `RoomPendingCaptureStore.observeDrafts` 这类高频读每次失效重算都在付这份成本。
+ * 现在读路径只做**构造快照必需的** JSON 解码；完整正直性校验移到显式入口
+ * [verifyIntegrity]（写入路径与迁移/测试用）。
+ *
+ * 边界：篡改仍会被 [verifyIntegrity]（以及调用它的写入路径）捕获；读路径的选择是
+ * "渲染不因历史脏行而崩"，不是"不再有校验"。
+ */
+internal fun ModelTaskEntity.toSnapshot(): ModelTaskSnapshot = buildSnapshot(verifyIntegrity = false)
+
+/**
+ * 显式正直性入口：核对快照列与请求一致、操作指纹与不可变输入一致。
+ *
+ * 使用方：写入路径（create/reserve/transition 的落库前/后自检）与迁移、测试。
+ * 读路径（observe/read）**不**调用它——见 [toSnapshot] 的边界说明。
+ */
+internal fun ModelTaskEntity.verifyIntegrity(): ModelTaskSnapshot = buildSnapshot(verifyIntegrity = true)
+
+private fun ModelTaskEntity.buildSnapshot(verifyIntegrity: Boolean): ModelTaskSnapshot {
     val request = ModelTaskCodec.decodeRequest(requestSnapshot)
-    val expectedTutorResponseOrdinal = (request.input as? TutorRespondInput)?.responseOrdinal
-    if (
-        request.input.kind.name != taskKind ||
-        request.input.subjectId != subjectId ||
-        expectedTutorResponseOrdinal != tutorResponseOrdinal
-    ) {
-        throw LearningLedgerIntegrityException("Model task request columns disagree with snapshot")
-    }
-    if (operationFingerprint != ModelTaskLogicalOperationFingerprint.of(request)) {
-        throw LearningLedgerIntegrityException(
-            "Model task operation fingerprint disagrees with immutable input",
-        )
+    if (verifyIntegrity) {
+        val expectedTutorResponseOrdinal = (request.input as? TutorRespondInput)?.responseOrdinal
+        if (
+            request.input.kind.name != taskKind ||
+            request.input.subjectId != subjectId ||
+            expectedTutorResponseOrdinal != tutorResponseOrdinal
+        ) {
+            throw LearningLedgerIntegrityException("Model task request columns disagree with snapshot")
+        }
+        if (operationFingerprint != ModelTaskLogicalOperationFingerprint.of(request)) {
+            throw LearningLedgerIntegrityException(
+                "Model task operation fingerprint disagrees with immutable input",
+            )
+        }
     }
     val failure = when {
         failureCode == null && failureMessage == null && failureRetryable == null -> null

@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
 import com.tingyun.smartmistakebook.core.model.Attempt
@@ -19,6 +20,7 @@ import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
+import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -414,6 +416,113 @@ class LearningProjectorTest {
         assertEquals(1, memory.consecutiveCrossDaySuccess)
     }
 
+    @Test
+    fun `same batch siblings from one source are dispersed by one day each`() {
+        // KF-17（裁决 8，W4-2 投影批）：同批/source 的新建卡到期日按序 +1 天错峰，不动 FSRS 参数。
+        val day = 20_000L
+        val projected = projector.project(
+            LearnerSnapshot.empty("learner-1"),
+            listOf(
+                siblingAttempt("a-1", "unit-1", 1, "bundle-disperse", day),
+                siblingAttempt("a-2", "unit-2", 2, "bundle-disperse", day),
+                siblingAttempt("a-3", "unit-3", 3, "bundle-disperse", day),
+            ),
+            3,
+        ).snapshot
+        val first = projected.problemMemoryStates.getValue("unit-1")
+        val second = projected.problemMemoryStates.getValue("unit-2")
+        val third = projected.problemMemoryStates.getValue("unit-3")
+
+        // 同批 3 题 → 三日错峰（0/1/2 天）。
+        assertEquals(DAY_MILLIS, second.nextReviewAtEpochMillis - first.nextReviewAtEpochMillis)
+        assertEquals(DAY_MILLIS, third.nextReviewAtEpochMillis - second.nextReviewAtEpochMillis)
+
+        // 单题不受影响：单独投影的同一张卡到期日与批内第一张逐位相同。
+        val solo = projector.project(
+            LearnerSnapshot.empty("learner-1"),
+            listOf(siblingAttempt("solo", "unit-solo", 1, "bundle-solo", day)),
+            1,
+        ).snapshot.problemMemoryStates.getValue("unit-solo")
+        assertEquals(solo.nextReviewAtEpochMillis, first.nextReviewAtEpochMillis)
+        // 错峰不动 FSRS 参数：稳定性/难度与单题完全一致（只有到期日平移）。
+        assertEquals(solo.stabilityDays, first.stabilityDays, 0.0)
+        assertEquals(solo.difficulty, first.difficulty, 0.0)
+        assertEquals(solo.stabilityDays, second.stabilityDays, 0.0)
+        assertEquals(solo.difficulty, third.difficulty, 0.0)
+    }
+
+    @Test
+    fun `siblings created on different study days are not cross staggered`() {
+        // 口径：错峰键 = (source, 学习日)。同题簇但不同学习日的卡各取 0 号序号——
+        // 否则首次复习的时间差会被错峰放大成假间隔。
+        val projected = projector.project(
+            LearnerSnapshot.empty("learner-1"),
+            listOf(
+                siblingAttempt("a-1", "unit-1", 1, "bundle-b", studyDay = 20_000),
+                siblingAttempt("a-2", "unit-2", 2, "bundle-b", studyDay = 20_001),
+            ),
+            2,
+        ).snapshot
+        val first = projected.problemMemoryStates.getValue("unit-1")
+        val second = projected.problemMemoryStates.getValue("unit-2")
+        // 不同学习日：到期日只差各自时间基的一天；若错峰跨日生效会变成两天。
+        assertEquals(DAY_MILLIS, second.nextReviewAtEpochMillis - first.nextReviewAtEpochMillis)
+    }
+
+    @Test
+    fun `full replay reproduces dispersion and reveal knowledge card lapses bit for bit`() {
+        // 升级路径等价性：版本 bump 会让存量库走 replay；错峰与「看答案 lapse KC 卡」
+        // 两条新路径必须在增量与全量重放下逐位一致，否则老用户升级后拿到的口径分叉。
+        val day = 20_000L
+        val revealAt = (day + 1) * DAY_MILLIS
+        val events = listOf(
+            siblingAttempt("a-1", "unit-1", 1, "bundle-replay", day),
+            siblingAttempt("a-2", "unit-2", 2, "bundle-replay", day),
+            siblingAttempt("a-3", "unit-3", 3, "bundle-replay", day),
+            AnswerRevealOutcome(
+                outcomeId = "reveal-1",
+                presentationId = "presentation-reveal-1",
+                assessmentSnapshot = assessmentSnapshot("reveal-1"),
+                occurredAtEpochMillis = revealAt,
+                studyDay = StudyDayContext(
+                    epochDay = StudyDayMath.localEpochDayOf(revealAt, utcOffsetMinutes = 480),
+                    timeZoneId = "Asia/Shanghai",
+                    utcOffsetMinutes = 480,
+                ),
+                eventSequence = 4,
+            ),
+        )
+
+        val incremental = projector.project(LearnerSnapshot.empty("learner-1"), events, 4).snapshot
+        val replayed = projector.replay("learner-1", events).snapshot
+
+        assertEquals(incremental, replayed)
+        // 重放里确实发生了 KC 卡 lapse（否则这条等价性是空的）：卡的作答时刻被 reveal 推到。
+        assertEquals(
+            revealAt,
+            replayed.knowledgeMasteryStates.getValue("kc-a").lastAttemptAtEpochMillis,
+        )
+    }
+
+    private fun siblingAttempt(
+        id: String,
+        unit: String,
+        sequence: Long,
+        bundle: String,
+        studyDay: Long,
+    ): Attempt {
+        val base = attempt(id, sequence, setOf("kc-a"), positiveEvidence())
+        return base.copy(
+            assessmentSnapshot = base.assessmentSnapshot.copy(
+                practiceUnitId = unit,
+                sourceBundleId = bundle,
+            ),
+            // 同一学习日的兄弟姐妹落在同一个时间基上，错峰差异才只由 +N 天贡献。
+            occurredAtEpochMillis = studyDay * DAY_MILLIS,
+            studyDay = StudyDayContext(studyDay, "Asia/Shanghai", 480),
+        )
+    }
+
     private fun chatEvidence(
         evidenceId: String,
         sequence: Int,
@@ -437,41 +546,11 @@ class LearningProjectorTest {
         knowledgeNodeIds: Set<String>,
         evidence: LearningEvidence,
     ): Attempt {
-        val weight = 1.0 / knowledgeNodeIds.size
         return Attempt(
             attemptId = id,
             presentationId = "presentation-$id",
             responseOrdinal = 1,
-            assessmentSnapshot = AssessmentEvidenceSnapshot(
-                snapshotId = "snapshot-$id",
-                assessmentItemId = "assessment-$id",
-                practiceUnitId = "unit-1",
-                problemRevisionId = "revision-1",
-                answerSpecId = "answer-1",
-                itemFamilyId = "family-$id",
-                sourceBundleId = "source-$id",
-                taxonomyVersion = "taxonomy-v1",
-                verification = AssessmentSnapshotVerification.VERIFIED,
-                calibration = CalibrationSnapshot(
-                    CalibrationSupport.SUPPORTED,
-                    "calibration-source",
-                    "calibration-v1",
-                    0,
-                    100_000,
-                ),
-                attributions = knowledgeNodeIds.sorted().mapIndexed { index, knowledgeNodeId ->
-                    KnowledgeEvidenceAttribution(
-                        bindingId = "binding-$id-$knowledgeNodeId",
-                        knowledgeNodeId = knowledgeNodeId,
-                        weight = weight,
-                        basisRevisionId = "revision-1",
-                        taxonomyVersion = "taxonomy-v1",
-                        role = if (index == 0) EvidenceAttributionRole.PRIMARY else EvidenceAttributionRole.SECONDARY,
-                        certainty = EvidenceAttributionCertainty.DIRECT,
-                    )
-                },
-                capturedAtEpochMillis = 0,
-            ),
+            assessmentSnapshot = assessmentSnapshot(id, knowledgeNodeIds),
             evidence = evidence,
             problemMemoryOutcome = if (evidence.signedWeight > 0) {
                 ProblemMemoryOutcome.INDEPENDENT_RECALL
@@ -482,6 +561,43 @@ class LearningProjectorTest {
             durationSeconds = 60,
             studyDay = StudyDayContext(sequence, "Asia/Shanghai", 480),
             eventSequence = sequence,
+        )
+    }
+
+    private fun assessmentSnapshot(
+        id: String,
+        knowledgeNodeIds: Set<String> = setOf("kc-a"),
+    ): AssessmentEvidenceSnapshot {
+        val weight = 1.0 / knowledgeNodeIds.size
+        return AssessmentEvidenceSnapshot(
+            snapshotId = "snapshot-$id",
+            assessmentItemId = "assessment-$id",
+            practiceUnitId = "unit-1",
+            problemRevisionId = "revision-1",
+            answerSpecId = "answer-1",
+            itemFamilyId = "family-$id",
+            sourceBundleId = "source-$id",
+            taxonomyVersion = "taxonomy-v1",
+            verification = AssessmentSnapshotVerification.VERIFIED,
+            calibration = CalibrationSnapshot(
+                CalibrationSupport.SUPPORTED,
+                "calibration-source",
+                "calibration-v1",
+                0,
+                100_000,
+            ),
+            attributions = knowledgeNodeIds.sorted().mapIndexed { index, knowledgeNodeId ->
+                KnowledgeEvidenceAttribution(
+                    bindingId = "binding-$id-$knowledgeNodeId",
+                    knowledgeNodeId = knowledgeNodeId,
+                    weight = weight,
+                    basisRevisionId = "revision-1",
+                    taxonomyVersion = "taxonomy-v1",
+                    role = if (index == 0) EvidenceAttributionRole.PRIMARY else EvidenceAttributionRole.SECONDARY,
+                    certainty = EvidenceAttributionCertainty.DIRECT,
+                )
+            },
+            capturedAtEpochMillis = 0,
         )
     }
 

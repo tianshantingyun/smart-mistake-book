@@ -21,6 +21,9 @@ import com.tingyun.smartmistakebook.core.model.LearnerSnapshotJson
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
 import java.time.Clock
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Drains the immutable learning ledger into the learner projection (spec §6):
@@ -28,6 +31,11 @@ import java.time.Clock
  * ledger demands one. Extracted from the study repository so the ledger/CAS
  * mechanics stay readable on their own; every database and projector access is
  * an explicit constructor dependency.
+ *
+ * S10（W4-2 投影热路径）：数据库/归档与投影计算各自**显式**切调度器（默认
+ * `Dispatchers.IO` / `Dispatchers.Default`），不再把工作跑在调用方给的 dispatcher 上
+ * ——`drain()` 的调用方可能是 UI 或任意协程上下文，投影放大（最多 64 步 × 100 事件）
+ * 不该占着那个上下文跑。
  */
 internal class StudyProjectionDrainer(
     private val database: StudyDatabasePort,
@@ -35,26 +43,44 @@ internal class StudyProjectionDrainer(
     private val learningProjector: LearningProjector,
     /** 归档行的 `archived_at_epoch_millis` 取这里的当前时刻（不猜、不借用投影时刻）。 */
     private val clock: Clock,
+    /** S10：投影/重放计算的显式调度器。 */
+    private val computeDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    /** S10：数据库读写与归档 JSON 编码的显式调度器。 */
+    private val databaseDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
     suspend fun drain(): PersistedLearnerSnapshot? {
         var consecutiveCasConflicts = 0
         // 合并重定向在**一次排空内是常量**，且增量投影与全量重放必须用同一份——
         // 两条路用不同的映射会算出不同的掌握度，而重放的职责正是复现增量的结果。
-        val knowledgeNodeSuccessors = KnowledgeNodeSuccessors(database.readKnowledgeNodeSuccessors())
+        val knowledgeNodeSuccessors = KnowledgeNodeSuccessors(
+            onDatabase { database.readKnowledgeNodeSuccessors() },
+        )
+        // S4（W4-2 投影热路径）：批内快照复用——一次 drain 调用内每个已提交的批次结果直接
+        // 作为下一轮的"当前快照"，不再每步重读 9 张投影表。正确性由 `loadProjectionBatch`
+        // 每步现读的 header checkpoint 守住：别的写入者若插进来，checkpoint 对不上就进 CAS
+        // 冲突分支，并强制丢弃复用副本重读。
+        var current: PersistedLearnerSnapshot? = null
+        var currentLoaded = false
         repeat(MAX_PROJECTION_DRAIN_STEPS) {
-            val current = database.readCurrentLearnerSnapshot(PROJECTION_NAME, learnerId)
-            val batch = database.loadProjectionBatch(
-                projectionName = PROJECTION_NAME,
-                learnerId = learnerId,
-                limit = PROJECTION_BATCH_SIZE,
-            )
+            if (!currentLoaded) {
+                current = onDatabase { database.readCurrentLearnerSnapshot(PROJECTION_NAME, learnerId) }
+                currentLoaded = true
+            }
+            val batch = onDatabase {
+                database.loadProjectionBatch(
+                    projectionName = PROJECTION_NAME,
+                    learnerId = learnerId,
+                    limit = PROJECTION_BATCH_SIZE,
+                )
+            }
             val expectedCheckpoint = current?.snapshot?.checkpoint?.lastSequence ?: 0L
             if (batch.previousCheckpoint != expectedCheckpoint) {
                 consecutiveCasConflicts++
                 if (consecutiveCasConflicts >= MAX_CAS_RETRIES) {
                     throw ProjectionCasConflictException("Projection checkpoint changed during drain")
                 }
+                currentLoaded = false
                 return@repeat
             }
             when (batch.stopReason) {
@@ -66,10 +92,12 @@ internal class StudyProjectionDrainer(
 
                 ProjectionBatchStopReason.FULL_REPLAY_REQUIRED -> {
                     try {
-                        commitFullReplay(current, knowledgeNodeSuccessors)
+                        current = commitFullReplay(current, knowledgeNodeSuccessors)
+                        currentLoaded = true
                         consecutiveCasConflicts = 0
                     } catch (conflict: ProjectionCasConflictException) {
                         consecutiveCasConflicts++
+                        currentLoaded = false
                         if (consecutiveCasConflicts >= MAX_CAS_RETRIES) throw conflict
                     }
                 }
@@ -91,22 +119,26 @@ internal class StudyProjectionDrainer(
                             )
                     if (requiresReplay) {
                         try {
-                            commitFullReplay(current, knowledgeNodeSuccessors)
+                            current = commitFullReplay(current, knowledgeNodeSuccessors)
+                            currentLoaded = true
                             consecutiveCasConflicts = 0
                         } catch (conflict: ProjectionCasConflictException) {
                             consecutiveCasConflicts++
+                            currentLoaded = false
                             if (consecutiveCasConflicts >= MAX_CAS_RETRIES) throw conflict
                         }
                     } else if (batch.events.isEmpty()) {
                         return current
                     } else {
-                        val result = learningProjector.project(
-                            previous = previous,
-                            events = batch.events.map { it.event },
-                            knownLedgerHeadSequence = batch.ledgerHeadSequence,
-                            authoritativePresentationStates = batch.authoritativePresentationStates,
-                            knowledgeNodeSuccessors = knowledgeNodeSuccessors,
-                        )
+                        val result = onCompute {
+                            learningProjector.project(
+                                previous = previous,
+                                events = batch.events.map { it.event },
+                                knownLedgerHeadSequence = batch.ledgerHeadSequence,
+                                authoritativePresentationStates = batch.authoritativePresentationStates,
+                                knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+                            )
+                        }
                         check(
                             result.missingSequence == null &&
                             result.conflictedAttemptIds.isEmpty() &&
@@ -136,10 +168,12 @@ internal class StudyProjectionDrainer(
                             expectedProjectorVersion = LearningProjector.VERSION,
                         )
                         try {
-                            database.commitProjection(commit)
+                            current = onDatabase { database.commitProjection(commit) }
+                            currentLoaded = true
                             consecutiveCasConflicts = 0
                         } catch (conflict: ProjectionCasConflictException) {
                             consecutiveCasConflicts++
+                            currentLoaded = false
                             if (consecutiveCasConflicts >= MAX_CAS_RETRIES) throw conflict
                         }
                     }
@@ -153,7 +187,7 @@ internal class StudyProjectionDrainer(
         current: PersistedLearnerSnapshot?,
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors,
     ): PersistedLearnerSnapshot {
-        val ledger = database.loadLearningLedger(learnerId)
+        val ledger = onDatabase { database.loadLearningLedger(learnerId) }
         if (ledger.status != LearningLedgerReadStatus.COMPLETE) {
             throw LearningLedgerIntegrityException(
                 ledger.detail ?: "Full replay blocked at ${ledger.blockedAtSequence}",
@@ -164,32 +198,36 @@ internal class StudyProjectionDrainer(
         // 反过来就只剩新值——而"改数值可回退"正是 Wave 0 要建立的前提。
         val displacedSnapshot = current?.snapshot
         val archived = archiveDisplacedSnapshot(displacedSnapshot)
-        val result = learningProjector.replay(
-            learnerId = learnerId,
-            ledger = ledger.validPrefix.map { it.event },
-            knowledgeNodeSuccessors = knowledgeNodeSuccessors,
-            // W0-1 ①：跨版本覆盖要在重放入口声明"被替换的那份已经归档"（同版本或空库无需声明）。
-            displacedSnapshot = displacedSnapshot,
-            displacedSnapshotArchived = archived,
-        )
+        val result = onCompute {
+            learningProjector.replay(
+                learnerId = learnerId,
+                ledger = ledger.validPrefix.map { it.event },
+                knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+                // W0-1 ①：跨版本覆盖要在重放入口声明"被替换的那份已经归档"（同版本或空库无需声明）。
+                displacedSnapshot = displacedSnapshot,
+                displacedSnapshotArchived = archived,
+            )
+        }
         val expectedCheckpoint = current?.snapshot?.checkpoint?.lastSequence ?: 0L
         val consumed = ledger.validPrefix
             .filter { it.event.eventSequence > expectedCheckpoint }
             .map { persisted -> persisted.toReceipt() }
-        return database.commitProjection(
-            ProjectionCommit(
-                projectionName = PROJECTION_NAME,
-                learnerId = learnerId,
-                expectedPreviousCheckpoint = expectedCheckpoint,
-                expectedPreviousStateVersion = current?.stateVersion ?: 0L,
-                mode = ProjectionCommitMode.FULL_REPLAY,
-                knownLedgerHeadSequence = result.snapshot.knownLedgerHeadSequence,
-                consumedLedgerEvents = consumed,
-                presentationProjectionStates = result.presentationProjectionStates,
-                snapshot = result.snapshot,
-                expectedProjectorVersion = LearningProjector.VERSION,
-            ),
-        )
+        return onDatabase {
+            database.commitProjection(
+                ProjectionCommit(
+                    projectionName = PROJECTION_NAME,
+                    learnerId = learnerId,
+                    expectedPreviousCheckpoint = expectedCheckpoint,
+                    expectedPreviousStateVersion = current?.stateVersion ?: 0L,
+                    mode = ProjectionCommitMode.FULL_REPLAY,
+                    knownLedgerHeadSequence = result.snapshot.knownLedgerHeadSequence,
+                    consumedLedgerEvents = consumed,
+                    presentationProjectionStates = result.presentationProjectionStates,
+                    snapshot = result.snapshot,
+                    expectedProjectorVersion = LearningProjector.VERSION,
+                ),
+            )
+        }
     }
 
     /**
@@ -201,17 +239,25 @@ internal class StudyProjectionDrainer(
      */
     private suspend fun archiveDisplacedSnapshot(snapshot: LearnerSnapshot?): Boolean {
         if (snapshot == null) return false
-        database.archiveProjectionSnapshot(
-            ProjectionArchiveRecord(
-                projectionName = PROJECTION_NAME,
-                learnerId = learnerId,
-                snapshotJson = LearnerSnapshotJson.encode(snapshot),
-                projectorVersion = snapshot.checkpoint.projectorVersion,
-                archivedAtEpochMillis = clock.millis(),
-            ),
-        )
+        onDatabase {
+            database.archiveProjectionSnapshot(
+                ProjectionArchiveRecord(
+                    projectionName = PROJECTION_NAME,
+                    learnerId = learnerId,
+                    snapshotJson = LearnerSnapshotJson.encode(snapshot),
+                    projectorVersion = snapshot.checkpoint.projectorVersion,
+                    archivedAtEpochMillis = clock.millis(),
+                ),
+            )
+        }
         return true
     }
+
+    private suspend fun <T> onDatabase(block: suspend () -> T): T =
+        withContext(databaseDispatcher) { block() }
+
+    private suspend fun <T> onCompute(block: suspend () -> T): T =
+        withContext(computeDispatcher) { block() }
 
     private fun com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent.toReceipt() =
         ConsumedLedgerEventReceipt(

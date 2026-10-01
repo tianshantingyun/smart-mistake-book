@@ -40,7 +40,9 @@
 | `LearningCoreVersions.REVIEW_PLANNER` | `review-planner-v7` | **`review-planner-v8`** | 批次 R（裁决 28 读侧语义闭合）：V1 跳过/风险判据改 `effectiveStatus` 现算（45 天窗并入出口；锚点 = 最后作答，双钟关闭）；V1 指纹 `canonical-v5 → v6` 同批 | ✅ 已用（批次 R） |
 | `ReviewPlannerV2.VERSION` | `review-planner-v3` | **`review-planner-v4`** | 批次 R：V2 掌握风险分支改 `effectiveStatus`（KF-16 先修压制接线）；指纹 `canonical-v8 → v9` 同批 | ✅ 已用（批次 R） |
 | `LearningCoreVersions.SELECTOR` | `selector-v6` | **`selector-v7`** | 批次 R：`requiresCalibration` 的状态/新鲜度门槛改 `effectiveStatus` 现算 | ✅ 已用（批次 R） |
-| `LearningCoreVersions.EVIDENCE` | `evidence-v4` | `evidence-v5` | Wave 1 证据定价语义（`persistedAssistance` 链 + 看答案口径；裁决 26「独立看答案 lapse KC 卡」候落此号段） | 未用（W1 无 bump，见 §3.4） |
+| `LearningCoreVersions.PROJECTOR` | `projector-v10` | **`projector-v11`** | W4-2 投影批（2026-10-02）：①裁决 26「看答案」补 KC 归因（reveal 也 lapse 该题绑定的知识点记忆卡）；②KF-17（裁决 8）同批/source 新建卡到期日按序 +1 天错峰。复合串 `learning-core-v10 → v11`（三串同前缀） | ✅ 已用（W4-2） |
+| `LearningCoreVersions.ATTRIBUTION` | `attribution-v2` | **`attribution-v3`** | W4-2：新增 **REVEAL → 知识点记忆卡** 归因路径（裁决 26），归因路径集合变化 | ✅ 已用（W4-2） |
+| `LearningCoreVersions.EVIDENCE` | `evidence-v4` | **`evidence-v5`** | W4-2（裁决 26 落用本号段）：「看答案」语义——独立 `AnswerRevealOutcome` 事件除题卡外也 lapse 绑定的知识点记忆卡；号段原登记用途（Wave 1 证据定价 + 看答案口径）中「看答案口径」在此落用 | ✅ 已用（W4-2） |
 
 **Wave 0 不动版本串**：本波只做回退能力、读时校验、常数收敛与清单，**没有任何投影输出变化**，
 所以 `PROJECTOR` / `EVIDENCE` / `REVIEW_PLANNER` 一律不动（改公式才 bump）。
@@ -109,6 +111,13 @@
 |---|---|---|---|---|---|
 | `ReviewPlannerV2.VERSION` / `PLAN_FINGERPRINT_SCHEMA_VERSION` | **未 bump**（维持 `review-planner-v4` / `review-plan-canonical-v9`） | S12–S16 性能重构：beam 备选池池级预计算 + 子状态延迟物化 + 步数按预算收敛、localSwap 增量维护、`computeConfusablePartners` 共享先修倒排、`scoreCandidate` observations 单遍扫描（并入 `MasterySmoothing.evaluate`）、`StudyReviewPlannerService` 组装批量化（考试表一次读 / review_log 样本一次读共用 / 新题难度档批量读）。**选卡序列、每项 reasons、分值 hex、计划指纹逐位不变** | roadmap W4-1；审计 `2026-09-28-kernel-scale-precision-audit.md` S12–S16 | `ReviewPlannerScaleBenchmarkTest`：3 组固定金样（约 60/500/5000 候选，**改前捕获**，含分值 hex）逐位一致；5000 候选 best-of-5 改前 1054ms → 改后 168ms（完整套件并发时 631ms，门 <1000ms）。A/B 探针（HEAD 旧实现 vs 改后，33 组夹具含单 KC 池/双半池/空 KC/并列/极端预算/3000 池）`planFingerprint` + 选卡序列逐字符一致（diff 空）。既有 `ReviewPlannerV2Test` 17 例、`:core:domain` 538 例全绿；`:core:data` 577 例仅 5 条 KB 金标既有红 | ➖（计划层，无投影归档） |
 | **本波未落（登记项）** | ① 候选池预筛（audit「一刀切」）：**未加** —— 硬约束要求预筛谓词是 `scoreCandidate` 非空集的可靠超集，而 null 判据（到期/早复习放行）本身就是打分主体，低成本安全上界保留近乎全池、无收益；改由 S12–S16 达标（5000 候选 168ms）。② KF-17 错峰：**`kf17=deferred-to-projection`** —— 排程侧只读投影 `nextReviewAtEpochMillis` 并抄进计划队列（`ReviewPlannerV2.kt` dueAt 赋值），队列副本无任何调度消费方（仅落库/回读），改它不会改变真实到期日；唯一干净落点是投影侧到期日计算（`MemoryUpdateModel`/`ForgettingCurve` → `LearningProjector`），并入 W4-2 投影批同一次 bump | W4-1 实施期源码勘定 | — | — |
+
+### 3.8 Wave 4 · W4-2 投影热路径（2026-10-02）：一次投影 bump 覆盖两处输出变化 + 四个零输出重构
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `PROJECTOR` v10 → **v11**（复合串 `learning-core-v10 → v11`）；`EVIDENCE` v4 → **v5**；`ATTRIBUTION` v2 → **v3**；`SKIP_POLICY` / `FORGETTING_CURVE` 不动 | ①**裁决 26**：独立 `AnswerRevealOutcome` 事件新增知识点归因——除题卡（裁决 1 的 AGAIN）外，也把该题 **DIRECT** 绑定的知识点记忆卡按一次遗忘失败 lapse（`nextMemoryState(..., rating = AGAIN)`，只动卡字段：稳定度/难度/上次作答与学习日 + 状态检查点；s/f、观察列表、`lastEvidence*`、冲突态不动）。**没有卡就不建卡**（卡由作答流创建）。与题卡共用同一道呈现态门：一次呈现最多贡献一次 reveal 记忆更新；其后的作答仍走既有因果（答对 → NONE/w=0 不计分；答错 → `INCORRECT_AFTER_REVEAL` 再记一次），两条路径不重复计罚。②**KF-17（裁决 8）**：投影侧到期日错峰——同批（一次 project/replay 调用内）、同 `sourceBundleId`、同学习日的**新建卡**按事件序 +0/+1/+2… 天加在 `nextReviewAtEpochMillis` 上；不动 FSRS 参数，单题（组内唯一）恒 +0，已有卡的复习不重复错峰。W4-1 的 `kf17=deferred-to-projection` 在此落用 | 两处都改变投影输出（KC 卡数值 / 到期日）；存量投影不带新口径 → `projection_archive` 先归档再全量重放 | 台账裁决 26（`:2271-2288`）、裁决 8（`:1657-1680`）；fix-plan KF-17；W4-1 勘定（§3.7 登记项） | `MasteryMemoryCardTest`（reveal lapse KC 卡/答错再 lapse 不重复计罚/答对不计分；无卡不建卡）；`LearningProjectorTest`（同批 3 题三日错峰、单题不受影响、跨学习日不错峰、增量与全量重放逐位一致）；`:core:domain` 542 例 0 失败 | ✅ 走 W0-1 归档 → 重放路径（`ProjectionArchiveDrainerTest` 继续钉"先归档再覆盖"；`ProjectionDrainerDispatcherTest` 钉 drain 侧调度与快照复用） |
+| **零 bump 判定（S1/S3/S4/S7/S10）** | S1 `commitProjection` 每批全删全插 7 张投影表 → 变更行 `@Upsert` + 消失行按主键差集删除 + 观察表增量 append；S3 `projectMastery` 观察列表全拷贝 + 3–5 遍扫描 → 无新增时共享原列表、单遍聚合；S4 drain 批内快照复用（一次调用读一次）；S7 `ModelTaskEntity.toSnapshot` 读到即重算 → 懒校验 + 显式 `verifyIntegrity` 入口（写入/迁移/测试用）；S10 drainer 显式切 `Dispatchers.Default`/`IO` | **不变的是输出**：S1 的差集=清空重写的结果（行内容完整相等比较）、S3 逐位等价（比较/累加顺序不变）、S4 只少读不换值、S7 只改校验时机、S10 只改执行上下文——`PROJECTOR`/`EVIDENCE`/`ATTRIBUTION` 的变化全部来自上两行，与这五个重构无关 | W4-2 必做点 1–5；S1 先例 = 仓内 `RoomKnowledgeContentReconciler`（@Upsert 而非 REPLACE） | `:core:database` 104 例 0 失败（含新 `ModelTaskIntegrityTest`：篡改仍被 `verifyIntegrity` 捕获、读路径懒校验边界、failure 列两路皆拒）；`:core:data` 579 例 5 失败（恰为 5 条 KB 金标既有红，无第 6 条）；仪器化：`StudyDatabaseInstrumentedTest` 28/28、`ModelTaskDatabaseInstrumentedTest` 9/9（真 Room/SQLite 上的提交-回读与写入路径自检）；`FullMigrationMatrixInstrumentedTest` **未跑**（非本批门） | ➖（重构本身零输出） |
 
 ## 4. 谁在什么时候写这一行
 

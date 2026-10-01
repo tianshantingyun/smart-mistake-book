@@ -211,6 +211,9 @@ class LearningProjector(
 
         val bySequence = fresh.groupBy { it.first.eventSequence }
         val sequences = (bySequence.keys + batchPayloadConflicts.keys).sorted()
+        // KF-17（裁决 8）：同批/source 兄弟姐妹的错峰序号只在**本次调用内**累计；跨批不携带
+        // （见 [SourceBatchDispersion] 的口径注释）。
+        val dispersion = SourceBatchDispersion()
         fun pendingIdsAfter(sequence: Long): Set<String> = buildSet {
             bySequence.filterKeys { it > sequence }.values.flatten().forEach {
                 add(it.first.ledgerEventId)
@@ -255,6 +258,7 @@ class LearningProjector(
                         suppressDuplicateRevealMemory = presentationState.answerRevealSequence != null,
                         effectiveAtEpochMillis = effectiveAt,
                         knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+                        dispersion = dispersion,
                     )
                     presentationProjectionStates[event.presentationId] = presentationState.copy(
                         asOfLedgerSequence = event.eventSequence,
@@ -277,10 +281,29 @@ class LearningProjector(
                         break
                     }
                     if (!presentationState.memoryProjectionApplied) {
+                        val previousMemory = memoryStates[event.practiceUnitId]
                         memoryStates[event.practiceUnitId] = projectAnswerReveal(
-                            memoryStates[event.practiceUnitId],
-                            event,
-                            effectiveAt,
+                            previous = previousMemory,
+                            outcome = event,
+                            effectiveAtEpochMillis = effectiveAt,
+                            dueDateOffsetDays = if (previousMemory == null) {
+                                dispersion.nextOffsetDays(
+                                    sourceBundleId = event.assessmentSnapshot.sourceBundleId,
+                                    studyDayEpochDay = event.studyDay.epochDay,
+                                )
+                            } else {
+                                0
+                            },
+                        )
+                        // 裁决 26（2026-10-01）：独立「看答案」事件除题卡外**也要 lapse 该题
+                        // 绑定的知识点记忆卡**（看答案 = 计一次遗忘失败）。与题卡共用同一道
+                        // 呈现态门（`memoryProjectionApplied`）：一次呈现若已由作答投影过记忆，
+                        // 揭示不再重复写（两条路径不重复计罚）。
+                        lapseKnowledgeCardsForReveal(
+                            masteryStates = masteryStates,
+                            outcome = event,
+                            effectiveAtEpochMillis = effectiveAt,
+                            knowledgeNodeSuccessors = knowledgeNodeSuccessors,
                         )
                     }
                     revealRecords[event.outcomeId] = AppliedAnswerRevealRecord(
@@ -478,6 +501,7 @@ class LearningProjector(
         val ambiguous = linkedSetOf<String>()
         var replayAt = 0L
         var correctionWatermark: Long? = null
+        val dispersion = SourceBatchDispersion()
         ordered.forEach { event ->
             val effectiveAt = maxOf(replayAt, event.occurredAtEpochMillis)
             when (event) {
@@ -511,6 +535,7 @@ class LearningProjector(
                         suppressDuplicateRevealMemory = presentationState.answerRevealSequence != null,
                         effectiveAtEpochMillis = effectiveAt,
                         knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+                        dispersion = dispersion,
                     )
                     presentationProjectionStates[event.presentationId] = presentationState.copy(
                         asOfLedgerSequence = event.eventSequence,
@@ -533,10 +558,26 @@ class LearningProjector(
                         )
                     }
                     if (!presentationState.memoryProjectionApplied) {
+                        val previousMemory = memoryStates[event.practiceUnitId]
                         memoryStates[event.practiceUnitId] = projectAnswerReveal(
-                            memoryStates[event.practiceUnitId],
-                            event,
-                            effectiveAt,
+                            previous = previousMemory,
+                            outcome = event,
+                            effectiveAtEpochMillis = effectiveAt,
+                            dueDateOffsetDays = if (previousMemory == null) {
+                                dispersion.nextOffsetDays(
+                                    sourceBundleId = event.assessmentSnapshot.sourceBundleId,
+                                    studyDayEpochDay = event.studyDay.epochDay,
+                                )
+                            } else {
+                                0
+                            },
+                        )
+                        // 裁决 26：重放与增量走同一条 KC 归因路径（否则两条路会分叉）。
+                        lapseKnowledgeCardsForReveal(
+                            masteryStates = masteryStates,
+                            outcome = event,
+                            effectiveAtEpochMillis = effectiveAt,
+                            knowledgeNodeSuccessors = knowledgeNodeSuccessors,
                         )
                     }
                     revealRecords[event.outcomeId] = AppliedAnswerRevealRecord(
@@ -808,10 +849,13 @@ class LearningProjector(
          * 但掌握度要记到取代它的节点名下，否则那份证据无处可去、存活节点凭空少一块。
          */
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors = KnowledgeNodeSuccessors.EMPTY,
+        /** KF-17 错峰序号（仅新建卡消费；见 [SourceBatchDispersion]）。 */
+        dispersion: SourceBatchDispersion,
     ) {
         if (!suppressDuplicateRevealMemory) {
+            val previousMemory = memoryStates[attempt.practiceUnitId]
             memoryStates[attempt.practiceUnitId] = projectMemory(
-                previous = memoryStates[attempt.practiceUnitId],
+                previous = previousMemory,
                 practiceUnitId = attempt.practiceUnitId,
                 eventId = attempt.attemptId,
                 occurredAtEpochMillis = attempt.occurredAtEpochMillis,
@@ -823,6 +867,14 @@ class LearningProjector(
                 weight = attempt.evidence.weight,
                 evidenceReason = attempt.evidence.reason,
                 evidenceDirection = attempt.evidence.direction,
+                dueDateOffsetDays = if (previousMemory == null) {
+                    dispersion.nextOffsetDays(
+                        sourceBundleId = attempt.assessmentSnapshot.sourceBundleId,
+                        studyDayEpochDay = attempt.studyDay.epochDay,
+                    )
+                } else {
+                    0
+                },
             )
         }
         val attributions = attempt.assessmentSnapshot.attributions
@@ -849,6 +901,8 @@ class LearningProjector(
         previous: ProblemMemoryState?,
         outcome: AnswerRevealOutcome,
         effectiveAtEpochMillis: Long,
+        /** KF-17：新建卡的错峰天数（同批同 source 的第 2、3… 张分别 +1、+2 天）。 */
+        dueDateOffsetDays: Int = 0,
     ): ProblemMemoryState = projectMemory(
         previous = previous,
         practiceUnitId = outcome.practiceUnitId,
@@ -862,7 +916,86 @@ class LearningProjector(
         weight = 0.0,
         evidenceReason = LearningEvidenceReason.ANSWER_REVEALED,
         evidenceDirection = LearningEvidenceDirection.NONE,
+        dueDateOffsetDays = dueDateOffsetDays,
     )
+
+    /**
+     * 裁决 26（2026-10-01）：「看答案」的**知识点归因**——独立 [AnswerRevealOutcome] 事件在
+     * 题卡之外，也把该题绑定的（DIRECT）知识点记忆卡按一次遗忘失败（rating = AGAIN）lapse。
+     *
+     * 消灭的失败：学生看了答案、于是不再作答 → 知识点层面零痕迹（E 判据下等于"看答案 = 该
+     * 知识点毫无代价"，正是裁决 1 想消灭、却被判据换轴在知识点层重新打开的洞）。
+     *
+     * 边界（与既有两条路径的关系）：
+     * - **只动已存在的卡**：没有卡（该 KC 从未有作答流）就不建卡——"lapse 记忆卡"以卡存在
+     *   为前提，看答案不是作答通道的证据，不改变"卡由作答流创建"的白名单。
+     * - **只动记忆卡**（稳定性/难度/上次作答时刻与学习日 + 状态检查点）；s/f、观察列表、
+     *   `lastEvidence*`、冲突态不动——裁决 26 原文"本改动只作用于记忆更新"。
+     * - 该 lapse 与题卡的 reveal 投影共用同一道呈现态门（调用点），因此一次呈现最多贡献
+     *   一次 reveal 记忆更新；其后的作答仍走既有因果路径（答对 → 不计分；答错 →
+     *   `INCORRECT_AFTER_REVEAL` 一次），两条路径各自记账、不重复计罚。
+     * - kill-switch 的 legacy 模型下没有卡（与 `projectMastery` 同：字段恒 null）。
+     * - 归因按 `bindingId` 排序（与 `applyAttempt` 同序），重放/增量逐位一致。
+     */
+    private fun lapseKnowledgeCardsForReveal(
+        masteryStates: MutableMap<String, KnowledgeMasteryState>,
+        outcome: AnswerRevealOutcome,
+        effectiveAtEpochMillis: Long,
+        knowledgeNodeSuccessors: KnowledgeNodeSuccessors,
+    ) {
+        outcome.assessmentSnapshot.attributions
+            .filter { it.certainty == EvidenceAttributionCertainty.DIRECT }
+            .sortedBy(KnowledgeEvidenceAttribution::bindingId)
+            .forEach { attribution ->
+                val knowledgeNodeId = knowledgeNodeSuccessors.resolve(attribution.knowledgeNodeId)
+                val previous = masteryStates[knowledgeNodeId]
+                // "lapse 记忆卡"以卡存在为前提：没有卡就没有可下调的记忆状态。卡由**作答流**
+                // 创建（W3-2 白名单）；看答案不是作答，不新建卡——它只让已存在的卡付代价。
+                if (previous?.memoryStabilityDays == null) return@forEach
+                masteryStates[knowledgeNodeId] = lapseKnowledgeCard(
+                    previous = previous,
+                    studyDayEpochDay = outcome.studyDay.epochDay,
+                    effectiveAtEpochMillis = effectiveAtEpochMillis,
+                    eventSequence = outcome.eventSequence,
+                )
+            }
+    }
+
+    private fun lapseKnowledgeCard(
+        previous: KnowledgeMasteryState,
+        studyDayEpochDay: Long,
+        effectiveAtEpochMillis: Long,
+        eventSequence: Long,
+    ): KnowledgeMasteryState {
+        val memoryCardUpdate = (memoryUpdateModel as? FsrsMemoryUpdateModel)?.nextMemoryState(
+            previousStabilityDays = previous.memoryStabilityDays,
+            previousDifficulty = previous.memoryDifficulty,
+            // 看答案 = 一次遗忘失败（裁决 1 的评级口径，与题卡 reveal 同一映射源）。
+            rating = FsrsEvidenceRatingMapper.schedulingRatingFor(
+                LearningEvidenceReason.ANSWER_REVEALED,
+                weight = 0.0,
+            ),
+            elapsedCalendarDays = (studyDayEpochDay - (previous.lastAttemptStudyDayEpochDay ?: studyDayEpochDay))
+                .toDouble()
+                .coerceAtLeast(0.0),
+        )
+        return previous.copy(
+            memoryStabilityDays = memoryCardUpdate?.first ?: previous.memoryStabilityDays,
+            memoryDifficulty = memoryCardUpdate?.second ?: previous.memoryDifficulty,
+            lastAttemptAtEpochMillis = if (memoryCardUpdate != null) {
+                effectiveAtEpochMillis
+            } else {
+                previous.lastAttemptAtEpochMillis
+            },
+            lastAttemptStudyDayEpochDay = if (memoryCardUpdate != null) {
+                studyDayEpochDay
+            } else {
+                previous.lastAttemptStudyDayEpochDay
+            },
+            projectorVersion = VERSION,
+            checkpointSequence = eventSequence,
+        )
+    }
 
     private fun projectTutorAnswerExposure(
         previous: ProblemMemoryState?,
@@ -925,6 +1058,12 @@ class LearningProjector(
         weight: Double,
         evidenceReason: LearningEvidenceReason,
         evidenceDirection: LearningEvidenceDirection,
+        /**
+         * KF-17（裁决 8）错峰天数：**仅新建卡**由调用方给出（同批同 source 的第 2、3… 张
+         * 分别 +1、+2 天），加在到期日上；不动 FSRS 参数、不改稳定性/难度。已有卡的复习
+         * 传 0（错峰是一次创建期后处理，第一次复习后回到自身间隔）。
+         */
+        dueDateOffsetDays: Int = 0,
     ): ProblemMemoryState {
         require(effectiveAtEpochMillis >= occurredAtEpochMillis) {
             "Effective projection time must not precede the raw event time"
@@ -1008,6 +1147,10 @@ class LearningProjector(
                 )
             }
         }
+        if (dueDateOffsetDays > 0) {
+            // KF-17：错峰只加在**到期日**上（FSRS 参数、稳定性、难度一字不动）。
+            nextReviewAt += dueDateOffsetDays * AlgorithmConstants.DAY_MILLIS
+        }
 
         return ProblemMemoryState(
             practiceUnitId = practiceUnitId,
@@ -1037,6 +1180,41 @@ class LearningProjector(
             lastEvidenceDirection = evidenceDirection.name,
             consecutiveCrossDaySuccess = nextCrossDaySuccess,
             consecutiveCrossDayAgain = nextCrossDayAgain,
+        )
+    }
+
+    /**
+     * KF-17 Disperse siblings（裁决 8，台账 W4-1 勘定后落投影侧）：**同批/source** 的卡不再
+     * 全在同一天到期。
+     *
+     * 口径（"按序 +1 天错峰"，不动 FSRS 参数）：
+     * - 键 = (`sourceBundleId`, 学习日)：同一来源、同一学习日的兄弟姐妹归一组；
+     * - 组内按事件投影顺序取序号 0、1、2…，作为**新建卡**的到期日 +N 天偏移；
+     * - 已有卡的每次复习不重复错峰（错峰是一次创建期后处理），单个题（组内只有它自己）序号 0，
+     *   行为逐位不变；
+     * - 序号只在**本次投影/重放调用内**累计——"同批"就是一次把这一簇事件一起投影的调用。
+     *   跨调用（不同的 drain 批）不继承序号：同一天、同来源的事件若被拆进两次 drain，
+     *   第二次的卡回到序号 0。全量重放把整个账本当一次调用，得到的是这一簇的规范分配，
+     *   `PROJECTOR` bump 触发的重放即按此安装。
+     *
+     * 为什么不是持久化字段：错峰只影响创建时的到期日，后续复习从自身间隔重算；把它固化进
+     * `ProblemMemoryState`/Room schema 是一次纯为批边界服务的 schema 变更，收益不抵面。
+     */
+    private class SourceBatchDispersion {
+        private val nextOrdinals = mutableMapOf<DispersionKey, Int>()
+
+        /** 该 (来源, 学习日) 组的下一个序号；来源缺失（本地自建题）恒 0，不参与错峰。 */
+        fun nextOffsetDays(sourceBundleId: String?, studyDayEpochDay: Long): Int {
+            if (sourceBundleId == null) return 0
+            val key = DispersionKey(sourceBundleId, studyDayEpochDay)
+            val ordinal = nextOrdinals.getOrDefault(key, 0)
+            nextOrdinals[key] = ordinal + 1
+            return ordinal
+        }
+
+        private data class DispersionKey(
+            val sourceBundleId: String,
+            val studyDayEpochDay: Long,
         )
     }
 
@@ -1080,31 +1258,6 @@ class LearningProjector(
             if (memoryCardUpdate != null) effectiveAtEpochMillis else previous?.lastAttemptAtEpochMillis
         val nextLastAttemptStudyDay =
             if (memoryCardUpdate != null) attempt.studyDayEpochDay else previous?.lastAttemptStudyDayEpochDay
-        val observations = previous?.independentCorrectObservations.orEmpty() +
-            if (positive && attempt.evidence.isIndependent) {
-                listOf(
-                    IndependentCorrectObservation(
-                        itemFamilyId = attempt.itemFamilyId,
-                        studyDayEpochDay = attempt.studyDayEpochDay,
-                        occurredAtEpochMillis = effectiveAtEpochMillis,
-                        eventSequence = attempt.eventSequence,
-                        bindingId = attribution.bindingId,
-                        evidenceWeight = weight,
-                        calibration = attempt.assessmentSnapshot.calibration,
-                        timeTrust = if (effectiveAtEpochMillis == attempt.occurredAtEpochMillis) {
-                            EventTimeTrust.TRUSTED
-                        } else {
-                            // P11：`FUTURE_TIMESTAMP_CLAMPED` 分支已删——不可达可证：
-                            // 事件循环里 `effectiveAt = maxOf(projectedAt, occurredAt)`，
-                            // effective 永不早于 occurred，`else` 分支在任何输入下取不到。
-                            // 枚举值保留为历史持久化 token（core:model 有注明）。
-                            EventTimeTrust.CLOCK_ROLLBACK_CLAMPED
-                        },
-                    ),
-                )
-            } else {
-                emptyList()
-            }
         val independentError = !positive && attempt.evidence.isIndependent
         val lastErrorAt = if (independentError) {
             maxOf(previous?.lastIndependentErrorAtEpochMillis ?: 0, effectiveAtEpochMillis)
@@ -1117,6 +1270,7 @@ class LearningProjector(
             previous?.lastIndependentErrorSequence
         }
         // E 判据（W3-2）：撤销的门 = "当时是否在掌握态"——状态标记或记忆卡达标（同一函数）。
+        // 冲突判据只依赖 previous/本次证据，不依赖观察列表，因此先算出来，供下面单遍聚合使用。
         val startsConflict = independentError && previous?.let {
             it.status == MasteryStatus.MASTERED ||
                 clearlyMasteredByMemoryCard(
@@ -1132,28 +1286,77 @@ class LearningProjector(
                 ?: previous.lastIndependentErrorSequence
             else -> null
         }
-        val supportedRecovery = observations.filter { observation ->
-            observation.eventSequence > (conflictSince ?: 0) &&
-                observation.isStudyDayTrusted &&
-                observation.calibrationSupportAt(effectiveAtEpochMillis) == CalibrationSupport.SUPPORTED
+        val newObservation = if (positive && attempt.evidence.isIndependent) {
+            IndependentCorrectObservation(
+                itemFamilyId = attempt.itemFamilyId,
+                studyDayEpochDay = attempt.studyDayEpochDay,
+                occurredAtEpochMillis = effectiveAtEpochMillis,
+                eventSequence = attempt.eventSequence,
+                bindingId = attribution.bindingId,
+                evidenceWeight = weight,
+                calibration = attempt.assessmentSnapshot.calibration,
+                timeTrust = if (effectiveAtEpochMillis == attempt.occurredAtEpochMillis) {
+                    EventTimeTrust.TRUSTED
+                } else {
+                    // P11：`FUTURE_TIMESTAMP_CLAMPED` 分支已删——不可达可证：
+                    // 事件循环里 `effectiveAt = maxOf(projectedAt, occurredAt)`，
+                    // effective 永不早于 occurred，`else` 分支在任何输入下取不到。
+                    // 枚举值保留为历史持久化 token（core:model 有注明）。
+                    EventTimeTrust.CLOCK_ROLLBACK_CLAMPED
+                },
+            )
+        } else {
+            null
         }
-        val conflictRecovered = conflictSince != null &&
-            supportedRecovery.sumOf(IndependentCorrectObservation::evidenceWeight) >=
-            ClearlyMasteredForSkipPolicy.EVIDENCE_MASS &&
+        // S3（投影热路径）：原实现每作答一次都先全量拷贝观察列表，再对同一列表扫
+        // 3–5 遍（supportedRecovery / activeObservations / any UNSUPPORTED）。
+        // 这里改为：无新增时**共享原列表**（不再全拷贝），并把"有无受支持观察""有无不受支持
+        // 观察""冲突恢复集"合成**一次遍历**同时产出——逐位等价（比较/累加顺序都不变，
+        // 浮点加法顺序也相同）。
+        val previousObservations = previous?.independentCorrectObservations.orEmpty()
+        val observations = if (newObservation == null) {
+            previousObservations
+        } else {
+            previousObservations + newObservation
+        }
+        var hasSupportedObservation = false
+        var hasUnsupportedObservation = false
+        var supportedRecoveryWeight = 0.0
+        val conflictFloor: Long? = conflictSince
+        val supportedRecovery = if (conflictFloor == null) {
+            null
+        } else {
+            mutableListOf<IndependentCorrectObservation>()
+        }
+        // 仅用于比较的门槛值；`conflictFloor == null` 时该分支取不到（列表恒为 null）。
+        val recoveryFloor = conflictFloor ?: 0L
+        observations.forEach { candidate ->
+            when (candidate.calibrationSupportAt(effectiveAtEpochMillis)) {
+                CalibrationSupport.SUPPORTED -> {
+                    hasSupportedObservation = true
+                    if (supportedRecovery != null &&
+                        candidate.eventSequence > recoveryFloor &&
+                        candidate.isStudyDayTrusted
+                    ) {
+                        supportedRecovery += candidate
+                        supportedRecoveryWeight += candidate.evidenceWeight
+                    }
+                }
+                CalibrationSupport.UNSUPPORTED -> hasUnsupportedObservation = true
+                CalibrationSupport.UNKNOWN -> Unit
+            }
+        }
+        val conflictRecovered = supportedRecovery != null &&
+            supportedRecoveryWeight >= ClearlyMasteredForSkipPolicy.EVIDENCE_MASS &&
             ClearlyMasteredForSkipPolicy.hasIndependentBreadth(
                 observations = supportedRecovery,
                 lastIndependentErrorAtEpochMillis = null,
                 lastIndependentErrorSequence = null,
                 atEpochMillis = effectiveAtEpochMillis,
             )
-        val activeObservations = observations.filter {
-            it.calibrationSupportAt(effectiveAtEpochMillis) == CalibrationSupport.SUPPORTED
-        }
         val calibration = when {
-            activeObservations.isNotEmpty() -> CalibrationSupport.SUPPORTED
-            observations.any {
-                it.calibrationSupportAt(effectiveAtEpochMillis) == CalibrationSupport.UNSUPPORTED
-            } -> CalibrationSupport.UNSUPPORTED
+            hasSupportedObservation -> CalibrationSupport.SUPPORTED
+            hasUnsupportedObservation -> CalibrationSupport.UNSUPPORTED
             else -> CalibrationSupport.UNKNOWN
         }
         val status = when {

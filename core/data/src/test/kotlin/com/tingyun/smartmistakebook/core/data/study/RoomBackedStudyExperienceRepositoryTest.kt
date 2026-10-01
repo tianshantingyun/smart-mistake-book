@@ -160,7 +160,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -536,7 +538,13 @@ class RoomBackedStudyExperienceRepositoryTest {
             assertEquals(null, entryBeforeExposure.questionMemory)
 
             database.publishTutorExposure(entryBeforeExposure.practiceUnitId)
-            yield()
+            // S10（W4-2）：排空显式切 IO/Default，ledger-head 触发的刷新不再在调用方线程上
+            // 同步跑完；等待条件成立（有界），"换头必须刷新当前题记忆"的语义不变。
+            withTimeout(5_000) {
+                while (repository.snapshot.value.catalog.all { it.questionMemory == null }) {
+                    delay(10)
+                }
+            }
 
             val refreshedEntry = repository.snapshot.value.catalog.single {
                 it.practiceUnitId == entryBeforeExposure.practiceUnitId
@@ -1532,6 +1540,10 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
     var seedCallCount: Int = 0
         private set
     var failProjectionReads: Boolean = false
+
+    /** S4 探针：一次 drain 调用内重读当前快照的次数（批内复用应把它压到 1）。 */
+    var projectionSnapshotReads: Int = 0
+        private set
     val savedPlans = mutableListOf<ReviewPlanBundle>()
     val tutorExposureReconcileLearners = mutableListOf<String>()
     val recordedPredictions = mutableListOf<StudentModelPredictionRecord>()
@@ -2790,7 +2802,10 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
     override suspend fun readCurrentLearnerSnapshot(
         projectionName: String,
         learnerId: String,
-    ): PersistedLearnerSnapshot? = persistedLearnerSnapshot
+    ): PersistedLearnerSnapshot? {
+        projectionSnapshotReads++
+        return persistedLearnerSnapshot
+    }
 
     override suspend fun commitProjection(commit: ProjectionCommit): PersistedLearnerSnapshot {
         projectionWriteOrder += "commit"
