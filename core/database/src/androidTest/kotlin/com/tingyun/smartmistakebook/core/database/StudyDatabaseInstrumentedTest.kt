@@ -27,6 +27,7 @@ import com.tingyun.smartmistakebook.core.model.LocalModelJudgedContract
 import com.tingyun.smartmistakebook.core.model.LocalReviewSelfReportContract
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
+import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import com.tingyun.smartmistakebook.core.model.PresentationProjectionState
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
@@ -640,6 +641,153 @@ class StudyDatabaseInstrumentedTest {
                 ?.snapshot
                 ?.appliedAnswerRevealRecords
                 .isNullOrEmpty(),
+        )
+    }
+
+    /**
+     * S1（W4-2）的「消失行按主键差集删除」在真 Room/SQLite 上的可执行证据。
+     *
+     * 先提交整份快照（两份题卡、两个知识点及其观察行、两条已应用作答、一条已应用修正），
+     * 再提交一份**收缩**快照：消失的题卡/知识点/观察行/已应用作答/已应用修正必须被删除，
+     * 未变行（unit-1、knowledge-1 的 1 号观察、attempt-2 记录）逐位不变，变更行被重写
+     * （KC-1 行保留但观察列表收缩）。覆盖 `applyProjectionTables` 的全部五个删除分支：
+     * learner_problem_memory_state / learner_knowledge_mastery_state /
+     * independent_correct_observation / applied_attempt_record / applied_correction_record。
+     */
+    @Test
+    fun shrinkingProjectionCommitDeletesVanishedRowsAndKeepsUnchangedRowsBitIdentical() = runBlocking {
+        store.seedFixture(secondUnitSeed())
+        val attemptOne = store.recordAttempt(
+            attemptCommand(
+                submissionId = "shrink-submission-1",
+                attemptId = "shrink-attempt-1",
+                presentationId = "shrink-presentation-1",
+            ),
+        )
+        val attemptTwo = store.recordAttempt(
+            attemptCommand(
+                submissionId = "shrink-submission-2",
+                attemptId = "shrink-attempt-2",
+                presentationId = "shrink-presentation-2",
+            ),
+        )
+        val correction = store.appendAttemptCorrection(
+            correctionCommand(
+                submissionId = attemptOne.submissionId,
+                attemptId = attemptOne.attempt.attemptId,
+                correctionId = "shrink-correction-1",
+            ),
+        )
+        val ledger = store.loadLearningLedger(LEARNER)
+        assertEquals(LearningLedgerReadStatus.COMPLETE, ledger.status)
+
+        val fullSnapshot = learnerSnapshot(
+            checkpoint = 3,
+            knownHead = 3,
+            correctionWatermarkEpochMillis = correction.correction.occurredAtEpochMillis,
+            masteryStates = mapOf(
+                KNOWLEDGE_ID to untrustedMasteryState(
+                    checkpoint = 3,
+                    observations = listOf(untrustedObservation(1), untrustedObservation(2)),
+                ),
+                SHRINK_KNOWLEDGE_ID to untrustedMasteryState(
+                    checkpoint = 3,
+                    knowledgeNodeId = SHRINK_KNOWLEDGE_ID,
+                    observations = listOf(untrustedObservation(1)),
+                ),
+            ),
+            attempts = listOf(attemptOne, attemptTwo),
+            corrections = listOf(correction),
+        ).copy(
+            problemMemoryStates = mapOf(
+                UNIT_ID to memoryState(UNIT_ID, lastReviewedAt = OCCURRED_AT, sequence = 1),
+                SHRINK_UNIT_ID to memoryState(
+                    SHRINK_UNIT_ID,
+                    lastReviewedAt = OCCURRED_AT + 1,
+                    sequence = 2,
+                ),
+            ),
+        )
+        val firstCommit = store.commitProjection(
+            ProjectionCommit(
+                projectionName = PROJECTION,
+                learnerId = LEARNER,
+                expectedPreviousCheckpoint = 0,
+                expectedPreviousStateVersion = 0,
+                mode = ProjectionCommitMode.FULL_REPLAY,
+                knownLedgerHeadSequence = 3,
+                consumedLedgerEvents = ledger.validPrefix.map { it.toReceipt() },
+                presentationProjectionStates = projectedPresentationStates(
+                    ledger.validPrefix.map { it.event },
+                ),
+                expectedProjectorVersion = PROJECTOR_VERSION,
+                snapshot = fullSnapshot,
+            ),
+        )
+        assertEquals(fullSnapshot, firstCommit.snapshot)
+        assertEquals(
+            setOf(UNIT_ID, SHRINK_UNIT_ID),
+            requireNotNull(store.readCurrentLearnerSnapshot(PROJECTION, LEARNER))
+                .snapshot.problemMemoryStates.keys,
+        )
+
+        val shrunkSnapshot = fullSnapshot.copy(
+            problemMemoryStates = mapOf(
+                UNIT_ID to memoryState(UNIT_ID, lastReviewedAt = OCCURRED_AT, sequence = 1),
+            ),
+            knowledgeMasteryStates = mapOf(
+                KNOWLEDGE_ID to untrustedMasteryState(
+                    checkpoint = 3,
+                    observations = listOf(untrustedObservation(1)),
+                ),
+            ),
+            appliedAttemptRecords = fullSnapshot.appliedAttemptRecords
+                .filterKeys { it == attemptTwo.attempt.attemptId },
+            appliedCorrectionRecords = emptyMap(),
+        )
+        val shrunkCommit = store.commitProjection(
+            ProjectionCommit(
+                projectionName = PROJECTION,
+                learnerId = LEARNER,
+                expectedPreviousCheckpoint = 3,
+                expectedPreviousStateVersion = 1,
+                mode = ProjectionCommitMode.INCREMENTAL,
+                knownLedgerHeadSequence = 3,
+                consumedLedgerEvents = emptyList(),
+                presentationProjectionStates = emptyMap(),
+                expectedProjectorVersion = PROJECTOR_VERSION,
+                snapshot = shrunkSnapshot,
+            ),
+        )
+        assertEquals(shrunkSnapshot, shrunkCommit.snapshot)
+
+        // 读回即整份逐位相等：消失行已删、未变行逐位不变、变更行被重写。
+        val persisted = requireNotNull(store.readCurrentLearnerSnapshot(PROJECTION, LEARNER))
+        assertEquals(shrunkSnapshot, persisted.snapshot)
+        assertEquals(setOf(UNIT_ID), persisted.snapshot.problemMemoryStates.keys)
+        assertEquals(
+            "未变的 unit-1 题卡逐位不变",
+            fullSnapshot.problemMemoryStates.getValue(UNIT_ID),
+            persisted.snapshot.problemMemoryStates.getValue(UNIT_ID),
+        )
+        assertEquals(setOf(KNOWLEDGE_ID), persisted.snapshot.knowledgeMasteryStates.keys)
+        assertEquals(
+            "收缩后的观察行：1 号保留（逐位不变）、2 号删除",
+            listOf(untrustedObservation(1)),
+            persisted.snapshot.knowledgeMasteryStates.getValue(KNOWLEDGE_ID)
+                .independentCorrectObservations,
+        )
+        assertEquals(
+            setOf(attemptTwo.attempt.attemptId),
+            persisted.snapshot.appliedAttemptRecords.keys,
+        )
+        assertEquals(
+            fullSnapshot.appliedAttemptRecords.getValue(attemptTwo.attempt.attemptId),
+            persisted.snapshot.appliedAttemptRecords.getValue(attemptTwo.attempt.attemptId),
+        )
+        assertTrue(
+            "已应用修正的消失行必须被删除：${persisted.snapshot.appliedCorrectionRecords}",
+            persisted.snapshot.appliedCorrectionRecords.isEmpty(),
         )
     }
 
@@ -1908,34 +2056,84 @@ class StudyDatabaseInstrumentedTest {
         )
     }
 
-    private fun untrustedMasteryState(checkpoint: Long) = KnowledgeMasteryState(
-        knowledgeNodeId = KNOWLEDGE_ID,
+    private fun untrustedMasteryState(
+        checkpoint: Long,
+        knowledgeNodeId: String = KNOWLEDGE_ID,
+        observations: List<IndependentCorrectObservation> = listOf(untrustedObservation()),
+    ) = KnowledgeMasteryState(
+        knowledgeNodeId = knowledgeNodeId,
         masteryScore = 0.72,
         conservativeMasteryScore = 0.54,
         evidenceMass = 1.0,
-        independentCorrectObservations = listOf(
-            IndependentCorrectObservation(
-                itemFamilyId = "family-1",
-                studyDayEpochDay = studyDay(OCCURRED_AT).epochDay,
-                occurredAtEpochMillis = OCCURRED_AT,
-                eventSequence = 1,
-                bindingId = BINDING_ID,
-                evidenceWeight = 1.0,
-                calibration = CalibrationSnapshot(
-                    support = CalibrationSupport.SUPPORTED,
-                    sourceId = "calibration-source",
-                    version = "calibration-v1",
-                    validFromEpochMillis = 0,
-                    validUntilEpochMillis = OCCURRED_AT + 100_000,
-                ),
-                timeTrust = EventTimeTrust.CLOCK_ROLLBACK_CLAMPED,
-            ),
-        ),
+        independentCorrectObservations = observations,
         status = MasteryStatus.LEARNING,
         calibrationSupport = CalibrationSupport.SUPPORTED,
         projectorVersion = PROJECTOR_VERSION,
         checkpointSequence = checkpoint,
         lastEvidenceAtEpochMillis = OCCURRED_AT,
+    )
+
+    private fun untrustedObservation(ordinal: Int = 1) = IndependentCorrectObservation(
+        itemFamilyId = "family-$ordinal",
+        studyDayEpochDay = studyDay(OCCURRED_AT).epochDay,
+        occurredAtEpochMillis = OCCURRED_AT,
+        eventSequence = ordinal.toLong(),
+        bindingId = BINDING_ID,
+        evidenceWeight = 1.0,
+        calibration = CalibrationSnapshot(
+            support = CalibrationSupport.SUPPORTED,
+            sourceId = "calibration-source",
+            version = "calibration-v1",
+            validFromEpochMillis = 0,
+            validUntilEpochMillis = OCCURRED_AT + 100_000,
+        ),
+        timeTrust = EventTimeTrust.CLOCK_ROLLBACK_CLAMPED,
+    )
+
+    private fun memoryState(
+        practiceUnitId: String,
+        lastReviewedAt: Long,
+        sequence: Long,
+    ) = ProblemMemoryState(
+        practiceUnitId = practiceUnitId,
+        stabilityDays = 3.0,
+        difficulty = 5.0,
+        lastReviewedAtEpochMillis = lastReviewedAt,
+        nextReviewAtEpochMillis = lastReviewedAt + 86_400_000L,
+        lastAttemptId = "attempt-$practiceUnitId",
+        projectorVersion = PROJECTOR_VERSION,
+        checkpointSequence = sequence,
+    )
+
+    /** S1 收缩用例的第二个题卡载体：同一 problem/revision 下的第二个 practice unit + 第二个知识点。 */
+    private fun secondUnitSeed() = StudySeedBundle(
+        problems = emptyList(),
+        revisions = emptyList(),
+        errorBookEntries = emptyList(),
+        practiceUnits = listOf(
+            PracticeUnitSeedRecord(
+                practiceUnitId = SHRINK_UNIT_ID,
+                problemId = PROBLEM_ID,
+                problemRevisionId = REVISION_ID,
+                unitKey = "shrink-unit",
+                unitKind = "WHOLE",
+                title = "函数单调性（第二单元）",
+                promptMarkdown = "求单调区间。",
+                estimatedSeconds = 120,
+                createdAtEpochMillis = OCCURRED_AT - 4_000,
+            ),
+        ),
+        knowledgeNodes = listOf(
+            KnowledgeNodeSeedRecord(
+                knowledgeNodeId = SHRINK_KNOWLEDGE_ID,
+                stableCode = "math.function.shrink",
+                subject = "MATH",
+                displayName = "函数单调性（第二知识点）",
+                parentKnowledgeNodeId = null,
+                taxonomyVersion = "taxonomy-v1",
+                createdAtEpochMillis = OCCURRED_AT - 4_000,
+            ),
+        ),
     )
 
     private fun baseSeed() = StudySeedBundle(
@@ -2017,7 +2215,9 @@ class StudyDatabaseInstrumentedTest {
         private const val PROBLEM_ID = "problem-1"
         private const val REVISION_ID = "revision-1"
         private const val UNIT_ID = "unit-1"
+        private const val SHRINK_UNIT_ID = "unit-2"
         private const val KNOWLEDGE_ID = "knowledge-1"
+        private const val SHRINK_KNOWLEDGE_ID = "knowledge-2"
         private const val BINDING_ID = "binding-1"
         private const val SNAPSHOT_ID = "evidence-snapshot-1"
         private const val ZONE = "Asia/Shanghai"
