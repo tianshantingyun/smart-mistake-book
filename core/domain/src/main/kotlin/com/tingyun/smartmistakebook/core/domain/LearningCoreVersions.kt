@@ -32,8 +32,13 @@ object LearningCoreVersions {
      * **记忆卡**（稳定度/难度/上次作答，与逐题共用 `FsrsMemoryUpdateModel.nextMemoryState`，
      * 吃该知识点的作答流）；③`MasteryStatus.MASTERED` 改判为记忆卡判据（稳定度 ≥ 21 天 ∧
      * 当前召回概率 ≥ 0.9）。`SKIP_POLICY` 同步 v3 → v4（判据语义变更）。旧快照必须全量重放。
+     *
+     * v9 → v10（批次 3，2026-10-01）：P5 两处投影输出修正——①首答不再计入跨日连击
+     * （`consecutiveCrossDaySuccess`：毕业连击不再被首答放水，实际要 3 次真实跨日成功）；
+     * ②导师曝光路径的 `answerRevealCount` 改为**每条曝光 +1**（此前冻结在 1）。
+     * 两者的存量行都带旧值、且被毕业/leech/特征输入消费 → 必须全量重放（archive 先归档）。
      */
-    const val PROJECTOR = "projector-v9"
+    const val PROJECTOR = "projector-v10"
     const val FORGETTING_CURVE = "curve-v3"
     const val SKIP_POLICY = "skip-v4"
     const val ATTRIBUTION = "attribution-v2"
@@ -51,9 +56,9 @@ object LearningCoreVersions {
     const val SELECTOR = "selector-v6"
 
     const val PROJECTION_COMPOSITE =
-        "learning-core-v9($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
+        "learning-core-v10($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
     const val REVIEW_COMPOSITE =
-        "learning-core-v9($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
+        "learning-core-v10($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
     const val SELECTOR_COMPOSITE =
-        "learning-core-v9($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
+        "learning-core-v10($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }

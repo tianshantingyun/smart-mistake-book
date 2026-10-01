@@ -52,7 +52,12 @@ internal fun SourceCalibrationSection(
     Column(modifier = modifier) {
         PaperDivider(Modifier.padding(vertical = 16.dp))
         SectionHeader("来源校准")
-        val rows = calibrations
+        val rows = calibrations?.filter {
+            // P7（批次 3 收口）：零配对档（既无正向报告、也无后续真实作答可配对）是校准区
+            // 的常驻噪音（例：REVEAL 全零行——揭示行 rating=AGAIN 不进正向档，配对循环
+            // 直接跳过，曾以"样本不足"常驻）。有信号的行照旧展示。
+            it.nextAttemptCount > 0 || it.positiveReportCount > 0
+        }
         when {
             unavailable -> Text(
                 text = "来源校准数据暂不可用，请稍后再试。",

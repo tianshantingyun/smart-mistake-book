@@ -237,10 +237,11 @@ enum class FsrsRating {
  *   weight (attention/RT discounts) drops to Hard because a distracted correct
  *   answer is plausibly a guess.
  * - [reportedRatingFor] keeps the learner's own key verbatim as the *raw* grade;
- *   it is the base table [schedulingRatingFor] refines, and its value remains
- *   recoverable from the review_log `evidence_weight` column (0.9/0.8/0.7/1.0
- *   for the four-button channel), so the honest report survives even when
- *   scheduling is conservative.
+ *   it is the base table [schedulingRatingFor] refines. **唯一评级来源（P6/P7，2026-10-01）**：
+ *   权威落在 `review_log.rating`（调度评级）与 `state` 列上——两者由本文件的
+ *   [schedulingRatingFor] 与 `ReviewLogSink` 同口径写出。**不要**再从落库的
+ *   `evidence_weight` 反推评级：折扣链会在写库前改写它，"原档可从 weight 逆读"的旧承诺
+ *   已被审计证实不成立（fix-plan P6/P7），任何解释层（KF-20）照 `rating` 说事。
  */
 object FsrsEvidenceRatingMapper {
     /** Four-button self-rating evidence weights (new review-UI channel). */

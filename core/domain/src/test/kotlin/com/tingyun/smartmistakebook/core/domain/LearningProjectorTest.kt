@@ -192,7 +192,9 @@ class LearningProjectorTest {
         // not decay stability, count a lapse, or double-penalize the attempt
         // that already happened.
         assertEquals(stabilityBefore, memory.stabilityDays, 1e-9)
-        assertEquals(0, memory.answerRevealCount)
+        // P5（批次 3）：曝光计入 answerRevealCount（每条 +1，与揭示行同口径）——
+        // 计数是元数据，不是惩罚：稳定度与 lapse 仍不被触碰。
+        assertEquals(1, memory.answerRevealCount)
         assertEquals(0, memory.lapseCount)
         assertEquals(masteryBefore, projected.snapshot.knowledgeMasteryStates)
         assertEquals(setOf(exposure.outcomeId), retried.ignoredTutorAnswerExposureOutcomeIds)
@@ -366,7 +368,8 @@ class LearningProjectorTest {
         val memory = projected.problemMemoryStates.getValue("unit-1")
 
         // 曝光与本次复习落在同一个本地日 → 同日分支，不是跨日。
-        assertEquals(1, memory.consecutiveCrossDaySuccess)
+        // P5（批次 3）：首答不计跨日连击，故仍为 0。
+        assertEquals(0, memory.consecutiveCrossDaySuccess)
         assertEquals(0, memory.consecutiveCrossDayAgain)
     }
 
@@ -407,7 +410,8 @@ class LearningProjectorTest {
         val memory = projector.project(exposed, listOf(second), 3)
             .snapshot.problemMemoryStates.getValue("unit-1")
 
-        assertEquals(2, memory.consecutiveCrossDaySuccess)
+        // P5（批次 3）：首答不计跨日连击；本链只有一次跨日成功 → 1（改前是 2）。
+        assertEquals(1, memory.consecutiveCrossDaySuccess)
     }
 
     private fun chatEvidence(

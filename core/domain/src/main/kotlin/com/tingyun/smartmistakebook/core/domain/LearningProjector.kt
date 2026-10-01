@@ -893,7 +893,10 @@ class LearningProjector(
             independentCorrectCount = previous?.independentCorrectCount ?: 0,
             assistedCorrectCount = previous?.assistedCorrectCount ?: 0,
             lapseCount = previous?.lapseCount ?: 0,
-            answerRevealCount = (previous?.answerRevealCount ?: 0) + if (previous == null) 1 else 0,
+            // P5（审计 2026-09-28，批次 3 收口）：每条曝光都 +1，与记忆路径的
+            // per-reveal 计数（`projectMemory` 的 ANSWER_REVEALED 分支）对称——
+            // 此前写成 `+ if (previous == null) 1 else 0`，计数永远冻结在 1。
+            answerRevealCount = (previous?.answerRevealCount ?: 0) + 1,
             lastLapseAtEpochMillis = previous?.lastLapseAtEpochMillis,
             clockAnomalyCount = previous?.clockAnomalyCount ?: 0,
             lastClockAnomalyAtEpochMillis = previous?.lastClockAnomalyAtEpochMillis,
@@ -958,7 +961,10 @@ class LearningProjector(
         var difficulty = update.difficulty
         val crossDay = previous != null && elapsedCalendarDays >= 1.0
         val nextCrossDaySuccess = when {
-            previous == null -> if (rating == FsrsRating.AGAIN) 0 else 1
+            // P5（审计 2026-09-28，批次 3 收口）：首答**不计**跨日连击——"跨日"指跨过
+            // 上一复习日，首答没有可跨的上一日。此前首答计 1，使毕业连击实际 2 次真实
+            // 跨日成功即触发（`GRADUATION_SUCCESS_STREAK` 语义被悄悄放水）。
+            previous == null -> 0
             crossDay && rating != FsrsRating.AGAIN -> previous.consecutiveCrossDaySuccess + 1
             // Spec §2.10: the streak counts *consecutive* cross-day successes —
             // a cross-day lapse breaks the run. Without this reset the stale

@@ -45,7 +45,7 @@ class FsrsProjectionBehaviorTest {
             memory.difficulty,
             1e-9,
         )
-        assertEquals(1, memory.consecutiveCrossDaySuccess)
+        assertEquals(0, memory.consecutiveCrossDaySuccess)
         assertEquals(LearningEvidenceReason.INDEPENDENT_CORRECT.name, memory.lastEvidenceReason)
         assertEquals(LearningEvidenceDirection.POSITIVE.name, memory.lastEvidenceDirection)
     }
@@ -72,7 +72,7 @@ class FsrsProjectionBehaviorTest {
             1e-9,
         )
         // Same-day repeats never reach the cross-day long-run branch.
-        assertEquals(1, memory.consecutiveCrossDaySuccess)
+        assertEquals(0, memory.consecutiveCrossDaySuccess)
     }
 
     @Test
@@ -93,7 +93,8 @@ class FsrsProjectionBehaviorTest {
         val memory = second.snapshot.problemMemoryStates.getValue("unit-1")
 
         // Cross-day success must advance the streak (same-day would keep it at 1).
-        assertEquals(2, memory.consecutiveCrossDaySuccess)
+        // P5（批次 3）：首答不计跨日连击——首答后为 0，跨日成功累计从第二次起。
+        assertEquals(1, memory.consecutiveCrossDaySuccess)
         // The long-run recall branch grows stability past the short-term floor; the same-day
         // branch for Good would leave it at the short-term value (which equals the seed here).
         assertTrue(
