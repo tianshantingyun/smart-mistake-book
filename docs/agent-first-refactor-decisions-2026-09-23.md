@@ -2056,6 +2056,33 @@ emulator"用途，CI 上也带它跑）单跑 22s 全过。判定：**本机 AVD
 
 ---
 
+## 阶段 3A · Wave 3 批次 2 完成记录（2026-10-01，本线）
+
+**范围与提交**：批次 2 = KF-16 先修压制（判据层）+ P11 死代码 + P9 rating 基址统一 + P8 展示统一
++ KF-20 OLM 机制层 + 仪器化旧复合串改绑。提交 `44d223da`（38 文件，**零 bump**——不动投影公式/
+落库值/schema）。实施规格（外部调研 + 仓库勘察 + 独立复核 15 条处置）：
+`docs/research/2026-09-30-wave3-batch2-spec.md`。
+
+**退出门证据（2026-10-01 当前轮）**：
+- 全量 JVM **2052 例 / 5 条失败**——全部为 core:data 的 KB 金标既有红（GoldenRetrievalJvmTest /
+  ProductionLexicalLegExportTest / Stage1LexicalLabTest / Stage2LexicalScoresExportTest /
+  DenseTokenizerParityTest；非本波引入、按纪律不动）；
+- 定向仪器化 **45 例 / 0 失败**：core:database 5 套件 44 例（LibraryLeastMasteredSort 3 /
+  MasteryOverview 7 / MistakeMemoryProjection 3 / StudyDatabase 28 / MasterySchedulingMigration 3
+  ——最后一家即"有意遗留"行的回归）+ app `LearningMasteryScreenInstrumentedTest` 1 例；
+- 零 bump 实证：`KernelWave2SchemaContractTest` 3/3（SQL 值逐字未变）、
+  `StoredRatingBasisTest` 配对契约绿（算法序 ↔ 落库值绑定）；
+- 改动：KF-16 判据层能力落成但**读取侧接线**（core:data 掌握读面 / V2 排程处传先修稳定度）登记为
+  批次 3 前的收尾项（`AdaptiveQuestionSelector`/V1 无图，需另裁 API 扩展——边界已写入规格 §0.2）。
+
+**批次 3 待办**（下一波）：KF-11 legacy 清除（`LegacyExponentialMemoryUpdateModel` +
+`useFsrsScheduling` 分支 + 设置开关 + DataStore key）；KF-08 前置硬过滤（bump
+`ReviewPlannerV2.VERSION` 与 `PLAN_FINGERPRINT_SCHEMA_VERSION`——**不是** `REVIEW_PLANNER`）；
+规划侧个性化（投影同一份 FSRS 参数注入排程侧）；P5（首答不计跨日连击 + 曝光计数对称）；
+P6/P7（唯一评级来源 + 校准区零配对档过滤）；随后 R8 冒烟 + 消费点回归 8 类 + 版本台账/master line。
+
+---
+
 ## 裁决 13 · 修订补记（2026-09-30，Wave 3 计划批准时）——落地口径钉死
 
 承接「裁决 13 · 修订（E 判据）」，本轮把落地口径逐项确认（用户裁定；曾被另一会话整文件写入
