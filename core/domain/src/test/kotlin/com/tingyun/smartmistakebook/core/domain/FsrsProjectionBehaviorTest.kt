@@ -29,10 +29,6 @@ import kotlin.math.exp
 class FsrsProjectionBehaviorTest {
 
     private val projector = LearningProjector()
-    private val legacyProjector = LearningProjector(
-        forgettingCurve = ForgettingCurve(),
-        memoryUpdateModel = LegacyExponentialMemoryUpdateModel(),
-    )
 
     @Test
     fun `first review seeds initial stability and difficulty for its rating`() {
@@ -255,41 +251,6 @@ class FsrsProjectionBehaviorTest {
             }
         }
         throw AssertionError("graduation never scheduled a maintenance interval")
-    }
-
-    @Test
-    fun `legacy kill switch keeps the audited exponential behavior`() {
-        val result = legacyProjector.project(
-            LearnerSnapshot.empty("learner-1"),
-            listOf(attempt("a-1", 1, easyEvidence(weight = 1.0))),
-            1,
-        )
-        val memory = result.snapshot.problemMemoryStates.getValue("unit-1")
-
-        // projection-v4 formula: S = 0.5 * (1 + 1.6 * 1.0) + 0.25
-        assertEquals(0.5 * 2.6 + 0.25, memory.stabilityDays, 1e-9)
-        assertEquals(5.5 - 0.72, memory.difficulty, 1e-9)
-    }
-
-    @Test
-    fun `legacy kill switch keeps the ten minute reveal review`() {
-        val revealed = attempt("a-1", 1).copy(
-            evidence = LearningEvidence(
-                LearningEvidenceDirection.NONE,
-                0.0,
-                LearningEvidenceReason.ANSWER_REVEALED,
-            ),
-            problemMemoryOutcome = ProblemMemoryOutcome.ANSWER_REVEALED,
-        )
-
-        val result = legacyProjector.project(
-            LearnerSnapshot.empty("learner-1"),
-            listOf(revealed),
-            1,
-        )
-        val memory = result.snapshot.problemMemoryStates.getValue("unit-1")
-
-        assertEquals(revealed.occurredAtEpochMillis + 10 * 60_000, memory.nextReviewAtEpochMillis)
     }
 
     private fun seededCrossDay(): LearningProjectionResult {

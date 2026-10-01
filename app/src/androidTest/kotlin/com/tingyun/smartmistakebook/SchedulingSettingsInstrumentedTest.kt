@@ -1,11 +1,6 @@
 package com.tingyun.smartmistakebook
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsOff
-import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -29,17 +24,12 @@ class SchedulingSettingsInstrumentedTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun schedulingSettingsExposeRetentionAndFsrsControls() {
-        var options by mutableStateOf(SchedulingOptions())
-        var saved: SchedulingOptions? = null
+    fun schedulingSettingsExposeRetentionSliderWithoutTheRemovedFsrsSwitch() {
         composeRule.setContent {
             SchedulingSettingsScreen(
-                options = options,
+                options = SchedulingOptions(),
                 exams = emptyList(),
-                onSetOptions = { updated ->
-                    saved = updated
-                    options = updated
-                },
+                onSetOptions = {},
                 onAddExam = {},
                 onRemoveExam = {},
                 onBack = {},
@@ -47,14 +37,8 @@ class SchedulingSettingsInstrumentedTest {
         }
 
         composeRule.onNodeWithTag("scheduling_retention_slider").assertIsDisplayed()
-        composeRule.onNodeWithTag("scheduling_fsrs_switch").assertIsOn()
-
-        composeRule.onNodeWithTag("scheduling_fsrs_switch").performClick()
-        composeRule.runOnIdle {
-            assertEquals(false, saved?.useFsrsScheduling)
-            assertEquals(false, options.useFsrsScheduling)
-        }
-        composeRule.onNodeWithTag("scheduling_fsrs_switch").assertIsOff()
+        // KF-11（2026-10-01）：FSRS 开关随 kill-switch 退场（FSRS 唯一化）。
+        composeRule.onNodeWithTag("scheduling_fsrs_switch").assertDoesNotExist()
     }
 
     @Test

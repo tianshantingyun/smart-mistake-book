@@ -3,7 +3,6 @@ package com.tingyun.smartmistakebook.core.data.settings
 import android.content.Context
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -45,8 +44,6 @@ class DataStoreSchedulingSettingsStore(
             SchedulingOptions(
                 desiredRetention = values[DESIRED_RETENTION]
                     ?: SchedulingOptions().desiredRetention,
-                useFsrsScheduling = values[FSRS_ENABLED]
-                    ?: SchedulingOptions().useFsrsScheduling,
             )
         }
         .distinctUntilChanged()
@@ -54,7 +51,7 @@ class DataStoreSchedulingSettingsStore(
     override suspend fun setOptions(options: SchedulingOptions) {
         dataStore.edit { values ->
             values[DESIRED_RETENTION] = options.desiredRetention
-            values[FSRS_ENABLED] = options.useFsrsScheduling
+            // KF-11：FSRS 开关已删除；历史库里的 `fsrs_enabled` 键不再读写（遗留数据无害）。
         }
     }
 
@@ -114,7 +111,6 @@ class DataStoreSchedulingSettingsStore(
         const val FSRS_PARAMETER_COUNT = 21
         const val PARAMETER_SEPARATOR = ","
         val DESIRED_RETENTION = doublePreferencesKey("desired_retention")
-        val FSRS_ENABLED = booleanPreferencesKey("fsrs_enabled")
         val EXAMS = stringSetPreferencesKey("exam_calendar")
         val OPTIMIZED_PARAMETERS = stringPreferencesKey("optimized_fsrs_parameters")
     }

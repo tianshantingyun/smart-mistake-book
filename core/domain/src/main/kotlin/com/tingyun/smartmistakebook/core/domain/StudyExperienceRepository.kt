@@ -495,15 +495,13 @@ data class SaveTutorProblemCommand(
 }
 
 /**
- * Scheduling options the learner controls (spec §2.4 r*, §2.20 kill switch).
- * Both flags are read at repository construction; flipping them takes effect
- * on the next launch, keeping any single session's projection model stable.
+ * Scheduling options the learner controls (spec §2.4 r*).
+ * 读于仓储构造；改动在下次启动生效，保持单次会话的投影模型稳定。
+ * KF-11（2026-10-01）：`useFsrsScheduling` kill-switch 已删除（FSRS 唯一化）。
  */
 data class SchedulingOptions(
     /** Target retention r* in the supported 0.7..0.97 band. */
     val desiredRetention: Double = FsrsMemoryUpdateModel.DEFAULT_DESIRED_RETENTION,
-    /** Kill switch (spec §2.20): false restores the legacy exponential model. */
-    val useFsrsScheduling: Boolean = true,
 ) {
     init {
         require(desiredRetention in 0.7..0.97) {

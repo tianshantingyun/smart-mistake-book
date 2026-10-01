@@ -11,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,9 +34,10 @@ import java.time.ZoneId
 import kotlin.math.roundToInt
 
 /**
- * 复习排程设置（spec mastery-scheduling §2.17/§8-B4）：期望保持率、FSRS 开关、
- * 考试日历。审计 2026-09-09 发现这三个写入路径此前全仓无调用方——`setOptions` /
+ * 复习排程设置（spec mastery-scheduling §2.17/§8-B4）：期望保持率、考试日历。
+ * 审计 2026-09-09 发现这三个写入路径此前全仓无调用方——`setOptions` /
  * `declareExam` / `removeExam` 只有接口与实现，学生改不了任何排程参数。
+ * KF-11（2026-10-01）：FSRS 开关已随 kill-switch 退场（FSRS 唯一化）。
  *
  * 排程参数在仓库构造时读取，改动在下次启动生效（spec §2.20：单次会话内投影模型稳定），
  * 因此本页只负责落库，不假装立即生效。
@@ -88,26 +88,6 @@ internal fun SchedulingSettingsScreen(
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("scheduling_retention_hint"),
-            )
-        }
-
-        PaperDivider(modifier = Modifier.padding(vertical = 12.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("使用 FSRS 排程", style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = "关闭后回退到旧的指数模型（仅用于排查问题）。",
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Switch(
-                checked = options.useFsrsScheduling,
-                onCheckedChange = { enabled ->
-                    onSetOptions(options.copy(useFsrsScheduling = enabled))
-                },
-                modifier = Modifier.testTag("scheduling_fsrs_switch"),
             )
         }
 

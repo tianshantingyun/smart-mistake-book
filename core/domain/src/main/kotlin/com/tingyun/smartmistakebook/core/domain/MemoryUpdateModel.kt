@@ -44,6 +44,10 @@ interface MemoryUpdateModel {
  * FSRS-6 updates (spec §2.2-2.4, §2.15): power-law retrievability, R-dependent
  * stability, mean-reverting difficulty on the 1..10 domain, same-day reviews
  * on the short-term branch, and whole-day interval scheduling.
+ *
+ * KF-11（2026-10-01）：audited 的 legacy 指数模型（`LegacyExponentialMemoryUpdateModel`，
+ * 系数 D 级无据）与其 kill-switch（`useFsrsScheduling` 分支 + 设置开关 + DataStore key）
+ * 已删除——**FSRS 唯一化**。本类是全仓唯一的记忆更新模型。
  */
 class FsrsMemoryUpdateModel(
     private val parameters: DoubleArray = FsrsScheduleMath.DEFAULT_PARAMETERS,
@@ -142,76 +146,5 @@ class FsrsMemoryUpdateModel(
         const val DEFAULT_DESIRED_RETENTION = 0.9
         /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`（本文件要 Double，故在此别名一次）。 */
         private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
-    }
-}
-
-/**
- * The audited pre-FSRS projection mathematics (projection-v4), preserved as
- * the kill-switch baseline. Difficulty updates are rescaled from the old
- * 0..1 constants onto the 1..10 domain without changing their shape.
- */
-class LegacyExponentialMemoryUpdateModel(
-    private val forgettingCurve: ForgettingCurve = ForgettingCurve(),
-) : MemoryUpdateModel {
-
-    override val algorithmId: String = ALGORITHM_ID
-
-    override fun updateMemory(
-        previous: ProblemMemoryState?,
-        rating: FsrsRating,
-        outcome: ProblemMemoryOutcome,
-        weight: Double,
-        occurredAtEpochMillis: Long,
-        effectiveAttemptAtEpochMillis: Long,
-        elapsedCalendarDays: Double,
-    ): MemoryUpdateResult {
-        val currentStability = previous?.stabilityDays ?: INITIAL_STABILITY_DAYS
-        val currentDifficulty = previous?.difficulty ?: INITIAL_DIFFICULTY
-        val stability = when (outcome) {
-            ProblemMemoryOutcome.INDEPENDENT_RECALL ->
-                currentStability * (1.0 + 1.6 * weight) + 0.25 * weight
-            ProblemMemoryOutcome.ASSISTED_RECALL ->
-                currentStability * (1.0 + 0.6 * weight) + 0.1 * weight
-            ProblemMemoryOutcome.RETRIEVAL_FAILURE -> currentStability * (0.7 - 0.25 * weight)
-            ProblemMemoryOutcome.ANSWER_REVEALED -> currentStability * ANSWER_REVEAL_STABILITY_FACTOR
-        }.coerceIn(MIN_STABILITY_DAYS, MAX_STABILITY_DAYS)
-        val difficulty01 = when (outcome) {
-            ProblemMemoryOutcome.INDEPENDENT_RECALL -> to01(currentDifficulty) - 0.08 * weight
-            ProblemMemoryOutcome.ASSISTED_RECALL -> to01(currentDifficulty) - 0.03 * weight
-            ProblemMemoryOutcome.RETRIEVAL_FAILURE -> to01(currentDifficulty) + 0.12 * weight
-            ProblemMemoryOutcome.ANSWER_REVEALED -> to01(currentDifficulty) + 0.12
-        }.coerceIn(0.0, 1.0)
-        val shortTermReview = outcome == ProblemMemoryOutcome.ANSWER_REVEALED ||
-            occurredAtEpochMillis < effectiveAttemptAtEpochMillis
-        val nextReviewAt = if (shortTermReview) {
-            val increment = SHORT_REVIEW_MILLIS
-            if (Long.MAX_VALUE - effectiveAttemptAtEpochMillis < increment) {
-                Long.MAX_VALUE
-            } else {
-                effectiveAttemptAtEpochMillis + increment
-            }
-        } else {
-            forgettingCurve.reviewAtTargetRetention(effectiveAttemptAtEpochMillis, stability)
-        }
-        return MemoryUpdateResult(
-            stabilityDays = stability,
-            difficulty = from01(difficulty01),
-            nextReviewAtEpochMillis = nextReviewAt,
-            shortTermReview = shortTermReview,
-        )
-    }
-
-    private fun to01(difficulty: Double): Double = (difficulty - 1.0) / 9.0
-
-    private fun from01(difficulty01: Double): Double = 1.0 + 9.0 * difficulty01
-
-    companion object {
-        const val ALGORITHM_ID = "legacy-exponential"
-        private const val INITIAL_STABILITY_DAYS = 0.5
-        private const val MIN_STABILITY_DAYS = 0.25
-        private const val MAX_STABILITY_DAYS = 3_650.0
-        private const val INITIAL_DIFFICULTY = 5.5
-        private const val ANSWER_REVEAL_STABILITY_FACTOR = 0.45
-        private const val SHORT_REVIEW_MILLIS = 10L * 60_000L
     }
 }

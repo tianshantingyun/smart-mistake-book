@@ -23,7 +23,6 @@ import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.domain.LogDurationModel
 import com.tingyun.smartmistakebook.core.domain.PredictionAuditSink
 import com.tingyun.smartmistakebook.core.domain.ReviewPlanner
-import com.tingyun.smartmistakebook.core.domain.LegacyExponentialMemoryUpdateModel
 import com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuestionLatticeRow
 import com.tingyun.smartmistakebook.core.domain.PlannedReasonCalibration
@@ -123,12 +122,10 @@ class RoomBackedStudyExperienceRepository(
     // 等于默认 w20。与 memoryUpdateModel 的 decay 同源，禁止各自另算。
     private val activeFsrsDecay =
         -(optimizedFsrsParameters ?: FsrsScheduleMath.DEFAULT_PARAMETERS)[20]
+    // KF-11（2026-10-01）：`useFsrsScheduling` kill-switch 已删除，FSRS 唯一化——
+    // 三处构造不再分支（legacy 曲线/模型随之蒸发）。
     private val forgettingCurve = ForgettingCurve(
-        algorithm = if (schedulingOptions.useFsrsScheduling) {
-            ForgettingCurveAlgorithm.FSRS6_POWER_LAW
-        } else {
-            ForgettingCurveAlgorithm.LEGACY_EXPONENTIAL
-        },
+        algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
         decay = activeFsrsDecay,
     )
     private val reviewPlanner = ReviewPlanner()
@@ -142,27 +139,17 @@ class RoomBackedStudyExperienceRepository(
     private val durationModel = LogDurationModel()
     private val reviewPlannerV2 = ReviewPlannerV2(
         forgettingCurve = ForgettingCurve(
-            algorithm = if (schedulingOptions.useFsrsScheduling) {
-                ForgettingCurveAlgorithm.FSRS6_POWER_LAW
-            } else {
-                ForgettingCurveAlgorithm.LEGACY_EXPONENTIAL
-            },
+            algorithm = ForgettingCurveAlgorithm.FSRS6_POWER_LAW,
             decay = activeFsrsDecay,
         ),
         durationModel = durationModel,
     )
     private val learningProjector = LearningProjector(
         forgettingCurve = forgettingCurve,
-        memoryUpdateModel = if (schedulingOptions.useFsrsScheduling) {
-            FsrsMemoryUpdateModel(
-                parameters = optimizedFsrsParameters ?: FsrsScheduleMath.DEFAULT_PARAMETERS,
-                desiredRetention = schedulingOptions.desiredRetention,
-            )
-        } else {
-            LegacyExponentialMemoryUpdateModel(
-                forgettingCurve = ForgettingCurve(),
-            )
-        },
+        memoryUpdateModel = FsrsMemoryUpdateModel(
+            parameters = optimizedFsrsParameters ?: FsrsScheduleMath.DEFAULT_PARAMETERS,
+            desiredRetention = schedulingOptions.desiredRetention,
+        ),
     )
     private val projectionDrainer = StudyProjectionDrainer(
         database = database,
