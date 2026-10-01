@@ -1969,3 +1969,27 @@ emulator"用途，CI 上也带它跑）单跑 22s 全过。判定：**本机 AVD
 
 **定向仪器化补跑**（校验器/日界改动后）：`MasteryOverviewInstrumentedTest` + `StudyDatabaseInstrumentedTest`
 35/35、`TutorJudgedReviewSettleInstrumentedTest` 2/2、app 两条 review 流程用例 4/4、`KernelWave2MigrationInstrumentedTest` 1/1。
+
+---
+
+## 续裁 · 判题置信折价（2026-10-01）
+
+### 裁决 19 · 低置信判词 = 永不丢弃、按置信档折价（续裁决 18，用户主张）
+
+- 问题：模型判词置信低时，记账还是丢弃。
+- **裁定（否掉此前"低置信→NO_VERDICT"的方案）**：判词**只要有判定信号就记账、就推进队列**；
+  折价只落在权重上——`MODEL_JUDGED_EVIDENCE_WEIGHT × 档位系数`。NO_VERDICT 语义不动
+  （只留给"真无判定信号"：检查题没有、判词也没有）。
+- 依据：项目已定哲学"记，但折价"（model-judged-verdict-pricing.md）；本地判只覆盖检查题一小部分，
+  模型判是主流路径；学生复习流须推进、证据须留痕（"什么都留不下来"不可接受）。
+- **档位系数来源（用户指定先研究）：校准驱动，不自拍**——
+  - 起步（金标未就位）：保守粗档 ×1.0（conf≥0.85）/ ×0.7（0.7–0.85）/ ×0.5（<0.7），
+    **显式标注为临时假设**，不是定案；
+  - 金标就位后：折价系数 = 该置信档的**实测判对率**（ECE 分箱口径）；或先对模型置信做
+    temperature/isotonic 重校准，再取重校准置信度连续折算；档界按每档样本量 ≥N 划分；
+    每次更新记入算法版本台账（W0-3）。
+  - 检索依据【I，无链接级】：模型自报置信是启发式、会"自信地错"，须校准后使用；阈值不跨任务
+    迁移、必须按本任务金标校准；分箱准确率是折扣系数的自然来源（ECE/AdaFocal 口径）。
+- 与裁决 18 不冲突：拟合集排除仍按 `source_kind`（与置信度无关）；本折价只作用于记忆更新/排期权重。
+- 实施点：`TutorJudgedReviewSettler.kt:103` 权重 = `MODEL_JUDGED_EVIDENCE_WEIGHT × bandFactor(confidence)`；
+  bandFactor 进常数表（`AlgorithmConstants`），金标就位后换实测值。
