@@ -2215,8 +2215,44 @@ KF-35——裁决 20 写"随 Wave 1"，但 Wave 1 已零 bump 收口，口径过
   代码本无该逆向读路径）；校准区过滤零配对档常驻噪音行。**`PROJECTOR v9 → v10`**（两处投影
   输出变化 → 全量重放，archive 先归档）。
 
-**验证（当前轮）**：全量 JVM **2049 例 / 5 条失败**——全部为 KB 金标既有红（点名同前）。
-定向仪器化门（六套件 + app 两例）在批次 3 文档落盘后复跑；R8 冒烟随后。
+**验证（收尾轮，最终）**：
+- 全量 JVM **2049 例 / 5 条失败**——5 条全部为 KB 金标既有红（`GoldenRetrievalJvmTest` /
+  `ProductionLexicalLabExportTest` / `Stage1LexicalLabTest` / `Stage2LexicalScoresExportTest` /
+  `DenseTokenizerParityTest`，HEAD 上即红，非本波引入；见 memory `kb-judge-v2-five-red-tests`）。
+- 定向仪器化 · `core:database` **47/0**（单次跑，产物
+  `core/database/build/outputs/androidTest-results/connected/debug/TEST-test_device*.xml`）：
+  `FullMigrationMatrix` 3/0（含 1→56 与合并保行）、`MasteryOverview` 7/0（含 KF-20 四列）、
+  `MistakeMemoryProjection` 3/0、`StudyDatabase` 28/0、`MasterySchedulingMigration` 3/0、
+  `LibraryLeastMasteredSort` 3/0。
+- 定向仪器化 · `app` localFirst **5/0**（单次统一复跑，产物同名 XML 于
+  `app/build/outputs/androidTest-results/connected/debug/flavors/localFirst/`）：
+  `LearningMasteryScreen` 1/0（区间行 + a11y）、`SchedulingSettings` 2/0（FSRS 开关已删）、
+  `SourceCalibrationSection` 2/0（零配对档过滤）。
+- **R8 release 冒烟通过**：`:app:assembleLocalFirstRelease` BUILD SUCCESSFUL 4m31s
+  （`minifyLocalFirstReleaseWithR8` 实跑，R8BUILD=0）→ 装机 `Success` → 启动后进程存活
+  （`pidof` 命中）→ 主屏渲染截图（`build/r8-smoke-2026-10-01.png`：复习栏、问候、底栏四入口）→
+  logcat 无 FATAL/AndroidRuntime、无 R8 反射缺失（MissingClass/ClassNotFound/NoSuchMethod 零命中；
+  仅剩 EGL/SurfaceSync 环境类警告）。**口径注记**：本机无 RELEASE_* 签名环境变量，冒烟以标准
+  debug keystore 给 release 变体签名；被测对象是 **R8 混淆与启动**、不是签名链（签名链另有
+  `validateReleaseSigning` 门，投产由 CI 注入）。
+- **消费点回归 8 类**（对照本波计划 §5，逐类落到已有套件）：
+  ① CONFLICTED 触发 → `LearningProjectorTest`（:77 直断言）+ 投影套件 P5 新语义六处；
+  ② 排程跳过 → `MasteryMemoryCardTest`（E 边界 20.9/21/22 天）+ `AdaptiveQuestionSelectorTest`
+  （skip 消费记忆卡重表）；
+  ③ 自适应出题 → `AdaptiveQuestionSelectorTest`（同族不再门控、lapse 走 memoryStabilityDays）；
+  ④ 风险/弱点权重 → `KnowledgeReviewQueueTest`（`knowledgeRecallRiskByNode` 显式 decay）+
+  `ReviewPlannerV2Test`（KF-08 硬过滤 + 先修恢复回池）；
+  ⑤ 数值轴 → `MasteryBandsTest`（core:ui）+ `MasteryBandConsistencyTest`（app，0.85 单源一致）；
+  ⑥ 错题本 facets + LEAST_MASTERED → `LibraryLeastMasteredSortInstrumentedTest` 3/0 +
+  `RoomBackedStudyExperienceRepositoryTest`（facets）；
+  ⑦ 讲题模型证据 → `RoomTutorToolRunnerTest`（KF-20 区间列 + 「记忆：稳定度」下钻行）+
+  `RoomBackedStudyExperienceRepositoryTest`（曝光/揭示定价两例）；
+  ⑧ 展示面三处 → `MasteryIntervalMappingTest`（core:data 映射层）+ app 仪器化 5/0（三屏同上）。
+
+**剩余 UNVERIFIED（诚实边界）**：① 真实模型路径（判题/讲题模型语义判定）不在本波冒烟范围
+（沿用既有"未验证项缺模型"口径）；② `PerformanceGateTest` 2 例为本机共享 AVD 环境档
+（首屏 725ms、并发搜索 1044.5ms，不声称绿、不记回归）；③ 金标集 KF-35 标注未做
+（已由「裁决 23」重挂 Wave 5）。
 
 **悬空登记状态**：① KF-21/预测审计轨 → 仍待 3C 线同步（本线未动）；② KF-35/bandFactor →
 **已由另一线「裁决 23」闭合并重挂 Wave 5（3C 监测段）**，本线不再跟踪。
