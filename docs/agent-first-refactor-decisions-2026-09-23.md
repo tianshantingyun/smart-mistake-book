@@ -1944,3 +1944,28 @@ W1-5 字段链正确、拟合口径完整、`toFixedDays` half-to-even 声明正
    理由是避免泄漏与同日尾行语义纠缠——见 `SchedulingReplay.EndStatePrediction` KDoc。
 5. **`ForgettingCurve`/`OptimalRetention` 的 FSRS 分支已有 decay 形参**，但 `KnowledgeReviewQueue`
    等规划侧传默认值——替换启发式与个性化是两件事，别混。
+
+### Wave 2 收口补记（2026-10-01，定向仪器化暴露的两处真实连带缺陷）
+
+1. **`DatabaseContractValidator.validateStudyDay` 仍按 00:00 日历日核对盖章**——日界改到 04:00 后，
+   00:00–04:00 的合法作答会被契约校验误拒（core:data 结算链的定向仪器化当场炸出
+   `DatabaseContractViolationException`）。JVM 与 core:database 夹具都绕过了这条校验，只有
+   真 Room 写路径的仪器化能暴露它。修法：校验器改与**单源换算**一致，为此把 `StudyDayMath`
+   从 core:domain **下沉到 core:model**（core:database 只看得到 core:model；留在 domain 就只有
+   "复制公式"或"删掉校验"两条错路——前者是 P1 病复发）。日长在 core:model 层自持常量
+   （与 W0-4 已登记的 core:model 日长例外同一层边界）。
+2. **纪元级时间戳的夹具在 04:00 日界下日序为 −1**，撞 `ProblemMemoryState.lastReviewedEpochDay >= 0`
+   不变量（`TutorJudgedReviewSettleInstrumentedTest` 用 2_000/3_000ms 时间戳）。修法：夹具时间基
+   改为 2026-01（与 `FsrsProjectionBehaviorTest` 的修法一致）。**注册为夹具纪律**：任何手写
+   小时间戳的学习写路径用例都要避开纪元附近 4 小时。
+
+**性能门（`PerformanceGateTest`）的环境判定**：全量 `:core:database` 门（183 例）的唯一失败是
+该类的两例（首屏/并发搜索），且 ①失败集合四轮漂移、②同码同测的读数 694–1059ms 大幅摆动、
+③路径与本波改动不相交（它只压 library 搜索 DAO + FTS + 10k 行分页；本波动的是 review_log
+schema/日算/投影/优化器）、④用门**自带**的慢跑者系数（`ciSlowRunner=1`，门 KDoc 明写"shared
+emulator"用途，CI 上也带它跑）单跑 22s 全过。判定：**本机 AVD 属"共享模拟器"档，严格阈值在
+本机不成立；不声称该门绿、也不记为本波回归**——本波退出门（合成数据恢复绿 + 迁移绿）由
+"全量 183 例中除该类外 0 失败 + 迁移矩阵 1→55 自动覆盖"支撑。
+
+**定向仪器化补跑**（校验器/日界改动后）：`MasteryOverviewInstrumentedTest` + `StudyDatabaseInstrumentedTest`
+35/35、`TutorJudgedReviewSettleInstrumentedTest` 2/2、app 两条 review 流程用例 4/4、`KernelWave2MigrationInstrumentedTest` 1/1。

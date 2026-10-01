@@ -1,7 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
-import com.tingyun.smartmistakebook.core.domain.StudyDayMath
+import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import java.nio.charset.StandardCharsets

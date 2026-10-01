@@ -56,7 +56,7 @@ class TutorJudgedReviewSettleInstrumentedTest {
             database.seedFixture(capturedShapedSeed())
             repository.initialize()
             val started = requireNotNull(
-                repository.startOrResumeReviewSession("tutor-judged-start", 2_000),
+                repository.startOrResumeReviewSession("tutor-judged-start", START_AT),
             )
             // 讲题会话把这道题锚定住（写侧的真实路径由 feature:tutor 调用同一命令），
             // 并留下一条**本地判定**的检查题作答：答对。
@@ -67,7 +67,7 @@ class TutorJudgedReviewSettleInstrumentedTest {
                     problemRevisionId = "captured-revision",
                     practiceUnitId = "captured-unit",
                     source = "SAVED_MISTAKE",
-                    anchoredAtEpochMillis = 2_500,
+                    anchoredAtEpochMillis = START_AT + 500,
                 ),
             )
             database.recordTutorChoice(
@@ -82,7 +82,7 @@ class TutorJudgedReviewSettleInstrumentedTest {
                     selectedChoiceMarkdown = "因为单调",
                     selectionWasCorrect = true,
                     feedbackMarkdown = "对了",
-                    choiceSubmittedAtEpochMillis = 2_600,
+                    choiceSubmittedAtEpochMillis = START_AT + 600,
                 ),
             )
             // 结算前的知识点掌握度当作基线（此后必须逐字不变）。
@@ -97,7 +97,7 @@ class TutorJudgedReviewSettleInstrumentedTest {
                     expectedStateVersion = started.stateVersion,
                     practiceUnitId = "captured-unit",
                     presentationId = "presentation:tutor-judged:captured-unit",
-                    occurredAtEpochMillis = 3_000,
+                    occurredAtEpochMillis = START_AT + 1_000,
                     durationSeconds = 90,
                 ),
             )
@@ -115,7 +115,7 @@ class TutorJudgedReviewSettleInstrumentedTest {
                     .questionMemory,
             ) { "settled attempt did not reach the question memory" }
             assertEquals(1, memory.assistedRecallCount)
-            assertTrue(memory.nextReviewAtEpochMillis > 3_000)
+            assertTrue(memory.nextReviewAtEpochMillis > START_AT + 1_000)
 
             // 复习日志按**判定来源**落库：这条会话留下的是本地核对（检查题自带标准答案），
             // 因此是 LOCAL_CHECKED——台账裁决 18 解除其拟合排除；模型判词才保持 MODEL_JUDGED。
@@ -159,7 +159,7 @@ class TutorJudgedReviewSettleInstrumentedTest {
             database.seedFixture(capturedShapedSeed())
             repository.initialize()
             val started = requireNotNull(
-                repository.startOrResumeReviewSession("tutor-judged-empty-start", 2_000),
+                repository.startOrResumeReviewSession("tutor-judged-empty-start", START_AT),
             )
 
             val result = repository.settleTutorJudgedReview(
@@ -238,5 +238,8 @@ class TutorJudgedReviewSettleInstrumentedTest {
 
     private companion object {
         const val TUTOR_SESSION_ID = "tutor-session-settle-1"
+
+        /** 2026-01-10 10:00 +08：远离纪元（04:00 学习日界下纪元附近的时刻日序为负）。 */
+        val START_AT = java.time.Instant.parse("2026-01-10T02:00:00Z").toEpochMilli()
     }
 }

@@ -1,7 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.domain.ReviewSample
-import com.tingyun.smartmistakebook.core.domain.StudyDayMath
+import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.model.LearningEvidence
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason

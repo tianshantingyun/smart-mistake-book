@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import java.time.Instant
 import java.time.ZoneId
 import org.junit.Assert.assertEquals

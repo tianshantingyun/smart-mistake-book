@@ -22,7 +22,7 @@ object LearningCoreVersions {
      * v7 → v8（2026-10-01，Wave 2）：两处**数值口径变更**合并为一次 bump——
      * ①W2-1/KF-01 在线投影的 R 与间隔反函数接入个性化 w20（此前隐式吃默认 decay，
      * 有优化参数的学习者其在线口径与拟合口径不一致）；②W2-4/KF-25 学习日界从本地
-     * 00:00 移到 04:00（`StudyDayMath.DAY_START_HOUR`，官方 day_start）。两者都改变
+     * 00:00 移到 04:00（`core:model` 的 `StudyDayMath.DAY_START_HOUR`，官方 day_start）。两者都改变
      * 投影输出：旧快照必须全量重放（W0 的 `projection_archive` 会先归档旧投影），
      * 否则新旧口径混用。`REVIEW_COMPOSITE` 同步变化 → 当日计划按新口径重排。
      */

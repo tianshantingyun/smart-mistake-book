@@ -10,7 +10,7 @@ import com.tingyun.smartmistakebook.core.domain.FsrsEvidenceRatingMapper
 import com.tingyun.smartmistakebook.core.domain.FsrsRating
 import com.tingyun.smartmistakebook.core.domain.ReviewSample
 import com.tingyun.smartmistakebook.core.domain.SourceCalibration
-import com.tingyun.smartmistakebook.core.domain.StudyDayMath
+import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarness
 import com.tingyun.smartmistakebook.core.domain.TimeBucket
 import com.tingyun.smartmistakebook.core.domain.TimeBucketSplit

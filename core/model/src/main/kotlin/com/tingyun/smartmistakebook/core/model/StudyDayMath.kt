@@ -1,7 +1,7 @@
-package com.tingyun.smartmistakebook.core.domain
+package com.tingyun.smartmistakebook.core.model
 
 /**
- * 本地日序（epoch day）的**单一定义处**（内核修复路线图 Wave 1 / W1-6 · P1）。
+ * 本地学习日（study day）的**单一定义处**（内核修复路线图 Wave 1 / W1-6 · P1；Wave 2 / W2-4 加 04:00 日界）。
  *
  * 审计 `docs/research/2026-09-28-kernel-scale-precision-audit.md` §2 的 P1 证据：同一个"学习者本地日"
  * 在三条路上各推一遍——写路径（`StudyWriteContext`）用 zone 规则算日历日；投影（`LearningProjector`）
@@ -22,14 +22,24 @@ package com.tingyun.smartmistakebook.core.domain
  * 时间戳与偏移，十年后结果逐位相同）。已知的边界行为：跨 DST 切换的复习对，新口径与
  * 此前按 zone 规则落库的值可在本地午夜 ±1 小时的角落差 1 天——这正是三源统一要消除的分叉。
  *
- * 为什么是整数除法而不是 `LocalDate.toEpochDay()`：日序在重放期必须**可复算**——账本只存
- * 时间戳与偏移，不存 zone 数据库版本、也不存当年的 DST 规则；"时间戳 + 偏移 → 日序"是纯算术，
- * 十年后重放同一条账本得到同一个日序。zone 规则只用在**写入那一刻**（把当时的偏移取出来）。
+ * **为什么住在 core:model**（Wave 2 迁移）：日界算术被两层使用——上层是 core:domain 的投影/拟合，
+ * 下层是 core:database 的 schema 契约校验（`DatabaseContractValidator.validateStudyDay` 必须能
+ * 独立重算日序来核对盖章）。core:database 看不到 core:domain（依赖方向 database ⊂ model），
+ * 若把算术留在 domain，"校验器复算"就只有两条路：复制公式（P1 的病复发）或删掉校验（丢契约）。
+ * 因此定义下沉到两层都依赖的 core:model；日长在本层自持（core:model 引用不到
+ * `AlgorithmConstants.DAY_MILLIS`，与 W0-4 已登记的"core:model 两处日长字面量"同一层边界）。
  */
 object StudyDayMath {
 
     /** 分钟 → 毫秒。 */
     private const val MILLIS_PER_MINUTE = 60_000L
+
+    /**
+     * 一天的毫秒数（**恒定 24 小时**，不是"本地日"）。core:model 在依赖方向上早于 core:domain，
+     * 引用不到 `AlgorithmConstants.DAY_MILLIS`，故在本层持有一个常量；域层的日长单源仍是
+     * `AlgorithmConstants.DAY_MILLIS`，两者值必须相同（本表只用于日序换算）。
+     */
+    const val MILLIS_PER_DAY = 86_400_000L
 
     /**
      * 学习日起点（W2-4/KF-25，官方 day_start=4）：本地 00:00–04:00 归**前一个学习日**。
@@ -55,6 +65,6 @@ object StudyDayMath {
     fun localEpochDayOf(epochMillis: Long, utcOffsetMinutes: Int): Long =
         Math.floorDiv(
             epochMillis + utcOffsetMinutes.toLong() * MILLIS_PER_MINUTE - DAY_START_OFFSET_MILLIS,
-            AlgorithmConstants.DAY_MILLIS,
+            MILLIS_PER_DAY,
         )
 }

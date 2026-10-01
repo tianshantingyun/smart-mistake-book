@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.database
 
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
+import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
@@ -973,14 +974,21 @@ internal object DatabaseContractValidator {
             throw DatabaseContractViolationException("Unknown studyDay.timeZoneId")
         }
         val local = Instant.ofEpochMilli(occurredAtEpochMillis).atZone(zone)
-        requireContract(local.toLocalDate().toEpochDay() == studyDay.epochDay) {
-            "Study-day epochDay does not contain occurredAt in its time zone"
-        }
         requireContract(local.offset.totalSeconds % 60 == 0) {
             "Study-day UTC offset is not minute-aligned"
         }
-        requireContract(local.offset.totalSeconds / 60 == studyDay.utcOffsetMinutes) {
+        val offsetMinutes = local.offset.totalSeconds / 60
+        requireContract(offsetMinutes == studyDay.utcOffsetMinutes) {
             "Study-day UTC offset does not match occurredAt in its time zone"
+        }
+        // W2-4/KF-25：学习日界从本地 00:00 移到 04:00（`StudyDayMath.DAY_START_HOUR`，定义在
+        // core:model——校验器必须能独立重算日序，故算术下沉到两层都依赖的层）。此前这里按
+        // "日历日 == 盖章日" 核对，日界变更后会把 00:00–04:00 的合法作答误判为违约；
+        // 校验器的职责是"盖章与 时间戳+偏移 自洽"，日序的定义只有一处。
+        requireContract(
+            StudyDayMath.localEpochDayOf(occurredAtEpochMillis, offsetMinutes) == studyDay.epochDay,
+        ) {
+            "Study-day epochDay does not match the study-day derivation for occurredAt"
         }
     }
 

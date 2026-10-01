@@ -15,7 +15,7 @@ import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.core.domain.extractReviewKnowledgeScope
 import com.tingyun.smartmistakebook.core.domain.knowledgeRecallRiskByNode
 import com.tingyun.smartmistakebook.core.domain.selectKnowledgeReviewQueue
-import com.tingyun.smartmistakebook.core.domain.StudyDayMath
+import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.domain.ReviewScopeQuestion
 import com.tingyun.smartmistakebook.core.domain.HLRPredictionAuditService
 import com.tingyun.smartmistakebook.core.domain.IntakeDurationBaseline
