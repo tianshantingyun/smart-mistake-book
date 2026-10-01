@@ -149,10 +149,12 @@
   2. **练习卷模板（templateId="practice_sheet"）新增作答空白区**：每 `ChoiceGroup` 与每 `Paragraph`
      块后按规则留白——选择题留 1 行高×选项数上限 6、小问/段落留 `max(3, 字数/25)` 行高的空白框
      （细线框）；留白跨页时 greedy 分页（复用现有 `keepWithNext` 机制）。
-  3. `includeAnswer`：在题尾附"答案：…"（ChoiceGroup 的 selectedChoiceId → 选项文本）；`includeSolution`
-     尚无解析数据源——一期先渲染"解析待接入"占位？**不**：一期若数据不可得，该项渲染为
-     `UNSUPPORTED_LAYOUT_FEATURE` 并计数跳过（fail-closed，不留占位脏字）；`includeNote` 渲染
-     `error_book_entry.user_note`（数据已在 `MistakeDetailRepository`）。
+  3. `includeAnswer` / `includeSolution`：**与题目分开**（用户裁定 2026-10-01）——答案/解析不逐题
+     附在题尾，而是**独立成区**：题目区在前，答案区（`includeAnswer`：ChoiceGroup 的
+     selectedChoiceId → 选项文本）与解析区在后，跨题连续排或分页（模板化实现）；`includeSolution`
+     尚无解析数据源——一期若数据不可得，该区渲染为 `UNSUPPORTED_LAYOUT_FEATURE` 并计数跳过
+     （fail-closed，不留占位脏字）；`includeNote` 渲染 `error_book_entry.user_note`（数据已在
+     `MistakeDetailRepository`）。
 - **测试**：① 三模板各生成 PDF 且字节互异；② 作答空白区高度断言（金样对比）；③ includeNote
   渲染备注、默认不含；④ 非法组合（columnCount=2 且 imageScale=1.0 且图片宽超半栏）行为写清
   （缩到半栏或拒——**选缩到半栏**，写进测试）。
