@@ -82,7 +82,10 @@ class AdaptiveQuestionSelectorTest {
     }
 
     @Test
-    fun `same family repeated on two days does not skip foundation`() {
+    fun `same family observations no longer gate skip once the memory card is durable`() {
+        // E 判据（W3-2，台账「裁决 13 · 修订」）：MASTERED 只看知识点记忆卡（稳定度 ≥ 21 天
+        // ∧ 当前召回概率 ≥ 0.9）——旧的"≥2 题族 / ≥2 学习日"广度门已退场（广度只服务
+        // CONFLICTED 恢复路径）。本用例锁定该语义变化：同族观察 + 耐久卡 ⇒ 仍可跳过。
         val state = masteredState().copy(
             independentCorrectObservations = listOf(
                 observation("family-a", 1, 100),
@@ -101,8 +104,8 @@ class AdaptiveQuestionSelectorTest {
             ),
         )
 
-        assertEquals(AdaptiveDecisionKind.ASK, decision.kind)
-        assertEquals("assessment-foundation", decision.selectedAssessmentItemId)
+        assertEquals(AdaptiveDecisionKind.SKIP_MASTERED_FOUNDATION, decision.kind)
+        assertEquals(null, decision.selectedAssessmentItemId)
     }
 
     @Test
@@ -166,10 +169,15 @@ class AdaptiveQuestionSelectorTest {
 
     @Test
     fun `newer independent error invalidates earlier skip evidence`() {
+        // E 判据（W3-2）：独立答错在投影侧会把知识点记忆卡 lapse（稳定度掉档）——撤销"可跳过"
+        // 的机制从"观察广度被切断"换成"卡掉到耐久门以下"。本夹具直接给 lapse 后的卡。
         val decision = selector.select(
             AdaptiveSelectionRequest(
                 learnerSnapshot = snapshot(
-                    masteredState().copy(lastIndependentErrorAtEpochMillis = 300),
+                    masteredState().copy(
+                        lastIndependentErrorAtEpochMillis = 300,
+                        memoryStabilityDays = 5.0,
+                    ),
                 ),
                 targetKnowledgeNodeIds = setOf("kc-a"),
                 requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
@@ -187,6 +195,9 @@ class AdaptiveQuestionSelectorTest {
     fun `tiny post error evidence cannot borrow old weight to skip foundation`() {
         val calibrationSnapshot = observation("seed", 1, 100).calibration
         val state = masteredState().copy(
+            // E 判据（W3-2）：撤销来自"独立答错把卡 lapse"；旧口径的"错误后小权重不能借旧权重
+            // 凑广度"已随广度门退场，这里直接给 lapse 后的卡（5 天 < 21 天耐久门）。
+            memoryStabilityDays = 5.0,
             independentCorrectObservations = listOf(
                 IndependentCorrectObservation(
                     "old-a", 1, 100, eventSequence = 1, evidenceWeight = 1.0,
@@ -228,6 +239,8 @@ class AdaptiveQuestionSelectorTest {
     @Test
     fun `event sequence keeps a newer error authoritative without probing with another question`() {
         val state = masteredState().copy(
+            // E 判据（W3-2）：事件的权威性最终体现在记忆卡——独立答错已把卡 lapse。
+            memoryStabilityDays = 5.0,
             independentCorrectObservations = listOf(
                 IndependentCorrectObservation("family-a", 1, 5_000, eventSequence = 1),
                 IndependentCorrectObservation("family-b", 2, 6_000, eventSequence = 2),
@@ -313,7 +326,7 @@ class AdaptiveQuestionSelectorTest {
     fun `expired calibration support pauses without adding a question`() {
         val decision = selector.select(
             AdaptiveSelectionRequest(
-                learnerSnapshot = snapshot(masteredState()),
+                learnerSnapshot = snapshot(learningState()),
                 targetKnowledgeNodeIds = setOf("kc-a"),
                 requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
                 userRequestedQuestion = true,
@@ -405,6 +418,15 @@ class AdaptiveQuestionSelectorTest {
         masteryScore = 0.93,
         conservativeMasteryScore = 0.87,
         evidenceMass = 2.0,
+        // β-二项 s/f（与 p̂≈0.93 一致的取值；本套用例只经 E 判据消费它们）。
+        successWeight = 13.5,
+        failureWeight = 0.5,
+        // E 判据（W3-2，台账「裁决 13 · 修订」）：掌握 = 知识点记忆卡——稳定度 ≥ 21 天
+        // ∧ 当前召回概率 ≥ 0.9。夹具 lastAttempt=200ms、判定时刻在其后极短 Δt，R≈1。
+        memoryStabilityDays = 30.0,
+        memoryDifficulty = 6.0,
+        lastAttemptAtEpochMillis = 200,
+        lastAttemptStudyDayEpochDay = 2,
         independentCorrectObservations = listOf(
             observation("family-a", 1, 100),
             observation("family-b", 2, 200),
@@ -414,6 +436,12 @@ class AdaptiveQuestionSelectorTest {
         projectorVersion = LearningProjector.VERSION,
         checkpointSequence = 8,
         lastEvidenceAtEpochMillis = 200,
+    )
+
+    /** 未掌握态（E 判据：卡低于耐久门）——用于"掌握分支不参与"的候选安全检查用例。 */
+    private fun learningState() = masteredState().copy(
+        status = MasteryStatus.LEARNING,
+        memoryStabilityDays = 5.0,
     )
 
     private fun observation(familyId: String, day: Long, at: Long) =

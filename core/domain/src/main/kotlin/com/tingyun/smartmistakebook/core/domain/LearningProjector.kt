@@ -30,7 +30,6 @@ import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
-import kotlin.math.sqrt
 
 data class LearningProjectionResult(
     val snapshot: LearnerSnapshot,
@@ -651,20 +650,22 @@ class LearningProjector(
         event: ChatEvidenceSubmitted,
         effectiveAtEpochMillis: Long,
     ): KnowledgeMasteryState {
-        val probability = previous?.masteryScore ?: INITIAL_MASTERY_PROBABILITY
         val positive = event.direction == LearningEvidenceDirection.POSITIVE
         val weight = event.weight
-        val updatedProbability = if (positive) {
-            probability + (1.0 - probability) * POSITIVE_LEARNING_RATE * weight
-        } else {
-            probability - probability * NEGATIVE_LEARNING_RATE * weight
-        }.coerceIn(0.0, 1.0)
+        // W3-1/KF-09：掌握点估计由 β-二项（s/f 权重累加 + Jeffreys 先验）派生，替换固定增益 EMA。
+        val successWeight = (previous?.successWeight ?: 0.0) + if (positive) weight else 0.0
+        val failureWeight = (previous?.failureWeight ?: 0.0) + if (positive) 0.0 else weight
+        val updatedProbability = MasteryEstimateMath.pointEstimate(successWeight, failureWeight)
         val evidenceMass = (previous?.evidenceMass ?: 0.0) + weight
-        val lowerBound = masteryLowerBound(updatedProbability, evidenceMass)
+        val lowerBound = MasteryEstimateMath.lowerBound(successWeight, failureWeight)
+        // W3-2/E 判据：status 跟随知识点记忆卡；本通道（聊天自述）不喂卡，只改 s/f 与展示数值。
         val status = when {
             evidenceMass < 1.0 -> MasteryStatus.UNKNOWN
-            clearlyMastered(lowerBound, evidenceMass, emptyList(), null, null, effectiveAtEpochMillis) ->
-                MasteryStatus.MASTERED
+            clearlyMasteredByMemoryCard(
+                previous?.memoryStabilityDays,
+                previous?.lastAttemptAtEpochMillis,
+                effectiveAtEpochMillis,
+            ) -> MasteryStatus.MASTERED
             else -> MasteryStatus.LEARNING
         }
         return KnowledgeMasteryState(
@@ -672,6 +673,13 @@ class LearningProjector(
             masteryScore = updatedProbability,
             conservativeMasteryScore = lowerBound,
             evidenceMass = evidenceMass,
+            successWeight = successWeight,
+            failureWeight = failureWeight,
+            // 聊天通道不喂记忆卡（E 判据白名单）：卡字段原样保留。
+            memoryStabilityDays = previous?.memoryStabilityDays,
+            memoryDifficulty = previous?.memoryDifficulty,
+            lastAttemptAtEpochMillis = previous?.lastAttemptAtEpochMillis,
+            lastAttemptStudyDayEpochDay = previous?.lastAttemptStudyDayEpochDay,
             independentCorrectObservations = previous?.independentCorrectObservations.orEmpty(),
             lastIndependentErrorAtEpochMillis = previous?.lastIndependentErrorAtEpochMillis,
             lastIndependentErrorSequence = previous?.lastIndependentErrorSequence,
@@ -1040,19 +1048,39 @@ class LearningProjector(
         attribution: KnowledgeEvidenceAttribution,
         effectiveAtEpochMillis: Long,
     ): KnowledgeMasteryState {
-        val probability = previous?.masteryScore ?: INITIAL_MASTERY_PROBABILITY
         // Spec §2.13: every bound KC receives the full evidence record
         // (multi-skill all-record). Binding strength/ordering stays in the
         // attribution snapshot for presentation; it no longer splits evidence.
         val weight = attempt.evidence.weight
         val positive = attempt.evidence.signedWeight > 0
-        val updatedProbability = if (positive) {
-            probability + (1.0 - probability) * POSITIVE_LEARNING_RATE * weight
-        } else {
-            probability - probability * NEGATIVE_LEARNING_RATE * weight
-        }.coerceIn(0.0, 1.0)
+        // W3-1/KF-09：β-二项 s/f 权重累加 + Jeffreys 点估计（替换固定增益 EMA）。
+        val successWeight = (previous?.successWeight ?: 0.0) + if (positive) weight else 0.0
+        val failureWeight = (previous?.failureWeight ?: 0.0) + if (positive) 0.0 else weight
+        val updatedProbability = MasteryEstimateMath.pointEstimate(successWeight, failureWeight)
         val evidenceMass = (previous?.evidenceMass ?: 0.0) + weight
-        val lowerBound = masteryLowerBound(updatedProbability, evidenceMass)
+        val lowerBound = MasteryEstimateMath.lowerBound(successWeight, failureWeight)
+        // 知识点记忆卡（W3-2/E 判据，台账「裁决 13 · 修订」）：与逐题共用同一套 FSRS 更新
+        // （`nextMemoryState`），吃该知识点的作答流。白名单 = 作答通道（本函数即作答通道；
+        // 聊天自述走 `projectChatEvidence`，不在此列）；评级沿用调度映射（看答案 = 一次遗忘
+        // 失败，与裁决 1 一致）。kill-switch 的 legacy 模型下没有卡（字段恒 null）。
+        val memoryCardUpdate = (memoryUpdateModel as? FsrsMemoryUpdateModel)?.nextMemoryState(
+            previousStabilityDays = previous?.memoryStabilityDays,
+            previousDifficulty = previous?.memoryDifficulty,
+            rating = FsrsEvidenceRatingMapper.schedulingRatingFor(attempt.evidence.reason, weight),
+            elapsedCalendarDays = if (previous?.memoryStabilityDays == null) {
+                0.0
+            } else {
+                (attempt.studyDayEpochDay - (previous.lastAttemptStudyDayEpochDay ?: attempt.studyDayEpochDay))
+                    .toDouble()
+                    .coerceAtLeast(0.0)
+            },
+        )
+        val nextMemoryStability = memoryCardUpdate?.first ?: previous?.memoryStabilityDays
+        val nextMemoryDifficulty = memoryCardUpdate?.second ?: previous?.memoryDifficulty
+        val nextLastAttemptAt =
+            if (memoryCardUpdate != null) effectiveAtEpochMillis else previous?.lastAttemptAtEpochMillis
+        val nextLastAttemptStudyDay =
+            if (memoryCardUpdate != null) attempt.studyDayEpochDay else previous?.lastAttemptStudyDayEpochDay
         val observations = previous?.independentCorrectObservations.orEmpty() +
             if (positive && attempt.evidence.isIndependent) {
                 listOf(
@@ -1088,10 +1116,14 @@ class LearningProjector(
         } else {
             previous?.lastIndependentErrorSequence
         }
+        // E 判据（W3-2）：撤销的门 = "当时是否在掌握态"——状态标记或记忆卡达标（同一函数）。
         val startsConflict = independentError && previous?.let {
             it.status == MasteryStatus.MASTERED ||
-                (it.conservativeMasteryScore >= ClearlyMasteredForSkipPolicy.LOWER_BOUND &&
-                    it.evidenceMass >= ClearlyMasteredForSkipPolicy.EVIDENCE_MASS)
+                clearlyMasteredByMemoryCard(
+                    it.memoryStabilityDays,
+                    it.lastAttemptAtEpochMillis,
+                    effectiveAtEpochMillis,
+                )
         } == true
         val conflictSince = when {
             startsConflict -> attempt.eventSequence
@@ -1127,12 +1159,9 @@ class LearningProjector(
         val status = when {
             conflictSince != null && !conflictRecovered -> MasteryStatus.CONFLICTED
             evidenceMass < 1.0 -> MasteryStatus.UNKNOWN
-            clearlyMastered(
-                lowerBound,
-                evidenceMass,
-                activeObservations,
-                lastErrorAt,
-                lastErrorSequence,
+            clearlyMasteredByMemoryCard(
+                nextMemoryStability,
+                nextLastAttemptAt,
                 effectiveAtEpochMillis,
             ) -> MasteryStatus.MASTERED
             else -> MasteryStatus.LEARNING
@@ -1142,6 +1171,12 @@ class LearningProjector(
             masteryScore = updatedProbability,
             conservativeMasteryScore = lowerBound,
             evidenceMass = evidenceMass,
+            successWeight = successWeight,
+            failureWeight = failureWeight,
+            memoryStabilityDays = nextMemoryStability,
+            memoryDifficulty = nextMemoryDifficulty,
+            lastAttemptAtEpochMillis = nextLastAttemptAt,
+            lastAttemptStudyDayEpochDay = nextLastAttemptStudyDay,
             independentCorrectObservations = observations,
             lastIndependentErrorAtEpochMillis = lastErrorAt,
             lastIndependentErrorSequence = lastErrorSequence,
@@ -1159,27 +1194,28 @@ class LearningProjector(
         )
     }
 
-    private fun clearlyMastered(
-        lowerBound: Double,
-        evidenceMass: Double,
-        observations: List<IndependentCorrectObservation>,
-        lastErrorAt: Long?,
-        lastErrorSequence: Long?,
+    /**
+     * E 判据的门（W3-2，台账「裁决 13 · 修订」）：知识点记忆卡达到耐久门且**当前**召回概率
+     * 仍达标。定义只有一处——[ClearlyMasteredForSkipPolicy.meetsMemoryCriterion]（投影与读取共用）。
+     */
+    private fun clearlyMasteredByMemoryCard(
+        memoryStabilityDays: Double?,
+        lastAttemptAtEpochMillis: Long?,
         atEpochMillis: Long,
-    ): Boolean = lowerBound >= ClearlyMasteredForSkipPolicy.LOWER_BOUND &&
-        evidenceMass >= ClearlyMasteredForSkipPolicy.EVIDENCE_MASS &&
-        ClearlyMasteredForSkipPolicy.hasIndependentBreadth(
-            observations,
-            lastErrorAt,
-            lastErrorSequence,
-            atEpochMillis,
-        )
+    ): Boolean = ClearlyMasteredForSkipPolicy.meetsMemoryCriterion(
+        memoryStabilityDays = memoryStabilityDays,
+        lastAttemptAtEpochMillis = lastAttemptAtEpochMillis,
+        atEpochMillis = atEpochMillis,
+        decay = memoryCardDecay(),
+    )
 
-    private fun masteryLowerBound(probability: Double, evidenceMass: Double): Double {
-        val uncertainty = UNCERTAINTY_SCALE *
-            sqrt(probability * (1.0 - probability) / (evidenceMass + 1.0))
-        return (probability - uncertainty).coerceIn(0.0, probability)
-    }
+    /**
+     * 记忆卡判定用的衰减：FSRS 模型取它自己的 `-w20`（个性化参数）；kill-switch 的 legacy
+     * 模型下没有卡（字段恒 null → 判据恒 false），取默认只为让公式有定义（随 KF-11 删除）。
+     */
+    private fun memoryCardDecay(): Double =
+        (memoryUpdateModel as? FsrsMemoryUpdateModel)?.decay
+            ?: -FsrsScheduleMath.DEFAULT_PARAMETERS[20]
 
     /**
      * Bounding invariant for the applied-record audit windows, shared by all
@@ -1259,11 +1295,7 @@ class LearningProjector(
 
     companion object {
         const val VERSION = LearningCoreVersions.PROJECTION_COMPOSITE
-        private const val INITIAL_MASTERY_PROBABILITY = 0.5
-        private const val POSITIVE_LEARNING_RATE = 0.32
-        private const val NEGATIVE_LEARNING_RATE = 0.42
 
-        private const val UNCERTAINTY_SCALE = 1.2
         private const val MAX_APPLIED_RECORDS = 4_096
         /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`。 */
         private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS

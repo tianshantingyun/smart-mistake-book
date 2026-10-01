@@ -25,10 +25,17 @@ object LearningCoreVersions {
      * 00:00 移到 04:00（`core:model` 的 `StudyDayMath.DAY_START_HOUR`，官方 day_start）。两者都改变
      * 投影输出：旧快照必须全量重放（W0 的 `projection_archive` 会先归档旧投影），
      * 否则新旧口径混用。`REVIEW_COMPOSITE` 同步变化 → 当日计划按新口径重排。
+     *
+     * v8 → v9（2026-09-30，Wave 3）：掌握表示重做（W3-1/KF-09）+ 判据换轴（W3-2/E 判据，
+     * 台账「裁决 13 · 修订」）。三处投影输出变化：①KC 的 `masteryScore`/`conservative` 从
+     * 固定增益 EMA + Wald 下界改为 β-二项（s/f + Jeffreys）点估计 + Wilson 下界；②KC 新增
+     * **记忆卡**（稳定度/难度/上次作答，与逐题共用 `FsrsMemoryUpdateModel.nextMemoryState`，
+     * 吃该知识点的作答流）；③`MasteryStatus.MASTERED` 改判为记忆卡判据（稳定度 ≥ 21 天 ∧
+     * 当前召回概率 ≥ 0.9）。`SKIP_POLICY` 同步 v3 → v4（判据语义变更）。旧快照必须全量重放。
      */
-    const val PROJECTOR = "projector-v8"
+    const val PROJECTOR = "projector-v9"
     const val FORGETTING_CURVE = "curve-v3"
-    const val SKIP_POLICY = "skip-v3"
+    const val SKIP_POLICY = "skip-v4"
     const val ATTRIBUTION = "attribution-v2"
     const val LEDGER = "ledger-v2"
     const val PREDICTION_INTERVAL = "prediction-interval-v1"
@@ -36,9 +43,9 @@ object LearningCoreVersions {
     const val SELECTOR = "selector-v6"
 
     const val PROJECTION_COMPOSITE =
-        "learning-core-v8($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
+        "learning-core-v9($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
     const val REVIEW_COMPOSITE =
-        "learning-core-v8($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
+        "learning-core-v9($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
     const val SELECTOR_COMPOSITE =
-        "learning-core-v8($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
+        "learning-core-v9($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }

@@ -833,6 +833,20 @@ internal data class LearnerKnowledgeMasteryStateEntity(
     val lastEvidenceReason: String? = null,
     @ColumnInfo(name = "last_evidence_direction")
     val lastEvidenceDirection: String? = null,
+    /** β-二项 s/f 权重（W3-1/KF-09）：正向 s += w、负向 f += w；展示层点估计/下界由它们派生。 */
+    @ColumnInfo(name = "success_weight", defaultValue = "0")
+    val successWeight: Double = 0.0,
+    @ColumnInfo(name = "failure_weight", defaultValue = "0")
+    val failureWeight: Double = 0.0,
+    /** 知识点记忆卡（W3-2/E 判据）：知识点自己的 FSRS 状态，吃作答流；从未作答 → NULL。 */
+    @ColumnInfo(name = "memory_stability_days")
+    val memoryStabilityDays: Double? = null,
+    @ColumnInfo(name = "memory_difficulty")
+    val memoryDifficulty: Double? = null,
+    @ColumnInfo(name = "last_attempt_at_epoch_millis")
+    val lastAttemptAtEpochMillis: Long? = null,
+    @ColumnInfo(name = "last_attempt_study_day")
+    val lastAttemptStudyDayEpochDay: Long? = null,
 )
 
 @Entity(

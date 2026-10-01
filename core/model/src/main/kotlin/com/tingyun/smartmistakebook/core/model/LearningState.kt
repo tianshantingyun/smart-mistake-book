@@ -673,6 +673,23 @@ data class KnowledgeMasteryState(
     val masteryScore: Double,
     val conservativeMasteryScore: Double,
     val evidenceMass: Double,
+    /**
+     * β-二项 s/f 权重（W3-1/KF-09）：正向证据 s += w、负向 f += w（w = 既有证据权重，折扣链不变）。
+     * [masteryScore]（Jeffreys 点估计）与 [conservativeMasteryScore]（Wilson 下界）由 (s, f) 派生，
+     * 只服务展示层。
+     */
+    val successWeight: Double = 0.0,
+    val failureWeight: Double = 0.0,
+    /**
+     * 知识点记忆卡（E 判据，台账「裁决 13 · 修订」，2026-09-30）：同一套 FSRS 更新吃该知识点的
+     * **作答流**（独立/协助/重试/看答案/视觉交互，评级走 `FsrsEvidenceRatingMapper`；聊天自述与
+     * 未过语义判定的智能体交互证据不进）。判据 = [memoryStabilityDays] ≥ 21 天（Anki mature 口径）
+     * ∧ 当前召回概率 ≥ 0.9；从未作答 → null。
+     */
+    val memoryStabilityDays: Double? = null,
+    val memoryDifficulty: Double? = null,
+    val lastAttemptAtEpochMillis: Long? = null,
+    val lastAttemptStudyDayEpochDay: Long? = null,
     val independentCorrectObservations: List<IndependentCorrectObservation> = emptyList(),
     val lastIndependentErrorAtEpochMillis: Long? = null,
     val lastIndependentErrorSequence: Long? = null,
@@ -697,6 +714,18 @@ data class KnowledgeMasteryState(
                 conservativeMasteryScore in 0.0..masteryScore,
         ) { "Mastery lower bound must be between zero and the point estimate" }
         require(evidenceMass.isFinite() && evidenceMass >= 0.0) { "Evidence mass must not be negative" }
+        require(successWeight.isFinite() && successWeight >= 0.0) {
+            "Success weight must be finite and non-negative"
+        }
+        require(failureWeight.isFinite() && failureWeight >= 0.0) {
+            "Failure weight must be finite and non-negative"
+        }
+        require(memoryStabilityDays == null || (memoryStabilityDays.isFinite() && memoryStabilityDays > 0.0)) {
+            "Memory-card stability must be positive when provided"
+        }
+        require(memoryDifficulty == null || (memoryDifficulty.isFinite() && memoryDifficulty in 1.0..10.0)) {
+            "Memory-card difficulty must lie within 1..10 when provided"
+        }
         require(lastIndependentErrorAtEpochMillis == null || lastIndependentErrorAtEpochMillis >= 0) {
             "Independent error time must not be negative"
         }

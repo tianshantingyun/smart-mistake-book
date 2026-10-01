@@ -443,6 +443,12 @@ internal fun LearnerSnapshot.toMasteryEntities(
             conflictSinceSequence = state.conflictSinceSequence,
             lastEvidenceReason = state.lastEvidenceReason,
             lastEvidenceDirection = state.lastEvidenceDirection,
+            successWeight = state.successWeight,
+            failureWeight = state.failureWeight,
+            memoryStabilityDays = state.memoryStabilityDays,
+            memoryDifficulty = state.memoryDifficulty,
+            lastAttemptAtEpochMillis = state.lastAttemptAtEpochMillis,
+            lastAttemptStudyDayEpochDay = state.lastAttemptStudyDayEpochDay,
         )
         state.independentCorrectObservations.forEachIndexed { ordinal, observation ->
             observations += IndependentCorrectObservationEntity(
@@ -606,6 +612,12 @@ internal fun LearnerProjectionSnapshotEntity.toPersistedSnapshot(
                 conflictSinceSequence = state.conflictSinceSequence,
                 lastEvidenceReason = state.lastEvidenceReason,
                 lastEvidenceDirection = state.lastEvidenceDirection,
+                successWeight = state.successWeight,
+                failureWeight = state.failureWeight,
+                memoryStabilityDays = state.memoryStabilityDays,
+                memoryDifficulty = state.memoryDifficulty,
+                lastAttemptAtEpochMillis = state.lastAttemptAtEpochMillis,
+                lastAttemptStudyDayEpochDay = state.lastAttemptStudyDayEpochDay,
             )
         },
         checkpoint = ProjectionCheckpoint(

@@ -41,26 +41,48 @@ object AlgorithmConstants {
     const val DAY_MILLIS: Long = 86_400_000L
 
     /**
-     * 掌握度判定阈值（θ 与证据门槛）。
+     * 掌握判定常数（E 判据，台账「裁决 13 · 修订」，2026-09-30）。
      *
-     * θ=0.85（[LOWER_BOUND]）是台账「3A 前裁决门 · 收口」裁决 13 的已裁值（"θ=0.85 保持"），
-     * 本文件只是把它从两处同值声明收敛到一处，**没有改值**——改这里的数就是改掌握度判定，
-     * 属于"动算法"，要走版本清单（`docs/research/algorithm-version-ledger.md`）与 `SKIP_POLICY` / `PROJECTOR` 版本纪律。
+     * 判据 = **知识点自己的记忆状态**（同一套 FSRS 更新吃该知识点的作答流）：掌握 ⇔
+     * 记忆稳定度 ≥ [MIN_STABILITY_DAYS] 天 ∧ 当前召回概率 ≥ [MIN_CURRENT_RETENTION]。
+     * 21 天是 Anki "mature"（间隔 ≥ 21 天）的一手锚；0.9 与目标保留率同源。
+     *
+     * β-二项先验（[JEFFREYS_ALPHA]/[JEFFREYS_BETA]）与 Wilson z（[WILSON_Z]）只服务
+     * **展示层**（点估计 + 保守下界 + 区间宽度 = 透明度），不参与 MASTERED 判定；
+     * [LOWER_BOUND] 退为展示带边界（三年现值，迁移平滑）。
+     *
+     * [MIN_EVIDENCE_MASS] / [MIN_ITEM_FAMILIES] / [MIN_STUDY_DAYS] 保留给 CONFLICTED 恢复路径
+     * （独立正确证据的广度门）；[MAX_EVIDENCE_AGE_DAYS] 被 E 判据弃用（新鲜度由"当前召回概率"
+     * 自足），仅为其旧读侧语义保留。改这里的数就是改掌握度判定，属于"动算法"：走
+     * `docs/research/algorithm-version-ledger.md` 与 `SKIP_POLICY` / `PROJECTOR` 版本纪律。
      */
     object Mastery {
-        /** 掌握度**下界**门槛（θ）：点估计不是判据，保守下界才是。 */
+        /** E 判据：最低记忆稳定度（天）——Anki "mature" 口径的一手锚。 */
+        const val MIN_STABILITY_DAYS: Double = 21.0
+
+        /** E 判据：最低当前召回概率（与 desired retention 0.9 同源）。 */
+        const val MIN_CURRENT_RETENTION: Double = 0.9
+
+        /** β-二项先验 Jeffreys (0.5, 0.5)（裁决 12）。 */
+        const val JEFFREYS_ALPHA: Double = 0.5
+        const val JEFFREYS_BETA: Double = 0.5
+
+        /** Wilson 区间 z（单侧 97.5%，KF-10 公式）。 */
+        const val WILSON_Z: Double = 1.96
+
+        /** 展示带边界（θ）：保守下界配它画档位；不再是 MASTERED 门槛。 */
         const val LOWER_BOUND: Double = 0.85
 
-        /** 直接证据的**权重总量**门槛（沿用 `ClearlyMasteredForSkipPolicy.EVIDENCE_MASS` 的名字）。 */
+        /** 直接证据的**权重总量**门槛（CONFLICTED 恢复路径用）。 */
         const val MIN_EVIDENCE_MASS: Double = 2.0
 
-        /** 独立正确观察的**题目族**广度门槛。 */
+        /** 独立正确观察的**题目族**广度门槛（恢复路径用）。 */
         const val MIN_ITEM_FAMILIES: Int = 2
 
-        /** 独立正确观察的**学习日**广度门槛。 */
+        /** 独立正确观察的**学习日**广度门槛（恢复路径用）。 */
         const val MIN_STUDY_DAYS: Int = 2
 
-        /** 证据时效上限（天）：过期证据不再支撑 MASTERED。 */
+        /** 证据时效上限（天）：E 判据弃用（由当前召回概率自足），保留给旧读侧语义。 */
         const val MAX_EVIDENCE_AGE_DAYS: Int = 45
     }
 

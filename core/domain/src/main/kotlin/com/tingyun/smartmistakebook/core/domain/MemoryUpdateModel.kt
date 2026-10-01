@@ -75,36 +75,12 @@ class FsrsMemoryUpdateModel(
         effectiveAttemptAtEpochMillis: Long,
         elapsedCalendarDays: Double,
     ): MemoryUpdateResult {
-        val stability: Double
-        val difficulty: Double
-        if (previous == null) {
-            stability = FsrsScheduleMath.initialStability(rating, parameters)
-            difficulty = FsrsScheduleMath.clampDifficulty(
-                FsrsScheduleMath.initialDifficulty(rating, parameters),
-            )
-        } else {
-            val elapsedDays = elapsedCalendarDays.coerceAtLeast(0.0)
-            stability = if (elapsedDays < 1.0) {
-                FsrsScheduleMath.shortTermStability(previous.stabilityDays, rating, parameters)
-            } else if (rating == FsrsRating.AGAIN) {
-                FsrsScheduleMath.nextForgetStability(
-                    difficulty = previous.difficulty,
-                    stability = previous.stabilityDays,
-                    retrievability = FsrsScheduleMath.retention(elapsedDays, previous.stabilityDays, decay),
-                    parameters = parameters,
-                )
-            } else {
-                FsrsScheduleMath.nextRecallStability(
-                    difficulty = previous.difficulty,
-                    stability = previous.stabilityDays,
-                    retrievability = FsrsScheduleMath.retention(elapsedDays, previous.stabilityDays, decay),
-                    rating = rating,
-                    parameters = parameters,
-                )
-            }
-            // Difficulty updates on every review, including same-day ones.
-            difficulty = FsrsScheduleMath.nextDifficulty(previous.difficulty, rating, parameters)
-        }
+        val (stability, difficulty) = nextMemoryState(
+            previousStabilityDays = previous?.stabilityDays,
+            previousDifficulty = previous?.difficulty,
+            rating = rating,
+            elapsedCalendarDays = elapsedCalendarDays,
+        )
         val intervalDays = FsrsScheduleMath.intervalDays(stability, desiredRetention, decay).coerceAtLeast(1)
         val nextReviewAt = addDays(effectiveAttemptAtEpochMillis, intervalDays.toLong())
         return MemoryUpdateResult(
@@ -115,6 +91,45 @@ class FsrsMemoryUpdateModel(
             // least one whole day even for same-day reviews.
             shortTermReview = false,
         )
+    }
+
+    /**
+     * 记忆状态核心更新（W3-2/E 判据的"知识点记忆卡"与逐题共用同一套公式与分支）：
+     * previous 为空 → 初始值（首条）；同日（elapsed < 1）→ 短程分支；跨日 AGAIN → 遗忘分支；
+     * 跨日其余 → 长程成功分支；难度每次都更新（含同日）。
+     */
+    fun nextMemoryState(
+        previousStabilityDays: Double?,
+        previousDifficulty: Double?,
+        rating: FsrsRating,
+        elapsedCalendarDays: Double,
+    ): Pair<Double, Double> {
+        if (previousStabilityDays == null || previousDifficulty == null) {
+            return FsrsScheduleMath.initialStability(rating, parameters) to
+                FsrsScheduleMath.clampDifficulty(FsrsScheduleMath.initialDifficulty(rating, parameters))
+        }
+        val elapsedDays = elapsedCalendarDays.coerceAtLeast(0.0)
+        val stability = if (elapsedDays < 1.0) {
+            FsrsScheduleMath.shortTermStability(previousStabilityDays, rating, parameters)
+        } else if (rating == FsrsRating.AGAIN) {
+            FsrsScheduleMath.nextForgetStability(
+                difficulty = previousDifficulty,
+                stability = previousStabilityDays,
+                retrievability = FsrsScheduleMath.retention(elapsedDays, previousStabilityDays, decay),
+                parameters = parameters,
+            )
+        } else {
+            FsrsScheduleMath.nextRecallStability(
+                difficulty = previousDifficulty,
+                stability = previousStabilityDays,
+                retrievability = FsrsScheduleMath.retention(elapsedDays, previousStabilityDays, decay),
+                rating = rating,
+                parameters = parameters,
+            )
+        }
+        // Difficulty updates on every review, including same-day ones.
+        val difficulty = FsrsScheduleMath.nextDifficulty(previousDifficulty, rating, parameters)
+        return stability to difficulty
     }
 
     private fun addDays(epochMillis: Long, days: Long): Long {
