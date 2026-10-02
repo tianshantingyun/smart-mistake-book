@@ -2142,7 +2142,6 @@ class StudyDatabaseInstrumentedTest {
         difficulty = 5.0,
         lastReviewedAtEpochMillis = lastReviewedAt,
         nextReviewAtEpochMillis = lastReviewedAt + 86_400_000L,
-        lastAttemptId = "attempt-$practiceUnitId",
         projectorVersion = PROJECTOR_VERSION,
         checkpointSequence = sequence,
     )

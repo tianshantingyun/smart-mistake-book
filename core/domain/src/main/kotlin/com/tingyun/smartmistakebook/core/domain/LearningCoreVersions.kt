@@ -20,7 +20,8 @@ object LearningCoreVersions {
      * v6 → v7（2026-09-11）：跨日判定的 delta_t 改由
      * `lastReviewedAtEpochMillis` + 事件的 UTC 偏移现算，不再读
      * `ProblemMemoryState.lastReviewedEpochDay`（审计 §3.7——`projectTutorAnswerExposure`
-     * 曾让该字段落入 UTC 日序默认值，使同一本地日的复习被误判为跨日）。这是一次
+     * 曾让该字段落入 UTC 日序默认值，使同一本地日的复习被误判为跨日；该死列后随
+     * schema 57 / D-M M5 删除，本口径不变）。这是一次
      * **数值口径变更**：受影响的卡（曝光态之后的复习、以及 v42 迁移按 UTC 回填过
      * 日序的存量行）必须重算，否则新旧混用。
      *

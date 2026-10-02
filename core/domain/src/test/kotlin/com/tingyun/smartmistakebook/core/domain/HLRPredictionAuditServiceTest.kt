@@ -152,7 +152,6 @@ class HLRPredictionAuditServiceTest {
         lastReviewedAtEpochMillis = now - 5 * DAY_MILLIS,
         nextReviewAtEpochMillis = now - DAY_MILLIS,
         lapseCount = 1,
-        lastAttemptId = "attempt-$unitId",
         projectorVersion = LearningProjector.VERSION,
         checkpointSequence = 4,
     )

@@ -100,7 +100,6 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemOrganizationRece
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionSourceAssetEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionArchiveEntity
-import com.tingyun.smartmistakebook.core.database.entity.ProjectionConsumptionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.PresentationProjectionStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewPlanEntity
@@ -121,7 +120,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 56
+internal const val STUDY_DATABASE_VERSION = 57
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -171,7 +170,6 @@ internal object SplitImportLedgerStrings {
         AttemptCorrectionEntity::class,
         LearningSequenceEntity::class,
         ProjectionOutboxEntity::class,
-        ProjectionConsumptionEntity::class,
         ProblemMemoryStateEntity::class,
         KnowledgeMasteryStateEntity::class,
         LearnerProjectionSnapshotEntity::class,
@@ -356,6 +354,7 @@ object StudyDatabaseFactory {
             KERNEL_WAVE0_MIGRATION_53_54,
             KERNEL_WAVE2_MIGRATION_54_55,
             KERNEL_WAVE3_MIGRATION_55_56,
+            KERNEL_WAVE4_MIGRATION_56_57,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

@@ -168,7 +168,6 @@ private object ProblemMemoryStateFactory {
             lastReviewedAtEpochMillis = lastReviewedAt,
             nextReviewAtEpochMillis = nextReviewAt,
             lapseCount = 1,
-            lastAttemptId = "attempt-$practiceUnitId",
             projectorVersion = LearningProjector.VERSION,
             checkpointSequence = 4,
         )

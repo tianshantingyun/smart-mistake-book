@@ -84,7 +84,6 @@ import com.tingyun.smartmistakebook.core.database.entity.LearnerProblemMemorySta
 import com.tingyun.smartmistakebook.core.database.entity.LearnerProjectionSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.LearningSequenceEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
-import com.tingyun.smartmistakebook.core.database.entity.ProjectionConsumptionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.PresentationProjectionStateEntity
 import kotlinx.coroutines.flow.Flow
@@ -401,7 +400,6 @@ internal fun LearnerSnapshot.toMemoryEntities(projectionName: String) = problemM
             stabilityDays = state.stabilityDays,
             difficulty = state.difficulty,
             lastReviewedAtEpochMillis = state.lastReviewedAtEpochMillis,
-            lastReviewedEpochDay = state.lastReviewedEpochDay,
             nextReviewAtEpochMillis = state.nextReviewAtEpochMillis,
             independentCorrectCount = state.independentCorrectCount,
             assistedCorrectCount = state.assistedCorrectCount,
@@ -410,7 +408,6 @@ internal fun LearnerSnapshot.toMemoryEntities(projectionName: String) = problemM
             lastLapseAtEpochMillis = state.lastLapseAtEpochMillis,
             clockAnomalyCount = state.clockAnomalyCount,
             lastClockAnomalyAtEpochMillis = state.lastClockAnomalyAtEpochMillis,
-            lastAttemptId = state.lastAttemptId,
             projectorVersion = state.projectorVersion,
             checkpointSequence = state.checkpointSequence,
             lastEvidenceReason = state.lastEvidenceReason,
@@ -549,7 +546,6 @@ internal fun LearnerProjectionSnapshotEntity.toPersistedSnapshot(
                 stabilityDays = state.stabilityDays,
                 difficulty = state.difficulty,
                 lastReviewedAtEpochMillis = state.lastReviewedAtEpochMillis,
-                lastReviewedEpochDay = state.lastReviewedEpochDay,
                 nextReviewAtEpochMillis = state.nextReviewAtEpochMillis,
                 independentCorrectCount = state.independentCorrectCount,
                 assistedCorrectCount = state.assistedCorrectCount,
@@ -558,7 +554,6 @@ internal fun LearnerProjectionSnapshotEntity.toPersistedSnapshot(
                 lastLapseAtEpochMillis = state.lastLapseAtEpochMillis,
                 clockAnomalyCount = state.clockAnomalyCount,
                 lastClockAnomalyAtEpochMillis = state.lastClockAnomalyAtEpochMillis,
-                lastAttemptId = state.lastAttemptId,
                 projectorVersion = state.projectorVersion,
                 checkpointSequence = state.checkpointSequence,
                 lastEvidenceReason = state.lastEvidenceReason,

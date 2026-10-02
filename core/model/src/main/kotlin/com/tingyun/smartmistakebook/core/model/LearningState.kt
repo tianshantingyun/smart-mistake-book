@@ -538,15 +538,6 @@ data class ProblemMemoryState(
      */
     val difficulty: Double,
     val lastReviewedAtEpochMillis: Long,
-    /**
-     * Learner-local calendar day (epoch day) of [lastReviewedAtEpochMillis], **审计/诊断用途**。
-     *
-     * 它**不是** FSRS delta_t 的输入：delta_t 由消费方从 [lastReviewedAtEpochMillis] + 当前事件的
-     * UTC 偏移现算（`LearningProjector.projectMemory`、`ReviewLogSink`）。这条约束是刻意的——
-     * 该字段是派生态，一旦某条通道按别的口径（例如 UTC 日序）写它，所有读它的地方都会跟着错，
-     * 而错误只在那条通道被使用时才显形（审计 AUDIT-ALGORITHM §3.7）。**不要据此计算跨日。**
-     */
-    val lastReviewedEpochDay: Long = lastReviewedAtEpochMillis / 86_400_000L,
     val nextReviewAtEpochMillis: Long,
     val independentCorrectCount: Int = 0,
     val assistedCorrectCount: Int = 0,
@@ -555,7 +546,6 @@ data class ProblemMemoryState(
     val lastLapseAtEpochMillis: Long? = null,
     val clockAnomalyCount: Int = 0,
     val lastClockAnomalyAtEpochMillis: Long? = null,
-    val lastAttemptId: String,
     val projectorVersion: String,
     val checkpointSequence: Long,
     val lastEvidenceReason: String? = null,
@@ -575,7 +565,6 @@ data class ProblemMemoryState(
         require(lastReviewedAtEpochMillis >= 0 && nextReviewAtEpochMillis >= 0) {
             "Review times must not be negative"
         }
-        require(lastReviewedEpochDay >= 0) { "Last-reviewed epoch day must not be negative" }
         require(nextReviewAtEpochMillis >= lastReviewedAtEpochMillis) {
             "Next review must not precede the latest review"
         }
@@ -589,7 +578,6 @@ data class ProblemMemoryState(
         require(lastClockAnomalyAtEpochMillis == null || lastClockAnomalyAtEpochMillis >= 0) {
             "Clock-anomaly time must not be negative"
         }
-        require(lastAttemptId.isNotBlank()) { "Last attempt id must not be blank" }
         require(projectorVersion.isNotBlank()) { "Projector version must not be blank" }
         require(checkpointSequence >= 0) { "Checkpoint sequence must not be negative" }
     }

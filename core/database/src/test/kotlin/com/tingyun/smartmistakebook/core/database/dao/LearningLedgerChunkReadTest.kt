@@ -19,7 +19,6 @@ import com.tingyun.smartmistakebook.core.database.entity.LearnerProblemMemorySta
 import com.tingyun.smartmistakebook.core.database.entity.LearnerProjectionSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.PresentationProjectionStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionArchiveEntity
-import com.tingyun.smartmistakebook.core.database.entity.ProjectionConsumptionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureOutcomeEntity
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
@@ -429,9 +428,6 @@ private abstract class LedgerOnlyProjectionTransactionDao : ProjectionTransactio
     override suspend fun upsertAppliedTutorAnswerExposures(
         records: List<AppliedTutorAnswerExposureRecordEntity>,
     ): Unit = notExercised()
-
-    override suspend fun insertConsumptions(consumptions: List<ProjectionConsumptionEntity>): Unit =
-        notExercised()
 
     override suspend fun insertPresentationProjectionState(
         state: PresentationProjectionStateEntity,

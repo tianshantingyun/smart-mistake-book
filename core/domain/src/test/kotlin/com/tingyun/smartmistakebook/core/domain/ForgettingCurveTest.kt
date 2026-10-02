@@ -66,7 +66,6 @@ class ForgettingCurveTest {
         difficulty = 5.5,
         lastReviewedAtEpochMillis = lastReviewedAt,
         nextReviewAtEpochMillis = lastReviewedAt,
-        lastAttemptId = "attempt-1",
         projectorVersion = LearningProjector.VERSION,
         checkpointSequence = 1,
     )

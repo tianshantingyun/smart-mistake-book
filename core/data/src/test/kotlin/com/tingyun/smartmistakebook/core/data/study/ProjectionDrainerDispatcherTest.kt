@@ -84,7 +84,6 @@ class ProjectionDrainerDispatcherTest {
                 difficulty = 9.0,
                 lastReviewedAtEpochMillis = 10L * 86_400_000L,
                 nextReviewAtEpochMillis = 12L * 86_400_000L,
-                lastAttemptId = "attempt:previous-version",
                 projectorVersion = PREVIOUS_VERSION,
                 checkpointSequence = 1,
             ),

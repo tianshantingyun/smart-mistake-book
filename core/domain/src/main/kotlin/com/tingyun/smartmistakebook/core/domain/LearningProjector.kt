@@ -872,7 +872,6 @@ class LearningProjector(
             memoryStates[attempt.practiceUnitId] = projectMemory(
                 previous = previousMemory,
                 practiceUnitId = attempt.practiceUnitId,
-                eventId = attempt.attemptId,
                 occurredAtEpochMillis = attempt.occurredAtEpochMillis,
                 effectiveAtEpochMillis = effectiveAtEpochMillis,
                 eventSequence = attempt.eventSequence,
@@ -921,7 +920,6 @@ class LearningProjector(
     ): ProblemMemoryState = projectMemory(
         previous = previous,
         practiceUnitId = outcome.practiceUnitId,
-        eventId = outcome.outcomeId,
         occurredAtEpochMillis = outcome.occurredAtEpochMillis,
         effectiveAtEpochMillis = effectiveAtEpochMillis,
         eventSequence = outcome.eventSequence,
@@ -1022,11 +1020,11 @@ class LearningProjector(
         // so an attempt that follows the exposure is measured from the
         // exposure and lands on the conservative same-day branch.
         //
-        // 本路径不传 `lastReviewedEpochDay`：`TutorAnswerExposureOutcome` 不带 studyDay
-        // （它没有时区信息），该字段对曝光态只是占位，**不参与任何计算**——后续复习的
-        // 本地日由 [projectMemory] 从 `lastReviewedAtEpochMillis` + 该事件的 UTC 偏移现算。
-        // 见 `LearningProjectorTest.a review after an answer exposure stays on its own
-        // learner-local day`（审计 AUDIT-ALGORITHM §3.7）。
+        // 本路径不带 studyDay（`TutorAnswerExposureOutcome` 没有时区信息）——后续复习的
+        // 本地日由 [projectMemory] 从 `lastReviewedAtEpochMillis` + 该事件的 UTC 偏移现算，
+        // 曝光路径从不存日序。这条口径的失败类别与锁定用例见审计 AUDIT-ALGORITHM §3.7 与
+        // `LearningProjectorTest.a review after an answer exposure stays on its own
+        // learner-local day`（schema 57 起该派生态死列已删）。
         val refreshedAt = maxOf(previous?.lastReviewedAtEpochMillis ?: 0, effectiveAtEpochMillis)
         val stability = previous?.stabilityDays
             ?: FsrsScheduleMath.initialStability(FsrsRating.AGAIN)
@@ -1048,7 +1046,6 @@ class LearningProjector(
             lastLapseAtEpochMillis = previous?.lastLapseAtEpochMillis,
             clockAnomalyCount = previous?.clockAnomalyCount ?: 0,
             lastClockAnomalyAtEpochMillis = previous?.lastClockAnomalyAtEpochMillis,
-            lastAttemptId = outcome.outcomeId,
             projectorVersion = VERSION,
             checkpointSequence = outcome.eventSequence,
             lastEvidenceReason = TUTOR_EXPOSURE_REASON,
@@ -1061,7 +1058,6 @@ class LearningProjector(
     private fun projectMemory(
         previous: ProblemMemoryState?,
         practiceUnitId: String,
-        eventId: String,
         occurredAtEpochMillis: Long,
         effectiveAtEpochMillis: Long,
         eventSequence: Long,
@@ -1089,12 +1085,13 @@ class LearningProjector(
         // Calendar-day delta (spec §2.1/§2.15): a review crossing the learner-local midnight is a
         // new study day even when it is under 24 wall-clock hours from the previous review.
         //
-        // 上一复习的本地日**由它的时间戳现算**，不读 `previous.lastReviewedEpochDay`：那是派生态，
-        // 任何一条没有显式写它的通道都会把该字段的默认值（UTC 日序）留在状态里，从而污染
-        // 跨日判定——`projectTutorAnswerExposure` 正是如此（审计 AUDIT-ALGORITHM §3.7，
+        // 上一复习的本地日**由它的时间戳现算**，不读任何存进状态的日序：那种派生态一旦被
+        // 某条通道按别的口径（例如 UTC 日序）写进去，跨日判定就被污染，而错误只在那条通道
+        // 被使用时才显形（`projectTutorAnswerExposure` 曾如此，审计 AUDIT-ALGORITHM §3.7，
         // `LearningProjectorTest.a review after an answer exposure stays on its own learner-local day`
-        // 锁定该失败）。本事件自带 studyDay（含 utcOffsetMinutes），据此换算得到的是确定值：
-        // 重放读同一事件，结果逐位相同，不依赖任何写入方是否记得盖章。
+        // 锁定该失败；schema 57 起该死列已从状态里删除）。本事件自带 studyDay（含
+        // utcOffsetMinutes），据此换算得到的是确定值：重放读同一事件，结果逐位相同，
+        // 不依赖任何写入方是否记得盖章。
         // W1-6/P1：换算函数单源在 `StudyDayMath`（与写路径盖进账本的日序、review_log 的 delta_t
         // 同一实现），本文件不再保留私有副本。
         val previousEpochDay = previous?.let {
@@ -1172,7 +1169,6 @@ class LearningProjector(
             stabilityDays = stability,
             difficulty = difficulty,
             lastReviewedAtEpochMillis = effectiveAttemptAt,
-            lastReviewedEpochDay = eventEpochDay,
             nextReviewAtEpochMillis = nextReviewAt,
             independentCorrectCount = (previous?.independentCorrectCount ?: 0) +
                 if (outcome == ProblemMemoryOutcome.INDEPENDENT_RECALL) 1 else 0,
@@ -1188,7 +1184,6 @@ class LearningProjector(
             } else {
                 previous?.lastClockAnomalyAtEpochMillis
             },
-            lastAttemptId = eventId,
             projectorVersion = VERSION,
             checkpointSequence = eventSequence,
             lastEvidenceReason = evidenceReason.name,

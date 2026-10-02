@@ -11,6 +11,7 @@ import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -118,7 +119,159 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /**
+     * 阶段 3B 步骤一 · D-M M5（v56→57）：删 `projection_consumption` 整表 +
+     * `learner_problem_memory_state` 两死列——矩阵用的是空库，看不出"旧行还在不在"，
+     * 这里用真库、真驱动实测三件事：
+     * 1. 两死列从列清单消失，其余列一列不少；
+     * 2. 重建**搬走了旧行**且值逐位不变（非破坏）；
+     * 3. `projection_consumption` 整表（含索引）不复存在。
+     */
+    @Test
+    fun m5DropKeepsMemoryRowsAndRemovesConsumptionTable() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave4-m5-drop-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 56)
+            seedV56MemoryRowAndConsumptionRow(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v56 库迁到 57（close 本身不触发迁移）",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV57M5Shape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
     // ---- fixtures ----
+
+    private fun tableNames(connection: SQLiteConnection): Set<String> {
+        val statement = connection.prepare(
+            "SELECT name FROM sqlite_master WHERE type = 'table'",
+        )
+        try {
+            val names = mutableSetOf<String>()
+            while (statement.step()) {
+                names += statement.getText(0)!!
+            }
+            return names
+        } finally {
+            statement.close()
+        }
+    }
+
+    private fun columnNames(connection: SQLiteConnection, table: String): List<String> {
+        val statement = connection.prepare("PRAGMA table_info(`$table`)")
+        try {
+            val names = mutableListOf<String>()
+            while (statement.step()) {
+                names += statement.getText(1)!!
+            }
+            return names
+        } finally {
+            statement.close()
+        }
+    }
+
+    /** 迁移后的真库形状：两死列/整表都没了，旧行原样还在。 */
+    private fun inspectV57M5Shape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            val tables = tableNames(connection)
+            assertFalse(
+                "projection_consumption 整表必须消失（含索引）",
+                "projection_consumption" in tables,
+            )
+            assertTrue("learner_problem_memory_state 表本身是活体，必须保留", MEMORY_TABLE in tables)
+
+            val columns = columnNames(connection, MEMORY_TABLE)
+            assertFalse("last_reviewed_epoch_day 必须消失", "last_reviewed_epoch_day" in columns)
+            assertFalse("last_attempt_id 必须消失", "last_attempt_id" in columns)
+            assertEquals(
+                "其余列一列不许少（顺序也逐位保留）",
+                MEMORY_COLUMNS_V57,
+                columns,
+            )
+
+            val statement = connection.prepare(
+                "SELECT practice_unit_id, stability_days, difficulty, last_reviewed_at_epoch_millis, " +
+                    "next_review_at_epoch_millis, independent_correct_count, projector_version, " +
+                    "checkpoint_sequence FROM `$MEMORY_TABLE`",
+            )
+            try {
+                assertTrue("重建必须搬走旧行", statement.step())
+                assertEquals(MEMORY_UNIT_ID, statement.getText(0))
+                assertEquals(12.5, statement.getDouble(1), 0.0)
+                assertEquals(7.0, statement.getDouble(2), 0.0)
+                assertEquals(1_700_000_000_000L, statement.getLong(3))
+                assertEquals(1_700_100_000_000L, statement.getLong(4))
+                assertEquals(3L, statement.getLong(5))
+                assertEquals("projector-v11", statement.getText(6))
+                assertEquals(5L, statement.getLong(7))
+                assertFalse("旧行只有这一条（不该多也不该少）", statement.step())
+            } finally {
+                statement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /**
+     * 往导出的 56.json 建出来的库里写一行 v56 形态的记忆行 + 一行消费回执。
+     *
+     * 显式关外键再写：这两行没有对应的 `learner_projection_snapshot` / `practice_unit` /
+     * `projection_outbox` 父行（真库里不会出现这种组合），这里要的是"迁移会不会搬走行 /
+     * 表删没删干净"，不是"FK 体系是否完备"——FK 的完备性由别的用例管。
+     */
+    private fun seedV56MemoryRowAndConsumptionRow(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `$MEMORY_TABLE` (
+                    `projection_name`, `learner_id`, `practice_unit_id`, `stability_days`,
+                    `difficulty`, `last_reviewed_at_epoch_millis`, `last_reviewed_epoch_day`,
+                    `next_review_at_epoch_millis`, `independent_correct_count`,
+                    `assisted_correct_count`, `lapse_count`, `answer_reveal_count`,
+                    `last_lapse_at_epoch_millis`, `clock_anomaly_count`,
+                    `last_clock_anomaly_at_epoch_millis`, `last_attempt_id`,
+                    `projector_version`, `checkpoint_sequence`
+                ) VALUES (
+                    'study-experience-v1', '$WAVE4_LEARNER_ID', '$MEMORY_UNIT_ID', 12.5,
+                    7.0, 1700000000000, 19675,
+                    1700100000000, 3,
+                    1, 0, 0,
+                    NULL, 0,
+                    NULL, 'attempt-wave4',
+                    'projector-v11', 5
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `projection_consumption` (
+                    `projection_name`, `learner_id`, `outbox_id`, `outbox_sequence`,
+                    `projector_version`, `consumed_at_epoch_millis`
+                ) VALUES (
+                    'study-experience-v1', '$WAVE4_LEARNER_ID', 'outbox-wave4', 1,
+                    'projector-v11', 1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
 
     private class ArchiveRow(
         val projectionName: String,
@@ -163,7 +316,6 @@ class FullMigrationMatrixInstrumentedTest {
                 difficulty = 9.0,
                 lastReviewedAtEpochMillis = 10L * 86_400_000L,
                 nextReviewAtEpochMillis = 12L * 86_400_000L,
-                lastAttemptId = "attempt-wave0",
                 projectorVersion = LEGACY_PROJECTOR_VERSION,
                 checkpointSequence = 1,
             ),
@@ -227,5 +379,32 @@ class FullMigrationMatrixInstrumentedTest {
         const val PLAN_FINGERPRINT = "wave0-plan-fingerprint-v53"
         const val LEGACY_PLANNER_VERSION = "review-planner-legacy-v1"
         const val LEGACY_PROJECTOR_VERSION = "learning-core-v6(projector-v6,evidence-v4)"
+
+        /** v56→57（M5）用例：被重建/被删的表与夹具值。 */
+        const val MEMORY_TABLE = "learner_problem_memory_state"
+        const val MEMORY_UNIT_ID = "unit-wave4"
+        const val WAVE4_LEARNER_ID = "learner:wave4"
+        val MEMORY_COLUMNS_V57 = listOf(
+            "projection_name",
+            "learner_id",
+            "practice_unit_id",
+            "stability_days",
+            "difficulty",
+            "last_reviewed_at_epoch_millis",
+            "next_review_at_epoch_millis",
+            "independent_correct_count",
+            "assisted_correct_count",
+            "lapse_count",
+            "answer_reveal_count",
+            "last_lapse_at_epoch_millis",
+            "clock_anomaly_count",
+            "last_clock_anomaly_at_epoch_millis",
+            "projector_version",
+            "checkpoint_sequence",
+            "last_evidence_reason",
+            "last_evidence_direction",
+            "consecutive_cross_day_success",
+            "consecutive_cross_day_again",
+        )
     }
 }

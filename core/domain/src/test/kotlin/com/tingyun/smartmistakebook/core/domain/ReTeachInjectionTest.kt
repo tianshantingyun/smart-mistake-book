@@ -104,7 +104,6 @@ class ReTeachInjectionTest {
         nextReviewAtEpochMillis = 12 * DAY_MILLIS,
         lapseCount = lapseCount,
         consecutiveCrossDayAgain = consecutiveCrossDayAgain,
-        lastAttemptId = "attempt:last",
         projectorVersion = "projector-v7",
         checkpointSequence = 7,
     )

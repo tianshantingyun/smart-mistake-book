@@ -249,7 +249,6 @@ class ReviewPlannerTest {
                     lastReviewedAtEpochMillis = planningAt,
                     nextReviewAtEpochMillis = planningAt + 30 * DAY_MILLIS,
                     lapseCount = 0,
-                    lastAttemptId = "attempt-$practiceUnitId-$day",
                     projectorVersion = LearningProjector.VERSION,
                     checkpointSequence = 4,
                 )
@@ -417,7 +416,6 @@ class ReviewPlannerTest {
         lastReviewedAtEpochMillis = now - 5 * DAY_MILLIS,
         nextReviewAtEpochMillis = now + dueOffsetDays * DAY_MILLIS,
         lapseCount = 1,
-        lastAttemptId = "attempt-$unitId",
         projectorVersion = LearningProjector.VERSION,
         checkpointSequence = 4,
     )

@@ -228,7 +228,6 @@ class ReviewPlannerScaleBenchmarkTest {
                 nextReviewAtEpochMillis = nextReview,
                 lapseCount = if (leeched) 7 else random.nextInt(4),
                 consecutiveCrossDayAgain = if (leeched) 2 else 0,
-                lastAttemptId = "attempt-${candidate.practiceUnitId}",
                 projectorVersion = LearningProjector.VERSION,
                 checkpointSequence = 4,
             )

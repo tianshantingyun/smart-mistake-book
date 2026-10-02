@@ -72,7 +72,6 @@ class KnowledgeReviewQueueTest {
             difficulty = 5.0,
             lastReviewedAtEpochMillis = now - 86_400_000L,
             nextReviewAtEpochMillis = now,
-            lastAttemptId = "attempt-1",
             projectorVersion = "test",
             checkpointSequence = 1,
         )
@@ -99,7 +98,6 @@ class KnowledgeReviewQueueTest {
             difficulty = 5.0,
             lastReviewedAtEpochMillis = now - 86_400_000L,
             nextReviewAtEpochMillis = now,
-            lastAttemptId = "attempt-fresh",
             projectorVersion = "test",
             checkpointSequence = 1,
         )

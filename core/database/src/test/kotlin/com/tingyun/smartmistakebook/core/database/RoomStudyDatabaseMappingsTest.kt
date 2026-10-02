@@ -2,8 +2,11 @@ package com.tingyun.smartmistakebook.core.database
 
 import com.tingyun.smartmistakebook.core.database.dao.CanonicalSourceAssetRow
 import com.tingyun.smartmistakebook.core.database.dao.MistakeRow
+import com.tingyun.smartmistakebook.core.database.entity.LearnerProjectionSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.dao.SubjectMasteryRow
+import com.tingyun.smartmistakebook.core.database.dao.toMemoryEntities
+import com.tingyun.smartmistakebook.core.database.dao.toPersistedSnapshot
 import com.tingyun.smartmistakebook.core.database.dao.toRecord
 import com.tingyun.smartmistakebook.core.database.dao.ReviewPlanAggregate
 import com.tingyun.smartmistakebook.core.database.dao.ReviewQueueAggregate
@@ -15,6 +18,9 @@ import com.tingyun.smartmistakebook.core.database.entity.ReviewQueueItemEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewQueueKnowledgeNodeEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewQueueReasonEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewSessionEntity
+import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
+import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
+import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -233,6 +239,59 @@ class RoomStudyDatabaseMappingsTest {
         assertEquals(900L, requireNotNull(record.lastAttemptAtEpochMillis))
     }
 
+    /**
+     * 阶段 3B 步骤一 · D-M M5：`learner_problem_memory_state` 的两列死面（`last_reviewed_epoch_day` /
+     * `last_attempt_id`）删除后，实体 ↔ 模型映射必须**逐字段存活**——少映一列（或把死列映射
+     * 回来）时，读面拿到的记忆行会在离改动很远的地方静默失真。
+     */
+    @Test
+    fun problemMemoryStateRoundTripsThroughTheEntityWithoutTheDeletedColumns() {
+        val state = ProblemMemoryState(
+            practiceUnitId = "unit-1",
+            stabilityDays = 12.5,
+            difficulty = 7.0,
+            lastReviewedAtEpochMillis = 1_700_000_000_000L,
+            nextReviewAtEpochMillis = 1_700_100_000_000L,
+            independentCorrectCount = 3,
+            assistedCorrectCount = 1,
+            lapseCount = 2,
+            answerRevealCount = 1,
+            lastLapseAtEpochMillis = 1_699_000_000_000L,
+            clockAnomalyCount = 1,
+            lastClockAnomalyAtEpochMillis = 1_699_500_000_000L,
+            projectorVersion = "projector-v11",
+            checkpointSequence = 5,
+            lastEvidenceReason = "INDEPENDENT_CORRECT",
+            lastEvidenceDirection = "POSITIVE",
+            consecutiveCrossDaySuccess = 2,
+            consecutiveCrossDayAgain = 1,
+        )
+        val snapshot = LearnerSnapshot(
+            learnerId = "learner-1",
+            problemMemoryStates = mapOf(state.practiceUnitId to state),
+            checkpoint = ProjectionCheckpoint(
+                lastSequence = 5,
+                projectorVersion = "projector-v11",
+                projectedAtEpochMillis = 1_700_000_000_000L,
+            ),
+            knownLedgerHeadSequence = 5,
+            generatedAtEpochMillis = 1_700_000_000_000L,
+        )
+
+        val entity = snapshot.toMemoryEntities("study-experience-v1").single()
+        val restored = snapshotEntity().toPersistedSnapshot(
+            memoryStates = listOf(entity),
+            masteryStates = emptyList(),
+            observations = emptyList(),
+            appliedAttempts = emptyList(),
+            appliedCorrections = emptyList(),
+            appliedAnswerReveals = emptyList(),
+            appliedTutorAnswerExposures = emptyList(),
+        )
+
+        assertEquals(mapOf(state.practiceUnitId to state), restored.snapshot.problemMemoryStates)
+    }
+
     @Test
     fun teachingAdvisoryRoundTripsLosslessly() {
         val record = TeachingAdvisoryRecord(
@@ -266,6 +325,20 @@ class RoomStudyDatabaseMappingsTest {
         assertEquals(5, command.expectedWorkspaceVersion)
         assertEquals("fp-1", command.expectedWorkspaceFingerprint)
     }
+
+    private fun snapshotEntity() = LearnerProjectionSnapshotEntity(
+        projectionName = "study-experience-v1",
+        learnerId = "learner-1",
+        stateVersion = 1,
+        checkpointSequence = 5,
+        knownLedgerHeadSequence = 5,
+        projectorVersion = "projector-v11",
+        projectedAtEpochMillis = 1_700_000_000_000L,
+        generatedAtEpochMillis = 1_700_000_000_000L,
+        correctionWatermarkEpochMillis = null,
+        freshness = "CURRENT",
+        projectionStatus = "CURRENT",
+    )
 
     private fun reviewSessionRecord(
         status: String,

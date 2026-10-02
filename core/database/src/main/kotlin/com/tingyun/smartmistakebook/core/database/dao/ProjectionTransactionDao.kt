@@ -88,7 +88,6 @@ import com.tingyun.smartmistakebook.core.database.entity.LearnerProjectionSnapsh
 import com.tingyun.smartmistakebook.core.database.entity.LearningSequenceEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionArchiveEntity
-import com.tingyun.smartmistakebook.core.database.entity.ProjectionConsumptionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.PresentationProjectionStateEntity
 import kotlinx.coroutines.flow.Flow
@@ -508,11 +507,6 @@ internal abstract class ProjectionTransactionDao {
     @Upsert
     protected abstract suspend fun upsertAppliedTutorAnswerExposures(
         records: List<AppliedTutorAnswerExposureRecordEntity>,
-    )
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun insertConsumptions(
-        consumptions: List<ProjectionConsumptionEntity>,
     )
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
@@ -974,16 +968,6 @@ internal abstract class ProjectionTransactionDao {
             learnerId = commit.learnerId,
             snapshot = storedSnapshot,
         )
-        rows.map { row ->
-            ProjectionConsumptionEntity(
-                projectionName = commit.projectionName,
-                learnerId = commit.learnerId,
-                outboxId = row.outboxId,
-                outboxSequence = row.outboxSequence,
-                projectorVersion = commit.snapshot.checkpoint.projectorVersion,
-                consumedAtEpochMillis = commit.snapshot.checkpoint.projectedAtEpochMillis,
-            )
-        }.insertWhenNotEmpty(::insertConsumptions)
 
         return PersistedLearnerSnapshot(
             projectionName = commit.projectionName,
@@ -1621,10 +1605,6 @@ internal abstract class ProjectionTransactionDao {
                 presentationIds = batch,
             )
         }
-
-    private suspend fun <T> List<T>.insertWhenNotEmpty(insert: suspend (List<T>) -> Unit) {
-        if (isNotEmpty()) insert(this)
-    }
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     protected abstract suspend fun insertArchive(rows: List<ProjectionArchiveEntity>)

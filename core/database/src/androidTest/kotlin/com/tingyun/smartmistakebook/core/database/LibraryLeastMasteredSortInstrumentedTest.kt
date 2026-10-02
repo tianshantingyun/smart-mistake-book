@@ -232,7 +232,6 @@ class LibraryLeastMasteredSortInstrumentedTest {
                     difficulty = 5.0,
                     lastReviewedAtEpochMillis = 1_000,
                     nextReviewAtEpochMillis = 2_000,
-                    lastAttemptId = "attempt-$node",
                     projectorVersion = PROJECTOR_VERSION,
                     checkpointSequence = 0,
                 )

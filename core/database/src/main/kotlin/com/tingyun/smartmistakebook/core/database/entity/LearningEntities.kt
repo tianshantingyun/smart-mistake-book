@@ -531,40 +531,6 @@ internal data class ProjectionOutboxEntity(
     val createdAtEpochMillis: Long,
 )
 
-@Entity(
-    tableName = "projection_consumption",
-    primaryKeys = ["projection_name", "learner_id", "outbox_id"],
-    foreignKeys = [
-        ForeignKey(
-            entity = ProjectionOutboxEntity::class,
-            parentColumns = ["outbox_id"],
-            childColumns = ["outbox_id"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-    ],
-    indices = [
-        Index(value = ["outbox_id"]),
-        Index(
-            value = ["projection_name", "learner_id", "outbox_sequence"],
-            unique = true,
-        ),
-    ],
-)
-internal data class ProjectionConsumptionEntity(
-    @ColumnInfo(name = "projection_name")
-    val projectionName: String,
-    @ColumnInfo(name = "learner_id")
-    val learnerId: String,
-    @ColumnInfo(name = "outbox_id")
-    val outboxId: String,
-    @ColumnInfo(name = "outbox_sequence")
-    val outboxSequence: Long,
-    @ColumnInfo(name = "projector_version")
-    val projectorVersion: String,
-    @ColumnInfo(name = "consumed_at_epoch_millis")
-    val consumedAtEpochMillis: Long,
-)
-
 /** Legacy denormalized projection retained for mistake-list fixture previews. */
 @Entity(
     tableName = "problem_memory_state",
@@ -745,8 +711,6 @@ internal data class LearnerProblemMemoryStateEntity(
     val difficulty: Double,
     @ColumnInfo(name = "last_reviewed_at_epoch_millis")
     val lastReviewedAtEpochMillis: Long,
-    @ColumnInfo(name = "last_reviewed_epoch_day", defaultValue = "0")
-    val lastReviewedEpochDay: Long = 0,
     @ColumnInfo(name = "next_review_at_epoch_millis")
     val nextReviewAtEpochMillis: Long,
     @ColumnInfo(name = "independent_correct_count")
@@ -763,8 +727,6 @@ internal data class LearnerProblemMemoryStateEntity(
     val clockAnomalyCount: Int,
     @ColumnInfo(name = "last_clock_anomaly_at_epoch_millis")
     val lastClockAnomalyAtEpochMillis: Long?,
-    @ColumnInfo(name = "last_attempt_id")
-    val lastAttemptId: String,
     @ColumnInfo(name = "projector_version")
     val projectorVersion: String,
     @ColumnInfo(name = "checkpoint_sequence")

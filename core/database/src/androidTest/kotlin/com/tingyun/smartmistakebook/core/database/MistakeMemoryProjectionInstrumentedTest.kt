@@ -93,7 +93,6 @@ class MistakeMemoryProjectionInstrumentedTest {
                     difficulty = 5.0,
                     lastReviewedAtEpochMillis = LAST_REVIEWED_AT,
                     nextReviewAtEpochMillis = nextReviewAtEpochMillis,
-                    lastAttemptId = "attempt-1",
                     projectorVersion = PROJECTOR_VERSION,
                     checkpointSequence = 0,
                 ),

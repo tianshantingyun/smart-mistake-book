@@ -1746,7 +1746,6 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
             nextReviewAtEpochMillis = 12L * 86_400_000L,
             lapseCount = ProblemMemoryState.LEECH_LAPSE_THRESHOLD,
             consecutiveCrossDayAgain = ProblemMemoryState.LEECH_AGAIN_STREAK,
-            lastAttemptId = "attempt:leeched",
             projectorVersion = LearningProjector.VERSION,
             checkpointSequence = 1,
         )

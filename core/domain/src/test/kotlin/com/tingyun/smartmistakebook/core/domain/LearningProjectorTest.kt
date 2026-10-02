@@ -324,6 +324,7 @@ class LearningProjectorTest {
         // 消灭的失败（审计 AUDIT-ALGORITHM-2026-09-09 §3.7）：`TutorAnswerExposureOutcome`
         // 不带 studyDay，`projectTutorAnswerExposure` 也从未显式写 `lastReviewedEpochDay`，
         // 于是该字段的默认值 `lastReviewedAtEpochMillis / 86_400_000`（**UTC** 日序）被写进状态。
+        // （该派生态死列已随 schema 57 / D-M M5 删除，用例继续锁定派生口径本身。）
         // UTC+8 学员本地 D+1 07:00 看到答案时（UTC 仍在 D），当天 20:00 复习得到的
         // `eventEpochDay` 是 D+1，与状态里的 D 相减得 1 → 被当成跨日：走 long_term 分支
         // 拿到本不该有的稳定性增益，并让 §2.10 的毕业连胜多计一次。

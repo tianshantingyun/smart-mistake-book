@@ -643,7 +643,6 @@ class ReviewPlannerV2Test {
         nextReviewAtEpochMillis = nextReviewAtEpochMillis,
         lapseCount = lapseCount,
         consecutiveCrossDayAgain = consecutiveCrossDayAgain,
-        lastAttemptId = "attempt-$unitId",
         projectorVersion = LearningProjector.VERSION,
         checkpointSequence = 4,
     )

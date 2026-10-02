@@ -19,9 +19,11 @@ package com.tingyun.smartmistakebook.core.domain
  * 不是 Wave 0 的判据（Wave 0 的判据只有：权重表单源 + `DAY_MILLIS` 单源）。
  *
  * **已知未收进来的地方**（本波如实记下，不假装收干净了）：
- * - `core/model` 里的两处（`TutorTasks.MILLIS_PER_DAY`、`LearningState.lastReviewedEpochDay` 的
- *   默认值 `86_400_000L`）：`core:model` 在依赖方向上**早于** `core:domain`，引用不到本表。
- *   要收只能把日长常量下沉到 `core:model`，那是一次独立的分层决定，不在 Wave 0。
+ * - `core/model` 里的 `TutorTasks.MILLIS_PER_DAY`：`core:model` 在依赖方向上**早于**
+ *   `core:domain`，引用不到本表。要收只能把日长常量下沉到 `core:model`，那是一次独立的分层决定，
+ *   不在 Wave 0。（同处曾列的 `LearningState.lastReviewedEpochDay` 默认值随该死列在
+ *   schema 57 / D-M M5 一并删除；`core:model` 仍留有 `StudyDayMath.MILLIS_PER_DAY` 的日长
+ *   字面量——收敛范围与失败面不变。）
  * - `core/database` androidTest 的 `MasteryOverviewInstrumentedTest.DAY_MILLIS`：同理
  *   （`core:database` 只看得到 `core:model`）。测试夹具的字面量不是算法常数的定义处，
  *   不影响"改这里、那边不同步"的失败面；生产侧与其余测试的引用都已指向本表。

@@ -84,7 +84,6 @@ import com.tingyun.smartmistakebook.core.database.entity.LearnerProblemMemorySta
 import com.tingyun.smartmistakebook.core.database.entity.LearnerProjectionSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.LearningSequenceEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
-import com.tingyun.smartmistakebook.core.database.entity.ProjectionConsumptionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.PresentationProjectionStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewLogEntity
