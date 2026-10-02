@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """materialize：判定表 → 材料入库的计划校验门。
 
-plan() 校验每一行前先读三个**阶段产物**：块池（`tables/extracted_chunks.rekeyed.jsonl`）、
-包 JSON（staging 或成品目录）与提取状态表。块池未纳入版本控制，CI checkout 里必然缺席；
-缺席时 `load_chunks()` 返回空表，plan() 会把每一行都判成"块不存在"——断言随即变成误报
-（实测：`_row()` 的合法行在空池下报 `块不存在`）。所以本文件：产物缺席 → 显式 skip 并写明
-理由（跳过的是"无判别力"的用例，不是放宽断言）；产物在场 → 照常断言，一条不减。
+plan() 校验每一行前读两个**纳管输入**：包 JSON（staging 缺席时由成品目录复制成基线）与
+提取状态表——两者都在版本控制里，干净检出必然在场。第三类输入**块池**
+（`tables/extracted_chunks.rekeyed.jsonl`）不纳管，CI checkout 里必然缺席；缺席时
+`load_chunks()` 返回空表，plan() 会把每一行都判成"块不存在"，断言随即变成误报。
+所以本文件的 PlanTest 用 `mock.patch.object(mat, "load_chunks", …)` 注入合成块池——
+判据在 CI 与本地跑的是同一份代码，靠整类 skip 会让 CI 只剩常量比较（复核 F4）。
 
 type 白名单回归（2026-10-02 收紧）：协议 v1.1 只许 3 值，且必须与
 `merge_text_judgments.TYPES` 逐字一致；4 种旧值（WORKED_EXAMPLE / COMPLETE_SOLUTION /
@@ -16,19 +17,25 @@ DERIVATION / REPRESENTATION_GUIDE）在 MATERIAL 行一律硬拒，在 SKIP 行�
 from __future__ import annotations
 
 import unittest
+from unittest import mock
 
 from kb_build import pack_io
 from kb_coverage import extraction_state as es
 from kb_coverage import materialize as mat
 from kb_coverage import merge_text_judgments as mtj
-from kb_coverage.pool_path import POOL_PATH
+
+# 合成块池：与 `_row()` 同键，subject 取四科之一（plan 按块科目查节点表）。
+_SYNTH_POOL = [{
+    "rel_path": ("2026年新高考资料/一轮复习/2026年体育单招数学零基础一轮总复习/"
+                 "资料/1.1集合的概念（讲义）（学生版）.docx"),
+    "chunk_id": "9a51501f22-001",
+    "subject": "MATH",
+}]
 
 
 def _missing_inputs() -> list[str]:
-    """plan() 依赖的阶段产物里不在场的（只查路径，不读内容、无副作用）。"""
+    """plan() 里**不可 mock**的两个输入（只查路径，不读内容、无副作用）。"""
     missing = []
-    if not POOL_PATH.exists():
-        missing.append(str(POOL_PATH))
     # 包：staging 缺席时 work_dir() 会从成品目录复制基线，两边都没有才算缺席。
     if not ((pack_io.STAGING_DIR / pack_io.PACK_NAME).exists()
             or (pack_io.release_dir() / pack_io.PACK_NAME).exists()):
@@ -40,7 +47,7 @@ def _missing_inputs() -> list[str]:
 
 _ARTIFACTS_MISSING = _missing_inputs()
 _ARTIFACT_SKIP = (
-    "阶段产物不在场，plan() 断言无判别力（会把它误报成失败），显式跳过："
+    "包或提取状态表不在场（本仓库内均应纳管，缺席只可能是异常检出）："
     + "、".join(_ARTIFACTS_MISSING)
 )
 
@@ -61,10 +68,25 @@ def _row(**over):
 
 @unittest.skipIf(bool(_ARTIFACTS_MISSING), _ARTIFACT_SKIP)
 class PlanTest(unittest.TestCase):
+    """plan() 六条判据的行为断言；块池用合成夹具注入，CI 与本地同份代码。"""
+
+    def setUp(self):
+        patcher = mock.patch.object(mat, "load_chunks",
+                                    return_value=[dict(c) for c in _SYNTH_POOL])
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_valid_row_plans_clean(self):
         pl = mat.plan([_row()])
         self.assertEqual([], pl["errors"])
         self.assertEqual(1, pl["material_count"])
+
+    def test_pool_is_injected_not_read_from_disk(self):
+        # 注入生效的证明：把池切成空表，合法行必须立刻报"块不存在"——说明本类的判据
+        # 读的是注入的合成池，而不是磁盘上的块池（CI 上那块池缺席）。
+        with mock.patch.object(mat, "load_chunks", return_value=[]):
+            pl = mat.plan([_row()])
+        self.assertTrue(any("块不存在" in e for e in pl["errors"]), pl["errors"])
 
     def test_unknown_node_is_error(self):
         pl = mat.plan([_row(node_slug="不存在的节点xyz")])
