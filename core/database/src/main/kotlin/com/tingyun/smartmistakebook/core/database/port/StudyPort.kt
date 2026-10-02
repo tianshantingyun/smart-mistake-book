@@ -145,4 +145,29 @@ interface MasteryAdvisoryPort {
     ): List<TeachingAdvisoryRecord> = practiceUnitIds.flatMap { practiceUnitId ->
         observeTeachingAdvisories(learnerId, practiceUnitId).first()
     }
+
+    /**
+     * D-M M7 咨询工具（ADVISORY_READ）的取数口：节点/题/科目三个可选过滤 + 条数上限，
+     * 最近优先。默认返回空表（非 Room 夹具按需覆写），Room 实现是一条带 JOIN 的 SQL
+     * （科目过滤认"科目行 source_id"与"节点所属科目"两种来路）。
+     */
+    suspend fun readTeachingAdvisoriesForTool(
+        learnerId: String,
+        knowledgeNodeId: String? = null,
+        practiceUnitId: String? = null,
+        subject: String? = null,
+        subjectSourceId: String? = null,
+        limit: Int = 8,
+    ): List<TeachingAdvisoryRecord> = emptyList()
+
+    /**
+     * D-M M7 咨询工具（ADVISORY_WRITE）的稳定键 upsert：命中
+     * `(learner_id, source_id, advisory_kind)` 唯一索引即替换旧行，同一目标同一 kind
+     * 更新而不堆积。与 [recordTeachingAdvisories] 的 IGNORE 幂等语义**刻意分开**
+     * （后者服务既有写通道，不因新工具改变行为）。默认实现退回 [recordTeachingAdvisories]，
+     * 夹具（本身按唯一键替换）语义不变。
+     */
+    suspend fun upsertTeachingAdvisories(entries: List<TeachingAdvisoryRecord>) {
+        recordTeachingAdvisories(entries)
+    }
 }

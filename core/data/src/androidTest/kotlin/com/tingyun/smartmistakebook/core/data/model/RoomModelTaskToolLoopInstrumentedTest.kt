@@ -542,10 +542,21 @@ class RoomModelTaskToolLoopInstrumentedTest {
             assertEquals(TutorToolName.KNOWLEDGE_READ, outcome.tool)
             // 空知识库：KNOWLEDGE_READ 正常返回"没有匹配"（不是场景拒、不是 no_subject）。
             assertTrue(outcome.ok)
+            val precoded = second.knowledgeCodes.single { entry -> entry.knowledgeNodeId == "kc-plan" }
             assertEquals(
                 "预披露条目在派生前已赋码（K1）",
                 "K1",
-                second.knowledgeCodes.single().code,
+                precoded.code,
+            )
+            // 插眼 8（裁决 22 修订二）：会话代号表显式含本科「未分类」兜底桶——
+            // 桶拿下一个空闲号（K2），且节点确实已创建（MODEL_CANDIDATE，不进召回面）。
+            val bucket = second.knowledgeCodes.single { entry ->
+                entry.knowledgeNodeId == "pseudo:MATH"
+            }
+            assertEquals("K2", bucket.code)
+            assertEquals(
+                com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole.UNCLASSIFIED_BUCKET,
+                bucket.role,
             )
         } finally {
             database.close()
@@ -554,8 +565,8 @@ class RoomModelTaskToolLoopInstrumentedTest {
     }
 
     @Test
-    fun aLobbyRoundSecondDispatchDeclaresAllFiveTools() = runBlocking {
-        // D7 大厅全工具面：第二轮输入的声明集就是同一页的全量五个。
+    fun aLobbyRoundSecondDispatchDeclaresTheFullToolFace() = runBlocking {
+        // D7 大厅全工具面：第二轮输入的声明集就是同一页的全量声明（D-M M7 起为 7 枚）。
         val context = ApplicationProvider.getApplicationContext<Context>()
         val databaseName = "lobby-five-tools-${System.nanoTime()}.db"
         context.deleteDatabase(databaseName)
@@ -576,7 +587,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS.toList(),
                 second.toolDeclarations,
             )
-            assertEquals(5, second.toolDeclarations.size)
+            assertEquals(7, second.toolDeclarations.size)
         } finally {
             database.close()
             context.deleteDatabase(databaseName)

@@ -172,6 +172,21 @@
 > **下一次确认之前**：新写证据退到 pseudo 桶、重放重派生为空而退回写时快照——无数据损坏，下次确认即
 > 自愈；迁移不回填（应用未发布，真实存量仅开发库）。§3.13 复核登记（2026-10-02 独立复核 P2）。
 
+### 3.14 阶段 3B 步骤三 · M2/M7/插眼 8（2026-10-03，批次 B5）：零算法 bump
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `LearningCoreVersions` 全部串**未 bump**（复合串维持 `learning-core-v12`）；`ModelEgress` 提示词版本（**非算法台账号段**，自记）：`tutor-plan-v14-advisory-tools` / `tutor-respond-v21-advisory-tools` / `tutor-lobby-v12-advisory-tools` | ①**M2 提交期 HINT 接线**（非 UI）：`hintCount>0` → 一条 `PersistedAssessmentAssistance`(HINT)（合成序号=揭示序号+1、无揭示=1；`responseSequence` 水位=最大协助序号+1；揭示与 hint 并存时判定顺序不变、揭示支配）。两档死分支（`CORRECT_AFTER_HINT` / `INCORRECT_AFTER_HINT`）可达——"三档答对里只有独立答对是真的"的失败被消灭。**零 bump 证明（同 §3.4 尾注先例）**：分支可达性变化 = 提交期输入事实接入；证据行写时定价、账本已写入行不重算、投影/计划对固定账本逐位不变。②**M7 advisory 一等工具**：`ADVISORY_READ` / `ADVISORY_WRITE`（枚举 + 描述单源 `TutorToolDescriptions`（curate 语义）/ 协议两路由同名同义 / 任何轮次档位 / 每参数服务端作用域校验 / 三 kind 限枚举 / 稳定键 upsert / `payload≤600`；`MAX_TOOL_DECLARATIONS` 5→7）。零 bump：工具面只影响新请求的声明集与模型行为，不进账本/投影；提示词版本已 bump（egress 授权回执不再冒充同一提示词）。③**插眼 8**：会话代号表显式登记本科「未分类」桶（`UNCLASSIFIED_BUCKET` → `pseudo:<SUBJECT>`，复用既有 ensure 幂等创建；编造代号仍拒；桶不进召回面；证据落桶按 DISCLOSED 半权）。零 bump：只扩展会话披露面，`MODEL_CANDIDATE` 过滤未动。 | 计划 `docs/research/2026-10-02-stage3b-plan.md` §3 步骤三第 2/3 条；台账 D-M M2/M7；裁决 22 修订二（`:2146-2156`） | JVM（`--rerun-tasks`，2026-10-03）：`:core:domain` **550/0**、`:core:model` **394/0**、`:core:data` **604/0**、`:core:database` **121/0**、`:feature:tutor` **199/0**；仪器化：`PseudoUnclassifiedBucketInstrumentedTest` **1/0/0**、`RoomModelTaskToolLoopInstrumentedTest` 9 + `RoomModelTaskT6MasteryInstrumentedTest` 3 **12/0/0**；`app` 双 flavor 编译绿。定向：`MasteryEvidencePolicyTest` 六档各一例（新补 `INCORRECT_ON_RETRY`；六档 reason 全部钉死）、`RoomBackedStudyExperienceRepositoryTest` 三条端到端（有提示答对/答错、揭示支配 hint）、`ModelTaskFingerprintStabilityTest` 4 面（旧 5 工具名往返稳定（codec 往返，非 frozen 旧行——复核注）/ 7 工具面往返 / 咨询声明=另一逻辑操作 / 桶条目往返）、`RoomTutorToolRunnerTest` 含 `advisoryWriteLandsOnTheUnclassifiedBucketCode`（ADVISORY_WRITE 落桶直接用例） | ➖（无投影输出变化，不触发重放） |
+
+> 复核整改（2026-10-03，B5 修复轮；独立复核 approve-with-notes、五项全处置）：①advisory 写行 PK 改 learner 前缀
+> （`advisory_id = "<learner>:<source>:<kind>"`）——与唯一索引 `(learner_id, source_id, advisory_kind)` 同冲突面
+> （原形跨 learner 的 REPLACE 会删他人行；单 learner 下不可达，属防患修法）；②`withSessionKnowledgeCodes` 的
+> fail-open 不再吞 `CancellationException`；③PROBLEM 作用域"接受孤儿行"边界写入 KDoc（表无 FK，读者按
+> practice unit 过滤）；④`MasteryEvidencePolicyTest` 六档 reason 全部钉死；⑤补 ADVISORY_WRITE 落桶用例。
+
+> 复核登记（2026-10-03，非本批引入）：`toTutorToolRequestsOutput`（native tool_calls 路由）不解析
+> `extendedResult`，MASTERY_READ 扩展预算实际只在 json_object 路由生效——既有缺陷，登记 KD-30。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

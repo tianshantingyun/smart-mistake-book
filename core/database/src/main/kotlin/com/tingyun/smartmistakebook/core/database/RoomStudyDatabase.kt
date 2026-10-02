@@ -415,6 +415,29 @@ internal class RoomStudyDatabase(
         database.learningDao().recordTeachingAdvisories(entries.map(TeachingAdvisoryRecord::toEntity))
     }
 
+    override suspend fun upsertTeachingAdvisories(entries: List<TeachingAdvisoryRecord>) {
+        database.learningDao().upsertTeachingAdvisories(entries.map(TeachingAdvisoryRecord::toEntity))
+    }
+
+    /** D-M M7：咨询工具的取数口（节点/题/科目可选过滤）；limit 由调用方给本地常量。 */
+    override suspend fun readTeachingAdvisoriesForTool(
+        learnerId: String,
+        knowledgeNodeId: String?,
+        practiceUnitId: String?,
+        subject: String?,
+        subjectSourceId: String?,
+        limit: Int,
+    ): List<TeachingAdvisoryRecord> = database.learningDao()
+        .readTeachingAdvisoriesForTool(
+            learnerId = learnerId,
+            knowledgeNodeId = knowledgeNodeId,
+            practiceUnitId = practiceUnitId,
+            subject = subject,
+            subjectSourceId = subjectSourceId,
+            limit = limit,
+        )
+        .map(LlmTeachingAdvisoryEntity::toRecord)
+
     override fun observeTeachingAdvisories(
         learnerId: String,
         practiceUnitId: String?,
@@ -491,6 +514,11 @@ internal class RoomStudyDatabase(
         subject = subject,
         acceptedAtEpochMillis = acceptedAtEpochMillis,
     )
+
+    override suspend fun ensurePseudoKnowledgeNode(
+        subject: String,
+        atEpochMillis: Long,
+    ): KnowledgeNodeSeedRecord? = knowledgeBase.ensurePseudoKnowledgeNode(subject, atEpochMillis)
 
     override suspend fun readSubjectKnowledgeNodes(
         subject: String,

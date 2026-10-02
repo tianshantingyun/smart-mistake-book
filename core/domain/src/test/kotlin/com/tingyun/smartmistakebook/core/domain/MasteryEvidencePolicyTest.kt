@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.domain
 
 import com.tingyun.smartmistakebook.core.model.AssessmentAssistanceEvent
 import com.tingyun.smartmistakebook.core.model.AssessmentSubmissionContext
+import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason as EvidenceReason
 import com.tingyun.smartmistakebook.core.model.PersistedAssessmentAssistance
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorAssistanceKind
@@ -78,6 +79,8 @@ class MasteryEvidencePolicyTest {
         )
 
         assertEquals(MasteryEvidenceKind.INDEPENDENT, decision.kind)
+        assertEquals(MasteryEvidenceReason.INDEPENDENT_CORRECT_RESPONSE, decision.reason)
+        assertEquals(EvidenceReason.INDEPENDENT_CORRECT, decision.evidence.reason)
         assertEquals(1.0, decision.signedWeight, 0.0)
         assertTrue(decision.contributesToMastery)
     }
@@ -105,6 +108,7 @@ class MasteryEvidencePolicyTest {
         )
 
         assertEquals(MasteryEvidenceKind.ASSISTED, decision.kind)
+        assertEquals(MasteryEvidenceReason.CORRECT_AFTER_HINT, decision.reason)
         assertEquals(0.6, decision.signedWeight, 0.0)
         assertFalse(decision.isIndependent)
     }
@@ -132,6 +136,8 @@ class MasteryEvidencePolicyTest {
         )
 
         assertEquals(MasteryEvidenceKind.ASSISTED, decision.kind)
+        assertEquals(MasteryEvidenceReason.INCORRECT_RESPONSE, decision.reason)
+        assertEquals(EvidenceReason.INCORRECT_AFTER_HINT, decision.evidence.reason)
         assertEquals(-0.9, decision.signedWeight, 0.0)
         assertTrue(decision.contributesToMastery)
     }
@@ -205,7 +211,69 @@ class MasteryEvidencePolicyTest {
 
         assertEquals(MasteryEvidenceKind.ASSISTED, decision.kind)
         assertEquals(MasteryEvidenceReason.CORRECT_ON_RETRY, decision.reason)
+        assertEquals(EvidenceReason.CORRECT_ON_RETRY, decision.evidence.reason)
         assertFalse(decision.isIndependent)
+    }
+
+    @Test
+    fun `second incorrect response without a hint is retry-failure evidence`() {
+        // 六档里此前唯一没有用例的一档：INCORRECT_ON_RETRY（第二次及以后的错答，
+        // 无提示、无揭示）。它必须被定价为协助性负向（0.9），而不是独立错误（1.0）。
+        val decision = MasteryEvidencePolicy.evaluate(
+            assessmentItem = item,
+            context = AssessmentSubmissionContext(
+                assessmentItemId = "item-1",
+                selectedChoiceId = "b",
+                presentationId = "presentation-1",
+                responseSequence = 2,
+                responseOrdinal = 2,
+            ),
+        )
+
+        assertEquals(MasteryEvidenceKind.ASSISTED, decision.kind)
+        assertEquals(MasteryEvidenceReason.INCORRECT_RESPONSE, decision.reason)
+        assertEquals(EvidenceReason.INCORRECT_ON_RETRY, decision.evidence.reason)
+        assertEquals(-0.9, decision.signedWeight, 0.0)
+        assertTrue(decision.contributesToMastery)
+        assertFalse(decision.isIndependent)
+    }
+
+    @Test
+    fun `a reveal still dominates when a hint happened in the same presentation`() {
+        // M2 的字段组合语义：揭示与提示同时存在时，evaluate 的判定顺序不变——
+        // answerWasRevealed 两支在前，揭示定价；"揭示之后又看到提示"不改变结论。
+        val reveal = AssessmentAssistanceEvent(
+            eventId = "reveal-1",
+            assessmentItemId = "item-1",
+            presentationId = "presentation-1",
+            kind = TutorAssistanceKind.ANSWER_REVEAL,
+            contentMarkdown = "正确选项是 A。",
+            occurredAtEpochMillis = 10,
+            eventSequence = 1,
+        )
+        val hint = AssessmentAssistanceEvent(
+            eventId = "hint-after-reveal",
+            assessmentItemId = "item-1",
+            presentationId = "presentation-1",
+            kind = TutorAssistanceKind.HINT,
+            contentMarkdown = "提示",
+            occurredAtEpochMillis = 11,
+            eventSequence = 2,
+        )
+        val context = AssessmentSubmissionContext(
+            assessmentItemId = "item-1",
+            selectedChoiceId = "a",
+            presentationId = "presentation-1",
+            responseSequence = 3,
+            persistedAssistance = listOf(
+                PersistedAssessmentAssistance(reveal, 11),
+                PersistedAssessmentAssistance(hint, 12),
+            ),
+        )
+
+        assertTrue(context.answerWasRevealed)
+        assertTrue(context.hintWasUsed)
+        assertEquals(MasteryEvidenceKind.EXCLUDED, MasteryEvidencePolicy.evaluate(item, context).kind)
     }
 
     @Test

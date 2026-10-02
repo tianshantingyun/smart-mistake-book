@@ -7,10 +7,13 @@ import org.junit.Test
 
 /**
  * 工具授权矩阵不变量（spec model-intent-routing §3.2 + tool-loop-wiring §5.2）：
- * MASTERY_UPDATE（唯一可落库写工具）只能在 CURRENT_QUESTION_HELP + 声明集下被授权——
+ * MASTERY_UPDATE 只能在 CURRENT_QUESTION_HELP + 声明集下被授权——
  * 任何其他意图（CASUAL/AMBIGUOUS/END_OR_PAUSE 等）即使声明也不放行；意图置信度低于
  * 阈值一律拒（routeEligible=false）。repository 工具环在此授权之上另有"仅 Respond 派遣可
  * 执行写工具"的本地锚定（见 RoomModelTaskRepository 工具环）——本测试锁定授权矩阵本体。
+ *
+ * D-M M7 的例外是**刻意的**：两枚咨询工具（ADVISORY_READ/ADVISORY_WRITE）是"任何轮次"
+ * 的一等工具，逐意图集合里都有它们；AMBIGUOUS/低置信的前两道门仍照常拦。
  */
 class TutorToolAuthorizationTest {
 
@@ -111,7 +114,49 @@ class TutorToolAuthorizationTest {
             decision(TutorMessageIntent.CASUAL_CONVERSATION),
             full,
         )
-        assertTrue("CASUAL 零工具授权", casual.allowedTools.isEmpty())
+        assertTrue("CASUAL 下五个核心工具零授权", casual.allowedTools.isEmpty())
+    }
+
+    @Test
+    fun advisoryToolsAreAuthorizedInEveryRoundWhenDeclared() {
+        // D-M M7：咨询工具是"任何轮次可读写"的一等工具——逐意图集合里都有它们；
+        // 声明集交集仍生效（未声明不放行）。
+        val declaredAdvisory = declared(TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
+        val advisory = setOf(TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
+        listOf(
+            TutorMessageIntent.CURRENT_QUESTION_HELP,
+            TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP,
+            TutorMessageIntent.LEARNING_PROGRESS_LOOKUP,
+            TutorMessageIntent.APP_HELP_OR_SETTINGS,
+            TutorMessageIntent.CASUAL_CONVERSATION,
+            TutorMessageIntent.END_OR_PAUSE,
+        ).forEach { intent ->
+            assertEquals(
+                "$intent 下两枚咨询工具都应放行",
+                advisory,
+                tutorToolAuthorization(decision(intent), declaredAdvisory).allowedTools,
+            )
+        }
+        // 未声明不放行（declared ∩ intent 仍生效）。
+        assertTrue(
+            tutorToolAuthorization(
+                decision(TutorMessageIntent.CURRENT_QUESTION_HELP),
+                declared(TutorToolName.KNOWLEDGE_READ),
+            ).allowedTools.none { it in advisory },
+        )
+        // 模糊意图与低置信仍拦在最前（咨询工具不是例外）。
+        val ambiguous = tutorToolAuthorization(
+            decision(TutorMessageIntent.AMBIGUOUS),
+            declaredAdvisory,
+        )
+        assertFalse(ambiguous.routeEligible)
+        assertTrue(ambiguous.allowedTools.isEmpty())
+        assertTrue(
+            tutorToolAuthorization(
+                decision(TutorMessageIntent.CURRENT_QUESTION_HELP, confidence = 0.2),
+                declaredAdvisory,
+            ).allowedTools.isEmpty(),
+        )
     }
 
     @Test

@@ -51,16 +51,16 @@ internal class RoomKnowledgeBaseStore(
     /** S21（2026-10-02）：整科重建与内容安装期共用（安装期预热见 `RoomKnowledgeContentReconciler`）。 */
     private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database)
 
-    suspend fun ensurePseudoKnowledgeBinding(
-        practiceUnitId: String,
-        problemRevisionId: String,
-        taxonomyVersion: String,
+    /**
+     * 插眼 8：确保伪节点存在（幂等）。与 [ensurePseudoKnowledgeBinding] 共用同一实现——
+     * 那条路径在本方法之上再建 practice-unit 绑定，节点创建只有这一份。
+     */
+    suspend fun ensurePseudoKnowledgeNode(
         subject: String,
-        acceptedAtEpochMillis: Long,
-    ): PracticeUnitKnowledgeBindingRecord? {
+        atEpochMillis: Long,
+    ): KnowledgeNodeSeedRecord? {
         require(subject.isNotBlank()) { "subject must not be blank" }
         val knowledgeNodeId = "pseudo:${subject.uppercase()}"
-        val bindingId = "pseudo-binding:$practiceUnitId:$problemRevisionId:$taxonomyVersion:$knowledgeNodeId"
         val organizationDao = database.problemOrganizationDao()
         // The pseudo node is a placeholder KC (spec §3.4): it exists so the
         // knowledge-node foreign keys on mastery state are satisfied; it is
@@ -81,11 +81,26 @@ internal class RoomKnowledgeBaseStore(
                         verificationStatus = "MODEL_CANDIDATE",
                         parentKnowledgeNodeId = null,
                         taxonomyVersion = PSEUDO_TAXONOMY_VERSION,
-                        createdAtEpochMillis = acceptedAtEpochMillis,
+                        createdAtEpochMillis = atEpochMillis,
                     ),
                 ),
             )
         }
+        return organizationDao.readKnowledgeNode(knowledgeNodeId)?.toSeedRecord()
+    }
+
+    suspend fun ensurePseudoKnowledgeBinding(
+        practiceUnitId: String,
+        problemRevisionId: String,
+        taxonomyVersion: String,
+        subject: String,
+        acceptedAtEpochMillis: Long,
+    ): PracticeUnitKnowledgeBindingRecord? {
+        require(subject.isNotBlank()) { "subject must not be blank" }
+        val knowledgeNodeId = "pseudo:${subject.uppercase()}"
+        val bindingId = "pseudo-binding:$practiceUnitId:$problemRevisionId:$taxonomyVersion:$knowledgeNodeId"
+        ensurePseudoKnowledgeNode(subject = subject, atEpochMillis = acceptedAtEpochMillis)
+        val organizationDao = database.problemOrganizationDao()
         val binding = PracticeUnitKnowledgeBindingEntity(
             bindingId = bindingId,
             practiceUnitId = practiceUnitId,

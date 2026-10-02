@@ -343,7 +343,9 @@ internal object OpenAiModelProtocol {
      * [TutorToolCall] contract mandates (direction + understanding non-null),
      * and its terms[0] is constrained to the session's disclosed knowledge codes
      * (D5 enum 白名单); MASTERY_READ adds the extended-result flag it alone may
-     * set; the other read tools stay minimal (terms + rationale).
+     * set; ADVISORY_WRITE adds the three-kind enum + scope enum + bounded
+     * payload (D-M M7 的三道写侧校验在协议层的落点); the other read tools stay
+     * minimal (terms + rationale).
      *
      * 写工具**不再**带逐次题锚字段（problemId/problemRevisionId/anchorTerms）：
      * 2026-09-21 裁定（D6）废除"无题轮结构性拒写"之后，题锚不再是写准入事实；
@@ -355,6 +357,8 @@ internal object OpenAiModelProtocol {
     ): JsonObject {
         val masterySemantics = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.MASTERY_UPDATE
         val extendedResult = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.MASTERY_READ
+        val advisoryRead = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_READ
+        val advisoryWrite = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_WRITE
         return buildJsonObject {
             put("type", "object")
             put(
@@ -382,6 +386,11 @@ internal object OpenAiModelProtocol {
                                                 },
                                             )
                                         }
+                                    } else if (advisoryWrite) {
+                                        put(
+                                            "description",
+                                            "scope=NODE 时填本会话已披露知识点代号；PROBLEM/SUBJECT 时留空数组",
+                                        )
                                     } else {
                                         put("description", "学生原话派生词元，不得臆测")
                                     }
@@ -390,10 +399,11 @@ internal object OpenAiModelProtocol {
                             put("maxItems", TutorIntentDecision.MAX_LOOKUP_TERMS)
                             put(
                                 "description",
-                                if (masterySemantics) {
-                                    "第一个元素必须是已披露知识点代号"
-                                } else {
-                                    "直接来自学生消息原词的简短筛选词"
+                                when {
+                                    masterySemantics -> "第一个元素必须是已披露知识点代号"
+                                    advisoryWrite -> "NODE 作用域的目标代号（只能是本会话已披露的 K 代号）"
+                                    advisoryRead -> "可选的筛选词或已披露代号；留空＝按 scope 读本科目/当前题"
+                                    else -> "直接来自学生消息原词的简短筛选词"
                                 },
                             )
                         },
@@ -405,6 +415,59 @@ internal object OpenAiModelProtocol {
                             put("description", "锚定理由：引用学生原话/行为")
                         },
                     )
+                    if (advisoryRead || advisoryWrite) {
+                        put(
+                            "advisoryScope",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "enum",
+                                    buildJsonArray {
+                                        add(JsonPrimitive("NODE"))
+                                        add(JsonPrimitive("PROBLEM"))
+                                        add(JsonPrimitive("SUBJECT"))
+                                    },
+                                )
+                                put(
+                                    "description",
+                                    "NODE＝按知识点（terms[0]＝代号）、PROBLEM＝当前这道题、SUBJECT＝本科目",
+                                )
+                            },
+                        )
+                    }
+                    if (advisoryWrite) {
+                        put(
+                            "advisoryKind",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "enum",
+                                    buildJsonArray {
+                                        add(JsonPrimitive("TEACHING_FOCUS"))
+                                        add(JsonPrimitive("MISCONCEPTION"))
+                                        add(JsonPrimitive("DIFFICULTY_TIER"))
+                                    },
+                                )
+                                put(
+                                    "description",
+                                    "只写跨会话的持久共识（典型误区/有效讲法/题目难度）；" +
+                                        "DIFFICULTY_TIER 的 payload 只能是 EASY/MEDIUM/HARD",
+                                )
+                            },
+                        )
+                        put(
+                            "payloadMarkdown",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "maxLength",
+                                    com.tingyun.smartmistakebook.core.model.TutorToolCall
+                                        .MAX_ADVISORY_PAYLOAD_CHARS,
+                                )
+                                put("description", "一条简短共识；同一目标同一 kind 会更新旧记录，不堆积")
+                            },
+                        )
+                    }
                     if (extendedResult) {
                         put(
                             "extendedResult",
@@ -460,29 +523,27 @@ internal object OpenAiModelProtocol {
                     }
                 },
             )
-            if (masterySemantics) {
-                put(
-                    "required",
-                    buildJsonArray {
-                        add(JsonPrimitive("terms"))
-                        add(JsonPrimitive("rationale"))
-                        add(JsonPrimitive("direction"))
-                        add(JsonPrimitive("understanding"))
-                        add(JsonPrimitive("confidence"))
-                    },
-                )
-            } else if (extendedResult) {
-                put(
-                    "required",
-                    buildJsonArray {
-                        add(JsonPrimitive("terms"))
-                        add(JsonPrimitive("rationale"))
-                        add(JsonPrimitive("extendedResult"))
-                    },
-                )
-            } else {
-                put("required", buildJsonArray { add(JsonPrimitive("terms")); add(JsonPrimitive("rationale")) })
-            }
+            put(
+                "required",
+                buildJsonArray {
+                    add(JsonPrimitive("terms"))
+                    add(JsonPrimitive("rationale"))
+                    when {
+                        masterySemantics -> {
+                            add(JsonPrimitive("direction"))
+                            add(JsonPrimitive("understanding"))
+                            add(JsonPrimitive("confidence"))
+                        }
+                        extendedResult -> add(JsonPrimitive("extendedResult"))
+                        advisoryWrite -> {
+                            add(JsonPrimitive("advisoryScope"))
+                            add(JsonPrimitive("advisoryKind"))
+                            add(JsonPrimitive("payloadMarkdown"))
+                        }
+                        advisoryRead -> add(JsonPrimitive("advisoryScope"))
+                    }
+                },
+            )
             put("additionalProperties", JsonPrimitive(false))
         }
     }
@@ -575,6 +636,13 @@ internal object OpenAiModelProtocol {
                 // 写工具的本次调用锚在哪道题：与 json_object 信封路由同一组扁平字段
                 // （problemId / problemRevisionId / anchorTerms），两条路由因此都能表达它。
                 boundQuestion = arguments.toCallBoundQuestion(),
+                // D-M M7：咨询工具的 scope/kind/payload 与 Route B 同名同义——
+                // 两条路由共用同一份 TutorToolCall 契约校验。
+                advisoryScope = arguments.optionalString("advisoryScope")
+                    ?.let { enumValue<com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope>(it) },
+                advisoryKind = arguments.optionalString("advisoryKind")
+                    ?.let { enumValue<com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind>(it) },
+                payloadMarkdown = arguments.optionalString("payloadMarkdown"),
             )
         }
         val intentDecision = responseContent

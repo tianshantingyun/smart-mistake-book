@@ -50,12 +50,124 @@ class TutorToolCallTest {
     }
 
     @Test
-    fun masteryReadIsTheOnlyToolThatMayOmitTerms() {
-        // 留空 = "本科目清单"模式，这正是本次扩出来的能力；其它工具没有这种语义。
+    fun onlyTheSubjectScopedReadsMayOmitTerms() {
+        // 留空 = "本科目清单"模式（MASTERY_READ），或按科目/当前题的作用域读（ADVISORY_READ，
+        // D-M M7）；其它工具没有这种语义。
         TutorToolCall(tool = TutorToolName.MASTERY_READ, rationale = "本科目清单")
+        TutorToolCall(
+            tool = TutorToolName.ADVISORY_READ,
+            rationale = "回顾本科目教学备注",
+            advisoryScope = TutorAdvisoryScope.SUBJECT,
+        )
 
         assertThrows(IllegalArgumentException::class.java) {
             TutorToolCall(tool = TutorToolName.KNOWLEDGE_READ, rationale = "查材料")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(tool = TutorToolName.ADVISORY_WRITE, rationale = "缺全部咨询字段")
+        }
+    }
+
+    @Test
+    fun advisoryWriteEnforcesItsScopeKindAndPayloadContract() {
+        val valid = TutorToolCall(
+            tool = TutorToolName.ADVISORY_WRITE,
+            rationale = "学生把负号漏掉了",
+            advisoryScope = TutorAdvisoryScope.NODE,
+            advisoryKind = TutorAdvisoryKind.MISCONCEPTION,
+            payloadMarkdown = "解不等式两边乘负数时忘记变号。",
+            terms = listOf("K1"),
+        )
+        assertEquals(TutorAdvisoryScope.NODE, valid.advisoryScope)
+        assertEquals(TutorAdvisoryKind.MISCONCEPTION, valid.advisoryKind)
+
+        // 缺 scope / kind / payload 一律契约拒（不静默降级）。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.ADVISORY_WRITE,
+                rationale = "缺 scope",
+                advisoryKind = TutorAdvisoryKind.MISCONCEPTION,
+                payloadMarkdown = "误区。",
+                terms = listOf("K1"),
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.ADVISORY_WRITE,
+                rationale = "缺 kind",
+                advisoryScope = TutorAdvisoryScope.SUBJECT,
+                payloadMarkdown = "误区。",
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.ADVISORY_WRITE,
+                rationale = "缺 payload",
+                advisoryScope = TutorAdvisoryScope.SUBJECT,
+                advisoryKind = TutorAdvisoryKind.TEACHING_FOCUS,
+            )
+        }
+        // payload 超上限（模型工具参数有本地硬上限，不靠 provider 的软约束）。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.ADVISORY_WRITE,
+                rationale = "超长 payload",
+                advisoryScope = TutorAdvisoryScope.SUBJECT,
+                advisoryKind = TutorAdvisoryKind.TEACHING_FOCUS,
+                payloadMarkdown = "长".repeat(TutorToolCall.MAX_ADVISORY_PAYLOAD_CHARS + 1),
+            )
+        }
+        // NODE 必须以代号为目标；PROBLEM/SUBJECT 不接受 terms（模型给了本地又不读 = 静默丢弃）。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.ADVISORY_WRITE,
+                rationale = "NODE 无代号",
+                advisoryScope = TutorAdvisoryScope.NODE,
+                advisoryKind = TutorAdvisoryKind.MISCONCEPTION,
+                payloadMarkdown = "误区。",
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.ADVISORY_WRITE,
+                rationale = "SUBJECT 带 terms",
+                advisoryScope = TutorAdvisoryScope.SUBJECT,
+                advisoryKind = TutorAdvisoryKind.MISCONCEPTION,
+                payloadMarkdown = "误区。",
+                terms = listOf("K1"),
+            )
+        }
+        // 难度档只有"当前题"有读者：其它作用域拒（写了也没人消费 = 假记录）。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.ADVISORY_WRITE,
+                rationale = "科目级难度",
+                advisoryScope = TutorAdvisoryScope.SUBJECT,
+                advisoryKind = TutorAdvisoryKind.DIFFICULTY_TIER,
+                payloadMarkdown = "HARD",
+            )
+        }
+    }
+
+    @Test
+    fun advisoryFieldsAreRejectedOnOtherTools() {
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.MASTERY_UPDATE,
+                rationale = "夹带咨询字段",
+                terms = listOf("K1"),
+                direction = TutorEvidenceDirection.POSITIVE,
+                understanding = TutorUnderstandingTier.CONFIDENT,
+                advisoryScope = TutorAdvisoryScope.SUBJECT,
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.NOTEBOOK_READ,
+                rationale = "夹带 payload",
+                terms = listOf("函数"),
+                payloadMarkdown = "不该在这",
+            )
         }
     }
 }

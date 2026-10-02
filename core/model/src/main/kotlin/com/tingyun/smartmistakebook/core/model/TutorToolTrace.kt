@@ -176,6 +176,7 @@ private fun TutorToolTraceEntry.rowText(): String {
         return when (tool) {
             TutorToolName.NOTEBOOK_WRITE -> "$label · 未保存"
             TutorToolName.MASTERY_UPDATE -> "$label · 未计入掌握度"
+            TutorToolName.ADVISORY_WRITE -> "$label · 未记录"
             else -> "$label · 未执行"
         }
     }
@@ -183,10 +184,12 @@ private fun TutorToolTraceEntry.rowText(): String {
         // 写工具没有"条数"可言：写成/没写过是它唯一的产出。
         TutorToolName.NOTEBOOK_WRITE -> "$label · 已保存"
         TutorToolName.MASTERY_UPDATE -> "$label · 已记录"
+        TutorToolName.ADVISORY_WRITE -> "$label · 已记录"
         // 读工具：条数为 0 = 本轮无可读范围（B4 的中性说法，不给"失败"的读感）。
         TutorToolName.KNOWLEDGE_READ,
         TutorToolName.NOTEBOOK_READ,
         TutorToolName.MASTERY_READ,
+        TutorToolName.ADVISORY_READ,
         -> if ((resultCount ?: 0) > 0) {
             "$label · $resultCount 条"
         } else {
@@ -207,6 +210,8 @@ fun TutorToolName.displayLabel(): String = when (this) {
     TutorToolName.MASTERY_READ -> "掌握情况"
     TutorToolName.NOTEBOOK_WRITE -> "错题本"
     TutorToolName.MASTERY_UPDATE -> "掌握记录"
+    TutorToolName.ADVISORY_READ -> "教学备注"
+    TutorToolName.ADVISORY_WRITE -> "教学备注"
 }
 
 /**

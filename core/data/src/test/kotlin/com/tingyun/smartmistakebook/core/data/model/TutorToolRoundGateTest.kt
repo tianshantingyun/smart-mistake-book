@@ -303,6 +303,93 @@ class TutorToolRoundGateTest {
         assertTrue("编造代号不得触达执行器", ran.isEmpty())
     }
 
+    // ---- D-M M7：咨询工具在轮次门的放行与结构性拒 ----
+
+    @Test
+    fun `advisory tools pass the round gate to the runner in any intent`() = runBlocking {
+        val ran = mutableListOf<TutorToolName>()
+
+        val outcomes = tutorToolRoundOutcomes(
+            calls = listOf(
+                TutorToolCall(
+                    tool = TutorToolName.ADVISORY_READ,
+                    rationale = "回顾本科目教学备注",
+                    advisoryScope = com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope.SUBJECT,
+                ),
+                TutorToolCall(
+                    tool = TutorToolName.ADVISORY_WRITE,
+                    rationale = "学生暴露了一个持续误区",
+                    advisoryScope = com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope.PROBLEM,
+                    advisoryKind = com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind.MISCONCEPTION,
+                    payloadMarkdown = "两边乘负数忘记变号。",
+                ),
+            ),
+            authorizedTools = TUTOR_TOOL_DECLARATIONS,
+            disclosedKnowledgeCodes = emptySet(),
+            runTool = { call, _ -> ran += call.tool; ok(call.tool) },
+            consumeExtendedResult = {},
+        )
+
+        assertEquals(listOf(true, true), outcomes.map { execution -> execution.outcome.ok })
+        assertEquals(
+            listOf(TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE),
+            ran,
+        )
+    }
+
+    @Test
+    fun `an advisory write with a fabricated node code is structurally refused`() = runBlocking {
+        val ran = mutableListOf<TutorToolName>()
+
+        val outcomes = tutorToolRoundOutcomes(
+            calls = listOf(
+                TutorToolCall(
+                    tool = TutorToolName.ADVISORY_WRITE,
+                    rationale = "编造代号的写入",
+                    terms = listOf("K9"),
+                    advisoryScope = com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope.NODE,
+                    advisoryKind = com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind.MISCONCEPTION,
+                    payloadMarkdown = "编造的误区。",
+                ),
+            ),
+            authorizedTools = TUTOR_TOOL_DECLARATIONS,
+            disclosedKnowledgeCodes = disclosed,
+            runTool = { call, _ -> ran += call.tool; ok(call.tool) },
+            consumeExtendedResult = {},
+        )
+
+        assertFalse(outcomes.single().outcome.ok)
+        assertEquals("invalid_knowledge_code", outcomes.single().outcome.errorKind)
+        assertTrue("编造代号不得触达执行器", ran.isEmpty())
+    }
+
+    @Test
+    fun `an advisory node write without disclosed codes reads as no writable target`() = runBlocking {
+        val ran = mutableListOf<TutorToolName>()
+
+        val outcomes = tutorToolRoundOutcomes(
+            calls = listOf(
+                TutorToolCall(
+                    tool = TutorToolName.ADVISORY_WRITE,
+                    rationale = "没有披露集时的节点写入",
+                    terms = listOf("K1"),
+                    advisoryScope = com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope.NODE,
+                    advisoryKind = com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind.TEACHING_FOCUS,
+                    payloadMarkdown = "有效讲法。",
+                ),
+            ),
+            authorizedTools = TUTOR_TOOL_DECLARATIONS,
+            disclosedKnowledgeCodes = emptySet(),
+            runTool = { call, _ -> ran += call.tool; ok(call.tool) },
+            consumeExtendedResult = {},
+        )
+
+        assertTrue("无披露集 = 空范围（不是错误）", outcomes.single().outcome.ok)
+        assertNull(outcomes.single().outcome.errorKind)
+        assertTrue(outcomes.single().outcome.summaryMarkdown.contains("本轮无可写目标"))
+        assertTrue("空范围不得触达执行器", ran.isEmpty())
+    }
+
     @Test
     fun `a lobby round without any disclosed code reads as no writable target`() = runBlocking {
         // 大厅没有科目上下文与预披露节点（映射表不含节点）：白名单为空 = **没有可写的目标**。

@@ -68,34 +68,80 @@ internal class StudySubmissionPreparer(
             learnerId = learnerId,
             presentationId = submission.presentationId,
         )
+        // D-M M2：hintCount > 0 转成 HINT 形态的协助条目。此前 hint 只进 prediction 审计，
+        // `AssessmentSubmissionContext.hintWasUsed` 由 `persistedAssistance` 派生，而提交路径
+        // 只填 ANSWER_REVEAL —— INCORRECT_AFTER_HINT / CORRECT_AFTER_HINT 两档结构性不可达
+        // （三档"答对"里只有独立答对是真的）。hint 的采集（UI）归阶段 5，本处只做非 UI 接线。
+        //
+        // 形态取**一条** HINT 事件（hintCount 是次数，不是逐条内容）：消费者只有
+        // `hintWasUsed` 这一个布尔派生，逐条展开不会多消灭任何一个失败；次数本身仍原样落
+        // `attempt_event.hint_count` 与 prediction 审计，不丢信息。hint 内容没有随提交持久化
+        // （UI 只给计数），故 contentMarkdown 只写事实标记，不编造提示文本。
+        //
+        // 序号：hint 未落库、没有账本序号。合成序号锚在**揭示之后一位**（无揭示则从 1 起），
+        // 使 (a) 与揭示序号不重（AssessmentSubmissionContext 要求序号互异）、(b) 严格小于
+        // 本次的 responseSequence 水位。水位相应上移到"最大协助序号 + 1"；揭示存在时它不小于
+        // 既有的"揭示序号 + 1"下界（真实作答序号 ≥ 揭示序号 + 1 = 下界，见上），因此不引入
+        // 更强的错误断言。评估优先级不变：answerWasRevealed 分支在前，揭示与 hint 同时存在时
+        // 仍由揭示定价（"揭示之后又看到提示"不改变判定）。
+        val hintedAssistanceSequence = if (submission.hintCount > 0) {
+            (revealedBefore?.eventSequence ?: 0L) + 1L
+        } else {
+            null
+        }
+        val assistance = buildList {
+            revealedBefore?.let { fact ->
+                add(
+                    PersistedAssessmentAssistance(
+                        event = AssessmentAssistanceEvent(
+                            eventId = fact.outcomeId,
+                            assessmentItemId = assessmentItem.id,
+                            presentationId = submission.presentationId,
+                            kind = TutorAssistanceKind.ANSWER_REVEAL,
+                            contentMarkdown = facts.explanationMarkdown,
+                            occurredAtEpochMillis = fact.occurredAtEpochMillis,
+                            eventSequence = fact.eventSequence,
+                        ),
+                        // 揭示在本次提交前已经持久化（能读到它本身就是证据），模型契约
+                        // 要求 persistence ≥ occurrence，取提交时刻即真值。
+                        persistedAtEpochMillis = submission.occurredAtEpochMillis,
+                    ),
+                )
+            }
+            hintedAssistanceSequence?.let { hintSequence ->
+                add(
+                    PersistedAssessmentAssistance(
+                        event = AssessmentAssistanceEvent(
+                            // 确定性 id（同一条提交命令重放得到同一个值）：hint 事实的会话内
+                            // 身份来自"哪次提交"本身，用与 submission/attempt 同一套
+                            // stableId 规则派生，不引入随机源。
+                            eventId = writeContext.stableId("assistance-hint", submission.requestId),
+                            assessmentItemId = assessmentItem.id,
+                            presentationId = submission.presentationId,
+                            kind = TutorAssistanceKind.HINT,
+                            contentMarkdown = "本呈现作答前使用过提示（hintCount=${submission.hintCount}）",
+                            // 提示发生的真实时刻没有随提交采集（UI 只有计数），取提交时刻为
+                            // 上界事实，不伪装成更早的精确时间。
+                            occurredAtEpochMillis = submission.occurredAtEpochMillis,
+                            eventSequence = hintSequence,
+                        ),
+                        persistedAtEpochMillis = submission.occurredAtEpochMillis,
+                    ),
+                )
+            }
+        }
+        val responseSequence = hintedAssistanceSequence?.plus(1L)
+            ?: revealedBefore?.let { it.eventSequence + 1 }
+            ?: submission.responseOrdinal.toLong()
         val decision = MasteryEvidencePolicy.evaluate(
             assessmentItem = assessmentItem,
             context = AssessmentSubmissionContext(
                 assessmentItemId = assessmentItem.id,
                 selectedChoiceId = submission.selectedChoiceId,
                 presentationId = submission.presentationId,
-                responseSequence = revealedBefore
-                    ?.let { it.eventSequence + 1 }
-                    ?: submission.responseOrdinal.toLong(),
+                responseSequence = responseSequence,
                 responseOrdinal = submission.responseOrdinal,
-                persistedAssistance = revealedBefore?.let { fact ->
-                    listOf(
-                        PersistedAssessmentAssistance(
-                            event = AssessmentAssistanceEvent(
-                                eventId = fact.outcomeId,
-                                assessmentItemId = assessmentItem.id,
-                                presentationId = submission.presentationId,
-                                kind = TutorAssistanceKind.ANSWER_REVEAL,
-                                contentMarkdown = facts.explanationMarkdown,
-                                occurredAtEpochMillis = fact.occurredAtEpochMillis,
-                                eventSequence = fact.eventSequence,
-                            ),
-                            // 揭示在本次提交前已经持久化（能读到它本身就是证据），模型契约
-                            // 要求 persistence ≥ occurrence，取提交时刻即真值。
-                            persistedAtEpochMillis = submission.occurredAtEpochMillis,
-                        ),
-                    )
-                } ?: emptyList(),
+                persistedAssistance = assistance,
             ),
         )
         // Attention + response-time discount (spec 2.14): switches and

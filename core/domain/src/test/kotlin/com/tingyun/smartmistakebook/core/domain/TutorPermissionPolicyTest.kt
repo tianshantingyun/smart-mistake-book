@@ -32,6 +32,11 @@ class TutorPermissionPolicyTest {
             TutorPermissionTier.ALLOW,
             tiers[TutorPermissionSubject.Tool(TutorToolName.MASTERY_READ)],
         )
+        // D-M M7：咨询读数按读工具档（自动执行、行为可见）。
+        assertEquals(
+            TutorPermissionTier.ALLOW,
+            tiers[TutorPermissionSubject.Tool(TutorToolName.ADVISORY_READ)],
+        )
         assertEquals(
             TutorPermissionTier.ASK,
             tiers[TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_WRITE)],
@@ -39,6 +44,12 @@ class TutorPermissionPolicyTest {
         assertEquals(
             TutorPermissionTier.AUTO_VISIBLE,
             tiers[TutorPermissionSubject.Tool(TutorToolName.MASTERY_UPDATE)],
+        )
+        // D-M M7：咨询写入与 MASTERY_UPDATE 同档——全自动、行为可见、被拒给理由；
+        // "任何轮次"由档位不随上下文翻转保证（不是按轮次分叉）。
+        assertEquals(
+            TutorPermissionTier.AUTO_VISIBLE,
+            tiers[TutorPermissionSubject.Tool(TutorToolName.ADVISORY_WRITE)],
         )
         allActions.forEach { subject ->
             assertEquals("$subject must be an ask-tier object", TutorPermissionTier.ASK, tiers[subject])

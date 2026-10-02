@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.model
 
 import com.tingyun.smartmistakebook.core.data.study.TutorToolExecution
+import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
@@ -25,6 +26,10 @@ import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
  * 输出形态/轮预算按旧裁定不变）；没有科目上下文的边界由 runner 自己失败关闭
  * （no_subject），不在轮次层分叉。被拒的调用**不会**触达 [runTool]。
  *
+ * D-M M7：`ADVISORY_WRITE` 的 **NODE 作用域**走同一条代号白名单（编造代号结构性拒）；
+ * PROBLEM/SUBJECT 作用域不在轮次层判——它们的目标由 runner 从会话/科目上下文解析，
+ * 不经模型给的 id。`ADVISORY_READ` 与其余读工具同路（无结构性拒）。
+ *
  * @param consumeExtendedResult 调用方在"一次扩展结果预算被用掉"时调用；同一轮只放一次。
  */
 internal suspend fun tutorToolRoundOutcomes(
@@ -48,7 +53,7 @@ internal suspend fun tutorToolRoundOutcomes(
             // 无披露集 = **没有可写目标**（K2a）：大厅/无题轮没有代号通道，写工具在这里
             // 如实说"没得写"，而不是报错（报错会让模型下一轮换着法再试，白烧派遣预算）。
             // 非空白名单里对不上的代号仍走结构性拒——那是协议错误（编造 id），不是空范围。
-            call.tool == TutorToolName.MASTERY_UPDATE && disclosedKnowledgeCodes.isEmpty() ->
+            usesDisclosedKnowledgeCode(call) && disclosedKnowledgeCodes.isEmpty() ->
                 TutorToolExecution(
                     TutorToolOutcome(
                         tool = call.tool,
@@ -56,7 +61,7 @@ internal suspend fun tutorToolRoundOutcomes(
                         summaryMarkdown = EMPTY_SCOPE_WRITE_SUMMARY,
                     ),
                 )
-            call.tool == TutorToolName.MASTERY_UPDATE &&
+            usesDisclosedKnowledgeCode(call) &&
                 call.terms.firstOrNull() !in disclosedKnowledgeCodes -> TutorToolExecution(
                 TutorToolOutcome(
                     tool = call.tool,
@@ -76,6 +81,17 @@ internal suspend fun tutorToolRoundOutcomes(
             }
         }
     }
+}
+
+/**
+ * 这次调用是否以**本会话已披露代号**为写目标（白名单的适用范围）：
+ * MASTERY_UPDATE 的 terms[0]，以及 ADVISORY_WRITE 的 NODE 作用域 terms[0]。
+ * ADVISORY_WRITE 的 PROBLEM/SUBJECT 作用域不接受模型给的 id，不走白名单。
+ */
+private fun usesDisclosedKnowledgeCode(call: TutorToolCall): Boolean = when (call.tool) {
+    TutorToolName.MASTERY_UPDATE -> true
+    TutorToolName.ADVISORY_WRITE -> call.advisoryScope == TutorAdvisoryScope.NODE
+    else -> false
 }
 
 /** MASTERY_UPDATE 的代号不在本会话已披露集合：协议层结构性拒（不是门控语义拒）。 */

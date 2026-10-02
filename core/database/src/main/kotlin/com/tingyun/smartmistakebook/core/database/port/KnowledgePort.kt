@@ -223,6 +223,18 @@ interface KnowledgeWritePort {
         subject: String,
         acceptedAtEpochMillis: Long,
     ): PracticeUnitKnowledgeBindingRecord? = null
+
+    /**
+     * 插眼 8（裁决 22 修订二）：只确保本科「未分类」伪节点（`pseudo:<SUBJECT>`）存在——
+     * 无题绑定的场景（会话代号表要披露桶代号）不需要也不应该建 practice-unit 绑定。
+     * 与 [ensurePseudoKnowledgeBinding] **同一个创建实现**（后者复用本方法再建绑定），
+     * 不新增第二条节点创建路径；幂等（已存在原样返回）。节点仍是 MODEL_CANDIDATE，
+     * 不进召回面。
+     */
+    suspend fun ensurePseudoKnowledgeNode(
+        subject: String,
+        atEpochMillis: Long,
+    ): KnowledgeNodeSeedRecord? = null
 }
 
 /**

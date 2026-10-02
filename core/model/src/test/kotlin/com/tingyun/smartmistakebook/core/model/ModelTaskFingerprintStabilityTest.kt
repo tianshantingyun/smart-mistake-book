@@ -1049,4 +1049,130 @@ class ModelTaskFingerprintStabilityTest {
             blocks = listOf(ContentBlock.Paragraph("stem-other", "求另一个函数的单调区间")),
         ),
     )
+
+    // ---- D-M M7：咨询工具进模型输入（toolDeclarations 的新枚举值 + 代号表兜底桶）----
+
+    /**
+     * 铁律 7 的四个必测面（新声明进模型输入的指纹守则）在本批次的具体落点：
+     * 咨询工具不是新**字段**，而是 `toolDeclarations`/`knowledgeCodes` 两个既有载体里的
+     * 新枚举值/新条目——没有空载体键要 strip，但"旧行读回一致 / 新行往返稳定 / 真载体
+     * 参与指纹 / 旧形状仍可校验"四条一个都不能少。
+     */
+    private fun respondWithDeclarations(
+        declarations: List<TutorToolName>,
+        knowledgeCodes: List<TutorKnowledgeCode> = emptyList(),
+    ) = respondInput().copy(
+        toolDeclarations = declarations,
+        knowledgeCodes = knowledgeCodes,
+    )
+
+    private fun legacyFiveToolDeclarations() = listOf(
+        TutorToolName.KNOWLEDGE_READ,
+        TutorToolName.NOTEBOOK_READ,
+        TutorToolName.MASTERY_READ,
+        TutorToolName.MASTERY_UPDATE,
+        TutorToolName.NOTEBOOK_WRITE,
+    )
+
+    @Test
+    fun aRowWrittenBeforeTheAdvisoryToolsStillValidatesAfterUpgrade() {
+        // 面 1：旧行的声明集只有五个核心工具——升级后读回必须逐字稳定（枚举新增值
+        // 不改变旧名字的序列化），指纹按同一份输入可复算。
+        val request = ModelTaskRequest(
+            requestId = "respond:legacy-five-tools",
+            input = respondWithDeclarations(legacyFiveToolDeclarations()),
+            occurredAtEpochMillis = 1_000,
+        )
+        val decoded = ModelTaskCodec.decodeRequest(ModelTaskCodec.encodeRequest(request))
+
+        assertEquals(request, decoded)
+        assertEquals(ModelTaskFingerprint.of(request), ModelTaskFingerprint.of(decoded))
+        assertEquals(
+            legacyFiveToolDeclarations(),
+            (decoded.input as TutorRespondInput).toolDeclarations,
+        )
+    }
+
+    @Test
+    fun theFullAdvisoryToolFaceRoundTripsAndKeepsItsFingerprint() {
+        // 面 2：生产装配的 7 工具面经 codec 往返，声明集与指纹都稳定。
+        val request = ModelTaskRequest(
+            requestId = "respond:seven-tools",
+            input = respondWithDeclarations(TutorToolName.entries.toList()),
+            occurredAtEpochMillis = 1_000,
+        )
+        val decoded = ModelTaskCodec.decodeRequest(ModelTaskCodec.encodeRequest(request))
+
+        assertEquals(request, decoded)
+        assertEquals(ModelTaskFingerprint.of(request), ModelTaskFingerprint.of(decoded))
+        assertEquals(
+            TutorToolName.entries.toList(),
+            (decoded.input as TutorRespondInput).toolDeclarations,
+        )
+    }
+
+    @Test
+    fun aRealAdvisoryDeclarationStillChangesTheOperationFingerprint() {
+        // 面 3：声明集是真实载体（不是空载体）——带不带咨询工具是两次不同的逻辑输入，
+        // 否则"这一轮放开了咨询工具"会重放命中旧请求。
+        assertNotEquals(
+            ModelTaskLogicalOperationFingerprint.of(
+                respondWithDeclarations(legacyFiveToolDeclarations()),
+            ),
+            ModelTaskLogicalOperationFingerprint.of(
+                respondWithDeclarations(legacyFiveToolDeclarations() + TutorToolName.ADVISORY_WRITE),
+            ),
+        )
+    }
+
+    @Test
+    fun theUnclassifiedBucketCodeIsARealCarrierWithItsRoleRoundTripping() {
+        // 面 4：插眼 8 的桶条目进 knowledgeCodes（既有载体里的新**角色**）——往返后角色、
+        // 代号、节点 id 逐字保留；它与"没有桶条目"是不同的逻辑输入（真实载体参与指纹）。
+        val plain = respondWithDeclarations(
+            declarations = legacyFiveToolDeclarations(),
+            knowledgeCodes = listOf(
+                TutorKnowledgeCode(
+                    knowledgeNodeId = "kc-monotonicity",
+                    displayName = "函数单调性",
+                    role = TutorKnowledgeCodeRole.CONFIRMED_BINDING,
+                    code = "K1",
+                ),
+            ),
+        )
+        val withBucket = respondWithDeclarations(
+            declarations = legacyFiveToolDeclarations(),
+            knowledgeCodes = listOf(
+                TutorKnowledgeCode(
+                    knowledgeNodeId = "kc-monotonicity",
+                    displayName = "函数单调性",
+                    role = TutorKnowledgeCodeRole.CONFIRMED_BINDING,
+                    code = "K1",
+                ),
+                TutorKnowledgeCode(
+                    knowledgeNodeId = "pseudo:MATH",
+                    displayName = "未归类知识点",
+                    role = TutorKnowledgeCodeRole.UNCLASSIFIED_BUCKET,
+                    code = "K2",
+                ),
+            ),
+        )
+        val request = ModelTaskRequest(
+            requestId = "respond:bucket-code",
+            input = withBucket,
+            occurredAtEpochMillis = 1_000,
+        )
+        val decoded = ModelTaskCodec.decodeRequest(ModelTaskCodec.encodeRequest(request))
+        val decodedBucket = (decoded.input as TutorRespondInput).knowledgeCodes.last()
+
+        assertEquals(TutorKnowledgeCodeRole.UNCLASSIFIED_BUCKET, decodedBucket.role)
+        assertEquals("pseudo:MATH", decodedBucket.knowledgeNodeId)
+        assertEquals("K2", decodedBucket.code)
+        assertEquals(request, decoded)
+        assertEquals(ModelTaskFingerprint.of(request), ModelTaskFingerprint.of(decoded))
+        assertNotEquals(
+            ModelTaskLogicalOperationFingerprint.of(plain),
+            ModelTaskLogicalOperationFingerprint.of(withBucket),
+        )
+    }
 }

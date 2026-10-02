@@ -1111,3 +1111,21 @@ sha256"一行（同一张 `chapter_map.csv` 本地绿 / CI 红——读数必须
 **Reopen condition.** 对外分发/上架前必须重开（届时按"内容侧标注 + UI 一句说明"的最小形态落）；
 或监管口径/应用分发渠道的要求发生变化时。
 
+## KD-30 (open, 2026-10-03 登记) · native tool_calls 路由不解析 `extendedResult`——MASTERY_READ 的扩展预算只在 json_object 路由生效
+
+**Symptom.** 工具 schema 对模型**两条路由都**广告 `extendedResult`（`OpenAiModelProtocol.kt`
+的声明构建，`TutorToolDescriptions` 也写着"或对单次查询申请扩展预算（extendedResult=true）"），
+但只有 json_object 信封路由解析它（`OpenAiModelResponseParsers.kt:477`）。Route A
+（`OpenAiModelProtocol.kt:602 toTutorToolRequestsOutput`，native `assistant.tool_calls`）
+构造 `TutorToolCall` 时不带该字段（`:628-646` 的实参清单里没有）→ 默认 `false` → 模型经
+native 路由申请扩展预算被**静默丢弃**（`RoomTutorToolRunner.kt:565` 的 budget 分支不触发）。
+哪里真的会发生：provider 走原生 tool_calls 时（`Route A` 分支 `:575`）。
+
+**Disposition（2026-10-03 登记）**：既有缺陷（3B B5 的 diff 未触碰这两处；B5 只在该函数补了
+咨询工具的 scope/kind/payload 三字段）。**不在 3B 范围，登记不修**。最小修法（供将来）：
+Route A 的 `TutorToolCall` 构造补 `extendedResult = arguments.optionalBoolean("extendedResult")
+?: false`（与 Route B 同口径），并补一条"两路由对 extendedResult 同义"的对拍用例。
+
+**Reopen condition.** 下次触碰工具协议（新增工具字段/路由对拍）时顺带修；或出现"模型在 native
+路由申请扩展预算却拿到基础预算"的真实观测时优先修。
+

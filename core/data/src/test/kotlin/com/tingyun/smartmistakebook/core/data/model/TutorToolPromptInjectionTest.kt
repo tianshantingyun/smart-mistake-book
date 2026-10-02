@@ -208,4 +208,58 @@ class TutorToolPromptInjectionTest {
         )
         assertFalse("未声明时不渲染止血行: $prompt", prompt.contains("本轮没有科目上下文"))
     }
+
+    // ---- D-M M7：咨询工具的提示词面 ----
+
+    @Test
+    fun advisoryToolsDeclaredPromptTeachesScopeAndCurationSemantics() {
+        val prompt = OpenAiModelTaskAdapters.prompt(
+            respond(toolDeclarations = listOf(TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)),
+        )
+        // 读侧：作用域与"只回最近若干条"。
+        assertTrue(prompt.contains("ADVISORY_READ"))
+        assertTrue("读侧要教 scope", prompt.contains("scope=NODE"))
+        assertTrue("读侧要教当前题/科目作用域", prompt.contains("scope=PROBLEM") && prompt.contains("scope=SUBJECT"))
+        // 写侧：curate 语义（只写持久共识，不写一次性闲聊）是描述单源的一部分。
+        assertTrue(prompt.contains("ADVISORY_WRITE"))
+        assertTrue("写侧要写清只写持久共识", prompt.contains("只写持久共识"))
+        assertTrue("要挡住一次性闲聊", prompt.contains("一次性闲聊"))
+        assertTrue("要说明稳定键会更新而不是堆积", prompt.contains("不会堆积"))
+        // 三 kind 限枚举与难度 payload 的白名单都写在描述里。
+        assertTrue(prompt.contains("TEACHING_FOCUS"))
+        assertTrue(prompt.contains("MISCONCEPTION"))
+        assertTrue(prompt.contains("DIFFICULTY_TIER"))
+        assertTrue(prompt.contains("EASY/MEDIUM/HARD"))
+    }
+
+    @Test
+    fun advisoryWriteWithoutDeclarationDoesNotTeachItsSemantics() {
+        // 与 MASTERY_UPDATE 同一纪律：未声明 ADVISORY_WRITE 时提示词不得出现它的写侧规范。
+        val prompt = OpenAiModelTaskAdapters.prompt(
+            respond(toolDeclarations = listOf(TutorToolName.ADVISORY_READ)),
+        )
+        assertTrue(prompt.contains("ADVISORY_READ"))
+        assertFalse(prompt.contains("ADVISORY_WRITE"))
+        assertFalse(prompt.contains("只写**跨会话的持久共识**"))
+    }
+
+    @Test
+    fun lobbyPromptNamesTheAdvisoryToolsInTheEmptyScopeWarning() {
+        // D-M M7：两枚咨询工具在大厅同样只有空范围（无科目/无会话），止血行要覆盖它们。
+        val prompt = OpenAiModelTaskAdapters.prompt(
+            lobby(
+                toolDeclarations = listOf(
+                    TutorToolName.KNOWLEDGE_READ,
+                    TutorToolName.NOTEBOOK_READ,
+                    TutorToolName.MASTERY_READ,
+                    TutorToolName.ADVISORY_READ,
+                    TutorToolName.ADVISORY_WRITE,
+                ),
+            ),
+        )
+        assertTrue(
+            "止血行必须点名咨询工具: $prompt",
+            prompt.contains("不要申请 KNOWLEDGE_READ / MASTERY_READ / ADVISORY_READ / ADVISORY_WRITE"),
+        )
+    }
 }

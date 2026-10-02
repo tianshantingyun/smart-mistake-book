@@ -420,19 +420,24 @@ internal object OpenAiModelTaskAdapters {
     /**
      * 大厅止血行（批次 0 条目 5b）：大厅轮**没有科目上下文**（[TutorLobbyInput] 没有科目字段），
      * 而 `KNOWLEDGE_READ` / `MASTERY_READ` 都以科目为范围——现在申请只会拿到「本轮无可读范围」，
-     * 白烧一轮工具环预算（上限 5 轮）。一行最小约束，把这轮注定空转的申请挡在模型侧。
+     * 白烧一轮工具环预算（上限 5 轮）。D-M M7 起两枚咨询工具也在声明面里：它们的节点/科目
+     * 作用域同样需要科目或会话上下文，大厅申请只会拿到空范围（无可读范围/无可写目标）。
+     * 一行最小约束，把这轮注定空转的申请挡在模型侧。
      *
-     * 只在声明里真的含这两个工具时渲染：提示词不得提到本轮未声明的工具（与写工具判定同一纪律）。
+     * 只在声明里真的含这些工具时渲染：提示词不得提到本轮未声明的工具（与写工具判定同一纪律）。
      * 空内容返回空串（空载体不进提示词）。
      */
     private fun lobbySubjectScopeNote(declarations: List<TutorToolName>): String {
         val subjectScoped = declarations.filter { tool ->
-            tool == TutorToolName.KNOWLEDGE_READ || tool == TutorToolName.MASTERY_READ
+            tool == TutorToolName.KNOWLEDGE_READ ||
+                tool == TutorToolName.MASTERY_READ ||
+                tool == TutorToolName.ADVISORY_READ ||
+                tool == TutorToolName.ADVISORY_WRITE
         }
         if (subjectScoped.isEmpty()) return ""
         return "\n本轮没有科目上下文：不要申请 " +
             subjectScoped.joinToString(" / ") { tool -> tool.name } +
-            "；它们需要科目范围，现在申请只会拿到空结果。"
+            "；它们需要科目或会话范围，现在申请只会拿到空结果。"
     }
 
 /**
@@ -564,6 +569,12 @@ private fun requestedLocalActionsBlock(requests: List<TutorLocalActionRequest>):
                         "的返回，绝不编造、绝不用原始 id；本地把代号解析为知识点后才进门，" +
                         "白名单外的代号结构性拒）。NOTEBOOK_WRITE 还要求学生明确命令" +
                         "（explicitActionRequest=true），随后由本地确认。")
+                    if (TutorToolName.ADVISORY_WRITE in declaredWriteTools) {
+                        append("\nADVISORY_WRITE 只写**跨会话的持久共识**（该生典型误区 / 确实有效的讲法 / " +
+                            "这道题的难度判断），一句话一条；一次性闲聊、对学生状态的临时印象、" +
+                            "已经记过的同一件事都不要写。同一目标同一 kind 会**更新**已有记录，" +
+                            "不会堆积——这是给以后讲题用的笔记，不是聊天流水。")
+                    }
                     if (knowledgeCodes.isEmpty()) {
                         append("\n本会话尚未披露任何知识点代号：此时 MASTERY_UPDATE 没有合法 terms，" +
                             "不要申请——先与学生确认科目，或引导学生把具体题目带进会话。")
@@ -665,6 +676,8 @@ private fun requestedLocalActionsBlock(requests: List<TutorLocalActionRequest>):
     }
 }
 
-/** 会落库的两个工具；与 core:domain 的 TUTOR_WRITE_TOOLS 同集合（提示词侧只需判名字）。 */
+/** 会落库的工具；与 core:domain 的 TUTOR_WRITE_TOOLS 同集合（提示词侧只需判名字）。 */
 private fun TutorToolName.isWriteTool(): Boolean =
-    this == TutorToolName.MASTERY_UPDATE || this == TutorToolName.NOTEBOOK_WRITE
+    this == TutorToolName.MASTERY_UPDATE ||
+        this == TutorToolName.NOTEBOOK_WRITE ||
+        this == TutorToolName.ADVISORY_WRITE

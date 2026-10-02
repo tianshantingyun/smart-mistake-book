@@ -1,15 +1,24 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
+import com.tingyun.smartmistakebook.core.database.ProblemDraftRevisionRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
+import com.tingyun.smartmistakebook.core.database.TutorSessionRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
+import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
+import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
+import com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind
+import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
@@ -1268,6 +1277,355 @@ class RoomTutorToolRunnerTest {
         submittedAtEpochMillis = 2_000,
         updatedAtEpochMillis = 2_000,
     )
+
+    // ---- D-M M7：咨询工具（ADVISORY_READ / ADVISORY_WRITE）----
+
+    private fun advisoryWriteCall(
+        scope: TutorAdvisoryScope,
+        kind: TutorAdvisoryKind,
+        payload: String,
+        terms: List<String> = emptyList(),
+    ) = TutorToolCall(
+        tool = TutorToolName.ADVISORY_WRITE,
+        rationale = "学生这次的表述暴露了一个持续误区",
+        terms = terms,
+        advisoryScope = scope,
+        advisoryKind = kind,
+        payloadMarkdown = payload,
+    )
+
+    private fun advisoryReadCall(
+        scope: TutorAdvisoryScope? = null,
+        terms: List<String> = emptyList(),
+    ) = TutorToolCall(
+        tool = TutorToolName.ADVISORY_READ,
+        rationale = "回顾一下本科目的教学备注",
+        terms = terms,
+        advisoryScope = scope,
+    )
+
+    /** 真 Room 的 tutor_session 行（PROBLEM 作用域解析 practice unit 用）。 */
+    private fun tutorSessionRecord(draftId: String) = TutorSessionRecord(
+        sessionId = TUTOR_SESSION_ID,
+        draftId = draftId,
+        draftRevisionNumber = 1,
+        createdAtEpochMillis = 1_000,
+        origin = "CAPTURE",
+        draftStatus = "COMMITTED",
+        confirmedRevision = ProblemDraftRevisionRecord(
+            draftId = draftId,
+            revisionNumber = 1,
+            basisRevisionNumber = null,
+            subject = "MATH",
+            title = "单调性练习",
+            questionDocument = CapturedQuestionDocument(
+                document = QuestionDocument(
+                    id = "question-1",
+                    blocks = listOf(ContentBlock.Paragraph("stem-1", "求函数的单调区间。")),
+                ),
+                blockEvidence = emptyList(),
+            ),
+            documentFingerprint = "fp-draft",
+            author = "STUDENT",
+            createdAtEpochMillis = 1_000,
+        ),
+        sourceAsset = CanonicalSourceAssetRecord(
+            sourceAssetId = "asset-1",
+            contentSha256 = "a".repeat(64),
+            relativePath = "assets/source-1.jpg",
+            mimeType = "image/jpeg",
+            byteSize = 1,
+            width = 1,
+            height = 1,
+            sourceType = "PHOTO",
+            createdAtEpochMillis = 1_000,
+        ),
+        commitReceipt = null,
+    )
+
+    private fun advisoryRow(
+        knowledgeNodeId: String?,
+        practiceUnitId: String?,
+        sourceId: String,
+        kind: String = TeachingAdvisoryRecord.KIND_MISCONCEPTION,
+        payload: String = "乘负数时忘记变号。",
+        createdAtEpochMillis: Long = 5_000,
+    ) = TeachingAdvisoryRecord(
+        advisoryId = "row-${sourceId}-${kind}",
+        learnerId = learnerId,
+        practiceUnitId = practiceUnitId,
+        knowledgeNodeId = knowledgeNodeId,
+        advisoryKind = kind,
+        payloadMarkdown = payload,
+        confidence = null,
+        sourceId = sourceId,
+        createdAtEpochMillis = createdAtEpochMillis,
+    )
+
+    @Test
+    fun advisoryWriteUpsertsByStableKeyForTheCurrentProblem() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-practice-1")
+        val runner = runner(port)
+
+        val first = runner.run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.PROBLEM,
+                kind = TutorAdvisoryKind.MISCONCEPTION,
+                payload = "两边乘负数时忘记变号。",
+            ),
+            sessionContext(),
+        )
+        val second = runner.run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.PROBLEM,
+                kind = TutorAdvisoryKind.MISCONCEPTION,
+                payload = "两边乘负数忘记变号（已补充：仅当乘数为负）。",
+            ),
+            sessionContext(),
+        )
+
+        assertTrue(first.ok)
+        assertTrue(second.ok)
+        // 稳定键 upsert：同一目标同一 kind 只有一行，内容更新而不是堆积。
+        val row = port.teachingAdvisories.single()
+        assertEquals("draft-practice-1", row.practiceUnitId)
+        assertEquals(
+            advisoryToolSourceId(TutorAdvisoryScope.PROBLEM, "draft-practice-1"),
+            row.sourceId,
+        )
+        assertEquals(
+            "两边乘负数忘记变号（已补充：仅当乘数为负）。",
+            row.payloadMarkdown,
+        )
+        assertEquals(TeachingAdvisoryRecord.KIND_MISCONCEPTION, row.advisoryKind)
+    }
+
+    @Test
+    fun advisoryWriteRejectsAFabricatedCodeBeforeAnyWrite() = runBlocking {
+        val port = anchoredPort()
+        val runner = runner(port)
+
+        val outcome = runner.run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.NODE,
+                kind = TutorAdvisoryKind.MISCONCEPTION,
+                payload = "编造代号的写入。",
+                terms = listOf("K9"),
+            ),
+            sessionContext(),
+        )
+
+        assertFalse("编造代号必须结构性拒", outcome.ok)
+        assertEquals("invalid_knowledge_code", outcome.errorKind)
+        assertTrue("被拒的调用不得落任何行", port.teachingAdvisories.isEmpty())
+    }
+
+    @Test
+    fun advisoryWriteValidatesTheDifficultyPayloadEnum() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-practice-2")
+        val runner = runner(port)
+
+        val invalid = runner.run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.PROBLEM,
+                kind = TutorAdvisoryKind.DIFFICULTY_TIER,
+                payload = "有点难",
+            ),
+            sessionContext(),
+        )
+        assertFalse(invalid.ok)
+        assertEquals("invalid_advisory_payload", invalid.errorKind)
+        assertTrue(port.teachingAdvisories.isEmpty())
+
+        val valid = runner.run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.PROBLEM,
+                kind = TutorAdvisoryKind.DIFFICULTY_TIER,
+                payload = "HARD",
+            ),
+            sessionContext(),
+        )
+        assertTrue(valid.ok)
+        val row = port.teachingAdvisories.single()
+        assertEquals(TeachingAdvisoryRecord.KIND_DIFFICULTY_TIER, row.advisoryKind)
+        assertEquals("HARD", row.payloadMarkdown)
+    }
+
+    @Test
+    fun advisoryWriteForANodeLandsOnTheResolvedNodeWithinTheSubject() = runBlocking {
+        val port = anchoredPort()
+        val runner = runner(port)
+
+        val outcome = runner.run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.NODE,
+                kind = TutorAdvisoryKind.TEACHING_FOCUS,
+                payload = "先画数轴再讲区间。",
+                terms = listOf("K1"),
+            ),
+            sessionContext(),
+        )
+
+        assertTrue(outcome.ok)
+        val row = port.teachingAdvisories.single()
+        assertEquals("kc-monotonicity", row.knowledgeNodeId)
+        assertEquals(learnerId, row.learnerId)
+        assertTrue(outcome.summaryMarkdown.contains("函数单调性"))
+        assertFalse("原始 id 不进结果文本（D5）", outcome.summaryMarkdown.contains("kc-monotonicity"))
+    }
+
+    @Test
+    fun advisoryReadReturnsTheScopesRecentNotesWithNodeNames() = runBlocking {
+        val port = anchoredPort()
+        port.teachingAdvisories += advisoryRow(
+            knowledgeNodeId = "kc-monotonicity",
+            practiceUnitId = null,
+            sourceId = "legacy:node-row",
+            payload = "乘负数时忘记变号。",
+        )
+        val runner = runner(port)
+
+        val execution = runner.runTraced(
+            advisoryReadCall(scope = TutorAdvisoryScope.SUBJECT),
+            context(),
+        )
+
+        assertTrue(execution.outcome.ok)
+        assertEquals(1, execution.resultCount)
+        assertTrue(execution.outcome.summaryMarkdown.contains("乘负数时忘记变号。"))
+        assertTrue("节点名回显，不是 id", execution.outcome.summaryMarkdown.contains("函数单调性"))
+        assertFalse(execution.outcome.summaryMarkdown.contains("kc-monotonicity"))
+    }
+
+    @Test
+    fun advisoryReadWithoutASessionOrSubjectReadsAsAnEmptyScope() = runBlocking {
+        val runner = runner(FakeStudyDatabasePort())
+
+        val problem = runner.run(advisoryReadCall(scope = TutorAdvisoryScope.PROBLEM), context())
+        assertTrue("没有当前题 = 空范围（不是失败）", problem.ok)
+        assertTrue(problem.summaryMarkdown.contains("本轮无可读范围"))
+
+        val lobbyContext = context(subject = "", registry = null)
+        val subject = runner.run(advisoryReadCall(scope = TutorAdvisoryScope.SUBJECT), lobbyContext)
+        assertTrue(subject.ok)
+        assertTrue(subject.summaryMarkdown.contains("本轮无可读范围"))
+
+        val writeInLobby = runner.run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.SUBJECT,
+                kind = TutorAdvisoryKind.TEACHING_FOCUS,
+                payload = "无科目上下文的写入。",
+            ),
+            lobbyContext,
+        )
+        assertTrue("无科目 = 无可写目标（K2a）", writeInLobby.ok)
+        assertTrue(writeInLobby.summaryMarkdown.contains("本轮无可写目标"))
+    }
+
+    /**
+     * 插眼 8（裁决 22 修订二）：未分类桶代号可写掌握证据——桶节点经既有 ensure 路径存在
+     * （这里以夹具节点模拟其落库形状），代号在会话注册表里，MASTERY_UPDATE 接受并落账，
+     * 锚定等级为 DISCLOSED（非确认绑定，D9 半权）——桶是罕见兜底落点，不是确认范围。
+     */
+    @Test
+    fun masteryUpdateLandsOnTheUnclassifiedBucketCode() = runBlocking {
+        val port = anchoredPort().apply {
+            knowledgeNodes += unclassifiedBucketNode()
+            tutorMessages += studentMessage("这个知识点我想不出对应哪一类")
+        }
+
+        val outcome = runner(port).run(
+            masteryCall(
+                rationale = "学生说\"这个知识点我想不出对应哪一类\"。",
+                understanding = TutorUnderstandingTier.CONFIDENT,
+                terms = "K2",
+            ),
+            sessionContext(registry = registryWithUnclassifiedBucket()),
+        )
+
+        assertTrue("桶代号是合法固定 id（裁决 22）：证据可落桶", outcome.ok)
+        val evidence = port.recordedChatEvidence.single { row ->
+            row.knowledge_node_id == "pseudo:MATH"
+        }
+        assertEquals(
+            "兜底桶不是确认绑定，按 DISCLOSED 半权落账",
+            "DISCLOSED",
+            evidence.anchor_class,
+        )
+    }
+
+    /**
+     * 插眼 8 的咨询半边：ADVISORY_WRITE 以 NODE＝未分类桶代号写入——桶节点存在且属本科目，
+     * 作用域校验通过，咨询行落到 `pseudo:MATH`（稳定键 source 指向桶节点）。
+     */
+    @Test
+    fun advisoryWriteLandsOnTheUnclassifiedBucketCode() = runBlocking {
+        val port = anchoredPort().apply {
+            knowledgeNodes += unclassifiedBucketNode()
+        }
+
+        val outcome = runner(port).run(
+            advisoryWriteCall(
+                scope = TutorAdvisoryScope.NODE,
+                kind = TutorAdvisoryKind.MISCONCEPTION,
+                payload = "这个学生把\"未归类\"也当成一个知识点了，需要引导回真实知识点。",
+                terms = listOf("K2"),
+            ),
+            sessionContext(registry = registryWithUnclassifiedBucket()),
+        )
+
+        assertTrue("桶代号是合法固定 id：咨询行可落桶", outcome.ok)
+        val row = port.teachingAdvisories.single()
+        assertEquals("pseudo:MATH", row.knowledgeNodeId)
+        assertEquals(
+            "这个学生把\"未归类\"也当成一个知识点了，需要引导回真实知识点。",
+            row.payloadMarkdown,
+        )
+        assertEquals(
+            advisoryToolSourceId(TutorAdvisoryScope.NODE, "pseudo:MATH"),
+            row.sourceId,
+        )
+        assertEquals(TeachingAdvisoryRecord.KIND_MISCONCEPTION, row.advisoryKind)
+        assertTrue(outcome.summaryMarkdown.contains("未归类知识点"))
+        assertFalse("原始 id 不进结果文本（D5）", outcome.summaryMarkdown.contains("pseudo:MATH"))
+    }
+
+    /** 桶节点的落库形状（ensurePseudoKnowledgeNode 的产物：MODEL_CANDIDATE，不进召回面）。 */
+    private fun unclassifiedBucketNode() = KnowledgeNodeSeedRecord(
+        knowledgeNodeId = "pseudo:MATH",
+        stableCode = "pseudo:MATH",
+        subject = "MATH",
+        displayName = "未归类知识点",
+        parentKnowledgeNodeId = null,
+        taxonomyVersion = "pseudo-node-v1",
+        createdAtEpochMillis = 1_000,
+        canonicalName = "",
+        nodeKind = "TOPIC",
+        granularity = "TOPIC",
+        verificationStatus = "MODEL_CANDIDATE",
+    )
+
+    /** K1 = 确认绑定、K2 = 未分类桶（插眼 8 的会话代号表形状）。 */
+    private fun registryWithUnclassifiedBucket() = TutorKnowledgeCodeRegistry().apply {
+        adopt(
+            listOf(
+                TutorKnowledgeCode(
+                    knowledgeNodeId = "kc-monotonicity",
+                    displayName = "函数单调性",
+                    role = TutorKnowledgeCodeRole.CONFIRMED_BINDING,
+                ),
+            ),
+        )
+        assign(
+            TutorKnowledgeCode(
+                knowledgeNodeId = "pseudo:MATH",
+                displayName = "未归类知识点",
+                role = TutorKnowledgeCodeRole.UNCLASSIFIED_BUCKET,
+            ),
+        )
+    }
 
     private companion object {
         const val TUTOR_SESSION_ID = "tutor-session-1"

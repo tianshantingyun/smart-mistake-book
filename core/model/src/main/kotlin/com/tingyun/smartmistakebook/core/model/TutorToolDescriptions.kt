@@ -38,6 +38,21 @@ fun TutorToolName.purposeDescription(): String = when (this) {
             "（引文锚底线：POSITIVE≥1 条、MASTERED≥2 条，本地逐条比对，编造引文不算证据）。" +
             "判断必须基于学生在本对话中表现出的可观察行为，不得凭学生口头声称或你的整体印象；" +
             "学生说\"我懂了\"不算掌握证据，只能当作待验证的线索。"
+    TutorToolName.ADVISORY_READ ->
+        "读取该学生的教学咨询记录（本会话科目的典型误区/有效讲法/难度判断；只读文本记录，" +
+            "不含错题条目与掌握数值）。作用域三选一：scope=NODE 时 terms[0] 填本会话已披露的" +
+            "知识点代号（K1..Kn，绝不编造代号、绝不用原始 id）；scope=PROBLEM 读当前这道题的记录；" +
+            "scope=SUBJECT 读本科目记录；省略 scope 时 terms 空＝本科目、terms 非空＝按知识点代号。" +
+            "只返回最近若干条（本地有上限，超出预算会截断并注明）。"
+    TutorToolName.ADVISORY_WRITE ->
+        "写入一条教学咨询（该生典型误区/有效讲法/这道题的难度判断），供以后讲题参考。" +
+            "只写持久共识：值得跨会话保留的典型误区或确实有效的讲法；一次性闲聊、" +
+            "对学生状态的临时印象、重复已有记录都不写；同一目标同一 kind 会**更新**已有记录，" +
+            "不会堆积。scope 必填且三选一：NODE（terms[0]＝本会话已披露知识点代号，须真实存在）、" +
+            "PROBLEM（当前这道题）、SUBJECT（本科目）；kind∈{TEACHING_FOCUS,MISCONCEPTION," +
+            "DIFFICULTY_TIER}，DIFFICULTY_TIER 的 payload 只能是 EASY/MEDIUM/HARD 且只能用" +
+            "PROBLEM 作用域；payload 是一条简短共识（上限 " +
+            "${TutorToolCall.MAX_ADVISORY_PAYLOAD_CHARS} 字符）。"
 }
 
 /** 原生 function schema 用的短描述（与 [purposeDescription] 同一来源，措辞收紧）。 */
@@ -52,4 +67,10 @@ fun TutorToolName.nativePurposeDescription(): String = when (this) {
         "提交一条学习证据（terms[0]＝本会话已披露知识点的代号；模型判 direction/understanding/confidence，" +
             "权重与门控本地定）"
     TutorToolName.NOTEBOOK_WRITE -> "写入错题本（需学生明确命令，随后由本地确认）"
+    TutorToolName.ADVISORY_READ ->
+        "读取该学生的教学咨询记录（本会话科目的典型误区/有效讲法/难度判断；scope＝NODE 配代号、" +
+            "PROBLEM 读当前题、SUBJECT 读本科目；只回最近若干条）"
+    TutorToolName.ADVISORY_WRITE ->
+        "写入一条教学咨询（只写跨会话的持久共识，不写一次性闲聊；scope/kinds 本地限枚举，" +
+            "同一目标同一 kind 更新已有记录、不堆积）"
 }

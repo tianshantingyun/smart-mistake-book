@@ -158,6 +158,84 @@ class OpenAiNativeToolsProtocolTest {
         assertFalse(body.contains("\"tools\""))
     }
 
+    // ---- D-M M7：咨询工具的原生 schema 与解析 ----
+
+    /** 请求体里某个 function 块的文本：从它的 name 起，到下一个函数的 name（或结尾）为止。 */
+    private fun functionBlock(body: String, name: String): String {
+        val rest = body.substringAfter("\"name\":\"$name\"", missingDelimiterValue = "")
+        val next = rest.indexOf("\"name\":\"")
+        return if (next >= 0) rest.substring(0, next) else rest
+    }
+
+    @Test
+    fun advisoryWriteSchemaCarriesScopeKindEnumsAndThePayloadBound() {
+        val input = respondInput().copy(
+            toolDeclarations = listOf(
+                TutorToolName.ADVISORY_READ,
+                TutorToolName.ADVISORY_WRITE,
+            ),
+        )
+        val body = OpenAiModelProtocol.requestBody(
+            modelId = "test-model",
+            input = input,
+            images = emptyList(),
+            enableNativeTools = true,
+        )
+
+        val writeBlock = functionBlock(body, "ADVISORY_WRITE")
+        assertTrue("ADVISORY_WRITE schema 必须在请求体里", writeBlock.isNotEmpty())
+        // 三 kind 限枚举（约束解码白名单）。
+        assertTrue("kind 枚举必须进 schema：$writeBlock", writeBlock.contains("\"TEACHING_FOCUS\""))
+        assertTrue(writeBlock.contains("\"MISCONCEPTION\""))
+        assertTrue(writeBlock.contains("\"DIFFICULTY_TIER\""))
+        // scope 三选一。
+        assertTrue(writeBlock.contains("\"NODE\""))
+        assertTrue(writeBlock.contains("\"PROBLEM\""))
+        assertTrue(writeBlock.contains("\"SUBJECT\""))
+        // payload 上限进 schema（本地仍兜底校验）。
+        assertTrue(
+            "payload 上限必须进 schema：$writeBlock",
+            writeBlock.contains(
+                "\"maxLength\":${com.tingyun.smartmistakebook.core.model.TutorToolCall.MAX_ADVISORY_PAYLOAD_CHARS}",
+            ),
+        )
+        val required = Regex("\"required\":\\[([^\\]]*)\\]").find(writeBlock)?.groupValues?.get(1)
+            ?: throw AssertionError("ADVISORY_WRITE schema 无 required 数组")
+        assertTrue(required.contains("\"advisoryScope\""))
+        assertTrue(required.contains("\"advisoryKind\""))
+        assertTrue(required.contains("\"payloadMarkdown\""))
+
+        val readBlock = functionBlock(body, "ADVISORY_READ")
+        assertTrue("读侧必须有 scope 枚举：$readBlock", readBlock.contains("\"advisoryScope\""))
+        assertFalse("读侧不得携带写字段", readBlock.contains("\"payloadMarkdown\""))
+    }
+
+    @Test
+    fun nativeAdvisoryWriteCallParsesScopeKindAndPayload() {
+        val envelope = toolCallEnvelope(
+            """
+            {"role":"assistant","content":null,
+             "tool_calls":[{"id":"call_adv","type":"function",
+               "function":{"name":"ADVISORY_WRITE",
+                 "arguments":"{\"terms\":[\"K1\"],\"rationale\":\"学生暴露了持续误区\",\"advisoryScope\":\"NODE\",\"advisoryKind\":\"MISCONCEPTION\",\"payloadMarkdown\":\"乘负数时忘记变号。\"}"}}]}
+            """.trimIndent(),
+        )
+        val output = OpenAiModelProtocol.parseResponse(
+            responseBody = envelope,
+            input = respondInput(),
+            modelVersion = "test-model-v1",
+        ) as TutorToolRequestsOutput
+
+        val call = output.calls.single()
+        assertEquals(TutorToolName.ADVISORY_WRITE, call.tool)
+        assertEquals(com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope.NODE, call.advisoryScope)
+        assertEquals(
+            com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind.MISCONCEPTION,
+            call.advisoryKind,
+        )
+        assertEquals("乘负数时忘记变号。", call.payloadMarkdown)
+    }
+
     @Test
     fun nativeToolCallsResponseParsesToToolRequestsOutput() {
         val envelope = toolCallEnvelope(

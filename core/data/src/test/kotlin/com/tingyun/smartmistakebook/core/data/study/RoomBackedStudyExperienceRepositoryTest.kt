@@ -601,6 +601,156 @@ class RoomBackedStudyExperienceRepositoryTest {
     }
 
     /**
+     * D-M M2 端到端：hintCount > 0 必须在**证据定价**里可见（不只进 prediction 审计）。
+     * 此前 HINT 形态在提交路径结构性不可达，答对永远算独立答对——这里钉住正确的定价。
+     */
+    @Test
+    fun `a hinted correct response is priced as correct-after-hint`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        val startedAt = Instant.parse("2026-01-02T08:05:00Z").toEpochMilli()
+
+        try {
+            repository.initialize()
+            val started = requireNotNull(
+                repository.startOrResumeReviewSession("hint-correct-start", startedAt),
+            )
+            val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
+            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
+                .assessmentItems.single()
+
+            val submitted = repository.submitReviewChoice(
+                sessionId = started.sessionId,
+                expectedStateVersion = started.stateVersion,
+                submission = StudyChoiceSubmission(
+                    requestId = "hint-correct-choice",
+                    presentationId = "review-presentation:hint-correct",
+                    practiceUnitId = practiceUnitId,
+                    selectedChoiceId = item.correctChoiceId,
+                    responseOrdinal = 1,
+                    durationSeconds = 12,
+                    occurredAtEpochMillis = startedAt + 1,
+                    hintCount = 1,
+                ),
+            )
+
+            assertTrue(submitted.attempt.created)
+            assertTrue(submitted.attempt.isCorrect)
+            assertEquals(
+                "有提示的答对 = CORRECT_AFTER_HINT（不是独立答对）",
+                LearningEvidenceReason.CORRECT_AFTER_HINT,
+                submitted.attempt.evidenceReason,
+            )
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /** D-M M2 端到端（负向半边）：有提示的答错 = INCORRECT_AFTER_HINT。 */
+    @Test
+    fun `a hinted incorrect response is priced as incorrect-after-hint`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        val startedAt = Instant.parse("2026-01-02T08:05:00Z").toEpochMilli()
+
+        try {
+            repository.initialize()
+            val started = requireNotNull(
+                repository.startOrResumeReviewSession("hint-wrong-start", startedAt),
+            )
+            val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
+            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
+                .assessmentItems.single()
+
+            val submitted = repository.submitReviewChoice(
+                sessionId = started.sessionId,
+                expectedStateVersion = started.stateVersion,
+                submission = StudyChoiceSubmission(
+                    requestId = "hint-wrong-choice",
+                    presentationId = "review-presentation:hint-wrong",
+                    practiceUnitId = practiceUnitId,
+                    selectedChoiceId = item.choices.first { it.id != item.correctChoiceId }.id,
+                    responseOrdinal = 1,
+                    durationSeconds = 12,
+                    occurredAtEpochMillis = startedAt + 1,
+                    hintCount = 1,
+                ),
+            )
+
+            assertTrue(submitted.attempt.created)
+            assertFalse(submitted.attempt.isCorrect)
+            assertEquals(
+                "有提示的答错 = INCORRECT_AFTER_HINT",
+                LearningEvidenceReason.INCORRECT_AFTER_HINT,
+                submitted.attempt.evidenceReason,
+            )
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /**
+     * D-M M2 组合语义：揭示与提示同时存在时，判定优先级不被改写——揭示支配
+     * （EXCLUDED / ANSWER_REVEALED），提示只作为已发生的协助事实被记录。
+     */
+    @Test
+    fun `a hinted response after the reveal stays priced by the reveal`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        val startedAt = Instant.parse("2026-01-02T08:05:00Z").toEpochMilli()
+
+        try {
+            repository.initialize()
+            val started = requireNotNull(
+                repository.startOrResumeReviewSession("hint-reveal-start", startedAt),
+            )
+            val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
+            val presentationId = "review-presentation:hint-reveal"
+            repository.revealAnswer(
+                StudyAnswerRevealRequest(
+                    requestId = "hint-reveal-request",
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    occurredAtEpochMillis = startedAt,
+                ),
+            )
+            val item = requireNotNull(repository.teachingArtifact(practiceUnitId))
+                .assessmentItems.single()
+
+            val submitted = repository.submitReviewChoice(
+                sessionId = started.sessionId,
+                expectedStateVersion = started.stateVersion,
+                submission = StudyChoiceSubmission(
+                    requestId = "hint-reveal-choice",
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    selectedChoiceId = item.correctChoiceId,
+                    responseOrdinal = 1,
+                    durationSeconds = 12,
+                    occurredAtEpochMillis = startedAt + 1,
+                    hintCount = 1,
+                ),
+            )
+
+            assertTrue(submitted.attempt.created)
+            assertTrue(submitted.attempt.isCorrect)
+            assertEquals(
+                "揭示支配：提示同时存在也不改判 ANSWER_REVEALED",
+                LearningEvidenceReason.ANSWER_REVEALED,
+                submitted.attempt.evidenceReason,
+            )
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /**
      * W1-3/KF-02 + W1-5/KF-06 + 裁决 1(B)：走**真 revealAnswer 链**落揭示（本用例同时钉住
      * 揭示行自己的 review_log 落 `REVEAL` 档——审查发现该落库值此前无任何测试），随后的
      * 提交必须被定价为揭示后：policy 判 EXCLUDED（w=0），review_log 落账本里权威化的那份
@@ -2085,7 +2235,10 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         asset: com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord,
     ): Boolean = error("Capture is outside this study-repository fake")
 
-    override suspend fun readTutorSession(sessionId: String): TutorSessionRecord? = null
+    /** D-M M7：咨询工具的"当前题"作用域要用它解析 practice unit（默认无会话 → 空范围）。 */
+    val tutorSessions = mutableMapOf<String, TutorSessionRecord>()
+
+    override suspend fun readTutorSession(sessionId: String): TutorSessionRecord? = tutorSessions[sessionId]
 
     override suspend fun readTutorMessageSourceAssets(
         messageIds: List<String>,
@@ -2785,6 +2938,37 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
                 (practiceUnitId == null || it.practiceUnitId == practiceUnitId)
         },
     )
+
+    /**
+     * D-M M7 咨询工具读口：按节点/题/科目三个可选过滤 + 条数上限（最近优先），
+     * 与真 Room 的 SQL 同义。科目过滤认两种来路：科目行 source_id、节点所属科目
+     * （节点从 [knowledgeNodes] 夹具解析）。
+     */
+    override suspend fun readTeachingAdvisoriesForTool(
+        learnerId: String,
+        knowledgeNodeId: String?,
+        practiceUnitId: String?,
+        subject: String?,
+        subjectSourceId: String?,
+        limit: Int,
+    ): List<TeachingAdvisoryRecord> = teachingAdvisories
+        .filter { row ->
+            row.learnerId == learnerId &&
+                (knowledgeNodeId == null || row.knowledgeNodeId == knowledgeNodeId) &&
+                (practiceUnitId == null || row.practiceUnitId == practiceUnitId) &&
+                (
+                    subject == null ||
+                        row.sourceId == subjectSourceId ||
+                        knowledgeNodes.any { node ->
+                            node.knowledgeNodeId == row.knowledgeNodeId && node.subject == subject
+                        }
+                    )
+        }
+        .sortedWith(
+            compareByDescending<TeachingAdvisoryRecord> { row -> row.createdAtEpochMillis }
+                .thenBy { row -> row.advisoryId },
+        )
+        .take(limit)
 
     override suspend fun recordReviewLogEntries(entries: List<ReviewLogEntry>) {
         reviewLogEntries += entries

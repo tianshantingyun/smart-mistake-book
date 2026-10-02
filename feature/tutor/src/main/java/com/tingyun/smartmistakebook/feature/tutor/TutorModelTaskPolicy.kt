@@ -494,6 +494,9 @@ internal fun buildTutorRespondRequest(
             TutorToolName.MASTERY_READ,
             TutorToolName.MASTERY_UPDATE,
             TutorToolName.NOTEBOOK_WRITE,
+            // D-M M7：两枚咨询工具在统一工具面里（与 TUTOR_TOOL_DECLARATIONS 同集合）。
+            TutorToolName.ADVISORY_READ,
+            TutorToolName.ADVISORY_WRITE,
         ),
         boundQuestionCandidates = boundQuestionCandidates,
         knownRoundQuestion = knownRoundQuestion,

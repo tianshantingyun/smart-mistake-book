@@ -17,6 +17,10 @@ import com.tingyun.smartmistakebook.core.domain.tutorSessionObjectiveRecord
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
 import com.tingyun.smartmistakebook.core.model.KnowledgeAnchorClass
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
+import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
+import com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind
+import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
+import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceRecency
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
@@ -192,6 +196,8 @@ internal class RoomTutorToolRunner(
             TutorToolName.MASTERY_READ -> masteryRead(call, context, context.allowsExtendedResult)
             TutorToolName.MASTERY_UPDATE -> masteryUpdate(call, context)
             TutorToolName.NOTEBOOK_WRITE -> notebookWrite(context)
+            TutorToolName.ADVISORY_READ -> advisoryRead(call, context)
+            TutorToolName.ADVISORY_WRITE -> advisoryWrite(call, context)
         }
     } catch (cancelled: CancellationException) {
         throw cancelled
@@ -885,6 +891,295 @@ internal class RoomTutorToolRunner(
     }
 
     /**
+     * D-M M7：咨询工具的**读侧**（ADVISORY_READ）——按节点/题/科目取最近 N 条。
+     *
+     * 三个作用域与写侧同一套解析（见 [advisoryWrite]）：NODE = terms[0] 代号（D5：只收
+     * 代号，原始 id 永不进工具参数）；PROBLEM = 本会话当前题（practice unit 由会话记录解析，
+     * 不接受模型给的 id）；SUBJECT = 本会话科目。科目是**披露边界**而非便利过滤：没有科目
+     * 上下文（大厅）时是空范围，不是"读全库"。
+     *
+     * 产出形态与其它读工具一致：ok=true 的 markdown 摘要（含条数），失败一律空范围/错误
+     * 结果而不是异常；[TutorToolExecution.resultCount] 供痕迹那行小字用。
+     */
+    private suspend fun advisoryRead(call: TutorToolCall, context: Context): TutorToolExecution {
+        val scope = call.advisoryScope
+            ?: if (call.terms.isEmpty()) TutorAdvisoryScope.SUBJECT else TutorAdvisoryScope.NODE
+        val subject = context.subject?.takeIf(String::isNotBlank)
+        val target: AdvisoryReadTarget = when (scope) {
+            TutorAdvisoryScope.NODE -> {
+                val codeTerm = call.terms.firstOrNull().orEmpty()
+                val registry = context.knowledgeCodeRegistry
+                    ?: return emptyScopeRead(call.tool, "这个知识点的教学备注")
+                val resolved = registry.resolve(codeTerm)
+                    ?: return TutorToolExecution(
+                        TutorToolOutcome(
+                            tool = call.tool,
+                            ok = false,
+                            summaryMarkdown = "该代号不在本会话已披露的知识点中，未执行。",
+                            errorKind = INVALID_KNOWLEDGE_CODE,
+                        ),
+                    )
+                if (subject == null) {
+                    return emptyScopeRead(call.tool, "这个知识点的教学备注")
+                }
+                AdvisoryReadTarget(
+                    knowledgeNodeId = resolved.knowledgeNodeId,
+                    practiceUnitId = null,
+                    subject = subject,
+                    subjectSourceId = null,
+                    nodeLabel = resolved.displayName,
+                )
+            }
+
+            TutorAdvisoryScope.PROBLEM -> {
+                val practiceUnitId = currentAdvisoryPracticeUnitId(context)
+                    ?: return emptyScopeRead(call.tool, "这道题的教学备注")
+                AdvisoryReadTarget(
+                    knowledgeNodeId = null,
+                    practiceUnitId = practiceUnitId,
+                    subject = null,
+                    subjectSourceId = null,
+                    nodeLabel = ADVISORY_PROBLEM_LABEL,
+                )
+            }
+
+            TutorAdvisoryScope.SUBJECT -> {
+                subject ?: return emptyScopeRead(call.tool, "本科目的教学备注")
+                AdvisoryReadTarget(
+                    knowledgeNodeId = null,
+                    practiceUnitId = null,
+                    subject = subject,
+                    subjectSourceId = advisoryToolSourceId(TutorAdvisoryScope.SUBJECT, subject),
+                    nodeLabel = ADVISORY_SUBJECT_LABEL,
+                )
+            }
+        }
+        val rows = port.readTeachingAdvisoriesForTool(
+            learnerId = context.learnerId,
+            knowledgeNodeId = target.knowledgeNodeId,
+            practiceUnitId = target.practiceUnitId,
+            subject = target.subject,
+            subjectSourceId = target.subjectSourceId,
+            limit = ADVISORY_READ_LIMIT,
+        )
+        if (rows.isEmpty()) {
+            return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = call.tool,
+                    ok = true,
+                    summaryMarkdown = "还没有${target.nodeLabel}的教学备注。",
+                ),
+                resultCount = 0,
+            )
+        }
+        // 节点名回显：行上挂着节点时用名称而不是 id（原始 id 不进结果文本，D5 契约）。
+        val nodeNames = port.readKnowledgeNodesByIds(
+            rows.mapNotNullTo(linkedSetOf()) { row -> row.knowledgeNodeId },
+        ).associate { node -> node.knowledgeNodeId to node.displayName }
+        val now = System.currentTimeMillis()
+        val body = BudgetedLines(TutorToolOutcome.MAX_TOOL_RESULT_CHARS - TRUNCATION_NOTE_RESERVE_CHARS)
+        body.add("教学备注 ${rows.size} 条（最近优先，${advisoryScopeLabel(scope)}）：")
+        rows.forEachIndexed { index, row ->
+            val label = row.knowledgeNodeId?.let(nodeNames::get)
+                ?: if (row.practiceUnitId != null) ADVISORY_PROBLEM_LABEL else target.nodeLabel
+            val kind = advisoryKindLabel(row.advisoryKind)
+            val payload = row.payloadMarkdown.take(ADVISORY_READ_PAYLOAD_DIGEST_CHARS)
+            body.add(
+                "${index + 1}. [$kind] $label：$payload" +
+                    "（${TutorEvidenceRecency.of(row.createdAtEpochMillis, now)}）",
+            )
+        }
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = call.tool,
+                ok = true,
+                summaryMarkdown = body.render(
+                    truncationNote = "已截断：另有 ${body.droppedCount} 条未显示。" +
+                        "可用更具体的作用域（节点代号或当前题）收窄查询。",
+                ),
+            ),
+            resultCount = rows.size,
+        )
+    }
+
+    /**
+     * D-M M7：咨询工具的**写侧**（ADVISORY_WRITE）——三 kind 限枚举 + 作用域校验 + 稳定键 upsert。
+     *
+     * "每一参数都校验"（Anthropic《Memory tool》官方口径，计划 §2.3）：kind 是 enum（另在协议
+     * 层约束解码）；scope 三选一且各自的目标必须由本地解析——NODE 收代号并核对节点**真实存在
+     * 且属于本会话科目**（复用既有 `readKnowledgeNodesByIds` 读口，与证据写入口同一条锚定
+     * 判据）；PROBLEM/SUBJECT 的目标来自会话上下文，模型给的 id 一律不接受；payload 有上限，
+     * DIFFICULTY_TIER 另限 EASY/MEDIUM/HARD。任一不过 = 结构性拒（模型拿到原因，本地什么都没写）。
+     *
+     * 稳定键 upsert：source_id 由"作用域 + 目标"确定性派生，命中
+     * `(learner_id, source_id, advisory_kind)` 唯一索引即更新旧行——同一条共识反复写不会堆积
+     * （curate 语义的存储半边）。
+     */
+    private suspend fun advisoryWrite(call: TutorToolCall, context: Context): TutorToolExecution {
+        val scope = requireNotNull(call.advisoryScope) { "ADVISORY_WRITE scope is contract-enforced" }
+        val kind = requireNotNull(call.advisoryKind) { "ADVISORY_WRITE kind is contract-enforced" }
+        val payload = requireNotNull(call.payloadMarkdown) {
+            "ADVISORY_WRITE payload is contract-enforced"
+        }.trim()
+        if (kind == TutorAdvisoryKind.DIFFICULTY_TIER) {
+            // 难度档的消费方（StudyReviewPlannerService）按 TutorDifficultyTier 解析 payload；
+            // 自由文本会被静默忽略——那正是"写了但没人读得懂"的假记录，挡在校验层。
+            val tier = runCatching { TutorDifficultyTier.valueOf(payload) }.getOrNull()
+                ?: return TutorToolExecution(
+                    TutorToolOutcome(
+                        tool = call.tool,
+                        ok = false,
+                        summaryMarkdown = "难度备注的 payload 只能是 EASY、MEDIUM 或 HARD，未执行。",
+                        errorKind = INVALID_ADVISORY_PAYLOAD,
+                    ),
+                )
+            // 复用本地枚举的落库名（与既有 DIFFICULTY_TIER 写通道同一形状）。
+            return recordAdvisory(
+                call = call,
+                context = context,
+                scope = scope,
+                kind = kind,
+                payload = tier.name,
+            )
+        }
+        return recordAdvisory(
+            call = call,
+            context = context,
+            scope = scope,
+            kind = kind,
+            payload = payload,
+        )
+    }
+
+    /** 解析写/读目标之后的一次落库（upsert）。 */
+    private suspend fun recordAdvisory(
+        call: TutorToolCall,
+        context: Context,
+        scope: TutorAdvisoryScope,
+        kind: TutorAdvisoryKind,
+        payload: String,
+    ): TutorToolExecution {
+        val subject = context.subject?.takeIf(String::isNotBlank)
+        val target: AdvisoryTarget = when (scope) {
+            TutorAdvisoryScope.NODE -> {
+                if (subject == null) {
+                    return emptyScopeWrite(call.tool, ADVISORY_EMPTY_REASON_NO_SUBJECT)
+                }
+                val registry = context.knowledgeCodeRegistry
+                    ?: return emptyScopeWrite(call.tool, ADVISORY_EMPTY_REASON_NO_CODE)
+                val resolved = registry.resolve(call.terms.firstOrNull().orEmpty())
+                    ?: return TutorToolExecution(
+                        TutorToolOutcome(
+                            tool = call.tool,
+                            ok = false,
+                            summaryMarkdown = "该代号不在本会话已披露的知识点中，未执行。",
+                            errorKind = INVALID_KNOWLEDGE_CODE,
+                        ),
+                    )
+                val node = port.readKnowledgeNodesByIds(setOf(resolved.knowledgeNodeId)).firstOrNull()
+                if (node == null || node.subject != subject) {
+                    // 节点不存在或不属于本会话科目：编造/越界的代号没有合法目标（与
+                    // KnowledgeEvidenceWriter 的锚定判据同一精神）。
+                    return TutorToolExecution(
+                        TutorToolOutcome(
+                            tool = call.tool,
+                            ok = false,
+                            summaryMarkdown = "该代号对应的知识点不存在或不在本会话科目内，未执行。",
+                            errorKind = INVALID_KNOWLEDGE_CODE,
+                        ),
+                    )
+                }
+                AdvisoryTarget(
+                    knowledgeNodeId = node.knowledgeNodeId,
+                    practiceUnitId = null,
+                    sourceId = advisoryToolSourceId(scope, node.knowledgeNodeId),
+                    label = "${resolved.code}「${node.displayName}」",
+                )
+            }
+
+            TutorAdvisoryScope.PROBLEM -> {
+                val practiceUnitId = currentAdvisoryPracticeUnitId(context)
+                    ?: return emptyScopeWrite(call.tool, ADVISORY_EMPTY_REASON_NO_QUESTION)
+                AdvisoryTarget(
+                    knowledgeNodeId = null,
+                    practiceUnitId = practiceUnitId,
+                    sourceId = advisoryToolSourceId(scope, practiceUnitId),
+                    label = ADVISORY_PROBLEM_LABEL,
+                )
+            }
+
+            TutorAdvisoryScope.SUBJECT -> {
+                subject ?: return emptyScopeWrite(call.tool, ADVISORY_EMPTY_REASON_NO_SUBJECT)
+                AdvisoryTarget(
+                    knowledgeNodeId = null,
+                    practiceUnitId = null,
+                    sourceId = advisoryToolSourceId(scope, subject),
+                    label = "$ADVISORY_SUBJECT_LABEL（$subject）",
+                )
+            }
+        }
+        val now = System.currentTimeMillis()
+        port.upsertTeachingAdvisories(
+            listOf(
+                TeachingAdvisoryRecord(
+                    // 稳定键：PK = (learner, 作用域目标, kind) 的线性化——与唯一索引
+                    // `(learner_id, source_id, advisory_kind)` **同冲突面**，所以 REPLACE
+                    // 只会替换本 learner 的同一目标行，绝不会因 PK 撞上而删掉别人的行。
+                    // 同一目标的重复写因此是"更新同一行"，重试幂等、不堆积。
+                    advisoryId = "${context.learnerId}:${target.sourceId}:${kind.name}",
+                    learnerId = context.learnerId,
+                    practiceUnitId = target.practiceUnitId,
+                    knowledgeNodeId = target.knowledgeNodeId,
+                    advisoryKind = kind.name,
+                    payloadMarkdown = payload,
+                    confidence = null,
+                    sourceId = target.sourceId,
+                    createdAtEpochMillis = now,
+                ),
+            ),
+        )
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = call.tool,
+                ok = true,
+                summaryMarkdown = "教学备注已记录（${advisoryKindLabel(kind.name)}）：${target.label}。",
+            ),
+        )
+    }
+
+    /**
+     * 当前题的 practice unit：与会话记录解析出的 draft 一致——与 NOTEBOOK_WRITE 的
+     * `sessionId -> readTutorSession -> draftId` 同一路径，也是 commit 时 `practiceUnitId = draftId`
+     * 的口径。会话不存在/没有 draft = 没有当前题（空范围，不是失败）。
+     *
+     * **边界（不改行为，复核 2026-10-03 P2 登记）**：PROBLEM 目标只验证会话 draftId 非空，
+     * **不验证** draft / practice unit 是否仍存在；advisory 表没有指向 practice_unit 的外键，
+     * 因此接受"孤儿行"。读侧按 practice unit 过滤，孤儿行只会孤零零地留在表里（没有读者
+     * 会把它错配到别的题）。要更强的一致性得给表加 FK 或写前回读 draft——两条都会改变
+     * 审计层的语义，不在本批范围。
+     */
+    private suspend fun currentAdvisoryPracticeUnitId(context: Context): String? =
+        context.tutorSessionId?.takeIf(String::isNotBlank)
+            ?.let { sessionId -> port.readTutorSession(sessionId)?.draftId }
+            ?.takeIf(String::isNotBlank)
+
+    private data class AdvisoryReadTarget(
+        val knowledgeNodeId: String?,
+        val practiceUnitId: String?,
+        val subject: String?,
+        val subjectSourceId: String?,
+        /** 空结果时的目标措辞（"这个知识点"/"这道题"/"本科目"）。 */
+        val nodeLabel: String,
+    )
+
+    private data class AdvisoryTarget(
+        val knowledgeNodeId: String?,
+        val practiceUnitId: String?,
+        val sourceId: String,
+        val label: String,
+    )
+
+    /**
      * 本轮学生客观作答有没有推翻正向判断（研究 `tutor-evidence-gate-research.md` §3.2）。
      *
      * 只数**当前轮**：`restartCycle` 会在同一题上开新一轮重教，上一轮的答错正是
@@ -935,4 +1230,51 @@ internal class RoomTutorToolRunner(
             .orEmpty()
         return (studentMessages + objectiveAnswers).joinToString("\n")
     }
+}
+
+/**
+ * 字符数上限：咨询工具的读回一次最多 [ADVISORY_READ_LIMIT] 条。取值理由：8 条 ×
+ * 单条摘要 140 字符 ≈ 1.2k，加上表头与时间档位仍在 2k 单轮结果预算内；"想拿更多"应由
+ * 更具体的作用域收窄查询解决，而不是放大单次结果（数值上限本地定，模型只给语义作用域）。
+ */
+private const val ADVISORY_READ_LIMIT = 8
+
+/** 读回里单条 payload 的摘要字符数（完整内容留在库里；超出部分不影响模型看到主旨）。 */
+private const val ADVISORY_READ_PAYLOAD_DIGEST_CHARS = 140
+
+/** 咨询写/读里"当前题"与"本科目"的本地措辞。 */
+private const val ADVISORY_PROBLEM_LABEL = "这道题"
+private const val ADVISORY_SUBJECT_LABEL = "本科目"
+
+/** 咨询工具的三种空范围原因（K2a 口径：ok=true 的"没得写/没得读"，不是错误）。 */
+private const val ADVISORY_EMPTY_REASON_NO_SUBJECT = "这次对话还没有科目上下文"
+private const val ADVISORY_EMPTY_REASON_NO_CODE = "这次对话还没有已披露的知识点"
+private const val ADVISORY_EMPTY_REASON_NO_QUESTION = "这次对话没有正在处理的题目"
+
+/** 代号不在本会话已披露集合：协议层结构性拒（与轮次门/MASTERY_UPDATE 同一结果码）。 */
+private const val INVALID_KNOWLEDGE_CODE = "invalid_knowledge_code"
+
+/** DIFFICULTY_TIER 的 payload 不是 EASY/MEDIUM/HARD：写侧参数校验拒（不落行）。 */
+private const val INVALID_ADVISORY_PAYLOAD = "invalid_advisory_payload"
+
+/**
+ * 咨询工具的**稳定键**（D-M M7 的 upsert 半边）：作用域 + 目标 ⇒ 恒定的 source_id，
+ * 命中 `(learner_id, source_id, advisory_kind)` 唯一索引即更新旧行。对科目作用域，
+ * 读侧用同一个函数生成查询键——命名只有这一处出处，读写不可能漂开。
+ */
+internal fun advisoryToolSourceId(scope: TutorAdvisoryScope, targetKey: String): String =
+    "advisory-tool:${scope.name.lowercase()}:$targetKey"
+
+/** 咨询档位 → 模型可见的短标签（未知档位原样回显，不编造）。 */
+private fun advisoryKindLabel(kindName: String): String = when (kindName) {
+    TeachingAdvisoryRecord.KIND_TEACHING_FOCUS -> "讲法"
+    TeachingAdvisoryRecord.KIND_MISCONCEPTION -> "误区"
+    TeachingAdvisoryRecord.KIND_DIFFICULTY_TIER -> "难度"
+    else -> kindName
+}
+
+private fun advisoryScopeLabel(scope: TutorAdvisoryScope): String = when (scope) {
+    TutorAdvisoryScope.NODE -> "按知识点"
+    TutorAdvisoryScope.PROBLEM -> "按当前题"
+    TutorAdvisoryScope.SUBJECT -> "按科目"
 }

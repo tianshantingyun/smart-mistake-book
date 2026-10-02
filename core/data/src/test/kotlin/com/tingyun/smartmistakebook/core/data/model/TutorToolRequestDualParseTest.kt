@@ -150,4 +150,47 @@ class TutorToolRequestDualParseTest {
 
         OpenAiModelTaskAdapters.parse(payload, respondInput(), "test-model-v1")
     }
+
+    @Test
+    fun advisoryWriteToolRequestParsesScopeKindAndPayload() {
+        // Route B（json_object 信封）与原生 tool_calls 同名同义：D-M M7 的三个咨询字段
+        // 必须在这条路由上也解析得出来（否则 provider 忽略 tools 时写侧整条失效）。
+        val payload = json.parseToJsonElement("""
+            {"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.9,
+              "explicitActionRequest":false,"memoryPreference":"UNCHANGED",
+              "requestedLocalCapability":"NONE","lookupTerms":[]},
+             "toolRequests":[{"tool":"ADVISORY_WRITE","terms":[],
+               "rationale":"学生暴露了持续误区",
+               "advisoryScope":"PROBLEM","advisoryKind":"MISCONCEPTION",
+               "payloadMarkdown":"两边乘负数忘记变号。"}]}
+        """.trimIndent()).jsonObject
+
+        val output = OpenAiModelTaskAdapters.parse(payload, respondInput(), "test-model-v1")
+        assertTrue(output is TutorToolRequestsOutput)
+        val call = (output as TutorToolRequestsOutput).calls.single()
+        assertEquals(TutorToolName.ADVISORY_WRITE, call.tool)
+        assertEquals(com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope.PROBLEM, call.advisoryScope)
+        assertEquals(
+            com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind.MISCONCEPTION,
+            call.advisoryKind,
+        )
+        assertEquals("两边乘负数忘记变号。", call.payloadMarkdown)
+    }
+
+    @Test
+    fun advisoryReadToolRequestMayOmitItsScopeForTheSubjectDefault() {
+        val payload = json.parseToJsonElement("""
+            {"intentDecision":{"intent":"LEARNING_PROGRESS_LOOKUP","confidence":0.9,
+              "explicitActionRequest":false,"memoryPreference":"UNCHANGED",
+              "requestedLocalCapability":"NONE","lookupTerms":[]},
+             "toolRequests":[{"tool":"ADVISORY_READ","terms":[],
+               "rationale":"回顾本科目教学备注"}]}
+        """.trimIndent()).jsonObject
+
+        val output = OpenAiModelTaskAdapters.parse(payload, respondInput(), "test-model-v1")
+        val call = (output as TutorToolRequestsOutput).calls.single()
+        assertEquals(TutorToolName.ADVISORY_READ, call.tool)
+        assertEquals(null, call.advisoryScope)
+        assertTrue(call.terms.isEmpty())
+    }
 }

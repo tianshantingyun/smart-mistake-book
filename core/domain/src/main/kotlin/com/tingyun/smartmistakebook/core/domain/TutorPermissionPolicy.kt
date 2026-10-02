@@ -8,9 +8,9 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
  *
  * | 档 | 对象 | 行为 |
  * |---|---|---|
- * | [ALLOW] | 三个读工具 | 自动执行 + 结果可见（灰色小字内联） |
+ * | [ALLOW] | 四个读工具（含 D-M M7 的 `ADVISORY_READ`） | 自动执行 + 结果可见（灰色小字内联） |
  * | [ASK] | `NOTEBOOK_WRITE` / 四个本地动作 | 确认卡：学生点了才执行 |
- * | [AUTO_VISIBLE] | `MASTERY_UPDATE` | **全自动、不需批准**；行为全程可见，被拒给理由 |
+ * | [AUTO_VISIBLE] | `MASTERY_UPDATE` / `ADVISORY_WRITE` | **全自动、不需批准**；行为全程可见，被拒给理由 |
  *
  * **档位由「对象 + 本轮上下文」决定，不由入口/栏决定**（ADR 0001 内核部分继续有效：
  * 单一工具面、禁止按栏分工具面）。同一个工具在任何栏都是同一档——栏只影响本轮附件与绑定，
@@ -44,7 +44,7 @@ enum class TutorPermissionTier {
     AUTO_VISIBLE,
 }
 
-/** 策略可裁决的对象：5 个模型工具 + 4 个本地动作。 */
+/** 策略可裁决的对象：7 个模型工具（5 核心 + D-M M7 两枚咨询工具）+ 4 个本地动作。 */
 sealed interface TutorPermissionSubject {
     data class Tool(val tool: TutorToolName) : TutorPermissionSubject
 
@@ -89,9 +89,14 @@ fun tutorPermissionTier(subject: TutorPermissionSubject): TutorPermissionTier = 
         TutorToolName.KNOWLEDGE_READ,
         TutorToolName.NOTEBOOK_READ,
         TutorToolName.MASTERY_READ,
+        TutorToolName.ADVISORY_READ,
         -> TutorPermissionTier.ALLOW
         TutorToolName.NOTEBOOK_WRITE -> TutorPermissionTier.ASK
-        TutorToolName.MASTERY_UPDATE -> TutorPermissionTier.AUTO_VISIBLE
+        // D-M M7：咨询写入与 MASTERY_UPDATE 同档——全自动、行为可见、被拒给理由。
+        // "任何轮次"由档位本身保证：档位是对象的属性，不随入口/上下文翻转。
+        TutorToolName.MASTERY_UPDATE,
+        TutorToolName.ADVISORY_WRITE,
+        -> TutorPermissionTier.AUTO_VISIBLE
     }
     is TutorPermissionSubject.LocalAction -> TutorPermissionTier.ASK
 }

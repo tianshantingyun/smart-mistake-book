@@ -55,6 +55,8 @@ import com.tingyun.smartmistakebook.core.model.StructuredContentSanitizer
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorChoice
 import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
+import com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind
+import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
@@ -448,6 +450,10 @@ private val TUTOR_TOOL_CALL_WIRE_KEYS =
         "problemId",
         "problemRevisionId",
         "anchorTerms",
+        // D-M M7 咨询工具的作用域/档位/正文（与原生 tool_calls arguments 同名同义）。
+        "advisoryScope",
+        "advisoryKind",
+        "payloadMarkdown",
     )
 
 internal fun JsonObject.toTutorToolRequests(
@@ -470,6 +476,11 @@ internal fun JsonObject.toTutorToolRequests(
                     confidence = call.optionalDouble("confidence") ?: 0.8,
                     extendedResult = call.optionalBoolean("extendedResult") ?: false,
                     boundQuestion = call.toCallBoundQuestion(),
+                    advisoryScope = call.optionalString("advisoryScope")
+                        ?.let { enumValue<TutorAdvisoryScope>(it) },
+                    advisoryKind = call.optionalString("advisoryKind")
+                        ?.let { enumValue<TutorAdvisoryKind>(it) },
+                    payloadMarkdown = call.optionalString("payloadMarkdown"),
                 )
             }
             ?: throw InvalidModelResponseException(),

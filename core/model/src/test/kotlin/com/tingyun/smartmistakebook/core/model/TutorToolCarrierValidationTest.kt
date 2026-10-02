@@ -60,9 +60,14 @@ class TutorToolCarrierValidationTest {
             declarations = listOf(TutorToolName.NOTEBOOK_READ, TutorToolName.MASTERY_READ),
         )
         assertEquals(2, input.toolDeclarations.size)
+        // 全量工具面（D-M M7 起 7 枚）恰好在上界内——上界必须容得下生产装配的声明集。
+        val fullFace = lobbyCarrying(declarations = TutorToolName.entries.toList())
+        assertEquals(TutorToolName.entries.size, fullFace.toolDeclarations.size)
         assertThrows(IllegalArgumentException::class.java) {
-            // 6 > MAX_TOOL_DECLARATIONS = 5
-            lobbyCarrying(declarations = List(6) { TutorToolName.NOTEBOOK_READ })
+            // 8 > MAX_TOOL_DECLARATIONS = 7（重复项先于上界触发也不影响：这里用重复名探上界）。
+            lobbyCarrying(
+                declarations = TutorToolName.entries.toList() + TutorToolName.KNOWLEDGE_READ,
+            )
         }
     }
 

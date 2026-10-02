@@ -28,6 +28,13 @@ enum class TutorKnowledgeCodeRole {
 
     /** 读工具（KNOWLEDGE_READ）在执行中发现、追加披露的节点。 */
     TOOL_DISCOVERED,
+
+    /**
+     * 插眼 8（裁决 22 修订二）：本科「未分类」兜底桶（`pseudo:<SUBJECT>`）。会话代号表显式
+     * 披露它，模型判不出真实知识点时才把证据挂上去；它不进召回面，只是罕见兜底落点，
+     * 之后随 KF-31 每周重审 + KF-32 改绑重放挪正。
+     */
+    UNCLASSIFIED_BUCKET,
 }
 
 /**
@@ -49,6 +56,9 @@ enum class KnowledgeAnchorClass {
             TutorKnowledgeCodeRole.RETRIEVAL_CANDIDATE -> CANDIDATE
             TutorKnowledgeCodeRole.PREREQUISITE,
             TutorKnowledgeCodeRole.TOOL_DISCOVERED,
+            // 插眼 8：兜底桶不是确认绑定，证据按披露档减半——它在 KF-31 重审挪正之前
+            // 只是一个"暂时无处可挂"的落点，不能冒充确认范围里的掌握证据。
+            TutorKnowledgeCodeRole.UNCLASSIFIED_BUCKET,
             -> DISCLOSED
         }
     }
@@ -107,6 +117,9 @@ fun TutorKnowledgeCodeRole.promptRoleLabel(): String = when (this) {
     TutorKnowledgeCodeRole.RETRIEVAL_CANDIDATE -> "当前题检索候选"
     TutorKnowledgeCodeRole.PREREQUISITE -> "前置"
     TutorKnowledgeCodeRole.TOOL_DISCOVERED -> "工具发现"
+    // 措辞要诚实：桶不是"当前题相关"的知识点（它不在召回面里），模型只有判不出
+    // 任何真实知识点时才该把证据挂上去。
+    TutorKnowledgeCodeRole.UNCLASSIFIED_BUCKET -> "未分类兜底（判不出真实知识点时才用）"
 }
 
 /**

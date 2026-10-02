@@ -18,14 +18,14 @@ import org.junit.Test
  *   runner 解析，编造代号结构性拒）。
  *
  * 那两张表的钉住分别在 `TutorToolAuthorizationTest`（core:model）与
- * `TutorToolRoundGateTest`（core:data）；这里钉住的是声明面本身——同一页、全量五个、
- * 写口概念不漂移。
+ * `TutorToolRoundGateTest`（core:data）；这里钉住的是声明面本身——同一页、全量七枚
+ * （D-M M7 起核心五 + 咨询两枚）、写口概念不漂移。
  */
 class TutorToolGateTest {
 
     @Test
-    fun `the page declares the full five tool surface for every entry`() {
-        // D7/D8：Plan / Respond / 大厅同一 5 工具面，不随场景分叉。
+    fun `the page declares the full seven tool surface for every entry`() {
+        // D7/D8 + D-M M7：Plan / Respond / 大厅同一工具面，不随场景分叉。
         assertEquals(
             setOf(
                 TutorToolName.KNOWLEDGE_READ,
@@ -33,16 +33,22 @@ class TutorToolGateTest {
                 TutorToolName.MASTERY_READ,
                 TutorToolName.MASTERY_UPDATE,
                 TutorToolName.NOTEBOOK_WRITE,
+                TutorToolName.ADVISORY_READ,
+                TutorToolName.ADVISORY_WRITE,
             ),
             TUTOR_TOOL_DECLARATIONS,
         )
     }
 
     @Test
-    fun `the write tools are the two that persist`() {
-        // 写口概念保留（落库的两个），但准入不再看"本轮有没有题"。
+    fun `the write tools are the three that persist`() {
+        // 写口概念保留（落库的三个：证据、错题、教学咨询），但准入不再看"本轮有没有题"。
         assertEquals(
-            setOf(TutorToolName.MASTERY_UPDATE, TutorToolName.NOTEBOOK_WRITE),
+            setOf(
+                TutorToolName.MASTERY_UPDATE,
+                TutorToolName.NOTEBOOK_WRITE,
+                TutorToolName.ADVISORY_WRITE,
+            ),
             TUTOR_WRITE_TOOLS,
         )
         assertTrue("写工具必须都在声明面内", TUTOR_WRITE_TOOLS.all { it in TUTOR_TOOL_DECLARATIONS })

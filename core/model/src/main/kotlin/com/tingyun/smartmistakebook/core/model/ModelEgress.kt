@@ -39,18 +39,25 @@ enum class ModelEgressDataClass {
 /** One source of truth for the prompt whose exact scope the student approved. */
 object ModelPromptPolicyVersions {
     const val CAPTURE_DOCUMENT = "capture-document-policy-v1"
-    /** v12：单一代号通道映射表 + Plan 工具环 + 教学材料加载失败披露（ADR 0001 / D5-D8）。 */
-    const val TUTOR_PLAN = "tutor-plan-v13-visual-fields-removed"
-    /** v19：写工具改收代号（原始 id 退出提示词）+ 代号映射表 + 无题轮不结构性拒写（D5/D6）。 */
-    const val TUTOR_RESPOND = "tutor-respond-v20-visual-fields-removed"
+    /**
+     * v13：单一代号通道映射表 + Plan 工具环 + 教学材料加载失败披露（ADR 0001 / D5-D8）。
+     * v14（D-M M7）：工具面新增两枚咨询工具（ADVISORY_READ/ADVISORY_WRITE），其描述随声明进提示词。
+     */
+    const val TUTOR_PLAN = "tutor-plan-v14-advisory-tools"
+    /**
+     * v20：写工具改收代号（原始 id 退出提示词）+ 代号映射表 + 无题轮不结构性拒写（D5/D6）。
+     * v21（D-M M7）：工具面新增两枚咨询工具（描述与写工具段），代号表显式含本科「未分类」兜底桶。
+     */
+    const val TUTOR_RESPOND = "tutor-respond-v21-advisory-tools"
     /**
      * v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。
      * v10（A4）：允许申请 OFFER_SAVE_CURRENT_QUESTION（本地渲染确认卡、学生点了才执行），
      * 并回喂上一轮确认卡的裁决结果。v9 及更早的轮次没有这两段文本。
      * v11（批次 0 条目 5b）：大厅提示词加止血行——本轮没有科目上下文时不要申请
      * KNOWLEDGE_READ / MASTERY_READ（没有科目范围，只会拿到空结果）。v10 及更早的轮次没有这段文本。
+     * v12（D-M M7）：大厅声明面新增两枚咨询工具，止血行覆盖它们（大厅没有科目/会话范围）。
      */
-    const val TUTOR_LOBBY = "tutor-lobby-v11-subject-scope-reads-forbidden"
+    const val TUTOR_LOBBY = "tutor-lobby-v12-advisory-tools"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"

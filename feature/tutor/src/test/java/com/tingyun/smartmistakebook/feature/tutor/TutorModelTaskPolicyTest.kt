@@ -905,8 +905,8 @@ class TutorModelTaskPolicyTest {
             occurredAtEpochMillis = 300,
         )
         val input = request.input as TutorLobbyInput
-        // 同页全量五个（docs/tutor-surface-unification.md §5.6）：大厅与讲题会话是同一个页面，
-        // 声明集不再随轮次类型跳变——"模型能申请什么"与"本地放行什么"分成两层表达。
+        // 同页全量声明（docs/tutor-surface-unification.md §5.6 + D-M M7）：大厅与讲题会话是同一个
+        // 页面，声明集不再随轮次类型跳变——"模型能申请什么"与"本地放行什么"分成两层表达。
         assertEquals(TUTOR_TOOL_DECLARATIONS.toList(), input.toolDeclarations)
         assertEquals(
             listOf(
@@ -915,6 +915,8 @@ class TutorModelTaskPolicyTest {
                 TutorToolName.MASTERY_READ,
                 TutorToolName.MASTERY_UPDATE,
                 TutorToolName.NOTEBOOK_WRITE,
+                TutorToolName.ADVISORY_READ,
+                TutorToolName.ADVISORY_WRITE,
             ),
             input.toolDeclarations,
         )
@@ -923,7 +925,7 @@ class TutorModelTaskPolicyTest {
         // 都钉在 core:data 的 `TutorToolRoundGateTest`：意图授权矩阵（NOTEBOOK_WRITE 另需
         // explicitActionRequest）与 MASTERY_UPDATE 的代号白名单（大厅没有已披露代号 →
         // 任何代号结构性拒，模型被提示词教会先确认科目）。
-        assertEquals(5, input.toolDeclarations.size)
+        assertEquals(7, input.toolDeclarations.size)
     }
 
     // ---- 学生显式添加的题（加号「从错题库选择」）成为本轮题锚 ----
@@ -1132,8 +1134,8 @@ class TutorModelTaskPolicyTest {
     )
 
     @Test
-    fun planRequestDeclaresTheFullFiveToolSurface() {
-        // D8：Plan 复用 Respond 的工具环——声明集全量五个，与 Respond/大厅同一页面口径。
+    fun planRequestDeclaresTheFullToolSurface() {
+        // D8 + D-M M7：Plan 复用 Respond 的工具环——声明集全量七枚，与 Respond/大厅同一页面口径。
         val request = buildTutorPlanRequest(
             question = session().toTutorQuestionContext(),
             profile = StudyProfileOverview(),
@@ -1143,7 +1145,7 @@ class TutorModelTaskPolicyTest {
         )
         val input = request.input as TutorPlanInput
         assertEquals(TUTOR_TOOL_DECLARATIONS.toList(), input.toolDeclarations)
-        assertEquals(5, input.toolDeclarations.size)
+        assertEquals(7, input.toolDeclarations.size)
         assertTrue(input.toolRoundResults.isEmpty())
     }
 

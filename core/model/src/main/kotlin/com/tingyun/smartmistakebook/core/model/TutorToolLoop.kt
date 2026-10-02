@@ -16,6 +16,41 @@ enum class TutorToolName {
     /** 写工具 T6：模型提语义证据、本地门控落库（spec §5）；T4 需学生明确命令，当前阶段仅声明不启用。 */
     NOTEBOOK_WRITE,
     MASTERY_UPDATE,
+    /**
+     * D-M M7：教学咨询层（`llm_teaching_advisory`）的读数与写入，两枚**一等工具**
+     * （任何轮次可读写"该生典型误区/有效讲法"）。读侧按节点/题/科目取最近 N 条；
+     * 写侧三 kind 限枚举、稳定键 upsert（同一目标同一 kind 更新而不堆积）。
+     * 咨询层由模型独家拥有，与投影行互不污染（mastery-scheduling §3）。
+     */
+    ADVISORY_READ,
+    ADVISORY_WRITE,
+}
+
+/**
+ * ADVISORY_* 的作用域（D-M M7）：咨询行挂在哪个目标上。
+ *
+ * - [NODE]：`terms[0]` 是**本会话已披露的知识点代号**（D5：绝不用原始 id）——写侧解析该
+ *   节点并校验它真实存在且属于本会话科目；读侧按节点过滤。
+ * - [PROBLEM]：当前会话正在处理的题（本地从会话记录解析 practice unit，不接受模型给 id）。
+ * - [SUBJECT]：本会话科目。
+ */
+@Serializable
+enum class TutorAdvisoryScope {
+    NODE,
+    PROBLEM,
+    SUBJECT,
+}
+
+/**
+ * 咨询行的三档（与 [TeachingAdvisoryRecord] 的三个 kind 常量一一对应；enum 白名单是写侧
+ * 第一道门）。[DIFFICULTY_TIER] 的 payload 只能是 EASY/MEDIUM/HARD（消费方
+ * `StudyReviewPlannerService` 按 `TutorDifficultyTier` 解析）。
+ */
+@Serializable
+enum class TutorAdvisoryKind {
+    TEACHING_FOCUS,
+    MISCONCEPTION,
+    DIFFICULTY_TIER,
 }
 
 /**
@@ -108,6 +143,15 @@ data class TutorToolCall(
      * the round's other calls are visible.
      */
     val extendedResult: Boolean = false,
+    /**
+     * ADVISORY_READ / ADVISORY_WRITE 的作用域（D-M M7）。读侧可省略：省略时按 terms
+     * 推断（terms 空 → SUBJECT，非空 → NODE）。写侧必填且必须是合法组合。
+     */
+    val advisoryScope: TutorAdvisoryScope? = null,
+    /** ADVISORY_WRITE 的咨询档（三 kind 白名单）；其余工具不得携带。 */
+    val advisoryKind: TutorAdvisoryKind? = null,
+    /** ADVISORY_WRITE 的正文（上限 [MAX_ADVISORY_PAYLOAD_CHARS]）；其余工具不得携带。 */
+    val payloadMarkdown: String? = null,
 ) {
     init {
         require(rationale.isNotBlank() && rationale.length <= MAX_TOOL_RATIONALE_CHARS) {
@@ -125,7 +169,13 @@ data class TutorToolCall(
         ) {
             "Tool call terms must be short distinct student-derived words"
         }
-        if (tool != TutorToolName.MASTERY_READ) {
+        // MASTERY_READ（本科目清单）与 ADVISORY_*（作用域可能是当前题/科目）允许空 terms；
+        // ADVISORY_WRITE 的 NODE 作用域另有"必须有代号"的专门校验（见下）。
+        if (
+            tool != TutorToolName.MASTERY_READ &&
+            tool != TutorToolName.ADVISORY_READ &&
+            tool != TutorToolName.ADVISORY_WRITE
+        ) {
             require(terms.isNotEmpty()) {
                 "The $tool tool requires at least one lookup term"
             }
@@ -145,10 +195,81 @@ data class TutorToolCall(
                 "Only MASTERY_UPDATE carries a direction or understanding tier"
             }
         }
+        if (tool == TutorToolName.ADVISORY_WRITE) {
+            require(advisoryScope != null) {
+                "An ADVISORY_WRITE call must state its scope"
+            }
+            require(advisoryKind != null) {
+                "An ADVISORY_WRITE call must state its advisory kind"
+            }
+            require(payloadMarkdown != null && payloadMarkdown.isNotBlank()) {
+                "An ADVISORY_WRITE call must carry a non-blank payload"
+            }
+            require(payloadMarkdown.length <= MAX_ADVISORY_PAYLOAD_CHARS) {
+                "An ADVISORY_WRITE payload must be at most $MAX_ADVISORY_PAYLOAD_CHARS chars"
+            }
+            require(payloadMarkdown.all { char -> !char.isISOControl() || char == '\n' }) {
+                "An ADVISORY_WRITE payload must not carry control characters"
+            }
+            // NODE 作用域的目标是代号（terms[0]）；PROBLEM/SUBJECT 的写不接受多余 terms——
+            // 模型给了没有意义、本地又不读的参数，就是一条静默丢弃的输入。
+            when (advisoryScope) {
+                TutorAdvisoryScope.NODE -> require(terms.isNotEmpty()) {
+                    "A node-scoped ADVISORY_WRITE must name the disclosed knowledge code"
+                }
+
+                TutorAdvisoryScope.PROBLEM,
+                TutorAdvisoryScope.SUBJECT,
+                -> require(terms.isEmpty()) {
+                    "A ${advisoryScope.name}-scoped ADVISORY_WRITE must not carry terms"
+                }
+            }
+            // 难度档是**题目级**语义（消费方按 practice unit 读）；挂到节点或科目上没有读者，
+            // 会变成一条"写了但没人用"的假记录——在校验层挡住，而不是写进去再说。
+            if (advisoryKind == TutorAdvisoryKind.DIFFICULTY_TIER) {
+                require(advisoryScope == TutorAdvisoryScope.PROBLEM) {
+                    "A DIFFICULTY_TIER advisory only makes sense for the current problem"
+                }
+            }
+        } else {
+            require(advisoryKind == null && payloadMarkdown == null) {
+                "Only ADVISORY_WRITE carries an advisory kind or payload"
+            }
+            if (tool == TutorToolName.ADVISORY_READ) {
+                // 读侧作用域与 terms 的组合必须自洽：PROBLEM/SUBJECT 不接受筛选词，
+                // NODE（显式或由非空 terms 推断）要能落到一个节点上。
+                when (advisoryScope) {
+                    TutorAdvisoryScope.PROBLEM,
+                    TutorAdvisoryScope.SUBJECT,
+                    -> require(terms.isEmpty()) {
+                        "A ${advisoryScope.name}-scoped ADVISORY_READ must not carry terms"
+                    }
+
+                    TutorAdvisoryScope.NODE -> require(terms.isNotEmpty()) {
+                        "A node-scoped ADVISORY_READ must name a code or keyword"
+                    }
+
+                    null -> Unit
+                }
+            } else {
+                require(advisoryScope == null) {
+                    "Only the ADVISORY tools may state an advisory scope"
+                }
+            }
+        }
     }
 
     companion object {
         const val MAX_TOOL_RATIONALE_CHARS = 200
+
+        /**
+         * ADVISORY_WRITE 一条 payload 的字符上限。取值理由：读侧一次最多回
+         * [TutorToolOutcome.MAX_TOOL_RESULT_CHARS]（2k）字符，读回渲染要给每条留摘要位；
+         * 600 ≈ 3-4 句中文，够写清"典型误区"或"有效讲法"一条持久共识，又不至于一条写满
+         * 半个读预算。与 debrief 通道（1000）不同是刻意的：那是本地摘要（无工具参数预算），
+         * 这是模型逐次调用参数。
+         */
+        const val MAX_ADVISORY_PAYLOAD_CHARS = 600
     }
 }
 
@@ -407,13 +528,26 @@ fun tutorToolAuthorization(
     }
     val byIntent = when (decision.intent) {
         TutorMessageIntent.CURRENT_QUESTION_HELP ->
-            setOf(TutorToolName.KNOWLEDGE_READ, TutorToolName.NOTEBOOK_READ, TutorToolName.MASTERY_READ, TutorToolName.MASTERY_UPDATE, TutorToolName.NOTEBOOK_WRITE)
-        TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP -> setOf(TutorToolName.NOTEBOOK_READ)
-        TutorMessageIntent.LEARNING_PROGRESS_LOOKUP -> setOf(TutorToolName.MASTERY_READ)
+            setOf(
+                TutorToolName.KNOWLEDGE_READ,
+                TutorToolName.NOTEBOOK_READ,
+                TutorToolName.MASTERY_READ,
+                TutorToolName.MASTERY_UPDATE,
+                TutorToolName.NOTEBOOK_WRITE,
+                TutorToolName.ADVISORY_READ,
+                TutorToolName.ADVISORY_WRITE,
+            )
+        TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP ->
+            setOf(TutorToolName.NOTEBOOK_READ, TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
+        TutorMessageIntent.LEARNING_PROGRESS_LOOKUP ->
+            setOf(TutorToolName.MASTERY_READ, TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
+        // D-M M7：两枚咨询工具是**任何轮次**的一等工具（学生可能在闲聊里说出一个持续误区，
+        // 也可能在任何一轮要求回顾已记的讲法）——意图矩阵不为它们设场景门；写档是
+        // AUTO_VISIBLE（自动执行、行为可见、被拒给理由），不需要 explicitActionRequest。
         TutorMessageIntent.APP_HELP_OR_SETTINGS,
         TutorMessageIntent.CASUAL_CONVERSATION,
         TutorMessageIntent.END_OR_PAUSE,
-        -> emptySet()
+        -> setOf(TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
     }
     // 写工具（MASTERY_UPDATE / NOTEBOOK_WRITE）的确认门：MASTERY_UPDATE 由本地 gate 全权
     // 决定（spec §5.2：模型提交证据+本地门控）；NOTEBOOK_WRITE 需要学生明确要求
@@ -445,5 +579,9 @@ fun tutorToolAuthorization(
 const val TUTOR_TOOL_ROUTE_CONFIDENCE_THRESHOLD = 0.45
 private const val ROUTE_CONFIDENCE_THRESHOLD = TUTOR_TOOL_ROUTE_CONFIDENCE_THRESHOLD
 
-/** Upper bound on simultaneously declared tools for one dispatch (spec §2 core five). */
-const val MAX_TOOL_DECLARATIONS = 5
+/**
+ * Upper bound on simultaneously declared tools for one dispatch（spec §2 core five +
+ * D-M M7 的两枚咨询工具）。提示词里的声明块要整表渲染并逐轮持久化，上界是防"无限声明
+ * 挤占讲解预算"的硬门；加工具必须同时上调它，否则生产装配的 7 工具面在构造输入时就抛。
+ */
+const val MAX_TOOL_DECLARATIONS = 7

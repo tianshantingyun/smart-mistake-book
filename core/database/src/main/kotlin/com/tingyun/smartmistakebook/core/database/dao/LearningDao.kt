@@ -242,6 +242,51 @@ internal abstract class LearningDao {
         practiceUnitIds: List<String>,
     ): List<LlmTeachingAdvisoryEntity>
 
+    /**
+     * D-M M7：咨询工具（ADVISORY_READ）的取数口——按**节点/题/科目**三个可选过滤取最近 N 条。
+     *
+     * - 三个过滤都为 null = 该 learner 的最近 N 条（`RoomTutorToolRunner` 不会这样调：
+     *   它至少给科目边界）；
+     * - 科目过滤同时认两种来路：`source_id = :subjectSourceId`（咨询工具写的科目行）
+     *   与 `knowledge_node.subject = :subject`（挂在本科目节点上的行）。节点为空且
+     *   practice_unit 不属于本科目的历史行无法归属科目，如实排除。
+     *
+     * `ORDER BY` 以 advisory_id 兜底，保证同一毫秒的多行顺序确定。
+     */
+    @Query(
+        """
+        SELECT a.* FROM llm_teaching_advisory AS a
+        LEFT JOIN knowledge_node AS n ON n.knowledge_node_id = a.knowledge_node_id
+        WHERE a.learner_id = :learnerId
+          AND (:knowledgeNodeId IS NULL OR a.knowledge_node_id = :knowledgeNodeId)
+          AND (:practiceUnitId IS NULL OR a.practice_unit_id = :practiceUnitId)
+          AND (:subject IS NULL OR a.source_id = :subjectSourceId OR n.subject = :subject)
+        ORDER BY a.created_at_epoch_millis DESC, a.advisory_id ASC
+        LIMIT :limit
+        """,
+    )
+    abstract suspend fun readTeachingAdvisoriesForTool(
+        learnerId: String,
+        knowledgeNodeId: String?,
+        practiceUnitId: String?,
+        subject: String?,
+        subjectSourceId: String?,
+        limit: Int,
+    ): List<LlmTeachingAdvisoryEntity>
+
+    /**
+     * D-M M7：咨询工具（ADVISORY_WRITE）的**稳定键 upsert**——命中唯一索引
+     * `(learner_id, source_id, advisory_kind)` 时替换旧行（同一目标同一 kind 只有一条，
+     * "更新已有记录"而不是堆积）。与 [recordTeachingAdvisories] 的 IGNORE 语义分开：
+     * 后者是既有写通道的幂等语义（同键同值），改它会影响它们的既有行为。
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    protected abstract suspend fun replaceTeachingAdvisories(entries: List<LlmTeachingAdvisoryEntity>)
+
+    open suspend fun upsertTeachingAdvisories(entries: List<LlmTeachingAdvisoryEntity>) {
+        replaceTeachingAdvisories(entries)
+    }
+
     @Query(
         "SELECT MAX(reviewed_at_utc) FROM review_log " +
             "WHERE learner_id = :learnerId AND card_id = :practiceUnitId " +

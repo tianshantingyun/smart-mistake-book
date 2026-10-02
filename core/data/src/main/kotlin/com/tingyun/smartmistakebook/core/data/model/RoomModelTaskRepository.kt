@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ReserveModelTaskRemoteDispatchCommand
 import com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
+import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import com.tingyun.smartmistakebook.core.data.study.TutorKnowledgeCodeRegistry
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
@@ -920,32 +921,92 @@ class RoomModelTaskRepository internal constructor(
      * 派生前对 Plan/Respond 输入做代号赋码（[TutorKnowledgeCodeRegistry.adopt]：已赋码条目
      * 按原码登记、未赋码条目按列表顺序首次分配），并把教学参考的代号字段填上（材料绑定多个
      * 节点时取其中已披露的第一个）。返回的才是持久化 / 指纹 / 提示词用的形状。
+     *
+     * 插眼 8（裁决 22 修订二）：会话代号表**显式含本科「未分类」兜底桶**——节点缺则经既有
+     * `ensurePseudoKnowledgeNode` 幂等创建（MODEL_CANDIDATE，不进召回面），随后登记进注册表
+     * 并追加到本轮 `knowledgeCodes`（模型侧才有桶代号可写）。桶在 adopt **之后**追加：
+     * 已赋码的真实条目先按原码登记，桶拿下一个空闲号，历史行的代号编号不漂。
+     * 桶的创建/登记失败不阻断本轮派遣（它是罕见兜底，不是主路径）——记录日志、跳过。
      */
-    private fun ModelTaskRequest.withSessionKnowledgeCodes(): ModelTaskRequest {
+    private suspend fun ModelTaskRequest.withSessionKnowledgeCodes(): ModelTaskRequest {
         val input = this.input
         val sessionId = when (input) {
             is TutorPlanInput -> input.sessionId
             is TutorRespondInput -> input.sessionId
             else -> return this
         }
+        val subject = when (input) {
+            is TutorPlanInput -> input.subject
+            is TutorRespondInput -> input.subject
+            else -> null
+        }
         val registry = knowledgeCodeRegistries.getOrPut(sessionId) { TutorKnowledgeCodeRegistry() }
+        val bucketEntry = subject?.takeIf(String::isNotBlank)?.let { subjectName ->
+            // fail-open 只对**失败**成立：协程取消必须原样穿透，否则"学生停止"会被当成
+            // "桶没建好"继续往下走（取消语义在工具环里是一等公民）。
+            try {
+                database.ensurePseudoKnowledgeNode(subjectName, clock())
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                android.util.Log.w(
+                    "TutorKnowledgeContext",
+                    "unclassified bucket node was not ensured for subject=$subjectName: $failure",
+                )
+                null
+            }?.let { node ->
+                TutorKnowledgeCode(
+                    knowledgeNodeId = node.knowledgeNodeId,
+                    displayName = node.displayName,
+                    role = TutorKnowledgeCodeRole.UNCLASSIFIED_BUCKET,
+                )
+            }
+        }
         return when (input) {
             is TutorPlanInput -> copy(
                 input = input.copy(
-                    knowledgeCodes = registry.adopt(input.knowledgeCodes),
+                    knowledgeCodes = registry.adopt(input.knowledgeCodes)
+                        .withUnclassifiedBucket(registry, bucketEntry),
                     reviewedTeachingReferences = input.reviewedTeachingReferences
                         .withSessionCodes(registry),
                 ),
             )
             is TutorRespondInput -> copy(
                 input = input.copy(
-                    knowledgeCodes = registry.adopt(input.knowledgeCodes),
+                    knowledgeCodes = registry.adopt(input.knowledgeCodes)
+                        .withUnclassifiedBucket(registry, bucketEntry),
                     reviewedTeachingReferences = input.reviewedTeachingReferences
                         .withSessionCodes(registry),
                 ),
             )
             else -> this
         }
+    }
+
+    /**
+     * 追加本科「未分类」桶条目（插眼 8）。已在列表里（上一轮写回的形状）原样返回——
+     * `adopt` 会按原码登记，不重复分配。桶条目在**末尾**，会话内稳定（编号只增不动）。
+     */
+    private fun List<TutorKnowledgeCode>.withUnclassifiedBucket(
+        registry: TutorKnowledgeCodeRegistry,
+        bucket: TutorKnowledgeCode?,
+    ): List<TutorKnowledgeCode> {
+        if (bucket == null) return this
+        if (any { entry -> entry.knowledgeNodeId == bucket.knowledgeNodeId }) return this
+        // 兜底桶不该成为派遣的失败源：会话代号空间耗尽等异常时记录日志、跳过桶
+        //（模型这一轮没有桶代号可用，其余代号与工具面不受影响）。取消照常穿透。
+        val code = try {
+            registry.assign(bucket)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            android.util.Log.w(
+                "TutorKnowledgeContext",
+                "unclassified bucket code was not assigned: $failure",
+            )
+            return this
+        }
+        return this + bucket.copy(code = code)
     }
 
     private fun List<TutorTeachingReference>.withSessionCodes(
