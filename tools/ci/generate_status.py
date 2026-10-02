@@ -193,32 +193,39 @@ def kb_gate_rows() -> tuple[str, bool, int, int]:
 
 
 def kb_authority_shas() -> str:
-    """权威表（kb_build.tables 加载的那几张）逐表 sha256 前 12 位，一行。
+    """权威表（kb_build.tables 加载的那几张）逐表 sha256 前 12 位，一行；并标注保护级别。
 
     存在的理由（2026-09-28 实测）：同一份 `chapter_map.csv`，本地读到的是**工作树里那一版**
     （绿），CI 读到的是**已提交那一版**（红）——"门全绿"这个数字本身不携带"对应哪版权威表"
     的信息，而权威表恰恰是最常被并发改动的一层。表不在位时写 `missing`，不当作通过。
+
+    保护级别（2026-10-02 标注，回应"6 张表并列展示、其中 2 张没有门"的审计结论）：
+    - `门保护`：被 gate.py / check_pack_contract 读取，与包分叉即红；
+    - `报告型`：目前**没有强制力**，只在 run_kb_checks 的 INFO 节与 check_pack_contract
+      的报告型计数里报数（处置口径等 F9 决策）——列在这里是记账，不是背书。
     """
     try:
         sys.path.insert(0, str(REPO / "tools"))
         from kb_build import tables as tables_mod
     except Exception as exc:  # noqa: BLE001
         return f"权威表 sha256：NOT_MEASURED（{type(exc).__name__}）"
+    guarded = "门保护"
+    reported = "报告型·F9 待裁"
     names = (
-        tables_mod.CHAPTER_MAP,
-        tables_mod.CHAPTER_BY_SOURCE,
-        tables_mod.ALIAS_MAP,
-        tables_mod.BOUNDARY_MAP,
-        tables_mod.PREREQ_MAP,
-        tables_mod.MATERIAL_BINDINGS,
+        (tables_mod.CHAPTER_MAP, guarded),
+        (tables_mod.CHAPTER_BY_SOURCE, guarded),
+        (tables_mod.ALIAS_MAP, guarded),
+        (tables_mod.BOUNDARY_MAP, reported),
+        (tables_mod.PREREQ_MAP, guarded),
+        (tables_mod.MATERIAL_BINDINGS, reported),
     )
     parts = []
-    for name in names:
+    for name, level in names:
         path = tables_mod.TABLES_DIR / name
         if not path.is_file():
-            parts.append(f"`{name}`=missing")
+            parts.append(f"`{name}`=missing（{level}）")
             continue
-        parts.append(f"`{name}`=`{hashlib.sha256(path.read_bytes()).hexdigest()[:12]}`")
+        parts.append(f"`{name}`=`{hashlib.sha256(path.read_bytes()).hexdigest()[:12]}`（{level}）")
     return "权威表 sha256（前 12 位）：" + " · ".join(parts)
 
 

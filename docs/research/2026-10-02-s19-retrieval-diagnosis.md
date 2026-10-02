@@ -87,3 +87,17 @@ USE TEMP B-TREE FOR ORDER BY
 - 新装路径：`KnowledgeSearchIndexInstallInstrumentedTest` 证明"无首访问重建"。
 - 口径：首查长尾的因果（重建 vs 设备 GC/冷缓存）在桌面不可复现，真机数字若仍见长尾，
   按"证据定多少写多少"如实记录，不强行归因。
+
+## 6. 固定读数复测（2026-10-02，探针已入库）
+
+§2 的"固定读数 ≈12.6ms/次（桌面档）"当时是一次性脚本的读数。本批把探针入库为
+`tools/kb_perf/recall_read_cost.py`（表结构按 `57.json` 逐字抄写，建表后与 schema 的
+列名/索引逐名核对；schema 升级即报错），并复测：
+
+- 复算：`python tools/kb_perf/recall_read_cost.py`（4 科 × 9,000 节点 / 每节点 24 条特征
+  = 86.4 万特征行，内存库，n=24）
+- 实测：**p50 9.534ms、p95 9.812ms**（min 9.314 / max 10.231）——与 §2 的 ≈12.6ms 同量级
+  （差异可来自特征分布/机器负载口径；两者都是桌面档，真机以仪器化为准）。
+- 口径不变：这笔开销仍是"每次召回的固定成本"（`readVersion` + 两个 COUNT，其中
+  `COUNT(DISTINCT)` 最贵），S21 的"安装期预热消灭首访重建"不消除它；是否进一步优化
+  由 F 分叉（④-6 登记项）决定。

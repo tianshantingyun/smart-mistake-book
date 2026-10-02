@@ -353,10 +353,130 @@ def _point_table_checks(pack: dict, manifest: dict | None, tables_dir: Path) -> 
     return _truncate(out)
 
 
+def _three_value_types() -> set[str]:
+    """三值白名单的**单一来源** = 写入侧 `kb_coverage.materialize.TYPES`
+    （`merge_text_judgments.TYPES` 与它逐字一致，由 test_kb_materialize 钉住）。
+    延迟导入：kb_build 不在导入期拖起 kb_coverage 的依赖链。"""
+    from kb_coverage import materialize as mz
+    return mz.TYPES
+
+
+def legacy_type_counts() -> dict[str, int]:
+    """材料 `type` 的三值外计数（协议 v1.1 只许 CONCEPT_EXPLANATION / METHOD_MODEL /
+    MISCONCEPTION_GUIDE；4 种旧值仍在存量材料里）。
+
+    **基线豁免形态**：`LEGACY_TYPE_BASELINE` 是 2026-10-02 实测基线，只许**递减**——
+    回归钉在 `tools/tests/test_kb_contract_report_counts.py`（超过基线即红，否则只报数）。
+    F7 决策（迁移 / 保留）落地后把本项翻成硬门（= 0）。
+    """
+    allowed = _three_value_types()
+    counts: dict[str, int] = {}
+    for path in pack_io.sidecar_paths():
+        for material in pack_io.load_json(path).get("materials") or []:
+            t = material.get("type") or ""
+            if t not in allowed:
+                counts[t] = counts.get(t, 0) + 1
+    counts["legacy_total"] = sum(counts.values())
+    return counts
+
+
+LEGACY_TYPE_BASELINE = 667  # 2026-10-02 实测；只许递减（见 legacy_type_counts 的说明）
+
+
 def _truncate(out: dict[str, list[str]]) -> dict[str, list[str]]:
     for key in out:
         out[key] = out[key][:20]
     return out
+
+
+# ---------------------------------------------------------------------------
+# 报告型计数（**不参与红/绿**）：boundary_map 与 material_bindings
+# ---------------------------------------------------------------------------
+
+def _pack_node_boundaries(pack: dict) -> dict[tuple[str, str], str]:
+    out: dict[tuple[str, str], str] = {}
+    for subject in pack["subjects"]:
+        name = subject["subject"]
+
+        def walk(objs) -> None:
+            for topic in objs:
+                for point in topic.get("knowledgePoints") or []:
+                    out[(name, point["slug"])] = point.get("boundary") or ""
+                walk(topic.get("topics") or [])
+
+        walk(subject["topics"])
+    return out
+
+
+def _pack_material_bindings() -> dict[str, set[str]]:
+    """材料 slug → 已绑定节点的短名集合（材料卷枚举走 `pack_io.sidecar_paths()`）。"""
+    out: dict[str, set[str]] = {}
+    for path in pack_io.sidecar_paths():
+        for material in pack_io.load_json(path).get("materials") or []:
+            shorts = {b["knowledgeNodeId"].rsplit(":", 1)[-1]
+                      for b in material.get("bindings") or []}
+            out.setdefault(material["slug"], set()).update(shorts)
+    return out
+
+
+def report_only_counts(pack: dict, tables_dir: Path | None = None,
+                       bindings: dict[str, set[str]] | None = None) -> dict[str, int]:
+    """两张「对外展示为权威、但不在任何对账里」的表的现状计数（只报数，不红不绿）。
+
+    背景：`docs/status.md` 把 6 张表并列展示为权威，其中 boundary_map（20 行 vs 包内
+    3,866 条 boundary）与 material_bindings（598 行 vs 50,383 条材料）此前不被任何检查
+    读取（详见 docs/kb-outstanding-research-2026-10-02.md ⑥）。本函数把现状量出来，
+    由 run_kb_checks 以 INFO 节呈现；**执行口径（欠账怎么清）等 F9 决策**。
+
+    - boundary_map：`boundary_effective` 与包内节点 boundary 逐字相等 /
+      `boundary_stale` 不等 / `boundary_missing` 节点不在包内；
+    - material_bindings：`mb_effective` 材料在包内且已绑到声明节点 /
+      `mb_arrear` 材料在包内但没绑到该节点 / `mb_material_missing` 材料不在包内 /
+      `mb_point_missing` 节点 slug 不在包内 / `mb_empty` 两列有空。
+    """
+    tables_dir = tables_dir or tables.TABLES_DIR
+    boundaries = _pack_node_boundaries(pack)
+    point_slugs = {slug for _s, slug in boundaries}
+
+    b_rows = _read_rows(tables_dir, "boundary_map.csv")
+    b_effective = b_stale = b_missing = 0
+    for row in b_rows:
+        key = (row.get("subject", ""), row.get("slug", ""))
+        if key not in boundaries:
+            b_missing += 1
+        elif boundaries[key] == (row.get("boundary") or ""):
+            b_effective += 1
+        else:
+            b_stale += 1
+
+    binds = bindings if bindings is not None else _pack_material_bindings()
+    m_rows = _read_rows(tables_dir, "material_bindings.csv")
+    m_effective = m_arrear = m_material_missing = m_point_missing = m_empty = 0
+    for row in m_rows:
+        material, point = row.get("material_slug", ""), row.get("point_slug", "")
+        if not material or not point:
+            m_empty += 1
+        elif material not in binds:
+            m_material_missing += 1
+        elif point not in point_slugs:
+            m_point_missing += 1
+        elif point in binds[material]:
+            m_effective += 1
+        else:
+            m_arrear += 1
+
+    return {
+        "boundary_rows": len(b_rows),
+        "boundary_effective": b_effective,
+        "boundary_stale": b_stale,
+        "boundary_missing": b_missing,
+        "mb_rows": len(m_rows),
+        "mb_effective": m_effective,
+        "mb_arrear": m_arrear,
+        "mb_material_missing": m_material_missing,
+        "mb_point_missing": m_point_missing,
+        "mb_empty": m_empty,
+    }
 
 
 def check_table_consistency(pack: dict, manifest: dict | None,
@@ -406,6 +526,16 @@ def main() -> int:
                  "point_rename", "point_delete", "point_merge", "point_relocation"):
         for p in consistency[name]:
             print(f"  ! [{name}]", p)
+    pack = pack_io.load_json(pack_io.pack_path())
+    counts = report_only_counts(pack)
+    legacy = legacy_type_counts()
+    print("报告型计数（不参与红/绿）：")
+    print(f"  boundary_map 生效 {counts['boundary_effective']}/{counts['boundary_rows']}"
+          f"（stale {counts['boundary_stale']}、missing {counts['boundary_missing']}）")
+    print(f"  material_bindings 生效 {counts['mb_effective']}、欠账 {counts['mb_arrear']}、"
+          f"材料缺 {counts['mb_material_missing']}、节点缺 {counts['mb_point_missing']}、"
+          f"空 {counts['mb_empty']}（共 {counts['mb_rows']}）")
+    print(f"  三值外材料 type {legacy['legacy_total']}（基线豁免 {LEGACY_TYPE_BASELINE}，只许递减）")
     return 1 if total else 0
 
 
