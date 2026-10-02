@@ -83,6 +83,7 @@ DAO 文件零改动）。修复：`RoomKnowledgeContentReconciler` 四条批量�
 
 ## 7. 共享工作树
 
-台账（`docs/agent-first-refactor-decisions-2026-09-23.md`）与 `docs/REFACTOR-MASTER-LINE.md`
-当前含另一线未提交的在飞改动——本记录独立成文；**完成记录段落与 master line 的行状态更新
-（3A 行 Wave 4 ✅、3B 行 S5/S8 部分 ✅）待他线提交后一笔最小 diff 回填**。
+- `docs/REFACTOR-MASTER-LINE.md` 已随另一线提交转为干净 → **本波已回填**：3A 行收口
+  （Wave 0–4 全 ✅ + Wave 4 四批与门数字）与「读侧语义闭合」行翻 ✅（指针到 `c5829217` 与批次 R 记录）。
+- 台账（`docs/agent-first-refactor-decisions-2026-09-23.md`）仍有另一线未提交的在飞改动
+  （+225 行）——**完成记录段落与指针待其提交后一笔最小 diff 回填**；本记录独立成文即为此。
