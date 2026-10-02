@@ -1,8 +1,8 @@
 {
  "schemaVersion": 2,
  "packId": "moe-2025-four-subjects-v1",
- "version": 7,
- "contentVersion": "79ddb5e63beed1bf",
+ "version": 9,
+ "contentVersion": "f1f6a470c840b365",
  "retired": [
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质-x1",
@@ -255,6 +255,12 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
    "kind": "MERGE",
    "reason": "同章同名去重副本 群落的结构"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:胚芽鞘生长情况的判断方法",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的功能-x1",
@@ -707,6 +713,12 @@
    "reason": "只有标题冒号"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种表示物质变化的方程式",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学用语中的六式",
+   "kind": "MERGE",
+   "reason": "残渣节点：名字是材料标题；块池入库腾位时该节点唯一材料按内容改绑到专指节点，改后为零材料（2026-10-01）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:共价键-x1",
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:共价键",
    "kind": "MERGE",
@@ -843,6 +855,12 @@
    "supersededBy": null,
    "kind": "DELETE",
    "reason": "题干/答案标记"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤素的提取",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子结构-x1",
@@ -1049,6 +1067,12 @@
    "reason": "跨章同名同概念"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:微型工业流程选择题解题策略",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:按官能团的不同可以对有机物进行分类-请指出下列有机物所属的类别",
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据官能团分类",
    "kind": "MERGE",
@@ -1223,6 +1247,12 @@
    "reason": "跨章同名同概念"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶质为碱的溶液-h-全部来自水的电离",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水电离出的离子浓度的计算",
+   "kind": "MERGE",
+   "reason": "残渣节点：名字是整句带句号；块池入库腾位时该节点唯一材料按内容改绑到专指节点，改后为零材料（2026-10-01）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:烷烃的命名-x1",
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:烷烃的命名",
    "kind": "MERGE",
@@ -1349,6 +1379,18 @@
    "reason": "题干壳：材料已全部归位真节点"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:碳元素在自然界中的循环",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:碳酸与碳酸盐",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:碳酸亚乙烯酯是锂离子电池低温电解液的重要添加剂-其分子结构如图",
    "supersededBy": null,
    "kind": "DELETE",
@@ -1377,6 +1419,12 @@
    "supersededBy": null,
    "kind": "DELETE",
    "reason": "题干/答案标记"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:能量图像分析",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:装置气密性检查方法",
@@ -1895,6 +1943,12 @@
    "reason": "整句话当名称"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:常见组合函数的图象",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列中的公共项问题",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:数列的公共项问题",
    "kind": "MERGE",
@@ -2157,6 +2211,12 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:游标卡尺的构造与读数",
    "kind": "MERGE",
    "reason": "错绑改绑后被抽空的近重复节点：两节点同主题、边界同指一个知识点，材料已全部落在专指节点（2026-09-19 错绑审计·主循环裁定）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物理选择题的常用解题方法与技巧",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "建点后块过薄/图未提取，写不出材料——按建点闭环规则撤回"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:特点-x1",

@@ -127,8 +127,10 @@ def main():
     }
 
     leg = lexical_rows(root.joinpath(*D.LEXICAL_LEG_RELATIVE.split("/")))
-    if len(leg) != 90:
-        raise SystemExit("生产词面腿应覆盖 90 题，实测 %d（先跑 ProductionLexicalLegExportTest）" % len(leg))
+    golden_count = len(cases)   # 判官现取：扩集后词面腿与期望一起重生成
+    if len(leg) != golden_count:
+        raise SystemExit("生产词面腿应覆盖 %d 题，实测 %d（先跑 ProductionLexicalLegExportTest）"
+                         % (golden_count, len(leg)))
     query_int8 = np.load(root / "build" / "dense-model" / "int8-queries.npy")
     query_norm = query_int8 / np.maximum(np.linalg.norm(query_int8, axis=1, keepdims=True), 1e-12)
 
@@ -191,8 +193,9 @@ def main():
             rank_mismatch += 1
         if item["rank"] > 0 and device_judgement.ranks[index] == 0:
             hit_lost.append((index, cases[index]["expectedSlug"]))
-    print("与离线参考逐题比对：top-5 成员不同 %d/90、名次不同 %d/90、命中丢失 %d 条 %s"
-          % (composition_mismatch, rank_mismatch, len(hit_lost), hit_lost[:5]))
+    print("与离线参考逐题比对：top-5 成员不同 %d/%d、名次不同 %d/%d、命中丢失 %d 条 %s"
+          % (composition_mismatch, len(cases), rank_mismatch, len(cases),
+             len(hit_lost), hit_lost[:5]))
 
     # ---- 端侧 JVM 端到端期望次序 fixture（4 条查询：每科 1 条，与 scan fixture 同选法）----
     picked = []

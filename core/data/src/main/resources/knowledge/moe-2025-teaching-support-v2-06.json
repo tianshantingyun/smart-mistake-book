@@ -5421,26 +5421,6 @@
    ]
   },
   {
-   "slug": "ext-che-254546a036-011",
-   "subject": "CHEMISTRY",
-   "type": "DERIVATION",
-   "title": "水电离出的离子浓度计算",
-   "summaryMarkdown": "酸溶液中OH−全部来自水，碱溶液中H+全部来自水；水电离出的c(H+)与c(OH−)恒相等。",
-   "applicabilityMarkdown": "水电离出的离子浓度计算",
-   "contentMarkdown": "①任何水溶液中水电离出的c(H+)和c(OH−)总是相等的。②中性溶液：c(H+)=c(OH−)=1.0×10−7 mol·L−1。③溶质为酸的溶液：OH−全部来自水的电离，c(OH−)溶液=c(OH−)水=c(H+)水，如pH=2的盐酸中由水电离的c(H+)=10−12 mol·L−1。④溶质为碱的溶液：H+全部来自水的电离，c(H+)溶液=c(H+)水=c(OH−)水，如pH=12的NaOH溶液中由水电离的c(OH−)=10−12 mol·L−1。⑤水解呈酸性的盐溶液：c(H+)溶液=c(H+)水=c(OH−)水；水解呈碱性的盐溶液：c(OH−)溶液=c(OH−)水=c(H+)水。",
-   "boundaryMarkdown": "水电离出的c(H+)与c(OH−)始终相等，不能把溶液中的c(H+)直接当作水电离出的c(H+)。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 水的电离和溶液的酸碱性（知识清单）（全国通用）（学生版）.docx（块 254546a036-011）",
-   "reviewedAtEpochMillis": 1789739866892,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶质为碱的溶液-h-全部来自水的电离",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-cdf8a7a9f6-018",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -6416,26 +6396,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用基本不等式求最值",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-93e7d67ed2-023",
-   "subject": "MATH",
-   "type": "DERIVATION",
-   "title": "用平面截圆锥面得圆锥曲线",
-   "summaryMarkdown": "平面与圆锥轴所成角 α 和母线与轴夹角 θ 比较，可判定截线是圆、椭圆、抛物线还是双曲线。",
-   "applicabilityMarkdown": "由截平面与圆锥的夹角判断截线形状的题。",
-   "contentMarkdown": "①模型建立：空间中的两条相交直线 l、m（交点为 S，夹角为锐角 θ）绕直线 l 旋转一周形成圆锥面；S 称为圆锥面的顶点，l 称为圆锥面的轴，圆锥面上过点 S 的任意一条直线都称为圆锥面的母线。②截线判定：用一个不经过点 S 的平面 β 去截这个圆锥面，设平面 β 与轴 l 所成角为 α，则 α 等于 π/2（平面 β 与轴 l 垂直）时截线是圆；θ 小于 α 且 α 小于 π/2 时截线是椭圆；α 等于 θ 时截线是抛物线；0 小于 α 且 α 小于 θ 时截线是双曲线。③统称：圆、椭圆、抛物线、双曲线都可以由平面截圆锥面得到，因此把它们统称为圆锥曲线。④离心率联系：比值 cosα/cosθ 就是圆锥曲线的离心率，椭圆段有 0 小于 cosα/cosθ 小于 1，抛物线时为 1，双曲线时大于 1。",
-   "boundaryMarkdown": "α 是平面与轴所成的角、θ 是母线与轴所成的角，两者比反会把椭圆与双曲线判断颠倒。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:math",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/五、53提分资料包/1.链接教材/提分资料包/27版53B-链接教材正文.pdf（块 93e7d67ed2-023）",
-   "reviewedAtEpochMillis": 1789750374146,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线的综合问题",
      "role": "PRIMARY"
     }
    ]
@@ -33141,26 +33101,6 @@
    ]
   },
   {
-   "slug": "ext-mat-e2ed55e83e-003",
-   "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "圆的一般方程与配方转化",
-   "summaryMarkdown": "圆的一般方程形式、圆的条件以及与标准方程互化的配方方法",
-   "applicabilityMarkdown": "已知圆上三点、方程含二次项或需要判断方程是否表示圆的问题",
-   "contentMarkdown": "**一般方程**：$x^2+y^2+Dx+Ey+F=0$，其中 $D^2+E^2-4F>0$ 是方程表示圆的条件；若 $D^2+E^2-4F=0$ 表示一个点（点圆），小于 0 则无轨迹。\\n\\n**与标准方程的互化**：通过配方实现。把方程配方得 $\\left(x+\\frac{D}{2}\\right)^2+\\left(y+\\frac{E}{2}\\right)^2=\\frac{D^2+E^2-4F}{4}$，由此得圆心 $\\left(-\\frac{D}{2}，-\\frac{E}{2}\\right)$，半径 $r=\\frac{\\sqrt{D^2+E^2-4F}}{2}$。\\n\\n**适用场景**：已知圆上三点，或方程中含多个待定系数时，设一般方程代入求解更简便。",
-   "boundaryMarkdown": "配方时容易漏掉负号和系数，圆心横坐标是 $-\\frac{D}{2}$ 而不是 $\\frac{D}{2}$；只有 $x^2$ 与 $y^2$ 的系数相等且不为零时才能用该形式，系数不为 1 时要先除以系数再套公式；解出参数后必须检验圆的条件。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习备考题型归纳讲义/资料/第32讲：圆的方程（知识梳理+题型总结）（学生版）.docx（块 e2ed55e83e-003）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的方程",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-e2ed55e83e-007",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -35056,26 +34996,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分类加法计数原理",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-a00d3bd73f-001",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "组合与组合数的概念及公式",
-   "summaryMarkdown": "从n个不同元素中取出m个元素并成一组叫组合，所有组合的个数叫组合数，用$C_n^m$表示。",
-   "applicabilityMarkdown": "判断某问题是否是组合问题、计算具体组合数、把实际问题转化成组合模型时使用。",
-   "contentMarkdown": "## 组合与组合数\\n- 组合：从 $n$ 个不同元素中取出 $m$（$m\\le n$）个元素**并成一组**，叫做从 $n$ 个不同元素中取出 $m$ 个元素的一个组合。\\n- 组合数：所有这样的组合的个数叫做组合数，记作 $C_n^m$。组合只问“取出了哪几个元素”，与取出的先后顺序无关。\\n\\n## 组合数公式\\n- 阶乘形式：$C_n^m=\\dfrac{n!}{m!(n-m)!}$；\\n- 连乘形式：$C_n^m=\\dfrac{n(n-1)(n-2)\\cdots(n-m+1)}{m!}$；\\n- 与排列数的关系：$C_n^m=\\dfrac{A_n^m}{m!}$。\\n其中 $m\\le n$，且 $m\\in\\mathbf N^*$、$n\\in\\mathbf N^*$，规定 $C_n^0=1$。\\n\\n## 两个常用性质\\n- 对称性：$C_n^m=C_n^{n-m}$，把上标换成较小的数再算；\\n- 加法公式：$C_{n+1}^{m}=C_n^{m}+C_n^{m-1}$，用于合并或拆分组合数、化简含字母的式子。",
-   "boundaryMarkdown": "必须 $m\\le n$ 且上标为不超过 $n$ 的非负整数；题目若与顺序、去向、职务有关（分任职务、排队、发邮件、车票）就不能用组合数；带“至少、至多、不含有”的限制条件要先分类再计数。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【5】2026年高考数学二轮复习讲义（新高考通用）/第03讲 组合与组合数讲义（思维导图+知识要点+解题技巧+题型归纳+巩固提升）（新高考通用）-学生版.docx（块 a00d3bd73f-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:组合",
      "role": "PRIMARY"
     }
    ]
@@ -39536,26 +39456,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:累加法与累乘法求数列通项",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-d3b884ba6b-001b",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "张角定理与角平分线长",
-   "summaryMarkdown": "三角形一边上任一点与对角顶点的连线满足两小角的正弦与该点所分两边对应成比例之和等于整体角的正弦除以连线长，由此可得角平分线长公式",
-   "applicabilityMarkdown": "三角形中出现顶点到对边一点的分割线与张角关系、求角平分线长度或由其构造基本不等式求最值",
-   "contentMarkdown": "张角定理：在 $\\triangle ABC$ 中，角 $A$、$B$、$C$ 所对的边分别为 $a$、$b$、$c$，若 $D$ 为 $BC$ 上一点，记 $\\angle BAD=\\alpha$、$\\angle DAC=\\beta$，则 $\\frac{\\sin\\alpha}{AC}+\\frac{\\sin\\beta}{AB}=\\frac{\\sin(\\alpha+\\beta)}{AD}$。\\n\\n证明思路：由 $S_{\\triangle ABD}+S_{\\triangle ADC}=S_{\\triangle ABC}$ 出发，把三块面积都用两边及其夹角的正弦表示，再在等式两边同除以合适的量，整理即得上述关系式。\\n\\n角平分线长的特例：若 $AD$ 是 $\\angle A$ 的平分线并交 $BC$ 于点 $D$，代入张角定理化简可得 $AD=\\frac{2bc\\cos\\frac{A}{2}}{b+c}$。这条公式既可直接用来求角平分线的长度，也可以反过来结合基本不等式处理与角平分线有关的取值范围和最值问题。",
-   "boundaryMarkdown": "张角定理在解答题中使用之前需要先推导；公式中的角是分割线两侧的两个小角，整体角是两者之和；角平分线长公式只适用于内角平分线，外角平分线不适用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第四章 三角函数与解三角形/重难点培优06 解三角形中几个秒杀公式（复习讲义）（全国通用）（学生版）.docx（块 d3b884ba6b-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:张角定理",
      "role": "PRIMARY"
     }
    ]

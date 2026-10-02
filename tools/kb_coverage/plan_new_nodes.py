@@ -25,6 +25,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from kb_build import gate, pack_io
+from kb_coverage.extraction_state import subject_of_path
 
 REPO = Path(pack_io.REPO).resolve()
 MERGED = REPO / "build" / "agent-input" / "merged_text_batch.csv"
@@ -176,10 +177,8 @@ def main(argv: list[str] | None = None) -> int:
                 evidence.setdefault(r["node_slug"][4:], r)
 
     def subject_of(rel: str) -> str | None:
-        for key, subj in (("化学", "CHEMISTRY"), ("生物", "BIOLOGY"), ("物理", "PHYSICS"), ("数学", "MATH")):
-            if key in rel:
-                return subj
-        return None
+        """归科口径与池一致（`extraction_state.subject_of_path`）。"""
+        return subject_of_path(rel)
 
     plan, rebind, bad = [], {}, []
     # 新节点之间的近重复归并：同科内 canonical 相同的一组，取最短名为代表，其余指向代表

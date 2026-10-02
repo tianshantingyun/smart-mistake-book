@@ -49449,26 +49449,6 @@
    ]
   },
   {
-   "slug": "ext-phy-8a6cb6c448-004",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "φ-x 图像的信息与读法",
-   "summaryMarkdown": "φ-x 图线的斜率表示电场强度的大小与方向，由图可直接读出各点电势高低。",
-   "applicabilityMarkdown": "给出 φ-x 图像，要求比较场强大小、判断场强方向或分析电荷电势能变化时使用。",
-   "contentMarkdown": "## 斜率的含义\\nφ-x 图线的斜率表示电场强度：斜率的绝对值表示电场强度的大小，斜率的正负表示电场强度的方向（场强沿 x 轴正方向时图线斜率为负）。\\n\\n## 直接可读的信息\\n由图可直接判断各点电势的高低；结合电势高低与电荷的正负，可判断电荷在某点电势能的大小以及移动过程中电势能的变化。\\n\\n## 常见图形\\n- 单个点电荷（取无限远处电势为零）的 φ-x 图线。\\n- 两个等量异种点电荷连线上的 φ-x 图线。\\n- 两个等量正点电荷连线上的 φ-x 图线。\\n\\n## 使用要点\\n图线斜率为零处电场强度为零；图线与横轴的交点处电势为零，是电势正负的分界点。",
-   "boundaryMarkdown": "斜率的正负表示场强方向而不是电势高低；“电势为正”不能推出“场强沿正方向”；图线上某点的纵坐标是电势而不是电势能。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第30讲 电场中的功能关系及图像问题（复习讲义）（安徽专用）（学生版）.docx（块 8a6cb6c448-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:φ-x图像-反映了电势随位移变化的规律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-8a6cb6c448-005",
    "subject": "PHYSICS",
    "type": "REPRESENTATION_GUIDE",
@@ -49724,26 +49704,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的奇偶性-周期性-对称性关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-16be9c916c-001",
-   "subject": "PHYSICS",
-   "type": "DERIVATION",
-   "title": "电磁感应中含电容的单棒模型",
-   "summaryMarkdown": "恒定拉力下金属棒给电容器充电，由 F−BIL=ma 与 I=CBLa 推出加速度恒定，棒做匀加速运动。",
-   "applicabilityMarkdown": "导轨上金属棒与电容器组成的回路，分析棒的加速度、运动性质与能量转化时使用。",
-   "contentMarkdown": "## 情景\\n金属棒的初速度为零，在水平导轨上受恒定的水平拉力 F，棒与导轨的电阻不计、摩擦力不计。棒做加速运动，持续对电容器充电，回路中存在充电电流。\\n\\n## 推导\\n设电容器的电容为 C，导轨间距为 L，磁感应强度为 B。对棒有 $F-BIL=ma$；充电电流 $I=\\dfrac{\\Delta Q}{\\Delta t}$，而 $\\Delta Q=C\\Delta U$，$\\Delta U=\\Delta E=BL\\Delta v$，于是 $I=CBL\\dfrac{\\Delta v}{\\Delta t}=CBLa$。\\n代入得 $F-B^2L^2Ca=ma$，解得 $a=\\dfrac{F}{m+B^2L^2C}$，是恒量。\\n\\n## 结论与能量\\n- 运动性质：金属棒做加速度恒定的匀加速直线运动。\\n- 功能关系：$W_F=\\dfrac12mv^2+E_电$，拉力做的功一部分变成棒的动能，一部分转化为电容器储存的电能。\\n\\n## 其他情形\\n含电容的单棒回路还有“无外力充电式”（棒有初速度、减速给电容器充电）与“无外力放电式”（电容器先充电再放电驱动棒）两种基本模型。",
-   "boundaryMarkdown": "上述结论要求导轨与棒的电阻不计、无摩擦且拉力恒定；回路中电阻不可忽略时充电电流与加速度的关系会改变，需重新列式。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/【2】2026届高考物理一轮复习模型解读与针对性训练/资料/高考物理电学压轴题模型解读与针对性训练：19.电磁感应、电容模型/19.电磁感应+电容模型-高考电学压轴题模型解读与针对性训练/16.电磁感应+电容模型（学生版）高考电学压轴题模型解读与针对性训练.docx（块 16be9c916c-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应中的单棒模型",
      "role": "PRIMARY"
     }
    ]

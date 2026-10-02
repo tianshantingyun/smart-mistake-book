@@ -24,6 +24,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from kb_build import pack_io
+from kb_coverage.extraction_state import subject_of_path
 
 REPO = Path(pack_io.REPO).resolve()
 JUDGMENTS = REPO / "tools" / "kb_coverage" / "tables" / "material_judgments.csv"
@@ -31,10 +32,9 @@ SUBJ3 = {"MATH": "mat", "PHYSICS": "phy", "CHEMISTRY": "che", "BIOLOGY": "bio"}
 
 
 def subject_of(rel: str) -> str | None:
-    for key, subj in (("化学", "CHEMISTRY"), ("生物", "BIOLOGY"), ("物理", "PHYSICS"), ("数学", "MATH")):
-        if key in rel:
-            return subj
-    return None
+    """科目口径与池一致（`extraction_state.subject_of_path`）：材料 slug 前缀
+    `ext-<科>-…` 由它决定，旧的关键词顺序规则会把生物材料写成 `ext-che-`。"""
+    return subject_of_path(rel)
 
 
 def slug_of(rel: str, chunk_id: str, midx: str) -> str | None:

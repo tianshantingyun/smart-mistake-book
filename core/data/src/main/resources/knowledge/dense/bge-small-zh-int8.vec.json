@@ -1,16 +1,16 @@
 {
-  "bytes": 17167873,
+  "bytes": 24403823,
   "corpus": {
-    "aliasVectors": 25359,
-    "atomicNodes": 3572,
-    "canonicalVectors": 3572,
+    "aliasVectors": 37327,
+    "atomicNodes": 3866,
+    "canonicalVectors": 3866,
     "includeTopics": false,
     "layoutSource": "spec §2.2；与离线臂 stage2_common.build_vector_layout 同序",
     "nodeScore": "max over the node's vectors (canonicalName + aliases) cosine",
-    "vectorCount": 28931
+    "vectorCount": 41193
   },
   "format": {
-    "count": 28931,
+    "count": 41193,
     "dim": 512,
     "dtype": "int8-per-vector-f32-scale",
     "dtypeCode": 1,
@@ -20,7 +20,7 @@
     "scaleRule": "scale[r] = max(abs(v_r))/127 ; value = int8 * scale[r]",
     "version": 1
   },
-  "generatedBy": "python tools/dense_build/pack_dense_asset.py",
+  "generatedBy": "python tools/dense_build/pack_dense_asset.py --model bge-small-zh-v1.5",
   "model": {
     "dim": 512,
     "docPrefix": null,
@@ -29,9 +29,10 @@
       "attention_mask",
       "token_type_ids"
     ],
-    "license": "mit（基座许可证，spec §2.1；可再分发）",
-    "maxLen": 512,
+    "license": "mit（基座许可证；可再分发）",
+    "maxLen": 128,
     "modelId": "bge-small-zh-v1.5-int8-onnx",
+    "modelKey": "bge-small-zh-v1.5",
     "modelManifest": "tools/dense_build/model-manifest.json",
     "normalize": "l2",
     "onnxFp32Path": "build/dense-model/bge-small-zh-v1.5-fp32.onnx",
@@ -48,27 +49,28 @@
   },
   "packId": "moe-2025-four-subjects-v1",
   "packPath": "core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json",
-  "packSha256": "533eab121d77e3daa9fd41bbc807004ff821faf7513f1d049d8a576046f99b38",
+  "packSha256": "647675cd98f52ca87802b0cbae7ee4e0e84252b8b62e4ef8625748c7a3c41dd9",
   "productionLexicalLeg": {
     "note": "生产 v1 词面腿（COUNT(DISTINCT feature)，行序 = 生产排序）",
     "path": "build/production-lexical-leg.tsv",
-    "rows": 32804,
-    "sha256": "08cc1f70379022f0a3056c101dd8f178a8cc75b0fb9ed61a30f6e8060dc67613"
+    "rows": 48891,
+    "sha256": "fb4b1346ab4f27da1fefa064cd962356dfacdb2ed7985cdcbe3f40c2095215da"
   },
   "quantization": {
-    "endToEndCosineMedianVsFp32Reference": 0.9992815852165222,
+    "endToEndCosineMedianVsFp32Reference": 0.9992825388908386,
     "endToEndCosineMinVsFp32Reference": 0.9988898634910583,
     "gate": 0.999,
     "kind": "int8-per-vector-symmetric",
-    "roundtripCosineMedianVsInt8Model": 0.9998913407325745,
+    "roundtripCosineMedianVsInt8Model": 0.9998918771743774,
     "roundtripCosineMinVsInt8Model": 0.9997469782829285,
     "scaleRule": "scale[r] = max(abs(v_r))/127 ; value = int8 * scale[r]",
-    "scalesBytes": 115724,
-    "vsFp32ReferencePath": "build/stage2-dense-work/vectors/bge-docs.npy"
+    "scalesBytes": 164772,
+    "vsFp32ReferencePath": "build/dense-model/fp32-docs.npy"
   },
-  "regeneratedFrom": "python tools/dense_build/export_bge_int8.py",
-  "sha256": "cdf93650b948a09179c893a8de285b0248917da420770570afb47d453f80cb5a",
+  "regeneratedFrom": "python tools/dense_build/export_bge_int8.py --model bge-small-zh-v1.5",
+  "sha256": "8649afa62ce968c3aebcf1ad2dd0d99f5cd5ca1ac52d22ac6e7c6fbd51d63850",
   "vocab": {
+    "note": "词表冻结副本两档共享：bge-base-zh-v1.5 与 bge-small-zh-v1.5 的 vocab.txt 逐字节相同（sha256 45bbac6b…，实测 2026-09-25），逐条 token id 亦相同（export 侧对 333 条冻结 fixture 当场对拍）",
     "path": "tools/dense_build/vocab/bge-small-zh-v1.5-vocab.txt",
     "sha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c",
     "tokenizerJsonPath": "tools/dense_build/vocab/bge-small-zh-v1.5-tokenizer.json",

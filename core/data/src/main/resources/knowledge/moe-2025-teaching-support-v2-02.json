@@ -44637,26 +44637,6 @@
    ]
   },
   {
-   "slug": "ext-che-862daf9cec-026",
-   "subject": "CHEMISTRY",
-   "type": "DERIVATION",
-   "title": "分压平衡常数 Kp 的计算模板",
-   "summaryMarkdown": "Kp 只受温度影响；恒温恒容可用分压做三段式，气体分子数不变时可用物质的量替代分压。",
-   "applicabilityMarkdown": "给定总压与物质的量分数求 Kp 的计算题。",
-   "contentMarkdown": "①定义：在化学平衡体系中，用各气体物质的分压代替浓度进行计算，得到的平衡常数称为分压平衡常数（Kp）。例如对于 N₂(g)+3H₂(g)⇌2NH₃(g)，Kp=p²(NH₃)/[p(N₂)·p³(H₂)]。②某气体的分压=总压×该气体的物质的量分数（或体积分数）。③影响因素：Kp 只受温度影响。④模板（恒温恒容体系）：对于恒温恒容反应，气体的压强与其物质的量成正比，若已知起始时各气体的分压，则可用分压代替物质的量运用“三段式”法进行计算，直接求出平衡时各气体的分压。⑤模板（气体分子数不变的反应）：可用平衡时各气体的物质的量代替分压直接计算 Kp，例如 H₂(g)+I₂(g)⇌2HI(g)，Kp=n²(HI)/[n(H₂)·n(I₂)]。⑥注意：对于恒温恒压体系，不可用压强代替物质的量进行计算，要按照通用模板计算。",
-   "boundaryMarkdown": "Kp 只受温度影响；恒温恒压体系不能用压强代替物质的量做三段式，只有恒温恒容才可以直接用分压。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:chemistry",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.化学.5·3A版/一、本书电子教参/第九章化学反应速率与化学平衡/5_精讲册PDF/3_09-第九章　化学反应速率与化学平衡.pdf（块 862daf9cec-026）",
-   "reviewedAtEpochMillis": 1789750368955,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:压强平衡常数",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-ed2c3e836f-002",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",

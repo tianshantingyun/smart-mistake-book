@@ -28,6 +28,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from kb_build import pack_io
+from kb_coverage.extraction_state import subject_of_path
 from kb_coverage.pool_path import POOL_PATH
 
 REPO = Path(pack_io.REPO).resolve()
@@ -88,10 +89,13 @@ def collect_files(only: str = "", directory: Path | None = None) -> list[Path]:
 
 
 def subject_of(rel: str) -> str | None:
-    for key, subj in (("化学", "CHEMISTRY"), ("生物", "BIOLOGY"), ("物理", "PHYSICS"), ("数学", "MATH")):
-        if key in rel:
-            return subj
-    return None
+    """块的科目：与池同一口径（`extraction_state.subject_of_path`）。
+
+    旧实现自己按"关键词出现顺序"判（化学优先于生物），实测 59 条生物路径
+    （`降低化学反应活化能的酶` 含"化学"）被判成 CHEMISTRY，于是拿化学节点集去校验生物
+    绑定，把合法绑定转成 `NEW:`（静默丢绑定）。
+    """
+    return subject_of_path(rel)
 
 
 def merge(only: str = "", directory: Path | None = None) -> dict:
@@ -189,29 +193,71 @@ def merge(only: str = "", directory: Path | None = None) -> dict:
             "new": new_names, "merged": merged}
 
 
-def apply_to_judgments(merged: list[dict], target: Path | None = None) -> dict:
+def apply_to_judgments(merged: list[dict], target: Path | None = None,
+                       resync: bool = False) -> dict:
     """把合并结果**幂等**追加进判定表：既有 (chunk_rel, chunk_id) 一律跳过。
 
     两条与表实况对齐的约定（实测：表内 0 条 `NEW:` 行、materialize 不认 `NEW:`）：
     - `node_slug` 以 `NEW:` 开头的行**转 SKIP**，提案原文写进 `note`（块不重判、材料不落）；
       完整行（含材料草稿）另存 `new_proposals_full.csv` 供建点闭环取用。
     - 同块多条材料（midx ''/b/c）整批落表；判重只看表内既有键。
+
+    `resync=True`（默认关）另做一件事：**把已修改过的判定行同步回表**。为什么需要它——
+    判定产物落表后仍可能被修复（超 4 段 content 合并、节点错绑改绑、双写覆盖），
+    而"既有键跳过"会让这些修正**永远进不了表**，材料带着旧内容入包（本会话实测 20 行）。
+    只覆盖**同键同 midx** 的行，字段逐列对比、只改不同处，并报告改了哪些键。
     """
     path = within_repo(target or JUDGMENTS)
     rows: list[dict] = []
-    existing: set[tuple[str, str]] = set()
+    existing: dict[tuple[str, str, str], int] = {}
     if path.exists():
         with path.open(encoding="utf-8-sig", newline="") as fh:
             for row in csv.DictReader(fh):
                 rows.append({k: (row.get(k) or "") for k in HDR})
-                existing.add((row.get("chunk_rel") or "", row.get("chunk_id") or ""))
-    added = skipped = proposals = 0
-    table_keys = set(existing)
+                existing[(row.get("chunk_rel") or "", row.get("chunk_id") or "",
+                          (row.get("midx") or "").strip())] = len(rows) - 1
+    added = skipped = proposals = resynced = 0
+    table_keys = {(k[0], k[1]) for k in existing}
+    changed_keys: list[str] = []
     full: list[dict] = []
     for rec in merged:
         key = (rec["chunk_rel"], rec["chunk_id"])
+        midx = (rec.get("midx") or "").strip()
         if key in table_keys:
+            if resync and (key[0], key[1], midx) not in existing:
+                # 源里**新增的行**（同块的 midx=b/c…）：必须补进表，否则永远到不了包。
+                # 实测踩过：判定的 append 流程给已入表的块追材料，20 条全部静默丢失——
+                # 「既有键跳过」是按 (chunk_rel, chunk_id) 判的，同块的后续行被一并跳过。
+                out = {k: (rec.get(k) or "") for k in HDR}
+                if out["node_slug"].startswith("NEW:"):
+                    note = out["note"].strip()
+                    out = {k: "" for k in HDR}
+                    out["chunk_rel"], out["chunk_id"] = key
+                    out["action"] = "SKIP"
+                    out["note"] = rec["node_slug"] + (("；" + note) if note else "")
+                    out["midx"] = midx
+                rows.append(out)
+                existing[(key[0], key[1], midx)] = len(rows) - 1
+                added += 1
+                changed_keys.append(f"{key[1]}:{midx}（补行）")
+                continue
             skipped += 1
+            if resync:
+                idx = existing.get((key[0], key[1], midx))
+                if idx is not None:
+                    out = {k: (rec.get(k) or "") for k in HDR}
+                    if out["node_slug"].startswith("NEW:"):
+                        note = out["note"].strip()
+                        out = {k: "" for k in HDR}
+                        out["chunk_rel"], out["chunk_id"] = key
+                        out["action"] = "SKIP"
+                        out["note"] = rec["node_slug"] + (("；" + note) if note else "")
+                        out["midx"] = (rec.get("midx") or "").strip()
+                    diffs = [k for k in HDR if rows[idx].get(k, "") != out.get(k, "")]
+                    if diffs:
+                        rows[idx] = out
+                        resynced += 1
+                        changed_keys.append(f"{key[1]}:{','.join(diffs)}")
             continue
         out = {k: (rec.get(k) or "") for k in HDR}
         if out["node_slug"].startswith("NEW:"):
@@ -237,7 +283,7 @@ def apply_to_judgments(merged: list[dict], target: Path | None = None) -> dict:
             writer.writeheader()
             writer.writerows(full)
     return {"added": added, "skipped_existing": skipped, "total": len(rows),
-            "new_proposals": proposals}
+            "new_proposals": proposals, "resynced": resynced, "resynced_keys": changed_keys}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -249,6 +295,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="显式启用 --dir 口径（不传 --only 时也收目录内全部 CSV）")
     ap.add_argument("--apply", action="store_true",
                     help="把合并结果幂等追加进判定表（既有键跳过）")
+    ap.add_argument("--resync", action="store_true",
+                    help="配 --apply：把已修改过的判定行同步回表（同键同 midx 覆盖，默认关）")
     args = ap.parse_args(argv)
     directory = args.dir if args.dir is not None else (VERDICTS_DIR if args.dir_mode else None)
     res = merge(args.only, directory)
@@ -263,9 +311,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"   {n[:44]} ×{c}")
     print(f"→ {OUT_CSV}")
     if args.apply:
-        applied = apply_to_judgments(res["merged"])
+        applied = apply_to_judgments(res["merged"], resync=args.resync)
         print(f"追加进判定表：新增 {applied['added']} 行，跳过既有键 {applied['skipped_existing']} 行，"
               f"表内共 {applied['total']} 行 → {JUDGMENTS.name}")
+        if args.resync:
+            print(f"同步修正 {applied['resynced']} 行：")
+            for k in applied["resynced_keys"][:20]:
+                print(f"   ~ {k}")
     return 0
 
 

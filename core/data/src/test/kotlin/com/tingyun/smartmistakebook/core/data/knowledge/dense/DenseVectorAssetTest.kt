@@ -43,7 +43,7 @@ class DenseVectorAssetTest {
             assetHeader.getValue("idsBytesLength").toInt() + asset.dim * asset.count + asset.count * 4
         assertEquals(assetHeader.getValue("expectedBytes").toInt(), expectedBytes)
         assertEquals(bytes.size, expectedBytes)
-        assertEquals(3572, asset.nodeCount)
+        assertEquals(3866, asset.nodeCount)
     }
 
     @Test
@@ -95,7 +95,7 @@ class DenseVectorAssetTest {
         val asset = DenseVectorAsset.read(bytes, expectedSha256 = assetHeader.getValue("sha256"))
         val scans = parseScans()
         assertEquals("scan 查询数变了（每科 1 条）", 4, scans.size)
-        assertEquals("节点行总数变了", 3572, scans.sumOf { it.expected.size })
+        assertEquals("节点行总数变了", 3866, scans.sumOf { it.expected.size })
         for (scan in scans) {
             val scores = asset.nodeScores(scan.query, scan.subject.lowercase())
             assertEquals("scan#${scan.index} 学科=${scan.subject} 的节点数", scan.expected.size, scores.size)

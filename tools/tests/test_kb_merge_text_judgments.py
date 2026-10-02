@@ -39,7 +39,9 @@ def _row(**over) -> dict:
     return base
 
 
-class MergeTextJudgmentsSliceModeTest(unittest.TestCase):
+class _MergeFixture(unittest.TestCase):
+    """共用夹具：一个只含 node-a 的包 + 一条块池记录 + 空的临时判定表。"""
+
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="kb-merge-slice-", dir=pack_io.REPO / "build"))
         pack = {"schemaVersion": 2, "packId": "test-pack", "taxonomyVersion": "test-pack",
@@ -71,6 +73,8 @@ class MergeTextJudgmentsSliceModeTest(unittest.TestCase):
         finally:
             M.CHUNKS, M.OUT_CSV, M.OUT_NEW = orig
 
+
+class MergeTextJudgmentsSliceModeTest(_MergeFixture):
     def test_skip_is_kept_and_types_tightened(self):
         _write_csv(self.vdir / "s1.csv", [
             _row(),
@@ -124,6 +128,90 @@ class MergeTextJudgmentsSliceModeTest(unittest.TestCase):
         # 再合并一遍新片（同键的块）→ 依然不重复
         third = M.apply_to_judgments(res["merged"], self.target)
         self.assertEqual(2, third["total"])
+
+
+class MergeTextJudgmentsResyncTest(_MergeFixture):
+    """`--resync` 的两种同步：既有行字段级覆盖 + 同块新增 midx 的**补行**。
+
+    补行是 2026-10-02 修的真缺陷：判重按 (chunk_rel, chunk_id)，判定侧给已入表的块
+    追加第二条材料（midx=b/c…）时会被整批静默丢掉（实测 20 条 append 全丢）。
+    """
+
+    def _seed_table(self, rows):
+        return M.apply_to_judgments(rows, self.target)
+
+    def _table(self):
+        with self.target.open(encoding="utf-8-sig", newline="") as fh:
+            return list(csv.DictReader(fh))
+
+    def test_without_resync_changed_fields_stay_stale(self):
+        self._seed_table([_row()])
+        res = M.apply_to_judgments([_row(content="改后。")], self.target)
+        self.assertEqual(0, res["added"])
+        self.assertEqual(1, res["skipped_existing"])
+        self.assertEqual("一行。", self._table()[0]["content"])   # 默认关：表里还是旧内容
+
+    def test_resync_overwrites_only_differing_fields(self):
+        self._seed_table([_row()])
+        res = M.apply_to_judgments([_row(content="改后。")], self.target, resync=True)
+        self.assertEqual(1, res["resynced"])
+        self.assertEqual(0, res["added"])
+        self.assertTrue(any("content" in k for k in res["resynced_keys"]), res["resynced_keys"])
+        self.assertEqual("改后。", self._table()[0]["content"])
+
+    def test_new_midx_row_is_dropped_without_resync(self):
+        """旧行为留档：同块第二条材料在默认模式下进不了表。"""
+        self._seed_table([_row()])
+        res = M.apply_to_judgments([_row(), _row(midx="b", content="第二条。")], self.target)
+        self.assertEqual(0, res["added"])
+        self.assertEqual(1, res["total"])
+        self.assertEqual(1, len(self._table()))
+
+    def test_resync_appends_new_midx_row(self):
+        self._seed_table([_row()])
+        res = M.apply_to_judgments([_row(), _row(midx="b", content="第二条。")],
+                                   self.target, resync=True)
+        self.assertEqual(1, res["added"])
+        self.assertEqual(1, res["skipped_existing"])
+        self.assertEqual(2, res["total"])
+        self.assertTrue(any("（补行）" in k for k in res["resynced_keys"]), res["resynced_keys"])
+        rows = self._table()
+        self.assertEqual(["", "b"], [r["midx"] for r in rows])
+        self.assertEqual("第二条。", rows[1]["content"])
+
+    def test_resync_append_is_idempotent(self):
+        self._seed_table([_row()])
+        merged = [_row(), _row(midx="b", content="第二条。")]
+        M.apply_to_judgments(merged, self.target, resync=True)
+        again = M.apply_to_judgments(merged, self.target, resync=True)
+        self.assertEqual(0, again["added"])
+        self.assertEqual(0, again["resynced"])
+        self.assertEqual(2, again["total"])
+
+    def test_resync_appended_then_rewritten_row_syncs(self):
+        """补行之后再修正正文（材料重落的常态）：同键同 midx 走字段级覆盖。"""
+        self._seed_table([_row()])
+        M.apply_to_judgments([_row(midx="b", content="初稿。")], self.target, resync=True)
+        res = M.apply_to_judgments([_row(midx="b", content="定稿。")], self.target, resync=True)
+        self.assertEqual(0, res["added"])
+        self.assertEqual(1, res["resynced"])
+        self.assertEqual("定稿。", self._table()[1]["content"])
+
+    def test_resync_appended_new_proposal_becomes_skip(self):
+        self._seed_table([_row()])
+        orig = M.OUT_NEW_FULL
+        M.OUT_NEW_FULL = self.tmp / "new_full.csv"
+        try:
+            res = M.apply_to_judgments(
+                [_row(midx="c", node_slug="NEW:MATH/某新点")], self.target, resync=True)
+        finally:
+            M.OUT_NEW_FULL = orig
+        self.assertEqual(1, res["added"])
+        row = self._table()[1]
+        self.assertEqual("SKIP", row["action"])
+        self.assertEqual("", row["node_slug"])
+        self.assertEqual("c", row["midx"])
+        self.assertTrue(row["note"].startswith("NEW:MATH/某新点"))
 
 
 if __name__ == "__main__":

@@ -33,8 +33,8 @@ lowercase=True)` → `pre_tokenizers.BertPreTokenizer()` → `models.WordPiece` 
 | `core/data/src/test/resources/dense/tokenizer-parity-summary.json` | 溯源 + 自证（词表/tokenizer.json/金标 sha、条数、脚本内断言结果、cases 文件 sha256） |
 
 case 组成（写死，改这里等于改 fixture）：
-1. `query` × 90：金标 90 条**加查询前缀**后的整串（端侧查询侧的输入就是这个串）；
-2. `surface` × 200：按种子 `20260924` 从 28,931 条向量集里抽的节点文本（canonicalName + alias），
+1. `query`：金标**全部条目**（条数随金标现取）**加查询前缀**后的整串（端侧查询侧的输入就是这个串）；
+2. `surface` × 200：按种子 `20260924` 从**当前包布局**的向量集（canonicalName + alias，条数随包现取）里抽的节点文本，
    排序后固定；
 3. `edge` × N：边界探针（空串、纯空白、超长截断 509/510/511/512/513、超 100 字单词、
    ASCII/全角/希腊/组合音标/控制字符/零宽字符/中日韩标点等），覆盖 §"最高风险件"的类判定。
@@ -47,7 +47,7 @@ python tools/dense_build/gen_tokenizer_fixture.py          # 写 fixture + 打�
 
 脚本内自证（不通过即 SystemExit，不落盘）：
 - 词表 sha256 == `dense_asset.VOCAB_SHA256`、tokenizer.json sha256 == `TOKENIZER_JSON_SHA256`；
-- 90 条查询**按 export_bge_int8.py 的批式口径**（`padding=True, truncation=True,
+- 金标查询**按 export_bge_int8.py 的批式口径**（`padding=True, truncation=True,
   max_length=maxLen` 一次 64 条）编码后剥掉尾部 PAD，逐条等于本 fixture 的单条形式
   —— 证明 fixture 记的不是"另一套调用"。
 
@@ -214,6 +214,8 @@ def main():
 
     tokenizer, kwargs = load_tokenizer(snapshot)
     cases = build_cases(root)
+    # surface 抽样的全集 = **当前包布局**的向量数（随包现取，不写死）。
+    layout_rows, _layout_nodes, _layout_groups = D.atomic_layout(root)
     kinds = {}
     for kind, _case_id, _meta, _text in cases:
         kinds[kind] = kinds.get(kind, 0) + 1
@@ -229,7 +231,7 @@ def main():
     def ids_of(text: str):
         return tokenizer(text, truncation=True, max_length=D.BGE_MAX_LEN)["input_ids"]
 
-    # ---- 自证：90 条查询按 export_bge_int8.py 的批式口径编码，剥 PAD 后逐条相等 ----
+    # ---- 自证：金标查询按 export_bge_int8.py 的批式口径编码，剥 PAD 后逐条相等 ----
     query_texts = [text for kind, _i, _m, text in cases if kind == "query"]
     batch_ok = True
     for start in range(0, len(query_texts), BATCH_SIZE):
@@ -320,21 +322,22 @@ def main():
             vocabPath=D.VOCAB_RELATIVE, vocabSha256=vocab_sha,
             tokenizerJsonPath=D.TOKENIZER_RELATIVE, tokenizerJsonSha256=tokenizer_json_sha,
             goldenPath=D.GOLDEN_RELATIVE, goldenSha256=D.GOLDEN_SHA256,
-            surfaceSample=dict(count=SURFACE_SAMPLE, seed=SURFACE_SEED, universe=28931,
-                               note="从向量集 28,931 条文本（canonicalName + alias）按种子抽取、排序"),
+            surfaceSample=dict(count=SURFACE_SAMPLE, seed=SURFACE_SEED, universe=len(layout_rows),
+                               note="从向量集（canonicalName + alias，条数随包现取）按种子抽取、排序"),
         ),
         counts=dict(total=len(cases), byKind=kinds, stageRows=len(stage_cases)),
         selfCheck=dict(
             batchPaddingEqualsSingle=bool(batch_ok),
-            note="90 条查询按 export_bge_int8.py 的批式（padding=True）编码、剥尾部 PAD 后与单条逐条相等",
+            note="金标查询（%d 条）按 export_bge_int8.py 的批式（padding=True）编码、"
+                 "剥尾部 PAD 后与单条逐条相等" % len(query_texts),
         ),
         honesty=dict(
             emptyInput="参考实现（tokenizers backend）对空串直接 TypeError，没有可对拍的期望值："
                        "fixture 不含空串；端侧对空/纯空白输入只承诺**不崩**（由 Kotlin 自己的单测钉住）。"
                        "实测 raisesTypeError=%s" % empty_input_raises,
-            scope="fixture 覆盖 90 条金标查询（带前缀）+ 200 条节点文本抽样（种子 %d）+ 边界探针；"
-                  "spec §3.2 的 28,931 条全量对拍**不在本 fixture**（样本量按本轮任务书写死）"
-                  % SURFACE_SEED,
+            scope="fixture 覆盖 %d 条金标查询（带前缀）+ 200 条节点文本抽样（种子 %d）+ 边界探针；"
+                  "spec §3.2 的全量对拍**不在本 fixture**（样本量按本轮任务书写死）"
+                  % (len(query_texts), SURFACE_SEED),
         ),
         files=dict(
             cases=dict(path=CASES_RELATIVE, sha256=D.sha256_file(cases_path), rows=len(case_lines)),

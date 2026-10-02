@@ -14,7 +14,7 @@ import org.junit.Test
  *    （存储层据此保留纯词面结果，绝不崩、绝不返回空）。用假加载失败注入，不碰 LiteRT
  *    ——模型推理是 Android-only，JVM 测试不许依赖它。
  * 2. **端到端次序对拍**：假编码器喂 Python 侧记录的查询向量，其余全走真实实现
- *    （真资产 28,932 条 → 学科扫描 → 节点 max → α=0.5 融合 → 排序），与
+ *    （真资产 40,319 条 → 学科扫描 → 节点 max → α=0.5 融合 → 排序），与
  *    `tools/dense_build/stage3_device_sim.py` 的**端侧算法期望次序**逐条比对。
  *    这一段覆盖的是"除了模型本身之外"的整条链路。
  */
@@ -99,13 +99,14 @@ class DenseRecallRerankerTest {
         assertEquals("期望次序 fixture 的查询数变了（每科 1 条）", 4, cases.size)
         assertEquals(
             "候选集条数变了（fixture 重新生成过？逐条核实后再改这里）",
-            // 2026-09-25 WP3：56 条材料改绑 + 别名跟着绑定走（25,360→25,359）后词面腿的每查询
-            // 命中集变了 ⇒ case#36 209→212、case#63 248→249（已逐条核对：这四个数与
-            // build/production-lexical-leg.tsv 同一查询的行数逐位相等）。
-            mapOf(0 to 85, 9 to 455, 36 to 212, 63 to 249),
+            // 2026-10-02 v2 知识包（3,866 节点 / 37,327 别名 = 41,193 行）+ 判官 v2 金标（130 条，
+            // 本 fixture 取每科首查询 ⇒ 索引 0/15/51/91）后，词面腿的每查询命中集随之变化。
+            // 建点闭环给包加了 296 个新点 / 578 个新别名（候选集因此变大），已按同一份
+            // build/production-lexical-leg.tsv 的 query_id 行数逐位重钉（317/473/214/246，合计 1,250）。
+            mapOf(0 to 317, 15 to 473, 51 to 214, 91 to 246),
             cases.associate { it.index to it.candidates.size },
         )
-        assertEquals("候选总数变了", 1001, cases.sumOf { it.candidates.size })
+        assertEquals("候选总数变了", 1250, cases.sumOf { it.candidates.size })
         for (case in cases) {
             // 假编码器：模型件不在仓库里（见 assets/dense/README.md），喂 Python 侧记录的查询向量。
             val encoder = object : DenseQueryEncoder {

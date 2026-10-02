@@ -14,7 +14,7 @@ CI 头哈希门（`tools/ci/run_kb_checks.py` 的 dense 节）。三处各写一
 0      4                 magic = b"SMBV"（Smart Mistake Book Vector）
 4      4                 uint32 version        = 1
 8      4                 uint32 dim            = 512
-12     4                 uint32 count          = 28931
+12     4                 uint32 count          = 40319（随包变：当前包 3,570 节点 + 36,749 别名）
 16     4                 uint32 dtype          = 1（INT8_PER_VECTOR_F32_SCALE）
 20     4                 uint32 idsBytesLength
 24     idsBytesLength    ids 块：count × (uint32 utf8Len + utf8 bytes)，**按向量行序**
@@ -27,12 +27,13 @@ CI 头哈希门（`tools/ci/run_kb_checks.py` 的 dense 节）。三处各写一
 
 **为什么是"每向量一个 scale"而不是全局一个**：向量已 L2 归一化，全局 scale 会让
 短尾向量的分量化步长过粗；每向量 scale 把误差压在各向量自身的幅度上，代价只是
-count×4 字节（28,931×4 = 115,724 B）。还原后仍是 float32 点积（暴力余弦），
+count×4 字节（当前 40,319×4 = 161,276 B）。还原后仍是 float32 点积（暴力余弦），
 不引入 int8 累加器溢出问题。
 
 ## 与离线臂（Stage-2）的关系
 
-向量集 = spec §2.2 的 **3,572 条 ATOMIC canonicalName + 25,359 条 alias = 28,931**，
+向量集 = spec §2.2 的 **当前包全部 ATOMIC canonicalName + 全部 alias**（数随包变：当前 v2 口径
+为 3,570 + 36,749 = 40,319；更早口径的数字不再引用，条数一律按包布局现取），
 **不含 TOPIC**（与离线臂一致；`include_topics` 只用在诊断臂）。节点分 = 该节点全部
 向量 cosine 的 **max**。行序与 `build/stage2-dense-work/stage2_common.py` 的
 `build_vector_layout` 逐条相同（打包脚本会用离线臂的 `bge-docs.npy` 逐行对拍来证明）。
@@ -193,7 +194,7 @@ MODEL_PROFILES = {
 #
 # 当前随包件（Stage-3 小档）没换过，所以默认仍是 bge-small-zh-v1.5。
 # 换件目标档 bge-base-zh-v1.5 的坐标/工具链/口径都已就绪（`--model bge-base-zh-v1.5` 可整条链复算），
-# 它的实测读数（全量 28,931 行，口径见该档 quantCaliber 与 README §8.3.4）：
+# 它的实测读数（在旧口径语料的全量行上记录，口径见该档 quantCaliber 与 README §8.3.4）：
 # - 编码器对拍（int8 ONNX vs torch fp32，门 ≥0.999）：docs **0.999128** / queries **0.999171** ✓
 # - 金标融合主集：**0.7889（71/90）**（写死判据 0.7444）
 # - `.tflite`：132,375,600 B / 无 Flex·CUSTOM；**宿主单条编码 p50 16,843 ms**（见 README §8.4.1）
@@ -281,7 +282,8 @@ def sha256_file(path) -> str:
 def atomic_layout(root, pack_path=None):
     """向量集布局：**节点顺序出 canonicalName，紧跟该节点的全部 alias**（只取 ATOMIC）。
 
-    与 spec §2.2 的 28,931 口径（数随包变：2026-09-25 由 25,360 别名降到 25,359）、与离线臂 `stage2_common.build_vector_layout` 同源。
+    与 spec §2.2 的口径（**数随包变**：2026-09-25 由 25,360 别名降到 25,359；2026-10-02 v2 包为
+    3,570 节点 + 36,749 别名 = 40,319）、与离线臂 `stage2_common.build_vector_layout` 同源。
     `pack_path` 只为**测试**留（把布局指向一份被改过的包副本，验证门能抓住布局漂移）；
     生产调用一律只传 `root`。
 

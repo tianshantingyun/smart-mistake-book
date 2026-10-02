@@ -12,8 +12,8 @@ import java.security.MessageDigest
  * - 头字段**逐个校验**（magic/version/dtype/dim/count + 字节数精确对账），
  * - 并按旁车记录的 sha256 校验身份（"这份资产是不是离线出数用的那一份"）。
  *
- * **内存形状**（任务书：不整表解成对象）：一个 `ByteArray`（28,932×512 int8 = 14.8MB）
- * + 一个 `FloatArray`（28,932 scales），**不建 28,932 个向量对象**；节点分在扫描时按
+ * **内存形状**（任务书：不整表解成对象）：一个 `ByteArray`（41,193×512 int8 = 21.1MB）
+ * + 一个 `FloatArray`（41,193 scales），**不建 41,193 个向量对象**；节点分在扫描时按
  * "同一节点的向量在矩阵里连续"（打包侧的布局约定）就地取 max。
  */
 internal class DenseVectorAsset private constructor(
@@ -26,7 +26,7 @@ internal class DenseVectorAsset private constructor(
     private val matrix: ByteArray,
     private val scales: FloatArray,
 ) {
-    /** 资产里的节点数（= 3,572 条原子节点；同一节点的向量行连续）。 */
+    /** 资产里的节点数（= 3,866 条原子节点；同一节点的向量行连续）。 */
     val nodeCount: Int get() = nodeIdAt.size
 
     fun nodeIdAt(index: Int): String = nodeIdAt[index]

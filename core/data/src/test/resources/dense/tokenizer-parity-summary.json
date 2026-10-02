@@ -27,8 +27,8 @@
     "surfaceSample": {
       "count": 200,
       "seed": 20260924,
-      "universe": 28931,
-      "note": "从向量集 28,931 条文本（canonicalName + alias）按种子抽取、排序"
+      "universe": 41193,
+      "note": "从向量集（canonicalName + alias，条数随包现取）按种子抽取、排序"
     }
   },
   "counts": {
@@ -43,21 +43,21 @@
   },
   "selfCheck": {
     "batchPaddingEqualsSingle": true,
-    "note": "90 条查询按 export_bge_int8.py 的批式（padding=True）编码、剥尾部 PAD 后与单条逐条相等"
+    "note": "金标查询（130 条）按 export_bge_int8.py 的批式（padding=True）编码、剥尾部 PAD 后与单条逐条相等"
   },
   "honesty": {
     "emptyInput": "参考实现（tokenizers backend）对空串直接 TypeError，没有可对拍的期望值：fixture 不含空串；端侧对空/纯空白输入只承诺**不崩**（由 Kotlin 自己的单测钉住）。实测 raisesTypeError=False",
-    "scope": "fixture 覆盖 90 条金标查询（带前缀）+ 200 条节点文本抽样（种子 20260924）+ 边界探针；spec §3.2 的 28,931 条全量对拍**不在本 fixture**（样本量按本轮任务书写死）"
+    "scope": "fixture 覆盖 130 条金标查询（带前缀）+ 200 条节点文本抽样（种子 20260924）+ 边界探针；spec §3.2 的全量对拍**不在本 fixture**（样本量按本轮任务书写死）"
   },
   "files": {
     "cases": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-cases.txt",
-      "sha256": "589152df2ace27f6e0a34d093c75a187a4d9514ef6fc49c47ed024cd5bb947cc",
+      "sha256": "bd952a6cf7b9d1833dfbb54500d7d0a4483d42cd6f53905a52cef13017c3df00",
       "rows": 373
     },
     "stages": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-stages.txt",
-      "sha256": "39b6b4b39d5783a0238e57e04144ed80b2dc61f2ea3080f8c6f0709104db4f96",
+      "sha256": "4aafb7892639c8604ff1429042ec4264a804c0762ba8e9ce792cc6168f2e6141",
       "rows": 68
     }
   }

@@ -151,50 +151,61 @@ class ValidatorRejectsBadLinesTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             base = self._golden_with_answers(Path(td))
             s3doc = json.loads((base / "slice-03.json").read_text(encoding="utf-8"))
-            s1doc = json.loads((base / "slice-01.json").read_text(encoding="utf-8"))
-            cross_slug = s1doc["nodes"][10]["slug"]  # MATH 函数章节点 → 对数列章是跨章
+            # 切片的**科目/章随包生成**（切片是按章的 nodeCount 排序选的），不能写死"slice-03 是 MATH"：
+            # 包一变（本轮建点加了 296 个节点）入选章就换位——实测 slice-03 由 MATH 变成了 PHYSICS，
+            # 于是这些"用别的错"的用例先撞上 subject 不符、预期片段被挡（5 例同因）。
+            # 口径不变：每条用例仍只制造**一处**错误，仍断言同一条规则文案。
+            subj = s3doc["subject"]
+            wrong_subj = "MATH" if subj != "MATH" else "PHYSICS"
+            # 跨章样本：同科、**另一章**的那一片（不写死取哪一片）；找不到才退回首选片
+            cross_slug = next(
+                json.loads(p.read_text(encoding="utf-8"))["nodes"][10]["slug"]
+                for p in sorted(base.glob("slice-*.json"))
+                if json.loads(p.read_text(encoding="utf-8"))["subject"] == subj
+                and json.loads(p.read_text(encoding="utf-8"))["chapter"] != s3doc["chapter"]
+            )
 
             cases = [
                 ("非法 JSON", "not-json {", "非法 JSON"),
                 ("空行", "", "空行"),
                 ("query 3 字",
-                 _line("函数吗", s3doc["nodes"][0]["slug"], "MATH", s3doc["chapter"]),
+                 _line("函数吗", s3doc["nodes"][0]["slug"], subj, s3doc["chapter"]),
                  "长度 3 不在 4-60 字区间"),
                 ("query 61 字",
-                 _line("长" * 61, s3doc["nodes"][0]["slug"], "MATH", s3doc["chapter"]),
+                 _line("长" * 61, s3doc["nodes"][0]["slug"], subj, s3doc["chapter"]),
                  "长度 61 不在 4-60 字区间"),
                 ("query 无汉字",
                  _line("what is a function", s3doc["nodes"][0]["slug"],
-                        "MATH", s3doc["chapter"]),
+                        subj, s3doc["chapter"]),
                  "不含汉字"),
                 ("expectedSlug 跨章",
-                 _line("什么是跨章节点", cross_slug, "MATH", s3doc["chapter"]),
+                 _line("什么是跨章节点", cross_slug, subj, s3doc["chapter"]),
                  "跨章作答"),
                 ("expectedSlug 包内不存在",
-                 _line("什么是幽灵节点", "幽灵节点ABC", "MATH", s3doc["chapter"]),
-                 "在 MATH 包内不存在"),
+                 _line("什么是幽灵节点", "幽灵节点ABC", subj, s3doc["chapter"]),
+                 f"在 {subj} 包内不存在"),
                 ("(query,slug) 重复",
                  _line("什么是" + s3doc["nodes"][0]["name"],
-                        s3doc["nodes"][0]["slug"], "MATH", s3doc["chapter"]),
+                        s3doc["nodes"][0]["slug"], subj, s3doc["chapter"]),
                  "重复"),
                 ("多余字段",
-                 _line("什么是多余字段", s3doc["nodes"][0]["slug"], "MATH",
+                 _line("什么是多余字段", s3doc["nodes"][0]["slug"], subj,
                         s3doc["chapter"], extra={"note": "x"}),
                  "多 ['note']"),
                 ("缺字段",
-                 json.dumps({"query": "什么是缺字段", "subject": "MATH",
+                 json.dumps({"query": "什么是缺字段", "subject": subj,
                              "chapter": s3doc["chapter"]}, ensure_ascii=False),
                  "缺 ['expectedSlug']"),
                 ("subject 不符",
-                 _line("什么是错科", s3doc["nodes"][0]["slug"], "PHYSICS",
+                 _line("什么是错科", s3doc["nodes"][0]["slug"], wrong_subj,
                         s3doc["chapter"]),
-                 "subject='PHYSICS' 与切片 'MATH' 不符"),
+                 f"subject='{wrong_subj}' 与切片 '{subj}' 不符"),
                 ("chapter 不符",
-                 _line("什么是错章", s3doc["nodes"][0]["slug"], "MATH", "另一章"),
+                 _line("什么是错章", s3doc["nodes"][0]["slug"], subj, "另一章"),
                  "chapter='另一章' 与切片"),
                 ("空值字段",
                  json.dumps({"query": "  ", "expectedSlug": s3doc["nodes"][0]["slug"],
-                             "subject": "MATH", "chapter": s3doc["chapter"]},
+                             "subject": subj, "chapter": s3doc["chapter"]},
                             ensure_ascii=False),
                  "存在空或非字符串字段"),
             ]

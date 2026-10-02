@@ -6153,26 +6153,6 @@
    ]
   },
   {
-   "slug": "ext-bio-d93a11b3d8-009",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "吸能反应与放能反应及ATP的流通作用",
-   "summaryMarkdown": "吸能反应与放能反应的区分，以及 ATP 在两类反应之间流通能量的作用",
-   "applicabilityMarkdown": "判断某反应属于吸能还是放能、解释 ATP 在细胞能量代谢中的枢纽作用",
-   "contentMarkdown": "**一、两类化学反应**\\n细胞内的化学反应可以分成吸能反应和放能反应两大类：前者需要吸收能量，如氨基酸脱水缩合形成蛋白质、主动运输等；后者释放能量，如葡萄糖的氧化分解（细胞呼吸）。\\n**二、能量流通方式**\\n许多吸能反应与 ATP 水解的反应相联系，由 ATP 水解提供能量；许多放能反应与 ATP 合成相联系，释放的能量储存在 ATP 中，用来为吸能反应直接供能。也就是说，能量通过 ATP 分子在吸能反应和放能反应之间流通。\\n**三、ATP 的其他利用**\\n研究者发现 ATP 在神经系统的信息传递中可以作为一种兴奋性的神经递质发挥作用，并且在内脏、中枢及外周神经系统等多个部位的细胞膜上发现了 ATP 受体，可见 ATP 还是一种能在细胞间传递信息的分子。\\n**理解要点**：ATP 是能量“货币”，放能反应是“收入”，吸能反应是“支出”，ATP 的水解与合成把两类反应联系起来。",
-   "boundaryMarkdown": "吸能反应与放能反应是就反应本身而言，不要与 ATP 的水解放能混淆；ATP 既是能源物质也可作为信息分子，答题时要按题干情境选择；ATP 合成所需的能量来自放能反应而不是吸能反应",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-d8b718d85a:biology",
-   "sourceLocator": "桌面资料 2026年新高考资料(4) / 2026年新高考资料(4)/一轮复习/2026年高考生物一轮复习知识清单（全国通用）/2026版/第08讲 酶和ATP（知识清单）（全国通用）（学生版）.docx（块 d93a11b3d8-009）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的合成和利用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-d93a11b3d8-009b",
    "subject": "BIOLOGY",
    "type": "REPRESENTATION_GUIDE",
@@ -6568,26 +6548,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:阿伏加德罗常数",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-7bbf0904a5-001",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "脂肪烃的组成、结构特点与化学性质",
-   "summaryMarkdown": "烷烃、烯烃、炔烃的通式与结构特点以及取代、加成、加聚和氧化反应",
-   "applicabilityMarkdown": "判断脂肪烃的类型、书写加成与加聚反应方程式、比较各类烃的性质",
-   "contentMarkdown": "**一、组成与结构特点**\\n链状烷烃的通式为 $C_nH_{2n+2}$，碳原子之间以单键相连，每个碳原子都达到饱和；单烯烃的通式为 $C_nH_{2n}$，分子中含一个碳碳双键；单炔烃的通式为 $C_nH_{2n-2}$，分子中含一个碳碳三键。随着碳原子数增多，脂肪烃的熔沸点升高、密度增大、都难溶于水而易溶于有机溶剂。\\n**二、化学性质**\\n1. 取代反应：有机物分子中某些原子或原子团被其他原子或原子团所替代的反应。烷烃与气态卤素单质在光照条件下发生取代反应，产物是多种卤代烃的混合物而不是纯净物；定量关系为每取代 1 mol 氢原子，消耗 1 mol 卤素单质并生成 1 mol 卤化氢。\\n2. 加成反应：有机物分子中的不饱和碳原子与其他原子或原子团直接结合生成新的有机化合物。烯烃、炔烃能与 $H_2$、$X_2$、$HX$、$H_2O$ 等发生加成。\\n3. 加聚反应：含不饱和键的烃可发生加聚，如 $nCH_2=CH-CH_3 \\xrightarrow{催化剂} $ 聚丙烯，$nCH \\equiv CH \\rightarrow $ 聚乙炔。\\n4. 二烯烃：既能发生加成也能发生加聚，如 $nCH_2=CH-CH=CH_2 \\rightarrow $ 聚丁二烯。\\n5. 氧化反应：烯烃、炔烃都能使酸性高锰酸钾溶液褪色，氧化产物依据分子结构而定；乙炔被氧化的主要产物为 $CO_2$。",
-   "boundaryMarkdown": "烷烃的卤代产物是混合物，不能写成只生成一种卤代烃；烯烃与溴水发生加成而使溴水褪色，与酸性高锰酸钾则是氧化反应，两者原理不同；符合 CnH2n 通式的物质不一定是烯烃，也可能是环烷烃",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习卓越讲义重难点/资料/（重点·方法·点拨）第56讲 烃　化石燃料- （学生版）.docx（块 7bbf0904a5-001）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:脂肪烃的结构和性质",
      "role": "PRIMARY"
     }
    ]
@@ -10493,26 +10453,6 @@
    ]
   },
   {
-   "slug": "ext-che-067cb2c820-005",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "常见分子的共面共线特征速记",
-   "summaryMarkdown": "给出甲烷、乙烯、乙炔、苯四种基本结构单元的共面共线与键角特征",
-   "applicabilityMarkdown": "原子共面共线数目判断与键角比较题",
-   "contentMarkdown": "- 甲烷 CH4：正四面体结构，1 个碳原子连接 4 个单键，最多 3 个原子共面，键角 109°28′；含饱和碳原子（连 4 个单键）的有机物中，该碳原子周围呈四面体结构。\\n- 乙烯 CH2=CH2：平面结构，6 个原子（2C+4H）共平面，双键不能旋转，键角约 120°；双键两端的碳原子及与其直接相连的原子共平面。\\n- 乙炔 CH≡CH：直线结构，4 个原子（2C+2H）共直线，三键不能旋转，键角 180°；三键两端的碳原子及与其直接相连的原子共直线。\\n- 苯 C6H6：平面正六边形结构，12 个原子（6C+6H）共平面，碳碳键介于单键与双键之间，键角 120°；苯环上的碳原子及与其直接相连的原子共平面。",
-   "boundaryMarkdown": "“共面”与“共线”要分开记：只有三键（及苯环上的对位碳）才保证共直线；1，3-丁二烯中所有原子可能共面，但不一定共线。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第九章 有机化学基础/第01讲 有机化合物的结构特点与研究方法（学生版）.docx（块 067cb2c820-005）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机化合物的共面共线的判断",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-067cb2c820-006",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -11668,26 +11608,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学基本概念题的解题策略",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-998cdd8cea-015",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "六种表示物质变化的方程式",
-   "summaryMarkdown": "列举化学方程式、离子方程式、热化学方程式、电离方程式、电极反应式与电解方程式六类表示形式",
-   "applicabilityMarkdown": "化学用语辨析与方程式类型判断题",
-   "contentMarkdown": "（1）化学方程式：2FeCl2+Cl2===2FeCl3。\\n（2）离子方程式：2Fe2++Cl2===2Fe3++2Cl−。\\n（3）热化学方程式：2H2(g)+O2(g)===2H2O(l)　ΔH=−571.6 kJ·mol−1。\\n（4）电离方程式：CH3COOH ⇌ H++CH3COO−。\\n（5）电极反应式：钢铁的吸氧腐蚀——负极 2Fe−4e−===2Fe2+；正极 O2+4e−+2H2O===4OH−。\\n（6）电解方程式：2NaCl+2H2O$\\xrightarrow{通电}$2NaOH+Cl2↑+H2↑。",
-   "boundaryMarkdown": "六类“式”的判断依据不同：热化学方程式必须注明物质状态并标出 ΔH，离子方程式只写实际参加反应的离子，电极反应式要满足电荷守恒并区分正负极（阴阳极），电极反应需注明条件与介质。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/二轮复习/2026年高考化学二轮复习课件+讲义+练习（新高考通用）/2026版/专题01 物质的组成、分类、性质及变化（复习讲义）（学生版）.docx（块 998cdd8cea-015）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种表示物质变化的方程式",
      "role": "PRIMARY"
     }
    ]
@@ -13573,26 +13493,6 @@
    ]
   },
   {
-   "slug": "ext-che-a13e903c71-005",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "SO2的实验室制法与SO2、CO2的鉴别",
-   "summaryMarkdown": "用亚硫酸钠与较浓硫酸或铜与浓硫酸制SO2，用品红或高锰酸钾区分SO2与CO2。",
-   "applicabilityMarkdown": "气体制备、SO2与CO2鉴别类实验题。",
-   "contentMarkdown": "\\n实验室制法：\\n①Na2SO3＋H2SO4=Na2SO4＋SO2↑＋H2O（用较浓硫酸、固＋液不加热型装置）；\\n②Cu＋2H2SO4(浓)=CuSO4＋SO2↑＋2H2O（加热）。\\n收集用向上排空气法，尾气用NaOH溶液吸收。\\nSO2与CO2的鉴别：两者都是酸性氧化物且都能使澄清石灰水变浑浊，需用其他试剂区分：\\n①品红溶液——能使品红褪色且加热复色的是SO2；\\n②酸性KMnO4溶液或溴水——能使紫色、橙色褪去的是SO2；\\n③氢硫酸或硫化钠溶液——出现淡黄色浑浊的是SO2。\\n检验SO2与CO2共存的一般流程：混合气体先通过酸性KMnO4溶液（或溴水）除去SO2，再通过品红溶液确认SO2已除尽，最后通过澄清石灰水检验CO2。",
-   "boundaryMarkdown": "\\n不能用澄清石灰水鉴别SO2与CO2；检验共存时必须先除尽SO2再检验CO2，且要有确认SO2已除尽的现象；酸性KMnO4溶液也可用溴水替代。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第四章 非金属及其化合物/第02讲 硫及其重要化合物（复习讲义）（全国通用）（学生版）.docx（块 a13e903c71-005）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:二氧化硫的实验室制法与SO2和CO2的鉴别",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-a13e903c71-005b",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -13844,26 +13744,6 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第四章 非金属及其化合物/第02讲 硫及其重要化合物（复习讲义）（全国通用）（学生版）.docx（块 a13e903c71-018）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫及其化合物之间的转化规律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-a13e903c71-019",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "硫的价类二维图与转化网络",
-   "summaryMarkdown": "以化合价为纵轴、物质类别为横轴构建硫及其化合物的转化网络。",
-   "applicabilityMarkdown": "含硫物质推断、转化关系梳理类题目。",
-   "contentMarkdown": "\\n构建方法：以硫元素化合价（－2、0、＋4、＋6）为纵坐标，以物质类别（氢化物、单质、氧化物、酸、盐）为横坐标，把物质填入对应位置：\\n－2价：H2S、Na2S、NaHS；\\n0价：S；\\n＋4价：SO2、H2SO3、Na2SO3、NaHSO3；\\n＋6价：SO3、H2SO4、Na2SO4、NaHSO4。\\n读图方法：横向移动属于同价态之间的酸碱反应或复分解反应，价态不变；纵向移动属于氧化还原反应，需要氧化剂或还原剂，且遵循台阶式升降与相邻价态不反应的规则。\\n常见两条链条：SO2—H2SO3—Na2SO3—NaHSO3（＋4价一列）；SO2—S—H2S（含0价与－2价）。再结合SO3、H2SO4补全＋6价一列。",
-   "boundaryMarkdown": "\\n画图或书写转化时须检查每一纵向箭头是否价态合理、氧化剂还原剂是否配套；横向箭头不能涉及价态变化。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第四章 非金属及其化合物/第02讲 硫及其重要化合物（复习讲义）（全国通用）（学生版）.docx（块 a13e903c71-019）",
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
@@ -18248,26 +18128,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:勒夏特列原理及应用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-5f646498b6-014",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "化学平衡图像的分析方法",
-   "summaryMarkdown": "v-t 图像、含量-时间-温度图像、定一议二方法及特殊图像的读图要点。",
-   "applicabilityMarkdown": "读图判断平衡移动方向、外界条件变化和反应热效应的图像分析题。",
-   "contentMarkdown": "（1）速率-时间图像（v-t 图像）：分析时抓住突变和渐变，利用正、逆反应速率的相对大小判断化学平衡的移动方向，再联系平衡移动规律确定外界条件的变化。\\n（2）含量（或转化率）-时间-温度（或压强）图像：先出现拐点的反应先达到平衡，先出现拐点的曲线表示的温度较高、压强较大或使用了催化剂，可简单记为先拐先平数值大。\\n（3）百分含量（或转化率）-温度（压强）图像：图中包含纵坐标、横坐标和曲线所表示的三个变量，分析方法是确定其中一个变量，讨论另外两个变量之间的关系，即定一议二。\\n（4）特殊图像：M 点表示刚达到平衡，M 点之前表示反应从反应物开始进行，此时 v正＞v逆；M 点之后表示平衡受温度影响的情况——若升高温度 A 的百分含量增加或 C 的百分含量减少，说明平衡逆向移动，正反应为放热反应。若图中某条线上所有的点都是平衡点，则该线左上方区域的点 v正＞v逆，右下方区域的点 v正＜v逆。",
-   "boundaryMarkdown": "易错点：读图必须先看清横纵坐标的含义以及曲线的起点、拐点和平台；不能只看先后顺序就下结论，还要结合反应的特点与 ΔH 的符号。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第02讲 化学平衡状态、化学平衡的移动（举一反三讲义）（学生版）.docx（块 5f646498b6-014）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
      "role": "PRIMARY"
     }
    ]
@@ -25253,26 +25113,6 @@
    ]
   },
   {
-   "slug": "ext-che-6064148187-012",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "铝相关图像的类型与分析",
-   "summaryMarkdown": "按所加试剂的强弱与用量判断沉淀生成与溶解的曲线形状",
-   "applicabilityMarkdown": "铝的化合物相关图像分析题",
-   "contentMarkdown": "①可溶性铝盐溶液与NaOH溶液反应：随NaOH加入先产生Al(OH)3沉淀，沉淀量达到最大值后继续加碱沉淀逐渐溶解，最终完全溶解，曲线呈先升后降的形状。\\n②偏铝酸盐溶液与盐酸反应：随盐酸加入先生成Al(OH)3沉淀，达到最大值后继续加酸沉淀溶解。\\n③可溶性铝盐溶液与弱碱（氨水）反应，沉淀量增加至最大值后保持不变，因为Al(OH)3不溶于氨水；偏铝酸盐溶液与弱酸（CO2）反应也是如此。\\n④可溶性铝盐与镁盐的混合溶液与NaOH溶液反应：先生成Mg(OH)2与Al(OH)3两种沉淀，继续加碱时Al(OH)3溶解而Mg(OH)2不溶解，沉淀量先增加后部分减少但不降为零。\\n⑤含不同阳离子的混合盐或复盐与碱反应：向含MgCl2、AlCl3、盐酸、NH4Cl的混合溶液中逐滴加入NaOH溶液至过量，图像出现多段平台；把Ba(OH)2溶液逐滴加入明矾溶液中至过量时，要按两种离子先后恰好沉淀的情形分段分析。\\n⑥解题时由曲线的转折点反推离子的物质的量之比。",
-   "boundaryMarkdown": "图像的转折点对应某离子恰好沉淀完全或某沉淀恰好溶解完全；弱碱与弱酸只能生成沉淀而不能使沉淀溶解，这是判断曲线是否出现下降段的关键",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第03讲 铝及其重要化合物（复习讲义）（湖南专用）（学生版）.docx（块 6064148187-012）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝及其化合物之间的性质与应用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-60001e1716-001",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -25784,26 +25624,6 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-d8b718d85a:biology",
    "sourceLocator": "桌面资料 2026年新高考资料(4) / 2026年新高考资料(4)/一轮复习/2026年高考生物一轮复习知识清单（全国通用）/2026版/第20讲 DNA分子的结构、复制与基因的本质（知识清单）（全国通用）（学生版）.docx（块 9847f272f3-004）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-9847f272f3-005",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "DNA复制的过程与条件",
-   "summaryMarkdown": "以亲代DNA每条链为模板，需模板、原料、能量与酶，边解旋边复制",
-   "applicabilityMarkdown": "DNA复制过程、条件与意义的识记与判断题",
-   "contentMarkdown": "①概念：以亲代DNA为模板合成子代DNA的过程。\\n②时间：真核生物中发生在细胞分裂间期，随着染色体的复制而完成。\\n③场所：真核生物主要在细胞核，也存在于线粒体和叶绿体；原核生物在拟核和细胞质。\\n④条件：模板是亲代DNA的每一条链；原料是4种游离的脱氧核苷酸；能量由ATP提供（用于解旋）；酶主要是解旋酶和DNA聚合酶。\\n⑤过程：解旋→合成子链→子链延伸→亲子链复旋；结果是一个DNA分子形成两个完全相同的DNA分子。\\n⑥特点：半保留复制，边解旋边复制；意义是把遗传信息从亲代细胞传递给子代细胞，从而保持了遗传信息的连续性。",
-   "boundaryMarkdown": "DNA复制必须以两条链分别作模板且边解旋边复制；解旋需要消耗能量，而氢键的形成是自动的，不需要酶和能量",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-d8b718d85a:biology",
-   "sourceLocator": "桌面资料 2026年新高考资料(4) / 2026年新高考资料(4)/一轮复习/2026年高考生物一轮复习知识清单（全国通用）/2026版/第20讲 DNA分子的结构、复制与基因的本质（知识清单）（全国通用）（学生版）.docx（块 9847f272f3-005）",
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
@@ -30173,26 +29993,6 @@
    ]
   },
   {
-   "slug": "ext-che-5cf409ae9e-003",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "常用计量仪器的刻度与读数",
-   "summaryMarkdown": "化学仪器中四个“0”刻度的位置各不相同，量筒、托盘天平与滴定管的读数精确度也不同，量筒还有多项使用禁忌。",
-   "applicabilityMarkdown": "判断仪器读数是否正确、比较读数精确度、分析量筒使用是否规范的题目。",
-   "contentMarkdown": "**四个“0”刻度**\\n- 滴定管的“0”刻度在上部（但不是最上端）：量取液体时液面不一定要在“0”刻度处，但要在“0”刻度以下；滴定管读数时，装液或放液后需等 1～2 min 后才能观察液面高度；\\n- 量杯、量筒、容量瓶没有“0”刻度；\\n- 温度计的“0”刻度在温度计的中下部；\\n- 托盘天平的“0”刻度在标尺最左端。\\n**量筒的使用禁忌**：量筒不能用来配制溶液或进行化学反应，更不能用来加热或量取热的溶液。\\n**读数精确度**：量筒、托盘天平读数精确到小数点后一位（如 8.2 mL、6.5 g）；滴定管精确到小数点后两位（如 19.80 mL）。\\n**托盘天平物码放反**：不一定影响称量结果——若未使用游码，对称量结果无影响；若使用游码，称量结果偏小。\\n**量筒的残留问题**：量筒为倾出型仪器，量取 5.0 mL 溶液，倒出体积即为 5.0 mL，底部残留为自然残留，不需要洗涤转移。",
-   "boundaryMarkdown": "**容量瓶、量筒没有“0”刻度**，不要与滴定管混淆；滴定管读数必须精确到两位小数，写一位即算错；量筒不能加热、不能作反应容器、不能用于稀释；物码放反时只有用了游码才会偏小。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 化学实验的常用仪器和基本操作（复习讲义）（湖南专用）（学生版）.docx（块 5cf409ae9e-003）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见仪器",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-5cf409ae9e-004",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -34413,26 +34213,6 @@
    ]
   },
   {
-   "slug": "ext-che-034cbfd131-004",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "水蒸气蒸馏的适用条件",
-   "summaryMarkdown": "水蒸气蒸馏适用于提取有挥发性、能随水蒸气馏出且在水中稳定、难溶或不溶于水的成分。",
-   "applicabilityMarkdown": "苯胺等水溶性较差有机物的提纯与分离操作选择。",
-   "contentMarkdown": "水蒸气蒸馏法是指将含有挥发性成分的物料与水共蒸馏，使挥发性成分随水蒸气一并馏出，经冷凝后分取挥发性成分的浸提方法。\\n适用条件：被提取的成分具有挥发性、能随水蒸气蒸馏而不被破坏、在水中稳定且难溶或不溶于水。\\n常用于分离与水不互溶、沸点较高且受热易分解的有机物，例如实验室制备苯胺时用装置Ⅰ改成水蒸气蒸馏装置，蒸馏收集苯胺—水馏出液，再经分液与萃取得到苯胺。",
-   "boundaryMarkdown": "水蒸气蒸馏要求被提取物不与水互溶（否则会形成均相溶液无法分层）；操作中需防止水蒸气冲料与冷凝管堵塞，蒸馏完毕先撤导管再停止通水蒸气。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第十章 化学实验基础与探究/题型08 有机物的制备（学生版）.docx（块 034cbfd131-004）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:蒸馏",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-034cbfd131-004b",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -37913,26 +37693,6 @@
    ]
   },
   {
-   "slug": "ext-che-c3ab790e04-011",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "pH之和为14的酸碱等体积混合",
-   "summaryMarkdown": "常温下 pH 之和为 14 的酸与碱等体积混合，强酸强碱混合呈中性，强酸与弱碱混合呈碱性，弱酸与强碱混合呈酸性。",
-   "applicabilityMarkdown": "判断 pH 之和为 14 的酸碱等体积混合后溶液的酸碱性。",
-   "contentMarkdown": "常温下当酸与碱的 pH 之和为 14、且等体积混合时，可按酸碱强弱直接判断结果。\\n(1)强酸与强碱混合：酸电离出的 $c(H^+)$ 与碱电离出的 $c(OH^-)$ 恰好相等，混合后溶液呈中性，pH=7。\\n(2)强酸与弱碱混合：pH 之和为 14 时弱碱的浓度远大于强酸的浓度（弱碱只有部分电离），等体积混合后弱碱大量剩余并继续电离，溶液呈碱性，pH>7。\\n(3)弱酸与强碱混合：同理，弱酸的浓度远大于强碱的浓度，混合后弱酸大量剩余，溶液呈酸性，pH<7。\\n判断思路：先把 pH 换算成电离出的离子浓度，再比较酸碱的总浓度（弱酸弱碱需按电离程度放大），最后看谁过量。",
-   "boundaryMarkdown": "该结论的前提是常温、pH 之和为 14、等体积混合；若是强酸与强酸、强碱与强碱混合，则按过量离子浓度计算，不能套用上述三条结论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第02讲 水的电离和溶液的酸碱性（复习讲义）（湖南专用）（学生版）.docx（块 c3ab790e04-011）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:混合溶液酸碱性的判断规律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-c3ab790e04-011b",
    "subject": "CHEMISTRY",
    "type": "REPRESENTATION_GUIDE",
@@ -38168,26 +37928,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中和滴定",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-c3ab790e04-019",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "滴定终点附近的pH突变与指示剂选择",
-   "summaryMarkdown": "中和滴定曲线在终点附近出现 pH 突变，指示剂只要在突变范围内变色即可，据终点酸碱性选择酚酞或甲基橙。",
-   "applicabilityMarkdown": "由滴定曲线分析指示剂的选择依据、规范描述滴定终点现象、解释不能使用石蕊的原因。",
-   "contentMarkdown": "中和滴定曲线：以滴加酸（或碱）的量为横坐标、溶液的 pH 为纵坐标，绘出 pH 随滴加量变化的曲线。\\n曲线的特征：在酸、碱中和滴定过程中，溶液的 pH 在接近滴定终点时出现突变，在此范围内滴加很少量的酸（或碱），溶液的 pH 就有很大变化，能使指示剂的颜色发生明显变化，有利于确定滴定终点。\\n指示剂选择的依据：即使酚酞、甲基橙的变色点不在恰好中和的 pH=7 处，由滴定曲线可知变色点与完全中和点只相差约半滴，体积差距很小，可以忽略不计。\\n选择规律：滴定终点为碱性时选择酚酞，终点为酸性时选择甲基橙，终点为中性时酚酞、甲基橙都可用。\\n终点现象（以盐酸滴定 NaOH 为例）：用酚酞作指示剂时，滴入最后一滴盐酸，溶液由红色突变为无色且半分钟内不恢复红色；用甲基橙作指示剂时，溶液由黄色变为橙色且半分钟内不恢复黄色。\\n不用石蕊的原因：石蕊由红变紫、由紫变蓝的颜色变化不够明显，不利于及时、准确地判断是否恰好完全中和。\\n并非所有滴定都须使用指示剂：如用标准的 Na₂SO₃ 溶液滴定 KMnO₄ 溶液时，KMnO₄ 的颜色褪去即为滴定终点。",
-   "boundaryMarkdown": "指示剂依据滴定终点的酸碱性选择，而不是依据恰好中和时溶液是否呈中性；指示剂用量一般为 2～3 滴，过多会影响终点的判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第02讲 水的电离和溶液的酸碱性（复习讲义）（湖南专用）（学生版）.docx（块 c3ab790e04-019）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:滴定曲线",
      "role": "PRIMARY"
     }
    ]
@@ -48273,26 +48013,6 @@
    ]
   },
   {
-   "slug": "ext-che-7d885d11bb-003",
-   "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
-   "title": "少量与过量时离子方程式的书写示例",
-   "summaryMarkdown": "以澄清石灰水与NaHCO3溶液两种加料顺序为例，说明“定1法”如何决定产物与计量数。",
-   "applicabilityMarkdown": "书写或判断“少量”“过量”条件下同一对反应物生成不同产物的离子方程式。",
-   "contentMarkdown": "**澄清石灰水中加入少量NaHCO3溶液**：把少量的NaHCO3定为1 mol，其电离出的HCO3−与Na+按组成比参加反应，OH−足量，离子方程式为HCO3−+OH−+Ca2+===H2O+CaCO3↓，此时Ca2+过量，溶液中不生成CO3 2−。\\n**NaHCO3溶液中加入少量澄清石灰水**：把少量的Ca(OH)2定为1 mol，Ca2+与2OH−全部参加反应，HCO3−足量，离子方程式为Ca2++2OH−+2HCO3−===CaCO3↓+2H2O+CO3 2−。",
-   "boundaryMarkdown": "两种顺序的反应物相同但产物不同，判断依据是“谁少量谁按1 mol 完整反应”；若把两式的产物写反（如把CO3 2−写成沉淀），或把计量数写成最简整数比以外的形式，都会失分。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习·知识清单（新高考通用）/资料/第3讲　离子反应（学生版）.docx（块 7d885d11bb-003）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配比型离子方程式的书写-少定多变法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-7d885d11bb-003b",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -52153,26 +51873,6 @@
    ]
   },
   {
-   "slug": "ext-che-74ae5b408a-019",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "沉淀滴定曲线的读图要点",
-   "summaryMarkdown": "沉淀滴定曲线反映沉淀滴定过程中构成难溶物的离子浓度随滴定剂加入量的变化，线上每点都满足Qc＝Ksp。",
-   "applicabilityMarkdown": "读取沉淀滴定曲线、判断滴定终点与终点前后离子浓度的大小关系。",
-   "contentMarkdown": "## 坐标与曲线含义\\n\\n沉淀滴定曲线是沉淀滴定过程中构成难溶电解质的离子浓度与滴定剂加入量之间的关系曲线。以向10 mL 0.1 mol·L⁻¹ CuSO₄溶液中滴加0.1 mol·L⁻¹ K₂S溶液为例，纵轴为－lgc(Cu²⁺)，横轴为K₂S溶液的体积V。\\n\\n## 三类点的解读\\n\\n1. 曲线上任意一点都代表平衡点，满足$c(Cu^{2+})·c(S^{2-})=K_{sp}$；\\n2. 滴定终点（恰好完全沉淀）对应饱和溶液，此时$c(Cu^{2+})=c(S^{2-})$；\\n3. 滴定终点以前（如a点），溶液中$c(Cu^{2+})＞c(S^{2-})$；滴定终点以后（如c点），溶液中$c(Cu^{2+})＜c(S^{2-})$。\\n\\n## 读图步骤\\n\\n先看清纵横坐标的含义，再把曲线上的点代入Ksp表达式验证，最后结合滴定终点前后溶质的变化判断离子浓度的大小关系。",
-   "boundaryMarkdown": "适用于沉淀滴定（沉淀剂与待测离子恰好完全反应）体系。易错点：把滴定终点误认为沉淀量最大而非恰好完全反应的点；忽略纵轴常取负对数而导致数值大小关系倒置。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第八章 水溶液中的离子反应与平衡/第04讲 沉淀溶解平衡（复习讲义）（全国通用）（学生版） .docx（块 74ae5b408a-019）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:滴定曲线",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-74ae5b408a-020",
    "subject": "CHEMISTRY",
    "type": "REPRESENTATION_GUIDE",
@@ -55673,26 +55373,6 @@
    ]
   },
   {
-   "slug": "ext-che-1e302b0615-015",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "沉淀滴定曲线图像的读图要点",
-   "summaryMarkdown": "以K2S滴定CuSO4为例，说明沉淀滴定曲线上平衡点、终点前后离子浓度大小关系的判断。",
-   "applicabilityMarkdown": "读取沉淀滴定曲线上的离子浓度、判断滴定终点对应的浓度关系、分析曲线上各点的溶液状态。",
-   "contentMarkdown": "沉淀滴定曲线是沉淀滴定过程中构成难溶电解质的离子浓度与滴定剂加入量之间的关系曲线。以向 10 mL 0.1 mol·L⁻¹ $CuSO_4$ 溶液中滴加 0.1 mol·L⁻¹ $K_2S$ 溶液为例，纵坐标为 $-\\lg c(Cu^{2+})$，横坐标为 $K_2S$ 溶液的体积。\\n读图要点：①曲线上任一点都代表平衡点，满足 $c(Cu^{2+})\\cdot c(S^{2-})=K_{sp}$；②滴定终点（曲线的最低点）得到饱和 $CuS$ 溶液，此时 $c(Cu^{2+})=c(S^{2-})$；③滴定终点以前线上的点代表 $c(Cu^{2+})>c(S^{2-})$，滴定终点以后线上的点代表 $c(Cu^{2+})<c(S^{2-})$。\\n由此可以由曲线直接读出某时刻溶液中离子的浓度，并判断溶液是否达到沉淀溶解平衡。",
-   "boundaryMarkdown": "纵坐标是 $-\\lg c$ 时，数值越大表示离子浓度越小，注意不要与浓度变化方向混淆；滴定终点对应两种离子浓度相等的点，此后曲线仍保持在 Ksp 对应的水平线上。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第04讲 沉淀溶解平衡（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 1e302b0615-015）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:滴定曲线",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-1e302b0615-015b",
    "subject": "CHEMISTRY",
    "type": "REPRESENTATION_GUIDE",
@@ -56808,26 +56488,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:使用高倍显微镜观察细胞",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-58afc7dfbd-001",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "广口瓶与球形干燥管的多种用途",
-   "summaryMarkdown": "广口瓶在收集、洗气、贮气、量气、作安全瓶和监控流速六种用途中的连接方式，以及干燥管位置不同作用不同。",
-   "applicabilityMarkdown": "分析多功能瓶装置的用途与进气管选择、判断洗气与量气装置的连接是否合理、说明干燥管在不同位置的作用。",
-   "contentMarkdown": "**广口瓶（“万能瓶”）的多种用途**：\\n①**收集气体**——用排空气法收集密度比空气大的气体（如 $CO_2$）时从长导管进气，收集密度比空气小的气体（如 $H_2$、$NH_3$）时从短导管进气；用排水法收集气体时先装满水，从短导管进气、把水从长导管压出。\\n②**洗气除杂或干燥**——瓶内盛放液体（如用饱和食盐水除去 $Cl_2$ 中的 $HCl$、用浓硫酸干燥气体），气体从长导管进、短导管出。\\n③**贮存少量气体**——需要排出气体时可用水把气体压出，如贮存 $H_2$ 时可打开止水夹，向长颈漏斗中注入适量蒸馏水把 $H_2$ 排出。\\n④**测量气体体积**——瓶内装满水，气体从短导管通入、长导管接量筒，用排水法测量生成气体的体积。\\n⑤**作安全瓶**——与吸收装置连接，起防倒吸作用。\\n⑥**监控气体流速**——瓶内盛液体，气体从长导管通入，根据液体中产生气泡的速率监控气体流速。\\n**球形干燥管的位置与作用**：在装置中间横放时用于气体的干燥、吸收及检验（内装碱石灰、无水氯化钙、五氧化二磷等固体干燥剂，或装无水硫酸铜检验水蒸气），也可用于定量测定气体的质量；在整套装置最后横放时起“左吸右挡”的作用，既吸收多余尾气防止污染空气，又阻挡外界空气中的 $CO_2$、水蒸气等干扰气体进入装置。",
-   "boundaryMarkdown": "排空气法收集气体时进气管的选择由气体密度决定，排水法时相反；干燥管只能装固体干燥剂，液体干燥剂要用洗气瓶；作安全瓶时要注意气流方向，否则起不到防倒吸作用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高三化学一轮复习讲义（新高考通用）/资料/第三章 第10讲 仪器的组合与气体体积的测定（学生版）.docx（块 58afc7dfbd-001）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的装置",
      "role": "PRIMARY"
     }
    ]
@@ -61473,26 +61133,6 @@
    ]
   },
   {
-   "slug": "ext-che-c293e5af8b-003",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "电子式的书写规则",
-   "summaryMarkdown": "用电子式表示原子、离子、共价分子与离子化合物的最外层电子及成键情况。",
-   "applicabilityMarkdown": "书写电子式、用电子式表示物质形成过程、判断电子式正误时使用。",
-   "contentMarkdown": "电子式用小黑点或叉表示最外层电子，是表征微粒成键情况的符号工具。书写要点：\\n\\n- 原子的电子式按“上下左右”的顺序排布最外层电子。\\n- 简单阳离子的电子式即离子符号本身。\\n- 简单阴离子最外层一般为 8 个电子，写在方括号内并在右上角标出电荷。\\n- 共价分子中，成键原子间用共用电子对表示共价键，未成键的最外层电子成对写出。\\n- 共价型离子（复杂阴、阳离子）的中心原子一般满足 8 电子结构，同样写在方括号内。\\n- 离子化合物的电子式由阳、阴离子交替排列构成，不可把相同离子合并书写。\\n\\n用电子式表示形成过程时：离子化合物由原子的电子式经弯箭头标出电子得失，得到离子化合物的电子式；共价化合物由原子的电子式直接得到共价化合物的电子式，不画弯箭头。",
-   "boundaryMarkdown": "常见误区集中在共用电子对数目、8 电子结构是否满足、离子电荷是否标注以及阴阳离子能否合并；离子化合物形成过程必须用弯箭头表示电子得失，共价化合物不用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第五章 物质结构与性质 元素周期律/第03讲 分子结构与性质、化学键（复习讲义）（全国通用）（学生版）.docx（块 c293e5af8b-003）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学键的符号表征-电子式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-c293e5af8b-004",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -64473,26 +64113,6 @@
    ]
   },
   {
-   "slug": "ext-bio-e39740e8e1-006",
-   "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "条件骤变时C3和C5含量的变化分析",
-   "summaryMarkdown": "用过程法与模型法分析光照或二氧化碳浓度突变后短时间内C3、C5含量的变化。",
-   "applicabilityMarkdown": "非选择题中分析突然停止光照或突然降低二氧化碳浓度后各物质含量的变化方向。",
-   "contentMarkdown": "过程法分析：把光合作用过程分为光反应、二氧化碳的固定、C3的还原三个环节。当外界条件突然改变时，先判断受影响的是哪个环节，再沿物质转化链推导相关物质含量的变化。\\n光照突然减弱或停止时，光反应产生的ATP和NADPH减少，C3的还原受阻，C3含量增多、C5含量减少，同时有机物合成减少。\\n光照突然增强时，ATP和NADPH增多，C3的还原加快，C3含量减少、C5含量增多。\\n二氧化碳浓度突然降低时，二氧化碳的固定减弱，C3生成减少而C5消耗减少，同时C3的还原仍在进行，因此C3含量减少、C5含量增多。\\n二氧化碳浓度突然升高时，二氧化碳的固定加快，C3含量增多、C5含量减少。\\n模型法表示：把C3和C5分别看成水池的蓄水量，来源是生成速率、去路是消耗速率，条件改变后比较生成速率与消耗速率的大小即可判断含量的增减。\\n分析时要抓住两个要点：短时间内只考虑速率的改变，不考虑物质总量；ATP和NADPH的含量变化与光照强度同向变化。",
-   "boundaryMarkdown": "易错点：光照减弱时C3增多、C5减少，不要颠倒；二氧化碳浓度降低时C3减少、C5增多；短时间内ATP和NADPH的变化趋势与它们被消耗的速率有关，光照停止后ATP和NADPH减少；分析时不要考虑有机物总量的改变。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-d8b718d85a:biology",
-   "sourceLocator": "桌面资料 2026年新高考资料(4) / 2026年新高考资料(4)/一轮复习/2026年高考生物一轮复习知识清单（全国通用）/2026版/第10讲 光合作用（知识清单）（全国通用）（学生版）.docx（块 e39740e8e1-006）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用的原理",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-e39740e8e1-006b",
    "subject": "BIOLOGY",
    "type": "CONCEPT_EXPLANATION",
@@ -64684,26 +64304,6 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第05讲 化学反应速率与化学平衡图像（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 4e68d6cc38-006）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含量-或转化率-时间-温度-压强-图像",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-4e68d6cc38-007",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "三类特殊平衡图像的判读",
-   "summaryMarkdown": "M点前后的转折、平衡线L两侧的方向以及速率曲线的交点，是三类特殊图像的判读要点。",
-   "applicabilityMarkdown": "判断图像中某点是否达到平衡、某点速率大小关系以及由图像推断热效应和计量数关系。",
-   "contentMarkdown": "第一类：对于化学反应$mA(g)+nB(g)\\rightleftharpoons pC(g)+qD(g)$，图中M点前表示从反应物开始，此时$v_正>v_逆$；M点为刚达到平衡的点；M点后为平衡受温度影响的情况，即升温时A的百分含量增加或C的百分含量减少，说明平衡左移，故正反应为放热反应。\\n第二类：图中L线上的所有点都是平衡点。在L线的左上方（如E点），E点A的百分含量大于此压强时平衡体系的A的百分含量，所以E点$v_正>v_逆$；在L线的右下方（如F点），$v_正<v_逆$。判断的依据是浓度商与平衡常数的比较：Q大于K时逆反应方向进行，Q小于K时正反应方向进行。\\n第三类：曲线表示外界条件（如温度、压强）对正逆反应速率影响的变化趋势及变化幅度。图中交点A是平衡状态；若压强增大时正反应速率增大得更快，说明正反应方向是气体物质的量减小的方向，平衡正向移动。\\n判读的通用思路是：先判断图中哪些点是平衡点、哪些点未达平衡，再用Q与K的关系或速率大小关系确定移动方向，最后由移动方向反推热效应或计量数关系。",
-   "boundaryMarkdown": "易错点：平衡线上的点才是平衡状态，非平衡点要比较Q与K；左上方区域的判断容易反向，要点是A的百分含量偏高说明尚未达到该压强下的平衡；速率曲线交点表示该条件下正逆速率相等；由图像推断计量数关系时要固定条件。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第05讲 化学反应速率与化学平衡图像（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 4e68d6cc38-007）",
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
@@ -66088,26 +65688,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率常数和速率方程",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-dd58d352ef-020",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "速率—时间图像的类型与判读",
-   "summaryMarkdown": "辨认渐变型、断点型、平台型速率—时间图像，由正逆速率变化判断所改变的条件。",
-   "applicabilityMarkdown": "给出v—t图判断改变的条件、判断平衡移动方向、排除不可能的图像。",
-   "contentMarkdown": "分析速率—时间图像时，先看图像类型，再看正、逆速率的变化是否同步。\\n\\n常见三类图像：\\n- 渐变型：条件改变后正、逆速率都连续变化，曲线上没有断点，多对应浓度或压强的改变。\\n- 断点型：某一速率在原图线上突然跃变、出现断点，多对应温度、催化剂或压强的改变。\\n- 平台型：正、逆速率变化后趋于相等并保持水平，表示在新条件下建立了新平衡。\\n\\n判读要点：\\n（1）比较正、逆速率的变化程度。同等程度的变化一般从使用催化剂、或反应前后气体体积不变的反应改变压强来考虑；不同程度的变化多出现在反应前后气体体积改变时改变压强的情形。\\n（2）注意条件改变瞬间正、逆速率的相对大小与变化幅度，再联系外界条件对速率影响的规律逐一筛选、验证、排除。\\n（3）由平衡移动方向反推：平衡正向移动时 $v_正>v_逆$，平衡逆向移动时 $v_正<v_逆$。",
-   "boundaryMarkdown": "图像上的断点是条件被改变的那一瞬间；若正逆速率同等程度增大且平衡不移动，一般是催化剂或等体积反应改变压强；只比较曲线形状而不比较正逆速率大小，容易误判平衡移动方向。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第01讲  化学反应速率及其影响因素（复习讲义）（四川专用）（学生版）.docx（块 dd58d352ef-020）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
      "role": "PRIMARY"
     }
    ]
@@ -70093,26 +69673,6 @@
    ]
   },
   {
-   "slug": "ext-che-72913a9286-006",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "离子化合物与共价化合物电子式的书写",
-   "summaryMarkdown": "离子化合物电子式由阴阳离子电子式组合，共价分子须把共用电子对写在两成键原子之间。",
-   "applicabilityMarkdown": "书写离子化合物、共价分子的电子式及用电子式表示物质形成过程时使用。",
-   "contentMarkdown": "1. 离子化合物的电子式：由阳离子的电子式和阴离子的电子式组成；由多种离子构成的物质，相同离子之间要隔开排列，不能合并书写。\\n2. 离子键的形成（离子化合物的形成过程）：前面写出成键原子的电子式，后面写出离子化合物的电子式，中间用一个箭头连接。\\n3. 共价化合物（共价分子）的电子式：分子由原子通过共用电子对结合而成，书写时应把共用电子对写在两成键原子之间，同时不能忘记写出未成键电子。\\n4. 结构式：用一根短线表示一对共用电子对，未成键的电子不用标明。\\n5. 共价键的形成：同样先写出成键原子的电子式，再写共价分子的电子式，中间用箭头连接。",
-   "boundaryMarkdown": "相同离子不能合并书写；共价分子电子式中未成键电子不可省略，结构式则不标未成键电子，两者不要混淆。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第03讲 分子结构与性质、化学键（复习讲义）（湖南专用）（学生版）.docx（块 72913a9286-006）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学键的符号表征-电子式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-72913a9286-009",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -72188,26 +71748,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体知识易错点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-0012df4ce9-024",
-   "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
-   "title": "Fe(OH)₃胶体的制备与提纯",
-   "summaryMarkdown": "沸水中逐滴加入饱和氯化铁溶液制胶体及其除杂与检验",
-   "applicabilityMarkdown": "制备胶体、除去胶体中的杂质、检验杂质是否除尽的实验题",
-   "contentMarkdown": "制备原理：$FeCl_3 + 3H_2O \\xlongequal{\\Delta} Fe(OH)_3(胶体) + 3HCl$。具体操作：取少量蒸馏水加热至沸腾，向沸水中逐滴加入适量饱和 FeCl₃ 溶液，继续煮沸至液体呈红褐色即停止加热，得到 Fe(OH)₃ 胶体。三个关键点是沸水、逐滴加入、出现红褐色立即停止加热；加热时间过长或溶液浓度过大都会得到沉淀。除杂按杂质类型选择：含悬浊液用过滤，含分子或离子用渗析。检验可溶性离子是否除尽：取最后一次渗析液于洁净试管中，滴加硝酸银溶液，若无白色沉淀产生，说明 Cl⁻ 已除尽、胶体与离子分离完全。",
-   "boundaryMarkdown": "方程式用可逆符号且 Fe(OH)₃ 后注明胶体、不写↓；水解法制胶体时不能长时间煮沸；渗析是物理分离方法，只适用于除去小分子或离子。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第01讲 物质的分类及转化（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 0012df4ce9-024）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe-oh-3胶体的制备",
      "role": "PRIMARY"
     }
    ]
@@ -74668,26 +74208,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电离常数",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-4a6b0a9516-012",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "电离平衡常数的四类应用",
-   "summaryMarkdown": "归纳用电离常数判断酸碱强弱、盐溶液酸碱性、复分解反应方向与微粒比值变化的思路。",
-   "applicabilityMarkdown": "用于由Ka表推断酸性强弱、盐水解程度与反应能否发生的题目。",
-   "contentMarkdown": "第一，判断弱酸（或弱碱）的相对强弱：电离平衡常数越大，酸性（或碱性）越强，其对应酸根离子结合H+的能力越弱。例如已知Ka(HF)大于Ka(HClO)，则同条件下酸性HF强于HClO。第二，判断盐溶液的酸性（或碱性）强弱：电离平衡常数越大，对应的盐水解程度越小，酸性或碱性越弱。例如Ka(HF)大于Ka(CH3COOH)，则同浓度时碱性NaF弱于CH3COONa。第三，判断复分解反应能否发生：一般符合强酸制弱酸规律，例如Ka(HClO)大于Ka2(H2CO3)时，反应 $\\mathrm{HClO + CO_3^{2-} = HCO_3^- + ClO^-}$ 能够发生。第四，判断微粒浓度比值的变化：弱电解质加水稀释时电离常数不变，可利用常数把比值转化为与某种粒子浓度的关系来判断变化趋势，例如0.1 mol/L醋酸溶液加水稀释时，$\\frac{c(CH_3COO^-)}{c(CH_3COOH)}=\\frac{K_a}{c(H^+)}$，因c(H+)减小而比值增大。",
-   "boundaryMarkdown": "判断反应能否发生要比较对应步的常数（如Ka2而非Ka1）；比值判断必须借助不变的常数，否则容易随稀释方向误判。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第01讲  电离平衡（复习讲义）（四川专用）（学生版）.docx（块 4a6b0a9516-012）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常温下-几种弱酸的电离平衡常数如下表所示",
      "role": "PRIMARY"
     }
    ]
@@ -81453,26 +80973,6 @@
    ]
   },
   {
-   "slug": "ext-che-28c092c1c4-016",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "物质性质验证的实验现象",
-   "summaryMarkdown": "SO2漂白性与还原性的区别、淀粉与蛋白质的检验现象",
-   "applicabilityMarkdown": "判断性质验证实验的现象与结论是否正确、分析褪色原因的题目",
-   "contentMarkdown": "SO2 的漂白性与还原性要分清：SO2 使品红溶液褪色、加热后又恢复红色，这是漂白性（针对有机色质，可逆）；SO2 使酸性 KMnO4 溶液褪色，体现的是还原性；SO2 使滴有酚酞的 NaOH 溶液褪色，体现的是酸性氧化物的性质。淀粉的检验：滴加碘水（或碘酒），溶液变蓝，说明物质含淀粉。蛋白质的检验：灼烧时产生烧焦羽毛的气味；或加浓硝酸并微热，显黄色（显色反应，仅限含苯环的蛋白质）。这些现象是判断“操作—现象—结论”类试题正误的基础。",
-   "boundaryMarkdown": "不能一见“褪色”就归结为漂白性，SO2 使溴水、酸性 KMnO4 褪色都是还原性；蛋白质的浓硝酸显色反应只适用于含苯环的蛋白质；品红褪色后加热恢复红色才是 SO2 漂白性的特征。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第十章 化学实验基础与探究/题型06 实验操作、现象和结论的正误判断（学生版） .docx（块 28c092c1c4-016）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质性质验证类实验",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-28c092c1c4-016b",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -82088,26 +81588,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-8b4c78b419-004",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "体现SO2性质的实验现象",
-   "summaryMarkdown": "从还原性、氧化性、酸性和漂白性四个角度设计实验并观察现象",
-   "applicabilityMarkdown": "判断SO2性质实验的现象与结论、解释褪色原因的题目",
-   "contentMarkdown": "体现 SO2 性质的实验可分四类。①体现还原性：SO2 使酸性高锰酸钾溶液褪色，也能使氯水（或溴水、碘水）褪色。②体现氧化性：把 SO2 通入氢硫酸或硫化钠溶液中，出现淡黄色浑浊（生成硫单质）。③体现酸性：把 SO2 通入紫色石蕊溶液中，溶液变红，且 SO2 不能漂白紫色石蕊溶液；把 SO2 不断通入滴有酚酞的氢氧化钠溶液中，溶液红色褪去。④体现漂白性：SO2 使品红溶液褪色，加热后红色恢复。SO2、H2SO3、NaHSO3、Na2SO3 之间可类比 CO2 系列相互转化：HSO3－＋H＋==SO2↑＋H2O、HSO3－＋OH－==SO3^2-＋H2O、2NaHSO3==Na2SO3＋SO2↑＋H2O、Na2SO3＋SO2＋H2O==2NaHSO3。",
-   "boundaryMarkdown": "使石蕊变红说明 SO2 的水溶液显酸性，不能据此认为 SO2 有漂白性；SO2 使酸性高锰酸钾溶液、溴水褪色都是还原性而不是漂白性；只有使品红褪色且加热后恢复才是漂白性。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习·知识清单（新高考通用）/资料/第11讲　硫及其化合物（学生版）.docx（块 8b4c78b419-004）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:二氧化硫",
      "role": "PRIMARY"
     }
    ]
@@ -84653,26 +84133,6 @@
    ]
   },
   {
-   "slug": "ext-bio-02a053bbf3-003",
-   "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "有丝分裂中DNA与染色体数量变化",
-   "summaryMarkdown": "DNA在间期复制时加倍，染色体数目在后期着丝粒分裂时加倍，柱形图按有无染色单体判读。",
-   "applicabilityMarkdown": "分析有丝分裂过程中染色体、染色单体与DNA的数量变化曲线或柱形图时使用。",
-   "contentMarkdown": "1．数量变化规律：DNA 数量加倍的时期是分裂间期（S 期），原因是 DNA 复制；染色体数量加倍的时期是分裂后期，原因是着丝粒分裂、姐妹染色单体分开成为两条染色体。\\n2．柱形图判读：染色单体会因着丝粒分裂而消失，所以柱形图中某结构若出现 0，则它一定表示染色单体；有染色单体时，DNA 与染色单体数量相同，没有染色单体时，DNA 与染色体数量相同。\\n3．曲线判读：DNA 曲线在间期出现斜线上升（复制过程），染色体曲线在后期突然加倍（着丝粒分裂），染色单体曲线在后期降为 0。\\n4．时期时长的计算：每一时期的时间＝细胞周期总时间×此时期细胞数占计数细胞总数的比例。",
-   "boundaryMarkdown": "DNA 加倍是渐变过程，染色体加倍是突变过程，两者时期不同；把“DNA 含量加倍”与“染色体数目加倍”的时期混淆是高频错误。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-d8b718d85a:biology",
-   "sourceLocator": "桌面资料 2026年新高考资料(4) / 2026年新高考资料(4)/一轮复习/2026年高考生物一轮复习知识清单（全国通用）/2026版/第12讲 细胞的增殖（知识清单）（全国通用）（学生版）.docx（块 02a053bbf3-003）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-02a053bbf3-003b",
    "subject": "BIOLOGY",
    "type": "CONCEPT_EXPLANATION",
@@ -86453,46 +85913,6 @@
    ]
   },
   {
-   "slug": "ext-che-6b9ae33803-002",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "化学用语的符号体系",
-   "summaryMarkdown": "梳理两种模型、三种符号与七种表达式，形成系统的化学用语清单。",
-   "applicabilityMarkdown": "判断化学用语书写的正误、识别各种符号与表达式所表示的对象。",
-   "contentMarkdown": "**两种模型**：空间填充模型（如甲烷）、球棍模型（如甲烷）。\\n\\n**三种符号**：元素符号（O、Na 等）、离子符号（$\\mathrm{Al^{3+}}$、$\\mathrm{SO_4^{2-}}$ 等）、核素符号（$^{1}_{1}\\mathrm{H}$、$^{235}_{92}\\mathrm{U}$ 等）。\\n\\n**七种表达式**：\\n①化学方程式，如 $\\mathrm{HCl+NaOH=NaCl+H_2O}$；\\n②离子方程式，如 $\\mathrm{H^++OH^-=H_2O}$；\\n③热化学方程式，如 $\\mathrm{H^+(aq)+OH^-(aq)=H_2O(l)}\\ \\Delta H=-57.3\\ \\mathrm{kJ/mol}$；\\n④电离方程式，如 $\\mathrm{BaSO_4=Ba^{2+}+SO_4^{2-}}$；\\n⑤水解方程式，如 $\\mathrm{S^{2-}+H_2O\\rightleftharpoons HS^-+OH^-}$；\\n⑥电极反应式，如 $\\mathrm{O_2+2H_2O+4e^-=4OH^-}$；\\n⑦沉淀溶解平衡式，如 $\\mathrm{BaSO_4(s)\\rightleftharpoons Ba^{2+}(aq)+SO_4^{2-}(aq)}$。",
-   "boundaryMarkdown": "热化学方程式必须注明物质状态与 ΔH 的符号和单位；沉淀溶解平衡式要标出状态与可逆号，不能与电离方程式混写。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习·知识清单（新高考通用）/资料/第5讲　化学键与分子的性质（学生版）.docx（块 6b9ae33803-002）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列化学用语正确的有___________",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-6b9ae33803-003",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "化学用语的区分与常见图式",
-   "summaryMarkdown": "区分电离式与水解式、电离式与沉淀溶解平衡式，并梳理十种常见图式。",
-   "applicabilityMarkdown": "判断化学用语书写的正误、比较同一离子的电离与水解方程式。",
-   "contentMarkdown": "**电离方程式与水解方程式的区分**：同一离子（如 $\\mathrm{HS^-}$）在水中既电离又水解，写电离方程式时为 $\\mathrm{HS^-+H_2O\\rightleftharpoons H_3O^++S^{2-}}$，写水解方程式时为 $\\mathrm{HS^-+H_2O\\rightleftharpoons H_2S+OH^-}$，两者不可混写。\\n\\n**难溶物的电离方程式与沉淀溶解平衡式的区分**：$\\mathrm{BaSO_4=Ba^{2+}+SO_4^{2-}}$ 表示电离，$\\mathrm{BaSO_4(s)\\rightleftharpoons Ba^{2+}(aq)+SO_4^{2-}(aq)}$ 表示沉淀溶解平衡。\\n\\n**十种常见图式**：化学式（如 $\\mathrm{KAl(SO_4)_2\\cdot12H_2O}$、$\\mathrm{SiO_2}$）、分子式（$\\mathrm{NH_3}$、$\\mathrm{C_6H_{12}O_6}$）、最简式（实验式，如 $\\mathrm{CH_2}$、$\\mathrm{CH_2O}$）、电子式、结构式、结构简式、键线式、微粒结构示意图、电子排布式（如 Cu 的 $\\mathrm{[Ar]3d^{10}4s^1}$）、电子排布图（轨道表示式）。",
-   "boundaryMarkdown": "分子晶体的化学式可表示分子式（如 $\\mathrm{C_6H_6}$、$\\mathrm{H_2O_2}$）；离子晶体和共价晶体的化学式不表示分子式，只表示原子最简整数比，书写时不能用“分子式”指称。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习·知识清单（新高考通用）/资料/第5讲　化学键与分子的性质（学生版）.docx（块 6b9ae33803-003）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电离方程式的-易错点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-6b9ae33803-004",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -87093,26 +86513,6 @@
    ]
   },
   {
-   "slug": "ext-bio-ccd0d00ddf-005",
-   "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "有丝分裂中物质数量变化的判断",
-   "summaryMarkdown": "有染色单体时染色体∶染色单体∶核DNA=1∶2∶2，无染色单体时为 1∶1，可据此判断分裂时期。",
-   "applicabilityMarkdown": "由曲线图或柱状图判断细胞所处时期、分析数量变化原因时使用。",
-   "contentMarkdown": "染色体、染色单体与核 DNA 的数量关系：\\n（1）有染色单体时（分裂间期 G₂ 期、前期、中期）：染色体∶染色单体∶核 DNA＝1∶2∶2。\\n（2）无染色单体时（分裂间期 G₁ 期、后期、末期）：染色体∶核 DNA＝1∶1。\\n染色体数与核 DNA 数比值曲线的解读：①比值由 1 变为 1/2 的区段对应 S 期，原因是 DNA 复制完成、染色单体形成；②比值保持 1/2 的区段是含有姐妹染色单体的时期，即 G₂ 期、前期、中期；③比值由 1/2 恢复为 1 的区段对应有丝分裂后期，原因是着丝粒分裂、染色单体消失。\\n根据柱状图判断各时期的规律（以二倍体生物为例）：先看有无染色单体——无染色单体且核 DNA 数为 2n 的为 G₁ 期，无染色单体且染色体数与核 DNA 数均为 4n 的为后期、末期；有染色单体时核 DNA 数为 4n，可能是 G₂ 期、前期或中期，再结合染色体数目等比例关系进一步判断。",
-   "boundaryMarkdown": "同一组数量关系可能对应多个时期（如 G₂ 期、前期、中期的数量关系相同），只凭数量关系不能区分它们；判断时期要把染色体数、染色单体数与核 DNA 数三者联系起来看。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-2452b2cbe4:biology",
-   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/2027年高考生物一轮课件+讲义+练习（黑吉辽蒙专用）-G330/2027版/第11讲 细胞的增殖（学生版）.docx（块 ccd0d00ddf-005）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞分裂时期的判断方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-ccd0d00ddf-006",
    "subject": "BIOLOGY",
    "type": "METHOD_MODEL",
@@ -87288,26 +86688,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-1e9a37df8e-011",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "有机物中的σ键与π键",
-   "summaryMarkdown": "单键只含σ键，不饱和键中才有π键；单键可绕键轴旋转，双键三键不能",
-   "applicabilityMarkdown": "判断共价键类型、解释加成反应活性、判断原子能否共面",
-   "contentMarkdown": "有机分子中共价键一定含σ键，π键只出现在双键、三键等不饱和键中：碳碳单键是1个σ键，双键由1个σ键和1个π键组成，三键由1个σ键和2个π键组成。形成单键的原子可以绕键轴旋转，形成双键、三键的原子不能绕键轴旋转。两个平面若只靠单键相连，可以绕键轴旋转，可能转到同一平面也可能不在同一平面；若两个平面被多个点固定（如成环），则不能旋转，一定共面。π键稳定性不如σ键，是不饱和键容易发生加成反应的结构原因。",
-   "boundaryMarkdown": "旋转的判断只对单键成立；双键、三键把原子锁定在固定方向上。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第九章 有机化学基础/第01讲 有机化合物的结构特点与研究方法（复习讲义）（全国通用）（学生版）.docx（块 1e9a37df8e-011）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机化合物中的共价键",
      "role": "PRIMARY"
     }
    ]
@@ -91668,26 +91048,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:cl2的实验室制法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-9635499c18-004",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "氯气的工业制法与粗盐的精制",
-   "summaryMarkdown": "电解饱和食盐水制氯气，粗盐精制中碳酸钠必须在氯化钡之后加入",
-   "applicabilityMarkdown": "分析氯碱工业、粗盐提纯试剂顺序时使用",
-   "contentMarkdown": "工业制法：电解饱和食盐水，2NaCl＋2H2O→2NaOH＋H2↑＋Cl2↑。粗盐的精制：海水中得到的粗盐含Fe3+、Mg2+、Ca2+、SO4^2-等杂质，加入试剂的顺序可以是依次加NaOH、BaCl2、Na2CO3，或依次加BaCl2、NaOH、Na2CO3，或依次加BaCl2、Na2CO3、NaOH——关键在于Na2CO3必须在BaCl2之后加入，以除去过量的Ba2+；过滤后在溶液中滴入盐酸调节溶液的pH＝7。氯气的用途：制漂白粉、消毒、制盐酸、农药、氯仿等。",
-   "boundaryMarkdown": "Na2CO3的作用有两个（沉淀Ca2+和过量的Ba2+），因此必须在BaCl2之后加入；最后加盐酸既能除去过量的NaOH和Na2CO3，又不引入新杂质。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习·知识清单（新高考通用）/资料/第10讲　氯及其化合物　卤素（学生版）.docx（块 9635499c18-004）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解饱和食盐水-氯碱工业",
      "role": "PRIMARY"
     }
    ]

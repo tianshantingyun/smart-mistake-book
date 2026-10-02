@@ -22,7 +22,7 @@ import org.junit.Test
  *    分词保真对账通过（否则 A' 的 len/二值 tf 不成立）；
  * 4. **A ↔ A' 容差 0**（§2 验收硬项）：主集、MRR、逐题名次、逐题 top-5 序列全同；
  * 5. 产物契约：逐臂指标文件、报告、判读 JSON 落盘且**回读校验**（JSON 字段与内存中的
- *    计算结果逐项相等；报告里 A/A' 逐题日志行数 = 90）。
+ *    计算结果逐项相等；报告里 A/A' 逐题日志行数 = 金标条数（v2 判官 = 130））。
  *
  * 复算：`./gradlew :core:data:testDebugUnitTest --tests "*Stage1LexicalLabTest*" --rerun`
  * （金标集/包都是任务输入之外的文件，改它们不会让任务失效）。
@@ -45,12 +45,12 @@ class Stage1LexicalLabTest {
             goldenSha256,
         )
         val cases = RetrievalBenchmark.loadGoldenCases(goldenFile)
-        assertEquals("冻结金标集条数应为 90", 90, cases.size)
+        assertEquals("冻结金标集条数应为 130（判官 v2）", 130, cases.size)
         assertTrue("金标集应覆盖 4 科", cases.map { it.subject }.toSet().size == 4)
         assertEquals(
-            "冻结金标集章数应为 10（每章 9 条）",
-            listOf(9),
-            cases.groupBy { it.chapter }.values.map { it.size }.distinct(),
+            "冻结金标集章数应为 20（判官 v2；每章条数不等，不再断言'每章条数一致'）",
+            20,
+            cases.groupBy { it.chapter }.size,
         )
 
         val pack = BundledKnowledgePackResources.load().single { it.packId == PACK_ID }
@@ -59,7 +59,7 @@ class Stage1LexicalLabTest {
 
         val corpus = Stage1LexicalLab.Corpus(pack.nodes)
 
-        // ---- 臂 C 的前提：章映射能从 topic 链推出来（90/90 与金标 chapter 一致） ----
+        // ---- 臂 C 的前提：章映射能从 topic 链推出来（130/130 与金标 chapter 一致） ----
         val chapterMismatch = cases.mapNotNull { case ->
             val nodeId = pack.nodes.first {
                 it.subject == case.subject &&
@@ -194,9 +194,13 @@ class Stage1LexicalLabTest {
                 it.route == Stage1Experiment.A_ROUTE && it.shape == Stage1Experiment.SHAPE_MATCHED_ONLY
             }
             // (b) v1 生产形（**D1 落地后 = matched 优先**：`matched+parents`）= 本会话基线测量
-            //     （同一镜像、两条独立计算路径）；同一张表里**旧生产形（parents 前置）按历史记账保留**，
-            //     其值必须仍复现预注册基线（主集 0.5444 = 49/90、MRR 0.1511；容差 1e-4）；
-            //     其中 MRR 的**镜像**值随语料变动，2026-09-25 按当前语料重记（见下方断言注释）。
+            //     （同一镜像、两条独立计算路径）；同一张表里**旧生产形（parents 前置）按历史记账保留**。
+            //     **2026-10-02 v2 重钉**：判官 v2（130 条 / 20 章）+ 当前随包（3,570 原子节点 + 398
+            //     topic = 3,968 节点 / 36,749 别名）下，该历史记账格实测主集 0.49230769230769234
+            //     （64/130）、MRR 0.1305128205128205（同轮 `build/stage1-experiments.md` §10 表）；
+            //     v1 金标 90 条 + 旧包时代该格 = 预注册基线 0.5444（49/90）、MRR 0.15074074074074076。
+            //     预注册常量 `Stage1LexicalLab.BASELINE_MAIN/MRR` 是 v1 时代真 SQL 的历史记录
+            //     （报告/verdict 仍按原值引用），**不动**；容差 1e-4 未动。
             assertEquals("§10 的 v1 生产形态行主集应等于基线测量（同一镜像）", baseline.main, v1Prod.main, 0.0)
             assertEquals("§10 的 v1 生产形态行 MRR 应等于基线测量", baseline.mrr, v1Prod.mrr, 0.0)
             assertEquals("§10 的 v1 生产形态行命中数应等于基线测量", baseline.hits, v1Prod.hits)
@@ -204,33 +208,27 @@ class Stage1LexicalLabTest {
                 it.route == Stage1Experiment.V1_ROUTE && it.shape == Stage1Experiment.SHAPE_LEGACY_PRODUCTION
             }
             assertEquals(
-                "v1 旧生产形（parents 前置）主集应复现预注册基线 0.5444（历史记账，D1 前形状）",
-                Stage1LexicalLab.BASELINE_MAIN, v1LegacyProd.main, 1e-4,
+                "v1 旧生产形（parents 前置）主集应等于 v2 口径实测值 0.49230769230769234" +
+                    "（历史记账格，64/130；判官 v2 + 当前包实测 2026-10-02；v1 金标 90 条时代该格 = 预注册基线 0.5444）",
+                0.49230769230769234, v1LegacyProd.main, 1e-4,
             )
             assertEquals(
-                "v1 旧生产形（parents 前置）命中数应为预注册基线的 49/90（历史记账，D1 前形状）",
-                49, v1LegacyProd.hits,
+                "v1 旧生产形（parents 前置）命中数应为 v2 口径实测值 64/130" +
+                    "（历史记账格；v1 金标 90 条时代该格 = 预注册基线的 49/90）",
+                64, v1LegacyProd.hits,
             )
             assertEquals(
-                // 0.15074074074074076 = 本镜像（JVM 侧）在**当前语料**上的实测值（2026-09-25 重记）。
-                // 旧值 → 新值 → Δ：0.1516666…（记作 0.1517）→ 0.15074074074074076，
-                // Δ = −0.00093（−0.6%，精确 = −(1/12)/90 = −0.00092593）——重锚的是**钉子的值**，
-                // 不是判据的松紧：**容差 1e-4 未动**。
-                // 原因：**别名随绑定重算**（索引正文 = `KnowledgeSearchFeatureExtractor.fromNode`
-                // 的"节点名 + 别名"，别名一变、同分名次的次序就变）：本轮别名向量 25,360→25,359
-                // （旁车 `core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec.json` 的
-                // `corpus.aliasVectors`；`vectorCount` 28,932→28,931 同源），涉及 50 个节点的
-                // 别名行重算（`tools/kb_build/tables/alias_map.csv` 本轮 diff 里 50 个不同 slug）
-                // ⇒ 旧生产形下 top-5 内的名次挪动，Σ(1/rank) 差 1/12（= 90×ΔMRR）。
-                // 隔离实验确认同一改动下**命中数 49/90、主集 0.5444 与生产形两格（0.6444/0.5637、
-                // 0.6556/0.5569）逐位未动**——即这一格对"别名→名次"的排序敏感，不是检索退化。
-                // 隔离实验（同一次构建、同一套题面）：把 HEAD 版包放回资源位跑本测试 ⇒ 0.1516666…、
-                // 全测试绿；换回当前包 ⇒ 0.15074074074074076。真 SQL 的预注册 MRR 0.1511（D1 前旧生产形）
-                // 由仪表化金标测试（GoldenRetrievalInstrumentedTest）锚定，两侧 MRR 的历史小差是镜像
-                // 保真度事实；本断言钉的是"同一语料下这个形状的 MRR 不再漂移"。
-                "v1 旧生产形（parents 前置）MRR 应等于当前语料实测值 0.1507" +
-                    "（历史记账，D1 前形状；2026-09-25 语料变更后重记，旧值 0.1517，Δ −0.00093 / −0.6%）",
-                0.15074074074074076, v1LegacyProd.mrr, 1e-4,
+                // 2026-10-02 二次重钉：建点闭环给包加了 296 个新点 / 578 个新别名（3,866 节点 /
+                // 37,327 别名、材料 50,383）后实测 = 0.1296153846153846（Σ1/rank / 130；与同轮
+                // `build/stage1-experiments.md` §10 口径对照表"v1 × 旧生产形"格逐位同源）。
+                // 上一代 0.1305128205128205 = v2 判官 + v8 包（3,570 / 36,749）时代该格实测值；
+                // 旧锚 0.15074074074074076 = v1 金标 90 条 + 旧包时代（再上一代 0.1516666… 见 git 历史）。
+                // 重钉的只是**钉子的值**（数据变化：判官扩集 + 建点换包），**容差 1e-4 未动**；
+                // 真 SQL 预注册 MRR 0.1511 由仪表化金标测试（GoldenRetrievalInstrumentedTest）锚定，
+                // 不随本镜像格变动。
+                "v1 旧生产形（parents 前置）MRR 应等于 v2 口径实测值 0.1296153846153846" +
+                    "（历史记账，D1 前形状；旧值 0.15074074074074076，v1 金标 90 条时代）",
+                0.1296153846153846, v1LegacyProd.mrr, 1e-4,
             )
             // (c) 臂 A 两套数一致：matched-only 口径 = 臂 A 的判分数；旧生产形 = scan-A-parentprefix。
             assertEquals("§10 的 A matched-only 行应等于臂 A 的判分数（同一口径）", a.main, aMatchedOnly.main, 0.0)

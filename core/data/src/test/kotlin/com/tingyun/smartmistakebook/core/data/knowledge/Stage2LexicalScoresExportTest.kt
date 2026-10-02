@@ -14,7 +14,8 @@ import org.junit.Test
  * 同一套 WHERE），Python 侧不重造 FTS5 口径（规格 §2.3，`docs/kb-stage2-dense-spec.md`）。
  *
  * **为什么另开一个测试而不是改臂定义**：本文件只**加导出**，不改 `Stage1Experiment` /
- * `Stage1LexicalLab` 的任何一行——Stage-1 的判读数（臂 A = 0.6556/0.5569）必须由同一份
+ * `Stage1LexicalLab` 的任何一行——Stage-1 的判读数（臂 A = 0.6307692307692307/0.49269230769230776，
+ * 2026-10-02 v2 口径实测；v1 金标时代为 0.6556/0.5569）必须由同一份
  * 实现原样产出，导出的是它的**中间量**（分数），不是另算一遍。
  *
  * **导出形状**（`build/stage2-dense-offline-lexical.tsv`）：
@@ -31,12 +32,15 @@ import org.junit.Test
  *   每一个节点"的分数（融合与 MISS 名次都需要完整名单），不是改了排序口径。
  *
  * **断言（本测试只断言"这份数据是可信的"，不断言质量阈值）**：
- * 1. 金标 sha256 = 封存值（题面未被改过）+ 90 条 / 4 科 / 10 章 × 9 条；
+ * 1. 金标 sha256 = 封存值（题面未被改过）+ 130 条 / 4 科 / 20 章（判官 v2 口径；
+ *    **每章条数不等**（3/9/11/12 条不等），故不再断言"每章条数一致"这种 v1 恒值）；
  * 2. 每行都指向真实节点、且 `subject` 与 `verification_status` 都落在该查询的候选域里
  *    （导出的行不能绕过按科隔离 + 可信过滤）；
- * 3. **回读 TSV 重算臂 A**：主集 59/90（0.6555555555555556）、MRR 0.5568518518518518、
- *    逐章 10 值、以及**逐题 MISS（集合 + rank，256 窗口）**与 `build/stage1-metrics-A.txt`
- *    逐行相同——导出的分数就是臂 A 的分数，"融合臂的词面输入 = 臂 A 原样"因此可证。
+ * 3. **回读 TSV 重算臂 A**：逐章 20 值、以及**逐题 MISS（集合 + rank，256 窗口）**与
+ *    `build/stage1-metrics-A.txt` 逐行相同——导出的分数就是臂 A 的分数，"融合臂的词面输入 =
+ *    臂 A 原样"因此可证。主集/MRR 的数值锚已于 2026-10-02 按判官 v2 实测重钉
+ *    （82/130 = 0.6307692307692307、MRR = 0.49269230769230776）；旧锚（59 / 0.6555… / 0.5568…）
+ *    是 v1 金标（90 条）+ 旧包时代的值。
  *
  * 复算：`./gradlew.bat :core:data:testDebugUnitTest --tests "*Stage2LexicalScoresExportTest*" --rerun`
  */
@@ -59,9 +63,8 @@ class Stage2LexicalScoresExportTest {
         )
         assertEquals("金标 sha256 应等于 Stage-2 规格 §1.2 的封存值", FROZEN_GOLDEN_SHA256, goldenSha256)
         val cases = RetrievalBenchmark.loadGoldenCases(goldenFile)
-        assertEquals("冻结金标集条数应为 90", 90, cases.size)
-        assertEquals("冻结金标集章数应为 10（每章 9 条）", 10, cases.map { it.chapter }.distinct().size)
-        assertEquals("每章条数应一致", 9, cases.groupBy { it.chapter }.values.map { it.size }.distinct().single())
+        assertEquals("冻结金标集条数应为 130（判官 v2）", 130, cases.size)
+        assertEquals("冻结金标集章数应为 20（判官 v2；每章条数不等）", 20, cases.map { it.chapter }.distinct().size)
 
         val pack = BundledKnowledgePackResources.load().single { it.packId == PACK_ID }
         val corpus = Stage1LexicalLab.Corpus(pack.nodes)
@@ -161,9 +164,16 @@ class Stage2LexicalScoresExportTest {
                     " | rank=" + (if (probeRank > 0) probeRank.toString() else "absent")
             }
 
-        assertEquals("回读重算的臂 A 主集命中数应为 59/90", 59, hits)
-        assertEquals("回读重算的臂 A 主集 Recall@5 应为 0.6555555555555556", ARM_A_MAIN, main, 0.0)
-        assertEquals("回读重算的臂 A MRR 应为 0.5568518518518518", ARM_A_MRR, mrr, 0.0)
+        // **数值锚：2026-10-02 按判官 v2 实测重钉。** 旧锚（59 / 0.6555555555555556 /
+        // 0.5568518518518518）是 v1 金标（90 条）+ 旧包时代的臂 A 判读数。判官 v2（130 条 / 20 章，
+        // sha 89c1d5b5…）+ 当前随包（3,570 原子节点 + 398 topic = 3,968 节点 / 36,749 别名）下，
+        // 本轮 gradle 门实测 + 本文件回读重算：主集 82/130 = 0.6307692307692307、MRR =
+        // 0.49269230769230776（与同轮 `build/stage1-metrics-A.txt` 的 `Recall@5(主集)=…` 及
+        // `build/stage1-verdict.json` 臂 A 的 `mrr` 逐位一致）。这是数据变化（判官扩集 + 换包）
+        // 导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
+        assertEquals("回读重算的臂 A 主集命中数应为 82/130（判官 v2 + 当前包实测）", 82, hits)
+        assertEquals("回读重算的臂 A 主集 Recall@5 应为 0.6307692307692307", ARM_A_MAIN, main, 0.0)
+        assertEquals("回读重算的臂 A MRR 应为 0.49269230769230776", ARM_A_MRR, mrr, 0.0)
 
         // ---- 与 build/stage1-metrics-A.txt 逐行对账（含逐题 MISS 的集合与 rank） ----
         val metricsFile = File(repoRoot, "build/stage1-metrics-A.txt")
@@ -184,8 +194,8 @@ class Stage2LexicalScoresExportTest {
                 recordedMisses.contains(line.trim()),
             )
         }
-        // 逐章行的数量（10 章）也对齐一次，防止"只对了 MISS、逐章没对上"。
-        assertEquals("逐章行数应为 10", 10, chapterLines.size)
+        // 逐章行的数量（v2 判官 = 20 章）也对齐一次，防止"只对了 MISS、逐章没对上"。
+        assertEquals("逐章行数应为 20（判官 v2）", 20, chapterLines.size)
 
         println("stage2-lexical-export: 文件=${tsvFile.path}")
         println("stage2-lexical-export: 行数=$rowCount 查询数=${cases.size} 空洞查询=$emptyFeatureQueries")
@@ -227,9 +237,16 @@ class Stage2LexicalScoresExportTest {
          */
         const val FROZEN_GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
 
-        /** Stage-1 判读数（`build/stage1-metrics-A.txt`）——回读重算必须逐位复现。 */
-        const val ARM_A_MAIN = 0.6555555555555556
-        const val ARM_A_MRR = 0.5568518518518518
+        /**
+         * Stage-1 判读数（`build/stage1-metrics-A.txt`）——回读重算必须逐位复现。
+         *
+         * **2026-10-02 二次重钉**：建点闭环给包加了 296 个新点 / 578 个新别名（3,866 节点 /
+         * 37,327 别名、材料 50,383）后臂 A = 0.6307692307692307 / 0.4920512820512821
+         * （上一代 0.49269230769230776 = v2 判官 + v8 包时代）。旧锚
+         * 0.6555555555555556 / 0.5568518518518518 = v1 金标 90 条 + 旧包时代的判读数。
+         */
+        const val ARM_A_MAIN = 0.6307692307692307
+        const val ARM_A_MRR = 0.4920512820512821
 
         const val ATOMIC_SUFFIX = ":atomic:"
     }

@@ -17,7 +17,7 @@
 # ② 模型：bge-small-zh-v1.5 → ONNX fp32 → int8（自转），并做对拍
 python tools/dense_build/export_bge_int8.py
 
-# ③ 向量资产：28,931 条句向量 → int8 每向量 scale → .vec + 旁车
+# ③ 向量资产：当前包布局的全部句向量（3,570 节点 + 36,749 别名 = 40,319 条）→ int8 每向量 scale → .vec + 旁车
 python tools/dense_build/pack_dense_asset.py
 
 # ④ 参考数：生产词面腿 + int8 稠密腿 → D1 形态的设备期望值
@@ -41,7 +41,7 @@ python -m unittest discover -s tools/tests -t tools -p "test_dense_asset_gate.py
 | `check_asset.py` | **陈旧性门**（旁车哈希 == 当前包 + 词表 + `.vec`；ids == 当前包布局） | ✅ |
 | `model-manifest.json` | 模型的坐标/哈希/两条路线的实测 cosine/对拍门结论 | ✅ |
 | `vocab/bge-small-zh-v1.5-{vocab.txt,tokenizer.json}` | 词表冻结副本（端侧 tokenizer 必须与它逐条同结果） | ✅ |
-| `core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec` | 随包分发的向量资产（28,931×512 int8） | ✅ |
+| `core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec` | 随包分发的向量资产（40,319×512 int8；条数随包走） | ✅ |
 | `core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec.json` | 旁车（溯源 + 哈希 + 量化实测） | ✅ |
 | `build/dense-model/*.onnx` | fp32 / int8 模型件（可由 ② 从钉住的 revision 重生成） | ❌ `build/` |
 | `build/production-lexical-leg.tsv` | 生产词面腿（含 sha 记进旁车） | ❌ `build/` |
@@ -103,7 +103,7 @@ python -m unittest discover -s tools/tests -t tools -p "test_dense_asset_gate.py
 0      4                 magic = b"SMBV"
 4      4                 uint32 version        = 1
 8      4                 uint32 dim            = 512
-12     4                 uint32 count          = 28931
+12     4                 uint32 count          = 40319（随包变：当前包 3,570 节点 + 36,749 别名）
 16     4                 uint32 dtype          = 1（INT8_PER_VECTOR_F32_SCALE）
 20     4                 uint32 idsBytesLength
 24     idsBytesLength    ids 块：count × (uint32 utf8Len + utf8 bytes)，逐向量
@@ -122,25 +122,31 @@ python -m unittest discover -s tools/tests -t tools -p "test_dense_asset_gate.py
 
 ## 5. 参考数（D1 形态 = 当前生产形态：matched 前置）
 
-判读对象 = 冻结金标 90 条（sha256 `7c004b76…`，两侧运行时复核）。判分口径与 Stage-1/2 逐字相同
+判读对象 = 冻结金标 **130 条 / 20 章**（判官 v2；sha256 `89c1d5b5…`，两侧运行时复核）。判分口径与 Stage-1/2 逐字相同
 （top-5、按科隔离、可信过滤、命中 = 前 5 名里存在 `:atomic:<expectedSlug>` 结尾的节点）。
 融合 = spec §2.4 的写死参数：**每查询候选域内 min-max、α=0.5、缺腿给 0（不参与 min-max）**。
 
 | 臂（D1 形态） | 主集 Recall@5 | 逐章最小 | MRR |
 |---|---|---|---|
-| `refFusedD1`（生产词面腿 + int8 稠密腿，α=0.5） | **0.7333（66/90）** | 0.3333 | 0.6035 |
-| `refDenseD1`（纯 int8 稠密腿） | **0.6667（60/90）** | 0.3333 | 0.5057 |
-| 参照：生产词面腿单独（v1，D1 形） | 0.6444（58/90） | 0.2222 | 0.5637 |
+| `refFusedD1`（生产词面腿 + int8 稠密腿，α=0.5） | **0.7308（95/130）** | 0.3333 | 0.5837 |
+| `refDenseD1`（纯 int8 稠密腿） | **0.6923（90/130）** | 0.0 | 0.5173 |
+| 参照：生产词面腿单独（v1，D1 形） | 0.6308（82/130） | 0.0 | 0.5003 |
+
+> 上表 = **2026-10-02 v2 口径实测**（判官 130 条 + 包 3,570 节点 / 40,319 向量，
+> `build/stage3-device-expectation.json`）。旧行（v1 口径：金标 90 条 + 旧包 3,572/28,931）为
+> 0.7333（66/90）/0.3333/0.6035、0.6667（60/90）/0.3333/0.5057、0.6444（58/90）/0.2222/0.5637
+> ——**两套数的题面与语料都不同，不可直接相减**。下面各条bullet里的数字若无特别说明，均为 v1 口径历史记录。
 
 - **词面腿换了源**：Stage-2 的词面腿是实验台 FTS5 `-bm25`；生产跑的是 v1 的
   `COUNT(DISTINCT feature)`（`ProblemOrganizationDao.searchSubjectKnowledgeRecallCandidates`）。
   本阶段的参考数用**生产那条腿**，否则"设备期望值"对的是另一个检索器。
-- **口径自证**：本目录的判分器用 Stage-2 的 FTS5 腿 + fp32 向量跑同一套判分，**逐位复现**
+- **口径自证（v1 口径历史）**：本目录的判分器用 Stage-2 的 FTS5 腿 + fp32 向量跑同一套判分，**逐位复现**
   Stage-2 的 `D-only-bge` 0.6444（58/90）/MRR 0.505 与 `D-fuse-a0.5-bge` 0.7444（67/90）/MRR 0.62
-  ⇒ 它不是"另一套判分"。
-- **int8 对端到端指标的影响**：同一条生产词面腿、把稠密腿换回 fp32，融合主集同为 0.7333（66/90）
+  ⇒ 它不是"另一套判分"。语义扩集（包 40,319 行）后这条自证记 **N/A**（Stage-2 冻结锚点不可复现，
+  见 `stage3_expectation.py` 的 `selfCheck.stage2Reproduction`；**未运行 ≠ 已通过**）。
+- **int8 对端到端指标的影响（v1 口径历史）**：同一条生产词面腿、把稠密腿换回 fp32，融合主集同为 0.7333（66/90）
   ⇒ 这套 int8 量化**不改变主集命中数**（MRR 0.6044 → 0.6035 的差来自并列处的名次微动）。
-- 弱章（物理·相互作用 3/9、化学·铁与金属材料 3/9）两档都没有改善，与立项时"本阶段只承诺
+- （v1 口径历史）弱章（物理·相互作用 3/9、化学·铁与金属材料 3/9）两档都没有改善，与立项时"本阶段只承诺
   主集改善"的口径一致；主集从词面腿单独的 0.6444 抬到 0.7333（+8.9pp）。
 - 逐题 top-5 命中与名次在 `build/stage3-device-expectation.json` 的 `perCase` 段（档 2 的对拍目标）。
 

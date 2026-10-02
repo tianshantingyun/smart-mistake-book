@@ -1217,26 +1217,6 @@
    ]
   },
   {
-   "slug": "ext-phy-2fa662493c-004",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "电表的量程选择与估读规则",
-   "summaryMarkdown": "选量程要使指针偏转尽量大但不超量程，估读位数由最小分度的数字类型决定。",
-   "applicabilityMarkdown": "电流表、电压表等指针式电表的读数与量程选择。",
-   "contentMarkdown": "量程选择：选择合适量程，使测量时指针偏转角度尽可能大，但又不能超过量程。使用电表有三点注意：使用前应先进行零点调整（机械调零）；红表笔插正插孔、黑表笔插负插孔；红表笔接电势高处、黑表笔接电势低处，即电流从红表笔进表、从黑表笔出表。电表估读规则按最小分度的数字类型区分：最小分度是 1、0.1、0.01 等时，估读到最小分度的下一位；最小分度是 2、0.2、0.02 等时，估读到最小分度的本位；最小分度是 5、0.5、0.05 等时，估读到最小分度的本位。",
-   "boundaryMarkdown": "量程要兼顾偏转角足够大与不超量程；估读位数由最小分度决定，不能一律估读一位，也不能一律不估读。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第41讲 电学实验必须熟练掌握的基本技能（复习讲义）（湖南专用）（学生版）.docx（块 2fa662493c-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:必须估读的仪器-这类仪器是大多数-其读数需要包含一位可靠的估计值",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-2fa662493c-009",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -3437,26 +3417,6 @@
    ]
   },
   {
-   "slug": "ext-phy-288e1effad-006",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "气体压强的微观解释与封闭气体压强计算",
-   "summaryMarkdown": "气体压强由大量分子频繁碰撞器壁产生，微观上取决于分子平均动能和分子数密度，宏观上取决于温度和体积。",
-   "applicabilityMarkdown": "求活塞或液柱封闭气体的压强，以及用微观理论解释压强变化时使用。",
-   "contentMarkdown": "产生原因：气体分子做无规则热运动，大量分子频繁碰撞器壁，对器壁产生持续而稳定的压力，单位面积上的压力就是气体压强。\\n微观决定因素：分子的平均动能（由温度决定）和分子的数密度（由体积决定）；宏观上，一定质量的理想气体压强由温度和体积共同决定。\\n活塞模型：以活塞或与活塞相连的物体为研究对象，由受力平衡条件列式求封闭气体的压强；竖直放置时还要计入活塞重力 $mg$ 和大气压力 $p_0S$ 的贡献，如活塞压在气体上方时 $p=p_0+\\dfrac{mg}{S}$。\\n连通器（液柱）模型：依据同一液体在同一水平面上压强相等求解；开口向上竖放且水银柱长为 $h$ 时 $p=p_0+\\rho gh$（用水银柱高表示即 $p=p_0+h$），开口向下时 $p=p_0-\\rho gh$。",
-   "boundaryMarkdown": "只有一定质量的理想气体才能用宏观三量讨论压强；列式前先统一单位，用水银柱高表示压强时注意与 Pa 的换算；液柱或活塞静止是多力平衡问题，先做受力分析再求压强，不能只背公式。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第39讲 热学（高效培优讲义）（学生版）.docx（块 288e1effad-006）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:气体压强",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-288e1effad-007",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -3472,26 +3432,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:气体实验定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-288e1effad-008",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "气体状态变化图像的判读技巧",
-   "summaryMarkdown": "处理 $p-V$、$V-T$、$p-T$ 图像时先判断过程类型，再用图线与原点连线的斜率比较压强或体积。",
-   "applicabilityMarkdown": "由图像判断等温、等容、等压过程，比较两状态的压强或体积大小、判断做功与内能变化时使用。",
-   "contentMarkdown": "图像要素：图线上一点表示一定质量理想气体的一个状态，对应三个状态量；一段直线或曲线表示一个状态变化过程，解题第一步是判断该过程属于等温、等容还是等压变化。\\n常见图线形状：$p-V$ 图中等温线为双曲线的一支，等容线为平行于 $p$ 轴的直线，等压线为平行于 $V$ 轴的直线；$V-T$ 图和 $p-T$ 图中过原点的直线分别表示等压过程和等容过程。\\n斜率技巧：在 $V-T$ 图像中，某状态与原点连线的斜率越大表示压强越小；在 $p-T$ 图像中，斜率越大表示体积越小。\\n做功判断：$p-V$ 图线与横轴所围的面积表示气体做功的多少，体积增大时气体对外做正功，体积减小时外界对气体做正功。",
-   "boundaryMarkdown": "斜率结论只在过原点的等压或等容图线中成立，不能随意推广；把 $V-T$ 或 $p-T$ 图线反向延长作比较时，必须先确认气体质量不变；$p-V$ 图像的面积法只适用于求功，不能用来判断内能变化。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第39讲 热学（高效培优讲义）（学生版）.docx（块 288e1effad-008）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:热力学图像问题",
      "role": "PRIMARY"
     }
    ]
@@ -7137,26 +7077,6 @@
    ]
   },
   {
-   "slug": "ext-phy-463833891b-009b",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "电磁波谱的排列顺序与特性",
-   "summaryMarkdown": "按波长由长到短把电磁波排成谱，波长越长越容易干涉衍射，波长越短穿透能力越强。",
-   "applicabilityMarkdown": "判断无线电波、红外线、可见光、紫外线、X 射线与 γ 射线的顺序、特性及应用时使用。",
-   "contentMarkdown": "## 排列顺序\\n按波长由长到短：无线电波、红外线、可见光、紫外线、X 射线、γ 射线；按频率由低到高的顺序与之相反。\\n\\n## 特性规律\\n- 波长越长，越容易产生干涉、衍射现象。\\n- 波长越短，频率越高、光子能量越大、穿透能力越强。\\n- 同频率的电磁波在不同介质中传播速度不同；不同频率的电磁波在同一种介质中传播时，频率越高折射率越大、速度越小。\\n\\n## 常见应用\\n无线电波用于通信与广播；红外线用于遥感、热成像和遥控；紫外线用于杀菌消毒与防伪；X 射线用于透视和晶体结构分析；γ 射线用于金属探伤与治疗。",
-   "boundaryMarkdown": "顺序易记错：红外线在可见光的长波一侧、紫外线在短波一侧；“容易衍射”对应长波侧、“穿透能力强”对应短波侧，两个方向相反，不要混用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第35讲 交变电流、电磁振荡与电磁波、传感器（高效培优讲义）（学生版）.docx（块 463833891b-009）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-463833891b-011",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -7452,26 +7372,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-8a6cb6c448-004b",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "E-x 图像的信息与读法",
-   "summaryMarkdown": "E-x 图线在横轴上方表示场强沿 x 轴正方向，图线与横轴所围面积表示两点间的电势差。",
-   "applicabilityMarkdown": "给出 E-x 图像，要求判断场强方向、比较电势差或结合粒子运动分析时使用。",
-   "contentMarkdown": "## 横轴与正负\\nE-x 图像表示电场强度沿 x 轴的分量随 x 的变化。若规定 x 轴正方向为场强的正方向，则 E>0 表示场强沿 x 轴正方向，E<0 表示场强沿 x 轴负方向。\\n\\n## 面积的含义\\nE-x 图线与 x 轴所围图形的“面积”表示两点间的电势差；两点的电势高低根据电场方向判定（沿电场方向电势降低）。\\n\\n## 与粒子运动结合\\n结合带电粒子的运动可进一步确定粒子的电性、动能变化与电势能变化。\\n\\n## 常见图形\\n点电荷、两个等量异种点电荷、两个等量正点电荷的 E-x 图像各有固定的形态，可用于与选项比对。",
-   "boundaryMarkdown": "E-x 图线与横轴所围面积表示电势差而不是场强；E<0 只表示场强方向沿 x 轴负方向，不表示场强变小；面积的正负要注意方向。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第30讲 电场中的功能关系及图像问题（复习讲义）（安徽专用）（学生版）.docx（块 8a6cb6c448-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:e-x图像",
      "role": "PRIMARY"
     }
    ]
@@ -10297,26 +10197,6 @@
    ]
   },
   {
-   "slug": "ext-phy-5092c47fcd-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "碰撞的定义、特点与分类",
-   "summaryMarkdown": "给出碰撞的定义与过程特点，说明碰撞中系统动量守恒的理由以及碰撞的分类。",
-   "applicabilityMarkdown": "判断碰撞过程能否用动量守恒、区分弹性与非弹性碰撞的问题。",
-   "contentMarkdown": "**定义**：碰撞是指物体间的相互作用持续时间很短、而相互作用力很大的现象。\\n\\n**过程特点**：碰撞中一般都满足内力远大于外力，因此可以认为相互碰撞的物体组成的系统动量守恒——即使过程中存在其他外力，其在这段时间内的冲量也可以忽略。\\n\\n**分类**\\n\\n- 弹性碰撞：碰撞前后系统总动能没有损失（动量守恒且机械能守恒）；\\n- 非弹性碰撞：碰撞后系统总动能减少；\\n- 完全非弹性碰撞：碰撞后两物体粘在一起以共同速度运动，动能损失最大。\\n\\n**使用要点**：先用内力远大于外力判断动量守恒是否可用，再由动能是否损失判断碰撞类型；能量损失由碰撞类型与材料决定，与动量守恒无关。",
-   "boundaryMarkdown": "动量守恒在碰撞中近似成立的前提是碰撞时间极短、内力远大于外力；若过程中存在明显的持续外力冲量（长时间摩擦、弹簧持续储放能），必须把外力的冲量计入动量定理。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第35讲 碰撞模型及拓展-（讲义）（学生版）.docx（块 5092c47fcd-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-碰撞指的是两个物体在很短的时间内发生相互作用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-5092c47fcd-005",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -12672,26 +12552,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:必要性探路",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-4c006f942c-004",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "碰撞的过程特点与三条原则",
-   "summaryMarkdown": "碰撞时间极短、内力远大于外力故动量守恒，且必须同时满足动能不增加与速度符合实际。",
-   "applicabilityMarkdown": "判断一组碰后速度是否可能、求解弹性与非弹性碰撞的碰后速度、估算碰撞损失的机械能。",
-   "contentMarkdown": "## 过程特点\\n碰撞是两物体在很短的时间内发生相互作用的过程。作用时间极短、内力远大于外力，可认为系统动量守恒；除弹性碰撞外机械能一般要减少。\\n## 分类与极限结论\\n按动能是否损失分为弹性碰撞、非弹性碰撞与完全非弹性碰撞（碰后共速，损失最多）。以 $m_1$ 碰撞静止的 $m_2$ 为例：$m_1=m_2$ 时速度交换；$m_1\\gg m_2$ 时 $v_1^\\prime\\approx v_1$、$v_2^\\prime\\approx 2v_1$；$m_1\\ll m_2$ 时 $v_1^\\prime\\approx -v_1$、$v_2^\\prime\\approx 0$。\\n## 必须同时满足的三条原则\\n1. 动量守恒：$p_1+p_2=p_1^\\prime+p_2^\\prime$。\\n2. 动能不增加：$E_{k1}+E_{k2}\\ge E_{k1}^\\prime+E_{k2}^\\prime$。\\n3. 速度要符合实际情况：碰前两物体同向运动时须有 $v_后>v_前$，碰后原来在前的物体速度一定增大；两物体相向碰撞时，碰后至少有一个物体的运动方向改变。\\n## 被碰物体的速度范围\\n物体 A 碰撞静止的物体 B 时，完全非弹性碰撞对应 B 的最小速度 $v_B=\\frac{m_A}{m_A+m_B}v_0$，弹性碰撞对应最大速度 $v_B=\\frac{2m_A}{m_A+m_B}v_0$，故 B 的碰后速度介于二者之间。",
-   "boundaryMarkdown": "三条原则必须同时使用：只用动量守恒会得到物理上不可能的解；各速度要相对同一参考系并用同一正方向表示；题中给出的碰后速度若超出最小到最大的范围即可直接排除。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第24讲 动量守恒定律及其应用（高效培优讲义）（学生版）.docx（块 4c006f942c-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-碰撞指的是两个物体在很短的时间内发生相互作用",
      "role": "PRIMARY"
     }
    ]
@@ -16377,26 +16237,6 @@
    ]
   },
   {
-   "slug": "ext-phy-97b16a8a41-008",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "振动图像与波的图像的辨析",
-   "summaryMarkdown": "看横坐标区分两种图像，再找准时刻与质点把波形与振动互相对应",
-   "applicabilityMarkdown": "题目同时给出波形图与某质点的振动图像，要求判断波速、传播方向或质点运动情况时",
-   "contentMarkdown": "第一步分清振动图像与波的图像：只要看清横坐标即可——横坐标为 $x$（位置）的是波的图像，横坐标为 $t$（时间）的是振动图像。\\n第二步看清横、纵坐标的单位，尤其要注意单位前的数量级。\\n第三步找准对应关系：波的图像对应某一时刻、振动图像对应某一质点。由波的图像读出该时刻各质点的位移，再由振动图像读出某质点在各时刻的振动情况，从而完成“波形与振动”的互判（如由波形图与某点振动方向判断波的传播方向、由振动图像求周期再结合波长求波速）。",
-   "boundaryMarkdown": "波的图像上某质点的运动方向不能直接读出，必须由波的传播方向与波形平移判断；两张图的横坐标含义不同，不能混用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第31讲 机械波（复习讲义）（湖南专用）（学生版）.docx（块 97b16a8a41-008）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-97b16a8a41-012",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -18937,46 +18777,6 @@
    ]
   },
   {
-   "slug": "ext-phy-ced0c3e323-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "电动势与电源的内阻",
-   "summaryMarkdown": "电动势等于非静电力所做的功与移动电荷量之比，表征电源转化能量的本领",
-   "applicabilityMarkdown": "理解电源的作用、判断电动势与电压的区别、计算电源电动势时使用",
-   "contentMarkdown": "**电动势**：定义是非静电力所做的功与所移动的电荷量的比值，即 $E=\\dfrac{W}{q}$。其物理含义是表示电源把其他形式的能转化成电势能本领的大小，在数值上等于电源没有接入电路时两极间的电压。\\n**内阻**：电源内部由导体构成，因此也有电阻，这个电阻叫电源的内阻 $r$。\\n**理解要点**：电动势由电源本身决定，与是否接入电路、外电阻的大小无关；电动势越大，说明电源把其他形式的能转化为电势能的本领越强；电动势与电压的单位相同，但电动势反映的是非静电力做功的本领，电压反映的是静电力做功的多少。\\n**应用**：处理闭合电路问题时，把电源等效为电动势 $E$ 与内阻 $r$ 串联，据此列出闭合电路欧姆定律的方程求解。",
-   "boundaryMarkdown": "易错：电动势不是电压，两者单位相同但物理意义不同；电动势由电源本身决定，不能认为外电路断路时电动势为零；用实验测电动势与内阻时要注意电表内阻带来的系统误差。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第49讲 闭合电路的欧姆定律（举一反三讲义）（全国通用）（学生版）.docx（块 ced0c3e323-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电动势",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-ced0c3e323-001c",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "路端电压与外电阻的关系",
-   "summaryMarkdown": "外电阻增大时路端电压增大，断路时等于电动势，短路时为零",
-   "applicabilityMarkdown": "判断滑动变阻器移动或开关通断时路端电压与电流的变化时使用",
-   "contentMarkdown": "**一般情况**：$U=IR=\\dfrac{E}{R+r}R=\\dfrac{E}{1+\\dfrac{r}{R}}$，当外电阻 $R$ 增大时路端电压 $U$ 增大，干路电流减小。\\n**两种特殊情况**：外电路断路时 $I=0$，此时 $U=E$，即路端电压等于电源电动势；外电路短路时 $I_{\\text{短}}=\\dfrac{E}{r}$，此时 $U=0$。\\n**图象表示**：路端电压随电流的变化关系可用 $U-I$ 图像表示，图线的纵截距为电源电动势 $E$，图线斜率的大小为电源内阻 $r$。\\n**使用要点**：分析电路变化时，先判断总电阻是增大还是减小，再由闭合电路欧姆定律判断干路电流的变化，最后由 $U=E-Ir$ 判断路端电压的变化，进而逐级分析各支路的电流与电压。",
-   "boundaryMarkdown": "易错：外电阻增大时路端电压增大而干路电流减小，二者变化方向相反；短路时电流很大但并不为零，路端电压为零；由 $U-I$ 图像求内阻时要注意纵轴起点是否为零。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第49讲 闭合电路的欧姆定律（举一反三讲义）（全国通用）（学生版）.docx（块 ced0c3e323-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路端电压与外电阻的关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-4385d56fc7-001",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -19812,26 +19612,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-747634a3d0-002",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "光的干涉条件与双缝干涉规律",
-   "summaryMarkdown": "干涉要求两束光频率相同、相位差恒定，双缝干涉条纹间距与波长成正比。",
-   "applicabilityMarkdown": "判断干涉条纹的明暗位置、比较不同色光的条纹间距。",
-   "contentMarkdown": "## 干涉的定义与条件\\n在两列光波叠加的区域，某些区域相互加强出现亮条纹，某些区域相互减弱出现暗条纹，且加强区与减弱区相互间隔，这种现象叫光的干涉。产生稳定干涉的条件是两束光的频率相同、相位差恒定。\\n\\n## 双缝干涉的条纹间距\\n$\\Delta x=\\dfrac{L}{d}\\lambda$（$L$ 为双缝到屏的距离、$d$ 为双缝间距）：对同一装置，光的波长越长，相邻条纹间距越大。\\n\\n## 明暗条纹的判断\\n设两相干光源到屏上某点的路程差为 $\\Delta r$：$\\Delta r=n\\lambda$ 时出现亮条纹，$\\Delta r=(2n+1)\\dfrac{\\lambda}{2}$ 时出现暗条纹（$n=0，1，2，\\dots$）。",
-   "boundaryMarkdown": "单色光形成等间距的明暗相间条纹，白光照射时中央为白色亮条纹、两侧为彩色条纹；条纹间距公式只适用于双缝干涉。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第61讲 光的波动性（复习讲义）（湖南专用）（学生版）.docx（块 747634a3d0-002）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的干涉",
      "role": "PRIMARY"
     }
    ]
@@ -21197,26 +20977,6 @@
    ]
   },
   {
-   "slug": "ext-phy-8aea427cf9-012",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "用电流传感器描记充放电的I-t图像",
-   "summaryMarkdown": "电流传感器响应快、能捕捉瞬间电流变化，与计算机相连可以画出充放电电流随时间变化的图像。",
-   "applicabilityMarkdown": "需要记录电容器充放电过程中的瞬时电流、由图像求电荷量时使用。",
-   "contentMarkdown": "## 器材特点\\n电流传感器与电流表一样测量电流，但反应非常快，能捕捉到瞬间的电流变化，并且与计算机相连后可以显示电流随时间变化的 $I-t$ 图像，因此适合记录很快就完成的充放电过程。\\n\\n## 实验取值\\n本实验电源电压一般取 8 V 左右，电容器可选几十微法的电解电容器；接入时注意电解电容器的正负极不能接反。",
-   "boundaryMarkdown": "传感器测得的电流方向由正负号体现，分析图像时要先约定电流正方向；电解电容器接反会被击穿损坏。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第31讲 电容器 带电粒子在电场中的运动（复习讲义）（安徽专用）（学生版）.docx（块 8aea427cf9-012）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电容器充放电过程",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-8aea427cf9-015",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -21552,26 +21312,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究加速度与力、质量的关系实验",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-0928df672e-002",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "常规运动学图像的识读方法",
-   "summaryMarkdown": "x-t与v-t图像都只能描述直线运动，识读时要看轴、线、斜率、面积、截距和交点。",
-   "applicabilityMarkdown": "由图像判断物体的运动性质、比较速度或加速度、求位移时使用。",
-   "contentMarkdown": "## 识图方法\\n一轴、二线、三斜率、四面积、五截距、六交点：先看坐标轴的物理量，再看图线形状，再由斜率、面积、截距、交点的物理意义提取信息。\\n\\n## 三点说明\\n1. $x-t$ 图像与 $v-t$ 图像都只能描述直线运动，且都不表示物体运动的轨迹；\\n2. 分析图像要充分利用图像与其所对应物理量的函数关系；\\n3. 斜率的正负表示方向：$x-t$ 图线的斜率表示速度，$v-t$ 图线的斜率表示加速度。",
-   "boundaryMarkdown": "图像不表示运动轨迹：图线为曲线的 $x-t$ 或 $v-t$ 图像仍表示直线运动，不要把它当作物体的实际路径。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第03讲 运动图像和追及相遇问题（高效培优讲义）（学生版）.docx（块 0928df672e-002）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -24357,26 +24097,6 @@
    ]
   },
   {
-   "slug": "ext-mat-78a2338ccf-004",
-   "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "振幅与角频率的伸缩变换",
-   "summaryMarkdown": "ω 决定周期并通过横坐标伸缩改变图象，A 决定振幅并通过纵坐标伸缩改变值域",
-   "applicabilityMarkdown": "由 y＝sin x 的图象经伸缩变换得到 y＝Asin(ωx＋φ)、确定伸缩倍数与值域的题目",
-   "contentMarkdown": "**一、ω 的作用（横向伸缩）**\\n函数 $y=\\sin(\\omega x+\\varphi)$（$\\omega>0$）的周期是 $T=\\frac{2\\pi}{\\omega}$。把 $y=\\sin(x+\\varphi)$ 图象上所有点的横坐标缩短（当 $\\omega>1$ 时）或伸长（当 $0<\\omega<1$ 时）到原来的 $\\frac{1}{\\omega}$ 倍（纵坐标不变），就得到 $y=\\sin(\\omega x+\\varphi)$ 的图象。ω 影响函数的周期，两个图象形状不同，这种变换称为横向伸缩变换。\\n**二、A 的作用（纵向伸缩）**\\n函数 $y=A\\sin(\\omega x+\\varphi)$ 的图象可以看作把 $y=\\sin(\\omega x+\\varphi)$ 图象上所有点的纵坐标伸长（当 $A>1$ 时）或缩短（当 $0<A<1$ 时）到原来的 A 倍（横坐标不变）而得到。此时函数的值域是 $[-A，A]$，最大值是 A，最小值是 $-A$。$|A|$ 的大小反映了曲线波动幅度的大小，这种变换称为纵向伸缩变换。",
-   "boundaryMarkdown": "横向伸缩只改变横坐标、纵坐标不变，纵向伸缩只改变纵坐标、横坐标不变，两者不能混用；伸缩倍数与 ω 互为倒数关系，容易写反；A 的正负决定图象是否关于 x 轴翻折。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第四章 三角函数与解三角形/专题02  三角函数的图象与性质综合（学生版）.docx（块 78a2338ccf-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数y-asin-ωx-φ-的图象",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-78a2338ccf-005b",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -24672,26 +24392,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:地球同步卫星",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-56d13ed09a-001",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "动力学两类基本问题的求解",
-   "summaryMarkdown": "由受力情况求运动情况或由运动情况求受力情况，都要先用牛顿第二定律或运动学公式求出加速度",
-   "applicabilityMarkdown": "已知力求运动、已知运动求力、以及需要串联多个运动过程的动力学计算题",
-   "contentMarkdown": "**一、两类基本问题**\\n1. 由物体的受力情况求解运动情况：先求出几个力的合力，由牛顿第二定律 $F_{合}=ma$ 求出加速度，再由运动学的有关公式求出速度或位移。\\n2. 由物体的运动情况求解受力情况：先根据运动规律求出加速度，再由牛顿第二定律求出合力，从而确定未知力。\\n**二、关键与纽带**\\n应用牛顿第二定律解决动力学问题时，受力分析和运动分析是关键，加速度是解决此类问题的纽带：加速度既由合力决定，又反映速度变化的快慢，是连接力与运动的桥梁。",
-   "boundaryMarkdown": "必须先做受力分析和运动过程分析再列式，不能直接套公式；加速度的方向要与合力方向一致；多过程问题要分过程处理，前一过程的末速度是后一过程的初速度。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/【7】2026年高三物理一轮复习学案/第三章 第3讲 牛顿运动定律的基本应用（学生版）.docx（块 56d13ed09a-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动力学的两类基本问题的解题步骤",
      "role": "PRIMARY"
     }
    ]
@@ -25132,26 +24832,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在组合场-电场与磁场各位于一定的区域内-并不重叠-中的运动",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-3782f27b4b-013b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "回旋加速器的原理与最大动能",
-   "summaryMarkdown": "粒子在 D 形盒内做匀速圆周运动、每次过狭缝被电场加速，交变电压周期等于回旋周期，最大动能由磁场与 D 形盒半径决定。",
-   "applicabilityMarkdown": "回旋加速器类问题，需要求交变电压周期、加速次数、最终动能或判断各量如何变化时使用。",
-   "contentMarkdown": "**回旋加速器**由两个 D 形金属盒组成，两盒之间留有一条狭缝，盒内处于匀强磁场中，两盒间接高频交变电源。\\n\\n**原理**：\\n- 粒子在盒内只受洛伦兹力，做匀速圆周运动，周期 $T=\\dfrac{2\\pi m}{qB}$ 与速率无关；\\n- 粒子每次经过狭缝都被电场加速，因此交变电压的周期必须与粒子在磁场中做圆周运动的周期**相等**，才能保证每次经过狭缝都被加速；\\n- 粒子速率越来越大，半径 $r=\\dfrac{mv}{qB}$ 也越来越大，最后到达 D 形盒边缘以最大速率被引出。\\n\\n**最大动能**：半径达到 D 形盒半径 $R$ 时速率最大，$E_{km}=\\dfrac{q^2B^2R^2}{2m}$，即同种粒子获得的最大动能由磁感应强度 $B$ 和 D 形盒半径 $R$ 决定，**与加速电压无关**，电压只影响加速的次数。",
-   "boundaryMarkdown": "上述结论建立在忽略相对论效应、忽略粒子穿过狭缝的时间、粒子从静止开始加速的前提下。若考虑相对论效应，粒子质量随速率增大、回旋周期变长，必须同步降低交变电压的频率。增大加速电压会使每次加速获得的动能变大、加速次数减少，但最终动能不变。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题21 带电粒子在组合场的运动（学生版）.docx（块 3782f27b4b-013）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:回旋加速器",
      "role": "PRIMARY"
     }
    ]
@@ -26012,26 +25692,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:观察电容器充放电现象实验",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-4bbcb096e6-005",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "电容器充放电的图像与电流峰值",
-   "summaryMarkdown": "$I$-$t$ 图像与坐标轴围成的面积表示储存的电荷量，峰值电流由极板间电势差与电路总电阻决定。",
-   "applicabilityMarkdown": "由 $I$-$t$ 图像求电荷量、电容，或分析改变电阻后图像形状变化的问题。",
-   "contentMarkdown": "电容器充、放电现象中有四个必须掌握的要点与图像特征。\\n\\n1. 电容器**充电时电流流向正极板**，**放电时电流从正极板流出**，且充、放电电流均逐渐减小至零。\\n2. 充、放电过程中电容器的**电容不变**，极板上所带电荷量与电压按正比关系变化（$Q=CU$）。\\n3. 在 $I$-$t$ 图像中，**曲线与坐标轴围成的面积表示电容器储存的电荷量**——求面积（或数格子）即可得到电荷量，再由 $C=\\dfrac{Q}{U}$ 求出电容。\\n4. 由 $I_{m}=\\dfrac{U}{R_{总}}$ 可知，图像的峰值电流由电容器充电结束或放电开始时两极板间的电势差和电路总电阻决定；增大电路电阻，放电时间变长、峰值变小。\\n\\n**拓展**：更精确的实验可用电流、电压传感器输出充放电过程的电流与电压随时间变化的图线，据此计算电容并与标称值对比。",
-   "boundaryMarkdown": "用面积求电荷量要求图像与坐标轴围成的区域完整可测（放电要放到电流趋近于零）；峰值公式 $I_{m}=\\dfrac{U}{R_{总}}$ 中的 $U$ 是充放电开始瞬间极板间的电势差，$R_{总}$ 是回路总电阻；改变电阻只改变峰值与时间常数，不改变总电荷量。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第45讲 实验9观察电容器的充、放电现象-（讲义）（学生版）.docx（块 4bbcb096e6-005）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电容器充放电过程",
      "role": "PRIMARY"
     }
    ]
@@ -27992,26 +27652,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平均速度公式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-63ca6da45e-002",
-   "subject": "PHYSICS",
-   "type": "WORKED_EXAMPLE",
-   "title": "探究感应电流方向的实验结论",
-   "summaryMarkdown": "磁通量增加与减少时感应电流磁场的方向规律",
-   "applicabilityMarkdown": "分析感应电流方向、由实验现象总结规律时使用",
-   "contentMarkdown": "本实验通过条形磁铁插入、拔出螺线管来探究影响感应电流方向的因素，结论可以概括为：\\n\\n**当穿过线圈的磁通量增加时**，感应电流的磁场方向与原磁场方向相反；\\n\\n**当穿过线圈的磁通量减少时**，感应电流的磁场方向与原磁场方向相同。\\n\\n这两条合起来就是楞次定律在本实验中的体现：感应电流的磁场总要阻碍引起感应电流的磁通量的变化。\\n\\n**分析步骤**：先判断原磁通量是增加还是减少，再确定感应电流的磁场方向，最后用安培定则判断感应电流的方向。",
-   "boundaryMarkdown": "判断的是磁通量的变化趋势而不是磁通量本身的大小；阻碍的是磁通量的变化；分析前必须看清线圈的绕向，否则会把电流方向判断反。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习讲义+练习+课件（新教材新高考）/2026版/第十二章 电磁感应/实验：探究影响感应电流方向的因素（复习讲义）（全国通用）（学生版）.docx（块 63ca6da45e-002）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:楞次定律",
      "role": "PRIMARY"
     }
    ]
@@ -33177,26 +32817,6 @@
    ]
   },
   {
-   "slug": "ext-phy-3a6293013c-013",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "实验数据处理的规范要求",
-   "summaryMarkdown": "分清计时点与计数点、合理选标度描点、按点迹分布作拟合图线。",
-   "applicabilityMarkdown": "用图像处理纸带实验数据时的作图规范与误差判断。",
-   "contentMarkdown": "处理纸带实验数据时有三条规范。第一，一定要分清计时点和计数点，搞清计数点之间的时间间隔，因为时间间隔直接进入速度与加速度的计算。第二，明确坐标轴所代表的物理量并选取合适的标度，把数据标注在坐标系中时要匀称直观、合理分布、大小适中，使图线能占满图纸又不超出。第三，连线时若数据点大致落在一条直线上，应使尽可能多的点落在直线上，不在直线上的点尽量均匀分布在直线两侧；若图线是曲线，则用平滑的曲线连接各点，而不能画成折线。\\n\\n按这些规范作出的图线才便于用斜率、截距求解物理量，也便于通过偏离直线较远的点发现异常数据。",
-   "boundaryMarkdown": "不能把相邻点直接连成折线（除非物理过程本身就是分段直线）；标度选择不当会使图线过于平缓或陡峭，影响斜率读数；时间间隔的确定必须基于计数点而不是每一个计时点。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习讲义+练习+课件（新教材新高考）/2026版/第一章 直线运动/第04讲 实验：探究小车速度随时间变化的规律（复习讲义）（全国通用）（学生版）.docx（块 3a6293013c-013）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:图像法在处理实验数据方面的应用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-4081c14ff4-002",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -36472,26 +36092,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:需要平衡摩擦力-为了使绳子拉力即合力",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-acedf300e9-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "复合场中的摆线运动",
-   "summaryMarkdown": "摆线是匀速直线运动与匀速圆周运动的合运动轨迹，相当于圆沿直线无滑动滚动时圆周上一点的轨迹。",
-   "applicabilityMarkdown": "正交匀强电场与磁场（或重力场与磁场）中带电粒子做复杂曲线运动的定性分析与轨迹判断。",
-   "contentMarkdown": "**摆线是什么**\\n摆线是同一平面内匀速直线运动与匀速圆周运动的合运动的轨迹，其实就是一个圆沿着一条直线做无滑动的滚动时，圆周上一点运动画出的曲线。\\n\\n**为什么复合场中会出现摆线**\\n带电粒子在正交的匀强电场与匀强磁场中运动时，若与等效力对应的洛伦兹力不能恰好抵消重力（或电场力），粒子的速度大小和方向都会改变，洛伦兹力随之变化，轨迹就是摆线一类曲线。\\n\\n**处理思路**\\n把这种复杂曲线运动分解为两个常见的运动：匀速直线运动与匀速圆周运动的合成，再用圆周运动的周期、半径与匀速直线运动的位移规律分别处理。典型步骤是先用配速法完成分解，再分别列式。",
-   "boundaryMarkdown": "摆线的分解依赖“两个分运动互不干扰”这一前提，只有当分解出的匀速直线运动对应的洛伦兹力与重力（电场力）平衡时分解才成立；选错分解方向会使分运动不独立，后续计算全部失真。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第58讲 带电粒子在立体空间中的运动-（讲义）（学生版）.docx（块 acedf300e9-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摆线问题",
      "role": "PRIMARY"
     }
    ]
@@ -44197,46 +43797,6 @@
    ]
   },
   {
-   "slug": "ext-phy-9d4e47b803-013",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "带电粒子在匀强磁场中的运动关系",
-   "summaryMarkdown": "洛伦兹力提供向心力决定半径，运动周期与速率无关，粒子是否考虑重力要按粒子种类判断。",
-   "applicabilityMarkdown": "求带电粒子在磁场中的半径、周期与运动时间，判断是否需要考虑重力。",
-   "contentMarkdown": "带电粒子在匀强磁场中的基本关系：洛伦兹力提供向心力，$qvB=\\frac{mv^2}{r}$，可得轨道半径 $r=\\frac{mv}{qB}$，运动周期 $T=\\frac{2\\pi m}{qB}$。周期与粒子的速率和半径都无关，只由比荷与磁感应强度决定。\\n运动时间的计算：粒子在磁场中转过的圆心角为 $\\theta$ 时，运动时间 $t=\\frac{\\theta}{2\\pi}T=\\frac{\\theta m}{qB}$，因此求时间的关键是先求出圆心角。\\n是否考虑重力的三种情况：\\n（1）对于电子、质子、离子等微观粒子，重力一般远小于电场力或磁场力，可以忽略。\\n（2）对于带电小球、液滴、尘埃等实际物体，一般应当考虑重力。\\n（3）题目中有明确说明的按题目要求处理；不能直接判断时，要在受力分析与运动分析中结合运动状态确定是否考虑重力。",
-   "boundaryMarkdown": "半径公式 r=mv/(qB) 要求速度与磁场垂直，否则轨迹不是圆；周期与速率无关是常考点，不要误认为速度越大周期越大；重力是否忽略要按粒子种类与题设判断，不能一律忽略；求时间的核心是圆心角，不能直接用弧长除以速率。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题12 磁场（知识清单）（全国通用）（学生版）.docx（块 9d4e47b803-013）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在磁场中的运动",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-9d4e47b803-014",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "圆形磁场边界中的几何关系",
-   "summaryMarkdown": "正对圆心射入时构成直角三角形，不正对圆心射入时构成两个等腰三角形，半径相等时出现正方形或菱形。",
-   "applicabilityMarkdown": "处理粒子在圆形磁场中的偏转，求弦长、偏转角、轨迹半径与运动时间。",
-   "contentMarkdown": "正对圆心射入：粒子沿半径方向射向圆心的轨迹，出射方向的反向延长线必过磁场圆心；两圆心与出射点构成直角三角形，由几何关系可得 $r=R\\tan\\frac{\\theta}{2}$（$R$ 为磁场圆半径，$\\theta$ 为速度方向的偏转角）。当 $r=R$ 时四边形构成正方形；速度越大轨迹半径越大、圆心角越小、运动时间越短。\\n不正对圆心射入：入射点与出射点分别与两个圆心相连，可构成两个等腰三角形，它们有一条公共底边（即轨迹圆的弦）；当轨迹圆半径等于磁场圆半径时构成菱形，此时弦长、偏转角与半径之间可以直接用菱形和等腰三角形的性质换算。\\n通用做法：先由入射速度的垂线与磁场圆（或轨迹）的几何关系定圆心，再用弦的中垂线过圆心的性质求半径，最后由 $t=\\frac{\\theta}{2\\pi}T$ 求时间。",
-   "boundaryMarkdown": "正对圆心射入与不正对圆心射入的几何模型不同，不能混用公式；r=Rtan(θ/2) 只适用于正对圆心射入的情形；圆心角是轨迹圆上的圆心角，不要用磁场圆的圆心角代替；半径相等时才出现正方形与菱形的简化结论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题12 磁场（知识清单）（全国通用）（学生版）.docx（块 9d4e47b803-014）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在有界匀强磁场中的运动-临界条件",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-9d4e47b803-015",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -44412,26 +43972,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复数的四则运算",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-c9f403da8c-005",
-   "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "复数方程与不等式在复平面上的图形",
-   "summaryMarkdown": "模的等式表示圆、模的不等式表示圆环或圆的内外区域，可用数形结合处理复数的方程与最值。",
-   "applicabilityMarkdown": "把复数的方程或不等式转化为轨迹图形，求解复数模的取值范围与最值问题。",
-   "contentMarkdown": "基本图形：设复平面内与复数 $z$ 对应的点为 $Z$。\\n（1）$|z|=r$（$r>0$）表示以原点为圆心、$r$ 为半径的圆。\\n（2）$|z-(a+bi)|=r$（$r>0$）表示以点（$a$ 与 $b$）为圆心、$r$ 为半径的圆，因为 $|z-z_0|$ 就是两点间的距离。\\n（3）$a\\leq|z|\\leq b$（$a$ 与 $b$ 均为正数）表示以原点为圆心、以 $a$ 和 $b$ 为半径的两圆所夹的圆环。\\n方法：由于复数、点与向量之间建立了一一对应的关系，解题时可以运用数形结合的方法，把复数、向量与解析几何联系在一起，使问题的解决更加直观；涉及模的最值问题时，先画出轨迹图形，再用点与圆的位置关系或距离公式求解。",
-   "boundaryMarkdown": "写成 |z-z0|=r 之前要把复数整理成 z 减去一个复数的形式，符号写错圆心就不同；圆环的表示要求两个半径都为正；图形法只给出位置关系，具体数值仍要由代数运算求出；模的最值要注意端点能否取到。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习举一反三专练（新高考专用）/资料/2026版/专题5.4 复数（举一反三讲义）（全国通用）（学生版）.docx（块 c9f403da8c-005）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复数的模",
      "role": "PRIMARY"
     }
    ]

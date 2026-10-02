@@ -4449,46 +4449,6 @@
    ]
   },
   {
-   "slug": "ext-bio-5f510cdc4a-048",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "蛋白质相关计算的基本关系式（肽键数与相对分子质量）",
-   "summaryMarkdown": "肽键数=脱去水分子数=氨基酸数-肽链数；蛋白质相对分子质量=氨基酸数×氨基酸平均相对分子质量-脱去水分子数×18。",
-   "applicabilityMarkdown": "PRIMARY：计算蛋白质（多肽）的肽键数、脱去水分子数与相对分子质量。",
-   "contentMarkdown": "1. 肽键数=脱去水分子数=氨基酸数-肽链数。\\n2. 蛋白质相对分子质量=氨基酸数×氨基酸平均相对分子质量-脱去水分子数×18。\\n3. 两种特殊情形：每形成一个二硫键（两个—SH脱H），相对分子质量还要再减少2；环状多肽把肽链数视为0，即肽键数=脱去水分子数=氨基酸数。",
-   "boundaryMarkdown": "公式默认各氨基酸平均相对分子质量相同且不含二硫键；出现二硫键或环状肽时必须按两种特殊情形修正。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-048）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-052",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "不考虑R基时蛋白质中O、N原子数的判断",
-   "summaryMarkdown": "不考虑R基上的O或N原子数时，蛋白质中O原子数=氨基酸数+肽链数，N原子数=氨基酸数。",
-   "applicabilityMarkdown": "PRIMARY：已知氨基酸数与肽链数时快速推算蛋白质的O、N原子数。",
-   "contentMarkdown": "不考虑R基上的O或N原子数时有：①蛋白质中O原子数=氨基酸数+肽链数（每条肽链至少含1个游离羧基）；②蛋白质中N原子数=氨基酸数。\\nR基上带有O或N的氨基酸须在结果上另加相应原子数。",
-   "boundaryMarkdown": "只适用于不考虑R基O、N的简化情形；R基含O或N时（如赖氨酸多1个N）结果要相应增加。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-052）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-5f510cdc4a-055",
    "subject": "BIOLOGY",
    "type": "CONCEPT_EXPLANATION",
@@ -4504,26 +4464,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:血红蛋白的结构与功能",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-057",
-   "subject": "BIOLOGY",
-   "type": "METHOD_MODEL",
-   "title": "细胞膜成分的检测方法（脂质与蛋白质）",
-   "summaryMarkdown": "用洗涤剂处理、脂酶处理、脂质透过实验检测膜中脂质；用双缩脲试剂检测膜蛋白（呈紫色），用蛋白酶处理可破坏细胞膜。",
-   "applicabilityMarkdown": "PRIMARY：分析或设计“验证细胞膜含脂质、含蛋白质”类实验。",
-   "contentMarkdown": "1. 脂质：洗涤剂处理可使细胞膜溶解；脂酶处理可使细胞膜被破坏；脂溶性物质容易通过细胞膜（脂质透过实验）。\\n2. 蛋白质：与双缩脲试剂反应呈紫色；用蛋白酶处理会使细胞膜被破坏。",
-   "boundaryMarkdown": "检测结果只能定性说明膜中含有该成分，不能说明含量；判断某处理是否破坏膜需与未处理组对照。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-057）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜成分和结构的探究历程",
      "role": "PRIMARY"
     }
    ]
@@ -4564,26 +4504,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞骨架",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-064",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "线粒体与叶绿体的结构和功能",
-   "summaryMarkdown": "线粒体和叶绿体都有双层膜（内膜和外膜）；线粒体以嵴增大膜面积、是细胞进行有氧呼吸的主要场所，叶绿体以类囊体堆叠成的基粒增大膜面积、是绿色植物进行光合作用的场所；二者的基质中都含少量DNA和RNA并有核糖体。",
-   "applicabilityMarkdown": "PRIMARY：比较线粒体与叶绿体的结构、功能，或判断某生理过程的场所。",
-   "contentMarkdown": "1. 线粒体：双层膜；嵴由内膜向内折叠形成、增大膜面积；基质含少量DNA和RNA并有核糖体。功能是细胞进行有氧呼吸的主要场所，细胞生命活动所需的能量约95%来自线粒体。\\n2. 叶绿体：双层膜；基粒由类囊体堆叠而成、增大膜面积；基质含少量DNA和RNA并有核糖体。功能是绿色植物进行光合作用的场所。",
-   "boundaryMarkdown": "二者的功能与增大膜面积的方式不能互换（嵴来自内膜、基粒来自类囊体）；并非所有植物细胞都含叶绿体（如根尖细胞）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-064）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞器的结构和功能",
      "role": "PRIMARY"
     }
    ]
@@ -4644,66 +4564,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的特性及探究实验",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-070",
-   "subject": "BIOLOGY",
-   "type": "METHOD_MODEL",
-   "title": "探究pH对酶活性影响实验的两条注意事项",
-   "summaryMarkdown": "探究pH对酶活性影响时要先调节酶溶液的pH再加入底物；不能选用淀粉酶和淀粉为材料，因为酸性条件下淀粉易水解。",
-   "applicabilityMarkdown": "PRIMARY：判断pH影响酶活性实验的操作顺序与材料选择是否合理。",
-   "contentMarkdown": "1. 探究pH对酶活性影响的实验时，先调节酶溶液的pH，再加入底物，否则会影响实验的准确性。\\n2. 不能选用淀粉酶和淀粉为材料，因为在酸性条件下淀粉易水解，会影响实验的结果。",
-   "boundaryMarkdown": "只针对pH影响酶活性这一实验；温度影响实验同样需要先分别控温再混合底物与酶。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-070）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的特性及探究实验",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-071",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "由生活实例看酶的专一性与作用条件",
-   "summaryMarkdown": "溶菌酶只溶解细菌细胞壁而不抑制真菌、果胶酶分解果胶提高果汁产量、肽类和蛋白质类激素口服会失效、多酶片嚼碎后消化酶在胃酸中失活，都是酶专一性与作用条件较温和的体现。",
-   "applicabilityMarkdown": "PRIMARY：用酶的特性解释食品、医药与生活中酶制剂的使用现象。",
-   "contentMarkdown": "1. 溶菌酶能溶解细菌的细胞壁、具抗菌消炎作用，但不能抑制真菌感染，因为真菌与细菌细胞壁成分不同，而酶具有专一性。\\n2. 果胶酶分解果肉细胞壁中的果胶提高果汁产量；胰蛋白酶可促进伤口愈合、溶解血凝块、去除坏死组织。\\n3. 肽类或蛋白质类激素不能口服（会被蛋白酶或肽酶分解成氨基酸而失效）；多酶片不能嚼碎，否则胰蛋白酶、脂肪酶等失去保护膜后会在胃的酸性环境中失去活性并被水解。",
-   "boundaryMarkdown": "这些是酶特性的定性应用实例，不用于定量计算；判断某种酶制剂的用法时要同时考虑专一性与适宜条件。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-071）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的特性",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-072",
-   "subject": "BIOLOGY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "酶的本质与合成属性的正误辨析",
-   "summaryMarkdown": "酶由结构完整的活细胞产生，化学本质绝大多数为蛋白质、少数为RNA，合成原料是氨基酸和核糖核苷酸，合成场所在核糖体、细胞核等；只有分泌功能的细胞才产酶、酶只在细胞内起作用都是错误说法。",
-   "applicabilityMarkdown": "PRIMARY：排除有关酶的产生场所、化学本质与作用场所的错误判断。",
-   "contentMarkdown": "正确说法：产生场所——结构完整的活细胞；化学本质——绝大多数为蛋白质，少数为RNA；合成原料——氨基酸、核糖核苷酸；合成场所——核糖体、细胞核等；作用场所——可在细胞内、细胞外发挥作用。\\n常见错误说法：只有具有分泌功能的细胞才能产生酶；酶的化学本质是蛋白质；酶只在细胞内发挥作用；低温或高温均使酶变性失活。",
-   "boundaryMarkdown": "酶只起催化作用，不具有调节、催化等多种功能；高温、过酸、过碱使酶永久失活，低温只抑制活性、不破坏空间结构。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-072）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的本质",
      "role": "PRIMARY"
     }
    ]
@@ -4789,26 +4649,6 @@
    ]
   },
   {
-   "slug": "ext-bio-5f510cdc4a-078",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "同源染色体、联会与四分体：概念与数量关系",
-   "summaryMarkdown": "同源染色体一条来自父方一条来自母方、形状大小一般相同且能配对；联会指减数第一次分裂前期同源染色体两两配对；联会后的每对同源染色体含4条染色单体叫四分体，1个四分体含1对同源染色体、2条染色体、4条染色单体、4个DNA分子、8条脱氧核苷酸链。",
-   "applicabilityMarkdown": "PRIMARY：辨析同源染色体与非同源染色体，并计算四分体中的染色体、染色单体与DNA数目。",
-   "contentMarkdown": "1. 同源染色体：一条来自父方、一条来自母方，形状和大小一般相同，在减数分裂过程中能配对；非同源染色体则不配对。\\n2. 联会：减数第一次分裂前期同源染色体两两配对的现象；四分体：联会后的每对同源染色体含有四条染色单体。\\n3. 数量关系：1个四分体含1对同源染色体、2条染色体、4条染色单体、4个DNA分子、8条脱氧核苷酸链；染色体互换发生在四分体中的非姐妹染色单体之间。",
-   "boundaryMarkdown": "形状和大小相同的两条染色体不一定是同源染色体（可能是着丝粒分裂后形成的两条子染色体）；有丝分裂过程中同源染色体不联会、不形成四分体。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-078）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:四分体",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-5f510cdc4a-079",
    "subject": "BIOLOGY",
    "type": "CONCEPT_EXPLANATION",
@@ -4864,26 +4704,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传的特点及应用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-082",
-   "subject": "BIOLOGY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "性反转现象说明性别由遗传物质与环境共同影响",
-   "summaryMarkdown": "母鹅性反转成公鸡后遗传物质不变，说明性别与其他性状一样，是遗传物质和环境共同作用的结果。",
-   "applicabilityMarkdown": "PRIMARY：判断环境改变导致表型改变类现象中遗传物质是否随之改变。",
-   "contentMarkdown": "1. 性反转现象（原来下过蛋的母鹅以后变成公鸡，长出公鸡的羽毛、发出公鸡样的啼声）出现的原因可能是某种环境因素使性别发生了反转，但遗传物质不变。\\n2. 该现象说明性别与其他性状一样，也是遗传物质和环境共同影响的。",
-   "boundaryMarkdown": "表型改变不等于基因型改变，不能据此认为环境改变了遗传物质；性反转个体的遗传物质组成不变。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-082）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:表型与基因型的关系",
      "role": "PRIMARY"
     }
    ]
@@ -4964,26 +4784,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:程序法分析遗传系谱图-规律方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-087",
-   "subject": "BIOLOGY",
-   "type": "METHOD_MODEL",
-   "title": "单基因遗传病遗传方式的三个判断技巧",
-   "summaryMarkdown": "双亲正常而女儿患病可判为常染色体隐性；双亲患病而儿子正常可判为常染色体显性；男性患者的父亲不携带致病基因时确定为伴X隐性，携带致病基因时确定为常染色体隐性。",
-   "applicabilityMarkdown": "PRIMARY：用口诀式技巧快速判定系谱图对应的遗传方式。",
-   "contentMarkdown": "1. 双亲正常、女儿患病：无中生有为隐性，隐性遗传看女病，其父、子正常则为常染色体隐性。\\n2. 双亲患病、儿子正常：有中生无为显性，显性遗传看男病，其母、女正常则为常染色体显性。\\n3. 已知男性患者且其父亲不携带致病基因时可排除常染色体显性遗传、确定为伴X染色体隐性遗传；若其父亲携带致病基因则排除伴X隐性、确定为常染色体隐性。",
-   "boundaryMarkdown": "口诀只在系谱个体表型完整、且已确认是单基因遗传病时成立；出现两个致病基因或性染色体异常时要重新分析。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-087）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图的分析及概率的计算",
      "role": "PRIMARY"
     }
    ]
@@ -5129,46 +4929,6 @@
    ]
   },
   {
-   "slug": "ext-bio-5f510cdc4a-097",
-   "subject": "BIOLOGY",
-   "type": "METHOD_MODEL",
-   "title": "伴性遗传中的配子致死与个体致死",
-   "summaryMarkdown": "配子致死型如X染色体上隐性基因使雄配子致死；个体致死型如X染色体上隐性基因使雄性个体致死，导致后代性状比例或性别比例偏离常规。",
-   "applicabilityMarkdown": "PRIMARY：处理性染色体上有致死基因时的子代基因型与表型比例问题。",
-   "contentMarkdown": "1. 配子致死型：如X染色体上隐性基因使雄配子（花粉）致死，宽叶雌（XBXb）与窄叶雄（XbY）杂交时含Xb的雄配子致死，F1为XBY宽叶雄、XbY窄叶雄。\\n2. 个体致死型：如X染色体上隐性基因使雄性个体致死，正常雌（XBXa）与正常雄（XBY）杂交，F1中出现XaY致死个体，其余个体正常。",
-   "boundaryMarkdown": "致死发生的环节不同（配子形成期或个体发育期），表现为后代比例或性别比例异常；须按题干说明的致死对象逐代推算。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-097）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:个体或配子致死问题的处理-规律方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-098",
-   "subject": "BIOLOGY",
-   "type": "METHOD_MODEL",
-   "title": "用O表示缺失的基因或染色体",
-   "summaryMarkdown": "部分基因缺失时可用O代替缺失的基因、染色体缺失时可用O代替缺失的染色体，据此写出杂交子代的基因型；染色体缺失后相应基因的遗传仍遵循分离定律和自由组合定律。",
-   "applicabilityMarkdown": "PRIMARY：处理基因缺失或染色体缺失个体的杂交分析与子代推断。",
-   "contentMarkdown": "1. 部分基因缺失：可用O代替缺失的基因，如XAXa与XaY杂交中a基因缺失，则写成XAXO与XOY杂交，子代为XAXa、XAY、XOXa、XaY。\\n2. 染色体缺失：可用O代替缺失的染色体，如XAXa与XaY杂交中Xa染色体缺失，则写成XAO与XaY杂交，子代为XAXa、XAY、OXa、OY。\\n3. 染色体缺失后，相应基因的遗传仍遵循基因的分离定律和自由组合定律。",
-   "boundaryMarkdown": "用O表示缺失是书写规则，不改变遗传定律的适用；判断子代能否存活还要看缺失是否影响个体生存。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-098）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:个体或配子致死问题的处理-规律方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-5f510cdc4a-099",
    "subject": "BIOLOGY",
    "type": "CONCEPT_EXPLANATION",
@@ -5264,26 +5024,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因突变",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-bio-5f510cdc4a-106",
-   "subject": "BIOLOGY",
-   "type": "METHOD_MODEL",
-   "title": "两看法判断姐妹染色单体上等位基因的来源",
-   "summaryMarkdown": "一看个体基因型：基因型为BB时出现B与b源于基因突变，基因型为Bb时源于基因突变或基因重组（染色体互换）；二看细胞分裂方式：有丝分裂中只能是基因突变，减数分裂中姐妹染色单体颜色一致时是基因突变、颜色不一致时是基因重组。",
-   "applicabilityMarkdown": "PRIMARY：判断细胞分裂图中姐妹染色单体上等位基因差异的来源。",
-   "contentMarkdown": "1. 一看个体基因型：若个体基因型为BB，则引起姐妹染色单体上基因分别为B与b的原因是基因突变；若个体基因型为Bb，则原因是基因突变或基因重组（染色体互换）。\\n2. 二看细胞分裂方式：进行有丝分裂时，姐妹染色单体分开形成的两条子染色体上两基因不同，原因是基因突变；进行减数分裂时，姐妹染色单体颜色一致的为基因突变，颜色不一致的为基因重组（染色体互换）。",
-   "boundaryMarkdown": "判断顺序是先看基因型再看分裂方式；只给基因型而无分裂图像时，只能得出基因突变或基因重组的可能范围。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e7f072992e:biology",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-106）",
-   "reviewedAtEpochMillis": 1790769172414,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:姐妹染色单体上等位基因来源的判断",
      "role": "PRIMARY"
     }
    ]

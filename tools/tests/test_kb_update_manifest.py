@@ -304,8 +304,12 @@ class RealArtifactsTest(unittest.TestCase):
         # 2026-09-19：合并表 132 行收口。2026-09-22（R1）：清掉 2 行"幸存者已退役"
         # 的陈行（无氧呼吸-x1←x2 / 有氧呼吸-x1←x2——幸存者后来并进了根节点，
         # 历史在台账里，表不留指向死节点的行）→ 130。
-        self.assertEqual(130, kinds.get(um.KIND_MERGE, 0))
-        self.assertEqual(184, kinds.get(um.KIND_DELETE, 0))
+        # 2026-10-01：块池全量入库腾位时 point_merge.csv 新增 2 行残渣节点合并
+        # （`溶质为碱的溶液-h-全部来自水的电离`、`六种表示物质变化的方程式`——两者唯一材料
+        # 按内容改绑到更准的节点后归零，节点本身名字是整句/材料标题）→ 132。
+        self.assertEqual(132, kinds.get(um.KIND_MERGE, 0))
+        # 2026-10-02 建点闭环：撤回 8 个"块过薄写不出材料"的新点 → point_delete.csv +8 行 → 192。
+        self.assertEqual(192, kinds.get(um.KIND_DELETE, 0))
 
     def test_backfilled_entries_pass_shape_check(self):
         doc = um.empty(self.pack["packId"])

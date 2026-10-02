@@ -103,8 +103,10 @@ class GoldenRetrievalInstrumentedTest {
             BundledKnowledgeBaseInstaller.install(store)
 
             val cases = loadGoldenFromAssets(context)
-            assertTrue("金标集条数低于 D12 下限 80：${cases.size}", cases.size >= 80)
-            assertTrue("金标集条数超过 D12 上限 100：${cases.size}", cases.size <= 100)
+            // D12 的 [80,100] 是 v1 判官（90 条）时代的窗口；v2 判官 130 条 ⇒ 口径改为"覆盖 130"
+            // （[120,140]）。判据含义不变：挡住"题面被截断/被换小"。
+            assertTrue("金标集条数低于覆盖 130 的下沿 120：${cases.size}", cases.size >= 120)
+            assertTrue("金标集条数超过覆盖 130 的上沿 140：${cases.size}", cases.size <= 140)
 
             // 稠密腿"是活的"探测：拿第一条题的真候选跑一次重排，返回 null 说明编码/资产/模型
             // 有一步在设备上失败了（那是设计内的静默回退，但本测试要测的是**融合**路由，

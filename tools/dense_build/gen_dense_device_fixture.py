@@ -188,9 +188,12 @@ def main():
         raise SystemExit("旁车 sha 与实测不符：%s != %s" % (sidecar_sha, asset_sha))
 
     asset_header, scans = scan_cases(root)
-    if asset_header["count"] != 28931 or asset_header["dim"] != profile["dim"]:
-        raise SystemExit("资产形状不符（档位 %s 应 28931×%d，实测 %d×%d）"
-                         % (profile["key"], profile["dim"], asset_header["count"], asset_header["dim"]))
+    # 条数随包走、**不写死**：资产行数必须等于当前包布局的向量数（与打包/ids 同一权威源）。
+    layout_rows, _layout_nodes, _layout_groups = D.atomic_layout(root)
+    if asset_header["count"] != len(layout_rows) or asset_header["dim"] != profile["dim"]:
+        raise SystemExit("资产形状不符（档位 %s 应 %d×%d，实测 %d×%d）"
+                         % (profile["key"], len(layout_rows), profile["dim"],
+                            asset_header["count"], asset_header["dim"]))
     expected_bytes = (24 + asset_header["idsBytesLength"] + asset_header["count"] * asset_header["dim"]
                       + asset_header["count"] * 4)
     actual_bytes = vector_path.stat().st_size

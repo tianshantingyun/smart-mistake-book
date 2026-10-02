@@ -11,7 +11,7 @@ import org.junit.Test
  *
  * fixture（`dense/tokenizer-parity-cases.txt`、`-stages.txt`）由
  * `tools/dense_build/gen_tokenizer_fixture.py` 用离线链同一个 `BertTokenizer` 生成：
- * 90 条金标查询（带查询前缀）+ 200 条节点文本抽样（canonicalName/alias）+ 边界探针。
+ * 130 条金标查询（v2 判官；带查询前缀）+ 200 条节点文本抽样（canonicalName/alias）+ 边界探针。
  *
  * 断言口径：
  * - **全量比对，不许抽样**：fixture 每一行都要逐 id 相等，失败信息带 caseId 与首个差异位置；
@@ -27,7 +27,7 @@ class DenseTokenizerParityTest {
         val cases = parseCases()
         assertEquals(
             "fixture 分档条数变了（fixture 被改过或生成脚本漂移）",
-            mapOf("query" to 90, "surface" to 200, "edge" to 18, "stage" to 25),
+            mapOf("query" to 130, "surface" to 200, "edge" to 18, "stage" to 25),
             cases.groupingBy { it.kind }.eachCount(),
         )
         val failures = mutableListOf<String>()

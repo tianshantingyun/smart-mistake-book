@@ -7,8 +7,9 @@
 assets 名不动。
 
 输入（`export_bge_int8.py` 的中间产物，均在 `build/dense-model/`）：
-- `int8-docs.npy`：28,931×dim fp32（= int8 ONNX 对 28,931 条 surface 的输出，CLS + L2 已归一化）
-- `int8-queries.npy`：90×dim fp32（同模型对 90 条带前缀查询的输出；参考数计算用）
+- `int8-docs.npy`：N×dim fp32（N = **当前包布局**的向量数 = 原子节点 canonical + 全部别名；
+  2026-10-02 v2 口径下 N = 3,570 + 36,749 = 40,319）（= int8 ONNX 对 N 条 surface 的输出，CLS + L2 已归一化）
+- `int8-queries.npy`：M×dim fp32（M = 判官条数，v2 = 130；同模型对 M 条带前缀查询的输出；参考数计算用）
 - `fp32-docs.npy` / `fp32-queries.npy`：同档 torch fp32 参考（算端到端误差用）
 
 输出（入库）：
@@ -18,15 +19,15 @@ assets 名不动。
 ## 量化口径
 
 **每向量对称 int8**（`dense_asset.quantize_int8`）：`scale = max|v| / 127`，还原 = `int8 × scale`。
-向量已 L2 归一化，所以每向量 scale 只需要 4 字节/条（共 115,724 B），换来的是各向量自身的
+向量已 L2 归一化，所以每向量 scale 只需要 4 字节/条（v2 口径 40,319 条 = 161,276 B），换来的是各向量自身的
 量化步长——全局 scale 会让幅度小的向量整体塌成 0。**还原精度由本脚本断言**（逐行 cosine
 ≥ 0.9999 vs 量化前的 int8 模型输出），不是"应该没问题"。
 
 ## 对拍门（本脚本断言，不过就退出非零）
 
-1. 向量集 = 28,931 行、dim 按档（512/768）、全部有限、每行 L2 范数 ≈ 1；
+1. 向量集 = 当前包布局的向量数（N，随包走、不写死）、dim 按档（512/768）、全部有限、每行 L2 范数 ≈ 1；
 2. 落盘 → 回读 → 逐行 cosine(还原值, 量化前) 最小值 ≥ 0.9999；
-3. `header.count == 28931`、ids 与布局逐条一致（`dense_asset.atomic_layout` 的同一份）；
+3. `header.count == N`、ids 与布局逐条一致（`dense_asset.atomic_layout` 的同一份）；
 4. 输入的 `.npy` 必须与 `model-manifest.json` 里该档条目的 sha256/维度/行数**逐个相等**
    —— 换档之后 `build/dense-model/` 里同时存在两档的 ONNX，`.npy` 却是通用名：
    没有这条，"拿另一档的向量按本档打包"没有任何门会红。
@@ -64,15 +65,19 @@ def main():
     print("档位=%s（dim=%d repo=%s）" % (profile["key"], dim, profile["repo"]))
 
     rows, nodes, groups = D.atomic_layout(root)
-    # ids 块是**逐向量**的（28,931 条）：每条向量记它属于哪个节点。同一节点的向量在矩阵里
+    # ids 块是**逐向量**的（N 条 = 当前包布局的向量数）：每条向量记它属于哪个节点。同一节点的向量在矩阵里
     # **连续**（布局就是"节点顺序出 canonicalName，紧跟其全部 alias"），端侧扫描连续段即可
-    # 做"节点分 = 段内 cosine 的 max"。3,572 个节点 id 在这里按向量数重复出现——重复是
+    # 做"节点分 = 段内 cosine 的 max"。节点 id 在这里按向量数重复出现——重复是
     # 有意为之：读者不需要第二张表就能把任意一行还原到节点。
     ids = [row["node_id"] for row in rows]
     node_ids = [node["node_id"] for node in nodes]
     surfaces = [row["surface"] for row in rows]
-    if len(node_ids) != 3572 or len(surfaces) != 28931:
-        raise SystemExit("向量集口径应为 3572 节点 / 28931 向量，实测 %d / %d" % (len(node_ids), len(surfaces)))
+    # 口径随包走、**不写死**（2026-10-02 v2 口径修正：旧写死值已删，条数一律从包布局现取）。
+    # 保留结构检查：向量条数 = 布局自报的 canonical + alias 合计（别名没有被悄悄丢掉）。
+    expected_vectors = sum(1 + len(node["aliases"]) for node in nodes)
+    if len(node_ids) != len(nodes) or len(surfaces) != expected_vectors:
+        raise SystemExit("向量集口径与包布局不一致：%d 节点 / %d 向量，布局自报 %d 节点 / %d 向量"
+                         % (len(node_ids), len(surfaces), len(nodes), expected_vectors))
     for node_id, start, end in groups:
         if set(ids[start:end]) != {node_id}:
             raise SystemExit("向量段与节点不一致：%s 的 [%d, %d) 段里混进了别的节点" % (node_id, start, end))
@@ -113,8 +118,12 @@ def main():
 
     docs = np.load(docs_path)
     queries = np.load(queries_path)
-    if docs.shape != (28931, dim):
-        raise SystemExit("文档向量形状应为 (28931, %d)，实测 %s" % (dim, docs.shape))
+    # `.npy` 是上一步（export_bge_int8.py）导出的：行数必须等于**当前包**布局的向量数——
+    # 包在导出之后又变过 ⇒ 这里红（"内容变了向量没跟着重生成"那一类的正面覆盖）。
+    expected_vectors = len(rows)
+    if docs.shape != (expected_vectors, dim):
+        raise SystemExit("文档向量形状应为 (%d, %d)（= 当前包布局：%d 节点 + 别名合计 %d 向量），实测 %s"
+                         % (expected_vectors, dim, len(nodes), expected_vectors, docs.shape))
     golden_count = len(D.goldens(root))   # 条数从判官现取，不写死（一次扩集曾要同步改 6 处 90）
     if queries.shape != (golden_count, dim):
         raise SystemExit("查询向量形状应为 (%d, %d)，实测 %s" % (golden_count, dim, queries.shape))
@@ -169,7 +178,7 @@ def main():
                   % (reference_source, composite.min(), float(np.median(composite))))
         else:
             print("fp32 参考形状不符（%s，本档 %s）——端到端对拍**未运行**"
-                  % (reference.shape, (28931, dim)))
+                  % (reference.shape, (expected_vectors, dim)))
             reference_source = None
     else:
         print("fp32 参考不在位（%s）——端到端对拍**未运行**（不当作已通过）" % reference_path)

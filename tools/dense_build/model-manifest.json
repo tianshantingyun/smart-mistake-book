@@ -283,15 +283,19 @@
     },
     "bge-small-zh-v1.5": {
       "cosineAgainstStage2OfflineArm": {
-        "bge-docs.npy": 0.9990096092224121,
-        "bge-queries.npy": 0.9991949796676636
+        "bge-docs.npy": null,
+        "bge-queries.npy": null
       },
+      "cosineAgainstStage2OfflineArmNotes": [
+        "bge-docs.npy 行数与本档不同（本档 (41193, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
+        "bge-queries.npy 行数与本档不同（本档 (130, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
+      ],
       "cosineAgainstTorchFp32": {
         "fp32Docs": 0.9999998807907104,
-        "fp32Queries": 0.9999999403953552,
+        "fp32Queries": 0.9999998807907104,
         "int8Docs": 0.9990096092224121,
-        "int8DocsMean": 0.9993868470191956,
-        "int8Queries": 0.9991949796676636
+        "int8DocsMean": 0.9993873834609985,
+        "int8Queries": 0.9991949200630188
       },
       "dim": 512,
       "docPrefix": null,
@@ -306,19 +310,28 @@
           "int8_docs": true,
           "int8_queries": true
         },
+        "crossArmChecks": {
+          "bge-docs.npy": null,
+          "bge-queries.npy": null
+        },
+        "crossArmNotes": [
+          "bge-docs.npy 行数与本档不同（本档 (41193, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
+          "bge-queries.npy 行数与本档不同（本档 (130, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
+        ],
         "note": "产物（权重-only int8）过门；路线 A（激活动态量化）的实测值在同级 comparison 里，未采用",
         "passed": true,
         "threshold": 0.999
       },
-      "generatedBy": "python tools/dense_build/export_bge_int8.py",
+      "generatedBy": "python tools/dense_build/export_bge_int8.py --model bge-small-zh-v1.5",
       "inputs": [
         "input_ids",
         "attention_mask",
         "token_type_ids"
       ],
-      "license": "mit（基座许可证，spec §2.1；可再分发）",
-      "maxLen": 512,
+      "license": "mit（基座许可证；可再分发）",
+      "maxLen": 128,
       "modelId": "bge-small-zh-v1.5-int8-onnx",
+      "modelKey": "bge-small-zh-v1.5",
       "normalize": "l2",
       "onnx": {
         "fp32Bytes": 94858640,
@@ -349,30 +362,79 @@
       "onnxruntime": "1.28.0",
       "opset": 17,
       "output": "sentence_embedding",
+      "outputs": {
+        "fp32Docs": {
+          "dim": 512,
+          "path": "build/dense-model/fp32-docs.npy",
+          "rows": 41193,
+          "sha256": "1dcbea0736a0f72f48bdc9504534d87d0366d9f508d54f7abc7fe885698e27fd"
+        },
+        "fp32Queries": {
+          "dim": 512,
+          "path": "build/dense-model/fp32-queries.npy",
+          "rows": 130,
+          "sha256": "b3116c7979b9f0fe667692e7ca9841537f89168200a1f37d2d40596bdbaaad43"
+        },
+        "int8Docs": {
+          "dim": 512,
+          "path": "build/dense-model/int8-docs.npy",
+          "rows": 41193,
+          "sha256": "8f217e69f50bd9e83080b0ede4c97bbaf1e0dad767ed6470fba404f7dc326715"
+        },
+        "int8Queries": {
+          "dim": 512,
+          "path": "build/dense-model/int8-queries.npy",
+          "rows": 130,
+          "sha256": "14144f1af9a6efb19c84303a504fc9dd0cb86564b246ed156e42f5de8d3f3d12"
+        }
+      },
       "pooling": "cls",
       "quantizationRouteComparison": {
+        "caliber": {
+          "columnPeakSpreadAfterMax": null,
+          "columnPeakSpreadBeforeMax": null,
+          "embedLevels": 1,
+          "embedResidualExtraBytes": 0,
+          "embedResidualTables": [],
+          "embedRule": "只一级 per-column 对称 int8（Stage-3 原口径）",
+          "kind": "perChannelMax",
+          "note": "存储仍是 int8 权重（每输出通道一 scale）+ fp32 激活；重标定只改误差分布、不改体积",
+          "rescaleAlpha": 0.0,
+          "rescaleRows": [],
+          "rescaleRule": "关闭（Stage-3 原口径）",
+          "rescaledMatMuls": 0,
+          "residualMatMulCount": 0,
+          "residualMatMulExtraBytes": 0,
+          "residualMatMulNames": [],
+          "residualMatMulRule": "关闭（单级）",
+          "weightsSource": {
+            "note": "int8 从这份 fp32 权重量化出来；= 原导出件时说明没做误差补偿，= <stem>-fp32-ongrid.onnx 时说明过了 quant_error_compensation.py",
+            "path": "build/dense-model/bge-small-zh-v1.5-fp32.onnx",
+            "sha256": "519a2f4601d842126ce5064132fafd887d351d20907f2795864987a19422f6e9"
+          }
+        },
         "dynamic-perChannel": {
           "bytes": 24031552,
-          "docsCosineMean": 0.9938281178474426,
-          "docsCosineMin": 0.9884153008460999,
+          "docsCosineMean": 0.9938172101974487,
+          "docsCosineMin": 0.9875001311302185,
           "passedGate": false,
           "path": "build/tmp-dense-quant/routeA-perChannel.onnx",
           "perChannel": true,
-          "queriesCosineMin": 0.9893909692764282
+          "queriesCosineMin": 0.9875498414039612
         },
         "dynamic-perTensor": {
           "bytes": 23939272,
-          "docsCosineMean": 0.9670901894569397,
-          "docsCosineMin": 0.9484840631484985,
+          "docsCosineMean": 0.9666962027549744,
+          "docsCosineMin": 0.9472684860229492,
           "passedGate": false,
           "path": "build/tmp-dense-quant/routeA-perTensor.onnx",
           "perChannel": false,
-          "queriesCosineMin": 0.9415236711502075
+          "queriesCosineMin": 0.9391010999679565
         },
         "weightOnlyInt8PerChannel": {
           "bytes": 23952639,
           "convertedMatMuls": 27,
-          "docsCosineMean": 0.9993868470191956,
+          "docsCosineMean": 0.9993873834609985,
           "docsCosineMin": 0.9990096092224121,
           "leftFloatMatMuls": 8,
           "leftFloatReasons": [
@@ -387,18 +449,33 @@
           ],
           "passedGate": true,
           "path": "build/dense-model/bge-small-zh-v1.5-int8.onnx",
-          "queriesCosineMin": 0.9991949796676636
+          "queriesCosineMin": 0.9991949200630188
         }
       },
       "queryPrefix": "为这个句子生成表示以用于检索相关文章：",
       "repo": "BAAI/bge-small-zh-v1.5",
       "revision": "7999e1d3359715c523056ef9478215996d62a620",
+      "tokenLengths": {
+        "docMax": 26,
+        "maxLen": 128,
+        "queryMax": 81,
+        "truncatedDocs": 0,
+        "truncatedQueries": 0
+      },
       "tokenizer": {
         "className": "BertTokenizer",
+        "frozenFixtureParity": {
+          "frozenFixtureCases": 0,
+          "frozenFixturePath": null,
+          "note": "本档 tokenizer.json 就是冻结副本 ⇒ 无需另证（端侧 fixture 由它生成）",
+          "tokenIdsIdentical": null
+        },
         "kwargs": {
           "do_lower_case": true,
           "strip_accents": false
         },
+        "snapshotTokenizerJsonSha256": "48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26",
+        "snapshotVocabSha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c",
         "tokenizerJsonSha256": "48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26",
         "vocabSha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c"
       },

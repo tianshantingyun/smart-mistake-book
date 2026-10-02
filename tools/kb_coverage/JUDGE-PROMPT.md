@@ -30,15 +30,20 @@
 
     chunk_rel,chunk_id,action,node_slug,type,title,summary,applicability,content,boundary,note,midx
 
-- `MATERIAL` 行：`node_slug` 必须是**正式包里真实存在的节点 slug**（查
-  `build/kb-staging/moe-2025-four-subjects-v1.json` 的 `subjects[].topics[].knowledgePoints[].slug`，
-  按块 `subject` 分科）；`type` 仅 `CONCEPT_EXPLANATION`/`METHOD_MODEL`/`MISCONCEPTION_GUIDE`；
+- `MATERIAL` 行：`node_slug` 必须是**正式包里真实存在的节点 slug**——**直接 grep 工具包**
+  `build/agent-input/judge-kit/nodes_<SUBJECT>.tsv`（列：`topic_slug / node_slug / node_name /
+  material_count`，材料数按侧车实算；按块 `subject` 取对应科目的那个文件）。
+  不要自己去解析 4MB 的主包 JSON（抄错 slug 就是整行作废）；`type` 仅
+  `CONCEPT_EXPLANATION`/`METHOD_MODEL`/`MISCONCEPTION_GUIDE`；
   `title`/`summary`/`applicability`/`content`/`boundary` 五字段齐备；`applicability` 写清 PRIMARY 适用场景；
   `content` **1–4 行**（多行用字面 `\n` 两字符分隔，字段内不得出现真实换行）；`boundary` 是真边界（不得是"定位：…"占位）；
   同一节点在**本切片内**最多给 4 条材料；`midx` 只在同一块出多条材料时用（`''`/`b`/`c`…）。
 - **找不到对口节点**：不要硬绑近似节点——`action` 写 `SKIP`，`note` 写 `NEW:<subject>/<建议slug>`（建点提案）。
 - `SKIP` 行：`note` 写理由（题目派生/装饰页/无结论/重复…），其余字段留空。
-- 薄料节点优先（`knowledge-production/node-material-gaps-2026-09.csv`，1,232 节点）。
+- 薄料节点优先：`build/agent-input/judge-kit/thin_nodes.tsv`（按**当前包**重算，不再照旧的
+  `node-material-gaps-2026-09.csv` 找点——它此前记着已被合并、包内不存在的 slug）。
+  已满节点（`material_count` ≥ 4，见 `overfull_nodes.tsv`）**不禁止**绑定（首轮 73% 的 MATERIAL 行
+  绑在满节点上，可见性是单独的收口项），但同等对口时优先薄料节点。
 
 ## 硬禁令（违反即整批作废）
 

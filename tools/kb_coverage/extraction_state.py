@@ -48,12 +48,36 @@ SKIP_EXTS = {".ttf", ".ttc", ".exe", ".inf", ".ini", ".apm", ".zip", ""}
 
 
 def _subject(rel_path: str) -> str:
-    """科目词常埋在深层目录/文件名里（如 …/2026年体育单招数学零基础…），全路径扫描。
+    """科目词常埋在深层目录/文件名里（如 …/2026年体育单招数学零基础…），逐级目录扫描。
 
-    同一路径出现多个科目词（全科卷）→ UNASSIGNED，不猜。
+    先看**路径部件**：第一个"恰含一个科目词"的部件定科目。为什么必须逐级：**考点词会误伤**
+    全串匹配——`烃的衍生物` 含"生物"、`降低化学反应活化能的酶` 含"化学"、
+    `…图像法或数学归纳法解决多次碰撞问题.docx` 含"数学"。旧规则把这些一律判成
+    UNASSIGNED（实测 1,469 块），到了 `materialize --write` 就是 `非四科块` 硬错误。
+    取**最浅**的那个部件（科目标在命名该科目的目录上，不在考点名上）：深到文件名反而会
+    把物理文件判成数学（同一池上 deepest-match 与 33 个已判定化学块冲突）。
+    无任何部件能定科目时退回全串；一个部件里出现多个科目词（全科卷）→ UNASSIGNED，不猜。
     """
+    for part in rel_path.split("/"):
+        if not part:
+            continue
+        hits = {subj for kw, subj in SUBJECT_KEYWORDS if kw in part}
+        if len(hits) == 1:
+            return hits.pop()
     hits = {subj for kw, subj in SUBJECT_KEYWORDS if kw in rel_path}
     return hits.pop() if len(hits) == 1 else "UNASSIGNED"
+
+
+def subject_of_path(rel_path: str) -> str | None:
+    """块/源文件路径 → 科目；真不可判（全科卷）返回 None。
+
+    这是**唯一口径**：`merge_text_judgments`（节点校验）、`dedupe_judged_materials`
+    （材料 slug 前缀 `ext-<科>-…`）、`plan_new_nodes`（提案归科）三处原先各抄了一份
+    "关键词出现顺序"的判定，实测 59 条生物路径被判成 CHEMISTRY，会把合法生物绑定改成
+    `NEW:`、把生物材料写成 `ext-che-` slug。新增用途一律走本函数。
+    """
+    subj = _subject(rel_path)
+    return None if subj == "UNASSIGNED" else subj
 
 
 def _initial_state(row: dict) -> tuple[str, str]:

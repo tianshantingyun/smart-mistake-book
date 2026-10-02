@@ -2277,26 +2277,6 @@
    ]
   },
   {
-   "slug": "ext-phy-845a8daf75-003",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "平抛运动的速度变化量与基本规律",
-   "summaryMarkdown": "平抛运动中任意相等时间内速度变化量相同且竖直向下，两个分运动的位移与速度由基本公式给出",
-   "applicabilityMarkdown": "平抛运动的位移、速度、时间计算与速度变化的分析",
-   "contentMarkdown": "**速度变化量**：由于平抛运动的加速度为恒定的重力加速度 g，物体在任意相等时间间隔 $\\Delta t$ 内的速度变化量 $\\Delta v=g\\Delta t$ 都相同，方向恒为竖直向下。\\n**基本规律**：以抛出点为原点、初速度方向为 x 轴正方向、竖直向下为 y 轴正方向建立坐标系，则\\n1. 水平方向：$x=v_0t$，$v_x=v_0$（匀速）。\\n2. 竖直方向：$y=\\frac12gt^2$，$v_y=gt$（自由落体）。\\n3. 合速度：大小 $v=\\sqrt{v_0^2+(gt)^2}$，方向与水平方向夹角满足 $\\tan\\theta=gt/v_0$；合位移大小 $s=\\sqrt{x^2+y^2}$。\\n**常考提醒**：速度方向与位移方向不是同一个角，注意两者的正切值之比为 2（由下面的推论给出）；速度变化量只与时间有关，与初速度无关。",
-   "boundaryMarkdown": "$\\Delta v=g\\Delta t$ 是矢量关系，方向竖直向下，不能理解为速率的变化量；平抛运动的速率随时间不是均匀增加的；由 $x$ 与 $y$ 求时间时要用竖直方向的自由落体关系，不能用水平位移除以时间。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习·知识清单（新高考通用）/资料/第2讲　抛体运动（学生版）.docx（块 845a8daf75-003）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-845a8daf75-004",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -3432,26 +3412,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:液晶",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-288e1effad-006b",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "气体分子速率的统计分布规律",
-   "summaryMarkdown": "一定温度下气体分子的速率呈中间多、两头少的分布，温度升高时分布曲线峰值向速率大的方向移动、平均速率增大。",
-   "applicabilityMarkdown": "判断速率分布曲线随温度的变化、比较不同温度下各速率区间的分子比例时使用。",
-   "contentMarkdown": "统计前提：气体分子间的距离约为分子直径的 10 倍，分子间作用力极其微弱可忽略；分子沿各个方向运动的机会均等。\\n分布规律：在任一温度下，分子的速率都按中间多、两头少的规律分布，即速率很大和很小的分子都很少，接近平均速率的分子最多；分布曲线与横轴所围的面积表示分子总数，任何温度下这个总面积都不变。\\n温度的影响：温度升高时，速率小的分子所占比例减小、速率大的分子所占比例增大，曲线的峰值向速率较大的方向移动，同时曲线变得较平、较宽，分子的平均速率增大。\\n由此可得：温度是分子热运动平均动能的标志；温度升高时分子的平均速率增大，但并非每个分子的速率都增大。",
-   "boundaryMarkdown": "速率分布是大量分子的统计规律，对单个分子没有意义；温度升高时仍有部分分子的速率减小，不能由平均速率增大推断所有分子速率都增大；比较不同温度的曲线时不能只看峰值高低，还要注意曲线下方的总面积相同。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第39讲 热学（高效培优讲义）（学生版）.docx（块 288e1effad-006）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分子运动速率分布图像-气体分子速率呈-中间多-两头少-的规律分布-如下图所示",
      "role": "PRIMARY"
     }
    ]
@@ -6697,26 +6657,6 @@
    ]
   },
   {
-   "slug": "ext-phy-eec25a65a0-004",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "简谐运动的振动方程与图像",
-   "summaryMarkdown": "从平衡位置计时为正弦式，从最大位移处计时为余弦式，图像表示位移随时间的变化。",
-   "applicabilityMarkdown": "写出简谐运动的振动方程、由图像读取信息、判断计时起点不同时的表达式时使用。",
-   "contentMarkdown": "**振动方程**\\n- 从平衡位置开始计时：$x=A\\sin\\omega t$，此时初相位为零；\\n- 从最大位移处开始计时：$x=A\\cos\\omega t$，此时初位移等于振幅。\\n\\n其中 A 为振幅，$\\omega=\\frac{2\\pi}{T}$ 为圆频率，T 为周期；一般式为 $x=A\\sin(\\omega t+\\varphi)$，初相位 $\\varphi$ 由计时起点决定。\\n\\n**图像的意义**：振动图像反映的是位移随时间的变化规律，随时间增加而向前延伸；图像描述的是一个质点在各个时刻的位移，不代表质点运动的轨迹。\\n\\n**读图方法**：纵坐标的最大值给出振幅，两个相邻同向过零点或相邻同相位点之间的距离给出周期，图线的斜率反映速度的大小和方向。",
-   "boundaryMarkdown": "振动图像不是质点的运动轨迹，不能把图线的形状当作物体的运动路径；计时起点不同，表达式相差四分之一周期的相位，不能混用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第30讲 机械振动（复习讲义）（湖南专用）（学生版）.docx（块 eec25a65a0-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:简谐运动",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-eec25a65a0-009",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -7432,26 +7372,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电场中的功能关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-8a6cb6c448-004c",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "电场中 v-t 图像的读法",
-   "summaryMarkdown": "由 v-t 图像的速度变化与斜率变化判断静电力的方向与大小，进而确定场强方向与电势高低。",
-   "applicabilityMarkdown": "给出带电粒子在电场中运动的 v-t 图像，要求判断场强、电势高低或电势能变化时使用。",
-   "contentMarkdown": "## 由图像判断受力\\n由电荷在电场中运动的 v-t 图像中速度的变化判断静电力的方向（加速时静电力与速度同向），由图线斜率的变化（即加速度大小的变化）判断静电力大小的变化。\\n\\n## 进一步判断\\n由静电力方向结合电荷的正负可确定电场强度的方向；由场强方向可判断各点电势的高低；由速度变化可求动能变化，再由动能定理确定静电力做功与电势能的变化。\\n\\n## 使用要点\\n先由斜率读出加速度的变化，再由 $qE=ma$ 得到场强的变化，最后回到功能关系判断电势能与动能的变化。",
-   "boundaryMarkdown": "速度增大不代表场强增大，斜率（加速度）增大才说明场强增大；静电力方向要由速度的增减与电荷正负共同判断，不能只看速度方向。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第30讲 电场中的功能关系及图像问题（复习讲义）（安徽专用）（学生版）.docx（块 8a6cb6c448-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用动力学观点分析",
      "role": "PRIMARY"
     }
    ]
@@ -16177,26 +16097,6 @@
    ]
   },
   {
-   "slug": "ext-phy-bf19e23893-013",
-   "subject": "PHYSICS",
-   "type": "DERIVATION",
-   "title": "用动量定理求正交方向的分速度",
-   "summaryMarkdown": "对洛伦兹力的两个分量分别列动量定理，用位移换出分速度的变化",
-   "applicabilityMarkdown": "已知某一方向上的位移（常需借助动能定理求得），要求与之垂直方向上的分速度时",
-   "contentMarkdown": "设带电粒子质量 $m$、电荷量 $+q$，在方向垂直纸面向下、磁感应强度为 $B$ 的匀强磁场中运动，重力不计，速度分解为 $v_x$、$v_y$，洛伦兹力的两个分量为 $F_x=qv_yB$、$F_y=qv_xB$。\\n对两个方向分别列动量定理：$-qv_yB\\Delta t=m\\Delta v_x$、$qv_xB\\Delta t=m\\Delta v_y$；注意 $v_y\\Delta t=\\Delta y$、$v_x\\Delta t=\\Delta x$，于是得到 $-qB\\Delta y=m\\Delta v_x$、$qB\\Delta x=m\\Delta v_y$。对全过程累加得 $-qBy=mv_{x1}-mv_{x0}$、$qBx=mv_{y1}-mv_{y0}$。\\n使用条件：只要知道某一分运动方向上的位移（可能需要借助动能定理获得），通过列出与之正交方向上的动量定理，即可迅速得出该方向上的分速度，而不必追究轨迹细节。",
-   "boundaryMarkdown": "适用于除洛伦兹力外其余力可忽略（或已由动能定理计入）的情形；粒子多次折返时位移要按分段求和，不能简单取图上距离。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（四川专用）/第40讲 带电粒子在复合场中的运动（复习讲义）（四川专用）（学生版）.docx（块 bf19e23893-013）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在组合场-电场与磁场各位于一定的区域内-并不重叠-中的运动",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-bf19e23893-019",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -16952,26 +16852,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:超几何分布",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-e17c167707-001b",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "实系数一元二次方程与韦达定理",
-   "summaryMarkdown": "判别式决定实根还是共轭虚根，两种情形下韦达定理的形式都成立",
-   "applicabilityMarkdown": "在复数范围内解一元二次方程、由一根求另一根或求参数与对称式的值",
-   "contentMarkdown": "实系数一元二次方程 $ax^{2}+bx+c=0$（$a\\neq 0$）中，判别式 $\\Delta=b^{2}-4ac$ 决定根的情形：\\n①当 $\\Delta>0$ 时，方程有两个不相等的实根；\\n②当 $\\Delta=0$ 时，方程有两个相等的实根；\\n③当 $\\Delta<0$ 时，方程有两个共轭虚根，且两根互为共轭复数。\\n求解复数集上的方程的方法：①设复数 $z=x+yi$ 代入，化归为实数方程来解决；②把复数看成一个整体（而不是实部与虚部两个未知数），用复数的性质来变形；③对二次方程，直接使用一元二次方程的求根公式。\\n根与系数的关系（韦达定理）：当 $\\Delta\\ge 0$ 时，两个实根满足两根之和等于 $-b/a$、两根之积等于 $c/a$；当 $\\Delta<0$ 时，两个共轭虚根同样满足上述关系（和与积为实数）。由于实系数方程若有一个虚根，则它的共轭复数也是根，这为“由一根写出另一根”提供了依据。",
-   "boundaryMarkdown": "使用韦达定理前要先确认方程是实系数方程（否则“共轭也是根”不成立）；求含根的对称式（如两根的平方和、倒数和）时，注意把它们化为和与积的组合。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第五章 平面向量与复数/重难点培优05 复数中的几何意义、乘方、复数方程及新定义问题（复习讲义）（全国通用） （学生版）.docx（块 e17c167707-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:实系数一元二次方程的根与韦达定理",
      "role": "PRIMARY"
     }
    ]
@@ -18932,26 +18812,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值与范围问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-ced0c3e323-001b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "闭合电路欧姆定律及其表达式",
-   "summaryMarkdown": "闭合电路的电流与电源电动势成正比、与内外电阻之和成反比",
-   "applicabilityMarkdown": "求解闭合电路中的电流、路端电压或电源电动势与内阻时使用",
-   "contentMarkdown": "**内容**：闭合电路的电流跟电源的电动势成正比，跟内、外电路的电阻之和成反比。\\n**公式**：$I=\\dfrac{E}{R+r}$，只适用于纯电阻电路。\\n**其他表达形式**：电势降落表达式 $E=U_{\\text{外}}+U_{\\text{内}}$ 或 $E=U_{\\text{外}}+Ir$，适用于任意电路；功率表达式 $EI=UI+I^2r$，即电源提供的总功率等于外电路消耗的功率与内电路消耗的功率之和。\\n**理解要点**：电源的电动势在数值上等于闭合电路中内电压与外电压之和；分析电路时要把内电阻与外电阻一起考虑，不能忽略内电阻的分压作用。\\n**应用**：已知外电阻与路端电压可求电流，再由 $E=U+Ir$ 联立求电动势与内阻；也可结合串并联规律处理较复杂的电路。",
-   "boundaryMarkdown": "易错：$I=\\dfrac{E}{R+r}$ 只适用于纯电阻电路，电路中含电动机等非纯电阻元件时必须用 $E=U_{\\text{外}}+Ir$；路端电压不等于电动势，只有电路断路时二者才相等。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第49讲 闭合电路的欧姆定律（举一反三讲义）（全国通用）（学生版）.docx（块 ced0c3e323-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:闭合电路欧姆定律",
      "role": "PRIMARY"
     }
    ]
@@ -23557,26 +23417,6 @@
    ]
   },
   {
-   "slug": "ext-phy-bd78bd2210-001",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "非常规运动学图像的处理方法",
-   "summaryMarkdown": "把非常规图像转化为一次函数，用纵截距与斜率确定对应的物理量",
-   "applicabilityMarkdown": "给出 x/t-t 图像、v²-x 图像等非常规图像求加速度或初速度的题目",
-   "contentMarkdown": "处理非常规运动学图像的基本方法是函数法：先写出纵坐标量与横坐标量之间的函数关系式，把它化成一次函数的形式，再由纵截距与斜率确定对应的物理量。\\n\\n以 $\\frac{x}{t}-t$ 图像为例：由 $x=v_0t+\\frac{1}{2}at^2$ 两边同除以 $t$ 得 $\\frac{x}{t}=v_0+\\frac{1}{2}at$，所以图像的纵截距是初速度 $v_0$，斜率是 $\\frac{1}{2}a$，可以由斜率求出加速度。\\n\\n以 $v^2-x$ 图像为例：由 $v^2-v_0^2=2ax$ 得 $v^2=v_0^2+2ax$，所以图像的纵截距是 $v_0^2$，斜率是 $2a$，可以由斜率求出加速度与初速度。",
-   "boundaryMarkdown": "必须先推导函数关系式，不能凭图线形状直接套用常规图像的结论；斜率的物理意义取决于两个坐标轴的乘积关系。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习·知识清单（新高考通用）/资料/微专题1　运动学图像　追及与相遇问题（学生版）.docx（块 bd78bd2210-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非常规运动学图像",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-fffc8cde9c-003",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -24637,26 +24477,6 @@
    ]
   },
   {
-   "slug": "ext-phy-688332d4d3-001b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "黄金代换式及其使用条件",
-   "summaryMarkdown": "忽略自转时天体表面重力等于万有引力，由此得到 GM＝gR²，可用 gR² 替换 GM",
-   "applicabilityMarkdown": "题目给出天体表面重力加速度与半径、又不给出质量时的代换计算题",
-   "contentMarkdown": "**一、黄金代换式的来源**\\n忽略中心天体自转的影响，天体表面上的物体所受重力等于万有引力：\\n$mg=G\\frac{Mm}{R^2}$，\\n整理可得 $GM=gR^2$。\\n**二、用途**\\n在引力常量 G 与中心天体质量 M 未知（或不必求出）时，可以用 $gR^2$ 替换 GM，这一代换关系叫做黄金代换式。它常用于把含有 GM 的表达式转化为含有 g 与 R 的表达式，从而简化运算。",
-   "boundaryMarkdown": "只有忽略天体自转（或自转影响可忽略）时才能使用；g 必须是该天体表面的重力加速度、R 是该天体的半径；代换时 GM 视为一个整体，不能由此分别求出 G 或 M；天体自转显著时（如赤道上的物体）必须考虑向心力，黄金代换式不成立。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第26讲 人造卫星 宇宙速度（举一反三讲义）（全国通用）（学生版）（1）.docx（块 688332d4d3-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:自力更生法-求解地球-中心天体-质量",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-688332d4d3-004",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -25232,26 +25052,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:机械波",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-a6f0685cca-001c",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "波的图象的坐标轴与物理意义",
-   "summaryMarkdown": "波的图象横轴是各质点的平衡位置、纵轴是该时刻各质点的位移，表示某一时刻所有质点的位移分布。",
-   "applicabilityMarkdown": "读波形图、由波形图确定波长或某质点的位移时使用。",
-   "contentMarkdown": "**波的图象**：\\n- 坐标轴：横轴表示各质点的**平衡位置**，纵轴表示该时刻各质点的**位移**；\\n- 意义：表示在波的传播方向上，**某一时刻**各质点离开平衡位置的位移。\\n\\n特点：波的图象是“某一时刻的定格”，随时间推移整个图象沿传播方向平移；同一列波在不同时刻的图象不同，但相隔整数个周期的图象形状完全相同。",
-   "boundaryMarkdown": "波的图象描述“某一时刻所有质点”的位移，振动图象描述“某一质点在各时刻”的位移，两者不能混淆；读图前必须先确认图象对应的时刻与质点，否则会把横轴的物理意义弄错。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第41讲   机械波（举一反三讲义）（全国通用）（学生版）.docx（块 a6f0685cca-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:波动图象的特点",
      "role": "PRIMARY"
     }
    ]
@@ -27832,26 +27632,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:子集的个数问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-68e60d4d76-001",
-   "subject": "PHYSICS",
-   "type": "DERIVATION",
-   "title": "测电源电动势和内阻的原理与图像法",
-   "summaryMarkdown": "由 U=E-Ir 列方程或用 U-I 图线整体求解",
-   "applicabilityMarkdown": "做测量电源电动势和内阻的实验、处理实验数据时使用",
-   "contentMarkdown": "**实验原理**：由闭合电路欧姆定律得 $U=E-Ir$，只要测出多组路端电压 $U$ 与电流 $I$，就能求出电源的电动势 $E$ 与内阻 $r$。\\n\\n**两种数据处理方式**：\\n1. 列方程求解：任取两组数据列出 $U_1=E-I_1r$ 与 $U_2=E-I_2r$，联立解出 $E$ 与 $r$；\\n2. 图像法：以 $I$ 为横坐标、$U$ 为纵坐标作图得到一条直线，图线与纵轴的交点表示电动势 $E$，图线斜率的绝对值表示内阻 $r$。\\n\\n**为什么优先用图像法**：图像法相当于用多组数据整体求值，比只取两组数据更能减小偶然误差，是处理这类实验数据的标准做法。",
-   "boundaryMarkdown": "只有纵轴取 U、横轴取 I 时斜率的绝对值才是内阻；图线要用直线拟合而不是把各点连成折线；用两组数据直接计算时误差会被放大。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第51讲 实验11测量电源的电动势和内阻-（讲义）（学生版）.docx（块 68e60d4d76-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电动势",
      "role": "PRIMARY"
     }
    ]
@@ -30477,26 +30257,6 @@
    ]
   },
   {
-   "slug": "ext-mat-d3b884ba6b-001",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "射影定理及其应用",
-   "summaryMarkdown": "三角形的一边等于另外两边在这一边上的射影之和即 $a=b\\cos C+c\\cos B$ 等三个式子，可整体代换化简条件",
-   "applicabilityMarkdown": "已知边角混合的关系式需要化为纯边或纯角、判断三角形形状、证明与边有关的恒等式",
-   "contentMarkdown": "射影定理：在 $\\triangle ABC$ 中，$a=b\\cos C+c\\cos B$，$b=a\\cos C+c\\cos A$，$c=a\\cos B+b\\cos A$。\\n\\n这三个式子的含义是三角形的一边等于另外两边在这一边上的射影之和。把已知条件整理成射影定理的形式后，可以整体代换直接利用公式解决问题；也可以反过来用公式，把一条边拆成另外两边在某方向上的射影。\\n\\n使用要点：把关系式转化为射影定理的形式时要注意对应关系，等式中的两条边必须是另外两条边，夹角与边要一一对应；反用公式时要看清把哪一条边拆开、拆成哪两个射影，避免边角对应错误。射影定理是把边角混合的条件化为纯边条件的一条捷径，与余弦定理相互印证。",
-   "boundaryMarkdown": "射影定理的三个式子对含钝角的三角形仍然成立，但用射影表示时要注意射影的方向不能取反；反用公式时不能把一条边拆成与它不相邻的两个角的射影。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第四章 三角函数与解三角形/重难点培优06 解三角形中几个秒杀公式（复习讲义）（全国通用）（学生版）.docx（块 d3b884ba6b-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形的射影定理",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-d3b884ba6b-001d",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -30632,26 +30392,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抽象函数的性质综合",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-e5cb809e21-002b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "万有引力的两点理解与两个推论",
-   "summaryMarkdown": "匀质球壳空腔与匀质球体内部万有引力的两个推论及引力的作用力性质",
-   "applicabilityMarkdown": "处理匀质球壳空腔内任意位置的引力、匀质球体内部距球心 r 处的引力以及引力与重力关系的问题",
-   "contentMarkdown": "两点理解：①两物体间相互作用的万有引力是一对作用力与反作用力．大小相等方向相反；②地球上除两极外的物体随地球自转做圆周运动．所需向心力由万有引力的一部分提供．因此物体受到的重力只是万有引力的一个分力．另一个分力提供自转所需的向心力．\\n星体内部万有引力的两个推论：\\n推论1：在匀质球壳的空腔内任意位置处．质点受到球壳各部分的万有引力合力为零．即 $\\sum F_{引}=0$．\\n推论2：在匀质球体内部距离球心 $r$ 处的质点 $(m)$ 受到的万有引力．等于球体内半径为 $r$ 的同心球体对它的万有引力．即引力只由该半径以内的质量决定．外层球壳对该质点的引力贡献为零",
-   "boundaryMarkdown": "易错：两个推论只对质量分布均匀的球壳与球体成立；推论2中必须取半径 r 以内的球体质量而不能代入整个球体的质量；两处 $r$ 都是到球心的距离而不是到表面的距离",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第16讲 万有引力与重力的关系及有中心天体的匀速圆周运动（高效培优讲义）（学生版）.docx（块 e5cb809e21-002）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:万有引力的-两点理解-和-两个推论",
      "role": "PRIMARY"
     }
    ]
@@ -35457,26 +35197,6 @@
    ]
   },
   {
-   "slug": "ext-mat-6439e6eb51-003",
-   "subject": "MATH",
-   "type": "DERIVATION",
-   "title": "平面截圆锥所得截口曲线的判定",
-   "summaryMarkdown": "用平面截圆锥面时，由截面与轴线的夹角同母线与轴线夹角的大小关系判断截口是椭圆、抛物线还是双曲线。",
-   "applicabilityMarkdown": "判断空间图形截面形状、解释圆锥曲线来历的题目，或需要借助「双球」模型说明轨迹类型的场合。",
-   "contentMarkdown": "**判定结论**：设圆锥的母线与轴线的夹角为 $\\alpha$，截平面与轴线的夹角为 $\\beta$，则\\n\\n- $\\beta>\\alpha$ 时，截口曲线为椭圆；\\n- $\\beta=\\alpha$ 时，截口曲线为抛物线；\\n- $\\beta<\\alpha$ 时，截口曲线为双曲线。\\n\\n**证明思路（用球作桥梁）**：\\n\\n- 椭圆：在圆锥内放两个大小不同的球，使它们都与截面相切。在截口曲线上任取一点 $P$，过 $P$ 作母线分别与两球相切，由球外一点的切线长相等，可得 $P$ 到两个切点的距离之和为定值（等于两切点间的母线长），由椭圆定义知截口曲线是椭圆。\\n- 双曲线：在互相倒置的两个圆锥内各放一个球，同样由切线长相等可得截口曲线上任一点到两切点的距离之差的绝对值为定值，由双曲线定义得证。\\n- 抛物线：用平行于母线且垂直于轴截面的平面去截圆锥，在圆锥内放一个与侧面、截面都相切的球，该球与截面的切点即为焦点，球与圆锥相切时切点所在的圆所在的平面与截面的交线即为准线，截口曲线上任一点到切点的距离等于它到该交线的距离，由抛物线定义得证。",
-   "boundaryMarkdown": "判定时必须分清两个角：一个是母线与轴线（即半顶角）的夹角，一个是截平面与轴线的夹角，两者的大小关系决定曲线类型，写反就会把椭圆与双曲线判错；$\\beta=\\alpha$ 是抛物线对应的临界情形，此时截平面平行于一条母线；这里的椭圆、双曲线、抛物线指平面与圆锥面的交线形状，与解析几何中的标准方程对应关系要在具体题目中另行建立。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第七章 立体几何与空间向量/重难点培优02 立体几何中的路径最短、截面、轨迹问题（复习讲义）（全国通用）（学生版）.docx（块 6439e6eb51-003）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线第一定义的应用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-7bce1ea7d3-002",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -38052,26 +37772,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的正交分解法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-6dc6d0bedc-001",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "导数双变量问题的处理方法",
-   "summaryMarkdown": "双变量问题的核心是减元，常用构造函数（同构）、换元、消元、主元四类方法把两个变量化归为一个变量。",
-   "applicabilityMarkdown": "含两个变量的不等式证明、恒成立与存在性问题、零点与极值点相关问题，尤其是不等式两边各含一个变量的压轴题。",
-   "contentMarkdown": "**问题特征**：导数中有一类问题涉及两个变量（如 $m$ 和 $n$、$a$ 和 $b$），这类双变量问题在高中函数与导数模块中属于重难点，往往作为压轴题出现。\\n**四种常见处理方法**：\\n1. 构造函数法（同构）：对于等价的双变量不等式问题，先通过适当的变形，使等式（不等式）两边均只含有一个变量且形式相同，再把这一相同的形式设为新的变量，问题就转化为该函数的单调性问题。\\n2. 换元法：把式子齐次化，化成形如比值 $\\dfrac{x_2}{x_1}$（或差值 $x_2-x_1$）的函数，令这个比值（差值）作为新的单元，从而达到减元的目的。\\n3. 消元法：如果两个变量是一个一元二次方程的根，可以通过根与系数的关系（韦达定理）消元——用其中一个变量表示另一个变量，把双变量问题化为单变量问题。\\n4. 主元法：要证明的不等式或目标代数式中含有两个变量时，把其中一个变量看成主元、另一个看成次元（常数），把主元换成 $x$ 构造函数再研究。\\n**共同思想**：无论用哪一种方法，目标都是把“两个变量”减为“一个变量”，再用导数研究这个一元函数的单调性、极值或最值，从而完成证明或求解。",
-   "boundaryMarkdown": "构造函数法要求变形后两边形式确实相同，否则无法设同一个新变量；换元后要确定新元的取值范围；消元法以两变量是同一方程的两个根为前提；主元法要把另一个变量真正当作常数处理并说明其合理性；两变量不相等时不能用取等号的方式来估计。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第三章 一元函数的导数及其应用/重难点培优11 导数中的双变量问题（复习讲义）（全国通用）（学生版）.docx（块 6dc6d0bedc-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数双变量问题的处理方法",
      "role": "PRIMARY"
     }
    ]
@@ -40892,26 +40592,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:拓展-气垫导轨光电门测速实验法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-68df65078e-005",
-   "subject": "PHYSICS",
-   "type": "DERIVATION",
-   "title": "弹性碰撞的规律与三个结论",
-   "summaryMarkdown": "弹性碰撞同时满足动量守恒与动能守恒，由此得到碰后速度与质量关系的三条结论",
-   "applicabilityMarkdown": "两个物体发生弹性正碰、由质量与初速度求碰后速度，或判断碰后运动方向时使用",
-   "contentMarkdown": "\\n**弹性碰撞的规律**：两球发生弹性碰撞时，系统的动量守恒，同时动能（机械能）守恒。\\n\\n以质量为 $m_1$、速度为 $v_1$ 的小球与质量为 $m_2$ 的静止小球发生正碰为例，取 $v_1$ 的方向为正方向，可列出两个方程：\\n- 动量守恒：$m_1v_1=m_1v_1'+m_2v_2'$；\\n- 动能守恒：$\\frac{1}{2}m_1v_1^2=\\frac{1}{2}m_1v_1'^2+\\frac{1}{2}m_2v_2'^2$。\\n\\n联立解得\\n$$v_1'=\\frac{m_1-m_2}{m_1+m_2}v_1\\qquad v_2'=\\frac{2m_1}{m_1+m_2}v_1$$\\n\\n**三条结论**：\\n1. 两球质量相等（$m_1=m_2$）时，$v_1'=0$、$v_2'=v_1$，两球碰撞后交换了速度；\\n2. 质量大的球碰质量小的球（$m_1>m_2$）时，$v_1'>0$、$v_2'>0$，碰后两球都沿原方向向前运动；\\n3. 质量小的球碰质量大的球（$m_1<m_2$）时，$v_1'<0$，质量小的球被反弹回来。\\n",
-   "boundaryMarkdown": "公式只适用于一维正碰（对心碰撞）；$\\frac{2m_1}{m_1+m_2}v_1$ 是碰后静止球获得的速度，不要与入射球的速度混淆；若被碰物体原本也在运动，须改用一般的动量与动能守恒方程求解，不能直接套用上两式。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026物理高考大一轮总复习讲义（全国）/资料/高考物理大一轮总复习讲义20：动量守恒定律的应用及碰撞反冲学生版.docx（块 68df65078e-005）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹性碰撞",
      "role": "PRIMARY"
     }
    ]
@@ -44292,26 +43972,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:配速法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-9d4e47b803-022",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "带电粒子在立体空间中的螺旋线运动",
-   "summaryMarkdown": "速度与磁场既不平行也不垂直时，粒子做螺旋线运动，可分解为沿磁场方向的匀速直线运动与垂直方向的匀速圆周运动。",
-   "applicabilityMarkdown": "分析带电粒子在三维磁场中的螺旋线运动，求半径、周期与螺距。",
-   "contentMarkdown": "当空间中只存在匀强磁场，且带电粒子的速度方向与磁场方向既不平行也不垂直时，粒子做螺旋线运动。\\n处理方法：把速度分解为平行于磁场方向的分量 $v_{\\parallel}=v\\cos\\theta$ 和垂直于磁场方向的分量 $v_{\\perp}=v\\sin\\theta$。平行分量不受洛伦兹力，对应沿磁场方向的匀速直线运动；垂直分量对应的洛伦兹力提供向心力，使粒子在垂直于磁场的平面内做匀速圆周运动，两者的合成就是螺旋线运动。\\n相关量：圆周运动的半径 $r=\\frac{mv_{\\perp}}{qB}=\\frac{mv\\sin\\theta}{qB}$，周期 $T=\\frac{2\\pi m}{qB}$，螺距（一个周期内沿磁场方向前进的距离）$d=v_{\\parallel}T=\\frac{2\\pi mv\\cos\\theta}{qB}$。\\n这类问题要发挥空间想象力，建立三维图形，把立体运动分解到两个互相垂直的方向上分别研究，再按矢量合成回到空间关系。",
-   "boundaryMarkdown": "速度与磁场平行或垂直是螺旋线运动的退化情形：平行时没有圆周运动，垂直时螺距为零；速度必须沿磁场方向与垂直磁场方向分解，不能随意分解；螺距对应一个完整的圆周运动周期，半径、周期与螺距三者要配套使用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题12 磁场（知识清单）（全国通用）（学生版）.docx（块 9d4e47b803-022）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在立体空间中的运动",
      "role": "PRIMARY"
     }
    ]

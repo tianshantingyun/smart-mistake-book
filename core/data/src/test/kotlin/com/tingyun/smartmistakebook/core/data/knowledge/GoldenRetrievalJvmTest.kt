@@ -11,7 +11,7 @@ import java.io.File
 /**
  * **金标集 × 双路线的 JVM 测量台**（R3 评测同构，档 1 跑）。
  *
- * 题面来源 = 冻结金标集 `tools/kb_coverage/tables/golden_queries_v1.json`（sha256 封存，
+ * 题面来源 = 冻结金标集 `tools/kb_coverage/tables/golden_queries_v2.json`（sha256 封存，
  * 本测试每次运行都**对磁盘上的 .sha256 复核完整性**——题面被改过就红）。
  *
  * **测量台性质，不是守门人**：本测试**不断言任何质量阈值**（Recall/MRR 都不钉）——
@@ -51,7 +51,7 @@ class GoldenRetrievalJvmTest {
 
     @Test
     fun goldenSetScoresOnBothRoutesAndWritesMetrics() {
-        val goldenFile = locateGoldenFile() ?: error("找不到冻结金标集 tools/kb_coverage/tables/golden_queries_v1.json")
+        val goldenFile = locateGoldenFile() ?: error("找不到冻结金标集 tools/kb_coverage/tables/golden_queries_v2.json")
         val sealFile = File(goldenFile.parentFile, goldenFile.name + ".sha256")
         assertTrue("金标集缺少 .sha256 封存文件：$sealFile", sealFile.isFile)
         val expectedSha256 = sealFile.readText(Charsets.UTF_8).trim()
@@ -59,8 +59,10 @@ class GoldenRetrievalJvmTest {
         assertEquals("金标集 sha256 与封存值不符（题面被改过？）", expectedSha256, actualSha256)
 
         val cases = RetrievalBenchmark.loadGoldenCases(goldenFile)
-        assertTrue("金标集条数低于 D12 下限 80：${cases.size}", cases.size >= 80)
-        assertTrue("金标集条数超过 D12 上限 100：${cases.size}", cases.size <= 100)
+        // D12 的下限/上限是 v1 判官（90 条）时代的窗口 [80,100]；v2 判官 130 条 ⇒ 窗口随之上移，
+        // 口径改为"覆盖 130"（[120,140]），判据含义不变：挡住"题面被截断/被换小"。
+        assertTrue("金标集条数低于覆盖 130 的下沿 120：${cases.size}", cases.size >= 120)
+        assertTrue("金标集条数超过覆盖 130 的上沿 140：${cases.size}", cases.size <= 140)
 
         // 机械一致性：预期 slug 必须真实存在于同科原子节点里（防"题面指了个不存在的点"）。
         val missing = cases.filterNot { case ->

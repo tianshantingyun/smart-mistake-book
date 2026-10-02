@@ -1005,46 +1005,6 @@
    ]
   },
   {
-   "slug": "ext-phy-5ef2d09156-002",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "实重、视重与超失重的判断",
-   "summaryMarkdown": "实重由重力决定、与运动状态无关，视重是测力计示数；加速度向上为超重、向下为失重、等于 g 为完全失重。",
-   "applicabilityMarkdown": "电梯、台秤、测力计类问题中判断物体处于超重还是失重状态。",
-   "contentMarkdown": "**实重与视重**：实重是物体实际所受的重力，与物体的运动状态无关；视重是物体挂在弹簧测力计下或放在水平台秤上时，测力计或台秤的示数。\\n\\n**判断方法**\\n- 从受力的角度：物体所受向上的拉力（或支持力）大于重力时处于超重状态，小于重力时处于失重状态，等于零时处于完全失重状态；\\n- 从加速度的角度：物体具有向上的加速度（或向上的加速度分量）时处于超重状态，具有向下的加速度（或向下的加速度分量）时处于失重状态，向下的加速度等于重力加速度时处于完全失重状态。",
-   "boundaryMarkdown": "超重与失重时物体的重力并没有改变，改变的只是视重；判断依据是加速度的方向而不是速度的方向，向上减速运动同样处于失重状态；完全失重时一切由重力产生的现象（如天平称量）都会消失。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第08讲 牛顿运动定律的应用——瞬态、连接体、超失重、图像问题-（高效培优讲义）（学生版）.docx（块 5ef2d09156-002）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:超重",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-5ef2d09156-002b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "动力学连接体的定义与处理方法",
-   "summaryMarkdown": "多个相互关联的物体构成的系统称为连接体，一般（含弹簧的系统在稳定时）具有相同的速度与加速度。",
-   "applicabilityMarkdown": "处理多个物体一起运动的动力学问题，选择整体法或隔离法。",
-   "contentMarkdown": "**定义**：多个相互关联的物体，通过叠放、并排或由绳子、细杆、弹簧等联系在一起构成的物体系统，称为连接体。\\n\\n**运动特点**：连接体一般具有相同的运动情况（速度、加速度）；含弹簧的系统在稳定时也具有相同的运动情况。\\n\\n**处理方法**：若系统内各物体的加速度相同且不需要求内力，可以用整体法对系统列牛顿第二定律方程；若需要求物体之间的相互作用力，则在用整体法求出加速度后再隔离其中一个物体列式求解，即“先整体后隔离”。",
-   "boundaryMarkdown": "含弹簧的系统在弹簧仍在伸缩时各物体加速度不同，只有当系统稳定时才可按同一加速度处理；整体法列式时不能把系统内力计入合外力。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第08讲 牛顿运动定律的应用——瞬态、连接体、超失重、图像问题-（高效培优讲义）（学生版）.docx（块 5ef2d09156-002）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-5ef2d09156-002c",
    "subject": "PHYSICS",
    "type": "REPRESENTATION_GUIDE",
@@ -2140,26 +2100,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在磁场中的运动",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-0fa89d2980-006",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "有界磁场中运动的三种边界情形",
-   "summaryMarkdown": "直线边界进出磁场具有对称性，平行边界存在临界条件，圆形边界沿径向射入必沿径向射出。",
-   "applicabilityMarkdown": "带电粒子在有界匀强磁场中运动的作图与几何关系分析。",
-   "contentMarkdown": "带电粒子在有界磁场中运动时，轨迹只是完整圆周的一部分，画好示意图并找准几何关系是关键。常见的边界情形有三类：\\n\\n1. **直线边界**：粒子进出磁场具有对称性，入射方向与边界的夹角等于出射方向与边界的夹角，轨迹的弦与边界成等角关系。\\n2. **平行边界**：粒子在两条平行边界之间偏转，存在临界条件，例如轨迹恰好与某条边界相切、恰好从某条边界的端点射出，这些位置是确定半径范围的关键。\\n3. **圆形边界**：粒子沿半径方向射入圆形磁场区域时，出射方向必然也沿半径方向，这是圆形边界特有的对称性。\\n\\n分析这类问题的关键步骤是：画出运动轨迹、确定圆心和半径、利用洛伦兹力提供向心力列式。",
-   "boundaryMarkdown": "三种情形的对称性结论都以粒子只受洛伦兹力、磁场边界规则为前提；边界不规则或存在复合场时不能直接套用对称性，必须用几何关系重新确定圆心角与半径。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题20 磁场对运动电荷的作用（学生版）.docx（块 0fa89d2980-006）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在有界匀强磁场中的运动-临界条件",
      "role": "PRIMARY"
     }
    ]
@@ -5360,26 +5300,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点到直线的距离",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-0c3dcd79a1-002",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "点关于点的对称",
-   "summaryMarkdown": "点关于原点与关于任意点的对称坐标及中心对称问题的解法",
-   "applicabilityMarkdown": "求点关于某点的对称点坐标或由对称关系求参数",
-   "contentMarkdown": "点关于点的对称（中心对称）：\\n\\n1. 点 $(x，y)$ 关于原点 $(0，0)$ 的对称点为 $(-x，-y)$，即两个坐标同时变号。\\n2. 点 $(x，y)$ 关于点 $(a，b)$ 的对称点为 $(2a-x，2b-y)$。推导依据是中点坐标公式：对称中心是对称点与原点连线的中点，因此横坐标满足 $\\dfrac{x+x'}{2}=a$，纵坐标同理。\\n\\n求解策略：中心对称问题一律归结为中点坐标公式。若题目给出的是曲线或直线关于某点对称，只需把原方程中的 $x$、$y$ 分别用 $2a-x$、$2b-y$ 代替，整理后即得对称曲线的方程。\\n\\n记忆要点：关于点对称时，对称中心横坐标的二倍减去原横坐标、纵坐标同理，这个形式对原点这一特殊情形同样适用。",
-   "boundaryMarkdown": "对称中心必须是明确的定点；把曲线对称转化为坐标代换时要整体替换 $x$ 与 $y$，不能只替换其中一个；中心对称会同时改变横、纵坐标的符号或大小，与轴对称不同。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习举一反三专练（新高考专用）/资料/2026版/专题8.2 两条直线的位置关系（举一反三讲义）（全国通用）（学生版）.docx（块 0c3dcd79a1-002）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:关于点对称",
      "role": "PRIMARY"
     }
    ]
@@ -11625,46 +11545,6 @@
    ]
   },
   {
-   "slug": "ext-phy-4d4c5ba463-003",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "匀变速直线运动的v-t图像",
-   "summaryMarkdown": "匀速与匀变速直线运动v-t图像的形状以及斜率与面积的物理意义",
-   "applicabilityMarkdown": "由v-t图像求位移、加速度或判断运动性质的题目",
-   "contentMarkdown": "匀速直线运动的 $v-t$ 图像是与横轴平行的直线。由图像不仅可以求出速度的大小，而且可以求出位移大小，即图中画有斜线部分的面积。\\n\\n匀变速直线运动的 $v-t$ 图像是一条倾斜直线：直线斜率的大小等于加速度的大小，斜率越大则加速度越大，斜率越小则加速度越小；当初速度大于零时，若直线的斜率大于零表示加速运动，若直线的斜率小于零表示减速运动。",
-   "boundaryMarkdown": "$v-t$ 图像中图线与横轴围成的面积表示位移，横轴下方的面积表示反方向的位移；斜率表示加速度而不是速度；判断加速还是减速要看加速度方向与速度方向是否一致，不能只看斜率的正负。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026物理高考大一轮总复习讲义（全国）/资料/专题02运动图像、追及与相遇学生版.docx（块 4d4c5ba463-003）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:v-t图像（速度—时间图像）",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-4d4c5ba463-004",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "对v-t图像的进一步理解",
-   "summaryMarkdown": "图线形状、纵横轴截距、图线交点与横轴交叉各自的物理含义",
-   "applicabilityMarkdown": "由v-t图像判断运动性质、分析速度方向变化或比较速度的题目",
-   "contentMarkdown": "对匀变速直线运动的 $v-t$ 图像还要注意以下几点。\\n\\n（1）$v-t$ 图线是直线时，表示物体做匀变速直线运动（倾斜直线）或匀速直线运动（平行于时间轴的直线）；$v-t$ 图线是曲线，则表示物体做非匀变速直线运动。\\n\\n（2）图线过坐标原点表示物体做初速度为零的匀变速直线运动；图线在纵轴上的截距表示物体的初速度；图线在横轴上的截距表示物体在开始计时后过一段时间才开始运动。\\n\\n（3）两条 $v-t$ 图线相交，说明两物体在交点时刻的瞬时速度相等，交点的横坐标是两物体速度相等的时刻，纵坐标是速度相等时的速度值。\\n\\n（4）$v-t$ 图线与横轴交叉，表示物体运动的速度反向。",
-   "boundaryMarkdown": "不论 $v-t$ 图像形状如何（直线或曲线），反映的都是直线运动，因为坐标轴只有正负两个方向；两图线交点表示速度相等而不是两物体相遇；图线与横轴交叉时速度方向改变，但加速度方向不一定改变。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026物理高考大一轮总复习讲义（全国）/资料/专题02运动图像、追及与相遇学生版.docx（块 4d4c5ba463-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:v-t图像（速度—时间图像）",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-4d4c5ba463-004b",
    "subject": "PHYSICS",
    "type": "REPRESENTATION_GUIDE",
@@ -16520,26 +16400,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:切点弦问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-7549033f7a-004",
-   "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "圆的参数方程与直径式方程",
-   "summaryMarkdown": "圆除标准式与一般式外，还可用参数方程表示（便于三角换元），也可由直径两端点直接写出直径式方程。",
-   "applicabilityMarkdown": "需要三角换元求最值；已知直径两端点求圆的方程；在多种圆的方程形式中选择最便于计算的一种。",
-   "contentMarkdown": "参数方程：圆心为 $(a、b)$、半径为 $r$ 的圆可写成 $x=a+r\\cos\\theta$、$y=b+r\\sin\\theta$（$\\theta$ 为参数）。它的主要用途是三角换元，把圆上点的坐标代入含 $x$、$y$ 的代数式，化为关于 $\\theta$ 的三角函数式求最值。\\n直径式方程：若圆的直径端点为 $A$ 与 $B$，则圆的方程为 $(x-x_{1})(x-x_{2})+(y-y_{1})(y-y_{2})=0$，其中 $x_{1}$、$y_{1}$ 与 $x_{2}$、$y_{2}$ 分别是两端点的坐标。这一形式由“直径所对的圆周角为直角”得到，求过两定点的圆时可以直接使用。\\n弦长同样可写成 $2\\sqrt{r^{2}-d^{2}}$（$d$ 为弦心距）。",
-   "boundaryMarkdown": "参数方程中的 $\\theta$ 是圆心角参数，不是倾斜角；三角换元求最值时要注意圆上点的取值有两组符号，不能只取正号；直径式方程要求已知的两点恰是直径的两个端点，若只是圆上任意两点则不能套用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/专项复习/【2】2026年高考复习数学圆的方程讲义（思维导图+知识要点+解题测率+题型归纳+巩固提升）（新高考通用）/第04讲 直线和圆的解答题讲义（思维导图+知识要点+解题测率+题型归纳+巩固提升）（新高考通用）-学生版.docx（块 7549033f7a-004）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的方程",
      "role": "PRIMARY"
     }
    ]

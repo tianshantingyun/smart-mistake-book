@@ -42565,26 +42565,6 @@
    ]
   },
   {
-   "slug": "ext-che-6c2b1eeb5f-010",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "滴定曲线的pH突变",
-   "summaryMarkdown": "中和滴定过程中溶液pH的变化特点、滴定曲线上的突变与终点酸碱性判断。",
-   "applicabilityMarkdown": "滴定曲线图像分析与终点判断",
-   "contentMarkdown": "①在酸碱中和滴定过程中，开始时由于被滴定的酸（或碱）浓度较大，滴入少量的碱（或酸）对其pH的影响不大；②当滴定接近终点（pH＝7）时，滴入很少量（一滴，约0.04 mL）的碱（或酸）溶液就会引起pH的突变，曲线上表现为一段近乎垂直的线段；③酸碱恰好反应时溶液不一定呈中性，溶液的酸碱性取决于生成盐的性质，如强酸滴定弱碱时终点溶液呈酸性；④因此选择指示剂时其变色范围应尽量与滴定终点溶液的酸碱性一致；⑤为减小误差，滴定时要求重复实验2～3次，求出所用标准溶液体积的平均值，再计算待测液的物质的量浓度。",
-   "boundaryMarkdown": "易错：滴定终点≠恰好中和≠中性；突变范围决定指示剂的选择。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 水的电离和溶液的酸碱性（知识清单）（全国通用）（教师版）.docx（块 6c2b1eeb5f-010）",
-   "reviewedAtEpochMillis": 1789741889464,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:滴定曲线",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-6c2b1eeb5f-011",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",

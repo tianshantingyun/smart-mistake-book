@@ -64,8 +64,8 @@ OUT_RELATIVE = "build/stage3-device-expectation.json"
 # Stage-2 封存值（复现断言用；**不改**）
 STAGE2_BGE_DENSE_ONLY = dict(main=0.6444444444444445, chapterMin=0.3333333333333333, mrr=0.505)
 STAGE2_BGE_FUSED = dict(main=0.7444444444444445, chapterMin=0.3333333333333333, mrr=0.62)
-# 上面两个锚点是**在 Stage-2 那版语料（28,932 行 = 3,572 节点 + 25,360 别名）上测出来的记录**。
-# 2026-09-25 WP3（绑定修复 + 别名跟着绑定走）后语料变为 28,931 行；语料一变，这份"复现"在
+# 上面两个锚点是**在 Stage-2 那版旧口径语料（行数 = STAGE2_ANCHOR_ROWS）上测出来的记录**。
+# 2026-09-25 WP3（绑定修复 + 别名跟着绑定走）后语料口径又变；语料一变，这份"复现"在
 # 结构上就不再成立（旧向量行序与新布局对不上，硬跑只会得到错位的分数）。此时记 **N/A**，
 # 旧常数原样保留作历史锚点（不删不改）。
 STAGE2_ANCHOR_ROWS = 28932
@@ -212,10 +212,12 @@ def main():
     cases = D.goldens(root)
     vector_path = root.joinpath(*D.DENSE_DIR_RELATIVE.split("/")) / D.VECTOR_FILE_NAME
     header, docs = D.load_vector_file(vector_path)
-    if header["count"] != 28931:
-        raise SystemExit("向量资产行数应为 28,931，实测 %d" % header["count"])
+    # 行数随包走、**不写死**（2026-10-02 v2 口径修正：写死旧行数会在按当前包重打后误报）；
+    # "这份资产属于这一版包"由下面的 ids 逐条比对钉住。
+    if header["count"] != len(rows):
+        raise SystemExit("向量资产行数应为当前包布局的 %d 条，实测 %d" % (len(rows), header["count"]))
     ids = header["ids"]
-    # ids 块是**逐向量**的（28,931 条；同一节点的向量在矩阵里连续，id 逐行重复出现）
+    # ids 块是**逐向量**的（条数 = 当前包布局；同一节点的向量在矩阵里连续，id 逐行重复出现）
     # ——与打包侧（pack_dense_asset.py）同一约定。
     if ids != [row["node_id"] for row in rows]:
         raise SystemExit("向量资产 ids 与包布局不一致（资产过期？跑 pack_dense_asset.py）")
@@ -380,7 +382,7 @@ def main():
         denseAsset=dict(path=(D.DENSE_DIR_RELATIVE + "/" + D.VECTOR_FILE_NAME),
                         sha256=D.sha256_file(vector_path), count=header["count"], dim=header["dim"],
                         dtype="int8 + per-vector f32 scale（还原后再算余弦）"),
-        queryVectors="build/dense-model/int8-queries.npy（同一 int8 ONNX 对 90 条带前缀查询的输出）",
+        queryVectors="build/dense-model/int8-queries.npy（同一 int8 ONNX 对判官全量带前缀查询的输出；v2 = 130 条）",
         queryPrefix=profile["queryPrefix"],
         nodeScore="max over the node's vectors (canonicalName + aliases) cosine",
         perCase=dict(
@@ -411,12 +413,12 @@ def main():
     out_path = root.joinpath(*OUT_RELATIVE.split("/"))
     out_path.write_text(json.dumps(expectation, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("落盘：%s" % OUT_RELATIVE)
-    print("refFusedD1=%r（%d/90）逐章最小=%r MRR=%r"
-          % (fused_j.main, fused_j.hits, fused_j.chapter_min, fused_j.mrr))
-    print("refDenseD1=%r（%d/90）逐章最小=%r MRR=%r"
-          % (dense_j.main, dense_j.hits, dense_j.chapter_min, dense_j.mrr))
-    print("词面腿（生产 v1，D1 形）单独：%r（%d/90）逐章最小=%r MRR=%r"
-          % (lex_j.main, lex_j.hits, lex_j.chapter_min, lex_j.mrr))
+    print("refFusedD1=%r（%d/%d）逐章最小=%r MRR=%r"
+          % (fused_j.main, fused_j.hits, len(fused_j.ranks), fused_j.chapter_min, fused_j.mrr))
+    print("refDenseD1=%r（%d/%d）逐章最小=%r MRR=%r"
+          % (dense_j.main, dense_j.hits, len(dense_j.ranks), dense_j.chapter_min, dense_j.mrr))
+    print("词面腿（生产 v1，D1 形）单独：%r（%d/%d）逐章最小=%r MRR=%r"
+          % (lex_j.main, lex_j.hits, len(lex_j.ranks), lex_j.chapter_min, lex_j.mrr))
 
 
 if __name__ == "__main__":

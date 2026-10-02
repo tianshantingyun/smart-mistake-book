@@ -31,6 +31,36 @@ class InitialStateTest(unittest.TestCase):
     def test_deep_subject_keyword_found(self):
         self.assertEqual("MATH", es._subject("2026年新高考资料/一轮复习/2026体育单招数学讲义.docx"))
 
+    def test_topic_word_does_not_hijack_subject(self):
+        """考点词含别的科目词时按**目录**定科目，不能整串判 UNASSIGNED。
+
+        消灭的失败：`烃的衍生物`（含"生物"）、`降低化学反应活化能的酶`（含"化学"）这类
+        路径被旧规则判成 UNASSIGNED（实测池内 1,469 块），到 `materialize --write`
+        变成 `非四科块` 硬错误。
+        """
+        self.assertEqual("CHEMISTRY", es._subject(
+            "2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件/第九章 有机化学基础"
+            "/专题03 烃的衍生物（知识清单）（全国通用）（学生版）.docx"))
+        self.assertEqual("BIOLOGY", es._subject(
+            "2026年新高考资料(4)/一轮复习/【2】2026届高中生物学 一轮复习课件"
+            "/第8讲 降低化学反应活化能的酶 .pptx"))
+
+    def test_shallowest_subject_component_wins(self):
+        """物理文件里的 `数学归纳法` 不得把科目判成数学（deepest-match 会错）。"""
+        self.assertEqual("PHYSICS", es._subject(
+            "2026年新高考资料(1)/二轮复习/2026版物理二轮复习/2026版 大二轮 物理 （培优版）"
+            "/教师用书Word版文档/专题二 计算题培优练3 图像法或数学归纳法解决多次碰撞问题.docx"))
+
+    def test_subject_of_path_contract(self):
+        """`subject_of_path` 是**唯一口径**：三个下游工具（合并/去重命名/建点规划）都调它。
+
+        真不可判（全科卷）返回 None —— 下游据此报"学科未识别"而不是猜一个科目。
+        """
+        self.assertEqual("BIOLOGY", es.subject_of_path(
+            "2026年新高考资料(4)/一轮复习/【2】2026届高中生物学 一轮复习课件"
+            "/第8讲 降低化学反应活化能的酶 .pptx"))
+        self.assertIsNone(es.subject_of_path("全科卷/数学+物理合订.docx"))
+
 
 class TransitionTest(unittest.TestCase):
     def _table(self, tmp):

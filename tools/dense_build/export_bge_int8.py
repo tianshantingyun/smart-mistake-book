@@ -36,13 +36,13 @@ Stage-5 换件目标档 `bge-base-zh-v1.5` **未落地**（过不了 ≥0.999 �
 
 ## 断言（对拍门：cosine ≥ 0.999）
 
-1. **fp32 ONNX vs Python 参考（torch fp32）**：全量 28,931 文档 + 90 查询，逐行 cosine 最小
-   值必须 ≥ 0.999999（导出保真，不是量化质量）；
+1. **fp32 ONNX vs Python 参考（torch fp32）**：全量文档（条数 = 当前包布局的向量数，随包走）
+   + 判官全量查询（v2 = 130 条），逐行 cosine 最小值必须 ≥ 0.999999（导出保真，不是量化质量）；
 2. **int8 ONNX vs 同一份参考**：逐行 cosine 最小值必须 ≥ 0.999（**本阶段的对拍门**）；
-3. 若离线臂的 `bge-docs.npy` / `bge-queries.npy` 在位**且与本档同维**，再对一次（证明向量集
-   口径与行序与 Stage-2 离线臂逐条同一，不只是"自己跟自己一致"）；换档后维度不同 ⇒ 这一条
-   **不适用**（记 None + 原因，不当作通过），行序口径由 `pack_dense_asset.py` 的
-   ids==包布局 + `gen_device_parity_fixture.py` 的行对齐自检另行覆盖。
+3. 若离线臂的 `bge-docs.npy` / `bge-queries.npy` 在位**且与本档同维、同行数**，再对一次（证明向量集
+   口径与行序与 Stage-2 离线臂逐条同一，不只是"自己跟自己一致"）；换档后维度不同、或包口径有意
+   变更后行数不同（离线臂冻在旧语料）⇒ 这一条 **不适用**（记 None + 原因，不作为通过），
+   行序口径由 `pack_dense_asset.py` 的 ids==包布局 + `gen_device_parity_fixture.py` 的行对齐自检另行覆盖。
 
 用法（仓库根下）：
 ```
@@ -484,14 +484,19 @@ def main():
     torch.set_num_threads(args.threads)
     ort.set_default_logger_severity(3)
 
-    rows, _nodes, _groups = D.atomic_layout(root)
+    rows, nodes, _groups = D.atomic_layout(root)
     cases = D.goldens(root)
     surfaces = [row["surface"] for row in rows]
-    print("向量集：%d 条（canonical %d + alias %d），查询 %d 条"
+    print("向量集：%d 条（canonical %d + alias %d；包 %d 节点），查询 %d 条"
           % (len(surfaces), sum(1 for r in rows if r["kind"] == "canonical"),
-             sum(1 for r in rows if r["kind"] == "alias"), len(cases)))
-    if len(surfaces) != 28931:
-        raise SystemExit("向量集应为 28,931（3,572 节点 + 25,359 别名，2026-09-25 WP3 后），实测 %d" % len(surfaces))
+             sum(1 for r in rows if r["kind"] == "alias"), len(nodes), len(cases)))
+    # 条数随包走、**不写死**（2026-10-02 v2 口径修正：旧写死值会把"按当前包重导出"这一
+    # 正常动作变成硬故障）。这里保留一条结构检查：
+    # 向量条数必须等于布局自报的 canonical + alias 合计（别名没有被悄悄丢掉）。
+    expected_vectors = sum(1 + len(node["aliases"]) for node in nodes)
+    if len(surfaces) != expected_vectors:
+        raise SystemExit("向量集与包布局不一致：布局 %d 条，canonical+alias 合计 %d 条"
+                         % (len(surfaces), expected_vectors))
 
     # ---- 模型与 tokenizer（本地快照优先；缺了才去取） ----
     local_dir = resolve_snapshot(profile["repo"], profile["revision"])
@@ -732,13 +737,15 @@ def main():
               % (key, report[key]["docsCosineMin"], report[key]["docsCosineMean"],
                  report[key]["queriesCosineMin"]))
 
-    # ---- 4) 与离线臂 npy 的交叉对拍（同维才适用） ----
+    # ---- 4) 与离线臂 npy 的交叉对拍（同维、同行数才适用） ----
     # 比的是**产物本身**（int8 句向量）与 Stage-2 离线臂的 fp32 向量：这一条同时证明
     # "行序/文本构造与离线臂逐条同一"（布局或分词一旦不同，逐行 cosine 会立刻塌）与
     # "量化后仍与离线臂同向量集"。不是自己跟自己比。
-    # **换档后维度不同**（base 768 vs 离线臂 512）⇒ 这一条按构造不可能成立：如实记 None +
-    # 原因（不当作通过），行序口径改由打包侧的 ids==包布局 与设备对拍 fixture 的行对齐自检
-    # 覆盖。同维但行数不同仍是硬错（那是真的口径漂移，必须红）。
+    # **换档后维度不同**（base 768 vs 离线臂 512）、或**包口径变了**（离线臂冻结在旧包语料上，
+    # 行数 = 旧语料）⇒ 这一条按构造不可能成立：如实记 None + 原因（**不当作通过**），
+    # 行序口径改由打包侧的 ids==包布局 与设备对拍 fixture 的行对齐自检覆盖。
+    # 2026-10-02：包口径扩到当前规模后，离线臂（build/stage2-dense-work、冻在旧口径行数上）
+    # 同维但行数不同 —— 这属于"口径有意的变更"，不是漂移事故，故与换档同办。
     offline = root / "build" / "stage2-dense-work" / "vectors"
     shipped_docs = np.load(root.joinpath(*paths["int8Docs"].split("/")))
     shipped_queries = np.load(root.joinpath(*paths["int8Queries"].split("/")))
@@ -762,8 +769,14 @@ def main():
                   % (name, other.shape, mine.shape))
             continue
         if other.shape != mine.shape:
-            raise SystemExit("离线臂 %s 形状不符：%s vs %s（同维但行数不同 = 向量集口径已漂移）"
-                             % (name, other.shape, mine.shape))
+            # 行数不同 = 离线臂冻在旧语料口径上（它不是"另一份当前产物"，而是历史快照）。
+            # 按构造不可比 ⇒ 记 N/A + 原因，**不作为通过**（与换档那一条同一处置）。
+            cross[name] = None
+            cross_notes.append("%s 行数与本档不同（本档 %s vs 离线臂 %s）——离线臂冻结在旧语料口径，"
+                               "按构造不可比，记 N/A（不作为通过）" % (name, mine.shape, other.shape))
+            print("[交叉] 离线臂 %s 行数不同（%s vs %s）——**不适用**（不作为通过；离线臂冻在旧语料）"
+                  % (name, other.shape, mine.shape))
+            continue
         cross[name] = cosine_min(mine, other)
         print("[交叉] 产物 vs 离线臂 %s 逐行 cosine min=%.9f" % (name, cross[name]))
 
@@ -924,7 +937,8 @@ def main():
         raise SystemExit("对拍不过（见上）——按纪律不推；本档条目已记入 %s 的 modelEntries"
                          "（gate.passed=false），随包侧未做任何改动。" % D.MODEL_MANIFEST_RELATIVE)
     if not cross_ok:
-        raise SystemExit("与离线臂的交叉对拍不过——向量集口径可能漂移，按纪律不推")
+        raise SystemExit("与离线臂的交叉对拍不过（可比的臂上逐行 cosine 不足；N/A 的臂不算过）"
+                         "——按纪律不推")
 
 
 if __name__ == "__main__":

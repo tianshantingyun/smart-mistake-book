@@ -43,12 +43,15 @@ import org.junit.Test
  *
  * ## 断言（只断言"这份数据可信"，不断言质量阈值）
  *
- * 1. 金标 sha256 = 封存值（题面未被改过）+ 90 条 / 4 科 / 10 章 × 9 条；
+ * 1. 金标 sha256 = 封存值（题面未被改过）+ 130 条 / 4 科 / 20 章（判官 v2 口径；
+ *    **每章条数不等**（3/9/11/12 条不等），所以不再断言"每章条数一致"这种 v1 恒值）；
  * 2. 每行都指向本查询的**同科**节点、且在**可信状态过滤集**内（导出行不能绕过生产 WHERE）；
- * 3. **回读 TSV 重算生产 v1（D1 形 = matched 优先）**：主集 58/90（0.6444444444444445）、
- *    MRR 0.5637037037037038、逐章 10 值、逐题 MISS（集合 + rank，256 窗口）与
- *    `build/golden-jvm-metrics.txt` 的 `B-route-mirror` 段逐行相同——导出的分数就是生产
+ * 3. **回读 TSV 重算生产 v1（D1 形 = matched 优先）**：逐章 20 值、逐题 MISS（集合 + rank，256 窗口）
+ *    与 `build/golden-jvm-metrics.txt` 的 `B-route-mirror` 段逐行相同——导出的分数就是生产
  *    词面腿的分数，"设备期望值的词面输入 = 生产原样"因此可证。
+ *    主集/MRR 的**数值锚**已于 2026-10-02 按判官 v2 实测重钉（82/130 = 0.6307692307692307、
+ *    MRR = 0.5002564102564104；见下方 `V1_D1_MAIN` / `V1_D1_MRR` 常量处的说明与实测依据）。
+ *    旧锚（58 / 0.6444… / 0.5637…）是 v1 金标（90 条）+ 旧包（3,572 节点 / 27,794 别名）时代的值。
  *
  * 复算：`./gradlew.bat :core:data:testDebugUnitTest --tests "*ProductionLexicalLegExportTest*" --rerun`
  */
@@ -71,9 +74,8 @@ class ProductionLexicalLegExportTest {
         )
         assertEquals("金标 sha256 应等于 Stage-2 规格 §1.2 的封存值", FROZEN_GOLDEN_SHA256, goldenSha256)
         val cases = RetrievalBenchmark.loadGoldenCases(goldenFile)
-        assertEquals("冻结金标集条数应为 90", 90, cases.size)
-        assertEquals("冻结金标集章数应为 10（每章 9 条）", 10, cases.map { it.chapter }.distinct().size)
-        assertEquals("每章条数应一致", 9, cases.groupBy { it.chapter }.values.map { it.size }.distinct().single())
+        assertEquals("冻结金标集条数应为 130（判官 v2）", 130, cases.size)
+        assertEquals("冻结金标集章数应为 20（判官 v2；每章条数不等）", 20, cases.map { it.chapter }.distinct().size)
 
         val pack = BundledKnowledgePackResources.load().single { it.packId == PACK_ID }
         val mirror = RetrievalBenchmark.BRouteMirrorIndex(pack.nodes)
@@ -181,9 +183,16 @@ class ProductionLexicalLegExportTest {
                     " | rank=" + (if (probeRank > 0) probeRank.toString() else "absent")
             }
 
-        assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 58/90", 58, hits)
-        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.6444444444444445", V1_D1_MAIN, main, 0.0)
-        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.5637037037037038", V1_D1_MRR, mrr, 0.0)
+        // **数值锚：2026-10-02 按判官 v2 实测重钉。** 旧锚（58 / 0.6444444444444445 /
+        // 0.5637037037037038）是 v1 金标（90 条）+ 旧包（3,572 节点 / 27,794 别名）时代的判读数。
+        // 判官 v2（130 条 / 20 章，sha 89c1d5b5…）+ 当前随包（3,570 原子节点 + 398 topic = 3,968
+        // 节点 / 36,749 别名）下，本轮 gradle 门实测 + 本文件回读重算：主集 82/130 =
+        // 0.6307692307692307、MRR = 0.5002564102564104（与同轮 `build/golden-jvm-metrics.txt` 的
+        // `B-route-mirror` 段 `Recall@5(主集)=…`/`MRR=…` 逐位一致）。这是数据变化（判官扩集 +
+        // 换包）导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
+        assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 82/130（判官 v2 + 当前包实测）", 82, hits)
+        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.6307692307692307", V1_D1_MAIN, main, 0.0)
+        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.5002564102564104", V1_D1_MRR, mrr, 0.0)
 
         // ---- 与 build/golden-jvm-metrics.txt 的 B-route-mirror 段逐行对账（含逐题 MISS 集合与 rank） ----
         val metricsFile = File(repoRoot, "build/golden-jvm-metrics.txt")
@@ -191,11 +200,11 @@ class ProductionLexicalLegExportTest {
         val bSection = section(metricsFile.readText(Charsets.UTF_8), "== $B_ROUTE ==")
             ?: error("指标文件缺少 B 路线段 `== $B_ROUTE ==`：${metricsFile.path}")
         assertTrue(
-            "回读重算的主集行不在 golden-jvm-metrics.txt 的 B 段里：Recall@5(主集)=$main ($hits/90)",
+            "回读重算的主集行不在 golden-jvm-metrics.txt 的 B 段里：Recall@5(主集)=$main ($hits/${cases.size})",
             bSection.any { it.contains("Recall@5(主集)=$main") && it.contains("($hits/${cases.size})") },
         )
         val recordedChapterLines = bSection.filter { it.startsWith("  ") && it.contains(" = ") && it.contains("(MISS ") }
-        assertEquals("逐章行数应为 10", 10, chapterLines.size)
+        assertEquals("逐章行数应为 20（判官 v2）", 20, chapterLines.size)
         chapterLines.forEach { line ->
             assertTrue("回读重算的逐章行不在 B 段里：$line", recordedChapterLines.contains(line))
         }
@@ -258,10 +267,19 @@ class ProductionLexicalLegExportTest {
          */
         const val FROZEN_GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
 
-        /** 生产 v1（裸 B 路 limit=5、D1 形 = matched 优先）的判读数：`build/golden-jvm-metrics.txt` 的 B 段。 */
+        /**
+         * 生产 v1（裸 B 路 limit=5、D1 形 = matched 优先）的判读数：`build/golden-jvm-metrics.txt` 的 B 段。
+         *
+         * **口径**：v2 判官（130 条 / 20 章）+ 当前随包（3,866 原子节点 / 37,327 别名）。
+         * **2026-10-02 二次重钉**：建点闭环给包加了 296 个新点 / 578 个新别名（材料 50,383），
+         * 词面腿的候选与排序随之微变 → MRR 0.5002564102564104 → **0.4983333333333335**
+         * （主集命中 82/130 与 Recall@5 未变）；旧锚（58/90 = 0.6444444444444445 / 0.5637037037037038）
+         * 是 v1 金标 90 条 + 旧包 3,572/27,794 时代的判读数。
+         * 重钉的只是锚值，判据（容差 0.0、top-5、命中定义）与口径一律未动。
+         */
         const val B_ROUTE = "B-route-mirror(v1-bare-B5, matched-first)"
-        const val V1_D1_MAIN = 0.6444444444444445
-        const val V1_D1_MRR = 0.5637037037037038
+        const val V1_D1_MAIN = 0.6307692307692307
+        const val V1_D1_MRR = 0.4983333333333335
 
         /** 判分窗口（与生产 return 形态同口径：D1 形下前 5 名全在 matched 侧）。 */
         const val SCORED_TOP_K = 5

@@ -43185,26 +43185,6 @@
    ]
   },
   {
-   "slug": "ext-phy-9404c786bf-019",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "E-x图像的分析与应用",
-   "summaryMarkdown": "E-x图像的含义、面积与斜率对应的物理意义。",
-   "applicabilityMarkdown": "静电场图像问题的读图与求解",
-   "contentMarkdown": "①E-x图像反映电场强度随位移变化的规律，E＞0表示电场强度沿x轴正方向，E＜0表示电场强度沿x轴负方向。②给定E-x图像后，可由图线确定电场强度的变化情况与电势的变化情况；E-x图线与x轴所围图形的面积表示电势差，两点的电势高低根据电场方向判定。③在与粒子运动相结合的题目中，还可进一步确定粒子的电性、动能变化、电势能变化等情况。④这类题目还可以由E-x图像画出对应的电场，利用已知电场的电场线分布、等势面分布或场源电荷来处理相关问题。⑤同类的φ-x图像中，图线斜率的绝对值表示电场强度的大小，电场强度为零处图线存在极值，其切线斜率为零。",
-   "boundaryMarkdown": "E-x图像中图线与x轴围成的面积表示电势差而不是场强；面积有正负，需按电场方向判断电势的升降与高低。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题10 静电场（知识清单）（全国通用）（学生版）.docx（块 9404c786bf-019）",
-   "reviewedAtEpochMillis": 1789739846865,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:e-x图像",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-e0dafc554c-002",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
