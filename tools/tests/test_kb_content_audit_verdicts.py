@@ -16,8 +16,12 @@
 from __future__ import annotations
 
 import csv
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
+from kb_build import merge_content_audit_verdicts as mcv
 from kb_build.audit_content_bindings import COLUMNS, SLICE_PLAN, load_facts
 from kb_build.merge_content_audit_verdicts import (merge, read_slices, table_path,
                                                    verbatim_gap_rows)
@@ -33,6 +37,21 @@ RANDOM_ROWS = 40
 KNOWN_EVIDENCE_GAP = ("slice-02", "phys-hj2-li-fenjie-duojie-taolun")
 
 
+def require_slice_artifacts(directory: Path | None = None) -> None:
+    """WP2 裁定切片是 build/ 产物（`.gitignore:14` `**/build/`），干净检出上没有。
+
+    产物**完全缺席** ⇒ 显式 SkipTest（带理由），而不是把「复算 == 落盘表」这条断言
+    改写成永真；只要切片在场（哪怕不全），守卫一律放行，仍由原断言判完整性/一致性
+    ——所以 `-t tools` 的完整 discovery 在干净检出上跳过这两条，而部分切片会照常变红。
+    """
+    files = mcv.slice_files(directory)
+    if not files:
+        raise unittest.SkipTest(
+            "缺 WP2 裁定切片：%s 下没有任何 slice-NN.verdicts.csv（干净检出无 build/；"
+            "先跑 `PYTHONPATH=tools python -m kb_build.audit_content_bindings --slices` "
+            "再由 WP2 逐条裁定）" % (directory or mcv.slice_dir()))
+
+
 class ShippedTableTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -45,6 +64,7 @@ class ShippedTableTest(unittest.TestCase):
                            for row in reader]
 
     def test_slice_files_are_all_present(self):
+        require_slice_artifacts()
         self.assertEqual(["slice-%02d" % index for index in range(1, 9)],
                          [path.name.split(".")[0] for path in self.files],
                          "八个切片裁定文件要都在位")
@@ -54,6 +74,7 @@ class ShippedTableTest(unittest.TestCase):
                          "表头必须与切片文件/COLUMNS 逐字相同（不增列不减列）")
 
     def test_shipped_table_equals_recomputation(self):
+        require_slice_artifacts()
         self.assertEqual(self.merged, self.shipped,
                          "落盘表 != 8 个切片去重排序后的并（用 --write 重生成；表是唯一写者的产物）")
 
@@ -99,6 +120,39 @@ class ShippedTableTest(unittest.TestCase):
         self.assertIn(KNOWN_EVIDENCE_GAP, gaps,
                       "已登记的那条（slice-02 转述式引文）不见了——是修好了就删掉这条已知项")
         self.assertLessEqual(len(gaps), 1, "新的 REBIND 丢了材料原句：%s" % (gaps,))
+
+
+class SliceArtifactSkipTest(unittest.TestCase):
+    """证明 skip 分支可达：产物出席/缺席两条路径都被钉住（缺席 ⇒ skip，无断言被改弱）。"""
+
+    def test_absent_slices_raise_skip_with_reason(self):
+        with tempfile.TemporaryDirectory() as td:
+            with self.assertRaises(unittest.SkipTest) as caught:
+                require_slice_artifacts(Path(td))
+            self.assertIn("slice-NN.verdicts.csv", str(caught.exception))
+            self.assertIn("干净检出无 build/", str(caught.exception))
+
+    def test_present_slices_pass_the_guard(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "slice-01.verdicts.csv").write_text(
+                ",".join(COLUMNS) + "\n", encoding="utf-8")
+            require_slice_artifacts(Path(td))   # 不抛 = 守卫放行，原断言照跑
+
+    def test_shipped_table_case_skips_when_slices_absent(self):
+        """把两个走守卫的用例放到「切片缺席」条件下跑：必须 SkipTest（skip），不是断言红。
+
+        这是干净检出上 CI 走的那条分支——用 patch 把默认切片目录换到空临时目录，
+        证明 skip 是接线到用例上的，不只是个没人调用的守卫。
+        """
+        with tempfile.TemporaryDirectory() as td, \
+                mock.patch.object(mcv, "slice_dir", lambda: Path(td)):
+            ShippedTableTest.setUpClass()
+            for name in ("test_shipped_table_equals_recomputation",
+                         "test_slice_files_are_all_present"):
+                with self.subTest(case=name):
+                    case = ShippedTableTest(name)
+                    with self.assertRaises(unittest.SkipTest):
+                        getattr(case, name)()
 
 
 if __name__ == "__main__":

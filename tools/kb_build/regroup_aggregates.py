@@ -31,7 +31,6 @@ from pathlib import Path
 from kb_build import gen_chapter_table, pack_io
 
 TABLES = pack_io.REPO / "tools" / "kb_build" / "tables"
-STAGING = pack_io.REPO / "build" / "kb-staging"
 
 M_B1 = "数学必修第一册"
 M_B2 = "数学必修第二册"
@@ -271,9 +270,11 @@ _assign("PHYSICS", P_X2, "第一章 安培力与洛伦兹力", [
 
 def _staged_nodes() -> dict[tuple[str, str], tuple[str, str, str, str]]:
     """(科目, slug) → (册, 章, 主题, 来源单元) —— 用重建后的树认，不用原包的旧层级。"""
-    path = STAGING / pack_io.PACK_NAME
+    path = pack_io.work_dir() / pack_io.PACK_NAME
     if not path.exists():
-        raise SystemExit(f"缺少 {path}；先跑 PYTHONPATH=tools python -m kb_build.build --write")
+        raise SystemExit(
+            f"缺少 {path}：work_dir()（默认 build/kb-staging，缺包时从成品目录种子）里没有知识包"
+            f"——检出可能不完整。不要跑 kb_build.build：它已停用，且会用历史拓扑整体重写 staging。")
     pack = json.loads(path.read_text(encoding="utf-8"))
     found: dict[tuple[str, str], tuple[str, str, str, str]] = {}
     for subject in pack["subjects"]:

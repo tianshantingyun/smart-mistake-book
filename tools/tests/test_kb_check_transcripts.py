@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import io
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -19,6 +20,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 
 from kb_coverage import check_transcripts as ct  # noqa: E402
 from kb_coverage import transcription_ledger as tl  # noqa: E402
+
+
+def require_real_manifest(manifest: Path | None = None) -> None:
+    """真实产物用例的守卫（口径同 `test_kb_transcription_ledger.require_real_artifacts`）。
+
+    `build/2027-53-pages/manifest_slim.json` 是 build/ 产物（不入版本控制），
+    干净检出上缺席：显式 skip + 理由，而不是让 `tl.load_manifest()` 抛 SystemExit
+    把整条 CI 变红。产物在场 ⇒ 放行，原断言照跑。
+    """
+    manifest = Path(manifest) if manifest is not None else tl.MANIFEST
+    if not manifest.is_file():
+        raise unittest.SkipTest(
+            "缺真实产物（干净检出无 build/，见 .gitignore:14）：%s"
+            "（页清单，先跑 scan_render_pages.py 重建）" % manifest)
 
 
 def _row(subject="数学", page=1, **kw):
@@ -109,6 +124,7 @@ class CheckTranscriptsTest(unittest.TestCase):
 
 class RealArtifactTest(unittest.TestCase):
     def test_gate_runs_and_reports_the_real_ledger_size(self):
+        require_real_manifest()
         buf = io.StringIO()
         with redirect_stdout(buf):
             rc = ct.main([])
@@ -117,6 +133,33 @@ class RealArtifactTest(unittest.TestCase):
         self.assertIn(rc, (0, 1))
         self.assertIn(f"页数 {len(rows)}", out)
         self.assertIn("闸门：", out)
+
+
+class RealArtifactSkipTest(unittest.TestCase):
+    """证明 skip 分支可达：manifest 缺席 ⇒ skip；patch 到空路径后用例自己走 skip。"""
+
+    def test_absent_manifest_raises_skip_with_reason(self):
+        with tempfile.TemporaryDirectory() as td:
+            absent = Path(td) / "manifest_slim.json"
+            with self.assertRaises(unittest.SkipTest) as caught:
+                require_real_manifest(absent)
+            self.assertIn("manifest_slim.json", str(caught.exception))
+            self.assertIn("干净检出无 build/", str(caught.exception))
+
+    def test_present_manifest_passes_the_guard(self):
+        with tempfile.TemporaryDirectory() as td:
+            manifest = Path(td) / "manifest_slim.json"
+            manifest.write_text('{"subjects": []}', encoding="utf-8")
+            require_real_manifest(manifest)     # 不抛 = 守卫放行
+
+    def test_gate_case_turns_into_skip_when_manifest_absent(self):
+        """把真实用例在「manifest 缺席」条件下跑：必须 SkipTest，不是 SystemExit/ERROR。"""
+        case = RealArtifactTest("test_gate_runs_and_reports_the_real_ledger_size")
+        with tempfile.TemporaryDirectory() as td:
+            absent = Path(td) / "manifest_slim.json"
+            with mock.patch.object(tl, "MANIFEST", absent):
+                with self.assertRaises(unittest.SkipTest):
+                    case.test_gate_runs_and_reports_the_real_ledger_size()
 
 
 if __name__ == "__main__":

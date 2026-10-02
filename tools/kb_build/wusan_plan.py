@@ -28,7 +28,6 @@ from pathlib import Path
 from kb_build import pack_io, wusan_route
 
 OUT_NAME = "wusan_plan.csv"
-STAGING = pack_io.REPO / "build" / "kb-staging"
 
 
 class Chapter:
@@ -58,14 +57,19 @@ class Chapter:
 
 def _pack_rows() -> tuple[dict[tuple[str, str, str], int],
                           dict[tuple[str, str, str], int], dict[str, str]]:
-    """返回 (章→节点数, 章→有材料的节点数, 节点id→章key)。"""
-    pack_path = STAGING / pack_io.PACK_NAME
+    """返回 (章→节点数, 章→有材料的节点数, 包)。"""
+    pack_path = pack_io.work_dir() / pack_io.PACK_NAME
     if not pack_path.exists():
-        raise SystemExit(f"缺少 {pack_path}；先跑 PYTHONPATH=tools python -m kb_build.build --write")
+        raise SystemExit(
+            f"缺少 {pack_path}：work_dir()（默认 build/kb-staging，缺包时从成品目录种子）里没有"
+            f"知识包——检出可能不完整。不要跑 kb_build.build：它已停用，且会用历史拓扑整体重写 staging。")
     pack = json.loads(pack_path.read_text(encoding="utf-8"))
 
     bound: set[str] = set()
-    for path in sorted(STAGING.glob("moe-2025-teaching-support-v2-*.json")):
+    # 卷清单走 pack_io.sidecar_paths()（索引驱动，Kotlin loader 读同一份索引）。不要用
+    # STAGING.glob("moe-2025-teaching-support-v2-*.json")：它会命中卷索引
+    # moe-2025-teaching-support-v2-index.json（没有 materials 键）而 KeyError。
+    for path in pack_io.sidecar_paths():
         doc = json.loads(path.read_text(encoding="utf-8"))
         for material in doc["materials"]:
             for binding in material.get("bindings") or []:

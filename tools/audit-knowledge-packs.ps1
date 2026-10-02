@@ -76,7 +76,7 @@ $knowledgeDocuments = @(
         ForEach-Object {
             [pscustomobject]@{
                 file = $_
-                raw = Get-Content -Raw -LiteralPath $_.FullName | ConvertFrom-Json
+                raw = Get-Content -Raw -Encoding UTF8 -LiteralPath $_.FullName | ConvertFrom-Json
             }
         }
 )

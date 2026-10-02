@@ -178,4 +178,34 @@ class TutorToolPromptInjectionTest {
         assertFalse(prompt.contains("MASTERY_UPDATE"))
         assertFalse("无 T6 声明不应教 direction 语义字段", prompt.contains("\"direction\":\"POSITIVE\""))
     }
+
+    @Test
+    fun lobbyPromptForbidsSubjectScopedReadsBecauseTheLobbyHasNoSubject() {
+        // 批次 0 止血行：大厅没有科目上下文，KNOWLEDGE_READ / MASTERY_READ 现在申请
+        // 只会拿到空范围、白烧一轮工具预算——一行约束把这轮注定空转的申请挡在模型侧。
+        val prompt = OpenAiModelTaskAdapters.prompt(
+            lobby(
+                toolDeclarations = listOf(
+                    TutorToolName.KNOWLEDGE_READ,
+                    TutorToolName.NOTEBOOK_READ,
+                    TutorToolName.MASTERY_READ,
+                ),
+            ),
+        )
+        assertTrue("止血行必须进大厅提示词: $prompt", prompt.contains("本轮没有科目上下文"))
+        assertTrue(
+            "必须点名这两个工具: $prompt",
+            prompt.contains("不要申请 KNOWLEDGE_READ / MASTERY_READ"),
+        )
+    }
+
+    @Test
+    fun lobbyPromptDoesNotWarnAboutSubjectScopedReadsItDidNotDeclare() {
+        // 与写工具判定同一纪律：提示词不得提到本轮未声明的工具——止血行只在声明含
+        // 科目范围工具时渲染（NOTEBOOK_READ 描述里提到 MASTERY_READ 是既有文案，不在此列）。
+        val prompt = OpenAiModelTaskAdapters.prompt(
+            lobby(toolDeclarations = listOf(TutorToolName.NOTEBOOK_READ)),
+        )
+        assertFalse("未声明时不渲染止血行: $prompt", prompt.contains("本轮没有科目上下文"))
+    }
 }

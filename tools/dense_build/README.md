@@ -8,6 +8,17 @@
 §8.6 是写死的落地判据与当前状态。**Stage-5（换 `bge-base-zh-v1.5`）的全阶段证据、换件清单、
 延迟硬线状态、回退复核与 UNVERIFIED 在 `docs/kb-stage5-report-2026-09-25.md`。**
 
+> **2026-10-02 复核注记（向量条数与 parity fixture）**：下文出现的**向量条数**（40,319 /
+> 3,570 节点 + 36,749 别名）是 2026-10-01/02 重打轮的口径；**2026-10-02 实测现值为
+> 41,193 = 3,866 节点 + 37,327 别名**（`python tools/dense_build/check_asset.py` → 10/10 OK、
+> `count=41193`；旁车 `atomicNodes 3866 / aliasVectors 37327 / vectorCount 41193`；`.vec`
+> sha256 前 16 位 `8649afa62ce968c3`）。**n=290** 是 v1 parity fixture（query 90 + surface 200）
+> 读数；现 fixture `core/data/src/androidTest/assets/dense/encoder-parity.json` 实测
+> **count=330（query 130 + surface 200）**。n=330 下的**宿主**对拍未重测（UNVERIFIED）；
+> 真机（模拟器）侧 2026-10-02 有 n=330 读数 min 0.99955 / p95 0.99985
+> （引 `build/agent-outstanding/group-5.md:140-144`，本会话未复跑）。下文按当时口径写的段落
+> 保留原样、以本注记为准。
+
 ## 1. 流水线（按顺序跑，全部在仓库根下）
 
 ```bash
@@ -17,7 +28,8 @@
 # ② 模型：bge-small-zh-v1.5 → ONNX fp32 → int8（自转），并做对拍
 python tools/dense_build/export_bge_int8.py
 
-# ③ 向量资产：当前包布局的全部句向量（3,570 节点 + 36,749 别名 = 40,319 条）→ int8 每向量 scale → .vec + 旁车
+# ③ 向量资产：当前包布局的全部句向量（3,866 节点 + 37,327 别名 = 41,193 条，2026-10-02 实测；
+#    旧口径 3,570/36,749/40,319）→ int8 每向量 scale → .vec + 旁车
 python tools/dense_build/pack_dense_asset.py
 
 # ④ 参考数：生产词面腿 + int8 稠密腿 → D1 形态的设备期望值
@@ -41,7 +53,7 @@ python -m unittest discover -s tools/tests -t tools -p "test_dense_asset_gate.py
 | `check_asset.py` | **陈旧性门**（旁车哈希 == 当前包 + 词表 + `.vec`；ids == 当前包布局） | ✅ |
 | `model-manifest.json` | 模型的坐标/哈希/两条路线的实测 cosine/对拍门结论 | ✅ |
 | `vocab/bge-small-zh-v1.5-{vocab.txt,tokenizer.json}` | 词表冻结副本（端侧 tokenizer 必须与它逐条同结果） | ✅ |
-| `core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec` | 随包分发的向量资产（40,319×512 int8；条数随包走） | ✅ |
+| `core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec` | 随包分发的向量资产（41,193×512 int8，2026-10-02 实测；条数随包走） | ✅ |
 | `core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec.json` | 旁车（溯源 + 哈希 + 量化实测） | ✅ |
 | `build/dense-model/*.onnx` | fp32 / int8 模型件（可由 ② 从钉住的 revision 重生成） | ❌ `build/` |
 | `build/production-lexical-leg.tsv` | 生产词面腿（含 sha 记进旁车） | ❌ `build/` |
@@ -103,7 +115,7 @@ python -m unittest discover -s tools/tests -t tools -p "test_dense_asset_gate.py
 0      4                 magic = b"SMBV"
 4      4                 uint32 version        = 1
 8      4                 uint32 dim            = 512
-12     4                 uint32 count          = 40319（随包变：当前包 3,570 节点 + 36,749 别名）
+12     4                 uint32 count          = 41193（随包变：2026-10-02 当前包 3,866 节点 + 37,327 别名）
 16     4                 uint32 dtype          = 1（INT8_PER_VECTOR_F32_SCALE）
 20     4                 uint32 idsBytesLength
 24     idsBytesLength    ids 块：count × (uint32 utf8Len + utf8 bytes)，逐向量
@@ -132,7 +144,8 @@ python -m unittest discover -s tools/tests -t tools -p "test_dense_asset_gate.py
 | `refDenseD1`（纯 int8 稠密腿） | **0.6923（90/130）** | 0.0 | 0.5173 |
 | 参照：生产词面腿单独（v1，D1 形） | 0.6308（82/130） | 0.0 | 0.5003 |
 
-> 上表 = **2026-10-02 v2 口径实测**（判官 130 条 + 包 3,570 节点 / 40,319 向量，
+> 上表 = **2026-10-02 v2 口径实测**（判官 130 条 + 包 3,570 节点 / 40,319 向量——**当时口径**；
+> 2026-10-02 复核现值 3,866 节点 / 41,193 向量，见文首注记；
 > `build/stage3-device-expectation.json`）。旧行（v1 口径：金标 90 条 + 旧包 3,572/28,931）为
 > 0.7333（66/90）/0.3333/0.6035、0.6667（60/90）/0.3333/0.5057、0.6444（58/90）/0.2222/0.5637
 > ——**两套数的题面与语料都不同，不可直接相减**。下面各条bullet里的数字若无特别说明，均为 v1 口径历史记录。
@@ -142,7 +155,7 @@ python -m unittest discover -s tools/tests -t tools -p "test_dense_asset_gate.py
   本阶段的参考数用**生产那条腿**，否则"设备期望值"对的是另一个检索器。
 - **口径自证（v1 口径历史）**：本目录的判分器用 Stage-2 的 FTS5 腿 + fp32 向量跑同一套判分，**逐位复现**
   Stage-2 的 `D-only-bge` 0.6444（58/90）/MRR 0.505 与 `D-fuse-a0.5-bge` 0.7444（67/90）/MRR 0.62
-  ⇒ 它不是"另一套判分"。语义扩集（包 40,319 行）后这条自证记 **N/A**（Stage-2 冻结锚点不可复现，
+  ⇒ 它不是"另一套判分"。语义扩集（包 40,319 行，当时口径；2026-10-02 现值 41,193 行）后这条自证记 **N/A**（Stage-2 冻结锚点不可复现，
   见 `stage3_expectation.py` 的 `selfCheck.stage2Reproduction`；**未运行 ≠ 已通过**）。
 - **int8 对端到端指标的影响（v1 口径历史）**：同一条生产词面腿、把稠密腿换回 fp32，融合主集同为 0.7333（66/90）
   ⇒ 这套 int8 量化**不改变主集命中数**（MRR 0.6044 → 0.6035 的差来自并列处的名次微动）。
@@ -201,7 +214,7 @@ build/tflite-venv/Scripts/python.exe tools/dense_build/freeze_onnx_static.py \
 | 层 | 命令 / 测试 | 结果 |
 |---|---|---|
 | 宿主 tflite vs int8 ONNX（290 条 fixture 文本） | `build/tflite-work/check_tflite_parity.py` | min 0.99965 / median 0.99979 |
-| 真机（API 34 x86_64）逐条编码 vs 冻结参考向量 | `DenseEncoderParityInstrumentedTest`（androidTest assets 里带 fixture 与 sha256 封存） | n=290 **min 0.99963 / median 0.99978 / p95 0.99984**；query 90 条 min 0.99973、surface 200 条 min 0.99963 —— 全过 |
+| 真机（API 34 x86_64）逐条编码 vs 冻结参考向量 | `DenseEncoderParityInstrumentedTest`（androidTest assets 里带 fixture 与 sha256 封存） | n=290（v1 fixture；现 fixture count=330，见文首注记）**min 0.99963 / median 0.99978 / p95 0.99984**；query 90 条 min 0.99973、surface 200 条 min 0.99963 —— 全过 |
 | 单条编码耗时（XNNPACK 开，模拟器） | 同上 | p50 71ms / p95 76ms / max 91ms |
 | 首次用到才付的一次性开销 | `DenseFirstUseCostInstrumentedTest` | openEncoder 34ms；firstOrder 391ms；secondOrder（稳态）93ms |
 

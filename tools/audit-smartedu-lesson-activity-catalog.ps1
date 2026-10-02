@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$CatalogRoot,
@@ -29,7 +29,7 @@ if ($partFiles.Count -eq 0) {
     throw "SmartEdu lesson-activity catalog parts are missing under: $CatalogRoot"
 }
 
-$version = Get-Content -LiteralPath $versionPath -Raw | ConvertFrom-Json
+$version = Get-Content -LiteralPath $versionPath -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($version.module -ne 'lesson_activity') {
     throw 'SmartEdu lesson-activity catalog module must be lesson_activity'
 }
@@ -87,7 +87,13 @@ function ConvertFrom-LessonActivityPart {
 
     $jsonStart = $start + $prefix.Length - 1
     $json = $raw.Substring($jsonStart, $end - $jsonStart + 1)
-    return @($json | ConvertFrom-Json)
+    # 同 textbook 脚本：5.1 与 7 的 ConvertFrom-Json 顶层数组口径不同，
+    # 统一成「取值 + @() 归一」，否则 5.1 下 $part[0] 是整段数组、取属性直接报错。
+    $parsed = $json | ConvertFrom-Json
+    if ($null -eq $parsed) {
+        return @()
+    }
+    return @($parsed)
 }
 
 $activities = [System.Collections.Generic.List[object]]::new()

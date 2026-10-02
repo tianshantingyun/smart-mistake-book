@@ -29,7 +29,6 @@ from kb_build import harvest_points, pack_io
 
 OUT_RESOLVED = "wusan_resolved.csv"
 OUT_UNRESOLVED = "wusan_unresolved.csv"
-STAGING = pack_io.REPO / "build" / "kb-staging"
 
 # 下标/上标数字与常见符号 -> ASCII。覆盖化学式与数学记法里实际出现过的写法。
 _SUB = str.maketrans("₀₁₂₃₄₅₆₇₈₉₊₋", "0123456789+-")
@@ -63,9 +62,11 @@ def normalize(name: str) -> str:
 
 def load_staged_nodes() -> tuple[dict[str, dict], dict[str, list[dict]]]:
     """返回 (规范化名 -> 节点, 科目 -> 该科全部节点)。节点集为修复后的 staging。"""
-    path = STAGING / pack_io.PACK_NAME
+    path = pack_io.work_dir() / pack_io.PACK_NAME
     if not path.exists():
-        raise SystemExit(f"缺少 {path}；先跑 PYTHONPATH=tools python -m kb_build.build --write")
+        raise SystemExit(
+            f"缺少 {path}：work_dir()（默认 build/kb-staging，缺包时从成品目录种子）里没有知识包"
+            f"——检出可能不完整。不要跑 kb_build.build：它已停用，且会用历史拓扑整体重写 staging。")
     pack = json.loads(path.read_text(encoding="utf-8"))
     by_key: dict[str, dict] = {}
     by_subject: dict[str, list[dict]] = defaultdict(list)

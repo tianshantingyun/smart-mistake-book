@@ -11,8 +11,9 @@ office_extract 只产出"块"，块不是知识包的一部分：不判定、不
 
     chunk_rel,chunk_id,action,node_slug,type,title,summary,applicability,content,boundary,note
 
-- action=MATERIAL：node_slug 必须存在于成品包；type 是 7 种枚举之一；
-  title/summary/content 是判定者改写后的形态（REVIEWED_SYNTHESIS 纪律）。
+- action=MATERIAL：node_slug 必须存在于成品包；type 是 3 种枚举之一（协议 v1.1，
+  与 merge_text_judgments 的 TYPES 逐字一致）；title/summary/content 是判定者改写后的形态
+  （REVIEWED_SYNTHESIS 纪律）。
 - action=SKIP：判定为不入库（题干残渣/重复/超纲），note 记理由。
 - 一行 = 一个块；幂等：chunk 已在表中且已 EXTRACTED 的不再处理。
 
@@ -47,8 +48,8 @@ JUDGMENTS = Path(__file__).resolve().parent / "tables" / "material_judgments.csv
 COLUMNS = ("chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
            "summary", "applicability", "content", "boundary", "note", "midx")
 ROLES = ("PRIMARY",)
-TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "WORKED_EXAMPLE",
-         "COMPLETE_SOLUTION", "DERIVATION", "MISCONCEPTION_GUIDE", "REPRESENTATION_GUIDE"}
+# 协议 v1.1：type 白名单收紧到 3 值（此前 7 值是冻结规则前的历史口径）。
+TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "MISCONCEPTION_GUIDE"}
 SAFE_SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 ROLL_AT_CHARS = 2_500_000
 
@@ -146,7 +147,7 @@ def plan(judgments: list[dict]) -> dict:
             errors.append(f"非四科块: {subject}（{key}）")
             continue
         if r["type"] not in TYPES:
-            errors.append(f"非法 type {r['type']}（{key}）")
+            errors.append(f"非法 type {r['type']}（{key}；只许 {'/'.join(sorted(TYPES))}）")
             continue
         if r["node_slug"] not in nodes[subject]:
             errors.append(f"节点不存在: {subject}/{r['node_slug']}（{key}）")

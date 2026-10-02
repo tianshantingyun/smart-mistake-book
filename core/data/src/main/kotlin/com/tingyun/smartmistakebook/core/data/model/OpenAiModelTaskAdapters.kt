@@ -414,7 +414,26 @@ internal object OpenAiModelTaskAdapters {
             ${lobbyConversationBlock(input)}
         """.trimIndent() +
         toolLoopPromptSuffix(input.toolDeclarations, input.toolRoundResults, emptyList()) +
+        lobbySubjectScopeNote(input.toolDeclarations) +
         localActionOutcomeBlock(input.localActionOutcomes)
+
+    /**
+     * 大厅止血行（批次 0 条目 5b）：大厅轮**没有科目上下文**（[TutorLobbyInput] 没有科目字段），
+     * 而 `KNOWLEDGE_READ` / `MASTERY_READ` 都以科目为范围——现在申请只会拿到「本轮无可读范围」，
+     * 白烧一轮工具环预算（上限 5 轮）。一行最小约束，把这轮注定空转的申请挡在模型侧。
+     *
+     * 只在声明里真的含这两个工具时渲染：提示词不得提到本轮未声明的工具（与写工具判定同一纪律）。
+     * 空内容返回空串（空载体不进提示词）。
+     */
+    private fun lobbySubjectScopeNote(declarations: List<TutorToolName>): String {
+        val subjectScoped = declarations.filter { tool ->
+            tool == TutorToolName.KNOWLEDGE_READ || tool == TutorToolName.MASTERY_READ
+        }
+        if (subjectScoped.isEmpty()) return ""
+        return "\n本轮没有科目上下文：不要申请 " +
+            subjectScoped.joinToString(" / ") { tool -> tool.name } +
+            "；它们需要科目范围，现在申请只会拿到空结果。"
+    }
 
 /**
  * **本地动作**在 Route B 里的广告（D-K2e 白名单第一版 / §3.2）：与 Route A 的严格 function

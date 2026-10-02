@@ -19,5 +19,5 @@
 写盘拓扑（2026-09-22 单一晋升路径）：所有手术工具默认读写 build/kb-staging/
 （staging，不存在时从成品复制基线）；**唯一**能把内容写进
 core/data/src/main/resources/knowledge/ 的是 `kb_build.promote`
-（22 门 + 表↔包一致性 + roundtrip 全绿才落盘，并原子刷新内容戳与单调 version）。
+（23 门 + 表↔包一致性 + roundtrip 全绿才落盘，并原子刷新内容戳与单调 version）。
 """

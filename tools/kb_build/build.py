@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """按权威表生成新知识包。默认只写 staging，不覆盖成品。
 
+⚠ **本生成器整体停用**（见文末）：它不是成品的生成器，只是历史拓扑。`--write` 一旦执行，
+会把 staging 的包与**全部材料卷**按这套历史拓扑整体重写，可能覆盖其他手术工具（五张权威
+动作表 + 逐项手术工具）在 staging 上的成果——因此**默认拒绝落盘**：必须同时显式给出
+`--i-know-this-rewrites-staging` 才会写。只想看差异时不要加 `--write`。
+
 稳字优先的设计：
 - 输出到 build/kb-staging/；写成品目录 core/data/src/main/resources/knowledge/
-  的唯一通道是 kb_build.promote（22 门 + 表↔包一致性 + roundtrip 全绿才落盘）。
+  的唯一通道是 kb_build.promote（23 门 + 表↔包一致性 + roundtrip 全绿才落盘）。
   成品包被 App 启动时按"逐字段相等"校验，写坏会让老安装直接启动失败，所以不允许误覆盖。
 - 生成前先验不变量（见 check_invariants），任何一条不过就拒绝生成。
 - 生成后再验一遍，并打印与现行成品的差异摘要。
@@ -634,7 +639,15 @@ def summarize(builder: Builder, stats: dict) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="真的落盘（只写 staging）")
+    parser.add_argument("--i-know-this-rewrites-staging", action="store_true",
+                        help="确认：允许用本生成器的历史拓扑整体重写 staging（危险，见模块说明）")
     args = parser.parse_args(argv)
+
+    if args.write and not args.i_know_this_rewrites_staging:
+        print("拒绝落盘：--write 会把 staging 的包与全部材料卷按本生成器的历史拓扑整体重写，"
+              "可能覆盖其他手术工具在 staging 上的成果（本生成器已整体停用）。")
+        print("确要重写请显式加 --i-know-this-rewrites-staging；只看差异不要加 --write。")
+        return 2
 
     builder = Builder()
     try:
@@ -655,7 +668,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.write:
         print()
-        print("（dry-run，未落盘。加 --write 写 staging；晋升走 kb_build.promote）")
+        print("（dry-run，未落盘。落盘需同时加 --write 与 --i-know-this-rewrites-staging；"
+              "晋升走 kb_build.promote）")
         return 0
 
     written = builder.write()

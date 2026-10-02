@@ -47,8 +47,10 @@ object ModelPromptPolicyVersions {
      * v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。
      * v10（A4）：允许申请 OFFER_SAVE_CURRENT_QUESTION（本地渲染确认卡、学生点了才执行），
      * 并回喂上一轮确认卡的裁决结果。v9 及更早的轮次没有这两段文本。
+     * v11（批次 0 条目 5b）：大厅提示词加止血行——本轮没有科目上下文时不要申请
+     * KNOWLEDGE_READ / MASTERY_READ（没有科目范围，只会拿到空结果）。v10 及更早的轮次没有这段文本。
      */
-    const val TUTOR_LOBBY = "tutor-lobby-v10-local-action-confirmation"
+    const val TUTOR_LOBBY = "tutor-lobby-v11-subject-scope-reads-forbidden"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"

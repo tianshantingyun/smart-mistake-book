@@ -5,7 +5,7 @@
 写进 `core/data/src/main/resources/knowledge/` 的是本模块。晋升 = 一次原子决策：
 
     读 staging（包家族 + 台账）
-    → 22 道内容门（gate.evaluate）
+    → 23 道内容门（gate.evaluate）
     → 契约镜像 + 五张权威表↔包一致性（check_pack_contract）
     → round-trip（包家族全部文件可规范重放）
     → 台账 schema 2 压平 + 一跳到底 + 单调 version
@@ -51,7 +51,7 @@ def run_checks(root: Path, release: Path) -> dict:
         pack = pack_io.load_json(root / pack_io.PACK_NAME)
         result: dict = {"root": str(root), "sections": {}}
 
-        # 1) 22 道内容门（读 root）
+        # 1) 23 道内容门（读 root）
         metrics = gate.evaluate()
         result["sections"]["gates"] = {
             "ok": all(m.ok for m in metrics),

@@ -11,12 +11,34 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 
 from kb_coverage import transcription_ledger as tl  # noqa: E402
+
+
+def missing_real_artifacts(manifest: Path | None = None) -> list[str]:
+    """真实产物缺席清单（空 = 齐备）。manifest 路径可注入，供「产物缺席」用例构造。"""
+    manifest = Path(manifest) if manifest is not None else tl.MANIFEST
+    if manifest.is_file():
+        return []
+    return ["%s（页清单，先跑 scan_render_pages.py 重建）" % manifest]
+
+
+def require_real_artifacts(manifest: Path | None = None) -> None:
+    """产物缺席 ⇒ 显式 SkipTest（skip + 理由），而不是让 `tl.build_rows()` 抛
+    SystemExit（unittest 报 ERROR，CI 在干净检出上就是这么红的——build/ 不入版本控制）。
+
+    产物在场 ⇒ 直接放行，下面各条断言一条不加一条不减地照跑。
+    """
+    missing = missing_real_artifacts(manifest)
+    if missing:
+        raise unittest.SkipTest(
+            "缺真实产物（干净检出无 build/，见 .gitignore:14）：" + "；".join(missing))
 
 
 class SignalsTest(unittest.TestCase):
@@ -132,6 +154,7 @@ class RealArtifactTest(unittest.TestCase):
     """账本必须永远是"源的函数"：这一组用例在转写推进时不需要改。"""
 
     def setUp(self):
+        require_real_artifacts()
         self.rows = tl.build_rows()
         self.tr = tl.load_transcripts()
 
@@ -217,6 +240,46 @@ class RealArtifactTest(unittest.TestCase):
         self.assertIn("第三块正文", got[("MATH", 1)]["text"])
         self.assertEqual("第二页正文", got[("MATH", 2)]["text"])
         self.assertEqual("0001_0002", got[("MATH", 1)]["span"])
+
+
+class RealArtifactSkipTest(unittest.TestCase):
+    """证明 skip 分支可达（产物缺席 ⇒ skip；产物在场 ⇒ 守卫放行）。"""
+
+    def test_absent_manifest_is_detected_and_raises_skip(self):
+        with tempfile.TemporaryDirectory() as td:
+            absent = Path(td) / "2027-53-pages" / "manifest_slim.json"
+            with self.assertRaises(unittest.SkipTest) as caught:
+                require_real_artifacts(absent)
+            self.assertIn("manifest_slim.json", str(caught.exception))
+            self.assertIn("scan_render_pages.py", str(caught.exception))
+
+    def test_present_manifest_passes_the_guard(self):
+        with tempfile.TemporaryDirectory() as td:
+            manifest = Path(td) / "manifest_slim.json"
+            manifest.write_text('{"subjects": []}', encoding="utf-8")
+            require_real_artifacts(manifest)    # 不抛 = 守卫放行，原断言照跑
+
+    def test_real_artifact_case_skips_when_manifest_absent(self):
+        """把 RealArtifactTest 的 setUp 放到「manifest 缺席」条件下跑：必须 SkipTest。
+
+        这是干净检出上 CI 走的那条分支（改前是 SystemExit → unittest ERROR）。
+        """
+        case = RealArtifactTest("test_ledger_covers_every_page_exactly_once")
+        with tempfile.TemporaryDirectory() as td:
+            absent = Path(td) / "manifest_slim.json"
+            with mock.patch.object(tl, "MANIFEST", absent):
+                with self.assertRaises(unittest.SkipTest) as caught:
+                    case.setUp()
+        self.assertIn("manifest_slim.json", str(caught.exception))
+
+    def test_real_artifact_case_runs_when_manifest_present(self):
+        """反向对照：manifest 在场时 setUp 不 skip、照常建账本（不是无条件跳过）。"""
+        case = RealArtifactTest("test_ledger_covers_every_page_exactly_once")
+        case.setUp()
+        self.assertGreater(len(case.rows), 0)
+        self.assertEqual(sum(int(s["total_pages"]) for s in tl.load_manifest()),
+                         len(case.rows))
+
 
 if __name__ == "__main__":
     unittest.main()

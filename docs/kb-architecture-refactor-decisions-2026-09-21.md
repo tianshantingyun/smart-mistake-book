@@ -20,7 +20,7 @@
 - D12 金标集 80-100 条（agent 语义切片+机械验证+一次性冻结），预注册阈值主集≥0.90 且逐章≥0.80 判去截断后生产同构 B 路，不过→开同层 dense 兜底议题（预案 bge-small-zh int8+LiteRT≈30MB/RRF/无 ANN，本轮不施工）；
 - D13 install() 先读 manifest+state 戳一致不解析 + reconcile 后释放驻留 + 真机启动探针；
 - D14 R5 做 a-e：删 :knowledge-production Kotlin 模块（保留 Python 在读台账 JSON）、source-register 迁出 APK、删 node_actions 死路径、status.md 由 CI 机器生成、过时注释清零；
-- D15 R1 加固：MERGE 链一跳到底压平断言、manifest 升 schema 2（Kotlin codec 同步）+单调 version、原子戳仅 promote 刷新、表↔包一致性扩到 5 张权威表、22 门+289 工具测试进 CI；
+- D15 R1 加固：MERGE 链一跳到底压平断言、manifest 升 schema 2（Kotlin codec 同步）+单调 version、原子戳仅 promote 刷新、表↔包一致性扩到 5 张权威表、22 门（**当时口径——2026-10-02 实测已为 23 门**）+289 工具测试进 CI；
 - D16 chapter_map.csv 不碰；
 - D17 子代理继承会话模型、并行度 30、语义判定沿用既有切片纪律（宁缺勿错）。
 
@@ -55,7 +55,7 @@
 裁定：R1 拓扑**直接切 staging+promote，无双模式旁路**（D2）。具体：
 
 - **30+ 手术工具全部改 staging 输出**：一律只写 `build/kb-staging/`，不写成品目录（`core/data/...` 的 taxonomy 包与材料卷）。
-- **仅 `kb_build/promote.py` 可写成品目录**：读 staging → 跑 22 门 → 全绿才 dump 到成品目录，并在晋升时原子刷新内容戳（原子戳仅 promote 刷新，D15）。
+- **仅 `kb_build/promote.py` 可写成品目录**：读 staging → 跑 22 门（**当时口径——2026-10-02 实测已为 23 门**）→ 全绿才 dump 到成品目录，并在晋升时原子刷新内容戳（原子戳仅 promote 刷新，D15）。
 - **旧习惯直写会被 path-guard 测试红住**：任何工具或手搓脚本直接写成品目录都是结构违规，path-guard 测试会红——直写场景见红不是工具 bug，是拓扑；正确动作是写 staging、等 promote。
 - **表侧不变**：tables（含 `chapter_map.csv`）= 审计日志（D11）；你的飞行改动照常做，表与成品包的同步走 promote 路径（表↔包一致性扩到 5 张权威表，D15）。
 

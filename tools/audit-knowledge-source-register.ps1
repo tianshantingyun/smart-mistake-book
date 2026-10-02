@@ -131,7 +131,7 @@ if (-not (Test-Path -LiteralPath $RegisterPath -PathType Leaf)) {
     throw "Knowledge source register does not exist: $RegisterPath"
 }
 
-$manifest = Get-Content -Raw -LiteralPath $RegisterPath | ConvertFrom-Json
+$manifest = Get-Content -Raw -Encoding UTF8 -LiteralPath $RegisterPath | ConvertFrom-Json
 Assert-OnlyKeys `
     -Value $manifest `
     -Required @(

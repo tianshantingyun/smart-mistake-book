@@ -92,13 +92,24 @@ P0.2 已把块池按 rel 确定性重编号：186,635 行 / 186,635 唯一键（
 | `note` | 备注 | 建点提案记 `NEW:<subject>/<建议slug>`（规则 7） |
 | `midx` | 同一块出多条材料时的序号（`''/b/c/d/…`） | 合并工具按出现顺序重排（`tools/kb_coverage/merge_text_judgments.py`）；只有一条材料时为空 |
 
-### 已落表数据的现实差距（P2 收口项，非本次修改范围）
+### 已落表数据的现实差距（2026-10-02 复测；此前 09-28 段落已过期）
 
-2026-09-28 实测 `material_judgments.csv` 16,625 行：MATERIAL 16,519 / SKIP 106。
-其中 **698 行 MATERIAL 用了规则 1 禁用的 type**（REPRESENTATION_GUIDE 519、DERIVATION 150、
-WORKED_EXAMPLE 25、COMPLETE_SOLUTION 4），另有 102 行 SKIP 的 type 为空。这些是冻结规则之前的
-产物，按既有裁定不动；P2 收口时按本协议重新裁定或清理。`merge_text_judgments.py` 的 TYPES 白名单
-（现含 7 值）也需要同步收紧到 3 值——在它下次跑之前完成。
+实测 `material_judgments.csv` 86,414 行：MATERIAL 38,929 / SKIP 47,485。**MATERIAL 行的
+type 已全部合规**（上面 3 值）；三值外旧 type 剩 482 行、全部落在 SKIP 行（REPRESENTATION_GUIDE
+363、DERIVATION 104、WORKED_EXAMPLE 14、COMPLETE_SOLUTION 1）——type 对 SKIP 行不生效
+（materialize 只校验 MATERIAL 行）。2026-09-28 曾有的 698 行坏 type MATERIAL 已由 P0.3 判定表
+对账（commit `7315ac09`）整批移入重判队列 `tools/kb_coverage/tables/rejudge_queue.csv`
+（REPRESENTATION_GUIDE 519 / DERIVATION 150 / WORKED_EXAMPLE 25 / COMPLETE_SOLUTION 4），
+按 3 值重判后经 `merge_text_judgments.py` 回表；侧车替换走 `apply_rejudged_materials.py`
+（同 slug 原地替换，绕开 materialize 对 slug 撞车的硬拒）。
+
+写入侧白名单底账（本次收口）：判定链三处白名单——切片自检 `check_slice_verdicts.py`、
+合并 `merge_text_judgments.py`、落库 `materialize.py`——现均为 3 值、逐字一致。materialize
+的收紧已在存量全表 dry-run 实测（86,414 行、错误 0）；此前它的 7 值白名单对旧 type 的
+MATERIAL 行是放行的（实测 `errors=[]`），该旁路现已关闭。**包内（sidecar）仍有 667 条旧 type
+材料**（2026-10-02 实测 19 卷 50,383 条中：REPRESENTATION_GUIDE 491、DERIVATION 150、
+WORKED_EXAMPLE 22、COMPLETE_SOLUTION 4）——它们在包、不在判定表，不经 materialize 重放；
+处置口径（重判替换 vs 保留豁免）以 `docs/kb-outstanding-research-2026-10-02.md` §F7 裁定为准。
 
 ---
 

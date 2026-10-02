@@ -1,27 +1,31 @@
 # -*- coding: utf-8 -*-
-"""超配节点清单：一个节点挂了多于 `MAX_TEACHING_REFERENCES`(=4) 条材料。
+"""超配节点清单：一个节点挂了多于 LIMIT(=4) 条材料——这是**分诊名单**，不是"死绑定"清单。
 
-**为什么这不是"浪费"**：运行时取材料的那条 SQL 是
-`WHERE knowledge_node_id IN (:ids) … GROUP BY material_id … LIMIT :limit`，
-`LIMIT` 对**整批被请求的节点**生效，另有一个全局字符预算
-`MAX_TEACHING_REFERENCE_MARKDOWN_CHARS = 20_000`（先到先得、按排名）。所以：
+**运行时的真实机制**（2026-10-02 按现行代码实读；旧「每节点 ≤4 条」条数门已废）：
+- 取数上界 `MAX_TEACHING_MATERIAL_CANDIDATES = 1,024` 是**整批**材料的行数上界，不是展示上限；
+- 展示只由全局字符预算 `MAX_TEACHING_REFERENCE_MARKDOWN_CHARS = 20,000` 决定：按
+  角色秩 → 重教类型优先级 → title → material_id 排序后逐条装填，装不下的跳过、继续看下一条
+  （`TutorTeachingReferenceSelector.select`，`RoomTutorTeachingReferenceRepository.kt`）；
+- 所以一个节点堆 139 条**不等于**「第 5 条起永远看不见」：它们仍按序参与预算竞争，
+  只是排序靠后的材料在预算耗尽时被跳过，而排序（同类型内只按 title/material_id）与质量无关。
+- 「>4 条」在本工具里是**节点粒度需要复核**的分诊口径（该拆点 / 该合并 / 该改绑），
+  不是「这些绑定已经失效」；处置口径见 docs/kb-outstanding-research-2026-10-02.md ①-3。
 
-- 一个节点堆 24 条 → 排在前面的 4 条（同类型内还只按 `title`/`material_id` 排，**与质量无关**）
-  进入预算，**其余节点一条也拿不到**；
-- **现状（2026-09-25 复算）**：这样的超配节点 **1,670 个**（挂着 23,825 条材料，其中 **17,145 条
-  永远进不了预算**）；同一时刻零材料节点 **0 个**（3,572 个知识点全部至少有一条材料）。
-  旧值「631 个超配 / 500+ 个零材料」是 **2026-09-14** 的产物，此后材料大规模入库，两处都已过期。
-- **复算**（本次数的取法，逐条可重跑）：
-  - 零材料 / 薄料：`PYTHONPATH=tools python -m kb_build.report_material_gaps`
-    ⇒ 现输出「零材料 0、仅 1 条材料 1,043」；
-  - 超配：本工具的判据（同一节点 > `LIMIT`(=4) 条绑定）不变，但**入口当前跑不通**——
-    `load()` 的 `STAGING.glob("moe-2025-teaching-support-v2-*.json")` 会连带读入卷索引
-    `moe-2025-teaching-support-v2-index.json`（只有 `packId`/`sidecars` 两个键）而
-    `KeyError: 'materials'`；取卷改走 `pack_io.sidecar_paths()`（按索引清单取卷）即可复算。
-    修 glob 属行为改动，不在本次范围（只记不改）。
+**现状（2026-10-02 实测）**：
+- 知识点 3,866 个，全部至少 1 条绑定（零材料 0 个）；材料 50,383 条，各恰好 1 条绑定；
+- 节点内 >4 条：**2,518 个**，挂着 **47,538** 条材料，其中节点内排序第 5 位及以后的绑定 **37,466 条**；
+  另有 ≥4 条 2,754 个（含 =4 条 236 个）；单节点最大 139 条 = BIOLOGY「基因工程」。
+- 计数口径：按 (subject, slug) 聚合（包内有 9 个跨科同名 slug，按 slug 单键聚合会得到不同数字）；
+  每条材料只计其唯一一条绑定。
+
+**复算**（逐条可重跑）：
+- 超配：本工具。材料卷枚举走 `pack_io.sidecar_paths()`——按卷索引的清单取卷；不要用文件系统
+  glob：`moe-2025-teaching-support-v2-*.json` 会命中卷索引
+  `moe-2025-teaching-support-v2-index.json`（只有 `packId`/`sidecars` 两个键）而 `KeyError: 'materials'`。
+- 零材料 / 薄料：`PYTHONPATH=tools python -m kb_build.report_material_gaps`。
 
 本工具产出施工清单：逐节点按**运行时真实排序**（角色秩 → 重教类型优先级 → title → material_id）
-列出材料，标出哪 4 条会活下来、哪些会被挤掉，供逐条裁决（留 / 改绑 / 解绑）。
+列出全部绑定，标出节点内前 4 条与第 5 位及以后的材料，供逐条裁决（留 / 改绑 / 解绑）。
 
   用法： PYTHONPATH=tools python -m kb_build.overfull_nodes            # 报告
         PYTHONPATH=tools python -m kb_build.overfull_nodes --write    # 写 CSV
@@ -31,14 +35,11 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 import re
 from collections import Counter, defaultdict
-from pathlib import Path
 
 from kb_build import pack_io
 
-STAGING = pack_io.REPO / "build" / "kb-staging"
 OUT_NAME = "overfull_nodes.csv"
 LIMIT = 4
 
@@ -69,10 +70,17 @@ ROLE_RANK = {"PRIMARY": 0, "SUPPORTING": 1}
 
 
 def load():
-    pack = json.loads((STAGING / pack_io.PACK_NAME).read_text(encoding="utf-8"))
+    """读包（节点名单）与全部材料卷的绑定。
+
+    工作目录 = `pack_io.work_dir()`（默认 staging；缺包时从成品目录种子）。
+    材料卷清单以 `pack_io.sidecar_paths()` 为准（读卷索引；Kotlin loader 读同一份索引）——
+    **不要退化成文件系统 glob**：`moe-2025-teaching-support-v2-*.json` 会命中卷索引本身
+    （只有 packId/sidecars 两个键），把索引当材料卷读入即 `KeyError: 'materials'`。
+    """
+    pack = pack_io.load_json(pack_io.pack_path())
     by_node: dict[str, list[dict]] = defaultdict(list)
-    for path in sorted(STAGING.glob("moe-2025-teaching-support-v2-*.json")):
-        for material in json.loads(path.read_text(encoding="utf-8"))["materials"]:
+    for path in pack_io.sidecar_paths():
+        for material in pack_io.load_json(path)["materials"]:
             for binding in material.get("bindings") or []:
                 by_node[binding["knowledgeNodeId"]].append({
                     "materialId": material["slug"],
@@ -129,28 +137,35 @@ def main(argv: list[str] | None = None) -> int:
     total_materials = sum(len(v) for v in by_node.values())
     excess = sum(count - LIMIT for count, _i, _n, _s in overfull)
     held = sum(count for count, *_ in overfull)
+    n_ge = sum(1 for items in by_node.values() if len(items) >= LIMIT)
+    n_eq = sum(1 for items in by_node.values() if len(items) == LIMIT)
     weak_total = sum(1 for _c, _i, _n, items in overfull for it in items if it["weak"])
     weak_excess = sum(1 for _c, _i, _n, items in overfull
                       for it in items[LIMIT:] if it["weak"])
-    print(f"超配节点 {len(overfull)} 个；它们挂着 {held} 条材料，其中 {excess} 条永远不会进入预算")
-    print(f"全部有绑定材料 {total_materials} 条，落在 {len(by_node)} 个节点上"
-          f"——超配节点占 {held * 100 // max(total_materials, 1)}% 的材料")
-    print(f"其中与节点名零 2-gram 重合（疑似错绑、可先分诊）：{weak_total} 条；"
-          f"这当中被挤掉的 {weak_excess} 条是**最便宜的处置对象**（既错又永远用不上）")
+    print(f"{len(overfull):,} 个超配节点（同一节点 > {LIMIT} 条材料）；它们挂着 {held:,} 条材料，"
+          f"其中超出 {excess:,} 条是节点内排序第 {LIMIT + 1} 位及以后的绑定。")
+    print(f"运行时没有每节点条数门：整批取数上界 1,024 条、展示由 20,000 字符预算按排序逐条装填"
+          f"（装不下才跳过）——上列绑定不是「永久不可见」，只是排序靠后在预算争用中吃亏。")
+    print(f"全部有绑定材料 {total_materials:,} 条，落在 {len(by_node):,} 个节点上"
+          f"——超配节点占 {held * 100 // max(total_materials, 1)}% 的材料；"
+          f"节点内 ≥{LIMIT} 条共 {n_ge:,} 个（其中 ={LIMIT} 条 {n_eq:,} 个）。")
+    print(f"其中与节点名零 2-gram 重合（疑似错绑；只做分诊不做判定）：{weak_total} 条；"
+          f"这当中排在超配段（第 {LIMIT + 1} 位起）的 {weak_excess} 条是优先复核对象。")
     print()
-    print(f"—— 最严重的 {min(args.sample, len(overfull))} 个 ——")
+    print(f"—— 最严重的 {min(args.sample, len(overfull))} 个（先 = 节点内前 {LIMIT} 条；"
+          f"后 = 第 {LIMIT + 1} 位起，按序竞争预算；疑 = 疑似错绑）——")
     rows = overfull[:args.top or args.sample]
     for count, node_id, (subject, chapter, name), items in rows:
         print(f"■ {count} 条  [{subject}] {chapter} / {name}")
         for index, item in enumerate(items):
-            mark = "留" if index < LIMIT else "挤"
+            mark = "先" if index < LIMIT else "后"
             flag = "疑" if item["weak"] else "  "
             print(f"    {mark}{flag}  [{TYPE_PRIORITY.get(item['type'], 7)}] {item['type'][:20]:<21}"
                   f" {item['chars']:>6} 字  {item['title'][:44]}")
         print()
 
     if args.write:
-        path = pack_io.REPO / "build" / "kb-staging" / OUT_NAME
+        path = pack_io.work_dir() / OUT_NAME
         with path.open("w", encoding="utf-8", newline="") as fh:
             writer = csv.writer(fh)
             writer.writerow(["node_id", "subject", "chapter", "node_name", "material_count",

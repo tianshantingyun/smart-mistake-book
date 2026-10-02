@@ -67,7 +67,7 @@ function Read-JsonDocument {
         throw "$Label does not exist: $Path"
     }
     try {
-        return Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json
+        return Get-Content -Raw -Encoding UTF8 -LiteralPath $Path | ConvertFrom-Json
     } catch {
         throw "$Label is not valid JSON: $Path"
     }

@@ -4,8 +4,8 @@
 
 ## Build Information
 
-- **Commit SHA**: `a2e8347f55a5fd3e51fc3b49f2658ce7d1155b64`
-- **Build Date**: `2026-09-28`
+- **Commit SHA**: `3d234d32b3c156bf6eaa76c5e1c59447b83f1855`
+- **Build Date**: `2026-10-02`
 - **Branch**: `main`
 - **Triggered By**: `local-manual`
 
@@ -28,34 +28,34 @@
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | 78 | 78 | 0 | - |
-| `:core:data` | 536 | 536 | 0 | - |
+| `:core:database` | 118 | 118 | 0 | - |
+| `:core:data` | 578 | 578 | 0 | - |
 | `:feature:library` | 35 | 35 | 0 | - |
 | `:feature:capture` | 106 | 106 | 0 | - |
-| `:feature:tutor` | 154 | 154 | 0 | - |
+| `:feature:tutor` | 199 | 199 | 0 | - |
 
 ### Lint
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `lintLocalFirstDebug` | OK | 0 | 11 |
+| `lintLocalFirstDebug` | OK | 0 | 14 |
 | `lintStrictOfflineDebug` | OK | 0 | 10 |
 
 ### Release Build
 
 | Flavor | Status | APK Size | AAB Size |
 |--------|--------|----------|----------|
-| `localFirst` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `strictOffline` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `localFirst` | OK | 162.5 MB | NOT_MEASURED |
+| `strictOffline` | OK | 150.8 MB | NOT_MEASURED |
 
 ### APK/AAB Hashes
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | ada73bdb0181cec13732c64f6ad815e58fb2cfbe10c75391c3534a5702342d99 |
-| `localFirst-release.apk` | NOT_MEASURED |
-| `strictOffline-debug.apk` | d000275d42a16700a0d63672ac54cf22fda277664d0934e53a442bea5518f82a |
-| `strictOffline-release.apk` | NOT_MEASURED |
+| `localFirst-debug.apk` | d345c3568e835c463ab93179e29399661a9c551853a4bafe1f3b80bf276f00ea |
+| `localFirst-release.apk` | e9d2f698b253d622dd44fdcd62b72b5f9e8c9ef096e8789f77ca73d951d6e3e8 |
+| `strictOffline-debug.apk` | 5220c8d87a990196155d7d5060a2190e3bbeafefc74795bce25b14fea927d04f |
+| `strictOffline-release.apk` | eef11909ce52eafadb7d5f28eddb3d11e35f9aa91d9f81c3ac9132018356b9f6 |
 
 ## Knowledge Base
 
@@ -89,41 +89,41 @@
 
 通过 23/23 项；全部为 0 才算绿。
 
-权威表 sha256（前 12 位）：`chapter_map.csv`=`12d33ceaa50d` · `chapter_by_source.csv`=`caa77eacaef3` · `alias_map.csv`=`8bc62dd5824a` · `boundary_map.csv`=`281fd657284b` · `prereq_map.csv`=`78e28392d305` · `material_bindings.csv`=`5b621c220297`
+权威表 sha256（前 12 位）：`chapter_map.csv`=`12d33ceaa50d` · `chapter_by_source.csv`=`8efce39f8e61` · `alias_map.csv`=`2210f01b2c72` · `boundary_map.csv`=`281fd657284b` · `prereq_map.csv`=`78e28392d305` · `material_bindings.csv`=`5b621c220297`
 
 ### Tools Tests（Python，tools/tests 套件）
 
 | 总数 | 通过 | 失败 |
 |------|------|------|
-| 492 | 492 | 0 |
+| 602 | 602 | 0 |
 
 ### Retrieval Benchmark（:core:data 单测写入 build/benchmark-metrics.txt，逐字嵌入）
 
 ```
 Recall@5=0.95
-Precision@5=0.76
-MRR=0.9166666666666666
+Precision@5=0.75
+MRR=0.9099999999999999
 crossSubject=0
 [MATH] 求函数 f(x)=x²-2x-3 的单调递增区间 -> [三角函数的图象与性质, 函数的单调性, 导数法求函数单调区间的步骤]
 [MATH] 计算等差数列 1,3,5,7 的前100项和 -> [等差数列的常用性质, 等差数列前项和的常用性质, 求解等差数列基本量的策略]
 [MATH] 椭圆 x²/16+y²/9=1 的离心率是多少 -> [椭圆的离心率, 椭圆, 双曲线的离心率]
-[MATH] 求集合 A={1,2,3} 与 B={3,4,5} 的交集 -> [子集的个数问题, 利用元素与集合的关系求参数, 集合的含义与表示]
+[MATH] 求集合 A={1,2,3} 与 B={3,4,5} 的交集 -> [集合的含义与表示, 子集的个数问题, 交集与并集]
 [MATH] 已知 sinα=3/5 求 tanα -> [函数y=Asin(ωx+φ)的图象, 同角三角函数的基本关系, 由Sn求an的步骤]
-[PHYSICS] 物体自由下落5秒末速度 -> [速度, 关联速度的分析——运动分解的核心思想, 运动性质]
+[PHYSICS] 物体自由下落5秒末速度 -> [自由落体运动, 关联速度的分析——运动分解的核心思想, 速度]
 [PHYSICS] 两物体碰撞前后动量守恒 -> [动量守恒定律, 创新实验验证动量守恒, 动量定理]
-[PHYSICS] 电磁感应中磁通量变化产生感应电动势 -> [法拉第电磁感应定律, 电磁感应中的电路问题, 电磁感应中的图像问题]
-[PHYSICS] 带电粒子在匀强磁场中做圆周运动的轨道半径 -> [带电粒子在磁场中的运动, 带电粒子在匀强电场中偏转的两个分运动, 带电粒子在交变电磁场中的运动：]
-[PHYSICS] 变压器原副线圈电压比与匝数比 -> [变压器, 理想变压器的基本关系, 探究变压器原副线圈电压与匝数的关系]
-[CHEMISTRY] 钠与水反应的现象和产物 -> [钠与水及酸、碱、盐溶液的反应, 氧化还原反应规律及其应用, 碳酸钠、碳酸氢钠与酸反应的特点]
-[CHEMISTRY] 计算 2mol 氯化钠的质量 -> [摩尔质量的计算方法, 有关物质的量浓度的计算, 电化学综合计算的三种常用方法]
-[CHEMISTRY] 盐酸与氢氧化钠发生中和反应 -> [中和热测定注意事项, 过氧化钠, 氧化还原反应方程式的配平方法]
-[CHEMISTRY] 苯的分子式和结构 -> [有机物分子分子式的确定, 有机物分子式和结构确定易混易错点, 商余法确定烃的分子式]
-[CHEMISTRY] 原电池中锌铜电极的电子流向 -> [原电池, 判断原电池正、负极的方法, 电极反应式]
-[BIOLOGY] 细胞器中含DNA的有哪些 -> [细胞器的结构和功能, DNA的复制, 细胞膜的结构和功能]
-[BIOLOGY] 孟德尔分离定律的实质 -> [分离定律, 分离定律的概率计算（含自交与自由交配）, 孟德尔的豌豆杂交实验过程分析]
-[BIOLOGY] 光合作用暗反应需要什么原料 -> [光合作用的原理, 光合作用的影响因素, 影响光合作用强度的环境因素]
+[PHYSICS] 电磁感应中磁通量变化产生感应电动势 -> [法拉第电磁感应定律, 电磁感应中的电路问题, 电磁感应中的三大动力学观点]
+[PHYSICS] 带电粒子在匀强磁场中做圆周运动的轨道半径 -> [带电粒子在磁场中的运动, 带电粒子在匀强电场中偏转的两个分运动, 带电粒子在叠加场]
+[PHYSICS] 变压器原副线圈电压比与匝数比 -> [理想变压器的基本关系, 探究变压器原副线圈电压与匝数的关系, 探究变压器电压与匝数关系的实验]
+[CHEMISTRY] 钠与水反应的现象和产物 -> [钠与水及酸、碱、盐溶液的反应, 铁与水蒸气反应的注意事项, 过氧化钠的性质与探究]
+[CHEMISTRY] 计算 2mol 氯化钠的质量 -> [摩尔质量的计算方法, 过氧化钠, 晶胞组成的计算——均摊法。]
+[CHEMISTRY] 盐酸与氢氧化钠发生中和反应 -> [过氧化钠, 铁的氢氧化物, 氢氧化铝的性质与制备]
+[CHEMISTRY] 苯的分子式和结构 -> [有机物分子分子式的确定, 超分子, 有机物分子式和结构确定易混易错点]
+[CHEMISTRY] 原电池中锌铜电极的电子流向 -> [原电池, 原电池的工作原理 （以Zn－Cu原电池为例）, 电极反应式]
+[BIOLOGY] 细胞器中含DNA的有哪些 -> [细胞器的结构和功能, DNA的复制, DNA的结构及特点]
+[BIOLOGY] 孟德尔分离定律的实质 -> [分离定律, 分离定律的概率计算（含自交与自由交配）, 自由组合定律的内容]
+[BIOLOGY] 光合作用暗反应需要什么原料 -> [光合作用的原理, 影响光合作用强度的环境因素, 光合作用的影响因素]
 [BIOLOGY] 免疫系统对付病毒的途径 -> [病毒, 免疫系统的组成和功能, 免疫系统]
-[BIOLOGY] 种群密度的调查方法 -> [种群密度, 种群的数量特征, 种群数量的变化]
+[BIOLOGY] 种群密度的调查方法 -> [种群密度, 种群的数量特征, 样方法]
 ```
 
 ## Performance Metrics
@@ -169,9 +169,9 @@ NOT_MEASURED
 
 **PASS**
 
-build job: OK · KB gates: all OK · tools tests: 492/492 passed
+build job: OK · KB gates: all OK · tools tests: 602/602 passed
 
 ---
 
-*Generated by CI at 2026-09-28T15:37:38.765375+00:00*
+*Generated by CI at 2026-10-02T10:29:49.619107+00:00*
 *Report version: 1.0*

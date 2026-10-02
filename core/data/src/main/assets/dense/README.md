@@ -12,6 +12,16 @@ LiteRT（`org.tensorflow.lite.Interpreter`）**只吃 `.tflite`**，不吃 ONNX�
 | 来源 | `build/dense-model/bge-small-zh-v1.5-int8.onnx`（路线 B：weight-only int8-per-channel，sha256 `4d3b3135…`）经 `freeze_onnx_static --seq-len 128` + `onnx2tf` 转出 |
 | 转换链与三条取舍 | `tools/dense_build/README.md` §7（独立 venv `build/tflite-venv`；冻结静态 `[1,128]`——§1.2 的右尺寸口径；不能用 `-tb tf_converter`；转换会就地改写输入 ONNX） |
 
+> **2026-10-02 复核注记（向量口径与 fixture）**：本文件下文多处出现的 **n=290** 是 v1 parity
+> fixture 读数；现 fixture `core/data/src/androidTest/assets/dense/encoder-parity.json` 实测
+> **count=330（query 130 + surface 200，本会话实读）**。**28,931 / 40,319 行**是当时向量资产口径
+> （2026-10-01 `docs/kb-dense-rebuild-2026-10-01.md` 重打前/中）；**2026-10-02 实测现值为
+> 41,193 行 = 3,866 节点 + 37,327 别名**（`python tools/dense_build/check_asset.py` → 10/10 OK、
+> `count=41193`；旁车 `atomicNodes 3866 / aliasVectors 37327`；`.vec` sha256 前 16 位
+> `8649afa62ce968c3`）。n=330 下的**宿主**对拍未重测（UNVERIFIED）；真机（模拟器）侧 2026-10-02
+> 已有 n=330 读数 min 0.99955 / p95 0.99985（引 `build/agent-outstanding/group-5.md:140-144`，
+> 本会话未复跑）。**换件硬门 ≥0.999 与下方验收表本身未放宽**；「n=290」按 v1 读数理解即可。
+
 **模型件交付时按此验收**（判据出数前写死，不许事后放宽）：
 
 | 项 | 要求 | 依据 |
@@ -19,7 +29,7 @@ LiteRT（`org.tensorflow.lite.Interpreter`）**只吃 `.tflite`**，不吃 ONNX�
 | 输入名 | `input_ids` / `attention_mask` / `token_type_ids`（int64） | `export_bge_int8.py` 的导出签名 |
 | 输入长度 | 定长 **≥ 128**（= 端侧 `DENSE_MAX_SEQUENCE_LENGTH`，Stage-6 右尺寸后的口径），或动态 `[1, seq]` | 定长 < `DENSE_MAX_SEQUENCE_LENGTH` 会被 `LiteRtDenseQueryEncoder.open` **拒绝**（长输入静默截短 = 与离线口径不一致）。**随包现件就是定长 = 128（等于口径，无白算）**；"定长比口径宽"也允许（Stage-6 之前的 512 窗口件就是这种形态：端侧按 128 截断 + 右 PAD 到 512，掩码在位 ⇒ 与离线同结果，实测两种窗口输出逐字节相同，见 `docs/kb-stage6-report-2026-09-26.md` §1.2），代价只是 PAD 位白算（宿主 p50 差 4.3×） |
 | 输出 | 单个 float32 输出，`numElements = 512`（**随包那一档的维度**；换档时按档取：base 档 = 768。图内已含 CLS 池化 + L2 归一） | 实测 ONNX 计算图：`Gather(0) → ReduceL2 → Clip → Expand → Div`；端侧测试的维度取自 `encoder-parity.json` 的 `dim`，不写死 |
-| 数值 | 真机逐条对拍冻结参考向量（`DenseEncoderParityInstrumentedTest`，n=290）**min cosine ≥ 0.999** | **宿主对拍**（已安装字节）：`check_tflite_parity.py --max-len 128` n=290 **min 0.999587 / median 0.999783 / p95 0.999841**（门 0.999，exit 0）。**真机对拍已跑并过**（2026-09-28，模拟器 API 34 x86_64）：n=290 **min 0.9995842786898838 / median 0.9997850489425515 / p95 0.9998405938495096 / 不达标 0 条**——与 512 窗口件的真机读数**逐位相同**（换窗口对质量零影响，见文末 2026-09-28 段） |
+| 数值 | 真机逐条对拍冻结参考向量（`DenseEncoderParityInstrumentedTest`，n=290）**min cosine ≥ 0.999** | **宿主对拍**（已安装字节）：`check_tflite_parity.py --max-len 128` n=290 **min 0.999587 / median 0.999783 / p95 0.999841**（门 0.999，exit 0）。**真机对拍已跑并过**（2026-09-28，模拟器 API 34 x86_64）：n=290 **min 0.9995842786898838 / median 0.9997850489425515 / p95 0.9998405938495096 / 不达标 0 条**——与 512 窗口件的真机读数**逐位相同**（换窗口对质量零影响，见文末 2026-09-28 段）。**2026-10-02 复核：本行 n=290 为 v1 fixture 读数；现 fixture count=330，n=330 宿主对拍未重测——见文首注记** |
 
 **换件纪律**：任何一次换模型件都必须**重跑** `DenseEncoderParityInstrumentedTest`（真机硬门
 ≥0.999）与 `GoldenRetrievalInstrumentedTest`（对拍 `build/stage3-device-expectation.json`），
@@ -42,7 +52,7 @@ build/tflite-venv/Scripts/python.exe tools/dense_build/check_tflite_parity.py --
 ```
 
 **2026-09-25 Stage-5 换件（bge-base-zh-v1.5，768 维）按写死判据判定：未落地**——
-第三轮实测 ①编码器对拍（全量 28,931 行）docs 逐行 cosine 最小 **0.999127567** /
+第三轮实测 ①编码器对拍（全量 28,931 行；**历史口径**——2026-10-02 现值 41,193 行，见文首注记）docs 逐行 cosine 最小 **0.999127567** /
 queries **0.999171495**（门 ≥0.999，**已过**；第一轮的 0.9478、第二轮的 0.998638 都是同一门的前序读数，
 口径为 GPTQ 误差补偿 `quant_error_compensation.py`，见 `tools/dense_build/README.md` §8.3.4），
 金标融合主集 **0.7889（71/90）**（**已过** ≥0.7444）；但 ②真机单条编码 p50 ≤213ms **不过**——

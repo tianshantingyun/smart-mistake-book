@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$CatalogRoot,
@@ -29,7 +29,7 @@ if ($partFiles.Count -eq 0) {
     throw "SmartEdu catalog part files are missing under: $CatalogRoot"
 }
 
-$versionRaw = Get-Content -LiteralPath $versionPath -Raw
+$versionRaw = Get-Content -LiteralPath $versionPath -Raw -Encoding UTF8
 $version = $versionRaw | ConvertFrom-Json
 if ($version.module -ne 'tch_material') {
     throw 'SmartEdu catalog module must be tch_material'
@@ -63,10 +63,15 @@ if ($declaredUrls.Count -ne $partFiles.Count) {
 $resources = [System.Collections.Generic.List[object]]::new()
 $partReports = [System.Collections.Generic.List[object]]::new()
 foreach ($partFile in $partFiles) {
-    $part = @(
-        Get-Content -LiteralPath $partFile.FullName -Raw |
-            ConvertFrom-Json
-    )
+    # 5.1 与 7 的 ConvertFrom-Json 顶层数组口径不同（5.1 把数组当**一个**对象输出、
+    # 7 会摊平单元素数组）：先取值、再显式 @() 归一，把两条路径钉成同一结果。
+    # 实测（2 条记录的分片）：改前 5.1 报 totalResourceRecords=1、7 报 2。
+    $parsed = Get-Content -LiteralPath $partFile.FullName -Raw -Encoding UTF8 |
+        ConvertFrom-Json
+    $part = @()
+    if ($null -ne $parsed) {
+        $part = @($parsed)
+    }
     if ($part.Count -eq 0) {
         throw "SmartEdu catalog part is empty: $($partFile.Name)"
     }

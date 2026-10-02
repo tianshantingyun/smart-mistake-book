@@ -613,7 +613,7 @@
 
 > **Phase 2 管线进展（2026-09-18 夜，a451348d / 403e210d / 57dc9fa3）**
 >
-> - 覆盖台账 v2 建成：四科 661 条 2025 课标候选全判定（UNDECIDED=0）。COVERED：数学 118/308、物理 71/138、化学 51/73、生物 100/142（`kb-coverage-alignment-2026-v2.json`，判定者显式标 AI）。
+> - 覆盖台账 v2 建成：四科 661 条 2025 课标候选全判定（UNDECIDED=0）。COVERED：数学 130/308（2026-10-02 复算订正；原写 118）、物理 71/138、化学 51/73、生物 100/142（`kb-coverage-alignment-2026-v2.json`，判定者显式标 AI）。
 > - 九科课标 PDF 指纹全部逐字节核验（6 重下 + 3 在盘）；提取管线重跑成功（1300 候选）。
 > - 提取状态机上线：10482 文件账本（PENDING 9418 / SCANNED 403 / STRUCTURED 250 / MEDIA 43 / SKIPPED 411），迁移守卫 + output_ref 悬空门。
 > - Office 直抽器 + 材料入库器上线（heading 感知切块、CJK 指纹去重、sidecar 索引化卷滚动）。

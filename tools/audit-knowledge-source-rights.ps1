@@ -13,7 +13,7 @@ if (-not (Test-Path -LiteralPath $knowledgeDirectory -PathType Container)) {
 }
 
 $reports = foreach ($file in Get-ChildItem -LiteralPath $knowledgeDirectory -Filter '*.json' -File) {
-    $raw = Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json
+    $raw = Get-Content -Raw -Encoding UTF8 -LiteralPath $file.FullName | ConvertFrom-Json
     if ($null -eq $raw.materials) {
         continue
     }
