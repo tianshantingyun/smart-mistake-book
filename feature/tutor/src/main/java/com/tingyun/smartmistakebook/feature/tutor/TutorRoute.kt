@@ -56,10 +56,10 @@ import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
  *
  * 这里曾经还有一条"讲题页面"分支：`practiceUnitId + teachingArtifact` 判定 → `TutorScreen`
  * （选择题 / 提交 / 揭示 / 追问）→ `TutorViewModel`（保存与提交状态）。它在生产里**到不了**：
- * `RoomBackedStudyExperienceRepository` 恒把 `tutorPracticeUnitId` 置 null（只有 debug fixture
- * `M1CuratedFixtureSource` 给值），于是 `tutorArtifact` 恒为 null，判定永远走大厅分支；
- * 而错题复习的 artifact 渲染由 `ReviewSessionScreen` 自带的卡流负责，与这里无关。
- * 一条"只有 fixture 能进"的路径留在生产代码里，只会让下一个人以为它还在被用。
+ * `RoomBackedStudyExperienceRepository` 恒把 `tutorPracticeUnitId` 置 null（历史上只有已退场的
+ * debug fixture 源给值；D-M M1 后 artifact 改由库内题目事实派生），于是 `tutorArtifact` 恒为
+ * null，判定永远走大厅分支；而错题复习的 artifact 渲染由 `ReviewSessionScreen` 自带的卡流负责，
+ * 与这里无关。一条"只有 fixture 能进"的路径留在生产代码里，只会让下一个人以为它还在被用。
  */
 @Composable
 fun TutorRoute(

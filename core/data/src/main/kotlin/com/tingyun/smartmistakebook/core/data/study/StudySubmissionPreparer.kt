@@ -31,7 +31,7 @@ import com.tingyun.smartmistakebook.core.model.TutorAssistanceKind
 internal class StudySubmissionPreparer(
     private val database: StudyDatabasePort,
     private val learnerId: String,
-    private val fixtureSource: StudyFixtureSource,
+    private val practiceUnitFacts: StudyPracticeUnitFacts,
     private val reviewLogSink: ReviewLogSink,
     private val writeContext: StudyWriteContext,
 ) {
@@ -39,12 +39,11 @@ internal class StudySubmissionPreparer(
     suspend fun prepareChoiceSubmission(
         submission: StudyChoiceSubmission,
     ): PreparedChoiceSubmission {
-        val artifact = writeContext.requireTeachingArtifact(submission.practiceUnitId)
-        val assessmentItem = artifact.assessmentItems.singleOrNull()
-            ?: error("Curated practice unit ${submission.practiceUnitId} must have one assessment")
-        val evidenceSnapshot = requireNotNull(
-            fixtureSource.evidenceSnapshotForAssessment(assessmentItem.id),
-        ) { "No verified evidence snapshot for assessment ${assessmentItem.id}" }
+        // D-M M1：目录从库内事实派生（practice unit + 当前绑定 + 题目字段），
+        // fixture 目录门（`outside the verified M1 catalog`）已删除。
+        val facts = practiceUnitFacts.submissionFacts(submission.practiceUnitId)
+        val assessmentItem = facts.assessmentItem
+        val evidenceSnapshot = facts.evidenceSnapshot
         val evaluation = assessmentItem.evaluateChoice(submission.selectedChoiceId)
         val submittedResponse = AttemptSubmittedResponse.Choice(
             choiceId = evaluation.choice.id,
@@ -87,7 +86,7 @@ internal class StudySubmissionPreparer(
                                 assessmentItemId = assessmentItem.id,
                                 presentationId = submission.presentationId,
                                 kind = TutorAssistanceKind.ANSWER_REVEAL,
-                                contentMarkdown = artifact.explanationMarkdown,
+                                contentMarkdown = facts.explanationMarkdown,
                                 occurredAtEpochMillis = fact.occurredAtEpochMillis,
                                 eventSequence = fact.eventSequence,
                             ),

@@ -535,35 +535,6 @@ data class AssessmentEventSeedRecord(
     val occurredAtEpochMillis: Long,
 )
 
-/** Legacy fixture projection used by mistake-list previews. Learning-core v2 uses LearnerSnapshot. */
-data class ProblemMemoryStateRecord(
-    val practiceUnitId: String,
-    val stabilityDays: Double,
-    val difficulty: Double,
-    val lastReviewedAtEpochMillis: Long?,
-    val nextReviewAtEpochMillis: Long,
-    val reviewCount: Int,
-    val lapseCount: Int,
-    val retrievability: Double,
-    val projectionCheckpoint: Long,
-    val projectorVersion: String,
-    val updatedAtEpochMillis: Long,
-)
-
-/** Legacy fixture projection used by pre-v2 seed data. */
-data class KnowledgeMasteryStateRecord(
-    val knowledgeNodeId: String,
-    val masteryProbability: Double,
-    val independentCorrectCount: Int,
-    val assistedCorrectCount: Int,
-    val incorrectCount: Int,
-    val evidenceWeightTotal: Double,
-    val lastEvidenceAtEpochMillis: Long?,
-    val projectionCheckpoint: Long,
-    val projectorVersion: String,
-    val updatedAtEpochMillis: Long,
-)
-
 data class ReviewPlanRecord(
     val reviewPlanId: String,
     val learnerId: String,
@@ -652,8 +623,6 @@ data class StudySeedBundle(
     val relations: List<ProblemRelationSeedRecord> = emptyList(),
     val assessmentItems: List<AssessmentItemSnapshotSeedRecord> = emptyList(),
     val assessmentEvents: List<AssessmentEventSeedRecord> = emptyList(),
-    val problemMemoryStates: List<ProblemMemoryStateRecord> = emptyList(),
-    val knowledgeMasteryStates: List<KnowledgeMasteryStateRecord> = emptyList(),
     val reviewPlans: List<ReviewPlanRecord> = emptyList(),
     val reviewQueueItems: List<ReviewQueueItemRecord> = emptyList(),
     val reviewSessions: List<ReviewSessionRecord> = emptyList(),

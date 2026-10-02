@@ -12,7 +12,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.tingyun.smartmistakebook.core.data.study.StudyFixtureRegistry
 import com.tingyun.smartmistakebook.core.domain.AdaptiveDecision
 import com.tingyun.smartmistakebook.core.domain.AdaptiveDecisionKind
 import com.tingyun.smartmistakebook.core.domain.FsrsParameterOptimizer
@@ -35,6 +34,9 @@ import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlement
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementResult
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementStatus
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
+import com.tingyun.smartmistakebook.core.model.TeachingArtifactVerification
+import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
+import com.tingyun.smartmistakebook.core.model.TutorChoice
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -707,10 +709,50 @@ private class ControllableStudyExperienceRepository : StudyExperienceRepository 
     }
 }
 
-private fun requireArtifact(practiceUnitId: String): VerifiedTeachingArtifact =
-    requireNotNull(
-        StudyFixtureRegistry.source.teachingArtifactForPracticeUnit(practiceUnitId),
-    ) { "No verified teaching artifact is registered for $practiceUnitId" }
+/**
+ * D-M M1：fixture 目录退场后，本用例的**测试本地**工件（它跑在假仓库上，不需要库内目录）。
+ * 两个 practice unit 各自带一道四选一检查题与标准答案。
+ */
+private fun requireArtifact(practiceUnitId: String): VerifiedTeachingArtifact {
+    val (title, markdown, correctChoiceId) = when (practiceUnitId) {
+        RootTutorFailClosedInstrumentedTest.TUTOR_PRACTICE_UNIT_ID -> Triple(
+            RootTutorFailClosedInstrumentedTest.TUTOR_TITLE,
+            "设函数 f(x) 在实数集上可导，且 f'(x)=(x-1)(x+2)。下列关于单调性的判断正确的是哪一项？",
+            "A",
+        )
+        RootTutorFailClosedInstrumentedTest.SECOND_PRACTICE_UNIT_ID -> Triple(
+            RootTutorFailClosedInstrumentedTest.SECOND_TITLE,
+            "已知函数 f(x)=x^3-3x+1，求它在闭区间 [-2,2] 上的最大值与最小值。",
+            "B",
+        )
+        else -> error("No test teaching artifact is registered for $practiceUnitId")
+    }
+    return VerifiedTeachingArtifact(
+        id = "test-artifact:$practiceUnitId",
+        subject = "MATH",
+        title = title,
+        problemMarkdown = markdown,
+        explanationMarkdown = "先独立判断，再核对标准答案。",
+        verification = TeachingArtifactVerification.DETERMINISTICALLY_VALIDATED,
+        assessmentItems = listOf(
+            TutorAssessmentItem(
+                id = "test-assessment:$practiceUnitId",
+                stemMarkdown = markdown,
+                choices = listOf(
+                    TutorChoice(id = "A", markdown = "选项 A"),
+                    TutorChoice(id = "B", markdown = "选项 B"),
+                    TutorChoice(id = "C", markdown = "选项 C"),
+                    TutorChoice(id = "D", markdown = "选项 D"),
+                ),
+                correctChoiceId = correctChoiceId,
+                promptMarkdown = "先独立判断，再选择最符合条件的一项。",
+                knowledgeNodeIds = setOf("knowledge:test:$practiceUnitId"),
+            ),
+        ),
+        followUps = emptyList(),
+        knowledgeNodeIds = setOf("knowledge:test:$practiceUnitId"),
+    )
+}
 
 private fun VerifiedTeachingArtifact.askDecision(): AdaptiveDecision = AdaptiveDecision(
     kind = AdaptiveDecisionKind.ASK,

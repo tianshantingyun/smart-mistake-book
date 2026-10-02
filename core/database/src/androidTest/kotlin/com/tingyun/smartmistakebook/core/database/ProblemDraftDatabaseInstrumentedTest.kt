@@ -316,7 +316,7 @@ class ProblemDraftDatabaseInstrumentedTest {
             reviewStatus = QuestionBlockReviewStatus.USER_CONFIRMED,
             writingLayer = WritingLayer.PRINTED,
         )
-        store.seedFixture(
+        store.seedStudyFacts(
             StudySeedBundle(
                 problems = listOf(
                     ProblemSeedRecord(

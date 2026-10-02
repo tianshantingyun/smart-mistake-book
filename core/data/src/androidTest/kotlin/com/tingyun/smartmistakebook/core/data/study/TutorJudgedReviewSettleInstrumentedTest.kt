@@ -10,8 +10,8 @@ import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
-import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
+import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlement
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementStatus
@@ -49,11 +49,10 @@ class TutorJudgedReviewSettleInstrumentedTest {
         val repository = RoomBackedStudyExperienceRepository(
             database = database,
             applicationScope = applicationScope,
-            initialFixture = null,
         )
 
         try {
-            database.seedFixture(capturedShapedSeed())
+            seedStudyFacts(context, database, databaseName, capturedShapedSeed())
             repository.initialize()
             val started = requireNotNull(
                 repository.startOrResumeReviewSession("tutor-judged-start", START_AT),
@@ -152,11 +151,10 @@ class TutorJudgedReviewSettleInstrumentedTest {
         val repository = RoomBackedStudyExperienceRepository(
             database = database,
             applicationScope = applicationScope,
-            initialFixture = null,
         )
 
         try {
-            database.seedFixture(capturedShapedSeed())
+            seedStudyFacts(context, database, databaseName, capturedShapedSeed())
             repository.initialize()
             val started = requireNotNull(
                 repository.startOrResumeReviewSession("tutor-judged-empty-start", START_AT),

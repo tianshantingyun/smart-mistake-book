@@ -70,6 +70,42 @@ data class ResolvedStudentModelPredictionRecord(
     val observedAtEpochMillis: Long,
 )
 
+/**
+ * D-M M1 功能内核：一个 practice unit 的题目事实（提交/揭示路径的元数据来源）。
+ *
+ * fixture 目录门删除后，机器可判题的作答提交与答案揭示所需的事实只能来自库内：
+ * practice unit 记录（本题）＋ problem revision（题面/答案规格/来源）＋ problem（科目）。
+ * 没有答案规格或没有结构化选项的题不构成机器可判题——派生方返回 null，界面回到
+ * 讲题判定通道（与 release 行为一致）。
+ */
+data class PracticeUnitAssessmentRecord(
+    val practiceUnitId: String,
+    val problemId: String,
+    val problemRevisionId: String,
+    val subject: String,
+    val unitTitle: String,
+    val promptMarkdown: String,
+    /** CapturedQuestionDocument 编码快照；null = 该 revision 没有结构化题面。 */
+    val questionDocumentSnapshot: String?,
+    val answerSpecId: String?,
+    val answerSpecSnapshot: String?,
+    val answerVerificationStatus: String,
+    val sourceType: String,
+    val sourceReference: String?,
+    /** revision 的创建时刻：派生证据快照的确定性 capturedAt（快照内容不可随时间漂移）。 */
+    val revisionCreatedAtEpochMillis: Long,
+)
+
+/**
+ * 提交路径的题目事实读面（D-M M1）：按 practice unit 读题面与答案规格。
+ * 无 fixture 的构建里这是机器可判题的唯一目录来源。
+ */
+interface PracticeUnitAssessmentReadPort {
+    suspend fun readPracticeUnitAssessment(
+        practiceUnitId: String,
+    ): PracticeUnitAssessmentRecord?
+}
+
 /** Port-level record of one accepted practice-unit/knowledge binding. */
 data class PracticeUnitKnowledgeBindingRecord(
     val bindingId: String,

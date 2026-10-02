@@ -33,8 +33,6 @@ class KnowledgeQuizFeedbackWriteTest {
             applicationScope = scope,
             clock = Clock.fixed(Instant.parse("2026-01-02T08:00:00Z"), ZoneId.of("Asia/Shanghai")),
             studyZoneId = ZoneId.of("Asia/Shanghai"),
-            initialFixture = null,
-            fixtureSource = M1CuratedFixtureSource,
         )
     }
 

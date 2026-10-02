@@ -40,11 +40,10 @@ import org.junit.runner.RunWith
  * Room.
  *
  * Three properties this file exists to pin:
- * 1. **It reads the learner projection, not the fixture-seeded legacy table.**
- *    `seedFixture` writes `knowledge_mastery_state`, which is the pre-projection
- *    denormalized table nothing in production writes. A read that joined it
- *    looked healthy on device while returning NULL for every real user (KD-7),
- *    so the negative case here is the important one.
+ * 1. **It reads the learner projection.** The pre-projection denormalized table
+ *    that once masked this defect (`knowledge_mastery_state`) is gone with the
+ *    fixture system (D-M M1, schema 58), so a regression of the KD-7 class can
+ *    no longer even be expressed against that table.
  * 2. **Subject scoping is a disclosure boundary.** The tool may only return the
  *    subject the session is already in, so a leaked row is a privacy defect, not
  *    a cosmetic one.
@@ -60,7 +59,7 @@ class MasteryOverviewInstrumentedTest {
     fun setUp() {
         runBlocking {
             store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
-            store.seedFixture(baseSeed())
+            store.seedStudyFacts(baseSeed())
             store.commitProjection(projectionCommit())
         }
     }
@@ -91,18 +90,6 @@ class MasteryOverviewInstrumentedTest {
     }
 
     @Test
-    fun fixtureSeededLegacyMasteryIsNotServedAsMastery() = runBlocking {
-        // baseSeed 通过 seedFixture 往遗留表 knowledge_mastery_state 写了 kc-legacy。
-        // 它没有投影行，所以新的读取必须看不到它——这一条就是 KD-7 那类陷阱的回归。
-        val rows = store.readSubjectMastery(LEARNER, "MATH")
-
-        assertTrue(
-            "the legacy fixture table must not be read as mastery: ${rows.map { it.knowledgeNodeId }}",
-            rows.none { it.knowledgeNodeId == "kc-legacy" },
-        )
-    }
-
-    @Test
     fun oneNodeCountsItsActiveBoundQuestionsOnce() = runBlocking {
         val rows = store.readSubjectMastery(LEARNER, "MATH")
         val weak = rows.single { it.knowledgeNodeId == "kc-weak" }
@@ -115,7 +102,7 @@ class MasteryOverviewInstrumentedTest {
     @Test
     fun theReviewableNodeCountExcludesUnreviewedCandidates() = runBlocking {
         // MATH 有两个 SOURCE_GROUNDED 节点计入；kc-physics 属于别的科目，
-        // kc-legacy 与 kc-unreviewed 是 MODEL_CANDIDATE（模型提议、未经审校）。
+        // kc-unreviewed 是 MODEL_CANDIDATE（模型提议、未经审校）。
         // 这个数决定"另有 N 个尚无学习证据"那一行是否诚实，所以口径要与
         // countReviewedKnowledgeNodesBySubject 保持一致。
         assertEquals(2, store.countReviewableKnowledgeNodes("MATH"))
@@ -346,7 +333,6 @@ class MasteryOverviewInstrumentedTest {
             knowledgeNode("kc-weak", "函数单调性", "MATH"),
             knowledgeNode("kc-strong", "函数奇偶性", "MATH"),
             knowledgeNode("kc-physics", "动量守恒", "PHYSICS"),
-            knowledgeNode("kc-legacy", "遗留节点", "MATH", verificationStatus = "MODEL_CANDIDATE"),
             knowledgeNode("kc-unreviewed", "未审校节点", "MATH", verificationStatus = "MODEL_CANDIDATE"),
         ),
         knowledgeBindings = listOf(
@@ -359,21 +345,6 @@ class MasteryOverviewInstrumentedTest {
                 sourceType = "VERIFIED",
                 taxonomyVersion = "taxonomy-v1",
                 acceptedAtEpochMillis = 5_000,
-            ),
-        ),
-        // 遗留表（fixture 专用）也写一份：它写了不算数，读取必须无视它。
-        knowledgeMasteryStates = listOf(
-            KnowledgeMasteryStateRecord(
-                knowledgeNodeId = "kc-legacy",
-                masteryProbability = 0.99,
-                independentCorrectCount = 9,
-                assistedCorrectCount = 0,
-                incorrectCount = 0,
-                evidenceWeightTotal = 9.0,
-                lastEvidenceAtEpochMillis = OCCURRED_AT,
-                projectionCheckpoint = 0,
-                projectorVersion = PROJECTOR_VERSION,
-                updatedAtEpochMillis = OCCURRED_AT,
             ),
         ),
     )

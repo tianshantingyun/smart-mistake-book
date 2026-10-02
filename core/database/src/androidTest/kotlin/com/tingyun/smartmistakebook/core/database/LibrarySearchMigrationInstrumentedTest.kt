@@ -25,7 +25,7 @@ class LibrarySearchMigrationInstrumentedTest {
 
             runBlocking { assertEquals(STUDY_DATABASE_VERSION, store.readDatabaseVersion()) }
 
-            store.seedFixture(fixtureBundle())
+            store.seedStudyFacts(fixtureBundle())
             store.refreshLibrarySearchProjection()
 
             assertEquals(
@@ -136,7 +136,7 @@ class LibrarySearchMigrationInstrumentedTest {
         context.deleteDatabase(databaseName)
         try {
             val store = StudyDatabaseFactory.open(context, databaseName)
-            store.seedFixture(fixtureBundle())
+            store.seedStudyFacts(fixtureBundle())
             store.refreshLibrarySearchProjection()
             assertEquals(
                 1,

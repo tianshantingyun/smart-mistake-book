@@ -1,6 +1,5 @@
 package com.tingyun.smartmistakebook.core.data.study
 
-import com.tingyun.smartmistakebook.core.data.M1CuratedStudySeed
 import com.tingyun.smartmistakebook.core.database.ReviewLogEntry
 import com.tingyun.smartmistakebook.core.database.dao.ArchivedEntrySummaryRow
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
@@ -125,6 +124,7 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
+import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
 import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealRequest
@@ -202,7 +202,7 @@ class RoomBackedStudyExperienceRepositoryTest {
         val repository = repository(
             database = database,
             applicationScope = applicationScope,
-            initialFixture = null,
+            seedCuratedFixture = false,
         )
 
         try {
@@ -229,7 +229,7 @@ class RoomBackedStudyExperienceRepositoryTest {
         val repository = repository(
             database = database,
             applicationScope = applicationScope,
-            initialFixture = null,
+            seedCuratedFixture = false,
         )
 
         try {
@@ -301,7 +301,7 @@ class RoomBackedStudyExperienceRepositoryTest {
             )
         }
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             repository.initialize()
@@ -361,7 +361,7 @@ class RoomBackedStudyExperienceRepositoryTest {
             )
         }
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             repository.initialize()
@@ -436,7 +436,7 @@ class RoomBackedStudyExperienceRepositoryTest {
             )
         }
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             repository.initialize()
@@ -484,7 +484,7 @@ class RoomBackedStudyExperienceRepositoryTest {
             )
         }
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             val report = repository.calibrationReport()
@@ -940,7 +940,7 @@ class RoomBackedStudyExperienceRepositoryTest {
         // 反例见下一条）。
         val database = prerequisitePlannedDatabase(prerequisiteMastery = 0.2)
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             repository.initialize()
@@ -961,7 +961,7 @@ class RoomBackedStudyExperienceRepositoryTest {
         // 反例：前置达标时不该出现前置缺口理由——否则"前置缺失"会退化成所有题的常态标签。
         val database = prerequisitePlannedDatabase(prerequisiteMastery = 0.75)
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             repository.initialize()
@@ -1053,7 +1053,7 @@ class RoomBackedStudyExperienceRepositoryTest {
             )
         }
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        val repository = repository(database, applicationScope, initialFixture = null)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             repository.initialize()
@@ -1462,15 +1462,20 @@ class RoomBackedStudyExperienceRepositoryTest {
             Instant.parse("2026-01-02T08:00:00Z"),
             ZoneId.of("Asia/Shanghai"),
         ),
-        initialFixture: StudySeedBundle? = M1CuratedStudySeed.bundle(includeTutorMistake = false),
+        /** D-M M1：默认把 curated 测试夹具直写进假库（旧 initialFixture 的替代）。 */
+        seedCuratedFixture: Boolean = true,
     ) = RoomBackedStudyExperienceRepository(
         database = database,
         applicationScope = applicationScope,
         clock = clock,
         studyZoneId = ZoneId.of("Asia/Shanghai"),
-        initialFixture = initialFixture,
-        fixtureSource = M1CuratedFixtureSource,
-    )
+    ).also { _ ->
+        if (seedCuratedFixture) {
+            (database as? FakeStudyDatabasePort)?.seedStudyFixture(
+                CuratedStudyTestFixture.bundle(includeTutorMistake = false),
+            )
+        }
+    }
 
     private companion object {
         /** Curated M1 unit whose artifact carries a knowledge-node scope (spec §2.16 fixtures). */
@@ -1528,6 +1533,7 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
     private val advanceProofs = mutableMapOf<String, AttemptAdvanceProofRecord>()
     private val advanceReceipts = mutableMapOf<String, ReviewSessionAdvanceReceipt>()
     private val evidenceSnapshots = mutableMapOf<String, AssessmentEvidenceSnapshot>()
+    private val practiceUnitAssessments = linkedMapOf<String, PracticeUnitAssessmentRecord>()
     private val attemptsBySubmission = mutableMapOf<String, AttemptWriteResult>()
     private var nextEventSequence = 1L
     private var persistedLearnerSnapshot: PersistedLearnerSnapshot? = null
@@ -2520,13 +2526,16 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
         ),
     )
 
-    override suspend fun seedFixture(bundle: StudySeedBundle): SeedResult {
+    /**
+     * D-M M1：测试夹具直写假库（**不是端口方法**——`seedFixture` 端口已随 fixture 系统
+     * 退场）。除旧行为外，还登记派生路径要读的题目事实与现役绑定。
+     */
+    fun seedStudyFixture(bundle: StudySeedBundle) {
         seedCallCount++
-        val insertedProblems = bundle.problems.count { problemIds.add(it.problemId) }
+        bundle.problems.forEach { problemIds.add(it.problemId) }
         val problemsById = bundle.problems.associateBy { it.problemId }
         val revisionsById = bundle.revisions.associateBy { it.revisionId }
         val unitsById = bundle.practiceUnits.associateBy { it.practiceUnitId }
-        var insertedEntries = 0
         bundle.errorBookEntries.forEach { entry ->
             if (entry.entryId !in entries) {
                 val problem = requireNotNull(problemsById[entry.problemId])
@@ -2546,12 +2555,50 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
                     nextReviewAtEpochMillis = null,
                     retrievability = null,
                 )
-                insertedEntries++
             }
         }
+        bundle.knowledgeNodes.forEach { node ->
+            if (knowledgeNodes.none { it.knowledgeNodeId == node.knowledgeNodeId }) {
+                knowledgeNodes += node
+            }
+        }
+        bundle.knowledgeBindings.forEach { binding ->
+            addPracticeUnitKnowledgeBinding(
+                PracticeUnitKnowledgeBindingRecord(
+                    bindingId = binding.bindingId,
+                    practiceUnitId = binding.practiceUnitId,
+                    knowledgeNodeId = binding.knowledgeNodeId,
+                    basisRevisionId = binding.basisRevisionId,
+                    taxonomyVersion = binding.taxonomyVersion,
+                    acceptedAtEpochMillis = binding.acceptedAtEpochMillis,
+                ),
+            )
+        }
+        bundle.practiceUnits.forEach { unit ->
+            val revision = requireNotNull(revisionsById[unit.problemRevisionId])
+            val problem = requireNotNull(problemsById[unit.problemId])
+            practiceUnitAssessments[unit.practiceUnitId] = PracticeUnitAssessmentRecord(
+                practiceUnitId = unit.practiceUnitId,
+                problemId = unit.problemId,
+                problemRevisionId = unit.problemRevisionId,
+                subject = problem.subject,
+                unitTitle = unit.title,
+                promptMarkdown = unit.promptMarkdown,
+                questionDocumentSnapshot = revision.questionDocumentSnapshot,
+                answerSpecId = revision.answerSpecId,
+                answerSpecSnapshot = revision.answerSpecSnapshot,
+                answerVerificationStatus = revision.answerVerificationStatus,
+                sourceType = revision.sourceType,
+                sourceReference = revision.sourceReference,
+                revisionCreatedAtEpochMillis = revision.createdAtEpochMillis,
+            )
+        }
         mistakes.value = entries.values.toList()
-        return SeedResult(insertedProblems, insertedEntries)
     }
+
+    override suspend fun readPracticeUnitAssessment(
+        practiceUnitId: String,
+    ): PracticeUnitAssessmentRecord? = practiceUnitAssessments[practiceUnitId]
 
     override suspend fun saveAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord) = Unit
 

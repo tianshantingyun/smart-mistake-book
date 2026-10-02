@@ -928,15 +928,6 @@ internal object DatabaseContractValidator {
         }
         bundle.assessmentItems.forEach(::validateAssessmentItem)
         bundle.assessmentEvents.forEach(::validateAssessmentEvent)
-        bundle.problemMemoryStates.forEach {
-            finiteRange(it.stabilityDays, "stabilityDays", 0.000_001, Double.MAX_VALUE)
-            finiteRange(it.difficulty, "difficulty", 0.0, 1.0)
-            finiteRange(it.retrievability, "retrievability", 0.0, 1.0)
-        }
-        bundle.knowledgeMasteryStates.forEach {
-            finiteRange(it.masteryProbability, "masteryProbability", 0.0, 1.0)
-            finiteRange(it.evidenceWeightTotal, "evidenceWeightTotal", 0.0, Double.MAX_VALUE)
-        }
         bundle.reviewSessions.forEach { session ->
             validateReviewSessionCreation(session)
         }

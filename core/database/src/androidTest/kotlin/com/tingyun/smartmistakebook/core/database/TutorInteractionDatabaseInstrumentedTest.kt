@@ -104,7 +104,7 @@ class TutorInteractionDatabaseInstrumentedTest {
 
     @Test
     fun revealRequestDoesNotMaterializeUntilVisibleAndVisibleExposureIsIdempotent() = runBlocking {
-        store.seedFixture(exposureSeed())
+        store.seedStudyFacts(exposureSeed())
         val sessionId = "saved-mistake-session"
         val modelTaskRequestId = planRequestId(sessionId)
         store.persistSucceededPlanTask(sessionId, modelTaskRequestId)
@@ -149,7 +149,7 @@ class TutorInteractionDatabaseInstrumentedTest {
 
     @Test
     fun unsavedVisibleAnswerReconcilesExactlyOnceAndRejectsConflictingReanchor() = runBlocking {
-        store.seedFixture(exposureSeed())
+        store.seedStudyFacts(exposureSeed())
         val sessionId = "pending-capture-session"
         val modelTaskRequestId = planRequestId(sessionId)
         store.persistSucceededPlanTask(sessionId, modelTaskRequestId)
@@ -183,7 +183,7 @@ class TutorInteractionDatabaseInstrumentedTest {
 
     @Test
     fun concurrentAnchorAndVisibilityRaceMaterializesOneLedgerOutcome() = runBlocking {
-        store.seedFixture(exposureSeed())
+        store.seedStudyFacts(exposureSeed())
         val sessionId = "anchor-visibility-race"
         val modelTaskRequestId = planRequestId(sessionId)
         store.persistSucceededPlanTask(sessionId, modelTaskRequestId)
@@ -208,7 +208,7 @@ class TutorInteractionDatabaseInstrumentedTest {
 
     @Test
     fun twoRespondRepliesInSameTurnUseExactRequestAndDoNotFabricateTurnResponse() = runBlocking {
-        store.seedFixture(exposureSeed())
+        store.seedStudyFacts(exposureSeed())
         val sessionId = "respond-exposure-session"
         val revealingRequestId = "tutor-respond:$sessionId:1"
         val hiddenRequestId = "tutor-respond:$sessionId:2"
@@ -259,7 +259,7 @@ class TutorInteractionDatabaseInstrumentedTest {
 
     @Test
     fun respondExposureBeforeTheSucceededTaskTimestampIsRejected() = runBlocking {
-        store.seedFixture(exposureSeed())
+        store.seedStudyFacts(exposureSeed())
         val sessionId = "respond-exposure-before-task"
         val modelTaskRequestId = "tutor-respond:$sessionId:1"
         store.persistSucceededRespondTask(

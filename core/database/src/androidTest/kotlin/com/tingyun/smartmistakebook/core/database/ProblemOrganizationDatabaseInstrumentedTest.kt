@@ -29,7 +29,7 @@ class ProblemOrganizationDatabaseInstrumentedTest {
     @Before
     fun setUp() = runBlocking {
         store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
-        store.seedFixture(baseSeed())
+        store.seedStudyFacts(baseSeed())
         Unit
     }
 
@@ -383,7 +383,7 @@ class ProblemOrganizationDatabaseInstrumentedTest {
         try {
             createDatabaseFromExportedSchema(context, databaseName, version = 7)
             val migrated = StudyDatabaseFactory.open(context, databaseName)
-            migrated.seedFixture(baseSeed())
+            migrated.seedStudyFacts(baseSeed())
             assertTrue(
                 migrated.confirmProblemOrganization(
                     command("migration-confirm", "9".repeat(64)),

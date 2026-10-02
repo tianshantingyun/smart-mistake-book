@@ -39,7 +39,7 @@ class MistakeMemoryProjectionInstrumentedTest {
     fun setUp() {
         runBlocking {
             store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
-            store.seedFixture(baseSeed())
+            store.seedStudyFacts(baseSeed())
         }
     }
 

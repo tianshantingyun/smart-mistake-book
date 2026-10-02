@@ -150,6 +150,139 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /**
+     * 阶段 3B 步骤一 · D-M M1（v57→58）：删两张 legacy fixture 投影表——
+     * 矩阵用的是空库，看不出"旧行还在不在"，这里用真库、真驱动实测：
+     * 1. `problem_memory_state` / `knowledge_mastery_state` 整表（含索引）消失；
+     * 2. 两表里原有的行随表消失（fixture 专表，无生产读者，不做搬运）；
+     * 3. 真实学习数据（practice_unit / problem / problem_revision / 真实投影表）一行不碰。
+     */
+    @Test
+    fun m1DropRemovesLegacyFixtureProjectionTablesAndKeepsRealRows() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave5-m1-drop-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 57)
+            seedV57LegacyFixtureRows(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v57 库迁到 58",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV58M1Shape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /** 迁移后的真库形状：两张 legacy 表消失，真实行原样还在。 */
+    private fun inspectV58M1Shape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            val tables = tableNames(connection)
+            assertFalse("problem_memory_state 整表必须消失", LEGACY_PROBLEM_MEMORY_TABLE in tables)
+            assertFalse("knowledge_mastery_state 整表必须消失", LEGACY_MASTERY_TABLE in tables)
+            assertTrue("真实题卡表必须保留", "learner_problem_memory_state" in tables)
+            assertTrue("真实掌握表必须保留", "learner_knowledge_mastery_state" in tables)
+
+            val statement = connection.prepare(
+                "SELECT unit.practice_unit_id, problem.subject FROM practice_unit AS unit " +
+                    "JOIN problem ON problem.problem_id = unit.problem_id",
+            )
+            try {
+                assertTrue("真实行必须一行不丢", statement.step())
+                assertEquals(M1_UNIT_ID, statement.getText(0))
+                assertEquals("MATH", statement.getText(1))
+                assertFalse("旧行只有这一条", statement.step())
+            } finally {
+                statement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /**
+     * 往导出的 57.json 建出来的库里写：一行真实 practice unit（连同 problem/revision）
+     * + 两 legacy 表各一行（显式关外键：fixture 表可以带任意 practice_unit/知识节点 id，
+     * 这里要的是"迁移删没删干净、别的行动没动"，不是 FK 体系完备性）。
+     */
+    private fun seedV57LegacyFixtureRows(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$M1_PROBLEM_ID', 'fp-wave5', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$M1_REVISION_ID', '$M1_PROBLEM_ID', 1, 'M1 题', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave5-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `practice_unit` (
+                    `practice_unit_id`, `problem_id`, `problem_revision_id`, `unit_key`,
+                    `unit_kind`, `title`, `prompt_markdown`, `estimated_seconds`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$M1_UNIT_ID', '$M1_PROBLEM_ID', '$M1_REVISION_ID', 'whole',
+                    'WHOLE_PROBLEM', 'M1 题', '题面', 120,
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `$LEGACY_PROBLEM_MEMORY_TABLE` (
+                    `practice_unit_id`, `stability_days`, `difficulty`,
+                    `last_reviewed_at_epoch_millis`, `next_review_at_epoch_millis`,
+                    `review_count`, `lapse_count`, `retrievability`, `projection_checkpoint`,
+                    `projector_version`, `updated_at_epoch_millis`
+                ) VALUES (
+                    '$M1_UNIT_ID', 12.5, 7.0, NULL, 1700100000000,
+                    3, 0, 0.5, 5, 'projector-v11', 1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `$LEGACY_MASTERY_TABLE` (
+                    `knowledge_node_id`, `mastery_probability`, `independent_correct_count`,
+                    `assisted_correct_count`, `incorrect_count`, `evidence_weight_total`,
+                    `last_evidence_at_epoch_millis`, `projection_checkpoint`,
+                    `projector_version`, `updated_at_epoch_millis`
+                ) VALUES (
+                    'kc-legacy-wave5', 0.9, 5, 0, 1, 5.5,
+                    1700000000000, 5, 'projector-v11', 1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
     // ---- fixtures ----
 
     private fun tableNames(connection: SQLiteConnection): Set<String> {
@@ -379,6 +512,13 @@ class FullMigrationMatrixInstrumentedTest {
         const val PLAN_FINGERPRINT = "wave0-plan-fingerprint-v53"
         const val LEGACY_PLANNER_VERSION = "review-planner-legacy-v1"
         const val LEGACY_PROJECTOR_VERSION = "learning-core-v6(projector-v6,evidence-v4)"
+
+        /** v57→58（M1）用例：被删的两张 legacy fixture 表与真实行夹具值。 */
+        const val LEGACY_PROBLEM_MEMORY_TABLE = "problem_memory_state"
+        const val LEGACY_MASTERY_TABLE = "knowledge_mastery_state"
+        const val M1_PROBLEM_ID = "problem-wave5"
+        const val M1_REVISION_ID = "revision-wave5"
+        const val M1_UNIT_ID = "unit-wave5"
 
         /** v56→57（M5）用例：被重建/被删的表与夹具值。 */
         const val MEMORY_TABLE = "learner_problem_memory_state"

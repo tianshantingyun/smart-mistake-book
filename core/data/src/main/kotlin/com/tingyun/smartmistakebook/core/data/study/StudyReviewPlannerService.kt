@@ -56,7 +56,6 @@ internal class StudyReviewPlannerService(
     private val useReviewPlannerV2: Boolean,
     /** 批次 3（规划侧个性化）：与投影同源的 FSRS decay（`activeFsrsDecay`）。 */
     private val planningDecay: Double,
-    private val fixtureSource: StudyFixtureSource,
     private val reviewPlanner: ReviewPlanner,
     private val reviewPlannerV2: ReviewPlannerV2,
     private val durationModel: LogDurationModel,
@@ -255,35 +254,25 @@ internal class StudyReviewPlannerService(
             .sortedBy(MistakeRecord::practiceUnitId)
             .distinctBy(MistakeRecord::practiceUnitId)
             .map { mistake ->
-                val curatedEvidence = fixtureSource
-                    .teachingArtifactForPracticeUnit(mistake.practiceUnitId)
-                    ?.assessmentItems
-                    ?.singleOrNull()
-                    ?.let { assessment ->
-                        fixtureSource.evidenceSnapshotForAssessment(assessment.id)
-                    }
+                // D-M M1：itemFamily/sourceBundle 的 fixture 来源退场。题目身份只由 practice unit
+                // 派生（保存下来的题没有来源包 → sourceBundleId 保持 null，与无 fixture 的
+                // release 行为一致）；知识归属直接用错题记录里的现役绑定，空则落 pseudo 桶。
                 ReviewCandidate(
                     practiceUnitId = mistake.practiceUnitId,
                     leech = learnerSnapshot.problemMemoryStates[mistake.practiceUnitId]?.isLeeched == true,
                     avoidance = mistake.practiceUnitId in avoidanceUnits,
                     knowledgeNodeIds = mistake.knowledgeNodeIds.ifEmpty {
-                        curatedEvidence?.attributions
-                            ?.mapTo(linkedSetOf()) { it.knowledgeNodeId }
-                            .orEmpty()
-                            .ifEmpty {
-                                // Spec §3.4: unbound questions fall back to the
-                                // subject-scoped pseudo KC (materialized above)
-                                // so their mastery evidence stays visible to
-                                // the planner.
-                                setOf(
-                                    pseudoNodeIds[mistake.practiceUnitId]
-                                        ?: "pseudo:${mistake.subject.uppercase()}",
-                                )
-                            }
+                        // Spec §3.4: unbound questions fall back to the
+                        // subject-scoped pseudo KC (materialized above)
+                        // so their mastery evidence stays visible to
+                        // the planner.
+                        setOf(
+                            pseudoNodeIds[mistake.practiceUnitId]
+                                ?: "pseudo:${mistake.subject.uppercase()}",
+                        )
                     },
-                    itemFamilyId = curatedEvidence?.itemFamilyId
-                        ?: "saved-question:${mistake.practiceUnitId}",
-                    sourceBundleId = curatedEvidence?.sourceBundleId,
+                    itemFamilyId = "saved-question:${mistake.practiceUnitId}",
+                    sourceBundleId = null,
                     subjectId = mistake.subject,
                     // Mistake records do not carry an item-type dimension yet; the
                     // duration model buckets on (learner, subject, itemType=null,
@@ -541,7 +530,6 @@ internal class StudyReviewPlannerService(
         requestId: String,
         occurredAtEpochMillis: Long,
         mistakes: List<MistakeRecord>,
-        knowledgeNames: Map<String, String>,
     ): KnowledgeReviewSessionPlan {
         require(requestId.isNotBlank()) { "Knowledge-review request id must not be blank" }
         require(occurredAtEpochMillis >= 0) { "Knowledge-review request time must not be negative" }
@@ -636,7 +624,6 @@ internal class StudyReviewPlannerService(
                     subject = subjectByNode[scored.knowledgeNodeId]?.name
                         ?: SubjectKind.GENERAL.name,
                     displayName = context?.displayName
-                        ?: knowledgeNames[scored.knowledgeNodeId]
                         ?: scored.knowledgeNodeId,
                     masteryScore = state?.masteryScore,
                     lastEvidenceAtEpochMillis = state?.lastEvidenceAtEpochMillis,

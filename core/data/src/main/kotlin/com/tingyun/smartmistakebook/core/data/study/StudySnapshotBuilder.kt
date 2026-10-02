@@ -26,9 +26,6 @@ internal class StudySnapshotBuilder(
     private val database: StudyDatabasePort,
     private val learnerId: String,
     private val studyZoneId: ZoneId,
-    private val fixtureSource: StudyFixtureSource,
-    private val knowledgeNames: Map<String, String>,
-    private val curatedProblemIds: Set<String>,
     private val forgettingCurve: ForgettingCurve,
     private val plannerService: StudyReviewPlannerService,
     /**
@@ -103,7 +100,8 @@ internal class StudySnapshotBuilder(
                 }
             }
         val resolvedKnowledgeContexts = plannerService.resolveKnowledgeContexts(referencedKnowledgeNodeIds)
-        val resolvedKnowledgeNames = knowledgeNames + resolvedKnowledgeContexts.mapValues {
+        // D-M M1：fixture 的 knowledgeNames 字典退场；展示名只来自知识库真值（解析器）。
+        val resolvedKnowledgeNames = resolvedKnowledgeContexts.mapValues {
             it.value.displayName
         }
         return StudyExperienceSnapshot(
@@ -113,9 +111,7 @@ internal class StudySnapshotBuilder(
                     learnerSnapshot = projection,
                     atEpochMillis = planningContext.planningAtEpochMillis,
                     resolvedKnowledgeNames = resolvedKnowledgeNames,
-                    curatedProblemIds = curatedProblemIds,
                     forgettingCurve = forgettingCurve,
-                    fixtureSource = fixtureSource,
                     prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
                 )
             },
@@ -134,9 +130,9 @@ internal class StudySnapshotBuilder(
                 prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
             ),
             knowledgeCoverage = knowledgeCoverage,
-            tutorExampleSaved = orderedMistakes.any {
-                it.practiceUnitId == fixtureSource.tutorPracticeUnitId
-            },
+            // D-M M1：curated tutor fixture 退场，"导师示例已保存"不再有任何来源，恒 false
+            //（字段保留以维持读模型契约；UI 侧无消费者）。
+            tutorExampleSaved = false,
             // The tutor root has no current question until the student captures or selects one.
             tutorPracticeUnitId = null,
             tutorDecision = null,

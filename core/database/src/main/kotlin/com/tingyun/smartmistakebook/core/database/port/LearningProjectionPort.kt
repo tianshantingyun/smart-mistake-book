@@ -24,16 +24,12 @@ import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionCommit
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteCommand
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteResult
-import com.tingyun.smartmistakebook.core.database.SeedResult
-import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 
 /**
- * Port for fixture seeding and assessment snapshot/event writes.
+ * Port for assessment snapshot/event writes (fixture seeding retired with D-M M1).
  */
 interface SeedAssessmentPort {
-    suspend fun seedFixture(bundle: StudySeedBundle): SeedResult
-
     suspend fun saveAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord)
 
     suspend fun saveAssessmentEvidenceSnapshot(snapshot: AssessmentEvidenceSnapshot)

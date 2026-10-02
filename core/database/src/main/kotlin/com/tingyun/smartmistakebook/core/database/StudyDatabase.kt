@@ -8,7 +8,6 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.tingyun.smartmistakebook.core.database.dao.AttemptTransactionDao
 import com.tingyun.smartmistakebook.core.database.dao.BatchImportDao
 import com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceDao
-import com.tingyun.smartmistakebook.core.database.dao.FixtureSeedDao
 import com.tingyun.smartmistakebook.core.database.dao.ImmutableLearningFactDao
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeGroundingDao
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeNodeRelationDao
@@ -23,6 +22,7 @@ import com.tingyun.smartmistakebook.core.database.dao.PredictionAuditDao
 import com.tingyun.smartmistakebook.core.database.dao.ModelTaskTransactionDao
 import com.tingyun.smartmistakebook.core.database.dao.MistakeDetailDao
 import com.tingyun.smartmistakebook.core.database.dao.PendingCaptureDao
+import com.tingyun.smartmistakebook.core.database.dao.PracticeUnitAssessmentDao
 import com.tingyun.smartmistakebook.core.database.dao.ProblemDao
 import com.tingyun.smartmistakebook.core.database.dao.ProblemOrganizationDao
 import com.tingyun.smartmistakebook.core.database.dao.ProblemDraftEditWorkspaceDao
@@ -61,7 +61,6 @@ import com.tingyun.smartmistakebook.core.database.entity.AttemptCorrectionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptSubmissionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ErrorBookEntryEntity
-import com.tingyun.smartmistakebook.core.database.entity.KnowledgeMasteryStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeSourceBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSourceEntity
@@ -93,7 +92,6 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftEditWorkspa
 import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftRevisionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftSourceAssetEntity
-import com.tingyun.smartmistakebook.core.database.entity.ProblemMemoryStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemOrganizationReceiptEntity
@@ -120,7 +118,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 57
+internal const val STUDY_DATABASE_VERSION = 58
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -170,8 +168,6 @@ internal object SplitImportLedgerStrings {
         AttemptCorrectionEntity::class,
         LearningSequenceEntity::class,
         ProjectionOutboxEntity::class,
-        ProblemMemoryStateEntity::class,
-        KnowledgeMasteryStateEntity::class,
         LearnerProjectionSnapshotEntity::class,
         ProjectionArchiveEntity::class,
         LearnerProblemMemoryStateEntity::class,
@@ -220,6 +216,8 @@ internal object SplitImportLedgerStrings {
 internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun problemDao(): ProblemDao
 
+    abstract fun practiceUnitAssessmentDao(): PracticeUnitAssessmentDao
+
     abstract fun problemOrganizationDao(): ProblemOrganizationDao
 
     abstract fun knowledgeGroundingDao(): KnowledgeGroundingDao
@@ -245,8 +243,6 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun attemptTransactionDao(): AttemptTransactionDao
 
     abstract fun projectionTransactionDao(): ProjectionTransactionDao
-
-    abstract fun fixtureSeedDao(): FixtureSeedDao
 
     abstract fun reviewPlanTransactionDao(): ReviewPlanTransactionDao
 
@@ -355,6 +351,7 @@ object StudyDatabaseFactory {
             KERNEL_WAVE2_MIGRATION_54_55,
             KERNEL_WAVE3_MIGRATION_55_56,
             KERNEL_WAVE4_MIGRATION_56_57,
+            KERNEL_WAVE5_MIGRATION_57_58,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

@@ -10,11 +10,9 @@ import com.tingyun.smartmistakebook.core.database.dao.latestSessionHead
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentItemSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.ErrorBookEntryEntity
-import com.tingyun.smartmistakebook.core.database.entity.KnowledgeMasteryStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLatticeView
 import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemEntity
-import com.tingyun.smartmistakebook.core.database.entity.ProblemMemoryStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitEntity
@@ -144,33 +142,6 @@ internal fun AssessmentEventSeedRecord.toEntity() = AssessmentEventEntity(
     hintLevel = hintLevel,
     submittedResponse = submittedResponse,
     occurredAtEpochMillis = occurredAtEpochMillis,
-)
-
-internal fun ProblemMemoryStateRecord.toEntity() = ProblemMemoryStateEntity(
-    practiceUnitId = practiceUnitId,
-    stabilityDays = stabilityDays,
-    difficulty = difficulty,
-    lastReviewedAtEpochMillis = lastReviewedAtEpochMillis,
-    nextReviewAtEpochMillis = nextReviewAtEpochMillis,
-    reviewCount = reviewCount,
-    lapseCount = lapseCount,
-    retrievability = retrievability,
-    projectionCheckpoint = projectionCheckpoint,
-    projectorVersion = projectorVersion,
-    updatedAtEpochMillis = updatedAtEpochMillis,
-)
-
-internal fun KnowledgeMasteryStateRecord.toEntity() = KnowledgeMasteryStateEntity(
-    knowledgeNodeId = knowledgeNodeId,
-    masteryProbability = masteryProbability,
-    independentCorrectCount = independentCorrectCount,
-    assistedCorrectCount = assistedCorrectCount,
-    incorrectCount = incorrectCount,
-    evidenceWeightTotal = evidenceWeightTotal,
-    lastEvidenceAtEpochMillis = lastEvidenceAtEpochMillis,
-    projectionCheckpoint = projectionCheckpoint,
-    projectorVersion = projectorVersion,
-    updatedAtEpochMillis = updatedAtEpochMillis,
 )
 
 internal fun ReviewPlanRecord.toEntity() = ReviewPlanEntity(

@@ -10,7 +10,6 @@ import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.OptimalRetention
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuizFeedbackResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
-import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.domain.ChatEvidenceGateCalibration
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.ForgettingCurve
@@ -105,18 +104,9 @@ class RoomBackedStudyExperienceRepository(
     /** Locally optimized FSRS-6 parameters (spec 2.11); null keeps the verified defaults. */
     private val optimizedFsrsParameters: DoubleArray? = null,
     private val closeDatabaseOnClose: Boolean = false,
-    private val initialFixture: StudySeedBundle? = null,
-    private val fixtureSource: StudyFixtureSource = StudyFixtureRegistry.source,
 ) : StudyExperienceRepository {
     private val operationMutex = Mutex()
     private val _snapshot = MutableStateFlow(StudyExperienceSnapshot())
-    private val fixtureBundle = fixtureSource.bundle(includeTutorMistake = true)
-    private val curatedProblemIds = fixtureBundle?.problems
-        ?.mapTo(hashSetOf()) { it.problemId }
-        ?: hashSetOf()
-    private val knowledgeNames = fixtureBundle?.knowledgeNodes
-        ?.associate { it.knowledgeNodeId to it.displayName }
-        ?: emptyMap()
     // W2-1/KF-01：学生侧遗忘曲线（FSRS 分支）的 decay 来自个性化参数集；无优化参数时
     // 等于默认 w20。与 memoryUpdateModel 的 decay 同源，禁止各自另算。
     private val activeFsrsDecay =
@@ -184,12 +174,16 @@ class RoomBackedStudyExperienceRepository(
         database = database,
         learnerId = learnerId,
         studyZoneId = studyZoneId,
-        fixtureSource = fixtureSource,
+    )
+    /** D-M M1：机器可判题的库内目录（practice unit + 绑定 + 题目字段派生）。 */
+    private val practiceUnitFacts = StudyPracticeUnitFacts(
+        database = database,
+        writeContext = writeContext,
     )
     private val submissionPreparer = StudySubmissionPreparer(
         database = database,
         learnerId = learnerId,
-        fixtureSource = fixtureSource,
+        practiceUnitFacts = practiceUnitFacts,
         reviewLogSink = reviewLogSink,
         writeContext = writeContext,
     )
@@ -227,7 +221,6 @@ class RoomBackedStudyExperienceRepository(
         reviewTimeBudgetSeconds = reviewTimeBudgetSeconds,
         useReviewPlannerV2 = useReviewPlannerV2,
         planningDecay = activeFsrsDecay,
-        fixtureSource = fixtureSource,
         reviewPlanner = reviewPlanner,
         reviewPlannerV2 = reviewPlannerV2,
         durationModel = durationModel,
@@ -246,7 +239,7 @@ class RoomBackedStudyExperienceRepository(
     private val answerRevealService = StudyAnswerRevealService(
         database = database,
         learnerId = learnerId,
-        fixtureSource = fixtureSource,
+        practiceUnitFacts = practiceUnitFacts,
         reviewLogSink = reviewLogSink,
         writeContext = writeContext,
         learnerSnapshot = { currentLearnerSnapshot() },
@@ -255,9 +248,6 @@ class RoomBackedStudyExperienceRepository(
         database = database,
         learnerId = learnerId,
         studyZoneId = studyZoneId,
-        fixtureSource = fixtureSource,
-        knowledgeNames = knowledgeNames,
-        curatedProblemIds = curatedProblemIds,
         forgettingCurve = forgettingCurve,
         plannerService = plannerService,
         knowledgePrerequisites = knowledgePrerequisites,
@@ -329,7 +319,6 @@ class RoomBackedStudyExperienceRepository(
 
     override suspend fun initialize() {
         runOperation {
-            if (!initialized) initialFixture?.let { database.seedFixture(it) }
             database.reconcileTutorAnswerExposures(learnerId)
             latestMistakes = database.observeMistakes().first()
             latestPendingCorrectionCount = database.observePendingProblemDraftCount().first()
@@ -436,7 +425,7 @@ class RoomBackedStudyExperienceRepository(
         }
 
     override suspend fun teachingArtifact(practiceUnitId: String): VerifiedTeachingArtifact? =
-        fixtureSource.teachingArtifactForPracticeUnit(practiceUnitId)
+        practiceUnitFacts.artifactFor(practiceUnitId)
 
     /**
      * Spec §2.16 re-teach opening. The early return repeats the predicate
@@ -815,7 +804,6 @@ class RoomBackedStudyExperienceRepository(
             requestId = requestId,
             occurredAtEpochMillis = occurredAtEpochMillis,
             mistakes = latestMistakes,
-            knowledgeNames = knowledgeNames,
         )
     }
 

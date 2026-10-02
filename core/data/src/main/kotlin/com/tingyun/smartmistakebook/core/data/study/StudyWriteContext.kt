@@ -3,7 +3,6 @@ package com.tingyun.smartmistakebook.core.data.study
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
-import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.Instant
@@ -11,15 +10,14 @@ import java.time.ZoneId
 
 /**
  * Write-path primitives shared by the study repository's collaborators:
- * deterministic ids, the study-day stamp, the per-source cooldown lookup and
- * the verified-catalog guard. Kept in one place so ingestion, submission
- * preparation and rating writes cannot drift apart on any of them.
+ * deterministic ids, the study-day stamp and the per-source cooldown lookup.
+ * Kept in one place so ingestion, submission preparation and rating writes
+ * cannot drift apart on any of them.
  */
 internal class StudyWriteContext(
     private val database: StudyDatabasePort,
     private val learnerId: String,
     private val studyZoneId: ZoneId,
-    private val fixtureSource: StudyFixtureSource,
 ) {
     fun stableId(namespace: String, requestId: String): String {
         val bytes = MessageDigest.getInstance("SHA-256")
@@ -59,9 +57,4 @@ internal class StudyWriteContext(
         ) ?: return false
         return atEpochMillis - last in 0 until cooldownMillis
     }
-
-    fun requireTeachingArtifact(practiceUnitId: String): VerifiedTeachingArtifact =
-        requireNotNull(fixtureSource.teachingArtifactForPracticeUnit(practiceUnitId)) {
-            "Practice unit $practiceUnitId is outside the verified M1 catalog"
-        }
 }

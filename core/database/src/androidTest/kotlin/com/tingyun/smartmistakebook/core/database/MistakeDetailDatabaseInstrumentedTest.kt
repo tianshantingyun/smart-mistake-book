@@ -47,7 +47,7 @@ class MistakeDetailDatabaseInstrumentedTest {
 
         val revisionTwoDocument = confirmedDocument("第二版题面", ASSET_TWO)
         store.createProblemDraft(createDraftCommand(DRAFT_TWO, ASSET_TWO, "b".repeat(64)))
-        store.seedFixture(
+        store.seedStudyFacts(
             StudySeedBundle(
                 problems = listOf(
                     ProblemSeedRecord(
@@ -123,7 +123,7 @@ class MistakeDetailDatabaseInstrumentedTest {
         val snapshot = CapturedQuestionDocumentCodec.encode(document)
         val fingerprint = CapturedQuestionDocumentFingerprint.of(document)
         val entryIds = List(count) { index -> "batch-entry-$index" }
-        store.seedFixture(
+        store.seedStudyFacts(
             StudySeedBundle(
                 problems = List(count) { index ->
                     ProblemSeedRecord(

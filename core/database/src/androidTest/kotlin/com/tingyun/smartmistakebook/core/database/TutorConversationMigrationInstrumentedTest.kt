@@ -76,7 +76,7 @@ class TutorConversationMigrationInstrumentedTest {
         context.deleteDatabase(databaseName)
         try {
             val store = StudyDatabaseFactory.open(context, databaseName)
-            store.seedFixture(
+            store.seedStudyFacts(
                 StudySeedBundle(
                     problems = listOf(
                         ProblemSeedRecord(
@@ -185,7 +185,7 @@ class TutorConversationMigrationInstrumentedTest {
         context.deleteDatabase(databaseName)
         try {
             val store = StudyDatabaseFactory.open(context, databaseName)
-            store.seedFixture(
+            store.seedStudyFacts(
                 StudySeedBundle(
                     problems = listOf(
                         ProblemSeedRecord(

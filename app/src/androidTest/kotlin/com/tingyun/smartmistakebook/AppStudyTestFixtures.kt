@@ -1,6 +1,8 @@
-package com.tingyun.smartmistakebook.core.data
+package com.tingyun.smartmistakebook
 
-import com.tingyun.smartmistakebook.core.database.AssessmentItemSnapshotSeedRecord
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import com.tingyun.smartmistakebook.core.database.ErrorBookEntrySeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeBindingSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
@@ -8,53 +10,35 @@ import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRelationSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemSeedRecord
+import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
-import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
-import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
-import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
-import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.ContentBlock
-import com.tingyun.smartmistakebook.core.model.EvidenceAttributionCertainty
-import com.tingyun.smartmistakebook.core.model.EvidenceAttributionRole
-import com.tingyun.smartmistakebook.core.model.KnowledgeEvidenceAttribution
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.StructuredChoice
-import com.tingyun.smartmistakebook.core.model.TeachingArtifactVerification
-import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
-import com.tingyun.smartmistakebook.core.model.TutorChoice
-import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
-import com.tingyun.smartmistakebook.core.model.VerifiedTeachingFollowUp
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
+import kotlinx.coroutines.runBlocking
 
 /**
- * Small, auditable M1 catalog used to prove the real Room-backed learning loop.
+ * D-M M1 测试夹具（app androidTest 源集，**不是**生产接缝）：生产 `M1CuratedStudySeed` /
+ * `StudyFixtureSource` 随 fixture 系统退场后，UI 场景需要的 curated 内容在这里自给自足。
  *
- * The catalog contains five original, verified questions. Four are visibly labelled local
- * examples in the initial mistake book; the derivative-sign question is the Tutor example and is
- * added only after the learner explicitly saves it. No attempt, mastery, streak, or review history
- * is seeded, so the UI cannot present invented learning statistics.
+ * 内容与退场的 debug fixture 逐字等价（同 id / 题面 markdown / 选项 / 答案规格 / 绑定），
+ * 但写入走**库文件直写**（跨模块没有可直写的 DAO）：先让 Room 建好 schema（读一次版本号），
+ * 再用 `SQLiteDatabase` 以 INSERT OR IGNORE 写行；WAL 下多连接安全。
  */
-object M1CuratedStudySeed {
+internal object AppCuratedStudyFixture {
     const val FIXTURE_VERSION = "m1-curated-v1"
     const val TAXONOMY_VERSION = "cn-highschool-m1-v1"
-    const val TUTOR_PROBLEM_ID = "problem:m1:math:derivative-sign-change"
-    const val TUTOR_PRACTICE_UNIT_ID = "practice:m1:derivative-sign-change:whole"
-
-    fun teachingArtifactForPracticeUnit(practiceUnitId: String): VerifiedTeachingArtifact? =
-        curatedQuestions().firstOrNull { it.practiceUnitId == practiceUnitId }?.teachingArtifact()
-
-    fun evidenceSnapshotForAssessment(assessmentItemId: String): AssessmentEvidenceSnapshot? =
-        curatedQuestions().firstOrNull { it.assessmentId == assessmentItemId }?.evidenceSnapshot()
 
     fun bundle(includeTutorMistake: Boolean = false): StudySeedBundle {
         val questions = curatedQuestions()
@@ -64,7 +48,7 @@ object M1CuratedStudySeed {
             practiceUnits = questions.map(QuestionSeed::practiceUnitRecord),
             errorBookEntries = questions.filter { question ->
                 question.initiallyInMistakeBook ||
-                    (includeTutorMistake && question.slug == TUTOR_QUESTION_SLUG)
+                    (includeTutorMistake && question.slug == "derivative-sign-change")
             }
                 .map(QuestionSeed::errorBookEntryRecord),
             knowledgeNodes = questions.map(QuestionSeed::knowledgeNodeRecord),
@@ -72,7 +56,7 @@ object M1CuratedStudySeed {
             relations = listOf(
                 ProblemRelationSeedRecord(
                     relationId = "relation:m1:derivative-sign-prerequisite-extrema",
-                    sourceProblemId = TUTOR_PROBLEM_ID,
+                    sourceProblemId = "problem:m1:math:derivative-sign-change",
                     targetProblemId = "problem:m1:math:closed-interval-extrema",
                     relationType = StudyDbValue.RelationType.PREREQUISITE_OF,
                     status = StudyDbValue.RelationStatus.ACTIVE,
@@ -83,7 +67,6 @@ object M1CuratedStudySeed {
                     updatedAtEpochMillis = SEED_CREATED_AT_EPOCH_MILLIS,
                 ),
             ),
-            assessmentItems = questions.map(QuestionSeed::assessmentItemRecord),
         )
     }
 
@@ -102,12 +85,6 @@ object M1CuratedStudySeed {
                 "D" to "最大值为 4，最小值为 -4",
             ),
             correctChoiceId = "B",
-            explanationMarkdown = """
-                先求导：${'$'}f'(x)=3x^2-3=3(x-1)(x+1)${'$'}，区间内的驻点为 ${'$'}x=-1,1${'$'}。
-                闭区间最值必须同时比较驻点和两个端点：
-                ${'$'}f(-2)=-1, f(-1)=3, f(1)=-1, f(2)=3${'$'}。
-                因此最大值为 3，最小值为 -1，选择 B。
-            """.trimIndent(),
             knowledgeCode = "math.derivative.closed_interval_extrema",
             knowledgeName = "利用导数求闭区间最值",
             estimatedSeconds = 240,
@@ -128,11 +105,6 @@ object M1CuratedStudySeed {
                 "D" to "在实数集上始终递增",
             ),
             correctChoiceId = "A",
-            explanationMarkdown = """
-                导数在 ${'$'}x=-2,1${'$'} 处为零。分别在三个区间取测试点，
-                ${'$'}f'(x)${'$'} 的符号依次为正、负、正，所以原函数依次递增、递减、递增。
-                因而递增区间是 ${'$'}(-\infty,-2)${'$'} 与 ${'$'}(1,+\infty)${'$'}，选择 A。
-            """.trimIndent(),
             knowledgeCode = "math.derivative.monotonicity",
             knowledgeName = "导数符号与函数单调性",
             estimatedSeconds = 150,
@@ -153,10 +125,6 @@ object M1CuratedStudySeed {
                 "D" to "两端电势高低周期性交替",
             ),
             correctChoiceId = "B",
-            explanationMarkdown = """
-                对正电荷使用 ${'$'}\vec F=q\vec v\times\vec B${'$'}：速度向右、磁场向里，
-                叉乘方向向上。正电荷向上端聚集，直到电场力与磁场力平衡，因此上端电势更高，选择 B。
-            """.trimIndent(),
             knowledgeCode = "physics.electromagnetism.lorentz_force_direction",
             knowledgeName = "洛伦兹力方向与动生电动势",
             estimatedSeconds = 150,
@@ -176,11 +144,6 @@ object M1CuratedStudySeed {
                 "D" to "5/4",
             ),
             correctChoiceId = "C",
-            explanationMarkdown = """
-                标准方程给出 ${'$'}a=5,b=3${'$'}，所以
-                ${'$'}c=\sqrt{a^2-b^2}=\sqrt{25-9}=4${'$'}。
-                离心率 ${'$'}e=c/a=4/5${'$'}，选择 C。
-            """.trimIndent(),
             knowledgeCode = "math.conic.ellipse_eccentricity",
             knowledgeName = "椭圆标准方程与离心率",
             estimatedSeconds = 120,
@@ -201,12 +164,6 @@ object M1CuratedStudySeed {
                 "D" to "向左移动，因为突变后 Qc 大于 Kc",
             ),
             correctChoiceId = "D",
-            explanationMarkdown = """
-                体积减半的瞬间，各气体浓度都变为原来的 2 倍。
-                对 ${'$'}N_2O_4 \rightleftharpoons 2NO_2${'$'}，
-                ${'$'}Q_c=[NO_2]^2/[N_2O_4]${'$'}，因此突变后 ${'$'}Q'_c=2K_c>K_c${'$'}。
-                系统会向左移动以降低浓度商，选择 D。
-            """.trimIndent(),
             knowledgeCode = "chemistry.equilibrium.reaction_quotient",
             knowledgeName = "浓度商与化学平衡移动",
             estimatedSeconds = 180,
@@ -221,7 +178,6 @@ object M1CuratedStudySeed {
         val problemMarkdown: String,
         val choices: List<Pair<String, String>>,
         val correctChoiceId: String,
-        val explanationMarkdown: String,
         val knowledgeCode: String,
         val knowledgeName: String,
         val estimatedSeconds: Int,
@@ -229,12 +185,11 @@ object M1CuratedStudySeed {
     ) {
         private val problemId = "problem:m1:${subject.lowercase()}:$slug"
         private val revisionId = "revision:m1:$slug:r1"
-        val practiceUnitId = "practice:m1:$slug:whole"
+        private val practiceUnitId = "practice:m1:$slug:whole"
         private val answerSpecId = "answer:m1:$slug:r1"
-        val assessmentId = "assessment:m1:$slug:r1"
         private val knowledgeNodeId = "knowledge:m1:$knowledgeCode"
-        private val optionsSnapshot = choices.toOptionsSnapshot()
-        private val answerSpecSnapshot = "{\"schema\":\"single-choice.v1\",\"correctChoiceId\":\"$correctChoiceId\"}"
+        private val answerSpecSnapshot =
+            "{\"schema\":\"single-choice.v1\",\"correctChoiceId\":\"$correctChoiceId\"}"
         private val capturedQuestionDocument by lazy {
             val blocks = listOf(
                 ContentBlock.Paragraph("$slug-stem", problemMarkdown),
@@ -330,128 +285,6 @@ object M1CuratedStudySeed {
             taxonomyVersion = TAXONOMY_VERSION,
             acceptedAtEpochMillis = SEED_CREATED_AT_EPOCH_MILLIS,
         )
-
-        fun assessmentItemRecord() = AssessmentItemSnapshotSeedRecord(
-            assessmentItemSnapshotId = assessmentId,
-            itemRevision = 1,
-            practiceUnitId = practiceUnitId,
-            problemRevisionId = revisionId,
-            tutorContentSnapshotId = "teaching:m1:$slug:r1",
-            promptMarkdown = problemMarkdown,
-            optionsSnapshot = optionsSnapshot,
-            answerSpecSnapshot = answerSpecSnapshot,
-            verificationStatus = StudyDbValue.VerificationStatus.VERIFIED,
-            assessmentEligibility = StudyDbValue.AssessmentEligibility.ATTEMPT_ELIGIBLE,
-            scoringMode = StudyDbValue.ScoringMode.AUTO_VERIFIED,
-            learnerSnapshotVersion = "seed-no-learning-history",
-            projectionCheckpoint = 0L,
-            hintLevelAtPresentation = 0,
-            answerRevealState = "HIDDEN",
-            createdAtEpochMillis = SEED_CREATED_AT_EPOCH_MILLIS,
-        )
-
-        fun teachingArtifact(): VerifiedTeachingArtifact {
-            val followUps = listOf(
-                VerifiedTeachingFollowUp(
-                    id = "follow-up:m1:$slug:method",
-                    label = "换种方法",
-                    contentMarkdown = explanationMarkdown,
-                ),
-                VerifiedTeachingFollowUp(
-                    id = "follow-up:m1:$slug:key",
-                    label = "关键判断是什么",
-                    contentMarkdown = "先独立判断关键量，再核对选项；不要从选项表面措辞反推答案。",
-                ),
-            )
-            return VerifiedTeachingArtifact(
-                id = "teaching:m1:$slug:r1",
-                subject = subject,
-                title = title,
-                problemMarkdown = problemMarkdown,
-                explanationMarkdown = explanationMarkdown,
-                verification = TeachingArtifactVerification.CURATED_REFERENCE,
-                assessmentItems = listOf(
-                    TutorAssessmentItem(
-                        id = assessmentId,
-                        stemMarkdown = problemMarkdown,
-                        choices = choices.map { (id, text) ->
-                            TutorChoice(
-                                id = id,
-                                markdown = text,
-                                feedbackMarkdown = if (id == correctChoiceId) {
-                                    "判断正确。"
-                                } else {
-                                    "先回到关键量和因果方向，再比较选项。"
-                                },
-                                followUpIds = followUps.map(VerifiedTeachingFollowUp::id),
-                            )
-                        },
-                        correctChoiceId = correctChoiceId,
-                        promptMarkdown = "先独立判断，再选择最符合条件的一项。",
-                        initialFollowUpIds = followUps.map(VerifiedTeachingFollowUp::id),
-                        knowledgeNodeIds = setOf(knowledgeNodeId),
-                    ),
-                ),
-                followUps = followUps,
-                knowledgeNodeIds = setOf(knowledgeNodeId),
-            )
-        }
-
-        fun evidenceSnapshot() = AssessmentEvidenceSnapshot(
-            snapshotId = "evidence:m1:$slug:r1",
-            assessmentItemId = assessmentId,
-            practiceUnitId = practiceUnitId,
-            problemRevisionId = revisionId,
-            answerSpecId = answerSpecId,
-            itemFamilyId = "family:m1:$slug",
-            sourceBundleId = "source:m1:$slug",
-            taxonomyVersion = TAXONOMY_VERSION,
-            verification = AssessmentSnapshotVerification.VERIFIED,
-            calibration = CalibrationSnapshot(
-                support = CalibrationSupport.SUPPORTED,
-                sourceId = "calibration:$FIXTURE_VERSION",
-                version = "curated-answer-key-v1",
-                validFromEpochMillis = SEED_CREATED_AT_EPOCH_MILLIS,
-                validUntilEpochMillis = CALIBRATION_VALID_UNTIL_EPOCH_MILLIS,
-            ),
-            attributions = listOf(
-                KnowledgeEvidenceAttribution(
-                    bindingId = "binding:m1:$slug:$knowledgeCode",
-                    knowledgeNodeId = knowledgeNodeId,
-                    weight = 1.0,
-                    basisRevisionId = revisionId,
-                    taxonomyVersion = TAXONOMY_VERSION,
-                    role = EvidenceAttributionRole.PRIMARY,
-                    certainty = EvidenceAttributionCertainty.DIRECT,
-                ),
-            ),
-            capturedAtEpochMillis = SEED_CREATED_AT_EPOCH_MILLIS,
-        )
-    }
-
-    private fun List<Pair<String, String>>.toOptionsSnapshot(): String = joinToString(
-        prefix = "{\"schema\":\"choice-options.v1\",\"options\":[",
-        postfix = "]}",
-    ) { (id, text) ->
-        "{\"id\":\"${id.jsonEscaped()}\",\"text\":\"${text.jsonEscaped()}\"}"
-    }
-
-    private fun String.jsonEscaped(): String = buildString(length) {
-        this@jsonEscaped.forEach { character ->
-            when (character) {
-                '\\' -> append("\\\\")
-                '"' -> append("\\\"")
-                '\n' -> append("\\n")
-                '\r' -> append("\\r")
-                '\t' -> append("\\t")
-                else -> if (character.isISOControl()) {
-                    append("\\u")
-                    append(character.code.toString(16).padStart(4, '0'))
-                } else {
-                    append(character)
-                }
-            }
-        }
     }
 
     private fun sha256(value: String): String {
@@ -463,6 +296,135 @@ object M1CuratedStudySeed {
     }
 
     private const val SEED_CREATED_AT_EPOCH_MILLIS = 1_767_225_600_000L
-    private const val CALIBRATION_VALID_UNTIL_EPOCH_MILLIS = 4_102_444_800_000L
-    private const val TUTOR_QUESTION_SLUG = "derivative-sign-change"
+}
+
+/**
+ * 把 curated 夹具写进 app 的库文件（INSERT OR IGNORE，重复播种 no-op）。
+ * 先读一次版本号让 Room 惰性建好 schema，再以第二个连接直写；WAL 下多连接安全。
+ */
+internal fun seedAppStudyFacts(
+    context: Context,
+    database: StudyDatabasePort,
+    databaseName: String,
+    bundle: StudySeedBundle,
+) {
+    runBlocking { database.readDatabaseVersion() }
+    val sqlite = SQLiteDatabase.openDatabase(
+        context.getDatabasePath(databaseName).absolutePath,
+        null,
+        SQLiteDatabase.OPEN_READWRITE,
+    )
+    try {
+        sqlite.beginTransaction()
+        try {
+            bundle.problems.forEach { sqlite.insertIgnoring("problem", it.toValues()) }
+            bundle.revisions.forEach { sqlite.insertIgnoring("problem_revision", it.toValues()) }
+            bundle.practiceUnits.forEach { sqlite.insertIgnoring("practice_unit", it.toValues()) }
+            bundle.errorBookEntries.forEach {
+                sqlite.insertIgnoring("error_book_entry", it.toValues())
+            }
+            bundle.knowledgeNodes.forEach { sqlite.insertIgnoring("knowledge_node", it.toValues()) }
+            bundle.knowledgeBindings.forEach {
+                sqlite.insertIgnoring("practice_unit_knowledge_binding", it.toValues())
+            }
+            bundle.relations.forEach { sqlite.insertIgnoring("problem_relation", it.toValues()) }
+            sqlite.setTransactionSuccessful()
+        } finally {
+            sqlite.endTransaction()
+        }
+    } finally {
+        sqlite.close()
+    }
+}
+
+private fun SQLiteDatabase.insertIgnoring(table: String, values: ContentValues) {
+    insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE)
+}
+
+private fun ProblemSeedRecord.toValues() = ContentValues().apply {
+    put("problem_id", problemId)
+    put("canonical_fingerprint", canonicalFingerprint)
+    put("subject", subject)
+    put("created_at_epoch_millis", createdAtEpochMillis)
+    putNull("archived_at_epoch_millis")
+}
+
+private fun ProblemRevisionSeedRecord.toValues() = ContentValues().apply {
+    put("revision_id", revisionId)
+    put("problem_id", problemId)
+    put("revision_number", revisionNumber)
+    put("title", title)
+    put("problem_markdown", problemMarkdown)
+    put("question_document_snapshot", questionDocumentSnapshot)
+    put("answer_spec_id", answerSpecId)
+    put("answer_spec_snapshot", answerSpecSnapshot)
+    put("answer_verification_status", answerVerificationStatus)
+    put("source_type", sourceType)
+    put("source_reference", sourceReference)
+    put("content_fingerprint", contentFingerprint)
+    put("created_at_epoch_millis", createdAtEpochMillis)
+}
+
+private fun PracticeUnitSeedRecord.toValues() = ContentValues().apply {
+    put("practice_unit_id", practiceUnitId)
+    put("problem_id", problemId)
+    put("problem_revision_id", problemRevisionId)
+    put("unit_key", unitKey)
+    put("unit_kind", unitKind)
+    put("title", title)
+    put("prompt_markdown", promptMarkdown)
+    put("estimated_seconds", estimatedSeconds)
+    put("created_at_epoch_millis", createdAtEpochMillis)
+}
+
+private fun ErrorBookEntrySeedRecord.toValues() = ContentValues().apply {
+    put("entry_id", entryId)
+    put("practice_unit_id", practiceUnitId)
+    put("problem_id", problemId)
+    put("current_revision_id", currentRevisionId)
+    put("source_key", sourceKey)
+    put("status", status)
+    put("accepted_at_epoch_millis", acceptedAtEpochMillis)
+    put("updated_at_epoch_millis", updatedAtEpochMillis)
+    putNull("user_note")
+}
+
+private fun KnowledgeNodeSeedRecord.toValues() = ContentValues().apply {
+    put("knowledge_node_id", knowledgeNodeId)
+    put("stable_code", stableCode)
+    put("subject", subject)
+    put("display_name", displayName)
+    put("canonical_name", canonicalName)
+    put("node_kind", nodeKind)
+    put("granularity", granularity)
+    put("aliases_text", aliases.joinToString("\u001f"))
+    put("boundary_markdown", boundaryMarkdown)
+    put("verification_status", verificationStatus)
+    put("parent_knowledge_node_id", parentKnowledgeNodeId)
+    put("taxonomy_version", taxonomyVersion)
+    put("created_at_epoch_millis", createdAtEpochMillis)
+}
+
+private fun KnowledgeBindingSeedRecord.toValues() = ContentValues().apply {
+    put("binding_id", bindingId)
+    put("practice_unit_id", practiceUnitId)
+    put("knowledge_node_id", knowledgeNodeId)
+    put("basis_revision_id", basisRevisionId)
+    put("strength", strength)
+    put("source_type", sourceType)
+    put("taxonomy_version", taxonomyVersion)
+    put("accepted_at_epoch_millis", acceptedAtEpochMillis)
+}
+
+private fun ProblemRelationSeedRecord.toValues() = ContentValues().apply {
+    put("relation_id", relationId)
+    put("source_problem_id", sourceProblemId)
+    put("target_problem_id", targetProblemId)
+    put("relation_type", relationType)
+    put("status", status)
+    put("source_basis_revision_id", sourceBasisRevisionId)
+    put("target_basis_revision_id", targetBasisRevisionId)
+    put("confidence", confidence)
+    put("created_at_epoch_millis", createdAtEpochMillis)
+    put("updated_at_epoch_millis", updatedAtEpochMillis)
 }

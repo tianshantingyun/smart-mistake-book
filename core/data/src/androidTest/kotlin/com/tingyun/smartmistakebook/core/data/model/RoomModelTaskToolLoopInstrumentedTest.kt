@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.data.study.seedStudyFacts
 import com.tingyun.smartmistakebook.core.database.ErrorBookEntrySeedRecord
 import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
@@ -244,7 +245,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
         context.deleteDatabase(databaseName)
         val database = StudyDatabaseFactory.open(context, databaseName)
         try {
-            database.seedFixture(longTitledSeed())
+            seedStudyFacts(context, database, databaseName, longTitledSeed())
             val gateway = ScriptedGateway(
                 respondProvider,
                 listOf(toolRequestOutput(), respondFinalAnswerOutput()),
@@ -289,7 +290,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
         context.deleteDatabase(databaseName)
         val database = StudyDatabaseFactory.open(context, databaseName)
         try {
-            database.seedFixture(longTitledSeed())
+            seedStudyFacts(context, database, databaseName, longTitledSeed())
             val gateway =
                 ScriptedGateway(provider, listOf(toolRequestOutput(), finalAnswerOutput()))
             val repository = com.tingyun.smartmistakebook.core.data.model.RoomModelTaskRepository(

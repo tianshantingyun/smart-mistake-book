@@ -13,6 +13,7 @@ import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
+import com.tingyun.smartmistakebook.core.data.study.seedStudyFacts
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
@@ -82,6 +83,7 @@ class BackupRestoreInstrumentedTest {
             )
 
             val database = StudyDatabaseFactory.open(context)
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
             AndroidBackupRepository(context, database).deleteAllData()
 
             assertFalse(
@@ -102,7 +104,8 @@ class BackupRestoreInstrumentedTest {
         val archive = File(backupDirectory, "round-trip-${System.nanoTime()}.smbk")
         try {
             val database = StudyDatabaseFactory.open(context)
-            database.seedFixture(seed())
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
             val repository = AndroidBackupRepository(context, database)
 
             val receipt = FileOutputStream(archive).use { output ->
@@ -258,7 +261,7 @@ class BackupRestoreInstrumentedTest {
         val planted = mutableListOf<CanonicalSourceAssetRecord>()
         try {
             val database = StudyDatabaseFactory.open(context, databaseName)
-            database.seedFixture(seed())
+            seedStudyFacts(context, database, databaseName, seed())
             val repository = AndroidBackupRepository(context, database)
             val orphan = plantCanonicalAsset(
                 context = context,
@@ -309,7 +312,7 @@ class BackupRestoreInstrumentedTest {
         val planted = mutableListOf<CanonicalSourceAssetRecord>()
         try {
             val database = StudyDatabaseFactory.open(context, databaseName)
-            database.seedFixture(seed())
+            seedStudyFacts(context, database, databaseName, seed())
             val asset = plantCanonicalAsset(
                 context = context,
                 database = database,
@@ -373,7 +376,7 @@ class BackupRestoreInstrumentedTest {
         val planted = mutableListOf<CanonicalSourceAssetRecord>()
         try {
             val database = StudyDatabaseFactory.open(context, databaseName)
-            database.seedFixture(seed())
+            seedStudyFacts(context, database, databaseName, seed())
             val repository = AndroidBackupRepository(context, database)
             val asset = plantCanonicalAsset(
                 context = context,
@@ -438,7 +441,7 @@ class BackupRestoreInstrumentedTest {
         val planted = mutableListOf<CanonicalSourceAssetRecord>()
         try {
             val database = StudyDatabaseFactory.open(context, databaseName)
-            database.seedFixture(seed())
+            seedStudyFacts(context, database, databaseName, seed())
             val repository = AndroidBackupRepository(context, database)
             val ancient = plantCanonicalAsset(
                 context = context,
@@ -535,6 +538,7 @@ class BackupRestoreInstrumentedTest {
             assertTrue("截断归档必须被拒绝", validation is BackupValidation.Invalid)
 
             val database = StudyDatabaseFactory.open(context)
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
             val repository = AndroidBackupRepository(context, database)
             val failure = runCatching {
                 repository.restore(ByteArrayInputStream(truncated))
@@ -659,7 +663,8 @@ class BackupRestoreInstrumentedTest {
         context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
         try {
             val database = StudyDatabaseFactory.open(context)
-            database.seedFixture(seed())
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
             val repository = AndroidBackupRepository(context, database)
 
             // Archive whose database entry is not a SQLite database at all.
@@ -693,7 +698,8 @@ class BackupRestoreInstrumentedTest {
         context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
         try {
             val database = StudyDatabaseFactory.open(context)
-            database.seedFixture(seed())
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
             val repository = AndroidBackupRepository(context, database)
             val archiveBytes = ByteArrayOutputStream().use { output ->
                 repository.create(output)
@@ -750,7 +756,8 @@ class BackupRestoreInstrumentedTest {
         try {
             // Live generation: a seeded database.
             val database = StudyDatabaseFactory.open(context)
-            database.seedFixture(seed())
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
             database.close()
 
             // Simulate the restore having displaced the live generation:
@@ -810,7 +817,8 @@ class BackupRestoreInstrumentedTest {
         context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
         try {
             val database = StudyDatabaseFactory.open(context)
-            database.seedFixture(seed())
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
             database.close()
 
             val restoreId = "simulated-preswap-${System.nanoTime()}"

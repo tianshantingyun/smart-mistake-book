@@ -23,7 +23,7 @@ class KnowledgeGroundingResolutionInstrumentedTest {
     fun reviewedAtomicImportClosesGapAndExactReplayStaysIdempotent() = runBlocking {
         val store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
         try {
-            store.seedFixture(baseSeed())
+            store.seedStudyFacts(baseSeed())
             val request = request()
             val repeatedRequest = request(
                 organizationRequestId = "organization-request:resolution-repeat",

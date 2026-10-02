@@ -18,18 +18,16 @@ import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
 internal class StudyAnswerRevealService(
     private val database: StudyDatabasePort,
     private val learnerId: String,
-    private val fixtureSource: StudyFixtureSource,
+    private val practiceUnitFacts: StudyPracticeUnitFacts,
     private val reviewLogSink: ReviewLogSink,
     private val writeContext: StudyWriteContext,
     private val learnerSnapshot: suspend () -> LearnerSnapshot,
 ) {
     suspend fun reveal(request: StudyAnswerRevealRequest): StudyAnswerRevealResult {
-        val artifact = writeContext.requireTeachingArtifact(request.practiceUnitId)
-        val assessmentItem = artifact.assessmentItems.singleOrNull()
-            ?: error("Curated practice unit ${request.practiceUnitId} must have one assessment")
-        val evidenceSnapshot = requireNotNull(
-            fixtureSource.evidenceSnapshotForAssessment(assessmentItem.id),
-        ) { "No verified evidence snapshot for assessment ${assessmentItem.id}" }
+        // D-M M1：揭示所需元数据与提交同源（practice unit + 当前绑定 + 题目字段派生），
+        // fixture 目录门已删除。
+        val facts = practiceUnitFacts.submissionFacts(request.practiceUnitId)
+        val evidenceSnapshot = facts.evidenceSnapshot
 
         database.saveAssessmentEvidenceSnapshot(evidenceSnapshot)
         val priorMemory = learnerSnapshot().problemMemoryStates
@@ -40,7 +38,7 @@ internal class StudyAnswerRevealService(
                 assessmentEventId = writeContext.stableId("answer-reveal", request.requestId),
                 presentationId = request.presentationId,
                 assessmentSnapshotId = evidenceSnapshot.snapshotId,
-                contentMarkdown = artifact.explanationMarkdown,
+                contentMarkdown = facts.explanationMarkdown,
                 occurredAtEpochMillis = request.occurredAtEpochMillis,
                 studyDay = writeContext.studyDayAt(request.occurredAtEpochMillis),
             ),
@@ -68,7 +66,7 @@ internal class StudyAnswerRevealService(
         return StudyAnswerRevealResult(
             outcomeId = writeResult.outcome.outcomeId,
             created = writeResult.created,
-            explanationMarkdown = artifact.explanationMarkdown,
+            explanationMarkdown = facts.explanationMarkdown,
         )
     }
 }

@@ -37,15 +37,12 @@ internal fun MistakeRecord.toCatalogEntry(
     learnerSnapshot: LearnerSnapshot,
     atEpochMillis: Long,
     resolvedKnowledgeNames: Map<String, String>,
-    curatedProblemIds: Set<String>,
     forgettingCurve: ForgettingCurve,
-    fixtureSource: StudyFixtureSource,
     /** KF-16 / 裁决 28：节点 → 其先修的记忆稳定度（无条目 = 无已知先修）。 */
     prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
 ): StudyCatalogEntry {
     val memory = learnerSnapshot.problemMemoryStates[practiceUnitId]
-    val artifact = fixtureSource.teachingArtifactForPracticeUnit(practiceUnitId)
-    val knowledgeNodeIds = this.knowledgeNodeIds.ifEmpty { artifact?.knowledgeNodeIds.orEmpty() }
+    val knowledgeNodeIds = this.knowledgeNodeIds
     val knowledgeStates = knowledgeNodeIds.mapNotNull(
         learnerSnapshot.knowledgeMasteryStates::get,
     )
@@ -58,7 +55,8 @@ internal fun MistakeRecord.toCatalogEntry(
         title = title,
         problemMarkdown = problemMarkdown,
         sourceKey = sourceKey,
-        isCuratedExample = problemId in curatedProblemIds,
+        // D-M M1：curated fixture 目录退场后不再有"本地示例"标记；字段保留以维持读模型契约。
+        isCuratedExample = false,
         chapterLabels = chapterLabels,
         knowledgeLabels = knowledgeLabels.ifEmpty {
             knowledgeNodeIds.map { knowledgeNodeId ->

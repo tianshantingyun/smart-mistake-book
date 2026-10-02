@@ -59,7 +59,7 @@ class StudyDatabaseInstrumentedTest {
     @Before
     fun setUp() = runBlocking {
         store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
-        store.seedFixture(baseSeed())
+        store.seedStudyFacts(baseSeed())
         store.saveAssessmentEvidenceSnapshot(evidenceSnapshot())
     }
 
@@ -698,7 +698,7 @@ class StudyDatabaseInstrumentedTest {
      */
     @Test
     fun shrinkingProjectionCommitDeletesVanishedRowsAndKeepsUnchangedRowsBitIdentical() = runBlocking {
-        store.seedFixture(secondUnitSeed())
+        store.seedStudyFacts(secondUnitSeed())
         val attemptOne = store.recordAttempt(
             attemptCommand(
                 submissionId = "shrink-submission-1",
@@ -1048,13 +1048,15 @@ class StudyDatabaseInstrumentedTest {
                 projectionCheckpoint = review.plan.projectionCheckpoint,
             )
         }
-        store.seedFixture(
+        store.seedStudyFacts(
             baseSeed().copy(
                 reviewPlans = reviews.map { it.plan },
                 reviewQueueItems = reviews.flatMap { it.queue },
-                reviewSessions = sessions,
+                reviewSessions = emptyList(),
             ),
         )
+        // 公开写路径拒绝"两条 IN_PROGRESS 会话"；这个 legacy 损坏态只能直写（见 seeder KDoc）。
+        store.seedLegacyActiveReviewSessions(sessions)
 
         val observationFailure = runCatching { store.observeActiveReviewPlan(LEARNER).first() }
         assertTrue(observationFailure.exceptionOrNull() is ImmutablePayloadConflictException)
@@ -1238,90 +1240,13 @@ class StudyDatabaseInstrumentedTest {
     }
 
     @Test
-    fun reviewSessionFixtureRetryUsesImmutableRevisionAfterProgress() = runBlocking {
-        val review = reviewBundle(
-            fingerprint = "fixture-session-plan",
-            localDay = 20_002,
-            isCurrent = false,
-        )
-        val started = ReviewSessionRecord(
-            reviewSessionId = "fixture-review-session",
-            reviewPlanId = review.plan.reviewPlanId,
-            status = StudyDbValue.ReviewStatus.IN_PROGRESS,
-            startedAtEpochMillis = OCCURRED_AT,
-            lastActiveAtEpochMillis = OCCURRED_AT,
-            completedAtEpochMillis = null,
-            currentOrdinal = 0,
-            timeBudgetSeconds = review.plan.timeBudgetSeconds,
-            projectionCheckpoint = review.plan.projectionCheckpoint,
-        )
-        val fixture = baseSeed().copy(
-            reviewPlans = listOf(review.plan),
-            reviewQueueItems = review.queue,
-            reviewSessions = listOf(started),
-        )
-        assertTrue(
-            runCatching {
-                store.seedFixture(
-                    fixture.copy(
-                        reviewSessions = listOf(started.copy(currentOrdinal = 2)),
-                    ),
-                )
-            }.isFailure,
-        )
-        store.seedFixture(fixture)
-
-        assertTrue(
-            runCatching {
-                store.seedFixture(
-                    fixture.copy(
-                        reviewSessions = listOf(
-                            started.copy(
-                                status = StudyDbValue.ReviewStatus.COMPLETED,
-                                completedAtEpochMillis = OCCURRED_AT,
-                            ),
-                        ),
-                    ),
-                )
-            }.isFailure,
-        )
-        val advanced = store.recordReviewAttempt(
-            reviewAttemptCommand(review, started, "fixture"),
-        ).advance.session
-        val completed = started.copy(
-            status = StudyDbValue.ReviewStatus.COMPLETED,
-            lastActiveAtEpochMillis = OCCURRED_AT + 30_000,
-            completedAtEpochMillis = OCCURRED_AT + 30_000,
-            currentOrdinal = 1,
-            stateVersion = 1,
-        )
-        assertEquals(completed, advanced)
-        store.seedFixture(fixture)
-
-        assertNull(store.observeReviewPlan(review.plan.reviewPlanId).first()?.activeSession)
-        assertEquals(completed, store.observeReviewPlan(review.plan.reviewPlanId).first()?.latestSession)
-        assertTrue(
-            runCatching {
-                store.seedFixture(
-                    fixture.copy(
-                        reviewSessions = listOf(started.copy(timeBudgetSeconds = 901)),
-                    ),
-                )
-            }.isFailure,
-        )
-    }
-
-    @Test
-    fun immutableFixturesForeignKeysAndStudyDayBoundaryRejectBadInputs() = runBlocking {
-        val replay = store.seedFixture(baseSeed())
+    fun fixtureSeedingIsIdempotentForeignKeysAndStudyDayBoundaryRejectBadInputs() = runBlocking {
+        // 直写夹具（D-M M1）：重复播种是 no-op（INSERT IGNORE）。
+        val replay = store.seedStudyFacts(baseSeed())
         assertEquals(0, replay.insertedProblemCount)
         assertEquals(0, replay.insertedErrorBookEntryCount)
 
-        val conflictingSeed = baseSeed().copy(
-            problems = baseSeed().problems.map { it.copy(subject = "PHYSICS") },
-        )
-        assertTrue(runCatching { store.seedFixture(conflictingSeed) }.isFailure)
-
+        // 缺 revision 的 practice unit 仍被外键拒绝——夹具不做悬空行。
         val missingRevision = baseSeed().copy(
             problems = emptyList(),
             revisions = emptyList(),
@@ -1335,7 +1260,7 @@ class StudyDatabaseInstrumentedTest {
             knowledgeNodes = emptyList(),
             knowledgeBindings = emptyList(),
         )
-        assertTrue(runCatching { store.seedFixture(missingRevision) }.isFailure)
+        assertTrue(runCatching { store.seedStudyFacts(missingRevision) }.isFailure)
 
         val unknownZone = StudyDayContext(
             epochDay = studyDay(OCCURRED_AT).epochDay,
@@ -1370,7 +1295,7 @@ class StudyDatabaseInstrumentedTest {
     @Test
     fun mistakeProjectionRoundTripsDurationAndOnlyExactCurrentKnowledgeBindings() = runBlocking {
         store.confirmProblemOrganization(currentOrganizationWithTaxonomyMismatch())
-        store.seedFixture(revisionBoundarySeed())
+        store.seedStudyFacts(revisionBoundarySeed())
         store.confirmProblemOrganization(revisionBoundaryOrganization())
 
         val exact = requireNotNull(store.findMistakeBySourceKey("source-1"))
@@ -1484,7 +1409,7 @@ class StudyDatabaseInstrumentedTest {
         context.deleteDatabase(databaseName)
         try {
             var persistent = StudyDatabaseFactory.open(context, databaseName)
-            persistent.seedFixture(baseSeed())
+            persistent.seedStudyFacts(baseSeed())
             persistent.saveAssessmentEvidenceSnapshot(evidenceSnapshot())
             val attempt = persistent.recordAttempt(
                 attemptCommand(

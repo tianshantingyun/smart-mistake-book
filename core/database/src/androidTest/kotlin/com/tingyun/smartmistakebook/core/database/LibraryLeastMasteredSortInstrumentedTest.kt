@@ -49,7 +49,7 @@ class LibraryLeastMasteredSortInstrumentedTest {
 
     @Test
     fun leastMasteredOrdersByNumericMasteryWeakestFirst() = runBlocking {
-        store.seedFixture(catalogSeed())
+        store.seedStudyFacts(catalogSeed())
         store.commitProjection(projectionWithMastery())
 
         val ordered = store.database.libraryQueryDao().page(
@@ -74,7 +74,7 @@ class LibraryLeastMasteredSortInstrumentedTest {
         // The FTS search path builds its own SQL at runtime and carries its own
         // copy of the expression, so it needs its own behavioral assertion —
         // otherwise a drifted copy would silently sort by nothing again.
-        store.seedFixture(catalogSeed())
+        store.seedStudyFacts(catalogSeed())
         store.commitProjection(projectionWithMastery())
 
         val ordered = store.librarySearchPage(
@@ -101,7 +101,7 @@ class LibraryLeastMasteredSortInstrumentedTest {
         // the same KC set; a sort that reads a different join would let the two
         // disagree. All three entries here are LEARNING, so the facet cannot
         // distinguish them — the sort must.
-        store.seedFixture(catalogSeed())
+        store.seedStudyFacts(catalogSeed())
         store.commitProjection(projectionWithMastery())
 
         val facets = store.database.libraryQueryDao().masteryFacets(

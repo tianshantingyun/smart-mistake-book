@@ -257,8 +257,6 @@ class TutorJudgedReviewSettlerTest {
                     ZoneId.of("Asia/Shanghai"),
                 ),
                 studyZoneId = ZoneId.of("Asia/Shanghai"),
-                initialFixture = null,
-                fixtureSource = M1CuratedFixtureSource,
             )
             repository.initialize()
             return block(repository)

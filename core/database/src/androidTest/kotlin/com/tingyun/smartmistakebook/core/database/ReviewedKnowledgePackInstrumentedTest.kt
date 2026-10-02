@@ -25,7 +25,7 @@ class ReviewedKnowledgePackInstrumentedTest {
     fun reviewedPackClosesGapAndExactReplayIsIdempotent() = runBlocking {
         val store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
         try {
-            store.seedFixture(baseSeed())
+            store.seedStudyFacts(baseSeed())
             val request = request()
             store.recordKnowledgeGroundingRequests(listOf(request))
             val command = reviewedPack(listOf(resolution(request.groundingKey, ATOMIC_ID)))
@@ -60,7 +60,7 @@ class ReviewedKnowledgePackInstrumentedTest {
     fun laterResolutionFailureRollsBackPackAndEarlierResolution() = runBlocking {
         val store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
         try {
-            store.seedFixture(baseSeed())
+            store.seedStudyFacts(baseSeed())
             val request = request()
             store.recordKnowledgeGroundingRequests(listOf(request))
             val missingGapKey = KnowledgeGroundingFingerprint.of(
@@ -96,7 +96,7 @@ class ReviewedKnowledgePackInstrumentedTest {
     fun approvedResearchPackAppliesOnceAndCannotBeReplaced() = runBlocking {
         val store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
         try {
-            store.seedFixture(baseSeed())
+            store.seedStudyFacts(baseSeed())
             val request = request()
             store.recordKnowledgeGroundingRequests(listOf(request))
             val pack = reviewedPack(listOf(resolution(request.groundingKey, ATOMIC_ID)))
@@ -150,7 +150,7 @@ class ReviewedKnowledgePackInstrumentedTest {
     fun unapprovedResearchPackCannotChangeKnowledgeOrCloseTheGap() = runBlocking {
         val store = StudyDatabaseFactory.openInMemory(ApplicationProvider.getApplicationContext())
         try {
-            store.seedFixture(baseSeed())
+            store.seedStudyFacts(baseSeed())
             val request = request()
             store.recordKnowledgeGroundingRequests(listOf(request))
             val pack = reviewedPack(listOf(resolution(request.groundingKey, ATOMIC_ID)))

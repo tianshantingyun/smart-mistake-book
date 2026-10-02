@@ -27,7 +27,7 @@ class LibraryCatalogPagingInstrumentedTest {
     @Test
     fun fiftyThousandRowsPageSearchAndFacetCountsInSql() = runBlocking {
         val count = 50_000
-        store.seedFixture(
+        store.seedStudyFacts(
             StudySeedBundle(
                 problems = List(count) { index ->
                     ProblemSeedRecord(

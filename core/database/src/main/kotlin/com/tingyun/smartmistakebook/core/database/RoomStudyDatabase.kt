@@ -19,6 +19,7 @@ import java.io.File
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
+import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeQuestionLatticeRecord
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
@@ -368,6 +369,29 @@ internal class RoomStudyDatabase(
                     basisRevisionId = row.basisRevisionId,
                     taxonomyVersion = row.taxonomyVersion,
                     acceptedAtEpochMillis = row.acceptedAtEpochMillis,
+                )
+            }
+
+    override suspend fun readPracticeUnitAssessment(
+        practiceUnitId: String,
+    ): PracticeUnitAssessmentRecord? =
+        database.practiceUnitAssessmentDao()
+            .readPracticeUnitAssessment(practiceUnitId)
+            ?.let { row ->
+                PracticeUnitAssessmentRecord(
+                    practiceUnitId = row.practiceUnitId,
+                    problemId = row.problemId,
+                    problemRevisionId = row.problemRevisionId,
+                    subject = row.subject,
+                    unitTitle = row.unitTitle,
+                    promptMarkdown = row.promptMarkdown,
+                    questionDocumentSnapshot = row.questionDocumentSnapshot,
+                    answerSpecId = row.answerSpecId,
+                    answerSpecSnapshot = row.answerSpecSnapshot,
+                    answerVerificationStatus = row.answerVerificationStatus,
+                    sourceType = row.sourceType,
+                    sourceReference = row.sourceReference,
+                    revisionCreatedAtEpochMillis = row.revisionCreatedAtEpochMillis,
                 )
             }
 
@@ -1156,37 +1180,6 @@ internal class RoomStudyDatabase(
 
     override suspend fun transitionModelTask(command: TransitionModelTaskCommand) =
         database.modelTaskTransactionDao().transition(command)
-
-    override suspend fun seedFixture(bundle: StudySeedBundle): SeedResult {
-        DatabaseContractValidator.validateSeedBundle(bundle)
-        val result = database.fixtureSeedDao().seed(
-            problems = bundle.problems.map(ProblemSeedRecord::toEntity),
-            revisions = bundle.revisions.map(ProblemRevisionSeedRecord::toEntity),
-            practiceUnits = bundle.practiceUnits.map(PracticeUnitSeedRecord::toEntity),
-            errorBookEntries = bundle.errorBookEntries.map(ErrorBookEntrySeedRecord::toEntity),
-            knowledgeNodes = bundle.knowledgeNodes.map(KnowledgeNodeSeedRecord::toEntity),
-            knowledgeBindings = bundle.knowledgeBindings.map(KnowledgeBindingSeedRecord::toEntity),
-            relations = bundle.relations.map(ProblemRelationSeedRecord::toEntity),
-            assessmentItems = bundle.assessmentItems.map(AssessmentItemSnapshotSeedRecord::toEntity),
-            assessmentEvents = bundle.assessmentEvents.map(AssessmentEventSeedRecord::toEntity),
-            memoryStates = bundle.problemMemoryStates.map(ProblemMemoryStateRecord::toEntity),
-            masteryStates = bundle.knowledgeMasteryStates.map(KnowledgeMasteryStateRecord::toEntity),
-            reviewPlans = bundle.reviewPlans.map(ReviewPlanRecord::toEntity),
-            reviewQueueItems = bundle.reviewQueueItems.map(ReviewQueueItemRecord::toEntity),
-            reviewQueueKnowledgeNodes = bundle.reviewQueueItems.flatMap(
-                ReviewQueueItemRecord::toKnowledgeNodeEntities,
-            ),
-            reviewQueueReasons = bundle.reviewQueueItems.flatMap(
-                ReviewQueueItemRecord::toReasonEntities,
-            ),
-            reviewSessions = bundle.reviewSessions.map(ReviewSessionRecord::toEntity),
-            reviewSessionRevisions = bundle.reviewSessions.map(ReviewSessionRecord::toRevisionEntity),
-        )
-        return SeedResult(
-            insertedProblemCount = result.insertedProblemCount,
-            insertedErrorBookEntryCount = result.insertedErrorBookEntryCount,
-        )
-    }
 
     override suspend fun saveAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord) {
         DatabaseContractValidator.validateAssessmentItem(item)

@@ -11,9 +11,10 @@ import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
+import com.tingyun.smartmistakebook.core.database.StudySeedBundle
+import com.tingyun.smartmistakebook.core.data.study.seedStudyFacts
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
-import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationSelection
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationRelationKey
@@ -65,7 +66,7 @@ class MistakeOrganizationRepositoryInstrumentedTest {
         databaseName = "organization-repository-${System.nanoTime()}.db"
         context.deleteDatabase(databaseName)
         database = StudyDatabaseFactory.open(context, databaseName)
-        database.seedFixture(seed())
+        seedStudyFacts(context, database, databaseName, seed())
         repository = RoomMistakeOrganizationRepository(
             database = database,
             // 这些用例钉的是整理结果的本地落库与幂等，不是就绪门（D-Q3）：按已就绪构造。

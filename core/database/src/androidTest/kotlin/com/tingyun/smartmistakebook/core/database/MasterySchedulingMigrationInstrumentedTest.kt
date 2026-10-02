@@ -155,7 +155,7 @@ class MasterySchedulingMigrationInstrumentedTest {
     }
 
     private suspend fun seedContentChain(port: StudyDatabasePort) {
-        port.seedFixture(
+        port.seedStudyFacts(
             StudySeedBundle(
                 problems = listOf(
                     ProblemSeedRecord(
