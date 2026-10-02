@@ -132,8 +132,27 @@ def counts(rows: list[dict]) -> Counter:
     return Counter(row["verdict"].strip() for row in rows)
 
 
-def write_table(rows: list[dict], path: Path | None = None) -> Path:
+def _has_verdicts(path: Path) -> bool:
+    """表里是否已有非空 verdict（= 已裁定的一轮产物）。"""
+    if not path.exists():
+        return False
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        return any((row.get("verdict") or "").strip() for row in csv.DictReader(handle))
+
+
+def write_table(rows: list[dict], path: Path | None = None, *, force: bool = False) -> Path:
+    """落裁定表。
+
+    **防覆盖**（2026-10-02 与候选表同源的事故面）：默认路径上是**上一轮已裁定**的表
+    （409 行，KEEP 330 / REBIND 56 / NONE 23）。新开一轮直接 --write 会把它整表换掉，
+    旧轮裁定当场丢失。目标表已含 verdict 时拒绝写入，除非显式 `--force`，
+    或改用 `--out` 写到别处（如新一轮的 `content_audit_<日期>.csv`）。
+    """
     path = path or table_path()
+    if _has_verdicts(path) and not force:
+        raise ValueError(
+            f"{path} 已是裁定产物（verdict 非空）：本轮结果请用 --out 写到别处，"
+            f"确要覆盖请显式 --force")
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(COLUMNS), lineterminator="\n")
@@ -225,6 +244,10 @@ def check(rows: list[dict]) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="内容绑定裁定汇总（Stage-4 WP2）")
     parser.add_argument("--write", action="store_true", help="把合并结果落到 tables/")
+    parser.add_argument("--out", type=Path, default=None,
+                        help="落点（默认 tables/ 下标准名；新开一轮用它写到别处，避免覆盖上一轮裁定）")
+    parser.add_argument("--force", action="store_true",
+                        help="允许覆盖已有非空 verdict 的表（默认拒绝，防丢裁定记录）")
     parser.add_argument("--check", action="store_true", help="复算并与落盘表比对")
     parser.add_argument("--slice-dir", type=Path, default=None, help="换切片目录（测试用）")
     args = parser.parse_args(argv)
@@ -236,7 +259,7 @@ def main(argv: list[str] | None = None) -> int:
     validate(rows)
     merged = merge(rows)
     if args.write:
-        print("→ 审计表 %s（%d 行）" % (write_table(merged), len(merged)))
+        print("→ 审计表 %s（%d 行）" % (write_table(merged, args.out, force=args.force), len(merged)))
     report(merged)
     if args.check:
         return check(merged)

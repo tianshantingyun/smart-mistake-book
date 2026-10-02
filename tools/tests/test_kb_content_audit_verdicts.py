@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import csv
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -153,6 +154,37 @@ class SliceArtifactSkipTest(unittest.TestCase):
                     case = ShippedTableTest(name)
                     with self.assertRaises(unittest.SkipTest):
                         getattr(case, name)()
+
+
+class WriteTableGuardTest(unittest.TestCase):
+    """落表防覆盖（2026-10-02 实测事故）：默认路径上是**上一轮已裁定**的表
+    （409 行），新开一轮直接 --write 会把它整表换成新结果，旧裁定当场丢失。
+    现在：目标已含非空 verdict ⇒ 拒绝写入（`--out` 写别处或显式 `--force` 才放行）。"""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="kb-merge-guard-", dir=mcv.pack_io.REPO / "build"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self.target = self.tmp / "content_audit.csv"
+
+    def _rows(self, verdict: str) -> list[dict]:
+        return [{"subject": "MATH", "slug": "节点", "material_slug": "m-1",
+                 "current_node_slug": "节点", "suggested_node_slug": "",
+                 "verdict": verdict, "evidence": "e", "slice": "slice-01"}]
+
+    def test_refuses_to_clobber_adjudicated_table(self):
+        mcv.write_table(self._rows("KEEP"), self.target)
+        with self.assertRaises(ValueError) as ctx:
+            mcv.write_table(self._rows(""), self.target)
+        self.assertIn("裁定产物", str(ctx.exception))
+        with self.target.open(encoding="utf-8-sig", newline="") as handle:
+            self.assertEqual(["KEEP"], [r["verdict"] for r in csv.DictReader(handle)],
+                             "被拒后原裁定必须原样在位")
+
+    def test_force_overwrites_on_request(self):
+        mcv.write_table(self._rows("KEEP"), self.target)
+        mcv.write_table(self._rows(""), self.target, force=True)
+        with self.target.open(encoding="utf-8-sig", newline="") as handle:
+            self.assertEqual([""], [r["verdict"] for r in csv.DictReader(handle)])
 
 
 if __name__ == "__main__":

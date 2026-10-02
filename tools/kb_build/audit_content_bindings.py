@@ -48,7 +48,12 @@ PYTHONPATH=tools python -m kb_build.audit_content_bindings                  # �
 PYTHONPATH=tools python -m kb_build.audit_content_bindings --write          # 落候选表
 PYTHONPATH=tools python -m kb_build.audit_content_bindings --slices         # 落裁定切片
 PYTHONPATH=tools python -m kb_build.audit_content_bindings --chapter X --nodes a,b   # 换靶区
+PYTHONPATH=tools python -m kb_build.audit_content_bindings --write --out build/...csv  # 新开一轮写别处
 ```
+
+**防覆盖**：`--write` 写到默认路径时，若该表已有非空 `verdict`（上一轮裁定产物）会被拒绝——
+新开一轮请用 `--out` 写到别处；确要覆盖用 `--force`（2026-10-02 实测：直接 `--write` 曾把
+409 行已裁定表换成 496 行空 verdict 候选，靠 git 还原）。
 
 靶区缺省 = 两个最弱章（整章）＋ 切片计划点名的节点（见 `SLICE_PLAN`；锚点走 C4，
 它们的富节点不进 C1/C2 靶区，要看用 `--nodes` 点名）。
@@ -713,8 +718,27 @@ def write_slices(facts: Facts, slice_dir: Path | None = None, rows=None) -> list
 # ---------------------------------------------------------------------------
 
 
-def write_table(rows: list[dict], path: Path | None = None) -> Path:
+def _has_verdicts(path: Path) -> bool:
+    """表里是否已有非空 verdict（= 已裁定的一轮产物）。"""
+    if not path.exists():
+        return False
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        return any((row.get("verdict") or "").strip() for row in csv.DictReader(handle))
+
+
+def write_table(rows: list[dict], path: Path | None = None, *, force: bool = False) -> Path:
+    """落候选表。
+
+    **防覆盖**（2026-10-02 实测事故）：默认路径上的表可能是**上一轮已裁定**的产物
+    （verdict 非空）——新开一轮直接 `--write` 会把它整表换成"verdict 全空"的新候选，
+    裁定记录当场丢失（本轮实测踩过，靠 git 还原）。所以：目标已含 verdict 时拒绝写入，
+    除非显式 `--force`，或改用 `--out` 写到别处。
+    """
     target = path or (tables.TABLES_DIR / TABLE_NAME)
+    if _has_verdicts(target) and not force:
+        raise ValueError(
+            f"{target} 已是裁定产物（verdict 非空）：本轮候选请用 --out 写到别处，"
+            f"确要覆盖请显式 --force")
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(COLUMNS))
@@ -741,6 +765,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--nodes", action="append", default=[], help="靶区节点 slug（可逗号分隔）")
     parser.add_argument("--subject", default="", help="配合 --nodes 限定科目")
     parser.add_argument("--write", action="store_true", help="落候选表")
+    parser.add_argument("--out", type=Path, default=None,
+                        help="候选表落点（默认 tables/ 下的标准名；新开一轮用它写到别处，避免覆盖上一轮裁定）")
+    parser.add_argument("--force", action="store_true",
+                        help="允许覆盖已有非空 verdict 的表（默认拒绝，防丢裁定记录）")
     parser.add_argument("--slices", action="store_true", help="落裁定切片")
     parser.add_argument("--show", type=int, default=12, help="打印前 N 行候选")
     args = parser.parse_args(argv)
@@ -762,7 +790,8 @@ def main(argv: list[str] | None = None) -> int:
                                              row["material_slug"][:34], row["slug"][:22],
                                              row["evidence"][:110]))
     if args.write:
-        print("→ 候选表 %s（%d 行，verdict 全空待 WP2）" % (write_table(rows), len(rows)))
+        print("→ 候选表 %s（%d 行，verdict 全空待 WP2）"
+              % (write_table(rows, args.out, force=args.force), len(rows)))
     if args.slices:
         paths = write_slices(facts)
         print("→ 切片 %d 片：" % len(paths))
