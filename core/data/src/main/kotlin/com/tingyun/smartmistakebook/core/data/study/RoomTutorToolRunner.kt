@@ -11,7 +11,6 @@ import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
-import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.domain.tutorSessionObjectiveRecord
@@ -25,27 +24,11 @@ import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
-import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.isReady
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-
-/**
- * Deterministic evidence id for a MASTERY_UPDATE write: the same
- * (namespace = model-task requestId, tool, knowledge node) always maps to the
- * same id, so a retried write is idempotent (Room IGNORE no-ops the second
- * insert). Null namespace (direct/test callers) falls back to a unique but
- * non-idempotent nanoTime id.
- */
-internal fun masteryUpdateEvidenceId(
-    namespace: String?,
-    tool: TutorToolName,
-    knowledgeNodeId: String,
-): String = namespace
-    ?.let { "chat-ev:$it:${tool.name}:$knowledgeNodeId" }
-    ?: "chat-ev-${System.nanoTime()}"
 
 /**
  * `tutor_message.role` value produced by `TutorConversationDao` for the
@@ -101,6 +84,9 @@ internal class RoomTutorToolRunner(
      */
     private val knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
 ) {
+    /** D-M M4：两条证据写通道的唯一写入口（本执行器只提供讲题通道的语义输入）。 */
+    private val evidenceWriter = KnowledgeEvidenceWriter(port)
+
     /** 观测面：工具环协议测试断言执行器确实被调用。 */
     var executedCallCount: Int = 0
         private set
@@ -809,15 +795,18 @@ internal class RoomTutorToolRunner(
             )
         }
         val knowledgeNodeId = resolved.knowledgeNodeId
+        // 结果回显（批次 0 条目 5a）：这次写入落到哪个知识点——**会话代号 + 节点名**。
+        // 原始 id 永不进结果文本（D5 契约：原始 id 不进 prompt/工具参数）；名称本就随
+        // 代号表与教学参考对模型披露过，回显不越界。消灭的失败：代号解析错/写进无关节点时，
+        // 接受与被拒两种结果此前都读不出目标，模型与学生都没法当场发现写错了知识点。
+        // 解析出的条目必带本会话代号（注册表只对已赋码条目建索引），null 说明注册表坏掉——
+        // 宁可失败关闭，也不要印出「null」或静默退回无目标的旧形态。
+        val targetCode = requireNotNull(resolved.code) {
+            "A resolved knowledge code must carry its session code"
+        }
+        val targetLabel = "$targetCode「${resolved.displayName}」"
         val anchorClass = KnowledgeAnchorClass.of(resolved.role).name
         val now = System.currentTimeMillis()
-        // 幂等 evidence_id：同 request 命名空间内同工具+知识点映射同 id——
-        // 重试不重复落库（Room IGNORE 兜底，见 masteryUpdateEvidenceId）。
-        val evidenceId = masteryUpdateEvidenceId(
-            namespace = context.evidenceIdNamespace,
-            tool = call.tool,
-            knowledgeNodeId = knowledgeNodeId,
-        )
         if (direction == null || understanding == null) {
             return TutorToolExecution(
                 TutorToolOutcome(
@@ -829,127 +818,69 @@ internal class RoomTutorToolRunner(
             )
         }
 
-        // 门控数据源：三个索引支撑的精确查询（批量量级 O(log n)，不做全表拉取）。
-        // - 同 KC 冷却按 learner 粒度（跨会话）：防"我懂了"开新会话绕过。
-        // - 会话配额按本会话 accepted 数。
-        // - learner 滚动窗配额按 learner 最近窗口内 accepted 总数（防多会话 farm）。
-        val conversationId = context.conversationId
-        val lastSameKcWrite = port.lastAcceptedChatEvidenceAtForKc(context.learnerId, knowledgeNodeId)
-        val sameKcLastWriteAgoMillis = lastSameKcWrite?.let { (now - it).coerceAtLeast(0) }
-        val acceptedInWindow = port.countAcceptedChatEvidenceSince(
-            learnerId = context.learnerId,
-            sinceEpochMillis = now - MasteryWriteGate.LEARNER_WINDOW_MILLIS,
+        // 写入口（D-M M4）：锚定、三路配额、门评估、D9 降权、幂等 id、被拒观察行
+        // 全部在 KnowledgeEvidenceWriter 一处发生——本执行器只提供讲题通道的语义输入
+        //（方向/理解档/理由/置信 + 两处本地可核查性核对）。
+        val writeOutcome = evidenceWriter.write(
+            KnowledgeEvidenceWriteRequest(
+                learnerId = context.learnerId,
+                channel = KnowledgeEvidenceChannel.MODEL_CHAT,
+                namespace = context.evidenceIdNamespace,
+                discriminator = call.tool.name,
+                conversationId = context.conversationId,
+                knowledgeNodeId = knowledgeNodeId,
+                direction = direction,
+                understanding = understanding,
+                evidenceConfidence = call.confidence,
+                reasonMarkdown = call.rationale,
+                anchorClass = anchorClass,
+                requiredSubject = context.subject,
+                // 讲题通道本地拿不到"学生懂了"的客观佐证（研究 §1：本地无可靠语义
+                // 信号），故 MASTERED 的可核查性改为数模型 rationale 里逐字引用的
+                // 证据锚条数（档2，spec 2026-09-06 §1；档1 prompt 规范同源）。
+                hasObjectiveSupport = false,
+                // 只数**引文真出现在本会话文本里**的锚：档1 规范要求"逐字引用学生
+                // 原话"，仅数引号会让 `"因为""所以"` 这类编造凑够门槛。
+                // **正向各档都消费这个值**（MASTERED ≥2，其余正向 ≥1，2026-09-13 的正向底线），
+                // 因此不能只在 MASTERED 时核对——否则 CONFIDENT 会拿"引号数"冒充"已核实锚"，
+                // 编造的引文照样本进库。负向不消费，省掉这次回读。
+                evidenceAnchorCount = if (direction == TutorEvidenceDirection.POSITIVE) {
+                    MasteryWriteGate.verifiedEvidenceAnchorCount(
+                        rationale = call.rationale,
+                        verifiableText = verifiableSessionText(context),
+                    )
+                } else {
+                    0
+                },
+                // 反向的客观核对（研究 tutor-evidence-gate §3.2）：学生在本轮答错过
+                // 模型自己出的检查题时，模型再判 POSITIVE 就是口头声明压过行为证据。
+                // 这与"有没有佐证"是两个方向——此处查的是"有没有反驳"。门只对
+                // POSITIVE 消费它，故只在正向判断时才付这次回读的成本。
+                objectiveAnswersContradictPositive =
+                    direction == TutorEvidenceDirection.POSITIVE &&
+                        objectiveAnswersContradictPositive(context),
+                attentionFactor = context.attentionFactor,
+                occurredAtEpochMillis = now,
+            ),
         )
-        val acceptedInConversation = context.conversationId
-            ?.let { port.countAcceptedChatEvidenceInConversation(it) }
-            ?: 0
-
-        // KC 锚定：代号解析出的 id 必须命中真实知识节点（防代号指向已退役/不存在的节点），
-        // 且——当存在科目上下文时——目标节点必须属于该科目。写工具只允许落到当前教学
-        // 上下文相关的知识点；跨科目的 KC 写入一律视为未锚定拒写，防止模型在一个科目
-        // 会话里把证据写进无关科目。无科目上下文（大厅直调）时不强加科目匹配——大厅本身
-        // 没有已披露代号，[resolved == null] 的结构性拒会先于这里生效。
-        val knowledgeNode = if (knowledgeNodeId.isBlank()) {
-            null
-        } else {
-            port.readKnowledgeNodesByIds(setOf(knowledgeNodeId)).firstOrNull()
-        }
-        val anchored = knowledgeNode != null &&
-            (context.subject == null || knowledgeNode.subject == context.subject)
-
-        val input = MasteryWriteGate.GateInput(
-            evidenceConfidence = call.confidence,
-            direction = direction,
-            understanding = understanding,
-            knowledgeNodeIsAnchored = anchored,
-            // 讲题通道本地拿不到"学生懂了"的客观佐证（研究 §1：本地无可靠语义
-            // 信号），故 MASTERED 的可核查性改为数模型 rationale 里逐字引用的
-            // 证据锚条数（档2，spec 2026-09-06 §1；档1 prompt 规范同源）。
-            hasObjectiveSupport = false,
-            // 只数**引文真出现在本会话文本里**的锚：档1 规范要求"逐字引用学生
-            // 原话"，仅数引号会让 `"因为""所以"` 这类编造凑够门槛。
-            // **正向各档都消费这个值**（MASTERED ≥2，其余正向 ≥1，2026-09-13 的正向底线），
-            // 因此不能只在 MASTERED 时核对——否则 CONFIDENT 会拿"引号数"冒充"已核实锚"，
-            // 编造的引文照样本进库。负向不消费，省掉这次回读。
-            evidenceAnchorCount = if (direction == TutorEvidenceDirection.POSITIVE) {
-                MasteryWriteGate.verifiedEvidenceAnchorCount(
-                    rationale = call.rationale,
-                    verifiableText = verifiableSessionText(context),
-                )
-            } else {
-                0
-            },
-            // 反向的客观核对（研究 tutor-evidence-gate §3.2）：学生在本轮答错过
-            // 模型自己出的检查题时，模型再判 POSITIVE 就是口头声明压过行为证据。
-            // 这与"有没有佐证"是两个方向——此处查的是"有没有反驳"。门只对
-            // POSITIVE 消费它，故只在正向判断时才付这次回读的成本。
-            objectiveAnswersContradictPositive =
-                direction == TutorEvidenceDirection.POSITIVE &&
-                    objectiveAnswersContradictPositive(context),
-            sameKcLastWriteAgoMillis = sameKcLastWriteAgoMillis,
-            writesThisConversation = acceptedInConversation,
-            writesThisLearnerInWindow = acceptedInWindow,
-            attentionFactor = context.attentionFactor,
-        )
-        when (val result = MasteryWriteGate.evaluate(input)) {
-            is MasteryWriteGate.GateResult.Accepted -> {
-                // D9 降权安全垫（写口唯一数值分支）：anchor_class≠CONFIRMED（且非 NULL）时
-                // 权重减半，**写入时**施加——存库 weight 即生效权重，投影/重放按存库值逐位
-                // 进行。CONFIRMED 与 legacy NULL 走全权重（历史不追溯降权）。
-                val effectiveWeight = MasteryWriteGate.effectiveEvidenceWeight(
-                    baseWeight = result.weight,
-                    anchorClass = anchorClass,
-                )
-                val entry = LearnerChatEvidenceEntity(
-                    evidence_id = evidenceId,
-                    learner_id = context.learnerId,
-                    conversation_id = conversationId.orEmpty(),
-                    knowledge_node_id = knowledgeNodeId,
-                    direction = direction.name,
-                    weight = effectiveWeight,
-                    reason_markdown = call.rationale,
-                    confidence = input.evidenceConfidence,
-                    source_kind = "MODEL_CHAT",
-                    created_at_epoch_millis = now,
-                    anchor_class = anchorClass,
-                )
-                port.recordChatEvidence(listOf(entry))
-                return TutorToolExecution(
-                    outcome = TutorToolOutcome(
-                        tool = TutorToolName.MASTERY_UPDATE,
-                        ok = true,
-                        summaryMarkdown = "学习证据已记录：${direction.name} weight=$effectiveWeight",
-                    ),
-                )
-            }
-            is MasteryWriteGate.GateResult.Rejected -> {
-                // 被拒 ≠ 删除：落 rejected 审计行（不进投影），outcome 返回拒因。
-                // anchor_class 一并落上——校准要能区分"哪一档来路的证据被拒得最多"。
-                val entry = LearnerChatEvidenceEntity(
-                    evidence_id = evidenceId,
-                    learner_id = context.learnerId,
-                    conversation_id = conversationId.orEmpty(),
-                    knowledge_node_id = knowledgeNodeId,
-                    direction = direction.name,
-                    weight = 0.0,
-                    reason_markdown = call.rationale,
-                    confidence = input.evidenceConfidence,
-                    source_kind = "MODEL_CHAT",
-                    created_at_epoch_millis = now,
-                    rejected_reason = result.reason.name,
-                    rejected_at_epoch_millis = now,
-                    anchor_class = anchorClass,
-                )
-                port.recordChatEvidence(listOf(entry))
-                return TutorToolExecution(
-                    outcome = TutorToolOutcome(
-                        tool = TutorToolName.MASTERY_UPDATE,
-                        ok = false,
-                        summaryMarkdown = "这条学习证据未通过校验，未计入掌握度（${result.reason.name}）。",
-                        errorKind = "rejected:${result.reason.name}",
-                    ),
-                )
-            }
+        return when (writeOutcome) {
+            is KnowledgeEvidenceWriteOutcome.Accepted -> TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.MASTERY_UPDATE,
+                    ok = true,
+                    summaryMarkdown = "学习证据已记录：$targetLabel ${direction.name} " +
+                        "weight=${writeOutcome.weight}",
+                ),
+            )
+            is KnowledgeEvidenceWriteOutcome.Rejected -> TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = TutorToolName.MASTERY_UPDATE,
+                    ok = false,
+                    summaryMarkdown = "这条学习证据未通过校验，未计入掌握度" +
+                        "（${writeOutcome.reason.name}）——目标知识点 $targetLabel。",
+                    errorKind = "rejected:${writeOutcome.reason.name}",
+                ),
+            )
         }
     }
 

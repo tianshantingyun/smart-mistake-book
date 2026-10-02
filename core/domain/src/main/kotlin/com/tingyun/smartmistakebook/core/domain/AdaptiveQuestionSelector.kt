@@ -89,6 +89,15 @@ data class AdaptiveSelectionRequest(
     val decisionAtEpochMillis: Long,
     val recentItemFamilyIds: Set<String> = emptySet(),
     val deterministicSeed: Long = 0,
+    /**
+     * KF-16（裁决 28 读侧接线，3B 批次 B3 补上）：目标节点 → 其先修的记忆稳定度
+     * （未知 = null，忽略；无条目 = 无已知先修）。与知识点队列/展示面同源——先修未恢复的
+     * 节点按**有效稳定度**（min(自身, 先修)）参与跳过判据，不再被"已掌握则跳过"放行。
+     *
+     * 默认空表 = 无已知先修（"不知道前置 ≠ 没有前置"），与既有调用点行为一致；调用方
+     * （仓库侧由既有 `KnowledgePrerequisiteReader` 解析）在能拿到图时填入。
+     */
+    val prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
 ) {
     init {
         require(targetKnowledgeNodeIds.isNotEmpty() && targetKnowledgeNodeIds.none(String::isBlank)) {
@@ -140,8 +149,16 @@ class AdaptiveQuestionSelector {
             return selectCalibration(request, setOf("CALIBRATION_REQUESTED"))
         }
 
-        val allClearlyMastered = targetStates.size == request.targetKnowledgeNodeIds.size &&
-            targetStates.all { ClearlyMasteredForSkipPolicy.isSatisfied(it, request.decisionAtEpochMillis) }
+        val allClearlyMastered = request.targetKnowledgeNodeIds.all { knowledgeNodeId ->
+            val state = request.learnerSnapshot.knowledgeMasteryStates[knowledgeNodeId]
+                ?: return@all false
+            ClearlyMasteredForSkipPolicy.isSatisfied(
+                state = state,
+                atEpochMillis = request.decisionAtEpochMillis,
+                prerequisiteStabilityDays =
+                    request.prerequisiteStabilityDaysByNode[knowledgeNodeId].orEmpty(),
+            )
+        }
         if (request.requestedTargetKind == AdaptiveTargetKind.FOUNDATION && allClearlyMastered) {
             return decision(
                 request,

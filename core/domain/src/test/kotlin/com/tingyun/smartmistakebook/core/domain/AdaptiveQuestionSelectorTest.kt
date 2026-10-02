@@ -411,6 +411,49 @@ class AdaptiveQuestionSelectorTest {
         assertEquals(AdaptiveDecisionKind.SKIP_MASTERED_FOUNDATION, decision.kind)
     }
 
+    // ---- KF-16 先修接线（3B 批次 B3）：弱先修压制在跳过路径生效 ----
+
+    @Test
+    fun `a weak prerequisite keeps a durable node from skipping the foundation check`() {
+        // 先修未恢复 ⇒ 有效稳定度 = min(自身 30, 先修 5) = 5 < 耐久门 21 → E 判据不成立，
+        // SKIP_MASTERED_FOUNDATION 不再触发；节点按学习态继续出题（而不是被跳过）。
+        // 消灭的失败（裁决 28 登记项）：请求此前不带先修图，本路径的压制恒不生效——
+        // 先修还不会，后继却已被判"已掌握"跳过。
+        val decision = selector.select(
+            AdaptiveSelectionRequest(
+                learnerSnapshot = snapshot(masteredState()),
+                targetKnowledgeNodeIds = setOf("kc-a"),
+                requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
+                userRequestedQuestion = true,
+                candidates = listOf(foundation),
+                decisionAtEpochMillis = 800,
+                prerequisiteStabilityDaysByNode = mapOf("kc-a" to listOf(5.0)),
+            ),
+        )
+
+        assertEquals(AdaptiveDecisionKind.ASK, decision.kind)
+        assertEquals("assessment-foundation", decision.selectedAssessmentItemId)
+    }
+
+    @Test
+    fun `a recovered prerequisite restores the skip`() {
+        // 先修恢复（≥ 耐久门）后，同一节点回到跳过态——压制是纯函数，不需要额外状态。
+        val decision = selector.select(
+            AdaptiveSelectionRequest(
+                learnerSnapshot = snapshot(masteredState()),
+                targetKnowledgeNodeIds = setOf("kc-a"),
+                requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
+                userRequestedQuestion = true,
+                candidates = listOf(foundation),
+                decisionAtEpochMillis = 800,
+                // null = 未知先修（忽略），30.0 = 已恢复；有效稳定度取已知值的最小值 = 30。
+                prerequisiteStabilityDaysByNode = mapOf("kc-a" to listOf(null, 30.0)),
+            ),
+        )
+
+        assertEquals(AdaptiveDecisionKind.SKIP_MASTERED_FOUNDATION, decision.kind)
+    }
+
     private fun snapshot(state: KnowledgeMasteryState) = LearnerSnapshot(
         learnerId = "learner-1",
         knowledgeMasteryStates = mapOf("kc-a" to state),

@@ -4,7 +4,7 @@ import com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 
 /**
- * 知识点复习队列的一个候选：一个知识点 + 其当前掌握态（供 [ReviewPlanner.scoreKnowledgeNode]
+ * 知识点复习队列的一个候选：一个知识点 + 其当前掌握态（供 [KnowledgeNodeScorer.scoreKnowledgeNode]
  * 打分）+ 该点复习的预估耗时（供时间预算约束）。
  *
  * [subjectId] 与 [materialGroupId] 是会话交错维度（spec §3.2 "多样性"）：同科目的点连续出现
@@ -19,7 +19,7 @@ data class KnowledgeReviewCandidate(
     val estimatedDurationSeconds: Int,
     /**
      * 该知识点绑定题目的预测检索概率（取绑定题中已知 FSRS 记忆的最小 R），null = 无可用记忆。
-     * 供 [ReviewPlanner.scoreKnowledgeNode] 以遗忘曲线而非掌握度 EMA 估计到期风险。
+     * 供 [KnowledgeNodeScorer.scoreKnowledgeNode] 以遗忘曲线而非掌握度 EMA 估计到期风险。
      */
     val recallRisk: Double? = null,
 ) {
@@ -83,9 +83,9 @@ data class KnowledgeReviewQueueEntry(
 
 /**
  * 生成今天知识点复习队列（spec dual-review-entry §3.2）：对候选知识点用与错题排程同构的
- * 打分（[ReviewPlanner.scoreKnowledgeNode]）打分，再按**同一套**机制取队——时间预算 +
- * 多样性（同讲解材料/同科目软降权）+ 难度档轮换（[ReviewPlanner.DIFFICULTY_CYCLE] 平局时
- * 轮换）。已掌握且新鲜的知识点被 scoreKnowledgeNode 跳过（不进队列）。纯函数，不依赖 DB/UI。
+ * 打分（[KnowledgeNodeScorer.scoreKnowledgeNode]）打分，再按**同一套**机制取队——时间预算 +
+ * 多样性（同讲解材料/同科目软降权）+ 难度档轮换（[KnowledgeNodeScorer.DIFFICULTY_CYCLE]
+ * 平局时轮换）。已掌握且新鲜的知识点被 scoreKnowledgeNode 跳过（不进队列）。纯函数，不依赖 DB/UI。
  *
  * 与错题排程的一处刻意差异：多样性只做**软降权**、不做"同族已用即停"的硬约束。知识点常共享
  * 一份讲解材料，硬约束会在共用材料时直接截断队列（学生永远只复习到第一个点）。
@@ -98,7 +98,7 @@ data class KnowledgeReviewQueueEntry(
  *
  * 用途：知识点自身没有记忆痕迹，其"是否快要忘"只能由承载它的题目来回答。取最小值是保守
  * 选择——只要有一道绑定题濒临遗忘，该知识点就值得复习。没有已知记忆的点不出现在结果里，
- * 由 [ReviewPlanner.scoreKnowledgeNode] 回退到掌握度估计。
+ * 由 [KnowledgeNodeScorer.scoreKnowledgeNode] 回退到掌握度估计。
  *
  * 依据：Cepeda et al. 2006/2008（间隔的意义相对于目标保持间隔）与 FSRS R(t,S) 曲线本身；
  * 掌握度 EMA 在"新鲜"窗口内不随时间衰减，不适合作为到期风险的唯一输入。
@@ -135,7 +135,7 @@ fun knowledgeRecallRiskByNode(
 private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
 
 fun selectKnowledgeReviewQueue(
-    planner: ReviewPlanner,
+    scorer: KnowledgeNodeScorer,
     candidates: List<KnowledgeReviewCandidate>,
     now: Long,
     timeBudgetSeconds: Int,
@@ -144,11 +144,11 @@ fun selectKnowledgeReviewQueue(
      * 无已知先修）。先修未恢复的节点按有效稳定度压制、不被跳过——延续"未知 ≠ 缺失"约定。
      */
     prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
-): List<ReviewPlanner.ScoredKnowledgeNode> {
+): List<KnowledgeNodeScorer.ScoredKnowledgeNode> {
     require(timeBudgetSeconds >= 0) { "Knowledge review time budget must not be negative" }
     val pool = candidates
         .mapNotNull { candidate ->
-            planner.scoreKnowledgeNode(
+            scorer.scoreKnowledgeNode(
                 knowledgeNodeId = candidate.knowledgeNodeId,
                 state = candidate.state,
                 now = now,
@@ -161,19 +161,19 @@ fun selectKnowledgeReviewQueue(
     var remainingSeconds = timeBudgetSeconds
     val materialRepeats = mutableMapOf<String, Int>()
     val subjectRepeats = mutableMapOf<String, Int>()
-    val selected = mutableListOf<ReviewPlanner.ScoredKnowledgeNode>()
+    val selected = mutableListOf<KnowledgeNodeScorer.ScoredKnowledgeNode>()
     var preferredBandIndex = 0
     while (pool.isNotEmpty()) {
         val fitting = pool.filter { (_, candidate) ->
             candidate.estimatedDurationSeconds <= remainingSeconds
         }
         if (fitting.isEmpty()) break
-        val desiredBand = ReviewPlanner.DIFFICULTY_CYCLE[
-            preferredBandIndex % ReviewPlanner.DIFFICULTY_CYCLE.size,
+        val desiredBand = KnowledgeNodeScorer.DIFFICULTY_CYCLE[
+            preferredBandIndex % KnowledgeNodeScorer.DIFFICULTY_CYCLE.size,
         ]
         val chosen = fitting
             .sortedWith(
-                compareByDescending<Pair<ReviewPlanner.ScoredKnowledgeNode, KnowledgeReviewCandidate>> {
+                compareByDescending<Pair<KnowledgeNodeScorer.ScoredKnowledgeNode, KnowledgeReviewCandidate>> {
                     it.first.score - diversityPenalty(it.second, materialRepeats, subjectRepeats)
                 }
                     .thenBy { if (it.first.difficultyBand == desiredBand) 0 else 1 }
@@ -204,6 +204,12 @@ private fun diversityPenalty(
     return (materialPenalty + subjectPenalty).coerceAtMost(MAX_DIVERSITY_PENALTY)
 }
 
-private const val MATERIAL_REPEAT_PENALTY = 0.3
-private const val SUBJECT_REPEAT_PENALTY = 0.2
-private const val MAX_DIVERSITY_PENALTY = 1.5
+/**
+ * 同讲解材料/同科目重复出现的软降权；权重与错题排程的 family/source 降权同量级——
+ * **单源**在 `AlgorithmConstants.ReviewScoring`（W0-4 审计 Q5：这三条此前是本文件写下的
+ * 第三份同值字面量；值一个没改，只塌掉副本）。名字按本文件语义保留，映射按"同一降权量级"
+ * 而非字面名称。
+ */
+private const val MATERIAL_REPEAT_PENALTY = AlgorithmConstants.ReviewScoring.FAMILY_PENALTY_WEIGHT
+private const val SUBJECT_REPEAT_PENALTY = AlgorithmConstants.ReviewScoring.SOURCE_PENALTY_WEIGHT
+private const val MAX_DIVERSITY_PENALTY = AlgorithmConstants.ReviewScoring.MAX_DIVERSITY_PENALTY

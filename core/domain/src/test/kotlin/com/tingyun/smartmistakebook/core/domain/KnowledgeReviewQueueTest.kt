@@ -16,11 +16,11 @@ import org.junit.Test
 /**
  * 知识点复习队列编排（spec dual-review-entry §3.2）：今天复习的知识点队列由错题排程同构的
  * 打分（scoreKnowledgeNode，T2）决定——打分、按时间预算取队，并在分数接近时用"同讲解材料/
- * 同科目降权"和"难度档轮换"（与 ReviewPlanner.plan 同一套机制）让会话交错。纯函数。
+ * 同科目降权"和"难度档轮换"（与错题排程同一套机制）让会话交错。纯函数。
  */
 class KnowledgeReviewQueueTest {
 
-    private val planner = ReviewPlanner()
+    private val scorer = KnowledgeNodeScorer()
     private val now = 1_000_000_000_000L
 
     private fun mastery(id: String, status: MasteryStatus): KnowledgeMasteryState = KnowledgeMasteryState(
@@ -115,10 +115,10 @@ class KnowledgeReviewQueueTest {
     fun scoreKnowledgeNodeUsesRecallRiskWhenProvided() {
         val state = mastery("kc1", MasteryStatus.LEARNING)
         val decayed = requireNotNull(
-            planner.scoreKnowledgeNode("kc1", state, now, recallRisk = 0.2),
+            scorer.scoreKnowledgeNode("kc1", state, now, recallRisk = 0.2),
         )
         val fresh = requireNotNull(
-            planner.scoreKnowledgeNode("kc1", state, now, recallRisk = 0.95),
+            scorer.scoreKnowledgeNode("kc1", state, now, recallRisk = 0.95),
         )
         assertTrue(ReviewReason.DUE_RECALL_RISK in decayed.reasons)
         assertTrue(
@@ -135,7 +135,7 @@ class KnowledgeReviewQueueTest {
             candidate("kc3", state = mastery("kc3", MasteryStatus.MASTERED)),
         )
         val queue = selectKnowledgeReviewQueue(
-            planner = planner,
+            scorer = scorer,
             candidates = candidates,
             now = now,
             timeBudgetSeconds = 120,
@@ -152,7 +152,7 @@ class KnowledgeReviewQueueTest {
             candidate("kc2", state = mastery("kc2", MasteryStatus.CONFLICTED), seconds = 120),
         )
         val queue = selectKnowledgeReviewQueue(
-            planner = planner,
+            scorer = scorer,
             candidates = candidates,
             now = now,
             timeBudgetSeconds = 120,
@@ -164,7 +164,7 @@ class KnowledgeReviewQueueTest {
     fun emptyOrAllMasteredCandidatesYieldsEmptyQueue() {
         assertTrue(
             selectKnowledgeReviewQueue(
-                planner = planner,
+                scorer = scorer,
                 candidates = emptyList(),
                 now = now,
                 timeBudgetSeconds = 120,
@@ -184,7 +184,7 @@ class KnowledgeReviewQueueTest {
             candidate("kc-w", state = weak),
         )
         val queue = selectKnowledgeReviewQueue(
-            planner = planner,
+            scorer = scorer,
             candidates = candidates,
             now = now,
             timeBudgetSeconds = 240,
@@ -204,7 +204,7 @@ class KnowledgeReviewQueueTest {
             candidate("kc-d", material = "m2"),
         )
         val queue = selectKnowledgeReviewQueue(
-            planner = planner,
+            scorer = scorer,
             candidates = candidates,
             now = now,
             timeBudgetSeconds = 240,
@@ -226,7 +226,7 @@ class KnowledgeReviewQueueTest {
             candidate("kc-d", subject = "PHYSICS", material = "m4"),
         )
         val queue = selectKnowledgeReviewQueue(
-            planner = planner,
+            scorer = scorer,
             candidates = candidates,
             now = now,
             timeBudgetSeconds = 240,
@@ -244,7 +244,7 @@ class KnowledgeReviewQueueTest {
         // 学生会永远只复习到一个知识点。
         val candidates = (1..3).map { index -> candidate("kc-$index", material = "m-only") }
         val queue = selectKnowledgeReviewQueue(
-            planner = planner,
+            scorer = scorer,
             candidates = candidates,
             now = now,
             timeBudgetSeconds = 240,
@@ -263,11 +263,11 @@ class KnowledgeReviewQueueTest {
         )
         assertEquals(
             ReviewDifficultyBand.HARD,
-            planner.scoreKnowledgeNode("kc-none", null, now)!!.difficultyBand,
+            scorer.scoreKnowledgeNode("kc-none", null, now)!!.difficultyBand,
         )
         assertEquals(
             ReviewDifficultyBand.MEDIUM,
-            planner.scoreKnowledgeNode("kc-mid", medium, now)!!.difficultyBand,
+            scorer.scoreKnowledgeNode("kc-mid", medium, now)!!.difficultyBand,
         )
     }
 
@@ -286,7 +286,7 @@ class KnowledgeReviewQueueTest {
             candidate("kc-mid", material = "m-mid", state = medium),
         )
         val queue = selectKnowledgeReviewQueue(
-            planner = planner,
+            scorer = scorer,
             candidates = candidates,
             now = now,
             timeBudgetSeconds = 240,

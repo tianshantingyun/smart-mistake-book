@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.IndependentCorrectObservation
 import com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
+import com.tingyun.smartmistakebook.core.model.LearnerSnapshotFreshness
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
@@ -559,6 +560,258 @@ class ReviewPlannerV2Test {
 
         val reasons = plan.queueItems.single().reasons
         assertTrue("记忆卡过期必须带 STALE_KNOWLEDGE，实际：$reasons", ReviewReason.STALE_KNOWLEDGE in reasons)
+    }
+
+    // ---- D-M M6：V1 `ReviewPlannerTest` 独有覆盖的转移（13 例逐条核对，不静默丢断言）----
+    // 仍适用的行为断言搬到这里；V1 独有的"同族/同源硬排除"与"错题难度循环"随 V1 退场
+    //（生产不可达；难度循环现由知识点队列的 KnowledgeNodeScorer 承载，见
+    // KnowledgeReviewQueueTest.cyclesDifficultyBandsWhenScoresTie），记录在版本台账 §3.12。
+
+    @Test
+    fun `overdue risk and weak knowledge are explained`() {
+        val snapshot = snapshot().copy(
+            problemMemoryStates = mapOf(
+                "unit-a" to memoryState(
+                    unitId = "unit-a",
+                    stabilityDays = 1.0,
+                    difficulty = 5.5,
+                    nextReviewAtEpochMillis = now + 2 * DAY_MILLIS,
+                ).copy(
+                    lastReviewedAtEpochMillis = now - 5 * DAY_MILLIS,
+                    nextReviewAtEpochMillis = now - 2 * DAY_MILLIS,
+                ),
+            ),
+        )
+
+        val plan = planner.plan(
+            request(listOf(candidate("unit-a", "family-a", null, 5.5, 60)), 60, snapshot),
+        )
+
+        val reasons = plan.queueItems.single().reasons
+        assertTrue(ReviewReason.DUE_RECALL_RISK in reasons)
+        assertTrue(ReviewReason.WEAK_KNOWLEDGE in reasons)
+    }
+
+    @Test
+    fun `a repeatedly captured mistake is prioritized and changes plan identity`() {
+        val snapshot = snapshot().copy(
+            problemMemoryStates = mapOf(
+                "unit-a" to memoryState("unit-a", 1.0, 5.5, now - DAY_MILLIS),
+                "unit-z" to memoryState("unit-z", 1.0, 5.5, now - DAY_MILLIS),
+            ),
+        )
+        val baseCandidates = listOf(
+            candidate("unit-a", "family-a", "source-a", 5.5, 60),
+            candidate("unit-z", "family-z", "source-z", 5.5, 60),
+        )
+        val repeatedCandidates = baseCandidates.map { item ->
+            if (item.practiceUnitId == "unit-z") {
+                item.copy(repeatMistakePriority = 0.5)
+            } else {
+                item
+            }
+        }
+
+        val base = planner.plan(request(baseCandidates, 120, snapshot))
+        val repeated = planner.plan(request(repeatedCandidates, 120, snapshot))
+
+        assertEquals("unit-a", base.queueItems.first().practiceUnitId)
+        assertEquals("unit-z", repeated.queueItems.first().practiceUnitId)
+        assertTrue(ReviewReason.REPEATED_MISTAKE in repeated.queueItems.first().reasons)
+        assertTrue(base.planFingerprint != repeated.planFingerprint)
+    }
+
+    @Test
+    fun `an older unscheduled mistake outranks a newly arrived equal candidate`() {
+        val old = candidate("unit-z", "family-z", "source-z", 5.5, 60)
+            .copy(eligibleSinceEpochMillis = 0)
+        val recent = candidate("unit-a", "family-a", "source-a", 5.5, 60)
+            .copy(eligibleSinceEpochMillis = now - DAY_MILLIS)
+
+        val plan = planner.plan(request(listOf(recent, old), 60))
+
+        assertEquals("unit-z", plan.queueItems.single().practiceUnitId)
+        assertTrue(ReviewReason.LONG_WAITING in plan.queueItems.single().reasons)
+    }
+
+    @Test
+    fun `missing and conflicted knowledge are scored as conservative calibration risk`() {
+        val conflicted = snapshot().knowledgeMasteryStates.getValue("kc-a").copy(
+            status = MasteryStatus.CONFLICTED,
+            conflictSinceSequence = 3,
+        )
+        val snapshot = snapshot().copy(
+            knowledgeMasteryStates = mapOf("kc-a" to conflicted),
+        )
+        val candidate = candidate("unit-a", "family-a", null, 5.5, 60)
+            .copy(knowledgeNodeIds = setOf("kc-a", "kc-missing"))
+
+        val plan = planner.plan(request(listOf(candidate), 60, snapshot))
+
+        val reasons = plan.queueItems.single().reasons
+        assertTrue(ReviewReason.MISSING_KNOWLEDGE_EVIDENCE in reasons)
+        assertTrue(ReviewReason.CONFLICTED_KNOWLEDGE in reasons)
+        assertTrue(ReviewReason.CALIBRATION_CHECK in reasons)
+    }
+
+    @Test
+    fun `clock rollback is exposed as conservative review risk`() {
+        val futureMemory = memoryState(
+            unitId = "unit-a",
+            stabilityDays = 1.0,
+            difficulty = 5.5,
+            nextReviewAtEpochMillis = now + 2 * DAY_MILLIS,
+        ).copy(lastReviewedAtEpochMillis = now + DAY_MILLIS)
+
+        val plan = planner.plan(
+            request(
+                listOf(candidate("unit-a", "family-a", null, 5.5, 60)),
+                60,
+                snapshot().copy(problemMemoryStates = mapOf("unit-a" to futureMemory)),
+            ),
+        )
+
+        assertTrue(ReviewReason.CLOCK_ANOMALY in plan.queueItems.single().reasons)
+    }
+
+    @Test
+    fun `expired calibration is conservative even when the mastery estimate is high`() {
+        val expiredCalibration = CalibrationSnapshot(
+            CalibrationSupport.SUPPORTED,
+            "calibration-source",
+            "calibration-v1",
+            0,
+            now - 1,
+        )
+        val highButExpired = snapshot().knowledgeMasteryStates.getValue("kc-a").copy(
+            masteryScore = 0.99,
+            conservativeMasteryScore = 0.98,
+            lastEvidenceAtEpochMillis = now - 1,
+            independentCorrectObservations = listOf(
+                IndependentCorrectObservation(
+                    "family-a",
+                    9,
+                    now - 1,
+                    evidenceWeight = 1.0,
+                    calibration = expiredCalibration,
+                ),
+            ),
+        )
+        val snapshot = snapshot().copy(
+            knowledgeMasteryStates = mapOf("kc-a" to highButExpired),
+        )
+
+        val plan = planner.plan(request(listOf(candidate("unit-a", "family-a", null, 5.5, 60)), 60, snapshot))
+
+        assertTrue(ReviewReason.CALIBRATION_CHECK in plan.queueItems.single().reasons)
+        assertTrue(ReviewReason.WEAK_KNOWLEDGE in plan.queueItems.single().reasons)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `a stale snapshot is refused instead of mixing checkpoints`() {
+        planner.plan(
+            request(
+                candidates = listOf(candidate("unit-a", "family-a", null, 5.5, 60)),
+                budget = 60,
+                learnerSnapshot = snapshot().copy(freshness = LearnerSnapshotFreshness.STALE),
+            ),
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `a planning time before the projected snapshot is refused`() {
+        ReviewPlanningRequest(
+            learnerSnapshot = snapshot(),
+            candidates = listOf(candidate("unit-a", "family-a", null, 5.5, 60)),
+            localDayEpochDay = 10,
+            timeZoneId = "Asia/Shanghai",
+            timeBudgetSeconds = 60,
+            planningAtEpochMillis = now - 1,
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `a planning time before the correction watermark is refused`() {
+        ReviewPlanningRequest(
+            learnerSnapshot = snapshot().copy(correctionWatermarkEpochMillis = now + 1),
+            candidates = listOf(candidate("unit-a", "family-a", null, 5.5, 60)),
+            localDayEpochDay = 10,
+            timeZoneId = "Asia/Shanghai",
+            timeBudgetSeconds = 60,
+            planningAtEpochMillis = now,
+        )
+    }
+
+    @Test
+    fun `five thousand item backlog rotates without exceeding the daily budget`() {
+        val simulationStart = 6_000 * DAY_MILLIS
+        val calibration = CalibrationSnapshot(
+            CalibrationSupport.SUPPORTED,
+            "backlog-simulation",
+            "calibration-v1",
+            0,
+            simulationStart + 30 * DAY_MILLIS,
+        )
+        val currentWeakMastery = snapshot().knowledgeMasteryStates.getValue("kc-a").copy(
+            lastEvidenceAtEpochMillis = simulationStart,
+            independentCorrectObservations = listOf(
+                IndependentCorrectObservation(
+                    "backlog-family",
+                    1,
+                    simulationStart,
+                    evidenceWeight = 1.0,
+                    calibration = calibration,
+                ),
+            ),
+        )
+        val candidates = (0 until 5_000).map { index ->
+            candidate(
+                unitId = "unit-${index.toString().padStart(4, '0')}",
+                familyId = "family-$index",
+                sourceId = "source-$index",
+                difficulty = 5.5,
+                seconds = 60,
+            ).copy(
+                eligibleSinceEpochMillis =
+                    simulationStart - (5_000L - index) * DAY_MILLIS,
+            )
+        }
+        val memories = linkedMapOf<String, ProblemMemoryState>()
+        val seen = linkedSetOf<String>()
+
+        repeat(10) { day ->
+            val planningAt = simulationStart + day * DAY_MILLIS
+            val baseSnapshot = snapshot().copy(
+                problemMemoryStates = memories.toMap(),
+                knowledgeMasteryStates = mapOf("kc-a" to currentWeakMastery),
+            )
+            val plan = planner.plan(
+                ReviewPlanningRequest(
+                    learnerSnapshot = baseSnapshot,
+                    candidates = candidates,
+                    localDayEpochDay = 6_000L + day,
+                    timeZoneId = "Asia/Shanghai",
+                    timeBudgetSeconds = 900,
+                    planningAtEpochMillis = planningAt,
+                ),
+            )
+            val selectedIds = plan.queueItems.map { it.practiceUnitId }
+
+            assertEquals(900, plan.totalEstimatedDurationSeconds)
+            assertEquals(15, selectedIds.size)
+            assertTrue(selectedIds.none(seen::contains))
+            seen += selectedIds
+            selectedIds.forEach { practiceUnitId ->
+                memories[practiceUnitId] = memoryState(
+                    unitId = practiceUnitId,
+                    stabilityDays = 30.0,
+                    difficulty = 5.5,
+                    nextReviewAtEpochMillis = planningAt + 30 * DAY_MILLIS,
+                ).copy(lastReviewedAtEpochMillis = planningAt)
+            }
+        }
+
+        assertEquals(150, seen.size)
     }
 
     private fun snapshotWith(vararg states: KnowledgeMasteryState) = LearnerSnapshot(

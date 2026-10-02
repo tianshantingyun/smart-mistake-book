@@ -21,7 +21,7 @@ class KnowledgeMasteryDropPropagationTest {
 
     @Test
     fun `negative recent evidence below threshold yields drop pressure and reason`() {
-        val planner = ReviewPlanner()
+        val planner = ReviewPlannerV2()
         val memory = memory(dueOffsetDays = 3)
         val snapshot = snapshot(
             memories = listOf(memory),
@@ -37,7 +37,7 @@ class KnowledgeMasteryDropPropagationTest {
 
     @Test
     fun `deeper drop produces strictly higher scheduling weight`() {
-        val planner = ReviewPlanner()
+        val planner = ReviewPlannerV2()
         val mild = score(planner, conservative = 0.55)
         val severe = score(planner, conservative = 0.1)
 
@@ -46,7 +46,7 @@ class KnowledgeMasteryDropPropagationTest {
 
     @Test
     fun `not-yet-due question still enters the queue on a mastery drop`() {
-        val planner = ReviewPlanner()
+        val planner = ReviewPlannerV2()
         val memory = memory(dueOffsetDays = 20)
         val snapshot = snapshot(
             memories = listOf(memory),
@@ -62,7 +62,7 @@ class KnowledgeMasteryDropPropagationTest {
 
     @Test
     fun `positive recent evidence produces no drop pressure`() {
-        val planner = ReviewPlanner()
+        val planner = ReviewPlannerV2()
         val memory = memory(dueOffsetDays = 20)
         val snapshot = snapshot(
             memories = listOf(memory),
@@ -74,7 +74,7 @@ class KnowledgeMasteryDropPropagationTest {
         assertTrue(plan.queueItems.isEmpty())
     }
 
-    private fun score(planner: ReviewPlanner, conservative: Double): Double {
+    private fun score(planner: ReviewPlannerV2, conservative: Double): Double {
         val memory = memory(dueOffsetDays = 3)
         val snapshot = snapshot(
             memories = listOf(memory),

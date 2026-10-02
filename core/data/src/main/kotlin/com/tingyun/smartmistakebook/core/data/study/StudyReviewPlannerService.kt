@@ -23,9 +23,9 @@ import com.tingyun.smartmistakebook.core.domain.IntakeDurationBaseline
 import com.tingyun.smartmistakebook.core.domain.LogDurationModel
 import com.tingyun.smartmistakebook.core.domain.NewIntroductionPolicy
 import com.tingyun.smartmistakebook.core.domain.PredictionAuditSink
+import com.tingyun.smartmistakebook.core.domain.KnowledgeNodeScorer
 import com.tingyun.smartmistakebook.core.domain.ReviewCandidate
 import com.tingyun.smartmistakebook.core.domain.ReviewPlanningRequest
-import com.tingyun.smartmistakebook.core.domain.ReviewPlanner
 import com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2
 import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
@@ -42,10 +42,11 @@ import kotlinx.coroutines.flow.first
 
 /**
  * Produces the day's review plan and resolves knowledge context for the study
- * repository: candidate assembly, intake introduction, the V1/V2 planner
- * choice, shadow-prediction persistence and the knowledge-topic lookups the
- * knowledge review plan needs. Extracted so planning stays auditable without
- * the repository's snapshot orchestration around it.
+ * repository: candidate assembly, intake introduction, the review planner
+ * (V2 — the only planner since D-M M6), shadow-prediction persistence and the
+ * knowledge-topic lookups the knowledge review plan needs. Extracted so
+ * planning stays auditable without the repository's snapshot orchestration
+ * around it.
  */
 internal class StudyReviewPlannerService(
     private val database: StudyDatabasePort,
@@ -53,11 +54,11 @@ internal class StudyReviewPlannerService(
     private val studyZoneId: ZoneId,
     private val clock: Clock,
     private val reviewTimeBudgetSeconds: Int,
-    private val useReviewPlannerV2: Boolean,
     /** 批次 3（规划侧个性化）：与投影同源的 FSRS decay（`activeFsrsDecay`）。 */
     private val planningDecay: Double,
-    private val reviewPlanner: ReviewPlanner,
     private val reviewPlannerV2: ReviewPlannerV2,
+    /** 知识点队列的共享打分核（D-M M6；与 V2 风险分支同出口）。 */
+    private val knowledgeNodeScorer: KnowledgeNodeScorer,
     private val durationModel: LogDurationModel,
     private val reviewLogSink: ReviewLogSink,
     private val schedulingSettingsStore: SchedulingSettingsStore?,
@@ -182,14 +183,12 @@ internal class StudyReviewPlannerService(
     /**
      * 当前二进制会给今天这份计划盖的算法版本（W0-2/Q4 读时校验的期望值）。
      *
-     * 取值来源是**两个 planner 自己写的那个串**（`ReviewPlanner.plan` /
-     * `ReviewPlannerV2.plan` 都写 `plannerVersion = VERSION`）：V1 是
-     * `LearningCoreVersions.REVIEW_COMPOSITE`（如 `learning-core-v8(review-planner-v6,...)`），
-     * V2 是它自己的 `review-planner-v2`。所以期望值随 [useReviewPlannerV2] 现算——
-     * "V1 排的计划被 V2 续跑"与"上一版算法的计划被这一版续跑"是同一种错，同一道门一起挡。
+     * D-M M6 后**只有一个排程器**（V2）：期望值就是 `ReviewPlannerV2.plan` 写进计划的
+     * `VERSION`。"上一版算法的计划被这一版续跑"仍由同一道门挡下（版本不符 → 不保留 →
+     * 重排一份，指纹含算法版本，落成新行）。
      */
     private val expectedPlannerVersion: String
-        get() = if (useReviewPlannerV2) ReviewPlannerV2.VERSION else ReviewPlanner.VERSION
+        get() = ReviewPlannerV2.VERSION
 
     /**
      * 读时校验（W0-2/Q4）：这份落库计划是不是**当前二进制的算法**排出来的。
@@ -374,12 +373,8 @@ internal class StudyReviewPlannerService(
                 finalCandidates.flatMapTo(linkedSetOf()) { it.knowledgeNodeIds },
             ).prerequisitesByDependent,
         )
-        val plan = if (useReviewPlannerV2) {
-            reviewPlannerV2.plan(request)
-        } else {
-            // Rollback path (audit §3.4): the audited V1 greedy planner.
-            reviewPlanner.plan(request)
-        }
+        // D-M M6：V2 是唯一排程器（V1 类与回滚开关已退场——V1 生产不可达，默认即 V2）。
+        val plan = reviewPlannerV2.plan(request)
         persistShadowPredictions(request = request, plan = plan)
         return ReviewPlanBundle(
             plan = ReviewPlanRecord(
@@ -599,7 +594,7 @@ internal class StudyReviewPlannerService(
                 }
             }
         val selected = selectKnowledgeReviewQueue(
-            planner = reviewPlanner,
+            scorer = knowledgeNodeScorer,
             candidates = candidateIds.map { knowledgeNodeId ->
                 KnowledgeReviewCandidate(
                     knowledgeNodeId = knowledgeNodeId,

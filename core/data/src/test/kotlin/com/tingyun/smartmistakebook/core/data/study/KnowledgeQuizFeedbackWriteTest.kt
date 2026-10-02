@@ -75,6 +75,11 @@ class KnowledgeQuizFeedbackWriteTest {
             assertEquals("knowledge-quiz:req-correct:kc-monotonicity", evidence.evidence_id)
             assertTrue(evidence.weight > 0.0)
             assertEquals(5_000L, evidence.created_at_epoch_millis)
+            // D-M M4：测验通道补合法 anchor——本次测验直接选定的知识点，CONFIRMED 全权重
+            //（D9 半权只对非 CONFIRMED 生效；权重与 M4 前逐位一致）。
+            assertEquals("CONFIRMED", evidence.anchor_class)
+            // D-M M4：置信不再写裸字面量，取具名常量（本地机械判定对错）。
+            assertEquals(OBJECTIVE_ANSWER_CONFIDENCE, evidence.confidence, 1e-9)
             // 正常写入不带拒绝标记（拒绝行只作审计、不进投影）。
             assertEquals(null, evidence.rejected_reason)
         } finally {
@@ -108,9 +113,10 @@ class KnowledgeQuizFeedbackWriteTest {
     }
 
     @Test
-    fun unanchoredKnowledgeNodeIsRejectedWithoutWritingEvidence() = runBlocking {
-        // 知识库里不存在该节点 → 门控 KNOWLEDGE_NODE_NOT_ANCHORED 拒绝：不写证据，
-        // 防止模型/调用方凭臆造节点污染掌握度。
+    fun unanchoredKnowledgeNodeIsRejectedWithAnObservationRow() = runBlocking {
+        // 知识库里不存在该节点 → 门控 KNOWLEDGE_NODE_NOT_ANCHORED 拒绝：不进投影，
+        // 防止模型/调用方凭臆造节点污染掌握度。D-M M4：被拒 ≠ 什么都不落——与讲题
+        // 通道一致，落一条 rejected 观察行（审计/校准读得到"哪一档来路被拒得最多"）。
         val database = FakeStudyDatabasePort()
         val repository = repository(database)
 
@@ -127,7 +133,12 @@ class KnowledgeQuizFeedbackWriteTest {
             assertTrue(result.isCorrect)
             assertFalse(result.evidenceRecorded)
             assertNotNull(result.rejectedReason)
-            assertTrue(database.recordedChatEvidence.isEmpty())
+            val rejected = database.recordedChatEvidence.single()
+            assertEquals("kc-not-in-library", rejected.knowledge_node_id)
+            assertEquals("KNOWLEDGE_NODE_NOT_ANCHORED", rejected.rejected_reason)
+            assertEquals(7_000L, rejected.rejected_at_epoch_millis)
+            assertEquals(0.0, rejected.weight, 1e-9)
+            assertEquals("CONFIRMED", rejected.anchor_class)
         } finally {
             repository.close()
         }

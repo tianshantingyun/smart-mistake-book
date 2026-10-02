@@ -282,6 +282,48 @@ class RoomTutorToolRunnerTest {
         assertEquals(MasteryWriteGate.WEIGHT_CONFIDENT_POSITIVE * 0.5, evidence.weight, 1e-9)
     }
 
+    // ---- 结果回显（批次 0 条目 5a）：写到哪，结果里读得出来 ----
+
+    @Test
+    fun `an accepted write result names the target knowledge point by code and name`() = runBlocking {
+        // 消灭的失败：接受形态此前只回方向与权重，模型把代号解析错/写进无关节点时，
+        // 结果里读不出目标，没人能当场发现。代号 + 名称是已披露信息；原始 id 不进结果。
+        val port = anchoredPort()
+        port.tutorMessages += studentMessage("我把两边都乘以了2")
+        port.tutorMessages += studentMessage("因为斜率相等所以平行")
+
+        val outcome = runner(port).run(
+            masteryCall(
+                rationale = "学生说\"我把两边都乘以了2\"，随后独立写出\"因为斜率相等所以平行\"。",
+            ),
+            sessionContext(),
+        )
+
+        assertTrue("expected accepted outcome but was $outcome", outcome.ok)
+        val text = outcome.summaryMarkdown
+        assertTrue("结果必须回显会话代号: $text", text.contains("K1"))
+        assertTrue("结果必须回显节点名: $text", text.contains("函数单调性"))
+        assertFalse("原始 node id 永不进工具结果: $text", text.contains("kc-monotonicity"))
+    }
+
+    @Test
+    fun `a rejected write result also names the target knowledge point`() = runBlocking {
+        // 被拒形态只给拒因时，同样读不出"拒的是哪个知识点"——目标对与错都要能当场核对。
+        val port = anchoredPort()
+
+        val outcome = runner(port).run(
+            masteryCall(rationale = "看起来学生已经掌握了这个知识点。"),
+            context(),
+        )
+
+        assertEquals(false, outcome.ok)
+        assertEquals("rejected:MASTERED_WITHOUT_EVIDENCE_ANCHOR", outcome.errorKind)
+        val text = outcome.summaryMarkdown
+        assertTrue("被拒结果必须回显会话代号: $text", text.contains("K1"))
+        assertTrue("被拒结果必须回显节点名: $text", text.contains("函数单调性"))
+        assertFalse("原始 node id 永不进工具结果: $text", text.contains("kc-monotonicity"))
+    }
+
     @Test
     fun `knowledgeReadReturnsCodesBoundaryAndMaterialDigestAndAppendsDisclosure`() = runBlocking {
         // D5 读侧：KNOWLEDGE_READ 返回代号+名称+边界前 80 字+绑定材料摘要；新发现节点

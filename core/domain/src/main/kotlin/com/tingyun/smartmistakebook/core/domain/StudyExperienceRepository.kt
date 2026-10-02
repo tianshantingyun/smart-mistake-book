@@ -333,7 +333,7 @@ interface StudyExperienceRepository : AutoCloseable {
     /**
      * 今天知识点复习计划（spec dual-review-entry §3.2）：从今日错题复习队列的题绑定
      * 知识点范围（[extractReviewKnowledgeScope]）派生候选，用与错题同构的打分
-     * （[ReviewPlanner.scoreKnowledgeNode] + [selectKnowledgeReviewQueue]）在时间预算内
+     * （[KnowledgeNodeScorer.scoreKnowledgeNode] + [selectKnowledgeReviewQueue]）在时间预算内
      * 排出有序队列。空队列 = 今日无待复习知识点（全已掌握/新鲜）。返回 null = 今日无
      * 复习计划或学习记录不可用。
      */

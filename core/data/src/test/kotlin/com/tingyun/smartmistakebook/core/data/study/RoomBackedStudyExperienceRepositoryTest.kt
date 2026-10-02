@@ -147,6 +147,7 @@ import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
+import com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
@@ -1384,6 +1385,34 @@ class RoomBackedStudyExperienceRepositoryTest {
             assertNotEquals(displaced.plan.reviewPlanId, replanned.plan.reviewPlanId)
             assertEquals(currentVersion, replanned.plan.plannerVersion)
             assertEquals(replanned.plan.reviewPlanId, repository.snapshot.value.review.planId)
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /**
+     * D-M M6 **零 bump 定格测试**（先于删 V1 落地）：默认路径写出的计划行必须由 V2 排程器
+     * 盖章，且 V1 的复合串（`learning-core-v11(review-planner-v8,...)`）不再出现在任何计划行。
+     *
+     * 这条测试是"删 V1 是零 bump"的证明载体：删的是**生产不可达**的路径（默认即 V2，
+     * 无任何翻闸点）——只要这条继续绿，删 V1 就不改变任何真实配置下的计划输出。
+     */
+    @Test
+    fun `the default plan is stamped by V2 and never carries the retired V1 version string`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        try {
+            repository.initialize()
+
+            val version = database.savedPlans.last().plan.plannerVersion
+            assertEquals(ReviewPlannerV2.VERSION, version)
+            assertFalse(
+                "计划行不得再出现 V1 复合串：$version",
+                version.startsWith("learning-core-"),
+            )
+            assertFalse("计划行不得再出现 V1 计划串：$version", version.contains("review-planner-v8"))
         } finally {
             repository.close()
             scope.cancel()

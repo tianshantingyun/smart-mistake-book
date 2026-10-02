@@ -740,7 +740,7 @@ class LearningProjector(
             // 复习也是这个 KC 的真实证据，必须刷新 lastEvidenceAt，否则
             // KnowledgeMasteryState 的该字段退化为"最后一次 attempt 通道作答时间"
             // （默认值只从 independentCorrectObservations 推导）——只走 chat 通道的
-            // KC 恒为 null，被 ReviewPlanner 判 stale，永远留在复习队列。
+            // KC 恒为 null，被 KnowledgeNodeScorer 判 stale，永远留在复习队列。
             // 方向同理：kcMasteryDropPressure 只在 lastEvidenceDirection 为 NEGATIVE
             // 时传导，不写它则 spec §5 的 KC→错题联动律对模型通道完全失效。
             lastEvidenceAtEpochMillis = maxOf(

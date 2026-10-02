@@ -211,9 +211,10 @@ object MasteryWriteGate {
      * 一条被门放行的写入**落库**的证据权重：[anchorClass] 为 NULL 或
      * [ANCHOR_CLASS_CONFIRMED] → 全权重；CANDIDATE / DISCLOSED → 减半。
      *
-     * 降权在**写入时**施加（core:data 的 runner），`learner_chat_evidence.weight` 列存的就是
-     * 减半后的值：账本事件、投影器积分、重放都按存库权重逐位进行，投影层不再感知
-     * anchor_class——"唯一数值分支"只有一个落点，不会出现两处各减一次。
+     * 降权在**写入时**施加（core:data 的唯一写入口 `KnowledgeEvidenceWriter`），
+     * `learner_chat_evidence.weight` 列存的就是减半后的值：账本事件、投影器积分、重放都按
+     * 存库权重逐位进行，投影层不再感知 anchor_class——"唯一数值分支"只有一个落点，
+     * 不会出现两处各减一次。
      */
     fun effectiveEvidenceWeight(baseWeight: Double, anchorClass: String?): Double =
         if (anchorClass != null && anchorClass != ANCHOR_CLASS_CONFIRMED) {

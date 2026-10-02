@@ -5,8 +5,8 @@ package com.tingyun.smartmistakebook.core.domain
  * 两份排程权重表已分叉、`DAY_MILLIS` 至少 4 处重复）。
  *
  * 收进来的判据是"**同一个数写了两遍**"，不是"这个数看起来像个常数"：
- * - 同值不同处：两份权重表（`ReviewPlanner` 与 `ReviewPlannerV2` 曾各写一份，值相同）与
- *   `DAY_MILLIS`（六个文件各写一份）；
+ * - 同值不同处：两份权重表（`ReviewPlanner` 与 `ReviewPlannerV2` 曾各写一份，值相同；V1 已随
+ *   D-M M6 退场）与 `DAY_MILLIS`（六个文件各写一份）；
  * - 同值不同名：掌握度阈值在 `ClearlyMasteredForSkipPolicy` 的具名常量与
  *   `MasteryDecisionPolicy.DEFAULT` 里各写一份。
  *
@@ -89,11 +89,12 @@ object AlgorithmConstants {
     }
 
     /**
-     * 排程打分权重（`ReviewPlanner` 与 `ReviewPlannerV2` 共用的一份表）。
+     * 排程打分权重（V2 与知识点共享打分核 `KnowledgeNodeScorer` 共用的一份表；
+     * V1 `ReviewPlanner` 已随 D-M M6 退场）。
      *
      * 这些值目前是**手调值**，其科学化已由台账裁决 17 排在 Wave X（离线模拟对比权重方案后定案）。
      * 本次收敛只消除"同值两份"，**不改任何一个数**，因此计划指纹（含队列与权重派生结果）
-     * 逐位不变、不需要 bump `REVIEW_PLANNER`。
+     * 逐位不变、不需要 bump `ReviewPlannerV2.VERSION`。
      */
     object ReviewScoring {
         /** 难度档边界（FSRS 1..10 域，spec §3.2）。 */

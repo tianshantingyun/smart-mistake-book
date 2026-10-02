@@ -379,7 +379,8 @@ class BlockingLearningCoreReviewTest {
     @Test
     fun `review queue identity changes across learner and local day`() {
         val now = 10 * DAY_MILLIS
-        val planner = ReviewPlanner()
+        // D-M M6：V2 是唯一排程器（V1 plan() 不可达、已退场）；身份敏感性在 V2 指纹上同断言。
+        val planner = ReviewPlannerV2()
         val candidate = ReviewCandidate("unit-1", emptySet(), "family-1", null, 5.5, 60)
 
         val first = planner.plan(

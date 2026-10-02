@@ -208,7 +208,7 @@ class LearningProjectorTest {
         // 消灭的失败（审计 AUDIT-ALGORITHM-2026-09-09 §3.5）：projectChatEvidence
         // 从不写 lastEvidenceAtEpochMillis，而该字段默认只从
         // independentCorrectObservations 推导（attempt 通道）——只经模型判断或
-        // 知识点复习获得证据的 KC，lastEvidenceAt 恒为 null，被 ReviewPlanner
+        // 知识点复习获得证据的 KC，lastEvidenceAt 恒为 null，被 KnowledgeNodeScorer
         // 判为 stale，于是**永远留在复习队列**，无论答对多少次。
         val projected = projector.project(
             LearnerSnapshot.empty("learner-1"),

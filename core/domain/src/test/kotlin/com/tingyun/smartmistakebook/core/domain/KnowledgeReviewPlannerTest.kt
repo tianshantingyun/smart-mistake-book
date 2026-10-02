@@ -20,7 +20,7 @@ import org.junit.Test
  */
 class KnowledgeReviewPlannerTest {
 
-    private val planner = ReviewPlanner()
+    private val scorer = KnowledgeNodeScorer()
     private val now = 1_000_000_000_000L
 
     /** An observation whose calibration is SUPPORTED at [now], so it counts as evidence. */
@@ -67,7 +67,7 @@ class KnowledgeReviewPlannerTest {
 
     @Test
     fun conflictedKnowledgeNodeGetsHighScoreAndConflictReason() {
-        val score = requireNotNull(planner.scoreKnowledgeNode(
+        val score = requireNotNull(scorer.scoreKnowledgeNode(
             knowledgeNodeId = "kc1",
             state = mastery("kc1", MasteryStatus.CONFLICTED),
             now = now,
@@ -78,7 +78,7 @@ class KnowledgeReviewPlannerTest {
 
     @Test
     fun unknownKnowledgeNodeGetsHighScore() {
-        val score = requireNotNull(planner.scoreKnowledgeNode(
+        val score = requireNotNull(scorer.scoreKnowledgeNode(
             knowledgeNodeId = "kc1",
             state = mastery("kc1", MasteryStatus.UNKNOWN),
             now = now,
@@ -89,7 +89,7 @@ class KnowledgeReviewPlannerTest {
 
     @Test
     fun staleKnowledgeNodeGetsHighScoreAndStaleReason() {
-        val score = requireNotNull(planner.scoreKnowledgeNode(
+        val score = requireNotNull(scorer.scoreKnowledgeNode(
             knowledgeNodeId = "kc1",
             state = mastery("kc1", MasteryStatus.STALE, lastEvidenceAt = now - 400L * 86_400_000L),
             now = now,
@@ -102,7 +102,7 @@ class KnowledgeReviewPlannerTest {
     fun masteredFreshKnowledgeNodeIsSkippedFromQueue() {
         // 裁决 28：跳过判据与 E 判据同源——"已掌握"由知识点记忆卡在此刻成立（稳定度 ≥ 21 天
         // ∧ 当前召回概率 ≥ 0.9），不再看存储态 status + 证据新鲜度。夹具给足耐久卡。
-        assertNull(planner.scoreKnowledgeNode(
+        assertNull(scorer.scoreKnowledgeNode(
             knowledgeNodeId = "kc1",
             state = mastery(
                 "kc1",
@@ -123,7 +123,7 @@ class KnowledgeReviewPlannerTest {
     fun masteredButStaleEvidenceIsScoredForReview() {
         // 已掌握但证据过期（>45 天）→ 不该被 skip，应回到队列复习（含 STALE）。
         val staleAt = now - 100L * 86_400_000L
-        val score = requireNotNull(planner.scoreKnowledgeNode(
+        val score = requireNotNull(scorer.scoreKnowledgeNode(
             knowledgeNodeId = "kc1",
             state = mastery(
                 "kc1",
@@ -146,7 +146,7 @@ class KnowledgeReviewPlannerTest {
         // 裁决 28 双钟回归：chat 通道只写 lastEvidenceAt（评论钟），E 判据吃 lastAttemptAt
         // （记忆卡钟）。旧跳过判据看 lastEvidenceAt——一次讲题对话就能让已忘的知识点从队列里
         // 消失；现在锚点是最后作答，本用例锁死该行为（刚评论过也照样回队列）。
-        val score = requireNotNull(planner.scoreKnowledgeNode(
+        val score = requireNotNull(scorer.scoreKnowledgeNode(
             knowledgeNodeId = "kc1",
             state = mastery(
                 "kc1",
@@ -175,9 +175,9 @@ class KnowledgeReviewPlannerTest {
             memoryStabilityDays = 30.0,
             lastAttemptAt = now,
         )
-        assertNull(planner.scoreKnowledgeNode("kc1", durable, now))
+        assertNull(scorer.scoreKnowledgeNode("kc1", durable, now))
         val suppressed = requireNotNull(
-            planner.scoreKnowledgeNode(
+            scorer.scoreKnowledgeNode(
                 knowledgeNodeId = "kc1",
                 state = durable,
                 now = now,
@@ -186,7 +186,7 @@ class KnowledgeReviewPlannerTest {
         )
         assertTrue(suppressed.score > 0.0)
         assertNull(
-            planner.scoreKnowledgeNode(
+            scorer.scoreKnowledgeNode(
                 knowledgeNodeId = "kc1",
                 state = durable,
                 now = now,

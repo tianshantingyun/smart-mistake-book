@@ -20,7 +20,7 @@ import com.tingyun.smartmistakebook.core.domain.HLRPredictionAuditService
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.domain.LogDurationModel
 import com.tingyun.smartmistakebook.core.domain.PredictionAuditSink
-import com.tingyun.smartmistakebook.core.domain.ReviewPlanner
+import com.tingyun.smartmistakebook.core.domain.KnowledgeNodeScorer
 import com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuestionLatticeRow
 import com.tingyun.smartmistakebook.core.domain.PlannedReasonCalibration
@@ -87,14 +87,6 @@ class RoomBackedStudyExperienceRepository(
     private val studyZoneId: ZoneId = clock.zone,
     private val reviewTimeBudgetSeconds: Int = DEFAULT_REVIEW_TIME_BUDGET_SECONDS,
     /**
-     * Feature flag for the review planner (audit §3.4 rollback switch): when true
-     * (default), plans are produced by the V2 planner with beam search, hard
-     * sequencing constraints and the personalized duration model; flipping it
-     * back to false restores the audited V1 greedy planner without any other
-     * code change.
-     */
-    private val useReviewPlannerV2: Boolean = DEFAULT_USE_REVIEW_PLANNER_V2,
-    /**
      * Scheduling options (spec mastery-scheduling 2.4 / 2.20): desired
      * retention plus the FSRS kill switch. Read at construction so a single
      * session's projection model stays stable; a flip applies on next launch.
@@ -116,9 +108,10 @@ class RoomBackedStudyExperienceRepository(
     private val forgettingCurve = ForgettingCurve(
         decay = activeFsrsDecay,
     )
-    // 批次 3（规划侧个性化）：V1 排程器与投影共用同一份曲线实例（同源 FSRS + 个性化 decay）——
-    // 此前 `ReviewPlanner()` 默认构造拿到的是 legacy 曲线 + 默认 decay，与学生侧口径分叉。
-    private val reviewPlanner = ReviewPlanner(forgettingCurve = forgettingCurve)
+    // 批次 3（规划侧个性化）：V2 排程器与投影共用同一份曲线实例（同源 FSRS + 个性化 decay）。
+    // D-M M6：V1 `ReviewPlanner` 类与 `useReviewPlannerV2` 回滚开关已退场（生产不可达）；
+    // V2 是唯一排程器，知识点队列改消费独立打分核 `KnowledgeNodeScorer`。
+    private val knowledgeNodeScorer = KnowledgeNodeScorer(forgettingCurve = forgettingCurve)
     /**
      * ONE shared duration model (spec `batch-intake-spec.md` §6 L1 rollout):
      * fed by the submission paths below, consumed by BOTH the review planner
@@ -219,10 +212,9 @@ class RoomBackedStudyExperienceRepository(
         studyZoneId = studyZoneId,
         clock = clock,
         reviewTimeBudgetSeconds = reviewTimeBudgetSeconds,
-        useReviewPlannerV2 = useReviewPlannerV2,
         planningDecay = activeFsrsDecay,
-        reviewPlanner = reviewPlanner,
         reviewPlannerV2 = reviewPlannerV2,
+        knowledgeNodeScorer = knowledgeNodeScorer,
         durationModel = durationModel,
         reviewLogSink = reviewLogSink,
         schedulingSettingsStore = schedulingSettingsStore,
@@ -907,8 +899,5 @@ class RoomBackedStudyExperienceRepository(
         /** 知识点复习会话的固定 conversation id（同一复习会话内计数防刷，非聊天会话）。 */
         private const val KNOWLEDGE_QUIZ_CONVERSATION_ID = "knowledge-quiz-review"
         private const val DEFAULT_REVIEW_TIME_BUDGET_SECONDS = 20 * 60
-        /** 知识点复习范围材料读取上限（对齐 KnowledgeTeachingMaterialDao 的 1..64 约束）。 */
-        /** Rollback switch for the V2 review planner; see [useReviewPlannerV2]. */
-        private const val DEFAULT_USE_REVIEW_PLANNER_V2 = true
     }
 }

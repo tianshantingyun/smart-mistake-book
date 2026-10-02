@@ -36,7 +36,10 @@ data class LearnerChatEvidenceEntity(
     val weight: Double,
     val reason_markdown: String,
     val confidence: Double,
-    /** 恒为 MODEL_CHAT——审计与批量撤销锚点。 */
+    /**
+     * 证据通道：MODEL_CHAT（模型讲题 MASTERY_UPDATE）或 KNOWLEDGE_QUIZ（知识点测验客观作答）。
+     * 审计与批量撤销的锚点；两条通道自 D-M M4 起共用唯一写入口（`KnowledgeEvidenceWriter`）。
+     */
     val source_kind: String,
     val created_at_epoch_millis: Long,
     /**
@@ -51,8 +54,8 @@ data class LearnerChatEvidenceEntity(
      * （CONFIRMED 当前题确认绑定 / CANDIDATE 当前题检索候选 / DISCLOSED 其余披露），
      * 不依赖模型声称。**纯数据列（审计用）**：投影积分只读 `weight`——非 CONFIRMED 的降权
      * （×0.5，D9 唯一数值分支）在写入时已施加在 weight 上，本列只留"这条证据是哪一档来路"
-     * 供校准。NULL = 无代号通道的行（legacy 行，列引入前写入；或客观作答通道
-     * `source_kind=KNOWLEDGE_QUIZ` 的直写行），一律按全权重对待，不追溯降权。
+     * 供校准。D-M M4 起两条写通道都落本列（测验通道 = CONFIRMED：测验直接选定该知识点）；
+     * NULL = 列引入前写入的 legacy 行，一律按全权重对待，不追溯降权。
      */
     val anchor_class: String? = null,
 ) {

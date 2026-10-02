@@ -30,7 +30,7 @@ object LearningCoreVersions {
      * 有优化参数的学习者其在线口径与拟合口径不一致）；②W2-4/KF-25 学习日界从本地
      * 00:00 移到 04:00（`core:model` 的 `StudyDayMath.DAY_START_HOUR`，官方 day_start）。两者都改变
      * 投影输出：旧快照必须全量重放（W0 的 `projection_archive` 会先归档旧投影），
-     * 否则新旧口径混用。`REVIEW_COMPOSITE` 同步变化 → 当日计划按新口径重排。
+     * 否则新旧口径混用。当日计划同步按新口径重排。
      *
      * v8 → v9（2026-09-30，Wave 3）：掌握表示重做（W3-1/KF-09）+ 判据换轴（W3-2/E 判据，
      * 台账「裁决 13 · 修订」）。三处投影输出变化：①KC 的 `masteryScore`/`conservative` 从
@@ -63,20 +63,10 @@ object LearningCoreVersions {
     const val ATTRIBUTION = "attribution-v3"
     const val LEDGER = "ledger-v2"
     const val PREDICTION_INTERVAL = "prediction-interval-v1"
-    /**
-     * V1 排程器的计划版本串（**V2 的有效串在 `ReviewPlannerV2.VERSION`，两者独立**——
-     * bump 这里不会使 V2 计划失效，反之亦然）。
-     *
-     * v6 → v7（批次 3，2026-10-01）：排程曲线 FSRS 唯一化（legacy 指数算法删除）+
-     * V1 曲线接投影同源的个性化 decay（KF-11 跟进项）——V1 的计划输出变化，
-     * 旧计划按读时校验重排。
-     *
-     * v7 → v8（裁决 28 读侧语义闭合，2026-10-01）：V1 的跳过/风险判据改由
-     * `ClearlyMasteredForSkipPolicy.effectiveStatus` 现算（E 判据此刻成立才算"已掌握"，
-     * 45 天窗并入出口；chat 证据不再单独构成"新鲜"）。跳过集合变化 → 计划输出变化，
-     * 旧计划重排（V1 指纹 canonical-v5 → v6 同步）。
-     */
-    const val REVIEW_PLANNER = "review-planner-v8"
+
+    // D-M M6（2026-10-02）：`REVIEW_PLANNER`（V1 计划版本串）与其复合串 `REVIEW_COMPOSITE`
+    // 已随 V1 `ReviewPlanner` 类退场——V1 生产不可达（默认 V2 且无翻闸点），删的是不可达
+    // 路径，不触发任何 bump。V2 的有效串是 `ReviewPlannerV2.VERSION`（见其 KDoc）。
 
     /**
      * 自适应出题选择器的版本串（`AdaptiveQuestionSelector.VERSION`）。
@@ -88,8 +78,6 @@ object LearningCoreVersions {
 
     const val PROJECTION_COMPOSITE =
         "learning-core-v11($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
-    const val REVIEW_COMPOSITE =
-        "learning-core-v11($REVIEW_PLANNER,$PROJECTOR,$FORGETTING_CURVE,$SKIP_POLICY,$LEDGER)"
     const val SELECTOR_COMPOSITE =
         "learning-core-v11($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }
