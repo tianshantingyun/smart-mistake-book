@@ -48,6 +48,9 @@ internal class RoomKnowledgeBaseStore(
      */
     private val denseRerank: DenseRecallReranker? = null,
 ) {
+    /** S21（2026-10-02）：整科重建与内容安装期共用（安装期预热见 `RoomKnowledgeContentReconciler`）。 */
+    private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database)
+
     suspend fun ensurePseudoKnowledgeBinding(
         practiceUnitId: String,
         problemRevisionId: String,
@@ -203,6 +206,10 @@ internal class RoomKnowledgeBaseStore(
      *
      * 崩溃安全照 `content_install_state` 的纪律：锚点**最后写**，
      * "锚点当前"⟺"上一次重建完整跑完"；崩在中途则锚点没推进，下次重跑收敛。
+     *
+     * S21（2026-10-02）：整科重建分支与**内容安装期**共用 [KnowledgeSearchIndexBuilder]——
+     * 安装已经建好索引并写好锚点，正常路径下这里只做版本读取与"只补缺"检查；本函数仍是
+     * 抽取规则换版/锚点缺失时的自愈兜底。
      */
     private suspend fun ensureKnowledgeSearchIndex(subject: String) {
         val dao = database.problemOrganizationDao()
@@ -219,17 +226,7 @@ internal class RoomKnowledgeBaseStore(
             }
             return
         }
-        database.withWriteTransaction {
-            val reviewedCount = dao.countReviewedKnowledgeNodesBySubject(subject)
-            if (reviewedCount > 0) {
-                dao.deleteSearchFeaturesForSubject(subject)
-                val nodes = dao.readSubjectKnowledgeRecallCandidates(subject, reviewedCount)
-                dao.insertKnowledgeSearchFeatures(nodes.flatMap(KnowledgeNodeEntity::toSearchFeatures))
-            }
-            stateDao.replace(
-                KnowledgeSearchIndexStateEntity(subject, KnowledgeSearchFeatureExtractor.INDEX_VERSION),
-            )
-        }
+        searchIndexBuilder.rebuildSubject(subject)
     }
 
     suspend fun readKnowledgeNodesByIds(ids: Set<String>): List<KnowledgeNodeSeedRecord> {
@@ -630,34 +627,6 @@ internal fun KnowledgeNodeSeedRecord.toEntity() = KnowledgeNodeEntity(
     parentKnowledgeNodeId = parentKnowledgeNodeId,
     taxonomyVersion = taxonomyVersion,
     createdAtEpochMillis = createdAtEpochMillis,
-)
-
-private fun KnowledgeNodeSeedRecord.toSearchFeatures(): List<KnowledgeSearchFeatureEntity> =
-    KnowledgeSearchFeatureExtractor.fromNode(this).map { feature ->
-        KnowledgeSearchFeatureEntity(
-            subject = subject,
-            searchFeature = feature,
-            knowledgeNodeId = knowledgeNodeId,
-        )
-    }
-
-private fun KnowledgeNodeEntity.toSearchFeatures(): List<KnowledgeSearchFeatureEntity> =
-    toSeedRecord().toSearchFeatures()
-
-private fun KnowledgeNodeEntity.toSeedRecord() = KnowledgeNodeSeedRecord(
-    knowledgeNodeId = knowledgeNodeId,
-    stableCode = stableCode,
-    subject = subject,
-    displayName = displayName,
-    parentKnowledgeNodeId = parentKnowledgeNodeId,
-    taxonomyVersion = taxonomyVersion,
-    createdAtEpochMillis = createdAtEpochMillis,
-    canonicalName = canonicalName,
-    nodeKind = nodeKind,
-    granularity = granularity,
-    aliases = aliasesText.split("\u001F").filter(String::isNotBlank).toSet(),
-    boundaryMarkdown = boundaryMarkdown,
-    verificationStatus = verificationStatus,
 )
 
 internal fun KnowledgeSourceSeedRecord.toEntity() = KnowledgeSourceEntity(

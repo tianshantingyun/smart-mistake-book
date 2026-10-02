@@ -34,6 +34,9 @@ import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
  */
 internal class RoomKnowledgeContentReconciler(private val database: StudyDatabase) {
 
+    /** S21（2026-10-02）：内容安装期就把搜索特征建好，首访问不再触发整科重建。 */
+    private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database)
+
     suspend fun applyKnowledgeContentUpdate(
         command: KnowledgeContentUpdateCommand,
     ): KnowledgeContentUpdateResult {
@@ -91,6 +94,14 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
             packMaterialIds = command.materials
                 .mapTo(hashSetOf(), KnowledgeTeachingMaterialRecord::materialId),
         )
+
+        // S21（2026-10-02）：安装期预热搜索特征索引。只重建**本轮节点有增改**的科目——
+        // 此前要等首访问的读时自愈触发整科重建，秒级成本落进召回长尾（审计 16.6s max
+        // 的最可疑来源）。锚点最后写、崩溃安全与读时自愈共用 KnowledgeSearchIndexBuilder；
+        // 纯退役科目不需要（退役路径已同步删除特征行，两个计数同步下降）。
+        nodes.upserts
+            .mapTo(linkedSetOf(), KnowledgeNodeSeedRecord::subject)
+            .forEach { subject -> searchIndexBuilder.rebuildSubject(subject) }
 
         return KnowledgeContentUpdateResult(
             nodesInserted = nodes.inserted,
@@ -280,7 +291,7 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
         val retired = standing.count { dao.retireKnowledgeNode(it, retirements[it]) > 0 }
         // 与退役同步：自愈逻辑靠"已索引数 ≥ 已审校数"判断是否补建，退役节点若留着
         // 特征行，两个计数会永久漂移。
-        dao.deleteSearchFeaturesForNodes(standing)
+        standing.chunked(MAX_IN_PARAMETERS).forEach { dao.deleteSearchFeaturesForNodes(it.toSet()) }
         return retired
     }
 
@@ -298,7 +309,9 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
         val dao = database.problemOrganizationDao()
         val packNodeIds = nodes.mapTo(hashSetOf(), KnowledgeNodeSeedRecord::knowledgeNodeId)
         if (packNodeIds.isEmpty()) return
-        dao.deleteKnowledgeNodeSourceBindingsForNodes(packNodeIds)
+        packNodeIds.chunked(MAX_IN_PARAMETERS).forEach {
+            dao.deleteKnowledgeNodeSourceBindingsForNodes(it.toSet())
+        }
         val toInsert = bindings.filter { it.knowledgeNodeId in retainedNodeIds }
         if (toInsert.isNotEmpty()) {
             dao.importKnowledgeNodeSourceBindings(toInsert.map(KnowledgeNodeSourceBindingSeedRecord::toEntity))
@@ -314,7 +327,7 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
         val dao = database.knowledgeNodeRelationDao()
         val packNodeIds = nodes.mapTo(hashSetOf(), KnowledgeNodeSeedRecord::knowledgeNodeId)
         if (packNodeIds.isEmpty()) return 0
-        dao.deleteByDependents(packNodeIds)
+        packNodeIds.chunked(MAX_IN_PARAMETERS).forEach { dao.deleteByDependents(it.toSet()) }
         val toInsert = relations.filter {
             it.dependentKnowledgeNodeId in retainedNodeIds &&
                 it.prerequisiteKnowledgeNodeId in retainedNodeIds
@@ -384,7 +397,9 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
         val dao = database.knowledgeTeachingMaterialDao()
         // 按**包的**材料集删（不是按绑定集）：一条材料在新版里丢了全部绑定，它的旧绑定
         // 也必须清掉，否则会留下指向已退役节点的悬空行。
-        dao.deleteBindingsForMaterials(packMaterialIds)
+        packMaterialIds.chunked(MAX_IN_PARAMETERS).forEach {
+            dao.deleteBindingsForMaterials(it.toSet())
+        }
         val toInsert = bindings.filter { it.materialId in acceptedMaterialIds }
         if (toInsert.isNotEmpty()) {
             dao.upsertBindings(toInsert.map { it.toEntity() })
@@ -416,3 +431,14 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
         return retired
     }
 }
+
+/**
+ * 批量 `… IN (…)` 删除的分块上限。SQLite 绑定变量上限**旧平台为 999**
+ * （`SQLITE_MAX_VARIABLE_NUMBER`，minSdk 23 即适用），取 900 留余量；
+ * 新平台虽为 32766，包规模（v2 教学支持侧车已达 5 万材料）仍会越过。
+ *
+ * 消灭的失败（2026-10-02 实测）：整包安装在本文件的四条批量 DELETE 上直接抛
+ * `SQLITE_ERROR: too many SQL variables`，安装失败、主页横幅常驻
+ * （"本地知识包尚未准备好"），检索端到端仪器化用例同样在此崩。
+ */
+private const val MAX_IN_PARAMETERS = 900

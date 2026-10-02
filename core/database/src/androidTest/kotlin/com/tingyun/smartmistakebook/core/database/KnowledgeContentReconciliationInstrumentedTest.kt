@@ -235,7 +235,88 @@ class KnowledgeContentReconciliationInstrumentedTest {
         }
     }
 
+    /**
+     * 2026-10-02：v2 教学支持侧车已达 5 万材料——安装链上四条批量 `… IN (…)` 删除
+     * （材料绑定/来源绑定/前置边/搜索特征）一次传入全包 id 会越过 SQLite 绑定变量上限
+     * （旧平台 999；实测整包安装直接 `SQLITE_ERROR: too many SQL variables`，
+     * 首装横幅常驻）。本用例用 1,200 节点 + 1,200 材料的包把分块路径走满：
+     * 分块后整包落地、重跑幂等；去掉分块则至少会在旧平台设备上炸（新平台 32766 之上亦炸）。
+     */
+    @Test
+    fun bulkDeletesChunkPastTheSqliteVariableCapOnLargePacks() = runBlocking {
+        val (store, name) = open("chunking")
+        try {
+            val nodes = buildList {
+                add(topic())
+                for (i in 0 until 1_200) {
+                    add(
+                        atomic("判断函数单调性-$i").copy(
+                            knowledgeNodeId = "$ATOMIC_ID-$i",
+                            stableCode = "$TAXONOMY_VERSION:math:atomic:monotonicity-$i",
+                        ),
+                    )
+                }
+            }
+            val materials = (0 until 1_200).map { i -> chunkMaterial(i) }
+            val command = KnowledgeContentUpdateCommand(
+                packId = TAXONOMY_VERSION,
+                contentVersion = "chunking-version",
+                nodes = nodes,
+                sources = listOf(source()),
+                nodeSourceBindings = nodes.map { binding(it.knowledgeNodeId) },
+                relations = emptyList(),
+                materials = materials,
+                materialBindings = materials.map {
+                    KnowledgeTeachingMaterialNodeBindingRecord(
+                        materialId = it.materialId,
+                        knowledgeNodeId = "$ATOMIC_ID-0",
+                        role = "PRIMARY",
+                    )
+                },
+                nodeRetirements = emptyMap(),
+                teachingSources = listOf(source()),
+            )
+
+            val first = store.applyKnowledgeContentUpdate(command)
+            assertEquals(1_201, first.nodesInserted)
+            assertEquals(1_200, first.materialsInserted)
+            assertEquals(emptyList<String>(), first.skipped)
+            assertEquals(
+                "1,200 个材料 id 的绑定删除必须分块后完整落地",
+                1_200,
+                store.readKnowledgeTeachingMaterialsByIds(materials.mapTo(hashSetOf()) { it.materialId })
+                    .size,
+            )
+
+            // 幂等重跑：绑定整体替换会把同一批 1,200 个 id 再删一次，仍然必须成功。
+            val second = store.applyKnowledgeContentUpdate(command)
+            assertEquals(0, second.nodesInserted)
+            assertEquals(0, second.materialsInserted)
+        } finally {
+            store.close()
+            ApplicationProvider.getApplicationContext<Context>().deleteDatabase(name)
+        }
+    }
+
     // ---- 夹具 ----
+
+    /** 唯一 id 的材料（指纹按最终记录现算，避免 copy 后指纹失效）。 */
+    private fun chunkMaterial(index: Int) = KnowledgeTeachingMaterialRecord(
+        materialId = "kb-material:chunk-$index",
+        stableCode = "$TAXONOMY_VERSION:math:teaching:chunk-$index",
+        subject = "MATH",
+        materialType = KnowledgeTeachingMaterialType.CONCEPT_EXPLANATION.name,
+        title = "单调性的判断 $index",
+        summaryMarkdown = "先看定义域，再比较区间内任意两点的函数值。",
+        applicabilityMarkdown = "判断给定区间上单调性的题。",
+        contentMarkdown = "1. 取定义域内的任意两点。\n2. 比较函数值大小。\n3. 得出单调性。",
+        boundaryMarkdown = "只在给定区间上讨论，端点开闭需单独说明。",
+        derivationKind = "REVIEWED_SYNTHESIS",
+        sourceId = SOURCE_ID,
+        sourceLocator = "函数目录·单调性",
+        contentFingerprint = "PENDING",
+        reviewedAtEpochMillis = 1_000,
+    ).let { it.copy(contentFingerprint = KnowledgeTeachingMaterialFingerprint.expected(it)) }
 
     private fun command(
         atomicName: String = "判断函数单调性",
