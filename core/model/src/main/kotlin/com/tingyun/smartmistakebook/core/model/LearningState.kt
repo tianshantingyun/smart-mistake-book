@@ -471,6 +471,61 @@ data class ChatEvidenceSubmitted(
     }
 }
 
+/**
+ * KF-32（3B 步骤三）：**改绑补偿事件**。一道题的知识绑定集合被离线纠正/自动重整理改变时，
+ * 追加这条事件——历史行一字不改（事件溯源：改历史不可逆，用补偿事件修正）。
+ *
+ * **仅全量重放消费**（与 [AttemptCorrection] 同类）：读批（`loadProjectionBatch`）遇到它即
+ * 以 `FULL_REPLAY_REQUIRED` 停下，增量提交的许可表也把本 kind 排除在外。理由是语义的：
+ * 改绑要让**历史**证据按新绑定重挂（upcasting），只有从空快照重放才能做到；增量投影的
+ * "写时快照即当前绑定"语义下它无事可做。
+ *
+ * 载荷只记录**最小身份 + 该题变更后的绑定摘要**（`newKnowledgeNodeIds`，字典序）：真正
+ * 影响重放的是重放时读到的当前 `practice_unit_knowledge_binding` 表，摘要是审计/差异对照，
+ * 不是重放的输入（重放输入是账本 + 当前绑定表 + 取代链）。
+ */
+data class BindingChanged(
+    val bindingChangeId: String,
+    val practiceUnitId: String,
+    /** 变更前该题的知识点集合（字典序、去重）。 */
+    val previousKnowledgeNodeIds: List<String>,
+    /** 变更后该题的知识点集合（字典序、去重）——供重派生消费者对照。 */
+    val newKnowledgeNodeIds: List<String>,
+    override val occurredAtEpochMillis: Long,
+    override val eventSequence: Long,
+) : LearningLedgerEvent {
+    init {
+        require(bindingChangeId.isNotBlank()) { "Binding-change id must not be blank" }
+        require(practiceUnitId.isNotBlank()) { "Binding-change practice unit must not be blank" }
+        require(previousKnowledgeNodeIds.all(String::isNotBlank)) {
+            "Binding-change previous knowledge-node ids must not be blank"
+        }
+        require(newKnowledgeNodeIds.all(String::isNotBlank)) {
+            "Binding-change new knowledge-node ids must not be blank"
+        }
+        require(previousKnowledgeNodeIds == previousKnowledgeNodeIds.distinct().sorted()) {
+            "Binding-change previous knowledge-node ids must be unique and sorted"
+        }
+        require(newKnowledgeNodeIds == newKnowledgeNodeIds.distinct().sorted()) {
+            "Binding-change new knowledge-node ids must be unique and sorted"
+        }
+        // 无变化不落事件（幂等重跑/重复确认）：验收要求"无改绑不触发重放"。
+        require(previousKnowledgeNodeIds != newKnowledgeNodeIds) {
+            "A binding change must actually change the bound knowledge nodes"
+        }
+        require(occurredAtEpochMillis >= 0) { "Binding-change time must not be negative" }
+        require(eventSequence > 0) { "Binding-change sequence must be positive" }
+    }
+
+    override val ledgerEventId: String
+        get() = bindingChangeId
+
+    companion object {
+        /** 事件 id 命名空间（`confirm` 侧用 `stableId` 派生，确定性即幂等键）。 */
+        const val BINDING_CHANGE_ID_NAMESPACE = "binding-change"
+    }
+}
+
 /** Corrections are only consumed by a full ledger replay; incremental projection rejects them by type. */
 data class AttemptCorrection(
     val correctionId: String,

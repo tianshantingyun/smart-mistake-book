@@ -372,6 +372,22 @@ internal class RoomStudyDatabase(
                 )
             }
 
+    override suspend fun readCurrentPracticeUnitKnowledgeBindings(
+        practiceUnitId: String,
+    ): List<PracticeUnitKnowledgeBindingRecord> =
+        database.problemOrganizationDao()
+            .readCurrentKnowledgeBindingsForPracticeUnit(practiceUnitId)
+            .map { row ->
+                PracticeUnitKnowledgeBindingRecord(
+                    bindingId = row.bindingId,
+                    practiceUnitId = row.practiceUnitId,
+                    knowledgeNodeId = row.knowledgeNodeId,
+                    basisRevisionId = row.basisRevisionId,
+                    taxonomyVersion = row.taxonomyVersion,
+                    acceptedAtEpochMillis = row.acceptedAtEpochMillis,
+                )
+            }
+
     override suspend fun readPracticeUnitAssessment(
         practiceUnitId: String,
     ): PracticeUnitAssessmentRecord? =
@@ -1428,7 +1444,8 @@ internal class RoomStudyDatabase(
 
     override suspend fun confirmProblemOrganization(
         command: ConfirmProblemOrganizationCommand,
-    ): ConfirmProblemOrganizationResult = problemOrganization.confirm(command)
+        learnerId: String,
+    ): ConfirmProblemOrganizationResult = problemOrganization.confirm(command, learnerId)
 
     override fun close() = database.close()
 

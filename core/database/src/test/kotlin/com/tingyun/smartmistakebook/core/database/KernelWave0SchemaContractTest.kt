@@ -80,9 +80,58 @@ class KernelWave0SchemaContractTest {
         )
     }
 
+    /**
+     * KF-32 顺带核实：`CHAT_EVIDENCE_SUBMITTED` 自 v41 起就是一等账本事件（写入/解码/投影/
+     * 回执映射四处齐全），但提交许可表漏了它——含 chat 回执的提交会被判 `Unknown ledger
+     * event kind`，drainer 在 chat 写入后的下一批必被拒。本测试钉住修复：放行 chat 回执，
+     * 同时**不放行** `BINDING_CHANGED`（改绑事件仅全量重放消费）。
+     */
     @Test
-    fun `the plan fingerprint column is merged away only in 54`() {
-        val v53 = columnShape(exportedTable("review_plan", version = 53).createSql)
+    fun `chat evidence receipts are permitted while binding changes stay replay-only`() {
+        fun commitWith(eventKind: String) = ProjectionCommit(
+            projectionName = "study-experience-v1",
+            learnerId = "learner-1",
+            expectedPreviousCheckpoint = 1,
+            expectedPreviousStateVersion = 0,
+            mode = ProjectionCommitMode.FULL_REPLAY,
+            knownLedgerHeadSequence = 2,
+            consumedLedgerEvents = listOf(
+                ConsumedLedgerEventReceipt(
+                    eventKind = eventKind,
+                    eventId = "event-1",
+                    eventSequence = 2,
+                    canonicalFingerprint = "fingerprint-1",
+                ),
+            ),
+            presentationProjectionStates = emptyMap(),
+            snapshot = LearnerSnapshot(
+                learnerId = "learner-1",
+                checkpoint = ProjectionCheckpoint(
+                    lastSequence = 2,
+                    projectorVersion = CURRENT_PROJECTOR_VERSION,
+                    projectedAtEpochMillis = 1_000,
+                ),
+                knownLedgerHeadSequence = 2,
+                generatedAtEpochMillis = 1_000,
+            ),
+            expectedProjectorVersion = CURRENT_PROJECTOR_VERSION,
+        )
+
+        DatabaseContractValidator.validateProjectionCommit(commitWith("CHAT_EVIDENCE_SUBMITTED"))
+        DatabaseContractValidator.validateProjectionCommit(commitWith("BINDING_CHANGED"))
+        val boundByTheIncrementalGate = runCatching {
+            DatabaseContractValidator.validateProjectionCommit(
+                commitWith("BINDING_CHANGED").copy(mode = ProjectionCommitMode.INCREMENTAL),
+            )
+        }.exceptionOrNull()
+        assertTrue(
+            "改绑事件不得混进增量提交：$boundByTheIncrementalGate",
+            boundByTheIncrementalGate is DatabaseContractViolationException,
+        )
+    }
+
+    @Test
+    fun `the plan fingerprint column is merged away only in 54`() {        val v53 = columnShape(exportedTable("review_plan", version = 53).createSql)
         val v54 = columnShape(exportedTable("review_plan", version = 54).createSql)
 
         assertTrue("53 里必须还有 input_fingerprint（否则这条迁移没有意义）", "input_fingerprint" in v53)
@@ -177,9 +226,10 @@ class KernelWave0SchemaContractTest {
          * 请同步本字面量。
          *
          * 2026-10-02（W4-2 投影批）：同步 `projector-v11` / `evidence-v5` / `attribution-v3`。
+         * 2026-10-02（3B 批次 B4/KF-32）：同步 `projector-v12` / `attribution-v4` / `ledger-v3`。
          */
         const val CURRENT_PROJECTOR_VERSION =
-            "learning-core-v11(projector-v11,evidence-v5,curve-v3,skip-v4,attribution-v3,ledger-v2)"
+            "learning-core-v12(projector-v12,evidence-v5,curve-v3,skip-v4,attribution-v4,ledger-v3)"
 
         val json = Json { ignoreUnknownKeys = true }
         /** 只认真正的列定义（反引号列名 + 类型），不认 PRIMARY KEY / FOREIGN KEY 子句里的列名。 */

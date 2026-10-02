@@ -92,6 +92,9 @@ internal const val EVENT_KIND_ATTEMPT = "ATTEMPT"
 internal const val EVENT_KIND_CORRECTION = "ATTEMPT_CORRECTION"
 internal const val EVENT_KIND_ANSWER_REVEAL = "ANSWER_REVEAL_OUTCOME"
 internal const val EVENT_KIND_CHAT_EVIDENCE = "CHAT_EVIDENCE_SUBMITTED"
+
+/** KF-32：改绑补偿事件——**仅全量重放**消费（与 CORRECTION 同类），增量许可表不含它。 */
+internal const val EVENT_KIND_BINDING_CHANGED = "BINDING_CHANGED"
 internal const val SQLITE_PRESENTATION_ID_BATCH_SIZE = 900
 
 /**

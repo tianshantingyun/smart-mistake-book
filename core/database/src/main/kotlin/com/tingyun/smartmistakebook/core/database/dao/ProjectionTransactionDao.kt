@@ -41,6 +41,7 @@ import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
 import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
+import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
@@ -79,6 +80,7 @@ import com.tingyun.smartmistakebook.core.database.entity.AssessmentPresentationE
 import com.tingyun.smartmistakebook.core.database.entity.AttemptCorrectionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptSubmissionEntity
+import com.tingyun.smartmistakebook.core.database.entity.BindingChangeEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureOutcomeEntity
 import com.tingyun.smartmistakebook.core.database.entity.IndependentCorrectObservationEntity
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
@@ -158,6 +160,11 @@ internal abstract class ProjectionTransactionDao {
     @Query("SELECT * FROM learner_chat_evidence WHERE evidence_id = :evidenceId LIMIT 1")
     protected abstract suspend fun findChatEvidence(evidenceId: String): LearnerChatEvidenceEntity?
 
+    @Query("SELECT * FROM binding_change_event WHERE binding_change_id = :bindingChangeId LIMIT 1")
+    protected abstract suspend fun findBindingChange(
+        bindingChangeId: String,
+    ): BindingChangeEventEntity?
+
     @Query("SELECT * FROM assessment_evidence_snapshot WHERE snapshot_id = :snapshotId LIMIT 1")
     protected abstract suspend fun findEvidenceSnapshot(
         snapshotId: String,
@@ -199,6 +206,11 @@ internal abstract class ProjectionTransactionDao {
     protected abstract suspend fun findChatEvidencesByIds(
         evidenceIds: List<String>,
     ): List<LearnerChatEvidenceEntity>
+
+    @Query("SELECT * FROM binding_change_event WHERE binding_change_id IN (:bindingChangeIds)")
+    protected abstract suspend fun findBindingChangesByIds(
+        bindingChangeIds: List<String>,
+    ): List<BindingChangeEventEntity>
 
     @Query("SELECT * FROM assessment_evidence_snapshot WHERE snapshot_id IN (:snapshotIds)")
     protected abstract suspend fun findEvidenceSnapshotsByIds(
@@ -581,6 +593,20 @@ internal abstract class ProjectionTransactionDao {
                     "Correction ${row.eventId} requires a full ledger replay",
                 )
             }
+            // KF-32：改绑补偿事件与修正同类——只有从空快照重放才能让历史证据按新绑定重挂，
+            // 增量投影的"写时快照即当前绑定"语义下它无事可做，遇到即以全量重放收口。
+            if (row.eventKind == EVENT_KIND_BINDING_CHANGED) {
+                return batchStop(
+                    projectionName,
+                    learnerId,
+                    checkpoint,
+                    ledgerHead,
+                    events,
+                    ProjectionBatchStopReason.FULL_REPLAY_REQUIRED,
+                    expected,
+                    "Binding change ${row.eventId} requires a full ledger replay",
+                )
+            }
             val persisted = when (row.eventKind) {
                 EVENT_KIND_ATTEMPT -> readAttempt(row)?.let { attempt ->
                     PersistedIncrementalLearningEvent(
@@ -757,6 +783,8 @@ internal abstract class ProjectionTransactionDao {
         val revealIds = rows.filter { it.eventKind == EVENT_KIND_ANSWER_REVEAL }.map { it.eventId }
         val exposureIds = rows.filter { it.eventKind == EVENT_KIND_TUTOR_ANSWER_EXPOSURE }.map { it.eventId }
         val chatIds = rows.filter { it.eventKind == EVENT_KIND_CHAT_EVIDENCE }.map { it.eventId }
+        val bindingChangeIds = rows.filter { it.eventKind == EVENT_KIND_BINDING_CHANGED }
+            .map { it.eventId }
         val attempts = if (attemptIds.isEmpty()) {
             emptyMap()
         } else {
@@ -781,6 +809,12 @@ internal abstract class ProjectionTransactionDao {
             emptyMap()
         } else {
             findChatEvidencesByIds(chatIds).associateBy(LearnerChatEvidenceEntity::evidence_id)
+        }
+        val bindingChanges = if (bindingChangeIds.isEmpty()) {
+            emptyMap()
+        } else {
+            findBindingChangesByIds(bindingChangeIds)
+                .associateBy(BindingChangeEventEntity::bindingChangeId)
         }
         val snapshotIds = (
             attempts.values.map(AttemptEventEntity::assessmentSnapshotId) +
@@ -828,6 +862,9 @@ internal abstract class ProjectionTransactionDao {
                     resolveTutorAnswerExposure(row, exposures[row.eventId])
 
                 EVENT_KIND_CHAT_EVIDENCE -> resolveChatEvidence(row, chatEvidences[row.eventId])
+
+                EVENT_KIND_BINDING_CHANGED ->
+                    resolveBindingChanged(row, bindingChanges[row.eventId])
 
                 else -> null
             }
@@ -1104,6 +1141,9 @@ internal abstract class ProjectionTransactionDao {
                 }
                 EVENT_KIND_CORRECTION -> null
                 EVENT_KIND_TUTOR_ANSWER_EXPOSURE -> null
+                EVENT_KIND_CHAT_EVIDENCE -> null
+                // KF-32：改绑事件无呈现态权威（它不动响应序/终止揭示）。
+                EVENT_KIND_BINDING_CHANGED -> null
                 else -> throw ProjectionCasConflictException("Unknown presentation authority event kind")
             }
             previous?.let { persistPresentationProjectionState(it) }
@@ -1241,6 +1281,7 @@ internal abstract class ProjectionTransactionDao {
                         EVENT_KIND_CORRECTION -> null
                         EVENT_KIND_TUTOR_ANSWER_EXPOSURE -> null
                         EVENT_KIND_CHAT_EVIDENCE -> null
+                        EVENT_KIND_BINDING_CHANGED -> null
                         else -> null
                     }
                 }
@@ -1388,6 +1429,7 @@ internal abstract class ProjectionTransactionDao {
         EVENT_KIND_TUTOR_ANSWER_EXPOSURE -> readTutorAnswerExposure(this) != null
         EVENT_KIND_CORRECTION -> readCorrection(this) != null
         EVENT_KIND_CHAT_EVIDENCE -> readChatEvidence(this) != null
+        EVENT_KIND_BINDING_CHANGED -> readBindingChanged(this) != null
         else -> false
     }
 
@@ -1485,6 +1527,30 @@ internal abstract class ProjectionTransactionDao {
         return outcome
     }
 
+    /**
+     * KF-32：账本行 → [BindingChanged]（不含取数）。载荷行带题与前后节点集合，序列取自 outbox
+     * 行（它是这一行账本的位置权威），据此重算规范指纹并与 outbox 逐位比对——任一环节不符返回
+     * null（调用方按 CONFLICT 处理）。批量读与单行读共用本函数，判定逐位一致。
+     */
+    private fun resolveBindingChanged(
+        row: ProjectionOutboxEntity,
+        entity: BindingChangeEventEntity?,
+    ): BindingChanged? {
+        if (entity == null || entity.learnerId != row.learnerId) return null
+        val event = runCatching {
+            BindingChanged(
+                bindingChangeId = entity.bindingChangeId,
+                practiceUnitId = entity.practiceUnitId,
+                previousKnowledgeNodeIds = decodeKnowledgeNodeIds(entity.previousKnowledgeNodeIds),
+                newKnowledgeNodeIds = decodeKnowledgeNodeIds(entity.newKnowledgeNodeIds),
+                occurredAtEpochMillis = entity.occurredAtEpochMillis,
+                eventSequence = row.outboxSequence,
+            )
+        }.getOrNull() ?: return null
+        if (LearningLedgerFingerprint.bindingChanged(event) != row.canonicalFingerprint) return null
+        return event
+    }
+
     private suspend fun readAttempt(row: ProjectionOutboxEntity): PersistedAttemptP0? {
         val entity = findAttempt(row.eventId) ?: return null
         if (!entity.matchesOutbox(row)) return null
@@ -1544,6 +1610,9 @@ internal abstract class ProjectionTransactionDao {
 
     private suspend fun readChatEvidence(row: ProjectionOutboxEntity): ChatEvidenceSubmitted? =
         resolveChatEvidence(row, findChatEvidence(row.eventId))
+
+    private suspend fun readBindingChanged(row: ProjectionOutboxEntity): BindingChanged? =
+        resolveBindingChanged(row, findBindingChange(row.eventId))
 
     private suspend fun batchStop(
         projectionName: String,

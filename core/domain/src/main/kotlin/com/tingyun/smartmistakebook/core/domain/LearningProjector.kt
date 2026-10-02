@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.model.AppliedTutorAnswerExposureRecord
 import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
+import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.EventTimeTrust
 import com.tingyun.smartmistakebook.core.model.EvidenceAttributionCertainty
@@ -73,6 +74,10 @@ class LearningProjector(
     /**
      * Projects against presentation rows read at [previous]'s checkpoint. The persistence adapter
      * must enforce response-ordinal CAS and one terminal reveal before supplying this pure state.
+     *
+     * [currentBindingsByPracticeUnit] = KF-32 的 upcast 输入（题 → 当前绑定事实）。**增量路径
+     * 不使用**（写时快照在写入瞬间即当前绑定，传默认空映射即既有行为逐位不变）；只有 [replay]
+     * 用它覆盖历史快照的归属。
      */
     fun project(
         previous: LearnerSnapshot,
@@ -84,6 +89,8 @@ class LearningProjector(
          * 而历史行一字未动。默认空映射＝既有行为逐位不变（见 [KnowledgeNodeSuccessors]）。
          */
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors = KnowledgeNodeSuccessors.EMPTY,
+        /** KF-32：见本函数 KDoc；增量投影传默认空映射。 */
+        currentBindingsByPracticeUnit: Map<String, List<PracticeUnitBindingFacts>> = emptyMap(),
     ): LearningProjectionResult {
         requireCompatibleSnapshot(previous)
         require(knownLedgerHeadSequence >= previous.knownLedgerHeadSequence) {
@@ -96,12 +103,12 @@ class LearningProjector(
             "Authoritative presentation-state keys must match their values"
         }
         val incomingPresentationIds = events.mapNotNullTo(linkedSetOf()) { event ->
-            when (event) {
-                is Attempt -> event.presentationId
-                is AnswerRevealOutcome -> event.presentationId
-                is TutorAnswerExposureOutcome -> null
-                is ChatEvidenceSubmitted -> null
-            }
+                when (event) {
+                    is Attempt -> event.presentationId
+                    is AnswerRevealOutcome -> event.presentationId
+                    is TutorAnswerExposureOutcome -> null
+                    is ChatEvidenceSubmitted -> null
+                }
         }
         require(incomingPresentationIds.all(authoritativePresentationStates::containsKey)) {
             "Every supplied event requires persistence-authoritative presentation state"
@@ -442,6 +449,23 @@ class LearningProjector(
         ledger: List<LearningLedgerEvent>,
         /** 与 [project] 同义：合并重定向。重放与增量必须用**同一份**映射，否则两条路会分叉。 */
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors = KnowledgeNodeSuccessors.EMPTY,
+        /**
+         * KF-32（3B 步骤三）**upcasting 输入**：题 → 重放时刻的当前绑定**事实**（不是现成归属）——
+         * `basisRevisionId` 必须由每个 attempt 自己的快照决定（历史归属锚点），所以派生延迟到
+         * 消费点，用与写时快照同一套规则的单源函数 `derivePracticeUnitBindingAttributions`。
+         *
+         * 语义（D-Q1G 第 3 条"按新绑定重放"）：attempt 不存历史绑定，重放时**不再读**
+         * `attempt.assessmentSnapshot.attributions`，改按 `practiceUnitId → 当前
+         * practice_unit_knowledge_binding` 重派生——历史行一字不改，证据挂到今天有效的节点上。
+         * 旧 bindingId / 旧节点经 [knowledgeNodeSuccessors] 的既有解析链处理（同一条链）。
+         *
+         * 缺项（题不在映射里 / 映射里无可用绑定 / 默认空映射）→ 退回写时快照的归属：
+         * 既有调用方与测试逐位不变；无绑定可派生的题也不至于把历史证据整块丢掉。
+         *
+         * 重放的输入因此是"账本 + 当前绑定表 + 取代链"三件套，与"同一份输入 ⇒ 同一结果"一致；
+         * 版本 bump 触发的重放即按此安装。
+         */
+        currentBindingsByPracticeUnit: Map<String, List<PracticeUnitBindingFacts>> = emptyMap(),
         displacedSnapshot: LearnerSnapshot? = null,
         displacedSnapshotArchived: Boolean = false,
         /**
@@ -497,6 +521,9 @@ class LearningProjector(
                 ) { "A presentation may have only one terminal answer-reveal outcome" }
                 is TutorAnswerExposureOutcome -> Unit
                 is ChatEvidenceSubmitted -> Unit
+                // KF-32：改绑补偿事件不改写任何历史行，它宣告"重放时按当前绑定重派生归属"——
+                // 效果在 [currentBindingsByPracticeUnit] 的消费里，事件本身只需通过 id/序号校验。
+                is BindingChanged -> Unit
                 is AttemptCorrection -> {
                     require(event.attemptId in attemptsById) {
                         "A correction must follow the attempt it replaces"
@@ -551,6 +578,8 @@ class LearningProjector(
                         effectiveAtEpochMillis = effectiveAt,
                         knowledgeNodeSuccessors = knowledgeNodeSuccessors,
                         dispersion = dispersion,
+                        // KF-32：重放期归属按当前绑定重派生（缺项退回写时快照）。
+                        currentBindings = currentBindingsByPracticeUnit[effective.practiceUnitId],
                     )
                     presentationProjectionStates[event.presentationId] = presentationState.copy(
                         asOfLedgerSequence = event.eventSequence,
@@ -593,6 +622,8 @@ class LearningProjector(
                             outcome = event,
                             effectiveAtEpochMillis = effectiveAt,
                             knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+                            // KF-32：揭示的知识点归因同样按当前绑定重派生（缺项退回写时快照）。
+                            currentBindings = currentBindingsByPracticeUnit[event.practiceUnitId],
                         )
                     }
                     revealRecords[event.outcomeId] = AppliedAnswerRevealRecord(
@@ -629,6 +660,7 @@ class LearningProjector(
                         effectiveAtEpochMillis = effectiveAt,
                     )
                 }
+                is BindingChanged -> Unit
                 is AttemptCorrection -> {
                     correctionRecords[event.correctionId] = AppliedCorrectionRecord(
                         correctionId = event.correctionId,
@@ -866,6 +898,11 @@ class LearningProjector(
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors = KnowledgeNodeSuccessors.EMPTY,
         /** KF-17 错峰序号（仅新建卡消费；见 [SourceBatchDispersion]）。 */
         dispersion: SourceBatchDispersion,
+        /**
+         * KF-32：重放期该题的当前绑定事实（upcast）。null = 用写时快照（增量路径与无当前绑定的
+         * 题走这一支，行为逐位不变）。
+         */
+        currentBindings: List<PracticeUnitBindingFacts>? = null,
     ) {
         if (!suppressDuplicateRevealMemory) {
             val previousMemory = memoryStates[attempt.practiceUnitId]
@@ -891,7 +928,7 @@ class LearningProjector(
                 },
             )
         }
-        val attributions = attempt.assessmentSnapshot.attributions
+        val attributions = attributionsForAttempt(attempt, currentBindings)
         if (attributions.any { it.certainty == EvidenceAttributionCertainty.AMBIGUOUS }) {
             ambiguousAttemptIds += attempt.attemptId
         }
@@ -909,6 +946,25 @@ class LearningProjector(
                     effectiveAtEpochMillis = effectiveAtEpochMillis,
                 )
             }
+    }
+
+    /**
+     * KF-32：本次投影 attempt 用的归属集合。**重放**给了该题的当前绑定事实就现场重派生
+     * （upcast：历史证据挂今天有效的节点，`basisRevisionId` 用该 attempt 快照自己的 revision，
+     * 历史归属锚点保留）；否则用写时快照（增量路径 = 行为逐位不变；重放里没有当前绑定的题也
+     * 退回它，不整块丢证据）。派生与写入期快照同规则（单源 `derivePracticeUnitBindingAttributions`）。
+     */
+    private fun attributionsForAttempt(
+        attempt: Attempt,
+        currentBindings: List<PracticeUnitBindingFacts>?,
+    ): List<KnowledgeEvidenceAttribution> {
+        if (currentBindings == null) return attempt.assessmentSnapshot.attributions
+        val derived = derivePracticeUnitBindingAttributions(
+            bindings = currentBindings,
+            basisRevisionId = attempt.assessmentSnapshot.problemRevisionId,
+        )
+        // 派生为空（异常输入：绑定全被过滤）时不静默丢证据，退回写时快照。
+        return derived.ifEmpty { attempt.assessmentSnapshot.attributions }
     }
 
     private fun projectAnswerReveal(
@@ -955,8 +1011,18 @@ class LearningProjector(
         outcome: AnswerRevealOutcome,
         effectiveAtEpochMillis: Long,
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors,
+        /** KF-32：重放期该题的当前绑定事实；null = 写时快照（增量与缺项路径）。 */
+        currentBindings: List<PracticeUnitBindingFacts>? = null,
     ) {
-        outcome.assessmentSnapshot.attributions
+        val attributions = if (currentBindings == null) {
+            outcome.assessmentSnapshot.attributions
+        } else {
+            derivePracticeUnitBindingAttributions(
+                bindings = currentBindings,
+                basisRevisionId = outcome.assessmentSnapshot.problemRevisionId,
+            ).ifEmpty { outcome.assessmentSnapshot.attributions }
+        }
+        attributions
             .filter { it.certainty == EvidenceAttributionCertainty.DIRECT }
             .sortedBy(KnowledgeEvidenceAttribution::bindingId)
             .forEach { attribution ->

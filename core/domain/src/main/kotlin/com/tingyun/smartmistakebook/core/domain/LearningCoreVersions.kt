@@ -49,8 +49,16 @@ object LearningCoreVersions {
      * 上次作答被改写；`ATTRIBUTION` 同批 v2 → v3）；②KF-17（裁决 8）：同批/source 的
      * 新建卡到期日按序 +1 天错峰（`nextReviewAtEpochMillis` 变化，不动 FSRS 参数）。
      * 存量投影两处都不带新口径 → 必须全量重放（W0-1 的 `projection_archive` 先归档）。
+     *
+     * v11 → v12（3B 批次 B4/KF-32，2026-10-02）：**改绑 → 重放历史（upcasting）**。重放期
+     * attempt/reveal 的知识归因不再读写时快照，改按 `practiceUnitId → 当前
+     * practice_unit_knowledge_binding` 重派生（`derivePracticeUnitAttributions`，与写入期
+     * 同规则）——改绑后历史证据挂到新节点上，旧节点因"重放从空表累加 + 差集删除"归零。
+     * 触发：`BINDING_CHANGED` 补偿事件（`RoomProblemOrganizationStore.confirm` 在绑定集合
+     * 真变化时追加）+ 本版本 bump（存量库无绑定事件，靠版本不匹配走同一条 `commitFullReplay`）。
+     * 存量投影的归属是旧绑定下的口径 → 必须全量重放（archive 先归档）。
      */
-    const val PROJECTOR = "projector-v11"
+    const val PROJECTOR = "projector-v12"
     const val FORGETTING_CURVE = "curve-v3"
     const val SKIP_POLICY = "skip-v4"
 
@@ -59,9 +67,16 @@ object LearningCoreVersions {
      *
      * v2 → v3（W4-2 投影批，2026-10-02，裁决 26）：新增 **REVEAL → 知识点记忆卡** 归因路径
      * （独立看答案事件的 DIRECT 归因也 feed 该知识点卡）。归因路径集合变化 → 本串同步。
+     *
+     * v3 → v4（3B 批次 B4/KF-32，2026-10-02）：归因**来源**由"写时快照钉死"改为"重放期按
+     * 当前绑定重派生"（改绑后历史证据重挂新节点）。
      */
-    const val ATTRIBUTION = "attribution-v3"
-    const val LEDGER = "ledger-v2"
+    const val ATTRIBUTION = "attribution-v4"
+    /**
+     * 账本事件契约串（3B 批次 B4/KF-32，2026-10-02）：v2 → v3 新增补偿事件 kind
+     * `BINDING_CHANGED`（仅全量重放消费，与 `ATTEMPT_CORRECTION` 同类）。
+     */
+    const val LEDGER = "ledger-v3"
     const val PREDICTION_INTERVAL = "prediction-interval-v1"
 
     // D-M M6（2026-10-02）：`REVIEW_PLANNER`（V1 计划版本串）与其复合串 `REVIEW_COMPOSITE`
@@ -77,7 +92,7 @@ object LearningCoreVersions {
     const val SELECTOR = "selector-v7"
 
     const val PROJECTION_COMPOSITE =
-        "learning-core-v11($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
+        "learning-core-v12($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
     const val SELECTOR_COMPOSITE =
-        "learning-core-v11($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
+        "learning-core-v12($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }

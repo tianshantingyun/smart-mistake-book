@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.database.entity.AssessmentEvidenceAttri
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentEvidenceSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptCorrectionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptEventEntity
+import com.tingyun.smartmistakebook.core.database.entity.BindingChangeEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.IndependentCorrectObservationEntity
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import com.tingyun.smartmistakebook.core.database.entity.LearnerKnowledgeMasteryStateEntity
@@ -24,6 +25,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureOutc
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
 import com.tingyun.smartmistakebook.core.model.Attempt
+import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.EvidenceAttributionCertainty
@@ -117,6 +119,35 @@ class LearningLedgerChunkReadTest {
             assertEquals(1L, ledger.blockedAtSequence)
         }
 
+    /**
+     * KF-32：新增的 `BINDING_CHANGED` kind 走同一套身份三连 + 载荷指纹校验——载荷行、outbox 行
+     * 与规范指纹三者一致时读得回来（重放据此拿到"该改绑过"的凭据）。
+     */
+    @Test
+    fun `a binding change event is read back with its re-derived fingerprint`() = runBlocking {
+        val dao = RacingLedgerDao()
+        val event = bindingChange(sequence = 1)
+        dao.appendBindingChange(event)
+
+        val ledger = dao.loadLearningLedger(LEARNER)
+
+        assertEquals(LearningLedgerReadStatus.COMPLETE, ledger.status)
+        assertEquals(event, ledger.validPrefix.single().event)
+    }
+
+    /** KF-32：载荷被篡改（指纹不符）→ 仍判 CONFLICT。 */
+    @Test
+    fun `a tampered binding change payload is still reported as a conflict`() = runBlocking {
+        val dao = RacingLedgerDao()
+        dao.appendBindingChange(bindingChange(sequence = 1))
+        dao.tamperBindingChangeNodes("binding-change-1", before = "kc-old", after = "kc-tampered")
+
+        val ledger = dao.loadLearningLedger(LEARNER)
+
+        assertEquals(LearningLedgerReadStatus.CONFLICT, ledger.status)
+        assertEquals(1L, ledger.blockedAtSequence)
+    }
+
     private fun attempt(sequence: Long): Attempt = Attempt(
         attemptId = "attempt-$sequence",
         presentationId = "presentation-$sequence",
@@ -134,8 +165,16 @@ class LearningLedgerChunkReadTest {
         eventSequence = sequence,
     )
 
-    private fun snapshot(id: String): AssessmentEvidenceSnapshot = AssessmentEvidenceSnapshot(
-        snapshotId = "snapshot-$id",
+    private fun bindingChange(sequence: Long): BindingChanged = BindingChanged(
+        bindingChangeId = "binding-change-$sequence",
+        practiceUnitId = "unit-${sequence % 4}",
+        previousKnowledgeNodeIds = listOf("kc-old"),
+        newKnowledgeNodeIds = listOf("kc-new"),
+        occurredAtEpochMillis = BASE_EPOCH_MILLIS + sequence * 1_000L,
+        eventSequence = sequence,
+    )
+
+    private fun snapshot(id: String): AssessmentEvidenceSnapshot = AssessmentEvidenceSnapshot(        snapshotId = "snapshot-$id",
         assessmentItemId = "assessment-$id",
         practiceUnitId = "unit-${id.length % 4}",
         problemRevisionId = "revision-1",
@@ -180,6 +219,7 @@ private abstract class LedgerOnlyProjectionTransactionDao : ProjectionTransactio
     private val attemptEntities = mutableMapOf<String, AttemptEventEntity>()
     private val snapshotEntities = mutableMapOf<String, AssessmentEvidenceSnapshotEntity>()
     private val attributionEntities = mutableMapOf<String, List<AssessmentEvidenceAttributionEntity>>()
+    private val bindingChangeEntities = mutableMapOf<String, BindingChangeEventEntity>()
     var allocatedSequence: Long = 0L
         private set
 
@@ -205,6 +245,44 @@ private abstract class LedgerOnlyProjectionTransactionDao : ProjectionTransactio
             createdAtEpochMillis = attempt.occurredAtEpochMillis,
         )
         allocatedSequence = maxOf(allocatedSequence, attempt.eventSequence)
+    }
+
+    /**
+     * KF-32：模拟改绑事件的落库（与 `BindingChangeDao.appendAsLedgerEvent` 同形——载荷行、outbox
+     * 行、序列三者一致，指纹按 outbox 序列现算）。
+     */
+    fun appendBindingChange(event: BindingChanged) {
+        val entity = BindingChangeEventEntity(
+            bindingChangeId = event.bindingChangeId,
+            learnerId = LEARNER,
+            practiceUnitId = event.practiceUnitId,
+            previousKnowledgeNodeIds = encodeKnowledgeNodeIds(event.previousKnowledgeNodeIds),
+            newKnowledgeNodeIds = encodeKnowledgeNodeIds(event.newKnowledgeNodeIds),
+            occurredAtEpochMillis = event.occurredAtEpochMillis,
+        )
+        bindingChangeEntities[event.bindingChangeId] = entity
+        outboxRows += ProjectionOutboxEntity(
+            outboxId = "outbox-${event.bindingChangeId}",
+            learnerId = LEARNER,
+            outboxSequence = event.eventSequence,
+            eventKind = EVENT_KIND_BINDING_CHANGED,
+            eventId = event.bindingChangeId,
+            canonicalFingerprint = LearningLedgerFingerprint.bindingChanged(event),
+            status = StudyDbValue.OutboxStatus.PENDING,
+            createdAtEpochMillis = event.occurredAtEpochMillis,
+        )
+        allocatedSequence = maxOf(allocatedSequence, event.eventSequence)
+    }
+
+    /** 篡改改绑事件的节点集合（载荷不再匹配指纹列）→ 读侧必须判 CONFLICT。 */
+    fun tamperBindingChangeNodes(bindingChangeId: String, before: String, after: String) {
+        val entity = checkNotNull(bindingChangeEntities[bindingChangeId]) {
+            "Unknown binding change $bindingChangeId"
+        }
+        bindingChangeEntities[bindingChangeId] = entity.copy(
+            previousKnowledgeNodeIds = encodeKnowledgeNodeIds(listOf(before)),
+            newKnowledgeNodeIds = encodeKnowledgeNodeIds(listOf(after)),
+        )
     }
 
     /** 真洞：只前进分配头，不追加行。 */
@@ -291,6 +369,14 @@ private abstract class LedgerOnlyProjectionTransactionDao : ProjectionTransactio
     override suspend fun findChatEvidencesByIds(
         evidenceIds: List<String>,
     ): List<LearnerChatEvidenceEntity> = notExercised()
+
+    override suspend fun findBindingChange(
+        bindingChangeId: String,
+    ): BindingChangeEventEntity = notExercised()
+
+    override suspend fun findBindingChangesByIds(
+        bindingChangeIds: List<String>,
+    ): List<BindingChangeEventEntity> = bindingChangeIds.mapNotNull(bindingChangeEntities::get)
 
     override suspend fun findMemoryStates(
         projectionName: String,

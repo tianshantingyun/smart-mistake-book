@@ -8,6 +8,8 @@ import java.security.MessageDigest
 object LearningLedgerFingerprint {
     const val SCHEMA_VERSION = "learning-ledger-canonical-v2"
     const val ATTEMPT_SCHEMA_VERSION = "learning-ledger-attempt-canonical-v3"
+    /** KF-32：改绑补偿事件的规范指纹 schema 版本（载荷形状与其他 kind 不同，单独成号）。 */
+    const val BINDING_CHANGE_SCHEMA_VERSION = "learning-ledger-binding-change-canonical-v1"
 
     fun event(event: LearningLedgerEvent): String = when (event) {
         is Attempt -> attempt(event)
@@ -15,6 +17,22 @@ object LearningLedgerFingerprint {
         is TutorAnswerExposureOutcome -> tutorAnswerExposure(event)
         is AttemptCorrection -> correction(event)
         is ChatEvidenceSubmitted -> chatEvidence(event)
+        is BindingChanged -> bindingChanged(event)
+    }
+
+    /**
+     * KF-32 改绑事件的规范载荷：id / 题 / 变更前后节点集合 / 时间与序号。
+     * 集合按字典序逐项入列（[BindingChanged] 的 init 已强制有序去重），任一项变动都会改指纹。
+     */
+    fun bindingChanged(event: BindingChanged): String = digest {
+        field("eventType", "BINDING_CHANGED")
+        field("schemaVersion", BINDING_CHANGE_SCHEMA_VERSION)
+        field("bindingChangeId", event.bindingChangeId)
+        field("practiceUnitId", event.practiceUnitId)
+        field("previousKnowledgeNodeIds", event.previousKnowledgeNodeIds.joinToString("\n"))
+        field("newKnowledgeNodeIds", event.newKnowledgeNodeIds.joinToString("\n"))
+        field("occurredAtEpochMillis", event.occurredAtEpochMillis)
+        field("eventSequence", event.eventSequence)
     }
 
     fun chatEvidence(event: ChatEvidenceSubmitted): String = digest {

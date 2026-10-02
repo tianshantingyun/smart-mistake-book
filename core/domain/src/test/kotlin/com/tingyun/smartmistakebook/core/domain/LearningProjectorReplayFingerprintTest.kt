@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
 import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
+import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
@@ -138,11 +139,156 @@ class LearningProjectorReplayFingerprintTest {
         assertAppliedFingerprintsMatchCanonical(reused, ledger)
     }
 
+    /**
+     * KF-32 的核心语义（正是 bump 的理由）：重放期归属按**当前绑定**重派生——同一账本在改绑后
+     * 重放，历史证据挂到新节点上，旧节点因为"重放从空表累加 + 差集删除"而**归零**。
+     */
+    @Test
+    fun `replay re-derives historical attributions from the current bindings after a rebind`() {
+        val unitId = "unit-1"
+        val attempt = attempt(sequence = 1, ordinal = 1)
+        val ledger = listOf(attempt, bindingChange(sequence = 2, previous = "kc-1", new = "kc-2"))
+        val oldBindings = mapOf(unitId to listOf(binding("binding-old", unitId, "kc-1")))
+        val newBindings = mapOf(unitId to listOf(binding("binding-new", unitId, "kc-2")))
+
+        val before = projector.replay(
+            learnerId = LEARNER_ID,
+            ledger = ledger,
+            currentBindingsByPracticeUnit = oldBindings,
+        )
+        assertEquals(
+            "改绑前：证据按当时绑定落在旧节点",
+            listOf("kc-1"),
+            before.snapshot.knowledgeMasteryStates.keys.toList(),
+        )
+
+        val after = projector.replay(
+            learnerId = LEARNER_ID,
+            ledger = ledger,
+            currentBindingsByPracticeUnit = newBindings,
+        )
+
+        assertEquals(
+            "改绑后：历史证据重挂新节点，旧节点归零（重放从空表累加，旧节点不再被创建）",
+            listOf("kc-2"),
+            after.snapshot.knowledgeMasteryStates.keys.toList(),
+        )
+        val newState = after.snapshot.knowledgeMasteryStates.getValue("kc-2")
+        assertEquals("重派生后的证据权重按绑定数均分（单绑定 = 1.0）", 1.0, newState.evidenceMass, 1e-9)
+        assertEquals(
+            "重派生归属的 bindingId 是当前绑定（不是写时快照的 binding-attempt-1）",
+            "binding-new",
+            newState.independentCorrectObservations.single().bindingId,
+        )
+        val replayedAgain = projector.replay(
+            learnerId = LEARNER_ID,
+            ledger = ledger,
+            currentBindingsByPracticeUnit = newBindings,
+        )
+        assertEquals("重放幂等：同一账本 + 同一当前绑定 → 逐位相同", after, replayedAgain)
+    }
+
+    /**
+     * 合并 × 改绑组合：先把历史证据合并到 successor 上，再改绑到 successor——两条机制必须叠加
+     * 而不是互相覆盖（改绑派生出的新节点仍走同一 successors 链）。
+     */
+    @Test
+    fun `a rebind onto a merged successor lands the historical evidence on the successor`() {
+        val unitId = "unit-1"
+        val attempt = attempt(sequence = 1, ordinal = 1)
+        val ledger = listOf(attempt, bindingChange(sequence = 2, previous = "kc-1", new = "kc-merged"))
+        val successors = KnowledgeNodeSuccessors(mapOf("kc-1" to "kc-merged", "kc-merged" to "kc-final"))
+
+        val result = projector.replay(
+            learnerId = LEARNER_ID,
+            ledger = ledger,
+            knowledgeNodeSuccessors = successors,
+            currentBindingsByPracticeUnit = mapOf(
+                unitId to listOf(binding("binding-merged", unitId, "kc-merged")),
+            ),
+        )
+
+        assertEquals(
+            "合并链继续生效：重派生出的 kc-merged 经 successors 落到 kc-final",
+            listOf("kc-final"),
+            result.snapshot.knowledgeMasteryStates.keys.toList(),
+        )
+    }
+
+    /**
+     * 缺项退回：题不在当前绑定映射里（或映射为空）时，重放读写时快照——既有调用方与无绑定题
+     * 的行为逐位不变。
+     */
+    @Test
+    fun `replay falls back to the write-time snapshot when no current bindings are supplied`() {
+        val unitId = "unit-1"
+        val attempt = attempt(sequence = 1, ordinal = 1)
+        val ledger = listOf(attempt, bindingChange(sequence = 2, previous = "kc-1", new = "kc-2"))
+
+        val withMap = projector.replay(
+            learnerId = LEARNER_ID,
+            ledger = ledger,
+            currentBindingsByPracticeUnit = mapOf(
+                unitId to listOf(binding("binding-old", unitId, "kc-1")),
+            ),
+        )
+        val withoutMap = projector.replay(learnerId = LEARNER_ID, ledger = ledger)
+
+        assertEquals(
+            "无当前绑定时退回写时快照（夹具的归属节点）",
+            listOf("kc-1"),
+            withoutMap.snapshot.knowledgeMasteryStates.keys.toList(),
+        )
+        assertEquals(
+            "写时快照的 bindingId 仍是旧绑定（未被重派生改写）",
+            "binding-attempt-1",
+            withoutMap.snapshot.knowledgeMasteryStates.getValue("kc-1")
+                .independentCorrectObservations.single().bindingId,
+        )
+        assertEquals(
+            "缺项退回的是写时快照本身（绑定 id 与重派生路径不同，其余投影数值同形）",
+            "binding-old",
+            withMap.snapshot.knowledgeMasteryStates.getValue("kc-1")
+                .independentCorrectObservations.single().bindingId,
+        )
+        assertEquals(
+            "两条路只差归因来源，掌握度数值逐位相同",
+            withoutMap.snapshot.knowledgeMasteryStates.getValue("kc-1").copy(
+                independentCorrectObservations = withMap.snapshot.knowledgeMasteryStates
+                    .getValue("kc-1").independentCorrectObservations,
+            ),
+            withMap.snapshot.knowledgeMasteryStates.getValue("kc-1"),
+        )
+    }
+
+    private fun binding(
+        bindingId: String,
+        practiceUnitId: String,
+        knowledgeNodeId: String,
+    ) = PracticeUnitBindingFacts(
+        bindingId = bindingId,
+        practiceUnitId = practiceUnitId,
+        knowledgeNodeId = knowledgeNodeId,
+        taxonomyVersion = "taxonomy-v1",
+    )
+
+    private fun bindingChange(
+        sequence: Long,
+        previous: String,
+        new: String,
+    ): BindingChanged = BindingChanged(
+        bindingChangeId = "binding-change-$sequence",
+        practiceUnitId = "unit-1",
+        previousKnowledgeNodeIds = listOf(previous),
+        newKnowledgeNodeIds = listOf(new),
+        occurredAtEpochMillis = occurredAt(sequence),
+        eventSequence = sequence,
+    )
+
     private fun assertAppliedFingerprintsMatchCanonical(
         result: LearningProjectionResult,
         ledger: List<LearningLedgerEvent>,
-    ) {
-        val canonical = ledger.associate { it.ledgerEventId to LearningLedgerFingerprint.event(it) }
+    ) {        val canonical = ledger.associate { it.ledgerEventId to LearningLedgerFingerprint.event(it) }
         result.snapshot.appliedAttemptRecords.values.forEach { record ->
             assertEquals(canonical.getValue(record.attemptId), record.canonicalFingerprint)
         }

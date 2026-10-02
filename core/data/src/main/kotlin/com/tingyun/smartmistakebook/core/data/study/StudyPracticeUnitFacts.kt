@@ -4,6 +4,8 @@ import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRec
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
+import com.tingyun.smartmistakebook.core.domain.PracticeUnitBindingFacts
+import com.tingyun.smartmistakebook.core.domain.derivePracticeUnitBindingAttributions
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
 import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
@@ -70,9 +72,13 @@ internal class StudyPracticeUnitFacts(
     /**
      * 本题当前绑定的知识点（现役绑定集，去重、字典序）。教学材料范围与先修补救用；
      * 无绑定时为空集（先修/重教面因此不猜测归属）。
+     *
+     * "现役"与 [attributionSetFor]、重放共用同一读口（`readCurrentPracticeUnitKnowledgeBindings`
+     * ——最近一次确认那一批）：改绑后**被证据引用而保留的旧绑定是审计遗迹**（RESTRICT 外键挡住
+     * 物删），按全量读算进来会让教学材料范围/先修补救仍指向已改掉的旧节点，与证据归属口径分叉。
      */
     suspend fun knowledgeNodeIds(practiceUnitId: String): Set<String> =
-        database.readPracticeUnitKnowledgeBindings(practiceUnitId)
+        database.readCurrentPracticeUnitKnowledgeBindings(practiceUnitId)
             .mapTo(sortedSetOf(), PracticeUnitKnowledgeBindingRecord::knowledgeNodeId)
 
     /**
@@ -158,14 +164,21 @@ internal class StudyPracticeUnitFacts(
     }
 
     /**
-     * 知识归属：先取**当前 revision + 同一 taxonomy** 的现役绑定（taxonomy 取字典序最小者，
+     * 知识归属：先取**当前 revision + 同一 taxonomy** 的**当前**绑定（taxonomy 取字典序最小者，
      * 确定性），权重按数量均分（绑定记录不含 strength；DIRECT 归属总和不得超过 1 个单位，
      * 均分即守恒）；一个绑定都没有时物化 pseudo 桶并按 1.0 归属。
+     *
+     * 用 `readCurrentPracticeUnitKnowledgeBindings`（最近一次确认那一批）而不是表里的全部行：
+     * 改绑后被证据引用而保留的旧绑定是审计遗迹，算进来会让新写的证据继续喂旧节点，并与重放的
+     * "当前绑定"口径分叉（规则与理由见该端口方法的 KDoc）。
+     *
+     * 派生规则单源在 `core:domain` 的 `derivePracticeUnitBindingAttributions`
+     * （KF-32：重放期按同一规则从当前绑定重派生，两条路必须同规则）。
      */
     private suspend fun attributionSetFor(
         record: PracticeUnitAssessmentRecord,
     ): Pair<String, List<KnowledgeEvidenceAttribution>> {
-        val currentBindings = database.readPracticeUnitKnowledgeBindings(record.practiceUnitId)
+        val currentBindings = database.readCurrentPracticeUnitKnowledgeBindings(record.practiceUnitId)
             .filter { binding ->
                 binding.basisRevisionId == record.problemRevisionId &&
                     binding.knowledgeNodeId.isNotBlank() &&
@@ -174,23 +187,18 @@ internal class StudyPracticeUnitFacts(
             .sortedBy(PracticeUnitKnowledgeBindingRecord::bindingId)
         if (currentBindings.isNotEmpty()) {
             val taxonomyVersion = currentBindings.minOf(PracticeUnitKnowledgeBindingRecord::taxonomyVersion)
-            val bindingSet = currentBindings.filter { it.taxonomyVersion == taxonomyVersion }
-            val weight = 1.0 / bindingSet.size
-            return taxonomyVersion to bindingSet.mapIndexed { index, binding ->
-                KnowledgeEvidenceAttribution(
-                    bindingId = binding.bindingId,
-                    knowledgeNodeId = binding.knowledgeNodeId,
-                    weight = weight,
-                    basisRevisionId = record.problemRevisionId,
-                    taxonomyVersion = taxonomyVersion,
-                    role = if (index == 0) {
-                        EvidenceAttributionRole.PRIMARY
-                    } else {
-                        EvidenceAttributionRole.SECONDARY
-                    },
-                    certainty = EvidenceAttributionCertainty.DIRECT,
-                )
-            }
+            val attributions = derivePracticeUnitBindingAttributions(
+                bindings = currentBindings.map { binding ->
+                    PracticeUnitBindingFacts(
+                        bindingId = binding.bindingId,
+                        practiceUnitId = binding.practiceUnitId,
+                        knowledgeNodeId = binding.knowledgeNodeId,
+                        taxonomyVersion = binding.taxonomyVersion,
+                    )
+                },
+                basisRevisionId = record.problemRevisionId,
+            )
+            return taxonomyVersion to attributions
         }
         val pseudo = database.ensurePseudoKnowledgeBinding(
             practiceUnitId = record.practiceUnitId,

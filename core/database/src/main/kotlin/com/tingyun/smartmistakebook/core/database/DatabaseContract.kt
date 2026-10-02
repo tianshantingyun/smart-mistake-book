@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.model.StudyDayMath
 import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
+import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
 import com.tingyun.smartmistakebook.core.model.CaptureDraftWorkspace
@@ -753,6 +754,28 @@ internal object DatabaseContractValidator {
         requireContract(record.snapshotJson.isNotBlank()) { "Archived snapshot JSON must not be blank" }
     }
 
+    /**
+     * KF-32 改绑补偿事件的写形状（`RoomProblemOrganizationStore.confirm` → `BindingChangeDao`）：
+     * 身份、题、变更前后节点集合与时间。集合必须已排序去重，且"有变化"是事件的语义前提
+     * （无变化不落事件，验收要求"无改绑不触发重放"）。
+     */
+    fun validateBindingChangeEvent(event: BindingChanged) {
+        id(event.bindingChangeId, "bindingChangeId")
+        id(event.practiceUnitId, "practiceUnitId")
+        requireContract(event.previousKnowledgeNodeIds == event.previousKnowledgeNodeIds.distinct().sorted()) {
+            "Binding-change previous knowledge-node ids must be unique and sorted"
+        }
+        requireContract(event.newKnowledgeNodeIds == event.newKnowledgeNodeIds.distinct().sorted()) {
+            "Binding-change new knowledge-node ids must be unique and sorted"
+        }
+        event.previousKnowledgeNodeIds.forEach { id(it, "previousKnowledgeNodeId") }
+        event.newKnowledgeNodeIds.forEach { id(it, "newKnowledgeNodeId") }
+        requireContract(event.previousKnowledgeNodeIds != event.newKnowledgeNodeIds) {
+            "A binding change must actually change the bound knowledge nodes"
+        }
+        nonNegative(event.occurredAtEpochMillis, "occurredAtEpochMillis")
+    }
+
     fun validateProjectionCommit(commit: ProjectionCommit) {
         id(commit.projectionName, "projectionName")
         id(commit.learnerId, "learnerId")
@@ -801,10 +824,11 @@ internal object DatabaseContractValidator {
                 commit.consumedLedgerEvents.all {
                     it.eventKind == "ATTEMPT" ||
                         it.eventKind == "ANSWER_REVEAL_OUTCOME" ||
-                        it.eventKind == "TUTOR_ANSWER_EXPOSURE_OUTCOME"
+                        it.eventKind == "TUTOR_ANSWER_EXPOSURE_OUTCOME" ||
+                        it.eventKind == "CHAT_EVIDENCE_SUBMITTED"
                 },
             ) {
-                "Incremental projection cannot consume corrections"
+                "Incremental projection cannot consume corrections or binding changes"
             }
         }
         requireContract(
@@ -837,7 +861,15 @@ internal object DatabaseContractValidator {
                 receipt.eventKind == "ATTEMPT" ||
                     receipt.eventKind == "ATTEMPT_CORRECTION" ||
                     receipt.eventKind == "ANSWER_REVEAL_OUTCOME" ||
-                    receipt.eventKind == "TUTOR_ANSWER_EXPOSURE_OUTCOME",
+                    receipt.eventKind == "TUTOR_ANSWER_EXPOSURE_OUTCOME" ||
+                    // 2026-10-02（3B B4/KF-32 顺带核实）：chat 证据自 v41 起就在账本里分配序列并落
+                    // outbox 行（`ChatEvidenceDao.insertAsLedgerEvents`），投影器两条路径都实现了它
+                    // （增量写 KC、重放重放它），但许可表漏了它——提交校验会把任何含该 kind 的回执
+                    // 判为 "Unknown ledger event kind"，drainer 在 chat 写入后的下一批直接被打死。
+                    // 这是历史遗漏，不是设计（`readChatEvidence`/`resolveChatEvidence` 的解码路径一直都在）。
+                    receipt.eventKind == "CHAT_EVIDENCE_SUBMITTED" ||
+                    // KF-32：改绑补偿事件只允许全量重放消费（增量许可表在上方单独把关）。
+                    receipt.eventKind == "BINDING_CHANGED",
             ) {
                 "Unknown ledger event kind"
             }

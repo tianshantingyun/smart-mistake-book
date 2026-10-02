@@ -180,6 +180,129 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /**
+     * 阶段 3B 步骤三 · KF-32（v58→59）：新增改绑事件载荷表 `binding_change_event` + 索引。
+     * 非破坏迁移的验证口径与上面两条一致：**新表真的建出来（列/索引逐位同形）**，
+     * 且既有真实行一行不碰。
+     */
+    @Test
+    fun kf32CreatesBindingChangeEventTableWithoutTouchingExistingRows() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave6-kf32-binding-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 58)
+            seedV58PracticeUnit(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v58 库迁到 59",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV59BindingChangeShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /** 迁移后的真库形状：新表在、列与索引同形、既有 practice unit 行原样。 */
+    private fun inspectV59BindingChangeShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertTrue(
+                "binding_change_event 表必须由迁移建出来",
+                "binding_change_event" in tableNames(connection),
+            )
+            assertEquals(
+                "列与 BindingChangeEventEntity 逐位同形",
+                listOf(
+                    "binding_change_id",
+                    "learner_id",
+                    "practice_unit_id",
+                    "previous_knowledge_node_ids",
+                    "new_knowledge_node_ids",
+                    "occurred_at_epoch_millis",
+                ),
+                columnNames(connection, "binding_change_event"),
+            )
+            val indices = connection.prepare(
+                "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'binding_change_event'",
+            )
+            try {
+                val names = mutableSetOf<String>()
+                while (indices.step()) names += indices.getText(0)!!
+                assertTrue(
+                    "索引必须一起建出来（差集查询按 (learner, practice_unit)）：$names",
+                    names.contains("index_binding_change_event_learner_id_practice_unit_id"),
+                )
+            } finally {
+                indices.close()
+            }
+
+            val statement = connection.prepare(
+                "SELECT practice_unit_id FROM `practice_unit` WHERE practice_unit_id = '$M1_UNIT_ID'",
+            )
+            try {
+                assertTrue("既有真实行必须一行不丢", statement.step())
+                assertEquals(M1_UNIT_ID, statement.getText(0))
+                assertFalse("旧行只有这一条", statement.step())
+            } finally {
+                statement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 往 58.json 建出来的库里写一行真实 practice unit（连同 problem/revision），供"行不许动"断言。 */
+    private fun seedV58PracticeUnit(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$M1_PROBLEM_ID', 'fp-wave6', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$M1_REVISION_ID', '$M1_PROBLEM_ID', 1, 'KF-32 题', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave6-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `practice_unit` (
+                    `practice_unit_id`, `problem_id`, `problem_revision_id`, `unit_key`,
+                    `unit_kind`, `title`, `prompt_markdown`, `estimated_seconds`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$M1_UNIT_ID', '$M1_PROBLEM_ID', '$M1_REVISION_ID', 'whole',
+                    'WHOLE_PROBLEM', 'KF-32 题', '题面', 120,
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
     /** 迁移后的真库形状：两张 legacy 表消失，真实行原样还在。 */
     private fun inspectV58M1Shape(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)

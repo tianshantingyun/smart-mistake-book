@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.core.database
 
 import androidx.room3.withWriteTransaction
+import com.tingyun.smartmistakebook.core.database.dao.BINDING_CHANGE_ID_NAMESPACE
+import com.tingyun.smartmistakebook.core.database.dao.ProblemOrganizationDao
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationBindingEntity
@@ -12,6 +14,8 @@ import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
 import com.tingyun.smartmistakebook.core.model.PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS
 import com.tingyun.smartmistakebook.core.model.PROBLEM_ORGANIZATION_RELATION_KINDS
 import com.tingyun.smartmistakebook.core.model.SubjectKind
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
@@ -38,10 +42,22 @@ internal class RoomProblemOrganizationStore(
         }
     }
 
+    /**
+     * 确认一次整理（自动接受与离线纠正共用）。KF-32（3B 步骤三）：
+     * 本次确认**真的改变了该题的知识绑定集合**时，在同一个事务里追加一条 `BINDING_CHANGED`
+     * 账本事件（+ outbox）——补偿事件语义：历史行不改，改绑由新事件宣告，投影据此触发全量重放、
+     * 让历史证据按新绑定重挂。无变化（幂等重跑 / 同一份整理再确认）**不**追加。
+     *
+     * [learnerId]：账本按学习者分本，事件必须落在该题的账本上。绑定表本身不带 learner 列
+     * （题干与绑定是学习者共享的目录事实），学习者身份由调用方给出——生产装配传
+     * `RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID`。
+     */
     suspend fun confirm(
         command: ConfirmProblemOrganizationCommand,
+        learnerId: String = "learner:local",
     ): ConfirmProblemOrganizationResult {
         validateCommand(command)
+        require(learnerId.isNotBlank()) { "learnerId must not be blank" }
         return database.withWriteTransaction {
             val dao = database.problemOrganizationDao()
             val expectedReceipt = command.toReceiptEntity()
@@ -104,6 +120,17 @@ internal class RoomProblemOrganizationStore(
                     command.problemId,
                 )
             }
+            // KF-32：改绑的**账本凭据**。判定两边都用"当前绑定集合"口径
+            // （`readCurrentKnowledgeBindingsForPracticeUnit`：最近一次确认那一批；从未确认过则
+            // 全部）——不是表里的全部行：被证据引用而保留的旧绑定是审计遗迹（RESTRICT 外键挡住
+            // 物删），算进来会让"改绑"看起来只是"追加"，重放也会把历史证据同时挂到新旧节点。
+            // 两边不同才落 `BINDING_CHANGED`（幂等重跑/重复确认不落）。
+            // 事件 id 由 commandId 内容寻址：同一确认重放得到同一 id，天然幂等。
+            val previousKnowledgeNodeIds = dao
+                .readCurrentKnowledgeBindingsForPracticeUnit(command.practiceUnitId)
+                .map(PracticeUnitKnowledgeBindingEntity::knowledgeNodeId)
+                .distinct()
+                .sorted()
             dao.deleteUnreferencedKnowledgeBindings(command.practiceUnitId, command.problemRevisionId)
             dao.deleteClassifications(command.problemId, command.problemRevisionId)
             if (command.replaceRelations) {
@@ -167,6 +194,13 @@ internal class RoomProblemOrganizationStore(
                             throw ImmutablePayloadConflictException("knowledge_binding", entity.bindingId)
                         }
                     }
+                // KF-32：命令携带的绑定刷新到本次确认时间——"当前绑定集合"按最近一次确认判定，
+                // 已存在的行（IGNORE 未更新）不刷新就会在重确认后掉出当前集合。只刷命令自己的
+                // id：被证据引用而保留的旧绑定不在其中，它的旧 acceptedAt 正是"非当前"的依据。
+                dao.touchKnowledgeBindings(
+                    bindingIds = knowledgeBindings.map { it.bindingId },
+                    acceptedAtEpochMillis = command.acceptedAtEpochMillis,
+                )
             }
             val classifications = command.classifications
                 .map(ProblemClassificationBindingRecord::toOrganizationEntity)
@@ -210,12 +244,71 @@ internal class RoomProblemOrganizationStore(
                     receipt = winner.toRecord(),
                 )
             }
+            // KF-32：事件必须在**回执落库之后**发——"当前绑定集合"的判定依据是
+            // `problem_organization_receipt` 里这一题的最近一次确认时间（见 DAO 的 KDoc），
+            // 本次回执还没落库时读到的仍是上一批，会把改绑记成"追加"。
+            // 走到这里回执一定是本次新落的（上面 -1 分支已 return），不会给重复确认发事件。
+            emitBindingChangedIfNeeded(
+                dao = dao,
+                learnerId = learnerId,
+                command = command,
+                previousKnowledgeNodeIds = previousKnowledgeNodeIds,
+            )
             ConfirmProblemOrganizationResult(
                 created = true,
                 receipt = expectedReceipt.toRecord(),
             )
         }
     }
+
+    /**
+     * KF-32：本次确认真的改了**当前绑定集合**时，**在同一事务内**追加 `BINDING_CHANGED` 事件。
+     *
+     * 判定口径 = 确认前的当前集合 vs 确认后的当前集合（`readCurrentKnowledgeBindingsForPracticeUnit`；
+     * 两边都按知识点 id 去重排序）。绑定 id 变化但节点集合不变时不落事件——重放重派生只按
+     * "题 → 节点集合"派生，节点集合未变的绑定行改写不影响任何投影输出。
+     * 事件 id 由 commandId 内容寻址（`binding-change-<sha256>`），同一确认重放得到同一 id。
+     *
+     * 事件模型（含账本序列）的构造与校验在 `BindingChangeDao.appendAsLedgerEvent`——序列由分配器
+     * 给（空账本首值 = 1），本函数不持有也不猜测它。
+     */
+    private suspend fun emitBindingChangedIfNeeded(
+        dao: ProblemOrganizationDao,
+        learnerId: String,
+        command: ConfirmProblemOrganizationCommand,
+        previousKnowledgeNodeIds: List<String>,
+    ) {
+        val currentKnowledgeNodeIds = dao
+            .readCurrentKnowledgeBindingsForPracticeUnit(command.practiceUnitId)
+            .map(PracticeUnitKnowledgeBindingEntity::knowledgeNodeId)
+            .distinct()
+            .sorted()
+        if (currentKnowledgeNodeIds == previousKnowledgeNodeIds) return
+        database.bindingChangeDao().appendAsLedgerEvent(
+            learnerId = learnerId,
+            bindingChangeId = stableIdForLearner(
+                learnerId,
+                BINDING_CHANGE_ID_NAMESPACE,
+                command.commandId,
+            ),
+            practiceUnitId = command.practiceUnitId,
+            previousKnowledgeNodeIds = previousKnowledgeNodeIds,
+            newKnowledgeNodeIds = currentKnowledgeNodeIds,
+            occurredAtEpochMillis = command.acceptedAtEpochMillis,
+        )
+    }
+}
+
+/**
+ * 与 `StudyWriteContext.stableId` 同一算法（`sha256("$learnerId\n$requestId")` 的十六进制 +
+ * `<namespace>-` 前缀）；`core:database` 不能依赖 `core:data`，这里保留一份使事件 id 的口径
+ * 与写通道既有稳定 id 一致。输入不同则输出不同，同一 (learner, commandId) 恒等。
+ */
+private fun stableIdForLearner(learnerId: String, namespace: String, requestId: String): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+        .digest("$learnerId\n$requestId".toByteArray(StandardCharsets.UTF_8))
+        .joinToString(separator = "") { byte -> (byte.toInt() and 0xff).toString(16).padStart(2, '0') }
+    return "$namespace-$digest"
 }
 
 private val SHA_256_HEX = Regex("^[0-9a-f]{64}$")

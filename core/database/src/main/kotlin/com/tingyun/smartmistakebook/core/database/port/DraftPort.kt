@@ -101,5 +101,10 @@ interface OrganizationWritePort {
 
     suspend fun confirmProblemOrganization(
         command: ConfirmProblemOrganizationCommand,
+        /**
+         * KF-32（3B 步骤三）：改绑账本事件要落的**学习者账本**。默认值与本地单学习者口径一致
+         * （`RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID`），生产装配显式传入。
+         */
+        learnerId: String = "learner:local",
     ): ConfirmProblemOrganizationResult
 }

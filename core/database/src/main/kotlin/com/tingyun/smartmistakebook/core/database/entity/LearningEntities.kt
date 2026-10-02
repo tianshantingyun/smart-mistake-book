@@ -531,13 +531,43 @@ internal data class ProjectionOutboxEntity(
     val createdAtEpochMillis: Long,
 )
 
+/**
+ * KF-32（3B 步骤三）改绑补偿事件的载荷行：`binding_change_event`。
+ *
+ * 为什么是独立表：它和 `attempt_event` / `learner_chat_evidence` 一样是"账本行的载荷"——
+ * outbox 行只带身份/序列/指纹，载荷（哪道题、变更前后的知识点集合）必须有自己的不变行，
+ * 读边界才能重建事件并逐位校验规范指纹（`ProjectionTransactionDao.resolveBindingChanged`）。
+ * 给既有表加列会污染那张表的语义（改绑不是 attempt，也不是 chat evidence）。
+ *
+ * `previous/new_knowledge_node_ids` 存换行分隔的字典序节点 id（空串 = 空集合）：摘要是审计与
+ * 差异对照，重放真正消费的是**重放时刻的当前绑定表**（见 [BindingChanged] 的 KDoc）。
+ */
+@Entity(
+    tableName = "binding_change_event",
+    primaryKeys = ["binding_change_id"],
+    indices = [Index(value = ["learner_id", "practice_unit_id"])],
+)
+internal data class BindingChangeEventEntity(
+    @ColumnInfo(name = "binding_change_id")
+    val bindingChangeId: String,
+    @ColumnInfo(name = "learner_id")
+    val learnerId: String,
+    @ColumnInfo(name = "practice_unit_id")
+    val practiceUnitId: String,
+    @ColumnInfo(name = "previous_knowledge_node_ids")
+    val previousKnowledgeNodeIds: String,
+    @ColumnInfo(name = "new_knowledge_node_ids")
+    val newKnowledgeNodeIds: String,
+    @ColumnInfo(name = "occurred_at_epoch_millis")
+    val occurredAtEpochMillis: Long,
+)
+
 @Entity(
     tableName = "learner_projection_snapshot",
     primaryKeys = ["projection_name", "learner_id"],
     indices = [Index(value = ["learner_id", "checkpoint_sequence"])],
 )
-internal data class LearnerProjectionSnapshotEntity(
-    @ColumnInfo(name = "projection_name")
+internal data class LearnerProjectionSnapshotEntity(    @ColumnInfo(name = "projection_name")
     val projectionName: String,
     @ColumnInfo(name = "learner_id")
     val learnerId: String,

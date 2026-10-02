@@ -7,6 +7,7 @@ import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.tingyun.smartmistakebook.core.database.dao.AttemptTransactionDao
 import com.tingyun.smartmistakebook.core.database.dao.BatchImportDao
+import com.tingyun.smartmistakebook.core.database.dao.BindingChangeDao
 import com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceDao
 import com.tingyun.smartmistakebook.core.database.dao.ImmutableLearningFactDao
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeGroundingDao
@@ -110,6 +111,7 @@ import com.tingyun.smartmistakebook.core.database.entity.ReviewSessionRevisionEn
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorAnswerExposureOutcomeEntity
 import com.tingyun.smartmistakebook.core.database.entity.AppliedTutorAnswerExposureRecordEntity
+import com.tingyun.smartmistakebook.core.database.entity.BindingChangeEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AgentPendingRequestEntity
 import com.tingyun.smartmistakebook.core.database.dao.ContentInstallStateDao
 import com.tingyun.smartmistakebook.core.database.entity.ContentInstallStateEntity
@@ -118,7 +120,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 58
+internal const val STUDY_DATABASE_VERSION = 59
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -166,6 +168,7 @@ internal object SplitImportLedgerStrings {
         AttemptSubmissionEntity::class,
         AttemptEventEntity::class,
         AttemptCorrectionEntity::class,
+        BindingChangeEventEntity::class,
         LearningSequenceEntity::class,
         ProjectionOutboxEntity::class,
         LearnerProjectionSnapshotEntity::class,
@@ -254,6 +257,7 @@ internal abstract class StudyDatabase : RoomDatabase() {
 
     abstract fun modelTaskTransactionDao(): ModelTaskTransactionDao
     abstract fun chatEvidenceDao(): ChatEvidenceDao
+    abstract fun bindingChangeDao(): BindingChangeDao
 
     abstract fun masteryOverviewDao(): MasteryOverviewDao
 
@@ -352,6 +356,7 @@ object StudyDatabaseFactory {
             KERNEL_WAVE3_MIGRATION_55_56,
             KERNEL_WAVE4_MIGRATION_56_57,
             KERNEL_WAVE5_MIGRATION_57_58,
+            KERNEL_WAVE6_MIGRATION_58_59,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

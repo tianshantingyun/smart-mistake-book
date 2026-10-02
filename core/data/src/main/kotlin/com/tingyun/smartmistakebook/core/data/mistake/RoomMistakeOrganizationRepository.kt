@@ -421,7 +421,10 @@ internal class RoomMistakeOrganizationRepository(
             replaceRelations = false,
         )
         val result = try {
-            database.confirmProblemOrganization(command)
+            database.confirmProblemOrganization(
+                command,
+                learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID,
+            )
         } catch (_: ProblemOrganizationAuthorityConflictException) {
             val existing = database.observeConfirmedProblemOrganization(
                 persisted.input.problemId,
@@ -523,7 +526,10 @@ internal class RoomMistakeOrganizationRepository(
             relationRemovals = selection.relationRemovals,
             replaceRelations = selection.replaceRelations,
         )
-        val result = database.confirmProblemOrganization(command)
+        val result = database.confirmProblemOrganization(
+                command,
+                learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID,
+            )
         return ProblemOrganizationConfirmation(
             created = result.created,
             classificationCount = result.receipt.classificationCount,
@@ -570,7 +576,10 @@ internal class RoomMistakeOrganizationRepository(
             correctedAtEpochMillis = correctedAtEpochMillis,
         )
         val result = try {
-            database.confirmProblemOrganization(command)
+            database.confirmProblemOrganization(
+                command,
+                learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID,
+            )
         } catch (_: ProblemOrganizationAuthorityConflictException) {
             return@withContext ProblemOrganizationConfirmation(
                 created = false,

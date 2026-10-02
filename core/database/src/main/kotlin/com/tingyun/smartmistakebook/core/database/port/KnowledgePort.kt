@@ -75,6 +75,21 @@ interface KnowledgeReadPort {
         practiceUnitId: String,
     ): List<PracticeUnitKnowledgeBindingRecord> = emptyList()
 
+    /**
+     * KF-32：一道题的**当前**绑定集合（最近一次确认那一批；从未确认过则全部）。
+     *
+     * 与 [readPracticeUnitKnowledgeBindings] 的分工：那个是"表里有哪些行"（含被证据引用而
+     * 保留的审计遗迹），这个是"现在还算数的绑定"——证据归属（写时快照与重放重派生）必须用
+     * 后者，否则改绑后历史证据会同时挂到新旧节点、增量证据继续喂旧节点
+     * （规则与理由见 `ProblemOrganizationDao.readCurrentKnowledgeBindingsForPracticeUnit`）。
+     *
+     * 默认实现退回 [readPracticeUnitKnowledgeBindings]：不覆写的实现（测试替身、历史适配器）
+     * 保持既有行为；真库实现覆写为按回执取最近一批。
+     */
+    suspend fun readCurrentPracticeUnitKnowledgeBindings(
+        practiceUnitId: String,
+    ): List<PracticeUnitKnowledgeBindingRecord> = readPracticeUnitKnowledgeBindings(practiceUnitId)
+
     suspend fun readSubjectKnowledgeNodeRelations(
         subject: String,
         limit: Int,

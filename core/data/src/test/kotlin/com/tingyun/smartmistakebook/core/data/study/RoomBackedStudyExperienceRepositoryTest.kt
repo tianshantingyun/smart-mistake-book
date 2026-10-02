@@ -1548,7 +1548,11 @@ internal data class ResolvedPredictionOutcomeCall(
 /** 对齐 `RoomKnowledgeBaseStore.readKnowledgeNodeRelationsForDependents` 的 256 上限。 */
 private const val MAX_DEPENDENT_NODES_PER_QUERY = 256
 
-internal class FakeStudyDatabasePort : StudyDatabasePort {
+/**
+ * KF-32（3B B4）：`open` 供 `BindingChangedReplayDrainerTest` 子类改两处账本读口——
+ * 既有用例的构造与行为不受影响（子类只在那个测试文件里）。
+ */
+internal open class FakeStudyDatabasePort : StudyDatabasePort {
     private val mistakes = MutableStateFlow<List<MistakeRecord>>(emptyList())
     private val learningLedgerHead = MutableStateFlow(0L)
     val knowledgeGroundingSummaries =
@@ -1765,6 +1769,14 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
             snapshot = snapshot,
         )
         learningLedgerHead.value = 0
+    }
+
+    /**
+     * KF-32（3B B4）：把账本分配头抬到某值——重放类用例（drainer × 改绑事件）需要在
+     * "账本有内容"的库上跑，而 [publishDisplacedProjection] 刻意把头压回 0。
+     */
+    internal fun publishLedgerHead(sequence: Long) {
+        learningLedgerHead.value = sequence
     }
 
     /**
@@ -2110,6 +2122,7 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
 
     override suspend fun confirmProblemOrganization(
         command: ConfirmProblemOrganizationCommand,
+        learnerId: String,
     ): ConfirmProblemOrganizationResult =
         error("Organization is outside this study-repository fake")
 
@@ -2850,7 +2863,7 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
         updatedAtEpochMillis: Long,
     ): Int = 0
 
-    override suspend fun loadProjectionBatch(
+    open override suspend fun loadProjectionBatch(
         projectionName: String,
         learnerId: String,
         limit: Int,
@@ -2874,7 +2887,7 @@ internal class FakeStudyDatabasePort : StudyDatabasePort {
      */
     var projectionLedger: List<PersistedLearningLedgerEvent> = emptyList()
 
-    override suspend fun loadLearningLedger(learnerId: String): LearningLedgerRead =
+    open override suspend fun loadLearningLedger(learnerId: String): LearningLedgerRead =
         LearningLedgerRead(
             learnerId = learnerId,
             validPrefix = projectionLedger,

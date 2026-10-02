@@ -12,12 +12,18 @@ import com.tingyun.smartmistakebook.core.database.ProjectionCommitMode
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.KnowledgeNodeSuccessors
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
+import com.tingyun.smartmistakebook.core.domain.PracticeUnitBindingFacts
+import com.tingyun.smartmistakebook.core.domain.derivePracticeUnitBindingAttributions
+import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
+import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
+import com.tingyun.smartmistakebook.core.model.KnowledgeEvidenceAttribution
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshotFreshness
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshotJson
+import com.tingyun.smartmistakebook.core.model.LearningLedgerEvent
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
 import java.time.Clock
@@ -193,6 +199,12 @@ internal class StudyProjectionDrainer(
                 ledger.detail ?: "Full replay blocked at ${ledger.blockedAtSequence}",
             )
         }
+        // KF-32（3B 步骤三）：重放的输入是"账本 + **当前绑定表** + 取代链"三件套——
+        // `BINDING_CHANGED` 事件宣告改绑，但重派生读的是重放时刻的 `practice_unit_knowledge_binding`
+        // 现役集合（upcasting：历史行不动，归属按今天的绑定算）。读一次、整本重放共用同一份。
+        val currentPracticeUnitBindings = onDatabase {
+            readCurrentPracticeUnitBindings(ledger.validPrefix.map { it.event })
+        }
         // W0-1 ③：重放会原地覆盖投影表，被覆盖的那份必须先整份落进 `projection_archive`
         // （`current` 读的是重放前的状态，所以这一行就是"旧投影"）。顺序即机制：先归档再重放，
         // 反过来就只剩新值——而"改数值可回退"正是 Wave 0 要建立的前提。
@@ -203,6 +215,8 @@ internal class StudyProjectionDrainer(
                 learnerId = learnerId,
                 ledger = ledger.validPrefix.map { it.event },
                 knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+                // KF-32：改绑后历史证据按当前绑定重挂（缺项/无绑定的题由投影器退回写时快照）。
+                currentBindingsByPracticeUnit = currentPracticeUnitBindings,
                 // W0-1 ①：跨版本覆盖要在重放入口声明"被替换的那份已经归档"（同版本或空库无需声明）。
                 displacedSnapshot = displacedSnapshot,
                 displacedSnapshotArchived = archived,
@@ -232,6 +246,44 @@ internal class StudyProjectionDrainer(
                     expectedProjectorVersion = LearningProjector.VERSION,
                 ),
             )
+        }
+    }
+
+    /**
+     * KF-32：把账本里出现过的每道题的**当前绑定**读出（题 → 绑定事实）。
+     *
+     * "当前" = 最近一次确认那一批（`readCurrentPracticeUnitKnowledgeBindings`）——不是表里的
+     * 全部行：改绑后被证据引用而保留的旧绑定是审计遗迹（RESTRICT 外键挡住物删），把它算进来
+     * 历史证据会同时挂到新旧两个节点、旧节点永远清不掉。
+     *
+     * 重放自己的 `basisRevisionId` 口径是"该 attempt 快照的 revision"（历史归属锚点），所以这里
+     * 只交事实、不预先造归属——归属由投影器用每个 attempt 自己的 revision 现场派生（与写入期
+     * 同一单源函数 `derivePracticeUnitBindingAttributions`）。注意：映射对每个查询过的题都会放入
+     * 条目（无当前绑定时为空列表），投影器对空列表退回写时快照的 `ifEmpty` 兜底（既有行为逐位不变）。
+     */
+    private suspend fun readCurrentPracticeUnitBindings(
+        ledger: List<LearningLedgerEvent>,
+    ): Map<String, List<PracticeUnitBindingFacts>> {
+        val practiceUnitIds = ledger.mapNotNull { event: LearningLedgerEvent ->
+            when (event) {
+                is Attempt -> event.practiceUnitId
+                is AnswerRevealOutcome -> event.practiceUnitId
+                is TutorAnswerExposureOutcome -> event.practiceUnitId
+                is AttemptCorrection -> null
+                is ChatEvidenceSubmitted -> null
+                is BindingChanged -> null
+            }
+        }.distinct()
+        if (practiceUnitIds.isEmpty()) return emptyMap()
+        return practiceUnitIds.associateWith { practiceUnitId ->
+            database.readCurrentPracticeUnitKnowledgeBindings(practiceUnitId).map { binding ->
+                PracticeUnitBindingFacts(
+                    bindingId = binding.bindingId,
+                    practiceUnitId = binding.practiceUnitId,
+                    knowledgeNodeId = binding.knowledgeNodeId,
+                    taxonomyVersion = binding.taxonomyVersion,
+                )
+            }
         }
     }
 
@@ -272,6 +324,7 @@ internal class StudyProjectionDrainer(
                 is com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome -> EVENT_KIND_ANSWER_REVEAL
                 is TutorAnswerExposureOutcome -> EVENT_KIND_TUTOR_ANSWER_EXPOSURE
                 is ChatEvidenceSubmitted -> EVENT_KIND_CHAT_EVIDENCE
+                is BindingChanged -> EVENT_KIND_BINDING_CHANGED
             },
             eventId = event.ledgerEventId,
             eventSequence = event.eventSequence,
@@ -288,5 +341,7 @@ internal class StudyProjectionDrainer(
         const val EVENT_KIND_ANSWER_REVEAL = "ANSWER_REVEAL_OUTCOME"
         const val EVENT_KIND_TUTOR_ANSWER_EXPOSURE = "TUTOR_ANSWER_EXPOSURE_OUTCOME"
         const val EVENT_KIND_CHAT_EVIDENCE = "CHAT_EVIDENCE_SUBMITTED"
+        /** KF-32 改绑补偿事件：仅全量重放消费（`loadProjectionBatch` 遇它即 FULL_REPLAY_REQUIRED）。 */
+        const val EVENT_KIND_BINDING_CHANGED = "BINDING_CHANGED"
     }
 }

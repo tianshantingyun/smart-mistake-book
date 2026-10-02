@@ -425,7 +425,14 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
 
         val stillInPack = inDatabase.intersect(packMaterialIds)
         if (stillInPack.isNotEmpty()) {
-            val stillBound = dao.readBoundMaterialIds(stillInPack).toHashSet()
+            // 分块与同文件四条批量 DELETE 同口径（W4-4 的分块修复漏了这条 SELECT）：
+            // 包规模（v2 教学支持侧车 5 万+ 材料）越过 SQLite 绑定变量上限时，这条
+            // `IN (…)` 会抛 `SQLITE_ERROR: too many SQL variables`，整包安装失败。
+            // 聚合语义不变：仍是"这些材料里仍有绑定的那些"的并集。
+            val stillBound = stillInPack
+                .chunked(MAX_IN_PARAMETERS)
+                .flatMap { dao.readBoundMaterialIds(it.toSet()) }
+                .toHashSet()
             retired += (stillInPack - stillBound).count { dao.retireMaterial(it) > 0 }
         }
         return retired

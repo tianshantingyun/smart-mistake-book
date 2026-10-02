@@ -337,6 +337,63 @@ class ProblemOrganizationDatabaseInstrumentedTest {
         )
     }
 
+    /**
+     * KF-32：绑定 id 是内容寻址（不含时间），同一份整理被**再次确认**（新 commandId、新
+     * acceptedAt）时 `insertKnowledgeBindings` 的 IGNORE 会让行保留旧 acceptedAt——
+     * 而"当前绑定集合" = 最近一次确认那一批（`accepted_at == MAX(receipt.accepted_at)`），
+     * 不刷新就会在重确认后整批掉出当前集合（证据归属退到 pseudo 桶、界面"当前知识点"空掉）。
+     * 本测试钉住 `touchKnowledgeBindings` 的刷新与"无重复行"。
+     */
+    @Test
+    fun reconfirmingTheSameBindingIdentityRefreshesItIntoTheCurrentSet() = runBlocking {
+        val first = command("reconfirm-first", "1".repeat(64))
+        store.confirmProblemOrganization(first)
+        // 让绑定被证据归因引用 → 第二次确认时 `deleteUnreferencedKnowledgeBindings` 会**保留**
+        // 这一行（RESTRICT 外键 + 不可改写的历史事实）。这正是"旧行不刷新 acceptedAt"的场景：
+        // 若走"未引用 → 删除 → 重新插入"，新行天然带新时间，就测不到刷新这一步。
+        store.saveAssessmentEvidenceSnapshot(evidenceSnapshot(first))
+        val bindingId = store.readPracticeUnitKnowledgeBindings(PRACTICE).single().bindingId
+
+        // 新 commandId、同一份绑定身份（同 binding id）、更新的 acceptedAt。
+        val base = command("reconfirm-second", "5".repeat(64))
+        store.confirmProblemOrganization(
+            base.copy(
+                acceptedAtEpochMillis = RECONFIRM_AT,
+                knowledgeNodes = base.knowledgeNodes.map {
+                    it.copy(createdAtEpochMillis = RECONFIRM_AT)
+                },
+                knowledgeBindings = base.knowledgeBindings.map {
+                    it.copy(acceptedAtEpochMillis = RECONFIRM_AT)
+                },
+                classifications = base.classifications.map {
+                    it.copy(acceptedAtEpochMillis = RECONFIRM_AT)
+                },
+                relations = base.relations.map {
+                    it.copy(
+                        createdAtEpochMillis = RECONFIRM_AT,
+                        updatedAtEpochMillis = RECONFIRM_AT,
+                    )
+                },
+            ),
+        )
+
+        val raw = store.readPracticeUnitKnowledgeBindings(PRACTICE)
+        assertEquals("重确认不得产生重复绑定行", 1, raw.size)
+        assertEquals("绑定身份不变（保留的是同一行）", bindingId, raw.single().bindingId)
+        assertEquals(
+            "被保留的行必须被刷新到本次确认时间",
+            RECONFIRM_AT,
+            raw.single().acceptedAtEpochMillis,
+        )
+        assertEquals(
+            "刷新后仍在当前绑定集合里",
+            setOf(KNOWLEDGE),
+            store.readCurrentPracticeUnitKnowledgeBindings(PRACTICE)
+                .map { it.knowledgeNodeId }
+                .toSet(),
+        )
+    }
+
     @Test
     fun delayedOlderConfirmationCannotRollBackANewerCorrection() = runBlocking {
         store.confirmProblemOrganization(
@@ -641,5 +698,8 @@ class ProblemOrganizationDatabaseInstrumentedTest {
         const val RELATED_REVISION = "revision-related"
         const val RELATED_PRACTICE = "practice-related"
         const val KNOWLEDGE = "knowledge-test"
+
+        /** 第二次确认的时间戳：必须严格晚于 `command()` 的 2_000（回执陈旧性检查）。 */
+        const val RECONFIRM_AT = 4_000L
     }
 }

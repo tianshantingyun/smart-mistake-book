@@ -339,6 +339,30 @@ internal interface ProblemOrganizationDao {
         bindings: List<PracticeUnitKnowledgeBindingEntity>,
     ): List<Long>
 
+    /**
+     * 把命令携带的绑定刷新到本次确认时间（KF-32 的"当前绑定集合"判定依赖它）。
+     *
+     * 绑定 id 是内容寻址（`practiceUnitId|nodeId|revisionId|taxonomy`），**不含时间**——同一份
+     * 整理被再次确认（新 commandId、新 acceptedAt）时 `insertKnowledgeBindings` 的 IGNORE 会让
+     * 行保留**旧** acceptedAt。而"当前绑定集合" = 最近一次确认那一批（`accepted_at == MAX(receipt
+     * .accepted_at)`）：旧行不刷新就会在重确认后掉出当前集合——证据归属会退到 pseudo 桶，
+     * 界面"当前知识点"也会空掉。
+     *
+     * 只刷命令自己携带的 id（≤24，命令上界内，无需分块）：被证据引用而保留的旧绑定不在其中，
+     * 它的旧 acceptedAt 正是"它不是当前绑定"的依据。
+     */
+    @Query(
+        """
+        UPDATE practice_unit_knowledge_binding
+        SET accepted_at_epoch_millis = :acceptedAtEpochMillis
+        WHERE binding_id IN (:bindingIds)
+        """,
+    )
+    suspend fun touchKnowledgeBindings(
+        bindingIds: List<String>,
+        acceptedAtEpochMillis: Long,
+    )
+
     @Query("SELECT * FROM practice_unit_knowledge_binding WHERE binding_id = :id")
     suspend fun readKnowledgeBinding(id: String): PracticeUnitKnowledgeBindingEntity?
 
@@ -367,6 +391,60 @@ internal interface ProblemOrganizationDao {
         """,
     )
     suspend fun readKnowledgeBindingsForPracticeUnit(
+        practiceUnitId: String,
+    ): List<PracticeUnitKnowledgeBindingEntity>
+
+    /**
+     * 一道题的**当前**绑定集合（KF-32 重派生与改绑判定共用）。
+     *
+     * 规则（与 `observeCurrentKnowledgeNodeIds` 的"当前目录"同一口径）：
+     * - 该题**从未被确认过**（`problem_organization_receipt` 无行）→ 全部绑定都算当前
+     *   （M1 时代的库内播种/物化绑定没有回执可依据）；
+     * - 否则只认**最近一次确认那一批**——`accepted_at_epoch_millis == MAX(receipt.accepted_at)`
+     *   （同一命令的所有绑定共享同一个 acceptedAt，见 `validateCommand` 的约束）。
+     *
+     * 为什么不是"表里的全部行"：`deleteUnreferencedKnowledgeBindings` 会**保留**被证据归因引用的
+     * 旧绑定（`assessment_evidence_attribution` 对绑定表是 RESTRICT，物删会直接违反外键；
+     * 归因行又是不可改写的历史事实）。于是改绑后表里同时有"新绑定"和"被保留的旧绑定"——
+     * 旧绑定是审计遗迹，不是当前目录。把它当当前绑定，重放就会把历史证据同时挂到新旧两个
+     * 节点上（旧节点永远清不掉），增量新写的证据也会继续喂旧节点。
+     *
+     * 与 `observeCurrentKnowledgeNodeIds` 的唯一差别：**不要求匹配 KNOWLEDGE 分类**。那条查询
+     * 服务界面"可见 topic"，这里服务证据归属——命令可以只绑 grounded 原子节点
+     * （`boundKnowledgeNodeIds.intersect(visibleTopicNodeIds).isEmpty()` 的合法形态），
+     * 原子绑定本来就没有分类行，按分类过滤会把它们整批丢掉。
+     *
+     * **存量库（v58 及以前）的已知缺口（登记不修，见 version ledger §3.13）**：v58 的 `confirm`
+     * 没有 touch——重确认同一份绑定身份时 IGNORE 保留旧 `accepted_at`，于是"有回执、但没有任何
+     * 行落在 MAX(receipt.accepted_at)"的单元在本口径下读到**空集**（无回退分支）。升级到 v59 后、
+     * 该题下一次确认之前：新写证据退到 pseudo 桶、重放重派生为空而退回写时快照——无数据损坏，
+     * 下次确认（touch 落地）即自愈；迁移**不回填**（应用未发布，真实存量仅开发库）。
+     */
+    @Query(
+        """
+        SELECT * FROM practice_unit_knowledge_binding
+        WHERE practice_unit_id = :practiceUnitId
+          AND (
+              NOT EXISTS (
+                  SELECT 1 FROM problem_organization_receipt AS receipt
+                  WHERE receipt.practice_unit_id =
+                      practice_unit_knowledge_binding.practice_unit_id
+                    AND receipt.problem_revision_id =
+                        practice_unit_knowledge_binding.basis_revision_id
+              )
+              OR accepted_at_epoch_millis = (
+                  SELECT MAX(receipt.accepted_at_epoch_millis)
+                  FROM problem_organization_receipt AS receipt
+                  WHERE receipt.practice_unit_id =
+                      practice_unit_knowledge_binding.practice_unit_id
+                    AND receipt.problem_revision_id =
+                        practice_unit_knowledge_binding.basis_revision_id
+              )
+          )
+        ORDER BY accepted_at_epoch_millis, binding_id
+        """,
+    )
+    suspend fun readCurrentKnowledgeBindingsForPracticeUnit(
         practiceUnitId: String,
     ): List<PracticeUnitKnowledgeBindingEntity>
 
