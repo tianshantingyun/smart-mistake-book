@@ -1486,6 +1486,60 @@ data class ProjectionArchiveRecord(
     val archivedAtEpochMillis: Long,
 )
 
+/**
+ * 一行投影归档的**读回**（W0-1/Q2 回退工具）：比写入请求 [ProjectionArchiveRecord] 多
+ * `archiveId` 与 `schemaDdl`——`schema_ddl` 只存在于库里（写侧在同一事务里现读，
+ * 见 `ProjectionTransactionDao.archiveProjectionSnapshot` 的 KDoc），回退前必须把它读出来，
+ * 才能判断"这份 JSON 能不能原样写回现在的表"（`docs/research/kernel-projection-rollback.md` §4 第 3 步）。
+ */
+data class PersistedProjectionArchive(
+    val archiveId: Long,
+    val projectionName: String,
+    val learnerId: String,
+    val archivedAtEpochMillis: Long,
+    val snapshotJson: String,
+    val projectorVersion: String,
+    val schemaDdl: String,
+)
+
+/**
+ * 恢复被拒的机器可判原因（`ProjectionRestoreRejectedException.reason`）。
+ *
+ * 全部都是"进去就能判、判完不写一行"的拒绝：调用方看 reason 就知道是哪一道门拦下的，
+ * 不需要解析 message。
+ *
+ * 顺序上分三段：**有没有可恢复的东西**（[NO_ARCHIVE]）→ **这份归档可信吗**
+ * （[VERSION_MISMATCH] / [MALFORMED_ARCHIVE] / [RESTORED_AT_IN_PAST]）→
+ * **写回去安全吗**（[CHECKPOINT_AHEAD] / [PRESENTATION_AHEAD] / [SCHEMA_MISMATCH]）。
+ */
+enum class ProjectionRestoreRejection {
+    /** 该 learner 一份归档都没有——没有可恢复的东西。 */
+    NO_ARCHIVE,
+
+    /** 归档的投影版本与当前二进制的期望版本不一致（跨版本恢复的版本陷阱，见端口 KDoc）。 */
+    VERSION_MISMATCH,
+
+    /** 归档 JSON 解不回（形状不认识 / 子类型 init 校验失败）——坏归档不许写回。 */
+    MALFORMED_ARCHIVE,
+
+    /** 恢复时刻早于目标归档行的归档时刻——时间倒挂会让"最近一份"不前进，连续回退原地打转。 */
+    RESTORED_AT_IN_PAST,
+
+    /** 归档的 checkpoint 超前当前账本头——写回去下一次排空会静默跳过后续事件。 */
+    CHECKPOINT_AHEAD,
+
+    /**
+     * 恢复目标早于既有呈现事实（`presentation_projection_state` 的
+     * `terminal_event_sequence > 归档 checkpoint`）。增量排空以**未回滚的呈现行**为权威，
+     * 会把"揭示序号 ≤ 水位"的构造前置条件打破——工具不静默回滚呈现态（没有历史版本，
+     * 无法精确退到 checkpoint 当时的呈现态），改为显式拒绝。
+     */
+    PRESENTATION_AHEAD,
+
+    /** 归档时记下的投影表 DDL 与现库不一致——这份 JSON 不能原样写回现在的表。 */
+    SCHEMA_MISMATCH,
+}
+
 data class ReviewPlanBundle(
     val plan: ReviewPlanRecord,
     val queue: List<ReviewQueueItemRecord>,

@@ -59,6 +59,19 @@ class ProblemOrganizationAuthorityConflictException(problemRevisionId: String) :
 
 class ProjectionCasConflictException(message: String) : IllegalStateException(message)
 
+/**
+ * 归档恢复被拒（W0-1/Q2 回退工具，`docs/research/kernel-projection-rollback.md`）。
+ *
+ * 拒绝是显式异常而不是 `null`/空快照：对调用方来说"没恢复"与"恢复成一份空/错的投影"
+ * 是两件完全不同的事，后者会把一次拒绝伪装成一次成功的回退。原因见 [reason]；
+ * [cause] 只在"拒绝是因为底层抛出"时携带（如 JSON 解码失败）。
+ */
+class ProjectionRestoreRejectedException(
+    val reason: ProjectionRestoreRejection,
+    message: String,
+    cause: Throwable? = null,
+) : IllegalStateException(message, cause)
+
 class LearningLedgerIntegrityException(message: String) : IllegalStateException(message)
 
 class ProblemDraftEditWorkspaceConflictException(message: String) : IllegalStateException(message)

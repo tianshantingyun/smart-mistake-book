@@ -24,6 +24,7 @@ import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
 import com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent
 import com.tingyun.smartmistakebook.core.database.PersistedIncrementalLearningEvent
+import com.tingyun.smartmistakebook.core.database.PersistedProjectionArchive
 import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionBatchStopReason
 import com.tingyun.smartmistakebook.core.database.ProjectionCasConflictException
@@ -84,6 +85,7 @@ import com.tingyun.smartmistakebook.core.database.entity.LearnerProblemMemorySta
 import com.tingyun.smartmistakebook.core.database.entity.LearnerProjectionSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.entity.LearningSequenceEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProjectionArchiveEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.database.entity.PresentationProjectionStateEntity
 import kotlinx.coroutines.flow.Flow
@@ -666,3 +668,17 @@ internal fun LearnerProjectionSnapshotEntity.toPersistedSnapshot(
         snapshot = snapshot,
     )
 }
+
+/**
+ * 归档行的读回映射（W0-1/Q2 回退工具）：列 → 记录一一对应，`schemaDdl` 原样带出——
+ * 恢复前的兼容比对读的就是它（比对口径见 `ProjectionTransactionDao.readProjectionTablesDdl`）。
+ */
+internal fun ProjectionArchiveEntity.toPersistedArchive() = PersistedProjectionArchive(
+    archiveId = archiveId,
+    projectionName = projectionName,
+    learnerId = learnerId,
+    archivedAtEpochMillis = archivedAtEpochMillis,
+    snapshotJson = snapshotJson,
+    projectorVersion = projectorVersion,
+    schemaDdl = schemaDdl,
+)

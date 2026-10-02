@@ -43,6 +43,11 @@ dependencies {
     // 批次 2 / 规格 §4.2：仪器化夹具把「当前投影版本」绑到 `LearningProjector.VERSION`
     // （消灭陈旧占位 v6/v7——与真实当前版脱钩且无测试钉住）。只进测试类路径，生产依赖不变。
     androidTestImplementation(project(":core:domain"))
+    // B6 回退演练（`ProjectionRollbackDrillInstrumentedTest`）：归档行的**生产者**是全量重放的
+    // drainer（`StudyProjectionDrainer`，internal 于 core:data）——演练要「真实重放产生归档」，
+    // 所以经公开的 `RoomBackedStudyExperienceRepository` 驱动那个真实 drainer。同样只进测试
+    // 类路径；生产源码集的依赖方向（core:database 不依赖 core:data）不受影响。
+    androidTestImplementation(project(":core:data"))
 }
 
 room3 {

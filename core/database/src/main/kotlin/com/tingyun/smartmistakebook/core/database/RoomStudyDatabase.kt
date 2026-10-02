@@ -45,6 +45,9 @@ internal class RoomStudyDatabase(
     private val backupSupport = RoomBackupSupportStore(database)
     private val studentModel = RoomStudentModelStore(database)
     private val pendingCaptures = RoomPendingCaptureStore(database)
+
+    /** W0-1/Q2 回退工具：归档读回 + 专用恢复路径（版本/schema/无归档三道拒绝在进事务前判）。 */
+    private val projectionArchive = RoomProjectionArchiveStore(database)
     override fun observeMistakes(): Flow<List<MistakeRecord>> =
         database.problemDao().observeActiveMistakes().map { rows -> rows.map(MistakeRow::toRecord) }
 
@@ -1410,6 +1413,24 @@ internal class RoomStudyDatabase(
 
     override suspend fun archiveProjectionSnapshot(record: ProjectionArchiveRecord) =
         database.projectionTransactionDao().archiveProjectionSnapshot(record)
+
+    override suspend fun readLatestArchivedProjection(
+        projectionName: String,
+        learnerId: String,
+    ): PersistedProjectionArchive? =
+        projectionArchive.readLatestArchivedProjection(projectionName, learnerId)
+
+    override suspend fun restoreArchivedProjection(
+        projectionName: String,
+        learnerId: String,
+        expectedProjectorVersion: String,
+        restoredAtEpochMillis: Long,
+    ): PersistedLearnerSnapshot = projectionArchive.restoreArchivedProjection(
+        projectionName = projectionName,
+        learnerId = learnerId,
+        expectedProjectorVersion = expectedProjectorVersion,
+        restoredAtEpochMillis = restoredAtEpochMillis,
+    )
 
     override suspend fun saveReviewPlan(bundle: ReviewPlanBundle) {
         DatabaseContractValidator.validateReviewBundle(bundle)

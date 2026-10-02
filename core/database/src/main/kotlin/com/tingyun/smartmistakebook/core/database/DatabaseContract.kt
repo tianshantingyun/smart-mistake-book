@@ -755,6 +755,24 @@ internal object DatabaseContractValidator {
     }
 
     /**
+     * 归档恢复请求的形状（W0-1/Q2 回退工具）：与归档写入同一套 id 口径，外加**显式**期望版本。
+     *
+     * 期望版本不给默认值、由调用方声明——与 [ProjectionCommit.expectedProjectorVersion] 同一姿态：
+     * 恢复的版本判定是"当前二进制说这份归档归不归它管"，默认值会让这道判定被无声跳过。
+     */
+    fun validateProjectionRestoreRequest(
+        projectionName: String,
+        learnerId: String,
+        expectedProjectorVersion: String,
+        restoredAtEpochMillis: Long,
+    ) {
+        id(projectionName, "projectionName")
+        id(learnerId, "learnerId")
+        id(expectedProjectorVersion, "expectedProjectorVersion")
+        nonNegative(restoredAtEpochMillis, "restoredAtEpochMillis")
+    }
+
+    /**
      * KF-32 改绑补偿事件的写形状（`RoomProblemOrganizationStore.confirm` → `BindingChangeDao`）：
      * 身份、题、变更前后节点集合与时间。集合必须已排序去重，且"有变化"是事件的语义前提
      * （无变化不落事件，验收要求"无改绑不触发重放"）。

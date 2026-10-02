@@ -99,6 +99,7 @@ import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealP0
 import com.tingyun.smartmistakebook.core.database.PersistedAttemptP0
 import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
+import com.tingyun.smartmistakebook.core.database.PersistedProjectionArchive
 import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionBatchStopReason
 import com.tingyun.smartmistakebook.core.database.ProjectionCommit
@@ -3103,6 +3104,28 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         projectionWriteOrder += "archive"
         archivedProjectionSnapshots += record
     }
+
+    /**
+     * W0-1/Q2 回退工具：假库不承载归档读回/恢复（本模块 JVM 用例不演练回退链路，
+     * 真实演练在 `:core:database` 的 `ProjectionRollbackDrillInstrumentedTest`）。
+     * 显式不实现而不是静默返回空——静默返回 null 会让"没归档"与"没接线"混为一谈。
+     */
+    override suspend fun readLatestArchivedProjection(
+        projectionName: String,
+        learnerId: String,
+    ): PersistedProjectionArchive? = unsupportedProjectionArchive()
+
+    override suspend fun restoreArchivedProjection(
+        projectionName: String,
+        learnerId: String,
+        expectedProjectorVersion: String,
+        restoredAtEpochMillis: Long,
+    ): PersistedLearnerSnapshot = unsupportedProjectionArchive()
+
+    private fun unsupportedProjectionArchive(): Nothing =
+        throw UnsupportedOperationException(
+            "Projection archive restore is exercised by the :core:database instrumented drill",
+        )
 
     override suspend fun saveReviewPlan(bundle: ReviewPlanBundle) {
         val session = latestSessions[bundle.plan.reviewPlanId]

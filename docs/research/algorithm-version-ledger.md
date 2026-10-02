@@ -187,6 +187,17 @@
 > 复核登记（2026-10-03，非本批引入）：`toTutorToolRequestsOutput`（native tool_calls 路由）不解析
 > `extendedResult`，MASTERY_READ 扩展预算实际只在 json_object 路由生效——既有缺陷，登记 KD-30。
 
+### 3.15 阶段 3B 步骤三 · 回退工具化与演练（2026-10-03，批次 B6）：零算法 bump
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `LearningCoreVersions` 全部串**未 bump**（复合串维持 `learning-core-v12`）；零 schema/迁移/版本串变动 | ①**archive 读回**：`PersistedProjectionArchive` + DAO/端口 `readLatestArchivedProjection`（`archived_at DESC, archive_id DESC`）；②**专用恢复路径** `restoreArchivedProjection`（runbook §4 的工具版）：**8 道判定全在写之前**——形状 / `NO_ARCHIVE` / 版本列 / `MALFORMED_ARCHIVE`（坏载荷）/ 载荷版本 / `RESTORED_AT_IN_PAST`（恢复时刻单调，防"连续回退原地打转"）/ `CHECKPOINT_AHEAD`（防篡改归档令增量静默跳过事件）/ `PRESENTATION_AHEAD`（恢复目标早于现存呈现终局——增量排空把未回滚呈现行读成权威，显式拒绝而非楔死；无历史版本可精确回滚呈现态）；通过后"**覆盖前归档**"（回退本身可逆）→ **单事务**重建 8 张表（`applyProjectionTables` 7 张 + 头部；`presentation_projection_state` 不在归档 JSON 内、不触碰），`state_version` = 当前+1，`checkpoint`/`known_ledger_head`/`projector_version` 与归档逐字一致；**不复用** `commitProjection`（防降级门按设计拒旧版本）；③`schema_ddl` **单源** `projectionTablesDdl()`——归档写入与恢复比对同函数。 | 零 bump 证明：恢复是**维护面**（把归档原样写回），不改任何投影/计划公式；对固定账本，"恢复 + 重排空"与归档时逐位一致（演练实测）；恢复无生产调用点，期望版本由调用层显式传入（`core:database` 按依赖方向看不到 `LearningProjector.VERSION`） | 计划 `docs/research/2026-10-02-stage3b-plan.md` §3 步骤三第 4 条（用户裁"工具化 + 演练"）；`docs/research/kernel-projection-rollback.md` §4；复核 2026-10-03 | 演练仪器化（真 Room + 真 drainer，冷启模拟器）：`ProjectionRollbackDrillInstrumentedTest` **9/0/0**（主链逐位一致 + 归档只增 0→1→2→3 + 4 类拒绝 + 3 守卫 + 呈现态超前拒绝）；`:core:database` 全量仪器化 **200/0/0**（性能门 6/0 冷启严格口径、矩阵 1→59 6/0）；JVM `:core:domain` 550 / `:core:model` 394 / `:core:data` 604 / `:core:database` 121 全 0；记录 `docs/research/2026-10-03-projection-rollback-drill.md`（§4 逐步映射 + 实测原始输出 + 只增裁定与复看触发点） | ✅ 归档表只增；恢复不改归档行 |
+
+> 复核整改（2026-10-03，B6 修复轮；独立复核 approve-with-notes、P1 全处置）：P1「呈现态不随恢复回滚」的文档过度声明
+> 已订正（重派生**仅全量重放路径**；增量路径以未回滚呈现行为权威 → 早于现存终局即**显式拒绝**）；三守卫
+> （`CHECKPOINT_AHEAD` / `RESTORED_AT_IN_PAST` / `MALFORMED_ARCHIVE`）与文档口径（drill §4-4/§4-5、runbook §4-4）全处置。
+> 未做反向实证（无守卫时的楔死形态未直接复现，依据为 `PresentationProjectionState` 的 require 链 + 新用例在真实构造上触发）——已登记 UNVERIFIED。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

@@ -25,6 +25,7 @@ import com.tingyun.smartmistakebook.core.database.PersistedCorrectionP0
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
 import com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent
 import com.tingyun.smartmistakebook.core.database.PersistedIncrementalLearningEvent
+import com.tingyun.smartmistakebook.core.database.PersistedProjectionArchive
 import com.tingyun.smartmistakebook.core.database.ProjectionArchiveRecord
 import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionBatchStopReason
@@ -1688,6 +1689,14 @@ internal abstract class ProjectionTransactionDao {
     protected abstract suspend fun findTableDdl(tableNames: List<String>): List<String>
 
     /**
+     * 归档写入时 `schema_ddl` 的构造口径——**唯一**一份：写入（[archiveProjectionSnapshot]）
+     * 与恢复比对（[readProjectionTablesDdl]）都走它。口径一旦分叉（某一边改了表清单或连接符），
+     * 比对就会对着两个不同问题报"一致"，而那正是回退前唯一一道防"JSON 带不上现在的列"的门。
+     */
+    private suspend fun projectionTablesDdl(): String =
+        findTableDdl(PROJECTION_ARCHIVE_TABLES).joinToString("\n\n")
+
+    /**
      * 归档一份投影（内核修复路线图 W0-1/Q2 ③）：把**即将被重放覆盖**的那份存储投影整份留下。
      *
      * 写入时机是 `StudyProjectionDrainer.commitFullReplay` 里、调用 `LearningProjector.replay`
@@ -1707,9 +1716,150 @@ internal abstract class ProjectionTransactionDao {
                     archivedAtEpochMillis = record.archivedAtEpochMillis,
                     snapshotJson = record.snapshotJson,
                     projectorVersion = record.projectorVersion,
-                    schemaDdl = findTableDdl(PROJECTION_ARCHIVE_TABLES).joinToString("\n\n"),
+                    schemaDdl = projectionTablesDdl(),
                 ),
             ),
+        )
+    }
+
+    @Query(
+        """
+        SELECT * FROM projection_archive
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+        ORDER BY archived_at_epoch_millis DESC, archive_id DESC
+        LIMIT 1
+        """,
+    )
+    protected abstract suspend fun findLatestArchive(
+        projectionName: String,
+        learnerId: String,
+    ): ProjectionArchiveEntity?
+
+    /**
+     * 读回最近一份归档投影（W0-1/Q2 回退工具，`docs/research/kernel-projection-rollback.md`
+     * §4 第 1 步的机器版）。
+     *
+     * "最近" = `archived_at_epoch_millis DESC, archive_id DESC`：同一毫秒内先后落的两行，
+     * 后写的那份才算最近——`archive_id` 是自增主键，写序即归档序。
+     */
+    @Transaction
+    open suspend fun readLatestArchivedProjection(
+        projectionName: String,
+        learnerId: String,
+    ): PersistedProjectionArchive? {
+        DatabaseContractValidator.validateProjectionRequest(projectionName, learnerId, 1)
+        return findLatestArchive(projectionName, learnerId)?.toPersistedArchive()
+    }
+
+    /**
+     * 现读投影 9 表 DDL，口径与归档写入逐字相同（[projectionTablesDdl]）。
+     * 恢复前的兼容比对就是"这一份 == 归档行里的 `schema_ddl`"。
+     */
+    @Transaction
+    open suspend fun readProjectionTablesDdl(): String = projectionTablesDdl()
+
+    /** 该 learner 当前账本头（未分配过则 0）。恢复前用它挡"checkpoint 超头"的归档。 */
+    @Transaction
+    open suspend fun readLearnerLedgerHead(learnerId: String): Long =
+        lastAllocatedSequence(learnerId) ?: 0L
+
+    @Query(
+        """
+        SELECT MAX(terminal_event_sequence) FROM presentation_projection_state
+        WHERE projection_name = :projectionName AND learner_id = :learnerId
+        """,
+    )
+    protected abstract suspend fun findMaxPresentationTerminalSequence(
+        projectionName: String,
+        learnerId: String,
+    ): Long?
+
+    /**
+     * 该投影里**最靠后的呈现事实**（终局揭示的账本序号；无终局行时 null）。
+     *
+     * 恢复前用它挡"目标 checkpoint 早于既有呈现事实"：增量排空把现存呈现行按恢复后的
+     * checkpoint 读成权威（`batchStop` → `PresentationProjectionState` 的
+     * "揭示序号 ≤ 水位"前置条件），目标早于任何 `terminal_event_sequence` 时下一次
+     * **增量**排空会直接构造失败。
+     */
+    @Transaction
+    open suspend fun readMaxPresentationTerminalSequence(
+        projectionName: String,
+        learnerId: String,
+    ): Long? = findMaxPresentationTerminalSequence(projectionName, learnerId)
+
+    /**
+     * 把一份解码好的归档快照**整体写回为当前投影**（回退工具，runbook §4 第 4 步）。
+     *
+     * **刻意不复用 [commitProjection]**：提交路径带着两道"当前二进制"的门（版本断言 + CAS），
+     * 而回退写入的正是**被归档的那份旧投影**——它的语义就是"把归档原样换回来"，版本与
+     * schema 的判定由调用层在**进入本事务之前**做完（`RoomProjectionArchiveStore`）。
+     *
+     * 单事务：头部覆盖 + 7 张投影表重建（[applyProjectionTables]：`learner_problem_memory_state`、
+     * `learner_knowledge_mastery_state`、`independent_correct_observation`、
+     * `applied_attempt_record`、`applied_correction_record`、`applied_answer_reveal_record`、
+     * `applied_tutor_answer_exposure_record`）一起提交或一起回滚。
+     * `presentation_projection_state` **不在归档 JSON 内**（呈现态是账本派生态，
+     * 刻意不进 `LearnerSnapshot`，见该模型的 KDoc），本事务不触碰它。
+     *
+     * `state_version` 从**当前**头部递增（归档行不存旧 state_version，它只存快照本体），
+     * 所以恢复出来的不是"同一份投影的重复提交"，而是一次新的投影状态。
+     * 现头部不存在时按 `state_version = 1` 建档（归档行还在说明曾经有过投影；这种
+     * "只剩归档"的空槽位恢复仍然成立，而不是留一堆写不进子表的孤儿行）。
+     */
+    @Transaction
+    open suspend fun restoreProjectionSnapshot(
+        projectionName: String,
+        learnerId: String,
+        snapshot: LearnerSnapshot,
+    ): PersistedLearnerSnapshot {
+        // id 形状已由调用层校验（DatabaseContractValidator.validateProjectionRestoreRequest）；
+        // 这里只守"载荷与请求是同一个 learner"——不一致会被子表外键挡住并回滚，但报错将指向
+        // 外键而不是真正的错处。
+        require(snapshot.learnerId == learnerId) {
+            "Archived snapshot learner ${snapshot.learnerId} differs from restore learner $learnerId"
+        }
+        val existing = findHeader(projectionName, learnerId)
+        val newStateVersion = (existing?.stateVersion ?: 0L) + 1
+        val header = snapshot.toEntity(
+            projectionName = projectionName,
+            stateVersion = newStateVersion,
+            // 与 runbook §4 第 4 步同口径：checkpoint / known_ledger_head / projector_version
+            // 与归档**逐字一致**——回退要把那份投影的"当时的账本位置"一起带回来。
+            knownLedgerHeadSequence = snapshot.knownLedgerHeadSequence,
+        )
+        if (existing == null) {
+            insertHeader(header)
+        } else if (compareAndSetHeader(
+                projectionName = projectionName,
+                learnerId = learnerId,
+                // 期望值就是本事务刚读到的当前值：CAS 在这里不是并发门（同一事务内无人插入），
+                // 而是复用唯一的头部改写语句——回退头部与提交头部保持同一份列清单。
+                expectedCheckpoint = existing.checkpointSequence,
+                expectedStateVersion = existing.stateVersion,
+                newStateVersion = newStateVersion,
+                checkpointSequence = header.checkpointSequence,
+                knownLedgerHeadSequence = header.knownLedgerHeadSequence,
+                projectorVersion = header.projectorVersion,
+                projectedAtEpochMillis = header.projectedAtEpochMillis,
+                generatedAtEpochMillis = header.generatedAtEpochMillis,
+                correctionWatermarkEpochMillis = header.correctionWatermarkEpochMillis,
+                freshness = header.freshness,
+                projectionStatus = header.projectionStatus,
+            ) != 1
+        ) {
+            throw ProjectionCasConflictException("Projection header disappeared during restore")
+        }
+        applyProjectionTables(
+            projectionName = projectionName,
+            learnerId = learnerId,
+            snapshot = snapshot,
+        )
+        return PersistedLearnerSnapshot(
+            projectionName = projectionName,
+            stateVersion = newStateVersion,
+            knownLedgerHeadSequence = snapshot.knownLedgerHeadSequence,
+            snapshot = snapshot,
         )
     }
 }

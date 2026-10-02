@@ -537,6 +537,16 @@ private abstract class LedgerOnlyProjectionTransactionDao : ProjectionTransactio
 
     override suspend fun findTableDdl(tableNames: List<String>): List<String> = notExercised()
 
+    override suspend fun findLatestArchive(
+        projectionName: String,
+        learnerId: String,
+    ): ProjectionArchiveEntity? = notExercised()
+
+    override suspend fun findMaxPresentationTerminalSequence(
+        projectionName: String,
+        learnerId: String,
+    ): Long? = notExercised()
+
     private fun notExercised(): Nothing =
         error("LearningLedgerChunkReadTest only exercises the ledger read path")
 

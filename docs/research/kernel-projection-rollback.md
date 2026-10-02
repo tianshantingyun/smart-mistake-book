@@ -25,6 +25,11 @@ Wave 0 落了三件事：
 **本波没有实现回退工具**（诚实说明）：下面第 4 节是**手工流程**，工具化排在后续波次
 （roadmap S 组 / 3B 的投影存储口径）。在此之前，回退靠 SQL + 一次性脚本，必须按本流程走。
 
+> 工具化已落地（2026-10-03，3B 批次 B6）：`readLatestArchivedProjection` +
+> `restoreArchivedProjection`（端口 `LearningProjectionPort`），本节 §4 每一步的自动化映射与演练实测见
+> `docs/research/2026-10-03-projection-rollback-drill.md`；本文手工流程保留为口径参考（§4-2 的执行方式
+> 已被工具收编，见演练记录 §1.1）。
+
 ## 2. 什么时候用它
 
 - 某次算法 bump 之后数值明显不对（掌握度过低/过高、复习间隔离谱），要回到 bump 前的投影；
@@ -84,7 +89,10 @@ ON `projection_archive` (`projection_name`, `learner_id`, `archived_at_epoch_mil
    - `LearnerSnapshotJson.decode(row.snapshot_json)` 得到 `LearnerSnapshot`；
    - 删子表 → 写回 `learner_projection_snapshot` 头部（`state_version` 递增，别复用旧值）
      → 写回 `learner_problem_memory_state` / `learner_knowledge_mastery_state` /
-     `independent_correct_observation` / `applied_*_record` / `presentation_projection_state`；
+     `independent_correct_observation` / `applied_*_record`；
+   - `presentation_projection_state` **不在归档 JSON 里**（呈现态不进 `LearnerSnapshot`），
+     本步不动它：若目标 checkpoint 早于任何现存终局揭示，增量排空会以未回滚的呈现行为权威，
+     所以这类目标必须**拒绝**而不是硬写（工具口径见演练记录 §4-4）；
    - 保持 `checkpoint_sequence` / `known_ledger_head_sequence` / `projector_version` 与归档一致。
 
 5. **重新 drain**：启动应用（或调用排空路径）。排空会读账本、按当前二进制版本判断是否需要
