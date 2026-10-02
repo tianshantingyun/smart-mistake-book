@@ -178,9 +178,6 @@ internal abstract class ProjectionTransactionDao {
     // S5（重放路径批量读）：下面这组 IN 批查询把账本逐行的 2-3 次取数压成每块每表一次。
     // 调用方（readLedgerChunk）保证列表非空且长度 ≤ LEDGER_READ_CHUNK_SIZE。
 
-    // S5（重放路径批量读）：下面这组 IN 批查询把账本逐行的 2-3 次取数压成每块每表一次。
-    // 调用方（readLedgerChunk）保证列表非空且长度 ≤ LEDGER_READ_CHUNK_SIZE。
-
     @Query("SELECT * FROM attempt_event WHERE attempt_id IN (:attemptIds)")
     protected abstract suspend fun findAttemptsByIds(attemptIds: List<String>): List<AttemptEventEntity>
 
@@ -679,22 +676,29 @@ internal abstract class ProjectionTransactionDao {
      *   O(块数)；
      * - **事务外分块**：块循环（[readLedgerChunk] 的调用）在事务之外，每块一个短事务——
      *   5 万行的账本不再把整本塞进一个长事务，内存峰值与锁持有时间都降到一块；
-     * - **语义不变**：outbox 是只增不改的追加日志，块读仍是按 `outbox_sequence` 升序的有效前缀；
-     *   每行的身份三连（learner/sequence/指纹列）与载荷 SHA-256 校验与旧实现逐字相同，
-     *   首个坏行的 GAP/CONFLICT 判定、尾部 `lastAllocatedSequence` 的完整性检查也原样保留。
+     * - **语义不变（含并发追写）**：完整性判定用的 `last_allocated_sequence` 与它要覆盖的那一块行
+     *   读自**同一个事务快照**（[readLedgerChunk] 内读，见那里的注释）——旧实现是"整本行 + 分配头
+     *   同一事务"，本实现是"最后一块行 + 分配头同一事务"，两者在并发写入者追加时的判定相同：
+     *   要么追写行与前进的分配头一起可见（进前缀/继续读），要么都不可见（前缀停在旧头，交由提交侧
+     *   的 STALE 路径处理），不会把"块读之后提交的追写"误报成"已分配但没有账本行"的假 GAP；
+     * - 每行的身份三连（learner/sequence/指纹列）与载荷 SHA-256 校验与旧实现逐字相同，首个坏行的
+     *   GAP/CONFLICT 判定原样保留。
      */
     open suspend fun loadLearningLedger(learnerId: String): LearningLedgerRead {
         DatabaseContractValidator.validateLedgerRequest(learnerId)
         val prefix = mutableListOf<PersistedLearningLedgerEvent>()
         var expected = 1L
+        var allocated = 0L
         while (true) {
             val chunk = readLedgerChunk(
                 learnerId = learnerId,
                 afterSequence = expected - 1,
                 limit = LEDGER_READ_CHUNK_SIZE,
             )
-            if (chunk.isEmpty()) break
-            for (resolved in chunk) {
+            // 分配头取自与 chunk.rows 同一个事务快照：尾部判定不能用事务外的单读（那会把并发
+            // 追写误报成 GAP，见本函数口径注释）。
+            allocated = chunk.allocatedSequence
+            for (resolved in chunk.rows) {
                 val row = resolved.outbox
                 if (row.outboxSequence != expected) {
                     return LearningLedgerRead(
@@ -718,9 +722,8 @@ internal abstract class ProjectionTransactionDao {
                 prefix += PersistedLearningLedgerEvent(event, row.canonicalFingerprint)
                 expected++
             }
-            if (chunk.size < LEDGER_READ_CHUNK_SIZE) break
+            if (chunk.rows.size < LEDGER_READ_CHUNK_SIZE) break
         }
-        val allocated = lastAllocatedSequence(learnerId) ?: 0L
         return if (allocated == expected - 1) {
             LearningLedgerRead(learnerId, prefix, LearningLedgerReadStatus.COMPLETE)
         } else {
@@ -738,15 +741,23 @@ internal abstract class ProjectionTransactionDao {
      * 一个读块的短事务：取一块 outbox 行，并按表批量取回它们的载荷
      * （见 [loadLearningLedger] 的口径注释）。载荷身份/指纹校验与单行读共用同一组
      * [resolveXxx] 核心函数，判定逐位相同。
+     *
+     * **分配头与行必须同一快照**：`last_allocated_sequence` 在这里读、与 [findOutboxAfter] 同属一个
+     * `@Transaction`，所以"分配头前进"与"该行已在本块可见"要么同时成立、要么同时不成立。
+     * 第一版实现把尾部头读放在块循环之外单读（无事务），并发写入者（如 chat 证据写入，
+     * 不与 study 仓库共享互斥）在"最后一块读之后、尾部头读之前"提交时，会得到
+     * `allocated > expected - 1` 而该行其实存在——假 GAP 会把 `StudyProjectionDrainer` 打成
+     * 完整性异常。同一快照内读消除该中间态：真洞（分配头覆盖的序列确实无行）仍会被同一判定捕获。
      */
     @Transaction
     protected open suspend fun readLedgerChunk(
         learnerId: String,
         afterSequence: Long,
         limit: Int,
-    ): List<LedgerChunkRow> {
+    ): LedgerChunk {
         val rows = findOutboxAfter(learnerId, afterSequence, limit)
-        if (rows.isEmpty()) return emptyList()
+        val allocated = lastAllocatedSequence(learnerId) ?: 0L
+        if (rows.isEmpty()) return LedgerChunk(rows = emptyList(), allocatedSequence = allocated)
         val attemptIds = rows.filter { it.eventKind == EVENT_KIND_ATTEMPT }.map { it.eventId }
         val correctionIds = rows.filter { it.eventKind == EVENT_KIND_CORRECTION }.map { it.eventId }
         val revealIds = rows.filter { it.eventKind == EVENT_KIND_ANSWER_REVEAL }.map { it.eventId }
@@ -794,7 +805,7 @@ internal abstract class ProjectionTransactionDao {
             findAttributionsBySnapshotIds(snapshotIds)
                 .groupBy(AssessmentEvidenceAttributionEntity::snapshotId)
         }
-        return rows.map { row ->
+        val resolvedRows = rows.map { row ->
             val event = when (row.eventKind) {
                 EVENT_KIND_ATTEMPT -> {
                     val payload = attempts[row.eventId]
@@ -828,6 +839,7 @@ internal abstract class ProjectionTransactionDao {
             }
             LedgerChunkRow(outbox = row, event = event)
         }
+        return LedgerChunk(rows = resolvedRows, allocatedSequence = allocated)
     }
 
     @Transaction
@@ -1661,6 +1673,16 @@ internal abstract class ProjectionTransactionDao {
 internal data class LedgerChunkRow(
     val outbox: ProjectionOutboxEntity,
     val event: LearningLedgerEvent?,
+)
+
+/**
+ * S5：一个读块（一个短事务的产物）。[allocatedSequence] 与 [rows] 读自**同一事务快照**——
+ * `loadLearningLedger` 的完整性判定必须用同一快照的头，否则并发追写会被误报成 GAP
+ * （见 `ProjectionTransactionDao.readLedgerChunk` 的口径注释）。
+ */
+internal data class LedgerChunk(
+    val rows: List<LedgerChunkRow>,
+    val allocatedSequence: Long,
 )
 
 /**
