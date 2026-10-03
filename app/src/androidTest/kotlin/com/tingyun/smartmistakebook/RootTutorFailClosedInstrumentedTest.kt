@@ -248,6 +248,16 @@ class RootTutorFailClosedInstrumentedTest {
         composeRule.onAllNodesWithTag("library_search_field").assertCountEquals(0)
         composeRule.onAllNodesWithText(TUTOR_TITLE, substring = false).assertCountEquals(0)
 
+        // L6：空态入口与列表入口同指唯一的录入入口，方式选择（含整卷/PDF）可达。
+        // 这条空态入口是"四类入口同指"里的第二类（第一类是列表非空态的主按钮）。
+        composeRule.onNodeWithTag("library_capture_button").performScrollTo().performClick()
+        waitForTag("capture_screen")
+        waitForTag("capture_mode_chooser")
+        waitForTag("capture_mode_files")
+        composeRule.onNodeWithTag("capture_back_button").performClick()
+        waitForTag("root_library")
+        composeRule.onAllNodesWithTag("library_capture_button").assertCountEquals(1)
+
         composeRule.onNodeWithTag("nav_profile").performClick()
         waitForTag("root_profile")
         composeRule.onAllNodesWithText("当前学习情况").assertCountEquals(0)

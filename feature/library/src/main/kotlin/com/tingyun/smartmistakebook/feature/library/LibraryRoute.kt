@@ -21,8 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Collections
-import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.LibraryAdd
 import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SearchOff
@@ -79,7 +78,6 @@ fun LibraryRoute(
     catalogRepository: LibraryCatalogRepository? = null,
     mistakeDetailRepository: MistakeDetailRepository? = null,
     onCapture: () -> Unit,
-    onBatchImport: () -> Unit,
     onExportVisible: (List<String>) -> Unit,
     onOpenItem: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -101,7 +99,6 @@ fun LibraryRoute(
         usePaging = catalogRepository != null,
         mistakeDetailRepository = mistakeDetailRepository,
         onCapture = onCapture,
-        onBatchImport = onBatchImport,
         onExportVisible = onExportVisible,
         onOpenItem = onOpenItem,
         viewModel = libraryViewModel,
@@ -115,7 +112,6 @@ private fun LibraryContent(
     usePaging: Boolean,
     mistakeDetailRepository: MistakeDetailRepository?,
     onCapture: () -> Unit,
-    onBatchImport: () -> Unit,
     onExportVisible: (List<String>) -> Unit,
     onOpenItem: (String) -> Unit,
     viewModel: LibraryViewModel,
@@ -158,18 +154,18 @@ private fun LibraryContent(
                     )
                 } else {
                     Spacer(Modifier.height(12.dp))
+                    // 只有一个「录入」动作（L6）：拍照、相册、整卷/PDF 都在录入里选，
+                    // 错题本栏不再有第二个并列入口。
                     PrimaryActionButton(
-                        text = "拍照或上传错题",
+                        text = "录入",
                         onClick = onCapture,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(54.dp)
                             .testTag("library_capture_button"),
-                        icon = Icons.Outlined.PhotoCamera,
+                        icon = Icons.Outlined.LibraryAdd,
                     )
                 }
-                PaperDivider(Modifier.padding(vertical = 8.dp))
-                BatchImportEntryRow(onClick = onBatchImport)
                 PaperDivider(Modifier.padding(vertical = 8.dp))
                 ArchivedEntriesSection(
                     repository = mistakeDetailRepository,
@@ -279,41 +275,6 @@ private fun LibraryContent(
         item(key = "library_footer") {
             Spacer(Modifier.height(12.dp))
         }
-    }
-}
-
-@Composable
-private fun BatchImportEntryRow(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp)
-            .testTag("library_batch_import"),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(Icons.Outlined.Collections, contentDescription = null, tint = SmartColors.Jade)
-        Spacer(Modifier.width(10.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                "批量导入试卷照片",
-                style = MaterialTheme.typography.bodySmall,
-                color = SmartColors.Ink,
-                fontWeight = FontWeight.Medium,
-            )
-            Text(
-                "一次选择多张，保存后逐张继续",
-                style = MaterialTheme.typography.labelSmall,
-                color = SmartColors.InkSecondary,
-            )
-        }
-        Icon(
-            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-            contentDescription = "打开批量导入",
-            tint = SmartColors.InkSecondary,
-        )
     }
 }
 
@@ -579,7 +540,7 @@ private fun EmptyLibraryResult(
     ) {
         Icon(
             imageVector = when (state) {
-                LibraryEmptyState.CATALOG_EMPTY -> Icons.Outlined.PhotoCamera
+                LibraryEmptyState.CATALOG_EMPTY -> Icons.Outlined.LibraryAdd
                 LibraryEmptyState.FILTERED_EMPTY -> Icons.Outlined.Search
                 LibraryEmptyState.SEARCH_EMPTY -> Icons.Outlined.SearchOff
             },
@@ -603,13 +564,13 @@ private fun EmptyLibraryResult(
         if (state == LibraryEmptyState.CATALOG_EMPTY) {
             Spacer(Modifier.height(16.dp))
             PrimaryActionButton(
-                text = "拍照或上传",
+                text = "录入",
                 onClick = onCapture,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp)
                     .testTag("library_capture_button"),
-                icon = Icons.Outlined.PhotoCamera,
+                icon = Icons.Outlined.LibraryAdd,
             )
         } else if (canClear) {
             Spacer(Modifier.height(16.dp))

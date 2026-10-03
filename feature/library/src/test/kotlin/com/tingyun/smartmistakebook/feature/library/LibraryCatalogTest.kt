@@ -94,7 +94,7 @@ class LibraryCatalogTest {
 
         assertEquals(LibraryEmptyState.CATALOG_EMPTY, newLibrary)
         assertEquals("还没有错题", newLibrary?.title)
-        assertEquals("拍照或上传第一道错题，之后会自动整理到这里。", newLibrary?.supportingText)
+        assertEquals("录入第一道错题：拍照、相册或整卷/PDF 都可以，整理好后会出现在这里。", newLibrary?.supportingText)
         assertEquals(LibraryEmptyState.FILTERED_EMPTY, filteredResults)
         assertEquals("当前筛选下没有错题", filteredResults?.title)
         assertEquals(LibraryEmptyState.SEARCH_EMPTY, searchResults)

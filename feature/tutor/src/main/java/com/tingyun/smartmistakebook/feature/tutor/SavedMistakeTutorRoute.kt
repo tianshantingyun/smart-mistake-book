@@ -290,7 +290,7 @@ fun SavedMistakeTutorRoute(
                         onRetry = onBack,
                     )
                     is MistakeDetailState.CorruptSnapshot -> TutorQuestionUnavailable(
-                        title = "题面需要重新上传",
+                        title = "题面需要重新录入",
                         detail = "这道题保存得不完整，重新拍摄后即可讲解。",
                         onRetry = onBack,
                     )

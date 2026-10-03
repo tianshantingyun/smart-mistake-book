@@ -59,6 +59,12 @@ import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
+/**
+ * 整卷录入（L6）：录入流内部的一步，不再是错题本栏与"拍照"并列的平级入口。
+ *
+ * 从录入屏的「整卷/PDF」方式进来，只做这一件事：把整卷的多张照片 / 一份 PDF 按页保存
+ * 成草稿，逐页/逐题继续。路由与 [BatchImportRepository] 管线未动——收敛的只是入口与命名。
+ */
 @Composable
 fun BatchImportRoute(
     repository: BatchImportRepository,
@@ -192,7 +198,7 @@ internal fun BatchImportContent(
         item("header") {
             BatchImportHeader(onBack)
             Text(
-                text = "选择多张照片，或导入一份 PDF。系统按页保存，某一页失败不会影响其他页。",
+                text = "选择多张照片，或选择一份 PDF。系统按页保存，某一页失败不会影响其他页。",
                 color = SmartColors.InkSecondary,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -382,7 +388,7 @@ private fun BatchImportHeader(onBack: () -> Unit) {
             Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回")
         }
         Spacer(Modifier.size(4.dp))
-        Text("整卷导入", style = MaterialTheme.typography.headlineSmall)
+        Text("整卷录入", style = MaterialTheme.typography.headlineSmall)
     }
 }
 
@@ -520,8 +526,8 @@ private fun BatchImportEmpty() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text("还没有批量导入", style = MaterialTheme.typography.titleMedium)
-        Text("可选择多张照片，也可直接导入 PDF。", color = SmartColors.InkSecondary)
+        Text("还没有开始录入整卷", style = MaterialTheme.typography.titleMedium)
+        Text("可选择多张照片，也可直接选择 PDF。", color = SmartColors.InkSecondary)
     }
 }
 

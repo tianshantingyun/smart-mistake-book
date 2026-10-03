@@ -41,7 +41,7 @@ internal data class TutorCapabilityExample(
 /**
  * 智能体栏空态的能力目录（A1：新会话空白时展示"它能干什么"，有内容后让位）。
  *
- * 只列**真的点了有反应**的能力：拍题、从错题本挑一道、打开错题本。选择导出（第二项能力）
+ * 只列**真的点了有反应**的能力：录入并讲解、从错题本挑一道、打开错题本。选择导出（第二项能力）
  * 要等导出链路落地（阶段 4B），这里不出现——一个点了没反应的入口比没有入口更糟。
  */
 internal fun agentCapabilityDirectory(
@@ -60,15 +60,15 @@ internal fun agentCapabilityDirectory(
     ),
     TutorCapability(
         id = "capture",
-        title = "拍题就讲",
-        detail = "拍一张题，马上开始讲这道题。",
+        title = "录入并讲解",
+        detail = "拍照或从相册选一道题，题面准备好后直接开始讲这道题。",
         examples = listOf(
             TutorCapabilityExample(
                 "我想拍一道题，你先说说这类题一般从哪下手",
                 "tutor_example_capture",
             ),
         ),
-        actionLabel = "拍题讲解",
+        actionLabel = "开始录入",
         actionTestTag = "tutor_capture_shortcut",
         onAction = onCapture,
     ),

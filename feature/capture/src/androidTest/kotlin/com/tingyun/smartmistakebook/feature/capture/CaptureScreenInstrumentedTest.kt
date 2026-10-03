@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftSplitResult
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftSummary
 import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
@@ -19,6 +20,7 @@ import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -33,7 +35,7 @@ class CaptureScreenInstrumentedTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun freshTutorCaptureScreenComposesEntryActions() {
+    fun freshTutorCaptureScreenComposesEntryModeChooser() {
         composeRule.setContent {
             MaterialTheme {
                 CaptureScreen(
@@ -50,13 +52,18 @@ class CaptureScreenInstrumentedTest {
         }
 
         composeRule.onNodeWithTag("capture_screen").assertExists()
-        composeRule.onNodeWithText("拍题讲解").assertExists()
+        composeRule.onNodeWithText("录入").assertExists()
+        composeRule.onNodeWithTag("capture_mode_chooser").assertExists()
         composeRule.onNodeWithTag("capture_take_picture_button").assertExists()
         composeRule.onNodeWithTag("capture_pick_photo_button").assertExists()
+        // 讲题来源不提供「整卷/PDF」：它的完成态是进入讲解，整卷管线的落点是错题本入库，
+        // 在这里放一个终点不一致的入口就是死路（能力说明见 CaptureScreen 的参数 KDoc）。
+        composeRule.onNodeWithTag("capture_mode_files").assertDoesNotExist()
     }
 
     @Test
-    fun freshLibraryCaptureScreenComposesEntryActions() {
+    fun freshLibraryCaptureScreenComposesAllThreeModesAndOpensTheFileStep() {
+        var fileImportOpened = 0
         composeRule.setContent {
             MaterialTheme {
                 CaptureScreen(
@@ -67,13 +74,22 @@ class CaptureScreenInstrumentedTest {
                     onTutorSessionReady = {},
                     onLibraryEntryReady = {},
                     onSplitReady = {},
+                    onOpenFileImport = { fileImportOpened += 1 },
                     onBack = {},
                 )
             }
         }
 
         composeRule.onNodeWithTag("capture_screen").assertExists()
-        composeRule.onNodeWithText("录入错题").assertExists()
+        composeRule.onNodeWithText("录入").assertExists()
+        composeRule.onNodeWithTag("capture_mode_chooser").assertExists()
+        composeRule.onNodeWithTag("capture_take_picture_button").assertExists()
+        composeRule.onNodeWithTag("capture_pick_photo_button").assertExists()
+        composeRule.onNodeWithTag("capture_mode_files").assertExists()
+        composeRule.onNodeWithTag("capture_mode_files").performClick()
+        composeRule.runOnIdle {
+            assertEquals(1, fileImportOpened)
+        }
     }
 }
 

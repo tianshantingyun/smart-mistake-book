@@ -30,7 +30,6 @@ class LibraryBatchExportEntryInstrumentedTest {
                         entry("math-2", SubjectKind.MATH.name, "函数题"),
                     ),
                     onCapture = {},
-                    onBatchImport = {},
                     onExportVisible = { exportedIds = it },
                     onOpenItem = {},
                 )
@@ -54,7 +53,6 @@ class LibraryBatchExportEntryInstrumentedTest {
                 LibraryRoute(
                     entries = emptyList(),
                     onCapture = {},
-                    onBatchImport = {},
                     onExportVisible = {},
                     onOpenItem = {},
                 )

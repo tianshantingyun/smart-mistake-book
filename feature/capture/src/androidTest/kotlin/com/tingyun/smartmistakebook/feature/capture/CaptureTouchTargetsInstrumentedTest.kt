@@ -13,13 +13,13 @@ class CaptureTouchTargetsInstrumentedTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun primaryAndOutlineCaptureActionsMeetFortyEightDpTarget() {
+    fun everyEntryModeMeetsFortyEightDpTarget() {
         composeRule.setContent {
             MaterialTheme {
-                CaptureActions(
-                    provider = null,
+                CaptureEntryModeChooser(
                     onTakePicture = {},
                     onPickPhoto = {},
+                    onOpenFiles = {},
                 )
             }
         }
@@ -35,6 +35,11 @@ class CaptureTouchTargetsInstrumentedTest {
             .fetchSemanticsNode()
             .boundsInRoot
             .height
+        val openFilesHeight = composeRule
+            .onNodeWithTag("capture_mode_files")
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .height
 
         composeRule.runOnIdle {
             assertTrue(
@@ -45,6 +50,10 @@ class CaptureTouchTargetsInstrumentedTest {
                 "Outline capture action height was ${pickPhotoHeight}px",
                 pickPhotoHeight >= with(density) { 48.dp.toPx() },
             )
+            assertTrue(
+                "File-and-directory action height was ${openFilesHeight}px",
+                openFilesHeight >= with(density) { 48.dp.toPx() },
+            )
         }
     }
 
@@ -52,7 +61,7 @@ class CaptureTouchTargetsInstrumentedTest {
     fun topBarBackButtonMeetsFortyEightDpTarget() {
         composeRule.setContent {
             MaterialTheme {
-                CaptureTopBar(title = "拍题讲解", onBack = {})
+                CaptureTopBar(title = "录入", onBack = {})
             }
         }
         val density = composeRule.density

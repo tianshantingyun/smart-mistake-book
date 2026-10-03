@@ -214,7 +214,7 @@ internal fun TutorComposer(
     enabled: Boolean = true,
     /**
      * 非 null 时左侧按钮改为“+”并调用它打开添加菜单（Lobby 附图：相机/相册二选一）；
-     * null 时保持相机直跳拍题。
+     * null 时保持相机直跳录入（L6 的唯一录入入口）。
      */
     onOpenAttachMenu: (() -> Unit)? = null,
     /** 输入框上方的附件预览行（微信式，可选）。 */
@@ -251,7 +251,7 @@ internal fun TutorComposer(
                         contentDescription = if (opensAttachMenu) {
                             "添加图片：拍照或从相册选择"
                         } else {
-                            "拍题或从相册选择题目图片"
+                            "录入题目：拍照或从相册选择"
                         },
                         tint = Jade,
                     )

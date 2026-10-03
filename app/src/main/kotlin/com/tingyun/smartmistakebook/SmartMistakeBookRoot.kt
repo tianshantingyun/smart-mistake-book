@@ -347,7 +347,7 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                 // 讲题页只有一条交互面（阶段 2c 删掉了 artifact 分支与 TutorViewModel）：
                 // 会话内容由 TutorConversationViewModel 持有，这里只给入口自己的接线。
                 TutorRoute(
-                    onCapture = { navController.navigate(Routes.CaptureTutor) },
+                    onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.TUTOR)) },
                     onOpenCapabilitySettings = { navController.navigate(Routes.Capability) },
                     onOpenMistakeNotebook = { navController.navigate(Routes.Library) },
                     onOpenProfile = { navController.navigate(Routes.Profile) },
@@ -412,7 +412,7 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     return@composable
                 }
                 TutorRoute(
-                    onCapture = { navController.navigate(Routes.CaptureTutor) },
+                    onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.TUTOR)) },
                     onOpenCapabilitySettings = { navController.navigate(Routes.Capability) },
                     onOpenMistakeNotebook = { navController.navigate(Routes.Library) },
                     onOpenProfile = { navController.navigate(Routes.Profile) },
@@ -438,8 +438,9 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     entries = experience.catalog,
                     catalogRepository = application.libraryCatalogRepository,
                     mistakeDetailRepository = application.mistakeDetailRepository,
-                    onCapture = { navController.navigate(Routes.CaptureLibrary) },
-                    onBatchImport = { navController.navigate(Routes.BatchImport) },
+                    // 错题本栏只有一个「录入」动作（L6）：整卷/PDF 不再是这里的并列入口，
+                    // 它是录入流内部的一步（见 Routes.Capture 的方式选择）。
+                    onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY)) },
                     onExportVisible = { entryIds ->
                         pendingLibraryExportCount = entryIds.size
                         pendingLibraryExportEntryIds =
@@ -556,41 +557,24 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     }
                 }
             }
-            composable(Routes.CaptureTutor) {
-                CaptureScreen(
-                    entryOrigin = CaptureEntryOrigin.TUTOR,
-                    repository = application.captureRepository,
-                    modelTasks = application.modelTaskRepository,
-                    modelEgressAllowed = baseCapabilities.networkRequestsAllowed,
-                    modelConfigured = modelConfiguration.isConfigured,
-                    onOpenModelSettings = { navController.navigate(Routes.Capability) },
-                    onOpenPendingDraft = { draftId ->
-                        navController.navigate(Routes.captureResume(draftId))
+            // 录入的唯一入口（L6）：错题本、智能体（大厅与历史文字会话）都指到这一条；
+            // 来源（进入讲题 / 存入错题本）只作为参数，方式选择与整卷/PDF、拆分复核
+            // 都在这个入口内部完成。
+            composable(
+                route = Routes.Capture,
+                arguments = listOf(
+                    navArgument(Routes.CaptureOriginArgument) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
                     },
-                    onTutorSessionReady = { sessionId ->
-                        navController.navigate(Routes.capturedTutorSession(sessionId)) {
-                            popUpTo(Routes.CaptureTutor) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    },
-                    onLibraryEntryReady = { entryId ->
-                        navController.navigate(Routes.mistakeDetail(entryId)) {
-                            popUpTo(Routes.CaptureTutor) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    },
-                    onSplitReady = { jobId ->
-                        navController.navigate(Routes.splitReview(jobId)) {
-                            popUpTo(Routes.CaptureTutor) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    },
-                    onBack = navController::popBackStack,
+                ),
+            ) { entry ->
+                val entryOrigin = Routes.captureEntryOrigin(
+                    entry.arguments?.getString(Routes.CaptureOriginArgument),
                 )
-            }
-            composable(Routes.CaptureLibrary) {
                 CaptureScreen(
-                    entryOrigin = CaptureEntryOrigin.LIBRARY,
+                    entryOrigin = entryOrigin,
                     repository = application.captureRepository,
                     modelTasks = application.modelTaskRepository,
                     modelEgressAllowed = baseCapabilities.networkRequestsAllowed,
@@ -599,21 +583,34 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     onOpenPendingDraft = { draftId ->
                         navController.navigate(Routes.captureResume(draftId))
                     },
+                    // 「整卷/PDF」（多张照片 / 一份 PDF）是录入流内部的一步：今天只有错题本
+                    // 来源提供它——讲题来源的完成态是进入讲解，而整卷管线把草稿落进错题本
+                    // 入库路径（captureResume 按持久化来源恢复），在讲题入口给它是终点
+                    // 不一致的死路。
+                    onOpenFileImport = if (entryOrigin == CaptureEntryOrigin.LIBRARY) {
+                        {
+                            navController.navigate(Routes.BatchImport) {
+                                launchSingleTop = true
+                            }
+                        }
+                    } else {
+                        null
+                    },
                     onTutorSessionReady = { sessionId ->
                         navController.navigate(Routes.capturedTutorSession(sessionId)) {
-                            popUpTo(Routes.CaptureLibrary) { inclusive = true }
+                            popUpTo(Routes.Capture) { inclusive = true }
                             launchSingleTop = true
                         }
                     },
                     onLibraryEntryReady = { entryId ->
                         navController.navigate(Routes.mistakeDetail(entryId)) {
-                            popUpTo(Routes.CaptureLibrary) { inclusive = true }
+                            popUpTo(Routes.Capture) { inclusive = true }
                             launchSingleTop = true
                         }
                     },
                     onSplitReady = { jobId ->
                         navController.navigate(Routes.splitReview(jobId)) {
-                            popUpTo(Routes.CaptureLibrary) { inclusive = true }
+                            popUpTo(Routes.Capture) { inclusive = true }
                             launchSingleTop = true
                         }
                     },

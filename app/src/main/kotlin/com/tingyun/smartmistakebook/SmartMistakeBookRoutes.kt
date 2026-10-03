@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook
 
 import android.net.Uri
+import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 
 /**
@@ -22,8 +23,15 @@ internal object Routes {
     const val Profile = "profile"
     const val ReviewSession = "review/session"
     const val KnowledgeReviewSession = "review/knowledge-session"
-    const val CaptureTutor = "capture/tutor"
-    const val CaptureLibrary = "capture/library"
+    /**
+     * 录入（L6）——错题本、智能体等入口**同指的唯一入口**。改前是 `capture/tutor` 与
+     * `capture/library` 两条并列路由（同一屏两个意图），用户的裁定是"不管批量目录还是单个体，
+     * 都是录入"：现在入口只有一个，来源语义（进入讲题 / 存入错题本）交给 [CaptureOriginArgument]，
+     * 方式选择（拍照 / 相册 / 整卷/PDF）由录入屏内部承担。
+     */
+    const val Capture = "capture/entry/{origin}"
+    const val CaptureOriginArgument = "origin"
+    /** 整卷/PDF/多张照片录入（L6 起是录入流内部的一步，不再是错题本栏的并列入口）。 */
     const val BatchImport = "capture/batch"
     const val LibraryBatchExport = "library/export"
     const val CaptureResume = "capture/resume/{draftId}"
@@ -79,6 +87,18 @@ internal object Routes {
 
     fun tutorTextConversation(conversationId: String): String =
         "tutor/lobby/${Uri.encode(conversationId)}"
+
+    fun capture(origin: CaptureEntryOrigin): String =
+        "capture/entry/${origin.name.lowercase()}"
+
+    /**
+     * 录入路由的来源参数解码。空白 = 没有给出（框架恢复等场景），按"存入错题本"处理；
+     * 给了但不是已知来源 = 接线错误，直接抛——静默降级会把讲题拍的照片存进错题本。
+     */
+    fun captureEntryOrigin(raw: String?): CaptureEntryOrigin =
+        raw?.takeIf { it.isNotBlank() }
+            ?.let { CaptureEntryOrigin.valueOf(it.uppercase()) }
+            ?: CaptureEntryOrigin.LIBRARY
 
     fun captureResume(draftId: String): String = "capture/resume/${Uri.encode(draftId)}"
 

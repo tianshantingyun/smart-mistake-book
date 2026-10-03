@@ -78,6 +78,14 @@ fun CaptureScreen(
     onBack: () -> Unit,
     /** 待处理列表里的一条草稿要恢复处理时打开（走既有 resume 路由）。 */
     onOpenPendingDraft: (String) -> Unit = {},
+    /**
+     * 「整卷/PDF」方式的落点（整卷的多张照片 / 一份 PDF，进入既有整卷管线）。
+     * null = 这个来源不提供这种方式：今天只有错题本来源给 non-null。讲题来源的完成态是
+     * 进入讲解（`confirmForTutoring`），而整卷管线把草稿落进错题本入库路径
+     * （`captureResume` 按持久化来源以 LIBRARY 语义恢复），在讲题入口提供它是终点不一致
+     * 的死路；不给假入口，能力也不缩水（单题多页仍可补拍）。
+     */
+    onOpenFileImport: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     resumeDraftId: String? = null,
     // This build may reach a model provider at all; the global "model agent" consent toggle
@@ -668,10 +676,9 @@ fun CaptureScreen(
 
     RootPageColumn(modifier = modifier.testTag("capture_screen")) {
         CaptureTopBar(
-            title = when (activeEntryOrigin) {
-                CaptureEntryOrigin.TUTOR -> "拍题讲解"
-                CaptureEntryOrigin.LIBRARY -> "录入错题"
-            },
+            // 所有来源共用同一个入口名（L6）：不再有"拍题讲解/录入错题"两套叫法，
+            // 来源语义只体现在下面这句进度说明里。
+            title = "录入",
             onBack = ::requestBackWithFlush,
         )
         LocalModeLine(
@@ -698,7 +705,7 @@ fun CaptureScreen(
                 state.committedEntryId != null -> "已存入错题本"
                 state.draftId != null -> "整理题目"
                 state.receivedImageUri != null -> "图片已安全接收"
-                else -> "拍下完整题目"
+                else -> "录入方式"
             },
             modifier = Modifier.padding(top = 18.dp),
         )
@@ -863,11 +870,7 @@ fun CaptureScreen(
             )
             }
         } else if (state.receivedImageUri == null) {
-            val disclosedProvider = state.providerCapabilities
-            val disclosedEntryOrigin = activeEntryOrigin
-            CaptureActions(
-                provider = disclosedProvider,
-                entryOrigin = disclosedEntryOrigin,
+            CaptureEntryModeChooser(
                 onTakePicture = {
                     if (!state.cameraLaunchInProgress && !state.photoImportInProgress && !state.workflowInProgress) {
                         launchCamera()
@@ -878,6 +881,7 @@ fun CaptureScreen(
                         launchPhotoPicker()
                     }
                 },
+                onOpenFiles = onOpenFileImport,
                 modifier = Modifier.padding(top = 14.dp),
             )
             CaptureGuidance(Modifier.padding(top = 20.dp))

@@ -179,7 +179,7 @@ internal enum class LibraryEmptyState(
 ) {
     CATALOG_EMPTY(
         title = "还没有错题",
-        supportingText = "拍照或上传第一道错题，之后会自动整理到这里。",
+        supportingText = "录入第一道错题：拍照、相册或整卷/PDF 都可以，整理好后会出现在这里。",
     ),
     SEARCH_EMPTY(
         title = "没找到相关内容",

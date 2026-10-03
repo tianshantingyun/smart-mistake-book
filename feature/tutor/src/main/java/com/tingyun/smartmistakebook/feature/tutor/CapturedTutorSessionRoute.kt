@@ -342,7 +342,7 @@ private fun CapturedTutorSessionContent(
                     TutorSessionUiState.Loading -> LoadingTutorQuestion()
                     TutorSessionUiState.Missing -> TutorQuestionUnavailable(
                         title = "没有找到这次讲题",
-                        detail = "这次题面没有保存完整，可返回拍题入口重新上传。",
+                        detail = "这次题面没有保存完整，可回到录入重新拍一张。",
                         onRetry = onRetryLoad,
                     )
                     TutorSessionUiState.Unavailable -> TutorQuestionUnavailable(

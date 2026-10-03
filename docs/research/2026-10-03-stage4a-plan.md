@@ -43,7 +43,9 @@
 
 ### 批 3 · 录入统一入口（L6；零 schema）
 
-- 错题本等入口的"拍照/批量"统一为**一个"录入"动作** → 方式选择（拍照/相册/文件与目录）；批量与拆分复核**收敛为录入内部步骤**（保留既有 pipeline，不重写）；命名与文案统一。
+- 错题本等入口的"拍照/批量"统一为**一个"录入"动作** → 方式选择（拍照/相册/整卷/PDF）；批量与拆分复核**收敛为录入内部步骤**（保留既有 pipeline，不重写）；命名与文案统一。
+  - **方式名裁决（2026-10-03 批 3 实施 + 复核 P1）**：不叫"文件与目录"——全仓没有目录选择器（无 `OpenDocumentTree`），既有整卷管线只接受多张照片（`PickMultipleVisualMedia`）与单份 PDF（`OpenDocument`），"目录"是超出能力的承诺；方式名与空态文案统一取如实表述「整卷/PDF」。
+  - **实现形态**：`Routes.Capture = "capture/entry/{origin}"` 单路由 + 来源参数（改前 `capture/tutor`/`capture/library` 两条并列路由退场，与 `docs/architecture-research-2026-09-22.md:272` 建议一致）；`capture_mode_chooser` 三方式，整卷/PDF 仅错题本来源提供（讲题来源完成态是讲解，整卷管线落点是错题本入库）。
 - **门**：JVM + capture/app 仪器化（含 `RootExperience` 等受导航影响用例）+ 真机四入口走查；复核；提交。
 
 ### 批 4 · 导出后台化（L7，A 形态；schema 60→61）

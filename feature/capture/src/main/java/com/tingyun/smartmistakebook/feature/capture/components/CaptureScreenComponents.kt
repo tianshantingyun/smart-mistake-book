@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Schedule
@@ -33,9 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
 import com.tingyun.smartmistakebook.core.domain.CaptureSourcePage
-import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkMuted
@@ -220,17 +219,35 @@ internal fun CaptureSourcePageBar(
     }
 }
 
+/**
+ * 录入方式选择（L6）：拍照 / 相册 / 整卷/PDF。
+ *
+ * 消灭的失败：改前错题本栏是两个并列入口（"拍照或上传错题"与"批量导入试卷照片"），看起来
+ * 是两件事、两套叫法，实际都是同一件事——录入（用户裁定原话："它不管是批量目录还是单个体
+ * 目录都一样，都是录入"）。分流只在这里做一次：拍照/相册用于单道题（可补拍多页），
+ * 整卷/PDF 进入既有的整卷管线。
+ *
+ * 方式名如实取"整卷/PDF"而不是"文件与目录"：全仓没有目录选择器（无 `OpenDocumentTree`），
+ * 既有整卷管线只接受多张照片（`PickMultipleVisualMedia`）与单份 PDF（`OpenDocument`）——
+ * 用"目录"命名会承诺一个点了没有的能力（2026-10-03 独立复核 P1）。
+ *
+ * @param onOpenFiles 整卷/PDF 的落点；null = 这个来源不提供这种方式（能力所限的原因写在
+ *   调用点，不允许放一个点了没反应的入口）。
+ */
 @Composable
-internal fun CaptureActions(
-    provider: ProviderCapabilitySnapshot?,
-    entryOrigin: CaptureEntryOrigin = CaptureEntryOrigin.LIBRARY,
+internal fun CaptureEntryModeChooser(
     onTakePicture: () -> Unit,
     onPickPhoto: () -> Unit,
+    onOpenFiles: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("capture_mode_chooser"),
+    ) {
         PrimaryActionButton(
-            text = "拍照并整理",
+            text = "拍照",
             onClick = onTakePicture,
             modifier = Modifier
                 .fillMaxWidth()
@@ -239,7 +256,7 @@ internal fun CaptureActions(
             contentDescription = "使用系统相机拍摄题目并整理",
         )
         OutlineActionChip(
-            text = "选图并整理",
+            text = "相册",
             onClick = onPickPhoto,
             modifier = Modifier
                 .padding(top = 10.dp)
@@ -248,6 +265,24 @@ internal fun CaptureActions(
             icon = Icons.Outlined.PhotoLibrary,
             contentDescription = "使用系统照片选择器选择题目图片并整理",
         )
+        if (onOpenFiles != null) {
+            OutlineActionChip(
+                text = "整卷/PDF",
+                onClick = onOpenFiles,
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth()
+                    .testTag("capture_mode_files"),
+                icon = Icons.Outlined.FolderOpen,
+                contentDescription = "选择整卷的多张照片或一份 PDF 并逐页整理",
+            )
+            Text(
+                text = "整卷的多张照片或一份 PDF 从这里进；每一页都会保留。",
+                modifier = Modifier.padding(top = 6.dp),
+                color = InkMuted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 

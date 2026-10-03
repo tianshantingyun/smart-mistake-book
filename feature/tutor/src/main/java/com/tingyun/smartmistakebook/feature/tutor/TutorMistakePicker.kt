@@ -68,7 +68,7 @@ internal fun TutorMistakePickerDialog(
                 if (visible.isEmpty()) {
                     Text(
                         text = if (entries.isEmpty()) {
-                            "错题本里还没有可以讲的题。先拍一张或从相册导入，再回到这里。"
+                            "错题本里还没有可以讲的题。先录入一道题，再回到这里。"
                         } else {
                             "没有匹配的题，换个词试试。"
                         },

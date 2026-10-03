@@ -61,6 +61,9 @@ private val SPLIT_IMPORT_TABLES = arrayOf(
  * The list shows every cut question; A student may uncheck pieces they will
  * not keep, then confirms the selected ones, and each confirmed piece opens
  * its own capture confirmation screen. The bubble entry returns here later.
+ *
+ * L6：这是录入流内部的一步（从拍照的多题拆分或整卷录入的"去勾选录入"进来），
+ * 不是错题本栏的并列入口；路由与 [SplitImportRepository] 管线未动。
  */
 @Composable
 fun SplitImportReviewRoute(
@@ -140,7 +143,7 @@ fun SplitImportReviewRoute(
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        "分好的题目确认录入后会自动收起；可以从拍照或整卷导入重新发起。",
+                        "分好的题目确认录入后会自动收起；可以从录入里的拍照或整卷重新发起。",
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
                     )
