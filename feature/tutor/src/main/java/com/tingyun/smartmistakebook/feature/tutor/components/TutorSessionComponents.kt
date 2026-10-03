@@ -89,6 +89,11 @@ internal fun TutorTaskContent(
      * null = 这一轮没有发起工具调用（或旧行没有痕迹）。
      */
     toolTraceJson: String? = null,
+    /**
+     * A2（4B）：本轮讲解消息上的持久配图引用与解析器（见 `TutorTurnContent` 同名字段）。
+     */
+    figureAssetIds: List<String> = emptyList(),
+    figureAssetResolver: (suspend (String) -> String?)? = null,
     solutionRevealPreviewed: Boolean = false,
     awaitingContinuation: Boolean = false,
     interactionEnabled: Boolean,
@@ -129,6 +134,8 @@ internal fun TutorTaskContent(
                     modifier = modifier,
                     openingMarkdown = openingMarkdown,
                     toolTraceJson = toolTraceJson,
+                    figureAssetIds = figureAssetIds,
+                    figureAssetResolver = figureAssetResolver,
                     response = response,
                     solutionRevealPreviewed = solutionRevealPreviewed,
                     interactionEnabled = interactionEnabled,

@@ -45,15 +45,22 @@ object ModelPromptPolicyVersions {
      * v15（4B A1）：工具面新增生图工具（GENERATE_FIGURE，kind/description 契约随描述进提示词）。
      * v16（4B A1 修复轮 F1）：生图描述不再承诺"图会在回复中展示"（批 1 无渲染路径），
      * 改为如实说"已保存到本地、当前版本不展示"。
+     * v17（4B 批 2 A2/F4）：生图有渲染路径（回复下方可展开配图卡），描述改为如实说会展示；
+     * 并加"配图一律用 GENERATE_FIGURE，attachedImages 仅兼容旧输出"的偏好句。
+     * v18（批 2 修复轮 F2-3）：展示句改**条件式**（有当前题并生成成功时才展示；大厅没有
+     * 可画的题，不做无条件承诺）。
      */
-    const val TUTOR_PLAN = "tutor-plan-v16-figure-no-preview"
+    const val TUTOR_PLAN = "tutor-plan-v18-figure-conditional"
     /**
      * v20：写工具改收代号（原始 id 退出提示词）+ 代号映射表 + 无题轮不结构性拒写（D5/D6）。
      * v21（D-M M7）：工具面新增两枚咨询工具（描述与写工具段），代号表显式含本科「未分类」兜底桶。
      * v22（4B A1）：工具面新增生图工具（GENERATE_FIGURE）。
      * v23（4B A1 修复轮 F1）：生图描述不再承诺"图会在回复中展示"（批 1 无渲染路径）。
+     * v24（4B 批 2 A2/F4）：生图有渲染路径（回复下方可展开配图卡），描述改为如实说会展示；
+     * 并加"配图一律用 GENERATE_FIGURE，attachedImages 仅兼容旧输出"的偏好句。
+     * v25（批 2 修复轮 F2-3）：展示句改**条件式**（有当前题并生成成功时才展示）。
      */
-    const val TUTOR_RESPOND = "tutor-respond-v23-figure-no-preview"
+    const val TUTOR_RESPOND = "tutor-respond-v25-figure-conditional"
     /**
      * v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。
      * v10（A4）：允许申请 OFFER_SAVE_CURRENT_QUESTION（本地渲染确认卡、学生点了才执行），
@@ -63,8 +70,11 @@ object ModelPromptPolicyVersions {
      * v12（D-M M7）：大厅声明面新增两枚咨询工具，止血行覆盖它们（大厅没有科目/会话范围）。
      * v13（4B A1）：大厅声明面新增生图工具，止血行覆盖它（大厅没有可画的当前题）。
      * v14（4B A1 修复轮 F1）：大厅的工具块同样渲染生图描述，不再承诺"图会在回复中展示"。
+     * v15（4B 批 2 A2）：生图描述随 A2 渲染路径改为如实说会展示（与 Plan/Respond 同一份文案）。
+     * v16（批 2 修复轮 F2-3）：展示句改条件式——大厅永远"本轮没有可画的题"，不做无条件承诺；
+     * Plan/Respond 才是有当前题、真会展示的那两面。
      */
-    const val TUTOR_LOBBY = "tutor-lobby-v14-figure-no-preview"
+    const val TUTOR_LOBBY = "tutor-lobby-v16-figure-conditional"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"

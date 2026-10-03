@@ -48,6 +48,14 @@ data class TutorToolTraceEntry(
     val ok: Boolean,
     /** 未通过时本地给出的种类码（`invalid_knowledge_code` / `rejected:*` / `failed`…）。 */
     val errorKind: String? = null,
+    /**
+     * A2（4B）：GENERATE_FIGURE 这一条调用的**生图事实**——资产 id、kind、模型与本轮是否真的
+     * 出网生成。它是界面重建配图的指针（消息行上的痕迹 + 规范资产行 = 持久引用），也是"一次
+     * 生成一次付费"的记账行（次数/时间/模型/用途四样里的三样，时间由消息行给）。
+     *
+     * 只进界面、不进模型：与痕迹整体一样不参与模型输入指纹。其它工具的条目为 null。
+     */
+    val figure: TutorToolFigureTrace? = null,
 ) {
     init {
         require(errorKind == null || errorKind.isNotBlank()) {
@@ -58,6 +66,49 @@ data class TutorToolTraceEntry(
             "A tool trace result count must not be negative"
         }
         require(ok || resultCount == null) { "A refused tool trace entry carries no result count" }
+        require(figure == null || tool == TutorToolName.GENERATE_FIGURE) {
+            "Only a figure tool call may carry figure facts"
+        }
+        require(figure?.figureId == null || ok) {
+            "A figure id only exists on a successful figure call"
+        }
+    }
+}
+
+/**
+ * GENERATE_FIGURE 一条痕迹里的事实半（A2/A4）。
+ *
+ * [kind] 失败时也要有（"图重绘未完成，已保留原图"只对 REDRAW_PROBLEM 说）；
+ * [figureId] 只有成功生成/命中缓存才有（规范资产 id，UI 由它经持久引用拿回本地 URI）；
+ * [generatedNow] 区分"这次真的出网生成（计费）"与"幂等命中已生成资产（不计费）"——UI 的
+ * "本次生成已计入额度"只在前者出现，不然就是一句假账；[model] 是生成用的模型标识（记账的
+ * "模型"一列，取不到时为 null，界面就不说模型）。
+ *
+ * **记账四样（次数/时间/模型/用途）的落点**（零 schema：没有也不新增"额度账"表，阶段 6 的
+ * 查看入口从这些既有持久事实聚合）：
+ * - 次数 = `canonical_source_asset` 里 `source_type=GENERATED_FIGURE` 的行数；
+ * - 时间 = 该行 `created_at_epoch_millis`（以及承载这条痕迹的消息行时间）；
+ * - 模型/用途 = 本痕迹 JSON 的 `figure.model` / `figure.kind`，并同时写进生成图**文件元数据**
+ *   （Software / UserComment，见 `GeneratedFigureMetadata`）。
+ * 金额不在任何地方记录（不猜）。
+ */
+@Serializable
+data class TutorToolFigureTrace(
+    val kind: TutorFigureKind,
+    val figureId: String? = null,
+    val model: String? = null,
+    val generatedNow: Boolean = false,
+) {
+    init {
+        require(figureId == null || figureId.isNotBlank()) {
+            "A figure trace id must be null or non-blank"
+        }
+        require(model == null || model.isNotBlank()) {
+            "A figure trace model must be null or non-blank"
+        }
+        require(figureId != null || !generatedNow) {
+            "Only a generated figure can claim a fresh generation"
+        }
     }
 }
 
@@ -166,9 +217,64 @@ fun tutorToolTraceDisplay(trace: TutorTurnToolTrace): TutorToolTraceDisplay = Tu
 
 private fun TutorToolTraceEntry.toDisplayRow(): TutorToolTraceRow = TutorToolTraceRow(
     text = rowText(),
-    detail = errorKind?.takeIf { !ok }?.let(::tutorToolRefusalText),
+    // A4：生图条目有一句自己的一行说明（成功=记账事实；REDRAW 失败=已保留原图），
+    // 它优先于通用拒因——通用拒因说的是"没生成"，学生更要知道"原图还在"。
+    detail = figureDetail() ?: errorKind?.takeIf { !ok }?.let(::tutorToolRefusalText),
     ok = ok,
 )
+
+/**
+ * A4：生图条目的那句说明（唯一出处，UI 直接消费）。
+ *
+ * 三态与文案的对应：
+ * - `READY` 且本次真出网 → "本次生成已计入额度"（只记事实，不猜金额）；
+ * - `READY` 且幂等命中 → 只说"此前生成的配图"，不重复计费、也不重复许账；
+ * - `FAILED`（errorKind=figure_failed）的 REDRAW_PROBLEM → "图重绘未完成，已保留原图"
+ *   （题面原图仍在）——**只覆盖真失败**：通道不可用（figure_unavailable）保留"没有可用
+ *   通道"的通用解释，学生才知道该去配模型而不是干等；
+ * - 其它失败/不可用 → null，落回通用拒因。
+ */
+private fun TutorToolTraceEntry.figureDetail(): String? {
+    val figure = figure ?: return null
+    if (ok) {
+        // 只有真的拿到资产 id 才谈"生成/复用"；空范围（没有可画的题）什么都不说。
+        if (figure.figureId == null) return null
+        return if (figure.generatedNow) {
+            FIGURE_CHARGE_NOTE
+        } else {
+            FIGURE_REUSED_NOTE
+        }
+    }
+    return FIGURE_REDRAW_FAILED_NOTE.takeIf {
+        figure.kind == TutorFigureKind.REDRAW_PROBLEM && errorKind == FIGURE_FAILED_KIND
+    }
+}
+
+/** 生图"通道在但这次没成"的结果码（与 `RoomTutorToolRunner` 的同名字面量一致）。 */
+private const val FIGURE_FAILED_KIND = "figure_failed"
+
+/** 成功生图的那句事实（只记账不确认；金额不猜）。 */
+const val FIGURE_CHARGE_NOTE = "本次生成已计入额度"
+
+/** 幂等命中已有生成图：复用了原图，不重复付费。 */
+const val FIGURE_REUSED_NOTE = "已使用此前生成的配图"
+
+/** 重绘失败但题面原图仍在：学生需要知道这一点，否则会以为题面也坏了。 */
+const val FIGURE_REDRAW_FAILED_NOTE = "图重绘未完成，已保留原图"
+
+/**
+ * A2：一条痕迹里**成功生成的**配图资产 id（按条目顺序、去重）。
+ *
+ * 存在意义："这一轮生成了哪些图"的唯一提取点——助手消息落库时按它建立
+ * `tutor_message_source_asset` 引用（UI 与孤儿回收都靠这条持久引用），界面重建也读同一份。
+ * 解不开/旧行/没有生图 → 空列表（按"没有配图"处理，不猜）。
+ */
+fun tutorTurnFigureAssetIds(traceJson: String?): List<String> =
+    decodeTutorTurnToolTrace(traceJson)
+        ?.entries
+        ?.mapNotNull { entry -> entry.figure?.figureId }
+        ?.distinct()
+        .orEmpty()
 
 private fun TutorToolTraceEntry.rowText(): String {
     val label = tool.displayLabel()
@@ -187,7 +293,14 @@ private fun TutorToolTraceEntry.rowText(): String {
         TutorToolName.NOTEBOOK_WRITE -> "$label · 已保存"
         TutorToolName.MASTERY_UPDATE -> "$label · 已记录"
         TutorToolName.ADVISORY_WRITE -> "$label · 已记录"
-        TutorToolName.GENERATE_FIGURE -> "$label · 已生成"
+        // A4：生图必须看**事实半**——没有当前题的空范围也是 ok=true（K2a），此前它会渲染成
+        // "已生成"（一句假话）。带事实半而没有 id = 本轮没有可画的题；旧行（批 1 无事实半）
+        // 保持原文案。
+        TutorToolName.GENERATE_FIGURE -> when {
+            figure?.figureId != null -> "$label · 已生成"
+            figure != null -> "$label · 本轮没有可画的题"
+            else -> "$label · 已生成"
+        }
         // 读工具：条数为 0 = 本轮无可读范围（B4 的中性说法，不给"失败"的读感）。
         TutorToolName.KNOWLEDGE_READ,
         TutorToolName.NOTEBOOK_READ,

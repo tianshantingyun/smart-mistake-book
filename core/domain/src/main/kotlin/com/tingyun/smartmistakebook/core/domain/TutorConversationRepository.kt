@@ -322,6 +322,15 @@ data class AppendTutorAssistantMessageCommand(
      * 什么），分两次写就会出现"有正文没痕迹"的中间态；没有痕迹时给 null（空载体不落列）。
      */
     val toolTraceJson: String? = null,
+    /**
+     * A2（4B）：这一轮**成功生成/命中**的配图规范资产 id（按生成顺序，与痕迹里的 figureId
+     * 同源）。与正文、痕迹同一次写入 `tutor_message_source_asset` 引用：这条引用是"图还在"
+     * 的持久事实——界面靠它重建配图（不再依赖内存 URI），孤儿回收靠它不删图。
+     *
+     * 上限沿用 [MAX_TUTOR_MESSAGE_IMAGES]：工具面每轮每种工具至多一次、最多 5 轮，实际用量
+     * 远低于该上限；超限是装配错误，拒写而不是默默截断（截断会让痕迹与引用对不上）。
+     */
+    val sourceImageAssetIds: List<String> = emptyList(),
     val logicalOperationId: String?,
     val status: TutorMessageStatus = TutorMessageStatus.SUCCEEDED,
     val createdAtEpochMillis: Long,
@@ -342,6 +351,15 @@ data class AppendTutorAssistantMessageCommand(
         require(createdAtEpochMillis >= 0L) { "Tutor message creation time must not be negative" }
         require(toolTraceJson == null || toolTraceJson.isNotBlank()) {
             "Tutor message tool trace must be null or non-blank"
+        }
+        require(sourceImageAssetIds.size <= MAX_TUTOR_MESSAGE_IMAGES) {
+            "Tutor assistant message carries too many figures"
+        }
+        require(sourceImageAssetIds.all(String::isNotBlank)) {
+            "Tutor assistant message figure ids must not be blank"
+        }
+        require(sourceImageAssetIds.distinct().size == sourceImageAssetIds.size) {
+            "Tutor assistant message figure ids must be unique"
         }
         require(completedAtEpochMillis == null || completedAtEpochMillis >= createdAtEpochMillis) {
             "Tutor message completion time cannot precede creation"

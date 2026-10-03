@@ -54,7 +54,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
-import com.tingyun.smartmistakebook.core.data.model.AttachedImageGeneratorFactory
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.currentCapabilityVerification
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
@@ -739,14 +738,9 @@ internal fun SmartMistakeBookRoot(
                     conversations = application.tutorConversationRepository,
                     profile = experience.profile,
                     catalogEntries = experience.catalog,
-                    attachedImageResolver = AttachedImageGeneratorFactory.create(
-                        context = application,
-                        configurationStore = configurationStore,
-                        networkRequestsAllowed = application.capabilities.networkRequestsAllowed,
-                        resolveCurrentSheetBytes = {
-                            application.captureRepository.readTutorSessionSheetBytes(sessionId)
-                        },
-                    ),
+                    attachedImageResolver = application.attachedImageResolver {
+                        application.captureRepository.readTutorSessionSheetBytes(sessionId)
+                    },
                     onOpenModelSettings = { navController.navigate(Routes.Capability) },
                     onOpenHistory = { navController.navigate(Routes.TutorHistory) },
                     onOpenMistakeNotebook = {

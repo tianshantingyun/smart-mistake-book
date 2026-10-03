@@ -68,11 +68,11 @@ class SheetBytesEgressIntegrityInstrumentedTest : CaptureWorkflowTestBase() {
                     mimeType = "image/png",
                 )
             },
-            persist = { bytes, mimeType, sourceType, createdAt ->
+            persist = { bytes, mimeType, sourceType, createdAt, figureId, _ ->
                 CanonicalSourceAssetRecord(
-                    sourceAssetId = "attached-egress-1",
+                    sourceAssetId = figureId,
                     contentSha256 = "0".repeat(64),
-                    relativePath = "source-assets/attached-egress-1.png",
+                    relativePath = "source-assets/$figureId.png",
                     mimeType = mimeType,
                     byteSize = bytes.size.toLong(),
                     width = 1,
@@ -81,6 +81,9 @@ class SheetBytesEgressIntegrityInstrumentedTest : CaptureWorkflowTestBase() {
                     createdAtEpochMillis = createdAt,
                 )
             },
+            // 本用例只关心"字节有没有被核对"，不做幂等命中（每次解析都算新请求）。
+            lookupExisting = { null },
+            isIntact = { true },
             resolveCurrentSheetBytes = { repository.readTutorSessionSheetBytes(session.sessionId) },
             uriFor = { record -> "file:///${record.relativePath}" },
         )

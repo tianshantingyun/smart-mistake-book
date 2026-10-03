@@ -277,4 +277,214 @@ class TutorToolTraceTest {
             )
         }.onSuccess { fail("被拒的条目不许带条数") }
     }
+
+    // ------------------------------------------------------------------
+    // A2/A4（4B 批 2）：生图事实半——记账文案、失败文案、持久引用提取。
+    // ------------------------------------------------------------------
+
+    @Test
+    fun aGeneratedFigureSaysTheChargeWasRecorded() {
+        // 只记事实：本次真出网才说"已计入额度"，且不猜金额。
+        val display = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = true,
+                        figure = TutorToolFigureTrace(
+                            kind = TutorFigureKind.GENERATE_PROCESS,
+                            figureId = "figure-abc",
+                            model = "gpt-image-2",
+                            generatedNow = true,
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals("配图 · 已生成", display.rows.single().text)
+        assertEquals(FIGURE_CHARGE_NOTE, display.rows.single().detail)
+        assertTrue(display.rows.single().ok)
+    }
+
+    @Test
+    fun aCachedFigureDoesNotClaimAFreshCharge() {
+        val display = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = true,
+                        figure = TutorToolFigureTrace(
+                            kind = TutorFigureKind.GENERATE_PROCESS,
+                            figureId = "figure-abc",
+                            generatedNow = false,
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(FIGURE_REUSED_NOTE, display.rows.single().detail)
+        assertFalse(display.rows.single().detail!!.contains("计入额度"))
+    }
+
+    @Test
+    fun aFailedRedrawSaysTheOriginalIsKept() {
+        // 重绘静默失败此前没有任何界面出口；学生至少要知道"原图还在"。
+        val display = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = false,
+                        errorKind = "figure_failed",
+                        figure = TutorToolFigureTrace(kind = TutorFigureKind.REDRAW_PROBLEM),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals("配图 · 未生成", display.rows.single().text)
+        assertEquals(FIGURE_REDRAW_FAILED_NOTE, display.rows.single().detail)
+        assertFalse(display.rows.single().ok)
+    }
+
+    @Test
+    fun aFailedProcessFigureKeepsTheGenericRefusal() {
+        val display = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = false,
+                        errorKind = "figure_failed",
+                        figure = TutorToolFigureTrace(kind = TutorFigureKind.GENERATE_PROCESS),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals("这次配图没有生成成功", display.rows.single().detail)
+    }
+
+    @Test
+    fun anUnavailableRedrawKeepsTheChannelExplanation() {
+        // 通道不可用与"这次没成"不是一回事：前者要保留"没有可用通道"的解释，
+        // 学生才知道该去配模型，而不是以为只是这次运气不好。
+        val display = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = false,
+                        errorKind = "figure_unavailable",
+                        figure = TutorToolFigureTrace(kind = TutorFigureKind.REDRAW_PROBLEM),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals("当前没有可用的生图通道，没有生成", display.rows.single().detail)
+    }
+
+    @Test
+    fun anEmptyScopeFigureRoundReadsAsNoDrawableProblemNotAsGenerated() {
+        // A4：空范围是 ok=true（K2a），但**没有图**——此前工具卡会渲染成"已生成"（一句假话）。
+        val display = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = true,
+                        figure = TutorToolFigureTrace(kind = TutorFigureKind.REDRAW_PROBLEM),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals("配图 · 本轮没有可画的题", display.rows.single().text)
+        assertNull(display.rows.single().detail)
+        assertTrue(display.rows.single().ok)
+    }
+
+    @Test
+    fun figureFactsRoundTripThroughTheStoredTrace() {
+        val trace = TutorTurnToolTrace(
+            entries = listOf(
+                TutorToolTraceEntry(
+                    tool = TutorToolName.GENERATE_FIGURE,
+                    ok = true,
+                    figure = TutorToolFigureTrace(
+                        kind = TutorFigureKind.REDRAW_PROBLEM,
+                        figureId = "figure-xyz",
+                        model = "gpt-image-2",
+                        generatedNow = true,
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(trace, decodeTutorTurnToolTrace(encodeTutorTurnToolTrace(trace)))
+    }
+
+    @Test
+    fun figureAssetIdsAreExtractedInOrderAndDeduplicated() {
+        val traceJson = encodeTutorTurnToolTrace(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = true,
+                        figure = TutorToolFigureTrace(
+                            kind = TutorFigureKind.REDRAW_PROBLEM,
+                            figureId = "figure-a",
+                        ),
+                    ),
+                    TutorToolTraceEntry(tool = TutorToolName.NOTEBOOK_READ, resultCount = 1, ok = true),
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = true,
+                        figure = TutorToolFigureTrace(
+                            kind = TutorFigureKind.GENERATE_PROCESS,
+                            figureId = "figure-a",
+                        ),
+                    ),
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = false,
+                        errorKind = "figure_failed",
+                        figure = TutorToolFigureTrace(kind = TutorFigureKind.REDRAW_PROBLEM),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(listOf("figure-a"), tutorTurnFigureAssetIds(traceJson))
+        assertTrue(tutorTurnFigureAssetIds(null).isEmpty())
+        assertTrue(tutorTurnFigureAssetIds("{not json").isEmpty())
+    }
+
+    @Test
+    fun figureFactsAreOnlyAllowedOnTheFigureTool() {
+        runCatching {
+            TutorToolTraceEntry(
+                tool = TutorToolName.NOTEBOOK_READ,
+                resultCount = 1,
+                ok = true,
+                figure = TutorToolFigureTrace(kind = TutorFigureKind.GENERATE_PROCESS),
+            )
+        }.onSuccess { fail("非生图工具不许带生图事实") }
+        runCatching {
+            TutorToolTraceEntry(
+                tool = TutorToolName.GENERATE_FIGURE,
+                ok = false,
+                errorKind = "figure_failed",
+                figure = TutorToolFigureTrace(
+                    kind = TutorFigureKind.REDRAW_PROBLEM,
+                    figureId = "figure-x",
+                ),
+            )
+        }.onSuccess { fail("失败的条目不许带资产 id") }
+    }
 }

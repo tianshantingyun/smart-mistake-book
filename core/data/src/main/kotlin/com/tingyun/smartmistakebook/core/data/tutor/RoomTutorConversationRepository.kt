@@ -264,6 +264,8 @@ private fun AppendTutorAssistantMessageCommand.toDatabase() =
         bodyMarkdown = bodyMarkdown,
         thinkingMarkdown = thinkingMarkdown,
         toolTraceJson = toolTraceJson,
+        // A2：配图引用随消息行同一次写入（见数据库契约 KDoc）。
+        sourceImageAssetIds = sourceImageAssetIds,
         logicalOperationId = logicalOperationId,
         status = status.name,
         createdAtEpochMillis = createdAtEpochMillis,

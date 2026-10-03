@@ -26,6 +26,7 @@ import com.tingyun.smartmistakebook.core.model.canExposeSolutionFor
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.model.requiresRoundQuestionBinding
 import com.tingyun.smartmistakebook.core.ui.AttachedImagesSection
+import com.tingyun.smartmistakebook.core.ui.GeneratedFiguresSection
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 
 private data class TutorRespondExchangeKey(
@@ -205,6 +206,14 @@ internal fun TutorChatExchange(
      * null = 这一轮没有发起工具调用（或旧行没有痕迹）。
      */
     assistantToolTraceJson: String? = null,
+    /**
+     * A2（4B）：这一轮助手消息上的**持久配图引用**（`tutor_message_source_asset` 的资产 id）。
+     * 非空且给了 [figureAssetResolver] 时，在回复下方渲染可展开的生成图卡——图从资产行读回，
+     * 旋转/进程重建后仍在且不重新出网。
+     */
+    assistantFigureAssetIds: List<String> = emptyList(),
+    /** 生成图资产 id → 本地 URI（本地读回，绝不出网）；null = 不渲染配图卡。 */
+    figureAssetResolver: (suspend (String) -> String?)? = null,
     awaitingContinuation: Boolean = false,
     interactionEnabled: Boolean,
     recoveryEnabled: Boolean,
@@ -288,6 +297,18 @@ internal fun TutorChatExchange(
                     // （"精确底部进视口"才落账，见 TutorSolutionExposureTracker）。
                     bottomAnchor = assistantBottomModifier.takeIf { ready.solutionRevealed },
                     extras = {
+                        // A2：本轮生成图的持久引用 → 可展开图卡（在兼容配图之前；两者可以并存，
+                        // 但新配图一律走工具链，见 F4 的偏好句）。
+                        figureAssetResolver?.let { resolver ->
+                            assistantFigureAssetIds
+                                .takeIf { it.isNotEmpty() }
+                                ?.let { assetIds ->
+                                    GeneratedFiguresSection(
+                                        assetIds = assetIds,
+                                        resolveAsset = resolver,
+                                    )
+                                }
+                        }
                         attachedImageResolver?.let { resolver ->
                             ready.attachedImages
                                 .takeIf { it.isNotEmpty() }

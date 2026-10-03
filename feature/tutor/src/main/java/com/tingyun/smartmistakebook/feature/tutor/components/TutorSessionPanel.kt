@@ -876,6 +876,11 @@ internal fun TutorModelPanel(
                         openingMarkdown = timelineItem.bodyMarkdown,
                         // B1：这一轮查阅了什么的痕迹（同一行消息上，一起读、一起渲染）。
                         toolTraceJson = timelineItem.message?.toolTraceJson,
+                        // A2：本轮生成图的持久引用（消息行上的资产 id）→ 本地读回渲染。
+                        figureAssetIds = timelineItem.message?.sourceImageAssetIds.orEmpty(),
+                        figureAssetResolver = imageIntake?.let { intake ->
+                            { assetId: String -> intake.resolveImageUri(assetId) }
+                        },
                         solutionRevealPreviewed = timelineItem.task.toPlanSolutionPreviewKey()
                             ?.let { it in planSolutionPreviewKeys } == true,
                         awaitingContinuation = false,
@@ -962,6 +967,12 @@ internal fun TutorModelPanel(
                         assistantThinkingMarkdown = timelineItem.thinkingMarkdown,
                         // B1：这一轮查阅了什么的痕迹（同一行消息上）。
                         assistantToolTraceJson = timelineItem.message?.toolTraceJson,
+                        // A2：本轮生成图的持久引用（消息行上的资产 id）→ 本地读回渲染；
+                        // 与 B1 的痕迹同一行消息、同一份持久事实。
+                        assistantFigureAssetIds = timelineItem.message?.sourceImageAssetIds.orEmpty(),
+                        figureAssetResolver = imageIntake?.let { intake ->
+                            { assetId: String -> intake.resolveImageUri(assetId) }
+                        },
                         awaitingContinuation = !respondAgentAuthorized &&
                             timelineItem.task.status.isTutorExecutionPending(),
                         interactionEnabled = isTail && taskAllowsInteraction &&

@@ -316,7 +316,8 @@ internal abstract class TutorConversationDao {
         }
         if (
             existing.conversationId != entity.conversationId ||
-            existing.ordinal != entity.ordinal ||
+            // 与学生/助手消息同一条重放判据：只比对调用方**显式给过**的 ordinal（见助手侧注释）。
+            (command.ordinal != null && existing.ordinal != entity.ordinal) ||
             existing.bodyMarkdown != entity.bodyMarkdown ||
             existing.logicalOperationId != entity.logicalOperationId ||
             existing.boundProblemId != entity.boundProblemId ||
@@ -396,6 +397,15 @@ internal abstract class TutorConversationDao {
         require(command.toolTraceJson == null || command.toolTraceJson.isNotBlank()) {
             "An assistant message tool trace must be null or non-blank"
         }
+        require(command.sourceImageAssetIds.size <= MAX_STUDENT_MESSAGE_IMAGES) {
+            "Tutor assistant message carries too many figures"
+        }
+        require(command.sourceImageAssetIds.all(String::isNotBlank)) {
+            "Tutor assistant message figure ids must not be blank"
+        }
+        require(command.sourceImageAssetIds.distinct().size == command.sourceImageAssetIds.size) {
+            "Tutor assistant message figure ids must be unique"
+        }
         require(command.createdAtEpochMillis >= 0L)
         // 号与学生消息同一条数轴、同一个分配点（K1c）：没给号就取会话计数器的下一位。
         val ordinal = command.ordinal ?: (
@@ -403,6 +413,15 @@ internal abstract class TutorConversationDao {
             )
         val entity = command.toEntity(ordinal)
         if (insertMessage(entity) != -1L) {
+            insertMessageSourceAssetRows(
+                command.sourceImageAssetIds.mapIndexed { index, assetId ->
+                    TutorMessageSourceAssetEntity(
+                        messageId = command.messageId,
+                        sourceAssetId = assetId,
+                        ordinal = index,
+                    )
+                },
+            )
             touchConversation(
                 conversationId = command.conversationId,
                 ordinal = ordinal,
@@ -415,12 +434,27 @@ internal abstract class TutorConversationDao {
         }
         if (
             existing.conversationId != entity.conversationId ||
-            existing.ordinal != entity.ordinal ||
+            // 重放分支只比对**调用方显式给过的** ordinal：`ordinal = null` 时重推的值是
+            // "当前计数器 + 1"，与存行当时分配到的号天然可能不同（消息行数不变而计数器
+            // 被别的写入推进过），拿它比对会把合法的重放判成冲突——生产 `recordTutorAssistantTurn`
+            // 正是 ordinal=null + 确定性 messageId 的重放形态。其余身份字段一条不放宽。
+            (command.ordinal != null && existing.ordinal != entity.ordinal) ||
             existing.bodyMarkdown != entity.bodyMarkdown ||
             existing.logicalOperationId != entity.logicalOperationId
         ) {
             throw ImmutablePayloadConflictException("tutor_message", command.messageId)
         }
+        // 重放分支同样补引用（INSERT OR IGNORE，幂等）：上次写到"消息已入、引用未入"时进程
+        // 死掉的话，重放是唯一会把引用补上的时机；缺了它，那张已付费的图会在宽限期后被回收。
+        insertMessageSourceAssetRows(
+            command.sourceImageAssetIds.mapIndexed { index, assetId ->
+                TutorMessageSourceAssetEntity(
+                    messageId = command.messageId,
+                    sourceAssetId = assetId,
+                    ordinal = index,
+                )
+            },
+        )
         return existing.toRecord()
     }
 

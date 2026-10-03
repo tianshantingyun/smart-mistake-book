@@ -41,6 +41,13 @@ object StudyDbValue {
         const val CAMERA = "CAMERA"
         const val PHOTO_PICKER = "PHOTO_PICKER"
         const val TUTOR_ATTACHED = "TUTOR_ATTACHED"
+
+        /**
+         * A2（4B）：模型按提示词生成的配图（题面重绘 / 解析过程图）。与用户拍摄上传的
+         * [CAMERA]/[PHOTO_PICKER] 区分开：生成图带 AI 隐式元数据、按生成指纹幂等复用，
+         * 也是"额度账"里可数的行（次数/时间/模型/用途）。TEXT 常量值，零 schema。
+         */
+        const val GENERATED_FIGURE = "GENERATED_FIGURE"
     }
 
     object BatchImportStatus {

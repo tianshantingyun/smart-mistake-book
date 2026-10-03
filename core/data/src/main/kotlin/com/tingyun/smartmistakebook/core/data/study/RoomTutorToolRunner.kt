@@ -32,6 +32,7 @@ import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
+import com.tingyun.smartmistakebook.core.model.TutorToolFigureTrace
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
@@ -78,6 +79,12 @@ internal data class TutorToolExecution(
      * null = 该调用不产出行集（写工具，或被拒而根本没执行）。
      */
     val resultCount: Int? = null,
+    /**
+     * A2（4B）：GENERATE_FIGURE 这一条的生图事实（资产 id/kind/模型/是否本次出网）。
+     * 与 [resultCount] 同一条纪律：只在本地进痕迹（消息行的 tool_trace_json），
+     * 不进模型可见字段、不碰模型输入指纹。其它工具为 null。
+     */
+    val figure: TutorToolFigureTrace? = null,
 )
 
 /**
@@ -939,12 +946,15 @@ internal class RoomTutorToolRunner(
         // 按 K2a 回 ok=true 空范围、**不调用生成器**。
         val draft = currentDraft(context)
             ?: return TutorToolExecution(
-                TutorToolOutcome(
+                outcome = TutorToolOutcome(
                     tool = call.tool,
                     ok = true,
                     summaryMarkdown = "本轮没有可画的题：这次对话没有正在处理的题目。" +
                         "不必重复申请，直接回答学生的问题。",
                 ),
+                // A4：空范围也是 ok=true（K2a），但工具卡不能因此说"已生成"——带上事实半
+                // （kind、无 id）让渲染层说"本轮没有可画的题"。
+                figure = TutorToolFigureTrace(kind = kind),
             )
         val sourceSheet = when (kind) {
             // REDRAW 额外要求当前题的规范题面资产；`ProblemDraftRecord.sourceAsset` 非空
@@ -967,16 +977,33 @@ internal class RoomTutorToolRunner(
         } catch (_: Exception) {
             TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
         }
+        // A2：REDRAW 的图若落在一道**已保存**的题上（会话有 commit receipt），补一条
+        // CLEAN_IMAGE 引用——这是"题重绘 → problem_revision_source_asset"那条去向，导出取图
+        // （B6）按它就能看见这张重绘；未保存的会话没有 revision，跳过（消息引用仍然成立）。
+        if (
+            result.status == TutorFigureStatus.GENERATED &&
+            kind == TutorFigureKind.REDRAW_PROBLEM &&
+            result.figureId != null
+        ) {
+            attachGeneratedRedrawToRevision(context, result.figureId)
+        }
+        val figureTrace = TutorToolFigureTrace(
+            kind = kind,
+            figureId = result.figureId,
+            model = result.model,
+            generatedNow = result.generatedNow,
+        )
         return when (result.status) {
             TutorFigureStatus.GENERATED -> TutorToolExecution(
                 outcome = TutorToolOutcome(
                     tool = call.tool,
                     ok = true,
-                    // F1：只回 id + 状态。**不得**向模型承诺"图会出现在回复里"——批 1 没有
-                    // 渲染路径（持久引用/渲染是批 2 的 A2），承诺会让模型引导学生去找看不到的图。
+                    // F1：只回 id + 状态。图以折叠配图卡渲染在本轮回复下方（A2 的渲染路径），
+                    // 但模型自己看不到图的内容，所以仍不得复述图里画了什么。
                     summaryMarkdown = "配图已生成（id：${result.figureId}，状态：已生成）。" +
                         "不要再申请同一张图。",
                 ),
+                figure = figureTrace,
             )
 
             TutorFigureStatus.FAILED -> TutorToolExecution(
@@ -986,6 +1013,7 @@ internal class RoomTutorToolRunner(
                     summaryMarkdown = "配图没有生成成功，可以稍后再试一次。",
                     errorKind = FIGURE_FAILED,
                 ),
+                figure = figureTrace,
             )
 
             TutorFigureStatus.UNAVAILABLE -> TutorToolExecution(
@@ -996,7 +1024,30 @@ internal class RoomTutorToolRunner(
                         "未生成配图；不要反复申请。",
                     errorKind = FIGURE_UNAVAILABLE,
                 ),
+                figure = figureTrace,
             )
+        }
+    }
+
+    /**
+     * A2：把这次重绘登记到当前会话已提交的题面修订上（role=CLEAN_IMAGE）。
+     *
+     * 使用场景很窄：会话**已经保存**（commit receipt 在）之后学生继续让智能体重绘题面——那
+     * 张图应当和采集链的重绘一样被导出取图看见。没有 receipt（绝大多数：讲完才保存）或
+     * 引用写入失败时**什么都不做**：附加引用是"最好也有"，绝不能把已经成功、已经付费的
+     * 生成结果改判成失败。
+     */
+    private suspend fun attachGeneratedRedrawToRevision(context: Context, figureId: String) {
+        val sessionId = context.tutorSessionId?.takeIf(String::isNotBlank) ?: return
+        try {
+            val revisionId = port.readTutorSession(sessionId)?.commitReceipt?.problemRevisionId
+                ?: return
+            val record = port.readCanonicalSourceAsset(figureId) ?: return
+            port.attachCleanRedrawAsset(revisionId = revisionId, asset = record)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // 附加引用失败不改判生成结果（见方法 KDoc）。
         }
     }
 

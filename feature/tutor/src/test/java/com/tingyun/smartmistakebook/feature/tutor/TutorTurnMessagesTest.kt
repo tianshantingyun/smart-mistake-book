@@ -17,6 +17,8 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.domain.UpdateTutorMessageStatusCommand
+import com.tingyun.smartmistakebook.core.model.TutorFigureKind
+import com.tingyun.smartmistakebook.core.model.TutorToolFigureTrace
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolTraceEntry
 import com.tingyun.smartmistakebook.core.model.TutorTurnToolTrace
@@ -121,6 +123,92 @@ class TutorTurnMessagesTest {
         )
 
         assertEquals(traceJson, conversations.assistantTurns.single().toolTraceJson)
+    }
+
+    @Test
+    fun aRecordedTurnCarriesItsGeneratedFigureReferencesOnTheSameRow() = runTest {
+        // A2：本轮生成图的**持久引用**与正文、痕迹同一次写入——消息行在，引用就在；
+        // 界面靠它重建配图，孤儿回收靠它不删这张已付费的图。
+        val conversations = TutorConversationRows()
+        val traceJson = requireNotNull(
+            encodeTutorTurnToolTrace(
+                TutorTurnToolTrace(
+                    entries = listOf(
+                        TutorToolTraceEntry(
+                            tool = TutorToolName.GENERATE_FIGURE,
+                            ok = true,
+                            figure = TutorToolFigureTrace(
+                                kind = TutorFigureKind.REDRAW_PROBLEM,
+                                figureId = "figure-a",
+                                model = "gpt-image-2",
+                                generatedNow = true,
+                            ),
+                        ),
+                        TutorToolTraceEntry(
+                            tool = TutorToolName.GENERATE_FIGURE,
+                            ok = true,
+                            figure = TutorToolFigureTrace(
+                                kind = TutorFigureKind.GENERATE_PROCESS,
+                                figureId = "figure-b",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        recordTutorAssistantTurn(
+            conversations = conversations,
+            sessionId = SESSION_ID,
+            questionDocumentId = "question-1",
+            revisionNumber = 2,
+            requestId = REQUEST_ID,
+            replyToMessageId = null,
+            bodyMarkdown = "图放在下面。",
+            thinkingMarkdown = null,
+            occurredAtEpochMillis = 100,
+            completedAtEpochMillis = 120,
+            toolTraceJson = traceJson,
+        )
+
+        assertEquals(
+            listOf("figure-a", "figure-b"),
+            conversations.assistantTurns.single().sourceImageAssetIds,
+        )
+    }
+
+    @Test
+    fun aTurnWithoutFiguresWritesNoFigureReferences() = runTest {
+        val conversations = TutorConversationRows()
+        val traceJson = requireNotNull(
+            encodeTutorTurnToolTrace(
+                TutorTurnToolTrace(
+                    entries = listOf(
+                        TutorToolTraceEntry(
+                            tool = TutorToolName.NOTEBOOK_READ,
+                            resultCount = 2,
+                            ok = true,
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        recordTutorAssistantTurn(
+            conversations = conversations,
+            sessionId = SESSION_ID,
+            questionDocumentId = "question-1",
+            revisionNumber = 2,
+            requestId = REQUEST_ID,
+            replyToMessageId = null,
+            bodyMarkdown = "错题本里有两道同类题。",
+            thinkingMarkdown = null,
+            occurredAtEpochMillis = 100,
+            completedAtEpochMillis = 120,
+            toolTraceJson = traceJson,
+        )
+
+        assertTrue(conversations.assistantTurns.single().sourceImageAssetIds.isEmpty())
     }
 
     /**
@@ -295,6 +383,7 @@ private class TutorConversationRows : TutorConversationRepository {
             bodyMarkdown = command.bodyMarkdown,
             thinkingMarkdown = command.thinkingMarkdown,
             toolTraceJson = command.toolTraceJson,
+            sourceImageAssetIds = command.sourceImageAssetIds,
             replyToMessageId = command.replyToMessageId,
             logicalOperationId = command.logicalOperationId,
             requestedOrdinal = command.ordinal,
@@ -330,6 +419,8 @@ private data class RecordedAssistantTurn(
     val thinkingMarkdown: String?,
     /** 这一轮的工具痕迹（B1）：与正文同一次写入。 */
     val toolTraceJson: String?,
+    /** A2：本轮生成图的持久引用（与正文、痕迹同一次写入）。 */
+    val sourceImageAssetIds: List<String>,
     val replyToMessageId: String?,
     val logicalOperationId: String?,
     val requestedOrdinal: Int?,
@@ -342,6 +433,7 @@ private data class RecordedAssistantTurn(
         bodyMarkdown = bodyMarkdown,
         thinkingMarkdown = thinkingMarkdown,
         toolTraceJson = toolTraceJson,
+        sourceImageAssetIds = sourceImageAssetIds,
         status = TutorMessageStatus.SUCCEEDED,
         logicalOperationId = logicalOperationId,
         replyToMessageId = replyToMessageId,

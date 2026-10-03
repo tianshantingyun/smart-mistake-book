@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
+import com.tingyun.smartmistakebook.core.database.ProblemDraftCommitReceipt
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRecord
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRevisionRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
@@ -1705,11 +1706,14 @@ class RoomTutorToolRunnerTest {
             TutorFigureResult(null, TutorFigureStatus.GENERATED)
         }
 
-        val outcome = runner.run(figureCall(kind = TutorFigureKind.REDRAW_PROBLEM), sessionContext())
+        val execution = runner.runTraced(figureCall(kind = TutorFigureKind.REDRAW_PROBLEM), sessionContext())
 
-        assertTrue(outcome.ok)
-        assertTrue(outcome.summaryMarkdown.contains("本轮没有可画的题"))
+        assertTrue(execution.outcome.ok)
+        assertTrue(execution.outcome.summaryMarkdown.contains("本轮没有可画的题"))
         assertEquals(0, generatorCalls)
+        // A4：事实半必须跟着走（无 id）——工具卡据此说"本轮没有可画的题"，而不是"已生成"。
+        assertEquals(TutorFigureKind.REDRAW_PROBLEM, requireNotNull(execution.figure).kind)
+        assertNull(execution.figure?.figureId)
     }
 
     @Test
@@ -1774,6 +1778,129 @@ class RoomTutorToolRunnerTest {
 
         assertFalse(outcome.ok)
         assertEquals("figure_unavailable", outcome.errorKind)
+    }
+
+    // ---- 4B 批 2 A2：生图事实进痕迹 + 已保存题面的 CLEAN_IMAGE 附加引用 ----
+
+    @Test
+    fun generateFigureTracesTheFigureFactsForTheToolCardAndTheMessageLink() = runBlocking {
+        val port = FigureDraftPort(problemDraftRecord("draft-figure-5"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-5")
+        val runner = figureRunner(port) { _ ->
+            TutorFigureResult(
+                figureId = "figure-key-1",
+                status = TutorFigureStatus.GENERATED,
+                model = "gpt-image-2",
+                generatedNow = true,
+            )
+        }
+
+        val execution = runner.runTraced(figureCall(), sessionContext())
+
+        assertTrue(execution.outcome.ok)
+        val figure = requireNotNull(execution.figure)
+        assertEquals("figure-key-1", figure.figureId)
+        assertEquals(TutorFigureKind.REDRAW_PROBLEM, figure.kind)
+        assertEquals("gpt-image-2", figure.model)
+        assertTrue(figure.generatedNow)
+    }
+
+    @Test
+    fun redrawOnAnAlreadySavedProblemAlsoAttachesTheCleanImageReference() = runBlocking {
+        // A2 的"题重绘 → problem_revision_source_asset(role=CLEAN_IMAGE)"去向：会话已保存
+        // （commit receipt 在）时补一条引用，导出取图（B6）按它就能看见这张重绘。
+        val port = RedrawAttachPort(problemDraftRecord("draft-figure-6"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-6").copy(
+            commitReceipt = commitReceipt("draft-figure-6"),
+        )
+        val runner = figureRunner(port) { _ ->
+            TutorFigureResult(
+                figureId = "figure-key-2",
+                status = TutorFigureStatus.GENERATED,
+                model = "gpt-image-2",
+                generatedNow = true,
+            )
+        }
+
+        val outcome = runner.run(figureCall(kind = TutorFigureKind.REDRAW_PROBLEM), sessionContext())
+
+        assertTrue(outcome.ok)
+        assertEquals("revision-draft-figure-6" to "figure-key-2", port.attached.single())
+    }
+
+    @Test
+    fun aFailedCleanImageAttachmentDoesNotTurnAGeneratedFigureIntoAFailure() = runBlocking {
+        val port = RedrawAttachPort(problemDraftRecord("draft-figure-7"), failAttach = true)
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-7").copy(
+            commitReceipt = commitReceipt("draft-figure-7"),
+        )
+        val runner = figureRunner(port) { _ ->
+            TutorFigureResult(
+                figureId = "figure-key-3",
+                status = TutorFigureStatus.GENERATED,
+                model = "gpt-image-2",
+                generatedNow = true,
+            )
+        }
+
+        val outcome = runner.run(figureCall(kind = TutorFigureKind.REDRAW_PROBLEM), sessionContext())
+
+        assertTrue("附加引用失败不得改判已付费的生成结果", outcome.ok)
+    }
+
+    @Test
+    fun aProcessFigureNeverAttachesToTheProblemRevision() = runBlocking {
+        val port = RedrawAttachPort(problemDraftRecord("draft-figure-8"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-8").copy(
+            commitReceipt = commitReceipt("draft-figure-8"),
+        )
+        val runner = figureRunner(port) { _ ->
+            TutorFigureResult(
+                figureId = "figure-key-4",
+                status = TutorFigureStatus.GENERATED,
+                model = "gpt-image-2",
+                generatedNow = true,
+            )
+        }
+
+        runner.run(figureCall(kind = TutorFigureKind.GENERATE_PROCESS), sessionContext())
+
+        assertTrue("过程图不是题面重绘，不进 CLEAN_IMAGE", port.attached.isEmpty())
+    }
+
+    private fun commitReceipt(draftId: String) = ProblemDraftCommitReceipt(
+        commandId = "commit-$draftId",
+        payloadFingerprint = "fp-$draftId",
+        draftId = draftId,
+        draftRevisionNumber = 1,
+        problemId = "problem-$draftId",
+        problemRevisionId = "revision-$draftId",
+        practiceUnitId = "practice-$draftId",
+        errorBookEntryId = "entry-$draftId",
+        committedAtEpochMillis = 2_000,
+    )
+
+    /** 假库：草稿 + 会话 + 规范资产行 + attachCleanRedrawAsset 探针。 */
+    private class RedrawAttachPort(
+        private val draft: ProblemDraftRecord?,
+        private val failAttach: Boolean = false,
+    ) : FakeStudyDatabasePort() {
+        val attached = mutableListOf<Pair<String, String>>()
+
+        override suspend fun readProblemDraft(draftId: String): ProblemDraftRecord? =
+            draft?.takeIf { it.draftId == draftId }
+
+        override suspend fun readCanonicalSourceAsset(sourceAssetId: String): CanonicalSourceAssetRecord? =
+            draft?.sourceAsset?.copy(sourceAssetId = sourceAssetId)
+
+        override suspend fun attachCleanRedrawAsset(
+            revisionId: String,
+            asset: CanonicalSourceAssetRecord,
+        ): Boolean {
+            if (failAttach) error("clean image link failed")
+            attached += revisionId to asset.sourceAssetId
+            return true
+        }
     }
 
     /** 桶节点的落库形状（ensurePseudoKnowledgeNode 的产物：MODEL_CANDIDATE，不进召回面）。 */

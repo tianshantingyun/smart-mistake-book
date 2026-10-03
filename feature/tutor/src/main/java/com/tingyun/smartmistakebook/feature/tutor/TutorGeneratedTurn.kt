@@ -27,6 +27,7 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
+import com.tingyun.smartmistakebook.core.ui.GeneratedFiguresSection
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
@@ -50,6 +51,13 @@ internal fun TutorTurnContent(
      * null = 这一轮没有发起工具调用（或旧行没有痕迹），整行不渲染。
      */
     toolTraceJson: String? = null,
+    /**
+     * A2（4B）：本轮讲解消息上的**持久配图引用**（`tutor_message_source_asset` 的资产 id）。
+     * 非空且给了 [figureAssetResolver] 时，在讲解正文下方渲染可展开的生成图卡。
+     */
+    figureAssetIds: List<String> = emptyList(),
+    /** 生成图资产 id → 本地 URI（本地读回，绝不出网）；null = 不渲染配图卡。 */
+    figureAssetResolver: (suspend (String) -> String?)? = null,
     response: TutorTurnResponse? = null,
     solutionRevealPreviewed: Boolean = false,
     interactionEnabled: Boolean = true,
@@ -108,6 +116,12 @@ internal fun TutorTurnContent(
         }
         // B1：这一轮查阅了什么，单独一行小字（不混进思考卡），点开看明细。
         TutorToolTraceLine(display = rememberTutorToolTraceDisplay(toolTraceJson))
+        // A2：本轮生成的配图（消息行上的持久引用 → 本地读回）。
+        figureAssetResolver?.let { resolver ->
+            figureAssetIds.takeIf { it.isNotEmpty() }?.let { assetIds ->
+                GeneratedFiguresSection(assetIds = assetIds, resolveAsset = resolver)
+            }
+        }
         item?.let { interaction ->
             SafeMarkdownText(interaction.stemMarkdown, style = MaterialTheme.typography.bodyLarge)
             interaction.promptMarkdown?.let {

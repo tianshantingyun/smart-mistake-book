@@ -27,6 +27,8 @@ import com.tingyun.smartmistakebook.core.database.SplitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.TutorSessionRecord
+import com.tingyun.smartmistakebook.core.data.model.OpenAiImageGenerationChannel
+import com.tingyun.smartmistakebook.core.data.model.sha256Hex
 import com.tingyun.smartmistakebook.core.data.splitimport.RoomSplitImportRepository
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftImportRequest
 import com.tingyun.smartmistakebook.core.domain.AppendCaptureDraftPageRequest
@@ -549,11 +551,21 @@ class RoomCaptureWorkflowRepository internal constructor(
         require(cleanImageMimeType == "image/jpeg" || cleanImageMimeType == "image/png") {
             "Clean redraw must be a JPEG or PNG"
         }
+        // A2：重绘图也是**模型生成的图**——sourceType 用 GENERATED_FIGURE（与工具链同值），
+        // 编号按输入字节的 sha 稳定派生（同一张重绘重复落盘是同一行同一文件），并把隐式 AI
+        // 标识写进文件字节；canonical 行 + CLEAN_IMAGE 引用由 attachCleanRedrawAsset 建立。
+        val figureId = "clean-" + sha256Hex(cleanImageBytes)
         val asset = assetVault.persistCleanImageBytes(
             bytes = cleanImageBytes,
             mimeType = cleanImageMimeType,
-            sourceType = StudyDbValue.SourceAssetType.CAMERA,
+            sourceType = StudyDbValue.SourceAssetType.GENERATED_FIGURE,
             createdAtEpochMillis = System.currentTimeMillis(),
+            provenance = GeneratedFigureProvenance(
+                model = OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+                figureId = figureId,
+                purpose = "CLEAN_REDRAW",
+            ),
+            figureIdentity = figureId,
         )
         database.attachCleanRedrawAsset(
             revisionId = problemRevisionId,

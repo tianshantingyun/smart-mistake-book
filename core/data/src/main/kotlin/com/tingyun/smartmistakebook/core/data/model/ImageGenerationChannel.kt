@@ -52,6 +52,22 @@ data class ImageGenerationRequest(
     }
 }
 
+/**
+ * 生成质量档的**单一出处**：通道把它发给 provider，A2 的幂等指纹把同一个值算进键——
+ * 两处各写一份的话，"quality 变了但指纹没变"会让新参数命中旧图（或反过来重复付费）。
+ */
+internal const val IMAGE_GENERATION_QUALITY = "high"
+
+/**
+ * maxDimension → provider 的 size 值的**单一出处**（通道与幂等指纹共用）。
+ * 指纹算的是这个实际发出去的 size 串，不是 maxDimension 本身——只有 size 真的变了键才变。
+ */
+internal fun imageGenerationSizeFor(maxDimension: Int): String = when {
+    maxDimension <= 1024 -> "1024x1024"
+    maxDimension <= 1536 -> "1536x1024"
+    else -> "1024x1536"
+}
+
 /** A request to redraw a photographed problem into a clean figure. */
 @Serializable
 data class ImageRedrawRequest(

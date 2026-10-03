@@ -203,6 +203,12 @@ data class AppendTutorAssistantMessageDatabaseCommand(
      * null = 这一轮没有发起工具调用（空载体不落列）。
      */
     val toolTraceJson: String? = null,
+    /**
+     * A2（4B）：这一轮成功生成/命中缓存的配图规范资产 id（按生成顺序）。与消息行**同一个
+     * 事务**写入 `tutor_message_source_asset` 引用——引用是"图还在"的持久事实（界面重建与
+     * 孤儿回收都读它）；分两次写就会出现"有消息没引用"的中间态，那张图会被回收。
+     */
+    val sourceImageAssetIds: List<String> = emptyList(),
     val logicalOperationId: String?,
     val status: String,
     val createdAtEpochMillis: Long,

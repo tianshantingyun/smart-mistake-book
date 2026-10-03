@@ -27,6 +27,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionRetriever
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeDetailRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeOrganizationRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.export.MistakeExportRepositoryFactory
+import com.tingyun.smartmistakebook.core.data.model.AttachedImageGeneratorFactory
 import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelGatewayFactory
 import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelCapabilityTesterFactory
 import com.tingyun.smartmistakebook.core.data.model.ModelTaskRepositoryFactory
@@ -343,9 +344,11 @@ class SmartMistakeBookApplication : Application() {
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
                 // 4B A1：工具环生图（GENERATE_FIGURE）复用同一份模型凭证与 SSRF 防护通道；
                 // 没配模型时整条链保持 null（工具回"不可用"，不静默假成功）。
+                // A2：生成结果登记 canonical 行（幂等键派生的 id），同键重放不再出网付费。
                 figureGenerator = modelConfigurationStore?.let { configurationStore ->
                     TutorFigureGeneratorFactory.create(
                         context = this,
+                        database = database,
                         configurationStore = configurationStore,
                         networkRequestsAllowed = capabilities.networkRequestsAllowed,
                     )
@@ -665,6 +668,24 @@ class SmartMistakeBookApplication : Application() {
     val modelCapabilityTester: ModelCapabilityTester? by lazy {
         modelConfigurationStore?.let(ConfiguredModelCapabilityTesterFactory::create)
     }
+
+    /**
+     * A2（4B）：兼容配图链（`attachedImages`）的解析器装配口。
+     *
+     * `database` 是 Application 的私有成员，而 destinations 层两个路由各自需要不同的题面字节
+     * 来源（拍照会话 vs 错题讲题页），所以这里只暴露"工厂 + 每路由的题面来源"这一条窄缝，
+     * 不把整个数据库端口抬成公开面。生成结果登记 canonical 行并按幂等键复用。
+     */
+    fun attachedImageResolver(
+        resolveCurrentSheetBytes: suspend () -> ByteArray?,
+    ): suspend (com.tingyun.smartmistakebook.core.model.AttachedImage) -> String? =
+        AttachedImageGeneratorFactory.create(
+            context = this,
+            database = database,
+            configurationStore = modelConfigurationStore,
+            networkRequestsAllowed = capabilities.networkRequestsAllowed,
+            resolveCurrentSheetBytes = resolveCurrentSheetBytes,
+        )
 
     override fun onTerminate() {
         studyRepository.close()

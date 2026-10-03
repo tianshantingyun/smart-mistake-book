@@ -43,8 +43,8 @@ internal class OpenAiImageGenerationChannel(
                     request.photoBytes.toRequestBody(mediaType),
                 )
                 .addFormDataPart("prompt", request.instruction)
-                .addFormDataPart("size", sizeFor(request.maxDimension))
-                .addFormDataPart("quality", "high")
+                .addFormDataPart("size", imageGenerationSizeFor(request.maxDimension))
+                .addFormDataPart("quality", IMAGE_GENERATION_QUALITY)
                 .addFormDataPart("output_format", request.outputFormat)
                 .build()
             val http = Request.Builder()
@@ -78,10 +78,10 @@ internal class OpenAiImageGenerationChannel(
         val body = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("model", modelId)
             .addFormDataPart("images[]", "source.$imageExt", sourceBytes.toRequestBody(mediaType))
-            .addFormDataPart("prompt", request.prompt)
-            .addFormDataPart("size", sizeFor(request.maxDimension))
-            .addFormDataPart("quality", "high")
-            .addFormDataPart("output_format", request.outputFormat)
+                .addFormDataPart("prompt", request.prompt)
+                .addFormDataPart("size", imageGenerationSizeFor(request.maxDimension))
+                .addFormDataPart("quality", IMAGE_GENERATION_QUALITY)
+                .addFormDataPart("output_format", request.outputFormat)
             .build()
         val http = Request.Builder()
             .url("$baseUrl/images/edits")
@@ -95,8 +95,8 @@ internal class OpenAiImageGenerationChannel(
         val body = ImageGenerationRequestBody(
             model = modelId,
             prompt = request.prompt,
-            size = sizeFor(request.maxDimension),
-            quality = "high",
+            size = imageGenerationSizeFor(request.maxDimension),
+            quality = IMAGE_GENERATION_QUALITY,
             outputFormat = request.outputFormat,
             n = 1,
         )
@@ -138,12 +138,6 @@ internal class OpenAiImageGenerationChannel(
             mimeType = parsed.data.first().mimeType ?: "image/png",
             modelVersion = modelId,
         )
-    }
-
-    private fun sizeFor(maxDimension: Int): String = when {
-        maxDimension <= 1024 -> "1024x1024"
-        maxDimension <= 1536 -> "1536x1024"
-        else -> "1024x1536"
     }
 
     private val imageExt: String

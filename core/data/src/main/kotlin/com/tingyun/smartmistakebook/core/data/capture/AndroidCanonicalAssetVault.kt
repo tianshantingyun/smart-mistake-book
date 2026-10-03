@@ -81,14 +81,7 @@ internal class AndroidCanonicalAssetVault(
             "Capture input must come from the app-private provider"
         }
 
-        val assetRoot = File(context.filesDir, ASSET_DIRECTORY).also { directory ->
-            check(directory.isDirectory || directory.mkdirs() || directory.isDirectory) {
-                "Cannot create canonical asset vault"
-            }
-            check(directory.canonicalFile.parentFile == context.filesDir.canonicalFile) {
-                "Canonical asset vault escaped app-private storage"
-            }
-        }
+        val assetRoot = ensureAssetRoot()
         val raw = File.createTempFile(".raw-", ".tmp", assetRoot)
         var decoded: Bitmap? = null
         var oriented: Bitmap? = null
@@ -175,15 +168,32 @@ internal class AndroidCanonicalAssetVault(
      * canonical source asset. Enforces the same decoded bounds and encoded
      * byte budget as [import]; the caller supplies the mime type, which drives
      * the JPEG-vs-PNG canonical encoding.
+     *
+     * 库目录由本方法（首个写入方）**惰性创建**（见 [ensureAssetRoot]）——生成图可能出现在
+     * 任何一次拍照之前。
+     *
+     * [provenance] 非空时（A2：模型生成的配图）在**编码后的文件字节**里写入隐式 AI 标识
+     * （属性/提供者/编号，见 [embedGeneratedFigureMetadata]）——标识随文件走，文件被原样
+     * 复制/备份时仍在（经 App 的 PDF 导出会重绘，不随 PDF 走，见该文件 KDoc 的边界说明）。
+     *
+     * [figureIdentity] 非空时（同上）同时作为**资产 id 与文件名**：生成图的 id 由幂等键派生，
+     * 必须跨重放稳定（内容哈希派生的话，同键重放会找不到旧行 → 重复出网、重复付费）。
+     * 文件名也随它走，避免两个不同幂等键生成出相同字节时共享一个文件（一份被回收会连带
+     * 删掉另一份）。为空时保持既有内容寻址（照片/裁剪）。
      */
     fun persistCleanImageBytes(
         bytes: ByteArray,
         mimeType: String,
         sourceType: String,
         createdAtEpochMillis: Long,
+        provenance: GeneratedFigureProvenance? = null,
+        figureIdentity: String? = null,
     ): CanonicalSourceAssetRecord {
         require(bytes.isNotEmpty() && bytes.size <= MAX_CLEAN_INPUT_BYTES) {
             "Clean image input is empty or exceeds the byte budget"
+        }
+        require(figureIdentity == null || figureIdentity.isNotBlank()) {
+            "A generated figure identity must be null or non-blank"
         }
         val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, boundsOptions)
@@ -205,6 +215,8 @@ internal class AndroidCanonicalAssetVault(
                 preferJpeg = mimeType == "image/jpeg",
                 sourceType = sourceType,
                 createdAtEpochMillis = createdAtEpochMillis,
+                provenance = provenance,
+                figureIdentity = figureIdentity,
             )
         } catch (outOfMemory: OutOfMemoryError) {
             throw IllegalArgumentException(
@@ -249,6 +261,26 @@ internal class AndroidCanonicalAssetVault(
             "Canonical source asset is missing or changed"
         }
         return file
+    }
+
+    /**
+     * 规范资产库目录：**首个写入方惰性创建**，并核对它没有逃出应用私有目录。
+     *
+     * 为什么要有这条共用 helper：目录此前只由 [import] 创建，生成图（[persistCleanImageBytes]）
+     * 是后出现的写入方——全新设备上第一张图若是生成的（没拍过照），落盘会撞
+     * "Canonical asset vault is unavailable"。两处各写一份创建逻辑则会漂开；这里只有一份，
+     * 两条写入路径都从它拿目录（包含性检查与既有行为逐字一致，一条不少）。
+     */
+    private fun ensureAssetRoot(): File {
+        val directory = File(context.filesDir, ASSET_DIRECTORY)
+        check(directory.isDirectory || directory.mkdirs() || directory.isDirectory) {
+            "Cannot create canonical asset vault"
+        }
+        val canonical = directory.canonicalFile
+        check(canonical.parentFile == context.filesDir.canonicalFile) {
+            "Canonical asset vault escaped app-private storage"
+        }
+        return canonical
     }
 
     private fun decodeBounds(file: File): ImageBounds {
@@ -297,9 +329,13 @@ internal class AndroidCanonicalAssetVault(
         preferJpeg: Boolean,
         sourceType: String,
         createdAtEpochMillis: Long,
+        provenance: GeneratedFigureProvenance? = null,
+        figureIdentity: String? = null,
     ): CanonicalSourceAssetRecord {
-        val assetRoot = File(context.filesDir, ASSET_DIRECTORY).canonicalFile
-        check(assetRoot.isDirectory) { "Canonical asset vault is unavailable" }
+        // 生成图（A2）是库目录的**首个写入方**路径之一：此前目录只由 import() 创建，全新设备上
+        // 第一次就是生成图落盘时会撞 "Canonical asset vault is unavailable"。这里与 import()
+        // 共用同一处惰性创建（安全校验一条不少）。
+        val assetRoot = ensureAssetRoot()
         val canonical = File.createTempFile(".canonical-", ".tmp", assetRoot)
         try {
             val format = if (preferJpeg && !bitmap.hasAlpha()) {
@@ -316,28 +352,38 @@ internal class AndroidCanonicalAssetVault(
                 stream.flush()
                 stream.fd.sync()
             }
+            // A2：隐式 AI 标识写进**编码后的字节**（在算 sha 之前，标识本身也是内容的一部分）。
+            provenance?.let { embedGeneratedFigureMetadata(canonical, it) }
             check(canonical.length() in 1L..MAX_CANONICAL_BYTES) {
                 "Canonical image exceeds the byte budget"
             }
             val sha256 = sha256(canonical)
-            val destination = File(assetRoot, "$sha256.$extension")
+            val baseName = figureIdentity ?: sha256
+            val destination = File(assetRoot, "$baseName.$extension")
             check(destination.canonicalFile.parentFile == assetRoot) {
                 "Canonical asset destination escaped its vault"
             }
             if (destination.exists()) {
-                check(destination.isFile && sha256(destination) == sha256) {
-                    "Canonical asset hash collision"
+                if (figureIdentity == null) {
+                    check(destination.isFile && sha256(destination) == sha256) {
+                        "Canonical asset hash collision"
+                    }
+                } else {
+                    // 幂等键命名的生成图：同名文件允许被重写（旧行已不在，或这是一次修正）。
+                    // 内容寻址的资产不允许走到这里（上面那条 check 保证同内容不重写）。
+                    check(destination.isFile && destination.delete()) {
+                        "Cannot replace a generated figure asset"
+                    }
                 }
-            } else {
-                check(
-                    canonical.renameTo(destination) ||
-                        (destination.isFile && sha256(destination) == sha256),
-                ) { "Cannot finalize canonical source asset" }
             }
+            check(
+                canonical.renameTo(destination) ||
+                    (destination.isFile && sha256(destination) == sha256),
+            ) { "Cannot finalize canonical source asset" }
             return CanonicalSourceAssetRecord(
-                sourceAssetId = "asset-${sha256.take(32)}",
+                sourceAssetId = figureIdentity ?: "asset-${sha256.take(32)}",
                 contentSha256 = sha256,
-                relativePath = "$ASSET_DIRECTORY/$sha256.$extension",
+                relativePath = "$ASSET_DIRECTORY/$baseName.$extension",
                 mimeType = mimeType,
                 byteSize = destination.length(),
                 width = bitmap.width,

@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
+import com.tingyun.smartmistakebook.core.model.tutorTurnFigureAssetIds
 import kotlinx.coroutines.flow.collect
 import com.tingyun.smartmistakebook.core.model.stripUndisclosedSourceLabels
 import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
@@ -129,6 +130,9 @@ internal suspend fun recordTutorAssistantTurn(
                 bodyMarkdown = body,
                 thinkingMarkdown = thinkingMarkdown,
                 toolTraceJson = toolTraceJson,
+                // A2：本轮生成的配图与正文、痕迹**同一次写入**建立持久引用——界面靠它重建配图
+                // （不再依赖内存 URI），孤儿回收靠它不删这张已付费的图。
+                sourceImageAssetIds = tutorTurnFigureAssetIds(toolTraceJson),
                 logicalOperationId = requestId,
                 status = TutorMessageStatus.SUCCEEDED,
                 createdAtEpochMillis = occurredAtEpochMillis,

@@ -79,6 +79,9 @@ internal class ModelTaskToolTraceStore {
                 ok = execution.outcome.ok,
                 // 被拒/失败才有 kind；成功的条目不带（空载体不进存储形状）。
                 errorKind = execution.outcome.errorKind,
+                // A2：生图条目带事实半（id/kind/模型/是否本次出网）——消息行落库时按它建立
+                // 资产引用，界面按它重建配图，工具卡按它说"已计入额度/已保留原图"。
+                figure = execution.figure,
             )
         }
         traces.update { current ->

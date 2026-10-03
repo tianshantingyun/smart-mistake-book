@@ -17,7 +17,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.tingyun.smartmistakebook.core.data.capture.readVerifiedCanonicalAssetBytes
-import com.tingyun.smartmistakebook.core.data.model.AttachedImageGeneratorFactory
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
@@ -365,18 +364,13 @@ internal fun SavedMistakeTutorDestination(
             // 模型要的配图（重绘题面 / 过程图）要在这一页真的画出来：错题讲题页此前拿不到
             // 解析器，整段被跳过（只有拍照会话传了它）。题面字节取自这道题的规范资产，
             // 与会话页同一条"逐位核对"纪律，见 savedMistakeSheetBytes。
-            attachedImageResolver = AttachedImageGeneratorFactory.create(
-                context = application,
-                configurationStore = application.modelConfigurationStore,
-                networkRequestsAllowed = application.capabilities.networkRequestsAllowed,
-                resolveCurrentSheetBytes = {
-                    savedMistakeSheetBytes(
-                        context = application,
-                        repository = application.mistakeDetailRepository,
-                        key = key,
-                    )
-                },
-            ),
+            attachedImageResolver = application.attachedImageResolver {
+                savedMistakeSheetBytes(
+                    context = application,
+                    repository = application.mistakeDetailRepository,
+                    key = key,
+                )
+            },
             // 确认卡（A4）：模型在这一页申请的本地动作挂成库里的行；学生点了才执行，落点是
             // 这一页既有的真实出口（打开错题本——这道题已经在里面），回喂如实说"已经在错题本里"。
             // 此前这一页没有这个端口：模型的本地动作请求在这条路由上没有出口。

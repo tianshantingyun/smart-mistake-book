@@ -61,9 +61,11 @@ fun TutorToolName.purposeDescription(): String = when (this) {
             "description 用平实中文写清这张图要表达什么（上限 " +
             "${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符），terms 必须留空。" +
             "仅当图能实质降低当前题当前小问的理解负担时才申请；" +
-            "生成结果只回图的 id 与状态（图已保存到本地；当前版本还不会在回复中展示，" +
-            "不要让学生去找图，也不要声称已经展示）。" +
-            "本地未配置可用的图像模型时不会生成（返回不可用，不要反复申请）。"
+            "生成结果只回图的 id 与状态：**有当前题并生成成功时**，图会保存到本地并作为本轮" +
+            "回复下方的一张可展开配图（学生点开可见），不要让学生去找别处的图，也不要声称自己" +
+            "看到了图的内容。" +
+            "没有当前题（如大厅轮次）时不会生成；本地未配置可用的图像模型时也不会生成" +
+            "（返回不可用，不要反复申请）。"
 }
 
 /** 原生 function schema 用的短描述（与 [purposeDescription] 同一来源，措辞收紧）。 */
@@ -87,5 +89,6 @@ fun TutorToolName.nativePurposeDescription(): String = when (this) {
     TutorToolName.GENERATE_FIGURE ->
         "生成当前题的配图（kind=REDRAW_PROBLEM 重绘干净题面，源图本地自动取、不接受模型供图；" +
             "kind=GENERATE_PROCESS 按 description 文生图；terms 留空，" +
-            "description≤${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符；结果只回 id+状态）"
+            "description≤${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符；" +
+            "结果只回 id+状态，有当前题且生成成功时作为本轮回复下方的可展开配图展示）"
 }

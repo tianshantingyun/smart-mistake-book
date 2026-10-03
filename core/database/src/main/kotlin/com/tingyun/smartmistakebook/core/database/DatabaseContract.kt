@@ -116,6 +116,16 @@ internal object DatabaseContractValidator {
     private val sourceAssetTypes = setOf(
         StudyDbValue.SourceAssetType.CAMERA,
         StudyDbValue.SourceAssetType.PHOTO_PICKER,
+        // A2（4B）：模型生成的配图（题面重绘/解析过程图）同样会经草稿/题面写入口落库，
+        // 缺它会撞契约（批 1 复核 F7）。TEXT 常量值，不改 schema。
+        //
+        // 边界（修复轮 F2-6）：GENERATED_FIGURE **不经过本验证器的 `validateSourceAsset`**
+        // ——它由 `registerCanonicalSourceAsset` / `attachCleanRedrawAsset` 落库（幂等键派生的
+        // id 与文件名）。因此本白名单对它只是"已知取值"，`relativePath ==
+        // source-assets/<contentSha256>.<ext>` 这条路径不变量**不适用于该类型**（见
+        // validateSourceAsset 里的同一条注记）。白名单保留是为了 `known()` 的取值面完整、
+        // 以及将来若把生成图接入草稿写入口时不再漏值。
+        StudyDbValue.SourceAssetType.GENERATED_FIGURE,
     )
     fun validateCreateProblemDraft(command: CreateProblemDraftCommand) {
         validateSourceAsset(command.sourceAsset)
@@ -374,6 +384,11 @@ internal object DatabaseContractValidator {
             "Canonical assets must be JPEG or PNG"
         }
         val expectedExtension = if (asset.mimeType == "image/png") "png" else "jpg"
+        // 路径不变量只约束**内容寻址**的资产（拍照/相册/裁剪：id 与文件名都由内容 sha 派生）。
+        // 生成图（GENERATED_FIGURE）的 id 与文件名由**幂等键**派生（见 core:data 的
+        // tutorFigureFingerprintId 与 vault 的 figureIdentity），因此该类型不走本验证器——
+        // 白名单里的取值只为 `known()` 完整；两条写入路径是 registerCanonicalSourceAsset /
+        // attachCleanRedrawAsset（修复轮 F2-6 登记）。
         requireContract(
             asset.relativePath == "source-assets/${asset.contentSha256}.$expectedExtension",
         ) { "Source asset path must be derived from its content hash and MIME type" }

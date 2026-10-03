@@ -36,28 +36,45 @@ class AttachedImageCardTest {
     }
 
     @Test
-    fun resolveAttachedImagesResolvesEachIntentToAKeyedUri() = runBlocking {
-        val images = listOf(
-            AttachedImage("a", AttachedImageKind.GENERATE_PROCESS, "图 A"),
-            AttachedImage("b", AttachedImageKind.REDRAW_PROBLEM, "图 B"),
-            AttachedImage("c", AttachedImageKind.GENERATE_PROCESS, "图 C"),
-        )
-        val uris = resolveAttachedImages(images) { image -> if (image.imageId == "a") "file://a" else "file://${image.imageId}" }
+    fun aGeneratedFigureResolvesOnceToReady() = runBlocking {
+        // A2：持久引用（资产 id）→ 解析一次 → Ready；同一 id 二次组合不重复解析（缓存）。
+        var resolveCalls = 0
+        val cache = GeneratedFigureAssetCache { assetId ->
+            resolveCalls += 1
+            "file://${assetId}"
+        }
 
-        assertEquals("file://a", uris["a"])
-        assertEquals("file://b", uris["b"])
-        assertEquals("file://c", uris["c"])
+        assertEquals(null, cache.cached("figure-a"))
+        val first = cache.stateOf("figure-a")
+        val second = cache.stateOf("figure-a")
+
+        assertEquals(AttachedImageRenderState.Ready("file://figure-a"), first)
+        assertEquals(first, second)
+        assertEquals("同一 id 只解析一次", 1, resolveCalls)
+        assertEquals(AttachedImageRenderState.Ready("file://figure-a"), cache.cached("figure-a"))
     }
 
     @Test
-    fun resolveAttachedImagesKeepsAFailedFigureAsNullPlaceholder() = runBlocking {
-        val images = listOf(
-            AttachedImage("ok", AttachedImageKind.GENERATE_PROCESS, "好图"),
-            AttachedImage("bad", AttachedImageKind.GENERATE_PROCESS, "坏图"),
-        )
-        val uris = resolveAttachedImages(images) { image -> image.imageId.takeIf { it == "ok" }?.let { "file://$it" } }
+    fun aFailedGeneratedFigureIsRememberedAsFailedNotRetriedByTheUi() = runBlocking {
+        // 解析失败是这张资产当前的真实状态；缓存它，不让界面在每次重组时反复重试。
+        var resolveCalls = 0
+        val cache = GeneratedFigureAssetCache {
+            resolveCalls += 1
+            null
+        }
 
-        assertEquals("file://ok", uris["ok"])
-        assertTrue(uris["bad"] == null)
+        assertEquals(AttachedImageRenderState.Failed, cache.stateOf("figure-b"))
+        assertEquals(AttachedImageRenderState.Failed, cache.stateOf("figure-b"))
+        assertEquals(1, resolveCalls)
+    }
+
+    /** A4：解析结果 → 三态（拿到 URI 是 READY，拿不到是 FAILED；GENERATING 是解析前的初始态）。 */
+    @Test
+    fun resolutionMapsToTheThreeRenderStates() {
+        assertEquals(
+            AttachedImageRenderState.Ready("file://a"),
+            attachedImageRenderState("file://a"),
+        )
+        assertEquals(AttachedImageRenderState.Failed, attachedImageRenderState(null))
     }
 }
