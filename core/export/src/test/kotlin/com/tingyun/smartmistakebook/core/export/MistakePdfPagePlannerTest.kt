@@ -28,7 +28,7 @@ class MistakePdfPagePlannerTest {
             ),
         )
 
-        val pages = MistakePdfPagePlanner.plan(input, measure)
+        val pages = MistakePdfPagePlanner.plan(input, measure).pages
 
         assertEquals(1, pages.size)
         val items = pages.single()
@@ -43,7 +43,7 @@ class MistakePdfPagePlannerTest {
         }
         val input = input(blocks = blocks)
 
-        val pages = MistakePdfPagePlanner.plan(input, measure)
+        val pages = MistakePdfPagePlanner.plan(input, measure).pages
 
         assertTrue("40 段单行内容必须分成多页（夹具保证溢出）", pages.size > 1)
         pages.forEachIndexed { index, page ->
@@ -121,7 +121,7 @@ class MistakePdfPagePlannerTest {
             add(MistakePdfBlock.Paragraph(id = "after", text = paragraphText(99)))
         }
 
-        val pages = MistakePdfPagePlanner.plan(input(blocks = blocks), measure)
+        val pages = MistakePdfPagePlanner.plan(input(blocks = blocks), measure).pages
 
         assertEquals(2, pages.size)
         assertFalse(
@@ -153,7 +153,7 @@ class MistakePdfPagePlannerTest {
             ),
         )
 
-        val items = MistakePdfPagePlanner.plan(input, measure).flatten()
+        val items = MistakePdfPagePlanner.plan(input, measure).flattened()
 
         val formula = items.filterIsInstance<PdfPlannedItem.Formula>().single()
         assertEquals("\\frac{1}{2}", formula.latex)
@@ -187,11 +187,11 @@ class MistakePdfPagePlannerTest {
             input(blocks = listOf(figureBlock), cleanImageLocalUri = "file:///clean.jpg"),
             measure,
             cleanImageSize = PdfImageSize(widthPx = 998, heightPx = 500),
-        ).single()
+        ).pages.single()
         val withoutImage = MistakePdfPagePlanner.plan(
             input(blocks = listOf(figureBlock)),
             measure,
-        ).single()
+        ).pages.single()
 
         val figure = withImage.filterIsInstance<PdfPlannedItem.Figure>().single()
         assertEquals(
@@ -207,9 +207,10 @@ class MistakePdfPagePlannerTest {
 
     // ---- fixtures ----
 
-    private fun contentHeight() = MistakePdfPagePlanner.PAGE_HEIGHT -
-        MistakePdfPagePlanner.TOP - MistakePdfPagePlanner.BOTTOM -
-        MistakePdfPagePlanner.FOOTER_HEIGHT
+    private fun contentHeight() = PdfPageGeometry.of(
+        MistakePdfLayout.DEFAULT,
+        PdfTypography.forFontScale(MistakePdfLayout.DEFAULT_FONT_SCALE),
+    ).contentHeightPt
 
     /** 41 字内 = 一行（BODY 行容量），前缀 "第N段" 让段落可从文本反认。 */
     private fun paragraphText(index: Int): String = "第${index}段"

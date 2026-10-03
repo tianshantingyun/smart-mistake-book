@@ -29,7 +29,16 @@ sealed interface MistakePdfBatchEligibilityResult {
 object MistakePdfBatchEligibility {
     const val MAX_QUESTIONS = 100
 
-    fun check(states: List<MistakeDetailState>): MistakePdfBatchEligibilityResult {
+    /**
+     * @param layout 版式参数（B1/B2）：整批同一份；非法参数 fail-closed，且参与
+     *   指纹（换版式必须换缓存键）。
+     */
+    fun check(
+        states: List<MistakeDetailState>,
+        layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    ): MistakePdfBatchEligibilityResult {
+        val violations = layout.validate()
+        require(violations.isEmpty()) { "Invalid export layout: $violations" }
         if (states.isEmpty()) {
             return MistakePdfBatchEligibilityResult.Ineligible(
                 MistakePdfBatchIneligibility.EMPTY,
@@ -42,7 +51,8 @@ object MistakePdfBatchEligibility {
         }
 
         val eligibleInputs = states.mapNotNull { state ->
-            (MistakePdfEligibility.check(state) as? MistakePdfEligibilityResult.Eligible)?.input
+            (MistakePdfEligibility.check(state, layout) as? MistakePdfEligibilityResult.Eligible)
+                ?.input
         }
         if (eligibleInputs.isEmpty()) {
             return MistakePdfBatchEligibilityResult.Ineligible(
@@ -74,6 +84,7 @@ object MistakePdfBatchEligibility {
         val combinedFingerprint = exportFingerprint(
             "mistake-batch-v1",
             includedCount.toString(),
+            layout.canonicalForm(),
             *sourceFingerprints.toTypedArray(),
         )
         return MistakePdfBatchEligibilityResult.Eligible(
@@ -92,6 +103,7 @@ object MistakePdfBatchEligibility {
                 maxPages = MistakePdfExportLimits.MAX_BATCH_PAGES,
                 maxRenderedLines = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
                 maxPdfBytes = MistakePdfExportLimits.MAX_BATCH_PDF_BYTES,
+                layout = layout,
             ),
             includedCount = includedCount,
             omittedCount = states.size - includedCount,

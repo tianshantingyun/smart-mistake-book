@@ -39,15 +39,29 @@ sealed interface MistakePdfEligibilityResult {
  * fallbackMarkdown and source images are deliberately absent from this contract.
  */
 object MistakePdfEligibility {
-    fun check(state: MistakeDetailState): MistakePdfEligibilityResult = when (state) {
-        MistakeDetailState.Loading -> ineligible(MistakePdfIneligibility.LOADING)
-        is MistakeDetailState.Legacy -> ineligible(MistakePdfIneligibility.LEGACY_CONTENT)
-        is MistakeDetailState.CorruptSnapshot -> ineligible(MistakePdfIneligibility.CORRUPT_CONTENT)
-        MistakeDetailState.NotFound -> ineligible(MistakePdfIneligibility.NOT_FOUND)
-        is MistakeDetailState.Ready -> checkReady(state)
+    /**
+     * @param layout 版式参数（B1）。默认 [MistakePdfLayout.DEFAULT] 与参数化前的固定版式
+     *   等价；非法参数在这里 fail-closed（不进入渲染）。
+     */
+    fun check(
+        state: MistakeDetailState,
+        layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    ): MistakePdfEligibilityResult {
+        val violations = layout.validate()
+        require(violations.isEmpty()) { "Invalid export layout: $violations" }
+        return when (state) {
+            MistakeDetailState.Loading -> ineligible(MistakePdfIneligibility.LOADING)
+            is MistakeDetailState.Legacy -> ineligible(MistakePdfIneligibility.LEGACY_CONTENT)
+            is MistakeDetailState.CorruptSnapshot -> ineligible(MistakePdfIneligibility.CORRUPT_CONTENT)
+            MistakeDetailState.NotFound -> ineligible(MistakePdfIneligibility.NOT_FOUND)
+            is MistakeDetailState.Ready -> checkReady(state, layout)
+        }
     }
 
-    private fun checkReady(state: MistakeDetailState.Ready): MistakePdfEligibilityResult {
+    private fun checkReady(
+        state: MistakeDetailState.Ready,
+        layout: MistakePdfLayout,
+    ): MistakePdfEligibilityResult {
         val reasons = buildSet {
             if (
                 CapturedQuestionDocumentValidator
@@ -135,6 +149,7 @@ object MistakePdfEligibility {
                 documentTitle = document.document.title,
                 blocks = blocks,
                 cleanImageLocalUri = cleanImageUri(state.detail.source),
+                userNote = state.detail.userNote?.let(::safeInlineText)?.takeIf(String::isNotBlank),
                 questionDocumentSha256 = documentFingerprint,
                 inputSha256 = exportFingerprint(
                     identity.errorBookEntryId,
@@ -144,7 +159,9 @@ object MistakePdfEligibility {
                     identity.title,
                     identity.subject,
                     documentFingerprint,
+                    layout.canonicalForm(),
                 ),
+                layout = layout,
             ),
         )
     }
@@ -198,7 +215,16 @@ class MistakePdfExportInput internal constructor(
     val maxRenderedLines: Int = MistakePdfExportLimits.MAX_SINGLE_RENDERED_LINES,
     val maxPdfBytes: Long = MistakePdfExportLimits.MAX_SINGLE_PDF_BYTES,
     val cleanImageLocalUri: String? = null,
-)
+    /** 版式参数；默认 = 参数化前的固定版式（见 [MistakePdfLayout.DEFAULT]）。 */
+    val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    /** 条目备注（includeNote 时才进渲染）；入口已做安全内联化。 */
+    val userNote: String? = null,
+) {
+    init {
+        val violations = layout.validate()
+        require(violations.isEmpty()) { "Invalid export layout: $violations" }
+    }
+}
 
 sealed interface MistakePdfBlock {
     val id: String

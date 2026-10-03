@@ -123,13 +123,14 @@ class PreparedPdfPrintDocumentAdapter(
                 return@execute
             }
             try {
-                val requested = requestedPageIndexes(pages, prepared.pageCount)
+                val requested = PreparedPdfPrintWriter.requestedPageIndexes(pages, prepared.pageCount)
                 if (requested == null) {
                     callback.onWriteFailed("PDF 暂时无法生成")
                 } else if (requested.size == prepared.pageCount) {
                     // Whole document requested: stream the original file so the
                     // printed output keeps its vector content.
-                    val copiedDigest = copyAndDigest(prepared.file, destination, cancellationSignal)
+                    val copiedDigest =
+                        PreparedPdfPrintWriter.copyWhole(prepared, destination, cancellationSignal)
                     if (copiedDigest != prepared.sha256) {
                         callback.onWriteFailed("PDF 暂时无法生成")
                     } else if (cancellationSignal.isCanceled) {
@@ -142,7 +143,12 @@ class PreparedPdfPrintDocumentAdapter(
                     // selection only if the adapter writes exactly those pages.
                     // Copying the whole file and reporting ALL_PAGES (the old
                     // behaviour) printed every page regardless of the choice.
-                    writePageSubset(requested, destination, cancellationSignal)
+                    PreparedPdfPrintWriter.writeSubset(
+                        prepared = prepared,
+                        pageIndexes = requested,
+                        destination = destination,
+                        cancellationSignal = cancellationSignal,
+                    )
                     if (cancellationSignal.isCanceled) {
                         callback.onWriteCancelled()
                     } else {
@@ -163,14 +169,24 @@ class PreparedPdfPrintDocumentAdapter(
         executor.shutdownNow()
         super.onFinish()
     }
+}
 
+/**
+ * 打印写入的**字节层核心**（阶段 4B 批 3 · B4 从适配器抽出）。
+ *
+ * 为什么抽出来：Android 的 `PrintDocumentAdapter.WriteResultCallback` 构造器是包内可见的，
+ * 用例无法构造回调来驱动 `onWrite`——"打印字节 = prepared 文件字节"这条回归就只能靠人眼。
+ * 抽成包内对象后，适配器与用例调用**同一份**实现：整份走流式复制，部分页走逐页重渲染，
+ * 字节断言在真机上可执行。适配器行为不变（含"部分页只写所选页"的既有修复）。
+ */
+internal object PreparedPdfPrintWriter {
     /**
      * Expands the print framework's requested ranges into a contiguous page
      * index list, or null when the request is unusable. `PageRange.ALL_PAGES`
      * is open-ended (0..Int.MAX_VALUE), so every range is clamped to the real
      * page count.
      */
-    private fun requestedPageIndexes(
+    fun requestedPageIndexes(
         pages: Array<out PageRange>,
         pageCount: Int,
     ): List<Int>? {
@@ -184,8 +200,20 @@ class PreparedPdfPrintDocumentAdapter(
         return indexes.takeIf { it.isNotEmpty() }?.toList()
     }
 
+    /**
+     * Streams the prepared file into [destination] and returns the written digest.
+     * The caller decides: digest == `prepared.sha256` → success; cancellation is
+     * checked by the caller after this returns.
+     */
+    fun copyWhole(
+        prepared: PreparedMistakePdf,
+        destination: ParcelFileDescriptor,
+        cancellationSignal: CancellationSignal,
+    ): String = copyAndDigest(prepared.file, destination, cancellationSignal)
+
     /** Re-renders only [pageIndexes] into [destination] via [PdfRenderer]. */
-    private fun writePageSubset(
+    fun writeSubset(
+        prepared: PreparedMistakePdf,
         pageIndexes: List<Int>,
         destination: ParcelFileDescriptor,
         cancellationSignal: CancellationSignal,

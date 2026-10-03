@@ -3,6 +3,8 @@ package com.tingyun.smartmistakebook.core.export
 import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.ContentBlock
@@ -121,11 +123,99 @@ class MistakePdfEligibilityTest {
         assertTrue(MistakePdfIneligibility.INVALID_CHOICE_STATE in reasons)
     }
 
+    /**
+     * B6：A2 落地的题面重绘（`problem_revision_source_asset` role=CLEAN_IMAGE）必须
+     * 自然进入导出取图——它和采集链的干净题面走同一条 `assets.role == CLEAN_IMAGE` 读口。
+     */
+    @Test
+    fun cleanRedrawAssetIsExportedAsTheCleanImage() {
+        val state = readyState(
+            blocks = listOf(ContentBlock.Paragraph("stem", "题目")),
+            source = MistakeSourceSet.Present(
+                listOf(
+                    sourceAsset(role = "CAMERA", sourceAssetId = "original", uri = "file:///original.jpg"),
+                    sourceAsset(
+                        role = "CLEAN_IMAGE",
+                        sourceAssetId = "redraw",
+                        uri = "file:///redraw.png",
+                    ),
+                ),
+            ),
+        )
+
+        val input = (MistakePdfEligibility.check(state) as MistakePdfEligibilityResult.Eligible)
+            .input
+
+        assertEquals("file:///redraw.png", input.cleanImageLocalUri)
+    }
+
+    /** B6 回退分支：没有重绘图时按现状——结构化图块照常渲染，原图不导出。 */
+    @Test
+    fun withoutRedrawOnlyTheStructuredFigureIsExported() {
+        val figureBlock = ContentBlock.Figure(
+            id = "figure",
+            alternativeText = "函数图像",
+            schema = FigureSchema.Cartesian(
+                xAxis = FigureAxis(-1.0, 1.0),
+                yAxis = FigureAxis(-1.0, 1.0),
+            ),
+        )
+        val state = readyState(
+            blocks = listOf(figureBlock),
+            source = MistakeSourceSet.Present(
+                listOf(
+                    sourceAsset(role = "CAMERA", sourceAssetId = "original", uri = "file:///original.jpg"),
+                ),
+            ),
+        )
+
+        val input = (MistakePdfEligibility.check(state) as MistakePdfEligibilityResult.Eligible)
+            .input
+
+        assertEquals(null, input.cleanImageLocalUri)
+        val figure = input.blocks.single() as MistakePdfBlock.Figure
+        assertEquals("函数图像", figure.alternativeText)
+        assertTrue(figure.schema is FigureSchema.Cartesian)
+    }
+
+    /** includeNote 的数据来源：条目的 userNote 必须在入口映射进导出输入。 */
+    @Test
+    fun learnerNoteIsMappedIntoTheExportInput() {
+        val state = readyState(
+            blocks = listOf(ContentBlock.Paragraph("stem", "题目")),
+            userNote = "**先看导数的符号。**",
+        )
+
+        val input = (MistakePdfEligibility.check(state) as MistakePdfEligibilityResult.Eligible)
+            .input
+
+        assertEquals("先看导数的符号。", input.userNote)
+    }
+
+    private fun sourceAsset(
+        role: String,
+        sourceAssetId: String,
+        uri: String,
+    ): MistakeSourceAsset = MistakeSourceAsset(
+        role = role,
+        sourceAssetId = sourceAssetId,
+        contentSha256 = "a".repeat(64),
+        mimeType = "image/png",
+        byteSize = 1_024L,
+        width = 100,
+        height = 100,
+        sourceType = "GENERATED_FIGURE",
+        createdAtEpochMillis = 1L,
+        location = MistakeSourceLocation.Available(uri),
+    )
+
     private fun readyState(
         blocks: List<ContentBlock>,
         reviewStatus: QuestionBlockReviewStatus = QuestionBlockReviewStatus.USER_CONFIRMED,
+        source: MistakeSourceSet = MistakeSourceSet.Missing,
+        userNote: String? = null,
     ): MistakeDetailState.Ready = MistakeDetailState.Ready(
-        detail = detail(),
+        detail = detail(source = source, userNote = userNote),
         questionDocument = CapturedQuestionDocument(
             document = QuestionDocument(
                 id = "document-1",
@@ -145,7 +235,10 @@ class MistakePdfEligibilityTest {
         ),
     )
 
-    private fun detail() = MistakeDetail(
+    private fun detail(
+        source: MistakeSourceSet = MistakeSourceSet.Missing,
+        userNote: String? = null,
+    ) = MistakeDetail(
         identity = MistakeDetailIdentity(
             errorBookEntryId = "entry-1",
             problemId = "problem-1",
@@ -155,6 +248,7 @@ class MistakePdfEligibilityTest {
             subject = "数学",
         ),
         fallbackMarkdown = "绝不能导出的 fallback",
-        source = MistakeSourceSet.Missing,
+        source = source,
+        userNote = userNote,
     )
 }
