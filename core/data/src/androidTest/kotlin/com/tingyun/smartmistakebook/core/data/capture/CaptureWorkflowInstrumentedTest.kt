@@ -90,6 +90,137 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
     }
 
     @Test
+    fun abandoningAPendingCaptureIsRevisionCasGuardedAndRemovesItFromTheList() = runBlocking {
+        val imported = repository.importDraft(
+            CaptureDraftImportRequest(
+                requestId = "abandon-import",
+                localUri = privateUri(createPng(48, 48)).toString(),
+                source = CaptureInputSource.CAMERA,
+                origin = CaptureEntryOrigin.LIBRARY,
+                occurredAtEpochMillis = 1_000,
+            ),
+        )
+        assertEquals(
+            listOf(imported.draftId),
+            repository.observePendingCaptures().first().map { it.draftId },
+        )
+
+        // 过期修订号：CAS 挡住，不能动别人的新状态。
+        assertFalse(
+            repository.abandonPendingCapture(
+                draftId = imported.draftId,
+                expectedRevisionNumber = imported.revisionNumber + 1,
+                abandonedAtEpochMillis = 2_000,
+            ),
+        )
+        assertTrue(
+            repository.observePendingCaptures().first().any { it.draftId == imported.draftId },
+        )
+
+        // 正确修订号：废弃成功，从待处理列表消失，且不再可作为草稿恢复。
+        assertTrue(
+            repository.abandonPendingCapture(
+                draftId = imported.draftId,
+                expectedRevisionNumber = imported.revisionNumber,
+                abandonedAtEpochMillis = 3_000,
+            ),
+        )
+        assertTrue(repository.observePendingCaptures().first().isEmpty())
+        assertNull(repository.readPendingCapture(imported.draftId))
+
+        // 重放同一请求：状态已不是 EDITING，如实返回 false，不假成功。
+        assertFalse(
+            repository.abandonPendingCapture(
+                draftId = imported.draftId,
+                expectedRevisionNumber = imported.revisionNumber,
+                abandonedAtEpochMillis = 4_000,
+            ),
+        )
+    }
+
+    @Test
+    fun committedDraftCannotBeAbandonedThroughThePendingList() = runBlocking {
+        val imported = repository.importDraft(
+            CaptureDraftImportRequest(
+                requestId = "abandon-committed-import",
+                localUri = privateUri(createPng(48, 48)).toString(),
+                source = CaptureInputSource.CAMERA,
+                origin = CaptureEntryOrigin.LIBRARY,
+                occurredAtEpochMillis = 1_000,
+            ),
+        )
+        val committed = repository.confirmAndCommit(
+            ConfirmCapturedProblemRequest(
+                requestId = "abandon-committed-confirm",
+                draftId = imported.draftId,
+                expectedRevisionNumber = imported.revisionNumber,
+                subject = "MATH",
+                title = "已入库的题",
+                transcription = "求函数 f(x)=x^2 的单调区间。",
+                writingLayer = CaptureWritingLayer.PRINTED,
+                transcriptionReview = CaptureTranscriptionReview.MANUAL_ENTRY,
+                occurredAtEpochMillis = 2_000,
+            ),
+        )
+        assertTrue(committed.created)
+        assertTrue(repository.observePendingCaptures().first().isEmpty())
+
+        assertFalse(
+            repository.abandonPendingCapture(
+                draftId = imported.draftId,
+                expectedRevisionNumber = imported.revisionNumber,
+                abandonedAtEpochMillis = 3_000,
+            ),
+        )
+        // 已入库的题不受影响：错题记录仍在。
+        assertTrue(database.readMistakeDetail(committed.errorBookEntryId) != null)
+    }
+
+    @Test
+    fun abandoningATutorReadyPendingCaptureEndsTheSessionWithoutSaving() = runBlocking {
+        val imported = repository.importDraft(
+            CaptureDraftImportRequest(
+                requestId = "abandon-tutor-import",
+                localUri = privateUri(createPng(64, 64)).toString(),
+                source = CaptureInputSource.CAMERA,
+                origin = CaptureEntryOrigin.TUTOR,
+                occurredAtEpochMillis = 1_000,
+            ),
+        )
+        val session = repository.confirmForTutoring(
+            ConfirmCapturedProblemRequest(
+                requestId = "abandon-tutor-confirm",
+                draftId = imported.draftId,
+                expectedRevisionNumber = imported.revisionNumber,
+                subject = "MATH",
+                title = "待讲题",
+                transcription = "求函数 f(x)=x^2 的单调区间。",
+                writingLayer = CaptureWritingLayer.PRINTED,
+                transcriptionReview = CaptureTranscriptionReview.MANUAL_ENTRY,
+                occurredAtEpochMillis = 2_000,
+            ),
+        )
+        val ready = repository.observePendingCaptures().first().single()
+        assertEquals(PendingCaptureStage.TUTOR_SESSION_READY, ready.stage)
+        assertEquals(session.sessionId, ready.tutorSessionId)
+
+        assertTrue(
+            repository.abandonPendingCapture(
+                draftId = ready.draftId,
+                expectedRevisionNumber = ready.currentRevisionNumber,
+                abandonedAtEpochMillis = 3_000,
+            ),
+        )
+
+        assertTrue(repository.observePendingCaptures().first().isEmpty())
+        // 废弃 = 未保存结束：会话读回如实映射为 ended-without-save，没入库、也没有错题条目。
+        val ended = checkNotNull(repository.readTutorSession(session.sessionId))
+        assertTrue(ended.isEndedWithoutSave)
+        assertFalse(ended.isSaved)
+        assertNull(ended.errorBookEntryId)
+    }
+
+    @Test
     fun committingWithGeneratorAttachesCleanRedrawAutomatically() = runBlocking {
         val generatingRepository = RoomCaptureWorkflowRepository(
             database,

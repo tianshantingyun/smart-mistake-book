@@ -564,6 +564,9 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     modelEgressAllowed = baseCapabilities.networkRequestsAllowed,
                     modelConfigured = modelConfiguration.isConfigured,
                     onOpenModelSettings = { navController.navigate(Routes.Capability) },
+                    onOpenPendingDraft = { draftId ->
+                        navController.navigate(Routes.captureResume(draftId))
+                    },
                     onTutorSessionReady = { sessionId ->
                         navController.navigate(Routes.capturedTutorSession(sessionId)) {
                             popUpTo(Routes.CaptureTutor) { inclusive = true }
@@ -593,6 +596,9 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     modelEgressAllowed = baseCapabilities.networkRequestsAllowed,
                     modelConfigured = modelConfiguration.isConfigured,
                     onOpenModelSettings = { navController.navigate(Routes.Capability) },
+                    onOpenPendingDraft = { draftId ->
+                        navController.navigate(Routes.captureResume(draftId))
+                    },
                     onTutorSessionReady = { sessionId ->
                         navController.navigate(Routes.capturedTutorSession(sessionId)) {
                             popUpTo(Routes.CaptureLibrary) { inclusive = true }

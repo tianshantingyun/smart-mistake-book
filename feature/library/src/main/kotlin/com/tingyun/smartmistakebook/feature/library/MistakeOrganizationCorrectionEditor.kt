@@ -32,9 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tingyun.smartmistakebook.core.domain.ConfirmedMistakeOrganization
 import com.tingyun.smartmistakebook.core.domain.ConfirmedProblemRelation
+import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationOptions
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.domain.OrganizationOption
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationRelationKey
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationSelection
 import com.tingyun.smartmistakebook.core.domain.UserProblemClassification
@@ -56,6 +60,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun OrganizationCorrectionEditor(
+    key: MistakeRevisionKey,
     requestId: String,
     input: ProblemOrganizationInput,
     output: ProblemOrganizationOutput,
@@ -84,6 +89,30 @@ internal fun OrganizationCorrectionEditor(
     var customLabel by rememberSaveable(requestId) { mutableStateOf("") }
     var customError by rememberSaveable(requestId) { mutableStateOf<String?>(null) }
     var isSaving by remember(requestId) { mutableStateOf(false) }
+    var treePickerVisible by rememberSaveable(requestId) { mutableStateOf(false) }
+    var treePickMessage by rememberSaveable(requestId) { mutableStateOf<String?>(null) }
+    // 「从知识树选择」的数据面：消费既有的观察口（已审目录选项），不新开目录。
+    val organizationOptions by remember(key, organizationRepository) {
+        organizationRepository.observeOrganizationOptions(key)
+    }.collectAsStateWithLifecycle(
+        initialValue = MistakeOrganizationOptions("", emptyList(), emptyList()),
+    )
+    val selectedClassificationKeys = remember(classifications, userClassifications, output.plan) {
+        buildSet {
+            classifications.forEach { index ->
+                val suggestion = output.plan.classifications[index]
+                add(organizationOptionSelectionKey(suggestion.dimension, suggestion.displayName))
+            }
+            userClassifications.forEach { classification ->
+                add(
+                    organizationOptionSelectionKey(
+                        classification.dimension,
+                        classification.displayName,
+                    ),
+                )
+            }
+        }
+    }
     val visibleClassificationIndexes = output.plan.classifications.indices.filter { index ->
         output.plan.classifications[index].dimension in PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS
     }
@@ -114,6 +143,24 @@ internal fun OrganizationCorrectionEditor(
                     }
                 },
                 testTag = "mistake_classification_$index",
+            )
+        }
+        OutlinedButton(
+            onClick = {
+                treePickerVisible = true
+                treePickMessage = null
+            },
+            enabled = !isSaving,
+            modifier = Modifier.testTag("mistake_tree_picker_toggle"),
+        ) {
+            Text("从知识树选择")
+        }
+        treePickMessage?.let { message ->
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("mistake_tree_pick_message"),
             )
         }
         OutlinedButton(
@@ -324,7 +371,7 @@ internal fun OrganizationCorrectionEditor(
                                 acceptedAtEpochMillis = System.currentTimeMillis(),
                             )
                             if (!confirmation.applied) {
-                                // 与离线校正一致：被策略拒绝时必须报失败，不能假成功。
+                                // 被策略拒绝时必须报失败，不能假成功。
                                 onFailure("这次修改没有写进去，请重新进入后再试")
                             } else {
                                 onConfirmed()
@@ -348,6 +395,34 @@ internal fun OrganizationCorrectionEditor(
                 colors = ButtonDefaults.buttonColors(containerColor = JadeActive),
                 modifier = Modifier.testTag("mistake_organization_confirm"),
             ) { Text(if (isSaving) "正在保存" else "保存修改") }
+        }
+        if (treePickerVisible) {
+            OrganizationTreePickerDialog(
+                options = organizationOptions,
+                selectedKeys = selectedClassificationKeys,
+                onPick = { dimension, option ->
+                    when (
+                        val pick = pickOrganizationTreeOption(
+                            existing = userClassifications,
+                            dimension = dimension,
+                            displayName = option.displayName,
+                        )
+                    ) {
+                        is OrganizationTreePick.Added -> {
+                            userClassifications = pick.classifications
+                            treePickMessage = null
+                        }
+                        OrganizationTreePick.Duplicate ->
+                            treePickMessage = "这个选项已经在本次修改里"
+                        OrganizationTreePick.LimitReached ->
+                            treePickMessage = "一次最多补充 " +
+                                "${ProblemOrganizationSelection.MAX_USER_CLASSIFICATIONS} 个分类"
+                        OrganizationTreePick.Invalid ->
+                            treePickMessage = "这个选项暂时不能加入，请换一个"
+                    }
+                },
+                onDismiss = { treePickerVisible = false },
+            )
         }
     }
 }

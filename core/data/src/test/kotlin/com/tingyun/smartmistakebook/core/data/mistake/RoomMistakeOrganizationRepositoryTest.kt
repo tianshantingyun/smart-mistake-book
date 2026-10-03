@@ -673,4 +673,95 @@ class RoomMistakeOrganizationRepositoryTest {
         retrievability = null,
         knowledgeLabels = knowledge,
     )
+
+    /**
+     * L3：选项形状不足时按既有 KB 读口补齐——当前值在前（种子语义不变），
+     * 随后是已审知识树节点；MODEL_CANDIDATE 不是"已审目录"，不得进入可点选选项。
+     */
+    @Test
+    fun organizationOptionsSeedWithCurrentValuesAndFillFromTheReviewedTree() {
+        val options = buildOrganizationOptions(
+            subject = "MATH",
+            confirmedClassifications = listOf(
+                binding(ClassificationDimension.CHAPTER, "chapter-functions", "函数"),
+                binding(ClassificationDimension.KNOWLEDGE, "knowledge-extrema", "函数最值"),
+            ),
+            treeNodes = listOf(
+                treeNode(
+                    "topic-functions",
+                    "函数的概念与性质",
+                    KnowledgeNodeGranularity.TOPIC,
+                    KnowledgeNodeVerificationStatus.CURATED,
+                ),
+                treeNode(
+                    "topic-extrema",
+                    "函数最值",
+                    KnowledgeNodeGranularity.TOPIC,
+                    KnowledgeNodeVerificationStatus.CURATED,
+                ),
+                treeNode(
+                    "atomic-triangle",
+                    "三角函数的图象与变换",
+                    KnowledgeNodeGranularity.ATOMIC,
+                    KnowledgeNodeVerificationStatus.SOURCE_GROUNDED,
+                ),
+                treeNode(
+                    "atomic-model-guess",
+                    "模型猜测的知识点",
+                    KnowledgeNodeGranularity.ATOMIC,
+                    KnowledgeNodeVerificationStatus.MODEL_CANDIDATE,
+                ),
+            ),
+        )
+
+        assertEquals("MATH", options.subject)
+        // 当前值在前；树上的 TOPIC 节点随后补齐（同名树节点不重复出现在本维度）。
+        assertEquals(
+            listOf("函数", "函数的概念与性质", "函数最值"),
+            options.chapters.map { it.displayName },
+        )
+        // ATOMIC 级：当前确认的知识点在前，已审原子节点随后；模型猜测被剔除。
+        assertEquals(
+            listOf("函数最值", "三角函数的图象与变换"),
+            options.knowledgeNodes.map { it.displayName },
+        )
+        // 选项身份直接来自知识树节点 id（不新造目录）。
+        assertEquals("topic-functions", options.chapters[1].labelId)
+        assertEquals("atomic-triangle", options.knowledgeNodes[1].labelId)
+    }
+
+    private fun binding(
+        dimension: ClassificationDimension,
+        labelId: String,
+        displayName: String,
+    ) = com.tingyun.smartmistakebook.core.database.ProblemClassificationBindingRecord(
+        bindingId = "binding-$labelId",
+        problemId = "problem-1",
+        basisRevisionId = "revision-1",
+        dimension = dimension.name,
+        labelId = labelId,
+        displayName = displayName,
+        taxonomyVersion = "user-corrected-v1",
+        acceptanceSource = BindingAcceptanceSource.USER_CORRECTED.name,
+        acceptedAtEpochMillis = 1,
+    )
+
+    private fun treeNode(
+        id: String,
+        displayName: String,
+        granularity: KnowledgeNodeGranularity,
+        verificationStatus: KnowledgeNodeVerificationStatus,
+    ) = com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord(
+        knowledgeNodeId = id,
+        stableCode = "code:$id",
+        subject = "MATH",
+        displayName = displayName,
+        parentKnowledgeNodeId = null,
+        taxonomyVersion = "math-v1",
+        createdAtEpochMillis = 1,
+        canonicalName = displayName,
+        nodeKind = KnowledgeNodeKind.TOPIC.name,
+        granularity = granularity.name,
+        verificationStatus = verificationStatus.name,
+    )
 }

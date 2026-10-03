@@ -553,6 +553,33 @@ class MistakeOrganizationRepositoryInstrumentedTest {
             updatedAtEpochMillis = 1,
         )
 
+    /**
+     * L3：知识树选择的数据面——选项既有"当前值"（种子），也有从既有 KB 读口
+     * （readSubjectKnowledgeNodes）补齐的已审知识树节点。
+     */
+    @Test
+    fun organizationOptionsExposeCurrentValuesAndTheReviewedKnowledgeTree() = runBlocking {
+        persistExistingOrganization()
+
+        val options = repository.observeOrganizationOptions(
+            com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey(
+                entryId = "entry-main",
+                problemId = PROBLEM,
+                problemRevisionId = REVISION,
+            ),
+        ).first()
+
+        assertEquals("MATH", options.subject)
+        // 当前确认的分类在前（既有种子语义不变）。
+        assertEquals("函数", options.chapters.first().displayName)
+        assertEquals("函数最值", options.knowledgeNodes.first().displayName)
+        // 知识树补齐：CURATED 的 TOPIC 进入章节选项，SOURCE_GROUNDED 的 ATOMIC 进入知识点选项。
+        assertTrue(options.chapters.any { it.displayName == "函数最值" })
+        assertTrue(
+            options.knowledgeNodes.any { it.displayName == "确定函数最值的候选位置" },
+        )
+    }
+
     private companion object {
         const val PROBLEM = "problem-main"
         const val REVISION = "revision-main"

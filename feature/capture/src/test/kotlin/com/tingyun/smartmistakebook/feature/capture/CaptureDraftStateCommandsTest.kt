@@ -121,6 +121,12 @@ private class FakeResetCaptureRepository : CaptureWorkflowRepository {
 
     override suspend fun readPendingCapture(draftId: String): ResumableCaptureDraft? = null
 
+    override suspend fun abandonPendingCapture(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean = error("not used in this test")
+
     override suspend fun readDraftWorkspace(
         draftId: String,
     ): com.tingyun.smartmistakebook.core.domain.CaptureDraftWorkspaceSnapshot? = null

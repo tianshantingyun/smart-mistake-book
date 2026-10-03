@@ -548,12 +548,31 @@ internal fun MistakeOrganizationSection(
             onRetry = retryAutomaticApply,
         )
 
-        MistakeOrganizationSurfaceState.PreservedUserCorrection -> Text(
-            text = "已保留你修改过的分类",
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.testTag("mistake_organization_user_correction_preserved"),
-        )
+        MistakeOrganizationSurfaceState.PreservedUserCorrection -> {
+            Text(
+                text = "已保留你修改过的分类",
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("mistake_organization_user_correction_preserved"),
+            )
+            // 改过一次分类的学生再进详情时，apply 会因已有 USER_CORRECTED 分类重放成
+            // preserved——这是重进后唯一可达的整理结果态，必须同样给出修改入口和知识树
+            // 选择，否则"保留从知识树选择"在这条路径上不可达（比删离线编辑器前更窄）。
+            OrganizationCorrectionPanel(
+                correctionVisible = correctionVisible,
+                onToggle = { correctionVisible = !correctionVisible },
+                key = key,
+                task = task,
+                output = output,
+                confirmed = confirmed,
+                organizationRepository = organizationRepository,
+                onConfirmed = {
+                    correctionVisible = false
+                    message = "已保存分类修改"
+                },
+                onFailure = { failure -> message = failure },
+            )
+        }
 
         MistakeOrganizationSurfaceState.Applied -> {
             Text(
@@ -562,26 +581,20 @@ internal fun MistakeOrganizationSection(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("mistake_organization_applied"),
             )
-            TextButton(
-                onClick = { correctionVisible = !correctionVisible },
-                modifier = Modifier.testTag("mistake_organization_correct_toggle"),
-            ) {
-                Text(if (correctionVisible) "收起修改" else "分类有误，修改")
-            }
-            if (correctionVisible) {
-                OrganizationCorrectionEditor(
-                    requestId = checkNotNull(task).request.requestId,
-                    input = checkNotNull(task).request.input as ProblemOrganizationInput,
-                    output = checkNotNull(output),
-                    confirmed = confirmed,
-                    organizationRepository = organizationRepository,
-                    onConfirmed = {
-                        correctionVisible = false
-                        message = "已保存分类修改"
-                    },
-                    onFailure = { failure -> message = failure },
-                )
-            }
+            OrganizationCorrectionPanel(
+                correctionVisible = correctionVisible,
+                onToggle = { correctionVisible = !correctionVisible },
+                key = key,
+                task = task,
+                output = output,
+                confirmed = confirmed,
+                organizationRepository = organizationRepository,
+                onConfirmed = {
+                    correctionVisible = false
+                    message = "已保存分类修改"
+                },
+                onFailure = { failure -> message = failure },
+            )
         }
     }
     message?.let {
@@ -603,6 +616,43 @@ internal fun MistakeOrganizationSection(
         )
     }
     Spacer(Modifier.height(12.dp))
+}
+
+/**
+ * 「分类有误，修改」入口 + 在线编辑器（含"从知识树选择"）。Applied 与
+ * PreservedUserCorrection 两个结果态共用它：两者都必须能再次修改并走既有的
+ * `confirm(requestId, selection)` 落库，不新造写路径。
+ */
+@Composable
+private fun OrganizationCorrectionPanel(
+    correctionVisible: Boolean,
+    onToggle: () -> Unit,
+    key: MistakeRevisionKey,
+    task: ModelTaskSnapshot?,
+    output: ProblemOrganizationOutput?,
+    confirmed: ConfirmedMistakeOrganization,
+    organizationRepository: MistakeOrganizationRepository,
+    onConfirmed: () -> Unit,
+    onFailure: (String) -> Unit,
+) {
+    TextButton(
+        onClick = onToggle,
+        modifier = Modifier.testTag("mistake_organization_correct_toggle"),
+    ) {
+        Text(if (correctionVisible) "收起修改" else "分类有误，修改")
+    }
+    if (correctionVisible) {
+        OrganizationCorrectionEditor(
+            key = key,
+            requestId = checkNotNull(task).request.requestId,
+            input = checkNotNull(task).request.input as ProblemOrganizationInput,
+            output = checkNotNull(output),
+            confirmed = confirmed,
+            organizationRepository = organizationRepository,
+            onConfirmed = onConfirmed,
+            onFailure = onFailure,
+        )
+    }
 }
 
 private fun ModelTaskSnapshot.matchesOrganization(key: MistakeRevisionKey): Boolean {

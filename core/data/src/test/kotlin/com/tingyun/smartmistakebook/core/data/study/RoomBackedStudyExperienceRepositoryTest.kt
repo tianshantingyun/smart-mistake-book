@@ -2410,6 +2410,12 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         createdBeforeEpochMillis: Long,
     ): List<CanonicalSourceAssetRecord> = emptyList()
 
+    override suspend fun abandonPendingProblemDraft(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean = false
+
     override suspend fun insertOrphanCanonicalAssetForTest(asset: CanonicalSourceAssetRecord) =
         Unit
 

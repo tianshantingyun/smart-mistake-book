@@ -19,6 +19,17 @@ interface CaptureReadPort {
  */
 interface CaptureWritePort {
     /**
+     * 废弃一份仍处于 EDITING 的待处理草稿（L4：录入界面待处理列表的"废弃"出路）。
+     * 按修订号 CAS：已提交/已废弃/已被替换或期间又改过时返回 false——调用方据此
+     * 如实报失败，不假成功。
+     */
+    suspend fun abandonPendingProblemDraft(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean
+
+    /**
      * 原子认领早于 [createdBeforeEpochMillis] 且此刻仍无任何引用的规范资产行：
      * 判定与删除在同一写事务内完成，返回被删的行供调用方清理其磁盘文件。
      *

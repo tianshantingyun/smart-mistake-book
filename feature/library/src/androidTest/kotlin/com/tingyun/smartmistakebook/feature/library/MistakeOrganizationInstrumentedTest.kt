@@ -1,12 +1,16 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.domain.ConfirmedMistakeOrganization
@@ -15,10 +19,12 @@ import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationPreparation
+import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationOptions
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.OrganizationOption
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationConfirmation
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationSelection
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
@@ -463,6 +469,145 @@ class MistakeOrganizationInstrumentedTest {
         assertTrue(requireNotNull(organization.lastSelection).relationRemovals.isEmpty())
     }
 
+    @Test
+    fun knowledgeTreePickJoinsTheSavedCorrectionSelection() {
+        val organization = FakeOrganizationRepository()
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailContent(
+                    state = readyState(),
+                    onBack = {},
+                    onExport = {},
+                    organizationRepository = organization,
+                    modelTasks = successfulModelTasks(),
+                    profile = StudyProfileOverview(),
+                )
+            }
+        }
+
+        // 整理自动发起并应用后，只有学生主动打开编辑器才出现修改面。
+        waitForTag("mistake_organization_applied")
+        composeRule.onNodeWithTag("mistake_organization_correct_toggle")
+            .performScrollTo()
+            .performClick()
+
+        // 「从知识树选择」消费 observeOrganizationOptions 的选项。
+        composeRule.onNodeWithTag("mistake_tree_picker_toggle").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_tree_query").performTextInput("三角")
+        composeRule.onNodeWithTag("mistake_tree_knowledge_atomic-triangle").performClick()
+        composeRule.onNodeWithTag("mistake_tree_done").performClick()
+        composeRule.onNodeWithText("三角函数的图象与变换", substring = true).assertExists()
+
+        // 选择结果并入 confirm 的 selection（同一条保存路径），而不是只留在界面。
+        composeRule.onNodeWithTag("mistake_organization_confirm").performScrollTo().performClick()
+        composeRule.waitUntil(timeoutMillis = 20_000) {
+            organization.lastSelection != null
+        }
+
+        val selection = requireNotNull(organization.lastSelection)
+        val picked = selection.userClassifications.single()
+        assertEquals(ClassificationDimension.KNOWLEDGE, picked.dimension)
+        assertEquals("三角函数的图象与变换", picked.displayName)
+    }
+
+    @Test
+    fun treePickerGroupsOptionsAndMarksWhatIsAlreadySelected() {
+        val organization = FakeOrganizationRepository()
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailContent(
+                    state = readyState(),
+                    onBack = {},
+                    onExport = {},
+                    organizationRepository = organization,
+                    modelTasks = successfulModelTasks(),
+                    profile = StudyProfileOverview(),
+                )
+            }
+        }
+
+        waitForTag("mistake_organization_applied")
+        composeRule.onNodeWithTag("mistake_organization_correct_toggle")
+            .performScrollTo()
+            .performClick()
+        composeRule.onNodeWithTag("mistake_tree_picker_toggle").performScrollTo().performClick()
+
+        // 弹窗按真实结构分两组：板块 ← TOPIC 级、知识点 ← ATOMIC 级。
+        composeRule.onNodeWithTag("mistake_tree_list").assertExists()
+        composeRule.onNodeWithText("板块").assertExists()
+        composeRule.onNodeWithText("知识点").assertExists()
+
+        // 章节路径：筛选后知识点选项被隐藏（"概念"只在板块名里），点选树上的板块节点，行立即标"已选"。
+        composeRule.onNodeWithTag("mistake_tree_query").performTextInput("概念")
+        composeRule.onNodeWithTag("mistake_tree_knowledge_atomic-triangle").assertDoesNotExist()
+        composeRule.onNodeWithTag("mistake_tree_chapter_topic-functions").performClick()
+        composeRule.onNodeWithText("已选").assertExists()
+
+        // 清掉筛选：知识点选项重现，点选后共两行带"已选"标记。
+        composeRule.onNodeWithTag("mistake_tree_query").performTextClearance()
+        composeRule.onNodeWithTag("mistake_tree_knowledge_atomic-triangle").performClick()
+        composeRule.onAllNodesWithText("已选").assertCountEquals(2)
+    }
+
+    @Test
+    fun reentryAfterACorrectionStillOffersTheTreeEditorFromThePreservedState() {
+        val organization = FakeOrganizationRepository()
+        val detailVisible = mutableStateOf(true)
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                if (detailVisible.value) {
+                    MistakeDetailContent(
+                        state = readyState(),
+                        onBack = {},
+                        onExport = {},
+                        organizationRepository = organization,
+                        modelTasks = successfulModelTasks(),
+                        profile = StudyProfileOverview(),
+                    )
+                }
+            }
+        }
+
+        // 第一次进入：自动整理应用后从知识树挑一个知识点并保存。
+        waitForTag("mistake_organization_applied")
+        composeRule.onNodeWithTag("mistake_organization_correct_toggle")
+            .performScrollTo()
+            .performClick()
+        composeRule.onNodeWithTag("mistake_tree_picker_toggle").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_tree_knowledge_atomic-triangle").performClick()
+        composeRule.onNodeWithTag("mistake_tree_done").performClick()
+        composeRule.onNodeWithTag("mistake_organization_confirm").performScrollTo().performClick()
+        composeRule.waitUntil(timeoutMillis = 20_000) { organization.confirmCallCount == 1 }
+
+        // 离开详情再重进：apply 重放，因为已存在用户修改而停在保留态。
+        composeRule.runOnIdle { detailVisible.value = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { detailVisible.value = true }
+        waitForTag("mistake_organization_user_correction_preserved")
+
+        // P1：保留态同样给出修改入口；编辑器以已保留的分类值为初始选择。
+        composeRule.onNodeWithTag("mistake_organization_correct_toggle")
+            .performScrollTo()
+            .assertExists()
+            .performClick()
+        composeRule.onNodeWithTag("mistake_tree_picker_toggle").performScrollTo().assertExists()
+        // 已保留的分类值就是编辑器的初始选择（"你补充的"行）。
+        composeRule.onNodeWithText("你补充的 · 知识点 · 三角函数的图象与变换").assertExists()
+
+        // 再改一次（这次走板块路径）并落库到同一条 confirm 写路径。
+        composeRule.onNodeWithTag("mistake_tree_picker_toggle").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_tree_query").performTextInput("函数")
+        composeRule.onNodeWithTag("mistake_tree_chapter_topic-functions").performClick()
+        composeRule.onNodeWithTag("mistake_tree_done").performClick()
+        composeRule.onNodeWithTag("mistake_organization_confirm").performScrollTo().performClick()
+        composeRule.waitUntil(timeoutMillis = 20_000) { organization.confirmCallCount == 2 }
+
+        val second = requireNotNull(organization.lastSelection)
+        assertTrue(second.userClassifications.any { it.displayName == "函数的概念与性质" })
+        // 上一次的修改仍在集合里（编辑器用保留值做了初始选择）。
+        assertTrue(second.userClassifications.any { it.displayName == "三角函数的图象与变换" })
+    }
+
     private fun waitForTag(tag: String) {
         composeRule.waitUntil(timeoutMillis = 20_000) {
             composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
@@ -518,11 +663,23 @@ class MistakeOrganizationInstrumentedTest {
         private val automaticApplied: Boolean = true,
         private var applyFailuresBeforeSuccess: Int = 0,
         private val relationsAfterApply: List<ConfirmedProblemRelation> = emptyList(),
+        private val organizationOptions: MistakeOrganizationOptions = MistakeOrganizationOptions(
+            subject = "MATH",
+            chapters = listOf(
+                OrganizationOption(labelId = "topic-functions", displayName = "函数的概念与性质"),
+            ),
+            knowledgeNodes = listOf(
+                OrganizationOption(labelId = "atomic-triangle", displayName = "三角函数的图象与变换"),
+            ),
+        ),
     ) : MistakeOrganizationRepository {
         var lastSelection: ProblemOrganizationSelection? = null
         var appliedRequestId: String? = null
         var applyCallCount: Int = 0
         var prepareCallCount: Int = 0
+        var confirmCallCount: Int = 0
+        /** 与真实现同语义：一旦用户改过，自动整理一律不覆盖（apply 报 preserved）。 */
+        private var userCorrected = false
         private val confirmed = MutableStateFlow(ConfirmedMistakeOrganization())
 
         override suspend fun prepare(
@@ -593,8 +750,7 @@ class MistakeOrganizationInstrumentedTest {
 
         override fun observeOrganizationOptions(
             key: MistakeRevisionKey,
-        ): Flow<com.tingyun.smartmistakebook.core.domain.MistakeOrganizationOptions> =
-            MutableStateFlow(com.tingyun.smartmistakebook.core.domain.MistakeOrganizationOptions("", emptyList(), emptyList()))
+        ): Flow<MistakeOrganizationOptions> = MutableStateFlow(organizationOptions)
 
         override suspend fun applySuccessfulOrganization(
             requestId: String,
@@ -607,6 +763,17 @@ class MistakeOrganizationInstrumentedTest {
             }
             if (!automaticApplied) {
                 return ProblemOrganizationConfirmation(false, 0, 0, applied = false)
+            }
+            if (userCorrected) {
+                // 已有 USER_CORRECTED 分类：重进详情时 apply 重放并停在这个保留态，
+                // 因此修改入口必须在保留态同样可达（P1）。
+                return ProblemOrganizationConfirmation(
+                    created = false,
+                    classificationCount = confirmed.value.classifications.size,
+                    relationCount = confirmed.value.relations.size,
+                    applied = false,
+                    preservedUserCorrection = true,
+                )
             }
             confirmed.value = ConfirmedMistakeOrganization(
                 classifications = listOf(
@@ -632,6 +799,34 @@ class MistakeOrganizationInstrumentedTest {
             acceptedAtEpochMillis: Long,
         ): ProblemOrganizationConfirmation {
             lastSelection = selection
+            confirmCallCount += 1
+            userCorrected = true
+            // 与真实现一致：保存后确认集合 = 勾选的模型建议 + 用户补充/树选择（USER_CORRECTED）。
+            confirmed.value = ConfirmedMistakeOrganization(
+                classifications = buildList {
+                    selection.classificationIndexes.sorted().forEach { index ->
+                        MODEL_PLAN_CLASSIFICATIONS.getOrNull(index)?.let { (dimension, displayName) ->
+                            add(
+                                com.tingyun.smartmistakebook.core.domain.ConfirmedProblemClassification(
+                                    dimension = dimension,
+                                    labelId = "user-corrected:$displayName",
+                                    displayName = displayName,
+                                ),
+                            )
+                        }
+                    }
+                    selection.userClassifications.forEach { classification ->
+                        add(
+                            com.tingyun.smartmistakebook.core.domain.ConfirmedProblemClassification(
+                                dimension = classification.dimension,
+                                labelId = "user-corrected:${classification.displayName}",
+                                displayName = classification.displayName,
+                            ),
+                        )
+                    }
+                },
+                relations = confirmed.value.relations,
+            )
             return ProblemOrganizationConfirmation(true, 1 + selection.userClassifications.size, 0)
         }
     }
@@ -743,20 +938,18 @@ class MistakeOrganizationInstrumentedTest {
                 summaryMarkdown = "模型给出初步整理，请确认。",
                 reviewPriorityMarkdown = "建议近期复习。",
                 targetedEvidenceLabels = emptyList(),
-                classifications = listOf(
+                classifications = MODEL_PLAN_CLASSIFICATIONS.mapIndexed { index, (dimension, displayName) ->
                     ProblemClassificationSuggestion(
-                        dimension = ClassificationDimension.CHAPTER,
-                        displayName = "函数",
-                        rationaleMarkdown = "模型识别的所属板块。",
-                        confidence = 0.91,
-                    ),
-                    ProblemClassificationSuggestion(
-                        dimension = ClassificationDimension.KNOWLEDGE,
-                        displayName = "二次函数最值",
-                        rationaleMarkdown = "模型识别的主要知识点。",
-                        confidence = 0.82,
-                    ),
-                ),
+                        dimension = dimension,
+                        displayName = displayName,
+                        rationaleMarkdown = if (index == 0) {
+                            "模型识别的所属板块。"
+                        } else {
+                            "模型识别的主要知识点。"
+                        },
+                        confidence = if (dimension == ClassificationDimension.CHAPTER) 0.91 else 0.82,
+                    )
+                },
                 relations = emptyList(),
                 schemaVersion = ProblemOrganizationPlan.SCHEMA_VERSION,
                 atomicKnowledge = listOf(
@@ -833,6 +1026,12 @@ class MistakeOrganizationInstrumentedTest {
 
     private companion object {
         val KEY = MistakeRevisionKey("entry-1", "problem-1", "revision-1")
+
+        /** 模型建议的分类（顺序即 plan 索引）：替身的 confirm 用它重建保存后的确认集合。 */
+        val MODEL_PLAN_CLASSIFICATIONS = listOf(
+            ClassificationDimension.CHAPTER to "函数",
+            ClassificationDimension.KNOWLEDGE to "二次函数最值",
+        )
         val PROVIDER = ProviderCapabilitySnapshot(
             providerId = "provider",
             providerDisplayName = "测试模型",

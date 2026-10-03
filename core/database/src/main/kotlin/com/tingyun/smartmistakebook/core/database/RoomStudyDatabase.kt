@@ -797,6 +797,16 @@ internal class RoomStudyDatabase(
             .findUnreferencedCanonicalAssets()
             .map(CanonicalSourceAssetRow::toRecord)
 
+    override suspend fun abandonPendingProblemDraft(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean = database.problemDraftTransactionDao().abandonPendingDraft(
+        draftId = draftId,
+        expectedRevisionNumber = expectedRevisionNumber,
+        abandonedAtEpochMillis = abandonedAtEpochMillis,
+    )
+
     override suspend fun claimUnreferencedCanonicalAssets(
         createdBeforeEpochMillis: Long,
     ): List<CanonicalSourceAssetRecord> = database.withWriteTransaction {

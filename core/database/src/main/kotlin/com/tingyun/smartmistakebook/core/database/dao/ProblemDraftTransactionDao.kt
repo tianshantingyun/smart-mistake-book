@@ -615,6 +615,30 @@ internal abstract class ProblemDraftTransactionDao {
     open suspend fun read(draftId: String): ProblemDraftRecord? =
         findDraftEntity(draftId)?.let { loadDraft(draftId) }
 
+    /**
+     * 废弃一份还没入库的待处理草稿（L4：待处理列表的"废弃"出路）。
+     *
+     * 只有仍处于 EDITING 且修订号与调用方看到的一致时才会改状态：CAS 一次挡住
+     * "已提交/已废弃/已被替换"和"期间又改过"两类竞态，返回 false 让界面如实报失败。
+     * 数据不物删——与替换/合并路径同口径，草稿行只标记为 ABANDONED（此后不再出现在
+     * 待处理读口里）。
+     */
+    @Transaction
+    open suspend fun abandonPendingDraft(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean {
+        require(draftId.isNotBlank()) { "draftId must not be blank" }
+        require(expectedRevisionNumber > 0) { "expectedRevisionNumber must be positive" }
+        require(abandonedAtEpochMillis > 0) { "abandonedAtEpochMillis must be positive" }
+        return markDraftAbandoned(
+            draftId = draftId,
+            expectedRevisionNumber = expectedRevisionNumber,
+            abandonedAtEpochMillis = abandonedAtEpochMillis,
+        ) == 1
+    }
+
     open suspend fun readCanonicalSourceAsset(
         sourceAssetId: String,
     ): CanonicalSourceAssetRecord? = findSourceAsset(sourceAssetId)?.toRecord()

@@ -60,7 +60,7 @@ class BatchImportInstrumentedTest {
         composeRule.onNodeWithText("已保存 1 页 · 需重试 1 页 · 剩余 2 页").assertExists()
         composeRule.onNodeWithTag("batch_import_choose_pdf").assertExists()
         composeRule.onNodeWithText(
-            "可以离开本页；已保存的题会继续留在待处理题目中。",
+            "可以离开本页；已保存的题会留在录入页的「待处理题目」里，可从那里继续。",
         ).assertExists()
         composeRule.captureLibraryQaScreenshot("batch-import-current.png")
         composeRule.onNodeWithTag("batch_import_page_0").performClick()

@@ -579,6 +579,17 @@ interface CaptureWorkflowRepository {
 
     suspend fun readPendingCapture(draftId: String): ResumableCaptureDraft?
 
+    /**
+     * 废弃一份还没有入库的待处理草稿（L4：录入界面待处理列表的"废弃"出路）。
+     * 按调用方看到的修订号 CAS，成功返回 true；已提交/已被处理或期间又改过时返回
+     * false——调用方必须如实报失败，不能假成功。
+     */
+    suspend fun abandonPendingCapture(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean
+
     suspend fun readDraftWorkspace(draftId: String): CaptureDraftWorkspaceSnapshot?
 
     suspend fun saveDraftWorkspace(

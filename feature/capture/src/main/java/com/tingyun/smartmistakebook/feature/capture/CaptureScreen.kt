@@ -40,6 +40,7 @@ import com.tingyun.smartmistakebook.core.domain.CaptureRecognitionState
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowPhase
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.CaptureWritingLayer
+import com.tingyun.smartmistakebook.core.domain.PendingCaptureItem
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.CaptureDraftEditorMode
@@ -54,6 +55,7 @@ import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjectio
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.Lifecycle
@@ -74,6 +76,8 @@ fun CaptureScreen(
     onLibraryEntryReady: (String) -> Unit,
     onSplitReady: (String) -> Unit,
     onBack: () -> Unit,
+    /** 待处理列表里的一条草稿要恢复处理时打开（走既有 resume 路由）。 */
+    onOpenPendingDraft: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     resumeDraftId: String? = null,
     // This build may reach a model provider at all; the global "model agent" consent toggle
@@ -116,6 +120,35 @@ fun CaptureScreen(
     val acquisitionPurpose = runCatching {
         CaptureAcquisitionPurpose.valueOf(state.acquisitionPurposeName)
     }.getOrDefault(CaptureAcquisitionPurpose.NEW_CAPTURE)
+
+    // L4：待处理列表（录入界面入口态）。resume 路由不展示这张表，也就不订阅它。
+    val pendingCaptures by remember(repository, resumeDraftId) {
+        if (resumeDraftId == null) repository.observePendingCaptures() else flowOf(emptyList())
+    }.collectAsStateWithLifecycle(initialValue = emptyList())
+    var pendingDiscardTarget by remember { mutableStateOf<PendingCaptureItem?>(null) }
+    var pendingDiscardMessage by remember { mutableStateOf<String?>(null) }
+    var pendingDiscardInProgress by remember { mutableStateOf(false) }
+
+    fun discardPendingCapture(item: PendingCaptureItem) {
+        if (pendingDiscardInProgress) return
+        pendingDiscardInProgress = true
+        coroutineScope.launch {
+            val abandoned = runCatching {
+                repository.abandonPendingCapture(
+                    draftId = item.draftId,
+                    expectedRevisionNumber = item.currentRevisionNumber,
+                    abandonedAtEpochMillis = System.currentTimeMillis(),
+                )
+            }.getOrDefault(false)
+            pendingDiscardInProgress = false
+            pendingDiscardTarget = null
+            pendingDiscardMessage = if (abandoned) {
+                "已从待处理里移除，这道题不会进入错题本。"
+            } else {
+                "这次没有移除成功：这道题可能刚有更新或已处理，请稍后再试。"
+            }
+        }
+    }
 
     val realParseOutput = (state.parseSnapshot?.output as? CaptureParseOutput)
         ?.takeIf { state.parseSnapshot?.provider?.isDemo == false }
@@ -848,6 +881,19 @@ fun CaptureScreen(
                 modifier = Modifier.padding(top = 14.dp),
             )
             CaptureGuidance(Modifier.padding(top = 20.dp))
+            CapturePendingCapturesSection(
+                items = pendingCaptures,
+                message = pendingDiscardMessage,
+                discardInProgress = pendingDiscardInProgress,
+                onOpenItem = { item ->
+                    when (val target = pendingCaptureOpenTarget(item)) {
+                        is PendingCaptureOpenTarget.Draft -> onOpenPendingDraft(target.draftId)
+                        is PendingCaptureOpenTarget.TutorSession ->
+                            onTutorSessionReady(target.sessionId)
+                    }
+                },
+                onDiscardItem = { item -> pendingDiscardTarget = item },
+            )
         } else {
             AwaitingCorrectionCard(
                 onRetake = { launchCamera() },
@@ -906,7 +952,14 @@ fun CaptureScreen(
 
     }
 
-
+    pendingDiscardTarget?.let { target ->
+        PendingCaptureDiscardDialog(
+            item = target,
+            inProgress = pendingDiscardInProgress,
+            onConfirm = { discardPendingCapture(target) },
+            onDismiss = { pendingDiscardTarget = null },
+        )
+    }
 }
 
 /**

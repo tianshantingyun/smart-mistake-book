@@ -110,6 +110,23 @@ class RoomCaptureWorkflowRepository internal constructor(
             database.readPendingCaptureDraft(draftId)?.toResumableCaptureDraft()
         }
 
+    override suspend fun abandonPendingCapture(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean = withContext(Dispatchers.IO) {
+        require(draftId.isNotBlank()) { "Pending capture draft id must not be blank" }
+        require(expectedRevisionNumber > 0) { "Pending capture revision must be positive" }
+        require(abandonedAtEpochMillis > 0) {
+            "Pending capture abandonment time must be positive"
+        }
+        database.abandonPendingProblemDraft(
+            draftId = draftId,
+            expectedRevisionNumber = expectedRevisionNumber,
+            abandonedAtEpochMillis = abandonedAtEpochMillis,
+        )
+    }
+
     override suspend fun readDraftWorkspace(
         draftId: String,
     ): CaptureDraftWorkspaceSnapshot? = withContext(Dispatchers.IO) {

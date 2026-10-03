@@ -601,11 +601,6 @@ internal class RoomMistakeOrganizationRepository(
     ): Flow<MistakeOrganizationOptions> =
         database.observeConfirmedProblemOrganization(key.problemId, key.problemRevisionId)
             .map { confirmed ->
-                // The confirmed organization only exposes the current subject
-                // indirectly through its labels; chapter/knowledge options are
-                // derived from the same confirmed classifications plus the
-                // mistake catalog subject (kept simple: current values are the
-                // seed options; richer reviewed-tree options are a follow-up).
                 val subject = runCatching {
                     database.observeMistakes().first().singleOrNull {
                         it.entryId == key.entryId &&
@@ -613,14 +608,19 @@ internal class RoomMistakeOrganizationRepository(
                             it.problemRevisionId == key.problemRevisionId
                     }?.subject
                 }.getOrNull().orEmpty()
-                MistakeOrganizationOptions(
+                // 当前值只是种子：真正可点选的"知识树"来自既有 KB 读口
+                // （KnowledgeReadPort.readSubjectKnowledgeNodes），不新造目录。
+                val treeNodes = if (subject.isBlank()) {
+                    emptyList()
+                } else {
+                    runCatching {
+                        database.readSubjectKnowledgeNodes(subject, ORGANIZATION_OPTION_TREE_LIMIT)
+                    }.getOrDefault(emptyList())
+                }
+                buildOrganizationOptions(
                     subject = subject,
-                    chapters = confirmed.classifications
-                        .filter { it.dimension == ClassificationDimension.CHAPTER.name }
-                        .map { OrganizationOption(labelId = it.labelId, displayName = it.displayName) },
-                    knowledgeNodes = confirmed.classifications
-                        .filter { it.dimension == ClassificationDimension.KNOWLEDGE.name }
-                        .map { OrganizationOption(labelId = it.labelId, displayName = it.displayName) },
+                    confirmedClassifications = confirmed.classifications,
+                    treeNodes = treeNodes,
                 )
             }
 
@@ -663,6 +663,70 @@ internal class RoomMistakeOrganizationRepository(
             questionDocument = questionDocument,
         )
     }
+}
+
+/**
+ * 已审知识树的选项上限：`KnowledgeReadPort.readSubjectKnowledgeNodes` 支持的读数上界
+ * （1..256）。选项只用于点选；超出这一批的个别节点仍可由既有"补充或纠正分类"路径录入，
+ * 因此这里不新增分页/新查询（不新造目录）。
+ */
+private const val ORGANIZATION_OPTION_TREE_LIMIT = 256
+
+/**
+ * 选项 = 当前已确认分类（种子，保持既有语义）＋ 已审知识树节点（补齐）。
+ *
+ * - 章节 ← TOPIC 级节点（含册/章/主题），知识点 ← ATOMIC 级节点；
+ * - MODEL_CANDIDATE 不是"已审目录"，不进入可点选选项（模型猜测必须先被人确认）；
+ * - 与当前值重名的树节点不重复出现（同名只保留当前值）。
+ */
+internal fun buildOrganizationOptions(
+    subject: String,
+    confirmedClassifications: List<ProblemClassificationBindingRecord>,
+    treeNodes: List<KnowledgeNodeSeedRecord>,
+): MistakeOrganizationOptions {
+    val reviewedTreeNodes = treeNodes.filter { node ->
+        node.verificationStatus != KnowledgeNodeVerificationStatus.MODEL_CANDIDATE.name
+    }
+    return MistakeOrganizationOptions(
+        subject = subject,
+        chapters = organizationOptionsFor(
+            confirmedClassifications = confirmedClassifications,
+            dimension = ClassificationDimension.CHAPTER,
+            treeNodes = reviewedTreeNodes.filter { node ->
+                node.granularity == KnowledgeNodeGranularity.TOPIC.name
+            },
+        ),
+        knowledgeNodes = organizationOptionsFor(
+            confirmedClassifications = confirmedClassifications,
+            dimension = ClassificationDimension.KNOWLEDGE,
+            treeNodes = reviewedTreeNodes.filter { node ->
+                node.granularity == KnowledgeNodeGranularity.ATOMIC.name
+            },
+        ),
+    )
+}
+
+/**
+ * 当前已确认的分类在前，随后是与其不重名的知识树选项；
+ * [treeNodes] 已按维度筛过（CHAPTER ← TOPIC 级、KNOWLEDGE ← ATOMIC 级）。
+ */
+private fun organizationOptionsFor(
+    confirmedClassifications: List<ProblemClassificationBindingRecord>,
+    dimension: ClassificationDimension,
+    treeNodes: List<KnowledgeNodeSeedRecord>,
+): List<OrganizationOption> {
+    val confirmedOptions = confirmedClassifications
+        .filter { it.dimension == dimension.name }
+        .map { OrganizationOption(labelId = it.labelId, displayName = it.displayName) }
+    val existingNames = confirmedOptions.mapTo(hashSetOf()) { option ->
+        option.displayName.trim().lowercase(Locale.ROOT)
+    }
+    val treeOptions = treeNodes
+        .map { OrganizationOption(labelId = it.knowledgeNodeId, displayName = it.canonicalName) }
+        .filter { it.displayName.isNotBlank() }
+        .distinctBy { it.displayName.trim().lowercase(Locale.ROOT) }
+        .filterNot { it.displayName.trim().lowercase(Locale.ROOT) in existingNames }
+    return confirmedOptions + treeOptions
 }
 
 /**

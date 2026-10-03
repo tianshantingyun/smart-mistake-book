@@ -275,6 +275,12 @@ private class RecordingCaptureRepository(
 
     override suspend fun readPendingCapture(draftId: String): ResumableCaptureDraft? = null
 
+    override suspend fun abandonPendingCapture(
+        draftId: String,
+        expectedRevisionNumber: Int,
+        abandonedAtEpochMillis: Long,
+    ): Boolean = error("not used")
+
     override suspend fun readDraftWorkspace(draftId: String): CaptureDraftWorkspaceSnapshot? = null
 
     override suspend fun saveDraftWorkspace(

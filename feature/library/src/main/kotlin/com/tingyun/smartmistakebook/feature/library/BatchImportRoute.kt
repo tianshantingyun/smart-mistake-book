@@ -430,7 +430,7 @@ private fun BatchImportSummary(
                 trackColor = SmartColors.Outline.copy(alpha = 0.6f),
             )
             Text(
-                text = "可以离开本页；已保存的题会继续留在待处理题目中。",
+                text = "可以离开本页；已保存的题会留在录入页的「待处理题目」里，可从那里继续。",
                 color = SmartColors.InkSecondary,
                 style = MaterialTheme.typography.labelSmall,
             )
