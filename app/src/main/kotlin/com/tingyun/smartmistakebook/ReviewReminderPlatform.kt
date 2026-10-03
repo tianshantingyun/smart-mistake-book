@@ -104,12 +104,19 @@ internal class ReviewReminderPlatform(
     }
 }
 
-internal fun Context.canPostReviewNotifications(): Boolean {
+internal fun Context.canPostReviewNotifications(): Boolean =
+    canPostNotificationsOnChannel(REVIEW_REMINDER_CHANNEL_ID)
+
+/**
+ * 渠道级通知可达性：[channelId] 为 null 读默认渠道口径的联合判定——权限、系统总开关、
+ * 渠道重要度。复习提醒与后台导出共用（未授权时各自退化为应用内入口，不硬要权限）。
+ */
+internal fun Context.canPostNotificationsOnChannel(channelId: String): Boolean {
     if (!hasPostNotificationsPermission()) return false
     if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) return false
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return true
     val channel = getSystemService(NotificationManager::class.java)
-        .getNotificationChannel(REVIEW_REMINDER_CHANNEL_ID)
+        .getNotificationChannel(channelId)
     return channel == null || channel.importance != NotificationManager.IMPORTANCE_NONE
 }
 

@@ -209,6 +209,17 @@
 > S17 既有性能/EXPLAIN 门（`PerformanceGateTest` library 段）保持原断言，仅随 L5 参数面同步调用签名。
 > 复核登记（2026-10-03，批 1 独立复核 approve-with-notes）：① **S17 性能未量化**（无专属 EXPLAIN/负载门；`PerformanceGateTest.insertTestData` 为既有空实现）——UNVERIFIED 登记；② **L2 尾巴**：`PracticeUnitAssessmentDao.kt:49` 的 `unit.title` 读者（讲题工件标题）在本批锚定范围外，双写成立时无分叉，将来「改写既有 revision」落地时需一并收口；③ **订正**：计划 §1 旧引用的「S17 既有缺陷登记 `known-defects.md:265`」实为 KD-7（无关），已同步订正计划原文；④ 时间段 UI 上界生产化（`createdToEpochMillis = now`，闭区间），该参数不再是"无生产设置点"。
 
+### 3.17 阶段 4A 批 4 · 导出后台化（2026-10-03，L7，A 形态）：schema 61 + 零算法 bump
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` 60 → **61** | 新增 `mistake_export_record`（导出记录表：`export_id` / `kind` / `display_name` / `status` / `input_sha256` / `pdf_sha256` / `page_count` / `failure_message` / `created_at` / `finished_at`）。迁移 `KERNEL_WAVE8_MIGRATION_60_61` = 单句 `CREATE TABLE`，**非破坏、不回填**（存量库没有导出记录，不编造行）；`schemas/61.json` 生成 | **无算法公式变更**：投影输出、计划指纹、账本逐位不变；导出记录只是"后台任务做没做完"的持久身份 | 计划 `docs/research/2026-10-03-stage4a-plan.md` §3 批 4 + §4；L7 裁定 `docs/agent-first-refactor-decisions-2026-09-23.md:1068`；外部资料见计划 §2.1/§2.2（expedited 普通 Worker、不引入 FGS 类型） | `KernelWave8SchemaContractTest`（只在 61 多一张表、其余表/视图逐字不变、迁移 CREATE 与 61.json 逐字一致、列形状钉死）；`KernelWave0SchemaContractTest`（版本头 == 61）；仪器化 `FullMigrationMatrixInstrumentedTest.mistakeExportRecordTableIsCreatedEmptyWithoutTouchingStoredRows`（真库 v60→61：新表建出且为空、旧行原样）+ 矩阵 1→61 | ➖（新增表，不触发重放） |
+| `LearningCoreVersions` 全部串**未 bump**（复合串维持 `learning-core-v12`） | ①`ExportPdfWorker`（expedited `CoroutineWorker`，配额不足按 `RUN_AS_NON_EXPEDITED_WORK_REQUEST` 降级；`getForegroundInfo` 兼容 API<31 的 WorkManager 前台服务路径；targetSdk 36 下不引入长任务 FGS 类型）；②渲染核心抽成 JVM 可测单元：`MistakePdfPagePlanner`（纯排版：折行/分页/行预算/页预算，宽度经 `PdfTextMeasure` 注入）、`PdfFigureLayout`（图形占高从 android 对象拆出）、`MistakeExportJobRunner`（读快照 → 判定 → 渲染 → 完整性核对，三态结果）；③完成/失败两态通知 + Android 13+ 未授权退化到应用内「导出成果」；④`Routes.ExportResults` 入口（列表 → 分享/保存/打印走既有 `MistakePdfDelivery`），详情/库页导出动作改为"入队后即可离开"；⑤清理策略：记录保留至用户处理，表上限 30 条只删最旧，产物文件由既有 exporter 缓存上限（24 个 / 64MB / 24h TTL）兜底 | **零算法口径**：导出是"把已确认题面排版成 PDF"的纯输出面，不改账本/投影/计划；L7 只改任务归属（页面生命周期 → WorkManager）与结果落点（前台页 → 记录 + 通知 + 成果入口） | 同上 | JVM：`MistakePdfPagePlannerTest`（7）、`MistakeExportJobRunnerTest`（9）、`MistakePdfExportCopyTest`（5）、`ExportPdfWorkerTest`（5）；仪器化：`MistakeExportBackgroundInstrumentedTest`（离开页面后仍完成并可取回）、`MistakeExportNotificationsInstrumentedTest`（授权两态 / 未授权不发）、`MistakeExportDeliveryInstrumentedTest`（真产物 → CREATE_DOCUMENT / SEND 意图 + 打印动作）、`MistakeExportHubInstrumentedTest`（5）、feature/library 迁移用例 | ➖（无投影/计划输出变化） |
+
+> 批 4 纪律记录：正式门（全量 JVM / DB 仪器化全套 / app 三屏）由协调方跑；本批定向证据与未验证项见批 4 交付回报。
+> 被替换的既有导出门用例去向：`MistakeExportNavigationInstrumentedTest` → 迁到讲题路由（导出不再带 key 走路由）；`MistakeExportUiPolicyTest` 的文案/命名断言 → `core:export` 的 `MistakePdfExportCopyTest` + `MistakeExportJobRunnerTest`；导出页预览用例 → `MistakeExportHubInstrumentedTest` + core:export 既有 `MistakePdfExporterInstrumentedTest`（交付链本身）。
+> **A4 预览面登记**：`MistakePdfPreview` 随旧导出页退场后**生产零消费者**（grep 只剩 core:export 内部与仪器化用例）——不是漏迁：预览是"前台导出页"的界面面，A 形态下用户要的是落盘 + 成果入口；类保留，交付链覆盖（真 PDF 打开/逐页渲染）仍在 `MistakePdfExporterInstrumentedTest`。若将来成果入口要加缩略图，从这里接回。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

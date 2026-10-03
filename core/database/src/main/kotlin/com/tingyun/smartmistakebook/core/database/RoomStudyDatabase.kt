@@ -1135,6 +1135,37 @@ internal class RoomStudyDatabase(
     ): List<AgentPendingRequestRecord> =
         database.agentPendingRequestDao().readResolved(conversationArea = conversationArea, limit = limit)
 
+    override suspend fun createMistakeExportRecord(
+        command: CreateMistakeExportRecordCommand,
+    ): MistakeExportRecordRow = database.mistakeExportRecordDao().createRunning(command)
+
+    override suspend fun completeMistakeExportRecord(
+        command: CompleteMistakeExportRecordCommand,
+    ): MistakeExportRecordRow? = database.mistakeExportRecordDao().complete(command)
+
+    override suspend fun failMistakeExportRecord(
+        command: FailMistakeExportRecordCommand,
+    ): MistakeExportRecordRow? = database.mistakeExportRecordDao().fail(command)
+
+    override fun observeMistakeExportRecords(limit: Int): Flow<List<MistakeExportRecordRow>> =
+        database.mistakeExportRecordDao().observe(limit)
+
+    override suspend fun readMistakeExportRecord(exportId: String): MistakeExportRecordRow? =
+        database.mistakeExportRecordDao().read(exportId)
+
+    override suspend fun reconcileStaleMistakeExportRecords(
+        staleBeforeEpochMillis: Long,
+        atEpochMillis: Long,
+        failureMessage: String,
+    ): Int = database.mistakeExportRecordDao().reconcileStaleRunning(
+        staleBeforeEpochMillis = staleBeforeEpochMillis,
+        atEpochMillis = atEpochMillis,
+        failureMessage = failureMessage,
+    )
+
+    override suspend fun pruneMistakeExportRecords(keepNewest: Int): Int =
+        database.mistakeExportRecordDao().prune(keepNewest)
+
     override suspend fun saveTutorConversationDraft(
         conversationId: String,
         draft: String,

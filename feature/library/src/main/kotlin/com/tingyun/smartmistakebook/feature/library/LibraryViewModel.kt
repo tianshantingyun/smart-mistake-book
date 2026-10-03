@@ -288,32 +288,54 @@ internal class LibraryViewModel(
     /**
      * 导出候选必须与筛选结果同一口径：按当前筛选拉全量 id（上限内），
      * 而不是 Paging 已加载的子集——否则按钮承诺的道数和导出文件不一致。
-     * 超出 [maxCount] 时返回空列表，由导出页提示缩小范围。
+     * 三态返回把"没有题"与"超过上限"分开（改前两者都收敛成空列表，
+     * 导出页只好把超限说成"当前没有可导出的错题"）。
      */
-    suspend fun collectExportCandidateIds(maxCount: Int): List<String> {
+    suspend fun collectExportCandidates(maxCount: Int): LibraryExportCandidates {
         val repository = catalogRepository
-            ?: return uiState.visibleMistakes
-                .map { it.id }
-                .take(maxCount)
+            ?: return exportCandidatesFrom(
+                total = uiState.visibleMistakes.size,
+                maxCount = maxCount,
+                readIds = { uiState.visibleMistakes.map { it.id }.take(maxCount) },
+            )
         val domainQuery = currentQuery()
         val total = repository.totalCount(domainQuery)
-        if (total == 0 || total > maxCount) return emptyList()
-        val ids = ArrayList<String>(total)
-        val pageSize = 200
-        while (ids.size < total) {
-            val page = repository.query(
-                query = domainQuery,
-                offset = ids.size,
-                limit = minOf(pageSize, total - ids.size),
-            )
-            if (page.items.isEmpty()) break
-            ids += page.items.map { it.entryId }
-        }
-        return ids
+        return exportCandidatesFrom(
+            total = total,
+            maxCount = maxCount,
+            readIds = {
+                val ids = ArrayList<String>(total)
+                val pageSize = 200
+                while (ids.size < total) {
+                    val page = repository.query(
+                        query = domainQuery,
+                        offset = ids.size,
+                        limit = minOf(pageSize, total - ids.size),
+                    )
+                    if (page.items.isEmpty()) break
+                    ids += page.items.map { it.entryId }
+                }
+                ids
+            },
+        )
     }
 
-    fun exportVisible(maxCount: Int, onResult: (List<String>) -> Unit) {
-        viewModelScope.launch { onResult(collectExportCandidateIds(maxCount)) }
+    /**
+     * 超过上限时**不返回部分列表**：静默只导出前 N 道，会把"当前筛选全量"变成谎话。
+     * 上限内的读数与改前逐位一致（同一查询、同一顺序）。
+     */
+    private suspend fun exportCandidatesFrom(
+        total: Int,
+        maxCount: Int,
+        readIds: suspend () -> List<String>,
+    ): LibraryExportCandidates = when {
+        total == 0 -> LibraryExportCandidates.NothingVisible
+        total > maxCount -> LibraryExportCandidates.TooManyVisible
+        else -> LibraryExportCandidates.Candidates(readIds())
+    }
+
+    fun exportVisible(maxCount: Int, onResult: (LibraryExportCandidates) -> Unit) {
+        viewModelScope.launch { onResult(collectExportCandidates(maxCount)) }
     }
 
     private companion object {

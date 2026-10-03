@@ -74,12 +74,12 @@ import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.SmartDimens
 import com.tingyun.smartmistakebook.feature.capture.CaptureScreen
 import com.tingyun.smartmistakebook.feature.library.BatchImportRoute
+import com.tingyun.smartmistakebook.feature.library.LibraryExportCandidates
 import com.tingyun.smartmistakebook.feature.library.LibraryRoute
-import com.tingyun.smartmistakebook.feature.library.InvalidMistakeExportRoute
-import com.tingyun.smartmistakebook.feature.library.MistakeBatchExportRoute
 import com.tingyun.smartmistakebook.feature.library.MAX_LIBRARY_BATCH_EXPORT_QUESTIONS
+import com.tingyun.smartmistakebook.feature.library.MistakeExportHubRoute
 import com.tingyun.smartmistakebook.feature.library.MistakeDetailRoute
-import com.tingyun.smartmistakebook.feature.library.MistakeExportRoute
+import com.tingyun.smartmistakebook.core.domain.MistakeExportRecord
 import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
 import com.tingyun.smartmistakebook.core.domain.SplitImportRepository
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
@@ -140,8 +140,24 @@ internal fun bottomBarRouteFor(route: String?): String? = when (route) {
     else -> null
 }
 
+/**
+ * 库页导出动作的三态分流（L7）：只有 [LibraryExportCandidates.Candidates] 会入队，返回 null；
+ * 超限/没有可导出的题返回要在「导出成果」里如实说明的原因（改前两者都显示"当前没有可导出的
+ * 错题"，超限被说成了空）。
+ */
+internal fun libraryExportRejectionNotice(candidates: LibraryExportCandidates): String? =
+    when (candidates) {
+        is LibraryExportCandidates.Candidates -> null
+        LibraryExportCandidates.TooManyVisible ->
+            "当前结果超过 $MAX_LIBRARY_BATCH_EXPORT_QUESTIONS 道。按科目、板块、掌握程度或录入时间段筛选后，就能直接导出。"
+        LibraryExportCandidates.NothingVisible -> "当前没有可导出的错题。"
+    }
+
 @Composable
-internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
+internal fun SmartMistakeBookRoot(
+    reviewOpenRequests: StateFlow<Long>,
+    exportOpenRequests: StateFlow<Long>,
+) {
     val context = LocalContext.current
     val activity = context.findActivity()
     val application = context.applicationContext as SmartMistakeBookApplication
@@ -190,11 +206,13 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
     // 在生产里恒为 null，装载器每次都只是空转；错题复习那一侧有它自己的装载器
     // （SmartMistakeBookDestinations 里的同一个 `TeachingArtifactLoad`）。
     val navController = rememberNavController()
-    var pendingLibraryExportEntryIds by rememberSaveable {
-        mutableStateOf<List<String>>(emptyList())
-    }
-    var pendingLibraryExportCount by rememberSaveable { mutableIntStateOf(0) }
+    // L7 导出后台化：错题本不再有前台导出页；这里只留"为什么这次没入队"的一次性说明，
+    // 在「导出成果」入口里如实说（超限/没有可导出的题），入队成功的记录走数据库流。
+    var pendingExportNotice by rememberSaveable { mutableStateOf<String?>(null) }
+    val exportRecords by application.mistakeExportRepository.observeRecords()
+        .collectAsStateWithLifecycle(initialValue = emptyList<MistakeExportRecord>())
     val reviewOpenRequest by reviewOpenRequests.collectAsStateWithLifecycle()
+    val exportOpenRequest by exportOpenRequests.collectAsStateWithLifecycle()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route ?: Routes.Review
     val isRootDestination = rootDestinations.any { it.route == currentRoute }
@@ -204,6 +222,16 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
         if (reviewOpenRequest > 0L) {
             navController.navigate(Routes.Review) {
                 popUpTo(navController.graph.findStartDestination().id)
+                launchSingleTop = true
+            }
+        }
+    }
+
+    // L7：导出完成通知点进来 → 「导出成果」（Android 13+ 未授权时没有通知，这一屏从
+    // 错题本栏的常驻入口进）。
+    LaunchedEffect(exportOpenRequest) {
+        if (exportOpenRequest > 0L) {
+            navController.navigate(Routes.ExportResults) {
                 launchSingleTop = true
             }
         }
@@ -441,13 +469,20 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     // 错题本栏只有一个「录入」动作（L6）：整卷/PDF 不再是这里的并列入口，
                     // 它是录入流内部的一步（见 Routes.Capture 的方式选择）。
                     onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY)) },
-                    onExportVisible = { entryIds ->
-                        pendingLibraryExportCount = entryIds.size
-                        pendingLibraryExportEntryIds =
-                            entryIds.takeIf {
-                                it.size <= MAX_LIBRARY_BATCH_EXPORT_QUESTIONS
-                            }.orEmpty()
-                        navController.navigate(Routes.LibraryBatchExport) {
+                    // L7：批量导出改为"入队后即可离开"。三态如实分流——上限内才入队；
+                    // 超限/没有题不下单，把原因带到「导出成果」里说清楚。
+                    onExportVisible = { candidates ->
+                        if (candidates is LibraryExportCandidates.Candidates) {
+                            application.startMistakeExportBatch(candidates.entryIds)
+                        }
+                        pendingExportNotice = libraryExportRejectionNotice(candidates)
+                        navController.navigate(Routes.ExportResults) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onOpenExportResults = {
+                        pendingExportNotice = null
+                        navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
                         }
                     },
@@ -653,14 +688,11 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     modifier = Modifier.testTag("root_split_review"),
                 )
             }
-            composable(Routes.LibraryBatchExport) {
-                val entriesById = experience.catalog.associateBy { catalogEntry ->
-                    catalogEntry.entryId
-                }
-                MistakeBatchExportRoute(
-                    entries = pendingLibraryExportEntryIds.mapNotNull(entriesById::get),
-                    requestedCount = pendingLibraryExportCount,
-                    repository = application.mistakeDetailRepository,
+            composable(Routes.ExportResults) {
+                MistakeExportHubRoute(
+                    records = exportRecords,
+                    notice = pendingExportNotice,
+                    onDismissNotice = { pendingExportNotice = null },
                     onBack = navController::popBackStack,
                 )
             }
@@ -747,8 +779,12 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     profile = experience.profile,
                     catalogEntries = experience.catalog,
                     onBack = navController::popBackStack,
+                    // L7：导出改为后台任务——点下即入队，离开页面不再取消渲染；
+                    // 跳到「导出成果」看进度/结果，通知是同一结果的另一条路径。
                     onExport = { key ->
-                        navController.navigate(Routes.mistakeExport(key)) {
+                        application.startMistakeExportSingle(key)
+                        pendingExportNotice = null
+                        navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
                         }
                     },
@@ -771,22 +807,6 @@ internal fun SmartMistakeBookRoot(reviewOpenRequests: StateFlow<Long>) {
                     application = application,
                     navController = navController,
                 )
-            }
-            composable(Routes.MistakeExport) { entry ->
-                val key = Routes.decodeMistakeExportKey(
-                    entryId = entry.arguments?.getString("entryId"),
-                    problemId = entry.arguments?.getString("problemId"),
-                    problemRevisionId = entry.arguments?.getString("problemRevisionId"),
-                )
-                if (key == null) {
-                    InvalidMistakeExportRoute(onBack = navController::popBackStack)
-                } else {
-                    MistakeExportRoute(
-                        key = key,
-                        repository = application.mistakeDetailRepository,
-                        onBack = navController::popBackStack,
-                    )
-                }
             }
             composable(Routes.Capability) {
                 CapabilityScreen(

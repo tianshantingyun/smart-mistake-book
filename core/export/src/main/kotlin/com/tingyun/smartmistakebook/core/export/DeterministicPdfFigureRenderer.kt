@@ -14,17 +14,7 @@ import kotlin.math.max
 
 /** Draws only the bounded figure schemas accepted by the structured-content validator. */
 internal object DeterministicPdfFigureRenderer {
-    private const val CARTESIAN_HEIGHT = 280f
-    private const val TABLE_ROW_HEIGHT = 18f
-    private const val FIGURE_VERTICAL_CHROME = 48f
     private const val PADDING = 10f
-
-    fun height(block: MistakePdfBlock.Figure): Float = when (val schema = block.schema) {
-        is FigureSchema.Cartesian -> CARTESIAN_HEIGHT
-        is FigureSchema.SymbolTable ->
-            FIGURE_VERTICAL_CHROME + TABLE_ROW_HEIGHT * (schema.rows.size + 1)
-        is FigureSchema.Unknown -> error("Unknown figure schemas are rejected before export")
-    }
 
     fun draw(canvas: Canvas, block: MistakePdfBlock.Figure, bounds: RectF) {
         canvas.drawRoundRect(bounds, 8f, 8f, fillPaint(Color.rgb(248, 249, 247)))
@@ -202,8 +192,8 @@ internal object DeterministicPdfFigureRenderer {
         val columnWidth = table.width() / columns
         val rows = listOf(schema.headers) + schema.rows
         rows.forEachIndexed { rowIndex, row ->
-            val top = table.top + rowIndex * TABLE_ROW_HEIGHT
-            val bottom = top + TABLE_ROW_HEIGHT
+            val top = table.top + rowIndex * PdfFigureLayout.TABLE_ROW_HEIGHT
+            val bottom = top + PdfFigureLayout.TABLE_ROW_HEIGHT
             val background = if (rowIndex == 0) Color.rgb(232, 238, 234) else Color.WHITE
             canvas.drawRect(table.left, top, table.right, bottom, fillPaint(background))
             repeat(columns) { columnIndex ->

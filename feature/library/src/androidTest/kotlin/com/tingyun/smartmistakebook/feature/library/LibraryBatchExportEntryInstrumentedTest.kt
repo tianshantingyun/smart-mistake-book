@@ -20,7 +20,7 @@ class LibraryBatchExportEntryInstrumentedTest {
 
     @Test
     fun exportUsesCurrentFilteredOrderWithoutPerQuestionSelection() {
-        var exportedIds = emptyList<String>()
+        var candidates: LibraryExportCandidates? = null
         composeRule.setContent {
             SmartMistakeBookTheme {
                 LibraryRoute(
@@ -30,7 +30,8 @@ class LibraryBatchExportEntryInstrumentedTest {
                         entry("math-2", SubjectKind.MATH.name, "函数题"),
                     ),
                     onCapture = {},
-                    onExportVisible = { exportedIds = it },
+                    onExportVisible = { candidates = it },
+                    onOpenExportResults = {},
                     onOpenItem = {},
                 )
             }
@@ -42,24 +43,33 @@ class LibraryBatchExportEntryInstrumentedTest {
         composeRule.onNodeWithTag("library_export_visible").performClick()
 
         composeRule.runOnIdle {
-            assertEquals(listOf("math-1", "math-2"), exportedIds)
+            // 三态里的候选态：上限内的当前筛选顺序原样交给入队（L7 后台导出）。
+            assertEquals(
+                LibraryExportCandidates.Candidates(listOf("math-1", "math-2")),
+                candidates,
+            )
         }
     }
 
     @Test
-    fun emptyLibraryDoesNotShowAnExportAction() {
+    fun emptyLibraryDoesNotShowAnExportActionButKeepsTheResultsEntry() {
+        var exportResultsOpened = false
         composeRule.setContent {
             SmartMistakeBookTheme {
                 LibraryRoute(
                     entries = emptyList(),
                     onCapture = {},
                     onExportVisible = {},
+                    onOpenExportResults = { exportResultsOpened = true },
                     onOpenItem = {},
                 )
             }
         }
 
         composeRule.onNodeWithTag("library_export_visible").assertDoesNotExist()
+        // 「导出成果」是常驻入口（通知未授权时的退化落点），空库也必须在。
+        composeRule.onNodeWithTag("library_export_results").performClick()
+        composeRule.runOnIdle { assertEquals(true, exportResultsOpened) }
     }
 
     private fun entry(

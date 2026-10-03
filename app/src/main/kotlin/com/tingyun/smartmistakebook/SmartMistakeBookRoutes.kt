@@ -33,7 +33,12 @@ internal object Routes {
     const val CaptureOriginArgument = "origin"
     /** 整卷/PDF/多张照片录入（L6 起是录入流内部的一步，不再是错题本栏的并列入口）。 */
     const val BatchImport = "capture/batch"
-    const val LibraryBatchExport = "library/export"
+    /**
+     * 「导出成果」（L7）：后台导出完成后的应用内入口，也是通知的落点。
+     * 改前 `library/export` 是批量导出的前台预览页；导出后台化后它连同单题导出页一起退场，
+     * 导出动作改为"入队后即可离开"。
+     */
+    const val ExportResults = "library/exports"
     const val CaptureResume = "capture/resume/{draftId}"
     const val SplitReview = "capture/split-review?jobId={jobId}"
     const val CapturedTutorSession = "tutor/captured/{sessionId}"
@@ -41,8 +46,6 @@ internal object Routes {
     const val TutorTextConversation = "tutor/lobby/{conversationId}"
     const val MistakeDetail = "mistake/{itemId}"
     const val MistakeTutor = "mistake/tutor/{entryId}/{problemId}/{problemRevisionId}"
-    const val MistakeExport =
-        "mistake/export/{entryId}/{problemId}/{problemRevisionId}"
     const val Capability = "settings/capability"
     const val LearningMastery = "profile/learning-mastery"
     const val Privacy = "settings/privacy"
@@ -52,14 +55,6 @@ internal object Routes {
 
     fun mistakeDetail(itemId: String): String = "mistake/${Uri.encode(itemId)}"
 
-    fun mistakeExport(key: MistakeRevisionKey): String = listOf(
-        "mistake",
-        "export",
-        encodeRevisionArgument(key.entryId),
-        encodeRevisionArgument(key.problemId),
-        encodeRevisionArgument(key.problemRevisionId),
-    ).joinToString("/")
-
     fun mistakeTutor(key: MistakeRevisionKey): String = listOf(
         "mistake",
         "tutor",
@@ -68,7 +63,14 @@ internal object Routes {
         encodeRevisionArgument(key.problemRevisionId),
     ).joinToString("/")
 
-    fun decodeMistakeExportKey(
+    // Navigation decodes a path argument once; keep one encoded layer for the explicit boundary decode.
+    private fun encodeRevisionArgument(value: String): String = Uri.encode(Uri.encode(value))
+
+    /**
+     * 错题讲题路由（`mistake/tutor/…`）三段路径参数的边界解码。L7 起导出不再走带 key 的路由
+     * （导出改为入队后台任务），这条解码只剩讲题一个消费者。
+     */
+    fun decodeMistakeKey(
         entryId: String?,
         problemId: String?,
         problemRevisionId: String?,
@@ -79,9 +81,6 @@ internal object Routes {
             problemRevisionId = Uri.decode(problemRevisionId.orEmpty()),
         )
     }.getOrNull()
-
-    // Navigation decodes a path argument once; keep one encoded layer for the explicit boundary decode.
-    private fun encodeRevisionArgument(value: String): String = Uri.encode(Uri.encode(value))
 
     fun capturedTutorSession(sessionId: String): String = "tutor/captured/${Uri.encode(sessionId)}"
 

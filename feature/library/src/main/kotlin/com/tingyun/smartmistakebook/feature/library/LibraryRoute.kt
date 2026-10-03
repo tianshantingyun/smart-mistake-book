@@ -78,7 +78,8 @@ fun LibraryRoute(
     catalogRepository: LibraryCatalogRepository? = null,
     mistakeDetailRepository: MistakeDetailRepository? = null,
     onCapture: () -> Unit,
-    onExportVisible: (List<String>) -> Unit,
+    onExportVisible: (LibraryExportCandidates) -> Unit,
+    onOpenExportResults: () -> Unit,
     onOpenItem: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -100,6 +101,7 @@ fun LibraryRoute(
         mistakeDetailRepository = mistakeDetailRepository,
         onCapture = onCapture,
         onExportVisible = onExportVisible,
+        onOpenExportResults = onOpenExportResults,
         onOpenItem = onOpenItem,
         viewModel = libraryViewModel,
         modifier = modifier,
@@ -112,7 +114,8 @@ private fun LibraryContent(
     usePaging: Boolean,
     mistakeDetailRepository: MistakeDetailRepository?,
     onCapture: () -> Unit,
-    onExportVisible: (List<String>) -> Unit,
+    onExportVisible: (LibraryExportCandidates) -> Unit,
+    onOpenExportResults: () -> Unit,
     onOpenItem: (String) -> Unit,
     viewModel: LibraryViewModel,
     modifier: Modifier,
@@ -166,6 +169,17 @@ private fun LibraryContent(
                         icon = Icons.Outlined.LibraryAdd,
                     )
                 }
+                Spacer(Modifier.height(8.dp))
+                // 「导出成果」（L7）：后台导出的永久应用内落点。始终可见——通知未授权时
+                // 它是退化入口，也是"图书馆里有没有整理好的 A4"这一问题的唯一答案。
+                OutlineActionChip(
+                    text = "导出成果",
+                    onClick = onOpenExportResults,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("library_export_results"),
+                    icon = Icons.Outlined.PictureAsPdf,
+                )
                 PaperDivider(Modifier.padding(vertical = 8.dp))
                 ArchivedEntriesSection(
                     repository = mistakeDetailRepository,
@@ -225,7 +239,8 @@ private fun LibraryContent(
                             text = "导出当前 ${visibleMistakeCount} 道",
                             onClick = {
                                 // 与按钮口径一致：按当前筛选拉全量 id，而不是
-                                // Paging 已加载的子集；超限时导出页会提示缩小范围。
+                                // Paging 已加载的子集；超限时入口不会下单，由「导出成果」
+                                // 如实说明原因（L7 起没有前台导出页）。
                                 viewModel.exportVisible(
                                     MAX_LIBRARY_BATCH_EXPORT_QUESTIONS,
                                 ) { ids -> onExportVisible(ids) }

@@ -321,7 +321,7 @@ internal fun SavedMistakeTutorDestination(
     application: SmartMistakeBookApplication,
     navController: NavHostController,
 ) {
-    val key = Routes.decodeMistakeExportKey(
+    val key = Routes.decodeMistakeKey(
         entryId = entry.arguments?.getString("entryId"),
         problemId = entry.arguments?.getString("problemId"),
         problemRevisionId = entry.arguments?.getString("problemRevisionId"),

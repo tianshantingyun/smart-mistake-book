@@ -252,6 +252,36 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /**
+     * 阶段 4A 批 4 · L7（v60→61）：新增导出记录表 `mistake_export_record`。矩阵用的是空库，
+     * 看不出"旧行还在不在、新表是不是空的"，这里用真库、真驱动实测：
+     * 1. 新表按迁移建出来，列与 `MistakeExportRecordEntity` 逐位同形；
+     * 2. 迁移**不编造行**（存量库没有导出记录，新表必须为空）；
+     * 3. 既有真实行一行不碰（纯新增不是重建）。
+     */
+    @Test
+    fun mistakeExportRecordTableIsCreatedEmptyWithoutTouchingStoredRows() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave8-export-record-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 60)
+            seedV58PracticeUnit(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v60 库迁到 61",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV61ExportRecordShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
     private fun seedV59DivergentTitleRow(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
         try {
@@ -347,6 +377,54 @@ class FullMigrationMatrixInstrumentedTest {
                 assertEquals("ACTIVE", entry.getText(2))
             } finally {
                 entry.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：导出记录表在、列同形、空表，既有 practice unit 行原样。 */
+    private fun inspectV61ExportRecordShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertTrue(
+                "mistake_export_record 表必须由迁移建出来",
+                "mistake_export_record" in tableNames(connection),
+            )
+            assertEquals(
+                "列与 MistakeExportRecordEntity 逐位同形（列序也一致）",
+                listOf(
+                    "export_id",
+                    "kind",
+                    "display_name",
+                    "status",
+                    "input_sha256",
+                    "pdf_sha256",
+                    "page_count",
+                    "failure_message",
+                    "created_at_epoch_millis",
+                    "finished_at_epoch_millis",
+                ),
+                columnNames(connection, "mistake_export_record"),
+            )
+
+            val count = connection.prepare("SELECT COUNT(*) FROM `mistake_export_record`")
+            try {
+                assertTrue(count.step())
+                assertEquals("存量库没有导出记录，迁移不许编造行", 0L, count.getLong(0))
+            } finally {
+                count.close()
+            }
+
+            val statement = connection.prepare(
+                "SELECT practice_unit_id FROM `practice_unit` WHERE practice_unit_id = '$M1_UNIT_ID'",
+            )
+            try {
+                assertTrue("既有真实行必须一行不丢", statement.step())
+                assertEquals(M1_UNIT_ID, statement.getText(0))
+                assertFalse("旧行只有这一条", statement.step())
+            } finally {
+                statement.close()
             }
         } finally {
             connection.close()

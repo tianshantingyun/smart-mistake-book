@@ -26,6 +26,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionRetriever
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeDetailRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeOrganizationRepositoryFactory
+import com.tingyun.smartmistakebook.core.data.export.MistakeExportRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelGatewayFactory
 import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelCapabilityTesterFactory
 import com.tingyun.smartmistakebook.core.data.model.ModelTaskRepositoryFactory
@@ -45,6 +46,7 @@ import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.BatchImportRepository
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
+import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityTester
@@ -52,12 +54,19 @@ import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailabilityTracker
 import com.tingyun.smartmistakebook.core.domain.LibraryCatalogRepository
+import com.tingyun.smartmistakebook.core.domain.MISTAKE_EXPORT_RUNNING_TIMEOUT_MILLIS
+import com.tingyun.smartmistakebook.core.domain.MistakeExportKind
+import com.tingyun.smartmistakebook.core.domain.MistakeExportRepository
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.ReviewReminderRepository
 import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
 import com.tingyun.smartmistakebook.core.domain.SleepJournalStore
 import com.tingyun.smartmistakebook.core.domain.StudyExperienceRepository
 import com.tingyun.smartmistakebook.core.domain.SplitImportRepository
 import com.tingyun.smartmistakebook.core.data.splitimport.SplitImportRepositoryFactory
+import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
+import com.tingyun.smartmistakebook.core.export.MistakeExportJobRunner
+import com.tingyun.smartmistakebook.core.export.MistakePdfExporter
 import com.tingyun.smartmistakebook.core.domain.TutorInteractionRepository
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
@@ -75,6 +84,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.UUID
 
 class SmartMistakeBookApplication : Application() {
     // SupervisorJob stops sibling cancellation but does NOT swallow a child's
@@ -180,6 +190,25 @@ class SmartMistakeBookApplication : Application() {
     lateinit var splitImportRepository: SplitImportRepository
         private set
 
+    /**
+     * 导出记录（L7）：入队、worker 落终态、「导出成果」入口三处共用同一个仓库。
+     */
+    lateinit var mistakeExportRepository: MistakeExportRepository
+        private set
+
+    /**
+     * 后台导出的渲染编排（L7）：worker 经它跑"读快照 → 判可导出 → 渲染 → 完整性核对"。
+     * 只在这里装配一次——读口与 exporter 都是进程级无状态/带锁的。
+     *
+     * `internal`（而不是 `private set`）是**测试缝**：androidTest 注入一个渲染受闸门控制的
+     * runner，钉住"离开页面瞬间记录仍在进行、离开之后才完成"（`MistakeExportBackgroundInstrumentedTest`）。
+     * 生产没有第二个写入点。
+     */
+    internal lateinit var mistakeExportJobRunner: MistakeExportJobRunner
+
+    /** 导出通知（两态 + 未授权退化）；worker 与前台服务路径共用。 */
+    internal val mistakeExportNotifications by lazy { MistakeExportNotifications(this) }
+
     private lateinit var database: StudyDatabasePort
     private lateinit var reviewReminderCoordinator: ReviewReminderCoordinator
 
@@ -246,6 +275,17 @@ class SmartMistakeBookApplication : Application() {
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
             )
             libraryCatalogRepository = LibraryCatalogRepositoryFactory.create(database)
+            // L7 后台导出：记录仓库 + 渲染编排（读口与 exporter 都是既有实现，只做装配）。
+            mistakeExportRepository = MistakeExportRepositoryFactory.create(database)
+            val mistakePdfExporter = MistakePdfExporter(this)
+            mistakeExportJobRunner = MistakeExportJobRunner(
+                readExact = mistakeDetailRepository::readExact,
+                readByEntryId = { entryId ->
+                    mistakeDetailRepository.observe(entryId)
+                        .first { it != MistakeDetailState.Loading }
+                },
+                renderPdf = mistakePdfExporter::prepare,
+            )
             val roomSplitImportRepository = SplitImportRepositoryFactory.createConcrete(database)
             splitImportRepository = roomSplitImportRepository
             reviewReminderRepository = DataStoreReviewReminderRepository(this, applicationScope)
@@ -349,6 +389,17 @@ class SmartMistakeBookApplication : Application() {
             // for the student to reopen the screen; the worker no-ops quickly when
             // nothing is PROCESSING.
             BatchImportDriver.enqueue(this)
+            // L7：上次运行里被系统/进程杀死的导出 worker 没人写终态，记录会永远"正在整理"。
+            // 启动时对账一次（只动超过阈值的 RUNNING 行），把僵尸如实标成失败。
+            applicationScope.launch {
+                val now = System.currentTimeMillis()
+                runCatching {
+                    mistakeExportRepository.reconcileStaleRunningRecords(
+                        staleBeforeEpochMillis = now - MISTAKE_EXPORT_RUNNING_TIMEOUT_MILLIS,
+                        atEpochMillis = now,
+                    )
+                }
+            }
             startupState.value = StartupState.Ready
             // Applied after Ready so a successful open is still reported as
             // usable: the book works, the student just has to know that a
@@ -466,6 +517,87 @@ class SmartMistakeBookApplication : Application() {
             reviewReminderCoordinator.refresh()
         }
     }
+
+    /**
+     * L7：启动一次**单题**后台导出。入队后即可离开页面——渲染归 WorkManager，成果在
+     * 「导出成果」与完成通知里。
+     */
+    fun startMistakeExportSingle(key: MistakeRevisionKey) {
+        enqueueMistakeExport(
+            request = MistakeExportJobRequest.Single(
+                exportId = newMistakeExportId(),
+                key = key,
+            ),
+            kind = MistakeExportKind.SINGLE,
+        )
+    }
+
+    /**
+     * L7：启动一次**当前筛选**批量导出。入口已把候选收敛到上限内（超限时入口会如实说明
+     * 原因、不调用这里）；这里仍去重，防同一道题在一个批次里出现两次。
+     */
+    fun startMistakeExportBatch(entryIds: List<String>) {
+        val distinct = entryIds.distinct()
+        if (distinct.isEmpty()) return
+        enqueueMistakeExport(
+            request = MistakeExportJobRequest.Batch(
+                exportId = newMistakeExportId(),
+                entryIds = distinct,
+            ),
+            kind = MistakeExportKind.BATCH,
+        )
+    }
+
+    private fun enqueueMistakeExport(
+        request: MistakeExportJobRequest,
+        kind: MistakeExportKind,
+    ) {
+        applicationScope.launch {
+            try {
+                // 对账一次：上次被杀死的 worker 可能留下僵尸 RUNNING（"永久正在整理"）。
+                // 只动超过阈值、仍无终态的行；正常排队中的导出不受影响。
+                val now = System.currentTimeMillis()
+                runCatching {
+                    mistakeExportRepository.reconcileStaleRunningRecords(
+                        staleBeforeEpochMillis = now - MISTAKE_EXPORT_RUNNING_TIMEOUT_MILLIS,
+                        atEpochMillis = now,
+                    )
+                }
+                val record = mistakeExportRepository.recordStarted(
+                    exportId = request.exportId,
+                    kind = kind,
+                    atEpochMillis = now,
+                )
+                // 没落上记录就不入队：没有行的导出没有可回看的成果，"幽灵任务"只会白渲染。
+                if (record == null) {
+                    android.util.Log.w(
+                        "SmartMistakeBook",
+                        "Mistake export was not enqueued: no record row for ${request.exportId}",
+                    )
+                    return@launch
+                }
+                ExportPdfDriver.enqueue(this@SmartMistakeBookApplication, request)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Throwable) {
+                // 入队失败：不留 RUNNING 幽灵行（记录表上的"正在整理"必须对应一个真实任务）。
+                runCatching {
+                    mistakeExportRepository.recordFailed(
+                        exportId = request.exportId,
+                        failureMessage = "这次导出没有排上队，请稍后重新导出。",
+                        atEpochMillis = System.currentTimeMillis(),
+                    )
+                }
+                android.util.Log.e(
+                    "SmartMistakeBook",
+                    "Mistake export enqueue failed for ${request.exportId}",
+                    failure,
+                )
+            }
+        }
+    }
+
+    private fun newMistakeExportId(): String = "export:${UUID.randomUUID()}"
 
     fun refreshStudyExperience() {
         val currentStartup = startupState.value

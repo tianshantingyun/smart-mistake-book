@@ -202,6 +202,21 @@ internal fun resolveLibraryEmptyState(
     else -> null
 }
 
+/**
+ * 错题本栏「导出当前筛选」收集候选的结果（阶段 4A 批 4 · L7）。
+ *
+ * 三态而不是"空列表"：**当前筛选下真的没有题**与**结果超过导出上限**是两件不同的事，
+ * 改前两者都收敛成空列表，导出页于是把"超过 100 道"说成"当前没有可导出的错题"。
+ * 现在由入口如实分流：`Candidates` 直接入队，另两态在「导出成果」里说明原因、不入队。
+ */
+sealed interface LibraryExportCandidates {
+    data class Candidates(val entryIds: List<String>) : LibraryExportCandidates
+
+    data object TooManyVisible : LibraryExportCandidates
+
+    data object NothingVisible : LibraryExportCandidates
+}
+
 internal class LibraryCatalog(
     private val mistakes: List<LibraryMistake>,
 ) {

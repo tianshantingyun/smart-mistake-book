@@ -138,6 +138,8 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:database"))
     implementation(project(":core:ui"))
+    // L7 后台导出：worker 直接调导出核心（渲染编排 / 内容判定 / 交付链）。
+    implementation(project(":core:export"))
     implementation(project(":feature:capture"))
     implementation(project(":feature:review"))
     implementation(project(":feature:tutor"))
@@ -164,5 +166,7 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
+    // L7 成果入口的交付接线：保存/分享必须是既有的 CREATE_DOCUMENT / SEND 意图（拦截断言）。
+    androidTestImplementation(libs.androidx.test.espresso.intents)
     testImplementation(libs.junit)
 }
