@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook
 
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -133,6 +134,81 @@ class ExportPdfWorkerTest {
                 message = "数据库初始化失败，暂时不能安全读写学习记录。",
                 diagnosticId = "startup:database:test",
             ).allowsMistakeExportWorker(),
+        )
+    }
+
+    /**
+     * 4B 批 4：版式必须随任务到达 worker——sheet 上学生改过的版式与后台产出必须是同一份
+     * （版式也是缓存键的一部分）。
+     */
+    @Test
+    fun `a layout survives the work input round trip for both request kinds`() {
+        val layout = MistakePdfLayout(
+            templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+            marginPt = 60,
+            fontScale = 3,
+            columnCount = 2,
+            blockOrder = listOf("paragraph", "choice_group"),
+            imageScale = 0.8f,
+            includeAnswer = true,
+            includeNote = true,
+        )
+
+        val batch = MistakeExportJobRequest.Batch(
+            exportId = "export:layout",
+            entryIds = listOf("entry-a"),
+            layout = layout,
+        )
+        val single = MistakeExportJobRequest.Single(
+            exportId = "export:layout-single",
+            key = MistakeRevisionKey("entry-a", "problem-a", "revision-a"),
+            layout = layout,
+        )
+
+        assertEquals(layout, MistakeExportJobCodec.decode(MistakeExportJobCodec.encode(batch))?.layout)
+        assertEquals(layout, MistakeExportJobCodec.decode(MistakeExportJobCodec.encode(single))?.layout)
+    }
+
+    /** 缺版式键 = 改版前入队的旧任务：按默认版式渲染，不整单丢弃（兼容）。 */
+    @Test
+    fun `an old request without layout keys decodes to the default layout`() {
+        val decoded = MistakeExportJobCodec.decode(
+            mapOf(
+                MistakeExportJobCodec.EXPORT_ID_KEY to "export:old",
+                MistakeExportJobCodec.KIND_KEY to "batch",
+                MistakeExportJobCodec.ENTRY_IDS_KEY to "entry-a",
+            ),
+        )
+
+        assertEquals(MistakePdfLayout.DEFAULT, decoded?.layout)
+    }
+
+    /** 版式键在、但读不成合法布局：整条请求拒（不拿默认版式冒充学生改过的版式）。 */
+    @Test
+    fun `a malformed layout rejects the whole request instead of falling back`() {
+        val encoded = MistakeExportJobCodec.encode(
+            MistakeExportJobRequest.Batch(exportId = "export:bad", entryIds = listOf("entry-a")),
+        )
+
+        assertNull(
+            MistakeExportJobCodec.decode(
+                encoded + (MistakeExportJobCodec.LAYOUT_FONT_SCALE_KEY to 9),
+            ),
+        )
+        assertNull(
+            MistakeExportJobCodec.decode(
+                encoded + (MistakeExportJobCodec.LAYOUT_TEMPLATE_ID_KEY to "poster"),
+            ),
+        )
+    }
+
+    /** B3-4：请求了但被 fail-closed 跳过的版式功能，结果通知里如实说（计数不蒸发）。 */
+    @Test
+    fun `the skipped-feature notice speaks only when something was requested and skipped`() {
+        assertNull(mistakeExportSkippedNotice(MistakePdfLayout.DEFAULT))
+        assertEquals(
+            "解析区暂不可用，已跳过。",
+            mistakeExportSkippedNotice(MistakePdfLayout(includeSolution = true)),
         )
     }
 }

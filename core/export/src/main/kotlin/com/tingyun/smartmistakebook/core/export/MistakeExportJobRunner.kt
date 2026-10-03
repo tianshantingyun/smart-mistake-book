@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -53,7 +54,7 @@ class MistakeExportJobRunner(
                 "没能确认这一版题目与当前错题一致，因此没有生成文件。",
             )
         }
-        return when (val eligibility = MistakePdfEligibility.check(state)) {
+        return when (val eligibility = MistakePdfEligibility.check(state, request.layout)) {
             is MistakePdfEligibilityResult.Ineligible ->
                 MistakeExportJobOutcome.Blocked(exportBlockedMessage(eligibility.reasons))
             is MistakePdfEligibilityResult.Eligible -> {
@@ -83,7 +84,7 @@ class MistakeExportJobRunner(
             )
         }
         val states = entryIds.map { entryId -> readByEntryId(entryId) }
-        return when (val eligibility = MistakePdfBatchEligibility.check(states)) {
+        return when (val eligibility = MistakePdfBatchEligibility.check(states, request.layout)) {
             is MistakePdfBatchEligibilityResult.Ineligible ->
                 MistakeExportJobOutcome.Blocked(batchBlockedMessage(eligibility.reason))
             is MistakePdfBatchEligibilityResult.Eligible -> render(
@@ -103,21 +104,40 @@ class MistakeExportJobRunner(
     }
 }
 
-/** 后台渲染任务的输入：一次导出要渲染哪一版题目 / 哪一批条目。 */
+/**
+ * 后台渲染任务的输入：一次导出要渲染哪一版题目 / 哪一批条目，以及**用哪份版式**。
+ *
+ * 版式（4B 批 4）：`START_EXPORT` 的导出 sheet 让学生改完版式再开始导出——参数必须随任务
+ * 走到渲染，否则 sheet 上看到的版式与后台产出不是同一份（缓存键也会错）。默认
+ * [MistakePdfLayout.DEFAULT] = 参数化前的固定版式（旧的入队任务与单题入口不受影响）。
+ */
 sealed interface MistakeExportJobRequest {
     val exportId: String
+    val layout: MistakePdfLayout
 
     /** 单题：入口给的是不可变版本三元组。 */
     data class Single(
         override val exportId: String,
         val key: MistakeRevisionKey,
-    ) : MistakeExportJobRequest
+        override val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    ) : MistakeExportJobRequest {
+        init {
+            // 请求构造处就拒非法版式（防御其他调用点）：坏版式进 WorkManager 只会变成
+            // "解码失败/渲染失败"的晚失败，而这里能让调用方当场看见。
+            require(layout.validate().isEmpty()) { "Invalid export layout: ${layout.validate()}" }
+        }
+    }
 
     /** 批量：入口只带得动 entry id（键在 worker 侧解析，避免 WorkManager 输入超限）。 */
     data class Batch(
         override val exportId: String,
         val entryIds: List<String>,
-    ) : MistakeExportJobRequest
+        override val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    ) : MistakeExportJobRequest {
+        init {
+            require(layout.validate().isEmpty()) { "Invalid export layout: ${layout.validate()}" }
+        }
+    }
 }
 
 /** 三态结果：可交付（已通过完整性核对）/ 不可导出 / 渲染失败。 */

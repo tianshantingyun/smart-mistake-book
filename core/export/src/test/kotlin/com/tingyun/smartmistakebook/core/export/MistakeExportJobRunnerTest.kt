@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
@@ -44,6 +45,54 @@ class MistakeExportJobRunnerTest {
         val rendered = outcome as MistakeExportJobOutcome.Rendered
         assertEquals("错题-函数单调区间-第3版.pdf", rendered.displayName)
         assertTrue(rendered.prepared.verifyIntegrity())
+    }
+
+    @Test
+    fun `the request layout reaches the renderer for single and batch exports`() = runBlocking {
+        // 4B 批 4：sheet 上学生定稿的版式必须一路走到渲染输入（版式也是缓存键的一部分）。
+        val layout = MistakePdfLayout(
+            templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+            columnCount = 2,
+            includeAnswer = true,
+        )
+        val seen = mutableListOf<MistakePdfLayout>()
+        val runner = runner(
+            renderPdf = { input ->
+                seen += input.layout
+                verifiedPrepared(input.inputSha256)
+            },
+        )
+
+        runner.run(
+            MistakeExportJobRequest.Single(
+                exportId = "export-layout-1",
+                key = EXACT_KEY,
+                layout = layout,
+            ),
+        )
+        runner.run(
+            MistakeExportJobRequest.Batch(
+                exportId = "export-layout-2",
+                entryIds = listOf(EXACT_KEY.entryId),
+                layout = layout,
+            ),
+        )
+
+        assertEquals(listOf(layout, layout), seen)
+    }
+
+    @Test
+    fun `an invalid layout is refused where the request is built`() {
+        // P2-1 防御：坏版式不许走到 WorkManager（解码失败/渲染失败都是晚失败）。
+        val failure = runCatching {
+            MistakeExportJobRequest.Batch(
+                exportId = "export-bad",
+                entryIds = listOf(EXACT_KEY.entryId),
+                layout = MistakePdfLayout(fontScale = 9),
+            )
+        }.exceptionOrNull()
+
+        assertEquals(IllegalArgumentException::class.java, failure?.javaClass)
     }
 
     @Test

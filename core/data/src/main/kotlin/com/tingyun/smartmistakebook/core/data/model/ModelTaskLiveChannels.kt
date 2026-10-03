@@ -82,6 +82,9 @@ internal class ModelTaskToolTraceStore {
                 // A2：生图条目带事实半（id/kind/模型/是否本次出网）——消息行落库时按它建立
                 // 资产引用，界面按它重建配图，工具卡按它说"已计入额度/已保留原图"。
                 figure = execution.figure,
+                // B3-3：NOTEBOOK_READ 检索到的条目 id 本地留痕——导出 sheet 的候选题来源
+                // （模型给的题 id 永远不是来源；它也不进模型可见字段）。
+                problemEntryIds = execution.problemEntryIds,
             )
         }
         traces.update { current ->

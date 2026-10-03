@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
@@ -103,7 +104,9 @@ data class AgentPendingRequest(
         require(conversationId.isNotBlank()) { "A pending request needs a conversation" }
         require(logicalOperationId.isNotBlank()) { "A pending request needs a logical operation id" }
         require(messageId.isNotBlank()) { "A pending request needs a message id" }
-        requireAgentPendingRequestPayload(kind = kind, payloadJson = payloadJson)
+        // 读回宽容（`bf8be888` 教训）：旧版本的 START_EXPORT 行是空形状 `{}`，严格形状会把
+        // 升级后的读路径整区抛掉。写口（Draft）仍然严格——新写的行必须按新形状说话。
+        requireAgentPendingRequestPayload(kind = kind, payloadJson = payloadJson, readBack = true)
         require(createdAtEpochMillis >= 0L) { "A pending request creation time must not be negative" }
         require(
             status.isTerminal == (resolvedAtEpochMillis != null),
@@ -200,7 +203,14 @@ const val MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS = 2_000
 /**
  * payload 的公共校验：必须是**参数对象**（JSON object）、有大小上限、不含控制字符，
  * 并且**按 kind 逐字核对固定字段形状**——键必须在
- * [agentPendingRequestPayloadKeys] 声明的集合里、值必须是非空字符串（附图 id 是非空字符串数组）。
+ * [agentPendingRequestPayloadKeys] 声明的集合里、值必须是非空字符串（附图 id 是非空字符串数组；
+ * `START_EXPORT` 的 `layout` 是完整布局对象）。
+ *
+ * `START_EXPORT` 额外三条（4B B3-1，fail-closed）：
+ * 1. **键恰好** `{templateId, layout}`——缺字段拒、多字段拒；
+ * 2. `templateId` 必须是 `MistakePdfLayout.TEMPLATE_IDS` 的逐字枚举；
+ * 3. `layout` 必须是**完整**的布局对象（九字段一个不少）且过 `MistakePdfLayout.validate()`，
+ *    并且它自己的 templateId 与顶层一致。
  *
  * 为什么在这一层把关：payload 会进数据库、会在卡上渲染、会回喂模型。让模型正文流进来 =
  * 卡片变成第二个会话流，且是绕过一切结果预算的通道（工具结果有 4k/轮的上限，卡上文本没有）。
@@ -208,8 +218,32 @@ const val MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS = 2_000
  * 收口（模型只能选不能造），参数形状由这里收口——一份"看着差不多"的 payload（多一个键、
  * 值是对象、值是空串）不是"将被忽略的额外信息"，它是**没有按契约说话的本地请求**，
  * 落库口一律拒（拒在挂卡前，不拒在渲染时）。
+ *
+ * 这个两参入口是**写口**（挂卡前）用的严格校验；读回旧行走
+ * [requireAgentPendingRequestPayload] 的 `readBack = true`（见那边的说明）。
  */
 fun requireAgentPendingRequestPayload(kind: AgentPendingRequestKind, payloadJson: String) {
+    requireAgentPendingRequestPayload(kind = kind, payloadJson = payloadJson, readBack = false)
+}
+
+/**
+ * payload 校验的**读回宽容**开关（`bf8be888` 那类"读回旧行抛异常"教训的落点）。
+ *
+ * 为什么需要：`START_EXPORT` 的形状在 4B 批 4 从"空 payload"变成"恰好 `{templateId, layout}`
+ * + 完整合法 layout"；升级前落库的行是空对象 `{}`（`d2317f5d` 的写入形状：admission 用空 key
+ * 集构造）。若读回也跑严格形状，`AgentPendingRequest.init` 会在 `toDomain()` 抛
+ * `IllegalArgumentException`——挂卡列表整区抛、回喂记录整表 map 抛，**旧行把新版本读死**。
+ *
+ * 宽容的范围**只有 START_EXPORT**，而且只放宽到结构性规则（合法 JSON 对象、非空白、尺寸与
+ * 控制字符上限）：旧形状 `{}` 与新版完整形状都能读回，语义解析交给
+ * [tutorLocalActionExportProposal]（读不出来时 UI 走"旧版本请求"的降级路径，不崩不悬）。
+ * 其余 kind 的严格校验**一个字节都不动**；写口（[AgentPendingRequestDraft]）仍然严格。
+ */
+internal fun requireAgentPendingRequestPayload(
+    kind: AgentPendingRequestKind,
+    payloadJson: String,
+    readBack: Boolean,
+) {
     require(payloadJson.length <= MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS) {
         "$kind payload exceeds $MAX_AGENT_PENDING_REQUEST_PAYLOAD_CHARS chars"
     }
@@ -220,6 +254,8 @@ fun requireAgentPendingRequestPayload(kind: AgentPendingRequestKind, payloadJson
         agentPendingRequestPayloadJson.parseToJsonElement(payloadJson) as? JsonObject
     }.getOrNull()
     require(root != null) { "$kind payload must be a JSON object of fixed parameters" }
+    // 读回宽容：只对 START_EXPORT 停在结构层（旧行 `{}` 是合法 JSON 对象）。
+    if (readBack && kind == AgentPendingRequestKind.START_EXPORT) return
     val allowedKeys = agentPendingRequestPayloadKeys(kind)
     root.forEach { (key, value) ->
         require(key in allowedKeys) {
@@ -236,6 +272,9 @@ fun requireAgentPendingRequestPayload(kind: AgentPendingRequestKind, payloadJson
                     },
                 ) { "$kind payload field $key must be a non-empty array of asset ids" }
             }
+            KEY_EXPORT_LAYOUT -> {
+                require(value is JsonObject) { "$kind payload field $key must be a layout object" }
+            }
             else -> {
                 val text = (value as? JsonPrimitive)?.takeIf(JsonPrimitive::isString)
                     ?.contentOrNull
@@ -243,6 +282,25 @@ fun requireAgentPendingRequestPayload(kind: AgentPendingRequestKind, payloadJson
                     "$kind payload field $key must be a non-blank string"
                 }
             }
+        }
+    }
+    if (kind == AgentPendingRequestKind.START_EXPORT) {
+        require(root.keys == allowedKeys) {
+            "$kind payload must carry exactly $allowedKeys (missing fields are refused)"
+        }
+        val templateId = (root[KEY_EXPORT_TEMPLATE_ID] as? JsonPrimitive)
+            ?.takeIf(JsonPrimitive::isString)
+            ?.contentOrNull
+        require(templateId != null && templateId in MistakePdfLayout.TEMPLATE_IDS) {
+            "$kind payload templateId must be one of ${MistakePdfLayout.TEMPLATE_IDS}"
+        }
+        val layout = (root[KEY_EXPORT_LAYOUT] as? JsonObject)
+            ?.let(::mistakePdfLayoutFromJsonObject)
+        require(layout != null) {
+            "$kind payload layout must be a complete, valid layout"
+        }
+        require(layout.templateId == templateId) {
+            "$kind payload templateId must match the layout template"
         }
     }
 }

@@ -63,11 +63,17 @@ internal class MistakeExportNotifications(
         MISTAKE_EXPORT_CHANNEL_ID,
     )
 
-    fun postSucceeded(exportId: String, displayName: String) {
+    fun postSucceeded(exportId: String, displayName: String, skippedNotice: String? = null) {
         post(
             exportId = exportId,
             title = "A4 导出已完成",
-            text = "$displayName 已可以保存、分享或打印。",
+            text = buildString {
+                append(displayName).append(" 已可以保存、分享或打印。")
+                // B3-4：请求了但被跳过的版式功能如实跟在结果里（不静默吞掉）。
+                skippedNotice?.takeIf(String::isNotBlank)?.let { notice ->
+                    append(' ').append(notice)
+                }
+            },
         )
     }
 

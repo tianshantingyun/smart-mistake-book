@@ -2,6 +2,9 @@ package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.model.MathBox
 import com.tingyun.smartmistakebook.core.model.MathMetrics
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
+import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayoutFeature
 import kotlin.math.max
 import kotlin.math.min
 
@@ -195,9 +198,11 @@ internal object MistakePdfPagePlanner {
                 }
             }
             addAnswerSection(input.blocks, layout, measure, typography, geometry)
-            if (layout.includeSolution) {
+            // 请求了但当前实现撑不住的功能：按布局自己的判据（unsupportedRequestedFeatures）
+            // fail-closed 跳过。导出入口的"会跳过"提示与结果通知读的是同一份判据。
+            layout.unsupportedRequestedFeatures().forEach { feature ->
                 skipped += PdfLayoutSkip(
-                    feature = MistakePdfLayoutFeature.SOLUTION_SECTION,
+                    feature = feature,
                     reason = MistakePdfLayoutSkipReason.UNSUPPORTED_LAYOUT_FEATURE,
                 )
             }
@@ -406,13 +411,10 @@ private data class RawPlanDraft(
 /**
  * 版式功能的 fail-closed 记录：请求了、但没有数据源/实现支撑，于是**跳过而不留占位脏字**。
  *
- * 只登记**真实会跳过**的功能（当前仅解析区）；等真的出现可跳过特性再加值，避免枚举里
- * 躺着永远构造不出来的死值。
+ * 可跳过功能的枚举在 `core:model` 的 [MistakePdfLayoutFeature]（与
+ * `MistakePdfLayout.unsupportedRequestedFeatures()` 同一处定义）；这里只记录"跳过了哪一项、
+ * 为什么"。
  */
-internal enum class MistakePdfLayoutFeature {
-    SOLUTION_SECTION,
-}
-
 internal enum class MistakePdfLayoutSkipReason {
     UNSUPPORTED_LAYOUT_FEATURE,
 }
@@ -425,8 +427,9 @@ internal data class PdfLayoutSkip(
 /**
  * 一次分页的完整产物：页面 + 被跳过的版式功能。
  *
- * **[skipped] 目前没有生产消费者**：只有计划层用例断言它（B2 的 fail-closed 证据）。
- * 导出入口/成果页的计数展示是批 4（B3 接线）的工作，本批不做接线。
+ * **[skipped] 的消费者（4B B3-4）**：导出入口（sheet 的"解析区暂不可用，本次会跳过"）与
+ * 结果通知（"已跳过"）读的是与这里同源的 `MistakePdfLayout.unsupportedRequestedFeatures()`；
+ * 计划层用例按它断言 fail-closed（不留占位脏字）。
  */
 internal data class PdfPlan(
     val pages: List<List<PdfPlannedItem>>,

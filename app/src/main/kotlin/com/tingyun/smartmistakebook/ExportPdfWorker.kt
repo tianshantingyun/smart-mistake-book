@@ -15,6 +15,7 @@ import com.tingyun.smartmistakebook.core.domain.MistakeExportStatus
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobOutcome
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -89,7 +90,22 @@ class ExportPdfWorker(
 
     override suspend fun doWork(): Result {
         val app = applicationContext as? SmartMistakeBookApplication ?: return Result.failure()
-        val request = MistakeExportJobCodec.decode(inputData.keyValueMap) ?: return Result.failure()
+        val request = MistakeExportJobCodec.decode(inputData.keyValueMap)
+        if (request == null) {
+            // 解码失败也必须留痕（"放弃必留痕"）：记录行在入队时已落 RUNNING，直接
+            // Result.failure() 会让 hub 永远显示"正在整理"（幽灵行）。能读到 exportId 就走与
+            // 其它放弃路径同一条重试/落 FAILED 的路；连 id 都没有时没有可标记的行
+            // （记录行按 exportId 落库），只能 failure。
+            val exportId = (inputData.keyValueMap[MistakeExportJobCodec.EXPORT_ID_KEY] as? String)
+                ?.takeIf { it.isNotBlank() }
+                ?: return Result.failure()
+            return giveUpOrRetry(
+                app = app,
+                repository = app.mistakeExportRepository,
+                exportId = exportId,
+                failureMessage = "这次导出的参数无法识别，没有生成文件。请重新发起导出。",
+            )
+        }
         val repository = app.mistakeExportRepository
 
         if (!app.startupState.value.allowsMistakeExportWorker()) {
@@ -119,6 +135,9 @@ class ExportPdfWorker(
                     app.mistakeExportNotifications.postSucceeded(
                         exportId = request.exportId,
                         displayName = outcome.displayName,
+                        // B3-4：请求了但被 fail-closed 跳过的版式功能如实说一句——计数不许蒸发
+                        // （与分页器的 PdfPlan.skipped、导出 sheet 的"会跳过"提示同一判据）。
+                        skippedNotice = mistakeExportSkippedNotice(request.layout),
                     )
                 }
                 is MistakeExportJobOutcome.Blocked -> {
@@ -201,6 +220,11 @@ class ExportPdfWorker(
  *
  * 纯映射（没有 android 类型）：批量只带 entry id（单条 id 短、100 条也远小于 WorkManager
  * 10KB 输入上限；三键一组的版本三元组在 100 题时会顶到上限），键在 worker 侧按当前正式版解析。
+ *
+ * 4B 批 4：版式（[MistakePdfLayout]）逐字段进 Data（String/Int/Float/Boolean 都是 Data 支持
+ * 的原语，不需要额外序列化依赖）。缺版式键 = 旧的入队任务 → 按 [MistakePdfLayout.DEFAULT]；
+ * 版式键**在但读不成合法布局** → 整条请求拒（fail-closed：宁可丢弃一条坏任务，也不拿
+ * 默认版式冒充学生改过的版式渲染）。
  */
 internal object MistakeExportJobCodec {
     const val EXPORT_ID_KEY = "exportId"
@@ -210,9 +234,32 @@ internal object MistakeExportJobCodec {
     const val PROBLEM_ID_KEY = "problemId"
     const val REVISION_ID_KEY = "revisionId"
 
+    const val LAYOUT_TEMPLATE_ID_KEY = "layoutTemplateId"
+    const val LAYOUT_MARGIN_PT_KEY = "layoutMarginPt"
+    const val LAYOUT_FONT_SCALE_KEY = "layoutFontScale"
+    const val LAYOUT_COLUMN_COUNT_KEY = "layoutColumnCount"
+    const val LAYOUT_BLOCK_ORDER_KEY = "layoutBlockOrder"
+    const val LAYOUT_IMAGE_SCALE_KEY = "layoutImageScale"
+    const val LAYOUT_INCLUDE_ANSWER_KEY = "layoutIncludeAnswer"
+    const val LAYOUT_INCLUDE_SOLUTION_KEY = "layoutIncludeSolution"
+    const val LAYOUT_INCLUDE_NOTE_KEY = "layoutIncludeNote"
+
+    private val LAYOUT_KEYS = setOf(
+        LAYOUT_TEMPLATE_ID_KEY,
+        LAYOUT_MARGIN_PT_KEY,
+        LAYOUT_FONT_SCALE_KEY,
+        LAYOUT_COLUMN_COUNT_KEY,
+        LAYOUT_BLOCK_ORDER_KEY,
+        LAYOUT_IMAGE_SCALE_KEY,
+        LAYOUT_INCLUDE_ANSWER_KEY,
+        LAYOUT_INCLUDE_SOLUTION_KEY,
+        LAYOUT_INCLUDE_NOTE_KEY,
+    )
+
     private const val KIND_SINGLE = "single"
     private const val KIND_BATCH = "batch"
     private const val ENTRY_ID_SEPARATOR = "\n"
+    private const val BLOCK_ORDER_SEPARATOR = ","
 
     fun uniqueName(exportId: String): String {
         require(exportId.isNotBlank()) { "An export id must not be blank" }
@@ -226,7 +273,7 @@ internal object MistakeExportJobCodec {
             ENTRY_ID_KEY to request.key.entryId,
             PROBLEM_ID_KEY to request.key.problemId,
             REVISION_ID_KEY to request.key.problemRevisionId,
-        )
+        ) + layoutEntries(request.layout)
         is MistakeExportJobRequest.Batch -> {
             require(request.entryIds.none { it.contains(ENTRY_ID_SEPARATOR) }) {
                 "An export entry id must not contain a newline"
@@ -235,13 +282,14 @@ internal object MistakeExportJobCodec {
                 EXPORT_ID_KEY to request.exportId,
                 KIND_KEY to KIND_BATCH,
                 ENTRY_IDS_KEY to request.entryIds.joinToString(ENTRY_ID_SEPARATOR),
-            )
+            ) + layoutEntries(request.layout)
         }
     }
 
     fun decode(values: Map<String, Any?>): MistakeExportJobRequest? {
         val exportId = (values[EXPORT_ID_KEY] as? String)?.takeIf { it.isNotBlank() }
             ?: return null
+        val layout = layoutFromValues(values) ?: return null
         return when (val kind = values[KIND_KEY] as? String) {
             KIND_SINGLE -> {
                 val entryId = (values[ENTRY_ID_KEY] as? String)?.takeIf { it.isNotBlank() }
@@ -255,6 +303,7 @@ internal object MistakeExportJobCodec {
                         problemId = problemId,
                         problemRevisionId = revisionId,
                     ),
+                    layout = layout,
                 )
             }
             KIND_BATCH -> {
@@ -262,9 +311,65 @@ internal object MistakeExportJobCodec {
                     ?.split(ENTRY_ID_SEPARATOR)
                     ?.filter { it.isNotBlank() }
                     ?: return null
-                MistakeExportJobRequest.Batch(exportId = exportId, entryIds = entryIds)
+                MistakeExportJobRequest.Batch(exportId = exportId, entryIds = entryIds, layout = layout)
             }
             else -> null
         }
     }
+
+    private fun layoutEntries(layout: MistakePdfLayout): Map<String, Any?> = mapOf(
+        LAYOUT_TEMPLATE_ID_KEY to layout.templateId,
+        LAYOUT_MARGIN_PT_KEY to layout.marginPt,
+        LAYOUT_FONT_SCALE_KEY to layout.fontScale,
+        LAYOUT_COLUMN_COUNT_KEY to layout.columnCount,
+        LAYOUT_BLOCK_ORDER_KEY to layout.blockOrder.joinToString(BLOCK_ORDER_SEPARATOR),
+        LAYOUT_IMAGE_SCALE_KEY to layout.imageScale,
+        LAYOUT_INCLUDE_ANSWER_KEY to layout.includeAnswer,
+        LAYOUT_INCLUDE_SOLUTION_KEY to layout.includeSolution,
+        LAYOUT_INCLUDE_NOTE_KEY to layout.includeNote,
+    )
+
+    /** 缺版式键 = 旧任务（默认版式）；键在但读不成合法布局 = null（整条请求拒）。 */
+    private fun layoutFromValues(values: Map<String, Any?>): MistakePdfLayout? {
+        if (LAYOUT_KEYS.none { key -> key in values }) return MistakePdfLayout.DEFAULT
+        val templateId = (values[LAYOUT_TEMPLATE_ID_KEY] as? String)
+            ?.takeIf { it.isNotBlank() } ?: return null
+        val marginPt = (values[LAYOUT_MARGIN_PT_KEY] as? Number)?.toInt() ?: return null
+        val fontScale = (values[LAYOUT_FONT_SCALE_KEY] as? Number)?.toInt() ?: return null
+        val columnCount = (values[LAYOUT_COLUMN_COUNT_KEY] as? Number)?.toInt() ?: return null
+        val blockOrder = (values[LAYOUT_BLOCK_ORDER_KEY] as? String)
+            ?.split(BLOCK_ORDER_SEPARATOR)
+            ?.map(String::trim)
+            ?.filter(String::isNotEmpty)
+            ?: return null
+        val imageScale = (values[LAYOUT_IMAGE_SCALE_KEY] as? Number)?.toFloat() ?: return null
+        val includeAnswer = values[LAYOUT_INCLUDE_ANSWER_KEY] as? Boolean ?: return null
+        val includeSolution = values[LAYOUT_INCLUDE_SOLUTION_KEY] as? Boolean ?: return null
+        val includeNote = values[LAYOUT_INCLUDE_NOTE_KEY] as? Boolean ?: return null
+        val layout = MistakePdfLayout(
+            templateId = templateId,
+            marginPt = marginPt,
+            fontScale = fontScale,
+            columnCount = columnCount,
+            blockOrder = blockOrder,
+            imageScale = imageScale,
+            includeAnswer = includeAnswer,
+            includeSolution = includeSolution,
+            includeNote = includeNote,
+        )
+        return layout.takeIf { it.validate().isEmpty() }
+    }
+}
+
+/**
+ * 请求了但被 fail-closed 跳过的版式功能 → 完成通知里的如实一句（B3-4）；没有跳过时 null。
+ *
+ * 与 `MistakePdfPagePlanner` 的 `PdfPlan.skipped`、导出 sheet 的"会跳过"提示读同一份判据
+ * （[MistakePdfLayout.unsupportedRequestedFeatures]）——三处不会一处说了另一处没说。
+ */
+internal fun mistakeExportSkippedNotice(layout: MistakePdfLayout): String? {
+    val features = layout.unsupportedRequestedFeatures()
+    if (features.isEmpty()) return null
+    return features.joinToString(separator = "、") { feature -> feature.studentLabel } +
+        "暂不可用，已跳过。"
 }

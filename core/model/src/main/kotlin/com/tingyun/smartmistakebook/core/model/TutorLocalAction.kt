@@ -23,14 +23,18 @@ import kotlinx.serialization.Serializable
  * 事故），本地动作从第一天起就只有这一份：[purposeDescription] / [nativePurposeDescription]
  * 是唯一出处，[TutorLocalActionAdvertisementsTest] 把两套广告与这份声明逐项对拍。
  *
- * ## 参数形状为什么都是空的
+ * ## 参数形状：默认空集，`START_EXPORT` 例外（4B 批 4 裁定）
  *
- * 四个动作都**不接受模型给的参数**——不是"本版先不放"，而是白名单本身决定的：动作的执行目标
- * （哪份拍照草稿、哪张附图、哪道库里的题、本轮在讲的那道题）只能由**本轮本地上下文**解析
- * （见 `core:domain` 的 `TutorLocalActionContext`），模型手里没有任何可核对的本地 id。
- * 让模型填一个本地核不了的 id，就是把"它选了哪件事"退化成"它编了哪件事"。
- * 形状仍然要声明，因为**形状是拒绝的依据**：解析器按 [TutorLocalAction] 逐字核对键集，
- * 出现名单里没有的键就是无效输出（模型造了参数 = 这条输出不可用，不是"忽略一下"）。
+ * 动作的执行**目标**（哪份拍照草稿、哪张附图、哪道库里的题、本轮在讲的那道题）只能由**本轮
+ * 本地上下文**解析（见 `core:domain` 的 `TutorLocalActionContext`），模型手里没有任何可核对的
+ * 本地 id。让模型填一个本地核不了的 id，就是把"它选了哪件事"退化成"它编了哪件事"——所以
+ * 除 `START_EXPORT` 外三个动作的参数形状都是空集，**题 id 永远不是模型可写的参数**。
+ *
+ * `START_EXPORT` 是唯一的例外（用户 2026-09-28/10-03 裁定）：模型只提议**模板名与版式参数**
+ * （"两栏""字大点""不要答案"映射到 [MistakePdfLayout] 的白名单字段），题从本轮本地留痕里
+ * 取、由学生在导出 sheet 里勾选。模型不得输出任何排版标记——形状仍然要声明，因为
+ * **形状是拒绝的依据**：解析器按 [TutorLocalAction] 逐字核对键集，出现名单里没有的键
+ * 就是无效输出（模型造了参数 = 这条输出不可用，不是"忽略一下"）。
  *
  * 权限档在 `core:domain` 的 `TutorPermissionPolicy`：这四个动作全部 **ask（确认卡）**。
  * 重拆提议（`PROPOSE_RECLASSIFY`）**不在本版**：D-K2/K2b 与 D-K3 把它整体推迟到阶段 3B，
@@ -67,7 +71,9 @@ enum class TutorLocalAction {
                     "自造内容；本地会挂一张确认卡，学生点了才会真正保存，不得声称已经存好。"
             START_EXPORT ->
                 "发起一次选择导出（先检索、再由学生勾选、本地排版、导出可打印文件）。" +
-                    "本地会请学生确认，不得声称文件已经生成。"
+                    "学生的口头排版要求（「两栏」「字大点」「不要答案」）映射到 templateId 与版式参数，" +
+                    "没要求就用练习卷默认版式；不要输出任何排版标记。本地会请学生确认，" +
+                    "不得声称文件已经生成。"
             ADD_TO_REVIEW_PLAN ->
                 "提出一次复习计划调整（例如把本轮这道题纳入复习计划）。这是**提议**：" +
                     "本地会把这件事交给学生确认，不得声称计划已经改好。"
@@ -78,17 +84,85 @@ enum class TutorLocalAction {
         get() = when (this) {
             OPEN_PROBLEM -> "打开本轮的那道题（需学生确认后才会打开）"
             SAVE_TO_NOTEBOOK -> "把本轮内容收进错题本（需学生确认后才保存）"
-            START_EXPORT -> "发起一次选择导出（需学生确认）"
+            START_EXPORT -> "发起一次选择导出，可提议模板与版式参数（需学生确认）"
             ADD_TO_REVIEW_PLAN -> "提出把本轮这道题纳入复习计划（需学生确认）"
         }
 
     /**
-     * 这个动作的参数形状：**空集**（见类注释）。声明成一个属性而不是写死在各处，
-     * 是为了让两套广告与解析器读同一个空集——真有一天要放开某个参数，改这里一处、
+     * 这个动作的参数形状。除 `START_EXPORT` 外都是**空集**（见类注释）；声明成一个属性而不是
+     * 写死在各处，是为了让两套广告与解析器读同一个形状——放开某个参数时改这里一处、
      * 三处消费者（schema / 提示词 / 解析器）同时跟上。
+     *
+     * `START_EXPORT` 的形状（4B B3-1）：
+     * - `templateId` 必填，取值是 [MistakePdfLayout.TEMPLATE_IDS] 的逐字枚举；
+     * - 其余是 [MistakePdfLayout] 的版式字段，全部**可选**（缺省 = 用布局默认值）——
+     *   学生口头要求由模型映射过来（"两栏"→`columnCount=2`、"字大点"→`fontScale=3`、
+     *   "不要答案"→`includeAnswer=false`）。每个字段的域校验（范围/枚举/重复）由本地
+     *   `MistakePdfLayout.validate()` 收口，越界一律拒（不挂卡）。
+     *
+     * **题 id 不在形状里**：模型提议的是版式，题目由本轮本地留痕与学生在 sheet 里勾选决定。
      */
     val parameters: List<TutorLocalActionParameter>
-        get() = emptyList()
+        get() = when (this) {
+            START_EXPORT -> listOf(
+                TutorLocalActionParameter(
+                    parameterName = "templateId",
+                    description = "导出模板。practice_sheet=练习卷（含作答空白区）、" +
+                        "compact=紧凑版（只做题面）、with_answers=答案卷（附答案区）。" +
+                        "学生没指定时用 practice_sheet。",
+                    required = true,
+                    allowedValues = listOf(
+                        MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+                        MistakePdfLayout.TEMPLATE_COMPACT,
+                        MistakePdfLayout.TEMPLATE_WITH_ANSWERS,
+                    ),
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "columnCount",
+                    description = "栏数：1=单栏，2=双栏（学生说「两栏」时填 2）。",
+                    allowedValues = listOf("1", "2"),
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "fontScale",
+                    description = "字号档 1/2/3（学生说「字大点」填 3，「字小点」填 1）。",
+                    allowedValues = listOf("1", "2", "3"),
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "marginPt",
+                    description = "页边距（pt）：${MistakePdfLayout.MIN_MARGIN_PT}.." +
+                        "${MistakePdfLayout.MAX_MARGIN_PT}，默认 ${MistakePdfLayout.DEFAULT_MARGIN_PT}。",
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "imageScale",
+                    description = "图形缩放：0.5..1.0，默认 1.0（学生说「图小一点」时调小）。",
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "blockOrder",
+                    description = "题面块顺序：逗号分隔的 " +
+                        "paragraph/section_heading/formula/choice_group/figure 子集（可省略）。",
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "includeAnswer",
+                    description = "是否附答案区：true/false（学生说「不要答案」时 false，默认 false）。",
+                    allowedValues = listOf("true", "false"),
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "includeSolution",
+                    description = "是否附解析区：true/false；当前版本没有解析数据源，" +
+                        "打开也会被跳过并如实说明（默认 false）。",
+                    allowedValues = listOf("true", "false"),
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "includeNote",
+                    description = "是否附「我的备注」区：true/false（默认 false）。",
+                    allowedValues = listOf("true", "false"),
+                ),
+            )
+            OPEN_PROBLEM,
+            SAVE_TO_NOTEBOOK,
+            ADD_TO_REVIEW_PLAN,
+            -> emptyList()
+        }
 
     /** 动作 id（两套广告与解析器都用它，不做任何大小写/别名容忍）。 */
     val actionId: String get() = name
@@ -106,9 +180,8 @@ enum class TutorLocalAction {
 /**
  * 动作参数的一项声明。
  *
- * 本版四个动作的参数形状都是空集（见 [TutorLocalAction]），所以这个类型目前**没有实例**；
- * 它随"第一个真的能核对的参数"一起出现——那时 Route A 的 schema 生成、Route B 的文案与
- * 解析器的键集核对都从这里读，而不是各自抄一份。
+ * 本版只有 `START_EXPORT` 有实例（见 [TutorLocalAction]）；它随"第一个真的能核对的参数"出现
+ * ——Route A 的 schema 生成、Route B 的文案与解析器的键集核对都从这里读，而不是各自抄一份。
  */
 data class TutorLocalActionParameter(
     val parameterName: String,
@@ -116,10 +189,18 @@ data class TutorLocalActionParameter(
     val description: String,
     /** true = 缺了它这条请求不成立；false = 可省（省了表示"按本轮上下文默认"）。 */
     val required: Boolean = false,
+    /**
+     * 非空 = 这个参数的取值枚举（Route A 出 `enum` 约束、Route B 文案里列出可选值）。
+     * 空 = 自由字符串，语义由本地校验（范围/格式）收口。
+     */
+    val allowedValues: List<String> = emptyList(),
 ) {
     init {
         require(parameterName.isNotBlank()) { "A local action parameter needs a name" }
         require(description.isNotBlank()) { "A local action parameter needs a description" }
+        require(allowedValues.all(String::isNotBlank)) {
+            "A local action parameter enum value must not be blank"
+        }
     }
 }
 
@@ -134,8 +215,8 @@ data class TutorLocalActionParameter(
 data class TutorLocalActionRequest(
     val action: TutorLocalAction,
     /**
-     * 动作参数。本版恒为空（四个动作的形状都是空集）——**空载体抹平**：空 map 不落键、
-     * 不进指纹，也不渲染（`bf8be888` 教训）。
+     * 动作参数。除 `START_EXPORT`（模板名 + 版式参数）外恒为空——**空载体抹平**：空 map
+     * 不落键、不进指纹，也不渲染（`bf8be888` 教训）。
      */
     val parameters: Map<String, String> = emptyMap(),
 ) {

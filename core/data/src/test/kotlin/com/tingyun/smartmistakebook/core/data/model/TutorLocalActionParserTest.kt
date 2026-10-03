@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.model
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
+import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import org.junit.Assert.assertEquals
@@ -80,7 +81,7 @@ class TutorLocalActionParserTest {
 
     @Test
     fun routeBRejectsAnUndeclaredParameter() {
-        // 四个动作的形状都是空集：任何参数键都是模型"造"的，整条输出无效。
+        // OPEN_PROBLEM 的形状是空集：任何参数键都是模型"造"的，整条输出无效。
         assertInvalidOutput(
             """
             {"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.9,
@@ -129,12 +130,89 @@ class TutorLocalActionParserTest {
 
     @Test
     fun routeARejectsAnUndeclaredActionParameter() {
+        // `problemIds` 永远不是声明过的参数：题由本轮本地留痕与学生在导出 sheet 里勾选，
+        // 模型可写题 id 的通道不存在（4B B3 裁定）。
         val failure = runCatching {
             parseRouteA(
                 nativeBody = """
                 {"content":null,"tool_calls":[
                   {"id":"call-1","type":"function",
                    "function":{"name":"START_EXPORT","arguments":"{\"problemIds\":[\"p1\"]}"}}
+                ]}
+                """.trimIndent(),
+            )
+        }.exceptionOrNull()
+
+        assertNotNull(failure)
+    }
+
+    @Test
+    fun routeAReadsADeclaredExportProposalWithItsLayoutParameters() {
+        val output = parseRouteA(
+            nativeBody = """
+            {"content":null,"tool_calls":[
+              {"id":"call-1","type":"function",
+               "function":{"name":"START_EXPORT",
+               "arguments":"{\"templateId\":\"practice_sheet\",\"columnCount\":\"2\",\"includeAnswer\":\"false\"}"}}
+            ]}
+            """.trimIndent(),
+        ) as TutorToolRequestsOutput
+
+        assertEquals(
+            listOf(
+                TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf(
+                        "templateId" to "practice_sheet",
+                        "columnCount" to "2",
+                        "includeAnswer" to "false",
+                    ),
+                ),
+            ),
+            output.localActions,
+        )
+    }
+
+    @Test
+    fun routeBReadsTheSameExportProposalShapeAsRouteA() {
+        val output = parseRouteB(
+            """
+            {"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.9,
+            "explicitActionRequest":true,"memoryPreference":"UNCHANGED",
+            "requestedLocalCapability":"NONE","lookupTerms":[]},
+            "messageMarkdown":"这就去准备两栏练习卷。",
+            "localActions":[{"action":"START_EXPORT","templateId":"practice_sheet","columnCount":"2"}]}
+            """.trimIndent(),
+        )
+
+        assertEquals(
+            listOf(
+                TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf("templateId" to "practice_sheet", "columnCount" to "2"),
+                ),
+            ),
+            output.localActions,
+        )
+    }
+
+    @Test
+    fun bothRoutesRejectAnExportRequestWithoutTheRequiredTemplate() {
+        // templateId 是声明里的必填项：缺了它整条输出无效（不替模型挑默认模板）。
+        assertInvalidOutput(
+            """
+            {"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.9,
+            "explicitActionRequest":true,"memoryPreference":"UNCHANGED",
+            "requestedLocalCapability":"NONE","lookupTerms":[]},
+            "messageMarkdown":"这就去导出。","localActions":[{"action":"START_EXPORT","columnCount":"2"}]}
+            """.trimIndent(),
+        )
+        val failure = runCatching {
+            parseRouteA(
+                nativeBody = """
+                {"content":null,"tool_calls":[
+                  {"id":"call-1","type":"function",
+                   "function":{"name":"START_EXPORT","arguments":"{\"columnCount\":\"2\"}"}}
                 ]}
                 """.trimIndent(),
             )

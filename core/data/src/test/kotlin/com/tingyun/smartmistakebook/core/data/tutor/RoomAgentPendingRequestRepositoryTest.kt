@@ -18,6 +18,8 @@ import com.tingyun.smartmistakebook.core.domain.TutorSendAction
 import com.tingyun.smartmistakebook.core.domain.TutorSendPhase
 import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.domain.TutorTurnSendStateMachine
+import com.tingyun.smartmistakebook.core.domain.exportProposalPayload
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import kotlinx.coroutines.flow.Flow
@@ -46,14 +48,20 @@ class RoomAgentPendingRequestRepositoryTest {
 
     @Test
     fun aSuspensionWritesEveryFieldOfTheRequestItWasAskedFor() = runBlocking {
+        // START_EXPORT 的形状（4B B3-1）：模板名 + 完整版式对象；题 id 不在形状里。
+        val exportPayload = exportProposalPayload(
+            MistakePdfLayout(
+                templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+                columnCount = 2,
+            ),
+        )
         val suspended = consent.suspend(
             state = turn(),
             command = SuspendTurnForConsentCommand(
                 subject = TutorPermissionSubject.LocalAction(TutorLocalAction.START_EXPORT),
                 conversationArea = "REVIEW_MISTAKE",
                 conversationId = "conversation-1",
-                // START_EXPORT 的形状是空形状（导出由学生在本地勾选）。
-                payloadJson = """{}""",
+                payloadJson = exportPayload,
                 occurredAtEpochMillis = 100L,
                 context = TutorRoundPermissionContext(),
             ),
@@ -68,8 +76,7 @@ class RoomAgentPendingRequestRepositoryTest {
                 logicalOperationId = "logical-1",
                 messageId = "message-1",
                 kind = AgentPendingRequestKind.START_EXPORT,
-                // START_EXPORT 的形状是空形状（导出由学生在本地勾选）。
-                payloadJson = """{}""",
+                payloadJson = exportPayload,
             ).requestId(),
             command.requestId,
         )
@@ -136,6 +143,24 @@ class RoomAgentPendingRequestRepositoryTest {
         assertEquals(listOf("AGENT" to 5), port.readResolvedCalls)
     }
 
+    /**
+     * 升级兼容（P1-a）：旧版本写下的 START_EXPORT 行是空形状 `{}`（`d2317f5d`）。读回路径
+     * （`toDomain` → `AgentPendingRequest.init`）必须放行——严格形状会把挂卡区整区抛掉，
+     * 回喂区也会静默消失。
+     */
+    @Test
+    fun aLegacyStartExportRowIsReadBackInsteadOfThrowing() = runBlocking {
+        port.pendingRows.value = listOf(
+            record(kind = "START_EXPORT", payloadJson = "{}", status = "PENDING"),
+        )
+
+        val pending = repository.observePendingRequests(conversationArea = "AGENT").first()
+
+        assertEquals(AgentPendingRequestKind.START_EXPORT, pending.single().kind)
+        assertEquals("{}", pending.single().payloadJson)
+        assertEquals(AgentPendingRequestStatus.PENDING, pending.single().status)
+    }
+
     @Test
     fun readResolvedUsesTheFeedBackCapByDefault() = runBlocking {
         repository.readResolvedRequests(conversationArea = "AGENT")
@@ -173,14 +198,16 @@ class RoomAgentPendingRequestRepositoryTest {
     private fun record(
         status: String,
         resolutionNote: String? = null,
+        kind: String = "OPEN_PROBLEM",
+        payloadJson: String = """{"libraryProblemId":"rev-1"}""",
     ) = AgentPendingRequestRecord(
         requestId = "agent-req:logical-1:OPEN_PROBLEM:0000000000000000",
         conversationArea = "AGENT",
         conversationId = "conversation-1",
         logicalOperationId = "logical-1",
         messageId = "message-1",
-        kind = "OPEN_PROBLEM",
-        payloadJson = """{"libraryProblemId":"rev-1"}""",
+        kind = kind,
+        payloadJson = payloadJson,
         status = status,
         createdAtEpochMillis = 100L,
         resolvedAtEpochMillis = if (status == "PENDING") null else 200L,

@@ -392,6 +392,14 @@ internal fun SmartMistakeBookRoot(
                     captureRepository = application.captureRepository,
                     attachedImageIntake = application.tutorAttachedImageIntake,
                     onOpenLibraryProblem = { navController.navigate(Routes.Library) },
+                    // 导出 sheet（B3-3）：学生定稿的版式随任务入队，然后直接去「导出成果」
+                    // 看后台进度——与错题本批量导出走同一条 4A 管线。
+                    onStartExport = { layout, entryIds ->
+                        application.startMistakeExportBatch(entryIds, layout)
+                        navController.navigate(Routes.ExportResults) {
+                            launchSingleTop = true
+                        }
+                    },
                     modifier = Modifier.testTag("root_tutor"),
                 )
             }
@@ -457,6 +465,13 @@ internal fun SmartMistakeBookRoot(
                     captureRepository = application.captureRepository,
                     attachedImageIntake = application.tutorAttachedImageIntake,
                     onOpenLibraryProblem = { navController.navigate(Routes.Library) },
+                    // 历史重开也接同一条导出落点（本地动作只在大厅广告，行为一致）。
+                    onStartExport = { layout, entryIds ->
+                        application.startMistakeExportBatch(entryIds, layout)
+                        navController.navigate(Routes.ExportResults) {
+                            launchSingleTop = true
+                        }
+                    },
                     modifier = Modifier.testTag("root_tutor"),
                 )
             }

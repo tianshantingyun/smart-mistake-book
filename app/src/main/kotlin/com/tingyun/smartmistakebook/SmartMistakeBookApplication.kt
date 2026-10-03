@@ -24,6 +24,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionRetriever
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeDetailRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeOrganizationRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.export.MistakeExportRepositoryFactory
@@ -548,14 +549,21 @@ class SmartMistakeBookApplication : Application() {
     /**
      * L7：启动一次**当前筛选**批量导出。入口已把候选收敛到上限内（超限时入口会如实说明
      * 原因、不调用这里）；这里仍去重，防同一道题在一个批次里出现两次。
+     *
+     * 4B 批 4：`START_EXPORT` 的导出 sheet 把学生改完的版式（[layout]）随任务交给 worker——
+     * 版式是渲染与缓存键的一部分，不能只活在 sheet 的内存里。
      */
-    fun startMistakeExportBatch(entryIds: List<String>) {
+    fun startMistakeExportBatch(
+        entryIds: List<String>,
+        layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    ) {
         val distinct = entryIds.distinct()
         if (distinct.isEmpty()) return
         enqueueMistakeExport(
             request = MistakeExportJobRequest.Batch(
                 exportId = newMistakeExportId(),
                 entryIds = distinct,
+                layout = layout,
             ),
             kind = MistakeExportKind.BATCH,
         )

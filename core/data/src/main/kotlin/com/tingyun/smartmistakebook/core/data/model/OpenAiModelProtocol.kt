@@ -280,8 +280,10 @@ internal object OpenAiModelProtocol {
      * 讲题/计划轮还没有卡的生产者，声明了就是"广告一个没人接的东西"（与"点了没反应"同罪）。
      * 复习栏两个入口在阶段 5 接上各自的卡时，把它们的输入类型加到这里即可。
      *
-     * 参数形状用的是 `strict` 口径：所有声明的参数进 `required`、`additionalProperties=false`、
-     * 空形状时 `properties` 为空对象（模型因此**结构性地**造不出参数）。
+     * 参数形状用的是 `strict` 口径：所有声明的参数进 `required`（声明为必填的那些）、
+     * `additionalProperties=false`、空形状时 `properties` 为空对象（模型因此**结构性地**
+     * 造不出参数）。4B B3 起 `START_EXPORT` 有参数：`templateId` 必填并带 `enum`（约束解码
+     * 下非法模板结构性地不可产生），其余版式字段可选、逐字段描述里写明学生口头要求的映射。
      */
     private fun localActionSchemas(
         input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
@@ -310,6 +312,16 @@ internal object OpenAiModelProtocol {
                                                         buildJsonObject {
                                                             put("type", "string")
                                                             put("description", parameter.description)
+                                                            if (parameter.allowedValues.isNotEmpty()) {
+                                                                put(
+                                                                    "enum",
+                                                                    buildJsonArray {
+                                                                        parameter.allowedValues.forEach { value ->
+                                                                            add(JsonPrimitive(value))
+                                                                        }
+                                                                    },
+                                                                )
+                                                            }
                                                         },
                                                     )
                                                 }

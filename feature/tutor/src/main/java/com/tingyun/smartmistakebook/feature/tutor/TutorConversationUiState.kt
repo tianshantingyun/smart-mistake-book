@@ -66,6 +66,12 @@ internal data class TutorConversationUiState(
     val pendingRequestCards: List<AgentPendingRequest> = emptyList(),
     /** 最近一次裁决的结果一句话（学生看得见的交代；也是回喂模型的那句话）。 */
     val pendingRequestDetail: String? = null,
+    /**
+     * 打开中的导出 sheet（4B B3-3）：`START_EXPORT` 卡被同意后由协调器写入。放在 UiState
+     * （而不是 sheet 自己的 remember）是为了旋转屏幕不丢学生改到一半的版式与勾选；
+     * **有意不做进程死亡持久化**（理由见 [TutorExportSheetState]）。
+     */
+    val exportSheet: TutorExportSheetState? = null,
     val liveTurn: TutorLiveTurn = TutorLiveTurn.EMPTY,
     /**
      * 本轮的交互模式（D-Q9）：会话行上是权威值，会话还没落库时按**会话区默认**给

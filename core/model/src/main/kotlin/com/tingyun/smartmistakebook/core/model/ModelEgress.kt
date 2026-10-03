@@ -73,8 +73,10 @@ object ModelPromptPolicyVersions {
      * v15（4B 批 2 A2）：生图描述随 A2 渲染路径改为如实说会展示（与 Plan/Respond 同一份文案）。
      * v16（批 2 修复轮 F2-3）：展示句改条件式——大厅永远"本轮没有可画的题"，不做无条件承诺；
      * Plan/Respond 才是有当前题、真会展示的那两面。
+     * v17（4B 批 4 B3）：START_EXPORT 首次带参数形状（templateId 必填枚举 + 版式参数），
+     * 本地动作块的参数文案与可选值随之进提示词；模型只提议版式，题 id 不在形状里。
      */
-    const val TUTOR_LOBBY = "tutor-lobby-v16-figure-conditional"
+    const val TUTOR_LOBBY = "tutor-lobby-v17-export-layout-proposal"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"

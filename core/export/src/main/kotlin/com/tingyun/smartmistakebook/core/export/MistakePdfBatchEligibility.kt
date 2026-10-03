@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 
 enum class MistakePdfBatchIneligibility {
     EMPTY,

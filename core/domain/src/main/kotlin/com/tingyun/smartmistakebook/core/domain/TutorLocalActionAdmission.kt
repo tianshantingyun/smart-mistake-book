@@ -9,8 +9,8 @@ import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
  * 消灭的具体失败：动作请求此前没有准入这一环——模型的本地动作要么被界面静默丢弃（大厅），
  * 要么只按"本轮意图"推出来一张没有参数来源的卡。这里把三件事**按顺序**问一遍：
  *
- * 1. **形状**：请求里的参数键必须在 [TutorLocalAction.parameters] 里声明过（本版四个动作的形状
- *    都是空集，所以任何参数都是无效请求——模型只能选不能造）；
+ * 1. **形状**：请求里的参数键必须在 [TutorLocalAction.parameters] 里声明过（除
+ *    `START_EXPORT` 的模板/版式参数外，任何参数都是无效请求——模型只能选不能造）；
  * 2. **权限档**：`TutorPermissionPolicy` 的档位与本轮放行（四个动作恒 ask，本轮放行由
  *    [TutorRoundPermissionContext.allowedActions] 给）；
  * 3. **目标**：本轮**本地**有没有可执行的东西（[tutorLocalActionTarget]）——没有目标的卡不该
@@ -64,6 +64,7 @@ fun tutorLocalActionAdmission(
         subject = TutorPermissionSubject.LocalAction(request.action),
         context = context,
         permissionContext = permissionContext,
+        actionParameters = request.parameters,
     )
 }
 
@@ -77,6 +78,14 @@ fun tutorLocalActionAdmission(
     subject: TutorPermissionSubject,
     context: TutorLocalActionContext,
     permissionContext: TutorRoundPermissionContext = TutorRoundPermissionContext(),
+    /**
+     * 动作拼写带来的参数（工具拼写没有：`NOTEBOOK_WRITE` 的形状是空集）。
+     *
+     * `START_EXPORT` 的 payload 只能从这些参数来（模板名 + 版式参数，见
+     * [exportLayoutFromActionParameters]）——没有参数就没有提议，**不挂卡**（不替模型挑一个
+     * 默认模板塞进学生面前；模型按声明必填 templateId）。
+     */
+    actionParameters: Map<String, String> = emptyMap(),
 ): TutorLocalActionAdmission? {
     // 档位与本轮放行（四个动作恒 ask；没放行连卡都不出现）。
     val decision = tutorPermissionDecision(subject, permissionContext)
@@ -88,9 +97,15 @@ fun tutorLocalActionAdmission(
     // 不是"待确认"，那是学生点了才发现答非所问（老毛病："点了什么也没发生"的同一类）。
     if (kind in SAVE_KINDS && payloadContext.isEmpty) return null
     val target = tutorLocalActionTarget(kind, payloadContext) ?: return null
-    val payloadJson = payloadContext.toAgentPendingRequestPayload(
-        keys = agentPendingRequestPayloadKeys(kind),
-    )
+    val payloadJson = when (kind) {
+        AgentPendingRequestKind.START_EXPORT -> {
+            val layout = exportLayoutFromActionParameters(actionParameters) ?: return null
+            exportProposalPayload(layout)
+        }
+        else -> payloadContext.toAgentPendingRequestPayload(
+            keys = agentPendingRequestPayloadKeys(kind),
+        )
+    }
     requireAgentPendingRequestPayload(kind = kind, payloadJson = payloadJson)
     val action = (subject as? TutorPermissionSubject.LocalAction)?.action
     return TutorLocalActionAdmission(
@@ -105,7 +120,8 @@ fun tutorLocalActionAdmission(
 
 /**
  * 动作 kind 需要的**那一部分**上下文：打开某题 / 纳入复习计划只关心"是哪道题"，
- * 存题关心全部三种目标，选择导出什么都不关心（学生在本地勾选）。
+ * 存题关心全部三种目标，选择导出什么都不关心（题由学生在导出 sheet 里勾选，版式来自
+ * [exportLayoutFromActionParameters] 的模型提议）。
  *
  * 裁掉的部分**不进 payload**：一张"打开某题"的卡带着拍照会话 id 落库，读回的人会以为
  * 它跟那次拍照有关——卡片的目标必须是它真正会用到的那几个字段。

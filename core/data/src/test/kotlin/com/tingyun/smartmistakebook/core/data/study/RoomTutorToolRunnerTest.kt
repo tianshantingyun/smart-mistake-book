@@ -984,6 +984,40 @@ class RoomTutorToolRunnerTest {
     }
 
     @Test
+    fun notebookReadLeavesTheRetrievedEntryIdsInTheLocalTrace() = runBlocking {
+        // B3-3：导出 sheet 的候选题只认本地留痕——NOTEBOOK_READ 检索到的条目 id 必须随执行
+        // 结果带出来（进消息行的 tool_trace_json），而且**不因披露档而变**：模型正文在不披露
+        // 档只给条数，本地留痕照样留着 id（模型看不见，学生勾选用）。
+        val port = anchoredPort()
+        port.libraryRows += listOf(
+            libraryRow(title = "二次函数最值综合题"),
+            libraryRow(title = "二次函数图像题"),
+        )
+
+        val undisclosed = runner(port).runTraced(notebookRead(terms = listOf("二次函数")), context())
+        val disclosed = runner(port).runTraced(
+            notebookRead(terms = listOf("二次函数")),
+            context().copy(roundDisclosesQuestionCandidates = true),
+        )
+
+        val expected = port.libraryRows.map { row -> row.entryId }.distinct()
+        assertEquals(expected, undisclosed.problemEntryIds)
+        assertEquals(expected, disclosed.problemEntryIds)
+        // 不披露档的模型可见正文仍然只给条数（本地留痕不是给模型看的）。
+        assertTrue(!undisclosed.outcome.summaryMarkdown.contains("二次函数最值综合题"))
+    }
+
+    @Test
+    fun anEmptyNotebookReadLeavesNoCandidateIds() = runBlocking {
+        val execution = runner(anchoredPort()).runTraced(
+            notebookRead(terms = listOf("二次函数")),
+            context(),
+        )
+
+        assertTrue(execution.problemEntryIds.isEmpty())
+    }
+
+    @Test
     fun everyReadCarriesHowManyRowsItFound() = runBlocking {
         // B1 的痕迹要说"查到了几条"：条数由执行器本地给出（模型可见字段一个字节都没变）。
         val port = anchoredPort()

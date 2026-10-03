@@ -33,6 +33,7 @@ import com.tingyun.smartmistakebook.core.model.ActionType
 import com.tingyun.smartmistakebook.core.model.AppFailure
 import com.tingyun.smartmistakebook.core.model.AppFailureCode
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
@@ -336,6 +337,42 @@ internal class TutorConversationViewModel(
         decision: AgentPendingRequestDecision,
     ) {
         viewModelScope.launch { pendingRequestCoordinator.decide(request, decision) }
+    }
+
+    // ---- 导出 sheet（B3-3）：表单与勾选的状态都在这里，界面只发动作 ----
+
+    /** 学生在 sheet 里改了版式（表单控件已保证值在合法域内，这里只落状态）。 */
+    fun onExportLayoutChange(layout: MistakePdfLayout) {
+        updateState { state ->
+            state.exportSheet?.let { sheet -> state.copy(exportSheet = sheet.copy(layout = layout)) }
+                ?: state
+        }
+    }
+
+    /**
+     * 学生在 sheet 里勾/取消一道候选题（含「从错题本再选」选中的条目）。
+     *
+     * 未知 id 勾选时**并入候选集合**（纯函数 [tutorExportSheetWithCandidateToggled]）：否则
+     * 选中的 id 不在候选里，渲染与提交按"已勾选 ∩ 候选"过滤，点完看不到行、确认不导出。
+     */
+    fun onExportCandidateToggle(entryId: String, selected: Boolean) {
+        if (entryId.isBlank()) return
+        updateState { state ->
+            state.exportSheet?.let { sheet ->
+                state.copy(exportSheet = tutorExportSheetWithCandidateToggled(sheet, entryId, selected))
+            } ?: state
+        }
+    }
+
+    /**
+     * 学生收起 sheet（卡片已裁决为同意；不生成文件，学生可以再向模型发起一次导出）。
+     *
+     * **有意不做进程死亡持久化**：sheet 状态活在 ViewModel（旋转不丢）；进程死亡后要自动恢复
+     * 这张已 ACCEPTED 卡的 sheet，需要额外的"应打开"持久标记与配套清理，不在本批范围——
+     * 学生重新发起一次导出即可（不是悬死卡：卡的终态与留痕都在库里）。
+     */
+    fun onExportSheetDismiss() {
+        updateState { state -> state.copy(exportSheet = null) }
     }
 
     // ---- 输入与附件（B3：全部跨进程保留） ----

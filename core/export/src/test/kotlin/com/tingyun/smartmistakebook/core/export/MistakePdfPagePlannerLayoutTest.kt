@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.model.FigureSchema
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayoutFeature
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

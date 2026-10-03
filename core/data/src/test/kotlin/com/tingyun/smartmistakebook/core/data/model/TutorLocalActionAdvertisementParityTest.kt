@@ -14,6 +14,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -43,7 +44,7 @@ class TutorLocalActionAdvertisementParityTest {
             val parameters = function.getValue("parameters").jsonObject
             val properties = parameters.getValue("properties").jsonObject
             val required = parameters.getValue("required").jsonArray.map { it.jsonPrimitive.content }
-            name to (properties.keys to required.toSet())
+            name to AdvertisedShape(properties.keys, required.toSet(), properties)
         }
 
         val declared = TutorLocalAction.entries.associate { action ->
@@ -58,10 +59,43 @@ class TutorLocalActionAdvertisementParityTest {
         assertEquals(declared.keys, advertised.keys)
         declared.forEach { (actionId, shape) ->
             val advertisedShape = requireNotNull(advertised[actionId])
-            assertEquals("Route A 的 $actionId 参数集合与声明不一致", shape.first, advertisedShape.first)
-            assertEquals("Route A 的 $actionId 必填集合与声明不一致", shape.second, advertisedShape.second)
+            assertEquals("Route A 的 $actionId 参数集合与声明不一致", shape.first, advertisedShape.keys)
+            assertEquals("Route A 的 $actionId 必填集合与声明不一致", shape.second, advertisedShape.required)
+        }
+
+        // 参数**取值**同源（4B B3）：声明里的 allowedValues 必须逐字进 Route A 的 enum
+        // （约束解码下非法取值结构性地不可产生）；没有枚举的字段不许偷偷加 enum。
+        TutorLocalAction.entries.forEach { action ->
+            val properties = requireNotNull(advertised[action.actionId]).properties
+            action.parameters.forEach { parameter ->
+                val property = properties.getValue(parameter.parameterName).jsonObject
+                assertEquals(
+                    "Route A 的 ${action.actionId}.${parameter.parameterName} 必须是字符串参数",
+                    "string",
+                    property.getValue("type").jsonPrimitive.content,
+                )
+                val advertisedEnum = property["enum"]?.jsonArray?.map { it.jsonPrimitive.content }
+                if (parameter.allowedValues.isEmpty()) {
+                    assertNull(
+                        "${action.actionId}.${parameter.parameterName} 不该带 enum",
+                        advertisedEnum,
+                    )
+                } else {
+                    assertEquals(
+                        "Route A 的 ${action.actionId}.${parameter.parameterName} 枚举与声明不一致",
+                        parameter.allowedValues,
+                        advertisedEnum,
+                    )
+                }
+            }
         }
     }
+
+    private data class AdvertisedShape(
+        val keys: Set<String>,
+        val required: Set<String>,
+        val properties: JsonObject,
+    )
 
     @Test
     fun routeARejectsEveryUndeclaredParameterStructurally() {
@@ -95,6 +129,14 @@ class TutorLocalActionAdvertisementParityTest {
                         "${action.actionId} 的参数 ${parameter.parameterName} 没进提示词",
                         prompt.contains(parameter.parameterName),
                     )
+                    // 取值同源：枚举参数的可选值必须逐个进 Route B 提示词（与 Route A 的 enum
+                    // 读同一份声明；只写参数名会让 Route B 的模型不知道能填什么）。
+                    parameter.allowedValues.forEach { value ->
+                        assertTrue(
+                            "${action.actionId}.${parameter.parameterName} 的可选值 $value 没进提示词",
+                            prompt.contains(value),
+                        )
+                    }
                 }
             }
         }

@@ -1,4 +1,6 @@
-package com.tingyun.smartmistakebook.core.export
+package com.tingyun.smartmistakebook.core.model
+
+import kotlinx.serialization.Serializable
 
 /**
  * 题面块的类型代号：`blockOrder` 白名单的合法取值。
@@ -33,12 +35,24 @@ enum class MistakePdfLayoutViolation {
 }
 
 /**
+ * 请求了、但当前导出实现**没有数据源/实现支撑**的版式功能。
+ *
+ * 它消灭的失败：请求被静默忽略。请求了得不到的东西，导出入口要如实说"会跳过"，
+ * 分页层要 fail-closed 地跳过（不留占位脏字），结果通知要说"已跳过"——三处读同一份判据
+ * （[MistakePdfLayout.unsupportedRequestedFeatures]），不会一处说了另一处没说。
+ */
+enum class MistakePdfLayoutFeature(val studentLabel: String) {
+    /** 解析区：当前没有解析数据源（打开只会被跳过）。 */
+    SOLUTION_SECTION("解析区"),
+}
+
+/**
  * 导出 A4 的版式参数（阶段 4B 批 3 · B1）。
  *
  * 它消灭的失败：改前所有排版常数硬编码在渲染器里，"两栏""字大点""不要答案"这类学生
  * 口头要求无处落地，且换版式后缓存键不变（会拿旧版式的文件冒充新版式）。这里把版式
  * 收成**不可变值对象**：合法性一处校验（[validate]），身份一处序列化（[canonicalForm]，
- * 进 [exportFingerprint] 全字段），渲染层只读它、不再自带常数。
+ * 进 `exportFingerprint` 全字段），渲染层只读它、不再自带常数。
  *
  * 三个模板：
  * - [TEMPLATE_COMPACT]（默认）：与参数化之前的固定版式逐位等价（只做题面，无作答区）；
@@ -47,7 +61,12 @@ enum class MistakePdfLayoutViolation {
  *
  * 答案解析的裁定（用户 2026-10-01）：题目区在前，答案/解析**独立成区**排在后部，
  * 不逐题附在题尾。
+ *
+ * 位置说明（批 4）：本类型从 `core:export` 迁到 `core:model`——确认卡 payload 的形状校验
+ * （`core:domain`）与模型侧参数声明（[TutorLocalAction]）都要读它的模板枚举与范围常数，
+ * 而 `core:domain` / `core:export` 都依赖 `core:model`；放在这里才有**编译期**的单一定义。
  */
+@Serializable
 data class MistakePdfLayout(
     val templateId: String = TEMPLATE_COMPACT,
     /** 四边页边距（pt）：24..72，默认 48（等于参数化前的固定边距）。 */
@@ -97,7 +116,17 @@ data class MistakePdfLayout(
     }
 
     /**
-     * 布局身份的确定性序列化（进 [exportFingerprint]）。
+     * 请求了、但当前实现会 fail-closed 跳过的版式功能。
+     *
+     * 这是"跳过"的**唯一判据**：分页器按它登记 `PdfPlan.skipped`，导出入口按它显示
+     * "会跳过"的如实说明，结果通知按它说"已跳过"——三处不会漂。
+     */
+    fun unsupportedRequestedFeatures(): Set<MistakePdfLayoutFeature> = buildSet {
+        if (includeSolution) add(MistakePdfLayoutFeature.SOLUTION_SECTION)
+    }
+
+    /**
+     * 布局身份的确定性序列化（进 `exportFingerprint`）。
      *
      * 用行内 `key=value;` 串而不是 `data class.toString()`：后者依赖属性声明顺序，
      * 重构属性时可能悄悄换掉全部缓存的指纹。浮点用 [Float.toRawBits] 的**无损**整数值

@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequest
+import com.tingyun.smartmistakebook.core.domain.agentPendingRequestExportPayloadIsLegacy
+import com.tingyun.smartmistakebook.core.domain.tutorLocalActionExportProposal
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestDecision
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestKind
 import com.tingyun.smartmistakebook.core.ui.Ink
@@ -41,7 +43,7 @@ internal fun TutorPendingRequestCard(
     onDecide: (AgentPendingRequestDecision) -> Unit,
     testTagPrefix: String = "tutor_pending_request",
 ) {
-    val copy = pendingRequestCopy(request.kind)
+    val copy = pendingRequestCopy(request.kind, request.payloadJson)
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -97,8 +99,15 @@ internal data class TutorPendingRequestCopy(
 
 /**
  * kind → 学生看得懂的话（界面不出现内部机制词：工具名、kind 一律翻译成人话）。
+ *
+ * `START_EXPORT` 自 4B B3-2 起展示**模型提议的模板名与关键参数**（"练习卷 · 双栏 · 字号大 ·
+ * 不含答案"）——学生确认前就知道将要导出什么版式；payload 读不出来时（理论上不该发生，行在
+ * 落库口已校验）退化为不带版式的一句，不崩、也不假装知道。
  */
-internal fun pendingRequestCopy(kind: AgentPendingRequestKind): TutorPendingRequestCopy = when (kind) {
+internal fun pendingRequestCopy(
+    kind: AgentPendingRequestKind,
+    payloadJson: String? = null,
+): TutorPendingRequestCopy = when (kind) {
     AgentPendingRequestKind.NOTEBOOK_WRITE,
     AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
     -> TutorPendingRequestCopy(
@@ -111,11 +120,26 @@ internal fun pendingRequestCopy(kind: AgentPendingRequestKind): TutorPendingRequ
         detail = "去错题本里看这道题的详情。",
         acceptLabel = "打开错题本",
     )
-    AgentPendingRequestKind.START_EXPORT -> TutorPendingRequestCopy(
-        title = "现在导出这份练习？",
-        detail = "导出流程还在单独设计；这一版点了不会生成文件。",
-        acceptLabel = "知道了",
-    )
+    AgentPendingRequestKind.START_EXPORT -> {
+        val layout = payloadJson?.let(::tutorLocalActionExportProposal)
+        val legacy = payloadJson != null && agentPendingRequestExportPayloadIsLegacy(payloadJson)
+        TutorPendingRequestCopy(
+            title = "现在导出这份练习？",
+            detail = when {
+                layout != null ->
+                    "版式：${exportLayoutSummary(layout)}。" +
+                        "确认后打开导出设置，可以改版式、勾选要导出的题；点「开始导出」才会生成文件。"
+                // 升级前落库的行是空形状：读回不抛（读回宽容），这里如实说是旧版本的请求，
+                // 确认后用默认版式继续——不崩、也不假装模型提过版式。
+                legacy ->
+                    "这张导出请求来自旧版本（没有版式提议）。" +
+                        "确认后用默认版式打开导出设置，可以改版式、勾选要导出的题。"
+                else ->
+                    "确认后打开导出设置：可以改版式、勾选要导出的题，点「开始导出」才会生成文件。"
+            },
+            acceptLabel = "去导出",
+        )
+    }
     AgentPendingRequestKind.ADD_TO_REVIEW_PLAN -> TutorPendingRequestCopy(
         title = "把这题放进复习计划？",
         detail = "复习计划调整还在单独设计；这一版点了不会改动计划。",

@@ -27,15 +27,23 @@ import kotlinx.serialization.json.jsonPrimitive
  * 判据只来自**本轮上下文**（有没有拍照会话 / 有没有已入库的题 / 有没有附图），不看入口、不看栏
  * ——与工具面同一条纪律（ADR 0001：差异只来自栏上下文、本轮绑定、本地门）。
  *
- * 白名单里尚未接线的两件（`START_EXPORT` / `ADD_TO_REVIEW_PLAN`）落到 [TutorLocalActionTarget.NOT_WIRED_YET]：
+ * 白名单里尚未接线的 `ADD_TO_REVIEW_PLAN` 落到 [TutorLocalActionTarget.NOT_WIRED_YET]：
  * **卡照挂**（"模型提出行为 → 请求学生同意"本来就是它设计里的形态），学生点了之后本地如实说
- * "这一步现在还不能自动做"，不留一个假装执行成功的假象。真接线属阶段 4B（导出排版）与阶段 3B
- * （复习计划调整）。
+ * "这一步现在还不能自动做"，不留一个假装执行成功的假象。真接线属阶段 3B（复习计划调整）。
+ *
+ * `START_EXPORT` 自 4B 批 4 起**已接线**：落到 [EXPORT_SHEET]——学生确认后打开导出 sheet
+ * （版式表单预填模型提议值 + 本轮本地留痕的候选题勾选），确认后走后台导出管线。
  */
 enum class TutorLocalActionTarget {
     SAVE_CAPTURE_DRAFT,
     INTAKE_ATTACHED_IMAGES,
     LIBRARY_PROBLEM_DETAIL,
+
+    /**
+     * 打开导出 sheet（4B B3-3）：确认卡上学生点的"确认"不是"立刻导出"，而是"打开导出设置"
+     * ——版式表单预填模型提议值、候选题来自本轮本地留痕，学生在 sheet 里改完勾完再点开始导出。
+     */
+    EXPORT_SHEET,
 
     /**
      * 尚未接通：本地把学生的裁决（同意 / 不同意）落成终态留痕，执行结果如实说"还不能自动做"。
@@ -100,18 +108,21 @@ fun tutorLocalActionTarget(
     // 打开某题：有题就到那道题，没题就打开错题本（真动作，不是空操作）。
     AgentPendingRequestKind.OPEN_PROBLEM -> TutorLocalActionTarget.LIBRARY_PROBLEM_DETAIL
 
-    // 尚未接通的两件：卡要挂（学生同意/拒绝都是真实决定），执行如实说"还不能自动做"。
-    AgentPendingRequestKind.START_EXPORT,
-    AgentPendingRequestKind.ADD_TO_REVIEW_PLAN,
-    -> TutorLocalActionTarget.NOT_WIRED_YET
+    // 选择导出（4B B3-3 已接线）：学生确认后打开导出 sheet，版式预填、候选题勾选都在那里。
+    AgentPendingRequestKind.START_EXPORT -> TutorLocalActionTarget.EXPORT_SHEET
+
+    // 尚未接通的复习计划调整：卡要挂（学生同意/拒绝都是真实决定），执行如实说"还不能自动做"。
+    AgentPendingRequestKind.ADD_TO_REVIEW_PLAN -> TutorLocalActionTarget.NOT_WIRED_YET
 }
 
 /**
  * 每种 kind 在 `agent_pending_request.payload_json` 里**允许出现的键**（固定字段形状）。
  *
- * 与 [TutorLocalActionContext] 的序列化键一一对应；这里列出来是为了让落库口
+ * 与 [TutorLocalActionContext] 的序列化键一一对应（`START_EXPORT` 是另一份形状，见
+ * [EXPORT_PROPOSAL_PAYLOAD_KEYS]）；这里列出来是为了让落库口
  * （`requireAgentPendingRequestPayload`）能按 kind 逐字核对——**空形状也是形状**：
- * `START_EXPORT` 的参数就是"没有参数"（导出选什么由学生在本地勾选，模型不该也不能指定）。
+ * 除 `START_EXPORT` 外，模型不能往 payload 里写任何东西；`START_EXPORT` 自 4B B3-1 起
+ * 收模型提议的**模板名 + 版式参数**，但**题 id 仍不在形状里**（题由学生在导出 sheet 里勾选）。
  */
 internal fun agentPendingRequestPayloadKeys(kind: AgentPendingRequestKind): Set<String> = when (kind) {
     // 存题（两种拼写）：目标可以是拍照草稿、已入库的题或本条消息的附图。
@@ -124,8 +135,8 @@ internal fun agentPendingRequestPayloadKeys(kind: AgentPendingRequestKind): Set<
     AgentPendingRequestKind.ADD_TO_REVIEW_PLAN,
     -> setOf(KEY_LIBRARY_PROBLEM_ID)
 
-    // 选择导出：没有任何模型可填的参数。
-    AgentPendingRequestKind.START_EXPORT -> emptySet()
+    // 选择导出：模板名 + 完整版式对象（模型只能提版式，题由学生在 sheet 里勾）。
+    AgentPendingRequestKind.START_EXPORT -> EXPORT_PROPOSAL_PAYLOAD_KEYS
 }
 
 /** 确认卡的固定 payload 键（写进 `agent_pending_request.payload_json`）。 */

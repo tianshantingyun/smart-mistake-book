@@ -452,6 +452,11 @@ internal object OpenAiModelTaskAdapters {
  *
  * 提示词只讲"怎么提"与"提了不等于做了"：执行永远等学生点确认卡（本地动作 ≈ 工具的一种，
  * 区别只在执行需要学生确认）。
+ *
+ * 4B B3 起有参数的动作（`START_EXPORT`）把**每个参数的说明与可选值**逐条渲染出来：说明里就是
+ * 学生口头要求 → 白名单字段的映射（"两栏"→columnCount=2、"字大点"→fontScale=3、
+ * "不要答案"→includeAnswer=false），Route A 的 property description 与这里是同一句；
+ * 模型不得输出任何排版标记（未声明的键在解析层让整条输出无效）。
  */
 private fun localActionPromptBlock(): String = buildString {
     append("\n[本地动作（可选提出；提出**不等于**做过——本地会请学生点确认卡，学生点了才执行，")
@@ -462,11 +467,14 @@ private fun localActionPromptBlock(): String = buildString {
             append("（不接受任何参数）")
         } else {
             append("（参数：")
-            append(
-                action.parameters.joinToString(separator = "、") { parameter ->
-                    "${parameter.parameterName}${if (parameter.required) "" else "（可选）"}"
-                },
-            )
+            action.parameters.forEach { parameter ->
+                append("\n  · ").append(parameter.parameterName)
+                append(if (parameter.required) "（必填" else "（可选")
+                if (parameter.allowedValues.isNotEmpty()) {
+                    append("，可选值：").append(parameter.allowedValues.joinToString("/"))
+                }
+                append("）：").append(parameter.description)
+            }
             append("）")
         }
     }

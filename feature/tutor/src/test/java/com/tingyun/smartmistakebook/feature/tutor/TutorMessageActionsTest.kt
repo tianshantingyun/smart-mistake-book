@@ -4,6 +4,8 @@ import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestKind
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
+import com.tingyun.smartmistakebook.core.domain.exportProposalPayload
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.ModelLiveKind
 import com.tingyun.smartmistakebook.core.model.ModelLiveText
 import org.junit.Assert.assertEquals
@@ -87,10 +89,23 @@ class TutorMessageActionsTest {
         // 工具拼写与动作拼写是同一件事，学生的文案必须同一条。
         assertEquals(save, pendingRequestCopy(AgentPendingRequestKind.NOTEBOOK_WRITE))
         assertEquals(save, pendingRequestCopy(AgentPendingRequestKind.SAVE_TO_NOTEBOOK))
-        // 尚未接线的两件如实说"这一版点了不会…"（不装作能执行）。
-        assertTrue(
-            pendingRequestCopy(AgentPendingRequestKind.START_EXPORT).detail.contains("不会生成文件"),
+        // 导出（4B B3-2）：确认卡展示模型提议的模板名与关键参数（"两栏·含答案"这种可读摘要），
+        // 并如实说"点了才打开导出设置、点开始导出才生成文件"。
+        val exportCopy = pendingRequestCopy(
+            AgentPendingRequestKind.START_EXPORT,
+            exportProposalPayload(
+                MistakePdfLayout(
+                    templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+                    columnCount = 2,
+                    includeAnswer = true,
+                ),
+            ),
         )
+        assertTrue(exportCopy.detail.contains("练习卷"))
+        assertTrue(exportCopy.detail.contains("双栏"))
+        assertTrue(exportCopy.detail.contains("含答案"))
+        assertTrue(exportCopy.detail.contains("开始导出"))
+        // 未接线的复习计划仍如实说"这一版点了不会…"（不装作能执行）。
         assertTrue(
             pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN).detail.contains("不会改动计划"),
         )

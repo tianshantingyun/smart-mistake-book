@@ -56,6 +56,18 @@ data class TutorToolTraceEntry(
      * 只进界面、不进模型：与痕迹整体一样不参与模型输入指纹。其它工具的条目为 null。
      */
     val figure: TutorToolFigureTrace? = null,
+    /**
+     * 这次调用**在本地留痕的错题条目 id**（4B B3-3）：`NOTEBOOK_READ` 检索到的条目，
+     * 按结果顺序、去重。
+     *
+     * 它消灭的失败：导出 sheet 的候选题目此前没有来源——若让模型给题 id，就是把"选哪道题"
+     * 退化成"编哪道题"。模型"选出"的过程本来就是它调用 `NOTEBOOK_READ` 检索并展示的过程，
+     * 这里把那次检索的**本地事实**留一份：导出 sheet 默认列出它，学生在其中勾选。
+     *
+     * 与 [resultCount] / [figure] 同一条纪律：**只在本地**（消息行的 `tool_trace_json`），
+     * 不进模型可见字段、不碰模型输入指纹；其它工具为空列表（空载体不编码）。
+     */
+    val problemEntryIds: List<String> = emptyList(),
 ) {
     init {
         require(errorKind == null || errorKind.isNotBlank()) {
@@ -71,6 +83,15 @@ data class TutorToolTraceEntry(
         }
         require(figure?.figureId == null || ok) {
             "A figure id only exists on a successful figure call"
+        }
+        require(problemEntryIds.all(String::isNotBlank)) {
+            "A tool trace problem entry id must not be blank"
+        }
+        require(problemEntryIds.size == problemEntryIds.distinct().size) {
+            "A tool trace must not carry a duplicate problem entry id"
+        }
+        require(problemEntryIds.isEmpty() || tool == TutorToolName.NOTEBOOK_READ) {
+            "Only a notebook read may carry problem entry ids"
         }
     }
 }

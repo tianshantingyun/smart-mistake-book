@@ -20,11 +20,14 @@ import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.domain.allowedLocalActions
 import com.tingyun.smartmistakebook.core.domain.awaitingConsentPendingRequestKinds
 import com.tingyun.smartmistakebook.core.domain.toLocalActionOutcomeRecords
+import com.tingyun.smartmistakebook.core.domain.agentPendingRequestExportPayloadIsLegacy
 import com.tingyun.smartmistakebook.core.domain.tutorLocalActionAdmission
 import com.tingyun.smartmistakebook.core.domain.tutorLocalActionContext
+import com.tingyun.smartmistakebook.core.domain.tutorLocalActionExportProposal
 import com.tingyun.smartmistakebook.core.domain.tutorLocalActionTarget
 import com.tingyun.smartmistakebook.core.domain.tutorPermissionSubject
 import com.tingyun.smartmistakebook.core.model.TOOL_AWAITING_CONSENT_ERROR_KIND
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome
@@ -65,9 +68,10 @@ data class TutorLocalActionLandings(
  * 2. **裁决落终态 + 执行真动作**：裁决先落库（终态 + 留痕），再按 [tutorLocalActionTarget]
  *    分派到真实路径；执行结果写回那一行的留痕（同一句话：学生看到的结果 / 模型读到的
  *    "本地做成了没有"）；
- * 3. **五 kind 各有落点**：存题（两种拼写）/ 打开某题走既有的三条真路径；导出与复习计划
- *    调整的流程尚未接线，落 [TutorLocalActionTarget.NOT_WIRED_YET]——**卡照挂、执行如实说
- *    "还不能自动做"**，不假装成功；
+ * 3. **五 kind 各有落点**：存题（两种拼写）/ 打开某题走既有的三条真路径；导出（4B B3-3）
+ *    打开导出 sheet——版式提议随裁决结果交给交互面，真正的导出在 sheet 上学生点「开始导出」
+ *    之后才入队；复习计划调整的流程尚未接线，落 [TutorLocalActionTarget.NOT_WIRED_YET]——
+ *    **卡照挂、执行如实说"还不能自动做"**，不假装成功；
  * 4. **回喂**：`AgentPendingRequestRepository.readResolvedRequests` 读回已裁决的行——进程死亡
  *    之后照样读得到（行在库里，不在内存里）。
  */
@@ -120,21 +124,25 @@ internal class TutorPendingRequestCommands(
         val pending = requests.readPendingRequests(conversationArea)
             .firstOrNull { request -> request.requestId == requestId }
             ?: return null
-        val detail = when (decision) {
+        val execution = when (decision) {
             AgentPendingRequestDecision.ACCEPT -> execute(pending)
-            AgentPendingRequestDecision.DECLINE -> declineDetail(pending.kind)
-            AgentPendingRequestDecision.IGNORE -> "学生把这张卡先搁下了。"
+            AgentPendingRequestDecision.DECLINE -> PendingExecution(declineDetail(pending.kind))
+            AgentPendingRequestDecision.IGNORE -> PendingExecution("学生把这张卡先搁下了。")
         }
         val resolution = consent.decide(
             state = state,
             command = DecidePendingRequestCommand(
                 requestId = requestId,
                 decision = decision,
-                resolutionNote = detail,
+                resolutionNote = execution.detail,
                 occurredAtEpochMillis = clock(),
             ),
         ) ?: return null
-        return TutorPendingDecision(state = resolution.state, detail = detail)
+        return TutorPendingDecision(
+            state = resolution.state,
+            detail = execution.detail,
+            exportProposal = execution.exportProposal,
+        )
     }
 
     /** 进程死亡/离开后重建同一张卡：行自己带着回合身份，相位照它回到等确认。 */
@@ -154,14 +162,15 @@ internal class TutorPendingRequestCommands(
             .toLocalActionOutcomeRecords(MAX_FEEDBACK_OUTCOMES)
     }
 
-    private suspend fun execute(request: AgentPendingRequest): String {
+    private suspend fun execute(request: AgentPendingRequest): PendingExecution {
         val context = tutorLocalActionContext(request.payloadJson)
         return when (tutorLocalActionTarget(request.kind, context)) {
             TutorLocalActionTarget.SAVE_CAPTURE_DRAFT -> {
                 val sessionId = context.captureSessionId
-                    ?: return "没能执行：这一轮没有可保存的拍照草稿。"
-                landings.saveCaptureDraft(sessionId)
-                    ?: return "没能执行：这一轮的草稿已经不在本机了。"
+                    ?: return PendingExecution("没能执行：这一轮没有可保存的拍照草稿。")
+                val detail = landings.saveCaptureDraft(sessionId)
+                    ?: return PendingExecution("没能执行：这一轮的草稿已经不在本机了。")
+                PendingExecution(detail)
             }
 
             TutorLocalActionTarget.INTAKE_ATTACHED_IMAGES -> {
@@ -172,22 +181,43 @@ internal class TutorPendingRequestCommands(
                     )
                 }.getOrNull()
                 when {
-                    result == null -> "没能执行：录入暂时没有接上。"
-                    result.landed -> result.detail
-                    else -> "没能执行：${result.detail}"
+                    result == null -> PendingExecution("没能执行：录入暂时没有接上。")
+                    result.landed -> PendingExecution(result.detail)
+                    else -> PendingExecution("没能执行：${result.detail}")
                 }
             }
 
             TutorLocalActionTarget.LIBRARY_PROBLEM_DETAIL -> {
                 landings.openLibraryProblem(context.libraryProblemId)
-                "已经在错题本里打开了。"
+                PendingExecution("已经在错题本里打开了。")
             }
 
-            // 尚未接通的流程（导出排版属阶段 4B、复习计划调整属阶段 3B）：**如实说**，
-            // 不留"也许已经做了"的模糊。学生的裁决本身已经落成终态留痕（这就是本次的产出）。
-            TutorLocalActionTarget.NOT_WIRED_YET -> notWiredYetDetail(request.kind)
+            // 选择导出（4B B3-3）：学生确认后打开导出 sheet——版式提议随 payload 一起交给
+            // 交互面（预填表单），候选题由交互面从本轮本地留痕取。**这里不生成文件**：
+            // 真正的导出在 sheet 上学生点「开始导出」之后才入队。
+            //
+            // 旧版本的行（空形状 `{}`）读回不抛（读回宽容），这里用默认版式打开 sheet——
+            // 学生的确认是真实决定，不能因为升级前的行没有提议就变成死路。
+            TutorLocalActionTarget.EXPORT_SHEET -> {
+                val layout = tutorLocalActionExportProposal(request.payloadJson)
+                    ?: MistakePdfLayout.DEFAULT.takeIf {
+                        agentPendingRequestExportPayloadIsLegacy(request.payloadJson)
+                    }
+                    ?: return PendingExecution(
+                        "没能执行：这张导出卡里的版式参数读不出来了，请重新发起一次导出。",
+                    )
+                PendingExecution(
+                    detail = "已经打开导出设置：确认版式、勾选要导出的题，再点「开始导出」。",
+                    exportProposal = layout,
+                )
+            }
 
-            null -> "这一步现在还不能自动做。"
+            // 尚未接通的流程（复习计划调整属阶段 3B）：**如实说**，不留"也许已经做了"的模糊。
+            // 学生的裁决本身已经落成终态留痕（这就是本次的产出）。
+            TutorLocalActionTarget.NOT_WIRED_YET ->
+                PendingExecution(notWiredYetDetail(request.kind))
+
+            null -> PendingExecution("这一步现在还不能自动做。")
         }
     }
 
@@ -199,12 +229,14 @@ internal class TutorPendingRequestCommands(
 /**
  * 尚未接通的流程给学生的原话（**逐条穷举**，不用 else 兜底）：一句"还不能自动做"必须说清
  * 哪件事没做，否则学生只能猜"是不是悄悄做了"。
+ *
+ * `START_EXPORT` 自 4B 批 4 起已接线（落 `EXPORT_SHEET`），走不到这里；它留在兜底句里是
+ * 防御（真走到说明路由坏了，也不能假装做过）。
  */
 internal fun notWiredYetDetail(kind: AgentPendingRequestKind): String = when (kind) {
-    AgentPendingRequestKind.START_EXPORT ->
-        "这一步还不能自动做：导出流程还没接通，这次没有生成文件。"
     AgentPendingRequestKind.ADD_TO_REVIEW_PLAN ->
         "这一步还不能自动做：复习计划的调整还没接通，这次没有改动计划。"
+    AgentPendingRequestKind.START_EXPORT,
     AgentPendingRequestKind.NOTEBOOK_WRITE,
     AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
     AgentPendingRequestKind.OPEN_PROBLEM,
@@ -226,10 +258,19 @@ internal fun declineDetail(kind: AgentPendingRequestKind): String = when (kind) 
  *
  * 回喂的那一小段**不在这里**：它从库里的已裁决行读回（`resolvedOutcomeRecords`），
  * 进程死亡后照样读得到——同一份事实不留两个副本。
+ *
+ * [exportProposal] 只在 `START_EXPORT` 被同意时非空：交互面按它打开导出 sheet（版式预填）。
  */
 internal data class TutorPendingDecision(
     val state: TutorSendState,
     val detail: String,
+    val exportProposal: MistakePdfLayout? = null,
+)
+
+/** 一次执行的内部结果：给学生的交代 + 可选的导出提议（交互面的 sheet 输入）。 */
+private data class PendingExecution(
+    val detail: String,
+    val exportProposal: MistakePdfLayout? = null,
 )
 
 /**
@@ -381,7 +422,22 @@ internal class TutorPendingRequestCoordinator(
             )
         }.getOrNull() ?: return false
         applySendState(result.state)
-        updateState { state -> state.copy(pendingRequestDetail = result.detail) }
+        updateState { state ->
+            state.copy(
+                pendingRequestDetail = result.detail,
+                // 导出 sheet（B3-3）：版式提议来自这张卡的 payload，候选题来自**本轮本地留痕**
+                // （那一轮助手消息行上的 tool_trace_json 里的 NOTEBOOK_READ 结果）——模型给的
+                // 任何 id 都不参与。默认全勾，学生可改可取消勾选。
+                exportSheet = result.exportProposal?.let { layout ->
+                    val candidates = exportCandidateEntryIds(state.messages, request.logicalOperationId)
+                    TutorExportSheetState(
+                        layout = layout,
+                        candidateEntryIds = candidates,
+                        selectedEntryIds = candidates.toSet(),
+                    )
+                } ?: state.exportSheet,
+            )
+        }
         return true
     }
 

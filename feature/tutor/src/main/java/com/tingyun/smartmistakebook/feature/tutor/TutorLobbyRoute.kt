@@ -34,6 +34,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.model.ActionType
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.ModelFailureCode
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
 import com.tingyun.smartmistakebook.core.model.recoverableByResending
@@ -76,6 +77,11 @@ internal fun TutorLobbyRoute(
     pendingRequests: AgentPendingRequestRepository? = null,
     /** 确认卡三条执行路径的落点（见 [tutorLocalActionLandings]）。 */
     localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
+    /**
+     * 导出 sheet 的"开始导出"落点（4B B3-3）：装配处（app）入队后台导出并导航到「导出成果」。
+     * 默认什么都不做 = 这个入口不接导出（sheet 仍会打开，只是确认按钮没有落点——测试替身）。
+     */
+    onStartExport: (layout: MistakePdfLayout, entryIds: List<String>) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     // 这条交互面长在哪一栏（K1 的判别列）：会话行按它写，一张配置对象说了算——
@@ -379,6 +385,21 @@ internal fun TutorLobbyRoute(
             },
             onDismiss = viewModel::onDismissMistakePicker,
             testTagPrefix = "lobby",
+        )
+    }
+    // 导出 sheet（B3-3）：START_EXPORT 卡被同意后打开；版式预填模型提议值、候选题来自本轮
+    // 本地留痕，学生在其中改完勾完点「开始导出」——那时才真的入队后台导出。
+    state.exportSheet?.let { sheet ->
+        TutorExportSheet(
+            state = sheet,
+            catalogEntries = catalogEntries,
+            onLayoutChange = viewModel::onExportLayoutChange,
+            onToggleCandidate = viewModel::onExportCandidateToggle,
+            onDismiss = viewModel::onExportSheetDismiss,
+            onConfirm = { layout, entryIds ->
+                viewModel.onExportSheetDismiss()
+                onStartExport(layout, entryIds)
+            },
         )
     }
 }

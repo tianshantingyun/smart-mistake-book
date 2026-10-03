@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtracto
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
+import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRecord
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
@@ -85,6 +86,14 @@ internal data class TutorToolExecution(
      * 不进模型可见字段、不碰模型输入指纹。其它工具为 null。
      */
     val figure: TutorToolFigureTrace? = null,
+    /**
+     * B3-3（4B）：这次调用**在本地留痕的错题条目 id**（`NOTEBOOK_READ` 检索到的条目，
+     * 按结果顺序、去重）。导出 sheet 的候选题目就来自它——模型"选出"的过程即其检索并展示的
+     * 过程，本地把那次检索的事实留一份；模型给出的 id 永远不是来源。
+     *
+     * 与 [resultCount] 同一条纪律：只在本地，不进模型可见字段、不碰模型输入指纹。
+     */
+    val problemEntryIds: List<String> = emptyList(),
 )
 
 /**
@@ -424,6 +433,9 @@ internal class RoomTutorToolRunner(
                 resultCount = 0,
             )
         }
+        // B3-3：这次检索到的条目 id 本地留痕（模型可见的正文照披露档收口，见上）。导出 sheet
+        // 的候选题只从这里来——模型无法指定任何题 id，也就没有编造面。
+        val problemEntryIds = rows.map(LibraryCatalogRow::entryId).distinct()
         if (!context.roundDisclosesQuestionCandidates) {
             val termNote = terms.takeIf(List<String>::isNotEmpty)
                 ?.let { "（检索词：${it.joinToString("、")}）" }
@@ -437,6 +449,7 @@ internal class RoomTutorToolRunner(
                         "需要具体某道题时请学生在错题本里查看或从错题本选择。",
                 ),
                 resultCount = rows.size,
+                problemEntryIds = problemEntryIds,
             )
         }
         val lines = rows.mapIndexed { index, row ->
@@ -449,6 +462,7 @@ internal class RoomTutorToolRunner(
                 summaryMarkdown = "错题本匹配 ${rows.size} 条：\n${lines.joinToString("\n")}",
             ),
             resultCount = rows.size,
+            problemEntryIds = problemEntryIds,
         )
     }
 

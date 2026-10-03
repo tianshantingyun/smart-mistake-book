@@ -67,18 +67,20 @@ class TutorLocalActionExecutionTest {
     }
 
     @Test
-    fun actionsThatHaveNoWiringYetAreNotPretendedToExecute() {
+    fun exportOpensTheSheetAndReviewPlanStillSaysItIsNotWiredYet() {
         val context = TutorLocalActionContext(
             captureSessionId = "tutor-session-1",
             attachedImageAssetIds = listOf("asset-1"),
         )
 
-        // 尚未接通的两件仍然是**真实的一张卡**（学生同意/拒绝都是真实决定），只是执行那一步
-        // 还没有落点——它们走 NOT_WIRED_YET，由执行方如实说"还不能自动做"（不假装成功）。
+        // 导出（4B B3-3 已接线）：确认后打开导出 sheet——版式预填、候选题勾选都在那里，
+        // 文件要在 sheet 上点「开始导出」才生成。
         assertEquals(
-            TutorLocalActionTarget.NOT_WIRED_YET,
+            TutorLocalActionTarget.EXPORT_SHEET,
             tutorLocalActionTarget(AgentPendingRequestKind.START_EXPORT, context),
         )
+        // 复习计划调整仍未接通：它是**真实的一张卡**（学生同意/拒绝都是真实决定），执行那一步
+        // 走 NOT_WIRED_YET，由执行方如实说"还不能自动做"（不假装成功）。
         assertEquals(
             TutorLocalActionTarget.NOT_WIRED_YET,
             tutorLocalActionTarget(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, context),

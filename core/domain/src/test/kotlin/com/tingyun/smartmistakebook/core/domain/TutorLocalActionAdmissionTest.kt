@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorToolName
@@ -107,7 +108,7 @@ class TutorLocalActionAdmissionTest {
 
     @Test
     fun thePayloadShapeIsPerKind() {
-        // 每个 kind 允许的键：存题三种目标、打开题/复习计划只认"哪道题"、导出不接受参数。
+        // 每个 kind 允许的键：存题三种目标、打开题/复习计划只认"哪道题"、导出是模板 + 完整版式。
         assertEquals(
             setOf("captureSessionId", "libraryProblemId", "imageAssetIds"),
             agentPendingRequestPayloadKeys(AgentPendingRequestKind.SAVE_TO_NOTEBOOK),
@@ -125,9 +126,136 @@ class TutorLocalActionAdmissionTest {
             agentPendingRequestPayloadKeys(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN),
         )
         assertEquals(
-            emptySet<String>(),
+            setOf("templateId", "layout"),
             agentPendingRequestPayloadKeys(AgentPendingRequestKind.START_EXPORT),
         )
+    }
+
+    // --- START_EXPORT（4B B3-1）：模型只能提模板名 + 版式参数，越界/缺字段不挂卡 ---
+
+    @Test
+    fun anExportRequestWithADeclaredLayoutIsAdmittedWithACompleteProposal() {
+        val admission = tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(
+                action = TutorLocalAction.START_EXPORT,
+                parameters = mapOf(
+                    "templateId" to "practice_sheet",
+                    "columnCount" to "2",
+                    "fontScale" to "3",
+                    "includeAnswer" to "false",
+                ),
+            ),
+            context = TutorLocalActionContext(),
+        )
+
+        assertNotNull(admission)
+        assertEquals(AgentPendingRequestKind.START_EXPORT, admission!!.kind)
+        assertEquals(TutorLocalActionTarget.EXPORT_SHEET, admission.target)
+        assertEquals(
+            MistakePdfLayout(
+                templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+                fontScale = 3,
+                columnCount = 2,
+            ),
+            tutorLocalActionExportProposal(admission.payloadJson),
+        )
+    }
+
+    @Test
+    fun anExportRequestWithoutTemplateOrWithOutOfRangeValuesHangsNoCard() {
+        // 缺 templateId：不替模型挑默认模板（必填项缺失 = 这条请求不成立）。
+        assertNull(
+            tutorLocalActionAdmission(
+                request = TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf("columnCount" to "2"),
+                ),
+                context = TutorLocalActionContext(),
+            ),
+        )
+        // 模板枚举外：拒。
+        assertNull(
+            tutorLocalActionAdmission(
+                request = TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf("templateId" to "poster"),
+                ),
+                context = TutorLocalActionContext(),
+            ),
+        )
+        // 越界（fontScale=9）：拒。
+        assertNull(
+            tutorLocalActionAdmission(
+                request = TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf("templateId" to "compact", "fontScale" to "9"),
+                ),
+                context = TutorLocalActionContext(),
+            ),
+        )
+        // 非数字 / 非布尔：拒（不静默按默认值处理）。
+        assertNull(
+            tutorLocalActionAdmission(
+                request = TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf("templateId" to "compact", "marginPt" to "wide"),
+                ),
+                context = TutorLocalActionContext(),
+            ),
+        )
+        assertNull(
+            tutorLocalActionAdmission(
+                request = TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf("templateId" to "compact", "includeAnswer" to "yes"),
+                ),
+                context = TutorLocalActionContext(),
+            ),
+        )
+        // 未声明的键（例如题 id）：形状层就拒——"模型可写题 id"的通道不存在。
+        assertNull(
+            tutorLocalActionAdmission(
+                request = TutorLocalActionRequest(
+                    action = TutorLocalAction.START_EXPORT,
+                    parameters = mapOf("templateId" to "compact", "problemIds" to "p1"),
+                ),
+                context = TutorLocalActionContext(),
+            ),
+        )
+    }
+
+    @Test
+    fun everyDeclaredExportParameterNameIsUnderstoodByTheLocalParser() {
+        // 声明（core:model）与解析（core:domain）必须逐字同名：这里用声明集合构造一份全参数，
+        // 解析成功且每个字段都落到布局上——任一侧改名，这条用例先红。
+        val parameters = mapOf(
+            "templateId" to MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+            "columnCount" to "2",
+            "fontScale" to "3",
+            "marginPt" to "60",
+            "imageScale" to "0.8",
+            "blockOrder" to "paragraph,choice_group",
+            "includeAnswer" to "true",
+            "includeSolution" to "true",
+            "includeNote" to "true",
+        )
+        assertEquals(
+            TutorLocalAction.START_EXPORT.parameters.map { it.parameterName }.toSet(),
+            parameters.keys,
+        )
+
+        val layout = exportLayoutFromActionParameters(parameters)
+
+        assertNotNull(layout)
+        assertEquals(MistakePdfLayout.TEMPLATE_PRACTICE_SHEET, layout!!.templateId)
+        assertEquals(2, layout.columnCount)
+        assertEquals(3, layout.fontScale)
+        assertEquals(60, layout.marginPt)
+        assertEquals(0.8f, layout.imageScale)
+        assertEquals(listOf("paragraph", "choice_group"), layout.blockOrder)
+        assertEquals(true, layout.includeAnswer)
+        assertEquals(true, layout.includeSolution)
+        assertEquals(true, layout.includeNote)
     }
 
     @Test

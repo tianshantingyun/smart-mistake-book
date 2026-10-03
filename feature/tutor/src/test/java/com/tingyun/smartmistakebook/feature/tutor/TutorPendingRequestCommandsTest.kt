@@ -16,6 +16,8 @@ import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.domain.TutorTurnSendStateMachine
 import com.tingyun.smartmistakebook.core.domain.tutorLocalActionAdmission
 import com.tingyun.smartmistakebook.core.domain.tutorLocalActionContext
+import com.tingyun.smartmistakebook.core.domain.tutorLocalActionExportProposal
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorToolName
@@ -73,9 +75,10 @@ class TutorPendingRequestCommandsTest {
         commands: TutorPendingRequestCommands,
         action: TutorLocalAction,
         context: TutorLocalActionContext,
+        parameters: Map<String, String> = emptyMap(),
     ): TutorConsentSuspension? {
         val admission = tutorLocalActionAdmission(
-            request = TutorLocalActionRequest(action = action),
+            request = TutorLocalActionRequest(action = action, parameters = parameters),
             context = context,
         ) ?: return null
         return commands.suspendFor(
@@ -175,17 +178,22 @@ class TutorPendingRequestCommandsTest {
     }
 
     @Test
-    fun startExportHangsACardAndSaysHonestlyThatItIsNotWiredYet() = runBlocking {
+    fun startExportHangsACardAndOpensTheSheetWithTheProposedLayout() = runBlocking {
         val commands = commands()
         val suspension = suspendAction(
             commands,
             TutorLocalAction.START_EXPORT,
             TutorLocalActionContext(),
+            parameters = mapOf("templateId" to "practice_sheet", "columnCount" to "2"),
         )!!
 
         assertEquals(AgentPendingRequestKind.START_EXPORT, suspension.request.kind)
-        // 这个 kind 的形状是**空形状**：不接受任何参数。
-        assertEquals("{}", suspension.request.payloadJson)
+        // 形状：模板 + 完整版式（缺省字段已在本地填成默认值）。
+        val layout = tutorLocalActionExportProposal(suspension.request.payloadJson)
+        assertNotNull(layout)
+        assertEquals(MistakePdfLayout.TEMPLATE_PRACTICE_SHEET, layout!!.templateId)
+        assertEquals(2, layout.columnCount)
+        assertEquals(MistakePdfLayout.DEFAULT_FONT_SCALE, layout.fontScale)
 
         val decision = commands.decide(
             state = suspension.state,
@@ -193,14 +201,64 @@ class TutorPendingRequestCommandsTest {
             decision = AgentPendingRequestDecision.ACCEPT,
         )!!
 
-        // 不假装执行：如实说"还没接通"，并且没有走到任何一条真实落点。
-        assertEquals(notWiredYetDetail(AgentPendingRequestKind.START_EXPORT), decision.detail)
+        // 真接线（4B B3-3）：确认后打开导出设置——版式提议随裁决结果交给交互面（sheet 预填），
+        // 这里**不生成文件**（文件在 sheet 上点「开始导出」才入队），也不走任何别的落点。
+        assertEquals(layout, decision.exportProposal)
+        assertTrue(decision.detail.contains("导出设置"))
         assertTrue(savedCaptureSessions.isEmpty())
         assertTrue(openedProblems.isEmpty())
         assertTrue(intakeCalls.isEmpty())
-        assertFeedBack(
-            kind = "START_EXPORT",
-            detail = notWiredYetDetail(AgentPendingRequestKind.START_EXPORT),
+        assertFeedBack(kind = "START_EXPORT", detail = decision.detail)
+    }
+
+    @Test
+    fun anExportRequestWithoutAProposalNeverHangsACard() = runBlocking {
+        // templateId 是声明里的必填项：缺了它这条请求不成立——本地**不替模型挑默认模板**，
+        // 也不挂一张"点了才知道没提议"的卡（fail-closed）。
+        val suspension = suspendAction(
+            commands(),
+            TutorLocalAction.START_EXPORT,
+            TutorLocalActionContext(),
+        )
+
+        assertNull(suspension)
+        assertTrue(repository.readPendingRequests("AGENT").isEmpty())
+    }
+
+    @Test
+    fun aLegacyExportCardStillOpensTheSheetWithTheDefaultLayout() = runBlocking {
+        // 升级兼容（P1-a）：旧版本写下的行是空形状 `{}`。读回不抛（读回宽容），卡可渲染
+        // （文案如实说"来自旧版本"），decide 用默认版式打开 sheet——不许死路、不许崩。
+        val legacy = AgentPendingRequest(
+            requestId = "agent-req:legacy:START_EXPORT:0000000000000000",
+            conversationArea = "AGENT",
+            conversationId = "conversation-1",
+            logicalOperationId = "logical-1",
+            messageId = "message-1",
+            kind = AgentPendingRequestKind.START_EXPORT,
+            payloadJson = "{}",
+            status = AgentPendingRequestStatus.PENDING,
+            createdAtEpochMillis = 10,
+        )
+        repository.seed(listOf(legacy))
+        val commands = commands()
+
+        assertTrue(
+            pendingRequestCopy(AgentPendingRequestKind.START_EXPORT, legacy.payloadJson)
+                .detail.contains("旧版本"),
+        )
+
+        val decision = commands.decide(
+            state = turn(),
+            requestId = legacy.requestId,
+            decision = AgentPendingRequestDecision.ACCEPT,
+        )!!
+
+        assertEquals(MistakePdfLayout.DEFAULT, decision.exportProposal)
+        assertTrue(decision.detail.contains("导出设置"))
+        assertEquals(
+            AgentPendingRequestStatus.ACCEPTED,
+            repository.readResolvedRequests("AGENT").single().status,
         )
     }
 
@@ -245,7 +303,8 @@ class TutorPendingRequestCommandsTest {
 
     @Test
     fun anActionWithAnUndeclaredParameterIsRefusedBeforeAnyCard() = runBlocking {
-        // 模型只能选不能造：四个动作的参数形状都是空集，塞一个参数就是无效请求（不挂卡）。
+        // 模型只能选不能造：除 START_EXPORT 的模板/版式参数外，参数形状都是空集，塞一个参数
+        // 就是无效请求（不挂卡）。
         val admission = tutorLocalActionAdmission(
             request = TutorLocalActionRequest(
                 action = TutorLocalAction.OPEN_PROBLEM,
@@ -386,6 +445,11 @@ class TutorPendingRequestCommandsTest {
 /** 内存版待确认行：语义（幂等/终态）够本测试用，SQL 语义由仪器化用例证明。 */
 internal class FakeAgentPendingRequestRepository : AgentPendingRequestRepository {
     private val rows = MutableStateFlow<List<AgentPendingRequest>>(emptyList())
+
+    /** 播种（升级兼容用例要预置"旧版本写下的行"）。 */
+    fun seed(seedRows: List<AgentPendingRequest>) {
+        rows.value = seedRows
+    }
 
     override suspend fun createRequest(
         draft: AgentPendingRequestDraft,

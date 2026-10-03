@@ -39,6 +39,7 @@ import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.ui.Divider
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkMuted
@@ -82,6 +83,11 @@ fun TutorRoute(
     attachedImageIntake: TutorAttachedImageIntake? = null,
     /** 确认卡执行路径 ② 的落点（打开错题本；有具体题时给它的 id）。 */
     onOpenLibraryProblem: ((String?) -> Unit)? = null,
+    /**
+     * 导出 sheet 的"开始导出"落点（4B B3-3）：装配处入队后台导出（带学生定稿的版式）并导航到
+     * 「导出成果」。默认什么都不做 = 这个入口不接导出（测试替身）。
+     */
+    onStartExport: (layout: MistakePdfLayout, entryIds: List<String>) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     TutorLobbyRoute(
@@ -102,6 +108,7 @@ fun TutorRoute(
             captureRepository = captureRepository,
             attachedImageIntake = attachedImageIntake,
         ),
+        onStartExport = onStartExport,
         modifier = modifier,
     )
 }

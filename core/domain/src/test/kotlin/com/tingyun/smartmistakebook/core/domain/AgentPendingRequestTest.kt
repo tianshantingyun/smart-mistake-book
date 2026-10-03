@@ -1,8 +1,10 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -86,9 +88,17 @@ class AgentPendingRequestTest {
     fun thePayloadDigestIsTheFrozenFnv1a64() {
         assertEquals("cbf29ce484222325", fnv1a64Hex(""))
         assertEquals("af63dc4c8601ec8c", fnv1a64Hex("a"))
+        // 4B B3：START_EXPORT 的 payload 不再是空形状——用**真实的**导出提议 payload 钉向量
+        // （空串向量是改前的形状，留着会让下一个人以为空 payload 仍然合法）。
+        val exportPayload = exportProposalPayload(
+            MistakePdfLayout(
+                templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+                columnCount = 2,
+            ),
+        )
         assertEquals(
-            "agent-req:logical-1:START_EXPORT:cbf29ce484222325",
-            agentPendingRequestId("logical-1", AgentPendingRequestKind.START_EXPORT, ""),
+            "agent-req:logical-1:START_EXPORT:d5c84a25c896f0b4",
+            agentPendingRequestId("logical-1", AgentPendingRequestKind.START_EXPORT, exportPayload),
         )
     }
 
@@ -121,6 +131,160 @@ break"}""",
             )
         }
     }
+
+    // --- START_EXPORT 的固定形状（4B B3-1）：模板枚举 + 完整版式，缺字段/越界一律拒 ---
+
+    @Test
+    fun anExportProposalPayloadIsAcceptedAndReadBackAsTheSameLayout() {
+        val layout = MistakePdfLayout(
+            templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
+            marginPt = 60,
+            fontScale = 3,
+            columnCount = 2,
+            blockOrder = listOf("paragraph", "choice_group"),
+            imageScale = 0.8f,
+            includeAnswer = true,
+            includeNote = true,
+        )
+        val payload = exportProposalPayload(layout)
+
+        requireAgentPendingRequestPayload(AgentPendingRequestKind.START_EXPORT, payload)
+
+        assertEquals(layout, tutorLocalActionExportProposal(payload))
+    }
+
+    @Test
+    fun anExportProposalPayloadMissingEitherFieldIsRefused() {
+        val payload = exportProposalPayload(MistakePdfLayout(templateId = "practice_sheet"))
+
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                withoutExportPayloadKey(payload, "templateId"),
+            )
+        }
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                withoutExportPayloadKey(payload, "layout"),
+            )
+        }
+    }
+
+    @Test
+    fun anExportProposalWithAnUnknownTemplateOrExtraFieldIsRefused() {
+        val payload = exportProposalPayload(MistakePdfLayout(templateId = "practice_sheet"))
+
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                payload.replace("\"practice_sheet\"", "\"poster\""),
+            )
+        }
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                payload.dropLast(1) + ""","problemIds":["p1"]}""",
+            )
+        }
+    }
+
+    @Test
+    fun anExportProposalWithAnOutOfRangeOrIncompleteLayoutIsRefused() {
+        val payload = exportProposalPayload(MistakePdfLayout(templateId = "practice_sheet"))
+
+        // 越界（marginPt=100）与缺字段（去掉 includeNote）都必须在落库口被拒。
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                payload.replace("\"marginPt\":48", "\"marginPt\":100"),
+            )
+        }
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                payload.replace(",\"includeNote\":false", ""),
+            )
+        }
+        // 类型不符（marginPt 写成字符串）同样拒。
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                payload.replace("\"marginPt\":48", "\"marginPt\":\"48\""),
+            )
+        }
+        // 顶层 templateId 与 layout 内的不一致：拒（两处必须同一份事实）。
+        assertRejected {
+            requireAgentPendingRequestPayload(
+                AgentPendingRequestKind.START_EXPORT,
+                payload.replaceFirst(
+                    "\"templateId\":\"practice_sheet\"",
+                    "\"templateId\":\"compact\"",
+                ),
+            )
+        }
+    }
+
+    private fun withoutExportPayloadKey(payload: String, key: String): String {
+        val json = kotlinx.serialization.json.Json
+        val root = json.parseToJsonElement(payload) as kotlinx.serialization.json.JsonObject
+        return json.encodeToString(
+            kotlinx.serialization.json.JsonObject.serializer(),
+            kotlinx.serialization.json.JsonObject(root.filterKeys { it != key }),
+        )
+    }
+
+    // --- 升级兼容（P1-a）：写口严格、读回宽容，旧行不把读路径抛死 ---
+
+    /**
+     * 旧版本（`d2317f5d`）写出的 START_EXPORT 形状是**空对象 `{}`**：读回必须放行（否则
+     * `toDomain()` 抛 → 挂卡区/回喂区整片消失），写口必须仍然严格（新行按新形状说话）。
+     */
+    @Test
+    fun aLegacyEmptyExportPayloadIsReadableWhileTheWritePortStaysStrict() {
+        val legacy = legacyExportRow("{}")
+
+        // 读回：不抛；语义解析读不出提议，交给 UI 走"旧版本"降级路径。
+        assertNull(tutorLocalActionExportProposal(legacy.payloadJson))
+        assertTrue(agentPendingRequestExportPayloadIsLegacy(legacy.payloadJson))
+
+        // 写口：不许再写出旧形状（新行必须恰好 {templateId, layout}）。
+        assertRejected {
+            AgentPendingRequestDraft(
+                conversationArea = "AGENT",
+                conversationId = "conversation-1",
+                logicalOperationId = "op-legacy",
+                messageId = "message-1",
+                kind = AgentPendingRequestKind.START_EXPORT,
+                payloadJson = "{}",
+            )
+        }
+
+        // 读回宽容**只对 START_EXPORT**：其余 kind 的坏形状照旧抛。
+        assertRejected {
+            legacyExportRow("""{"problemId":"p1"}""").copy(kind = AgentPendingRequestKind.OPEN_PROBLEM)
+        }
+        // 结构性规则在读回路径上仍然生效（不是"什么都收"）：非 JSON 对象照旧抛。
+        assertRejected { legacyExportRow("not json") }
+        assertRejected { legacyExportRow("[1,2]") }
+
+        // 新版形状的行读回照旧通过。
+        legacyExportRow(
+            exportProposalPayload(MistakePdfLayout(templateId = "practice_sheet")),
+        )
+    }
+
+    private fun legacyExportRow(payloadJson: String): AgentPendingRequest = AgentPendingRequest(
+        requestId = "agent-req:op-legacy:START_EXPORT:0000000000000000",
+        conversationArea = "AGENT",
+        conversationId = "conversation-1",
+        logicalOperationId = "op-legacy",
+        messageId = "message-1",
+        kind = AgentPendingRequestKind.START_EXPORT,
+        payloadJson = payloadJson,
+        status = AgentPendingRequestStatus.PENDING,
+        createdAtEpochMillis = 100L,
+    )
 
     // --- PENDING → 终态，不可回头 ---
 

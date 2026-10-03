@@ -6,6 +6,7 @@ import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.FigureSchema
 import com.tingyun.smartmistakebook.core.model.SafeInlineMarkdown
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 

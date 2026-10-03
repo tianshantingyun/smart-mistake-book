@@ -47,6 +47,59 @@ class TutorToolTraceTest {
         assertEquals(trace, decoded)
     }
 
+    /**
+     * B3-3：`NOTEBOOK_READ` 的本地留痕条目 id 随痕迹存储形状往返——导出 sheet 的候选题
+     * 就靠它；空列表不落键（空载体抹平），旧行解码仍是空列表。
+     */
+    @Test
+    fun aNotebookReadTraceRoundTripsWithItsLocalProblemEntryIds() {
+        val trace = TutorTurnToolTrace(
+            entries = listOf(
+                TutorToolTraceEntry(
+                    tool = TutorToolName.NOTEBOOK_READ,
+                    resultCount = 2,
+                    ok = true,
+                    problemEntryIds = listOf("entry-a", "entry-b"),
+                ),
+            ),
+        )
+
+        val encoded = requireNotNull(encodeTutorTurnToolTrace(trace))
+        val decoded = decodeTutorTurnToolTrace(encoded)
+
+        assertEquals(listOf("entry-a", "entry-b"), decoded?.entries?.single()?.problemEntryIds)
+        // 空载体不落键：没有 id 的条目编码里不出现这个字段（旧行形状不变）。
+        val withoutIds = requireNotNull(
+            encodeTutorTurnToolTrace(
+                TutorTurnToolTrace(
+                    entries = listOf(
+                        TutorToolTraceEntry(
+                            tool = TutorToolName.NOTEBOOK_READ,
+                            resultCount = 0,
+                            ok = true,
+                        ),
+                    ),
+                ),
+            ),
+        )
+        assertFalse(withoutIds.contains("problemEntryIds"))
+    }
+
+    @Test
+    fun onlyANotebookReadMayCarryLocalProblemEntryIds() {
+        // 别的工具带条目 id = 构造错误（候选来源必须是检索事实，不是随便什么工具的输出）。
+        val failure = runCatching {
+            TutorToolTraceEntry(
+                tool = TutorToolName.KNOWLEDGE_READ,
+                resultCount = 1,
+                ok = true,
+                problemEntryIds = listOf("entry-a"),
+            )
+        }.exceptionOrNull()
+
+        assertEquals(IllegalArgumentException::class.java, failure?.javaClass)
+    }
+
     @Test
     fun aGarbledOrAlienJsonDecodesToNoTrace() {
         // 旧行/坏行都不许把渲染打断：不是痕迹的东西一律当"没有痕迹"。
