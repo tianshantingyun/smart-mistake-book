@@ -220,6 +220,19 @@
 > 被替换的既有导出门用例去向：`MistakeExportNavigationInstrumentedTest` → 迁到讲题路由（导出不再带 key 走路由）；`MistakeExportUiPolicyTest` 的文案/命名断言 → `core:export` 的 `MistakePdfExportCopyTest` + `MistakeExportJobRunnerTest`；导出页预览用例 → `MistakeExportHubInstrumentedTest` + core:export 既有 `MistakePdfExporterInstrumentedTest`（交付链本身）。
 > **A4 预览面登记**：`MistakePdfPreview` 随旧导出页退场后**生产零消费者**（grep 只剩 core:export 内部与仪器化用例）——不是漏迁：预览是"前台导出页"的界面面，A 形态下用户要的是落盘 + 成果入口；类保留，交付链覆盖（真 PDF 打开/逐页渲染）仍在 `MistakePdfExporterInstrumentedTest`。若将来成果入口要加缩略图，从这里接回。
 
+### 3.18 阶段 4B · 生图工具面与文档导出（2026-10-03/04，四批）：零算法 bump
+
+> 编号说明：§3.18 由阶段 4B 占用。四批均为产品功能面（工具环第 8 枚 `GENERATE_FIGURE`、
+> 生成图持久化/幂等、导出排版参数化、智能体触发导出），未触碰账本/投影/计划/打分公式。
+> 完成记录：`docs/research/2026-10-03-stage4b-completion-record.md`（边界与 UNVERIFIED 见其 §7）。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` / `LearningCoreVersions` 全部串 | **未 bump**（schema 维持 **61**；复合串维持 `learning-core-v12`） | **零 schema**（无表/列改动；`GENERATED_FIGURE` 是既有 TEXT 列 `source_type` 的新代码值，非迁移——`StudyDbValue.kt:50`）；生图与导出都是「把已确认题面/已生成资产做持久化与排版输出」，**不改投影输出、计划指纹、账本行**；A1 只改出网请求的声明集与模型行为，A2 只增资产行+引用，B1–B4/B6 只改排版输出，B3 只改本地动作 payload/确认流程 | 计划 `docs/research/2026-10-03-stage4b-plan.md` §4；设计契约 `docs/research/2026-09-28-imagegen-and-export-design.md`；四批提交 `7a44bf40` / `92764af2` / `d2317f5d` / `c11193a8` | 批级正式门：批 1 全量 JVM（243 任务）+ core:data 工具环 **12/0/0** + app 三屏 **5/0/0**；批 2 全量 JVM + DB 全套 **210/0/0** + core:data **14/0/0** + feature:tutor **64/0/0** + app 三屏 **5/0/0**；批 3 全量 JVM + core:export **19/0/0** + feature:library **9/0/0** + app **8/0/0**；批 4 全量 JVM + core:data **12/0/0** + feature:tutor **64/0/0** + feature:library **9/0/0** + app 五类 **9/0/0**。4B 综合门：全量 JVM **2344/0/0**（app 95 / core:data 648 / core:database 129 / core:domain 558 / core:export 63 / core:model 410 / core:ui 38 / feature:capture 110 / feature:library 39 / feature:profile 6 / feature:review 39 / feature:tutor 209）、DB 全套仪器化 **210/0/0**（2026-10-03T23:22:51Z）、app 全套仪器化 **53/0/0**（23:24:59Z）、R8 冒烟净（PID 20321 / logcat 零 FATAL）。退出门「生图→导出→打印真机走查」因模拟器无模型凭据**未完整走通，登记 UNVERIFIED** | ➖（无投影/计划输出变化，不触发重放） |
+| `ModelEgress` 提示词版本（**非算法台账号段**，自记） | 批 1：`tutor-plan-v16-figure-no-preview` / `tutor-respond-v23-figure-no-preview` / `tutor-lobby-v14-figure-no-preview`；批 2：`tutor-plan-v18-figure-conditional` / `tutor-respond-v25-figure-conditional` / `tutor-lobby-v16-figure-conditional`；批 3：**不动**；批 4：`tutor-lobby-v17-export-layout-proposal`（plan/respond 不动） | 工具声明集 7→8（`GENERATE_FIGURE`）与 `START_EXPORT` 参数声明改变出网请求形状 → bump 提示词策略版本（egress 授权回执不再冒充同一提示词）。**不改变任何算法数值** | `ModelEgress.kt:53/63/79`（实际值经逐提交核对：`git show <7a44bf40\|92764af2\|d2317f5d\|c11193a8>:core/model/.../ModelEgress.kt`） | 同左栏各批门 | ➖ |
+
+> 4B 登记要点（详见完成记录 §7）：隐式 AI 标识不随 App 的 PDF 重绘走（对外分发 PDF 无标识，显式标识未落）；兼容链 GC 后可能重复付费 / PROCESS 两链幂等键不同 / 多实例并发残余；`figure-<hex>` 不符合 `validateSourceAsset` 路径不变量但无生产入口；金样为单机登记；hub 行无「解析区已跳过」说明（零 schema 无列）；提示词 v17 对真实 provider 行为未验证；微信接收 PDF 未文档化；真机走查生图段不可达。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；
