@@ -1007,7 +1007,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的原子结构和存在",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
      "role": "PRIMARY"
     }
    ]
@@ -1187,7 +1187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -1247,7 +1247,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁三角-中的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -1287,7 +1287,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐和亚铁盐的性质和检验易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关铁及其化合物的除杂",
      "role": "PRIMARY"
     }
    ]
@@ -2607,7 +2607,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠的性质与探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -4367,7 +4367,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -4527,7 +4527,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁三角-中的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -5307,7 +5307,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁三角-中的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -5707,7 +5707,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:了解电镀原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -5747,7 +5747,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -5767,7 +5767,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:其他防护方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的防护",
      "role": "PRIMARY"
     }
    ]
@@ -6707,7 +6707,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠的性质与探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -8027,7 +8027,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属晶体的空间利用率",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞空间利用率的计算",
      "role": "PRIMARY"
     }
    ]
@@ -11467,7 +11467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:无机非金属材料的分类与特点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料",
      "role": "PRIMARY"
     }
    ]
@@ -13107,7 +13107,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -13127,7 +13127,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -13167,7 +13167,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠的性质与探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -13187,7 +13187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -15187,7 +15187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:仪器的洗涤",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:仪器的洗涤与洗净标准",
      "role": "PRIMARY"
     }
    ]
@@ -16827,7 +16827,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的原子结构和存在",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
      "role": "PRIMARY"
     }
    ]
@@ -16987,7 +16987,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -17047,7 +17047,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁及其化合物的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -17067,7 +17067,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe2-与fe3-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -17307,7 +17307,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的混合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -18187,7 +18187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对水的电离平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡移动的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -19427,7 +19427,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解精炼铜",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -19467,7 +19467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解精炼铜",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -19487,7 +19487,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:了解电镀原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -19507,7 +19507,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -19527,7 +19527,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -19547,7 +19547,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:了解电镀原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -19567,7 +19567,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -19587,7 +19587,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -19687,7 +19687,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -21927,7 +21927,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属材料",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见金属材料",
      "role": "PRIMARY"
     }
    ]
@@ -21947,7 +21947,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -21967,7 +21967,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -21987,7 +21987,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -22007,7 +22007,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -22067,7 +22067,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提取镁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提镁的工艺流程分析",
      "role": "PRIMARY"
     }
    ]
@@ -22427,7 +22427,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:相对原子质量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:相对原子质量(核素与元素)",
      "role": "PRIMARY"
     }
    ]
@@ -22467,7 +22467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核反应方程的分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核反应方程的分析思路",
      "role": "PRIMARY"
     }
    ]
@@ -25147,7 +25147,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金的概念及性能",
      "role": "PRIMARY"
     }
    ]
@@ -25167,7 +25167,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -25447,7 +25447,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -25467,7 +25467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析电解过程的思维程序",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:串联电化学装置",
      "role": "PRIMARY"
     }
    ]
@@ -26867,7 +26867,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提取镁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提镁的工艺流程分析",
      "role": "PRIMARY"
     }
    ]
@@ -27087,7 +27087,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝沉淀量的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝沉淀图像分析",
      "role": "PRIMARY"
     }
    ]
@@ -27187,7 +27187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝盐与碱反应的图像分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝沉淀图像分析",
      "role": "PRIMARY"
     }
    ]
@@ -27867,7 +27867,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属晶体的空间利用率",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞空间利用率的计算",
      "role": "PRIMARY"
     }
    ]
@@ -27967,7 +27967,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的原子结构和存在",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
      "role": "PRIMARY"
     }
    ]
@@ -28707,7 +28707,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:多池串联装置",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:多池串联装置类型的判断",
      "role": "PRIMARY"
     }
    ]
@@ -30107,7 +30107,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的溶解与稀释",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的溶解与稀释操作",
      "role": "PRIMARY"
     }
    ]
@@ -30127,7 +30127,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:装置气密性检查",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:装置气密性检查的方法",
      "role": "PRIMARY"
     }
    ]
@@ -30167,7 +30167,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:装置气密性检查",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:装置气密性检查的方法",
      "role": "PRIMARY"
     }
    ]
@@ -30187,7 +30187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:装置气密性检查",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:装置气密性检查的方法",
      "role": "PRIMARY"
     }
    ]
@@ -31107,7 +31107,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:了解电镀原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -31187,7 +31187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -31207,7 +31207,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:其他防护方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的防护",
      "role": "PRIMARY"
     }
    ]
@@ -34467,7 +34467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -34487,7 +34487,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -34507,7 +34507,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -37467,7 +37467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对水的电离平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡移动的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -37527,7 +37527,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡曲线",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡移动的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -38687,7 +38687,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测与预防",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测和预防",
      "role": "PRIMARY"
     }
    ]
@@ -38707,7 +38707,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测与预防",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测和预防",
      "role": "PRIMARY"
     }
    ]
@@ -41747,7 +41747,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁及其化合物的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -42467,7 +42467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝及其化合物之间的性质与应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝沉淀图像分析",
      "role": "PRIMARY"
     }
    ]
@@ -42507,7 +42507,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含铝物质的制备和转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业制铝的酸溶法流程",
      "role": "PRIMARY"
     }
    ]
@@ -43127,7 +43127,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金的概念及性能",
      "role": "PRIMARY"
     }
    ]
@@ -44447,7 +44447,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:熟记硅及其化合物的特殊性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料",
      "role": "PRIMARY"
     }
    ]
@@ -46747,7 +46747,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -50627,7 +50627,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -50647,7 +50647,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -50667,7 +50667,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -50707,7 +50707,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -52247,7 +52247,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -53367,7 +53367,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠的性质与探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -54187,7 +54187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -55907,7 +55907,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -55927,7 +55927,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -56527,7 +56527,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:气体体积的测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:气体体积的测定方法",
      "role": "PRIMARY"
     }
    ]
@@ -56727,7 +56727,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的混合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -57247,7 +57247,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:混合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -58407,7 +58407,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含铝物质的制备和转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝及其化合物之间的性质与应用",
      "role": "PRIMARY"
     }
    ]
@@ -59567,7 +59567,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -59727,7 +59727,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金的概念及性能",
      "role": "PRIMARY"
     }
    ]
@@ -61027,7 +61027,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:串联类电化学装置的分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:串联电化学装置",
      "role": "PRIMARY"
     }
    ]
@@ -61927,7 +61927,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属材料和金属的冶炼易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝热反应",
      "role": "PRIMARY"
     }
    ]
@@ -62367,7 +62367,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -62487,7 +62487,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提取镁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提镁的工艺流程分析",
      "role": "PRIMARY"
     }
    ]
@@ -64467,7 +64467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -66347,7 +66347,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -66947,7 +66947,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -66967,7 +66967,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -67727,7 +67727,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫单质",
      "role": "PRIMARY"
     }
    ]
@@ -68587,7 +68587,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -70147,7 +70147,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:惰性电极电解规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:惰性电极电解的四种类型",
      "role": "PRIMARY"
     }
    ]
@@ -70207,7 +70207,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电冶金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -70247,7 +70247,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -70287,7 +70287,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -70447,7 +70447,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含铝物质的制备和转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝及其化合物之间的性质与应用",
      "role": "PRIMARY"
     }
    ]
@@ -70487,7 +70487,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝沉淀的图像与计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝沉淀图像分析",
      "role": "PRIMARY"
     }
    ]
@@ -71487,7 +71487,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -71527,7 +71527,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的混合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -72927,7 +72927,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -73287,7 +73287,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -74447,7 +74447,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -74467,7 +74467,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -74767,7 +74767,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -74847,7 +74847,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝及其化合物之间的性质与应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -76547,7 +76547,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:Al(OH)3沉淀量的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝沉淀图像分析",
      "role": "PRIMARY"
     }
    ]
@@ -76627,7 +76627,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含铝物质的制备和转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝及其化合物之间的性质与应用",
      "role": "PRIMARY"
     }
    ]
@@ -76927,7 +76927,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的混合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -77207,7 +77207,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁及其化合物的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -77227,7 +77227,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe2-与fe3-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -77387,7 +77387,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含氧酸及其酸性比较",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:无机含氧酸酸性强弱的判断",
      "role": "PRIMARY"
     }
    ]
@@ -79567,7 +79567,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对水的电离平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡移动的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -80387,7 +80387,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝土矿提纯的酸溶法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业制铝的酸溶法流程",
      "role": "PRIMARY"
     }
    ]
@@ -82187,7 +82187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的原子结构和存在",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
      "role": "PRIMARY"
     }
    ]
@@ -82327,7 +82327,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁三角-中的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -82667,7 +82667,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对水的电离平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡移动的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -83167,7 +83167,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -83187,7 +83187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -83247,7 +83247,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的冶炼-金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -83267,7 +83267,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -84787,7 +84787,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对水的电离平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡移动的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -86247,7 +86247,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
      "role": "PRIMARY"
     }
    ]

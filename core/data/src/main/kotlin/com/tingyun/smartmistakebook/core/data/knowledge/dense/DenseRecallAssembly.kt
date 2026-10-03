@@ -86,8 +86,11 @@ object DenseRecallAssembly {
      * 资产身份（sha256），权威值在 `knowledge/dense/bge-small-zh-int8.vec.json` 旁车里
      * （`DenseAssetProvenanceTest` 钉住"这里的常量 == 旁车 == 实际文件"三处一致）。
      * 不匹配 ⇒ 判不可用：宁可没有稠密腿，也不用一份来路不明的向量表排序。
+     *
+     * 2026-10-03 随批次 3（近重复节点合并 + 金标迁移）重打：41,193 → 41,117 行
+     * （3,761 原子节点 + 37,356 别名），sha `8649afa6…` → 本值。
      */
-    const val VECTOR_ASSET_SHA256 = "8649afa62ce968c3aebcf1ad2dd0d99f5cd5ca1ac52d22ac6e7c6fbd51d63850"
+    const val VECTOR_ASSET_SHA256 = "8dbc0d5459c43ace5425f3be7bfb36a1ea2ee8126328408e5969f3df8b86cc47"
 
     /** 生产装配：不可用（未启用）时返回 `null`。 */
     fun reranker(context: Context): DenseRecallReranker? {

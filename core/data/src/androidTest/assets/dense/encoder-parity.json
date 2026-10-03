@@ -3,31 +3,31 @@
   "threshold": 0.999,
   "thresholdMeaning": "端侧编码向量与参考向量的逐条 cosine 下限（任务书硬门）",
   "dim": 512,
-  "count": 330,
+  "count": 329,
   "byKind": {
-    "query": 130,
+    "query": 129,
     "surface": 200
   },
   "textSource": {
     "path": "core\\data\\src\\test\\resources\\dense\\tokenizer-parity-cases.txt",
-    "sha256": "bd952a6cf7b9d1833dfbb54500d7d0a4483d42cd6f53905a52cef13017c3df00",
+    "sha256": "9f2521fbb0e799dc570196c950798f00042f621e4085978c85b09aaf68bddf57",
     "note": "query 行含 BGE 查询前缀；surface 行是向量集原文（节点名/别名）"
   },
   "referenceVectors": {
     "queries": {
       "path": "build\\dense-model\\int8-queries.npy",
-      "sha256": "14144f1af9a6efb19c84303a504fc9dd0cb86564b246ed156e42f5de8d3f3d12"
+      "sha256": "d3479da458694e4026d35641fcdf7c845bc7f8a71838412d9cee27a16ab1ce74"
     },
     "docs": {
       "path": "build\\dense-model\\int8-docs.npy",
-      "sha256": "8f217e69f50bd9e83080b0ede4c97bbaf1e0dad767ed6470fba404f7dc326715"
+      "sha256": "edca8f60c4a78b70a8b1ccd6907796711e7e1d74f9c7e728d3ff7bbdf2b5c129"
     },
     "producer": "onnxruntime 1.28.0 on build\\dense-model\\bge-small-zh-v1.5-int8.onnx",
     "modelSha256": "4d3b31355a3df4ff923db83bc76181f8581592de10f67502be825f519d2fa213"
   },
   "golden": {
     "path": "tools\\kb_coverage\\tables\\golden_queries_v2.json",
-    "sha256": "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
+    "sha256": "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e"
   },
   "alignmentSelfCheck": {
     "note": "用同一份 int8 ONNX 现场重跑 fixture 的 ids，与冻结 npy 逐行比 cosine",
@@ -37,11 +37,11 @@
   },
   "casesFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-cases.tsv",
-    "sha256": "aa0c25cdab79acfb12dc50f185b528f5c94ba661fd45db1dc68469bd64184518"
+    "sha256": "c714f44ee3b3cfe3b2b624737410390a542524d646dcc2860fae15252f457edd"
   },
   "vectorsFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-vectors.f32",
-    "sha256": "53e08155b037ae89b9a69194ec3f964fd4d4ee2a83f28ccc76f4b6a690e28d2f",
+    "sha256": "13f41600b6fb01b64ac60ce10c0e56d21368293c93b142b3c2a33435ad509f10",
     "layout": "little-endian float32, row-major, N×512",
     "l2NormRange": [
       0.999999463558197,

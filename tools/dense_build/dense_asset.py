@@ -63,7 +63,7 @@ TOKENIZER_RELATIVE = "tools/dense_build/vocab/bge-small-zh-v1.5-tokenizer.json"
 MODEL_MANIFEST_RELATIVE = "tools/dense_build/model-manifest.json"
 LEXICAL_LEG_RELATIVE = "build/production-lexical-leg.tsv"
 GOLDEN_RELATIVE = "tools/kb_coverage/tables/golden_queries_v2.json"
-GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
+GOLDEN_SHA256 = "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e"
 
 # ---- 模型档位（Stage-5 参数化：换件只换"哪一档"与档位坐标，路径名一律不动） ----
 #

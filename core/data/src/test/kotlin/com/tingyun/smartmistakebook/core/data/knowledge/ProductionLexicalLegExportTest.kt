@@ -74,7 +74,9 @@ class ProductionLexicalLegExportTest {
         )
         assertEquals("金标 sha256 应等于 Stage-2 规格 §1.2 的封存值", FROZEN_GOLDEN_SHA256, goldenSha256)
         val cases = RetrievalBenchmark.loadGoldenCases(goldenFile)
-        assertEquals("冻结金标集条数应为 130（判官 v2）", 130, cases.size)
+        // 2026-10-03 批次 3（近重复节点合并）随金标迁移 130 → 129（1 条退役、4 条按幸存者改指；
+        // 见 docs/kb-golden-v2-protocol.md 的「expectedSlug 迁移」一节）。
+        assertEquals("冻结金标集条数应为 129（判官 v2，2026-10-03 迁移后）", 129, cases.size)
         assertEquals("冻结金标集章数应为 20（判官 v2；每章条数不等）", 20, cases.map { it.chapter }.distinct().size)
 
         val pack = BundledKnowledgePackResources.load().single { it.packId == PACK_ID }
@@ -187,12 +189,12 @@ class ProductionLexicalLegExportTest {
         // 0.5637037037037038）是 v1 金标（90 条）+ 旧包（3,572 节点 / 27,794 别名）时代的判读数。
         // 判官 v2（130 条 / 20 章，sha 89c1d5b5…）+ 当前随包（3,570 原子节点 + 398 topic = 3,968
         // 节点 / 36,749 别名）下，本轮 gradle 门实测 + 本文件回读重算：主集 82/130 =
-        // 0.6307692307692307、MRR = 0.5002564102564104（与同轮 `build/golden-jvm-metrics.txt` 的
+        // 0.6356589147286822、MRR = 0.4996124031007753（与同轮 `build/golden-jvm-metrics.txt` 的
         // `B-route-mirror` 段 `Recall@5(主集)=…`/`MRR=…` 逐位一致）。这是数据变化（判官扩集 +
         // 换包）导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
         assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 82/130（判官 v2 + 当前包实测）", 82, hits)
-        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.6307692307692307", V1_D1_MAIN, main, 0.0)
-        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.5002564102564104", V1_D1_MRR, mrr, 0.0)
+        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.6356589147286822", V1_D1_MAIN, main, 0.0)
+        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.4996124031007753", V1_D1_MRR, mrr, 0.0)
 
         // ---- 与 build/golden-jvm-metrics.txt 的 B-route-mirror 段逐行对账（含逐题 MISS 集合与 rank） ----
         val metricsFile = File(repoRoot, "build/golden-jvm-metrics.txt")
@@ -264,22 +266,27 @@ class ProductionLexicalLegExportTest {
          * 判官封存值。**2026-09-28 随 v1→v2 扩集迁移**（90→130 条，见
          * `docs/kb-golden-v2-protocol.md`）；v1 的 `7c004b76…` 是历史封存，只在 v1 文件仍在时有效。
          * 本测试复核的是"当前生效判官"的 sha，所以它必须跟着判官走。
+         *
+         * **2026-10-03 随批次 3（近重复节点合并）迁移**：130 → 129 条，sha `89c1d5b5…` → 本值。
+         * 迁移记录：`docs/kb-golden-v2-protocol.md` 的「expectedSlug 迁移（2026-10-03）」一节 +
+         * `build/agent-batch3/golden-migration.json`；工具 `kb_coverage.retarget_golden_expected_slugs`。
          */
-        const val FROZEN_GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
+        const val FROZEN_GOLDEN_SHA256 = "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e"
 
         /**
          * 生产 v1（裸 B 路 limit=5、D1 形 = matched 优先）的判读数：`build/golden-jvm-metrics.txt` 的 B 段。
          *
-         * **口径**：v2 判官（130 条 / 20 章）+ 当前随包（3,866 原子节点 / 37,327 别名）。
-         * **2026-10-02 二次重钉**：建点闭环给包加了 296 个新点 / 578 个新别名（材料 50,383），
-         * 词面腿的候选与排序随之微变 → MRR 0.5002564102564104 → **0.4983333333333335**
-         * （主集命中 82/130 与 Recall@5 未变）；旧锚（58/90 = 0.6444444444444445 / 0.5637037037037038）
-         * 是 v1 金标 90 条 + 旧包 3,572/27,794 时代的判读数。
+         * **口径**：v2 判官（2026-10-03 迁移后 129 条 / 20 章）+ 当前随包（3,761 原子节点 / v10）。
+         * **2026-10-03 三次重钉（批次 3：近重复节点合并 + 金标迁移）**：
+         * 包 3,866 → 3,761 节点、判官 130 → 129 条 → 主集 **82/129 = 0.6356589147286822**、
+         * MRR **0.4983333333333335 → 0.4996124031007753**（分母随判官条数变化）。
+         * 上一代：0.6307692307692307 / 0.4983333333333335（v2 130 条 + 3,866 包时代）；
+         * 更旧（58/90 = 0.6444444444444445 / 0.5637037037037038）是 v1 金标 90 条 + 3,572/27,794 时代。
          * 重钉的只是锚值，判据（容差 0.0、top-5、命中定义）与口径一律未动。
          */
         const val B_ROUTE = "B-route-mirror(v1-bare-B5, matched-first)"
-        const val V1_D1_MAIN = 0.6307692307692307
-        const val V1_D1_MRR = 0.4983333333333335
+        const val V1_D1_MAIN = 0.6356589147286822
+        const val V1_D1_MRR = 0.4996124031007753
 
         /** 判分窗口（与生产 return 形态同口径：D1 形下前 5 名全在 matched 侧）。 */
         const val SCORED_TOP_K = 5

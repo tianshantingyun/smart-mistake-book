@@ -23,18 +23,18 @@
     "tokenizerJsonPath": "tools/dense_build/vocab/bge-small-zh-v1.5-tokenizer.json",
     "tokenizerJsonSha256": "48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26",
     "goldenPath": "tools/kb_coverage/tables/golden_queries_v2.json",
-    "goldenSha256": "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d",
+    "goldenSha256": "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e",
     "surfaceSample": {
       "count": 200,
       "seed": 20260924,
-      "universe": 41193,
+      "universe": 41117,
       "note": "从向量集（canonicalName + alias，条数随包现取）按种子抽取、排序"
     }
   },
   "counts": {
-    "total": 373,
+    "total": 372,
     "byKind": {
-      "query": 130,
+      "query": 129,
       "surface": 200,
       "edge": 18,
       "stage": 25
@@ -43,21 +43,21 @@
   },
   "selfCheck": {
     "batchPaddingEqualsSingle": true,
-    "note": "金标查询（130 条）按 export_bge_int8.py 的批式（padding=True）编码、剥尾部 PAD 后与单条逐条相等"
+    "note": "金标查询（129 条）按 export_bge_int8.py 的批式（padding=True）编码、剥尾部 PAD 后与单条逐条相等"
   },
   "honesty": {
     "emptyInput": "参考实现（tokenizers backend）对空串直接 TypeError，没有可对拍的期望值：fixture 不含空串；端侧对空/纯空白输入只承诺**不崩**（由 Kotlin 自己的单测钉住）。实测 raisesTypeError=False",
-    "scope": "fixture 覆盖 130 条金标查询（带前缀）+ 200 条节点文本抽样（种子 20260924）+ 边界探针；spec §3.2 的全量对拍**不在本 fixture**（样本量按本轮任务书写死）"
+    "scope": "fixture 覆盖 129 条金标查询（带前缀）+ 200 条节点文本抽样（种子 20260924）+ 边界探针；spec §3.2 的全量对拍**不在本 fixture**（样本量按本轮任务书写死）"
   },
   "files": {
     "cases": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-cases.txt",
-      "sha256": "bd952a6cf7b9d1833dfbb54500d7d0a4483d42cd6f53905a52cef13017c3df00",
-      "rows": 373
+      "sha256": "9f2521fbb0e799dc570196c950798f00042f621e4085978c85b09aaf68bddf57",
+      "rows": 372
     },
     "stages": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-stages.txt",
-      "sha256": "4aafb7892639c8604ff1429042ec4264a804c0762ba8e9ce792cc6168f2e6141",
+      "sha256": "7c95dc090f09d5f9ca4a5f7a8d34fcf34b9c680513d038194658aeee72e91df5",
       "rows": 68
     }
   }

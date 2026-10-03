@@ -4791,7 +4791,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验器材的选取与实物图连接",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验器材的选取",
      "role": "PRIMARY"
     }
    ]
@@ -8451,7 +8451,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑动摩擦-静摩擦-大小可能突增",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力的突变类问题",
      "role": "PRIMARY"
     }
    ]
@@ -9011,7 +9011,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:三个自由点电荷平衡模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:三个自由点电荷的平衡模型",
      "role": "PRIMARY"
     }
    ]
@@ -9131,7 +9131,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:机械能守恒的常见情境分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多物体系统的机械能守恒",
      "role": "PRIMARY"
     }
    ]
@@ -12911,7 +12911,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦-滑动摩擦-大小突减",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力的突变类问题",
      "role": "PRIMARY"
     }
    ]
@@ -13331,7 +13331,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏伏法测电阻（电压表差值法）",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏伏法测电阻",
      "role": "PRIMARY"
     }
    ]
@@ -13711,7 +13711,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的波粒二象性的表现规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的波粒二象性",
      "role": "PRIMARY"
     }
    ]
@@ -18491,7 +18491,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场与磁场的组合模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场与磁场的组合（两段圆弧的衔接）",
      "role": "PRIMARY"
     }
    ]
@@ -18751,7 +18751,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多物体系统机械能守恒的情景",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多物体系统的机械能守恒",
      "role": "PRIMARY"
     }
    ]
@@ -19471,7 +19471,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平衡条件-根本条件-作用在物体上的所有共点力的合力为零-即-f_合-0",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力平衡",
      "role": "PRIMARY"
     }
    ]
@@ -21531,7 +21531,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合成与分解法则-平行四边形法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -23291,7 +23291,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题的分析易错-整体法与隔离法应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -25831,7 +25831,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量关系的实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -28031,7 +28031,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第二定律中的正交分解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:正交分解法",
      "role": "PRIMARY"
     }
    ]
@@ -29551,7 +29551,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:验证力的平行四边形定则实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究互成角度力的合成规律实验",
      "role": "PRIMARY"
     }
    ]
@@ -30651,7 +30651,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合成与分解法则-平行四边形法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -32471,7 +32471,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力平衡",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:库仑力作用下的平衡问题",
      "role": "PRIMARY"
     }
    ]
@@ -35111,7 +35111,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁阻尼与电磁驱动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁阻尼和电磁驱动",
      "role": "PRIMARY"
     }
    ]
@@ -35451,7 +35451,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧弹力与形变量实验的创新改进",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -35471,7 +35471,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究互成角度力的合成规律实验",
      "role": "PRIMARY"
     }
    ]
@@ -36731,7 +36731,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平衡条件-根本条件-作用在物体上的所有共点力的合力为零-即-f_合-0",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力平衡",
      "role": "PRIMARY"
     }
    ]
@@ -37751,7 +37751,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合成与分解法则-平行四边形法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -37771,7 +37771,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的正交分解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:正交分解法",
      "role": "PRIMARY"
     }
    ]
@@ -40551,7 +40551,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究小车速度随时间变化的规律（实验）",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究小车速度随时间变化的规律",
      "role": "PRIMARY"
     }
    ]
@@ -42571,7 +42571,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:绳连接与杆连接系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多物体系统的机械能守恒",
      "role": "PRIMARY"
     }
    ]

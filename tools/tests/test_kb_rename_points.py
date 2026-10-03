@@ -67,7 +67,10 @@ class RealPackTest(unittest.TestCase):
         # → 3572 − 2 = 3570。点数随入库轮次增长，由入库侧在提交里维护本 pin。
         # 2026-10-02 建点闭环：块池判定提案建 304 点、撤回 8 点（块过薄写不出材料）
         # → 3570 + 304 − 8 = 3866。
-        self.assertEqual(3866, dp._point_count(pack))
+        # 2026-10-03 批次 3 结构清理（staging 实读）：本轮 point_merge.csv 新增 103 行节点合并
+        # ＋改绑执行轮并入「模型特点」1 对、删空壳节点 1 个（`菠菜常用作补铁食品之一-…`，
+        # 三条材料按 round2 裁定改绑后归零）→ 3866 − 103 − 1 − 1 = 3761。按新实测值就地更新。
+        self.assertEqual(3761, dp._point_count(pack))
 
 
 if __name__ == "__main__":

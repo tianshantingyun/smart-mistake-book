@@ -1071,7 +1071,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题的分析易错-整体法与隔离法应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -1131,7 +1131,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:同条件同加速度轻绳连接体动力学的计算问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体中力的分配规律",
      "role": "PRIMARY"
     }
    ]
@@ -1171,7 +1171,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜面模型的正交分解建系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:正交分解法",
      "role": "PRIMARY"
     }
    ]
@@ -2131,7 +2131,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:竖直面内圆周运动问题的解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:绳球模型-杆球模型两类经典模型中的临界条件-情景分析",
      "role": "PRIMARY"
     }
    ]
@@ -2951,7 +2951,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:梅涅劳斯定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:梅涅劳斯定理与塞瓦定理",
      "role": "PRIMARY"
     }
    ]
@@ -3991,7 +3991,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究结果-胡克定律-x为形变量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:胡克定律",
      "role": "PRIMARY"
     }
    ]
@@ -6551,7 +6551,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共速连接体对合力的分配原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体中力的分配规律",
      "role": "PRIMARY"
     }
    ]
@@ -7531,7 +7531,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:库仑定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:三个自由点电荷的平衡模型",
      "role": "PRIMARY"
     }
    ]
@@ -8431,7 +8431,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦-滑动摩擦-大小突减",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力的突变类问题",
      "role": "PRIMARY"
     }
    ]
@@ -9131,7 +9131,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动中与弹力有关的临界条件",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动常见的临界状态",
      "role": "PRIMARY"
     }
    ]
@@ -9351,7 +9351,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:自锁现象",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:全反力与摩擦角",
      "role": "PRIMARY"
     }
    ]
@@ -9971,7 +9971,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:同条件同加速度轻绳连接体动力学的计算问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体中力的分配规律",
      "role": "PRIMARY"
     }
    ]
@@ -12091,7 +12091,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合成与分解法则-平行四边形法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -12691,7 +12691,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究结果-胡克定律-x为形变量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:胡克定律",
      "role": "PRIMARY"
     }
    ]
@@ -14391,7 +14391,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合成与分解法则-平行四边形法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -15111,7 +15111,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合成与分解法则-平行四边形法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -15611,7 +15611,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:杨氏双缝干涉",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:双缝干涉实验的创新方案",
      "role": "PRIMARY"
     }
    ]
@@ -18371,7 +18371,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体间内力的求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -19191,7 +19191,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究结果-胡克定律-x为形变量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:胡克定律",
      "role": "PRIMARY"
     }
    ]
@@ -22811,7 +22811,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究结果-胡克定律-x为形变量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:胡克定律",
      "role": "PRIMARY"
     }
    ]
@@ -25711,7 +25711,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量关系的实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -29431,7 +29431,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:验证力的平行四边形定则实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究互成角度力的合成规律实验",
      "role": "PRIMARY"
     }
    ]
@@ -31251,7 +31251,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体中力的分配规律",
      "role": "PRIMARY"
     }
    ]
@@ -32971,7 +32971,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线的弦长问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线的弦长公式",
      "role": "PRIMARY"
     }
    ]
@@ -35331,7 +35331,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究结果-胡克定律-x为形变量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:胡克定律",
      "role": "PRIMARY"
     }
    ]
@@ -40051,7 +40051,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:比值定义法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:比值定义法与决定式的区别",
      "role": "PRIMARY"
     }
    ]
@@ -40491,7 +40491,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究小车速度随时间变化的规律（实验）",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究小车速度随时间变化的规律",
      "role": "PRIMARY"
     }
    ]
@@ -40571,7 +40571,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合成与分解法则-平行四边形法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -40871,7 +40871,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体中力的分配规律",
      "role": "PRIMARY"
     }
    ]

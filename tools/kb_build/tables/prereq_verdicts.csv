@@ -109,7 +109,7 @@ MATH,忽视对公比q的讨论致错,忽略建系的条件而出错,unrelated,�
 MATH,求解等差数列基本量的策略,求解几何体外接球的半径的思路,unrelated,外接球与等差数列基本量无关
 MATH,等差数列前n项和性质的应用,等差数列与等比数列新背景问题,unrelated,新背景问题是综合应用非性质前提
 MATH,求解等比数列基本量的策略,求解等差数列基本量的策略,unrelated,等差等比五量策略平行
-MATH,数列的递推公式,逆序相加法求数列的前n项和,unrelated,递推公式与逆序相加法平行
+MATH,数列的递推公式,倒序相加法,unrelated,递推公式与逆序相加法平行
 MATH,特征根法与不动点法,点到直线的距离,unrelated,点到直线距离与不动点法无关
 MATH,分组转化法,分层随机抽样,unrelated,分层抽样与分组转化法无关
 MATH,求和问题,正态分布,unrelated,正态分布与数列求和无关
@@ -119,7 +119,7 @@ MATH,裂项相消求和时遗漏剩余项致错,表面积与体积,unrelated,表
 MATH,累加法与累乘法求数列通项,简单随机抽样,unrelated,简单随机抽样与累加累乘无关
 MATH,构造法求数列通项,极值点偏移问题,unrelated,极值点偏移与构造法无关
 MATH,取倒数法求数列通项,动点问题没有取舍,unrelated,动点取舍与取倒数法无关
-MATH,逆序相加法求数列的前n项和,过定点的多切线问题,unrelated,切线问题与数列求和法跨章无依赖
+MATH,倒序相加法,过定点的多切线问题,unrelated,切线问题与数列求和法跨章无依赖
 MATH,裂项相消法中常见的裂项技巧,裂项相消求和时遗漏剩余项致错,inverted,易错点依赖裂项技巧的使用，方向反
 MATH,导数的概念,导数的几何意义,inverted,几何意义建立在导数概念之上，方向反
 MATH,导数的几何意义,导数与零点,unrelated,零点是平行应用，非几何意义前置
@@ -248,7 +248,7 @@ PHYSICS,追及问题的常见类型,连接体问题,unrelated,运动学追及与
 PHYSICS,非惯性参考系,非弹性碰撞和完全非弹性碰撞,unrelated,参考系与动量碰撞无前置关系
 PHYSICS,对牛顿第三定律的理解,对心碰撞,unrelated,碰撞依赖动量而非牛顿第三定律
 PHYSICS,等时圆使用条件,碰撞中的-时间极短-的含义,unrelated,圆周模型与碰撞术语无关
-PHYSICS,模型示意图,模型特点,unrelated,力的示意图与动量模型无关
+PHYSICS,模型示意图,子弹打木块模型,unrelated,力的示意图与动量模型无关
 PHYSICS,几种等时圆模型分析,几何光学中的范围和临界问题,unrelated,力学模型与光学问题无关
 PHYSICS,连接体问题,连接体的运动特点,valid,列方程依赖绳杆速度加速度约束
 PHYSICS,连接体的运动特点,运动的对称性,unrelated,约束关系与匀变速时间对称无关
@@ -259,7 +259,6 @@ PHYSICS,临界-极值问题,三类情况分析,inverted,一般临界极值方法
 PHYSICS,求解的基本思路,水平转盘上运动物体模型,unrelated,上下文不足，转盘模型非其前提
 PHYSICS,运动特征,运动的合成与分解,inverted,曲线运动速度特点先于合成分解
 PHYSICS,核心思想-运动分解,极限思想,unrelated,同章平行思想方法
-PHYSICS,核心思想-运动分解-x1,核心思想-运动分解,unrelated,同一思想重复条目
 PHYSICS,斜面碰撞临界,摩擦力的突变类问题,unrelated,抛体临界状态与摩擦突变无关
 PHYSICS,按运动独立性建立坐标系,折射率,unrelated,抛体运动与光学无关
 PHYSICS,逆向思维,追及问题的常见类型,unrelated,竖直上抛逆推与追及问题无关
@@ -268,7 +267,7 @@ PHYSICS,极限思想,板块模型,unrelated,抛体极限分析与板块模型无
 PHYSICS,水平转盘上运动物体模型,横波,unrelated,圆周运动与机械波无关
 PHYSICS,圆锥摆的两种变形,圆周运动的经典模型和应用,valid,变形依赖圆锥摆基本模型
 PHYSICS,三类情况分析,三种光学模型的光路特点,unrelated,圆周临界问题与光路模型无关
-PHYSICS,脱轨条件与类型,胡克定律,unrelated,脱轨为支持力为零，不涉及弹簧
+PHYSICS,绳球模型-杆球模型两类经典模型中的临界条件-情景分析,胡克定律,unrelated,脱轨为支持力为零，不涉及弹簧
 PHYSICS,质点,薄膜干涉的应用,unrelated,运动学概念与光学干涉无关
 PHYSICS,参考系,单摆,unrelated,参考系与机械振动无关
 PHYSICS,位移,伽利略斜面实验,unrelated,斜面实验不是位移概念的前提
@@ -282,7 +281,7 @@ PHYSICS,作用力与反作用力,位移时间公式,unrelated,牛顿第三定律
 PHYSICS,速度时间公式,速度位移公式,unrelated,同一定义导出的平行公式
 PHYSICS,位移时间公式,位移,valid,公式建立在位移概念之上
 PHYSICS,速度位移公式,速度,valid,公式建立在速度概念之上
-PHYSICS,自由落体运动,脱轨条件与类型,unrelated,自由落体与圆周脱轨无关
+PHYSICS,自由落体运动,绳球模型-杆球模型两类经典模型中的临界条件-情景分析,unrelated,自由落体与圆周脱轨无关
 PHYSICS,静摩擦力,重力,unrelated,重力与摩擦力为平行力概念
 PHYSICS,滑动摩擦力,流体模型,unrelated,摩擦力与动量流体模型无关
 PHYSICS,力的分解,初速度为零的几个重点推论,unrelated,力的分解与运动学推论无关
@@ -538,7 +537,7 @@ PHYSICS,核裂变,核聚变,unrelated,裂变与聚变为平行反应类型
 PHYSICS,核聚变,核反应的判断-方程与应用,valid,核反应方程通则先于聚变方程
 PHYSICS,光的波粒二象性,光电效应的图像问题,unrelated,图像问题是子应用非二象性前置
 PHYSICS,核力,晶体,unrelated,晶体与核力无关
-PHYSICS,常见的图象,小量程电流表-表头,unrelated,表头与力学常见图像无关
+PHYSICS,常见的图象,电表的改装,unrelated,表头与力学常见图像无关
 PHYSICS,动力学中的经典模型,分析板块模型的思路,inverted,板块思路是经典模型的子内容，框架先行
 PHYSICS,弹簧不锁定模型,常见的导出单位,unrelated,力学模型与导出单位无前置关系
 PHYSICS,常见的导出单位,常见的图象,unrelated,导出单位与运动图象分属不同主题
@@ -568,12 +567,12 @@ CHEMISTRY,物理变化,焰色试验的应用,unrelated,焰色试验是物理变�
 CHEMISTRY,化学变化,化合价,unrelated,化学变化与化合价互不依赖
 CHEMISTRY,分散系的分类,分散系,valid,先定义分散系才能进行其分类
 CHEMISTRY,fe-oh-3胶体的制备,fe-oh-2的制备,unrelated,两种铁的氢氧化物制备为平行实验
-CHEMISTRY,常见的混合物,常见的易混淆物质变化,unrelated,混合物举例与易混淆变化互不依赖
+CHEMISTRY,物质的分类,常见的易混淆物质变化,unrelated,混合物举例与易混淆变化互不依赖
 CHEMISTRY,氧化物的类型,氧化剂,unrelated,氧化物分类与氧化剂概念无关
 CHEMISTRY,各类物质的化学通性,反应原理,inverted,物质通性是理解具体反应原理的基础
 CHEMISTRY,胶体的性质及应用,胶体,valid,先有胶体概念再学其性质应用
 CHEMISTRY,对物质的元素组成的几个误区,对氧化物认识的几个误区,unrelated,两组误区清单为平行易错点
-CHEMISTRY,常见的物质分类的几个误区,常见的混合物,unrelated,分类误区不以混合物举例为前置
+CHEMISTRY,常见的物质分类的几个误区,物质的分类,unrelated,分类误区不以混合物举例为前置
 CHEMISTRY,常见的易混淆物质变化,常见的与量无关的离子反应,unrelated,易混淆变化与离子反应清单无关
 CHEMISTRY,物质间转化的5个常见易错点,物质的量浓度,unrelated,转化易错点与物质的量浓度无关
 CHEMISTRY,胶体知识易错点,胶体的性质及应用,valid,胶体易错点需先掌握胶体知识
@@ -614,21 +613,20 @@ CHEMISTRY,焰色试验,焰色反应,valid,焰色试验基于焰色反应现象
 CHEMISTRY,化学性质,化学变化,unrelated,化学变化是基础常识非直接前置
 CHEMISTRY,钠的制取及保存,钠和钠的氧化物易错知识点,unrelated,易错点非制取及保存的前置
 CHEMISTRY,钠的用途,钠的制取及保存,unrelated,钠的用途不依赖其制取与保存
-CHEMISTRY,金属钠露置在空气中的变化过程,金属腐蚀的类型,unrelated,金属腐蚀类型属选必1与此无关
+CHEMISTRY,金属钠露置在空气中的变化过程,金属的腐蚀,unrelated,金属腐蚀类型属选必1与此无关
 CHEMISTRY,碳酸钠与碳酸氢钠的相互转化,碳酸钠,valid,相互转化需先认识碳酸钠
 CHEMISTRY,联合制碱法-侯氏制碱法,红色物质cu和cu2o的检验,unrelated,铜检验方法与侯氏制碱法无关
 CHEMISTRY,碱金属的一般性与特殊性,碱金属元素易错知识点,inverted,易错点是碱金属知识的延伸
 CHEMISTRY,焰色反应,热重分析确定金属化合物的组成,unrelated,热重分析与焰色反应无关联
 CHEMISTRY,钠与水及酸-碱-盐溶液的反应,金属钠露置在空气中的变化过程,inverted,露置变化是钠与水等反应的综合
-CHEMISTRY,na2o2的性质及应用,na22,unrelated,强氧化性是Na2O2性质的一个侧面
-CHEMISTRY,nahco3与碱反应的应用,na2o2的性质及应用,unrelated,过氧化钠与碳酸氢钠应用无关
+CHEMISTRY,nahco3与碱反应的应用,过氧化钠,unrelated,过氧化钠与碳酸氢钠应用无关
 CHEMISTRY,制备原料,制取cl2装置的创新,unrelated,装置创新不是制备原料的前置
 CHEMISTRY,反应原理,原子结构,unrelated,原子结构非氯反应原理的前置
 CHEMISTRY,焰色试验的应用,焰色试验-易错点,unrelated,易错点非焰色试验应用的前置
 CHEMISTRY,钠和钠的氧化物易错知识点,钠与水及酸-碱-盐溶液的反应,valid,易错点基于钠与酸碱盐溶液反应
 CHEMISTRY,碳酸钠和碳酸氢钠易错知识点,碳酸钠与碳酸氢钠的相互转化,valid,易错点包含两物质转化及应用
 CHEMISTRY,焰色试验-易错点,焰色试验,valid,易错点以焰色试验知识为基础
-CHEMISTRY,na22,fe2-与fe3-的相互转化,unrelated,Fe2+与Fe3+转化与过氧化钠无关
+CHEMISTRY,过氧化钠,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,unrelated,Fe2+与Fe3+转化与过氧化钠无关
 CHEMISTRY,氯气,氯及其化合物的知识盲点,inverted,知识盲点依赖氯气等基础知识
 CHEMISTRY,氯水的成分,氯气,valid,氯水由氯气溶于水形成
 CHEMISTRY,漂白粉,溶液的配制误差分析,unrelated,溶液配制误差分析与漂白粉无关
@@ -647,23 +645,20 @@ CHEMISTRY,物质的量-阿伏加德罗常数,物质的量,valid,需先懂物质�
 CHEMISTRY,溶液的配制误差分析,溶液的稀释和混合问题,unrelated,稀释混合与配制误差是平行应用
 CHEMISTRY,物质的量,物质的组成,valid,物质的量以认识物质组成为基础
 CHEMISTRY,物质的量浓度,物质的量-阿伏加德罗常数,valid,浓度定义c=n/V依赖物质的量
-CHEMISTRY,铁的氧化物,铁的氢氧化物的稳定性,unrelated,铁的氧化物不依赖氢氧化物稳定性
-CHEMISTRY,铁的氢氧化物,铁的原子结构和存在,unrelated,铁原子结构非氢氧化物学习前置
-CHEMISTRY,铁盐,铁的物理性质,unrelated,铁盐与铁的物理性质无关联
-CHEMISTRY,亚铁盐,了解电镀原理,unrelated,电镀原理与亚铁盐无前置关系
-CHEMISTRY,合金,各类物质的化学通性,unrelated,物质通性与合金概念无前置关系
-CHEMISTRY,铁的物理性质,铁的氧化物组成的确定,unrelated,氧化物组成确定与铁物理性质无关
+CHEMISTRY,铁的氧化物,铁的氢氧化物,unrelated,铁的氧化物不依赖氢氧化物稳定性
+CHEMISTRY,铁的氢氧化物,铁,unrelated,铁原子结构非氢氧化物学习前置
+CHEMISTRY,铁盐,铁,unrelated,铁盐与铁的物理性质无关联
+CHEMISTRY,亚铁盐,电镀与电解精炼,unrelated,电镀原理与亚铁盐无前置关系
+CHEMISTRY,合金的概念及性能,各类物质的化学通性,unrelated,物质通性与合金概念无前置关系
+CHEMISTRY,铁,铁的氧化物组成的确定,unrelated,氧化物组成确定与铁物理性质无关
 CHEMISTRY,铁的化学性质,铁的制备和性质,inverted,化学性质是制备与性质主题的一部分
-CHEMISTRY,铁盐的性质及应用,铁盐,valid,性质应用建立在铁盐知识之上
-CHEMISTRY,fe2-与fe3-的相互转化,fe-oh-3胶体的制备,unrelated,胶体制备非Fe2+与Fe3+转化的前置
-CHEMISTRY,铁的制备和性质,铁及其化合物的转化,inverted,转化关系图基于铁及其化合物性质
+CHEMISTRY,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,fe-oh-3胶体的制备,unrelated,胶体制备非Fe2+与Fe3+转化的前置
+CHEMISTRY,铁的制备和性质,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,inverted,转化关系图基于铁及其化合物性质
 CHEMISTRY,铁与水蒸气反应的注意事项,钠的用途,unrelated,钠的用途与铁水蒸气反应无关
-CHEMISTRY,铁的氢氧化物的稳定性,铁的氢氧化物,valid,稳定性是铁的氢氧化物的性质
 CHEMISTRY,铁的氧化物组成的确定,铁的氧化物,valid,确定组成需先掌握铁的氧化物种类与铁价
 CHEMISTRY,电解和电解池,电解原理易错点,inverted,易错点是电解基础的派生 方向反
 CHEMISTRY,电解饱和食盐水-氯碱工业,电解质的电离的-易错点,unrelated,易错点总结非氯碱工业的前置
-CHEMISTRY,金属腐蚀的类型,金属腐蚀的本质,valid,本质失电子是划分腐蚀类型的基础
-CHEMISTRY,了解电镀原理,主要仪器,unrelated,仪器知识不是电镀原理的前置
+CHEMISTRY,电镀与电解精炼,主要仪器,unrelated,仪器知识不是电镀原理的前置
 CHEMISTRY,设计和制作一个氢氧燃料电池,胶体知识易错点,unrelated,胶体易错点与燃料电池无关
 CHEMISTRY,电解水,电解和电解池,valid,电解水是电解基础的具体应用
 CHEMISTRY,制作一个氢氧燃料电池,分析电解过程的思维程序,unrelated,燃料电池属原电池 与电解程序无关
@@ -672,24 +667,23 @@ CHEMISTRY,电解原理应用的四点注意事项,电荷守恒在离子推断中
 CHEMISTRY,分析电解过程的思维程序,分散系的分类,unrelated,分散系分类与电解分析无关
 CHEMISTRY,镁的化学性质,镁及其化合物的难点释疑,inverted,难点释疑是镁性质基础的派生 方向反
 CHEMISTRY,镁的重要化合物,镁的化学性质,unrelated,单质与化合物是平行内容
-CHEMISTRY,海水提取镁,海水提取溴,unrelated,平行工艺流程 无前置关系
+CHEMISTRY,海水提镁的工艺流程分析,海水提取溴,unrelated,平行工艺流程 无前置关系
 CHEMISTRY,单质铜的化学性质,化学键,unrelated,化学键理论非铜性质的前置
 CHEMISTRY,氢氧化铜,气体摩尔体积,unrelated,气体摩尔体积与氢氧化铜无关
 CHEMISTRY,铜盐,铜及其化合物的易错点,inverted,易错点是铜化合物基础的派生 方向反
-CHEMISTRY,金属矿物的开发利用,金属材料和金属的冶炼易错点,inverted,易错点是冶炼基础的派生 方向反
-CHEMISTRY,海水提镁的工艺流程分析,海水提取镁,valid,流程分析需先掌握提镁工艺
-CHEMISTRY,铜及其化合物的性质,铁盐的性质及应用,unrelated,铜化合物与铁盐是平行内容
+CHEMISTRY,金属冶炼,金属材料和金属的冶炼易错点,inverted,易错点是冶炼基础的派生 方向反
+CHEMISTRY,铜及其化合物的性质,铁盐,unrelated,铜化合物与铁盐是平行内容
 CHEMISTRY,红色物质cu和cu2o的检验,离子键,unrelated,离子键与cu和cu2o检验无关
 CHEMISTRY,镁及其化合物的难点释疑,铜盐,unrelated,铜盐与镁化合物无关
 CHEMISTRY,金属及其化合物的制备,还原剂,valid,冶炼属氧化还原 需先掌握还原剂
 CHEMISTRY,热重分析确定金属化合物的组成,漂白粉,unrelated,漂白粉与热重分析无关
 CHEMISTRY,铜及其化合物的易错点,铜及其化合物的性质,valid,易错点建立在性质基础之上
-CHEMISTRY,铁及其化合物的转化,铁与水蒸气反应的注意事项,unrelated,具体反应注意事项非整体转化前置
+CHEMISTRY,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,铁与水蒸气反应的注意事项,unrelated,具体反应注意事项非整体转化前置
 CHEMISTRY,有关铁及其化合物的除杂,忽视溶液中水的存在,unrelated,溶液中的水属计算易错点 与除杂无关
-CHEMISTRY,铁的原子结构和存在,铁的化学性质,inverted,结构是性质基础 方向反
+CHEMISTRY,铁,铁的化学性质,inverted,结构是性质基础 方向反
 CHEMISTRY,常见金属材料,常见的物质分类的几个误区,unrelated,物质分类误区与金属材料无关
-CHEMISTRY,金属材料和金属的冶炼易错点,金属材料,valid,易错点建立在金属材料基础之上
-CHEMISTRY,金属材料,金属及其化合物的制备,unrelated,合金概念与制备技法平行
+CHEMISTRY,金属材料和金属的冶炼易错点,常见金属材料,valid,易错点建立在金属材料基础之上
+CHEMISTRY,常见金属材料,金属及其化合物的制备,unrelated,合金概念与制备技法平行
 CHEMISTRY,核素,有关铁及其化合物的除杂,unrelated,核素概念与铁除杂无关
 CHEMISTRY,离子键,离子方程式,unrelated,离子键属结构概念 与离子方程式无关
 CHEMISTRY,电子式,物质间转化的5个常见易错点,unrelated,电子式与转化易错点无关
@@ -887,7 +881,7 @@ CHEMISTRY,溶液的ph,溶液中微粒种类的判断,unrelated,pH定义不依赖
 CHEMISTRY,水的离子积常数,水的电离易错-七-点,inverted,KW由水电离定义，先于其易错点，方向反
 CHEMISTRY,水的电离平衡移动的影响因素,水的电离,valid,先有水的电离，再分析条件使其平衡移动
 CHEMISTRY,溶液的酸碱性,溶液的ph,inverted,酸碱性由氢氧离子相对大小定，先于pH
-CHEMISTRY,外界条件对水的电离平衡的影响,基本概念,unrelated,单体链节聚合度属高分子，与水电离无关
+CHEMISTRY,水的电离平衡移动的影响因素,基本概念,unrelated,单体链节聚合度属高分子，与水电离无关
 CHEMISTRY,水的电离易错-七-点,水的电离平衡移动的影响因素,valid,易错点针对水电离移动规律，须先懂影响因素
 CHEMISTRY,沉淀溶解平衡,水的离子积常数,unrelated,溶度积基于平衡常数，Kw仅作类比非必需
 CHEMISTRY,影响沉淀溶解平衡的因素,强电解质与弱电解质,unrelated,沉淀溶解平衡移动靠平衡分析，与强弱电解质无关
@@ -942,7 +936,7 @@ CHEMISTRY,炔烃,滴定曲线,unrelated,滴定曲线与炔烃无关
 CHEMISTRY,烯烃的顺反异构,烯烃的化学性质,unrelated,顺反异构取决于结构，与化学性质无关
 CHEMISTRY,烯烃的化学性质,烯烃,valid,化学性质需先认识烯烃
 CHEMISTRY,炔烃的化学性质,炔烃,valid,化学性质需先认识炔烃
-CHEMISTRY,金属腐蚀的本质,金属矿物的开发利用,unrelated,金属冶炼与腐蚀机理无关
+CHEMISTRY,金属的腐蚀,金属冶炼,unrelated,金属冶炼与腐蚀机理无关
 CHEMISTRY,芳香烃,脂肪烃的结构和性质易混易错点,unrelated,脂肪烃易错点与芳香烃无关
 CHEMISTRY,芳香烃的用途及对环境的影响,芳香烃,valid,用途需先认识芳香烃
 CHEMISTRY,芳香烃的结构和性质易混易错点,芳香烃的用途及对环境的影响,unrelated,用途影响与易错点互非前置
@@ -968,7 +962,7 @@ CHEMISTRY,常见有机合成路线,常见有机反应类型总结,valid,合成�
 CHEMISTRY,有机合成中碳骨架的构建,有机化合物的空间结构,unrelated,碳骨架构建靠成键反应与空间模型无关
 CHEMISTRY,糖类的组成和分类,糖类,valid,先知糖类概念再学组成和分类
 CHEMISTRY,单糖,化学平衡的移动,unrelated,单糖与化学平衡属不同领域
-CHEMISTRY,多糖-淀粉与纤维素,外界条件对水的电离平衡的影响,unrelated,多糖与水电离平衡无关
+CHEMISTRY,多糖-淀粉与纤维素,水的电离平衡移动的影响因素,unrelated,多糖与水电离平衡无关
 CHEMISTRY,糖类的结构和性质,糖类的组成和分类,valid,先分类再逐类学结构和性质
 CHEMISTRY,糖类的结构和性质易混易错点,糖类的结构和性质,valid,易错点在主干之后依赖主干
 CHEMISTRY,蛋白质,蒸馏,unrelated,蒸馏是分离方法非蛋白质前置
@@ -981,7 +975,7 @@ CHEMISTRY,合成高分子,反应热,unrelated,合成高分子与反应热无关
 CHEMISTRY,合成高分子的结构和性质,合成高分子,valid,先知合成高分子再学结构和性质
 CHEMISTRY,有关合成高分子的易混易错点,有关ksp的易错点,unrelated,Ksp属溶解平衡与高分子无关
 CHEMISTRY,聚合反应及聚合物单体的判断,羧酸的结构和性质,valid,缩聚单体判断依赖羧基成酯知识
-CHEMISTRY,基本概念,含铝物质的制备和转化,unrelated,含铝物质与高分子基本概念无关
+CHEMISTRY,基本概念,铝及其化合物之间的性质与应用,unrelated,含铝物质与高分子基本概念无关
 CHEMISTRY,苯分子的空间结构,芳香烃的结构和性质易混易错点,inverted,易错点以苯空间结构为前提方向反
 CHEMISTRY,高分子的分类及性质特点,键能,unrelated,键能属反应热与高分子分类无关
 CHEMISTRY,有机物的结构特点,有机合成,inverted,结构特点是有机合成的基础方向反
@@ -1001,8 +995,8 @@ CHEMISTRY,酚的结构和性质,酚的概念和物理性质,valid,概念和物�
 CHEMISTRY,醛-酮的概念,醛-酮的化学性质,inverted,概念先于化学性质方向反
 CHEMISTRY,几种重要的醛-酮,共价键,unrelated,共价键过泛非真前置
 CHEMISTRY,醛-酮的化学性质,醛-酮在有机合成中的应用,inverted,应用依赖化学性质方向反
-CHEMISTRY,醛和酮的结构和性质,醛-酮的概念,valid,先知醛酮概念再学结构和性质
-CHEMISTRY,醛和酮的结构和性质易混易错点,醛和酮的结构和性质,valid,易错点以醛酮主干为前提
+CHEMISTRY,醛-酮的化学性质,醛-酮的概念,valid,先知醛酮概念再学结构和性质
+CHEMISTRY,醛和酮的结构和性质易混易错点,醛-酮的化学性质,valid,易错点以醛酮主干为前提
 CHEMISTRY,酯和油脂的结构和性质,酚的结构和性质,unrelated,酯依赖羧酸与醇与酚无关
 CHEMISTRY,油脂,沉淀滴定法,unrelated,沉淀滴定与油脂无关
 CHEMISTRY,胺-酰胺的结构和性质,胺-酰的结构和性质,unrelated,两节点实为同一主题重复
@@ -1021,7 +1015,7 @@ CHEMISTRY,铝的制备和用途,铝及其化合物的易错点,unrelated,易错�
 CHEMISTRY,氧化铝的性质与应用,氧化还原反应概念的-易错点,unrelated,氧化铝反应非氧化还原无关
 CHEMISTRY,氢氧化铝的性质与制备,气体制备,unrelated,氢氧化铝制备属物质制备话题，与气体制备实验操作无关
 CHEMISTRY,铝及其化合物之间的性质与应用,铝元素的原子结构和存在,unrelated,铝的原子结构与存在是背景知识，非化合物性质必学前置
-CHEMISTRY,含铝物质的制备和转化,合成高分子的结构和性质,unrelated,合成高分子与含铝物质制备转化毫无关系
+CHEMISTRY,铝及其化合物之间的性质与应用,合成高分子的结构和性质,unrelated,合成高分子与含铝物质制备转化毫无关系
 CHEMISTRY,铝及其化合物的易错点,铝及其化合物之间的性质与应用,valid,易错点派生自核心内容，须先学性质与应用
 CHEMISTRY,药品取用,范德华力,unrelated,药品取用是基础实验操作，与范德华力无关
 CHEMISTRY,气体制备,根据反应事实判断性质的强弱,unrelated,气体制备是实验操作，氧化性比较属另一话题

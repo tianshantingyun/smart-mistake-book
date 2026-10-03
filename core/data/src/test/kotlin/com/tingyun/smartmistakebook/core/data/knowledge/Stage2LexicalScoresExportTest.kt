@@ -63,7 +63,8 @@ class Stage2LexicalScoresExportTest {
         )
         assertEquals("金标 sha256 应等于 Stage-2 规格 §1.2 的封存值", FROZEN_GOLDEN_SHA256, goldenSha256)
         val cases = RetrievalBenchmark.loadGoldenCases(goldenFile)
-        assertEquals("冻结金标集条数应为 130（判官 v2）", 130, cases.size)
+        // 2026-10-03 批次 3：金标迁移 130 → 129（1 条退役、4 条按幸存者改指）。
+        assertEquals("冻结金标集条数应为 129（判官 v2，2026-10-03 迁移后）", 129, cases.size)
         assertEquals("冻结金标集章数应为 20（判官 v2；每章条数不等）", 20, cases.map { it.chapter }.distinct().size)
 
         val pack = BundledKnowledgePackResources.load().single { it.packId == PACK_ID }
@@ -164,16 +165,13 @@ class Stage2LexicalScoresExportTest {
                     " | rank=" + (if (probeRank > 0) probeRank.toString() else "absent")
             }
 
-        // **数值锚：2026-10-02 按判官 v2 实测重钉。** 旧锚（59 / 0.6555555555555556 /
-        // 0.5568518518518518）是 v1 金标（90 条）+ 旧包时代的臂 A 判读数。判官 v2（130 条 / 20 章，
-        // sha 89c1d5b5…）+ 当前随包（3,570 原子节点 + 398 topic = 3,968 节点 / 36,749 别名）下，
-        // 本轮 gradle 门实测 + 本文件回读重算：主集 82/130 = 0.6307692307692307、MRR =
-        // 0.49269230769230776（与同轮 `build/stage1-metrics-A.txt` 的 `Recall@5(主集)=…` 及
-        // `build/stage1-verdict.json` 臂 A 的 `mrr` 逐位一致）。这是数据变化（判官扩集 + 换包）
-        // 导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
-        assertEquals("回读重算的臂 A 主集命中数应为 82/130（判官 v2 + 当前包实测）", 82, hits)
-        assertEquals("回读重算的臂 A 主集 Recall@5 应为 0.6307692307692307", ARM_A_MAIN, main, 0.0)
-        assertEquals("回读重算的臂 A MRR 应为 0.49269230769230776", ARM_A_MRR, mrr, 0.0)
+        // **数值锚：2026-10-03 三次重钉（批次 3：近重复节点合并 3,866 → 3,761 + 金标迁移 130 → 129）。**
+        // 本轮回读重算：主集 84/129 = 0.6511627906976745、MRR = 0.4948320413436693。上一代 = 82/130 =
+        // 0.6307692307692307 / 0.4920512820512821；旧锚（59 / 0.6555555555555556 / 0.5568518518518518）= v1 金标 90 条时代。
+        // 这是数据变化（判官条数与包换代）导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
+        assertEquals("回读重算的臂 A 主集命中数应为 84/129（判官 v2 迁移后 + 3,761 包实测）", 84, hits)
+        assertEquals("回读重算的臂 A 主集 Recall@5 应为 0.6511627906976745", ARM_A_MAIN, main, 0.0)
+        assertEquals("回读重算的臂 A MRR 应为 0.4948320413436693", ARM_A_MRR, mrr, 0.0)
 
         // ---- 与 build/stage1-metrics-A.txt 逐行对账（含逐题 MISS 的集合与 rank） ----
         val metricsFile = File(repoRoot, "build/stage1-metrics-A.txt")
@@ -234,19 +232,22 @@ class Stage2LexicalScoresExportTest {
          * 判官封存值。**2026-09-28 随 v1→v2 扩集迁移**（90→130 条，见
          * `docs/kb-golden-v2-protocol.md`）；v1 的 `7c004b76…` 是历史封存。
          * 本测试复核的是"当前生效判官"的 sha，所以它必须跟着判官走。
+         *
+         * **2026-10-03 随批次 3（近重复节点合并）迁移**：130 → 129 条（1 条退役、4 条按
+         * 幸存者改指），sha `89c1d5b5…` → 本值；记录见 `docs/kb-golden-v2-protocol.md`。
          */
-        const val FROZEN_GOLDEN_SHA256 = "89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d"
+        const val FROZEN_GOLDEN_SHA256 = "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e"
 
         /**
          * Stage-1 判读数（`build/stage1-metrics-A.txt`）——回读重算必须逐位复现。
          *
-         * **2026-10-02 二次重钉**：建点闭环给包加了 296 个新点 / 578 个新别名（3,866 节点 /
-         * 37,327 别名、材料 50,383）后臂 A = 0.6307692307692307 / 0.4920512820512821
-         * （上一代 0.49269230769230776 = v2 判官 + v8 包时代）。旧锚
-         * 0.6555555555555556 / 0.5568518518518518 = v1 金标 90 条 + 旧包时代的判读数。
+         * **2026-10-03 三次重钉**（批次 3：近重复节点合并 3,866 → 3,761 + 金标迁移 130 → 129）：
+         * 臂 A 主集 **84/129 = 0.6511627906976745**、MRR **0.4948320413436693**（命中数 82 → 84）；上一代
+         * 0.6307692307692307 / 0.4920512820512821 = v2 判官 130 条 + 3,866 包时代；
+         * 更旧 0.6555555555555556 / 0.5568518518518518 = v1 金标 90 条 + 旧包时代。
          */
-        const val ARM_A_MAIN = 0.6307692307692307
-        const val ARM_A_MRR = 0.4920512820512821
+        const val ARM_A_MAIN = 0.6511627906976745
+        const val ARM_A_MRR = 0.4948320413436693
 
         const val ATOMIC_SUFFIX = ":atomic:"
     }

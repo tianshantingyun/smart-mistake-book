@@ -80,7 +80,12 @@ class RealPackTest(unittest.TestCase):
         # → 3572 − 2 = 3570。点数随入库轮次增长，由入库侧在提交里维护本 pin。
         # 2026-10-02 建点闭环：块池判定提案建 304 点、撤回 8 点（块过薄写不出材料）
         # → 3570 + 304 − 8 = 3866。
-        self.assertEqual(3866, dp._point_count(pack))
+        # 2026-10-03 批次 3 结构清理（staging 实读）：本轮 point_merge.csv 新增 103 行同章同名/
+        # 近重复节点合并（另一阶段落表），改绑执行轮再并入「模型特点」→「子弹打木块模型」1 对
+        # （唯一材料本属三电荷节点、按 round2 裁定改绑后归零），并删除 1 个空壳节点
+        # （`菠菜常用作补铁食品之一-…`，3 条材料全为误绑、改绑后归零）→ 3866 − 103 − 1 − 1 = 3761。
+        # 点数随入库/结构清理轮次变化，由执行轮在提交里维护本 pin。
+        self.assertEqual(3761, dp._point_count(pack))
 
     def test_purge_table_refs_is_clean_on_shipped(self):
         """成品已删过点、外部表已清过——再 purge 必须 0（无悬空引用残留）。"""

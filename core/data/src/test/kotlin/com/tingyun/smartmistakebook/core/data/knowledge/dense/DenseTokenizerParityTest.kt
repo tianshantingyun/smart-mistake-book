@@ -27,7 +27,9 @@ class DenseTokenizerParityTest {
         val cases = parseCases()
         assertEquals(
             "fixture 分档条数变了（fixture 被改过或生成脚本漂移）",
-            mapOf("query" to 130, "surface" to 200, "edge" to 18, "stage" to 25),
+            // query 130 → 129：2026-10-03 批次 3 金标迁移（1 条退役）后 fixture 随生成脚本重出；
+            // surface/edge/stage 三档与金标无关，未变。
+            mapOf("query" to 129, "surface" to 200, "edge" to 18, "stage" to 25),
             cases.groupingBy { it.kind }.eachCount(),
         )
         val failures = mutableListOf<String>()

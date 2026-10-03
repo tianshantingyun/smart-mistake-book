@@ -45,7 +45,8 @@ class Stage1LexicalLabTest {
             goldenSha256,
         )
         val cases = RetrievalBenchmark.loadGoldenCases(goldenFile)
-        assertEquals("冻结金标集条数应为 130（判官 v2）", 130, cases.size)
+        // 2026-10-03 批次 3：金标迁移 130 → 129（1 条退役、4 条按幸存者改指）。
+        assertEquals("冻结金标集条数应为 129（判官 v2，2026-10-03 迁移后）", 129, cases.size)
         assertTrue("金标集应覆盖 4 科", cases.map { it.subject }.toSet().size == 4)
         assertEquals(
             "冻结金标集章数应为 20（判官 v2；每章条数不等，不再断言'每章条数一致'）",
@@ -208,14 +209,18 @@ class Stage1LexicalLabTest {
                 it.route == Stage1Experiment.V1_ROUTE && it.shape == Stage1Experiment.SHAPE_LEGACY_PRODUCTION
             }
             assertEquals(
-                "v1 旧生产形（parents 前置）主集应等于 v2 口径实测值 0.49230769230769234" +
-                    "（历史记账格，64/130；判官 v2 + 当前包实测 2026-10-02；v1 金标 90 条时代该格 = 预注册基线 0.5444）",
-                0.49230769230769234, v1LegacyProd.main, 1e-4,
+                // 2026-10-03 三次重钉（批次 3：近重复节点合并 3,866 → 3,761 + 金标迁移 130 → 129）：
+                // 该历史记账格实测主集 0.4806201550387597（62/129）；上一代 = 0.49230769230769234
+                // （64/130；判官 v2 + 3,866 包，2026-10-02）；v1 金标 90 条时代 = 预注册基线 0.5444（49/90）。
+                // 重钉的只是钉子的值（数据变化），容差 1e-4 未动。
+                "v1 旧生产形（parents 前置）主集应等于 v2 口径实测值 0.4806201550387597" +
+                    "（历史记账格，62/129；判官 v2 迁移后 + 3,761 包实测 2026-10-03；v1 金标 90 条时代该格 = 预注册基线 0.5444）",
+                0.4806201550387597, v1LegacyProd.main, 1e-4,
             )
             assertEquals(
-                "v1 旧生产形（parents 前置）命中数应为 v2 口径实测值 64/130" +
-                    "（历史记账格；v1 金标 90 条时代该格 = 预注册基线的 49/90）",
-                64, v1LegacyProd.hits,
+                "v1 旧生产形（parents 前置）命中数应为 v2 口径实测值 62/129" +
+                    "（历史记账格；上一代 64/130；v1 金标 90 条时代该格 = 预注册基线的 49/90）",
+                62, v1LegacyProd.hits,
             )
             assertEquals(
                 // 2026-10-02 二次重钉：建点闭环给包加了 296 个新点 / 578 个新别名（3,866 节点 /
@@ -226,9 +231,9 @@ class Stage1LexicalLabTest {
                 // 重钉的只是**钉子的值**（数据变化：判官扩集 + 建点换包），**容差 1e-4 未动**；
                 // 真 SQL 预注册 MRR 0.1511 由仪表化金标测试（GoldenRetrievalInstrumentedTest）锚定，
                 // 不随本镜像格变动。
-                "v1 旧生产形（parents 前置）MRR 应等于 v2 口径实测值 0.1296153846153846" +
-                    "（历史记账，D1 前形状；旧值 0.15074074074074076，v1 金标 90 条时代）",
-                0.1296153846153846, v1LegacyProd.mrr, 1e-4,
+                "v1 旧生产形（parents 前置）MRR 应等于 v2 口径实测值 0.12441860465116276" +
+                    "（历史记账，D1 前形状；上一代 0.1296153846153846；更旧 0.15074074074074076 = v1 金标 90 条时代）",
+                0.12441860465116276, v1LegacyProd.mrr, 1e-4,
             )
             // (c) 臂 A 两套数一致：matched-only 口径 = 臂 A 的判分数；旧生产形 = scan-A-parentprefix。
             assertEquals("§10 的 A matched-only 行应等于臂 A 的判分数（同一口径）", a.main, aMatchedOnly.main, 0.0)

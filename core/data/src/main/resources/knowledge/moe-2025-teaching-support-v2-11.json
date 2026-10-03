@@ -23143,7 +23143,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对水的电离平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离平衡移动的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -26063,7 +26063,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:了解电镀原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -26083,7 +26083,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:了解电镀原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -26103,7 +26103,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解精炼铜",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -26123,7 +26123,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解精炼铜",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -26163,7 +26163,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电冶金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -26203,7 +26203,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电冶金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -26223,7 +26223,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电冶金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -26483,7 +26483,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:惰性电极电解规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:惰性电极电解的四种类型",
      "role": "PRIMARY"
     }
    ]
@@ -26623,7 +26623,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -26643,7 +26643,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -26663,7 +26663,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -26683,7 +26683,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属电化学腐蚀规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -26723,7 +26723,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:其他防护方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的防护",
      "role": "PRIMARY"
     }
    ]
@@ -26743,7 +26743,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属腐蚀的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -32283,7 +32283,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醛和酮的结构和性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醛-酮的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -35703,7 +35703,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关物质的量浓度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -38303,7 +38303,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫单质",
      "role": "PRIMARY"
     }
    ]
@@ -39443,7 +39443,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金的概念及性能",
      "role": "PRIMARY"
     }
    ]
@@ -39463,7 +39463,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:无机非金属材料的分类与特点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料",
      "role": "PRIMARY"
     }
    ]
@@ -51543,7 +51543,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:四种基本相互作用-引力相互作用-电磁相互作用-强相互作用和弱相互作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:常见基本粒子及其分类",
      "role": "PRIMARY"
     }
    ]

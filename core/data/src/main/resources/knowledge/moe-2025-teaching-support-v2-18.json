@@ -34807,7 +34807,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:梅涅劳斯定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:梅涅劳斯定理与塞瓦定理",
      "role": "PRIMARY"
     }
    ]

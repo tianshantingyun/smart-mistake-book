@@ -382,7 +382,7 @@ def main():
         denseAsset=dict(path=(D.DENSE_DIR_RELATIVE + "/" + D.VECTOR_FILE_NAME),
                         sha256=D.sha256_file(vector_path), count=header["count"], dim=header["dim"],
                         dtype="int8 + per-vector f32 scale（还原后再算余弦）"),
-        queryVectors="build/dense-model/int8-queries.npy（同一 int8 ONNX 对判官全量带前缀查询的输出；v2 = 130 条）",
+        queryVectors="build/dense-model/int8-queries.npy（同一 int8 ONNX 对判官全量带前缀查询的输出；v2 = 129 条，2026-10-03 迁移后）",
         queryPrefix=profile["queryPrefix"],
         nodeScore="max over the node's vectors (canonicalName + aliases) cosine",
         perCase=dict(

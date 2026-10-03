@@ -719,7 +719,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题的分析易错-整体法与隔离法应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -2439,7 +2439,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:棣莫弗定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:棣莫弗定理与1的n次方根",
      "role": "PRIMARY"
     }
    ]
@@ -2819,7 +2819,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的正交分解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:正交分解法",
      "role": "PRIMARY"
     }
    ]
@@ -8839,7 +8839,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:卫星的轨道",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:人造卫星的轨道分类与运行参数",
      "role": "PRIMARY"
     }
    ]
@@ -8859,7 +8859,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:卫星的种类",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:人造卫星的轨道分类与运行参数",
      "role": "PRIMARY"
     }
    ]
@@ -8879,7 +8879,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:卫星的种类",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:人造卫星的轨道分类与运行参数",
      "role": "PRIMARY"
     }
    ]
@@ -12879,7 +12879,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题的分析易错-整体法与隔离法应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -13139,7 +13139,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体对合力的分配原则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体中力的分配规律",
      "role": "PRIMARY"
     }
    ]
@@ -13419,7 +13419,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量关系实验的拓展与创新",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -13439,7 +13439,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧竖直悬挂实验的操作与读数要点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究弹簧弹力与形变量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -13479,7 +13479,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用力传感器或已知质量的钩码等代替弹簧测力计",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成实验的创新改进",
      "role": "PRIMARY"
     }
    ]
@@ -13499,7 +13499,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究力的合成规律实验的三个相同与三个适当",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究互成角度力的合成规律实验",
      "role": "PRIMARY"
     }
    ]
@@ -16599,7 +16599,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:狄利克雷函数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:狄利克雷函数与高斯函数",
      "role": "PRIMARY"
     }
    ]
@@ -22159,7 +22159,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在电场中的平衡问题-受力分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力电综合平衡问题的解题思路",
      "role": "PRIMARY"
     }
    ]
@@ -22799,7 +22799,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题的分析易错-整体法与隔离法应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -23499,7 +23499,7 @@
    "reviewedAtEpochMillis": 1790704279001,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁阻尼与电磁驱动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁阻尼和电磁驱动",
      "role": "PRIMARY"
     }
    ]
@@ -23639,7 +23639,7 @@
    "reviewedAtEpochMillis": 1790704279001,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁及其化合物的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -24879,7 +24879,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:无机非金属材料的分类与特点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料",
      "role": "PRIMARY"
     }
    ]
@@ -24919,7 +24919,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫单质",
      "role": "PRIMARY"
     }
    ]
@@ -24939,7 +24939,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫单质",
      "role": "PRIMARY"
     }
    ]
@@ -30039,7 +30039,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30059,7 +30059,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30079,7 +30079,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30099,7 +30099,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na22",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30139,7 +30139,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na22",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30159,7 +30159,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na22",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30179,7 +30179,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2o2的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30579,7 +30579,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠的性质与探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30599,7 +30599,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠的性质与探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30619,7 +30619,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠的性质与探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -30919,7 +30919,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:从化合价的角度判断铁的氧化物和氢氧化物的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氧化物",
      "role": "PRIMARY"
     }
    ]
@@ -30959,7 +30959,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的原子结构和存在",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
      "role": "PRIMARY"
     }
    ]
@@ -30979,7 +30979,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氢氧化物的稳定性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氢氧化物",
      "role": "PRIMARY"
     }
    ]
@@ -31019,7 +31019,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe2-与fe3-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -31039,7 +31039,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -31079,7 +31079,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe2-与fe3-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -31219,7 +31219,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -31279,7 +31279,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe2-与fe3-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -31299,7 +31299,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe2-与fe3-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -31319,7 +31319,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐的性质及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -31339,7 +31339,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁及其化合物的转化关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
      "role": "PRIMARY"
     }
    ]
@@ -31419,7 +31419,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金的概念及性能",
      "role": "PRIMARY"
     }
    ]
@@ -31459,7 +31459,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金的概念及性能",
      "role": "PRIMARY"
     }
    ]
@@ -31479,7 +31479,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合金的概念及性能",
      "role": "PRIMARY"
     }
    ]
@@ -34799,7 +34799,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -34819,7 +34819,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -34839,7 +34839,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -34859,7 +34859,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属矿物的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -34919,7 +34919,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:自然资源的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -35459,7 +35459,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提取镁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提镁的工艺流程分析",
      "role": "PRIMARY"
     }
    ]
@@ -35479,7 +35479,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提取镁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水提镁的工艺流程分析",
      "role": "PRIMARY"
     }
    ]

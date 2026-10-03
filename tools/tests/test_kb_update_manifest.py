@@ -307,9 +307,12 @@ class RealArtifactsTest(unittest.TestCase):
         # 2026-10-01：块池全量入库腾位时 point_merge.csv 新增 2 行残渣节点合并
         # （`溶质为碱的溶液-h-全部来自水的电离`、`六种表示物质变化的方程式`——两者唯一材料
         # 按内容改绑到更准的节点后归零，节点本身名字是整句/材料标题）→ 132。
-        self.assertEqual(132, kinds.get(um.KIND_MERGE, 0))
+        # 2026-10-03 批次 3：近重复节点合并（候选 156 对 → 判 MERGE 114 → 复核 AGREE 112，
+        # 落表 104 行为新增；见 docs/kb-batch3-merge-rebind-2026-10-03.md）→ point_merge 236 行。
+        self.assertEqual(236, kinds.get(um.KIND_MERGE, 0))
         # 2026-10-02 建点闭环：撤回 8 个"块过薄写不出材料"的新点 → point_delete.csv +8 行 → 192。
-        self.assertEqual(192, kinds.get(um.KIND_DELETE, 0))
+        # 2026-10-03 批次 3：改绑轮又删 1 行空操作删除（原 192 + 1）→ 193。
+        self.assertEqual(193, kinds.get(um.KIND_DELETE, 0))
 
     def test_backfilled_entries_pass_shape_check(self):
         doc = um.empty(self.pack["packId"])

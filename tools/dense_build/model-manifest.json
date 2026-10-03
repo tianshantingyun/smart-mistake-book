@@ -287,14 +287,14 @@
         "bge-queries.npy": null
       },
       "cosineAgainstStage2OfflineArmNotes": [
-        "bge-docs.npy 行数与本档不同（本档 (41193, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
-        "bge-queries.npy 行数与本档不同（本档 (130, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
+        "bge-docs.npy 行数与本档不同（本档 (41117, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
+        "bge-queries.npy 行数与本档不同（本档 (129, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
       ],
       "cosineAgainstTorchFp32": {
         "fp32Docs": 0.9999998807907104,
         "fp32Queries": 0.9999998807907104,
         "int8Docs": 0.9990096092224121,
-        "int8DocsMean": 0.9993873834609985,
+        "int8DocsMean": 0.9993876218795776,
         "int8Queries": 0.9991949200630188
       },
       "dim": 512,
@@ -315,8 +315,8 @@
           "bge-queries.npy": null
         },
         "crossArmNotes": [
-          "bge-docs.npy 行数与本档不同（本档 (41193, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
-          "bge-queries.npy 行数与本档不同（本档 (130, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
+          "bge-docs.npy 行数与本档不同（本档 (41117, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
+          "bge-queries.npy 行数与本档不同（本档 (129, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
         ],
         "note": "产物（权重-only int8）过门；路线 A（激活动态量化）的实测值在同级 comparison 里，未采用",
         "passed": true,
@@ -366,26 +366,26 @@
         "fp32Docs": {
           "dim": 512,
           "path": "build/dense-model/fp32-docs.npy",
-          "rows": 41193,
-          "sha256": "1dcbea0736a0f72f48bdc9504534d87d0366d9f508d54f7abc7fe885698e27fd"
+          "rows": 41117,
+          "sha256": "3f8cda6db48edfd9e25b2acaa8752c37b8b7bf784f72af27278e872e81ae3eaa"
         },
         "fp32Queries": {
           "dim": 512,
           "path": "build/dense-model/fp32-queries.npy",
-          "rows": 130,
-          "sha256": "b3116c7979b9f0fe667692e7ca9841537f89168200a1f37d2d40596bdbaaad43"
+          "rows": 129,
+          "sha256": "e946f88706e07e40b2a922aace264c467e1c51279024cc8403456017693d4a52"
         },
         "int8Docs": {
           "dim": 512,
           "path": "build/dense-model/int8-docs.npy",
-          "rows": 41193,
-          "sha256": "8f217e69f50bd9e83080b0ede4c97bbaf1e0dad767ed6470fba404f7dc326715"
+          "rows": 41117,
+          "sha256": "edca8f60c4a78b70a8b1ccd6907796711e7e1d74f9c7e728d3ff7bbdf2b5c129"
         },
         "int8Queries": {
           "dim": 512,
           "path": "build/dense-model/int8-queries.npy",
-          "rows": 130,
-          "sha256": "14144f1af9a6efb19c84303a504fc9dd0cb86564b246ed156e42f5de8d3f3d12"
+          "rows": 129,
+          "sha256": "d3479da458694e4026d35641fcdf7c845bc7f8a71838412d9cee27a16ab1ce74"
         }
       },
       "pooling": "cls",
@@ -415,8 +415,8 @@
         },
         "dynamic-perChannel": {
           "bytes": 24031552,
-          "docsCosineMean": 0.9938172101974487,
-          "docsCosineMin": 0.9875001311302185,
+          "docsCosineMean": 0.993829607963562,
+          "docsCosineMin": 0.9870044589042664,
           "passedGate": false,
           "path": "build/tmp-dense-quant/routeA-perChannel.onnx",
           "perChannel": true,
@@ -424,8 +424,8 @@
         },
         "dynamic-perTensor": {
           "bytes": 23939272,
-          "docsCosineMean": 0.9666962027549744,
-          "docsCosineMin": 0.9472684860229492,
+          "docsCosineMean": 0.9667073488235474,
+          "docsCosineMin": 0.9475106596946716,
           "passedGate": false,
           "path": "build/tmp-dense-quant/routeA-perTensor.onnx",
           "perChannel": false,
@@ -434,7 +434,7 @@
         "weightOnlyInt8PerChannel": {
           "bytes": 23952639,
           "convertedMatMuls": 27,
-          "docsCosineMean": 0.9993873834609985,
+          "docsCosineMean": 0.9993876218795776,
           "docsCosineMin": 0.9990096092224121,
           "leftFloatMatMuls": 8,
           "leftFloatReasons": [

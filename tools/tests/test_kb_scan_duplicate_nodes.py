@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """scan_duplicate_nodes 的用例：规范化判据、分组/前缀逻辑、CLI（--json/--out）、真实包基线。
 
-真实包基线（2026-10-02 本机实测）：规范化完全同名 **11 组**、前缀包含 **18 对**
+真实包基线（2026-10-03 本机实测）：规范化完全同名 **1 组**、前缀包含 **0 对**
 （读数取 work_dir()，默认 staging，与成品目录同源；干净检出会自动从成品目录种子）。
+基线从 2026-10-02 的 11 组 / 18 对降下来，是因为批次 3 结构清理把同章同名去重副本与近重复
+节点并掉了（point_merge.csv 本轮 +103 行合并；改绑执行轮再 +1 对并删空壳点 1 个）——
+不是判据变宽，是重复本身被清掉；剩下 1 组为 CHEMISTRY「误差分析 / 误差分析的方法」。
 内容改动让基线变化时：先复算，再更新数字并注明出处——不要删断言变绿。
 """
 
@@ -175,13 +178,13 @@ class CliFixtureTest(unittest.TestCase):
 
 
 class RealPackBaselineTest(unittest.TestCase):
-    """真实包基线（2026-10-02 实测）：规范化同名 11 组、前缀包含 18 对。"""
+    """真实包基线（2026-10-03 实测）：规范化同名 1 组、前缀包含 0 对（批次 3 合并后实读）。"""
 
     def test_current_pack_baseline(self):
         result = S.scan()
-        self.assertEqual(11, len(result["same"]),
+        self.assertEqual(1, len(result["same"]),
                          "同名组基线变了；先复算核对（见本文件头），不要直接改数字")
-        self.assertEqual(18, len(result["prefix_pairs"]),
+        self.assertEqual(0, len(result["prefix_pairs"]),
                          "前缀对基线变了；先复算核对（见本文件头），不要直接改数字")
 
     def test_default_report_first_lines(self):
@@ -190,8 +193,8 @@ class RealPackBaselineTest(unittest.TestCase):
             rc = S.main([])
         self.assertEqual(0, rc)
         text = out.getvalue()
-        self.assertEqual("规范化完全同名组：11 组", text.splitlines()[0])
-        self.assertIn("前缀包含对：18 对（前 8）", text)
+        self.assertEqual("规范化完全同名组：1 组", text.splitlines()[0])
+        self.assertIn("前缀包含对：0 对（前 8）", text)
 
 
 if __name__ == "__main__":

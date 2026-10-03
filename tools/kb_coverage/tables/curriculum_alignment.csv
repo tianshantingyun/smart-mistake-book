@@ -456,7 +456,7 @@ CHEMISTRY,required-inorganic-substances-candidate-003,COVERED,电离,"认识酸�
 CHEMISTRY,required-inorganic-substances-candidate-004,COVERED,钠,"了解钠、铁及其重要化合物的主要性质,了解这些物质在生产生活中的应用",铁另见 铁
 CHEMISTRY,required-inorganic-substances-candidate-005,COVERED,氯气,"了解氯、氮、硫及其重要化合物的主要性质,认识这些物质在生产生活中的应用和对生态环境的影响,氮另见 氮气",硫另见 硫
 CHEMISTRY,required-inorganic-substances-candidate-006,NOT_COVERED,,",物质转化的社会价值面未设节点",
-CHEMISTRY,required-inorganic-substances-candidate-007,COVERED,铁及其化合物的转化,"铁及其化合物的性质,不同价态含硫物质的转化,硫转化另见 应用氧化还原反应的原理实现不同价态含硫物质的转化",除杂另见 熟练掌握溶解-过滤-蒸发等操作
+CHEMISTRY,required-inorganic-substances-candidate-007,COVERED,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,"铁及其化合物的性质,不同价态含硫物质的转化,硫转化另见 应用氧化还原反应的原理实现不同价态含硫物质的转化",除杂另见 熟练掌握溶解-过滤-蒸发等操作
 CHEMISTRY,required-structure-reaction-laws-candidate-001,COVERED,原子结构,认识原子结构、元素性质与元素在元素周期表中位置的关系,核素另见 核素
 CHEMISTRY,required-structure-reaction-laws-candidate-002,COVERED,化学键,"结合典型实例认识离子键和共价键的形成,建立化学键概念",离子键/共价键另见 离子键/共价键
 CHEMISTRY,required-structure-reaction-laws-candidate-003,COVERED,化学平衡,"了解可逆反应的含义,知道可逆反应在一定条件下能达到化学平衡",速率另见 化学反应速率
@@ -467,7 +467,7 @@ CHEMISTRY,required-organic-compounds-candidate-002,COVERED,乙烯,认识乙烯�
 CHEMISTRY,required-organic-compounds-candidate-003,COVERED,基本营养物质,认识合成高分子、油脂、糖类、蛋白质等有机化合物在生产生活中的重要应用,合成高分子另见 合成高分子
 CHEMISTRY,required-organic-compounds-candidate-004,COVERED,乙醇,"乙醇、乙酸的主要性质,球棍模型另见 有机化合物的空间结构",酯化另见 酯化反应实验探究
 CHEMISTRY,required-chemistry-social-development-candidate-001,PARTIAL,绿色化学,认识到化学科学与技术对我国走生产发展、生活富裕、生态良好的文明发展道路发挥的重要作用,可持续发展价值面
-CHEMISTRY,required-chemistry-social-development-candidate-002,PARTIAL,金属材料,"知道金属材料、无机非金属材料、高分子材料等常见材料类型,陶瓷/玻璃/水泥另见 陶瓷/玻璃/水泥",药物另见 蛋白质
+CHEMISTRY,required-chemistry-social-development-candidate-002,PARTIAL,常见金属材料,"知道金属材料、无机非金属材料、高分子材料等常见材料类型,陶瓷/玻璃/水泥另见 陶瓷/玻璃/水泥",药物另见 蛋白质
 CHEMISTRY,required-chemistry-social-development-candidate-003,COVERED,石油的综合利用,"结合工业合成氨、工业制硫酸、石油化工等实例了解化学在生产中的具体应用,合成氨另见 合成氨反应的特点",煤另见 煤的综合利用
 CHEMISTRY,required-chemistry-social-development-candidate-004,PARTIAL,酸雨,依据物质的性质及其变化认识环境污染的成因、主要危害及其防治措施,大气/废水防治面未单设
 CHEMISTRY,required-chemistry-social-development-candidate-005,NOT_COVERED,,",法规/安全意识未设节点",

@@ -955,7 +955,7 @@
    "reviewedAtEpochMillis": 1790911602164,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态金字塔；同时同片同节点材料已达",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态金字塔",
      "role": "PRIMARY"
     }
    ]
@@ -1255,7 +1255,7 @@
    "reviewedAtEpochMillis": 1790911602164,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力的三类模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:瞬时性突变类问题-轻绳-轻弹簧",
      "role": "PRIMARY"
     }
    ]
@@ -1275,7 +1275,7 @@
    "reviewedAtEpochMillis": 1790911602164,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:晾衣架模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:活结与死结模型",
      "role": "PRIMARY"
     }
    ]
@@ -3135,7 +3135,7 @@
    "reviewedAtEpochMillis": 1790911602164,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:动物体细胞核移植技术与克隆动物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:动物体细胞核移植技术",
      "role": "PRIMARY"
     }
    ]
@@ -5935,7 +5935,7 @@
    "reviewedAtEpochMillis": 1790911715772,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测与预防",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测和预防",
      "role": "PRIMARY"
     }
    ]
@@ -6315,7 +6315,7 @@
    "reviewedAtEpochMillis": 1790911715772,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物体细胞杂交",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物体细胞杂交技术",
      "role": "PRIMARY"
     }
    ]
@@ -6335,7 +6335,7 @@
    "reviewedAtEpochMillis": 1790911715772,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:动物体细胞核移植",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:动物体细胞核移植技术",
      "role": "PRIMARY"
     }
    ]
