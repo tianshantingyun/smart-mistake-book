@@ -432,7 +432,11 @@ internal object OpenAiModelTaskAdapters {
             tool == TutorToolName.KNOWLEDGE_READ ||
                 tool == TutorToolName.MASTERY_READ ||
                 tool == TutorToolName.ADVISORY_READ ||
-                tool == TutorToolName.ADVISORY_WRITE
+                tool == TutorToolName.ADVISORY_WRITE ||
+                // 4B A1：生图工具的两种图都以当前题为目标（REDRAW 的源图来自当前题、
+                // GENERATE_PROCESS 的过程图也只在当前题语境里有意义）——大厅没有当前题，
+                // 申请只会拿到"无图可重绘"，白烧一轮工具预算。
+                tool == TutorToolName.GENERATE_FIGURE
         }
         if (subjectScoped.isEmpty()) return ""
         return "\n本轮没有科目上下文：不要申请 " +

@@ -8,7 +8,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
  *
  * | 档 | 对象 | 行为 |
  * |---|---|---|
- * | [ALLOW] | 四个读工具（含 D-M M7 的 `ADVISORY_READ`） | 自动执行 + 结果可见（灰色小字内联） |
+ * | [ALLOW] | 五个读/生成工具（含 D-M M7 的 `ADVISORY_READ` 与 4B A1 的 `GENERATE_FIGURE`） | 自动执行 + 结果可见（灰色小字内联） |
  * | [ASK] | `NOTEBOOK_WRITE` / 四个本地动作 | 确认卡：学生点了才执行 |
  * | [AUTO_VISIBLE] | `MASTERY_UPDATE` / `ADVISORY_WRITE` | **全自动、不需批准**；行为全程可见，被拒给理由 |
  *
@@ -44,7 +44,7 @@ enum class TutorPermissionTier {
     AUTO_VISIBLE,
 }
 
-/** 策略可裁决的对象：7 个模型工具（5 核心 + D-M M7 两枚咨询工具）+ 4 个本地动作。 */
+/** 策略可裁决的对象：8 个模型工具（5 核心 + D-M M7 两枚咨询工具 + 4B A1 生图一枚）+ 4 个本地动作。 */
 sealed interface TutorPermissionSubject {
     data class Tool(val tool: TutorToolName) : TutorPermissionSubject
 
@@ -90,6 +90,9 @@ fun tutorPermissionTier(subject: TutorPermissionSubject): TutorPermissionTier = 
         TutorToolName.NOTEBOOK_READ,
         TutorToolName.MASTERY_READ,
         TutorToolName.ADVISORY_READ,
+        // A1：生图与读工具同档——自动执行、结果可见（灰色小字）。生图费用按 4B 裁定
+        // **只记账不确认**，所以不设确认卡；未配置图像模型时结果如实回"不可用"。
+        TutorToolName.GENERATE_FIGURE,
         -> TutorPermissionTier.ALLOW
         TutorToolName.NOTEBOOK_WRITE -> TutorPermissionTier.ASK
         // D-M M7：咨询写入与 MASTERY_UPDATE 同档——全自动、行为可见、被拒给理由。

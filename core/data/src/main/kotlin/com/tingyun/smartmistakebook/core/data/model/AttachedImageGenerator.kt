@@ -72,9 +72,27 @@ class AttachedImageGenerator(
     }
 
     private fun processPrompt(description: String): String =
-        "根据下面讲解生成题目解析过程图：$description。" +
-            "只绘制与当前题目相关的图形、数轴、步骤标注，不添加题意之外的符号。"
+        attachedImageProcessPrompt(description)
 
-    private fun redrawProblemInstruction(): String =
-        "这是一道被拍摄的题目。请保留印刷题面的所有文字与图形内容不变，仅去除手写笔迹、涂改、阴影与折痕，重绘成一张干净的题面图。"
+    private fun redrawProblemInstruction(): String = attachedImageRedrawInstruction()
 }
+
+/**
+ * 配图提示词的**单一来源**：`AttachedImageGenerator`（`attachedImages` 兼容字段链）与
+ * `ConfiguredTutorFigureGenerator`（A1 的 `GENERATE_FIGURE` 工具链）是同一件事的两条入口，
+ * 提示词各写一份就会漂开——一处改了"不添加题意之外的符号"，另一处不知道。
+ *
+ * [problemContext] 是本地从当前题草稿取的短上下文（标题）；null 时不渲染该句。
+ */
+internal fun attachedImageProcessPrompt(description: String, problemContext: String? = null): String =
+    buildString {
+        append("根据下面讲解生成题目解析过程图：").append(description).append('。')
+        problemContext?.takeIf(String::isNotBlank)?.let { context ->
+            append("当前题：").append(context).append('。')
+        }
+        append("只绘制与当前题目相关的图形、数轴、步骤标注，不添加题意之外的符号。")
+    }
+
+/** 题面去手写重绘的指令（两条配图链共用）。 */
+internal fun attachedImageRedrawInstruction(): String =
+    "这是一道被拍摄的题目。请保留印刷题面的所有文字与图形内容不变，仅去除手写笔迹、涂改、阴影与折痕，重绘成一张干净的题面图。"

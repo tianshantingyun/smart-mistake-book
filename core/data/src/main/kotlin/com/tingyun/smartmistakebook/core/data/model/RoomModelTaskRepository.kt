@@ -89,8 +89,17 @@ class RoomModelTaskRepository internal constructor(
      * 必需参数（无默认）：落一个默认值就等于留一条"忘了接线 → 静默零命中"的后门。
      */
     knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
+    /**
+     * A1 生图执行缝（4B）：生产由 app 经 [ModelTaskRepositoryFactory] 注入
+     * `TutorFigureGeneratorFactory` 的产物。
+     *
+     * 默认 null 与上面那个必需参数不同：null 不是"静默零命中"——`GENERATE_FIGURE` 会回
+     * **可见的**"本机没有可用的生图通道"错误结果（工具卡灰色小字也照实说），忘了接线当场
+     * 看得见；测试直调不必被生图通道绑住。
+     */
+    figureGenerator: TutorFigureGenerator? = null,
 ) : ModelTaskRepository {
-    internal val toolRunner = RoomTutorToolRunner(database, knowledgeBaseAvailability)
+    internal val toolRunner = RoomTutorToolRunner(database, knowledgeBaseAvailability, figureGenerator)
 
     /**
      * 会话级知识点代号注册表（单一代号通道，ADR 0001 / D5）：sessionId → 注册表，进程内
@@ -1024,10 +1033,16 @@ object ModelTaskRepositoryFactory {
         database: StudyDatabasePort,
         gateway: ModelGateway,
         knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
+        /**
+         * A1（4B）：工具环 `GENERATE_FIGURE` 的生图通道；null = 本装配没有（测试/未配置），
+         * 工具回可见的"不可用"结果。生产在 app 里装配（`TutorFigureGeneratorFactory`）。
+         */
+        figureGenerator: TutorFigureGenerator? = null,
     ): ModelTaskRepository = RoomModelTaskRepository(
         database = database,
         gateway = gateway,
         knowledgeBaseAvailability = knowledgeBaseAvailability,
+        figureGenerator = figureGenerator,
     )
 }
 

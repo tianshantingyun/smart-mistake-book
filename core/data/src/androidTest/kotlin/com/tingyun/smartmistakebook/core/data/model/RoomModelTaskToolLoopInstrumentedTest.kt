@@ -566,7 +566,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
 
     @Test
     fun aLobbyRoundSecondDispatchDeclaresTheFullToolFace() = runBlocking {
-        // D7 大厅全工具面：第二轮输入的声明集就是同一页的全量声明（D-M M7 起为 7 枚）。
+        // D7 大厅全工具面：第二轮输入的声明集就是同一页的全量声明（4B A1 起为 8 枚）。
         val context = ApplicationProvider.getApplicationContext<Context>()
         val databaseName = "lobby-five-tools-${System.nanoTime()}.db"
         context.deleteDatabase(databaseName)
@@ -587,7 +587,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
                 com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS.toList(),
                 second.toolDeclarations,
             )
-            assertEquals(7, second.toolDeclarations.size)
+            assertEquals(8, second.toolDeclarations.size)
         } finally {
             database.close()
             context.deleteDatabase(databaseName)

@@ -223,7 +223,17 @@ data class TutorLobbyOutput(
     val intentDecision: TutorIntentDecision = TutorIntentDecision.ambiguousDefault(),
     /** Optional student-visible reasoning trace; folded by default, never re-fed to the model. */
     val thinkingMarkdown: String? = null,
-    /** Optional locally-rendered figures the model asked for; drawn after the body, never in markdown. */
+    /**
+     * **遗留解码载体，不再由任何解析器写入**（A6）：大厅的 `attachedImages` 是死分支
+     * （解析后 `TutorLobbyRoute` 零引用、从不渲染），wire 键已从
+     * `TUTOR_LOBBY_WIRE_KEYS` 移除——模型再吐这个键按未知键整条拒。
+     *
+     * 字段本身保留，是为了**旧行仍可读**：历史持久化的输出行里带着这个键（编码
+     * `encodeDefaults=true` 使空列表也落键，且旧解析器确实接受过非空值），而
+     * `ModelTaskCodec` 的 `ignoreUnknownKeys=false` 会让删掉字段后的旧行直接抛。
+     * 删字段需要一套对非空数组也稳健的 JSON 手术，消灭的失败与"保留字段"完全相同，
+     * 所以保留它并在此说明，而不是加一层多余机制。
+     */
     val attachedImages: List<AttachedImage> = emptyList(),
     /**
      * 模型这一轮申请的本地动作（规格 §3.2 白名单；D-K2e）。**模型的输出**，不是本地事实：

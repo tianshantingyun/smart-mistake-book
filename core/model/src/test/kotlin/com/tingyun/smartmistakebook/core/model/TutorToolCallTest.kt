@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.model
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -145,6 +146,101 @@ class TutorToolCallTest {
                 advisoryScope = TutorAdvisoryScope.SUBJECT,
                 advisoryKind = TutorAdvisoryKind.DIFFICULTY_TIER,
                 payloadMarkdown = "HARD",
+            )
+        }
+    }
+
+    @Test
+    fun generateFigureEnforcesItsKindAndDescriptionContract() {
+        // 4B A1：kind + description 是生图工具的全部模型输入；缺一个、超长、夹带 terms
+        // 都在契约层拒（模型可以塞任何键，但构造失败即整轮拒，不静默降级）。
+        val valid = TutorToolCall(
+            tool = TutorToolName.GENERATE_FIGURE,
+            rationale = "当前题的图形是理解关键",
+            figureKind = TutorFigureKind.REDRAW_PROBLEM,
+            figureDescription = "重绘题面去手写",
+        )
+        assertEquals(TutorFigureKind.REDRAW_PROBLEM, valid.figureKind)
+        assertEquals("重绘题面去手写", valid.figureDescription)
+        assertTrue(valid.terms.isEmpty())
+
+        // 缺 kind。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "缺 kind",
+                figureDescription = "画一张图",
+            )
+        }
+        // 缺 description / 空白 description。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "缺 description",
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "空 description",
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "   ",
+            )
+        }
+        // description 超上限（本地硬上限，不靠 provider 的软约束）。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "超长 description",
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "长".repeat(TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS + 1),
+            )
+        }
+        // terms 本地不消费：给了就是静默丢弃的输入，拒。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "夹带 terms",
+                terms = listOf("函数"),
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "画一张图",
+            )
+        }
+        // 控制字符（含换行）不是画面说明。
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "换行夹带",
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "第一行\n第二行",
+            )
+        }
+        // 恰好到上限是合法的。
+        TutorToolCall(
+            tool = TutorToolName.GENERATE_FIGURE,
+            rationale = "到上限",
+            figureKind = TutorFigureKind.GENERATE_PROCESS,
+            figureDescription = "长".repeat(TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS),
+        )
+    }
+
+    @Test
+    fun figureFieldsAreRejectedOnOtherTools() {
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.NOTEBOOK_READ,
+                rationale = "夹带生图字段",
+                terms = listOf("函数"),
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "画一张图",
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolCall(
+                tool = TutorToolName.MASTERY_READ,
+                rationale = "只夹带 description",
+                figureDescription = "画一张图",
             )
         }
     }

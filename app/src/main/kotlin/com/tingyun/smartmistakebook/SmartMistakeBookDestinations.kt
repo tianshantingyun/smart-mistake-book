@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.size
@@ -15,7 +16,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import com.tingyun.smartmistakebook.core.data.capture.readVerifiedCanonicalAssetBytes
 import com.tingyun.smartmistakebook.core.data.model.AttachedImageGeneratorFactory
+import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
@@ -42,7 +45,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.security.MessageDigest
 
 /**
  * NavHost destinations of [SmartMistakeBookRoot] that carry their own
@@ -368,7 +370,11 @@ internal fun SavedMistakeTutorDestination(
                 configurationStore = application.modelConfigurationStore,
                 networkRequestsAllowed = application.capabilities.networkRequestsAllowed,
                 resolveCurrentSheetBytes = {
-                    savedMistakeSheetBytes(application.mistakeDetailRepository, key)
+                    savedMistakeSheetBytes(
+                        context = application,
+                        repository = application.mistakeDetailRepository,
+                        key = key,
+                    )
                 },
             ),
             // 确认卡（A4）：模型在这一页申请的本地动作挂成库里的行；学生点了才执行，落点是
@@ -459,10 +465,16 @@ internal const val CLEAN_PROBLEM_SHEET_ROLE = "CLEAN_IMAGE"
  *
  * 与拍照会话同一条纪律（`RoomCaptureWorkflowRepository.readTutorSessionSheetBytes`）：字节
  * 必须与规范记录逐位一致（sha256 + 字节数），核对不过就按"没有这张图"处理 —— 磁盘上的文件
- * 被替换或损坏时，那些字节不该被 POST 给图像模型。取干净重绘优先、否则原图，与错题详情、
- * 导出同优先级；两者都没有（旧记录 / 本机文件缺失）时返回 null。
+ * 被替换或损坏时，那些字节不该被 POST 给图像模型。
+ *
+ * A3：核对不再由本文件实现——`readVerifiedCanonicalAssetBytes`（core:data）调
+ * `AndroidCanonicalAssetVault.resolve`，那是"文件仍在 + 逐位一致"的**唯一**实现；
+ * 此前这里自己 `readBytes` + sha256 比对，是同一判据的第二份抄写。
+ * 取干净重绘优先、否则原图，与错题详情、导出同优先级；两者都没有（旧记录 / 本机文件缺失）时
+ * 返回 null。
  */
 internal suspend fun savedMistakeSheetBytes(
+    context: Context,
     repository: MistakeDetailRepository,
     key: MistakeRevisionKey,
 ): ByteArray? {
@@ -470,12 +482,47 @@ internal suspend fun savedMistakeSheetBytes(
         ?: return null
     val asset = sheetSourceAsset(ready.detail.source) ?: return null
     val localUri = (asset.location as? MistakeSourceLocation.Available)?.localUri ?: return null
-    val bytes = runCatching {
-        withContext(Dispatchers.IO) {
-            File(Uri.parse(localUri).path.orEmpty()).readBytes()
-        }
-    }.getOrNull() ?: return null
-    return bytes.takeIf(asset::matchesRecordedBytes)
+    val record = withContext(Dispatchers.IO) {
+        canonicalRecordForSheet(
+            asset = asset,
+            sheetFile = File(Uri.parse(localUri).path.orEmpty()),
+            filesDir = context.filesDir,
+        )
+    } ?: return null
+    return withContext(Dispatchers.IO) {
+        readVerifiedCanonicalAssetBytes(context, record)
+    }
+}
+
+/**
+ * 域资产 + 本机题面文件 → 规范记录（`vault.resolve` 的输入）。
+ *
+ * 域形状（`MistakeSourceAsset`）不带 `relativePath`；本机 URI 正是 vault 解析出来的文件路径
+ * （`RoomMistakeDetailRepositoryFactory` 的 `CanonicalAssetUriResolver`），所以相对路径由
+ * "文件相对 filesDir"得出。文件不在 filesDir 下时返回 null（vault 的父目录核对也会拒绝）。
+ */
+internal fun canonicalRecordForSheet(
+    asset: MistakeSourceAsset,
+    sheetFile: File,
+    filesDir: File,
+): CanonicalSourceAssetRecord? {
+    val relativePath = runCatching {
+        sheetFile.canonicalFile.relativeTo(filesDir.canonicalFile).path
+            // 统一成 '/'（Android 的 File 分隔符）：相对路径是 vault 记录的一部分，
+            // 不随构建机（Windows 测试）漂出反斜杠。
+            .replace(File.separatorChar, '/')
+    }.getOrNull()?.takeIf { it.isNotBlank() && !it.startsWith("..") } ?: return null
+    return CanonicalSourceAssetRecord(
+        sourceAssetId = asset.sourceAssetId,
+        contentSha256 = asset.contentSha256,
+        relativePath = relativePath,
+        mimeType = asset.mimeType,
+        byteSize = asset.byteSize,
+        width = asset.width,
+        height = asset.height,
+        sourceType = asset.sourceType,
+        createdAtEpochMillis = asset.createdAtEpochMillis,
+    )
 }
 
 /** 重绘题面用哪一张：干净重绘优先，否则原图；没有本机位置的资产直接跳过。 */
@@ -483,11 +530,4 @@ internal fun sheetSourceAsset(source: MistakeSourceSet): MistakeSourceAsset? {
     val assets = (source as? MistakeSourceSet.Present)?.assets.orEmpty()
         .filter { it.location is MistakeSourceLocation.Available }
     return assets.firstOrNull { it.role == CLEAN_PROBLEM_SHEET_ROLE } ?: assets.firstOrNull()
-}
-
-/** 字节与规范记录是否逐位一致（sha256 + 字节数）；不一致就不该出网。 */
-internal fun MistakeSourceAsset.matchesRecordedBytes(bytes: ByteArray): Boolean {
-    if (bytes.size.toLong() != byteSize) return false
-    val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
-    return digest.joinToString("") { "%02x".format(it) } == contentSha256
 }

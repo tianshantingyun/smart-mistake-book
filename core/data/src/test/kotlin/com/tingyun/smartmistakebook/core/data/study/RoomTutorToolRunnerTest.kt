@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
+import com.tingyun.smartmistakebook.core.database.ProblemDraftRecord
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRevisionRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorSessionRecord
@@ -19,7 +20,12 @@ import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind
 import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureStatus
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
+import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
@@ -1590,6 +1596,184 @@ class RoomTutorToolRunnerTest {
         assertEquals(TeachingAdvisoryRecord.KIND_MISCONCEPTION, row.advisoryKind)
         assertTrue(outcome.summaryMarkdown.contains("未归类知识点"))
         assertFalse("原始 id 不进结果文本（D5）", outcome.summaryMarkdown.contains("pseudo:MATH"))
+    }
+
+    // ---- 4B A1：GENERATE_FIGURE 的执行分支 ----
+
+    private fun figureCall(
+        kind: TutorFigureKind = TutorFigureKind.REDRAW_PROBLEM,
+        description: String = "重绘题面去手写",
+    ) = TutorToolCall(
+        tool = TutorToolName.GENERATE_FIGURE,
+        rationale = "图形是这道题的理解关键",
+        figureKind = kind,
+        figureDescription = description,
+    )
+
+    /** 当前题的草稿（runner 经 会话 → draftId → draft 解析源图）。 */
+    private fun problemDraftRecord(draftId: String) = ProblemDraftRecord(
+        draftId = draftId,
+        sourceAsset = CanonicalSourceAssetRecord(
+            sourceAssetId = "asset-sheet-1",
+            contentSha256 = "b".repeat(64),
+            relativePath = "source-assets/sheet-1.png",
+            mimeType = "image/png",
+            byteSize = 1,
+            width = 1,
+            height = 1,
+            sourceType = "CAMERA",
+            createdAtEpochMillis = 1_000,
+        ),
+        origin = "TUTOR",
+        status = "COMMITTED",
+        currentRevision = ProblemDraftRevisionRecord(
+            draftId = draftId,
+            revisionNumber = 1,
+            basisRevisionNumber = null,
+            subject = "MATH",
+            title = "单调性练习",
+            questionDocument = CapturedQuestionDocument(
+                document = QuestionDocument(
+                    id = "question-1",
+                    blocks = listOf(ContentBlock.Paragraph("stem-1", "求函数的单调区间。")),
+                ),
+                blockEvidence = emptyList(),
+            ),
+            documentFingerprint = "fp-figure-draft",
+            author = "STUDENT",
+            createdAtEpochMillis = 1_000,
+        ),
+        createdAtEpochMillis = 1_000,
+        updatedAtEpochMillis = 1_000,
+    )
+
+    /** 带草稿的假库（FakeStudyDatabasePort 的 readProblemDraft 默认 null）。 */
+    private class FigureDraftPort(private val draft: ProblemDraftRecord?) : FakeStudyDatabasePort() {
+        override suspend fun readProblemDraft(draftId: String): ProblemDraftRecord? =
+            draft?.takeIf { it.draftId == draftId }
+    }
+
+    private fun figureRunner(
+        port: StudyDatabasePort,
+        generator: TutorFigureGenerator,
+    ) = RoomTutorToolRunner(
+        port,
+        MutableStateFlow(KnowledgeBaseAvailability.Ready),
+        generator,
+    )
+
+    @Test
+    fun generateFigureFailsClosedWhenNoChannelIsWired() = runBlocking {
+        // 没有生图通道时结果必须**可见地**说不可用，绝不假装生成成功。
+        val outcome = runner(anchoredPort()).run(figureCall(), sessionContext())
+
+        assertFalse(outcome.ok)
+        assertEquals("figure_unavailable", outcome.errorKind)
+        assertTrue(outcome.summaryMarkdown.contains("没有可用的生图通道"))
+    }
+
+    @Test
+    fun redrawFigureResolvesTheSourceFromTheCurrentProblemsCanonicalAsset() = runBlocking {
+        val port = FigureDraftPort(problemDraftRecord("draft-figure-1"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-1")
+        val requests = mutableListOf<TutorFigureRequest>()
+        val runner = figureRunner(port) { request ->
+            requests += request
+            TutorFigureResult(figureId = "asset-figure-1", status = TutorFigureStatus.GENERATED)
+        }
+
+        val outcome = runner.run(figureCall(kind = TutorFigureKind.REDRAW_PROBLEM), sessionContext())
+
+        assertTrue(outcome.ok)
+        assertTrue("结果只回 id + 状态", outcome.summaryMarkdown.contains("asset-figure-1"))
+        assertTrue(outcome.summaryMarkdown.contains("已生成"))
+        val request = requests.single()
+        assertEquals(TutorFigureKind.REDRAW_PROBLEM, request.kind)
+        // 源图是**本地解析**出来的规范资产记录（模型没有任何字段能提供图片）。
+        assertEquals("asset-sheet-1", request.sourceSheet?.sourceAssetId)
+        assertEquals("image/png", request.sourceSheet?.mimeType)
+        assertEquals("单调性练习", request.problemContext)
+    }
+
+    @Test
+    fun redrawWithoutACurrentProblemIsAnEmptyScopeNotAnError() = runBlocking {
+        // 无题轮/无草稿：K2a 口径——ok=true + "本轮没有可画的题"，不报错（报错会让模型
+        // 下一轮换着法再试，白烧派遣预算）。
+        var generatorCalls = 0
+        val runner = figureRunner(anchoredPort()) { request ->
+            generatorCalls += 1
+            TutorFigureResult(null, TutorFigureStatus.GENERATED)
+        }
+
+        val outcome = runner.run(figureCall(kind = TutorFigureKind.REDRAW_PROBLEM), sessionContext())
+
+        assertTrue(outcome.ok)
+        assertTrue(outcome.summaryMarkdown.contains("本轮没有可画的题"))
+        assertEquals(0, generatorCalls)
+    }
+
+    @Test
+    fun processFigureWithoutACurrentProblemIsAnEmptyScopeAndDoesNotGenerate() = runBlocking {
+        // F2：无当前题时 GENERATE_PROCESS 同样不生成——Route B 的意图由模型自报，
+        // 没有题锚的过程图只是一次无锚点的付费出网，本地必须自己兜住。
+        var generatorCalls = 0
+        val runner = figureRunner(anchoredPort()) { request ->
+            generatorCalls += 1
+            TutorFigureResult(figureId = "asset-should-not-exist", status = TutorFigureStatus.GENERATED)
+        }
+
+        val outcome = runner.run(figureCall(kind = TutorFigureKind.GENERATE_PROCESS), sessionContext())
+
+        assertTrue(outcome.ok)
+        assertTrue(outcome.summaryMarkdown.contains("本轮没有可画的题"))
+        assertEquals(0, generatorCalls)
+    }
+
+    @Test
+    fun processFigureCarriesNoSheetAndTheCurrentProblemContext() = runBlocking {
+        val port = FigureDraftPort(problemDraftRecord("draft-figure-2"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-2")
+        val requests = mutableListOf<TutorFigureRequest>()
+        val runner = figureRunner(port) { request ->
+            requests += request
+            TutorFigureResult(figureId = "asset-figure-2", status = TutorFigureStatus.GENERATED)
+        }
+
+        val outcome = runner.run(figureCall(kind = TutorFigureKind.GENERATE_PROCESS), sessionContext())
+
+        assertTrue(outcome.ok)
+        val request = requests.single()
+        assertEquals(TutorFigureKind.GENERATE_PROCESS, request.kind)
+        assertEquals(null, request.sourceSheet)
+        assertEquals("单调性练习", request.problemContext)
+    }
+
+    @Test
+    fun generateFigureReportsAFailedGenerationAsAnErrorOutcome() = runBlocking {
+        val port = FigureDraftPort(problemDraftRecord("draft-figure-3"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-3")
+        val runner = figureRunner(port) { _ ->
+            TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
+        }
+
+        val outcome = runner.run(figureCall(), sessionContext())
+
+        assertFalse(outcome.ok)
+        assertEquals("figure_failed", outcome.errorKind)
+    }
+
+    @Test
+    fun generateFigureReportsAnUnavailableChannelAsUnavailable() = runBlocking {
+        val port = FigureDraftPort(problemDraftRecord("draft-figure-4"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-4")
+        val runner = figureRunner(port) { _ ->
+            TutorFigureResult(figureId = null, status = TutorFigureStatus.UNAVAILABLE)
+        }
+
+        val outcome = runner.run(figureCall(), sessionContext())
+
+        assertFalse(outcome.ok)
+        assertEquals("figure_unavailable", outcome.errorKind)
     }
 
     /** 桶节点的落库形状（ensurePseudoKnowledgeNode 的产物：MODEL_CANDIDATE，不进召回面）。 */

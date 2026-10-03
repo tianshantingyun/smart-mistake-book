@@ -19,8 +19,8 @@ import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
  *
  * | 档 | 工具 | 这一轮怎么办 |
  * |---|---|---|
- * | allow | 三个读工具 | 自动执行，结果进痕迹（灰色小字） |
- * | auto+visible | `MASTERY_UPDATE` | 自动执行（写门被拒照样给理由，理由在结果里） |
+ * | allow | 五个读/生成工具（`KNOWLEDGE_READ` / `NOTEBOOK_READ` / `MASTERY_READ` / D-M M7 的 `ADVISORY_READ` / 4B A1 的 `GENERATE_FIGURE`） | 自动执行，结果进痕迹（灰色小字） |
+ * | auto+visible | `MASTERY_UPDATE` / `ADVISORY_WRITE` | 自动执行（写门被拒照样给理由，理由在结果里） |
  * | ask | `NOTEBOOK_WRITE` | **不在工具环里执行**：本地会请学生点确认卡（D-K2e 的 ask 档） |
  *
  * ask 档的调用被**如实回答**而不是静默丢弃：模型拿到的是一句"本地会请学生确认，这一轮没有执行"，

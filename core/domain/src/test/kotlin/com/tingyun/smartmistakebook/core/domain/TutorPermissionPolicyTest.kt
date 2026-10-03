@@ -37,6 +37,11 @@ class TutorPermissionPolicyTest {
             TutorPermissionTier.ALLOW,
             tiers[TutorPermissionSubject.Tool(TutorToolName.ADVISORY_READ)],
         )
+        // 4B A1：生图与读工具同档（自动执行、行为可见）——费用按裁定只记账不确认，不挂卡。
+        assertEquals(
+            TutorPermissionTier.ALLOW,
+            tiers[TutorPermissionSubject.Tool(TutorToolName.GENERATE_FIGURE)],
+        )
         assertEquals(
             TutorPermissionTier.ASK,
             tiers[TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_WRITE)],

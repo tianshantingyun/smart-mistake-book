@@ -866,6 +866,48 @@ class OpenAiCompatibleModelGatewayTest {
     }
 
     @Test
+    fun tutorLobbyRejectsAttachedImagesAsAnUnknownKey() = runBlocking {
+        // A6：大厅输出的 attachedImages 解析已删（死分支），wire 键从白名单移除——
+        // 模型再吐这个键就是未知键，整条输出 fail-closed 拒（不是"忽略一下"）。
+        // Respond/Plan 的 attachedImages 是兼容 fallback，仍解析仍渲染（见本文件
+        // tutorResponseParsesAttachedImagesFromWire）。
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> error("Lobby must not read image assets") },
+            transport = modelTransport { _ ->
+                ModelHttpResponse(
+                    200,
+                    envelope(
+                        Json.encodeToString(
+                            buildJsonObject {
+                                put("intentDecision", tutorIntentPayload())
+                                put("messageMarkdown", "我画一张图给你。")
+                                put(
+                                    "attachedImages",
+                                    JsonArray(
+                                        listOf(
+                                            buildJsonObject {
+                                                put("imageId", "process-1")
+                                                put("kind", "GENERATE_PROCESS")
+                                                put("description", "数轴标注导数符号区间")
+                                            },
+                                        ),
+                                    ),
+                                )
+                            },
+                        ),
+                    ),
+                )
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val failed = gateway.execute(authorizedTutorLobby(gateway)).toList().last()
+            as ModelGatewayEvent.Failed
+        assertEquals(ModelFailureCode.INVALID_RESPONSE, failed.failure.code)
+    }
+
+    @Test
     fun tutorResponseParsesIntentWithoutGrantingDatabaseAuthority() = runBlocking {
         val output = parsedTutorResponse(
             tutorRespondPayload(

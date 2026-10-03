@@ -63,6 +63,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
+import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
 import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
@@ -344,8 +345,10 @@ internal object OpenAiModelProtocol {
      * and its terms[0] is constrained to the session's disclosed knowledge codes
      * (D5 enum 白名单); MASTERY_READ adds the extended-result flag it alone may
      * set; ADVISORY_WRITE adds the three-kind enum + scope enum + bounded
-     * payload (D-M M7 的三道写侧校验在协议层的落点); the other read tools stay
-     * minimal (terms + rationale).
+     * payload (D-M M7 的三道写侧校验在协议层的落点); GENERATE_FIGURE adds the
+     * two-kind enum + bounded description (4B A1；wire 键名 `kind`/`description`
+     * 与 Route B 信封逐字相同——KD-30：两边声明漂开只在某种 provider 上现形);
+     * the other read tools stay minimal (terms + rationale).
      *
      * 写工具**不再**带逐次题锚字段（problemId/problemRevisionId/anchorTerms）：
      * 2026-09-21 裁定（D6）废除"无题轮结构性拒写"之后，题锚不再是写准入事实；
@@ -359,6 +362,7 @@ internal object OpenAiModelProtocol {
         val extendedResult = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.MASTERY_READ
         val advisoryRead = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_READ
         val advisoryWrite = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_WRITE
+        val figureGeneration = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.GENERATE_FIGURE
         return buildJsonObject {
             put("type", "object")
             put(
@@ -391,6 +395,8 @@ internal object OpenAiModelProtocol {
                                             "description",
                                             "scope=NODE 时填本会话已披露知识点代号；PROBLEM/SUBJECT 时留空数组",
                                         )
+                                    } else if (figureGeneration) {
+                                        put("description", "生图不需要检索词；必须为空数组")
                                     } else {
                                         put("description", "学生原话派生词元，不得臆测")
                                     }
@@ -403,6 +409,7 @@ internal object OpenAiModelProtocol {
                                     masterySemantics -> "第一个元素必须是已披露知识点代号"
                                     advisoryWrite -> "NODE 作用域的目标代号（只能是本会话已披露的 K 代号）"
                                     advisoryRead -> "可选的筛选词或已披露代号；留空＝按 scope 读本科目/当前题"
+                                    figureGeneration -> "生图不需要检索词；必须是空数组（本地不消费 terms）"
                                     else -> "直接来自学生消息原词的简短筛选词"
                                 },
                             )
@@ -432,6 +439,40 @@ internal object OpenAiModelProtocol {
                                     "description",
                                     "NODE＝按知识点（terms[0]＝代号）、PROBLEM＝当前这道题、SUBJECT＝本科目",
                                 )
+                            },
+                        )
+                    }
+                    if (figureGeneration) {
+                        // A1：kind 二选一 + description 有硬上限（本地仍兜底校验；
+                        // Route B 信封路由的同名字段由 TUTOR_TOOL_CALL_WIRE_KEYS 收口）。
+                        put(
+                            "kind",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "enum",
+                                    buildJsonArray {
+                                        add(JsonPrimitive("REDRAW_PROBLEM"))
+                                        add(JsonPrimitive("GENERATE_PROCESS"))
+                                    },
+                                )
+                                put(
+                                    "description",
+                                    "REDRAW_PROBLEM＝重绘当前题面（源图本地自动取，不得提供图片）；" +
+                                        "GENERATE_PROCESS＝按 description 生成过程图",
+                                )
+                            },
+                        )
+                        put(
+                            "description",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "maxLength",
+                                    com.tingyun.smartmistakebook.core.model.TutorToolCall
+                                        .MAX_FIGURE_DESCRIPTION_CHARS,
+                                )
+                                put("description", "画面说明：平实中文写清这张图要表达什么")
                             },
                         )
                     }
@@ -541,6 +582,10 @@ internal object OpenAiModelProtocol {
                             add(JsonPrimitive("payloadMarkdown"))
                         }
                         advisoryRead -> add(JsonPrimitive("advisoryScope"))
+                        figureGeneration -> {
+                            add(JsonPrimitive("kind"))
+                            add(JsonPrimitive("description"))
+                        }
                     }
                 },
             )
@@ -643,6 +688,10 @@ internal object OpenAiModelProtocol {
                 advisoryKind = arguments.optionalString("advisoryKind")
                     ?.let { enumValue<com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind>(it) },
                 payloadMarkdown = arguments.optionalString("payloadMarkdown"),
+                // 4B A1：生图工具与 Route B 信封**同名同义**（wire 键 `kind`/`description`，
+                // 与 strictFunctionSchema 的声明逐字一致——KD-30：两路由漂开只在某种 provider 上现形）。
+                figureKind = arguments.optionalString("kind")?.let { enumValue<TutorFigureKind>(it) },
+                figureDescription = arguments.optionalString("description"),
             )
         }
         val intentDecision = responseContent

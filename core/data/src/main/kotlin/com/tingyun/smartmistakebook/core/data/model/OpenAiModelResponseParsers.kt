@@ -60,6 +60,7 @@ import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
+import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
 import com.tingyun.smartmistakebook.core.model.TutorDebriefInput
 import com.tingyun.smartmistakebook.core.model.TutorDebriefOutput
@@ -454,6 +455,10 @@ private val TUTOR_TOOL_CALL_WIRE_KEYS =
         "advisoryScope",
         "advisoryKind",
         "payloadMarkdown",
+        // 4B A1 生图工具的图种类与画面说明（wire 键名 kind/description，与原生 tool_calls
+        // arguments 及 Route A 的 function schema 逐字一致）。
+        "kind",
+        "description",
     )
 
 internal fun JsonObject.toTutorToolRequests(
@@ -481,6 +486,10 @@ internal fun JsonObject.toTutorToolRequests(
                     advisoryKind = call.optionalString("advisoryKind")
                         ?.let { enumValue<TutorAdvisoryKind>(it) },
                     payloadMarkdown = call.optionalString("payloadMarkdown"),
+                    // 4B A1：与原生 tool_calls arguments 同名同义（同一份 TutorToolCall
+                    // 契约校验兜底：缺 kind/超长 description/带 terms 都在构造层拒）。
+                    figureKind = call.optionalString("kind")?.let { enumValue<TutorFigureKind>(it) },
+                    figureDescription = call.optionalString("description"),
                 )
             }
             ?: throw InvalidModelResponseException(),
@@ -499,7 +508,10 @@ internal fun JsonObject.toTutorLobby(
         messageMarkdown = requiredString("messageMarkdown"),
         intentDecision = objectValue("intentDecision").toTutorIntentDecision(),
         thinkingMarkdown = optionalString("thinkingMarkdown"),
-        attachedImages = optionalArray("attachedImages").map(JsonElement::toAttachedImage),
+        // A6：大厅输出的 attachedImages 解析已删（死分支：解析后 `TutorLobbyRoute` 零引用、
+        // 从不渲染）。wire 键也已从白名单移除——模型再吐这个键就是**未知键**，整条输出按
+        // fail-closed 拒（与"未知键一律拒"同一条纪律，不是"忽略一下"）。
+        // Respond/Plan 的 attachedImages 是另一回事：它们是无工具端点时的兼容 fallback，仍解析仍渲染。
         localActions = optionalArray("localActions").map(JsonElement::toLocalActionRequest),
         modelVersion = modelVersion,
     )
@@ -626,8 +638,13 @@ internal fun JsonObject.toBoundQuestionDeclaration(): TutorRoundQuestionDeclarat
         anchorTerms = optionalArray("anchorTerms").map(JsonElement::requiredPrimitiveString),
     )
 }
+/**
+ * 大厅输出信封的键白名单（A6 起不再含 `attachedImages`）：大厅从不渲染模型申请的配图，
+ * 那条解析是死分支（`TutorLobbyRoute` 对 `AttachedImage` 零引用），且会把"本地不消费的
+ * 模型输入"静默放进来。移除后模型吐 `attachedImages` 即未知键 → 整条输出无效（fail-closed）。
+ */
 internal val TUTOR_LOBBY_WIRE_KEYS =
-    setOf("intentDecision", "messageMarkdown", "thinkingMarkdown", "attachedImages", "localActions")
+    setOf("intentDecision", "messageMarkdown", "thinkingMarkdown", "localActions")
 internal val ATTACHED_IMAGE_WIRE_KEYS =
     setOf("imageId", "kind", "description", "accessibilityText")
 

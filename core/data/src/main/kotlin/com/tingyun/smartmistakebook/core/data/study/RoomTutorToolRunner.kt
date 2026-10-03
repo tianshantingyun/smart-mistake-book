@@ -7,10 +7,15 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtracto
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
+import com.tingyun.smartmistakebook.core.database.ProblemDraftRecord
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureStatus
 import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.domain.tutorSessionObjectiveRecord
@@ -23,6 +28,7 @@ import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
 import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceRecency
+import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
@@ -87,6 +93,12 @@ internal class RoomTutorToolRunner(
      * 回"还在准备"而不是"没有匹配的知识点"——后者把"还没好"说成了"没有"。
      */
     private val knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
+    /**
+     * A1 生图执行缝（4B）：null = 本装配没有生图通道（测试直调/未配置）。生产由 app 经
+     * `ModelTaskRepositoryFactory` 注入 `TutorFigureGeneratorFactory` 的产物；
+     * null 时 `GENERATE_FIGURE` 回 fail-closed 的"不可用"结果，**不**假装生成成功。
+     */
+    private val figureGenerator: TutorFigureGenerator? = null,
 ) {
     /** D-M M4：两条证据写通道的唯一写入口（本执行器只提供讲题通道的语义输入）。 */
     private val evidenceWriter = KnowledgeEvidenceWriter(port)
@@ -198,6 +210,7 @@ internal class RoomTutorToolRunner(
             TutorToolName.NOTEBOOK_WRITE -> notebookWrite(context)
             TutorToolName.ADVISORY_READ -> advisoryRead(call, context)
             TutorToolName.ADVISORY_WRITE -> advisoryWrite(call, context)
+            TutorToolName.GENERATE_FIGURE -> generateFigure(call, context)
         }
     } catch (cancelled: CancellationException) {
         throw cancelled
@@ -892,6 +905,110 @@ internal class RoomTutorToolRunner(
     }
 
     /**
+     * A1（4B）：生图工具的执行分支。模型只给语义（kind + description）。
+     *
+     * **源图只可能来自本地**：REDRAW_PROBLEM 经 会话 → 草稿 → 规范资产记录 解析，由生成器
+     * 在读取时再逐位核对（`vault.resolve` 是唯一实现）；模型的任何字段都进不了源图
+     * （[TutorFigureRequest] 里根本没有模型可填的图片字段）。
+     *
+     * 结果只回 id + 状态（不回字节）；**没有当前题时两种 kind 都不生成**（F2：无锚点的
+     * GENERATE_PROCESS 也是一次付费出网），按 K2a 空范围处理（ok=true、不报错，免得模型
+     * 下一轮换着法再试），通道缺失或生成失败才回错误结果。
+     */
+    private suspend fun generateFigure(call: TutorToolCall, context: Context): TutorToolExecution {
+        // TutorToolCall.init 已强制 GENERATE_FIGURE 必带 kind + description；此处按
+        // "宁拒不猜"防御：缺字段时不生成而不是默认一种图。
+        val kind = requireNotNull(call.figureKind) {
+            "GENERATE_FIGURE kind is contract-enforced"
+        }
+        val description = requireNotNull(call.figureDescription) {
+            "GENERATE_FIGURE description is contract-enforced"
+        }
+        val generator = figureGenerator
+            ?: return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = call.tool,
+                    ok = false,
+                    summaryMarkdown = "本机没有可用的生图通道，未生成配图；不要反复申请。",
+                    errorKind = FIGURE_UNAVAILABLE,
+                ),
+            )
+        // F2：**两种 kind 的共同前置**是"有当前题"——意图矩阵本意是"大厅/查库/闲聊轮没有
+        // 可画的题"，但 Route B 的意图由模型自报，不能只靠矩阵。没有当前题时两种图都不生成
+        // （GENERATE_PROCESS 也一样：没有题锚的过程图只是一次无锚点的付费生成），
+        // 按 K2a 回 ok=true 空范围、**不调用生成器**。
+        val draft = currentDraft(context)
+            ?: return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = call.tool,
+                    ok = true,
+                    summaryMarkdown = "本轮没有可画的题：这次对话没有正在处理的题目。" +
+                        "不必重复申请，直接回答学生的问题。",
+                ),
+            )
+        val sourceSheet = when (kind) {
+            // REDRAW 额外要求当前题的规范题面资产；`ProblemDraftRecord.sourceAsset` 非空
+            // 是构造契约（记录里必然带页 0 源资产），所以这里没有第二个空分支。
+            TutorFigureKind.REDRAW_PROBLEM -> draft.sourceAsset
+            TutorFigureKind.GENERATE_PROCESS -> null
+        }
+        val result = try {
+            generator.generate(
+                TutorFigureRequest(
+                    kind = kind,
+                    description = description,
+                    sourceSheet = sourceSheet,
+                    // GENERATE_PROCESS 的当前题上下文（标题；本地取，模型不可填）。
+                    problemContext = draft?.currentRevision?.title,
+                ),
+            )
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
+        }
+        return when (result.status) {
+            TutorFigureStatus.GENERATED -> TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = call.tool,
+                    ok = true,
+                    // F1：只回 id + 状态。**不得**向模型承诺"图会出现在回复里"——批 1 没有
+                    // 渲染路径（持久引用/渲染是批 2 的 A2），承诺会让模型引导学生去找看不到的图。
+                    summaryMarkdown = "配图已生成（id：${result.figureId}，状态：已生成）。" +
+                        "不要再申请同一张图。",
+                ),
+            )
+
+            TutorFigureStatus.FAILED -> TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = call.tool,
+                    ok = false,
+                    summaryMarkdown = "配图没有生成成功，可以稍后再试一次。",
+                    errorKind = FIGURE_FAILED,
+                ),
+            )
+
+            TutorFigureStatus.UNAVAILABLE -> TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = call.tool,
+                    ok = false,
+                    summaryMarkdown = "本机没有可用的生图通道（未配置可用的图像模型），" +
+                        "未生成配图；不要反复申请。",
+                    errorKind = FIGURE_UNAVAILABLE,
+                ),
+            )
+        }
+    }
+
+    /** 当前题的草稿（会话 → draftId → draft）；没有会话/草稿/空 id 时 null。 */
+    private suspend fun currentDraft(context: Context): ProblemDraftRecord? {
+        val sessionId = context.tutorSessionId?.takeIf(String::isNotBlank) ?: return null
+        val draftId = port.readTutorSession(sessionId)?.draftId?.takeIf(String::isNotBlank)
+            ?: return null
+        return port.readProblemDraft(draftId)
+    }
+
+    /**
      * D-M M7：咨询工具的**读侧**（ADVISORY_READ）——按节点/题/科目取最近 N 条。
      *
      * 三个作用域与写侧同一套解析（见 [advisoryWrite]）：NODE = terms[0] 代号（D5：只收
@@ -1257,6 +1374,12 @@ private const val INVALID_KNOWLEDGE_CODE = "invalid_knowledge_code"
 
 /** DIFFICULTY_TIER 的 payload 不是 EASY/MEDIUM/HARD：写侧参数校验拒（不落行）。 */
 private const val INVALID_ADVISORY_PAYLOAD = "invalid_advisory_payload"
+
+/** A1 生图：本装配没有生图通道（未配置可用图像模型 / 本构建不可出网）。 */
+private const val FIGURE_UNAVAILABLE = "figure_unavailable"
+
+/** A1 生图：通道在但这次没成（出网/解码/落盘失败）。 */
+private const val FIGURE_FAILED = "figure_failed"
 
 /**
  * 咨询工具的**稳定键**（D-M M7 的 upsert 半边）：作用域 + 目标 ⇒ 恒定的 source_id，

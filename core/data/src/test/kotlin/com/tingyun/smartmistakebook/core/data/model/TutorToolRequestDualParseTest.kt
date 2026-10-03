@@ -177,6 +177,87 @@ class TutorToolRequestDualParseTest {
         assertEquals("两边乘负数忘记变号。", call.payloadMarkdown)
     }
 
+    // ---- 4B A1：生图工具的两路由同名同义 ----
+
+    private fun generateFigureRouteBPayload(kind: String, description: String) =
+        json.parseToJsonElement(
+            """
+            {"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.95,
+              "explicitActionRequest":false,"memoryPreference":"UNCHANGED",
+              "requestedLocalCapability":"NONE","lookupTerms":[]},
+             "toolRequests":[{"tool":"GENERATE_FIGURE","terms":[],
+               "rationale":"图形是这道题的理解关键",
+               "kind":"$kind","description":"$description"}]}
+            """.trimIndent(),
+        ).jsonObject
+
+    @Test
+    fun generateFigureParsesIdenticallyOnBothRoutes() {
+        // KD-30：两路由对 kind/description 的声明必须同名同义。同一次生图申请在
+        // Route B 信封与 Route A 原生 tool_calls 里必须解析成**同一个** TutorToolCall。
+        val routeBCall = (
+            OpenAiModelTaskAdapters.parse(
+                generateFigureRouteBPayload("REDRAW_PROBLEM", "重绘题面去手写"),
+                respondInput(),
+                "test-model-v1",
+            ) as TutorToolRequestsOutput
+            ).calls.single()
+        val routeAEnvelope = """
+            {"choices":[{"message":{"role":"assistant","content":null,
+             "tool_calls":[{"id":"call_fig","type":"function",
+               "function":{"name":"GENERATE_FIGURE",
+                 "arguments":"{\"terms\":[],\"rationale\":\"图形是这道题的理解关键\",\"kind\":\"REDRAW_PROBLEM\",\"description\":\"重绘题面去手写\"}"}}]}}]}
+        """.trimIndent()
+        val routeACall = (
+            OpenAiModelProtocol.parseResponse(
+                routeAEnvelope,
+                respondInput(),
+                "test-model-v1",
+            ) as TutorToolRequestsOutput
+            ).calls.single()
+
+        assertEquals(TutorToolName.GENERATE_FIGURE, routeBCall.tool)
+        assertEquals(com.tingyun.smartmistakebook.core.model.TutorFigureKind.REDRAW_PROBLEM, routeBCall.figureKind)
+        assertEquals("重绘题面去手写", routeBCall.figureDescription)
+        assertEquals("两路由必须解析出同一个 TutorToolCall", routeBCall, routeACall)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun generateFigureWithAnUnknownKindIsRejectedOnRouteB() {
+        // 非法 kind 是协议错误（enumValue 拒 → 整条输出无效），不是"忽略一下"。
+        OpenAiModelTaskAdapters.parse(
+            generateFigureRouteBPayload("PAINT_SOMETHING", "画一张图"),
+            respondInput(),
+            "test-model-v1",
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun generateFigureWithAnOverlongDescriptionIsRejectedOnRouteB() {
+        OpenAiModelTaskAdapters.parse(
+            generateFigureRouteBPayload(
+                "GENERATE_PROCESS",
+                "长".repeat(com.tingyun.smartmistakebook.core.model.TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS + 1),
+            ),
+            respondInput(),
+            "test-model-v1",
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun generateFigureWithoutAKindIsRejectedOnRouteB() {
+        val payload = json.parseToJsonElement(
+            """
+            {"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.95,
+              "explicitActionRequest":false,"memoryPreference":"UNCHANGED",
+              "requestedLocalCapability":"NONE","lookupTerms":[]},
+             "toolRequests":[{"tool":"GENERATE_FIGURE","terms":[],
+               "rationale":"图形是这道题的理解关键","description":"画一张图"}]}
+            """.trimIndent(),
+        ).jsonObject
+        OpenAiModelTaskAdapters.parse(payload, respondInput(), "test-model-v1")
+    }
+
     @Test
     fun advisoryReadToolRequestMayOmitItsScopeForTheSubjectDefault() {
         val payload = json.parseToJsonElement("""

@@ -187,6 +187,33 @@ class TutorToolTraceTest {
     }
 
     @Test
+    fun theFigureToolReadsAsPicturesNotAsCounts() {
+        // 4B A1：生图没有"条数"可言——出没出图是它唯一的产出（与写工具同一话术纪律）。
+        val done = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(TutorToolTraceEntry(tool = TutorToolName.GENERATE_FIGURE, ok = true)),
+            ),
+        )
+        assertEquals("配图 · 已生成", done.rows.single().text)
+        assertEquals("已查阅 · 1 项", done.headline)
+
+        val refused = tutorToolTraceDisplay(
+            TutorTurnToolTrace(
+                entries = listOf(
+                    TutorToolTraceEntry(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = false,
+                        errorKind = "figure_unavailable",
+                    ),
+                ),
+            ),
+        )
+        assertEquals("配图 · 未生成", refused.rows.single().text)
+        assertEquals("当前没有可用的生图通道，没有生成", refused.rows.single().detail)
+        assertEquals("配图", TutorToolName.GENERATE_FIGURE.displayLabel())
+    }
+
+    @Test
     fun everyGateRejectionReasonHasAStudentFacingSentence() {
         // 被拒要给理由（D-K2d）：门那边产出的每个码都得有一句人话，且不许出现内部机制词。
         val reasons = listOf(

@@ -872,6 +872,13 @@ data class TutorPlanOutput(
     val modelVersion: String,
     val cycleOrdinal: Int = 1,
     val turnOrdinal: Int = 1,
+    /**
+     * **兼容字段**（4B A1 起）：生图进工具环（`GENERATE_FIGURE`）之后，模型申请配图的主路径是
+     * 工具调用；本字段保留为**无工具端点时的 fallback**——仍解析，不删（A6：不误删兼容面）。
+     *
+     * **Plan 侧只解析、不渲染**（F6 订正：唯一渲染消费者是 Respond 的
+     * `TutorChatConversation`/`AttachedImagesSection`；Plan 输出没有配图渲染面，历史如此）。
+     */
     val attachedImages: List<AttachedImage> = emptyList(),
 ) : ModelTaskOutput {
     init {
@@ -910,7 +917,11 @@ data class TutorRespondOutput(
     val intentDecision: TutorIntentDecision = TutorIntentDecision.ambiguousDefault(),
     /** Optional student-visible reasoning trace; folded by default, never re-fed to the model. */
     val thinkingMarkdown: String? = null,
-    /** Optional locally-rendered figures the model asked for; drawn after the body, never in markdown. */
+    /**
+     * **兼容字段**（4B A1 起）：生图进工具环（`GENERATE_FIGURE`）之后，模型申请配图的主路径是
+     * 工具调用；本字段保留为**无工具端点时的 fallback**——仍解析、仍渲染
+     * （`TutorChatConversation` 的 `AttachedImagesSection`），不删（A6：不误删兼容面）。
+     */
     val attachedImages: List<AttachedImage> = emptyList(),
     /**
      * **本轮真正绑定的题**；null 表示无题轮。

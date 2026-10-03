@@ -24,6 +24,24 @@ enum class TutorToolName {
      */
     ADVISORY_READ,
     ADVISORY_WRITE,
+    /**
+     * 阶段 4B A1：生图工具（第 8 枚）。模型只给**语义**（kind + description），
+     * 源图与一切生成参数由本地决定——REDRAW_PROBLEM 的源图自动取自当前题的规范资产
+     * （绝不接受模型供图），生成结果只回 id + 状态（不回字节）。
+     */
+    GENERATE_FIGURE,
+}
+
+/**
+ * GENERATE_FIGURE 的两种图（A1 的 kind 枚举，两条路由同名同义）：
+ * - [REDRAW_PROBLEM]：重绘当前题的题面图（去手写）；源图由本地从当前题的规范资产解析，
+ *   模型既不能指定也不能提供图片。
+ * - [GENERATE_PROCESS]：按 [TutorToolCall.figureDescription] 文生图（解析过程图）。
+ */
+@Serializable
+enum class TutorFigureKind {
+    REDRAW_PROBLEM,
+    GENERATE_PROCESS,
 }
 
 /**
@@ -152,6 +170,16 @@ data class TutorToolCall(
     val advisoryKind: TutorAdvisoryKind? = null,
     /** ADVISORY_WRITE 的正文（上限 [MAX_ADVISORY_PAYLOAD_CHARS]）；其余工具不得携带。 */
     val payloadMarkdown: String? = null,
+    /**
+     * GENERATE_FIGURE 的图种类（A1；wire 键名 `kind`，两条路由同名同义）；其余工具不得携带。
+     */
+    val figureKind: TutorFigureKind? = null,
+    /**
+     * GENERATE_FIGURE 的画面说明（A1；wire 键名 `description`，上限
+     * [MAX_FIGURE_DESCRIPTION_CHARS]）；其余工具不得携带。它是**语义**输入：生成提示词由它
+     * 与本地固定的说明拼成，模型无法经它传图片、URL 或生成参数。
+     */
+    val figureDescription: String? = null,
 ) {
     init {
         require(rationale.isNotBlank() && rationale.length <= MAX_TOOL_RATIONALE_CHARS) {
@@ -169,12 +197,14 @@ data class TutorToolCall(
         ) {
             "Tool call terms must be short distinct student-derived words"
         }
-        // MASTERY_READ（本科目清单）与 ADVISORY_*（作用域可能是当前题/科目）允许空 terms；
-        // ADVISORY_WRITE 的 NODE 作用域另有"必须有代号"的专门校验（见下）。
+        // MASTERY_READ（本科目清单）、ADVISORY_*（作用域可能是当前题/科目）与 GENERATE_FIGURE
+        // （语义全在 figureDescription 里）允许空 terms；ADVISORY_WRITE 的 NODE 作用域另有
+        // "必须有代号"的专门校验，GENERATE_FIGURE 另要求 terms **必须为空**（见下）。
         if (
             tool != TutorToolName.MASTERY_READ &&
             tool != TutorToolName.ADVISORY_READ &&
-            tool != TutorToolName.ADVISORY_WRITE
+            tool != TutorToolName.ADVISORY_WRITE &&
+            tool != TutorToolName.GENERATE_FIGURE
         ) {
             require(terms.isNotEmpty()) {
                 "The $tool tool requires at least one lookup term"
@@ -257,6 +287,28 @@ data class TutorToolCall(
                 }
             }
         }
+        if (tool == TutorToolName.GENERATE_FIGURE) {
+            require(figureKind != null) {
+                "A GENERATE_FIGURE call must state its figure kind"
+            }
+            require(terms.isEmpty()) {
+                "A GENERATE_FIGURE call must not carry lookup terms"
+            }
+            require(figureDescription != null && figureDescription.isNotBlank()) {
+                "A GENERATE_FIGURE call must carry a non-blank description"
+            }
+            require(figureDescription.length <= MAX_FIGURE_DESCRIPTION_CHARS) {
+                "A GENERATE_FIGURE description must be at most $MAX_FIGURE_DESCRIPTION_CHARS chars"
+            }
+            // 说明是一行文字、会进生成提示词：控制字符（含换行）只会是夹带，不是描述。
+            require(figureDescription.none(Char::isISOControl)) {
+                "A GENERATE_FIGURE description must not carry control characters"
+            }
+        } else {
+            require(figureKind == null && figureDescription == null) {
+                "Only GENERATE_FIGURE carries a figure kind or description"
+            }
+        }
     }
 
     companion object {
@@ -270,6 +322,13 @@ data class TutorToolCall(
          * 这是模型逐次调用参数。
          */
         const val MAX_ADVISORY_PAYLOAD_CHARS = 600
+
+        /**
+         * GENERATE_FIGURE 一条画面说明的字符上限（A1 契约：description ≤200）。
+         * 取值理由：200 字符 ≈ 2-3 句中文，够写清"这张图要表达什么"；它同时是出网提示词的
+         * 组成段，本地硬上限不靠 provider 的软约束（与 ADVISORY_WRITE payload 同一纪律）。
+         */
+        const val MAX_FIGURE_DESCRIPTION_CHARS = 200
     }
 }
 
@@ -536,6 +595,9 @@ fun tutorToolAuthorization(
                 TutorToolName.NOTEBOOK_WRITE,
                 TutorToolName.ADVISORY_READ,
                 TutorToolName.ADVISORY_WRITE,
+                // A1：生图工具只在**有当前题**的意图下放行——REDRAW_PROBLEM 的源图来自当前题，
+                // GENERATE_PROCESS 的过程图也只在当前题语境里有意义（大厅/查库/闲聊轮没有可画的题）。
+                TutorToolName.GENERATE_FIGURE,
             )
         TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP ->
             setOf(TutorToolName.NOTEBOOK_READ, TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
@@ -581,7 +643,8 @@ private const val ROUTE_CONFIDENCE_THRESHOLD = TUTOR_TOOL_ROUTE_CONFIDENCE_THRES
 
 /**
  * Upper bound on simultaneously declared tools for one dispatch（spec §2 core five +
- * D-M M7 的两枚咨询工具）。提示词里的声明块要整表渲染并逐轮持久化，上界是防"无限声明
- * 挤占讲解预算"的硬门；加工具必须同时上调它，否则生产装配的 7 工具面在构造输入时就抛。
+ * D-M M7 的两枚咨询工具 + 4B A1 的生图工具 = 8）。提示词里的声明块要整表渲染并逐轮持久化，
+ * 上界是防"无限声明挤占讲解预算"的硬门；加工具必须同时上调它，否则生产装配的 8 工具面
+ * 在构造输入时就抛。
  */
-const val MAX_TOOL_DECLARATIONS = 7
+const val MAX_TOOL_DECLARATIONS = 8

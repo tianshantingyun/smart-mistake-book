@@ -7,8 +7,12 @@ import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
  * Shared credential gate for the image-to-image / generation channels: returns
  * the available credential (with a verified image-capable model) or null when
  * networking is not allowed / no credential is configured / the capability test
- * did not confirm image input. Mirrors the gating in the clean-redraw generator
- * so both figure paths decide identically.
+ * did not confirm image input.
+ *
+ * A3：这是门的**唯一实现**。`ConfiguredCleanImageGenerator` 曾内联抄一份同样的判定
+ * （本 KDoc 当时写的是"mirrors the gating in the clean-redraw generator"——方向已反过来），
+ * 现在三条图片链都调用本函数：保存时重绘、`attachedImages` 兼容配图、4B A1 的
+ * `GENERATE_FIGURE` 工具。
  */
 internal suspend fun resolveImageCredential(
     configurationStore: ModelConfigurationStore,

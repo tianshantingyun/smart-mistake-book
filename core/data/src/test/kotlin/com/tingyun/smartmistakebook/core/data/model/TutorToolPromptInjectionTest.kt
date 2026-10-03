@@ -244,6 +244,21 @@ class TutorToolPromptInjectionTest {
     }
 
     @Test
+    fun lobbyPromptNamesTheFigureToolInTheEmptyScopeWarning() {
+        // 4B A1：生图工具在大厅同样只有空范围（没有可画的当前题），止血行必须覆盖它。
+        val prompt = OpenAiModelTaskAdapters.prompt(
+            lobby(
+                toolDeclarations = listOf(
+                    TutorToolName.NOTEBOOK_READ,
+                    TutorToolName.GENERATE_FIGURE,
+                ),
+            ),
+        )
+        assertTrue("止血行必须进大厅提示词: $prompt", prompt.contains("本轮没有科目上下文"))
+        assertTrue("止血行必须点名生图工具: $prompt", prompt.contains("不要申请 GENERATE_FIGURE"))
+    }
+
+    @Test
     fun lobbyPromptNamesTheAdvisoryToolsInTheEmptyScopeWarning() {
         // D-M M7：两枚咨询工具在大厅同样只有空范围（无科目/无会话），止血行要覆盖它们。
         val prompt = OpenAiModelTaskAdapters.prompt(

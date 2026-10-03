@@ -1,5 +1,10 @@
 # image-mcp-server
 
+> **仅开发用；无 SSRF / 凭证防护；已被 App 内 `GENERATE_FIGURE` 工具取代。**
+> 阶段 4B A1 起，App 的生图走工具环（`resolveImageCredential` 唯一门 + SSRF 防护通道 +
+> 规范资产库）；本目录不在 Android 构建里（`settings.gradle.kts` 未 include），
+> 保留仅作历史参考，勿用于生产。
+
 独立 MCP server 进程：把被拍摄的题目照片重绘成干净的题面图。
 内部调用 OpenAI `POST /v1/images/edits`（gpt-image-2），通过 MCP 以工具形式暴露。
 

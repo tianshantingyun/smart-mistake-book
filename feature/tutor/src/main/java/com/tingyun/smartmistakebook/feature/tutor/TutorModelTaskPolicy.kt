@@ -497,6 +497,8 @@ internal fun buildTutorRespondRequest(
             // D-M M7：两枚咨询工具在统一工具面里（与 TUTOR_TOOL_DECLARATIONS 同集合）。
             TutorToolName.ADVISORY_READ,
             TutorToolName.ADVISORY_WRITE,
+            // 4B A1：生图工具（REDRAW_PROBLEM / GENERATE_PROCESS）也在同一工具面里。
+            TutorToolName.GENERATE_FIGURE,
         ),
         boundQuestionCandidates = boundQuestionCandidates,
         knownRoundQuestion = knownRoundQuestion,

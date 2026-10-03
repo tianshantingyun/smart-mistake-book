@@ -18,14 +18,14 @@ import org.junit.Test
  *   runner 解析，编造代号结构性拒）。
  *
  * 那两张表的钉住分别在 `TutorToolAuthorizationTest`（core:model）与
- * `TutorToolRoundGateTest`（core:data）；这里钉住的是声明面本身——同一页、全量七枚
- * （D-M M7 起核心五 + 咨询两枚）、写口概念不漂移。
+ * `TutorToolRoundGateTest`（core:data）；这里钉住的是声明面本身——同一页、全量八枚
+ * （D-M M7 起核心五 + 咨询两枚，4B A1 起再加生图一枚）、写口概念不漂移。
  */
 class TutorToolGateTest {
 
     @Test
-    fun `the page declares the full seven tool surface for every entry`() {
-        // D7/D8 + D-M M7：Plan / Respond / 大厅同一工具面，不随场景分叉。
+    fun `the page declares the full eight tool surface for every entry`() {
+        // D7/D8 + D-M M7 + 4B A1：Plan / Respond / 大厅同一工具面，不随场景分叉。
         assertEquals(
             setOf(
                 TutorToolName.KNOWLEDGE_READ,
@@ -35,6 +35,7 @@ class TutorToolGateTest {
                 TutorToolName.NOTEBOOK_WRITE,
                 TutorToolName.ADVISORY_READ,
                 TutorToolName.ADVISORY_WRITE,
+                TutorToolName.GENERATE_FIGURE,
             ),
             TUTOR_TOOL_DECLARATIONS,
         )

@@ -30,6 +30,7 @@ import com.tingyun.smartmistakebook.core.data.export.MistakeExportRepositoryFact
 import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelGatewayFactory
 import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelCapabilityTesterFactory
 import com.tingyun.smartmistakebook.core.data.model.ModelTaskRepositoryFactory
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureGeneratorFactory
 import com.tingyun.smartmistakebook.core.data.model.RestrictedModelAssetSourceFactory
 import com.tingyun.smartmistakebook.core.data.model.UnavailableModelGateway
 import com.tingyun.smartmistakebook.core.data.study.StudyExperienceRepositoryFactory
@@ -340,6 +341,15 @@ class SmartMistakeBookApplication : Application() {
                 // 工具环里的 KNOWLEDGE_READ 读这个就绪位：内容没就位时回"还在准备"，
                 // 而不是"知识库里没有匹配的知识点"（D-Q3 的六号消费点）。
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
+                // 4B A1：工具环生图（GENERATE_FIGURE）复用同一份模型凭证与 SSRF 防护通道；
+                // 没配模型时整条链保持 null（工具回"不可用"，不静默假成功）。
+                figureGenerator = modelConfigurationStore?.let { configurationStore ->
+                    TutorFigureGeneratorFactory.create(
+                        context = this,
+                        configurationStore = configurationStore,
+                        networkRequestsAllowed = capabilities.networkRequestsAllowed,
+                    )
+                },
             )
             captureRepository = CaptureWorkflowRepositoryFactory.create(
                 context = this,

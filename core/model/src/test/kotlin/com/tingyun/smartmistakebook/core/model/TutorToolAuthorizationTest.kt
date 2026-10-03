@@ -160,6 +160,42 @@ class TutorToolAuthorizationTest {
     }
 
     @Test
+    fun generateFigureRequiresTheCurrentQuestionIntent() {
+        // 4B A1：生图工具只在有当前题的意图下放行——大厅/查库/闲聊轮没有可画的题
+        // （REDRAW 的源图来自当前题，GENERATE_PROCESS 的过程图也只在当前题语境里有意义）。
+        val declaredFigure = declared(TutorToolName.GENERATE_FIGURE)
+        assertTrue(
+            "CURRENT_QUESTION_HELP 高置信 + 已声明 → GENERATE_FIGURE 放行",
+            TutorToolName.GENERATE_FIGURE in tutorToolAuthorization(
+                decision(TutorMessageIntent.CURRENT_QUESTION_HELP),
+                declaredFigure,
+            ).allowedTools,
+        )
+        listOf(
+            TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP,
+            TutorMessageIntent.LEARNING_PROGRESS_LOOKUP,
+            TutorMessageIntent.APP_HELP_OR_SETTINGS,
+            TutorMessageIntent.CASUAL_CONVERSATION,
+            TutorMessageIntent.END_OR_PAUSE,
+        ).forEach { intent ->
+            assertFalse(
+                "$intent 下 GENERATE_FIGURE 不应被授权（没有可画的当前题）",
+                TutorToolName.GENERATE_FIGURE in tutorToolAuthorization(
+                    decision(intent),
+                    declaredFigure,
+                ).allowedTools,
+            )
+        }
+        // declared ∩ intent 仍生效：未声明不放行。
+        assertFalse(
+            TutorToolName.GENERATE_FIGURE in tutorToolAuthorization(
+                decision(TutorMessageIntent.CURRENT_QUESTION_HELP),
+                declared(TutorToolName.NOTEBOOK_READ),
+            ).allowedTools,
+        )
+    }
+
+    @Test
     fun masteryReadRequiresLearningProgressOrCurrentQuestion() {
         val reads = declared(TutorToolName.NOTEBOOK_READ, TutorToolName.MASTERY_READ)
         assertTrue(

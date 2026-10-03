@@ -53,6 +53,17 @@ fun TutorToolName.purposeDescription(): String = when (this) {
             "DIFFICULTY_TIER}，DIFFICULTY_TIER 的 payload 只能是 EASY/MEDIUM/HARD 且只能用" +
             "PROBLEM 作用域；payload 是一条简短共识（上限 " +
             "${TutorToolCall.MAX_ADVISORY_PAYLOAD_CHARS} 字符）。"
+    TutorToolName.GENERATE_FIGURE ->
+        "生成一张当前题的配图（只画与当前题相关的图形、数轴、步骤标注，不改写题面文字）。" +
+            "kind 二选一：REDRAW_PROBLEM＝把当前题的题面图去手写重绘成干净题面" +
+            "（源图由本地自动取自当前题的规范资产，你不得也不能提供图片）；" +
+            "GENERATE_PROCESS＝按 description 生成一张解析过程图。" +
+            "description 用平实中文写清这张图要表达什么（上限 " +
+            "${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符），terms 必须留空。" +
+            "仅当图能实质降低当前题当前小问的理解负担时才申请；" +
+            "生成结果只回图的 id 与状态（图已保存到本地；当前版本还不会在回复中展示，" +
+            "不要让学生去找图，也不要声称已经展示）。" +
+            "本地未配置可用的图像模型时不会生成（返回不可用，不要反复申请）。"
 }
 
 /** 原生 function schema 用的短描述（与 [purposeDescription] 同一来源，措辞收紧）。 */
@@ -73,4 +84,8 @@ fun TutorToolName.nativePurposeDescription(): String = when (this) {
     TutorToolName.ADVISORY_WRITE ->
         "写入一条教学咨询（只写跨会话的持久共识，不写一次性闲聊；scope/kinds 本地限枚举，" +
             "同一目标同一 kind 更新已有记录、不堆积）"
+    TutorToolName.GENERATE_FIGURE ->
+        "生成当前题的配图（kind=REDRAW_PROBLEM 重绘干净题面，源图本地自动取、不接受模型供图；" +
+            "kind=GENERATE_PROCESS 按 description 文生图；terms 留空，" +
+            "description≤${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符；结果只回 id+状态）"
 }

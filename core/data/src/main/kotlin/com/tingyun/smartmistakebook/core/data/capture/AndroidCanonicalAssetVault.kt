@@ -17,6 +17,52 @@ import kotlin.math.floor
 
 internal const val MAX_CANONICAL_SOURCE_INPUT_BYTES = 20L * 1_024L * 1_024L
 
+/**
+ * A3：规范资产字节的**公开核对读取口**。
+ *
+ * `AndroidCanonicalAssetVault.resolve` 是"文件仍在 + 字节数与 sha256 逐位一致"的唯一实现；
+ * 这条函数只把它对 app 层暴露出来（vault 本体保持 internal，写入面不扩散）。消灭的失败：
+ * app 层的 `savedMistakeSheetBytes` 曾自己 `readBytes` + sha256 比对（第二份核对实现），
+ * 与 vault 的核对一旦漂开，出网的题面字节就会在一条链上失去逐位核对。
+ *
+ * 返回 null = 记录缺失/文件被替换/读失败——调用方按"没有这张图"处理（fail-closed）。
+ */
+fun readVerifiedCanonicalAssetBytes(
+    context: Context,
+    record: CanonicalSourceAssetRecord,
+): ByteArray? = runCatching {
+    AndroidCanonicalAssetVault(context.applicationContext).resolve(record).readBytes()
+}.getOrNull()
+
+/**
+ * 规范资产文件的**完整性判据**：文件存在 + 字节数一致 + sha256 逐位一致。
+ *
+ * `AndroidCanonicalAssetVault.resolve` 调用它（唯一生产实现）；抽成只吃 [File] 与记录字段的
+ * 纯函数，是为了让这条**出网前核对**在 JVM 面可测（F5：saved-sheet 链的负向断言此前只剩
+ * 仪器化覆盖）——Context 依赖因此只剩"定位文件"那一半。
+ */
+internal fun canonicalAssetFileIsIntact(
+    file: File,
+    expectedByteSize: Long,
+    expectedContentSha256: String,
+): Boolean = file.isFile &&
+    file.length() == expectedByteSize &&
+    sha256Of(file) == expectedContentSha256
+
+/** 规范资产的 sha256（与 `AndroidCanonicalAssetVault.sha256` 同源；供完整性判据与写入面共用）。 */
+internal fun sha256Of(file: File): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    file.inputStream().buffered().use { input ->
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        while (true) {
+            val read = input.read(buffer)
+            if (read < 0) break
+            if (read > 0) digest.update(buffer, 0, read)
+        }
+    }
+    return digest.digest().joinToString(separator = "") { byte -> "%02x".format(byte) }
+}
+
 /** Bounded decoder and EXIF-stripping vault for app-private capture URIs. */
 internal class AndroidCanonicalAssetVault(
     private val context: Context,
@@ -199,11 +245,7 @@ internal class AndroidCanonicalAssetVault(
         val assetRoot = File(context.filesDir, ASSET_DIRECTORY).canonicalFile
         val file = File(context.filesDir, record.relativePath).canonicalFile
         check(file.parentFile == assetRoot) { "Canonical source asset escaped its vault" }
-        check(
-            file.isFile &&
-                file.length() == record.byteSize &&
-                sha256(file) == record.contentSha256,
-        ) {
+        check(canonicalAssetFileIsIntact(file, record.byteSize, record.contentSha256)) {
             "Canonical source asset is missing or changed"
         }
         return file
@@ -352,18 +394,7 @@ internal class AndroidCanonicalAssetVault(
         }
     }
 
-    private fun sha256(file: File): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        file.inputStream().buffered().use { input ->
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            while (true) {
-                val read = input.read(buffer)
-                if (read < 0) break
-                if (read > 0) digest.update(buffer, 0, read)
-            }
-        }
-        return digest.digest().joinToString(separator = "") { byte -> "%02x".format(byte) }
-    }
+    private fun sha256(file: File): String = sha256Of(file)
 
     private data class ImageBounds(
         val width: Int,

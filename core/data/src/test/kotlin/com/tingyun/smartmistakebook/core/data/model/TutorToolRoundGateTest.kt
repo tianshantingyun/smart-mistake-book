@@ -5,7 +5,12 @@ import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
+import com.tingyun.smartmistakebook.core.model.TutorFigureKind
+import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+import com.tingyun.smartmistakebook.core.model.TutorMemoryPreference
+import com.tingyun.smartmistakebook.core.model.TutorMessageIntent
+import com.tingyun.smartmistakebook.core.model.TutorRequestedLocalCapability
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRoundQuestionDeclaration
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
@@ -442,6 +447,63 @@ class TutorToolRoundGateTest {
 
         assertEquals(3, outcomes.single().resultCount)
     }
+
+    @Test
+    fun `a figure call reaches the runner only under the current-question intent`() = runBlocking {
+        // 4B A1：生图工具走既有具名规则（意图 × 置信度 × 声明集）——CURRENT_QUESTION_HELP
+        // 放行到执行器；大厅/查库轮不放行，且**不触达**执行器（not_authorized）。
+        val figureCall = TutorToolCall(
+            tool = TutorToolName.GENERATE_FIGURE,
+            rationale = "图形是这道题的理解关键",
+            figureKind = TutorFigureKind.REDRAW_PROBLEM,
+            figureDescription = "重绘题面去手写",
+        )
+        val ran = mutableListOf<TutorToolName>()
+        val runTool: suspend (TutorToolCall, Boolean) -> TutorToolExecution = { call, _ ->
+            ran += call.tool
+            ok(call.tool)
+        }
+
+        val currentQuestion = tutorToolAuthorization(
+            intentDecision(
+                intent = TutorMessageIntent.CURRENT_QUESTION_HELP,
+            ),
+            TUTOR_TOOL_DECLARATIONS,
+        )
+        val allowed = tutorToolRoundOutcomes(
+            calls = listOf(figureCall),
+            authorizedTools = currentQuestion.allowedTools,
+            disclosedKnowledgeCodes = disclosed,
+            runTool = runTool,
+            consumeExtendedResult = {},
+        )
+        assertTrue("CURRENT_QUESTION_HELP 下生图调用应放行到执行器", allowed.single().outcome.ok)
+        assertEquals(listOf(TutorToolName.GENERATE_FIGURE), ran)
+
+        ran.clear()
+        val lookup = tutorToolAuthorization(
+            intentDecision(intent = TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP),
+            TUTOR_TOOL_DECLARATIONS,
+        )
+        val refused = tutorToolRoundOutcomes(
+            calls = listOf(figureCall),
+            authorizedTools = lookup.allowedTools,
+            disclosedKnowledgeCodes = disclosed,
+            runTool = runTool,
+            consumeExtendedResult = {},
+        )
+        assertFalse(refused.single().outcome.ok)
+        assertEquals("not_authorized", refused.single().outcome.errorKind)
+        assertTrue("未授权不得触达执行器", ran.isEmpty())
+    }
+
+    private fun intentDecision(intent: TutorMessageIntent) = TutorIntentDecision(
+        intent = intent,
+        confidence = 0.9,
+        explicitActionRequest = false,
+        memoryPreference = TutorMemoryPreference.UNCHANGED,
+        requestedLocalCapability = TutorRequestedLocalCapability.NONE,
+    )
 
     private fun masteryUpdateCall(anchor: TutorRoundQuestionDeclaration?) = TutorToolCall(
         tool = TutorToolName.MASTERY_UPDATE,

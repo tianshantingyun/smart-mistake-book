@@ -177,6 +177,8 @@ private fun TutorToolTraceEntry.rowText(): String {
             TutorToolName.NOTEBOOK_WRITE -> "$label · 未保存"
             TutorToolName.MASTERY_UPDATE -> "$label · 未计入掌握度"
             TutorToolName.ADVISORY_WRITE -> "$label · 未记录"
+            // A1：生图没有"条数"可言——出没出图是它唯一的产出。
+            TutorToolName.GENERATE_FIGURE -> "$label · 未生成"
             else -> "$label · 未执行"
         }
     }
@@ -185,6 +187,7 @@ private fun TutorToolTraceEntry.rowText(): String {
         TutorToolName.NOTEBOOK_WRITE -> "$label · 已保存"
         TutorToolName.MASTERY_UPDATE -> "$label · 已记录"
         TutorToolName.ADVISORY_WRITE -> "$label · 已记录"
+        TutorToolName.GENERATE_FIGURE -> "$label · 已生成"
         // 读工具：条数为 0 = 本轮无可读范围（B4 的中性说法，不给"失败"的读感）。
         TutorToolName.KNOWLEDGE_READ,
         TutorToolName.NOTEBOOK_READ,
@@ -212,6 +215,8 @@ fun TutorToolName.displayLabel(): String = when (this) {
     TutorToolName.MASTERY_UPDATE -> "掌握记录"
     TutorToolName.ADVISORY_READ -> "教学备注"
     TutorToolName.ADVISORY_WRITE -> "教学备注"
+    // A1：学生看得懂的说法——产品里这一功能就叫"配图"。
+    TutorToolName.GENERATE_FIGURE -> "配图"
 }
 
 /**
@@ -247,6 +252,9 @@ fun tutorToolRefusalText(errorKind: String): String = when {
     errorKind == "not_ready" -> "这道题还没准备就绪，没有保存"
     errorKind == "awaiting_consent" -> "已经请你确认，还没执行"
     errorKind == "failed" -> "这次查询没有完成"
+    // A1 生图的两条结果码（本地产生，见 RoomTutorToolRunner.generateFigure）。
+    errorKind == "figure_unavailable" -> "当前没有可用的生图通道，没有生成"
+    errorKind == "figure_failed" -> "这次配图没有生成成功"
     else -> "没有完成"
 }
 

@@ -917,6 +917,9 @@ class TutorModelTaskPolicyTest {
                 TutorToolName.NOTEBOOK_WRITE,
                 TutorToolName.ADVISORY_READ,
                 TutorToolName.ADVISORY_WRITE,
+                // 4B A1：生图工具与其它七枚同页声明（大厅里它不会被授权——意图矩阵只给
+                // CURRENT_QUESTION_HELP；声明与放行仍是两层表达）。
+                TutorToolName.GENERATE_FIGURE,
             ),
             input.toolDeclarations,
         )
@@ -925,7 +928,7 @@ class TutorModelTaskPolicyTest {
         // 都钉在 core:data 的 `TutorToolRoundGateTest`：意图授权矩阵（NOTEBOOK_WRITE 另需
         // explicitActionRequest）与 MASTERY_UPDATE 的代号白名单（大厅没有已披露代号 →
         // 任何代号结构性拒，模型被提示词教会先确认科目）。
-        assertEquals(7, input.toolDeclarations.size)
+        assertEquals(8, input.toolDeclarations.size)
     }
 
     // ---- 学生显式添加的题（加号「从错题库选择」）成为本轮题锚 ----
@@ -1135,7 +1138,8 @@ class TutorModelTaskPolicyTest {
 
     @Test
     fun planRequestDeclaresTheFullToolSurface() {
-        // D8 + D-M M7：Plan 复用 Respond 的工具环——声明集全量七枚，与 Respond/大厅同一页面口径。
+        // D8 + D-M M7 + 4B A1：Plan 复用 Respond 的工具环——声明集全量八枚，
+        // 与 Respond/大厅同一页面口径。
         val request = buildTutorPlanRequest(
             question = session().toTutorQuestionContext(),
             profile = StudyProfileOverview(),
@@ -1145,7 +1149,7 @@ class TutorModelTaskPolicyTest {
         )
         val input = request.input as TutorPlanInput
         assertEquals(TUTOR_TOOL_DECLARATIONS.toList(), input.toolDeclarations)
-        assertEquals(7, input.toolDeclarations.size)
+        assertEquals(8, input.toolDeclarations.size)
         assertTrue(input.toolRoundResults.isEmpty())
     }
 

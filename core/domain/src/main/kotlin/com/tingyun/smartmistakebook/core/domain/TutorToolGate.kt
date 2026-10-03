@@ -6,7 +6,8 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
  * 工具声明的**同一页口径**（`docs/tutor-surface-unification.md` §5.6）。
  *
  * 2026-09-21 裁定（ADR 0001 / D6/D7）之后，这里只剩下"声明什么"：智能体页所有模型调用
- * （Plan / Respond / 大厅）同一工具面（6 → 7 工具：D-M M7 起加入两枚咨询工具）。**"放行什么"不再有场景维度**——
+ * （Plan / Respond / 大厅）同一工具面（6 → 7 → 8：D-M M7 加入两枚咨询工具，4B A1 加入生图
+ * 工具 `GENERATE_FIGURE`）。**"放行什么"不再有场景维度**——
  *
  * - 写不写由模型语义判定（系统提示词教会），代码零场景分叉（D6）：无题轮不再结构性拒写；
  * - MASTERY_READ 无场景分支（D7）：输出形态 / 聚合口径 / 24 解析上限 / 轮预算按旧裁定不变；
@@ -18,7 +19,13 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
  * 读到，而 feature 模块看不到 core:data 的 internal。
  */
 
-/** 页面上的全量工具声明集（顺序稳定，便于提示词与测试逐项比对）。7 = spec §2 核心五 + D-M M7 咨询两枚。 */
+/**
+ * 页面上的全量工具声明集（顺序稳定，便于提示词与测试逐项比对）。
+ * 8 = spec §2 核心五 + D-M M7 咨询两枚 + 4B A1 生图一枚（`GENERATE_FIGURE`）。
+ *
+ * 声明全量不等于放行全量：生图工具的意图门在 `tutorToolAuthorization` 的
+ * CURRENT_QUESTION_HELP 集合里（大厅/查库/闲聊轮没有可画的当前题）。
+ */
 val TUTOR_TOOL_DECLARATIONS: Set<TutorToolName> = linkedSetOf(
     TutorToolName.KNOWLEDGE_READ,
     TutorToolName.NOTEBOOK_READ,
@@ -27,6 +34,7 @@ val TUTOR_TOOL_DECLARATIONS: Set<TutorToolName> = linkedSetOf(
     TutorToolName.NOTEBOOK_WRITE,
     TutorToolName.ADVISORY_READ,
     TutorToolName.ADVISORY_WRITE,
+    TutorToolName.GENERATE_FIGURE,
 )
 
 /**

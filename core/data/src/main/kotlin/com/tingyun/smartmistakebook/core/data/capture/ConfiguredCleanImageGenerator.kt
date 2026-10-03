@@ -5,10 +5,10 @@ import com.tingyun.smartmistakebook.core.data.model.ImageRedrawRequest
 import com.tingyun.smartmistakebook.core.data.model.ImageRedrawResult
 import com.tingyun.smartmistakebook.core.data.model.OpenAiImageGenerationChannel
 import com.tingyun.smartmistakebook.core.data.model.resolveGuardedEdits
+import com.tingyun.smartmistakebook.core.data.model.resolveImageCredential
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
 import com.tingyun.smartmistakebook.core.domain.CleanImageResult
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
-import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
 
@@ -28,6 +28,9 @@ import kotlinx.coroutines.CancellationException
  *  - no configured credential            → decline (null)
  *  - capability test never ran or did not verify image input → decline (null)
  *
+ * A3：这三条判定的**唯一实现**是 [resolveImageCredential]（本类只调用它，不再内联一份）——
+ * 与配图链（`AttachedImageGeneratorFactory` / `ConfiguredTutorFigureGenerator`）同一道门。
+ *
  * A failed edit (network, auth, provider, decode) also declines — the commit is
  * already durable, so the mistake keeps the original photo. Cancellation
  * propagates so an app shutdown does not silently swallow it.
@@ -42,20 +45,15 @@ internal class ConfiguredCleanImageGenerator(
         originalBytes: ByteArray,
         mimeType: String,
     ): CleanImageResult? {
-        if (!networkRequestsAllowed) return null
-        val credential = when (val read = configurationStore.readCredential()) {
-            is ModelCredentialReadResult.Available -> read
-            ModelCredentialReadResult.Missing,
-            ModelCredentialReadResult.Unavailable,
-            -> return null
-        }
+        // 门只有一处实现（A3）：resolveImageCredential（本构建不可出网 / 没配凭证 /
+        // 能力测试没确认图像输入 → null）。此前这里内联抄了一份同样的判定，两份一旦漂开，
+        // 同一份用户配置在"保存时重绘"与"模型配图"两条链上会做出不同决定。
+        val credential = resolveImageCredential(configurationStore, networkRequestsAllowed)
+            ?: return null
         return credential.apiKey.use { apiKey ->
             val keyChars = apiKey.copyChars()
             try {
                 val configuration = credential.configuration
-                val verification = configuration.capabilityVerification
-                if (verification == null || !verification.supportsImageInput) return@use null
-
                 val channel = try {
                     channelFactory.create(
                         baseUrl = configuration.baseUrl,
@@ -102,8 +100,12 @@ internal class ConfiguredCleanImageGenerator(
     }
 }
 
-/** Builds the authenticated redraw channel over the SSRF-guarded edits endpoint. */
-private object GuardedEditsChannelFactory : ConfiguredCleanImageGenerator.ChannelFactory {
+/**
+ * Builds the authenticated redraw channel over the SSRF-guarded edits endpoint.
+ * internal（不是 private）：4B A1 的 `ConfiguredTutorFigureGenerator` 复用同一个工厂，
+ * 免得"带 SSRF 防护的图片通道"出现第二份构造。
+ */
+internal object GuardedEditsChannelFactory : ConfiguredCleanImageGenerator.ChannelFactory {
     override suspend fun create(
         baseUrl: String,
         authorization: String,

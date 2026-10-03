@@ -370,6 +370,108 @@ class OpenAiNativeToolsProtocolTest {
         assertEquals(TutorToolName.MASTERY_UPDATE, round.calls.single().tool)
     }
 
+    // ---- 4B A1：生图工具的原生 schema 与解析 ----
+
+    @Test
+    fun theFullEightToolFaceIsAdvertisedAndTheFigureSchemaIsStrict() {
+        val input = respondInput().copy(toolDeclarations = TutorToolName.entries.toList())
+        val body = OpenAiModelProtocol.requestBody(
+            modelId = "test-model",
+            input = input,
+            images = emptyList(),
+            enableNativeTools = true,
+        )
+
+        // 8 枚工具面在原生路由上全部可达（一个都不能漏）。
+        TutorToolName.entries.forEach { tool ->
+            assertTrue(
+                "tools 必须含 ${tool.name} 的 function schema",
+                body.contains("\"name\":\"${tool.name}\""),
+            )
+        }
+
+        val figureBlock = functionBlock(body, "GENERATE_FIGURE")
+        assertTrue("GENERATE_FIGURE schema 必须在请求体里", figureBlock.isNotEmpty())
+        // kind 二选一（约束解码白名单）。
+        assertTrue("kind 枚举必须进 schema：$figureBlock", figureBlock.contains("\"REDRAW_PROBLEM\""))
+        assertTrue(figureBlock.contains("\"GENERATE_PROCESS\""))
+        // description 硬上限进 schema（本地仍兜底校验）。
+        assertTrue(
+            "description 上限必须进 schema：$figureBlock",
+            figureBlock.contains(
+                "\"maxLength\":${com.tingyun.smartmistakebook.core.model.TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS}",
+            ),
+        )
+        val required = Regex("\"required\":\\[([^\\]]*)\\]").find(figureBlock)?.groupValues?.get(1)
+            ?: throw AssertionError("GENERATE_FIGURE schema 无 required 数组")
+        assertTrue(required.contains("\"kind\""))
+        assertTrue(required.contains("\"description\""))
+        assertTrue(required.contains("\"terms\""))
+        assertTrue(required.contains("\"rationale\""))
+        // 生图不得携带别的工具的语义字段。
+        assertFalse(figureBlock.contains("\"direction\""))
+        assertFalse(figureBlock.contains("\"advisoryKind\""))
+    }
+
+    @Test
+    fun nativeGenerateFigureCallParsesKindAndDescription() {
+        val envelope = toolCallEnvelope(
+            """
+            {"role":"assistant","content":null,
+             "tool_calls":[{"id":"call_fig","type":"function",
+               "function":{"name":"GENERATE_FIGURE",
+                 "arguments":"{\"terms\":[],\"rationale\":\"图形是这道题的理解关键\",\"kind\":\"REDRAW_PROBLEM\",\"description\":\"重绘题面去手写\"}"}}]}
+            """.trimIndent(),
+        )
+        val output = OpenAiModelProtocol.parseResponse(
+            responseBody = envelope,
+            input = respondInput(),
+            modelVersion = "test-model-v1",
+        ) as TutorToolRequestsOutput
+
+        val call = output.calls.single()
+        assertEquals(TutorToolName.GENERATE_FIGURE, call.tool)
+        assertEquals(com.tingyun.smartmistakebook.core.model.TutorFigureKind.REDRAW_PROBLEM, call.figureKind)
+        assertEquals("重绘题面去手写", call.figureDescription)
+        assertTrue(call.terms.isEmpty())
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun nativeGenerateFigureCallRejectsAnUnknownKind() {
+        val envelope = toolCallEnvelope(
+            """
+            {"role":"assistant","content":null,
+             "tool_calls":[{"id":"call_fig","type":"function",
+               "function":{"name":"GENERATE_FIGURE",
+                 "arguments":"{\"terms\":[],\"rationale\":\"图形关键\",\"kind\":\"PAINT_SOMETHING\",\"description\":\"画一张图\"}"}}]}
+            """.trimIndent(),
+        )
+        OpenAiModelProtocol.parseResponse(
+            responseBody = envelope,
+            input = respondInput(),
+            modelVersion = "test-model-v1",
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun nativeGenerateFigureCallRejectsAnOverlongDescription() {
+        val description =
+            "长".repeat(com.tingyun.smartmistakebook.core.model.TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS + 1)
+        val envelope = toolCallEnvelope(
+            """
+            {"role":"assistant","content":null,
+             "tool_calls":[{"id":"call_fig","type":"function",
+               "function":{"name":"GENERATE_FIGURE",
+                 "arguments":"{\"terms\":[],\"rationale\":\"图形关键\",\"kind\":\"GENERATE_PROCESS\",\"description\":\"$description\"}"}}]}
+            """.trimIndent(),
+        )
+        OpenAiModelProtocol.parseResponse(
+            responseBody = envelope,
+            input = respondInput(),
+            modelVersion = "test-model-v1",
+        )
+    }
+
     @Test
     fun contentResponseStillParsesAsRouteB() {
         // provider 忽略 tools、在 json_object 信封里回 content → 回落 Route B 正常解析

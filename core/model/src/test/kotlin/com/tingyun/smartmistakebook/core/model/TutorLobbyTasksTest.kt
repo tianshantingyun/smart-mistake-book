@@ -47,6 +47,28 @@ class TutorLobbyTasksTest {
     }
 
     @Test
+    fun legacyLobbyRowsWithAttachedImagesStillDecode() {
+        // A6：大厅的 attachedImages 不再被解析（死分支），但**旧行**必须照旧读得出来——
+        // 旧解析器接受过非空值，且编码 encodeDefaults=true 使空列表也落键；字段作为遗留
+        // 解码载体保留，删掉它（而不用一套对非空数组也稳健的 JSON 手术）会让旧行直接抛。
+        val legacy = """
+            {"type":"tutor_lobby_output","conversationId":"tutor-lobby","messageOrdinal":2,
+             "messageMarkdown":"我画一张图给你。",
+             "intentDecision":{"intent":"AMBIGUOUS","confidence":0.5,"explicitActionRequest":false,
+               "memoryPreference":"UNCHANGED","requestedLocalCapability":"NONE","lookupTerms":[]},
+             "attachedImages":[{"imageId":"process-1","kind":"GENERATE_PROCESS",
+               "description":"数轴标注导数符号区间","accessibilityText":"导数符号区间图"}],
+             "modelVersion":"model-v1"}
+        """.trimIndent()
+
+        val decoded = ModelTaskCodec.decodeOutput(legacy) as TutorLobbyOutput
+
+        assertEquals("tutor-lobby", decoded.conversationId)
+        assertEquals(1, decoded.attachedImages.size)
+        assertEquals(AttachedImageKind.GENERATE_PROCESS, decoded.attachedImages.single().kind)
+    }
+
+    @Test
     fun lobbyRejectsContextMismatchAndEveryWriteLikeCapability() {
         val mismatch = TutorLobbyOutput(
             conversationId = "tutor-lobby",

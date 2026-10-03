@@ -42,13 +42,18 @@ object ModelPromptPolicyVersions {
     /**
      * v13：单一代号通道映射表 + Plan 工具环 + 教学材料加载失败披露（ADR 0001 / D5-D8）。
      * v14（D-M M7）：工具面新增两枚咨询工具（ADVISORY_READ/ADVISORY_WRITE），其描述随声明进提示词。
+     * v15（4B A1）：工具面新增生图工具（GENERATE_FIGURE，kind/description 契约随描述进提示词）。
+     * v16（4B A1 修复轮 F1）：生图描述不再承诺"图会在回复中展示"（批 1 无渲染路径），
+     * 改为如实说"已保存到本地、当前版本不展示"。
      */
-    const val TUTOR_PLAN = "tutor-plan-v14-advisory-tools"
+    const val TUTOR_PLAN = "tutor-plan-v16-figure-no-preview"
     /**
      * v20：写工具改收代号（原始 id 退出提示词）+ 代号映射表 + 无题轮不结构性拒写（D5/D6）。
      * v21（D-M M7）：工具面新增两枚咨询工具（描述与写工具段），代号表显式含本科「未分类」兜底桶。
+     * v22（4B A1）：工具面新增生图工具（GENERATE_FIGURE）。
+     * v23（4B A1 修复轮 F1）：生图描述不再承诺"图会在回复中展示"（批 1 无渲染路径）。
      */
-    const val TUTOR_RESPOND = "tutor-respond-v21-advisory-tools"
+    const val TUTOR_RESPOND = "tutor-respond-v23-figure-no-preview"
     /**
      * v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。
      * v10（A4）：允许申请 OFFER_SAVE_CURRENT_QUESTION（本地渲染确认卡、学生点了才执行），
@@ -56,8 +61,10 @@ object ModelPromptPolicyVersions {
      * v11（批次 0 条目 5b）：大厅提示词加止血行——本轮没有科目上下文时不要申请
      * KNOWLEDGE_READ / MASTERY_READ（没有科目范围，只会拿到空结果）。v10 及更早的轮次没有这段文本。
      * v12（D-M M7）：大厅声明面新增两枚咨询工具，止血行覆盖它们（大厅没有科目/会话范围）。
+     * v13（4B A1）：大厅声明面新增生图工具，止血行覆盖它（大厅没有可画的当前题）。
+     * v14（4B A1 修复轮 F1）：大厅的工具块同样渲染生图描述，不再承诺"图会在回复中展示"。
      */
-    const val TUTOR_LOBBY = "tutor-lobby-v12-advisory-tools"
+    const val TUTOR_LOBBY = "tutor-lobby-v14-figure-no-preview"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"
