@@ -26,7 +26,7 @@ class SchemaDumpInstrumentedTest {
             val store = StudyDatabaseFactory.open(context, databaseName)
             try {
                 // Force the open helper to create all tables.
-                store.libraryCatalogCount("", null, null, null, null)
+                store.libraryCatalogCount("", null, null, null, null, null)
             } finally {
                 store.close()
             }

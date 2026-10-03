@@ -17,8 +17,9 @@ internal class RoomLibrarySearchStore(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
     ): PagingSource<Int, LibraryCatalogRow> =
         MappingPagingSource(
@@ -26,8 +27,9 @@ internal class RoomLibrarySearchStore(
                 searchText = searchText,
                 subjectId = subjectId,
                 sectionId = sectionId,
-                knowledgePointId = knowledgePointId,
                 masteryId = masteryId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
                 sort = sort,
             ),
             transform = LibraryCatalogView::toRow,
@@ -37,8 +39,9 @@ internal class RoomLibrarySearchStore(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
     ): PagingSource<Int, LibraryCatalogRow> {
@@ -55,8 +58,9 @@ internal class RoomLibrarySearchStore(
                         matchQuery = matchQuery,
                         subjectId = subjectId,
                         sectionId = sectionId,
-                        knowledgePointId = knowledgePointId,
                         masteryId = masteryId,
+                        createdFromEpochMillis = createdFromEpochMillis,
+                        createdToEpochMillis = createdToEpochMillis,
                         sort = sort,
                         primaryPhrase = primaryPhrase,
                         extraTokenPhrases = listOf(
@@ -86,8 +90,9 @@ internal class RoomLibrarySearchStore(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         primaryPhrase: String,
         extraTokenPhrases: List<String>,
@@ -112,21 +117,17 @@ internal class RoomLibrarySearchStore(
             )
             bindings += sectionId
         }
-        if (knowledgePointId != null) {
-            filters.append(
-                "\n  AND EXISTS (\n" +
-                    "      SELECT 1 FROM problem_classification_binding AS classification\n" +
-                    "      WHERE classification.problem_id = catalog.problem_id\n" +
-                    "        AND classification.basis_revision_id = catalog.problem_revision_id\n" +
-                    "        AND classification.dimension = 'KNOWLEDGE'\n" +
-                    "        AND classification.label_id = ?\n" +
-                    "  )",
-            )
-            bindings += knowledgePointId
-        }
         if (masteryId != null) {
             filters.append("\n  AND catalog.mastery_id = ?")
             bindings += masteryId
+        }
+        if (createdFromEpochMillis != null) {
+            filters.append("\n  AND catalog.created_at_epoch_millis >= ?")
+            bindings += createdFromEpochMillis
+        }
+        if (createdToEpochMillis != null) {
+            filters.append("\n  AND catalog.created_at_epoch_millis <= ?")
+            bindings += createdToEpochMillis
         }
         val ranking = StringBuilder()
         listOf(
@@ -162,8 +163,6 @@ internal class RoomLibrarySearchStore(
         }
         val sortClause = when (sort) {
             "RECENTLY_CREATED" -> "catalog.created_at_epoch_millis DESC,\n    "
-            "NEXT_REVIEW" -> "catalog.next_review_at_epoch_millis ASC,\n    "
-            "LEAST_MASTERED" -> "$LEAST_MASTERED_MASTERY_SQL ASC,\n    "
             else -> ""
         }
         if (limit != null) {
@@ -201,8 +200,9 @@ internal class RoomLibrarySearchStore(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): Int {
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
         refreshProjection()
@@ -210,8 +210,9 @@ internal class RoomLibrarySearchStore(
             matchQuery = matchQuery,
             subjectId = subjectId,
             sectionId = sectionId,
-            knowledgePointId = knowledgePointId,
             masteryId = masteryId,
+            createdFromEpochMillis = createdFromEpochMillis,
+            createdToEpochMillis = createdToEpochMillis,
         )
     }
 
@@ -219,8 +220,9 @@ internal class RoomLibrarySearchStore(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
         offset: Int,
@@ -237,8 +239,9 @@ internal class RoomLibrarySearchStore(
                 matchQuery = matchQuery,
                 subjectId = subjectId,
                 sectionId = sectionId,
-                knowledgePointId = knowledgePointId,
                 masteryId = masteryId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
                 sort = sort,
                 primaryPhrase = primaryPhrase,
                 extraTokenPhrases = listOf(
@@ -256,8 +259,9 @@ internal class RoomLibrarySearchStore(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         facet: String,
     ): List<LibraryFacetCountRecord> {
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
@@ -267,26 +271,23 @@ internal class RoomLibrarySearchStore(
             "SUBJECT" -> dao.searchSubjectFacets(
                 matchQuery = matchQuery,
                 sectionId = sectionId,
-                knowledgePointId = knowledgePointId,
                 masteryId = masteryId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
             )
             "SECTION" -> dao.searchSectionFacets(
                 matchQuery = matchQuery,
                 subjectId = subjectId,
-                knowledgePointId = knowledgePointId,
                 masteryId = masteryId,
-            )
-            "KNOWLEDGE_POINT" -> dao.searchKnowledgeFacets(
-                matchQuery = matchQuery,
-                subjectId = subjectId,
-                sectionId = sectionId,
-                masteryId = masteryId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
             )
             "MASTERY" -> dao.searchMasteryFacets(
                 matchQuery = matchQuery,
                 subjectId = subjectId,
                 sectionId = sectionId,
-                knowledgePointId = knowledgePointId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
             )
             else -> error("Unsupported library facet kind: $facet")
         }.map(LibraryFacetCountRow::toRecord)
@@ -425,8 +426,9 @@ internal class RoomLibrarySearchStore(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         offset: Int,
         limit: Int,
@@ -436,8 +438,9 @@ internal class RoomLibrarySearchStore(
                 searchText = searchText,
                 subjectId = subjectId,
                 sectionId = sectionId,
-                knowledgePointId = knowledgePointId,
                 masteryId = masteryId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
                 sort = sort,
                 offset = offset,
                 limit = limit,
@@ -449,15 +452,17 @@ internal class RoomLibrarySearchStore(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): Int {
         return database.libraryQueryDao().count(
             searchText = searchText,
             subjectId = subjectId,
             sectionId = sectionId,
-            knowledgePointId = knowledgePointId,
             masteryId = masteryId,
+            createdFromEpochMillis = createdFromEpochMillis,
+            createdToEpochMillis = createdToEpochMillis,
         )
     }
 
@@ -465,37 +470,34 @@ internal class RoomLibrarySearchStore(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         facet: String,
     ): List<LibraryFacetCountRecord> {
         return when (facet) {
             "SUBJECT" -> database.libraryQueryDao().subjectFacets(
                 searchText = searchText,
                 sectionId = sectionId,
-                knowledgePointId = knowledgePointId,
                 masteryId = masteryId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
             ).map(LibraryFacetCountRow::toRecord)
 
             "SECTION" -> database.libraryQueryDao().sectionFacets(
                 searchText = searchText,
                 subjectId = subjectId,
-                knowledgePointId = knowledgePointId,
                 masteryId = masteryId,
-            ).map(LibraryFacetCountRow::toRecord)
-
-            "KNOWLEDGE_POINT" -> database.libraryQueryDao().knowledgeFacets(
-                searchText = searchText,
-                subjectId = subjectId,
-                sectionId = sectionId,
-                masteryId = masteryId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
             ).map(LibraryFacetCountRow::toRecord)
 
             "MASTERY" -> database.libraryQueryDao().masteryFacets(
                 searchText = searchText,
                 subjectId = subjectId,
                 sectionId = sectionId,
-                knowledgePointId = knowledgePointId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
             ).map(LibraryFacetCountRow::toRecord)
 
             else -> error("Unsupported library facet kind: $facet")

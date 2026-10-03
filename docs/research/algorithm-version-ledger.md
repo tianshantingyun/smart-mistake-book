@@ -198,6 +198,17 @@
 > （`CHECKPOINT_AHEAD` / `RESTORED_AT_IN_PAST` / `MALFORMED_ARCHIVE`）与文档口径（drill §4-4/§4-5、runbook §4-4）全处置。
 > 未做反向实证（无守卫时的楔死形态未直接复现，依据为 `PresentationProjectionState` 的 require 链 + 新用例在真实构造上触发）——已登记 UNVERIFIED。
 
+### 3.16 阶段 4A 批 1 · 数据与读侧面（2026-10-03，L1 + L2 + L5 + S17）：schema 60 + 零算法 bump
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` 59 → **60** | **重建 `library_catalog` 视图**：标题列 `unit.title` → `revision.title`（L2 读侧单源；视图本就 JOIN `problem_revision`）。迁移 `KERNEL_WAVE7_MIGRATION_59_60` = DROP + CREATE，**不动任何表、任何行**；`schemas/60.json` 生成。写侧双列与 `practice_unit.title` 列保持不动（计划 §5②：列删除收益不抵 RESTRICT 子表重建风险） | **无算法公式变更**：投影输出、计划指纹、账本逐位不变；库内唯一变化是视图定义（同库同数据的查询结果对同一读者同值） | 计划 `docs/research/2026-10-03-stage4a-plan.md` §3 批 1 + §4；L 条裁定 `docs/agent-first-refactor-decisions-2026-09-23.md:1058-1068`（L1/L2/L5） | `KernelWave7SchemaContractTest`（59/60 视图翻列、迁移 CREATE 与 60.json 逐字一致、全部表与另一视图逐字不变）；`KernelWave0SchemaContractTest`（版本常量 == 导出最高版本 == 60）；仪器化 `FullMigrationMatrixInstrumentedTest.libraryCatalogRebuildReadsRevisionTitleWithoutTouchingStoredRows`（真库迁移后视图读 revision.title、枢纽列与条目行原样）+ 矩阵 1→60；单源证明 `MistakeDetailDatabaseInstrumentedTest.catalogAndDirectoryReadRevisionTitleWhilePracticeUnitTitleStaysLegacy` | ➖（不改投影输出，不触发重放） |
+| `LearningCoreVersions` 全部串**未 bump**（复合串维持 `learning-core-v12`） | ①**L1**：删 `TRASHED` 死枚举三处（`StudyDbValue` / `DatabaseContract` 校验白名单 / `core:model` 枚举，全库零写入点）+ 归档即移出文案；②**L5**：`LibrarySort` 收敛为 `{RECENTLY_UPDATED（默认）, RECENTLY_CREATED}`、删知识点筛选参数/筛选层、新增「录入时间段」（创建时间闭区间：query 起止 + DAO 过滤 + UI 控件）；③**S17**：`observeActiveMistakes` 逐行相关子查询 + 嵌套 EXISTS → 派生表 + LEFT JOIN 聚合 | **零算法口径**：L1 是枚举退场（无写入点、无读者）；L5 是筛选/排序面收敛（不改任何评分或计划输入）；S17 是**等价重写**——同一库态下新查询与旧 SQL 逐列等价，`next_review_at`/掌握度 facet 等读出的仍是同一投影事实 | 同上 | S17：`ProblemDaoAggregationEquivalenceInstrumentedTest`（新 DAO 与 S17 前 SQL 原文逐行逐列对照；覆盖无回执/有回执/ARCHIVED 等形态——**同 unit 双条目在 schema 上不可达**（`error_book_entry.practice_unit_id` 唯一索引），用例如实声明不构造）；L5：`LibraryCatalogTwoValueSortInstrumentedTest`（两值排序给出不同序——夹具保证排序失效必红，非"互为逆序"；+ FTS 路径 + mastery facet 计数）、`LibraryCatalogPagingInstrumentedTest.createdRangeFilterNarrowsCatalogFtsCountsAndFacets`（目录/FTS/计数/facets 同窗口）、`LibraryCatalogTest`（JVM：时间段换算/默认排序/清除筛选）；L1 零残留：全仓代码 grep 无 `TRASHED` 引用（仅历史文档保留记述） | ➖（无投影/计划输出变化） |
+
+> 批 1 纪律记录：正式门（DB 仪器化全套 / app 三屏）由协调方跑；本批定向证据见上表，完整清单与未验证项见批 1 交付回报。
+> S17 既有性能/EXPLAIN 门（`PerformanceGateTest` library 段）保持原断言，仅随 L5 参数面同步调用签名。
+> 复核登记（2026-10-03，批 1 独立复核 approve-with-notes）：① **S17 性能未量化**（无专属 EXPLAIN/负载门；`PerformanceGateTest.insertTestData` 为既有空实现）——UNVERIFIED 登记；② **L2 尾巴**：`PracticeUnitAssessmentDao.kt:49` 的 `unit.title` 读者（讲题工件标题）在本批锚定范围外，双写成立时无分叉，将来「改写既有 revision」落地时需一并收口；③ **订正**：计划 §1 旧引用的「S17 既有缺陷登记 `known-defects.md:265`」实为 KD-7（无关），已同步订正计划原文；④ 时间段 UI 上界生产化（`createdToEpochMillis = now`，闭区间），该参数不再是"无生产设置点"。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

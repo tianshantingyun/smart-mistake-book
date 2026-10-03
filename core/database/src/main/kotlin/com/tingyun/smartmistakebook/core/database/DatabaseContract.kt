@@ -51,7 +51,6 @@ internal object DatabaseContractValidator {
     private val errorBookStatuses = setOf(
         StudyDbValue.ErrorBookStatus.ACTIVE,
         StudyDbValue.ErrorBookStatus.ARCHIVED,
-        StudyDbValue.ErrorBookStatus.TRASHED,
     )
     private val relationTypes = setOf(
         StudyDbValue.RelationType.SAME_KNOWLEDGE,

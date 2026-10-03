@@ -34,8 +34,9 @@ class LibrarySearchMigrationInstrumentedTest {
                     matchQuery = CjkTextTokenizer.matchExpression("二次方程"),
                     subjectId = null,
                     sectionId = null,
-                    knowledgePointId = null,
                     masteryId = null,
+                    createdFromEpochMillis = null,
+                    createdToEpochMillis = null,
                 ),
             )
             assertEquals(
@@ -44,20 +45,22 @@ class LibrarySearchMigrationInstrumentedTest {
                     matchQuery = CjkTextTokenizer.matchExpression("不存在的词"),
                     subjectId = null,
                     sectionId = null,
-                    knowledgePointId = null,
                     masteryId = null,
+                    createdFromEpochMillis = null,
+                    createdToEpochMillis = null,
                 ),
             )
             // The instr(lower()) fallback keeps working alongside the FTS path.
-            assertEquals(1, store.libraryCatalogCount("二次方程", null, null, null, null))
+            assertEquals(1, store.libraryCatalogCount("二次方程", null, null, null, null, null))
 
             // Paged retrieval goes through MATCH + snippet + weighted ranking.
             val source = store.librarySearchPagingSource(
                 matchQuery = CjkTextTokenizer.matchExpression("二次方程"),
                 subjectId = null,
                 sectionId = null,
-                knowledgePointId = null,
                 masteryId = null,
+                createdFromEpochMillis = null,
+                createdToEpochMillis = null,
                 sort = "RECENTLY_CREATED",
                 tokens = CjkTextTokenizer.tokens("二次方程"),
             )
@@ -144,8 +147,9 @@ class LibrarySearchMigrationInstrumentedTest {
                     matchQuery = CjkTextTokenizer.matchExpression("因式分解"),
                     subjectId = null,
                     sectionId = null,
-                    knowledgePointId = null,
                     masteryId = null,
+                    createdFromEpochMillis = null,
+                    createdToEpochMillis = null,
                 ),
             )
             // Second refresh must be a cheap no-op drain (outbox empty), not
@@ -157,8 +161,9 @@ class LibrarySearchMigrationInstrumentedTest {
                     matchQuery = CjkTextTokenizer.matchExpression("二次方程"),
                     subjectId = null,
                     sectionId = null,
-                    knowledgePointId = null,
                     masteryId = null,
+                    createdFromEpochMillis = null,
+                    createdToEpochMillis = null,
                 ),
             )
             store.close()

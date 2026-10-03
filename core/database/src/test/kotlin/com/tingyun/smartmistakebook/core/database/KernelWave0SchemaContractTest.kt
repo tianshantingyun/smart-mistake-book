@@ -21,10 +21,32 @@ import java.io.File
  * 3. **指纹列合并**（W0-2）：`review_plan` 的 `input_fingerprint` 在 53.json 里存在、在 54.json 里不存在；
  *    迁移的 INSERT..SELECT **逐列覆盖新表的每一列**（非破坏 = 旧行照搬，而不是"重建后只剩默认值"）。
  *
+ * 阶段 4A 批 1 追加一层：**当前 schema 头的一致性**（版本常量 == 导出的最高版本 JSON == 60），
+ * 把"版本提了但 schema 没导出"从仪器化矩阵提前到 JVM 上炸。
+ *
  * 与仪器测试的分工：这里管"DDL 与 schema 文件一致 + 语句形状"，
  * `FullMigrationMatrixInstrumentedTest` 管"真库迁移后结构与行都还在"。
  */
 class KernelWave0SchemaContractTest {
+
+    @Test
+    fun `the study database version matches the latest exported schema`() {
+        val latestExported = File("schemas")
+            .walkTopDown()
+            .filter { it.isFile && it.extension == "json" }
+            .mapNotNull { it.nameWithoutExtension.toIntOrNull() }
+            .max()
+        assertEquals(
+            "版本常量必须等于导出的最高 schema 版本",
+            latestExported,
+            STUDY_DATABASE_VERSION,
+        )
+        assertEquals(
+            "阶段 4A 批 1 的 schema 头是 60；下一次 bump 请同步本字面量",
+            60,
+            STUDY_DATABASE_VERSION,
+        )
+    }
 
     @Test
     fun `a commit carrying another projector version is refused`() {

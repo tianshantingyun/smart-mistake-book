@@ -120,7 +120,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 59
+internal const val STUDY_DATABASE_VERSION = 60
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -357,6 +357,7 @@ object StudyDatabaseFactory {
             KERNEL_WAVE4_MIGRATION_56_57,
             KERNEL_WAVE5_MIGRATION_57_58,
             KERNEL_WAVE6_MIGRATION_58_59,
+            KERNEL_WAVE7_MIGRATION_59_60,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

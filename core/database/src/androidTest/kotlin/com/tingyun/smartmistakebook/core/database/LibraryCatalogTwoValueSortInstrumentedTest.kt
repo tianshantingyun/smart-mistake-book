@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.database
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
@@ -10,7 +11,6 @@ import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.ProjectionStatus
-import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -19,22 +19,27 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * The `LEAST_MASTERED` catalog sort must order by the learner's *numeric*
- * mastery, weakest first.
+ * 阶段 4A 批 1 · L5 的两值排序契约（`docs/research/2026-10-03-stage4a-plan.md` §3 批 1）。
  *
- * It used to order by `library_catalog.retrievability`, which the view defines
- * as `NULL AS retrievability` — so every row compared equal and the sort
- * silently fell through to `updated_at DESC`. This is the same class of defect
- * as KD-7: a query reading a column that carries no data, invisible because
- * nothing failed.
+ * 本文件是 `LibraryLeastMasteredSortInstrumentedTest` 的重做（旧文件随 `LEAST_MASTERED`
+ * 退场删除）。旧断言逐条处置：
+ * 1. `leastMasteredOrdersByNumericMasteryWeakestFirst` —— **退场**：`LEAST_MASTERED`
+ *    排序被用户裁定删除（`docs/agent-first-refactor-decisions-2026-09-23.md:1066`），
+ *    "最弱掌握度在前"的数值排序不再存在，没有等价物可转移。
+ * 2. `leastMasteredOrdersByNumericMasteryOnTheFtsPathToo` —— **转移**为 FTS 路径的
+ *    两值排序断言（`recentlyCreatedOrdersByCreationTimeOnTheFtsPathToo`）：旧例要钉的是
+ *    "运行期自建 SQL 的第二份排序副本不得漂移"；两值排序同样有两份实现（`LibraryQueryDao`
+ *    的 `@Query` 与 `RoomLibrarySearchStore` 的 raw SQL），FTS 侧仍需自己的行为断言。
+ * 3. `leastMasteredStillAgreesWithTheMasteryFacetItSorts` —— 前半（排序与掌握度同源）
+ *    **退场**：两值排序不再声明读掌握度；后半（facet 计数）**转移**为
+ *    `masteryFacetStillCountsTheFixture`，保留"掌握程度筛选面照常工作"的覆盖。
  *
- * The fixture makes the assertion decisive rather than incidental: the expected
- * weakness order (`weak`, `middle`, `strong`) is the exact **reverse** of the
- * `updated_at DESC` fallback order, so an implementation that does nothing
- * still produces a total order — just the wrong one.
+ * 新用例的夹具让**创建时间与更新时间各有一条不同的序**（entry-a 创建最早但更新最新），
+ * 这样"排序没生效（退回 updated_at DESC）"或"两个值被当成同一个"都必然失败，
+ * 而不是碰巧通过。
  */
 @RunWith(AndroidJUnit4::class)
-class LibraryLeastMasteredSortInstrumentedTest {
+class LibraryCatalogTwoValueSortInstrumentedTest {
     private lateinit var store: RoomStudyDatabase
 
     @Before
@@ -48,59 +53,109 @@ class LibraryLeastMasteredSortInstrumentedTest {
     }
 
     @Test
-    fun leastMasteredOrdersByNumericMasteryWeakestFirst() = runBlocking {
+    fun recentlyUpdatedIsTheDefaultAndOrdersByUpdateTime() = runBlocking {
         store.seedStudyFacts(catalogSeed())
         store.commitProjection(projectionWithMastery())
+
+        val byDefault = store.database.libraryQueryDao().page(
+            searchText = "",
+            subjectId = null,
+            sectionId = null,
+            masteryId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+            sort = "RECENTLY_UPDATED",
+            offset = 0,
+            limit = 10,
+        )
+        val byUnknownValue = store.database.libraryQueryDao().page(
+            searchText = "",
+            subjectId = null,
+            sectionId = null,
+            masteryId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+            sort = "",
+            offset = 0,
+            limit = 10,
+        )
+
+        // updated_at: entry-a 9000 > entry-c 3000 > entry-b 2000
+        assertEquals(
+            listOf("entry-a", "entry-c", "entry-b"),
+            byDefault.map { it.entryId },
+        )
+        // 默认口径 = 非 RECENTLY_CREATED 的一切值都落到 updated_at DESC
+        assertEquals(byDefault.map { it.entryId }, byUnknownValue.map { it.entryId })
+
+        // 再加一条更新时刻最新的条目，证明"最近更新"真的在动
+        store.seedStudyFacts(newestUpdatedEntrySeed())
+        val afterNewest = store.database.libraryQueryDao().page(
+            searchText = "",
+            subjectId = null,
+            sectionId = null,
+            masteryId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+            sort = "RECENTLY_UPDATED",
+            offset = 0,
+            limit = 10,
+        )
+        assertEquals("entry-newest-update", afterNewest.first().entryId)
+    }
+
+    @Test
+    fun recentlyCreatedOrdersByCreationTime() = runBlocking {
+        store.seedStudyFacts(catalogSeed())
 
         val ordered = store.database.libraryQueryDao().page(
             searchText = "",
             subjectId = null,
             sectionId = null,
-            knowledgePointId = null,
             masteryId = null,
-            sort = "LEAST_MASTERED",
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+            sort = "RECENTLY_CREATED",
             offset = 0,
             limit = 10,
         )
 
+        // created_at: entry-c 3000 > entry-b 2000 > entry-a 1000。
+        // 若 RECENTLY_CREATED 没生效（退回 updated_at DESC），顺序会是 a, c, b —— 必然失败。
         assertEquals(
-            listOf("entry-weak", "entry-middle", "entry-strong"),
+            listOf("entry-c", "entry-b", "entry-a"),
             ordered.map { it.entryId },
         )
     }
 
     @Test
-    fun leastMasteredOrdersByNumericMasteryOnTheFtsPathToo() = runBlocking {
-        // The FTS search path builds its own SQL at runtime and carries its own
-        // copy of the expression, so it needs its own behavioral assertion —
-        // otherwise a drifted copy would silently sort by nothing again.
+    fun recentlyCreatedOrdersByCreationTimeOnTheFtsPathToo() = runBlocking {
+        // FTS 搜索路径在运行期自建 SQL、另带一份排序子句，所以它需要自己的行为断言。
         store.seedStudyFacts(catalogSeed())
-        store.commitProjection(projectionWithMastery())
 
         val ordered = store.librarySearchPage(
             matchQuery = CjkTextTokenizer.matchExpression(SEARCH_TERM),
             subjectId = null,
             sectionId = null,
-            knowledgePointId = null,
             masteryId = null,
-            sort = "LEAST_MASTERED",
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+            sort = "RECENTLY_CREATED",
             tokens = CjkTextTokenizer.tokens(SEARCH_TERM),
             offset = 0,
             limit = 10,
         )
 
         assertEquals(
-            listOf("entry-weak", "entry-middle", "entry-strong"),
+            listOf("entry-c", "entry-b", "entry-a"),
             ordered.map { it.entryId },
         )
     }
 
     @Test
-    fun leastMasteredStillAgreesWithTheMasteryFacetItSorts() = runBlocking {
-        // The facet the UI groups by and the sort it orders by must describe
-        // the same KC set; a sort that reads a different join would let the two
-        // disagree. All three entries here are LEARNING, so the facet cannot
-        // distinguish them — the sort must.
+    fun masteryFacetStillCountsTheFixture() = runBlocking {
+        // 旧第 3 例的 facet 覆盖转移到这里：排序不再与掌握度同源，但"掌握程度"筛选面
+        // 必须照常给出正确计数（三行都是 LEARNING，facet 无法区分——这正是旧例的前提）。
         store.seedStudyFacts(catalogSeed())
         store.commitProjection(projectionWithMastery())
 
@@ -108,33 +163,28 @@ class LibraryLeastMasteredSortInstrumentedTest {
             searchText = "",
             subjectId = null,
             sectionId = null,
-            knowledgePointId = null,
-        )
-        val sorted = store.database.libraryQueryDao().page(
-            searchText = "",
-            subjectId = null,
-            sectionId = null,
-            knowledgePointId = null,
-            masteryId = null,
-            sort = "LEAST_MASTERED",
-            offset = 0,
-            limit = 10,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
         )
 
         assertEquals(listOf("learning"), facets.map { it.id })
         assertEquals(3, facets.sumOf { it.count })
-        assertEquals(3, sorted.size)
     }
 
     /**
-     * Weakest mastery carries the **oldest** `updated_at`, strongest the newest,
-     * so the `updated_at DESC` fallback yields `strong, middle, weak`.
+     * 创建时间升序（a→b→c），更新时间另有一条序（a 最新、b 最旧），
+     * 于是两种排序的预期顺序不同；"排序没生效"必然读出 updated_at 的序。
      */
     private fun catalogSeed(): StudySeedBundle {
         val nodes = listOf(
-            Triple("kc-weak", "entry-weak", 1_000L),
-            Triple("kc-middle", "entry-middle", 2_000L),
-            Triple("kc-strong", "entry-strong", 3_000L),
+            Triple("kc-a", "entry-a", 1_000L),
+            Triple("kc-b", "entry-b", 2_000L),
+            Triple("kc-c", "entry-c", 3_000L),
+        )
+        val updatedByEntry = mapOf(
+            "entry-a" to 9_000L,
+            "entry-b" to 2_000L,
+            "entry-c" to 3_000L,
         )
         return StudySeedBundle(
             problems = nodes.map { (node, entry, stamp) ->
@@ -177,7 +227,7 @@ class LibraryLeastMasteredSortInstrumentedTest {
                     currentRevisionId = "revision-$node",
                     sourceKey = null,
                     acceptedAtEpochMillis = stamp,
-                    updatedAtEpochMillis = stamp,
+                    updatedAtEpochMillis = updatedByEntry.getValue(entry),
                 )
             },
             knowledgeNodes = nodes.map { (node, _, stamp) ->
@@ -206,12 +256,58 @@ class LibraryLeastMasteredSortInstrumentedTest {
         )
     }
 
+    /** Fourth entry whose `updated_at` exceeds all three seeds, without touching mastery. */
+    private fun newestUpdatedEntrySeed() = StudySeedBundle(
+        problems = listOf(
+            ProblemSeedRecord("problem-newest", "fp-newest", "MATH", 500L),
+        ),
+        revisions = listOf(
+            ProblemRevisionSeedRecord(
+                revisionId = "revision-newest",
+                problemId = "problem-newest",
+                revisionNumber = 1,
+                title = "最新更新题",
+                problemMarkdown = "题面 最新更新题",
+                answerSpecId = null,
+                answerSpecSnapshot = null,
+                answerVerificationStatus = StudyDbValue.VerificationStatus.UNKNOWN,
+                sourceType = "CAPTURE_CONFIRMED",
+                sourceReference = null,
+                contentFingerprint = "a".repeat(64),
+                createdAtEpochMillis = 500,
+            ),
+        ),
+        practiceUnits = listOf(
+            PracticeUnitSeedRecord(
+                practiceUnitId = "unit-newest",
+                problemId = "problem-newest",
+                problemRevisionId = "revision-newest",
+                unitKey = "whole-problem",
+                unitKind = "WHOLE_PROBLEM",
+                title = "最新更新题",
+                promptMarkdown = "题面 最新更新题",
+                estimatedSeconds = 180,
+                createdAtEpochMillis = 500,
+            ),
+        ),
+        errorBookEntries = listOf(
+            ErrorBookEntrySeedRecord(
+                entryId = "entry-newest-update",
+                practiceUnitId = "unit-newest",
+                problemId = "problem-newest",
+                currentRevisionId = "revision-newest",
+                sourceKey = null,
+                acceptedAtEpochMillis = 500,
+                updatedAtEpochMillis = 10_000,
+            ),
+        ),
+    )
+
     /**
      * Mastery rows come from a real projection commit, not `seedFixture`: the
      * fixture writes the legacy `knowledge_mastery_state` table, while the
-     * catalog reads `learner_knowledge_mastery_state`. Seeding the wrong table
-     * is exactly how KD-7 hid. A memory row is required too — the view resolves
-     * the learner from `learner_problem_memory_state`.
+     * catalog reads `learner_knowledge_mastery_state`. A memory row is required
+     * too — the view resolves the learner from `learner_problem_memory_state`.
      */
     private fun projectionWithMastery() = ProjectionCommit(
         projectionName = PROJECTION,
@@ -262,21 +358,17 @@ class LibraryLeastMasteredSortInstrumentedTest {
     private companion object {
         const val LEARNER = "learner-sort-test"
         const val PROJECTION = "study-experience-v1"
-        // 批次 2 / 规格 §4.2：绑真实当前版（原为陈旧占位 learning-core-v7）。
         const val PROJECTOR_VERSION = LearningProjector.VERSION
         const val TAXONOMY_VERSION = "taxonomy-sort-v1"
 
-        /**
-         * Present in every seeded problem's markdown, so the FTS path returns
-         * all three rows and the sort is what decides their order.
-         */
+        /** Present in every seeded problem's markdown, so the FTS path returns all three rows. */
         const val SEARCH_TERM = "题面"
 
         /** Conservative mastery per knowledge node; deliberately distinct. */
         val MASTERY = linkedMapOf(
-            "kc-weak" to 0.20,
-            "kc-middle" to 0.50,
-            "kc-strong" to 0.80,
+            "kc-a" to 0.20,
+            "kc-b" to 0.50,
+            "kc-c" to 0.80,
         )
     }
 }

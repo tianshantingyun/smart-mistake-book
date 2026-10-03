@@ -27,8 +27,9 @@ class RoomLibraryCatalogRepository(
                     matchQuery = CjkTextTokenizer.matchExpression(searchText),
                     subjectId = query.subjectId,
                     sectionId = query.sectionId,
-                    knowledgePointId = query.knowledgePointId,
                     masteryId = query.masteryId,
+                    createdFromEpochMillis = query.createdFromEpochMillis,
+                    createdToEpochMillis = query.createdToEpochMillis,
                     sort = query.sort.name,
                     tokens = tokens,
                 ),
@@ -41,8 +42,9 @@ class RoomLibraryCatalogRepository(
                 searchText = searchText,
                 subjectId = query.subjectId,
                 sectionId = query.sectionId,
-                knowledgePointId = query.knowledgePointId,
                 masteryId = query.masteryId,
+                createdFromEpochMillis = query.createdFromEpochMillis,
+                createdToEpochMillis = query.createdToEpochMillis,
                 sort = query.sort.name,
             ),
             transform = LibraryCatalogRow::toCatalogItem,
@@ -57,16 +59,18 @@ class RoomLibraryCatalogRepository(
                 matchQuery = CjkTextTokenizer.matchExpression(searchText),
                 subjectId = query.subjectId,
                 sectionId = query.sectionId,
-                knowledgePointId = query.knowledgePointId,
                 masteryId = query.masteryId,
+                createdFromEpochMillis = query.createdFromEpochMillis,
+                createdToEpochMillis = query.createdToEpochMillis,
             )
         } else {
             database.libraryCatalogCount(
                 searchText = searchText,
                 subjectId = query.subjectId,
                 sectionId = query.sectionId,
-                knowledgePointId = query.knowledgePointId,
                 masteryId = query.masteryId,
+                createdFromEpochMillis = query.createdFromEpochMillis,
+                createdToEpochMillis = query.createdToEpochMillis,
             )
         }
     }
@@ -84,8 +88,9 @@ class RoomLibraryCatalogRepository(
                 matchQuery = CjkTextTokenizer.matchExpression(searchText),
                 subjectId = query.subjectId,
                 sectionId = query.sectionId,
-                knowledgePointId = query.knowledgePointId,
                 masteryId = query.masteryId,
+                createdFromEpochMillis = query.createdFromEpochMillis,
+                createdToEpochMillis = query.createdToEpochMillis,
                 sort = query.sort.name,
                 tokens = tokens,
                 offset = offset,
@@ -96,8 +101,9 @@ class RoomLibraryCatalogRepository(
                 searchText = searchText,
                 subjectId = query.subjectId,
                 sectionId = query.sectionId,
-                knowledgePointId = query.knowledgePointId,
                 masteryId = query.masteryId,
+                createdFromEpochMillis = query.createdFromEpochMillis,
+                createdToEpochMillis = query.createdToEpochMillis,
                 sort = query.sort.name,
                 offset = offset,
                 limit = limit,
@@ -122,8 +128,9 @@ class RoomLibraryCatalogRepository(
                 matchQuery = CjkTextTokenizer.matchExpression(searchText),
                 subjectId = query.subjectId,
                 sectionId = query.sectionId,
-                knowledgePointId = query.knowledgePointId,
                 masteryId = query.masteryId,
+                createdFromEpochMillis = query.createdFromEpochMillis,
+                createdToEpochMillis = query.createdToEpochMillis,
                 facet = facet.name,
             )
         } else {
@@ -131,8 +138,9 @@ class RoomLibraryCatalogRepository(
                 searchText = searchText,
                 subjectId = query.subjectId,
                 sectionId = query.sectionId,
-                knowledgePointId = query.knowledgePointId,
                 masteryId = query.masteryId,
+                createdFromEpochMillis = query.createdFromEpochMillis,
+                createdToEpochMillis = query.createdToEpochMillis,
                 facet = facet.name,
             )
         }

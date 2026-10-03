@@ -3,18 +3,19 @@ package com.tingyun.smartmistakebook.core.domain
 import androidx.paging.PagingSource
 
 enum class LibrarySort {
+    /** 默认：最近更新在前（保持历史默认口径）。 */
     RECENTLY_UPDATED,
     RECENTLY_CREATED,
-    NEXT_REVIEW,
-    LEAST_MASTERED,
 }
 
 data class LibraryQuery(
     val searchText: String = "",
     val subjectId: String? = null,
     val sectionId: String? = null,
-    val knowledgePointId: String? = null,
     val masteryId: String? = null,
+    /** 「录入时间段」起止：按条目创建时间（`entry.accepted_at`）过滤，闭区间。 */
+    val createdFromEpochMillis: Long? = null,
+    val createdToEpochMillis: Long? = null,
     val sort: LibrarySort = LibrarySort.RECENTLY_UPDATED,
 )
 
@@ -89,6 +90,5 @@ interface LibraryCatalogRepository {
 enum class LibraryFacetKind {
     SUBJECT,
     SECTION,
-    KNOWLEDGE_POINT,
     MASTERY,
 }

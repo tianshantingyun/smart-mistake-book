@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.runtime.Immutable
+import com.tingyun.smartmistakebook.core.domain.LibrarySort
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.LibraryCatalogItem
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
@@ -14,12 +15,48 @@ internal enum class LibraryFacet(
 ) {
     SUBJECT("subject", "科目"),
     CHAPTER("chapter", "板块"),
-    KNOWLEDGE("knowledge", "知识点"),
     MASTERY("mastery", "掌握程度"),
     ;
 
     companion object {
         fun fromId(id: String?): LibraryFacet = entries.firstOrNull { it.id == id } ?: SUBJECT
+    }
+}
+
+/**
+ * 「录入时间段」筛选档位（阶段 4A 批 1 · L5）：按条目创建时间取最近 N 天。
+ * 起止参数在查询层是绝对毫秒（[createdFromEpochMillis]），UI 只选档位——
+ * 这样同一档位在分页/计数/导出之间是同一个窗口，不会各算一次"现在"。
+ */
+internal enum class LibraryTimeRange(
+    val id: String,
+    val label: String,
+    val days: Int?,
+) {
+    ALL("all", "全部时间", null),
+    LAST_7_DAYS("last7", "近 7 天", 7),
+    LAST_30_DAYS("last30", "近 30 天", 30),
+    LAST_90_DAYS("last90", "近 90 天", 90),
+    ;
+
+    fun createdFromEpochMillis(nowEpochMillis: Long): Long? = days?.let { dayCount ->
+        require(nowEpochMillis >= 0) { "Now must not be negative" }
+        nowEpochMillis - dayCount * MILLIS_PER_DAY
+    }
+
+    /**
+     * 「近 N 天」的上界 = 选择时刻本身（闭区间 [now−N 天, now]）；`ALL` 无上界。
+     * 与 [createdFromEpochMillis] 成对——窗口语义（含上界）只在这一个枚举里定义。
+     */
+    fun createdToEpochMillis(nowEpochMillis: Long): Long? = days?.let {
+        require(nowEpochMillis >= 0) { "Now must not be negative" }
+        nowEpochMillis
+    }
+
+    companion object {
+        fun fromId(id: String?): LibraryTimeRange = entries.firstOrNull { it.id == id } ?: ALL
+
+        const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
     }
 }
 
@@ -84,14 +121,12 @@ internal data class LibraryMistake(
     fun facetOptions(facet: LibraryFacet): List<LibraryFacetOption> = when (facet) {
         LibraryFacet.SUBJECT -> listOf(LibraryFacetOption(subject.name, subject.studentLabel()))
         LibraryFacet.CHAPTER -> chapterLabels.map { LibraryFacetOption(it, it) }
-        LibraryFacet.KNOWLEDGE -> knowledgeLabels.map { LibraryFacetOption(it, it) }
         LibraryFacet.MASTERY -> listOf(LibraryFacetOption(mastery.id, mastery.label))
     }
 
     fun hasFacetValue(facet: LibraryFacet, optionId: String): Boolean = when (facet) {
         LibraryFacet.SUBJECT -> subject.name == optionId
         LibraryFacet.CHAPTER -> optionId in chapterLabels
-        LibraryFacet.KNOWLEDGE -> optionId in knowledgeLabels
         LibraryFacet.MASTERY -> mastery.id == optionId
     }
 
@@ -103,23 +138,20 @@ internal data class LibraryMistake(
 internal data class LibrarySelections(
     val subject: String? = null,
     val chapter: String? = null,
-    val knowledge: String? = null,
     val mastery: String? = null,
 ) {
     val isEmpty: Boolean
-        get() = subject == null && chapter == null && knowledge == null && mastery == null
+        get() = subject == null && chapter == null && mastery == null
 
     fun selectedOptionId(facet: LibraryFacet): String? = when (facet) {
         LibraryFacet.SUBJECT -> subject
         LibraryFacet.CHAPTER -> chapter
-        LibraryFacet.KNOWLEDGE -> knowledge
         LibraryFacet.MASTERY -> mastery
     }
 
     fun withSelection(facet: LibraryFacet, optionId: String?): LibrarySelections = when (facet) {
         LibraryFacet.SUBJECT -> copy(subject = optionId)
         LibraryFacet.CHAPTER -> copy(chapter = optionId)
-        LibraryFacet.KNOWLEDGE -> copy(knowledge = optionId)
         LibraryFacet.MASTERY -> copy(mastery = optionId)
     }
 }
@@ -131,12 +163,14 @@ internal data class LibraryUiState(
     val selections: LibrarySelections,
     val activeOptions: List<LibraryFacetOption>,
     val visibleMistakes: List<LibraryMistake>,
+    val sort: LibrarySort = LibrarySort.RECENTLY_UPDATED,
+    val timeRange: LibraryTimeRange = LibraryTimeRange.ALL,
     val totalCount: Int = visibleMistakes.size,
     val hasMore: Boolean = false,
     val loaded: Boolean = true,
 ) {
     val hasActiveFilters: Boolean
-        get() = query.isNotBlank() || !selections.isEmpty
+        get() = query.isNotBlank() || !selections.isEmpty || timeRange != LibraryTimeRange.ALL
 }
 
 internal enum class LibraryEmptyState(
@@ -249,12 +283,7 @@ internal class LibraryCatalog(
     ): Boolean {
         if (facet == LibraryFacet.SUBJECT || facet == LibraryFacet.MASTERY) return true
         return mistakesByFacetValue.getValue(facet)[optionId].orEmpty().any { mistake ->
-            (selections.subject == null || mistake.hasFacetValue(LibraryFacet.SUBJECT, selections.subject)) &&
-                (
-                    facet == LibraryFacet.CHAPTER ||
-                        selections.chapter == null ||
-                        mistake.hasFacetValue(LibraryFacet.CHAPTER, selections.chapter)
-                    )
+            selections.subject == null || mistake.hasFacetValue(LibraryFacet.SUBJECT, selections.subject)
         }
     }
 }

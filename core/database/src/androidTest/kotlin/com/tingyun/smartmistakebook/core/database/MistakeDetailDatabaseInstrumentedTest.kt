@@ -16,6 +16,7 @@ import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.WritingLayer
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -114,6 +115,98 @@ class MistakeDetailDatabaseInstrumentedTest {
         assertNull(store.readExactMistakeDetail(ENTRY_ID, OTHER_PROBLEM_ID, OTHER_REVISION_ID))
         assertNull(store.readExactMistakeDetail(ENTRY_ID, PROBLEM_ID, OTHER_REVISION_ID))
         assertNull(store.readExactMistakeDetail(ENTRY_ID, OTHER_PROBLEM_ID, REVISION_ONE))
+    }
+
+    /**
+     * **L2 标题单源证明**（阶段 4A 批 1，`docs/research/2026-10-03-stage4a-plan.md` §3 批 1）。
+     *
+     * 构造库内两列分叉：`practice_unit.title` 停在第一版（提交时双列同写留下的旧值），
+     * 新的 `problem_revision` 行（本用例走真实草稿修订写入路径产生候选内容，再把该 revision
+     * 挂成 current head，与上一条 `exactRevisionStaysPinned...` 同一手法——当前提交路径对
+     * 精确同题是复用，不存在"改写既有题 revision"的生产入口）成为 `entry.current_revision_id`。
+     *
+     * 断言：视图（列表/目录）、`ProblemDao` 的两处目录读（observeActiveMistakes /
+     * findMistakeBySourceKey）与详情读到的都是 `revision.title`；`practice_unit.title`
+     * 原样留在库里（写侧未动），分叉真实存在于夹具中。
+     */
+    @Test
+    fun catalogAndDirectoryReadRevisionTitleWhilePracticeUnitTitleStaysLegacy() = runBlocking {
+        createAndCommitRevisionOne(confirmedDocument("第一版题面", ASSET_ONE))
+
+        store.createProblemDraft(createDraftCommand(DRAFT_TWO, ASSET_TWO, "b".repeat(64)))
+        store.seedStudyFacts(
+            StudySeedBundle(
+                problems = emptyList(),
+                revisions = listOf(
+                    revisionSeed(
+                        REVISION_TWO,
+                        PROBLEM_ID,
+                        2,
+                        confirmedDocument("第二版题面", ASSET_TWO),
+                        "d".repeat(64),
+                    ).copy(title = "第二版标题"),
+                ),
+                practiceUnits = emptyList(),
+                errorBookEntries = emptyList(),
+            ),
+        )
+        store.database.withWriteTransaction {
+            executeSQL(
+                """
+                INSERT INTO problem_revision_source_asset (
+                    problem_revision_id, source_asset_id, role
+                ) VALUES ('$REVISION_TWO', '$ASSET_TWO', 'QUESTION_SOURCE')
+                """.trimIndent(),
+            )
+            executeSQL(
+                """
+                UPDATE error_book_entry
+                SET current_revision_id = '$REVISION_TWO',
+                    updated_at_epoch_millis = 6000
+                WHERE entry_id = '$ENTRY_ID'
+                """.trimIndent(),
+            )
+        }
+
+        // 库内状态确实分叉：枢纽列还是第一版的标题（写侧双列没有被本批改动）
+        assertEquals("精确版本读取", readPracticeUnitTitle())
+
+        // 列表/目录（library_catalog 视图）读 revision.title
+        val catalog = store.libraryCatalogPage(
+            searchText = "",
+            subjectId = null,
+            sectionId = null,
+            masteryId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+            sort = "RECENTLY_UPDATED",
+            offset = 0,
+            limit = 10,
+        ).single()
+        assertEquals("第二版标题", catalog.title)
+
+        // ProblemDao 两处目录条目读 revision.title
+        val observed = store.observeMistakes().first().single { it.entryId == ENTRY_ID }
+        assertEquals("第二版标题", observed.title)
+        assertEquals("第二版标题", store.findMistakeBySourceKey("capture:$DRAFT_ONE")?.title)
+
+        // 详情路径同源（本来就读 revision.title），不受本批影响
+        val detail = store.readMistakeDetail(ENTRY_ID)
+        assertEquals(REVISION_TWO, detail?.problemRevisionId)
+        assertEquals("第二版标题", detail?.title)
+    }
+
+    private suspend fun readPracticeUnitTitle(): String {
+        var title = ""
+        store.database.withRawConnection(isReadOnly = true) { connection ->
+            connection.usePrepared(
+                "SELECT title FROM practice_unit WHERE practice_unit_id = 'practice-exact'",
+            ) { statement ->
+                assertTrue(statement.step())
+                title = statement.getText(0)!!
+            }
+        }
+        return title
     }
 
     @Test

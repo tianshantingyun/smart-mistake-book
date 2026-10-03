@@ -806,7 +806,7 @@ private fun NotFoundDetail() {
         )
         Spacer(Modifier.height(10.dp))
         Text(
-            text = "这条记录可能已删除，或已不在当前错题本中。",
+            text = "这条记录不在当前错题本中；若它已被归档，可在错题本首页的「已移出的题」里恢复。",
             color = InkSecondary,
             style = MaterialTheme.typography.bodyMedium,
         )

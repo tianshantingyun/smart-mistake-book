@@ -62,7 +62,7 @@ class TutorConversationMigrationInstrumentedTest {
             val migrated = StudyDatabaseFactory.open(context, databaseName)
 
             runBlocking { assertEquals(STUDY_DATABASE_VERSION, migrated.readDatabaseVersion()) }
-            assertEquals(0, migrated.libraryCatalogCount("", null, null, null, null))
+            assertEquals(0, migrated.libraryCatalogCount("", null, null, null, null, null))
             migrated.close()
         } finally {
             context.deleteDatabase(databaseName)
@@ -165,8 +165,9 @@ class TutorConversationMigrationInstrumentedTest {
                     searchText = "",
                     subjectId = null,
                     sectionId = null,
-                    knowledgePointId = null,
                     masteryId = null,
+                    createdFromEpochMillis = null,
+                    createdToEpochMillis = null,
                     sort = "RECENTLY_CREATED",
                     offset = 0,
                     limit = 10,
@@ -276,8 +277,9 @@ class TutorConversationMigrationInstrumentedTest {
                     searchText = "",
                     subjectId = null,
                     sectionId = null,
-                    knowledgePointId = null,
                     masteryId = null,
+                    createdFromEpochMillis = null,
+                    createdToEpochMillis = null,
                     sort = "RECENTLY_CREATED",
                     offset = 0,
                     limit = 10,

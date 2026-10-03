@@ -91,7 +91,7 @@ internal interface ProblemDao {
             unit.practice_unit_id,
             entry.source_key,
             problem.subject,
-            unit.title,
+            revision.title,
             revision.problem_markdown,
             entry.status,
             entry.accepted_at_epoch_millis AS created_at_epoch_millis,
@@ -99,88 +99,10 @@ internal interface ProblemDao {
             unit.estimated_seconds,
             memory.next_review_at_epoch_millis,
             NULL AS retrievability,
-            (
-                SELECT COUNT(*)
-                FROM problem_draft_commit_receipt AS receipt
-                WHERE receipt.practice_unit_id = unit.practice_unit_id
-            ) AS capture_occurrence_count,
-            (
-                SELECT GROUP_CONCAT(binding.knowledge_node_id, CHAR(31))
-                FROM practice_unit_knowledge_binding AS binding
-                INNER JOIN knowledge_node AS node
-                    ON node.knowledge_node_id = binding.knowledge_node_id
-                WHERE binding.practice_unit_id = unit.practice_unit_id
-                  AND binding.basis_revision_id = revision.revision_id
-                  AND (
-                      NOT EXISTS (
-                          SELECT 1
-                          FROM problem_organization_receipt AS receipt
-                          WHERE receipt.problem_id = problem.problem_id
-                            AND receipt.problem_revision_id = revision.revision_id
-                      )
-                      OR (
-                          binding.accepted_at_epoch_millis = (
-                              SELECT MAX(receipt.accepted_at_epoch_millis)
-                              FROM problem_organization_receipt AS receipt
-                              WHERE receipt.problem_id = problem.problem_id
-                                AND receipt.problem_revision_id = revision.revision_id
-                          )
-                          AND EXISTS (
-                              SELECT 1
-                              FROM problem_classification_binding AS classification
-                              WHERE classification.problem_id = problem.problem_id
-                                AND classification.basis_revision_id = revision.revision_id
-                                AND classification.dimension = 'KNOWLEDGE'
-                                AND classification.taxonomy_version =
-                                    binding.taxonomy_version
-                                AND classification.accepted_at_epoch_millis =
-                                    binding.accepted_at_epoch_millis
-                          )
-                      )
-                  )
-            ) AS knowledge_node_ids,
-            (
-                SELECT GROUP_CONCAT(classification.display_name, CHAR(31))
-                FROM problem_classification_binding AS classification
-                WHERE classification.problem_id = problem.problem_id
-                  AND classification.basis_revision_id = revision.revision_id
-                  AND classification.dimension = 'CHAPTER'
-            ) AS chapter_labels,
-            (
-                SELECT GROUP_CONCAT(classification.display_name, CHAR(31))
-                FROM problem_classification_binding AS classification
-                WHERE classification.problem_id = problem.problem_id
-                  AND classification.basis_revision_id = revision.revision_id
-                  AND classification.dimension = 'KNOWLEDGE'
-                  AND (
-                      NOT EXISTS (
-                          SELECT 1
-                          FROM problem_organization_receipt AS receipt
-                          WHERE receipt.problem_id = problem.problem_id
-                            AND receipt.problem_revision_id = revision.revision_id
-                      )
-                      OR (
-                          classification.accepted_at_epoch_millis = (
-                              SELECT MAX(receipt.accepted_at_epoch_millis)
-                              FROM problem_organization_receipt AS receipt
-                              WHERE receipt.problem_id = problem.problem_id
-                                AND receipt.problem_revision_id = revision.revision_id
-                          )
-                          AND EXISTS (
-                              SELECT 1
-                              FROM knowledge_node AS node
-                              INNER JOIN practice_unit_knowledge_binding AS binding
-                                  ON binding.knowledge_node_id = node.knowledge_node_id
-                                 AND binding.practice_unit_id = unit.practice_unit_id
-                                 AND binding.basis_revision_id = revision.revision_id
-                              WHERE binding.taxonomy_version =
-                                  classification.taxonomy_version
-                                AND binding.accepted_at_epoch_millis =
-                                    classification.accepted_at_epoch_millis
-                          )
-                      )
-                  )
-            ) AS knowledge_labels
+            COALESCE(capture_counts.capture_occurrence_count, 0) AS capture_occurrence_count,
+            knowledge.knowledge_node_ids,
+            chapters.chapter_labels,
+            knowledge_labels.knowledge_labels
         FROM error_book_entry AS entry
         JOIN practice_unit AS unit
             ON unit.practice_unit_id = entry.practice_unit_id
@@ -191,6 +113,112 @@ internal interface ProblemDao {
         LEFT JOIN learner_problem_memory_state AS memory
             ON memory.practice_unit_id = unit.practice_unit_id
            AND memory.projection_name = 'study-experience-v1'
+        LEFT JOIN (
+            SELECT receipt.practice_unit_id, COUNT(*) AS capture_occurrence_count
+            FROM problem_draft_commit_receipt AS receipt
+            GROUP BY receipt.practice_unit_id
+        ) AS capture_counts
+            ON capture_counts.practice_unit_id = unit.practice_unit_id
+        LEFT JOIN (
+            SELECT
+                binding.practice_unit_id,
+                binding.basis_revision_id,
+                GROUP_CONCAT(binding.knowledge_node_id, CHAR(31)) AS knowledge_node_ids
+            FROM practice_unit_knowledge_binding AS binding
+            INNER JOIN knowledge_node AS node
+                ON node.knowledge_node_id = binding.knowledge_node_id
+            INNER JOIN practice_unit AS binding_unit
+                ON binding_unit.practice_unit_id = binding.practice_unit_id
+            LEFT JOIN (
+                SELECT problem_id, problem_revision_id,
+                    MAX(accepted_at_epoch_millis) AS current_accepted_at
+                FROM problem_organization_receipt
+                GROUP BY problem_id, problem_revision_id
+            ) AS binding_receipt_head
+                ON binding_receipt_head.problem_id = binding_unit.problem_id
+               AND binding_receipt_head.problem_revision_id = binding.basis_revision_id
+            LEFT JOIN (
+                SELECT DISTINCT problem_id, basis_revision_id, taxonomy_version,
+                    accepted_at_epoch_millis
+                FROM problem_classification_binding
+                WHERE dimension = 'KNOWLEDGE'
+            ) AS binding_classification
+                ON binding_classification.problem_id = binding_unit.problem_id
+               AND binding_classification.basis_revision_id = binding.basis_revision_id
+               AND binding_classification.taxonomy_version = binding.taxonomy_version
+               AND binding_classification.accepted_at_epoch_millis =
+                   binding.accepted_at_epoch_millis
+            WHERE binding_receipt_head.problem_id IS NULL
+               OR (
+                   binding.accepted_at_epoch_millis = binding_receipt_head.current_accepted_at
+                   AND binding_classification.problem_id IS NOT NULL
+               )
+            GROUP BY binding.practice_unit_id, binding.basis_revision_id
+        ) AS knowledge
+            ON knowledge.practice_unit_id = unit.practice_unit_id
+           AND knowledge.basis_revision_id = revision.revision_id
+        LEFT JOIN (
+            SELECT classification.problem_id, classification.basis_revision_id,
+                GROUP_CONCAT(classification.display_name, CHAR(31)) AS chapter_labels
+            FROM problem_classification_binding AS classification
+            WHERE classification.dimension = 'CHAPTER'
+            GROUP BY classification.problem_id, classification.basis_revision_id
+        ) AS chapters
+            ON chapters.problem_id = problem.problem_id
+           AND chapters.basis_revision_id = revision.revision_id
+        LEFT JOIN (
+            SELECT
+                entry_keys.practice_unit_id,
+                entry_keys.problem_id,
+                entry_keys.basis_revision_id,
+                GROUP_CONCAT(classification.display_name, CHAR(31)) AS knowledge_labels
+            FROM (
+                SELECT DISTINCT
+                    entry.practice_unit_id AS practice_unit_id,
+                    entry.current_revision_id AS basis_revision_id,
+                    unit.problem_id AS problem_id
+                FROM error_book_entry AS entry
+                INNER JOIN practice_unit AS unit
+                    ON unit.practice_unit_id = entry.practice_unit_id
+                WHERE entry.status = 'ACTIVE'
+            ) AS entry_keys
+            LEFT JOIN (
+                SELECT problem_id, problem_revision_id,
+                    MAX(accepted_at_epoch_millis) AS current_accepted_at
+                FROM problem_organization_receipt
+                GROUP BY problem_id, problem_revision_id
+            ) AS label_receipt_head
+                ON label_receipt_head.problem_id = entry_keys.problem_id
+               AND label_receipt_head.problem_revision_id = entry_keys.basis_revision_id
+            LEFT JOIN problem_classification_binding AS classification
+                ON classification.problem_id = entry_keys.problem_id
+               AND classification.basis_revision_id = entry_keys.basis_revision_id
+               AND classification.dimension = 'KNOWLEDGE'
+            LEFT JOIN (
+                SELECT DISTINCT binding.practice_unit_id, binding.basis_revision_id,
+                    binding.taxonomy_version, binding.accepted_at_epoch_millis
+                FROM practice_unit_knowledge_binding AS binding
+                INNER JOIN knowledge_node AS node
+                    ON node.knowledge_node_id = binding.knowledge_node_id
+            ) AS label_binding_key
+                ON label_binding_key.practice_unit_id = entry_keys.practice_unit_id
+               AND label_binding_key.basis_revision_id = entry_keys.basis_revision_id
+               AND label_binding_key.taxonomy_version = classification.taxonomy_version
+               AND label_binding_key.accepted_at_epoch_millis =
+                   classification.accepted_at_epoch_millis
+            WHERE classification.problem_id IS NULL
+               OR label_receipt_head.problem_id IS NULL
+               OR (
+                   classification.accepted_at_epoch_millis =
+                       label_receipt_head.current_accepted_at
+                   AND label_binding_key.practice_unit_id IS NOT NULL
+               )
+            GROUP BY entry_keys.practice_unit_id, entry_keys.problem_id,
+                entry_keys.basis_revision_id
+        ) AS knowledge_labels
+            ON knowledge_labels.practice_unit_id = unit.practice_unit_id
+           AND knowledge_labels.problem_id = problem.problem_id
+           AND knowledge_labels.basis_revision_id = revision.revision_id
         WHERE entry.status = 'ACTIVE'
         ORDER BY entry.updated_at_epoch_millis DESC, entry.entry_id ASC
         """,
@@ -201,6 +229,13 @@ internal interface ProblemDao {
      * returned NULL for every production row — only fixture seeding wrote it,
      * so the gap stayed invisible on device. `retrievability` is derived from
      * stability plus "now" and is computed by the reader instead.
+     *
+     * S17（阶段 4A 批 1，`docs/research/2026-10-03-stage4a-plan.md` §3 批 1；缺陷线索见
+     * `docs/known-defects.md` 中 `observeActiveMistakes` 的既有登记）：此前的 SELECT 列表逐行跑
+     * 四个相关子查询（计数、绑定节点集合、章节标签、知识点标签），其中标签子查询还嵌了
+     * EXISTS/MAX。重写为**派生表 + LEFT JOIN 聚合**：每个聚合只按 (practice_unit, revision) 或
+     * (problem, revision) 算一遍，外层逐行只做等值连接，结果集与旧口径逐列等价
+     * （`ProblemDaoAggregationEquivalenceInstrumentedTest` 用旧 SQL 对照实测）。
      */
     fun observeActiveMistakes(): Flow<List<MistakeRow>>
 
@@ -213,7 +248,7 @@ internal interface ProblemDao {
             unit.practice_unit_id,
             entry.source_key,
             problem.subject,
-            unit.title,
+            revision.title,
             revision.problem_markdown,
             entry.status,
             entry.accepted_at_epoch_millis AS created_at_epoch_millis,

@@ -2284,8 +2284,9 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
     ): PagingSource<Int, LibraryCatalogRow> =
         error("Library is outside this study-repository fake")
@@ -2294,8 +2295,9 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         offset: Int,
         limit: Int,
@@ -2308,16 +2310,18 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): Int = error("Library is outside this study-repository fake")
 
     override suspend fun libraryCatalogFacets(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         facet: String,
     ): List<LibraryFacetCountRecord> =
         error("Library is outside this study-repository fake")

@@ -12,7 +12,7 @@ import androidx.room3.DatabaseView
             revision.revision_id AS problem_revision_id,
             entry.practice_unit_id,
             problem.subject,
-            unit.title,
+            revision.title,
             revision.problem_markdown,
             entry.accepted_at_epoch_millis AS created_at_epoch_millis,
             entry.updated_at_epoch_millis AS updated_at_epoch_millis,

@@ -101,7 +101,6 @@ object StudyDbValue {
     object ErrorBookStatus {
         const val ACTIVE = "ACTIVE"
         const val ARCHIVED = "ARCHIVED"
-        const val TRASHED = "TRASHED"
     }
 
     object RelationType {

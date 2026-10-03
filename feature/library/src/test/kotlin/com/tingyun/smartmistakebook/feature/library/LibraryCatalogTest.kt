@@ -1,15 +1,27 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.lifecycle.SavedStateHandle
+import com.tingyun.smartmistakebook.core.domain.LibrarySort
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * 目录层（facets 层级收敛 + 两值排序 + 「录入时间段」）的 JVM 行为契约。
+ *
+ * 阶段 4A 批 1 · L5 的断言处置（不静默丢）：
+ * - 「知识点筛选层」相关用例（按知识点过滤、知识点 facet 选项、层级收敛中的知识点一环）
+ *   随该筛选层一起退场（裁定 `docs/agent-first-refactor-decisions-2026-09-23.md:1066`）；
+ * - 新增 `libraryTimeRangeTurnsPresetsIntoAbsoluteCreationBounds` 与
+ *   `timeRangeAndSortAreUiStateAndClearableFilters` 覆盖「录入时间段」的起止换算、
+ *   默认排序与清除筛选语义。
+ */
 class LibraryCatalogTest {
     private val mistakes = listOf(
         mistake(
@@ -42,16 +54,17 @@ class LibraryCatalogTest {
 
     @Test
     fun userVisibleFacetsOnlyContainContentHierarchyAndMastery() {
+        // 阶段 4A 批 1 · L5：知识点筛选层随 L5 裁定删除（`docs/agent-first-refactor-decisions-2026-09-23.md:1066`），
+        // 一层筛选 = 科目 → 板块；知识点标签仍随条目展示与全文搜索，只是不再是一层筛选。
         assertEquals(
             listOf(
                 LibraryFacet.SUBJECT,
                 LibraryFacet.CHAPTER,
-                LibraryFacet.KNOWLEDGE,
                 LibraryFacet.MASTERY,
             ),
             LibraryFacet.entries,
         )
-        assertEquals(listOf("科目", "板块", "知识点", "掌握程度"), LibraryFacet.entries.map { it.label })
+        assertEquals(listOf("科目", "板块", "掌握程度"), LibraryFacet.entries.map { it.label })
     }
 
     @Test
@@ -142,10 +155,10 @@ class LibraryCatalogTest {
             catalog.optionsFor(LibraryFacet.CHAPTER, mathSelection).map { it.id },
         )
 
-        val functionSelection = mathSelection.copy(chapter = "函数")
+        val chemistrySelection = LibrarySelections(subject = SubjectKind.CHEMISTRY.name)
         assertEquals(
-            setOf("导数", "函数单调性", "导数几何意义"),
-            catalog.optionsFor(LibraryFacet.KNOWLEDGE, functionSelection).mapTo(mutableSetOf()) { it.id },
+            listOf("化学平衡"),
+            catalog.optionsFor(LibraryFacet.CHAPTER, chemistrySelection).map { it.id },
         )
     }
 
@@ -155,23 +168,61 @@ class LibraryCatalogTest {
         viewModel.updateCatalog(mistakes)
         viewModel.toggleFilter(LibraryFacet.SUBJECT, SubjectKind.MATH.name)
         viewModel.toggleFilter(LibraryFacet.CHAPTER, "函数")
-        viewModel.toggleFilter(LibraryFacet.KNOWLEDGE, "导数")
 
         viewModel.toggleFilter(LibraryFacet.SUBJECT, SubjectKind.CHEMISTRY.name)
 
         assertEquals(SubjectKind.CHEMISTRY.name, viewModel.uiState.selections.subject)
         assertNull(viewModel.uiState.selections.chapter)
-        assertNull(viewModel.uiState.selections.knowledge)
         assertEquals(listOf("chemistry"), viewModel.uiState.visibleMistakes.map { it.id })
     }
 
     @Test
-    fun multiKnowledgeMistakeCanBeFilteredByEachIndividualLabel() {
-        assertTrue(catalog.optionsFor(LibraryFacet.KNOWLEDGE).any { it.id == "函数单调性" })
+    fun libraryTimeRangeTurnsPresetsIntoAbsoluteCreationBounds() {
+        val now = 1_700_000_000_000L
+        assertNull(LibraryTimeRange.ALL.createdFromEpochMillis(now))
         assertEquals(
-            listOf("derivative"),
-            catalog.filter("", LibrarySelections(knowledge = "函数单调性")).map { it.id },
+            now - 7 * LibraryTimeRange.MILLIS_PER_DAY,
+            LibraryTimeRange.LAST_7_DAYS.createdFromEpochMillis(now),
         )
+        assertEquals(
+            now - 30 * LibraryTimeRange.MILLIS_PER_DAY,
+            LibraryTimeRange.LAST_30_DAYS.createdFromEpochMillis(now),
+        )
+        assertEquals(
+            now - 90 * LibraryTimeRange.MILLIS_PER_DAY,
+            LibraryTimeRange.LAST_90_DAYS.createdFromEpochMillis(now),
+        )
+        // 复核 2026-10-03：上界生产化——「近 N 天」是闭区间 [now−N 天, now]，ALL 无上界。
+        assertNull(LibraryTimeRange.ALL.createdToEpochMillis(now))
+        assertEquals(now, LibraryTimeRange.LAST_7_DAYS.createdToEpochMillis(now))
+        assertEquals(now, LibraryTimeRange.LAST_30_DAYS.createdToEpochMillis(now))
+        assertEquals(now, LibraryTimeRange.LAST_90_DAYS.createdToEpochMillis(now))
+        assertEquals(LibraryTimeRange.ALL, LibraryTimeRange.fromId(null))
+        assertEquals(LibraryTimeRange.LAST_7_DAYS, LibraryTimeRange.fromId("last7"))
+        assertEquals(LibraryTimeRange.ALL, LibraryTimeRange.fromId("no-such-range"))
+    }
+
+    @Test
+    fun timeRangeAndSortAreUiStateAndClearableFilters() {
+        val viewModel = LibraryViewModel(SavedStateHandle())
+        viewModel.updateCatalog(mistakes)
+
+        assertEquals(LibraryTimeRange.ALL, viewModel.uiState.timeRange)
+        assertEquals(LibrarySort.RECENTLY_UPDATED, viewModel.uiState.sort)
+        assertFalse(viewModel.uiState.hasActiveFilters)
+
+        viewModel.selectTimeRange(LibraryTimeRange.LAST_30_DAYS)
+        assertEquals(LibraryTimeRange.LAST_30_DAYS, viewModel.uiState.timeRange)
+        assertTrue(viewModel.uiState.hasActiveFilters)
+
+        viewModel.selectSort(LibrarySort.RECENTLY_CREATED)
+        assertEquals(LibrarySort.RECENTLY_CREATED, viewModel.uiState.sort)
+
+        viewModel.clearAll()
+        assertEquals(LibraryTimeRange.ALL, viewModel.uiState.timeRange)
+        assertFalse(viewModel.uiState.hasActiveFilters)
+        // 排序不是筛选：清除筛选不回退排序选择。
+        assertEquals(LibrarySort.RECENTLY_CREATED, viewModel.uiState.sort)
     }
 
     @Test
@@ -198,7 +249,6 @@ class LibraryCatalogTest {
         assertEquals("数学", entry.contentPath)
         assertEquals("暂无学习记录", entry.mastery.label)
         assertTrue(legacyCatalog.optionsFor(LibraryFacet.CHAPTER).isEmpty())
-        assertTrue(legacyCatalog.optionsFor(LibraryFacet.KNOWLEDGE).isEmpty())
     }
 
     @Test

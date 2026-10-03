@@ -285,24 +285,24 @@ internal interface LibraryFtsSearchDao {
                     AND classification.label_id = :sectionId
               )
           )
-          AND (
-              :knowledgePointId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'KNOWLEDGE'
-                    AND classification.label_id = :knowledgePointId
-              )
-          )
           AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
         """,
     )
     suspend fun countSearch(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): Int
 
     /** Offset-paged twin of [searchPagingSource] (same ranking), raw for the same reason. */
@@ -324,17 +324,19 @@ internal interface LibraryFtsSearchDao {
             "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
             "WHERE c.problem_id = catalog.problem_id AND c.basis_revision_id = catalog.problem_revision_id " +
             "AND c.dimension = 'CHAPTER' AND c.label_id = :sectionId)) " +
-            "AND (:knowledgePointId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS k " +
-            "WHERE k.problem_id = catalog.problem_id AND k.basis_revision_id = catalog.problem_revision_id " +
-            "AND k.dimension = 'KNOWLEDGE' AND k.label_id = :knowledgePointId)) " +
             "AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId) " +
+            "AND (:createdFromEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis >= :createdFromEpochMillis) " +
+            "AND (:createdToEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis <= :createdToEpochMillis) " +
             "GROUP BY catalog.subject ORDER BY COUNT(*) DESC, id ASC",
     )
     suspend fun searchSubjectFacets(
         matchQuery: String,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>
 
     @Query(
@@ -349,44 +351,20 @@ internal interface LibraryFtsSearchDao {
             "JOIN library_search_fts ON library_search_fts.docid = content.content_row_id " +
             "WHERE library_search_fts MATCH :matchQuery " +
             "AND (:subjectId IS NULL OR catalog.subject = :subjectId) " +
-            "AND (:knowledgePointId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS k " +
-            "WHERE k.problem_id = catalog.problem_id AND k.basis_revision_id = catalog.problem_revision_id " +
-            "AND k.dimension = 'KNOWLEDGE' AND k.label_id = :knowledgePointId)) " +
             "AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId) " +
+            "AND (:createdFromEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis >= :createdFromEpochMillis) " +
+            "AND (:createdToEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis <= :createdToEpochMillis) " +
             "GROUP BY classification.label_id, classification.display_name " +
             "ORDER BY COUNT(*) DESC, id ASC",
     )
     suspend fun searchSectionFacets(
         matchQuery: String,
         subjectId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
-    ): List<LibraryFacetCountRow>
-
-    @Query(
-        "SELECT classification.label_id AS id, classification.display_name AS label, COUNT(*) AS count " +
-            "FROM library_catalog AS catalog " +
-            "JOIN problem_classification_binding AS classification " +
-            "    ON classification.problem_id = catalog.problem_id " +
-            "   AND classification.basis_revision_id = catalog.problem_revision_id " +
-            "   AND classification.dimension = 'KNOWLEDGE' " +
-            "JOIN library_search_content AS content " +
-            "    ON content.problem_revision_id = catalog.problem_revision_id " +
-            "JOIN library_search_fts ON library_search_fts.docid = content.content_row_id " +
-            "WHERE library_search_fts MATCH :matchQuery " +
-            "AND (:subjectId IS NULL OR catalog.subject = :subjectId) " +
-            "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS ch " +
-            "WHERE ch.problem_id = catalog.problem_id AND ch.basis_revision_id = catalog.problem_revision_id " +
-            "AND ch.dimension = 'CHAPTER' AND ch.label_id = :sectionId)) " +
-            "AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId) " +
-            "GROUP BY classification.label_id, classification.display_name " +
-            "ORDER BY COUNT(*) DESC, id ASC",
-    )
-    suspend fun searchKnowledgeFacets(
-        matchQuery: String,
-        subjectId: String?,
-        sectionId: String?,
-        masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>
 
     @Query(
@@ -400,15 +378,17 @@ internal interface LibraryFtsSearchDao {
             "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
             "WHERE c.problem_id = catalog.problem_id AND c.basis_revision_id = catalog.problem_revision_id " +
             "AND c.dimension = 'CHAPTER' AND c.label_id = :sectionId)) " +
-            "AND (:knowledgePointId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS k " +
-            "WHERE k.problem_id = catalog.problem_id AND k.basis_revision_id = catalog.problem_revision_id " +
-            "AND k.dimension = 'KNOWLEDGE' AND k.label_id = :knowledgePointId)) " +
+            "AND (:createdFromEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis >= :createdFromEpochMillis) " +
+            "AND (:createdToEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis <= :createdToEpochMillis) " +
             "GROUP BY catalog.mastery_id ORDER BY COUNT(*) DESC, id ASC",
     )
     suspend fun searchMasteryFacets(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>
 }

@@ -32,7 +32,7 @@ class MasterySchedulingMigrationInstrumentedTest {
             val port = StudyDatabaseFactory.open(context, databaseName)
             try {
                 // The recreated view still answers the catalog count query.
-                assertEquals(0, port.libraryCatalogCount("", null, null, null, null))
+                assertEquals(0, port.libraryCatalogCount("", null, null, null, null, null))
             } finally {
                 port.close()
             }

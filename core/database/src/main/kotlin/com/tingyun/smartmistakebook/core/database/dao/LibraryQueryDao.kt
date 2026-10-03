@@ -8,29 +8,11 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import com.tingyun.smartmistakebook.core.database.entity.LibraryCatalogView
 
 /**
- * Numeric mastery for a catalog row — the weakest conservative mastery among the
- * row's bound knowledge points. This is the copy for this file's two `@Query`
- * annotations; `LEAST_MASTERED_MASTERY_SQL` in `LibraryCatalogSorts.kt` holds the
- * full reasoning and the copy used by the FTS store's runtime-built query.
- *
- * The duplication is forced: Room accepts a same-file constant but rejects a
- * query assembled from a cross-file one (both positional and `value =`
- * concatenation fail KSP with "No property named value was found in annotation
- * Query"). The three sort sites are therefore kept honest by behavior —
- * `LibraryLeastMasteredSortInstrumentedTest` covers this query and the FTS path.
+ * 错题本目录的筛选/排序查询（阶段 4A 批 1 · L5）：
+ * 一层筛选 = 科目 → 板块；另有掌握程度与「录入时间段」（创建时间闭区间）；
+ * 排序只有 `RECENTLY_UPDATED`（默认，落到 `updated_at DESC`）与 `RECENTLY_CREATED`
+ * 两值——`NEXT_REVIEW`/`LEAST_MASTERED` 已退场（知识点筛选层同批删除）。
  */
-private const val LEAST_MASTERED_MASTERY_SQL: String =
-    "(" +
-        "SELECT MIN(mastery.lower_bound_independent_correct) " +
-        "FROM learner_knowledge_mastery_state AS mastery " +
-        "INNER JOIN practice_unit_knowledge_binding AS binding " +
-        "ON binding.knowledge_node_id = mastery.knowledge_node_id " +
-        "AND binding.practice_unit_id = catalog.practice_unit_id " +
-        "AND binding.basis_revision_id = catalog.problem_revision_id " +
-        "WHERE mastery.projection_name = 'study-experience-v1' " +
-        "AND mastery.learner_id = catalog.memory_learner_id" +
-        ")"
-
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @Dao
 internal interface LibraryQueryDao {
@@ -47,16 +29,15 @@ internal interface LibraryQueryDao {
                     AND classification.label_id = :sectionId
               )
           )
-          AND (
-              :knowledgePointId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'KNOWLEDGE'
-                    AND classification.label_id = :knowledgePointId
-              )
-          )
           AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -70,8 +51,6 @@ internal interface LibraryQueryDao {
           )
         ORDER BY
             CASE :sort WHEN 'RECENTLY_CREATED' THEN catalog.created_at_epoch_millis END DESC,
-            CASE :sort WHEN 'NEXT_REVIEW' THEN catalog.next_review_at_epoch_millis END ASC,
-            CASE :sort WHEN 'LEAST_MASTERED' THEN """ + LEAST_MASTERED_MASTERY_SQL + """ END ASC,
             catalog.updated_at_epoch_millis DESC,
             catalog.entry_id ASC
         """,
@@ -80,8 +59,9 @@ internal interface LibraryQueryDao {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
     ): PagingSource<Int, LibraryCatalogView>
 
@@ -98,16 +78,15 @@ internal interface LibraryQueryDao {
                     AND classification.label_id = :sectionId
               )
           )
-          AND (
-              :knowledgePointId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'KNOWLEDGE'
-                    AND classification.label_id = :knowledgePointId
-              )
-          )
           AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -121,8 +100,6 @@ internal interface LibraryQueryDao {
           )
         ORDER BY
             CASE :sort WHEN 'RECENTLY_CREATED' THEN catalog.created_at_epoch_millis END DESC,
-            CASE :sort WHEN 'NEXT_REVIEW' THEN catalog.next_review_at_epoch_millis END ASC,
-            CASE :sort WHEN 'LEAST_MASTERED' THEN """ + LEAST_MASTERED_MASTERY_SQL + """ END ASC,
             catalog.updated_at_epoch_millis DESC,
             catalog.entry_id ASC
         LIMIT :limit OFFSET :offset
@@ -132,8 +109,9 @@ internal interface LibraryQueryDao {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         offset: Int,
         limit: Int,
@@ -152,16 +130,15 @@ internal interface LibraryQueryDao {
                     AND classification.label_id = :sectionId
               )
           )
-          AND (
-              :knowledgePointId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'KNOWLEDGE'
-                    AND classification.label_id = :knowledgePointId
-              )
-          )
           AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -179,8 +156,9 @@ internal interface LibraryQueryDao {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): Int
 
     @Query(
@@ -194,14 +172,15 @@ internal interface LibraryQueryDao {
                     AND classification.dimension = 'CHAPTER'
                     AND classification.label_id = :sectionId
               ))
-          AND (:knowledgePointId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'KNOWLEDGE'
-                    AND classification.label_id = :knowledgePointId
-              ))
           AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -220,8 +199,9 @@ internal interface LibraryQueryDao {
     suspend fun subjectFacets(
         searchText: String,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>
 
     @Query(
@@ -233,14 +213,15 @@ internal interface LibraryQueryDao {
            AND classification.basis_revision_id = catalog.problem_revision_id
            AND classification.dimension = 'CHAPTER'
         WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
-          AND (:knowledgePointId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS knowledge
-                  WHERE knowledge.problem_id = catalog.problem_id
-                    AND knowledge.basis_revision_id = catalog.problem_revision_id
-                    AND knowledge.dimension = 'KNOWLEDGE'
-                    AND knowledge.label_id = :knowledgePointId
-              ))
           AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -259,47 +240,9 @@ internal interface LibraryQueryDao {
     suspend fun sectionFacets(
         searchText: String,
         subjectId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
-    ): List<LibraryFacetCountRow>
-
-    @Query(
-        """
-        SELECT classification.label_id AS id, classification.display_name AS label, COUNT(*) AS count
-        FROM library_catalog AS catalog
-        INNER JOIN problem_classification_binding AS classification
-            ON classification.problem_id = catalog.problem_id
-           AND classification.basis_revision_id = catalog.problem_revision_id
-           AND classification.dimension = 'KNOWLEDGE'
-        WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
-          AND (:sectionId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS chapter
-                  WHERE chapter.problem_id = catalog.problem_id
-                    AND chapter.basis_revision_id = catalog.problem_revision_id
-                    AND chapter.dimension = 'CHAPTER'
-                    AND chapter.label_id = :sectionId
-              ))
-          AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
-          AND (
-              :searchText = '' OR instr(
-                  lower(
-                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
-                      catalog.subject || CHAR(10) ||
-                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
-                      COALESCE(catalog.knowledge_labels, '')
-                  ),
-                  lower(:searchText)
-              ) > 0
-          )
-        GROUP BY classification.label_id, classification.display_name
-        ORDER BY COUNT(*) DESC, id ASC
-        """,
-    )
-    suspend fun knowledgeFacets(
-        searchText: String,
-        subjectId: String?,
-        sectionId: String?,
-        masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>
 
     @Query(
@@ -314,13 +257,14 @@ internal interface LibraryQueryDao {
                     AND classification.dimension = 'CHAPTER'
                     AND classification.label_id = :sectionId
               ))
-          AND (:knowledgePointId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'KNOWLEDGE'
-                    AND classification.label_id = :knowledgePointId
-              ))
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -340,7 +284,8 @@ internal interface LibraryQueryDao {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>
 }
 

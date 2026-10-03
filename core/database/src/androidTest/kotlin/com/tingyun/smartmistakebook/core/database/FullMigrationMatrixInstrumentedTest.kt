@@ -41,7 +41,7 @@ class FullMigrationMatrixInstrumentedTest {
                 createDatabaseFromExportedSchema(context, databaseName, version = version)
                 val migrated = StudyDatabaseFactory.open(context, databaseName)
 
-                assertEquals(0, migrated.libraryCatalogCount("", null, null, null, null))
+                assertEquals(0, migrated.libraryCatalogCount("", null, null, null, null, null))
                 migrated.close()
             } finally {
                 context.deleteDatabase(databaseName)
@@ -205,6 +205,151 @@ class FullMigrationMatrixInstrumentedTest {
             inspectV59BindingChangeShape(context, databaseName)
         } finally {
             context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 阶段 4A 批 1 · L2（v59→60）：重建 `library_catalog` 视图，标题列由 `unit.title`
+     * 改为 `revision.title`。矩阵用的是空库，看不出"旧行还在不在、读的是哪一列"，
+     * 这里用真库、真驱动实测：
+     * 1. 迁移前两列分叉（`practice_unit.title` = 旧标题，`revision.title` = 新标题）；
+     * 2. 迁移后视图读 `revision.title`（旧实现会读回旧标题）；
+     * 3. `practice_unit.title` 一行不动（写侧与枢纽列未动，计划 §5②）；
+     * 4. 原条目行原样还在（视图重建不是删数据）。
+     */
+    @Test
+    fun libraryCatalogRebuildReadsRevisionTitleWithoutTouchingStoredRows() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave7-title-source-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 59)
+            seedV59DivergentTitleRow(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v59 库迁到 60",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            val row = migrated.libraryCatalogPage(
+                searchText = "",
+                subjectId = null,
+                sectionId = null,
+                masteryId = null,
+                createdFromEpochMillis = null,
+                createdToEpochMillis = null,
+                sort = "RECENTLY_UPDATED",
+                offset = 0,
+                limit = 10,
+            ).single()
+            assertEquals("迁移后的视图必须读 revision.title", TITLE_REVISION, row.title)
+            migrated.close()
+
+            inspectV60TitleSourceShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    private fun seedV59DivergentTitleRow(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$TITLE_PROBLEM_ID', 'fp-wave7', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$TITLE_REVISION_ID', '$TITLE_PROBLEM_ID', 1, '$TITLE_REVISION', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave7-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `practice_unit` (
+                    `practice_unit_id`, `problem_id`, `problem_revision_id`, `unit_key`,
+                    `unit_kind`, `title`, `prompt_markdown`, `estimated_seconds`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$TITLE_UNIT_ID', '$TITLE_PROBLEM_ID', '$TITLE_REVISION_ID', 'whole',
+                    'WHOLE_PROBLEM', '$TITLE_UNIT', '题面', 120,
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `error_book_entry` (
+                    `entry_id`, `practice_unit_id`, `problem_id`, `current_revision_id`,
+                    `source_key`, `status`, `accepted_at_epoch_millis`, `updated_at_epoch_millis`
+                ) VALUES (
+                    '$TITLE_ENTRY_ID', '$TITLE_UNIT_ID', '$TITLE_PROBLEM_ID', '$TITLE_REVISION_ID',
+                    NULL, 'ACTIVE', 1700000000000, 1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：视图 SQL 读 revision.title，枢纽列与条目行原样。 */
+    private fun inspectV60TitleSourceShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            val viewSql = connection.prepare(
+                "SELECT sql FROM sqlite_master WHERE type = 'view' AND name = 'library_catalog'",
+            )
+            try {
+                assertTrue("library_catalog 视图必须存在", viewSql.step())
+                val sql = viewSql.getText(0)!!
+                assertTrue(
+                    "视图必须读 revision.title 且不再读 unit.title",
+                    "revision.title" in sql && "unit.title" !in sql,
+                )
+            } finally {
+                viewSql.close()
+            }
+
+            val unit = connection.prepare(
+                "SELECT title FROM `practice_unit` WHERE practice_unit_id = '$TITLE_UNIT_ID'",
+            )
+            try {
+                assertTrue("枢纽列的行必须还在", unit.step())
+                assertEquals("写侧双列与列本身未动", TITLE_UNIT, unit.getText(0))
+            } finally {
+                unit.close()
+            }
+
+            val entry = connection.prepare(
+                "SELECT entry_id, current_revision_id, status FROM `error_book_entry` " +
+                    "WHERE entry_id = '$TITLE_ENTRY_ID'",
+            )
+            try {
+                assertTrue("条目行必须一行不丢", entry.step())
+                assertEquals(TITLE_ENTRY_ID, entry.getText(0))
+                assertEquals(TITLE_REVISION_ID, entry.getText(1))
+                assertEquals("ACTIVE", entry.getText(2))
+            } finally {
+                entry.close()
+            }
+        } finally {
+            connection.close()
         }
     }
 
@@ -647,6 +792,14 @@ class FullMigrationMatrixInstrumentedTest {
         const val MEMORY_TABLE = "learner_problem_memory_state"
         const val MEMORY_UNIT_ID = "unit-wave4"
         const val WAVE4_LEARNER_ID = "learner:wave4"
+
+        /** v59→60（L2 标题单源）用例：两列分叉的夹具值。 */
+        const val TITLE_PROBLEM_ID = "problem-wave7"
+        const val TITLE_REVISION_ID = "revision-wave7"
+        const val TITLE_UNIT_ID = "unit-wave7"
+        const val TITLE_ENTRY_ID = "entry-wave7"
+        const val TITLE_UNIT = "旧标题"
+        const val TITLE_REVISION = "新标题"
         val MEMORY_COLUMNS_V57 = listOf(
             "projection_name",
             "learner_id",

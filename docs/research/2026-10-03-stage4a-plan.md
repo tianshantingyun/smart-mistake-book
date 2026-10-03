@@ -16,7 +16,7 @@
 - **L5（筛选排序）**：`LibrarySort` 4 值、**默认 `RECENTLY_UPDATED`**（`core/domain/LibraryCatalogRepository.kt:5-19`）；`LibraryQuery.knowledgePointId` 现存（:15）；UI 无排序控件（`LibraryViewModel.kt:209-245` 只带 search/subject/chapter/knowledge/mastery）；facets 四层（`LibraryModels.kt:11-24`、`LibraryRoute.kt:364-374`）；排序 SQL `LibraryQueryDao.kt:72/:123`、`LibraryCatalogSorts.kt:9,33`、`RoomLibrarySearchStore.kt:164-166`；`LibraryLeastMasteredSortInstrumentedTest` 钉着将被删的 LEAST_MASTERED。
 - **L6（录入统一）**：三套 Route + 三套 repository；错题本栏两个并列按钮（`LibraryRoute.kt:166` `library_capture_button`、`:281` `library_batch_import`）。
 - **L7（导出后台化）**：导出是页面生命周期内前台任务（`MistakeExportRoute.kt:112-176`，保存/分享/打印 `rememberCoroutineScope` :200/:222/:268-296；渲染 `MistakePdfExporter.kt:121-176`；交付 `MistakePdfDelivery.kt`）；WorkManager 先例 `app/.../BatchImportDriver.kt:38-54`、`OrphanAssetGc.kt:19-29`；`POST_NOTIFICATIONS` 已声明（`app/src/main/AndroidManifest.xml:4`）；compileSdk 37 / **targetSdk 36** / minSdk 23 / work 2.10.5。
-- **S17**：`observeActiveMistakes` 每行相关子查询 + 嵌套 EXISTS（`ProblemDao.kt:205-265`），既有缺陷登记 `docs/known-defects.md:265`。
+- **S17**：`observeActiveMistakes` 每行相关子查询 + 嵌套 EXISTS（`ProblemDao.kt:205-265`）；此前无专属缺陷/性能门登记（复核订正 2026-10-03：旧引用的 `docs/known-defects.md:265` 实为 KD-7，与 S17 无关）。
 - **冲突面**：`feature/library`、`feature/capture`、`core/data/mistake`、`core/export` 全部干净；他线在飞 = KB 文档/工具（`docs/agent-first-refactor-decisions-2026-09-23.md`、`docs/superpowers/specs/*`、`tools/kb_build/*`）。**schema 号段 59→60/61 由本阶段声明占用**（登记于本文件；台账他线在飞、回填待其静止）。
 
 ## 2. 外部资料（2026-10-03 收集，落进设计）

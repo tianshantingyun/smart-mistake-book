@@ -86,10 +86,10 @@ data class PracticeUnit(
     }
 }
 
+/** 错题本体只有两个状态：在库（ACTIVE）与移出（ARCHIVED，可恢复）；没有删除/回收站。 */
 enum class ErrorBookEntryStatus {
     ACTIVE,
     ARCHIVED,
-    TRASHED,
 }
 
 data class ErrorBookEntry(

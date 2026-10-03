@@ -14,6 +14,7 @@ import com.tingyun.smartmistakebook.core.domain.LibraryCatalogItem
 import com.tingyun.smartmistakebook.core.domain.LibraryCatalogRepository
 import com.tingyun.smartmistakebook.core.domain.LibraryFacetKind as DomainLibraryFacetKind
 import com.tingyun.smartmistakebook.core.domain.LibraryQuery
+import com.tingyun.smartmistakebook.core.domain.LibrarySort
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,17 +35,27 @@ internal class LibraryViewModel(
     private val initialSelections = LibrarySelections(
         subject = restoredSelection(LibraryFacet.SUBJECT),
         chapter = restoredSelection(LibraryFacet.CHAPTER),
-        knowledge = restoredSelection(LibraryFacet.KNOWLEDGE),
         mastery = restoredSelection(LibraryFacet.MASTERY),
     )
+    private var sort = savedStateHandle.get<String>(SORT_KEY)
+        ?.let { stored -> LibrarySort.entries.firstOrNull { it.name == stored } }
+        ?: LibrarySort.RECENTLY_UPDATED
+    private val restoredNowEpochMillis = System.currentTimeMillis()
+    private var timeRange = LibraryTimeRange.fromId(savedStateHandle[TIME_RANGE_KEY])
+    private var createdFromEpochMillis: Long? =
+        timeRange.createdFromEpochMillis(restoredNowEpochMillis)
+    private var createdToEpochMillis: Long? =
+        timeRange.createdToEpochMillis(restoredNowEpochMillis)
 
     private val queryFlow = MutableStateFlow(
         LibraryQuery(
             searchText = savedStateHandle[QUERY_KEY] ?: "",
             subjectId = initialSelections.subject,
             sectionId = initialSelections.chapter,
-            knowledgePointId = initialSelections.knowledge,
             masteryId = initialSelections.mastery,
+            createdFromEpochMillis = createdFromEpochMillis,
+            createdToEpochMillis = createdToEpochMillis,
+            sort = sort,
         ),
     )
 
@@ -142,13 +153,8 @@ internal class LibraryViewModel(
             LibraryFacet.SUBJECT -> uiState.selections.copy(
                 subject = nextSelection,
                 chapter = null,
-                knowledge = null,
             )
-            LibraryFacet.CHAPTER -> uiState.selections.copy(
-                chapter = nextSelection,
-                knowledge = null,
-            )
-            LibraryFacet.KNOWLEDGE -> uiState.selections.copy(knowledge = nextSelection)
+            LibraryFacet.CHAPTER -> uiState.selections.copy(chapter = nextSelection)
             LibraryFacet.MASTERY -> uiState.selections.copy(mastery = nextSelection)
         }
         persistSelections(nextSelections)
@@ -164,15 +170,47 @@ internal class LibraryViewModel(
         )
     }
 
+    fun selectSort(value: LibrarySort) {
+        if (value == uiState.sort) return
+        savedStateHandle[SORT_KEY] = value.name
+        sort = value
+        if (catalogRepository != null) {
+            uiState = uiState.copy(sort = value, loaded = false)
+            refreshFromRepository()
+            return
+        }
+        uiState = uiState.copy(sort = value)
+    }
+
+    fun selectTimeRange(value: LibraryTimeRange) {
+        if (value == uiState.timeRange) return
+        savedStateHandle[TIME_RANGE_KEY] = value.id
+        timeRange = value
+        val now = System.currentTimeMillis()
+        createdFromEpochMillis = value.createdFromEpochMillis(now)
+        createdToEpochMillis = value.createdToEpochMillis(now)
+        if (catalogRepository != null) {
+            uiState = uiState.copy(timeRange = value, loaded = false)
+            refreshFromRepository()
+            return
+        }
+        uiState = uiState.copy(timeRange = value)
+    }
+
     fun clearAll() {
         savedStateHandle[QUERY_KEY] = ""
         LibraryFacet.entries.forEach { facet ->
             savedStateHandle[selectionKey(facet)] = null
         }
+        savedStateHandle[TIME_RANGE_KEY] = LibraryTimeRange.ALL.id
+        timeRange = LibraryTimeRange.ALL
+        createdFromEpochMillis = null
+        createdToEpochMillis = null
         if (catalogRepository != null) {
             uiState = uiState.copy(
                 query = "",
                 selections = LibrarySelections(),
+                timeRange = LibraryTimeRange.ALL,
                 loaded = false,
             )
             refreshFromRepository()
@@ -198,6 +236,8 @@ internal class LibraryViewModel(
         selections = selections,
         activeOptions = catalog.optionsFor(activeFacet, selections),
         visibleMistakes = catalog.filter(query, selections),
+        sort = sort,
+        timeRange = timeRange,
     )
 
     private fun persistSelections(selections: LibrarySelections) {
@@ -206,15 +246,20 @@ internal class LibraryViewModel(
         }
     }
 
+    /** 当前筛选/排序的单一查询构造点：分页、计数、facets、导出候选共用同一个窗口。 */
+    private fun currentQuery(): LibraryQuery = LibraryQuery(
+        searchText = savedStateHandle[QUERY_KEY] ?: "",
+        subjectId = uiState.selections.subject,
+        sectionId = uiState.selections.chapter,
+        masteryId = uiState.selections.mastery,
+        createdFromEpochMillis = createdFromEpochMillis,
+        createdToEpochMillis = createdToEpochMillis,
+        sort = sort,
+    )
+
     private fun refreshFromRepository() {
         val repository = catalogRepository ?: return
-        val domainQuery = LibraryQuery(
-            searchText = uiState.query,
-            subjectId = uiState.selections.subject,
-            sectionId = uiState.selections.chapter,
-            knowledgePointId = uiState.selections.knowledge,
-            masteryId = uiState.selections.mastery,
-        )
+        val domainQuery = currentQuery()
         queryFlow.value = domainQuery
         viewModelScope.launch {
             val count = repository.totalCount(domainQuery)
@@ -226,10 +271,6 @@ internal class LibraryViewModel(
                 LibraryFacet.CHAPTER -> repository.facets(
                     domainQuery,
                     DomainLibraryFacetKind.SECTION,
-                )
-                LibraryFacet.KNOWLEDGE -> repository.facets(
-                    domainQuery,
-                    DomainLibraryFacetKind.KNOWLEDGE_POINT,
                 )
                 LibraryFacet.MASTERY -> repository.facets(
                     domainQuery,
@@ -254,13 +295,7 @@ internal class LibraryViewModel(
             ?: return uiState.visibleMistakes
                 .map { it.id }
                 .take(maxCount)
-        val domainQuery = LibraryQuery(
-            searchText = uiState.query,
-            subjectId = uiState.selections.subject,
-            sectionId = uiState.selections.chapter,
-            knowledgePointId = uiState.selections.knowledge,
-            masteryId = uiState.selections.mastery,
-        )
+        val domainQuery = currentQuery()
         val total = repository.totalCount(domainQuery)
         if (total == 0 || total > maxCount) return emptyList()
         val ids = ArrayList<String>(total)
@@ -284,6 +319,8 @@ internal class LibraryViewModel(
     private companion object {
         const val QUERY_KEY = "library_query"
         const val ACTIVE_FACET_KEY = "library_active_facet"
+        const val SORT_KEY = "library_sort"
+        const val TIME_RANGE_KEY = "library_time_range"
         const val PAGE_SIZE = 30
 
         fun selectionKey(facet: LibraryFacet): String = "library_filter_${facet.id}"

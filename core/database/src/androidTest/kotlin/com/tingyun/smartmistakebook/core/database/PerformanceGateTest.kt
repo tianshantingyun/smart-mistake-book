@@ -95,8 +95,9 @@ class PerformanceGateTest {
                 searchText = "",
                 subjectId = null,
                 sectionId = null,
-                knowledgePointId = null,
                 masteryId = null,
+                createdFromEpochMillis = null,
+                createdToEpochMillis = null,
                 sort = "RECENTLY_CREATED",
                 offset = 0,
                 limit = 20,
@@ -121,8 +122,9 @@ class PerformanceGateTest {
             database.libraryDao().subjectFacets(
                 searchText = "",
                 sectionId = null,
-                knowledgePointId = null,
                 masteryId = null,
+                createdFromEpochMillis = null,
+                createdToEpochMillis = null,
             )
         }
 
@@ -132,8 +134,9 @@ class PerformanceGateTest {
                 database.libraryDao().subjectFacets(
                     searchText = "",
                     sectionId = null,
-                    knowledgePointId = null,
                     masteryId = null,
+                    createdFromEpochMillis = null,
+                    createdToEpochMillis = null,
                 )
             }
             latencies.add(latency)
@@ -262,8 +265,9 @@ class PerformanceGateTest {
             matchQuery = matchQuery,
             subjectId = null,
             sectionId = null,
-            knowledgePointId = null,
             masteryId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
         )
 
     companion object {

@@ -57,6 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import com.tingyun.smartmistakebook.core.domain.ArchivedMistakeRef
+import com.tingyun.smartmistakebook.core.domain.LibrarySort
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.LibraryCatalogRepository
@@ -210,6 +211,18 @@ private fun LibraryContent(
                         selectedOptionId = uiState.selections.selectedOptionId(uiState.activeFacet),
                         onSelect = { viewModel.toggleFilter(uiState.activeFacet, it) },
                     )
+                    if (usePaging) {
+                        Spacer(Modifier.height(8.dp))
+                        LibrarySortControl(
+                            sort = uiState.sort,
+                            onSelect = viewModel::selectSort,
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        LibraryTimeRangeControl(
+                            timeRange = uiState.timeRange,
+                            onSelect = viewModel::selectTimeRange,
+                        )
+                    }
                     if ((pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0) {
                         Spacer(Modifier.height(10.dp))
                         OutlineActionChip(
@@ -432,8 +445,58 @@ private fun FacetOptions(
 private fun filterTag(facet: LibraryFacet, option: LibraryFacetOption): String = when {
     facet == LibraryFacet.MASTERY && option.id == MasteryState.MASTERED.id ->
         "library_filter_mastered"
-    facet == LibraryFacet.KNOWLEDGE && option.id == "导数" -> "library_filter_derivative"
     else -> "library_filter_${facet.id}_${option.id.hashCode().toUInt()}"
+}
+
+/** 排序控件（阶段 4A 批 1 · L5）：只有"最近更新"（默认）与"最近录入"两值。 */
+@Composable
+private fun LibrarySortControl(
+    sort: LibrarySort,
+    onSelect: (LibrarySort) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LibrarySort.entries.forEach { option ->
+            OutlineActionChip(
+                text = sortLabel(option),
+                onClick = { onSelect(option) },
+                modifier = Modifier.testTag("library_sort_${option.name.lowercase()}"),
+                selected = option == sort,
+            )
+        }
+    }
+}
+
+private fun sortLabel(sort: LibrarySort): String = when (sort) {
+    LibrarySort.RECENTLY_UPDATED -> "最近更新"
+    LibrarySort.RECENTLY_CREATED -> "最近录入"
+}
+
+/** 「录入时间段」控件：档位在查询层落成创建时间的绝对起止。 */
+@Composable
+private fun LibraryTimeRangeControl(
+    timeRange: LibraryTimeRange,
+    onSelect: (LibraryTimeRange) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LibraryTimeRange.entries.forEach { option ->
+            OutlineActionChip(
+                text = option.label,
+                onClick = { onSelect(option) },
+                modifier = Modifier.testTag("library_time_range_${option.id}"),
+                selected = option == timeRange,
+            )
+        }
+    }
 }
 
 @Composable

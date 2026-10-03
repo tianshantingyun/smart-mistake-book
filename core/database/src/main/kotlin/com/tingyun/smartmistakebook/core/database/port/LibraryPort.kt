@@ -7,14 +7,19 @@ import com.tingyun.smartmistakebook.core.database.LibraryFacetCountRecord
 /**
  * Read-only port for library catalog operations.
  * Provides paging, counting, and faceted search.
+ *
+ * 筛选面（阶段 4A 批 1 · L5）：科目/板块/掌握程度 + `createdFromEpochMillis`/
+ * `createdToEpochMillis`（「录入时间段」，按条目创建时间闭区间）；知识点参数已删，
+ * 排序只有 `RECENTLY_UPDATED`（默认）与 `RECENTLY_CREATED`。
  */
 interface LibraryReadPort {
     fun libraryPagingSource(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
     ): PagingSource<Int, LibraryCatalogRow>
 
@@ -22,8 +27,9 @@ interface LibraryReadPort {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         offset: Int,
         limit: Int,
@@ -33,16 +39,18 @@ interface LibraryReadPort {
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): Int
 
     suspend fun libraryCatalogFacets(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         facet: String,
     ): List<LibraryFacetCountRecord>
 
@@ -57,8 +65,9 @@ interface LibraryReadPort {
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
     ): PagingSource<Int, LibraryCatalogRow> =
@@ -69,8 +78,9 @@ interface LibraryReadPort {
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
     ): Int = error("FTS library search is not backed by this database port")
 
     /** Offset-paged twin of [librarySearchPagingSource] with identical ranking. */
@@ -78,8 +88,9 @@ interface LibraryReadPort {
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
         offset: Int,
@@ -91,8 +102,9 @@ interface LibraryReadPort {
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
-        knowledgePointId: String?,
         masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
         facet: String,
     ): List<LibraryFacetCountRecord> =
         error("FTS library search is not backed by this database port")
