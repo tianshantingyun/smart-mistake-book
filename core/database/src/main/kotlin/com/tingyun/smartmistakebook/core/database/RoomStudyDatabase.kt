@@ -1553,6 +1553,25 @@ internal class RoomStudyDatabase(
         learnerId: String,
     ): ConfirmProblemOrganizationResult = problemOrganization.confirm(command, learnerId)
 
+    override suspend fun recordBindingAuditSample(
+        command: RecordBindingAuditSampleCommand,
+        maxPerSubjectWeek: Int,
+    ): Boolean = database.bindingAuditSampleDao().record(command, maxPerSubjectWeek)
+
+    override fun observeBindingAuditSamples(
+        status: String?,
+    ): Flow<List<BindingAuditSampleRow>> = database.bindingAuditSampleDao().observe(status)
+
+    override suspend fun readBindingAuditSamples(status: String?): List<BindingAuditSampleRow> =
+        database.bindingAuditSampleDao().read(status)
+
+    override suspend fun reviewBindingAuditSample(
+        sampleId: String,
+        verdict: String,
+        reviewedAtEpochMillis: Long,
+    ): BindingAuditSampleRow? =
+        database.bindingAuditSampleDao().review(sampleId, verdict, reviewedAtEpochMillis)
+
     override fun close() = database.close()
 
     override suspend fun archiveErrorBookEntry(entryId: String, at: Long): Boolean =

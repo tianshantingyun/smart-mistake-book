@@ -7,6 +7,14 @@
             android:name=".FormatTestActivity"
             android:exported="false"
             android:label="格式测试" />
+        <!-- KF-29 绑定复核屏：只随 debug 变体安装，供 QA 用 adb am start 驱动。
+             导出是 adb 驱动所必需（非导出组件会被 SecurityException: not exported from uid
+             拒绝），边界靠本清单所属的 debug 源集，而不是 exported 标志——与
+             TestSeedModelConfigReceiver 同一条理由；release 不合并本清单，不进学生面。 -->
+        <activity
+            android:name=".BindingAuditActivity"
+            android:exported="true"
+            android:label="绑定复核" />
         <!-- 模型配置注入桩：只随 <flavor>Debug 变体安装，供 QA 用 adb 播种模型配置
              （示例见 TestSeedModelConfigReceiver 的 KDoc）。导出是 adb 驱动所必需，
              边界靠本清单所属的 debug 源集，而不是 exported 标志。 -->

@@ -21,7 +21,7 @@ import java.io.File
  * 3. **指纹列合并**（W0-2）：`review_plan` 的 `input_fingerprint` 在 53.json 里存在、在 54.json 里不存在；
  *    迁移的 INSERT..SELECT **逐列覆盖新表的每一列**（非破坏 = 旧行照搬，而不是"重建后只剩默认值"）。
  *
- * 阶段 4A 批 1 追加一层：**当前 schema 头的一致性**（版本常量 == 导出的最高版本 JSON == 61），
+ * 阶段 4A 批 1 追加一层：**当前 schema 头的一致性**（版本常量 == 导出的最高版本 JSON == 62），
  * 把"版本提了但 schema 没导出"从仪器化矩阵提前到 JVM 上炸。
  *
  * 与仪器测试的分工：这里管"DDL 与 schema 文件一致 + 语句形状"，
@@ -42,8 +42,8 @@ class KernelWave0SchemaContractTest {
             STUDY_DATABASE_VERSION,
         )
         assertEquals(
-            "阶段 4A 批 4 的 schema 头是 61；下一次 bump 请同步本字面量",
-            61,
+            "阶段 3C 批 1（KF-29）的 schema 头是 62；下一次 bump 请同步本字面量",
+            62,
             STUDY_DATABASE_VERSION,
         )
     }

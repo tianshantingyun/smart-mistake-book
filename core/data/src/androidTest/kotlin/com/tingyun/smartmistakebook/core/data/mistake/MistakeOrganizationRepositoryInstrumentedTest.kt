@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.database.BINDING_AUDIT_STATUS_PENDING
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ErrorBookEntrySeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemSeedRecord
+import com.tingyun.smartmistakebook.core.database.RecordBindingAuditSampleCommand
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.data.study.seedStudyFacts
@@ -19,6 +21,7 @@ import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationSelection
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationRelationKey
 import com.tingyun.smartmistakebook.core.model.BindingAcceptanceSource
+import com.tingyun.smartmistakebook.core.model.BindingAuditSnapshotCodec
 import com.tingyun.smartmistakebook.core.model.AtomicKnowledgeSuggestion
 import com.tingyun.smartmistakebook.core.model.ClassificationDimension
 import com.tingyun.smartmistakebook.core.model.ContentBlock
@@ -96,6 +99,95 @@ class MistakeOrganizationRepositoryInstrumentedTest {
         assertTrue(stored.classifications.all { it.acceptedAtEpochMillis == 400L })
         assertEquals(setOf(ATOMIC_KNOWLEDGE_NODE), stored.knowledgeNodeIds)
         assertEquals(listOf(RELATED_PROBLEM), stored.relations.map { it.targetProblemId })
+    }
+
+    /**
+     * KF-29：组织写入（自动/用户两路）各入队一条绑定抽检样本，快照带题面/绑定点/理由/模型版本；
+     * 幂等重放不重复入队。
+     */
+    @Test
+    fun applyingASuccessfulOrganizationEnqueuesOneBindingAuditSampleAndReplayDoesNotDuplicateIt() = runBlocking {
+        persistSuccess("request-audit", completeOutput(), completedAt = 400)
+
+        repository.applySuccessfulOrganization("request-audit")
+        repository.applySuccessfulOrganization("request-audit")
+
+        val pending = database.readBindingAuditSamples(BINDING_AUDIT_STATUS_PENDING)
+        assertEquals("一次新绑定一条样本；幂等重放不重复入队", 1, pending.size)
+        val row = pending.single()
+        assertEquals(PRACTICE, row.practiceUnitId)
+        assertTrue(
+            "样本 id 必须带科与周键前缀（每科每周首 N 条的计数依据）",
+            row.sampleId.startsWith("binding-audit:MATH:"),
+        )
+
+        val snapshot = BindingAuditSnapshotCodec.decode(row.bindingSnapshotJson)!!
+        assertEquals("MATH", snapshot.subject)
+        assertEquals("test-model", snapshot.modelVersion)
+        assertEquals("provider", snapshot.providerId)
+        assertEquals("LOCAL_POLICY_ACCEPTED", snapshot.acceptanceSource)
+        assertEquals(400L, snapshot.acceptedAtEpochMillis)
+        val binding = snapshot.bindings.single()
+        assertEquals(ATOMIC_KNOWLEDGE_NODE, binding.knowledgeNodeId)
+        assertEquals("确定函数最值的候选位置", binding.displayName)
+        assertEquals("ATOMIC", binding.granularity)
+        assertEquals("题面必须进快照（复核屏的原文依据）", "求函数的最大值。", snapshot.questionMarkdown)
+        assertTrue(
+            "模型给出的分类理由必须进快照",
+            snapshot.classifications.any { it.rationaleMarkdown == "内容层级匹配。" },
+        )
+        assertEquals(
+            "步骤证据必须挂到已绑定节点",
+            listOf(ATOMIC_KNOWLEDGE_NODE),
+            snapshot.stepEvidence.single().knowledgeNodeIds,
+        )
+
+        // 用户确认是另一次绑定写入（新回执、新绑定集合）→ 第二条样本，权威来源如实区分。
+        repository.confirm(
+            requestId = "request-audit",
+            selection = ProblemOrganizationSelection(
+                classificationIndexes = setOf(0, 1),
+                relationIndexes = emptySet(),
+            ),
+            acceptedAtEpochMillis = 500,
+        )
+        val afterConfirm = database.readBindingAuditSamples(BINDING_AUDIT_STATUS_PENDING)
+        assertEquals("用户确认同样进入抽检", 2, afterConfirm.size)
+        val userSnapshot = BindingAuditSnapshotCodec.decode(
+            afterConfirm.single { it.sampleId != row.sampleId }.bindingSnapshotJson,
+        )!!
+        assertEquals("USER_CORRECTED", userSnapshot.acceptanceSource)
+    }
+
+    /**
+     * 抽样是 best-effort：抽样（构造或落库）失败**不许**把一次已经成功的组织写入报成失败。
+     * 消灭的失败：审计管线的抖动变成学生可见的"整理失败"，而绑定其实已经写好。
+     */
+    @Test
+    fun aFailingAuditSampleNeverFailsAnAppliedOrganization() = runBlocking {
+        persistSuccess("request-audit-failure", completeOutput(), completedAt = 400)
+        val brokenAuditDatabase = object : StudyDatabasePort by database {
+            override suspend fun recordBindingAuditSample(
+                command: RecordBindingAuditSampleCommand,
+                maxPerSubjectWeek: Int,
+            ): Boolean = error("audit sampling is broken")
+        }
+        val repositoryWithBrokenAudit = RoomMistakeOrganizationRepository(
+            database = brokenAuditDatabase,
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+        )
+
+        val result = repositoryWithBrokenAudit.applySuccessfulOrganization("request-audit-failure")
+
+        assertTrue("抽样失败后整理仍是成功态", result.applied)
+        assertTrue(result.created)
+        val stored = database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first()
+        assertEquals(setOf(ATOMIC_KNOWLEDGE_NODE), stored.knowledgeNodeIds)
+        assertEquals(
+            "失败的那次确实没落样本（不是悄悄写了半条）",
+            0,
+            database.readBindingAuditSamples().size,
+        )
     }
 
     @Test

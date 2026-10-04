@@ -282,6 +282,36 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /**
+     * 阶段 3C 批 1 · KF-29（v61→62）：新增绑定抽样表 `binding_audit_sample`。矩阵用的是空库，
+     * 看不出"旧行还在不在、新表是不是空的"，这里用真库、真驱动实测：
+     * 1. 新表按迁移建出来，列与 `BindingAuditSampleEntity` 逐位同形；
+     * 2. 迁移**不编造行**（存量库没有抽样记录，新表必须为空）；
+     * 3. 既有真实行一行不碰（纯新增不是重建）。
+     */
+    @Test
+    fun bindingAuditSampleTableIsCreatedEmptyWithoutTouchingStoredRows() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave9-binding-audit-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 61)
+            seedV58PracticeUnit(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v61 库迁到 62",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV62BindingAuditShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
     private fun seedV59DivergentTitleRow(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
         try {
@@ -412,6 +442,50 @@ class FullMigrationMatrixInstrumentedTest {
             try {
                 assertTrue(count.step())
                 assertEquals("存量库没有导出记录，迁移不许编造行", 0L, count.getLong(0))
+            } finally {
+                count.close()
+            }
+
+            val statement = connection.prepare(
+                "SELECT practice_unit_id FROM `practice_unit` WHERE practice_unit_id = '$M1_UNIT_ID'",
+            )
+            try {
+                assertTrue("既有真实行必须一行不丢", statement.step())
+                assertEquals(M1_UNIT_ID, statement.getText(0))
+                assertFalse("旧行只有这一条", statement.step())
+            } finally {
+                statement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：绑定抽样表在、列同形、空表，既有 practice unit 行原样。 */
+    private fun inspectV62BindingAuditShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertTrue(
+                "binding_audit_sample 表必须由迁移建出来",
+                "binding_audit_sample" in tableNames(connection),
+            )
+            assertEquals(
+                "列与 BindingAuditSampleEntity 逐位同形（列序也一致）",
+                listOf(
+                    "sample_id",
+                    "practice_unit_id",
+                    "binding_snapshot_json",
+                    "status",
+                    "verdict",
+                    "reviewed_at",
+                ),
+                columnNames(connection, "binding_audit_sample"),
+            )
+
+            val count = connection.prepare("SELECT COUNT(*) FROM `binding_audit_sample`")
+            try {
+                assertTrue(count.step())
+                assertEquals("存量库没有抽样记录，迁移不许编造行", 0L, count.getLong(0))
             } finally {
                 count.close()
             }

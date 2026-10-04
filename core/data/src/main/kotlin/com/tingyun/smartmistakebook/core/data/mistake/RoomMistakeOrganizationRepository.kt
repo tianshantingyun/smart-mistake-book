@@ -14,6 +14,7 @@ import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.ProblemClassificationBindingRecord
 import com.tingyun.smartmistakebook.core.database.ProblemOrganizationAuthorityConflictException
 import com.tingyun.smartmistakebook.core.database.ProblemRelationSeedRecord
+import com.tingyun.smartmistakebook.core.database.RecordBindingAuditSampleCommand
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.model.PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS
@@ -438,6 +439,21 @@ internal class RoomMistakeOrganizationRepository(
                 preservedUserCorrection = true,
             )
         }
+        // KF-29：只有真正写入了新绑定（新回执）才抽样；幂等重放不重复入队。
+        if (result.created) {
+            recordBindingAuditSample {
+                buildBindingAuditSampleCommand(
+                    input = persisted.input,
+                    command = command,
+                    modelVersion = persisted.output.modelVersion,
+                    providerId = persisted.task.provider?.providerId,
+                    classifications = accepted.classifications,
+                    atomicKnowledge = accepted.atomicKnowledge,
+                    stepAttributions = accepted.stepAttributions,
+                    sampledAtEpochMillis = acceptedAtEpochMillis,
+                )
+            }
+        }
         return ProblemOrganizationConfirmation(
             created = result.created,
             classificationCount = result.receipt.classificationCount,
@@ -530,6 +546,21 @@ internal class RoomMistakeOrganizationRepository(
                 command,
                 learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID,
             )
+        // KF-29：用户确认同样进入绑定抽检（快照里的 acceptanceSource 区分权威来源）。
+        if (result.created) {
+            recordBindingAuditSample {
+                buildBindingAuditSampleCommand(
+                    input = input,
+                    command = command,
+                    modelVersion = output.modelVersion,
+                    providerId = persisted.task.provider?.providerId,
+                    classifications = confirmedClassifications,
+                    atomicKnowledge = output.plan.atomicKnowledge,
+                    stepAttributions = output.plan.stepAttributions,
+                    sampledAtEpochMillis = acceptedAtEpochMillis,
+                )
+            }
+        }
         return ProblemOrganizationConfirmation(
             created = result.created,
             classificationCount = result.receipt.classificationCount,
@@ -554,6 +585,16 @@ internal class RoomMistakeOrganizationRepository(
                 output.practiceUnitId == input.practiceUnitId,
         ) { "Organization result does not match the persisted revision" }
         return PersistedOrganizationTask(task, input, output)
+    }
+
+    /**
+     * KF-29：入队一条绑定抽检样本（best-effort）。执行体在
+     * [recordBindingAuditSampleBestEffort]（顶层函数 = 测试缝）。
+     */
+    private suspend fun recordBindingAuditSample(
+        sample: () -> RecordBindingAuditSampleCommand?,
+    ) = recordBindingAuditSampleBestEffort(sample) { command ->
+        database.recordBindingAuditSample(command)
     }
 
     override suspend fun correctConfirmedOrganization(
@@ -588,6 +629,33 @@ internal class RoomMistakeOrganizationRepository(
                 applied = false,
                 preservedUserCorrection = true,
             )
+        }
+        // KF-29：离线纠正没有模型任务 → 快照 modelVersion 为 null（聚合归入 UNSPECIFIED），
+        // 但绑定集合本身仍是"新绑定"，照常进入抽检。
+        if (result.created) {
+            recordBindingAuditSample {
+                buildBindingAuditSampleCommand(
+                    input = ProblemOrganizationInput(
+                        problemId = current.problemId,
+                        problemRevisionId = current.problemRevisionId,
+                        practiceUnitId = current.practiceUnitId,
+                        subject = current.subject,
+                        questionDocument = current.questionDocument,
+                        relevantLearningEvidence = emptyList(),
+                        relationCandidates = emptyList(),
+                        knowledgeBaseNodes = emptyList(),
+                    ),
+                    command = command,
+                    modelVersion = null,
+                    providerId = null,
+                    classifications = selection.userClassifications.map { classification ->
+                        classification.toSuggestion()
+                    },
+                    atomicKnowledge = emptyList(),
+                    stepAttributions = emptyList(),
+                    sampledAtEpochMillis = correctedAtEpochMillis,
+                )
+            }
         }
         ProblemOrganizationConfirmation(
             created = result.created,
@@ -778,6 +846,31 @@ internal data class OfflineCorrectionFacts(
     val subject: SubjectKind,
     val questionDocument: com.tingyun.smartmistakebook.core.model.QuestionDocument,
 )
+
+/**
+ * KF-29：绑定抽样 best-effort 的**唯一**执行点——构造或落库的任何失败只记 logcat，绝不把
+ * 一次已经成功的组织写入报成失败（学生看到"整理失败"而绑定其实已写好，是更严重的谎报）。
+ *
+ * 抽成顶层函数是**测试缝**（F4 修复轮）：JVM 用例可注入"构造即抛"的样本源与"落库即抛"的
+ * 写入器，逐条钉住两条失败分支，而不必起真库或真设备。
+ *
+ * [sample] 返回 null = 本次确认没有可审计的绑定（不算失败，不写样本）。
+ */
+internal suspend fun recordBindingAuditSampleBestEffort(
+    sample: () -> RecordBindingAuditSampleCommand?,
+    record: suspend (RecordBindingAuditSampleCommand) -> Boolean,
+) {
+    val command = runCatching(sample).onFailure { failure ->
+        android.util.Log.w("BindingAudit", "binding audit sample was not built", failure)
+    }.getOrNull() ?: return
+    runCatching { record(command) }.onFailure { failure ->
+        android.util.Log.w(
+            "BindingAudit",
+            "binding audit sample was not recorded: ${command.sampleId}",
+            failure,
+        )
+    }
+}
 
 object MistakeOrganizationRepositoryFactory {
     fun create(

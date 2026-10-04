@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.database.port.AttemptWritePort
 import com.tingyun.smartmistakebook.core.database.port.BackupPort
 import com.tingyun.smartmistakebook.core.database.port.BatchImportReadPort
 import com.tingyun.smartmistakebook.core.database.port.BatchImportWritePort
+import com.tingyun.smartmistakebook.core.database.port.BindingAuditPort
 import com.tingyun.smartmistakebook.core.database.port.CaptureReadPort
 import com.tingyun.smartmistakebook.core.database.port.CaptureWritePort
 import com.tingyun.smartmistakebook.core.database.port.DraftReadPort
@@ -99,7 +100,8 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     LearningProjectionPort, ReviewWritePort, SplitImportPort,
     PracticeUnitAssessmentReadPort,
     AgentPendingRequestPort,
-    ExportRecordPort {
+    ExportRecordPort,
+    BindingAuditPort {
 
     /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */
     suspend fun readDatabaseVersion(): Int = 0
