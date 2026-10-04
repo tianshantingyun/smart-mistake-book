@@ -326,7 +326,16 @@ private val USER_OWNED_ORGANIZATION_SOURCES = setOf(
 private val USER_CONFIRMABLE_RELATION_TYPES =
     PROBLEM_ORGANIZATION_RELATION_KINDS.mapTo(hashSetOf()) { it.name }
 
-private fun validateCommand(command: ConfirmProblemOrganizationCommand) {
+/**
+ * 确认命令的静态不变量（纯函数，JVM 可直接钉住）。
+ *
+ * **KF-07 起允许零绑定**：没有通过持久化校验的原子节点时，确认不写任何知识绑定——
+ * "诚实未分类"优于把全部可见 topic 节点按 strength=1.0 全绑。未归类题的
+ * `pseudo:<SUBJECT>` 占位由下游 `ensurePseudoKnowledgeBinding`（规划 / 证据侧）物化；
+ * 它不在本命令里，因为 pseudo 绑定的 `sourceType=PSEUDO_FALLBACK` 与分类的接受权威不同
+ * （会被下方 "share an acceptance authority" 拒掉），DB 自己的伪桶写入正是绕过本函数直写 DAO 的。
+ */
+internal fun validateCommand(command: ConfirmProblemOrganizationCommand) {
     require(command.commandId.isNotBlank()) { "commandId must not be blank" }
     require(SHA_256_HEX.matches(command.payloadFingerprint)) {
         "payloadFingerprint must be a lowercase SHA-256 hex string"
@@ -402,13 +411,17 @@ private fun validateCommand(command: ConfirmProblemOrganizationCommand) {
     }
     val visibleTopicNodeIds = command.knowledgeNodes.mapTo(linkedSetOf()) { it.knowledgeNodeId }
     val boundKnowledgeNodeIds = command.knowledgeBindings.mapTo(linkedSetOf()) { it.knowledgeNodeId }
-    require(boundKnowledgeNodeIds.isNotEmpty()) {
-        "At least one topic or grounded atomic node must bind to the confirmed practice unit"
-    }
+    // KF-07：**允许零绑定**。没有可验证的原子节点时不再退化为"把全部可见 topic 节点按
+    // strength=1.0 全绑"（那是把整章错记成这道题的掌握证据）；空绑定 = 诚实未分类，pseudo 占位
+    // 由下游 `ensurePseudoKnowledgeBinding` 物化（见本函数 KDoc）。空绑定下这条检查恒真，
+    // 它仍然只挡"可见 topic 与 grounded 原子混绑"这一种形态。
     require(
         boundKnowledgeNodeIds == visibleTopicNodeIds ||
             boundKnowledgeNodeIds.intersect(visibleTopicNodeIds).isEmpty(),
-    ) { "A command must bind either visible topics or grounded atomic nodes, not a mixture" }
+    ) {
+        "A command must bind either visible topics or grounded atomic nodes, not a mixture" +
+            " (zero bindings is allowed and means the unit stays honestly unclassified)"
+    }
     require(command.relations.all {
         it.relationId.isNotBlank() &&
             it.sourceProblemId == command.problemId &&

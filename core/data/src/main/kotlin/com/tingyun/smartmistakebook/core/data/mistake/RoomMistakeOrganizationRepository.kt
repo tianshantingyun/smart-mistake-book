@@ -86,6 +86,12 @@ private const val USER_CORRECTION_TAXONOMY_VERSION = "user-corrected-v1"
 private const val KNOWLEDGE_NODE_IDENTITY_SALT = ORGANIZATION_TAXONOMY_VERSION
 private const val KNOWLEDGE_NODE_TAXONOMY_VERSION = "organization-v1"
 private const val MIN_ATOMIC_BINDING_STRENGTH = 0.15
+/**
+ * 合并排序里用户权威标签的置信度：任何自动提议都无法越过它（模型的置信度上界就是 1.0，
+ * 且受保护标签不参与预算淘汰）。存量自动标签**不用**这个值——它们的基线是接受门
+ * [CLASSIFICATION_ACCEPTANCE_CONFIDENCE]（见 [mergeAutomaticClassifications]）。
+ */
+private const val PROTECTED_CLASSIFICATION_CONFIDENCE = 1.0
 internal const val CLASSIFICATION_ACCEPTANCE_CONFIDENCE = 0.78
 internal const val ATOMIC_KNOWLEDGE_ACCEPTANCE_CONFIDENCE = 0.72
 internal const val RELATION_ACCEPTANCE_CONFIDENCE = 0.90
@@ -895,8 +901,23 @@ internal data class LocallyAcceptedOrganization(
 
 /**
  * Automatic reruns may add a trusted label, but omission is never a deletion signal. Existing
- * accepted labels stay first and therefore survive the per-dimension safety budget. Only the
- * explicit user-correction path is allowed to replace the visible classification set.
+ * non-automatic labels (USER_CORRECTED / USER_CONFIRMED and any other source that is not
+ * LOCAL_POLICY_ACCEPTED) are protected at maximum confidence, are never overridden, and never
+ * compete for the per-dimension safety budget. Existing automatic labels stay only as strong as
+ * the acceptance gate they once cleared: a later automatic proposal with a strictly higher
+ * confidence may replace them when the budget is contended (KF-30 — a wrong automatic acceptance
+ * must not be uncorrectable without the user). Only the explicit user-correction path is allowed
+ * to replace the visible classification set outright.
+ *
+ * 为什么存量自动标签的基线是接受门而不是旧的 1.0：分类绑定没有持久化置信度（零 schema），
+ * "它曾通过接受门"是唯一可复核的事实；把存量一律写成 1.0 正是自锁的来源——旧值不可战胜。
+ * 同置信/更低置信的本轮提议不覆盖存量（稳定排序，先入者胜）。
+ *
+ * **定位（复核 F2）**：上面的"非自动标签保护"分支在当前生产路径**不可达**——
+ * `applySuccessfulOrganizationOnIo` 读到任何用户权威分类（`hasUserCorrection`）时已整体早退，
+ * store 侧另有 `ProblemOrganizationAuthorityConflictException` 第二道门；只有直接调用本函数的
+ * 单元用例能构造混合来源。保留该分支是**纵深防御**（合并规则单源、不让未来调用方绕过），
+ * 不代表生产会走到这里。
  */
 internal fun mergeAutomaticClassifications(
     existing: List<ProblemClassificationBindingRecord>,
@@ -907,25 +928,72 @@ internal fun mergeAutomaticClassifications(
             .getOrNull()
             ?.takeIf(PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS::contains)
             ?: return@mapNotNull null
+        val automaticallyAccepted =
+            record.acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED.name
         runCatching {
-            ProblemClassificationSuggestion(
-                dimension = dimension,
-                displayName = record.displayName,
-                rationaleMarkdown = "此前已整理并保留；模型本次未提及不代表删除。",
-                confidence = 1.0,
+            RetainedClassification(
+                suggestion = ProblemClassificationSuggestion(
+                    dimension = dimension,
+                    displayName = record.displayName,
+                    rationaleMarkdown = if (automaticallyAccepted) {
+                        "此前由自动整理接受；本轮更高置信的提议可以替换它。"
+                    } else {
+                        "此前已整理并保留；模型本次未提及不代表删除。"
+                    },
+                    confidence = if (automaticallyAccepted) {
+                        CLASSIFICATION_ACCEPTANCE_CONFIDENCE
+                    } else {
+                        PROTECTED_CLASSIFICATION_CONFIDENCE
+                    },
+                ),
+                overridableByAutomaticRerun = automaticallyAccepted,
             )
         }.getOrNull()
     }
-    val merged = (retained + incoming).distinctBy { suggestion ->
-        suggestion.dimension to suggestion.displayName
-            .trim()
-            .lowercase(Locale.ROOT)
-            .replace(Regex("\\s+"), " ")
-    }
-    return merged.filter { it.dimension == ClassificationDimension.CHAPTER }
-        .take(MAX_ACCEPTED_CHAPTERS) +
-        merged.filter { it.dimension == ClassificationDimension.KNOWLEDGE }
-            .take(MAX_ACCEPTED_KNOWLEDGE)
+    val protectedKeys = retained.asSequence()
+        .filterNot(RetainedClassification::overridableByAutomaticRerun)
+        .mapTo(hashSetOf()) { classificationMergeKey(it.suggestion) }
+    // 稳定排序 + 先入者胜：同置信（含同名的用户标签）不覆盖，严格更高置信的本轮提议才覆盖。
+    val merged = (retained.map(RetainedClassification::suggestion) + incoming)
+        .sortedByDescending(ProblemClassificationSuggestion::confidence)
+        .distinctBy(::classificationMergeKey)
+    return withinClassificationBudget(
+        merged = merged,
+        protectedKeys = protectedKeys,
+        dimension = ClassificationDimension.CHAPTER,
+        budget = MAX_ACCEPTED_CHAPTERS,
+    ) + withinClassificationBudget(
+        merged = merged,
+        protectedKeys = protectedKeys,
+        dimension = ClassificationDimension.KNOWLEDGE,
+        budget = MAX_ACCEPTED_KNOWLEDGE,
+    )
+}
+
+private data class RetainedClassification(
+    val suggestion: ProblemClassificationSuggestion,
+    val overridableByAutomaticRerun: Boolean,
+)
+
+/** 分类合并的归一身份：与确认命令里的标签去重同一口径（维度 + 折叠小写名）。 */
+private fun classificationMergeKey(
+    suggestion: ProblemClassificationSuggestion,
+): Pair<ClassificationDimension, String> = suggestion.dimension to suggestion.displayName
+    .trim()
+    .lowercase(Locale.ROOT)
+    .replace(Regex("\\s+"), " ")
+
+/** 每个维度先保住用户权威标签（不受预算淘汰），剩余名额按合并顺序（置信度高者先）分配。 */
+private fun withinClassificationBudget(
+    merged: List<ProblemClassificationSuggestion>,
+    protectedKeys: Set<Pair<ClassificationDimension, String>>,
+    dimension: ClassificationDimension,
+    budget: Int,
+): List<ProblemClassificationSuggestion> {
+    val candidates = merged.filter { it.dimension == dimension }
+    val protected = candidates.filter { classificationMergeKey(it) in protectedKeys }
+    val competitive = candidates.filterNot { classificationMergeKey(it) in protectedKeys }
+    return protected + competitive.take((budget - protected.size).coerceAtLeast(0))
 }
 
 internal fun acceptOrganizationLocally(
@@ -1211,30 +1279,24 @@ internal fun buildConfirmationCommand(
         .flatMap { step -> step.atomicReferenceIds.map { referenceId -> referenceId to step.stepOrdinal } }
         .groupBy({ it.first }, { it.second })
         .mapValues { (_, ordinals) -> ordinals.distinct().size }
-    val atomByNodeId = atomicNodePairs.associate { (atom, node) ->
-        node.knowledgeNodeId to atom
-    }
-    val nodeIdsToBind = if (atomicNodePairs.isNotEmpty()) {
-        atomicNodePairs.map { (_, node) -> node.knowledgeNodeId }
-    } else {
-        topicNodes.map(KnowledgeNodeSeedRecord::knowledgeNodeId)
-    }
-    val knowledgeBindings = nodeIdsToBind.map { knowledgeNodeId ->
-        val atom = atomByNodeId[knowledgeNodeId]
-        val strength = if (atom == null) {
-            1.0
-        } else {
-            val attributedSteps = attributedStepCounts[atom.referenceId] ?: 0
-            attributedSteps.toDouble()
-                .div(stepAttributions.size.coerceAtLeast(1))
-                .coerceIn(MIN_ATOMIC_BINDING_STRENGTH, 1.0)
-        }
+    // KF-07：只有通过持久化校验、且父级与本轮知识分类对上的**原子节点**才产生绑定。原子一个
+    // 都没落地时不再退化为"把全部 topic 节点按 strength=1.0 全绑"——那是把整章错记成这道题的
+    // 掌握证据（宁可诚实未分类，不可全量错绑）。这里保持空绑定，题面由后续的
+    // `ensurePseudoKnowledgeBinding`（StudyReviewPlannerService / StudyPracticeUnitFacts）
+    // 落 `pseudo:<SUBJECT>` 占位；自动路径与用户路径同此规则。
+    // 边界（复核 F4）：空绑定确认会触发 KF-32 的 `BINDING_CHANGED`，但重放派生为空后退回
+    // 写时快照（LearningProjector 的 ifEmpty 兜底）——历史证据仍挂旧 topic，不清零也不改挂
+    // pseudo；本批只止住新证据的错误归属。空集重放语义留 KF-32 后续（含仪器化用例）。
+    val knowledgeBindings = atomicNodePairs.map { (atom, node) ->
+        val attributedSteps = attributedStepCounts[atom.referenceId] ?: 0
         KnowledgeBindingSeedRecord(
-            bindingId = "knowledge-binding:${sha256("${input.practiceUnitId}|$knowledgeNodeId|${input.problemRevisionId}|$taxonomyVersion").take(40)}",
+            bindingId = "knowledge-binding:${sha256("${input.practiceUnitId}|${node.knowledgeNodeId}|${input.problemRevisionId}|$taxonomyVersion").take(40)}",
             practiceUnitId = input.practiceUnitId,
-            knowledgeNodeId = knowledgeNodeId,
+            knowledgeNodeId = node.knowledgeNodeId,
             basisRevisionId = input.problemRevisionId,
-            strength = strength,
+            strength = attributedSteps.toDouble()
+                .div(stepAttributions.size.coerceAtLeast(1))
+                .coerceIn(MIN_ATOMIC_BINDING_STRENGTH, 1.0),
             sourceType = acceptanceSource.name,
             taxonomyVersion = taxonomyVersion,
             acceptedAtEpochMillis = acceptedAtEpochMillis,

@@ -325,6 +325,55 @@ class RoomBackedStudyExperienceRepositoryTest {
         }
     }
 
+    /**
+     * KF-07 的**下游表征测试**：绑定为空（零绑定状态）时，规划侧落 `pseudo:<SUBJECT>` 占位——
+     * "未归类"不等于从队列消失，题面仍以伪知识点进入今日计划，后续证据由 pseudo 桶承接
+     * （spec §3.4）。
+     *
+     * 定位如实标注（复核 F5）：规划侧本批未改，本用例在批 2 之前同样通过；它钉的是"零绑定状态
+     * 的下游既有行为"，**不是** KF-07 改动本身的回归测试（后者由 `core:database` 的
+     * `ProblemOrganizationCommandValidationTest` 直接钉 `validateCommand`，以及真库确认路径）。
+     */
+    @Test
+    fun unboundMistakeMaterializesThePseudoBucketWhenPlanning() = runBlocking {
+        val database = FakeStudyDatabasePort().apply {
+            addMistake(
+                MistakeRecord(
+                    entryId = "unbound-entry",
+                    problemId = "unbound-problem",
+                    problemRevisionId = "unbound-revision",
+                    practiceUnitId = "unbound-practice-unit",
+                    sourceKey = "capture:unbound",
+                    subject = "MATH",
+                    title = "未归类错题",
+                    problemMarkdown = "尚未有可校验的原子绑定。",
+                    status = "ACTIVE",
+                    createdAtEpochMillis = 9_999_999_999_999L,
+                    nextReviewAtEpochMillis = null,
+                    retrievability = null,
+                ),
+            )
+        }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
+
+        try {
+            repository.initialize()
+
+            assertTrue(
+                "无绑定题必须物化 pseudo:MATH 占位，实际调用：${database.pseudoBindingCalls}",
+                database.pseudoBindingCalls.contains("pseudo:MATH"),
+            )
+            assertEquals(
+                listOf("unbound-practice-unit"),
+                repository.snapshot.value.review.scheduledPracticeUnitIds,
+            )
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
     @Test
     fun repeatedCaptureMovesTheExistingMistakeForwardInReview() = runBlocking {
         val database = FakeStudyDatabasePort().apply {

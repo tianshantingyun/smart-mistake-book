@@ -236,9 +236,10 @@ class RoomMistakeOrganizationRepositoryTest {
         assertEquals(2, first.classifications.size)
         assertEquals(setOf("CHAPTER", "KNOWLEDGE"), first.classifications.map { it.dimension }.toSet())
         assertEquals(1, first.knowledgeNodes.size)
-        assertEquals(1, first.knowledgeBindings.size)
+        // KF-07：没有通过持久化校验的原子节点时不再把 topic 节点按 strength=1.0 兜底全绑；
+        // 绑定集保持为空 = 诚实未分类，题面由 `ensurePseudoKnowledgeBinding` 的 pseudo 占位接管。
+        assertTrue(first.knowledgeBindings.isEmpty())
         assertEquals("USER_CORRECTED", first.classifications.first().acceptanceSource)
-        assertEquals("USER_CORRECTED", first.knowledgeBindings.single().sourceType)
         assertEquals("user-corrected-v1", first.classifications.first().taxonomyVersion)
         assertEquals("ACTIVE", first.relations.single().status)
         assertFalse(first.replaceRelations)
@@ -268,8 +269,9 @@ class RoomMistakeOrganizationRepositoryTest {
             automatic.knowledgeNodes.single().knowledgeNodeId,
             corrected.knowledgeNodes.single().knowledgeNodeId,
         )
-        assertEquals("LOCAL_POLICY_ACCEPTED", automatic.knowledgeBindings.single().sourceType)
-        assertEquals("USER_CORRECTED", corrected.knowledgeBindings.single().sourceType)
+        // KF-07：无原子节点落地时两条权威路径都不再伪造 topic 绑定。
+        assertTrue(automatic.knowledgeBindings.isEmpty())
+        assertTrue(corrected.knowledgeBindings.isEmpty())
         assertEquals("organization-v1", automatic.knowledgeNodes.single().taxonomyVersion)
         assertEquals("organization-v1", corrected.knowledgeNodes.single().taxonomyVersion)
     }
@@ -296,6 +298,174 @@ class RoomMistakeOrganizationRepositoryTest {
             setOf("函数", "二次函数最值", "链式法则", "导数符号"),
             merged.mapTo(linkedSetOf(), ProblemClassificationSuggestion::displayName),
         )
+    }
+
+    /**
+     * KF-30：自动接受过的标签不再以 1.0 自锁。预算满时，本轮更高置信的自动提议可以把旧的
+     * 自动标签挤出——一次错误的自动接受不该只能等用户手动来改。
+     */
+    @Test
+    fun higherConfidenceAutomaticProposalReplacesStaleAutomaticLabelsWithinBudget() {
+        val existing = autoChapters("板块 A", "板块 B", "板块 C") + binding(
+            ClassificationDimension.KNOWLEDGE,
+            "knowledge-stale",
+            "旧知识点",
+            BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+        )
+        val incoming = listOf(
+            classification(ClassificationDimension.CHAPTER, "板块 A2", 0.9),
+            classification(ClassificationDimension.CHAPTER, "板块 B2", 0.9),
+            classification(ClassificationDimension.CHAPTER, "板块 C2", 0.9),
+        )
+
+        val merged = mergeAutomaticClassifications(existing, incoming)
+
+        // 章节预算（3）被更高置信的本轮提议占满，旧自动章节全部让位；知识点没有竞争，照常保留。
+        assertEquals(
+            setOf("板块 A2", "板块 B2", "板块 C2", "旧知识点"),
+            merged.mapTo(linkedSetOf(), ProblemClassificationSuggestion::displayName),
+        )
+        assertEquals(
+            "旧自动标签被覆盖后不得残留",
+            emptySet<String>(),
+            merged.mapTo(linkedSetOf(), ProblemClassificationSuggestion::displayName)
+                .intersect(setOf("板块 A", "板块 B", "板块 C")),
+        )
+    }
+
+    /**
+     * KF-30：用户确认语义的标签（USER_CORRECTED / USER_CONFIRMED）不可被自动提议覆盖，也不因
+     * 预算满被挤掉——用户权威是合并的下界，与来源=auto 的标签区别对待。
+     */
+    @Test
+    fun userOwnedLabelsSurviveHigherConfidenceAutomaticProposals() {
+        val existing = listOf(
+            binding(
+                ClassificationDimension.CHAPTER,
+                "chapter-user-1",
+                "函数",
+                BindingAcceptanceSource.USER_CONFIRMED,
+            ),
+            binding(
+                ClassificationDimension.CHAPTER,
+                "chapter-user-2",
+                "数列",
+                BindingAcceptanceSource.USER_CONFIRMED,
+            ),
+            binding(
+                ClassificationDimension.CHAPTER,
+                "chapter-user-3",
+                "概率",
+                BindingAcceptanceSource.USER_CONFIRMED,
+            ),
+            binding(
+                ClassificationDimension.KNOWLEDGE,
+                "knowledge-user",
+                "函数最值",
+                BindingAcceptanceSource.USER_CORRECTED,
+            ),
+        )
+        val incoming = listOf(
+            classification(ClassificationDimension.CHAPTER, "函数", 1.0),
+            classification(ClassificationDimension.CHAPTER, "三角函数", 0.99),
+            classification(ClassificationDimension.CHAPTER, "立体几何", 0.99),
+            classification(ClassificationDimension.CHAPTER, "解析几何", 0.99),
+            classification(ClassificationDimension.KNOWLEDGE, "函数最值", 1.0),
+        )
+
+        val merged = mergeAutomaticClassifications(existing, incoming)
+
+        // 用户章节占满预算：更高置信的自动提议一个也挤不进来；同名的 incoming 也不覆盖用户行。
+        assertEquals(
+            listOf("函数", "数列", "概率"),
+            merged.filter { it.dimension == ClassificationDimension.CHAPTER }
+                .map(ProblemClassificationSuggestion::displayName),
+        )
+        assertEquals(1.0, merged.single { it.displayName == "函数" }.confidence, 0.0)
+        assertEquals(
+            listOf("函数最值"),
+            merged.filter { it.dimension == ClassificationDimension.KNOWLEDGE }
+                .map(ProblemClassificationSuggestion::displayName),
+        )
+    }
+
+    /**
+     * KF-30 负向边界钉住：同置信或更低置信的本轮提议不覆盖存量自动标签——只有**严格更高**置信
+     * 才让位（存量基线 = 它曾通过的接受门）。
+     */
+    @Test
+    fun equalOrLowerConfidenceProposalsDoNotReplaceAcceptedAutomaticLabels() {
+        val existing = autoChapters("板块 A", "板块 B", "板块 C")
+        val equal = mergeAutomaticClassifications(
+            existing,
+            listOf(
+                classification(
+                    ClassificationDimension.CHAPTER,
+                    "板块 D",
+                    CLASSIFICATION_ACCEPTANCE_CONFIDENCE,
+                ),
+                classification(
+                    ClassificationDimension.CHAPTER,
+                    "板块 E",
+                    CLASSIFICATION_ACCEPTANCE_CONFIDENCE,
+                ),
+                classification(
+                    ClassificationDimension.CHAPTER,
+                    "板块 F",
+                    CLASSIFICATION_ACCEPTANCE_CONFIDENCE,
+                ),
+            ),
+        )
+        val lower = mergeAutomaticClassifications(
+            existing,
+            listOf(classification(ClassificationDimension.CHAPTER, "板块 D", 0.5)),
+        )
+
+        val retainedNames = setOf("板块 A", "板块 B", "板块 C")
+        assertEquals(
+            retainedNames,
+            equal.mapTo(linkedSetOf(), ProblemClassificationSuggestion::displayName),
+        )
+        assertTrue("同置信不得留下更高置信的假象", equal.all { it.confidence <= CLASSIFICATION_ACCEPTANCE_CONFIDENCE })
+        assertEquals(
+            retainedNames,
+            lower.mapTo(linkedSetOf(), ProblemClassificationSuggestion::displayName),
+        )
+    }
+
+    /**
+     * KF-07：原子提议一个都没能落地（父级对不上本轮知识分类）时，命令不再把全部 topic 节点按
+     * strength=1.0 兜底全绑；绑定集为空 = 诚实未分类，由 pseudo 桶接管。
+     */
+    @Test
+    fun unmatchedAtomsLeaveNoTopicFallbackBindings() {
+        val orphanAtom = AtomicKnowledgeSuggestion(
+            referenceId = "atom-orphan",
+            canonicalName = "识别并执行核心运算步骤",
+            aliases = emptyList(),
+            kind = KnowledgeNodeKind.PROCEDURE,
+            parentKnowledgeDisplayName = "另一个未采纳的知识点",
+            matchedKnowledgeNodeId = "math-atomic-core-operation",
+            prerequisiteReferenceIds = emptyList(),
+            observableOutcomeMarkdown = "能独立完成题目中的核心运算步骤。",
+            boundaryMarkdown = "只记录本题实际使用的运算能力。",
+            confidence = 0.9,
+        )
+
+        val command = buildConfirmationCommand(
+            requestId = "unmatched-atom-request",
+            input = input(),
+            classifications = classifications(),
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            atomicKnowledge = listOf(orphanAtom),
+        )
+
+        assertTrue(command.knowledgeBindings.isEmpty())
+        // 分类层级本身不变：topic 节点仍照常物化，只是不再被错绑成掌握证据。
+        assertEquals(1, command.knowledgeNodes.size)
+        assertEquals(1, command.classifications.count { it.dimension == "KNOWLEDGE" })
     }
 
     @Test
@@ -498,9 +668,9 @@ class RoomMistakeOrganizationRepositoryTest {
         assertEquals(2, first.classifications.size)
         assertEquals(setOf("CHAPTER", "KNOWLEDGE"), first.classifications.map { it.dimension }.toSet())
         assertEquals("USER_CORRECTED", first.classifications.first().acceptanceSource)
-        assertEquals("USER_CORRECTED", first.knowledgeBindings.single().sourceType)
         assertEquals(1, first.knowledgeNodes.size)
-        assertEquals(1, first.knowledgeBindings.size)
+        // KF-07：离线纠正没有可校验的原子节点，不再伪造 topic 绑定；pseudo 桶接管归属。
+        assertTrue(first.knowledgeBindings.isEmpty())
         assertEquals(0, first.relations.size)
         assertFalse(first.replaceRelations)
         assertEquals(emptySet<String>(), first.relationIdsToRemove)
@@ -734,6 +904,7 @@ class RoomMistakeOrganizationRepositoryTest {
         dimension: ClassificationDimension,
         labelId: String,
         displayName: String,
+        acceptanceSource: BindingAcceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
     ) = com.tingyun.smartmistakebook.core.database.ProblemClassificationBindingRecord(
         bindingId = "binding-$labelId",
         problemId = "problem-1",
@@ -742,9 +913,19 @@ class RoomMistakeOrganizationRepositoryTest {
         labelId = labelId,
         displayName = displayName,
         taxonomyVersion = "user-corrected-v1",
-        acceptanceSource = BindingAcceptanceSource.USER_CORRECTED.name,
+        acceptanceSource = acceptanceSource.name,
         acceptedAtEpochMillis = 1,
     )
+
+    /** 一组自动接受的章节标签（KF-30 合并用例的存量侧）。 */
+    private fun autoChapters(vararg displayNames: String) = displayNames.mapIndexed { index, name ->
+        binding(
+            dimension = ClassificationDimension.CHAPTER,
+            labelId = "chapter-auto-$index",
+            displayName = name,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+        )
+    }
 
     private fun treeNode(
         id: String,
