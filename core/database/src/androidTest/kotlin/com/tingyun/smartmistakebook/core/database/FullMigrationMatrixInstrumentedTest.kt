@@ -312,6 +312,184 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /**
+     * 阶段 3C 后半批 2 · S18（v62→63）：新增目录记忆态连接索引
+     * `index_learner_problem_memory_state_projection_name_practice_unit_id_learner_id`。
+     * 矩阵用的是空库，看不出"旧行还在不在、索引逐列同形"，这里用真库、真驱动实测：
+     * 1. 索引按迁移建出来，列序与 `LearnerProblemMemoryStateEntity` 的 Index 逐位一致；
+     * 2. 既有记忆态行一行不动（纯新增不是重建）；
+     * 3. 迁移前的 v62 库里本来没有这条索引（否则迁移没有意义）。
+     */
+    @Test
+    fun libraryCatalogMemoryIndexIsCreatedWithoutTouchingStoredRows() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave10-memory-index-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 62)
+            seedV62MemoryRow(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v62 库迁到 63",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV63MemoryIndexShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 往导出的 62.json 建出来的库里写：一行真实 practice unit（连同 problem/revision）
+     * + 投影头 + 一行记忆态。显式关外键只用于 fixture 表可任意的场景——这里三张表的
+     * 外键都配齐（practice_unit → problem/revision，头 → 记忆态），不关外键也写得进。
+     */
+    private fun seedV62MemoryRow(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$MEMORY_PROBLEM_ID', 'fp-wave10', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$MEMORY_REVISION_ID', '$MEMORY_PROBLEM_ID', 1, 'S18 题', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave10-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `practice_unit` (
+                    `practice_unit_id`, `problem_id`, `problem_revision_id`, `unit_key`,
+                    `unit_kind`, `title`, `prompt_markdown`, `estimated_seconds`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$MEMORY_UNIT_ID', '$MEMORY_PROBLEM_ID', '$MEMORY_REVISION_ID', 'whole',
+                    'WHOLE_PROBLEM', 'S18 题', '题面', 120,
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `learner_projection_snapshot` (
+                    `projection_name`, `learner_id`, `state_version`, `checkpoint_sequence`,
+                    `known_ledger_head_sequence`, `projector_version`, `projected_at_epoch_millis`,
+                    `generated_at_epoch_millis`, `correction_watermark_epoch_millis`, `freshness`,
+                    `projection_status`
+                ) VALUES (
+                    'study-experience-v1', '$MEMORY_LEARNER_ID', 0, 0,
+                    0, 'projector-v11', 1700000000000,
+                    1700000000000, NULL, 'CURRENT',
+                    'CURRENT'
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `learner_problem_memory_state` (
+                    `projection_name`, `learner_id`, `practice_unit_id`, `stability_days`,
+                    `difficulty`, `last_reviewed_at_epoch_millis`, `next_review_at_epoch_millis`,
+                    `independent_correct_count`, `assisted_correct_count`, `lapse_count`,
+                    `answer_reveal_count`, `last_lapse_at_epoch_millis`, `clock_anomaly_count`,
+                    `last_clock_anomaly_at_epoch_millis`, `projector_version`,
+                    `checkpoint_sequence`
+                ) VALUES (
+                    'study-experience-v1', '$MEMORY_LEARNER_ID', '$MEMORY_UNIT_ID', 12.5,
+                    7.0, 1700000000000, 1700100000000,
+                    3, 1, 0,
+                    0, NULL, 0,
+                    NULL, 'projector-v11',
+                    5
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：新索引在、列序逐位、旧行原样，且 v62 库里本来没有它。 */
+    private fun inspectV63MemoryIndexShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            val names = tableNames(connection)
+            assertTrue("真实题卡表必须保留", MEMORY_TABLE in names)
+
+            val indexColumns = indexColumns(connection, "learner_problem_memory_state", MEMORY_INDEX)
+            assertEquals(
+                "索引列序必须是 (projection_name, practice_unit_id, learner_id)",
+                listOf("projection_name", "practice_unit_id", "learner_id"),
+                indexColumns,
+            )
+
+            val statement = connection.prepare(
+                "SELECT learner_id, practice_unit_id, stability_days, difficulty, " +
+                    "independent_correct_count, projector_version, checkpoint_sequence " +
+                    "FROM `$MEMORY_TABLE`",
+            )
+            try {
+                assertTrue("旧行必须一行不丢", statement.step())
+                assertEquals(MEMORY_LEARNER_ID, statement.getText(0))
+                assertEquals(MEMORY_UNIT_ID, statement.getText(1))
+                assertEquals(12.5, statement.getDouble(2), 0.0)
+                assertEquals(7.0, statement.getDouble(3), 0.0)
+                assertEquals(3L, statement.getLong(4))
+                assertEquals("projector-v11", statement.getText(5))
+                assertEquals(5L, statement.getLong(6))
+                assertFalse("旧行只有这一条", statement.step())
+            } finally {
+                statement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 某表上某个索引的列（按序）；不存在时返回空。 */
+    private fun indexColumns(
+        connection: SQLiteConnection,
+        table: String,
+        expectedIndexName: String,
+    ): List<String> {
+        val exists = connection.prepare(
+            "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = ? AND name = ?",
+        )
+        try {
+            exists.bindText(1, table)
+            exists.bindText(2, expectedIndexName)
+            if (!exists.step()) return emptyList()
+        } finally {
+            exists.close()
+        }
+        val statement = connection.prepare("PRAGMA index_info(`$expectedIndexName`)")
+        try {
+            val columns = mutableListOf<String>()
+            while (statement.step()) columns += statement.getText(2)!!
+            return columns
+        } finally {
+            statement.close()
+        }
+    }
+
     private fun seedV59DivergentTitleRow(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
         try {
@@ -944,6 +1122,13 @@ class FullMigrationMatrixInstrumentedTest {
         const val MEMORY_TABLE = "learner_problem_memory_state"
         const val MEMORY_UNIT_ID = "unit-wave4"
         const val WAVE4_LEARNER_ID = "learner:wave4"
+
+        /** v62→63（S18 目录记忆态连接索引）用例：索引名与真实行夹具值。 */
+        const val MEMORY_INDEX =
+            "index_learner_problem_memory_state_projection_name_practice_unit_id_learner_id"
+        const val MEMORY_PROBLEM_ID = "problem-wave10"
+        const val MEMORY_REVISION_ID = "revision-wave10"
+        const val MEMORY_LEARNER_ID = "learner:wave10"
 
         /** v59→60（L2 标题单源）用例：两列分叉的夹具值。 */
         const val TITLE_PROBLEM_ID = "problem-wave7"

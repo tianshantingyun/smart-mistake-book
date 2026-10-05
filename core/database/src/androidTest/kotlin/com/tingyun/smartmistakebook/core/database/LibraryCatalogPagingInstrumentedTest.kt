@@ -27,63 +27,12 @@ class LibraryCatalogPagingInstrumentedTest {
     @Test
     fun fiftyThousandRowsPageSearchAndFacetCountsInSql() = runBlocking {
         val count = 50_000
-        store.seedStudyFacts(
-            StudySeedBundle(
-                problems = List(count) { index ->
-                    ProblemSeedRecord(
-                        problemId = "problem-$index",
-                        canonicalFingerprint = index.toString(16).padStart(64, '0'),
-                        subject = if (index % 2 == 0) "MATH" else "PHYSICS",
-                        createdAtEpochMillis = index + 1L,
-                    )
-                },
-                revisions = List(count) { index ->
-                    ProblemRevisionSeedRecord(
-                        revisionId = "revision-$index",
-                        problemId = "problem-$index",
-                        revisionNumber = 1,
-                        title = "分页题目 ${index + 1}",
-                        problemMarkdown = if (index % 100 == 0) {
-                            "独特检索词$index"
-                        } else {
-                            "普通题面 $index"
-                        },
-                        questionDocumentSnapshot = null,
-                        answerSpecId = null,
-                        answerSpecSnapshot = null,
-                        answerVerificationStatus = StudyDbValue.VerificationStatus.UNKNOWN,
-                        sourceType = "CAPTURE_CONFIRMED",
-                        sourceReference = null,
-                        contentFingerprint = "f".repeat(64),
-                        createdAtEpochMillis = index + 1L,
-                    )
-                },
-                practiceUnits = List(count) { index ->
-                    PracticeUnitSeedRecord(
-                        practiceUnitId = "practice-$index",
-                        problemId = "problem-$index",
-                        problemRevisionId = "revision-$index",
-                        unitKey = "whole-problem",
-                        unitKind = "WHOLE_PROBLEM",
-                        title = "分页题目 ${index + 1}",
-                        promptMarkdown = if (index % 100 == 0) "独特检索词$index" else "普通题面",
-                        estimatedSeconds = 180,
-                        createdAtEpochMillis = index + 1L,
-                    )
-                },
-                errorBookEntries = List(count) { index ->
-                    ErrorBookEntrySeedRecord(
-                        entryId = "entry-$index",
-                        practiceUnitId = "practice-$index",
-                        problemId = "problem-$index",
-                        currentRevisionId = "revision-$index",
-                        sourceKey = null,
-                        acceptedAtEpochMillis = index + 1L,
-                        updatedAtEpochMillis = index + 1L,
-                    )
-                },
-            ),
-        )
+        // 阶段 3C 后半批 2（S18）：夹具由「只有 problem/revision/unit/entry」补齐为
+        // 「mastery / 分类 / 投影」齐全的目录形态（见 LibraryCatalogScaleFixture）——
+        // 旧夹具下 library_catalog 的三条相关子查询走空连接，mastery/标签全是退化值，
+        // 本用例的 count/page/facets 因此只压到退化路径。补齐后同样的断言在真实子查询
+        // 形态上重跑，并新增非退化断言（标签/掌握桶/筛选命中）。
+        store.database.seedLibraryCatalogScale(count)
         val dao = store.database.libraryQueryDao()
 
         assertEquals(count, dao.count("", null, null, null, null, null))
@@ -125,6 +74,57 @@ class LibraryCatalogPagingInstrumentedTest {
         )
         assertEquals(setOf("MATH", "PHYSICS"), subjectFacets.map { it.id }.toSet())
         assertEquals(count, subjectFacets.sumOf { it.count })
+
+        // ---- 非退化断言（旧夹具下这些全会是 unknown / 空）----
+        // ① 分类标签：每行都有章节 + 知识点标签，facet 桶数与夹具桶数一致。
+        assertTrue(
+            "夹具退化：首屏仍有空 chapter_labels",
+            dao.page(
+                searchText = "",
+                subjectId = null,
+                sectionId = null,
+                masteryId = null,
+                createdFromEpochMillis = null,
+                createdToEpochMillis = null,
+                sort = "RECENTLY_UPDATED",
+                offset = 0,
+                limit = 20,
+            ).all { !it.chapterLabels.isNullOrEmpty() && !it.knowledgeLabels.isNullOrEmpty() },
+        )
+        val sectionFacets = dao.sectionFacets(
+            searchText = "",
+            subjectId = null,
+            masteryId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+        )
+        assertEquals(LibraryCatalogScale.CHAPTER_COUNT, sectionFacets.size)
+        assertEquals(count, sectionFacets.sumOf { it.count })
+
+        // ② 掌握态四桶：mastery facet 不再只有 'unknown'。
+        val masteryFacets = dao.masteryFacets(
+            searchText = "",
+            subjectId = null,
+            sectionId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+        )
+        assertEquals(
+            setOf("learning", "mastered", "stale", "conflicted"),
+            masteryFacets.map { it.id }.toSet(),
+        )
+        assertEquals(count, masteryFacets.sumOf { it.count })
+
+        // ③ 非空筛选命中：section / mastery 过滤真的收窄结果（旧夹具下前者 0 行、
+        //    后者 0 行——过滤"命中"为空正是退化路径的信号）。
+        assertEquals(
+            count / LibraryCatalogScale.CHAPTER_COUNT,
+            dao.count("", null, "chapter-3", null, null, null),
+        )
+        assertEquals(
+            count / 4,
+            dao.count("", null, null, "mastered", null, null),
+        )
     }
 
     /**

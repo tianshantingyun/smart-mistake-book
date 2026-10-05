@@ -653,6 +653,13 @@ internal data class ProjectionArchiveEntity(
     indices = [
         Index(value = ["projection_name", "learner_id"]),
         Index(value = ["practice_unit_id"]),
+        // 阶段 3C 后半批 2（S18，schema 63）：`library_catalog` 视图把记忆态当
+        // 「learner_id 的来源」用时（mastery 子查询的 `mastery.learner_id = memory.learner_id`），
+        // 规划器在无统计信息下会挑主键索引只吃 `projection_name` 前缀、逐外层行扫全部同
+        // projection 行——5 万行实测 count 3.97s / subjectFacets 78.9s。本索引让
+        // (projection_name, practice_unit_id) 两个等值约束都可用且覆盖 learner_id，
+        // 同一夹具实测 44ms / 69ms（EXPLAIN 前后原文见量化报告）。
+        Index(value = ["projection_name", "practice_unit_id", "learner_id"]),
     ],
 )
 internal data class LearnerProblemMemoryStateEntity(
