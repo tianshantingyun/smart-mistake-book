@@ -30515,7 +30515,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型化学电源",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电极反应式",
      "role": "PRIMARY"
     }
    ]
@@ -38395,7 +38395,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型中的功和能量的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:子弹打木块模型",
      "role": "PRIMARY"
     }
    ]
@@ -51715,7 +51715,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂异常的原因分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:染色体变异-x1",
      "role": "PRIMARY"
     }
    ]

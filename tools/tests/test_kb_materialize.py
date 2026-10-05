@@ -17,6 +17,7 @@ DERIVATION / REPRESENTATION_GUIDE）在 MATERIAL 行一律硬拒，在 SKIP 行�
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from kb_build import pack_io
@@ -118,6 +119,61 @@ class PlanTest(unittest.TestCase):
         self.assertEqual([], pl["errors"])
         self.assertEqual(0, pl["material_count"])
         self.assertEqual(1, pl["skip_count"])
+
+
+class OutputRefAppendTest(unittest.TestCase):
+    """write() 的 output_ref 追加判重：必须按逗号分段后**精确相等**，不得子串判重。
+
+    消灭的失败（实测）：`ext-mat-…-100` 是行内已存在的 `ext-mat-…-1000` 的子串，
+    旧实现 `slug not in ref` 把它当"已记录"→ 不再追加 → 材料落了包、账本 output_ref
+    缺号（全表 7 个 rel 共 264 条）。本类用例在旧实现下必须失败。
+
+    夹具只切断外部边界（计划/卷状态/源条目/落盘/状态机写入）；被测的 slug 拼装与
+    output_ref 追加逻辑逐行真跑，不打桩。
+    """
+
+    REL = "夹具/2026数学/材料.docx"
+
+    def _write(self, chunk_ids: list[str], ref: str = ""):
+        chunks = {(self.REL, cid): {"subject": "MATH"} for cid in chunk_ids}
+        plan = {"errors": [], "material_count": len(chunk_ids), "skip_count": 0,
+                "states": {self.REL: {"output_ref": ref}}, "pack": {}, "chunks": chunks}
+        path = Path("夹具/sidecar-01.json")
+        state = {"paths": [path], "counts": {path: {}}, "sizes": {path: 0},
+                 "docs": {path: {"schemaVersion": 2, "packId": "p",
+                                 "sources": [], "materials": []}}}
+        marked: dict = {}
+        with mock.patch.object(mat, "plan", return_value=plan), \
+             mock.patch.object(mat, "_sidecar_state", return_value=state), \
+             mock.patch.object(mat, "_existing_source_entries", return_value={}), \
+             mock.patch.object(mat.pack_io, "dump_json"), \
+             mock.patch.object(mat.es, "mark",
+                               side_effect=lambda paths, tool: marked.update(paths) or []):
+            stats = mat.write([_row(chunk_rel=self.REL, chunk_id=cid) for cid in chunk_ids])
+        return marked, state["docs"][path]["materials"], stats
+
+    def test_shorter_slug_is_not_swallowed_by_longer_one(self):
+        # 先钉住旧实现漏记的机制（前提）：短 slug 确实是长 slug 的子串。
+        long_slug, short_slug = "ext-mat-abc123-1000", "ext-mat-abc123-100"
+        self.assertIn(short_slug, long_slug)
+        marked, materials, stats = self._write(["abc123-1000", "abc123-100"])
+        self.assertEqual(2, stats["materialized"])
+        self.assertEqual([long_slug, short_slug], [m["slug"] for m in materials])
+        self.assertEqual(f"{long_slug},{short_slug}", marked[self.REL][1])
+
+    def test_trailing_empty_segment_neither_blocks_nor_duplicates(self):
+        # output_ref 以逗号结尾（空段）：空串不得被当成已记录的 slug，
+        # 短 slug 仍须追加，且复算后只应有两个非空段。
+        long_slug, short_slug = "ext-mat-abc123-1000", "ext-mat-abc123-100"
+        marked, _materials, _stats = self._write(["abc123-100"], ref=f"{long_slug},")
+        segments = [s for s in marked[self.REL][1].split(",") if s]
+        self.assertEqual([long_slug, short_slug], segments)
+
+    def test_already_recorded_slug_is_not_appended_twice(self):
+        # 精确判重的负向面：slug 已在账本（精确段）→ ref 不动、状态机不写。
+        long_slug = "ext-mat-abc123-1000"
+        marked, _materials, _stats = self._write(["abc123-1000"], ref=long_slug)
+        self.assertEqual({}, marked)
 
 
 class TypesWhitelistTest(unittest.TestCase):

@@ -3071,7 +3071,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:控制变量法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究向心力与半径、角速度、质量的关系",
      "role": "PRIMARY"
     }
    ]
@@ -11211,7 +11211,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光学实验中的误差分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:创新实验方法测玻璃砖的折射率",
      "role": "PRIMARY"
     }
    ]
@@ -15711,7 +15711,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分子模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用油膜法估测油酸分子大小的实验要点",
      "role": "PRIMARY"
     }
    ]
@@ -17631,7 +17631,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:应用牛顿第二定律解题的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动力学的两类基本问题的解题步骤",
      "role": "PRIMARY"
     }
    ]
@@ -21371,7 +21371,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验误差",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究加速度与力质量关系实验的图线异常分析",
      "role": "PRIMARY"
     }
    ]
@@ -35011,7 +35011,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量转化-导体克服安培力做功-其他形式能转化为电能-最终转化为内能",
      "role": "PRIMARY"
     }
    ]
@@ -43311,7 +43311,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:三星模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:双星与多星问题的分析关键",
      "role": "PRIMARY"
     }
    ]

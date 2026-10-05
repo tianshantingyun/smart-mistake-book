@@ -87,10 +87,11 @@ object DenseRecallAssembly {
      * （`DenseAssetProvenanceTest` 钉住"这里的常量 == 旁车 == 实际文件"三处一致）。
      * 不匹配 ⇒ 判不可用：宁可没有稠密腿，也不用一份来路不明的向量表排序。
      *
-     * 2026-10-03 随批次 3（近重复节点合并 + 金标迁移）重打：41,193 → 41,117 行
-     * （3,761 原子节点 + 37,356 别名），sha `8649afa6…` → 本值。
+     * 2026-10-06 随批次 5（234 条改绑 + 别名收口 37,356→37,365）重打：41,117 → **41,126 行**
+     * （3,761 原子节点 + 37,365 别名），sha `8dbc0d54…` → 本值。
+     * （上一代：批次 3 的 41,117 行 / `8dbc0d54…`。）
      */
-    const val VECTOR_ASSET_SHA256 = "8dbc0d5459c43ace5425f3be7bfb36a1ea2ee8126328408e5969f3df8b86cc47"
+    const val VECTOR_ASSET_SHA256 = "28a14ec16d54ea123eafd484f1c2349c9c602391cfecc5a1a2ec602c7cd02ae7"
 
     /** 生产装配：不可用（未启用）时返回 `null`。 */
     fun reranker(context: Context): DenseRecallReranker? {

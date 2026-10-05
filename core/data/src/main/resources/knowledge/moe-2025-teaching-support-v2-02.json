@@ -511,7 +511,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:天上-星球上空距离星体中心r-r-h处的重力加速度为g",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨过程分析",
      "role": "PRIMARY"
     }
    ]
@@ -2471,7 +2471,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:利用电场线和等势面解决带电粒子运动问题的方法",
      "role": "PRIMARY"
     }
    ]
@@ -2931,7 +2931,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:自感电动势的大小-el-l-式中l为自感系数-它可以超出线圈两端的原电压",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电路的故障分析",
      "role": "PRIMARY"
     }
    ]
@@ -4071,7 +4071,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-物体具有保持原来匀速直线运动状态或静止状态的性质-质量是惯性的唯一量度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:配速法",
      "role": "PRIMARY"
     }
    ]
@@ -4231,7 +4231,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:水平射程-即水平射程由初速度v0和下落高度h共同决定-与其他因素无关",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:回旋加速器",
      "role": "PRIMARY"
     }
    ]
@@ -4791,7 +4791,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合外力做功与动能的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应中的单棒模型",
      "role": "PRIMARY"
     }
    ]
@@ -5111,7 +5111,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应中的双棒模型",
      "role": "PRIMARY"
     }
    ]
@@ -5131,7 +5131,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:特点-整个导体回路的电阻一般很小-感应电流很大-故金属块的发热功率很大",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:导体切割磁感线时的感应电动势",
      "role": "PRIMARY"
     }
    ]
@@ -6851,7 +6851,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度时间公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -6871,7 +6871,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度时间公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -9011,7 +9011,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电场线",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:利用电场线和等势面解决带电粒子运动问题的方法",
      "role": "PRIMARY"
     }
    ]
@@ -11471,7 +11471,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动性质-匀变速曲线运动-加速度恒为重力加速度-g-大小方向不变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的实验",
      "role": "PRIMARY"
     }
    ]
@@ -11531,7 +11531,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-在任何温度-任何压强下都遵从气体实验定律的气体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究等温情况气体压强与体积关系的实验要点",
      "role": "PRIMARY"
     }
    ]
@@ -13971,7 +13971,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-物体具有保持原来匀速直线运动状态或静止状态的性质-质量是惯性的唯一量度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:两个直线运动合运动性质的判断",
      "role": "PRIMARY"
     }
    ]
@@ -14431,7 +14431,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:反射-波在传播过程中遇到介质界面会返回来继续传播的现象叫作波的反射",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:机械波",
      "role": "PRIMARY"
     }
    ]
@@ -15071,7 +15071,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度时间公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -15091,7 +15091,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度时间公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -21511,7 +21511,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:时刻与时间间隔区别与联系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动轨迹的数据处理与初速度计算",
      "role": "PRIMARY"
     }
    ]
@@ -22051,7 +22051,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-斜面-曲面-模型-相对运动与临界问题",
      "role": "PRIMARY"
     }
    ]
@@ -22091,7 +22091,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒中的速度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-木板模型的临界问题",
      "role": "PRIMARY"
     }
    ]
@@ -22511,7 +22511,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传送带上的相对位移与划痕",
      "role": "PRIMARY"
     }
    ]
@@ -23351,7 +23351,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物体看作质点的条件-物体的大小和形状对研究问题的影响可以忽略",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的实验",
      "role": "PRIMARY"
     }
    ]
@@ -23751,7 +23751,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电压表-电流表的改装",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:差值法测电表内阻",
      "role": "PRIMARY"
     }
    ]
@@ -24611,7 +24611,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物体看作质点的条件-物体的大小和形状对研究问题的影响可以忽略",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的实验",
      "role": "PRIMARY"
     }
    ]
@@ -24911,7 +24911,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:特点-整个导体回路的电阻一般很小-感应电流很大-故金属块的发热功率很大",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电阻率",
      "role": "PRIMARY"
     }
    ]
@@ -25551,7 +25551,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:天上-星球上空距离星体中心r-r-h处的重力加速度为g",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:天体质量计算",
      "role": "PRIMARY"
     }
    ]
@@ -30351,7 +30351,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:如果要列出各物理量在某一时刻的关系式-可用牛顿第二定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究加速度与力、质量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -34211,7 +34211,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:人船模型",
      "role": "PRIMARY"
     }
    ]
@@ -35071,7 +35071,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -35091,7 +35091,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -35111,7 +35111,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -35171,7 +35171,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:天上-星球上空距离星体中心r-r-h处的重力加速度为g",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及问题的常见类型",
      "role": "PRIMARY"
     }
    ]
@@ -36391,7 +36391,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:自感",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:法拉第电磁感应定律",
      "role": "PRIMARY"
     }
    ]
@@ -36691,7 +36691,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:洛伦兹力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在磁场中运动与原子核反应综合模型",
      "role": "PRIMARY"
     }
    ]
@@ -36731,7 +36731,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传送带上的相对位移与划痕",
      "role": "PRIMARY"
     }
    ]
@@ -37091,7 +37091,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-物体具有保持原来匀速直线运动状态或静止状态的性质-质量是惯性的唯一量度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:两个直线运动合运动性质的判断",
      "role": "PRIMARY"
     }
    ]
@@ -37391,7 +37391,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:仪器构造-质谱仪由粒子源-加速电场-偏转磁场和照相底片构成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:两个重要结论",
      "role": "PRIMARY"
     }
    ]
@@ -37751,7 +37751,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:仪器介绍-磁流体发电是一项新兴技术-它可以把内能直接转化为电能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场中的仪器",
      "role": "PRIMARY"
     }
    ]
@@ -38211,7 +38211,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:阿伏加德罗常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分子模型",
      "role": "PRIMARY"
     }
    ]
@@ -38231,7 +38231,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物理意义-一切自发过程总是沿着分子热运动的无序度增大的方向进行程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:布朗运动",
      "role": "PRIMARY"
     }
    ]
@@ -38531,7 +38531,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:条件-①光从光密介质射入光疏介质-②入射角大于或等于临界角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:折射率",
      "role": "PRIMARY"
     }
    ]
@@ -39091,7 +39091,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:特点-整个导体回路的电阻一般很小-感应电流很大-故金属块的发热功率很大",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电桥法测电阻",
      "role": "PRIMARY"
     }
    ]
@@ -39791,7 +39791,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:自感",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:法拉第电磁感应定律",
      "role": "PRIMARY"
     }
    ]
@@ -41971,7 +41971,7 @@
    "reviewedAtEpochMillis": 1789736629000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:孟德尔规律的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:性状显隐性的判断",
      "role": "PRIMARY"
     }
    ]
@@ -44451,7 +44451,7 @@
    "reviewedAtEpochMillis": 1789750368955,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原电池",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:串联电化学装置",
      "role": "PRIMARY"
     }
    ]
@@ -45931,7 +45931,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆的位置关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的切线方程",
      "role": "PRIMARY"
     }
    ]
@@ -49351,7 +49351,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电离常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关电离常数计算的两种类型-以弱酸hx为例",
      "role": "PRIMARY"
     }
    ]

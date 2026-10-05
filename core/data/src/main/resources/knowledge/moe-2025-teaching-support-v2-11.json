@@ -12163,7 +12163,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:信息分子与功能物质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:体液调节和神经调节的区别与联系",
      "role": "PRIMARY"
     }
    ]
@@ -12183,7 +12183,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:信息分子与功能物质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:体液调节和神经调节的区别与联系",
      "role": "PRIMARY"
     }
    ]
@@ -23263,7 +23263,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的酸碱性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:ph试纸的规范使用",
      "role": "PRIMARY"
     }
    ]
@@ -30863,7 +30863,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醛和酮的结构和性质易混易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醛-酮的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -31663,7 +31663,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酯",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酯化反应",
      "role": "PRIMARY"
     }
    ]
@@ -32063,7 +32063,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:明确有机物之间的转化关系-构建有机合成体系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:脂肪烃的结构和性质",
      "role": "PRIMARY"
     }
    ]
@@ -33463,7 +33463,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核酸的结构与性质",
      "role": "PRIMARY"
     }
    ]
@@ -38523,7 +38523,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见硫酸盐的性质与用途",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫及其化合物之间的转化规律",
      "role": "PRIMARY"
     }
    ]
@@ -41423,7 +41423,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数和差积的互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角和与差的公式",
      "role": "PRIMARY"
     }
    ]
@@ -41663,7 +41663,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数模型的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数y-asin-ωx-φ-的图象",
      "role": "PRIMARY"
     }
    ]
@@ -43343,7 +43343,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:四个公理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等角定理",
      "role": "PRIMARY"
     }
    ]
@@ -51503,7 +51503,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:原子结构与波粒二象性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:常见基本粒子及其分类",
      "role": "PRIMARY"
     }
    ]

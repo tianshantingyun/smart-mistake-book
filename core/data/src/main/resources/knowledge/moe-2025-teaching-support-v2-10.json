@@ -639,7 +639,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:工作原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求解电偏转问题的两种思路",
      "role": "PRIMARY"
     }
    ]
@@ -3079,7 +3079,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:玻尔理论的几个重要概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:受激跃迁与电离",
      "role": "PRIMARY"
     }
    ]
@@ -11079,7 +11079,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:图象",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:图象的应用",
      "role": "PRIMARY"
     }
    ]
@@ -23339,7 +23339,7 @@
    "reviewedAtEpochMillis": 1790704279001,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:原子结构与波粒二象性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:黑体辐射-黑体虽然不反射电磁波-却可以向外辐射电磁波",
      "role": "PRIMARY"
     }
    ]
@@ -28619,7 +28619,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:萃取",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分液漏斗的使用",
      "role": "PRIMARY"
     }
    ]
@@ -35059,7 +35059,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:自然资源的开发利用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:海水资源",
      "role": "PRIMARY"
     }
    ]

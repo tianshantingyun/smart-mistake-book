@@ -2019,7 +2019,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:其他性别决定方式简介-深度拓展",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
      "role": "PRIMARY"
     }
    ]
@@ -6139,7 +6139,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量在化学方程式计算中的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝与酸-碱反应生成h2的定量关系",
      "role": "PRIMARY"
     }
    ]
@@ -14779,7 +14779,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静电力做功",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:库仑定律",
      "role": "PRIMARY"
     }
    ]
@@ -18079,7 +18079,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应现象",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:法拉第电磁感应定律",
      "role": "PRIMARY"
     }
    ]
@@ -19079,7 +19079,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:脂肪烃的结构和性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:烃类的燃烧规律",
      "role": "PRIMARY"
     }
    ]

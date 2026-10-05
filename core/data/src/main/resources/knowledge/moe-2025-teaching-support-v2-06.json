@@ -415,7 +415,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -2115,7 +2115,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:人工异花传粉的操作流程",
      "role": "PRIMARY"
     }
    ]
@@ -5235,7 +5235,7 @@
    "reviewedAtEpochMillis": 1789739866892,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:乙烯是石油化工最基本的原料之一",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学反应条件的控制",
      "role": "PRIMARY"
     }
    ]
@@ -9895,7 +9895,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:图象",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物理图像的斜率与面积分析法",
      "role": "PRIMARY"
     }
    ]
@@ -10995,7 +10995,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:万有引力定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:天体质量计算",
      "role": "PRIMARY"
     }
    ]
@@ -12435,7 +12435,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多用电表欧姆挡的使用与二极管检测",
      "role": "PRIMARY"
     }
    ]
@@ -15475,7 +15475,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:法拉第电磁感应定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁通量",
      "role": "PRIMARY"
     }
    ]
@@ -16475,7 +16475,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的折射",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:应用光的折射定律解题的一般思路",
      "role": "PRIMARY"
     }
    ]
@@ -16915,7 +16915,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:抛体运动的规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动的物理量求解-多过程问题",
      "role": "PRIMARY"
     }
    ]
@@ -28975,7 +28975,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:玻尔理论的几个重要概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:两类跃迁问题与电离",
      "role": "PRIMARY"
     }
    ]
@@ -29575,7 +29575,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:程序法-遵循-局部-整体-局部-的思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电路动态分析的三种方法",
      "role": "PRIMARY"
     }
    ]
@@ -33935,7 +33935,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:用基向量表示指定向量的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量基本定理",
      "role": "PRIMARY"
     }
    ]

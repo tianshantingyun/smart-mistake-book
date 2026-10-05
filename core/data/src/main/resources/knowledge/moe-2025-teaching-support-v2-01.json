@@ -399,7 +399,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:1的代换",
      "role": "PRIMARY"
     }
    ]
@@ -559,7 +559,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:端点取值需谨慎-在求参数范围时-要注意边界或区间端点值的检验-从而确定取舍",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用奇偶性求参数",
      "role": "PRIMARY"
     }
    ]
@@ -1299,7 +1299,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分段函数的常见类型及解法",
      "role": "PRIMARY"
     }
    ]
@@ -2839,7 +2839,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:配方法-主要用于二次函数或可化为二次函数的函数-要特别注意自变量的取值范围",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:切线放缩不等式",
      "role": "PRIMARY"
     }
    ]
@@ -3479,7 +3479,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:配方法-主要用于二次函数或可化为二次函数的函数-要特别注意自变量的取值范围",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数y-asin-ωx-φ-的图象",
      "role": "PRIMARY"
     }
    ]
@@ -4239,7 +4239,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解决垂直问题-利用-可将垂直问题转化为向量数量积的计算问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极化恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -5719,7 +5719,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
      "role": "PRIMARY"
     }
    ]
@@ -6599,7 +6599,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分离参数法-分离参数后转化为求函数的值域-最值-问题求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:与圆有关的最值问题",
      "role": "PRIMARY"
     }
    ]
@@ -6639,7 +6639,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分离参数法-分离参数后转化为求函数的值域-最值-问题求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:与圆有关的最值问题",
      "role": "PRIMARY"
     }
    ]
@@ -8159,7 +8159,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列含绝对值问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项展开式系数最大项",
      "role": "PRIMARY"
     }
    ]
@@ -9399,7 +9399,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:1的代换",
      "role": "PRIMARY"
     }
    ]
@@ -12879,7 +12879,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等价转化法-将命题转化为另一个与之等价的且便于判断真假的命题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:命题",
      "role": "PRIMARY"
     }
    ]
@@ -18919,7 +18919,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间向量的数量积及运算律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:德摩根定律",
      "role": "PRIMARY"
     }
    ]
@@ -19639,7 +19639,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求函数解析式的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -20199,7 +20199,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二次函数解析式的三种形式",
      "role": "PRIMARY"
     }
    ]
@@ -21739,7 +21739,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角和与差的公式",
      "role": "PRIMARY"
     }
    ]
@@ -25819,7 +25819,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:配方法-主要用于二次函数或可化为二次函数的函数-要特别注意自变量的取值范围",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二次函数在闭区间上的最值问题",
      "role": "PRIMARY"
     }
    ]
@@ -27199,7 +27199,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复数的几何意义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量的线性运算",
      "role": "PRIMARY"
     }
    ]
@@ -29159,7 +29159,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求函数解析式的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -30179,7 +30179,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -30239,7 +30239,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数零点存在定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二次求导",
      "role": "PRIMARY"
     }
    ]
@@ -30559,7 +30559,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极值点偏移问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:切线放缩的切点选择",
      "role": "PRIMARY"
     }
    ]
@@ -30719,7 +30719,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抽象函数的性质综合",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:构造函数-运用函数的单调性比较",
      "role": "PRIMARY"
     }
    ]
@@ -31979,7 +31979,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间位置关系的向量表示",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两圆的公切线",
      "role": "PRIMARY"
     }
    ]
@@ -32939,7 +32939,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
      "role": "PRIMARY"
     }
    ]
@@ -32959,7 +32959,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -35239,7 +35239,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等价转化法-将命题转化为另一个与之等价的且便于判断真假的命题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:命题",
      "role": "PRIMARY"
     }
    ]
@@ -39519,7 +39519,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:匀变速直线运动的规律-多过程问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及与相遇问题",
      "role": "PRIMARY"
     }
    ]
@@ -39739,7 +39739,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-碰撞指的是两个物体在很短的时间内发生相互作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -39779,7 +39779,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动性质-匀变速曲线运动-加速度恒为重力加速度-g-大小方向不变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:相似三角形-动态三角形-拉密定理等方法解决临界极值问题",
      "role": "PRIMARY"
     }
    ]
@@ -39999,7 +39999,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:注意事项-1-调节各器件的高度-使光源灯丝发出的光能沿遮光筒轴线到达光屏",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:系统牛顿第二定律",
      "role": "PRIMARY"
     }
    ]
@@ -58899,7 +58899,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传的特点及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -62739,7 +62739,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用与细胞呼吸“关键点”的移动",
      "role": "PRIMARY"
     }
    ]

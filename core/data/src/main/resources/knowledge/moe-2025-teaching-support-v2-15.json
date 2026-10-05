@@ -1455,7 +1455,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据题目提供的新信息进行推断未知有机物的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机合成路线的推断方法",
      "role": "PRIMARY"
     }
    ]
@@ -9875,7 +9875,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:玻尔理论的几个重要概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:受激跃迁与电离",
      "role": "PRIMARY"
     }
    ]
@@ -24915,7 +24915,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:比较物质酸性强弱的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:主族元素的原子结构和元素性质的变化规律",
      "role": "PRIMARY"
     }
    ]
@@ -25335,7 +25335,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:掌握周期表的结构及周期表中的一些特殊规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素金属性强弱的判断",
      "role": "PRIMARY"
     }
    ]
@@ -25755,7 +25755,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核外电子运动状态的表示和判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核外电子运动状态",
      "role": "PRIMARY"
     }
    ]
@@ -30595,7 +30595,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐类水解的规律及拓展应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液蒸干灼烧时所得产物的判断",
      "role": "PRIMARY"
     }
    ]
@@ -42795,7 +42795,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在化学研究中-物质的量浓度是使用最广泛的一种表示溶液浓度的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -46195,7 +46195,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验装置中的安全与辅助装置",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一器多用与多器一用",
      "role": "PRIMARY"
     }
    ]
@@ -46475,7 +46475,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核磁共振氢谱",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物分子结构的确定",
      "role": "PRIMARY"
     }
    ]

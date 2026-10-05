@@ -5819,7 +5819,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:写出除去下列气体中混有的杂质-括号内为杂质-可采取的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:气体制备",
      "role": "PRIMARY"
     }
    ]

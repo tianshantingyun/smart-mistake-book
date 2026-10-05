@@ -319,7 +319,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:范德华力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热大小的比较规律",
      "role": "PRIMARY"
     }
    ]
@@ -2399,7 +2399,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的酸碱性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:混合溶液酸碱性的判断规律",
      "role": "PRIMARY"
     }
    ]
@@ -3339,7 +3339,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fecl3溶液-fe-oh-3胶体-fe-oh-3浊液是三种重要的分散系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分布分数图像",
      "role": "PRIMARY"
     }
    ]
@@ -5079,7 +5079,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:粗盐水中加入氯化钡溶液使s沉淀而除去-如何检验s是否沉淀完全",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:蛋白质的结构与性质",
      "role": "PRIMARY"
     }
    ]
@@ -5279,7 +5279,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常温下-铁-铝遇浓硝酸能发生-钝化-并非不反应-故常温下浓硝酸可以用铁桶盛放",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:官能团的保护",
      "role": "PRIMARY"
     }
    ]
@@ -6759,7 +6759,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:本实验中加入试剂的顺序是什么-按照其他顺序加入试剂能否达到同样的目的",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质制备流程与条件控制",
      "role": "PRIMARY"
     }
    ]
@@ -8979,7 +8979,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:1-写出以乙醇为原料制备的化学方程式-无机试剂任选-并注明反应类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:萃取",
      "role": "PRIMARY"
     }
    ]
@@ -9179,7 +9179,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2co3-nahco3的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配位化合物",
      "role": "PRIMARY"
     }
    ]
@@ -9619,7 +9619,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量是高中化学常用的物理量-请完成以下有关计算-设na为阿伏加德罗常数的值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:阿伏加德罗常数",
      "role": "PRIMARY"
     }
    ]
@@ -11979,7 +11979,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:技巧-实验数据-与-9-3-3-1及其变式-间的转化方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:个体或配子致死问题的处理-规律方法",
      "role": "PRIMARY"
     }
    ]
@@ -22099,7 +22099,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的数量关系",
      "role": "PRIMARY"
     }
    ]
@@ -29119,7 +29119,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群的数量变化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:k值",
      "role": "PRIMARY"
     }
    ]
@@ -32059,7 +32059,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:氨基酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题",
      "role": "PRIMARY"
     }
    ]
@@ -32439,7 +32439,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:高尔基体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞壁",
      "role": "PRIMARY"
     }
    ]
@@ -46139,7 +46139,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:处理空间几何体体积的基本思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间几何体的表面积和体积公式",
      "role": "PRIMARY"
     }
    ]
@@ -58359,7 +58359,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:处理空间几何体体积的基本思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:祖暅原理",
      "role": "PRIMARY"
     }
    ]

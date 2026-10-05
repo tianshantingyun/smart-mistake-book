@@ -95,7 +95,17 @@ internal object Stage1LexicalLab {
         val indexRows: Long = featuresByNodeId.values.sumOf { it.size.toLong() }
         val maxFeaturesPerNode: Int = featuresByNodeId.values.maxOfOrNull { it.size } ?: 0
 
-        /** 节点 → 章（册·章·节：沿 topic 链取第 3 层全路径名，用 `·` 连接）。 */
+        /**
+         * 节点 → 章（册·章·节：沿 topic 链取前 3 层，用 `·` 连接）。
+         *
+         * **「章」段取章节点的 slug 尾段**（topic slug 形态是 `册·第X章`，如
+         * `化学必修第一册·第三章` → `第三章`），**不从 `name` 取**：冻结金标的 chapter 字段
+         * 是 slug 形态（`册·第X章·节`）；旧实现取 name 之所以与金标逐字一致，只因当时章节点
+         * name 恰好是占位名「第X章」；批次 5（2026-10-05，45 条章名改写）把 name 换成官方章名
+         * （如「铁 金属材料」）后，name 路径不再与金标同形（实测 129 条只 36 条命中）；
+         * slug 未变、仍与金标同形（129/129 实测逐字命中），故章段改取 slug。
+         * 章映射的全部消费方（FTS5 的 chapter 列、C/D 臂门控、逐章出数）都走本一处定义。
+         */
         val chapterByNodeId: Map<String, String?> = nodes.associate { node ->
             node.knowledgeNodeId to chapterOf(node.knowledgeNodeId)
         }
@@ -118,19 +128,24 @@ internal object Stage1LexicalLab {
             ids.indexOfFirst { it == nodeId }.let { if (it < 0) 0 else it + 1 }
 
         private fun chapterOf(nodeId: String): String? {
-            val names = ArrayList<String>(4)
+            val chain = ArrayList<KnowledgeNodeSeedRecord>(4)
             var cursor: KnowledgeNodeSeedRecord? = nodeById[nodeId]
             var guard = 0
             while (cursor != null && guard++ < 16) {
-                names.add(cursor.canonicalName)
+                chain.add(cursor)
                 cursor = cursor.parentKnowledgeNodeId?.let(nodeById::get)
             }
-            names.reverse()
-            return when {
-                names.isEmpty() -> null
-                // 金标 chapter = 册·章·节 的三段路径（沿链的第 3 层全路径名）。
-                names.size >= 3 -> names.take(3).joinToString("·")
-                else -> names.joinToString("·")
+            chain.reverse()
+            if (chain.isEmpty()) return null
+            if (chain.size == 1) return chain[0].canonicalName
+            // 「章」段从章节点的 slug 尾段取（见 chapterByNodeId 的说明），不从 name 取。
+            val chapterSegment = chain[1].knowledgeNodeId
+                .substringAfterLast(":topic:")
+                .substringAfterLast('·')
+            return if (chain.size >= 3) {
+                listOf(chain[0].canonicalName, chapterSegment, chain[2].canonicalName).joinToString("·")
+            } else {
+                listOf(chain[0].canonicalName, chapterSegment).joinToString("·")
             }
         }
     }

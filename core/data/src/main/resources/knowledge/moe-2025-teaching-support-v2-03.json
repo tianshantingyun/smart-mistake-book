@@ -1043,7 +1043,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹性势能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-小球-弹簧模型",
      "role": "PRIMARY"
     }
    ]
@@ -4723,7 +4723,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:验证某无色气体为no的方法是向无色气体中通入o2-或空气-无色气体变为红棕色",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质检验",
      "role": "PRIMARY"
     }
    ]
@@ -5083,7 +5083,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在饱和溶液中加入少量的溶液产生沉淀-若以ksp表示的溶度积常数-则平衡后溶液中",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀的洗涤与检验",
      "role": "PRIMARY"
     }
    ]
@@ -5143,7 +5143,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在一定温度下-利用催化剂将nh3分解为n2和h2-相关化学键的键能数据如下",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:蒸发",
      "role": "PRIMARY"
     }
    ]
@@ -6563,7 +6563,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质概念和判断的几个-特殊点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对数折线图四步法",
      "role": "PRIMARY"
     }
    ]
@@ -6863,7 +6863,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:0-1-mol-l-1的na2co3溶液中各粒子浓度的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核磁共振氢谱",
      "role": "PRIMARY"
     }
    ]
@@ -7603,7 +7603,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:为了检验淀粉水解产物-某学生设计了如下实验方案",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学实验方案的评价",
      "role": "PRIMARY"
     }
    ]
@@ -7923,7 +7923,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:验证某无色气体为no的方法是向无色气体中通入o2-或空气-无色气体变为红棕色",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验中的排空操作",
      "role": "PRIMARY"
     }
    ]
@@ -12703,7 +12703,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在一定温度下-利用催化剂将nh3分解为n2和h2-相关化学键的键能数据如下",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学键",
      "role": "PRIMARY"
     }
    ]
@@ -13163,7 +13163,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
      "role": "PRIMARY"
     }
    ]
@@ -14283,7 +14283,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓盐酸和浓氨水反应有白烟生成-常用于hcl和nh3的相互检验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键能",
      "role": "PRIMARY"
     }
    ]
@@ -14703,7 +14703,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在一定温度下-利用催化剂将nh3分解为n2和h2-相关化学键的键能数据如下",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:催化剂与反应历程",
      "role": "PRIMARY"
     }
    ]
@@ -14803,7 +14803,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:绿色思想-循环使用的物质为co2-饱和食盐水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯水的成分",
      "role": "PRIMARY"
     }
    ]
@@ -16343,7 +16343,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在浓差电池中-为了限定某些离子的移动-常涉及到-离子交换膜",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐桥的作用与双液原电池",
      "role": "PRIMARY"
     }
    ]
@@ -17023,7 +17023,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:二氧化硫",
      "role": "PRIMARY"
     }
    ]
@@ -18483,7 +18483,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
      "role": "PRIMARY"
     }
    ]
@@ -18703,7 +18703,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氨",
      "role": "PRIMARY"
     }
    ]
@@ -20043,7 +20043,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:碳元素的单质有多种形式-下图依次是c60-石墨和金刚石的结构图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞组成的计算-均摊法",
      "role": "PRIMARY"
     }
    ]
@@ -20263,7 +20263,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在化学研究中-物质的量浓度是使用最广泛的一种表示溶液浓度的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀溶解平衡的应用",
      "role": "PRIMARY"
     }
    ]
@@ -20803,7 +20803,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业上用某种氧化铝矿石-含fe2o3杂质-为原料冶炼铝的工艺流程如下",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业流程中反应条件的控制",
      "role": "PRIMARY"
     }
    ]
@@ -21383,7 +21383,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:漂白粉",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯气",
      "role": "PRIMARY"
     }
    ]
@@ -21963,7 +21963,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:n-的关系应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量在化学方程式计算中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -22863,7 +22863,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:1-写出以乙醇为原料制备的化学方程式-无机试剂任选-并注明反应类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:根据试剂或特征现象推知官能团的种类",
      "role": "PRIMARY"
     }
    ]
@@ -24363,7 +24363,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子浓度大小比较的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀溶解平衡的应用",
      "role": "PRIMARY"
     }
    ]
@@ -24403,7 +24403,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在实验操作②中为什么依次加入的试剂都要略微过量-实验操作④中加入盐酸的目的是什么",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
      "role": "PRIMARY"
     }
    ]
@@ -24883,7 +24883,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:nh3是中学化学中唯一的碱性气体-能使湿润的-色石蕊试纸变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:写出除去下列气体中混有的杂质-括号内为杂质-可采取的方法",
      "role": "PRIMARY"
     }
    ]
@@ -25603,7 +25603,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:o2作为原电池的正极反应物时-其电极反应在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:可充电电池题目的解答思路",
      "role": "PRIMARY"
     }
    ]
@@ -27203,7 +27203,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:萃取",
      "role": "PRIMARY"
     }
    ]
@@ -27483,7 +27483,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:1-写出以乙醇为原料制备的化学方程式-无机试剂任选-并注明反应类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学试剂的保存方法",
      "role": "PRIMARY"
     }
    ]
@@ -27563,7 +27563,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fecl3溶液-fe-oh-3胶体-fe-oh-3浊液是三种重要的分散系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的溶解与加热",
      "role": "PRIMARY"
     }
    ]
@@ -28583,7 +28583,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在化学研究中-物质的量浓度是使用最广泛的一种表示溶液浓度的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质制备流程与条件控制",
      "role": "PRIMARY"
     }
    ]
@@ -29503,7 +29503,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氮气",
      "role": "PRIMARY"
     }
    ]
@@ -29823,7 +29823,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
      "role": "PRIMARY"
     }
    ]
@@ -30563,7 +30563,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:强酸与弱酸-强碱与弱碱稀释时的ph变化图像",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:强电解质与弱电解质",
      "role": "PRIMARY"
     }
    ]
@@ -31303,7 +31303,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓盐酸和浓氨水反应有白烟生成-常用于hcl和nh3的相互检验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:磷及其化合物的性质",
      "role": "PRIMARY"
     }
    ]
@@ -31683,7 +31683,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:范德华力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的性质",
      "role": "PRIMARY"
     }
    ]
@@ -33903,7 +33903,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:n-的关系应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:关系式法",
      "role": "PRIMARY"
     }
    ]
@@ -38263,7 +38263,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:nh3是中学化学中唯一的碱性气体-能使湿润的-色石蕊试纸变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:各类物质的化学通性",
      "role": "PRIMARY"
     }
    ]
@@ -40203,7 +40203,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氧化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的极性",
      "role": "PRIMARY"
     }
    ]

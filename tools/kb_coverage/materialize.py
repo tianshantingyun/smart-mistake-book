@@ -281,7 +281,12 @@ def write(judgments: list[dict]) -> dict:
         _note_appended(state, target, doc["materials"][-1], subject)
         existing_slugs.add(slug)
         ref = refs.get(r["chunk_rel"], "")
-        if slug not in ref:
+        # 判重必须按逗号分段后**精确相等**：旧实现 `slug not in ref` 是子串判定，
+        # `ext-…-100` 会被行内已存在的 `ext-…-1000` 吞掉 → 材料已经入了包、这里却不再追加
+        # slug，账本 output_ref 漏记（实测 7 个 rel 共 264 条：材料在包内、清单缺号，
+        # 两账对不上）。空段（首尾/连续逗号）在比对时剔除：空串不是合法 slug，
+        # 不得被当成"已记录"。
+        if slug not in {s for s in ref.split(",") if s}:
             refs[r["chunk_rel"]] = (ref + "," if ref else "") + slug
             touched.add(r["chunk_rel"])
         done += 1
