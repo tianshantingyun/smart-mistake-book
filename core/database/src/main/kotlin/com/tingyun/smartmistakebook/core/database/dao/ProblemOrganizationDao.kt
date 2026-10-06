@@ -327,6 +327,16 @@ internal interface ProblemOrganizationDao {
     )
     suspend fun readKnowledgeNodeSuccessors(): List<KnowledgeNodeSuccessorRow>
 
+    /**
+     * S20：`knowledge_node` 表的**失效探针**（Room 失效是表级的；返回值本身无意义）。
+     *
+     * 任何经 Room 的节点写入（合并退役 / 导入 / 确认补写）都会让它发射一次，投影的后继映射
+     * 缓存据此失效（见 `KnowledgeNodeSuccessorsCache`）。用 `LIMIT 1` 而不是计数：探针不该在
+     * 数万节点上做全表扫描，主键命中即返回。
+     */
+    @Query("SELECT knowledge_node_id FROM knowledge_node LIMIT 1")
+    fun observeKnowledgeNodeChangeSignal(): Flow<String?>
+
     @Query(
         "SELECT * FROM knowledge_node_source_binding WHERE knowledge_node_id IN (:knowledgeNodeIds)",
     )

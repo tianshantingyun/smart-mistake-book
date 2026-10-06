@@ -19,6 +19,7 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecor
 import com.tingyun.smartmistakebook.core.database.ResolveKnowledgeGroundingCommand
 import com.tingyun.smartmistakebook.core.database.ReviewedKnowledgeCoverageRecord
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * Read-only port for knowledge base operations.
@@ -65,6 +66,19 @@ interface KnowledgeReadPort {
      * `KnowledgeNodeSuccessors` 解析，那里有防环。
      */
     suspend fun readKnowledgeNodeSuccessors(): Map<String, String>
+
+    /**
+     * S20：`knowledge_node` 表的**表级失效信号**（Room 失效语义即表级）。
+     *
+     * 任何经 Room 落库的节点写入——内容调和的合并退役、节点导入、确认路径补写——都会让它
+     * 发射一次；信号不承载数据，值本身无意义。投影的后继映射缓存
+     * （`KnowledgeNodeSuccessorsCache`）据此失效：合并退役后下一次 drain 必须重读
+     * `superseded_by`，否则学生历史证据不会并入存活节点（掌握度少一块、排程当没学过）。
+     *
+     * 默认空流：测试替身与历史适配器不订阅失效（它们的缓存由调用方在需要时显式失效）。
+     * 旁路直写 SQLite（不经 Room）不触发——生产改 `superseded_by` 的唯一路径是内容调和。
+     */
+    fun observeKnowledgeNodeChanges(): Flow<Unit> = emptyFlow()
 
     /**
      * Accepted knowledge bindings for one practice unit. Judged visual

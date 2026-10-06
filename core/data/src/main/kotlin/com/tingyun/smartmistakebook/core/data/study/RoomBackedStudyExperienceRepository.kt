@@ -309,6 +309,28 @@ class RoomBackedStudyExperienceRepository(
         onFailure = { failure -> publishFailure(failure) },
     )
 
+    /**
+     * S20：`knowledge_node` 表变化 → 后继映射缓存失效。
+     *
+     * **不取 `operationMutex`**：失效只是清掉缓存引用，越早生效越好；在飞的那次 drain 已持有
+     * 映射实例，"一次 drain 内映射恒定"不受影响。失效依据与写入路径的对齐见
+     * `KnowledgeNodeSuccessorsCache` 的 KDoc（生产改 `superseded_by` 的唯一路径是内容调和，
+     * 经 Room 落库 → 本信号）。
+     */
+    private val knowledgeNodeInvalidationJob = applicationScope.launch {
+        try {
+            database.observeKnowledgeNodeChanges().collect {
+                projectionDrainer.invalidateKnowledgeNodeSuccessors()
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Throwable) {
+            // 失效信号断了不能静默：缓存会一直用旧映射（合并退役不再生效）。与其它观察循环
+            // 同口径，把故障反映到快照状态上。
+            operationMutex.withLock { publishFailure(failure) }
+        }
+    }
+
     override suspend fun initialize() {
         runOperation {
             database.reconcileTutorAnswerExposures(learnerId)
@@ -802,6 +824,7 @@ class RoomBackedStudyExperienceRepository(
 
     override fun close() {
         observationJobs.cancel()
+        knowledgeNodeInvalidationJob.cancel()
         if (closeDatabaseOnClose) database.close()
     }
 

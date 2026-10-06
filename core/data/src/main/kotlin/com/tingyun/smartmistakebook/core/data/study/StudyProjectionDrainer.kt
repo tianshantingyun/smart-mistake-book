@@ -55,13 +55,29 @@ internal class StudyProjectionDrainer(
     private val databaseDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
+    /**
+     * S20：后继映射缓存。映射是**内容**输入（只随内容调和的合并退役变化），不必每次 drain
+     * 重读全表；失效由仓库订阅 `knowledge_node` 表级失效信号后调用
+     * [invalidateKnowledgeNodeSuccessors]。加载仍走 `onDatabase`（S10 的调度器纪律）。
+     */
+    private val knowledgeNodeSuccessorsCache = KnowledgeNodeSuccessorsCache {
+        KnowledgeNodeSuccessors(onDatabase { database.readKnowledgeNodeSuccessors() })
+    }
+
+    /**
+     * S20：`knowledge_node` 表变化（Room 表级失效）时由仓库调用。只清缓存——在飞的那次
+     * drain 已持有映射实例，**一次 drain 内映射恒定**的不变量不受影响（见缓存类 KDoc）。
+     */
+    fun invalidateKnowledgeNodeSuccessors() {
+        knowledgeNodeSuccessorsCache.invalidate()
+    }
+
     suspend fun drain(): PersistedLearnerSnapshot? {
         var consecutiveCasConflicts = 0
         // 合并重定向在**一次排空内是常量**，且增量投影与全量重放必须用同一份——
         // 两条路用不同的映射会算出不同的掌握度，而重放的职责正是复现增量的结果。
-        val knowledgeNodeSuccessors = KnowledgeNodeSuccessors(
-            onDatabase { database.readKnowledgeNodeSuccessors() },
-        )
+        // S20：映射跨 drain 复用缓存（内容调和写入时失效）；这里取一次，整个 drain 共用。
+        val knowledgeNodeSuccessors = knowledgeNodeSuccessorsCache.current()
         // S4（W4-2 投影热路径）：批内快照复用——一次 drain 调用内每个已提交的批次结果直接
         // 作为下一轮的"当前快照"，不再每步重读 9 张投影表。正确性由 `loadProjectionBatch`
         // 每步现读的 header checkpoint 守住：别的写入者若插进来，checkpoint 对不上就进 CAS

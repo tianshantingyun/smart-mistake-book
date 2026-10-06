@@ -622,6 +622,10 @@ internal class RoomStudyDatabase(
     override suspend fun readKnowledgeNodeSuccessors(): Map<String, String> =
         knowledgeBase.readKnowledgeNodeSuccessors()
 
+    /** S20：表级失效探针 → 无值信号（见 `KnowledgeReadPort.observeKnowledgeNodeChanges`）。 */
+    override fun observeKnowledgeNodeChanges(): Flow<Unit> =
+        database.problemOrganizationDao().observeKnowledgeNodeChangeSignal().map { }
+
     override suspend fun importKnowledgeBase(
         sources: List<KnowledgeSourceSeedRecord>,
         nodes: List<KnowledgeNodeSeedRecord>,
