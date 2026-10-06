@@ -14,14 +14,23 @@
 - 设备：`test_device` AVD（API 34，google_apis，x86_64，pixel_6），与
   `.github/workflows/android-check.yml` 的 CI 镜像同规格；debug 构建；framework SQLite
   （`AndroidSQLiteDriver`；未 ANALYZE）。
-- 夹具（`PerformanceGateTest.insertTestData`）：problems / revisions / practice_units /
-  error_book_entries 各 10,000 行；文本编入 `test query N`、`concurrent test N`、
-  `函数方程`、`独特检索词` 等可检索 token。
+- 夹具（**中间版** `PerformanceGateTest.insertTestData`，本文 §2 数字均在此版上测出）：
+  problems / revisions / practice_units / error_book_entries 各 10,000 行；文本编入
+  `test query N`、`concurrent test N`、`函数方程`、`独特检索词` 等可检索 token。
+- **终版差异（3C 后半批 1 收口后的复核修复）**：`concurrent test N` 与宽命中 `函数方程`
+  已不在终版夹具里（并发探针改为 `parallel probe <a..j>`，中文门改为有界命中的
+  `独特检索词`），`printCountSearchQueryPlan` 采集钩子取到计划后已删除。因此本文 §2
+  的数字与 §3 的 EXPLAIN 是**中间版读数**，保留作 S18 输入；终版口径见
+  `PerformanceGateTest` 的类 KDoc。
 - 采集命令：`./gradlew :core:database:connectedDebugAndroidTest
   -Pandroid.testInstrumentationRunnerArguments.class=com.tingyun.smartmistakebook.core.database.PerformanceGateTest`
-  （数字取自 `adb logcat` 的 `System.out`，2026-10-05）。
+  （数字取自 `adb logcat` 的 `System.out`，2026-10-05；中间版含已删除的 countSearch 用例）。
 
 ## 2. 实测数字（本地严格口径；CI 预算 ×4）
+
+> **版本标注**：下表是**中间版夹具**（`concurrent test N` / 宽命中 `函数方程` 尚在）
+> 的读数，不是终版门的复跑值——数字保留作 S18 规模输入；终版夹具与门说明见 §1
+> 的"终版差异"。
 
 | 测量点 | 查询 / 命中 | 结果 |
 |---|---|---|
@@ -45,8 +54,8 @@
 ## 3. EXPLAIN 原文（设备原生，API 34；筛选参数全空）
 
 `EXPLAIN QUERY PLAN` 作用于 `LibraryFtsSearchDao.countSearch` 的 SQL 形状
-（MATCH 取 `CjkTextTokenizer.matchExpression("test query 0")`；采集点见
-`PerformanceGateTest.printCountSearchQueryPlan`，取到后删除）：
+（MATCH 取 `CjkTextTokenizer.matchExpression("test query 0")`；采集点是**中间版**临时的
+`PerformanceGateTest.printCountSearchQueryPlan`，取到计划后即删除，终版已无此用例）：
 
 ```
 MATERIALIZE library_catalog

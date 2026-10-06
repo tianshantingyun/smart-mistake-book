@@ -174,21 +174,47 @@ class BindingChangedReplayDrillInstrumentedTest {
         }
     }
 
+    /**
+     * **合并 × 改绑组合**：改绑目标随后被内容调和合并退役，重放经 successors 链落到链尾。
+     *
+     * 复核修复（2026-10-05）：旧形态把题直接改绑到 kc-final（链尾本身），最终归属只由
+     * 当前绑定派生决定——successors 映射清空/改错同样绿，锚点对后继映射路径零覆盖。
+     * 现在：改绑 kc-old → **kc-merged**（存活节点，命令合法），随后 kc-merged 被合并退役
+     * 指向 kc-final；重放把当前绑定 kc-merged 经 `resolve` 归到 kc-final。把
+     * `markSuperseded` 改成空/别的目标（红证操作，见报告）后归属停在 kc-merged，
+     * 下面的 `setOf("kc-final")` 断言当场红。
+     *
+     * 为什么顺序是"先改绑、后合并"：confirm 不能携带已退役节点（`sameAcceptedFact` 把
+     * status / superseded_by 算作已接受事实的一部分），所以改绑必须在合并之前，而合并由
+     * 后续的内容调和落库完成。为什么所有状态都在 `initialize()` 之前落库：原始 SQL 的
+     * 合并写不经 Room、不触发 successors 缓存失效，让**缓存首次读**发生在链已就位之后，
+     * 是对"重放消费后继链"的确定性测量，而不是对失效投递时序的竞态。改绑**前**历史证据
+     * 的落点与旧节点归零由本类第一条用例覆盖。
+     */
     @Test
     fun aMergeFollowedByARebindLandsOnTheSuccessor() = runBlocking {
         withDrill { context, databaseName, database, repository, scope ->
-            // **先合并、再改绑**（B4 验收的"合并 × 改绑组合"）：证据原本挂在 kc-old 上；
-            // 内容调和把 kc-old 退役并指向 kc-final；随后这道题被改绑到 kc-final。
-            // 重放重派生（当前绑定 = kc-final）与"旧节点归零"必须一起成立。
-            //
-            // 顺序必须是"合并先于改绑"：确认会触发仓库观察任务的异步排空
-            // （`StudyExperienceObservationJobs` → `publishReadySnapshot` → drain），
-            // 那次重放可能抢在改绑之后的任何一步之前跑；取代链先到位，所有时点的重放结果才一致。
-            // （反向顺序不可用：确认命令不能携带已退役节点——`sameAcceptedFact` 把 status /
-            // superseded_by 算作已接受事实的一部分，退役节点无法被命令重新断言为 ACTIVE。）
             seedStudyFacts(context, database, databaseName, drillSeed())
+
+            // 先改绑：kc-old → kc-merged（此时 kc-merged 尚未退役，命令可携带）。
+            val confirm = database.confirmProblemOrganization(
+                rebindCommand(commandId = "merge-drill-rebind", newKnowledgeNodeId = "kc-merged"),
+            )
+            assertTrue("改绑确认必须成功", confirm.created)
+
+            // 再合并：kc-merged 退役并指向 kc-final（内容调和的既有机制，这里只写一行
+            // superseded_by，与调和落库同形）。
+            markSuperseded(databaseName, context, from = "kc-merged", to = "kc-final")
+            assertEquals(
+                "取代链必须对库读可见（重放把它当输入之一）",
+                "kc-final",
+                database.readKnowledgeNodeSuccessors()["kc-merged"],
+            )
+
             repository.initialize()
 
+            // 首次排空：账本里的 BINDING_CHANGED 强制全量重放；当前绑定 kc-merged 只有经
+            // successors 链才能落到 kc-final。
             val submitted = repository.submitChoice(
                 com.tingyun.smartmistakebook.core.domain.StudyChoiceSubmission(
                     requestId = "merge-drill-submit-1",
@@ -202,36 +228,11 @@ class BindingChangedReplayDrillInstrumentedTest {
             )
             assertTrue(submitted.created)
 
-            // 先合并：kc-old → kc-final（取代链经内容调和写入，既有机制）。
-            markSuperseded(databaseName, context, from = "kc-old", to = "kc-final")
-            assertEquals(
-                "取代链必须对库读可见（重放把它当输入之一）",
-                "kc-final",
-                database.readKnowledgeNodeSuccessors()["kc-old"],
-            )
-
-            // 再改绑：kc-old → kc-final（存活节点，命令合法）。
-            database.confirmProblemOrganization(
-                rebindCommand(commandId = "merge-drill-rebind", newKnowledgeNodeId = "kc-final"),
-            )
-
-            repository.submitChoice(
-                com.tingyun.smartmistakebook.core.domain.StudyChoiceSubmission(
-                    requestId = "merge-drill-submit-2",
-                    presentationId = "presentation:merge-drill-2",
-                    practiceUnitId = UNIT_ID,
-                    selectedChoiceId = "B",
-                    responseOrdinal = 1,
-                    durationSeconds = 20,
-                    occurredAtEpochMillis = START_AT + 60_000L,
-                ),
-            )
-
             val mastery = requireNotNull(
                 database.readCurrentLearnerSnapshot("study-experience-v1", LEARNER_ID),
             ).snapshot.knowledgeMasteryStates
             assertEquals(
-                "合并 + 改绑：证据落在 successor 上、旧节点归零。" +
+                "合并 + 改绑：证据必须经 successors 链落到链尾 kc-final。" +
                     "诊断：successors=${database.readKnowledgeNodeSuccessors()}；" +
                     "states=" + mastery.entries.joinToString { (node, state) ->
                         "$node{ckpt=${state.checkpointSequence}," +

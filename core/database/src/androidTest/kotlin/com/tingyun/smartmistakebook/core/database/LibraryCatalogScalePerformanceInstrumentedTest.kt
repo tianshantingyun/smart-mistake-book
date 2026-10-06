@@ -62,6 +62,8 @@ class LibraryCatalogScalePerformanceInstrumentedTest {
             firstScreenPlan.any { CLASSIFICATION_TABLE_SCAN.containsMatchIn(it) },
         )
         // ② 结构断言（section 过滤形态）：EXISTS 必须走分类索引。
+        //    注意：EXPLAIN 的计划形状不随绑定取值变化（本类三条 page 探针实测逐行相同），
+        //    这条约束的是**共享的**计划形状，不是"section 取值改变了计划"。
         val sectionPlan = plan.getValue("page-section-filter")
         assertTrue(
             "page + section 过滤未走分类索引：\n${sectionPlan.joinToString("\n")}",
@@ -149,6 +151,14 @@ class LibraryCatalogScalePerformanceInstrumentedTest {
             count(sectionId = SECTION_FILTER_ID),
         )
         assertEquals(ENTRY_COUNT / 4, count(masteryId = MASTERY_FILTER_ID))
+        // 夹具退化防线（复核修复）：章节 × 掌握两维必须在夹具里有交集。旧夹具两维正交
+        // （章节桶 c 的行全部落在同一个掌握桶 c%4），组合筛选恒 0 命中——组合路径量到的
+        // 是空结果形态。分块轮转后组合命中的精确值为 count / (章节桶数 × 掌握桶数)。
+        assertEquals(
+            "夹具退化：章节 × 掌握组合应命中 ENTRY_COUNT/(CHAPTER_COUNT*4) 行",
+            ENTRY_COUNT / (LibraryCatalogScale.CHAPTER_COUNT * 4),
+            count(sectionId = SECTION_FILTER_ID, masteryId = MASTERY_FILTER_ID),
+        )
 
         repeat(COUNT_WARMUP_COUNT) { count(sectionId = SECTION_FILTER_ID, masteryId = MASTERY_FILTER_ID) }
         val samples = List(SAMPLE_COUNT) {
@@ -178,8 +188,11 @@ class LibraryCatalogScalePerformanceInstrumentedTest {
             sectionPlan.any { CLASSIFICATION_TABLE_SCAN.containsMatchIn(it) },
         )
         plan.values.forEach { facetPlan ->
+            // 别名 / 表名两代形态都算失败（复核修复：设备 EQP 报 `SCAN entry`，只认
+            // `error_book_entry` 的旧正则恒不命中、这条防线此前形同虚设）。
             assertFalse(
-                "facet 整表扫 error_book_entry：\n${facetPlan.joinToString("\n")}",
+                "facet 整表扫 error_book_entry（或其视图展开 catalog）：\n" +
+                    "${facetPlan.joinToString("\n")}",
                 facetPlan.any { ENTRY_TABLE_SCAN.containsMatchIn(it) },
             )
         }
@@ -319,11 +332,23 @@ class LibraryCatalogScalePerformanceInstrumentedTest {
      * `index_learner_problem_memory_state_projection_name_practice_unit_id_learner_id`。
      * 这条断言钉的是可证伪的结构信号——把它临时退回 62 的形态（索引不存在）时，
      * 规划器会改用主键前缀计划，断言当场变红（红/绿证据见量化报告）。
+     *
+     * 复核补强（2026-10-05）：只查索引名不够——索引被选中但只吃到 `projection_name`
+     * 一个前缀仍会逐外层行回扫。这里同时钉计划行里出现
+     * `(projection_name=? AND practice_unit_id=?)` 两个等值约束。
      */
     private fun assertMemoryJoinUsesConnectIndex(plan: List<String>, label: String) {
+        val planText = plan.joinToString("\n")
+        val memoryLine = plan.firstOrNull { MEMORY_CONNECT_INDEX in it }
         assertTrue(
-            "$label 的记忆态连接未走 S18 复合索引 $MEMORY_CONNECT_INDEX：\n${plan.joinToString("\n")}",
-            plan.any { MEMORY_CONNECT_INDEX in it },
+            "$label 的记忆态连接未走 S18 复合索引 $MEMORY_CONNECT_INDEX：\n$planText",
+            memoryLine != null,
+        )
+        val line = requireNotNull(memoryLine)
+        assertTrue(
+            "$label 的记忆态连接未把 (projection_name, practice_unit_id) 两个等值约束交给索引：" +
+                "\n$line",
+            "projection_name=?" in line && "practice_unit_id=?" in line,
         )
     }
 
@@ -351,7 +376,8 @@ class LibraryCatalogScalePerformanceInstrumentedTest {
         private lateinit var databaseName: String
 
         /**
-         * 类级共享夹具：5 万行目录 + mastery/分类/投影（一次 ~7 分钟量级，见报告）。
+         * 类级共享夹具：5 万行目录 + mastery/分类/投影（实测建库 60,149ms ≈ 1 分钟，
+         * `@BeforeClass` 一次；见量化报告 §2.1/§2.6——此前本注释误写"~7 分钟量级"）。
          * JUnit 在**所有方法之前**调用一次；测的是读路径，夹具只读。
          */
         @JvmStatic
@@ -398,11 +424,18 @@ class LibraryCatalogScalePerformanceInstrumentedTest {
         /** 与 `PerformanceGateTest.FACET_P95_TARGET_MS` 同值同口径。 */
         val FACET_P95_BUDGET_MS = 200L * CI_MULTIPLIER
 
-        private val ENTRY_TABLE_SCAN = Regex("""(?i)^SCAN\s+(TABLE\s+)?error_book_entry(\s|$)""")
-        private val CLASSIFICATION_TABLE_SCAN =
-            Regex("""(?i)^SCAN\s+(TABLE\s+)?problem_classification_binding(\s|$)""")
-        private val MEMORY_TABLE_SCAN =
-            Regex("""(?i)^SCAN\s+(TABLE\s+)?learner_problem_memory_state(\s|$)""")
+        private val ENTRY_TABLE_SCAN = Regex(
+            // 别名 / 表名两代形态：视图内 `FROM error_book_entry AS entry` 在设备 EQP 上
+            // 报 `SCAN entry`（复核实测），只认表名的旧正则在设备上恒不命中；`catalog`
+            // 覆盖视图被物化时的 `SCAN catalog`（S18 前置文档 §3 捕获的坏计划原文）。
+            """(?i)^SCAN\s+(TABLE\s+)?(entry|error_book_entry|catalog|library_catalog)(\s|$)""",
+        )
+        private val CLASSIFICATION_TABLE_SCAN = Regex(
+            """(?i)^SCAN\s+(TABLE\s+)?(classification|problem_classification_binding)(\s|$)""",
+        )
+        private val MEMORY_TABLE_SCAN = Regex(
+            """(?i)^SCAN\s+(TABLE\s+)?(memory|learner_problem_memory_state)(\s|$)""",
+        )
 
         /** stage 3C 后半批 2 / S18（schema 63）新增的连接索引。 */
         private const val MEMORY_CONNECT_INDEX =
@@ -592,42 +625,65 @@ class LibraryCatalogScalePerformanceInstrumentedTest {
         """.trimIndent()
 
         /**
-         * 绑定顺序与 DAO 参数顺序逐位一致。
+         * EXPLAIN 绑定值数组——顺序是 **SQL 里命名占位符首次出现的顺序**（SQLite 对同名
+         * 参数只给一个绑定位），不是 DAO 方法参数顺序；同一占位符在 SQL 里出现两次
+         * （如 `:subjectId` / `:searchText`）也只占一位。
          *
          * 用 [_NO_FILTER] 而不是 null：平台 `rawQuery(sql, String[])` 的
          * `bindAllArgsAsStrings` 拒绝 null 元素。计划在 prepare 期就已确定（绑定发生在
-         * 之后），筛选参数取什么值不影响 EXPLAIN 输出——占位符形态与生产一致。
+         * 之后），筛选参数取什么值不影响 EXPLAIN 输出——**实测三条探针的计划逐行相同**，
+         * `page-section-filter` / `page-mastery-filter` 等命名只表示真值落在哪个占位符、
+         * 供计时/命中口径复用，不表示计划形状有差异。
          */
         private val PAGE_QUERIES: Map<String, Pair<String, Array<String?>>> = mapOf(
             "page-first-screen" to (
-                PAGE_SQL to arrayOf("", _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, "RECENTLY_UPDATED", "20", "0")
+                PAGE_SQL to arrayOf(
+                    _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER,
+                    "", "RECENTLY_UPDATED", "20", "0",
+                )
                 ),
             "page-section-filter" to (
-                PAGE_SQL to arrayOf("", _NO_FILTER, SECTION_FILTER_ID, _NO_FILTER, _NO_FILTER, _NO_FILTER, "RECENTLY_UPDATED", "20", "0")
+                PAGE_SQL to arrayOf(
+                    _NO_FILTER, SECTION_FILTER_ID, _NO_FILTER, _NO_FILTER, _NO_FILTER,
+                    "", "RECENTLY_UPDATED", "20", "0",
+                )
                 ),
             "page-mastery-filter" to (
-                PAGE_SQL to arrayOf("", _NO_FILTER, _NO_FILTER, MASTERY_FILTER_ID, _NO_FILTER, _NO_FILTER, "RECENTLY_UPDATED", "20", "0")
+                PAGE_SQL to arrayOf(
+                    _NO_FILTER, _NO_FILTER, MASTERY_FILTER_ID, _NO_FILTER, _NO_FILTER,
+                    "", "RECENTLY_UPDATED", "20", "0",
+                )
                 ),
         )
 
         private val COUNT_QUERIES: Map<String, Pair<String, Array<String?>>> = mapOf(
             "count-blank" to (
-                COUNT_SQL to arrayOf("", _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER)
+                COUNT_SQL to arrayOf(
+                    _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, "",
+                )
                 ),
             "count-section-mastery-filter" to (
-                COUNT_SQL to arrayOf("", _NO_FILTER, SECTION_FILTER_ID, MASTERY_FILTER_ID, _NO_FILTER, _NO_FILTER)
+                COUNT_SQL to arrayOf(
+                    _NO_FILTER, SECTION_FILTER_ID, MASTERY_FILTER_ID, _NO_FILTER, _NO_FILTER, "",
+                )
                 ),
         )
 
         private val FACET_QUERIES: Map<String, Pair<String, Array<String?>>> = mapOf(
             "subject-facets" to (
-                SUBJECT_FACETS_SQL to arrayOf("", _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER)
+                SUBJECT_FACETS_SQL to arrayOf(
+                    _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, "",
+                )
                 ),
             "section-facets" to (
-                SECTION_FACETS_SQL to arrayOf("", _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER)
+                SECTION_FACETS_SQL to arrayOf(
+                    _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, "",
+                )
                 ),
             "mastery-facets" to (
-                MASTERY_FACETS_SQL to arrayOf("", _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER)
+                MASTERY_FACETS_SQL to arrayOf(
+                    _NO_FILTER, _NO_FILTER, _NO_FILTER, _NO_FILTER, "",
+                )
                 ),
         )
     }

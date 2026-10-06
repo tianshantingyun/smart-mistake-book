@@ -73,6 +73,22 @@ after min 3 / max 6）。
 
 ## 2. S18：`library_catalog` 视图（page / count / facets）
 
+### 2.0 运行轮次索引（本节所有数字的出处）
+
+同一修复的 A/B 数字来自不同轮次；此前 §2.2/§2.4/§2.5/§2.6 混写且未标运行出处，现统一编号：
+
+| 轮次 | 形态 | 记录在 |
+|---|---|---|
+| 轮 A | schema 62 · `LibraryCatalogScalePerformanceInstrumentedTest` 修复前完整门 | §2.2、§2.3 |
+| 轮 B | schema 62 · 测试内临时建索引的 A/B 探针（同一次调试运行） | §2.4 |
+| 轮 C | schema 63 · 修复后第一次完整门（§2.6 记"跑两次"中的第一次，未单独留档） | —（不引用） |
+| 轮 D | schema 63 · 修复后第二次完整门（最终读数） | §2.6 |
+
+数字只在同一轮次内可比：轮 A 的 count p95 = 4056ms（24 样本）与轮 B 的
+`[3970, 3982, 3972]ms`（3 样本）是两次不同运行；修复后的口径统一引用轮 D
+（count p95 = 46ms、facet SUBJECT = 62ms），不再把轮 B/轮 C 的 47ms 等中间读数
+与轮 D 混写。
+
 ### 2.1 夹具补齐（"消除退化路径"）
 
 `LibraryCatalogScaleFixture.kt`：5 万行目录形态，补齐三块（旧夹具全缺 → 三条相关子查询
@@ -90,7 +106,7 @@ after min 3 / max 6）。
 原有断言全部保留，另加非退化断言（标签非空、四桶 facet、section/mastery 过滤真的收窄）。
 夹具建库成本：**60,149ms**（一次，两类测试共享形态）。
 
-### 2.2 实测（schema 62，夹具补齐后）——**超预算**
+### 2.2 实测（轮 A：schema 62，夹具补齐后）——**超预算**
 
 | 路径 | 查询 | 实测 | 预算（本地 / CI×4） | 结论 |
 |---|---|---|---|---|
@@ -112,7 +128,7 @@ after min 3 / max 6）。
 "覆盖 learner_id"的主键索引被估成比 `practice_unit_id` 索引便宜，于是被选中。page 路径要
 `next_review_at_epoch_millis`（主键索引覆盖不了），才落到正确的 `practice_unit_id` 索引上。
 
-### 2.4 候选索引 A/B（EXPLAIN 前后 + 计时）
+### 2.4 候选索引 A/B（轮 B：EXPLAIN 前后 + 计时）
 
 `CREATE INDEX index_learner_problem_memory_state_projection_name_practice_unit_id_learner_id
 ON learner_problem_memory_state(projection_name, practice_unit_id, learner_id)`（测试内临时建，仅临时库）：
@@ -122,10 +138,13 @@ after（count 计划，其余行逐字不变）:
 SEARCH memory USING COVERING INDEX index_learner_problem_memory_state_projection_name_practice_unit_id_learner_id (projection_name=? AND practice_unit_id=?) LEFT-JOIN
 ```
 
-| 测量 | before | after |
+| 测量 | before（轮 B） | after（轮 B） |
 |---|---|---|
 | count（章节+掌握筛选，3 样本） | [3970, 3982, 3972] ms | **[44, 44, 67] ms** |
 | subjectFacets（单次） | 78,870ms | **69ms** |
+
+> 轮 B 是测试内临时建索引的探针；修复后完整门的最终读数（轮 D）为 count p95 = 46ms /
+> facet SUBJECT = 62ms，见 §2.6。两组数字分属不同运行，不再互相代用。
 
 ### 2.5 结论（S18 · **触发 schema 63，但触发的是索引，不是 mastery/标签物化**）
 
@@ -134,13 +153,16 @@ SEARCH memory USING COVERING INDEX index_learner_problem_memory_state_projection
   - 物化 mastery/标签列会新增一整套写侧维护面（投影提交/绑定变更/分类变更/条目变更都要
     同步），而实测失败点不在那里；
   - 一条 `(projection_name, practice_unit_id, learner_id)` 复合索引把两个等值约束都给到
-    规划器并覆盖 `learner_id`，同一夹具 count 4056ms→47ms、subjectFacets 78,870ms→62ms。
+    规划器并覆盖 `learner_id`：轮 B 同一夹具 count `[3970, 3982, 3972]ms → [44, 44, 67]ms`、
+    subjectFacets `78,870ms → 69ms`；修复后完整门（轮 D，§2.6）count p95 = 46ms、
+    facet SUBJECT = 62ms。**写侧代价**：记忆态写路径（投影重建 / 每行 upsert）多维护一条
+    3 列复合索引，目录读路径不变——取舍见 §3 表的写侧代价列。
   按"极小形态 + 消灭实测失败"（AGENTS §12.2），**本批做索引（schema 63），不做 mastery/标签物化**。
 - 语义不变：索引不改任何行/列/视图定义，目录路径 / FTS 路径 / facet 三处口径的读取 SQL
   一字未动；`LibraryCatalogPagingInstrumentedTest.createdRangeFilterNarrowsCatalogFtsCountsAndFacets`
   （三处口径一致性）保持并通过。
 
-### 2.6 修复后实测（schema 63；修复后跑了两次完整门，数值取最后一次）
+### 2.6 修复后实测（轮 D：schema 63；修复后跑了两次完整门，数值取最后一次）
 
 | 路径 | p95 | 预算（本地） |
 |---|---|---|
@@ -180,17 +202,17 @@ SEARCH mastery USING INDEX sqlite_autoindex_learner_knowledge_mastery_state_1 (p
 
 ## 3. 本批新增/改动清单（每一项消灭的具体失败）
 
-| 改动 | 类型 | 消灭的具体失败 |
-|---|---|---|
-| `MasteryReadAggregateScaleInstrumentedTest` | 新测试（零生产改动） | MASTERY_READ 聚合此前**无量化的规模门**（只有语义用例），退化到全表扫/相关子查询时无人报警（S9 审计项无信号） |
-| `LibraryCatalogScaleFixture.kt` | 新测试夹具 | 5 万行夹具缺 mastery/分类/投影 → 视图三条相关子查询走空连接，page/count/facet 的筛选与标签路径**量的是退化形态**（本报告 §2.2/2.3 证明：补齐后立刻暴露 4s/79s） |
-| `LibraryCatalogPagingInstrumentedTest` 夹具升级 + 非退化断言 | 测试改动（原有断言一字未动） | 同上，且"夹具退化"本身不再无人发现（标签/四桶/筛选命中都有断言） |
-| `LibraryCatalogScalePerformanceInstrumentedTest` | 新门（EQP 结构 + p95） | 三条目录路径**无预算门**；且无"记忆态连接必须走复合索引"的结构防线（可证伪：删索引即红，§2.3 的 schema 62 实测就是红态） |
-| `LearnerProblemMemoryStateEntity` 新增 `(projection_name, practice_unit_id, learner_id)` 索引 | **schema 63** | count 4056ms（预算 500ms×CI）与 subjectFacets 78,870ms（预算 200ms×CI）——实测超预算 |
-| `LIBRARY_CATALOG_MEMORY_INDEX_MIGRATION_62_63` + 版本 63 | 非破坏迁移 | 存量库升级后拿不到该索引（否则新装与升级两条路径行为分叉） |
-| `KernelWave0SchemaContractTest` 的 schema 头字面量 62→63 | 既有 JVM 契约同步 | 该用例刻意把"当前 schema 头"钉成字面量（原文："下一次 bump 请同步本字面量"）；不同步 = 全量 JVM 门红（本轮实际发生）。实质断言 `最新导出 schema == STUDY_DATABASE_VERSION` 一字未动 |
-| `LibraryCatalogMemoryIndexSchemaContractTest`（JVM） | 新契约测试 | 迁移 DDL 与导出的 63.json 漂移（差一个空格真机升级即炸）；索引列序被改回坏形态 |
-| `FullMigrationMatrixInstrumentedTest.libraryCatalogMemoryIndexIsCreatedWithoutTouchingStoredRows` | 新仪器化用例 | 纯新增迁移的"旧行还在 + 索引逐列同形"只有空库矩阵无法证明 |
+| 改动 | 类型 | 消灭的具体失败 | 写侧代价（取舍记账） |
+|---|---|---|---|
+| `MasteryReadAggregateScaleInstrumentedTest` | 新测试（零生产改动） | MASTERY_READ 聚合此前**无量化的规模门**（只有语义用例），退化到全表扫/相关子查询时无人报警（S9 审计项无信号） | 无（测试） |
+| `LibraryCatalogScaleFixture.kt` | 新测试夹具 | 5 万行夹具缺 mastery/分类/投影 → 视图三条相关子查询走空连接，page/count/facet 的筛选与标签路径**量的是退化形态**（本报告 §2.2/2.3 证明：补齐后立刻暴露 4s/79s） | 夹具建库一次性 60,149ms（测试用例共享，见 §2.6） |
+| `LibraryCatalogPagingInstrumentedTest` 夹具升级 + 非退化断言 | 测试改动（原有断言一字未动） | 同上，且"夹具退化"本身不再无人发现（标签/四桶/筛选命中都有断言） | 无（测试） |
+| `LibraryCatalogScalePerformanceInstrumentedTest` | 新门（EQP 结构 + p95） | 三条目录路径**无预算门**；且无"记忆态连接必须走复合索引"的结构防线（可证伪：删索引即红，§2.3 的 schema 62 实测就是红态） | 无（测试） |
+| `LearnerProblemMemoryStateEntity` 新增 `(projection_name, practice_unit_id, learner_id)` 索引 | **schema 63** | count 4056ms（预算 500ms×CI）与 subjectFacets 78,870ms（预算 200ms×CI）——实测超预算 | **每条记忆态写入（投影批提交 / 全量重放重建 / 夹具 upsert）多维护一条 3 列复合索引**；目录读路径不变（纯读） |
+| `LIBRARY_CATALOG_MEMORY_INDEX_MIGRATION_62_63` + 版本 63 | 非破坏迁移 | 存量库升级后拿不到该索引（否则新装与升级两条路径行为分叉） | 存量库升级时一次性 `CREATE INDEX`（随全量升库成本摊销，不改行数据） |
+| `KernelWave0SchemaContractTest` 的 schema 头字面量 62→63 | 既有 JVM 契约同步 | 该用例刻意把"当前 schema 头"钉成字面量（原文："下一次 bump 请同步本字面量"）；不同步 = 全量 JVM 门红（本轮实际发生）。实质断言 `最新导出 schema == STUDY_DATABASE_VERSION` 一字未动 | 无（测试） |
+| `LibraryCatalogMemoryIndexSchemaContractTest`（JVM） | 新契约测试 | 迁移 DDL 与导出的 63.json 漂移（差一个空格真机升级即炸）；索引列序被改回坏形态 | 无（测试） |
+| `FullMigrationMatrixInstrumentedTest.libraryCatalogMemoryIndexIsCreatedWithoutTouchingStoredRows` | 新仪器化用例 | 纯新增迁移的"旧行还在 + 索引逐列同形"只有空库矩阵无法证明 | 无（测试） |
 
 ## 4. 未触发/未做（如实）
 

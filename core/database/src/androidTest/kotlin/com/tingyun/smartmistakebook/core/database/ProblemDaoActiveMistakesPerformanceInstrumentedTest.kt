@@ -282,6 +282,11 @@ class ProblemDaoActiveMistakesPerformanceInstrumentedTest {
         /**
          * 计时 backstop（宽松；结构断言才是主门）。CI 由 `ciSlowRunner` 传参乘 4，
          * 口径与 [PerformanceGateTest]/`KnowledgeContextRetrievalInstrumentedTest` 一致。
+         *
+         * 实测记账（2026-10-05，`test_device` API 34，本地严格口径）：5000 行夹具上
+         * `observeActiveMistakes` p95 = 49ms（20 样本；来源：批 1 提交 `8d7e24b2` 与
+         * `docs/research/2026-10-05-stage3c-part2-completion-record.md`），门 1500ms
+         * ≈ 实测 ×30 余量。该记账是 backstop 的余量依据，**不是性能背书**。
          */
         private val CI_MULTIPLIER: Long = run {
             val fromArgs = androidx.test.platform.app.InstrumentationRegistry

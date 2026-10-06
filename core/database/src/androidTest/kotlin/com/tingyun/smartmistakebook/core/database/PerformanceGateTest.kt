@@ -75,6 +75,10 @@ class PerformanceGateTest {
     /**
      * Test search performance with 10k items.
      * Measures P95 search latency of the user-visible FTS path.
+     *
+     * 口径说明：本门测的是 `RoomLibrarySearchStore.searchPage` 用户可见路径；原 count 路径
+     * 断言（`librarySearchCount`）按 2026-10-05 裁决 A 移交 S18，仓内记录见类 KDoc 引用的
+     * `docs/research/2026-10-05-s18-count-path-prefinding.md` 头部。
      */
     @Test
     fun searchPerformance10kItems() = runBlocking {
@@ -202,7 +206,20 @@ class PerformanceGateTest {
     }
 
     /**
-     * Verify EXPLAIN QUERY PLAN doesn't show full table scans.
+     * Verify the catalog view query stays on its indexed plan shape.
+     *
+     * **复核修复（2026-10-05）**：旧断言
+     * `plan.contains("SCAN TABLE") && !plan.contains("USING INDEX")` 在设备上恒假、门恒真——
+     * 设备 EQP 词表是 `SCAN <table>`（没有 `TABLE` 词），而本查询计划必然含 `USING INDEX`
+     * 的索引读取（同一条两代词表事实已由 S17 专属门记录）。改法照
+     * [ProblemDaoActiveMistakesPerformanceInstrumentedTest]：负向正则兼容两代词表并覆盖
+     * **别名**（视图内 `FROM error_book_entry AS entry` → `SCAN entry`），另加"驱动表 entry
+     * 走状态索引"的正向断言；把查询换成无索引形态（如 `SELECT * FROM error_book_entry`）
+     * 时两条都会红。
+     *
+     * 覆盖边界：本用例的 1 万行夹具没有 classification / mastery 行，视图的三条相关子查询
+     * 跑在空表上——**行级标签成本不在此门**，由 `LibraryCatalogScalePerformanceInstrumentedTest`
+     * 的 5 万行齐全夹具覆盖。
      */
     @Test
     fun explainQueryPlanNoFullTableScan() = runBlocking {
@@ -227,21 +244,26 @@ class PerformanceGateTest {
                 "EXPLAIN QUERY PLAN SELECT * FROM library_catalog WHERE title LIKE '%test%'",
                 null,
             ).use { cursor ->
-                buildString {
-                    while (cursor.moveToNext()) {
-                        appendLine(cursor.getString(3))
-                    }
+                val detailColumn = cursor.getColumnIndexOrThrow("detail")
+                buildList {
+                    while (cursor.moveToNext()) add(cursor.getString(detailColumn))
                 }
             }
         }
+        val planText = plan.joinToString("\n")
+        println("library catalog EXPLAIN QUERY PLAN (title LIKE '%test%'):\n$planText")
 
-        // Check for full table scan indicators
-        val hasFullTableScan = plan.contains("SCAN TABLE", ignoreCase = true) &&
-            !plan.contains("USING INDEX", ignoreCase = true)
-
+        // ① 正向（可证伪的驱动形态）：视图展开的驱动表 entry 必须走 (status, updated_at)
+        //    索引；退回 `SCAN entry` 形态时本断言当场红。
         assertTrue(
-            "EXPLAIN QUERY PLAN 显示全表扫描：\n$plan",
-            !hasFullTableScan,
+            "EXPLAIN QUERY PLAN 的 entry 未走状态索引：\n$planText",
+            plan.any { it.startsWith("SEARCH entry USING INDEX") },
+        )
+        // ② 负向：不得整表扫目录展开里的任何大表（别名 / 表名两代形态）。
+        val fullScans = plan.filter { line -> CATALOG_TABLE_SCANS.any { it.containsMatchIn(line) } }
+        assertTrue(
+            "EXPLAIN QUERY PLAN 显示全表扫描：\n${fullScans.joinToString("\n")}",
+            fullScans.isEmpty(),
         )
     }
 
@@ -296,9 +318,11 @@ class PerformanceGateTest {
         insertTestData(10_000)
 
         // 每个并发任务同时取回首页行数：非空信号。
-        // 探测词用字母（a..j）而非数字：数字 token 会与 "test query N" 交叉命中，
-        // 把每路命中从 ~1 千抬到 ~1.1 千；页查询成本随命中数线性增长（宽命中 1 万行
-        // 实测 ~16s，该规模问题见 S18 前置文档），门必须测有界命中。
+        // 探测词用字母（a..j）而非数字：夹具里并发探针的 token 形态是
+        // `parallel probe <letter>`（`'a' + index % 10`）。数字 token 不会被
+        // `CjkTextTokenizer` 拆散，`matchExpression` 又是隐式 AND——数字探针不会与
+        // "test query N" 交叉命中而抬高命中数，而是因为夹具里不存在 "parallel probe
+        // <digit>" 行、命中 0 行，非空断言先红。门必须测有界命中。
         val results = ('a'..'j').map { probe ->
             async {
                 var size = -1
@@ -350,6 +374,11 @@ class PerformanceGateTest {
      *
      * 播种在**一个写事务**里批量落库：这是夹具成本，不是被测热路径；逐行
      * `seedStudyFacts` 在 1 万行 × 6 个用例下会花掉 4 万次单独事务。
+     *
+     * **本夹具的已知覆盖边界**：不落 classification / mastery 行，`library_catalog` 视图的
+     * 三条相关子查询因此打在空表上——行级标签（chapter/knowledge labels 与 mastery_id）的
+     * 真实成本**不在本类门内**，由 `LibraryCatalogScalePerformanceInstrumentedTest` 的
+     * 5 万行齐全夹具覆盖（该夹具 KDoc 记录了缺这三块时的退化失败）。
      */
     private suspend fun insertTestData(count: Int) {
         val problems = List(count) { index ->
@@ -447,5 +476,18 @@ class PerformanceGateTest {
 
         /** 首屏 page 的 limit（与既有用例一致）。 */
         const val FIRST_SCREEN_PAGE_SIZE = 20
+
+        /**
+         * 目录展开里各表"整表扫描"的信号——兼容设备的 `SCAN <alias>`（视图内别名：
+         * entry / unit / problem / revision / memory）与旧 EQP 词表的 `SCAN TABLE <name>`，
+         * 两种形态都算失败。注意 `problem` 用整词边界，不会误吃 `problem_revision`。
+         */
+        val CATALOG_TABLE_SCANS: List<Regex> = listOf(
+            Regex("""(?i)^SCAN\s+(TABLE\s+)?(entry|error_book_entry)(\s|$)"""),
+            Regex("""(?i)^SCAN\s+(TABLE\s+)?(unit|practice_unit)(\s|$)"""),
+            Regex("""(?i)^SCAN\s+(TABLE\s+)?problem(\s|$)"""),
+            Regex("""(?i)^SCAN\s+(TABLE\s+)?(revision|problem_revision)(\s|$)"""),
+            Regex("""(?i)^SCAN\s+(TABLE\s+)?(memory|learner_problem_memory_state)(\s|$)"""),
+        )
     }
 }

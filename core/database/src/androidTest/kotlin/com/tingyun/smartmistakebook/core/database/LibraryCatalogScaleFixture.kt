@@ -53,8 +53,15 @@ internal object LibraryCatalogScale {
 
     fun knowledgeLabelName(index: Int): String = "知识点标签${index % KNOWLEDGE_LABEL_COUNT}"
 
-    /** 每个知识点在掌握态四桶里的循环取值（与 `mastery_id` 视图 CASE 的取值一一对应）。 */
-    fun masteryStatus(index: Int): String = when (index % 4) {
+    /**
+     * 每个知识点在掌握态四桶里的循环取值（与 `mastery_id` 视图 CASE 的取值一一对应）。
+     *
+     * 按 **每 [CHAPTER_COUNT] 个知识点一块**轮转 `(index / CHAPTER_COUNT) % 4`，而不是逐点
+     * `index % 4`：章节按 `index % CHAPTER_COUNT` 分桶，逐点轮转会让每个掌握桶固定落在
+     * 桶号 ≡ (0/1/2/3) (mod 4) 的章节上——章节 × 掌握组合查询恒 0 命中，组合路径量到的
+     * 是空结果形态（复核发现）。分块轮转后每个章节桶都含四种掌握态，总量仍各占 1/4。
+     */
+    fun masteryStatus(index: Int): String = when ((index / CHAPTER_COUNT) % 4) {
         0 -> "LEARNING"
         1 -> "MASTERED"
         2 -> "STALE"
@@ -62,10 +69,10 @@ internal object LibraryCatalogScale {
     }
 
     /** 视图 `mastery_id` 对 [masteryStatus] 的折叠结果（同四桶，另一种措辞）。 */
-    fun masteryId(index: Int): String = when (index % 4) {
-        0 -> "learning"
-        1 -> "mastered"
-        2 -> "stale"
+    fun masteryId(index: Int): String = when (masteryStatus(index)) {
+        "LEARNING" -> "learning"
+        "MASTERED" -> "mastered"
+        "STALE" -> "stale"
         else -> "conflicted"
     }
 }
