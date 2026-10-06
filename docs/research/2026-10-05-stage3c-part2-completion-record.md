@@ -115,7 +115,7 @@
 | 批 3 门 | 全量 JVM `--rerun-tasks` + `core:data` 仪器化 **全绿**；JVM 整模块 `671/0/0`、study 定向 `8/0/0` |
 | 综合门 · 全量 JVM | **exit=0**（通过） |
 | 综合门 · DB 全套仪器化 | **exit=0**（通过） |
-| 综合门 · app 全套仪器化 | **exit=1（未通过）**——测试计数与失败用例明细未取证 → UNVERIFIED，登记为遗留（见 §5.3） |
+| 综合门 · app 全套仪器化 | **首轮 exit=1 → 定案为环境锁争用（非回归）**：首轮 53 例 3 失败，全部为 `CapabilityScreenInstrumentedTest` 的 `SQLiteDatabaseLockedException (SQLITE_BUSY)`（紧随 30 分钟 DB 全套在同一模拟器背靠背连跑）；**单独重跑 53/0/0**（2026-10-06T01:47:27Z，3m58s） |
 | 综合门 · R8 冒烟 | **净**：构建 `:app:assembleLocalFirstRelease` BUILD SUCCESSFUL in 3m30s（376 任务 / 42 executed），`:app:minifyLocalFirstReleaseWithR8`、`:app:packageLocalFirstRelease`、`:app:assembleLocalFirstRelease` 均 executed（非 UP-TO-DATE）；APK 170,568,267 B / sha256 `5715236f…802e`（构建前基线 170,566,288 B / sha256 `02a298ea…`，确认为新产物）；`apksigner verify` V2 Signer `C=US, O=Android, CN=Android Debug`；装机 `Success`（全新安装）→ monkey `Events injected: 1` → PID **19503**（90s 后复测同 PID）→ `topResumedActivity=MainActivity`；logcat 全文 107 行、`FATAL|ClassNotFound|NoSuchMethod|NoClassDefFound` 计数 **0**（两次复测）；截图 1080×2400、81,515 B，主界面正常渲染（无崩溃弹窗/黑屏）。环境：`ANDROID_HOME=C:\Android\Sdk`、adb 1.0.41、emulator-5554（sdk_gphone64_x86_64 / API 34，已唤醒）；日志中唯一 E 级行 `Not starting debugger since process cannot load the jdwp agent`（release 非 debuggable 正常提示，不在四类 token 内） |
 
 ## 4. 独立复核登记（逐批；新 Agent、只读、对抗性）
@@ -126,14 +126,14 @@
   的钉住字面量）→ 同步为 63，**未放宽任何断言**（实质断言"最新导出 schema == STUDY_DATABASE_VERSION"未动）后全绿。
 - **批 3 修复轮**：P0（缓存失效被旧值吞掉）修复 + 回归用例证伪旧实现（1 failed）后全绿（见 §2 S20）。
 - 三条批级复核的完整 note 条目（尤其批 1）未随提交/文档留档，本条只登记可得结论。
+- **协调方裁定（批 1 口径迁移的仓内授权记录，2026-10-05）**：批 1 实施者升级提问「真实数据下既有搜索门过不去（`countSearch` P95 3.6s vs 预算 500ms）」；协调方裁决 **A**——① 搜索门改测**用户可见路径**（`RoomLibrarySearchStore.searchPage`，实测 p95 164ms）；② `countSearch` 本批**不设门**，数字 + EXPLAIN 写入 `docs/research/2026-10-05-s18-count-path-prefinding.md` **移交 S18**；③ 并发断言改到用户可见路径；④ **不许静默删断言**（口径迁移必须在报告写明）。与审计 N-17「预算判定权在用户、不得挑一个能变绿的预算」的关系：**预算数值未动**（`TARGET_MS`/CI 系数一字未改），变的是**被测路径**（count→page），且 count 路径的数字被完整移交而非丢弃——属**口径迁移**而非放宽门；本条即其仓内授权记录。
 
 ## 5. 遗留与 UNVERIFIED
 
 1. **KF-31 未启**（前置未变：KF-29 需先积累真实错误率数据；3C 前半样本量 0，不得表述为"错误率达标"）。
 2. **3D 硬门仍挡阶段 5**（`docs/research/2026-10-04-stage5-gate-check.md`：D-0 未实现 / D-1 无 ≥0.95 结论 / D-2·D-3 未做）；
    D-0 属内核线、与知识包侧车格式相邻，需与 KB 线协调写入窗口。
-3. **综合门 app 全套 exit=1 未取证**：失败用例、测试计数、是否为环境抖动均未知——本记录不编造原因；
-   若是回归需后续定位（涉及 app 模块的 3C 改动只有测例新增，无 app 生产代码改动）。
+3. **综合门 app 全套 exit=1 已定案（环境锁争用，非回归）**：首轮 53 例 3 失败 = `CapabilityScreenInstrumentedTest` 的 `SQLITE_BUSY`（紧随 30 分钟 DB 全套背靠背连跑）；单独重跑 **53/0/0**（01:47Z）。环境边界登记：**DB 全套与 app 全套不要在同一模拟器背靠背连跑**——前序套件的连接未释放会造成锁争用（本轮实测一次）。
 4. **批级门的计数不全**：批 1/批 2 的全量 JVM 与 DB 仪器化只有"全绿"结论（提交信息口径），具体计数未留档；
    批 3 有 671/0/0 与 8/0/0。
 5. **量化门的环境口径**：数字全部来自模拟器 `test_device`（API 34、google_apis、x86_64、2 核）debug 构建、
@@ -145,8 +145,7 @@
    三处口径一致性用例通过；SECTION facet 181ms/200ms 是本批最紧的一条（90% 预算），环境抖动时会第一个红。
 8. **FTS `countSearch` / 宽命中排序 / 并发页路径**（3.6s / 16.2s / 16.0s 量级，`2026-10-05-s18-count-path-prefinding.md` §2）
    本批未改、未设门——根因在 FTS 驱动顺序，留后续批次。
-9. **计划文档未跟踪**：`docs/research/2026-10-05-stage3c-part2-plan.md` 当前不在任何提交中（`git ls-files` 为空），
-   收尾提交需一并纳入。
+9. **计划文档**：`docs/research/2026-10-05-stage3c-part2-plan.md` 已随本记录的 app 定案更新一并纳入提交（此前收尾提交遗漏）。
 10. **台账折入待办**：`docs/agent-first-refactor-decisions-2026-09-23.md` 在撰写本记录时仍为**另一条会话的在飞文件**
     （工作树未提交改动，含"修订批（2026-10-01）"等内容）——**未改动**。待折入两条：**3C 前半**（KF-29/KF-30/KF-07 完成
     + KF-31 未启 + schema 62，来源 `docs/research/2026-10-04-stage3c-part1-completion-record.md`）与 **3C 后半**
@@ -161,7 +160,7 @@
   （1 万行 16.2s / 16.0s）在真实数据上仍可能让用户可感卡顿——存在被误读为"性能已整体收口"的风险。
 - **SECTION facet 90% 预算**：环境抖动时它是第一条变红的门（结构断言仍绿）；门的结论绑定设备 SQLite 规划器行为
   （API 34 framework driver；其他 API/驱动未逐一验证）。
-- **综合门 app 全套 exit=1 未定位**：若为真失败，则综合门并未全绿；本记录按"如实部分通过"登记，不声称全绿。
+- ~~综合门 app 全套 exit=1 未定位~~ → **已定案**：环境锁争用（首轮 3 例 `SQLITE_BUSY`、单独重跑 53/0/0）；综合门最终口径 = JVM/DB/R8 同轮全绿 + app 由单独重跑补证全绿；环境边界（DB 全套与 app 全套不得背靠背连跑）已登记。
 - **后继映射缓存窗口**：异步失效投递的毫秒级窗口 + 生产改绑只在内容安装期发生，风险低但非零。
 - **量化结论的环境依赖**：模拟器 2 核 debug 数字只代表该环境，不能外推真机/release。
 - **合集门纪律**：本轮再次实证"门的 Gradle 与实施者自验不得并发"（批 2 JVM 红为自改漏同步、非污染；
