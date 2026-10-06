@@ -47,9 +47,6 @@ internal class RoomLibrarySearchStore(
     ): PagingSource<Int, LibraryCatalogRow> {
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
         require(tokens.isNotEmpty()) { "FTS search needs at least one query token" }
-        val primaryPhrase = CjkTextTokenizer.quotedPhrase(tokens.first())
-        val neverMatchPhrase = CjkTextTokenizer.quotedPhrase("\uFFFD")
-        val extras = tokens.drop(1).take(3).map(CjkTextTokenizer::quotedPhrase)
         return RefreshingPagingSource(
             beforeLoad = ::refreshProjection,
             delegate = MappingPagingSource(
@@ -62,12 +59,7 @@ internal class RoomLibrarySearchStore(
                         createdFromEpochMillis = createdFromEpochMillis,
                         createdToEpochMillis = createdToEpochMillis,
                         sort = sort,
-                        primaryPhrase = primaryPhrase,
-                        extraTokenPhrases = listOf(
-                            extras.getOrElse(0) { neverMatchPhrase },
-                            extras.getOrElse(1) { neverMatchPhrase },
-                            extras.getOrElse(2) { neverMatchPhrase },
-                        ),
+                        tokens = tokens,
                     ),
                 ),
                 transform = LibraryFtsSearchDao.LibrarySearchHitRow::toCatalogRow,
@@ -79,14 +71,28 @@ internal class RoomLibrarySearchStore(
      * Builds the FTS4 search statement for [LibraryFtsSearchDao.searchPagingSource]
      * as a [RoomRawQuery].
      *
-     * The weighted ranking sums per-column hit indicators expressed as
-     * CASE WHEN EXISTS(...) constructs, which Room's @Query SQL parser
-     * rejects; the statement therefore runs raw. Every dynamic value is
-     * bound positionally through the binding function (never interpolated),
+     * The weighted ranking sums per-column hit indicators; Room's @Query SQL
+     * parser rejects the shape, so the statement runs raw. Every dynamic value
+     * is bound positionally through the binding function (never interpolated),
      * and the secondary sort term is chosen from a fixed whitelist, so no
      * caller-controlled text reaches the SQL.
+     *
+     * Ranking shape (S18 尾批 2): each hit indicator is a **set membership
+     * joined by docid** — `LEFT JOIN (SELECT docid FROM library_search_fts
+     * WHERE <column> MATCH ?) ON hit_docid = library_search_fts.docid` — so
+     * FTS is scanned once per indicator (12 sets), not once per matched row
+     * per indicator. The previous correlated `EXISTS(...)` form was exactly
+     * that per-row probe: 146ms at 100 hits, 784ms at 1k, 19.2s at 10k on the
+     * 1 万行夹具; the set form measures 79–95ms at 100 hits and ~85–100ms at
+     * 1k (P95, production path) and keeps the same row order
+     * (`LibraryFtsRankingPathInstrumentedTest` compares against a frozen
+     * pre-change SQL copy, including tied keys).
+     *
+     * `internal` (not private) so the androidTest EQP gate can EXPLAIN the
+     * exact statement production runs instead of a hand copy
+     * ([RoomRawQuery.sql] is public); see `LibraryFtsRankingPathInstrumentedTest`.
      */
-    private fun buildLibrarySearchRawQuery(
+    internal fun buildLibrarySearchRawQuery(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
@@ -94,13 +100,68 @@ internal class RoomLibrarySearchStore(
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         sort: String,
-        primaryPhrase: String,
-        extraTokenPhrases: List<String>,
+        tokens: List<String>,
         limit: Int? = null,
         offset: Int? = null,
     ): RoomRawQuery {
-        val bindings = mutableListOf<Any>(matchQuery)
+        require(tokens.isNotEmpty()) { "FTS search needs at least one query token" }
+        val primaryPhrase = CjkTextTokenizer.quotedPhrase(tokens.first())
+        val neverMatchPhrase = CjkTextTokenizer.quotedPhrase("\uFFFD")
+        val extras = tokens.drop(1).take(3).map(CjkTextTokenizer::quotedPhrase)
+        val extraTokenPhrases = listOf(
+            extras.getOrElse(0) { neverMatchPhrase },
+            extras.getOrElse(1) { neverMatchPhrase },
+            extras.getOrElse(2) { neverMatchPhrase },
+        )
+        val bindings = mutableListOf<Any>()
         val filters = StringBuilder()
+        val hitSets = StringBuilder()
+        val ranking = StringBuilder()
+        var rankingTerm = 0
+
+        /**
+         * 每个排序标志 = "该 docid 是否在这个列/整行的命中集里"。命中集在 join 里
+         * 只扫一次 FTS 索引（`MATERIALIZE hit_*` + 自动覆盖索引 `(hit_docid=?)`），
+         * 而不是对每个命中行逐行回探 FTS——后者是 9–12 次/行的相关子查询，1 万命中
+         * 实测 19.2s（百级 146ms 尚可、千级 784ms 已超预算，见 S18 尾批 2 报告）。
+         * join 的 ON 用主表 `library_search_fts.docid`，与结果行里 content 行的 rowid
+         * 恒等（同一个 join 条件），所以标志取值与相关子查询逐行等价；docid 在 FTS
+         * 表里唯一，LEFT JOIN 不会放大行数。
+         */
+        fun addRankingTerm(alias: String, column: String?, phrase: String, weight: Int) {
+            val matchConstraint = if (column != null) {
+                "library_search_fts.$column MATCH ?"
+            } else {
+                "library_search_fts MATCH ?"
+            }
+            hitSets.append(
+                "\nLEFT JOIN (\n" +
+                    "    SELECT docid AS hit_docid FROM library_search_fts\n" +
+                    "    WHERE $matchConstraint\n" +
+                    ") AS $alias ON $alias.hit_docid = library_search_fts.docid",
+            )
+            if (rankingTerm > 0) ranking.append("\n  + ")
+            ranking.append("$weight * (CASE WHEN $alias.hit_docid IS NOT NULL THEN 1 ELSE 0 END)")
+            rankingTerm++
+            bindings += phrase
+        }
+        listOf(
+            "stem_text" to 4,
+            "solution_text" to 3,
+            "knowledge_points" to 2,
+            "subject" to 2,
+            "options_text" to 1,
+            "chapter" to 1,
+            "tags" to 1,
+            "error_reason" to 1,
+            "formula_tokens" to 1,
+        ).forEach { (column, weight) ->
+            addRankingTerm("hit_$column", column, primaryPhrase, weight)
+        }
+        extraTokenPhrases.forEachIndexed { index, phrase ->
+            addRankingTerm("hit_token_$index", null, phrase, 1)
+        }
+        bindings += matchQuery
         if (subjectId != null) {
             filters.append("\n  AND catalog.subject = ?")
             bindings += subjectId
@@ -129,38 +190,6 @@ internal class RoomLibrarySearchStore(
             filters.append("\n  AND catalog.created_at_epoch_millis <= ?")
             bindings += createdToEpochMillis
         }
-        val ranking = StringBuilder()
-        listOf(
-            "stem_text" to 4,
-            "solution_text" to 3,
-            "knowledge_points" to 2,
-            "subject" to 2,
-            "options_text" to 1,
-            "chapter" to 1,
-            "tags" to 1,
-            "error_reason" to 1,
-            "formula_tokens" to 1,
-        ).forEachIndexed { index, (column, weight) ->
-            if (index > 0) ranking.append("\n  + ")
-            ranking.append(
-                "$weight * (CASE WHEN EXISTS (\n" +
-                    "    SELECT 1 FROM library_search_fts AS ranked\n" +
-                    "    WHERE ranked.docid = content.content_row_id\n" +
-                    "      AND ranked.$column MATCH ?\n" +
-                    ") THEN 1 ELSE 0 END)",
-            )
-            bindings += primaryPhrase
-        }
-        extraTokenPhrases.forEach { phrase ->
-            ranking.append(
-                "\n  + (CASE WHEN EXISTS (\n" +
-                    "    SELECT 1 FROM library_search_fts\n" +
-                    "    WHERE library_search_fts.docid = content.content_row_id\n" +
-                    "      AND library_search_fts MATCH ?\n" +
-                    ") THEN 1 ELSE 0 END)",
-            )
-            bindings += phrase
-        }
         val sortClause = when (sort) {
             "RECENTLY_CREATED" -> "catalog.created_at_epoch_millis DESC,\n    "
             else -> ""
@@ -172,10 +201,10 @@ internal class RoomLibrarySearchStore(
         val sql = "SELECT catalog.*,\n" +
             "       snippet(library_search_fts, '【', '】', '…', -1, 12) AS snippet\n" +
             "FROM library_search_fts\n" +
-            "JOIN library_search_content AS content\n" +
+            "CROSS JOIN library_search_content AS content\n" +
             "    ON content.content_row_id = library_search_fts.docid\n" +
-            "JOIN library_catalog AS catalog\n" +
-            "    ON catalog.problem_revision_id = content.problem_revision_id\n" +
+            "CROSS JOIN library_catalog AS catalog\n" +
+            "    ON catalog.problem_revision_id = content.problem_revision_id$hitSets\n" +
             "WHERE library_search_fts MATCH ?$filters\n" +
             "ORDER BY (\n" +
             "    $ranking\n" +
@@ -231,9 +260,6 @@ internal class RoomLibrarySearchStore(
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
         require(tokens.isNotEmpty()) { "FTS search needs at least one query token" }
         refreshProjection()
-        val primaryPhrase = CjkTextTokenizer.quotedPhrase(tokens.first())
-        val neverMatchPhrase = CjkTextTokenizer.quotedPhrase("\uFFFD")
-        val extras = tokens.drop(1).take(3).map(CjkTextTokenizer::quotedPhrase)
         return database.libraryFtsSearchDao().searchPage(
             buildLibrarySearchRawQuery(
                 matchQuery = matchQuery,
@@ -243,12 +269,7 @@ internal class RoomLibrarySearchStore(
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
                 sort = sort,
-                primaryPhrase = primaryPhrase,
-                extraTokenPhrases = listOf(
-                    extras.getOrElse(0) { neverMatchPhrase },
-                    extras.getOrElse(1) { neverMatchPhrase },
-                    extras.getOrElse(2) { neverMatchPhrase },
-                ),
+                tokens = tokens,
                 limit = limit,
                 offset = offset,
             ),
