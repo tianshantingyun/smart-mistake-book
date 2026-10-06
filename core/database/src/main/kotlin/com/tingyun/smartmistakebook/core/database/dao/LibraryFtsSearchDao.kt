@@ -265,14 +265,23 @@ internal interface LibraryFtsSearchDao {
     )
     fun searchPagingSource(query: RoomRawQuery): PagingSource<Int, LibrarySearchHitRow>
 
-    /** Counting twin of [searchPagingSource] for totals and facets. */
+    /**
+     * Counting twin of [searchPagingSource] for totals and facets.
+     *
+     * Drive order is locked with `CROSS JOIN` (SQLite optoverview §7.1.2: the
+     * planner never reorders tables across a CROSS JOIN) with the FTS table
+     * leftmost, so `MATCH` drives the join instead of the catalog view
+     * materializing first and probing FTS once per catalog row. Inner joins are
+     * commutative, so the result set is unchanged; the WHERE clause and every
+     * filter/binding expression stay verbatim.
+     */
     @Query(
         """
         SELECT COUNT(*)
         FROM library_search_fts
-        JOIN library_search_content AS content
+        CROSS JOIN library_search_content AS content
             ON content.content_row_id = library_search_fts.docid
-        JOIN library_catalog AS catalog
+        CROSS JOIN library_catalog AS catalog
             ON catalog.problem_revision_id = content.problem_revision_id
         WHERE library_search_fts MATCH :matchQuery
           AND (:subjectId IS NULL OR catalog.subject = :subjectId)
@@ -316,10 +325,11 @@ internal interface LibraryFtsSearchDao {
 
     @Query(
         "SELECT catalog.subject AS id, catalog.subject AS label, COUNT(*) AS count " +
-            "FROM library_catalog AS catalog " +
-            "JOIN library_search_content AS content " +
-            "    ON content.problem_revision_id = catalog.problem_revision_id " +
-            "JOIN library_search_fts ON library_search_fts.docid = content.content_row_id " +
+            "FROM library_search_fts " +
+            "CROSS JOIN library_search_content AS content " +
+            "    ON content.content_row_id = library_search_fts.docid " +
+            "CROSS JOIN library_catalog AS catalog " +
+            "    ON catalog.problem_revision_id = content.problem_revision_id " +
             "WHERE library_search_fts MATCH :matchQuery " +
             "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
             "WHERE c.problem_id = catalog.problem_id AND c.basis_revision_id = catalog.problem_revision_id " +
@@ -341,14 +351,15 @@ internal interface LibraryFtsSearchDao {
 
     @Query(
         "SELECT classification.label_id AS id, classification.display_name AS label, COUNT(*) AS count " +
-            "FROM library_catalog AS catalog " +
+            "FROM library_search_fts " +
+            "CROSS JOIN library_search_content AS content " +
+            "    ON content.content_row_id = library_search_fts.docid " +
+            "CROSS JOIN library_catalog AS catalog " +
+            "    ON catalog.problem_revision_id = content.problem_revision_id " +
             "JOIN problem_classification_binding AS classification " +
             "    ON classification.problem_id = catalog.problem_id " +
             "   AND classification.basis_revision_id = catalog.problem_revision_id " +
             "   AND classification.dimension = 'CHAPTER' " +
-            "JOIN library_search_content AS content " +
-            "    ON content.problem_revision_id = catalog.problem_revision_id " +
-            "JOIN library_search_fts ON library_search_fts.docid = content.content_row_id " +
             "WHERE library_search_fts MATCH :matchQuery " +
             "AND (:subjectId IS NULL OR catalog.subject = :subjectId) " +
             "AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId) " +
@@ -369,10 +380,11 @@ internal interface LibraryFtsSearchDao {
 
     @Query(
         "SELECT catalog.mastery_id AS id, catalog.mastery_id AS label, COUNT(*) AS count " +
-            "FROM library_catalog AS catalog " +
-            "JOIN library_search_content AS content " +
-            "    ON content.problem_revision_id = catalog.problem_revision_id " +
-            "JOIN library_search_fts ON library_search_fts.docid = content.content_row_id " +
+            "FROM library_search_fts " +
+            "CROSS JOIN library_search_content AS content " +
+            "    ON content.content_row_id = library_search_fts.docid " +
+            "CROSS JOIN library_catalog AS catalog " +
+            "    ON catalog.problem_revision_id = content.problem_revision_id " +
             "WHERE library_search_fts MATCH :matchQuery " +
             "AND (:subjectId IS NULL OR catalog.subject = :subjectId) " +
             "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
