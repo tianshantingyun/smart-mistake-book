@@ -29,18 +29,20 @@ import kotlin.system.measureTimeMillis
  *    对照——count 相等，三个分面 id/label/count 排序逐行相等；筛选组合抽样矩阵覆盖
  *    subject/section/mastery/createdFrom/createdTo 的全空/单筛/组合，并含 1 万命中与
  *    零命中两档。
- * 2. **驱动结构（主门）**：EXPLAIN QUERY PLAN 断言"MATCH 驱动"三合取判据——FTS 虚表循环
- *    是主程序第一个循环、计划里没有 `SCAN catalog` 驱动、catalog 只被
+ * 2. **驱动结构（主门）**：EXPLAIN QUERY PLAN 断言"MATCH 驱动"四合取判据——FTS 虚表循环
+ *    是主程序第一个循环、FTS 计划行使用非 0 的 `VIRTUAL TABLE INDEX <n>`（`INDEX 0:`
+ *    即未用 MATCH 索引，判失败）、计划里没有 `SCAN catalog` 驱动、catalog 只被
  *    `SEARCH catalog USING … INDEX (problem_revision_id=?)` 探测；同一判据对**改前 SQL**
- *    的旧计划必须判失败（红样例，证可证伪）。口径迁移说明见
+ *    的旧计划与 `INDEX 0:` 形态的各一条固定红样例必须判失败（证可证伪）。口径迁移说明见
  *    [ftsScanDrivesTheJoinForEveryRewrittenQuery]（"MATERIALIZE 消失或后置"的字面项
  *    在设备 3.39.2 上不成立：该视图不能展平，物化是一次性且必然列在最前）。
  * 3. **计时 backstop**：100 命中 count（生产 totalCount 口径，含 `refreshProjection`）
  *    P95 ≤ 500ms×ciSlowRunner；1 万命中与设备 SQLite 基线只记录、不设断言。
- *    实测（2026-10-07，test_device AVD API 34；全类 5/5 绿的那一轮）：夹具建库
- *    seed=47898ms + bootstrap=19746ms；100 命中 count P95=91ms（样本 66–97ms）；
- *    1 万命中 P95=95ms；改前 SQL 同夹具单次 13936ms；设备 SQLite 3.39.2、fts4=true、
- *    fts5=false、`sqlite_compileoption_used` 不可用（`SQLITE_OMIT_COMPILEOPTION_DIAGNOSTICS`）。
+ *    实测（2026-10-07，test_device AVD API 34；**终版 5/5 绿那一轮**——协调方设备复跑
+ *    记录，旧的 91ms/95ms/13936ms 是更早一轮数字）：夹具建库 seed=47898ms +
+ *    bootstrap=19746ms；100 命中 count P95=102ms；1 万命中 P95=104ms；改前 SQL 同夹具
+ *    单次 14959ms；设备 SQLite 3.39.2、fts4=true、fts5=false、
+ *    `sqlite_compileoption_used` 不可用（`SQLITE_OMIT_COMPILEOPTION_DIAGNOSTICS`）。
  *
  * 夹具：`seedLibraryCatalogScale(10_000)`（problems/revisions/units/entries + 分类 +
  * 掌握态齐全，见 [LibraryCatalogScale] 的"必须补齐"说明）+ 一次
@@ -165,10 +167,12 @@ class LibraryFtsCountPathInstrumentedTest {
 
     /**
      * 驱动结构门（主门之一）：四条改写查询 + 一条带筛选的 count 的 EXPLAIN QUERY PLAN
-     * 都必须满足"**MATCH 驱动**"三合取判据（见 [ftsDrivesTheJoin]）：
+     * 都必须满足"**MATCH 驱动**"四合取判据（见 [ftsDrivesTheJoin]）：
      * ① FTS 虚表循环是主程序第一个循环（`MATERIALIZE library_catalog` 作为一次性物化
      * 子程序列在最前不判失败）；② 计划里没有 `SCAN catalog` 驱动行；③ catalog 只以
-     * `SEARCH catalog USING … INDEX (problem_revision_id=?)` 形态被探测。
+     * `SEARCH catalog USING … INDEX (problem_revision_id=?)` 形态被探测；④ FTS 计划行
+     * 使用**非 0** 的 `VIRTUAL TABLE INDEX <n>`（`INDEX 0:` = 未用 MATCH 索引，判失败——
+     * 2026-10-07 收口修复轮补：旧判据只证"FTS 是最外层循环"，会漏放这一退化形态）。
      *
      * **口径迁移记录（2026-10-07，协调方裁决）**：计划原话是"`MATERIALIZE library_catalog`
      * 消失或后置"——它写于未知设备 SQLite 版本行为之前。设备实测（framework 3.39.2）该视图
@@ -178,8 +182,10 @@ class LibraryFtsCountPathInstrumentedTest {
      * 的旧计划（红样例，见下）必须判失败。
      *
      * 可证伪性由**红样例**钉住：[PRE_CHANGE_PLAN_FROM_DIAGNOSIS]（改前 countSearch 的设备
-     * 计划原文，诊断文档 §3）必须被同一判据判失败——门能发现退化。红样例用**固定计划文本**
-     * 而不是"现跑改前 SQL 的计划"：后者依赖设备的视图展平行为（3.39.2 不展平→红；
+     * 计划原文，诊断文档 §3）必须被同一判据判失败——门能发现退化；另有
+     * [ZERO_INDEX_PLAN_RED_SAMPLE]（FTS 行 `VIRTUAL TABLE INDEX 0:`、其余满足旧判据）
+     * 钉住新合取 ④：旧判据对它返回 true，只有"非 0 索引"合取能判失败。红样例用**固定
+     * 计划文本**而不是"现跑改前 SQL 的计划"：后者依赖设备的视图展平行为（3.39.2 不展平→红；
      * 能展平的版本上改前 SQL 也会被 FTS 驱动，就不再是红样例），固定文本才与版本无关。
      * 现跑改前 SQL 的计划仍会打印（`S18 FTS pre-change plan[...]`）供复核对照。
      */
@@ -203,6 +209,14 @@ class LibraryFtsCountPathInstrumentedTest {
             ftsDrivesTheJoin(PRE_CHANGE_PLAN_FROM_DIAGNOSIS),
         )
 
+        // 红样例 2（固定文本，版本无关）：FTS 行未用 MATCH 索引（`INDEX 0:`）必须判失败——
+        // 该样本满足旧判据的①②③，只有新合取 ④（非 0 VIRTUAL TABLE INDEX）能拦下它。
+        assertFalse(
+            "红样例（FTS 行 VIRTUAL TABLE INDEX 0:，未用 MATCH 索引）被本判据误判为通过" +
+                "（门失效）：\n" + ZERO_INDEX_PLAN_RED_SAMPLE.joinToString("\n"),
+            ftsDrivesTheJoin(ZERO_INDEX_PLAN_RED_SAMPLE),
+        )
+
         // 现跑改前 SQL 的计划：只打印（设备版本相关，见 KDoc），供复核对照。
         readPlans(context, databaseName, PRE_CHANGE_EQP_QUERIES).forEach { (name, plan) ->
             println("S18 FTS pre-change plan[$name]:\n${plan.joinToString("\n") { "  $it" }}")
@@ -210,8 +224,8 @@ class LibraryFtsCountPathInstrumentedTest {
     }
 
     /**
-     * "MATCH 驱动"判据（三合取）。对改前 SQL 的旧计划必须为 false（红样例），
-     * 对新计划必须为 true——这是门能发现退化的证明。
+     * "MATCH 驱动"判据（四合取）。对改前 SQL 的旧计划与 `INDEX 0:` 形态的红样例必须为
+     * false，对新计划必须为 true——这是门能发现退化的证明。
      */
     private fun ftsDrivesTheJoin(plan: List<String>): Boolean {
         val ftsIndex = plan.indexOfFirst { FTS_TABLE_LOOP.containsMatchIn(it) }
@@ -227,7 +241,12 @@ class LibraryFtsCountPathInstrumentedTest {
         if (plan.any { CATALOG_SCAN.containsMatchIn(it) }) return false
         // ③ catalog 只被索引探测（problem_revision_id 等值约束）。
         val catalogProbe = plan.firstOrNull { CATALOG_SEARCH.containsMatchIn(it) } ?: return false
-        return "problem_revision_id=?" in catalogProbe
+        if ("problem_revision_id=?" !in catalogProbe) return false
+        // ④ FTS 行必须真的用了 MATCH 索引：`VIRTUAL TABLE INDEX <n>` 且 n ≠ 0
+        //    （`INDEX 0:` = 没有可用索引，未用 MATCH，与目录驱动同属退化形态；
+        //    2026-10-07 收口修复轮补——旧判据只证"FTS 是最外层循环"会漏放这一形态）。
+        val ftsIndexNumber = FTS_VIRTUAL_INDEX.find(plan[ftsIndex])?.groupValues?.get(1)
+        return ftsIndexNumber != null && ftsIndexNumber != "0"
     }
 
     /**
@@ -466,6 +485,12 @@ class LibraryFtsCountPathInstrumentedTest {
         private val CATALOG_SEARCH = Regex(
             """(?i)^SEARCH\s+(TABLE\s+)?(catalog|library_catalog)(\s|$)""",
         )
+
+        /**
+         * FTS 计划行的索引号：`VIRTUAL TABLE INDEX <n>:`。
+         * `INDEX 0:` = 没有可用索引（未用 MATCH），合取 ④ 必须判失败。
+         */
+        private val FTS_VIRTUAL_INDEX = Regex("""VIRTUAL TABLE INDEX\s+(\d+)""")
 
         private val CI_MULTIPLIER: Long = run {
             val fromArgs = androidx.test.platform.app.InstrumentationRegistry
@@ -782,6 +807,20 @@ class LibraryFtsCountPathInstrumentedTest {
                 "(problem_id=? AND basis_revision_id=? AND dimension=? AND label_id=?)",
             "SEARCH content USING COVERING INDEX index_library_search_content_problem_revision_id (problem_revision_id=?)",
             "SCAN library_search_fts VIRTUAL TABLE INDEX 11:",
+        )
+
+        /**
+         * **红样例 2**（固定文本，版本无关）：FTS 行是 `VIRTUAL TABLE INDEX 0:`——满足旧
+         * 判据（2026-10-07 前的三合取）的全部条件：FTS 是主程序第一个循环（`MATERIALIZE
+         * library_catalog` 只是一次性子程序）、没有 `SCAN catalog`、catalog 走
+         * `SEARCH … INDEX (problem_revision_id=?)`；但 **MATCH 索引号是 0**（未用 MATCH
+         * 索引）。旧判据会对它误判为通过，只有新合取 ④（非 0 索引）能判失败——这就是收口
+         * 修复轮补合取的动机（复核登记：把绿计划的 FTS 行换成 `INDEX 0:` 旧判据仍 True）。
+         */
+        private val ZERO_INDEX_PLAN_RED_SAMPLE: List<String> = listOf(
+            "MATERIALIZE library_catalog",
+            "SCAN library_search_fts VIRTUAL TABLE INDEX 0:",
+            "SEARCH catalog USING AUTOMATIC COVERING INDEX (problem_revision_id=?)",
         )
 
         /** 改前（git 59fd8a32）`countSearch` 的逐字原文。 */

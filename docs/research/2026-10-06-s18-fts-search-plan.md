@@ -70,3 +70,24 @@
   退回 `@RawQuery`（本项目已有先例）。
 - 宽命中排序可能无等价的零 schema 修法 → 按批 2 的"登记待裁定"路径走，不硬改语义。
 - 并发数字含 2 核模拟器与 `refreshProjection` 串行化效应，只作量级参考。
+
+## 7. 实施期口径裁定与登记（2026-10-06，协调方）
+
+1. **EQP 判据口径迁移（字面 → 意图；批 1 实施者升级提问后裁定）**：计划 §3 批 1 原文写"`MATERIALIZE library_catalog`
+   消失或后置"——设备 framework SQLite **3.39.2 不展平该视图**（3.50.4 才展平），字面项不可能成立。
+   **门要拦的失败**是"catalog 当驱动 + 逐行回探 FTS"。裁定改按三合取判定：① FTS 扫描是**主程序第一个循环**
+   （`MATERIALIZE` 作为一次性子程序列在最前不判失败——100 命中与 1 万命中计时同价，证明是一次性物化）
+   ② 计划中**无 `SCAN catalog` 驱动** ③ catalog 只以 `SEARCH catalog USING … INDEX (problem_revision_id=?)`
+   形态被探测；并把**改前旧计划钉为固定红样例**（新判据对旧计划仍红）。**这是口径迁移而非放宽门**；
+   3.39/3.50 差异与红样例均在 `LibraryFtsCountPathInstrumentedTest` 的 KDoc/用例内留档。
+2. **夹具来源变更**：计划写"沿用 `PerformanceGateTest.insertTestData`"，实装用
+   `seedLibraryCatalogScale(10_000)`（1 万行齐全夹具，含 mastery/分类）——登记为实施期等价替换。
+3. **设备基线实测（批 1 探针，仓内留档）**：设备 framework SQLite **无 FTS5 模块**（`fts5=false` 探针在
+   `LibraryFtsCountPathInstrumentedTest.kt:59-68,371-373`）→ 本项目走 **FTS4**。因此"换 `bm25`/`rank`"
+   （FTS5 专有）属**换库 + 用户可见排序语义变更**，批 2 **未擅动**，登记待用户裁定。
+4. **批 2 实施期结论（登记）**：三档量化确认千级超预算 → 零 schema 等价重写落地（集合级命中集 LEFT JOIN
+   取代逐行相关 EXISTS；排序语义一字未改）；改后 100=85ms / 1k=92ms / 10k=144ms / 并发均值=896ms。
+   换 bm25/rank 见上条。改前基线的临时探针类已删除（报告自述），复现性受限——登记。
+5. **复核登记（低危，处置：随收口修复轮或登记）**：测试 KDoc 数字对齐、DAO KDoc 漂移、排序守卫钉权重、
+   计数门 EQP 补"非 0 索引"合取、10k 档补宽松计时门（以上进修复轮）；50k 规模未覆盖、设备原始证据未留仓、
+   排序 EQP 门版本脆弱性、P95 两套口径并存（以上登记）。

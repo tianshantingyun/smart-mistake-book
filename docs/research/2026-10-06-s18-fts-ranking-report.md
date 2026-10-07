@@ -59,6 +59,11 @@ S18 probe concurrent (10x, 1k tier) latencies=[12539, 6069, 12214, 15583, 6253, 
 20 样本需 6.4 分钟，超出探针预算；改后 10k 档按 ≥20 样本口径复测，见 §5）。
 并发档为 10 并发各 1 次的均值。
 
+**复现性说明**：本节（及 §2.2）的改前数字都来自**已删除的临时探针类**
+（`S18RankingScratchProbeTest`，§7 第一条命令，跑后按约定删除）——**不可复跑**；
+复现需重建同类探针、在改动前的生产 builder 上重测。仓内保留的是当时 `adb logcat`
+的现场原文与 §2.3 冻结的设备 EXPLAIN。
+
 ### 2.2 成本分解微探针（同一夹具、同一改前 SQL 的两种访问形态）
 
 ```
@@ -66,10 +71,18 @@ S18 probe micro: stem_text set scan=18ms per-row probe x1000=16782ms (docid=1)
 ```
 
 - **集合级**一次 `SELECT COUNT(*) FROM library_search_fts WHERE stem_text MATCH '"分"'`
-  （1 万命中、18ms）——命中集物化的成本。
+  （1 万命中、18ms）——命中集物化的成本量级。
 - **逐行**探测一次 `EXISTS(SELECT 1 FROM library_search_fts AS ranked WHERE ranked.docid = ?
-  AND ranked.stem_text MATCH '"分"')` ≈ **16.8ms**；9–12 个标志 × 命中行数就是 1 万档
-  19.2s 的来源（16.8ms 是冷/慢样本，量级足以说明问题）。
+  AND ranked.stem_text MATCH '"分"')` 在该探针里计 ≈ **16.8ms/次**（同一 docid 重复
+  1000 次共 16782ms）。
+
+**这段分解不能作为 10k 档 19208ms 的归因证据，只作量级参考**：把 16.8ms/次外推到
+"9–12 个标志 × 1 万命中行"≈ **1500–2000s**，与主测量 19208ms **差 ≈100×**；反推主测量
+摊到每次探测只有 ≈0.16ms（9–12 万次探测 / 19.2s）。两者口径不同（微探针是单连接上
+独立 prepare+step 的冷/慢样本，未走生产计划的语句缓存与批处理路径），因此本节只能支持
+一个定性结论——"逐行回探的实测成本远高于集合级一次扫描（18ms）量级"，**不能**用它做
+逐项归因。真正的定性归因由 §2.3 的设备计划形态（每个排序标志一个相关子查询）与 §3 的
+候选形状对照承担。探针类已删除、不可复跑（见 §2.1 复现性说明）。
 
 ### 2.3 改前 EXPLAIN 原文（设备，10k 档、筛选全空）
 
@@ -125,9 +138,10 @@ USE TEMP B-TREE FOR ORDER BY
 ### 2.4 改前 SQL 原文（冻结副本）
 
 改前 builder（git 59fd8a32 → 批 1 期间的 `buildLibrarySearchRawQuery`）的逐字原文已冻结为
-`LibraryFtsRankingPathInstrumentedTest.preChangeSearchPageSql(...)`（行 ~517 起，等价性门的旧口径
+`LibraryFtsRankingPathInstrumentedTest.preChangeSearchPageSql(...)`（行 ~547 起，等价性门的旧口径
 参照物）；结构由 JVM 守卫 `LibraryFtsRankingQueryContractTest` 钉住（9 个列级相关子查询、
-3 个整行探测、普通 JOIN 驱动、不得混入新形态）。
+3 个整行探测、普通 JOIN 驱动、不得混入新形态），且其权重/筛选/排序二级键与 live builder
+逐字比对（2026-10-07 收口修复轮加强）。
 
 ## 3. 候选形状实测（为何选 LEFT JOIN 命中集）
 
@@ -236,27 +250,31 @@ USE TEMP B-TREE FOR ORDER BY
 
 新增 `core/database/src/androidTest/.../LibraryFtsRankingPathInstrumentedTest.kt`（5 用例，DEVICE 实测 5/5 绿）：
 
-1. `rankingPlanUsesMaterializedHitSetsNotRowProbes`（行 60）：EQP 结构门——判据
-   `rowLevelFtsProbesOf`（行 676）把"紧跟 `CORRELATED SCALAR SUBQUERY` 头的 FTS 虚表访问"
-   判为逐行探测；对现场 live 计划必须为空，对**冻结红样例**（改前计划原文，行 782 起）必须
+1. `rankingPlanUsesMaterializedHitSetsNotRowProbes`（行 61）：EQP 结构门——判据
+   `rowLevelFtsProbesOf`（行 685）把"紧跟 `CORRELATED SCALAR SUBQUERY` 头的 FTS 虚表访问"
+   判为逐行探测；对现场 live 计划必须为空，对**冻结红样例**（改前计划原文，行 798 起）必须
    判失败；另有正向断言"12 个 `MATERIALIZE hit_*` + `SEARCH hit_stem_text USING …
    (hit_docid=?)`"与"驱动角色"断言（FTS 主扫描在、`SCAN catalog` 不在）。
-2. `userScaleAndThousandHitTiersStayWithinBudget`（行 111）：100/1k 档 P95 < 500ms×CI
-   （门）；10k 档记录（打印）。
-3. `concurrentThousandHitPagesAreRecorded`（行 156）：10 并发 × 1k 记录（不设墙钟门，
+2. `userScaleAndThousandHitTiersStayWithinBudget`（行 113）：100/1k 档 P95 < 500ms×CI
+   （门）；10k 档记录 + **宽松 backstop** P95 < 2000ms×CI（实测 144ms，≈14× 余量，只拦
+   秒级退化；2026-10-07 收口修复轮补）。
+3. `concurrentThousandHitPagesAreRecorded`（行 165）：10 并发 × 1k 记录（不设墙钟门，
    2 核模拟器 + refreshProjection 串行化，同既有口径）。
-4. `pageOrderMatchesPreChangeSqlAcrossTiersAndSorts`（行 182）：**同序主门**——改前 SQL
+4. `pageOrderMatchesPreChangeSqlAcrossTiersAndSorts`（行 191）：**同序主门**——改前 SQL
    冻结副本 vs 生产 live SQL 的 SQL 原文，在 14 组用例上逐列（全 `catalog.*` + snippet）
    逐行对照；再用生产端口路径复核 entryId 序。覆盖：100/1k 档 × {RECENTLY_UPDATED,
    RECENTLY_CREATED} × offset{0,20/100} × {全空, subject, 组合筛选}，以及 10k 档 offset{0,200}。
-5. `tiedKeysAndColumnWeightsKeepTheExactPreChangeOrder`（行 265）：内存小夹具——同 rank 同
+5. `tiedKeysAndColumnWeightsKeepTheExactPreChangeOrder`（行 274）：内存小夹具——同 rank 同
    `updated_at` 的并列键（必须 entry_id ASC 决胜）与逐列权重（stem 4 / solution 3 /
    knowledge 2 / subject 2 / options 1 / chapter 1，`updated_at` 与 rank 反序排列，
    排序失效必然给出不同序）的精确期望序；live 与改前 SQL 都必须给出这条序。
 
 配 **JVM 守卫** `core/database/src/test/.../LibraryFtsRankingQueryContractTest.kt`：
 钉住"改前参照物保持相关子查询形状（不得被顺手改成新形状）"与"live builder 保持命中集
-join + 不得回退到 `AS ranked` 相关子查询"（先例 `LibraryFtsCountPathQueryCopyContractTest`）。
+join + 不得回退到 `AS ranked` 相关子查询"（先例 `LibraryFtsCountPathQueryCopyContractTest`）；
+2026-10-07 收口修复轮再加**冻结副本契约**：live builder 与副本的 9 个列权重、全部筛选片段、
+排序二级键按空白归一后逐字比对，额外 token 冻结"恰好 3 个、权重 1"的不变量
+（`solution_text 3→5` 这类"顺手改错"即红）。
 
 既有锚点（本批自验同时跑，**12/12 绿**，4m21s）：`PerformanceGateTest`（3C 批 1 迁移后的
 用户可见搜索门；本轮 `library search page benchmark p95=53ms`，含 100 命中与中文有界命中两档）、
@@ -304,8 +322,9 @@ join + 不得回退到 `AS ranked` 相关子查询"（先例 `LibraryFtsCountPat
 ## 9. UNVERIFIED / 边界
 
 - 只有 debug 构建 + 模拟器（2 核）读数；真机 / release 的数量级未测。CI 预算 ×4 后各档均有余量。
-- 10k 档计时只记录未设门（用户真实规模是百级；避免把模拟器抖动变成 CI 红灯）；若协调方
-  要求把 10k 也纳入门，可用同一测试类再开一条断言（4 轮实测 P95=139–167ms，余量 3×+）。
+- 10k 档不设性能预算门（用户真实规模是百级，避免把模拟器抖动变成 CI 红灯）；2026-10-07
+  收口修复轮只补了 2000ms×CI 的**宽松 backstop** 拦秒级退化（4 轮实测 P95=139–167ms，
+  ≈14× 余量），真正的性能判据仍是 100/1k 两档的 500ms 门。
 - 并发数字含 `refreshProjection()` 写事务串行化与 2 核调度效应，只作量级参考。
 - 候选形状只在设备 SQLite 3.39.2 上验证；其它 API 版本的自动覆盖索引行为未逐一验证
   （结构门会在没有自动索引时通过正向断言"`SEARCH hit_stem_text USING`"暴露形态漂移，

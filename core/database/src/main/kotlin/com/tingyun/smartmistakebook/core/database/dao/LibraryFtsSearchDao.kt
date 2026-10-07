@@ -22,10 +22,16 @@ import com.tingyun.smartmistakebook.core.database.entity.LibrarySearchOutboxEnti
  * command.
  *
  * Ranking note: the index is FTS4, where bm25()/rank do not exist. Relevance
- * is computed as a weighted sum of per-column hits for the primary query token
- * (column-scoped MATCH expressions, one EXISTS per column), with an extra
- * boost per additional query token that matches anywhere in the row; no
- * auxiliary matchinfo() decoding is needed.
+ * is computed as a weighted sum of per-column hit flags for the primary query
+ * token, plus a weight-1 whole-row flag per additional query token. Since the
+ * S18 尾批 2 rewrite each flag is a **set-membership LEFT JOIN** against a
+ * one-column hit set (`SELECT docid AS hit_docid FROM library_search_fts WHERE
+ * <column> MATCH ?`, tested as `<alias>.hit_docid IS NOT NULL`), not a
+ * per-row correlated `EXISTS`; the join is assembled by
+ * RoomLibrarySearchStore.buildLibrarySearchRawQuery (`addRankingTerm`,
+ * `RoomLibrarySearchStore.kt:131-147`), so FTS is scanned once per flag
+ * instead of once per matched row. No auxiliary matchinfo() decoding is
+ * needed.
  */
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 @Dao
@@ -248,12 +254,16 @@ internal interface LibraryFtsSearchDao {
     /**
      * Relevance-ranked paged search, executed as a raw query.
      *
-     * The weighted ranking sums per-column hit indicators computed as
-     * CASE WHEN EXISTS(...) constructs. Room's @Query SQL parser rejects
-     * CASE WHEN, so this query is declared as [RawQuery] to bypass static
-     * SQL validation and run verbatim; the runtime semantics stay FTS4-legal
-     * (MATCH only appears as a WHERE constraint, snippet() takes the bare
-     * table identifier). The caller constructs the [RoomRawQuery] in
+     * The weighted ranking sums set-membership hit flags evaluated as
+     * `CASE WHEN <alias>.hit_docid IS NOT NULL THEN 1 ELSE 0 END` over the
+     * `LEFT JOIN (SELECT docid AS hit_docid FROM library_search_fts WHERE
+     * <column> MATCH ?)` hit sets built by
+     * RoomLibrarySearchStore.buildLibrarySearchRawQuery (`addRankingTerm`,
+     * S18 尾批 2). Room's @Query SQL parser rejects CASE WHEN, so this query is
+     * declared as [RawQuery] to bypass static SQL validation and run verbatim;
+     * the runtime semantics stay FTS4-legal (MATCH only appears as a WHERE
+     * constraint, snippet() takes the bare table identifier). The caller
+     * constructs the [RoomRawQuery] in
      * RoomLibrarySearchStore.buildLibrarySearchRawQuery with positional bindings
      * only - no value is ever interpolated into the SQL text.
      */

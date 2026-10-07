@@ -40,14 +40,15 @@ import kotlin.system.measureTimeMillis
  *    （[PRE_CHANGE_RANKING_PLAN]）必须判失败、对现场 live SQL 计划必须判空；另有正向
  *    断言"12 个命中集必须被 MATERIALIZE"（退化回相关子查询时红样例先红）。
  * 3. **计时**：100 命中（用户真实规模）与 1k 命中的 `searchPage` P95 ≤ 500ms×ciSlowRunner
- *    （与 [PerformanceGateTest.SEARCH_P95_TARGET_MS] 同值同口径）；10k 命中只记录（打印），
- *    并发档（10 并发 × 1k 命中）只记录不设墙钟门（含 2 核模拟器与 refreshProjection
- *    串行化效应，量级参考；同 S17 前置文档口径）。
+ *    （与 [PerformanceGateTest.SEARCH_P95_TARGET_MS] 同值同口径）；10k 命中记录样本与
+ *    P95，另设**宽松 backstop** P95 ≤ 2000ms×ciSlowRunner（实测 144ms，≈14× 余量；
+ *    只拦"退化到秒级"，不是性能预算）；并发档（10 并发 × 1k 命中）只记录不设墙钟门
+ *    （含 2 核模拟器与 refreshProjection 串行化效应，量级参考；同 S17 前置文档口径）。
  *
  * 为什么预算门槛放在 100/1k 两档：改前实测 100 命中 P95=146ms（达标）、1k=784ms（超预算）、
  * 10k=19.2s（病理）；批 2 的章程是"千级即超预算才重写"，这两档就是重写的触发条件与
- * 达标判据。10k 只记录是因为它是压力量级（用户库的百级命中是真实规模），避免把一次
- * 模拟器抖动变成 CI 红灯。
+ * 达标判据。10k 不设性能预算门（用户库的百级命中是真实规模），只留 2000ms×CI 的宽松
+ * backstop 拦秒级退化，避免把一次模拟器抖动变成 CI 红灯。
  */
 @RunWith(AndroidJUnit4::class)
 class LibraryFtsRankingPathInstrumentedTest {
@@ -105,7 +106,8 @@ class LibraryFtsRankingPathInstrumentedTest {
 
     /**
      * 计时档位：100（用户真实规模，门）与 1k（重写触发档，门）的 P95 ≤ 500ms×ciSlowRunner；
-     * 10k 记录（打印样本与 P95）。非空信号防夹具脱节。
+     * 10k 记录样本与 P95，另设**宽松 backstop** P95 ≤ 2000ms×ciSlowRunner（实测 144ms，
+     * ≈14× 余量；只拦秒级退化，改前 19208ms 会红）。非空信号防夹具脱节。
      */
     @Test
     fun userScaleAndThousandHitTiersStayWithinBudget() = runBlocking {
@@ -138,13 +140,20 @@ class LibraryFtsRankingPathInstrumentedTest {
             oneK.percentile95() < PAGE_P95_BUDGET_MS,
         )
 
-        // 10k 命中：只记录（改前 19208ms 量级）。
+        // 10k 命中：记录 + 宽松 backstop（实测 P95=144ms；2000ms×CI 只拦"退化到秒级"，
+        // 改前 19208ms 量级会红——收口修复轮补，避免未来退化到秒级仍绿）。
         assertEquals(10_000, countHits(TOKENS_WIDE, "10k 命中口径"))
         repeat(1) { page(TOKENS_WIDE) }
         val tenK = List(TEN_K_SAMPLE_COUNT) { measureTimeMillis { page(TOKENS_WIDE) } }
+        val tenKP95 = tenK.percentile95()
         println(
-            "S18 ranking benchmark tier=10k (recorded, not gated) samples=$tenK " +
-                "p95=${tenK.percentile95()}ms",
+            "S18 ranking benchmark tier=10k samples=$tenK p95=${tenKP95}ms " +
+                "backstop=${TEN_K_P95_BACKSTOP_MS}ms",
+        )
+        assertTrue(
+            "10k 命中 searchPage P95=${tenKP95}ms 超过宽松 backstop ${TEN_K_P95_BACKSTOP_MS}ms" +
+                "（排序路径退化到秒级）；samples=$tenK",
+            tenKP95 < TEN_K_P95_BACKSTOP_MS,
         )
     }
 
@@ -761,6 +770,13 @@ class LibraryFtsRankingPathInstrumentedTest {
 
         /** 与 `PerformanceGateTest.SEARCH_P95_TARGET_MS` 同值同口径。 */
         private val PAGE_P95_BUDGET_MS = 500L * CI_MULTIPLIER
+
+        /**
+         * 10k 档宽松 backstop：实测 P95=144ms（最终轮；四轮区间 139–167ms），取
+         * 2000ms×ciSlowRunner（本地 ≈13.9× 余量、CI ×4 后 ≈55×）——只拦"退化到秒级"
+         * （改前 19208ms 量级），不是性能预算；100/1k 两档的 500ms 门仍是性能判据。
+         */
+        private val TEN_K_P95_BACKSTOP_MS = 2_000L * CI_MULTIPLIER
 
         private val CORRELATED_SUBQUERY_HEADER = Regex("""^CORRELATED SCALAR SUBQUERY\b""")
         private val FTS_VIRTUAL_TABLE_LINE = Regex(
