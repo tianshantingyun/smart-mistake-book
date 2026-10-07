@@ -77,7 +77,14 @@ object BundledKnowledgeBaseInstaller {
     private fun elapsedMillis(startedAtNano: Long): Long =
         (System.nanoTime() - startedAtNano) / 1_000_000
 
-    private suspend fun reconcile(
+    /**
+     * 把**一个包**调和进库。
+     *
+     * 可见性是 `internal` 而不是 `private` 的唯一理由：D-0 端到端 drill 需要把测试内合成的
+     * v3 侧车包喂进这条真实调和路径，而 [install] 只吃随包资源、无法注入夹具。生产唯一调用者
+     * 仍是 [install]，放开可见性不改任何行为。
+     */
+    internal suspend fun reconcile(
         database: StudyDatabasePort,
         pack: KnowledgeBasePack,
         manifest: KnowledgeUpdateManifest?,
