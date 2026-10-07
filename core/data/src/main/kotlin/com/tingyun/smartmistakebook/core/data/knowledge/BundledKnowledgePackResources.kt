@@ -6,7 +6,6 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeNodeRelationRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSourceBindingSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSourceSeedRecord
-import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialContract
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
@@ -540,9 +539,13 @@ internal fun KnowledgeBasePack.validate() {
         sources = sources,
         existing = emptyList(),
     )
-    // Each teaching sidecar is validated on decode (per sidecar <= 2048 materials and binding
-    // count range hold there). The aggregate validate therefore only checks cross-sidecar
-    // uniqueness and that every binding points at an existing node/source of the same subject.
+    // Each teaching sidecar is structurally validated on decode by
+    // ReviewedTeachingMaterialSidecarJsonCodec (key sets, enums, fingerprints, per-sidecar
+    // uniqueness). For the teaching records this aggregate validate therefore checks cross-sidecar
+    // uniqueness, that every binding points at an existing node/source of the same subject, and
+    // that no material is left PENDING (fingerprint/coverage checks below stay aggregate-level).
+    // KnowledgeTeachingMaterialContract holds the same per-record rules for the write paths that
+    // call it (RoomKnowledgeBaseStore / RoomKnowledgeContentReconciler); it is not on this path.
     require(
         teachingMaterials.all {
             it.contentFingerprint != "PENDING"

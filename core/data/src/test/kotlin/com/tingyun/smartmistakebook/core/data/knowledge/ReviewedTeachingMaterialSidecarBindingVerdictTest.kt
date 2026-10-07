@@ -16,7 +16,9 @@ import org.junit.Test
  *    绑定混排时字段值正确（未审计绑定三字段全 null）；
  * ② 三元组 all-or-none：缺一/缺二拒；
  * ③ 词表越界、时间戳负值、绑定额外未知键在 v3 下都拒；
- * ④ v1/v2 的绑定键集逐字不变——v2 包体带三元组仍按"未知键"拒，v2 两键绑定照旧解出 null。
+ * ④ v1/v2 的绑定键集逐字不变——两版包体带三元组都按"未知键"拒（v1/v2 各有一条独立用例，
+ *    因为 codec 里两版共用同一条 `schemaVersion != CURRENT_SCHEMA_VERSION` 分支），
+ *    两键绑定照旧解出 null。
  *
  * 夹具全部是测试内联文本，不落任何真实包目录（`core/data/src/main/resources/knowledge/` 只读）。
  */
@@ -87,6 +89,30 @@ class ReviewedTeachingMaterialSidecarBindingVerdictTest {
             "v2 绑定键集必须恰好两键，报错应指出未知键：${failure?.message}",
             failure?.message.orEmpty().contains("unknown keys"),
         )
+    }
+
+    @Test
+    fun schemaOneRejectsVerdictKeysInsteadOfSilentlyAcceptingSchemaDrift() {
+        val failure = runCatching {
+            decodeSchemaVersioned(schemaVersion = 1, bindings = auditedKeepBinding)
+        }.exceptionOrNull()
+
+        assertTrue(failure is IllegalArgumentException)
+        assertTrue(
+            "v1 绑定键集必须恰好两键，报错应指出未知键：${failure?.message}",
+            failure?.message.orEmpty().contains("unknown keys"),
+        )
+    }
+
+    @Test
+    fun schemaOneBindingWithoutVerdictTripleStillDecodesToNulls() {
+        val sidecar = decodeSchemaVersioned(schemaVersion = 1, bindings = unauditedBinding)
+
+        val binding = sidecar.bindings.single()
+        assertEquals(KnowledgeMaterialNodeRole.SUPPORTING.name, binding.role)
+        assertNull(binding.verdict)
+        assertNull(binding.verdictSource)
+        assertNull(binding.judgedAtEpochMillis)
     }
 
     @Test
@@ -202,12 +228,13 @@ class ReviewedTeachingMaterialSidecarBindingVerdictTest {
             ).bufferedReader().use { it.readText() },
         )
 
-    private fun sidecarJson(schemaVersion: Int, bindings: String): String =
-        """
-        {
-          "schemaVersion":$schemaVersion,
-          "packId":"moe-2020-foundation-v1",
-          "sources":[{
+    /**
+     * 来源块按 schemaVersion 分支：v1（legacy）键集恰好 10 枚、不含 4 枚政策键
+     * （codec `toSource` 的 v1 分支 `requireOnlyKeys(*sharedKeys)`）。若 v1 用例误用
+     * v2/v3 形态的来源，会因「来源未知键」先拒，绑定键集那条断言就测不到了。
+     */
+    private fun sourceJson(schemaVersion: Int): String {
+        val shared = """
             "sourceId":"source:open:math:example",
             "subject":"MATH",
             "sourceType":"AUTHORIZED_EDUCATION_MATERIAL",
@@ -217,12 +244,23 @@ class ReviewedTeachingMaterialSidecarBindingVerdictTest {
             "sourceUri":"https://example.org/math",
             "licenseStatus":"LICENSED",
             "contentFingerprint":"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-            "importedAtEpochMillis":1784764800000,
+            "importedAtEpochMillis":1784764800000
+        """.trimIndent()
+        val policies = """
             "contentUsePolicy":"ADAPTATION_ALLOWED",
             "licenseExpression":"CC-BY-NC-SA-4.0",
             "licenseUri":"https://creativecommons.org/licenses/by-nc-sa/4.0/",
             "attributionText":"示例机构《开放数学教学资料》，依 CC BY-NC-SA 4.0 改编。"
-          }],
+        """.trimIndent()
+        return if (schemaVersion == 1) "{$shared}" else "{$shared,\n$policies}"
+    }
+
+    private fun sidecarJson(schemaVersion: Int, bindings: String): String =
+        """
+        {
+          "schemaVersion":$schemaVersion,
+          "packId":"moe-2020-foundation-v1",
+          "sources":[${sourceJson(schemaVersion)}],
           "materials":[{
             "slug":"licensed-complete-worked-example",
             "subject":"MATH",

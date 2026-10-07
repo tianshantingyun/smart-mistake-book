@@ -1,7 +1,9 @@
 # D-0 绑定裁定三元组 · 写侧契约（2026-10-07）
 
-> 依据：台账裁决 27（`docs/agent-first-refactor-decisions-2026-09-23.md:2315-2318`「为 `bindings[]`
-> 增加裁定状态 + 来源 + 时间戳」）；实施计划 `docs/research/2026-10-07-d0-binding-verdict-plan.md`。
+> 依据：台账裁决 27（为 `bindings[]` 增加裁定状态 + 来源 + 时间戳，本文为改述；
+> `docs/agent-first-refactor-decisions-2026-09-23.md` **工作树版** :2315-2318——该段属 KB 线
+> 未提交改动，HEAD 版尚无此段，引用以工作树为准）；实施计划
+> `docs/research/2026-10-07-d0-binding-verdict-plan.md`。
 >
 > 状态：**内核侧载体已落**（批 1 codec/记录/契约 + 批 2 端到端 drill，零 schema），
 > **真实包尚未写入任何三元组**——字段填充属 KB 线（写入窗口 D-5）。本文档是给 KB 写侧的
@@ -49,21 +51,26 @@
 
 ## 3. 词表（编译期枚举 + 本契约钉死）
 
-`verdict ∈ {KEEP, REBIND, NONE}`（`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ProblemCatalog.kt:216-220`）
+`verdict ∈ {KEEP, REBIND, NONE}`（`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ProblemCatalog.kt:219-223`）
 
 | 值 | 语义（与 `content_audit_*.csv` 现行口径一致） |
 |---|---|
 | `KEEP` | 绑定成立，维持现绑节点 |
 | `REBIND` | 该改绑：材料应移到另一个知识点 |
-| `NONE` | **不是"无问题"**：材料不属现绑节点，且包内没有节点能承接 → 要节点侧决定（新节点/合并/退场） |
+| `NONE` | **不是"无问题"，也不是"自动解绑"**：审计判现绑不成立且未给出唯一改绑目标。CSV 实测两类用法：① 材料不是教学内容（题干残片／依赖未收录的图）→ 建议释放（10-02/10-06 轮为主）；② 材料是教学内容但落点未定（跨节点混合需拆条／两读并存／包内无承接节点）→ 留人工（09-25 轮为主）。写侧原值落账；读侧不得把 `NONE` 当"应删该绑定"的指令，后续轮次可覆盖 |
 
-`verdictSource ∈ {MODEL_AUDIT, USER_DECISION, MIGRATION}`（`ProblemCatalog.kt:222-227`）
+`verdictSource ∈ {MODEL_AUDIT, USER_DECISION, MIGRATION}`（`ProblemCatalog.kt:226-231`）
 
 | 值 | 语义 |
 |---|---|
 | `MODEL_AUDIT` | 审计工序读正文的语义裁定（现有 CSV 裁定链属这一档） |
 | `USER_DECISION` | 人工裁定 |
 | `MIGRATION` | 迁移期由脚本补登（例如把历史裁定折进包时） |
+
+> 近名轴提醒：`core/model` 另有一枚 `BindingAcceptanceSource`
+> （`ProblemCatalog.kt:269-276`，`LOCAL_POLICY_ACCEPTED`/`USER_CORRECTED`/…）——那是
+> **学生侧/本地策略接受一条绑定**的来源轴，与 `verdictSource`（**审计裁定**的来源）不是
+> 一回事，写侧不要混用，更不要把它折进三元组。
 
 `judgedAtEpochMillis`：裁定发生时间，epoch millis，与既有 `reviewedAtEpochMillis` 同口径。
 
@@ -94,6 +101,14 @@
 | （无此列） | `judgedAtEpochMillis` | **表里没有逐行时间戳**，只能取轮次日（文件名日期 00:00 UTC）：09-25→`1790294400000`、10-02→`1790899200000`、10-04→`1791072000000`、10-06→`1791244800000` |
 | `suggested_node_slug` | （不落三元组） | 只在 `REBIND` 非空（`content_audit_2026-09-25.protocol.md:18`）；改绑动作属 `material_rebind.csv` 那条链，不是三元组字段 |
 | `material_slug` + `current_node_slug` | 定位绑定 | 三元组挂在「该材料绑到 `current_node_slug` 的那条绑定」上——**前提是该绑定仍在**（见下） |
+
+**`NONE` 行的落账读法（本轮独立复核发现的口径偏差，已修正）**：`verdict` 逐字直落，所以
+CSV 的 `NONE` 语义就是字段的 `NONE` 语义。四轮实读：09-25 的 23 行 `NONE` 证据**全部**是
+「留人工／需人工拆分／落点留人工／需人工决定建点·改绑·并点／交人工裁定」——**不是"该绑定
+应删除"**；10-02 的 2 行是题干残片、10-06 的 20 行里 19 行是题干残片／依赖未收录的图，另 1 行
+（`math-ncifangcha-gongshi`）是纯公式卡、包内无承接节点（属 §3 的用法②）。两类都落在 §3 的
+`NONE` 定义里，但**读侧不得把 `NONE` 当解绑指令**；09-25 的 23 行里已有 **6 行**（按"最终效力
+轮"计：10-02 2 行、10-04/10-06 4 行）在后续轮次被改成 `KEEP`/`REBIND`，证明 `NONE` 不是终局。
 
 **落账前提：被判的那条绑定必须还在现包里**。三元组描述"这条绑定被如何裁定"，所以
 `(material_slug, current_node_slug)` 必须**仍是**该材料在当前包里的绑定。实测（19 卷真实
@@ -141,8 +156,15 @@
 登记 §7.5）。若写侧想要"这条绑定经历过一次改绑"的历史语义，那是新词表值/新字段的事，
 需要再 bump `schemaVersion`（§2），不能借用 `REBIND`。
 
+**`to_node_slug` 也已不是现绑的 17 行同样不可落账**（本轮复核复算：`from_gone` 1585 /
+`to_bound` **1568** / `to_gone` **17**，占 1.1%）。这 17 行的材料仍在包内、当前绑在别的
+节点 slug 上（未逐行追因；已排除"节点改名"解释——17/17 的 `to_node_slug` 仍存在于现行节点清单，
+`point_rename.csv` 无对应改名映射）。它们连"新绑定"都没有落点，与 §4.1 的 445 行同法记进
+未落账/需重裁清单（§7.4），**不得照 `evidence` 猜一个落点**。
+
 **两源合并必须先排序**（实读重叠）：1569 条材料里 729 条也出现在审计轮次中——其中
-457 条在审计里是 `REBIND`、**316 条是 `KEEP`**、9 条是 `NONE`；只有 386 组
+457 条在审计里是 `REBIND`、**316 条是 `KEEP`**、9 条是 `NONE`（三档**非互斥**：53 条材料
+跨 ≥2 档，故 457+316+9=782 > 729，不是划分）；只有 386 组
 `(material, from_node)` 与审计行的 `(material, current_node)` 重合。也就是说
 「改绑表」与「审计表」看的是不同时间的同一个绑定，**谁覆盖谁必须按时间定，不能按文件顺序**。
 
@@ -201,6 +223,11 @@ codec 允许材料引用包内来源（`pack.sources + sidecar.sources`），但
   **写侧规则（建议，落账前钉死）**：改绑一条带三元组的绑定时，必须显式重写三元组
   ——要么清空（回到"未裁定"）、要么由裁定链给出针对新目标的新裁定；
   不允许让 `rebind_materials.py` 原样搬字段。
+- **装机快路径会让"只写侧车、不 bump manifest"的落账静默失效**（本轮复核发现）：
+  `BundledKnowledgeBaseInstaller.kt:43-51` 在 `recorded.contentVersion == manifest.contentVersion`
+  时直接返回，**不解析也不调和**；逐包同口径（`:98-101`）。把三元组写进真实侧车但
+  不同时 bump `moe-2025-update-manifest.json` 的 `contentVersion`，字段在真机上等于没发生。
+  落账清单必须把「改侧车 + bump contentVersion」当成一个动作。
 - 真实包落账后，3D 的验收门（阶段 5 前）才可能真正通过；本轮交付只到
   **载体 + 端到端 drill + 本契约**。
 

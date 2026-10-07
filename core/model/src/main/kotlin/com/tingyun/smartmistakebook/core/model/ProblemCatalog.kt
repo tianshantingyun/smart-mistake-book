@@ -204,10 +204,13 @@ enum class KnowledgeMaterialNodeRole {
  * What an audit decided about one teaching-material binding (D-0 binding-credibility field).
  *
  * `KEEP` leaves the binding as is, `REBIND` marks it as due for a different knowledge point, and
- * `NONE` records that the binding's content belongs to no knowledge point at all (keep at the
- * current node and rebind both fail), so the binding should not be kept. The three values are the
- * ones the content-audit CSVs already use, so this vocabulary is the bridge from those one-off
- * judgements to a reviewable field.
+ * `NONE` records that neither holds: the audit found the current binding unsound and produced no
+ * single rebind target — the material is a question-bank fragment with no teaching content, spans
+ * several nodes, carries two competing readings, or no node in the package can take it. `NONE`
+ * therefore hands the binding to a human or node-side decision (split, new node, rebind, merge, or
+ * retire); it is not an instruction to unbind, and a later audit round may supersede it. The three
+ * values are the ones the content-audit CSVs already use, so this vocabulary is the bridge from
+ * those one-off judgements to a reviewable field.
  *
  * Widening the vocabulary requires bumping `ReviewedTeachingMaterialSidecarJsonCodec`'s schema
  * version, so older readers keep failing closed instead of silently accepting a value they do not

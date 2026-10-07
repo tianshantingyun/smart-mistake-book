@@ -25,7 +25,10 @@ import org.junit.runner.RunWith
  *    `BundledKnowledgeBaseInstaller.reconcile`（→ `applyKnowledgeContentUpdate` →
  *    `replaceMaterialBindings`），进度表 skipped 必须为 0；
  * ② **字段在包级可见**：`KnowledgeBasePack.teachingMaterialBindings` 上同一材料的两条绑定，
- *    已审计的那条带完整三元组、未审计的那条三字段全 null；
+ *    已审计的那条带完整三元组、未审计的那条三字段全 null。
+ *    边界：此处 pack 由测试内 `base.copy(teachingMaterialBindings = sidecar.bindings)` 聚合
+ *    （与生产装载 `BundledKnowledgePackResources` 同形），生产聚合路径本身由既有测试按计数
+ *    覆盖，本用例不重复断言；
  * ③ **DB 端如实不含**：绑定表只有 `material_id / knowledge_node_id / role` 三列，
  *    裁定三元组的列**在库里连名字都不存在**。「落库即丢弃」是已裁定的边界（无消费方 → 零 schema），
  *    不是事故——所以这里把它写成断言，而不是等着它哪天变成事故。
@@ -134,7 +137,8 @@ class BindingVerdictEndToEndDrillInstrumentedTest {
                 context,
                 databaseName,
                 "SELECT material_id, knowledge_node_id, role FROM knowledge_teaching_material_node_binding " +
-                    "WHERE material_id = '${material.materialId}'",
+                    "WHERE material_id = ?",
+                arrayOf(material.materialId),
             )
             assertEquals("两条绑定都必须落库", 2, bindingRows.size)
             assertTrue(
@@ -243,8 +247,9 @@ class BindingVerdictEndToEndDrillInstrumentedTest {
         context: Context,
         databaseName: String,
         sql: String,
+        selectionArgs: Array<String>? = null,
     ): List<Map<String, String?>> = readable(context, databaseName).use { db ->
-        db.rawQuery(sql, null).use { cursor ->
+        db.rawQuery(sql, selectionArgs).use { cursor ->
             val rows = mutableListOf<Map<String, String?>>()
             while (cursor.moveToNext()) {
                 val row = mutableMapOf<String, String?>()

@@ -48,7 +48,11 @@
   断言：解析→包校验→调和全绿、字段在包级可见、**DB 端如实不含**（把「落库即丢弃」写成断言而非事故）。
 - **契约文档** `docs/research/2026-10-07-d0-binding-verdict-contract.md`：键名/类型/词表/all-or-none/schemaVersion=3、
   **CSV→字段映射**（`content_audit_*.csv` 的 verdict→`verdict`、来源→`MODEL_AUDIT`、审计运行时间→时间戳；
-  `material_rebind.csv` → REBIND）、两条交接：**KB 写侧需在 promote 门加 binding 键集守卫**、真实包落账走 D-5 窗口。
+  `material_rebind.csv` 不落 `REBIND`——见 §4.2）、两条交接：**KB 写侧需在 promote 门加 binding 键集守卫**、真实包落账走 D-5 窗口。
+  > **口径更正（2026-10-08 修复轮）**：本行原写「`material_rebind.csv` → REBIND」**作废**——该表是
+  > 「已执行改绑」，被判定的那条绑定在现包里已不存在，把 `REBIND` 写在新绑定上与词表语义相反；
+  > 正确映射见契约 §4.2（「不写三元组」或「`KEEP`+`MIGRATION`」二选一，D-5 钉死）。另 §4.1 的
+  > `NONE` 语义也已按四轮 CSV 实读修正（见契约 §3/§4.1）。
 - 登记：DB 落库（待消费方）、Python 键集守卫（KB 线）、字段真实填充（KB 写入窗口）。
 - 门：全量 JVM + DB 定向仪器化（drill 类）。
 
