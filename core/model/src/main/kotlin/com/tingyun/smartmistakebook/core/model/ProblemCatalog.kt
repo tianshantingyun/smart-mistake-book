@@ -200,6 +200,32 @@ enum class KnowledgeMaterialNodeRole {
     PREREQUISITE,
 }
 
+/**
+ * What an audit decided about one teaching-material binding (D-0 binding-credibility field).
+ *
+ * `KEEP` leaves the binding as is, `REBIND` marks it as due for a different knowledge point, and
+ * `NONE` records that the binding's content belongs to no knowledge point at all (keep at the
+ * current node and rebind both fail), so the binding should not be kept. The three values are the
+ * ones the content-audit CSVs already use, so this vocabulary is the bridge from those one-off
+ * judgements to a reviewable field.
+ *
+ * Widening the vocabulary requires bumping `ReviewedTeachingMaterialSidecarJsonCodec`'s schema
+ * version, so older readers keep failing closed instead of silently accepting a value they do not
+ * understand.
+ */
+enum class KnowledgeMaterialBindingVerdict {
+    KEEP,
+    REBIND,
+    NONE,
+}
+
+/** Who produced a [KnowledgeMaterialBindingVerdict]: an audit run, a person, or a migration. */
+enum class KnowledgeMaterialBindingVerdictSource {
+    MODEL_AUDIT,
+    USER_DECISION,
+    MIGRATION,
+}
+
 data class KnowledgeNode(
     val id: String,
     val subject: SubjectKind,

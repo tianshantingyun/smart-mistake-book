@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdict
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdictSource
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialDerivationKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
@@ -31,6 +33,11 @@ object KnowledgeTeachingMaterialContract {
     private val bindingRoles = enumValues<KnowledgeMaterialNodeRole>().mapTo(hashSetOf()) {
         it.name
     }
+    private val bindingVerdicts = enumValues<KnowledgeMaterialBindingVerdict>().mapTo(hashSetOf()) {
+        it.name
+    }
+    private val bindingVerdictSources = enumValues<KnowledgeMaterialBindingVerdictSource>()
+        .mapTo(hashSetOf()) { it.name }
 
     fun validate(
         materials: List<KnowledgeTeachingMaterialRecord>,
@@ -117,6 +124,7 @@ object KnowledgeTeachingMaterialContract {
             val node = nodesById[binding.knowledgeNodeId]
                 ?: invalid("Teaching-material binding references an unknown knowledge point")
             known(binding.role, "binding.role", bindingRoles)
+            validateBindingVerdict(binding)
             requireValid(
                 node.subject == material.subject &&
                     node.granularity == KnowledgeNodeGranularity.ATOMIC.name &&
@@ -147,6 +155,29 @@ object KnowledgeTeachingMaterialContract {
     ): String? = runCatching {
         validate(listOf(material), bindings, nodes, sources)
     }.exceptionOrNull()?.message
+
+    /**
+     * The optional D-0 binding-verdict triple is all-or-none: a half-written judgement would leave
+     * a reader unable to tell "never judged" from "judged, field lost on the way", and the second
+     * state is not representable. The vocabulary and the timestamp are checked here too, because
+     * records also arrive from paths that never went through the sidecar codec.
+     */
+    private fun validateBindingVerdict(binding: KnowledgeTeachingMaterialNodeBindingRecord) {
+        val verdict = binding.verdict
+        val verdictSource = binding.verdictSource
+        val judgedAtEpochMillis = binding.judgedAtEpochMillis
+        val presentCount = listOf(verdict, verdictSource, judgedAtEpochMillis).count { it != null }
+        requireValid(presentCount == 0 || presentCount == 3) {
+            "binding verdict fields must be all present or all absent"
+        }
+        if (verdict != null && verdictSource != null && judgedAtEpochMillis != null) {
+            known(verdict, "binding.verdict", bindingVerdicts)
+            known(verdictSource, "binding.verdictSource", bindingVerdictSources)
+            requireValid(judgedAtEpochMillis >= 0) {
+                "binding.judgedAtEpochMillis must not be negative"
+            }
+        }
+    }
 
     private fun validateDerivationLicense(
         material: KnowledgeTeachingMaterialRecord,

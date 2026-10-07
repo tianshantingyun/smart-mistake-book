@@ -257,10 +257,22 @@ data class KnowledgeTeachingMaterialRecord(
     val reviewedAtEpochMillis: Long,
 )
 
+/**
+ * One reviewed teaching material bound to one knowledge point.
+ *
+ * Since teaching-sidecar schema 3 a binding may carry the optional audit-verdict triple
+ * [verdict] / [verdictSource] / [judgedAtEpochMillis]. The three are all-or-none and describe how
+ * the *binding itself* was judged; they add no assessment authority to the material. Bindings
+ * decoded from schema 1/2 sidecars leave all three null, and the durable binding table does not
+ * persist them yet (no consumer exists).
+ */
 data class KnowledgeTeachingMaterialNodeBindingRecord(
     val materialId: String,
     val knowledgeNodeId: String,
     val role: String,
+    val verdict: String? = null,
+    val verdictSource: String? = null,
+    val judgedAtEpochMillis: Long? = null,
 )
 
 data class KnowledgeGroundingRequestRecord(

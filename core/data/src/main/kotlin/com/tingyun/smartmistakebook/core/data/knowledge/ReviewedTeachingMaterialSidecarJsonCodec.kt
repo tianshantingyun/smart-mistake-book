@@ -4,6 +4,8 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialFinge
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSourceSeedRecord
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdict
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdictSource
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialDerivationKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
 import com.tingyun.smartmistakebook.core.model.KnowledgeSourceContentUsePolicy
@@ -37,10 +39,26 @@ internal data class ReviewedTeachingMaterialSidecar(
  * solutions, and derivations. A teaching record may contain a problem statement and its answer;
  * it still has no assessment, scheduling, scoring, or learning-evidence authority. Unknown
  * question-bank fields fail closed instead of silently changing the role of the knowledge corpus.
+ *
+ * Schema 3 adds one thing to schema 2: a binding may carry an optional audit-verdict triple
+ * (`verdict`, `verdictSource`, `judgedAtEpochMillis`), all-or-none, so a semantic judgement can be
+ * recorded next to the binding it judges. Schemas 1 and 2 keep their exact key sets: bindings there
+ * remain precisely `knowledgeNodeId` + `role`, and a v1/v2 sidecar that carries the triple is still
+ * rejected as schema drift.
  */
 internal object ReviewedTeachingMaterialSidecarJsonCodec {
     private const val LEGACY_SCHEMA_VERSION = 1L
-    private const val CURRENT_SCHEMA_VERSION = 2L
+    private const val PREVIOUS_SCHEMA_VERSION = 2L
+    private const val CURRENT_SCHEMA_VERSION = 3L
+    private val acceptedSchemaVersions = setOf(
+        LEGACY_SCHEMA_VERSION,
+        PREVIOUS_SCHEMA_VERSION,
+        CURRENT_SCHEMA_VERSION,
+    )
+
+    /** Optional binding keys, all-or-none, available only from schema 3 on. */
+    private val bindingVerdictKeys = setOf("verdict", "verdictSource", "judgedAtEpochMillis")
+    private val requiredBindingKeys = setOf("knowledgeNodeId", "role")
     private val safeSlug = Regex("[a-z0-9]+(?:-[a-z0-9]+)*")
     private val json = Json {
         isLenient = false
@@ -52,7 +70,7 @@ internal object ReviewedTeachingMaterialSidecarJsonCodec {
         val root = json.parseToJsonElement(rawJson).requireObject("teaching-material sidecar")
         root.requireOnlyKeys("schemaVersion", "packId", "sources", "materials")
         val schemaVersion = root.requiredLong("schemaVersion")
-        require(schemaVersion in setOf(LEGACY_SCHEMA_VERSION, CURRENT_SCHEMA_VERSION)) {
+        require(schemaVersion in acceptedSchemaVersions) {
             "Unsupported teaching-material sidecar schema $schemaVersion"
         }
         val packId = root.requiredString("packId")
@@ -64,7 +82,7 @@ internal object ReviewedTeachingMaterialSidecarJsonCodec {
         }
         val availableSources = pack.sources + sources
         val materialsWithBindings = root.requiredArray("materials").mapIndexed { index, element ->
-            element.toMaterial(pack, availableSources, index)
+            element.toMaterial(pack, availableSources, index, schemaVersion)
         }
         require(materialsWithBindings.isNotEmpty()) {
             "Teaching-material sidecar needs at least one material"
@@ -90,6 +108,7 @@ internal object ReviewedTeachingMaterialSidecarJsonCodec {
         pack: KnowledgeBasePack,
         availableSources: List<KnowledgeSourceSeedRecord>,
         index: Int,
+        schemaVersion: Long,
     ): Pair<KnowledgeTeachingMaterialRecord, List<KnowledgeTeachingMaterialNodeBindingRecord>> {
         val value = requireObject("materials[$index]")
         value.requireOnlyKeys(
@@ -139,14 +158,68 @@ internal object ReviewedTeachingMaterialSidecarJsonCodec {
         )
         val bindings = value.requiredArray("bindings").mapIndexed { bindingIndex, element ->
             val binding = element.requireObject("materials[$index].bindings[$bindingIndex]")
-            binding.requireOnlyKeys("knowledgeNodeId", "role")
-            KnowledgeTeachingMaterialNodeBindingRecord(
-                materialId = materialId,
-                knowledgeNodeId = binding.requiredString("knowledgeNodeId"),
-                role = binding.requiredEnum<KnowledgeMaterialNodeRole>("role").name,
-            )
+            binding.toBinding(materialId, schemaVersion)
         }
         return material to bindings
+    }
+
+    /**
+     * Schema 1/2 bindings keep the exact two-key contract. Only schema 3 adds the optional
+     * all-or-none verdict triple, which cannot go through [requireOnlyKeys] because that helper
+     * requires every allowed key to be present (the `parentSlug` precedent in
+     * `BundledKnowledgePackResources.toCurrentSubjectBlueprint`).
+     */
+    private fun JsonObject.toBinding(
+        materialId: String,
+        schemaVersion: Long,
+    ): KnowledgeTeachingMaterialNodeBindingRecord {
+        if (schemaVersion != CURRENT_SCHEMA_VERSION) {
+            // v1/v2 语义逐字不变：键集恰好 knowledgeNodeId + role。
+            requireOnlyKeys("knowledgeNodeId", "role")
+            return KnowledgeTeachingMaterialNodeBindingRecord(
+                materialId = materialId,
+                knowledgeNodeId = requiredString("knowledgeNodeId"),
+                role = requiredEnum<KnowledgeMaterialNodeRole>("role").name,
+            )
+        }
+        val allowedKeys = requiredBindingKeys + bindingVerdictKeys
+        val unknownKeys = keys - allowedKeys
+        require(unknownKeys.isEmpty()) {
+            "Teaching-material sidecar contains unknown keys: ${unknownKeys.sorted()}"
+        }
+        val missingKeys = requiredBindingKeys - keys
+        require(missingKeys.isEmpty()) {
+            "Teaching-material sidecar is missing keys: ${missingKeys.sorted()}"
+        }
+        val presentVerdictKeys = bindingVerdictKeys.filter(::containsKey).toSet()
+        require(presentVerdictKeys.isEmpty() || presentVerdictKeys == bindingVerdictKeys) {
+            "Teaching-material binding verdict fields must be all present or all absent, missing " +
+                (bindingVerdictKeys - presentVerdictKeys).sorted()
+        }
+        val judgedAtEpochMillis = if (presentVerdictKeys.isEmpty()) {
+            null
+        } else {
+            requiredLong("judgedAtEpochMillis")
+        }
+        require(judgedAtEpochMillis == null || judgedAtEpochMillis >= 0) {
+            "Teaching-material field judgedAtEpochMillis must not be negative"
+        }
+        return KnowledgeTeachingMaterialNodeBindingRecord(
+            materialId = materialId,
+            knowledgeNodeId = requiredString("knowledgeNodeId"),
+            role = requiredEnum<KnowledgeMaterialNodeRole>("role").name,
+            verdict = if (presentVerdictKeys.isEmpty()) {
+                null
+            } else {
+                requiredEnum<KnowledgeMaterialBindingVerdict>("verdict").name
+            },
+            verdictSource = if (presentVerdictKeys.isEmpty()) {
+                null
+            } else {
+                requiredEnum<KnowledgeMaterialBindingVerdictSource>("verdictSource").name
+            },
+            judgedAtEpochMillis = judgedAtEpochMillis,
+        )
     }
 
     private fun JsonElement.toSource(

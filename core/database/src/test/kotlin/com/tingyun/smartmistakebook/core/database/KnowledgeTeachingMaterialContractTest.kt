@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdict
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdictSource
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialDerivationKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
@@ -123,6 +125,102 @@ class KnowledgeTeachingMaterialContractTest {
         assertTrue(failure?.message.orEmpty().contains("reviewed fine-grained"))
     }
 
+    @Test
+    fun `binding verdict triple is accepted when all three fields are present`() {
+        KnowledgeTeachingMaterialContract.validate(
+            materials = listOf(material()),
+            bindings = listOf(
+                binding(
+                    verdict = KnowledgeMaterialBindingVerdict.REBIND.name,
+                    verdictSource = KnowledgeMaterialBindingVerdictSource.USER_DECISION.name,
+                    judgedAtEpochMillis = 0,
+                ),
+            ),
+            nodes = listOf(node()),
+            sources = listOf(source()),
+        )
+    }
+
+    @Test
+    fun `binding verdict triple must be all present or all absent`() {
+        val partialTriples = listOf(
+            binding(verdict = KnowledgeMaterialBindingVerdict.KEEP.name),
+            binding(verdictSource = KnowledgeMaterialBindingVerdictSource.MODEL_AUDIT.name),
+            binding(judgedAtEpochMillis = 0),
+            binding(
+                verdict = KnowledgeMaterialBindingVerdict.KEEP.name,
+                judgedAtEpochMillis = 3,
+            ),
+        )
+
+        partialTriples.forEach { partial ->
+            val failure = runCatching {
+                KnowledgeTeachingMaterialContract.validate(
+                    materials = listOf(material()),
+                    bindings = listOf(partial),
+                    nodes = listOf(node()),
+                    sources = listOf(source()),
+                )
+            }.exceptionOrNull()
+
+            assertTrue("残缺三元组必须拒：$partial", failure is DatabaseContractViolationException)
+            assertTrue(
+                failure?.message.orEmpty().contains("all present or all absent"),
+            )
+        }
+    }
+
+    @Test
+    fun `binding verdict vocabulary is enforced`() {
+        val verdicts = listOf(
+            binding(
+                verdict = "MAYBE",
+                verdictSource = KnowledgeMaterialBindingVerdictSource.MODEL_AUDIT.name,
+                judgedAtEpochMillis = 1,
+            ),
+            binding(
+                verdict = KnowledgeMaterialBindingVerdict.KEEP.name,
+                verdictSource = "GUESS",
+                judgedAtEpochMillis = 1,
+            ),
+        )
+
+        verdicts.forEach { rejected ->
+            val failure = runCatching {
+                KnowledgeTeachingMaterialContract.validate(
+                    materials = listOf(material()),
+                    bindings = listOf(rejected),
+                    nodes = listOf(node()),
+                    sources = listOf(source()),
+                )
+            }.exceptionOrNull()
+
+            assertTrue(failure is DatabaseContractViolationException)
+            assertTrue(failure?.message.orEmpty().contains("unknown value"))
+        }
+    }
+
+    @Test
+    fun `binding judged timestamp must not be negative`() {
+        val failure = runCatching {
+            KnowledgeTeachingMaterialContract.validate(
+                materials = listOf(material()),
+                bindings = listOf(
+                    binding(
+                        verdict = KnowledgeMaterialBindingVerdict.NONE.name,
+                        verdictSource = KnowledgeMaterialBindingVerdictSource.MIGRATION.name,
+                        judgedAtEpochMillis = -1,
+                    ),
+                ),
+                nodes = listOf(node()),
+                sources = listOf(source()),
+            )
+        }.exceptionOrNull()
+
+        assertTrue(failure is DatabaseContractViolationException)
+        assertTrue(failure?.message.orEmpty().contains("must not be negative"))
+    }
+
     private fun source() = KnowledgeSourceSeedRecord(
         sourceId = "source:math:reference",
         subject = "MATH",
@@ -183,9 +281,15 @@ class KnowledgeTeachingMaterialContractTest {
 
     private fun binding(
         role: String = KnowledgeMaterialNodeRole.PRIMARY.name,
+        verdict: String? = null,
+        verdictSource: String? = null,
+        judgedAtEpochMillis: Long? = null,
     ) = KnowledgeTeachingMaterialNodeBindingRecord(
         materialId = "material:math:monotonicity-method",
         knowledgeNodeId = "knowledge:math:monotonicity",
         role = role,
+        verdict = verdict,
+        verdictSource = verdictSource,
+        judgedAtEpochMillis = judgedAtEpochMillis,
     )
 }
