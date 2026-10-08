@@ -50,6 +50,8 @@
 | `LearningCoreVersions.PROJECTOR` | `projector-v11` | **`projector-v12`** | 阶段 3B 步骤三（KF-32，批次 B4）：改绑 → 重放历史（upcasting）——重放期知识归因由"写时快照"改为按当前 `practice_unit_knowledge_binding` 重派生；复合串 `learning-core-v11 → v12` | ✅ 已用（3B B4，§3.13） |
 | `LearningCoreVersions.ATTRIBUTION` | `attribution-v3` | **`attribution-v4`** | 3B B4（KF-32）：归因**来源**由写时钉死改为重放期按当前绑定重派生（历史证据重挂新节点） | ✅ 已用（3B B4，§3.13） |
 | `LearningCoreVersions.LEDGER` | `ledger-v2` | **`ledger-v3`** | 3B B4（KF-32）：账本新增补偿事件 kind `BINDING_CHANGED`（仅全量重放消费，与 `ATTEMPT_CORRECTION` 同类） | ✅ 已用（3B B4，§3.13） |
+| `LearningCoreVersions.PROJECTOR` | `projector-v12` | **`projector-v13`** | K1（3D 内核侧余件批 2）：空绑定（诚实未分类）题的重放改挂 `pseudo:<科目>` 兜底桶——重放装配侧复用既有 `ensurePseudoKnowledgeBinding` 物化伪绑定事实，与写路径逐条同规则；复合串 `learning-core-v12 → v13` | ✅ 已用（K1 批 2，§3.19） |
+| `LearningCoreVersions.ATTRIBUTION` | `attribution-v4` | **`attribution-v5`** | K1 批 2：同一根轴上的第二个来源变更——空绑定题的重放归因来源由"退回写时快照"改为"伪绑定事实重派生" | ✅ 已用（K1 批 2，§3.19） |
 
 **Wave 0 不动版本串**：本波只做回退能力、读时校验、常数收敛与清单，**没有任何投影输出变化**，
 所以 `PROJECTOR` / `EVIDENCE` / `REVIEW_PLANNER` 一律不动（改公式才 bump）。
@@ -171,6 +173,8 @@
 > 新口径下读到空集（`readCurrentKnowledgeBindingsForPracticeUnit` 无回退分支）。升级到 v59 后、该题
 > **下一次确认之前**：新写证据退到 pseudo 桶、重放重派生为空而退回写时快照——无数据损坏，下次确认即
 > 自愈；迁移不回填（应用未发布，真实存量仅开发库）。§3.13 复核登记（2026-10-02 独立复核 P2）。
+> **更新（K1 批 2，2026-10-09）**：本缺口下的重放行为已由 §3.19 取代——重放与写路径同规则改挂
+> pseudo 桶，不再"退回写时快照"；本行其余文字为 v12 当时的历史登记，保持原样。
 
 ### 3.14 阶段 3B 步骤三 · M2/M7/插眼 8（2026-10-03，批次 B5）：零算法 bump
 
@@ -232,6 +236,27 @@
 | `ModelEgress` 提示词版本（**非算法台账号段**，自记） | 批 1：`tutor-plan-v16-figure-no-preview` / `tutor-respond-v23-figure-no-preview` / `tutor-lobby-v14-figure-no-preview`；批 2：`tutor-plan-v18-figure-conditional` / `tutor-respond-v25-figure-conditional` / `tutor-lobby-v16-figure-conditional`；批 3：**不动**；批 4：`tutor-lobby-v17-export-layout-proposal`（plan/respond 不动） | 工具声明集 7→8（`GENERATE_FIGURE`）与 `START_EXPORT` 参数声明改变出网请求形状 → bump 提示词策略版本（egress 授权回执不再冒充同一提示词）。**不改变任何算法数值** | `ModelEgress.kt:53/63/79`（实际值经逐提交核对：`git show <7a44bf40\|92764af2\|d2317f5d\|c11193a8>:core/model/.../ModelEgress.kt`） | 同左栏各批门 | ➖ |
 
 > 4B 登记要点（详见完成记录 §7）：隐式 AI 标识不随 App 的 PDF 重绘走（对外分发 PDF 无标识，显式标识未落）；兼容链 GC 后可能重复付费 / PROCESS 两链幂等键不同 / 多实例并发残余；`figure-<hex>` 不符合 `validateSourceAsset` 路径不变量但无生产入口；金样为单机登记；hub 行无「解析区已跳过」说明（零 schema 无列）；提示词 v17 对真实 provider 行为未验证；微信接收 PDF 未文档化；真机走查生图段不可达。
+
+### 3.19 K1 · 3D 内核侧余件批 2 · KF-32 空绑定重放改挂 pseudo（2026-10-09）：一次投影 bump 覆盖两串
+
+> 编号说明：§3.19 由 K1 批 2 占用。**取代登记**：K1 计划 §4 按"零算法版本 bump"立预算，
+> 经裁定由本行取代（判据：①本批确实改变重放输出，而 §3.13 把旧行为登记为 v12 既定语义，
+> 静默改会让台账失真；②先例 v11→v12 属同一类重放语义变更；③不 bump 则"已按 v12 重放过的库"
+> 永远拿不到修复——重放只由版本不匹配或改绑事件触发，静默无效）。计划 §4 的原文与本次取代的
+> 理由须在 K1 完成记录里写明。
+>
+> 旧行为登记原文：3C 批 1 记录 §4.4（`docs/research/2026-10-04-stage3c-part1-completion-record.md`）
+> ——"空绑定确认会触发 `BINDING_CHANGED`，但重放派生为空后退回写时快照，历史证据仍挂旧 topic、
+> 不清零也不改挂 pseudo"；§3.13 尾注同述该回退为 v12 登记行为。本批闭合该缺口。
+>
+> **"bump 前旧投影必须已归档"由既有机制保证**：`StudyProjectionDrainer.commitFullReplay` 先
+> `archiveDisplacedSnapshot` 再重放（W0-1 ③，v8 bump 起既有），`LearningProjector.replay` 对
+> 版本不符的被替换快照强制要求"已归档"——本批不新增归档动作，也不改归档路径。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `PROJECTOR` v12 → **v13**（复合串 `learning-core-v12 → v13`）；`ATTRIBUTION` v4 → **v5**；`EVIDENCE` / `SKIP_POLICY` / `FORGETTING_CURVE` / `SELECTOR` / `LEDGER` 不动（`SELECTOR_COMPOSITE` 内嵌 `PROJECTOR`，随复合串同步为 `learning-core-v13`） | 空绑定（诚实未分类）题的**重放归属来源**变更：v12 = 重放派生为空 → 退回写时快照（历史证据留在旧知识点）；v13 = 装配侧（`StudyProjectionDrainer.readCurrentPracticeUnitBindings`）在当前绑定集合为空时**复用既有** `ensurePseudoKnowledgeBinding` 物化 `pseudo:<科目>` 事实，再走同一条单源派生 `derivePracticeUnitBindingAttributions`。输出变化：同一账本下空绑定题的历史证据由旧节点改挂 pseudo 桶，旧节点因"重放从空表累加 + 差集删除"归零，证据不丢 | 与写路径 `StudyPracticeUnitFacts.attributionSetFor` 的空绑定分支逐条同规则：taxonomy 同常量 `pseudo-evidence-v1`、绑定 revision 取该题当前 revision、科目取 `problem.subject`、时间取 revision 创建时刻（确定性 ⇒ 重放幂等）；单条伪绑定派生为权重 1.0 / `PRIMARY` / `DIRECT`，`basisRevisionId` = 该 attempt 快照自己的 revision。物化只对 attempt / 揭示两个归属消费点触发（曝光事件不读归属，不为它写行）。写路径与增量 `project()` 一行未动，`PROJECTOR` bump 是重放语义变更触发的版本门 | 触发与登记：3C 批 1 记录 §4.4；旧行为登记 §3.13（本批取代）；K1 计划 §2d；本批升级裁定（见本节前言） | JVM 定向（本批自验，`2026-10-09`）：`BindingChangedReplayDrainerTest` **5/0/0**（新增：空绑定→pseudo+旧节点归零+归档保真、两态幂等（伪绑定可见/不可见）、曝光-only 负向不物化）；`BundledKnowledgeBaseInstallerTest` **6/0/0**（含 D-5 快路径判定两态纯函数用例）；`RoomBackedStudyExperienceRepositoryTest` **31/0/0**（写路径/增量逐位不变）；`ReplayFingerprintDrainerTest` + `ProjectionArchiveDrainerTest` + `ProjectionDrainerSuccessorsCacheTest` + `ProjectionDrainerDispatcherTest` **8/0/0**；`LearningProjectorReplayFingerprintTest` + `LearningProjectorTest` + `ProjectionVersionGuardTest` **27/0/0**；`KernelWave0SchemaContractTest` **7/0/0**（定串同步 v13——版本钉用例的职责，非放宽断言）。原始命令与末行见 K1 批 2 交付报告（正式门由协调方跑） | ✅ 走既有机制：bump 触发的重放先归档被替换的 v12 投影再覆盖（`StudyProjectionDrainer` 的 archive-before-replay），`projection_archive` 只增 |
+| `LearningCoreVersions` 其余串（含 `STUDY_DATABASE_VERSION` 61） | **不动** | 同批 D-5 装机快路径回归钉：`BundledKnowledgeBaseInstaller.install()` 的"`recorded.contentVersion == manifest.contentVersion` 即跳过"判定抽成 internal 纯函数 `isInstallUpToDate`——**纯抽取、判定口径逐字未变**、零投影/计划/账本输出，零 schema | K1 计划 §2e；契约 §5.2（只写侧车不 bump → 字段静默不到设备） | `BundledKnowledgeBaseInstallerTest` **6/0/0**（新增两态纯函数用例：一致 → 跳过；不一致 / 无进度行 / 无 manifest → 全量；非恒真）；既有 `install()` 快路径/全量路径用例同绿 | ➖（无投影输出变化，不触发重放） |
 
 ## 4. 谁在什么时候写这一行
 

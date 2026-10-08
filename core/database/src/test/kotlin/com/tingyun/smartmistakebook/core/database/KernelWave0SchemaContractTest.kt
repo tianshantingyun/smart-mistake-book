@@ -249,9 +249,11 @@ class KernelWave0SchemaContractTest {
          *
          * 2026-10-02（W4-2 投影批）：同步 `projector-v11` / `evidence-v5` / `attribution-v3`。
          * 2026-10-02（3B 批次 B4/KF-32）：同步 `projector-v12` / `attribution-v4` / `ledger-v3`。
+         * 2026-10-09（K1 批 2）：同步 `projector-v13` / `attribution-v5`（空绑定重放改挂 pseudo，
+         * 台账 §3.19）——版本钉用例的职责就是随 bump 同步，不是放宽断言。
          */
         const val CURRENT_PROJECTOR_VERSION =
-            "learning-core-v12(projector-v12,evidence-v5,curve-v3,skip-v4,attribution-v4,ledger-v3)"
+            "learning-core-v13(projector-v13,evidence-v5,curve-v3,skip-v4,attribution-v5,ledger-v3)"
 
         val json = Json { ignoreUnknownKeys = true }
         /** 只认真正的列定义（反引号列名 + 类型），不认 PRIMARY KEY / FOREIGN KEY 子句里的列名。 */

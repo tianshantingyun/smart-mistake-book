@@ -30,8 +30,10 @@ data class PracticeUnitBindingFacts(
  * - `basisRevisionId` 由调用方给（写路径 = 当前 revision；重放 = 该 attempt 快照自己的 revision，
  *   历史归属锚点保留），避免重放把历史事实改写成"今天的问题版本"。
  *
- * 没有任何可用绑定时返回 null——调用方各自决定后备（写路径物化 pseudo 桶；重放退回写时快照，
- * 既有行为逐位不变）。
+ * 没有任何可用绑定时返回空列表——调用方的空绑定分支按同一条规则兜底（K1 起两侧逐条同规则：
+ * 写路径 `StudyPracticeUnitFacts.attributionSetFor` 物化伪绑定后按同规则直接造伪归属；
+ * 重放装配侧 `StudyProjectionDrainer` 物化伪绑定**事实**后经本函数派生）。空列表只剩"绑定全被
+ * 过滤"的异常形态，由调用方的 `ifEmpty` 退回写时快照。
  *
  * 消费点：`StudyPracticeUnitFacts.attributionSetFor`（写时快照）与
  * `LearningProjector` 的重放重派生（upcast）。**增量 `project()` 不调用**：写时快照在写入瞬间

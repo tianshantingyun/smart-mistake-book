@@ -128,6 +128,64 @@ class BundledKnowledgeBaseInstallerTest {
         assertTrue("释放后的重新填充不得为空列表", packs.isNotEmpty())
     }
 
+    /**
+     * D-5 快路径判定的 JVM 两态钉（K1 批 2）：判定抽成纯函数后，两态各自可断言——
+     * 一致 → 跳过（true）；不一致 → 全量（false）。上面两条 `install()` 用例钉的是同一判定
+     * 接在真实安装链路上（零解析 / 全量解析），本用例钉判定本身，两者缺一不可。
+     *
+     * 非恒真证明：把任一态写反（例如恒 return true、或漏掉 `recorded` 为 null 的分支）
+     * 本用例即红；无 `manifest`（2020 样例包这类无戳包）与无进度行都必须走全量。
+     */
+    @Test
+    fun `install fast path predicate only skips when the recorded stamp matches the manifest`() {
+        val manifest = KnowledgeUpdateManifest(
+            packId = "pack-2025",
+            contentVersion = "content-a1b2c3",
+            retired = emptyList(),
+        )
+
+        assertTrue(
+            "戳一致 → 快路径（跳过解析与调和）",
+            BundledKnowledgeBaseInstaller.isInstallUpToDate(
+                manifest,
+                ContentInstallStateRecord(
+                    packId = manifest.packId,
+                    contentVersion = manifest.contentVersion,
+                    appliedAtEpochMillis = 1L,
+                ),
+            ),
+        )
+        assertEquals(
+            "戳不一致（只写侧车不 bump）→ 必须走全量，不得静默跳过",
+            false,
+            BundledKnowledgeBaseInstaller.isInstallUpToDate(
+                manifest,
+                ContentInstallStateRecord(
+                    packId = manifest.packId,
+                    contentVersion = "content-stale",
+                    appliedAtEpochMillis = 1L,
+                ),
+            ),
+        )
+        assertEquals(
+            "没有进度行（首装）→ 全量",
+            false,
+            BundledKnowledgeBaseInstaller.isInstallUpToDate(manifest, recorded = null),
+        )
+        assertEquals(
+            "无 manifest 的包（contentVersion 空）→ 全量",
+            false,
+            BundledKnowledgeBaseInstaller.isInstallUpToDate(
+                manifest = null,
+                recorded = ContentInstallStateRecord(
+                    packId = "pack-2020",
+                    contentVersion = "",
+                    appliedAtEpochMillis = 1L,
+                ),
+            ),
+        )
+    }
+
     /** 计数面：内容更新命令数 + 进度戳写入。其余面委托给 study 侧的完整 fake。 */
     private class CountingInstallPort(val delegate: FakeStudyDatabasePort) :
         StudyDatabasePort by delegate {

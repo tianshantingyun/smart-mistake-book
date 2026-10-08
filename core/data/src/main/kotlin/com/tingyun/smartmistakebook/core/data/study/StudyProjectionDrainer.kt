@@ -231,7 +231,8 @@ internal class StudyProjectionDrainer(
                 learnerId = learnerId,
                 ledger = ledger.validPrefix.map { it.event },
                 knowledgeNodeSuccessors = knowledgeNodeSuccessors,
-                // KF-32：改绑后历史证据按当前绑定重挂（缺项/无绑定的题由投影器退回写时快照）。
+                // KF-32：改绑后历史证据按当前绑定重挂；K1：当前绑定为空的题在本侧物化
+                // pseudo 兜底事实（题不在映射里等异常输入才由投影器退回写时快照）。
                 currentBindingsByPracticeUnit = currentPracticeUnitBindings,
                 // W0-1 ①：跨版本覆盖要在重放入口声明"被替换的那份已经归档"（同版本或空库无需声明）。
                 displacedSnapshot = displacedSnapshot,
@@ -274,8 +275,16 @@ internal class StudyProjectionDrainer(
      *
      * 重放自己的 `basisRevisionId` 口径是"该 attempt 快照的 revision"（历史归属锚点），所以这里
      * 只交事实、不预先造归属——归属由投影器用每个 attempt 自己的 revision 现场派生（与写入期
-     * 同一单源函数 `derivePracticeUnitBindingAttributions`）。注意：映射对每个查询过的题都会放入
-     * 条目（无当前绑定时为空列表），投影器对空列表退回写时快照的 `ifEmpty` 兜底（既有行为逐位不变）。
+     * 同一单源函数 `derivePracticeUnitBindingAttributions`）。
+     *
+     * K1（空绑定 = 诚实未分类）：**当前绑定集合为空**的题在这里按写路径同一规则物化 pseudo
+     * 兜底桶（见 [pseudoBindingFacts]），交给投影器派生——历史证据因此改挂 `pseudo:<科目>`
+     * 而不是永远留在旧知识点上。映射对每个查询过的题都会放入条目；条目为空列表只剩"无法物化"
+     * 的异常（题没有评估记录 / 端口拒绝），投影器对空列表仍退回写时快照的 `ifEmpty` 兜底。
+     *
+     * 物化只对**证据归属的两个消费点**（attempt / 揭示）触发：曝光事件（
+     * `TutorAnswerExposureOutcome`）的投影不读归属（`LearningProjector.replay` 只对
+     * attempt/reveal 查本映射），为它写 pseudo 绑定没有消费方——重放不制造无消费者的行。
      */
     private suspend fun readCurrentPracticeUnitBindings(
         ledger: List<LearningLedgerEvent>,
@@ -291,16 +300,66 @@ internal class StudyProjectionDrainer(
             }
         }.distinct()
         if (practiceUnitIds.isEmpty()) return emptyMap()
-        return practiceUnitIds.associateWith { practiceUnitId ->
-            database.readCurrentPracticeUnitKnowledgeBindings(practiceUnitId).map { binding ->
-                PracticeUnitBindingFacts(
-                    bindingId = binding.bindingId,
-                    practiceUnitId = binding.practiceUnitId,
-                    knowledgeNodeId = binding.knowledgeNodeId,
-                    taxonomyVersion = binding.taxonomyVersion,
-                )
+        val attributionConsumers = ledger.mapNotNullTo(linkedSetOf()) { event: LearningLedgerEvent ->
+            when (event) {
+                is Attempt -> event.practiceUnitId
+                is AnswerRevealOutcome -> event.practiceUnitId
+                is TutorAnswerExposureOutcome -> null
+                is AttemptCorrection -> null
+                is ChatEvidenceSubmitted -> null
+                is BindingChanged -> null
             }
         }
+        return practiceUnitIds.associateWith { practiceUnitId ->
+            val current = database.readCurrentPracticeUnitKnowledgeBindings(practiceUnitId)
+            if (current.isNotEmpty()) {
+                current.map { binding ->
+                    PracticeUnitBindingFacts(
+                        bindingId = binding.bindingId,
+                        practiceUnitId = binding.practiceUnitId,
+                        knowledgeNodeId = binding.knowledgeNodeId,
+                        taxonomyVersion = binding.taxonomyVersion,
+                    )
+                }
+            } else if (practiceUnitId in attributionConsumers) {
+                pseudoBindingFacts(practiceUnitId)
+            } else {
+                emptyList()
+            }
+        }
+    }
+
+    /**
+     * K1：空绑定题在重放侧的 pseudo 兜底事实——与写路径
+     * `StudyPracticeUnitFacts.attributionSetFor` 的空绑定分支**逐条同规则**：
+     * 复用既有 `ensurePseudoKnowledgeBinding`（不新增第二条节点/绑定创建路径），
+     * taxonomy 用同一常量 `PSEUDO_ATTRIBUTION_TAXONOMY_VERSION`、绑定的 revision 取该题
+     * **当前** revision、科目取 problem.subject、时间取 revision 创建时刻（确定性，重放幂等）。
+     *
+     * 派生交给投影器（`derivePracticeUnitBindingAttributions`）：单条绑定 → 权重 1.0、
+     * `PRIMARY`、`DIRECT`，`basisRevisionId` 用该 attempt 快照自己的 revision——与写路径
+     * 当时的归属（同样单条伪绑定、权重 1.0、PRIMARY、DIRECT）逐条同规则。
+     *
+     * 返回空列表 = 无法物化（题没有评估记录，或端口/数据拒绝）——这不是"空绑定"形态，
+     * 交给投影器的 `ifEmpty` 异常兜底退回写时快照，不静默丢证据。
+     */
+    private suspend fun pseudoBindingFacts(practiceUnitId: String): List<PracticeUnitBindingFacts> {
+        val record = database.readPracticeUnitAssessment(practiceUnitId) ?: return emptyList()
+        val pseudo = database.ensurePseudoKnowledgeBinding(
+            practiceUnitId = practiceUnitId,
+            problemRevisionId = record.problemRevisionId,
+            taxonomyVersion = StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION,
+            subject = record.subject,
+            acceptedAtEpochMillis = record.revisionCreatedAtEpochMillis,
+        ) ?: return emptyList()
+        return listOf(
+            PracticeUnitBindingFacts(
+                bindingId = pseudo.bindingId,
+                practiceUnitId = pseudo.practiceUnitId,
+                knowledgeNodeId = pseudo.knowledgeNodeId,
+                taxonomyVersion = pseudo.taxonomyVersion,
+            ),
+        )
     }
 
     /**

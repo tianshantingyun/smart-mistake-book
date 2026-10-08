@@ -459,8 +459,10 @@ class LearningProjector(
          * practice_unit_knowledge_binding` 重派生——历史行一字不改，证据挂到今天有效的节点上。
          * 旧 bindingId / 旧节点经 [knowledgeNodeSuccessors] 的既有解析链处理（同一条链）。
          *
-         * 缺项（题不在映射里 / 映射里无可用绑定 / 默认空映射）→ 退回写时快照的归属：
-         * 既有调用方与测试逐位不变；无绑定可派生的题也不至于把历史证据整块丢掉。
+         * 缺项（题不在映射里 / 映射里的绑定全被过滤 / 默认空映射）→ 退回写时快照的归属：
+         * 既有调用方与测试逐位不变；这类输入是异常兜底，正常装配不会出现。**退化为"空绑定"的题
+         * 不落入这一支**：装配侧（`StudyProjectionDrainer`）已按写路径同一规则为它物化 pseudo
+         * 兜底事实（K1），所以历史证据改挂 `pseudo:<科目>`，不会留在旧知识点上。
          *
          * 重放的输入因此是"账本 + 当前绑定表 + 取代链"三件套，与"同一份输入 ⇒ 同一结果"一致；
          * 版本 bump 触发的重放即按此安装。
@@ -951,8 +953,11 @@ class LearningProjector(
     /**
      * KF-32：本次投影 attempt 用的归属集合。**重放**给了该题的当前绑定事实就现场重派生
      * （upcast：历史证据挂今天有效的节点，`basisRevisionId` 用该 attempt 快照自己的 revision，
-     * 历史归属锚点保留）；否则用写时快照（增量路径 = 行为逐位不变；重放里没有当前绑定的题也
+     * 历史归属锚点保留）；否则用写时快照（增量路径 = 行为逐位不变；重放里题不在映射里也
      * 退回它，不整块丢证据）。派生与写入期快照同规则（单源 `derivePracticeUnitBindingAttributions`）。
+     *
+     * K1：「诚实未分类」的空绑定题由装配侧物化 pseudo 事实后走重派生分支，**不进**下面的
+     * `ifEmpty`；该兜底只剩一种触发形态——给了绑定事实但全被过滤（blank id 的异常输入）。
      */
     private fun attributionsForAttempt(
         attempt: Attempt,
@@ -963,7 +968,7 @@ class LearningProjector(
             bindings = currentBindings,
             basisRevisionId = attempt.assessmentSnapshot.problemRevisionId,
         )
-        // 派生为空（异常输入：绑定全被过滤）时不静默丢证据，退回写时快照。
+        // 派生为空 = 绑定事实全被过滤（异常输入）时不静默丢证据，退回写时快照。
         return derived.ifEmpty { attempt.assessmentSnapshot.attributions }
     }
 
@@ -1017,6 +1022,8 @@ class LearningProjector(
         val attributions = if (currentBindings == null) {
             outcome.assessmentSnapshot.attributions
         } else {
+            // 空绑定题的 pseudo 事实由装配侧物化（K1），这里同 attempt 路径：派生为空只剩
+            // "绑定全被过滤"的异常兜底。
             derivePracticeUnitBindingAttributions(
                 bindings = currentBindings,
                 basisRevisionId = outcome.assessmentSnapshot.problemRevisionId,

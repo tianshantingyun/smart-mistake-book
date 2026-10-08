@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
 import com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent
 import com.tingyun.smartmistakebook.core.database.ProjectionBatch
 import com.tingyun.smartmistakebook.core.database.ProjectionBatchStopReason
+import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
@@ -16,6 +17,7 @@ import com.tingyun.smartmistakebook.core.model.EvidenceAttributionCertainty
 import com.tingyun.smartmistakebook.core.model.EvidenceAttributionRole
 import com.tingyun.smartmistakebook.core.model.KnowledgeEvidenceAttribution
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
+import com.tingyun.smartmistakebook.core.model.LearnerSnapshotJson
 import com.tingyun.smartmistakebook.core.model.LearningEvidence
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
@@ -24,6 +26,7 @@ import com.tingyun.smartmistakebook.core.model.LearningLedgerFingerprint
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
+import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -127,6 +130,204 @@ class BindingChangedReplayDrainerTest {
             assertEquals(LearningProjector.VERSION, drained.snapshot.checkpoint.projectorVersion)
         }
 
+    /**
+     * K1（3D 余件批 2）· KF-32 空绑定分支：一道「诚实未分类」（当前绑定为空）的题，重放后历史
+     * 证据必须改挂 `pseudo:<科目>` 兜底桶、旧知识点归零、证据不丢（旧投影整份进归档）。
+     *
+     * 消灭的失败：v12 口径下重放派生为空后退回写时快照，证据仍留在旧知识点上——复习以知识点为
+     * 核心扫描时会把本不属于它的证据算进掌握度。本用例同时钉住物化请求与写路径逐条同规则
+     * （taxonomy 同常量、revision 取该题当前 revision、科目取 problem.subject、时间取 revision
+     * 创建时刻）。
+     */
+    @Test
+    fun `empty bindings replay the historical evidence onto the pseudo bucket and reset the old node`() =
+        runBlocking {
+            val database = LedgerAwareFakeDatabase()
+            val attempt = attempt()
+            database.projectionLedger = listOf<LearningLedgerEvent>(attempt, bindingChanged()).map {
+                PersistedLearningLedgerEvent(it, LearningLedgerFingerprint.event(it))
+            }
+            database.publishLedgerHead(2)
+            // 重放前的投影 = 旧口径（写时快照归属）：证据留在旧知识点 kc-old 上——本批要修的状态。
+            val displaced = LearningProjector().replay(LEARNER_ID, listOf(attempt)).snapshot
+            assertEquals(
+                "夹具前提：旧投影的证据确实挂在旧知识点上",
+                listOf("kc-old"),
+                displaced.knowledgeMasteryStates.keys.toList(),
+            )
+            database.publishDisplacedProjection(displaced)
+            // 该题当前绑定为空（诚实未分类），但题目有评估记录——pseudo 物化的科目/revision 来源。
+            database.bindingsByPracticeUnit[attempt.practiceUnitId] = emptyList()
+            database.assessmentsByPracticeUnit[attempt.practiceUnitId] = practiceUnitAssessment()
+            val drainer = StudyProjectionDrainer(
+                database = database,
+                learnerId = LEARNER_ID,
+                learningProjector = LearningProjector(),
+                clock = fixedClock,
+            )
+
+            val drained = requireNotNull(drainer.drain())
+
+            assertEquals(
+                "空绑定题的历史证据改挂 pseudo:<科目> 兜底桶；旧知识点归零",
+                listOf("pseudo:MATH"),
+                drained.snapshot.knowledgeMasteryStates.keys.toList(),
+            )
+            val request = database.pseudoBindingRequests.single()
+            assertEquals(
+                "物化请求与写路径同规则：taxonomy 用同一常量",
+                StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION,
+                request.taxonomyVersion,
+            )
+            assertEquals("revision 取该题当前 revision", "revision-1", request.problemRevisionId)
+            assertEquals("科目取 problem.subject", "math", request.subject)
+            assertEquals(
+                "时间取 revision 创建时刻（确定性 ⇒ 重放幂等）",
+                BASE_EPOCH_MILLIS,
+                request.acceptedAtEpochMillis,
+            )
+            val observation = drained.snapshot.knowledgeMasteryStates.getValue("pseudo:MATH")
+                .independentCorrectObservations.single()
+            assertEquals(
+                "证据不丢：独立答对仍记在伪桶上，bindingId = 确定性伪绑定 id",
+                "pseudo-binding:$UNIT_ID:revision-1:pseudo-evidence-v1:pseudo:MATH",
+                observation.bindingId,
+            )
+            assertEquals(
+                "归属权重与写路径同规则（单绑定 = 1.0）",
+                1.0,
+                observation.evidenceWeight,
+                1e-9,
+            )
+            // 旧节点的证据不是被删掉：被替换的旧投影整份进归档（W0-1 ③），仍可回退查看。
+            val archived = LearnerSnapshotJson.decode(
+                database.archivedProjectionSnapshots.single().snapshotJson,
+            )
+            assertEquals(
+                "旧投影（含旧节点证据）在覆盖前已归档",
+                setOf("kc-old"),
+                archived.knowledgeMasteryStates.keys,
+            )
+            assertEquals(
+                "当前绑定表按题读一次（整本重放共用）",
+                listOf(UNIT_ID),
+                database.currentBindingReads,
+            )
+        }
+
+    /**
+     * K1：重放幂等——同一份账本在"(a) 伪绑定已可见"与"(b) 伪绑定不在当前集合（已确认零绑定的题
+     * 在真库按回执读不到它）"两种库状态下重放，掌握度/题卡逐位相同，且 bindingId 不变。
+     */
+    @Test
+    fun `replaying an empty-binding unit again is idempotent across both database states`() =
+        runBlocking {
+            val database = LedgerAwareFakeDatabase()
+            val attempt = attempt()
+            database.projectionLedger = listOf<LearningLedgerEvent>(attempt, bindingChanged()).map {
+                PersistedLearningLedgerEvent(it, LearningLedgerFingerprint.event(it))
+            }
+            database.publishLedgerHead(2)
+            database.bindingsByPracticeUnit[attempt.practiceUnitId] = emptyList()
+            database.assessmentsByPracticeUnit[attempt.practiceUnitId] = practiceUnitAssessment()
+            val drainer = StudyProjectionDrainer(
+                database = database,
+                learnerId = LEARNER_ID,
+                learningProjector = LearningProjector(),
+                clock = fixedClock,
+            )
+            val first = requireNotNull(drainer.drain())
+            assertEquals(1, database.pseudoBindingRequests.size)
+
+            // 第二次重放：(a) 首次物化的伪绑定已落库并成为"当前"（从未确认过的题 → 全部算当前）。
+            val secondChange = bindingChanged(sequence = 3, bindingChangeId = "binding-change-2")
+            database.projectionLedger = database.projectionLedger +
+                PersistedLearningLedgerEvent(secondChange, LearningLedgerFingerprint.event(secondChange))
+            database.publishLedgerHead(3)
+
+            val second = requireNotNull(drainer.drain())
+
+            assertEquals(
+                "幂等 (a)：伪绑定已可见时重放不再物化（复用同一行）",
+                1,
+                database.pseudoBindingRequests.size,
+            )
+            assertEquals(
+                "幂等 (a)：掌握度逐位相同",
+                first.snapshot.knowledgeMasteryStates,
+                second.snapshot.knowledgeMasteryStates,
+            )
+            assertEquals(
+                "幂等 (a)：题卡记忆逐位相同",
+                first.snapshot.problemMemoryStates,
+                second.snapshot.problemMemoryStates,
+            )
+
+            // 第三次重放：(b) 伪绑定不在当前集合（真库"最近一次确认那一批"读不到它）→ 重新物化，
+            // 结果仍逐位相同（bindingId 内容寻址 + INSERT IGNORE ⇒ 同一条）。
+            database.bindingsByPracticeUnit[attempt.practiceUnitId] = emptyList()
+            val thirdChange = bindingChanged(sequence = 4, bindingChangeId = "binding-change-3")
+            database.projectionLedger = database.projectionLedger +
+                PersistedLearningLedgerEvent(thirdChange, LearningLedgerFingerprint.event(thirdChange))
+            database.publishLedgerHead(4)
+
+            val third = requireNotNull(drainer.drain())
+
+            assertEquals(
+                "幂等 (b)：伪绑定不可见时重新物化（确定性同一条）",
+                2,
+                database.pseudoBindingRequests.size,
+            )
+            assertEquals(
+                "幂等 (b)：掌握度仍逐位相同",
+                first.snapshot.knowledgeMasteryStates,
+                third.snapshot.knowledgeMasteryStates,
+            )
+            assertEquals(
+                "幂等 (b)：题卡记忆仍逐位相同",
+                first.snapshot.problemMemoryStates,
+                third.snapshot.problemMemoryStates,
+            )
+        }
+
+    /**
+     * K1 触发边界（负向）：只被曝光事件引用的题没有归属消费方（`LearningProjector.replay` 只对
+     * attempt/reveal 查当前绑定映射，曝光分支不读归属），重放**不得**为它物化伪绑定——重放不制造
+     * 没有消费方的行。单位被读入映射这一步仍然发生（下一条断言即证）。
+     */
+    @Test
+    fun `an exposure-only unit without bindings does not materialize the pseudo bucket`() =
+        runBlocking {
+            val database = LedgerAwareFakeDatabase()
+            val exposure = tutorExposure(sequence = 1)
+            database.projectionLedger = listOf<LearningLedgerEvent>(exposure).map {
+                PersistedLearningLedgerEvent(it, LearningLedgerFingerprint.event(it))
+            }
+            database.publishLedgerHead(1)
+            database.assessmentsByPracticeUnit[UNIT_ID] = practiceUnitAssessment()
+            // 版本不匹配触发重放（存量库形态；无改绑事件也要走同一条 commitFullReplay）。
+            database.publishDisplacedProjection(previousVersionSnapshot(attempt()))
+            val drainer = StudyProjectionDrainer(
+                database = database,
+                learnerId = LEARNER_ID,
+                learningProjector = LearningProjector(),
+                clock = fixedClock,
+            )
+
+            val drained = requireNotNull(drainer.drain())
+
+            assertTrue("版本不匹配确实触发了重放（先归档）", database.archivedProjectionSnapshots.isNotEmpty())
+            assertEquals("该题被读入绑定映射（不是没读）", listOf(UNIT_ID), database.currentBindingReads)
+            assertTrue(
+                "曝光事件没有归属消费方 → 不物化伪绑定",
+                database.pseudoBindingRequests.isEmpty(),
+            )
+            assertTrue(
+                "曝光不改掌握度（不因空绑定而多出伪桶）",
+                drained.snapshot.knowledgeMasteryStates.isEmpty(),
+            )
+        }
+
     private fun attempt(): Attempt = Attempt(
         attemptId = "attempt-1",
         presentationId = "presentation-1",
@@ -173,13 +374,50 @@ class BindingChangedReplayDrainerTest {
         eventSequence = 1,
     )
 
-    private fun bindingChanged(): BindingChanged = BindingChanged(
-        bindingChangeId = "binding-change-1",
+    private fun bindingChanged(
+        sequence: Long = 2,
+        bindingChangeId: String = "binding-change-1",
+    ): BindingChanged = BindingChanged(
+        bindingChangeId = bindingChangeId,
         practiceUnitId = UNIT_ID,
         previousKnowledgeNodeIds = listOf("kc-old"),
         newKnowledgeNodeIds = listOf("kc-new"),
         occurredAtEpochMillis = BASE_EPOCH_MILLIS + 120_000L,
-        eventSequence = 2,
+        eventSequence = sequence,
+    )
+
+    /**
+     * K1：pseudo 物化的输入来源（与写路径读的同一行：`practice_unit.problem_revision_id` +
+     * `problem.subject` + `problem_revision.created_at`）。
+     */
+    private fun practiceUnitAssessment(): PracticeUnitAssessmentRecord = PracticeUnitAssessmentRecord(
+        practiceUnitId = UNIT_ID,
+        problemId = "problem-1",
+        problemRevisionId = "revision-1",
+        subject = "math",
+        unitTitle = "Title",
+        promptMarkdown = "Prompt",
+        questionDocumentSnapshot = null,
+        answerSpecId = null,
+        answerSpecSnapshot = null,
+        answerVerificationStatus = "UNKNOWN",
+        sourceType = "CAPTURED",
+        sourceReference = null,
+        revisionCreatedAtEpochMillis = BASE_EPOCH_MILLIS,
+    )
+
+    private fun tutorExposure(sequence: Long): TutorAnswerExposureOutcome = TutorAnswerExposureOutcome(
+        outcomeId = "exposure-outcome-$sequence",
+        exposureId = "exposure-$sequence",
+        sessionId = "session-1",
+        questionDocumentId = "question-document-1",
+        questionRevisionNumber = 1,
+        cycleOrdinal = 1,
+        turnOrdinal = 1,
+        problemRevisionId = "revision-1",
+        practiceUnitId = UNIT_ID,
+        occurredAtEpochMillis = BASE_EPOCH_MILLIS + 60_000L,
+        eventSequence = sequence,
     )
 
     private fun binding(bindingId: String, knowledgeNodeId: String) = PracticeUnitKnowledgeBindingRecord(
@@ -221,6 +459,45 @@ private class LedgerAwareFakeDatabase : FakeStudyDatabasePort() {
     val currentBindingReads = mutableListOf<String>()
     /** 表里全部行的读口——重放不该碰它（被保留的旧绑定是审计遗迹）。 */
     val rawBindingReads = mutableListOf<String>()
+    /** K1：题目评估记录（pseudo 物化的科目/当前 revision/创建时刻来源）。 */
+    val assessmentsByPracticeUnit = mutableMapOf<String, PracticeUnitAssessmentRecord>()
+    /** K1：重放侧 pseudo 物化的请求参数（与写路径逐条同规则的断言面）。 */
+    val pseudoBindingRequests = mutableListOf<PseudoBindingRequest>()
+
+    override suspend fun readPracticeUnitAssessment(
+        practiceUnitId: String,
+    ): PracticeUnitAssessmentRecord? = assessmentsByPracticeUnit[practiceUnitId]
+
+    /**
+     * K1：在既有 fake 的物化实现之上只加两件事——记录请求参数、把结果并入绑定表
+     * （真库是 INSERT IGNORE 的持久化行：首次物化后，"从未确认过"的题下次读它就是"当前"）。
+     */
+    override suspend fun ensurePseudoKnowledgeBinding(
+        practiceUnitId: String,
+        problemRevisionId: String,
+        taxonomyVersion: String,
+        subject: String,
+        acceptedAtEpochMillis: Long,
+    ): PracticeUnitKnowledgeBindingRecord? {
+        pseudoBindingRequests += PseudoBindingRequest(
+            practiceUnitId = practiceUnitId,
+            problemRevisionId = problemRevisionId,
+            taxonomyVersion = taxonomyVersion,
+            subject = subject,
+            acceptedAtEpochMillis = acceptedAtEpochMillis,
+        )
+        val record = super.ensurePseudoKnowledgeBinding(
+            practiceUnitId = practiceUnitId,
+            problemRevisionId = problemRevisionId,
+            taxonomyVersion = taxonomyVersion,
+            subject = subject,
+            acceptedAtEpochMillis = acceptedAtEpochMillis,
+        ) ?: return null
+        val existing = bindingsByPracticeUnit[practiceUnitId].orEmpty()
+        bindingsByPracticeUnit[practiceUnitId] =
+            existing.filterNot { it.bindingId == record.bindingId } + record
+        return record
+    }
 
     override suspend fun loadProjectionBatch(
         projectionName: String,
@@ -271,3 +548,12 @@ private class LedgerAwareFakeDatabase : FakeStudyDatabasePort() {
         return bindingsByPracticeUnit[practiceUnitId].orEmpty()
     }
 }
+
+/** K1：一次 pseudo 物化请求的原始参数（与写路径逐条同规则的断言载体）。 */
+private data class PseudoBindingRequest(
+    val practiceUnitId: String,
+    val problemRevisionId: String,
+    val taxonomyVersion: String,
+    val subject: String,
+    val acceptedAtEpochMillis: Long,
+)

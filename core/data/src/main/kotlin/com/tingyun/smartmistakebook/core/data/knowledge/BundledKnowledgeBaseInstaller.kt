@@ -38,18 +38,16 @@ object BundledKnowledgeBaseInstaller {
         // 信戳不验包——戳一致但 APK 内 JSON 被改动不会被发现；威胁模型内无攻击者
         // （APK 受签名保护，"每次都验"本身也只验 APK 自带资源），故接受而不加机制。
         val manifest = BundledKnowledgePackResources.updateManifest
-        if (manifest != null) {
-            val recorded = database.readContentInstallState(manifest.packId)
-            if (recorded != null && recorded.contentVersion == manifest.contentVersion) {
-                // 常驻观测：install 全程耗时。before/after 启动基线以它对比
-                // （`.jez/artifacts/r4a-startup-baseline-2026-09-22.md`）。
-                android.util.Log.d(
-                    "KnowledgeInstall",
-                    "install finished in ${elapsedMillis(installStartedAt)} ms " +
-                        "(fast path: content stamp matches, no parse, no reconcile)",
-                )
-                return@withLock
-            }
+        val recorded = manifest?.let { database.readContentInstallState(it.packId) }
+        if (isInstallUpToDate(manifest, recorded)) {
+            // 常驻观测：install 全程耗时。before/after 启动基线以它对比
+            // （`.jez/artifacts/r4a-startup-baseline-2026-09-22.md`）。
+            android.util.Log.d(
+                "KnowledgeInstall",
+                "install finished in ${elapsedMillis(installStartedAt)} ms " +
+                    "(fast path: content stamp matches, no parse, no reconcile)",
+            )
+            return@withLock
         }
         BundledKnowledgePackResources.load().forEach { pack ->
             pack.validate()
@@ -60,6 +58,20 @@ object BundledKnowledgeBaseInstaller {
             "install finished in ${elapsedMillis(installStartedAt)} ms (full path: parse + reconcile)",
         )
     }
+
+    /**
+     * D-5 装机快路径判定（纯函数，不读资源、不落库）：进度戳与随包 manifest 的
+     * `contentVersion` 一致 ⟺ 上一次调和完整跑完且随包内容未变 → 跳过全量解析与调和。
+     *
+     * 抽出来只为让这条**最易静默失效**的判定有一枚 JVM 两态回归钉：只写侧车而不 bump
+     * `contentVersion` 时判定恒真、字段静默不到设备（契约 §5.2）。判定口径与抽取前逐字一致：
+     * 无 manifest（2020 样例包这类无戳包）或没有进度行 → 走全量路径。
+     */
+    internal fun isInstallUpToDate(
+        manifest: KnowledgeUpdateManifest?,
+        recorded: ContentInstallStateRecord?,
+    ): Boolean =
+        manifest != null && recorded != null && recorded.contentVersion == manifest.contentVersion
 
     /**
      * 释放驻留的包对象图，供进程编排侧（Application）在 install() 成功返回后调用：

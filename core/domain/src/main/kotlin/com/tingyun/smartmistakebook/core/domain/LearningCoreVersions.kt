@@ -57,8 +57,19 @@ object LearningCoreVersions {
      * 触发：`BINDING_CHANGED` 补偿事件（`RoomProblemOrganizationStore.confirm` 在绑定集合
      * 真变化时追加）+ 本版本 bump（存量库无绑定事件，靠版本不匹配走同一条 `commitFullReplay`）。
      * 存量投影的归属是旧绑定下的口径 → 必须全量重放（archive 先归档）。
+     *
+     * v12 → v13（K1 3D 余件批 2，2026-10-09）：**空绑定（诚实未分类）题的重放改挂 pseudo 兜底桶**。
+     * v12 的登记行为是"重放里无当前绑定的题退回写时快照"（`algorithm-version-ledger.md` §3.13），
+     * 于是绑定被清空/从未绑定的题，其历史证据重放后仍挂在旧知识点上（KF-32 只修了非空改绑路径）。
+     * v13：重放装配侧（`StudyProjectionDrainer`）对当前绑定为空的题复用既有
+     * `ensurePseudoKnowledgeBinding` 物化 `pseudo:<科目>` 事实，再走同一条重派生——与写路径
+     * `StudyPracticeUnitFacts.attributionSetFor` 的空绑定分支逐条同规则（taxonomy 同常量、
+     * 权重 1.0 / PRIMARY / DIRECT、`basisRevisionId` 用该 attempt 快照自己的 revision）。
+     * 输出变化：同一账本在 v12 下把空绑定题的历史证据留在旧节点，v13 改挂 pseudo（旧节点归零、
+     * 证据不丢）→ 存量投影必须全量重放（`commitFullReplay` 先归档被替换快照，W0-1 ③）。
+     * 取代 K1 计划 §4 的"零 bump"预期（裁定见 `algorithm-version-ledger.md` §3.19）。
      */
-    const val PROJECTOR = "projector-v12"
+    const val PROJECTOR = "projector-v13"
     const val FORGETTING_CURVE = "curve-v3"
     const val SKIP_POLICY = "skip-v4"
 
@@ -70,8 +81,13 @@ object LearningCoreVersions {
      *
      * v3 → v4（3B 批次 B4/KF-32，2026-10-02）：归因**来源**由"写时快照钉死"改为"重放期按
      * 当前绑定重派生"（改绑后历史证据重挂新节点）。
+     *
+     * v4 → v5（K1 3D 余件批 2，2026-10-09）：同一根轴上的第二个来源变更——**空绑定题**的重放
+     * 归因来源由"退回写时快照"改为"装配侧物化 pseudo 兜底事实后按当前绑定重派生"。归因口径
+     * 集合未变（仍是 `derivePracticeUnitBindingAttributions` 的单源规则），但空集输入的归属结果
+     * 变了（旧节点 → `pseudo:<科目>`），记账须与 `PROJECTOR` 同 bump。
      */
-    const val ATTRIBUTION = "attribution-v4"
+    const val ATTRIBUTION = "attribution-v5"
     /**
      * 账本事件契约串（3B 批次 B4/KF-32，2026-10-02）：v2 → v3 新增补偿事件 kind
      * `BINDING_CHANGED`（仅全量重放消费，与 `ATTEMPT_CORRECTION` 同类）。
@@ -92,7 +108,7 @@ object LearningCoreVersions {
     const val SELECTOR = "selector-v7"
 
     const val PROJECTION_COMPOSITE =
-        "learning-core-v12($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
+        "learning-core-v13($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
     const val SELECTOR_COMPOSITE =
-        "learning-core-v12($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
+        "learning-core-v13($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }
