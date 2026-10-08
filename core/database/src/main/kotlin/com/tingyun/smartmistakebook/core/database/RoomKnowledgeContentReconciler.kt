@@ -32,10 +32,18 @@ import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
  * 不做的事：**合并的学生数据重指**。那由账本事件 `KC_MERGED` 在投影时生效，
  * 从而不重写任何历史行、重放仍逐字段可复现。
  */
-internal class RoomKnowledgeContentReconciler(private val database: StudyDatabase) {
+internal class RoomKnowledgeContentReconciler(
+    private val database: StudyDatabase,
+    /**
+     * ④-6（K1 批 1）：内容安装落点的判定缓存失效。与读路径（`RoomKnowledgeBaseStore`）
+     * **同一实例**——安装写新节点后，同进程的下一次召回必须重新核验索引完整性。
+     */
+    private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
+        KnowledgeSearchIndexCompleteness(),
+) {
 
     /** S21（2026-10-02）：内容安装期就把搜索特征建好，首访问不再触发整科重建。 */
-    private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database)
+    private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database, searchIndexCompleteness)
 
     suspend fun applyKnowledgeContentUpdate(
         command: KnowledgeContentUpdateCommand,
@@ -102,6 +110,13 @@ internal class RoomKnowledgeContentReconciler(private val database: StudyDatabas
         nodes.upserts
             .mapTo(linkedSetOf(), KnowledgeNodeSeedRecord::subject)
             .forEach { subject -> searchIndexBuilder.rebuildSubject(subject) }
+
+        // ④-6（K1 批 1）：内容安装**落点**的显式失效（计划三处之一）。上面的重建已按科
+        // 失效，这里再按"本轮有增改的科"兜一道：本函数往后若加入不经过 rebuildSubject 的
+        // 索引相关写入，判定缓存不得带着安装前的"完整"结论放行。公开写入口一处对齐。
+        nodes.upserts
+            .mapTo(linkedSetOf(), KnowledgeNodeSeedRecord::subject)
+            .forEach(searchIndexCompleteness::invalidate)
 
         return KnowledgeContentUpdateResult(
             nodesInserted = nodes.inserted,

@@ -38,7 +38,11 @@ internal object LibraryCatalogScale {
     const val CHAPTER_COUNT = 20
     const val KNOWLEDGE_LABEL_COUNT = 50
 
-    /** 夹具文本里的检索词（与 4A 批 1 的 5 万行夹具同形：每 100 行一条）。 */
+    /**
+     * 夹具文本里的检索词（与 4A 批 1 的 5 万行夹具同形：默认每 100 行一条）。
+     * 50k 扩测把"每 [seedLibraryCatalogScale] 的 `boundedTokenEvery` 行一条"参数化，
+     * 保住"100 命中"这个既有门口径不随行数漂移（5 万行 → 每 500 行一条）。
+     */
     const val UNIQUE_SEARCH_TOKEN = "独特检索词"
 
     const val FIXTURE_EPOCH_MILLIS = 1_700_000_000_000L
@@ -80,8 +84,16 @@ internal object LibraryCatalogScale {
 /**
  * 往 [StudyDatabase] 落 [count] 行目录夹具（列/文本形态见 [LibraryCatalogScale]）。
  * 调用方自己决定库是内存还是文件；两种都能用（同一写事务、同一批语句）。
+ *
+ * [boundedTokenEvery] = [LibraryCatalogScale.UNIQUE_SEARCH_TOKEN] 的注入间隔（默认 100，
+ * 既有 10k 口径不变）。50k 扩测传 500 ⇒ 仍是 **100 命中**，不能按行数等比例放大命中数、
+ * 否则"100 命中"门口径静默变成"500 命中"。
  */
-internal suspend fun StudyDatabase.seedLibraryCatalogScale(count: Int) {
+internal suspend fun StudyDatabase.seedLibraryCatalogScale(
+    count: Int,
+    boundedTokenEvery: Int = 100,
+) {
+    require(boundedTokenEvery > 0) { "boundedTokenEvery must be positive" }
     val problems = List(count) { index ->
         ProblemSeedRecord(
             problemId = "problem-$index",
@@ -96,7 +108,7 @@ internal suspend fun StudyDatabase.seedLibraryCatalogScale(count: Int) {
             problemId = "problem-$index",
             revisionNumber = 1,
             title = "分页题目 ${index + 1}",
-            problemMarkdown = if (index % 100 == 0) {
+            problemMarkdown = if (index % boundedTokenEvery == 0) {
                 "${LibraryCatalogScale.UNIQUE_SEARCH_TOKEN}$index"
             } else {
                 "普通题面 $index"
@@ -119,7 +131,7 @@ internal suspend fun StudyDatabase.seedLibraryCatalogScale(count: Int) {
             unitKey = "whole-problem",
             unitKind = "WHOLE_PROBLEM",
             title = "分页题目 ${index + 1}",
-            promptMarkdown = if (index % 100 == 0) {
+            promptMarkdown = if (index % boundedTokenEvery == 0) {
                 "${LibraryCatalogScale.UNIQUE_SEARCH_TOKEN}$index"
             } else {
                 "普通题面"

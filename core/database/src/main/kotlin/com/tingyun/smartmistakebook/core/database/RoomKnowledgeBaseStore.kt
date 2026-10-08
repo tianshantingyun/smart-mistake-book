@@ -47,9 +47,15 @@ internal class RoomKnowledgeBaseStore(
      * 装配点在 `StudyDatabaseFactory.open`；总开关在 `DenseRecallAssembly.ENABLED`（core:data）。
      */
     private val denseRerank: DenseRecallReranker? = null,
+    /**
+     * ④-6（K1 批 1）：检索索引「已核验完整」判定缓存——与内容调和/整理确认**共用同一实例**
+     * 才有意义（写侧失效、读侧命中）。装配点 `RoomStudyDatabase`。
+     */
+    private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
+        KnowledgeSearchIndexCompleteness(),
 ) {
     /** S21（2026-10-02）：整科重建与内容安装期共用（安装期预热见 `RoomKnowledgeContentReconciler`）。 */
-    private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database)
+    private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database, searchIndexCompleteness)
 
     /**
      * 插眼 8：确保伪节点存在（幂等）。与 [ensurePseudoKnowledgeBinding] 共用同一实现——
@@ -225,20 +231,45 @@ internal class RoomKnowledgeBaseStore(
      * S21（2026-10-02）：整科重建分支与**内容安装期**共用 [KnowledgeSearchIndexBuilder]——
      * 安装已经建好索引并写好锚点，正常路径下这里只做版本读取与"只补缺"检查；本函数仍是
      * 抽取规则换版/锚点缺失时的自愈兜底。
+     *
+     * ④-6（K1 批 1）：判定结论进 [searchIndexCompleteness] 缓存。**缓存命中 = 零 DAO 调用**
+     * （连锚点都不读）——"已审校=0 或 已索引≥已审校"在上一次验证后没有任何写路径失效时
+     * 恒真。失效代号在读计数**之前**观察：期间任何写路径失效都让本次结论作废（在途验证
+     * 不得把重建前/安装前的旧读落成“完整”）。
      */
     private suspend fun ensureKnowledgeSearchIndex(subject: String) {
+        val completeness = searchIndexCompleteness
+        if (completeness.isVerifiedComplete(subject)) return
+        val observedGeneration = completeness.readInvalidationGeneration(subject)
         val dao = database.problemOrganizationDao()
         val stateDao = database.knowledgeSearchIndexStateDao()
+        completeness.recordVerificationQuery(SearchIndexVerificationQueries.READ_INDEX_VERSION)
         if (stateDao.readVersion(subject) == KnowledgeSearchFeatureExtractor.INDEX_VERSION) {
+            completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_REVIEWED)
             val reviewedCount = dao.countReviewedKnowledgeNodesBySubject(subject)
-            if (reviewedCount == 0 || dao.countIndexedKnowledgeNodesBySubject(subject) >= reviewedCount) return
+            if (reviewedCount == 0) {
+                completeness.markVerifiedCompleteIfUnchanged(subject, observedGeneration)
+                return
+            }
+            completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_INDEXED)
+            if (dao.countIndexedKnowledgeNodesBySubject(subject) >= reviewedCount) {
+                completeness.markVerifiedCompleteIfUnchanged(subject, observedGeneration)
+                return
+            }
             database.withWriteTransaction {
+                completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_REVIEWED)
                 val missingCheckCount = dao.countReviewedKnowledgeNodesBySubject(subject)
+                completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_INDEXED)
                 if (dao.countIndexedKnowledgeNodesBySubject(subject) < missingCheckCount) {
                     val nodes = dao.readSubjectKnowledgeRecallCandidates(subject, missingCheckCount)
                     dao.insertKnowledgeSearchFeatures(nodes.flatMap(KnowledgeNodeEntity::toSearchFeatures))
                 }
             }
+            // ④-6：只补缺分支自身补完后的落点——补缺读的是"补缺那一刻"的已审校集，
+            // 不能替"已索引 ≥ 已审校"背书（期间新落库的节点不在这次读里；写路径失效是
+            // 那类写入的主保证）；同时清掉并发验证可能在补缺期间落下的旧判定，
+            // 让下一次召回重新数。
+            completeness.invalidate(subject)
             return
         }
         searchIndexBuilder.rebuildSubject(subject)

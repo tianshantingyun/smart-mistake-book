@@ -18,25 +18,43 @@ import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSearchIndexSta
  * 崩溃安全与旧实现逐条一致：**锚点在同一写事务内最后写**——「锚点当前」⟺「这次重建完整
  * 跑完」；崩在中途则锚点没推进，下次重跑收敛。
  */
-internal class KnowledgeSearchIndexBuilder(private val database: StudyDatabase) {
+internal class KnowledgeSearchIndexBuilder(
+    private val database: StudyDatabase,
+    /**
+     * ④-6（K1 批 1）：整科重建必须让「已核验完整」判定失效——它是索引状态的全量重写，
+     * 旧判定无论指向哪个版本的库状态都不再可信（同版本下的安装期重建也会在此换血）。
+     */
+    private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
+        KnowledgeSearchIndexCompleteness(),
+) {
 
     /**
      * 整科重建 [subject] 的搜索特征。`reviewedCount == 0` 时只写锚点（"这一科没有可召回
      * 节点"也是一个已经算过的结论，避免以后每次读都重试）。
+     *
+     * ④-6：**进入与退出（含失败）都失效判定缓存**。进入时失效防止重建事务提交前有人拿旧
+     * 判定跳过自愈；退出时失效防住"重建过程中并发验证读了重建前的完整旧索引并落了判定、
+     * 随后本事务失败回滚"的假完整——回滚不改库，那个判定却对应不上"节点已写入但无特征行"
+     * 的中间态，只有作废才会在下次召回重验。
      */
     suspend fun rebuildSubject(subject: String) {
-        val dao = database.problemOrganizationDao()
-        val stateDao = database.knowledgeSearchIndexStateDao()
-        database.withWriteTransaction {
-            val reviewedCount = dao.countReviewedKnowledgeNodesBySubject(subject)
-            if (reviewedCount > 0) {
-                dao.deleteSearchFeaturesForSubject(subject)
-                val nodes = dao.readSubjectKnowledgeRecallCandidates(subject, reviewedCount)
-                dao.insertKnowledgeSearchFeatures(nodes.flatMap(KnowledgeNodeEntity::toSearchFeatures))
+        searchIndexCompleteness.invalidate(subject)
+        try {
+            val dao = database.problemOrganizationDao()
+            val stateDao = database.knowledgeSearchIndexStateDao()
+            database.withWriteTransaction {
+                val reviewedCount = dao.countReviewedKnowledgeNodesBySubject(subject)
+                if (reviewedCount > 0) {
+                    dao.deleteSearchFeaturesForSubject(subject)
+                    val nodes = dao.readSubjectKnowledgeRecallCandidates(subject, reviewedCount)
+                    dao.insertKnowledgeSearchFeatures(nodes.flatMap(KnowledgeNodeEntity::toSearchFeatures))
+                }
+                stateDao.replace(
+                    KnowledgeSearchIndexStateEntity(subject, KnowledgeSearchFeatureExtractor.INDEX_VERSION),
+                )
             }
-            stateDao.replace(
-                KnowledgeSearchIndexStateEntity(subject, KnowledgeSearchFeatureExtractor.INDEX_VERSION),
-            )
+        } finally {
+            searchIndexCompleteness.invalidate(subject)
         }
     }
 }

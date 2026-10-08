@@ -30,18 +30,31 @@ internal class RoomStudyDatabase(
     internal val database: StudyDatabase,
     /** 可选稠密腿（Stage-3）；`null` = 纯词面，见 `DenseRecallReranker`。 */
     denseRerank: DenseRecallReranker? = null,
+    /**
+     * ④-6（K1 批 1）：检索索引「已核验完整」判定缓存——**读路径（召回）与三条写路径
+     * （内容安装 / 整科重建 / 整理确认）共用同一实例**才有意义。生产一个进程一个库实例，
+     * 所以实例内缓存 = 进程内每科一次；测试可注入自定义实例（负向/计数断言缝）。
+     */
+    private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
+        KnowledgeSearchIndexCompleteness(),
 ) : StudyDatabasePort {
     private val knowledgeResearchReviewStore = RoomKnowledgeResearchReviewStore(database)
 
-    private val problemOrganization = RoomProblemOrganizationStore(database)
+    private val problemOrganization =
+        RoomProblemOrganizationStore(database, searchIndexCompleteness)
     private val batchImports = RoomBatchImportStore(database)
     private val splitImports = RoomSplitImportStore(database)
     private val masteryOverview = RoomMasteryOverviewStore(database)
     private val librarySearch = RoomLibrarySearchStore(database)
-    private val knowledgeBase = RoomKnowledgeBaseStore(database, knowledgeResearchReviewStore, denseRerank)
+    private val knowledgeBase = RoomKnowledgeBaseStore(
+        database,
+        knowledgeResearchReviewStore,
+        denseRerank,
+        searchIndexCompleteness,
+    )
 
     /** 内容调和是独立关注点，与读取/导入分开（见 `RoomKnowledgeContentReconciler` 的 KDoc）。 */
-    private val contentReconciler = RoomKnowledgeContentReconciler(database)
+    private val contentReconciler = RoomKnowledgeContentReconciler(database, searchIndexCompleteness)
     private val backupSupport = RoomBackupSupportStore(database)
     private val studentModel = RoomStudentModelStore(database)
     private val pendingCaptures = RoomPendingCaptureStore(database)

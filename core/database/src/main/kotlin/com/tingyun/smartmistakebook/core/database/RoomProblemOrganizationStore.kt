@@ -21,6 +21,13 @@ import kotlinx.coroutines.flow.combine
 
 internal class RoomProblemOrganizationStore(
     private val database: StudyDatabase,
+    /**
+     * ④-6（K1 批 1）：整理确认的判定缓存失效。用户纠正落到 USER_CONFIRMED 的知识节点
+     * **不建特征行**（靠读时自愈补），必须让同进程的下一次召回重新核验完整性，否则
+     * 缓存命中会让新知识点永远不进召回索引。
+     */
+    private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
+        KnowledgeSearchIndexCompleteness(),
 ) {
     fun observe(
         problemId: String,
@@ -58,7 +65,7 @@ internal class RoomProblemOrganizationStore(
     ): ConfirmProblemOrganizationResult {
         validateCommand(command)
         require(learnerId.isNotBlank()) { "learnerId must not be blank" }
-        return database.withWriteTransaction {
+        val result = database.withWriteTransaction {
             val dao = database.problemOrganizationDao()
             val expectedReceipt = command.toReceiptEntity()
             dao.readReceipt(command.commandId)?.let { existing ->
@@ -259,6 +266,16 @@ internal class RoomProblemOrganizationStore(
                 receipt = expectedReceipt.toRecord(),
             )
         }
+        // ④-6（K1 批 1）：整理确认的判定缓存失效（**提交后**才失效——失效在前会把
+        // "提交前旧判定"的并发验证放行，落成假完整）。本命令携带的知识节点是
+        // USER_CONFIRMED 的（用户纠正）或独占该节点事实的，它们此刻没有特征行；
+        // 下一次召回必须重新核验并走只补缺，否则新知识点永远不进召回索引。
+        // 幂等重放（created=false 的提前返回）也走同一条保守失效：命令携带的节点集不变，
+        // 失效只是让下一次召回多付一次核验，不影响正确性。
+        command.knowledgeNodes
+            .mapTo(linkedSetOf(), KnowledgeNodeSeedRecord::subject)
+            .forEach(searchIndexCompleteness::invalidate)
+        return result
     }
 
     /**
