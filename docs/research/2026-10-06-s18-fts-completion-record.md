@@ -67,8 +67,10 @@
 ## 5. 遗留与 UNVERIFIED
 
 1. **换 `bm25`/`rank` 待用户裁定**：设备 framework SQLite 无 FTS5 模块，属换库 + 排序语义变更，未擅动。
+   - 2026-10-08 K1 更新：**已裁：不换**（F6，2026-10-03/04；依据与两条重开条件见 `docs/kb-outstanding-research-2026-10-02.md:1193-1196`）。
 2. **50k 规模未覆盖**：本批量化在 10k 夹具（count/facet 一次 `MATERIALIZE` 成本随目录行数线性）；50k 下
    count/facet 计时未测。
+   - 2026-10-08 K1 更新：**50k 已补测**——count/ranking 两记录类（100 命中仍为门，1 万/5 万命中与排序各档只记录），读数与建库成本见 `docs/research/2026-10-08-k1-completion-record.md` §3.2。
 3. **设备原始证据未留仓**：connected XML 无 system-out，EQP 原文与计时 samples 仅存于报告/KDoc 文本。
 4. **排序 EQP 门对计划形态较严**（恰好 12 条 `MATERIALIZE hit_*` + `AUTOMATIC COVERING INDEX`）——换 API/SQLite
    版本可能假红（CI 同镜像暂无风险）；计数门合取④同理（未在 3.39.2 之外实测）。

@@ -37,6 +37,7 @@
 2. **KF-30 的 0.78 基线是实施决策**（分类绑定不持久化置信度，零 schema 下唯一可复核口径；同源引用接受门常量）。三条残余语义登记：(a) 恰好 0.78 的本轮提议与存量同值、永不覆盖（该值恰是门下限）；(b) 存量真实置信度不落库、一律按 0.78 估值 → 0.79 的新提议可顶掉曾以 0.99 接受的老标签（零 schema 固有不对称）；(c) 名字不同的错误 auto 标签只在预算争用时被挤出（章 3/知识点 8），预算未满则留存（add-only 既有语义）。正解 = 未来 schema 增加 accepted-confidence 列，不在本批。
 3. **KF-30 用户标签保护分支生产不可达**（调用方 `hasUserCorrection` 早退 + store 权威冲突第二道门把守）——保留为纵深防御，KDoc 已如实标注。
 4. **KF-32 空集重放语义（登记，未实现）**：空绑定确认会触发 `BINDING_CHANGED`，但重放派生为空后退回写时快照（`LearningProjector` 的 `ifEmpty` 兜底），历史证据仍挂旧 topic、不清零也不改挂 pseudo——本批只止住**新**证据的错误归属；空集重放语义与仪器化用例留 KF-32 后续。
+   - 2026-10-08 K1 更新：**已实现空绑定重放语义（改挂 pseudo 兜底）**（K1 批 2，`65f77706`；projector-v13 / attribution-v5），见 `docs/research/2026-10-08-k1-completion-record.md`。
 5. **离线纠正/用户路径的知识分类不携带 labelId**（`UserProblemClassification` 只有 dimension+displayName）→ 改后其绑定为空、由 pseudo 接管；"用户点选的真实树节点未绑定"是**既有缺口**，不在本批。
 6. **62.json 资产拷贝顺序边界**：KSP 首次生成 62.json 早于 androidTest assets 的 copy 输入快照（本地修复一次并验证两模块资产均含 62.json）；CI 未复现验证。
 7. `validateCommand` 由 `private` 改 `internal`（JVM 纯函数回归用例的测试缝；若要求移除该缝，需改为仪器化用例，代价是同类回归无法在 JVM 门提前变红）。
