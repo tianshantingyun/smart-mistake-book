@@ -957,7 +957,9 @@ class LearningProjector(
      * 退回它，不整块丢证据）。派生与写入期快照同规则（单源 `derivePracticeUnitBindingAttributions`）。
      *
      * K1：「诚实未分类」的空绑定题由装配侧物化 pseudo 事实后走重派生分支，**不进**下面的
-     * `ifEmpty`；该兜底只剩一种触发形态——给了绑定事实但全被过滤（blank id 的异常输入）。
+     * `ifEmpty`；该兜底只剩两种触发形态（都属异常输入）：① 给了绑定事实但全被过滤
+     * （blank id）；② 装配侧物化失败返回空列表（题没有评估记录，或端口/数据拒绝——见
+     * `StudyProjectionDrainer.pseudoBindingFacts` 的 KDoc）。
      */
     private fun attributionsForAttempt(
         attempt: Attempt,

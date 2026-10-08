@@ -22,6 +22,10 @@ import java.util.concurrent.CopyOnWriteArrayList
  *    节点时**不建特征行**，靠读时自愈补——少了这条失效，缓存命中会让新知识点永远
  *    不进召回索引（同进程"确认后立刻召回"用例钉住，先红后绿）。
  * 漏掉任何一处，召回就会漏掉新装节点——这是本机制唯一的正确性风险面。
+ * **另有两条会写 `knowledge_search_feature` 的路径（`ProblemOrganizationDao.importKnowledgeBase`、
+ * `KnowledgeGroundingDao.applyReviewedPack`）不需要失效**：它们把节点与其特征行在**同一事务**里
+ * 一起写入（`insertKnowledgeNodes` + `insertKnowledgeSearchFeatures`），「已索引 ≥ 已审校」
+ * 的不变量在写后仍成立；两者当前也没有 `src/main` 生产调用方（只有 DB 模块自身的定义/委托）。
  *
  * 并发防护（[markVerifiedCompleteIfUnchanged]）：验证结论必须配以**失效代号**观察——
  * 计数读完与落缓存之间若有写路径失效（安装/重建/确认），判定丢弃、下次重验。没有这道

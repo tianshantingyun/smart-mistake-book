@@ -1284,9 +1284,10 @@ internal fun buildConfirmationCommand(
     // 掌握证据（宁可诚实未分类，不可全量错绑）。这里保持空绑定，题面由后续的
     // `ensurePseudoKnowledgeBinding`（StudyReviewPlannerService / StudyPracticeUnitFacts）
     // 落 `pseudo:<SUBJECT>` 占位；自动路径与用户路径同此规则。
-    // 边界（复核 F4）：空绑定确认会触发 KF-32 的 `BINDING_CHANGED`，但重放派生为空后退回
-    // 写时快照（LearningProjector 的 ifEmpty 兜底）——历史证据仍挂旧 topic，不清零也不改挂
-    // pseudo；本批只止住新证据的错误归属。空集重放语义留 KF-32 后续（含仪器化用例）。
+    // 空绑定的重放语义（K1，2026-10-08/09 已实现）：空绑定确认会触发 KF-32 的
+    // `BINDING_CHANGED`，重放时该题的当前绑定为空 → 装配侧（StudyProjectionDrainer）按写路径
+    // 同规则物化伪绑定事实，历史证据改挂 `pseudo:<SUBJECT>` 兜底桶、旧知识点状态归零、
+    // 证据进归档不丢——不再退回写时快照。
     val knowledgeBindings = atomicNodePairs.map { (atom, node) ->
         val attributedSteps = attributedStepCounts[atom.referenceId] ?: 0
         KnowledgeBindingSeedRecord(

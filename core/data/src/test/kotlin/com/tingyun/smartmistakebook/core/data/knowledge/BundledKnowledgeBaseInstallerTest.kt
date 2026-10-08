@@ -156,7 +156,7 @@ class BundledKnowledgeBaseInstallerTest {
             ),
         )
         assertEquals(
-            "戳不一致（只写侧车不 bump）→ 必须走全量，不得静默跳过",
+            "戳不一致（随包已换版、进度戳落后）→ 必须走全量，不得静默跳过",
             false,
             BundledKnowledgeBaseInstaller.isInstallUpToDate(
                 manifest,
