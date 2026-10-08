@@ -9,7 +9,7 @@
 
 | D 条 | 验收要求 | 现状 | 证据 |
 |---|---|---|---|
-| **D-0** 绑定可信度字段（前置） | 为绑定增加可信度载体（**裁定状态 + 来源 + 时间戳**），使语义判定可落账、可回归 | ❌ **未实现**（侧车 binding 白名单仍只有两键） | `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/ReviewedTeachingMaterialSidecarJsonCodec.kt:142` `binding.requireOnlyKeys("knowledgeNodeId", "role")`；台账裁决 27 §四条工作流 1（`:2315-2318`）；`docs/kb-outstanding-research-2026-10-02.md:823`「**字段实现属内核线，本报告不另派**」（KB 侧先产 CSV 承接） |
+| **D-0** 绑定可信度字段（前置） | 为绑定增加可信度载体（**裁定状态 + 来源 + 时间戳**），使语义判定可落账、可回归 | ✅ **内核侧已落（2026-10-08）**：载体（侧车 schemaVersion 3 可选三元组）+ 端到端 drill + 写侧契约；**包内落账（验收门本体）待 KB 线 D-5 写入窗口** | `bb045d54`/`3f7fe776` + 修复轮，完成记录 `docs/research/2026-10-07-d0-binding-verdict-completion-record.md`；codec 版本门 `ReviewedTeachingMaterialSidecarJsonCodec.kt:176-222`（v1/v2 仍 `requireOnlyKeys("knowledgeNodeId","role")`，v3 专属三元组分支）；台账裁决 27 §四条工作流 1（工作树版 `:2315-2318`）；`docs/kb-outstanding-research-2026-10-02.md:823`「**字段实现属内核线，本报告不另派**」（KB 侧先产 CSV 承接） |
 | **D-0b** 块池去向核实 | 118,272 对账无丢料 | ✅ 已完成（2026-10-01；232/232 判定 0 红） | 主线 `:46`；`docs/kb-outstanding-research-2026-10-02.md:824`（遗留：机械 SKIP 57.4% 从未抽检 → 该报告 ⑤-4） |
 | **D-1** 语义绑定核验 | 语义精确率 **≥0.95**（裁决 29；标注者为模型、单一来源须如实标注） | ❌ **未通过**（只有抽样点估计 ≈89.4% 精确率；全量逐条未做；无任何 ≥0.95 结论） | `docs/research/binding-audit-sampling-2026-10-03.md`（240 抽：KEEP 203 / REBIND 36 / NONE 1；复核 36 AGREE / 1 DISAGREE；全库错误率点估计 ≈10.65%）；`docs/kb-batch4-part1-2026-10-03.md:159-161`（「绑定审计的**全量逐条**未做——本轮是抽样估计」） |
 | **D-2** 结构完整性 | 近重复/超配/容量拦下/历史 type 裁决（实测口径：18 对 / 2,754 / 91 / 667） | ❌ 施工清单未做 | `docs/kb-outstanding-research-2026-10-02.md:826`（①-2/①-3/①-4/①-5 即施工清单） |
@@ -34,3 +34,16 @@
   本记录承载；待该文件提交后由任一会话折入台账（或用户裁定后由本会话折入）。
 - 备选批次（**需用户点头**，按阶段 5 计划 §0）：转 **3C 前半**（KF-29 监测管线 + KF-30/KF-07；
   KF-31 按「数据达标才开」不启）；或承接 **D-0**（推进 3D 硬门，但需先与 KB 线定写入窗口）。
+
+## 4. 2026-10-08 更新：D-0 内核侧完成；阶段 5 维持挂起
+
+- **D-0 内核侧已落**（§1 表内已改；提交 `bb045d54`/`3f7fe776` + 修复轮，完成记录
+  `docs/research/2026-10-07-d0-binding-verdict-completion-record.md`）：侧车 schemaVersion 3 的
+  可选裁定三元组（all-or-none / 词表 / 时间戳）、端到端 drill（真 installer/reconciler/DB，
+  「DB 端如实不含」为显式断言）、写侧契约（CSV→字段映射 + 两条交接 + 登记）。零 schema。
+- **D-0 的验收门本体未过**：判定要**随绑定进真实包**才叫「可落账、可回归」——这属 KB 线
+  D-5 写入窗口（落账清单必须含「改侧车 + bump `contentVersion`」一条动作，契约 §5.2）。
+- **D-1 / D-2 / D-3 状态不变**（均未过）→ **阶段 5 维持挂起**，主线 3D/5 行同批更新。
+- 门证据（D-0 综合门）：全量 JVM **2414/0/0/0**；`core:data` 定向仪器化 **4/0/0/0**；
+  DB 全套 **230/0/0/0**、app 全套 **53/0/0**（首两轮在劣化模拟器上各有 1–2 红，**冷启
+  `-wipe-data` 后同一代码全绿**——归因与恢复证据见完成记录 §4）；R8 见完成记录。
