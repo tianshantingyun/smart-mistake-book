@@ -141,4 +141,23 @@ class KnowledgeSearchIndexCompletenessTest {
             cache.issuedVerificationQueries.toList(),
         )
     }
+
+    @Test
+    fun verificationQuerySeamStopsAppendingAtTheCap() {
+        val cache = KnowledgeSearchIndexCompleteness()
+        repeat(KnowledgeSearchIndexCompleteness.MAX_ISSUED_QUERY_RECORDS + 8) {
+            cache.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_REVIEWED)
+        }
+
+        assertEquals(
+            "计数缝必须有上限：超过 MAX_ISSUED_QUERY_RECORDS 后不得继续追加（防进程内无界增长）",
+            KnowledgeSearchIndexCompleteness.MAX_ISSUED_QUERY_RECORDS,
+            cache.issuedVerificationQueries.size,
+        )
+        assertEquals(
+            "截断必须保留前缀（上限内既有断言语义不变）",
+            SearchIndexVerificationQueries.COUNT_REVIEWED,
+            cache.issuedVerificationQueries.first(),
+        )
+    }
 }

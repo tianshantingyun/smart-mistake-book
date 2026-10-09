@@ -52,10 +52,19 @@ internal class KnowledgeSearchIndexCompleteness(
     private val invalidationGenerationBySubject = ConcurrentHashMap<String, Long>()
 
     /**
-     * 测试缝（仅同模块测试读）：判定路径实际下发的 SQL 流水（标签 = DAO 方法名，SQL 原文见
-     * `ProblemOrganizationDao` 的 `@Query`）。生产只写不读；条目以"每科每次写后一次验证"为界，
-     * 量级可忽略。计数断言用它——不依赖计时、也不依赖 Room 侧不存在的 `setQueryCallback`
-     * （room3 3.0.0 已核实无此 API）。
+     * 测试缝（仅同模块测试读）：判定路径**计划下发**的标签集合（标签 = DAO 方法名，
+     * SQL 原文见 `ProblemOrganizationDao` / `KnowledgeSearchIndexStateDao` 的 `@Query`）。
+     *
+     * **记录的是调用点准备下发的标签，不是真实 SQL 执行计数**——room3 3.0.0 没有
+     * `setQueryCallback`（`javap androidx.room3.RoomDatabase$Builder` 只有
+     * `setQueryCoroutineContext`），无法从 Room 侧观察真实执行；独立复核见 K1 完成记录
+     * `docs/research/2026-10-08-k1-completion-record.md` §11#8。本缝能证明的是"判定路径
+     * 走到了/没走到下发这些标签的代码位置"（调用点紧邻 DAO 调用，见
+     * `RoomKnowledgeBaseStore.ensureKnowledgeSearchIndex`）。计数断言用它——不依赖计时，
+     * 也不依赖 Room 侧不存在的钩子。
+     *
+     * 生产只写不读；追加以"每科每次写后一次验证"为界，另有 [MAX_ISSUED_QUERY_RECORDS]
+     * 封顶（达到上限即停止追加）——上限只为消灭"生产只写不读、长进程累积"这一无界增长面。
      */
     internal val issuedVerificationQueries = CopyOnWriteArrayList<String>()
 
@@ -86,7 +95,24 @@ internal class KnowledgeSearchIndexCompleteness(
     }
 
     internal fun recordVerificationQuery(daoMethod: String) {
-        issuedVerificationQueries += daoMethod
+        synchronized(lock) {
+            if (issuedVerificationQueries.size < MAX_ISSUED_QUERY_RECORDS) {
+                issuedVerificationQueries += daoMethod
+            }
+        }
+    }
+
+    companion object {
+        /**
+         * [issuedVerificationQueries] 的硬上限：达到即**停止追加**（不整体清空）。
+         *
+         * 选"停止追加"而非"清空"的理由：① 截断保留前缀，"判定路径下发过的标签序列前缀"
+         * 语义仍成立——任何真实用例的断言窗口都远小于该值；② 清空会把已有证据一起抹掉，
+         * 让"越界后读到的空列表"与"根本没有下发"不可区分，对计数断言是更坏的失败形态。
+         * 1024 ≈ 三百多次完整验证（每次最多 3 条标签），远高于任何用例需要；上限只为
+         * "生产只写不读、长进程累积"这一无界增长面兜底。
+         */
+        const val MAX_ISSUED_QUERY_RECORDS = 1024
     }
 }
 

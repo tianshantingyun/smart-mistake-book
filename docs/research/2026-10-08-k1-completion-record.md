@@ -166,6 +166,7 @@ K1 50k FTS ranking fixture cost: entries=50000 seed=52060ms markers=152ms bootst
 ## 9. 遗留与 UNVERIFIED
 
 1. **④-6 的 12.6ms 数字仍 UNVERIFIED**（S19 桌面 SQLite 探针，脚本未入库、本批未复测）；计划验收④「`KnowledgeContextRetrievalInstrumentedTest` p50/p95 不回归」——该类在批 1 门清单内且通过，但**本记录未取得其 p50/p95 数字**（落盘 XML 无 system-out）→ UNVERIFIED。
+   > 2026-10-09 更正（K2）：探针已在库 `tools/kb_perf/recall_read_cost.py`（KB 线 `ff4f8605`，含守门用例），并已于 s19 §6 复测（p50 9.534ms / p95 9.812ms）；本处『未入库』表述作废。K2 当次复跑数字见 K2 完成记录。
 2. **`setQueryCallback` 不可用**按 KDoc 记「room3 3.0.0 已核实无此 API」采信，回退计数缝；该核实本身未在本会话复跑（UNVERIFIED，属实施期探针记录）。
 3. **50k 各记录项不设门**（按计划设计）：5 万命中与排序宽集读数无自动告警；数字为 2 核模拟器 debug 口径，不当作真机/release 背书。
 4. **P95 两套口径并存**（§3.5），未统一。
