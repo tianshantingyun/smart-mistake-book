@@ -127,7 +127,7 @@ class MainJsonTests(unittest.TestCase):
             self.assertEqual(1, payload["dup_rows"])
             self.assertEqual(1, payload["reasons"]["题目派生：标题是题号/来源"])
             self.assertEqual(1, payload["reasons"]["同 (源,chunk_id) 重复行"])
-            self.assertEqual(1, payload["reasons"]["同内容指纹重复（只留首次）"])
+            self.assertEqual(1, payload["reasons"]["同内容指纹重复（只留最全）"])
             self.assertEqual(1, payload["reasons"]["空块"])
             self.assertEqual({"SKIP": 1, "JUDGE": 1, "SKIP-重复键": 1},
                              payload["by_source"]["srcA"])
