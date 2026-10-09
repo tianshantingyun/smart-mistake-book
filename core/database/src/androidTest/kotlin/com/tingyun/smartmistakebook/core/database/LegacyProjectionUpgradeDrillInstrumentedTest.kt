@@ -52,7 +52,8 @@ import org.junit.runner.RunWith
  * 归档的是**当前版本**快照（触发源是修正事件），`FullMigrationMatrixInstrumentedTest` 用空库。
  * **不存在**「真 Room 库躺旧版投影 + 真账本 → 当前代码打开 → 先归档再重放」的演练——本用例补它。
  *
- * 库形态 = 上一台二进制（v11 复合串）留下的完整存量库：
+ * 库形态 = 上一台二进制（v11 复合串）留下的存量库**投影态**（库本身按当前 63 schema 建；schema
+ * 迁移腿由 `FullMigrationMatrixInstrumentedTest` 覆盖，本用例只演练**投影版本**这条腿）：
  * - `learner_projection_snapshot` 旧版本头（checkpoint 追平账本头 5）+ 一张 v11 口径记忆卡；
  * - 5 条账本行（4 类：ATTEMPT ×2 / ANSWER_REVEAL_OUTCOME / ATTEMPT_CORRECTION /
  *   CHAT_EVIDENCE_SUBMITTED）+ 2 条 attempt 行 + 分配头 5；

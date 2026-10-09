@@ -56,8 +56,8 @@ internal class KnowledgeSearchIndexCompleteness(
      * SQL 原文见 `ProblemOrganizationDao` / `KnowledgeSearchIndexStateDao` 的 `@Query`）。
      *
      * **记录的是调用点准备下发的标签，不是真实 SQL 执行计数**——room3 3.0.0 没有
-     * `setQueryCallback`（`javap androidx.room3.RoomDatabase$Builder` 只有
-     * `setQueryCoroutineContext`），无法从 Room 侧观察真实执行；独立复核见 K1 完成记录
+     * `setQueryCallback`（`javap` 该 `RoomDatabase$Builder` 类只有 `addCallback` /
+     * `createFrom*` / `setQueryCoroutineContext`），无法从 Room 侧观察真实执行；独立复核见 K1 完成记录
      * `docs/research/2026-10-08-k1-completion-record.md` §11#8。本缝能证明的是"判定路径
      * 走到了/没走到下发这些标签的代码位置"（调用点紧邻 DAO 调用，见
      * `RoomKnowledgeBaseStore.ensureKnowledgeSearchIndex`）。计数断言用它——不依赖计时，
