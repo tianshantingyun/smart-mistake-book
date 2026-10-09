@@ -17,6 +17,7 @@ import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
 import com.tingyun.smartmistakebook.core.model.LearningLedgerEvent
 import com.tingyun.smartmistakebook.core.model.LearningLedgerFingerprint
+import com.tingyun.smartmistakebook.core.model.LearnerSnapshotJson
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
 import com.tingyun.smartmistakebook.core.model.StudyDayContext
 import com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome
@@ -137,6 +138,48 @@ class LearningProjectorReplayFingerprintTest {
             ledger.map { it::class }.toSet().size == 5,
         )
         assertAppliedFingerprintsMatchCanonical(reused, ledger)
+    }
+
+    /**
+     * K2 批 1 记录项（无门）：升级规模数字——把混合账本重放成快照后，量"升级归档会发生的那份
+     * JSON"的字节数与 encode 成本，以及全量重放的调用成本（读边界口径：与 drainer 的重放调用
+     * 逐字同形——`canonicalFingerprints` 由读边界先算好，计时只包住 `replay(...)` 调用本身；
+     * 读边界的 SHA-256 成本单独打印）。
+     *
+     * 口径说明：量的是"同一账本在 N 事件规模下重放出的投影"——升级时被归档的 displaced 快照
+     * 是**上一个二进制**留下的同规模投影，JSON 形状同形、量级相同（数值随版本口径不同）。
+     * 纯 JVM 桌面口径；真机另行登记（K2 记录）。
+     */
+    @Test
+    fun `upgrade scale archive json bytes and encode cost at ten and fifty thousand events`() {
+        listOf(10_000, 50_000).forEach { count ->
+            val ledger = mixedLedger(count)
+            val fingerprintsStartedAt = System.nanoTime()
+            val readBoundaryFingerprints = ledger.validatedFingerprints()
+            val fingerprintsMillis = (System.nanoTime() - fingerprintsStartedAt) / 1_000_000
+            val replayStartedAt = System.nanoTime()
+            val replayed = projector.replay(
+                learnerId = LEARNER_ID,
+                ledger = ledger,
+                canonicalFingerprints = readBoundaryFingerprints,
+            )
+            val replayMillis = (System.nanoTime() - replayStartedAt) / 1_000_000
+            val encodeStartedAt = System.nanoTime()
+            val json = LearnerSnapshotJson.encode(replayed.snapshot)
+            val encodeMillis = (System.nanoTime() - encodeStartedAt) / 1_000_000
+            println(
+                "K2 upgrade scale N=$count: archive-json-chars=${json.length} " +
+                    "archive-json-utf8-bytes=${json.toByteArray(Charsets.UTF_8).size} " +
+                    "encode=${encodeMillis}ms read-boundary-fingerprints=${fingerprintsMillis}ms " +
+                    "full-replay=${replayMillis}ms",
+            )
+            assertTrue("归档 JSON 必须是真产物（非空）", json.isNotEmpty())
+            assertEquals(
+                "归档 JSON 必须能逐位解回（记录项的完整性锚点）",
+                replayed.snapshot,
+                LearnerSnapshotJson.decode(json),
+            )
+        }
     }
 
     /**
