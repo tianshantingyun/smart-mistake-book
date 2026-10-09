@@ -807,7 +807,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:性染色体的传递规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传的特点及应用",
      "role": "PRIMARY"
     }
    ]
@@ -1467,7 +1467,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:同位素标记法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质",
      "role": "PRIMARY"
     }
    ]
@@ -1487,7 +1487,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质",
      "role": "PRIMARY"
     }
    ]
@@ -1507,7 +1507,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质",
      "role": "PRIMARY"
     }
    ]
@@ -1527,7 +1527,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质",
      "role": "PRIMARY"
     }
    ]
@@ -1547,7 +1547,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质",
      "role": "PRIMARY"
     }
    ]
@@ -1567,7 +1567,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
      "role": "PRIMARY"
     }
    ]
@@ -2127,7 +2127,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传信息的翻译",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:密码子",
      "role": "PRIMARY"
     }
    ]
@@ -2147,7 +2147,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传信息的翻译",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:密码子",
      "role": "PRIMARY"
     }
    ]
@@ -2167,7 +2167,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传信息的翻译",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:密码子",
      "role": "PRIMARY"
     }
    ]
@@ -2707,7 +2707,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物变异的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因突变",
      "role": "PRIMARY"
     }
    ]
@@ -3307,7 +3307,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的无机盐",
      "role": "PRIMARY"
     }
    ]
@@ -6167,7 +6167,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:启动子与终止子的辨析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:载体",
      "role": "PRIMARY"
     }
    ]
@@ -11687,7 +11687,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -11727,7 +11727,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -11747,7 +11747,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -11987,7 +11987,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:一昼夜CO2浓度变化曲线",
      "role": "PRIMARY"
     }
    ]
@@ -12307,7 +12307,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用的原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:c4植物-cam植物等特殊代谢类型",
      "role": "PRIMARY"
     }
    ]
@@ -19007,7 +19007,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:人类遗传病",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图的分析及概率的计算",
      "role": "PRIMARY"
     }
    ]
@@ -23547,7 +23547,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
      "role": "PRIMARY"
     }
    ]
@@ -25087,7 +25087,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传的特点及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:性染色体的传递规律",
      "role": "PRIMARY"
     }
    ]
@@ -28547,7 +28547,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:成熟植物细胞的吸水和失水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:质壁分离",
      "role": "PRIMARY"
     }
    ]
@@ -30827,7 +30827,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:色素",
      "role": "PRIMARY"
     }
    ]
@@ -31167,7 +31167,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -31267,7 +31267,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用的影响因素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -31387,7 +31387,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -31427,7 +31427,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -31727,7 +31727,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -31927,7 +31927,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:测定光合速率与呼吸速率的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -31947,7 +31947,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:测定光合速率与呼吸速率的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -31967,7 +31967,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:测定光合速率与呼吸速率的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -32847,7 +32847,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞增殖",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -33807,7 +33807,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:受精作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
      "role": "PRIMARY"
     }
    ]
@@ -37787,7 +37787,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的表达",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:转录",
      "role": "PRIMARY"
     }
    ]
@@ -37867,7 +37867,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传信息的翻译",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:翻译",
      "role": "PRIMARY"
     }
    ]
@@ -38927,7 +38927,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物变异的类型",
      "role": "PRIMARY"
     }
    ]
@@ -38947,7 +38947,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物变异的类型",
      "role": "PRIMARY"
     }
    ]
@@ -39267,7 +39267,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
      "role": "PRIMARY"
     }
    ]
@@ -44647,7 +44647,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的有关概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由sn求an的步骤",
      "role": "PRIMARY"
     }
    ]
@@ -51807,7 +51807,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋在神经纤维上的传导",
      "role": "PRIMARY"
     }
    ]
@@ -53087,7 +53087,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:内环境失衡与人体健康",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:胰岛素",
      "role": "PRIMARY"
     }
    ]
@@ -53527,7 +53527,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:通道蛋白与载体蛋白的辨析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:水和无机盐平衡的调节",
      "role": "PRIMARY"
     }
    ]
@@ -54127,7 +54127,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:特异性免疫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞免疫",
      "role": "PRIMARY"
     }
    ]

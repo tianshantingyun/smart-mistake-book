@@ -779,7 +779,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在求函数的最值时-一定要在定义域-使实际问题有意义的自变量的取值范围-内求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -1999,7 +1999,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三次函数的零点分布",
      "role": "PRIMARY"
     }
    ]
@@ -3819,7 +3819,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:比较函数值的大小-先将自变量转化到同一个单调区间内-然后利用函数的单调性解决",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数中ω的取值范围问题",
      "role": "PRIMARY"
     }
    ]
@@ -3899,7 +3899,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:比较函数值的大小-先将自变量转化到同一个单调区间内-然后利用函数的单调性解决",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数中ω的取值范围问题",
      "role": "PRIMARY"
     }
    ]
@@ -5699,7 +5699,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
      "role": "PRIMARY"
     }
    ]
@@ -5819,7 +5819,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -5839,7 +5839,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -5859,7 +5859,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -5879,7 +5879,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -5899,7 +5899,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -5959,7 +5959,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在求函数的最值时-一定要在定义域-使实际问题有意义的自变量的取值范围-内求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对折叠与展开问题认识不清致误",
      "role": "PRIMARY"
     }
    ]
@@ -8039,7 +8039,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列前项和的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项式系数和",
      "role": "PRIMARY"
     }
    ]
@@ -8659,7 +8659,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在求函数的最值时-一定要在定义域-使实际问题有意义的自变量的取值范围-内求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线的离心率问题",
      "role": "PRIMARY"
     }
    ]
@@ -8719,7 +8719,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:已知函数单调性求参数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项式系数的性质",
      "role": "PRIMARY"
     }
    ]
@@ -8839,7 +8839,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在求函数的最值时-一定要在定义域-使实际问题有意义的自变量的取值范围-内求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:椭圆的焦半径公式",
      "role": "PRIMARY"
     }
    ]
@@ -8859,7 +8859,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在求函数的最值时-一定要在定义域-使实际问题有意义的自变量的取值范围-内求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:双曲线焦半径公式",
      "role": "PRIMARY"
     }
    ]
@@ -11359,7 +11359,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:正方体、长方体与球",
      "role": "PRIMARY"
     }
    ]
@@ -11379,7 +11379,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:正方体、长方体与球",
      "role": "PRIMARY"
     }
    ]
@@ -11439,7 +11439,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
      "role": "PRIMARY"
     }
    ]
@@ -11459,7 +11459,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:柱体外接球公式R²=r²+h²/4",
      "role": "PRIMARY"
     }
    ]
@@ -11879,7 +11879,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:垂线法求线面角-也称直接法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间几何体中的截面问题",
      "role": "PRIMARY"
     }
    ]
@@ -12519,7 +12519,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:应用等比数列性质解题时的2个注意点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:集合的含义与表示",
      "role": "PRIMARY"
     }
    ]
@@ -12819,7 +12819,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间向量的数量积及运算律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:德摩根定律",
      "role": "PRIMARY"
     }
    ]
@@ -14459,7 +14459,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
      "role": "PRIMARY"
     }
    ]
@@ -17959,7 +17959,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在求函数的最值时-一定要在定义域-使实际问题有意义的自变量的取值范围-内求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用不等式的性质求数-式-的范围",
      "role": "PRIMARY"
     }
    ]
@@ -18139,7 +18139,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:方差与标准差",
      "role": "PRIMARY"
     }
    ]
@@ -18819,7 +18819,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复合函数定义域忽略内层值域与外层定义域关系致错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对集合表示方法的理解偏差致错",
      "role": "PRIMARY"
     }
    ]
@@ -21839,7 +21839,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:给值求角问题",
      "role": "PRIMARY"
     }
    ]
@@ -23179,7 +23179,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:正方体、长方体与球",
      "role": "PRIMARY"
     }
    ]
@@ -23659,7 +23659,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线的方向向量和平面的法向量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线的倾斜角与斜率",
      "role": "PRIMARY"
     }
    ]
@@ -23699,7 +23699,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:待定系数法-若已知函数的类型-如一次函数-二次函数等-可用待定系数法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线的方程",
      "role": "PRIMARY"
     }
    ]
@@ -25079,7 +25079,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:待定系数法-若已知函数的类型-如一次函数-二次函数等-可用待定系数法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对数运算",
      "role": "PRIMARY"
     }
    ]
@@ -25239,7 +25239,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列含绝对值问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:双曲线焦半径公式",
      "role": "PRIMARY"
     }
    ]
@@ -25519,7 +25519,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在求函数的最值时-一定要在定义域-使实际问题有意义的自变量的取值范围-内求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数建模的基本步骤",
      "role": "PRIMARY"
     }
    ]
@@ -26199,7 +26199,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角和与差的公式",
      "role": "PRIMARY"
     }
    ]
@@ -26679,7 +26679,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由图象确定y=Asin（ωx+φ）的解析式",
      "role": "PRIMARY"
     }
    ]
@@ -26999,7 +26999,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差乘等比数列求和-令-可以用错位相减法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的前n项和",
      "role": "PRIMARY"
     }
    ]
@@ -28839,7 +28839,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:子集的个数问题",
      "role": "PRIMARY"
     }
    ]
@@ -29399,7 +29399,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二次函数的解析式与图象性质",
      "role": "PRIMARY"
     }
    ]
@@ -30379,7 +30379,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解决垂直问题-利用-可将垂直问题转化为向量数量积的计算问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极化恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -30939,7 +30939,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由图象确定y=Asin（ωx+φ）的解析式",
      "role": "PRIMARY"
     }
    ]
@@ -32459,7 +32459,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分离参数法-分离参数后转化为求函数的值域-最值-问题求解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数值域的求法",
      "role": "PRIMARY"
     }
    ]
@@ -33659,7 +33659,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:子集的个数问题",
      "role": "PRIMARY"
     }
    ]
@@ -33959,7 +33959,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用-线线平行-线面平行-面面平行-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:一元二次不等式",
      "role": "PRIMARY"
     }
    ]
@@ -35799,7 +35799,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -35959,7 +35959,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的识别",
      "role": "PRIMARY"
     }
    ]
@@ -35979,7 +35979,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由图象确定函数解析式的方法",
      "role": "PRIMARY"
     }
    ]
@@ -36379,7 +36379,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:给值求角问题",
      "role": "PRIMARY"
     }
    ]
@@ -36539,7 +36539,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由图象确定y=Asin（ωx+φ）的解析式",
      "role": "PRIMARY"
     }
    ]
@@ -36779,7 +36779,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:换元法-主要用于解决已知的解析式-求函数的解析式的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:几种常见的函数模型",
      "role": "PRIMARY"
     }
    ]
@@ -38659,7 +38659,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:在棱长为的正四面体中-高-外接球半径-内切球半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
      "role": "PRIMARY"
     }
    ]
@@ -38979,7 +38979,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:v-t图像信息的读取方法",
      "role": "PRIMARY"
     }
    ]
@@ -39019,7 +39019,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -39039,7 +39039,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -39079,7 +39079,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非常规运动学图像",
      "role": "PRIMARY"
     }
    ]
@@ -39139,7 +39139,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非常规运动学图像",
      "role": "PRIMARY"
     }
    ]
@@ -39159,7 +39159,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非常规运动学图像",
      "role": "PRIMARY"
     }
    ]
@@ -40139,7 +40139,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:连接体问题",
      "role": "PRIMARY"
     }
    ]
@@ -40399,7 +40399,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物体间恰好不发生相对滑动-的临界条件是物体间恰好达到最大静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -40499,7 +40499,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -40519,7 +40519,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -40559,7 +40559,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物体间恰好不发生相对滑动-的临界条件是物体间恰好达到最大静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -40579,7 +40579,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -40899,7 +40899,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:初速度为零的几个重点推论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动与斜面的结合分析",
      "role": "PRIMARY"
     }
    ]
@@ -41659,7 +41659,7 @@
    "reviewedAtEpochMillis": 1789741931288,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:单糖",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:糖类的组成和分类",
      "role": "PRIMARY"
     }
    ]
@@ -41839,7 +41839,7 @@
    "reviewedAtEpochMillis": 1789742035158,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:烯烃",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:脂肪烃的结构和性质",
      "role": "PRIMARY"
     }
    ]
@@ -43099,7 +43099,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:芳香烃",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:苯及其同系物的性质",
      "role": "PRIMARY"
     }
    ]
@@ -44879,7 +44879,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:连锁互换问题的配子分析",
      "role": "PRIMARY"
     }
    ]
@@ -47059,7 +47059,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -47139,7 +47139,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
      "role": "PRIMARY"
     }
    ]
@@ -47219,7 +47219,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:内环境",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组织水肿的成因",
      "role": "PRIMARY"
     }
    ]
@@ -47739,7 +47739,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物质出入细胞的方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋在神经纤维上的传导",
      "role": "PRIMARY"
     }
    ]
@@ -47859,7 +47859,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物质出入细胞的方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋在神经纤维上的传导",
      "role": "PRIMARY"
     }
    ]
@@ -49439,7 +49439,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素",
      "role": "PRIMARY"
     }
    ]
@@ -52259,7 +52259,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的合成和运输",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的分选（信号肽假说）",
      "role": "PRIMARY"
     }
    ]
@@ -52339,7 +52339,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的合成和运输",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的分选（信号肽假说）",
      "role": "PRIMARY"
     }
    ]
@@ -53579,7 +53579,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的表达",
      "role": "PRIMARY"
     }
    ]
@@ -54059,7 +54059,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:限制酶",
      "role": "PRIMARY"
     }
    ]
@@ -54119,7 +54119,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因的检测与鉴定",
      "role": "PRIMARY"
     }
    ]
@@ -54139,7 +54139,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因的检测与鉴定",
      "role": "PRIMARY"
     }
    ]
@@ -56599,7 +56599,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:连锁互换问题的配子分析",
      "role": "PRIMARY"
     }
    ]
@@ -56859,7 +56859,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律中的特殊分离比问题分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -57139,7 +57139,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的特殊类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核质互作雄性不育与三系法育种",
      "role": "PRIMARY"
     }
    ]
@@ -58579,7 +58579,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传学核心概念与术语",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:母性效应与表型模拟",
      "role": "PRIMARY"
     }
    ]
@@ -58799,7 +58799,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的特殊类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:母性效应与表型模拟",
      "role": "PRIMARY"
     }
    ]
@@ -59039,7 +59039,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:连锁互换问题的配子分析",
      "role": "PRIMARY"
     }
    ]
@@ -59079,7 +59079,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分子标记与基因定位流程",
      "role": "PRIMARY"
     }
    ]
@@ -59159,7 +59159,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分子标记与基因定位流程",
      "role": "PRIMARY"
     }
    ]
@@ -59279,7 +59279,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:人类遗传病",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测和预防",
      "role": "PRIMARY"
     }
    ]
@@ -61719,7 +61719,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
      "role": "PRIMARY"
     }
    ]
@@ -63919,7 +63919,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传的特点及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:性染色体的传递规律",
      "role": "PRIMARY"
     }
    ]
@@ -64619,7 +64619,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的拓展",
      "role": "PRIMARY"
     }
    ]

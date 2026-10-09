@@ -215,7 +215,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物有共同祖先的证据",
      "role": "PRIMARY"
     }
    ]
@@ -255,7 +255,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
      "role": "PRIMARY"
     }
    ]
@@ -375,7 +375,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -395,7 +395,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -435,7 +435,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
      "role": "PRIMARY"
     }
    ]
@@ -455,7 +455,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -475,7 +475,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
      "role": "PRIMARY"
     }
    ]
@@ -535,7 +535,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物种的形成",
      "role": "PRIMARY"
     }
    ]
@@ -655,7 +655,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -675,7 +675,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -735,7 +735,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -755,7 +755,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -775,7 +775,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -1015,7 +1015,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -1155,7 +1155,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞衰老",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞凋亡",
      "role": "PRIMARY"
     }
    ]
@@ -1295,7 +1295,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:元素和化合物的相互推断-归纳总结",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-检测生物组织中的糖类-脂肪和蛋白质",
      "role": "PRIMARY"
     }
    ]
@@ -1315,7 +1315,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:元素和化合物的相互推断-归纳总结",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-检测生物组织中的糖类-脂肪和蛋白质",
      "role": "PRIMARY"
     }
    ]
@@ -2295,7 +2295,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:表型与基因型的关系",
      "role": "PRIMARY"
     }
    ]
@@ -9135,7 +9135,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:函数法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求解非点电荷电场强度的四种方法",
      "role": "PRIMARY"
     }
    ]
@@ -10795,7 +10795,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力平衡",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:整体法与隔离法在受力分析中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -12755,7 +12755,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场的基本概念和性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁感线",
      "role": "PRIMARY"
     }
    ]
@@ -14255,7 +14255,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在电场中的运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电偏转与磁偏转的比较",
      "role": "PRIMARY"
     }
    ]
@@ -20795,7 +20795,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在有界匀强磁场中的运动-临界条件",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:有界磁场中的典型边界模型",
      "role": "PRIMARY"
     }
    ]
@@ -22335,7 +22335,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:测速度的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -22475,7 +22475,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑动变阻器的限流式与分压式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏安特性曲线",
      "role": "PRIMARY"
     }
    ]
@@ -22615,7 +22615,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:楞次定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究影响感应电流方向的因素实验",
      "role": "PRIMARY"
     }
    ]
@@ -25515,7 +25515,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静电场的基本概念和规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:等势面",
      "role": "PRIMARY"
     }
    ]
@@ -25635,7 +25635,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静电场的基本概念和规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在电场中的运动",
      "role": "PRIMARY"
     }
    ]
@@ -29615,7 +29615,7 @@
    "reviewedAtEpochMillis": 1789780065665,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:结论法-串反并同-应用条件为电源内阻不为零",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:闭合电路欧姆定律",
      "role": "PRIMARY"
     }
    ]
@@ -33335,7 +33335,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:同角三角函数的基本关系",
      "role": "PRIMARY"
     }
    ]

@@ -311,7 +311,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:给值求角问题",
      "role": "PRIMARY"
     }
    ]
@@ -7791,7 +7791,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:给值求角问题",
      "role": "PRIMARY"
     }
    ]
@@ -8611,7 +8611,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:测量电源电动势和内阻的实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电源电动势和内阻",
      "role": "PRIMARY"
     }
    ]
@@ -11311,7 +11311,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:与圆有关的最值问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆的位置关系",
      "role": "PRIMARY"
     }
    ]
@@ -13071,7 +13071,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电流表的内-外接法的选择",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:测量金属丝电阻率的误差分析",
      "role": "PRIMARY"
     }
    ]
@@ -14991,7 +14991,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:小球碰撞平抛实验法步骤",
      "role": "PRIMARY"
     }
    ]
@@ -34331,7 +34331,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:程序法-遵循-局部-整体-局部-的思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路端电压与外电阻的关系",
      "role": "PRIMARY"
     }
    ]

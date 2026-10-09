@@ -99,13 +99,14 @@ class DenseRecallRerankerTest {
         assertEquals("期望次序 fixture 的查询数变了（每科 1 条）", 4, cases.size)
         assertEquals(
             "候选集条数变了（fixture 重新生成过？逐条核实后再改这里）",
-            // 2026-10-06 批次 5（234 条改绑 + 别名收口 37,365）：资产按新包重打（41,126 行 = 3,761 + 37,365）、
-            // 词面腿重出后按同一份 build/production-lexical-leg.tsv 的 query_id 行数逐位重钉
-            // （322/445/212/239，合计 1,218）。上一代（41,117 / 37,356）：316/443/211/238，合计 1,208。
-            mapOf(0 to 322, 15 to 445, 50 to 212, 90 to 239),
+            // 2026-10-10 批次 7（v11 → v12：+9 回指材料、+477 回捞材料、761 改绑 + 别名收口）：
+            // 资产按新包重打（41,157 行 = 3,761 + 37,396）、词面腿重出后按同一份
+            // build/production-lexical-leg.tsv 的 query_id 行数逐位重钉（323/447/214/235，合计 1,219）。
+            // 上一代（批次 5：41,126 / 37,365）：322/445/212/239，合计 1,218；更旧（41,117 / 37,356）：316/443/211/238。
+            mapOf(0 to 323, 15 to 447, 50 to 214, 90 to 235),
             cases.associate { it.index to it.candidates.size },
         )
-        assertEquals("候选总数变了", 1218, cases.sumOf { it.candidates.size })
+        assertEquals("候选总数变了", 1219, cases.sumOf { it.candidates.size })
         for (case in cases) {
             // 假编码器：模型件不在仓库里（见 assets/dense/README.md），喂 Python 侧记录的查询向量。
             val encoder = object : DenseQueryEncoder {

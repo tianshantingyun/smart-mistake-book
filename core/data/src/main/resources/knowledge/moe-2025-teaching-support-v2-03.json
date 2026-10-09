@@ -283,7 +283,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动各物理量间的关系",
      "role": "PRIMARY"
     }
    ]
@@ -543,7 +543,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:卫星变轨-1-2-3",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:不同高度卫星物理量的比较",
      "role": "PRIMARY"
     }
    ]
@@ -983,7 +983,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:人船模型",
      "role": "PRIMARY"
     }
    ]
@@ -1063,7 +1063,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-斜面-曲面-模型-相对运动与临界问题",
      "role": "PRIMARY"
     }
    ]
@@ -1323,7 +1323,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动性质-匀变速曲线运动-加速度恒为重力加速度-g-大小方向不变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的实验",
      "role": "PRIMARY"
     }
    ]
@@ -1343,7 +1343,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动性质-匀变速曲线运动-加速度恒为重力加速度-g-大小方向不变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的创新设计",
      "role": "PRIMARY"
     }
    ]
@@ -1483,7 +1483,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静电场的基本概念和规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在分离的电场、磁场中的运动形式",
      "role": "PRIMARY"
     }
    ]
@@ -3223,7 +3223,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动性质-匀变速曲线运动-加速度恒为重力加速度-g-大小方向不变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的实验",
      "role": "PRIMARY"
     }
    ]
@@ -3243,7 +3243,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动性质-匀变速曲线运动-加速度恒为重力加速度-g-大小方向不变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的实验",
      "role": "PRIMARY"
     }
    ]
@@ -3263,7 +3263,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动性质-匀变速曲线运动-加速度恒为重力加速度-g-大小方向不变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用单摆测重力加速度的实验",
      "role": "PRIMARY"
     }
    ]
@@ -3583,7 +3583,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量守恒定律",
      "role": "PRIMARY"
     }
    ]
@@ -4223,7 +4223,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分离提纯",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:写出除去下列气体中混有的杂质-括号内为杂质-可采取的方法",
      "role": "PRIMARY"
     }
    ]
@@ -4243,7 +4243,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:书写fe-oh-3胶体制备的化学方程式的五个易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:陌生情景下化学方程式书写技巧",
      "role": "PRIMARY"
     }
    ]
@@ -4883,7 +4883,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业上用某种氧化铝矿石-含fe2o3杂质-为原料冶炼铝的工艺流程如下",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
      "role": "PRIMARY"
     }
    ]
@@ -6403,7 +6403,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:利用电离常数-k-巧判溶液稀释中有关粒子浓度比值大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子浓度大小比较的方法",
      "role": "PRIMARY"
     }
    ]
@@ -6423,7 +6423,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:利用电离常数-k-巧判溶液稀释中有关粒子浓度比值大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子浓度大小比较的方法",
      "role": "PRIMARY"
     }
    ]
@@ -6543,7 +6543,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:利用电离常数-k-巧判溶液稀释中有关粒子浓度比值大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对数折线图四步法",
      "role": "PRIMARY"
     }
    ]
@@ -7763,7 +7763,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分离提纯",
      "role": "PRIMARY"
     }
    ]
@@ -7963,7 +7963,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素的易错点",
      "role": "PRIMARY"
     }
    ]
@@ -8663,7 +8663,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中心原子杂化类型的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素周期表与原子结构的规律",
      "role": "PRIMARY"
     }
    ]
@@ -10543,7 +10543,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:钠",
      "role": "PRIMARY"
     }
    ]
@@ -11963,7 +11963,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓硫酸",
      "role": "PRIMARY"
     }
    ]
@@ -12243,7 +12243,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:亚铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -12603,7 +12603,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:书写fe-oh-3胶体制备的化学方程式的五个易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在一定温度下-已知以下三个反应的平衡常数",
      "role": "PRIMARY"
     }
    ]
@@ -13063,7 +13063,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应",
      "role": "PRIMARY"
     }
    ]
@@ -13283,7 +13283,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氧化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氮的氧化物",
      "role": "PRIMARY"
     }
    ]
@@ -13843,7 +13843,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:丁达尔效应",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
      "role": "PRIMARY"
     }
    ]
@@ -14323,7 +14323,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关醛的定量计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
      "role": "PRIMARY"
     }
    ]
@@ -14843,7 +14843,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:漂白粉",
      "role": "PRIMARY"
     }
    ]
@@ -15683,7 +15683,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:钠",
      "role": "PRIMARY"
     }
    ]
@@ -16943,7 +16943,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在化学研究中-物质的量浓度是使用最广泛的一种表示溶液浓度的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的配制步骤",
      "role": "PRIMARY"
     }
    ]
@@ -17063,7 +17063,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:二氧化硫",
      "role": "PRIMARY"
     }
    ]
@@ -17143,7 +17143,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓硫酸",
      "role": "PRIMARY"
     }
    ]
@@ -17683,7 +17683,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的制备和性质",
      "role": "PRIMARY"
     }
    ]
@@ -18583,7 +18583,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氮气",
      "role": "PRIMARY"
     }
    ]
@@ -19063,7 +19063,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:o2作为原电池的正极反应物时-其电极反应在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
      "role": "PRIMARY"
     }
    ]
@@ -19283,7 +19283,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:利用电离常数-k-巧判溶液稀释中有关粒子浓度比值大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒浓度大小的比较",
      "role": "PRIMARY"
     }
    ]
@@ -19683,7 +19683,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:镁的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -19703,7 +19703,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氧化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢氧化铝的性质与制备",
      "role": "PRIMARY"
     }
    ]
@@ -19903,7 +19903,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:自由能与化学反应的方向",
      "role": "PRIMARY"
     }
    ]
@@ -20103,7 +20103,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体中配位数的确定",
      "role": "PRIMARY"
     }
    ]
@@ -20223,7 +20223,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶度积",
      "role": "PRIMARY"
     }
    ]
@@ -20783,7 +20783,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业上用某种氧化铝矿石-含fe2o3杂质-为原料冶炼铝的工艺流程如下",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
      "role": "PRIMARY"
     }
    ]
@@ -21603,7 +21603,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:判断原电池正-负极的方法",
      "role": "PRIMARY"
     }
    ]
@@ -21843,7 +21843,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫化氢的性质",
      "role": "PRIMARY"
     }
    ]
@@ -21923,7 +21923,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键角大小的比较",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:大π键",
      "role": "PRIMARY"
     }
    ]
@@ -22563,7 +22563,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:三步法-配平缺项氧化还原反应化学方程式",
      "role": "PRIMARY"
     }
    ]
@@ -22903,7 +22903,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:隐含的限制条件-有机物分子的不饱和度-ω",
      "role": "PRIMARY"
     }
    ]
@@ -23283,7 +23283,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醇的结构和性质",
      "role": "PRIMARY"
     }
    ]
@@ -23483,7 +23483,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:为了检验淀粉水解产物-某学生设计了如下实验方案",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:糖类的结构和性质",
      "role": "PRIMARY"
     }
    ]
@@ -23843,7 +23843,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:0-1-mol-l-1的na2co3溶液中各粒子浓度的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -24303,7 +24303,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:滴定分析法",
      "role": "PRIMARY"
     }
    ]
@@ -25003,7 +25003,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:气体制备",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见干燥剂及其使用限制",
      "role": "PRIMARY"
     }
    ]
@@ -26203,7 +26203,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:能源与科学-技术-社会密不可分-下列装置或过程能实现电能转化为化学能的是",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解和电解池",
      "role": "PRIMARY"
     }
    ]
@@ -26583,7 +26583,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:钠",
      "role": "PRIMARY"
     }
    ]
@@ -26603,7 +26603,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:钠",
      "role": "PRIMARY"
     }
    ]
@@ -27163,7 +27163,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原滴定",
      "role": "PRIMARY"
     }
    ]
@@ -27223,7 +27223,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:重结晶",
      "role": "PRIMARY"
     }
    ]
@@ -27883,7 +27883,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:药品取用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验室闻cl2及其他气体的方法是怎样的",
      "role": "PRIMARY"
     }
    ]
@@ -28003,7 +28003,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:二氧化硅",
      "role": "PRIMARY"
     }
    ]
@@ -28423,7 +28423,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:烯烃的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -28523,7 +28523,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:巧抓-四点-突破酸碱中和滴定曲线中的粒子浓度关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中粒子等量关系-三大守恒",
      "role": "PRIMARY"
     }
    ]
@@ -28923,7 +28923,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在饱和溶液中加入少量的溶液产生沉淀-若以ksp表示的溶度积常数-则平衡后溶液中",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶度积",
      "role": "PRIMARY"
     }
    ]
@@ -29203,7 +29203,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:三类漂白剂的区别",
      "role": "PRIMARY"
     }
    ]
@@ -29363,7 +29363,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:气体制备",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学实验装置的连接与操作顺序",
      "role": "PRIMARY"
     }
    ]
@@ -29843,7 +29843,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:单质铜的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -30163,7 +30163,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:书写fe-oh-3胶体制备的化学方程式的五个易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物分类易混易错点",
      "role": "PRIMARY"
     }
    ]
@@ -30263,7 +30263,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:书写fe-oh-3胶体制备的化学方程式的五个易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质的电离",
      "role": "PRIMARY"
     }
    ]
@@ -30643,7 +30643,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:书写fe-oh-3胶体制备的化学方程式的五个易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在一定温度下-已知以下三个反应的平衡常数",
      "role": "PRIMARY"
     }
    ]
@@ -31403,7 +31403,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量是高中化学常用的物理量-请完成以下有关计算-设na为阿伏加德罗常数的值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:钠",
      "role": "PRIMARY"
     }
    ]
@@ -31663,7 +31663,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:应用氧化还原反应的原理实现不同价态含硫物质的转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的制备和性质",
      "role": "PRIMARY"
     }
    ]
@@ -32423,7 +32423,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓硫酸与金属的反应规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酯",
      "role": "PRIMARY"
     }
    ]
@@ -33483,7 +33483,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物的分离和提纯",
      "role": "PRIMARY"
     }
    ]
@@ -34363,7 +34363,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键角大小的比较",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体知识易错点",
      "role": "PRIMARY"
     }
    ]
@@ -34623,7 +34623,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在饱和溶液中加入少量的溶液产生沉淀-若以ksp表示的溶度积常数-则平衡后溶液中",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属导电和电解质溶液导电的对比",
      "role": "PRIMARY"
     }
    ]
@@ -34683,7 +34683,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:na2co3-nahco3的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:书写离子方程式应注意的问题",
      "role": "PRIMARY"
     }
    ]
@@ -34743,7 +34743,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在实验操作②中为什么依次加入的试剂都要略微过量-实验操作④中加入盐酸的目的是什么",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式",
      "role": "PRIMARY"
     }
    ]
@@ -36223,7 +36223,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在fecl3-cucl2混合溶液中-加入铁粉与铜粉的混合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:过氧化钠",
      "role": "PRIMARY"
     }
    ]
@@ -36663,7 +36663,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在实验操作②中为什么依次加入的试剂都要略微过量-实验操作④中加入盐酸的目的是什么",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:纯碱中碳酸钠含量的测定方法",
      "role": "PRIMARY"
     }
    ]
@@ -36703,7 +36703,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在实验操作②中为什么依次加入的试剂都要略微过量-实验操作④中加入盐酸的目的是什么",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:纯碱中碳酸钠含量的测定方法",
      "role": "PRIMARY"
     }
    ]
@@ -37003,7 +37003,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关fe2-fe3-的水解问题",
      "role": "PRIMARY"
     }
    ]
@@ -37203,7 +37203,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:写出除去下列气体中混有的杂质-括号内为杂质-可采取的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关铁及其化合物的除杂",
      "role": "PRIMARY"
     }
    ]
@@ -37603,7 +37603,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:聚合反应",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水泥",
      "role": "PRIMARY"
     }
    ]
@@ -37643,7 +37643,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机合成路线的推断方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料",
      "role": "PRIMARY"
     }
    ]
@@ -39403,7 +39403,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在饱和溶液中加入少量的溶液产生沉淀-若以ksp表示的溶度积常数-则平衡后溶液中",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:气体制备",
      "role": "PRIMARY"
     }
    ]
@@ -39603,7 +39603,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学键与物质的类别",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素-核素-同位素",
      "role": "PRIMARY"
     }
    ]
@@ -40343,7 +40343,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氢氧化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配位化合物",
      "role": "PRIMARY"
     }
    ]
@@ -43443,7 +43443,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:连锁互换问题的配子分析",
      "role": "PRIMARY"
     }
    ]
@@ -43463,7 +43463,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:连锁互换问题的配子分析",
      "role": "PRIMARY"
     }
    ]
@@ -43663,7 +43663,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律的解题规律及方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -43763,7 +43763,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的拓展",
      "role": "PRIMARY"
     }
    ]
@@ -43783,7 +43783,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的拓展",
      "role": "PRIMARY"
     }
    ]
@@ -43803,7 +43803,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的拓展",
      "role": "PRIMARY"
     }
    ]
@@ -43823,7 +43823,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的拓展",
      "role": "PRIMARY"
     }
    ]
@@ -44283,7 +44283,7 @@
    "reviewedAtEpochMillis": 1789757124890,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:内环境的稳态",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组织水肿的成因",
      "role": "PRIMARY"
     }
    ]
@@ -49483,7 +49483,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:误差的分类与减小方法",
      "role": "PRIMARY"
     }
    ]
@@ -49863,7 +49863,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
      "role": "PRIMARY"
     }
    ]

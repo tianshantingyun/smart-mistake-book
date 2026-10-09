@@ -2679,7 +2679,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:肺炎链球菌转化实验",
      "role": "PRIMARY"
     }
    ]
@@ -2839,7 +2839,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:噬菌体侵染细菌实验",
      "role": "PRIMARY"
     }
    ]
@@ -3979,7 +3979,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因表达与性状的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -9939,7 +9939,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子分数坐标",
      "role": "PRIMARY"
     }
    ]
@@ -10179,7 +10179,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基本概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子",
      "role": "PRIMARY"
     }
    ]
@@ -11159,7 +11159,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:与量有关的离子方程式书写技巧",
      "role": "PRIMARY"
     }
    ]
@@ -11239,7 +11239,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯气",
      "role": "PRIMARY"
     }
    ]
@@ -11259,7 +11259,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解饱和食盐水-氯碱工业",
      "role": "PRIMARY"
     }
    ]
@@ -17139,7 +17139,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安培力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁电式电表的原理",
      "role": "PRIMARY"
     }
    ]
@@ -17179,7 +17179,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安培力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁电式电表的原理",
      "role": "PRIMARY"
     }
    ]
@@ -17299,7 +17299,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在组合场-电场与磁场各位于一定的区域内-并不重叠-中的运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:仪器构造-质谱仪由粒子源-加速电场-偏转磁场和照相底片构成",
      "role": "PRIMARY"
     }
    ]
@@ -18759,7 +18759,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁振动-电磁波和传感器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波",
      "role": "PRIMARY"
     }
    ]
@@ -35779,7 +35779,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:水平面内圆周运动的临界特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动的经典模型和应用",
      "role": "PRIMARY"
     }
    ]

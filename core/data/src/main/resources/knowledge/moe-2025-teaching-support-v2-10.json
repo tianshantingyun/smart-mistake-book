@@ -14479,7 +14479,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多过程问题的分析方法",
      "role": "PRIMARY"
     }
    ]
@@ -18399,7 +18399,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传送带模型中的功和能量的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:相对位移与划痕长度",
      "role": "PRIMARY"
     }
    ]
@@ -19179,7 +19179,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:纸带在力学实验中的应用分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:计时点与计数点",
      "role": "PRIMARY"
     }
    ]
@@ -28399,7 +28399,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机化合物中的共价键",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中心原子杂化类型的判断",
      "role": "PRIMARY"
     }
    ]
@@ -31959,7 +31959,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子结构易混易错知识点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子核外电子排布",
      "role": "PRIMARY"
     }
    ]
@@ -34539,7 +34539,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一些有机物的命名",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氨基酸的结构与性质",
      "role": "PRIMARY"
     }
    ]
@@ -34579,7 +34579,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一些有机物的命名",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氨基酸的结构与性质",
      "role": "PRIMARY"
     }
    ]
@@ -37819,7 +37819,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二面角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用向量法解二面角问题的策略",
      "role": "PRIMARY"
     }
    ]
@@ -43679,7 +43679,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的通项",
      "role": "PRIMARY"
     }
    ]
@@ -49039,7 +49039,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:水平面内圆周运动的临界特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动的经典模型和应用",
      "role": "PRIMARY"
     }
    ]
@@ -49059,7 +49059,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:水平面内圆周运动的临界特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动的经典模型和应用",
      "role": "PRIMARY"
     }
    ]
@@ -49079,7 +49079,7 @@
    "reviewedAtEpochMillis": 1790769172414,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:水平面内圆周运动的临界特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动的经典模型和应用",
      "role": "PRIMARY"
     }
    ]

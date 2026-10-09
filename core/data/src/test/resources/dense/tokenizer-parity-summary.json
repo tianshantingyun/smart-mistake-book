@@ -27,7 +27,7 @@
     "surfaceSample": {
       "count": 200,
       "seed": 20260924,
-      "universe": 41126,
+      "universe": 41157,
       "note": "从向量集（canonicalName + alias，条数随包现取）按种子抽取、排序"
     }
   },
@@ -52,12 +52,12 @@
   "files": {
     "cases": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-cases.txt",
-      "sha256": "2bf0ace7f1a7d91defb1209c549d359ca1c1bf8e2251d7a35e14d13d4dfa519f",
+      "sha256": "22bf4563c711e8cb30f4eb5bd033ae384a9c6fc147660669e1454fe425f60a80",
       "rows": 372
     },
     "stages": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-stages.txt",
-      "sha256": "60154009c06e5ac6db4369eef8cceef018deba866718c6b75bdbc496dbf1e565",
+      "sha256": "7ba36fac53b092dc6b09ea4b537decc5ca123f36f3f503c05d3f33ee86a4e90f",
       "rows": 68
     }
   }

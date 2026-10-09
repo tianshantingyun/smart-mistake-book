@@ -1267,7 +1267,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列求和",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:用裂项法求和的裂项原则及规律",
      "role": "PRIMARY"
     }
    ]
@@ -10607,7 +10607,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:给值求角问题",
      "role": "PRIMARY"
     }
    ]
@@ -34427,7 +34427,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆的位置关系",
      "role": "PRIMARY"
     }
    ]
@@ -36647,7 +36647,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:NTP与dNTP家族",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:双脱氧测序法的终止延伸与读序原理",
      "role": "PRIMARY"
     }
    ]
@@ -43967,7 +43967,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
      "role": "PRIMARY"
     }
    ]
@@ -44907,7 +44907,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:微生物的培养",
      "role": "PRIMARY"
     }
    ]
@@ -45247,7 +45247,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
      "role": "PRIMARY"
     }
    ]
@@ -45307,7 +45307,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:启动子与终止子的辨析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:载体",
      "role": "PRIMARY"
     }
    ]
@@ -45347,7 +45347,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
      "role": "PRIMARY"
     }
    ]
@@ -45427,7 +45427,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
      "role": "PRIMARY"
     }
    ]
@@ -45467,7 +45467,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:免疫学的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
      "role": "PRIMARY"
     }
    ]
@@ -50347,7 +50347,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物质出入细胞的方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞核的结构和功能",
      "role": "PRIMARY"
     }
    ]
@@ -51267,7 +51267,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:成熟植物细胞的吸水和失水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:质壁分离",
      "role": "PRIMARY"
     }
    ]

@@ -2019,7 +2019,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:成熟植物细胞的吸水和失水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:质壁分离",
      "role": "PRIMARY"
     }
    ]
@@ -18019,7 +18019,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属晶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体中配位数的确定",
      "role": "PRIMARY"
     }
    ]
@@ -25339,7 +25339,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体结构与性质的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
      "role": "PRIMARY"
     }
    ]
@@ -45619,7 +45619,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电能的远距离输送电路图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电能的输送",
      "role": "PRIMARY"
     }
    ]
@@ -45639,7 +45639,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电能的远距离输送电路图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电能的输送",
      "role": "PRIMARY"
     }
    ]
@@ -46739,7 +46739,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分子热运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:扩散",
      "role": "PRIMARY"
     }
    ]
@@ -46839,7 +46839,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:内能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:温度计-测量温度的仪器",
      "role": "PRIMARY"
     }
    ]
@@ -50279,7 +50279,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分子动理论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:阿伏加德罗常数",
      "role": "PRIMARY"
     }
    ]

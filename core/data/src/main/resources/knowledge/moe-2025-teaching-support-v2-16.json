@@ -651,7 +651,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解原理应用的四点注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -5791,7 +5791,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子反应的化学方程式的书写",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:聚合反应及聚合物单体的判断",
      "role": "PRIMARY"
     }
    ]
@@ -28671,7 +28671,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律",
      "role": "PRIMARY"
     }
    ]
@@ -28831,7 +28831,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:性染色体的传递规律",
      "role": "PRIMARY"
     }
    ]
@@ -31191,7 +31191,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:噬菌体侵染细菌实验",
      "role": "PRIMARY"
     }
    ]
@@ -35251,7 +35251,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:一昼夜CO2浓度变化曲线",
      "role": "PRIMARY"
     }
    ]
@@ -35271,7 +35271,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:一昼夜CO2浓度变化曲线",
      "role": "PRIMARY"
     }
    ]
@@ -41711,7 +41711,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
      "role": "PRIMARY"
     }
    ]
@@ -47051,7 +47051,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶在代谢中的作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
      "role": "PRIMARY"
     }
    ]
@@ -48791,7 +48791,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞周期检验点与同步化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞周期",
      "role": "PRIMARY"
     }
    ]
@@ -50871,7 +50871,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物变异的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因突变",
      "role": "PRIMARY"
     }
    ]
@@ -52271,7 +52271,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组-反应物-酶1溶液反应物被分解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究酶的专一性-高效性相关实验",
      "role": "PRIMARY"
     }
    ]

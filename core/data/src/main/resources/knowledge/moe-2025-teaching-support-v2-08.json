@@ -311,7 +311,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:给值求值问题",
      "role": "PRIMARY"
     }
    ]
@@ -7411,7 +7411,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:误差的分类与减小方法",
      "role": "PRIMARY"
     }
    ]
@@ -7751,7 +7751,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:降幂公式与升幂公式",
      "role": "PRIMARY"
     }
    ]
@@ -7771,7 +7771,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:给值求值问题",
      "role": "PRIMARY"
     }
    ]
@@ -9931,7 +9931,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:左手定则与右手定则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安培力",
      "role": "PRIMARY"
     }
    ]
@@ -20671,7 +20671,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两圆的位置关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两圆的公共弦",
      "role": "PRIMARY"
     }
    ]
@@ -23971,7 +23971,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:波动图象的信息",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:波动图象的特点",
      "role": "PRIMARY"
     }
    ]
@@ -34891,7 +34891,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:功能关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量转化-导体克服安培力做功-其他形式能转化为电能-最终转化为内能",
      "role": "PRIMARY"
     }
    ]
@@ -42191,7 +42191,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角恒等变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:降幂公式与升幂公式",
      "role": "PRIMARY"
     }
    ]

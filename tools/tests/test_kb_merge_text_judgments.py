@@ -114,6 +114,29 @@ class MergeTextJudgmentsSliceModeTest(_MergeFixture):
         self.assertEqual(1, len(full))
         self.assertEqual("NEW:MATH/某新点", full[0]["node_slug"])
 
+    def test_new_proposal_row_keeps_midx(self):
+        """`新键 + NEW 提案`分支重建行时必须回填 midx。
+
+        失败形态：同键源含 midx='b' 的 NEW 提案行落表时 midx 被丢成空，
+        与同块首行（midx=''）撞成同一个 (chunk_rel, chunk_id, midx) 键——
+        表内出现无法区分的重复行，materialize 侧同一块的两条判定互相覆盖。
+        """
+        _write_csv(self.vdir / "s1.csv", [_row(), _row(midx="b", node_slug="NEW:MATH/某新点")])
+        res = self._merge()
+        orig = M.OUT_NEW_FULL
+        M.OUT_NEW_FULL = self.tmp / "new_full.csv"
+        try:
+            applied = M.apply_to_judgments(res["merged"], self.target)
+        finally:
+            M.OUT_NEW_FULL = orig
+        self.assertEqual(2, applied["added"])
+        self.assertEqual(1, applied["new_proposals"])
+        rows = list(csv.DictReader(self.target.open(encoding="utf-8-sig", newline="")))
+        self.assertEqual([r["midx"] for r in rows], ["", "b"])
+        self.assertEqual("SKIP", rows[1]["action"])
+        self.assertEqual("", rows[1]["node_slug"])
+        self.assertTrue(rows[1]["note"].startswith("NEW:MATH/某新点"))
+
     def test_apply_is_idempotent(self):
         _write_csv(self.vdir / "s1.csv", [_row(), _row(action="SKIP", node_slug="", type="",
                                                        title="", summary="", applicability="",

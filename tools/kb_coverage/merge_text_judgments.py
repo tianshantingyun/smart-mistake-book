@@ -268,6 +268,10 @@ def apply_to_judgments(merged: list[dict], target: Path | None = None,
             out["chunk_rel"], out["chunk_id"] = rec["chunk_rel"], rec["chunk_id"]
             out["action"] = "SKIP"
             out["note"] = rec["node_slug"] + (("；" + note) if note else "")
+            # 回填 midx（对齐上方「补行」与「同步」两分支）：重建行若丢 midx，同键第二行
+            # （如 NEW 提案的 midx='b'）会与首行（midx=''）撞成同一个 (key,midx) 键——
+            # 表内出现重复行，且该提案行再想凭 midx 定位时已无法区分。
+            out["midx"] = (rec.get("midx") or "").strip()
         rows.append(out)
         added += 1
     path.parent.mkdir(parents=True, exist_ok=True)

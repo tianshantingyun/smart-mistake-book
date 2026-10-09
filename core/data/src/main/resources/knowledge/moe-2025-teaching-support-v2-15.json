@@ -10035,7 +10035,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:核能的计算方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:质量亏损",
      "role": "PRIMARY"
     }
    ]
@@ -26375,7 +26375,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:构造原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子核外电子排布",
      "role": "PRIMARY"
     }
    ]
@@ -26455,7 +26455,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子排布式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子核外电子排布",
      "role": "PRIMARY"
     }
    ]
@@ -27375,7 +27375,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学键对物质性质的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质变化过程中的化学键变化",
      "role": "PRIMARY"
     }
    ]
@@ -29015,7 +29015,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞组成的计算-均摊法",
      "role": "PRIMARY"
     }
    ]
@@ -29075,7 +29075,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞空间利用率的计算",
      "role": "PRIMARY"
     }
    ]
@@ -29255,7 +29255,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞组成的计算-均摊法",
      "role": "PRIMARY"
     }
    ]
@@ -32595,7 +32595,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学实验基本操作规范",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:药品取用",
      "role": "PRIMARY"
     }
    ]
@@ -41155,7 +41155,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醛-酮的化学性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关醛的定量计算",
      "role": "PRIMARY"
     }
    ]
@@ -42575,7 +42575,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在化学研究中-物质的量浓度是使用最广泛的一种表示溶液浓度的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -42975,7 +42975,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:误差分析的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配制一定物质的量浓度溶液的仪器与容量瓶使用",
      "role": "PRIMARY"
     }
    ]
@@ -42995,7 +42995,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:误差分析的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配制一定物质的量浓度溶液的仪器与容量瓶使用",
      "role": "PRIMARY"
     }
    ]
@@ -49155,7 +49155,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在实验操作②中为什么依次加入的试剂都要略微过量-实验操作④中加入盐酸的目的是什么",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:气体制备",
      "role": "PRIMARY"
     }
    ]

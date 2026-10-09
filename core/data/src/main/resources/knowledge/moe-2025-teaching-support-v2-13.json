@@ -22995,7 +22995,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:四羟基合铝酸盐的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铝及其化合物之间的性质与应用",
      "role": "PRIMARY"
     }
    ]
@@ -30595,7 +30595,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型化学电源",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原电池",
      "role": "PRIMARY"
     }
    ]
@@ -31295,7 +31295,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分离提纯",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:萃取",
      "role": "PRIMARY"
     }
    ]
@@ -32735,7 +32735,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体结构与性质的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞组成的计算-均摊法",
      "role": "PRIMARY"
     }
    ]
@@ -51735,7 +51735,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂异常的原因分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:染色体变异-x1",
      "role": "PRIMARY"
     }
    ]

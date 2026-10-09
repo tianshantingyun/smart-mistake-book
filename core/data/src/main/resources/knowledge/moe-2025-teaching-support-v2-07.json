@@ -3847,7 +3847,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因型-表型的推断",
      "role": "PRIMARY"
     }
    ]
@@ -4867,7 +4867,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:溶酶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞自噬",
      "role": "PRIMARY"
     }
    ]
@@ -6407,7 +6407,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:阿伏加德罗常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中心原子杂化类型的判断",
      "role": "PRIMARY"
     }
    ]
@@ -6607,7 +6607,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:苯及其同系物的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:苯环上取代基的定位规律",
      "role": "PRIMARY"
     }
    ]
@@ -13587,7 +13587,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫酸",
      "role": "PRIMARY"
     }
    ]
@@ -16207,7 +16207,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的特殊类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:从性遗传",
      "role": "PRIMARY"
     }
    ]
@@ -16247,7 +16247,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的特殊类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:母性效应与表型模拟",
      "role": "PRIMARY"
     }
    ]
@@ -18347,7 +18347,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质检验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:试纸的类型与使用方法",
      "role": "PRIMARY"
     }
    ]
@@ -22447,7 +22447,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素-核素-同位素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:相对原子质量(核素与元素)",
      "role": "PRIMARY"
     }
    ]
@@ -27327,7 +27327,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律中的特殊分离比问题分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -28187,7 +28187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的表达",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:中心法则",
      "role": "PRIMARY"
     }
    ]
@@ -41487,7 +41487,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化合价",
      "role": "PRIMARY"
     }
    ]
@@ -41947,7 +41947,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的合成和运输",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的分选（信号肽假说）",
      "role": "PRIMARY"
     }
    ]
@@ -50487,7 +50487,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解池工作原理-以电解cucl2溶液为例",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解原理",
      "role": "PRIMARY"
     }
    ]
@@ -52747,7 +52747,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:连锁互换问题的配子分析",
      "role": "PRIMARY"
     }
    ]
@@ -57607,7 +57607,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子分数坐标与晶胞投影图",
      "role": "PRIMARY"
     }
    ]
@@ -64407,7 +64407,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子守恒法计算的流程",
      "role": "PRIMARY"
     }
    ]
@@ -76707,7 +76707,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键参数",
      "role": "PRIMARY"
     }
    ]
@@ -77347,7 +77347,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对氧化物认识的几个误区",
      "role": "PRIMARY"
     }
    ]
@@ -83187,7 +83187,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
      "role": "PRIMARY"
     }
    ]
@@ -87287,7 +87287,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原电池",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐桥的作用与双液原电池",
      "role": "PRIMARY"
     }
    ]
@@ -87947,7 +87947,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分离提纯",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:写出除去下列气体中混有的杂质-括号内为杂质-可采取的方法",
      "role": "PRIMARY"
     }
    ]
@@ -90887,7 +90887,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:调节pH分离提纯金属离子",
      "role": "PRIMARY"
     }
    ]
@@ -90927,7 +90927,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分离提纯",
      "role": "PRIMARY"
     }
    ]
@@ -91167,7 +91167,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤素互化物与拟卤素",
      "role": "PRIMARY"
     }
    ]
