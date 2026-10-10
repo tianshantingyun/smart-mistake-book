@@ -2548,3 +2548,18 @@ D-0b 就是给这句话补证据。
      （4B-A5 的退役处置精神保持）；
   3. **R5-F7 vs spec §1.3/§3.2**：二轮决策改 spec 范围定稿，落地需同步改 spec 与队列装配代码（3E 内）。
 - 顺序刚性已落主线：4A→4C、4B→4D、3E→5B、5→5B→6B→6C、D-4→R6-E6/G6 覆盖（覆盖依赖，非硬门）。
+
+### 清理记录 · 误判证据清除（2026-10-11，用户指示）
+
+用户指示：清除容易导致后续误判、错误实现方式的证据（文档与代码）。执行清单：
+1. **删除 `tools/image-mcp-server/`**（4B A5 的 A 案终局执行）：独立 MCP 进程已在 README 标注
+   "仅开发用、无 SSRF/凭证防护、已被 App 内工具取代"，本次整体删除；其 `OpenAiEditsClient`
+   本就是 App `OpenAiImageGenerationChannel` 的移植，**能力不丢**——A10 去手写走 App 内
+   edits 通道（4B A5 已补执行记录）。
+2. **订正需求定稿 R1-A10 行**："用 `tools/image-mcp-server` 承担" → 生图模型 images-edits
+   能力承担（App 内 `OpenAiImageGenerationChannel` 已有；独立 MCP 进程已删除）。
+3. **订正 `docs/image-pipeline-spec.md` 两处陈旧表述**：① "TEXT_ONLY 走本地 OCR/parse" →
+   注记"OCR 已裁、多模态读取一切"（与 image-pipeline-decision §4 一致）；② "待实现的 MCP
+   figure path" → 规范图走 App 内 `GENERATE_FIGURE` 工具面、不走独立 MCP 进程。
+4. 语义兜底：**重绘核心 = 生图模型生成**（用户 2026-10-11 纠正），外部研究只作准确率门风险
+   证据——已同步进 4D spec 与长期记忆。

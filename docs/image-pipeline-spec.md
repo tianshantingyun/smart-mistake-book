@@ -11,12 +11,14 @@
 > `IMAGE_PIPELINE_CLASSIFY` round on the committed photo under the global model
 > consent, and a `WITH_FIGURE` answer schedules `ConfiguredCleanImageGenerator`
 > (`CleanImageGenerator`) to redraw and attach the clean figure. `TEXT_ONLY`
-> problems keep the original photo and go through the existing local
-> OCR/parse → typeset → PDF path, so no separate clean-sheet object is needed.
+> problems keep the original photo and go through the existing parse → typeset → PDF path, so no
+> separate clean-sheet object is needed.（注：路线以 `docs/image-pipeline-decision.md` 为准——**OCR
+> 已裁**、多模态模型读取一切；此处"OCR/parse"字样系陈旧表述，2026-10-11 订正。）
 > The `ImageCleanSheet`/`ImageCleanSheetOrchestrator` pair this spec originally
 > sketched was never called by production code and was removed on 2026-09-09
-> (see git history). Still **not implemented**: the MCP figure path for the
-> tutor "explaining" branch and any MathBox-style local typesetter of its own.
+> (see git history). Still **not implemented**: the tutor "explaining" branch 的
+> 规范图——**走 App 内 `GENERATE_FIGURE` 工具面（生图模型），不走独立 MCP 进程**
+> （`tools/image-mcp-server/` 已于 2026-10-11 删除）——and any MathBox-style local typesetter of its own.
 
 ## 1. Goal & architecture (recap)
 

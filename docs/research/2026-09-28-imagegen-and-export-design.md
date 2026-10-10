@@ -94,6 +94,9 @@
     README 等，实施时 `git rm -r`）。
   - B：保留但 README 首行标注"仅开发用、无 SSRF/凭证防护、已被 App 内 GENERATE_FIGURE 工具取代"。
 - **完成判据**：选 A 则模块消失；选 B 则标注存在。
+- **执行记录（2026-10-11）**：**已执行 A**——`tools/image-mcp-server/` 整体删除（其
+  `OpenAiEditsClient` 本就是 App `OpenAiImageGenerationChannel` 的移植，能力不丢）；
+  A10 去手写/还原空白卷走 App 内 edits 通道（需求定稿 R1）。
 
 ### A6 · attachedImages 死分支清理
 
