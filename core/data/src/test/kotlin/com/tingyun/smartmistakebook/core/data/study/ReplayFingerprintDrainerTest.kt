@@ -31,6 +31,7 @@ import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -135,6 +136,12 @@ class ReplayFingerprintDrainerTest {
                 "夹具必须真的覆盖五类账本事件（含修正）",
                 5,
                 events.map { it::class }.toSet().size,
+            )
+            // K3 批 2 加固（K2 复核登记）：「非平凡账本（≥10 事件）」此前没有下界守卫——
+            // 把 cycles 调小成一个仍含五类的短账本时旧断言仍会过（守卫钝化）。下界钉住它。
+            assertTrue(
+                "夹具必须非平凡：事件数 ≥ 10（升级演练规格的下界，防止夹具被弱化而用例不变红）",
+                events.size >= 10,
             )
             database.projectionLedger = events.map {
                 PersistedLearningLedgerEvent(it, LearningLedgerFingerprint.event(it))
