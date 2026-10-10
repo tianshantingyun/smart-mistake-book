@@ -174,6 +174,99 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
     }
 
     /**
+     * **安装落点失效的敏感面（K1 §11#7 补）**：内容安装写入新节点后，判定缓存不得带着
+     * 安装前的"完整"结论放行——`isVerifiedComplete` 必须为假、下一次召回必须重新核验
+     * （计数缝可观察）。这是"安装后立即可见"用例缺的那半：那个用例钉可见性，本用例钉
+     * **失效确实发生**。
+     *
+     * 与 `rebuildSubject` 失效的重叠（如实说明）：安装期重建对同一 subject 也会失效
+     * （进入/退出各一次），所以本断言对"安装落点那行 invalidate"与"重建的 invalidate"
+     * 是**共同敏感**的；安装落点那行是纵深防御（防未来加入不经过 `rebuildSubject` 的
+     * 索引相关写入）。单独摘掉它不改变任何现有行为，见
+     * [installInvalidationWireCanaryLeavesTheStaleClaimInPlace] 的说明。
+     */
+    @Test
+    fun contentInstallInvalidatesTheVerifiedCompleteClaimBeforeTheNextRecall() = runBlocking {
+        val cache = KnowledgeSearchIndexCompleteness()
+        val store = open(cache)
+        store.applyKnowledgeContentUpdate(contentCommand(nodes = listOf(topic(), atomic("判断函数单调性"))))
+        // 先让该科落成"已核验完整"（第一次召回跑完两条 COUNT 并落缓存）。
+        assertTrue(recall(store, "判断函数单调性").contains(ATOMIC_ID))
+        assertTrue("夹具退化：缓存未先落成完整", cache.isVerifiedComplete("MATH"))
+
+        store.applyKnowledgeContentUpdate(
+            contentCommand(
+                nodes = listOf(
+                    topic(),
+                    atomic("判断函数单调性"),
+                    atomic("函数极值时取法", nodeId = EXTREMUM_ID),
+                ),
+            ),
+        )
+
+        assertFalse(
+            "安装后判定缓存必须失效（不得带安装前的完整结论放行）",
+            cache.isVerifiedComplete("MATH"),
+        )
+        cache.issuedVerificationQueries.clear()
+        val after = recall(store, "函数极值时取法")
+        assertTrue("夹具退化：安装的新节点没有被召回；ids=$after", after.contains(EXTREMUM_ID))
+        assertTrue(
+            "安装后下一次召回必须重新核验（否则缓存带着安装前的结论放行）；" +
+                "实际=${cache.issuedVerificationQueries.toList()}",
+            cache.issuedVerificationQueries.isNotEmpty(),
+        )
+    }
+
+    /**
+     * **canary（安装落点）**：把失效置为 no-op（测试开关）后重跑同一安装场景——判定缓存
+     * **保留安装前的"完整"结论**，下一次召回跳过完整性核验（零判定 SQL）。它把主用例
+     * [contentInstallInvalidatesTheVerifiedCompleteClaimBeforeTheNextRecall] 的绿色
+     * 变成"来自失效接线"的可复跑证据；把失效改成空操作时主用例先红、本 canary 断言失败。
+     *
+     * 与 `rebuildSubject` 失效的重叠（如实说明，勿过度宣称）：安装期重建会把特征行一起
+     * 写好，所以即使判定缓存陈旧，新节点**仍然可见**（本用例显式断言这一点）——功能可见性
+     * 当前不依赖安装落点那行 invalidate，它敏感的是"判定缓存是否被安装写路径作废"。因此：
+     * - 本 canary 与主用例共同钉住"安装路径的失效机制"（含重建的两次失效）；
+     * - **单独**摘掉 `RoomKnowledgeContentReconciler.applyKnowledgeContentUpdate` 末尾那行
+     *   invalidate 时，两条用例都不会变红（重建的失效仍覆盖同一 subject）——那行是针对
+     *   "未来加入不经过 `rebuildSubject` 的索引相关写入"的纵深防御；要让"单独摘除"也变红
+     *   需要生产侧新增隔离测试缝，超出本批（生产改动仅限 K5-A 一文件）。
+     */
+    @Test
+    fun installInvalidationWireCanaryLeavesTheStaleClaimInPlace() = runBlocking {
+        val cache = KnowledgeSearchIndexCompleteness(invalidationEnabled = false)
+        val store = open(cache)
+        store.applyKnowledgeContentUpdate(contentCommand(nodes = listOf(topic(), atomic("判断函数单调性"))))
+        assertTrue(recall(store, "判断函数单调性").contains(ATOMIC_ID))
+        assertTrue("canary 场景退化：缓存未先落成完整", cache.isVerifiedComplete("MATH"))
+
+        store.applyKnowledgeContentUpdate(
+            contentCommand(
+                nodes = listOf(
+                    topic(),
+                    atomic("判断函数单调性"),
+                    atomic("函数极值时取法", nodeId = EXTREMUM_ID),
+                ),
+            ),
+        )
+
+        assertTrue(
+            "canary 失效：撤掉失效接线后安装仍作废了判定缓存——主用例不再能证明接线的存在",
+            cache.isVerifiedComplete("MATH"),
+        )
+        cache.issuedVerificationQueries.clear()
+        val after = recall(store, "函数极值时取法")
+        // 如实记录重叠：重建已写好特征行，新节点仍然可见；退化的是"判定缓存/核验"而非可见性。
+        assertTrue("canary 场景退化：连已安装节点都召回不到；ids=$after", after.contains(EXTREMUM_ID))
+        assertTrue(
+            "canary 失效：撤掉失效接线后下一次召回仍在重新核验（判定缓存未带陈旧结论放行）；" +
+                "实际=${cache.issuedVerificationQueries.toList()}",
+            cache.issuedVerificationQueries.isEmpty(),
+        )
+    }
+
+    /**
      * 场景（与生产路径逐条同形）：
      * ① 直写题库事实（两道题/两个实践单元）；② 整理确认落 USER_CONFIRMED 知识点 alpha；
      * ③ 两次召回（第一次触发锚点缺失的整科重建，第二次跑判定并落缓存——**缓存此刻起"完整"**）；

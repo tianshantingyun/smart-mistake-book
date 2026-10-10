@@ -49,6 +49,32 @@ class LibraryFtsCountPathQueryCopyContractTest {
         }
     }
 
+    /**
+     * K5 加固一：50k count 档（`LibraryFtsCountPathScale50kInstrumentedTest`）的结构/EQP 门
+     * 使用同一组 CROSS_JOIN 副本——**同一守卫必须同时钉住第二份副本**，否则 50k 的 EQP
+     * 结论可能测着旧 SQL 报绿（守卫缺失 = 绿得没有意义）。
+     */
+    @Test
+    fun scale50kCrossJoinSqlCopiesMatchTheDaoQueries() {
+        val daoSource = File(DAO_PATH).readText()
+        val copySource = File(SCALE_50K_COPY_PATH).readText()
+        DAO_FUNCTION_TO_COPY.forEach { (function, copyProperty) ->
+            assertEquals(
+                "androidTest 的 50k 档 $copyProperty 副本与 LibraryFtsSearchDao.$function 的 " +
+                    "@Query 已漂移：DAO 改动后必须同步更新两份测试副本，否则 EQP 门测的是旧 SQL",
+                normalizeWhitespace(extractDaoQuery(daoSource, function)),
+                normalizeWhitespace(extractRawStringLiteral(copySource, copyProperty)),
+            )
+        }
+        CROSS_JOIN_COPIES.forEach { property ->
+            val sql = normalizeWhitespace(extractRawStringLiteral(copySource, property))
+            assertTrue(
+                "50k 档 $property 缺少 FTS 最左的 CROSS JOIN 驱动前缀（驱动修正被改回去了？）",
+                FTS_FIRST_DRIVE_PREFIX in sql,
+            )
+        }
+    }
+
     @Test
     fun preChangeCopiesKeepThePreFixJoinOrder() {
         val copySource = File(COPY_PATH).readText()
@@ -135,6 +161,11 @@ class LibraryFtsCountPathQueryCopyContractTest {
         const val COPY_PATH =
             "src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/" +
                 "LibraryFtsCountPathInstrumentedTest.kt"
+
+        /** K5 加固一：50k 档结构/EQP 门的 CROSS_JOIN 副本（第二份，同样必须被守卫钉住）。 */
+        const val SCALE_50K_COPY_PATH =
+            "src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/" +
+                "LibraryFtsCountPathScale50kInstrumentedTest.kt"
 
         const val FTS_FIRST_DRIVE_PREFIX =
             "FROM library_search_fts CROSS JOIN library_search_content AS content " +

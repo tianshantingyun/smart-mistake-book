@@ -631,6 +631,117 @@ class RoomMistakeOrganizationRepositoryTest {
         )
     }
 
+    /**
+     * K5-A（R2 口径 1）：存量未知行被严格更高（且 ≥ 门值）的提议替换时，合并裁决必须带
+     * 可观察理由 `incumbent_unknown`——证据上把"按策略替换"（存量未知，按策略门解释）与
+     * "按分数替换"（存量已知，按落库分数）分开。行为判据与 K3 完全一致：0.80 > 门值 0.78。
+     */
+    @Test
+    fun anUnknownIncumbentReplacedAboveTheGateCarriesTheUnknownPolicyReason() {
+        val existing = listOf(
+            binding(
+                dimension = ClassificationDimension.KNOWLEDGE,
+                labelId = "knowledge-legacy",
+                displayName = "旧知识点",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = null,
+            ),
+        )
+        val incoming = listOf(
+            classification(ClassificationDimension.KNOWLEDGE, "旧知识点", 0.80),
+        )
+
+        val outcome = mergeAutomaticClassificationsWithReasons(existing, incoming).single()
+
+        assertEquals(
+            "未知存量按策略门解释：理由必须是 incumbent_unknown（不是按分数）",
+            "incumbent_unknown",
+            outcome.incumbentReason?.wireReason,
+        )
+        assertTrue("该结果必须真的来自替换：未知行不得冻结", outcome.replacedIncumbent)
+        assertEquals(0.80, outcome.suggestion.confidence, 0.0)
+    }
+
+    /**
+     * K5-A：同一次合并里两条替换路径的**理由可区分**——未知存量替换带 `incumbent_unknown`、
+     * 已知存量替换带 `incumbent_known`（按分数）；等值保留的存量不算"替换"；无同名存量的
+     * 本轮新提议没有可解释的存量（理由为 null）；用户权威存量不参与自动比较（理由为 null）。
+     */
+    @Test
+    fun replacementEvidenceSeparatesTheGatePolicyFromTheRecordedScore() {
+        val existing = listOf(
+            binding(
+                dimension = ClassificationDimension.KNOWLEDGE,
+                labelId = "knowledge-legacy",
+                displayName = "旧知识点",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = null,
+            ),
+            binding(
+                dimension = ClassificationDimension.CHAPTER,
+                labelId = "chapter-recorded",
+                displayName = "函数",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = 0.80,
+            ),
+            binding(
+                dimension = ClassificationDimension.KNOWLEDGE,
+                labelId = "knowledge-equal",
+                displayName = "导数符号",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = 0.90,
+            ),
+            binding(
+                dimension = ClassificationDimension.CHAPTER,
+                labelId = "chapter-user",
+                displayName = "数列",
+                acceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
+                acceptedConfidence = null,
+            ),
+        )
+        val incoming = listOf(
+            classification(ClassificationDimension.KNOWLEDGE, "旧知识点", 0.80),
+            classification(ClassificationDimension.CHAPTER, "函数", 0.85),
+            classification(ClassificationDimension.KNOWLEDGE, "导数符号", 0.90),
+            classification(ClassificationDimension.CHAPTER, "数列", 1.0),
+            classification(ClassificationDimension.KNOWLEDGE, "新增知识点", 0.95),
+        )
+
+        val byName = mergeAutomaticClassificationsWithReasons(existing, incoming)
+            .associateBy { it.suggestion.displayName }
+
+        assertEquals(
+            "未知存量替换 = 按策略替换",
+            "incumbent_unknown",
+            byName.getValue("旧知识点").incumbentReason?.wireReason,
+        )
+        assertTrue(byName.getValue("旧知识点").replacedIncumbent)
+        assertEquals(
+            "已知存量替换 = 按分数替换",
+            "incumbent_known",
+            byName.getValue("函数").incumbentReason?.wireReason,
+        )
+        assertTrue(byName.getValue("函数").replacedIncumbent)
+        assertEquals(
+            "等值保留存量：理由仍是存量解释，且不得标成替换",
+            "incumbent_known",
+            byName.getValue("导数符号").incumbentReason?.wireReason,
+        )
+        assertFalse(byName.getValue("导数符号").replacedIncumbent)
+        assertEquals(
+            "无同名存量的新提议没有可解释的存量",
+            null,
+            byName.getValue("新增知识点").incumbentReason,
+        )
+        assertFalse(byName.getValue("新增知识点").replacedIncumbent)
+        assertEquals(
+            "用户权威存量不参与自动比较：没有 known/unknown 理由",
+            null,
+            byName.getValue("数列").incumbentReason,
+        )
+        assertFalse(byName.getValue("数列").replacedIncumbent)
+    }
+
     /** KF-30 写侧：自动路径写本轮真实分数；用户路径（含离线纠正）没有模型分数 ⇒ NULL。 */
     @Test
     fun automaticWritesCarryRealScoresWhileUserWritesCarryNone() {

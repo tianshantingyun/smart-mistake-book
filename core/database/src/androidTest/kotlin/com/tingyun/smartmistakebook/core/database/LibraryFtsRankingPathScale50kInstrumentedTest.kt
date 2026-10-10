@@ -1,12 +1,14 @@
 package com.tingyun.smartmistakebook.core.database
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import androidx.room3.withWriteTransaction
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
 import org.junit.Test
@@ -17,10 +19,13 @@ import kotlin.system.measureTimeMillis
  * **K1 批 1 · 50k FTS 规模补测（排序路径）**：S18 尾批 2 的 1 万行排序门
  * （[LibraryFtsRankingPathInstrumentedTest]）只测到 10k；"集合级命中集 join 的宽命中成本
  * 随目录行数增长"在 5 万行下没有实测。本类在 **5 万行**夹具上记录窄命中（12 命中）、
- * 100 / 1k 命中（沿用既有 P95 门口径）与 1 万 / 宽命中（**只记录，不设新门**）。
+ * 100 / 1k 命中（沿用既有 P95 门口径）与 1 万 / 宽命中（**只记录，不设新门**），并按
+ * K5 加固一补**结构/EQP 断言**（排序表达式不得退化为逐行 FTS 相关子查询、命中集必须
+ * 被 MATERIALIZE 且按 docid 探测、MATCH 仍是主驱动、不得整表扫 catalog）。
  *
  * 取舍（与 count 的 50k 类同）：独立成类，不把既有 10k 等价性/结构门参数化——那会让
- * S18 锚点门的运行时与夹具形态双重漂移；本类只做"计时 + 非退化计数"记录。
+ * S18 锚点门的运行时与夹具形态双重漂移；本类只做"计时记录 + 非退化计数 + 结构断言"，
+ * **不新增任何计时门**。
  *
  * 夹具：`seedLibraryCatalogScale(50_000, boundedTokenEvery = 500)` ⇒ 100 命中；再在 bootstrap
  * 前注入 1k 探针（每 50 行）、1 万探针（每 5 行）、12 命中探针（显式 12 行）；宽命中 = 全量 5 万。
@@ -106,6 +111,97 @@ class LibraryFtsRankingPathScale50kInstrumentedTest {
         )
     }
 
+    /**
+     * 结构/EQP 门（K5 加固一；形态照 10k 排序门 [LibraryFtsRankingPathInstrumentedTest]）：
+     * 在 **5 万行**夹具上对**生产 builder 的 live SQL**（`RoomLibrarySearchStore.buildLibrarySearchRawQuery`
+     * 原文，不是手抄副本）做 EXPLAIN QUERY PLAN，钉四件事——
+     * ① 排序表达式**没有逐行 FTS 相关子查询**（`CORRELATED SCALAR SUBQUERY` 头之后紧跟 FTS
+     * 虚表访问行 = 逐行回探）；② 12 个命中集必须被 `MATERIALIZE hit_*`；③ 命中集按 docid
+     * 走索引探测（`SEARCH hit_stem_text USING … hit_docid=?`）；④ MATCH 仍是主驱动
+     * （`SCAN library_search_fts VIRTUAL TABLE`）、不得出现 `SCAN catalog` 整表扫驱动。
+     * 固定红样例（改前形态的冻结文本）必须被同一判据判失败——证明判据不是恒真。
+     *
+     * 本用例**不设任何计时门**。
+     */
+    @Test
+    fun rankingPlanKeepsMaterializedHitSetsOnThe50kFixture() {
+        val liveSql = RoomLibrarySearchStore(store.database).buildLibrarySearchRawQuery(
+            matchQuery = CjkTextTokenizer.matchExpression(TOKENS_WIDE.joinToString(" ")),
+            subjectId = null,
+            sectionId = null,
+            masteryId = null,
+            createdFromEpochMillis = null,
+            createdToEpochMillis = null,
+            sort = "RECENTLY_UPDATED",
+            tokens = TOKENS_WIDE,
+            limit = FIRST_SCREEN_LIMIT,
+            offset = 0,
+        ).sql
+        val plan = readPlans(context, databaseName, liveSql)
+        println("K1 50k FTS ranking plan[live]:\n${plan.joinToString("\n") { "  $it" }}")
+
+        // ① 不得退化为逐行 FTS 相关子查询。
+        val rowLevelProbes = rowLevelFtsProbesOf(plan)
+        assertTrue(
+            "排序路径退化为逐行 FTS 相关子查询（50k live 计划）：\n" +
+                "${rowLevelProbes.joinToString("\n")}\n完整计划：\n${plan.joinToString("\n")}",
+            rowLevelProbes.isEmpty(),
+        )
+        // 红样例（改前形态的冻结文本，版本无关）：同一判据必须判失败。
+        assertFalse(
+            "红样例（逐行回探形态）被本判据误判为通过（门失效）：\n" +
+                ROW_PROBE_PLAN_RED_SAMPLE.joinToString("\n"),
+            rowLevelFtsProbesOf(ROW_PROBE_PLAN_RED_SAMPLE).isEmpty(),
+        )
+        // ② 12 个命中集各 MATERIALIZE 一次（退化回相关子查询时这里先红）。
+        assertEquals(
+            "命中集未按 9 列 + 3 额外 token 物化：\n${plan.joinToString("\n")}",
+            HIT_SET_COUNT,
+            plan.count { it.startsWith("MATERIALIZE hit_") },
+        )
+        // ③ 命中集物化后按 docid 的自动覆盖索引探测。
+        assertTrue(
+            "命中集物化后没有按 docid 的探测行（索引使用消失）：\n${plan.joinToString("\n")}",
+            plan.any { "SEARCH hit_stem_text USING" in it && "hit_docid=?" in it },
+        )
+        // ④ MATCH 主驱动仍在，且 catalog 不得整表扫。
+        assertTrue(
+            "排序路径的 FTS 主扫描消失（MATCH 不再是驱动）：\n${plan.joinToString("\n")}",
+            plan.any { FTS_MAIN_SCAN.containsMatchIn(it) },
+        )
+        assertFalse(
+            "排序路径出现 SCAN catalog 整表扫驱动：\n${plan.joinToString("\n")}",
+            plan.any { CATALOG_SCAN.containsMatchIn(it) },
+        )
+    }
+
+    /**
+     * 判据：紧跟在 `CORRELATED SCALAR SUBQUERY n` 头之后的 FTS 虚表访问行 = 逐行探测
+     * （与 10k 排序门同口径）。改前计划的 12 个排序探测都是这种"头 + 一行 FTS 扫描"的形状；
+     * 新计划的 FTS 集合扫描行前面是 `MATERIALIZE hit_*`（或另一条 FTS 行），不会被误判。
+     */
+    private fun rowLevelFtsProbesOf(plan: List<String>): List<String> = plan.filterIndexed { index, line ->
+        index > 0 &&
+            FTS_VIRTUAL_TABLE_LINE.containsMatchIn(line) &&
+            CORRELATED_SUBQUERY_HEADER.containsMatchIn(plan[index - 1])
+    }
+
+    /** 平台连接读 EXPLAIN QUERY PLAN（room3 prepared-statement 路径拒绝 EXPLAIN）。 */
+    private fun readPlans(context: Context, databaseName: String, sql: String): List<String> =
+        SQLiteDatabase.openDatabase(
+            context.getDatabasePath(databaseName).absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READONLY,
+        ).use { database ->
+            database.rawQuery(
+                "EXPLAIN QUERY PLAN $sql",
+                Array(sql.count { it == '?' }) { NO_FILTER_PLACEHOLDER },
+            ).use { cursor ->
+                val detail = cursor.getColumnIndexOrThrow("detail")
+                buildList { while (cursor.moveToNext()) add(cursor.getString(detail)) }
+            }
+        }
+
     /** 一档的实际首页行数（非退化信号）；计时只测生产端口路径 `librarySearchPage`。 */
     private suspend fun pageSize(tokens: List<String>): Int = store.librarySearchPage(
         matchQuery = CjkTextTokenizer.matchExpression(tokens.joinToString(separator = " ")),
@@ -170,6 +266,36 @@ class LibraryFtsRankingPathScale50kInstrumentedTest {
         )
 
         private val TOKENS_WIDE = CjkTextTokenizer.tokens("分页题目")
+
+        /** 命中集数：9 个列级标志 + 3 个额外 token 标志（与 10k 排序门同口径）。 */
+        private const val HIT_SET_COUNT = 12
+
+        /** EXPLAIN 绑定用的哨兵（计划在 prepare 期已定、与绑定值无关，同既有门口径）。 */
+        private const val NO_FILTER_PLACEHOLDER = "\u0001none"
+
+        private val CORRELATED_SUBQUERY_HEADER = Regex("""^CORRELATED SCALAR SUBQUERY\b""")
+        private val FTS_VIRTUAL_TABLE_LINE = Regex(
+            """(?i)^(SCAN|SEARCH)\s+(TABLE\s+)?(library_search_fts|ranked|fts)\s+VIRTUAL TABLE\b""",
+        )
+        private val FTS_MAIN_SCAN = Regex(
+            """(?i)^SCAN\s+(TABLE\s+)?(library_search_fts|fts)\s+VIRTUAL TABLE\b""",
+        )
+        private val CATALOG_SCAN = Regex(
+            """(?i)^SCAN\s+(TABLE\s+)?(catalog|library_catalog)(\s|$)""",
+        )
+
+        /**
+         * 红样例（固定文本、版本无关）：改前排序形态的冻结片段——主循环 FTS 之后，
+         * 排序标志是 `CORRELATED SCALAR SUBQUERY` + 一行 `SCAN ranked VIRTUAL TABLE`
+         * （逐命中行回探 FTS）。判据 [rowLevelFtsProbesOf] 对它必须判失败。
+         */
+        private val ROW_PROBE_PLAN_RED_SAMPLE: List<String> = listOf(
+            "MATERIALIZE library_catalog",
+            "SCAN library_search_fts VIRTUAL TABLE INDEX 11:",
+            "SEARCH content USING INTEGER PRIMARY KEY (rowid=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SCAN ranked VIRTUAL TABLE INDEX 2:",
+        )
 
         private val CI_MULTIPLIER: Long = run {
             val fromArgs = androidx.test.platform.app.InstrumentationRegistry

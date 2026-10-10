@@ -90,10 +90,35 @@ private const val MIN_ATOMIC_BINDING_STRENGTH = 0.15
  * 合并排序里用户权威标签的置信度：任何自动提议都无法越过它（模型的置信度上界就是 1.0，
  * 且受保护标签不参与预算淘汰）。存量自动标签**不用**这个值——它们的排序基线是落库的
  * [ProblemClassificationBindingRecord.acceptedConfidence]（KF-30）；只有升级前、真值未知
- * 的旧行（列值 NULL）才退回接受门 [CLASSIFICATION_ACCEPTANCE_CONFIDENCE]。
+ * 的旧行（列值 NULL）才按**显式策略** [UNKNOWN_INCUMBENT_COMPARISON]（GATE）参与比较。
  */
 private const val PROTECTED_CLASSIFICATION_CONFIDENCE = 1.0
 internal const val CLASSIFICATION_ACCEPTANCE_CONFIDENCE = 0.78
+
+/**
+ * **未知存量比较策略（K5-A · R2 口径 1）**：存量自动标签的真值未知（列值 `NULL`，
+ * v63 及更早的升级前旧行）时它**如何参与**合并比较。取值域只有 [GATE]。
+ *
+ * **这是策略，不是估计**（研究文档 `docs/research/2026-10-11-r1-r2-label-accuracy-research.md`
+ * §0/§2.1/§4）：缺失 ≠ 某个精确值——单值顶替会低估不确定性、过度自信（Altman & Bland 1995；
+ * 缺失插补综述 arXiv 2511.01196；Steck 2012；Marlin & Zemel 2011 一致），可审计场景要求
+ * 等值/替换规则**显式、确定、可披露**（arXiv 2609.26977）。因此 [GATE] 的含义只是
+ * "按接受门 [CLASSIFICATION_ACCEPTANCE_CONFIDENCE] 参与比较"这条规则，从不表示
+ * "它当时以 0.78 被接受"——写侧照旧落 `NULL`（见 [unknownAcceptedConfidenceKeys]）。
+ */
+internal enum class UnknownIncumbentComparison {
+    /**
+     * 按接受门 [CLASSIFICATION_ACCEPTANCE_CONFIDENCE] 参与比较。判据一行不改——
+     * **严格更高者胜、等值保留存量**：任何严格高于门值且 ≥ 门值的新提议可以替换未知行，
+     * 未知**不冻结**（裁定 Q2：冻结会成一潭死水，且「禁止把这种问题交给用户」）。
+     */
+    GATE,
+}
+
+/** K5-A 命名策略常量：未知存量按 [UnknownIncumbentComparison.GATE] 参与比较（策略而非估计）。 */
+internal val UNKNOWN_INCUMBENT_COMPARISON: UnknownIncumbentComparison =
+    UnknownIncumbentComparison.GATE
+
 internal const val ATOMIC_KNOWLEDGE_ACCEPTANCE_CONFIDENCE = 0.72
 internal const val RELATION_ACCEPTANCE_CONFIDENCE = 0.90
 private const val MAX_ACCEPTED_CHAPTERS = 3
@@ -924,10 +949,20 @@ internal data class LocallyAcceptedOrganization(
  *
  * 存量自动标签的排序基线 = **落库的真实接受置信度**（`ProblemClassificationBindingRecord.
  * acceptedConfidence`，KF-30 v64 起）。升级前（v63 及更早）的旧行没有真值 ⇒ 列值 `NULL`
- * = 未知，按接受门 [CLASSIFICATION_ACCEPTANCE_CONFIDENCE] 参与比较（裁定 Q2 interim）：
- * 任何**严格更高且 ≥ 门值**的新提议都能替换它——未知**不冻结**（冻结会成一潭死水，且
- * 「禁止把这种问题交给用户」）。旧行照旧不回填：被保留的本轮不会把门值写回列（见
- * [unknownAcceptedConfidenceKeys]），只有模型重提同名标签时真值才随新命令落库（系统自纠）。
+ * = 未知，按**显式策略** [UNKNOWN_INCUMBENT_COMPARISON]（[UnknownIncumbentComparison.GATE]）
+ * 参与比较——**策略而非估计**：门值从不被读成"它当时以 0.78 被接受"（缺失 ≠ 精确值；
+ * 规则须显式、确定、可披露，见该常量的 KDoc）。判据一行不改：**严格更高者胜、等值保留
+ * 存量**——任何**严格高于门值且 ≥ 门值**的新提议能替换未知行，未知**不冻结**（裁定 Q2：
+ * 冻结会成一潭死水，且「禁止把这种问题交给用户」）。旧行照旧不回填：被保留的本轮不会把
+ * 门值写回列（见 [unknownAcceptedConfidenceKeys]），只有模型重提同名标签时真值才随新命令
+ * 落库（系统自纠）。
+ *
+ * 本函数是 [mergeAutomaticClassificationsWithReasons] 的**建议投影**（无逻辑复制）：判定与
+ * 理由的唯一执行体在那里——按「存量已知 / 存量未知」**分支**裁决，并给每条结果带上可观察
+ * 理由（`incumbent_known` / `incumbent_unknown`），使"按策略替换"与"按分数替换"在证据上可
+ * 分开（K5-A · R2 口径 1）。**选择投影而非改返回类型的理由**：既有调用点（生产合并 +
+ * K3 用例）只需要建议列表，签名不变 ⇒ 零波及；理由与裁决在**同一点**产生（不是事后重算）
+ * ⇒ 证据不可能与判定漂移。
  *
  * **定位（复核 F2）**：上面的"非自动标签保护"分支在当前生产路径**不可达**——
  * `applySuccessfulOrganizationOnIo` 读到任何用户权威分类（`hasUserCorrection`）时已整体早退，
@@ -938,7 +973,28 @@ internal data class LocallyAcceptedOrganization(
 internal fun mergeAutomaticClassifications(
     existing: List<ProblemClassificationBindingRecord>,
     incoming: List<ProblemClassificationSuggestion>,
-): List<ProblemClassificationSuggestion> {
+): List<ProblemClassificationSuggestion> =
+    mergeAutomaticClassificationsWithReasons(existing, incoming)
+        .map(ClassificationMergeOutcome::suggestion)
+
+/**
+ * K5-A（R2 口径 1）：合并的**真实执行体**——与 [mergeAutomaticClassifications] 同一条判据，
+ * 但每条结果带可观察的裁决证据：
+ *
+ * - [ClassificationMergeOutcome.incumbentReason] = 本键裁决解释同名**自动存量**的方式
+ *   （`incumbent_known` / `incumbent_unknown`）；`null` = 本键没有自动存量（本轮新提议，
+ *   或用户权威存量——它不参与自动比较，永不被替换）；
+ * - [ClassificationMergeOutcome.replacedIncumbent] = 结果是否来自本轮提议顶掉了同名存量。
+ *
+ * 已知/未知**分支**（[incumbentComparisonBasis]）：存量真值已知 ⇒ 按落库分数比较
+ * （"按分数替换"）；未知 ⇒ 走策略 [UNKNOWN_INCUMBENT_COMPARISON]（"按策略替换"）。
+ * 未知**不折叠**进 `acceptedConfidence ?: 门值` 那种数值回退——策略只改"如何被解释与记录"，
+ * 不改"谁能赢"。
+ */
+internal fun mergeAutomaticClassificationsWithReasons(
+    existing: List<ProblemClassificationBindingRecord>,
+    incoming: List<ProblemClassificationSuggestion>,
+): List<ClassificationMergeOutcome> {
     val retained = existing.mapNotNull { record ->
         val dimension = runCatching { ClassificationDimension.valueOf(record.dimension) }
             .getOrNull()
@@ -946,6 +1002,7 @@ internal fun mergeAutomaticClassifications(
             ?: return@mapNotNull null
         val automaticallyAccepted =
             record.acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED.name
+        val basis = incumbentComparisonBasis(record)
         runCatching {
             RetainedClassification(
                 suggestion = ProblemClassificationSuggestion(
@@ -956,13 +1013,10 @@ internal fun mergeAutomaticClassifications(
                     } else {
                         "此前已整理并保留；模型本次未提及不代表删除。"
                     },
-                    confidence = if (automaticallyAccepted) {
-                        record.acceptedConfidence ?: CLASSIFICATION_ACCEPTANCE_CONFIDENCE
-                    } else {
-                        PROTECTED_CLASSIFICATION_CONFIDENCE
-                    },
+                    confidence = basis?.comparisonConfidence ?: PROTECTED_CLASSIFICATION_CONFIDENCE,
                 ),
                 overridableByAutomaticRerun = automaticallyAccepted,
+                incumbentReason = basis?.reason,
             )
         }.getOrNull()
     }
@@ -970,25 +1024,108 @@ internal fun mergeAutomaticClassifications(
         .filterNot(RetainedClassification::overridableByAutomaticRerun)
         .mapTo(hashSetOf()) { classificationMergeKey(it.suggestion) }
     // 稳定排序 + 先入者胜：同置信（含同名的用户标签）不覆盖，严格更高置信的本轮提议才覆盖。
-    val merged = (retained.map(RetainedClassification::suggestion) + incoming)
-        .sortedByDescending(ProblemClassificationSuggestion::confidence)
-        .distinctBy(::classificationMergeKey)
+    val sortedCandidates = (
+        retained.map { entry ->
+            MergeCandidate(entry.suggestion, entry.incumbentReason, fromIncumbent = true)
+        } + incoming.map { suggestion ->
+            MergeCandidate(suggestion, incumbentReason = null, fromIncumbent = false)
+        }
+        )
+        .sortedByDescending { it.suggestion.confidence }
+    // 同名存量（若有多行同键）取排序里会胜出的那条来解释——与下方 distinctBy 同一顺序口径。
+    val incumbentByKey = buildMap {
+        sortedCandidates.filter { it.fromIncumbent }.forEach { candidate ->
+            putIfAbsent(classificationMergeKey(candidate.suggestion), candidate)
+        }
+    }
+    val outcomes = sortedCandidates
+        .distinctBy { classificationMergeKey(it.suggestion) }
+        .map { winner ->
+            val incumbent = incumbentByKey[classificationMergeKey(winner.suggestion)]
+            ClassificationMergeOutcome(
+                suggestion = winner.suggestion,
+                incumbentReason = incumbent?.incumbentReason,
+                replacedIncumbent = !winner.fromIncumbent && incumbent != null,
+            )
+        }
     return withinClassificationBudget(
-        merged = merged,
+        merged = outcomes,
         protectedKeys = protectedKeys,
         dimension = ClassificationDimension.CHAPTER,
         budget = MAX_ACCEPTED_CHAPTERS,
     ) + withinClassificationBudget(
-        merged = merged,
+        merged = outcomes,
         protectedKeys = protectedKeys,
         dimension = ClassificationDimension.KNOWLEDGE,
         budget = MAX_ACCEPTED_KNOWLEDGE,
     )
 }
 
+/**
+ * K5-A：存量自动标签的比较解释——`null` = 非自动（用户权威，不参与自动比较）。
+ *
+ * 已知/未知**显式分支**：真值已知 ⇒ 按落库分数；真值未知 ⇒ 走策略
+ * [UNKNOWN_INCUMBENT_COMPARISON]（GATE）——**不把它折叠成 0.78 再与已知值混比**：
+ * 未知行没有真值，门值只是"按门值参与比较"这条规则的比较位，且带
+ * [IncumbentComparisonReason.INCUMBENT_UNKNOWN] 理由进结果。
+ */
+private fun incumbentComparisonBasis(
+    record: ProblemClassificationBindingRecord,
+): IncumbentComparisonBasis? {
+    if (record.acceptanceSource != BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED.name) return null
+    val recordedScore = record.acceptedConfidence
+    if (recordedScore != null) {
+        return IncumbentComparisonBasis(recordedScore, IncumbentComparisonReason.INCUMBENT_KNOWN)
+    }
+    val policyConfidence = when (UNKNOWN_INCUMBENT_COMPARISON) {
+        UnknownIncumbentComparison.GATE -> CLASSIFICATION_ACCEPTANCE_CONFIDENCE
+    }
+    return IncumbentComparisonBasis(policyConfidence, IncumbentComparisonReason.INCUMBENT_UNKNOWN)
+}
+
+/**
+ * K5-A：一条合并结果相对同名存量的裁决证据。
+ *
+ * - [incumbentReason]：本键裁决解释的存量自动标签是"已知"还是"未知"；`null` = 本键没有
+ *   自动存量可解释（本轮新提议，或用户权威存量——它不参与自动比较）；
+ * - [replacedIncumbent]：结果来自本轮提议并顶掉了同名存量（true），还是存量被保留（false）。
+ *
+ * 理由值即 `incumbent_known` / `incumbent_unknown`（[IncumbentComparisonReason.wireReason]），
+ * 使"按策略替换"与"按分数替换"在证据上可分开、可披露。
+ */
+internal data class ClassificationMergeOutcome(
+    val suggestion: ProblemClassificationSuggestion,
+    val incumbentReason: IncumbentComparisonReason?,
+    val replacedIncumbent: Boolean,
+)
+
+/**
+ * K5-A：合并裁决相对同名存量自动标签的**可观察理由**。
+ *
+ * - [INCUMBENT_KNOWN]（`incumbent_known`）：存量真值已知，按落库接受分数比较；
+ * - [INCUMBENT_UNKNOWN]（`incumbent_unknown`）：存量真值未知（列值 NULL），按策略门
+ *   [UNKNOWN_INCUMBENT_COMPARISON] 解释。
+ */
+internal enum class IncumbentComparisonReason(val wireReason: String) {
+    INCUMBENT_KNOWN("incumbent_known"),
+    INCUMBENT_UNKNOWN("incumbent_unknown"),
+}
+
+private data class IncumbentComparisonBasis(
+    val comparisonConfidence: Double,
+    val reason: IncumbentComparisonReason,
+)
+
+private data class MergeCandidate(
+    val suggestion: ProblemClassificationSuggestion,
+    val incumbentReason: IncumbentComparisonReason?,
+    val fromIncumbent: Boolean,
+)
+
 private data class RetainedClassification(
     val suggestion: ProblemClassificationSuggestion,
     val overridableByAutomaticRerun: Boolean,
+    val incumbentReason: IncumbentComparisonReason?,
 )
 
 /**
@@ -998,7 +1135,8 @@ private data class RetainedClassification(
  * - **非自动标签**（用户确认/离线纠正）：人的选择没有模型分数——1.0 只是合并排序的保护哨兵，
  *   不是"接受的置信度"；
  * - **升级前的自动旧行**（列值 `NULL`，v63 及更早）：只要本轮没有被更高置信的新提议替换
- *   （合并结果里它仍以门值参与排序），真值就始终未知。把门值写回去 = 把"未知"伪造成
+ *   （合并结果里它仍按策略门 [UNKNOWN_INCUMBENT_COMPARISON] 参与比较），真值就始终未知。
+ *   把门值写回去 = 把"未知"伪造成
  *   "曾以 0.78 接受"，正是 KF-30 (a)(b) 的根因，不许重犯。若同名标签被严格更高（且 ≥ 门值）
  *   的新提议替换，结果里该键的置信度将严格高于门值 ⇒ 新提议的真值照常落库（系统自纠）。
  *
@@ -1043,14 +1181,14 @@ private fun classificationIdentityKey(
 
 /** 每个维度先保住用户权威标签（不受预算淘汰），剩余名额按合并顺序（置信度高者先）分配。 */
 private fun withinClassificationBudget(
-    merged: List<ProblemClassificationSuggestion>,
+    merged: List<ClassificationMergeOutcome>,
     protectedKeys: Set<Pair<ClassificationDimension, String>>,
     dimension: ClassificationDimension,
     budget: Int,
-): List<ProblemClassificationSuggestion> {
-    val candidates = merged.filter { it.dimension == dimension }
-    val protected = candidates.filter { classificationMergeKey(it) in protectedKeys }
-    val competitive = candidates.filterNot { classificationMergeKey(it) in protectedKeys }
+): List<ClassificationMergeOutcome> {
+    val candidates = merged.filter { it.suggestion.dimension == dimension }
+    val protected = candidates.filter { classificationMergeKey(it.suggestion) in protectedKeys }
+    val competitive = candidates.filterNot { classificationMergeKey(it.suggestion) in protectedKeys }
     return protected + competitive.take((budget - protected.size).coerceAtLeast(0))
 }
 
