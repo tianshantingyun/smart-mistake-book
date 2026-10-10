@@ -4,7 +4,9 @@
 > 原文结论「正解 = 未来 schema 增加 accepted-confidence 列，不在本批」。2026-10-09 先由 K2 侦察摸清落点与改动面
 > （`docs/research/2026-10-09-k2-plan.md` 的选批依据），同日就三条语义与用户逐条拷问（grilling 轮）取得裁定。
 >
-> **状态：已裁、未实施。** 落地批次另排；实施前读本记录（台账纪律：待裁值不得自行取值）。
+> **状态：已裁、已实施（K3，2026-10-10，提交 `cd2c54f3`）。** 完成记录
+> `docs/research/2026-10-10-k3-completion-record.md`；Q1 判据一行未改、Q2 的 NULL 口径按本记录落为
+> **interim**（正解挂 R2）、Q3 未动。台账折入仍待他线。
 > 台账折入待办（`docs/agent-first-refactor-decisions-2026-09-23.md` 为另一条会话在飞文件，暂以本记录承载）。
 
 ## 1. 事实基线（已核 file:line）
