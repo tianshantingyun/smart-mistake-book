@@ -46,7 +46,9 @@ multimodal model (brain: read / classify / explain)          [read via chat-comp
   image input). **[verified]** the gateway already reads `ApprovedImage` →
   `EncodedImage` (base64) into the request.
 - **Generate figures**: GPT image 2, exposed as an **MCP server** (figure
-  generation is deliberately separated into MCP). **[verified]** `gpt-image-2`
+  generation is deliberately separated into MCP).（**2026-10-11 注记**：渠道已改——图为
+  **App 内通道**产出（`OpenAiImageGenerationChannel` + `GENERATE_FIGURE` 工具面）；独立 MCP
+  进程已删除。下文 MCP 字样按此口径阅读。） **[verified]** `gpt-image-2`
   via `POST /v1/images/edits` (multipart: `images[]` input + `prompt`, output
   image base64).
 
@@ -61,6 +63,8 @@ multimodal model (brain: read / classify / explain)          [read via chat-comp
     `quality` (low/medium/high/auto); `output_format` (png/jpeg/webp); `n` (1–10)
   - Response: `b64_json` (base64 image). `url` is unsupported for GPT models.
 - MCP exposure: an MCP server wrapping this endpoint is the single figure path.
+  （**2026-10-11 注记**：已改——单一路径 = App 内 `OpenAiImageGenerationChannel`；独立 MCP
+  进程已删除。）
   Takes the photo + an instruction like "remove handwritten marks, keep printed
   problem text verbatim, redraw clean"; returns the clean image.
 
@@ -129,6 +133,8 @@ expected for high-school.)
    verification required before use; rate limits Tier1=5→Tier5=250 IPM).
 3. **MCP server implementation** — what the figure-generation MCP server is
    (self-hosted wrapper around `/v1/images/edits`, or an existing one).
+   （**2026-10-11 注记**：该开放项已终结——wrapper 曾是 `tools/image-mcp-server`，现整体
+   删除；实现面 = App 内通道。）
 
 ## 7. Implementation phases (suggested)
 

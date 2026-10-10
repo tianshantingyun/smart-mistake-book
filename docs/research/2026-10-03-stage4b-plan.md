@@ -32,7 +32,7 @@
 ### 批 1 · 生图工具可达（A1 + A3 + A5 + A6；零 schema）
 - **A1**：`TutorToolName` 第 8 枚 `GENERATE_FIGURE`；参数 `{kind: REDRAW_PROBLEM|GENERATE_PROCESS, description ≤200}`，REDRAW 源图自动取自当前题规范资产（**绝不接受模型供图**）；结果只回 id+状态；8 处触点全改 + `MAX_TOOL_DECLARATIONS` 7→8 + Respond 名单；执行器把生成器/clean-redraw 穿三层注入；两路由 schema/解析**同源**；测试：3 处硬断言 7→8、非法 kind/超长 description 拒、8 工具面可达。
 - **A3**：门单源（`ConfiguredCleanImageGenerator` 删内联门→`resolveImageCredential`；`savedMistakeSheetBytes`→`vault.resolve`）。
-- **A5**：`tools/image-mcp-server/README.md` 首行标注"仅开发用；无 SSRF/凭证防护；已被 App 内 GENERATE_FIGURE 取代"（不删目录）。
+- **A5**：`tools/image-mcp-server/README.md` 首行标注"仅开发用；无 SSRF/凭证防护；已被 App 内 GENERATE_FIGURE 取代"（不删目录）。**（2026-10-11 注：A 案已执行——目录整体删除；见 4B 设计 A5 执行记录与台账「清理记录」。）**
 - **A6**：删大厅 `attachedImages` 解析（wire key + 指纹 strip）；Respond/Plan 降级为兼容字段（仍解析仍渲染）。
 - **门**：全量 JVM + `core:data`/`app` 定向仪器化（工具环/工具卡）+ app 三屏；独立复核；显式清单提交。
 

@@ -150,7 +150,7 @@ K1 50k FTS ranking fixture cost: entries=50000 seed=52060ms markers=152ms bootst
 
 **计划 §4 原文**：「**零 schema**（两项实现均不该触及 Room schema / `LearningCoreVersions`）；若触及 → 停下报告再定。零算法版本 bump；若投影重放语义改动触发 `PROJECTION_COMPOSITE` 评估 → 按台账纪律先落快照，实施时报告。」
 
-**实际**：批 2 **bump `PROJECTOR` v12→v13 + `ATTRIBUTION` v4→v5**（复合串 `learning-core-v12 → v13`；`SELECTOR_COMPOSITE` 同步；`STUDY_DATABASE_VERSION=61` 及其余串不动；**零 Room schema**——计划 §4 的「零 schema」成立，「零 bump」预期被取代)。取代理由与判据（台账 §3.19 已登记，本记录照录）：① 本批确实改变重放输出，而 §3.13 把旧行为（空绑定题退回写时快照）登记为 v12 既定语义，静默改会让台账失真；② 先例 v11→v12 属同一类重放语义变更；③ **不 bump 则「已按 v12 重放过的库」永远拿不到修复**——重放只由版本不匹配或改绑事件触发，静默无效。**归档保证**：`StudyProjectionDrainer.commitFullReplay` 先 `archiveDisplacedSnapshot` 再重放（W0-1 ③，既有机制）——本批不新增归档动作、不改归档路径；`KernelWave0SchemaContractTest` 7/0/0（定串同步属版本钉用例职责）。
+**实际**：批 2 **bump `PROJECTOR` v12→v13 + `ATTRIBUTION` v4→v5**（复合串 `learning-core-v12 → v13`；`SELECTOR_COMPOSITE` 同步；`STUDY_DATABASE_VERSION=61` 及其余串不动（**2026-10-11 注记：此数系陈旧笔误——S18 已于 2026-10-05 落 schema 63，K1 时点为 63**）；**零 Room schema**——计划 §4 的「零 schema」成立，「零 bump」预期被取代)。取代理由与判据（台账 §3.19 已登记，本记录照录）：① 本批确实改变重放输出，而 §3.13 把旧行为（空绑定题退回写时快照）登记为 v12 既定语义，静默改会让台账失真；② 先例 v11→v12 属同一类重放语义变更；③ **不 bump 则「已按 v12 重放过的库」永远拿不到修复**——重放只由版本不匹配或改绑事件触发，静默无效。**归档保证**：`StudyProjectionDrainer.commitFullReplay` 先 `archiveDisplacedSnapshot` 再重放（W0-1 ③，既有机制）——本批不新增归档动作、不改归档路径；`KernelWave0SchemaContractTest` 7/0/0（定串同步属版本钉用例职责）。
 
 ## 8. 台账折入待办
 

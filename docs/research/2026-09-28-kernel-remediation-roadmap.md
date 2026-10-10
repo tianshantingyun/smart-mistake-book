@@ -80,6 +80,9 @@
 
 ### W1-1（P3）duration 毫秒化
 
+> **注（2026-10-11，裁决 3）：本条采集侧已后移——不提前在旧复习屏做，随阶段 5 新复习栏一并实现。
+> 原文保留作实施规格参考。**
+
 - **证据**：`LearningState.kt:308` `durationSeconds: Int`；采集端 `ReviewSessionScreen.kt:925-927`
   `(now-started)/1000L` 截断；`ReviewLogSink.kt:93` 落 `durationSeconds*1000L`。
 - **改法**：全链改 `durationMillis: Long`；采集端不除 1000；`review_log.duration_ms` 直接落。
@@ -90,6 +93,8 @@
 - **完成判据**：采集链路无截断 + 迁移绿。
 
 ### W1-2（P4）展示时长采集
+
+> **注（2026-10-11，裁决 3）：同 W1-1——采集侧已后移阶段 5；KF-15（RTE）实施依赖后移的采集。**
 
 - **证据**：全库无 `presented_at_epoch_millis`/displayDuration（KF-15 前提不成立）。
 - **改法**：`assessment_presentation` 加列 `presented_at_epoch_millis`；呈现侧挂载时写；

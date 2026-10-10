@@ -19,6 +19,9 @@ A user photographs a problem and uploads it. The system must produce:
 
 All understanding and explanation is owned by **a multimodal model**. Figures
 are produced by an **image-to-image MCP server**.
+（**2026-10-11 注记**：此句已被取代——独立 MCP 进程整体删除；图的唯一来源 = **App 内通道**
+（`OpenAiImageGenerationChannel`（`/v1/images/edits` + `/v1/images/generations`）+ cleanRedraw
+装配 + `GENERATE_FIGURE` 工具面）。下文含 "MCP" 的条目均按此口径阅读。）
 
 ## Architecture
 
