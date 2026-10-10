@@ -586,6 +586,18 @@ internal data class ProblemClassificationBindingEntity(
     val acceptanceSource: String,
     @ColumnInfo(name = "accepted_at_epoch_millis")
     val acceptedAtEpochMillis: Long,
+    /**
+     * KF-30：该标签被接受时的**真实**置信度（模型对本标签的接受分数）。
+     *
+     * **语义**：`NULL` = 未知——v63 及更早写入的旧行（升级时刻真值已不可考，迁移不回填），
+     * 或该行来自用户确认/离线纠正路径（人的选择没有模型分数，权威性由 [acceptanceSource]
+     * 表达）。合并（`mergeAutomaticClassifications`）读本列参与替换排序：NULL 按接受门
+     * `CLASSIFICATION_ACCEPTANCE_CONFIDENCE`（0.78）参与比较——任何**严格更高且 ≥ 门值**
+     * 的新提议都可以替换它（KF-30 Q2 interim，未知**不冻结**），此后写回新提议的真值。
+     * 绝不许把"未知"伪造成门值：那正是 KF-30 (a)(b) 的根因。
+     */
+    @ColumnInfo(name = "accepted_confidence")
+    val acceptedConfidence: Double? = null,
 )
 
 @Entity(

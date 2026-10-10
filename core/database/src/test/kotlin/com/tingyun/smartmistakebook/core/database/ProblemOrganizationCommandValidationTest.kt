@@ -67,6 +67,34 @@ class ProblemOrganizationCommandValidationTest {
         )
     }
 
+    /**
+     * KF-30：`accepted_confidence` 的静态不变量——NULL（未知）与 0..1 的真值合法；
+     * 越界/非有限值（写入侧手改或坏数据）必须在落库前被拒。
+     */
+    @Test
+    fun anOutOfRangeAcceptedConfidenceIsRejectedWhileUnknownAndValidScoresPass() {
+        fun withConfidence(confidence: Double?): ConfirmProblemOrganizationCommand {
+            val base = command(knowledgeBindings = emptyList())
+            return base.copy(
+                classifications = base.classifications.map {
+                    it.copy(acceptedConfidence = confidence)
+                },
+            )
+        }
+
+        validateCommand(withConfidence(null))
+        validateCommand(withConfidence(0.0))
+        validateCommand(withConfidence(1.0))
+
+        listOf(1.5, -0.01, Double.NaN, Double.POSITIVE_INFINITY).forEach { invalid ->
+            val failure = runCatching { validateCommand(withConfidence(invalid)) }.exceptionOrNull()
+            assertTrue(
+                "非法置信度 $invalid 必须被拒，实际：$failure",
+                failure is IllegalArgumentException,
+            )
+        }
+    }
+
     private fun command(
         knowledgeBindings: List<KnowledgeBindingSeedRecord>,
     ) = ConfirmProblemOrganizationCommand(

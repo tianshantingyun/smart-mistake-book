@@ -344,6 +344,143 @@ class FullMigrationMatrixInstrumentedTest {
     }
 
     /**
+     * KF-30（v63→64）：`problem_classification_binding` 增加可空列 `accepted_confidence`。
+     * 矩阵用的是空库，看不出"旧行还在不在、旧行该列是什么"，这里用真库、真驱动实测：
+     * 1. 列按迁移建出来（可空 `REAL`，追加在行尾）；
+     * 2. 旧行一行不动，且**该列为 NULL**（未知，迁移不回填）；
+     * 3. 再开一次（同一库第二次经过迁移出口）形态与旧行不变——迁移幂等。
+     */
+    @Test
+    fun kf30AcceptedConfidenceColumnIsAddedLeavingLegacyRowsNullAndIdempotent() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave11-accepted-confidence-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 63)
+            seedV63ClassificationRow(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v63 库迁到 64",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV64AcceptedConfidenceShape(context, databaseName)
+
+            // 幂等：同一库再开一次（迁移已是 no-op）不得改变列形态或旧行。
+            val reopened = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(STUDY_DATABASE_VERSION, reopened.readDatabaseVersion())
+            reopened.close()
+            inspectV64AcceptedConfidenceShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 往导出的 63.json 建出来的库里写：一行真实 problem/revision + 一行分类绑定（v63 形态，
+     * 没有 accepted_confidence 列）。显式关外键只用于少写父行占位——这里父行齐备
+     * （problem → revision → binding），关外键是与其他 seed 保持同一写法。
+     */
+    private fun seedV63ClassificationRow(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$KF30_PROBLEM_ID', 'fp-wave11', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$KF30_REVISION_ID', '$KF30_PROBLEM_ID', 1, 'KF-30 题', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave11-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_classification_binding` (
+                    `binding_id`, `problem_id`, `basis_revision_id`, `dimension`, `label_id`,
+                    `display_name`, `taxonomy_version`, `acceptance_source`,
+                    `accepted_at_epoch_millis`
+                ) VALUES (
+                    '$KF30_BINDING_ID', '$KF30_PROBLEM_ID', '$KF30_REVISION_ID',
+                    'KNOWLEDGE', 'math:knowledge:legacy', '旧知识点',
+                    'local-policy-v1', 'LOCAL_POLICY_ACCEPTED',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：新列可空 REAL 在行尾，旧行原样且该列为 NULL。 */
+    private fun inspectV64AcceptedConfidenceShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertEquals(
+                "列与实体声明逐位同形（新列追加在行尾）",
+                KF30_CLASSIFICATION_COLUMNS_V63 + "accepted_confidence",
+                columnNames(connection, "problem_classification_binding"),
+            )
+
+            val info = connection.prepare("PRAGMA table_info(`problem_classification_binding`)")
+            try {
+                var found = false
+                while (info.step()) {
+                    if (info.getText(1) == "accepted_confidence") {
+                        found = true
+                        assertEquals("类型必须是 REAL", "REAL", info.getText(2))
+                        assertEquals("必须可空（NULL = 未知）", 0L, info.getLong(3))
+                        // dflt_value 为 NULL 是期望形态（无默认值）；**不要**把它插进断言消息——
+                        // 驱动对 NULL 调 getText 会直接抛 NPE，让本该通过的断言假红。
+                        assertTrue("不许有 DEFAULT（未知就是 NULL）", info.isNull(4))
+                    }
+                }
+                assertTrue("迁移必须把 accepted_confidence 建出来", found)
+            } finally {
+                info.close()
+            }
+
+            val statement = connection.prepare(
+                "SELECT binding_id, dimension, accepted_at_epoch_millis, accepted_confidence " +
+                    "FROM `problem_classification_binding` WHERE binding_id = '$KF30_BINDING_ID'",
+            )
+            try {
+                assertTrue("旧行必须一行不丢", statement.step())
+                assertEquals(KF30_BINDING_ID, statement.getText(0))
+                assertEquals("KNOWLEDGE", statement.getText(1))
+                assertEquals("旧行的既有列原样", 1_700_000_000_000L, statement.getLong(2))
+                assertTrue(
+                    "旧行的 accepted_confidence 必须是 NULL（未知，迁移不回填）",
+                    statement.isNull(3),
+                )
+                assertFalse("旧行只有这一条", statement.step())
+            } finally {
+                statement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /**
      * 往导出的 62.json 建出来的库里写：一行真实 practice unit（连同 problem/revision）
      * + 投影头 + 一行记忆态。显式关外键只用于 fixture 表可任意的场景——这里三张表的
      * 外键都配齐（practice_unit → problem/revision，头 → 记忆态），不关外键也写得进。
@@ -1129,6 +1266,22 @@ class FullMigrationMatrixInstrumentedTest {
         const val MEMORY_PROBLEM_ID = "problem-wave10"
         const val MEMORY_REVISION_ID = "revision-wave10"
         const val MEMORY_LEARNER_ID = "learner:wave10"
+
+        /** v63→64（KF-30 分类接受置信度列）用例：v63 列形状与旧行夹具值。 */
+        val KF30_CLASSIFICATION_COLUMNS_V63 = listOf(
+            "binding_id",
+            "problem_id",
+            "basis_revision_id",
+            "dimension",
+            "label_id",
+            "display_name",
+            "taxonomy_version",
+            "acceptance_source",
+            "accepted_at_epoch_millis",
+        )
+        const val KF30_PROBLEM_ID = "problem-wave11"
+        const val KF30_REVISION_ID = "revision-wave11"
+        const val KF30_BINDING_ID = "classification-wave11"
 
         /** v59→60（L2 标题单源）用例：两列分叉的夹具值。 */
         const val TITLE_PROBLEM_ID = "problem-wave7"

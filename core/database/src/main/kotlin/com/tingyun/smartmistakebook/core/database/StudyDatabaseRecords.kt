@@ -476,6 +476,12 @@ data class ProblemClassificationBindingRecord(
     val taxonomyVersion: String,
     val acceptanceSource: String,
     val acceptedAtEpochMillis: Long,
+    /**
+     * KF-30：该标签被接受时的**真实**置信度；`null` = 未知（v63 及更早的升级前旧行，或
+     * 用户确认/离线纠正路径——没有模型分数）。合并读它参与排序，NULL 按接受门参与比较
+     * （未知不冻结：严格更高且 ≥ 门值的新提议可替换）；权威性始终由 [acceptanceSource] 表达。
+     */
+    val acceptedConfidence: Double? = null,
 )
 
 data class ConfirmProblemOrganizationCommand(

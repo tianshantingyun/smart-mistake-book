@@ -64,6 +64,59 @@ class ProblemOrganizationDatabaseInstrumentedTest {
         assertEquals(listOf("二次函数最值"), catalog.knowledgeLabels)
     }
 
+    /**
+     * KF-30：`accepted_confidence` 在真库上逐位往返——自动写真实分数、未知（用户/升级前旧行）
+     * 写 NULL、NULL 行照常可写（升级前形态不被写入侧拒掉）。
+     */
+    @Test
+    fun classificationBindingsPersistTheRecordedAcceptanceConfidence() = runBlocking {
+        val automatic = command("kf30-automatic", "9".repeat(64)).copy(
+            knowledgeBindings = command("unused-kf30-a", "8".repeat(64)).knowledgeBindings.map {
+                it.copy(sourceType = "LOCAL_POLICY_ACCEPTED")
+            },
+            classifications = command("unused-kf30-b", "7".repeat(64)).classifications.map {
+                it.copy(
+                    acceptanceSource = "LOCAL_POLICY_ACCEPTED",
+                    acceptedConfidence = 0.91,
+                )
+            },
+        )
+        store.confirmProblemOrganization(automatic)
+        val automaticStored = store.observeConfirmedProblemOrganization(PROBLEM, REVISION).first()
+        assertEquals(
+            "自动路径的真实分数必须逐位读回",
+            listOf(0.91, 0.91),
+            automaticStored.classifications.map { it.acceptedConfidence },
+        )
+
+        // 升级前旧行形态：权威是自动、真值未知（NULL）——写入侧不得拒绝，读回仍是 NULL。
+        val legacyShape = command("kf30-legacy", "6".repeat(64)).copy(
+            acceptedAtEpochMillis = 5_000,
+            knowledgeNodes = command("unused-kf30-c", "5".repeat(64)).knowledgeNodes.map {
+                it.copy(createdAtEpochMillis = 5_000)
+            },
+            knowledgeBindings = command("unused-kf30-d", "4".repeat(64)).knowledgeBindings.map {
+                it.copy(sourceType = "LOCAL_POLICY_ACCEPTED", acceptedAtEpochMillis = 5_000)
+            },
+            classifications = command("unused-kf30-e", "3".repeat(64)).classifications.map {
+                it.copy(
+                    acceptanceSource = "LOCAL_POLICY_ACCEPTED",
+                    acceptedAtEpochMillis = 5_000,
+                    acceptedConfidence = null,
+                )
+            },
+            relations = command("unused-kf30-f", "2".repeat(64)).relations.map {
+                it.copy(createdAtEpochMillis = 5_000, updatedAtEpochMillis = 5_000)
+            },
+        )
+        store.confirmProblemOrganization(legacyShape)
+        val legacyStored = store.observeConfirmedProblemOrganization(PROBLEM, REVISION).first()
+        assertTrue(
+            "未知写回 NULL，绝不伪造门值",
+            legacyStored.classifications.all { it.acceptedConfidence == null },
+        )
+    }
+
     @Test
     fun sameCommandIdWithDifferentPayloadFailsClosed() = runBlocking {
         store.confirmProblemOrganization(command("same-command", "b".repeat(64)))

@@ -218,6 +218,7 @@ class RoomMistakeOrganizationRepositoryTest {
     @Test
     fun explicitCorrectionBecomesDeterministicUserCorrectedFacts() {
         val first = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "organization-request",
             input = input(),
             classifications = classifications(),
@@ -225,6 +226,7 @@ class RoomMistakeOrganizationRepositoryTest {
             acceptedAtEpochMillis = 2_000,
         )
         val replay = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "organization-request",
             input = input(),
             classifications = classifications(),
@@ -249,6 +251,7 @@ class RoomMistakeOrganizationRepositoryTest {
     @Test
     fun knowledgeNodeIdentityDoesNotChangeWithAcceptanceAuthority() {
         val automatic = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "automatic-request",
             input = input(),
             classifications = classifications(),
@@ -257,6 +260,7 @@ class RoomMistakeOrganizationRepositoryTest {
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
         )
         val corrected = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "corrected-request",
             input = input(),
             classifications = classifications(),
@@ -279,6 +283,7 @@ class RoomMistakeOrganizationRepositoryTest {
     @Test
     fun automaticRerunPreservesAcceptedLabelsThatTheModelOmits() {
         val existing = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "existing-organization",
             input = input(),
             classifications = classifications() +
@@ -434,6 +439,279 @@ class RoomMistakeOrganizationRepositoryTest {
     }
 
     /**
+     * KF-30 (b) 的红样例：存量自动标签的**真实**接受分数落库后，低于它的本轮提议不得顶掉它。
+     *
+     * 红证（实施本列之前跑本用例）：旧行为只知道"它曾过门"，把存量一律估成 0.78 ⇒
+     * 0.79 的提议 > 0.78 ⇒ 曾以 0.99 被接受的标签被替换（实际 merged 置信度 = 0.79），
+     * 本断言以 `expected:<[0.99]> but was:<[0.79]>` 失败。列落地后存量真值可读（0.99），
+     * 保留存量 ⇒ 绿。两阶段形态与原始输出见提交 evidence。
+     */
+    @Test
+    fun aProposalBelowTheRecordedAcceptanceScoreCannotReplaceTheStoredLabel() {
+        val existing = listOf(
+            binding(
+                dimension = ClassificationDimension.KNOWLEDGE,
+                labelId = "knowledge-stale",
+                displayName = "旧知识点",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = 0.99,
+            ),
+        )
+        val incoming = listOf(
+            classification(ClassificationDimension.KNOWLEDGE, "旧知识点", 0.79),
+        )
+
+        val merged = mergeAutomaticClassifications(existing, incoming)
+
+        assertEquals(
+            "存量真值 0.99 严格高于 0.79：必须保留存量（旧行为会返回 0.79）",
+            listOf(0.99),
+            merged.map(ProblemClassificationSuggestion::confidence),
+        )
+        // 写侧：已知真值的存量不是"未知"，重写时带着真值走——不得降级成门值/NULL。
+        val command = buildConfirmationCommand(
+            requestId = "organization-request",
+            input = input(),
+            classifications = merged + classification(ClassificationDimension.CHAPTER, "函数", 0.95),
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            unknownAcceptedConfidenceKeys = unknownAcceptedConfidenceKeys(existing, merged),
+        )
+        assertEquals(
+            0.99,
+            command.classifications.single { it.displayName == "旧知识点" }.acceptedConfidence!!,
+            0.0,
+        )
+    }
+
+    /** KF-30：等值（0.80 vs 0.80）保留存量——判据「严格更高者胜、等值保留存量」一行不改。 */
+    @Test
+    fun anEqualRecordedScoreKeepsTheStoredLabel() {
+        val existing = listOf(
+            binding(
+                dimension = ClassificationDimension.KNOWLEDGE,
+                labelId = "knowledge-equal",
+                displayName = "旧知识点",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = 0.80,
+            ),
+        )
+        val incoming = listOf(
+            classification(ClassificationDimension.KNOWLEDGE, "旧知识点", 0.80),
+        )
+
+        val merged = mergeAutomaticClassifications(existing, incoming)
+
+        assertEquals(
+            "同置信先入者胜：保留存量，不得被本轮同值提议替换",
+            listOf(0.80),
+            merged.map(ProblemClassificationSuggestion::confidence),
+        )
+        // K3 复核 P2：0.80/0.80 等值时"保留存量"与"被同值提议替换"的分数无法区分——
+        // 用保留态独有的理由文本把两条路径分开（替换会带上本轮提议的理由）。
+        assertTrue(
+            "等值必须保留存量：理由应仍是存量被保留的口径",
+            merged.single().rationaleMarkdown.contains("此前由自动整理接受"),
+        )
+    }
+
+    /**
+     * KF-30 Q2 interim：升级前旧行的列值是 NULL = **未知**，按接受门 0.78 参与比较——
+     * 严格更高且 ≥ 门值的新提议可以替换它（未知**不冻结**），真值随本轮落库（系统自纠）。
+     */
+    @Test
+    fun anUnknownLegacyScoreIsReplacedByAProposalAboveTheGate() {
+        val existing = listOf(
+            binding(
+                dimension = ClassificationDimension.KNOWLEDGE,
+                labelId = "knowledge-legacy",
+                displayName = "旧知识点",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = null,
+            ),
+        )
+        val incoming = listOf(
+            classification(ClassificationDimension.KNOWLEDGE, "旧知识点", 0.80),
+        )
+
+        val merged = mergeAutomaticClassifications(existing, incoming)
+        val unknownKeys = unknownAcceptedConfidenceKeys(existing, merged)
+
+        assertEquals(
+            "0.80 严格高于门值 0.78：旧行不得冻结",
+            listOf(0.80),
+            merged.map(ProblemClassificationSuggestion::confidence),
+        )
+        assertEquals(
+            "被替换的键不再是未知 ⇒ 写侧落本轮真值",
+            emptySet<Pair<ClassificationDimension, String>>(),
+            unknownKeys,
+        )
+        val command = buildConfirmationCommand(
+            requestId = "organization-request",
+            input = input(),
+            classifications = merged + classification(ClassificationDimension.CHAPTER, "函数", 0.95),
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            unknownAcceptedConfidenceKeys = unknownKeys,
+        )
+        assertEquals(
+            "系统自纠：被替换的旧行落上本轮真值 0.80",
+            0.80,
+            command.classifications.single { it.displayName == "旧知识点" }.acceptedConfidence!!,
+            0.0,
+        )
+    }
+
+    /**
+     * KF-30 Q2 interim 的另一半：NULL 按门值参与比较 ⇒ 与门值等值（或更低）的本轮提议不得替换它；
+     * 被保留的旧行**不得**把门值当成"曾以 0.78 接受"写回——真值仍未知，写 NULL。
+     */
+    @Test
+    fun anUnknownLegacyScoreSurvivesAProposalAtTheGateAndIsNotFabricated() {
+        val existing = listOf(
+            binding(
+                dimension = ClassificationDimension.CHAPTER,
+                labelId = "chapter-known",
+                displayName = "函数",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = 0.95,
+            ),
+            binding(
+                dimension = ClassificationDimension.KNOWLEDGE,
+                labelId = "knowledge-legacy",
+                displayName = "旧知识点",
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                acceptedConfidence = null,
+            ),
+        )
+        val incoming = listOf(
+            classification(
+                ClassificationDimension.KNOWLEDGE,
+                "旧知识点",
+                CLASSIFICATION_ACCEPTANCE_CONFIDENCE,
+            ),
+        )
+
+        val merged = mergeAutomaticClassifications(existing, incoming)
+
+        val unknownKeys = unknownAcceptedConfidenceKeys(existing, merged)
+
+        assertEquals(
+            "等值保留存量：门值提议不得替换未知旧行",
+            listOf(0.95, CLASSIFICATION_ACCEPTANCE_CONFIDENCE),
+            merged.map(ProblemClassificationSuggestion::confidence),
+        )
+        assertEquals(
+            "被保留的未知键必须标记为 NULL，已知键不在其中",
+            setOf(ClassificationDimension.KNOWLEDGE to "旧知识点"),
+            unknownKeys,
+        )
+        val command = buildConfirmationCommand(
+            requestId = "organization-request",
+            input = input(),
+            classifications = merged,
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            unknownAcceptedConfidenceKeys = unknownKeys,
+        )
+        assertEquals(
+            "未知旧行重写后仍然是 NULL（不伪造门值）",
+            null,
+            command.classifications.single { it.displayName == "旧知识点" }.acceptedConfidence,
+        )
+        assertEquals(
+            "已知存量在本轮重写时带着真值",
+            0.95,
+            command.classifications.single { it.displayName == "函数" }.acceptedConfidence!!,
+            0.0,
+        )
+    }
+
+    /** KF-30 写侧：自动路径写本轮真实分数；用户路径（含离线纠正）没有模型分数 ⇒ NULL。 */
+    @Test
+    fun automaticWritesCarryRealScoresWhileUserWritesCarryNone() {
+        val automatic = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            requestId = "organization-request",
+            input = input(),
+            classifications = classifications(),
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+        )
+        val user = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            requestId = "organization-request",
+            input = input(),
+            classifications = classifications(),
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
+        )
+
+        assertEquals(
+            "自动路径写建议的真值（0.9 / 0.8）",
+            listOf(0.9, 0.8),
+            automatic.classifications.map { it.acceptedConfidence },
+        )
+        assertTrue(
+            "用户/离线路径没有模型分数：权威由 acceptanceSource 表达，置信度写 NULL",
+            user.classifications.all { it.acceptedConfidence == null },
+        )
+    }
+
+    /**
+     * KF-30 决定：`accepted_confidence` **不进**命令指纹（canonicalPayload）。
+     *
+     * 判据（不得让「重复确认」意外变成冲突）：真实分数是重确认会刷新的记录值，标签身份没变
+     * 就不是新载荷；若进指纹，一次"重复确认 + 分数刷新"会被 `problem_organization_receipt`
+     * 判成载荷冲突。本用例钉住"只有分数不同 ⇒ 指纹与 commandId 不变"，同时用非空断言证明
+     * 两次命令的记录值确实不同（用例非恒真）。
+     */
+    @Test
+    fun refreshingOnlyTheAcceptedConfidenceKeepsTheCommandIdentity() {
+        fun commandWith(unknownKeys: Set<Pair<ClassificationDimension, String>>) =
+            buildConfirmationCommand(
+                requestId = "organization-request",
+                input = input(),
+                classifications = classifications(),
+                relations = emptyList(),
+                acceptedAtEpochMillis = 2_000,
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                unknownAcceptedConfidenceKeys = unknownKeys,
+            )
+
+        val recordedScores = commandWith(emptySet())
+        val unknownScores = commandWith(
+            classifications().mapTo(linkedSetOf()) { it.dimension to it.displayName },
+        )
+
+        assertEquals(
+            "只有接受置信度不同，命令指纹必须不变（重复确认不会变成载荷冲突）",
+            recordedScores.payloadFingerprint,
+            unknownScores.payloadFingerprint,
+        )
+        assertEquals(
+            "commandId 同理（自动路径 = sha256(requestId)，与分数无关）",
+            recordedScores.commandId,
+            unknownScores.commandId,
+        )
+        assertEquals(
+            "两次命令确实记录了不同的置信度（用例非恒真）",
+            listOf(0.9, 0.8),
+            recordedScores.classifications.map { it.acceptedConfidence },
+        )
+        assertTrue(
+            "另一份写 NULL",
+            unknownScores.classifications.all { it.acceptedConfidence == null },
+        )
+    }
+
+    /**
      * KF-07：原子提议一个都没能落地（父级对不上本轮知识分类）时，命令不再把全部 topic 节点按
      * strength=1.0 兜底全绑；绑定集为空 = 诚实未分类，由 pseudo 桶接管。
      */
@@ -453,6 +731,7 @@ class RoomMistakeOrganizationRepositoryTest {
         )
 
         val command = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "unmatched-atom-request",
             input = input(),
             classifications = classifications(),
@@ -471,6 +750,7 @@ class RoomMistakeOrganizationRepositoryTest {
     @Test
     fun exactRelationRemovalUsesDeterministicScopedIdentityWithoutFullReplacement() {
         val command = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "remove-relation-request",
             input = input(),
             classifications = classifications(),
@@ -499,6 +779,7 @@ class RoomMistakeOrganizationRepositoryTest {
         assertTrue(
             runCatching {
                 buildConfirmationCommand(
+                    unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
                     requestId = "organization-request",
                     input = input(),
                     classifications = selectedKnowledge,
@@ -525,6 +806,7 @@ class RoomMistakeOrganizationRepositoryTest {
         assertEquals(listOf("函数", "二次函数最值"), accepted.classifications.map { it.displayName })
         assertEquals(listOf("problem-2"), accepted.relations.map { it.targetProblemId })
         val command = buildConfirmationCommand(
+            unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
             requestId = "organization-request",
             input = input(),
             classifications = accepted.classifications,
@@ -598,6 +880,8 @@ class RoomMistakeOrganizationRepositoryTest {
             relations = accepted.relations,
             acceptedAtEpochMillis = 2_000,
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            // K3 复核 P2：本参数已改必填（编译期消灭"忘传即伪造门值"）；本用例无保留旧行。
+            unknownAcceptedConfidenceKeys = emptySet(),
         )
         assertFalse(command.replaceRelations)
     }
@@ -905,6 +1189,8 @@ class RoomMistakeOrganizationRepositoryTest {
         labelId: String,
         displayName: String,
         acceptanceSource: BindingAcceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
+        // KF-30：存量行的真实接受置信度；null = 未知（升级前旧行）。
+        acceptedConfidence: Double? = null,
     ) = com.tingyun.smartmistakebook.core.database.ProblemClassificationBindingRecord(
         bindingId = "binding-$labelId",
         problemId = "problem-1",
@@ -915,6 +1201,7 @@ class RoomMistakeOrganizationRepositoryTest {
         taxonomyVersion = "user-corrected-v1",
         acceptanceSource = acceptanceSource.name,
         acceptedAtEpochMillis = 1,
+        acceptedConfidence = acceptedConfidence,
     )
 
     /** 一组自动接受的章节标签（KF-30 合并用例的存量侧）。 */

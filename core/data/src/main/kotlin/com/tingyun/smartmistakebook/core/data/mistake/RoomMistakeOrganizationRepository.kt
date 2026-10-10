@@ -88,8 +88,9 @@ private const val KNOWLEDGE_NODE_TAXONOMY_VERSION = "organization-v1"
 private const val MIN_ATOMIC_BINDING_STRENGTH = 0.15
 /**
  * 合并排序里用户权威标签的置信度：任何自动提议都无法越过它（模型的置信度上界就是 1.0，
- * 且受保护标签不参与预算淘汰）。存量自动标签**不用**这个值——它们的基线是接受门
- * [CLASSIFICATION_ACCEPTANCE_CONFIDENCE]（见 [mergeAutomaticClassifications]）。
+ * 且受保护标签不参与预算淘汰）。存量自动标签**不用**这个值——它们的排序基线是落库的
+ * [ProblemClassificationBindingRecord.acceptedConfidence]（KF-30）；只有升级前、真值未知
+ * 的旧行（列值 NULL）才退回接受门 [CLASSIFICATION_ACCEPTANCE_CONFIDENCE]。
  */
 private const val PROTECTED_CLASSIFICATION_CONFIDENCE = 1.0
 internal const val CLASSIFICATION_ACCEPTANCE_CONFIDENCE = 0.78
@@ -413,19 +414,26 @@ internal class RoomMistakeOrganizationRepository(
             tier = persisted.output.plan.difficultyTier,
             acceptedAtEpochMillis = acceptedAtEpochMillis,
         )?.let { advisory -> database.recordTeachingAdvisories(listOf(advisory)) }
+        val mergedClassifications = mergeAutomaticClassifications(
+            existing = existing.classifications,
+            incoming = accepted.classifications,
+        )
         val command = buildConfirmationCommand(
             requestId = requestId,
             input = persisted.input,
-            classifications = mergeAutomaticClassifications(
-                existing = existing.classifications,
-                incoming = accepted.classifications,
-            ),
+            classifications = mergedClassifications,
             relations = accepted.relations,
             atomicKnowledge = accepted.atomicKnowledge,
             stepAttributions = accepted.stepAttributions,
             acceptedAtEpochMillis = acceptedAtEpochMillis,
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
             replaceRelations = false,
+            // KF-30：合并结果里真值未知的标签（升级前旧行被保留 / 用户标签）写 NULL——
+            // 绝不把门值当作"曾以此分接受"回填；被新提议替换的键不在表里，写本轮真值。
+            unknownAcceptedConfidenceKeys = unknownAcceptedConfidenceKeys(
+                existing = existing.classifications,
+                merged = mergedClassifications,
+            ),
         )
         val result = try {
             database.confirmProblemOrganization(
@@ -547,6 +555,9 @@ internal class RoomMistakeOrganizationRepository(
             acceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
             relationRemovals = selection.relationRemovals,
             replaceRelations = selection.replaceRelations,
+            // K3 复核 P2：本参数改为必填（编译期消灭"忘传即伪造门值"）。用户确认路径整体替换
+            // 可见集合、其分类一律按 NULL 写入 → 没有"真值未知"的保留键需要登记。
+            unknownAcceptedConfidenceKeys = emptySet(),
         )
         val result = database.confirmProblemOrganization(
                 command,
@@ -842,6 +853,8 @@ internal fun buildOfflineCorrectionCommand(
         relations = emptyList(),
         acceptedAtEpochMillis = correctedAtEpochMillis,
         acceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
+        // 同上：离线纠正路径的分类一律按 NULL 写入 → 无"真值未知"的保留键。
+        unknownAcceptedConfidenceKeys = emptySet(),
     )
 }
 
@@ -903,15 +916,18 @@ internal data class LocallyAcceptedOrganization(
  * Automatic reruns may add a trusted label, but omission is never a deletion signal. Existing
  * non-automatic labels (USER_CORRECTED / USER_CONFIRMED and any other source that is not
  * LOCAL_POLICY_ACCEPTED) are protected at maximum confidence, are never overridden, and never
- * compete for the per-dimension safety budget. Existing automatic labels stay only as strong as
- * the acceptance gate they once cleared: a later automatic proposal with a strictly higher
- * confidence may replace them when the budget is contended (KF-30 — a wrong automatic acceptance
+ * compete for the per-dimension safety budget. Existing automatic labels stay exactly as strong
+ * as the confidence they were accepted with (KF-30): a later automatic proposal with a strictly
+ * higher confidence may replace them when the budget is contended (a wrong automatic acceptance
  * must not be uncorrectable without the user). Only the explicit user-correction path is allowed
  * to replace the visible classification set outright.
  *
- * 为什么存量自动标签的基线是接受门而不是旧的 1.0：分类绑定没有持久化置信度（零 schema），
- * "它曾通过接受门"是唯一可复核的事实；把存量一律写成 1.0 正是自锁的来源——旧值不可战胜。
- * 同置信/更低置信的本轮提议不覆盖存量（稳定排序，先入者胜）。
+ * 存量自动标签的排序基线 = **落库的真实接受置信度**（`ProblemClassificationBindingRecord.
+ * acceptedConfidence`，KF-30 v64 起）。升级前（v63 及更早）的旧行没有真值 ⇒ 列值 `NULL`
+ * = 未知，按接受门 [CLASSIFICATION_ACCEPTANCE_CONFIDENCE] 参与比较（裁定 Q2 interim）：
+ * 任何**严格更高且 ≥ 门值**的新提议都能替换它——未知**不冻结**（冻结会成一潭死水，且
+ * 「禁止把这种问题交给用户」）。旧行照旧不回填：被保留的本轮不会把门值写回列（见
+ * [unknownAcceptedConfidenceKeys]），只有模型重提同名标签时真值才随新命令落库（系统自纠）。
  *
  * **定位（复核 F2）**：上面的"非自动标签保护"分支在当前生产路径**不可达**——
  * `applySuccessfulOrganizationOnIo` 读到任何用户权威分类（`hasUserCorrection`）时已整体早退，
@@ -941,7 +957,7 @@ internal fun mergeAutomaticClassifications(
                         "此前已整理并保留；模型本次未提及不代表删除。"
                     },
                     confidence = if (automaticallyAccepted) {
-                        CLASSIFICATION_ACCEPTANCE_CONFIDENCE
+                        record.acceptedConfidence ?: CLASSIFICATION_ACCEPTANCE_CONFIDENCE
                     } else {
                         PROTECTED_CLASSIFICATION_CONFIDENCE
                     },
@@ -975,10 +991,52 @@ private data class RetainedClassification(
     val overridableByAutomaticRerun: Boolean,
 )
 
+/**
+ * KF-30：合并结果里哪些标签的接受置信度**必须落 NULL**（未知）——写入侧的"不伪造"闸门。
+ *
+ * 两个来源（键 = 合并身份：维度 + 折叠小写名）：
+ * - **非自动标签**（用户确认/离线纠正）：人的选择没有模型分数——1.0 只是合并排序的保护哨兵，
+ *   不是"接受的置信度"；
+ * - **升级前的自动旧行**（列值 `NULL`，v63 及更早）：只要本轮没有被更高置信的新提议替换
+ *   （合并结果里它仍以门值参与排序），真值就始终未知。把门值写回去 = 把"未知"伪造成
+ *   "曾以 0.78 接受"，正是 KF-30 (a)(b) 的根因，不许重犯。若同名标签被严格更高（且 ≥ 门值）
+ *   的新提议替换，结果里该键的置信度将严格高于门值 ⇒ 新提议的真值照常落库（系统自纠）。
+ *
+ * 合并判据是"严格更高者胜、等值保留存量"，且 `acceptOrganizationLocally` 只放行 ≥ 门值的
+ * 提议：被替换 ⇔ 结果里该键的置信度 > 门值；等值/更低的本轮提议不覆盖存量。
+ */
+internal fun unknownAcceptedConfidenceKeys(
+    existing: List<ProblemClassificationBindingRecord>,
+    merged: List<ProblemClassificationSuggestion>,
+): Set<Pair<ClassificationDimension, String>> {
+    val mergedByKey = merged.associateBy { suggestion -> classificationMergeKey(suggestion) }
+    return existing.mapNotNullTo(hashSetOf()) { record ->
+        val dimension = runCatching { ClassificationDimension.valueOf(record.dimension) }
+            .getOrNull()
+            ?.takeIf(PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS::contains)
+            ?: return@mapNotNullTo null
+        val automaticallyAccepted =
+            record.acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED.name
+        val key = classificationIdentityKey(dimension, record.displayName)
+        when {
+            !automaticallyAccepted -> key
+            record.acceptedConfidence != null -> null
+            mergedByKey[key]?.confidence == CLASSIFICATION_ACCEPTANCE_CONFIDENCE -> key
+            else -> null
+        }
+    }
+}
+
 /** 分类合并的归一身份：与确认命令里的标签去重同一口径（维度 + 折叠小写名）。 */
 private fun classificationMergeKey(
     suggestion: ProblemClassificationSuggestion,
-): Pair<ClassificationDimension, String> = suggestion.dimension to suggestion.displayName
+): Pair<ClassificationDimension, String> =
+    classificationIdentityKey(suggestion.dimension, suggestion.displayName)
+
+private fun classificationIdentityKey(
+    dimension: ClassificationDimension,
+    displayName: String,
+): Pair<ClassificationDimension, String> = dimension to displayName
     .trim()
     .lowercase(Locale.ROOT)
     .replace(Regex("\\s+"), " ")
@@ -1195,6 +1253,18 @@ internal fun buildConfirmationCommand(
     acceptanceSource: BindingAcceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
     relationRemovals: Set<ProblemOrganizationRelationKey> = emptySet(),
     replaceRelations: Boolean = false,
+    /**
+     * KF-30：**自动路径**上真值未知的标签键（合并身份：维度 + 折叠小写名）——写 NULL。
+     *
+     * 缺省为空 = 按来源推导：用户路径（USER_CORRECTED）一律 NULL（人的选择没有模型分数，
+     * 权威由 `acceptanceSource` 表达）；自动路径写本轮提议的**真实**分数。自动重跑路径
+     * （`applySuccessfulOrganizationOnIo`）必须传入 [unknownAcceptedConfidenceKeys] 的结果，
+     * 否则被保留的升级前旧行会把门值当成"曾以此分接受"写回去（KF-30 不许伪造未知）。
+     *
+     * 该值**不进**命令指纹（见下方 canonicalPayload）：刷新真实分数不改变命令身份，
+     * 重复确认不会因此被误判为载荷冲突。
+     */
+    unknownAcceptedConfidenceKeys: Set<Pair<ClassificationDimension, String>>,
 ): ConfirmProblemOrganizationCommand {
     require(
         acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED ||
@@ -1232,6 +1302,15 @@ internal fun buildConfirmationCommand(
             taxonomyVersion = taxonomyVersion,
             acceptanceSource = acceptanceSource.name,
             acceptedAtEpochMillis = acceptedAtEpochMillis,
+            acceptedConfidence = if (acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED &&
+                classificationMergeKey(suggestion) !in unknownAcceptedConfidenceKeys
+            ) {
+                // 自动路径：本轮提议的真实分数（≥ 接受门才可能成为提议）。被保留的旧行
+                // 若真值未知则命中上面的键集，落 NULL——不把未知伪造成门值。
+                suggestion.confidence
+            } else {
+                null
+            },
         )
     }.distinctBy { Triple(it.problemId, it.dimension, it.labelId) }
     val knowledgeClassifications = classificationRecords.filter {
@@ -1324,6 +1403,10 @@ internal fun buildConfirmationCommand(
     val relationIdsToRemove = relationRemovals.mapTo(linkedSetOf()) { removal ->
         relationId(input.problemRevisionId, removal.targetProblemRevisionId, removal.kind)
     }
+    // KF-30 决定：acceptedConfidence **不进**指纹。它与 acceptedAtEpochMillis 同类——重确认/
+    // 系统自纠会刷新真实分数，标签身份（bindingId）没变就不是新载荷；写进指纹会把一次
+    // "重复确认 + 分数刷新"变成 `problem_organization_receipt` 的载荷冲突
+    // （`ImmutablePayloadConflictException`），违反"重复确认不得意外变成冲突"。
     val canonicalPayload = buildString {
         append(requestId).append('|')
         append(input.problemId).append('|').append(input.problemRevisionId).append('|')

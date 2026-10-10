@@ -97,8 +97,77 @@ class MistakeOrganizationRepositoryInstrumentedTest {
         assertEquals(setOf("CHAPTER", "KNOWLEDGE"), stored.classifications.map { it.dimension }.toSet())
         assertTrue(stored.classifications.all { it.acceptanceSource == "LOCAL_POLICY_ACCEPTED" })
         assertTrue(stored.classifications.all { it.acceptedAtEpochMillis == 400L })
+        assertEquals(
+            "KF-30：自动接受写模型对本标签的真实分数（函数 0.90 / 函数最值 0.91）",
+            mapOf("函数" to 0.90, "函数最值" to 0.91),
+            stored.classifications.associate { it.displayName to it.acceptedConfidence },
+        )
         assertEquals(setOf(ATOMIC_KNOWLEDGE_NODE), stored.knowledgeNodeIds)
         assertEquals(listOf(RELATED_PROBLEM), stored.relations.map { it.targetProblemId })
+    }
+
+    /**
+     * KF-30：升级前旧行（`accepted_confidence = NULL` = 未知）不冻结——同名新提议严格高于门值
+     * （0.80 > 0.78）时被替换并落上本轮真值（系统自纠）；没被重提的旧行重写后仍是 NULL
+     * （不把门值伪造成"曾以 0.78 接受"）。用户路径写 NULL 由下方用户确认用例钉住。
+     */
+    @Test
+    fun aLegacyUnknownAcceptedScoreIsRefreshedByANewerAutomaticProposal() = runBlocking {
+        val legacyShape = buildConfirmationCommand(
+            requestId = "legacy-auto",
+            input = input(),
+            classifications = listOf(
+                classification(ClassificationDimension.CHAPTER, "函数", 0.90),
+                classification(ClassificationDimension.KNOWLEDGE, "函数最值", 0.91),
+            ),
+            relations = emptyList(),
+            acceptedAtEpochMillis = 300,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            // K3 复核 P2：本参数已改必填（编译期消灭"忘传即伪造门值"）；本夹具无保留旧行。
+            unknownAcceptedConfidenceKeys = emptySet(),
+        )
+        // 升级前形态（v63 及更早）：权威是自动，但真值缺席。
+        database.confirmProblemOrganization(
+            legacyShape.copy(
+                classifications = legacyShape.classifications.map {
+                    it.copy(acceptedConfidence = null)
+                },
+            ),
+        )
+        val storedLegacy = database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first()
+        assertTrue(
+            "前置：旧行真值未知（NULL）",
+            storedLegacy.classifications.all { it.acceptedConfidence == null },
+        )
+
+        persistSuccess(
+            requestId = "request-refresh",
+            output = completeOutput().copy(
+                plan = completeOutput().plan.copy(
+                    classifications = listOf(
+                        classification(ClassificationDimension.CHAPTER, "新函数板块", 0.95),
+                        classification(ClassificationDimension.KNOWLEDGE, "函数最值", 0.80),
+                    ),
+                ),
+            ),
+            completedAt = 400,
+        )
+
+        val applied = repository.applySuccessfulOrganization("request-refresh")
+        val stored = database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first()
+
+        assertTrue(applied.applied)
+        assertEquals(
+            "0.80 严格高于门值 0.78：未知旧行不冻结，被替换并落上本轮真值",
+            0.80,
+            stored.classifications.single { it.displayName == "函数最值" }.acceptedConfidence!!,
+            0.0,
+        )
+        assertEquals(
+            "没被重提的旧行重写后仍是 NULL（不伪造门值）",
+            null,
+            stored.classifications.single { it.displayName == "函数" }.acceptedConfidence,
+        )
     }
 
     /**
@@ -366,6 +435,10 @@ class MistakeOrganizationRepositoryInstrumentedTest {
 
         assertTrue(stored.relations.isEmpty())
         assertTrue(stored.classifications.all { it.acceptanceSource == "USER_CORRECTED" })
+        assertTrue(
+            "KF-30：用户确认没有模型分数 ⇒ 置信度写 NULL（权威由 acceptanceSource 表达）",
+            stored.classifications.all { it.acceptedConfidence == null },
+        )
     }
 
     private suspend fun persistExistingOrganization(
@@ -383,6 +456,7 @@ class MistakeOrganizationRepositoryInstrumentedTest {
                 acceptedAtEpochMillis = 250,
                 acceptanceSource = acceptanceSource,
                 replaceRelations = true,
+                unknownAcceptedConfidenceKeys = emptySet(),
             ),
         )
     }

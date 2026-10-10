@@ -395,6 +395,12 @@ internal fun validateCommand(command: ConfirmProblemOrganizationCommand) {
             it.acceptanceSource in ORGANIZATION_ACCEPTANCE_SOURCES &&
             it.acceptedAtEpochMillis == command.acceptedAtEpochMillis
     }) { "Every classification must target the confirmed problem revision" }
+    // KF-30（K3 复核 P2 后拆分）：真实分数要么缺席（NULL = 未知），要么是合法概率——单列一条
+    // require，坏数据排查时不会被上面的「修订」消息误导。
+    require(command.classifications.all {
+        it.acceptedConfidence == null ||
+            (it.acceptedConfidence.isFinite() && it.acceptedConfidence in 0.0..1.0)
+    }) { "Accepted confidence must be null or a probability in 0.0..1.0" }
     require(command.classifications.any { it.dimension == ClassificationDimension.KNOWLEDGE.name }) {
         "At least one knowledge classification is required"
     }
@@ -473,9 +479,22 @@ private fun PracticeUnitKnowledgeBindingEntity?.sameAcceptedFact(
     acceptedAtEpochMillis = other.acceptedAtEpochMillis,
 ) == other
 
-private fun ProblemClassificationBindingEntity?.sameAcceptedFact(
+/**
+ * KF-30：分类行"同一接受事实"的判据。
+ *
+ * `acceptedConfidence` 与 `acceptedAtEpochMillis` 同类——它们是**重确认会刷新的记录值**，
+ * 不参与身份比较：同一个 bindingId 只刷新真实分数（或时间戳）不构成载荷冲突，否则一次
+ * "重复确认"会被误判成 `ImmutablePayloadConflictException`。真正的载荷差异（标签、维度、
+ * taxonomy、权威来源）仍然判冲突。
+ */
+internal fun ProblemClassificationBindingEntity?.sameAcceptedFact(
     other: ProblemClassificationBindingEntity,
-): Boolean = this != null && copy(acceptedAtEpochMillis = other.acceptedAtEpochMillis) == other
+): Boolean = this != null &&
+    copy(
+        acceptedAtEpochMillis = other.acceptedAtEpochMillis,
+        // 与时间戳同理：真实分数是重确认会刷新的记录值，不属于标签身份。
+        acceptedConfidence = other.acceptedConfidence,
+    ) == other
 
 private fun ProblemRelationEntity?.sameAcceptedFact(other: ProblemRelationEntity): Boolean =
     this != null && copy(
@@ -523,6 +542,7 @@ private fun ProblemClassificationBindingRecord.toOrganizationEntity() =
         taxonomyVersion,
         acceptanceSource,
         acceptedAtEpochMillis,
+        acceptedConfidence,
     )
 
 private fun ProblemRelationSeedRecord.toOrganizationEntity() = ProblemRelationEntity(
@@ -548,6 +568,7 @@ private fun ProblemClassificationBindingEntity.toRecord() = ProblemClassificatio
     taxonomyVersion,
     acceptanceSource,
     acceptedAtEpochMillis,
+    acceptedConfidence,
 )
 
 private fun ProblemRelationEntity.toRecord() = ProblemRelationSeedRecord(
