@@ -25,6 +25,12 @@
 `core/data/src/test/resources/dense/dense-device-order-reference.txt`
 （4 条查询：学科 / 查询向量 / 候选集与词面分 / 端侧算法期望次序）。
 
+**期望次序用设备同构的 float32 稠密分**（2026-10-11，c2 裁定）：`DenseVectorAsset.cosine` 是
+int8×float32 **float32 顺序累加**再乘 float32 scale，之后才 `toDouble()` 拓宽；用 float64 复算会在
+近并列对（融合差 ≲1e-5 量级）上给出与设备不同的次序（实测 3.08e-07 的一对翻转）。故本脚本的
+期望次序按设备逐位镜像（`device_dense_scores_f32`），并用「accumulate ≡ 显式 float32 循环」自证。
+分数保真（设备 vs 离线参考 ±1e-5）仍由 `DenseVectorAssetTest` 的容差独立把守。
+
 用法（仓库根下）：
 ```
 python tools/dense_build/stage3_device_sim.py
@@ -93,6 +99,30 @@ def device_order(domain, dense_scores, lexical_scores):
     return S.best_first(pairs)
 
 
+def device_dense_scores_f32(matrix, scales, nodes, group_of, subject, query_text):
+    """`DenseVectorAsset.cosine` 的逐位镜像：int8×float32 乘积 → float32 顺序累加 → ×float32 scale。
+
+    query_text = fixture 里打印的十进制串：测试侧用 Kotlin `toFloat()` 解析成 Float32，
+    这里按**同一串**解析成 float32，保证两边喂进余弦的查询是同一个数（避开 float64→float32 的双重舍入）。
+    返回值先拓宽为 Python float（= 设备侧 `it.value.toDouble()`），其后 min-max/融合都按 Double 走。
+    """
+    query32 = np.array([np.float32(part) for part in query_text.split(" ")], dtype=np.float32)
+    out = {}
+    for node in nodes:
+        if node["subject"] != subject:
+            continue
+        start, end = group_of[node["node_id"]]
+        best = float("-inf")
+        for row in range(start, end):
+            products = matrix[row].astype(np.float32) * query32
+            accumulated = np.add.accumulate(products, dtype=np.float32)[-1]
+            value = float(np.float32(accumulated * np.float32(scales[row])))
+            if value > best:
+                best = value
+        out[node["node_id"]] = best
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=None)
@@ -133,6 +163,17 @@ def main():
                          % (golden_count, len(leg)))
     query_int8 = np.load(root / "build" / "dense-model" / "int8-queries.npy")
     query_norm = query_int8 / np.maximum(np.linalg.norm(query_int8, axis=1, keepdims=True), 1e-12)
+
+    # 自证：np.add.accumulate(dtype=float32) ≡ 设备同构的显式 float32 顺序循环（抽样前 20 行）。
+    probe = query_norm[0].astype(np.float32)
+    for row in range(min(20, len(ids))):
+        products = matrix[row].astype(np.float32) * probe
+        acc_loop = np.float32(0.0)
+        for value in products:
+            acc_loop = np.float32(acc_loop + value)
+        if float(np.add.accumulate(products, dtype=np.float32)[-1]) != float(acc_loop):
+            raise SystemExit("float32 累加自证失败：np.add.accumulate 与显式循环不一致（row=%d）" % row)
+    print("float32 累加自证：前 %d 行 accumulate ≡ 显式循环（逐位一致）" % min(20, len(ids)))
 
     def dense_subject_scores(query, subject):
         out = {}
@@ -208,18 +249,20 @@ def main():
         "# Stage-3 端侧 · 端侧算法期望次序（生成脚本 tools/dense_build/stage3_device_sim.py）",
         "# 用途：Kotlin 端到端测试（假编码器喂这里的 query 向量 + 这里的候选集 ⇒ 真实资产/融合/排序）",
         "# 候选集 = 生产词面腿前 512 行（id:count，行序 = SQL 排序）；稠密腿 = 该科全部原子节点",
-        "# 期望次序 = DenseFusion.order 等价实现（stage3_expectation.minmax/best_first + α=0.5）",
+        "# 期望次序 = DenseFusion.order 等价实现（float32 设备同构稠密分：int8×float32 顺序累加 × float32 scale；",
+        "#            域内 min-max 与 α=0.5 融合用 Double——与 DenseVectorAsset.cosine / DenseFusion 逐位对齐）",
         "# 形状：[case] index \t subject \t query(空格分隔 dim 维，按档 512/768) → 若干 [candidate] id \t count → [expected] 次序(,)",
     ]
     for index, subject, domain, candidates in candidate_rows:
         if index not in picked:
             continue
-        lines.append("[case]\t%d\t%s\t%s" % (index, subject, fmt(query_norm[index].tolist())))
+        query_text = fmt(query_norm[index].tolist())
+        lines.append("[case]\t%d\t%s\t%s" % (index, subject, query_text))
         for node_id, count in candidates:
             lines.append("[candidate]\t%s\t%d" % (node_id, count))
         lines.append("[expected]\t%s" % ",".join(device_order(
             [node_id for node_id, _ in candidates],
-            dense_subject_scores(query_norm[index].astype(np.float64), subject),
+            device_dense_scores_f32(matrix, scales, nodes, group_of, subject, query_text),
             {node_id: float(count) for node_id, count in candidates},
         )))
     fixture_path = root.joinpath(*DEVICE_ORDER_FIXTURE.split("/"))
