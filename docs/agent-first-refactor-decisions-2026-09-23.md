@@ -2702,3 +2702,21 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
     （arXiv 2510.16211）。
   - **产出格式**：一份研究交付 + **一条裁定建议**（≤1 条主结论）→ 过用户裁 → 才落台账/登总表。
 - **不变量**：研究完成前，C2/C13 的自动化不得开工；研究结论未过用户裁不得实施。
+
+---
+
+## 完成记录折入（内核线）（2026-10-11，K5 收尾）
+
+> 说明：内核线的阶段完成记录与对应提交此前因本台账为另一条会话在飞文件而暂缺（多条记录以"台账折入待办"承载）。
+> 本台账已由他线提交、阻塞解除，现于文末一次性折入；**只追加，既有正文未动**。
+> 每条一行：记录文档路径 + 提交 + 一句话结论。阶段 5 挂起为状态记录，后续状态以主线 3D 行为准。
+
+- **3C 前半**：`docs/research/2026-10-04-stage3c-part1-completion-record.md` + `1d297efc` —— KF-29/KF-30/KF-07 完成、KF-31 未启（样本量 0）、schema 62。
+- **3C 后半**：`docs/research/2026-10-05-stage3c-part2-completion-record.md` + `8d7e24b2`/`d78815c3`/`85e6b6ae` —— S17 性能量化（空实现改真实 1 万行夹具 + 专属门）、S9/S18 量化与按需物化（**schema 63** 复合索引）、S20 观察侧 conflate + 后继映射缓存；综合门 app 全套首轮 exit=1 定案环境锁争用（单独重跑 53/0/0）。
+- **S18 尾**：`docs/research/2026-10-06-s18-fts-completion-record.md` + `d1a0fbf3`/`3e494705`/`504c344a` —— FTS 计数/三分面改 CROSS JOIN 顺序锁（100 命中 102ms vs 改前 14959ms）、宽命中排序改集合级命中集（10k 19208→144ms）、收口修复轮；综合门 JVM / DB 230/0/0 / app 53/0/0 / R8 净。
+- **D-0 内核侧**：`docs/research/2026-10-07-d0-binding-verdict-completion-record.md` + `bb045d54`/`3f7fe776`/`27454c0a` —— 侧车 schemaVersion 3 可选裁定三元组（all-or-none/词表/时间戳）+ 端到端 drill + 写侧契约 + 修复轮（零 schema）；包内落账待 KB 写入窗口 D-5。
+- **K1**：`docs/research/2026-10-08-k1-completion-record.md` + `0b1b5a7f`/`65f77706` —— 检索固定开销已闭合（去两条固定 COUNT；完整性判定每进程每科一次）+ 50k FTS 规模补测；KF-32 空绑定重放改挂 pseudo（PROJECTOR v12→v13 / ATTRIBUTION v4→v5，零 schema）。
+- **K2**：`docs/research/2026-10-09-k2-completion-record.md` + `f8aedbdf`/`329b01ab` —— 存量库升级演练（真 Room 旧版首开 = 先归档再重放，逐位 + 零丢失）+ ④-6 探针落档与计数缝说明。
+- **K3**：`docs/research/2026-10-10-k3-completion-record.md` + `cd2c54f3`/`fb26b294` —— KF-30 落地（`accepted_confidence` 列 + schema 64 + 写侧真值/NULL + 合并读真值；判据一行未改，(a)(b) 消解；零算法 bump）；批 2 K2 登记清尾。
+- **K5**：`docs/research/2026-10-11-k5-completion-record.md` + `7c5710b8`/`64878741` —— R1/R2 研究结论落地：未知存量改判**显式策略门**（`incumbent_known`/`incumbent_unknown` 理由；判据未改）+ 候选集落库（**schema 65**，含被拒候选）+ margin「存疑」（只派生不改写）+ 校准审计件（代理金标 = 用户纠正）；K5-C 待排、margin 阈值待校准。
+- **阶段 5 挂起**：`docs/research/2026-10-04-stage5-gate-check.md` + `8897ee00`/`48bae070`（初稿 + D-0 后订正） —— 3D 硬门核验未过（当时：D-0 未实现 / D-1 无 ≥0.95 结论 / D-2·D-3 未做），阶段 5 挂起并写阻塞点（后续以主线 3D 行为准）。
