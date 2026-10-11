@@ -194,6 +194,7 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
         assertTrue(recall(store, "判断函数单调性").contains(ATOMIC_ID))
         assertTrue("夹具退化：缓存未先落成完整", cache.isVerifiedComplete("MATH"))
 
+        val generationBefore = cache.readInvalidationGeneration("MATH")
         store.applyKnowledgeContentUpdate(
             contentCommand(
                 nodes = listOf(
@@ -202,6 +203,16 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
                     atomic("函数极值时取法", nodeId = EXTREMUM_ID),
                 ),
             ),
+        )
+        val generationDelta = cache.readInvalidationGeneration("MATH") - generationBefore
+        // K5 复核收口：该 subject 在安装路径上的失效次数是**确定的 3 次**——整科重建进入/退出
+        // 各 1 次（KnowledgeSearchIndexBuilder）+ **安装落点 1 次**（RoomKnowledgeContentReconciler
+        // 末尾那行 invalidate）。断言增量 == 3 让「单独摘掉安装落点那行」直接变红（→ 2），
+        // 无需生产侧新增测试缝（此前 KDoc 的「需要新缝」说法不成立，已改准）。
+        assertEquals(
+            "安装路径对该科的失效代号增量应为 3（重建进/出 + 安装落点各 1）；实际=$generationDelta",
+            3L,
+            generationDelta,
         )
 
         assertFalse(
@@ -229,9 +240,10 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
      * 当前不依赖安装落点那行 invalidate，它敏感的是"判定缓存是否被安装写路径作废"。因此：
      * - 本 canary 与主用例共同钉住"安装路径的失效机制"（含重建的两次失效）；
      * - **单独**摘掉 `RoomKnowledgeContentReconciler.applyKnowledgeContentUpdate` 末尾那行
-     *   invalidate 时，两条用例都不会变红（重建的失效仍覆盖同一 subject）——那行是针对
-     *   "未来加入不经过 `rebuildSubject` 的索引相关写入"的纵深防御；要让"单独摘除"也变红
-     *   需要生产侧新增隔离测试缝，超出本批（生产改动仅限 K5-A 一文件）。
+     *   invalidate 时：功能可见性不变（重建的失效仍覆盖同一 subject），但**主用例的失效代号
+     *   增量断言（== 3）会变红（→ 2）**——K5 复核收口后「单独摘除也红」已由既有 seam 覆盖，
+     *   无需生产侧新增隔离测试缝；那行同时仍是对"未来加入不经过 `rebuildSubject` 的索引相关
+     *   写入"的纵深防御。
      */
     @Test
     fun installInvalidationWireCanaryLeavesTheStaleClaimInPlace() = runBlocking {

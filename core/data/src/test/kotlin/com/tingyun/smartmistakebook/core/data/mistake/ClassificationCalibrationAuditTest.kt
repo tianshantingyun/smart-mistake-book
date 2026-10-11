@@ -166,6 +166,29 @@ class ClassificationCalibrationAuditTest {
         }
     }
 
+    /**
+     * 真库入口（K5 复核收口）：把**真实环境**的 `SMARTMISTAKE_AUDIT_DATABASE`（或系统属性
+     * `smartmistake.audit.database`，env 优先）喂给 [resolveAuditDatabasePath] 并跑审计。
+     * 此前全仓没有任何代码读这两个名字，按 KDoc 的命令跑只会用到夹具——本用例让那条命令真的
+     * 能打开真库；未提供路径时打印【无样本】提示并返回（不猜默认路径、不编造比例）。
+     */
+    @Test
+    fun `the audit opens the real database named by the environment when the documented command is used`() {
+        val path = resolveAuditDatabasePath(
+            environmentValue = System.getenv(AUDIT_DATABASE_ENV),
+            propertyValue = System.getProperty(AUDIT_DATABASE_PROPERTY),
+        )
+        if (path == null) {
+            println(
+                "【无样本】未设置 $AUDIT_DATABASE_ENV / $AUDIT_DATABASE_PROPERTY：" +
+                    "按 KDoc 给上真库路径即可对真数据跑（本用例不猜默认路径）。",
+            )
+            return
+        }
+        val report = runAudit(File(path), SUSPECT_NORMALIZED_MARGIN_THRESHOLD)
+        println(report.render())
+    }
+
     @Test
     fun `the database path comes from the environment first and the system property second`() {
         assertEquals(
@@ -264,6 +287,14 @@ class ClassificationCalibrationAuditTest {
                 add(ADD_ONLY_LIMITATION_NOTE)
                 add(SAMPLE_WINDOW_NOTE)
                 add(SELECTION_BIAS_NOTE)
+                // K5 复核收口（研究文档 §0/§2.1）：判定「存疑」的阈值必须随报告披露，否则无法
+                // 自证任何一条 suspect 是按什么判的；同 (题,修订,维度) 的多轮样本彼此相关，
+                // 本报告不做按轮去重（口径缺口显式标注，不假装独立）。
+                add("margin 阈值（**策略参数**、未用真实数据校准）：$threshold → 判定「存疑」")
+                add(
+                    "多轮口径：同 (题,修订,维度) 的多轮候选各计一行且彼此相关（同一 outcome 快照）；" +
+                        "本报告不做去重，样本不独立",
+                )
                 if (observations.isEmpty()) {
                     add("样本为空：没有 accepted=1 且 LOCAL_POLICY_ACCEPTED 的候选行")
                 }
@@ -502,6 +533,10 @@ class ClassificationCalibrationAuditTest {
         const val CANDIDATE_TABLE = "problem_classification_candidate"
         const val BINDING_TABLE = "problem_classification_binding"
         const val SQLITE_URL_PREFIX = "jdbc:sqlite:"
+
+        /** 真库入口的两个名字（K5 复核收口）：env 优先、系统属性次之——见 KDoc 的命令行。 */
+        const val AUDIT_DATABASE_ENV = "SMARTMISTAKE_AUDIT_DATABASE"
+        const val AUDIT_DATABASE_PROPERTY = "smartmistake.audit.database"
 
         /** 夹具表（只读审计的靶子）：列名/类型与导出 schema 逐列核对，不建约束与索引。 */
         const val CANDIDATE_TABLE_DDL =

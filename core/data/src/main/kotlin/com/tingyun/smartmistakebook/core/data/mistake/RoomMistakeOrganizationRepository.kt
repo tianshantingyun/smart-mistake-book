@@ -1106,9 +1106,13 @@ internal fun mergeAutomaticClassificationsWithReasons(
  * K5-A：存量自动标签的比较解释——`null` = 非自动（用户权威，不参与自动比较）。
  *
  * 已知/未知**显式分支**：真值已知 ⇒ 按落库分数；真值未知 ⇒ 走策略
- * [UNKNOWN_INCUMBENT_COMPARISON]（GATE）——**不把它折叠成 0.78 再与已知值混比**：
- * 未知行没有真值，门值只是"按门值参与比较"这条规则的比较位，且带
- * [IncumbentComparisonReason.INCUMBENT_UNKNOWN] 理由进结果。
+ * [UNKNOWN_INCUMBENT_COMPARISON]（GATE）——未知行没有真值，门值只是「按门值参与比较」这条
+ * **规则的比较位**（策略，不是估计）。
+ *
+ * **边界（K5 复核收口，照研究文档 §3）**：判定层（谁赢）对「未知」与「已知恰为门值」仍
+ * **不可区分**——两者在同一个数值池里排序（Q2 interim 本应如此，本批不改判据）；**可区分的是
+ * 解释**：[IncumbentComparisonReason.INCUMBENT_UNKNOWN] 进结果，使「按策略替换」与
+ * 「按分数替换」在证据上可分开。研究文档：docs/research/2026-10-11-r1-r2-label-accuracy-research.md。
  */
 private fun incumbentComparisonBasis(
     record: ProblemClassificationBindingRecord,
