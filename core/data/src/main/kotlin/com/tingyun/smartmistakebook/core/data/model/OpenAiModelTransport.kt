@@ -11,6 +11,7 @@ import java.net.Proxy
 import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.util.Arrays
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -122,6 +123,9 @@ internal class OkHttpModelTransport : ModelHttpTransport {
             .url(endpoint.url)
             .apply {
                 request.headers.forEach { (name, value) -> header(name, value) }
+                providerCompatibilityHeaders(endpoint.host).forEach { (name, value) ->
+                    header(name, value)
+                }
             }
             .post(request.body.toRequestBody(JSON_MEDIA_TYPE))
             .build()
@@ -416,6 +420,25 @@ private fun ByteArray.toIntOctets(): IntArray = IntArray(size) { this[it].toInt(
 internal val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 internal const val SSE_ACCEPT = "text/event-stream"
 private const val CONNECT_TIMEOUT_SECONDS = 15L
+
+internal const val OPENCODE_ZEN_HOST = "opencode.ai"
+internal const val OPENCODE_SESSION_HEADER = "x-opencode-session"
+
+/**
+ * opencode zen 的 `/zen/go/v1` 端点要求每个请求携带 `x-opencode-session`，缺失时
+ * 一律 400 `MissingSessionID`（实测：不带该头 400、只补该头 200）；其余 OpenAI
+ * 兼容服务商没有这个要求。值只要求"每个会话稳定"，服务端用它做路由与提示缓存
+ * 优化——这里取进程级稳定值，既满足稳定性又不跨安装共享（避免缓存串号）。
+ */
+private val opencodeSessionId: String = UUID.randomUUID().toString()
+
+internal fun providerCompatibilityHeaders(host: String): List<Pair<String, String>> =
+    if (host.equals(OPENCODE_ZEN_HOST, ignoreCase = true)) {
+        listOf(OPENCODE_SESSION_HEADER to opencodeSessionId)
+    } else {
+        emptyList()
+    }
+
 
 /**
  * Generous bounds: a reasoning model working through a real problem streams well past the
