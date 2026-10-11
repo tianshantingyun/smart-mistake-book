@@ -287,14 +287,14 @@
         "bge-queries.npy": null
       },
       "cosineAgainstStage2OfflineArmNotes": [
-        "bge-docs.npy 行数与本档不同（本档 (41157, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
+        "bge-docs.npy 行数与本档不同（本档 (43718, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
         "bge-queries.npy 行数与本档不同（本档 (129, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
       ],
       "cosineAgainstTorchFp32": {
         "fp32Docs": 0.9999998807907104,
         "fp32Queries": 0.9999998807907104,
         "int8Docs": 0.9990096092224121,
-        "int8DocsMean": 0.9993876218795776,
+        "int8DocsMean": 0.9993877410888672,
         "int8Queries": 0.9991949200630188
       },
       "dim": 512,
@@ -315,7 +315,7 @@
           "bge-queries.npy": null
         },
         "crossArmNotes": [
-          "bge-docs.npy 行数与本档不同（本档 (41157, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
+          "bge-docs.npy 行数与本档不同（本档 (43718, 512) vs 离线臂 (28931, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）",
           "bge-queries.npy 行数与本档不同（本档 (129, 512) vs 离线臂 (90, 512)）——离线臂冻结在旧语料口径，按构造不可比，记 N/A（不作为通过）"
         ],
         "note": "产物（权重-only int8）过门；路线 A（激活动态量化）的实测值在同级 comparison 里，未采用",
@@ -366,8 +366,8 @@
         "fp32Docs": {
           "dim": 512,
           "path": "build/dense-model/fp32-docs.npy",
-          "rows": 41157,
-          "sha256": "d8640a9e85923fafcde27b0ba011ec9e0b7939fb9809d5f211e772c221e7f701"
+          "rows": 43718,
+          "sha256": "fcde8019fe2acbbcff9b1546dca79f4ca9b69f81053a03b8547e6ab344e63374"
         },
         "fp32Queries": {
           "dim": 512,
@@ -378,8 +378,8 @@
         "int8Docs": {
           "dim": 512,
           "path": "build/dense-model/int8-docs.npy",
-          "rows": 41157,
-          "sha256": "99444614d418ad5ed2c69716ef59c81efd6a32d6ca63f4101324e77f134f05b1"
+          "rows": 43718,
+          "sha256": "c380002001f072873160d10ee893bc72fb29601fe7497a5a81d151fc31de0fe2"
         },
         "int8Queries": {
           "dim": 512,
@@ -415,8 +415,8 @@
         },
         "dynamic-perChannel": {
           "bytes": 24031552,
-          "docsCosineMean": 0.9938222169876099,
-          "docsCosineMin": 0.9867277145385742,
+          "docsCosineMean": 0.993789553642273,
+          "docsCosineMin": 0.9882824420928955,
           "passedGate": false,
           "path": "build/tmp-dense-quant/routeA-perChannel.onnx",
           "perChannel": true,
@@ -424,8 +424,8 @@
         },
         "dynamic-perTensor": {
           "bytes": 23939272,
-          "docsCosineMean": 0.9666920304298401,
-          "docsCosineMin": 0.9471789598464966,
+          "docsCosineMean": 0.9664996266365051,
+          "docsCosineMin": 0.9472547173500061,
           "passedGate": false,
           "path": "build/tmp-dense-quant/routeA-perTensor.onnx",
           "perChannel": false,
@@ -434,7 +434,7 @@
         "weightOnlyInt8PerChannel": {
           "bytes": 23952639,
           "convertedMatMuls": 27,
-          "docsCosineMean": 0.9993876218795776,
+          "docsCosineMean": 0.9993877410888672,
           "docsCosineMin": 0.9990096092224121,
           "leftFloatMatMuls": 8,
           "leftFloatReasons": [

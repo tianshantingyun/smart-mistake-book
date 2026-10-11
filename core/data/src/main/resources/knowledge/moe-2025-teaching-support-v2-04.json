@@ -1199,7 +1199,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:书写离子方程式应注意的问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数",
      "role": "PRIMARY"
     }
    ]
@@ -23459,7 +23459,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:大脑皮层",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经调节的结构基础",
      "role": "PRIMARY"
     }
    ]
@@ -23779,7 +23779,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:大脑皮层",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经调节的结构基础",
      "role": "PRIMARY"
     }
    ]
@@ -30779,7 +30779,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脱水缩合",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:水",
      "role": "PRIMARY"
     }
    ]
@@ -32339,7 +32339,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:线粒体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
      "role": "PRIMARY"
     }
    ]
@@ -35999,7 +35999,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞周期",
      "role": "PRIMARY"
     }
    ]
@@ -39859,7 +39859,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:隔离在物种形成中的作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物种的形成",
      "role": "PRIMARY"
     }
    ]
@@ -41460,26 +41460,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-bf4da8991e-004",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "简谐运动的图象",
-   "summaryMarkdown": "简谐运动图象为正弦或余弦曲线，表示位移随时间变化的规律，不是质点轨迹",
-   "applicabilityMarkdown": "由振动图象读取振幅、周期与初相位",
-   "contentMarkdown": "①物理意义：表示振子的位移随时间变化的规律，图线为正弦或余弦曲线。②从平衡位置开始计时并把开始运动的方向规定为正方向时，函数表达式为 x=Asinωt。③从正的最大位移处开始计时时，函数表达式为 x=Acosωt。④由图象可以得出振幅 A、周期 T 或频率 f 和初相位，也可以确定某时刻质点离开平衡位置的位移。",
-   "boundaryMarkdown": "图象反映的是位移随时间的变化规律，随时间增加而延伸，它不代表质点运动的轨迹。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题15 机械振动与机械波（知识清单）（全国通用）（教师版）.docx（块 bf4da8991e-004）",
-   "reviewedAtEpochMillis": 1789739846865,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:图象",
      "role": "PRIMARY"
     }
    ]
@@ -43287,7 +43267,7 @@
   {
    "slug": "ext-phy-fc6ffa52f7-002",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "动力学三大观点中的常见图象",
    "summaryMarkdown": "动力学、动量与能量三类图象的面积与斜率意义。",
    "applicabilityMarkdown": "图像类问题的读图与建模",
@@ -43300,26 +43280,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:常见的图象",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-fc6ffa52f7-003",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "图象在受力与运动分析中的应用",
-   "summaryMarkdown": "由图象分析受力或运动情况的方法与常见误区。",
-   "applicabilityMarkdown": "动力学与能量问题的图像求解",
-   "contentMarkdown": "①已知物体在一过程中所受的某个力随时间变化的图线，可以分析物体的运动情况。②已知物体在一运动过程中速度、加速度随时间变化的图线，可以分析物体的受力情况。③可以通过图象对物体的受力与运动情况进行分析。④解题策略：观察图像的横、纵坐标所代表的物理量及单位；确认横、纵坐标是否从0开始以及单位长度；分析图像的曲线形状，理解图像的斜率、面积、截距、交点、拐点、渐近线的物理意义。⑤常见误区：没有看清纵横坐标所表示的物理量及单位；不注意坐标原点是否从零开始；不清楚图线的点、斜率、面积的物理意义；忽视对物体受力情况和运动情况的分析。",
-   "boundaryMarkdown": "图象分析不能脱离物理过程，必须先明确坐标轴含义再读取斜率与面积，否则会得出与运动过程不符的结论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题09 动力学三大观点的应用（知识清单）（全国通用）（教师版）.docx（块 fc6ffa52f7-003）",
-   "reviewedAtEpochMillis": 1789739846865,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:图象的应用",
      "role": "PRIMARY"
     }
    ]
@@ -43487,7 +43447,7 @@
   {
    "slug": "ext-phy-5592bd185a-010",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "使物体带电的三种方式",
    "summaryMarkdown": "摩擦起电、接触起电与感应起电的实质与区别。",
    "applicabilityMarkdown": "静电学中电荷转移的分析",
@@ -43547,7 +43507,7 @@
   {
    "slug": "ext-phy-1f839894d3-010",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "Ep-x图像的解读",
    "summaryMarkdown": "Ep-x图像中电势能变化与斜率表示的物理意义。",
    "applicabilityMarkdown": "静电场图像问题的读图",
@@ -43820,26 +43780,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:无线电波的发射",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-925746f040-021",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "气体状态变化的图像问题",
-   "summaryMarkdown": "气体状态变化图像中点、线、斜率与面积的物理意义。",
-   "applicabilityMarkdown": "热学图像题的读图与判断",
-   "contentMarkdown": "①明确点、线的物理意义：图像上的点表示一定质量的理想气体的一个平衡状态，它对应着三个状态参量；图像上的某一条直线段或曲线段表示一定质量的理想气体状态变化的一个过程。②明确图像斜率的物理意义：在V-T图像或p-T图像中，比较两个状态的压强或体积大小，可以比较这两个状态到原点连线的斜率大小，其规律是斜率越大压强或体积越小，斜率越小则越大。③明确图像面积的物理意义：在p-V图像中，p-V图线与V轴所围面积表示气体对外界或外界对气体所做的功。④结合热力学第一定律判断内能变化与吸放热情况。",
-   "boundaryMarkdown": "在V-T（p-T）图像中不能直接用图线的斜率判断压强或体积，必须比较该点与原点连线的斜率；只有p-V图像的面积才表示做功。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题17 热学（知识清单）（全国通用）（学生版）.docx（块 925746f040-021）",
-   "reviewedAtEpochMillis": 1789739846865,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:热力学图像问题",
      "role": "PRIMARY"
     }
    ]
@@ -45667,7 +45607,7 @@
   {
    "slug": "ext-mat-332b83a2c4-001c",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "用面积关系证明基本不等式（赵爽弦图）",
    "summaryMarkdown": "用图形中正方形的面积与直角三角形面积之和的大小关系，证明常用不等式。",
    "applicabilityMarkdown": "题目给出赵爽弦图等数学文化图形，要求由面积关系推出不等式时使用。",
@@ -48467,7 +48407,7 @@
   {
    "slug": "ext-mat-6e17f801c0-003",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "最大角定理：线面角不超过对应二面角的平面角",
    "summaryMarkdown": "锐二面角中，一个半平面内的动直线与另一平面所成的线面角，不大于该二面角的平面角。",
    "applicabilityMarkdown": "题目要求“当截面与某平面所成角最小”时确定截面位置，或比较线面角与二面角的大小关系。",
@@ -49407,7 +49347,7 @@
   {
    "slug": "ext-mat-395579b2b1-005c",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "$\\sin x$ 在 $\\left(0;1\\right)$ 上的双边估计 $x-x^2<\\sin x<x$",
    "summaryMarkdown": "用导数比较容易证明 $\\sin x$ 在 $\\left(0;1\\right)$ 上的上下界，常用于放缩与估值。",
    "applicabilityMarkdown": "题目要求证明含 $\\sin x$ 的不等式、或对 $\\sin x$ 估值时使用。",
@@ -50227,7 +50167,7 @@
   {
    "slug": "ext-mat-756b0344d1-001d",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "对数平均不等式及其证明",
    "summaryMarkdown": "对任意正实数 a<b，调和平均、几何平均、对数平均、算术平均、平方平均依次递增，给出核心部分的比值换元证明。",
    "applicabilityMarkdown": "极值点偏移问题中需要估计 $\\dfrac{b-a}{\\ln b-\\ln a}$ 的大小，或需要比较多种平均值时。",
@@ -50247,7 +50187,7 @@
   {
    "slug": "ext-mat-756b0344d1-002",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "对数平均不等式的几何意义",
    "summaryMarkdown": "把对数平均不等式改写成三条斜率的比较：割线斜率介于算术平均点切线的斜率与几何平均点切线的斜率之间。",
    "applicabilityMarkdown": "记忆对数平均不等式的方向，或把极值点偏移问题转化为割线、切线斜率比较时。",
@@ -51167,7 +51107,7 @@
   {
    "slug": "ext-mat-a0656377b5-004b",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "图象的翻折变换与含绝对值方程",
    "summaryMarkdown": "$y=|f(x)|$ 的图象是保留 $y=f(x)$ 在 $x$ 轴上方的部分、把下方部分翻折上来；$y=f(|x|)$ 的图象是保留 $y$ 轴右侧部分并翻折到左侧，所得函数为偶函数。",
    "applicabilityMarkdown": "解析式中含绝对值（对函数值取绝对值或对自变量取绝对值）时作图、求方程根的个数、由根的对称性求参数。",
@@ -51227,7 +51167,7 @@
   {
    "slug": "ext-mat-a356a31c16-002",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "用割线与切线的斜率解读变化快慢",
    "summaryMarkdown": "在实际情境的函数图象中，区间上的平均变化（快慢、强弱）对应割线的斜率，某一时刻的瞬时变化对应该点切线的斜率，比较强弱时看斜率的绝对值。",
    "applicabilityMarkdown": "由函数图象比较两个对象在某段时间内或某一时刻的变化快慢、强弱程度，并判断结论的正误。",
@@ -51567,7 +51507,7 @@
   {
    "slug": "ext-mat-969e1cd1fa-003b",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "复数模的几何意义与轨迹方程",
    "summaryMarkdown": "$|z-(a+bi)|$ 表示复平面内点 $Z$ 到点 $(a，b)$ 的距离，因此含模的等式就是点的轨迹方程（圆、垂直平分线、椭圆等），$|z-w|$ 表示两点间的距离。",
    "applicabilityMarkdown": "由含模的等式判断轨迹类型，求复数模的范围或两点间距离的最值。",
@@ -51607,7 +51547,7 @@
   {
    "slug": "ext-mat-8b30db817d-001",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "斜坐标系中的向量运算（新定义）",
    "summaryMarkdown": "在斜坐标系中，若 $\\vec{OP}=x\\vec e_1+y\\vec e_2$（$\\vec e_1$、$\\vec e_2$ 是两轴正方向的单位向量，夹角为 $\\theta$），则 $P$ 的斜坐标为 $(x，y)$，但数量积与模的计算都要补上含 $\\cos\\theta$ 的交叉项。",
    "applicabilityMarkdown": "题目新定义斜坐标或斜坐标系下的度量，要求判断坐标运算、数量积、模与圆的方程等结论是否正确。",
@@ -52727,7 +52667,7 @@
   {
    "slug": "ext-mat-6e860c89fd-001",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "斜截圆柱与圆的投影得椭圆",
    "summaryMarkdown": "平面斜截圆柱、或把圆投影到与之成角的平面上，所得椭圆的 a 与 b 直接由斜角决定，可快速求离心率。",
    "applicabilityMarkdown": "新情境题中由圆柱截面、高脚杯内壁轴截面、圆的正投影等给出的椭圆，求离心率或判断长短轴。",
@@ -52807,7 +52747,7 @@
   {
    "slug": "ext-mat-6e860c89fd-004",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "抛物线焦半径的倾斜角形式",
    "summaryMarkdown": "抛物线 $y^2=2px$ 的焦弦倾斜角为 $\\alpha$ 时 $|AF|=\\dfrac{p}{1-\\cos\\alpha}$、$|BF|=\\dfrac{p}{1+\\cos\\alpha}$。",
    "applicabilityMarkdown": "抛物线的焦点弦、焦半径比值、焦点弦三角形面积与最值问题，已知或可求直线倾斜角时直接用。",
@@ -53360,26 +53300,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-d994fcb41d-004",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "由周长为定值求顶点轨迹",
-   "summaryMarkdown": "三角形一边固定、周长为定值时，另两边之和为定值，顶点轨迹是椭圆，必须剔除与这边共线的点。",
-   "applicabilityMarkdown": "“已知三角形的一边长与周长（或两边之和）求顶点轨迹方程。",
-   "contentMarkdown": "**做法**：$\\triangle ABC$ 中 $A(-1，0)$、$B(1，0)$、周长为 $6$，则 $|CA|+|CB|+|AB|=6$，即 $|CA|+|CB|=4>|AB|=2$，由椭圆定义知点 $C$ 的轨迹是以 $A$、$B$ 为焦点的椭圆：$2a=4$、$2c=2$，故 $a=2$、$c=1$、$b=\\sqrt{a^2-c^2}=\\sqrt{3}$，方程为 $\\dfrac{x^2}{4}+\\dfrac{y^2}{3}=1$。\\n\\n**关键一步（易错）**：三角形要求三点不共线，必须去掉与 $AB$ 共线的点，即 $y\\neq0$（去掉长轴的两个端点），答案要写成 $\\dfrac{x^2}{4}+\\dfrac{y^2}{3}=1\\ (y\\neq0)$。\\n\\n**推广**：若条件是两边之差的绝对值为定值且小于 $|AB|$，轨迹为双曲线（同样去掉共线点）。",
-   "boundaryMarkdown": "“必须验证定值大于两定点间的距离，否则轨迹只能是线段或不存在。求出的方程一定要附限制条件（如 $y\\neq0$），否则会把不能构成三角形的点包含进去；题中只要求”点的轨迹“时也要写明范围。”",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:math",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/训练册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d994fcb41d-004）",
-   "reviewedAtEpochMillis": 1789780065665,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:动点轨迹的确定",
      "role": "PRIMARY"
     }
    ]
@@ -54007,7 +53927,7 @@
   {
    "slug": "ext-mat-eb06dd91c4-006b",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "三角与数列交汇的 tan² 递推",
    "summaryMarkdown": "由 a_{n+1}=1/cos a_n 用 1/cos²a=1+tan²a 化为 tan²a_{n+1}−tan²a_n=1，得到等差数列。",
    "applicabilityMarkdown": "“递推式中出现三角函数（cos、sin、tan），求通项或连乘式的值。",
@@ -54705,26 +54625,6 @@
    ]
   },
   {
-   "slug": "ext-mat-2602fd0aad-001",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "插项问题的项数与块求和",
-   "summaryMarkdown": "原数列相邻两项之间插入若干项时，先由项数确定临界位置，再把“原项＋插入项”作为一个整体块求和。",
-   "applicabilityMarkdown": "“在数列相邻两项之间插入若干项、或删去若干项后求新数列的前 N 项和。",
-   "contentMarkdown": "**做法**\\n1. **数项数定临界**：相邻两项间插入 $n$ 项时，前 $n$ 组共插入 $1+2+\\cdots+n=\\dfrac{n(n+1)}{2}$ 项，由 $\\dfrac{n(n+1)}{2}<65$ 得 $n$ 最大为 $10$，即前 $65$ 项由原数列的前 $10$ 项与插入的 $55$ 项构成；\\n2. **整块求和**：把 $a_n$ 与其后插入的 $n$ 项看作一个首项为 $a_n$、公差为 $-\\dfrac{1}{n}$ 的等差数列（共 $n+1$ 项），其和为\\n$$(n+1)a_n-\\dfrac{n(n+1)}{2}\\cdot\\dfrac{1}{n}=(n+1)a_n-\\dfrac{n+1}{2}$$\\n代入 $a_n=\\dfrac{2}{n+1}$ 得每块和为 $\\dfrac{3-n}{2}$；\\n3. 对 $n=1$ 到 $10$ 的块求和即得答案。\\n\\n**技巧总结**：去项、插项问题的核心是分析插入（去掉）后数列的构成，先结合通项估计临界位置，再到附近尝试确定项数。“",
-   "boundaryMarkdown": "“数项数是这类题的关键：插入 $n$ 项后原数列的相邻两项之间有 $n+1$ 个间隔，块长是 $n+1$ 而不是 $n$；确定临界位置时用”累计插入数 < N“的不等式估计，并回代检验边界那一项属于哪一块。”",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:math",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题六 数列/培优9  衍生数列问题/训练册PDF/培优9　衍生数列问题.pdf（块 2602fd0aad-001）",
-   "reviewedAtEpochMillis": 1789780065665,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的插项与去项问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-2602fd0aad-001b",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -54847,7 +54747,7 @@
   {
    "slug": "ext-mat-04f7dd8847-001b",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "构造直角三角形求三角函数值",
    "summaryMarkdown": "已知 tanθ 的值时，可构造一个两直角边之比等于该值的直角三角形，用定义直接读出 sin、cos。",
    "applicabilityMarkdown": "“已知 $\\tan\\theta$ 的值（或其比例式）求 $\\sin\\theta\\pm\\cos\\theta$ 等值。",
@@ -56265,26 +56165,6 @@
    ]
   },
   {
-   "slug": "ext-mat-d06a1e260a-005",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "ω 未限定正负时必须分情况讨论",
-   "summaryMarkdown": "题目只写 $\\omega$ 为实数（或只说 $\\omega\\neq0$）时，要分 $\\omega>0$、$\\omega<0$、$\\omega=0$ 三种情况讨论，因为 $\\omega$ 的符号决定换元后区间端点的顺序与方向。",
-   "applicabilityMarkdown": "函数中含参数 $\\omega$ 而题目未限定 $\\omega>0$，同时给出区间与零点（或极值点）个数条件。",
-   "contentMarkdown": "**以 $f(x)=\\sin\\left(\\omega x+\\frac\\pi4\\right)$ 在 $(0，\\pi)$ 上有且仅有 3 个零点为例**：\\n\\n**情形一：$\\omega>0$**。由 $x\\in(0，\\pi)$ 得 $\\omega x+\\frac\\pi4\\in\\left(\\frac\\pi4，\\omega\\pi+\\frac\\pi4\\right)$，区间随 $\\omega$ 增大而变长；要在其中恰有 3 个零点，右端须落在 $3\\pi$ 与 $4\\pi$ 之间：\\n$$3\\pi<\\omega\\pi+\\frac\\pi4\\le4\\pi\\Longrightarrow \\frac{11}{4}<\\omega\\le\\frac{15}{4}$$\\n\\n**情形二：$\\omega<0$**。换元后区间反向，为 $\\left(\\omega\\pi+\\frac\\pi4，\\frac\\pi4\\right)$，零点条件变为\\n$$-3\\pi\\le\\omega\\pi+\\frac\\pi4<-2\\pi\\Longrightarrow -\\frac{13}{4}\\le\\omega<-\\frac94$$\\n\\n**情形三：$\\omega=0$**。$f(x)=\\sin\\frac\\pi4$ 为常数，无零点，排除。\\n\\n答案取两种情形的并集。",
-   "boundaryMarkdown": "换元时 $\\omega$ 的符号决定区间端点书写顺序，写错方向会使不等号反向；由“有且仅有 3 个零点”列不等式时，两端等号能否取要结合端点的开闭判断；漏掉 $\\omega<0$ 的情形是本类题的主要失分点；$\\omega=0$ 时函数为常函数，必须单独说明无零点。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:math",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/训练册PDF/培优6　三角函数中ω的范围问题.pdf（块 d06a1e260a-005）",
-   "reviewedAtEpochMillis": 1789780065665,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数y-asin-ωx-φ-的图象",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-d06a1e260a-005b",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -56327,7 +56207,7 @@
   {
    "slug": "ext-mat-d06a1e260a-006b",
    "subject": "MATH",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "类型三的完整检验示范",
    "summaryMarkdown": "由零点、对称轴列方程组得 $\\omega=2k+1$ 的通式，由单调性得 $\\omega<12$ 的必要条件，再逐个检验 $k=5$、$k=4$ 的充分性，得 $\\omega$ 的最大值为 9。",
    "applicabilityMarkdown": "已知零点、对称轴与单调性条件，求 $f(x)=\\sin(\\omega x+\\varphi)$ 中 $\\omega$ 的最大值或最小值。",
@@ -57107,7 +56987,7 @@
   {
    "slug": "ext-mat-54bbe673d9-002b",
    "subject": "MATH",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "补形法：把三棱锥补成正方体求外接球",
    "summaryMarkdown": "当三棱锥中出现三条两两垂直的棱（且长度合适）时，把三棱锥补成正方体（或长方体），其外接球与三棱锥外接球相同，用体对角线求半径。",
    "applicabilityMarkdown": "三棱锥中有共顶点的三条棱两两垂直、或底面为正方形且侧棱垂直底面等可补形结构，求外接球表面积。",
@@ -58060,26 +57940,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-6b581c0987-010",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "用向量法处理“是否存在点”的探索性问题",
-   "summaryMarkdown": "建系设点后用向量关系翻译条件（垂直即数量积为零），解出参数后必须回到题目给定的范围检验，才能判断“存在”或“不存在”。",
-   "applicabilityMarkdown": "题目问“是否存在点 $E$ 使某直线与某平面垂直（或满足其他位置关系）”，要求判断并说明理由。",
-   "contentMarkdown": "**流程**（正方体中问：是否存在点 $E$ 使 $AM\\perp$ 平面 $EFG$）：\\n1. **建系设点**：以 $A$ 为原点建系，设棱长为 2，设 $E(0，0，t)$，$t\\in(0，2)$（点在棱的内部）；\\n2. **把条件翻译成方程**：$AM\\perp$ 平面 $EFG$ ⇒ $AM$ 垂直于平面内的直线 $EF$，即 $\\overrightarrow{AM}\\cdot\\overrightarrow{EF}=0$；\\n3. **解方程并检验范围**：由 $\\overrightarrow{AM}\\cdot\\overrightarrow{EF}=2-t=0$ 得 $t=2$，而 $t=2$ 表示 $E$ 与 $A_1$ 重合，与“不与棱的端点重合”矛盾，故不存在这样的点；\\n4. **对比选项作判断**：把符合条件的选项留下（本题正确答案为 $ABD$）。\\n\\n**相关技巧**：\\n- 判断三角形形状用余弦定理比较三边平方的大小（已知 $EF^2=b^2+a^2$、$GF^2=c^2+a^2$、$EG^2=b^2+c^2$，可证三个角都是锐角）；\\n- 由二面角的余弦值求另一个二面角时，用法向量夹角公式计算。",
-   "boundaryMarkdown": "用向量法判断“存在性”时，解出的参数必须回到题设范围（如 $t\\in(0，2)$）检验，超出范围的解要判为“不存在”；翻译“线面垂直”需要直线与平面内两条相交直线都垂直（本题只需检验其中一条即可发现矛盾）；判断三角形形状时要比较“最大边”的平方与其他两边平方和；平面的夹角用 $|\\cos\\langle n_1，n_2\\rangle|$，并判断是锐角还是钝角。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:math",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优12 空间几何体的动态和探索问题/讲解册PDF/培优12　空间几何体的动态和探索问题.pdf（块 6b581c0987-010）",
-   "reviewedAtEpochMillis": 1789780065665,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用空间向量解决探索性问题",
      "role": "PRIMARY"
     }
    ]
@@ -59707,7 +59567,7 @@
   {
    "slug": "ext-mat-d04314ab0b-001d",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "二项式系数的三条性质",
    "summaryMarkdown": "二项式系数具有对称性、先增后减并有最大值，且奇数项与偶数项系数和相等。",
    "applicabilityMarkdown": "比较二项式系数大小、求系数最大项、以及求各项系数和或奇偶项系数和的题。",
@@ -59927,7 +59787,7 @@
   {
    "slug": "ext-mat-d04314ab0b-004c",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "网格最短路径条数与杨辉三角",
    "summaryMarkdown": "网格中最短路径只需向右走 m 步、向下走 n 步，条数为 C(m+n、m)，其数值恰与杨辉三角中的数一致。",
    "applicabilityMarkdown": "棋盘格、街道网格中求两点间最短路径条数的计数问题。",
@@ -60207,7 +60067,7 @@
   {
    "slug": "ext-mat-d04314ab0b-012",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "全期望公式与概率新定义问题",
    "summaryMarkdown": "全期望公式把无条件期望拆成各条件下期望按概率加权之和，常用于逐阶段演化的随机过程。",
    "applicabilityMarkdown": "给出条件数学期望新定义、或用逐阶段演化（分裂、繁殖、传球）求期望与方差的压轴题。",
@@ -60427,7 +60287,7 @@
   {
    "slug": "ext-mat-80fe6c0ef5-001k",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "函数图象的平移与伸缩变换",
    "summaryMarkdown": "平移遵循左加右减、上加下减，伸缩时横坐标的倍数与系数成倒数关系。",
    "applicabilityMarkdown": "由已知函数图象作平移、伸缩变换后的图象，或由变换求解析式的问题。",
@@ -60447,7 +60307,7 @@
   {
    "slug": "ext-mat-80fe6c0ef5-001l",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "函数图象的四种对称变换",
    "summaryMarkdown": "自变量或函数值取相反数分别对应关于 y 轴或 x 轴对称，两者同时取反则关于原点对称。",
    "applicabilityMarkdown": "由 $y=f(x)$ 的图象作对称变换，或由对称性求解析式的问题。",
@@ -60467,7 +60327,7 @@
   {
    "slug": "ext-mat-80fe6c0ef5-001x12",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "函数图象的翻折变换",
    "summaryMarkdown": "加绝对值的位置决定了翻折方式：整体加绝对值把下方翻上去，只对自变量加绝对值则保留右侧再对称过去。",
    "applicabilityMarkdown": "由 $y=f(x)$ 的图象作 $y=|f(x)|$ 或 $y=f(|x|)$ 的图象，或由图象读性质的问题。",
@@ -60607,7 +60467,7 @@
   {
    "slug": "ext-mat-80fe6c0ef5-005c",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "对勾函数与飘带函数的图象与性质",
    "summaryMarkdown": "对勾函数在第一象限有最低点，飘带函数在两侧分支上分别单调递增。",
    "applicabilityMarkdown": "求形如 $ax+\\dfrac{b}{x}$ 的最值、判断含参分式函数的单调性的题。",
@@ -60847,7 +60707,7 @@
   {
    "slug": "ext-mat-80fe6c0ef5-011",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "函数图象的对称变换与同步变换",
    "summaryMarkdown": "把已知函数的对称性、定点、单调性随解析式的逐步变化一起同步更新，即可判断变换后的图象。",
    "applicabilityMarkdown": "已知原函数性质、判断变换后函数图象的选择题（含绝对值、平移的组合变换）。",
@@ -60867,7 +60727,7 @@
   {
    "slug": "ext-mat-80fe6c0ef5-011b",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "关于点与关于直线 y=x 的对称变换",
    "summaryMarkdown": "关于点（a、b）对称时纵坐标要变成 2b-y，关于 y=x 对称得到的是反函数。",
    "applicabilityMarkdown": "由对称关系求解析式、判断图象关于某点或某直线对称的题。",
@@ -61047,7 +60907,7 @@
   {
    "slug": "ext-mat-e99f917373-002b",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "复数的几何意义与点的轨迹",
    "summaryMarkdown": "复数与复平面内的点、与以原点为起点的向量三者一一对应，模就是向量的长度。",
    "applicabilityMarkdown": "由复数对应的点所在象限求参数、由模的几何意义求轨迹或最值的题。",
@@ -62765,26 +62625,6 @@
    ]
   },
   {
-   "slug": "ext-mat-c8a4430e4d-003",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "非充要条件推出的 ω 范围必须检验",
-   "summaryMarkdown": "含 $\\omega$、$\\varphi$ 两个参数时，先用零点与对称轴建立 $\\omega$ 关于整数 $k$ 的表达式，再由单调性得到 $\\omega$ 的必要范围并取出整数 $k$，最后逐个代入检验单调性。",
-   "applicabilityMarkdown": "解析式中同时含 $\\omega$ 和 $\\varphi$，条件同时给出零点、对称轴与单调性，要求 $\\omega$ 的最大值、最小值或它们之和。",
-   "contentMarkdown": "例：$f(x)=\\sin(\\omega x+\\varphi)$（$\\omega>0$，$0<\\varphi<\\pi$）在 $-\\frac{\\pi}{6}\\leq x\\leq\\frac{\\pi}{3}$ 上单调，且 $f\\left(\\frac{2\\pi}{3}\\right)=0$，$f(x)=f\\left(\\frac{5\\pi}{3}-x\\right)$，求 $\\omega$ 的最大值与最小值之和。\\n1. **翻译条件**：由 $f(x)=f\\left(\\frac{5\\pi}{3}-x\\right)$ 知图象关于直线 $x=\\frac{5\\pi}{6}$ 对称；又 $f\\left(\\frac{2\\pi}{3}\\right)=0$ 说明 $x=\\frac{2\\pi}{3}$ 是零点。于是 $\\frac{2\\pi\\omega}{3}+\\varphi=k_1\\pi$、$\\frac{5\\pi\\omega}{6}+\\varphi=k_2\\pi+\\frac{\\pi}{2}$（$k_1$、$k_2\\in\\mathbf Z$），两式相减得 $\\omega=\\frac23\\left(k+\\frac12\\right)$（$k\\in\\mathbf Z$）。\\n2. **由单调性得必要条件**：区间长度 $\\frac{\\pi}{3}-\\left(-\\frac{\\pi}{6}\\right)=\\frac{\\pi}{2}\\leq\\frac T2$，即 $\\frac{2\\pi}{\\omega}\\geq\\pi$，所以 $0<\\omega\\leq2$。\\n**注意**：区间长度不超过半个周期只是单调的必要条件，不是充要条件，此处得到的范围不一定是最终答案，必须再检验充分性。\\n3. **筛出整数 $k$**：由 $0<\\frac23\\left(k+\\frac12\\right)\\leq2$ 解得 $-\\frac12<k\\leq\\frac52$，$k\\in\\mathbf Z$，故 $k=0$、$1$、$2$。\\n4. **逐个代入检验单调性**：$k=0$ 时 $\\omega=\\frac13$，对应角落在 $\\frac{\\pi}{6}$ 与 $\\frac{\\pi}{3}$ 之间，单调递增，符合；$k=1$ 时 $\\omega=1$，对应角落在 $\\frac{\\pi}{2}$ 与 $\\pi$ 之间，单调递减，符合；$k=2$ 时 $\\omega=\\frac53$，对应角跨过 $\\frac{\\pi}{2}$，不单调，舍去。\\n5. **结论**：$\\omega=\\frac13$ 或 $1$，最大值与最小值之和为 $\\frac43$。",
-   "boundaryMarkdown": "由必要条件得到的范围只能用来筛选整数 $k$，不能直接作为答案；对称轴的方程是 $k\\pi+\\frac{\\pi}{2}$、对称中心是 $k\\pi$，两者不能混用；每次代入都要结合 $0<\\varphi<\\pi$ 重新算出 $\\varphi$，并写出 $t=\\omega x+\\varphi$ 在给定区间上的范围来判断单调性；舍去的情形必须说明理由（区间跨过极值点则不单调）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:math",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/讲解册PDF/培优6　三角函数中ω的范围问题.pdf（块 c8a4430e4d-003）",
-   "reviewedAtEpochMillis": 1789780065665,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数y-asin-ωx-φ-的图象",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-c8a4430e4d-003b",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -63520,26 +63360,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平行四边形恒等式与中线定理",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-98e813b184-008c",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "数量积与面积混合条件的转化",
-   "summaryMarkdown": "条件 $c^2=\\overrightarrow{BA}\\cdot\\overrightarrow{BC}-2\\sqrt3S$ 中，面积 $S$ 与数量积各有多种表示，选择与所求角匹配的那一种（把 $S$ 用 $\\frac12ac\\sin B$ 表示以便与数量积中的 $\\cos B$ 配套），即可化为边角关系。",
-   "applicabilityMarkdown": "解三角形题目中条件同时含向量的数量积与三角形面积时。",
-   "contentMarkdown": "例：在 $\\triangle ABC$ 中，$a=2$，$c^2=\\overrightarrow{BA}\\cdot\\overrightarrow{BC}-2\\sqrt3S$（$S$ 为 $\\triangle ABC$ 的面积），求角 $A$。\\n### 转化方向的选择\\n所给等式中的 $S$ 有两个转化方向：\\n- 一是结合所求为 $A$，选择 $S=\\frac12bc\\sin A$；\\n- 二是注意到计算 $\\overrightarrow{BA}\\cdot\\overrightarrow{BC}$ 需要 $\\cos B$，故选 $S=\\frac12ac\\sin B$，使两项都含角 $B$，便于统一。\\n经尝试两种都可行，关键是**让数量积与面积使用同一个角**。\\n### 演算（取第一种）\\n因为 $c^2=\\overrightarrow{BA}\\cdot\\overrightarrow{BC}-2\\sqrt3S$，所以\\n$$c^2=ca\\cos B-2\\sqrt3\\cdot\\frac12bc\\sin A.$$\\n两边约去 $c$ 得 $c=a\\cos B-\\sqrt3b\\sin A$。\\n由正弦定理把边化为角：$\\sin C=\\sin A\\cos B-\\sqrt3\\sin B\\sin A$ ①；\\n又 $\\sin C=\\sin[\\pi-(A+B)]=\\sin(A+B)=\\sin A\\cos B+\\cos A\\sin B$，代入①化简得 $\\cos A\\sin B=-\\sqrt3\\sin B\\sin A$。\\n因为 $0<B<\\pi$，所以 $\\sin B>0$，故 $\\cos A=-\\sqrt3\\sin A$，即 $\\tan A=-\\frac{\\sqrt3}{3}$；由 $0<A<\\pi$ 可得 $A=\\frac{5\\pi}{6}$。",
-   "boundaryMarkdown": "数量积要写成 $|\\overrightarrow{BA}||\\overrightarrow{BC}|\\cos\\angle ABC$ 的形式，注意夹角是两个向量的夹角（可能是内角的补角，写错会导致符号错误）；面积用哪一个角表示要与数量积中的角一致，否则无法化简；两边约去 $c$ 前要说明 $c>0$；由 $\\tan A=-\\frac{\\sqrt3}{3}$ 求角时要结合 $A$ 是三角形内角（$0<A<\\pi$）取钝角。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:math",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/题型透析/讲解册PDF/专题四　三角函数与解三角形.pdf（块 98e813b184-008）",
-   "reviewedAtEpochMillis": 1789780065665,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量的数量积",
      "role": "PRIMARY"
     }
    ]

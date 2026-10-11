@@ -44,7 +44,9 @@ class DenseVectorAssetTest {
         assertEquals(assetHeader.getValue("expectedBytes").toInt(), expectedBytes)
         assertEquals(bytes.size, expectedBytes)
         // 2026-10-03 批次 3：近重复节点合并后随包原子节点 3,866 → 3,761（资产随之重打）。
-        assertEquals(3761, asset.nodeCount)
+        // 2026-10-11 批次 8（v12 → v13）：老队列 20 对近重复点并入后随包原子节点 3,761 → 3,741
+        // （资产随包重打；量源 = 资产头 count 与旁车 corpus.atomicNodes 实测同为 3,741）。
+        assertEquals(3741, asset.nodeCount)
     }
 
     @Test
@@ -97,7 +99,9 @@ class DenseVectorAssetTest {
         val scans = parseScans()
         assertEquals("scan 查询数变了（每科 1 条）", 4, scans.size)
         // 同上次重钉：3,866 → 3,761（扫描参考文件随资产一起重生成）。
-        assertEquals("节点行总数变了", 3761, scans.sumOf { it.expected.size })
+        // 2026-10-11 批次 8（v12 → v13）再重钉：3,761 → 3,741（量源 = 本用例失败信息
+        // `expected:<3761> but was:<3741>`，与资产头/旁车 corpus.atomicNodes 三方一致）。
+        assertEquals("节点行总数变了", 3741, scans.sumOf { it.expected.size })
         for (scan in scans) {
             val scores = asset.nodeScores(scan.query, scan.subject.lowercase())
             assertEquals("scan#${scan.index} 学科=${scan.subject} 的节点数", scan.expected.size, scores.size)

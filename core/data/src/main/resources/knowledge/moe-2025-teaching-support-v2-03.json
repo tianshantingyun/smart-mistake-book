@@ -15223,7 +15223,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量是高中化学常用的物理量-请完成以下有关计算-设na为阿伏加德罗常数的值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:阿伏加德罗常数",
      "role": "PRIMARY"
     }
    ]
@@ -16723,7 +16723,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:在fecl3-cucl2混合溶液中-加入铁粉与铜粉的混合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液ph的计算",
      "role": "PRIMARY"
     }
    ]
@@ -22763,7 +22763,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有多种同分异构体-同时满足下列条件的同分异构体有_____种-不考虑立体异构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:同分异构体",
      "role": "PRIMARY"
     }
    ]
@@ -30203,7 +30203,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:碳元素的单质有多种形式-下图依次是c60-石墨和金刚石的结构图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:同素异形体",
      "role": "PRIMARY"
     }
    ]
@@ -32543,7 +32543,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验探究乙酸乙酯的制备",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酯化反应",
      "role": "PRIMARY"
     }
    ]
@@ -39203,7 +39203,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属钠与二氧化碳反应的实验步骤及现象如下表",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氨的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -39823,7 +39823,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素金属性强弱的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素非金属性强弱的判断",
      "role": "PRIMARY"
     }
    ]
@@ -41311,7 +41311,7 @@
   {
    "slug": "ext-mat-cead6018c1-009",
    "subject": "MATH",
-   "type": "COMPLETE_SOLUTION",
+   "type": "METHOD_MODEL",
    "title": "利用对称性求函数零点之和",
    "summaryMarkdown": "把零点转化为两图象交点的横坐标，若交点关于直线x=m对称，则成对零点之和为2m。",
    "applicabilityMarkdown": "零点成对出现且图象有对称性时求零点之和。",
@@ -42231,7 +42231,7 @@
   {
    "slug": "wusan-bio-v-9e661bda",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "流动镶嵌模型的要点与细胞膜功能",
    "summaryMarkdown": "磷脂双分子层构成基本支架，糖被在膜外侧，膜具有一定流动性和选择透过性",
    "applicabilityMarkdown": "膜结构模型解读与功能分析",
@@ -42251,7 +42251,7 @@
   {
    "slug": "wusan-bio-v-d0339cd6",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "物质出入细胞的方式及影响因素",
    "summaryMarkdown": "被动运输不耗能，主动运输需载体和能量，胞吞胞吐依赖膜的流动性",
    "applicabilityMarkdown": "运输方式判断与实例辨析",
@@ -42371,7 +42371,7 @@
   {
    "slug": "wusan-bio-v-51ae858d",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "转录与翻译的场所条件及产物比较",
    "summaryMarkdown": "转录以DNA一条链为模板合成RNA，翻译在核糖体上以mRNA为模板合成肽链",
    "applicabilityMarkdown": "基因表达过程的比较与判断",
@@ -42451,7 +42451,7 @@
   {
    "slug": "wusan-bio-v-936b224b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "种群数量特征的关系与密度调查方法",
    "summaryMarkdown": "种群密度是最基本的数量特征，样方法与标记重捕法适用于不同对象",
    "applicabilityMarkdown": "种群密度计算与调查方法选择",
@@ -42511,7 +42511,7 @@
   {
    "slug": "wusan-bio-v-a5927a34",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "基因工程的基本操作程序与表达载体",
    "summaryMarkdown": "目的基因的筛选获取、表达载体的构建与导入受体细胞",
    "applicabilityMarkdown": "基因工程流程与载体构建分析",
@@ -42811,7 +42811,7 @@
   {
    "slug": "ext-bio-26746c92ba-065",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "折线图与柱形图的画线法两定法",
    "summaryMarkdown": "斜线2n到4n代表核DNA、从无到有代表染色单体，结合定物质定时期判断数量图",
    "applicabilityMarkdown": "细胞分裂数量变化的折线图与柱形图分析",
@@ -43591,7 +43591,7 @@
   {
    "slug": "ext-bio-26746c92ba-085",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电泳图谱与系谱图的联合判读",
    "summaryMarkdown": "电泳图中每一横行代表相同的基因、每一竖列代表同一个体的基因，据此把条带数转成基因型再与系谱图信息联立。",
    "applicabilityMarkdown": "系谱图与电泳图谱联合出现的题目（新高考常见），要求判断个体基因型、判断条带数目或计算概率。",
@@ -43691,7 +43691,7 @@
   {
    "slug": "ext-bio-26746c92ba-091",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "DNA复制的模型核心与复制叉",
    "summaryMarkdown": "DNA 复制准确传递信息的核心是碱基互补配对，由此延伸出半保留复制、边解旋边复制、需要引物、子链有固定延伸方向四条逻辑，复制叉是解旋与合成的交叉处。",
    "applicabilityMarkdown": "判断复制方式与方向、分析前导链与后随链、解释冈崎片段与引物的作用、解答 DNA 复制模型图示题。",
@@ -43731,7 +43731,7 @@
   {
    "slug": "ext-bio-26746c92ba-092b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "复制泡与三类环状DNA复制模型",
    "summaryMarkdown": "DNA 可从复制起点双向复制形成复制泡；环状 DNA 还有 θ 复制、D 环复制、滚环复制三种常见模型。",
    "applicabilityMarkdown": "遇到复制泡、双向复制、线粒体或叶绿体 DNA 复制、噬菌体 DNA 复制等图示或信息题。",
@@ -43771,7 +43771,7 @@
   {
    "slug": "ext-bio-26746c92ba-094",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "染色体标记问题的减数分裂模型",
    "summaryMarkdown": "原始 DNA 被标记、原料不标记时，复制一次后每条染色单体都带有标记，四个 DNA 分子均只有一条链被标记。",
    "applicabilityMarkdown": "用放射性或荧光标记亲代 DNA、在无标记原料中培养，追踪子代细胞中标记染色体的分配。",
@@ -43791,7 +43791,7 @@
   {
    "slug": "ext-bio-26746c92ba-095",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "染色体标记问题的有丝分裂模型",
    "summaryMarkdown": "有丝分裂中复制后每条染色单体都带标记，第一次分裂子细胞染色体都带标记；第二次分裂后含标记的细胞数可能是 2、3 或 4 个。",
    "applicabilityMarkdown": "用 ³²P 或荧光标记 DNA 后让细胞进行有丝分裂，判断子细胞中含标记的细胞数或标记染色体的数目。",
@@ -44091,7 +44091,7 @@
   {
    "slug": "ext-bio-26746c92ba-103",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传平衡定律的内容与棋盘法推导",
    "summaryMarkdown": "理想条件下设 A 基因频率为 p、a 为 q，则 AA、Aa、aa 的基因型频率分别为 p²、2pq、q²，可用棋盘法由配子比例直接推出。",
    "applicabilityMarkdown": "已知群体处于遗传平衡或自由交配，要求计算后代基因型频率、基因频率或某一表型比例的题目。",
@@ -44111,7 +44111,7 @@
   {
    "slug": "ext-bio-26746c92ba-104",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "基因位于X染色体上的遗传平衡",
    "summaryMarkdown": "伴性基因要把雌雄分别作为群体处理：X 染色体上 B、b 频率为 p、q 时，雌性各基因型频率为 p²/2、pq、q²/2，雄性为 p/2、q/2，且基因频率逐代不变。",
    "applicabilityMarkdown": "考查伴 X（或伴 Z）遗传的群体基因频率与基因型频率计算、判断世代间基因频率是否改变。",
@@ -44191,7 +44191,7 @@
   {
    "slug": "ext-bio-26746c92ba-106",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "伴X基因频率在世代间的趋同",
    "summaryMarkdown": "雌雄群体 X 染色体上某基因频率不同时，随机交配一代后 F₁ 雄性频率等于亲代雌性频率、F₁ 雌性为二者平均，雌雄差值每代减半。",
    "applicabilityMarkdown": "给出雌雄群体基因频率不同的初始种群，要求判断随机交配各代中雌雄基因频率与基因型频率的变化。",
@@ -44231,7 +44231,7 @@
   {
    "slug": "ext-bio-26746c92ba-107",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "体液成分的模式图判断",
    "summaryMarkdown": "用单、双箭头法或“有无、内外”四字诀，由模式图判断甲、乙、丙等分别代表淋巴液、组织液还是血浆。",
    "applicabilityMarkdown": "给出体液交换模式图（三角形加箭头）或组织切片图，要求判断体液名称或物质交换关系。",
@@ -44411,7 +44411,7 @@
   {
    "slug": "ext-bio-26746c92ba-112",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "静息电位与动作电位的测量与离子机制",
    "summaryMarkdown": "电表一内一外测得静息电位与动作电位曲线；静息电位由 K⁺ 外流形成、动作电位由 Na⁺ 内流形成，峰值大小与膜内外 Na⁺ 浓度差有关。",
    "applicabilityMarkdown": "判断电位差—时间曲线上各段对应的离子流动、电位状态、峰值变化或测量方案的题目。",
@@ -44431,7 +44431,7 @@
   {
    "slug": "ext-bio-26746c92ba-113",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "膜外双电极的电位曲线方向分析",
    "summaryMarkdown": "两电极都在膜外时，刺激位置不同会使电位曲线方向相反，但电表都发生两次方向相反的偏转，偏转方向由两处膜外的电势差决定。",
    "applicabilityMarkdown": "给出两电极均在膜外的测量装置与电位曲线，要求判断曲线各段对应的过程或偏转方向。",
@@ -44551,7 +44551,7 @@
   {
    "slug": "ext-bio-26746c92ba-116b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "突触处的兴奋传递过程与传递特点",
    "summaryMarkdown": "突触传递经历电信号→化学信号→电信号的转换，递质由突触前膜释放、作用于突触后膜受体，因此具有单向传递和突触延搁的特点。",
    "applicabilityMarkdown": "判断突触传递的方向、比较突触与神经纤维上传递的速度，或分析信号转换过程的题目。",
@@ -44731,7 +44731,7 @@
   {
    "slug": "ext-bio-26746c92ba-121",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "体液免疫的过程与结果",
    "summaryMarkdown": "病原体经抗原呈递细胞传递给辅助性T细胞，B细胞接受两个信号并在细胞因子作用下增殖分化为浆细胞与记忆B细胞，浆细胞分泌抗体。",
    "applicabilityMarkdown": "判断图示中细胞名称与信号、分析二次免疫或抗体产生过程的题目。",
@@ -44751,7 +44751,7 @@
   {
    "slug": "ext-bio-26746c92ba-121b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "细胞免疫的过程与结果",
    "summaryMarkdown": "辅助性T细胞分泌的细胞因子促进细胞毒性T细胞增殖分化，细胞毒性T细胞接触、裂解靶细胞，使病原体暴露后被抗体结合或吞噬。",
    "applicabilityMarkdown": "判断图示中细胞毒性T细胞、靶细胞与记忆T细胞的关系，或分析靶细胞裂解的题目。",
@@ -44791,7 +44791,7 @@
   {
    "slug": "ext-bio-26746c92ba-122",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "免疫示意图的三个突破点",
    "summaryMarkdown": "用“Y”形符号认抗体与浆细胞、用黑点认细胞因子与辅助性T细胞、用箭头方向判断细胞毒性T细胞识别还是裂解。",
    "applicabilityMarkdown": "给出免疫过程示意图（含抗体、细胞因子、细胞接触箭头），要求判断细胞与物质的名称。",
@@ -45151,7 +45151,7 @@
   {
    "slug": "ext-bio-26746c92ba-130",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "“拼图法”分析能量流动的过程",
    "summaryMarkdown": "指向完整图块的 W、D 为该营养级的同化量；用于生长、发育和繁殖的能量为 C+D；能量守恒给出 W1=A1+C1+D1=A1+C1+A2+C2+D2。",
    "applicabilityMarkdown": "用能量流动图示（拼图式框图）分析同化量、去路与传递效率的题目。",
@@ -45371,7 +45371,7 @@
   {
    "slug": "ext-bio-26746c92ba-134c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "碳循环与能量流动的关系",
    "summaryMarkdown": "物质是能量的载体，能量储存在有机物中随之流动；能量是物质循环的动力，碳循环具有全球性而能量流动单向、逐级递减。",
    "applicabilityMarkdown": "分析碳循环与能量流动关系图，或判断物质与能量在生态系统中流动特点的题目。",
@@ -45891,7 +45891,7 @@
   {
    "slug": "ext-bio-5fd81512c2-003c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "显微镜成像特点与装片移动规律",
    "summaryMarkdown": "显微镜下看到的是倒立放大的虚像（相当于旋转 180°），移动装片遵循偏哪移哪，胞质环流方向与视野中一致。",
    "applicabilityMarkdown": "由视野中物像位置判断装片移动方向、由物像形状判断成像特点、由视野中胞质环流方向判断实际方向等题目。",
@@ -47871,7 +47871,7 @@
   {
    "slug": "ext-mat-66cdd05410-008c",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "等比数列的对称设项技巧",
    "summaryMarkdown": "三个数成等比可设为 $\\frac aq$、$a$、$aq$，四个数成等比可设为 $\\frac a{q^3}$、$\\frac aq$、$aq$、$aq^3$，用于简化运算。",
    "applicabilityMarkdown": "题目给出成等比的三数（或四数）的和、积条件求各数或求公比时使用。",
@@ -48163,7 +48163,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电动势与内阻",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电源电动势和内阻",
      "role": "PRIMARY"
     }
    ]
@@ -48731,7 +48731,7 @@
   {
    "slug": "ext-phy-eec25a65a0-005",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "简谐运动图像的信息与对称性",
    "summaryMarkdown": "由图像可读振幅、周期与相位，并据斜率与对称性判断速度、回复力与加速度。",
    "applicabilityMarkdown": "由振动图像判断某时刻位移、速度方向、回复力方向和能量变化时使用。",
@@ -49451,7 +49451,7 @@
   {
    "slug": "ext-phy-8a6cb6c448-005",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "Ep-x 图像的信息与读法",
    "summaryMarkdown": "Ep-x 图线的斜率对应静电力（斜率的绝对值表示大小、正负表示方向），由图可判断电势能变化与静电力做功。",
    "applicabilityMarkdown": "给出 Ep-x 图像，要求判断静电力方向与大小、电势能变化或结合运动分析时使用。",
@@ -50531,7 +50531,7 @@
   {
    "slug": "ext-phy-f12aef7bb2-004",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "平动切割的有效长度",
    "summaryMarkdown": "公式 E=Blv 中 l 取导体在垂直于 v 与 B 方向上的投影长度",
    "applicabilityMarkdown": "导体棒或线框边斜着切割、在夹角导轨上滑动等求电动势的场景",
@@ -51071,7 +51071,7 @@
   {
    "slug": "ext-phy-35f5d4d1d1-014",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "用电场线判断场强与电势",
    "summaryMarkdown": "由电场线的切线方向、疏密和走向可判断场强方向、静电力方向、场强大小与电势高低。",
    "applicabilityMarkdown": "“给出电场线分布图、要求比较各点场强的大小与方向、判断电势高低或电势降低快慢的选择题中。”",
@@ -53291,7 +53291,7 @@
   {
    "slug": "ext-mat-e2ed55e83e-002",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "圆的标准方程及其应用",
    "summaryMarkdown": "圆的标准方程的形式、圆心与半径的读取以及直接代入使用的场景",
    "applicabilityMarkdown": "已知圆心和半径写方程、由方程读出圆心与半径",
@@ -55071,7 +55071,7 @@
   {
    "slug": "ext-mat-78efdafe97-004",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "幂函数图象的识别与指数大小的比较",
    "summaryMarkdown": "用第一象限的三条分界线与“指大图低、指大图高”比较幂指数的大小。",
    "applicabilityMarkdown": "根据图象判断幂指数大小、识别给定幂函数的图象、比较若干幂函数图象的位置。",

@@ -1,8 +1,8 @@
 {
  "schemaVersion": 2,
  "packId": "moe-2025-four-subjects-v1",
- "version": 12,
- "contentVersion": "627d8d43503e41c1",
+ "version": 13,
+ "contentVersion": "32682dbc9b1a7d05",
  "retired": [
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna是主要的遗传物质-x1",
@@ -179,10 +179,22 @@
    "reason": "同章同名去重副本 特异性免疫"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态足迹与生态承载力",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:生态足迹",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（A 边界「足迹与承载力方向相反、不能混为一谈」与 B 边界「足迹不是实际占用面积」同域），B 别名即「生态足迹的概念、特点与影响因素」，B 材料《生态足迹的概念、特点与影响因素》与 A 材料《生态足迹的定义、影响因素与生态赤字》同题（定义/特点/影响因素）；并入 A（2 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态金字塔；同时同片同节点材料已达",
    "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:生态金字塔",
    "kind": "MERGE",
    "reason": "B 名为入库残片（夹带「同时同片同节点材料已达」），B 边界（倒置只出现在数量/生物量金字塔）与 A 边界（只对应能量、不能与另两类混同）同域，材料各 1 条（ext-bio-78a30dbb2e-034 对 ext-bio-a11fedf14f-010）；并入 A。（复核 AGREE 2026-10-03）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物分类等级",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:生物分类的等级单位",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（A 边界「判断亲缘关系只能依据分类等级高低」与 B 边界「等级只反映相似性相对远近」同域），A 材料《生物分类的等级单位与相似性判断》与 B 材料《生物分类等级与同属相似性》正文同题（界门纲目科属种 + 同属相似性）；并入 A（2 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物多样性-x1",
@@ -225,6 +237,12 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的糖类",
    "kind": "MERGE",
    "reason": "同章同名去重副本 细胞中的元素和化合物"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中能源物质的供能顺序",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的能源物质与供能顺序",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（A 边界「直接/主要/储备/最终能源角色不能互换」与 B 边界「供能顺序为一般情况」同域），A 材料《细胞中能源物质的角色与供能过程》与 B 材料《细胞中能源物质的种类与供能顺序》正文同题（同列 ATP/糖类/脂肪/蛋白质与供能顺序）；并入 A（2 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的影响因素及其应用",
@@ -779,6 +797,12 @@
    "reason": "同概念双节点（两边界同为洗净标准与洗涤剂选择禁忌），同题材料分挂（A 池 chem-hj2-boli-yiqi-xijing-biaozhun《玻璃仪器洗净的标准》对 B 池 ext-che-fcfd5bcde6-008《玻璃仪器的洗涤与残留物的去除》）；并入 A（5 条）。（复核 AGREE 2026-10-03）"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:传统文化类试题的解题三步曲",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:传统文化类试题的解题方法",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（A 名「解题方法」即 B 的「三步曲」，同一源文档「高考化学化学与传统文化及STSE(学生版)-20页.docx」块 87aa1e387e 的 -005 与 -009c），A 材料已含「解题三步：先读原文圈关键词→翻译成物质与反应→与选项比对」；并入 A（7 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据事实-写出下列反应的热化学方程式",
    "supersededBy": null,
    "kind": "DELETE",
@@ -1073,6 +1097,12 @@
    "reason": "题干壳：材料已全部归位真节点"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:定量实验的数据采集与处理",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:定量实验数据的采集与处理",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（名仅差「的」位置），同章同节；A 材料《定量实验数据的采集与五看》与 B 材料《定量实验的采集精度与取值方法》同题（仪器最小分度定读数精度、容量瓶只能定容、平行测定与离群数据）；并入 A（10 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验室制备溴苯的反应装置如图所示-下列关于实验操作或叙述错误的是",
    "supersededBy": null,
    "kind": "DELETE",
@@ -1181,6 +1211,12 @@
    "reason": "题干壳：材料已全部归位真节点"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见净水剂消毒剂漂白剂与干燥剂",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见净水剂、消毒剂与漂白剂",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（同章同节，B 名多「干燥剂」一项），B 材料《常见净水剂、消毒剂与干燥剂》与 A 池 ext-che-367f238be3-001 正文同题（净水剂/消毒剂/漂白剂三张清单逐项对应，仅多干燥剂一节）；并入 A（7 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的混合物",
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
    "kind": "MERGE",
@@ -1239,6 +1275,12 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机合成路线的推断方法",
    "kind": "MERGE",
    "reason": "KEEP 分流：与既有节点同物"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:极端假设法确定浓度范围",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:极端假设法确定各物质浓度范围",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（名仅差「各物质」三字，同章），A/B 边界均为「两端极值取不到、可逆反不能进行到底」，A 材料《极端假设法确定各物质的浓度范围》与 B 材料《极端假设法确定浓度范围》同为可逆反应平衡浓度区间的极端假设法；并入 A（2 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:析图关键-关注曲线变化趋势-采取-定一议二-法",
@@ -1389,6 +1431,12 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应",
    "kind": "MERGE",
    "reason": "同章同名去重副本 氧化还原反应"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原滴定法",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原滴定",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（名仅差「法」字，同章同节），B 材料《氧化还原滴定法》与 A 池 ext-che-0d735645e9-022《氧化还原滴定的原理与指示剂》正文同题（原理/常用试剂/三类指示剂实例逐条对应）；并入 A（9 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水电离出的c(H+)（或c(OH-)）的计算",
@@ -1611,6 +1659,12 @@
    "supersededBy": null,
    "kind": "DELETE",
    "reason": "题干壳：材料已全部归位真节点"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子反应顺序的判断",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子反应先后顺序的判断",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（名仅差「先后」二字，同章同节），A 材料《离子反应先后顺序的判断》《先后型（竞争型）离子反应的反应顺序》与 B 材料《含铝离子体系中逐滴加酸碱的反应顺序》同题（强弱规律定顺序、Al3+/NH4+/H+ 逐滴加 NaOH 次序）；并入 A（5 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:粗铜的电解精炼示意图如图所示",
@@ -2225,6 +2279,12 @@
    "reason": "同一考点：一侧给正切刻画并点明数量积为零是求垂心位置的主要工具，另一侧的材料正是该工具的应用；四心家族命名一致（外心/重心/内心都把「三角形X的向量特征」收作别名）（第 13 片裁定）"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形的心的向量表示",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:三角形四心的向量表示",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（同章同节，B 名「三角形的心」即四心），A 材料《三角形四心的向量表示》等 5 条与 B 材料《三角形的心的向量表示》同题（内心 a·IA+b·IB+c·IC=0、重心 GA+GB+GC=0 等同一组向量等式）；并入 A（6 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形解的个数问题",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:三角形解的个数判断",
    "kind": "MERGE",
@@ -2315,6 +2375,12 @@
    "reason": "同概念双节点（边界同讲切点在棱上、与内切球/外接球区分），同题材料分挂（A 池 ext-mat-a80a28ae22-018《棱切球的存在条件与常见半径》对 B 池 ext-mat-b6e979f79a-005《棱切球：与几何体各条棱都相切的球》）；并入 A（名即规范术语，3 条对 3 条）。（复核 AGREE 2026-10-03）"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求圆锥曲线离心率的四步法",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线离心率的求法",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（A 名与 B 名同指离心率求法，同章同节），A 池含《求离心率方法一：由条件列方程组求 a、c》《求圆锥曲线离心率的两种方法》，B 材料《求圆锥曲线离心率的四步法》同为「条件转化到 e=c/a」的通用步骤；并入 A（4 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:狄利克雷函数",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:狄利克雷函数与高斯函数",
    "kind": "MERGE",
@@ -2397,6 +2463,18 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:伏伏法测电阻",
    "kind": "MERGE",
    "reason": "A 池已收 ext-phy-7e347de814-007《伏伏法（电压表差值法）测电阻》（B 名即该法别名），B 池三条《电压表差值法（伏伏法）…》（ext-phy-555d8d536a-001b 等）为该法分挂；并入 A（8 条）。（复核 AGREE 2026-10-03）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏欧法测电源电动势和内阻",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:伏阻法测电源电动势和内阻",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（「伏阻法」= 电压表+电阻箱，B 的「伏欧法」系异名），B 唯一材料《伏欧法测电动势和内阻》与 A 池 ext-phy-849ea9e86a-007 正文同题（E=U+Ur/R、1/U-1/R 图线、电压表分流致 E测<E真 r测<r真 逐条一致）；并入 A（12 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏阻法测电动势与内阻",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:伏阻法测电源电动势和内阻",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（名仅差「电源」二字，同章同节），B 材料《伏阻法测电动势与内阻》《伏阻法测电动势和内阻的原理（slide e97）》与 A 池同题（E=U+Ur/R、1/U-1/R 图线、E测与r测均偏小）；并入 A（12 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移-速度和加速度",
@@ -2573,6 +2651,18 @@
    "reason": "A 池已收 ext-phy-7e347de814-007b《安安法（电流表差值法）测电阻》（B 名即该法别名），B 池三条《电流表差值法（安安法）…》（ext-phy-555d8d536a-001 等）为该法分挂；并入 A（9 条）。（复核 AGREE 2026-10-03）"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安欧法测电源电动势和内阻",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电源电动势和内阻",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（「安阻法」= 电流表+电阻箱，B 的「安欧法」系异名），B 唯一材料《安欧法测电动势和内阻》与 A 池 ext-phy-72f3fb05e7-026 正文同题（E=I(R+r)、1/I-R 与 R-1/I 两种线性化、电流表内阻致 r测=r真+rA）；并入 A（11 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电动势与内阻",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电源电动势和内阻",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（名仅差「电源」二字，同章同节），B 材料《安阻法测电动势与内阻》《安阻法测电动势和内阻的原理（slide e95）》与 A 池同题（E=IR+Ir、1/I-R 图斜率 1/E、R-1/I 图截距 -r、误差只在内阻偏大）；并入 A（11 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-一个线圈中的电流变化时-它所产生的变化的磁场在它本身激发出感应电动势的现象",
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:自感",
    "kind": "MERGE",
@@ -2595,6 +2685,18 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:安培力",
    "kind": "MERGE",
    "reason": "知识点的属性条目被提成独立节点（定义：/表达式：/应用：），并入主节点（fix_bad_names 定稿·2026-09-19 移植）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实物连线的注意事项",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:实物图连接的注意事项",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（「连接」「连线」同义，同章同节），B 材料《电学实验实物连线的三点注意》与 A 池 ext-phy-f42dc02f15-009 正文同题（先电源正极单线串联再并联、导线接接线柱不交叉、电表正负接线柱、滑动变阻器限流/分压接法）；并入 A（8 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:小船过河模型",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:小船渡河模型",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（「渡河」「过河」同义），B 材料《小船过河的时间最短与位移最短》与 A 池 ext-phy-d1892ef44a-008b《小船渡河的最短时间与最短位移（福建专用第12讲）》同一讲次同题（最短时间 d/v船、位移分船速大于与小于水速两类）；并入 A（22 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:小量程电流表-表头",
@@ -2699,6 +2801,12 @@
    "reason": "B 即正交分解在斜面场景的建系（边界「正压力必须由垂直斜面方向的受力方程求出」），唯一材料 ext-phy-28d96980f3-035《斜面模型的坐标轴建立与摩擦力计算》与 A 池 ext-phy-485c4ea6f5-023《正交分解法建立坐标轴的原则》同域；并入 A（13 条），斜面压力细节可另归「斜面模型」。（复核 AGREE 2026-10-03）"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:星球的瓦解与黑洞",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:星球瓦解与黑洞临界条件",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（A 名与 B 名同指「瓦解临界条件 + 黑洞判据」），B 材料《星球瓦解的临界条件与黑洞的判据》与 A 材料《星球的瓦解与黑洞的临界条件》同题（赤道处引力恰提供向心力 ω=√(GM/R³)、逃逸速度为第一宇宙速度 √2 倍）；并入 A（3 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:晾衣架模型",
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:活结与死结模型",
    "kind": "MERGE",
@@ -2795,6 +2903,12 @@
    "reason": "整句话当名称"
   },
   {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实物连图的注意事项",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:实物图连接的注意事项",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（名同指电学实物图连线注意点，同章同节），B 材料《电学实物图连接的注意事项》与 A 池 ext-phy-0f99891961-028 正文同题（连线顺序/避免交叉/正负接线柱/限流一上一下与分压一上两下逐条一致）；并入 A（9 条）。（双遍复核 AGREE 2026-10-11）"
+  },
+  {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验器材的选取与实物图连接",
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验器材的选取",
    "kind": "MERGE",
@@ -2823,6 +2937,12 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:绳球模型-杆球模型两类经典模型中的临界条件-情景分析",
    "kind": "MERGE",
    "reason": "同概念双节点（均为竖直面内绳/杆模型临界的解题），B 池《轻绳模型与轻杆模型过最高点的临界条件》《竖直面内圆周运动两类模型的最高点受力特征》与 A 池同题材料分挂（本 kit 312/314/317/318/319/322 在甲、316 在乙）；并入 A（28 条）。（复核 AGREE 2026-10-03）"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:等效替换法",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:等效替代法",
+   "kind": "MERGE",
+   "reason": "同知识点双节点（「替代」与「替换」同义，同为物理思维方法总点），A 池 28 条含《等效替换法》（ext-phy-206fb04353-047）与 B 唯一材料《等效替换法的前提与常见应用》正文同题（保证效果/特性不变、力的合成与分解、等效电源等同一应用清单）；并入 A（29 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:结构",

@@ -309,7 +309,11 @@ class RealArtifactsTest(unittest.TestCase):
         # 按内容改绑到更准的节点后归零，节点本身名字是整句/材料标题）→ 132。
         # 2026-10-03 批次 3：近重复节点合并（候选 156 对 → 判 MERGE 114 → 复核 AGREE 112，
         # 落表 104 行为新增；见 docs/kb-batch3-merge-rebind-2026-10-03.md）→ point_merge 236 行。
-        self.assertEqual(236, kinds.get(um.KIND_MERGE, 0))
+        # 2026-10-11 批次 8：老队列近重复点并入 20 对（行内复核注"双遍复核 AGREE 2026-10-11"；
+        # 20 个 B 侧节点随成品包 v13 退场，manifest retired 507 → 527）→ point_merge 236 → 256 行。
+        # 实测：本用例 round-1 失败信息 `AssertionError: 236 != 256`（backfill kinds：MERGE=256 /
+        # DELETE=193，与表行数 point_merge 256 / point_delete 193 逐一对上）。
+        self.assertEqual(256, kinds.get(um.KIND_MERGE, 0))
         # 2026-10-02 建点闭环：撤回 8 个"块过薄写不出材料"的新点 → point_delete.csv +8 行 → 192。
         # 2026-10-03 批次 3：改绑轮又删 1 行空操作删除（原 192 + 1）→ 193。
         self.assertEqual(193, kinds.get(um.KIND_DELETE, 0))

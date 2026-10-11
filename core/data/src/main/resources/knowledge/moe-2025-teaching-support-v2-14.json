@@ -51399,7 +51399,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电动势与内阻",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:安阻法测电源电动势和内阻",
      "role": "PRIMARY"
     }
    ]
@@ -51439,7 +51439,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏阻法测电动势与内阻",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏阻法测电源电动势和内阻",
      "role": "PRIMARY"
     }
    ]
@@ -51619,7 +51619,7 @@
    "reviewedAtEpochMillis": 1790875653147,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实物连图的注意事项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实物图连接的注意事项",
      "role": "PRIMARY"
     }
    ]

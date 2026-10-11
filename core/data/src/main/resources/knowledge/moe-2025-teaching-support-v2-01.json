@@ -719,7 +719,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数y-f-x-在x-x0处的导数定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -2439,7 +2439,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数y-f-x-在x-x0处的导数定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数构造法解函数不等式",
      "role": "PRIMARY"
     }
    ]
@@ -8079,7 +8079,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:估值法-1-估算要比较大小的两个值所在的大致区间",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:赋值法求系数和",
      "role": "PRIMARY"
     }
    ]
@@ -27939,7 +27939,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:忽略建系的条件而出错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的方程",
      "role": "PRIMARY"
     }
    ]
@@ -40859,7 +40859,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:加速度方向突变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动与斜面的结合分析",
      "role": "PRIMARY"
     }
    ]
@@ -43267,7 +43267,7 @@
   {
    "slug": "wusan-che-v-8ac80abd",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "亚铁离子与铁离子的相互转化",
    "summaryMarkdown": "Fe2+被氧化剂氧化为Fe3+，Fe3+被还原剂还原为Fe2+，检验方法各不相同",
    "applicabilityMarkdown": "铁盐与亚铁盐的转化与检验",
@@ -43487,7 +43487,7 @@
   {
    "slug": "wusan-che-v-49a165d1",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "水解平衡常数及其与Kw、Ka的关系",
    "summaryMarkdown": "Kh的表达式、Kh=Kw/Ka的推导过程与多元弱酸盐水解常数的配对关系",
    "applicabilityMarkdown": "水解常数的推导与计算",
@@ -43707,7 +43707,7 @@
   {
    "slug": "wusan-che-v-3f3a2278",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "分数坐标、原子间距与晶胞投影",
    "summaryMarkdown": "用截距法确定原子分数坐标；由晶胞边长与位置关系求原子最短距离；投影图用于描述晶胞的空间排布",
    "applicabilityMarkdown": "晶胞分数坐标书写、原子最短距离计算与投影图判断",
@@ -43727,7 +43727,7 @@
   {
    "slug": "wusan-che-v-24ee18c0",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "用盖斯定律叠加计算反应热",
    "summaryMarkdown": "反应热只与始态和终态有关而与途径无关；用虚拟路径法、留元法与消元法叠加已知热化学方程式求目标反应热",
    "applicabilityMarkdown": "由已知热化学方程式计算目标反应的反应热",
@@ -47807,7 +47807,7 @@
   {
    "slug": "ext-bio-881f12d357-017",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "同一位点与同时不同位点膜电位曲线",
    "summaryMarkdown": "先确定传导方向再比较各位点变化先后",
    "applicabilityMarkdown": "两类膜电位变化曲线的判读",
@@ -47867,7 +47867,7 @@
   {
    "slug": "ext-bio-881f12d357-019b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "由膜电位曲线判断外界溶液成分",
    "summaryMarkdown": "动作电位峰值看钠而静息电位看钾",
    "applicabilityMarkdown": "多条膜电位曲线比较成分差异的题目",
@@ -47907,7 +47907,7 @@
   {
    "slug": "ext-bio-881f12d357-021",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "突触传递的关键环节",
    "summaryMarkdown": "六个环节对应递质从释放到回收的全过程",
    "applicabilityMarkdown": "分析药物或毒物作用环节的题目",
@@ -47947,7 +47947,7 @@
   {
    "slug": "ext-bio-881f12d357-023",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "突触前抑制与突触后抑制辨析",
    "summaryMarkdown": "前者涉及三个神经元作用于释放环节",
    "applicabilityMarkdown": "突触前抑制与突触后抑制的机制辨析",
@@ -48467,7 +48467,7 @@
   {
    "slug": "ext-bio-2b9586914c-012",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "血压调节的反射弧与交感副交感拮抗",
    "summaryMarkdown": "颈动脉窦压力感受器→传入神经→延髓心血管中枢→心迷走与交感神经→心脏和血管，实现血压的负反馈调节",
    "applicabilityMarkdown": "识读血压调节的反射弧图示；分析自主神经对心脏和血管的支配及血压回落过程",
@@ -49867,7 +49867,7 @@
   {
    "slug": "ext-bio-524cba8aa4-003b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "双纵坐标曲线图的读图方法",
    "summaryMarkdown": "先看坐标轴含义、再数清曲线归属 用斜率和K值分析种间关系 K值取波动区间的中间值",
    "applicabilityMarkdown": "遇到横坐标为时间、左右两个纵坐标分别代表两种群密度的曲线题时使用",
@@ -50167,7 +50167,7 @@
   {
    "slug": "ext-bio-524cba8aa4-012",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "λ与种群数量关系图的判读",
    "summaryMarkdown": "λ等于N(t+1)除以N(t) λ减1就是种群增长率 λ等于1时种群达到稳定状态",
    "applicabilityMarkdown": "分析λ随种群数量变化的曲线图、判断年龄结构与K值时使用",
@@ -52067,7 +52067,7 @@
   {
    "slug": "ext-bio-3199bef3a3-007b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见核酸—蛋白质复合体的归纳",
    "summaryMarkdown": "DNA与RNA都可与特定酶或蛋白质结合形成复合体 参与复制、转录、翻译与逆转录",
    "applicabilityMarkdown": "判断某结构中是否含核酸、分析核酸与酶结合关系的题时使用",
@@ -53087,7 +53087,7 @@
   {
    "slug": "ext-bio-320a959ba0-007b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "抗原检测试剂盒的T线与C线原理",
    "summaryMarkdown": "样品液沿样品垫到吸水垫流动 T线捕获抗原 C线验证试剂有效性 阳性发生3次特异性结合",
    "applicabilityMarkdown": "分析抗原检测试纸条结构、判断检测线与质控线显色原因的题时使用",
@@ -54167,7 +54167,7 @@
   {
    "slug": "ext-bio-5b6cb16a7f-035",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "外源基因插入位置与数目的遗传分析",
    "summaryMarkdown": "插入1个或一对同源染色体上各1个时相当于Aa自交3比1 两对同源染色体各1个时相当于AA或A1a1A2a2",
    "applicabilityMarkdown": "分析外源基因插入位置不同的自交子代表型比例的题时使用",
@@ -54727,7 +54727,7 @@
   {
    "slug": "ext-bio-7533a1e1fd-009",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "载体蛋白与通道蛋白的对比",
    "summaryMarkdown": "载体蛋白与被转运物质结合且每次转运自身构象都发生改变，参与主动运输和协助扩散；通道蛋白不与被转运物质结合，只参与协助扩散。",
    "applicabilityMarkdown": "判断膜转运蛋白的类型、判断某物质跨膜运输时是否需要与转运蛋白结合。",
@@ -54767,7 +54767,7 @@
   {
    "slug": "ext-bio-7533a1e1fd-011",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "主动运输的三种类型",
    "summaryMarkdown": "主动运输按能量来源分为 ATP 驱动泵驱动、协同转运蛋白驱动和光驱动泵驱动三类，后两者属间接消耗能量。",
    "applicabilityMarkdown": "判断某主动运输的能量来源类型，分析质子泵、钠钾泵、光驱动泵类题目。",
@@ -54907,7 +54907,7 @@
   {
    "slug": "ext-bio-035ebaef9d-003",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "细胞呼吸方式与产物之间的转变",
    "summaryMarkdown": "有氧呼吸、产乳酸的无氧呼吸与产酒精的无氧呼吸之间可以相互转变，把产乳酸途径转换为产酒精途径可延缓乳酸积累引起的细胞质基质酸化。",
    "applicabilityMarkdown": "分析水淹条件下根系细胞呼吸方式转变、酸中毒与液泡 pH 调节类题目。",
@@ -54927,7 +54927,7 @@
   {
    "slug": "ext-bio-035ebaef9d-007",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "乳酸循环的路径与解读",
    "summaryMarkdown": "骨骼肌无氧呼吸产生的乳酸经血液运到肝脏转变为丙酮酸，再经糖异生合成葡萄糖回到骨骼肌，构成乳酸循环。",
    "applicabilityMarkdown": "分析剧烈运动后乳酸去向、糖异生与血糖调节、同位素标记追踪代谢路径类题目。",
@@ -54967,7 +54967,7 @@
   {
    "slug": "ext-bio-035ebaef9d-011",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有氧呼吸三阶段的研究式划分",
    "summaryMarkdown": "把有氧呼吸按代谢途径划分为糖酵解、三羧酸循环、呼吸电子传递和氧化磷酸化三个阶段，分别对应第一、第二、第三阶段。",
    "applicabilityMarkdown": "以糖酵解、柠檬酸循环、电子传递链为背景的陌生情境题中判断反应所属阶段。",
@@ -55107,7 +55107,7 @@
   {
    "slug": "ext-bio-46ec017dac-005",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "光影响植物生命活动的两条通路",
    "summaryMarkdown": "光既作为能量驱动光合作用把无机物合成有机物，又作为信号被光敏色素接收并通过调控基因表达影响气孔开闭等生命活动。",
    "applicabilityMarkdown": "分析光信号通路（光敏色素、脱落酸与气孔开度）、光形态建成类综合题。",
@@ -55267,7 +55267,7 @@
   {
    "slug": "ext-bio-46ec017dac-015",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "光反应的两大过程与光系统",
    "summaryMarkdown": "光反应包括光合电子传递和光合磷酸化，真核生物光反应的场所是类囊体薄膜，其上分布着光系统 PSⅠ 和 PSⅡ。",
    "applicabilityMarkdown": "分析光系统结构、光合电子传递与光合磷酸化、光反应与线粒体 ATP 合成比较类题目。",
@@ -55527,7 +55527,7 @@
   {
    "slug": "ext-bio-46ec017dac-022",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "光能的去向与减轻光抑制的途径",
    "summaryMarkdown": "入射光能分为反射光、透射光、热耗散和光反应转化的能量四条去向；减轻光抑制应减少吸收、提高光合速率、增强自由基清除与热耗散。",
    "applicabilityMarkdown": "分析光抑制、光饱和点、光能去向与提高产量措施类题目。",
@@ -55547,7 +55547,7 @@
   {
    "slug": "ext-bio-46ec017dac-025",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "光合作用的常用测量指标",
    "summaryMarkdown": "常考的四个光合测量指标是净光合速率、气孔导度、胞间 CO₂ 浓度和叶绿素含量（或光合电子传递效率），其中胞间 CO₂ 浓度是连接气孔导度与叶肉细胞光合活性的关键中间变量。",
    "applicabilityMarkdown": "逆境胁迫、光强与 CO₂ 浓度变化类实验中判断各指标的含义与相互关系。",
@@ -55567,7 +55567,7 @@
   {
    "slug": "ext-bio-46ec017dac-025b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "逆境降低光合速率的常见机制",
    "summaryMarkdown": "干旱、盐害、高温等逆境通过促进脱落酸的合成，经气孔与叶片衰老两条途径降低光合速率。",
    "applicabilityMarkdown": "分析干旱、盐碱、高温等逆境下光合速率下降原因的原因说明题。",
@@ -55947,7 +55947,7 @@
   {
    "slug": "ext-bio-b7b14638ac-010",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "细胞周期的分期与调控框架",
    "summaryMarkdown": "细胞周期分为分裂间期（G₁、S、G₂ 期）和分裂期（M 期），其运行受 CDK-周期蛋白与检验点调控，可用周期阻滞与同步化进行实验探究。",
    "applicabilityMarkdown": "梳理细胞周期各阶段划分、调控与实验探究类综合题。",
@@ -56147,7 +56147,7 @@
   {
    "slug": "ext-bio-b7b14638ac-015",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "细胞周期的五个检验点与对应阻滞",
    "summaryMarkdown": "细胞周期在各阶段转换处设有 ①G₁→S、②S 期内、③G₂→M、④中→后期、⑤后期检验点，秋水仙素使细胞无法通过检验点④而同步到中期。",
    "applicabilityMarkdown": "分析检验点编号与功能对应、秋水仙素与胸苷处理结果的题目。",
@@ -56727,7 +56727,7 @@
   {
    "slug": "ext-bio-636de2a928-009b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "9∶7 与 9∶3∶4 两种特殊分离比",
    "summaryMarkdown": "F₂ 出现 9∶7 说明两对基因均为显性时才表现显性表型（互补作用）；出现 9∶3∶4 说明其中一对基因的隐性纯合会掩盖另一对基因的表达（隐性上位）。",
    "applicabilityMarkdown": "分析 9∶7、9∶3∶4 等变式比例、判断基因互作类型的题目。",
@@ -57067,7 +57067,7 @@
   {
    "slug": "ext-bio-636de2a928-018",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传定律的特殊情况总览",
    "summaryMarkdown": "遗传定律的特殊情况包括致死与不育、复等位基因、显隐性关系的相对性、从性遗传、限性遗传和母体效应（母性影响）六大类。",
    "applicabilityMarkdown": "梳理遗传定律特殊情况的类型框架、判断某题目属于哪一类特殊情况的题目。",
@@ -58847,7 +58847,7 @@
   {
    "slug": "ext-bio-87ebe669c6-001",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电泳图谱与系谱图的联合判读",
    "summaryMarkdown": "DNA片段长度与电泳迁移距离呈负相关 条带位置对应等位基因 必须把泳道结果与系谱图亲子关系联立才能定出个体基因型",
    "applicabilityMarkdown": "凡是题干给出电泳图谱 扩增产物条带或DNA片段长度并要判断基因位置或个体基因型的遗传题",
@@ -59027,7 +59027,7 @@
   {
    "slug": "ext-bio-87ebe669c6-015",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "连锁互换产生配子的比例关系",
    "summaryMarkdown": "双杂合子无论相引还是相斥排列 配子中总是两种亲本型相等 两种重组型相等",
    "applicabilityMarkdown": "已知两对基因连锁（完全连锁或发生互换） 要求写出配子种类与比例 或要求判断基因在染色体上排列方式的题",
@@ -59667,7 +59667,7 @@
   {
    "slug": "ext-bio-414fa62f1d-003c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "基因表达中常见模型图的判读",
    "summaryMarkdown": "用多肽链长短判断核糖体移动方向 多聚核糖体用同一mRNA作模板 原核可边转录边翻译",
    "applicabilityMarkdown": "给出tRNA 核糖体 mRNA 多肽或多聚核糖体示意图 要求判断方向 数目或过程的题目",
@@ -61967,7 +61967,7 @@
   {
    "slug": "ext-bio-a7bfd3d96c-001e",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "物质进出细胞方式的图例识别与比较",
    "summaryMarkdown": "被动运输（自由扩散、协助扩散）、主动运输与胞吞胞吐在载体蛋白和能量消耗上的差别",
    "applicabilityMarkdown": "给出物质跨膜运输示意图、判断运输方式或比较其特点的题目",
@@ -61987,7 +61987,7 @@
   {
    "slug": "ext-bio-a7bfd3d96c-002",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "物质跨膜运输方式的比较表",
    "summaryMarkdown": "从运输方向、特点、实例和影响因素四个维度比较自由扩散、协助扩散、主动运输与胞吞胞吐",
    "applicabilityMarkdown": "给出运输方式或实例、要求判断运输方式或分析影响因素的表格类题目",
@@ -62147,7 +62147,7 @@
   {
    "slug": "ext-bio-91078593c9-001b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "酶的三大特性及图像分析",
    "summaryMarkdown": "高效性、专一性、作用条件较温和三个特性及其对应的图像分析",
    "applicabilityMarkdown": "判断酶特性、解读酶相关图像并解释实验现象的题目",
@@ -62167,7 +62167,7 @@
   {
    "slug": "ext-bio-91078593c9-001c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "酶促反应速率的影响因素及曲线解读",
    "summaryMarkdown": "pH、温度与底物浓度、酶浓度对酶促反应速率的影响方式和曲线特征",
    "applicabilityMarkdown": "给出酶促反应速率曲线、判断影响因素或解释曲线变化的分析题",
@@ -62187,7 +62187,7 @@
   {
    "slug": "ext-bio-91078593c9-001d",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "ATP的结构与特点",
    "summaryMarkdown": "ATP即腺苷三磷酸，由腺苷和三个磷酸基团构成，含两个特殊的化学键，可简写为A—P~P~P",
    "applicabilityMarkdown": "考查ATP的结构式、组成元素、特殊化学键与供能原理的题目",
@@ -62347,7 +62347,7 @@
   {
    "slug": "ext-bio-59423ea42b-001b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "细胞呼吸的实质与过程图解",
    "summaryMarkdown": "细胞呼吸的实质是有机物的氧化分解并释放能量生成ATP，其过程分为三个阶段",
    "applicabilityMarkdown": "以物质变化与能量释放为主线考查细胞呼吸过程的题目",
@@ -62407,7 +62407,7 @@
   {
    "slug": "ext-bio-59423ea42b-002",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "细胞呼吸中[H]和ATP的来源与去向",
    "summaryMarkdown": "细胞呼吸各阶段产生[H]和ATP的部位与它们随后的用途",
    "applicabilityMarkdown": "考查[H]和ATP产生阶段与去路的综合性题目",
@@ -62447,7 +62447,7 @@
   {
    "slug": "ext-bio-59423ea42b-002c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "影响细胞呼吸的因素及应用",
    "summaryMarkdown": "O₂浓度、温度、水和CO₂浓度影响细胞呼吸的机理、曲线特征与生产生活应用",
    "applicabilityMarkdown": "分析细胞呼吸速率曲线或解释生产生活措施原理的题目",
@@ -62647,7 +62647,7 @@
   {
    "slug": "ext-bio-6c193f35a8-002c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "光合作用的影响因素及应用（内部因素与单因子外部因素）",
    "summaryMarkdown": "内部遗传因素和光照强度、光质、CO₂浓度、温度、矿质元素、水分等外部因素对光合速率的影响与应用",
    "applicabilityMarkdown": "分析光合速率曲线、解释温室或农田增产措施的题目",
@@ -62687,7 +62687,7 @@
   {
    "slug": "ext-bio-6c193f35a8-003b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "光合作用与细胞呼吸在物质与能量上的联系",
    "summaryMarkdown": "两者在物质上互为原料与产物，在能量上构成光能到活跃化学能到稳定化学能到ATP的转化链",
    "applicabilityMarkdown": "以图解形式考查光合作用与细胞呼吸关系的综合题",
@@ -62707,7 +62707,7 @@
   {
    "slug": "ext-bio-6c193f35a8-003c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "植物三率曲线与A、B、C点的含义",
    "summaryMarkdown": "总光合速率等于净光合速率与呼吸速率之和，曲线上的关键点分别对应只呼吸、呼吸大于光合与两者相等",
    "applicabilityMarkdown": "以CO₂吸收量为纵轴的光合曲线判读与计算题",
@@ -62747,7 +62747,7 @@
   {
    "slug": "ext-bio-6c193f35a8-003e",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "一昼夜代谢曲线分析与光合午休",
    "summaryMarkdown": "一昼夜中CO₂浓度或吸收速率曲线的关键点表示光合与呼吸的大小关系，中午的下降是气孔关闭造成的",
    "applicabilityMarkdown": "分析24小时密闭容器或自然环境曲线、判断植物是否生长及解释“光合午休”的题目",
@@ -62867,7 +62867,7 @@
   {
    "slug": "ext-bio-6c193f35a8-004f",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "三率的图解依据",
    "summaryMarkdown": "从曲线在纵轴上的截距和生理过程模式图中各箭头的含义读出三种速率",
    "applicabilityMarkdown": "给出三率曲线图或叶绿体与线粒体模式图、要求指出三种速率的题目",
@@ -62927,7 +62927,7 @@
   {
    "slug": "ext-bio-36daaa0e4a-001c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有丝分裂各时期的特点（以2n=4为例）",
    "summaryMarkdown": "分裂间期、前期、中期、后期、末期在染色体形态、纺锤体、核膜核仁及细胞质分裂方式上的特点",
    "applicabilityMarkdown": "判断细胞所处分裂时期、描述各时期特征或比较动植物细胞有丝分裂异同的题目",
@@ -62947,7 +62947,7 @@
   {
    "slug": "ext-bio-36daaa0e4a-001d",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有丝分裂中染色体、核DNA与染色单体的数量变化及意义",
    "summaryMarkdown": "以2n=4为例，各时期染色体数、核DNA数与染色单体数的变化规律及有丝分裂的意义",
    "applicabilityMarkdown": "以数量变化曲线或表格形式考查有丝分裂过程的计算类题目",
@@ -63007,7 +63007,7 @@
   {
    "slug": "ext-bio-36daaa0e4a-002c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "减数分裂各时期的主要特点（以二倍体动物精细胞形成为例）",
    "summaryMarkdown": "减数分裂前的间期进行DNA复制，减数第一次分裂出现联会、四分体与同源染色体分离，减数第二次分裂着丝粒分裂",
    "applicabilityMarkdown": "描述减数分裂各时期特征、判断细胞所处时期的题目",
@@ -63067,7 +63067,7 @@
   {
    "slug": "ext-bio-36daaa0e4a-003b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有丝分裂与减数分裂的比较",
    "summaryMarkdown": "从各时期图像特征、子细胞染色体数、可遗传变异类型和染色体组数变化四个方面比较两种分裂",
    "applicabilityMarkdown": "以细胞分裂图像或染色体组数变化为背景的判断与比较题",
@@ -63387,7 +63387,7 @@
   {
    "slug": "ext-bio-1446061363-001b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "一对相对性状杂交实验的现象、假说与测交验证",
    "summaryMarkdown": "用假说—演绎法分析高茎与矮茎杂交的F₁、F₂表现及3∶1的分离比并提出与验证假说",
    "applicabilityMarkdown": "以孟德尔一对相对性状实验的过程、假说内容与测交验证为背景的题目",
@@ -63507,7 +63507,7 @@
   {
    "slug": "ext-bio-1446061363-003",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "两对相对性状杂交实验的现象与逐对分析",
    "summaryMarkdown": "黄色圆粒与绿色皱粒杂交，F₂出现9∶3∶3∶1，逐对分析可见两对性状各遵循分离定律",
    "applicabilityMarkdown": "以两对相对性状实验的F₂表型比例、结果与结论为背景的题目",
@@ -63527,7 +63527,7 @@
   {
    "slug": "ext-bio-1446061363-003b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "两对相对性状杂交实验的假说与测交验证",
    "summaryMarkdown": "F₁产生四种比例相等的配子，雌雄配子随机结合得到9种基因型、4种表型，测交后代为1∶1∶1∶1",
    "applicabilityMarkdown": "以孟德尔对自由组合现象的解释（遗传图解）及测交验证为背景的题目",
@@ -63627,7 +63627,7 @@
   {
    "slug": "ext-bio-1446061363-004d",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "完全连锁与不完全连锁（发生互换）",
    "summaryMarkdown": "同一染色体上的非等位基因连锁遗传时，测交后代只出现亲本型配子（完全连锁）或同时出现少量重组型配子（发生互换）",
    "applicabilityMarkdown": "以灰身长翅与黑身残翅杂交的测交结果考查基因连锁与互换的题目",
@@ -63847,7 +63847,7 @@
   {
    "slug": "ext-bio-c98b0853f5-001b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "摩尔根果蝇杂交实验的现象与假说",
    "summaryMarkdown": "白眼性状总是与性别相关联，摩尔根提出控制白眼的基因在X染色体上、Y上没有其等位基因的假说",
    "applicabilityMarkdown": "以摩尔根果蝇杂交实验的材料优点、F₁与F₂结果及假说内容为背景的题目",
@@ -63867,7 +63867,7 @@
   {
    "slug": "ext-bio-c98b0853f5-001c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "摩尔根实验的测交验证与结论",
    "summaryMarkdown": "用F₁红眼雌果蝇与白眼雄果蝇测交、再用白眼雌果蝇与红眼雄果蝇交配，两次测交共同证明基因只位于X染色体上",
    "applicabilityMarkdown": "以证明“基因只位于X染色体上”的测交设计与结果分析为背景的题目",
@@ -63907,7 +63907,7 @@
   {
    "slug": "ext-bio-c98b0853f5-002b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "性染色体的传递规律与区段分析",
    "summaryMarkdown": "X、Y染色体的来源与去向具有方向性，非同源区段与同源区段的遗传表现不同",
    "applicabilityMarkdown": "考查X、Y染色体区段基因传递特点及同源区段遗传表现的题目",
@@ -64027,7 +64027,7 @@
   {
    "slug": "ext-bio-c98b0853f5-003c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "人类遗传病的概念与类型",
    "summaryMarkdown": "人类遗传病由遗传物质改变引起，分为单基因遗传病、多基因遗传病和染色体异常遗传病",
    "applicabilityMarkdown": "判断遗传病所属类型、举例或描述其遗传特点的题目",
@@ -64667,7 +64667,7 @@
   {
    "slug": "ext-bio-9752acd916-087",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传平衡种群的基因频率与基因型频率换算",
    "summaryMarkdown": "用哈迪-温伯格平衡公式 p+q=1、p²+2pq+q²=1 在基因频率与基因型频率之间互相换算。",
    "applicabilityMarkdown": "已知某基因型频率求基因频率，或已知基因频率求各基因型频率的试题。",

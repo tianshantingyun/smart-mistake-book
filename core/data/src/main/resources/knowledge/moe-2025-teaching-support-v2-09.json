@@ -899,7 +899,7 @@
   {
    "slug": "ext-phy-95778b6681-005",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "球壳与球体内部引力的两个推论",
    "summaryMarkdown": "均匀球壳空腔内任意位置受到的球壳引力合力为零；均匀球体内部距球心 r 处的质点只受半径 r 的同心球体对它的引力。",
    "applicabilityMarkdown": "计算球壳空腔内、均匀球体内部某处的引力或重力加速度时使用。",
@@ -1199,7 +1199,7 @@
   {
    "slug": "ext-phy-2fa662493c-003",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "螺旋测微器的原理与读数方法",
    "summaryMarkdown": "螺旋测微器精确度为 0.01 mm，读数等于固定刻度加可动刻度乘 0.01 mm 且须估读一位。",
    "applicabilityMarkdown": "测量金属丝直径、小球直径等需要千分位精度的长度测量。",
@@ -1419,7 +1419,7 @@
   {
    "slug": "ext-phy-c14a6699a4-009",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "双缝干涉图样与条纹间距",
    "summaryMarkdown": "单色光形成等间距明暗条纹，条纹间距 Δx=(l/d)λ，随波长增大而增大。",
    "applicabilityMarkdown": "分析双缝干涉图样的变化、由条纹间距求波长或判断色光种类。",
@@ -1688,26 +1688,6 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第38讲 机械振动-（讲义）（学生版）.docx（块 aefbfe2040-003）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:简谐运动",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-aefbfe2040-005",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "由振动图像可获取的信息（二）",
-   "summaryMarkdown": "由图像判断回复力与加速度的方向，并逐段分析各量的大小与能量变化。",
-   "applicabilityMarkdown": "给出 x-t 图像要求判断回复力、加速度、速度与能量随时间的变化。",
-   "contentMarkdown": "由振动图像还能获取以下信息：某时刻质点的回复力和加速度的方向——回复力总是指向平衡位置，回复力和加速度的方向相同；某段时间内质点的位移、回复力、加速度、速度、动能和势能的变化情况，可结合图像逐段判断：物体向平衡位置运动时速度增大、加速度减小、动能增大，远离平衡位置时速度减小、加速度增大、动能减小。",
-   "boundaryMarkdown": "回复力与加速度方向始终相同且指向平衡位置，与速度方向不一定相同；能量变化要按四分之一周期的各段分别判断，不能一概而论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第38讲 机械振动-（讲义）（学生版）.docx（块 aefbfe2040-005）",
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
@@ -2059,7 +2039,7 @@
   {
    "slug": "ext-phy-4e6077ff9a-003",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电流微观表达式与柱体微元模型",
    "summaryMarkdown": "取一段长为L的柱体微元，用其中的总电荷量与全部电荷通过横截面所用时间相除即得电流微观表达式",
    "applicabilityMarkdown": "需要推导或应用电流微观表达式 I=nqSv 的题目",
@@ -2939,7 +2919,7 @@
   {
    "slug": "ext-mat-7d4877601e-006",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "塞瓦定理",
    "summaryMarkdown": "三角形三边上的三个分点与对顶点连线共点的充要条件是三组线段之比之积为 1。",
    "applicabilityMarkdown": "判断三线共点、由共点条件求线段比的问题。",
@@ -3679,7 +3659,7 @@
   {
    "slug": "ext-phy-924259a8ae-005",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "光电管加正向与反向电压时的电流变化",
    "summaryMarkdown": "加正向电压时光电流先随电压增大而增大，达到饱和值后不再增大；加反向电压时光电流减小，到遏止电压时恰为零并保持不变。",
    "applicabilityMarkdown": "分析光电管电路中滑片移动时光电流怎样变化、确定饱和光电流与遏止电压的题目。",
@@ -4459,7 +4439,7 @@
   {
    "slug": "ext-mat-9d8541e663-009",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "对数函数图象的识别与应用方法",
    "summaryMarkdown": "给出识别对数型函数图象的抓手以及把方程不等式转化为图象问题的思路",
    "applicabilityMarkdown": "给出几个对数型函数的图象需要选出正确的一个，或判断底数大小顺序时",
@@ -4999,7 +4979,7 @@
   {
    "slug": "ext-phy-02ecb7fcca-005",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "MISCONCEPTION_GUIDE",
    "title": "U-I 图像与 I-U 图像的读图要点",
    "summaryMarkdown": "线性元件的图线斜率或其倒数表示电阻，非线性元件的电阻必须用该点坐标 U/I 计算而不能用切线斜率。",
    "applicabilityMarkdown": "由伏安特性曲线比较电阻大小、判断电阻随电压电流变化、求某点对应的电阻。",
@@ -6059,7 +6039,7 @@
   {
    "slug": "ext-phy-f26b1b9e49-007",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "按效果分解的三种典型实例",
    "summaryMarkdown": "水平拉物体、球压墙面与拉悬线、支架受拉受压三类模型的分解方向与分力表达式。",
    "applicabilityMarkdown": "斜向拉力的分解、斜面与挡板类模型、三角支架受力分析时直接套用。",
@@ -7479,7 +7459,7 @@
   {
    "slug": "ext-phy-12180f1216-004",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "与动能定理结合的各种图像",
    "summaryMarkdown": "v-t、F-x、P-t、a-t 图线与横轴所围面积分别表示位移、功、功与速度变化量，Ek-x 图线的斜率表示合外力。",
    "applicabilityMarkdown": "由图像求功、位移、速度变化量，或由图像判断合力与运动状态时使用。",
@@ -7739,7 +7719,7 @@
   {
    "slug": "ext-mat-d68ad97a21-007",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "积化和差与和差化积",
    "summaryMarkdown": "把三角乘积化为和差、把和差化为乘积的两组互逆公式",
    "applicabilityMarkdown": "化简含三角乘积项或三角和差项的式子；处理三角形内角关系与相应恒等式证明时",
@@ -8699,7 +8679,7 @@
   {
    "slug": "ext-phy-f869288c0f-004",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "一动碰一静弹性碰撞的公式与讨论",
    "summaryMarkdown": "质量为 m1 的球以 v1 与静止的质量 m2 的球发生弹性碰撞的结果与讨论",
    "applicabilityMarkdown": "两球弹性正碰、判断碰后速度方向与大小关系时用",
@@ -8879,7 +8859,7 @@
   {
    "slug": "ext-phy-154f35f7e3-005",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电场线的特点与用途",
    "summaryMarkdown": "电场线是描述电场的假想曲线，其疏密表示场强大小、切线表示场强方向、走向表示电势降低的方向。",
    "applicabilityMarkdown": "“由电场线分布判断场强大小与方向、比较电势高低、分析带电粒子受力与轨迹是否重合时使用。”",
@@ -9679,7 +9659,7 @@
   {
    "slug": "ext-phy-d8f896c2a3-003b",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电场偏转的两条重要结论及推导",
    "summaryMarkdown": "推导静止加速后再偏转时偏移量与偏转角与粒子比荷无关，并说明出射速度反向延长线过水平位移中点的几何结论。",
    "applicabilityMarkdown": "比较不同带电粒子偏转效果、或利用偏转几何关系确定打在荧光屏上位置的问题。",
@@ -10219,7 +10199,7 @@
   {
    "slug": "ext-phy-5092c47fcd-001b",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "一动碰一静的弹性碰撞",
    "summaryMarkdown": "给出一动碰一静情形下弹性碰撞的方程组与碰后速度结论，并讨论三种质量关系的影响。",
    "applicabilityMarkdown": "求弹性碰撞后的速度、判断碰撞后两物体的运动方向。",
@@ -12059,7 +12039,7 @@
   {
    "slug": "ext-phy-b0e295f813-011",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "弹性碰撞的速度规律与讨论",
    "summaryMarkdown": "由动量守恒与机械能守恒联立解出弹性正碰后两球速度并按质量关系讨论。",
    "applicabilityMarkdown": "弹性正碰求碰后速度、判断碰后是否反弹或交换速度时。",
@@ -12259,7 +12239,7 @@
   {
    "slug": "ext-mat-51dacf7571-013b",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "柯西不等式及其证明",
    "summaryMarkdown": "平方和的乘积不小于对应乘积之和的平方，可用构造二次函数证明。",
    "applicabilityMarkdown": "求代数式最值、证明不等式以及向量数量积相关的最值问题。",
@@ -12599,7 +12579,7 @@
   {
    "slug": "ext-phy-4c006f942c-004b",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "弹性碰撞的碰后速度结论",
    "summaryMarkdown": "一动碰一静发生弹性碰撞时，由动量守恒与动能守恒可推出碰后速度公式与三种极端情形。",
    "applicabilityMarkdown": "求解一动碰一静弹性正碰的碰后速度，或据质量比快速判断碰后运动方向。",
@@ -12819,7 +12799,7 @@
   {
    "slug": "ext-phy-a181a3ec86-010",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "安培力作用下立体图转化为平面图",
    "summaryMarkdown": "把 B、I、安培力方向的立体图转成俯视图、剖面图或侧视图后再画受力图，避免方向判断出错。",
    "applicabilityMarkdown": "处理通电导体在斜面上、空间中受安培力并涉及平衡或加速的问题。",
@@ -13039,7 +13019,7 @@
   {
    "slug": "ext-mat-78efdafe97-007",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "二次函数图象的三点一线一开口分析",
    "summaryMarkdown": "研究二次函数图象从顶点与对称点、对称轴、开口方向等要素入手。",
    "applicabilityMarkdown": "判断二次函数图象的形状与位置、由图象反推系数符号或参数范围。",
@@ -13159,7 +13139,7 @@
   {
    "slug": "ext-mat-484f42ba2f-006",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "三余弦定理与三正弦定理",
    "summaryMarkdown": "斜线与平面内直线的夹角余弦等于线面角余弦乘射影夹角的余弦，并由此得到三正弦定理。",
    "applicabilityMarkdown": "比较线线角与线面角的大小、把不易求的线线角转化为线面角与射影夹角求解。",
@@ -14039,7 +14019,7 @@
   {
    "slug": "ext-mat-c711537e1f-001",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "五点作图法与三角函数图象变换",
    "summaryMarkdown": "用五个关键点画出正弦、余弦型函数的图象，图象变换有先相位后周期再振幅、先周期后相位再振幅两种顺序。",
    "applicabilityMarkdown": "要求用五点法作图、求解析式或判断图象平移伸缩方向的题目。",
@@ -15119,7 +15099,7 @@
   {
    "slug": "ext-phy-f9c8d091e9-001b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "物理作图的基本规范",
    "summaryMarkdown": "物理作图要求工具作图、图形准确、虚实有别、箭头到位，线段长度与方向对应矢量的大小与方向。",
    "applicabilityMarkdown": "力的图示与示意图、光路图、函数图象等一切需要作图的物理问题。",
@@ -15299,7 +15279,7 @@
   {
    "slug": "ext-mat-bb4895ddb1-017",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "投影数量与投影向量的求法",
    "summaryMarkdown": "把数量积写成模长与投影数量之积并给出投影向量公式",
    "applicabilityMarkdown": "求投影数量、投影向量及用投影求线段长度的题",
@@ -16279,7 +16259,7 @@
   {
    "slug": "ext-phy-4d527e3efd-003",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "电压表、电流表的使用与读数准备",
    "summaryMarkdown": "选量程使指针偏转尽量大但不超量程，使用前机械调零且红表笔接高电势",
    "applicabilityMarkdown": "实验中使用电压表、电流表测量前选择量程、检查电路接法或规范操作时",
@@ -16459,7 +16439,7 @@
   {
    "slug": "ext-phy-25530c0139-009",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电源与电阻的U-I图像辨析",
    "summaryMarkdown": "电源的 U-I 图线是斜率为负的直线，电阻的 U-I 图线是过原点的直线",
    "applicabilityMarkdown": "同一图象中同时给出电源与电阻的伏安特性曲线，求工作点、功率或判断电阻变化时",
@@ -16659,7 +16639,7 @@
   {
    "slug": "ext-phy-aae9cc88e0-003b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "运动轨迹与运动图象的区别",
    "summaryMarkdown": "轨迹是运动的实际路径，图象反映两个量的关系；图象是曲线不代表曲线运动",
    "applicabilityMarkdown": "题目给出 x-t 或 v-t 图线，判断物体是否做曲线运动或判断轨迹形状时",
@@ -17099,7 +17079,7 @@
   {
    "slug": "ext-phy-911b33ff4a-002b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "x-t图像与v-t图像的解读要点",
    "summaryMarkdown": "两类基本图像的斜率、交点、面积的物理含义及常见陷阱。",
    "applicabilityMarkdown": "面对 x-t 或 v-t 图像题，需要快速读出速度、加速度、位移、相遇信息时使用。",
@@ -17119,7 +17099,7 @@
   {
    "slug": "ext-phy-911b33ff4a-010",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "a-x图像的物理意义",
    "summaryMarkdown": "a-x 图像与横轴围成的面积表示速度平方变化量的一半。",
    "applicabilityMarkdown": "题目给出加速度随位移变化的图像（如弹簧类、变加速直线运动），要求求最大速度或最低点速度时使用。",
@@ -17879,7 +17859,7 @@
   {
    "slug": "ext-mat-fbaf2a917e-010c",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "二项式定理的发现与推导思路",
    "summaryMarkdown": "由 (a+b)²、(a+b)³ 的展开式观察规律，用组合数写出 (a+b)ⁿ 的展开式。",
    "applicabilityMarkdown": "理解二项展开式的来源、需要记忆通项或解释系数含义时使用。",
@@ -18299,7 +18279,7 @@
   {
    "slug": "ext-phy-d72ac5caec-007",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "多用电表的结构与刻度盘",
    "summaryMarkdown": "多用电表分表盘、选择开关与调零旋钮，表盘上电阻、电流电压、交流低压三行刻度各有特点",
    "applicabilityMarkdown": "识别多用电表各部件的名称与作用、判断表盘读数的刻度行时使用",
@@ -18999,7 +18979,7 @@
   {
    "slug": "ext-phy-ced0c3e323-006",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电源U-I图像与电阻U-I图像的交点",
    "summaryMarkdown": "两图像的交点表示电阻的实际工作点，纵坐标是工作电压、横坐标是工作电流",
    "applicabilityMarkdown": "求非线性元件或灯泡与电源连接时的实际功率、工作电压与电流时使用",
@@ -19059,7 +19039,7 @@
   {
    "slug": "ext-phy-09c12a6763-009",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "简谐运动的位移—时间图像",
    "summaryMarkdown": "简谐运动的x－t图像是一条正弦或余弦曲线，表示振动质点的位移随时间变化的规律。",
    "applicabilityMarkdown": "由振动图像读振幅、周期、判断速度方向与加速度方向时使用。",
@@ -19659,7 +19639,7 @@
   {
    "slug": "ext-phy-747634a3d0-002b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "薄膜干涉的条纹判断与应用",
    "summaryMarkdown": "薄膜前后表面反射光的路程差等于膜厚的2倍，据此判断明暗条纹。",
    "applicabilityMarkdown": "分析肥皂膜、空气膜干涉条纹以及增透膜、检查平面平整度的情形。",
@@ -20279,7 +20259,7 @@
   {
    "slug": "ext-phy-ab8080ef1c-002",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "位移-时间图像的读数规则",
    "summaryMarkdown": "x-t 图切线斜率表示速度，直线与曲线分别对应匀速与变速，纵轴截距表示初始位置。",
    "applicabilityMarkdown": "由 x-t 图像读出速度或位置；判断物体的运动性质；由截距确定出发点的题目。",
@@ -20679,7 +20659,7 @@
   {
    "slug": "ext-phy-414bf63882-006b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "E-x图像的解读要点",
    "summaryMarkdown": "E-x 图给出各点场强的大小与方向，图线与 x 轴所围面积表示两点间的电势差。",
    "applicabilityMarkdown": "由场强随位置变化的图线求电势差或判断电势高低；结合带电粒子的运动分析电场力做功。",
@@ -21079,7 +21059,7 @@
   {
    "slug": "ext-phy-8aea427cf9-018",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "带电粒子在匀强电场中偏转的基本规律",
    "summaryMarkdown": "初速度平行于极板的带电粒子在偏转电场中做类平抛运动，可分解为沿初速度方向的匀速运动和沿电场方向的匀加速运动。",
    "applicabilityMarkdown": "处理电子、离子垂直于电场方向射入匀强电场后的偏转距离、偏转角、运动时间与末速度时使用。",
@@ -21399,7 +21379,7 @@
   {
    "slug": "ext-phy-0928df672e-002b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "a-t图像的理解与面积",
    "summaryMarkdown": "a-t图线的纵坐标表示加速度，图线与横轴围成的面积表示速度变化量。",
    "applicabilityMarkdown": "由加速度随时间变化的图像判断速度如何变化、求某时刻的速度或速度变化量时使用。",
@@ -21671,7 +21651,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:小船过河模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:小船渡河模型",
      "role": "PRIMARY"
     }
    ]
@@ -21899,7 +21879,7 @@
   {
    "slug": "ext-phy-2e840c24e2-013",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "Ep-x图像的解读要点",
    "summaryMarkdown": "Ep-x图像描述电势能随位置的变化，图线斜率的大小表示电场力的大小。",
    "applicabilityMarkdown": "给出电势能随坐标变化的图像，求场强、判断做功正负或比较动能时使用。",
@@ -22219,7 +22199,7 @@
   {
    "slug": "ext-phy-19ab5c2623-004",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "磁感线的特点与匀强磁场",
    "summaryMarkdown": "磁感线的切线方向表示磁场方向 疏密表示强弱 是无头无尾的闭合曲线",
    "applicabilityMarkdown": "判断磁感线方向与磁场强弱、比较不同位置的磁感应强度、画磁场分布图时使用",
@@ -22859,7 +22839,7 @@
   {
    "slug": "ext-phy-eed17c1c1b-004",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "力的合成与平行四边形定则",
    "summaryMarkdown": "求几个力的合力叫力的合成 用平行四边形定则或三角形定则",
    "applicabilityMarkdown": "用作图法或矢量法则求两个力的合力时使用",
@@ -23199,7 +23179,7 @@
   {
    "slug": "ext-phy-7151338d60-014b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "用图像求加速度与急动度",
    "summaryMarkdown": "v-t 图像的斜率表示加速度，a-t 图像的斜率表示急动度即加速度对时间的变化率",
    "applicabilityMarkdown": "由运动图像读取加速度、由 a-t 图像分析加速度变化快慢的题目",
@@ -23979,7 +23959,7 @@
   {
    "slug": "ext-phy-916af4e9e4-003",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "简谐运动图像的读图与对称性",
    "summaryMarkdown": "从振动图像读出振幅、周期、初相位与各时刻的速度、回复力、加速度方向，并利用对称性快速比较两个时刻的运动状态",
    "applicabilityMarkdown": "给出简谐运动的 x-t 图像或加速度图像、要求判断某时刻速度与加速度方向、比较不同时刻物理量大小的问题",
@@ -24139,7 +24119,7 @@
   {
    "slug": "ext-mat-78a2338ccf-002",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "余弦曲线与五点法作图",
    "summaryMarkdown": "把正弦曲线向左平移 π/2 得到余弦曲线，作余弦简图时取 (0，1)、(π/2，0)、(π，-1)、(3π/2，0)、(2π，1) 五个点",
    "applicabilityMarkdown": "画余弦函数简图、比较正弦曲线与余弦曲线、由正弦图象平移得到余弦图象的题目",
@@ -24499,7 +24479,7 @@
   {
    "slug": "ext-phy-56d13ed09a-001b",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "五类光滑斜面上运动时间的比较",
    "summaryMarkdown": "物体沿光滑斜面下滑的时间由加速度与斜面长度共同决定，等高、同底与几种圆周内斜面的时间关系各不相同",
    "applicabilityMarkdown": "比较沿不同光滑斜面下滑的时间长短、判断最短时间对应倾角的题目",
@@ -24539,7 +24519,7 @@
   {
    "slug": "ext-phy-56d13ed09a-007",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "常见动力学图像的读法",
    "summaryMarkdown": "按图像类型分别用好斜率、截距与面积的意义，并配合牛顿第二定律把图像信息转化为受力或运动信息",
    "applicabilityMarkdown": "给出 v-t、a-t、F-t、F-a 图像，要求判断运动情况或求质量、摩擦因数的题目",
@@ -24879,7 +24859,7 @@
   {
    "slug": "ext-phy-c6475f9319-008b",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "弹性碰撞的结论与讨论",
    "summaryMarkdown": "一动碰一静的弹性碰撞中，由动量守恒与动能守恒联立可解出碰后速度，并可按两球质量关系分五种情形讨论。",
    "applicabilityMarkdown": "两球发生弹性碰撞（碰后动能不损失）求碰后速度，或按质量关系判断碰后运动方向时使用。",
@@ -24939,7 +24919,7 @@
   {
    "slug": "ext-phy-3782f27b4b-013",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "质谱仪的原理与关系式",
    "summaryMarkdown": "粒子经加速电场加速后进入匀强磁场做半圆运动，由洛伦兹力提供向心力可推出半径、质量与比荷，落点距离反映粒子的比荷。",
    "applicabilityMarkdown": "质谱仪、磁谱仪类问题，需要求粒子质量、比荷、落点距离或判断同位素分离时使用。",
@@ -26159,7 +26139,7 @@
   {
    "slug": "ext-mat-62da49d986-009",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "焦点弦的相切与共线性质",
    "summaryMarkdown": "过焦点的弦两端与准线、原点之间存在固定的相切关系与三点共线关系",
    "applicabilityMarkdown": "处理过焦点的弦、弦端点在准线上的射影、以及原点相关的共线或相切问题时画图与判断",
@@ -26359,7 +26339,7 @@
   {
    "slug": "ext-mat-8a1c02d562-002",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "导数值的大小与函数图象变化快慢",
    "summaryMarkdown": "导数的正负反映变化方向，导数的绝对值反映图象变化的快慢，绝对值越大切线越陡",
    "applicabilityMarkdown": "由导函数图象比较各处斜率大小、判断函数图象陡缓或变化快慢时",
@@ -27339,7 +27319,7 @@
   {
    "slug": "ext-mat-62c1414e2e-004c",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "等差数列通项与一次函数的关系",
    "summaryMarkdown": "通项作为 n 的一次式的图象表征与单调性",
    "applicabilityMarkdown": "由通项形式判断单调性、由图象特征识别等差、求直线参数时使用",
@@ -27579,7 +27559,7 @@
   {
    "slug": "ext-mat-33b01ebb11-001c",
    "subject": "MATH",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "求曲线在某点处的切线方程",
    "summaryMarkdown": "以该点横坐标处的导数作为切线斜率",
    "applicabilityMarkdown": "题目明确给出切点、要求在某点处的切线时使用",
@@ -28259,7 +28239,7 @@
   {
    "slug": "ext-phy-16fb5aea45-013",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "对着竖直墙壁的平抛运动",
    "summaryMarkdown": "打到竖直墙上的平抛运动，水平位移恒等于抛出点到墙的距离，飞行时间由初速度与距离共同决定。",
    "applicabilityMarkdown": "球类击墙、水枪射墙等落点在竖直墙面上的平抛问题。",
@@ -28619,7 +28599,7 @@
   {
    "slug": "ext-phy-419f161406-003",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "函数法处理 x/t - t 图像",
    "summaryMarkdown": "由 x=v0t+½at² 得 x/t = v0 + (a/2)t，图线的纵截距是初速度、斜率是加速度的一半。",
    "applicabilityMarkdown": "给出横轴为 t、纵轴为 x/t 的直线图像，求初速度、加速度或判断运动性质。",
@@ -28652,26 +28632,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数奇偶性的几个重要结论",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-f83eedf9a0-001",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "气态图象中的等容线与等压线",
-   "summaryMarkdown": "p-T 图象中的等容线是延长线过原点的直线，V-T 图象中的等压线也过原点；p-V 图象的面积可反映温度与功。",
-   "applicabilityMarkdown": "由 p-T、V-T 图象判断是等容还是等压过程，或比较不同过程的体积、压强大小。",
-   "contentMarkdown": "**$p$-$T$（$p$-$t$）图象**：在 $p$-$T$ 坐标系中，一定质量的理想气体的**等容线是延长线过原点的直线**；在同一坐标系中比较不同体积的等容线时，斜率越大表示体积越小。\\n\\n**$V$-$T$（$V$-$t$）图象**：在 $V$-$T$ 坐标系中，一定质量的理想气体的**等压线是延长线过原点的直线**；比较不同压强的等压线时，斜率越大表示压强越小。\\n\\n**根据气态图象比较参量大小、分析参量变化的方法**：\\n\\n1. **面积法**：$p$-$V$ 图象中 $pV$ 的乘积（面积）反映温度 $T$，图象的累积面积反映功 $W$；\\n2. **斜率法**：按 $p$-$V$ 图象、$p$-$T$（$p$-$t$）图象、$V$-$T$（$V$-$t$）图象中斜率所代表的物理量进行判断。",
-   "boundaryMarkdown": "这些结论都以“一定质量的理想气体”为前提；$p$-$t$、$V$-$t$ 图象的横轴是摄氏温度，只有换成热力学温度后延长线才过原点（与纵轴的交点对应 $-273.15$ ℃）。看图时先确认横轴标注的是 $T$ 还是 $t$。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/【6】2026届高中物理一轮总复习讲义+单元检测（适合印发给学生使用）/14.8 气态图象（第2课时）（学生版）.docx（块 f83eedf9a0-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:热力学图像问题",
      "role": "PRIMARY"
     }
    ]
@@ -31519,7 +31479,7 @@
   {
    "slug": "ext-mat-6f336f7c9c-001c",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "矩形恒等式的两个向量关系",
    "summaryMarkdown": "矩形中任一点到四个顶点的距离平方满足两组相等，且两组对边的向量数量积相等。",
    "applicabilityMarkdown": "以矩形为背景、求距离平方和或数量积关系的向量题目。",
@@ -32339,7 +32299,7 @@
   {
    "slug": "ext-phy-1e87c34de3-003",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "微元法解读开普勒第二定律与k的推导",
    "summaryMarkdown": "用微元法与圆周运动近似推导面积定律中的速率关系和第三定律中的 k",
    "applicabilityMarkdown": "解释近日点与远日点速率关系、由圆轨道推导 k 与中心天体质量关系的题目",
@@ -34079,7 +34039,7 @@
   {
    "slug": "ext-phy-f58cfc679b-007",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "电场中v-t图像的信息链",
    "summaryMarkdown": "由v-t图像的斜率得加速度、进而得静电力与场强，由速度变化得动能、功、电势能与电势",
    "applicabilityMarkdown": "由带电粒子在电场中运动的v-t图像判断场强、电势、电势能与受力",
@@ -34099,7 +34059,7 @@
   {
    "slug": "ext-phy-f58cfc679b-009",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "Ep-x图像的理解与应用",
    "summaryMarkdown": "Ep-x图像的斜率等于电场力的负值，其绝对值和正负分别表示静电力的大小与方向",
    "applicabilityMarkdown": "由电势能随位移变化的图像判断静电力大小方向、速度与场强变化",
@@ -34312,26 +34272,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电源的功率问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-34b3abc1bd-011",
-   "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "路端电压与电流的关系及U-I图像",
-   "summaryMarkdown": "路端电压随电流增大而减小，U-I图线的截距给出电动势与短路电流、斜率绝对值给出内阻",
-   "applicabilityMarkdown": "由电源的U-I图像求电动势与内阻、判断工作点",
-   "contentMarkdown": "闭合电路欧姆定律给出路端电压与电流的关系 $U=E-Ir$：以电流 $I$ 为横轴、路端电压 $U$ 为纵轴的图线是一条直线。\\n这条图线有三个用途：当电路断路即 $I=0$ 时，纵坐标的截距为电源电动势；当外电路短路即 $U=0$ 时，横坐标的截距为短路电流；图线斜率的绝对值为电源的内阻。\\n把它与某电阻的 U-I 图线画在同一坐标系中，交点就是该电阻接入后的工作电压与工作电流。",
-   "boundaryMarkdown": "只有电源（或等效电源）的图线才是直线且截距为电动势；非线性元件的电阻用该点的 $U/I$ 计算而不是用斜率；横轴截距只在电流能达到那么大时才有意义。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题18 电学基本规律的应用（学生版）.docx（块 34b3abc1bd-011）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路端电压与外电阻的关系",
      "role": "PRIMARY"
     }
    ]
@@ -35697,26 +35637,6 @@
    ]
   },
   {
-   "slug": "ext-mat-36955442fd-001",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "基本不等式及其变形",
-   "summaryMarkdown": "正数的算术平均数不小于它们的几何平均数，即 $a+b\\geqslant2\\sqrt{ab}$，取等条件是 $a=b$。",
-   "applicabilityMarkdown": "求最值、证明不等式、比较大小、由恒成立求参数范围等问题。",
-   "contentMarkdown": "**基本形式**：若 $a>0$、$b>0$，则 $a+b\\geqslant2\\sqrt{ab}$，当且仅当 $a=b$ 时等号成立。其中 $\\dfrac{a+b}{2}$ 叫做 $a$、$b$ 的算术平均数，$\\sqrt{ab}$ 叫做 $a$、$b$ 的几何平均数，即正数的算术平均数不小于它们的几何平均数。\\n\\n**等价形式**：若 $a>0$、$b>0$，则 $ab\\leqslant\\left(\\dfrac{a+b}{2}\\right)^2$，当且仅当 $a=b$ 时取等号。\\n\\n**使用条件（一正二定三相等）**：\\n1. 一正：各项必须为正数；\\n2. 二定：求最值时，和或积必须为定值；\\n3. 三相等：必须验证等号成立的条件能够满足。\\n\\n**连续使用的注意**：连续使用基本不等式时，要注意每次取等的条件能否同时成立，否则最终结论中的等号取不到。\\n\\n**常用变形与不等式链**：\\n- 由基本形式可推出 $\\dfrac{b}{a}+\\dfrac{a}{b}\\geqslant2$（$a$、$b$ 同号）等一系列变形；\\n- 均值不等式链 $\\dfrac{2}{\\frac{1}{a}+\\frac{1}{b}}\\leqslant\\sqrt{ab}\\leqslant\\dfrac{a+b}{2}\\leqslant\\sqrt{\\dfrac{a^2+b^2}{2}}$ 把调和平均数、几何平均数、算术平均数与平方平均数串在一起，常用于比较大小。",
-   "boundaryMarkdown": "一正、二定、三相等缺一不可；连续使用时要验证等号能否同时成立。易错点：忽略各项必须为正，或求出最值而不验证取等条件。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【6】2026年高考数学二轮复习精练（新高考通用）/重难点1-2 利用基本不等式求最值（6重难点题型+4秒杀技巧与性质+题型特训）（学生版）.docx（块 36955442fd-001）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:基本不等式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-7bd52b56f2-003",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -36937,26 +36857,6 @@
    ]
   },
   {
-   "slug": "ext-phy-6334948245-005",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "用等势面定性判断场强与电势差",
-   "summaryMarkdown": "等差等势面越密处场强越大；距离相等时场强越大则电势差越大，再由场强方向判断电势高低。",
-   "applicabilityMarkdown": "非匀强电场中不便定量计算，需要定性比较场强大小或电势高低时使用。",
-   "contentMarkdown": "## 判断场强大小\\n等差等势面越密的地方电场强度越大，等势面越稀疏的地方场强越小。\\n\\n## 判断电势差与电势高低\\n距离相等的两点间的电势差满足 $U=Ed$ 的定性关系：$E$ 越大则 $U$ 越大；再结合电场方向（沿电场线方向电势降低）判断各点电势的高低。",
-   "boundaryMarkdown": "U＝Ed 的定量关系只适用于匀强电场，此处仅作定性判断；电势高低还要结合场强的方向确定。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第43讲 电场中功能关系及图像问题-（讲义）（学生版）.docx（块 6334948245-005）",
-   "reviewedAtEpochMillis": 1789846597495,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:等势面",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-6334948245-007",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -36979,7 +36879,7 @@
   {
    "slug": "ext-phy-6334948245-009",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "Ep－x图像的解读",
    "summaryMarkdown": "Ep－x图像切线斜率的绝对值等于静电力大小，斜率的正负表示静电力的方向。",
    "applicabilityMarkdown": "给出电势能随位移变化的图像，要求判断场强大小、方向或粒子运动状态时使用。",
@@ -37019,7 +36919,7 @@
   {
    "slug": "ext-phy-f87ab34a8e-004",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "Ep－x图像的斜率含义",
    "summaryMarkdown": "Ep－x图像切线斜率的绝对值等于静电力大小，斜率的正负指示静电力的方向。",
    "applicabilityMarkdown": "给出电势能随位移变化的图像，要求判断静电力大小、方向或粒子受力情况时使用。",
@@ -37299,7 +37199,7 @@
   {
    "slug": "ext-mat-550f58da7b-008b",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "投影向量与数量积的几何意义",
    "summaryMarkdown": "向量 b 在 a 上的投影向量是与 a 共线的向量，其长度等于 |b|cosθ，数量积等于 a 的模与投影数量的乘积。",
    "applicabilityMarkdown": "求投影向量或投影的数量、用几何意义解释数量积、判断投影向量与哪个向量共线的题。",
@@ -37779,7 +37679,7 @@
   {
    "slug": "ext-mat-6dc6d0bedc-001c",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "指数均值不等式及其证明",
    "summaryMarkdown": "两个不相等的数满足几何平均数小于指数函数的割线斜率小于算术平均数，可由对数均值不等式代换得到。",
    "applicabilityMarkdown": "含指数结构的双变量不等式证明、形如割线斜率结构的范围估计、指对混合的极值点偏移问题。",
@@ -38271,7 +38171,7 @@
    "reviewedAtEpochMillis": 1789846597495,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏欧法测电源电动势和内阻",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏阻法测电源电动势和内阻",
      "role": "PRIMARY"
     }
    ]
@@ -39439,7 +39339,7 @@
   {
    "slug": "ext-phy-b7fee3d991-003b",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "万有引力的两个重要推论",
    "summaryMarkdown": "匀质球层空腔内引力为零、匀质球体内部引力只由半径 r 的内部球体决定两条推论。",
    "applicabilityMarkdown": "处理球壳内部的引力、地球内部的重力加速度、从球体中挖去一部分后求剩余引力的情境题。",
@@ -39759,7 +39659,7 @@
   {
    "slug": "ext-mat-062d023f2f-001b",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "权方和不等式的内容与证明思路",
    "summaryMarkdown": "权方和不等式的基本形式、取等条件、两条证明思路与推广形式。",
    "applicabilityMarkdown": "分式型最值问题，尤其是分子为平方、分母之和为定值的情形。",
@@ -41219,7 +41119,7 @@
   {
    "slug": "ext-phy-90e5d9cabe-010",
    "subject": "PHYSICS",
-   "type": "DERIVATION",
+   "type": "METHOD_MODEL",
    "title": "三种非常规运动学图像的斜率与截距",
    "summaryMarkdown": "把运动学公式整理成一次函数形式，则由 $x/t-t$ 图像、$v^2-x$ 图像、$x/t^2-1/t$ 图像的斜率与截距可以读出初速度与加速度。",
    "applicabilityMarkdown": "给出不是 $x-t$、$v-t$ 形式的图像（如 $x/t-t$、$v^2-x$ 等）求初速度、加速度的题目。",
@@ -42319,7 +42219,7 @@
   {
    "slug": "ext-phy-9579268f6f-003",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "分子力随分子间距变化的图像",
    "summaryMarkdown": "分子力在平衡位置处为零 间距小于平衡位置时表现为斥力 大于时表现为引力",
    "applicabilityMarkdown": "由分子力与分子间距图像判断受力性质 判断平衡位置 分析分子势能随间距变化的趋势",
@@ -43859,7 +43759,7 @@
   {
    "slug": "ext-phy-9d4e47b803-013b",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有界磁场的三类边界模型",
    "summaryMarkdown": "直线边界体现对称性，平行边界常含相切临界，圆形边界以径向射入射出为特征。",
    "applicabilityMarkdown": "分析粒子在直线边界、平行边界、圆形边界磁场中的偏转与时间，求临界条件下的半径与速度。",
@@ -43999,7 +43899,7 @@
   {
    "slug": "ext-mat-c9f403da8c-002",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "复数与平面向量的一一对应",
    "summaryMarkdown": "复数与复平面内以原点为起点的向量一一对应，使复数的运算可以按向量运算进行。",
    "applicabilityMarkdown": "用向量方法理解复数的加减法，把复数问题转化为向量与几何问题。",
@@ -44039,7 +43939,7 @@
   {
    "slug": "ext-mat-c9f403da8c-004",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "复数加减法的几何意义",
    "summaryMarkdown": "复数的加法对应平行四边形法则，减法对应连接两点的向量，模的差对应两点间距离。",
    "applicabilityMarkdown": "用几何方法处理复数的加减运算、判断与复数对应的图形关系、求模的最值。",
@@ -44519,7 +44419,7 @@
   {
    "slug": "ext-phy-d8098ad0ee-009",
    "subject": "PHYSICS",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "动力学中四类常见图像的含义",
    "summaryMarkdown": "v-t、a-t、F-t、F-a 四类图像的斜率、截距与面积的物理意义及其与受力、运动的对应。",
    "applicabilityMarkdown": "动力学图像题的识图、读图与信息提取。",

@@ -70,7 +70,9 @@ class RealPackTest(unittest.TestCase):
         # 2026-10-03 批次 3 结构清理（staging 实读）：本轮 point_merge.csv 新增 103 行节点合并
         # ＋改绑执行轮并入「模型特点」1 对、删空壳节点 1 个（`菠菜常用作补铁食品之一-…`，
         # 三条材料按 round2 裁定改绑后归零）→ 3866 − 103 − 1 − 1 = 3761。按新实测值就地更新。
-        self.assertEqual(3761, dp._point_count(pack))
+        # 2026-10-11 薄料收口轮（staging 实读）：point_merge.csv 新增 20 对近重复薄点合并
+        # （双遍复核 AGREE）→ 3761 − 20 = 3741。按新实测值就地更新。
+        self.assertEqual(3741, dp._point_count(pack))
 
 
 if __name__ == "__main__":

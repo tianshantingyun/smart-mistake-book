@@ -2311,7 +2311,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能定理",
      "role": "PRIMARY"
     }
    ]
@@ -6831,7 +6831,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移时间公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -8511,7 +8511,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:人船模型",
      "role": "PRIMARY"
     }
    ]
@@ -9091,7 +9091,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静电力做功",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电动势",
      "role": "PRIMARY"
     }
    ]
@@ -9111,7 +9111,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:纯电阻电路和非纯电阻电路的处理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:焦耳定律",
      "role": "PRIMARY"
     }
    ]
@@ -15051,7 +15051,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移时间公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:x-t图像-v-t图像-a-t图像的对比",
      "role": "PRIMARY"
     }
    ]
@@ -19251,7 +19251,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量转化-导体克服安培力做功-其他形式能转化为电能-最终转化为内能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求解电能的思路-x1",
      "role": "PRIMARY"
     }
    ]
@@ -21131,7 +21131,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:绳球模型-杆球模型两类经典模型中的临界条件-情景分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动动力学问题的解题思路",
      "role": "PRIMARY"
     }
    ]
@@ -22231,7 +22231,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:人船模型",
      "role": "PRIMARY"
     }
    ]
@@ -23151,7 +23151,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:作用力与反作用力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第三定律",
      "role": "PRIMARY"
     }
    ]
@@ -33671,7 +33671,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力做功与能量关系分析技巧",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能定理",
      "role": "PRIMARY"
     }
    ]
@@ -39691,7 +39691,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分子的平均动能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:内能",
      "role": "PRIMARY"
     }
    ]
@@ -39751,7 +39751,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用力传感器或已知质量的钩码等代替弹簧测力计",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:超重与失重的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -39971,7 +39971,7 @@
    "reviewedAtEpochMillis": 1784908800000,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:核心处理思想-运动的合成与分解",
      "role": "PRIMARY"
     }
    ]
@@ -43719,7 +43719,7 @@
   {
    "slug": "wusan-che-v-090127e0",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "阿伏加德罗定律及其三条推论",
    "summaryMarkdown": "同温同压下相同体积的气体分子数相同，可导出体积比、密度比和压强比",
    "applicabilityMarkdown": "气体体积、密度与压强的比较",
@@ -44059,7 +44059,7 @@
   {
    "slug": "wusan-mat-v-9efb9fe4",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "等比数列的通项与前n项和公式",
    "summaryMarkdown": "通项 aₙ=a₁qⁿ⁻¹、求和公式的两分支，以及由 Sₙ 形式判定等比数列的充要条件。",
    "applicabilityMarkdown": "求通项、求前n项和、判断数列类型",
@@ -44119,7 +44119,7 @@
   {
    "slug": "wusan-mat-v-5e784db3",
    "subject": "MATH",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "方差、标准差与分层抽样的数字特征",
    "summaryMarkdown": "方差与标准差的两个等价计算公式，以及分层随机抽样下总样本均值与总样本方差的合成。",
    "applicabilityMarkdown": "求数据的方差与标准差、分层抽样合成计算",
@@ -45599,7 +45599,7 @@
   {
    "slug": "ext-mat-91e0c2ace8-070",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "不动点法的证明与关键结论",
    "summaryMarkdown": "对 $a_{n+1}=\\frac{Ca_n+D}{Aa_n+B}$，两根 $x_1$、$x_2$ 满足 $a_{n+1}-x_i=\\frac{C-Ax_i}{Aa_n+B}(a_n-x_i)$，由此得出等差（等比）的公差与公比。",
    "applicabilityMarkdown": "需要使用不动点法求分式递推的通项，或需要说明公差、公比的来源时。",
@@ -46299,7 +46299,7 @@
   {
    "slug": "ext-mat-91e0c2ace8-132b",
    "subject": "MATH",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "全概率公式及其证明",
    "summaryMarkdown": "把样本空间按一组两两互斥的事件分解，事件 B 的概率等于各情形下条件概率的加权和。",
    "applicabilityMarkdown": "复杂事件需要按多种原因或场景分类计算概率时。",
@@ -47099,7 +47099,7 @@
   {
    "slug": "ext-bio-cfff2e6c9b-003h",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见实验的试剂与颜色变化",
    "summaryMarkdown": "汇总十个常考实验中试剂与检测对象对应的颜色变化",
    "applicabilityMarkdown": "实验现象判断与试剂选用类题目",
@@ -48859,7 +48859,7 @@
   {
    "slug": "ext-che-15fcabc7cf-017",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "蔗糖与浓硫酸作用的反应与性质体现",
    "summaryMarkdown": "由蔗糖变黑实验的化学方程式说明浓硫酸的脱水性与强氧化性",
    "applicabilityMarkdown": "浓硫酸的性质实验、脱水性与强氧化性辨析题",
@@ -49359,7 +49359,7 @@
   {
    "slug": "ext-che-e1f44db337-001d",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "一元强酸与一元弱酸的稀释图像辨析",
    "summaryMarkdown": "区分同浓度与同pH两种情形下盐酸和醋酸稀释时pH的变化快慢与用水量",
    "applicabilityMarkdown": "稀释图像题、比较稀释后pH大小与加水体积",
@@ -49439,7 +49439,7 @@
   {
    "slug": "ext-che-e1f44db337-002d",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "一元酸与一元碱的滴定曲线分析",
    "summaryMarkdown": "从起点和突变范围两方面对比强酸强碱与强酸弱碱的滴定曲线差异",
    "applicabilityMarkdown": "滴定曲线识图题、选择指示剂、比较曲线差异",
@@ -49479,7 +49479,7 @@
   {
    "slug": "ext-che-e1f44db337-003b",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "水解平衡常数与Kw及Ka的关系",
    "summaryMarkdown": "由水的离子积与对应弱酸的电离常数推导水解平衡常数并用于比较水解程度",
    "applicabilityMarkdown": "求盐的水解常数、比较离子水解程度、判断酸式酸根以电离还是水解为主",
@@ -49719,7 +49719,7 @@
   {
    "slug": "ext-che-e1f44db337-027b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "沉淀溶解平衡图像中点的含义",
    "summaryMarkdown": "由曲线位置判断Q与Ksp的大小关系从而判断溶液是否饱和及有无沉淀析出",
    "applicabilityMarkdown": "沉淀溶解平衡图像中判断某点是否饱和、有无沉淀析出",
@@ -49739,7 +49739,7 @@
   {
    "slug": "ext-che-e1f44db337-028",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "沉淀溶解平衡图像中点的移动",
    "summaryMarkdown": "负对数图像中直线上下方的含义以及升温、蒸发、加溶剂、加同离子固体时点的移动方向",
    "applicabilityMarkdown": "沉淀溶解平衡图像中判断某点移动方向",
@@ -49759,7 +49759,7 @@
   {
    "slug": "ext-che-e1f44db337-028b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "沉淀滴定图像的信息读取",
    "summaryMarkdown": "由滴定曲线计算Ksp并判断改变浓度或更换沉淀对象时滴定终点的移动方向",
    "applicabilityMarkdown": "沉淀滴定曲线题、终点移动方向判断",
@@ -49819,7 +49819,7 @@
   {
    "slug": "ext-che-e1f44db337-029b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "配位平衡图像与逐级平衡常数",
    "summaryMarkdown": "由配位平衡分布系数图像的相邻曲线交点计算各级稳定常数并求总反应常数",
    "applicabilityMarkdown": "配位平衡图像题、计算配合物的逐级稳定常数",
@@ -49859,7 +49859,7 @@
   {
    "slug": "ext-che-e1f44db337-030b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "复合图像与混合体系图像",
    "summaryMarkdown": "复合图像的坐标轴区分方法以及混合体系按直线与曲线分类的处理思路",
    "applicabilityMarkdown": "含两个坐标系的复合图像题、多种平衡共存的混合体系图像题",
@@ -49879,7 +49879,7 @@
   {
    "slug": "ext-che-e1f44db337-031",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "由平衡常数推导直线解析式求Ksp",
    "summaryMarkdown": "把弱酸电离与难溶盐沉淀溶解两个平衡联立推出直线解析式再用特殊点求Ksp",
    "applicabilityMarkdown": "混合体系图像中由直线求难溶盐Ksp",
@@ -49919,7 +49919,7 @@
   {
    "slug": "ext-che-e1f44db337-031c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "配位平衡与沉淀溶解平衡混合体系",
    "summaryMarkdown": "按共存平衡判断各含银微粒随氨水浓度增大的增减方向从而确定曲线归属",
    "applicabilityMarkdown": "配位平衡与沉淀溶解平衡共存的 log c 图像题",
@@ -50099,7 +50099,7 @@
   {
    "slug": "ext-che-1ff1c78002-003b",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "新情境方程式的两类常见题型",
    "summaryMarkdown": "化工流程中与催化过程中方程式书写的示范与思路",
    "applicabilityMarkdown": "流程题中书写方程式、催化剂分步反应方程式书写",
@@ -50199,7 +50199,7 @@
   {
    "slug": "ext-che-7645e88401-001b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "分子与离子空间结构分析示例",
    "summaryMarkdown": "以价层电子对数、杂化类型与孤电子对数为主线列出ABn型微粒的空间结构",
    "applicabilityMarkdown": "判断分子或离子的空间结构与杂化类型",
@@ -50319,7 +50319,7 @@
   {
    "slug": "ext-che-7645e88401-003b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "典型晶体模型与晶胞组成",
    "summaryMarkdown": "归纳六种典型晶胞的结构要点、配位数、晶胞组成与共价键数目",
    "applicabilityMarkdown": "晶胞组成计算、配位数判断、晶体结构分析",
@@ -50379,7 +50379,7 @@
   {
    "slug": "ext-che-7645e88401-004b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "由键的极性与向量和判断分子极性",
    "summaryMarkdown": "按极性向量的和是否为零把分子划分为极性分子与非极性分子",
    "applicabilityMarkdown": "判断分子是否为极性分子",
@@ -50619,7 +50619,7 @@
   {
    "slug": "ext-che-7645e88401-035b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "晶胞投影图分析",
    "summaryMarkdown": "归纳体心立方、面心立方与金刚石晶胞的俯视图与体对角线方向投影图特征",
    "applicabilityMarkdown": "由投影图判断晶胞类型、判断投影图中各点的位置",
@@ -50859,7 +50859,7 @@
   {
    "slug": "ext-che-00be305a22-003b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率-时间图像的四种类型",
    "summaryMarkdown": "连续型、断点型、平台型、全程型v-t图像的特征、分析方法与对应操作。",
    "applicabilityMarkdown": "用于由速率-时间图像反推改变的外界条件（浓度、温度、压强、催化剂）。",
@@ -50879,7 +50879,7 @@
   {
    "slug": "ext-che-00be305a22-004",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "浓度—时间图像的三种类型",
    "summaryMarkdown": "由浓度—时间图像中曲线是否出现断点，反推改变的外界条件是浓度、温度还是压强。",
    "applicabilityMarkdown": "用于由浓度—时间图判断改变的外界条件及平衡移动方向。",
@@ -50899,7 +50899,7 @@
   {
    "slug": "ext-che-00be305a22-004b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "含量(或转化率)—时间图像分析",
    "summaryMarkdown": "用“先拐先平、数值大”判断温度或压强的大小，再由含量变化方向反推反应热效应与气体分子数变化。",
    "applicabilityMarkdown": "用于温度或压强不同的多条含量（转化率）—时间曲线的比较。",
@@ -50959,7 +50959,7 @@
   {
    "slug": "ext-che-00be305a22-005b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "平衡曲线与非平衡点的分析",
    "summaryMarkdown": "平衡曲线上的点都是平衡点，曲线外的点都是非平衡点，可由含量偏离方向判断正逆反应速率的大小。",
    "applicabilityMarkdown": "用于转化率（含量）—压强或温度图像中判断某点是否已达平衡及正逆速率大小。",
@@ -50999,7 +50999,7 @@
   {
    "slug": "ext-che-00be305a22-005d",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "双坐标轴复合图像的分析步骤",
    "summaryMarkdown": "复合图像中每条曲线只对应一个坐标轴，分析时先定轴、再孤立该曲线、最后分析横轴对它的影响。",
    "applicabilityMarkdown": "用于一张图中同时画出两种不同纵坐标物理量（如催化效率与产物生成速率）的图像题。",
@@ -51139,7 +51139,7 @@
   {
    "slug": "ext-che-00be305a22-010c",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率常数与化学平衡常数的关系",
    "summaryMarkdown": "由正、逆反应的速率常数之比可推出该温度下的化学平衡常数。",
    "applicabilityMarkdown": "用于由正逆反应速率方程和速率常数求平衡常数的题目。",
@@ -51159,7 +51159,7 @@
   {
    "slug": "ext-che-00be305a22-010d",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "阿伦尼乌斯公式与活化能",
    "summaryMarkdown": "k等于A乘e的负Ea比RT次方，升温k增大、加催化剂使Ea减小则k增大，Ea越大温度影响越显著。",
    "applicabilityMarkdown": "用于判断温度、催化剂对速率常数的影响以及活化能与反应速率关系的定性比较。",
@@ -51279,7 +51279,7 @@
   {
    "slug": "ext-che-00be305a22-052",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "多重平衡图像的曲线归属判断",
    "summaryMarkdown": "多重平衡图像中同一物理量的变化趋势可能相反，可由平衡移动方向或原子守恒判断曲线归属。",
    "applicabilityMarkdown": "用于多重平衡的物质的量（浓度）—温度图像中判断某条曲线代表哪种物质。",
@@ -51399,7 +51399,7 @@
   {
    "slug": "ext-che-70f6560213-002",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "反应历程曲线图的分析要点",
    "summaryMarkdown": "由曲线图中的峰数、峰高与始末能量高低可判断基元反应步数、决速步、吸放热与物质稳定性。",
    "applicabilityMarkdown": "用于给出能量—反应历程曲线图（含过渡态）的分析题。",
@@ -51419,7 +51419,7 @@
   {
    "slug": "ext-che-70f6560213-002b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "能垒图式的读图方法",
    "summaryMarkdown": "能垒图中过渡态左侧相邻物质爬坡至过渡态所需的能量即为能垒，能垒最大的步骤为决速步。",
    "applicabilityMarkdown": "用于给出能垒图（阶梯式势能—反应历程图）的题目。",
@@ -51439,7 +51439,7 @@
   {
    "slug": "ext-che-70f6560213-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "催化循环机理图的读图方法",
    "summaryMarkdown": "分析循环图时按“只进不出是反应物、只出不进是生成物、有进有出是催化剂、自生自灭是中间产物”判断各物种。",
    "applicabilityMarkdown": "用于给出催化循环（反应机理）示意图并要求判断反应物、生成物、催化剂或书写总反应的题目。",
@@ -52539,7 +52539,7 @@
   {
    "slug": "ext-che-1422ee20c2-001",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "计量仪器的精确度选择原则",
    "summaryMarkdown": "选用计量仪器时，仪器的精确度必须与实验要求的精确度一致，精确度不够或过高的仪器都不能用。",
    "applicabilityMarkdown": "\\n题目给出具体的体积、质量数据（如 15.50 g、25.00 mL）问该选什么仪器时使用。",
@@ -52559,7 +52559,7 @@
   {
    "slug": "ext-che-1422ee20c2-001b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "化学试剂的保存与“八防”",
    "summaryMarkdown": "试剂保存要根据药品的状态、见光是否分解、酸碱性与氧化性选择瓶口、瓶色与瓶塞，并针对氧化、潮解、挥发、分解、水解、腐蚀等采取相应措施。",
    "applicabilityMarkdown": "\\n题目问“某试剂应保存在什么瓶中”“为什么某试剂要密封/加塞/加水封”时使用。",
@@ -52599,7 +52599,7 @@
   {
    "slug": "ext-che-1422ee20c2-001d",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "试纸的种类、用途与使用规范",
    "summaryMarkdown": "不同试纸检验的对象不同，使用时石蕊、pH、品红等试纸的润湿要求与操作方法也各不相同。",
    "applicabilityMarkdown": "\\n选择题中判断“用 pH 试纸测定某溶液 pH”的说法是否正确、或实验题问试纸如何使用。",
@@ -52619,7 +52619,7 @@
   {
    "slug": "ext-che-1422ee20c2-002",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "仪器的洗涤：常见污物的清洗试剂",
    "summaryMarkdown": "仪器上残留的污物不同，选用的清洗试剂也不同；清洗的一般原则是先用能溶解污物的试剂洗，再用水洗。",
    "applicabilityMarkdown": "\\n题目问“某仪器上的残留物应用什么试剂洗涤”“为什么要先用××洗”时使用。",
@@ -52639,7 +52639,7 @@
   {
    "slug": "ext-che-1422ee20c2-002b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "实验室“五防”与常见事故的处理",
    "summaryMarkdown": "实验室要针对倒吸、堵塞、污染、爆炸、暴沸采取相应的装置与操作措施；发生事故时按规范处理。",
    "applicabilityMarkdown": "\\n实验装置图中判断“该装置的作用”“这样做的目的”，以及实验安全类选择题。",
@@ -52659,7 +52659,7 @@
   {
    "slug": "ext-che-1422ee20c2-002c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见气体的检验方法",
    "summaryMarkdown": "不同气体的检验要抓住特征现象：燃烧火焰的颜色、产物的性质、指示剂或试纸的颜色变化。",
    "applicabilityMarkdown": "\\n实验题中要求“检验某气体”“证明某气体存在”，或选择题判断检验方法是否正确。",
@@ -52679,7 +52679,7 @@
   {
    "slug": "ext-che-1422ee20c2-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见离子的检验方法",
    "summaryMarkdown": "离子的检验分沉淀法与显色法两类：沉淀法看沉淀的颜色与溶解性，显色法看特征颜色或焰色。",
    "applicabilityMarkdown": "\\n实验题中要求“检验某离子”“证明某离子存在”，或要求写出检验所用的试剂与现象。",
@@ -52719,7 +52719,7 @@
   {
    "slug": "ext-che-1422ee20c2-003c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "固固与固液混合物的分离提纯",
    "summaryMarkdown": "混合物的分离提纯要先判断混合物属于“固+固”“固+液”“液+液”还是“气+气”，再按类型选方法。",
    "applicabilityMarkdown": "\\n实验题中要求“分离某混合物”“选用合适的分离方法”，或流程题中判断某一步操作名称。",
@@ -52739,7 +52739,7 @@
   {
    "slug": "ext-che-1422ee20c2-004",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "液液与气气混合物的分离提纯",
    "summaryMarkdown": "互溶液体用蒸馏、不互溶液体用分液；气体混合物的分离可用洗气、转化、干燥与灼烧四种方法。",
    "applicabilityMarkdown": "\\n实验题中要求选择分离方法、判断气体除杂装置与顺序时使用。",
@@ -52759,7 +52759,7 @@
   {
    "slug": "ext-che-1422ee20c2-004b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "气体的净化与干燥",
    "summaryMarkdown": "净化（除杂）要选只与杂质反应的试剂，干燥要选只吸水而不与被干燥气体反应的干燥剂。",
    "applicabilityMarkdown": "\\n气体制备类实验题中问“除杂试剂选什么”“能否用浓硫酸干燥某气体”时使用。",
@@ -52859,7 +52859,7 @@
   {
    "slug": "ext-che-1422ee20c2-006d",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "三类常见实验操作的规范表述",
    "summaryMarkdown": "测定溶液 pH、证明沉淀完全、萃取分液三类操作有固定的规范话术，答题时要按“操作—现象—结论”写全。",
    "applicabilityMarkdown": "\\n实验简答题中要求写出某一操作的规范表述时使用。",
@@ -52879,7 +52879,7 @@
   {
    "slug": "ext-che-1422ee20c2-005",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "装置气密性的检查方法",
    "summaryMarkdown": "检查装置气密性有微热法、液差法、滴液法、抽气或吹气法、分段法与量气法，原理都是让装置内外的压强差产生可观察的现象。",
    "applicabilityMarkdown": "\\n实验题中要求“检查装置的气密性”“简述操作与现象”，或判断某装置能否检查气密性时使用。",
@@ -52899,7 +52899,7 @@
   {
    "slug": "ext-che-1422ee20c2-005b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有机物制备中的三种典型装置",
    "summaryMarkdown": "有机实验常用三类装置：带恒压滴液漏斗（或分液漏斗）与冷凝管的反应装置、蒸馏装置、分水器，各自解决加料、分离与除水的问题。",
    "applicabilityMarkdown": "\\n有机合成实验装置图中识别仪器、说出作用、判断进出水方向时使用。",
@@ -52939,7 +52939,7 @@
   {
    "slug": "ext-che-1422ee20c2-007b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "实验操作与条件控制的目的叙述模板",
    "summaryMarkdown": "实验题中问“这样做的目的是什么”，可对照常见的操作—目的对照表直接作答。",
    "applicabilityMarkdown": "\\n实验题简答“解释某操作的目的”“为什么这样控制条件”时使用。",
@@ -52959,7 +52959,7 @@
   {
    "slug": "ext-che-1422ee20c2-008",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "实验条件控制目的叙述模板（续）",
    "summaryMarkdown": "通气、干燥管、冷凝回流、煮沸蒸馏水、冰水浴接收、放出冷凝水再蒸馏等操作，其目的都可归入“保护、除水除氧、防挥发、防炸裂”四类。",
    "applicabilityMarkdown": "\\n实验题问“实验前/中/后通入某气体的作用”“末端干燥管的作用”“为什么要先煮沸蒸馏水”时使用。",
@@ -53179,7 +53179,7 @@
   {
    "slug": "ext-che-1422ee20c2-016",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "实验安全操作补充要点",
    "summaryMarkdown": "称量强腐蚀性固体要放在玻璃器皿中，点燃可燃性气体前必须验纯，酸碱废液要分别收集后再处理，活泼金属着火不能用湿抹布盖灭。",
    "applicabilityMarkdown": "\\n实验安全类选择题与实验简答题中判断某操作是否符合安全规范。",
@@ -53279,7 +53279,7 @@
   {
    "slug": "ext-che-1422ee20c2-020",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见金属元素的焰色对照",
    "summaryMarkdown": "钠黄色、钾紫色、锂紫红色、钙砖红色、锶洋红色、钡黄绿色、铜绿色，观察钾的焰色必须透过蓝色钴玻璃。",
    "applicabilityMarkdown": "\\n题目问“某金属元素是什么”“焰色试验的现象与用途”时使用。",
@@ -53539,7 +53539,7 @@
   {
    "slug": "ext-che-1422ee20c2-033",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "减压过滤的装置与洗涤操作要点",
    "summaryMarkdown": "减压过滤（抽滤）能加快过滤速率并得到较干燥的沉淀，装置中必须装安全瓶防止自来水倒吸，洗涤沉淀前要先暂停抽滤使洗涤剂充分浸润。",
    "applicabilityMarkdown": "\\n题目考查抽滤装置图、安全瓶连接口、抽滤与普通过滤的比较、洗涤操作原因时使用。",
@@ -53639,7 +53639,7 @@
   {
    "slug": "ext-che-1422ee20c2-040",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "球形干燥管的气流方向与干燥剂限制",
    "summaryMarkdown": "球形干燥管除气体时气流应“大口进、小口出”；无水 CaCl2 不能干燥乙醇（会生成 CaCl2·4C2H5OH）与氨气。",
    "applicabilityMarkdown": "\\n题目考查干燥管连接图、判断“能否用某干燥剂干燥某气体”时使用。",
@@ -53719,7 +53719,7 @@
   {
    "slug": "ext-che-c8f0c72345-001",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "基态原子核外电子排布的四条规则与四种表示",
    "summaryMarkdown": "核外电子排布要同时满足能量最低原理、泡利不相容原理和洪特规则；半充满、全充满、全空时体系能量较低。",
    "applicabilityMarkdown": "\\n书写基态原子的电子排布式、简化电子排布式、轨道表示式，或判断某原子的电子排布式是否正确时使用。",
@@ -53739,7 +53739,7 @@
   {
    "slug": "ext-che-c8f0c72345-001b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "主族元素性质的递变规律与两个易错点",
    "summaryMarkdown": "同周期从左到右金属性减弱、非金属性增强；同主族从上到下相反。比较性质时只能用最高价氧化物对应水化物的酸碱性。",
    "applicabilityMarkdown": "\\n比较元素金属性、非金属性强弱，或判断由某事实能否推出非金属性顺序时使用。",
@@ -53799,7 +53799,7 @@
   {
    "slug": "ext-che-c8f0c72345-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "10电子微粒与18电子微粒的总结",
    "summaryMarkdown": "以 Ne 为中心可推出 10 电子微粒系列，以 Ar 为中心可推出 18 电子微粒系列，两者是元素推断的常用出发点。",
    "applicabilityMarkdown": "\\n题目给出“若干微粒的电子数相等”“A、B、C 三种粒子含有相同的电子数”时使用",
@@ -53839,7 +53839,7 @@
   {
    "slug": "ext-che-c8f0c72345-004b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "由结构式中成键数目推断元素的方法",
    "summaryMarkdown": "在结构式型元素推断中，先由原子的共价键数目推断它属于哪一族，再处理多核离子多出的电子，最后注意配位键对成键数目的影响。",
    "applicabilityMarkdown": "\\n题目给出多原子分子或离子的结构式、要求判断某元素是什么或其所在族时使用",
@@ -53859,7 +53859,7 @@
   {
    "slug": "ext-che-1422ee20c2-045",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "球形干燥管的气流方向与干燥剂选择",
    "summaryMarkdown": "用球形干燥管干燥气体时气流必须“大口进、小口出”，且所选干燥剂不能与待干燥的气体反应。",
    "applicabilityMarkdown": "气体除杂与干燥的装置连接题：判断干燥管的接法对不对、所选干燥剂能不能用。",
@@ -53899,7 +53899,7 @@
   {
    "slug": "ext-che-1422ee20c2-046",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "球形冷凝管与直形冷凝管的选择",
    "summaryMarkdown": "球形冷凝管的球泡会滞留馏分，只用于回流；蒸馏必须用直形冷凝管。",
    "applicabilityMarkdown": "装置图判断题：选择或辨认冷凝管类型，判断“回流”与“蒸馏”的装置是否正确。",
@@ -54099,7 +54099,7 @@
   {
    "slug": "ext-che-1422ee20c2-048b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "恒压滴液漏斗与防倒吸装置的作用",
    "summaryMarkdown": "恒压滴液漏斗用侧管平衡气压让液体顺利流下，倒扣漏斗用于吸收易溶气体、防止倒吸，球形冷凝管用于回流。",
    "applicabilityMarkdown": "物质制备型综合实验的装置作用分析（“某仪器的名称与作用是什么”）。",
@@ -54239,7 +54239,7 @@
   {
    "slug": "ext-che-1422ee20c2-053",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "与溴有关的实验不能使用橡胶管",
    "summaryMarkdown": "溴单质能与橡胶中的碳碳双键发生加成反应而腐蚀橡胶，所以制溴、用溴的装置要用聚四氟乙烯或玻璃管。",
    "applicabilityMarkdown": "涉及 $\\mathrm{Br_2}$ 的制备与性质实验的装置选择、装置图评价、材料替换原因分析。",
@@ -54399,7 +54399,7 @@
   {
    "slug": "ext-che-1422ee20c2-055c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "水蒸气蒸馏的装置与作用",
    "summaryMarkdown": "水蒸气蒸馏把不溶于水但有一定挥发性的有机物随水蒸气一起蒸出，装置中长导管起平衡气压的作用。",
    "applicabilityMarkdown": "“测食品接触材料中游离苯酚”“提取植物中的挥发性成分”等分离提纯实验的装置分析与操作判断。",
@@ -54419,7 +54419,7 @@
   {
    "slug": "ext-che-1422ee20c2-056",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "极易水解物质的制备与保护措施",
    "summaryMarkdown": "制备 $\\mathrm{GeCl_4}$ 这类极易水解的物质时，要先用惰性气体排空气、用干燥的氯气，并在装置末端用碱石灰同时吸收尾气和阻止水汽倒灌。",
    "applicabilityMarkdown": "金属氯化物的制备实验装置分析：$\\mathrm{GeCl_4}$、$\\mathrm{SiCl_4}$、$\\mathrm{AlCl_3}$、$\\mathrm{TiCl_4}$ 等的制备。",
@@ -54459,7 +54459,7 @@
   {
    "slug": "ext-che-1422ee20c2-057",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "安全瓶的缓冲作用与气密性检查",
    "summaryMarkdown": "气体发生装置中的安全瓶起缓冲作用，防止反应过快把液体压入后续装置；装好后必须先查气密性。",
    "applicabilityMarkdown": "气体制备与性质实验中“某装置的作用是什么”“组装后第一步做什么”这类装置分析题。",
@@ -54739,7 +54739,7 @@
   {
    "slug": "ext-che-1422ee20c2-062",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "用沉淀溶解平衡测定配合物的稳定常数",
    "summaryMarkdown": "把配离子解离平衡与沉淀溶解平衡相除相乘，用易测的 $\\mathrm{AgBr}$ 沉淀反应把难测的 $K_{稳}$ 求出来。",
    "applicabilityMarkdown": "“设计实验测定某配离子的稳定常数”“写出 K1 与 K稳、Ksp 的关系式”这类定量探究题。",
@@ -54859,7 +54859,7 @@
   {
    "slug": "ext-che-1422ee20c2-066",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "配制一定物质的量浓度溶液的四个操作要点",
    "summaryMarkdown": "溶解在烧杯、转移用玻璃棒引流、定容用胶头滴管悬空并平视、摇匀要盖塞上下颠倒。",
    "applicabilityMarkdown": "实验操作图正误判断：“下列操作正确的有”这类多选。",
@@ -55079,7 +55079,7 @@
   {
    "slug": "ext-che-c8f0c72345-007b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见物质的电子式书写要点",
    "summaryMarkdown": "共价化合物与离子化合物的电子式写法不同，共用电子对、孤电子对与电荷都要标全。",
    "applicabilityMarkdown": "判断电子式正误、用电子式表示物质的形成过程。",
@@ -55119,7 +55119,7 @@
   {
    "slug": "ext-che-c8f0c72345-008b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "顺反异构的结构简式与判断前提",
    "summaryMarkdown": "碳碳双键两端的每个碳上连的两个基团都不同时，才存在顺反异构；甲基在同侧为顺式、异侧为反式。",
    "applicabilityMarkdown": "写出某烯烃的顺（反）式结构简式、判断某烯烃有没有顺反异构。",
@@ -55479,7 +55479,7 @@
   {
    "slug": "ext-che-c8f0c72345-018c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电子排布式与轨道表示式的三个书写要点",
    "summaryMarkdown": "书写电子排布式要按构造原理并考虑半充满、全充满特例，轨道表示式不能写到不存在的轨道。",
    "applicabilityMarkdown": "“下列化学用语表达正确的是”这类电子排布、轨道表示式的正误判断题。",
@@ -56799,7 +56799,7 @@
   {
    "slug": "ext-che-da2d86034b-113",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "化学反应历程图像的两类读图法",
    "summaryMarkdown": "反应历程能量图像看坡高与位置高低，反应机理循环图像看箭头方向定物质，两类图的读法不同。",
    "applicabilityMarkdown": "给出反应历程能量曲线、催化循环图、相对能量-反应进程图的题目，用于判断活化能、决速步、催化剂、中间体、总反应热。",
@@ -57179,7 +57179,7 @@
   {
    "slug": "ext-che-da2d86034b-209",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "元素周期表的结构与读图要点",
    "summaryMarkdown": "元素周期表共 7 个周期 18 个纵列 16 个族，镧系锕系单独列出，每格含原子序数、符号、名称、价层电子排布与相对原子质量。",
    "applicabilityMarkdown": "需要查阅元素位置、推断元素、书写价层电子排布或判断元素在周期表中分区的题目。",

@@ -108,6 +108,8 @@ class GateTest(unittest.TestCase):
         # 键集 = 门**当前实际输出**的完整快照：新增判据时必须同步出现在这里（少一个也红）。
         # 2026-09-25 新增 `boundary_text_defect`（boundary 的文本残迹判据，登记册 §W-02），
         # 判据与材料侧同源；下方哨兵断言它归零。
+        # 2026-10-11 新增 `exam_leak`（判定表 MATERIAL 行的例题派生泄漏，判据与
+        # kb_coverage.check_exam_leak 同源）；下方哨兵断言它归零。
         self.assertEqual(
             {"bad_names", "starred_names", "duplicate_names", "unbound_points",
              "unbound_materials", "ghost_aliases", "alias_collision", "undeclared_prereq",
@@ -116,7 +118,7 @@ class GateTest(unittest.TestCase):
              "invalid_escape", "shell_expansion", "dollar_unbalanced",
              "chapter_uncovered_units", "chapter_locator_mismatch", "chapter_no_book",
              "chapter_split_missing_override", "topic_name_carries_path",
-             "chapter_layer_has_points", "topic_parent_after_child"},
+             "chapter_layer_has_points", "topic_parent_after_child", "exam_leak"},
             set(metrics),
         )
         # 这几项是审计里逐一复核过的硬数字，门禁必须能复现。
@@ -204,6 +206,12 @@ class GateTest(unittest.TestCase):
         # 全量对齐（1676→1307→1306→0），单元映射逐一目验过教材目录：
         # 它从此是防回归哨兵——新内容带着旧写法定位串进包时它会红。
         self.assertEqual(0, metrics["chapter_locator_mismatch"].value)
+        # 2026-10-11：判定表 MATERIAL 行的例题派生泄漏接门（key=exam_leak，容差 0）。
+        # 清理读数：4 条机械判据命中 301 行 → 6 条真题派生行转 SKIP 并从 staging 侧车移除
+        # 对应 6 条材料（50,903→50,897）、295 条逐条复核为误报后写
+        # tools/kb_coverage/tables/material_exam_exemptions.csv（键 + 四字段内容指纹，
+        # 文本改写即失效）。本断言是防回归哨兵：新命中未复核时它必须变红。
+        self.assertEqual(0, metrics["exam_leak"].value)
         # unbound_points 2026-09-19 夜补料后修到 0（上方 assertEqual(0,…) 充当防回归哨兵）；
         # unbound_materials 892 仍在"必须非零"列表：它们来自早期入库批次，材料本身没有绑定，
         # 需要逐条语义绑定（下一轮活），不是数字上能遮的。

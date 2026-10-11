@@ -76,6 +76,9 @@ def rows() -> list[dict]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--out", type=Path, default=OUT,
+                    help="台账落盘路径（默认沿用 2026-09 台账；新一期台账用 --out 指定，"
+                         "旧台账不动）")
     args = ap.parse_args(argv)
     data = rows()
     by_tier = Counter(r["tier"] for r in data)
@@ -87,12 +90,13 @@ def main(argv: list[str] | None = None) -> int:
     for r in [r for r in data if r["tier"] == "zero"]:
         print(f"   [{r['subject']}] {r['name']}（{r['topic'][:32]}）— {r['note'][:60] or '待判定'}")
     if args.write:
-        OUT.parent.mkdir(parents=True, exist_ok=True)
-        with OUT.open("w", encoding="utf-8", newline="") as f:
+        target: Path = args.out
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=FIELDS)
             w.writeheader()
             w.writerows(data)
-        print(f"→ 已写 {OUT}")
+        print(f"→ 已写 {target}")
     return 0
 
 

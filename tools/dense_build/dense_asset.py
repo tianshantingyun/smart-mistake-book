@@ -43,6 +43,7 @@ from __future__ import annotations
 import hashlib
 import json
 import struct
+import sys
 from pathlib import Path
 
 MAGIC = b"SMBV"
@@ -263,12 +264,39 @@ MODEL_RELATIVE = model_paths(_ACTIVE)["int8"]
 MODEL_FP32_RELATIVE = model_paths(_ACTIVE)["fp32"]
 
 
+# 本模块位于 `tools/dense_build/` 下：上两级 = "脚本所属仓库"的根。cwd 不是仓库根时用它兜底。
+# 位置是写死的两层（不做"上溯探测"），不随 cwd 或目录内容漂移。
+_MODULE_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
 def repo_root(explicit=None) -> Path:
-    """仓库根：显式传入或当前工作目录；必须能看见 settings.gradle.kts（不做上溯拼接）。"""
-    root = Path(explicit).resolve() if explicit else Path.cwd().resolve()
-    if not (root / "settings.gradle.kts").is_file():
-        raise SystemExit("不是仓库根（缺 settings.gradle.kts）：%s" % root)
-    return root
+    """仓库根：显式传入 → 当前工作目录 → 本模块所属仓库（`tools/dense_build/` 上两级）。
+
+    三个候选都只在**能看见 settings.gradle.kts** 时被接受（不做上溯拼接、不无凭据地信任任一候选）。
+
+    **为什么加第三条兜底（其消灭的具体失败，2026-10-11 实测）**：工作流按绝对路径调脚本、
+    cwd 却在 `.zcode/workflow-drafts`（没有 settings.gradle.kts）——实测 exit 1：
+    「不是仓库根（缺 settings.gradle.kts）：D:\\smart mistake book\\.zcode\\workflow-drafts」，
+    dense 八步（export/pack/…/check_asset 都经本函数）整条断在入口。脚本所属仓库由本文件位置
+    唯一确定，拿 cwd 当唯一默认值会让"脚本可用、仓库可用"的调用无谓地失败。
+    兜底发生时向 **stderr** 打一条说明（stdout 保持机器可读；读日志的人要知道这轮用的哪份仓库）。
+
+    显式传入仍是严格的：只认它、不兜底（路径打错必须当场报错，不许静默换地方）。
+    """
+    if explicit:
+        root = Path(explicit).resolve()
+        if not (root / "settings.gradle.kts").is_file():
+            raise SystemExit("不是仓库根（缺 settings.gradle.kts）：%s" % root)
+        return root
+    cwd = Path.cwd().resolve()
+    for candidate in (cwd, _MODULE_REPO_ROOT):
+        if (candidate / "settings.gradle.kts").is_file():
+            if candidate != cwd:
+                print("repo_root：cwd %s 不是仓库根（缺 settings.gradle.kts）⇒ 兜底用脚本所属仓库 %s"
+                      % (cwd, candidate), file=sys.stderr)
+            return candidate
+    raise SystemExit("不是仓库根（缺 settings.gradle.kts）：cwd=%s、脚本所属仓库=%s 都不符"
+                     "——用 --repo-root 显式指定" % (cwd, _MODULE_REPO_ROOT))
 
 
 def sha256_file(path) -> str:

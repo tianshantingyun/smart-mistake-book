@@ -84,8 +84,10 @@ class RealPackTest(unittest.TestCase):
         # 近重复节点合并（另一阶段落表），改绑执行轮再并入「模型特点」→「子弹打木块模型」1 对
         # （唯一材料本属三电荷节点、按 round2 裁定改绑后归零），并删除 1 个空壳节点
         # （`菠菜常用作补铁食品之一-…`，3 条材料全为误绑、改绑后归零）→ 3866 − 103 − 1 − 1 = 3761。
+        # 2026-10-11 薄料收口轮（staging 实读）：point_merge.csv 新增 20 对近重复薄点合并
+        # （双遍复核 AGREE；其中「细胞中能源物质的供能顺序」并入后幸存者变 2 条材料）→ 3761 − 20 = 3741。
         # 点数随入库/结构清理轮次变化，由执行轮在提交里维护本 pin。
-        self.assertEqual(3761, dp._point_count(pack))
+        self.assertEqual(3741, dp._point_count(pack))
 
     def test_purge_table_refs_is_clean_on_shipped(self):
         """成品已删过点、外部表已清过——再 purge 必须 0（无悬空引用残留）。"""

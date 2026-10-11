@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 import re
 import sys
@@ -319,6 +320,51 @@ def _place_of(boundary: str) -> tuple[str, str]:
         book, tail = segments[0], ""
     chapter = segments[1] if len(segments) > 1 else tail
     return book, chapter
+
+
+def exam_leak_metric() -> Metric:
+    """判定表 MATERIAL 行的"例题派生"泄漏（**未豁免**数，容差 0）。
+
+    ## 它消灭的失败
+
+    题目形态的材料（题干/选项/答案/解析改写）此前只被 `kb_coverage.check_exam_leak`
+    离线检查，而该检查从未被任何门调用（`docs/kb-outstanding-research-2026-10-02.md`
+    实测它 exit 1 也没人接）——于是"题目不进库"这条底线在 CI 里没有任何守卫。
+    本节把同一套判据（复用 check_rows，同源不另写）接进门。
+
+    ## 为什么是"未豁免"而不是"机械命中"
+
+    4 条正则是**有意放宽**的机械判据，实测成批误报（方法材料里的"得出答案/选出"、
+    标题里的"真题命题背景"出处标注、适用性字段"求…时使用"结尾等）。2026-10-11 的
+    逐条复核把误报写入 `tables/material_exam_exemptions.csv`，每条带**键**
+    （chunk_rel+chunk_id+midx）与**四字段内容指纹**：豁免只覆盖复核过的那一版文本，
+    文本一旦被改写指纹即失效、该行重新计入本节。因此门值仍是"新命中必红"的语义，
+    不是"数字上压到 0"。
+    """
+    from kb_coverage import check_exam_leak as cel
+    m = Metric("exam_leak", "判定表 MATERIAL 行的例题派生泄漏（未豁免）")
+    try:
+        with cel.JUDGMENTS.open(encoding="utf-8-sig", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        hits = cel.check_rows(rows)
+        exemptions = cel.load_exemptions()
+        violations, _excused, stale = cel.split_hits(hits, exemptions)
+    except (OSError, ValueError) as exc:
+        # 判定表/豁免表缺失或坏掉时不能"查不了=绿"：置 1 并在 detail 里说明。
+        m.value = 1
+        m.detail.append(f"检查不可执行：{exc}")
+        return m
+    m.value = len(violations)
+    for h in violations[:10]:
+        m.detail.append(
+            f"{h['node_slug']} ← {h['chunk_id']}{h['midx']}（{h['reason'][:30]}）")
+    if len(violations) > 10:
+        m.detail.append(f"… 其余 {len(violations) - 10} 条")
+    if stale:
+        # 陈旧豁免（键已不再命中/指纹已变）不判红——它只说明豁免表可清理，
+        # 不会放过任何新命中；把条数放在 detail 里保持可见。
+        m.detail.append(f"（豁免表陈旧 {len(stale)} 条，非判红项）")
+    return m
 
 
 def evaluate() -> list[Metric]:
@@ -645,6 +691,10 @@ def evaluate() -> list[Metric]:
                         f"[{subject['subject']}] {topic['name'][:40]}: {len(topic['knowledgePoints'])} 点"
                     )
     metrics.append(m_chapter_layer)
+
+    # 18) 判定表 MATERIAL 行的例题派生泄漏（未豁免；判据与 kb_coverage.check_exam_leak 同源，
+    #     误报逐条豁免在 tables/material_exam_exemptions.csv，见 exam_leak_metric）。
+    metrics.append(exam_leak_metric())
 
     return metrics
 

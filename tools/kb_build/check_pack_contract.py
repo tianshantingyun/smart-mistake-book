@@ -363,11 +363,16 @@ def _three_value_types() -> set[str]:
 
 def legacy_type_counts() -> dict[str, int]:
     """材料 `type` 的三值外计数（协议 v1.1 只许 CONCEPT_EXPLANATION / METHOD_MODEL /
-    MISCONCEPTION_GUIDE；4 种旧值仍在存量材料里）。
+    MISCONCEPTION_GUIDE）。
 
-    **基线豁免形态**：`LEGACY_TYPE_BASELINE` 是 2026-10-02 实测基线，只许**递减**——
-    回归钉在 `tools/tests/test_kb_contract_report_counts.py`（超过基线即红，否则只报数）。
-    F7 决策（迁移 / 保留）落地后把本项翻成硬门（= 0）。
+    2026-10-11 批8 迁移：存量 4 种旧值 667 条（REPRESENTATION_GUIDE 491 / DERIVATION 150 /
+    WORKED_EXAMPLE 22 / COMPLETE_SOLUTION 4）已按裁定 F7 的映射迁到三值，**只改 type 字段**
+    （映射、前后计数与只改 type 的证明见 `build/agent-batch8/migration_report.json`）。
+    **基线归零 = 硬门**：`LEGACY_TYPE_BASELINE` 只许**递减**，回归钉在
+    `tools/tests/test_kb_contract_report_counts.py`（超过基线即红，否则只报数）。
+    回流面已核清：`materialize --write` 按 slug 幂等跳过存量材料，且判定表的 47,583 条
+    MATERIAL 行（唯一的写入源）已全为三值；作者源 `knowledge-production/wusan/materials.jsonl`
+    的 28 条旧 type 同批迁移。
     """
     allowed = _three_value_types()
     counts: dict[str, int] = {}
@@ -380,7 +385,7 @@ def legacy_type_counts() -> dict[str, int]:
     return counts
 
 
-LEGACY_TYPE_BASELINE = 667  # 2026-10-02 实测；只许递减（见 legacy_type_counts 的说明）
+LEGACY_TYPE_BASELINE = 0  # 2026-10-11 批8 迁移后归零；只许递减（>0 即红，见 legacy_type_counts 的说明）
 
 
 def _truncate(out: dict[str, list[str]]) -> dict[str, list[str]]:

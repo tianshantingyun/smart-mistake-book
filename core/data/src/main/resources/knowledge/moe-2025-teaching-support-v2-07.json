@@ -815,7 +815,7 @@
   {
    "slug": "ext-che-e5ccf9cc1e-011c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有机化学用语的书写规范",
    "summaryMarkdown": "分子式与结构简式不能等同、不饱和键与官能团不能省略、键线式端点拐点是碳、注意区分球棍模型与空间填充模型。",
    "applicabilityMarkdown": "判断化学用语（结构简式、键线式、电子式、模型图）是否正确。",
@@ -4733,46 +4733,6 @@
    ]
   },
   {
-   "slug": "ext-che-cb0f101582-020",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "硫酸根离子检验的三类错误与规范操作",
-   "summaryMarkdown": "SO42－检验中把其他离子误判为硫酸根的原因及正确的酸化与钡盐选择",
-   "applicabilityMarkdown": "离子检验实验题：评价检验方案、说明酸化试剂与钡盐的选择理由",
-   "contentMarkdown": "**一、误把 $Ag^+$、$Pb^{2+}$ 判断成 $SO_4^{2-}$**\\n向待测液中滴加 $BaCl_2$ 溶液再加稀盐酸得到白色沉淀，就断定含 $SO_4^{2-}$，这是错误的。溶液中若含 $Ag^+$ 或 $Pb^{2+}$，同样会生成白色沉淀：$Ag^++Cl^-=AgCl \\downarrow$、$Pb^{2+}+2Cl^-=PbCl_2 \\downarrow$。\\n**二、误把 $SO_3^{2-}$ 判断成 $SO_4^{2-}$**\\n向待测液中滴加用稀盐酸酸化的 $Ba(NO_3)_2$ 溶液生成白色沉淀，就误认为含 $SO_4^{2-}$。错因是 $NO_3^-$ 在酸性环境中具有强氧化性，会把 $BaSO_3$ 氧化为 $BaSO_4$：$Ba^{2+}+SO_3^{2-}=BaSO_3 \\downarrow$，$3BaSO_3+2H^++2NO_3^-=3BaSO_4+2NO \\uparrow +H_2O$。\\n**三、正确的检验方法**\\n用稀盐酸（不能用稀硝酸）酸化排除 $CO_3^{2-}$、$SO_3^{2-}$、$Ag^+$ 等干扰，再加入 $BaCl_2$ 溶液；钡盐一般用 $BaCl_2$ 而不用 $Ba(NO_3)_2$，避免酸性条件下溶液中的 $SO_3^{2-}$ 或 $HSO_3^-$ 被氧化为 $SO_4^{2-}$ 造成干扰。",
-   "boundaryMarkdown": "酸化必须用稀盐酸，不能用稀硝酸或硫酸；钡盐要选 BaCl2；若溶液呈碱性还会生成 BaSO3 或 BaCO3 沉淀，须先酸化后再检验",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 硫及其化合物（知识清单）（全国通用）（学生版）.docx（块 cb0f101582-020）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:so检验的易错点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-cb0f101582-020b",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "SO2与CO2的鉴别及同时存在的检验流程",
-   "summaryMarkdown": "两种酸性氧化物的鉴别方法以及混合气体中逐一检验的装置顺序",
-   "applicabilityMarkdown": "混合气体成分检验实验题：选择鉴别试剂、安排装置顺序、判断各装置作用",
-   "contentMarkdown": "**一、鉴别方法**\\n1. 闻气味法：$CO_2$ 无气味，$SO_2$ 有刺激性气味。\\n2. 品红溶液法：能使品红溶液褪色的是 $SO_2$，不能褪色的是 $CO_2$。\\n3. 酸性高锰酸钾溶液或溴水法：能使它们褪色的是 $SO_2$，不能褪色的是 $CO_2$。\\n**二、检验 $SO_2$ 和 $CO_2$ 同时存在的流程**\\n两种气体都能使澄清石灰水变浑浊，必须先检验并除去 $SO_2$ 再检验 $CO_2$，典型顺序为：\\n混合气体 $\\rightarrow$ 品红溶液（检验 $SO_2$，褪色说明有 $SO_2$）$\\rightarrow$ 酸性 $KMnO_4$ 溶液（除去 $SO_2$）$\\rightarrow$ 品红溶液（确认 $SO_2$ 已除净）$\\rightarrow$ 澄清石灰水（检验 $CO_2$）。\\n**简化处理**：有时为简化装置，可把除去 $SO_2$ 和检验 $SO_2$ 是否除净合并为一个装置，使用较浓的酸性 $KMnO_4$ 溶液，现象是其颜色变浅。",
-   "boundaryMarkdown": "检验 CO2 前必须除净 SO2 并验证除净，否则无法确定石灰水变浑浊的原因；品红溶液用于检验漂白性但不能除去 SO2；注意装置顺序不能颠倒",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 硫及其化合物（知识清单）（全国通用）（学生版）.docx（块 cb0f101582-020）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:so2和co2的鉴别方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-bio-7bf37bfb93-002",
    "subject": "BIOLOGY",
    "type": "CONCEPT_EXPLANATION",
@@ -4955,7 +4915,7 @@
   {
    "slug": "ext-bio-7bf37bfb93-011",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "实验材料的选择与显微镜的分辨极限",
    "summaryMarkdown": "观察叶绿体实验的材料要求以及光学显微镜不能看到膜结构的原因",
    "applicabilityMarkdown": "显微观察实验题：评价选材是否合理、判断显微镜能观察到何种结构层次",
@@ -5035,7 +4995,7 @@
   {
    "slug": "ext-bio-7bf37bfb93-021",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "分泌蛋白的分选——信号肽假说",
    "summaryMarkdown": "信号肽引导核糖体到内质网并完成肽链进入内质网腔的经典分泌途径",
    "applicabilityMarkdown": "解释核糖体与内质网的识别机制、分析分泌蛋白进入内质网腔的过程",
@@ -6155,7 +6115,7 @@
   {
    "slug": "ext-bio-d93a11b3d8-009b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "ATP产生量与O2供给量的关系及能源物质",
    "summaryMarkdown": "ATP 产生量随氧气供给量变化的曲线分析以及生物体内几种能源物质的区分",
    "applicabilityMarkdown": "解读 ATP 产生量与氧气供给量的关系图、判断不同细胞的供能方式、区分各类能源物质",
@@ -6555,7 +6515,7 @@
   {
    "slug": "ext-che-7bbf0904a5-001b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "气态烃燃烧前后气体体积的变化",
    "summaryMarkdown": "不同温度下气态烃完全燃烧前后气体总体积变化的判断依据",
    "applicabilityMarkdown": "燃烧类计算题：判断燃烧后气体体积增大或减小、比较氢原子数的影响",
@@ -6987,7 +6947,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:定量实验的数据采集与处理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:定量实验数据的采集与处理",
      "role": "PRIMARY"
     }
    ]
@@ -7595,7 +7555,7 @@
   {
    "slug": "ext-che-cd2e065d4b-003b",
    "subject": "CHEMISTRY",
-   "type": "COMPLETE_SOLUTION",
+   "type": "METHOD_MODEL",
    "title": "乙烯的实验室制法",
    "summaryMarkdown": "乙醇与浓硫酸加热到 170 ℃ 制乙烯，温度计须插入反应液，浓硫酸兼具催化剂与脱水剂的作用。",
    "applicabilityMarkdown": "实验室制乙烯类实验题：仪器与收集方法、温度控制、异常现象与杂质分析。",
@@ -7715,7 +7675,7 @@
   {
    "slug": "ext-che-cd2e065d4b-016",
    "subject": "CHEMISTRY",
-   "type": "COMPLETE_SOLUTION",
+   "type": "METHOD_MODEL",
    "title": "溴苯制取实验的九个要点",
    "summaryMarkdown": "用液溴并在铁粉催化下制溴苯，装置要注意冷凝回流与防倒吸，产物提纯要水洗—碱洗—水洗—干燥—蒸馏。",
    "applicabilityMarkdown": "溴苯制备及“反应类型判断”实验题：条件、药品顺序、装置作用、产物提纯与 HBr 检验。",
@@ -7735,7 +7695,7 @@
   {
    "slug": "ext-che-cd2e065d4b-017",
    "subject": "CHEMISTRY",
-   "type": "COMPLETE_SOLUTION",
+   "type": "METHOD_MODEL",
    "title": "硝基苯制取实验的要点",
    "summaryMarkdown": "浓硝酸与浓硫酸混合酸在 50～60 ℃ 水浴中与苯反应，产物用蒸馏水—NaOH—蒸馏水洗涤后干燥蒸馏。",
    "applicabilityMarkdown": "硝基苯制备实验题：试剂加入顺序、水浴加热与温度计位置、混合酸冷却原因、粗产品提纯。",
@@ -10415,7 +10375,7 @@
   {
    "slug": "ext-che-067cb2c820-004",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有机物结构的三种表示方法",
    "summaryMarkdown": "对比结构式、结构简式与键线式的特点并说明书写结构简式的注意点",
    "applicabilityMarkdown": "化学用语书写与结构表示正误判断题",
@@ -10835,7 +10795,7 @@
   {
    "slug": "ext-che-067cb2c820-019",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "有机结构分析方法的速记与选用",
    "summaryMarkdown": "对比红外光谱、核磁共振氢谱、质谱与X射线衍射的作用并给出推断顺序",
    "applicabilityMarkdown": "选择结构分析方法与由谱图信息推断结构的题目",
@@ -11648,26 +11608,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学用语书写规范",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-998cdd8cea-017",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "结构式与结构简式的区别及价键规则",
-   "summaryMarkdown": "说明结构式显示全部价键、结构简式省略单键的差别与判断共价键数目的价键规则",
-   "applicabilityMarkdown": "结构式、结构简式书写与结构合理性判断题",
-   "contentMarkdown": "结构式必须显示出所有的价键；结构简式一般要去掉所有的单键，但双键、三键不能省略。\\n书写时要根据价键规则明确共价键的数目与元素的位置：C 形成 4 个键，N 形成 3 个键，O、S 形成 2 个键，H、Cl、Br 形成 1 个键。\\n据此可以检查所给结构是否合理（如碳原子周围必须满足 4 个价键），也可以由分子式推出可能的结构。",
-   "boundaryMarkdown": "判断结构是否合理要按价键规则逐一核对每个原子的成键数；结构简式省略单键时，C=C、C≡C 与官能团（如 —CHO、—COOH）不能省略，否则会改变分子结构。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/二轮复习/2026年高考化学二轮复习课件+讲义+练习（新高考通用）/2026版/专题01 物质的组成、分类、性质及变化（复习讲义）（学生版）.docx（块 998cdd8cea-017）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物结构的表示方法",
      "role": "PRIMARY"
     }
    ]
@@ -13155,7 +13095,7 @@
   {
    "slug": "ext-che-a8915bbd80-010",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "过氧化钠与水反应的两步机理",
    "summaryMarkdown": "把Na2O2与水的反应拆成水解与H2O2分解两步，解释溶液先变红后褪色。",
    "applicabilityMarkdown": "过氧化钠与水反应机理、现象解释与方程式书写。",
@@ -13535,7 +13475,7 @@
   {
    "slug": "ext-che-a13e903c71-005d",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "三类漂白剂的漂白原理与区别",
    "summaryMarkdown": "按氧化型、化合型、吸附型三类划分漂白剂并比较其褪色是否复原。",
    "applicabilityMarkdown": "漂白原理辨析、褪色现象判断类题目。",
@@ -14167,7 +14107,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:传统文化类试题的解题三步曲",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:传统文化类试题的解题方法",
      "role": "PRIMARY"
     }
    ]
@@ -17035,7 +16975,7 @@
   {
    "slug": "ext-che-10003de2c3-018b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "铁元素价类二维图的转化规律",
    "summaryMarkdown": "从横向、纵向、斜向三个方向理解铁及其化合物的转化关系与离子共存限制。",
    "applicabilityMarkdown": "铁元素价类二维图的推断题，以及 Fe2+、Fe3+ 的离子共存判断题。",
@@ -17575,7 +17515,7 @@
   {
    "slug": "ext-bio-cdea66a95d-010",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "与酶有关的曲线分析方法",
    "summaryMarkdown": "酶高效性、专一性曲线和影响酶促反应速率曲线的读图要点。",
    "applicabilityMarkdown": "读图判断酶的高效性、专一性、最适温度或 pH 以及底物浓度与酶浓度关系的题目。",
@@ -20015,7 +19955,7 @@
   {
    "slug": "ext-che-74ae5b408a-014b",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "由Ksp计算沉淀开始与完全时的pH",
    "summaryMarkdown": "以氢氧化铜为例，先由Ksp求出氢氧根浓度，再经水的离子积换算pH，得到开始沉淀与沉淀完全时的两个界限。",
    "applicabilityMarkdown": "由给定Ksp计算某离子开始沉淀或沉淀完全时的pH、确定除杂时应调节的pH范围。",
@@ -21015,7 +20955,7 @@
   {
    "slug": "ext-che-5796f534aa-018",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "盐溶液蒸干灼烧产物的典型实例",
    "summaryMarkdown": "用几个典型盐溶液的蒸干灼烧结果，归纳出“水解—挥发—分解—氧化”的判断路径。",
    "applicabilityMarkdown": "快速判断常见盐溶液加热蒸干、灼烧后的固体产物，判断相关说法的正误。",
@@ -21355,7 +21295,7 @@
   {
    "slug": "ext-che-e8e221ed0f-010",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "结构简式与键线式的书写规范",
    "summaryMarkdown": "书写结构简式必须表示出官能团，不能省略碳碳双键或三键；键线式的端点、拐点或折点代表碳原子，碳上氢原子省略。",
    "applicabilityMarkdown": "判断所给结构简式、键线式、实验式等化学用语是否正确。",
@@ -21375,7 +21315,7 @@
   {
    "slug": "ext-che-e8e221ed0f-010b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "结构简式与键线式的书写规范",
    "summaryMarkdown": "结构简式必须写清官能团，烯烃炔烃不能省略双键三键；键线式的端点、拐点、折点都代表碳原子，碳上氢原子省略。",
    "applicabilityMarkdown": "书写与判断有机物的结构简式、键线式、球棍模型等化学用语。",
@@ -21675,7 +21615,7 @@
   {
    "slug": "ext-che-35834ffed3-009b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "含氯物质的价类二维图与转化",
    "summaryMarkdown": "以价类二维图梳理Cl2、HCl、NaCl、HClO、NaClO、Ca(ClO)2等含氯物质，并写出常见转化反应的方程式。",
    "applicabilityMarkdown": "在价类二维图中定位含氯物质、书写含氯物质的转化方程式、判断某转化能否一步实现。",
@@ -23695,7 +23635,7 @@
   {
    "slug": "ext-che-8c7b6cf5e0-018",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "少定多变法的两个应用示例",
    "summaryMarkdown": "以少量NaHCO3与足量Ca(OH)2、NaHSO4与Ba(OH)2为例演示配平过程",
    "applicabilityMarkdown": "复盐或酸式盐参与且需按用量分别书写的题目",
@@ -23755,7 +23695,7 @@
   {
    "slug": "ext-che-055b5f1efb-017b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "硅酸盐氧化物形式的改写规则",
    "summaryMarkdown": "按活泼金属氧化物、较活泼金属氧化物、SiO2、H2O的顺序改写且系数取整",
    "applicabilityMarkdown": "把硅酸盐的化学式改写成氧化物形式的填空题",
@@ -24755,7 +24695,7 @@
   {
    "slug": "ext-che-60651bf275-018",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "混合溶液中K的计算易错点",
    "summaryMarkdown": "混合后须先按体积变化换算浓度再代入K表达式",
    "applicabilityMarkdown": "涉及混合溶液与稀释的电离常数计算题",
@@ -25475,7 +25415,7 @@
   {
    "slug": "ext-che-dc68f36a22-009",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "串联电化学装置的计算示例",
    "summaryMarkdown": "由0.2 mol电子转移推算各电极产物与溶液的复原方法",
    "applicabilityMarkdown": "串联装置中电极产物与溶液变化的计算题",
@@ -25635,7 +25575,7 @@
   {
    "slug": "ext-bio-9847f272f3-005b",
    "subject": "BIOLOGY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "DNA复制的数量关系与计算",
    "summaryMarkdown": "n次复制后子代DNA数为2^n，含亲代链的只有2个",
    "applicabilityMarkdown": "DNA复制次数、消耗核苷酸数与链数的计算题",
@@ -25875,7 +25815,7 @@
   {
    "slug": "ext-bio-0c6eef6074-004",
    "subject": "BIOLOGY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "蛋白质相关计算的五类关系",
    "summaryMarkdown": "肽键数、相对分子质量、原子数、游离基团数与水解关系",
    "applicabilityMarkdown": "多肽形成与水解的定量计算题",
@@ -25975,7 +25915,7 @@
   {
    "slug": "ext-che-144a906566-003",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "晶胞参数与晶体密度的计算",
    "summaryMarkdown": "由晶胞微粒数、摩尔质量与密度求晶胞边长并注意单位换算",
    "applicabilityMarkdown": "由密度求晶胞参数、空间利用率的计算题",
@@ -28875,7 +28815,7 @@
   {
    "slug": "ext-che-043d5a4425-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电子式与结构式的书写",
    "summaryMarkdown": "电子式是在元素符号周围用点或叉表示原子最外层电子的式子，用来表示离子化合物、共价化合物的组成与形成过程，结构式则用一根短线表示一对共用电子对。",
    "applicabilityMarkdown": "书写电子式、判断电子式正误、用电子式表示物质形成过程、由结构式判断键的种类与数目。",
@@ -30075,7 +30015,7 @@
   {
    "slug": "ext-che-5cf409ae9e-008b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "试纸的类型与规范使用方法",
    "summaryMarkdown": "不同试纸用途不同（石蕊定性、pH 试纸定量粗测、品红检验漂白性、淀粉碘化钾试纸检验强氧化性物质），检验溶液与检验气体的使用方法不同。",
    "applicabilityMarkdown": "判断试纸使用操作正误、区分溶液与气体检验方法、分析 pH 试纸能否使用的题目。",
@@ -30615,7 +30555,7 @@
   {
    "slug": "ext-che-80dc9e8d0c-007",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "晶胞中的原子分数坐标与投影图",
    "summaryMarkdown": "以晶胞的一个顶点为原点、以三条棱为坐标轴、以棱长为单位长度建立坐标系，即可写出原子的分数坐标并画出投影图。",
    "applicabilityMarkdown": "书写原子分数坐标、判断投影图正误的题目。",
@@ -31775,7 +31715,7 @@
   {
    "slug": "ext-che-8fae19a1fa-004b",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "基元反应的速率方程与速率常数",
    "summaryMarkdown": "写出基元反应的速率方程，并由平衡时正逆速率相等推出K等于k正与k逆之比",
    "applicabilityMarkdown": "考查速率常数意义、速率常数与平衡常数关系、升温对k正与k逆影响的题目",
@@ -32435,7 +32375,7 @@
   {
    "slug": "ext-che-fa5c662311-018",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "利用键能计算反应热",
    "summaryMarkdown": "ΔH等于反应物键能总和减去生成物键能总和，注意键数与特殊物质键的判断",
    "applicabilityMarkdown": "给出键能数据求反应热、或由反应热反求键能的题目",
@@ -33035,7 +32975,7 @@
   {
    "slug": "ext-che-c22be1e36f-002",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "原子的构成与微粒间的数量关系",
    "summaryMarkdown": "质量数等于质子数与中子数之和，离子核外电子数由质子数和电荷数决定",
    "applicabilityMarkdown": "求中子数、核外电子数、微粒符号含义的识记与计算题",
@@ -33095,7 +33035,7 @@
   {
    "slug": "ext-che-c22be1e36f-004",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "相对原子质量与近似相对原子质量的求法",
    "summaryMarkdown": "核素的相对原子质量按碳12的十二分之一为基准，元素的相对原子质量按丰度加权平均",
    "applicabilityMarkdown": "求元素的相对原子质量或近似相对原子质量的计算题",
@@ -33515,7 +33455,7 @@
   {
    "slug": "ext-che-e5f86d011f-002b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "化学反应中的能量转化形式",
    "summaryMarkdown": "归纳吸热、放热、光合作用、燃烧、原电池、电解池六类过程的能量转化方向与记忆规律。",
    "applicabilityMarkdown": "遇到“下列过程中能量转化形式是什么”类判断题时按过程类型快速定位转化方向。",
@@ -33575,7 +33515,7 @@
   {
    "slug": "ext-che-e5f86d011f-004b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "能量-反应进程图中活化能与焓变",
    "summaryMarkdown": "从能量-反应进程图读出正逆反应活化能与焓变的关系式，并理解催化剂只降低活化能不改变焓变。",
    "applicabilityMarkdown": "解答能量-反应进程图（含催化剂、过渡态、中间体、能垒）类选择题。",
@@ -34235,7 +34175,7 @@
   {
    "slug": "ext-che-034cbfd131-004c",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "阿司匹林的合成实验步骤",
    "summaryMarkdown": "用水杨酸与乙酸酐在浓硫酸催化下水浴加热制乙酰水杨酸，经抽滤、碳酸氢钠提纯得产品。",
    "applicabilityMarkdown": "有机制备实验流程题中作为典型操作范例（水浴控温、减压过滤、重结晶提纯）。",
@@ -34395,7 +34335,7 @@
   {
    "slug": "ext-che-cd028acc60-004b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "溶解度曲线的意义",
    "summaryMarkdown": "溶解度曲线上的点表示对应温度下的溶解度，两曲线的交点表示该温度下两种物质的溶解度相等。",
    "applicabilityMarkdown": "读取溶解度曲线、比较不同温度下溶解度的大小。",
@@ -34675,7 +34615,7 @@
   {
    "slug": "ext-che-cd028acc60-020",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "定容读数误差的图示分析",
    "summaryMarkdown": "仰视刻度线使溶液体积偏大、浓度偏小；俯视刻度线使体积偏小、浓度偏大。",
    "applicabilityMarkdown": "定容操作读数方向对浓度影响的判断与图像分析。",
@@ -35255,7 +35195,7 @@
   {
    "slug": "ext-che-bb66c733f8-004",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "双线桥法与单线桥法",
    "summaryMarkdown": "双线桥在同种元素原子间标“得到/失去”并注明数目，单线桥从失电子原子指向得电子原子只标总数。",
    "applicabilityMarkdown": "规范表示电子转移的方向和数目、判断图示正误。",
@@ -36335,7 +36275,7 @@
   {
    "slug": "ext-che-01eb9ee365-014",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见有机实验仪器的用途",
    "summaryMarkdown": "三颈烧瓶、恒压滴液漏斗、分液漏斗与冷凝管的功能差别决定其用法",
    "applicabilityMarkdown": "有机制备实验题中填写仪器名称、说明仪器作用或选择仪器时",
@@ -37495,7 +37435,7 @@
   {
    "slug": "ext-che-c3ab790e04-006",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "水的电离平衡曲线的判读",
    "summaryMarkdown": "在 c(H+)—c(OH-) 关系图上，同一曲线上的点 Kw 相同、温度相同，曲线外的点温度不同，点与点之间的转化方式不同。",
    "applicabilityMarkdown": "给出水的电离平衡曲线（c(H+)与c(OH-)的关系图）判断 Kw 大小、溶液酸碱性及各点间的转化条件。",
@@ -37515,7 +37455,7 @@
   {
    "slug": "ext-che-c3ab790e04-006b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "水的电离平衡曲线的判读",
    "summaryMarkdown": "以 c(H+) 和 c(OH-) 为坐标的图像中，同一条曲线代表同一温度，曲线越靠外 KW 越大。",
    "applicabilityMarkdown": "给出水的电离平衡曲线要求比较温度、判断点移动方向或判断溶液酸碱性时使用。",
@@ -37695,7 +37635,7 @@
   {
    "slug": "ext-che-c3ab790e04-011b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "酸碱溶液稀释时pH的变化规律",
    "summaryMarkdown": "无论 c 相等还是 pH 相等，加水稀释相同倍数时 pH 变化大的都是强酸或强碱，弱酸弱碱因继续电离而变化较小。",
    "applicabilityMarkdown": "由稀释曲线判断酸的强弱、比较稀释后 pH 的大小或判断曲线对应的溶液类型。",
@@ -38175,7 +38115,7 @@
   {
    "slug": "ext-che-c3ab790e04-024",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "中和滴定曲线的特征与概念辨析",
    "summaryMarkdown": "滴定曲线在终点附近出现 pH 突变，强酸滴定弱碱或强碱滴定弱酸的突变范围更窄，且恰好中和、滴定终点、溶液呈中性三者不同。",
    "applicabilityMarkdown": "分析与滴定曲线相关的图像题、判断曲线形态与指示剂选择的对应关系。",
@@ -38315,7 +38255,7 @@
   {
    "slug": "ext-bio-e3a300b276-002c",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "摩尔根假说的解释与演绎验证",
    "summaryMarkdown": "三种假说中假说1被否定，假说2与假说3都能解释现象，需用白眼雌×红眼雄的测交来区分。",
    "applicabilityMarkdown": "分析摩尔根实验的假说—演绎过程、判断哪一步属于演绎或验证时使用。",
@@ -38735,7 +38675,7 @@
   {
    "slug": "ext-bio-e3a300b276-012b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电泳图谱的分析方法",
    "summaryMarkdown": "电泳图谱按碱基对数目区分条带，等位基因碱基对数不同可直接区分，碱基对数相同时需先用限制酶切割再电泳。",
    "applicabilityMarkdown": "分析电泳图谱判断基因型、判断限制酶酶切位点的有无、计算酶切片段长度。",
@@ -38795,7 +38735,7 @@
   {
    "slug": "ext-bio-e3a300b276-012e",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电泳图谱的分析方法",
    "summaryMarkdown": "电泳图谱按碱基对数目区分条带，等位基因碱基对数相同者需先用限制酶切割再电泳。",
    "applicabilityMarkdown": "结合电泳图判断个体基因型、分析限制酶切位点与条带数目关系时使用。",
@@ -38835,7 +38775,7 @@
   {
    "slug": "ext-bio-e3a300b276-018",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传系谱图的书写规范与要求",
    "summaryMarkdown": "系谱图用□表示男性、○表示女性、实心符号表示患者、┬表示世代关系，并需注明图例与世代序号。",
    "applicabilityMarkdown": "绘制或补全遗传系谱图、判断所给系谱图是否规范。",
@@ -38855,7 +38795,7 @@
   {
    "slug": "ext-bio-e3a300b276-018b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传系谱图的书写规范",
    "summaryMarkdown": "系谱图用□○表示男女、■●表示患者，书写后必须注明图例并在左侧标注世代。",
    "applicabilityMarkdown": "绘制或补全遗传系谱图、检查系谱图是否规范时使用。",
@@ -38875,7 +38815,7 @@
   {
    "slug": "ext-bio-e3a300b276-019",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传图解的书写规范与要求",
    "summaryMarkdown": "遗传图解按亲本、配子、子一代、子二代四行书写，写全基因型、表型以及自交、杂交、箭头等符号，涉及性别时还要标注性别符号。",
    "applicabilityMarkdown": "按要求书写遗传图解、检查遗传图解中遗漏的世代或符号。",
@@ -38895,7 +38835,7 @@
   {
    "slug": "ext-bio-e3a300b276-019b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传图解的书写规范",
    "summaryMarkdown": "遗传图解按 P、配子、F1、F2 四行书写，基因型、符号与性别标注都要齐全。",
    "applicabilityMarkdown": "书写杂交实验的遗传图解、判断图解是否规范时使用。",
@@ -39195,7 +39135,7 @@
   {
    "slug": "ext-che-16414d5f4e-024",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "速率图像的分析策略",
    "summaryMarkdown": "分析速率图像按看起点、看变化趋势、看终点、看曲线是渐变还是突变的顺序进行。",
    "applicabilityMarkdown": "分析 v-t 图像中改变条件对正、逆速率的影响，判断图像变化类型。",
@@ -39213,29 +39153,9 @@
    ]
   },
   {
-   "slug": "ext-che-16414d5f4e-024b",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "速率图像的分析策略",
-   "summaryMarkdown": "分析速率图像按看起点、看趋势、看终点、看突变与渐变四步进行。",
-   "applicabilityMarkdown": "解答以速率—时间（或温度、压强）图像为背景的选择题时使用。",
-   "contentMarkdown": "（1）看起点：分清反应物和生成物，浓度减小的是反应物，浓度增大的是生成物，生成物多数以原点为起点。\\n（2）看变化趋势：分清正反应和逆反应，分清放热反应和吸热反应；升高温度时吸热方向的速率变化大于放热方向。\\n（3）看终点：分清消耗浓度和增生浓度；反应物的消耗浓度与生成物的增生浓度之比等于反应方程式中各物质的化学计量数之比。\\n（4）对于时间—速率图像，要看清曲线是连续的还是跳跃的，分清“渐变”和“突变”、“大变”和“小变”：增大反应物浓度时 v(正) 突变、v(逆) 渐变；升高温度时吸热方向大增、放热方向小增；使用催化剂时 v(正) 和 v(逆) 同等程度突变。",
-   "boundaryMarkdown": "判断变化类型要结合影响速率的因素：同等程度的变化一般来自催化剂或等体反应的加压，不同程度的变化来自温度、浓度或非等体反应的加压。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第七章 化学反应速率与化学平衡/第01讲 化学反应速率及其影响因素（复习讲义）（福建专用）（学生版）.docx（块 16414d5f4e-024）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-5892d1ea1a-002",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率—时间图像的四类形态",
    "summaryMarkdown": "速率—时间图像有渐变、断点、平台和全程四类，其中全程图像反映反应过程中速率随浓度与温度变化的先增后减。",
    "applicabilityMarkdown": "识别给定 v-t 图像属于哪一类、解释全程速率图像中速率变化的原因。",
@@ -39255,7 +39175,7 @@
   {
    "slug": "ext-che-5892d1ea1a-002b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率—压强（或温度）图像的判读",
    "summaryMarkdown": "温度改变后吸热反应速率变化大，压强改变后气体体积之和大的一侧速率变化大；图中交点即平衡状态。",
    "applicabilityMarkdown": "分析速率随温度或压强变化的图像，判断平衡移动方向及温度、压强的高低。",
@@ -39275,7 +39195,7 @@
   {
    "slug": "ext-che-5892d1ea1a-002c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率—时间图像的类型与全程分析",
    "summaryMarkdown": "速率—时间图像有渐变、断点、平台、全程四类，全程图像的速率变化常由温度与浓度共同决定。",
    "applicabilityMarkdown": "识别 v-t 图像类型、解释反应过程中速率先增大后减小的原因时使用。",
@@ -39315,7 +39235,7 @@
   {
    "slug": "ext-che-5892d1ea1a-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "浓度—时间图像的识图与规律",
    "summaryMarkdown": "c-t 图中曲线斜率表示该时刻反应的快慢，达平衡所需时间越短说明温度越高、压强越大或使用了催化剂。",
    "applicabilityMarkdown": "由物质的量（或浓度）随时间变化的图像判断速率快慢、计算平均速率与转化率。",
@@ -39335,7 +39255,7 @@
   {
    "slug": "ext-che-5892d1ea1a-003b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "物质的量（或浓度）—时间图像",
    "summaryMarkdown": "由浓度—时间图像的斜率判断速率大小，由浓度变化量确定计量数之比、速率与转化率。",
    "applicabilityMarkdown": "由 c-t（或 n-t）图像求平均速率、转化率或确定化学方程式的计量数之比时使用。",
@@ -39355,7 +39275,7 @@
   {
    "slug": "ext-che-5892d1ea1a-004",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率—时间图像的分析方法",
    "summaryMarkdown": "v-t 图像定性反映正、逆速率随时间的变化，曲线下方的面积表示该时间段内浓度的变化量，无断点的渐变说明改变的是浓度。",
    "applicabilityMarkdown": "由 v-t 图像反推改变的条件、判断正、逆速率的相对大小与平衡移动方向。",
@@ -39395,7 +39315,7 @@
   {
    "slug": "ext-che-5892d1ea1a-005",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "转化率—时间图像的先拐先平原则",
    "summaryMarkdown": "转化率不再随时间改变即达到平衡，先出现拐点的曲线先达平衡，说明其对应的温度高、浓度大或压强大。",
    "applicabilityMarkdown": "由转化率（或百分含量）随时间变化的图像推断温度高低、压强大小及反应的热效应和气体体积差。",
@@ -39475,7 +39395,7 @@
   {
    "slug": "ext-che-5892d1ea1a-007",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "含量—温度图像与曲线外非平衡点",
    "summaryMarkdown": "含量—温度图像中拐点前未达平衡、拐点处刚达平衡、拐点后反映温度对平衡的影响；曲线外的点可判断正、逆速率的大小。",
    "applicabilityMarkdown": "分析组分含量（或浓度）随温度变化的曲线、判断曲线外某点的正逆速率关系、分析投料比对转化率的影响。",
@@ -40055,7 +39975,7 @@
   {
    "slug": "ext-che-07f8494b58-005b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "由 n—t 或 c—t 图像求速率与计量数",
    "summaryMarkdown": "从物质的量或浓度随时间的变化曲线中提取速率、转化率与化学计量数之比",
    "applicabilityMarkdown": "给出 n—t 或 c—t 曲线要求求某物质速率、转化率或推出方程式的题目",
@@ -40735,7 +40655,7 @@
   {
    "slug": "ext-che-b0e9208ef2-013",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "碳酸钠、碳酸氢钠与盐酸反应的图像特征",
    "summaryMarkdown": "碳酸钠滴加盐酸先生成碳酸氢钠不产气，碳酸氢钠立即产气",
    "applicabilityMarkdown": "由“加入盐酸体积—气体体积”曲线判断溶质成分或进行计算的题目",
@@ -44675,7 +44595,7 @@
   {
    "slug": "ext-che-5d65ccc112-007",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "双线桥与单线桥的规范画法",
    "summaryMarkdown": "双线桥、单线桥两种电子转移表示方法的含义、作图步骤和易错点。",
    "applicabilityMarkdown": "书写或判断电子转移表示是否正确、计算转移电子数目、解释线桥含义时使用。",
@@ -44935,7 +44855,7 @@
   {
    "slug": "ext-che-84d5c92111-004b",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "由速率常数比求平衡常数",
    "summaryMarkdown": "平衡时正逆速率相等，推出 K 等于正逆速率常数之比，并说明升温对两者的影响。",
    "applicabilityMarkdown": "已知速率常数求平衡常数、判断温度变化时正逆速率常数谁变化更大、定量分析速率与平衡的关系。",
@@ -45775,7 +45695,7 @@
   {
    "slug": "ext-bio-60aca2e5c6-004",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "观察蝗虫精母细胞减数分裂装片",
    "summaryMarkdown": "用蝗虫精母细胞装片观察减数分裂各时期的实验原理、步骤与观察要点。",
    "applicabilityMarkdown": "细胞分裂观察类实验的原理与操作分析、判断实验步骤与观察顺序是否合理。",
@@ -46035,7 +45955,7 @@
   {
    "slug": "ext-che-91f4672bad-013",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "容量瓶的使用与称量仪器",
    "summaryMarkdown": "配制溶液所需仪器、托盘天平的读数与称量规则，以及容量瓶的构造、规格、查漏与禁忌。",
    "applicabilityMarkdown": "配制溶液实验的仪器选择、容量瓶规格选择与操作正误判断。",
@@ -46173,29 +46093,9 @@
    ]
   },
   {
-   "slug": "ext-che-13d9ae606b-001",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "吸热放热反应的三个判断误区",
-   "summaryMarkdown": "反应是否放热与反应难易、是否需要加热、是反应还是过程都不必然一致。",
-   "applicabilityMarkdown": "判断某反应或某过程属于放热还是吸热、辨析相关说法是否正确。",
-   "contentMarkdown": "**1. 放热反应不一定容易发生。** 如合成氨反应需要在高温、高压和催化剂作用下才能发生；吸热反应不一定难发生，如盐酸与碳酸氢钠的反应在常温下就能发生。\\n**2. 需要加热才能发生的反应不一定是吸热反应**，如硫与铁的反应需要加热却是放热反应；吸热反应不一定需要加热，如 $Ba(OH)_2\\cdot8H_2O$ 晶体和 NH4Cl 晶体的反应在常温下即可进行。\\n**3. 放热过程不一定是放热反应**，如 NaOH 固体的溶解和浓硫酸的稀释是放热过程，但不是放热反应；吸热过程不一定是吸热反应，如升华、蒸发等过程是吸热过程，但不是吸热反应。\\n**判断落点。** 反应是放热还是吸热取决于反应物与生成物总能量的相对高低（或断键吸热与成键放热的相对大小），与反应条件、反应快慢、是否属于“反应”这一范畴都无关。",
-   "boundaryMarkdown": "“过程”与“反应”要严格区分：溶解、稀释、升华、蒸发都是物理过程，不能称为吸热反应或放热反应。加热只是引发反应的条件，不表示反应吸热。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第十章 化学实验基础与探究/专题07 化学反应与能量（一）（学生版）.docx（块 13d9ae606b-001）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:吸热反应和放热反应",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-13d9ae606b-001b",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "由键能计算反应热",
    "summaryMarkdown": "以断键吸热与成键放热之差计算 ΔH，并给出 H2 与 Cl2 反应的具体算例。",
    "applicabilityMarkdown": "给出键能数据求反应的 ΔH，或由 ΔH 比较键能大小。",
@@ -48335,7 +48235,7 @@
   {
    "slug": "ext-che-98e80691f8-012",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "核外电子排布的三种表示式",
    "summaryMarkdown": "电子排布式、价层电子排布式与轨道表示式的书写规则及符号含义。",
    "applicabilityMarkdown": "书写或判断化学用语正误、区分价层电子与最外层电子时使用。",
@@ -48584,26 +48484,6 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习考点精讲精练（新高考通用）/2026版/专题04  电化学原理的综合应用（高效培优讲义）（学生版）.docx（块 51e65d8cb6-008）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子交换膜",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-51e65d8cb6-009",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "四类离子交换膜的识别与应用",
-   "summaryMarkdown": "阳膜、阴膜、质子膜、双极膜的透过性、典型应用场景与作用机制。",
-   "applicabilityMarkdown": "遇到燃料电池、氯碱工业、电渗析或电解合成装置时，识别膜的类别并说明其作用。",
-   "contentMarkdown": "**1. 阳离子交换膜**\\n仅允许阳离子（如 $Na^+$、$H^+$）及水分子通过，拦截阴离子及气体（如 $Cl^-$、$O_2$）。典型场景：氯碱工业中隔离阳极室（$Cl_2$）与阴极室（$NaOH$、$H_2$），防止发生副反应 $Cl_2+2NaOH=NaCl+NaClO+H_2O$ 以及 $H_2$ 与 $Cl_2$ 混合爆炸。\\n**2. 阴离子交换膜**\\n仅允许阴离子（如 $Cl^-$、$OH^-$）通过，拦截阳离子及气体。典型场景：电解淀粉-KI 溶液时平衡 $OH^-$ 的迁移，辅助 $I_2$ 的生成。\\n**3. 质子交换膜**\\n仅允许 $H^+$ 及水分子通过。用途：燃料电池以及电解制 $H_2O_2$、HCOOH 时定向传导 $H^+$ 以维持电荷平衡。\\n**4. 双极膜**\\n特殊复合膜（阳膜＋阴膜），通直流电时膜内水解离为 $H^+$ 和 $OH^-$，并分别向阴极和阳极移动，可调控体系的酸碱环境，如电解法合成甘氨酸时提供所需的酸碱性条件。",
-   "boundaryMarkdown": "双极膜并不“储存”离子，其供应的是膜内水解离产生的 $H^+$ 与 $OH^-$；判断装置用哪种膜，落点仍是极区所缺电荷由何种离子补充，不能按膜的名字硬套。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习考点精讲精练（新高考通用）/2026版/专题04  电化学原理的综合应用（高效培优讲义）（学生版）.docx（块 51e65d8cb6-009）",
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
@@ -49195,7 +49075,7 @@
   {
    "slug": "ext-che-7e23550f0c-004b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "氯及其化合物的“价—类”二维图",
    "summaryMarkdown": "以化合价和物质类别为坐标轴整理含氯物质，并用两条规律分析它们之间的转化。",
    "applicabilityMarkdown": "分析含氯物质之间的转化关系、判断某转化能否实现或推断未知含氯物质时使用。",
@@ -49895,7 +49775,7 @@
   {
    "slug": "ext-che-9d9489b3be-008",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "滴加过程导电能力变化的判断",
    "summaryMarkdown": "导电性的强弱取决于离子浓度大小，凡能增大离子浓度的操作都会使导电性增强。",
    "applicabilityMarkdown": "分析向溶液中逐滴加入另一试剂（或通入气体）时电导率曲线变化及图像判断时使用。",
@@ -50715,7 +50595,7 @@
   {
    "slug": "ext-che-a813bfa01b-002",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "全程速率—时间图像的分析",
    "summaryMarkdown": "Zn 与足量盐酸反应的速率曲线先增大后减小，原因是放热升温与浓度下降两种作用先后占优。",
    "applicabilityMarkdown": "分析反应过程中速率随时间的整体变化、解释曲线升降原因时使用。",
@@ -50735,7 +50615,7 @@
   {
    "slug": "ext-che-a813bfa01b-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率—温度(压强)曲线的判读",
    "summaryMarkdown": "温度或压强改变时，吸热方向或气体体积之和大的一侧速率变化幅度更大。",
    "applicabilityMarkdown": "由速率曲线判断热效应、气体体积变化关系与平衡移动方向时使用。",
@@ -50755,7 +50635,7 @@
   {
    "slug": "ext-che-a813bfa01b-004",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "物质的量(浓度)—时间图像的识图与计算",
    "summaryMarkdown": "抓住曲线斜率判断速率快慢，并由浓度变化量求速率、转化率与化学计量数之比。",
    "applicabilityMarkdown": "解答浓度—时间图像题、由图像进行定量计算时使用。",
@@ -50815,7 +50695,7 @@
   {
    "slug": "ext-che-a813bfa01b-009",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "由浓度—时间图像获取信息与计算",
    "summaryMarkdown": "由曲线升降与折点判断反应物、产物与平衡时刻，再算出速率、转化率与计量数之比。",
    "applicabilityMarkdown": "由 c-t 图或 n-t 图提取信息并完成定量计算时使用。",
@@ -50835,7 +50715,7 @@
   {
    "slug": "ext-che-a813bfa01b-012",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "恒温线与恒压线图像的判读",
    "summaryMarkdown": "用“定一议二”作辅助线：固定温度比压强、固定压强比温度，从而判断气体计量数与热效应。",
    "applicabilityMarkdown": "解答转化率（或含量）随温度、压强变化类图像题时使用。",
@@ -50895,7 +50775,7 @@
   {
    "slug": "ext-che-a813bfa01b-016",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "化学平衡图像中的拐点判读",
    "summaryMarkdown": "先拐先平数值大：先出现拐点的曲线表示的温度更高、压强更大，或使用了催化剂。",
    "applicabilityMarkdown": "由含量—时间图像判断温度、压强大小与热效应、气体体积变化关系时使用。",
@@ -51875,7 +51755,7 @@
   {
    "slug": "ext-che-74ae5b408a-020",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "沉淀溶解平衡图像的判读策略",
    "summaryMarkdown": "溶度积曲线与对数曲线可用“线上满平衡、上方过饱和、下方不饱和”统一判读，再结合Ksp只随温度变化分析选项。",
    "applicabilityMarkdown": "判断沉淀溶解平衡图像中线上点与区域点的状态、比较同温度下不同曲线的Ksp、分析温度变化时曲线的平移方向。",
@@ -53775,7 +53655,7 @@
   {
    "slug": "ext-che-2b01c6c6da-005",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "双线桥法与单线桥法表示电子转移",
    "summaryMarkdown": "双线桥标“得到/失去”并配平得失总数，单线桥只在反应物间标转移总数",
    "applicabilityMarkdown": "用双线桥或单线桥表示氧化还原反应电子转移方向与数目的题目",
@@ -54773,26 +54653,6 @@
    ]
   },
   {
-   "slug": "ext-che-f4686ae2ac-016",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "能形成喷泉的气体吸收剂组合",
-   "summaryMarkdown": "溶于水型与溶于碱溶液型两类能形成喷泉的气体吸收剂组合，以及三种基本引发装置的操作方式。",
-   "applicabilityMarkdown": "判断给定气体与溶液组合能否产生喷泉、选择吸收剂、分析喷泉装置的操作与现象。",
-   "contentMarkdown": "**形成喷泉的常见组合**：\\n①溶于水型：$HCl$、$NH_3$（极易溶于水）；$NO_2$（与水反应）；$NO$ 与 $O_2$ 按体积比 4:3 混合、$NO_2$ 与 $O_2$ 按体积比 4:1 混合（通入水中能完全反应被吸收）。\\n②溶于碱溶液型：$HCl$、$CO_2$、$Cl_2$、$SO_2$ 通入 $NaOH$ 溶液。\\n**常见装置与引发方法**：\\n装置Ⅰ：打开止水夹，挤压胶头滴管的胶头，使少量水进入烧瓶，气体溶解使烧瓶内形成负压而产生喷泉。\\n装置Ⅱ：挤压气球（或向锥形瓶通入少量空气），使少量溶液沿导管进入烧瓶，气体溶解后瓶内形成负压而产生喷泉。\\n装置Ⅲ：打开止水夹，用手或热毛巾捂热烧瓶，气体受热膨胀通过导管与水接触后溶解，瓶内压强减小而产生喷泉；也可用浸冰水的毛巾冷敷烧瓶，使烧瓶内气体收缩、水进入烧瓶。\\n判断组合是否可行的依据：气体能被所选吸收剂迅速溶解或与之反应，从而在烧瓶内外形成足够大的压强差。",
-   "boundaryMarkdown": "CO、NO 等既不溶于水也不与 NaOH 反应的气体不能形成喷泉；Cl2、SO2、CO2 需用碱溶液吸收而不能只用水；混合气体需按计量比才能被水完全吸收。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第四章 非金属及其化合物/第03讲 氮及其重要化合物（复习讲义）（全国通用）（学生版） .docx（块 f4686ae2ac-016）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见喷泉的类型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-f4686ae2ac-018",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -55275,7 +55135,7 @@
   {
    "slug": "ext-che-1e302b0615-009b",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "沉淀开始与完全时pH的计算",
    "summaryMarkdown": "以Cu(OH)2为例，由Ksp计算某金属离子开始沉淀和沉淀完全时溶液的pH的完整过程。",
    "applicabilityMarkdown": "计算离子开始沉淀或沉淀完全的pH范围、判断调节pH能否使某离子完全沉淀、分析除杂流程中的pH控制。",
@@ -55375,7 +55235,7 @@
   {
    "slug": "ext-che-1e302b0615-015b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "溶度积曲线与对数曲线的含义",
    "summaryMarkdown": "普通溶度积曲线和溶度积对数曲线上点、区域的Qc与Ksp关系及升温时的平移方向。",
    "applicabilityMarkdown": "判断图像上某点对应的溶液状态、分析温度改变后曲线的移动方向、区分两种坐标系下区域的含义。",
@@ -56495,7 +56355,7 @@
   {
    "slug": "ext-che-58afc7dfbd-002",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "气体的干燥装置与干燥剂选择",
    "summaryMarkdown": "根据干燥剂状态选择洗气瓶、球形干燥管或U形管，以及常见干燥剂的适用范围与冷凝装置的作用。",
    "applicabilityMarkdown": "选择气体的干燥装置与干燥剂、判断干燥装置在实验流程中的位置、评价气体净化方案的合理性。",
@@ -56715,7 +56575,7 @@
   {
    "slug": "ext-che-54f0f2bb90-005",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见混合物的归纳",
    "summaryMarkdown": "按气态、液态、固态三类归纳常见混合物，提醒名称看似纯净实为混合物的物质。",
    "applicabilityMarkdown": "判断某物质属于混合物还是纯净物、分析物质的成分、排除物质分类题中的干扰选项。",
@@ -57595,7 +57455,7 @@
   {
    "slug": "ext-che-0f5d5e7383-008",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "原子分数坐标与空间向量法",
    "summaryMarkdown": "以晶胞参数为单位长度建立坐标系可表示晶胞中各原子的相对位置，原子分数坐标由该原子到三个坐标轴的截距确定。",
    "applicabilityMarkdown": "读取或书写原子分数坐标、判断晶胞俯视图、计算微粒间距时使用。",
@@ -57615,7 +57475,7 @@
   {
    "slug": "ext-che-0f5d5e7383-009",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "空间利用率与晶胞密度的关系",
    "summaryMarkdown": "由晶胞密度与摩尔质量关系 $xM=\\rho VN_A$ 可推出空间利用率的表达式，从而把宏观密度与微观堆积联系起来。",
    "applicabilityMarkdown": "已知晶体密度求空间利用率、由晶胞结构计算空间利用率时使用。",
@@ -58527,7 +58387,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原滴定法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原滴定",
      "role": "PRIMARY"
     }
    ]
@@ -59635,7 +59495,7 @@
   {
    "slug": "ext-che-3b8d34b524-006",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "铜及其化合物的用途与检验方法",
    "summaryMarkdown": "铜网除氧、氧化铜用于元素分析、无水硫酸铜检验水及区别Cu与Cu2O等常见结论。",
    "applicabilityMarkdown": "物质用途类选择题与元素分析实验题中涉及铜及其化合物用途的判断。",
@@ -62975,7 +62835,7 @@
   {
    "slug": "ext-che-d854210a0d-011",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "等效平衡判据的应用实例",
    "summaryMarkdown": "以三个典型反应为例，演示极值折算后如何判断是否等效。",
    "applicabilityMarkdown": "遇到给定多种投料方式的等效平衡判断题，按此流程折算并比较。",
@@ -63195,7 +63055,7 @@
   {
    "slug": "ext-che-688f01431f-013b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "环式反应历程图像的判读",
    "summaryMarkdown": "从环式历程图中识别催化剂、中间体、反应物与生成物并写出总反应。",
    "applicabilityMarkdown": "给出能量变化或多步机理的环式图像，要求判断中间体、催化剂或写出总反应方程式。",
@@ -63575,7 +63435,7 @@
   {
    "slug": "ext-che-2e0d25681e-003",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "速率常数与平衡常数的定量关系",
    "summaryMarkdown": "由正逆速率方程在平衡时相等，可推导出平衡常数等于正逆速率常数之比。",
    "applicabilityMarkdown": "给出速率方程与速率常数的信息，求平衡常数或判断温度变化对速率常数的影响。",
@@ -63895,7 +63755,7 @@
   {
    "slug": "ext-bio-2f23d1b77e-005b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "分泌蛋白运输过程的图形分析",
    "summaryMarkdown": "分泌蛋白加工运输过程中内质网膜面积减小、高尔基体膜面积先增后减、细胞膜面积增大。",
    "applicabilityMarkdown": "根据曲线图或条形图判断分泌蛋白运输过程中各种膜面积的变化趋势。",
@@ -64255,7 +64115,7 @@
   {
    "slug": "ext-che-4e68d6cc38-002",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "速率时间图像中的断点分析",
    "summaryMarkdown": "改变条件使速率时间图像出现断点，根据断点前后正逆速率的大小判断改变的条件。",
    "applicabilityMarkdown": "给出速率时间图像，要求判断t时刻改变的外界条件或选出发率变化的对应关系。",
@@ -64355,7 +64215,7 @@
   {
    "slug": "ext-che-ef71e96996-003",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "逆向配平法与整体配平法",
    "summaryMarkdown": "一种元素化合价既升高又降低的反应用逆向配平，多元素变价且同种物质中多种元素同时被氧化时用整体配平。",
    "applicabilityMarkdown": "配平歧化反应、分解反应以及多种元素同时变价的复杂氧化还原方程式。",
@@ -64455,7 +64315,7 @@
   {
    "slug": "ext-che-ad0e90657e-003",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "物质的量浓度与质量分数、溶解度的换算",
    "summaryMarkdown": "由密度、质量分数和摩尔质量可推出浓度公式，并据此完成各种换算。",
    "applicabilityMarkdown": "已知质量分数和密度求浓度、已知溶解度求浓度、气体溶于水的浓度计算。",
@@ -64475,7 +64335,7 @@
   {
    "slug": "ext-che-ad0e90657e-004",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "溶液稀释与混合的计算依据",
    "summaryMarkdown": "稀释或混合前后溶质的质量与物质的量守恒，据此列等式求解。",
    "applicabilityMarkdown": "计算稀释后溶液的浓度、混合溶液的浓度以及不同浓度溶液的配比。",
@@ -64595,7 +64455,7 @@
   {
    "slug": "ext-che-888287a37e-002b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "气体制备装置的改进与创新",
    "summaryMarkdown": "通过改进加热方式、平衡气压和控制反应速率使气体制备装置更安全、更可控。",
    "applicabilityMarkdown": "分析改进后气体制备装置的优点、判断装置改进的目的与作用。",
@@ -64775,7 +64635,7 @@
   {
    "slug": "ext-bio-1e2461181a-013",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "种子萌发时吸水和呼吸方式的变化曲线",
    "summaryMarkdown": "种子萌发按吸水与O2供应分三段，呼吸方式由无氧为主转为有氧为主",
    "applicabilityMarkdown": "解读种子萌发曲线、判断某时期的呼吸方式与有机物变化",
@@ -67275,7 +67135,7 @@
   {
    "slug": "ext-che-160cc122c8-005",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电子式的书写方法与注意事项",
    "summaryMarkdown": "电子式用点或叉表示原子或离子的最外层电子，书写要注意符号统一、离子分开、连接顺序。",
    "applicabilityMarkdown": "书写原子、离子、化合物的电子式，判断给定电子式是否正确。",
@@ -68195,7 +68055,7 @@
   {
    "slug": "ext-che-0cb7cd248f-012",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "石墨的层状结构与混合型晶体特征",
    "summaryMarkdown": "石墨层内sp2杂化形成平面网状结构、层间靠范德华力，兼有共价键、金属键与范德华力。",
    "applicabilityMarkdown": "解释石墨熔点高、质软、能导电，以及作电极、润滑剂的原因。",
@@ -70415,7 +70275,7 @@
   {
    "slug": "ext-che-089c778d20-007",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "AlCl3二聚分子中的配位键",
    "summaryMarkdown": "AlCl3二聚分子中桥式氯原子既形成σ键又提供孤电子对形成σ配位键。",
    "applicabilityMarkdown": "分析缺电子分子形成二聚体的原因、判断配位键存在的位置时使用。",
@@ -70435,7 +70295,7 @@
   {
    "slug": "ext-che-089c778d20-011",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "铝三角的转化关系与制备途径",
    "summaryMarkdown": "Al3⁺、Al(OH)3、[Al(OH)4]⁻三者通过酸碱相互转化，制备Al(OH)3要用弱酸或弱碱。",
    "applicabilityMarkdown": "书写铝三角相关离子方程式、选择制备Al(OH)3的最佳途径时使用。",
@@ -70467,7 +70327,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子反应顺序的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子反应先后顺序的判断",
      "role": "PRIMARY"
     }
    ]
@@ -70555,7 +70415,7 @@
   {
    "slug": "ext-che-20e51f35b2-006",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "溶液pH的三种测定方法",
    "summaryMarkdown": "可用酸碱指示剂、pH试纸和pH计测定溶液pH，精度与操作要求各不相同。",
    "applicabilityMarkdown": "选择pH测定方法、判断测定操作是否规范时使用。",
@@ -71193,29 +71053,9 @@
    ]
   },
   {
-   "slug": "ext-che-367f238be3-006",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "基态原子核外电子排布与微粒模型的表示",
-   "summaryMarkdown": "电子排布式、简化式、价电子排布式、排布图和微粒模型各有规范写法。",
-   "applicabilityMarkdown": "判断原子结构相关化学用语书写是否规范时使用。",
-   "contentMarkdown": "1. 基态原子核外电子排布的化学用语：\\n(1) 各类要求的电子排布式：电子排布式（如1s²2s²2p⁶3s²3p⁶3d⁶4s²）、简化电子排布式（如[Ar]3d⁶4s²）、价电子（外围电子、特征电子）排布式（如3d⁶4s²）、最外层电子排布式（如4s²）、M层电子排布式（如3s²3p⁶3d⁶）、最高能级电子排布式（如3d⁶）。\\n(2) 各类要求的电子排布图：电子排布图、轨道表示式、价电子排布图。\\n(3) 原子结构示意图。\\n2. 微粒模型：原子轨道模型；球棍模型和比例（填充）模型；杂化轨道模型。",
-   "boundaryMarkdown": "电子排布式与电子排布图不同：前者用能级符号加数字上标表示，后者用方框（或下划线）加箭头表示电子的自旋方向，两者不能混用；书写时要遵循能量最低原理，注意3d与4s的能量高低顺序。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/二轮复习/2026年高考化学二轮复习讲义+练习（黑吉辽蒙专用）/2026版/题型01 化学与STSE  传统文化与化学用语（黑吉辽蒙专用）（学生版）.docx（块 367f238be3-006）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态原子核外电子排布的表示方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-367f238be3-006b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "化学用语中六式的区别与写法",
    "summaryMarkdown": "化学式、分子式、最简式、结构式、结构简式与键线式的含义与适用范围不同。",
    "applicabilityMarkdown": "区分并规范书写有机物与无机物的各类化学用语时使用。",
@@ -71755,7 +71595,7 @@
   {
    "slug": "ext-che-0012df4ce9-024b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "胶体性质在生产生活中的应用",
    "summaryMarkdown": "按聚沉、吸附、丁达尔效应、电泳四类归纳应用实例",
    "applicabilityMarkdown": "用胶体原理解释生活生产现象、判断应用解释是否正确的题目",
@@ -72035,7 +71875,7 @@
   {
    "slug": "ext-che-2540022b42-013b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "水解原理在配制、保存与生活中的应用",
    "summaryMarkdown": "配制与保存盐溶液、净水、除油污与泡沫灭火器中的水解原理",
    "applicabilityMarkdown": "解释实验操作与生活生产应用背后的水解原理",
@@ -72295,7 +72135,7 @@
   {
    "slug": "ext-bio-4d59518957-008b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "伴性遗传在优生与生产中的应用",
    "summaryMarkdown": "推测后代发病率指导优生优育，并利用性状差异辨别子代性别",
    "applicabilityMarkdown": "遗传咨询推算、生产实践中雏禽性别选育的题目",
@@ -72435,7 +72275,7 @@
   {
    "slug": "ext-bio-4d59518957-015c",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "电泳图谱的判读",
    "summaryMarkdown": "按碱基对数目区分条带位置，长度相同者需限制酶切割后再电泳",
    "applicabilityMarkdown": "结合电泳结果判断基因型、推断致病基因的题目",
@@ -72495,7 +72335,7 @@
   {
    "slug": "ext-bio-4d59518957-023",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传系谱图与遗传图解的书写规范",
    "summaryMarkdown": "系谱图的符号约定与遗传图解的四行格式要求",
    "applicabilityMarkdown": "需要书写或补全系谱图、遗传图解的题目",
@@ -72515,7 +72355,7 @@
   {
    "slug": "ext-bio-4d59518957-024",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "遗传图解书写的细节要求",
    "summaryMarkdown": "各代基因型要写对，并写全符号与性别标注",
    "applicabilityMarkdown": "书写遗传图解时的规范化检查",
@@ -72715,7 +72555,7 @@
   {
    "slug": "ext-che-7a61923d9f-008",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "沉淀溶解平衡图像的判读步骤",
    "summaryMarkdown": "先明确坐标含义，再按曲线上下方区域判断饱和与过饱和状态",
    "applicabilityMarkdown": "分析沉淀溶解平衡曲线、判断点移动方向与沉淀生成的题目",
@@ -72968,26 +72808,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的配制误差分析",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-ed0683ced4-005",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "定容时仰视与俯视的误差判断",
-   "summaryMarkdown": "视线角度改变会造成溶液体积偏大或偏小从而影响结果",
-   "applicabilityMarkdown": "判断定容、量取液体读数时视线造成的浓度偏差",
-   "contentMarkdown": "定容时以视线与刻度线、凹液面最低处的关系判断体积偏差。仰视容量瓶刻度线时，实际加入的水量超过刻度线，导致溶液体积偏大，所配溶液浓度偏低；俯视容量瓶刻度线时，实际加入的水量少于刻度线，导致溶液体积偏小，所配溶液浓度偏高。用浓溶液量取液体时视线偏差的方向相反：仰视量筒（或滴定管）读数，实际量取的液体体积偏大，溶质的量偏大、结果偏高；俯视读数时实际量取的液体体积偏小，结果偏低。做题时先画视线方向与刻度线的位置关系，再判断实际体积是偏大还是偏小。",
-   "boundaryMarkdown": "容量瓶定容与量筒量取液体时视线偏差对结果的影响方向相反，不能一律按同方向记忆；滴定管刻度自上而下增大，读数偏差方向与量筒也不同，需按仪器刻度特点判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高三化学一轮复习讲义（新高考通用）/资料/第二章 第7讲 物质的量浓度计算及溶液配制（学生版）.docx（块 ed0683ced4-005）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:定容时仰视或俯视刻度线产生的误差图解",
      "role": "PRIMARY"
     }
    ]
@@ -73395,7 +73215,7 @@
   {
    "slug": "ext-che-6bd4aa9e6c-002b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "常见元素价态与特殊物质中元素化合价",
    "summaryMarkdown": "记住常见价态和几种特殊物质中元素的化合价以快速判断变价",
    "applicabilityMarkdown": "标变价、判断氧化剂还原剂、计算电子转移数目的题目",
@@ -73775,7 +73595,7 @@
   {
    "slug": "ext-che-2540022b42-025",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "分布系数曲线与滴定曲线特殊点分析",
    "summaryMarkdown": "以 pH 为横坐标、分布系数为纵坐标，交点处两种微粒浓度相等",
    "applicabilityMarkdown": "分析微粒分布曲线、比较滴定曲线各点粒子浓度与水电离程度的题目",
@@ -73935,7 +73755,7 @@
   {
    "slug": "ext-bio-2e2f39614d-004b",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "多聚核糖体模型与翻译易错辨析",
    "summaryMarkdown": "解读一条mRNA上结合多个核糖体的模型，并辨析启动子与起始密码子等易混概念。",
    "applicabilityMarkdown": "用于多聚核糖体图像分析、翻译效率与核糖体移动方向判断。",
@@ -74215,7 +74035,7 @@
   {
    "slug": "ext-che-4a6b0a9516-012b",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "由浓度和pH计算电离常数",
    "summaryMarkdown": "以弱酸HX为例演示列三段、代入表达式并作近似处理求电离常数的过程。",
    "applicabilityMarkdown": "用于已知弱酸浓度与pH求Ka的计算题。",
@@ -74235,7 +74055,7 @@
   {
    "slug": "ext-che-4a6b0a9516-013",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "METHOD_MODEL",
    "title": "由电离常数计算氢离子浓度",
    "summaryMarkdown": "推导由弱酸浓度和电离常数求c(H+)的简化公式及其适用条件。",
    "applicabilityMarkdown": "用于已知Ka和浓度求c(H+)或pH、电离度的计算题。",
@@ -77595,7 +77415,7 @@
   {
    "slug": "ext-che-4a4ad3d6e8-005",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "盐类水解离子方程式的书写规则",
    "summaryMarkdown": "给出水解方程式的一般模式与可逆号、分步、双水解的书写要求。",
    "applicabilityMarkdown": "书写一元、多元弱酸或弱碱的盐以及相互促进水解的离子方程式；判断水解方程式的正误。",
@@ -77615,7 +77435,7 @@
   {
    "slug": "ext-che-4a4ad3d6e8-006",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "不同类型盐水解的离子方程式模板",
    "summaryMarkdown": "按盐的组成类型给出水解方程式的具体写法与典型实例。",
    "applicabilityMarkdown": "书写各类盐水解的离子方程式并检查方程式的正误。",
@@ -77755,7 +77575,7 @@
   {
    "slug": "ext-che-4a4ad3d6e8-013b",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "水解平衡常数的表达式与推导",
    "summaryMarkdown": "写出强碱弱酸盐、强酸弱碱盐的水解常数表达式，并由电离常数推导其定量关系。",
    "applicabilityMarkdown": "计算或比较水解常数；由 $K_a$、$K_b$、$K_w$ 求 $K_h$；比较同浓度盐溶液的碱性强弱。",
@@ -78495,7 +78315,7 @@
   {
    "slug": "ext-che-18c573f9ba-009",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "硝酸的工业制法",
    "summaryMarkdown": "给出氨催化氧化、NO 氧化、水吸收三步工业制硝酸的反应原理。",
    "applicabilityMarkdown": "分析工业制硝酸的流程与原料利用率；书写相关化学方程式。",
@@ -78775,7 +78595,7 @@
   {
    "slug": "ext-che-0377cca198-008",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "苯的磺化与加成反应",
    "summaryMarkdown": "给出苯与浓硫酸的磺化反应和苯与氢气的加成反应的条件与方程式。",
    "applicabilityMarkdown": "判断苯能否发生磺化或加成反应；书写相关化学方程式。",
@@ -78795,7 +78615,7 @@
   {
    "slug": "ext-che-0377cca198-008b",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "苯的溴代与硝化实验",
    "summaryMarkdown": "说明苯的溴代、硝化实验的原理、现象与产物分离提纯方法。",
    "applicabilityMarkdown": "分析溴苯与硝基苯制备实验的现象、除杂与提纯操作。",
@@ -79655,7 +79475,7 @@
   {
    "slug": "ext-che-146a413810-012b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "pH试纸与pH计的规范操作",
    "summaryMarkdown": "pH试纸只能粗测且不能润湿，pH计可精确读到小数点后两位",
    "applicabilityMarkdown": "实验操作规范性判断、描述测定溶液pH的步骤与误差分析的题目",
@@ -81995,7 +81815,7 @@
   {
    "slug": "ext-bio-7abf2f735b-002",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "METHOD_MODEL",
    "title": "观察叶绿体和细胞质流动的实验",
    "summaryMarkdown": "以叶绿体为标志观察细胞质流动，细胞质流动方式为环流式",
    "applicabilityMarkdown": "分析该实验的原理、选材、步骤与结论的题目",
@@ -83335,7 +83155,7 @@
   {
    "slug": "ext-bio-cbf645c24c-005",
    "subject": "BIOLOGY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "体液各成分转化关系图的判读",
    "summaryMarkdown": "用单箭头与双箭头判断血浆、组织液、淋巴液与细胞内液四种成分。",
    "applicabilityMarkdown": "判断体液各成分的转化关系图、识别四种体液成分时使用。",
@@ -83687,7 +83507,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见净水剂消毒剂漂白剂与干燥剂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见净水剂、消毒剂与漂白剂",
      "role": "PRIMARY"
     }
    ]
@@ -83735,7 +83555,7 @@
   {
    "slug": "ext-che-2aaec42842-007",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "各类核外电子排布式的书写",
    "summaryMarkdown": "同一原子可按要求写出电子排布式、简化式、价电子排布式、最外层与指定层排布式。",
    "applicabilityMarkdown": "按题目要求写出指定形式的电子排布式或判断其正误时使用。",
@@ -83748,46 +83568,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态原子核外电子排布的表示方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-2aaec42842-008",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "化学用语的“六式”与微粒模型",
-   "summaryMarkdown": "化学式、分子式、最简式、结构式、结构简式、键线式与三类微粒模型各有书写要求。",
-   "applicabilityMarkdown": "判断化学用语或图示表达是否正确、按要求表示物质结构时使用。",
-   "contentMarkdown": "1．化学式：表示物质组成的总称，如 NaCl、$KAl(SO_4)_2\\cdot 12H_2O$。\\n2．分子式：只有分子晶体的化学式才是分子式，如 $O_3$、$NH_3$。\\n3．最简式：把化学式写成最简整数比，如乙烯 $CH_2$、葡萄糖 $CH_2O$。\\n4．结构式：用化学键把所有原子连接起来，不一定表示真实结构，如 HClO 写作 H—O—Cl、$CO_2$ 写作 O＝C＝O。\\n5．结构简式：碳氢键全部省略，碳碳单键可省可不省，官能团不能省略，如乙烯 $CH_2=CH_2$、乙酸 $CH_3COOH$。\\n6．键线式：碳氢原子全部省略，其他原子与官能团不能省略。\\n微粒模型包括原子轨道模型、球棍模型与比例（填充）模型、杂化轨道模型，要与物质的真实空间结构对应。",
-   "boundaryMarkdown": "最简式与分子式不能混用（葡萄糖分子式 $C_6H_{12}O_6$、最简式 $CH_2O$）；结构简式与键线式中官能团都不能省略。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/二轮复习/2026年高考化学二轮复习课件+讲义+练习（新高考通用）/2026版/题型01 化学与STSE  传统文化与化学用语（全国通用）（学生版）.docx（块 2aaec42842-008）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列化学用语正确的有___________",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-2aaec42842-008b",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "电子式书写的五个易错点",
-   "summaryMarkdown": "不能漏孤对电子、不能合并离子、不能混淆键型，并区分离子与基团。",
-   "applicabilityMarkdown": "判断电子式正误、书写离子化合物与共价化合物的电子式时使用。",
-   "contentMarkdown": "1．不能漏写没有参与成键的电子对，如氨气的电子式中氮原子周围要写出孤对电子。\\n2．不能错误合并离子，如过氧化钠的电子式要分别写出两个钠离子与过氧根离子。\\n3．不能混淆化学键的类别，如 $H_2O_2$ 中两个氧原子之间是共价单键，不能写成离子形式。\\n4．离子（或根）带电荷、基团不显电性，如 $OH^-$ 与 —OH 的电子式不同。\\n5．书写化合物电子式前先判断它是离子化合物还是共价化合物，离子化合物要用方括号标出复杂离子并标明电荷。",
-   "boundaryMarkdown": "电子式只表示价电子的成键情况，不表示空间结构；把羟基（—OH）与氢氧根（$OH^-$）混写、漏写孤对电子是高频错误。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/二轮复习/2026年高考化学二轮复习课件+讲义+练习（新高考通用）/2026版/题型01 化学与STSE  传统文化与化学用语（全国通用）（学生版）.docx（块 2aaec42842-008）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子式的书写与判断",
      "role": "PRIMARY"
     }
    ]
@@ -84215,7 +83995,7 @@
   {
    "slug": "ext-bio-02a053bbf3-006",
    "subject": "BIOLOGY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "细胞周期检验点的类型与分子机制",
    "summaryMarkdown": "G1/S、G2/M与纺锤体组装三类检验点分别把关DNA损伤、M期进入与染色体附着。",
    "applicabilityMarkdown": "分析细胞周期调控机制、解释癌细胞基因组不稳定与相关遗传病时使用。",
@@ -84415,7 +84195,7 @@
   {
    "slug": "ext-che-020cba294a-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "单线桥表示电子转移的方法",
    "summaryMarkdown": "单线桥只在反应物中标出失电子原子指向得电子原子的箭头与电子总数。",
    "applicabilityMarkdown": "书写或判断单线桥是否正确、比较单线桥与双线桥的差异。",
@@ -85255,7 +85035,7 @@
   {
    "slug": "ext-che-72b20828f8-011",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "泡利原理、洪特规则与轨道表示式",
    "summaryMarkdown": "用方框与箭头规范表示电子排布，并遵守三条排布规则。",
    "applicabilityMarkdown": "判断轨道表示式的正误、书写基态原子或离子的电子排布图。",
@@ -85395,7 +85175,7 @@
   {
    "slug": "ext-che-cdf4760f34-005",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "特殊电解质的电离方程式",
    "summaryMarkdown": "次磷酸、硼酸、联氨等特殊物质的电离式要按其真实电离方式书写。",
    "applicabilityMarkdown": "书写陌生弱酸、弱碱的电离方程式、判断酸的元数与电离方式。",
@@ -85668,26 +85448,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-4112b48508-008",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "原子分数坐标与晶胞投影图",
-   "summaryMarkdown": "用三个小于 1 的数表示原子在晶胞中的相对位置，并把三维结构投影到二维平面。",
-   "applicabilityMarkdown": "书写或判断原子分数坐标、分析晶胞沿某方向的投影图、计算投影图中微粒间距离。",
-   "contentMarkdown": "**概念**：以晶胞参数为单位长度建立坐标系，用于表示晶胞中各原子的相对位置，称为原子分数坐标。\\n\\n**表示方法**：晶胞中任一原子的中心位置都可用 3 个分别小于 1 的数在立体坐标系中表示。若以晶胞顶点为原点，位于顶角的原子坐标为 (0，0，0)；位于棱心、面心、体心的原子分别按其在该方向上的分数位置写出（如面心为 (1/2，1/2，0)，体心为 (1/2，1/2，1/2)）。\\n\\n**投影图类型**：晶胞沿 x、y 平面方向的投影图；晶胞沿体对角线方向的投影图。\\n\\n**解题技巧**：①弄清是沿什么方向投影；②判断投影时不同层微粒是否相互重叠；③明确投影图上不同位置与三维空间中微粒的一一对应关系；④求微粒间距离时注意投影在同一平面上的微粒不一定在同一平面上。",
-   "boundaryMarkdown": "分数坐标必须建立在统一的坐标系（原点与坐标轴方向一致）上；投影图中重叠的位置可能对应多个微粒，计数时要还原到三维结构。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 晶体结构与性质（举一反三讲义）（学生版）.docx（块 4112b48508-008）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子分数坐标与晶胞投影图",
      "role": "PRIMARY"
     }
    ]
@@ -86335,7 +86095,7 @@
   {
    "slug": "ext-che-b3c0f75ea5-004",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "三段式表格计算反应速率",
    "summaryMarkdown": "把起始、转化、某时刻三个量列成表格，可由一种物质的转化量按计量数比推出其他物质的速率。",
    "applicabilityMarkdown": "已知某物质的起始浓度和一段时间内的消耗量，要求求其他物质的平均速率时使用。",
@@ -86715,7 +86475,7 @@
   {
    "slug": "ext-che-1e9a37df8e-011c",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "结构简式与键线式的书写规范",
    "summaryMarkdown": "分子式与结构简式不能混用，官能团写法要准，键线式端点拐点都是碳",
    "applicabilityMarkdown": "化学用语正误判断、书写结构简式与键线式",
@@ -86915,7 +86675,7 @@
   {
    "slug": "ext-che-1e9a37df8e-022b",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "不饱和度(Ω)的计算与用途",
    "summaryMarkdown": "Ω=n(C)+1-(n(H)+n(卤素)-n(N))/2，氧硫不计入，可判断双键、环与苯环数目",
    "applicabilityMarkdown": "由分子式推断结构中双键、三键、环或苯环的数目，验证同分异构体是否合理",
@@ -86975,7 +86735,7 @@
   {
    "slug": "ext-che-b08c6c1c61-003b",
    "subject": "CHEMISTRY",
-   "type": "DERIVATION",
+   "type": "CONCEPT_EXPLANATION",
    "title": "活化能与焓变的关系",
    "summaryMarkdown": "无催化剂时E1为正向活化能、E2为逆向活化能，ΔH=E1-E2；催化剂只降活化能不改变ΔH",
    "applicabilityMarkdown": "由能量—反应过程图像求活化能、焓变，或判断催化剂对反应的影响",
@@ -86995,7 +86755,7 @@
   {
    "slug": "ext-che-b08c6c1c61-004",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "热化学方程式的书写要求",
    "summaryMarkdown": "注明状态与温度，ΔH要标单位并随计量数变化，方程式中不写条件与沉淀气体符号",
    "applicabilityMarkdown": "书写热化学方程式、进行热化学方程式的加减运算",
@@ -87148,26 +86908,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:能源的分类与利用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-b08c6c1c61-013",
-   "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
-   "title": "反应热与燃烧热的书写规范",
-   "summaryMarkdown": "描述反应热必须带正负号，中和热与燃烧热的文字描述可省略负号",
-   "applicabilityMarkdown": "回答反应热数值、书写热化学方程式时的规范表达",
-   "contentMarkdown": "①用反应热、焓变或ΔH描述时，后面的数值都要带加减号，例如ΔH=−Q kJ/mol或ΔH=+Q kJ/mol；②由于中和反应和燃烧反应都是放热反应，表示中和热、燃烧热的数值时可省略负号，如某物质的燃烧热为Q kJ/mol，其ΔH也可写作−Q kJ/mol；③ΔH与方程式方向、化学计量数严格对应，方程式反向书写时ΔH数值不变、符号相反。",
-   "boundaryMarkdown": "只有中和热与燃烧热的文字描述可省负号，一般反应的反应热必须带正负号；ΔH单位是kJ/mol。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第六章 化学反应与能量/第01讲 化学反应的热效应（复习讲义）（福建专用）（学生版）.docx（块 b08c6c1c61-013）",
-   "reviewedAtEpochMillis": 1789812925252,
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
      "role": "PRIMARY"
     }
    ]
@@ -87375,7 +87115,7 @@
   {
    "slug": "ext-che-3b6c218622-010b",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "甲醇燃料电池在不同介质中的电极反应",
    "summaryMarkdown": "甲醇在酸性、碱性、固体氧化物、熔融碳酸盐四种介质中的负极与正极反应式各不相同",
    "applicabilityMarkdown": "书写或判断燃料电池电极反应式正误",
@@ -87435,7 +87175,7 @@
   {
    "slug": "ext-che-3b6c218622-016",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "液流储能电池的充放电电极反应分析",
    "summaryMarkdown": "以钠钛磷酸盐与氯气为活性物质的液流电池为例说明充放电时电极反应与浓度变化",
    "applicabilityMarkdown": "分析液流电池充放电时电极反应式、价态变化与电解质溶液浓度的变化",
@@ -88687,7 +88427,7 @@
    "reviewedAtEpochMillis": 1789812925252,
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:极端假设法确定浓度范围",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:极端假设法确定各物质浓度范围",
      "role": "PRIMARY"
     }
    ]
@@ -89575,7 +89315,7 @@
   {
    "slug": "ext-che-25f43f1fc3-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "双线桥法与单线桥法表示电子转移",
    "summaryMarkdown": "用双线桥表示同种元素反应前后的电子得失，用单线桥表示反应物间的电子转移",
    "applicabilityMarkdown": "书写电子转移的方向和数目、判断线桥正误时使用",
@@ -89815,7 +89555,7 @@
   {
    "slug": "ext-che-68f6c34454-008",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "氯碱工业：电解饱和食盐水的电极反应与交换膜作用",
    "summaryMarkdown": "阳极氯离子失电子生成氯气、阴极水得电子生成氢气与氢氧根，阳离子交换膜防止副反应",
    "applicabilityMarkdown": "分析电解饱和食盐水装置、判断两极产物与交换膜作用时使用",
@@ -90635,7 +90375,7 @@
   {
    "slug": "ext-che-387667e1e7-001",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "酸碱中和滴定的原理、仪器与操作流程",
    "summaryMarkdown": "用已知浓度标准液测定待测液浓度，按查漏、洗涤、润洗、装液、滴定的流程操作",
    "applicabilityMarkdown": "回答中和滴定操作步骤、仪器选择与数据处理类问题时使用",
@@ -90695,7 +90435,7 @@
   {
    "slug": "ext-che-387667e1e7-003",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "量筒与滴定管的读数方法",
    "summaryMarkdown": "平视读数最准确，俯视、仰视造成的偏差因量器刻度方向不同而不同",
    "applicabilityMarkdown": "判断量取液体体积时的读数偏差、分析误差来源时使用",
@@ -90775,7 +90515,7 @@
   {
    "slug": "ext-che-387667e1e7-008",
    "subject": "CHEMISTRY",
-   "type": "REPRESENTATION_GUIDE",
+   "type": "CONCEPT_EXPLANATION",
    "title": "滴定终点现象的规范描述",
    "summaryMarkdown": "按“最后半滴—颜色变化—半分钟不恢复”的模板描述滴定终点",
    "applicabilityMarkdown": "回答滴定终点现象类简答题时使用",
@@ -91055,7 +90795,7 @@
   {
    "slug": "ext-che-9635499c18-004b",
    "subject": "CHEMISTRY",
-   "type": "WORKED_EXAMPLE",
+   "type": "METHOD_MODEL",
    "title": "歧化与归中反应在海水提溴、海带提碘中的应用",
    "summaryMarkdown": "利用氯的歧化与归中反应吸收、释放卤素单质，实现溴、碘的提取",
    "applicabilityMarkdown": "分析海水提溴、海带提碘流程与相关离子方程式时使用",
