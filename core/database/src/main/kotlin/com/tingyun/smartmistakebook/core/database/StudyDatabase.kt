@@ -99,6 +99,7 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftRevisionEnt
 import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftSourceAssetEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationBindingEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationCandidateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemOrganizationReceiptEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionSourceAssetEntity
@@ -124,7 +125,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 64
+internal const val STUDY_DATABASE_VERSION = 65
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -154,6 +155,7 @@ internal object SplitImportLedgerStrings {
         PracticeUnitKnowledgeBindingEntity::class,
         ProblemRelationEntity::class,
         ProblemClassificationBindingEntity::class,
+        ProblemClassificationCandidateEntity::class,
         ProblemOrganizationReceiptEntity::class,
         CanonicalSourceAssetEntity::class,
         ProblemDraftEntity::class,
@@ -372,6 +374,7 @@ object StudyDatabaseFactory {
             KERNEL_WAVE9_MIGRATION_61_62,
             LIBRARY_CATALOG_MEMORY_INDEX_MIGRATION_62_63,
             PROBLEM_CLASSIFICATION_ACCEPTED_CONFIDENCE_MIGRATION_63_64,
+            PROBLEM_CLASSIFICATION_CANDIDATE_MIGRATION_64_65,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

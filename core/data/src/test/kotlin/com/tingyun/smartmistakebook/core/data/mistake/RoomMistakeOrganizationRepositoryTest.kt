@@ -219,6 +219,7 @@ class RoomMistakeOrganizationRepositoryTest {
     fun explicitCorrectionBecomesDeterministicUserCorrectedFacts() {
         val first = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "organization-request",
             input = input(),
             classifications = classifications(),
@@ -227,6 +228,7 @@ class RoomMistakeOrganizationRepositoryTest {
         )
         val replay = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "organization-request",
             input = input(),
             classifications = classifications(),
@@ -252,6 +254,7 @@ class RoomMistakeOrganizationRepositoryTest {
     fun knowledgeNodeIdentityDoesNotChangeWithAcceptanceAuthority() {
         val automatic = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "automatic-request",
             input = input(),
             classifications = classifications(),
@@ -261,6 +264,7 @@ class RoomMistakeOrganizationRepositoryTest {
         )
         val corrected = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "corrected-request",
             input = input(),
             classifications = classifications(),
@@ -284,6 +288,7 @@ class RoomMistakeOrganizationRepositoryTest {
     fun automaticRerunPreservesAcceptedLabelsThatTheModelOmits() {
         val existing = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "existing-organization",
             input = input(),
             classifications = classifications() +
@@ -477,6 +482,7 @@ class RoomMistakeOrganizationRepositoryTest {
             acceptedAtEpochMillis = 2_000,
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
             unknownAcceptedConfidenceKeys = unknownAcceptedConfidenceKeys(existing, merged),
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
         )
         assertEquals(
             0.99,
@@ -556,6 +562,7 @@ class RoomMistakeOrganizationRepositoryTest {
             acceptedAtEpochMillis = 2_000,
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
             unknownAcceptedConfidenceKeys = unknownKeys,
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
         )
         assertEquals(
             "系统自纠：被替换的旧行落上本轮真值 0.80",
@@ -617,6 +624,7 @@ class RoomMistakeOrganizationRepositoryTest {
             acceptedAtEpochMillis = 2_000,
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
             unknownAcceptedConfidenceKeys = unknownKeys,
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
         )
         assertEquals(
             "未知旧行重写后仍然是 NULL（不伪造门值）",
@@ -747,6 +755,7 @@ class RoomMistakeOrganizationRepositoryTest {
     fun automaticWritesCarryRealScoresWhileUserWritesCarryNone() {
         val automatic = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "organization-request",
             input = input(),
             classifications = classifications(),
@@ -756,6 +765,7 @@ class RoomMistakeOrganizationRepositoryTest {
         )
         val user = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "organization-request",
             input = input(),
             classifications = classifications(),
@@ -794,6 +804,7 @@ class RoomMistakeOrganizationRepositoryTest {
                 acceptedAtEpochMillis = 2_000,
                 acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
                 unknownAcceptedConfidenceKeys = unknownKeys,
+                candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             )
 
         val recordedScores = commandWith(emptySet())
@@ -843,6 +854,7 @@ class RoomMistakeOrganizationRepositoryTest {
 
         val command = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "unmatched-atom-request",
             input = input(),
             classifications = classifications(),
@@ -862,6 +874,7 @@ class RoomMistakeOrganizationRepositoryTest {
     fun exactRelationRemovalUsesDeterministicScopedIdentityWithoutFullReplacement() {
         val command = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "remove-relation-request",
             input = input(),
             classifications = classifications(),
@@ -891,6 +904,7 @@ class RoomMistakeOrganizationRepositoryTest {
             runCatching {
                 buildConfirmationCommand(
                     unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+                    candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
                     requestId = "organization-request",
                     input = input(),
                     classifications = selectedKnowledge,
@@ -918,6 +932,7 @@ class RoomMistakeOrganizationRepositoryTest {
         assertEquals(listOf("problem-2"), accepted.relations.map { it.targetProblemId })
         val command = buildConfirmationCommand(
             unknownAcceptedConfidenceKeys = emptySet(), // K3 复核 P2：必填（本夹具无保留旧行）
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
             requestId = "organization-request",
             input = input(),
             classifications = accepted.classifications,
@@ -993,6 +1008,7 @@ class RoomMistakeOrganizationRepositoryTest {
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
             // K3 复核 P2：本参数已改必填（编译期消灭"忘传即伪造门值"）；本用例无保留旧行。
             unknownAcceptedConfidenceKeys = emptySet(),
+            candidateSource = ClassificationCandidateSource.NONE, // K5-B：本夹具不落候选
         )
         assertFalse(command.replaceRelations)
     }
@@ -1103,6 +1119,129 @@ class RoomMistakeOrganizationRepositoryTest {
             )
         }
         assertTrue(missingChapter.isFailure)
+    }
+
+    /**
+     * K5-B（schema 65）：确认命令带**全量模型候选**（含被拒候选）与自报分数——"被拒候选也要落"
+     * 是本项的全部意义。三条边界：被接受=确认集 ∩ 本轮放行；没过门/被预算挤掉的候选照样落行、
+     * 分数原样保留；候选集**不进**命令指纹（它是"考虑过什么"的记录，不是载荷）。
+     */
+    @Test
+    fun rejectedModelCandidatesAreRecordedWithTheirSelfReportedScores() {
+        val admitted = listOf(
+            classification(ClassificationDimension.CHAPTER, "函数", 0.80),
+            classification(ClassificationDimension.KNOWLEDGE, "二次函数最值", 0.90),
+        )
+        val rejected = classification(ClassificationDimension.KNOWLEDGE, "导数符号", 0.40)
+        val source = ClassificationCandidateSource(
+            candidates = admitted + rejected,
+            acceptedKeys = admitted.mapTo(hashSetOf()) { it.dimension to it.displayName.lowercase() },
+        )
+        val command = buildConfirmationCommand(
+            requestId = "organization-request",
+            input = input(),
+            classifications = admitted,
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            unknownAcceptedConfidenceKeys = emptySet(),
+            candidateSource = source,
+        )
+
+        assertEquals("全量候选都要落（含被拒）", 3, command.classificationCandidates.size)
+        val byName = command.classificationCandidates.associateBy { it.displayName }
+        assertEquals(
+            "被接受候选：确认集里且本轮放行 ⇒ accepted = true",
+            listOf(true, true),
+            listOf(byName.getValue("函数").accepted, byName.getValue("二次函数最值").accepted),
+        )
+        val rejectedRow = byName.getValue("导数符号")
+        assertFalse("没过门的候选必须原样落成被拒", rejectedRow.accepted)
+        assertEquals("被拒候选的自报分数必须原样保留（选择偏差要看的就是它）", 0.40, rejectedRow.confidence, 0.0)
+        assertEquals("LOCAL_POLICY_ACCEPTED", rejectedRow.acceptanceSource)
+        assertEquals(2_000L, rejectedRow.acceptedAtEpochMillis)
+        assertEquals(
+            "同一轮同一候选身份只有一行（跨轮由 acceptedAt 区分）",
+            command.classificationCandidates.map { it.candidateId }.distinct().size,
+            command.classificationCandidates.size,
+        )
+        assertEquals(
+            "候选身份按 (revision, acceptedAt, dimension, labelId) 内容寻址：重放得到同一批 id",
+            command.classificationCandidates,
+            buildConfirmationCommand(
+                requestId = "organization-request",
+                input = input(),
+                classifications = admitted,
+                relations = emptyList(),
+                acceptedAtEpochMillis = 2_000,
+                acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+                unknownAcceptedConfidenceKeys = emptySet(),
+                candidateSource = source,
+            ).classificationCandidates,
+        )
+        val withoutCandidates = buildConfirmationCommand(
+            requestId = "organization-request",
+            input = input(),
+            classifications = admitted,
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            unknownAcceptedConfidenceKeys = emptySet(),
+            candidateSource = ClassificationCandidateSource.NONE,
+        )
+        assertEquals(
+            "候选集不进命令指纹：记录「考虑过什么」不改变命令身份（重复确认不得变成载荷冲突）",
+            withoutCandidates.payloadFingerprint,
+            command.payloadFingerprint,
+        )
+    }
+
+    /**
+     * K5-B：只看"确认集里有没有同名标签"会把**重提同名旧标签但本轮被拒**误记成接受——
+     * 接受标记必须同时要求"本轮放行"（[ClassificationCandidateSource.acceptedKeys]）。
+     */
+    @Test
+    fun aCandidateWhoseLabelExistsButWasNotAdmittedThisRoundStaysRejected() {
+        val command = buildConfirmationCommand(
+            requestId = "organization-request",
+            input = input(),
+            classifications = classifications(),
+            relations = emptyList(),
+            acceptedAtEpochMillis = 2_000,
+            acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
+            unknownAcceptedConfidenceKeys = emptySet(),
+            candidateSource = ClassificationCandidateSource(
+                candidates = listOf(classification(ClassificationDimension.KNOWLEDGE, "二次函数最值", 0.40)),
+                acceptedKeys = emptySet(),
+            ),
+        )
+
+        assertFalse(
+            "同名标签在确认集里 ≠ 本候选被接受（本轮没放行）",
+            command.classificationCandidates.single().accepted,
+        )
+    }
+
+    /** K5-B：离线纠正没有模型输出——候选集必须是空的（显式 NONE，不是"忘了传"）。 */
+    @Test
+    fun offlineCorrectionRecordsNoModelCandidates() {
+        val command = buildOfflineCorrectionCommand(
+            entryId = "entry-1",
+            current = OfflineCorrectionFacts(
+                problemId = "problem-1",
+                problemRevisionId = "revision-1",
+                practiceUnitId = "practice-1",
+                subject = SubjectKind.MATH,
+                questionDocument = document("question-1", "求函数最值"),
+            ),
+            userClassifications = listOf(
+                UserProblemClassification(ClassificationDimension.CHAPTER, "函数"),
+                UserProblemClassification(ClassificationDimension.KNOWLEDGE, "二次函数最值"),
+            ),
+            correctedAtEpochMillis = 4_000,
+        )
+
+        assertTrue("离线纠正没有模型候选可落", command.classificationCandidates.isEmpty())
     }
 
     private fun input() = ProblemOrganizationInput(

@@ -380,6 +380,151 @@ class FullMigrationMatrixInstrumentedTest {
     }
 
     /**
+     * K5-B（v64→65）：新增 `problem_classification_candidate`（分类候选集，含被拒候选）。
+     * 矩阵用的是空库，看不出"既有行还在不在、新表是不是空的"，这里用真库、真驱动实测：
+     * 1. 新表与三条索引按迁移建出来（列形状与实体声明逐位同形）；
+     * 2. 既有分类绑定行一行不动（连 KF-30 的 accepted_confidence 真值都在）；
+     * 3. 新表**为空**——迁移不回填历史候选（"无样本"如实呈现，不编造模型给过什么）；
+     * 4. 再开一次（同一库第二次经过迁移出口）形态与行不变——迁移幂等。
+     */
+    @Test
+    fun kf5bClassificationCandidatesTableIsAddedLeavingExistingRowsIntactAndIdempotent() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave12-classification-candidates-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 64)
+            seedV64ClassificationRow(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v64 库迁到 65",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV65ClassificationCandidateShape(context, databaseName)
+
+            // 幂等：同一库再开一次（迁移已是 no-op）不得改变形态、既有行或新表的空态。
+            val reopened = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(STUDY_DATABASE_VERSION, reopened.readDatabaseVersion())
+            reopened.close()
+            inspectV65ClassificationCandidateShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 往导出的 64.json 建出来的库里写：一行真实 problem/revision + 一行分类绑定（v64 形态，
+     * 带 KF-30 的 `accepted_confidence` 真值）。显式关外键只用于少写父行占位——这里父行齐备。
+     */
+    private fun seedV64ClassificationRow(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$KF5B_PROBLEM_ID', 'fp-wave12', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$KF5B_REVISION_ID', '$KF5B_PROBLEM_ID', 1, 'K5-B 题', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave12-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_classification_binding` (
+                    `binding_id`, `problem_id`, `basis_revision_id`, `dimension`, `label_id`,
+                    `display_name`, `taxonomy_version`, `acceptance_source`,
+                    `accepted_at_epoch_millis`, `accepted_confidence`
+                ) VALUES (
+                    '$KF5B_BINDING_ID', '$KF5B_PROBLEM_ID', '$KF5B_REVISION_ID',
+                    'KNOWLEDGE', 'math:knowledge:wave12', 'K5-B 知识点',
+                    'local-policy-v1', 'LOCAL_POLICY_ACCEPTED',
+                    1700000000000, 0.91
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：新表 + 三条索引在、既有行原样、新表为空（不回填历史候选）。 */
+    private fun inspectV65ClassificationCandidateShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertTrue(
+                "迁移必须把候选表建出来",
+                "problem_classification_candidate" in tableNames(connection),
+            )
+            assertEquals(
+                "列与实体声明逐位同形",
+                KF5B_CANDIDATE_COLUMNS,
+                columnNames(connection, "problem_classification_candidate"),
+            )
+            val indexStatement = connection.prepare(
+                "SELECT name FROM sqlite_master WHERE type = 'index' " +
+                    "AND tbl_name = 'problem_classification_candidate'",
+            )
+            val indexNames = mutableSetOf<String>()
+            try {
+                while (indexStatement.step()) indexNames += indexStatement.getText(0)!!
+            } finally {
+                indexStatement.close()
+            }
+            assertEquals(
+                "三条查询索引一条不少（自动索引 sqlite_autoindex 除外）",
+                KF5B_CANDIDATE_INDEX_NAMES,
+                indexNames.filterNot { it.startsWith("sqlite_autoindex") }.toSet(),
+            )
+            val countStatement = connection.prepare(
+                "SELECT COUNT(*) FROM `problem_classification_candidate`",
+            )
+            try {
+                assertTrue(countStatement.step())
+                assertEquals("迁移不回填历史候选：新表必须是空的", 0L, countStatement.getLong(0))
+            } finally {
+                countStatement.close()
+            }
+            val bindingStatement = connection.prepare(
+                "SELECT `accepted_confidence` FROM `problem_classification_binding` " +
+                    "WHERE `binding_id` = '$KF5B_BINDING_ID'",
+            )
+            try {
+                assertTrue("既有绑定行必须一行不丢", bindingStatement.step())
+                assertEquals(
+                    "KF-30 的真值列原样保留",
+                    0.91,
+                    bindingStatement.getDouble(0),
+                    0.0,
+                )
+                assertFalse("旧行只有这一条", bindingStatement.step())
+            } finally {
+                bindingStatement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /**
      * 往导出的 63.json 建出来的库里写：一行真实 problem/revision + 一行分类绑定（v63 形态，
      * 没有 accepted_confidence 列）。显式关外键只用于少写父行占位——这里父行齐备
      * （problem → revision → binding），关外键是与其他 seed 保持同一写法。
@@ -1282,6 +1427,28 @@ class FullMigrationMatrixInstrumentedTest {
         const val KF30_PROBLEM_ID = "problem-wave11"
         const val KF30_REVISION_ID = "revision-wave11"
         const val KF30_BINDING_ID = "classification-wave11"
+
+        /** v64→65（K5-B 分类候选集）用例：新表列形状、索引名与旧行夹具值。 */
+        val KF5B_CANDIDATE_COLUMNS = listOf(
+            "candidate_id",
+            "problem_id",
+            "basis_revision_id",
+            "dimension",
+            "label_id",
+            "display_name",
+            "confidence",
+            "accepted",
+            "acceptance_source",
+            "accepted_at_epoch_millis",
+        )
+        val KF5B_CANDIDATE_INDEX_NAMES = setOf(
+            "index_problem_classification_candidate_problem_id_basis_revision_id",
+            "index_problem_classification_candidate_dimension_label_id",
+            "index_problem_classification_candidate_problem_id_basis_revision_id_accepted_at_epoch_millis",
+        )
+        const val KF5B_PROBLEM_ID = "problem-wave12"
+        const val KF5B_REVISION_ID = "revision-wave12"
+        const val KF5B_BINDING_ID = "classification-wave12"
 
         /** v59→60（L2 标题单源）用例：两列分叉的夹具值。 */
         const val TITLE_PROBLEM_ID = "problem-wave7"

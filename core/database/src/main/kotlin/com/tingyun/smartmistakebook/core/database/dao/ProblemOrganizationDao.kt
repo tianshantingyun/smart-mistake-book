@@ -13,6 +13,7 @@ import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSearchFeatureE
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSourceEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationBindingEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationCandidateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemOrganizationReceiptEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import kotlinx.coroutines.flow.Flow
@@ -531,6 +532,18 @@ internal interface ProblemOrganizationDao {
 
     @Query("SELECT * FROM problem_classification_binding WHERE binding_id = :id")
     suspend fun readClassificationBinding(id: String): ProblemClassificationBindingEntity?
+
+    /**
+     * K5-B（schema 65）：本轮模型候选集（含被拒候选）。`IGNORE` = 同一轮重放不重写
+     * （候选 id 按轮内容寻址）；-1 的行由调用方与既有行逐列比对，差异判载荷冲突。
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertClassificationCandidates(
+        candidates: List<ProblemClassificationCandidateEntity>,
+    ): List<Long>
+
+    @Query("SELECT * FROM problem_classification_candidate WHERE candidate_id = :id")
+    suspend fun readClassificationCandidate(id: String): ProblemClassificationCandidateEntity?
 
     @Query(
         """

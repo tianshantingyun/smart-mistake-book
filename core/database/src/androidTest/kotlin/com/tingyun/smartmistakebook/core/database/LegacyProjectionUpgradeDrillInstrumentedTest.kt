@@ -52,14 +52,14 @@ import org.junit.runner.RunWith
  * 归档的是**当前版本**快照（触发源是修正事件），`FullMigrationMatrixInstrumentedTest` 用空库。
  * **不存在**「真 Room 库躺旧版投影 + 真账本 → 当前代码打开 → 先归档再重放」的演练——本用例补它。
  *
- * 库形态 = 上一台二进制（v11 复合串）留下的存量库**投影态**（库本身按当前 64 schema 建；schema
+ * 库形态 = 上一台二进制（v11 复合串）留下的存量库**投影态**（库本身按当前 65 schema 建；schema
  * 迁移腿由 `FullMigrationMatrixInstrumentedTest` 覆盖，本用例只演练**投影版本**这条腿）：
  * - `learner_projection_snapshot` 旧版本头（checkpoint 追平账本头 5）+ 一张 v11 口径记忆卡；
  * - 5 条账本行（4 类：ATTEMPT ×2 / ANSWER_REVEAL_OUTCOME / ATTEMPT_CORRECTION /
  *   CHAT_EVIDENCE_SUBMITTED）+ 2 条 attempt 行 + 分配头 5；
  * - 两张呈现态行（每个 presentation 一行，终局揭示那个带 `terminal_event_sequence`）。
  *
- * 播种全部走 raw SQL（列集逐列对齐当前 `64.json`，外键开启、按依赖序插入；值为测试里构造的
+ * 播种全部走 raw SQL（列集逐列对齐当前 `65.json`，外键开启、按依赖序插入；值为测试里构造的
  * 模型事件的规范指纹，读边界会逐行 SHA-256 复算——播种错一位就进 CONFLICT）。随后
  * `StudyDatabaseFactory.open` 打开、用 `RoomBackedStudyExperienceRepository.refresh()`
  * （既有 drill 的驱动方式）触发真实 drainer。断言四件事：
@@ -77,7 +77,7 @@ class LegacyProjectionUpgradeDrillInstrumentedTest {
         val databaseName = "legacy-projection-upgrade-${System.nanoTime()}.db"
         context.deleteDatabase(databaseName)
         try {
-            // 当前 schema（64）建库后，用 raw SQL 把它变成"旧二进制留下的库"。
+            // 当前 schema（65）建库后，用 raw SQL 把它变成"旧二进制留下的库"。
             // Room 是惰性打开：先读一次版本强制它把库文件建出来（close 本身不触发建库）。
             StudyDatabaseFactory.open(context, databaseName).use { it.readDatabaseVersion() }
             val ledger = upgradeLedger()
@@ -220,7 +220,7 @@ class LegacyProjectionUpgradeDrillInstrumentedTest {
         }
     }
 
-    // ---- raw SQL 播种（列集逐列对齐 core/database/schemas/64.json） ----
+    // ---- raw SQL 播种（列集逐列对齐 core/database/schemas/65.json） ----
 
     private fun seedLegacyDatabase(
         context: Context,

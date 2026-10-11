@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATE
 import com.tingyun.smartmistakebook.core.database.MistakeDetailRecord
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.ProblemClassificationBindingRecord
+import com.tingyun.smartmistakebook.core.database.ProblemClassificationCandidateRecord
 import com.tingyun.smartmistakebook.core.database.ProblemOrganizationAuthorityConflictException
 import com.tingyun.smartmistakebook.core.database.ProblemRelationSeedRecord
 import com.tingyun.smartmistakebook.core.database.RecordBindingAuditSampleCommand
@@ -459,6 +460,13 @@ internal class RoomMistakeOrganizationRepository(
                 existing = existing.classifications,
                 merged = mergedClassifications,
             ),
+            // K5-B：候选集 = 模型本轮的全量输出（含被拒候选）；接受键 = 本地接受策略放行集
+            // （门 + 预算后的 `acceptOrganizationLocally` 结果）——被拒候选由此可考。
+            candidateSource = ClassificationCandidateSource(
+                candidates = persisted.output.plan.classifications,
+                acceptedKeys = accepted.classifications
+                    .mapTo(hashSetOf()) { suggestion -> classificationMergeKey(suggestion) },
+            ),
         )
         val result = try {
             database.confirmProblemOrganization(
@@ -583,6 +591,13 @@ internal class RoomMistakeOrganizationRepository(
             // K3 复核 P2：本参数改为必填（编译期消灭"忘传即伪造门值"）。用户确认路径整体替换
             // 可见集合、其分类一律按 NULL 写入 → 没有"真值未知"的保留键需要登记。
             unknownAcceptedConfidenceKeys = emptySet(),
+            // K5-B：用户确认同样留下**模型候选集**——被拒候选 = 用户没勾的模型提议（可考）。
+            // 接受键只算用户勾选的模型候选；用户自己补的分类不是模型候选，不入候选表。
+            candidateSource = ClassificationCandidateSource(
+                candidates = output.plan.classifications,
+                acceptedKeys = selectedClassifications
+                    .mapTo(hashSetOf()) { suggestion -> classificationMergeKey(suggestion) },
+            ),
         )
         val result = database.confirmProblemOrganization(
                 command,
@@ -880,6 +895,8 @@ internal fun buildOfflineCorrectionCommand(
         acceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
         // 同上：离线纠正路径的分类一律按 NULL 写入 → 无"真值未知"的保留键。
         unknownAcceptedConfidenceKeys = emptySet(),
+        // K5-B：离线纠正没有模型输出——没有候选，也没有"被拒候选"可言（显式 NONE）。
+        candidateSource = ClassificationCandidateSource.NONE,
     )
 }
 
@@ -929,6 +946,30 @@ private data class PersistedOrganizationTask(
     val input: ProblemOrganizationInput,
     val output: ProblemOrganizationOutput,
 )
+
+/**
+ * K5-B（schema 65）：一次整理确认的**模型候选来源**——候选集与"本轮被接受"的键必须同源。
+ *
+ * - [candidates]：模型本轮给出的全部分类候选（`ProblemOrganizationPlan.classifications`），
+ *   **含没过接受门/被预算挤掉/被更高置信存量顶掉的被拒候选**——只落被接受的那些，
+ *   正是本项要消灭的失败（研究文档 §1.3 机制 ②：候选竞争关系与门的选择偏差都看不见）；
+ * - [acceptedKeys]：本轮**被接受策略放行**的候选键（合并身份：维度 + 折叠小写名）——
+ *   自动路径 = `acceptOrganizationLocally` 放行集；用户确认路径 = 用户勾选的模型候选；
+ *   离线纠正 = 空。
+ *
+ * 落库时 `accepted = 键 ∈ 本轮确认集 ∩ acceptedKeys`（见 [buildConfirmationCommand]）：
+ * 门拒/预算挤出/被顶掉 → `false`；同键但存量更高置信被保留 → `true`（该标签身份确实在
+ * 确认集里，本轮分数只是候选自己的自报分）。
+ */
+internal data class ClassificationCandidateSource(
+    val candidates: List<ProblemClassificationSuggestion>,
+    val acceptedKeys: Set<Pair<ClassificationDimension, String>>,
+) {
+    companion object {
+        /** 本轮没有模型候选（离线纠正：没有模型输出，也没有"被拒候选"可言）。 */
+        val NONE = ClassificationCandidateSource(emptyList(), emptySet())
+    }
+}
 
 internal data class LocallyAcceptedOrganization(
     val classifications: List<ProblemClassificationSuggestion>,
@@ -1403,6 +1444,16 @@ internal fun buildConfirmationCommand(
      * 重复确认不会因此被误判为载荷冲突。
      */
     unknownAcceptedConfidenceKeys: Set<Pair<ClassificationDimension, String>>,
+    /**
+     * K5-B（schema 65）：本轮**模型候选来源**——全量候选（含被拒）与"本轮被接受"的键。
+     *
+     * 两个事实必须来自同一次裁决（候选集来自模型输出、接受键来自接受策略/用户选择），
+     * 所以打包成一个**必填**参数：K3 的教训是"忘传即伪造"（`unknownAcceptedConfidenceKeys`
+     * 因此改必填），这里同理——漏传 `acceptedKeys` 会把全部候选静默标成"被拒"，
+     * 漏传 `candidates` 会让本项从源头消失。离线纠正路径显式传
+     * [ClassificationCandidateSource.NONE]（没有模型输出，没有候选可落）。
+     */
+    candidateSource: ClassificationCandidateSource,
 ): ConfirmProblemOrganizationCommand {
     require(
         acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED ||
@@ -1451,6 +1502,45 @@ internal fun buildConfirmationCommand(
             },
         )
     }.distinctBy { Triple(it.problemId, it.dimension, it.labelId) }
+    // K5-B（schema 65）：本轮模型候选集（含被拒候选）——与确认同一条命令落库。候选身份去重与
+    // 接受侧同一口径（`acceptOrganizationLocally` 的 distinctBy：维度 + 折叠小写名，首见者胜），
+    // 否则同轮同身份两行会互相顶掉，把"模型给过什么"记成一条假事实。
+    // accepted = 键在**本轮确认集**里（确实成了可见标签）**且**被本轮接受策略放行
+    // （[ClassificationCandidateSource.acceptedKeys]）——门拒/预算挤出/被更高置信存量顶掉
+    // 一律 false；两个条件缺一不可：只看确认集会把"重提同名旧标签但本轮被拒"误记成接受。
+    val confirmedClassificationKeys = classifications
+        .mapTo(hashSetOf()) { suggestion -> classificationMergeKey(suggestion) }
+    val candidateRecords = candidateSource.candidates
+        .distinctBy { suggestion -> classificationMergeKey(suggestion) }
+        .map { suggestion ->
+            val key = classificationMergeKey(suggestion)
+            val labelId = classificationLabelId(
+                input.subject,
+                suggestion.dimension,
+                suggestion.displayName,
+            )
+            ProblemClassificationCandidateRecord(
+                // 按轮内容寻址：同一轮重放得到同一 id（幂等），跨轮/跨题恒不同。
+                candidateId = "classification-candidate:${sha256(
+                    listOf(
+                        input.problemRevisionId,
+                        acceptedAtEpochMillis.toString(),
+                        suggestion.dimension.name,
+                        labelId,
+                    ).joinToString("|"),
+                ).take(40)}",
+                problemId = input.problemId,
+                basisRevisionId = input.problemRevisionId,
+                dimension = suggestion.dimension.name,
+                labelId = labelId,
+                displayName = suggestion.displayName,
+                confidence = suggestion.confidence,
+                accepted = key in confirmedClassificationKeys && key in candidateSource.acceptedKeys,
+                // 本轮权威（与绑定行同域）：校准审计据此筛"自动接受"与"用户勾选"。
+                acceptanceSource = acceptanceSource.name,
+                acceptedAtEpochMillis = acceptedAtEpochMillis,
+            )
+        }
     val knowledgeClassifications = classificationRecords.filter {
         it.dimension == ClassificationDimension.KNOWLEDGE.name
     }
@@ -1576,6 +1666,9 @@ internal fun buildConfirmationCommand(
         relationIdsToRemove = relationIdsToRemove,
         acceptedAtEpochMillis = acceptedAtEpochMillis,
         replaceRelations = replaceRelations,
+        // K5-B：候选集是"本轮考虑过什么"的记录，不是"写了什么"的载荷——与 acceptedConfidence
+        // 同类，**不进**命令指纹（重复确认/系统自纠不因此变成载荷冲突）。
+        classificationCandidates = candidateRecords,
     )
 }
 

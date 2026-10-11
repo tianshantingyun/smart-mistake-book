@@ -600,6 +600,69 @@ internal data class ProblemClassificationBindingEntity(
     val acceptedConfidence: Double? = null,
 )
 
+/**
+ * K5-B（schema 65）：一次整理确认里**模型给出的分类候选集与自报分数**（含被拒候选）。
+ *
+ * 消灭的失败（R1 机制 ② 的前置，研究文档
+ * `docs/research/2026-10-11-r1-r2-label-accuracy-research.md` §1.3）：改前只存**被接受**的标签
+ * （`problem_classification_binding`），模型给过什么、给了多少分、哪些没过接受门或被预算挤掉
+ * ——**全部不可考**。于是既算不出候选竞争关系（cleanlab `normalized_margin` 需要的
+ * `p(选中) − max(p(其它候选))`），也看不出接受门的**选择偏差**（分数被门截断）。
+ *
+ * 语义（唯一口径，写在列上）：
+ * - **一行 = 本轮（同一 `problem_id + basis_revision_id + accepted_at_epoch_millis`）该模型候选**；
+ *   候选身份 = `dimension + label_id`（与绑定表同一 labelId 口径），同轮同身份只有一行；
+ * - [accepted] = 该候选在本轮确认后成为确认集里的标签身份（同时被本轮接受策略放行）——
+ *   被接受门拒掉、被预算挤掉、被更高置信存量顶掉的候选一律 `false`（**被拒候选也要落**）；
+ * - [confidence] = 模型**自报**分数（未校准；校准审计见 `ClassificationCalibrationAuditTest`）；
+ * - [acceptanceSource] = **本轮确认的接受权威**（与绑定表同域）——`accepted = true` 时它说明
+ *   这个标签是**自动放行**的还是**用户勾选**的；`accepted = false` 的行同样带本轮权威
+ *   （"自动整理里没过门"与"用户确认时没勾"是两种不同的被拒）。校准审计必须按它筛出
+ *   `LOCAL_POLICY_ACCEPTED`，否则会把用户勾选（可低于接受门）混进"自动接受"的实测正确率；
+ * - **只写不改、只派生不纠**：本表是历史证据，派生出的 margin/「存疑」信号**不得**回写绑定表、
+ *   不得删除或降信任何已接受标签（研究 §0/§1.2：外部无先例支持静默自纠）。
+ */
+@Entity(
+    tableName = "problem_classification_candidate",
+    foreignKeys = [
+        ForeignKey(
+            entity = ProblemRevisionEntity::class,
+            parentColumns = ["problem_id", "revision_id"],
+            childColumns = ["problem_id", "basis_revision_id"],
+            onDelete = ForeignKey.RESTRICT,
+        ),
+    ],
+    indices = [
+        Index(value = ["problem_id", "basis_revision_id"]),
+        Index(value = ["dimension", "label_id"]),
+        // 同一轮的候选按 accepted_at 分组（margin 的"同维度对手集"= 同轮同维度的全部候选）。
+        Index(value = ["problem_id", "basis_revision_id", "accepted_at_epoch_millis"]),
+    ],
+)
+internal data class ProblemClassificationCandidateEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "candidate_id")
+    val candidateId: String,
+    @ColumnInfo(name = "problem_id")
+    val problemId: String,
+    @ColumnInfo(name = "basis_revision_id")
+    val basisRevisionId: String,
+    val dimension: String,
+    @ColumnInfo(name = "label_id")
+    val labelId: String,
+    @ColumnInfo(name = "display_name")
+    val displayName: String,
+    /** 模型自报置信度（0.0..1.0，未校准）。 */
+    val confidence: Double,
+    /** 本轮确认后该候选身份是否在确认集内（被拒候选为 `false`）。 */
+    val accepted: Boolean,
+    /** 本轮确认的接受权威（`BindingAcceptanceSource` 同域）：自动放行 or 用户勾选。 */
+    @ColumnInfo(name = "acceptance_source")
+    val acceptanceSource: String,
+    @ColumnInfo(name = "accepted_at_epoch_millis")
+    val acceptedAtEpochMillis: Long,
+)
+
 @Entity(
     tableName = "problem_organization_receipt",
     foreignKeys = [

@@ -95,6 +95,95 @@ class ProblemOrganizationCommandValidationTest {
         }
     }
 
+    /**
+     * K5-B（schema 65）：候选集的静态不变量——完整、合法、同轮、同权威；**被拒候选合法**
+     * （`accepted = false` 的行恰恰是本项要落的），但 `accepted = true` 的候选必须指向本命令
+     * 真实写入的标签——否则"被接受"的标记从源头就是假的（校准审计的分子会混进没落地的标签）。
+     */
+    @Test
+    fun classificationCandidatesMustBeCompleteAndAcceptedOnesMustPointAtWrittenLabels() {
+        fun withCandidates(
+            candidates: List<ProblemClassificationCandidateRecord>,
+        ): ConfirmProblemOrganizationCommand =
+            command(knowledgeBindings = emptyList()).copy(classificationCandidates = candidates)
+
+        val rejected = candidate(
+            candidateId = "classification-candidate:rejected",
+            dimension = ClassificationDimension.CHAPTER,
+            labelId = "math:chapter:geometry",
+            displayName = "几何",
+            confidence = 0.5,
+            accepted = false,
+        )
+        val accepted = candidate(
+            candidateId = "classification-candidate:accepted",
+            dimension = ClassificationDimension.CHAPTER,
+            labelId = "math:chapter:functions",
+            displayName = "函数",
+            confidence = 0.9,
+            accepted = true,
+        )
+        // 被拒候选合法（含低于接受门的分数）；被接受候选必须命中本命令写入的标签。
+        validateCommand(withCandidates(listOf(rejected, accepted)))
+        validateCommand(withCandidates(emptyList()))
+
+        val wrongLabel = accepted.copy(
+            candidateId = "classification-candidate:ghost",
+            labelId = "math:chapter:ghost",
+        )
+        assertRejected(
+            withCandidates(listOf(wrongLabel)),
+            "accepted 标记不许指向没写进本命令的标签",
+        )
+        assertRejected(
+            withCandidates(listOf(rejected.copy(candidateId = "  "))),
+            "候选 id 不许空白",
+        )
+        assertRejected(
+            withCandidates(listOf(rejected.copy(confidence = 1.5))),
+            "候选分数必须是概率",
+        )
+        assertRejected(
+            withCandidates(listOf(rejected.copy(basisRevisionId = "revision-other"))),
+            "候选必须属于本次确认的修订",
+        )
+        assertRejected(
+            withCandidates(listOf(rejected.copy(acceptedAtEpochMillis = ACCEPTED_AT + 1))),
+            "候选必须属于本轮（acceptedAt 一致）",
+        )
+        assertRejected(
+            withCandidates(
+                listOf(rejected, rejected.copy(acceptanceSource = "USER_CORRECTED")),
+            ),
+            "同一命令的候选必须共享本轮接受权威",
+        )
+    }
+
+    private fun assertRejected(command: ConfirmProblemOrganizationCommand, why: String) {
+        val failure = runCatching { validateCommand(command) }.exceptionOrNull()
+        assertTrue("$why，实际：$failure", failure is IllegalArgumentException)
+    }
+
+    private fun candidate(
+        candidateId: String,
+        dimension: ClassificationDimension,
+        labelId: String,
+        displayName: String,
+        confidence: Double,
+        accepted: Boolean,
+    ) = ProblemClassificationCandidateRecord(
+        candidateId = candidateId,
+        problemId = PROBLEM_ID,
+        basisRevisionId = REVISION_ID,
+        dimension = dimension.name,
+        labelId = labelId,
+        displayName = displayName,
+        confidence = confidence,
+        accepted = accepted,
+        acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED.name,
+        acceptedAtEpochMillis = ACCEPTED_AT,
+    )
+
     private fun command(
         knowledgeBindings: List<KnowledgeBindingSeedRecord>,
     ) = ConfirmProblemOrganizationCommand(

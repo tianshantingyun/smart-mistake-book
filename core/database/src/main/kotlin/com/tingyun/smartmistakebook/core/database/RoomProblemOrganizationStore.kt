@@ -6,6 +6,7 @@ import com.tingyun.smartmistakebook.core.database.dao.ProblemOrganizationDao
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationBindingEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemClassificationCandidateEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemOrganizationReceiptEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import com.tingyun.smartmistakebook.core.model.BindingAcceptanceSource
@@ -223,6 +224,22 @@ internal class RoomProblemOrganizationStore(
                         )
                     }
                 }
+            // K5-B（schema 65）：本轮**模型候选集**（含被拒候选）与确认同事务落库——候选是
+            // "本轮考虑过什么"的证据，确认没成立就不该有候选行（半条证据比没有更坏）。
+            // 候选 id 按轮内容寻址，重放天然幂等；-1 的行逐列比对，差异判载荷冲突。
+            val candidates = command.classificationCandidates
+                .map(ProblemClassificationCandidateRecord::toOrganizationEntity)
+            if (candidates.isNotEmpty()) {
+                dao.insertClassificationCandidates(candidates).zip(candidates)
+                    .forEach { (rowId, entity) ->
+                        if (rowId == -1L && dao.readClassificationCandidate(entity.candidateId) != entity) {
+                            throw ImmutablePayloadConflictException(
+                                "problem_classification_candidate",
+                                entity.candidateId,
+                            )
+                        }
+                    }
+            }
             val relations = command.relations.map(ProblemRelationSeedRecord::toOrganizationEntity)
             if (relations.isNotEmpty()) {
                 dao.insertRelations(relations).zip(relations).forEach { (rowId, entity) ->
@@ -401,6 +418,35 @@ internal fun validateCommand(command: ConfirmProblemOrganizationCommand) {
         it.acceptedConfidence == null ||
             (it.acceptedConfidence.isFinite() && it.acceptedConfidence in 0.0..1.0)
     }) { "Accepted confidence must be null or a probability in 0.0..1.0" }
+    // K5-B（schema 65）：候选集是"本轮考虑过什么"的证据——必须完整、合法、可归属到同一轮，
+    // 且 accepted 标记只许指向命令里真实写入的标签（否则"被拒候选"信号从源头就假了）。
+    require(command.classificationCandidates.size <= 32) {
+        "At most 32 classification candidates may be recorded"
+    }
+    require(command.classificationCandidates.map { it.candidateId }.distinct().size ==
+        command.classificationCandidates.size) {
+        "Every classification candidate must have a distinct id"
+    }
+    require(command.classificationCandidates.all {
+        it.candidateId.isNotBlank() &&
+            it.problemId == command.problemId &&
+            it.basisRevisionId == command.problemRevisionId &&
+            it.dimension in ORGANIZATION_CLASSIFICATION_DIMENSIONS &&
+            it.labelId.isNotBlank() &&
+            it.displayName.isNotBlank() &&
+            it.confidence.isFinite() &&
+            it.confidence in 0.0..1.0 &&
+            it.acceptanceSource in ORGANIZATION_ACCEPTANCE_SOURCES &&
+            it.acceptedAtEpochMillis == command.acceptedAtEpochMillis
+    }) { "Every classification candidate must be a complete fact of the confirmed problem revision" }
+    require(command.classificationCandidates.all {
+        it.acceptanceSource == command.classifications.first().acceptanceSource
+    }) { "Classification candidates must share the acceptance authority of this confirmation" }
+    val acceptedClassificationLabelIds = command.classifications
+        .mapTo(hashSetOf()) { it.dimension to it.labelId }
+    require(command.classificationCandidates.none {
+        it.accepted && (it.dimension to it.labelId) !in acceptedClassificationLabelIds
+    }) { "An accepted classification candidate must point at a label written by this command" }
     require(command.classifications.any { it.dimension == ClassificationDimension.KNOWLEDGE.name }) {
         "At least one knowledge classification is required"
     }
@@ -543,6 +589,20 @@ private fun ProblemClassificationBindingRecord.toOrganizationEntity() =
         acceptanceSource,
         acceptedAtEpochMillis,
         acceptedConfidence,
+    )
+
+private fun ProblemClassificationCandidateRecord.toOrganizationEntity() =
+    ProblemClassificationCandidateEntity(
+        candidateId,
+        problemId,
+        basisRevisionId,
+        dimension,
+        labelId,
+        displayName,
+        confidence,
+        accepted,
+        acceptanceSource,
+        acceptedAtEpochMillis,
     )
 
 private fun ProblemRelationSeedRecord.toOrganizationEntity() = ProblemRelationEntity(

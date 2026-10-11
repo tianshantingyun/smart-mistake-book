@@ -499,6 +499,39 @@ data class ConfirmProblemOrganizationCommand(
     val relationIdsToRemove: Set<String> = emptySet(),
     /** False merges supplied relations and preserves all existing ones; true replaces the set. */
     val replaceRelations: Boolean = false,
+    /**
+     * K5-B（schema 65）：本轮**模型候选集与自报分数**（含被拒候选）——按 `(problem, revision,
+     * acceptedAt)` 这一轮落 `problem_classification_candidate`。空 = 本轮没有模型候选可落
+     * （离线纠正路径没有模型输出）。与 `acceptedConfidence` 同类：**不进**命令指纹——
+     * 它是"本轮考虑过什么"的记录，不是"写了什么"的载荷；重确认/幂等重放不得因此变成冲突。
+     */
+    val classificationCandidates: List<ProblemClassificationCandidateRecord> = emptyList(),
+)
+
+/**
+ * K5-B（schema 65）：一行 = 本轮整理确认里模型给出的一个分类候选（含被拒候选）。
+ *
+ * [accepted] 的口径见 `ProblemClassificationCandidateEntity` 的 KDoc：只有**既被本轮接受策略
+ * 放行、又成为确认集里的标签身份**的候选才是 `true`；被门拒/被预算挤掉/被更高置信存量顶掉的
+ * 是 `false`。`candidateId` 按轮内容寻址（problem revision + acceptedAt + dimension + labelId）
+ * ——同一轮重放得到同一 id，重复写入天然幂等。
+ */
+data class ProblemClassificationCandidateRecord(
+    val candidateId: String,
+    val problemId: String,
+    val basisRevisionId: String,
+    val dimension: String,
+    val labelId: String,
+    val displayName: String,
+    val confidence: Double,
+    val accepted: Boolean,
+    /**
+     * 本轮确认的接受权威（`BindingAcceptanceSource` 同域）。`accepted = true` 时区分
+     * "自动放行"与"用户勾选"；`accepted = false` 时说明这是**哪种**被拒（自动没过门 /
+     * 用户没勾）。校准审计按 `LOCAL_POLICY_ACCEPTED` 筛"自动接受标签"。
+     */
+    val acceptanceSource: String,
+    val acceptedAtEpochMillis: Long,
 )
 
 data class ProblemOrganizationReceiptRecord(

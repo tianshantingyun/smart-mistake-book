@@ -125,6 +125,8 @@ class MistakeOrganizationRepositoryInstrumentedTest {
             acceptanceSource = BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED,
             // K3 复核 P2：本参数已改必填（编译期消灭"忘传即伪造门值"）；本夹具无保留旧行。
             unknownAcceptedConfidenceKeys = emptySet(),
+            // K5-B：本夹具只铺"升级前旧行"，不关心候选（候选落库由 K5-B 用例单独钉住）。
+            candidateSource = ClassificationCandidateSource.NONE,
         )
         // 升级前形态（v63 及更早）：权威是自动，但真值缺席。
         database.confirmProblemOrganization(
@@ -457,6 +459,8 @@ class MistakeOrganizationRepositoryInstrumentedTest {
                 acceptanceSource = acceptanceSource,
                 replaceRelations = true,
                 unknownAcceptedConfidenceKeys = emptySet(),
+                // K5-B：本夹具只铺"既有绑定"，不关心候选。
+                candidateSource = ClassificationCandidateSource.NONE,
             ),
         )
     }
@@ -579,6 +583,83 @@ class MistakeOrganizationRepositoryInstrumentedTest {
         ),
         modelVersion = "test-model",
     )
+
+    /**
+     * K5-B（schema 65）：一次自动整理确认把**全量模型候选**（含被拒候选）落进
+     * `problem_classification_candidate`——这是 R1 机制 ② 的信号面。
+     *
+     * 真库实测四件事：被接受的两条 `accepted = 1`；没过接受门的第三条 `accepted = 0` 且自报分数
+     * 原样保留（选择偏差的原始证据）；候选行带本轮权威 `LOCAL_POLICY_ACCEPTED` 与轮时间；
+     * 幂等重放不重复写（候选 id 按轮内容寻址）。
+     */
+    @Test
+    fun applyingASuccessfulOrganizationRecordsRejectedCandidatesAndReplayDoesNotDuplicateThem() = runBlocking {
+        val belowGate = classification(ClassificationDimension.KNOWLEDGE, "导数符号", 0.40)
+        persistSuccess(
+            requestId = "request-candidates",
+            output = completeOutput().copy(
+                plan = completeOutput().plan.copy(
+                    classifications = completeOutput().plan.classifications + belowGate,
+                ),
+            ),
+            completedAt = 400,
+        )
+
+        repository.applySuccessfulOrganization("request-candidates")
+        repository.applySuccessfulOrganization("request-candidates")
+
+        val rows = readCandidateRows()
+        assertEquals("三条候选一条不少（含被拒）", 3, rows.size)
+        val byName = rows.associateBy { it["display_name"] }
+        assertEquals(
+            "被接受的两条：确认集里且本轮放行",
+            mapOf("函数" to "1", "函数最值" to "1"),
+            mapOf(
+                "函数" to byName.getValue("函数")["accepted"],
+                "函数最值" to byName.getValue("函数最值")["accepted"],
+            ),
+        )
+        val rejected = byName.getValue("导数符号")
+        assertEquals("没过门的候选必须原样落成被拒", "0", rejected["accepted"])
+        assertEquals("被拒候选的自报分数原样保留", "0.4", rejected["confidence"])
+        assertEquals("LOCAL_POLICY_ACCEPTED", rejected["acceptance_source"])
+        assertEquals("本轮轮时间", "400", rejected["accepted_at_epoch_millis"])
+        assertTrue(
+            "候选身份按轮内容寻址：重放后 id 不重复",
+            rows.map { it["candidate_id"] }.distinct().size == rows.size,
+        )
+    }
+
+    private fun readCandidateRows(): List<Map<String, String?>> {
+        val sqlite = android.database.sqlite.SQLiteDatabase.openDatabase(
+            context.getDatabasePath(databaseName).absolutePath,
+            null,
+            android.database.sqlite.SQLiteDatabase.OPEN_READONLY,
+        )
+        return sqlite.use { database ->
+            database.rawQuery(
+                "SELECT `candidate_id`, `display_name`, `confidence`, `accepted`, " +
+                    "`acceptance_source`, `accepted_at_epoch_millis` " +
+                    "FROM `problem_classification_candidate` ORDER BY `display_name`",
+                null,
+            ).use { cursor ->
+                buildList {
+                    while (cursor.moveToNext()) {
+                        add(
+                            mapOf(
+                                "candidate_id" to cursor.getString(0),
+                                "display_name" to cursor.getString(1),
+                                "confidence" to cursor.getString(2),
+                                "accepted" to cursor.getString(3),
+                                "acceptance_source" to cursor.getString(4),
+                                "accepted_at_epoch_millis" to cursor.getString(5),
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     private fun classification(
         dimension: ClassificationDimension,
