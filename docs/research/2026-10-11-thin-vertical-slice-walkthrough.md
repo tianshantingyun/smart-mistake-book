@@ -127,3 +127,63 @@
 1. 提供任一服务商的可用 API Key（或由用户在该模拟器上手动配置一次），
    走查即可继续：`开始分题` → 整理 → 入库 → 复习 → 判定 → 档案。
 2. 若希望一次性走完剩余 115 张：分批 30 张/次循环「再选一组照片」即可（流程已实测可追加）。
+
+---
+
+# 下半段（2026-10-11 晚）：配置模型后的实测
+
+> 用户在走查后提供了通用模型：opencode zen `https://opencode.ai/zen/go/v1`、
+> `deepseek-v4.1-flash`（生图模型仍未提供，图片生成相关路径不在本轮范围）。
+
+## 6. 模型配置与连通
+
+- 用 debug 广播 `TEST_SEED_MODEL_CONFIG` 注入配置（DataStore 出现
+  `model_configuration.preferences_pb`，设置页回读 provider/model/base_url 正确）。
+- **首测失败**：能力测试「测试未通过：当前模型暂不兼容」，两探针均 HTTP 400；
+  curl 复现得 `MissingSessionID` —— 该端点要求 `x-opencode-session` 头，应用不发。
+- **修复 KD-31（`64c79456`）**：传输层按 host 补服务商兼容头（opencode.ai 精确匹配）
+  + 单测 5 例。修复后同一配置：**「测试通过：图片读取和讲解都可用」**
+  —— 同时证明该模型**支持视觉输入**（图片探针通过）。
+
+## 7. 分题 / 整理 的实测结果（未过）
+
+- 3 页批次「开始分题」→ UI「正在分好每一道题」；模型任务记录：
+  **1 成功 / 3 永久失败（2×INVALID_RESPONSE、1×能力缺省为配置前残留）/ 2 可重试失败（TIMEOUT）**。
+  成功那条的判定是 `NEED_MORE_IMAGE`（"第8题题干和选项被底部截断"等）——
+  模型在按设计做"题面完整性"质量门。
+- 单页整理（待处理第 1 条 → 点此继续）同样失败，重试后仍失败；
+  UI 收口为「这道题暂时没准备好 / 这次没有完成，原图已经保存，可以重新处理」。
+- **根因分析（curl 复现应用口径请求）**：
+  - 该模型是**推理型**：响应含 `reasoning_content`（一次评估思考 4,522–5,759 token）。
+  - 成功时：2048px 图 + 评估提示词 + json_object，**41.6s / 51.0s**、JSON 键集与枚举全部合规。
+  - 把 `max_tokens` 限到 2000：思考吃满预算 → `content` 为空（可复现）——与
+    INVALID_RESPONSE 的形态一致。
+  - 应用任务预算 `MODEL_TASK_TIMEOUT_MILLIS = 120_000`；观测到应用侧流式任务存活 >205s 后 TIMEOUT。
+- 结论：**分题/整理在当前模型下不可稳定通过**（登记 KD-33，未修）。
+
+## 8. 内存天花板（本轮最大发现，登记 KD-32）
+
+- 导入第 3 张测试照片时**进程 OOM 崩溃**：
+  `FATAL EXCEPTION: DefaultDispatcher-worker-10 → java.lang.OutOfMemoryError`
+  （Dalvik Heap alloc 134–147MB / 上限 192MB；Activity 被强关，`batch_import_job`
+  留 PROCESSING、页全 READY，后由 WorkManager 重试自愈为 COMPLETED）。
+- **知识包安装 OOM**：启动横幅「本地知识包尚未准备好 / 自动分类会暂缓」
+  （`Bundled knowledge install failed → OutOfMemoryError`，诊断编号 142862027；
+  重试装成后**重启复检再次 OOM**，编号 180194307；横幅在重启后才清除）。
+- 同期 SQLite 连接池饿死：`unable to grant a connection ... for 60s`。
+- 应用基线 Java 堆 ~130MB（上限 192MB），manifest 无 `largeHeap`；峰值来源未定位
+  （已排除：待处理列表不加载图片；dense 模型件走 mmap 不计入 Java 堆）。
+
+## 9. 下半段结论（断在哪）
+
+在本机（test_device，192MB 堆上限）+ 本轮模型（推理型 deepseek-v4.1-flash）的组合下：
+
+- ✅ 模型配置、连通、能力测试（含视觉）通过；
+- ⛔ **分题 / 整理**：推理模型的预算与超时口径不匹配 + 严格响应契约 ⇒
+  TIMEOUT / INVALID_RESPONSE 为主；成功时也会给出 `NEED_MORE_IMAGE` 质量判定
+  （用户给的是带手/裁边的试卷页，题面常被判不完整）；
+- ⛔ **入库 / 复习 / 判定 / 档案**：因整理未通过 + 知识包不可用（自动分类暂缓），
+  本轮不可达。
+
+**修复与登记**：KD-31 已修（`64c79456`）；KD-32（内存天花板）、KD-33（推理模型兼容）
+已登记未修。**换用非推理模型 + 解决内存天花板后重跑下半段**是继续走通的先决条件。

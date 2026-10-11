@@ -1129,3 +1129,69 @@ Route A 的 `TutorToolCall` 构造补 `extendedResult = arguments.optionalBoolea
 **Reopen condition.** 下次触碰工具协议（新增工具字段/路由对拍）时顺带修；或出现"模型在 native
 路由申请扩展预算却拿到基础预算"的真实观测时优先修。
 
+## KD-31 (fixed 2026-10-11) · opencode zen `/zen/go/v1` 要求 `x-opencode-session`，应用不发该头 ⇒ 该服务商下模型全部 400
+
+**Symptom.** 走查中把模型配到 opencode zen（`https://opencode.ai/zen/go/v1`，模型
+`deepseek-v4.1-flash`）后，「测试图片与讲解能力」报「测试未通过：当前模型暂不兼容」。
+logcat 两探针均 `status=400 bodyBytes=195`；curl 复现服务端错误体为
+`{"type":"error","error":{"type":"MissingSessionID", ...}}` —— 该端点要求每个请求携带
+`x-opencode-session`（官方文档：客户端应为每个会话发送稳定 session id，供路由与提示缓存）。
+应用侧协议头只有 Authorization/Accept（`OpenAiChatCompletionsProtocol.headers`），无任何
+自定义头机制；查询参数形式无效（实测仍 400）。
+
+**Fix (2026-10-11, `64c79456`).** 传输层按解析后的 host 追加服务商兼容头：
+`providerCompatibilityHeaders(host)`（`OpenAiModelTransport.kt`），仅当 host 精确等于
+`opencode.ai`（大小写不敏感、仿冒域不命中）时发 `x-opencode-session`，值取进程级稳定 UUID
+（服务端仅要求"每会话稳定"）。新增 `ProviderCompatibilityHeadersTest` 5 例。修复后同一配置
+能力测试转「测试通过：图片读取和讲解都可用」。
+
+**未覆盖.** 图片通道（`OpenAiImageGenerationChannel`）自建请求、不经该传输层——若将来把生图
+模型也配到该服务商，需要同一头。
+
+**Reopen condition.** 该服务商改用其它鉴权/路由要求，或第二个服务商出现同类必填头时，
+把兼容头机制从"host 判定"升格为可配置项。
+
+## KD-32 (open, 2026-10-11 登记) · 192MB 堆上限下的内存天花板：知识包安装与批量导入 OOM
+
+**Symptom.** test_device（API 34，4 vCPU/1536MB，应用堆上限 192MB，manifest 无 `largeHeap`）
+上走查观测到三处同源失败：
+1. **批量导入崩溃**：导入 3 张 3072×4096 照片时进程 OOM 死亡
+   （`FATAL EXCEPTION: DefaultDispatcher-worker-10 → java.lang.OutOfMemoryError`，
+   `dumpsys meminfo` 显示 Dalvik Heap alloc 134–147MB / 上限 192MB，GC 日志
+   "Clamp target GC heap from 215MB to 192MB" 后反复 `Throwing OutOfMemoryError`）；
+   Activity 被强关，`batch_import_job` 留在 PROCESSING（页全部 READY，后由 WorkManager
+   重试自愈为 COMPLETED，`run_attempt_count=2`）。
+2. **知识包安装 OOM**：启动横幅「本地知识包尚未准备好 / 自动分类会暂缓」，
+   logcat `SmartMistakeBook: Bundled knowledge install failed →
+   java.lang.OutOfMemoryError: OutOfMemoryError thrown while trying to throw OutOfMemoryError`。
+   重试可装成（`content_install_state` 落账、`knowledge_search_feature` 62 万行），
+   但下次启动复检可再次 OOM（诊断编号 142862027 → 180194307 两次不同哈希）。
+3. **SQLite 连接池饿死**：`SQLiteConnectionPool ... unable to grant a connection ... for 60s`。
+
+**Disposition（2026-10-11 登记，未修）.** 峰值来源未定位（基线堆 ~130MB 的支配者需 heap dump
+分析；已排除：待处理列表不加载图片、dense 模型件走 mmap 不计入 Java 堆）。最小后续：抓
+hprof 定位支配者；评估 `android:largeHeap`、知识包解析的分块/流式化、以及批量导入的解码尺寸。
+
+**Reopen condition.** 任何真机/模拟器上再次出现 OOM 或知识包横幅时，按本条继续定位。
+
+## KD-33 (open, 2026-10-11 登记) · 推理型模型在 CAPTURE_ASSESS 上高概率 TIMEOUT/INVALID_RESPONSE
+
+**Symptom.** `deepseek-v4.1-flash`（opencode zen）在「分题 / 单页整理」上：`model_task`
+记录 1 成功 / 3 永久失败（2×INVALID_RESPONSE「这次没有准备好题面」）/ 2 可重试失败
+（TIMEOUT「模型响应超时」）。该模型是**推理型**（响应含 `reasoning_content`，实测一次
+评估思考 4,522–5,759 token）。curl 复现应用口径请求（2048px 图 + 评估提示词 +
+json_object、无 max_tokens）：成功时 41.6s / 51.0s、JSON 合规（键集恰为
+decision/issues/suggestedActions/questionRegions，枚举合法）。但 `max_tokens=2000` 时
+思考吃满预算 → `content` 为空（可复现）——与 INVALID_RESPONSE 的形态一致；应用任务预算
+`MODEL_TASK_TIMEOUT_MILLIS = 120_000`，观测到的应用侧流式任务存活 >205s 后 TIMEOUT。
+
+**Disposition（2026-10-11 登记，未修）.** 应用侧可动的三个旋钮：给推理模型留输出预算
+（显式 max_tokens 或把 reasoning 计入预算）、评估任务的超时口径、以及解析器对
+"仅有 reasoning、content 为空"响应的显式归类（当前落到 INVALID_RESPONSE，用户看到的
+文案是「这次没有准备好题面」，归因不清）。解析侧另有一处严格点值得复核：`toAssessment`
+的 `requireOnlyKeys` 对多键零容忍，模型偶发多键即整条判无效（本次抓包样本合规，
+未取到失败时的原始响应，未能证实/证伪）。
+
+**Reopen condition.** 换用非推理模型即可绕过；若继续用推理模型，先修"预算/超时/空 content
+归类"三者之一再重测分题。
+
