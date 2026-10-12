@@ -462,9 +462,6 @@ class SmartMistakeBookApplication : Application() {
             knowledgeBaseAvailabilityTracker.markPreparing()
             try {
                 BundledKnowledgeBaseInstaller.install(database)
-                // R4a：调和全部完成，数据已在 Room——释放包对象图驻留（~40MB 级）。
-                // 后续 install() 命中快路径（戳一致）时零解析，释放安全。
-                BundledKnowledgeBaseInstaller.releaseResidentPacks()
                 knowledgeBaseAvailabilityTracker.markReady()
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -483,6 +480,14 @@ class SmartMistakeBookApplication : Application() {
                     diagnosticId = diagnosticId,
                     errorCategory = StartupErrorCategory.KNOWLEDGE_BASE,
                 )
+            } finally {
+                // KD-32：释放必须覆盖**失败**路径。改前只有成功路径释放，
+                // 安装一失败（如实测那次解析/调和 OOM）就把 ~100MB 的包对象图留在进程里——
+                // 失败态 idle Dalvik Alloc 111,350 KB vs 快路径健康态 8,068 KB，随后一次
+                // 只用 11.7MB Java 堆的批量导入会被这 100MB 挤到 OOM（PID 5016 的
+                // 40 字节分配失败）。失败即整体放弃驻留对象图，只保留进度戳重试；
+                // 下一次 install() 会重新解析，戳语义不变（进度行仍由 install() 最后写）。
+                BundledKnowledgeBaseInstaller.releaseResidentPacks()
             }
         }
         // 学习记录就绪与知识内容安装解耦：改前 install() 排在 initialize() 之前，
@@ -637,8 +642,6 @@ class SmartMistakeBookApplication : Application() {
                 knowledgeBaseAvailabilityTracker.markPreparing()
                 try {
                     BundledKnowledgeBaseInstaller.install(database)
-                    // 与启动协程同口径：重试成功后驻留对象图同样释放。
-                    BundledKnowledgeBaseInstaller.releaseResidentPacks()
                     knowledgeBaseAvailabilityTracker.markReady()
                     if (startupState.value == currentStartup) {
                         startupState.value = StartupState.Ready
@@ -649,6 +652,10 @@ class SmartMistakeBookApplication : Application() {
                     // 保持失败横幅，学生可再次点击重试；就绪位停在"不可用"（编号沿用
                     // 横幅上那一个，重试失败不产生第二个编号让学生无从对照）。
                     knowledgeBaseAvailabilityTracker.markUnavailable(currentStartup.diagnosticId)
+                } finally {
+                    // 与启动协程同口径（KD-32）：成功与失败都释放驻留对象图。重试失败
+                    // 若把它留在进程里，就是"又一次用 ~100MB 常驻换取一次失败"。
+                    BundledKnowledgeBaseInstaller.releaseResidentPacks()
                 }
             }
             try {

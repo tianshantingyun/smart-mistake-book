@@ -97,7 +97,11 @@ internal object BundledKnowledgePackResources {
         }
     }
 
-    /** 释放驻留对象图。由 install 完成后的进程编排侧调用（数据已在 Room）。可重复调用。 */
+    /**
+     * 释放驻留对象图。由 install 完成后的进程编排侧调用（数据已在 Room，或这次安装失败、
+     * 对象图下次重跑再解析——两种情形都不该常驻，见 installer 的 `releaseResidentPacks`）。
+     * 可重复调用。
+     */
     fun clear() {
         residentPacks = null
     }

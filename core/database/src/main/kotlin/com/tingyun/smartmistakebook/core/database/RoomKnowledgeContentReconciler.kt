@@ -74,17 +74,10 @@ internal class RoomKnowledgeContentReconciler(
         replaceNodeSourceBindings(command.nodeSourceBindings, retainedNodeIds, command.nodes)
         val relationsWritten = replaceRelations(command.relations, retainedNodeIds, command.nodes)
 
-        val existingMaterials = database.knowledgeTeachingMaterialDao()
-            .readByStableCodePrefix("${command.packId}:")
         val materials = planMaterials(
-            materials = command.materials,
-            bindingsByMaterial = command.materialBindings.groupBy(
-                KnowledgeTeachingMaterialNodeBindingRecord::materialId,
-            ),
+            command = command,
             acceptedNodeIds = retainedNodeIds,
             acceptedNodes = command.nodes.filter { it.knowledgeNodeId in retainedNodeIds },
-            teachingSources = command.teachingSources,
-            existingMaterials = existingMaterials,
             skipped = skipped,
         )
         if (materials.upserts.isNotEmpty()) {
@@ -98,9 +91,8 @@ internal class RoomKnowledgeContentReconciler(
             acceptedMaterialIds = materials.acceptedIds,
         )
         val materialsRetired = retireMaterials(
-            existingMaterials = existingMaterials,
-            packMaterialIds = command.materials
-                .mapTo(hashSetOf(), KnowledgeTeachingMaterialRecord::materialId),
+            standingIds = materials.standingIds,
+            stillInPackIds = materials.stillInPackIds,
         )
 
         // S21（2026-10-02）：安装期预热搜索特征索引。只重建**本轮节点有增改**的科目——
@@ -360,47 +352,105 @@ internal class RoomKnowledgeContentReconciler(
         val acceptedIds: Set<String>,
         val inserted: Int,
         val updated: Int,
+        /** 库里在、包里已没有的材料 id（退役候选）。 */
+        val standingIds: List<String>,
+        /** 两边都有的材料 id（"绑定被清零"检查的候选）。 */
+        val stillInPackIds: List<String>,
     )
 
-    private fun planMaterials(
-        materials: List<KnowledgeTeachingMaterialRecord>,
-        bindingsByMaterial: Map<String, List<KnowledgeTeachingMaterialNodeBindingRecord>>,
+    /**
+     * 材料差分：**分页读**库里的行，逐页比对、逐页释放。
+     *
+     * 消灭的失败（KD-32 设备实测峰值）：改前一次 `readByStableCodePrefix` 把整包 5 万行
+     * 材料连同每行正文读回内存（`kb_peak3.hprof`：KnowledgeTeachingMaterialEntity
+     * 50,869 个、随行字符串约 +30.5 万个 char[]，基线对比 ≈ +49MB），再叠加
+     * `existingById`（50,869 条映射）与 `groupBy`（每材料一张 List + 59,012 条映射）两个
+     * 中转结构，与驻留的包材料记录（59,010 条）同时在场，把 192MiB 上限的堆顶到
+     * 191.8MB（`0% free, 191MB/192MB`）后 OOM。
+     *
+     * 逐行判定语义**逐字不变**：每行仍用 `existing != material.toEntity()` 全等比较，
+     * 被跳过的理由与计数口径一致，退役集合仍是"库里在、包里没有"的全部 materialId
+     * （含前缀头段与尾段——段划分覆盖整个前缀区间，见 [materialScanSegments]）。
+     * 改的只是"整包在场"→"一页在场"；库里这一包的 id 仍需收集（退役判定要用），
+     * 但正文不再保留。
+     */
+    private suspend fun planMaterials(
+        command: KnowledgeContentUpdateCommand,
         acceptedNodeIds: Set<String>,
         acceptedNodes: List<KnowledgeNodeSeedRecord>,
-        teachingSources: List<KnowledgeSourceSeedRecord>,
-        existingMaterials: List<KnowledgeTeachingMaterialEntity>,
         skipped: MutableList<String>,
     ): MaterialPlan {
-        val existingById = existingMaterials.associateBy(KnowledgeTeachingMaterialEntity::materialId)
+        val dao = database.knowledgeTeachingMaterialDao()
+        val packPrefix = "${command.packId}:"
+        val packPrefixEnd = stableCodePrefixEnd(packPrefix)
+        val packMaterialIds = command.materials
+            .mapTo(hashSetOf(), KnowledgeTeachingMaterialRecord::materialId)
         val upserts = mutableListOf<KnowledgeTeachingMaterialRecord>()
         val acceptedIds = mutableSetOf<String>()
         var inserted = 0
         var updated = 0
-        for (material in materials) {
-            val ownBindings = bindingsByMaterial[material.materialId].orEmpty()
-            if (ownBindings.isEmpty()) {
-                // 无绑定的材料在装载时会被静默剔除、等于白写：显式记账，不无声丢弃。
-                skipped += "material:${material.materialId}: 没有任何知识节点绑定"
-                continue
-            }
-            val problem = KnowledgeTeachingMaterialContract.problemWith(
-                material = material,
-                bindings = ownBindings.filter { it.knowledgeNodeId in acceptedNodeIds },
-                nodes = acceptedNodes,
-                sources = teachingSources,
+        val standingIds = mutableListOf<String>()
+        val stillInPackIds = mutableListOf<String>()
+
+        // 绑定按 materialId 排序一次（5.9 万引用 ≈ 0.5MB），每条材料二分定位自己的绑定组。
+        // 改前 `groupBy { materialId }` 会同时活下 5.9 万张 List、5.9 万个后备 Object[]
+        // 与 5.9 万条映射条目（KD-32 直方图：ArrayList 59,543、Object[] +5.7 万、
+        // LinkedHashMapEntry +11 万的一部分）。
+        val sortedBindings = command.materialBindings.sortedBy(
+            KnowledgeTeachingMaterialNodeBindingRecord::materialId,
+        )
+
+        val pages = command.materials
+            .sortedBy(KnowledgeTeachingMaterialRecord::stableCode)
+            .chunked(MATERIAL_READ_PAGE_SIZE)
+        val segments = materialScanSegments(
+            packPrefix = packPrefix,
+            packPrefixEnd = packPrefixEnd,
+            pageFirstStableCodes = pages.map { it.first().stableCode },
+        )
+        for (segment in segments) {
+            val rows = dao.readMaterialsInStableCodeRange(
+                fromStableCode = segment.fromStableCode,
+                throughStableCode = segment.throughStableCode,
             )
-            if (problem != null) {
-                skipped += "material:${material.materialId}: $problem"
-                continue
+            val pageIndex = segment.pageIndex
+            if (pageIndex != null) {
+                val rowsById = rows.associateBy(KnowledgeTeachingMaterialEntity::materialId)
+                for (material in pages[pageIndex]) {
+                    val ownBindings = bindingsForMaterial(sortedBindings, material.materialId)
+                    if (ownBindings.isEmpty()) {
+                        // 无绑定的材料在装载时会被静默剔除、等于白写：显式记账，不无声丢弃。
+                        skipped += "material:${material.materialId}: 没有任何知识节点绑定"
+                        continue
+                    }
+                    val problem = KnowledgeTeachingMaterialContract.problemWith(
+                        material = material,
+                        bindings = ownBindings.filter { it.knowledgeNodeId in acceptedNodeIds },
+                        nodes = acceptedNodes,
+                        sources = command.teachingSources,
+                    )
+                    if (problem != null) {
+                        skipped += "material:${material.materialId}: $problem"
+                        continue
+                    }
+                    acceptedIds += material.materialId
+                    val existing = rowsById[material.materialId]
+                    when {
+                        existing == null -> { inserted++; upserts += material }
+                        existing != material.toEntity() -> { updated++; upserts += material }
+                    }
+                }
             }
-            acceptedIds += material.materialId
-            val existing = existingById[material.materialId]
-            when {
-                existing == null -> { inserted++; upserts += material }
-                existing != material.toEntity() -> { updated++; upserts += material }
+            // 这一段的库里行就地分流：正文随段一起释放，只留下退役判定需要的 id。
+            rows.forEach { row ->
+                if (row.materialId in packMaterialIds) {
+                    stillInPackIds += row.materialId
+                } else {
+                    standingIds += row.materialId
+                }
             }
         }
-        return MaterialPlan(upserts, acceptedIds, inserted, updated)
+        return MaterialPlan(upserts, acceptedIds, inserted, updated, standingIds, stillInPackIds)
     }
 
     private suspend fun replaceMaterialBindings(
@@ -428,31 +478,126 @@ internal class RoomKnowledgeContentReconciler(
      * 于是"绑定目标被丢弃"或"校验没过被跳过"的材料会剩 0 条绑定，而检索/讲题参考/复习题
      * 全都要经过绑定表——0 绑定等于不可达。不退役它就会留一条 status=ACTIVE 却谁也到不了的
      * 行，让"库里有多少材料"与"运行时能用到多少"永久对不上。
+     *
+     * [standingIds] / [stillInPackIds] 由 [planMaterials] 的分页扫描就地分流得到，口径与
+     * 改前"整包读回后求差集"逐字一致（`inDatabase - packMaterialIds` /
+     * `inDatabase ∩ packMaterialIds`），只是不再把行正文留在内存里。
      */
     private suspend fun retireMaterials(
-        existingMaterials: List<KnowledgeTeachingMaterialEntity>,
-        packMaterialIds: Set<String>,
+        standingIds: List<String>,
+        stillInPackIds: List<String>,
     ): Int {
         val dao = database.knowledgeTeachingMaterialDao()
-        val inDatabase = existingMaterials.mapTo(linkedSetOf(), KnowledgeTeachingMaterialEntity::materialId)
-        val standing = inDatabase.toMutableSet().apply { removeAll(packMaterialIds) }
-        var retired = standing.count { dao.retireMaterial(it) > 0 }
+        var retired = standingIds.count { dao.retireMaterial(it) > 0 }
 
-        val stillInPack = inDatabase.intersect(packMaterialIds)
-        if (stillInPack.isNotEmpty()) {
+        if (stillInPackIds.isNotEmpty()) {
             // 分块与同文件四条批量 DELETE 同口径（W4-4 的分块修复漏了这条 SELECT）：
             // 包规模（v2 教学支持侧车 5 万+ 材料）越过 SQLite 绑定变量上限时，这条
             // `IN (…)` 会抛 `SQLITE_ERROR: too many SQL variables`，整包安装失败。
             // 聚合语义不变：仍是"这些材料里仍有绑定的那些"的并集。
-            val stillBound = stillInPack
+            val stillBound = stillInPackIds
                 .chunked(MAX_IN_PARAMETERS)
                 .flatMap { dao.readBoundMaterialIds(it.toSet()) }
                 .toHashSet()
-            retired += (stillInPack - stillBound).count { dao.retireMaterial(it) > 0 }
+            retired += (stillInPackIds - stillBound).count { dao.retireMaterial(it) > 0 }
         }
         return retired
     }
 }
+
+/**
+ * 材料分页扫描的一段：半开区间 `[fromStableCode, throughStableCode)`。
+ *
+ * [pageIndex] 指向这一段要处理的包内材料页（`command.materials` 按 stableCode 排序后
+ * 每 [MATERIAL_READ_PAGE_SIZE] 条一页）；前缀头段（包内第一条材料之前）与空包为 null。
+ */
+internal data class MaterialScanSegment(
+    val fromStableCode: String,
+    val throughStableCode: String,
+    val pageIndex: Int?,
+)
+
+/**
+ * 材料分页扫描的段划分（纯函数，JVM 面可测）。
+ *
+ * 不变量——**准确性完全靠它们**（漏一段 = 库里在、包里的行被静默留下；重一段 = 同一行
+ * 被当两次退役候选）：
+ * 1. 第一段从 [packPrefix] 开始，最后一段到 [packPrefixEnd]（不含）结束；
+ * 2. 相邻段首尾相接：`segments[i].throughStableCode == segments[i + 1].fromStableCode`；
+ * 3. 因此各段合起来**恰好覆盖** `[packPrefix, packPrefixEnd)`，既不重也不漏。
+ *
+ * [pageFirstStableCodes] 是每页第一条材料的 stableCode（升序），段以它们为边界——所以
+ * 第 i 页的材料全部落在 `segments[i + 1]` 里（头段没有材料可处理）；空包只剩一个段，
+ * 仍覆盖整个前缀：**残留行照常退役**，不会因为"包里一条材料都没有"而漏掉。
+ */
+internal fun materialScanSegments(
+    packPrefix: String,
+    packPrefixEnd: String,
+    pageFirstStableCodes: List<String>,
+): List<MaterialScanSegment> {
+    val segments = ArrayList<MaterialScanSegment>(pageFirstStableCodes.size + 1)
+    var from = packPrefix
+    pageFirstStableCodes.forEachIndexed { index, pageFirstCode ->
+        segments += MaterialScanSegment(
+            fromStableCode = from,
+            throughStableCode = pageFirstCode,
+            pageIndex = if (index == 0) null else index - 1,
+        )
+        from = pageFirstCode
+    }
+    segments += MaterialScanSegment(
+        fromStableCode = from,
+        throughStableCode = packPrefixEnd,
+        pageIndex = pageFirstStableCodes.indices.lastOrNull(),
+    )
+    return segments
+}
+
+/**
+ * `stable_code` 前缀的**开区间上界**：`[prefix, 返回值)` 恰好是所有以 [prefix] 开头的
+ * 字符串（含 prefix 本身）。
+ *
+ * 为什么不是 `LIKE prefix || '%'`：区间比较是字节精确的，能吃到 `stable_code` 的唯一索引
+ * 做范围扫描（`LIKE` 用绑定参数时索引常常用不上，且对 ASCII 大小写不敏感、`_`/`%`
+ * 还会被当成通配符）；配合 [materialScanSegments] 的段边界，分页才可能是"索引上的一刀切"。
+ * [prefix] 的最后一个字符必须有后继（本文件的用法是 `"$packId:"`，':' → ';'）。
+ */
+internal fun stableCodePrefixEnd(prefix: String): String {
+    require(prefix.isNotEmpty()) { "Stable-code prefix must not be empty" }
+    val last = prefix.last()
+    check(last < Char.MAX_VALUE) { "Stable-code prefix has no successor character" }
+    return prefix.dropLast(1) + (last + 1)
+}
+
+/**
+ * 取某条材料的绑定组：`sortedBindings` 必须已按 materialId 升序（调用方排序一次），
+ * 二分定位后向两侧展开同 id 的邻居——同一 materialId 的绑定保持原有相对顺序。
+ *
+ * 消灭的失败（KD-32 峰值）：`groupBy` 在 5.9 万材料规模上同时建 5.9 万张 List 与
+ * 5.9 万条映射（ArrayList 59,543 / Object[] +5.7 万 / LinkedHashMapEntry +11 万的一部分，
+ * 约 12MB 浅尺寸）；这里只留一份排序副本（引用，无新字符串）。
+ */
+internal fun bindingsForMaterial(
+    sortedBindings: List<KnowledgeTeachingMaterialNodeBindingRecord>,
+    materialId: String,
+): List<KnowledgeTeachingMaterialNodeBindingRecord> {
+    var index = sortedBindings.binarySearch { it.materialId.compareTo(materialId) }
+    if (index < 0) return emptyList()
+    var start = index
+    while (start > 0 && sortedBindings[start - 1].materialId == materialId) start--
+    var end = index + 1
+    while (end < sortedBindings.size && sortedBindings[end].materialId == materialId) end++
+    return sortedBindings.subList(start, end)
+}
+
+/**
+ * 材料分页扫描的页大小：每段只在内存里存在一页实体（含正文）。
+ *
+ * 5 万行整包读回 ≈ +49MB char[]（KD-32）；500 行是它的 1% 量级，同时让
+ * `KnowledgeContentReconciliationInstrumentedTest` 的 1,200 材料用例跨满 3 页。
+ * 与 `MAX_IN_PARAMETERS`（SQLite 绑定变量口径）无关：本查询没有 `IN` 列表。
+ */
+private const val MATERIAL_READ_PAGE_SIZE = 500
 
 /**
  * 批量 `… IN (…)` 删除的分块上限。SQLite 绑定变量上限**旧平台为 999**

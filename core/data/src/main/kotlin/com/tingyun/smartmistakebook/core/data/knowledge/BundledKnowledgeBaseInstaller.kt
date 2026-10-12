@@ -74,8 +74,13 @@ object BundledKnowledgeBaseInstaller {
         manifest != null && recorded != null && recorded.contentVersion == manifest.contentVersion
 
     /**
-     * 释放驻留的包对象图，供进程编排侧（Application）在 install() 成功返回后调用：
-     * 那一刻数据已在 Room，对象图使命结束。
+     * 释放驻留的包对象图，供进程编排侧（Application）在 install() 返回后调用：
+     * 那一刻数据要么已在 Room，要么这次安装压根没成——两种情形它都不再有用。
+     *
+     * **成功与失败都调**（KD-32）：改前只有成功路径调，安装失败（如实测那次解析/调和 OOM）
+     * 就把 ~100MB 对象图留在进程里——失败态 idle Dalvik Alloc 111,350 KB vs 快路径健康态
+     * 8,068 KB，随后一次只用 11.7MB Java 堆的批量导入被这 100MB 挤到 OOM。失败即整体放弃
+     * 驻留对象图，只保留进度戳重试：对象图是纯派生数据，下次 install() 重新解析即可，戳语义不变。
      *
      * 安全前提：全仓唯一生产消费方是本 installer（`BundledKnowledgePackResources`
      * 的 grep 核实；测试不算生产路径）。释放后，后续 install() 命中快路径时零解析；

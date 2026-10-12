@@ -101,6 +101,15 @@ internal class AndroidCanonicalAssetVault(
 
             val options = BitmapFactory.Options().apply {
                 inPreferredConfig = Bitmap.Config.ARGB_8888
+                // KD-32：先按解码预算采样再解码，别把 3072×4096（ARGB_8888 = 50.3MB/张）
+                // 整幅解码进内存——批量导入 3 页时实测 native 峰 190.9MB（`Native Heap`
+                // 195,449 KB）。采样只降分辨率、不放大；接受门（MAX_DIMENSION / MAX_PIXELS）
+                // 仍在**源图**的 bounds 上执行，接受范围与拒绝行为逐字不变。
+                inSampleSize = boundedDecodeSampleSize(
+                    width = bounds.width,
+                    height = bounds.height,
+                    maxEdgePx = MAX_DECODE_EDGE_PX,
+                )
             }
             decoded = BitmapFactory.decodeFile(raw.path, options)
                 ?: error("Capture pixels cannot be decoded")
@@ -460,9 +469,52 @@ internal class AndroidCanonicalAssetVault(
         const val MAX_CANONICAL_BYTES = 24L * 1_024L * 1_024L
         const val MAX_CLEAN_INPUT_BYTES = 24L * 1_024L * 1_024L
         const val MAX_DIMENSION = 8_192
+
+        /** 源图接受门：超过这个像素数直接拒绝（不参与解码预算）。 */
         const val MAX_PIXELS = 16_000_000L
+
+        /**
+         * 解码长边预算（KD-32，设备实测后的口径）。
+         *
+         * 消灭的失败：3072×4096 的照片按整幅 ARGB_8888 解码是 50.3MB/份（解码 + Exif 旋转
+         * 副本各一份），批量导入多页叠加把 native 堆顶到 190.9MB（`sample_import_run.txt`
+         * 00:49:08 `Native Heap Alloc 195,449 KB`，同一时刻 Dalvik Alloc 只有 13MB——
+         * 约束根本不在 Java 堆）。
+         *
+         * 取 2_048 的依据是**消费方既有的分辨率上限**，不是拍脑袋：预览
+         * （`BoundedLocalImage` MAX_PREVIEW_EDGE = 1_600）、PDF 重绘
+         * （`DeterministicMistakePdfRenderer` MAX_CLEAN_IMAGE_EDGE_PX = 2_000）、出网
+         * （`EgressImageBudget.MAX_EDGE_PX` = 2_048）都在这个值以内；规范资产再大也只是
+         * 在解码、旋转、本机 OCR（ML Kit 同样整幅读这份文件）里多占内存。
+         * 采样按 2 的幂：3072×4096 → 1536×2048（12.6MB），单份像素缓冲降到 1/4，
+         * 上限是 2048² × 4B = 16.8MB。追求打印级细节的学生原图仍留在系统相册，不经过这里。
+         */
+        const val MAX_DECODE_EDGE_PX = 2_048
+
         const val MAX_EMPTY_READS = 16
         const val JPEG_QUALITY = 95
         const val CROP_PADDING_FRACTION = 0.015
     }
+}
+
+/**
+ * 解码采样率（纯函数，JVM 面可测）：把 `width × height` 的源按 2 的幂降到长边不超过
+ * [maxEdgePx]；已经够小返回 1（**不放大**，否则小图会被无端重采样）。
+ *
+ * 逐边界行为：
+ * - 长边恰好等于预算 → 1（例：2048×1536）；
+ * - 长边超预算 → 最小 2 的幂（例：3072×4096 → 2，落到 1536×2048）；
+ * - 短边降到 1 像素以下就不再加倍（1 像素高的退化图保持原样，避免解码器拿到 0 尺寸）。
+ */
+internal fun boundedDecodeSampleSize(width: Int, height: Int, maxEdgePx: Int): Int {
+    require(width > 0 && height > 0) { "Capture dimensions must be positive" }
+    require(maxEdgePx > 0) { "Capture decode edge budget must be positive" }
+    var sample = 1
+    while (
+        maxOf(width, height) / sample > maxEdgePx &&
+        minOf(width, height) / (sample * 2) >= 1
+    ) {
+        sample *= 2
+    }
+    return sample
 }

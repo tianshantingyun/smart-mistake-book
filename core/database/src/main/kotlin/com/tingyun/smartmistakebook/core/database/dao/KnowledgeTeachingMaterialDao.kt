@@ -71,12 +71,30 @@ internal interface KnowledgeTeachingMaterialDao {
     // ---- 内容调和用的读/写面（见 BundledKnowledgeBaseInstaller）----
 
     /**
-     * 某个内容包登记在库里的**全部**材料。按 `stable_code` 前缀匹配——它的构法是
-     * `"$packId:$subject:teaching:$slug"`，所以前缀 `"$packId:"` 恰好圈定这个包，
-     * 不会把另一个包的侧车混进来。
+     * 某个内容包在库里的材料，**按 stable_code 区间分页读**。
+     *
+     * 区间是半开 `[fromStableCode, throughStableCode)`，由调和侧按"每页第一条材料的
+     * stable_code"切段（`materialScanSegments`）：段与段相接、不相交，合起来恰好覆盖
+     * `"$packId:"` 到它上界之间的全部行（材料 stableCode 的构法是
+     * `"$packId:$subject:teaching:$slug"`，所以这个区间恰好圈定这个包，不会把另一个包
+     * 的侧车混进来，也不会落进别的包的行）。
+     *
+     * 消灭的失败（KD-32，设备实测峰值）：改前 `readByStableCodePrefix` 一次把整包
+     * 5 万行（每行正文各一份，实测 +30.5 万个 char[]／≈49MB）读回内存，与驻留的包材料
+     * 记录同时在场，把 192MiB 上限的堆顶到 191.8MB 后 OOM。分页后每段只在内存里存在
+     * 一页实体，逐页比对、逐页释放；逐行判定语义不变（见 `RoomKnowledgeContentReconciler`）。
      */
-    @Query("SELECT * FROM knowledge_teaching_material WHERE stable_code LIKE :packPrefix || '%'")
-    suspend fun readByStableCodePrefix(packPrefix: String): List<KnowledgeTeachingMaterialEntity>
+    @Query(
+        """
+        SELECT * FROM knowledge_teaching_material
+        WHERE stable_code >= :fromStableCode AND stable_code < :throughStableCode
+        ORDER BY stable_code ASC
+        """,
+    )
+    suspend fun readMaterialsInStableCodeRange(
+        fromStableCode: String,
+        throughStableCode: String,
+    ): List<KnowledgeTeachingMaterialEntity>
 
     /** upsert 而非 REPLACE：REPLACE 先删后插，会撞上引用材料的 RESTRICT 外键。 */
     @Upsert
