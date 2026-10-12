@@ -187,3 +187,207 @@
 
 **修复与登记**：KD-31 已修（`64c79456`）；KD-32（内存天花板）、KD-33（推理模型兼容）
 已登记未修。**换用非推理模型 + 解决内存天花板后重跑下半段**是继续走通的先决条件。
+
+---
+
+# 第三段（2026-10-13）：KD-32 内存天花板与 KD-33 推理模型链路的修复验收
+
+> 缘起：第二段登记的两条缺陷本轮一起修（两簇共 24 个文件：模型链路 16 个、内存修复 8 个；
+> 截至本节记录时**均未提交**——`git status --porcelain` 逐文件核对：22 个 `M` + 2 个新增
+> 测试 `??`，见 §14）。数据来源分四层，本节逐条标注：
+> **① 走查**——test_device（emulator-5554，APK `localFirstDebug`，214,625,307B，构建于本机
+> 10-13 02:24），2026-10-12 18:29–19:28 UTC（＝本机 10-13 02:29–03:28）；
+> **② 独立核对**——从设备 DB、logcat、存档截图、`build/mem-sample.txt` 与源码逐条复算，
+> 并更正走查的 7 处数字（§12）；
+> **③ 独立复核**——静态读码 + Gradle 编译/单测/两条仪器化套件实跑（命令见 §13）；
+> **④ 强门禁**——脚本跑：assemble + `:core:data` 全量回归通过=true（既有红
+> `DenseRecallRerankerTest` 点名、不计）。
+> 本节记录者只回读了源码行号与本地证据（APK mtime、截图清单、`mem-sample.txt` 列复算、
+> 24 个文件 git 状态），**未重跑**设备命令与 Gradle；凡标"未复核／未验证"处即没有独立证据。
+
+## 10. 本轮改动
+
+### 10.1 模型链路（→ KD-33）
+
+| 主题 | 落点（已回读源码） |
+| --- | --- |
+| 防呆上限 120s → 600s | `MODEL_TASK_CEILING_MILLIS = 600_000L`（`RoomModelTaskRepository.kt:1077`，`withTimeout` 调用点 `:350`）；KDoc 明示"防呆安全上限，不是输出/时长预算" |
+| 空闲看门狗 300s（只改注释） | `READ_TIMEOUT_SECONDS = 300`（`OpenAiModelTransport.kt:454`）＝非流式首字节前静默上限／流式相邻 chunk 间隔上限；绝对上限 `CALL_TIMEOUT_SECONDS = 600`（`:456`） |
+| 截断 → 可重试 | `ModelFailureCode.INCOMPLETE_OUTPUT`（`ModelTasks.kt:106`）；`IncompleteModelOutputException` 与 `TRUNCATING_FINISH_REASONS={length,content_filter}`（`OpenAiModelResponseParsing.kt:144` 附近、`:167`）；非流式 `OpenAiModelProtocol.kt:626`、流式重建 `OpenAiSse.kt:135` 命中即抛；网关 retryable（`OpenAiCompatibleModelGateway.kt:279`、`:421`、`:850`）；`ModelFailureRecovery.kt:29`；文案 `AppFailure.kt:258` / `TutorLobbyRoute.kt:428` |
+| 影响面闭合（点名行号之外补的一处） | `toGatewayEvent`（`OpenAiCompatibleModelGateway.kt:417-421`）在 `catch(_: Exception)`（`:422`）前先分流 `IncompleteModelOutputException`——不分流则"有 content 的截断"（非流式与流式终态两条真实路径）仍被吞成 INVALID_RESPONSE |
+| `reasoning_text` 拼写 | `OpenAiSse.kt:66-68` 认 `reasoning` / `reasoning_content` / `reasoning_text` |
+| 归因日志（A4） | 仓库层 INVALID_RESPONSE 出口写异常类+消息（`RoomModelTaskRepository.kt:546-555`）；网关兜底 catch 同口径（`OpenAiCompatibleModelGateway.kt:422-426`）；用户可见文案不动 |
+
+新增用例全部落在既有测试文件内：OpenAiSseTest×6、OpenAiModelProtocolMockWebServerTest×2、
+OpenAiSseTransportTest×2、OpenAiCompatibleModelGatewayTest×2、AppFailureMappingTest×1、
+ModelFailureRecoveryTest×1（14 个函数名本节记录者已逐一 grep 核对存在；独立复核计作
+"A2/A3/A4 新增 11 条"——两处计数口径不一致，以函数名清单为准）。
+
+### 10.2 内存修复（→ KD-32）
+
+- **失败路径也释放包对象图**：`releaseResidentPacks()` 挪进 `finally`
+  （`SmartMistakeBookApplication.kt:483-491`、`:658`）。诊断口径：安装失败态 idle Dalvik
+  111,350KB vs 快路径健康 8,068KB，随后一次只用 11.7MB Java 堆的批量导入被这 ~100MB 挤到 OOM。
+- **知识库材料差分改分页**：按 stableCode 分段、每段 500 行
+  （`MATERIAL_READ_PAGE_SIZE`，`RoomKnowledgeContentReconciler.kt:403-415`、`:600`）；
+  `groupBy` 换排序一次 + 二分定位（`:395-401`、`:580`）；DAO 半开区间分页查询替代
+  LIKE（`KnowledgeTeachingMaterialDao.kt:73-97`）。逐行判据与退役集合口径逐字不变。
+- **导入解码采样**：`import()` 按 `MAX_DECODE_EDGE_PX = 2048` + 纯函数
+  `boundedDecodeSampleSize` 设 `inSampleSize`（`AndroidCanonicalAssetVault.kt:102-113`、
+  `:492`、`:509`）——3072×4096（ARGB_8888 50.3MB）→ 1536×2048／12.6MB。
+- KDoc 契约同步（`BundledKnowledgeBaseInstaller.kt:80-91`、`BundledKnowledgePackResources.kt:100-103`，无行为改动）；
+  新增两个 JVM 测试文件：`RoomKnowledgeContentReconcilerMaterialScanTest`（4 例）、
+  `CanonicalDecodeSamplingTest`（5 例）。
+
+## 11. 设备实测数字
+
+### 11.1 安装与启动
+
+- `adb install -r` → `Performing Streamed Install / Success`；`lastUpdateTime`=2026-10-12
+  18:29:05 UTC、`firstInstallTime` 仍为 2026-10-11 04:08:12（未重装）。数据保留：
+  `model_task` 13 行 → 18 行；`problem_draft` 55 行 → **90 行**（88 `EDITING` + 2 `ABANDONED`）；
+  走查报告里的"88"是 UI 计数（「88 道临时题记录」）不是表行数，表查询以 90 行为准。
+- 启动 90s+ 无「本地知识包尚未准备好」横幅（截图 `w01-launch-90s.png`）；
+  `grep -ci 'Bundled knowledge install failed'` 在存档 logcat（18:29:28–18:50:43，7502 行）
+  与当前缓冲（19:11:28–19:27:52）均为 **0**。进程 pid 27462 连续（启动实测 18:29:42，
+  走查报 18:29:27 差 15s——以 /proc 反推值为准）。
+
+### 11.2 知识包全量安装（第一处峰值）
+
+- APK 内 `knowledge/moe-2025-update-manifest.json` 的 `contentVersion`=32682dbc9b1a7d05
+  vs 设备旧戳 627d8d43503e41c1（不等 → 必走全量）。
+- logcat：`packs fully parsed in 29059 ms (2 packs)`（18:30:17）+
+  `install finished in 1133477 ms (full path: parse + reconcile)`（18:48:40）
+  ——**全量安装约 1,133s（≈18.9 分钟）**。
+- `content_install_state`：`moe-2025-four-subjects-v1|32682dbc9b1a7d05|1791830920718|0`、
+  `moe-2020-foundation-v1||1791830288532|0`；台账 `knowledge_search_feature`=623,774 ／
+  `knowledge_node`=4,187 ／ `knowledge_teaching_material`=59,016。
+- 全程无 OOM、无失败横幅、进程未死。
+- 安装窗口的 Java 堆采样（走查报 Dalvik Alloc 86,377→107,245→107,094→107,094→120,968 KB）
+  ——**无留存采样件，独立核对未能复核**（仅能确认 192MB 口径：`dalvik.vm.heapgrowthlimit=192m`）。
+
+### 11.3 能力测试与真实评估
+
+- 大模型设置（opencode / deepseek-v4.1-flash / `https://opencode.ai/zen/go/v1`）→
+  uiautomator 出现「测试通过：图片读取和讲解都可用。」；logcat 三探针全 200：
+  structured `status=200 bodyBytes=727`、image `bodyBytes=567`、tools `bodyBytes=734`；
+  DataStore 三个 verified 标记（image/structured/function calling）均为 true（独立核对字节级实读）。
+- 单页整理拿到真实评估（非「这次没有完成」）：`第7题只拍到A、B两个选项，C、D选项及作答区未入镜`
+  ＋`题目内容还没拍全。继续补拍下一页，已保存的页面不会丢失。`（截图 `w21-organize.png`，
+  19:09:50）；DB 佐证 `output_snapshot`：decision=NEED_MORE_IMAGE、issues[0]=MISSING_OPTIONS/
+  BLOCKING、suggestedActions=[ADD_IMAGE]、modelVersion=deepseek-v4.1-flash，耗时 544.6s、SUCCEEDED。
+
+### 11.4 长思考不再被 120s 砍掉（KD-33 设备实证）
+
+- 装机后共 5 条 CAPTURE_ASSESS：SUCCEEDED 136.9s／191.2s／544.6s，INVALID_RESPONSE 55.9s／113.9s。
+  三条 >120s 的均落成功终态——旧口径下必判 TIMEOUT。
+- 全库唯一 `failure_code='TIMEOUT'`：`model-task-b01b8c4285ec0d31e0b83ffdac156eb2`，
+  created 2026-10-11 15:11:49（装机前）。
+- 但**新截断分类（INCOMPLETE_OUTPUT）本轮无设备实证**——5 条任务里没有该形态，只有单测覆盖。
+
+### 11.5 整卷分题与批量导入
+
+- 「开始分题」→ 边界评估任务（subject=`batch-boundary-d15aaac1bd58d0e7e171d0ce75fe0b30`）
+  created 19:11:28.230／updated 19:13:22.082＝113.9s 后 PERMANENT_FAILURE/INVALID_RESPONSE；
+  根因非超时：`IllegalArgumentException: Only a split decision may contain two to twelve
+  question regions`（`core/model/.../CaptureAssessmentTasks.kt:126`，logcat 19:13:22.077）
+  ——模型返回的 questionRegions 数量/形态不满足 2–12 约束，**解析严格度问题，本轮未修**。
+- 分题结果与落账仍在：`split_import_job` 三条（`:1` READY count=11、`:2` READY=10、
+  `capture-split:capture-split:batch-split:…:1` READY=11）、`split_import_question` 共 36 行
+  =11+10+2+2+11，两页 `output_snapshot` 的 questionRegions 长度恰为 11/10；
+  UI「切分完成，勾选要录入的题目 11/11」+ 第 0–3 题（截图 `w22-split-result.png`）。
+  双前缀 job 的 `created_at`=19:02:07.832（跟随页 1 的 SPLIT 判定落账，**不是**分题动作新增）；
+  双前缀来源：`CaptureModelTaskPolicy.kt:70` 与 `RoomCaptureWorkflowRepository.kt:360` 两处都加前缀。
+- 批量导入 3 张 3072×4096（MediaStore `_id` 1000000105/106/107 =
+  IMG20260810005902/005245/005114）：DB 三页全 READY、failure_code 空、attempt_count=1；
+  3 条新 `canonical_source_asset` 均 **1536×2048**（源 1/2 采样，采样生效）、
+  byteSize 1,512,061／1,372,183／1,294,520。
+  走查引用的 UI 文案「已保存 3 页 · 需重试 0 页 · 剩余 0 页」**未出现在任何留存截图**，
+  只能由 DB+源码推出（`BatchImportRepository.kt:100-103` 口径 + `BatchImportRoute.kt:557-560`）；
+  且"已保存"只表示原图落库——**页 0 的模型评估实为 INVALID_RESPONSE（55.9s）**，
+  只有页 1/页 2 评估成功（SPLIT 11/10）。
+
+### 11.6 内存峰值与崩溃计数（第二处峰值）
+
+- `build/mem-sample.txt`（80 个采样，t=3s…240s，18:59:37–19:04:27）**按同文件复算列最大值**：
+  Native Heap Alloc 峰 **157,759 KB**、Heap Size 峰 192,772 KB（t=30s）；
+  Dalvik Heap Alloc 峰 **25,670 KB**（走查报 19,116 KB 与文件不符——独立核对指出系读错列，
+  方向结论不变）。列语义由 Native 一行的同一映射自证（第 6 列 Size／第 7 列 Alloc）。
+- 对照 KD-32 崩溃窗口：Dalvik 134–147MB／192MB 上限；native 峰 195,449 KB（诊断口径，
+  现记录在 `AndroidCanonicalAssetVault.kt:105-106`；docs/ 下无此数）。
+- `FATAL EXCEPTION`=0、`OutOfMemoryError`=0（logcat -d 主缓冲 + `-b crash` 0 行 +
+  `/data/tombstones`、`/data/anr` 为空且 mtime 停在 10-11）；pid 27462 全程未变。
+
+## 12. 独立核对对本轮走查的更正（引用本节数字前必读）
+
+1. **最新一条 `model_task` 的真实状态是 PERMANENT_FAILURE/INVALID_RESPONSE**——按 `created_at`
+   与 `updated_at` 排序都是同一条（19:13:22 的整卷边界任务）；走查"按 updated_at 最新为
+   SUCCEEDED"的补述不成立。ask 原句查询现返回 `INVALID_RESPONSE / INVALID_RESPONSE / SUCCEEDED`
+   （走查输出是 19:11 分题动作之前的快照）。
+2. **Dalvik 峰值列读错**：应为 25,670 KB（见 §11.6）。
+3. 「已保存 3 页 · 需重试 0 页 · 剩余 0 页」无截图留存；页 0 评估为 INVALID_RESPONSE。
+4. `batch_import_job batch-6ba9eefe…` 现为 **COMPLETED**（updated 19:13:22.126，走查记 PROCESSING），
+   页 0/页 1 的 `boundary_after_status=FAILED`、页 2=PENDING；双前缀 capture-split job
+   的 `created_at`=19:02:07（不是分题动作新增）。
+5. `problem_draft` 表 90 行（88 `EDITING`）；走查的"88"是 UI 计数不是表计数。
+6. 进程启动时刻实为 18:29:42（非 18:29:27）。
+7. 知识包安装窗口堆采样无留存件、KD-32 的 native 195,449 KB 在 docs/ 下查无（现已见于源码注释）
+   ——两项**无法独立复核**，其余结论（120s 放宽、两处峰值未打爆、全量安装成功、
+   批量导入无崩溃、真实评估非假象）独立核对均逐条复算通过。
+
+## 13. 仍未验证 / 遗留
+
+**KD-33 侧（未覆盖项明细在 KD-33 条目里，此处只列验收缺口）**
+
+- `INCOMPLETE_OUTPUT` 新分类**无设备实证**（装机后 5 条任务无该形态，仅单测）。
+- 截断分流只落 Chat Completions 协议族；Anthropic（stop_reason=max_tokens）／
+  Gemini（finishReason=MAX_TOKENS）／Responses（status=incomplete）未做分类（`AnthropicMessagesProtocol.kt:108`、
+  `GeminiGenerateContentProtocol.kt:121`、`OpenAiResponsesProtocol.kt:96`）。
+- 整卷「开始分题」的边界评估仍以 INVALID_RESPONSE 失败（2–12 区间约束，`CaptureAssessmentTasks.kt:126`）——未修。
+- `MODEL_TASK_CEILING_MILLIS` KDoc 把"每轮 600s"写成"一条任务 600s"（实现上 `withTimeout`
+  只包住一轮 `gateway.execute`，MAX_DISPATCHES=6 ⇒ 一条任务最多 ≈6×600s）——注释口径不一致。
+- 流式 `tool_calls` 轮 `content=null` 形态（`OpenAiSse.kt:127-141`）仍判不可重试——是否真实发生未验证。
+- DB 读路径 `ModelTaskTransactionDao.kt:435` 裸 `valueOf` 无降级兜底（仅降级方向风险）。
+
+**KD-32 侧**
+
+- `crop()`（`AndroidCanonicalAssetVault.kt:141-144`）与 `persistCleanImageBytes`（`:219-220`）
+  仍整幅解码（允许至 8192/16MP，单帧≈64MB）；采样只覆盖 `import()`，批量拆页走的 crop 未覆盖。
+- 采样路径无设备级用例（仪器化夹具为 40×80 小图）；>2048 源图的**分辨率语义变化**对
+  OCR/裁剪精度的影响未验证。
+- 知识包失败重试需重新全量解析（~16.7s parse 口径、~100MB 对象图；停在 RecoverableFailure 时
+  每次 onResume／横幅重试都重付一次——`MainActivity.kt:33-34` → `refreshStudyExperience`）——有意取舍。
+- 仪器化用例覆盖 3 页插入与幂等，无"跨段退役"断言。
+- 未动 `android:largeHeap`、未改 manifest（诊断不支持"工作集本身超 192MB 且没有更小的修法"）。
+
+**本轮执行的验证 vs 未执行项（避免误读为通过）**
+
+- **未跑**：其余仪器化套件、lint、`tools/` 下 Python 测试；`core:data` 整模块编译；
+  knowledge 包两处 KDoc-only 改动未单独编译。
+- **本轮实跑（独立复核，命令原文与结果）**：
+  `./gradlew.bat :app:compileLocalFirstDebugKotlin --rerun-tasks --offline`（BUILD SUCCESSFUL）、
+  `:core:model:testDebugUnitTest` 416/0、`:core:database:testDebugUnitTest` 181/0、
+  `:core:data:cleanTestDebugUnitTest :core:data:testDebugUnitTest` 731/0、
+  `:feature:tutor/:feature:capture/:feature:library` 209/110/39 全 0 失败、
+  `:core:database:connectedDebugAndroidTest --class=KnowledgeContentReconciliationInstrumentedTest` 7/7、
+  `:core:data:connectedDebugAndroidTest` 17/17。
+- **强门禁（脚本跑）**：assemble + `:core:data` 全量回归通过=true
+  （既有红 `DenseRecallRerankerTest` 点名、不计）。
+- 独立复核已核实**不成立**的怀疑点（备查）：分页段划分/前缀区间等价（纯函数 + 1,200 材料设备用例；
+  上界 `:`→`;` 之间无字符）、排序假设安全（stable_code 为 `[a-z0-9-]+` slug）、
+  `releaseResidentPacks` 两路径调用无并发破绽、无自动重试回路（RETRYABLE_FAILURE 不在
+  TUTOR_LIVE_TASK_STATUSES，重试是用户动作且预算重置）、既有测试无截断夹具被偷改期望。
+
+## 14. 本段结论与 KD 状态
+
+- **KD-33 → fixed（2026-10-13，OpenAI Chat Completions 协议族；引用提交待补）**：
+  600s 防呆上限 + 300s 空闲看门狗 + `finish_reason` 截断归为可重试 `INCOMPLETE_OUTPUT` +
+  `reasoning_text` 拼写。设备实证是 timeout 口径（3 条 >120s 成功、0 条 TIMEOUT）；
+  截断分类与协议族缺口见 §13。
+- **KD-32 → 保持 open（两处峰值已修，剩余见条目）**：知识包全量安装 1,133s 跑完无 OOM/无横幅、
+  批量导入 3 张 3072×4096 无崩溃（Native 峰 157,759 KB vs 崩溃 195,449 KB；
+  Dalvik 峰 25,670 KB vs 崩溃 134–147MB）+ 全程 0 FATAL/0 OOM。未达项：crop/重绘整幅解码
+  未覆盖、采样路径无设备用例、分辨率语义变化影响未验证。
+- **两簇改动截至本节记录时未提交**（`git status` 逐文件核对：模型链路 16 个文件全 `M`
+  ——含 `feature/tutor/.../TutorLobbyRoute.kt`；内存修复 8 个文件——6 个 `M` + 2 个新增测试 `??`）。
+  提交后需把提交号补进 KD-32/KD-33 条目（"引用提交待补"）。

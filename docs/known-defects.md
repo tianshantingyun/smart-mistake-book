@@ -1151,7 +1151,7 @@ logcat 两探针均 `status=400 bodyBytes=195`；curl 复现服务端错误体�
 **Reopen condition.** 该服务商改用其它鉴权/路由要求，或第二个服务商出现同类必填头时，
 把兼容头机制从"host 判定"升格为可配置项。
 
-## KD-32 (open, 2026-10-11 登记) · 192MB 堆上限下的内存天花板：知识包安装与批量导入 OOM
+## KD-32 (open, 2026-10-11 登记；2026-10-13 两处峰值已修，剩余见下) · 192MB 堆上限下的内存天花板：知识包安装与批量导入 OOM
 
 **Symptom.** test_device（API 34，4 vCPU/1536MB，应用堆上限 192MB，manifest 无 `largeHeap`）
 上走查观测到三处同源失败：
@@ -1168,13 +1168,64 @@ logcat 两探针均 `status=400 bodyBytes=195`；curl 复现服务端错误体�
    但下次启动复检可再次 OOM（诊断编号 142862027 → 180194307 两次不同哈希）。
 3. **SQLite 连接池饿死**：`SQLiteConnectionPool ... unable to grant a connection ... for 60s`。
 
-**Disposition（2026-10-11 登记，未修）.** 峰值来源未定位（基线堆 ~130MB 的支配者需 heap dump
-分析；已排除：待处理列表不加载图片、dense 模型件走 mmap 不计入 Java 堆）。最小后续：抓
-hprof 定位支配者；评估 `android:largeHeap`、知识包解析的分块/流式化、以及批量导入的解码尺寸。
+**Fix（2026-10-13，提交 `42096510`）· 三处支配者各削一刀：**
 
-**Reopen condition.** 任何真机/模拟器上再次出现 OOM 或知识包横幅时，按本条继续定位。
+1. **失败路径也释放包对象图**（诊断条目①／⑤）：`releaseResidentPacks()` 从成功路径挪进
+   `finally`——启动协程 `SmartMistakeBookApplication.kt:483-491` 与横幅重试 `:658` 两处。
+   安装失败不再把 ~100MB 包对象图留驻进程（诊断实测失败态 idle Dalvik 111,350KB vs
+   快路径健康 8,068KB；随后一次只用 11.7MB Java 堆的批量导入被这 100MB 挤到 OOM）。
+   `BundledKnowledgeBaseInstaller.kt:80-91` 与 `BundledKnowledgePackResources.kt:100-103`
+   的 KDoc 同步为"成功与失败都释放、对象图是纯派生数据下次重解析"。
+2. **知识库材料差分改分页**（诊断条目②③）：整包 `readByStableCodePrefix` 整读
+   （`kb_peak3.hprof`：50,869 实体 + ≈30.5 万随行字符串/≈49MB char[]）改为按 stableCode
+   分段、每段 500 行（`MATERIAL_READ_PAGE_SIZE`，`RoomKnowledgeContentReconciler.kt:403-415`、
+   `:600`）；`groupBy{materialId}` 换成排序一次 + 二分定位（`:395-401`、`:580`），去掉
+   59,543 个 ArrayList 与 ~5.9 万映射条目。DAO 换半开区间分页查询
+   `readMaterialsInStableCodeRange(from, through)`（字节精确、走 stable_code 唯一索引，
+   `KnowledgeTeachingMaterialDao.kt:73-97`）；旧 LIKE 方法全仓无调用方、随实现移除。
+   逐行判据（`existing != material.toEntity()` 全等）与退役集合口径逐字不变。
+3. **导入解码采样**（诊断条目④）：`import()` 解码前按 `MAX_DECODE_EDGE_PX = 2048` 与纯函数
+   `boundedDecodeSampleSize` 设 `inSampleSize`（只降不放大；接受门 MAX_DIMENSION/MAX_PIXELS
+   仍在源图 bounds 上执行）——3072×4096 单张 50.3MB → 1536×2048／12.6MB
+   （`AndroidCanonicalAssetVault.kt:102-113`、`:492`、`:509`）。
 
-## KD-33 (open, 2026-10-11 登记) · 推理型模型在 CAPTURE_ASSESS 上高概率 TIMEOUT/INVALID_RESPONSE
+**验收（设备实测，2026-10-12 18:29–19:28 UTC，装机 APK 构建于本机 10-13 02:24）.**
+知识包**全量**安装（戳不一致 32682dbc9b1a7d05 vs 旧 627d8d43503e41c1）跑完：
+`packs fully parsed in 29059 ms (2 packs)`、`install finished in 1133477 ms
+(full path: parse + reconcile)`（≈1,133s）；无 OOM、无失败横幅、进程未死
+（pid 27462 全程连续），戳已回写（`content_install_state` 18:48:40.718），
+`knowledge_search_feature`=623,774 ／ `knowledge_node`=4,187 ／
+`knowledge_teaching_material`=59,016。批量导入 3 张 3072×4096：3 页全部 READY、
+failure_code 空、无崩溃，`canonical_source_asset` 3 条均 1536×2048（采样生效）；
+`build/mem-sample.txt` 复算 Native Heap Alloc 峰 157,759 KB（Size 峰 192,772 KB）、
+Dalvik Heap Alloc 峰 25,670 KB（走查报 19,116 KB 系读错列，独立核对按同一文件复算更正；
+方向结论不变）；`FATAL EXCEPTION`=0、`OutOfMemoryError`=0（logcat + crash buffer +
+无墓碑/ANR；覆盖 18:29–19:28）。对照崩溃窗口 Dalvik 134–147MB、native 峰 195,449 KB
+（诊断口径，现记录在 `AndroidCanonicalAssetVault.kt:105-106`；docs/ 下无此数）。
+新增 JVM 测试：`RoomKnowledgeContentReconcilerMaterialScanTest`（4 例）、
+`CanonicalDecodeSamplingTest`（5 例）；独立通跑 `:core:database:testDebugUnitTest` 181/0、
+`:core:data:cleanTestDebugUnitTest :core:data:testDebugUnitTest` 731/0，以及
+`:core:database:connectedDebugAndroidTest --class=KnowledgeContentReconciliationInstrumentedTest`
+7/7（含 1,200 材料跨 3 页分页全链路）、`:core:data:connectedDebugAndroidTest` 17/17。
+**未达项（保持 open 的理由）：**
+- ① `crop()`（`AndroidCanonicalAssetVault.kt:141-144`）与 `persistCleanImageBytes`（`:219-220`）
+  仍整幅 ARGB_8888 解码（允许至 MAX_DIMENSION=8192/16MP，单帧≈64MB）——批量拆页走 crop，
+  升级前已导入的大图不会被重编码，拆页时会再次整幅解码；采样只覆盖 `import()`。
+- ② 采样路径无设备级用例（仪器化夹具是 40×80 小图），"采到 2048 且记录/指纹自洽"只有纯函数
+  测试；>2048 源图的**分辨率语义变化**（本机 OCR/裁剪输入分辨率下降）对识别精度的影响未验证。
+- ③ 知识包安装窗口的堆采样（走查报 Dalvik 86,377→120,968 KB）**无留存采样件，未能复核**。
+- ④ 失败后重试需重新全量解析（~16.7s parse 口径、~100MB 对象图）——有意取舍；停在
+  RecoverableFailure 时每次 onResume/横幅重试都会重付一次。
+- ⑤ 行为差异（知情，非缺陷）：规范资产从"源图全分辨率 ≤16MP"变为"长边 ≤2048"（产品可见）；
+  跨版本重放已落库 requestId 会因字节不同被 `validateImportReplay` 拒（>2048 长边的照片）；
+  材料差分迭代顺序变为 stableCode 升序（计数与判定不变）；包内材料读取由 LIKE 前缀改为
+  字节精确区间（不再折叠 ASCII 大小写/不再把 `_`/`%` 当通配符；对现有小写稳定码等价）。
+- ⑥ 仪器化用例覆盖 3 页插入与幂等，但没有"跨段退役"断言。
+
+**Reopen condition.** 再次出现 OOM/知识包横幅时按本条继续；或触及裁剪/重绘路径的整幅解码
+（①）与采样路径的设备用例（②）时——补齐①②后本条可结。
+
+## KD-33 (fixed 2026-10-13，提交 `e3de72f8`；OpenAI Chat Completions 协议族) · 推理型模型在 CAPTURE_ASSESS 上高概率 TIMEOUT/INVALID_RESPONSE
 
 **Symptom.** `deepseek-v4.1-flash`（opencode zen）在「分题 / 单页整理」上：`model_task`
 记录 1 成功 / 3 永久失败（2×INVALID_RESPONSE「这次没有准备好题面」）/ 2 可重试失败
@@ -1185,13 +1236,60 @@ decision/issues/suggestedActions/questionRegions，枚举合法）。但 `max_to
 思考吃满预算 → `content` 为空（可复现）——与 INVALID_RESPONSE 的形态一致；应用任务预算
 `MODEL_TASK_TIMEOUT_MILLIS = 120_000`，观测到的应用侧流式任务存活 >205s 后 TIMEOUT。
 
-**Disposition（2026-10-11 登记，未修）.** 应用侧可动的三个旋钮：给推理模型留输出预算
-（显式 max_tokens 或把 reasoning 计入预算）、评估任务的超时口径、以及解析器对
-"仅有 reasoning、content 为空"响应的显式归类（当前落到 INVALID_RESPONSE，用户看到的
-文案是「这次没有准备好题面」，归因不清）。解析侧另有一处严格点值得复核：`toAssessment`
-的 `requireOnlyKeys` 对多键零容忍，模型偶发多键即整条判无效（本次抓包样本合规，
-未取到失败时的原始响应，未能证实/证伪）。
+**Fix (2026-10-13，提交 `e3de72f8`).** 四件事同落：
 
-**Reopen condition.** 换用非推理模型即可绕过；若继续用推理模型，先修"预算/超时/空 content
-归类"三者之一再重测分题。
+1. **防呆上限 120s → 600s**：`MODEL_TASK_CEILING_MILLIS = 600_000L`
+   （`RoomModelTaskRepository.kt:1077`，`withTimeout` 调用点 `:350`）。KDoc 写明它是
+   防呆安全上限、不是输出/时长预算；数值与传输层 `CALL_TIMEOUT_SECONDS = 600`
+   （`OpenAiModelTransport.kt:456`）同口径。
+2. **300s 空闲看门狗（只改注释、值不动）**：`READ_TIMEOUT_SECONDS = 300`
+   （`OpenAiModelTransport.kt:454`）＝非流式收到首字节前的静默上限／流式相邻 chunk 间隔
+   上限（收到即重置）；整条调用的绝对上限是 `CALL_TIMEOUT_SECONDS`。
+3. **`finish_reason` 截断归为可重试**：新增 `ModelFailureCode.INCOMPLETE_OUTPUT`
+   （`ModelTasks.kt:106`）、`IncompleteModelOutputException`
+   （`OpenAiModelResponseParsing.kt:144` 附近，与 `InvalidModelResponseException` 平级、
+   非子类，避免被原 catch 吞掉）、共享常量
+   `TRUNCATING_FINISH_REASONS = {length, content_filter}`（`:167`）。非流式
+   `parseResponse`（`OpenAiModelProtocol.kt:626`，先于 content/tool_calls 提取）与流式重建
+   `reconstructedChatCompletion`（`OpenAiSse.kt:135`）同一判定；网关两条出口映射为
+   retryable（`OpenAiCompatibleModelGateway.kt:279`、`:421`，常量 `:850`），
+   `ModelFailureRecovery.kt:29` 加入重发可恢复集合；文案「模型这次没写完」
+   （`AppFailure.kt:258`）／「模型这次没写完就停了，再发一次通常会好。」
+   （`TutorLobbyRoute.kt:428`）。空 content 且**无** finish_reason 声明仍是
+   `INVALID_RESPONSE`（既有语义不变，有测试钉住）。
+4. **`reasoning_text` 拼写**：`OpenAiSse.deltaReasoning` 认 `reasoning` /
+   `reasoning_content` / `reasoning_text` 三种拼写（`OpenAiSse.kt:66-68`）。
+
+**验收（本轮实测）.** 设备侧（test_device，装机后）：5 条 CAPTURE_ASSESS 中 3 条
+136.9s／191.2s／544.6s 均 SUCCEEDED，全部超过旧 120s 预算；全库唯一
+`failure_code='TIMEOUT'` 记录是装机前 2026-10-11 15:11:49；单页整理拿到真实评估
+（`NEED_MORE_IMAGE` / `MISSING_OPTIONS`）。测试侧（独立复核实跑）：
+`:core:model:testDebugUnitTest` 416/0、`:core:data:cleanTestDebugUnitTest :core:data:testDebugUnitTest`
+731/0、`:core:database:testDebugUnitTest` 181/0、
+`:app:compileLocalFirstDebugKotlin --rerun-tasks --offline` BUILD SUCCESSFUL；新增用例
+落在既有文件内（OpenAiSseTest×6、MockWebServer×2、SseTransport×2、Gateway×2、
+AppFailureMapping×1、ModelFailureRecovery×1；独立复核计作「A2/A3/A4 新增 11 条」，
+与函数名清单 14 的计数口径不一致，以函数名清单为准）。强门禁（脚本跑）：assemble +
+`:core:data` 全量回归通过（既有红 `DenseRecallRerankerTest` 点名、不计）。
+
+**未覆盖（同源，未独立开条目）:**
+- ① 截断分流只落 Chat Completions 协议族：`AnthropicMessagesProtocol.kt:108`、
+  `GeminiGenerateContentProtocol.kt:121`、`OpenAiResponsesProtocol.kt:96` 仍只判"文本非空"
+  （不读 stop_reason=max_tokens／finishReason=MAX_TOKENS／status=incomplete）⇒ 选这三种
+  协议时依旧拿到不可重试的 INVALID_RESPONSE。
+- ② 判定不看正文：`finish_reason ∈ {length, content_filter}` 即抛，完整可解析的答复也会被
+  丢弃；策略性 `content_filter` 重发多半复现。
+- ③ 重试出口受派遣预算限制：预算用满后 INCOMPLETE_OUTPUT 被改写成 `PERMANENT_FAILURE`
+  （`RoomModelTaskRepository.kt:718-720`）。
+- ④ 流式 `tool_calls` 轮 `content=null` 形态（`OpenAiSse.kt:127-141`）仍判
+  `InvalidModelResponseException`——既有行为，是否真实发生**未验证**。
+- ⑤ `MODEL_TASK_CEILING_MILLIS` 的 KDoc 把"每轮 600s"写成"一条任务 600s"（`withTimeout`
+  只包住一轮 `gateway.execute`，MAX_DISPATCHES=6 时一条任务最多 ≈6×600s）——注释与实现
+  口径不一致，无功能破坏。
+- ⑥ DB 读路径 `ModelTaskTransactionDao.kt:435` 仍是裸 `valueOf(failureCode)`，回滚旧版本
+  读含新枚举的行会抛（仅降级方向）。
+
+**Reopen condition.** 上述未覆盖项被真实观测命中时重开——尤其第二个协议族出现
+"截断却仍判 INVALID_RESPONSE"，或流式 tool_calls 轮被结构性判死时；换用非
+Chat Completions 协议跑分题/整理前，按①补齐。
 

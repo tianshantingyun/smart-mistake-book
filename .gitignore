@@ -5,6 +5,7 @@ artifacts/
 .gradle/
 .jez/
 .kotlin/
+.memdiag/
 .tmp/
 .toolchains/
 .workspace-tools/
