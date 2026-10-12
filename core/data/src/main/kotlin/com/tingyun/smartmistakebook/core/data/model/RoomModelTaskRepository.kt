@@ -347,7 +347,7 @@ class RoomModelTaskRepository internal constructor(
             var terminalEventSeen = false
             var providerStarted = false
             var toolRound: TutorToolRequestsOutput? = null
-            withTimeout(MODEL_TASK_TIMEOUT_MILLIS) {
+            withTimeout(MODEL_TASK_CEILING_MILLIS) {
                 gateway.execute(execution)
                     .onEach { event ->
                         // 逐 token 实时文本不计入事件预算：它不落库、不写审计行，正是为了让
@@ -544,6 +544,13 @@ class RoomModelTaskRepository internal constructor(
                 )
             }
         } catch (invalid: InvalidProviderProtocol) {
+            // 归因（A4）：用户可见文案只有"这次内容无法使用"，从卡片上看不出判它的具体原因
+            //（事件乱序 / 事件超限 / 输出格式不符 …）——把底层这一句写进日志；用户可见文案不动。
+            android.util.Log.w(
+                MODEL_TASK_LOG_TAG,
+                "model task rejected as INVALID_RESPONSE: " +
+                    "${invalid.javaClass.simpleName}: ${invalid.message}",
+            )
             val latest = database.readModelTask(request.requestId) ?: throw invalid
             if (!latest.status.isTerminal) {
                 emit(
@@ -1053,7 +1060,21 @@ private class ConcurrentModelTaskTransition : RuntimeException()
 
 private class InvalidProviderProtocol(val userMessage: String) : RuntimeException(userMessage)
 
-private const val MODEL_TASK_TIMEOUT_MILLIS = 120_000L
+/** 任务级归因日志的标签（与模型调用/网关日志同一标签，logcat 可按一个标签抓全链路）。 */
+private const val MODEL_TASK_LOG_TAG = "SmartMistakeBook"
+
+/**
+ * 一条模型任务在本地最久允许占用的**防呆安全上限**（600s）。
+ *
+ * 它不是输出预算、也不是时长预算：不参与"这次调用该花多久"的任何规划，只兜住"派发方已经死掉
+ * 却没人收尾"的任务，避免一条失控的流把 RUNNING 状态永远留在库里。任何"上游还在正常生成"的
+ * 调用都不该被它打断——真正的停滞由传输层读超时（空闲看门狗）与各调用点自己的超时判定。
+ *
+ * 600s 与传输层的 `CALL_TIMEOUT_SECONDS = 600` 同口径（也与 Claude Code 的
+ * `API_TIMEOUT_MS = 600s` 同数）：正常路径上传输层自己的绝对上限先到，这一条只是它缺席时的
+ * 防呆；此前 120s 的紧预算会把"推理模型还在思考"的健康调用判成 TIMEOUT（见 KD-33）。
+ */
+private const val MODEL_TASK_CEILING_MILLIS = 600_000L
 private const val MAX_GATEWAY_EVENTS = 64
 private const val UNCONFIGURED_PROVIDER_ID = "unconfigured"
 private const val DISPATCH_LIMIT_USER_MESSAGE = "这次处理未能完成，请重新开始"

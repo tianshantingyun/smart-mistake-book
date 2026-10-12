@@ -113,12 +113,51 @@ class OpenAiModelProtocolMockWebServerTest {
         assertEquals(CaptureAssessmentDecision.PASS, output.assessment.decision)
     }
 
+    @Test
+    fun truncatedCompletionIsIncompleteOutputNotInvalidResponse() {
+        // finish_reason=length/content_filter 是上游在说"这次被截断了"——推理模型把输出预算
+        // 烧在思考上、content 为空时正是这个形态（KD-33）。此前一律落进 INVALID_RESPONSE。
+        listOf("length", "content_filter").forEach { finishReason ->
+            val thrown = assertThrows(IncompleteModelOutputException::class.java) {
+                OpenAiModelProtocol.parseResponse(
+                    responseBody = envelope(assessmentPayload(), finishReason = finishReason),
+                    input = assessmentInput(),
+                    modelVersion = "test-model",
+                )
+            }
+
+            assertTrue(
+                "$finishReason 必须写进归因",
+                thrown.message.orEmpty().contains(finishReason),
+            )
+        }
+    }
+
+    @Test
+    fun completedCompletionStillParsesNormally() {
+        val output = OpenAiModelProtocol.parseResponse(
+            responseBody = envelope(assessmentPayload(), finishReason = "stop"),
+            input = assessmentInput(),
+            modelVersion = "test-model",
+        ) as CaptureAssessmentOutput
+
+        assertEquals(CaptureAssessmentDecision.PASS, output.assessment.decision)
+    }
+
+    private fun assessmentInput() = CaptureAssessmentInput(
+        draftId = "draft-1",
+        sourceAssetId = "asset-1",
+        origin = CaptureAssessmentOrigin.LIBRARY,
+        imageWidth = 100,
+        imageHeight = 200,
+    )
+
     private fun assertFalseContainsDraftOrAssetId(body: String) {
         assertTrue("draft-1" !in body)
         assertTrue("asset-1" !in body)
     }
 
-    private fun envelope(content: String): String = Json.encodeToString(
+    private fun envelope(content: String, finishReason: String? = null): String = Json.encodeToString(
         kotlinx.serialization.json.JsonObject.serializer(),
         buildJsonObject {
             put(
@@ -132,6 +171,7 @@ class OpenAiModelProtocolMockWebServerTest {
                                     put("content", content)
                                 },
                             )
+                            finishReason?.let { put("finish_reason", it) }
                         },
                     )
                 },

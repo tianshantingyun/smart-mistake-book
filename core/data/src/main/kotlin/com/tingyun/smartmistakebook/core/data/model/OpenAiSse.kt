@@ -40,9 +40,22 @@ internal object OpenAiSse {
     }
 
     /**
+     * 这一帧声明的 `choices[0].finish_reason`（模型为什么停下来）：多数帧没有这个键，
+     * 终帧上带 `stop` / `length` / `content_filter` / `tool_calls` 之一。
+     */
+    fun deltaFinishReason(payload: String): String? {
+        val root = runCatching { json.parseToJsonElement(payload) as? JsonObject }.getOrNull()
+            ?: return null
+        val choices = root["choices"] as? JsonArray ?: return null
+        val first = choices.firstOrNull() as? JsonObject ?: return null
+        return (first["finish_reason"] as? JsonPrimitive)?.contentOrNull
+    }
+
+    /**
      * The chain-of-thought a reasoning model streams as its own delta. Providers spell the field
-     * differently (`reasoning` here, `reasoning_content` elsewhere); both mean the same
-     * student-visible thinking that the tutor shows while the answer is still forming.
+     * differently (`reasoning`, `reasoning_content`, `reasoning_text` — the same three spellings
+     * opencode's client accepts); all mean the same student-visible thinking that the tutor shows
+     * while the answer is still forming.
      */
     fun deltaReasoning(payload: String): String? {
         val root = runCatching { json.parseToJsonElement(payload) as? JsonObject }.getOrNull()
@@ -52,6 +65,7 @@ internal object OpenAiSse {
         val delta = first["delta"] as? JsonObject ?: return null
         return (delta["reasoning"] as? JsonPrimitive)?.contentOrNull
             ?: (delta["reasoning_content"] as? JsonPrimitive)?.contentOrNull
+            ?: (delta["reasoning_text"] as? JsonPrimitive)?.contentOrNull
     }
 
     /**
@@ -111,10 +125,20 @@ internal object OpenAiSse {
     internal const val DONE_BLOCK = "[DONE]"
 
     fun reconstructedChatCompletion(rawSse: String): String {
-        val content = eventDataBlocks(rawSse)
-            .mapNotNull(::deltaContent)
-            .joinToString("")
-        if (content.isBlank()) throw InvalidModelResponseException()
+        val blocks = eventDataBlocks(rawSse)
+        val content = blocks.mapNotNull(::deltaContent).joinToString("")
+        val finishReason = blocks.firstNotNullOfOrNull(::deltaFinishReason)
+        if (content.isBlank()) {
+            // 没有正文的流分两类：上游**说了**这次被截断（只有思考、答案被输出上限切掉，
+            // 实测形态见 KD-33），和什么声明都没有的空白流。前者是"这次没写完"（可重试），
+            // 后者维持既有的"这次答复没法用"（InvalidModelResponseException）。
+            if (finishReason != null && finishReason in TRUNCATING_FINISH_REASONS) {
+                throw IncompleteModelOutputException(
+                    "streamed reply was truncated by the provider (finish_reason=$finishReason)",
+                )
+            }
+            throw InvalidModelResponseException()
+        }
         return json.encodeToString(
             JsonObject.serializer(),
             buildJsonObject {
@@ -127,6 +151,10 @@ internal object OpenAiSse {
                                     "message",
                                     buildJsonObject { put("content", content) },
                                 )
+                                // 终帧的 finish_reason 必须原样带进重建体：正文非空也可能被截断，
+                                // 而终态解析（OpenAiModelProtocol.parseResponse）按这个键才分得出
+                                // "模型写完了"与"模型没写完"，丢了它截断就又被归成内容不可用。
+                                finishReason?.let { put("finish_reason", it) }
                             },
                         )
                     },

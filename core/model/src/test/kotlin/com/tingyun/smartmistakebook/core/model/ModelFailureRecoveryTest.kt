@@ -41,6 +41,8 @@ class ModelFailureRecoveryTest {
             ModelFailureCode.TIMEOUT,
             ModelFailureCode.RATE_LIMITED,
             ModelFailureCode.INVALID_RESPONSE,
+            // 截断（finish_reason = length / content_filter）是"这一次没写完"：原样重发就是正解。
+            ModelFailureCode.INCOMPLETE_OUTPUT,
             ModelFailureCode.UNKNOWN,
         )
 

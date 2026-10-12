@@ -236,6 +236,8 @@ fun ModelFailureCode.toAppFailureCode(): AppFailureCode = when (this) {
     ModelFailureCode.RATE_LIMITED -> AppFailureCode.RATE_LIMITED
     ModelFailureCode.TIMEOUT -> AppFailureCode.NETWORK_UNAVAILABLE
     ModelFailureCode.INVALID_RESPONSE -> AppFailureCode.MODEL_OUTPUT_INVALID
+    // 截断走的也是"这次输出不能用"这一类：它不指向配置或输入的问题，重发就是正解。
+    ModelFailureCode.INCOMPLETE_OUTPUT -> AppFailureCode.MODEL_OUTPUT_INVALID
     ModelFailureCode.PROVIDER_REJECTED_INPUT -> AppFailureCode.VALIDATION_FAILED
     ModelFailureCode.UNKNOWN -> AppFailureCode.UNKNOWN
 }
@@ -253,6 +255,7 @@ fun ModelTaskFailure.toAppFailure(): AppFailure = appFailure(
         ModelFailureCode.RATE_LIMITED -> "模型请求较多"
         ModelFailureCode.TIMEOUT -> "模型响应超时"
         ModelFailureCode.INVALID_RESPONSE -> "模型返回的内容无法使用"
+        ModelFailureCode.INCOMPLETE_OUTPUT -> "模型这次没写完"
         ModelFailureCode.PROVIDER_REJECTED_INPUT -> "这次请求被模型服务拒绝"
         ModelFailureCode.UNKNOWN -> "这次操作没有完成"
     },

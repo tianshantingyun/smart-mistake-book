@@ -86,6 +86,55 @@ class OpenAiSseTransportTest {
     }
 
     @Test
+    fun truncatedStreamedReplyIsIncompleteOutputNotInvalidResponse() = runBlocking {
+        // 只有思考、终帧声明 finish_reason=length（KD-33 的形态）：这是"这次没写完"（可重试），
+        // 必须与"什么都没有的空白流"（InvalidModelResponseException）分开——误判会让学生
+        // 看到"内容不可用"并且拿不到重发出口。
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"reasoning\":\"想了很久\"}}]}\n\n")
+            append("data: {\"choices\":[{\"delta\":{},\"finish_reason\":\"length\"}]}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val call = SseDeliveringCall(
+            code = 200,
+            contentType = "text/event-stream",
+            body = sseBody,
+        )
+        var thrown: Throwable? = null
+        try {
+            call.awaitBoundedSseResponse(OpenAiChatCompletionsProtocol) {}
+        } catch (e: Throwable) {
+            thrown = e
+        }
+
+        assertTrue("截断必须归因成没写完", thrown is IncompleteModelOutputException)
+    }
+
+    @Test
+    fun truncatedStreamedReplyWithContentKeepsItsFinishReasonInTheReconstructedBody() = runBlocking {
+        // 正文非空也可能被截断：重建体带上 finish_reason，终态解析才分得出"写完了"与"没写完"。
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"{\\\"ok\\\":\"}}]}\n\n")
+            append("data: {\"choices\":[{\"delta\":{},\"finish_reason\":\"length\"}]}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val call = SseDeliveringCall(
+            code = 200,
+            contentType = "text/event-stream",
+            body = sseBody,
+        )
+
+        val response = call.awaitBoundedSseResponse(OpenAiChatCompletionsProtocol) {}
+
+        assertEquals(200, response.statusCode)
+        assertEquals(listOf("{\"ok\":"), response.streamChunks)
+        assertTrue(
+            "重建体必须原样带上终帧的 finish_reason",
+            response.body.contains("\"finish_reason\":\"length\""),
+        )
+    }
+
+    @Test
     fun reasoningHeavyStreamsStillSurfaceTheirAnswer() = runBlocking {
         // Reasoning models stream chain-of-thought as their own deltas, far more than the app
         // consumes: a measured call to deepseek/deepseek-v4.1-flash (image + JSON mode, no

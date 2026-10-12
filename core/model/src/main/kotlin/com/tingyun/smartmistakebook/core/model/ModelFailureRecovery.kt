@@ -25,6 +25,8 @@ fun ModelFailureCode.recoverableByResending(): Boolean = when (this) {
     ModelFailureCode.TIMEOUT,
     ModelFailureCode.RATE_LIMITED,
     ModelFailureCode.INVALID_RESPONSE,
+    // 截断是"这一次没写完"：同一条消息原样重发就是正解（上游的输出上限/内容策略不会永远撞上）。
+    ModelFailureCode.INCOMPLETE_OUTPUT,
     ModelFailureCode.UNKNOWN,
     -> true
 

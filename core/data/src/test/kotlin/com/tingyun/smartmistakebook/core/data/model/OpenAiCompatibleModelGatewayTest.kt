@@ -645,6 +645,53 @@ class OpenAiCompatibleModelGatewayTest {
     }
 
     @Test
+    fun truncatedCompletionIsRetryableIncompleteOutputNotInvalidResponse() = runBlocking {
+        // 上游声明 finish_reason=length/content_filter：这是"这次没写完"（可重试），
+        // 不是"内容不可用"（不可重试）——后者会让学生拿不到重发出口（KD-33 的误判）。
+        listOf("length", "content_filter").forEach { finishReason ->
+            val gateway = OpenAiCompatibleModelGateway(
+                configurationStore = FakeConfigurationStore(CONFIGURATION),
+                assetSource = assetSource { _, _ -> asset() },
+                transport = modelTransport { _ ->
+                    ModelHttpResponse(200, envelope(assessmentPayload(), finishReason))
+                },
+                clock = { AUTHORIZATION_NOW },
+            )
+
+            val failed = gateway.execute(authorizedAssessment(gateway)).toList().last()
+                as ModelGatewayEvent.Failed
+
+            assertEquals(finishReason, ModelFailureCode.INCOMPLETE_OUTPUT, failed.failure.code)
+            assertTrue(finishReason, failed.failure.retryable)
+            assertEquals("模型这次没写完，可以重试", failed.failure.message)
+        }
+    }
+
+    @Test
+    fun truncatedTutorStreamFailsAsIncompleteOutputAfterItsContentArrived() = runBlocking {
+        // 流式路径的终态解析同样分流：正文已经流到屏幕上，终帧仍可能声明被截断——
+        // 那时要按"没写完"收尾（可重试），而不是"内容不可用"。
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> error("Tutor must not open image assets") },
+            transport = modelTransport { _ ->
+                ModelHttpResponse(
+                    statusCode = 200,
+                    body = envelope(tutorPayload(), finishReason = "length"),
+                    streamChunks = listOf("先看导数变号"),
+                )
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val failed = gateway.execute(authorizedTutor(gateway)).toList().last()
+            as ModelGatewayEvent.Failed
+
+        assertEquals(ModelFailureCode.INCOMPLETE_OUTPUT, failed.failure.code)
+        assertTrue(failed.failure.retryable)
+    }
+
+    @Test
     fun authenticationFailureIsPermanentAndActionable() = runBlocking {
         val gateway = OpenAiCompatibleModelGateway(
             configurationStore = FakeConfigurationStore(CONFIGURATION),
@@ -2008,13 +2055,14 @@ class OpenAiCompatibleModelGatewayTest {
         },
     )
 
-    private fun envelope(content: String): String = Json.encodeToString(
+    private fun envelope(content: String, finishReason: String? = null): String = Json.encodeToString(
         buildJsonObject {
             put(
                 "choices",
                 buildJsonArray {
                     add(buildJsonObject {
                         put("message", buildJsonObject { put("content", content) })
+                        finishReason?.let { put("finish_reason", it) }
                     })
                 },
             )

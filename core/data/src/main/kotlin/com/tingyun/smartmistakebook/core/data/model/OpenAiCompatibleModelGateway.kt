@@ -274,6 +274,9 @@ internal class OpenAiCompatibleModelGateway(
                 } catch (network: IOException) {
                     logModelCallFailure(network)
                     emit(failure(NETWORK_UNAVAILABLE))
+                } catch (incomplete: IncompleteModelOutputException) {
+                    logModelCallFailure(incomplete)
+                    emit(failure(INCOMPLETE_OUTPUT))
                 } catch (invalid: InvalidModelResponseException) {
                     logModelCallFailure(invalid)
                     emit(failure(INVALID_RESPONSE))
@@ -411,7 +414,15 @@ private fun ModelHttpResponse.toGatewayEvent(
         ModelGatewayEvent.Completed(
             protocol.parseCompletion(body, execution.request.input, modelVersion),
         )
-    } catch (_: Exception) {
+    } catch (incomplete: IncompleteModelOutputException) {
+        // 终态解析（含流式重建体）走的是这里：截断必须先分流，否则下面的 catch(_: Exception)
+        // 会把"这次没写完"一律吞成 INVALID_RESPONSE（不可重试）——那正是要修的那次误判。
+        logModelCallFailure(incomplete)
+        failure(INCOMPLETE_OUTPUT)
+    } catch (error: Exception) {
+        // 归因（A4 的另一半）：解析失败此前在这里被静默吞掉，只剩一句"内容不可用"，
+        // 现场看不出是形状错误、字段越界还是枚举不认识。只记异常类与消息，不记任何报文。
+        logModelCallFailure(error)
         failure(INVALID_RESPONSE)
     }
 }
@@ -830,6 +841,16 @@ private val INVALID_RESPONSE = ModelTaskFailure(
     ModelFailureCode.INVALID_RESPONSE,
     "这次没有准备好题面，请重新处理",
     false,
+)
+
+/**
+ * 上游声明这次生成被截断（finish_reason = length / content_filter）：可重试，与
+ * [INVALID_RESPONSE] 的"内容不可用"分开——同一条请求重发通常就写完了。
+ */
+private val INCOMPLETE_OUTPUT = ModelTaskFailure(
+    ModelFailureCode.INCOMPLETE_OUTPUT,
+    "模型这次没写完，可以重试",
+    true,
 )
 
 private val REQUEST_TOO_LARGE = ModelTaskFailure(

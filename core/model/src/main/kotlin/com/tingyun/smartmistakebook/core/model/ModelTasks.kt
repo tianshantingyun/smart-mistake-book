@@ -97,6 +97,13 @@ enum class ModelFailureCode {
     RATE_LIMITED,
     TIMEOUT,
     INVALID_RESPONSE,
+    /**
+     * 模型这次没写完就停了：上游的 `finish_reason` 明确说这次生成是被**截断**的
+     * （`length` = 达到输出上限，`content_filter` = 被内容策略中途中止），不是答复形状不对。
+     * 与 [INVALID_RESPONSE] 的区别就在"重发有没有用"：截断是这一次的，同一条请求重发通常
+     * 会得到完整答复，所以它是可重试的；形状错误重发会逐字复现。
+     */
+    INCOMPLETE_OUTPUT,
     PROVIDER_REJECTED_INPUT,
     /** The provider accepted the connection but returned a 5xx service fault. */
     SERVICE_UNAVAILABLE,

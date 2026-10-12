@@ -616,8 +616,19 @@ internal object OpenAiModelProtocol {
         modelVersion: String,
     ): ModelTaskOutput {
         val envelope = parseObject(responseBody)
-        val message = envelope.array("choices").firstOrNull()?.objectValue()
-            ?.objectValue("message") ?: throw InvalidModelResponseException()
+        val choice = envelope.array("choices").firstOrNull()?.objectValue()
+            ?: throw InvalidModelResponseException()
+        // 上游唯一一处"为什么停下来"的声明（此前完全没读）：length = 达到输出上限被截断、
+        // content_filter = 被内容策略中途中止。两者都说明这不是模型想说完的那份答复——
+        // 那不是"内容不可用"（INVALID_RESPONSE，重发会逐字复现），而是"这次没写完"
+        // （INCOMPLETE_OUTPUT，可重试）。推理模型把预算烧在思考上时正是这个形态（KD-33）。
+        val finishReason = choice.optionalString("finish_reason")
+        if (finishReason != null && finishReason in TRUNCATING_FINISH_REASONS) {
+            throw IncompleteModelOutputException(
+                "provider stopped before the answer was complete (finish_reason=$finishReason)",
+            )
+        }
+        val message = choice.objectValue("message")
         // Route A: native tool_calls. When the provider answered with a structured
         // tool request (tools were advertised), map every tool_call into a
         // TutorToolRequestsOutput — the repository's existing tool loop takes it

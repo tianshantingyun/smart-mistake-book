@@ -445,6 +445,11 @@ internal fun providerCompatibilityHeaders(host: String): List<Pair<String, Strin
  * previous values (a measured call was cut at 110.8s while still streaming its solution).
  * The read timeout still detects a genuinely stalled link, so these only stop treating a slow
  * but healthy answer as a failure.
+ *
+ * [READ_TIMEOUT_SECONDS] 是**空闲看门狗**语义，不是时长预算：非流式调用 = 收到首字节之前的
+ * 静默上限；流式调用 = 相邻字节/chunk 的间隔上限（每收到一个字节就重置，模型连续吐流多久都
+ * 不重新计时）。它是"对面卡住了"的判据，不是"这次调用该花多久"的判据；整条调用的绝对上限是
+ * [CALL_TIMEOUT_SECONDS]，与仓库层的 `MODEL_TASK_CEILING_MILLIS` 同口径。
  */
 private const val READ_TIMEOUT_SECONDS = 300L
 private const val WRITE_TIMEOUT_SECONDS = 120L

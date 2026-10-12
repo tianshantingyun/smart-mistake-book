@@ -50,6 +50,30 @@ class AppFailureMappingTest {
     }
 
     @Test
+    fun truncatedModelOutputIsRetryableWhileAnUnusableShapeIsNot() {
+        // 两者在用户侧同属"这次输出不能用"（同一个 AppFailureCode），但重发判决不同：
+        // 截断是这一次的（finish_reason = length / content_filter），重发通常会好；
+        // 形状错误重发会逐字复现，不给重试出口。
+        val truncated = ModelTaskFailure(
+            code = ModelFailureCode.INCOMPLETE_OUTPUT,
+            message = "模型这次没写完，可以重试",
+            retryable = true,
+        ).toAppFailure()
+        val invalid = ModelTaskFailure(
+            code = ModelFailureCode.INVALID_RESPONSE,
+            message = "模型返回的内容无法使用。",
+            retryable = false,
+        ).toAppFailure()
+
+        assertEquals(AppFailureCode.MODEL_OUTPUT_INVALID, truncated.code)
+        assertEquals("模型这次没写完", truncated.title)
+        assertEquals(ActionType.RETRY, truncated.primaryActionKind)
+        assertTrue(truncated.retryable)
+        assertEquals(AppFailureCode.MODEL_OUTPUT_INVALID, invalid.code)
+        assertFalse(invalid.retryable)
+    }
+
+    @Test
     fun modelTaskFailureMapsRetryabilityToRecoveryAction() {
         val retryable = ModelTaskFailure(
             code = ModelFailureCode.NETWORK_UNAVAILABLE,

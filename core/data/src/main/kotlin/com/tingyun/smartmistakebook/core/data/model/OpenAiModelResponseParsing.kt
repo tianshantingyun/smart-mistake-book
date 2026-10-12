@@ -143,3 +143,25 @@ internal inline fun <reified T : Enum<T>> enumValue(value: String): T =
 
 internal class InvalidModelResponseException(message: String = "invalid model response") :
     IllegalArgumentException(message)
+
+/**
+ * 上游**明确声明**这次生成没有走完（`finish_reason = length / content_filter`）。它不是
+ * [InvalidModelResponseException] 的子类，因为两者是两件事、两个出口：
+ * - 这里是"这一次没写完"——答复本身可能完全合法，只是被输出上限或内容策略切断了；
+ * - 那里是"这次答复形状不对"——同一条请求重发多半会逐字复现。
+ *
+ * 分开的直接收益是重发判决不再误伤：截断必须可重试，而形状错误重发没有意义。
+ */
+internal class IncompleteModelOutputException(
+    message: String = "model output stopped before the answer was complete",
+) : RuntimeException(message)
+
+/**
+ * 上游声明"这次生成被截断"的 `finish_reason`（OpenAI 契约：`length` = 达到输出上限，
+ * `content_filter` = 被内容策略中途中止）。
+ *
+ * 两处读同一份判定——非流式解析（[OpenAiModelProtocol.parseResponse]）与流式重建
+ *（[OpenAiSse.reconstructedChatCompletion]）——所以集合只有这一个来源：各写一份必然漂移，
+ * 表现就是"同一条截断，流式可重试、非流式不可重试"。
+ */
+internal val TRUNCATING_FINISH_REASONS = setOf("length", "content_filter")

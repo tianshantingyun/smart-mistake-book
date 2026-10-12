@@ -425,6 +425,7 @@ internal fun lobbyFailureReasonText(code: ModelFailureCode?): String? = when (co
     ModelFailureCode.TIMEOUT -> "模型响应超时，可以再发一次。"
     ModelFailureCode.RATE_LIMITED -> "请求太频繁，稍等片刻再发。"
     ModelFailureCode.INVALID_RESPONSE -> "模型这次返回的内容无法使用，可以再发一次。"
+    ModelFailureCode.INCOMPLETE_OUTPUT -> "模型这次没写完就停了，再发一次通常会好。"
     ModelFailureCode.PROVIDER_REJECTED_INPUT ->
         "上游拒绝了这次请求；带图时通常是图太多或太大，去掉一张或换小一点的图再发。"
     ModelFailureCode.UNKNOWN -> null
