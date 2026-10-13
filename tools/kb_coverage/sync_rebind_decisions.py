@@ -48,6 +48,15 @@ HDR = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title", "summary
 SUFFIX = ["", "b", "c", "d", "e", "f", "g", "h"]
 
 
+def detect_eol(path: Path) -> str:
+    """文件的行尾风格：含 CRLF → `\\r\\n`，否则 `\\n`（判定源实测 221 CRLF / 13 LF）。
+
+    旧实现写盘硬编码 CRLF：写一个 LF 源会把整个文件行尾翻成 CRLF，diff 噪音淹没真正
+    改的那几行（判定源是要逐行复核的产物）。按文件探测、写回原风格。
+    """
+    return "\r\n" if b"\r\n" in path.read_bytes() else "\n"
+
+
 def load_decisions(path: Path) -> dict[tuple[str, str], str]:
     """裁定表 → {(chunk_id, midx): decided_node}。
 
@@ -112,8 +121,9 @@ def main(argv: list[str] | None = None) -> int:
         if hit:
             touched.append(path.name)
             if args.write:
+                eol = detect_eol(path)          # 必须在 open("w") 截断之前探测
                 with path.open("w", encoding="utf-8", newline="") as fh:
-                    w = csv.DictWriter(fh, fieldnames=HDR, lineterminator="\r\n")
+                    w = csv.DictWriter(fh, fieldnames=HDR, lineterminator=eol)
                     w.writeheader()
                     w.writerows({k: (r.get(k) or "") for k in HDR} for r in rows)
     print(f"改 {changed} 行、涉及 {len(touched)} 个文件（{'已写盘' if args.write else '未写盘'}）")

@@ -25,6 +25,15 @@ office_extract 只产出"块"，块不是知识包的一部分：不判定、不
 目标 sidecar 预计超过 2.5M 字符时，开 next_sidecar_path() 新卷并重写索引
 （Kotlin loader 读索引，无需改代码）。
 
+## 材料侧车格式版本
+
+新材料按 **schemaVersion 4** 落盘：材料必含 F8 的 AI/provenance 三键
+（`contentAttribute`/`contentProvider`/`contentId`，见
+`kb_build/material_provenance.py` 与
+`docs/research/2026-10-13-f8-material-provenance-contract.md`）。本模块写入的每一卷
+都先过 `prov.ensure_doc`：卷升到 v4，且该卷**既有材料**同时补齐三键——否则会出现
+"卷声明 v4、老材料没键"的自相矛盾卷，装机时被 codec 整包拒。
+
 ## 用法
 
     PYTHONPATH=tools python -m kb_coverage.materialize --dry-run
@@ -42,6 +51,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
+from kb_build import material_provenance as prov  # noqa: E402
 from kb_build import pack_io  # noqa: E402
 from kb_coverage import extraction_state as es  # noqa: E402
 from kb_coverage import judgments  # noqa: E402
@@ -174,12 +184,16 @@ def _sidecar_state() -> dict:
     for p in pack_io.sidecar_paths():
         state["paths"].append(p)
         if not p.exists():           # 已登记进索引、还没落盘的空卷
-            state["docs"][p] = {"schemaVersion": 2, "packId": "moe-2025-four-subjects-v1",
+            state["docs"][p] = {"schemaVersion": prov.SCHEMA_VERSION,
+                                "packId": "moe-2025-four-subjects-v1",
                                 "sources": [], "materials": []}
             state["counts"][p] = {}
             state["sizes"][p] = 0
             continue
         doc = pack_io.load_json(p)
+        # 装载即升级：写入侧写出的卷必须是 v4 自洽卷（卷内**既有**材料一并补齐 F8 三键），
+        # 否则"卷声明 v4、老材料没键"会被 codec 整包拒。在算字符数之前做，选卷依据才准。
+        prov.ensure_doc(doc, source=p.name)
         state["docs"][p] = doc
         c: dict[str, int] = {}
         for m in doc["materials"]:
@@ -204,7 +218,8 @@ def _pick_sidecar(state: dict, subject: str) -> Path:
     new = pack_io.next_sidecar_path()
     pack_io.write_sidecar_index([*state["paths"], new])
     state["paths"].append(new)
-    state["docs"][new] = {"schemaVersion": 2, "packId": "moe-2025-four-subjects-v1",
+    state["docs"][new] = {"schemaVersion": prov.SCHEMA_VERSION,
+                          "packId": "moe-2025-four-subjects-v1",
                           "sources": [], "materials": []}
     state["counts"][new] = {}
     state["sizes"][new] = 0
@@ -280,6 +295,8 @@ def write(judgments: list[dict]) -> dict:
             "sourceId": sid,
             "sourceLocator": f"桌面资料 {top_dir} / {r['chunk_rel']}（块 {r['chunk_id']}）",
             "reviewedAtEpochMillis": now,
+            # F8·③：三键的机械派生值（键序 = 侧车落盘键序，插在 bindings 之前）
+            **prov.provenance_fields(doc["packId"], slug),
             "bindings": [{"knowledgeNodeId": node, "role": "PRIMARY"}],
         })
         _note_appended(state, target, doc["materials"][-1], subject)

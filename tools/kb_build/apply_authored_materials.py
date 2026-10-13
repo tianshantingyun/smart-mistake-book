@@ -14,6 +14,10 @@
   索引污染"两处踩坑史，抄第二份等于把坑也抄一份）；来源条目同样取最早时间戳，
   避免 KD-15「材料早于来源导入」的同类失败；
 - 幂等按材料 slug：已存在且绑定一致 → 跳过；绑定不一致 → 拒整批；
+- 落盘卷走 **schemaVersion 4**：材料带 F8 的 AI/provenance 三键
+  （`contentAttribute`/`contentProvider`/`contentId`，由既有字段机械派生，作者 JSONL
+  不必写；口径见 `kb_build/material_provenance.py`），卷内既有材料由 `materialize`
+  的同一份 `_sidecar_state` 统一补齐，不出现"卷声明 v4、老材料没键"的矛盾卷；
 - 只写 staging；成品目录只由 `promote.py` 写。
 
 ## 输入
@@ -37,6 +41,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
+from kb_build import material_provenance as mp  # noqa: E402
 from kb_build import new_content as nc  # noqa: E402
 from kb_build import pack_io  # noqa: E402
 from kb_coverage import materialize as mz  # noqa: E402
@@ -170,7 +175,7 @@ def write(materials: list[dict]) -> dict:
         sid = material["sourceId"]
         if not any(s.get("sourceId") == sid for s in doc["sources"]):
             doc["sources"].append(dict(pl["registered"][sid]))
-        doc["materials"].append({
+        emitted = {
             "slug": slug,
             "subject": subject,
             "type": material["type"],
@@ -183,9 +188,17 @@ def write(materials: list[dict]) -> dict:
             "sourceId": sid,
             "sourceLocator": material["sourceLocator"].strip(),
             "reviewedAtEpochMillis": now,
+            # F8·③：三键由既有字段机械派生（contentId=slug、provider=packId），
+            # 键序必须等于侧车落盘键序（下面立即复核，两处键集不许各写一份）
+            **mp.provenance_fields(doc["packId"], slug),
             "bindings": [{"knowledgeNodeId": material["bindings"][0]["knowledgeNodeId"],
                           "role": "PRIMARY"}],
-        })
+        }
+        if tuple(emitted) != nc.MATERIAL_SIDECAR_KEYS:
+            raise ValueError(
+                f"材料落盘键序与 MATERIAL_SIDECAR_KEYS 不一致：{tuple(emitted)}"
+                f" ≠ {nc.MATERIAL_SIDECAR_KEYS}")
+        doc["materials"].append(emitted)
         mz._note_appended(state, target, doc["materials"][-1], subject)
         existing[slug] = target_node
         added += 1

@@ -86,8 +86,12 @@ class RealPackTest(unittest.TestCase):
         # （`菠菜常用作补铁食品之一-…`，3 条材料全为误绑、改绑后归零）→ 3866 − 103 − 1 − 1 = 3761。
         # 2026-10-11 薄料收口轮（staging 实读）：point_merge.csv 新增 20 对近重复薄点合并
         # （双遍复核 AGREE；其中「细胞中能源物质的供能顺序」并入后幸存者变 2 条材料）→ 3761 − 20 = 3741。
+        # 2026-10-14 批次9 超配 C2 + 批次10 零材料点收口（staging 实读）：point_merge.csv 批次9 超配
+        # 382 行合并（2026-10-12）+ 批次10 零材料点 1 行（2026-10-13，`焰色反应`→`焰色试验`）
+        # + 同批 point_delete.csv 3 条残片删点（2 条化学、1 条数学）→ 3741 − 382 − 1 − 3 = 3355。
+        # 分解口径：HEAD 成品 3741 点 − staging 现点 3355 = 386 = merged 383 + deleted 3 + missing 0。
         # 点数随入库/结构清理轮次变化，由执行轮在提交里维护本 pin。
-        self.assertEqual(3741, dp._point_count(pack))
+        self.assertEqual(3355, dp._point_count(pack))
 
     def test_purge_table_refs_is_clean_on_shipped(self):
         """成品已删过点、外部表已清过——再 purge 必须 0（无悬空引用残留）。"""

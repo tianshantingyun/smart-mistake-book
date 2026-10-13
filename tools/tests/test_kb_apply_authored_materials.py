@@ -23,6 +23,8 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 
 from kb_build import apply_authored_materials as A  # noqa: E402
+from kb_build import material_provenance as prov  # noqa: E402
+from kb_build import new_content as nc  # noqa: E402
 from kb_build import pack_io  # noqa: E402
 
 SOURCE_ID = "registry-kb-math-knowledge-list:math"
@@ -154,6 +156,19 @@ class ApplyAuthoredMaterialsTest(unittest.TestCase):
                          (self.tmp / "moe-2025-teaching-support-v2-01.json").read_bytes())
         bad = _write(self.tmp / "bad.jsonl", [_material("m-bad", type="DERIVATION")])
         self.assertEqual(1, A.main(["--materials", str(bad), "--dry-run"]))
+
+    def test_emitted_volume_is_v4_and_every_material_is_keyed(self):
+        # F8·③：落盘卷必须自洽——升到 v4、卷内**既有**材料一并补齐三键，且键序等于
+        # MATERIAL_SIDECAR_KEYS（写入侧与 new_content 的作者键序同步，一处漂移即红）。
+        path = _write(self.tmp / "authored.jsonl", [_material("m-new")])
+        self.assertEqual(0, A.main(["--materials", str(path), "--write"]))
+        doc = self._sidecar()
+        self.assertEqual(prov.SCHEMA_VERSION, doc["schemaVersion"])
+        for material in doc["materials"]:
+            self.assertEqual(list(nc.MATERIAL_SIDECAR_KEYS), list(material))
+            self.assertEqual("AI_SYNTHESIZED", material["contentAttribute"])
+            self.assertEqual("test-pack", material["contentProvider"])  # 未上架前 = 包标识
+            self.assertEqual(material["slug"], material["contentId"])
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from kb_build import new_content as nc
 from kb_build import pack_io
 from kb_coverage import extraction_state as es
 from kb_coverage import materialize as mat
@@ -174,6 +175,16 @@ class OutputRefAppendTest(unittest.TestCase):
         long_slug = "ext-mat-abc123-1000"
         marked, _materials, _stats = self._write(["abc123-1000"], ref=long_slug)
         self.assertEqual({}, marked)
+
+    def test_appended_material_is_v4_with_provenance_keys(self):
+        # F8·③：本模块写出的材料必须带 AI/provenance 三键，且键序等于
+        # MATERIAL_SIDECAR_KEYS（写入侧与 new_content 的作者键序同步，一处漂移即红）。
+        _marked, materials, _stats = self._write(["abc123-100"])
+        material = materials[0]
+        self.assertEqual(list(nc.MATERIAL_SIDECAR_KEYS), list(material))
+        self.assertEqual("AI_SYNTHESIZED", material["contentAttribute"])
+        self.assertEqual("p", material["contentProvider"])   # 未上架前 = 卷的 packId
+        self.assertEqual(material["slug"], material["contentId"])
 
 
 class TypesWhitelistTest(unittest.TestCase):

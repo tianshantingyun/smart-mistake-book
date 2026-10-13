@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 """scan_duplicate_nodes 的用例：规范化判据、分组/前缀逻辑、CLI（--json/--out）、真实包基线。
 
-真实包基线（2026-10-03 本机实测，2026-10-13 复扫复验一致）：规范化完全同名 **1 组**、前缀包含 **0 对**
+真实包基线（2026-10-14 终局复扫，staging 实读）：规范化完全同名 **0 组**、前缀包含 **0 对**
 （读数取 work_dir()，默认 staging，与成品目录同源；干净检出会自动从成品目录种子）。
-基线从 2026-10-02 的 11 组 / 18 对降下来，是因为批次 3 结构清理把同章同名去重副本与近重复
-节点并掉了（point_merge.csv 本轮 +103 行合并；改绑执行轮再 +1 对并删空壳点 1 个）——
-不是判据变宽，是重复本身被清掉；剩下 1 组为 CHEMISTRY「误差分析的方法」（12 条）对
-「误差分析」（5 条），2026-10-13 逐节点读边界与材料后裁定**保留**：前者定位写的是必修一
-第二章的配制溶液误差分析（c＝n/V，看 n 或 V），后者是选择性必修1第三章的中和滴定误差分析
-（c待＝c标·V标/V待，看 V标），同名只是「的方法」空后缀被规范化剥掉造成的机械聚组，不是同
-一个知识点；两域在包内另有专节点（溶液的配制误差分析 / 中和滴定的误差分析方法），整节点
-合并会把跨域材料拖进干净节点，故保留不并。
-因此本文件不只钉计数，还钉这一组的身份（subject / 规范化名 / slug 序列）——防的是计数仍为
-1、组却换成另一对时基线静默通过、上面这条裁定记录失效。
+基线演化：2026-10-02 为 11 组 / 18 对；2026-10-13 降到 1 组 / 0 对（批次 3 结构清理把同章同名
+去重副本与近重复节点并掉了，point_merge.csv 本轮 +103 行合并；改绑执行轮再 +1 对并删空壳 1 个）
+——不是判据变宽，是重复本身被清掉。剩下那 1 组是 CHEMISTRY「误差分析的方法」对「误差分析」，
+2026-10-13 曾逐节点读边界与材料后裁定**保留**（前者定位是必修一第二章配制溶液误差分析
+c＝n/V，后者是选择性必修1第三章中和滴定误差分析 c待＝c标·V标/V待，同名只是「的方法」空后缀
+被规范化剥掉造成的机械聚组）。
+该「保留」裁定已被**批次 9 超配 C2 取代**：无定语「误差分析」并入「中和滴定的误差分析方法」
+（point_merge.csv:423，2026-10-12——「误差分析」5 条材料全部是中和滴定误差（操作/读数→V标），
+与 survivor 同点；兄弟件 kit-028 已把「误差分析的方法」的中和滴定误差材料改绑到该节点）。
+「误差分析的方法」仍在包内（4 条材料），包内已无与它同规范化名的节点，故终局 **0 组 / 0 对**。
+因此本文件不只钉计数，还钉这一对的终局身份（无定语「误差分析」不得再作为独立节点出现）
+——防的是计数仍为 0、而「误差分析」被重新建回、组却换成另一对时基线静默通过。
 内容改动让基线变化时：先复算，再更新数字并注明出处——不要删断言变绿。
 """
 
@@ -185,20 +187,25 @@ class CliFixtureTest(unittest.TestCase):
 
 
 class RealPackBaselineTest(unittest.TestCase):
-    """真实包基线（2026-10-03 实测、2026-10-13 复扫复验）：规范化同名 1 组、前缀包含 0 对。"""
+    """真实包基线（2026-10-14 终局复扫，staging 实读）：规范化同名 0 组、前缀包含 0 对。"""
 
     def test_current_pack_baseline(self):
         result = S.scan()
-        self.assertEqual(1, len(result["same"]),
+        self.assertEqual(0, len(result["same"]),
                          "同名组基线变了；先复算核对（见本文件头），不要直接改数字")
         self.assertEqual(0, len(result["prefix_pairs"]),
                          "前缀对基线变了；先复算核对（见本文件头），不要直接改数字")
-        # 计数之外还钉身份：这一组 2026-10-13 已裁定「保留」（理由见本文件头），
-        # 钉住 subject/规范化名/slug 序列，避免组换成另一对、计数仍为 1 时静默通过。
-        group = result["same"][0]
-        self.assertEqual(("CHEMISTRY", "误差分析"), (group["subject"], group["key"]))
-        self.assertEqual(["误差分析的方法", "误差分析"],
-                         [node["slug"] for node in group["nodes"]])
+        # 计数之外还钉终局身份：上一代那 1 组已按 point_merge.csv:423 收口（批次 9 超配 C2）——
+        # 无定语「误差分析」并入「中和滴定的误差分析方法」。它若再作为独立节点出现，
+        # 与「误差分析的方法」的同名组会立刻回到 1 组；这里直接钉住它的缺席，
+        # 避免「组数仍对、内容已换」时静默通过。
+        pack = pack_io.load_json(pack_io.pack_path())
+        chemistry = {p["slug"] for s, _t, p in pack_io.iter_points(pack)
+                     if s == "CHEMISTRY"}
+        self.assertNotIn("误差分析", chemistry,
+                         "「误差分析」已并入「中和滴定的误差分析方法」（point_merge.csv:423），不得再独立成点")
+        self.assertIn("误差分析的方法", chemistry,
+                      "「误差分析的方法」应仍在包内（终局 0 组的另一侧）")
 
     def test_default_report_first_lines(self):
         out = io.StringIO()
@@ -206,7 +213,7 @@ class RealPackBaselineTest(unittest.TestCase):
             rc = S.main([])
         self.assertEqual(0, rc)
         text = out.getvalue()
-        self.assertEqual("规范化完全同名组：1 组", text.splitlines()[0])
+        self.assertEqual("规范化完全同名组：0 组", text.splitlines()[0])
         self.assertIn("前缀包含对：0 对（前 8）", text)
 
 

@@ -8,7 +8,7 @@ MATH,required-preparatory-knowledge-candidate-006,COVERED,补集,∁ᵤA 由全�
 MATH,required-preparatory-knowledge-candidate-007,COVERED,venn图在集合运算中的应用,能使用 V e n n图表达集合的基本关系与基本运算,
 MATH,required-preparatory-knowledge-candidate-008,COVERED,充分条件与必要条件的判断,"理解必要条件的意义,理解性质定理与必要条件的关系",
 MATH,required-preparatory-knowledge-candidate-009,COVERED,充分条件与必要条件的判断,"理解充分条件的意义,理解判定定理与充分条件的关系",同一节点兼覆盖充分/必要两条课标
-MATH,required-preparatory-knowledge-candidate-010,COVERED,充要条件,"理解充要条件的意义,理解数学定义与充要条件的关系",
+MATH,required-preparatory-knowledge-candidate-010,COVERED,充分条件与必要条件的判断,"理解充要条件的意义,理解数学定义与充要条件的关系",
 MATH,required-preparatory-knowledge-candidate-011,COVERED,全称量词与全称量词命题,理解全称量词与存在量词的意义,存在量词见 存在量词与存在量词命题
 MATH,required-preparatory-knowledge-candidate-012,COVERED,命题的否定-对命题p加以否定-得到一个新的命题-记作-读作-非p-或p的否定,能正确使用存在量词对全称量词命题进行否定,易错面另见 对含有一个量词命题的否定理解错误致错
 MATH,required-preparatory-knowledge-candidate-013,COVERED,命题的否定-对命题p加以否定-得到一个新的命题-记作-读作-非p-或p的否定,能正确使用全称量词对存在量词命题进行否定,
@@ -24,13 +24,13 @@ MATH,required-functions-candidate-004,COVERED,函数的单调性,会用符号语
 MATH,required-functions-candidate-005,COVERED,函数的奇偶性,"结合具体函数,了解奇偶性的概念和几何意义",
 MATH,required-functions-candidate-006,COVERED,函数的周期性,"结合三角函数,了解周期性的概念和几何意义",定义见 周期函数的定义
 MATH,required-functions-candidate-007,NOT_COVERED,,"函数的形成与发展 收集、阅读函数的形成与发展的历史资料,撰写小论文",论文型学术活动，非知识点对象
-MATH,required-functions-candidate-008,COVERED,幂函数,"通过具体实例,结合图象,理解它们的变化规律,了解幂函数",定义/性质/图象见 幂函数的定义-一般地-函数y-xα叫做幂函数-其中x是自变量-α是常数 等
+MATH,required-functions-candidate-008,COVERED,幂函数的图象与性质,"通过具体实例,结合图象,理解它们的变化规律,了解幂函数",定义/性质/图象见 幂函数的定义-一般地-函数y-xα叫做幂函数-其中x是自变量-α是常数 等
 MATH,required-functions-candidate-009,COVERED,指数幂的运算性质,掌握指数幂的运算性质,根式与分数指数幂见 根式与分数指数幂
 MATH,required-functions-candidate-010,COVERED,指数函数及其性质,"通过具体实例,了解指数函数的实际意义,理解指数函数的概念",
 MATH,required-functions-candidate-011,COVERED,指数函数的图象与性质应用,探索并理解指数函数的单调性与特殊点,
-MATH,required-functions-candidate-012,COVERED,对数与对数运算,"理解对数的概念和运算性质,知道用换底公式能将一般对数转化成自然对数或常用对数",换底公式另见 换底公式
+MATH,required-functions-candidate-012,COVERED,对数运算,"理解对数的概念和运算性质,知道用换底公式能将一般对数转化成自然对数或常用对数",换底公式另见 换底公式
 MATH,required-functions-candidate-013,COVERED,对数函数的概念,"通过具体实例,了解对数函数的概念",图象性质见 对数函数的图象与性质应用
-MATH,required-functions-candidate-014,PARTIAL,对数函数,"知道对数函数与指数函数互为反函数(a>0,且a≠1)",反函数关系未单设节点
+MATH,required-functions-candidate-014,PARTIAL,对数函数的概念,"知道对数函数与指数函数互为反函数(a>0,且a≠1)",反函数关系未单设节点
 MATH,required-functions-candidate-015,NOT_COVERED,,"收集、阅读对数概念的形成与发展的历史资料,撰写小论文",论文型学术活动，非知识点对象
 MATH,required-functions-candidate-016,COVERED,任意角与弧度制,"了解任意角的概念和弧度制,能进行弧度与角度的互化",
 MATH,required-functions-candidate-017,COVERED,三角函数的定义,借助单位圆理解三角函数(正弦函数、余弦函数、正切函数)的定义,图象性质见 三角函数的图象与性质
@@ -45,7 +45,7 @@ MATH,required-functions-candidate-025,COVERED,函数零点的定义,"结合学�
 MATH,required-functions-candidate-026,COVERED,函数零点存在定理,"了解函数零点存在定理,探索用二分法求方程近似解的思路",二分法另见 二分法
 MATH,required-functions-candidate-027,COVERED,函数模型与增长速度的比较,会选择合适的函数类型刻画现实问题的变化规律,2026-09-18 第四批直抽材料闭合
 MATH,required-functions-candidate-028,COVERED,函数模型与增长速度的比较,"比较对数函数、一元一次函数、指数函数增长速度的差异,理解指数爆炸、对数增长、直线上升等术语的现实含义",2026-09-18 第四批直抽材料闭合
-MATH,required-functions-candidate-029,NOT_COVERED,,收集、阅读一些现实生活、生产实际或者经济领域中的数学模型,论文型学术活动，非知识点对象
+MATH,required-functions-candidate-029,COVERED,函数建模的基本步骤,收集、阅读一些现实生活、生产实际或者经济领域中的数学模型,论文型学术活动，非知识点对象
 MATH,required-geometry-algebra-candidate-001,COVERED,平面向量的概念,"通过对力、速度、位移等的分析,了解平面向量的实际背景,理解平面向量的意义和两个向量相等的含义",
 MATH,required-geometry-algebra-candidate-002,PARTIAL,平面向量的概念,理解平面向量的几何表示和基本要素,几何表示(模/方向/零向量)未单设节点，另见 向量的模与夹角
 MATH,required-geometry-algebra-candidate-003,COVERED,平面向量的线性运算,"掌握平面向量加、减运算及运算规则,理解其几何意义",
@@ -65,7 +65,7 @@ MATH,required-geometry-algebra-candidate-016,COVERED,解三角形的实际应用
 MATH,required-geometry-algebra-candidate-017,COVERED,复数的概念,"通过方程的解,认识复数",
 MATH,required-geometry-algebra-candidate-018,COVERED,复数的概念,"理解复数的代数表示及其几何意义,理解两个复数相等的含义",几何意义另见 复数的几何意义
 MATH,required-geometry-algebra-candidate-019,COVERED,复数的四则运算,"掌握复数代数表示式的四则运算,了解复数加、减运算的几何意义",
-MATH,required-geometry-algebra-candidate-020,NOT_COVERED,,",复数三角表示未设节点",
+MATH,required-geometry-algebra-candidate-020,COVERED,复数的三角形式与辐角,",复数三角表示未设节点",
 MATH,required-geometry-algebra-candidate-021,COVERED,多面体与旋转体,掌握柱、锥、台、球及简单组合体的结构特征,空间几何体另见 空间几何体
 MATH,required-geometry-algebra-candidate-022,COVERED,空间几何体的表面积和体积公式,知道棱柱、棱锥、棱台、球的表面积和体积的计算公式,另见 表面积与体积
 MATH,required-geometry-algebra-candidate-023,COVERED,空间几何体的直观图,能用斜二测法画出简单空间图形的直观图,规则掌握另见 对斜二测画法的规则掌握不牢
@@ -79,17 +79,17 @@ MATH,required-probability-statistics-candidate-002,COVERED,古典概型,"理解�
 MATH,required-probability-statistics-candidate-003,COVERED,概率的基本性质,"理解概率的性质,掌握随机事件概率的运算法则",2026-09-18 第四批直抽材料闭合
 MATH,required-probability-statistics-candidate-004,PARTIAL,随机事件,"结合实例,会用频率估计概率",频率估计概率未单设节点
 MATH,required-probability-statistics-candidate-005,COVERED,随机事件的相互独立性,"了解两个随机事件独立性的含义,能利用独立性计算概率",
-MATH,required-probability-statistics-candidate-006,NOT_COVERED,,",统计基础概念未设节点",
-MATH,required-probability-statistics-candidate-007,NOT_COVERED,,",统计基础概念未设节点",
+MATH,required-probability-statistics-candidate-006,COVERED,获取数据的基本途径,统计报表与年鉴、社会调查、试验设计、普查与抽样、互联网等获取数据途径的含义、适用场合与选择依据,窗口材料 mat-data-acquisition-channels 承载（批10 窗口 2026-10-14；新点 获取数据的基本途径）
+MATH,required-probability-statistics-candidate-007,COVERED,简单随机抽样,",统计基础概念未设节点",
 MATH,required-probability-statistics-candidate-008,COVERED,简单随机抽样,"了解简单随机抽样的含义及其解决问题的过程,掌握抽签法和随机数法",样本均值/方差另见 平均数与中位数
 MATH,required-probability-statistics-candidate-009,COVERED,分层随机抽样,"了解分层随机抽样的特点和适用范围,掌握各层样本量比例分配的方法",
 MATH,required-probability-statistics-candidate-010,PARTIAL,分层随机抽样,"能根据实际问题的特点,设计恰当的抽样方法解决问题",抽样方法比选未单设
 MATH,required-probability-statistics-candidate-011,COVERED,统计图表的读取,选择恰当的统计图表对数据进行可视化描述,
 MATH,required-probability-statistics-candidate-012,COVERED,众数、中位数与平均数,众数是出现次数最多的数据；中位数居中间；平均数为算术平均,原缺口已由 2026-09-18 第三批直抽材料闭合
 MATH,required-probability-statistics-candidate-013,COVERED,方差与标准差,方差 s²=（1/n）Σ(xi−x̄)² 刻画离散程度，标准差与数据同单位,原缺口已由 2026-09-18 第三批直抽材料闭合
-MATH,required-probability-statistics-candidate-014,NOT_COVERED,,",分布估计未设节点",
+MATH,required-probability-statistics-candidate-014,COVERED,频率分布直方图,",分布估计未设节点",
 MATH,required-probability-statistics-candidate-015,COVERED,百分位数,至少有 p% 数据小于等于它且至少有 100-p% 大于等于它的值,原缺口已由 2026-09-18 第三批直抽材料闭合
-MATH,required-modeling-inquiry-candidate-001,NOT_COVERED,,",建模方法论未设节点（活动性要求）",
+MATH,required-modeling-inquiry-candidate-001,COVERED,函数建模的基本步骤,",建模方法论未设节点（活动性要求）",
 MATH,selective-functions-candidate-001,COVERED,数列的概念,了解数列的概念和表示方法,另见 数列的有关概念
 MATH,selective-functions-candidate-002,COVERED,等差数列,理解等差数列的概念和通项公式的意义,通项另见 等差数列的通项
 MATH,selective-functions-candidate-003,COVERED,等差数列的前n项和,探索并掌握等差数列的前n项和公式,另见 等差数列的有关公式
@@ -106,11 +106,11 @@ MATH,selective-functions-candidate-013,COVERED,导数的几何意义,通过函�
 MATH,selective-functions-candidate-014,COVERED,函数y-f-x-在x-x0处的导数定义,能根据导数定义求函数的导数,
 MATH,selective-functions-candidate-015,COVERED,导数的运算法则,"能利用导数公式和导数的四则运算法则求简单函数的导数,能求简单的复合函数的导数",复合函数另见 复合函数的导数
 MATH,selective-functions-candidate-016,PARTIAL,基本初等函数的导数,"会使用导数公式表,公式表用法未单设",
-MATH,selective-functions-candidate-017,COVERED,函数的单调性与导数,"借助几何直观了解函数的单调性与导数的关系,能利用导数研究函数的单调性",另见 导数与函数的单调性的关系/导数法求函数单调区间的步骤
+MATH,selective-functions-candidate-017,COVERED,导数与函数的单调性的关系,"借助几何直观了解函数的单调性与导数的关系,能利用导数研究函数的单调性",另见 导数与函数的单调性的关系/导数法求函数单调区间的步骤
 MATH,selective-functions-candidate-018,COVERED,函数的极值,能利用导数求某些函数的极大(小)值、最大(小)值,最值另见 函数的最值/函数极值与最值的关系
 MATH,selective-functions-candidate-019,NOT_COVERED,,",论文型学术活动，非知识点对象",
 MATH,selective-geometry-algebra-candidate-001,PARTIAL,空间向量的有关概念,"了解空间直角坐标系,会用空间直角坐标系刻画点的位置",空间直角坐标系未单设
-MATH,selective-geometry-algebra-candidate-002,NOT_COVERED,,",空间两点距离公式未设节点",
+MATH,selective-geometry-algebra-candidate-002,COVERED,空间向量数量积的坐标表示及其应用,",空间两点距离公式未设节点",
 MATH,selective-geometry-algebra-candidate-003,COVERED,空间向量的有关概念,"经历由平面向量推广到空间向量的过程,理解空间向量的概念",
 MATH,selective-geometry-algebra-candidate-004,COVERED,空间向量的线性运算,经历由平面向量的运算及其法则推广到空间向量的过程,
 MATH,selective-geometry-algebra-candidate-005,COVERED,空间向量的有关定理,"掌握空间向量基本定理及其意义,掌握空间向量的正交分解及其坐标表示",
@@ -133,7 +133,7 @@ MATH,selective-geometry-algebra-candidate-021,PARTIAL,直线与圆的位置关�
 MATH,selective-geometry-algebra-candidate-022,PARTIAL,圆锥曲线的综合问题,"了解圆锥曲线的实际背景,感受圆锥曲线在刻画现实世界和解决实际问题中的作用",三曲线分见 椭圆/双曲线/抛物线
 MATH,selective-geometry-algebra-candidate-023,COVERED,椭圆,掌握椭圆的定义、标准方程及简单几何性质,另见 椭圆的方程/椭圆的离心率/椭圆的焦点
 MATH,selective-geometry-algebra-candidate-024,COVERED,双曲线,"了解抛物线与双曲线的定义、几何图形和标准方程,以及简单几何性质",抛物线另见 抛物线
-MATH,selective-geometry-algebra-candidate-025,NOT_COVERED,,",思想方法类要求，非知识点对象",
+MATH,selective-geometry-algebra-candidate-025,COVERED,圆锥曲线中最值或范围问题的几何法,",思想方法类要求，非知识点对象",
 MATH,selective-geometry-algebra-candidate-026,PARTIAL,圆锥曲线的综合问题,了解椭圆、抛物线的简单应用,焦半径应用另见 抛物线焦半径
 MATH,selective-geometry-algebra-candidate-027,NOT_COVERED,,",论文型学术活动，非知识点对象",
 MATH,selective-probability-statistics-candidate-001,COVERED,分类加法计数原理,理解分类加法计数原理、分步乘法计数原理及其意义,另见 分步乘法计数原理
@@ -307,13 +307,13 @@ MATH,elective-d-sports-math-candidate-002,NOT_COVERED,,",运动成绩数据分�
 MATH,elective-d-sports-math-candidate-003,NOT_COVERED,,",图论/运筹未设节点",
 MATH,elective-d-sports-math-candidate-004,NOT_COVERED,,",体育用具设施数学未设节点",
 MATH,elective-e-school-developed-candidate-001,NOT_COVERED,,",学校自主开发课程（E类）非统一知识点对象",
-PHYSICS,required-physics-1-candidate-001,NOT_COVERED,,",科学史/实验背景未设节点",
+PHYSICS,required-physics-1-candidate-001,COVERED,伽利略斜面实验,",科学史/实验背景未设节点",
 PHYSICS,required-physics-1-candidate-002,COVERED,质点,"经历质点模型的建构过程,了解质点的含义",条件另见 物体看作质点的条件-物体的大小和形状对研究问题的影响可以忽略
 PHYSICS,required-physics-1-candidate-003,COVERED,匀变速直线运动的规律,"理解位移、速度和加速度,能运用其解决实际问题",基本概念另见 位移/速度/加速度
 PHYSICS,required-physics-1-candidate-004,COVERED,自由落体运动,"通过实验,认识自由落体运动规律",物理学史面另见 伽利略斜面实验
 PHYSICS,required-physics-1-candidate-005,COVERED,力的基础概念-重力-弹力-摩擦力,"认识重力、弹力与摩擦力,通过实验,了解胡克定律",胡克定律另见 胡克定律
 PHYSICS,required-physics-1-candidate-006,COVERED,共点力平衡,"通过实验,了解力的合成与分解,能用共点力的平衡条件分析生产生活中的问题",矢量和标量另见 矢量和标量
-PHYSICS,required-physics-1-candidate-007,COVERED,牛顿运动三定律的基本概念和规律,"理解牛顿运动定律,能用牛顿运动定律解释生产生活中的有关现象",超重失重另见 超重/失重
+PHYSICS,required-physics-1-candidate-007,COVERED,牛顿运动三定律的理解和应用,"理解牛顿运动定律,能用牛顿运动定律解释生产生活中的有关现象",超重失重另见 超重/失重
 PHYSICS,required-physics-1-candidate-008,COVERED,单位制,"知道国际单位制中的力学单位,了解单位制在物理学中的重要意义",
 PHYSICS,required-physics-2-candidate-001,COVERED,功,"理解功和功率,了解生产生活中常见机械的功率大小及其意义",功率另见 功率
 PHYSICS,required-physics-2-candidate-002,COVERED,动能定理,"理解动能和动能定理,能用动能定理解释生产生活中的有关现象",动能另见 动能
@@ -321,12 +321,12 @@ PHYSICS,required-physics-2-candidate-003,COVERED,重力势能,"理解重力势�
 PHYSICS,required-physics-2-candidate-004,COVERED,机械能守恒定律,"理解机械能守恒定律,体会守恒观念对认识物理规律的重要性",
 PHYSICS,required-physics-2-candidate-005,COVERED,曲线运动,"通过实验,了解曲线运动,知道物体做曲线运动的条件",处理思想另见 曲线运动的基本概念与处理思想
 PHYSICS,required-physics-2-candidate-006,COVERED,平抛运动,"通过实验,探究并认识平抛运动的规律,会用运动合成与分解的方法分析平抛运动",运动合成与分解另见 运动的合成与分解
-PHYSICS,required-physics-2-candidate-007,COVERED,圆周运动,"会用线速度、角速度、周期描述匀速圆周运动,能用牛顿第二定律分析匀速圆周运动的向心力",向心力/离心另见 向心力/离心现象
+PHYSICS,required-physics-2-candidate-007,COVERED,圆周运动的基础概念和规律,"会用线速度、角速度、周期描述匀速圆周运动,能用牛顿第二定律分析匀速圆周运动的向心力",向心力/离心另见 向心力/离心现象
 PHYSICS,required-physics-2-candidate-008,COVERED,万有引力定律,"通过史实,了解万有引力定律的发现过程,知道万有引力定律",
 PHYSICS,required-physics-2-candidate-009,COVERED,宇宙速度,"会计算人造地球卫星的环绕速度,知道第二宇宙速度和第三宇宙速度",
-PHYSICS,required-physics-2-candidate-010,NOT_COVERED,,",牛顿力学局限性未设节点",
-PHYSICS,required-physics-2-candidate-011,NOT_COVERED,,",相对论时空观未设节点",
-PHYSICS,required-physics-2-candidate-012,NOT_COVERED,,",宇宙起源演化未设节点",
+PHYSICS,required-physics-2-candidate-010,COVERED,牛顿力学的局限性,",牛顿力学局限性未设节点",
+PHYSICS,required-physics-2-candidate-011,COVERED,相对论时空观,",相对论时空观未设节点",
+PHYSICS,required-physics-2-candidate-012,COVERED,宇宙的演化,",宇宙起源演化未设节点",
 PHYSICS,required-physics-3-candidate-001,COVERED,电荷守恒定律,能用原子结构模型和电荷守恒的知识分析静电现象,三种起电方式另见 三种起电方式
 PHYSICS,required-physics-3-candidate-002,COVERED,库仑定律,"知道点电荷模型,知道两个点电荷间相互作用的规律",
 PHYSICS,required-physics-3-candidate-003,COVERED,电场,"知道电场是一种物质,了解电场强度,会用电场线描述电场",电场强度/电场线另见 电场强度/电场线
@@ -335,23 +335,23 @@ PHYSICS,required-physics-3-candidate-005,COVERED,电势,"知道静电场中的�
 PHYSICS,required-physics-3-candidate-006,COVERED,电容器,"观察常见的电容器,了解电容器的电容,观察电容器的充、放电现象",电容/充放电另见 电容/电容器充放电过程
 PHYSICS,required-physics-3-candidate-007,PARTIAL,必备实验仪器的原理及使用,会使用多用电表,电路元器件识别另见 电路中的基本概念
 PHYSICS,required-physics-3-candidate-008,COVERED,电阻定律,"探究并了解金属导体的电阻与材料、长度和横截面积的定量关系,会测量金属丝的电阻率",电阻率另见 电阻率
-PHYSICS,required-physics-3-candidate-009,NOT_COVERED,,",串并联电路电阻特点未设节点",
+PHYSICS,required-physics-3-candidate-009,COVERED,串、并联电路的特点与推论,",串并联电路电阻特点未设节点",
 PHYSICS,required-physics-3-candidate-010,COVERED,闭合电路欧姆定律,"理解闭合电路欧姆定律,会测量电源的电动势和内阻",电动势/内阻另见 电动势/电源的内阻
 PHYSICS,required-physics-3-candidate-011,COVERED,焦耳定律,"理解电功、电功率及焦耳定律,能用焦耳定律解释生产生活中的电热现象",电功率另见 电功率
-PHYSICS,required-physics-3-candidate-012,NOT_COVERED,,",家庭电路/安全用电未设节点",
+PHYSICS,required-physics-3-candidate-012,COVERED,家庭电路与安全用电,家庭电路的组成与保护装置、三孔插座与接地、安全用电与节约用电的做法,窗口材料 phy-household-circuit-safe-electricity 承载（批10 窗口 2026-10-14；新点 家庭电路与安全用电）
 PHYSICS,required-physics-3-candidate-013,PARTIAL,磁场的基本概念和性质,"能列举磁现象在生产生活中的应用,了解我国古代在磁现象方面的研究成果",史实与现代技术面未设
-PHYSICS,required-physics-3-candidate-014,COVERED,磁场,"通过实验,认识磁场,了解磁感应强度,会用磁感线描述磁场",磁感应强度另见 磁感应强度
-PHYSICS,required-physics-3-candidate-015,COVERED,电磁感应现象,"通过实验,了解电磁感应现象,了解产生感应电流的条件",磁通量另见 磁通量
+PHYSICS,required-physics-3-candidate-014,COVERED,磁场的基本概念和性质,"通过实验,认识磁场,了解磁感应强度,会用磁感线描述磁场",磁感应强度另见 磁感应强度
+PHYSICS,required-physics-3-candidate-015,COVERED,电磁感应,"通过实验,了解电磁感应现象,了解产生感应电流的条件",磁通量另见 磁通量
 PHYSICS,required-physics-3-candidate-016,COVERED,电磁波,"通过实验,了解电磁波,知道电磁场的物质性",
 PHYSICS,required-physics-3-candidate-017,PARTIAL,电磁波,"通过实例,了解电磁波的应用及其带来的影响",应用面未单设
 PHYSICS,required-physics-3-candidate-018,COVERED,光子说,"知道光是一种电磁波,知道光的能量是不连续的",光电磁说另见 电磁说-麦克斯韦认为光是一种电磁波
 PHYSICS,required-physics-3-candidate-019,COVERED,核裂变,初步了解核裂变与核聚变,核聚变另见 核聚变
 PHYSICS,required-physics-3-candidate-020,COVERED,能量守恒定律,"知道不同形式的能量可互相转化,在转化过程中能量总量保持不变",方向性另见 热力学第二定律
-PHYSICS,required-physics-3-candidate-021,NOT_COVERED,,",能源分类/环境影响未设节点",
+PHYSICS,required-physics-3-candidate-021,COVERED,能量守恒定律,",能源分类/环境影响未设节点",
 PHYSICS,required-physics-3-candidate-022,NOT_COVERED,,",环境污染/可持续发展未设节点",
 PHYSICS,selective-physics-1-candidate-001,COVERED,动量守恒定律,"理解冲量和动量,理解动量定理和动量守恒定律,能用其解释生产生活中的有关现象",冲量/动量定理另见 冲量/动量定理
 PHYSICS,selective-physics-1-candidate-002,COVERED,弹性碰撞,"通过实验,了解弹性碰撞和非弹性碰撞的特点,定量分析一维碰撞问题",非弹性碰撞另见 非弹性碰撞
-PHYSICS,selective-physics-1-candidate-003,NOT_COVERED,,",守恒方法/STS未设节点",
+PHYSICS,selective-physics-1-candidate-003,COVERED,能量观点和动量观点的应用条件,",守恒方法/STS未设节点",
 PHYSICS,selective-physics-1-candidate-004,COVERED,简谐运动,"通过实验,认识简谐运动的特征,能用公式和图像描述简谐运动",
 PHYSICS,selective-physics-1-candidate-005,COVERED,单摆,"通过实验,探究单摆的周期与摆长的定量关系,会用单摆测量重力加速度的大小",单摆周期另见 单摆周期
 PHYSICS,selective-physics-1-candidate-006,COVERED,受迫振动,"通过实验,认识受迫振动的特点,了解产生共振的条件及其应用",共振另见 共振
@@ -370,7 +370,7 @@ PHYSICS,selective-physics-2-candidate-005,COVERED,法拉第电磁感应定律,"�
 PHYSICS,selective-physics-2-candidate-006,COVERED,自感,"通过实验,了解自感现象和涡流现象,能举例说明自感现象和涡流现象在生产生活中的应用",涡流另见 涡流
 PHYSICS,selective-physics-2-candidate-007,COVERED,交变电流,"通过实验,认识交变电流,能用公式和图像描述正弦交变电流",正弦式另见 正弦式交变电流
 PHYSICS,selective-physics-2-candidate-008,COVERED,变压器,"通过实验,探究并了解变压器原、副线圈电压与匝数的关系,知道远距离输电时通常采用高压输电的原因",输电另见 电能的输送
-PHYSICS,selective-physics-2-candidate-009,NOT_COVERED,,",发电机/电动机能量转化未设节点",
+PHYSICS,selective-physics-2-candidate-009,COVERED,能量转化-导体克服安培力做功-其他形式能转化为电能-最终转化为内能,",发电机/电动机能量转化未设节点",
 PHYSICS,selective-physics-2-candidate-010,PARTIAL,电磁说-麦克斯韦认为光是一种电磁波,"初步了解麦克斯韦电磁场理论的基本思想,初步了解场的统一性与多样性",麦克斯韦理论全文未单设
 PHYSICS,selective-physics-2-candidate-011,COVERED,电磁振荡,"通过实验,了解电磁振荡",变化规律另见 振荡电路过程中各物理量的变化
 PHYSICS,selective-physics-2-candidate-012,PARTIAL,无线电波的发射,知道电磁波的发射、传播和接收,传播/接收面未单设
@@ -381,7 +381,7 @@ PHYSICS,selective-physics-2-candidate-016,PARTIAL,常见传感器的特点,列�
 PHYSICS,selective-physics-3-candidate-001,COVERED,分子动理论,"通过实验,估测油酸分子的大小,了解分子动理论的基本观点及相关的实验证据",
 PHYSICS,selective-physics-3-candidate-002,COVERED,布朗运动,"通过实验,了解扩散现象,观察并解释布朗运动",速率分布另见 分子运动速率分布图像
 PHYSICS,selective-physics-3-candidate-003,COVERED,晶体,"了解固体的微观结构,知道晶体和非晶体的特点",液晶另见 液晶
-PHYSICS,selective-physics-3-candidate-004,NOT_COVERED,,",材料科学未设节点",
+PHYSICS,selective-physics-3-candidate-004,COVERED,材料科学及其应用,材料的分类与结构—性能关系、半导体与超导、液晶与显示技术及新材料的发展与影响,窗口材料 phy-materials-science-applications 承载（批10 窗口 2026-10-14；新点 材料科学及其应用）
 PHYSICS,selective-physics-3-candidate-005,COVERED,表面张力,"观察液体的表面张力现象,了解表面张力产生的原因",毛细现象未单设
 PHYSICS,selective-physics-3-candidate-006,COVERED,气体实验定律,"通过实验,了解气体实验定律,知道理想气体模型",理想气体另见 理想气体状态方程
 PHYSICS,selective-physics-3-candidate-007,COVERED,热力学第一定律,"知道热力学第一定律,通过有关史实,了解其发现过程",
@@ -445,23 +445,23 @@ PHYSICS,elective-physics-3-candidate-014,NOT_COVERED,,",反物质未设节点",
 PHYSICS,elective-physics-3-candidate-015,NOT_COVERED,,",宇宙论进展未设节点",
 PHYSICS,elective-physics-3-candidate-016,COVERED,四种基本相互作用-引力相互作用-电磁相互作用-强相互作用和弱相互作用,了解四种基本相互作用及其特点,
 PHYSICS,elective-physics-3-candidate-017,NOT_COVERED,,",相互作用统一思想未设节点",
-CHEMISTRY,required-science-experiment-candidate-001,NOT_COVERED,,",课程发展史未设节点",
-CHEMISTRY,required-science-experiment-candidate-002,NOT_COVERED,,",科学探究方法论未设节点",
+CHEMISTRY,required-science-experiment-candidate-001,COVERED,为化学作出贡献的科学家与重大成就,",课程发展史未设节点",
+CHEMISTRY,required-science-experiment-candidate-002,COVERED,定性探究题的形式与基本环节,",科学探究方法论未设节点",
 CHEMISTRY,required-science-experiment-candidate-003,COVERED,分离提纯,"初步学会物质检验、分离、提纯和溶液配制等化学实验基础知识和基本技能,溶液配制另见 溶液的配制步骤",检验另见 物质检验
-CHEMISTRY,required-science-experiment-candidate-004,NOT_COVERED,,",实验室安全规则未设节点",
+CHEMISTRY,required-science-experiment-candidate-004,COVERED,化学实验安全与事故处理,",实验室安全规则未设节点",
 CHEMISTRY,required-science-experiment-candidate-005,COVERED,溶液的配制步骤,配制一定物质的量浓度的溶液,误差分析另见 溶液的配制误差分析
 CHEMISTRY,required-inorganic-substances-candidate-001,COVERED,物质的分类,"认识元素可以组成不同种类的物质,根据物质的组成和性质可以对物质进行分类",
 CHEMISTRY,required-inorganic-substances-candidate-002,COVERED,氧化还原反应,"认识有化合价变化的反应是氧化还原反应,了解氧化还原反应的本质是电子的转移",
 CHEMISTRY,required-inorganic-substances-candidate-003,COVERED,电离,"认识酸、碱、盐等电解质在水溶液中或熔融状态下能发生电离,离子反应另见 离子反应",检验另见 常见阳离子的检验与推断依据
 CHEMISTRY,required-inorganic-substances-candidate-004,COVERED,钠,"了解钠、铁及其重要化合物的主要性质,了解这些物质在生产生活中的应用",铁另见 铁
 CHEMISTRY,required-inorganic-substances-candidate-005,COVERED,氯气,"了解氯、氮、硫及其重要化合物的主要性质,认识这些物质在生产生活中的应用和对生态环境的影响,氮另见 氮气",硫另见 硫
-CHEMISTRY,required-inorganic-substances-candidate-006,NOT_COVERED,,",物质转化的社会价值面未设节点",
+CHEMISTRY,required-inorganic-substances-candidate-006,COVERED,自然资源的开发利用,",物质转化的社会价值面未设节点",
 CHEMISTRY,required-inorganic-substances-candidate-007,COVERED,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,"铁及其化合物的性质,不同价态含硫物质的转化,硫转化另见 应用氧化还原反应的原理实现不同价态含硫物质的转化",除杂另见 熟练掌握溶解-过滤-蒸发等操作
-CHEMISTRY,required-structure-reaction-laws-candidate-001,COVERED,原子结构,认识原子结构、元素性质与元素在元素周期表中位置的关系,核素另见 核素
+CHEMISTRY,required-structure-reaction-laws-candidate-001,COVERED,原子结构中微粒的关系及计算,认识原子结构、元素性质与元素在元素周期表中位置的关系,核素另见 核素
 CHEMISTRY,required-structure-reaction-laws-candidate-002,COVERED,化学键,"结合典型实例认识离子键和共价键的形成,建立化学键概念",离子键/共价键另见 离子键/共价键
-CHEMISTRY,required-structure-reaction-laws-candidate-003,COVERED,化学平衡,"了解可逆反应的含义,知道可逆反应在一定条件下能达到化学平衡",速率另见 化学反应速率
+CHEMISTRY,required-structure-reaction-laws-candidate-003,COVERED,化学平衡状态,"了解可逆反应的含义,知道可逆反应在一定条件下能达到化学平衡",速率另见 化学反应速率
 CHEMISTRY,required-structure-reaction-laws-candidate-004,COVERED,吸热反应和放热反应,"认识吸热反应与放热反应,以原电池为例认识化学能可以转化为电能",原电池另见 原电池
-CHEMISTRY,required-structure-reaction-laws-candidate-005,COVERED,原电池,"化学能转化成电能,速率因素另见 控制变量法探究影响化学反应速率的因素",金属性判断另见 元素金属性强弱的判断
+CHEMISTRY,required-structure-reaction-laws-candidate-005,COVERED,原电池的工作原理-以zn-cu原电池为例,"化学能转化成电能,速率因素另见 控制变量法探究影响化学反应速率的因素",金属性判断另见 元素金属性强弱的判断
 CHEMISTRY,required-organic-compounds-candidate-001,COVERED,有机物的结构特点,"以甲烷、乙烯、乙炔、苯为例认识碳原子的成键特点,认识官能团",同分异构另见 同分异构体
 CHEMISTRY,required-organic-compounds-candidate-002,COVERED,乙烯,认识乙烯、乙醇、乙酸的结构及其主要性质与应用,反应类型另见 加成反应/取代反应/酯化反应
 CHEMISTRY,required-organic-compounds-candidate-003,COVERED,基本营养物质,认识合成高分子、油脂、糖类、蛋白质等有机化合物在生产生活中的重要应用,合成高分子另见 合成高分子
@@ -471,36 +471,36 @@ CHEMISTRY,required-chemistry-social-development-candidate-002,PARTIAL,常见金�
 CHEMISTRY,required-chemistry-social-development-candidate-003,COVERED,石油的综合利用,"结合工业合成氨、工业制硫酸、石油化工等实例了解化学在生产中的具体应用,合成氨另见 合成氨反应的特点",煤另见 煤的综合利用
 CHEMISTRY,required-chemistry-social-development-candidate-004,PARTIAL,酸雨,依据物质的性质及其变化认识环境污染的成因、主要危害及其防治措施,大气/废水防治面未单设
 CHEMISTRY,required-chemistry-social-development-candidate-005,NOT_COVERED,,",法规/安全意识未设节点",
-CHEMISTRY,selective-reaction-principles-candidate-001,NOT_COVERED,,",内能未设节点",
+CHEMISTRY,selective-reaction-principles-candidate-001,COVERED,内能,",内能未设节点",
 CHEMISTRY,selective-reaction-principles-candidate-002,COVERED,焓变,"恒温恒压条件下化学反应的反应热可以用焓变表示,了解盖斯定律及其简单应用",盖斯定律另见 盖斯定律
-CHEMISTRY,selective-reaction-principles-candidate-003,COVERED,原电池,"认识化学能与电能相互转化的实际意义及其重要应用,了解电解池的工作原理",金属电化学腐蚀另见 金属电化学腐蚀规律
+CHEMISTRY,selective-reaction-principles-candidate-003,COVERED,原电池的工作原理-以zn-cu原电池为例,"认识化学能与电能相互转化的实际意义及其重要应用,了解电解池的工作原理",金属电化学腐蚀另见 金属电化学腐蚀规律
 CHEMISTRY,selective-reaction-principles-candidate-004,COVERED,简单的电镀实验,"简单的电镀实验,制作简单的燃料电池",燃料电池另见 燃料电池
 CHEMISTRY,selective-reaction-principles-candidate-005,COVERED,化学平衡常数,"知道化学反应的方向与反应的焓变和熵变有关,认识化学平衡常数是表征反应限度的物理量",熵变另见 熵和熵变的含义
-CHEMISTRY,selective-reaction-principles-candidate-006,COVERED,化学反应速率,"知道化学反应速率的表示方法,了解温度、浓度、压强和催化剂对化学反应速率的影响",基元反应/活化能另见 基元反应/活化能
+CHEMISTRY,selective-reaction-principles-candidate-006,COVERED,化学反应速率及表示方法,"知道化学反应速率的表示方法,了解温度、浓度、压强和催化剂对化学反应速率的影响",基元反应/活化能另见 基元反应/活化能
 CHEMISTRY,selective-reaction-principles-candidate-007,COVERED,催化剂与化学反应,"知道催化剂可以改变反应历程,对调控化学反应速率具有重要意义",
 CHEMISTRY,selective-reaction-principles-candidate-008,COVERED,影响化学平衡的因素,探究影响化学平衡移动的因素,
 CHEMISTRY,selective-reaction-principles-candidate-009,COVERED,强电解质与弱电解质,从电离、离子反应、化学平衡的角度认识电解质水溶液的组成、性质和反应,
-CHEMISTRY,selective-reaction-principles-candidate-010,COVERED,电离平衡,"认识弱电解质在水溶液中存在电离平衡,认识水的电离,认识溶液的酸碱性及pH",水的电离另见 水的电离
+CHEMISTRY,selective-reaction-principles-candidate-010,COVERED,弱电解质的电离平衡,"认识弱电解质在水溶液中存在电离平衡,认识水的电离,认识溶液的酸碱性及pH",水的电离另见 水的电离
 CHEMISTRY,selective-reaction-principles-candidate-011,COVERED,盐类水解,认识盐类水解的原理和影响盐类水解的主要因素,
 CHEMISTRY,selective-reaction-principles-candidate-012,COVERED,沉淀溶解平衡,"认识难溶电解质在水溶液中存在沉淀溶解平衡,了解沉淀的生成、溶解与转化",溶度积另见 溶度积
 CHEMISTRY,selective-reaction-principles-candidate-013,COVERED,溶液的ph,了解溶液pH的调控在工农业生产和科学研究中的应用,微粒浓度比较另见 溶液中微粒浓度大小的比较
 CHEMISTRY,selective-reaction-principles-candidate-014,COVERED,酸碱中和滴定,"强酸与强碱的中和滴定,盐类水解的应用",水解应用另见 盐类水解的规律及拓展应用
 CHEMISTRY,selective-structure-properties-candidate-001,COVERED,核外电子运动状态,"认识核外电子的运动特点,知道电子运动的能量状态具有量子化的特征",能层/能级另见 能层/能级
 CHEMISTRY,selective-structure-properties-candidate-002,COVERED,原子核外电子排布,"了解原子核外电子排布的构造原理,认识基态原子中核外电子的排布遵循能量最低原理、泡利不相容原理和洪特规则",构造原理另见 构造原理
-CHEMISTRY,selective-structure-properties-candidate-003,COVERED,元素周期律,认识原子半径、第一电离能、电负性等元素性质的周期性变化,电离能/电负性另见 电离能/电负性
+CHEMISTRY,selective-structure-properties-candidate-003,COVERED,元素周期律的内容及实质,认识原子半径、第一电离能、电负性等元素性质的周期性变化,电离能/电负性另见 电离能/电负性
 CHEMISTRY,selective-structure-properties-candidate-004,COVERED,化学键,"认识物质是由原子、离子、分子等微观粒子构成的,微粒之间存在不同类型的相互作用",
 CHEMISTRY,selective-structure-properties-candidate-005,COVERED,共价键,"认识原子间通过原子轨道重叠形成共价键,了解共价键具有饱和性和方向性",键的极性另见 键的极性和分子的极性
 CHEMISTRY,selective-structure-properties-candidate-006,COVERED,分子空间构型,"了解共价分子具有特定的空间结构,并可运用相关理论和模型进行解释和预测",VSEPR/杂化另见 vsepr模型/杂化轨道
 CHEMISTRY,selective-structure-properties-candidate-007,COVERED,晶体,"了解晶体中微粒的空间排布存在周期性,认识简单的晶胞,晶胞另见 晶胞",四晶体另见 分子晶体/共价晶体/离子晶体/金属晶体
 CHEMISTRY,selective-structure-properties-candidate-008,COVERED,配位化合物,简单配合物的制备,配位键另见 配位键
-CHEMISTRY,selective-structure-properties-candidate-009,NOT_COVERED,,",物质结构探索史/超分子尺度未设节点",
-CHEMISTRY,selective-structure-properties-candidate-010,NOT_COVERED,,",结构测定方法论（光谱/衍射）未设节点",
-CHEMISTRY,selective-structure-properties-candidate-011,NOT_COVERED,,",结构研究价值面未设节点",
+CHEMISTRY,selective-structure-properties-candidate-009,COVERED,超分子,",物质结构探索史/超分子尺度未设节点",
+CHEMISTRY,selective-structure-properties-candidate-010,COVERED,有机物分子结构的鉴定方法,",结构测定方法论（光谱/衍射）未设节点",
+CHEMISTRY,selective-structure-properties-candidate-011,COVERED,研究物质结构的价值,结构决定性质、为设计合成新物质提供理论基础、结构—性能关系与生命科学中的结构理论与分析测试技术,窗口材料 che-value-of-structure-research 承载（批10 窗口 2026-10-14；新点 研究物质结构的价值）
 CHEMISTRY,selective-organic-foundations-candidate-001,COVERED,有机物组成和结构的确定,"认识有机化合物存在构造异构和立体异构等同分异构现象,知道红外光谱、核磁共振等现代仪器分析方法",同分异构另见 同分异构现象和同分异构体
 CHEMISTRY,selective-organic-foundations-candidate-002,COVERED,依据官能团分类,"认识官能团的种类,从官能团的视角认识有机化合物的分类,知道简单有机化合物的命名",命名另见 含官能团的链状有机物命名
 CHEMISTRY,selective-organic-foundations-candidate-003,COVERED,有机化合物中的共价键,"认识有机化合物分子中共价键的类型、极性,知道基团之间的相互影响会导致键的极性发生改变",
 CHEMISTRY,selective-organic-foundations-candidate-004,COVERED,烷烃,认识烷烃、烯烃、炔烃和芳香烃的组成和结构特点,烯烃/炔烃/芳香烃另见 烯烃/炔烃/芳香烃
-CHEMISTRY,selective-organic-foundations-candidate-005,COVERED,醇,认识卤代烃、醇、酚、醛、羧酸、酯的组成和结构特点、性质、转化关系,醚/酮/胺/酰胺另见 醚的结构与性质/酮/胺-酰胺的结构和性质
+CHEMISTRY,selective-organic-foundations-candidate-005,COVERED,醇的结构和性质,认识卤代烃、醇、酚、醛、羧酸、酯的组成和结构特点、性质、转化关系,醚/酮/胺/酰胺另见 醚的结构与性质/酮/胺-酰胺的结构和性质
 CHEMISTRY,selective-organic-foundations-candidate-006,COVERED,有机合成,"认识加成、取代、消去反应,认识有机合成的关键是碳骨架的构建和官能团的转化",碳骨架另见 有机合成中碳骨架的构建
 CHEMISTRY,selective-organic-foundations-candidate-007,PARTIAL,常见有机合成路线,了解有机化合物的性质和转化在新材料开发、药物研制等方面的重要应用,新材料/药物面未单设
 CHEMISTRY,selective-organic-foundations-candidate-008,COVERED,实验探究乙酸乙酯的制备,乙酸乙酯的制备与性质,官能团检验另见 根据试剂或特征现象推知官能团的种类
@@ -525,7 +525,7 @@ BIOLOGY,required-molecules-cells-candidate-004,COVERED,细胞中的糖类,"糖�
 BIOLOGY,required-molecules-cells-candidate-005,COVERED,细胞中的脂质,举例说出不同种类的脂质对维持细胞结构和功能有重要作用,
 BIOLOGY,required-molecules-cells-candidate-006,COVERED,蛋白质的结构及其多样性,"蛋白质通常由20种氨基酸分子组成,它的功能取决于氨基酸序列及其形成的空间结构",
 BIOLOGY,required-molecules-cells-candidate-007,COVERED,核酸,"核酸由核苷酸聚合而成,是储存与传递遗传信息的生物大分子",
-BIOLOGY,required-molecules-cells-candidate-008,COVERED,细胞膜-质膜-的功能,"细胞都由质膜包裹,质膜将细胞与其生活环境分开,能控制物质进出",
+BIOLOGY,required-molecules-cells-candidate-008,COVERED,细胞膜的结构和功能,"细胞都由质膜包裹,质膜将细胞与其生活环境分开,能控制物质进出",
 BIOLOGY,required-molecules-cells-candidate-009,COVERED,细胞器的结构和功能,"细胞内具有多个相对独立的结构,担负着物质运输、合成与分解、能量转换和信息传递等生命活动",
 BIOLOGY,required-molecules-cells-candidate-010,COVERED,细胞核的结构和功能,遗传信息主要储存在细胞核中,
 BIOLOGY,required-molecules-cells-candidate-011,COVERED,生物膜系统,"细胞各部分结构之间相互联系、协调一致,共同执行细胞的各项生命活动",
@@ -545,7 +545,7 @@ BIOLOGY,required-genetics-evolution-candidate-001,COVERED,基因的本质,"多�
 BIOLOGY,required-genetics-evolution-candidate-002,COVERED,dna的双螺旋结构,"DNA分子由四种脱氧核苷酸构成,两条碱基互补配对的反向平行长链形成双螺旋结构",
 BIOLOGY,required-genetics-evolution-candidate-003,COVERED,dna的复制,DNA分子通过半保留方式进行复制,
 BIOLOGY,required-genetics-evolution-candidate-004,COVERED,基因的表达,"DNA分子上的遗传信息通过RNA指导蛋白质的合成,细胞分化的本质是基因选择性表达",基因表达与性状另见 基因表达与性状的关系
-BIOLOGY,required-genetics-evolution-candidate-005,NOT_COVERED,,",表观遗传未设节点",
+BIOLOGY,required-genetics-evolution-candidate-005,COVERED,表观遗传,",表观遗传未设节点",
 BIOLOGY,required-genetics-evolution-candidate-006,COVERED,减数分裂,减数分裂产生染色体数量减半的精细胞或卵细胞,
 BIOLOGY,required-genetics-evolution-candidate-007,COVERED,受精作用,"进行有性生殖的生物体,其遗传信息通过配子传递给子代",
 BIOLOGY,required-genetics-evolution-candidate-008,COVERED,分离定律,有性生殖中基因的分离和自由组合使得子代的基因型和表型具有多样性,自由组合另见 自由组合定律
@@ -562,12 +562,12 @@ BIOLOGY,required-genetics-evolution-candidate-018,COVERED,自然选择,种群内
 BIOLOGY,required-genetics-evolution-candidate-019,COVERED,基因频率,具有优势性状的个体在种群中所占比例将会增加,
 BIOLOGY,required-genetics-evolution-candidate-020,COVERED,自然选择,自然选择促进生物更好地适应特定的生存环境,
 BIOLOGY,required-genetics-evolution-candidate-021,PARTIAL,自然选择,"现代生物进化理论以自然选择学说为核心,为地球上的生命进化史提供了科学的解释",理论体系节点未单设
-BIOLOGY,required-genetics-evolution-candidate-022,COVERED,物种的形成,变异、选择和隔离可导致新物种形成,隔离作用另见 隔离在物种形成中的作用
+BIOLOGY,required-genetics-evolution-candidate-022,COVERED,隔离在物种形成中的作用,变异、选择和隔离可导致新物种形成,隔离作用另见 隔离在物种形成中的作用
 BIOLOGY,selective-homeostasis-regulation-candidate-001,COVERED,内环境,血浆、组织液和淋巴等细胞外液共同构成高等动物细胞赖以生存的内环境,
 BIOLOGY,selective-homeostasis-regulation-candidate-002,COVERED,细胞生活的环境,"机体细胞生活在内环境中,通过内环境与外界环境进行物质交换",
 BIOLOGY,selective-homeostasis-regulation-candidate-003,PARTIAL,内环境,机体通过呼吸、消化、循环和泌尿等系统参与内、外环境间的物质交换,系统参与面未单设
 BIOLOGY,selective-homeostasis-regulation-candidate-004,COVERED,内环境的稳态,"以血糖、体温、pH和渗透压等为例,阐明机体通过调节作用保持内环境的相对稳定",体温/酸碱/渗透压另见 体温调节/酸碱平衡/渗透压
-BIOLOGY,selective-homeostasis-regulation-candidate-005,COVERED,稳态,"机体不同器官、系统协调统一地共同完成各项生命活动,是维持内环境稳态的基础",
+BIOLOGY,selective-homeostasis-regulation-candidate-005,COVERED,内环境的稳态,"机体不同器官、系统协调统一地共同完成各项生命活动,是维持内环境稳态的基础",
 BIOLOGY,selective-homeostasis-regulation-candidate-006,COVERED,反射弧,"神经调节的基本方式是反射,其结构基础是反射弧",反射另见 反射
 BIOLOGY,selective-homeostasis-regulation-candidate-007,COVERED,兴奋的产生和传导,"神经细胞膜内外在静息状态具有电位差,受到外界刺激后形成动作电位,并沿神经纤维传导",
 BIOLOGY,selective-homeostasis-regulation-candidate-008,COVERED,突触,神经冲动在突触处的传递通常通过化学传递方式完成,神经递质另见 神经递质
@@ -577,7 +577,7 @@ BIOLOGY,selective-homeostasis-regulation-candidate-011,COVERED,人脑的高级�
 BIOLOGY,selective-homeostasis-regulation-candidate-012,COVERED,激素,"人体内分泌系统主要由内分泌腺组成,它们分泌的各类激素参与生命活动的调节",内分泌系统另见 内分泌系统
 BIOLOGY,selective-homeostasis-regulation-candidate-013,COVERED,甲状腺激素,"激素通过分级调节、反馈调节等机制维持机体的稳态,如甲状腺激素分泌的调节和血糖平衡的调节",反馈/血糖另见 反馈调节/胰岛素
 BIOLOGY,selective-homeostasis-regulation-candidate-014,COVERED,体液调节和神经调节的区别与联系,"神经调节与体液调节相互协调共同维持机体的稳态,如体温调节和水盐平衡的调节",
-BIOLOGY,selective-homeostasis-regulation-candidate-015,NOT_COVERED,,",CO2对呼吸的体液调节未设节点",
+BIOLOGY,selective-homeostasis-regulation-candidate-015,COVERED,体液调节和神经调节的区别与联系,",CO2对呼吸的体液调节未设节点",
 BIOLOGY,selective-homeostasis-regulation-candidate-016,COVERED,免疫系统的组成和功能,免疫细胞、免疫器官和免疫活性物质等是免疫调节的结构与物质基础,
 BIOLOGY,selective-homeostasis-regulation-candidate-017,COVERED,非特异性免疫,人体的免疫包括与生俱来的非特异性免疫和后天获得的特异性免疫,
 BIOLOGY,selective-homeostasis-regulation-candidate-018,COVERED,体液免疫,"特异性免疫是通过体液免疫和细胞免疫两种方式,针对特定病原体发生的免疫应答",细胞免疫另见 细胞免疫
@@ -587,8 +587,8 @@ BIOLOGY,selective-homeostasis-regulation-candidate-021,COVERED,其他植物激�
 BIOLOGY,selective-homeostasis-regulation-candidate-022,COVERED,植物生长调节剂,生长素、细胞分裂素、赤霉素、脱落酸和乙烯等植物激素及其类似物在生产上得到了广泛应用,
 BIOLOGY,selective-homeostasis-regulation-candidate-023,COVERED,环境因素参与调节植物的生命活动,"其他因素参与植物生命活动的调节,如光、重力和温度等",
 BIOLOGY,selective-biology-environment-candidate-001,COVERED,种群的数量特征,种群具有种群密度、出生率和死亡率、迁入率和迁出率、年龄结构、性别比例等特征,
-BIOLOGY,selective-biology-environment-candidate-002,COVERED,种群的数量变化,尝试建立数学模型解释种群的数量变动,K值另见 K值
-BIOLOGY,selective-biology-environment-candidate-003,PARTIAL,种群的数量变化,阳光、温度和水等非生物因素以及不同物种之间的相互作用都会影响生物的种群特征,影响因素面未单设
+BIOLOGY,selective-biology-environment-candidate-002,COVERED,种群数量的变化,尝试建立数学模型解释种群的数量变动,K值另见 K值
+BIOLOGY,selective-biology-environment-candidate-003,PARTIAL,种群数量的变化,阳光、温度和水等非生物因素以及不同物种之间的相互作用都会影响生物的种群特征,影响因素面未单设
 BIOLOGY,selective-biology-environment-candidate-004,COVERED,群落的结构,"群落具有垂直结构和水平结构等特征,并可随时间而改变",
 BIOLOGY,selective-biology-environment-candidate-005,COVERED,群落的演替,"一个群落替代另一个群落的演替过程,包括初生演替和次生演替两种类型",
 BIOLOGY,selective-biology-environment-candidate-006,COVERED,群落的结构,不同群落中的生物具有与该群落环境相适应的形态结构、生理特征和分布特点,
@@ -596,15 +596,15 @@ BIOLOGY,selective-biology-environment-candidate-007,COVERED,生态系统的结�
 BIOLOGY,selective-biology-environment-candidate-008,COVERED,食物链,生产者和消费者通过食物链和食物网联系在一起形成复杂的营养结构,食物网另见 食物网
 BIOLOGY,selective-biology-environment-candidate-009,COVERED,能量流动,"物质在生物群落与无机环境之间不断循环,能量在生物群落中单向流动并逐级递减",物质循环另见 物质循环
 BIOLOGY,selective-biology-environment-candidate-010,PARTIAL,物质循环,"利用物质循环和能量流动规律,人们能够更加科学、有效地利用生态系统中的资源",利用面未单设
-BIOLOGY,selective-biology-environment-candidate-011,NOT_COVERED,,",生态金字塔未设节点",
-BIOLOGY,selective-biology-environment-candidate-012,NOT_COVERED,,",生物富集未设节点",
+BIOLOGY,selective-biology-environment-candidate-011,COVERED,生态金字塔,",生态金字塔未设节点",
+BIOLOGY,selective-biology-environment-candidate-012,COVERED,生物富集,",生物富集未设节点",
 BIOLOGY,selective-biology-environment-candidate-013,COVERED,信息传递,生态系统中物理、化学和行为信息的传递对生命活动的正常进行、生物种群的繁衍和种间关系的调节起着重要作用,
 BIOLOGY,selective-biology-environment-candidate-014,COVERED,生态系统的结构,特定生态系统的生物与非生物因素决定其营养结构,
 BIOLOGY,selective-biology-environment-candidate-015,COVERED,生态系统的稳定性,"生态系统具有保持或恢复自身结构和功能相对稳定,并维持动态平衡的能力",
 BIOLOGY,selective-biology-environment-candidate-016,COVERED,生态系统的稳定性,"生态系统的稳定性会受到自然或人为因素的影响,如气候变化、自然事件、人类活动或外来物种入侵等",
 BIOLOGY,selective-biology-environment-candidate-017,COVERED,生态系统的稳定性,"生态系统在受到一定限度的外来干扰时,能够通过自我调节维持稳定",
-BIOLOGY,selective-biology-environment-candidate-018,NOT_COVERED,,",人口增长与环境未设节点",
-BIOLOGY,selective-biology-environment-candidate-019,NOT_COVERED,,",全球性环境问题未设节点",
+BIOLOGY,selective-biology-environment-candidate-018,COVERED,生态足迹与全球性生态环境问题,",人口增长与环境未设节点",
+BIOLOGY,selective-biology-environment-candidate-019,COVERED,全球性生态环境问题,",全球性环境问题未设节点",
 BIOLOGY,selective-biology-environment-candidate-020,COVERED,生物多样性,生物多样性对维持生态系统的稳定性以及人类生存和发展的重要意义,
 BIOLOGY,selective-biology-environment-candidate-021,COVERED,生态工程,"根据生态学原理、采用系统工程的方法和技术,达到资源多层次和循环利用的目的",
 BIOLOGY,selective-biology-environment-candidate-022,NOT_COVERED,,",环保意识类要求,非知识点对象",
@@ -620,10 +620,10 @@ BIOLOGY,selective-biotech-engineering-candidate-009,COVERED,植物组织培养,"
 BIOLOGY,selective-biotech-engineering-candidate-010,COVERED,细胞融合,"植物体细胞杂交是将不同植物体细胞在一定条件下融合成杂合细胞,继而培育成新植物体的技术",
 BIOLOGY,selective-biotech-engineering-candidate-011,PARTIAL,植物组织培养,植物细胞工程利用快速繁殖、脱毒、次生代谢产物生产、育种等方式有效提高了生产效率,快速繁殖/脱毒面未单设
 BIOLOGY,selective-biotech-engineering-candidate-012,COVERED,动物细胞培养,"动物细胞培养是从动物体获得相关组织,分散成单个细胞后,在适宜的培养条件下让细胞生长和增殖的过程",
-BIOLOGY,selective-biotech-engineering-candidate-013,NOT_COVERED,,",动物细胞核移植未设节点",
+BIOLOGY,selective-biotech-engineering-candidate-013,COVERED,动物体细胞核移植技术,",动物细胞核移植未设节点",
 BIOLOGY,selective-biotech-engineering-candidate-014,COVERED,细胞融合,"动物细胞融合是指通过物理、化学或生物学等手段,使两个或多个动物细胞结合形成一个细胞的过程",
 BIOLOGY,selective-biotech-engineering-candidate-015,COVERED,单克隆抗体,细胞融合技术是单克隆抗体制备的重要技术,
-BIOLOGY,selective-biotech-engineering-candidate-016,NOT_COVERED,,",干细胞未设节点",
+BIOLOGY,selective-biotech-engineering-candidate-016,COVERED,干细胞,",干细胞未设节点",
 BIOLOGY,selective-biotech-engineering-candidate-017,COVERED,胚胎工程,胚胎形成经过了受精及早期发育等过程,
 BIOLOGY,selective-biotech-engineering-candidate-018,COVERED,胚胎工程,胚胎工程包括体外受精、胚胎移植和胚胎分割等技术,
 BIOLOGY,selective-biotech-engineering-candidate-019,COVERED,基因工程,基因工程是在遗传学、微生物学、生物化学和分子生物学等学科基础上发展而来的,
@@ -634,10 +634,10 @@ BIOLOGY,selective-biotech-engineering-candidate-023,COVERED,蛋白质工程,"人
 BIOLOGY,selective-biotech-engineering-candidate-024,COVERED,蛋白质工程,依据人类需要对原有蛋白质结构进行基因改造、生产目标蛋白的过程,
 BIOLOGY,selective-biotech-engineering-candidate-025,COVERED,转基因生物的安全性,日常生活中的转基因产品,
 BIOLOGY,selective-biotech-engineering-candidate-026,COVERED,转基因生物的安全性,转基因技术在应用过程中带来的影响,
-BIOLOGY,selective-biotech-engineering-candidate-027,NOT_COVERED,,",生殖性克隆伦理未设节点",
-BIOLOGY,selective-biotech-engineering-candidate-028,NOT_COVERED,,",我国克隆人立场未设节点",
-BIOLOGY,selective-biotech-engineering-candidate-029,NOT_COVERED,,",生物武器未设节点",
-BIOLOGY,selective-biotech-engineering-candidate-030,NOT_COVERED,,",反对生物武器扩散未设节点",
+BIOLOGY,selective-biotech-engineering-candidate-027,COVERED,生殖性克隆人的伦理问题,",生殖性克隆伦理未设节点",
+BIOLOGY,selective-biotech-engineering-candidate-028,COVERED,生殖性克隆人的伦理问题,",我国克隆人立场未设节点",
+BIOLOGY,selective-biotech-engineering-candidate-029,COVERED,生物武器,",生物武器未设节点",
+BIOLOGY,selective-biotech-engineering-candidate-030,COVERED,禁止生物武器,",反对生物武器扩散未设节点",
 BIOLOGY,elective-life-healthy-living-candidate-001,NOT_COVERED,,",健康生活模块,非知识点对象",
 BIOLOGY,elective-life-first-aid-candidate-001,NOT_COVERED,,",急救措施模块,非知识点对象",
 BIOLOGY,elective-life-infectious-disease-candidate-001,PARTIAL,疫苗,"传染病是指由各种病原体引起的,能在人与人、动物与动物或人与动物之间相互传播的疾病",传染病防控体系未单设（疫苗为其手段之一）

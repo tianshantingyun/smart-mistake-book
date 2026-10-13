@@ -35,7 +35,8 @@ import unicodedata
 from collections import Counter
 from pathlib import Path
 
-from kb_build import gen_chapter_table, pack_io, tables, update_manifest
+from kb_build import gen_chapter_table, material_provenance as _prov, new_content as _nc
+from kb_build import pack_io, tables, update_manifest
 from kb_build import gate as _gate
 
 VALID_KINDS = {"TOPIC", "CONCEPT", "PROCEDURE", "REASONING", "REPRESENTATION",
@@ -548,6 +549,25 @@ def check_table_consistency(pack: dict, manifest: dict | None,
 
 
 # ---------------------------------------------------------------------------
+# F8 契约镜像：材料侧车的 AI/provenance 键集（codec 的 Python 下限）
+# ---------------------------------------------------------------------------
+
+
+def material_provenance_gate() -> list[str]:
+    """材料侧车族 ↔ codec 的材料键集/版本下限（F8）。
+
+    消灭的失败：staging 里某卷写坏 F8 三键（漏补 / 多写 / 取值越界 / contentId 与 slug
+    不符）或索引与磁盘对不上 → 本门不红 → promote 全绿 → **装机时 codec 整包拒** →
+    主页横幅常驻。codec 对越界是"整包拒、没有单条跳过"，所以下限必须与它同宽。
+
+    口径只与 codec 同宽，不比它更严：v2/v3 卷不因"没升 v4"变红（codec 照收、装机不受
+    影响）；v4 卷则必须键齐值正。判据本体在 `kb_build/material_provenance.py`（与写入侧
+    共用一份，不在这里抄第二份）。
+    """
+    return _prov.family_problems(pack_io.work_dir(), base_keys=_nc.MATERIAL_KEYS)
+
+
+# ---------------------------------------------------------------------------
 # 入口
 # ---------------------------------------------------------------------------
 
@@ -566,6 +586,8 @@ def evaluate(root: Path | None = None) -> tuple[dict[str, list[str]], Counter]:
     consistency["contract"] = problems
     # F9：material_bindings 的报告型计数进门（与五表一致性同判红/绿、同被 promote 读取）
     consistency["material_bindings"] = material_binding_gate(report_only_counts(pack))
+    # F8：材料侧车的 AI/provenance 键集 / 版本门（同上，同被 promote 读取）
+    consistency["material_provenance"] = material_provenance_gate()
     return consistency, stats
 
 
@@ -575,7 +597,7 @@ def main() -> int:
     print(f"主题 {stats['topics']}、知识点 {stats['points']}；问题 {total}")
     for name in ("contract", "alias_map", "chapter_map", "chapter_by_node", "prereq_map",
                  "point_rename", "point_delete", "point_merge", "point_relocation",
-                 "material_bindings"):
+                 "material_bindings", "material_provenance"):
         for p in consistency[name]:
             print(f"  ! [{name}]", p)
     pack = pack_io.load_json(pack_io.pack_path())

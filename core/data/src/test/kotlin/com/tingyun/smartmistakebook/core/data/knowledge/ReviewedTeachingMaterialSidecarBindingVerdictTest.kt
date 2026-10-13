@@ -17,8 +17,13 @@ import org.junit.Test
  * ② 三元组 all-or-none：缺一/缺二拒；
  * ③ 词表越界、时间戳负值、绑定额外未知键在 v3 下都拒；
  * ④ v1/v2 的绑定键集逐字不变——两版包体带三元组都按"未知键"拒（v1/v2 各有一条独立用例，
- *    因为 codec 里两版共用同一条 `schemaVersion != CURRENT_SCHEMA_VERSION` 分支），
+ *    因为 codec 里两版共用同一条 `schemaVersion < 3` 分支），
  *    两键绑定照旧解出 null。
+ *
+ * schemaVersion 4（F8 材料 AI/provenance 三键）不改变绑定这一轴：本类的夹具只跑 v1/v2/v3，
+ * v4 的绑定行为（裁定三元组仍允许、键集仍是 5 枚）由
+ * `ReviewedTeachingMaterialSidecarProvenanceTest.schemaFourMaterialCarriesProvenanceAndKeepsItsVerdictTriple`
+ * 覆盖。
  *
  * 夹具全部是测试内联文本，不落任何真实包目录（`core/data/src/main/resources/knowledge/` 只读）。
  */
@@ -201,14 +206,16 @@ class ReviewedTeachingMaterialSidecarBindingVerdictTest {
 
     @Test
     fun unknownSchemaVersionIsStillRejected() {
+        // accepted 集合 {1,2,3,4}（v4 起材料必含 AI/provenance 三键，见
+        // ReviewedTeachingMaterialSidecarProvenanceTest）；5 必须仍然整包拒。
         val failure = runCatching {
-            decodeSchemaVersioned(schemaVersion = 4, bindings = unauditedBinding)
+            decodeSchemaVersioned(schemaVersion = 5, bindings = unauditedBinding)
         }.exceptionOrNull()
 
         assertTrue(failure is IllegalArgumentException)
         assertTrue(
-            "accepted 集合必须恰好是 {1,2,3}：${failure?.message}",
-            failure?.message.orEmpty().contains("Unsupported teaching-material sidecar schema 4"),
+            "accepted 集合必须恰好是 {1,2,3,4}：${failure?.message}",
+            failure?.message.orEmpty().contains("Unsupported teaching-material sidecar schema 5"),
         )
     }
 

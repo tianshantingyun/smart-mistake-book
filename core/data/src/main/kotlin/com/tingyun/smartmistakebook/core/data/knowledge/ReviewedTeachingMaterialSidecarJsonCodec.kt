@@ -6,6 +6,7 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecor
 import com.tingyun.smartmistakebook.core.database.KnowledgeSourceSeedRecord
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdict
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialBindingVerdictSource
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialContentAttribute
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialDerivationKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
 import com.tingyun.smartmistakebook.core.model.KnowledgeSourceContentUsePolicy
@@ -45,20 +46,52 @@ internal data class ReviewedTeachingMaterialSidecar(
  * recorded next to the binding it judges. Schemas 1 and 2 keep their exact key sets: bindings there
  * remain precisely `knowledgeNodeId` + `role`, and a v1/v2 sidecar that carries the triple is still
  * rejected as schema drift.
+ *
+ * Schema 4 adds the material AI/provenance triple (`contentAttribute`, `contentProvider`,
+ * `contentId`) — 《人工智能生成合成内容标识办法》第 5 条's three metadata facts. Unlike the
+ * schema-3 binding triple it is **mandatory**: every schema-4 material must carry all three (the
+ * duty is "the file must carry the marking", not "the file may"), and schemas 1–3 reject them as
+ * unknown keys. `contentId` must equal the material's own `slug` (the mechanically derivable
+ * content number), `contentAttribute` is the closed enum
+ * [KnowledgeMaterialContentAttribute], and `contentProvider` is the stable provider code — the pack
+ * id until the store listing is fixed, which is the only mechanically true code before then (see
+ * the F8 material-provenance contract). The binding key set, and the schema-3 optional verdict
+ * triple, are unchanged.
  */
 internal object ReviewedTeachingMaterialSidecarJsonCodec {
     private const val LEGACY_SCHEMA_VERSION = 1L
     private const val PREVIOUS_SCHEMA_VERSION = 2L
-    private const val CURRENT_SCHEMA_VERSION = 3L
+    /** First version that allows the optional binding verdict triple. */
+    private const val VERDICT_SCHEMA_VERSION = 3L
+    private const val CURRENT_SCHEMA_VERSION = 4L
     private val acceptedSchemaVersions = setOf(
         LEGACY_SCHEMA_VERSION,
         PREVIOUS_SCHEMA_VERSION,
+        VERDICT_SCHEMA_VERSION,
         CURRENT_SCHEMA_VERSION,
     )
 
     /** Optional binding keys, all-or-none, available only from schema 3 on. */
     private val bindingVerdictKeys = setOf("verdict", "verdictSource", "judgedAtEpochMillis")
     private val requiredBindingKeys = setOf("knowledgeNodeId", "role")
+
+    /** Mandatory material AI/provenance keys, available only in schema 4. */
+    private val materialProvenanceKeys = setOf("contentAttribute", "contentProvider", "contentId")
+    private val sharedMaterialKeys = arrayOf(
+        "slug",
+        "subject",
+        "type",
+        "title",
+        "summaryMarkdown",
+        "applicabilityMarkdown",
+        "contentMarkdown",
+        "boundaryMarkdown",
+        "derivationKind",
+        "sourceId",
+        "sourceLocator",
+        "reviewedAtEpochMillis",
+        "bindings",
+    )
     private val safeSlug = Regex("[a-z0-9]+(?:-[a-z0-9]+)*")
     private val json = Json {
         isLenient = false
@@ -111,23 +144,18 @@ internal object ReviewedTeachingMaterialSidecarJsonCodec {
         schemaVersion: Long,
     ): Pair<KnowledgeTeachingMaterialRecord, List<KnowledgeTeachingMaterialNodeBindingRecord>> {
         val value = requireObject("materials[$index]")
-        value.requireOnlyKeys(
-            "slug",
-            "subject",
-            "type",
-            "title",
-            "summaryMarkdown",
-            "applicabilityMarkdown",
-            "contentMarkdown",
-            "boundaryMarkdown",
-            "derivationKind",
-            "sourceId",
-            "sourceLocator",
-            "reviewedAtEpochMillis",
-            "bindings",
-        )
+        if (schemaVersion == CURRENT_SCHEMA_VERSION) {
+            // v4：材料键集 = 既有 13 键 + 必填的 AI/provenance 三键（缺一即整包拒）
+            value.requireOnlyKeys(*sharedMaterialKeys, *materialProvenanceKeys.toTypedArray())
+        } else {
+            // v1–v3：键集恰好 13 键，三键一个都不许出现（出现即未知键 → 整包拒）
+            value.requireOnlyKeys(*sharedMaterialKeys)
+        }
         val slug = value.requiredString("slug")
         require(safeSlug.matches(slug)) { "Teaching-material slug is invalid" }
+        if (schemaVersion == CURRENT_SCHEMA_VERSION) {
+            validateMaterialProvenance(value, slug)
+        }
         val subject = value.requiredString("subject")
         val sourceId = value.requiredString("sourceId")
         require(availableSources.any { it.sourceId == sourceId && it.subject == subject }) {
@@ -164,16 +192,36 @@ internal object ReviewedTeachingMaterialSidecarJsonCodec {
     }
 
     /**
-     * Schema 1/2 bindings keep the exact two-key contract. Only schema 3 adds the optional
-     * all-or-none verdict triple, which cannot go through [requireOnlyKeys] because that helper
-     * requires every allowed key to be present (the `parentSlug` precedent in
+     * Schema 4's **mandatory** material AI/provenance triple (the three metadata facts of
+     * 《人工智能生成合成内容标识办法》第 5 条).
+     *
+     * `contentId` must be the material's own slug: the content number is derived from it (the same
+     * slug the codec hashes into `materialId` / `stableCode`), so a file that carries the key but a
+     * foreign value is rejected instead of trusted. `contentProvider` is only shape-checked — before
+     * the store listing is fixed it holds the pack id, and after that a registered provider code;
+     * both are trimmed non-blank strings, so no key-set change (and no schema bump) is needed when
+     * the value is re-fixed.
+     */
+    private fun validateMaterialProvenance(value: JsonObject, slug: String) {
+        val contentId = value.requiredString("contentId")
+        require(contentId == slug) {
+            "Teaching-material field contentId must equal the material slug"
+        }
+        value.requiredEnum<KnowledgeMaterialContentAttribute>("contentAttribute")
+        value.requiredString("contentProvider")
+    }
+
+    /**
+     * Schema 1/2 bindings keep the exact two-key contract; from schema 3 the optional
+     * all-or-none verdict triple is allowed, which cannot go through [requireOnlyKeys] because that
+     * helper requires every allowed key to be present (the `parentSlug` precedent in
      * `BundledKnowledgePackResources.toCurrentSubjectBlueprint`).
      */
     private fun JsonObject.toBinding(
         materialId: String,
         schemaVersion: Long,
     ): KnowledgeTeachingMaterialNodeBindingRecord {
-        if (schemaVersion != CURRENT_SCHEMA_VERSION) {
+        if (schemaVersion < VERDICT_SCHEMA_VERSION) {
             // v1/v2 语义逐字不变：键集恰好 knowledgeNodeId + role。
             requireOnlyKeys("knowledgeNodeId", "role")
             return KnowledgeTeachingMaterialNodeBindingRecord(

@@ -32,10 +32,10 @@ VERDICT_COLS = ["material_slug", "chunk_id", "sidecar_node", "judgment_node",
 VERDICT_COLS_MIDX = VERDICT_COLS + ["midx"]
 
 
-def _write_csv(path: Path, cols: list[str], rows: list[dict]) -> None:
+def _write_csv(path: Path, cols: list[str], rows: list[dict], eol: str = "\r\n") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=cols, lineterminator="\r\n")
+        writer = csv.DictWriter(fh, fieldnames=cols, lineterminator=eol)
         writer.writeheader()
         writer.writerows({k: r.get(k, "") for k in cols} for r in rows)
 
@@ -183,6 +183,26 @@ class SyncRebindDecisionsTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             S.main(["--write"])
         self.assertEqual("旧一", self._src_rows()[0]["node_slug"])   # 未写盘
+
+    def test_write_preserves_lf_eol(self):
+        """LF 判定源写回后仍是 LF：旧实现硬编码 CRLF，会把整文件行尾翻掉（diff 噪音）。"""
+        _write_csv(self.src, S.HDR, [_src_row()], eol="\n")
+        _write_csv(self.verdicts, VERDICT_COLS, [_verdict()])
+        S.VERDICT_CSV = self.verdicts
+        self.assertEqual(0, S.main(["--write"]))
+        raw = self.src.read_bytes()
+        self.assertNotIn(b"\r\n", raw)
+        self.assertEqual("甲", self._src_rows()[0]["node_slug"])
+
+    def test_write_preserves_crlf_eol(self):
+        """CRLF 判定源写回后仍是 CRLF（种子默认 CRLF；防未来又改回固定写法）。"""
+        self._seed_src()
+        _write_csv(self.verdicts, VERDICT_COLS, [_verdict()])
+        S.VERDICT_CSV = self.verdicts
+        self.assertEqual(0, S.main(["--write"]))
+        raw = self.src.read_bytes()
+        self.assertIn(b"\r\n", raw)
+        self.assertEqual(raw.count(b"\n"), raw.count(b"\r\n"))
 
     def test_non_material_rows_are_not_rewritten(self):
         """源里同键是 SKIP 行（node_slug 为空）→ 不写节点（保留旧行为）。"""

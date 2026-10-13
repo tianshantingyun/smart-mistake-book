@@ -8,7 +8,7 @@ MATH,函数的奇偶性,函数的周期性,unrelated,平行函数性质
 MATH,函数的周期性,函数的单调性,unrelated,平行性质无前置关系
 MATH,函数的对称性,函数的对应关系,unrelated,中间隔函数概念，无直接前置
 MATH,函数的相关概念,函数的概念,valid,相关概念以函数概念为基础
-MATH,函数的三要素,函数定义域的常见类型,inverted,常见类型是定义域应用，实际三要素在先
+MATH,函数的三要素,函数的定义域,inverted,常见类型是定义域应用，实际三要素在先（收口 2026-10-14：覆盖无据边 ('MATH', '函数的定义域', '函数的三要素')；重指 函数定义域的常见类型→函数的定义域（point_merge.csv 行 448，prereq 侧））
 MATH,相等函数与分段函数,直线的方程,unrelated,直线方程在不同册无关
 MATH,单调函数的定义,利用函数的单调性求参数,inverted,求参数是定义的应用，实际定义在先
 MATH,函数的单调区间,函数的值域,unrelated,平行概念无前置关系
@@ -29,7 +29,7 @@ MATH,幂函数的性质,幂函数的图象与性质,unrelated,同一概念不同
 MATH,指数函数及其性质,指数函数,valid,性质建立于指数函数概念
 MATH,指数函数的常用技巧,指数函数的图象与性质应用,unrelated,平行应用技巧
 MATH,对数函数的概念,对数函数的图象与性质应用,inverted,应用建立于概念，实际概念在先
-MATH,对数函数图象的常用结论,对数函数,valid,图象结论建立于对数函数概念
+MATH,对数函数图象的常用结论,对数函数的概念,valid,图象结论建立于对数函数概念（收口 2026-10-14：覆盖无据边 ('MATH', '对数函数图象的常用结论', '对数函数的概念')；重指 对数函数→对数函数的概念（point_merge.csv 行 468，prereq 侧））
 MATH,函数零点的定义,函数零点存在定理,inverted,存在定理以零点定义为基础
 MATH,函数零点存在定理,函数的相关概念,unrelated,中间隔零点定义，无直接前置
 MATH,二分法,二倍角公式,unrelated,三角公式与二分法无关
@@ -46,9 +46,9 @@ MATH,幂函数的图象与性质,幂函数,valid,图象与性质建立于幂函�
 MATH,指数函数的图象与性质应用,指数函数及其性质,valid,应用建立于图象与性质
 MATH,对数函数的图象与性质应用,对数函数图象的常用结论,valid,图象识别应用建立于图象结论
 MATH,指数,抽象函数的性质综合,unrelated,不同章节无关
-MATH,指数函数,指数不等式,inverted,不等式建立于指数函数，实际函数在先
+MATH,指数函数及其性质,指数不等式,inverted,不等式建立于指数函数，实际函数在先（收口 2026-10-14：覆盖无据边 ('MATH', '指数不等式', '指数函数及其性质')；inverted 防 stale 注入；重指 指数函数→指数函数及其性质（point_merge.csv 行 481，point 侧））
 MATH,对数,存在量词与存在量词命题,unrelated,逻辑用语与对数无关
-MATH,对数函数,对数与对数运算,valid,对数函数建立于对数概念
+MATH,对数函数的概念,对数运算,valid,对数函数建立于对数概念（收口 2026-10-14：覆盖无据边 ('MATH', '对数函数的概念', '对数运算')；重指 对数函数→对数函数的概念（point_merge.csv 行 468，point 侧）；对数与对数运算→对数运算（point_merge.csv 行 467，prereq 侧））
 MATH,换底公式,指数幂运算的一般原则,unrelated,换底公式由对数定义推得
 MATH,对数运算,对数混合运算的一般原则,inverted,混合运算原则建立在运算法则上
 MATH,指数不等式,指数,unrelated,中间隔指数函数，无直接前置
@@ -76,7 +76,7 @@ MATH,不等式恒成立,三角恒等变换,unrelated,恒成立问题与三角恒
 MATH,绝对值不等式,相等函数与分段函数,unrelated,分段函数与绝对值不等式无关
 MATH,作差法,作差法-作商法,inverted,一般作差法是对数作差作商比较的基础
 MATH,集合运算中的常用二级结论,边角互化,unrelated,集合二级结论与边角互化无关
-MATH,充要条件,充分条件与必要条件的判断,inverted,先有充要条件概念后有判断方法
+MATH,充分条件与必要条件的判断,充分条件与必要条件的判断,unrelated,先有充要条件概念后有判断方法（收口 2026-10-14：inverted 防 stale 注入；两端已并为同点，原边不成立；重指 充要条件→充分条件与必要条件的判断（point_merge.csv 行 447，point 侧））
 MATH,全称量词与全称量词命题,充要条件,unrelated,量词命题与充要条件为平行逻辑专题
 MATH,存在量词与存在量词命题,子集的个数问题,unrelated,存在量词命题与子集个数问题无关
 MATH,利用充分必要条件求参数,分段函数的常见类型及解法,unrelated,分段函数与充分必要求参数无关
@@ -93,7 +93,7 @@ MATH,等比数列的通项,等比数列的有关概念,valid,等比数列通项�
 MATH,等比数列的前n项和,等比数列前项和的常用性质,inverted,前n项和性质由求和公式导出
 MATH,数列求和,投影向量,unrelated,投影向量与数列求和无关
 MATH,数学归纳法,数列的概念,valid,数学归纳法是数列章证明工具依赖数列概念
-MATH,数列的有关概念,数列的单调性与最值问题,inverted,单调性与最值问题是数列概念的应用
+MATH,数列的概念,数列的单调性与最值问题,inverted,单调性与最值问题是数列概念的应用（收口 2026-10-14：覆盖无据边 ('MATH', '数列的单调性与最值问题', '数列的概念')；inverted 防 stale 注入；重指 数列的有关概念→数列的概念（point_merge.csv 行 485，point 侧））
 MATH,等差数列的有关概念,等差数列的常用性质,inverted,等差数列常用性质由定义推导
 MATH,等差数列的常用性质,等差数列的前n项和,inverted,求和逆序相加法用到通项性质
 MATH,等差数列前项和的常用性质,等差数列前n项和最值问题,unrelated,和的性质与和最值为平行应用
@@ -103,7 +103,7 @@ MATH,等比数列前项和的常用性质,等比数列,valid,前n项和性质依
 MATH,数列的单调性与最值问题,数列求和,unrelated,单调性与最值同求和为平行技巧
 MATH,等差数列前n项和最值问题,等差数列前n项和性质的应用,unrelated,和最值与和性质应用为平行问题
 MATH,等差数列含绝对值问题,等差数列前项和的常用性质,unrelated,含绝对值需求和公式而非和性质
-MATH,等差数列与等比数列新背景问题,等差数列,valid,新背景问题需先掌握等差数列
+MATH,数列新定义与新情景问题的解题策略,等差数列,valid,新背景问题需先掌握等差数列（收口 2026-10-14：覆盖无据边 ('MATH', '数列新定义与新情景问题的解题策略', '等差数列')；重指 等差数列与等比数列新背景问题→数列新定义与新情景问题的解题策略（point_merge.csv 行 493，point 侧））
 MATH,混淆数列与函数致错,求解等比数列基本量的策略,unrelated,概念性易错与基本量策略无关
 MATH,忽视对公比q的讨论致错,忽略建系的条件而出错,unrelated,不同章节的平行易错点
 MATH,求解等差数列基本量的策略,求解几何体外接球的半径的思路,unrelated,外接球与等差数列基本量无关
@@ -128,7 +128,7 @@ MATH,导数的运算法则,导数的概念,valid,学运算法则须先掌握导�
 MATH,复合函数的导数,处理空间几何体体积的基本思路,unrelated,立体几何体积与导数无关
 MATH,函数的单调性与导数,几何体展开图最短距离问题,unrelated,展开图属立体几何，与导数无关
 MATH,函数的极值,函数的最值,inverted,最值由极值与单调性推出，方向反
-MATH,函数的最值,函数的单调性与导数,valid,求最值依赖单调性与极值分析
+MATH,函数的最值,导数与函数的单调性的关系,valid,求最值依赖单调性与极值分析（收口 2026-10-14：覆盖无据边 ('MATH', '函数的最值', '导数与函数的单调性的关系')；重指 函数的单调性与导数→导数与函数的单调性的关系（point_merge.csv 行 449，prereq 侧））
 MATH,导数与不等式,对折叠与展开问题认识不清致误,unrelated,折叠属立体易错，与导数无关
 MATH,导数与零点,导数与函数零点问题,unrelated,同一概念两名，不同侧面
 MATH,过定点的多切线问题,超几何分布,unrelated,超几何分布属概率，与切线无关
@@ -257,7 +257,7 @@ PHYSICS,倾斜传送带,作用力与反作用力,unrelated,传送带问题依赖
 PHYSICS,倾斜传送带,两种运动状态-x1,unrelated,电磁感应平衡态与传送带无关
 PHYSICS,临界-极值问题,三类情况分析,inverted,一般临界极值方法先于圆周三类情况
 PHYSICS,求解的基本思路,水平转盘上运动物体模型,unrelated,上下文不足，转盘模型非其前提
-PHYSICS,运动特征,运动的合成与分解,inverted,曲线运动速度特点先于合成分解
+PHYSICS,曲线运动,运动的合成与分解,inverted,曲线运动速度特点先于合成分解（收口 2026-10-14：覆盖无据边 ('PHYSICS', '运动的合成与分解', '曲线运动')；inverted 防 stale 注入；重指 运动特征→曲线运动（point_merge.csv 行 623，point 侧））
 PHYSICS,核心思想-运动分解,极限思想,unrelated,同章平行思想方法
 PHYSICS,斜面碰撞临界,摩擦力的突变类问题,unrelated,抛体临界状态与摩擦突变无关
 PHYSICS,按运动独立性建立坐标系,折射率,unrelated,抛体运动与光学无关
@@ -276,11 +276,11 @@ PHYSICS,加速度,力的合成,unrelated,加速度属运动学，力的合成非
 PHYSICS,坐标系,圆锥摆的两种变形,unrelated,坐标系与圆周运动变形无关
 PHYSICS,运动的对称性,运动特征,unrelated,第二章时间对称不依赖曲线运动
 PHYSICS,匀变速直线运动,动量定理的应用-流体类模型,unrelated,匀变速直线运动与动量定理无关
-PHYSICS,牛顿运动三定律的理解和应用,牛顿第二定律的理解-五性,valid,三定律应用以掌握第二定律为前提
+PHYSICS,牛顿运动三定律的理解和应用,牛顿第二定律,valid,三定律应用以掌握第二定律为前提（收口 2026-10-14：覆盖无据边 ('PHYSICS', '牛顿运动三定律的理解和应用', '牛顿第二定律')；重指 牛顿第二定律的理解-五性→牛顿第二定律（point_merge.csv 行 587，prereq 侧））
 PHYSICS,作用力与反作用力,位移时间公式,unrelated,牛顿第三定律与运动学公式无关
 PHYSICS,速度时间公式,速度位移公式,unrelated,同一定义导出的平行公式
 PHYSICS,位移时间公式,位移,valid,公式建立在位移概念之上
-PHYSICS,速度位移公式,速度,valid,公式建立在速度概念之上
+PHYSICS,速度位移公式,速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量,valid,公式建立在速度概念之上（收口 2026-10-14：覆盖无据边 ('PHYSICS', '速度位移公式', '速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量')；重指 速度→速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量（point_merge.csv 行 630，prereq 侧））
 PHYSICS,自由落体运动,绳球模型-杆球模型两类经典模型中的临界条件-情景分析,unrelated,自由落体与圆周脱轨无关
 PHYSICS,静摩擦力,重力,unrelated,重力与摩擦力为平行力概念
 PHYSICS,滑动摩擦力,流体模型,unrelated,摩擦力与动量流体模型无关
@@ -309,7 +309,7 @@ PHYSICS,线速度,离心现象,inverted,离心现象是圆周运动应用 方向
 PHYSICS,角速度,能量守恒定律,unrelated,角速度是圆周运动基本量 与能量守恒无关
 PHYSICS,离心现象,电能的输送,unrelated,力学与电学内容 完全无关
 PHYSICS,曲线运动,普通二极管和发光二极管,unrelated,二极管是电子元件 与曲线运动完全无关
-PHYSICS,曲线运动的基本概念与处理思想,斜面碰撞临界,inverted,斜面碰撞是具体问题型 方向反
+PHYSICS,曲线运动,斜面碰撞临界,inverted,斜面碰撞是具体问题型 方向反（收口 2026-10-14：覆盖无据边 ('PHYSICS', '斜面碰撞临界', '曲线运动')；inverted 防 stale 注入；重指 曲线运动的基本概念与处理思想→曲线运动（point_merge.csv 行 566，point 侧））
 PHYSICS,平抛运动,常见传感器的特点,unrelated,传感器与平抛运动完全无关
 PHYSICS,平抛运动的两个重要结论,平抛运动与曲面的结合分析,inverted,曲面结合是进阶应用 方向反
 PHYSICS,平抛运动的临界问题,平抛运动的两个重要结论,valid,临界问题依托两个重要结论求解
@@ -327,10 +327,10 @@ PHYSICS,同步卫星,变轨过程分析,unrelated,二者为引力平行应用 �
 PHYSICS,天体质量计算,多普勒效应的成因分析,unrelated,多普勒效应属机械波内容 与此无关
 PHYSICS,变轨原理,变压器,unrelated,电学与航天内容 完全无关
 PHYSICS,变轨过程分析,变轨原理,valid,过程分析以变轨原理为前提
-PHYSICS,卫星的对接问题,卫星变轨-1-2-3,valid,对接依托1→2→3变轨过程
+PHYSICS,卫星的对接问题,变轨过程分析,valid,对接依托1→2→3变轨过程（收口 2026-10-14：覆盖无据边 ('PHYSICS', '卫星的对接问题', '变轨过程分析')；重指 卫星变轨-1-2-3→变轨过程分析（point_merge.csv 行 524，prereq 侧））
 PHYSICS,深空引力导航,波的干涉,unrelated,波的干涉与引力导航完全无关
 PHYSICS,小行星防御与资源开发,对称性,unrelated,简谐运动的对称性 与小行星防御无关
-PHYSICS,地球同步卫星,圆周运动,valid,同步卫星做匀速圆周运动 需圆周运动基础
+PHYSICS,地球同步卫星,圆周运动的基础概念和规律,valid,同步卫星做匀速圆周运动 需圆周运动基础（收口 2026-10-14：覆盖无据边 ('PHYSICS', '地球同步卫星', '圆周运动的基础概念和规律')；重指 圆周运动→圆周运动的基础概念和规律（point_merge.csv 行 533，prereq 侧））
 PHYSICS,卫星变轨-1-2-3,单摆的受力特征,unrelated,单摆属机械振动 与卫星变轨无关
 PHYSICS,双星模型,卫星的对接问题,unrelated,二者均为万有引力的平行应用
 PHYSICS,三星模型,万有引力定律的应用,valid,三星模型是万有引力定律的进一步应用
@@ -351,7 +351,7 @@ PHYSICS,机械波的分类,机械波,valid,分类建立在机械波概念之上
 PHYSICS,波动图象的特点,波动图象的信息,inverted,特点属基本识图 信息提取是应用 方向反
 PHYSICS,波动图象的信息,正弦式交变电流,unrelated,交变电流与波动图象完全无关
 PHYSICS,弹簧振子模型,弹性势能,unrelated,模型先建立 能量分析在后 非其前置
-PHYSICS,单摆的受力特征,单摆周期,inverted,受力分析是周期公式的前提 方向反
+PHYSICS,单摆,单摆周期,inverted,受力分析是周期公式的前提 方向反（收口 2026-10-14：覆盖无据边 ('PHYSICS', '单摆周期', '单摆')；inverted 防 stale 注入；重指 单摆的受力特征→单摆（point_merge.csv 行 523，point 侧））
 PHYSICS,造成波动问题多解的主要因素有,运动的合成与分解,unrelated,波的周期性与运动的合成无关
 PHYSICS,动能,功能关系,inverted,功能关系依赖动能等概念 方向反
 PHYSICS,动能,理想变压器的两类动态分析,unrelated,电学动态分析 与动能完全无关
@@ -386,7 +386,7 @@ PHYSICS,简谐运动,等时圆使用条件,unrelated,等时圆是运动学技巧
 PHYSICS,单摆,单位制,valid,周期公式须单位制基础
 PHYSICS,受迫振动,双星模型,unrelated,受迫振动与双星模型无关专题
 PHYSICS,共振,全反射,unrelated,共振属振动，全反射属光学
-PHYSICS,波长,波速,inverted,v=λf建立在波长之上，方向反
+PHYSICS,波长,波速v-波长λ和频率f-周期t的关系-v-λf,inverted,v=λf建立在波长之上，方向反（收口 2026-10-14：覆盖无据边 ('PHYSICS', '波速v-波长λ和频率f-周期t的关系-v-λf', '波长')；重指 波速→波速v-波长λ和频率f-周期t的关系-v-λf（point_merge.csv 行 578，prereq 侧））
 PHYSICS,波的干涉,求解的基本思路,unrelated,泛化解题思路非干涉具体前置
 PHYSICS,波的干涉,波动图象的特点,valid,干涉建立在波形相位关系之上
 PHYSICS,多普勒效应,外部作用导致-n-突变,unrelated,N突变是受力分析，与多普勒无关
@@ -456,9 +456,9 @@ PHYSICS,磁感应强度,磁场的基本概念和性质,valid,磁感应强度是�
 PHYSICS,磁通量,磁聚焦模型和磁发散模型,unrelated,磁通量不依赖粒子轨迹模型
 PHYSICS,带电粒子在磁场中的运动,带电粒子在电场中的运动,unrelated,两场内运动平行，互不为前置
 PHYSICS,带电粒子在立体空间中的运动,带电粒子在磁场中的运动,valid,空间运动是平面圆周运动的拓展
-PHYSICS,电磁感应现象,电磁感应中的线框模型,inverted,线框模型是感应现象的应用
+PHYSICS,电磁感应,电磁感应中的线框模型,inverted,线框模型是感应现象的应用（收口 2026-10-14：覆盖无据边 ('PHYSICS', '电磁感应中的线框模型', '电磁感应')；inverted 防 stale 注入；重指 电磁感应现象→电磁感应（point_merge.csv 行 601，point 侧））
 PHYSICS,电磁感应,电源的功率问题,unrelated,感应定律与电源功率问题无关
-PHYSICS,电磁感应现象及其应用,电磁感应现象,valid,应用建立在现象理解之上
+PHYSICS,电磁感应现象及其应用,电磁感应,valid,应用建立在现象理解之上（收口 2026-10-14：覆盖无据边 ('PHYSICS', '电磁感应现象及其应用', '电磁感应')；重指 电磁感应现象→电磁感应（point_merge.csv 行 601，prereq 侧））
 PHYSICS,电磁感应中的电路问题,电磁感应中的图像问题,unrelated,两类平行题型，互不为前置
 PHYSICS,电磁感应中的图像问题,电磁感应中的双棒模型,unrelated,双棒是特定模型，非图像前置
 PHYSICS,电磁感应中的单棒模型,电磁感应中的三大动力学观点,valid,单棒模型需三大观点方法求解
@@ -517,7 +517,7 @@ PHYSICS,质量亏损,误差分析-x1,unrelated,实验误差分析与质量亏损
 PHYSICS,原子结构与波粒二象性,原子核衰变,unrelated,总章节与核衰变无前置关系
 PHYSICS,几个基本概念的理解,内能,unrelated,内能与光子光电子概念无关
 PHYSICS,特征谱线,物质波,unrelated,物质波非特征谱线前置
-PHYSICS,玻尔理论的几个重要概念,玻尔理论对氢光谱的解析,inverted,能级概念是光谱解析基础方向反
+PHYSICS,玻尔理论对氢光谱的解析,玻尔理论对氢光谱的解析,unrelated,能级概念是光谱解析基础方向反（收口 2026-10-14：inverted 防 stale 注入；两端已并为同点，原边不成立；重指 玻尔理论的几个重要概念→玻尔理论对氢光谱的解析（point_merge.csv 行 592，point 侧））
 PHYSICS,玻尔原子模型的三条假设,阻尼振动,unrelated,阻尼振动与玻尔模型无关
 PHYSICS,玻尔理论对氢光谱的解析,玻尔模型,valid,玻尔模型是氢光谱解析的基础
 PHYSICS,物质波,焦耳定律,unrelated,焦耳定律与物质波无关
@@ -534,7 +534,7 @@ PHYSICS,原子核式结构,原子核的组成-原子核是由质子和中子组�
 PHYSICS,原子核的组成-原子核是由质子和中子组成的-原子核的电荷数等于核内的质子数,半衰期,inverted,组成先于衰变半衰期方向反
 PHYSICS,原子核衰变,原子核式结构,valid,核式结构是理解核衰变的前提
 PHYSICS,核裂变,核聚变,unrelated,裂变与聚变为平行反应类型
-PHYSICS,核聚变,核反应的判断-方程与应用,valid,核反应方程通则先于聚变方程
+PHYSICS,核聚变,核反应,valid,核反应方程通则先于聚变方程（收口 2026-10-14：覆盖无据边 ('PHYSICS', '核聚变', '核反应')；重指 核反应的判断-方程与应用→核反应（point_merge.csv 行 569，prereq 侧））
 PHYSICS,光的波粒二象性,光电效应的图像问题,unrelated,图像问题是子应用非二象性前置
 PHYSICS,核力,晶体,unrelated,晶体与核力无关
 PHYSICS,常见的图象,电表的改装,unrelated,表头与力学常见图像无关
@@ -544,7 +544,7 @@ PHYSICS,常见的导出单位,常见的图象,unrelated,导出单位与运动图
 PHYSICS,系统误差,等效替代法,unrelated,误差类型与实验方法为平行概念
 PHYSICS,电磁打点计时器,电磁感应中的线框模型,unrelated,计时器与电磁感应线框模型无关
 PHYSICS,电火花打点计时器,电流表的内-外接法的选择,unrelated,打点计时器与电表接法无关联
-PHYSICS,电表的改装,电表的内接与外接,inverted,先学电表改装，再学内接外接
+PHYSICS,电表的改装,电流表的内-外接法的选择,inverted,先学电表改装，再学内接外接（收口 2026-10-14：覆盖无据边 ('PHYSICS', '电流表的内-外接法的选择', '电表的改装')；重指 电表的内接与外接→电流表的内-外接法的选择（point_merge.csv 行 603，prereq 侧））
 PHYSICS,电表改装问题的两点提醒,电磁打点计时器,unrelated,改装提醒与打点计时器无关联
 PHYSICS,逐差法原理,转换法,unrelated,逐差法与转换法为平行实验方法
 PHYSICS,逐差法-的实际应用及小技巧,饱和汽,unrelated,逐差法与饱和汽完全无关
@@ -597,10 +597,10 @@ CHEMISTRY,常见阳离子的检验与推断依据,常见金属材料,unrelated,�
 CHEMISTRY,常见阴离子的检验与推断依据,常见阳离子的检验与推断依据,unrelated,阴离子与阳离子检验为平行内容
 CHEMISTRY,电解质溶液的导电原理,电解质导电性的-易错点,inverted,易错点是导电原理知识的衍生
 CHEMISTRY,电解质的电离的-易错点,电解质的电离,valid,电离易错点需先掌握电离知识
-CHEMISTRY,电解质导电性的-易错点,电解质及其分类,valid,导电性易错点基于电解质分类
-CHEMISTRY,离子共存的判断易错点,离子共存,valid,易错点以离子共存概念为基础
+CHEMISTRY,电解质溶液的导电性,电解质及其分类,valid,导电性易错点基于电解质分类（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '电解质溶液的导电性', '电解质及其分类')；重指 电解质导电性的-易错点→电解质溶液的导电性（point_merge.csv 行 392，point 侧））
+CHEMISTRY,离子共存问题解题要点,离子共存,valid,易错点以离子共存概念为基础（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '离子共存问题解题要点', '离子共存')；重指 离子共存的判断易错点→离子共存问题解题要点（point_merge.csv 行 403，point 侧））
 CHEMISTRY,电荷守恒在离子推断中的应用,电离,valid,电荷守恒应用需先懂电解质电离
-CHEMISTRY,离子反应,离子共存的判断易错点,inverted,离子共存判断依赖离子反应知识
+CHEMISTRY,离子反应,离子共存问题解题要点,inverted,离子共存判断依赖离子反应知识（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '离子共存问题解题要点', '离子反应')；重指 离子共存的判断易错点→离子共存问题解题要点（point_merge.csv 行 403，prereq 侧））
 CHEMISTRY,常见的与量无关的离子反应,工业制法,unrelated,工业制法与离子反应类型无关联
 CHEMISTRY,氧化还原反应,氧化物的类型,unrelated,氧化物分类不是氧化还原的前置
 CHEMISTRY,氧化还原反应,氧化性-还原性的判断,inverted,氧化性还原性判断是氧化还原的延伸
@@ -624,7 +624,7 @@ CHEMISTRY,制备原料,制取cl2装置的创新,unrelated,装置创新不是制�
 CHEMISTRY,反应原理,原子结构,unrelated,原子结构非氯反应原理的前置
 CHEMISTRY,焰色试验的应用,焰色试验-易错点,unrelated,易错点非焰色试验应用的前置
 CHEMISTRY,钠和钠的氧化物易错知识点,钠与水及酸-碱-盐溶液的反应,valid,易错点基于钠与酸碱盐溶液反应
-CHEMISTRY,碳酸钠和碳酸氢钠易错知识点,碳酸钠与碳酸氢钠的相互转化,valid,易错点包含两物质转化及应用
+CHEMISTRY,碳酸钠和碳酸氢钠的鉴别,碳酸钠与碳酸氢钠的相互转化,valid,易错点包含两物质转化及应用（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '碳酸钠和碳酸氢钠的鉴别', '碳酸钠与碳酸氢钠的相互转化')；重指 碳酸钠和碳酸氢钠易错知识点→碳酸钠和碳酸氢钠的鉴别（point_merge.csv 行 402，point 侧））
 CHEMISTRY,焰色试验-易错点,焰色试验,valid,易错点以焰色试验知识为基础
 CHEMISTRY,过氧化钠,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,unrelated,Fe2+与Fe3+转化与过氧化钠无关
 CHEMISTRY,氯气,氯及其化合物的知识盲点,inverted,知识盲点依赖氯气等基础知识
@@ -639,7 +639,7 @@ CHEMISTRY,卤族元素的易错点,卤族元素,valid,易错点建立在卤族�
 CHEMISTRY,从海水中提取物质的思路,亚铁盐,unrelated,亚铁盐与海水提取思路无关
 CHEMISTRY,制取cl2装置的创新,燃料电池,unrelated,燃料电池与氯气制取装置无关
 CHEMISTRY,氯及其化合物的知识盲点,氧化钠,unrelated,氧化钠与氯化合物盲点无关
-CHEMISTRY,阿伏加德罗常数,阿伏加德罗定律的应用,inverted,阿伏加德罗定律应用依赖常数
+CHEMISTRY,阿伏加德罗常数,阿伏加德罗定律及其推论,inverted,阿伏加德罗定律应用依赖常数（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '阿伏加德罗定律及其推论', '阿伏加德罗常数')；重指 阿伏加德罗定律的应用→阿伏加德罗定律及其推论（point_merge.csv 行 439，prereq 侧））
 CHEMISTRY,气体摩尔体积,次氯酸和次氯酸盐,unrelated,次氯酸性质与气体摩尔体积无关
 CHEMISTRY,物质的量-阿伏加德罗常数,物质的量,valid,需先懂物质的量再学其与NA关系
 CHEMISTRY,溶液的配制误差分析,溶液的稀释和混合问题,unrelated,稀释混合与配制误差是平行应用
@@ -656,11 +656,11 @@ CHEMISTRY,斜向变化体现不同价态-不同类别之间物质的转化-主�
 CHEMISTRY,铁的制备和性质,斜向变化体现不同价态-不同类别之间物质的转化-主要体现物质的氧化性或还原性,inverted,转化关系图基于铁及其化合物性质
 CHEMISTRY,铁与水蒸气反应的注意事项,钠的用途,unrelated,钠的用途与铁水蒸气反应无关
 CHEMISTRY,铁的氧化物组成的确定,铁的氧化物,valid,确定组成需先掌握铁的氧化物种类与铁价
-CHEMISTRY,电解和电解池,电解原理易错点,inverted,易错点是电解基础的派生 方向反
+CHEMISTRY,电解池,电解原理易错点,inverted,易错点是电解基础的派生 方向反（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '电解原理易错点', '电解池')；inverted 防 stale 注入；重指 电解和电解池→电解池（point_merge.csv 行 390，point 侧））
 CHEMISTRY,电解饱和食盐水-氯碱工业,电解质的电离的-易错点,unrelated,易错点总结非氯碱工业的前置
 CHEMISTRY,电镀与电解精炼,主要仪器,unrelated,仪器知识不是电镀原理的前置
 CHEMISTRY,设计和制作一个氢氧燃料电池,胶体知识易错点,unrelated,胶体易错点与燃料电池无关
-CHEMISTRY,电解水,电解和电解池,valid,电解水是电解基础的具体应用
+CHEMISTRY,电解水,电解池,valid,电解水是电解基础的具体应用（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '电解水', '电解池')；重指 电解和电解池→电解池（point_merge.csv 行 390，prereq 侧））
 CHEMISTRY,制作一个氢氧燃料电池,分析电解过程的思维程序,unrelated,燃料电池属原电池 与电解程序无关
 CHEMISTRY,电解原理易错点,电解原理应用的四点注意事项,unrelated,二者平行 同为电解易错点
 CHEMISTRY,电解原理应用的四点注意事项,电荷守恒在离子推断中的应用,unrelated,离子推断技巧非电解注意事项前置
@@ -688,13 +688,13 @@ CHEMISTRY,核素,有关铁及其化合物的除杂,unrelated,核素概念与铁�
 CHEMISTRY,离子键,离子方程式,unrelated,离子键属结构概念 与离子方程式无关
 CHEMISTRY,电子式,物质间转化的5个常见易错点,unrelated,电子式与转化易错点无关
 CHEMISTRY,对角线规则,对物质的元素组成的几个误区,unrelated,元素组成误区与对角线规则无关
-CHEMISTRY,元素金属性强弱的判断,元素周期表的结构,valid,金属性判断依托周期表位置
+CHEMISTRY,元素金属性强弱的判断,元素周期表,valid,金属性判断依托周期表位置（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '元素金属性强弱的判断', '元素周期表')；重指 元素周期表的结构→元素周期表（point_merge.csv 行 305，prereq 侧））
 CHEMISTRY,元素非金属性强弱的判断,元素金属性强弱的判断,unrelated,金属性与非金属性判断平行
 CHEMISTRY,电负性的三个重要应用,电负性,valid,应用建立在电负性概念之上
 CHEMISTRY,根据文字描述信息推断元素,根据分子-离子-结构推断元素,unrelated,两种平行的元素推断题型
 CHEMISTRY,元素周期表,元素周期律的内容及实质,inverted,周期表是周期律的基础 方向反
 CHEMISTRY,元素周期律,从海水中提取物质的思路,unrelated,海水提取思路与周期律无关
-CHEMISTRY,元素周期表的结构,元素周期表的应用,inverted,应用是结构的派生 方向反
+CHEMISTRY,元素周期表,元素周期表的应用,inverted,应用是结构的派生 方向反（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '元素周期表的应用', '元素周期表')；inverted 防 stale 注入；重指 元素周期表的结构→元素周期表（point_merge.csv 行 305，point 侧））
 CHEMISTRY,元素周期表的应用,元素周期表及其应用易混易错点,inverted,易错点是派生总结 方向反
 CHEMISTRY,元素周期律的内容及实质,元素周期律,unrelated,同概念的不同侧面
 CHEMISTRY,元素周期表及其应用易混易错点,元素周期表,valid,易错点建立在周期表基础之上
@@ -728,13 +728,13 @@ CHEMISTRY,玻璃,现象描述答题模板,unrelated,玻璃成分性质与现象�
 CHEMISTRY,水泥,氮的氧化物,unrelated,水泥属硅酸盐材料，与氮的氧化物无关
 CHEMISTRY,硅酸和硅酸盐,硅的工业制法,unrelated,硅酸硅酸盐学习不需要先会工业制硅
 CHEMISTRY,熟记硅及其化合物的特殊性质,烷烃的命名,unrelated,硅化合物特殊性质与烷烃命名无关
-CHEMISTRY,硅的工业制法,硅及其化合物的-七大-误区,inverted,误区汇总以制粗硅等基础为前置，方向反
+CHEMISTRY,硅的工业制法,熟记硅及其化合物的特殊性质,inverted,误区汇总以制粗硅等基础为前置，方向反（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '熟记硅及其化合物的特殊性质', '硅的工业制法')；重指 硅及其化合物的-七大-误区→熟记硅及其化合物的特殊性质（point_merge.csv 行 399，prereq 侧））
 CHEMISTRY,碳-硅及其化合物的知识盲点,硫酸,unrelated,碳硅盲点与硫酸属不同元素体系，无关
 CHEMISTRY,硅及其化合物的-七大-误区,盖斯定律的应用,unrelated,硅化合物误区与盖斯定律应用无关
 CHEMISTRY,各种硅酸的结构,可逆反应的特点及应用,unrelated,硅酸结构属无机非金属，与可逆反应无关
 CHEMISTRY,吸热反应,含量-转化率-投料比图像,unrelated,吸放热反应概念与平衡投料图像无关
 CHEMISTRY,燃料电池,熵和熵变的含义,unrelated,燃料电池属原电池，不依赖熵变概念
-CHEMISTRY,燃料电池,制作一个氢氧燃料电池,inverted,制作氢氧电池是燃料电池的实验应用，方向反
+CHEMISTRY,燃料电池,设计和制作一个氢氧燃料电池,inverted,制作氢氧电池是燃料电池的实验应用，方向反（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '设计和制作一个氢氧燃料电池', '燃料电池')；重指 制作一个氢氧燃料电池→设计和制作一个氢氧燃料电池（point_merge.csv 行 310，prereq 侧））
 CHEMISTRY,可逆反应,可充电电池题目的解答思路,unrelated,可逆反应概念不是电池题解答的前置
 CHEMISTRY,转化率,超分子,unrelated,转化率属化学平衡，与超分子无关
 CHEMISTRY,勒夏特列原理,加成反应,unrelated,勒夏特列原理与有机加成反应无关
@@ -837,12 +837,12 @@ CHEMISTRY,化学平衡状态的判断,化学平衡状态,valid,平衡状态概�
 CHEMISTRY,化学平衡状态的特征及判断,化学平衡状态的判断,unrelated,判断只是特征及判断的组成部分，同概念重叠
 CHEMISTRY,影响化学平衡的因素,影响化学反应速率的因素,unrelated,可用勒夏特列原理独立分析，非速率因素必需前置
 CHEMISTRY,关于化学平衡状态的易错易混点,关于化学反应速率易错易混点,unrelated,两个不同主题的易错点集合，互不依赖
-CHEMISTRY,化学平衡常数,化学平衡,valid,先理解化学平衡，才能建立平衡常数概念
-CHEMISTRY,化学平衡常数的影响因素,化学平衡常数的应用,inverted,常数的应用应在影响因素之后，方向反
+CHEMISTRY,化学平衡常数,化学平衡状态,valid,先理解化学平衡，才能建立平衡常数概念（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '化学平衡常数', '化学平衡状态')；重指 化学平衡→化学平衡状态（point_merge.csv 行 317，prereq 侧））
+CHEMISTRY,化学平衡常数,化学平衡常数的应用,inverted,常数的应用应在影响因素之后，方向反（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '化学平衡常数的应用', '化学平衡常数')；inverted 防 stale 注入；重指 化学平衡常数的影响因素→化学平衡常数（point_merge.csv 行 319，point 侧））
 CHEMISTRY,化学平衡常数及影响因素,化学平衡常数,unrelated,常数及影响因素包含常数本身，同概念重叠
 CHEMISTRY,化学平衡常数的应用,化学平衡常数及影响因素,valid,先掌握常数及影响因素，才能进行应用
 CHEMISTRY,有关化学平衡常数易混易错点,有关分子的性质的易混易错点,unrelated,平衡常数易错点与分子结构性质无关
-CHEMISTRY,化学平衡状态,化学反应速率,valid,平衡态由正逆反应速率相等定义，须先懂速率
+CHEMISTRY,化学平衡状态,化学反应速率及表示方法,valid,平衡态由正逆反应速率相等定义，须先懂速率（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '化学平衡状态', '化学反应速率及表示方法')；重指 化学反应速率→化学反应速率及表示方法（point_merge.csv 行 316，prereq 侧））
 CHEMISTRY,化学平衡状态,化学平衡常数的影响因素,inverted,平衡常数是平衡态之后的内容，方向反
 CHEMISTRY,化学平衡的移动,化学平衡状态,valid,先有平衡状态概念，才能讨论平衡移动
 CHEMISTRY,化学平衡的移动,化学平衡状态的特征及判断,valid,移动分析依赖平衡特征如正逆速率相等
@@ -852,12 +852,12 @@ CHEMISTRY,化学反应速率,化学反应的热效应的易混易错点,unrelate
 CHEMISTRY,化学反应速率,分离提纯,unrelated,分离提纯是实验技术，与反应速率无关
 CHEMISTRY,影响化学反应速率的因素,影响分子溶解性的因素,unrelated,溶解性因素属分子结构章，与速率因素无关
 CHEMISTRY,影响化学反应速率的因素,主要依据,unrelated,主要依据指热化学判断，与速率因素无关
-CHEMISTRY,化学反应的热效应的易混易错点,化学反应的本质,valid,反应热源于断键吸热成键放热，本质是前提
+CHEMISTRY,反应热,化学反应的本质,valid,反应热源于断键吸热成键放热，本质是前提（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '反应热', '化学反应的本质')；重指 化学反应的热效应的易混易错点→反应热（point_merge.csv 行 315，point 侧））
 CHEMISTRY,催化剂与化学反应,依据反应条件判断有机反应类型,unrelated,有机反应类型判断与催化剂概念无关
 CHEMISTRY,关于化学反应速率易错易混点,共价键的分类,unrelated,共价键分类属结构章，与速率易错点无关
 CHEMISTRY,判断化学反应的自发性,分子间作用力对物质性质的影响,unrelated,自发性用焓熵判据，与分子间作用力无关
 CHEMISTRY,工业生产中化学反应条件的选择,工业合成氨的适宜条件,inverted,合成氨是条件选择原理的应用实例，方向反
-CHEMISTRY,弱电解质的电离,平衡常数-x1,valid,电离常数是平衡常数的特例，须先懂平衡常数
+CHEMISTRY,弱电解质的电离平衡,平衡常数-x1,valid,电离常数是平衡常数的特例，须先懂平衡常数（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '弱电解质的电离平衡', '平衡常数-x1')；重指 弱电解质的电离→弱电解质的电离平衡（point_merge.csv 行 349，point 侧））
 CHEMISTRY,酸碱中和滴定,酸-碱稀释时的两个误区,unrelated,稀释误区讲稀释时pH变化，非滴定前置
 CHEMISTRY,盐类水解,盐溶液酸碱性的判断,inverted,盐溶液酸碱性正由水解理论判断，方向反
 CHEMISTRY,溶度积,活化能,unrelated,溶度积是沉淀溶解平衡常数，与活化能无关
@@ -873,16 +873,16 @@ CHEMISTRY,溶液中微粒种类的判断,溶度积,unrelated,微粒种类判断�
 CHEMISTRY,六种盐溶液蒸干后产物的判断,元素-核素-同位素,unrelated,蒸干产物依据盐的水解性质，与核素无关
 CHEMISTRY,盐类水解的三个误区,盐类水解,valid,三个误区针对盐类水解理论，须先懂水解
 CHEMISTRY,盐溶液酸碱性的判断,盐溶液,valid,先理解盐水解致酸碱性的原理，再学判断方法
-CHEMISTRY,电离平衡,电离常数,inverted,电离常数在电离平衡基础上定义，方向反
+CHEMISTRY,弱电解质的电离平衡,电离常数,inverted,电离常数在电离平衡基础上定义，方向反（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '电离常数', '弱电解质的电离平衡')；inverted 防 stale 注入；重指 电离平衡→弱电解质的电离平衡（point_merge.csv 行 387，point 侧））
 CHEMISTRY,弱电解质的电离平衡,弱电解质的电离,valid,先懂弱电解质部分电离，再建立电离平衡
-CHEMISTRY,电离平衡中的7个易错点,电离平衡,valid,易错点针对电离平衡知识，须先懂电离平衡
+CHEMISTRY,电离平衡中的7个易错点,弱电解质的电离平衡,valid,易错点针对电离平衡知识，须先懂电离平衡（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '电离平衡中的7个易错点', '弱电解质的电离平衡')；重指 电离平衡→弱电解质的电离平衡（point_merge.csv 行 387，prereq 侧））
 CHEMISTRY,水的电离,氨基酸的结构与性质,unrelated,水的电离与氨基酸结构性质无关
 CHEMISTRY,溶液的ph,溶液中微粒种类的判断,unrelated,pH定义不依赖微粒种类判断，二者无前后关系
 CHEMISTRY,水的离子积常数,水的电离易错-七-点,inverted,KW由水电离定义，先于其易错点，方向反
 CHEMISTRY,水的电离平衡移动的影响因素,水的电离,valid,先有水的电离，再分析条件使其平衡移动
 CHEMISTRY,溶液的酸碱性,溶液的ph,inverted,酸碱性由氢氧离子相对大小定，先于pH
 CHEMISTRY,水的电离平衡移动的影响因素,基本概念,unrelated,单体链节聚合度属高分子，与水电离无关
-CHEMISTRY,水的电离易错-七-点,水的电离平衡移动的影响因素,valid,易错点针对水电离移动规律，须先懂影响因素
+CHEMISTRY,水的电离易错-七-点,水的电离,valid,易错点针对水电离移动规律，须先懂影响因素（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '水的电离易错-七-点', '水的电离')；重指 水的电离平衡移动的影响因素→水的电离（point_merge.csv 行 373，prereq 侧））
 CHEMISTRY,沉淀溶解平衡,水的离子积常数,unrelated,溶度积基于平衡常数，Kw仅作类比非必需
 CHEMISTRY,影响沉淀溶解平衡的因素,强电解质与弱电解质,unrelated,沉淀溶解平衡移动靠平衡分析，与强弱电解质无关
 CHEMISTRY,沉淀溶解平衡的应用,沉淀溶解平衡易错六点,unrelated,应用与易错点均为沉淀溶解平衡派生内容
@@ -891,7 +891,7 @@ CHEMISTRY,电极反应式,电子数相等的粒子的判断与应用,unrelated,�
 CHEMISTRY,电解原理,电离能,unrelated,电解原理与电离能原子结构无关
 CHEMISTRY,原电池,原子结构易混易错知识点,unrelated,原电池基于氧化还原，与原子结构易错点无关
 CHEMISTRY,原电池,原子经济性,unrelated,原子经济性是绿色化学概念，与原电池无关
-CHEMISTRY,原电池原理的应用,原电池,valid,先懂原电池原理，再学其应用如腐蚀防护
+CHEMISTRY,原电池原理的应用,原电池的工作原理-以zn-cu原电池为例,valid,先懂原电池原理，再学其应用如腐蚀防护（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '原电池原理的应用', '原电池的工作原理-以zn-cu原电池为例')；重指 原电池→原电池的工作原理-以zn-cu原电池为例（point_merge.csv 行 327，prereq 侧））
 CHEMISTRY,电解池,电解原理,valid,先有电解概念与原理，再具体到电解池
 CHEMISTRY,金属的腐蚀,金属晶体,unrelated,腐蚀机理属电化学，与晶体结构无关
 CHEMISTRY,金属的防护,金属的腐蚀,valid,防护措施针对腐蚀机理提出
@@ -918,7 +918,7 @@ CHEMISTRY,金属晶体,重结晶,unrelated,重结晶实验技术与金属晶体�
 CHEMISTRY,离子晶体,石油的综合利用,unrelated,石油综合利用与离子晶体无关
 CHEMISTRY,配合物,部分弱酸的电离常数如下表,unrelated,电离常数与配合物无关
 CHEMISTRY,超分子,规避两个易失分点,unrelated,反应热易失分点与超分子无关
-CHEMISTRY,原子结构易混易错知识点,原子结构,valid,易错点需先掌握原子结构
+CHEMISTRY,原子结构易混易错知识点,原子结构中微粒的关系及计算,valid,易错点需先掌握原子结构（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '原子结构易混易错知识点', '原子结构中微粒的关系及计算')；重指 原子结构→原子结构中微粒的关系及计算（point_merge.csv 行 326，prereq 侧））
 CHEMISTRY,能层,胺-酰胺的结构和性质,unrelated,胺酰胺与能层无关
 CHEMISTRY,能级,能层,valid,能级是能层的细分，先学能层
 CHEMISTRY,构造原理,杂化轨道,unrelated,杂化轨道与构造原理无依赖
@@ -930,7 +930,7 @@ CHEMISTRY,核外电子运动状态,构造原理,inverted,电子运动状态（�
 CHEMISTRY,原子核外电子排布,卤代烃的结构和性质易混易错点,unrelated,卤代烃易错点与电子排布无关
 CHEMISTRY,电子数相等的粒子的判断与应用,电子排布式,unrelated,电子数判断依据粒子带电，与排布式无关
 CHEMISTRY,原子结构,卤族元素的易错点,unrelated,卤族元素易错点与原子结构无关
-CHEMISTRY,原子结构,原子核外电子排布,inverted,原子结构是电子排布学习的基础
+CHEMISTRY,原子结构中微粒的关系及计算,原子核外电子排布,inverted,原子结构是电子排布学习的基础（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '原子核外电子排布', '原子结构中微粒的关系及计算')；inverted 防 stale 注入；重指 原子结构→原子结构中微粒的关系及计算（point_merge.csv 行 326，point 侧））
 CHEMISTRY,烯烃,热化学方程式,unrelated,热化学方程式与烯烃无关
 CHEMISTRY,炔烃,滴定曲线,unrelated,滴定曲线与炔烃无关
 CHEMISTRY,烯烃的顺反异构,烯烃的化学性质,unrelated,顺反异构取决于结构，与化学性质无关
@@ -942,7 +942,7 @@ CHEMISTRY,芳香烃的用途及对环境的影响,芳香烃,valid,用途需先�
 CHEMISTRY,芳香烃的结构和性质易混易错点,芳香烃的用途及对环境的影响,unrelated,用途影响与易错点互非前置
 CHEMISTRY,苯的化学性质,苯及其同系物的性质,inverted,苯同系物性质建立在苯化学性质之上
 CHEMISTRY,苯的同系物的结构与性质,苯的化学性质,valid,苯的同系物由苯的性质推导
-CHEMISTRY,苯及其同系物的性质,苯分子的空间结构,valid,性质依赖苯的空间结构
+CHEMISTRY,苯及其同系物的性质,苯,valid,性质依赖苯的空间结构（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '苯及其同系物的性质', '苯')；重指 苯分子的空间结构→苯（point_merge.csv 行 418，prereq 侧））
 CHEMISTRY,卤代烃,单糖,unrelated,单糖与卤代烃无关
 CHEMISTRY,卤代烃的概念,卤代烃的性质及应用,inverted,概念在前，性质应用需先有概念
 CHEMISTRY,卤代烃的物理性质,卤代烃的水解反应和消去反应,unrelated,物理性质不依赖水解消去反应
@@ -956,7 +956,7 @@ CHEMISTRY,羧酸的化学性质,羧酸,valid,化学性质需先认识羧酸
 CHEMISTRY,羧酸的结构和性质,羧酸的组成和结构,valid,先知组成和结构再谈性质
 CHEMISTRY,有机合成,有关蛋白质的易混易错点,unrelated,蛋白质与有机合成异章无关
 CHEMISTRY,以烯烃-炔烃为原料的有机合成,中和热,unrelated,中和热属反应热与有机合成无关
-CHEMISTRY,卤代烃在有机合成中的作用,卤代烃,valid,先掌握卤代烃再谈其合成作用
+CHEMISTRY,卤代烃在有机合成中的作用,卤代烃的性质及应用,valid,先掌握卤代烃再谈其合成作用（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '卤代烃在有机合成中的作用', '卤代烃的性质及应用')；重指 卤代烃→卤代烃的性质及应用（point_merge.csv 行 325，prereq 侧））
 CHEMISTRY,醛-酮在有机合成中的应用,醚的结构与性质,unrelated,醚与醛酮应用平行非前置
 CHEMISTRY,常见有机合成路线,常见有机反应类型总结,valid,合成路线依赖常见反应类型
 CHEMISTRY,有机合成中碳骨架的构建,有机化合物的空间结构,unrelated,碳骨架构建靠成键反应与空间模型无关
@@ -976,7 +976,7 @@ CHEMISTRY,合成高分子的结构和性质,合成高分子,valid,先知合成�
 CHEMISTRY,有关合成高分子的易混易错点,有关ksp的易错点,unrelated,Ksp属溶解平衡与高分子无关
 CHEMISTRY,聚合反应及聚合物单体的判断,羧酸的结构和性质,valid,缩聚单体判断依赖羧基成酯知识
 CHEMISTRY,基本概念,铝及其化合物之间的性质与应用,unrelated,含铝物质与高分子基本概念无关
-CHEMISTRY,苯分子的空间结构,芳香烃的结构和性质易混易错点,inverted,易错点以苯空间结构为前提方向反
+CHEMISTRY,苯,芳香烃的结构和性质易混易错点,inverted,易错点以苯空间结构为前提方向反（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '芳香烃的结构和性质易混易错点', '苯')；inverted 防 stale 注入；重指 苯分子的空间结构→苯（point_merge.csv 行 418，point 侧））
 CHEMISTRY,高分子的分类及性质特点,键能,unrelated,键能属反应热与高分子分类无关
 CHEMISTRY,有机物的结构特点,有机合成,inverted,结构特点是有机合成的基础方向反
 CHEMISTRY,烷烃的命名,烷烃的化学性质,unrelated,命名与化学性质平行非前置
@@ -991,7 +991,7 @@ CHEMISTRY,醚的结构与性质,醇的结构和性质,unrelated,醚与醇为平�
 CHEMISTRY,醇和酚的结构和性质易混易错点,酸碱中和滴定的关键,unrelated,中和滴定属无机分析无关
 CHEMISTRY,酚的概念和物理性质,配合物,unrelated,配合物属晶体结构章无关
 CHEMISTRY,苯酚的化学性质,苯的同系物的结构与性质,unrelated,酚性质前置是苯而非苯的同系物
-CHEMISTRY,酚的结构和性质,酚的概念和物理性质,valid,概念和物理性质是整体前提
+CHEMISTRY,苯酚的化学性质,酚的概念和物理性质,valid,概念和物理性质是整体前提（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '苯酚的化学性质', '酚的概念和物理性质')；重指 酚的结构和性质→苯酚的化学性质（point_merge.csv 行 431，point 侧））
 CHEMISTRY,醛-酮的概念,醛-酮的化学性质,inverted,概念先于化学性质方向反
 CHEMISTRY,几种重要的醛-酮,共价键,unrelated,共价键过泛非真前置
 CHEMISTRY,醛-酮的化学性质,醛-酮在有机合成中的应用,inverted,应用依赖化学性质方向反
@@ -1028,8 +1028,8 @@ CHEMISTRY,蒸馏,蒸发,unrelated,蒸馏与蒸发为平行操作，互非前置
 CHEMISTRY,萃取,药品取用,unrelated,萃取与药品取用是平行实验操作，互非前置
 CHEMISTRY,重结晶,醛和酮的结构和性质易混易错点,unrelated,重结晶是提纯操作，与醛酮易错点无关
 CHEMISTRY,化学键,化学性质,unrelated,钠的化学性质不是化学键概念的前置
-CHEMISTRY,化学键与物质的类别,化学键,valid,物质类别判断须先掌握化学键类型
-CHEMISTRY,化学键对物质性质的影响,化学键与物质的类别,valid,键对性质影响建立于键类型与物质类别之上
+CHEMISTRY,化学键与物质类别的关系,化学键,valid,物质类别判断须先掌握化学键类型（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '化学键与物质类别的关系', '化学键')；重指 化学键与物质的类别→化学键与物质类别的关系（point_merge.csv 行 324，point 侧））
+CHEMISTRY,化学键对物质性质的影响,化学键与物质类别的关系,valid,键对性质影响建立于键类型与物质类别之上（收口 2026-10-14：覆盖无据边 ('CHEMISTRY', '化学键对物质性质的影响', '化学键与物质类别的关系')；重指 化学键与物质的类别→化学键与物质类别的关系（point_merge.csv 行 324，prereq 侧））
 CHEMISTRY,有机化合物中碳原子的成键特点,有机化合物中的共价键,inverted,碳成键特点更基础，σ/π键建立其上，方向反
 CHEMISTRY,有机化合物中的共价键,有关配合物的易混易错点,unrelated,配合物易错点与有机物共价键无关
 CHEMISTRY,有机化合物的空间结构,有机化合物的共面共线的判断,inverted,共面共线判断依赖空间结构，方向反
@@ -1050,7 +1050,7 @@ BIOLOGY,核苷酸,核糖体,unrelated,核苷酸与核糖体无关
 BIOLOGY,脱水缩合,脂质,unrelated,脱水缩合指氨基酸成肽，与脂质无关
 BIOLOGY,糖与脂质的转化,精子的形成过程,unrelated,糖脂转化与精子形成无关
 BIOLOGY,生物大分子以碳链为骨架,生物多样性,unrelated,碳链骨架与生物多样性无关
-BIOLOGY,糖类,糖与脂质的转化,inverted,糖与脂质转化须先掌握糖类，方向反
+BIOLOGY,糖类,糖类和脂质的相互转化,inverted,糖与脂质转化须先掌握糖类，方向反（收口 2026-10-14：覆盖无据边 ('BIOLOGY', '糖类和脂质的相互转化', '糖类')；重指 糖与脂质的转化→糖类和脂质的相互转化（point_merge.csv 行 284，prereq 侧））
 BIOLOGY,脂质,能量流动,unrelated,脂质与生态系统能量流动无关
 BIOLOGY,糖类和脂质的相互转化,糖类和脂肪的转化,unrelated,同一转化话题的不同名称，同概念不同侧面
 BIOLOGY,糖类和脂肪的转化,糖类,valid,糖与脂肪转化须先掌握糖类
@@ -1112,7 +1112,7 @@ BIOLOGY,暗反应,无菌技术,unrelated,光合作用与发酵技术无关
 BIOLOGY,色素,自由组合定律的内容,unrelated,光合色素与遗传定律无关
 BIOLOGY,类囊体,突触,unrelated,叶绿体结构与神经调节无关
 BIOLOGY,光合作用,光反应,inverted,光合作用是概念光反应是其阶段
-BIOLOGY,光合作用的影响因素,光合作用的原理,valid,影响因素分析基于光合原理
+BIOLOGY,影响光合作用强度的环境因素,光合作用的原理,valid,影响因素分析基于光合原理（收口 2026-10-14：覆盖无据边 ('BIOLOGY', '影响光合作用强度的环境因素', '光合作用的原理')；重指 光合作用的影响因素→影响光合作用强度的环境因素（point_merge.csv 行 264，point 侧））
 BIOLOGY,光合作用的原理,光合作用,valid,先知光合作用概念再学原理
 BIOLOGY,细胞增殖,细胞器的结构和功能,unrelated,细胞器功能与增殖核心无关
 BIOLOGY,有丝分裂,暗反应,unrelated,细胞分裂与光合作用无关
@@ -1138,7 +1138,7 @@ BIOLOGY,dna是主要的遗传物质,atp的结构与作用,unrelated,遗传物质
 BIOLOGY,基因的本质,基因工程,inverted,基因工程以基因是DNA片段为前提
 BIOLOGY,dna的双螺旋结构,dna是主要的遗传物质,valid,先确认DNA是遗传物质再学结构
 BIOLOGY,dna的复制,dna的双螺旋结构,valid,复制依赖双螺旋结构与碱基互补配对
-BIOLOGY,dna的结构及特点,dna的复制,inverted,复制以结构为前提方向反了
+BIOLOGY,dna的双螺旋结构,dna的复制,inverted,复制以结构为前提方向反了（收口 2026-10-14：inverted 防 stale 注入；重指 dna的结构及特点→dna的双螺旋结构（point_merge.csv 行 260，point 侧））
 BIOLOGY,分离定律,分泌蛋白的合成和运输,unrelated,遗传规律与分泌蛋白运输无关
 BIOLOGY,自由组合定律,自由扩散,unrelated,遗传定律与跨膜运输仅名称相近
 BIOLOGY,性状分离比,微生物的培养,unrelated,分离比与微生物培养无关
@@ -1191,7 +1191,7 @@ BIOLOGY,体液免疫,伴性遗传的特点及应用,unrelated,体液免疫与伴
 BIOLOGY,细胞免疫,细胞中的脂质,unrelated,细胞免疫与脂质成分无关
 BIOLOGY,抗原,抗体,inverted,抗体依抗原定概念抗原是前提
 BIOLOGY,疫苗,甲状腺激素,unrelated,疫苗与甲状腺激素无关
-BIOLOGY,免疫系统,免疫学的应用,inverted,免疫学应用以免疫系统为前提
+BIOLOGY,免疫系统的组成和功能,免疫学的应用,inverted,免疫学应用以免疫系统为前提（收口 2026-10-14：覆盖无据边 ('BIOLOGY', '免疫学的应用', '免疫系统的组成和功能')；inverted 防 stale 注入；重指 免疫系统→免疫系统的组成和功能（point_merge.csv 行 265，point 侧））
 BIOLOGY,非特异性免疫,限制酶,unrelated,非特异性免疫与限制酶无关
 BIOLOGY,特异性免疫,物质循环,unrelated,免疫与物质循环跨章无前置关系
 BIOLOGY,免疫失调,光学显微镜和电子显微镜,unrelated,显微镜原理不是免疫失调的前置
@@ -1207,7 +1207,7 @@ BIOLOGY,标志重捕法,染色体变异-x1,unrelated,染色体变异与种群调
 BIOLOGY,k值,dna连接酶,unrelated,种群K值与DNA连接酶完全无关
 BIOLOGY,生态位,生命系统的结构层次,unrelated,结构层次与生态位关联过弱
 BIOLOGY,种群的特征,种群的数量特征,inverted,种群特征总述先于数量特征分述
-BIOLOGY,种群的数量特征,种群的数量变化,inverted,教材先数量特征后数量变化
+BIOLOGY,种群的数量特征,种群数量的变化,inverted,教材先数量特征后数量变化（收口 2026-10-14：覆盖无据边 ('BIOLOGY', '种群数量的变化', '种群的数量特征')；重指 种群的数量变化→种群数量的变化（point_merge.csv 行 282，prereq 侧））
 BIOLOGY,种群的数量变化,种群数量的变化,unrelated,同一概念不同命名
 BIOLOGY,群落的结构,群落的演替,inverted,教材先群落结构后群落演替
 BIOLOGY,群落的演替,细胞骨架,unrelated,细胞骨架与群落演替完全无关
@@ -1235,7 +1235,7 @@ BIOLOGY,限制酶,酸碱平衡,unrelated,酸碱平衡与限制酶无关
 BIOLOGY,载体,转录,unrelated,转录不是载体知识的直接前置
 BIOLOGY,pcr技术,k值,unrelated,种群K值与PCR完全无关
 BIOLOGY,基因编辑,基因突变与细胞癌变,valid,基因编辑基于基因突变概念
-BIOLOGY,dna连接酶,dna的结构及特点,valid,连接酶作用于DNA磷酸二酯键
+BIOLOGY,dna连接酶,dna的双螺旋结构,valid,连接酶作用于DNA磷酸二酯键（收口 2026-10-14：覆盖无据边 ('BIOLOGY', 'dna连接酶', 'dna的双螺旋结构')；重指 dna的结构及特点→dna的双螺旋结构（point_merge.csv 行 260，prereq 侧））
 BIOLOGY,蛋白质工程,蛋白质,valid,结构决定功能是蛋白质工程基础
 BIOLOGY,光学显微镜和电子显微镜,光合作用的影响因素,unrelated,光合作用与显微镜无关
 BIOLOGY,遗传信息的翻译,载体,unrelated,载体不是翻译的前置关系

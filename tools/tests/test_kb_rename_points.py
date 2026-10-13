@@ -72,7 +72,11 @@ class RealPackTest(unittest.TestCase):
         # 三条材料按 round2 裁定改绑后归零）→ 3866 − 103 − 1 − 1 = 3761。按新实测值就地更新。
         # 2026-10-11 薄料收口轮（staging 实读）：point_merge.csv 新增 20 对近重复薄点合并
         # （双遍复核 AGREE）→ 3761 − 20 = 3741。按新实测值就地更新。
-        self.assertEqual(3741, dp._point_count(pack))
+        # 2026-10-14 批次9 超配 C2 + 批次10 零材料点收口（staging 实读）：point_merge.csv 批次9 超配
+        # 382 行合并（2026-10-12）+ 批次10 零材料点 1 行（2026-10-13）+ 同批 point_delete.csv 3 条
+        # 残片删点 → 3741 − 382 − 1 − 3 = 3355。按新实测值就地更新。
+        # （分解口径：HEAD 成品 3741 − staging 现点 3355 = 386 = merged 383 + deleted 3 + missing 0。）
+        self.assertEqual(3355, dp._point_count(pack))
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from kb_build import gate, pack_io, roundtrip, tables, textfix
+from kb_build import gate, material_provenance as prov, pack_io, roundtrip, tables, textfix
 
 
 class RoundTripTest(unittest.TestCase):
@@ -92,13 +92,30 @@ class PackShapeTest(unittest.TestCase):
                         self.assertIn(prereq, slugs, f"{point['slug']} 的前置跨科或悬空")
 
     def test_sidecar_materials_carry_exactly_the_contract_keys(self):
-        expected = {"slug", "subject", "type", "title", "summaryMarkdown",
-                    "applicabilityMarkdown", "contentMarkdown", "boundaryMarkdown",
-                    "derivationKind", "sourceId", "sourceLocator",
-                    "reviewedAtEpochMillis", "bindings"}
-        for path, material in pack_io.load_materials():
-            with self.subTest(slug=material["slug"]):
-                self.assertEqual(expected, set(material))
+        """材料键集**逐卷**必须是闭集：键集由该卷的 schemaVersion 唯一决定。
+
+        - v≤3：恰好下面 13 键；
+        - v4（F8·③，2026-10-14）：13 键 + `contentAttribute`/`contentProvider`/`contentId`
+          三键**都必填**（codec 对"多一键"与"少一键"两向都整包拒）。
+
+        键名与"哪一版带三键"只认 `material_provenance`（写入侧同一份口径），不在这里抄
+        第二份：将来扩词表/改版本时这条钉跟着动，不会静默漂移。
+        """
+        base = {"slug", "subject", "type", "title", "summaryMarkdown",
+                "applicabilityMarkdown", "contentMarkdown", "boundaryMarkdown",
+                "derivationKind", "sourceId", "sourceLocator",
+                "reviewedAtEpochMillis", "bindings"}
+        for path in pack_io.sidecar_paths():
+            doc = pack_io.load_json(path)
+            version = doc.get("schemaVersion")
+            with self.subTest(volume=path.name):
+                self.assertIn(version, (1, 2, 3, prov.SCHEMA_VERSION),
+                              "卷版本必须落在 codec 的 accepted 集合内")
+            expected = base | (set(prov.PROVENANCE_KEYS)
+                               if version == prov.SCHEMA_VERSION else set())
+            for material in doc["materials"]:
+                with self.subTest(volume=path.name, slug=material["slug"]):
+                    self.assertEqual(expected, set(material))
 
 
 class GateTest(unittest.TestCase):

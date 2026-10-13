@@ -34,7 +34,8 @@ P0.2 已把块池按 rel 确定性重编号：186,635 行 / 186,635 唯一键（
 规范名并更新 `pool_path.py`；若届时仍锁，保留双名并在验收报告"遗留"写明，旧文件删除
 等用户明令，不自行删除。
 
-判定表 `material_judgments.csv` 16,625 行的 chunk_id 已按映射表重映射并逐行 fp 对拍：
+判定表 `material_judgments/`（按科目 5 片，拆表前为单文件 `material_judgments.csv`）16,625 行的
+chunk_id 已按映射表重映射并逐行 fp 对拍：
 0 行改写（判定行全部指向非 53 块，键未变）、0 失配（`fp_mismatch.csv` 不存在）。
 下文 §一 的"现状实测值"是 P0.1 在重排前旧池上测得的，键级数字以重排后为准。
 
@@ -44,11 +45,13 @@ P0.2 已把块池按 rel 确定性重编号：186,635 行 / 186,635 唯一键（
 
 - 块池：`tools/kb_coverage/tables/extracted_chunks.rekeyed.jsonl`（P0.2 重排后生效名；
   见顶部迁移公告）— 186,635 行；排除已判定键
-  （`material_judgments.csv` 命中 11,745 个）后**未判定 174,890 行 / 171,461 个唯一键**
+  （`material_judgments/` 五片命中 11,745 个）后**未判定 174,890 行 / 171,461 个唯一键**
   （174,890 − 3,429 个重复键行——该 3,429 个重复键行已于 P0.2 重编号消除）。
 - 预筛：`tools/kb_coverage/prescreen_chunks.py`（机械分流，只报告不写块池），
   报告 `tools/kb_coverage/tables/prescreen_report.json`。
-- 判定表：`tools/kb_coverage/tables/material_judgments.csv`（判定行的唯一落盘处）。
+- 判定表：`tools/kb_coverage/tables/material_judgments/`（判定行的**唯一落盘处**——2026-10-12
+  拆表后为按科目 5 片 `MATH/PHYSICS/CHEMISTRY/BIOLOGY/UNASSIGNED.csv`，读写一律经
+  `kb_coverage/judgments.py`；旧单文件 `material_judgments.csv` 已删除，任何工具不得再写该路径）。
 - 薄料节点清单：`knowledge-production/node-material-gaps-2026-09.csv`（1,232 节点）。
 - 建点提案：`tools/kb_build/tables/new_points_manual.csv` → `tools/kb_build/create_points.py`。
 
@@ -74,7 +77,8 @@ P0.2 已把块池按 rel 确定性重编号：186,635 行 / 186,635 唯一键（
 
 ## 二、判定行 schema
 
-判定表 `tools/kb_coverage/tables/material_judgments.csv`，UTF-8（读侧兼容 BOM，写侧不带 BOM，
+判定表 `tools/kb_coverage/tables/material_judgments/`（按科目 5 片；拆表前为单文件），UTF-8
+（读侧兼容 BOM，写侧不带 BOM，
 `newline=""` 交给平台），每行一个块（一个块可出多条材料时用 `midx` 区分）。
 
 | 列 | 语义 | 约束 |
@@ -94,7 +98,8 @@ P0.2 已把块池按 rel 确定性重编号：186,635 行 / 186,635 唯一键（
 
 ### 已落表数据的现实差距（2026-10-02 复测；此前 09-28 段落已过期）
 
-实测 `material_judgments.csv` 86,414 行：MATERIAL 38,929 / SKIP 47,485。**MATERIAL 行的
+实测判定表（当时为单文件 `material_judgments.csv`，拆表前路径；现为
+`material_judgments/` 五片）86,414 行：MATERIAL 38,929 / SKIP 47,485。**MATERIAL 行的
 type 已全部合规**（上面 3 值）；三值外旧 type 剩 482 行、全部落在 SKIP 行（REPRESENTATION_GUIDE
 363、DERIVATION 104、WORKED_EXAMPLE 14、COMPLETE_SOLUTION 1）——type 对 SKIP 行不生效
 （materialize 只校验 MATERIAL 行）。2026-09-28 曾有的 698 行坏 type MATERIAL 已由 P0.3 判定表
@@ -115,7 +120,8 @@ WORKED_EXAMPLE 22、COMPLETE_SOLUTION 4）——它们在包、不在判定表�
 
 ## 三、判定 CSV 输出格式
 
-- 文件：`tools/kb_coverage/tables/material_judgments.csv`，表头固定 12 列
+- 文件：`tools/kb_coverage/tables/material_judgments/`（按科目 5 片；拆表前为单文件
+  `material_judgments.csv`），表头固定 12 列
   `chunk_rel,chunk_id,action,node_slug,type,title,summary,applicability,content,boundary,note,midx`。
 - 编码 UTF-8；读侧用 `utf-8-sig` 容忍 BOM，写侧用 `csv.DictWriter` + `newline=""`。
 - 每个未判定唯一键**恰好一行**（同键重复行由预筛去重，`SKIP-重复键`）；一块多材料用 `midx` 顺序排 `''/b/c/d`。

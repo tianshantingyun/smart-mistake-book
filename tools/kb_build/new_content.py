@@ -14,7 +14,8 @@
   这样一条新增内容自带全部归档信息，审校时不必跨多张表对着看。
 
 - `knowledge-production/wusan/materials.jsonl`（新增材料，一行一个 13 键对象）
-  与 codec 的字段一一对应；`bindings` 就写在材料里，不另设绑定表——
+  与 codec 的字段一一对应（侧车落盘时另加 F8 的 AI/provenance 三键，见
+  `MATERIAL_SIDECAR_KEYS`）；`bindings` 就写在材料里，不另设绑定表——
   codec 要求绑定随材料解析，两处维护会不一致。
 
 本模块只做**加载与校验**，不做变换；变换在 build.Builder 里。
@@ -29,7 +30,7 @@ import json
 import re
 from pathlib import Path
 
-from kb_build import gate, pack_io
+from kb_build import gate, material_provenance as mp, pack_io
 
 NEW_POINTS = "new_points.csv"
 MATERIALS_REL = Path("knowledge-production") / "wusan" / "materials.jsonl"
@@ -54,6 +55,13 @@ MATERIAL_KEYS = ("slug", "subject", "type", "title", "summaryMarkdown",
                  "applicabilityMarkdown", "contentMarkdown", "boundaryMarkdown",
                  "derivationKind", "sourceId", "sourceLocator",
                  "reviewedAtEpochMillis", "bindings")
+
+# 侧车落盘形态 = 上面 13 键 + F8 的 AI/provenance 三键（键序：三键插在 bindings 之前）。
+# 作者 JSONL 仍只写 13 键——三键是**机械可派生真值**（contentId=slug、provider=packId、
+# attribute 是模型改写正文的唯一真值），要作者手抄只会多一处抄错的机会；写入侧
+# （materialize / apply_authored_materials）按本体派生的键序落盘，且落盘前逐条复核
+# 键序等于这个常量（`tools/tests/test_kb_material_provenance.py` 钉死）。
+MATERIAL_SIDECAR_KEYS = mp.sidecar_material_keys(MATERIAL_KEYS)
 
 _SAFE_SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 _CONTROL = "\x0c\t\r\x08\x07\x0b"
