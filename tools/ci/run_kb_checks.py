@@ -51,8 +51,9 @@ def run(root: Path) -> dict:
 
         consistency, stats = check_pack_contract.evaluate(root)
         bad = {name: problems for name, problems in consistency.items() if problems}
-        # 报告型计数（**不参与红/绿**）：boundary_map / material_bindings 此前"被展示为
-        # 权威却没有任何检查读它们"，type 三值外计数是 F7 决策前的基线台账（只许递减）。
+        # 报告型计数：boundary_map 只报数（INFO）；material_bindings 的节点缺/空/欠账三桶
+        # 已经 F9 进门——由 check_pack_contract.evaluate() 并入 consistency 判红/绿，
+        # 下方 INFO 只报现状 + 具名基线。type 三值外计数是 F7 基线台账（只许递减）。
         # 执行口径见 docs/kb-outstanding-research-2026-10-02.md ⑥ 与 F7/F9。
         report_counts = check_pack_contract.report_only_counts(pack_io.load_json(pack_io.pack_path()))
         legacy_counts = check_pack_contract.legacy_type_counts()
@@ -138,12 +139,14 @@ def main(argv: list[str] | None = None) -> int:
         ro = result["report_only"]
         cc = ro["contract_counts"]
         lt = ro["legacy_types"]
-        print(f"  INFO report_only（只报数，不判红绿）："
+        mb = check_pack_contract.MATERIAL_BINDING_BASELINE
+        print(f"  INFO report_only（boundary_map 只报数；material_bindings 三桶见 F9 门）："
               f"boundary_map 生效 {cc['boundary_effective']}/{cc['boundary_rows']}"
               f"（stale {cc['boundary_stale']}、missing {cc['boundary_missing']}）；"
               f"material_bindings 生效 {cc['mb_effective']} / 欠账 {cc['mb_arrear']} / "
               f"材料缺 {cc['mb_material_missing']} / 节点缺 {cc['mb_point_missing']} / "
-              f"空 {cc['mb_empty']}（共 {cc['mb_rows']}）；"
+              f"空 {cc['mb_empty']}（共 {cc['mb_rows']}；F9 门基线 节点缺/空/欠账 ≤ "
+              f"{mb['point_missing']}/{mb['empty']}/{mb['arrear']}）；"
               f"三值外 type {lt['legacy_total']} ≤ 基线 {ro['legacy_baseline']}")
         if not result["ok"]:
             for item in result["gates"]["failed"][:10]:

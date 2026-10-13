@@ -199,10 +199,13 @@ def kb_authority_shas() -> str:
     （绿），CI 读到的是**已提交那一版**（红）——"门全绿"这个数字本身不携带"对应哪版权威表"
     的信息，而权威表恰恰是最常被并发改动的一层。表不在位时写 `missing`，不当作通过。
 
-    保护级别（2026-10-02 标注，回应"6 张表并列展示、其中 2 张没有门"的审计结论）：
+    保护级别（2026-10-02 标注，回应"6 张表并列展示、其中 2 张没有门"的审计结论；
+    2026-10-12 批9 F9 落门后更新）：
     - `门保护`：被 gate.py / check_pack_contract 读取，与包分叉即红；
+      `material_bindings` 自批9 d2 起入此列——欠账三桶（节点缺/空/欠账）经
+      `check_pack_contract.material_binding_gate` 判红/绿（run_kb_checks 与 promote 同读）；
     - `报告型`：目前**没有强制力**，只在 run_kb_checks 的 INFO 节与 check_pack_contract
-      的报告型计数里报数（处置口径等 F9 决策）——列在这里是记账，不是背书。
+      的报告型计数里报数——列在这里是记账，不是背书（现仅 boundary_map）。
     """
     try:
         sys.path.insert(0, str(REPO / "tools"))
@@ -210,14 +213,14 @@ def kb_authority_shas() -> str:
     except Exception as exc:  # noqa: BLE001
         return f"权威表 sha256：NOT_MEASURED（{type(exc).__name__}）"
     guarded = "门保护"
-    reported = "报告型·F9 待裁"
+    reported = "报告型"
     names = (
         (tables_mod.CHAPTER_MAP, guarded),
         (tables_mod.CHAPTER_BY_SOURCE, guarded),
         (tables_mod.ALIAS_MAP, guarded),
         (tables_mod.BOUNDARY_MAP, reported),
         (tables_mod.PREREQ_MAP, guarded),
-        (tables_mod.MATERIAL_BINDINGS, reported),
+        (tables_mod.MATERIAL_BINDINGS, guarded),
     )
     parts = []
     for name, level in names:

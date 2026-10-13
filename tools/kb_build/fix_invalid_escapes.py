@@ -52,11 +52,13 @@ import sys
 from pathlib import Path
 
 from kb_build import gate, pack_io
+from kb_coverage import judgments
 
 FIELDS = ("title", "summaryMarkdown", "applicabilityMarkdown",
           "contentMarkdown", "boundaryMarkdown")
 FIX_TABLE = Path(__file__).resolve().parent / "tables" / "invalid_escape_fixes.csv"
-JUDGE_TABLE = Path("tools") / "kb_coverage" / "tables" / "material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGE_TABLE = judgments.parts_dir()
 JUDGE_COLUMN = {"title": "title", "summaryMarkdown": "summary",
                 "applicabilityMarkdown": "applicability",
                 "contentMarkdown": "content", "boundaryMarkdown": "boundary"}
@@ -173,9 +175,7 @@ def repair_document(doc: dict, fixes: dict[tuple[str, str, str], list[tuple[int,
 def _judgments_rows() -> tuple[list[dict], list[str]]:
     if not JUDGE_TABLE.exists():
         return [], []
-    with JUDGE_TABLE.open(encoding="utf-8", newline="") as fh:
-        reader = csv.DictReader(fh)
-        return list(reader), list(reader.fieldnames or [])
+    return judgments.load_all(JUDGE_TABLE), list(judgments.COLUMNS)
 
 
 def mirror_judgments(touched: list[tuple], locators: dict[str, tuple[str, str]],
@@ -207,15 +207,9 @@ def mirror_judgments(touched: list[tuple], locators: dict[str, tuple[str, str]],
         matched[0][column] = new_text
         stats += 1
     if write and stats:
-        # 行尾必须沿用文件原有风格（判定表是 CRLF）：否则一次修复会把 27MB 全量改写行尾，
-        # 让 diff 里塞满与本次修复无关的行。
-        raw = JUDGE_TABLE.read_bytes()
-        terminator = "\r\n" if raw.count(b"\r\n") > raw.count(b"\n") - raw.count(b"\r\n") else "\n"
-        with JUDGE_TABLE.open("w", encoding="utf-8", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()),
-                                    lineterminator=terminator)
-            writer.writeheader()
-            writer.writerows(rows)
+        # 行尾由 write_all 钉死 CRLF（与拆分前一致）：原先按原文件"探测行尾"，探测错会把
+        # 十万行行尾全改掉，diff 里塞满与本次修复无关的行。
+        judgments.write_all(rows, JUDGE_TABLE)
     return stats, problems
 
 
