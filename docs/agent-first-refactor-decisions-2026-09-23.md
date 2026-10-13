@@ -2735,3 +2735,18 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - 门定义、答案键/冷却分层、自动化K5-C等仍遵循原研究与裁定流程；本次没有代签数值、权限、权重或重绘路线。
 - 本次改变文件仅为七份既有计划/台账；不触碰软件源码与其他会话在飞修改。审计报告是证据，不是第二份总路线。
 - 末次检查发现图像统一采样、切分/采集和三协议截断分流、KB同步工具等新的未提交改动；AUD-07/08/10/14已补“先对照diff与新验证”的交接纪律，未据此代标完成。
+
+---
+
+## 完成记录折入（4C①② + 薄切片收口）（2026-10-14）
+
+> 说明：本批由动态工作流 dwfrun-cde38cbc 执行（两轨并行：代码修复 ∥ 金标标注；设备阶段因提供方
+> 错误中断一次后原样续跑完成，缓存重放不重复计费）。**只追加，既有正文未动**。上文 2026-10-13
+> 归位表所指的「在飞改动」即本批，提交号见各条。
+
+- **4C① 真机核验**：`707ca3de` —— 根因（curl 复现 + 契约复刻判定，`verified`）：跨页关系请求把整窗多页（实测 3 图）一次性送模型，却复用单页分题契约；模型返回 `decision=SPLIT`、`questionRegions=25/19/9`（越 2–12）→ 旧契约整轮拒掉，`followingPageRelations` 一起丢，边界永久 FAILED。修法：模型层契约只留 wire 形状与 decision 耦合，2–12/唯一/最小尺寸/重叠下移到 `core:domain` 切分消费侧（`isUsableSplitRegionSet`）；`assessmentPrompt` 一分为二（关系判定专属：questionRegions 必须空、禁 SPLIT）。设备实测：边界评估 54.88s SUCCEEDED（decision=PASS、relations=NEXT_QUESTION×6、boundary_after_status 页 0–5 全 NEXT_QUESTION、旧抛点 logcat 0 次）。既有断言迁移不删；新增 `CaptureSplitRegionSetTest` 8 例。
+- **4C② 金标集与准确率门**：`f7462299` —— `tools/split_golden/`（冻结 JSON + sha256 旁车 + validator，沿用 kb_coverage 冻结纪律）：24 页抽样 → **两名独立标注员仅 7 页完全一致入集（16 框）**；证据等级照实标注 `model-labeled, no human expert`。设备度量：**题数一致率 0.2857（门 0.9）、切残率 0（门 0.05）→ 未过门**；可比样本仅 2/7 页（其余页无分题区域）→ **4C③ 门后自动化不启用**，确认流程保持过渡态。
+- **KD-32/33 小尾巴**：`79b7b01e` —— 三协议族非流式截断分流（Anthropic `stop_reason=max_tokens`／Gemini `finishReason=MAX_TOKENS`／Responses `status=incomplete`）、`crop()`/`persistCleanImageBytes` 统一 ≤2048 采样、DAO 裸 `valueOf` 降级兜底、KDoc 修正；未覆盖照录（三协议族**流式**重建体未带截断标记、页级 CAPTURE_ASSESS 仍有 2/7 不可重试 INVALID_RESPONSE）。
+- **薄切片下半段（模型链路 + 内存天花板）**：`64c79456`（opencode zen `/zen/go/v1` 补 `x-opencode-session` 兼容头；KD-31 已修）／`e3de72f8`（推理模型长思考支持：防呆上限 120s→600s + 300s 空闲看门狗注释 + `finish_reason∈{length,content_filter}` → 可重试 `INCOMPLETE_OUTPUT` + `reasoning_text` 拼写；KD-33 已修，设备实证 3/5 条 CAPTURE_ASSESS 在 136.9/191.2/544.6s 成功）／`42096510`（192MB 内存天花板三处支配者：失败路径 `finally` 释放包对象图、材料差分分页+二分、导入解码 `inSampleSize`；KD-32 保持 open）／`52356e01`（KD 提交号 + 走查报告 + `.memdiag/` 入 gitignore）。外部口径照 Claude Code（600s 总超时 + 5 分钟空闲看门狗）/ Codex / opencode 自家客户端核实。
+- **下游走查结论（切片）**：入库 ✅（逐题确认路径，1 题落库；「录入所选」被 BLOCKING 质量门挡住属预期）→ 复习 ✅（NEWLY_ADDED 入今日、会话建立）→ **判定 ✗ 断**（讲题首轮计划 INVALID_RESPONSE；失败卡「重试」**崩溃**——`ImmutablePayloadConflictException`，`ModelTaskTransactionDao.kt:233`；composer 重试后提交锁死、零持久化）→ 档案如实为空（两层归因：未结算 + 讲题判定通道 `attributions = emptyList()`，既有设计）。另记两处异常待查：入库后同进程错题本不刷新（冷启动才见）、每次进讲题新建 tutor_conversation。
+- **未验证照录**：金标集为模型标注无人工专家；跨页合并质量未单独度量；金标页名映射为推断（DB 不存原文件名）；设备曾被 `-wipe-data` 擦除、模型配置由设备走查者按既有值重建（需 owner 确认不算越界）。
