@@ -452,6 +452,74 @@ class BatchImportRepositoryInstrumentedTest {
         }
     }
 
+    /**
+     * A3①：多页关系请求里模型顺带返回整册 questionRegions（两页各 10/11 题的形态，共 21 个）。
+     * 这类响应以前在模型层契约里按区域数量被拒，整轮任务落 INVALID_RESPONSE，边界评估直接
+     * 被打死；分题区域规则下移到切分消费侧后，多页请求的消费方根本不看 regions——边界必须
+     * 照关系照常解析（UNSURE → KEPT_SEPARATE），两页各留自己的草稿。
+     *
+     * 顺带钉住 A3②：同一份 21 区域响应落到单页自动拆分时被消费侧判为不可用（不切、整页草稿）。
+     */
+    @Test
+    fun pageWideSplitRegionsDoNotKillThePageBoundaryEvaluation() = runBlocking {
+        val selected = listOf(insertImage(Color.YELLOW), insertImage(Color.MAGENTA))
+        val processingScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        try {
+            val gateway = PageWideSplitRelationGateway(CapturePageRelation.UNSURE)
+            val modelTasks = ModelTaskRepositoryFactory.create(
+                database = database,
+                gateway = gateway,
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+            )
+            val repository = BatchImportRepositoryFactory.create(
+                context = context,
+                database = database,
+                capture = captureRepository(database),
+                processingScope = processingScope,
+                modelTasks = modelTasks,
+                splitImports = SplitImportRepositoryFactory.createConcrete(database),
+                modelEgressAllowed = { true },
+            )
+            val created = repository.createBatchImport(
+                CreateBatchImportRequest(
+                    requestId = "page-wide-split-boundary",
+                    localUris = selected.map(Uri::toString),
+                    occurredAtEpochMillis = 7_000,
+                ),
+            )
+            val completed = withTimeout(15_000) {
+                repository.observeBatchImports().first { jobs ->
+                    jobs.firstOrNull()?.status == BatchImportStatus.COMPLETED
+                }.first()
+            }
+            repository.organizeBatch(created.jobId)
+
+            val organized = checkNotNull(database.readBatchImportJob(created.jobId))
+            // 边界按 relation 解析（UNSURE → KEPT_SEPARATE）；任务若落 INVALID_RESPONSE，
+            // 该页的 boundary_after_status 会停在 FAILED。DB 记录没有域快照的聚合计数，
+            // 判据直接落在每页的边界状态上。
+            assertTrue(
+                organized.pages.none {
+                    it.boundaryAfterStatus == StudyDbValue.BatchImportBoundaryStatus.FAILED
+                },
+            )
+            assertEquals(2, organized.pages.mapNotNull { it.resultDraftId }.distinct().size)
+            completed.pages.mapNotNull { it.draftId }.forEach { draftId ->
+                assertEquals(
+                    StudyDbValue.ProblemDraftStatus.EDITING,
+                    checkNotNull(database.readProblemDraft(draftId)).status,
+                )
+            }
+            // 21 个区域超出本地一次能切的题数，消费侧拒绝后不产生拆分复核任务。
+            // splitReadyJobId 只存在于域快照（投影时才从拆分台账读），organizeBatch 之后重读一次。
+            val organizedSnapshot = repository.observeBatchImports().first()
+                .first { it.jobId == created.jobId }
+            assertNull(organizedSnapshot.splitReadyJobId)
+        } finally {
+            processingScope.cancel()
+        }
+    }
+
     private fun captureRepository(store: StudyDatabasePort) = RoomCaptureWorkflowRepository(
         store,
         AndroidCanonicalAssetVault(context),
@@ -575,6 +643,70 @@ class BatchImportRepositoryInstrumentedTest {
         private companion object {
             val CAPABILITIES = ProviderCapabilitySnapshot(
                 providerId = "fixture-page-relation",
+                providerDisplayName = "测试模型",
+                modelId = "fixture-v1",
+                supportedTasks = setOf(ModelTaskKind.CAPTURE_ASSESS),
+                supportsImageInput = true,
+                supportsStructuredOutput = true,
+                supportsStreaming = false,
+                executionLocation = ModelExecutionLocation.EXTERNAL_PROVIDER,
+                providerConfigurationVersion = "fixture-config-v1",
+            )
+        }
+    }
+
+    /**
+     * 多页关系请求里"顺带返回整册 questionRegions"的模型：两页各 10/11 题，区域按页左右分栏
+     * 排开。单页自动拆分请求（followingSourceAssets 为空）拿到的是同一份 21 区域响应，且不带
+     * 页面关系——那正是消费侧该拒的形状（A3②）。
+     */
+    private class PageWideSplitRelationGateway(
+        private val relation: CapturePageRelation,
+    ) : ModelGateway {
+        var executionCount: Int = 0
+            private set
+
+        override suspend fun capabilities(): ProviderCapabilitySnapshot = CAPABILITIES
+
+        override fun execute(execution: ModelGatewayExecution) = flow {
+            executionCount += 1
+            emit(ModelGatewayEvent.Started(CAPABILITIES))
+            val input = execution.request.input as CaptureAssessmentInput
+            emit(
+                ModelGatewayEvent.Completed(
+                    CaptureAssessmentOutput(
+                        CaptureAssessment(
+                            decision = CaptureAssessmentDecision.SPLIT,
+                            issues = listOf(
+                                CaptureAssessmentIssue(
+                                    code = CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS,
+                                    severity = CaptureAssessmentSeverity.BLOCKING,
+                                    message = "页面上有多道互相独立的题",
+                                ),
+                            ),
+                            suggestedActions = emptyList(),
+                            modelVersion = "fixture/page-wide-split-v1",
+                            questionRegions = List(21) { index ->
+                                val page = index / 11
+                                val row = index % 11
+                                NormalizedSourceRegion(
+                                    left = if (page == 0) 0.02 else 0.52,
+                                    top = row * 0.08,
+                                    right = if (page == 0) 0.48 else 0.98,
+                                    bottom = row * 0.08 + 0.07,
+                                )
+                            },
+                            followingPageRelations =
+                                List(input.followingSourceAssets.size) { relation },
+                        ),
+                    ),
+                ),
+            )
+        }
+
+        private companion object {
+            val CAPABILITIES = ProviderCapabilitySnapshot(
+                providerId = "fixture-page-wide-split",
                 providerDisplayName = "测试模型",
                 modelId = "fixture-v1",
                 supportedTasks = setOf(ModelTaskKind.CAPTURE_ASSESS),

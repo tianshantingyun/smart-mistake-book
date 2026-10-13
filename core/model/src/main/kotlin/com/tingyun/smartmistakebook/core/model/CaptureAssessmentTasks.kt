@@ -117,25 +117,13 @@ data class CaptureAssessment(
             require(
                 decision != CaptureAssessmentDecision.SPLIT || multipleQuestionIssues.isNotEmpty(),
             ) { "A split decision must identify multiple independent questions" }
-            require(
-                if (decision == CaptureAssessmentDecision.SPLIT) {
-                    questionRegions.size in MIN_SPLIT_REGION_COUNT..MAX_SPLIT_REGION_COUNT
-                } else {
-                    questionRegions.isEmpty()
-                },
-            ) { "Only a split decision may contain two to twelve question regions" }
-            require(questionRegions.distinct().size == questionRegions.size) {
-                "Split question regions must be unique"
-            }
-            require(questionRegions.all(NormalizedSourceRegion::isUsableQuestionRegion)) {
-                "Split question regions are too small or invalid"
-            }
-            questionRegions.forEachIndexed { index, region ->
-                questionRegions.drop(index + 1).forEach { other ->
-                    require(region.overlapRatioOfSmaller(other) <= MAX_SPLIT_REGION_OVERLAP_RATIO) {
-                        "Split question regions overlap too heavily"
-                    }
-                }
+            // 分题区域能不能真的切（2 到 12 个、唯一、最小尺寸、两两重叠上限）是切分消费侧的
+            // 判据：手动框选与自动拆分都经 core:domain 的 SplitCaptureDraftRequest 契约，
+            // 判据本身是 core:domain 的 isUsableSplitRegionSet。本契约只保留 wire 形状与
+            // decision 耦合——多页关系请求里模型顺带返回的整册 questionRegions 不该在这里被拒，
+            // 那会让整轮任务落 INVALID_RESPONSE，连 followingPageRelations 一起丢掉。
+            require(decision == CaptureAssessmentDecision.SPLIT || questionRegions.isEmpty()) {
+                "Only a split decision may contain question regions"
             }
         } else if (schemaVersion >= MULTIPLE_QUESTION_GATE_SCHEMA_VERSION) {
             require(decision != CaptureAssessmentDecision.SPLIT && questionRegions.isEmpty()) {
@@ -155,28 +143,7 @@ data class CaptureAssessment(
         private const val MIN_SUPPORTED_SCHEMA_VERSION = 1
         private const val MULTIPLE_QUESTION_GATE_SCHEMA_VERSION = 2
         private const val MULTIPLE_QUESTION_SPLIT_SCHEMA_VERSION = 3
-        const val MIN_SPLIT_REGION_COUNT = 2
-        const val MAX_SPLIT_REGION_COUNT = 12
-        private const val MAX_SPLIT_REGION_OVERLAP_RATIO = 0.8
         const val MAX_ISSUES = 12
         const val MAX_ACTIONS = 3
     }
-}
-
-private fun NormalizedSourceRegion.isUsableQuestionRegion(): Boolean {
-    if (!isValidModelRegion()) return false
-    val width = right - left
-    val height = bottom - top
-    return width >= 0.08 && height >= 0.04 && width * height >= 0.006
-}
-
-private fun NormalizedSourceRegion.overlapRatioOfSmaller(other: NormalizedSourceRegion): Double {
-    val overlapWidth = (minOf(right, other.right) - maxOf(left, other.left)).coerceAtLeast(0.0)
-    val overlapHeight = (minOf(bottom, other.bottom) - maxOf(top, other.top)).coerceAtLeast(0.0)
-    val overlap = overlapWidth * overlapHeight
-    val smallerArea = minOf(
-        (right - left) * (bottom - top),
-        (other.right - other.left) * (other.bottom - other.top),
-    )
-    return if (smallerArea == 0.0) 1.0 else overlap / smallerArea
 }

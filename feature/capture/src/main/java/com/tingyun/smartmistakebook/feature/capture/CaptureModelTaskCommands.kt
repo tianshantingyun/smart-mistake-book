@@ -60,6 +60,14 @@ internal class CaptureModelTaskCommands(
                 return
             }
             is CaptureSplitDecision.Run -> {
+                if (!captureAutoSplitRegionsUsable(decision)) {
+                    // 模型标了这一页有多道题、但给的区域本地切不了（数量 / 尺寸 / 重叠 / 重复）：
+                    // 不切、原图照旧是一整页草稿，并把这次失败按既有拆分失败呈现（可重试）；
+                    // 选择卡保持可见，学生仍能改用手动框选。
+                    state.splitError = CAPTURE_SPLIT_FAILED
+                    state.splitPendingChoice = true
+                    return
+                }
                 state.workflowInProgress = true
                 state.splitError = null
                 try {

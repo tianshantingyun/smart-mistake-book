@@ -86,17 +86,26 @@ internal object OpenAiModelTaskAdapters {
         )
     }
 
-    private fun assessmentPrompt(input: CaptureAssessmentInput): String {
-        val pageRelationRule = if (input.followingSourceAssets.isEmpty()) {
-            "followingPageRelations必须返回空数组。"
+    /**
+     * 评估任务有两副面孔，共用同一套 wire 形状但规则不同（分题阻塞修复 A1）：
+     *
+     * - **单页题图**（[CaptureAssessmentInput.followingSourceAssets] 为空）：判断够不够转写，
+     *   画面里有多道独立题时要求本地分题（SPLIT + questionRegions）。
+     * - **多页页面关系**（followingSourceAssets 非空）：只判断相邻页面是不是同一道题的续页。
+     *   这个请求的消费方只读 `followingPageRelations` 与 decision 的
+     *   RECAPTURE 分支（`RoomBatchImportRepository.resolveBoundary`），SPLIT 与整册
+     *   questionRegions 在这里没有任何用处——而模型一旦照单页规则返回"两页各有 10/11 题"，
+     *   旧契约会按区域数量拒掉整轮响应，连 followingPageRelations 也一起丢掉。
+     */
+    private fun assessmentPrompt(input: CaptureAssessmentInput): String =
+        if (input.followingSourceAssets.isEmpty()) {
+            singlePageAssessmentPrompt(input)
         } else {
-            "图片严格按页面先后顺序提供。必须额外返回followingPageRelations数组，" +
-                "长度恰好比图片数少1；第i项只判断第i张与第i+1张：" +
-                "后一张明确接续前一张同一道题的题干、材料、选项、图形或作答区域时返回SAME_QUESTION；" +
-                "后一张明确从另一道题开始时返回NEXT_QUESTION；无法可靠判断时返回UNSURE。" +
-                "不得因为科目、版式或知识内容相似就判为同一道题，也不得跨过中间页面比较。"
+            pageRelationAssessmentPrompt(input)
         }
-        return "判断图片是否足以完整转写一道或多道独立题。返回decision(PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT)、" +
+
+    private fun singlePageAssessmentPrompt(input: CaptureAssessmentInput): String =
+        "判断图片是否足以完整转写一道或多道独立题。返回decision(PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT)、" +
             "issues数组(code仅MISSING_OPTIONS/KEY_TEXT_UNREADABLE/GLARE_COVERS_FORMULA/" +
             "OCCLUDED/MULTIPLE_QUESTIONS，severity为BLOCKING或REVIEW，region为0到1坐标，" +
             "message为简短中文)、suggestedActions数组(RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY)、" +
@@ -106,9 +115,28 @@ internal object OpenAiModelTaskAdapters {
             "区域之间不得大面积重叠；否则questionRegions必须为空数组。" +
             "其他decision必须返回空questionRegions。" +
             "同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。" +
-            pageRelationRule +
+            "followingPageRelations必须返回空数组。" +
             assessmentUserHintRule(input.userHint)
-    }
+
+    /**
+     * 多页关系变体：**不分题**。decision 限 PASS/RECAPTURE/NEED_MORE_IMAGE，questionRegions
+     * 恒为空数组，也不报 MULTIPLE_QUESTIONS（契约里 MULTIPLE_QUESTIONS 与 SPLIT 是绑定的，
+     * 在这里报它同样会让整轮响应被拒）。followingPageRelations 的规则与单页版本逐字相同。
+     */
+    private fun pageRelationAssessmentPrompt(input: CaptureAssessmentInput): String =
+        "判断相邻页面是否属于同一道题。返回decision(PASS/RECAPTURE/NEED_MORE_IMAGE)、" +
+            "issues数组(code仅MISSING_OPTIONS/KEY_TEXT_UNREADABLE/GLARE_COVERS_FORMULA/" +
+            "OCCLUDED，severity为BLOCKING或REVIEW，region为0到1坐标，message为简短中文)、" +
+            "suggestedActions数组(RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY)、" +
+            "questionRegions数组，每项仅含left/top/right/bottom四个0到1坐标。" +
+            "本任务只判断页面关系，不做分题：decision不得返回SPLIT，questionRegions必须为空数组，" +
+            "也不得返回MULTIPLE_QUESTIONS问题——同一道题跨页不算多题，多页里出现多道题也不在本任务的处理范围。" +
+            "图片严格按页面先后顺序提供。必须额外返回followingPageRelations数组，" +
+            "长度恰好比图片数少1；第i项只判断第i张与第i+1张：" +
+            "后一张明确接续前一张同一道题的题干、材料、选项、图形或作答区域时返回SAME_QUESTION；" +
+            "后一张明确从另一道题开始时返回NEXT_QUESTION；无法可靠判断时返回UNSURE。" +
+            "不得因为科目、版式或知识内容相似就判为同一道题，也不得跨过中间页面比较。" +
+            assessmentUserHintRule(input.userHint)
 
     private fun assessmentUserHintRule(userHint: String?): String {
         if (userHint.isNullOrBlank()) return ""

@@ -427,38 +427,71 @@ class ModelTasksTest {
         )
     }
 
+    /**
+     * A3①：多页关系请求（followingSourceAssets 非空）里模型偶尔会顺带返回整册的
+     * questionRegions（两页各 10/11 题的形态）。区域数量以前在本契约里被拒，整轮任务落
+     * INVALID_RESPONSE，连 followingPageRelations 都一起丢掉。分题区域规则下移到切分消费侧
+     * 后，契约必须原样接收这种响应，边界评估才有机会按 relation 走（UNSURE → KEPT_SEPARATE）。
+     */
     @Test
-    fun multipleIndependentQuestionsRequireBoundedSplitRegions() {
-        CaptureAssessment(
+    fun pageRelationAssessmentToleratesPageWideQuestionRegions() {
+        val assessment = CaptureAssessment(
             decision = CaptureAssessmentDecision.SPLIT,
             issues = listOf(
                 CaptureAssessmentIssue(
                     code = CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS,
                     severity = CaptureAssessmentSeverity.BLOCKING,
-                    message = "画面中有两道独立题目",
+                    message = "两页各有若干道独立题目",
                 ),
             ),
             suggestedActions = emptyList(),
-            questionRegions = listOf(
-                NormalizedSourceRegion(left = 0.05, top = 0.05, right = 0.95, bottom = 0.45),
-                NormalizedSourceRegion(left = 0.05, top = 0.52, right = 0.95, bottom = 0.95),
-            ),
+            questionRegions = List(21) { index ->
+                val page = index / 11
+                val row = index % 11
+                NormalizedSourceRegion(
+                    left = if (page == 0) 0.02 else 0.52,
+                    top = row * 0.08,
+                    right = if (page == 0) 0.48 else 0.98,
+                    bottom = row * 0.08 + 0.07,
+                )
+            },
+            followingPageRelations = listOf(CapturePageRelation.UNSURE),
             modelVersion = "fake/capture-v1",
+        )
+        val request = ModelTaskRequest(
+            requestId = "capture-assess:page-relation",
+            input = (captureRequest().input as CaptureAssessmentInput).copy(
+                followingSourceAssets = listOf(
+                    CaptureSourceAssetRef(
+                        assetId = "asset-2",
+                        sha256 = "b".repeat(64),
+                        width = 1080,
+                        height = 1440,
+                        pageIndex = 1,
+                    ),
+                ),
+            ),
+            occurredAtEpochMillis = 100,
+        )
+
+        assertEquals(21, assessment.questionRegions.size)
+        assertEquals(listOf(CapturePageRelation.UNSURE), assessment.followingPageRelations)
+        assertTrue(
+            ModelTaskCompletionValidator
+                .validate(request, CaptureAssessmentOutput(assessment))
+                .isEmpty(),
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun splitAssessmentCannotOmitQuestionRegions() {
+    fun nonSplitAssessmentCannotCarryQuestionRegions() {
         CaptureAssessment(
-            decision = CaptureAssessmentDecision.SPLIT,
-            issues = listOf(
-                CaptureAssessmentIssue(
-                    code = CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS,
-                    severity = CaptureAssessmentSeverity.BLOCKING,
-                    message = "画面中有两道独立题目",
-                ),
-            ),
+            decision = CaptureAssessmentDecision.PASS,
+            issues = emptyList(),
             suggestedActions = emptyList(),
+            questionRegions = listOf(
+                NormalizedSourceRegion(left = 0.05, top = 0.05, right = 0.95, bottom = 0.45),
+            ),
             modelVersion = "fake/capture-v1",
         )
     }

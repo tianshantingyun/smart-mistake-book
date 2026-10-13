@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.CreateSplitImportJobCommand
 import com.tingyun.smartmistakebook.core.database.SplitImportQuestionSeed
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.isUsableSplitRegionSet
 import com.tingyun.smartmistakebook.core.model.CaptureAssessment
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentOutput
 import com.tingyun.smartmistakebook.core.model.CaptureSourceAssetRef
@@ -79,7 +80,10 @@ internal suspend fun recognizeAndSplitBatchPage(
         return BatchSplitOutcome.Failed
     }
     val assessment = (snapshot.output as? CaptureAssessmentOutput)?.assessment ?: return BatchSplitOutcome.Failed
-    if (!assessment.questionRegions.isUsableSplit()) {
+    // 分题区域能不能切由消费侧判定（与 SplitCaptureDraftRequest、手动框选同一份判据）：
+    // 2 到 12 个、唯一、够大、两两重叠不超过 80%。不通过就是不切——页已经进库，
+    // 这里只放弃这次增强，绝不是把页判失败。
+    if (!assessment.questionRegions.isUsableSplitRegionSet()) {
         return BatchSplitOutcome.NotASplit
     }
     // Each cut piece needs its own openable draft, or the review page could
@@ -122,9 +126,6 @@ internal suspend fun recognizeAndSplitBatchPage(
     splitImports.markReady(job.jobId, job.questions.size, occurrenceTime)
     return BatchSplitOutcome.SplitReady(job.jobId)
 }
-
-private fun List<com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion>.isUsableSplit(): Boolean =
-    size in 2..12 && all { it.left < it.right && it.top < it.bottom }
 
 private fun batchSplitFingerprint(jobId: String, pageIndex: Int, sourceUri: String): String =
     MessageDigest.getInstance("SHA-256")

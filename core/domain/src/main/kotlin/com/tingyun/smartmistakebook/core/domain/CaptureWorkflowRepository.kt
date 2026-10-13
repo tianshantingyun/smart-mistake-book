@@ -348,52 +348,71 @@ data class SplitCaptureDraftRequest(
             "Capture split assessment request id must not be blank"
         }
         require(sourceAssetId.isNotBlank()) { "Capture split source asset id must not be blank" }
-        require(regions.size in 2..12) { "Capture split must contain two to twelve regions" }
+        require(regions.size in MIN_SPLIT_REGION_COUNT..MAX_SPLIT_REGION_COUNT) {
+            "Capture split must contain two to twelve regions"
+        }
         require(regions.distinct().size == regions.size) { "Capture split regions must be unique" }
-        require(regions.all { region ->
-            region.left.isFinite() && region.top.isFinite() &&
-                region.right.isFinite() && region.bottom.isFinite() &&
-                region.left in 0.0..1.0 && region.top in 0.0..1.0 &&
-                region.right in 0.0..1.0 && region.bottom in 0.0..1.0 &&
-                region.right - region.left >= MIN_SPLIT_REGION_WIDTH &&
-                region.bottom - region.top >= MIN_SPLIT_REGION_HEIGHT &&
-                (region.right - region.left) * (region.bottom - region.top) >=
-                MIN_SPLIT_REGION_AREA
-        }) { "Capture split region is invalid" }
-        require(regions.indices.none { firstIndex ->
-            regions.indices.any { secondIndex ->
-                secondIndex > firstIndex &&
-                    overlapRatioOfSmaller(
-                        regions[firstIndex],
-                        regions[secondIndex],
-                    ) > MAX_SPLIT_REGION_OVERLAP
-            }
-        }) { "Capture split regions overlap too much" }
+        require(regions.all(NormalizedSourceRegion::isUsableSplitRegion)) {
+            "Capture split region is invalid"
+        }
+        require(!regions.hasHeavySplitRegionOverlap()) {
+            "Capture split regions overlap too much"
+        }
         require(occurredAtEpochMillis >= 0) { "Capture split time must not be negative" }
     }
+}
 
-    private companion object {
-        const val MIN_SPLIT_REGION_WIDTH = 0.08
-        const val MIN_SPLIT_REGION_HEIGHT = 0.04
-        const val MIN_SPLIT_REGION_AREA = 0.006
-        const val MAX_SPLIT_REGION_OVERLAP = 0.8
+/**
+ * 一组切分区域是否可用——**切分消费侧的判据**，也是 [SplitCaptureDraftRequest] 里那套校验的
+ * 同一份实现（模型层契约只保留 wire 形状与坐标合法性，见 `CaptureAssessment`）。
+ *
+ * 自动拆分的两个入口在把模型给的区域送进拆分流程前先问这一句：单页题图的
+ * `captureAutoSplitRegionsUsable`（只挡自动提交，手动框选不看模型区域）与批量页的
+ * `BatchSplitRecognizer`。不通过就按"不切、整页草稿、可重试"处理，
+ * 而不是等 SplitCaptureDraftRequest 在提交时抛异常。规则与手动框选完全一致：
+ * 2 到 12 个、两两不重复、每个都够大（含 0 到 1 的合法坐标）、两两重叠不超过较大者的 80%。
+ */
+fun List<NormalizedSourceRegion>.isUsableSplitRegionSet(): Boolean =
+    size in MIN_SPLIT_REGION_COUNT..MAX_SPLIT_REGION_COUNT &&
+        distinct().size == size &&
+        all(NormalizedSourceRegion::isUsableSplitRegion) &&
+        !hasHeavySplitRegionOverlap()
 
-        fun overlapRatioOfSmaller(
-            first: NormalizedSourceRegion,
-            second: NormalizedSourceRegion,
-        ): Double {
-            val width = (minOf(first.right, second.right) -
-                maxOf(first.left, second.left)).coerceAtLeast(0.0)
-            val height = (minOf(first.bottom, second.bottom) -
-                maxOf(first.top, second.top)).coerceAtLeast(0.0)
-            val intersection = width * height
-            val smallerArea = minOf(
-                (first.right - first.left) * (first.bottom - first.top),
-                (second.right - second.left) * (second.bottom - second.top),
-            )
-            return if (smallerArea == 0.0) 0.0 else intersection / smallerArea
+private const val MIN_SPLIT_REGION_COUNT = 2
+private const val MAX_SPLIT_REGION_COUNT = 12
+private const val MIN_SPLIT_REGION_WIDTH = 0.08
+private const val MIN_SPLIT_REGION_HEIGHT = 0.04
+private const val MIN_SPLIT_REGION_AREA = 0.006
+private const val MAX_SPLIT_REGION_OVERLAP = 0.8
+
+private fun NormalizedSourceRegion.isUsableSplitRegion(): Boolean =
+    left.isFinite() && top.isFinite() && right.isFinite() && bottom.isFinite() &&
+        left in 0.0..1.0 && top in 0.0..1.0 && right in 0.0..1.0 && bottom in 0.0..1.0 &&
+        right - left >= MIN_SPLIT_REGION_WIDTH &&
+        bottom - top >= MIN_SPLIT_REGION_HEIGHT &&
+        (right - left) * (bottom - top) >= MIN_SPLIT_REGION_AREA
+
+private fun List<NormalizedSourceRegion>.hasHeavySplitRegionOverlap(): Boolean =
+    indices.any { firstIndex ->
+        ((firstIndex + 1) until size).any { secondIndex ->
+            overlapRatioOfSmaller(this[firstIndex], this[secondIndex]) > MAX_SPLIT_REGION_OVERLAP
         }
     }
+
+private fun overlapRatioOfSmaller(
+    first: NormalizedSourceRegion,
+    second: NormalizedSourceRegion,
+): Double {
+    val width = (minOf(first.right, second.right) -
+        maxOf(first.left, second.left)).coerceAtLeast(0.0)
+    val height = (minOf(first.bottom, second.bottom) -
+        maxOf(first.top, second.top)).coerceAtLeast(0.0)
+    val intersection = width * height
+    val smallerArea = minOf(
+        (first.right - first.left) * (first.bottom - first.top),
+        (second.right - second.left) * (second.bottom - second.top),
+    )
+    return if (smallerArea == 0.0) 0.0 else intersection / smallerArea
 }
 
 data class CaptureDraftSplitResult(

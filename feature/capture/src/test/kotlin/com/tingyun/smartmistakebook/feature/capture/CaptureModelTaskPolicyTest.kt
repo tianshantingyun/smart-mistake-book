@@ -116,6 +116,69 @@ class CaptureModelTaskPolicyTest {
         )
     }
 
+    /**
+     * A3②③：模型层不再判分题区域（只保留 wire 形状与坐标合法性），区域能不能切改由消费侧判：
+     * 超过 12 个 / 尺寸过小 / 重叠超限 / 重复 / 一个都没有，自动提交一律被拒
+     * ——不切、整页草稿、可重试。但选择卡必须照旧出现（判定仍返回 Run）：
+     * 判据只挡自动提交，不挡手动框选这条退路。
+     */
+    @Test
+    fun autoSplitRejectsModelRegionsTheLocalCutCannotUse() {
+        val unusable = listOf(
+            emptyList(),
+            List(13) { index ->
+                NormalizedSourceRegion(0.05, index * 0.07, 0.95, index * 0.07 + 0.06)
+            },
+            listOf(
+                NormalizedSourceRegion(0.05, 0.05, 0.95, 0.45),
+                NormalizedSourceRegion(0.05, 0.55, 0.13, 0.62),
+            ),
+            listOf(
+                NormalizedSourceRegion(0.05, 0.05, 0.5, 0.5),
+                NormalizedSourceRegion(0.06, 0.06, 0.45, 0.45),
+            ),
+            listOf(
+                NormalizedSourceRegion(0.05, 0.05, 0.95, 0.45),
+                NormalizedSourceRegion(0.05, 0.05, 0.95, 0.45),
+            ),
+        )
+
+        unusable.forEach { regions ->
+            val decision = captureSplitDecision(
+                snapshot = succeededAssessment(
+                    requestId = "assess-split",
+                    assetId = ASSET_A,
+                    assessment = splitAssessment(regions),
+                    demo = false,
+                ),
+                draftId = DRAFT_ID,
+                revisionNumber = 1,
+                sourcePages = listOf(page(0, ASSET_A)),
+            )
+
+            assertTrue("判定仍要给出选择卡：$regions", decision is CaptureSplitDecision.Run)
+            assertFalse("自动提交必须被拒：$regions", captureAutoSplitRegionsUsable(decision))
+        }
+    }
+
+    @Test
+    fun autoSplitAcceptsAModelRegionSetTheLocalCutCanUse() {
+        val decision = captureSplitDecision(
+            snapshot = succeededAssessment(
+                requestId = "assess-split",
+                assetId = ASSET_A,
+                assessment = splitAssessment(),
+                demo = false,
+            ),
+            draftId = DRAFT_ID,
+            revisionNumber = 1,
+            sourcePages = listOf(page(0, ASSET_A)),
+        )
+
+        assertTrue(decision is CaptureSplitDecision.Run)
+        assertTrue(captureAutoSplitRegionsUsable(decision))
+    }
+
     @Test
     fun parseReadinessAllowsNeedMoreImageOnlyOnEarlierPages() {
         val pages = listOf(page(0, ASSET_A), page(1, ASSET_B))
@@ -278,7 +341,12 @@ class CaptureModelTaskPolicyTest {
         )
     }
 
-    private fun splitAssessment() = CaptureAssessment(
+    private fun splitAssessment(
+        regions: List<NormalizedSourceRegion> = listOf(
+            NormalizedSourceRegion(0.05, 0.05, 0.95, 0.45),
+            NormalizedSourceRegion(0.05, 0.55, 0.95, 0.95),
+        ),
+    ) = CaptureAssessment(
         decision = CaptureAssessmentDecision.SPLIT,
         issues = listOf(
             CaptureAssessmentIssue(
@@ -288,10 +356,7 @@ class CaptureModelTaskPolicyTest {
             ),
         ),
         suggestedActions = emptyList(),
-        questionRegions = listOf(
-            NormalizedSourceRegion(0.05, 0.05, 0.95, 0.45),
-            NormalizedSourceRegion(0.05, 0.55, 0.95, 0.95),
-        ),
+        questionRegions = regions,
         modelVersion = "fixture-v1",
     )
 

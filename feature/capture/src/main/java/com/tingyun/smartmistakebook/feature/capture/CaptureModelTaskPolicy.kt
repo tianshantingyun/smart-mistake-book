@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.feature.capture
 
 import com.tingyun.smartmistakebook.core.domain.CaptureSourcePage
 import com.tingyun.smartmistakebook.core.domain.SplitCaptureDraftRequest
+import com.tingyun.smartmistakebook.core.domain.isUsableSplitRegionSet
 import com.tingyun.smartmistakebook.core.model.CaptureAssessment
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentDecision
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentInput
@@ -63,6 +64,18 @@ internal fun captureSplitDecision(
         assessment = output.assessment,
     )
 }
+
+/**
+ * 自动拆分能不能真的切：模型给的区域必须过切分消费侧判据（2 到 12 个、唯一、够大、
+ * 两两重叠不超过 80%，即 core:domain 的 `isUsableSplitRegionSet`——模型层契约已不再判它）。
+ *
+ * 这道门**不并进** [captureSplitDecision]：那里同时服务手动框选与「自动 / 手动框选」选择卡，
+ * 模型区域不可用时若整体判成 Skip，学生会连框选入口都看不到。所以判据只挡**自动提交**这一步：
+ * 不通过就不切、整页草稿、可重试（[CAPTURE_SPLIT_FAILED]），手动框选照旧可用。
+ */
+internal fun captureAutoSplitRegionsUsable(decision: CaptureSplitDecision): Boolean =
+    decision is CaptureSplitDecision.Run &&
+        decision.assessment.questionRegions.isUsableSplitRegionSet()
 
 internal fun captureSplitDraftRequest(
     decision: CaptureSplitDecision.Run,
