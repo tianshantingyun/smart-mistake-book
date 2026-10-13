@@ -1,5 +1,7 @@
 # 内核算法：验证结论与实施级修复计划（2026-09-28）
 
+> 2026-10-13任务补正：KF历史实施状态以MASTER LINE和完成记录为准；当前小测/证据闭环补修先读本文件§8（AUD-01/02/11/17），不得把原3A/3B完成记录当作这些新任务已完成。
+
 > **补充卷**：`docs/research/2026-09-28-kernel-scale-precision-audit.md`（五维判定 + 精确 P1–P12 +
 > 灵活 F1–F8 + 高质量 Q1–Q6 + 规模化 S1–S21，编号继续 KF-35 起）。本卷含对 KF-15/对照表/KF-33
 > 的三处修正声明，实施前必读。
@@ -454,3 +456,41 @@
 - A−/B 级文献正文未读（出版商拦截），实施前按纪律补一手核验。
 - day_start 偏移、跨时区裂缝触发频率未实测。
 - KF-23 的旧行 state 回填推导未验证。
+
+---
+
+## 8. 2026-10-13审计补修：已有学习闭环
+
+任务归位以 [MASTER LINE §7](../REFACTOR-MASTER-LINE.md#7-2026-10-13审计任务归位与执行批次) 为准。AUD编号不占用KF号段，不修改既有公式/权重/门常数；以下均未实施。
+
+### AUD-01 · 生成题/尝试/提交幂等（3B维护）
+
+文件定位：feature/review/src/main/kotlin/com/tingyun/smartmistakebook/feature/review/KnowledgeReviewQuizLoader.kt、KnowledgeReviewSessionScreen.kt、KnowledgeReviewSessionViewModel.kt；core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/KnowledgeEvidenceWriter.kt；core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/ChatEvidenceDao.kt。
+- [ ] 先用真实Room补失败用例：相同KC不同生成请求/不同日同选项产生不同事实；同一次提交重试只产生一个证据/outbox，不抛唯一键冲突。
+- [ ] 冻结稳定身份契约：生成request→题目item→作答attempt→submit命名空间；身份可恢复，同一次操作不能每点重试换UUID，不用时间戳绕过冲突，不覆盖旧证据。
+- [ ] 证据与outbox在同事务幂等：明确已有相同语义的receipt与真正不同内容的冲突；不要只把ABORT改IGNORE掩盖不同操作撞键。
+- [ ] 定向命令：gradlew.bat :feature:review:testDebugUnitTest :core:data:testDebugUnitTest :core:database:testDebugUnitTest；设备定向app/src/androidTest/kotlin/com/tingyun/smartmistakebook/KnowledgeReviewSessionInstrumentedTest及真实Room重复证据场景。
+- [ ] 退出门：上述不同操作/同操作双条件均通过，旧数据可读；需schema则非破坏迁移，影响投影语义按版本纪律。
+
+### AUD-02 · 原题原选择恢复（3B维护，身份对齐AUD-01）
+
+- [ ] 在KnowledgeReviewSessionViewModelTest/KnowledgeReviewQuizLoaderTest及app的KnowledgeReviewSessionInstrumentedTest补“已选未交→重建”一体用例，不只验LOADED变IDLE。
+- [ ] 保存并恢复题面/选项/正确键、生成requestId与attemptId、选择及提交终态的同一快照；loader观察既有结果，不能以新UUID自动重新出题。
+- [ ] 快照缺失/损坏、源KC退役、题版本变化显式停留并给继续动作；不能把旧选择套新题，不能自动再出网。
+- [ ] 退出门：原题B恢复仍是原题B、已提交重建不再写、连续两会话不串、模型调用计数/预算不重置；设备kill/recreate场景有实际断言。
+
+### AUD-11 · 答案键、KC/题粒度与冷却语义（先反例/测量，再按裁定实施）
+
+定位：KnowledgeQuizFeedbackWriter/KnowledgeEvidenceWriter、MasteryWriteGate、TutorJudgedReviewSettler及SchedulingEvaluation。
+- [ ] 构造错答案键/歧义题、模型已写KC后新的独立小测、前置KC理解但整题未解、不同cycle最新证据等反例；记录哪条门接受/拒绝、实际事实权重和题级结算。
+- [ ] 分清“本地机械比选项”与“答案键真值已验证”；产出来源分层、抽验、纠错/撤销/污染重放方案，不能把模型自产键直接证明成1.0真实正确率。
+- [ ] 复算12h门对MODEL_CHAT和KNOWLEDGE_QUIZ的影响，输出通道规则/配额/相关性测量及裁定建议；未经原流程裁定不改门值或科学权重。
+- [ ] 题级settle先保留现有客观选择优先和lastActiveAt挡板，补节点/当前cycle归属反例；先复现，再判是否修改，不把候选风险写成已复现缺陷。
+- [ ] 阶段5a/5c、5B在该研究结果上复验三键/开放题/回收事实；拒收要有可理解结果，不能让完成小测悄悄等于未学习。
+
+### AUD-17 · 真实校准样本准备（5a/5B准备，Wave X训练）
+
+- [ ] 按SchedulingEvaluation实际筛选规则输出原始数、MODEL_JUDGED/REVEAL排除、首条/同日重复、缺时间/缺状态、最终可预测长程数；400门只看最后一列。
+- [ ] 建匿名化的来源/题修订/答案来源/辅助暴露/时区/间隔审计清单；真实使用积累，不生成或重复记录凑400。
+- [ ] 纠错/撤销/改绑后重放，保证训练读施行后的事实；分科、题源和高提示依赖查看覆盖。
+- [ ] 达400才执行原Wave X；同数据验证损失不劣才采纳，存量更优保留；版本切换与回退需真实重放报告。

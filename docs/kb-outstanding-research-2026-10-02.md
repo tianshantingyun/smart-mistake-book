@@ -1,5 +1,7 @@
 # 知识库未竟清单 · 深度研究报告
 
+> 2026-10-13当前收口入口：先读§8的AUD-04/07/18/19与MASTER LINE §7。下方v9/历史样本是当时基线，不代表当前成品或候选；不要沿用历史计数决定晋升。
+
 - 日期：2026-10-02 ｜ 仓库 HEAD：`a96bc8ce`（写作期间内核线推进：`890d966f` → `a96bc8ce`；工作树另有他线在飞改动，见 §6.4）
 - 读者：项目负责人。本文回答四件事：**还剩什么、为什么重要、怎么做、依赖谁与怎么验收**。
 - 素材：`build/agent-outstanding/baseline.md` + 六份事实卡（`build/agent-outstanding/group-1.md`…`build/agent-outstanding/group-6.md`）。
@@ -1197,3 +1199,53 @@ PY
 - **F3 超配/容量拦截、F7 旧 type、F9 bindings 欠账、F10 语义门**：按报告推荐执行（F10 取 ②：定期抽检+报告，先清榜再议硬门）。
 - **F1 教材授权**：取最保守的 A（原文不入库、只作核对参照）。
 - **F11/F12/F13/F8**：不在本线范围（学生侧/产品面），留档待认领。
+
+---
+
+## 8. 2026-10-13审计任务接入（当前收口以本节为准）
+
+旧§1为2026-10-02历史基线，不作为当前成品计数。当前：成品v13为3741点/59008材料/527退役；staging为3356点/59008材料/912退役。批次9的D-1按95.15%点估计过门，CI和模型标注纪律如实保留；14空点、22失效覆盖目标及最终D-3/D-5仍未共同收口。任务位置见 [MASTER LINE §7](REFACTOR-MASTER-LINE.md#7-2026-10-13审计任务归位与执行批次)。
+
+### AUD-04 · D-3最终消费检索（P1）
+
+文件：RoomTutorKnowledgeContextLoader/KnowledgeContextRetriever、RoomMistakeOrganizationRepository，core/database的RoomKnowledgeBaseStore/DenseRecallOrdering，core/data/knowledge/dense的DenseRecallAssembly。测试RoomTutorKnowledgeContextLoaderTest与GoldenRetrievalInstrumentedTest。
+- [ ] 冻结同包同query的词面候选、dense重排、最终节点/父级预算/教学材料清单；现dense只排序同一SQL已截取ID集，再被select词面排序覆盖。
+- [ ] 明确唯一终端排序契约，在讲题和归类两个最终消费者接线；能在最终最多8节点中验证向量收益，不仅测试store返回顺序。
+- [ ] 主集/逐章/同义词/无词面特征/跨科/空题面分别评测；空输入不凑节点。纯词面与融合对照记录Recall@5/MRR/p95、MISS及候选角色。
+- [ ] D-3沿用现行主集≥0.90且逐章≥0.80；JVM A/B量表及设备0.64/0.56回归地板只作诊断，不能拿来替代质量门。
+- [ ] 命令：gradlew.bat :core:data:testDebugUnitTest；设备用GoldenRetrievalInstrumentedTest加最终loader场景，真SQL和最终提示词消费结果均落档。
+
+### AUD-07 · D-2/D-5候选清账和同包晋升（P1）
+
+- [ ] 按当前空点清单处理14点的应有材料/退役映射；不能为过门加无教学作用占位料。22个覆盖目标沿并点/退役链迁到正确终态，保留课标条目语义。
+- [ ] alignment/权威表/alias/prereq/boundary/material bindings、旧样本基线与实际候选一致；19项工具红逐条分类，过时断言按可复算真值更新，工具正确性缺陷先修，不能删用例或降低门。
+- [ ] 候选检查全程显式指定同一root；修“内容查staging而dense查成品”的对象错位。promote前验证该候选主包/侧车/词表/vec/manifest指纹及D-0三元组折入。
+- [ ] 依D-5单写者窗口：冻结起点→修表/包→所有内容门现算全绿→consistency/roundtrip/manifest/dense/覆盖与检索→bump版本/指纹→promote→成品复验和App升级安装。
+- [ ] 成品3741与候选3356不混算，台账状态不得在promote前假称App已消费；容量/漏料/历史type等原未竟项继续按本文件F系列处理。
+- [ ] 命令：PYTHONPATH=tools下python tools/ci/run_kb_checks.py --root build/kb-staging --json；python -m unittest discover -s tools/tests；python -m kb_coverage.alignment --check；晋升后对成品重复同对象校验并核安装。
+
+Windows复跑使用UTF-8环境，避免GBK打印符号的编码错误混入工具缺陷统计（各命令独立执行并记录退出码）：
+
+```powershell
+$env:PYTHONPATH = 'tools'
+$env:PYTHONUTF8 = '1'
+$env:PYTHONIOENCODING = 'utf-8'
+python tools/ci/run_kb_checks.py --root build/kb-staging --json
+python -m unittest discover -s tools/tests
+python -m kb_coverage.alignment --check
+```
+
+该候选检查当前的dense段仍固定读取成品资产，AUD-07必须先修成同一root；在修复前不能把其dense绿作为候选晋升证据。
+
+### AUD-18 · 本地缺口到受控研究闭环（P2）
+
+- [ ] 按controlled-knowledge-research-design复用现KnowledgeResearchCoordinator、请求队列和审校接口，明确唯一生产驱动与搜索gateway实现/不可用状态。
+- [ ] 请求身份含缺口/科目/源修订；研究结果经过来源校验、候选审校和D-5版本发布后才能关闭；失败/拒绝/超预算可见，不因applied=false就静默终止。
+- [ ] 生产装配及拒绝来源/进程重建/重复请求/版本发布后关闭有定向测试；没有搜索能力时明确停在待处理，不宣称已补材料。
+- [ ] 受控研究不绕过单写者/promote、自动化许可或原数据外发授权。
+
+### AUD-19 · D-4前置图密度（覆盖项，非硬门）
+
+- [ ] 以应有关系的课程目标集合确定覆盖分母，分别标不适用/有依据/未取得依据；不是要求所有孤立点加边。
+- [ ] 成品401边、624/3741点参与任一边、83.32%孤立为同日基线；候选另报，按科抽验依据和方向，回归D-2环/悬空/并点后引用。
+- [ ] 在真实讲题/复习验证前置补救触发与归因，只有核验覆盖开放E6/G6相关能力；不把D-4升级为阶段5硬门。
