@@ -1,12 +1,14 @@
 package com.tingyun.smartmistakebook.core.data.model.wire
 
 import com.tingyun.smartmistakebook.core.data.model.ApprovedImage
+import com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException
 import com.tingyun.smartmistakebook.core.data.model.InvalidModelResponseException
 import com.tingyun.smartmistakebook.core.data.model.JSON_MEDIA_TYPE
 import com.tingyun.smartmistakebook.core.data.model.OpenAiModelProtocol
 import com.tingyun.smartmistakebook.core.data.model.OpenAiModelTaskAdapters
 import com.tingyun.smartmistakebook.core.data.model.OpenAiSse
 import com.tingyun.smartmistakebook.core.data.model.SSE_ACCEPT
+import com.tingyun.smartmistakebook.core.data.model.optionalString
 import com.tingyun.smartmistakebook.core.data.model.parseObject
 import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
 import com.tingyun.smartmistakebook.core.model.ModelTaskInput
@@ -123,12 +125,32 @@ internal object GeminiGenerateContentProtocol : ModelWireProtocol {
         input: ModelTaskInput,
         modelVersion: String,
     ): ModelTaskOutput {
-        val text = textPartsOf(parseObject(body))
+        val envelope = parseObject(body)
+        // 上游唯一一处"为什么停下来"的声明（同 Chat Completions 的 finish_reason）：
+        // `candidates[].finishReason=MAX_TOKENS` = "The maximum number of tokens as specified
+        // in the request was reached."（proto `generative_service.proto` 的 FinishReason）。
+        // 截断是"这次没写完"（可重试），必须先于"文本为空"分流，否则会被归成重发会逐字
+        // 复现的 INVALID_RESPONSE；文本取自**全部** candidate，任一条被截断即这份答复没写完。
+        val truncatedCandidate = truncatedCandidateOf(envelope)
+        if (truncatedCandidate != null) {
+            throw IncompleteModelOutputException(
+                "provider stopped before the answer was complete " +
+                    "(finishReason=$truncatedCandidate)",
+            )
+        }
+        val text = textPartsOf(envelope)
         if (text.isBlank()) {
             throw InvalidModelResponseException("Gemini reply carried no text part")
         }
         return parseTaskOutputFromText(text, input, modelVersion)
     }
+
+    /** 返回第一个声明被输出上限截断的 `candidates[].finishReason`，没有则 null。 */
+    private fun truncatedCandidateOf(envelope: JsonObject): String? =
+        envelope["candidates"]?.jsonArray.orEmpty().firstNotNullOfOrNull { candidate ->
+            (candidate as? JsonObject)?.optionalString("finishReason")
+                ?.takeIf { it == TRUNCATING_FINISH_REASON }
+        }
 
     override fun streamDelta(payload: String): String? = runCatching {
         val event = parseObject(payload)
@@ -251,4 +273,11 @@ internal object GeminiGenerateContentProtocol : ModelWireProtocol {
 
     private const val JSON_RESPONSE_MIME_TYPE = "application/json"
     private const val GEMINI_TEMPERATURE = 0.1
+
+    /**
+     * 上游声明"这次生成被截断"的 `finishReason`（proto FinishReason 里唯一表示输出上限被顶满
+     * 的取值）。与 Chat Completions 的 `length` 同一出口：可重试的
+     * [IncompleteModelOutputException]，不是"内容不可用"。
+     */
+    private const val TRUNCATING_FINISH_REASON = "MAX_TOKENS"
 }

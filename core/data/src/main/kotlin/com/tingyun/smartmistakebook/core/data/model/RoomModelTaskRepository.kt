@@ -1064,7 +1064,13 @@ private class InvalidProviderProtocol(val userMessage: String) : RuntimeExceptio
 private const val MODEL_TASK_LOG_TAG = "SmartMistakeBook"
 
 /**
- * 一条模型任务在本地最久允许占用的**防呆安全上限**（600s）。
+ * **每一轮** `gateway.execute` 的防呆安全上限（600s）——不是"一条任务 600s"。
+ *
+ * 覆盖范围（注释口径与实现对齐）：`withTimeout` 只包住一圈 `gateway.execute`（工具环
+ * `while (!answered)` 循环体内），而一条任务最多派遣
+ * `ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES = 6` 轮（5 轮工具
+ * `TutorToolRoundResult.MAX_TOOL_ROUNDS` + 1 轮终答），所以**一条任务**的本地占用上限是
+ * 约 6 × 600s = 3_600s。这是上限的上限，不是任何一条任务的时长承诺。
  *
  * 它不是输出预算、也不是时长预算：不参与"这次调用该花多久"的任何规划，只兜住"派发方已经死掉
  * 却没人收尾"的任务，避免一条失控的流把 RUNNING 状态永远留在库里。任何"上游还在正常生成"的

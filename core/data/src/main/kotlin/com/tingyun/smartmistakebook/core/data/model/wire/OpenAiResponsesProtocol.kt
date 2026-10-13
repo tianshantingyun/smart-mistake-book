@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.model.wire
 
 import com.tingyun.smartmistakebook.core.data.model.ApprovedImage
+import com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException
 import com.tingyun.smartmistakebook.core.data.model.InvalidModelResponseException
 import com.tingyun.smartmistakebook.core.data.model.JSON_MEDIA_TYPE
 import com.tingyun.smartmistakebook.core.data.model.OpenAiModelProtocol
@@ -8,6 +9,7 @@ import com.tingyun.smartmistakebook.core.data.model.OpenAiModelTaskAdapters
 import com.tingyun.smartmistakebook.core.data.model.OpenAiSse
 import com.tingyun.smartmistakebook.core.data.model.SSE_ACCEPT
 import com.tingyun.smartmistakebook.core.data.model.objectValue
+import com.tingyun.smartmistakebook.core.data.model.optionalString
 import com.tingyun.smartmistakebook.core.data.model.parseObject
 import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
 import com.tingyun.smartmistakebook.core.model.ModelTaskInput
@@ -98,11 +100,38 @@ internal object OpenAiResponsesProtocol : ModelWireProtocol {
         input: ModelTaskInput,
         modelVersion: String,
     ): ModelTaskOutput {
-        val text = textBlocksOf(parseObject(body))
+        val envelope = parseObject(body)
+        // 上游唯一一处"为什么停下来"的声明（同 Chat Completions 的 finish_reason）：Responses
+        // 把它放在 `status`（取值之一 `incomplete`）与 `incomplete_details`（`reason ∈
+        // {max_output_tokens, max_messages, content_filter, steered}`，
+        // `openai-python` 的 `types/responses/response.py`，2026-10-13 核对）。它同样是
+        // "这次没写完"（可重试），必须先于"文本为空"分流，否则会被归成重发会逐字复现的
+        // INVALID_RESPONSE。
+        val incompleteDeclaration = incompleteDeclarationOf(envelope)
+        if (incompleteDeclaration != null) {
+            throw IncompleteModelOutputException(
+                "provider stopped before the answer was complete ($incompleteDeclaration)",
+            )
+        }
+        val text = textBlocksOf(envelope)
         if (text.isBlank()) {
             throw InvalidModelResponseException("Responses reply carried no output_text block")
         }
         return parseTaskOutputFromText(text, input, modelVersion)
+    }
+
+    /**
+     * Responses 声明"这次没走完"的两种写法（[INCOMPLETE_STATUS] 或非空
+     * `incomplete_details`），返回可直接写进归因的短描述，没声明则 null。
+     *
+     * 只回显枚举名（`reason`），不回显整段 `incomplete_details`——归因日志只记异常类与消息，
+     * 不记报文。
+     */
+    private fun incompleteDeclarationOf(envelope: JsonObject): String? {
+        val status = envelope.optionalString("status")
+        if (status == INCOMPLETE_STATUS) return "status=$status"
+        val details = envelope["incomplete_details"] as? JsonObject ?: return null
+        return "incomplete_details.reason=${details.optionalString("reason")}"
     }
 
     override fun streamDelta(payload: String): String? = runCatching {
@@ -239,4 +268,10 @@ internal object OpenAiResponsesProtocol : ModelWireProtocol {
     }.toString()
 
     private const val OUTPUT_TEXT_DELTA_EVENT = "response.output_text.delta"
+
+    /**
+     * 上游声明"这次生成没走完"的 `status` 取值（与另外两种写法同出口：可重试的
+     * [IncompleteModelOutputException]，不是"内容不可用"）。
+     */
+    private const val INCOMPLETE_STATUS = "incomplete"
 }

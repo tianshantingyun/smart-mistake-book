@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.model.wire
 
 import com.tingyun.smartmistakebook.core.data.model.ApprovedImage
+import com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException
 import com.tingyun.smartmistakebook.core.data.model.InvalidModelResponseException
 import com.tingyun.smartmistakebook.core.data.model.JSON_MEDIA_TYPE
 import com.tingyun.smartmistakebook.core.data.model.OpenAiModelProtocol
@@ -8,6 +9,7 @@ import com.tingyun.smartmistakebook.core.data.model.OpenAiModelTaskAdapters
 import com.tingyun.smartmistakebook.core.data.model.OpenAiSse
 import com.tingyun.smartmistakebook.core.data.model.SSE_ACCEPT
 import com.tingyun.smartmistakebook.core.data.model.objectValue
+import com.tingyun.smartmistakebook.core.data.model.optionalString
 import com.tingyun.smartmistakebook.core.data.model.parseObject
 import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
 import com.tingyun.smartmistakebook.core.model.ModelTaskInput
@@ -110,7 +112,19 @@ internal object AnthropicMessagesProtocol : ModelWireProtocol {
         input: ModelTaskInput,
         modelVersion: String,
     ): ModelTaskOutput {
-        val text = textBlocksOf(parseObject(body))
+        val envelope = parseObject(body)
+        // 上游唯一一处"为什么停下来"的声明（同 Chat Completions 的 finish_reason）：
+        // `stop_reason=max_tokens` = 达到 `max_tokens` 输出上限被截断（官方 SDK 的
+        // `StopReason` 取值，含 "max_tokens"）。截断是"这次没写完"（可重试），必须先于
+        // "文本为空"分流——推理模型把预算烧在思考上、正文一字节没吐时正是这个形态（KD-33），
+        // 否则会被归成重发会逐字复现的 INVALID_RESPONSE。
+        val stopReason = envelope.optionalString("stop_reason")
+        if (stopReason == TRUNCATING_STOP_REASON) {
+            throw IncompleteModelOutputException(
+                "provider stopped before the answer was complete (stop_reason=$stopReason)",
+            )
+        }
+        val text = textBlocksOf(envelope)
         if (text.isBlank()) {
             throw InvalidModelResponseException("Anthropic reply carried no text block")
         }
@@ -228,4 +242,14 @@ internal object AnthropicMessagesProtocol : ModelWireProtocol {
     private const val ANTHROPIC_VERSION = "2023-06-01"
     private const val ANTHROPIC_MAX_TOKENS = 8192
     private const val ANTHROPIC_TEMPERATURE = 0.1
+
+    /**
+     * 上游声明"这次生成被截断"的 `stop_reason`（官方 SDK `StopReason` 里表示达到 `max_tokens`
+     * 输出上限的那一个）。与 Chat Completions 的 `length` 同一出口：可重试的
+     * [IncompleteModelOutputException]，不是"内容不可用"。
+     *
+     * 边界：`StopReason` 里的 `model_context_window_exceeded`（上下文窗口被占满）**不**在此列
+     * ——重发同一条请求会逐字复现，归成可重试是误导；`end_turn` / `stop_sequence` 等是正常收尾。
+     */
+    private const val TRUNCATING_STOP_REASON = "max_tokens"
 }

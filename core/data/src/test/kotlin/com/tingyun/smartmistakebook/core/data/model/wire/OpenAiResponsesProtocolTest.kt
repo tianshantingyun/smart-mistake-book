@@ -149,6 +149,50 @@ class OpenAiResponsesProtocolTest {
     }
 
     @Test
+    fun parseCompletionClassifiesAnIncompleteResponseAsIncompleteOutput() {
+        // Responses 用 status / incomplete_details 声明"这次没走完"——与 Chat Completions 的
+        // finish_reason=length 同口径：这是"这次没写完"（可重试），不是"内容不可用"。正文非空
+        // 也照判，判定看的是声明不是正文。
+        val byStatus = assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.parseCompletion(
+                body = envelopeOf("""{"questionMarkdown":"题干（被切断""", status = "incomplete"),
+                input = input,
+                modelVersion = "gpt-test",
+            )
+        }
+        assertTrue("截断原因必须写进归因", byStatus.message.orEmpty().contains("incomplete"))
+
+        // 只有 incomplete_details（status 缺失）也算声明：reason 要能进归因。
+        val byDetails = assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.parseCompletion(
+                body = envelopeOf(
+                    """{"questionMarkdown":"题干（被切断""",
+                    incompleteDetailsReason = "max_output_tokens",
+                ),
+                input = input,
+                modelVersion = "gpt-test",
+            )
+        }
+        assertTrue(
+            "截断原因必须写进归因",
+            byDetails.message.orEmpty().contains("max_output_tokens"),
+        )
+
+        // 反向：空文本但**没有**截断声明，仍是既有的 INVALID_RESPONSE（重发没有意义）。
+        assertThrows(com.tingyun.smartmistakebook.core.data.model.InvalidModelResponseException::class.java) {
+            protocol.parseCompletion(
+                body = envelopeOf("", status = "completed"),
+                input = input,
+                modelVersion = "gpt-test",
+            )
+        }
+    }
+
+    @Test
     fun streamDeltaReadsOnlyOutputTextDeltas() {
         assertEquals(
             "你好",
@@ -194,9 +238,17 @@ class OpenAiResponsesProtocolTest {
         assertNull(protocol.probeResponseText("{}"))
     }
 
-    private fun envelopeOf(text: String): String = Json.encodeToString(
+    private fun envelopeOf(
+        text: String,
+        status: String? = null,
+        incompleteDetailsReason: String? = null,
+    ): String = Json.encodeToString(
         JsonObject.serializer(),
         buildJsonObject {
+            status?.let { put("status", it) }
+            incompleteDetailsReason?.let {
+                put("incomplete_details", buildJsonObject { put("reason", it) })
+            }
             put(
                 "output",
                 buildJsonArray {

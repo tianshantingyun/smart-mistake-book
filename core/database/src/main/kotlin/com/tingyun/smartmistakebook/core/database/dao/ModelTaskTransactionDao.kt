@@ -432,7 +432,13 @@ private fun ModelTaskEntity.buildSnapshot(verifyIntegrity: Boolean): ModelTaskSn
         failureCode == null && failureMessage == null && failureRetryable == null -> null
         failureCode != null && failureMessage != null && failureRetryable != null ->
             ModelTaskFailure(
-                code = ModelFailureCode.valueOf(failureCode),
+                // 降级兜底（不是"不再校验"）：DB 里的 failure_code 是枚举名文本，旧版本读到
+                // **新版本写入**的名字（如新增 INCOMPLETE_OUTPUT 之后又装回旧包）时，裸
+                // valueOf 会抛 IllegalArgumentException，把整条读取路径（含渲染）带崩。
+                // 未知名字一律读成 UNKNOWN——失败原因显示得粗一点，好过历史行使界面打不开；
+                // "三列俱全才构造 failure"的既有契约不变（缺列仍抛，见下一分支）。
+                code = ModelFailureCode.entries.firstOrNull { it.name == failureCode }
+                    ?: ModelFailureCode.UNKNOWN,
                 message = failureMessage,
                 retryable = failureRetryable,
             )

@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.database.dao.verifyIntegrity
 import com.tingyun.smartmistakebook.core.database.entity.ModelTaskEntity
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentInput
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentOrigin
+import com.tingyun.smartmistakebook.core.model.ModelFailureCode
 import com.tingyun.smartmistakebook.core.model.ModelTaskCodec
 import com.tingyun.smartmistakebook.core.model.ModelTaskFingerprint
 import com.tingyun.smartmistakebook.core.model.ModelTaskLogicalOperationFingerprint
@@ -70,6 +71,29 @@ class ModelTaskIntegrityTest {
         assertTrue(
             runCatching { tampered.verifyIntegrity() }.exceptionOrNull() is LearningLedgerIntegrityException,
         )
+    }
+
+    @Test
+    fun `an unknown stored failure code degrades to UNKNOWN instead of throwing`() {
+        // 回滚旧版本读含新枚举名（如 INCOMPLETE_OUTPUT）的行：裸 valueOf 会抛
+        // IllegalArgumentException，把整条读/渲染路径带崩。未知名字一律读成 UNKNOWN，
+        // 三列俱全的历史行照常可渲染；合法名字仍逐字还原。
+        val unknown = entity(request()).copy(
+            failureCode = "SOME_FUTURE_CODE",
+            failureMessage = "模型这次没写完，可以重试",
+            failureRetryable = true,
+        )
+
+        assertEquals(ModelFailureCode.UNKNOWN, unknown.toSnapshot().failure?.code)
+        assertEquals(ModelFailureCode.UNKNOWN, unknown.verifyIntegrity().failure?.code)
+        assertEquals(true, unknown.toSnapshot().failure?.retryable)
+
+        val known = entity(request()).copy(
+            failureCode = ModelFailureCode.INCOMPLETE_OUTPUT.name,
+            failureMessage = "模型这次没写完，可以重试",
+            failureRetryable = true,
+        )
+        assertEquals(ModelFailureCode.INCOMPLETE_OUTPUT, known.toSnapshot().failure?.code)
     }
 
     private fun entity(request: ModelTaskRequest) = ModelTaskEntity(

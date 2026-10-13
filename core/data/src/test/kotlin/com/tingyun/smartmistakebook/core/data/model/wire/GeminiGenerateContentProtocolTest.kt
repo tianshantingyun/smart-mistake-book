@@ -123,6 +123,32 @@ class GeminiGenerateContentProtocolTest {
     }
 
     @Test
+    fun parseCompletionClassifiesAMaxTokensFinishAsIncompleteOutput() {
+        // candidates[].finishReason=MAX_TOKENS 是上游在说"这次被输出上限截断了"——与
+        // Chat Completions 的 finish_reason=length 同口径：这是"这次没写完"（可重试），
+        // 不是"内容不可用"（重发会逐字复现）。正文非空也照判，判定看的是声明不是正文。
+        val thrown = assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.parseCompletion(
+                body = envelopeOf("""{"questionMarkdown":"题干（被切断""", finishReason = "MAX_TOKENS"),
+                input = input,
+                modelVersion = "gemini-test",
+            )
+        }
+        assertTrue("截断原因必须写进归因", thrown.message.orEmpty().contains("MAX_TOKENS"))
+
+        // 反向：空文本（或只有非文本 part）但**没有**截断声明，仍是既有的 INVALID_RESPONSE。
+        assertThrows(com.tingyun.smartmistakebook.core.data.model.InvalidModelResponseException::class.java) {
+            protocol.parseCompletion(
+                body = envelopeOf("", finishReason = "STOP"),
+                input = input,
+                modelVersion = "gemini-test",
+            )
+        }
+    }
+
+    @Test
     fun streamDeltaReadsTextPartsFromEveryFrame() {
         assertEquals("你好", protocol.streamDelta(envelopeOf("你好")))
         assertNull(protocol.streamDelta("""{"candidates":[{"content":{"parts":[{}]}}]}"""))
@@ -163,7 +189,7 @@ class GeminiGenerateContentProtocolTest {
         assertNull(protocol.probeResponseText("{}"))
     }
 
-    private fun envelopeOf(text: String): String = Json.encodeToString(
+    private fun envelopeOf(text: String, finishReason: String? = null): String = Json.encodeToString(
         JsonObject.serializer(),
         buildJsonObject {
             put(
@@ -171,6 +197,7 @@ class GeminiGenerateContentProtocolTest {
                 buildJsonArray {
                     add(
                         buildJsonObject {
+                            finishReason?.let { put("finishReason", it) }
                             put(
                                 "content",
                                 buildJsonObject {

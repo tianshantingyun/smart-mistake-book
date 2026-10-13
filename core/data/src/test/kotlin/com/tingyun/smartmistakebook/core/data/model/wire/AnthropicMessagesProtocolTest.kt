@@ -141,6 +141,32 @@ class AnthropicMessagesProtocolTest {
     }
 
     @Test
+    fun parseCompletionClassifiesAMaxTokensStopAsIncompleteOutput() {
+        // stop_reason=max_tokens 是上游在说"这次被输出上限截断了"——与 Chat Completions 的
+        // finish_reason=length 同口径：这是"这次没写完"（可重试），不是"内容不可用"
+        // （重发会逐字复现）。正文非空也照判，因为判定看的是声明而不是正文。
+        val thrown = assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.parseCompletion(
+                body = envelopeOf("""{"questionMarkdown":"题干（被切断""", stopReason = "max_tokens"),
+                input = input,
+                modelVersion = "claude-test",
+            )
+        }
+        assertTrue("截断原因必须写进归因", thrown.message.orEmpty().contains("max_tokens"))
+
+        // 反向：空文本但**没有**截断声明，仍是既有的 INVALID_RESPONSE（重发没有意义）。
+        assertThrows(com.tingyun.smartmistakebook.core.data.model.InvalidModelResponseException::class.java) {
+            protocol.parseCompletion(
+                body = envelopeOf("", stopReason = "end_turn"),
+                input = input,
+                modelVersion = "claude-test",
+            )
+        }
+    }
+
+    @Test
     fun streamDeltaReadsOnlyTextDeltas() {
         assertEquals(
             "你好",
@@ -227,9 +253,10 @@ class AnthropicMessagesProtocolTest {
         }
     }
 
-    private fun envelopeOf(text: String): String = Json.encodeToString(
+    private fun envelopeOf(text: String, stopReason: String? = null): String = Json.encodeToString(
         JsonObject.serializer(),
         buildJsonObject {
+            stopReason?.let { put("stop_reason", it) }
             put(
                 "content",
                 buildJsonArray {

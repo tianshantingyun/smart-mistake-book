@@ -81,4 +81,17 @@ class CanonicalDecodeSamplingTest {
             boundedDecodeSampleSize(width = 10, height = 10, maxEdgePx = 0)
         }
     }
+
+    @Test
+    fun `crop and persistCleanImageBytes decode at the same edge budget as import`() {
+        // 三条解码路径（import / crop / persistCleanImageBytes）共用 canonicalDecodeSampleSize，
+        // 不是各写一份 `boundedDecodeSampleSize(…, 预算)`：各写一份时漏掉一处就会出现"导入
+        // 采样了、裁剪与生成图没采样"的半截口径，内存顶回 KD-32 之前的形态而无人报红。
+        // 这里钉住的是那唯一一份口径（长边 ≤ MAX_DECODE_EDGE_PX = 2048）：
+        assertEquals("3072×4096 的规范源图裁剪/生成图入库都按 1/2", 2, canonicalDecodeSampleSize(3_072, 4_096))
+        assertEquals("横竖同理", 2, canonicalDecodeSampleSize(4_096, 3_072))
+        assertEquals("长边恰好等于预算不重采样", 1, canonicalDecodeSampleSize(2_048, 1_536))
+        assertEquals("小图（批量导入 3 页的 72×96 夹具）不放大", 1, canonicalDecodeSampleSize(72, 96))
+        assertEquals("尺寸门上沿 8192×8192 → 2048×2048", 4, canonicalDecodeSampleSize(8_192, 8_192))
+    }
 }

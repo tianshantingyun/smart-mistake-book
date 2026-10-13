@@ -105,11 +105,7 @@ internal class AndroidCanonicalAssetVault(
                 // 整幅解码进内存——批量导入 3 页时实测 native 峰 190.9MB（`Native Heap`
                 // 195,449 KB）。采样只降分辨率、不放大；接受门（MAX_DIMENSION / MAX_PIXELS）
                 // 仍在**源图**的 bounds 上执行，接受范围与拒绝行为逐字不变。
-                inSampleSize = boundedDecodeSampleSize(
-                    width = bounds.width,
-                    height = bounds.height,
-                    maxEdgePx = MAX_DECODE_EDGE_PX,
-                )
+                inSampleSize = canonicalDecodeSampleSize(bounds.width, bounds.height)
             }
             decoded = BitmapFactory.decodeFile(raw.path, options)
                 ?: error("Capture pixels cannot be decoded")
@@ -138,9 +134,16 @@ internal class AndroidCanonicalAssetVault(
         val sourceFile = resolve(source)
         var decoded: Bitmap? = null
         try {
+            // KD-32 的同一条解码预算：先按长边采样再解码，别把整幅规范源图（3072×4096 =
+            // 50.3MB）解进内存——裁剪同样会在"点开一张大图里的小题"时整幅展开。裁剪区域是
+            // 归一化坐标，映射到**采样后**的位图，因此裁剪结果也在长边 ≤2048 的消费上限内。
+            val sourceBounds = decodeBounds(sourceFile)
             decoded = BitmapFactory.decodeFile(
                 sourceFile.path,
-                BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 },
+                BitmapFactory.Options().apply {
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
+                    inSampleSize = canonicalDecodeSampleSize(sourceBounds.width, sourceBounds.height)
+                },
             ) ?: error("Canonical source pixels cannot be decoded")
             val bitmap = checkNotNull(decoded)
             val bounds = region.toPaddedPixelBounds(bitmap.width, bitmap.height)
@@ -216,7 +219,12 @@ internal class AndroidCanonicalAssetVault(
         }
         var decoded: Bitmap? = null
         return try {
-            val options = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
+            val options = BitmapFactory.Options().apply {
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+                // KD-32 的同一条解码预算：先采样再解码。接受门（MAX_DIMENSION / MAX_PIXELS）
+                // 已在**源图**的 bounds 上过完，接受范围与拒绝行为逐字不变。
+                inSampleSize = canonicalDecodeSampleSize(width, height)
+            }
             decoded = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
                 ?: error("Clean image pixels cannot be decoded")
             persistBitmap(
@@ -473,29 +481,44 @@ internal class AndroidCanonicalAssetVault(
         /** 源图接受门：超过这个像素数直接拒绝（不参与解码预算）。 */
         const val MAX_PIXELS = 16_000_000L
 
-        /**
-         * 解码长边预算（KD-32，设备实测后的口径）。
-         *
-         * 消灭的失败：3072×4096 的照片按整幅 ARGB_8888 解码是 50.3MB/份（解码 + Exif 旋转
-         * 副本各一份），批量导入多页叠加把 native 堆顶到 190.9MB（`sample_import_run.txt`
-         * 00:49:08 `Native Heap Alloc 195,449 KB`，同一时刻 Dalvik Alloc 只有 13MB——
-         * 约束根本不在 Java 堆）。
-         *
-         * 取 2_048 的依据是**消费方既有的分辨率上限**，不是拍脑袋：预览
-         * （`BoundedLocalImage` MAX_PREVIEW_EDGE = 1_600）、PDF 重绘
-         * （`DeterministicMistakePdfRenderer` MAX_CLEAN_IMAGE_EDGE_PX = 2_000）、出网
-         * （`EgressImageBudget.MAX_EDGE_PX` = 2_048）都在这个值以内；规范资产再大也只是
-         * 在解码、旋转、本机 OCR（ML Kit 同样整幅读这份文件）里多占内存。
-         * 采样按 2 的幂：3072×4096 → 1536×2048（12.6MB），单份像素缓冲降到 1/4，
-         * 上限是 2048² × 4B = 16.8MB。追求打印级细节的学生原图仍留在系统相册，不经过这里。
-         */
-        const val MAX_DECODE_EDGE_PX = 2_048
-
         const val MAX_EMPTY_READS = 16
         const val JPEG_QUALITY = 95
         const val CROP_PADDING_FRACTION = 0.015
     }
 }
+
+/**
+ * 解码长边预算（KD-32，设备实测后的口径）。
+ *
+ * 消灭的失败：3072×4096 的照片按整幅 ARGB_8888 解码是 50.3MB/份（解码 + Exif 旋转
+ * 副本各一份），批量导入多页叠加把 native 堆顶到 190.9MB（`sample_import_run.txt`
+ * 00:49:08 `Native Heap Alloc 195,449 KB`，同一时刻 Dalvik Alloc 只有 13MB——
+ * 约束根本不在 Java 堆）。
+ *
+ * 取 2_048 的依据是**消费方既有的分辨率上限**，不是拍脑袋：预览
+ * （`BoundedLocalImage` MAX_PREVIEW_EDGE = 1_600）、PDF 重绘
+ * （`DeterministicMistakePdfRenderer` MAX_CLEAN_IMAGE_EDGE_PX = 2_000）、出网
+ * （`EgressImageBudget.MAX_EDGE_PX` = 2_048）都在这个值以内；规范资产再大也只是
+ * 在解码、旋转、本机 OCR（ML Kit 同样整幅读这份文件）里多占内存。
+ * 采样按 2 的幂：3072×4096 → 1536×2048（12.6MB），单份像素缓冲降到 1/4，
+ * 上限是 2048² × 4B = 16.8MB。追求打印级细节的学生原图仍留在系统相册，不经过这里。
+ *
+ * 放在文件级而不是 vault 的私有伴生对象里：它要被 [canonicalDecodeSampleSize]（以及 JVM 面
+ * 的 `CanonicalDecodeSamplingTest`）读到，才能钉住"三条解码路径同一预算"。值本身没有变化。
+ */
+internal const val MAX_DECODE_EDGE_PX = 2_048
+
+/**
+ * 规范资产**三条解码路径**（`import()`、`crop()`、`persistCleanImageBytes()`）共用的采样率：
+ * 源图长边不超过 [MAX_DECODE_EDGE_PX]。
+ *
+ * 消灭的失败：三处各写一遍 `boundedDecodeSampleSize(…, MAX_DECODE_EDGE_PX)`，改预算或新增
+ * 写入方时漏掉一处，就会出现"导入采样了、裁剪/生成图没采样"的半截口径——内存又顶回 KD-32
+ * 之前的形态，而**没有任何东西会报红**（各条路径单看都"能跑"）。这里只有一份，且是纯函数，
+ * JVM 面直接钉得住（`CanonicalDecodeSamplingTest`）。
+ */
+internal fun canonicalDecodeSampleSize(width: Int, height: Int): Int =
+    boundedDecodeSampleSize(width, height, MAX_DECODE_EDGE_PX)
 
 /**
  * 解码采样率（纯函数，JVM 面可测）：把 `width × height` 的源按 2 的幂降到长边不超过
