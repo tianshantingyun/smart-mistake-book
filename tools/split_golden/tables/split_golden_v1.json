@@ -1,0 +1,160 @@
+{
+  "evidenceGrade": "model-labeled, no human expert; two independent labelers agreed",
+  "generatedAt": "2026-10-13T14:50:48Z",
+  "pages": [
+    {
+      "boxes": [
+        {
+          "bottom": 0.32,
+          "left": 0.1,
+          "right": 1,
+          "top": 0.055
+        },
+        {
+          "bottom": 0.53,
+          "left": 0.1,
+          "right": 1,
+          "top": 0.32
+        },
+        {
+          "bottom": 0.71,
+          "left": 0.1,
+          "right": 0.98,
+          "top": 0.55
+        },
+        {
+          "bottom": 0.95,
+          "left": 0.05,
+          "right": 0.9,
+          "top": 0.71
+        }
+      ],
+      "file": "IMG20260810003928.jpg",
+      "layout": "裁边",
+      "questionCount": 4,
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.97,
+          "left": 0.02,
+          "right": 0.92,
+          "top": 0.01
+        }
+      ],
+      "file": "IMG20260810004304.jpg",
+      "layout": "整页",
+      "questionCount": 1,
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 1,
+          "left": 0.19,
+          "right": 0.92,
+          "top": 0.03
+        },
+        {
+          "bottom": 1,
+          "left": 0,
+          "right": 0.18,
+          "top": 0.03
+        }
+      ],
+      "file": "IMG20260810004353.jpg",
+      "layout": "裁边",
+      "questionCount": 2,
+      "subject": "其他"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.41,
+          "left": 0.03,
+          "right": 0.97,
+          "top": 0.255
+        },
+        {
+          "bottom": 1,
+          "left": 0.03,
+          "right": 0.97,
+          "top": 0.695
+        }
+      ],
+      "file": "IMG20260810005605.jpg",
+      "layout": "裁边",
+      "questionCount": 2,
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.1,
+          "left": 0.03,
+          "right": 0.95,
+          "top": 0
+        },
+        {
+          "bottom": 0.41,
+          "left": 0.03,
+          "right": 0.95,
+          "top": 0.15
+        },
+        {
+          "bottom": 0.61,
+          "left": 0.03,
+          "right": 0.95,
+          "top": 0.42
+        },
+        {
+          "bottom": 0.8,
+          "left": 0.03,
+          "right": 0.95,
+          "top": 0.61
+        }
+      ],
+      "file": "IMG20260810010349.jpg",
+      "layout": "裁边",
+      "questionCount": 4,
+      "subject": "其他"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.065,
+          "left": 0.13,
+          "right": 0.85,
+          "top": 0
+        },
+        {
+          "bottom": 0.81,
+          "left": 0.13,
+          "right": 0.9,
+          "top": 0.065
+        }
+      ],
+      "file": "IMG20260810011126.jpg",
+      "layout": "裁边",
+      "questionCount": 2,
+      "subject": "其他"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.98,
+          "left": 0.03,
+          "right": 0.95,
+          "top": 0.03
+        }
+      ],
+      "file": "IMG20260810011800.jpg",
+      "layout": "裁边",
+      "questionCount": 1,
+      "subject": "其他"
+    }
+  ],
+  "sampleRule": "口径：目录 C:\\Users\\听云\\Pictures\\错题数据集 共 155 个文件（全部为 .jpg，无其他类型），按文件名升序后以步长 6 截取索引 1、7、13…139，共 24 张，无重复、未做任何替换或补齐。打开情况（如实说明）：仅实际打开并肉眼查看了其中 2 张——IMG20260810003928.jpg（化学卷第 1 页带红笔订正）与 IMG20260810012103.jpg（物理卷第 10 题/实验题带红笔批注），两张内容清晰可读；其余 22 张未打开查看内容，只做了存在性与完整性核验（stat 文件大小 4.8–8.8 MB，head -c 3 | od 读出的魔数均为 ffd8ff，即合法非空 JPEG 头）。",
+  "schemaVersion": 1
+}

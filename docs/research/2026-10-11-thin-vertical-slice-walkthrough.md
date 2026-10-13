@@ -391,3 +391,154 @@ ModelFailureRecoveryTest×1（14 个函数名本节记录者已逐一 grep 核�
 - **两簇改动截至本节记录时未提交**（`git status` 逐文件核对：模型链路 16 个文件全 `M`
   ——含 `feature/tutor/.../TutorLobbyRoute.kt`；内存修复 8 个文件——6 个 `M` + 2 个新增测试 `??`）。
   提交后需把提交号补进 KD-32/KD-33 条目（"引用提交待补"）。
+
+---
+
+# 第四段（2026-10-13 设备 / 2026-10-14 记录）：4C 第一阶段——分题阻塞修复验收 + 真实模型下的下游走查
+
+> 缘起：4C 批的第一、二步（真机核验 + 金标集/准确率门）连同薄切片的收口——分题阻塞修复
+> （A1–A3）、KD-32/33 小尾巴（B1–B4）、真机核验、真实模型下的下游走查、金标与门。
+> 数据来源分四层，本节逐条标注：**①「真机核验」**（emulator-5554，APK `localFirstDebug`，
+> 2026-10-13 装机；全文见 `docs/research/2026-10-14-4c-stage1-record.md` §2）；
+> **②「下游走查」**（同机同包，16:10–16:45；截图在 `build/walkthrough-shots/`，部分黑帧）；
+> **③「独立核对」**（对①②的设备 DB / crash buffer / logcat / artifact / 源码逐条复核）；
+> **④「独立复核」**（对代码改动的静态读码 + Gradle 实跑）。
+> 本节记录者只回读了源码行号与本地证据，并实跑了 `:core:data:compileDebugAndroidTestKotlin`
+> （BUILD FAILED，见 §21）与金标 validator（PASS）；**未重跑**设备命令与 Gradle 测试套件。
+
+## 15. 本轮改动（两簇 + 小尾巴）
+
+### 15.1 分题阻塞修复（A1–A3 → KD-34）
+
+| 主题 | 落点 |
+| --- | --- |
+| A1 双变体提示词 | `OpenAiModelTaskAdapters.kt:100-139`：多页关系请求（`followingSourceAssets` 非空）专属变体——decision 限 PASS/RECAPTURE/NEED_MORE_IMAGE、禁 SPLIT、questionRegions 空、不报 MULTIPLE_QUESTIONS；`followingPageRelations` 规则与单页逐字相同 |
+| A2 契约减负 | `CaptureAssessmentTasks.kt:110-127`：删 2..12/唯一/尺寸/重叠四条 require 及常量，只留 `decision == SPLIT || questionRegions.isEmpty()` 形状 |
+| A2 职责下移 | 判据移入 core:domain `isUsableSplitRegionSet()`（`CaptureWorkflowRepository.kt:375-379`）；两个自动拆分入口过门：`captureAutoSplitRegionsUsable`（`CaptureModelTaskPolicy.kt:76-78`；`CaptureModelTaskCommands.kt:63-70` 不通过 → `CAPTURE_SPLIT_FAILED`、不切、整页草稿、可重试、手动框选保留）、`BatchSplitRecognizer.kt:86-87`（不通过 → `BatchSplitOutcome.NotASplit`） |
+| A3 回归钉子 | `ModelTasksTest.pageRelationAssessmentToleratesPageWideQuestionRegions`、`OpenAiCaptureAssessmentAdapterTest` 两例、`BatchImportRepositoryInstrumentedTest.pageWideSplitRegionsDoNotKillThePageBoundaryEvaluation`（**该例编译不过，见 §19/§21**） |
+
+（根因、curl 复现读数与判定复刻见 KD-34 与 4C 记录 §2。）
+
+### 15.2 KD-32/33 小尾巴（B1–B4 → 两条 KD 的 2026-10-14 补记）
+
+- B1 三协议族截断分流（Anthropic `stop_reason=max_tokens` / Gemini `finishReason=MAX_TOKENS` /
+  Responses `status=incomplete`）→ `IncompleteModelOutputException`；
+- B2 `crop()`/`persistCleanImageBytes()` 与 `import()` 同一采样口径
+  （`AndroidCanonicalAssetVault.kt:108/145/226/509/520-521`）；
+- B3 `ModelTaskTransactionDao.buildSnapshot` 未知 failure code 降级 UNKNOWN（`:440-441`）；
+- B4 `MODEL_TASK_CEILING_MILLIS` KDoc 改"每一轮"口径（`RoomModelTaskRepository.kt:1066-1083`）。
+
+## 16. 真机核验要点（4C①；全文见 4C 记录）
+
+- 环境前提与本轮任务书冲突：emulator 为 `-wipe-data` 启动、包未装、无模型配置 ⇒ 核验方用应用内
+  设置重建了配置（值同任务书指定；key 未回显、未入库）——"是否算『重新注入』"留给 owner 判读。
+- **边界评估不再 INVALID_RESPONSE**：`batch-boundary-79303d32…` SUCCEEDED / 54,881ms /
+  decision=PASS / `followingPageRelations=[NEXT_QUESTION×6]`；页 0–5 `NEXT_QUESTION`、
+  page6=PENDING。（§13 遗留的"边界评估仍 INVALID_RESPONSE"至此闭环。）
+- 口径偏差：任务书写"两页窗口/两张图"，实际失败请求带 **3 张图**（3 页→2 个 boundary→同窗一次
+  请求）；补跑 2 图同形态失败 ⇒ 不依赖窗口大小。
+- 页级 organize 仍有 2/7 不可重试 INVALID_RESPONSE（未归因）；导出 7 页 8 框，只有 2 页有分题
+  输出；本次 relations 全 `NEXT_QUESTION` ⇒ 没有真的发生跨页合并。
+- 3 张截图黑帧（应用窗口渲染失效，重启恢复）；设备改动（LatinIME disable）已还原。
+
+## 17. 下游走查（入库 → 复习 → 判定 → 档案）
+
+前提：从 4C 核验的 7 页批次里，page_index=1（金标 `…004304` 页）先经页面草稿「存入错题本」
+入库 1 条（problem / revision / entry / practice_unit 各 1）。**断在第三步「判定」**；入库与
+复习两步成立、档案一步如实为空。
+
+### 17.1 入库
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| 有该题（库） | 通过 | problem 1 行 `problem-69b9cf95…`（subject=GENERAL，created 16:10:39 GMT）；entry 1 行（ACTIVE，`source_key=capture:draft-dd39411583c976626ea29f5e1a70f9c6`）；practice_unit 1 行（unit_key=whole-problem）；revision 1 行（title「16. 高效广谱的氯胺型缓释消毒剂二氯海因 DCDMH 的制备与含量测定」，source_type=CAPTURE_CONFIRMED） |
+| 界面可见 | 通过（**冷启动后**） | 冷启动后错题本「1 道题 / 科目 GENERAL (1) / 16. …」；`library_catalog` count=1 |
+| **异常：入库后同进程内仍空态** | 失败（已观察，未受控复现） | 题 16:10:39 已落库；同一进程 16:21:21 与 16:23:45 两张截图仍「还没有错题」；冷启动即出现。读码归因（未验证）：`LibraryRoute.kt:95-97` mistakeCount ← `uiState.totalCount`、`:128-132` 据此判 CATALOG_EMPTY；`LibraryViewModel.kt:112-113` bindRepository 同实例直接 return、返回 tab 无刷新入口 |
+
+### 17.2 复习
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| 新题排入「今日复习」、理由含 NEWLY_ADDED | 通过 | review_plan 2 行（local_date=2026-10-13、planner_version=review-planner-v4）；review_queue_item 1 行（ordinal=0、PLANNED、MEDIUM、estimated=60s）；review_queue_reason 4 条 = CALIBRATION_CHECK / MISSING_KNOWLEDGE_EVIDENCE / **NEWLY_ADDED** / WEAK_KNOWLEDGE |
+| 「开始今日复习」→ 会话建立、停在第 1 题 | 通过（会话建立；题目未推进） | `review-session-d537c2d2…` IN_PROGRESS/current_ordinal=0/state_version=0；UI「第 1 / 1 题 · 复做你保存的原题」+ 原题全文 +「去讲题判定」 |
+
+### 17.3 判定（断点）
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| ① 「去讲题判定」首轮讲解 | **失败** | 点入后直接「这道题的讲解没有准备好。」（`tutor_conversation` +1 行、`model_task` 无新行）；点 composer「重试」→ `model-task-4249c8a1…`（TUTOR_PLAN，流式「正在思考…」）最终 PERMANENT_FAILURE / VALIDATING_OUTPUT / attempt_count=1 / INVALID_RESPONSE / retryable=0 /「这次没有准备好题面，请重新处理」 |
+| ② 失败卡的「重试」 | **失败（App 崩溃）** | crash buffer 唯一一条 FATAL EXCEPTION（10-13 16:29:47.276，PID 13813）：`ImmutablePayloadConflictException: model_task tutor-plan:07c06a7e…tutor-plan-v18-figure-conditional:0 already exists with a different payload`，`ModelTaskTransactionDao.kt:233`（`sameImmutableRequest` 守卫；异常未捕获到主线程），进程消失。读码：同 requestId + 不同 payload（含 occurredAt/createdAt）即抛 |
+| ③ 改走 composer「重试」 | **失败（判定未产生）** | 崩溃重启后首页变「继续今日复习」（16:32:33）、会话仍 IN_PROGRESS；重进「去讲题判定」不建任务；再点 composer「重试」→ 第二条 TUTOR_PLAN `model-task-442cef59…` SUCCEEDED（16:39:33）；讲题页出讲解 + 本地检查题（4 选项）；点提交 choice-2（`$n(Na_2S_2O_3) = 2\,n(DCDMH)$`）后选项全 `enabled=false`、零持久化：`tutor_message` 仍只 1 行（ASSISTANT，choice 字段全 NULL）、无新 model_task / assessment_event / presentation；等待 ≥2 分钟无变化 |
+| ④ 结算核对 | **失败（全空）** | attempt_submission 0、review_log 0、attempt_event 0、assessment_evidence_attribution 0、independent_correct_observation 0；review_session 仍 IN_PROGRESS/0/0；队列项仍 PLANNED、reason_snapshot 不变（`review_log.source_kind` 列在但无行可查） |
+
+旁证两条（机制未验证）：每次进讲题都新建 tutor_conversation（共 4 行、3 行 last_turn_ordinal=0）；
+崩溃重启后需 composer 重试才能重走。
+
+### 17.4 档案
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| 学习掌握无知识点行 | 通过（如实为空） | 整页空态「还没有学习记录 / 你做过并保存的题会自动整理到相应科目和知识点」 |
+| 掌握度/归因表行数与归因 | 通过（0/0，与既有设计一致） | `learner_knowledge_mastery_state=0`、`applied_attempt_record=0`、`learner_problem_memory_state=0`、`problem_classification_binding=0`；`knowledge_node=4168`（不是缺目录）；唯一归属是伪兜底 `practice_unit_knowledge_binding` → `pseudo:GENERAL` / PSEUDO_FALLBACK。归因两层：本次判定根本没结算（`TutorJudgedReviewSettler.kt:88` 无判词 → NO_VERDICT 不写不推进）；即便结算，该通道按设计也不写归属（`:128-129` `attributions = emptyList()`，注释"只驱动题目级排期，不碰知识点掌握度"） |
+
+### 17.5 本段走查结论
+
+断在第三步「判定」：讲题首轮失败 → 失败卡的唯一出口「重试」**直接把 App 打崩**
+（`ImmutablePayloadConflictException`）→ 换 composer 重试能出题，但提交后 UI 锁死、零持久化
+⇒ attempt_submission / review_log / review_session 全部零推进。没有清数据、没有改代码；
+唯一干预是崩溃后 `am force-stop` + `am start` 重启，以及一次冷启动用于区分"陈旧计数"与"查询为空"。
+
+## 18. 金标集与准确率门（4C②；全文见 4C 记录 §3-§4）
+
+- 金标集 `tools/split_golden/`（工作树未提交）：7 页 16 框，sha256 `f9e92c47…`，validator
+  C1–C6 全绿（本记录者实跑，退出码 0）；证据等级 model-labeled, no human expert。
+- 度量：题数完全一致率 0.2857（2/7）、边界 IoU≥0.5 题占比 0.4375（7/16，2 页内 7/8=0.875）、
+  切残率 0（0/16）。
+- 门（计划建议值 ①≥0.9 且 ③≤0.05）→ **false**；**门后自动化未启用**（本批不做 4C③）。
+
+## 19. 更正与复核（引用前必读）
+
+**独立核对（对真机核验/下游走查材料）**：核心事实逐条成立，更正三处：
+1. 「canonical_source_asset 11 行」不成立 → 实测 15 = 7 整页 + 8 窄条（与"2 页各 4 框"自洽）。
+2. 「入库③」点名的 artifact 是 launcher 截图（引用名错配）——观察本身另有 16:21/16:23 两张空态截图证据。
+3. `known-defects.md:1233-1238` 引用错位（该处实为 KD-33 症状段）；旧抛点文本在 git HEAD `CaptureAssessmentTasks.kt:126`。
+4. 部分可核：logcat 已轮转（`IllegalArgumentException=0` 只覆盖 16:23:54 之后）；能力测试
+   200/401 原始行不可见；金标文件在核对方检索路径（docs、knowledge-production、out/build）
+   未找到——实际在 `tools/split_golden/`（本记录者已验证）。
+5. 独立核对另发现 draft-583b094e 的 `CAPTURE_PARSE=PROVIDER_REJECTED_INPUT`（真机核验材料未提及）。
+
+**独立复核（对代码）**：A1–A3 方向正确、两个自动拆分入口都有消费侧判据
+（`CaptureModelTaskPolicy.kt:78/88`、`BatchSplitRecognizer.kt:86/96/110`，无漏掉的调用点）；
+B1–B4 无语义误伤。未闭合四处（详见 KD-34/33/32 补记）：A3① 钉子编译不过（high，本记录者已
+复现）；多页轮契约容错只覆盖 SPLIT+区域 形状；B1 只覆盖非流式（三族流式重建体不带声明）；
+A3 对已落库 INVALID_RESPONSE 的边界窗口无效。另核实：被删符号
+（`isUsableQuestionRegion`/`overlapRatioOfSmaller`/`MIN|MAX_SPLIT_REGION_COUNT`）全仓零残留引用；
+`ModelPromptPolicyVersions.CAPTURE_DOCUMENT` 未 bump（涉及已落库 manifest 授权，留给 owner）；
+手动框选与「自动/手动框选」选择卡不受区域判据影响（`CaptureScreen.kt:556-568` 仍只在 Run 时出卡）。
+
+## 20. 本段结论与 KD 状态
+
+- **KD-34 登记为 fixed（2026-10-14，提交待补；A3① 钉子编译不过）**：跨页关系判定复用单页分题
+  契约 → 修提示词（A1）+ 职责下移（A2）+ 钉子（A3）；设备实证边界评估 SUCCEEDED。
+  **A3① 端到端钉子在当前树编译不过 ⇒ "端到端回归已覆盖"不成立，修好前不得如此声称。**
+- **KD-33 补记**：①⑤⑥ 未覆盖项已补（B1/B4/B3，工作树未提交），残留见条目；②③④ 维持；
+  新包页级 CAPTURE_ASSESS 2/7 不可重试 INVALID_RESPONSE（未归因）一并记录。
+- **KD-32 补记**：① 已补（B2，工作树未提交）；② 仍缺——设备级用例被 androidTest 编译错误挡死。
+- 下游走查新增三条 KD 级观察（本段 §17）：`ImmutablePayloadConflictException` 崩溃（失败卡重试）、
+  讲题提交零持久化锁死、错题本同进程陈旧空态。**三条均未登记 KD 编号，本次仅如实记录，
+  是否成条/归属留给 owner。**
+
+## 21. 本轮执行的验证 vs 未验证（避免误读）
+
+- **本记录者实跑**：`./gradlew.bat --offline :core:data:compileDebugAndroidTestKotlin` →
+  BUILD FAILED（`:500:39`/`:509:34` 两处 Unresolved reference，见 §19）；
+  `python tools/split_golden/validate_split_golden.py` → PASS 退出码 0；
+  读取类核对（源码行号、golden JSON、`build/split-eval/*`）。
+- **未跑**：设备命令（全部引用他方材料）；Gradle JVM 套件（引用独立复核实跑：`:core:domain:test`
+  7/0、`ModelTasksTest` 31/0、`OpenAiCaptureAssessmentAdapterTest` 5/0、`CanonicalDecodeSamplingTest`
+  6/0、三协议族测试 13/11/12、`CaptureModelTaskPolicyTest` 10/0、`ModelTaskIntegrityTest` 5/0）；
+  准确率度量重算；双标注过程重放。
+- **不可证**：logcat"全程无异常"（ring 轮转）；黑帧时刻的截图断言（以 dump 文本为准）。
+
+**修复与提交状态**：本段涉及的代码改动（A1–A3、B1–B4）截至本节记录时均为**工作树未提交**；
+KD-34/32/33 的提交号待补。

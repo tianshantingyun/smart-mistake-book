@@ -1151,7 +1151,7 @@ logcat 两探针均 `status=400 bodyBytes=195`；curl 复现服务端错误体�
 **Reopen condition.** 该服务商改用其它鉴权/路由要求，或第二个服务商出现同类必填头时，
 把兼容头机制从"host 判定"升格为可配置项。
 
-## KD-32 (open, 2026-10-11 登记；2026-10-13 两处峰值已修，剩余见下) · 192MB 堆上限下的内存天花板：知识包安装与批量导入 OOM
+## KD-32 (open, 2026-10-11 登记；2026-10-13 两处峰值已修、2026-10-14 B2 补 crop/persist 采样，剩余见下) · 192MB 堆上限下的内存天花板：知识包安装与批量导入 OOM
 
 **Symptom.** test_device（API 34，4 vCPU/1536MB，应用堆上限 192MB，manifest 无 `largeHeap`）
 上走查观测到三处同源失败：
@@ -1222,10 +1222,26 @@ Dalvik Heap Alloc 峰 25,670 KB（走查报 19,116 KB 系读错列，独立核�
   字节精确区间（不再折叠 ASCII 大小写/不再把 `_`/`%` 当通配符；对现有小写稳定码等价）。
 - ⑥ 仪器化用例覆盖 3 页插入与幂等，但没有"跨段退役"断言。
 
+**2026-10-14 补记（B2，工作树未提交）· 未覆盖项状态：**
+
+- ① **已补**：`crop()`（`AndroidCanonicalAssetVault.kt:145` 先 `decodeBounds` 取源尺寸、再设
+  `inSampleSize`）与 `persistCleanImageBytes()`（`:226`，用它已有的 bounds）与 `import()`
+  （`:108`）现在共用同一采样口径 `canonicalDecodeSampleSize`（`:520-521`）；`MAX_DECODE_EDGE_PX`
+  移到文件级 internal const（`:509`，值仍 2048）。
+- ② **仍缺**：JVM 单测钉的是三条调用点传给 `inSampleSize` 的采样率（纯函数），**并未真正执行
+  Android 解码**；crop/persist 的解码行为仍只在仪表化覆盖，且既有仪表化夹具 ≤2048px（采样=1，
+  行为不变）；>2048 源图的分辨率语义变化对 OCR/裁剪精度的影响仍未验证。设备级用例当前**跑不
+  起来**——整个 core:data androidTest 源集被 KD-34 的钉子编译错误挡死（本轮记录者实跑
+  `./gradlew.bat --offline :core:data:compileDebugAndroidTestKotlin` → BUILD FAILED）。
+- ③④⑤⑥ 本轮未动（维持原状）。
+- 单测更新：`CanonicalDecodeSamplingTest` 新增「crop and persistCleanImageBytes decode at the
+  same edge budget as import」（3072×4096→2、4096×3072→2、2048×1536→1、72×96→1、8192×8192→4；
+  独立复核实跑 6/0/0）。
+
 **Reopen condition.** 再次出现 OOM/知识包横幅时按本条继续；或触及裁剪/重绘路径的整幅解码
 （①）与采样路径的设备用例（②）时——补齐①②后本条可结。
 
-## KD-33 (fixed 2026-10-13，提交 `e3de72f8`；OpenAI Chat Completions 协议族) · 推理型模型在 CAPTURE_ASSESS 上高概率 TIMEOUT/INVALID_RESPONSE
+## KD-33 (fixed 2026-10-13，提交 `e3de72f8`；OpenAI Chat Completions 协议族；2026-10-14 三协议族补齐见补记) · 推理型模型在 CAPTURE_ASSESS 上高概率 TIMEOUT/INVALID_RESPONSE
 
 **Symptom.** `deepseek-v4.1-flash`（opencode zen）在「分题 / 单页整理」上：`model_task`
 记录 1 成功 / 3 永久失败（2×INVALID_RESPONSE「这次没有准备好题面」）/ 2 可重试失败
@@ -1289,7 +1305,144 @@ AppFailureMapping×1、ModelFailureRecovery×1；独立复核计作「A2/A3/A4 �
 - ⑥ DB 读路径 `ModelTaskTransactionDao.kt:435` 仍是裸 `valueOf(failureCode)`，回滚旧版本
   读含新枚举的行会抛（仅降级方向）。
 
+**2026-10-14 补记（B1–B4，工作树未提交）· 未覆盖项逐条状态：**
+
+- ① **已补三条协议族的截断分流**：Anthropic `stop_reason=max_tokens` → `IncompleteModelOutputException`
+  （`AnthropicMessagesProtocol.kt:122-123`，常量 `:254`）；Gemini 任一条 `finishReason=MAX_TOKENS`
+  （`GeminiGenerateContentProtocol.kt:134-136`/`:149-152`，常量 `:282`）；Responses `status=incomplete`
+  或非空 `incomplete_details`（`OpenAiResponsesProtocol.kt:110-112`/`:130-135`，常量 `:276`）。
+  三条都在"文本为空"判定之前分流；空文本且无声明仍抛原 `InvalidModelResponseException`。
+  **残留（独立复核 medium，未修）**：只读点名的声明——Gemini SAFETY/PROHIBITED_CONTENT、
+  Anthropic `model_context_window_exceeded`、Responses `failed` 未分流；三族协议的**流式重建体
+  不带声明**（`reconstructedBody`），而网关终态解析吃重建体、tutor 类任务恰走流式 ⇒ 这三族下
+  tutor 答复被截断仍会当完整答复落库。
+- ② 维持：判定不看正文（声明命中即抛，完整可解析的答复也丢），本轮未改。
+- ③ 维持：重试出口仍受派遣预算限制。
+- ④ 维持：流式 `tool_calls` 轮 `content=null` 形态仍判不可重试，是否真实发生未验证。
+- ⑤ **已修**：KDoc 改为"**每一轮** `gateway.execute` 的防呆安全上限（600s）"，写明一条任务
+  最多派遣 `MAX_DISPATCHES=6` 轮（5 轮工具 + 1 轮终答）⇒ 本地占用上限约 6×600s=3_600s
+  （值不变；本轮记录者回读 `RoomModelTaskRepository.kt:1066-1083`，与实现逐条对上）。
+- ⑥ **已修 failureCode 一处**：`ModelTaskTransactionDao.buildSnapshot` 改为
+  `ModelFailureCode.entries.firstOrNull { it.name == failureCode } ?: ModelFailureCode.UNKNOWN`
+  （:440-441）；"三列俱全才构造 failure、缺列仍抛"的契约不变。**残留**：同函数的
+  `ModelTaskStatus.valueOf` / `ModelTaskStage.valueOf` 仍是裸 `valueOf`（本轮范围只点 failureCode，未动）。
+- 新增钉子（独立复核实跑）：`AnthropicMessagesProtocolTest` 13/0、`GeminiGenerateContentProtocolTest`
+  11/0、`OpenAiResponsesProtocolTest` 12/0、`ModelTaskIntegrityTest` 5/0（含未知 failure code
+  降级 UNKNOWN 用例）。本节记录者**未重跑**这些 Gradle 目标。
+
+**2026-10-14 设备补记（新包，未归因）.** 页级 organize 的 CAPTURE_ASSESS 在新包上仍有
+**2/7 PERMANENT_FAILURE / INVALID_RESPONSE**（page2/page6，`failure_retryable=0`、
+attempt_count=1）——"按新口径失败可重试"没有出现；本轮无 curl 复现、logcat 已轮转，**未归因**，
+不构成本条重开（无法证明是截断形态）。另观测到第 8 个 draft-583b094e（复用 page5 资源）的
+`CAPTURE_PARSE` 以 `PROVIDER_REJECTED_INPUT`（"题图检查未通过"）失败，一并记录、不归因。
+
 **Reopen condition.** 上述未覆盖项被真实观测命中时重开——尤其第二个协议族出现
 "截断却仍判 INVALID_RESPONSE"，或流式 tool_calls 轮被结构性判死时；换用非
 Chat Completions 协议跑分题/整理前，按①补齐。
+
+## KD-34 (fixed 2026-10-14，提交待补；A3① 端到端钉子编译不过，见「回归钉子」) · 跨页关系判定复用单页分题契约 ⇒ 批量边界评估整轮 INVALID_RESPONSE
+
+**Symptom.** 整卷「开始分题」的**边界评估**（页间关系）落
+`PERMANENT_FAILURE / INVALID_RESPONSE / stage=VALIDATING_OUTPUT`。设备实测（2026-10-12
+19:13:22，emulator-5554，`com.tingyun.smartmistakebook.localfirst`）：
+`model_task subject_id=batch-boundary-d15aaac1bd58d0e7e171d0ce75fe0b30`，
+`request_snapshot`＝`sourceAssetId=asset-6a75ebb8…` + `followingSourceAssets[2]{237e6638…,12f62890…}`；
+这三张图（1536×2048，长边 2048）正是 job `batch-6ba9eefe`（3 页）的页。旧版 logcat 抛
+`IllegalArgumentException: Only a split decision may contain two to twelve question regions`
+（HEAD 版 `CaptureAssessmentTasks.kt:126`；该 message 在主树只此一处——`git grep` 仅命中 :126）。
+
+**Root cause（curl 复现实测，2026-10-13）.**
+
+- **契约错配**：边界请求把整窗图**一次性**送入（`pageRelationRequest`，
+  `RoomBatchImportRepository.kt:557-597`；一次请求喂整窗、结果只消费
+  `followingPageRelations` :289 与 `decision` :295；`MAX_BOUNDARIES_PER_MODEL_REQUEST=7`
+  :600 ⇒ 一次最多可送 8 张图），却复用单页分题契约：`decision=SPLIT` 时
+  `questionRegions.size ∈ 2..12`、非 SPLIT 必须为空（HEAD `CaptureAssessmentTasks.kt:120-126`），
+  其后还排着唯一性/最小尺寸/两两重叠三条 require。**真实失败窗为 3 张图**（3 页→2 个
+  boundary→同窗一次请求），不是本轮任务书写的"两页窗口/两张图"；另补跑 2 图同形态失败 ⇒ 结论不
+  依赖窗口大小。
+- **提示词邀请**：多图分支（`OpenAiModelTaskAdapters.kt:89-111`）只追加
+  `followingPageRelations` 规则，SPLIT 的"每道题完整外接区域"指令原样保留 ⇒ 3 页整卷被
+  数出 25 道题，模型就给了 25 个区域——是提示词邀请的结果，不是模型跑偏。
+- **模型实际返回**（按应用口径 curl 复现：system prompt + user[text+image_url detail=high]、
+  temperature 0.1、response_format json_object、无 max_tokens；三次均 HTTP 200）：3img#1
+  `questionRegions=25`（131.9s，completion 12,457 / reasoning 11,417）；3img#2 `=9`
+  （109.9s，13,249/12,937）；2img#1 `=19`（85.9s，10,213/9,666）。三次 decision 全 SPLIT、
+  `finish_reason=stop`（非截断）、wire keys 恰为五键（`OpenAiModelResponseParsing.kt:127-131`）、
+  JSON 合 schema——**只有数组长度越界，且同一 payload 一次 25 一次 9（不稳定）**。区域是逐页
+  0..1 坐标、顶边按页重启（run1 三段 0.08→0.98 / 0.05→0.95 / 0.08→0.68），报文里没有任何
+  页码可供归属。
+- **判定复刻**（`check_contract.py` 按 :110-139 的 require 顺序在 Python 复刻）：25 → 计数条
+  FAIL（另有 distinct=24、max pairwise overlap=1.000——后续唯一/重叠两条在排队）；19 → FAIL；
+  9 → 四条全过 ⇒ 落在 12 以内就静默通过，表现为**间歇性** INVALID_RESPONSE、重发可能"自己好了"。
+  （"先命中计数那条"依据书写顺序与 message 唯一推断，未在设备上重放该 payload 取证。）
+- 职责上本就无法消费：questionRegions 是页内归一化坐标、无页码；跨页一维数组的配对去重/
+  重叠判定没有物理意义，而边界流程只读 `followingPageRelations` + decision。
+  （curl 复现用的 API Key 只出现在 `-H` 参数里，未写入任何文件。）
+
+**Fix（2026-10-14，工作树；提交待补）· 修提示词 + 职责下移：**
+
+1. **A1 双变体提示词**（`OpenAiModelTaskAdapters.kt:100-139`）：`followingSourceAssets` 为空
+   = 单页变体逐字保留；非空 = 多页关系变体，decision 限 PASS/RECAPTURE/NEED_MORE_IMAGE、
+   不得 SPLIT、questionRegions 必须为空、不得报 MULTIPLE_QUESTIONS（契约里它与 SPLIT 绑定，
+   在这里报同样被拒）；`followingPageRelations` 规则与单页版逐字相同。
+2. **A2 契约减负 + 消费侧定判**：模型层（`CaptureAssessmentTasks.kt:110-127`）删掉
+   2..12 计数/非 SPLIT 必须空/唯一性/最小尺寸/两两重叠四条 require 及常量，只留形状约束
+   `decision == SPLIT || questionRegions.isEmpty()`（:125-127）；规则下移 core:domain
+   `List<NormalizedSourceRegion>.isUsableSplitRegionSet()`（`CaptureWorkflowRepository.kt:375-379`，
+   阈值常量 :381-386），两个自动拆分入口过门：`captureAutoSplitRegionsUsable`
+   （`CaptureModelTaskPolicy.kt:76-78`）由 `maybeSplit` 自动提交前调用——不通过即
+   `CAPTURE_SPLIT_FAILED`、不切、整页草稿、可重试、手动框选入口保留
+   （`CaptureModelTaskCommands.kt:63-70`）；`BatchSplitRecognizer.kt:86-87` 不通过返回
+   `BatchSplitOutcome.NotASplit`（页已进库，只放弃这次增强）。
+3. 断言迁移未删语义：`CaptureSplitRegionSetTest`（7 例）与 `CaptureModelTaskPolicyTest`
+   两个门用例接管被删断言，ModelTasksTest 补 `nonSplitAssessmentCannotCarryQuestionRegions`
+   钉住保留的形状约束。
+
+**回归钉子（A3）.**
+
+- 契约/解析层：`ModelTasksTest.pageRelationAssessmentToleratesPageWideQuestionRegions`（SPLIT+21
+  regions 原样接收）、`OpenAiCaptureAssessmentAdapterTest` 的「page relation prompt forbids
+  splitting and keeps the relation rules」「page relation response keeps page wide question
+  regions parseable」（独立复核实跑 31/0、5/0 全绿）。
+- 端到端：`BatchImportRepositoryInstrumentedTest.pageWideSplitRegionsDoNotKillThePageBoundaryEvaluation`
+  （UNSURE → KEPT_SEPARATE、两页各留草稿、`splitReadyJobId` 为空）。
+- **钉子现状（本轮记录者实跑）**：`./gradlew.bat --offline :core:data:compileDebugAndroidTestKotlin`
+  → **BUILD FAILED**：`:500:39 Unresolved reference 'remainingBoundaryCount'`、
+  `:509:34 Unresolved reference 'splitReadyJobId'`（`BatchImportRepositoryInstrumentedTest.kt`——
+  `database.readBatchImportJob(...)` 返回 `BatchImportJobRecord`，`StudyDatabaseRecords.kt:1191-1199`
+  不含这两个属性；它们是域类型 `BatchImportJob` 的成员，`core/domain/BatchImportRepository.kt:79`/`:104`）。
+  **修好前：A3① 端到端钉并不存在，且整个 core:data androidTest 源集（另 6 个套件，含规范资产
+  解码路径的唯一设备级覆盖）无法编译运行。** 修法提醒（独立复核）：不要直接换
+  `completed.splitReadyJobId`——该快照取自 organizeBatch 之前，会变成空断言；应在 organizeBatch
+  后重读 `observeBatchImports()`，边界判定改用 `pages[].boundaryAfterStatus` 表达。
+
+**验收（设备实测 2026-10-13）.**
+
+- 新包整卷「开始分题」的边界评估不再 INVALID_RESPONSE：
+  `model-task-cd3084cc69973877c20716fa3f6f0fcf`（subject `batch-boundary-79303d32…`）
+  SUCCEEDED / COMPLETE / 无 failure_code / attempt_count=1 / 54,881ms；`output_snapshot`
+  decision=PASS、`followingPageRelations=[NEXT_QUESTION×6]`；`batch_import_page` page 0–5
+  `boundary_after_status=NEXT_QUESTION`、page6=PENDING（与 6 条关系自洽）。详见
+  `docs/research/2026-10-14-4c-stage1-record.md`。
+- 口径边界：logcat `IllegalArgumentException` 计数=0 只覆盖 16:23:54 之后（256KB ring；
+  边界任务 15:48 发生）——"全程为 0"不可证（独立核对）。
+- 同窗口观测（另行记账，不属本条）：页级 organize 的 CAPTURE_ASSESS 仍有 2/7 不可重试
+  INVALID_RESPONSE，本轮未归因（见 KD-33 补记）。
+
+**未闭合（独立复核 2026-10-14，读码级）.** 契约容错只覆盖 SPLIT+区域 一种形状——
+`multipleQuestionIssues.isEmpty() || decision == SPLIT`（:114-116）对多页关系请求同样生效，
+模型回 MULTIPLE_QUESTIONS + RECAPTURE 仍可整轮打死、relations 一起丢（请求侧约束拦不住
+不合规响应；medium）；已落库的旧 INVALID_RESPONSE 边界窗口不会被本修复救活——边界轮
+requestId 确定性（`stableId("batch-page", jobId:windowKey)`，`RoomBatchImportRepository.kt:582`），
+`createModelTask` 对已存在 requestId 直接返回旧行（`RoomModelTaskRepository.kt:214-224`），
+且 INVALID_RESPONSE 不可重试（`OpenAiCompatibleModelGateway.kt:840-843`）⇒ PERMANENT_FAILURE
+属终态（`ModelTasks.kt:39-40`）⇒ 每次重新整理重放同一条已存失败、永不重派发（读码推断，
+未实跑；验证它的集成测试正是编译不过的那条）；低级别残留：
+`OpenAiModelResponseParsers.kt:126-127` 注释仍称模型层兜 questionRegions 契约（A2 已作废）、
+`CaptureWorkflowRepository.kt:427` 仍有第三份 `splitDrafts.size in 2..12` 硬编码。
+
+**Reopen condition.** 多页关系轮再次落 INVALID_RESPONSE（尤其模型回 MULTIPLE_QUESTIONS/
+非空 regions 的形态）；A3① 钉子修好前，不得声称本条"端到端回归已覆盖"；旧 job 的 FAILED
+边界窗口若被要求复活，按「未闭合」第二条另修（requestId 口径）。
 
