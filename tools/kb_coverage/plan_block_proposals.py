@@ -32,12 +32,14 @@ from pathlib import Path
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 from kb_build import gate, pack_io  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage.extraction_state import subject_of_path  # noqa: E402
 from kb_coverage.plan_new_nodes import canonical, fallback, norm, rules  # noqa: E402
 
 REPO = TOOLS.parent
 VERDICTS = REPO / "knowledge-production" / "judgment-verdicts"
-JUDGMENTS = REPO / "tools" / "kb_coverage" / "tables" / "material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGMENTS = judgments.parts_dir()
 OUT_JSON = REPO / "build" / "agent-input" / "block_proposals_plan.json"
 OUT_CSV = REPO / "build" / "agent-input" / "block_proposals_plan.csv"
 MANUAL_COLS = ("subject", "slug", "name", "kind", "parent_topic_slug", "boundary", "source_locator")
@@ -97,19 +99,18 @@ def collect() -> tuple[dict[str, str], dict[str, dict], list[str]]:
                     })
     # 判定表里可能还有早前合并进来的提案行
     if JUDGMENTS.exists():
-        with JUDGMENTS.open(encoding="utf-8-sig", newline="") as fh:
-            for row in csv.DictReader(fh):
-                note = row.get("note") or ""
-                for subj, name in NEW_RE.findall(note):
-                    key = name.strip()
-                    if key and key not in evidence:
-                        subject_by.setdefault(key, subj)
-                        evidence.setdefault(key, {
-                            "subject": subj, "name": key,
-                            "chunk_rel": row.get("chunk_rel") or "",
-                            "chunk_id": row.get("chunk_id") or "",
-                            "text": (row.get("content") or "").strip(),
-                        })
+        for row in judgments.load_all(JUDGMENTS):
+            note = row.get("note") or ""
+            for subj, name in NEW_RE.findall(note):
+                key = name.strip()
+                if key and key not in evidence:
+                    subject_by.setdefault(key, subj)
+                    evidence.setdefault(key, {
+                        "subject": subj, "name": key,
+                        "chunk_rel": row.get("chunk_rel") or "",
+                        "chunk_id": row.get("chunk_id") or "",
+                        "text": (row.get("content") or "").strip(),
+                    })
     return subject_by, evidence, problems
 
 

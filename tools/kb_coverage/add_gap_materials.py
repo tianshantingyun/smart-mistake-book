@@ -13,6 +13,9 @@ import hashlib
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))  # 直跑引导
+from kb_coverage import judgments  # noqa: E402
+
 NODE = "自然资源的开发利用"
 ROWS = [
     {
@@ -76,29 +79,26 @@ ROWS = [
     },
 ]
 
-TABLE = Path("tools/kb_coverage/tables/material_judgments.csv")
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+TABLE = judgments.parts_dir()
 state = {r["rel_path"] for r in csv.DictReader(
     open("tools/kb_coverage/tables/extraction_state.csv", encoding="utf-8"))}
-existing = set()
-with TABLE.open(encoding="utf-8", newline="") as fh:
-    for row in csv.DictReader(fh):
-        existing.add((row.get("chunk_id", ""), row.get("node_slug", "")))
+rows = judgments.load_all(TABLE) if TABLE.exists() else []
+existing = {(r.get("chunk_id", ""), r.get("node_slug", "")) for r in rows}
 
 added = 0
-with TABLE.open("a", encoding="utf-8", newline="") as fh:
-    writer = csv.DictWriter(fh, fieldnames=["chunk_rel", "chunk_id", "action", "node_slug",
-                                            "type", "title", "summary", "applicability",
-                                            "content", "boundary", "note", "midx"],
-                            lineterminator="\r\n")
-    for row in ROWS:
-        assert row["chunk_rel"] in state, f"源文件不在状态机里：{row['chunk_rel']}"
-        if (row["chunk_id"], row["node_slug"]) in existing:
-            print("已存在，跳过：", row["chunk_id"], row["title"])
-            continue
-        for k, v in row.items():
-            if isinstance(v, str) and ("," in v or '"' in v):
-                raise SystemExit(f"字段含 ASCII 逗号/引号，拒绝写入：{k}={v[:40]}")
-        writer.writerow(row)
-        added += 1
-        print("追加：", row["chunk_id"], row["title"])
+appended: list[dict] = []
+for row in ROWS:
+    assert row["chunk_rel"] in state, f"源文件不在状态机里：{row['chunk_rel']}"
+    if (row["chunk_id"], row["node_slug"]) in existing:
+        print("已存在，跳过：", row["chunk_id"], row["title"])
+        continue
+    for k, v in row.items():
+        if isinstance(v, str) and ("," in v or '"' in v):
+            raise SystemExit(f"字段含 ASCII 逗号/引号，拒绝写入：{k}={v[:40]}")
+    appended.append(row)
+    added += 1
+    print("追加：", row["chunk_id"], row["title"])
+if added:
+    judgments.write_all(rows + appended, TABLE)
 print("新增行数：", added)

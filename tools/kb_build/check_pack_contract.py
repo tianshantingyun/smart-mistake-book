@@ -17,6 +17,8 @@
 - 别名：非空、首项是主名、无重复、长度 ≤256
 - 同主题内节点重名
 - 五张权威表↔包一致性（见 `check_table_consistency` 的逐表语义）
+- F9：`material_bindings` 的欠账三桶（节点缺/空/欠账）≤ 具名基线（见
+  `material_binding_gate`；报告型计数 report_only_counts 的进门通道）
 
 检查对象是 `pack_io.work_dir()`（默认 staging）里的包：门校验的是**晋升候选**，
 成品目录在晋升前不被任何检查改写。
@@ -395,7 +397,8 @@ def _truncate(out: dict[str, list[str]]) -> dict[str, list[str]]:
 
 
 # ---------------------------------------------------------------------------
-# 报告型计数（**不参与红/绿**）：boundary_map 与 material_bindings
+# 报告型计数：boundary_map 只报数（**不参与红/绿**）；material_bindings 的
+# 节点缺/空/欠账三桶经 `material_binding_gate` 进门（F9，见文件下半部）
 # ---------------------------------------------------------------------------
 
 def _pack_node_boundaries(pack: dict) -> dict[tuple[str, str], str]:
@@ -431,7 +434,9 @@ def report_only_counts(pack: dict, tables_dir: Path | None = None,
     背景：`docs/status.md` 把 6 张表并列展示为权威，其中 boundary_map（20 行 vs 包内
     3,866 条 boundary）与 material_bindings（598 行 vs 50,383 条材料）此前不被任何检查
     读取（详见 docs/kb-outstanding-research-2026-10-02.md ⑥）。本函数把现状量出来，
-    由 run_kb_checks 以 INFO 节呈现；**执行口径（欠账怎么清）等 F9 决策**。
+    由 run_kb_checks 以 INFO 节呈现。**F9 执行口径（2026-10-12 批9 d2）：**
+    material_bindings 的节点缺/空/欠账三桶经 `material_binding_gate` 进门（≤ 具名基线，
+    清账明细见 build/agent-batch9/d2/bindings-fix.csv）；boundary_map 仍只报数。
 
     - boundary_map：`boundary_effective` 与包内节点 boundary 逐字相等 /
       `boundary_stale` 不等 / `boundary_missing` 节点不在包内；
@@ -484,6 +489,45 @@ def report_only_counts(pack: dict, tables_dir: Path | None = None,
     }
 
 
+# ---------------------------------------------------------------------------
+# F9 对账门：material_bindings 报告型计数 → 门
+# ---------------------------------------------------------------------------
+
+# 2026-10-12 批9 d2 清账后的**具名基线**（只许递减，超过即红）。
+#   - 清账前（598 行）：节点缺 41 / 空 37 / 欠账 3；
+#   - 清账后（598 行）：生效 598、节点缺 0 / 空 0 / 欠账 0。
+# 逐条处置（旧值/处置/新值/理由）见 build/agent-batch9/d2/bindings-fix.csv；
+# 6 条「应改绑」走 material_rebind.csv + `rebind_materials --write`（staging 已生效，
+# 成品包待批10 写入窗口 promote 后对齐——见下方口径说明）。
+#
+# 口径：对账对象是**工作目录（晋升候选）**——`evaluate()` 拿到的包就是 promote 的
+# 候选；两段拓扑下成品包在 promote 前落后于 staging 属预期（D-5），不据此调基线。
+# 回归含义：再出现改绑不更新台账、节点删/并不清台账，本门即红。
+MATERIAL_BINDING_BASELINE: dict[str, int] = {"point_missing": 0, "empty": 0, "arrear": 0}
+
+_BINDING_GATE_BUCKETS = (
+    ("mb_point_missing", "point_missing", "节点缺"),
+    ("mb_empty", "empty", "空"),
+    ("mb_arrear", "arrear", "欠账"),
+)
+
+
+def material_binding_gate(counts: dict[str, int]) -> list[str]:
+    """把 `report_only_counts` 的三桶欠账计数升级为门（F9）。
+
+    返回问题列表；空 = 过。基线在 `MATERIAL_BINDING_BASELINE` 具名登记，只许递减：
+    清账后任何一桶回到基线之上（新欠账）都会让 evaluate() / run_kb_checks / promote 判红。
+    """
+    problems: list[str] = []
+    for key, base_key, label in _BINDING_GATE_BUCKETS:
+        value, base = counts.get(key, 0), MATERIAL_BINDING_BASELINE[base_key]
+        if value > base:
+            problems.append(
+                f"material_bindings {label} {value} 条 > 基线 {base}"
+                f"（清账明细见 build/agent-batch9/d2/bindings-fix.csv）")
+    return problems
+
+
 def check_table_consistency(pack: dict, manifest: dict | None,
                             tables_dir: Path | None = None) -> dict[str, list[str]]:
     """五张权威表↔包一致性。返回 {表名: 问题列表}；全空 = 一致。
@@ -520,6 +564,8 @@ def evaluate(root: Path | None = None) -> tuple[dict[str, list[str]], Counter]:
     problems, stats = check_contract(pack)
     consistency = check_table_consistency(pack, manifest)
     consistency["contract"] = problems
+    # F9：material_bindings 的报告型计数进门（与五表一致性同判红/绿、同被 promote 读取）
+    consistency["material_bindings"] = material_binding_gate(report_only_counts(pack))
     return consistency, stats
 
 
@@ -528,18 +574,21 @@ def main() -> int:
     total = sum(len(v) for v in consistency.values())
     print(f"主题 {stats['topics']}、知识点 {stats['points']}；问题 {total}")
     for name in ("contract", "alias_map", "chapter_map", "chapter_by_node", "prereq_map",
-                 "point_rename", "point_delete", "point_merge", "point_relocation"):
+                 "point_rename", "point_delete", "point_merge", "point_relocation",
+                 "material_bindings"):
         for p in consistency[name]:
             print(f"  ! [{name}]", p)
     pack = pack_io.load_json(pack_io.pack_path())
     counts = report_only_counts(pack)
     legacy = legacy_type_counts()
-    print("报告型计数（不参与红/绿）：")
+    print("报告型计数（boundary_map 只报数；material_bindings 三桶已进门 F9）：")
     print(f"  boundary_map 生效 {counts['boundary_effective']}/{counts['boundary_rows']}"
           f"（stale {counts['boundary_stale']}、missing {counts['boundary_missing']}）")
+    _base = MATERIAL_BINDING_BASELINE
     print(f"  material_bindings 生效 {counts['mb_effective']}、欠账 {counts['mb_arrear']}、"
           f"材料缺 {counts['mb_material_missing']}、节点缺 {counts['mb_point_missing']}、"
-          f"空 {counts['mb_empty']}（共 {counts['mb_rows']}）")
+          f"空 {counts['mb_empty']}（共 {counts['mb_rows']}；"
+          f"F9 门 节点缺/空/欠账 ≤ {_base['point_missing']}/{_base['empty']}/{_base['arrear']}）")
     print(f"  三值外材料 type {legacy['legacy_total']}（基线豁免 {LEGACY_TYPE_BASELINE}，只许递减）")
     return 1 if total else 0
 

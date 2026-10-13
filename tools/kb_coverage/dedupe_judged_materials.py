@@ -18,16 +18,17 @@ App 契约明令"材料内容指纹必须唯一"，于是整包被拒（实测 1
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 from collections import defaultdict
 from pathlib import Path
 
 from kb_build import pack_io
+from kb_coverage import judgments
 from kb_coverage.extraction_state import subject_of_path
 
 REPO = Path(pack_io.REPO).resolve()
-JUDGMENTS = REPO / "tools" / "kb_coverage" / "tables" / "material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGMENTS = judgments.parts_dir()
 SUBJ3 = {"MATH": "mat", "PHYSICS": "phy", "CHEMISTRY": "che", "BIOLOGY": "bio"}
 
 
@@ -53,8 +54,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run and args.write:
         ap.error("--dry-run 与 --write 互斥")
 
-    rows = list(csv.DictReader(JUDGMENTS.open(encoding="utf-8-sig")))
-    cols = list(rows[0].keys())
+    rows = judgments.load_all(JUDGMENTS)
     seen: dict[tuple, str] = {}
     keep: list[dict] = []
     dup_slugs: set[str] = set()
@@ -86,10 +86,7 @@ def main(argv: list[str] | None = None) -> int:
                 pack_io.dump_json(doc, sp)
     print(f"侧车删除重复材料 {removed} 条：{changed}")
     if args.write:
-        with JUDGMENTS.open("w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=cols)
-            w.writeheader()
-            w.writerows(keep)
+        judgments.write_all(keep, JUDGMENTS)
         print("→ 判定表已写回")
     else:
         print("（未写盘；加 --write 生效）")

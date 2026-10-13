@@ -20,6 +20,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from kb_coverage import judgments
 from kb_coverage import make_judgment_slices as mjs
 from kb_coverage import prescreen_chunks as pc
 
@@ -44,6 +45,12 @@ def _write_csv(path: Path, cols: list[str], rows: list[list[str]]) -> None:
         w.writerows(rows)
 
 
+def _write_judgments(base: Path, rows: list[list[str]]) -> None:
+    """判定表写进 base 目录的 5 片（列按 JUDGMENT_COLS 对位）：与生产同一份
+    judgments.write_all——夹具跟着分片走，不再自造一份单文件 CSV。"""
+    judgments.write_all([dict(zip(JUDGMENT_COLS, r)) for r in rows], base)
+
+
 def _pool_fixture() -> list[dict]:
     """两来源 6 块：2 JUDGE（srcA）、2 JUDGE（srcB）、1 题目 SKIP、1 重复键 SKIP。"""
     return [
@@ -63,12 +70,12 @@ class SliceOutputTests(unittest.TestCase):
 
     def _run(self, td: str, argv: list[str]) -> int:
         pool = Path(td) / "chunks.jsonl"
-        judged = Path(td) / "judged.csv"
+        judged = Path(td) / "judged"
         rejudge = Path(td) / "rejudge.csv"
         slices = Path(td) / "slices"
         skips = Path(td) / "mechanical_skips.csv"
         _write_pool(pool, _pool_fixture())
-        _write_csv(judged, JUDGMENT_COLS, [])
+        _write_judgments(judged, [])
         _write_csv(rejudge, ["chunk_rel", "chunk_id", "midx", "node_slug", "type", "note"], [])
         with mock.patch.object(pc, "CHUNKS", pool), \
                 mock.patch.object(pc, "JUDGMENTS", judged), \
@@ -115,7 +122,7 @@ class DeterminismPilotListTests(unittest.TestCase):
     """确定性（重跑产物一致）、--pilot、--list。"""
 
     def _paths(self, td: str):
-        return (Path(td) / "chunks.jsonl", Path(td) / "judged.csv", Path(td) / "rejudge.csv",
+        return (Path(td) / "chunks.jsonl", Path(td) / "judged", Path(td) / "rejudge.csv",
                 Path(td) / "slices", Path(td) / "mechanical_skips.csv")
 
     def _fixture(self, td: str, argv: list[str]):
@@ -126,7 +133,7 @@ class DeterminismPilotListTests(unittest.TestCase):
                "heading": "加速度", "text": GOOD_TEXT} for i in range(1, 6)],
             {"rel_path": "srcB/2.docx", "chunk_id": "b1", "fp": "fpb", "heading": "加速度", "text": GOOD_TEXT},
         ])
-        _write_csv(judged, JUDGMENT_COLS, [])
+        _write_judgments(judged, [])
         _write_csv(rejudge, ["chunk_rel", "chunk_id", "midx", "node_slug", "type", "note"], [])
         with mock.patch.object(pc, "CHUNKS", pool), \
                 mock.patch.object(pc, "JUDGMENTS", judged), \
@@ -166,7 +173,7 @@ class DeterminismPilotListTests(unittest.TestCase):
                    "heading": "加速度", "text": GOOD_TEXT} for i in range(1, 6)],
                 {"rel_path": "srcB/2.docx", "chunk_id": "b1", "fp": "fpb", "heading": "加速度", "text": GOOD_TEXT},
             ])
-            _write_csv(judged, JUDGMENT_COLS, [])
+            _write_judgments(judged, [])
             _write_csv(rejudge, ["chunk_rel", "chunk_id", "midx", "node_slug", "type", "note"], [])
             buf = io.StringIO()
             with mock.patch.object(pc, "CHUNKS", pool), \
@@ -190,7 +197,7 @@ class JudgedAndRejudgeTests(unittest.TestCase):
     def test_rejudge_queue_key_is_sliced(self):
         with tempfile.TemporaryDirectory() as td:
             pool = Path(td) / "chunks.jsonl"
-            judged = Path(td) / "judged.csv"
+            judged = Path(td) / "judged"
             rejudge = Path(td) / "rejudge.csv"
             slices = Path(td) / "slices"
             skips = Path(td) / "mechanical_skips.csv"
@@ -200,7 +207,7 @@ class JudgedAndRejudgeTests(unittest.TestCase):
                 # j1：判定表里有、不在队列 → 已判定，排除
                 {"rel_path": "srcA/1.docx", "chunk_id": "j1", "fp": "fpj1", "heading": "加速度", "text": GOOD_TEXT},
             ])
-            _write_csv(judged, JUDGMENT_COLS, [
+            _write_judgments(judged, [
                 ["srcA/1.docx", "q1", "SKIP", "某节点", "DERIVATION", "", "", "", "", "", "", ""],
                 ["srcA/1.docx", "j1", "MATERIAL", "某节点", "CONCEPT_EXPLANATION", "t", "s", "a", "c", "b", "n", ""],
             ])
@@ -231,7 +238,7 @@ class PriorityOrderTests(unittest.TestCase):
             import io
 
             pool = Path(td) / "chunks.jsonl"
-            judged = Path(td) / "judged.csv"
+            judged = Path(td) / "judged"
             rejudge = Path(td) / "rejudge.csv"
             slices = Path(td) / "slices"
             skips = Path(td) / "mechanical_skips.csv"
@@ -241,7 +248,7 @@ class PriorityOrderTests(unittest.TestCase):
                 {"rel_path": "2027版高中《53知识清单》彩色版（数学）/a.pdf", "chunk_id": "m1",
                  "fp": "fm", "heading": "知识点01", "text": GOOD_TEXT},
             ])
-            _write_csv(judged, JUDGMENT_COLS, [])
+            _write_judgments(judged, [])
             _write_csv(rejudge, ["chunk_rel", "chunk_id", "midx", "node_slug", "type", "note"], [])
             buf = io.StringIO()
             with mock.patch.object(pc, "CHUNKS", pool), \

@@ -43,13 +43,15 @@ from pathlib import Path
 
 sys.path.insert(0, "tools")
 from kb_build import gate, pack_io  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 
 FIELDS = ("title", "summaryMarkdown", "applicabilityMarkdown",
           "contentMarkdown", "boundaryMarkdown")
 FIX_ROOT = Path("tools/kb_coverage/text_fixes")
 PACK_REL = "core/data/src/main/resources/knowledge"
 PRE_DAMAGE = "cffda989^"
-JUDGE_TABLE = Path("tools/kb_coverage/tables/material_judgments.csv")
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGE_TABLE = judgments.parts_dir()
 JUDGE_COLUMN = {"title": "title", "summaryMarkdown": "summary",
                 "applicabilityMarkdown": "applicability",
                 "contentMarkdown": "content", "boundaryMarkdown": "boundary"}
@@ -83,9 +85,8 @@ def table_fields() -> dict[tuple[str, str], str]:
     if not JUDGE_TABLE.exists():
         return {}
     out: dict[tuple[str, str], str] = {}
-    with JUDGE_TABLE.open(encoding="utf-8", newline="") as fh:
-        for row in csv.DictReader(fh):
-            out[(row.get("chunk_id", ""), row.get("node_slug", ""))] = row.get("title", "")
+    for row in judgments.load_all(JUDGE_TABLE):
+        out[(row.get("chunk_id", ""), row.get("node_slug", ""))] = row.get("title", "")
     return out
 
 
@@ -314,10 +315,7 @@ def mirror_judgments(touched: list[tuple]) -> tuple[int, list[str]]:
     """把修好的整字段镜像回判定表：按 (块号, 节点, 原文逐字) 三重定位。"""
     if not JUDGE_TABLE.exists():
         return 0, ["判定表不存在"]
-    raw = JUDGE_TABLE.read_bytes()
-    crlf = raw.count(b"\r\n") > raw.count(b"\n") - raw.count(b"\r\n")
-    with JUDGE_TABLE.open(encoding="utf-8", newline="") as fh:
-        rows = list(csv.DictReader(fh))
+    rows = judgments.load_all(JUDGE_TABLE)
     stats = 0
     problems: list[str] = []
     for subject, slug, field, old_text, new_text, node, chunk in touched:
@@ -331,11 +329,9 @@ def mirror_judgments(touched: list[tuple]) -> tuple[int, list[str]]:
         matched[0][column] = new_text
         stats += 1
     if stats:
-        with JUDGE_TABLE.open("w", encoding="utf-8", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()),
-                                    lineterminator="\r\n" if crlf else "\n")
-            writer.writeheader()
-            writer.writerows(rows)
+        # 行尾由 write_all 钉死 CRLF（与拆分前一致）——原先按原文件"探测行尾"，探测错就
+        # 把十万行行尾改掉；现在只有一种写法。
+        judgments.write_all(rows, JUDGE_TABLE)
     return stats, problems
 
 

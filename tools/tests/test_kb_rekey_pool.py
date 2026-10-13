@@ -18,6 +18,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage import rekey_pool as rk  # noqa: E402
 
 JCOLS = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title", "summary",
@@ -36,7 +37,7 @@ class RekeyTest(unittest.TestCase):
         self.chunks = self.tmp / "extracted_chunks.jsonl"
         self.backup = self.tmp / "extracted_chunks.jsonl.bak"
         self.remap = self.tmp / "key_remap.csv"
-        self.judgments = self.tmp / "material_judgments.csv"
+        self.judgments = self.tmp / "material_judgments"
         self.mismatch = self.tmp / "fp_mismatch.csv"
         for name, path in (("CHUNKS", self.chunks), ("BACKUP", self.backup),
                            ("REMAP", self.remap), ("JUDGMENTS", self.judgments),
@@ -57,10 +58,12 @@ class RekeyTest(unittest.TestCase):
             w.writerows(rows)
 
     def _write_judgments(self, rows):
-        with self.judgments.open("w", encoding="utf-8", newline="") as fh:
-            w = csv.DictWriter(fh, fieldnames=JCOLS, lineterminator="\n")
-            w.writeheader()
-            w.writerows(rows)
+        """判定表写进 self.judgments 片目录（与生产同一份 write_all）。"""
+        judgments.write_all(rows, self.judgments)
+
+    def _judgment_files(self) -> dict[str, bytes]:
+        """片目录快照：幂等断言比对的是写入后的字节，不是单一文件文本。"""
+        return {p.name: p.read_bytes() for p in sorted(self.judgments.glob("*.csv"))}
 
     def _pool_rows(self):
         return [json.loads(l) for l in self.chunks.read_text(encoding="utf-8").splitlines()
@@ -99,7 +102,7 @@ class RekeyTest(unittest.TestCase):
         self.assertTrue(self.backup.exists(), "重排前必须备份块池")
         pool1 = self.chunks.read_text(encoding="utf-8")
         remap1 = self.remap.read_text(encoding="utf-8")
-        j1 = self.judgments.read_text(encoding="utf-8")
+        j1 = self._judgment_files()
         pool = self._pool_rows()
         keys = [(r["rel_path"], r["chunk_id"]) for r in pool]
         self.assertEqual(len(keys), len(set(keys)), "重排后键必须唯一")
@@ -108,7 +111,7 @@ class RekeyTest(unittest.TestCase):
         self.assertEqual(0, rc2)
         self.assertEqual(pool1, self.chunks.read_text(encoding="utf-8"))
         self.assertEqual(remap1, self.remap.read_text(encoding="utf-8"))
-        self.assertEqual(j1, self.judgments.read_text(encoding="utf-8"))
+        self.assertEqual(j1, self._judgment_files())
 
     def test_judgment_unique_old_key_is_remapped(self):
         base = rk.base_of("a.pdf")
@@ -120,8 +123,7 @@ class RekeyTest(unittest.TestCase):
         self._write_judgments([_judgment("a.pdf", f"{base}-003")])
         rc = rk.main()
         self.assertEqual(0, rc)
-        with self.judgments.open(encoding="utf-8", newline="") as fh:
-            got = list(csv.DictReader(fh))
+        got = judgments.load_all(self.judgments)
         # 旧键 base-003 唯一 → 重映射为按出现顺序的新键 base-001，且池行 fp 与映射表一致
         self.assertEqual(f"{base}-001", got[0]["chunk_id"])
         self.assertFalse(self.mismatch.exists())

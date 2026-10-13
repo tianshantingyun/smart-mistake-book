@@ -40,8 +40,11 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_build import audit_material_examples as ame  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 
-JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+# 目录缺席时 load_all 抛 FileNotFoundError（gate 靠它把"查不了"置红，不是静默判绿）。
+JUDGMENTS = judgments.parts_dir()
 EXEMPTIONS = REPO / "tools/kb_coverage/tables/material_exam_exemptions.csv"
 
 # 指纹覆盖 classify 实际读到的全部字段（title/content/summary/applicability）。
@@ -123,9 +126,14 @@ def split_hits(hits: list[dict], exemptions: dict) -> tuple[list[dict], list[dic
     return violations, excused, stale
 
 
+def load_rows() -> list[dict]:
+    """判定表全部行（5 片拼接）。`main` 与 `kb_build.gate` 共用这一份读法——
+    两处各写一遍会在"表怎么读"上漂移（gate 的"查不了=红"也依赖它的 FileNotFoundError）。"""
+    return judgments.load_all(JUDGMENTS)
+
+
 def main(argv: list[str] | None = None) -> int:
-    with JUDGMENTS.open(encoding="utf-8-sig", newline="") as fh:
-        rows = list(csv.DictReader(fh))
+    rows = load_rows()
     material = [r for r in rows if (r.get("action") or "").strip() == "MATERIAL"]
     hits = check_rows(rows)
     exemptions = load_exemptions()

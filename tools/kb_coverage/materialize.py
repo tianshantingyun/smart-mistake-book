@@ -7,9 +7,12 @@ office_extract 只产出"块"，块不是知识包的一部分：不判定、不
 不绑节点，块就永远进不了包。本模块把**模型语义判定的结果**（判定表）
 确定性地落成 sidecar 材料记录，并同步提取状态机（EXTRACTED + output_ref）。
 
-## 判定表（tables/material_judgments.csv，由语义判定通道逐批产出）
+## 判定表（tables/material_judgments/ 的按科目 5 片，由语义判定通道逐批产出）
 
-    chunk_rel,chunk_id,action,node_slug,type,title,summary,applicability,content,boundary,note
+    chunk_rel,chunk_id,action,node_slug,type,title,summary,applicability,content,boundary,note,midx
+
+（原先是单文件 `tables/material_judgments.csv`，逼近 GitHub 100 MB 硬限，已按科目拆分，
+读写一律走 `kb_coverage/judgments.py`；片归属 = `extraction_state.subject_of_path`。）
 
 - action=MATERIAL：node_slug 必须存在于成品包；type 是 3 种枚举之一（协议 v1.1，
   与 merge_text_judgments 的 TYPES 逐字一致）；title/summary/content 是判定者改写后的形态
@@ -31,7 +34,6 @@ office_extract 只产出"块"，块不是知识包的一部分：不判定、不
 from __future__ import annotations
 
 import argparse
-import csv
 import hashlib
 import re
 import sys
@@ -42,9 +44,11 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_build import pack_io  # noqa: E402
 from kb_coverage import extraction_state as es  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage.office_extract import load_chunks  # noqa: E402
 
-JUDGMENTS = Path(__file__).resolve().parent / "tables" / "material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGMENTS = judgments.parts_dir()
 COLUMNS = ("chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
            "summary", "applicability", "content", "boundary", "note", "midx")
 ROLES = ("PRIMARY",)
@@ -114,7 +118,7 @@ def _existing_source_entries() -> dict[str, dict]:
 def load_judgments() -> list[dict]:
     if not JUDGMENTS.exists():
         return []
-    rows = list(csv.DictReader(open(JUDGMENTS, encoding="utf-8")))
+    rows = judgments.load_all(JUDGMENTS)
     for r in rows:
         missing = [c for c in COLUMNS if c not in r]
         if missing:

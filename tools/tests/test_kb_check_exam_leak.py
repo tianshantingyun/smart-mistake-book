@@ -24,6 +24,7 @@ from pathlib import Path
 from unittest import mock
 
 from kb_coverage import check_exam_leak as cel
+from kb_coverage import judgments
 
 COLS = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
         "summary", "applicability", "content", "boundary", "note", "midx"]
@@ -40,11 +41,9 @@ def _row(chunk_id: str, action: str, slug: str, title: str, content: str,
             title, "概要", "适用性", content, "边界", "注", midx]
 
 
-def _write(path: Path, rows: list[list[str]]) -> None:
-    with path.open("w", encoding="utf-8-sig", newline="") as fh:
-        w = csv.writer(fh)
-        w.writerow(COLS)
-        w.writerows(rows)
+def _write(base: Path, rows: list[list[str]]) -> None:
+    """判定表写进 base 目录的 5 片（列按 COLS 对位；与生产同一份 write_all）。"""
+    judgments.write_all([dict(zip(COLS, r)) for r in rows], base)
 
 
 def _fp(title: str, content: str, summary: str = "概要",
@@ -112,7 +111,7 @@ class CheckRowsTests(unittest.TestCase):
 class MainTests(unittest.TestCase):
     def _run(self, path: Path, rows: list[list[str]],
              exemptions: list[dict] | None = None) -> tuple[int, str]:
-        _write(path, rows)
+        _write(path, rows)      # path 是片目录（原先是单文件 j.csv）
         ex_path = path.with_name("exemptions.csv")
         if exemptions:
             _write_exemptions(ex_path, exemptions)
@@ -125,7 +124,7 @@ class MainTests(unittest.TestCase):
 
     def test_no_hits_exit_zero(self):
         with tempfile.TemporaryDirectory() as td:
-            rc, out = self._run(Path(td) / "j.csv", [_row("c1", "MATERIAL", "加速度", "加速度", CLEAN)])
+            rc, out = self._run(Path(td) / "j", [_row("c1", "MATERIAL", "加速度", "加速度", CLEAN)])
             self.assertEqual(0, rc)
             self.assertIn("无命中", out)
 
@@ -136,7 +135,7 @@ class MainTests(unittest.TestCase):
                 _row("c2", "MATERIAL", "力的合成", "加速度", "正确选项为 D。" + CLEAN),
                 _row("c3", "MATERIAL", "守恒法", "加速度", CLEAN),
             ]
-            rc, out = self._run(Path(td) / "j.csv", rows)
+            rc, out = self._run(Path(td) / "j", rows)
             self.assertEqual(1, rc)
             self.assertIn("例题派生命中 2", out)
             self.assertIn("力的合成", out)
@@ -148,7 +147,7 @@ class MainTests(unittest.TestCase):
             rows = [_row("c1", "MATERIAL", "力的合成", "加速度", HIT),
                     _row("c2", "MATERIAL", "守恒法", "加速度", HIT)]
             ex = [_ex("c1", _fp("加速度", HIT)), _ex("c2", _fp("加速度", HIT))]
-            rc, out = self._run(Path(td) / "j.csv", rows, ex)
+            rc, out = self._run(Path(td) / "j", rows, ex)
             self.assertEqual(0, rc)
             self.assertIn("已豁免 2、待处理 0", out)
             self.assertIn("全部命中已逐条豁免", out)
@@ -158,7 +157,7 @@ class MainTests(unittest.TestCase):
             rows = [_row("c1", "MATERIAL", "力的合成", "加速度", HIT),
                     _row("c2", "MATERIAL", "守恒法", "加速度", HIT)]
             ex = [_ex("c1", _fp("加速度", HIT))]
-            rc, out = self._run(Path(td) / "j.csv", rows, ex)
+            rc, out = self._run(Path(td) / "j", rows, ex)
             self.assertEqual(1, rc)
             self.assertIn("已豁免 1、待处理 1", out)
             self.assertIn("残余（未豁免，共 1 条", out)
@@ -169,7 +168,7 @@ class MainTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             rows = [_row("c1", "MATERIAL", "力的合成", "加速度", HIT)]
             ex = [_ex("c1", "0" * 16)]
-            rc, out = self._run(Path(td) / "j.csv", rows, ex)
+            rc, out = self._run(Path(td) / "j", rows, ex)
             self.assertEqual(1, rc)
             self.assertIn("已豁免 0、待处理 1", out)
 
@@ -177,14 +176,14 @@ class MainTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             rows = [_row("c1", "MATERIAL", "守恒法", "加速度", CLEAN)]
             ex = [_ex("c1", _fp("加速度", CLEAN))]
-            rc, out = self._run(Path(td) / "j.csv", rows, ex)
+            rc, out = self._run(Path(td) / "j", rows, ex)
             self.assertEqual(0, rc)
             self.assertIn("豁免表陈旧 1 条", out)
             self.assertIn("无命中", out)
 
     def test_missing_exemptions_file_means_no_exemption(self):
         with tempfile.TemporaryDirectory() as td:
-            rc, out = self._run(Path(td) / "j.csv",
+            rc, out = self._run(Path(td) / "j",
                                 [_row("c1", "MATERIAL", "力的合成", "加速度", HIT)])
             self.assertEqual(1, rc)
             self.assertIn("已豁免 0、待处理 1", out)

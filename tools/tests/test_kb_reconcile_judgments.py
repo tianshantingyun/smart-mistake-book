@@ -12,6 +12,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from kb_coverage import judgments
 from kb_coverage import reconcile_judgments as rj
 
 ALLOWED = ("CONCEPT_EXPLANATION", "METHOD_MODEL", "MISCONCEPTION_GUIDE")
@@ -117,11 +118,10 @@ class PlanTest(unittest.TestCase):
 class ApplyTest(unittest.TestCase):
     def _apply(self, rows):
         with tempfile.TemporaryDirectory() as td:
-            jp, qp = Path(td) / "judgments.csv", Path(td) / "queue.csv"
+            jp, qp = Path(td) / "judgments", Path(td) / "queue.csv"
             pl = rj.plan(rows, CHUNKS, NODES, MERGE)
             stats = rj.apply(pl, rows, judgments_path=jp, queue_path=qp)
-            with jp.open(encoding="utf-8", newline="") as fh:
-                written = list(csv.DictReader(fh))
+            written = judgments.load_all(jp)
             with qp.open(encoding="utf-8", newline="") as fh:
                 queued = list(csv.DictReader(fh))
             return stats, written, queued, pl, td, jp, qp
@@ -160,7 +160,7 @@ class ApplyTest(unittest.TestCase):
     def test_idempotent_second_apply_appends_nothing(self):
         rows = [_row(type_="DERIVATION")]
         with tempfile.TemporaryDirectory() as td:
-            jp, qp = Path(td) / "judgments.csv", Path(td) / "queue.csv"
+            jp, qp = Path(td) / "judgments", Path(td) / "queue.csv"
             pl = rj.plan(rows, CHUNKS, NODES, MERGE)
             stats1 = rj.apply(pl, rows, judgments_path=jp, queue_path=qp)
             # 重跑：计划里已经是 SKIP 行 → 0 改写；队列按行身份去重 → 0 追加
@@ -179,7 +179,7 @@ class ApplyTest(unittest.TestCase):
         rows1 = [_row(type_="DERIVATION")]
         rows2 = [_row(type_="DERIVATION")]
         with tempfile.TemporaryDirectory() as td:
-            jp, qp = Path(td) / "judgments.csv", Path(td) / "queue.csv"
+            jp, qp = Path(td) / "judgments", Path(td) / "queue.csv"
             pl = rj.plan(rows1, CHUNKS, NODES, MERGE)
             s1 = rj.apply(pl, rows1, judgments_path=jp, queue_path=qp)
             s2 = rj.apply(pl, rows2, judgments_path=jp, queue_path=qp)

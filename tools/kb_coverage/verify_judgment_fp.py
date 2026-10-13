@@ -25,10 +25,12 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
 CHUNKS = POOL_PATH
-JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGMENTS = judgments.parts_dir()
 REMAP = REPO / "tools/kb_coverage/tables/key_remap.csv"
 
 
@@ -47,10 +49,9 @@ def main(argv: list[str] | None = None) -> int:
     if dup_keys:
         problems.append(f"池存在 {len(dup_keys)} 个重复键，例：{sorted(dup_keys)[:3]}")
 
-    judgments = list(csv.DictReader(JUDGMENTS.open(encoding="utf-8"))) \
-        if JUDGMENTS.exists() else []
+    judgments_rows = judgments.load_all(JUDGMENTS) if JUDGMENTS.exists() else []
     jkeys = set()
-    for r in judgments:
+    for r in judgments_rows:
         key = (r["chunk_rel"], r["chunk_id"])
         jkeys.add(key)
         rows = pool.get(key)
@@ -78,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
                 if old in jkeys:
                     problems.append(f"判定仍引用旧键（未重映射）：{old}")
 
-    print(f"判定 {len(judgments)} 行 / 池 {len(pool)} 唯一键 / 问题 {len(problems)}")
+    print(f"判定 {len(judgments_rows)} 行 / 池 {len(pool)} 唯一键 / 问题 {len(problems)}")
     if problems:
         for p in problems[:20]:
             print("  -", p, file=sys.stderr)

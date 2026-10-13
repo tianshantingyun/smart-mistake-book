@@ -20,6 +20,7 @@ from pathlib import Path
 from unittest import mock
 
 from kb_coverage import count_unjudged as cu
+from kb_coverage import judgments
 from kb_coverage import prescreen_chunks as pc
 
 GOOD_TEXT = (
@@ -43,14 +44,19 @@ def _write_csv(path: Path, cols: list[str], rows: list[list[str]]) -> None:
         w.writerows(rows)
 
 
+def _write_judgments(base: Path, rows: list[list[str]]) -> None:
+    """判定表写进 base 目录的 5 片（列按 JUDGMENT_COLS 对位；走生产同一份 write_all）。"""
+    judgments.write_all([dict(zip(JUDGMENT_COLS, r)) for r in rows], base)
+
+
 class CountsTests(unittest.TestCase):
     def _run(self, td: str, pool: list[dict], judged: list[list[str]],
              rejudge: list[list[str]]) -> int:
         p = Path(td) / "chunks.jsonl"
-        j = Path(td) / "judged.csv"
+        j = Path(td) / "judged"
         q = Path(td) / "rejudge.csv"
         _write_pool(p, pool)
-        _write_csv(j, JUDGMENT_COLS, judged)
+        _write_judgments(j, judged)
         _write_csv(q, ["chunk_rel", "chunk_id", "midx", "node_slug", "type", "note"], rejudge)
         with mock.patch.object(pc, "CHUNKS", p), \
                 mock.patch.object(pc, "JUDGMENTS", j), \
@@ -94,10 +100,10 @@ class CountsTests(unittest.TestCase):
         ]
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "chunks.jsonl"
-            j = Path(td) / "judged.csv"
+            j = Path(td) / "judged"
             q = Path(td) / "rejudge.csv"
             _write_pool(p, pool)
-            _write_csv(j, JUDGMENT_COLS, [])
+            _write_judgments(j, [])
             _write_csv(q, ["chunk_rel", "chunk_id", "midx", "node_slug", "type", "note"], [])
             buf = io.StringIO()
             with mock.patch.object(pc, "CHUNKS", p), \

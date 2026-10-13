@@ -18,6 +18,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from kb_coverage import judgments
 from kb_coverage import prescreen_chunks as pc
 
 # 无任何机械触发词、去空白后 ≥ 40 字的知识叙述 → JUDGE
@@ -31,6 +32,12 @@ def _write_pool(path: Path, records: list[dict]) -> None:
     with path.open("w", encoding="utf-8") as fh:
         for r in records:
             fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+
+def _write_judgments(base: Path, rows: list[dict]) -> Path:
+    """判定表写进 base 目录的 5 片（走生产同一份 judgments.write_all）。"""
+    judgments.write_all(rows, base)
+    return base
 
 
 class ClassifyChunkTests(unittest.TestCase):
@@ -100,7 +107,7 @@ class MainJsonTests(unittest.TestCase):
             # 空块 → SKIP
             {"rel_path": "srcB/2.docx", "chunk_id": "c5", "fp": "",
              "heading": "", "text": "  "},
-            # 已判定键（在 material_judgments.csv 里）→ 整行排除
+            # 已判定键（在判定表片目录里）→ 整行排除
             {"rel_path": "srcA/1.docx", "chunk_id": "c0", "fp": "fp0",
              "heading": "已判定", "text": GOOD_TEXT},
         ]
@@ -108,12 +115,10 @@ class MainJsonTests(unittest.TestCase):
     def test_json_report_counts_reasons_and_sources(self):
         with tempfile.TemporaryDirectory() as td:
             pool = Path(td) / "chunks.jsonl"
-            judged = Path(td) / "judged.csv"
-            judged.write_text(
-                "chunk_rel,chunk_id,action,node_slug,type,title,summary,applicability,content,boundary,note\n"
-                "srcA/1.docx,c0,MATERIAL,某节点,CONCEPT_EXPLANATION,t,s,a,c,b,n\n",
-                encoding="utf-8-sig",
-            )
+            # 已判定表：写成分片目录（与生产同一份 write_all）
+            judged = _write_judgments(Path(td) / "judged",
+                                      [{"chunk_rel": "srcA/1.docx", "chunk_id": "c0",
+                                        "action": "MATERIAL", "node_slug": "某节点"}])
             _write_pool(pool, self._pool())
             out = Path(td) / "nested" / "report.json"
             with mock.patch.object(pc, "CHUNKS", pool), mock.patch.object(pc, "JUDGMENTS", judged):

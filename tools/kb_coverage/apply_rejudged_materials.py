@@ -26,6 +26,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_build import pack_io  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage import materialize as mz  # noqa: E402
 from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
@@ -51,9 +52,9 @@ def subject_by_key() -> dict[tuple[str, str], str]:
 
 
 def load_rows(path: Path | None = None) -> list[dict]:
+    """判定表 MATERIAL 行（path 为片目录，默认 materialize.JUDGMENTS 的 5 片）。"""
     target = path or mz.JUDGMENTS
-    with target.open(encoding="utf-8-sig", newline="") as fh:
-        return [r for r in csv.DictReader(fh) if (r.get("action") or "") == "MATERIAL"]
+    return [r for r in judgments.load_all(target) if (r.get("action") or "") == "MATERIAL"]
 
 
 def plan(rows: list[dict] | None = None) -> dict:

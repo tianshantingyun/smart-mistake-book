@@ -23,6 +23,7 @@ from unittest import mock
 
 from kb_build import gate
 from kb_coverage import check_exam_leak as cel
+from kb_coverage import judgments
 
 COLS = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
         "summary", "applicability", "content", "boundary", "note", "midx"]
@@ -33,12 +34,10 @@ CLEAN = "加速度是速度对时间的变化率，其方向与速度变化量�
 HIT = "本题答案为 C，故选 C。" + CLEAN
 
 
-def _write_judgments(path: Path, rows: list[list[str]]) -> Path:
-    with path.open("w", encoding="utf-8-sig", newline="") as fh:
-        w = csv.writer(fh)
-        w.writerow(COLS)
-        w.writerows(rows)
-    return path
+def _write_judgments(base: Path, rows: list[list[str]]) -> Path:
+    """判定表写进 base 目录的 5 片（列按 COLS 对位；与生产同一份 write_all）。"""
+    judgments.write_all([dict(zip(COLS, r)) for r in rows], base)
+    return base
 
 
 def _row(chunk_id: str, slug: str, content: str, midx: str = "") -> list[str]:
@@ -79,7 +78,7 @@ class ExamLeakGateTest(unittest.TestCase):
 
     def test_unexcused_hit_is_red_and_points_at_row(self):
         with tempfile.TemporaryDirectory() as td:
-            path = _write_judgments(Path(td) / "j.csv", [_row("c1", "力的合成", HIT)])
+            path = _write_judgments(Path(td) / "j", [_row("c1", "力的合成", HIT)])
             with mock.patch.object(cel, "JUDGMENTS", path), \
                     mock.patch.object(cel, "EXEMPTIONS", Path(td) / "none.csv"):
                 m = gate.exam_leak_metric()
@@ -88,7 +87,7 @@ class ExamLeakGateTest(unittest.TestCase):
 
     def test_exempted_hit_is_green(self):
         with tempfile.TemporaryDirectory() as td:
-            path = _write_judgments(Path(td) / "j.csv", [_row("c1", "力的合成", HIT)])
+            path = _write_judgments(Path(td) / "j", [_row("c1", "力的合成", HIT)])
             ex_path = Path(td) / "e.csv"
             _write_exemptions(ex_path, [_ex("c1", _fp(HIT))])
             with mock.patch.object(cel, "JUDGMENTS", path), \
@@ -100,7 +99,7 @@ class ExamLeakGateTest(unittest.TestCase):
     def test_fingerprint_mismatch_makes_it_red_again(self):
         """豁免只覆盖复核过的那版文本；文本改写后指纹不符 ⇒ 重新计入。"""
         with tempfile.TemporaryDirectory() as td:
-            path = _write_judgments(Path(td) / "j.csv", [_row("c1", "力的合成", HIT)])
+            path = _write_judgments(Path(td) / "j", [_row("c1", "力的合成", HIT)])
             ex_path = Path(td) / "e.csv"
             _write_exemptions(ex_path, [_ex("c1", "0" * 16)])
             with mock.patch.object(cel, "JUDGMENTS", path), \
@@ -118,7 +117,7 @@ class ExamLeakGateTest(unittest.TestCase):
 
     def test_duplicate_exemption_key_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
-            path = _write_judgments(Path(td) / "j.csv", [_row("c1", "力的合成", HIT)])
+            path = _write_judgments(Path(td) / "j", [_row("c1", "力的合成", HIT)])
             ex_path = Path(td) / "e.csv"
             _write_exemptions(ex_path, [_ex("c1", _fp(HIT)), _ex("c1", _fp(HIT))])
             with mock.patch.object(cel, "JUDGMENTS", path), \
@@ -129,7 +128,7 @@ class ExamLeakGateTest(unittest.TestCase):
 
     def test_clean_rows_are_green(self):
         with tempfile.TemporaryDirectory() as td:
-            path = _write_judgments(Path(td) / "j.csv", [
+            path = _write_judgments(Path(td) / "j", [
                 _row("c1", "加速度", CLEAN),
                 ["srcA/1.docx", "c2", "SKIP", "", "", "", "", "", "", "", "", ""],
             ])

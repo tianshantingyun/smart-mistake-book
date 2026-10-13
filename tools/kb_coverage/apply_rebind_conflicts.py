@@ -31,12 +31,13 @@ from pathlib import Path
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 from kb_build import pack_io  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
 REPO = TOOLS.parent
-JUDGMENTS = REPO / "tools" / "kb_coverage" / "tables" / "material_judgments.csv"
-HDR = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title", "summary",
-       "applicability", "content", "boundary", "note", "midx"]
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。12 列表头由
+# write_all 统一落盘，本模块不再自留一份（两份 schema 会漂移）。
+JUDGMENTS = judgments.parts_dir()
 SUBJ3 = {"MATH": "mat", "PHYSICS": "phy", "CHEMISTRY": "che", "BIOLOGY": "bio"}
 
 
@@ -59,7 +60,7 @@ def main(argv: list[str] | None = None) -> int:
             r = __import__("json").loads(line)
             subj[(r["rel_path"], r["chunk_id"])] = r["subject"]
 
-    rows = list(csv.DictReader(JUDGMENTS.open(encoding="utf-8-sig", newline="")))
+    rows = judgments.load_all(JUDGMENTS)
     index: dict[tuple[str, str], int] = {}
     for i, r in enumerate(rows):
         s = subj.get((r["chunk_rel"], r["chunk_id"]))
@@ -88,12 +89,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"待改 {changed} 行、异常 {problem} 条"
           f"（{'已写盘' if args.write else '未写盘，加 --write 落盘'}）")
     if args.write and changed:
-        # 判定表是 CRLF（与 merge_text_judgments 的默认 lineterminator 一致）——不照抄会把
-        # 全表 8 万行的行尾都改掉，diff 噪音淹没真正的 102 处改动。
-        with JUDGMENTS.open("w", encoding="utf-8", newline="") as fh:
-            w = csv.DictWriter(fh, fieldnames=HDR, lineterminator="\r\n")
-            w.writeheader()
-            w.writerows({k: (r.get(k) or "") for k in HDR} for r in rows)
+        # 行尾由 write_all 钉死 CRLF（与拆分前的单文件一致）——不照抄会把全表 10 万行的
+        # 行尾都改掉，diff 噪音淹没真正的改动。
+        judgments.write_all(rows, JUDGMENTS)
     return 0 if not problem else 1
 
 

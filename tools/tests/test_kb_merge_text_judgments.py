@@ -19,6 +19,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 
 from kb_build import pack_io  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage import merge_text_judgments as M  # noqa: E402
 
 
@@ -59,7 +60,7 @@ class _MergeFixture(unittest.TestCase):
                                          "subject": "MATH", "heading": "h", "text": "t", "fp": "f"})
                              + "\n", encoding="utf-8")
         self.vdir = self.tmp / "verdicts"
-        self.target = self.tmp / "judgments.csv"
+        self.target = self.tmp / "judgments"   # 判定表分片目录（原先是单文件）
 
     def tearDown(self):
         pack_io.reset_directory()
@@ -105,7 +106,7 @@ class MergeTextJudgmentsSliceModeTest(_MergeFixture):
             M.OUT_NEW_FULL = orig
         self.assertEqual(1, applied["added"])
         self.assertEqual(1, applied["new_proposals"])
-        rows = list(csv.DictReader(self.target.open(encoding="utf-8-sig", newline="")))
+        rows = judgments.load_all(self.target)
         self.assertEqual("SKIP", rows[0]["action"])
         self.assertEqual("", rows[0]["node_slug"])
         self.assertTrue(rows[0]["note"].startswith("NEW:MATH/某新点"))
@@ -131,7 +132,7 @@ class MergeTextJudgmentsSliceModeTest(_MergeFixture):
             M.OUT_NEW_FULL = orig
         self.assertEqual(2, applied["added"])
         self.assertEqual(1, applied["new_proposals"])
-        rows = list(csv.DictReader(self.target.open(encoding="utf-8-sig", newline="")))
+        rows = judgments.load_all(self.target)
         self.assertEqual([r["midx"] for r in rows], ["", "b"])
         self.assertEqual("SKIP", rows[1]["action"])
         self.assertEqual("", rows[1]["node_slug"])
@@ -164,8 +165,7 @@ class MergeTextJudgmentsResyncTest(_MergeFixture):
         return M.apply_to_judgments(rows, self.target)
 
     def _table(self):
-        with self.target.open(encoding="utf-8-sig", newline="") as fh:
-            return list(csv.DictReader(fh))
+        return judgments.load_all(self.target)
 
     def test_without_resync_changed_fields_stay_stale(self):
         self._seed_table([_row()])

@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-import csv
 import json
 import shutil
 import sys
@@ -19,6 +18,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 
 from kb_build import pack_io  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage import materialize as mz  # noqa: E402
 from kb_coverage import restore_rebind_protected as R  # noqa: E402
 
@@ -68,19 +68,16 @@ class RestoreRebindProtectedTest(unittest.TestCase):
         self._orig = (R.REBIND, R.REPLACEMENTS, mz.JUDGMENTS)
         R.REBIND = self.tmp / "rebind.csv"
         R.REPLACEMENTS = self.tmp / "replacements.csv"
-        mz.JUDGMENTS = self.tmp / "judgments.csv"
+        mz.JUDGMENTS = self.tmp / "judgments"   # 分片目录（原先是单文件）
         R.REBIND.write_text("material_slug,from_node_slug,to_node_slug,evidence\n"
                             "ext-mat-aaaa111111-001,node-b,node-a,按内容归属重绑\n", encoding="utf-8")
         R.REPLACEMENTS.write_text("slug,old_node,new_node,sidecar\n"
                                   "ext-mat-aaaa111111-001,node-a,node-b,x.json\n", encoding="utf-8")
-        with mz.JUDGMENTS.open("w", encoding="utf-8", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=HDR)
-            writer.writeheader()
-            writer.writerow({"chunk_rel": "数学/1.docx", "chunk_id": "aaaa111111-001",
+        judgments.write_all([{"chunk_rel": "数学/1.docx", "chunk_id": "aaaa111111-001",
                              "action": "MATERIAL", "node_slug": "node-b",
                              "type": "CONCEPT_EXPLANATION", "title": "新裁决标题",
                              "summary": "新", "applicability": "PRIMARY：新", "content": "新正文",
-                             "boundary": "新边界", "note": "", "midx": ""})
+                             "boundary": "新边界", "note": "", "midx": ""}], mz.JUDGMENTS)
         import kb_coverage.pool_path as pp
         self._orig_pool = pp.POOL_PATH
         pp.POOL_PATH = self.tmp / "chunks.jsonl"
@@ -104,7 +101,7 @@ class RestoreRebindProtectedTest(unittest.TestCase):
         self.assertEqual("DERIVATION", material["type"])
         self.assertEqual("kb:test-pack:math:atomic:node-a",
                          material["bindings"][0]["knowledgeNodeId"])
-        row = list(csv.DictReader(mz.JUDGMENTS.open(encoding="utf-8-sig", newline="")))[0]
+        row = judgments.load_all(mz.JUDGMENTS)[0]
         self.assertEqual("SKIP", row["action"])
         self.assertIn("material_rebind", row["note"])
         self.assertEqual("", row["content"])

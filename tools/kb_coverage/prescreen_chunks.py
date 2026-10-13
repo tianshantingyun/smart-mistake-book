@@ -45,10 +45,12 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_build import audit_material_examples as ame  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage.pool_path import POOL_PATH  # noqa: E402
 
 CHUNKS = POOL_PATH
-JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGMENTS = judgments.parts_dir()
 REJUDGE = REPO / "tools/kb_coverage/tables/rejudge_queue.csv"
 
 # 分流哨兵：已判定键的行不参与分流（下游只关心 SKIP/JUDGE）。
@@ -247,14 +249,11 @@ def classify_chunk(heading: str, text: str) -> tuple[str, str]:
 
 
 def load_judged_keys() -> set[tuple[str, str]]:
-    import csv
-
     keys: set[tuple[str, str]] = set()
     if not JUDGMENTS.exists():
         return keys
-    with JUDGMENTS.open(encoding="utf-8-sig", newline="") as fh:
-        for r in csv.DictReader(fh):
-            keys.add(((r.get("chunk_rel") or "").strip(), (r.get("chunk_id") or "").strip()))
+    for r in judgments.load_all(JUDGMENTS):
+        keys.add(((r.get("chunk_rel") or "").strip(), (r.get("chunk_id") or "").strip()))
     return keys
 
 

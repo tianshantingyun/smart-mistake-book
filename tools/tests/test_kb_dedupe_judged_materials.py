@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import contextlib
-import csv
 import io
 import tempfile
 import unittest
@@ -21,6 +20,7 @@ from unittest import mock
 
 from kb_build import pack_io
 from kb_coverage import dedupe_judged_materials as djm
+from kb_coverage import judgments
 
 COLS = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
         "summary", "applicability", "content", "boundary", "note", "midx"]
@@ -31,22 +31,24 @@ def _row(chunk_id: str, slug: str, title: str, content: str, midx: str = "") -> 
             title, "概要", "适用性", content, "边界", "注", midx]
 
 
-def _write(path: Path, rows: list[list[str]]) -> None:
-    with path.open("w", encoding="utf-8-sig", newline="") as fh:
-        w = csv.writer(fh)
-        w.writerow(COLS)
-        w.writerows(rows)
+def _write(base: Path, rows: list[list[str]]) -> None:
+    """判定表写进 base 目录的 5 片（列按 COLS 对位；与生产同一份 write_all）。"""
+    judgments.write_all([dict(zip(COLS, r)) for r in rows], base)
 
 
-def _read(path: Path) -> list[dict]:
-    with path.open(encoding="utf-8-sig", newline="") as fh:
-        return list(csv.DictReader(fh))
+def _read(base: Path) -> list[dict]:
+    return judgments.load_all(base)
+
+
+def _snapshot(base: Path) -> dict[str, bytes]:
+    """片目录快照（dry-run 断言"不写盘"用）。"""
+    return {p.name: p.read_bytes() for p in sorted(base.glob("*.csv"))}
 
 
 class DryRunTests(unittest.TestCase):
     def test_dry_run_accepted_and_writes_nothing(self):
         with tempfile.TemporaryDirectory() as td:
-            path = Path(td) / "j.csv"
+            path = Path(td) / "j"
             rows = [
                 _row("c1", "节点甲", "标题", "内容A"),
                 _row("c1", "节点乙", "标题", "内容A"),  # 载荷不同（slug 不同）→ 保留
@@ -54,19 +56,19 @@ class DryRunTests(unittest.TestCase):
                 _row("c2", "节点丙", "标题", "内容B", midx="b"),  # 载荷相同 → 去重
             ]
             _write(path, rows)
-            before = path.read_bytes()
+            before = _snapshot(path)
             buf = io.StringIO()
             with mock.patch.object(djm, "JUDGMENTS", path), \
                     mock.patch.object(pack_io, "sidecar_paths", return_value=[]), \
                     contextlib.redirect_stdout(buf):
                 rc = djm.main(["--dry-run"])
             self.assertEqual(0, rc)
-            self.assertEqual(before, path.read_bytes())  # 不写盘
+            self.assertEqual(before, _snapshot(path))  # 不写盘
             self.assertIn("去重 1 行", buf.getvalue())
 
     def test_dry_run_conflicts_with_write(self):
         with tempfile.TemporaryDirectory() as td:
-            path = Path(td) / "j.csv"
+            path = Path(td) / "j"
             _write(path, [_row("c1", "节点甲", "标题", "内容A")])
             with mock.patch.object(djm, "JUDGMENTS", path):
                 with self.assertRaises(SystemExit) as ctx:
@@ -77,7 +79,7 @@ class DryRunTests(unittest.TestCase):
 class WriteTests(unittest.TestCase):
     def test_write_keeps_first_of_duplicate_payload(self):
         with tempfile.TemporaryDirectory() as td:
-            path = Path(td) / "j.csv"
+            path = Path(td) / "j"
             _write(path, [
                 _row("c2", "节点丙", "标题", "内容B", midx=""),
                 _row("c2", "节点丙", "标题", "内容B", midx="b"),

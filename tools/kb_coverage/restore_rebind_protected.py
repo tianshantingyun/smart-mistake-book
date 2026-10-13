@@ -26,6 +26,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_build import pack_io  # noqa: E402
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage import materialize as mz  # noqa: E402
 
 REBIND = REPO / "tools/kb_build/tables/material_rebind.csv"
@@ -85,12 +86,8 @@ def restore(ref_dir: Path, write: bool) -> dict:
         material.update(json.loads(json.dumps(old)))
         changed.setdefault(path, state["docs"][path])
         restored += 1
-    # 判定表：对应行转 SKIP
-    rows: list[dict] = []
-    with mz.JUDGMENTS.open(encoding="utf-8-sig", newline="") as fh:
-        reader = csv.DictReader(fh)
-        cols = reader.fieldnames or []
-        rows = list(reader)
+    # 判定表：对应行转 SKIP（mz.JUDGMENTS 是片目录，见 kb_coverage/judgments.py）
+    rows = judgments.load_all(mz.JUDGMENTS)
     subjects = {}
     from kb_coverage.pool_path import POOL_PATH
     with POOL_PATH.open(encoding="utf-8") as fh:
@@ -117,10 +114,7 @@ def restore(ref_dir: Path, write: bool) -> dict:
     if write:
         for path, doc in changed.items():
             pack_io.dump_json(doc, path)
-        with mz.JUDGMENTS.open("w", encoding="utf-8", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=cols)
-            writer.writeheader()
-            writer.writerows(rows)
+        judgments.write_all(rows, mz.JUDGMENTS)
     return {"protected": len(protected), "restored": restored, "flipped_rows": flipped,
             "missing": missing}
 

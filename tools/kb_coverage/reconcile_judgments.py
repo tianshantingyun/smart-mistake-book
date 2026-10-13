@@ -37,9 +37,13 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 from kb_build import pack_io  # noqa: E402
+from kb_coverage import judgments as judgments_io  # noqa: E402
 from kb_coverage.office_extract import load_chunks  # noqa: E402
 
-JUDGMENTS = REPO / "tools" / "kb_coverage" / "tables" / "material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+# 本模块 import 用别名 judgments_io：apply/plan 的第二个参数就叫 judgments（行列表），
+# 不能同名遮蔽。
+JUDGMENTS = judgments_io.parts_dir()
 MERGE = REPO / "tools" / "kb_build" / "tables" / "point_merge.csv"
 QUEUE = REPO / "tools" / "kb_coverage" / "tables" / "rejudge_queue.csv"
 COLUMNS = ("chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
@@ -56,8 +60,7 @@ def _row_key(r: dict) -> tuple[str, str, str]:
 def load_judgments() -> list[dict]:
     if not JUDGMENTS.exists():
         return []
-    with JUDGMENTS.open(encoding="utf-8", newline="") as fh:
-        rows = list(csv.DictReader(fh))
+    rows = judgments_io.load_all(JUDGMENTS)
     if rows:
         missing = [c for c in COLUMNS if c not in rows[0]]
         if missing:
@@ -126,10 +129,7 @@ def apply(pl: dict, judgments: list[dict],
         if key in move_keys:
             r["action"] = "SKIP"
             r["note"] = f"已入重判队列(type={r['type']})"
-    with judgments_path.open("w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=COLUMNS)
-        w.writeheader()
-        w.writerows(judgments)
+    judgments_io.write_all(judgments, judgments_path)
     # 重判队列：按行身份 (chunk_rel, chunk_id, midx) 去重追加（幂等）
     existing: set[tuple[str, str, str]] = set()
     if queue_path.exists() and queue_path.stat().st_size > 0:

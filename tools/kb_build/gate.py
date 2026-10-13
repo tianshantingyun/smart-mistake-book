@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-import csv
 import json
 import re
 import sys
@@ -344,8 +343,7 @@ def exam_leak_metric() -> Metric:
     from kb_coverage import check_exam_leak as cel
     m = Metric("exam_leak", "判定表 MATERIAL 行的例题派生泄漏（未豁免）")
     try:
-        with cel.JUDGMENTS.open(encoding="utf-8-sig", newline="") as fh:
-            rows = list(csv.DictReader(fh))
+        rows = cel.load_rows()          # 判定表 5 片（读法只有 check_exam_leak 一份）
         hits = cel.check_rows(rows)
         exemptions = cel.load_exemptions()
         violations, _excused, stale = cel.split_hits(hits, exemptions)

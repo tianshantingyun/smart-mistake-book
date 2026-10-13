@@ -19,7 +19,8 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 
 from kb_build import pack_io  # noqa: E402
-from kb_coverage import apply_rejudged_materials as A  # noqa: E402
+from kb_coverage import apply_rejudged_materials as A
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage import materialize as mz  # noqa: E402
 
 HDR = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title", "summary",
@@ -55,15 +56,14 @@ class ApplyRejudgedMaterialsTest(unittest.TestCase):
         self.pool.write_text(json.dumps({"rel_path": "数学/1.docx", "chunk_id": "aaaa111111-001",
                                          "subject": "MATH", "heading": "h", "text": "t", "fp": "f"})
                              + "\n", encoding="utf-8")
-        self.judgments = self.tmp / "judgments.csv"
-        with self.judgments.open("w", encoding="utf-8", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=HDR)
-            writer.writeheader()
-            writer.writerow({"chunk_rel": "数学/1.docx", "chunk_id": "aaaa111111-001",
+        # 判定表：分片目录（与生产同一份 write_all），原先是单文件 judgments.csv
+        self.judgments = self.tmp / "judgments"
+        judgments.write_all([{"chunk_rel": "数学/1.docx", "chunk_id": "aaaa111111-001",
                              "action": "MATERIAL", "node_slug": "node-b",
                              "type": "CONCEPT_EXPLANATION", "title": "新裁决标题",
                              "summary": "新摘要", "applicability": "PRIMARY：新",
-                             "content": "新正文", "boundary": "新边界", "note": "", "midx": ""})
+                             "content": "新正文", "boundary": "新边界", "note": "", "midx": ""}],
+                            self.judgments)
         self._orig = (A.POOL_PATH, mz.JUDGMENTS, A.OUT_LOG)
         A.POOL_PATH, mz.JUDGMENTS, A.OUT_LOG = self.pool, self.judgments, self.tmp / "log.csv"
 

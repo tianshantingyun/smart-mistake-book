@@ -14,7 +14,7 @@ store_53_transcripts 曾每轮从 001 重排 cid，把同一 rel 的块写成重
    写临时文件后 `os.replace`；
 3. **映射表**：`tables/key_remap.csv`（chunk_rel, old_chunk_id, new_chunk_id, fp），
    重排 rel 每行一条（含 old==new 的行——判定表撞键消歧需要全量旧键对应关系）；
-4. **判定表重映射 + fp 对拍**：`material_judgments.csv` 的 chunk_id 按映射表改写。
+4. **判定表重映射 + fp 对拍**：判定表（`tables/material_judgments/` 五片）的 chunk_id 按映射表改写。
    逐行校验：未重排键 → 判定行必须命中池行；唯一旧键 → 新键的池行 fp 必须与映射表
    一致（内容不变、只改 id）；撞键（旧键对应多条池行）→ 用判定行内容指纹匹配
    具体池行，匹配不上记入 `tables/fp_mismatch.csv` 并 exit 1（不静默改绑）。
@@ -53,13 +53,15 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 
+from kb_coverage import judgments  # noqa: E402
 from kb_coverage.pool_path import POOL_PATH, LEGACY_POOL  # noqa: E402
 
 CHUNKS = POOL_PATH            # 当前生效池（重排后的唯一键池）
 LEGACY = LEGACY_POOL          # 旧名原始池（P0.2 迁移源；句柄被宿主锁住，只读不写）
 BACKUP = LEGACY.with_name(LEGACY.name + ".bak")
 REMAP = REPO / "tools/kb_coverage/tables/key_remap.csv"
-JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGMENTS = judgments.parts_dir()
 MISMATCH = REPO / "tools/kb_coverage/tables/fp_mismatch.csv"
 REMAP_COLS = ("chunk_rel", "old_chunk_id", "new_chunk_id", "fp")
 MISMATCH_COLS = ("chunk_rel", "chunk_id", "action", "node_slug", "reason")
@@ -140,8 +142,7 @@ def remap_judgments(pool_rows: list[dict]) -> tuple[int, list[dict], int]:
 
     if not JUDGMENTS.exists():
         return 0, [], 0
-    rows = list(csv.DictReader(JUDGMENTS.open(encoding="utf-8")))
-    cols = list(rows[0].keys())
+    rows = judgments.load_all(JUDGMENTS)
     remapped = 0
     mismatches: list[dict] = []
     for r in rows:
@@ -190,10 +191,9 @@ def remap_judgments(pool_rows: list[dict]) -> tuple[int, list[dict], int]:
                                    action=r["action"], node_slug=r["node_slug"],
                                    reason=f"撞键且内容指纹匹配不上（旧键对应 {len(entries)} 条池行）"))
     if remapped:
-        with JUDGMENTS.open("w", encoding="utf-8", newline="") as fh:
-            w = csv.DictWriter(fh, fieldnames=cols, lineterminator="\n")
-            w.writeheader()
-            w.writerows(rows)
+        # 行尾由 write_all 钉死 CRLF：此前这里写 LF，一次重映射会把全表行尾从 CRLF 翻成 LF，
+        # diff 噪音淹没真正的重映射行。
+        judgments.write_all(rows, JUDGMENTS)
     return remapped, mismatches, len(rows)
 
 
@@ -258,8 +258,9 @@ def main(argv: list[str] | None = None) -> int:
         elif MISMATCH.exists():
             MISMATCH.unlink()
     elif JUDGMENTS.exists():
-        with JUDGMENTS.open(encoding="utf-8") as fh:
-            judgment_rows = sum(1 for _ in fh) - 1  # 减表头
+        # 行数按**行身份**计：原先数物理行（sum(1 for _ in fh) - 1），字段内换行会被算成多行，
+        # 拆分后 5 片还各有 1 个表头，那个口径只会越数越偏。
+        judgment_rows = len(judgments.load_all(JUDGMENTS))
 
     stats = {
         "poolRows": pool_rows,

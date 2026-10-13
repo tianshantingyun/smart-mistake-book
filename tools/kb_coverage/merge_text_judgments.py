@@ -28,6 +28,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from kb_build import pack_io
+from kb_coverage import judgments
 from kb_coverage.extraction_state import subject_of_path
 from kb_coverage.pool_path import POOL_PATH
 
@@ -37,7 +38,8 @@ OUT_CSV = AGENT_INPUT / "merged_text_batch.csv"
 OUT_NEW = AGENT_INPUT / "text_new_nodes.json"
 OUT_NEW_FULL = AGENT_INPUT / "new_proposals_full.csv"
 VERDICTS_DIR = REPO / "knowledge-production" / "judgment-verdicts"
-JUDGMENTS = REPO / "tools/kb_coverage/tables/material_judgments.csv"
+# 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
+JUDGMENTS = judgments.parts_dir()
 CHUNKS = POOL_PATH
 HDR = ["chunk_rel", "chunk_id", "action", "node_slug", "type", "title", "summary",
        "applicability", "content", "boundary", "note", "midx"]
@@ -211,11 +213,8 @@ def apply_to_judgments(merged: list[dict], target: Path | None = None,
     rows: list[dict] = []
     existing: dict[tuple[str, str, str], int] = {}
     if path.exists():
-        with path.open(encoding="utf-8-sig", newline="") as fh:
-            for row in csv.DictReader(fh):
-                rows.append({k: (row.get(k) or "") for k in HDR})
-                existing[(row.get("chunk_rel") or "", row.get("chunk_id") or "",
-                          (row.get("midx") or "").strip())] = len(rows) - 1
+        rows = judgments.load_all(path)
+        existing = {judgments.key(row): i for i, row in enumerate(rows)}
     added = skipped = proposals = resynced = 0
     table_keys = {(k[0], k[1]) for k in existing}
     changed_keys: list[str] = []
@@ -274,11 +273,7 @@ def apply_to_judgments(merged: list[dict], target: Path | None = None,
             out["midx"] = (rec.get("midx") or "").strip()
         rows.append(out)
         added += 1
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=HDR)
-        writer.writeheader()
-        writer.writerows(rows)
+    judgments.write_all(rows, path)
     if full:
         prop_path = within_repo(OUT_NEW_FULL)
         prop_path.parent.mkdir(parents=True, exist_ok=True)
@@ -317,7 +312,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.apply:
         applied = apply_to_judgments(res["merged"], resync=args.resync)
         print(f"追加进判定表：新增 {applied['added']} 行，跳过既有键 {applied['skipped_existing']} 行，"
-              f"表内共 {applied['total']} 行 → {JUDGMENTS.name}")
+              f"表内共 {applied['total']} 行 → {JUDGMENTS.as_posix()}/")
         if args.resync:
             print(f"同步修正 {applied['resynced']} 行：")
             for k in applied["resynced_keys"][:20]:
