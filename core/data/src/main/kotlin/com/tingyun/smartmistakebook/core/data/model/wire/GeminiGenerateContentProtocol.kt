@@ -158,11 +158,23 @@ internal object GeminiGenerateContentProtocol : ModelWireProtocol {
     }.getOrNull()
 
     override fun reconstructedBody(rawSse: String): String {
+        val blocks = OpenAiSse.eventDataBlocksTerminated(rawSse).toList()
         val text = buildString {
-            for (block in OpenAiSse.eventDataBlocksTerminated(rawSse)) {
+            for (block in blocks) {
                 if (block == OpenAiSse.DONE_BLOCK) break
                 append(streamDelta(block) ?: continue)
             }
+        }
+        // 流式里"为什么停下来"的声明（KD-33 补记 / AUD-14）：Gemini 的每个 SSE 帧本身就是一份
+        // 完整 `GenerateContentResponse`，终帧在 `candidates[].finishReason` 上给出原因（与整包
+        // 响应同义）。它必须原样带进重建体：正文非空也可能被 `MAX_TOKENS` 截断，终态解析
+        // （[parseCompletion]）按这个键才分得出"模型写完了"与"模型没写完"——丢了它，
+        // 截断又会落回 INVALID_RESPONSE（不可重试、重发会逐字复现）。
+        val finishReason = blocks.firstNotNullOfOrNull(::streamFinishReason)
+        if (text.isBlank() && finishReason == TRUNCATING_FINISH_REASON) {
+            throw IncompleteModelOutputException(
+                "streamed reply was truncated by the provider (finishReason=$finishReason)",
+            )
         }
         return buildJsonObject {
             put(
@@ -170,6 +182,7 @@ internal object GeminiGenerateContentProtocol : ModelWireProtocol {
                 buildJsonArray {
                     add(
                         buildJsonObject {
+                            finishReason?.let { put("finishReason", it) }
                             put(
                                 "content",
                                 buildJsonObject {
@@ -187,6 +200,13 @@ internal object GeminiGenerateContentProtocol : ModelWireProtocol {
             )
         }.toString()
     }
+
+    /** 这一帧携带的 `candidates[].finishReason`（终帧上才有；正常帧没有这个键）。 */
+    private fun streamFinishReason(payload: String): String? = runCatching {
+        parseObject(payload)["candidates"]?.jsonArray.orEmpty().firstNotNullOfOrNull { candidate ->
+            (candidate as? JsonObject)?.optionalString("finishReason")
+        }
+    }.getOrNull()
 
     override fun probeRequestBody(modelId: String, probe: ModelProbeKind): String = when (probe) {
         ModelProbeKind.STRUCTURED -> structuredProbeBody(modelId)

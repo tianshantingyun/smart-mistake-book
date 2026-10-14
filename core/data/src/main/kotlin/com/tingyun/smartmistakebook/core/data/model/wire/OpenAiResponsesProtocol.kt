@@ -143,13 +143,30 @@ internal object OpenAiResponsesProtocol : ModelWireProtocol {
     }.getOrNull()
 
     override fun reconstructedBody(rawSse: String): String {
+        val blocks = OpenAiSse.eventDataBlocksTerminated(rawSse).toList()
         val text = buildString {
-            for (block in OpenAiSse.eventDataBlocksTerminated(rawSse)) {
+            for (block in blocks) {
                 if (block == OpenAiSse.DONE_BLOCK) break
                 append(streamDelta(block) ?: continue)
             }
         }
+        // 流式里"没走完"的声明（KD-33 补记 / AUD-14）：Responses 用 status / incomplete_details
+        // 声明它，流式终帧把它放在 `response.incomplete` 事件的 `response` 对象里（与整包响应
+        // 同级的两个字段）。它必须原样带进重建体：正文非空也可能没走完，终态解析
+        // （[parseCompletion]）按这两个键才分得出"模型写完了"与"模型没写完"——丢了它，
+        // 截断又会落回 INVALID_RESPONSE（不可重试、重发会逐字复现）。
+        val incomplete = blocks.firstNotNullOfOrNull(::streamIncompleteEnvelope)
+        if (text.isBlank() && incomplete != null) {
+            throw IncompleteModelOutputException(
+                "streamed reply was truncated by the provider " +
+                    "(${incompleteDeclarationOf(incomplete)})",
+            )
+        }
         return buildJsonObject {
+            incomplete?.optionalString("status")?.let { put("status", it) }
+            (incomplete?.get("incomplete_details") as? JsonObject)?.let {
+                put("incomplete_details", it)
+            }
             put(
                 "output",
                 buildJsonArray {
@@ -173,6 +190,17 @@ internal object OpenAiResponsesProtocol : ModelWireProtocol {
             )
         }.toString()
     }
+
+    /**
+     * 这一帧携带的"没走完"声明所在的信封：`response.*` 事件把它放在 `response` 对象里
+     * （`{type:"response.incomplete", response:{status, incomplete_details}}`），
+     * 兼容实现若把整包形状放进单帧则直接是顶层字段。没有声明则 null。
+     */
+    private fun streamIncompleteEnvelope(payload: String): JsonObject? = runCatching {
+        val event = parseObject(payload)
+        val envelope = (event["response"] as? JsonObject) ?: event
+        envelope.takeIf { incompleteDeclarationOf(it) != null }
+    }.getOrNull()
 
     override fun probeRequestBody(modelId: String, probe: ModelProbeKind): String = when (probe) {
         ModelProbeKind.STRUCTURED -> structuredProbeBody(modelId)

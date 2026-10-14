@@ -16,6 +16,16 @@ internal interface PdfBatchImportPageRenderer {
     fun render(source: Uri, session: File): List<File>
 }
 
+/**
+ * PDF 页渲染长边（设备实测口径：A4 页按此渲染后落 JPEG）。
+ *
+ * 放在文件级而不是渲染器的私有伴生对象里：它是**渲染侧**的口径，而"渲染出来的 2200 长边
+ * 进规范资产库会被按 `canonicalDecodeSampleSize` 采样到 1100"是**入库侧**的口径
+ * （KD-32/AUD-10）。仪器化用例要同时读到两侧才能把"采样真的生效"钉成一条断言——此前那条
+ * 断言写的是渲染侧的 2200，自采样提交后从未跑过，必然红。值本身没有变化。
+ */
+internal const val PDF_RENDER_LONG_EDGE_PIXELS = 2_200
+
 internal class AndroidPdfBatchImportPageRenderer(
     private val resolver: ContentResolver,
 ) : PdfBatchImportPageRenderer {
@@ -109,7 +119,6 @@ internal class AndroidPdfBatchImportPageRenderer(
 
     private companion object {
         const val MAX_PDF_SOURCE_BYTES = 128L * 1024L * 1024L
-        const val PDF_RENDER_LONG_EDGE_PIXELS = 2_200
         const val PDF_JPEG_QUALITY = 94
     }
 }

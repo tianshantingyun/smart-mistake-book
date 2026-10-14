@@ -107,23 +107,37 @@ data class CaptureAssessment(
         val multipleQuestionIssues = issues.filter {
             it.code == CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS
         }
+        // KD-34 未闭合项：下面那组"多道独立题 ⟺ SPLIT / 非 SPLIT ⟹ 无区域"的耦合是**单页语义**
+        // ——"这页有几道独立题 → 走本地分题流"。`followingPageRelations` 非空 = 这是一次**多页
+        // 关系轮**（A1 多页变体的合法形状），它的消费方只读 decision 与 followingPageRelations
+        // （RoomBatchImportRepository 的边界评估），区域规则早已下移到切分消费侧（A2）。模型在
+        // 关系轮里顺带报 MULTIPLE_QUESTIONS + RECAPTURE、或带上整册 questionRegions，不该在这里
+        // 把整轮打死——那会让边界评估落 INVALID_RESPONSE（且 requestId 确定性 ⇒ 永不重派发），
+        // 连 followingPageRelations 一起丢掉。
+        //
+        // 单页轮的 followingPageRelations 必须为空（任务级完成校验按
+        // `followingSourceAssets.size == followingPageRelations.size` 兜底，
+        // ModelTaskCompletionValidator），所以这两条耦合在单页语义上逐字保留、不放宽。
+        val isPageRelationRound = followingPageRelations.isNotEmpty()
         if (schemaVersion >= MULTIPLE_QUESTION_SPLIT_SCHEMA_VERSION) {
             require(multipleQuestionIssues.all { it.severity == CaptureAssessmentSeverity.BLOCKING }) {
                 "Multiple independent questions must be treated as blocking"
             }
-            require(
-                multipleQuestionIssues.isEmpty() || decision == CaptureAssessmentDecision.SPLIT,
-            ) { "Multiple independent questions must enter the local split flow" }
-            require(
-                decision != CaptureAssessmentDecision.SPLIT || multipleQuestionIssues.isNotEmpty(),
-            ) { "A split decision must identify multiple independent questions" }
-            // 分题区域能不能真的切（2 到 12 个、唯一、最小尺寸、两两重叠上限）是切分消费侧的
-            // 判据：手动框选与自动拆分都经 core:domain 的 SplitCaptureDraftRequest 契约，
-            // 判据本身是 core:domain 的 isUsableSplitRegionSet。本契约只保留 wire 形状与
-            // decision 耦合——多页关系请求里模型顺带返回的整册 questionRegions 不该在这里被拒，
-            // 那会让整轮任务落 INVALID_RESPONSE，连 followingPageRelations 一起丢掉。
-            require(decision == CaptureAssessmentDecision.SPLIT || questionRegions.isEmpty()) {
-                "Only a split decision may contain question regions"
+            if (!isPageRelationRound) {
+                require(
+                    multipleQuestionIssues.isEmpty() || decision == CaptureAssessmentDecision.SPLIT,
+                ) { "Multiple independent questions must enter the local split flow" }
+                require(
+                    decision != CaptureAssessmentDecision.SPLIT || multipleQuestionIssues.isNotEmpty(),
+                ) { "A split decision must identify multiple independent questions" }
+                // 分题区域能不能真的切（2 到 12 个、唯一、最小尺寸、两两重叠上限）是切分消费侧
+                // 的判据：手动框选与自动拆分都经 core:domain 的 SplitCaptureDraftRequest 契约，
+                // 判据本身是 core:domain 的 isUsableSplitRegionSet。本契约只保留 wire 形状与
+                // decision 耦合——多页关系请求里模型顺带返回的整册 questionRegions 不该在这里被拒，
+                // 那会让整轮任务落 INVALID_RESPONSE，连 followingPageRelations 一起丢掉。
+                require(decision == CaptureAssessmentDecision.SPLIT || questionRegions.isEmpty()) {
+                    "Only a split decision may contain question regions"
+                }
             }
         } else if (schemaVersion >= MULTIPLE_QUESTION_GATE_SCHEMA_VERSION) {
             require(decision != CaptureAssessmentDecision.SPLIT && questionRegions.isEmpty()) {

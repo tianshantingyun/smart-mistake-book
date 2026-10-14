@@ -12,6 +12,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -215,6 +216,74 @@ class OpenAiResponsesProtocolTest {
         val text = rebuilt["output"]!!.jsonArray[0].jsonObject["content"]!!
             .jsonArray[0].jsonObject["text"]?.jsonPrimitive?.content
         assertEquals("你好世界", text)
+    }
+
+    @Test
+    fun truncatedStreamCarriesItsIncompleteDeclarationAndParsesAsIncompleteOutput() {
+        // AUD-14：Responses 流式的终帧事件（response.incomplete）把 status / incomplete_details
+        // 放在 `response` 对象里。重建体丢了它，没走完的一轮会落回 INVALID_RESPONSE
+        // （不可重试、重发会逐字复现），而不是可重试的 INCOMPLETE_OUTPUT。
+        val rawSse = buildString {
+            append("data: {\"type\":\"response.output_text.delta\",\"delta\":\"题干（被切断\"}\n\n")
+            append(
+                "data: {\"type\":\"response.incomplete\",\"response\":{\"id\":\"resp_1\"," +
+                    "\"status\":\"incomplete\",\"incomplete_details\":" +
+                    "{\"reason\":\"max_output_tokens\"}}}\n\n",
+            )
+        }
+
+        val reconstructed = protocol.reconstructedBody(rawSse)
+
+        assertTrue(
+            "重建体必须原样带上 status：$reconstructed",
+            reconstructed.contains("\"status\":\"incomplete\""),
+        )
+        assertTrue(
+            "重建体必须原样带上 incomplete_details：$reconstructed",
+            reconstructed.contains("\"incomplete_details\":{\"reason\":\"max_output_tokens\"}"),
+        )
+        val thrown = assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.parseCompletion(reconstructed, input, "gpt-test")
+        }
+        assertTrue("截断原因必须写进归因", thrown.message.orEmpty().contains("incomplete"))
+
+        // 反向：正常收尾（response.completed / status=completed）没有"没走完"声明，标记不带，
+        // 解析仍是正常任务输出。
+        val completed = protocol.reconstructedBody(
+            buildString {
+                append(
+                    "data: {\"type\":\"response.output_text.delta\",\"delta\":" +
+                        "\"{\\\"questionMarkdown\\\":\\\"题干\\\",\\\"choices\\\":" +
+                        "[{\\\"choiceId\\\":\\\"A\\\",\\\"markdown\\\":\\\"甲\\\"}," +
+                        "{\\\"choiceId\\\":\\\"B\\\",\\\"markdown\\\":\\\"乙\\\"}]," +
+                        "\\\"correctChoiceId\\\":\\\"A\\\"}\"}\n\n",
+                )
+                append("data: {\"type\":\"response.completed\",\"response\":{\"status\":\"completed\"}}\n\n")
+            },
+        )
+        assertFalse(completed.contains("\"status\""))
+        assertEquals(
+            "A",
+            (protocol.parseCompletion(completed, input, "gpt-test") as KnowledgeQuizOutput)
+                .correctChoiceId,
+        )
+    }
+
+    @Test
+    fun incompleteStreamWithoutAnyTextIsIncompleteOutputBeforeBlankTextIsJudged() {
+        // 正文一字节没吐、终帧说 status=incomplete：重建体自己就走 INCOMPLETE_OUTPUT（可重试），
+        // 而不是没有正文的 INVALID_RESPONSE。
+        assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.reconstructedBody(
+                "data: {\"type\":\"response.incomplete\",\"response\":{" +
+                    "\"status\":\"incomplete\",\"incomplete_details\":" +
+                    "{\"reason\":\"max_output_tokens\"}}}\n\n",
+            )
+        }
     }
 
     @Test

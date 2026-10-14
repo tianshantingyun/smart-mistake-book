@@ -169,6 +169,56 @@ class GeminiGenerateContentProtocolTest {
     }
 
     @Test
+    fun truncatedStreamCarriesItsFinishReasonAndParsesAsIncompleteOutput() {
+        // AUD-14：Gemini 流式的每个 SSE 帧是一份完整响应，终帧在 candidates[].finishReason
+        // 上声明"为什么停下来"。重建体丢了它，被 MAX_TOKENS 截断的一轮会落回 INVALID_RESPONSE
+        // （不可重试、重发会逐字复现），而不是可重试的 INCOMPLETE_OUTPUT。
+        val rawSse = buildString {
+            append("data: " + envelopeOf("题干（被切断") + "\n\n")
+            append("data: " + envelopeOf("", finishReason = "MAX_TOKENS") + "\n\n")
+        }
+
+        val reconstructed = protocol.reconstructedBody(rawSse)
+
+        assertTrue(
+            "重建体必须原样带上终帧的 finishReason：$reconstructed",
+            reconstructed.contains("\"finishReason\":\"MAX_TOKENS\""),
+        )
+        val thrown = assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.parseCompletion(reconstructed, input, "gemini-test")
+        }
+        assertTrue("截断原因必须写进归因", thrown.message.orEmpty().contains("MAX_TOKENS"))
+
+        // 反向：正常收尾（STOP）的标记照带，解析仍是正常任务输出。
+        val answerPayload =
+            """{"questionMarkdown":"题干","choices":[{"choiceId":"A","markdown":"甲"},{"choiceId":"B","markdown":"乙"}],"correctChoiceId":"A"}"""
+        val completed = protocol.reconstructedBody(
+            "data: " + envelopeOf(answerPayload, finishReason = "STOP") + "\n\n",
+        )
+        assertTrue(completed.contains("\"finishReason\":\"STOP\""))
+        assertEquals(
+            "A",
+            (protocol.parseCompletion(completed, input, "gemini-test") as KnowledgeQuizOutput)
+                .correctChoiceId,
+        )
+    }
+
+    @Test
+    fun truncatedStreamWithoutAnyTextIsIncompleteOutputBeforeBlankTextIsJudged() {
+        // 正文一字节没吐、终帧说 MAX_TOKENS：重建体自己就走 INCOMPLETE_OUTPUT（可重试），
+        // 而不是没有正文的 INVALID_RESPONSE。
+        assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.reconstructedBody(
+                "data: " + envelopeOf("", finishReason = "MAX_TOKENS") + "\n\n",
+            )
+        }
+    }
+
+    @Test
     fun probeBodiesUseGeminiShapesAndTheSharedTokens() {
         val structured = protocol.probeRequestBody("gemini-test", ModelProbeKind.STRUCTURED)
         assertTrue(structured.contains(ModelProbeSpec.STRUCTURED_TOKEN))

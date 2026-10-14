@@ -195,6 +195,71 @@ class AnthropicMessagesProtocolTest {
     }
 
     @Test
+    fun truncatedStreamCarriesItsStopReasonAndParsesAsIncompleteOutput() {
+        // AUD-14：流式里"为什么停下来"只有 message_delta 的 `delta.stop_reason` 一处声明。
+        // 重建体丢了它，被 max_tokens 截断的一轮会落回 INVALID_RESPONSE（不可重试、重发会
+        // 逐字复现），而不是可重试的 INCOMPLETE_OUTPUT——与 Chat Completions 带
+        // finish_reason 的重建体同一条链。
+        val rawSse = buildString {
+            append("event: content_block_delta\n")
+            append("data: {\"type\":\"content_block_delta\",\"delta\":{\"type\":\"text_delta\",\"text\":\"题干（被切断\"}}\n\n")
+            append("event: message_delta\n")
+            append("data: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"max_tokens\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":12}}\n\n")
+            append("event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n")
+        }
+
+        val reconstructed = protocol.reconstructedBody(rawSse)
+
+        assertTrue(
+            "重建体必须原样带上终帧的 stop_reason：$reconstructed",
+            reconstructed.contains("\"stop_reason\":\"max_tokens\""),
+        )
+        val thrown = assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.parseCompletion(reconstructed, input, "claude-test")
+        }
+        assertTrue("截断原因必须写进归因", thrown.message.orEmpty().contains("max_tokens"))
+    }
+
+    @Test
+    fun reasoningOnlyTruncatedStreamIsIncompleteOutputBeforeBlankTextIsJudged() {
+        // KD-33 形态：思考烧光输出预算、正文一字节没吐，终帧说 stop_reason=max_tokens。
+        // 重建体自己就要走 INCOMPLETE_OUTPUT（可重试），而不是没有正文的 INVALID_RESPONSE。
+        assertThrows(
+            com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException::class.java,
+        ) {
+            protocol.reconstructedBody(
+                "event: message_delta\n" +
+                    "data: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"max_tokens\"}}\n\n",
+            )
+        }
+    }
+
+    @Test
+    fun completedStreamKeepsItsStopReasonAndStillParses() {
+        // 反向：正常收尾（end_turn）的重建体照带标记，解析仍是正常任务输出。
+        val rawSse = buildString {
+            append("event: content_block_delta\n")
+            append(
+                "data: {\"type\":\"content_block_delta\",\"delta\":{\"type\":\"text_delta\"," +
+                    "\"text\":\"{\\\"questionMarkdown\\\":\\\"题干\\\",\\\"choices\\\":" +
+                    "[{\\\"choiceId\\\":\\\"A\\\",\\\"markdown\\\":\\\"甲\\\"}," +
+                    "{\\\"choiceId\\\":\\\"B\\\",\\\"markdown\\\":\\\"乙\\\"}]," +
+                    "\\\"correctChoiceId\\\":\\\"A\\\"}\"}}\n\n",
+            )
+            append("event: message_delta\n")
+            append("data: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\"}}\n\n")
+        }
+
+        val reconstructed = protocol.reconstructedBody(rawSse)
+
+        assertTrue(reconstructed.contains("\"stop_reason\":\"end_turn\""))
+        val output = protocol.parseCompletion(reconstructed, input, "claude-test") as KnowledgeQuizOutput
+        assertEquals("A", output.correctChoiceId)
+    }
+
+    @Test
     fun probeBodiesUseAnthropicShapesAndTheSharedTokens() {
         val structured = Json.parseToJsonElement(
             protocol.probeRequestBody("claude-test", ModelProbeKind.STRUCTURED),

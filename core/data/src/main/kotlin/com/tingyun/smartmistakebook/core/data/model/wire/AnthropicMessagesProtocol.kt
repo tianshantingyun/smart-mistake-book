@@ -144,11 +144,23 @@ internal object AnthropicMessagesProtocol : ModelWireProtocol {
     }.getOrNull()
 
     override fun reconstructedBody(rawSse: String): String {
+        val blocks = OpenAiSse.eventDataBlocksTerminated(rawSse).toList()
         val text = buildString {
-            for (block in OpenAiSse.eventDataBlocksTerminated(rawSse)) {
+            for (block in blocks) {
                 if (block == OpenAiSse.DONE_BLOCK) break
                 append(streamDelta(block) ?: continue)
             }
+        }
+        // 流式里"为什么停下来"的声明（KD-33 补记 / AUD-14）：Anthropic 在 `message_delta`
+        // 事件的 `delta.stop_reason` 上给出终态原因（与整包响应的顶层 `stop_reason` 同义）。
+        // 它必须原样带进重建体：正文非空也可能被 `max_tokens` 截断，终态解析
+        // （[parseCompletion]）按这个键才分得出"模型写完了"与"模型没写完"——丢了它，
+        // 截断又会落回 INVALID_RESPONSE（不可重试、重发会逐字复现）。
+        val stopReason = blocks.firstNotNullOfOrNull(::streamStopReason)
+        if (text.isBlank() && stopReason == TRUNCATING_STOP_REASON) {
+            throw IncompleteModelOutputException(
+                "streamed reply was truncated by the provider (stop_reason=$stopReason)",
+            )
         }
         return buildJsonObject {
             put(
@@ -157,6 +169,7 @@ internal object AnthropicMessagesProtocol : ModelWireProtocol {
                     add(buildJsonObject { put("type", "text"); put("text", text) })
                 },
             )
+            stopReason?.let { put("stop_reason", it) }
         }.toString()
     }
 
@@ -169,6 +182,17 @@ internal object AnthropicMessagesProtocol : ModelWireProtocol {
 
     override fun probeResponseText(body: String): String? = runCatching {
         textBlocksOf(parseObject(body)).ifBlank { null }
+    }.getOrNull()
+
+    /**
+     * 这一帧携带的"为什么停下来"声明：`message_delta` 事件的 `delta.stop_reason`
+     * （官方 SSE 事件序列的终态事件之一；与整包响应顶层的 `stop_reason` 同义）。
+     * 也接受顶层 `stop_reason`（个别兼容实现把整包形状放进单帧），两者都没有则 null。
+     */
+    private fun streamStopReason(payload: String): String? = runCatching {
+        val event = parseObject(payload)
+        event.optionalString("stop_reason")
+            ?: event["delta"]?.objectValue()?.optionalString("stop_reason")
     }.getOrNull()
 
     /** 把响应 `content[]` 里的文本块按序拼接（忽略非文本块）。 */

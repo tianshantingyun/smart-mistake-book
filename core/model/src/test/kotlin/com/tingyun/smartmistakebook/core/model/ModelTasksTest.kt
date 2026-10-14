@@ -483,6 +483,78 @@ class ModelTasksTest {
         )
     }
 
+    /**
+     * KD-34 未闭合项（A2 同取向）：多页关系轮里模型回了 MULTIPLE_QUESTIONS + RECAPTURE，并顺带
+     * 带上整册 questionRegions——请求侧约束（A1 多页变体：不得 SPLIT / 不得报 MULTIPLE_QUESTIONS）
+     * 拦不住不合规响应，旧契约在 `multipleQuestionIssues.isEmpty() || decision == SPLIT` 上把整轮
+     * 拒掉，边界评估连 followingPageRelations 一起丢。关系轮的消费方只读 decision 与
+     * followingPageRelations，这两条耦合必须限定在单页语义。
+     */
+    @Test
+    fun pageRelationAssessmentToleratesNonSplitMultipleQuestionIssuesAndRegions() {
+        val assessment = CaptureAssessment(
+            decision = CaptureAssessmentDecision.RECAPTURE,
+            issues = listOf(
+                CaptureAssessmentIssue(
+                    code = CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS,
+                    severity = CaptureAssessmentSeverity.BLOCKING,
+                    message = "相邻两页各含一道独立题目",
+                ),
+            ),
+            suggestedActions = listOf(CaptureAssessmentAction.RECAPTURE),
+            questionRegions = listOf(
+                NormalizedSourceRegion(left = 0.05, top = 0.05, right = 0.95, bottom = 0.45),
+                NormalizedSourceRegion(left = 0.05, top = 0.50, right = 0.95, bottom = 0.95),
+            ),
+            followingPageRelations = listOf(CapturePageRelation.UNSURE),
+            modelVersion = "fake/capture-v1",
+        )
+        val request = ModelTaskRequest(
+            requestId = "capture-assess:page-relation-non-split",
+            input = (captureRequest().input as CaptureAssessmentInput).copy(
+                followingSourceAssets = listOf(
+                    CaptureSourceAssetRef(
+                        assetId = "asset-2",
+                        sha256 = "b".repeat(64),
+                        width = 1080,
+                        height = 1440,
+                        pageIndex = 1,
+                    ),
+                ),
+            ),
+            occurredAtEpochMillis = 100,
+        )
+
+        assertEquals(CaptureAssessmentDecision.RECAPTURE, assessment.decision)
+        assertEquals(2, assessment.questionRegions.size)
+        assertEquals(listOf(CapturePageRelation.UNSURE), assessment.followingPageRelations)
+        assertTrue(
+            ModelTaskCompletionValidator
+                .validate(request, CaptureAssessmentOutput(assessment))
+                .isEmpty(),
+        )
+    }
+
+    /**
+     * 反向钉子：单页语义逐字不变——含 MULTIPLE_QUESTIONS 却不是 SPLIT（这里 RECAPTURE），
+     * 仍必须被拒（"多道独立题 → 走本地分题流"）。followingPageRelations 为空即单页轮。
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun singlePageAssessmentCannotContinueWithMultipleQuestionsOutsideTheSplitFlow() {
+        CaptureAssessment(
+            decision = CaptureAssessmentDecision.RECAPTURE,
+            issues = listOf(
+                CaptureAssessmentIssue(
+                    code = CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS,
+                    severity = CaptureAssessmentSeverity.BLOCKING,
+                    message = "这页有两道独立题目",
+                ),
+            ),
+            suggestedActions = listOf(CaptureAssessmentAction.RECAPTURE),
+            modelVersion = "fake/capture-v1",
+        )
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun nonSplitAssessmentCannotCarryQuestionRegions() {
         CaptureAssessment(

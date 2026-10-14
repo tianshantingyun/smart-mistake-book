@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.capture
 
+import android.graphics.BitmapFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.data.model.FakeModelGateway
@@ -41,11 +42,13 @@ import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import java.io.File
+import kotlin.math.abs
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -232,6 +235,154 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             File(context.filesDir, "source-assets").listFiles().orEmpty().map { it.name }.toSet(),
         )
     }
+
+    /**
+     * KD-32/AUD-10（②）：>2048 **真实照片**的设备级采样钉子——导入后规范记录与规范文件的长边
+     * 都等于采样值（2400×3200 → 1200×1600），`resolve()` 的完整性判据（存在 + byteSize +
+     * sha256 逐位一致）自洽。
+     *
+     * 为什么需要它：既有仪器化夹具全是 ≤2048 的小图（采样率 1、行为与采样引入前逐字相同），
+     * 采样路径此前只有 JVM 纯函数覆盖（`CanonicalDecodeSamplingTest` 钉的是传给 `inSampleSize`
+     * 的采样率，并未真的执行 Android 解码）。
+     */
+    @Test
+    fun photoAboveTheDecodeBudgetIsStoredAtItsSampledEdgeAndResolvesIntact() = runBlocking {
+        val sourceWidth = 2_400
+        val sourceHeight = 3_200
+        val source = createJpeg(width = sourceWidth, height = sourceHeight)
+        val sample = canonicalDecodeSampleSize(sourceWidth, sourceHeight)
+        assertTrue("夹具必须是 >2048 的真采样场景：sample=$sample", sample > 1)
+        val sampledWidth = sourceWidth / sample
+        val sampledHeight = sourceHeight / sample
+
+        val draft = repository.importDraft(
+            CaptureDraftImportRequest(
+                requestId = "sampled-large-photo",
+                localUri = privateUri(source).toString(),
+                source = CaptureInputSource.CAMERA,
+                origin = CaptureEntryOrigin.LIBRARY,
+                occurredAtEpochMillis = 12_000,
+            ),
+        )
+
+        val record = checkNotNull(database.readProblemDraft(draft.draftId)).sourceAsset
+        assertEquals("规范记录宽 = 源宽 / 采样率", sampledWidth, record.width)
+        assertEquals("规范记录高 = 源高 / 采样率", sampledHeight, record.height)
+        assertTrue(
+            "落库长边必须在消费上限内：${maxOf(record.width, record.height)}",
+            maxOf(record.width, record.height) <= MAX_DECODE_EDGE_PX,
+        )
+        val file = File(context.filesDir, record.relativePath)
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.path, bounds)
+        assertTrue(bounds.outWidth > 0 && bounds.outHeight > 0)
+        assertEquals(
+            "文件本身的长边也必须是采样值（不是源图的 $sourceHeight）",
+            sampledHeight,
+            maxOf(bounds.outWidth, bounds.outHeight),
+        )
+
+        // resolve() 的完整性判据自洽：sha256 与 byteSize 都和盘上字节逐位一致，核对读取口
+        // （与 resolve 同一条判据）因此给回同一份字节。
+        val vault = AndroidCanonicalAssetVault(context)
+        assertEquals(file.canonicalFile, vault.resolve(record).canonicalFile)
+        assertEquals(record.contentSha256, sha256Of(file))
+        assertEquals(record.byteSize, file.length())
+        val verified = readVerifiedCanonicalAssetBytes(context, record)
+        assertNotNull("resolve() 必须通过完整性判据（sha256 + byteSize 自洽）", verified)
+        assertEquals(record.byteSize, checkNotNull(verified).size.toLong())
+    }
+
+    /**
+     * AUD-10（KD-32 ②）：crop 在**采样源**上的坐标/指纹自洽。>2048 源图（2400×3200）先被
+     * import 采样成 1200×1600；`splitDraft` 的归一化区域必须映射到**采样位图**上（区域宽 0.4
+     * → 约 480px，而不是源图的 ~960px），产物长边 ≤2048，落库的 `splitRequestFingerprint`
+     * 能按 `cropped.contentSha256 + region` 逐字复算。
+     */
+    @Test
+    fun cropOfASampledSourceMapsRegionsToTheSampledBitmapAndKeepsTheFingerprintRecomputable() =
+        runBlocking {
+            val sourceWidth = 2_400
+            val sourceHeight = 3_200
+            val source = createJpeg(width = sourceWidth, height = sourceHeight)
+            val sample = canonicalDecodeSampleSize(sourceWidth, sourceHeight)
+            val sampledWidth = sourceWidth / sample
+            val sampledHeight = sourceHeight / sample
+            val original = repository.importDraft(
+                CaptureDraftImportRequest(
+                    requestId = "split-sampled-source",
+                    localUri = privateUri(source).toString(),
+                    source = CaptureInputSource.PHOTO_PICKER,
+                    origin = CaptureEntryOrigin.LIBRARY,
+                    occurredAtEpochMillis = 12_500,
+                ),
+            )
+            val replaced = checkNotNull(database.readProblemDraft(original.draftId))
+            val regions = listOf(
+                NormalizedSourceRegion(0.05, 0.05, 0.45, 0.45),
+                NormalizedSourceRegion(0.55, 0.45, 0.95, 0.95),
+            )
+            val request = SplitCaptureDraftRequest(
+                requestId = "split-sampled-source-once",
+                draftId = replaced.draftId,
+                expectedRevisionNumber = replaced.currentRevision.revisionNumber,
+                assessmentRequestId = "capture-assess:split-sampled-source",
+                sourceAssetId = replaced.sourceAsset.sourceAssetId,
+                regions = regions,
+                occurredAtEpochMillis = 12_600,
+            )
+
+            val result = repository.splitDraft(request)
+
+            assertEquals(2, result.splitDrafts.size)
+            val splitDraft = checkNotNull(
+                database.readProblemDraft(result.splitDrafts.first().draftId),
+            )
+            val cropped = splitDraft.sourceAsset
+            val region = regions.first()
+            assertTrue(
+                "裁剪产物长边必须在解码上限内：${maxOf(cropped.width, cropped.height)}",
+                maxOf(cropped.width, cropped.height) <= MAX_DECODE_EDGE_PX,
+            )
+            // 归一化区域 → **采样位图**：区域宽 0.4 × 1200 ≈ 480px（含两侧 1.5% padding）。
+            // 若误映射到源图（2400 宽）会得到 ~960px——相差一倍，不会被 4% 容差盖住。
+            assertTrue(
+                "cropped.width=${cropped.width} 应≈归一化区域宽 × 采样宽（$sampledWidth）",
+                abs(cropped.width - (region.right - region.left) * sampledWidth) <=
+                    0.04 * sampledWidth,
+            )
+            assertTrue(
+                "cropped.height=${cropped.height} 应≈归一化区域高 × 采样高（$sampledHeight）",
+                abs(cropped.height - (region.bottom - region.top) * sampledHeight) <=
+                    0.04 * sampledHeight,
+            )
+            // 指纹可复算：splitRequestFingerprint 的输入是 replaced + region + cropped.contentSha256，
+            // 用落库记录复算必须与落库指纹逐字相同。
+            assertEquals(
+                splitRequestFingerprint(replaced, request, region, 0, cropped),
+                splitDraft.requestFingerprint,
+            )
+            assertTrue(
+                "指纹必须绑定裁剪内容：换一个 contentSha256 就不该复算出同一个值",
+                splitRequestFingerprint(
+                    replaced,
+                    request,
+                    region,
+                    0,
+                    cropped.copy(contentSha256 = "0".repeat(64)),
+                ) != splitDraft.requestFingerprint,
+            )
+            assertTrue(
+                "指纹必须绑定区域：换一个 region 就不该复算出同一个值",
+                splitRequestFingerprint(
+                    replaced,
+                    request,
+                    NormalizedSourceRegion(0.05, 0.05, 0.4505, 0.45),
+                    0,
+                    cropped,
+                ) != splitDraft.requestFingerprint,
+            )
+        }
 
     @Test
     fun endingTutorSessionPersistsTerminalDispositionAndCannotRaceWithSave() = runBlocking {

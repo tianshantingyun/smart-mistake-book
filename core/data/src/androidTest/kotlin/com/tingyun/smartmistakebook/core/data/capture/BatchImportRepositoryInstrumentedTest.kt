@@ -314,11 +314,21 @@ class BatchImportRepositoryInstrumentedTest {
                 .filter(File::isFile)
                 .toList()
             assertEquals(3, assets.size)
+            // KD-32/AUD-10：PDF 页按长边 2200 渲染（PDF_RENDER_LONG_EDGE_PIXELS），规范资产
+            // 入库统一按 canonicalDecodeSampleSize 采样 ⇒ 落库长边 2200 / 2 = 1100
+            // （长边 ≤ MAX_DECODE_EDGE_PX = 2048）。此前这里断言未采样的 2200，自采样提交
+            // （42096510 / B2）后该用例从未跑过——陈旧断言，必然红。
+            val sampledLongEdge = PDF_RENDER_LONG_EDGE_PIXELS /
+                canonicalDecodeSampleSize(
+                    PDF_RENDER_LONG_EDGE_PIXELS,
+                    PDF_RENDER_LONG_EDGE_PIXELS,
+                )
             assets.forEach { asset ->
                 val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                 BitmapFactory.decodeFile(asset.path, bounds)
                 assertTrue(bounds.outWidth > 0 && bounds.outHeight > 0)
-                assertEquals(2_200, maxOf(bounds.outWidth, bounds.outHeight))
+                assertEquals(sampledLongEdge, maxOf(bounds.outWidth, bounds.outHeight))
+                assertTrue(maxOf(bounds.outWidth, bounds.outHeight) <= MAX_DECODE_EDGE_PX)
             }
             println("pdf-import benchmark: 3 pages = ${elapsedMillis}ms")
         } finally {
