@@ -7,6 +7,9 @@
 
 规矩（本工具强制）：
 - 映射只允许「旧 slug → 新 slug（必须存在于当前包）」或「→ null（退役，须给理由）」；
+- 改指若跨越教材章（topic 归属变了），可带可选 `newChapter`（映射 JSON 字段，缺省不写=行为不变）：
+  改后的 `chapter` 必须等于**映射后节点在当前包里的实际章归属**（量源写进映射 JSON 的
+  `chapterBasis`；不凭猜）。工具只负责按字段写入，签发人负责把依据写全；
 - 退役会减少题数：**必须写进 reasons**，并在协议文档留档（禁止无声改评测集）；
 - 写入前做**字节复现自检**：未改动的字段按原样 dump 必须与原文件逐字节相同（缩进/排序/
   ensure_ascii 一旦不符就报错拒绝写），保证只改该改的；
@@ -100,14 +103,21 @@ def main(argv: list[str] | None = None) -> int:
         if (key[0], new) not in pack_slugs:
             print(f"目标 slug 不在当前包：{key[0]} / {new}——拒绝改写", file=sys.stderr)
             return 2
-        if new == e["expectedSlug"]:
-            kept.append(e)
-            continue
-        changed += 1
-        report.append(f"改指  {key[0]} / {key[1]} → {new}")
-        kept.append({**e, "expectedSlug": new})
+        new_chapter = (item.get("newChapter") or "").strip()
+        entry = {**e}
+        notes = []
+        if new != e["expectedSlug"]:
+            entry["expectedSlug"] = new
+            notes.append(f"改指 {key[1]} → {new}")
+        if new_chapter and new_chapter != e["chapter"]:
+            entry["chapter"] = new_chapter
+            notes.append(f"改章 {e['chapter']} → {new_chapter}")
+        if notes:
+            changed += 1
+            report.append(f"{key[0]} / " + "；".join(notes))
+        kept.append(entry)
 
-    print(f"条目 {len(entries)} → {len(kept)}（改指 {changed}、退役 {retired}）")
+    print(f"条目 {len(entries)} → {len(kept)}（改指/改章 {changed}、退役 {retired}）")
     for line in report:
         print("  " + line)
     if not args.write:

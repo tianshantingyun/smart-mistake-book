@@ -76,7 +76,11 @@ class RealPackTest(unittest.TestCase):
         # 382 行合并（2026-10-12）+ 批次10 零材料点 1 行（2026-10-13）+ 同批 point_delete.csv 3 条
         # 残片删点 → 3741 − 382 − 1 − 3 = 3355。按新实测值就地更新。
         # （分解口径：HEAD 成品 3741 − staging 现点 3355 = 386 = merged 383 + deleted 3 + missing 0。）
-        self.assertEqual(3355, dp._point_count(pack))
+        # 2026-10-14 批次10 promote v14 落包后重钉（成品实测）：staging 口径 3355 + 批次10 窗口内容
+        # 新建 4 个知识点（[CHEMISTRY] 研究物质结构的价值、[MATH] 获取数据的基本途径、
+        # [PHYSICS] 家庭电路与安全用电、[PHYSICS] 材料科学及其应用）→ 成品实点 3741 − 386 + 4 = 3359
+        # （量源 = 成品包与 HEAD 包逐点集合差：退场 386、新增 4；round-1 失败信息 `3355 != 3359`）。
+        self.assertEqual(3359, dp._point_count(pack))
 
 
 if __name__ == "__main__":

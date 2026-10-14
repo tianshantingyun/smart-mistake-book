@@ -43,7 +43,7 @@ import org.junit.Test
  *
  * ## 断言（只断言"这份数据可信"，不断言质量阈值）
  *
- * 1. 金标 sha256 = 封存值（题面未被改过）+ 130 条 / 4 科 / 20 章（判官 v2 口径；
+ * 1. 金标 sha256 = 封存值（题面未被改过）+ 129 条 / 4 科 / 23 章（判官 v2，2026-10-14 迁移后口径；
  *    **每章条数不等**（3/9/11/12 条不等），所以不再断言"每章条数一致"这种 v1 恒值）；
  * 2. 每行都指向本查询的**同科**节点、且在**可信状态过滤集**内（导出行不能绕过生产 WHERE）；
  * 3. **回读 TSV 重算生产 v1（D1 形 = matched 优先）**：逐章 20 值、逐题 MISS（集合 + rank，256 窗口）
@@ -82,7 +82,11 @@ class ProductionLexicalLegExportTest {
         // 2026-10-03 批次 3（近重复节点合并）随金标迁移 130 → 129（1 条退役、4 条按幸存者改指；
         // 见 docs/kb-golden-v2-protocol.md 的「expectedSlug 迁移」一节）。
         assertEquals("冻结金标集条数应为 129（判官 v2，2026-10-03 迁移后）", 129, cases.size)
-        assertEquals("冻结金标集章数应为 20（判官 v2；每章条数不等）", 20, cases.map { it.chapter }.distinct().size)
+        // 2026-10-14 批次10 promote v14 + 金标 expectedSlug 迁移（9 条改指、3 条跨册/跨章同步改
+        // chapter）重钉：章数 20 → 23。3 条跨章把新章字符串带进集合（化学选择性必修1·第一章·
+        // 反应热与能量、化学选择性必修3·有机化学基础·有机化合物的结构特点、物理必修第一册·第四章·
+        // 牛顿运动定律），旧章仍被其余题占用；量源 = 本轮失败信息 `expected:<20> but was:<23>`。
+        assertEquals("冻结金标集章数应为 23（判官 v2 迁移后；每章条数不等）", 23, cases.map { it.chapter }.distinct().size)
 
         val pack = BundledKnowledgePackResources.load().single { it.packId == PACK_ID }
         val mirror = RetrievalBenchmark.BRouteMirrorIndex(pack.nodes)
@@ -190,23 +194,24 @@ class ProductionLexicalLegExportTest {
                     " | rank=" + (if (probeRank > 0) probeRank.toString() else "absent")
             }
 
-        // **数值锚：2026-10-11 随批次 8（v12 → v13：19 → 22 卷、材料 50,869 → 59,008、原子点
-        // 3,761 → 3,741（老队列 20 对近重复点并入）、1,443 个知识点的 aliases 变化）后按实测
-        // 重钉。** 本批索引输入变化（−20 个节点退场 + 别名总量 37,396 → 39,977）改变了命中集
-        // （净 −6 命中：85 → 79），判官仍是 v2 129 条（sha 未动）。
-        // 本轮 gradle 门实测：hits=79（round-1 失败信息 `expected:<85> but was:<79>`），主集/MRR 取同轮
-        // `build/golden-jvm-metrics.txt` 的 `B-route-mirror` 段（`Recall@5(主集)=0.6124031007751938
-        // (79/129)` / `MRR=0.5003875968992249`），并由下方"与 B 段逐行对账"断言交叉复核；
-        // 逐题 MISS 50 条与逐章 20 条同对账通过（独立 TSV 复算同值，朴素顺序求和复刻 Kotlin `sumOf`）。
-        // 上一代（2026-10-10 批次 7：+9 回指材料、+477 回捞材料、761 改绑 + 别名收口）：85/129 =
-        // 0.6589147286821705 / 0.5173126614987081；更旧（2026-10-05 批次 5：章名 45 条 + 改绑落包）：
-        // 84/129 = 0.6511627906976745 / 0.5236434108527133；再旧（2026-10-03 批次 3：3,761 包 + 129 条）：
-        // 82/129 = 0.6356589147286822 / 0.4996124031007753；
+        // **数值锚：2026-10-14 随批次10 promote v14（原子点 3,741 → 3,359 = 批次9 超配 382 点并入
+        // + 批次10 零材料点 1 点并入 + 3 条残片删点 + 4 个新点）+ 金标 expectedSlug 迁移（9 条改指、
+        // 3 条跨册/跨章改 chapter；见 docs/kb-golden-v2-protocol.md）后按实测重钉。**
+        // 判官仍是 v2 129 条（sha `473dbeac…` → `14b7cea8…`）；迁移把 9 条曾指向死节点的
+        // 永久 MISS 改成指向存活节点，命中集随之上升。
+        // 本轮 gradle 门实测：hits=81（round-2 失败信息 `expected:<79> but was:<81>`），主集/MRR 取同轮
+        // `build/golden-jvm-metrics.txt` 的 `B-route-mirror` 段（`Recall@5(主集)=0.627906976744186
+        // (81/129)` / `MRR=0.4838501291989666`），并由下方"与 B 段逐行对账"断言交叉复核；
+        // 逐题 MISS 48 条与逐章 23 条同对账通过（独立 TSV 复算同值，朴素顺序求和复刻 Kotlin `sumOf`）。
+        // 上一代（2026-10-11 批次 8：19 → 22 卷、材料 50,869 → 59,008、−20 节点 + 别名 37,396 → 39,977）：
+        // 79/129 = 0.6124031007751938 / 0.5003875968992249；更旧（批次 7）：85/129 =
+        // 0.6589147286821705 / 0.5173126614987081；（批次 5）：84/129 = 0.6511627906976745 /
+        // 0.5236434108527133；（批次 3）：82/129 = 0.6356589147286822 / 0.4996124031007753；
         // 再旧（58 / 0.6444444444444445 / 0.5637037037037038）= v1 金标 90 条 + 3,572 节点/27,794 别名时代。
         // 这是数据变化导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
-        assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 79/129（判官 v2 + 当前包实测）", 79, hits)
-        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.6124031007751938", V1_D1_MAIN, main, 0.0)
-        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.5003875968992249", V1_D1_MRR, mrr, 0.0)
+        assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 81/129（判官 v2 迁移后 + 当前包实测）", 81, hits)
+        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.627906976744186", V1_D1_MAIN, main, 0.0)
+        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.4838501291989666", V1_D1_MRR, mrr, 0.0)
 
         // ---- 与 build/golden-jvm-metrics.txt 的 B-route-mirror 段逐行对账（含逐题 MISS 集合与 rank） ----
         val metricsFile = File(repoRoot, "build/golden-jvm-metrics.txt")
@@ -218,7 +223,9 @@ class ProductionLexicalLegExportTest {
             bSection.any { it.contains("Recall@5(主集)=$main") && it.contains("($hits/${cases.size})") },
         )
         val recordedChapterLines = bSection.filter { it.startsWith("  ") && it.contains(" = ") && it.contains("(MISS ") }
-        assertEquals("逐章行数应为 20（判官 v2）", 20, chapterLines.size)
+        // 上一代 20（判官 v2 原归属）；本代 23（金标迁移 3 条跨章后，见上方章数说明与
+        // docs/kb-golden-v2-protocol.md「expectedSlug 迁移（2026-10-14）」节）。
+        assertEquals("逐章行数应为 23（判官 v2 迁移后）", 23, chapterLines.size)
         chapterLines.forEach { line ->
             assertTrue("回读重算的逐章行不在 B 段里：$line", recordedChapterLines.contains(line))
         }
@@ -279,34 +286,42 @@ class ProductionLexicalLegExportTest {
          * `docs/kb-golden-v2-protocol.md`）；v1 的 `7c004b76…` 是历史封存，只在 v1 文件仍在时有效。
          * 本测试复核的是"当前生效判官"的 sha，所以它必须跟着判官走。
          *
-         * **2026-10-03 随批次 3（近重复节点合并）迁移**：130 → 129 条，sha `89c1d5b5…` → 本值。
+         * **2026-10-03 随批次 3（近重复节点合并）迁移**：130 → 129 条，sha `89c1d5b5…` → `473dbeac…`。
          * 迁移记录：`docs/kb-golden-v2-protocol.md` 的「expectedSlug 迁移（2026-10-03）」一节 +
          * `build/agent-batch3/golden-migration.json`；工具 `kb_coverage.retarget_golden_expected_slugs`。
+         *
+         * **2026-10-14 随批次10 promote v14（批次9 超配 382 并点 + 批次10 零材料点收口）迁移**：
+         * 条数仍 129（0 退役），sha `473dbeac…` → 本值；9 条 expectedSlug 按 manifest retired 的
+         * supersededBy 逐条改指（其中 3 条跨册/跨章——有机物原子共线共面、中和热测定注意事项、
+         * 对超重和失重理解——chapter 同步改为映射后节点在 v14 包的实际章归属）。迁移记录：
+         * `docs/kb-golden-v2-protocol.md` 的「expectedSlug 迁移（2026-10-14）」一节 +
+         * `build/agent-batch10/golden-migration.json`。
          */
-        const val FROZEN_GOLDEN_SHA256 = "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e"
+        const val FROZEN_GOLDEN_SHA256 = "14b7cea8ea29b3788237152618e558a6bc6d3b441edaf3bc508ec460b47ca7a7"
 
         /**
          * 生产 v1（裸 B 路 limit=5、D1 形 = matched 优先）的判读数：`build/golden-jvm-metrics.txt` 的 B 段。
          *
-         * **口径**：v2 判官（2026-10-03 迁移后 129 条 / 20 章）+ 当前随包（v13，3,741 原子节点）。
+         * **口径**：v2 判官（2026-10-14 迁移后 129 条 / 23 章）+ 当前随包（v14，3,359 原子节点）。
          *
-         * **2026-10-11 批次 8（v12 → v13：19 → 22 卷、材料 50,869 → 59,008、老队列 20 对近重复点
-         * 并入、1,443 个知识点的 aliases 变化）重钉**：索引输入变化（−20 节点 + 别名 37,396 → 39,977）
-         * 改变命中集 → 主集 **79/129 = 0.6124031007751938**、MRR **0.5003875968992249**（净 −6 命中）。
-         * 实测量源：本批 round-1 失败信息报 hits = 79（`expected:<85> but was:<79>`）+ 同轮
-         * `build/golden-jvm-metrics.txt` B 段的 `Recall@5(主集)=…`/`MRR=…`（与本文件回读重算
-         * 由下方逐行对账断言交叉复核；独立 TSV 复算同值）。
-         * 上一代（2026-10-10 批次 7：+9 回指材料、+477 回捞材料、761 改绑 + 别名收口）：主集
-         * 85/129 = 0.6589147286821705、MRR 0.5173126614987081；更旧（2026-10-05 批次 5：章名 45 条 +
-         * 改绑落包）：主集 84/129 = 0.6511627906976745、MRR 0.5236434108527133；
+         * **2026-10-14 批次10 promote v14（原子点 3,741 → 3,359：批次9 超配 382 点并入 + 批次10
+         * 零材料点 1 点并入 + 3 条残片删点 + 4 个新点）+ 金标 expectedSlug 迁移（9 条改指、3 条
+         * 跨册/跨章改 chapter）重钉**：命中集 → 主集 **81/129 = 0.627906976744186**、MRR
+         * **0.4838501291989666**（净 +2 命中）。实测量源：本轮 round-2 失败信息报 hits = 81
+         * （`expected:<79> but was:<81>`）+ 同轮 `build/golden-jvm-metrics.txt` B 段的
+         * `Recall@5(主集)=…`/`MRR=…`（与本文件回读重算由下方逐行对账断言交叉复核；独立 TSV 复算同值）。
+         * 上一代（2026-10-11 批次 8：−20 节点 + 别名 37,396 → 39,977）：主集 79/129 =
+         * 0.6124031007751938、MRR 0.5003875968992249；更旧（2026-10-10 批次 7）：主集
+         * 85/129 = 0.6589147286821705、MRR 0.5173126614987081；（2026-10-05 批次 5）：主集
+         * 84/129 = 0.6511627906976745、MRR 0.5236434108527133；
          * 再旧（2026-10-03 批次 3：3,866 → 3,761 包 + 判官 130 → 129）：
          * 主集 82/129 = 0.6356589147286822、MRR 0.4996124031007753；再旧
          * （58/90 = 0.6444444444444445 / 0.5637037037037038）是 v1 金标 90 条 + 3,572/27,794 时代。
          * 重钉的只是锚值，判据（容差 0.0、top-5、命中定义）与口径一律未动。
          */
         const val B_ROUTE = "B-route-mirror(v1-bare-B5, matched-first)"
-        const val V1_D1_MAIN = 0.6124031007751938
-        const val V1_D1_MRR = 0.5003875968992249
+        const val V1_D1_MAIN = 0.627906976744186
+        const val V1_D1_MRR = 0.4838501291989666
 
         /** 判分窗口（与生产 return 形态同口径：D1 形下前 5 名全在 matched 侧）。 */
         const val SCORED_TOP_K = 5

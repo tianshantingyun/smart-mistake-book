@@ -313,10 +313,16 @@ class RealArtifactsTest(unittest.TestCase):
         # 20 个 B 侧节点随成品包 v13 退场，manifest retired 507 → 527）→ point_merge 236 → 256 行。
         # 实测：本用例 round-1 失败信息 `AssertionError: 236 != 256`（backfill kinds：MERGE=256 /
         # DELETE=193，与表行数 point_merge 256 / point_delete 193 逐一对上）。
-        self.assertEqual(256, kinds.get(um.KIND_MERGE, 0))
+        # 2026-10-14 批次10 promote v14（成品包 v13 → v14）后重钉：256 → 639（+383 = 批次9 超配
+        # 382 行 2026-10-12 + 批次10 零材料点 1 行 2026-10-13 落 point_merge.csv）→ backfill
+        # 实测 MERGE=639（量源 = 对成品包实跑 `um.backfill_from_tables` 与本用例 round-1 失败信息
+        # `AssertionError: 256 != 639`；与表行数 point_merge.csv 639 行逐一对上）。
+        self.assertEqual(639, kinds.get(um.KIND_MERGE, 0))
         # 2026-10-02 建点闭环：撤回 8 个"块过薄写不出材料"的新点 → point_delete.csv +8 行 → 192。
         # 2026-10-03 批次 3：改绑轮又删 1 行空操作删除（原 192 + 1）→ 193。
-        self.assertEqual(193, kinds.get(um.KIND_DELETE, 0))
+        # 2026-10-14 批次10 promote v14：批次10 残片删点 3 行（2 条化学、1 条数学）落
+        # point_delete.csv（193 → 196）→ backfill 实测 DELETE=196（同一量源，与表行数 196 行一致）。
+        self.assertEqual(196, kinds.get(um.KIND_DELETE, 0))
 
     def test_backfilled_entries_pass_shape_check(self):
         doc = um.empty(self.pack["packId"])

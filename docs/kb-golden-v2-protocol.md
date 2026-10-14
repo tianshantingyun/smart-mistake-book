@@ -262,3 +262,42 @@ sha256 **`89c1d5b5acd5858b9869ae80152961367e66131decfef56f66be0f04c88ca10d`**（
   逐条留档，任何人可复核上述依据。
 - 版本口径：v1（90 条）封存不动；v2 自此为 **129 条**；两份副本（androidTest assets 与
   `tools/kb_coverage/tables/`）与两份 `.sha256` 同步更新，逐字节一致。
+
+---
+
+## expectedSlug 迁移（2026-10-14，随批次 10 promote v14）
+
+**为什么迁**：批次9 超配（382 点并入）+ 批次10 零材料点收口（1 点并入、3 条残片删点、4 个新点）
+把成品包从 v13（3,741 点）推到 v14（3,359 点）。冻结件里有 **9 条 `expectedSlug` 指向已不存在的
+节点**——不改就永远算 MISS（指标被坏标签污染）；这正是「expectedSlug 迁移（2026-10-03）」一节
+消灭过的同一形态，程序、工具与字节纪律照旧。
+
+**怎么迁**：`tools/kb_coverage/retarget_golden_expected_slugs.py`（按映射 JSON 改两份副本 +
+重算两份 `.sha256`；写入前做**字节复现自检**）。本轮给工具补了可选 `newChapter` 字段（缺省行为
+不变）：3 条跨册/跨章的改指必须同步改 `chapter`，取值 = **映射后节点在 v14 包里的实际章归属**
+（topic 链实测；量源逐条写进映射 JSON 的 `chapterBasis`，其中「有机化合物共面共线」在
+`chapter_by_node.csv` 的 0.44 分行为教材对齐视角、非包内归章，金标 chapter 取包内归属）。
+映射与理由：`build/agent-batch10/golden-migration.json`——9 条的旧/新/supersededBy **全部照抄
+manifest retired 条目**（`core/data/src/main/resources/knowledge/moe-2025-update-manifest.json`），
+无自造目标。
+
+| # | 科目 | 旧 expectedSlug | 新 expectedSlug（含 chapter 变更） | 依据（manifest retired reason 摘录） |
+|---|---|---|---|---|
+| 2 | BIOLOGY | 电子传递过程的三步定位法 | 有氧呼吸 | 本点名「三步定位法」，材料实为「有氧呼吸三阶段的场所与物质变化＋电子传递链与氧化磷酸化」，已在 survivor「有氧呼吸」的 boundary 与别名逐条列出 |
+| 26 | CHEMISTRY | 有机物原子共线共面的判断 | 有机化合物的共面共线的判断（chapter → 化学选择性必修3·有机化学基础·有机化合物的结构特点） | survivor 边界给「原子共面、共线的思维模型」、别名含「原子共线、共面的判断方法」「共线共面判断的思维模型」等 |
+| 28 | CHEMISTRY | 同分异构体 | 同分异构现象和同分异构体 | 同一知识点两处分设；survivor 名称含现象与概念两层面、在册材料 20 条，boundary/aliases 已覆盖分类与书写步骤 |
+| 38 | CHEMISTRY | 中和热测定注意事项 | 中和热（chapter → 化学选择性必修1·第一章·反应热与能量） | survivor 别名含「中和反应反应热测定的关键操作」「中和热测定的实验流程与误差分析」「中和热测定中的温度测量步骤」等，与本点 26 条材料同点 |
+| 97 | PHYSICS | 对超重和失重的理解应当注意的问题 | 超重与失重的判断方法（chapter → 物理必修第一册·第四章·牛顿运动定律） | 同一判据（只看加速度方向）+ 同一完全失重条件，两份边界逐句重叠；超重失重本属牛顿运动定律（旧金标 chapter 是被并点的旧归章） |
+| 115 | PHYSICS | 测量金属丝电阻率的误差分析 | 测量金属丝的电阻率实验 | 同一知识点；survivor 边界与材料已覆盖误差分析，收编本点 10 条 |
+| 119 | PHYSICS | 电阻的定义式与决定式 | 电阻定律 | survivor 别名直接列出「定义式/决定式的比较」，是本点的规范落点 |
+| 122 | PHYSICS | 验证机械能守恒定律实验的误差与创新方案 | 验证机械能守恒定律 | 同一实验的误差侧碎片节点；kit-002 已判 survivor 并逐字点名本点为应并入碎片 |
+| 128 | PHYSICS | 用油膜法估测油酸分子的大小实验 | 用油膜法估测油酸分子的大小 | 同一实验知识点；survivor 边界（浓度换算、面积测量、数量级）与本点边界逐条对应 |
+
+**口径影响（如实记，不许无声改评测集）**：
+- 判分集 **129 → 129 条（0 退役）**；sha `473dbeac…` → `14b7cea8ea29b378…`（`14b7cea8ea29b3788237152618e558a6bc6d3b441edaf3bc508ec460b47ca7a7`）。
+- 3 条跨册/跨章改指使逐章分布变化：化学必修第二册·第六章/第七章、物理必修第一册·第一章 各少一条；
+  化学选择性必修1·第一章·反应热与能量、化学选择性必修3·有机化学基础·有机化合物的结构特点、
+  物理必修第一册·第四章·牛顿运动定律 各多一条——逐章指标按新章计，题面/序号/总数未动。
+- 两份副本（androidTest assets 与 `tools/kb_coverage/tables/`）与两份 `.sha256` 同步更新，逐字节一致；
+  两处 `FROZEN_GOLDEN_SHA256` 常量（`ProductionLexicalLegExportTest` / `Stage2LexicalScoresExportTest`）
+  同步改为新封存值，附迁移记录。
