@@ -528,6 +528,15 @@ internal class TutorConversationViewModel(
         updateState { state -> state.copy(error = failure) }
     }
 
+    /**
+     * 讲题**计划派发**没能开始（KD-35）：同标识不同载荷的冲突在这里变成一句可见的交代
+     * （配合输入区上方那个「重试」出口），进程不再消失。与 [onSendError] 分开是因为生命周期
+     * 不同：这一条不随草稿变化下线，只在下一轮派发真的开始时清（冲突没解决，话就不该消失）。
+     */
+    fun onPlanStartError(failure: AppFailure?) {
+        updateState { state -> state.copy(planStartError = failure) }
+    }
+
     /** 讲题侧的发送状态机（B5）：与大厅共用同一份状态，一次派发只推进它。 */
     fun onTutorSendState(state: TutorSendState) {
         updateState { current -> current.copy(sendState = state) }

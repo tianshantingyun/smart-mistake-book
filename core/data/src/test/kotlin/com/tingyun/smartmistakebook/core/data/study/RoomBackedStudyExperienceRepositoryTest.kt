@@ -2140,11 +2140,30 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
      */
     var tutorSessionAnchor: TutorSessionProblemAnchorRecord? = null
 
+    /**
+     * 同一道题上锚定过的多个讲题会话（KD-36 错配用例）：作答落在其中一个会话，
+     * 而最近锚定的是另一个（没有作答行）。非空时优先于 [tutorSessionAnchor]。
+     */
+    val tutorSessionAnchors: MutableList<TutorSessionProblemAnchorRecord> = mutableListOf()
+
     override suspend fun readLatestTutorSessionAnchor(
         practiceUnitId: String,
         learnerId: String,
     ): TutorSessionProblemAnchorRecord? = tutorSessionAnchor?.takeIf {
         it.practiceUnitId == practiceUnitId
+    }
+
+    override suspend fun readRecentTutorSessionAnchors(
+        practiceUnitId: String,
+        learnerId: String,
+        limit: Int,
+    ): List<TutorSessionProblemAnchorRecord> = if (tutorSessionAnchors.isNotEmpty()) {
+        tutorSessionAnchors
+            .filter { it.practiceUnitId == practiceUnitId }
+            .sortedByDescending { it.anchoredAtEpochMillis }
+            .take(limit)
+    } else {
+        listOfNotNull(readLatestTutorSessionAnchor(practiceUnitId, learnerId))
     }
 
     override suspend fun lastAcceptedChatEvidenceAtForKc(learnerId: String, knowledgeNodeId: String): Long? = null

@@ -100,12 +100,44 @@ internal abstract class TutorExposureDao {
         learnerId: String,
     ): TutorConversationEntity?
 
+    /**
+     * 同 [findLatestAnchorForPracticeUnit]，但取最近 [limit] 条（新→旧）。
+     *
+     * 结算需要"作答落在哪个会话"这一事实：讲题页每次进入新开一个会话，最新锚定的那个
+     * 可能没有作答行（学生又进去看了一眼就退出）。只读最新一条会把作答的那次错过去，
+     * 表现成静默 NO_VERDICT（KD-36）。会话 id 只做同刻锚定的稳定次序，不参与语义。
+     */
+    @Query(
+        """
+        SELECT * FROM tutor_conversation
+        WHERE anchor_practice_unit_id = :practiceUnitId AND anchor_learner_id = :learnerId
+        ORDER BY anchored_at_epoch_millis DESC, conversation_id DESC
+        LIMIT :limit
+        """,
+    )
+    protected abstract suspend fun findRecentAnchorsForPracticeUnit(
+        practiceUnitId: String,
+        learnerId: String,
+        limit: Int,
+    ): List<TutorConversationEntity>
+
     /** 结算用的公开读取：把锚定记录映射成端口记录，找不到返回 null。 */
     open suspend fun readLatestAnchorForPracticeUnit(
         practiceUnitId: String,
         learnerId: String,
     ): TutorSessionProblemAnchorRecord? =
         findLatestAnchorForPracticeUnit(practiceUnitId, learnerId)?.toAnchorRecord()
+
+    /** 结算用的公开读取：最近锚定的若干个会话锚（新→旧）。 */
+    open suspend fun readRecentAnchorsForPracticeUnit(
+        practiceUnitId: String,
+        learnerId: String,
+        limit: Int,
+    ): List<TutorSessionProblemAnchorRecord> {
+        require(limit > 0)
+        return findRecentAnchorsForPracticeUnit(practiceUnitId, learnerId, limit)
+            .map { entity -> entity.toAnchorRecord() }
+    }
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun insertExposure(exposure: TutorAnswerExposureEntity): Long

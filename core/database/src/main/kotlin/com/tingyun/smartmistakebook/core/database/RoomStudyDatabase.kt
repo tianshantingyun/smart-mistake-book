@@ -1261,6 +1261,13 @@ internal class RoomStudyDatabase(
     ): TutorSessionProblemAnchorRecord? = database.tutorExposureDao()
         .readLatestAnchorForPracticeUnit(practiceUnitId, learnerId)
 
+    override suspend fun readRecentTutorSessionAnchors(
+        practiceUnitId: String,
+        learnerId: String,
+        limit: Int,
+    ): List<TutorSessionProblemAnchorRecord> = database.tutorExposureDao()
+        .readRecentAnchorsForPracticeUnit(practiceUnitId, learnerId, limit)
+
     override suspend fun reconcileTutorAnswerExposures(learnerId: String, limit: Int): Int =
         database.tutorExposureDao().reconcilePending(learnerId, limit)
 

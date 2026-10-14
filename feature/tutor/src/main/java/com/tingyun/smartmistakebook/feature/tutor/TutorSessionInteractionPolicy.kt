@@ -5,10 +5,23 @@ import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.domain.TutorTurnSendStateMachine
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
+import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
+import com.tingyun.smartmistakebook.core.model.TutorConversationMemory
+import com.tingyun.smartmistakebook.core.model.TutorPlanInput
+import com.tingyun.smartmistakebook.core.model.TutorTurnHistoryEntry
 
 internal const val TUTOR_CHOICE_SAVE_ERROR = "这个选择暂时没有保存，请重试后再继续。"
 internal const val TUTOR_MOVE_SAVE_ERROR = "下一种讲法没有启动，请再试一次。"
+
+/**
+ * 选择写入的有界等待（KD-36）。
+ *
+ * 选项在"行到达前"保持锁定是既有语义（重复提交由它挡住），但写入**永远不回来**时
+ * 没有第二条出路：界面锁死、库里零持久化、连错误都看不见。超过这个上限就按失败处理——
+ * 解锁、给错误、让学生重试；真正的慢写入（本地 Room）远在这个量级以内。
+ */
+internal const val TUTOR_CHOICE_SAVE_TIMEOUT_MILLIS = 15_000L
 
 internal fun tutorChoiceSubmissionCanStart(
     hasPlanOutput: Boolean,
@@ -27,9 +40,48 @@ internal fun tutorRestartCanStart(
     hasConversationMemory: Boolean,
 ): Boolean = hasExecutableProvider && hasConversationMemory
 
+/**
+ * 「这一行是不是**这一轮**的计划任务」的唯一判据：轮次号与本轮前情（会话记忆 / 上一轮学生
+ * 消息 / 已讲轮次）全部相同 = 同一次派发的又一次尝试；换题、换前情、换轮次都不是。
+ *
+ * 消灭的具体失败（KD-35 的判据半边）：这条判据此前只写在命令里那个 `count { … }` lambda 内部，
+ * 单测够不着它，于是"重试算第几次尝试"没有任何纯逻辑钉子——而它正是重试身份（requestId 尾缀
+ * `attempt`）的来源、也是"重试会不会复用旧行、撞上同标识不同载荷"的分水岭。
+ */
+internal fun ModelTaskSnapshot.matchesTutorPlanTurn(
+    cycleOrdinal: Int,
+    priorConversationMemory: TutorConversationMemory?,
+    priorCycleStudentMessages: List<String>,
+    priorTurns: List<TutorTurnHistoryEntry>,
+): Boolean {
+    val input = request.input as? TutorPlanInput ?: return false
+    return input.cycleOrdinal == cycleOrdinal &&
+        input.priorConversationMemory == priorConversationMemory &&
+        input.priorCycleStudentMessages == priorCycleStudentMessages &&
+        input.priorTurns == priorTurns
+}
+
+/**
+ * 这一轮**已经落过几行**计划任务 = 这次派发是这一轮的第几次尝试（0 = 首次）。
+ *
+ * 它直接进 [tutorPlanRequestId] 的尾缀（KD-35）：重试必须换到新标识——沿用旧标识而载荷
+ * 不同（重试的时钟必然不同）会撞写入路径的"同标识不同载荷"冲突。计数只能按"新读到的"
+ * 任务列表算：冻在第一帧（那时通常还没有任何任务）的列表会把每次重试都算成第 0 次。
+ */
 internal fun tutorPlanAttemptCount(
-    matchingTaskCount: Int,
-): Int = matchingTaskCount.coerceAtLeast(0)
+    planTasks: List<ModelTaskSnapshot>,
+    cycleOrdinal: Int,
+    priorConversationMemory: TutorConversationMemory?,
+    priorCycleStudentMessages: List<String>,
+    priorTurns: List<TutorTurnHistoryEntry>,
+): Int = planTasks.count { task ->
+    task.matchesTutorPlanTurn(
+        cycleOrdinal = cycleOrdinal,
+        priorConversationMemory = priorConversationMemory,
+        priorCycleStudentMessages = priorCycleStudentMessages,
+        priorTurns = priorTurns,
+    )
+}
 
 /**
  * 进入即自动开首轮的判据（A1）。

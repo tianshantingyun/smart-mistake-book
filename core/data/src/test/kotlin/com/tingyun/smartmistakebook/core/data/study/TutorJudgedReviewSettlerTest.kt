@@ -165,6 +165,68 @@ class TutorJudgedReviewSettlerTest {
     }
 
     @Test
+    fun aNewerTutorSessionWithoutAnAnswerDoesNotHideTheAnsweredOne() = runBlocking {
+        // KD-36：学生在一个会话里作答，随后又进了一次讲题页（A1：每次进入新开会话）但没作答，
+        // 之后退出。此前结算只读"最新锚定"的那个空会话 → 静默 NO_VERDICT：既不结算，也不说
+        // 为什么，复习项永远停在第 1 题。现在从最近锚定的会话里找"最近一次形成判定的会话"。
+        val database = seededDatabase()
+        database.tutorTurnResponses += choiceResponse(correct = true)
+        database.tutorSessionAnchors += anchor(sessionId = TUTOR_SESSION_ID, anchoredAt = 2_500)
+        database.tutorSessionAnchors += anchor(sessionId = "tutor-session-2", anchoredAt = 3_400)
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        assertTrue(requireNotNull(result.isCorrect))
+        assertEquals(1, database.attemptCount)
+    }
+
+    @Test
+    fun theMostRecentlyAnsweredTutorSessionDecides() = runBlocking {
+        // 同一道题答了两次（旧会话答对、新会话答错）：判定取**最近一次作答**，
+        // 不能被更早那条判词盖过去——否则重讲之后仍拿第一次的对错记账。
+        val database = seededDatabase()
+        database.tutorTurnResponses += choiceResponse(correct = true)
+        database.tutorTurnResponses += choiceResponse(
+            sessionId = "tutor-session-2",
+            correct = false,
+            submittedAtEpochMillis = 3_500,
+        )
+        database.tutorSessionAnchors += anchor(sessionId = TUTOR_SESSION_ID, anchoredAt = 2_500)
+        database.tutorSessionAnchors += anchor(sessionId = "tutor-session-2", anchoredAt = 3_400)
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        assertFalse(requireNotNull(result.isCorrect))
+        assertEquals(
+            LearningEvidenceReason.MODEL_JUDGED_INCORRECT,
+            database.lastAttemptCommand?.evidence?.reason,
+        )
+    }
+
+    @Test
+    fun anAlreadyConsumedAnswerInTheNewestSessionIsNotReplacedByAnOlderOne() = runBlocking {
+        // 最新锚定会话里那条作答发生在**本次复习开始之前**（旧复习留下的）：仍判无判词，
+        // 不许因为"再往前还有一个更早的会话"就把更旧的那条翻出来当判定。
+        // 这条钉的是回看的边界：新鲜度门槛按"最近一次作答"判，不从历史里挑一条能过的。
+        val database = seededDatabase()
+        database.tutorTurnResponses += choiceResponse(
+            sessionId = "tutor-session-2",
+            correct = true,
+            submittedAtEpochMillis = 1_500,
+        )
+        database.tutorTurnResponses += choiceResponse(correct = true, submittedAtEpochMillis = 2_600)
+        database.tutorSessionAnchors += anchor(sessionId = TUTOR_SESSION_ID, anchoredAt = 2_500)
+        database.tutorSessionAnchors += anchor(sessionId = "tutor-session-2", anchoredAt = 3_400)
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
+        assertEquals(0, database.attemptCount)
+    }
+
+    @Test
     fun replayingTheSameSettlementDoesNotDoubleWrite() = runBlocking {
         val database = seededDatabase()
         database.tutorTurnResponses += choiceResponse(correct = true)
@@ -265,13 +327,24 @@ class TutorJudgedReviewSettlerTest {
         }
     }
 
+    /** 这道题上的一个讲题会话锚（KD-36 的多会话用例按锚定时刻新旧播种）。 */
+    private fun anchor(sessionId: String, anchoredAt: Long) = TutorSessionProblemAnchorRecord(
+        learnerId = LEARNER_ID,
+        sessionId = sessionId,
+        problemRevisionId = "captured-revision",
+        practiceUnitId = PRACTICE_UNIT_ID,
+        source = "SAVED_MISTAKE",
+        anchoredAtEpochMillis = anchoredAt,
+    )
+
     private fun choiceResponse(
         correct: Boolean,
         cycleOrdinal: Int = 1,
         turnOrdinal: Int = 1,
         submittedAtEpochMillis: Long = 2_600,
+        sessionId: String = TUTOR_SESSION_ID,
     ) = TutorTurnResponseRecord(
-        sessionId = TUTOR_SESSION_ID,
+        sessionId = sessionId,
         questionDocumentId = "document-1",
         revisionNumber = 1,
         cycleOrdinal = cycleOrdinal,

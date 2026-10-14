@@ -68,14 +68,24 @@ internal class TutorJudgedReviewSettler(
                 .singleOrNull { it.practiceUnitId == settlement.practiceUnitId },
         ) { "The planned saved question is no longer active" }
 
-        val tutorAnchor = database.readLatestTutorSessionAnchor(
+        val isHeadItem = session.currentOrdinal.toLong() == settlement.expectedStateVersion
+        // 判词从**最近锚定的若干个会话**里找，而不是只读最新一条（KD-36）：讲题页每次进入
+        // 都是一个新会话（A1「进入即新开」），学生"答过一次、又进去看了一眼就退出"时，
+        // 最新锚定的会话里没有作答行——只读最新一条就会把真正作答的那次错过去，
+        // 表现成静默 NO_VERDICT：既不结算也不说为什么。取"最近一次形成判定的会话"，
+        // 选择行与结算锚点就落在同一个会话上；新鲜度门槛仍拦住旧复习留下的判词。
+        val recentAnchors = database.readRecentTutorSessionAnchors(
             practiceUnitId = settlement.practiceUnitId,
             learnerId = learnerId,
+            limit = TUTOR_VERDICT_ANCHOR_SCAN_LIMIT,
         )
-        val isHeadItem = session.currentOrdinal.toLong() == settlement.expectedStateVersion
-        val verdict = tutorAnchor?.let { anchor ->
-            resolveVerdict(anchor.sessionId)
-        }?.takeIf { candidate ->
+        // 新→旧取第一个**有判词**的会话（`resolveVerdict` 是 suspend，所以用显式循环）。
+        var latestVerdict: Verdict? = null
+        for (anchor in recentAnchors) {
+            latestVerdict = resolveVerdict(anchor.sessionId)
+            if (latestVerdict != null) break
+        }
+        val verdict = latestVerdict?.takeIf { candidate ->
             // 只认**本次复习这一项**期间的讲题：上次推进之前的判词早已被上一次结算消费
             // （或本就不属于这次复习），否则一进复习页就会被旧判词直接判定通过。
             // 只对"当前队首项"要求新鲜度——已结算项的重复结算交给写入幂等处理，
@@ -270,5 +280,11 @@ internal class TutorJudgedReviewSettler(
          * 校准达标前不动；依据见 `docs/research/model-judged-verdict-pricing.md` §4(i)。
          */
         const val MODEL_JUDGED_EVIDENCE_WEIGHT = 0.5
+
+        /**
+         * 判词回看的锚点上限：结算最多在最近这么多个讲题会话里找判词。
+         * 有界（不会翻遍整段历史），也够覆盖"作答后又进了一次讲题页"的错配。
+         */
+        const val TUTOR_VERDICT_ANCHOR_SCAN_LIMIT = 8
     }
 }

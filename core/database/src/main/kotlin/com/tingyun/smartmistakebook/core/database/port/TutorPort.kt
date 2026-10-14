@@ -144,6 +144,22 @@ interface TutorSessionPort {
         practiceUnitId: String,
         learnerId: String,
     ): TutorSessionProblemAnchorRecord? = null
+
+    /**
+     * 该学习者最近锚定到这道题的讲题会话，**按锚定时刻从新到旧**（最多 [limit] 条）。
+     *
+     * 结算读它而不是只读最新一条：讲题页每次进入都是一个新会话（A1「进入即新开」），
+     * 学生完全可能"答过一次、又进去看了一眼就退出"——最新锚定的那个会话没有作答行，
+     * 只读最一条就会把真正作答的那次错过去（静默 NO_VERDICT，KD-36）。
+     * 默认实现退化成单条读取，保证替身/旧实现语义不变。
+     */
+    suspend fun readRecentTutorSessionAnchors(
+        practiceUnitId: String,
+        learnerId: String,
+        limit: Int,
+    ): List<TutorSessionProblemAnchorRecord> = listOfNotNull(
+        readLatestTutorSessionAnchor(practiceUnitId = practiceUnitId, learnerId = learnerId),
+    ).take(limit)
 }
 
 /**

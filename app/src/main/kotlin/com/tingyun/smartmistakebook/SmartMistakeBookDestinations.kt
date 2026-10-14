@@ -36,6 +36,7 @@ import com.tingyun.smartmistakebook.core.model.NetworkMode
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import com.tingyun.smartmistakebook.feature.review.CapturedReviewSessionScreen
 import com.tingyun.smartmistakebook.feature.review.ReviewSessionScreen
+import com.tingyun.smartmistakebook.feature.review.ReviewTutorSettlementNotice
 import com.tingyun.smartmistakebook.feature.tutor.SavedMistakeTutorRoute
 import com.tingyun.smartmistakebook.feature.tutor.buildTutorDebriefRequestForApp
 import kotlinx.coroutines.Dispatchers
@@ -176,6 +177,16 @@ internal fun ReviewSessionDestination(
         }
     }
 
+    // 讲题判定结算的可见状态（KD-36）：没有形成判定 / 没有写成功时不再是无声的 no-op。
+    // `settlementAttempt` 是"重新判定"的显式出口：它一变就重跑下面的结算块。
+    var settlementNotice by remember { mutableStateOf<ReviewTutorSettlementNotice?>(null) }
+    var settlementAttempt by remember { mutableStateOf(0) }
+    // 学生从这一项去过讲题页（两个入口都算）：只有在这之后，"还没有形成判定"才是
+    // 一句该说的话（第一次进来时讲题还没发生，提示只会是噪声）。
+    var tutorVisitedForItem by rememberSaveable(displayedPracticeUnitId, displayedOrdinal) {
+        mutableStateOf(false)
+    }
+
     // 讲题判定的自动结算（第2条）：这道无工件题在讲题页被检查过之后，把判定落成 attempt
     // 并推进队列。幂等（同一队列项只结算一次），没有判定时是 no-op，所以每次进入/账本
     // 变化都可以放心地试一次。
@@ -193,7 +204,9 @@ internal fun ReviewSessionDestination(
         displayedOrdinal,
         artifactLoad.isLoaded,
         artifactLoad.artifact,
+        settlementAttempt,
     ) {
+        settlementNotice = null
         if (experience.status != StudyDataStatus.READY) return@LaunchedEffect
         val settleSessionId = displayedSessionId ?: return@LaunchedEffect
         val settleVersion = displayedSessionVersion ?: return@LaunchedEffect
@@ -210,7 +223,7 @@ internal fun ReviewSessionDestination(
         ) {
             return@LaunchedEffect
         }
-        val result = runCatching {
+        val outcome = runCatching {
             repository.settleTutorJudgedReview(
                 TutorJudgedReviewSettlement(
                     requestId = "tutor-judged-settle:$settleSessionId:$settleOrdinal",
@@ -221,7 +234,14 @@ internal fun ReviewSessionDestination(
                     occurredAtEpochMillis = System.currentTimeMillis(),
                 ),
             )
-        }.getOrNull()
+        }
+        val result = outcome.getOrNull()
+        // KD-36：吞掉的异常就是"什么都不会发生"——结算写不进去必须看得见，也要能再试。
+        settlementNotice = tutorSettlementNoticeFor(
+            failed = outcome.isFailure,
+            status = result?.status,
+            tutorVisitedForItem = tutorVisitedForItem,
+        )
         if (result != null && result.status == TutorJudgedReviewSettlementStatus.RECORDED) {
             stageReviewAdvance(result)
         }
@@ -270,6 +290,7 @@ internal fun ReviewSessionDestination(
                     // batch-intake §3): free-response items with no
                     // machine-checkable options hand the first
                     // attempt to the tutor-judged session.
+                    tutorVisitedForItem = true
                     navController.navigate(
                         Routes.mistakeTutor(
                             MistakeRevisionKey(
@@ -281,6 +302,8 @@ internal fun ReviewSessionDestination(
                     )
                 }
             },
+            tutorSettlementNotice = settlementNotice,
+            onRetryTutorSettlement = { settlementAttempt += 1 },
         )
         capturedEntry != null -> CapturedReviewSessionScreen(
             onBack = onReviewBack,
@@ -291,6 +314,7 @@ internal fun ReviewSessionDestination(
             // 如实说明而不是给一个走不通的按钮（该复习项保持到期）。
             tutorJudgedAvailable = capabilities.networkMode != NetworkMode.STRICT_OFFLINE,
             onOpenTutorJudge = {
+                tutorVisitedForItem = true
                 navController.navigate(
                     Routes.mistakeTutor(
                         MistakeRevisionKey(
@@ -303,6 +327,8 @@ internal fun ReviewSessionDestination(
                     launchSingleTop = true
                 }
             },
+            settlementNotice = settlementNotice,
+            onRetrySettlement = { settlementAttempt += 1 },
         )
         else -> ReviewSessionGateMessage(
             "当前题目暂时不可用，未记录本次作答。",
@@ -453,6 +479,34 @@ internal fun SavedMistakeTutorDestination(
 
 /** 错题题面里"干净重绘"的角色名（与 core:database / core:export / feature:library 同值）。 */
 internal const val CLEAN_PROBLEM_SHEET_ROLE = "CLEAN_IMAGE"
+
+/** 讲题判定结算的"再试一次"入口文案（KD-36：无判定 / 写入失败都要有可操作的出口）。 */
+private const val SETTLEMENT_RETRY_LABEL = "重新判定"
+
+/**
+ * 结算结果 → 复习项上要显示的状态（KD-36）。
+ *
+ * `null` = 不需要说（已结算 / 还没形成可说的状态）。三条判据各对应一个真实失败：
+ * 异常（此前被 `runCatching{}.getOrNull()` 吞掉）、无判词（此前无声地不写不推进）、
+ * 以及"还没去过讲题页时不要拿'没有判定'去打扰"（第一次进来讲题还没发生）。
+ * 纯函数：措辞与门槛都在这里被钉住（`TutorSettlementNoticeTest`）。
+ */
+internal fun tutorSettlementNoticeFor(
+    failed: Boolean,
+    status: TutorJudgedReviewSettlementStatus?,
+    tutorVisitedForItem: Boolean,
+): ReviewTutorSettlementNotice? = when {
+    failed -> ReviewTutorSettlementNotice(
+        message = "这次判定没有结算成功，复习记录没有写入。可以重新判定再试一次。",
+        retryLabel = SETTLEMENT_RETRY_LABEL,
+    )
+    status == TutorJudgedReviewSettlementStatus.NO_VERDICT && tutorVisitedForItem ->
+        ReviewTutorSettlementNotice(
+            message = "本次讲题还没有形成判定，复习进度没有推进——可以再讲一次，或重新判定。",
+            retryLabel = SETTLEMENT_RETRY_LABEL,
+        )
+    else -> null
+}
 
 /**
  * 错题讲题页的「当前题面」字节：模型申请重绘题面（`REDRAW_PROBLEM`）时用它，**绝不能由模型提供**。

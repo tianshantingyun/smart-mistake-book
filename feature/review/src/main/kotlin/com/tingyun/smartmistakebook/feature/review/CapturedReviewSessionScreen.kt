@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +32,20 @@ import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
+
+/**
+ * 讲题判定结算的可见状态（KD-36）。
+ *
+ * 结算没有形成判定（NO_VERDICT）或没有写成功（异常）时，复习项上要**看得见**，并且有一个
+ * 显式的再次尝试入口——沉默的 NO_VERDICT 等于学生停在第 1 题却不知道发生了什么，
+ * 页面上也没有任何可操作的东西。
+ *
+ * 文案由调用方（App 目的地）给：它才知道这次是"没有判定"还是"写入失败"。
+ */
+data class ReviewTutorSettlementNotice(
+    val message: String,
+    val retryLabel: String,
+)
 
 /**
  * 无工件错题的复习入口（第2条：复习作答与评级不再由学生自评）。
@@ -55,6 +70,12 @@ fun CapturedReviewSessionScreen(
     queueSize: Int,
     tutorJudgedAvailable: Boolean,
     onOpenTutorJudge: () -> Unit,
+    /**
+     * 上一次讲题判定的结算结果（KD-36）：null = 不需要说（已结算 / 还没形成可说的状态）。
+     */
+    settlementNotice: ReviewTutorSettlementNotice? = null,
+    /** 「再试一次结算」的出口；null = 这个界面不给重试（结算还没有可重试的对象）。 */
+    onRetrySettlement: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val safeQueueSize = queueSize.coerceAtLeast(1)
@@ -137,6 +158,26 @@ fun CapturedReviewSessionScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = SmartColors.InkSecondary,
             )
+        }
+        // KD-36：判定结算不再是无声的。没有形成判定 / 没有写成功时，这里如实说，
+        // 并且给一个"重新判定"的显式出口（或上面那个"再讲一次"的入口）。
+        settlementNotice?.let { notice ->
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = notice.message,
+                modifier = Modifier.testTag("captured_review_settlement_notice"),
+                style = MaterialTheme.typography.bodyMedium,
+                color = SmartColors.ErrorWarm,
+            )
+            onRetrySettlement?.let { retry ->
+                Spacer(Modifier.height(4.dp))
+                TextButton(
+                    onClick = retry,
+                    modifier = Modifier.testTag("captured_review_settlement_retry"),
+                ) {
+                    Text(notice.retryLabel, color = SmartColors.JadeActive)
+                }
+            }
         }
         Spacer(Modifier.height(20.dp))
     }

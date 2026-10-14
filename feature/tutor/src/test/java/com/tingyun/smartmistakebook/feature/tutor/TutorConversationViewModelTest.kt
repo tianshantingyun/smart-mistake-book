@@ -34,6 +34,9 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStage
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
+import com.tingyun.smartmistakebook.core.model.TutorLocalAction
+import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -148,6 +151,46 @@ class TutorConversationViewModelTest {
                 TutorSendPhase.RETRYABLE_FAILURE,
                 viewModel.uiState.value.sendState.phase,
             )
+        }
+
+    @Test
+    fun accumulatedActionsReachThePendingCardWithoutBeingRepeatedInTheReply() =
+        runTest(dispatcher.scheduler) {
+            val delegate = FailingLobbyModelTasks()
+            val pendingRequests = FakeAgentPendingRequestRepository()
+            val modelTasks = object : ModelTaskRepository by delegate {
+                override fun execute(request: ModelTaskRequest) = delegate.execute(request).map { snapshot ->
+                    val input = request.input as TutorLobbyInput
+                    snapshot.copy(
+                        status = ModelTaskStatus.SUCCEEDED,
+                        failure = null,
+                        output = TutorLobbyOutput(
+                            conversationId = input.conversationId,
+                            messageOrdinal = input.messageOrdinal,
+                            messageMarkdown = "请确认后打开本轮题目。",
+                            modelVersion = "test-model",
+                            requestedLocalActions = listOf(TutorLocalActionRequest(TutorLocalAction.OPEN_PROBLEM)),
+                        ),
+                    )
+                }
+            }
+            val viewModel = TutorConversationViewModel(
+                savedStateHandle = SavedStateHandle(),
+                conversations = FakeConversationRepository(),
+                modelTasks = modelTasks,
+                pendingRequests = pendingRequests,
+                anchoredLibraryProblemId = "problem-native-action",
+            )
+            viewModel.refreshProvider()
+            advanceUntilIdle()
+            viewModel.onDraftChange("打开本轮题目")
+            viewModel.onSubmitDraft()
+            advanceUntilIdle()
+
+            val cards = pendingRequests.readPendingRequests(TutorConversationAreas.AGENT)
+            assertEquals("工具轮累积动作必须实际挂卡", 1, cards.size)
+            assertTrue(cards.single().payloadJson.contains("problem-native-action"))
+            assertEquals(TutorSendPhase.AWAITING_CONSENT, viewModel.uiState.value.sendState.phase)
         }
 
     @Test

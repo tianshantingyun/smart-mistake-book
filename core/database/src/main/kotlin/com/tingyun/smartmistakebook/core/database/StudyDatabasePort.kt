@@ -32,6 +32,7 @@ import com.tingyun.smartmistakebook.core.database.port.TutorAnswerExposurePort
 import com.tingyun.smartmistakebook.core.database.port.TutorReadPort
 import com.tingyun.smartmistakebook.core.database.port.TutorSessionPort
 import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
+import com.tingyun.smartmistakebook.core.model.ImmutablePayloadConflict
 
 const val MAX_REVIEW_COMPLETION_HISTORY_DAYS = 1_500
 const val MAX_KNOWLEDGE_RECALL_CANDIDATES = 512
@@ -53,8 +54,15 @@ class AttemptIdempotencyConflictException(submissionId: String) :
 
 class AssessmentSequenceConflictException(message: String) : IllegalStateException(message)
 
+/**
+ * 「同标识、不同载荷」的写入冲突：这个标识已经有一行，而这次带来的内容不一样。
+ *
+ * [ImmutablePayloadConflict] 是它的**跨层标记**：界面层（feature:*）按依赖方向看不到本模块，
+ * 只能按标记判定；按类名判定会在开着 R8 的发布变体上静默失效（KD-35 的兜底正是这条路径）。
+ */
 class ImmutablePayloadConflictException(entityType: String, entityId: String) :
-    IllegalStateException("$entityType $entityId already exists with a different payload")
+    IllegalStateException("$entityType $entityId already exists with a different payload"),
+    ImmutablePayloadConflict
 
 class ProblemOrganizationAuthorityConflictException(problemRevisionId: String) :
     IllegalStateException("A user correction already owns organization for $problemRevisionId")

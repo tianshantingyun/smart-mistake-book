@@ -260,5 +260,11 @@ internal fun TutorSessionAttachmentArea(
         }
         // 发送路径上的错误与智能体栏同一个位置（输入框上方），文案也只有一套。
         state.error?.let { message -> TutorSurfaceStartError(message.message) }
+        // 讲题计划**没能开始**（KD-35）：同一片位置、另一种 tag。两件事可以同时在
+        // （例如附加图读不出来 + 这一轮计划被拒），所以不合并成一个槽，也不共用同一个
+        // test tag——同一棵树里两个同 tag 节点会让"按 tag 定位"的用例撞上多个节点。
+        state.planStartError?.let { failure ->
+            TutorSurfaceStartError(failure.message, testTag = "tutor_plan_start_error")
+        }
     }
 }

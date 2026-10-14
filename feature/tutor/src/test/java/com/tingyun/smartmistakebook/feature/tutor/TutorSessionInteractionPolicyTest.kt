@@ -59,7 +59,18 @@ class TutorSessionInteractionPolicyTest {
                 hasConversationMemory = true,
             ),
         )
-        assertEquals(2, tutorPlanAttemptCount(2))
+        // 尝试次数按"这一轮已经落过几行"算；完整判据（哪些行算同一轮、重试如何换新身份，
+        // KD-35）钉在 `TutorPlanReplayConflictTest`。
+        assertEquals(
+            0,
+            tutorPlanAttemptCount(
+                planTasks = emptyList(),
+                cycleOrdinal = 1,
+                priorConversationMemory = null,
+                priorCycleStudentMessages = emptyList(),
+                priorTurns = emptyList(),
+            ),
+        )
     }
 
     @Test

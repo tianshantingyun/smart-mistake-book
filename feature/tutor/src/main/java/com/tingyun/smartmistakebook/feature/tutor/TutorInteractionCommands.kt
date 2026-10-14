@@ -16,6 +16,7 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal fun tutorContinueAfterMove(
     hasChoicePayload: Boolean,
@@ -38,6 +39,10 @@ internal class TutorInteractionCommands(
                 interactionBusy = sink.interactionBusy(),
             )
         ) {
+            // 界面按下时这一轮还可提交，命令执行时判据已经变了（这一轮不再是当前的 / 已在提交中）。
+            // 静默 return 会留下一个永远解不开的 pending 选项：没有任何行会到，也没有错误可等。
+            // 如实说"没有保存"，错误本身是那条解开的出口（KD-36 的锁死路径之一）。
+            sink.setInteractionError(TUTOR_CHOICE_SAVE_ERROR)
             return
         }
         val submittedItem = requireNotNull(item)
@@ -48,21 +53,28 @@ internal class TutorInteractionCommands(
         sink.setInteractionBusy(true)
         scope.launch {
             try {
-                sink.interactions.recordChoice(
-                    RecordTutorChoiceCommand(
-                        sessionId = question.sessionId,
-                        questionDocumentId = question.questionDocument.document.id,
-                        revisionNumber = question.revisionNumber,
-                        cycleOrdinal = input.cycleOrdinal,
-                        turnOrdinal = input.turnOrdinal,
-                        diagnosticStemMarkdown = submittedItem.stemMarkdown,
-                        selectedChoiceId = submittedEvaluation.choice.id,
-                        selectedChoiceMarkdown = submittedEvaluation.choice.markdown,
-                        selectionWasCorrect = submittedEvaluation.isCorrect,
-                        feedbackMarkdown = requireNotNull(submittedEvaluation.choice.feedbackMarkdown),
-                        occurredAtEpochMillis = sink.clock(),
-                    ),
-                )
+                // 有界等待（KD-36）：写入既不返回也不报错时（卡住的 IO / 事务），
+                // 不能把选项锁在这里等一个不会到的行。超时按失败处置：解锁 + 错误可见。
+                val persisted = withTimeoutOrNull(TUTOR_CHOICE_SAVE_TIMEOUT_MILLIS) {
+                    sink.interactions.recordChoice(
+                        RecordTutorChoiceCommand(
+                            sessionId = question.sessionId,
+                            questionDocumentId = question.questionDocument.document.id,
+                            revisionNumber = question.revisionNumber,
+                            cycleOrdinal = input.cycleOrdinal,
+                            turnOrdinal = input.turnOrdinal,
+                            diagnosticStemMarkdown = submittedItem.stemMarkdown,
+                            selectedChoiceId = submittedEvaluation.choice.id,
+                            selectedChoiceMarkdown = submittedEvaluation.choice.markdown,
+                            selectionWasCorrect = submittedEvaluation.isCorrect,
+                            feedbackMarkdown = requireNotNull(submittedEvaluation.choice.feedbackMarkdown),
+                            occurredAtEpochMillis = sink.clock(),
+                        ),
+                    )
+                }
+                if (persisted == null) {
+                    sink.setInteractionError(TUTOR_CHOICE_SAVE_ERROR)
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

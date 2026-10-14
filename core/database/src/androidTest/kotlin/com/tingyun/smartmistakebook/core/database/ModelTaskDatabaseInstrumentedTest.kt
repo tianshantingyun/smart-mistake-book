@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.model.CaptureAssessmentInput
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentOrigin
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentOutput
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.ImmutablePayloadConflict
 import com.tingyun.smartmistakebook.core.model.ModelEgressManifest
 import com.tingyun.smartmistakebook.core.model.ModelEgressPurpose
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
@@ -22,6 +23,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.TutorConversationIds
+import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -128,6 +130,43 @@ class ModelTaskDatabaseInstrumentedTest {
         )
 
         assertTrue(runCatching { store.createModelTask(createCommand(changed)) }.isFailure)
+    }
+
+    /**
+     * KD-35 的数据库侧钉子：**TUTOR_PLAN 走严格比较**。
+     *
+     * 重试带的是同一个标识、新的时间戳（重试那一刻的时钟必然与首派不同），它必须被**拒绝**，
+     * 而不是像 TUTOR_RESPOND 那样按"抹掉时序后相同"合并进旧行——`sameImmutableRequest` 的两个
+     * 分支见 `ModelTaskTransactionDao.kt:353-372`。讲题失败卡上的「重试」此前踩中的正是这一条：
+     * 复用旧标识 + 新时间戳 ⇒ `ImmutablePayloadConflictException` 从写入路径抛到无人接住的
+     * 组合作用域协程，进程消失。
+     *
+     * 同时钉住它的**跨层标记** [ImmutablePayloadConflict]：界面层（feature:*）按依赖方向看不到
+     * 本模块，只能按标记判定这个冲突；按类名判定会在开着 R8 的发布变体上静默失效。
+     */
+    @Test
+    fun theSameTutorPlanRequestIdWithANewTimestampIsStrictlyRejected() = runBlocking {
+        val original = tutorPlanRequest(occurredAtEpochMillis = 100)
+        val retried = tutorPlanRequest(occurredAtEpochMillis = 200)
+
+        val initial = store.createModelTask(createCommand(original, taskId = "task-tutor-plan-1"))
+        val conflict = runCatching {
+            store.createModelTask(createCommand(retried, taskId = "task-tutor-plan-2"))
+        }.exceptionOrNull()
+
+        assertTrue(initial.applied)
+        assertTrue(conflict is ImmutablePayloadConflictException)
+        assertTrue("界面层按这个标记认出冲突", conflict is ImmutablePayloadConflict)
+        // 旧行原样留着：冲突不会悄悄覆盖它，也不会多出第二行。
+        val stored = requireNotNull(store.readModelTask(original.requestId))
+        assertEquals(ModelTaskFingerprint.of(original), stored.requestFingerprint)
+        assertEquals(
+            listOf(initial.snapshot.taskId),
+            store.observeModelTasks(
+                TutorConversationIds.captured(TUTOR_SESSION_ID),
+                ModelTaskKind.TUTOR_PLAN,
+            ).first().map { snapshot -> snapshot.taskId },
+        )
     }
 
     @Test
@@ -487,6 +526,29 @@ class ModelTaskDatabaseInstrumentedTest {
             assets = emptyList(),
             disclosedData = ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE,
         ),
+    )
+
+    /**
+     * 讲题计划请求的替身（KD-35 的数据库侧钉子）：与回应轮同一个会话、同一个槽键主语，
+     * 但没有 egress manifest——计划请求恒不带逐次披露清单（配置模型 = 全局同意）。
+     */
+    private fun tutorPlanRequest(
+        requestId: String = "tutor-plan:request-1",
+        occurredAtEpochMillis: Long = 100,
+    ) = ModelTaskRequest(
+        requestId = requestId,
+        input = TutorPlanInput(
+            sessionId = TUTOR_SESSION_ID,
+            draftRevisionNumber = 2,
+            subject = "MATH",
+            questionDocument = QuestionDocument(
+                id = "question-1",
+                blocks = listOf(ContentBlock.Paragraph("stem", "求函数的单调区间")),
+            ),
+            relevantLearningEvidence = emptyList(),
+            projectionIsCurrent = true,
+        ),
+        occurredAtEpochMillis = occurredAtEpochMillis,
     )
 
     private fun provider() = ProviderCapabilitySnapshot(

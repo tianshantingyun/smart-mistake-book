@@ -57,6 +57,12 @@ internal data class TutorConversationUiState(
     val sending: Boolean = false,
     val resumingRequestId: String? = null,
     val error: AppFailure? = null,
+    /**
+     * 讲题**计划派发**没能开始的那一句（KD-35）：与 [error]（发送路径）分开，因为它的出口
+     * 与生命周期都不同——它在"这一轮的讲解还没有任何一行"时出现，下一次派发开始时才下线，
+     * 而草稿变化不会把它清掉（冲突还没解决，那句话就不该消失）。
+     */
+    val planStartError: AppFailure? = null,
     val lastFailedMessage: String? = null,
     val notebookLookupRequested: Boolean = false,
     /**

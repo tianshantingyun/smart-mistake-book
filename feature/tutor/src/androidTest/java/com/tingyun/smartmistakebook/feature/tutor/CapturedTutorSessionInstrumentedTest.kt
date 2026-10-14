@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -24,11 +26,16 @@ import com.tingyun.smartmistakebook.core.domain.AppendTutorStudentMessageCommand
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImage
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.RecordTutorChoiceCommand
+import com.tingyun.smartmistakebook.core.domain.RecordTutorMoveCommand
+import com.tingyun.smartmistakebook.core.domain.RecordTutorSolutionExposureCommand
+import com.tingyun.smartmistakebook.core.domain.RevealTutorSolutionCommand
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyQuestionMemory
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.TutorAnswerExposureSurfaceKind
+import com.tingyun.smartmistakebook.core.domain.TutorInteractionRepository
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
 import com.tingyun.smartmistakebook.core.model.AttachedRoundQuestion
@@ -46,11 +53,13 @@ import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
+import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRoundQuestionDeclaration
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -319,6 +328,114 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             .performScrollTo()
             .assertExists()
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2").assertIsNotEnabled()
+    }
+
+    /**
+     * KD-36：写入失败后选项必须解锁、错误必须可见。
+     *
+     * 既有钉子只钉住"写回后到响应行前保持锁定"（乐观锁）；没有失败路径的用例，
+     * 于是"写失败 → 永久锁定 + 零持久化 + 无错误"这条路没人管。这里用一条**可控的**
+     * 写入替身（先挂起、再以异常结束）走完整序列：点击 → 锁定 → 写失败 → 解锁 + 错误可见。
+     */
+    @Test
+    fun aFailedChoiceWriteUnlocksTheOptionAndShowsTheVisibleError() {
+        val session = session()
+        val question = session.toTutorQuestionContext()
+        val provider = ProviderCapabilitySnapshot(
+            providerId = "configured-provider",
+            providerDisplayName = "已配置模型",
+            modelId = "tutor-model-v1",
+            supportedTasks = setOf(ModelTaskKind.TUTOR_PLAN, ModelTaskKind.TUTOR_RESPOND),
+            supportsImageInput = false,
+            supportsStructuredOutput = true,
+            supportsStreaming = false,
+            executionLocation = ModelExecutionLocation.LOCAL_NO_EGRESS,
+            providerConfigurationVersion = "test-v1",
+        )
+        val planInput = buildTutorPlanRequest(
+            session = session,
+            profile = StudyProfileOverview(),
+            provider = provider,
+            requestId = "tutor-plan-choice-write-failure",
+            occurredAtEpochMillis = 100,
+        ).input as TutorPlanInput
+        val writeGate = CompletableDeferred<Unit>()
+        val interactions = object : TutorInteractionRepository {
+            override fun observe(sessionId: String): Flow<List<TutorTurnResponse>> =
+                flowOf(emptyList())
+
+            override suspend fun recordChoice(command: RecordTutorChoiceCommand): TutorTurnResponse {
+                writeGate.await()
+                error("tutor message row could not be written")
+            }
+
+            override suspend fun recordMove(command: RecordTutorMoveCommand): TutorTurnResponse =
+                error("No move write expected")
+
+            override suspend fun revealSolution(
+                command: RevealTutorSolutionCommand,
+            ): TutorTurnResponse = error("No reveal write expected")
+
+            override suspend fun recordSolutionExposure(
+                command: RecordTutorSolutionExposureCommand,
+            ) = Unit
+        }
+        val interactionBusy = mutableStateOf(false)
+        val interactionError = mutableStateOf<String?>(null)
+        composeRule.setContent {
+            MaterialTheme {
+                RootPageColumn {
+                    val scope = rememberCoroutineScope()
+                    val commands = remember {
+                        TutorInteractionCommands(
+                            scope = scope,
+                            sink = TutorInteractionSink(
+                                currentPlanOutput = { tutorOutput() },
+                                currentInput = { planInput },
+                                question = { question },
+                                clock = { 10_000L },
+                                interactionBusy = { interactionBusy.value },
+                                setInteractionBusy = { busy -> interactionBusy.value = busy },
+                                setInteractionError = { message -> interactionError.value = message },
+                                hasExecutableProvider = { true },
+                                openModelSettings = {},
+                                currentCycleResponses = { emptyList() },
+                                tutorResponses = { emptyList() },
+                                tutorRespondTasks = { emptyList() },
+                                answerExposureKeys = { emptySet() },
+                                currentCycle = { 1 },
+                                executeTurn = { _, _, _, _ -> },
+                                interactions = interactions,
+                            ),
+                        )
+                    }
+                    TutorTurnContent(
+                        output = tutorOutput(),
+                        openingMarkdown = tutorOutput().plan.openingMarkdown,
+                        interactionBusy = interactionBusy.value,
+                        interactionError = interactionError.value,
+                        onSubmitChoice = { choiceId -> commands.submitChoice(choiceId) },
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
+            .performScrollTo()
+            .performClick()
+        // 写入还挂在闸门上：选项仍是锁定的（既有乐观锁语义，行到达前不重复提交）。
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2").assertIsNotEnabled()
+
+        // 写入失败：命令要报错，界面要解锁——不留一个等不到任何东西的 pending。
+        composeRule.runOnIdle {
+            writeGate.completeExceptionally(IllegalStateException("tutor message row is gone"))
+        }
+        composeRule.waitUntil(timeoutMillis = 5_000) { interactionError.value != null }
+        composeRule.onNodeWithTag("captured_tutor_interaction_error").assertExists()
+        composeRule.onNodeWithText(TUTOR_CHOICE_SAVE_ERROR).assertExists()
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
+            .performScrollTo()
+            .assertIsEnabled()
     }
 
     @Test

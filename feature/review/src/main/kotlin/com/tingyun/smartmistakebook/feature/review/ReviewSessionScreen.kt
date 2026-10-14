@@ -18,6 +18,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,6 +100,13 @@ fun ReviewSessionScreen(
      * no tutor navigation).
      */
     onRequestTutorPretest: (() -> Unit)? = null,
+    /**
+     * 上一次讲题判定的结算结果（KD-36）：只有"无选项、走讲题判定"的那一支会用到它，
+     * null = 没有任何要说的（已结算 / 还没形成可说的状态）。
+     */
+    tutorSettlementNotice: ReviewTutorSettlementNotice? = null,
+    /** 「再试一次结算」的出口（同上，仅讲题判定分支可见）。 */
+    onRetryTutorSettlement: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     when (val decision = TutorCapabilityGate().evaluate(capabilities, teachingArtifact)) {
@@ -113,6 +121,8 @@ fun ReviewSessionScreen(
                     ReviewSessionPretestTutorRoute(
                         onRequestTutorPretest = onRequestTutorPretest,
                         onBack = onBack,
+                        settlementNotice = tutorSettlementNotice,
+                        onRetrySettlement = onRetryTutorSettlement,
                         modifier = modifier,
                     )
                 } else {
@@ -353,6 +363,8 @@ private fun ReviewSessionContent(
 private fun ReviewSessionPretestTutorRoute(
     onRequestTutorPretest: () -> Unit,
     onBack: () -> Unit,
+    settlementNotice: ReviewTutorSettlementNotice? = null,
+    onRetrySettlement: (() -> Unit)? = null,
     modifier: Modifier,
 ) {
     RootPageColumn(modifier = modifier.testTag("review_session_root")) {
@@ -374,6 +386,26 @@ private fun ReviewSessionPretestTutorRoute(
                 .height(52.dp)
                 .testTag("review_pretest_tutor_button"),
         )
+        // KD-36：结算没有形成判定 / 没有写成功时不再是无声的——在这里说清楚，
+        // 并给一个"重新判定"的显式出口（"再讲一次"仍是上面那个入口）。
+        settlementNotice?.let { notice ->
+            Spacer(Modifier.height(14.dp))
+            Text(
+                text = notice.message,
+                modifier = Modifier.testTag("review_pretest_settlement_notice"),
+                color = SmartColors.ErrorWarm,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            onRetrySettlement?.let { retry ->
+                Spacer(Modifier.height(4.dp))
+                TextButton(
+                    onClick = retry,
+                    modifier = Modifier.testTag("review_pretest_settlement_retry"),
+                ) {
+                    Text(notice.retryLabel, color = SmartColors.JadeActive)
+                }
+            }
+        }
     }
 }
 
