@@ -2750,3 +2750,22 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **薄切片下半段（模型链路 + 内存天花板）**：`64c79456`（opencode zen `/zen/go/v1` 补 `x-opencode-session` 兼容头；KD-31 已修）／`e3de72f8`（推理模型长思考支持：防呆上限 120s→600s + 300s 空闲看门狗注释 + `finish_reason∈{length,content_filter}` → 可重试 `INCOMPLETE_OUTPUT` + `reasoning_text` 拼写；KD-33 已修，设备实证 3/5 条 CAPTURE_ASSESS 在 136.9/191.2/544.6s 成功）／`42096510`（192MB 内存天花板三处支配者：失败路径 `finally` 释放包对象图、材料差分分页+二分、导入解码 `inSampleSize`；KD-32 保持 open）／`52356e01`（KD 提交号 + 走查报告 + `.memdiag/` 入 gitignore）。外部口径照 Claude Code（600s 总超时 + 5 分钟空闲看门狗）/ Codex / opencode 自家客户端核实。
 - **下游走查结论（切片）**：入库 ✅（逐题确认路径，1 题落库；「录入所选」被 BLOCKING 质量门挡住属预期）→ 复习 ✅（NEWLY_ADDED 入今日、会话建立）→ **判定 ✗ 断**（讲题首轮计划 INVALID_RESPONSE；失败卡「重试」**崩溃**——`ImmutablePayloadConflictException`，`ModelTaskTransactionDao.kt:233`；composer 重试后提交锁死、零持久化）→ 档案如实为空（两层归因：未结算 + 讲题判定通道 `attributions = emptyList()`，既有设计）。另记两处异常待查：入库后同进程错题本不刷新（冷启动才见）、每次进讲题新建 tutor_conversation。
 - **未验证照录**：金标集为模型标注无人工专家；跨页合并质量未单独度量；金标页名映射为推断（DB 不存原文件名）；设备曾被 `-wipe-data` 擦除、模型配置由设备走查者按既有值重建（需 owner 确认不算越界）。
+
+---
+
+## 完成记录折入（判定链修复 + 上批收口 + 切分度量口径）（2026-10-15）
+
+> 说明：本批由动态工作流 dwfrun-5d8a1dae 执行（三实现轨 ∥ 度量轨 → 门禁 → 设备复验 → 独立核对/复核 → 记录；
+> 设备阶段因提供方错误中断一次后原样续跑完成）。**只追加，既有正文未动。**
+> **共享工作树说明**：本批与另一条会话的「Agent 底层小修」批次在**同文件交织**（`TutorSessionPanel.kt`/
+> `RoomModelTaskRepository.kt`/`OpenAiModelProtocol.kt` 等同时含两条会话的编辑），按文件切不干净；
+> 本线只提交了明确属于本线的文件（`0bdd651b`/`f0b76d21`/本折入），**上述三处共享文件留给该线按其清单提交**——
+> 两条会话各自修了 KD-35/36 的不同层（本线：身份层+兜底层+结算读对会话+锁逃生；该线：命令绑定当前组合），
+> 设备复验装的是合并后的树，验的是合并态。
+
+- **KD-35（重试崩溃）**：`0bdd651b` —— 机制=面板 `planTasks` 回调被组合捕获成首帧空列表 → 重试 attempt 停在 0 → 同 requestId 配新时钟 payload → 严格指纹冲突（`ModelTaskTransactionDao.kt:353-372`）无人捕获。修法两层：**身份层**（尝试数改按任务列表+前情计数、回调持 State → 重试得新 requestId）+ **兜底层**（新增跨层标记接口 `ImmutablePayloadConflict`（core:model），core:database 冲突异常实现它——按类型判定不受 R8 影响；`executeTurn` 只接该类型 → 可见可重试错误，其余 IllegalStateException 照旧抛不伪装）。**设备复验**：连续 4 次重试 crash buffer 全空、进程 27040 未重启、requestId 尾缀 `:0→:3` 递增；第 5 次换新指纹 SUCCEEDED。
+- **KD-36（提交锁死零持久化）**：`0bdd651b` —— 机制=选择只写 `tutor_message` 回合行；结算只在复习页 LaunchedEffect 且 `runCatching{}.getOrNull()` 吞错；锚点会话与选择行错配 → NO_VERDICT 静默；选项锁只在响应行到达时释放。修法：新增最近锚点查询（端口+DAO+Room 覆写，结算在最近 8 个锚定会话里取最近形成判定者；**不改**「进入即新开」的已裁定语义）+ 结算异常不再吞掉 + 「重新判定」再试入口 + 未访问讲题不显示「没有判定」+ 选项锁 15s 有界等待（超时/判据变化按失败处置）。**设备复验**：提交后 `attempt_submission`/`review_log`(LOCAL_CHECKED, rating=2)/推进收据各 1 行、会话 IN_PROGRESS(0)→COMPLETED(1)、`learner_problem_memory_state` 更新；档案 `learner_knowledge_mastery_state`=0 行（既有设计）。
+- **上批收口**：`f0b76d21` —— ①采样：PDF 渲染页断言按采样口径修正（2200→1100）+ 新增 >2048 真实照片**设备级**钉子（规范记录/文件长边==采样值、sha/byteSize 逐位自洽）+ 裁剪几何/指纹复算（**AUD-10 结**）；②三协议族**流式**重建体带截断标记（补 `79b7b01e` 的流式缺口，AUD-14 主要项）；③关系轮 issue 形状耦合收口（KD-34 未闭合项）。**设备实测**：4096×3072→2048×1536、竖幅 3072×4096→1536×2048；分题 6 个 crop 产物长边 ≤2048 且几何=归一化区域映射到采样位图的包围盒；混合批次 Native 峰 137MB、无 OOM。
+- **切分度量口径修正**（本折入提交）—— `tools/split_golden/measure_split_accuracy.py` 落盘（可重跑、无副作用）：**单题金标页「不拆分即正确」**（实现依据=最小拆分 2 块）；阈值 0.9/0.05 **未动**。修正后 **题数一致率 0.5714（2/7→4/7）、切残率 0（0/16）→ 仍未过门 → 4C③ 门后自动化继续不启用**；「漏」集中在 5/7 页无应用输出（真实缺口，非口径问题）。透明记账：上一轮 0.2857 中 2 页系定义错（单题页），其余 3 页是真漏。
+- **新登记（下一批）**：**KD-37**（「重新判定」出口确定性死路：快照身份稳定而时间戳每次新造 → 快照永久冲突；独立复核 medium、读码级未设备复现；AUD-23）；**KD-38**（讲题动作标签超 32 字符 → IllegalArgumentException → 整轮计划永久 INVALID_RESPONSE；机制实读、**触发频率未验证**（logcat 已轮转）；AUD-24）。
+- **未验证照录**：KD-38 的触发频率与修复效果未测；识别精度对照（原图 vs 采样图）未做；跨页合并质量未度量；金标集为模型标注无人工专家；度量脚本的"修正前"版本不可从 git 追溯（脚本自打印 v1 对照 2/7=0.2857 佐证）。
