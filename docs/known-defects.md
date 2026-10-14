@@ -1340,7 +1340,7 @@ attempt_count=1）——"按新口径失败可重试"没有出现；本轮无 cu
 "截断却仍判 INVALID_RESPONSE"，或流式 tool_calls 轮被结构性判死时；换用非
 Chat Completions 协议跑分题/整理前，按①补齐。
 
-## KD-34 (fixed 2026-10-14，提交待补；A3① 端到端钉子编译不过，见「回归钉子」) · 跨页关系判定复用单页分题契约 ⇒ 批量边界评估整轮 INVALID_RESPONSE
+## KD-34 (fixed 2026-10-14，提交 `707ca3de`；A3① 端到端钉子编译不过，见「回归钉子」) · 跨页关系判定复用单页分题契约 ⇒ 批量边界评估整轮 INVALID_RESPONSE
 
 **Symptom.** 整卷「开始分题」的**边界评估**（页间关系）落
 `PERMANENT_FAILURE / INVALID_RESPONSE / stage=VALIDATING_OUTPUT`。设备实测（2026-10-12
@@ -1380,7 +1380,7 @@ Chat Completions 协议跑分题/整理前，按①补齐。
   重叠判定没有物理意义，而边界流程只读 `followingPageRelations` + decision。
   （curl 复现用的 API Key 只出现在 `-H` 参数里，未写入任何文件。）
 
-**Fix（2026-10-14，工作树；提交待补）· 修提示词 + 职责下移：**
+**Fix（2026-10-14，提交 `707ca3de`）· 修提示词 + 职责下移：**
 
 1. **A1 双变体提示词**（`OpenAiModelTaskAdapters.kt:100-139`）：`followingSourceAssets` 为空
    = 单页变体逐字保留；非空 = 多页关系变体，decision 限 PASS/RECAPTURE/NEED_MORE_IMAGE、
@@ -1445,4 +1445,37 @@ requestId 确定性（`stableId("batch-page", jobId:windowKey)`，`RoomBatchImpo
 **Reopen condition.** 多页关系轮再次落 INVALID_RESPONSE（尤其模型回 MULTIPLE_QUESTIONS/
 非空 regions 的形态）；A3① 钉子修好前，不得声称本条"端到端回归已覆盖"；旧 job 的 FAILED
 边界窗口若被要求复活，按「未闭合」第二条另修（requestId 口径）。
+
+## KD-35 (open, 2026-10-14 登记；**下一批任务**） · 讲题失败卡的「重试」把 App 打崩（ImmutablePayloadConflict）
+
+**Symptom.** 下游走查（`docs/research/2026-10-14-4c-stage1-record.md`，设备实测）：
+复习 → 照片题「去讲题判定」→ 首轮讲解计划生成失败（`model_task` TUTOR_PLAN →
+PERMANENT_FAILURE / INVALID_RESPONSE，文案「这次没有准备好题面，请重新处理」）；
+点失败卡上的唯一出口「重试」——**直接崩溃**：
+`ImmutablePayloadConflictException: model_task tutor-plan:07c06a7e… already exists with a different payload`
+（`core/database/.../ModelTaskTransactionDao.kt:233`），crash buffer 唯一一条 FATAL EXCEPTION，
+进程 13813 消失。机制：同 `requestId` 的任务行已存在且 payload 指纹不同（重试携带了新输入/
+新时间戳），写入路径抛异常且无人兜住，异常直达主线程。
+
+**Disposition（登记，下一批修）.** 验收证据：① 失败卡「重试」在"同 requestId、不同 payload"
+路径上不再崩溃（新增测试钉住该分支的处置——复用旧行、或按新 payload 生成新 requestId，二选一
+由实现裁定并写明理由）；② 重试后能看到明确状态（成功或可重试失败），不得出现进程消失。
+
+**Reopen condition.** 任何入口再次出现同 requestId 不同 payload 的崩溃；或该异常在别的
+model_task 写入路径上复现。
+
+## KD-36 (open, 2026-10-14 登记；**下一批任务**） · 讲题判定提交后 UI 锁死且零持久化
+
+**Symptom.** 同一次走查（KD-35 崩溃后改走 composer 重试）：讲题终于产出讲解与本地检查题，
+**选择提交后 UI 锁死**（选项全 `enabled=false`）且**零持久化**——
+`attempt_submission` / `review_log` / `review_session` 全无新行，`review_session` 停在
+第 1/1 题 IN_PROGRESS、队列项仍 PLANNED；因此判定一步的 source kind 无行可查，
+下游档案必然为空。机制未定位（提交链在 UI 锁死前后哪一步断掉未取证；需设备复现 + 读码）。
+
+**Disposition（登记，下一批修）.** 验收证据：① 设备上完成一次讲题判定提交：产生
+`attempt_submission` + `review_log`（含 source kind）并推进 `review_session`；② UI 在提交
+期间与之后保持可用（失败要有可重试出口，不许静默锁死）；③ 失败路径补一条"提交失败不吞掉"
+的测试（提交链的负向用例）。
+
+**Reopen condition.** 提交再次无落库或 UI 无出口；或该锁死形态在机读题（选择题）通道复现。
 
