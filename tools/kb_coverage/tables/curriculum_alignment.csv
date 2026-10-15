@@ -94,11 +94,11 @@ MATH,selective-functions-candidate-001,COVERED,数列的概念,了解数列的�
 MATH,selective-functions-candidate-002,COVERED,等差数列,理解等差数列的概念和通项公式的意义,通项另见 等差数列的通项
 MATH,selective-functions-candidate-003,COVERED,等差数列的前n项和,探索并掌握等差数列的前n项和公式,另见 等差数列的有关公式
 MATH,selective-functions-candidate-004,COVERED,求解等差数列基本量的策略,"能在具体的问题情境中,发现数列的等差关系,并解决相应的问题",
-MATH,selective-functions-candidate-005,COVERED,数列与函数的关系,体会等差数列与一元一次函数的关系,
+MATH,selective-functions-candidate-005,COVERED,数列的概念,体会等差数列与一元一次函数的关系,
 MATH,selective-functions-candidate-006,COVERED,等比数列,理解等比数列的概念和通项公式的意义,通项另见 等比数列的通项
 MATH,selective-functions-candidate-007,COVERED,等比数列的前n项和,探索并掌握等比数列的前n项和公式,另见 等比数列的有关公式
 MATH,selective-functions-candidate-008,COVERED,求解等比数列基本量的策略,"能在具体的问题情境中,发现数列的等比关系,并解决相应的问题",
-MATH,selective-functions-candidate-009,COVERED,数列与函数的关系,体会等比数列与指数函数的关系,
+MATH,selective-functions-candidate-009,COVERED,数列的概念,体会等比数列与指数函数的关系,
 MATH,selective-functions-candidate-010,COVERED,数学归纳法,"了解数学归纳法的原理,能用数学归纳法证明数列中的一些简单命题",
 MATH,selective-functions-candidate-011,COVERED,导数的概念,"经历由平均变化率过渡到瞬时变化率的过程,了解导数概念的实际背景",
 MATH,selective-functions-candidate-012,PARTIAL,导数定义在极限中的计算,"体会极限思想,极限独立节点未设",
@@ -275,7 +275,7 @@ MATH,elective-c-mathematical-models-candidate-002,NOT_COVERED,,",投入产出模
 MATH,elective-c-mathematical-models-candidate-003,PARTIAL,回归分析,"建立线性回归模型或分段的线性回归模型,估计其中的参数",经济建模面未单设
 MATH,elective-c-mathematical-models-candidate-004,NOT_COVERED,,",凯恩斯模型未设节点",
 MATH,elective-c-mathematical-models-candidate-005,NOT_COVERED,,",生产函数/对数线性模型未设节点",
-MATH,elective-c-mathematical-models-candidate-006,PARTIAL,平均数与中位数,了解加权平均、调和平均、稳健平均等评价模型的特点及适用范围,调和/稳健平均未覆盖
+MATH,elective-c-mathematical-models-candidate-006,PARTIAL,众数、中位数与平均数,了解加权平均、调和平均、稳健平均等评价模型的特点及适用范围,调和/稳健平均未覆盖
 MATH,elective-c-mathematical-models-candidate-007,PARTIAL,指数函数及其性质,"了解为什么可以用指数增长模型刻画人口变化的规律,知道如何用模型拟合实际数据",数据拟合面未单设
 MATH,elective-c-mathematical-models-candidate-008,NOT_COVERED,,",Logistic回归未设节点",
 MATH,elective-c-social-survey-candidate-001,NOT_COVERED,,",社会调查未设节点",
@@ -335,7 +335,7 @@ PHYSICS,required-physics-3-candidate-005,COVERED,电势,"知道静电场中的�
 PHYSICS,required-physics-3-candidate-006,COVERED,电容器,"观察常见的电容器,了解电容器的电容,观察电容器的充、放电现象",电容/充放电另见 电容/电容器充放电过程
 PHYSICS,required-physics-3-candidate-007,PARTIAL,必备实验仪器的原理及使用,会使用多用电表,电路元器件识别另见 电路中的基本概念
 PHYSICS,required-physics-3-candidate-008,COVERED,电阻定律,"探究并了解金属导体的电阻与材料、长度和横截面积的定量关系,会测量金属丝的电阻率",电阻率另见 电阻率
-PHYSICS,required-physics-3-candidate-009,COVERED,串、并联电路的特点与推论,",串并联电路电阻特点未设节点",
+PHYSICS,required-physics-3-candidate-009,COVERED,串并联电路的特点与四个结论,",串并联电路电阻特点未设节点",
 PHYSICS,required-physics-3-candidate-010,COVERED,闭合电路欧姆定律,"理解闭合电路欧姆定律,会测量电源的电动势和内阻",电动势/内阻另见 电动势/电源的内阻
 PHYSICS,required-physics-3-candidate-011,COVERED,焦耳定律,"理解电功、电功率及焦耳定律,能用焦耳定律解释生产生活中的电热现象",电功率另见 电功率
 PHYSICS,required-physics-3-candidate-012,COVERED,家庭电路与安全用电,家庭电路的组成与保护装置、三孔插座与接地、安全用电与节约用电的做法,窗口材料 phy-household-circuit-safe-electricity 承载（批10 窗口 2026-10-14；新点 家庭电路与安全用电）
@@ -351,7 +351,7 @@ PHYSICS,required-physics-3-candidate-021,COVERED,能量守恒定律,",能源分�
 PHYSICS,required-physics-3-candidate-022,NOT_COVERED,,",环境污染/可持续发展未设节点",
 PHYSICS,selective-physics-1-candidate-001,COVERED,动量守恒定律,"理解冲量和动量,理解动量定理和动量守恒定律,能用其解释生产生活中的有关现象",冲量/动量定理另见 冲量/动量定理
 PHYSICS,selective-physics-1-candidate-002,COVERED,弹性碰撞,"通过实验,了解弹性碰撞和非弹性碰撞的特点,定量分析一维碰撞问题",非弹性碰撞另见 非弹性碰撞
-PHYSICS,selective-physics-1-candidate-003,COVERED,能量观点和动量观点的应用条件,",守恒方法/STS未设节点",
+PHYSICS,selective-physics-1-candidate-003,COVERED,动力学三大观点的基本理解和应用,",守恒方法/STS未设节点",
 PHYSICS,selective-physics-1-candidate-004,COVERED,简谐运动,"通过实验,认识简谐运动的特征,能用公式和图像描述简谐运动",
 PHYSICS,selective-physics-1-candidate-005,COVERED,单摆,"通过实验,探究单摆的周期与摆长的定量关系,会用单摆测量重力加速度的大小",单摆周期另见 单摆周期
 PHYSICS,selective-physics-1-candidate-006,COVERED,受迫振动,"通过实验,认识受迫振动的特点,了解产生共振的条件及其应用",共振另见 共振
@@ -380,7 +380,7 @@ PHYSICS,selective-physics-2-candidate-015,COVERED,常见传感器的特点,"通�
 PHYSICS,selective-physics-2-candidate-016,PARTIAL,常见传感器的特点,列举传感器在生产生活中的应用,应用面未单设
 PHYSICS,selective-physics-3-candidate-001,COVERED,分子动理论,"通过实验,估测油酸分子的大小,了解分子动理论的基本观点及相关的实验证据",
 PHYSICS,selective-physics-3-candidate-002,COVERED,布朗运动,"通过实验,了解扩散现象,观察并解释布朗运动",速率分布另见 分子运动速率分布图像
-PHYSICS,selective-physics-3-candidate-003,COVERED,晶体,"了解固体的微观结构,知道晶体和非晶体的特点",液晶另见 液晶
+PHYSICS,selective-physics-3-candidate-003,COVERED,对晶体和非晶体的理解,"了解固体的微观结构,知道晶体和非晶体的特点",液晶另见 液晶
 PHYSICS,selective-physics-3-candidate-004,COVERED,材料科学及其应用,材料的分类与结构—性能关系、半导体与超导、液晶与显示技术及新材料的发展与影响,窗口材料 phy-materials-science-applications 承载（批10 窗口 2026-10-14；新点 材料科学及其应用）
 PHYSICS,selective-physics-3-candidate-005,COVERED,表面张力,"观察液体的表面张力现象,了解表面张力产生的原因",毛细现象未单设
 PHYSICS,selective-physics-3-candidate-006,COVERED,气体实验定律,"通过实验,了解气体实验定律,知道理想气体模型",理想气体另见 理想气体状态方程
@@ -397,7 +397,7 @@ PHYSICS,selective-physics-3-candidate-016,COVERED,物质波,"知道实物粒子�
 PHYSICS,elective-physics-1-candidate-001,NOT_COVERED,,",宇宙观史实未设节点",
 PHYSICS,elective-physics-1-candidate-002,NOT_COVERED,,",物理学史未设节点",
 PHYSICS,elective-physics-1-candidate-003,NOT_COVERED,,",近代物理学革命史未设节点",
-PHYSICS,elective-physics-1-candidate-004,PARTIAL,波粒二象性,"了解波粒二象性的物理思想,体会人们对物质本性认识的不断发展",思想史面未单设
+PHYSICS,elective-physics-1-candidate-004,PARTIAL,光的波粒二象性,"了解波粒二象性的物理思想,体会人们对物质本性认识的不断发展",思想史面未单设
 PHYSICS,elective-physics-1-candidate-005,NOT_COVERED,,",相对论/质能关系影响未设节点",
 PHYSICS,elective-physics-1-candidate-006,NOT_COVERED,,",我国物理学家成果未设节点",
 PHYSICS,elective-physics-1-candidate-007,NOT_COVERED,,",工业革命史未设节点",
@@ -484,7 +484,7 @@ CHEMISTRY,selective-reaction-principles-candidate-010,COVERED,弱电解质的电
 CHEMISTRY,selective-reaction-principles-candidate-011,COVERED,盐类水解,认识盐类水解的原理和影响盐类水解的主要因素,
 CHEMISTRY,selective-reaction-principles-candidate-012,COVERED,沉淀溶解平衡,"认识难溶电解质在水溶液中存在沉淀溶解平衡,了解沉淀的生成、溶解与转化",溶度积另见 溶度积
 CHEMISTRY,selective-reaction-principles-candidate-013,COVERED,溶液的ph,了解溶液pH的调控在工农业生产和科学研究中的应用,微粒浓度比较另见 溶液中微粒浓度大小的比较
-CHEMISTRY,selective-reaction-principles-candidate-014,COVERED,酸碱中和滴定,"强酸与强碱的中和滴定,盐类水解的应用",水解应用另见 盐类水解的规律及拓展应用
+CHEMISTRY,selective-reaction-principles-candidate-014,COVERED,中和滴定,"强酸与强碱的中和滴定,盐类水解的应用",水解应用另见 盐类水解的规律及拓展应用
 CHEMISTRY,selective-structure-properties-candidate-001,COVERED,核外电子运动状态,"认识核外电子的运动特点,知道电子运动的能量状态具有量子化的特征",能层/能级另见 能层/能级
 CHEMISTRY,selective-structure-properties-candidate-002,COVERED,原子核外电子排布,"了解原子核外电子排布的构造原理,认识基态原子中核外电子的排布遵循能量最低原理、泡利不相容原理和洪特规则",构造原理另见 构造原理
 CHEMISTRY,selective-structure-properties-candidate-003,COVERED,元素周期律的内容及实质,认识原子半径、第一电离能、电负性等元素性质的周期性变化,电离能/电负性另见 电离能/电负性
@@ -504,7 +504,7 @@ CHEMISTRY,selective-organic-foundations-candidate-005,COVERED,醇的结构和性
 CHEMISTRY,selective-organic-foundations-candidate-006,COVERED,有机合成,"认识加成、取代、消去反应,认识有机合成的关键是碳骨架的构建和官能团的转化",碳骨架另见 有机合成中碳骨架的构建
 CHEMISTRY,selective-organic-foundations-candidate-007,PARTIAL,常见有机合成路线,了解有机化合物的性质和转化在新材料开发、药物研制等方面的重要应用,新材料/药物面未单设
 CHEMISTRY,selective-organic-foundations-candidate-008,COVERED,实验探究乙酸乙酯的制备,乙酸乙酯的制备与性质,官能团检验另见 根据试剂或特征现象推知官能团的种类
-CHEMISTRY,selective-organic-foundations-candidate-009,COVERED,基本概念,"认识单体和重复结构单元(链节)及其与聚合物结构的关系,了解加聚反应和缩聚反应的特点",聚合反应另见 聚合反应
+CHEMISTRY,selective-organic-foundations-candidate-009,COVERED,合成高分子,"认识单体和重复结构单元(链节)及其与聚合物结构的关系,了解加聚反应和缩聚反应的特点",聚合反应另见 聚合反应
 CHEMISTRY,selective-organic-foundations-candidate-010,COVERED,糖类,"认识糖类和蛋白质的组成与主要性质,了解淀粉和纤维素及其与葡萄糖的关系",蛋白质/氨基酸另见 蛋白质/氨基酸的结构与性质
 CHEMISTRY,selective-organic-foundations-candidate-011,COVERED,合成高分子,"认识塑料、合成橡胶、合成纤维的组成和结构特点,了解新型高分子材料的优异性能",
 CHEMISTRY,selective-organic-foundations-candidate-012,COVERED,糖类的结构和性质,糖类的性质,
@@ -528,7 +528,7 @@ BIOLOGY,required-molecules-cells-candidate-007,COVERED,核酸,"核酸由核苷�
 BIOLOGY,required-molecules-cells-candidate-008,COVERED,细胞膜的结构和功能,"细胞都由质膜包裹,质膜将细胞与其生活环境分开,能控制物质进出",
 BIOLOGY,required-molecules-cells-candidate-009,COVERED,细胞器的结构和功能,"细胞内具有多个相对独立的结构,担负着物质运输、合成与分解、能量转换和信息传递等生命活动",
 BIOLOGY,required-molecules-cells-candidate-010,COVERED,细胞核的结构和功能,遗传信息主要储存在细胞核中,
-BIOLOGY,required-molecules-cells-candidate-011,COVERED,生物膜系统,"细胞各部分结构之间相互联系、协调一致,共同执行细胞的各项生命活动",
+BIOLOGY,required-molecules-cells-candidate-011,COVERED,细胞的生物膜系统,"细胞各部分结构之间相互联系、协调一致,共同执行细胞的各项生命活动",
 BIOLOGY,required-molecules-cells-candidate-012,COVERED,细胞的多样性和统一性,"有些生物体只有一个细胞,而有的由很多细胞构成,但都具有相似的基本结构",
 BIOLOGY,required-molecules-cells-candidate-013,COVERED,原核细胞和真核细胞,原核细胞与真核细胞的最大区别是原核细胞没有由核膜包被的细胞核,
 BIOLOGY,required-molecules-cells-candidate-014,COVERED,细胞膜的结构和功能,质膜具有选择透过性,
@@ -536,7 +536,7 @@ BIOLOGY,required-molecules-cells-candidate-015,COVERED,物质出入细胞的方�
 BIOLOGY,required-molecules-cells-candidate-016,COVERED,胞吞,大分子物质可以通过胞吞、胞吐进出细胞,胞吐另见 胞吐
 BIOLOGY,required-molecules-cells-candidate-017,COVERED,酶的本质,"绝大多数酶是一类能催化生化反应的蛋白质,酶活性受到环境因素(如pH和温度等)的影响",
 BIOLOGY,required-molecules-cells-candidate-018,COVERED,atp的合成和利用,ATP是驱动细胞生命活动的直接能源物质,
-BIOLOGY,required-molecules-cells-candidate-019,COVERED,光合作用,"植物细胞的叶绿体从太阳光中捕获能量,转换并储存为糖分子中的化学能",
+BIOLOGY,required-molecules-cells-candidate-019,COVERED,光合作用的原理,"植物细胞的叶绿体从太阳光中捕获能量,转换并储存为糖分子中的化学能",
 BIOLOGY,required-molecules-cells-candidate-020,COVERED,细胞呼吸概念-实质和意义,生物通过细胞呼吸将储存在有机分子中的能量转化为生命活动可以利用的能量,
 BIOLOGY,required-molecules-cells-candidate-021,COVERED,有丝分裂,有丝分裂保证了遗传信息在亲代和子代细胞中的一致性,
 BIOLOGY,required-molecules-cells-candidate-022,COVERED,细胞分化,"细胞在形态、结构和功能方面发生特异性的分化,形成了复杂的多细胞生物体",
