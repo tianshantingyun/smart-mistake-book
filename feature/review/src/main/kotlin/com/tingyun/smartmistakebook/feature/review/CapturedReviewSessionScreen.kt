@@ -77,6 +77,7 @@ fun CapturedReviewSessionScreen(
     /** 「再试一次结算」的出口；null = 这个界面不给重试（结算还没有可重试的对象）。 */
     onRetrySettlement: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    questionState: com.tingyun.smartmistakebook.core.domain.MistakeDetailState? = null,
 ) {
     val safeQueueSize = queueSize.coerceAtLeast(1)
     val safeQueuePosition = queuePosition.coerceIn(1, safeQueueSize)
@@ -122,14 +123,7 @@ fun CapturedReviewSessionScreen(
                 .weight(1f, fill = false)
                 .verticalScroll(problemScrollState),
         ) {
-            SafeMarkdownText(
-                markdown = entry.problemMarkdown,
-                color = SmartColors.Ink,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 19.sp,
-                    lineHeight = 30.sp,
-                ),
-            )
+            CapturedReviewQuestionContent(entry, questionState)
         }
         Spacer(Modifier.height(24.dp))
         if (tutorJudgedAvailable) {

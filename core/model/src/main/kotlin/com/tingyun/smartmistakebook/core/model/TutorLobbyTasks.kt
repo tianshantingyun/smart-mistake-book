@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 
 /**
  * A bounded free-text entry on the Tutor home screen.
@@ -214,6 +216,7 @@ data class TutorLobbyLocalActionOutcome(
 }
 
 /** A persistable response that cannot claim or request a local write. */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("tutor_lobby_output")
 data class TutorLobbyOutput(
@@ -245,6 +248,9 @@ data class TutorLobbyOutput(
      */
     val localActions: List<TutorLocalActionRequest> = emptyList(),
     val modelVersion: String,
+    /** 执行器累积的动作交接；不属于模型 wire 输出，仍由本地准入选出一张确认卡。 */
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val requestedLocalActions: List<TutorLocalActionRequest> = emptyList(),
 ) : ModelTaskOutput {
     init {
         conversationId.requireSafeModelText(
@@ -267,6 +273,12 @@ data class TutorLobbyOutput(
         }
         require(localActions.distinct().size == localActions.size) {
             "A tutor lobby reply must not request the same local action twice"
+        }
+        require(requestedLocalActions.size <= TutorLobbyInput.MAX_REQUESTED_LOCAL_ACTIONS) {
+            "A tutor lobby completion carries too many accumulated local actions"
+        }
+        require(requestedLocalActions.distinct().size == requestedLocalActions.size) {
+            "Accumulated local actions must be unique"
         }
         require(intentDecision.requestedLocalCapability in ALLOWED_LOCAL_CAPABILITIES) {
             "Tutor lobby cannot request a local write or current-question action"

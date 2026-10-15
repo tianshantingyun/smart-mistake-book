@@ -59,9 +59,8 @@ import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -411,12 +410,8 @@ private fun MistakeExportRecord.statusLabel(): String = when (status) {
     MistakeExportStatus.FAILED -> "未完成"
 }
 
-internal fun formatExportTime(epochMillis: Long): String = EXPORT_TIME_FORMATTER
-    .format(Instant.ofEpochMilli(epochMillis))
-
-private val EXPORT_TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter
-    .ofPattern("MM-dd HH:mm", Locale.CHINA)
-    .withZone(ZoneId.systemDefault())
+internal fun formatExportTime(epochMillis: Long): String =
+    SimpleDateFormat("MM-dd HH:mm", Locale.CHINA).format(Date(epochMillis))
 
 private fun MistakePdfSaveResult.toActionMessage(): ExportHubMessage = when (this) {
     MistakePdfSaveResult.SAVED -> ExportHubMessage("PDF 已保存，并已重新核对完整。", false)

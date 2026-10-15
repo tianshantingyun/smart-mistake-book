@@ -58,6 +58,7 @@ internal fun ReviewSessionDestination(
     capabilities: AppCapabilitySnapshot,
     repository: StudyExperienceRepository,
     navController: NavHostController,
+    details: MistakeDetailRepository,
 ) {
     val destinationLifecycle by entry.lifecycle.currentStateFlow
         .collectAsStateWithLifecycle()
@@ -155,6 +156,14 @@ internal fun ReviewSessionDestination(
     val queueSize = displayedQueueSize
     val capturedEntry = experience.catalog.firstOrNull { catalogEntry ->
         catalogEntry.practiceUnitId == practiceUnitId
+    }
+    val capturedQuestion by produceState<MistakeDetailState?>(null,
+        capturedEntry?.entryId, capturedEntry?.problemRevisionId) {
+        value = null
+        capturedEntry?.let { question ->
+            details.observeExact(MistakeRevisionKey(question.entryId,
+                question.problemId, question.problemRevisionId)).collect { value = it }
+        }
     }
     val stageReviewAdvance: (StudyReviewAdvanceResult) -> Unit = { result ->
         if (result.progress.status == StudyReviewSessionStatus.COMPLETED) {
@@ -306,6 +315,7 @@ internal fun ReviewSessionDestination(
             onRetryTutorSettlement = { settlementAttempt += 1 },
         )
         capturedEntry != null -> CapturedReviewSessionScreen(
+            questionState = capturedQuestion,
             onBack = onReviewBack,
             entry = capturedEntry,
             queuePosition = ordinal + 1,

@@ -153,6 +153,7 @@ object MistakePdfEligibility {
                 userNote = state.detail.userNote?.let(::safeInlineText)?.takeIf(String::isNotBlank),
                 questionDocumentSha256 = documentFingerprint,
                 inputSha256 = exportFingerprint(
+                    "mistake-export-v2",
                     identity.errorBookEntryId,
                     identity.problemId,
                     identity.problemRevisionId,
@@ -161,6 +162,12 @@ object MistakePdfEligibility {
                     identity.subject,
                     documentFingerprint,
                     layout.canonicalForm(),
+                    if (layout.includeNote) state.detail.userNote?.let(::safeInlineText).orEmpty() else "",
+                    cleanImageUri(state.detail.source).orEmpty(),
+                    (state.detail.source as? com.tingyun.smartmistakebook.core.domain.MistakeSourceSet.Present)
+                        ?.assets?.firstOrNull { it.role == CLEAN_IMAGE_SOURCE_ROLE &&
+                            it.location is com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation.Available }
+                        ?.contentSha256.orEmpty(),
                 ),
                 layout = layout,
             ),
@@ -229,6 +236,10 @@ class MistakePdfExportInput internal constructor(
 
 sealed interface MistakePdfBlock {
     val id: String
+
+    data class Image(override val id: String, val localUri: String, val title: String) : MistakePdfBlock
+
+    data class Note(override val id: String, val text: String) : MistakePdfBlock
 
     data class Paragraph(
         override val id: String,

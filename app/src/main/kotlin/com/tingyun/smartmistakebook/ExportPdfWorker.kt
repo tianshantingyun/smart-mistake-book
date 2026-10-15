@@ -369,7 +369,9 @@ internal object MistakeExportJobCodec {
  */
 internal fun mistakeExportSkippedNotice(layout: MistakePdfLayout): String? {
     val features = layout.unsupportedRequestedFeatures()
-    if (features.isEmpty()) return null
-    return features.joinToString(separator = "、") { feature -> feature.studentLabel } +
-        "暂不可用，已跳过。"
+    return buildList {
+        if (features.isNotEmpty()) add(features.joinToString(separator = "、") { it.studentLabel } + "暂不可用，已跳过。")
+        if (layout.includeAnswer || layout.templateId == MistakePdfLayout.TEMPLATE_WITH_ANSWERS)
+            add("答案区仅附已有答案，缺失处已注明。")
+    }.takeIf { it.isNotEmpty() }?.joinToString("\n")
 }

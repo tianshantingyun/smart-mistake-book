@@ -192,6 +192,22 @@ class MistakePdfEligibilityTest {
         assertEquals("先看导数的符号。", input.userNote)
     }
 
+    @Test
+    fun visibleNotesAndImageBytesInvalidateTheCacheButHiddenNotesDoNot() {
+        val first = readyState(listOf(ContentBlock.Paragraph("stem", "题目")), userNote = "旧备注")
+        val second = first.copy(detail = first.detail.copy(userNote = "新备注"))
+        fun fingerprint(state: MistakeDetailState.Ready, showNote: Boolean) =
+            (MistakePdfEligibility.check(state, com.tingyun.smartmistakebook.core.model.MistakePdfLayout(
+                includeNote = showNote)) as MistakePdfEligibilityResult.Eligible).input.inputSha256
+        org.junit.Assert.assertNotEquals(fingerprint(first, true), fingerprint(second, true))
+        assertEquals(fingerprint(first, false), fingerprint(second, false))
+        val image = sourceAsset("CLEAN_IMAGE", "clean", "file:///image.png")
+        val withImage = first.copy(detail = first.detail.copy(source = MistakeSourceSet.Present(listOf(image))))
+        val changedImage = withImage.copy(detail = withImage.detail.copy(source = MistakeSourceSet.Present(
+            listOf(image.copy(contentSha256 = "b".repeat(64))))))
+        org.junit.Assert.assertNotEquals(fingerprint(withImage, false), fingerprint(changedImage, false))
+    }
+
     private fun sourceAsset(
         role: String,
         sourceAssetId: String,

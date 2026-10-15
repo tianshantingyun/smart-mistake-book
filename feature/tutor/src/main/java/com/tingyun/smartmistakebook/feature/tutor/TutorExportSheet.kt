@@ -181,9 +181,12 @@ private fun exportBlockKindLabel(token: String): String = when (MistakePdfBlockK
 /** 请求了但会被 fail-closed 跳过的版式功能 → sheet 上的如实提示；没有时 null。 */
 internal fun exportSkipNotice(layout: MistakePdfLayout): String? {
     val features = layout.unsupportedRequestedFeatures()
-    if (features.isEmpty()) return null
-    return features.joinToString(separator = "、") { it.studentLabel } +
-        "暂不可用：本次导出会跳过它，不会留空占位。"
+    return buildList {
+        if (features.isNotEmpty()) add(features.joinToString(separator = "、") { it.studentLabel } +
+            "暂不可用：本次导出会跳过它，不会留空占位。")
+        if (layout.includeAnswer || layout.templateId == MistakePdfLayout.TEMPLATE_WITH_ANSWERS)
+            add("答案区仅附已有答案，缺失的题目会逐题注明。")
+    }.takeIf { it.isNotEmpty() }?.joinToString("\n")
 }
 
 /**

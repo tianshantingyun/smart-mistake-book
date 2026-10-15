@@ -19,6 +19,25 @@ import org.junit.Test
 
 class MistakePdfBatchEligibilityTest {
     @Test
+    fun notesRemainInsideTheirOwnQuestionWhenExportedTogether() {
+        val first = readyState("first", "第一题").let {
+            it.copy(detail = it.detail.copy(userNote = "先检查定义域"))
+        }
+        val second = readyState("second", "第二题").let {
+            it.copy(detail = it.detail.copy(userNote = "别忘记单位"))
+        }
+        val input = (MistakePdfBatchEligibility.check(listOf(first, second),
+            com.tingyun.smartmistakebook.core.model.MistakePdfLayout(includeNote = true)) as
+            MistakePdfBatchEligibilityResult.Eligible).input
+        val lines = MistakePdfPagePlanner.plan(input, PdfTextMeasure { _, start, end, _ ->
+            (end - start) * 6f
+        }).pages.flatten().filterIsInstance<PdfPlannedItem.Line>().map { it.text }
+        val secondHeading = lines.indexOf("2. 第二题")
+        assertTrue("First note must remain before the next question", lines.indexOf("先检查定义域") in 1 until secondHeading)
+        assertTrue("Second note must remain with the second question", lines.indexOf("别忘记单位") > secondHeading)
+    }
+
+    @Test
     fun preservesVisibleOrderAndAutomaticallyOmitsUnavailableEntries() {
         val result = MistakePdfBatchEligibility.check(
             listOf(
@@ -96,6 +115,8 @@ class MistakePdfBatchEligibilityTest {
 
         val exportedText = result.input.blocks.joinToString { block ->
             when (block) {
+                is MistakePdfBlock.Image -> block.title
+                is MistakePdfBlock.Note -> block.text
                 is MistakePdfBlock.Paragraph -> block.text
                 is MistakePdfBlock.SectionHeading -> block.text
                 is MistakePdfBlock.Formula -> block.alternativeText

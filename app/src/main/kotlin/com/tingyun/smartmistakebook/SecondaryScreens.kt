@@ -630,12 +630,13 @@ internal fun StorageScreen(
     backupRepository: BackupRepository,
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val operations: StorageOperationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val scope = operations.operationScope
     var inventory by remember { mutableStateOf<StorageInventory?>(null) }
     var inventoryFailed by remember { mutableStateOf(false) }
     var inventoryRetry by remember { mutableStateOf(0) }
-    var operationMessage by rememberSaveable { mutableStateOf<String?>(null) }
-    var operationBusy by rememberSaveable { mutableStateOf(false) }
+    var operationMessage by operations::message
+    var operationBusy by operations::busy
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(backupRepository, inventoryRetry) {
@@ -792,7 +793,8 @@ internal fun StorageScreen(
     }
 
     RootPageColumn(modifier = Modifier.testTag("storage_screen")) {
-        SecondaryHeader(title = "存储、备份与导出", onBack = onBack)
+        androidx.activity.compose.BackHandler(enabled = operationBusy) { }
+        SecondaryHeader(title = "存储、备份与导出", onBack = { if (!operationBusy) onBack() })
         SectionHeader("本机存储")
         val current = inventory
         Text(

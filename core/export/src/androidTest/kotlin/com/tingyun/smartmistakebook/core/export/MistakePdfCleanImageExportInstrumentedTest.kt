@@ -108,10 +108,10 @@ class MistakePdfCleanImageExportInstrumentedTest {
             }
         }
 
-    private fun writeSolidPng(file: File, width: Int, height: Int) {
+    private fun writeSolidPng(file: File, width: Int, height: Int, color: Int = Color.rgb(20, 20, 20)) {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         try {
-            bitmap.eraseColor(Color.rgb(20, 20, 20))
+            bitmap.eraseColor(color)
             FileOutputStream(file).use { output ->
                 assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output))
             }
@@ -127,7 +127,7 @@ class MistakePdfCleanImageExportInstrumentedTest {
         val inputCleanImageUri: String?,
     )
 
-    private fun prepare(source: MistakeSourceSet): PreparedFixture {
+    private fun state(source: MistakeSourceSet): MistakeDetailState.Ready {
         val unique = UUID.randomUUID().toString()
         val blocks = listOf(ContentBlock.Paragraph("stem", "题干文字在重绘图的下面。"))
         val state = MistakeDetailState.Ready(
@@ -161,12 +161,49 @@ class MistakePdfCleanImageExportInstrumentedTest {
                 },
             ),
         )
+        return state
+    }
+
+    private fun prepare(source: MistakeSourceSet): PreparedFixture {
         val input = (
-            MistakePdfEligibility.check(state) as MistakePdfEligibilityResult.Eligible
+            MistakePdfEligibility.check(state(source)) as MistakePdfEligibilityResult.Eligible
             ).input
         return PreparedFixture(
             prepared = MistakePdfExporter(context).prepare(input),
             inputCleanImageUri = input.cleanImageLocalUri,
         )
+    }
+
+    @Test
+    fun everyQuestionKeepsItsOwnImageInABatchPdf() {
+        val images = listOf(Color.RED, Color.BLUE).map { color ->
+            File(context.cacheDir, "batch-image-${UUID.randomUUID()}.png").also {
+                writeSolidPng(it, 200, 80, color)
+            }
+        }
+        try {
+            val states = images.map { file -> state(MistakeSourceSet.Present(listOf(MistakeSourceAsset(
+                CLEAN_IMAGE_SOURCE_ROLE, file.name, sha256File(file), "image/png", file.length(), 200, 80,
+                "GENERATED_FIGURE", 1, MistakeSourceLocation.Available(file.toURI().toString()),
+            )))) }
+            val input = (MistakePdfBatchEligibility.check(states) as MistakePdfBatchEligibilityResult.Eligible).input
+            val pdf = MistakePdfExporter(context).prepare(input)
+            var red = 0
+            var blue = 0
+            MistakePdfPreview.open(pdf).use { preview ->
+                repeat(pdf.pageCount) { page ->
+                    val bitmap = preview.renderPage(page, 595, 842)
+                    try {
+                        for (y in 0 until bitmap.height step 2) for (x in 0 until bitmap.width step 2) {
+                            val color = bitmap.getPixel(x, y)
+                            if (Color.red(color) > 180 && Color.blue(color) < 70 && Color.green(color) < 70) red++
+                            if (Color.blue(color) > 180 && Color.red(color) < 70 && Color.green(color) < 70) blue++
+                        }
+                    } finally { bitmap.recycle() }
+                }
+            }
+            assertTrue("First question's red image is missing", red > 1_000)
+            assertTrue("Second question's blue image is missing", blue > 1_000)
+        } finally { images.forEach(File::delete) }
     }
 }

@@ -522,6 +522,7 @@ internal fun SmartMistakeBookRoot(
             }
             composable(Routes.ReviewSession) { entry ->
                 ReviewSessionDestination(
+                    details = application.mistakeDetailRepository,
                     entry = entry,
                     experience = experience,
                     capabilities = capabilities,

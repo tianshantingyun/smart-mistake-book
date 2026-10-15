@@ -229,6 +229,21 @@ enum class KnowledgeMaterialBindingVerdictSource {
     MIGRATION,
 }
 
+/**
+ * How a teaching material's prose was produced (F8·③ material AI/provenance attribute).
+ *
+ * 《人工智能生成合成内容标识办法》第 5 条 requires file metadata for generated/synthesized
+ * content to carry the synthesis attribute, the service provider (name or code), and the content
+ * id. Since teaching-sidecar schema 4 every material carries those three facts
+ * (`contentAttribute`/`contentProvider`/`contentId`); this enum is the closed vocabulary of the
+ * attribute. Every material in the bundled pack family is model-judged, model-rewritten prose
+ * (`derivationKind` REVIEWED_SYNTHESIS), so [AI_SYNTHESIZED] is the mechanically true value — a
+ * human-authored material would need a new vocabulary value and a schema bump rather than a guess.
+ */
+enum class KnowledgeMaterialContentAttribute {
+    AI_SYNTHESIZED,
+}
+
 data class KnowledgeNode(
     val id: String,
     val subject: SubjectKind,

@@ -7,6 +7,11 @@ internal class MappingPagingSource<Value : Any, R : Any>(
     private val delegate: PagingSource<Int, Value>,
     private val transform: (Value) -> R,
 ) : PagingSource<Int, R>() {
+    init {
+        delegate.registerInvalidatedCallback(::invalidate)
+        registerInvalidatedCallback(delegate::invalidate)
+    }
+
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, R> {
         val result = delegate.load(params)
         return when (result) {
@@ -14,6 +19,8 @@ internal class MappingPagingSource<Value : Any, R : Any>(
                 data = result.data.map(transform),
                 prevKey = result.prevKey,
                 nextKey = result.nextKey,
+                itemsBefore = result.itemsBefore,
+                itemsAfter = result.itemsAfter,
             )
 
             is LoadResult.Error -> LoadResult.Error(result.throwable)

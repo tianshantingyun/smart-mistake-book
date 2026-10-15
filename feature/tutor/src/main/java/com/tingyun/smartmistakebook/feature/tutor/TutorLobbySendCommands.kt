@@ -562,6 +562,7 @@ internal class TutorLobbySendCommands(
                         val suspended = pendingRequestCoordinator.suspendRequestedActionsIfAny(
                             conversationId = conversationId,
                             requestedActions = lobbyInput?.requestedLocalActions.orEmpty() +
+                                output.requestedLocalActions +
                                 output.localActions,
                             attachedImageAssetIds = lobbyInput?.sourceImageAssetRefs
                                 ?.map { ref -> ref.assetId }

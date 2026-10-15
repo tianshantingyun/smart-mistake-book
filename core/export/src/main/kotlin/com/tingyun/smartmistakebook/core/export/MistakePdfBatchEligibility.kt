@@ -79,11 +79,17 @@ object MistakePdfBatchEligibility {
                 input.blocks.forEach { block ->
                     add(block.withNamespacedId("question-$index-${block.id}"))
                 }
+                input.cleanImageLocalUri?.let { uri ->
+                    add(MistakePdfBlock.Image("question-$index-image", uri, "第 ${index + 1} 题 · 干净题面"))
+                }
+                if (layout.includeNote) input.userNote?.let { note ->
+                    add(MistakePdfBlock.Note("question-$index-note", note))
+                }
             }
         }
         val sourceFingerprints = eligibleInputs.map(MistakePdfExportInput::inputSha256)
         val combinedFingerprint = exportFingerprint(
-            "mistake-batch-v1",
+            "mistake-batch-v2",
             includedCount.toString(),
             layout.canonicalForm(),
             *sourceFingerprints.toTypedArray(),
@@ -113,6 +119,8 @@ object MistakePdfBatchEligibility {
 }
 
 private fun MistakePdfBlock.withNamespacedId(namespacedId: String): MistakePdfBlock = when (this) {
+    is MistakePdfBlock.Image -> copy(id = namespacedId)
+    is MistakePdfBlock.Note -> copy(id = namespacedId)
     is MistakePdfBlock.Paragraph -> copy(id = namespacedId)
     is MistakePdfBlock.SectionHeading -> copy(id = namespacedId)
     is MistakePdfBlock.Formula -> copy(id = namespacedId)

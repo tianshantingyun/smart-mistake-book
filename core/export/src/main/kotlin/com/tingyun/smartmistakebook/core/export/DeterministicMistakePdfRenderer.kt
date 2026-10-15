@@ -32,15 +32,23 @@ internal object DeterministicMistakePdfRenderer {
     private const val ANSWER_BLANK_VERTICAL_INSET_PX = 2f
 
     fun render(input: MistakePdfExportInput, output: File) {
-        val cleanImage = input.cleanImageLocalUri?.let(::decodeCleanImage)
+        val imageSizes = buildList {
+            input.cleanImageLocalUri?.let(::add)
+            input.blocks.filterIsInstance<MistakePdfBlock.Image>().forEach { add(it.localUri) }
+        }.distinct().associateWith { uri ->
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(localImagePath(uri), bounds)
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0)
+                throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
+            PdfImageSize(bounds.outWidth, bounds.outHeight)
+        }
         val typography = PdfTypography.forFontScale(input.layout.fontScale)
         val geometry = PdfPageGeometry.of(input.layout, typography)
         val plan = MistakePdfPagePlanner.plan(
             input = input,
             measure = PaintTextMeasure(typography),
-            cleanImageSize = cleanImage?.let { bitmap ->
-                PdfImageSize(widthPx = bitmap.width, heightPx = bitmap.height)
-            },
+            cleanImageSize = imageSizes[input.cleanImageLocalUri],
+            cleanImageSizes = imageSizes,
         )
         val blankPaint = answerBlankPaint()
         val document = PdfDocument()
@@ -93,14 +101,18 @@ internal object DeterministicMistakePdfRenderer {
                             top += item.height
                         }
                         is PdfPlannedItem.Image -> {
-                            if (cleanImage != null) {
+                            val bitmap = item.localUri?.let(::decodeCleanImage)
+                                ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
+                            try {
                                 val bounds = RectF(left, top, left + item.width, top + item.height)
                                 page.canvas.drawBitmap(
-                                    cleanImage,
+                                    bitmap,
                                     null,
                                     bounds,
                                     Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG),
                                 )
+                            } finally {
+                                bitmap.recycle()
                             }
                             top += item.height
                         }
@@ -165,8 +177,8 @@ internal object DeterministicMistakePdfRenderer {
     }
 
     private fun decodeCleanImage(uri: String): Bitmap? {
-        val path = uri.removePrefix("file://")
         return runCatching {
+            val path = localImagePath(uri)
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeFile(path, bounds)
             val longEdge = max(bounds.outWidth, bounds.outHeight)
@@ -177,6 +189,12 @@ internal object DeterministicMistakePdfRenderer {
                 BitmapFactory.Options().apply { inSampleSize = sampleSize },
             )
         }.getOrNull()
+    }
+
+    private fun localImagePath(uri: String): String = try {
+        File(java.net.URI(uri)).absolutePath
+    } catch (failure: Exception) {
+        throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID, failure)
     }
 
     /** Paint 侧的折行宽度读口：与绘制用同一组 Paint（同字号缩放、同 typeface）。 */

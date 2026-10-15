@@ -84,7 +84,7 @@ fun LibraryRoute(
     modifier: Modifier = Modifier,
 ) {
     val libraryViewModel: LibraryViewModel = viewModel()
-    LaunchedEffect(catalogRepository) {
+    LaunchedEffect(catalogRepository, entries) {
         if (catalogRepository != null) {
             libraryViewModel.bindRepository(catalogRepository)
         } else {
@@ -92,11 +92,7 @@ fun LibraryRoute(
         }
     }
     LibraryContent(
-        mistakeCount = if (catalogRepository != null) {
-            libraryViewModel.uiState.totalCount
-        } else {
-            entries.size
-        },
+        mistakeCount = entries.size,
         usePaging = catalogRepository != null,
         mistakeDetailRepository = mistakeDetailRepository,
         onCapture = onCapture,
@@ -123,7 +119,7 @@ private fun LibraryContent(
     val uiState = viewModel.uiState
     val scope = rememberCoroutineScope()
     val pagingItems = if (usePaging) viewModel.pagingData.collectAsLazyPagingItems() else null
-    val visibleMistakeCount = if (pagingItems != null) pagingItems.itemCount else uiState.visibleMistakes.size
+    val visibleMistakeCount = if (usePaging) uiState.totalCount else uiState.visibleMistakes.size
     val loading = usePaging && !uiState.loaded
     val emptyState = resolveLibraryEmptyState(
         totalMistakeCount = mistakeCount,

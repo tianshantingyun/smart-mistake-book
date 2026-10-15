@@ -42,6 +42,7 @@ enum class MistakePdfLayoutViolation {
  * （[MistakePdfLayout.unsupportedRequestedFeatures]），不会一处说了另一处没说。
  */
 enum class MistakePdfLayoutFeature(val studentLabel: String) {
+    ANSWER_SECTION("答案区"),
     /** 解析区：当前没有解析数据源（打开只会被跳过）。 */
     SOLUTION_SECTION("解析区"),
 }

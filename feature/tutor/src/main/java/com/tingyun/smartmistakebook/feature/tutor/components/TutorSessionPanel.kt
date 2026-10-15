@@ -274,6 +274,7 @@ internal fun TutorModelPanel(
                 clock = clock,
                 planTasks = { tutorTasks },
                 modelTasks = modelTasks,
+                setPlanStartError = viewModel::onPlanStartError,
                 // 讲题轮的正文写进会话消息行（K1a）；会话行按需创建（K1b），所以这里给的是
                 // 会话仓库本身而不是某一条已经建好的会话。
                 conversations = conversations,

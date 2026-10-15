@@ -50,11 +50,12 @@ internal object MistakePdfPagePlanner {
         input: MistakePdfExportInput,
         measure: PdfTextMeasure,
         cleanImageSize: PdfImageSize? = null,
+        cleanImageSizes: Map<String, PdfImageSize> = emptyMap(),
     ): PdfPlan {
         val layout = input.layout
         val typography = PdfTypography.forFontScale(layout.fontScale)
         val geometry = PdfPageGeometry.of(layout, typography)
-        val draft = buildRawItems(input, measure, cleanImageSize, typography, geometry)
+        val draft = buildRawItems(input, measure, cleanImageSize, typography, geometry, cleanImageSizes)
         if (draft.items.size > input.maxRenderedLines) {
             throw MistakePdfExportException(MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED)
         }
@@ -103,6 +104,7 @@ internal object MistakePdfPagePlanner {
         cleanImageSize: PdfImageSize?,
         typography: PdfTypography,
         geometry: PdfPageGeometry,
+        cleanImageSizes: Map<String, PdfImageSize>,
     ): RawPlanDraft {
         val layout = input.layout
         val skipped = mutableListOf<PdfLayoutSkip>()
@@ -123,17 +125,31 @@ internal object MistakePdfPagePlanner {
             add(spacer(typography))
             if (cleanImageSize != null) {
                 add(line("干净题面", PdfLineStyle.SECTION_HEADING, typography))
-                val width = geometry.visualWidthPt(layout)
+                val width = imageWidth(cleanImageSize, layout, typography, geometry)
                 add(
                     PdfPlannedItem.Image(
                         height = cleanImageSize.layoutHeight(width),
                         width = width,
+                        localUri = input.cleanImageLocalUri,
                     ),
                 )
                 add(spacer(typography))
             }
             orderedBlocks(input.blocks, layout).forEach { block ->
                 when (block) {
+                    is MistakePdfBlock.Image -> {
+                        val size = cleanImageSizes[block.localUri]
+                            ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
+                        add(line(block.title, PdfLineStyle.SECTION_HEADING, typography, keepWithNext = true))
+                        val width = imageWidth(size, layout, typography, geometry)
+                        add(PdfPlannedItem.Image(size.layoutHeight(width), width, localUri = block.localUri))
+                    }
+                    is MistakePdfBlock.Note -> {
+                        if (layout.includeNote) {
+                            add(line("我的备注", PdfLineStyle.SECTION_HEADING, typography, keepWithNext = true))
+                            addWrapped(block.text, PdfLineStyle.BODY, measure, typography, geometry.columnWidthPt)
+                        }
+                    }
                     is MistakePdfBlock.Paragraph ->
                         addWrapped(block.text, PdfLineStyle.BODY, measure, typography, geometry.columnWidthPt)
                     is MistakePdfBlock.SectionHeading ->
@@ -197,7 +213,10 @@ internal object MistakePdfPagePlanner {
                     add(spacer(typography))
                 }
             }
-            addAnswerSection(input.blocks, layout, measure, typography, geometry)
+            if (addAnswerSection(input.blocks, layout, measure, typography, geometry)) {
+                skipped += PdfLayoutSkip(MistakePdfLayoutFeature.ANSWER_SECTION,
+                    MistakePdfLayoutSkipReason.NO_ANSWER_AVAILABLE)
+            }
             // 请求了但当前实现撑不住的功能：按布局自己的判据（unsupportedRequestedFeatures）
             // fail-closed 跳过。导出入口的"会跳过"提示与结果通知读的是同一份判据。
             layout.unsupportedRequestedFeatures().forEach { feature ->
@@ -215,6 +234,22 @@ internal object MistakePdfPagePlanner {
      * 块顺序：空 [MistakePdfLayout.blockOrder] 时保持题面原顺序；非空时按白名单里的
      * 类型顺序稳定排序，**未列出的块类型按原顺序排在最后**（不丢内容，见 layout KDoc）。
      */
+    private fun imageWidth(size: PdfImageSize, layout: MistakePdfLayout, typography: PdfTypography,
+        geometry: PdfPageGeometry): Float {
+        val maxHeight = geometry.contentHeightPt - typography.lineHeight(PdfLineStyle.SECTION_HEADING) -
+            typography.lineHeight(PdfLineStyle.SPACER)
+        return min(geometry.visualWidthPt(layout), maxHeight * size.widthPx / size.heightPx)
+    }
+
+    private fun questionGroups(blocks: List<MistakePdfBlock>): List<List<MistakePdfBlock>> {
+        val groups = mutableListOf<MutableList<MistakePdfBlock>>()
+        blocks.forEach { block ->
+            if (groups.isEmpty() || block is MistakePdfBlock.SectionHeading) groups += mutableListOf<MistakePdfBlock>()
+            groups.last() += block
+        }
+        return groups
+    }
+
     private fun orderedBlocks(
         blocks: List<MistakePdfBlock>,
         layout: MistakePdfLayout,
@@ -224,7 +259,10 @@ internal object MistakePdfPagePlanner {
             .mapNotNull(MistakePdfBlockKind::fromToken)
             .withIndex()
             .associate { (index, kind) -> kind to index }
-        return blocks.withIndex()
+        return questionGroups(blocks).flatMap { group ->
+            val fixed = group.filter { it is MistakePdfBlock.SectionHeading }
+            val notes = group.filterIsInstance<MistakePdfBlock.Note>()
+            val ordered = group.filter { it !is MistakePdfBlock.SectionHeading && it !is MistakePdfBlock.Note }.withIndex()
             .sortedWith(
                 compareBy(
                     { priority[it.value.kind] ?: Int.MAX_VALUE },
@@ -232,6 +270,8 @@ internal object MistakePdfPagePlanner {
                 ),
             )
             .map { it.value }
+            fixed + ordered + notes
+        }
     }
 
     /**
@@ -272,7 +312,7 @@ internal object MistakePdfPagePlanner {
      * 答案独立成区（用户裁定 2026-10-01）：题目区之后统一排"答案"区，
      * 内容 = 每个 ChoiceGroup 的已选项文本（`selectedChoiceId` 在入口已解析为 `selected`）。
      *
-     * 没有任何已选答案时不渲染该区（不留空标题占位）。
+     * 缺少答案时逐项说明，避免答案卷静默退化成题目卷。
      */
     private fun MutableList<PdfPlannedItem>.addAnswerSection(
         blocks: List<MistakePdfBlock>,
@@ -280,22 +320,29 @@ internal object MistakePdfPagePlanner {
         measure: PdfTextMeasure,
         typography: PdfTypography,
         geometry: PdfPageGeometry,
-    ) {
+    ): Boolean {
         val requested = layout.includeAnswer ||
             layout.templateId == MistakePdfLayout.TEMPLATE_WITH_ANSWERS
-        if (!requested) return
-        val choiceGroups = blocks.filterIsInstance<MistakePdfBlock.ChoiceGroup>()
-        val answers = choiceGroups.mapIndexedNotNull { index, group ->
-            val selectedIndex = group.choices.indexOfFirst { it.selected }
-            if (selectedIndex < 0) return@mapIndexedNotNull null
-            "${index + 1}. ${choiceLabel(selectedIndex)}${group.choices[selectedIndex].text}"
+        if (!requested) return false
+        val groups = if (blocks.any { it is MistakePdfBlock.SectionHeading }) questionGroups(blocks).map { question ->
+            question.filterIsInstance<MistakePdfBlock.ChoiceGroup>()
+        } else blocks.filterIsInstance<MistakePdfBlock.ChoiceGroup>().map { listOf(it) }.ifEmpty { listOf(emptyList()) }
+        var missing = false
+        val answers = groups.mapIndexed { index, choices ->
+            val selected = choices.mapNotNull { group ->
+                val selectedIndex = group.choices.indexOfFirst { it.selected }
+                if (selectedIndex < 0) null else choiceLabel(selectedIndex) + group.choices[selectedIndex].text
+            }
+            if (selected.isEmpty() || selected.size < choices.size) missing = true
+            "${index + 1}. " + (if (selected.isEmpty()) "暂无可导出的答案" else selected.joinToString("；") +
+                if (selected.size < choices.size) "；部分小题暂无可导出的答案" else "")
         }
-        if (answers.isEmpty()) return
         add(line("答案", PdfLineStyle.SECTION_HEADING, typography, keepWithNext = true))
         answers.forEach { answer ->
             addWrapped(answer, PdfLineStyle.BODY, measure, typography, geometry.columnWidthPt)
         }
         add(spacer(typography))
+        return missing
     }
 
     /** 备注区（`error_book_entry.user_note`）：只在请求且确有内容时渲染。 */
@@ -417,6 +464,7 @@ private data class RawPlanDraft(
  */
 internal enum class MistakePdfLayoutSkipReason {
     UNSUPPORTED_LAYOUT_FEATURE,
+    NO_ANSWER_AVAILABLE,
 }
 
 internal data class PdfLayoutSkip(
@@ -574,6 +622,7 @@ internal sealed interface PdfPlannedItem {
         override val height: Float,
         val width: Float,
         override val column: Int = 0,
+        val localUri: String? = null,
     ) : PdfPlannedItem
 
     /** 练习卷作答空白区：细线框，[rows] 个书写行。 */
@@ -586,6 +635,8 @@ internal sealed interface PdfPlannedItem {
 
 private val MistakePdfBlock.kind: MistakePdfBlockKind
     get() = when (this) {
+        is MistakePdfBlock.Image -> MistakePdfBlockKind.FIGURE
+        is MistakePdfBlock.Note -> MistakePdfBlockKind.PARAGRAPH
         is MistakePdfBlock.Paragraph -> MistakePdfBlockKind.PARAGRAPH
         is MistakePdfBlock.SectionHeading -> MistakePdfBlockKind.SECTION_HEADING
         is MistakePdfBlock.Formula -> MistakePdfBlockKind.FORMULA

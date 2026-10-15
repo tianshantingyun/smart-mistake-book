@@ -573,6 +573,11 @@ private class RefreshingPagingSource<T : Any>(
     private val beforeLoad: suspend () -> Unit,
     private val delegate: PagingSource<Int, T>,
 ) : PagingSource<Int, T>() {
+    init {
+        delegate.registerInvalidatedCallback(::invalidate)
+        registerInvalidatedCallback(delegate::invalidate)
+    }
+
     override fun getRefreshKey(state: PagingState<Int, T>): Int? {
         return delegate.getRefreshKey(state)
     }

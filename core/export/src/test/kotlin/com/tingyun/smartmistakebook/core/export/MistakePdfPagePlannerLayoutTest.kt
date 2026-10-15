@@ -187,7 +187,7 @@ class MistakePdfPagePlannerLayoutTest {
     }
 
     @Test
-    fun `no selected choice means no empty answer section`() {
+    fun `an unanswered choice is disclosed on an answer sheet`() {
         val block = MistakePdfBlock.ChoiceGroup(
             id = "choices",
             prompt = "下列哪个正确？",
@@ -203,9 +203,9 @@ class MistakePdfPagePlannerLayoutTest {
             MistakePdfLayout(templateId = MistakePdfLayout.TEMPLATE_WITH_ANSWERS),
         ).flattened()
 
-        assertFalse(
-            "没有任何已选答案时不渲染空答案标题",
-            items.any { it is PdfPlannedItem.Line && it.text == "答案" },
+        assertTrue(
+            "答案缺失时必须有明确说明",
+            items.any { it is PdfPlannedItem.Line && it.text.contains("暂无可导出的答案") },
         )
     }
 
@@ -359,6 +359,37 @@ class MistakePdfPagePlannerLayoutTest {
         val secondParagraphIndex = items.indexOfFirst { it is PdfPlannedItem.Line && it.text == "第二段" }
         assertTrue(figureIndex in 0 until firstParagraphIndex)
         assertTrue(firstParagraphIndex < secondParagraphIndex)
+    }
+
+    @Test
+    fun `requesting answers without an answer produces an explicit disclosure`() {
+        val result = plan(listOf(MistakePdfBlock.Paragraph("stem", "求函数的单调区间。")),
+            MistakePdfLayout(templateId = MistakePdfLayout.TEMPLATE_WITH_ANSWERS))
+        val lines = result.pages.flatten().filterIsInstance<PdfPlannedItem.Line>().map { it.text }
+        assertTrue("An answer sheet must explain why its answer is absent",
+            lines.any { it.contains("暂无可导出的答案") })
+        assertTrue("Missing answers must be reported to the caller", result.skipped.isNotEmpty())
+    }
+
+    @Test
+    fun `a partial answer sheet keeps the missing questions number`() {
+        val result = plan(listOf(MistakePdfBlock.SectionHeading("q1", "第一题"), choiceGroup("choice"),
+            MistakePdfBlock.SectionHeading("q2", "第二题"), MistakePdfBlock.Paragraph("stem", "没有答案的题")),
+            MistakePdfLayout(includeAnswer = true))
+        val lines = result.pages.flatten().filterIsInstance<PdfPlannedItem.Line>().map { it.text }
+        assertTrue(lines.contains("1. B. 先减后增"))
+        assertTrue(lines.contains("2. 暂无可导出的答案"))
+        assertTrue(result.skipped.any { it.reason == MistakePdfLayoutSkipReason.NO_ANSWER_AVAILABLE })
+    }
+
+    @Test
+    fun `a tall question image scales to the printable page instead of blocking the export`() {
+        val result = plan(listOf(MistakePdfBlock.Paragraph("stem", "题面")), MistakePdfLayout.DEFAULT,
+            cleanImageSize = PdfImageSize(100, 5000), cleanImageLocalUri = "file:///tall.png")
+        val image = result.pages.flatten().filterIsInstance<PdfPlannedItem.Image>().single()
+        assertTrue(image.height <= PdfPageGeometry.of(MistakePdfLayout.DEFAULT,
+            PdfTypography.forFontScale(2)).contentHeightPt)
+        assertTrue(image.width > 0)
     }
 
     // ---- fixtures ----

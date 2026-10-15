@@ -16,6 +16,8 @@ import com.tingyun.smartmistakebook.core.domain.LibraryFacetKind as DomainLibrar
 import com.tingyun.smartmistakebook.core.domain.LibraryQuery
 import com.tingyun.smartmistakebook.core.domain.LibrarySort
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -29,6 +31,7 @@ internal class LibraryViewModel(
 ) : ViewModel() {
     private var catalog = LibraryCatalog(emptyList())
     private var catalogRepository: LibraryCatalogRepository? = null
+    private var metadataJob: Job? = null
     private val repositoryFlow = MutableStateFlow<LibraryCatalogRepository?>(null)
 
     private val initialActiveFacet = LibraryFacet.fromId(savedStateHandle[ACTIVE_FACET_KEY])
@@ -72,6 +75,7 @@ internal class LibraryViewModel(
                         pageSize = PAGE_SIZE,
                         prefetchDistance = 10,
                         initialLoadSize = 60,
+                        enablePlaceholders = false,
                     ),
                     pagingSourceFactory = { repository.pagingSource(query) },
                 ).flow
@@ -110,7 +114,10 @@ internal class LibraryViewModel(
     }
 
     fun bindRepository(repository: LibraryCatalogRepository) {
-        if (catalogRepository === repository) return
+        if (catalogRepository === repository) {
+            refreshFromRepository()
+            return
+        }
         catalogRepository = repository
         repositoryFlow.value = repository
         refreshFromRepository()
@@ -144,7 +151,8 @@ internal class LibraryViewModel(
     fun toggleFilter(facet: LibraryFacet, optionId: String?) {
         if (
             optionId != null &&
-            catalog.optionsFor(facet, uiState.selections).none { it.id == optionId }
+            (if (catalogRepository != null) uiState.activeOptions else
+                catalog.optionsFor(facet, uiState.selections)).none { it.id == optionId }
         ) return
         val currentSelection = uiState.selections.selectedOptionId(facet)
         val nextSelection = if (optionId != null && currentSelection == optionId) null else optionId
@@ -261,9 +269,11 @@ internal class LibraryViewModel(
         val repository = catalogRepository ?: return
         val domainQuery = currentQuery()
         queryFlow.value = domainQuery
-        viewModelScope.launch {
+        val activeFacet = uiState.activeFacet
+        metadataJob?.cancel()
+        metadataJob = viewModelScope.launch {
             val count = repository.totalCount(domainQuery)
-            val facetOptions = when (uiState.activeFacet) {
+            val facetOptions = when (activeFacet) {
                 LibraryFacet.SUBJECT -> repository.facets(
                     domainQuery,
                     DomainLibraryFacetKind.SUBJECT,
@@ -277,6 +287,9 @@ internal class LibraryViewModel(
                     DomainLibraryFacetKind.MASTERY,
                 )
             }.map { facet -> LibraryFacetOption(facet.id, facet.label, facet.count) }
+            ensureActive()
+            if (catalogRepository !== repository || currentQuery() != domainQuery ||
+                uiState.activeFacet != activeFacet) return@launch
             uiState = uiState.copy(
                 activeOptions = facetOptions,
                 totalCount = count,
