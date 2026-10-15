@@ -1388,7 +1388,7 @@ attempt_count=1）——"按新口径失败可重试"没有出现；本轮无 cu
 不构成本条重开（无法证明是截断形态）。另观测到第 8 个 draft-583b094e（复用 page5 资源）的
 `CAPTURE_PARSE` 以 `PROVIDER_REJECTED_INPUT`（"题图检查未通过"）失败，一并记录、不归因。
 
-**2026-10-15/16 补记（本批九轨，工作树未提交）· 与本条相关的现状（四处变化、三处未动）：**
+**2026-10-15/16 补记（本批九轨，提交 `038d50c0`/`09f0c85c`）· 与本条相关的现状（四处变化、三处未动）：**
 
 - **失败上报唯一口 + 新增落点（T2）**：网关 7 处失败点改为唯一上报口 `reportModelCallFailure`——`execution` catch 5 处
   （timeout / IOException / Incomplete / Invalid / IllegalArgument，`OpenAiCompatibleModelGateway.kt:271-291`）、终态解析 2 处，
@@ -1523,7 +1523,7 @@ Chat Completions 协议跑分题/整理前，按①补齐。
   契约（A2 已作废）；`CaptureWorkflowRepository.kt:427` 仍有第三份 `splitDrafts.size in 2..12` 硬编码
   （本节记录者回读确认仍在）。
 
-**2026-10-15/16 补记（本批九轨，工作树未提交）· 三条未闭合项现状：**
+**2026-10-15/16 补记（本批九轨，提交 `038d50c0`/`09f0c85c`）· 三条未闭合项现状：**
 
 - **③ 第一条残留仍在（行号漂移）**：`OpenAiModelResponseParsers.kt:127-128` 的注释仍写「a valid response must satisfy
   the model-layer contract enforced inside CaptureAssessment」（A2 已把该契约作废）——本批 T1 改动了同一文件
@@ -1669,7 +1669,7 @@ model_task 写入路径上复现。
 
 **Reopen condition.** 提交再次无落库或 UI 无出口；或该锁死形态在机读题（选择题）通道复现。
 
-## KD-37 (fixed 2026-10-15 于快照身份/DAO 层；提交待补（工作树未提交）；设备级 UI 端到端仍未达 —— 见「未达 / 剩余」) · 「重新判定」出口存在确定性死路：快照身份稳定而时间戳每次新造
+## KD-37 (fixed 2026-10-15 于快照身份/DAO 层，提交 `038d50c0`；设备级 UI 端到端仍未达 —— 见「未达 / 剩余」) · 「重新判定」出口存在确定性死路：快照身份稳定而时间戳每次新造
 
 **Symptom（读码推断，来源：独立复核）.** KD-36 修复新增的「重新判定」出口可能永远不可能成功：
 结算载荷每跑一次都带新的时钟——`occurredAtEpochMillis = System.currentTimeMillis()`
@@ -1693,7 +1693,7 @@ settlement.occurredAtEpochMillis`（`TutorJudgedReviewSettler.kt:127/140`，记�
 **未验证.** 源码分析结论；真实 DAO 的冲突只在 instrumented 环境可见，本次未写设备级复现用例、
 未跑任何复现（独立复核亦标注"未构建设备级复现"）。
 
-**修法（2026-10-15，本批 T1；工作树未提交、提交待补）.** 时间戳容忍比较：
+**修法（2026-10-15，本批 T1；提交 `038d50c0`）.** 时间戳容忍比较：
 `AttemptTransactionDao.saveEvidenceSnapshot`（`AttemptTransactionDao.kt:642-662`）不再用整实体相等判「同一张快照」，
 改调纯函数 `sameEvidenceSnapshotIdentity(existing, existingAttributions, candidate, candidateAttributions)`
 （新文件 `AssessmentEvidenceSnapshotIdentity.kt:23-30`，KDoc `:6-22`）：同 `snapshotId` 且**除 `capturedAtEpochMillis`
@@ -1744,7 +1744,7 @@ settlement.occurredAtEpochMillis`（`TutorJudgedReviewSettler.kt:127/140`，记�
 `ImmutablePayloadConflictException("assessment_evidence_snapshot")`；或下一批设备段补做「失败 → 重新判定 → 成功」
 走查后仍失败 —— 两者任一成立即按本条重开。
 
-## KD-38 (fixed 2026-10-15，提交待补（工作树未提交）；设备前后对照未达、触发频率仍未取样 —— 见「未达 / 剩余」) · 讲题计划的动作标签超 32 字符即整轮永久失败
+## KD-38 (fixed 2026-10-15，提交 `038d50c0`；设备前后对照未达、触发频率仍未取样 —— 见「未达 / 剩余」) · 讲题计划的动作标签超 32 字符即整轮永久失败
 
 **Symptom.** 判定链设备复验时观察到：真实服务商（opencode zen / deepseek-v4.1-flash）对同一道题的
 讲题计划**连续 4 次 INVALID_RESPONSE、第 5 次才成功**；走查者当时抓到一条 logcat
@@ -1765,7 +1765,7 @@ settlement.occurredAtEpochMillis`（`TutorJudgedReviewSettler.kt:127/140`，记�
 一类的语义）而不是 INVALID_RESPONSE。修后补一条"超长标签不再整轮判死"的用例，并在设备上复验
 同一题的成功率变化。
 
-**修法（2026-10-15，本批 T1；① 与 ② 同时落地；工作树未提交、提交待补）.**
+**修法（2026-10-15，本批 T1；① 与 ② 同时落地；提交 `038d50c0`）.**
 
 1. **① 解析期按格式预算收敛短标签**（截断发生在 `distinct()` 之前；构造器**未放松**）：
    计划/回应两条路由的动作标签 `nextMoves[].label` 取 `TutorSuggestedMove.MAX_LABEL_CHARS`（32）
