@@ -385,3 +385,21 @@ Findings（5 条，供裁定/建议登记，本轮未开新 KD 号）：
 4. **T9 三条建议**（判词粒度 / 冷却分层 / 答案键纠正语义）——T9 明确留产品裁定，本轮不改语义。
 5. **KD-38 剩余**：代理对截断是否修；UI 文案是否为新失败码分叉；`TutorDebriefOutput.teachingFocusLabels` 是否补截断。
 6. **台账**：`algorithm-version-ledger.md` 是否补 v19/v26 一行（历史行无误，只是缺登记）。
+
+---
+
+## 8. 收尾补记（主会话，2026-10-16 提交后）
+
+- **feature:library 构建红已修**（§4 唯一新引入红）：`feature/library/build.gradle.kts` 开 core library desugaring
+  （同 `core/database` 先例），修法随 `6a69c82b` 入库；`checkDebugAndroidTestAarMetadata` +
+  `compileDebugAndroidTestKotlin` BUILD SUCCESSFUL（主会话实跑）。
+- **7 个用例首跑（提交后补跑）：4 绿 3 红** —— `SplitReviewEntryInstrumentedTest` 4/4 绿；
+  `SplitImportReviewCommitFlowInstrumentedTest` 3/3 红，**同一根因、夹具缺陷非产品缺陷**：夹具
+  `QuestionBlockEvidence` 用 `LOCAL_OCR` 但未带 `producerVersion` → codec `validateDraft` 判
+  `MISSING_PRODUCER_VERSION` → 指纹计算抛 `Captured question document is invalid`（`CapturedQuestionDocument.kt:205`）。
+  这也解释了 §4「0 用例执行」之外它从未暴露过——该用例此前从未真正跑起来过。
+- **修夹具（补 `producerVersion = "split-review-fixture-v1"`）后复跑：7/7 全绿**（设备 emulator-5554，
+  `:feature:library:connectedDebugAndroidTest`，1m33s）。至此 §5 未验证项 5 关闭。
+- **本批提交（未推送）**：`038d50c0`（T1/T2）→ `6a69c82b`（T4/T5）→ `09f0c85c`（T6/T8+T5 随附）→
+  `a49b4c4f`（记录与登记）→ `53770c18`（T7 测试）→ `173ae620`（主线+台账同步）→ `f96464e9`（KD 提交号回填）
+  → 本补记。共享树他线文件（协议/工具环/KB）未由本线提交。

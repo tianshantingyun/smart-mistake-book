@@ -244,6 +244,8 @@ class SplitImportReviewCommitFlowInstrumentedTest {
                     sourceRegion = NormalizedSourceRegion(0.0, 0.0, 1.0, 1.0),
                     writingLayer = WritingLayer.PRINTED,
                     provenance = QuestionBlockProvenance.LOCAL_OCR,
+                    // 非用户来源的证据必须带 producerVersion，否则 codec 判 MISSING_PRODUCER_VERSION。
+                    producerVersion = "split-review-fixture-v1",
                     reviewStatus = QuestionBlockReviewStatus.CANDIDATE,
                 ),
             ),
