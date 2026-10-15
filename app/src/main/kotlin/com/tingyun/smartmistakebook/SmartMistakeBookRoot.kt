@@ -85,6 +85,7 @@ import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.feature.library.SplitImportReviewRoute
 import com.tingyun.smartmistakebook.feature.profile.ProfileRoute
 import com.tingyun.smartmistakebook.feature.review.CapturedReviewSessionScreen
+import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizLoadResult
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewQuizLoader
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionScreen
 import com.tingyun.smartmistakebook.feature.review.ReviewRoute
@@ -598,7 +599,30 @@ internal fun SmartMistakeBookRoot(
                                 KnowledgeReviewSessionScreen(
                                     plan = state.plan,
                                     onBack = onKnowledgeBack,
-                                    loadQuiz = quizLoader::loadQuiz,
+                                    // 恢复：读回本会话已落库的题面（只读，不出网，AUD-02）。
+                                    restoreQuiz = { entry, sessionId ->
+                                        repository.readPersistedKnowledgeQuizItem(
+                                            sessionId = sessionId,
+                                            knowledgeNodeId = entry.knowledgeNodeId,
+                                        )
+                                            ?.let(KnowledgeQuizLoadResult::Ready)
+                                            ?: KnowledgeQuizLoadResult.Unavailable
+                                    },
+                                    // 现场出题：生成成功后把题面落库，再把**库内那一行**交给
+                                    // 会话——屏幕上的题面与之后恢复读回的题面因此是同一道题。
+                                    loadQuiz = { entry, sessionId ->
+                                        when (val loaded = quizLoader.loadQuiz(entry)) {
+                                            is KnowledgeQuizLoadResult.Ready -> repository
+                                                .persistKnowledgeQuizItem(
+                                                    sessionId = sessionId,
+                                                    knowledgeNodeId = entry.knowledgeNodeId,
+                                                    item = loaded.item,
+                                                )
+                                                ?.let(KnowledgeQuizLoadResult::Ready)
+                                                ?: KnowledgeQuizLoadResult.Unavailable
+                                            else -> loaded
+                                        }
+                                    },
                                     submitAnswer = repository::submitKnowledgeQuizFeedback,
                                     onFinished = onKnowledgeBack,
                                     modifier = Modifier.testTag("root_knowledge_review_session"),
@@ -720,6 +744,16 @@ internal fun SmartMistakeBookRoot(
                     modelTasks = application.modelTaskRepository,
                     modelEgressAllowed = baseCapabilities.networkRequestsAllowed,
                     modelConfigured = modelConfiguration.isConfigured,
+                    // 切分复核的逐题续做（T4/AUD-03）：这一题入库后同任务里还有未提交的题，
+                    // 就地换成下一题的草稿重开这一页——学生勾了多道题就该一道接一道录完，
+                    // 而不是录完第一题停在原地、或绕去题库详情。
+                    splitImportReceipts = application.splitImportRepository,
+                    onOpenNextSplitQuestion = { draftId ->
+                        navController.navigate(Routes.captureResume(draftId)) {
+                            popUpTo(Routes.CaptureResume) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
                     onOpenModelSettings = { navController.navigate(Routes.Capability) },
                     onTutorSessionReady = { sessionId ->
                         navController.navigate(Routes.capturedTutorSession(sessionId)) {

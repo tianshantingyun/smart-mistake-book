@@ -36,6 +36,16 @@ internal data class SmbkManifestV1(
     val hashAlgorithm: String = "SHA-256",
     @SerialName("files")
     val files: List<SmbkFileRecord>,
+    /**
+     * 快照库引用的资产条目路径（`assets/<文件名>`），AUD-05 的 DB→文件闭合在包里的记录。
+     *
+     * 默认空表让 formatVersion 1 的旧包继续可读可恢复；新包由成包路径填满，解包/校验时
+     * 逐条要求它们在包内。它**不**是闭合的权威判据（清单由包自己带，可以撒谎）——权威判据
+     * 是恢复前对归档里那份库的 `readReferencedCanonicalAssets` 反查；这里多一道是为了让
+     * "成包时引用集合与包内容漂开"当场失败，并让纯 JVM 面能钉住"缺引用资产 → 拒"。
+     */
+    @SerialName("referencedAssets")
+    val referencedAssets: List<String> = emptyList(),
 ) {
     companion object {
         const val FORMAT_VERSION = 1
@@ -100,10 +110,18 @@ internal object SmbkArchiveCodec {
 
     private val json = Json { ignoreUnknownKeys = false }
 
+    /**
+     * Writes an archive from an already-snapshotted database.
+     *
+     * [referencedAssets] 是**快照库引用的资产集合**（与 [assets] 同一批文件），
+     * [problemCount] 也必须是同一份快照库的数。全部被引用的资产都必须在 [assets] 里：
+     * 两边漂开时成包失败，而不是写出一份"库引用了包内没有的图"的归档（AUD-05）。
+     */
     fun create(
         archive: OutputStream,
         database: File,
         assets: List<File>,
+        referencedAssets: List<File>,
         databaseSchemaVersion: Int,
         problemCount: Int,
         createdAtEpochMillis: Long,
@@ -114,6 +132,18 @@ internal object SmbkArchiveCodec {
                 "Canonical asset backup source is missing"
             }
         }
+        val packagedPaths = assets.mapTo(HashSet<String>()) { asset -> "$ASSET_PREFIX${asset.name}" }
+        referencedAssets.forEach { referenced ->
+            require(referenced.isFile && referenced.length() > 0L) {
+                "Referenced canonical asset backup source is missing: ${referenced.name}"
+            }
+            require("$ASSET_PREFIX${referenced.name}" in packagedPaths) {
+                "Referenced canonical asset is not part of the backup package: ${referenced.name}"
+            }
+        }
+        val referencedPaths = referencedAssets
+            .map { referenced -> "$ASSET_PREFIX${referenced.name}" }
+            .sorted()
         val databaseRecord = SmbkFileRecord(
             path = DATABASE_ENTRY,
             sha256 = sha256(database),
@@ -132,6 +162,7 @@ internal object SmbkArchiveCodec {
             problemCount = problemCount,
             assetCount = assetRecords.size,
             files = listOf(databaseRecord) + assetRecords,
+            referencedAssets = referencedPaths,
         )
         val checksumLines = manifest.files.joinToString(separator = "\n") { record ->
             "${record.sha256} *${record.path}"
@@ -694,6 +725,15 @@ internal object SmbkArchiveCodec {
         }
         if (checksums != parsed.files.associate { it.path to it.sha256 }) {
             return BackupValidation.Invalid("checksums.sha256 与 manifest 不一致")
+        }
+        // AUD-05：包声明的引用集合必须逐条在包内（缺图在交换前就拒绝，不给"恢复到一半
+        // 才发现图没了"的机会）。旧包没有这张清单，默认空表——不因此改变旧包的既有行为。
+        val missingReferencedAssets = parsed.referencedAssets
+            .filterNot { path -> path in stagedSizes.keys }
+        if (missingReferencedAssets.isNotEmpty()) {
+            return BackupValidation.Invalid(
+                "备份引用的题图缺失：${missingReferencedAssets.joinToString(separator = "、")}",
+            )
         }
         parsed.files.forEach { record ->
             val size = stagedSizes[record.path]

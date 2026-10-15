@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.ReviewReason
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
+import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -356,6 +357,29 @@ interface StudyExperienceRepository : AutoCloseable {
         /** Identifies one knowledge-review session; the write quota is per session. */
         conversationId: String,
     ): KnowledgeQuizFeedbackResult
+
+    /**
+     * 知识点复习题面落库（AUD-02）：把**本次会话**现场生成的题面写进呈现快照表，
+     * 返回库里那一行的题面——同一会话同一知识点的重试拿到的是同一道题（首见即真）。
+     *
+     * 返回 null = 该身份已有行但读不回/解不开（损坏）：调用方按失败出口处置，
+     * 不拿内存里的题面顶替库里的题面（否则恢复读回的是另一道题）。
+     */
+    suspend fun persistKnowledgeQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        item: TutorAssessmentItem,
+    ): TutorAssessmentItem?
+
+    /**
+     * 恢复路径的题面读回（AUD-02）：进程重建后按 `(会话, 知识点)` 读回**原题面**，
+     * 不发模型请求。null = 这个身份没有可读的题面（缺失或损坏）——恢复方据此走既有失败
+     * 出口，而不是自动重出题再出网。
+     */
+    suspend fun readPersistedKnowledgeQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+    ): TutorAssessmentItem?
 
     /** The learner's stored teaching advisories, newest first (read side). */
     fun observeTeachingAdvisories(practiceUnitId: String?): Flow<List<TeachingAdvisoryRecord>>

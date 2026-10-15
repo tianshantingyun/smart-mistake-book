@@ -21,8 +21,11 @@ import org.junit.Test
 
 /**
  * 知识点复习会话屏（spec dual-review-entry §3.3/§3.4）：进屏自动取题 → 显示选择题 →
- * 作答 → 判答回写 → 下一知识点/完成。取题与回写都是注入回调，本测试验证整条 UI 会话
- * 状态机在真实 Compose 环境里走通（含 ViewModel 的 LaunchedEffect 驱动）。
+ * 作答 → 判答回写 → 下一知识点/完成。取题（含恢复读回）与回写都是注入回调，本测试验证
+ * 整条 UI 会话状态机在真实 Compose 环境里走通（含 ViewModel 的 LaunchedEffect 驱动）。
+ *
+ * 全新会话（SavedStateHandle 里没有加载状态）走**出题**分支：[restoreQuiz] 一次都不该被调；
+ * 恢复分支（LOADED 但内存无题）在 ViewModel 单测里覆盖（那里能造出回收后的 SavedStateHandle）。
  */
 class KnowledgeReviewSessionInstrumentedTest {
     @get:Rule
@@ -51,13 +54,18 @@ class KnowledgeReviewSessionInstrumentedTest {
     fun singleNodeSessionLoadsQuizzesAnswersAndFinishes() {
         var finished = false
         var submitted: Pair<String, String>? = null
+        var restoreCalls = 0
         composeRule.setContent {
             SmartMistakeBookTheme {
                 KnowledgeReviewSessionScreen(
                     plan = KnowledgeReviewSessionPlan(queue = listOf(node)),
                     onBack = {},
-                    loadQuiz = { KnowledgeQuizLoadResult.Ready(quizItem) },
-                    submitAnswer = { requestId, knowledgeNodeId, correctChoiceId, selectedChoiceId, _, _ ->
+                    restoreQuiz = { _, _ ->
+                        restoreCalls += 1
+                        KnowledgeQuizLoadResult.Unavailable
+                    },
+                    loadQuiz = { _, _ -> KnowledgeQuizLoadResult.Ready(quizItem) },
+                    submitAnswer = { _, knowledgeNodeId, correctChoiceId, selectedChoiceId, _, _ ->
                         submitted = knowledgeNodeId to selectedChoiceId
                         KnowledgeQuizFeedbackResult(
                             isCorrect = selectedChoiceId == correctChoiceId,
@@ -72,6 +80,7 @@ class KnowledgeReviewSessionInstrumentedTest {
         // 自动取题：选择题题干出现。
         composeRule.waitForIdle()
         composeRule.onNodeWithText("函数单调性的判定？").assertIsDisplayed()
+        assertEquals("全新会话不该走恢复读回", 0, restoreCalls)
 
         // 选正确答案并提交。
         composeRule.onNodeWithTag("knowledge_review_choice_A").performClick()
@@ -96,7 +105,8 @@ class KnowledgeReviewSessionInstrumentedTest {
                 KnowledgeReviewSessionScreen(
                     plan = KnowledgeReviewSessionPlan(queue = listOf(node)),
                     onBack = {},
-                    loadQuiz = {
+                    restoreQuiz = { _, _ -> KnowledgeQuizLoadResult.Unavailable },
+                    loadQuiz = { _, _ ->
                         attempts += 1
                         if (attempts == 1) {
                             KnowledgeQuizLoadResult.Unavailable

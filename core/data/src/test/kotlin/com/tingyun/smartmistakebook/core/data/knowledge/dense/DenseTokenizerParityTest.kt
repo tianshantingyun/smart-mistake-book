@@ -114,6 +114,42 @@ class DenseTokenizerParityTest {
         assertEquals(21128, vocabLines.size - 1)
     }
 
+    /**
+     * 词内切分按**码点**而不是 UTF-16 码元（`:core:data:lintDebug` 的 NewApi 修法回归）。
+     *
+     * 端侧原用 `piece.codePoints()`（API 24 的 `CharSequence` 默认方法，minSdk 23 不可用），
+     * 现改为手写扫描。若扫描退化成按码元切，候选串会由 `appendCodePoint(0xD83D)` 拼出**半个
+     * 代理**，下面这些词表里明明有的词就会退回 `[UNK]`。
+     */
+    @Test
+    fun `word piece scans code points not utf16 units, including unpaired surrogates`() {
+        val sixtyPairs = "\uD83D\uDE00".repeat(60) // 60 码点 / 120 码元：按码元算会误判超上限
+        val probes = listOf(
+            "ab\uD83D\uDE00", // 成对代理：一个码点
+            "\uD83D\uDE00",
+            "\uD83D",         // 落单高代理：一个码点（码元值即码点值）
+            "\uDE00",         // 落单低代理
+            "\uD83D\uDE00\uD83D", // 成对 + 落单混排
+            "\u4E2D\u6587",   // BMP 对照
+            sixtyPairs,
+        )
+        val probeVocab = DenseVocab.fromLines(SPECIAL_TOKENS + probes)
+        val probeTokenizer = DenseTokenizer(probeVocab)
+        for (probe in probes) {
+            assertEquals(
+                "码点扫描与 String.codePoints() 语义不一致：$probe",
+                listOf(probeVocab.requireId(probe)),
+                probeTokenizer.wordPiece(probe),
+            )
+        }
+        val tooLong = "\uD83D\uDE00".repeat(MAX_INPUT_CHARS_PER_WORD + 1)
+        assertEquals(
+            "码点数超上限必须整段 [UNK]（上限 $MAX_INPUT_CHARS_PER_WORD 按码点数算）",
+            listOf(probeVocab.requireId(UNK_TOKEN)),
+            probeTokenizer.wordPiece(tooLong),
+        )
+    }
+
     private data class Case(val kind: String, val id: String, val text: String, val ids: List<Int>, val tokens: List<String>)
 
     private fun parseCases(): List<Case> = DenseTestFixtures.rows(CASES_RESOURCE).map { row ->

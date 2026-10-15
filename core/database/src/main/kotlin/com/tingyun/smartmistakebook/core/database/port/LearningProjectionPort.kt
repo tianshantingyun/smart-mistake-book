@@ -29,9 +29,23 @@ import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 
 /**
  * Port for assessment snapshot/event writes (fixture seeding retired with D-M M1).
+ *
+ * AUD-02 追加读口：知识点复习的题面快照同样落在 `assessment_item_snapshot`（同一写口
+ * [saveAssessmentItemSnapshot]），恢复路径要把它读回来——按 id 读，读写共享同一
+ * "呈现在哪张表、以什么身份"的语义，就不会出现"写一张表、读另一张表"的分叉。
+ * 刻意不复用 `@Deprecated` 的 P0 审计读口（`readAssessmentSnapshotP0`）：那句弃用说的正是
+ * "数据层自己起一个带语义的读口，别把审计读口当生产读路径"。
  */
 interface SeedAssessmentPort {
     suspend fun saveAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord)
+
+    /**
+     * 按 id 读回一条已物化的呈现快照；无行 = null。
+     *
+     * 缺失与损坏由上层区分处置：无行 = 这个身份没有题面（恢复方走失败出口，不猜题面）；
+     * 有行但解不开 = 同样按损坏走失败出口。
+     */
+    suspend fun findAssessmentItemSnapshot(assessmentItemSnapshotId: String): AssessmentItemSnapshotSeedRecord?
 
     suspend fun saveAssessmentEvidenceSnapshot(snapshot: AssessmentEvidenceSnapshot)
 

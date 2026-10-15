@@ -22,6 +22,9 @@ import kotlinx.coroutines.flow.StateFlow
  * - [KnowledgePreparing]：知识内容还在后台就位，等一会重试就好；
  * - [NoMaterial]：这个知识点真的没有讲解材料（合法空集），重试没意义，跳过它；
  * - [Unavailable]：其余不可用（模型未配置/不支持、请求构造不出、任务没成功）。
+ *
+ * 恢复路径复用同一结果类型（AUD-02）：读回的题面是 [Ready]；"这个身份没有可读的题面
+ * （缺失/损坏）"是 [Unavailable]——恢复方据此走失败出口，不重出题。
  */
 sealed interface KnowledgeQuizLoadResult {
     data class Ready(val item: TutorAssessmentItem) : KnowledgeQuizLoadResult

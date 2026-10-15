@@ -88,7 +88,7 @@ class KnowledgeReviewSessionViewModelTest {
         val loaded = mutableListOf<String>()
 
         try {
-            viewModel.loadCurrentQuiz { entry ->
+            viewModel.loadCurrentQuiz { entry, _ ->
                 loaded += entry.knowledgeNodeId
                 KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
             }
@@ -112,12 +112,14 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { error("模型暂时不可用") }  // 抛异常仍归 FAILED
+            viewModel.loadCurrentQuiz { _, _ -> error("模型暂时不可用") }  // 抛异常仍归 FAILED
             advanceUntilIdle()
             assertEquals(KnowledgeQuizLoadStatus.FAILED, viewModel.loadStatus)
             assertEquals("kc-confl", viewModel.currentEntry?.knowledgeNodeId)
 
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
+            viewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
             advanceUntilIdle()
             assertEquals(KnowledgeQuizLoadStatus.LOADED, viewModel.loadStatus)
         } finally {
@@ -165,10 +167,13 @@ class KnowledgeReviewSessionViewModelTest {
         assertNull(viewModel.submittedChoice)
     }
 
+    /**
+     * AUD-02（改前语义的回归钉）：重建后 currentItem 只存内存、必然丢失，但题面已随会话落库——
+     * LOADING/LOADED 不再回到 IDLE（那会变成"重新出题再出网"），而是保留 LOADED，
+     * 由 Screen 走**读回**（[restoreCurrentQuiz]）。只有"从没出过题"（IDLE）才现场出题。
+     */
     @Test
-    fun restoredLoadedStatusReopensTheLoadPathAfterProcessDeath() {
-        // 进程重建后 currentItem（只存内存）必然丢失：LOADING/LOADED 都回到 IDLE，
-        // 由 Screen 重新走 loader，而不是停在"已加载但无题"的空白分支。
+    fun restoredLoadedStatusKeepsTheQuizForReadBackInsteadOfRegenerating() {
         listOf(
             KnowledgeQuizLoadStatus.LOADING,
             KnowledgeQuizLoadStatus.LOADED,
@@ -184,7 +189,203 @@ class KnowledgeReviewSessionViewModelTest {
                 plan = plan,
             )
 
-            assertEquals(KnowledgeQuizLoadStatus.IDLE, viewModel.loadStatus)
+            assertEquals(KnowledgeQuizLoadStatus.LOADED, viewModel.loadStatus)
+            assertNull(viewModel.currentItem)
+        }
+
+        // 全新会话（没有出过题）仍是 IDLE：那是"该出题"的状态，不是"该读回"。
+        val fresh = KnowledgeReviewSessionViewModel(SavedStateHandle(), plan)
+        assertEquals(KnowledgeQuizLoadStatus.IDLE, fresh.loadStatus)
+    }
+
+    /**
+     * AUD-02 恢复用例（SavedStateHandle 覆盖系统回收）：题面与已选都从持久态读回。
+     * 同时钉住取题分支规则——恢复态走**读回**（不是出题），读回后不再触发任何取题动作
+     * （否则每次重组都会再动一次）。
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun aRestoredSessionReadsTheQuizBackWithoutGeneratingAgain() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val handle = SavedStateHandle().apply {
+            set(KnowledgeReviewSessionViewModel.SESSION_STARTED_AT_KEY, 7_000L)
+            set(
+                KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
+                KnowledgeQuizLoadStatus.LOADED.name,
+            )
+            set(KnowledgeReviewSessionViewModel.SELECTED_CHOICE_KEY, "B")
+        }
+        val viewModel = KnowledgeReviewSessionViewModel(
+            savedStateHandle = handle,
+            plan = plan,
+        )
+        val restoredCalls = mutableListOf<Pair<String, Long>>()
+
+        try {
+            // 已选与状态先按持久态还原（"读回原题面/选项/已选"里的"已选"）。
+            assertEquals("B", viewModel.selectedChoice)
+            assertEquals(KnowledgeQuizLoadStatus.LOADED, viewModel.loadStatus)
+            assertEquals(
+                "恢复态只能读回：这条规则错了就会重新出题、再次出网",
+                KnowledgeQuizLoadPath.RESTORE,
+                knowledgeQuizLoadPath(
+                    loadStatus = viewModel.loadStatus,
+                    hasItem = viewModel.currentItem != null,
+                    alreadySubmitted = false,
+                ),
+            )
+
+            viewModel.restoreCurrentQuiz { entry, sessionId ->
+                restoredCalls += entry.knowledgeNodeId to sessionId
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
+            advanceUntilIdle()
+
+            assertEquals(listOf("kc-confl" to 7_000L), restoredCalls)
+            assertEquals(KnowledgeQuizLoadStatus.LOADED, viewModel.loadStatus)
+            assertEquals("kc-confl", viewModel.currentItem?.knowledgeNodeIds?.single())
+            assertEquals("B", viewModel.selectedChoice)
+            assertEquals(
+                "题面已在手，取题动作应当停止（不再读、也不再出）",
+                KnowledgeQuizLoadPath.NONE,
+                knowledgeQuizLoadPath(
+                    loadStatus = viewModel.loadStatus,
+                    hasItem = viewModel.currentItem != null,
+                    alreadySubmitted = false,
+                ),
+            )
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    /**
+     * AUD-02 损坏/缺失出口：恢复读不回（缺失或损坏）落 FAILED——走既有失败卡片
+     * （重试出题 / 跳过这个知识点 / 返回），既不停在"已加载但无题"的空白，也不自动重出题。
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun aRestoreThatCannotReadTheQuizFallsBackToTheFailureExit() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        try {
+            listOf(
+                KnowledgeQuizLoadResult.Unavailable,
+                KnowledgeQuizLoadResult.NoMaterial,
+                KnowledgeQuizLoadResult.KnowledgePreparing,
+            ).forEach { unreadable ->
+                val handle = SavedStateHandle().apply {
+                    set(
+                        KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
+                        KnowledgeQuizLoadStatus.LOADED.name,
+                    )
+                }
+                val viewModel = KnowledgeReviewSessionViewModel(
+                    savedStateHandle = handle,
+                    plan = plan,
+                )
+
+                viewModel.restoreCurrentQuiz { _, _ -> unreadable }
+                advanceUntilIdle()
+
+                assertEquals(KnowledgeQuizLoadStatus.FAILED, viewModel.loadStatus)
+                assertNull(viewModel.currentItem)
+            }
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    /**
+     * AUD-01①：提交身份 = 会话 + 题面 + 选项。同一次会话里的重试 → 同一个身份（下游按身份
+     * 幂等 = 一笔证据）；隔日另一场会话 → 另一个身份（同选项各自一笔）。
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun aFailedSubmitRetriesWithTheSameIdentityWhileANextSessionGetsItsOwn() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val sessionStartedAt = 5_000L
+        val nextSessionStartedAt = sessionStartedAt + 24 * 60 * 60 * 1_000L
+
+        try {
+            val handle = SavedStateHandle().apply {
+                set(KnowledgeReviewSessionViewModel.SESSION_STARTED_AT_KEY, sessionStartedAt)
+            }
+            val viewModel = KnowledgeReviewSessionViewModel(
+                savedStateHandle = handle,
+                plan = plan,
+            )
+            viewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
+            advanceUntilIdle()
+            viewModel.select("A")
+
+            val attemptIdentities = mutableListOf<String>()
+            viewModel.submitAnswer(
+                occurredAtEpochMillis = 1_000,
+                submit = { requestId, _, _, _, _, _ ->
+                    attemptIdentities += requestId
+                    error("写入超时")
+                },
+            )
+            advanceUntilIdle()
+            assertEquals(KnowledgeQuizSubmitStatus.FAILED, viewModel.submitStatus)
+
+            // 同一次会话里的重试：身份必须一模一样（下游按身份幂等，重试等于同一笔）。
+            viewModel.submitAnswer(
+                occurredAtEpochMillis = 2_000,
+                submit = { requestId, _, _, _, _, _ ->
+                    attemptIdentities += requestId
+                    KnowledgeQuizFeedbackResult(isCorrect = true, evidenceRecorded = true)
+                },
+            )
+            advanceUntilIdle()
+
+            assertEquals(KnowledgeQuizSubmitStatus.RECORDED, viewModel.submitStatus)
+            assertEquals(2, attemptIdentities.size)
+            assertEquals(
+                "同一会话的重试必须是同一笔证据身份",
+                attemptIdentities[0],
+                attemptIdentities[1],
+            )
+            assertTrue(
+                "身份里必须带会话分量",
+                attemptIdentities[0].contains(sessionStartedAt.toString()),
+            )
+
+            // 隔日再来（另一场会话）：身份必须不同，否则第二笔会被幂等键吞掉。
+            val nextHandle = SavedStateHandle().apply {
+                set(KnowledgeReviewSessionViewModel.SESSION_STARTED_AT_KEY, nextSessionStartedAt)
+            }
+            val nextSessionViewModel = KnowledgeReviewSessionViewModel(
+                savedStateHandle = nextHandle,
+                plan = plan,
+            )
+            nextSessionViewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
+            advanceUntilIdle()
+            nextSessionViewModel.select("A")
+            var nextSessionIdentity: String? = null
+            nextSessionViewModel.submitAnswer(
+                occurredAtEpochMillis = 90_000_000,
+                submit = { requestId, _, _, _, _, _ ->
+                    nextSessionIdentity = requestId
+                    KnowledgeQuizFeedbackResult(isCorrect = true, evidenceRecorded = true)
+                },
+            )
+            advanceUntilIdle()
+
+            assertFalse(
+                "隔日另一场会话必须是另一笔（否则第二笔会被幂等键吞掉）",
+                attemptIdentities[0] == nextSessionIdentity,
+            )
+            assertTrue(
+                "身份携带的是各自会话的分量",
+                requireNotNull(nextSessionIdentity).contains(nextSessionStartedAt.toString()),
+            )
+        } finally {
+            Dispatchers.resetMain()
         }
     }
 
@@ -202,12 +403,12 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.KnowledgePreparing }
+            viewModel.loadCurrentQuiz { _, _ -> KnowledgeQuizLoadResult.KnowledgePreparing }
             advanceUntilIdle()
             assertEquals(KnowledgeQuizLoadStatus.KNOWLEDGE_PREPARING, viewModel.loadStatus)
             assertNull(viewModel.currentItem)
 
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.NoMaterial }
+            viewModel.loadCurrentQuiz { _, _ -> KnowledgeQuizLoadResult.NoMaterial }
             advanceUntilIdle()
             assertEquals(KnowledgeQuizLoadStatus.NO_MATERIAL, viewModel.loadStatus)
         } finally {
@@ -246,13 +447,14 @@ class KnowledgeReviewSessionViewModelTest {
         val submitted = mutableListOf<Triple<String, String, String>>()
 
         try {
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
+            viewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(
-                requestId = "request:kq:1",
                 occurredAtEpochMillis = 1_000,
-                submit = { requestId, nodeId, correctChoiceId, selectedChoiceId, _, _ ->
+                submit = { _, nodeId, correctChoiceId, selectedChoiceId, _, _ ->
                     submitted += Triple(nodeId, correctChoiceId, selectedChoiceId)
                     KnowledgeQuizFeedbackResult(isCorrect = true, evidenceRecorded = true)
                 },
@@ -280,11 +482,12 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
+            viewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
             advanceUntilIdle()
             viewModel.select("B")
             viewModel.submitAnswer(
-                requestId = "request:kq:wrong",
                 occurredAtEpochMillis = 1_000,
                 submit = { _, _, _, selectedChoiceId, _, _ ->
                     KnowledgeQuizFeedbackResult(
@@ -313,11 +516,12 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
+            viewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(
-                requestId = "request:kq:1",
                 occurredAtEpochMillis = 1_000,
                 submit = { _, _, _, _, _, _ -> KnowledgeQuizFeedbackResult(true, true) },
             )
@@ -347,11 +551,12 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
+            viewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(
-                requestId = "request:kq:last",
                 occurredAtEpochMillis = 1_000,
                 submit = { _, _, _, _, _, _ -> KnowledgeQuizFeedbackResult(true, true) },
             )
@@ -376,11 +581,12 @@ class KnowledgeReviewSessionViewModelTest {
         )
 
         try {
-            viewModel.loadCurrentQuiz { KnowledgeQuizLoadResult.Ready(quizItem(it.knowledgeNodeId)) }
+            viewModel.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
             advanceUntilIdle()
             viewModel.select("A")
             viewModel.submitAnswer(
-                requestId = "request:kq:fail",
                 occurredAtEpochMillis = 1_000,
                 submit = { _, _, _, _, _, _ -> error("写入超时") },
             )
@@ -389,7 +595,6 @@ class KnowledgeReviewSessionViewModelTest {
             assertEquals(KnowledgeQuizSubmitStatus.FAILED, viewModel.submitStatus)
             assertFalse(viewModel.canContinue)
             viewModel.submitAnswer(
-                requestId = "request:kq:fail",
                 occurredAtEpochMillis = 1_000,
                 submit = { _, _, _, _, _, _ -> KnowledgeQuizFeedbackResult(true, true) },
             )

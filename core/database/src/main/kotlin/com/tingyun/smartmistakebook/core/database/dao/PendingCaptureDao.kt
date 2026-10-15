@@ -61,6 +61,30 @@ internal interface PendingCaptureDao {
     suspend fun findUnreferencedCanonicalAssets(): List<CanonicalSourceAssetRow>
 
     /**
+     * 全表资产行。**本身不含任何引用口径**——它与 [findUnreferencedCanonicalAssets] 相减
+     * 得到的那一份才是"仍被引用"（见 `RoomStudyDatabase.readReferencedCanonicalAssets`）。
+     *
+     * 这样引用口径仍然只有一处（上面那条四表 NOT EXISTS）：清理认领与备份成包读的是同一个
+     * 判定的两侧，将来新增第五种引用形态时不会出现"清理不删、备份却漏收"的半截口径。
+     */
+    @Query(
+        """
+        SELECT asset.source_asset_id,
+               asset.content_sha256,
+               asset.relative_path,
+               asset.mime_type,
+               asset.byte_size,
+               asset.width,
+               asset.height,
+               asset.source_type,
+               asset.created_at_epoch_millis
+        FROM canonical_source_asset AS asset
+        ORDER BY asset.relative_path ASC, asset.source_asset_id ASC
+        """,
+    )
+    suspend fun findAllCanonicalAssets(): List<CanonicalSourceAssetRow>
+
+    /**
      * 按主键删除，故意不带"未引用"谓词：由调用方在同一写事务里先用
      * [findUnreferencedCanonicalAssets] 判定再逐行删除，"未引用"的定义只有那一处。
      */

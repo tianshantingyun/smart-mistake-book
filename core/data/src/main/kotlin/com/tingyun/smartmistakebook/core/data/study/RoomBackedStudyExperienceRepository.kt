@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.study
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
+import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteCommand
 import com.tingyun.smartmistakebook.core.database.ReviewSessionRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
@@ -194,6 +195,11 @@ class RoomBackedStudyExperienceRepository(
         clock = clock,
     )
     private val quizFeedbackWriter = KnowledgeQuizFeedbackWriter(
+        database = database,
+        learnerId = learnerId,
+    )
+    /** 知识点复习题面的落库/读回（AUD-02）：复用既有呈现快照表的写口与读口。 */
+    private val quizItemStore = KnowledgeQuizItemStore(
         database = database,
         learnerId = learnerId,
     )
@@ -720,6 +726,25 @@ class RoomBackedStudyExperienceRepository(
         selectedChoiceId = selectedChoiceId,
         occurredAtEpochMillis = occurredAtEpochMillis,
         conversationId = conversationId,
+    )
+
+    override suspend fun persistKnowledgeQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        item: TutorAssessmentItem,
+    ): TutorAssessmentItem? = quizItemStore.save(
+        sessionId = sessionId,
+        knowledgeNodeId = knowledgeNodeId,
+        item = item,
+        occurredAtEpochMillis = clock.millis(),
+    )
+
+    override suspend fun readPersistedKnowledgeQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+    ): TutorAssessmentItem? = quizItemStore.read(
+        sessionId = sessionId,
+        knowledgeNodeId = knowledgeNodeId,
     )
 
     override suspend fun evaluateSchedulingModels(): SchedulingEvaluationReport? =

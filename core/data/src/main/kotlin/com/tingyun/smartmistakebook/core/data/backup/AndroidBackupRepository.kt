@@ -3,7 +3,9 @@ package com.tingyun.smartmistakebook.core.data.backup
 import android.content.Context
 import androidx.core.content.ContextCompat
 import com.tingyun.smartmistakebook.core.data.capture.AndroidCanonicalAssetVault
+import com.tingyun.smartmistakebook.core.data.capture.canonicalAssetFileIsIntact
 import com.tingyun.smartmistakebook.core.data.settings.MODEL_SECRET_KEY_ALIAS
+import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.BackupOptions
@@ -94,15 +96,20 @@ class AndroidBackupRepository(
         claimed.count { asset -> runCatching { vault.delete(asset) }.isSuccess }
     }
 
+    /**
+     * 成包顺序（AUD-05）：**先快照库**，再按快照库反查引用资产与题数，只收这些资产。
+     *
+     * 旧顺序（先枚举资产目录、后快照库）里，两步之间"登记资产 + 建立引用"的图会出现在
+     * 快照的引用集合里，却不在资产清单里——包内 DB 引用了包内没有的图。反过来，快照之后
+     * 才登记的资产不算本次引用（它是下一包的）：它在那份快照里根本没有行，反查不到。
+     * 快照里**已引用**的资产缺失/被替换则成包失败（见 [resolveReferencedAssetFiles]），
+     * 不静默跳过。
+     */
     override suspend fun create(
         destination: OutputStream,
         options: BackupOptions,
     ): BackupReceipt = withContext(Dispatchers.IO) {
         val databaseFile = context.getDatabasePath(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
-        val assetRoot = canonicalAssetRoot()
-        val assets = assetRoot.listFiles().orEmpty()
-            .filter { it.isFile && !it.name.startsWith(".raw-") && !it.name.startsWith(".canonical-") }
-            .sortedBy(File::getName)
         // Consistency snapshot: VACUUM INTO when the device SQLite supports it,
         // otherwise WAL checkpoint + read-only copy (see BackupPort docs). The
         // archive is always built from the snapshot file, never from the live
@@ -111,16 +118,79 @@ class AndroidBackupRepository(
         val snapshotFile = File(snapshotDir, "snapshot-${System.nanoTime()}.db")
         try {
             database.snapshotForBackup(databaseFile, snapshotFile)
-            SmbkArchiveCodec.create(
-                archive = destination,
-                database = snapshotFile,
-                assets = if (options.includeAssets) assets else emptyList(),
-                databaseSchemaVersion = snapshotFile.readSchemaVersion(),
-                problemCount = database.countMistakes(),
-                createdAtEpochMillis = System.currentTimeMillis(),
-            )
+            withSnapshotDatabase(snapshotFile) { snapshot ->
+                // 题数与引用资产都取自**这一份快照**：实时库上的数会在窗口里超前于归档内容。
+                val problemCount = snapshot.countMistakes()
+                val referencedAssets = snapshot.readReferencedCanonicalAssets()
+                val assetFiles = resolveReferencedAssetFiles(referencedAssets)
+                SmbkArchiveCodec.create(
+                    archive = destination,
+                    database = snapshotFile,
+                    assets = if (options.includeAssets) assetFiles else emptyList(),
+                    // 声明的是快照库的引用集合本身：若将来允许"只备数据库"，收图与声明
+                    // 一旦不一致，成包会当场失败，而不是写出 DB 引用了包内没有的图的归档。
+                    referencedAssets = assetFiles,
+                    databaseSchemaVersion = snapshotFile.readSchemaVersion(),
+                    problemCount = problemCount,
+                    createdAtEpochMillis = System.currentTimeMillis(),
+                )
+            }
         } finally {
             snapshotFile.delete()
+        }
+    }
+
+    /**
+     * 在**快照文件**上开一个读口。Room 只能按数据库名打开，因此先把快照复制进 databases
+     * 目录、按名打开，读完连同 -wal/-shm 一起删掉——与恢复路径的
+     * [inspectStagedDatabase] 是同一个做法（复制成临时库名再开），不引入第二套打开方式。
+     *
+     * 消灭的失败：成包的题数与引用集合在旧实现里取自**实时库**（`countMistakes()` 与资产
+     * 目录枚举），与归档里那份快照不是同一时刻的数据；并发录入/生图时这个窗口会把包内引用
+     * 与包内容撕开（AUD-05）。复制出来读还有一个顺带的好处：被归档的那个文件始终没有写者，
+     * 校验与会话期间不会发生变化。
+     */
+    private suspend fun <T> withSnapshotDatabase(
+        snapshotFile: File,
+        block: suspend (StudyDatabasePort) -> T,
+    ): T {
+        val snapshotName = "backup-snapshot-${UUID.randomUUID()}.db"
+        val snapshotDatabaseFile = context.getDatabasePath(snapshotName)
+        var snapshotDatabase: StudyDatabasePort? = null
+        try {
+            snapshotFile.copyTo(snapshotDatabaseFile, overwrite = true)
+            val opened = StudyDatabaseFactory.open(context, snapshotName)
+            snapshotDatabase = opened
+            return block(opened)
+        } finally {
+            runCatching { snapshotDatabase?.close() }
+            listOf(
+                snapshotDatabaseFile,
+                File("${snapshotDatabaseFile.absolutePath}-wal"),
+                File("${snapshotDatabaseFile.absolutePath}-shm"),
+            ).forEach { it.delete() }
+        }
+    }
+
+    /**
+     * 快照库引用的资产行 → 磁盘文件，逐条按 vault 自己的完整性判据核对（存在 + 字节数 +
+     * SHA-256），并顺带挡住越出资产库的路径（`resolve` 的包含性检查）。
+     *
+     * 用 [AndroidCanonicalAssetVault.resolve] 而不是在这里重写一遍：'文件仍在且逐位一致'
+     * 的定义只有 vault 那一处，备份不会与读取面（出网/PDF/预览）漂开。缺文件或被改动时
+     * **成包失败**——静默跳过就是 AUD-05 那个"包内 DB 引用了包内没有的图"。
+     */
+    private fun resolveReferencedAssetFiles(
+        referencedAssets: List<CanonicalSourceAssetRecord>,
+    ): List<File> {
+        val vault = AndroidCanonicalAssetVault(context.applicationContext)
+        return referencedAssets.map { record ->
+            runCatching { vault.resolve(record) }.getOrElse { failure ->
+                error(
+                    "快照引用的题图缺失或已损坏，备份未完成：${record.relativePath}" +
+                        "（${failure.message.orEmpty()}）",
+                )
+            }
         }
     }
 
@@ -151,7 +221,8 @@ class AndroidBackupRepository(
             }
         }
 
-    private fun doRestore(source: InputStream): RestoreReceipt {
+    /** suspend：Phase 2b 会用归档库端口读它的题数与引用集合（两条都是挂起读）。 */
+    private suspend fun doRestore(source: InputStream): RestoreReceipt {
         val restoreId = UUID.randomUUID().toString()
         val root = File(context.cacheDir, "restore-$restoreId")
         val staging = File(root, "staging").apply { mkdirs() }
@@ -226,14 +297,17 @@ class AndroidBackupRepository(
             // corrupt or incompatible backup never replaces the live data:
             // Room open + migrations + user_version + quick_check +
             // foreign_key_check.
-            val stagedDbValid = runCatching {
-                validateStagedDatabase(stagingDb)
-            }
-            if (stagedDbValid.isFailure) {
-                throw BackupRestoreException(
-                    "备份数据库预验证失败：${stagedDbValid.exceptionOrNull()?.message.orEmpty()}",
+            val stagedDbInspection = runCatching { inspectStagedDatabase(stagingDb) }
+            val stagedDatabase = stagedDbInspection.getOrNull()
+                ?: throw BackupRestoreException(
+                    "备份数据库预验证失败：" +
+                        "${stagedDbInspection.exceptionOrNull()?.message.orEmpty()}",
                 )
-            }
+
+            // Phase 2c: DB→资产闭合（AUD-05）：归档里那份库引用的每一张图都必须在解包
+            // 出来的资产目录里，且与资产行记的字节数/SHA-256 逐位一致。缺一张就在这里
+            // 拒绝——此时还没有任何切换发生，原数据、原图都还在原地。
+            verifyStagedAssetClosure(staging, stagedDatabase.referencedAssets)
 
             // Phase 3: Prepare generations and record the rollback journal.
             journal.writePhase(RestorePhase.BACKUP_CURRENT)
@@ -324,10 +398,13 @@ class AndroidBackupRepository(
             root.deleteRecursively()
             journal.clear()
 
+            // 回执的数取自归档里那份库本身（题数）与刚刚过了闭合校验的引用集合
+            // （题图数），不取 manifest 里那张没人核对过的清单（AUD-05）：
+            // manifest 是成包那一刻写的，而用户要看到的是"这次恢复进来的是什么"。
             RestoreReceipt(
                 databaseSchemaVersion = valid.manifest.databaseSchemaVersion,
-                problemCount = valid.manifest.problemCount,
-                assetCount = valid.manifest.assetCount,
+                problemCount = stagedDatabase.problemCount,
+                assetCount = stagedDatabase.referencedAssets.size,
                 fileCount = valid.manifest.fileCount,
             )
         } catch (failure: Exception) {
@@ -511,6 +588,15 @@ class AndroidBackupRepository(
     }
 
     /**
+     * 归档库在预验证时一并读出的闭合数据：题数与四表引用口径下仍被引用的资产行。
+     * 恢复回执与 [verifyStagedAssetClosure] 都用它，而不是 manifest 里那张清单。
+     */
+    private data class StagedDatabaseInspection(
+        val problemCount: Int,
+        val referencedAssets: List<CanonicalSourceAssetRecord>,
+    )
+
+    /**
      * Validate the staged database BEFORE it replaces the live one:
      *   1. Room opens a throwaway copy with the full production builder, so
      *      every registered migration runs exactly as it would in production;
@@ -521,8 +607,13 @@ class AndroidBackupRepository(
      *   3. quick_check for page-level corruption and foreign_key_check for
      *      referential integrity.
      * Any failure aborts restore before the swap.
+     *
+     * 迁移后的那份库顺手回答两个只有它能回答的问题（AUD-05）：它自己有多少道题、它引用了
+     * 哪些图。恢复侧此前的两个数都直接抄 manifest，既没核对过、也不代表归档里的库。
      */
-    private fun validateStagedDatabase(stagedDatabaseFile: File) {
+    private suspend fun inspectStagedDatabase(
+        stagedDatabaseFile: File,
+    ): StagedDatabaseInspection {
         if (!stagedDatabaseFile.exists()) {
             throw BackupRestoreException("备份中缺少数据库文件")
         }
@@ -555,8 +646,13 @@ class AndroidBackupRepository(
         var validationDatabase: StudyDatabasePort? = null
         try {
             stagedDatabaseFile.copyTo(validationCopy, overwrite = true)
-            validationDatabase = StudyDatabaseFactory.open(context, validationName)
-            validationDatabase.close()
+            val opened = StudyDatabaseFactory.open(context, validationName)
+            validationDatabase = opened
+            val inspection = StagedDatabaseInspection(
+                problemCount = opened.countMistakes(),
+                referencedAssets = opened.readReferencedCanonicalAssets(),
+            )
+            opened.close()
             validationDatabase = null
             val migratedVersion = validationCopy.readSchemaVersion()
             val liveDatabaseFile = context.getDatabasePath(
@@ -570,6 +666,7 @@ class AndroidBackupRepository(
                     )
                 }
             }
+            return inspection
         } catch (validationFailure: Exception) {
             if (validationFailure is BackupRestoreException) throw validationFailure
             throw BackupRestoreException(
@@ -583,6 +680,44 @@ class AndroidBackupRepository(
                 File("${validationCopy.absolutePath}-wal"),
                 File("${validationCopy.absolutePath}-shm"),
             ).forEach { it.delete() }
+        }
+    }
+
+    /**
+     * Phase 2c 的 DB→资产闭合：归档里那份库引用的每一张图都必须在解包出来的资产目录里，
+     * 且与资产行记的字节数/SHA-256 逐位一致（[canonicalAssetFileIsIntact]，与 vault、
+     * 出网、PDF 同一条判据）；路径必须正好是 `source-assets/<文件名>`，多一层目录或越出
+     * 资产库都在这里拒绝。
+     *
+     * 为什么必须在**切换前**：切换之后才发现缺图，用户看到的是一次"恢复成功"的缺图数据集，
+     * 而原数据已经被挪到上一代。这里抛出走既有的失败路径（尚未 swap，直接清理临时件）。
+     * 只要求"引用的都在"（方向性）：旧包把整个资产目录都打进来，多出来的图不影响恢复。
+     */
+    private fun verifyStagedAssetClosure(
+        stagingDir: File,
+        referencedAssets: List<CanonicalSourceAssetRecord>,
+    ) {
+        val stagedAssetDir = File(stagingDir, "assets")
+        val problems = referencedAssets.mapNotNull { record ->
+            val fileName = record.relativePath.substringAfterLast('/')
+            val stagedFile = File(stagedAssetDir, fileName)
+            when {
+                fileName.isBlank() || record.relativePath != "$ASSET_DIRECTORY/$fileName" ->
+                    "${record.relativePath}（资产行路径非法）"
+                !stagedFile.isFile -> "${record.relativePath}（包内缺失）"
+                !canonicalAssetFileIsIntact(
+                    stagedFile,
+                    record.byteSize,
+                    record.contentSha256,
+                ) -> "${record.relativePath}（字节数或 SHA-256 与资产行不一致）"
+                else -> null
+            }
+        }
+        if (problems.isNotEmpty()) {
+            throw BackupRestoreException(
+                "备份数据库引用的题图在包内缺失或已损坏，恢复被拒绝：" +
+                    problems.joinToString(separator = "、"),
+            )
         }
     }
 

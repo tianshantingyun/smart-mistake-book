@@ -21,6 +21,7 @@ import com.tingyun.smartmistakebook.core.data.settings.AndroidKeystoreModelSecre
 import com.tingyun.smartmistakebook.core.data.settings.MODEL_SECRET_KEY_ALIAS
 import com.tingyun.smartmistakebook.core.data.settings.ModelSecretBinding
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -140,6 +141,108 @@ class BackupRestoreInstrumentedTest {
         }
     }
 
+    /**
+     * AUD-05：备份期间并发写一笔（登记新图 + 建立引用）时，包内引用闭合仍成立——
+     * 归档里那份库引用的每一张图都在包里，且包里**只有**那份库引用的图（快照之后才登记的
+     * 资产是下一包的）；回执的题数也必须等于归档库里那份库自己的数。
+     *
+     * 同时钉住取数来源：实时库端口在整个成包过程里只被要求做一件事——快照。旧实现用的是
+     * 实时库的 `countMistakes()`，那个数在窗口里会超前于归档内容。
+     */
+    @Test
+    fun backupCreatedWhileACaptureIsRegisteredKeepsTheArchiveReferenceClosed() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        // 默认库名：成包/恢复的路径（getDatabasePath(DEFAULT_DATABASE_NAME) 那一份）与注入
+        // 端口必须是同一个库——旧实现与新实现都按这个前提取快照（见
+        // AndroidBackupRepository.create）。
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+        val planted = mutableListOf<CanonicalSourceAssetRecord>()
+        val scratch = File(context.cacheDir, "backup-concurrent-${System.nanoTime()}")
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            seedStudyFacts(context, database, databaseName, seed())
+            val firstAsset = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "concurrent-first",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            referenceViaStudentMessage(database, "concurrent-first", firstAsset.sourceAssetId)
+
+            val liveCalls = mutableListOf<String>()
+            val repository = AndroidBackupRepository(context, RecordingPort(database, liveCalls))
+            var writtenDuringBackup: CanonicalSourceAssetRecord? = null
+
+            val (backupReceipt, firstArchive) = coroutineScope {
+                val writer = async(Dispatchers.IO) {
+                    // 窗口内的一笔录入：资产行先落，引用随后在另一个事务里建立（大堂的真实形态）。
+                    val second = plantCanonicalAsset(
+                        context = context,
+                        database = database,
+                        seed = "concurrent-second",
+                        createdAtEpochMillis = System.currentTimeMillis(),
+                        planted = planted,
+                    )
+                    referenceViaStudentMessage(database, "concurrent-second", second.sourceAssetId)
+                    writtenDuringBackup = second
+                }
+                val created = async {
+                    val archive = ByteArrayOutputStream()
+                    val createdReceipt = repository.create(archive)
+                    createdReceipt to archive.toByteArray()
+                }
+                writer.await()
+                created.await()
+            }
+
+            assertEquals(
+                "题数与引用集合只能问快照库；实时库端口上除了做一份快照不该有第二次读取",
+                listOf("snapshotForBackup"),
+                liveCalls,
+            )
+
+            val firstClosure = unpackedArchiveClosure(context, firstArchive, File(scratch, "first"))
+            assertTrue("夹具必须真的建立了一条引用", firstClosure.referencedAssets.isNotEmpty())
+            assertEquals(
+                "包内资产集合必须正好是包内库的引用集合（快照之后登记的图不算本次引用）",
+                firstClosure.referencedAssets.size,
+                backupReceipt.assetCount,
+            )
+            assertEquals(
+                "回执题数必须与归档库自己的数一致",
+                firstClosure.problemCount,
+                backupReceipt.problemCount,
+            )
+
+            // "窗口内新增视为下一包"：写者已 join，下一包必须把窗口里那张新图收进来。
+            // 第一包收没收它取决于快照时刻，因此这里不对第一包下断言——但对下一包是确定的。
+            val secondAsset = requireNotNull(writtenDuringBackup) { "并发写者必须完成登记" }
+            val secondArchive = ByteArrayOutputStream()
+            val secondReceipt = repository.create(secondArchive)
+            val secondClosure = unpackedArchiveClosure(
+                context,
+                secondArchive.toByteArray(),
+                File(scratch, "second"),
+            )
+            assertTrue(
+                "窗口内新增的图必须进下一包：${secondAsset.relativePath}",
+                secondClosure.referencedAssets
+                    .any { record -> record.sourceAssetId == secondAsset.sourceAssetId },
+            )
+            assertEquals(
+                "下一包的资产集合同样必须正好是它的引用集合",
+                secondClosure.referencedAssets.size,
+                secondReceipt.assetCount,
+            )
+        } finally {
+            planted.forEach { assetFile(context, it).delete() }
+            context.deleteDatabase(databaseName)
+            scratch.deleteRecursively()
+        }
+    }
+
     @Test
     fun oldSchemaArchiveMigratesOnRestore() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -217,6 +320,7 @@ class BackupRestoreInstrumentedTest {
                     archive = output,
                     database = context.getDatabasePath(sourceName),
                     assets = emptyList(),
+                    referencedAssets = emptyList(),
                     databaseSchemaVersion = 30,
                     problemCount = 1,
                     createdAtEpochMillis = 1_000L,
@@ -296,6 +400,25 @@ class BackupRestoreInstrumentedTest {
     ) : StudyDatabasePort by delegate {
         override suspend fun readUnreferencedCanonicalAssets():
             List<CanonicalSourceAssetRecord> = snapshot
+    }
+
+    /**
+     * 记录**实时库**端口上被问过什么（成包必须只问它"做一份快照"，其余读数都该取自快照库）。
+     * 其余方法经接口委托原样透传。
+     */
+    private class RecordingPort(
+        private val delegate: StudyDatabasePort,
+        private val calls: MutableList<String>,
+    ) : StudyDatabasePort by delegate {
+        override suspend fun snapshotForBackup(sourceDatabaseFile: File, snapshotTarget: File) {
+            calls += "snapshotForBackup"
+            delegate.snapshotForBackup(sourceDatabaseFile, snapshotTarget)
+        }
+
+        override suspend fun countMistakes(): Int {
+            calls += "countMistakes"
+            return delegate.countMistakes()
+        }
     }
 
     /**
@@ -519,6 +642,96 @@ class BackupRestoreInstrumentedTest {
         asset: CanonicalSourceAssetRecord,
     ): File = File(context.filesDir, asset.relativePath)
 
+    /**
+     * 大堂的真实引用形态：学生消息附图建立 `tutor_message_source_asset` 引用（四表引用口径
+     * 里的一支）。资产行必须先登记，引用才能建立（RESTRICT 外键）。
+     */
+    private suspend fun referenceViaStudentMessage(
+        database: StudyDatabasePort,
+        suffix: String,
+        sourceAssetId: String,
+    ) {
+        database.createTutorConversation(
+            CreateTutorConversationDatabaseCommand(
+                conversationId = "conversation-$suffix",
+                anchorKind = "TEXT_ONLY",
+                anchorId = null,
+                anchorRevisionId = null,
+                title = null,
+                createdAtEpochMillis = 1_000,
+            ),
+        )
+        database.appendTutorStudentMessage(
+            AppendTutorStudentMessageDatabaseCommand(
+                conversationId = "conversation-$suffix",
+                messageId = "message-$suffix",
+                ordinal = 1,
+                bodyMarkdown = "看看这道题",
+                logicalOperationId = "operation-$suffix",
+                createdAtEpochMillis = 1_000,
+                sourceImageAssetIds = listOf(sourceAssetId),
+            ),
+        )
+    }
+
+    /** 临时库名开出来的验证/归档读口，连同它的 -wal/-shm 一起清掉。 */
+    private fun deleteDatabaseArtifacts(databaseFile: File) {
+        listOf(
+            databaseFile,
+            File("${databaseFile.absolutePath}-wal"),
+            File("${databaseFile.absolutePath}-shm"),
+        ).forEach { it.delete() }
+    }
+
+    /** 一个归档解出来的闭合事实：包内库引用哪些图、它自己有多少道题。 */
+    private data class UnpackedArchiveClosure(
+        val referencedAssets: List<CanonicalSourceAssetRecord>,
+        val problemCount: Int,
+    )
+
+    /**
+     * 解包归档并对拍包内闭合：`包内库引用的图 → 条目在包里 + 字节数与记录一致`。返回包内库的
+     * 引用集合与题数，供调用方与成包回执比对；归档库按临时库名开出来读，读完把 -wal/-shm 清掉。
+     */
+    private suspend fun unpackedArchiveClosure(
+        context: Context,
+        archiveBytes: ByteArray,
+        destination: File,
+    ): UnpackedArchiveClosure {
+        destination.mkdirs()
+        val validation = SmbkArchiveCodec.unpack(
+            ByteArrayInputStream(archiveBytes),
+            destination,
+        )
+        assertTrue("归档必须能过编解码层的校验", validation is BackupValidation.Valid)
+        val unpackedName = "backup-unpacked-${System.nanoTime()}.db"
+        val unpackedDatabaseFile = context.getDatabasePath(unpackedName)
+        File(destination, "database.sqlite").copyTo(unpackedDatabaseFile, overwrite = true)
+        val unpacked = StudyDatabaseFactory.open(context, unpackedName)
+        return try {
+            val referenced = unpacked.readReferencedCanonicalAssets()
+            referenced.forEach { record ->
+                val staged = File(
+                    File(destination, "assets"),
+                    record.relativePath.substringAfterLast('/'),
+                )
+                assertTrue("包内库引用的图必须在包里：${record.relativePath}", staged.isFile)
+                assertEquals(
+                    "包内图的字节数必须与库里的资产行一致：${record.relativePath}",
+                    record.byteSize,
+                    staged.length(),
+                )
+            }
+            UnpackedArchiveClosure(
+                referencedAssets = referenced,
+                problemCount = unpacked.countMistakes(),
+            )
+        } finally {
+            unpacked.close()
+            deleteDatabaseArtifacts(unpackedDatabaseFile)
+        }
+    }
+
     // ------------------------------------------------------------------
     // §10.4 fault injection: archive-level attacks
     // ------------------------------------------------------------------
@@ -690,6 +903,75 @@ class BackupRestoreInstrumentedTest {
             reopened.close()
         } finally {
             context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        }
+    }
+
+    /**
+     * AUD-05 的拒恢复面：包里的库引用了包内没有的图（旧成包顺序留下的形态，或条目被人删过），
+     * 恢复必须在**切换前**被拒绝，且原因指明缺的是哪张；原数据、包外的原图都不许动。
+     *
+     * 构造方式刻意绕开 manifest 的引用清单（声明为空）：这样校验层一路放行，
+     * 只有对归档库的四表反查才能发现缺图——测的正是权威判据本身。
+     */
+    @Test
+    fun restoreIsRejectedWhenTheArchivedDatabaseReferencesAMissingAsset() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        val planted = mutableListOf<CanonicalSourceAssetRecord>()
+        val scratch = File(context.cacheDir, "missing-referenced-asset-${System.nanoTime()}")
+        try {
+            val database = StudyDatabaseFactory.open(context)
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
+            val referenced = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "missing-ref",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            referenceViaStudentMessage(database, "missing-ref", referenced.sourceAssetId)
+
+            // 归档里的库是真的（快照），但一张图都不放：库引用了包内没有的图。
+            scratch.mkdirs()
+            val snapshotCopy = File(scratch, "snapshot.db")
+            database.snapshotForBackup(
+                context.getDatabasePath(databaseName),
+                snapshotCopy,
+            )
+            val archive = ByteArrayOutputStream()
+            SmbkArchiveCodec.create(
+                archive = archive,
+                database = snapshotCopy,
+                assets = emptyList(),
+                referencedAssets = emptyList(),
+                databaseSchemaVersion = database.readDatabaseVersion(),
+                problemCount = 1,
+                createdAtEpochMillis = 1_000L,
+            )
+
+            val repository = AndroidBackupRepository(context, database)
+            val failure = runCatching {
+                repository.restore(ByteArrayInputStream(archive.toByteArray()))
+            }
+
+            assertTrue("库引用的图不在包内时必须拒绝恢复", failure.isFailure)
+            val message = (failure.exceptionOrNull() as? BackupRestoreException)
+                ?.message.orEmpty()
+            assertTrue("拒绝原因要可读，实际：$message", message.contains("题图"))
+            assertTrue(
+                "拒绝原因要指出缺的是哪张图，实际：$message",
+                message.contains(referenced.relativePath.substringAfterLast('/')),
+            )
+            // 切换没有发生：原库、原行、原图都在原地。
+            assertEquals(1, database.countMistakes())
+            assertEquals(referenced, database.readCanonicalSourceAsset(referenced.sourceAssetId))
+            assertTrue(assetFile(context, referenced).isFile)
+            database.close()
+        } finally {
+            planted.forEach { assetFile(context, it).delete() }
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+            scratch.deleteRecursively()
         }
     }
 

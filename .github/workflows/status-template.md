@@ -8,6 +8,7 @@
 - **Build Date**: `{{BUILD_DATE}}`
 - **Branch**: `{{BRANCH}}`
 - **Triggered By**: `{{TRIGGERED_BY}}`
+- **Run context**: {{RUN_CONTEXT}}
 
 ## Build Results
 
@@ -24,6 +25,8 @@
 | `:app:localFirst` | {{APP_LOCAL_FIRST_STATUS}} | {{APP_LOCAL_FIRST_DURATION}} |
 | `:app:strictOffline` | {{APP_STRICT_OFFLINE_STATUS}} | {{APP_STRICT_OFFLINE_DURATION}} |
 
+{{COMPILE_EVIDENCE_NOTE}}
+
 ### Unit Tests
 
 | Module | Tests | Passed | Failed | Duration |
@@ -36,10 +39,19 @@
 
 ### Lint
 
+`lint<Flavor>Debug` 只匹配 `:app`，所以 Android 库模块单独列出（清单与 CI 的 Lint 步骤一致）。
+
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
 | `lintLocalFirstDebug` | {{LINT_LOCAL_FIRST_STATUS}} | {{LINT_LOCAL_FIRST_ERRORS}} | {{LINT_LOCAL_FIRST_WARNINGS}} |
 | `lintStrictOfflineDebug` | {{LINT_STRICT_OFFLINE_STATUS}} | {{LINT_STRICT_OFFLINE_ERRORS}} | {{LINT_STRICT_OFFLINE_WARNINGS}} |
+| Android 库模块（下表明细） | {{LINT_LIBRARY_STATUS}} | {{LINT_LIBRARY_ERRORS}} | {{LINT_LIBRARY_WARNINGS}} |
+
+| Module | Status | Errors | Warnings |
+|--------|--------|--------|----------|
+{{LINT_LIBRARY_ROWS}}
+
+{{LINT_LIBRARY_NOTE}}
 
 ### Release Build
 

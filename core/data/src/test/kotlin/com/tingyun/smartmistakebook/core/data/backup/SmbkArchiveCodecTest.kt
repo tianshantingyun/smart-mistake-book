@@ -22,6 +22,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 29,
             problemCount = 3,
             createdAtEpochMillis = 1_000L,
@@ -48,6 +49,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 29,
             problemCount = 1,
             createdAtEpochMillis = 1_000L,
@@ -68,6 +70,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 30,
             problemCount = 2,
             createdAtEpochMillis = 2_000L,
@@ -105,6 +108,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 30,
             problemCount = 1,
             createdAtEpochMillis = 3_000L,
@@ -134,6 +138,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 30,
             problemCount = 1,
             createdAtEpochMillis = 4_000L,
@@ -155,6 +160,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 30,
             problemCount = 1,
             createdAtEpochMillis = 5_000L,
@@ -179,6 +185,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 30,
             problemCount = 1,
             createdAtEpochMillis = 6_000L,
@@ -222,6 +229,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 30,
             problemCount = 1,
             createdAtEpochMillis = 4_000L,
@@ -247,6 +255,7 @@ class SmbkArchiveCodecTest {
             archive = archive,
             database = database,
             assets = listOf(asset),
+            referencedAssets = listOf(asset),
             databaseSchemaVersion = 30,
             problemCount = 1,
             createdAtEpochMillis = 5_000L,
@@ -261,6 +270,115 @@ class SmbkArchiveCodecTest {
         )
 
         assertTrue(validation is BackupValidation.Invalid)
+    }
+
+    /**
+     * AUD-05 的成包面：快照库引用的资产必须真的进包。两边漂开时**成包失败**，
+     * 而不是写出一份"库引用了包内没有的图"的归档（那正是旧成包顺序留下的形态）。
+     */
+    @Test
+    fun `create refuses a referenced asset that is not part of the package`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val packaged = tempFile("asset-packaged.png", "packaged-content")
+        val referencedOnly = tempFile("asset-referenced.png", "referenced-content")
+        val archive = ByteArrayOutputStream()
+
+        val failure = runCatching {
+            SmbkArchiveCodec.create(
+                archive = archive,
+                database = database,
+                assets = listOf(packaged),
+                referencedAssets = listOf(packaged, referencedOnly),
+                databaseSchemaVersion = 30,
+                problemCount = 1,
+                createdAtEpochMillis = 7_000L,
+            )
+        }
+
+        assertTrue("被引用的资产不在包内时必须成包失败", failure.isFailure)
+        assertTrue(failure.exceptionOrNull() is IllegalArgumentException)
+        assertTrue("校验失败不得留下半个归档", archive.size() == 0)
+    }
+
+    /**
+     * AUD-05 的解包面：包自己声明的引用集合里少一张就拒绝——校验/恢复都不必等到
+     * 读库那一步才发现图没了。旧包（没有这张清单）不受影响，见 [SmbkManifestV1]。
+     */
+    @Test
+    fun `archive whose declared referenced asset is missing fails validation`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val asset = tempFile("asset-a.png", "asset-content")
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = listOf(asset),
+            referencedAssets = listOf(asset),
+            databaseSchemaVersion = 30,
+            problemCount = 1,
+            createdAtEpochMillis = 7_000L,
+        )
+
+        val manifest = manifestText(archive.toByteArray())
+        val declaredArray = "[\"assets/${asset.name}\"]"
+        assertTrue("夹具必须让 manifest 真的声明了引用集合", manifest.contains(declaredArray))
+        val tamperedManifest = manifest.replace(declaredArray, "[\"assets/gone.png\"]")
+        assertTrue(tamperedManifest != manifest)
+        val tampered = rewriteEntry(archive.toByteArray(), "manifest.json", tamperedManifest)
+
+        val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(tampered))
+
+        assertTrue(validation is BackupValidation.Invalid)
+        assertTrue(
+            (validation as BackupValidation.Invalid).reason.contains("题图缺失"),
+        )
+    }
+
+    /**
+     * AUD-05 的计数面：manifest 记的是**快照库**的题数（调用方从快照库里读出来交给编解码层
+     * 的那个数），包内资产集合也只有快照库引用的那一份闭包——快照之后才落盘的图不在包里。
+     */
+    @Test
+    fun `create records the snapshot problem count and packages only the referenced closure`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val referenced = tempFile("asset-referenced.png", "referenced-content")
+        val notReferenced = tempFile("asset-orphan.png", "orphan-content")
+        val archive = ByteArrayOutputStream()
+
+        val receipt = SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = listOf(referenced),
+            referencedAssets = listOf(referenced),
+            databaseSchemaVersion = 30,
+            problemCount = 7,
+            createdAtEpochMillis = 7_000L,
+        )
+
+        assertEquals(7, receipt.problemCount)
+        assertEquals(1, receipt.assetCount)
+        assertEquals(2, receipt.fileCount)
+        val validation = SmbkArchiveCodec.validate(
+            ByteArrayInputStream(archive.toByteArray()),
+        )
+        assertTrue(validation is BackupValidation.Valid)
+        validation as BackupValidation.Valid
+        assertEquals("manifest 的题数取自快照库", 7, validation.manifest.problemCount)
+        assertEquals(1, validation.manifest.assetCount)
+        assertEquals(2, validation.checkedFileCount)
+
+        val destination = File.createTempFile("smbk-unpack-closure", "").apply {
+            delete()
+            mkdirs()
+        }
+        destination.deleteOnExit()
+        SmbkArchiveCodec.unpack(ByteArrayInputStream(archive.toByteArray()), destination)
+        assertEquals(
+            "包内资产集合必须正好是传入的那份引用闭包，一个不多一个不少",
+            listOf(referenced.name),
+            File(destination, "assets").listFiles().orEmpty().map { it.name }.sorted(),
+        )
+        assertTrue(!File(destination, "assets/${notReferenced.name}").exists())
     }
 
     @Test
@@ -306,6 +424,18 @@ class SmbkArchiveCodecTest {
             }
         }
         return output.toByteArray()
+    }
+
+    /** Reads the manifest entry text out of an archive so one field can be tampered with. */
+    private fun manifestText(archiveBytes: ByteArray): String {
+        ZipInputStream(ByteArrayInputStream(archiveBytes)).use { zip ->
+            while (true) {
+                val entry = zip.nextEntry ?: break
+                if (entry.name == "manifest.json") return zip.readBytes().decodeToString()
+                zip.closeEntry()
+            }
+        }
+        error("archive has no manifest.json entry")
     }
 
     private fun tempFile(name: String, content: String): File {

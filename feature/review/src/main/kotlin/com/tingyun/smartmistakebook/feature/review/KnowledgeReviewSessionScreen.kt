@@ -42,14 +42,19 @@ import com.tingyun.smartmistakebook.core.ui.SmartColors
 /**
  * 知识点复习会话（spec dual-review-entry §3.3/§3.4）：一次"今日知识点复习"从首页进入后，
  * 沿 [KnowledgeReviewSessionPlan] 逐知识点：向模型要一道选择题 → 学生作答 → 判答 →
- * 回写掌握度 → 下一知识点，直到队列完成。dispatch（取题、回写）都作为 suspend 回调从
- * app 层注入——本屏不持有 repository/gateway，保持 feature/review 薄。
+ * 回写掌握度 → 下一知识点，直到队列完成。dispatch（取题、恢复、回写）都作为 suspend 回调
+ * 从 app 层注入——本屏不持有 repository/gateway，保持 feature/review 薄。
+ *
+ * 取题有两条路（AUD-02）：[loadQuiz] = 现场出题并落库（首次进入 / 学生明确重试）；
+ * [restoreQuiz] = 进程重建后把**原题面**读回来（只读，不出网）。由 ViewModel 依持久化的
+ * 加载状态决定走哪条：有题面可读回就绝不重出题。
  */
 @Composable
 fun KnowledgeReviewSessionScreen(
     plan: KnowledgeReviewSessionPlan,
     onBack: () -> Unit,
-    loadQuiz: suspend (KnowledgeReviewQueueEntry) -> KnowledgeQuizLoadResult,
+    restoreQuiz: suspend (KnowledgeReviewQueueEntry, Long) -> KnowledgeQuizLoadResult,
+    loadQuiz: suspend (KnowledgeReviewQueueEntry, Long) -> KnowledgeQuizLoadResult,
     submitAnswer: suspend (
         requestId: String,
         knowledgeNodeId: String,
@@ -69,14 +74,20 @@ fun KnowledgeReviewSessionScreen(
         factory = KnowledgeReviewSessionViewModelFactory(plan),
     )
     // 进入节点且未取题时自动取题；continueToNext 清空后这里会为新节点再次取题。
+    // 恢复态（LOADED 但内存无题）走读回，不出网（AUD-02）——分支规则在
+    // [knowledgeQuizLoadPath]，它与"恢复不自动新出题"同一条，单独可测。
     LaunchedEffect(viewModel.currentIndex, viewModel.loadStatus, viewModel.submittedChoice) {
-        if (
-            viewModel.currentEntry != null &&
-            viewModel.loadStatus == KnowledgeQuizLoadStatus.IDLE &&
-            viewModel.currentItem == null &&
-            viewModel.submittedChoice == null
+        if (viewModel.currentEntry == null) return@LaunchedEffect
+        when (
+            knowledgeQuizLoadPath(
+                loadStatus = viewModel.loadStatus,
+                hasItem = viewModel.currentItem != null,
+                alreadySubmitted = viewModel.submittedChoice != null,
+            )
         ) {
-            viewModel.loadCurrentQuiz(loadQuiz)
+            KnowledgeQuizLoadPath.RESTORE -> viewModel.restoreCurrentQuiz(restoreQuiz)
+            KnowledgeQuizLoadPath.GENERATE -> viewModel.loadCurrentQuiz(loadQuiz)
+            KnowledgeQuizLoadPath.NONE -> Unit
         }
     }
 
@@ -257,7 +268,6 @@ private fun KnowledgeQuizContent(
             },
             onClick = {
                 viewModel.submitAnswer(
-                    requestId = "knowledge-quiz:review:${item.id}:${viewModel.submittedChoice ?: viewModel.selectedChoice}",
                     occurredAtEpochMillis = System.currentTimeMillis(),
                     submit = submitAnswer,
                 )

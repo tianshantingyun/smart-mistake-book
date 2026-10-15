@@ -657,6 +657,21 @@ private class ControllableStudyExperienceRepository : StudyExperienceRepository 
         evidenceRecorded = true,
     )
 
+    /**
+     * 本替身代表"讲题通道失败关闭"的场景，知识点复习题面不经过它：
+     * 落库原样返回（题面本就来自调用方），读回恒无（没有可恢复的题面）。
+     */
+    override suspend fun persistKnowledgeQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        item: com.tingyun.smartmistakebook.core.model.TutorAssessmentItem,
+    ): com.tingyun.smartmistakebook.core.model.TutorAssessmentItem = item
+
+    override suspend fun readPersistedKnowledgeQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+    ): com.tingyun.smartmistakebook.core.model.TutorAssessmentItem? = null
+
     override fun observeTeachingAdvisories(
         practiceUnitId: String?,
     ) = kotlinx.coroutines.flow.flowOf(emptyList<com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord>())

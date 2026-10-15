@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
 import com.tingyun.smartmistakebook.core.database.ReviewLogEntry
 import com.tingyun.smartmistakebook.core.database.dao.ArchivedEntrySummaryRow
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
@@ -1767,6 +1768,12 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
     private val advanceReceipts = mutableMapOf<String, ReviewSessionAdvanceReceipt>()
     private val evidenceSnapshots = mutableMapOf<String, AssessmentEvidenceSnapshot>()
     private val practiceUnitAssessments = linkedMapOf<String, PracticeUnitAssessmentRecord>()
+
+    /**
+     * 已物化的呈现快照（AUD-02 题面落库的假库实现；键 = assessmentItemSnapshotId）。
+     * 公开给测试直接播种/改坏一行（"损坏的题面"用例需要它）。
+     */
+    val assessmentItemSnapshots = mutableMapOf<String, AssessmentItemSnapshotSeedRecord>()
     private val attemptsBySubmission = mutableMapOf<String, AttemptWriteResult>()
     private var nextEventSequence = 1L
     private var persistedLearnerSnapshot: PersistedLearnerSnapshot? = null
@@ -2692,6 +2699,13 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         occurredAtEpochMillis: Long,
     ): Boolean = false
 
+    override suspend fun markSplitImportQuestionSavedByDraftId(
+        splitDraftId: String,
+        occurredAtEpochMillis: Long,
+    ): Boolean = false
+
+    override suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord? = null
+
     override suspend fun completeSplitImportJob(
         jobId: String,
         occurredAtEpochMillis: Long,
@@ -2874,7 +2888,24 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         practiceUnitId: String,
     ): PracticeUnitAssessmentRecord? = practiceUnitAssessments[practiceUnitId]
 
-    override suspend fun saveAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord) = Unit
+    override suspend fun saveAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord) {
+        // AUD-02：真 DAO 的语义是"同 id 同载荷 = no-op，同 id 不同载荷 = 冲突"
+        //（`ImmutableLearningFactDao.saveAssessmentItem`）。假库跟着走，题面落库/读回的
+        // 用例才有意义——改前恒 no-op 会把冲突悄悄吃掉。
+        val existing = assessmentItemSnapshots[item.assessmentItemSnapshotId]
+        if (existing == null) {
+            assessmentItemSnapshots[item.assessmentItemSnapshotId] = item
+        } else if (existing != item) {
+            throw ImmutablePayloadConflictException(
+                "assessment_item_snapshot",
+                item.assessmentItemSnapshotId,
+            )
+        }
+    }
+
+    override suspend fun findAssessmentItemSnapshot(
+        assessmentItemSnapshotId: String,
+    ): AssessmentItemSnapshotSeedRecord? = assessmentItemSnapshots[assessmentItemSnapshotId]
 
     override suspend fun saveAssessmentEvidenceSnapshot(snapshot: AssessmentEvidenceSnapshot) {
         evidenceSnapshots[snapshot.snapshotId] = snapshot

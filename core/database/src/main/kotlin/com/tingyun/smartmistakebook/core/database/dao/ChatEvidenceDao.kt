@@ -20,6 +20,12 @@ import kotlinx.coroutines.flow.Flow
  * row in the same transaction, so both the incremental batch path and the
  * full-replay path see the event. The evidence row stays the authoritative
  * payload; the outbox row only carries identity/sequence/fingerprint.
+ *
+ * 幂等的粒度是**身份**（evidence_id）：同身份重放 = 一笔（不推进序列、不写第二条 outbox），
+ * 不同身份 = 各自一笔（各自的序列与 outbox）。AUD-01：改前 accepted 的 outbox 行用 ABORT，
+ * 于是"同一会话同一题面同一选项的第二笔"会撞 `event_kind+event_id` 唯一键——整个事务回滚，
+ * 证据行也没落，学生看到的是"回写失败"。同身份重放不是故障，是重试，必须在读口之前就被
+ * 按身份吃掉。
  */
 @Dao
 internal abstract class ChatEvidenceDao {    /**
@@ -27,10 +33,20 @@ internal abstract class ChatEvidenceDao {    /**
      * a retried write of the same evidence (same request + tool + KC) must
      * silently no-op instead of failing the whole transaction on a PK clash.
      * Id derivation guarantees same id ⇒ same semantics.
+     *
+     * 逐条返回插入结果：`-1` = 该身份已在库（重放），否则是新行的 rowId。
+     * [insertAsLedgerEvents] 只对**新行**分配学习序列并写 outbox——重放因此不推进序列
+     * （账本不留空洞）、也不产生第二条同 event_id 的 outbox 行。
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract suspend fun insertAll(entries: List<LearnerChatEvidenceEntity>)
+    protected abstract suspend fun insertAll(entries: List<LearnerChatEvidenceEntity>): List<Long>
 
+    /**
+     * outbox 行保持 ABORT：它不再承担"重放去重"（那已由证据行的身份去重在上游完成），
+     * 留着 LOUD 是把它当**完整性哨兵**——一条新证据行必然带一个全新 event_id，正常路径
+     * 不可能撞键；真撞上说明库里有一条不来自本事务的 outbox 行，那是必须响的账本故障，
+     * 不能静默 IGNORE 掉。
+     */
     @Insert(onConflict = OnConflictStrategy.ABORT)
     protected abstract suspend fun insertOutboxRows(rows: List<ProjectionOutboxEntity>)
 
@@ -65,7 +81,12 @@ internal abstract class ChatEvidenceDao {    /**
             insertAll(rejected)
         }
         if (accepted.isEmpty()) return
-        val outboxRows = accepted.map { entry ->
+        // 先落 accepted 证据行，再按插入结果分出**新行**（-1 = 该身份已在库，是重放）：
+        // 重放到此为止——不分配学习序列、不写 outbox 行，库里仍旧只有那一行。
+        val rowIds = insertAll(accepted)
+        val freshAccepted = accepted.filterIndexed { index, _ -> rowIds[index] != -1L }
+        if (freshAccepted.isEmpty()) return
+        val outboxRows = freshAccepted.map { entry ->
             val sequence = allocateSequence(entry.learner_id)
             val event = entry.toChatEvidenceModel(sequence)
             ProjectionOutboxEntity(
@@ -79,7 +100,6 @@ internal abstract class ChatEvidenceDao {    /**
                 createdAtEpochMillis = entry.created_at_epoch_millis,
             )
         }
-        insertAll(accepted)
         insertOutboxRows(outboxRows)
     }
 
