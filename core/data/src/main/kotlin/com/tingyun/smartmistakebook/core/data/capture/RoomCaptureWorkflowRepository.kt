@@ -472,6 +472,12 @@ class RoomCaptureWorkflowRepository internal constructor(
                 errorBookEntryId = result.receipt.errorBookEntryId,
                 created = result.created,
             )
+            // 切分台账的提交回执（T4/AUD-03）：**这一份草稿真的入库了**是 SAVED 的唯一依据，
+            // 所以这一笔写在拿到回执的地方，而不是等界面观察到"保存成功"。两个反面都是真失败：
+            // 提前预标会把没交的题显示成已录入；放在界面事件里则可能"题已经进错题本、台账还写
+            // 待提交"（提交落库与界面事件之间被杀进程）。不是切分来的草稿这里什么都不会命中。
+            // 放在重绘之前：重绘要等模型轮，标 SAVED 不该被它拖住。
+            recordSplitImportCommit(request.draftId, expected.finalOccurredAtEpochMillis)
             // Model-decided clean redraw: the model looks at the photo and decides
             // whether it is figure-bearing. Only WITH_FIGURE problems are redrawn;
             // text-only problems keep the original. Never blocks or fails the commit —
@@ -643,6 +649,9 @@ class RoomCaptureWorkflowRepository internal constructor(
             errorBookEntryId = result.receipt.errorBookEntryId,
             created = result.created,
         ).also { summary ->
+            // 同一笔回执语义（T4/AUD-03）：讲题来源的切分题在会话保存入库时才算真的进了错题本
+            // ——「结束讲解不保存」走 endTutorSessionWithoutSaving，这里不会被调到。
+            recordSplitImportCommit(session.draftId, request.occurredAtEpochMillis)
             // Model-decided clean redraw for a tutor session saved into the
             // mistake book; identical fail-closed semantics to library commits.
             if (summary.created) {
@@ -653,6 +662,17 @@ class RoomCaptureWorkflowRepository internal constructor(
                 )
             }
         }
+    }
+
+    /**
+     * 把「这份草稿真的入库了」写回切分台账（T4/AUD-03）。台账没配（测试里的非切分装配）
+     * 或这份草稿不是切分来的，这一笔就什么也不做——回执落在台账之外不是错误。
+     *
+     * 不吞异常：这里的失败是数据库失败，不是"这份草稿不是切分来的"；静默吞掉会让一道已经
+     * 入库的题永远显示待提交，正是本轨要消灭的那种假象。
+     */
+    private suspend fun recordSplitImportCommit(draftId: String, occurredAtEpochMillis: Long) {
+        splitImports?.recordCommittedDraft(draftId, occurredAtEpochMillis)
     }
 
     /**

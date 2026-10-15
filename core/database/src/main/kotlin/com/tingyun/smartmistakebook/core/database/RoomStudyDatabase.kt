@@ -303,6 +303,14 @@ internal class RoomStudyDatabase(
         occurredAtEpochMillis,
     )
 
+    override suspend fun markSplitImportQuestionSavedByDraftId(
+        splitDraftId: String,
+        occurredAtEpochMillis: Long,
+    ): Boolean = splitImports.markQuestionSavedByDraftId(splitDraftId, occurredAtEpochMillis)
+
+    override suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord? =
+        splitImports.readBySplitDraftId(splitDraftId)
+
     override suspend fun completeSplitImportJob(
         jobId: String,
         occurredAtEpochMillis: Long,
@@ -814,6 +822,22 @@ internal class RoomStudyDatabase(
             .findUnreferencedCanonicalAssets()
             .map(CanonicalSourceAssetRow::toRecord)
 
+    /**
+     * 引用集合 = 全表行 − 未引用行（AUD-05：备份成包/恢复闭合的"必须进包的图"）。
+     *
+     * 两条查询读的是**同一份快照库文件**（成包时先把实时库快照下来，再对快照文件开只读口），
+     * 那份文件没有写者，因此相减得到的引用集合与归档里的库自带的自洽：既不会把快照之后
+     * 才登记的图算进来（快照里根本没有那行），也不会漏掉快照里已引用的图。
+     */
+    override suspend fun readReferencedCanonicalAssets(): List<CanonicalSourceAssetRecord> {
+        val dao = database.pendingCaptureDao()
+        val unreferenced = dao.findUnreferencedCanonicalAssets()
+            .mapTo(HashSet<String>()) { row -> row.sourceAssetId }
+        return dao.findAllCanonicalAssets()
+            .filterNot { row -> row.sourceAssetId in unreferenced }
+            .map(CanonicalSourceAssetRow::toRecord)
+    }
+
     override suspend fun abandonPendingProblemDraft(
         draftId: String,
         expectedRevisionNumber: Int,
@@ -1313,6 +1337,12 @@ internal class RoomStudyDatabase(
         DatabaseContractValidator.validateAssessmentItem(item)
         database.immutableLearningFactDao().saveAssessmentItem(item.toEntity())
     }
+
+    override suspend fun findAssessmentItemSnapshot(
+        assessmentItemSnapshotId: String,
+    ): AssessmentItemSnapshotSeedRecord? = database.immutableLearningFactDao()
+        .findAssessmentItem(assessmentItemSnapshotId)
+        ?.toRecord()
 
     override suspend fun saveAssessmentEvidenceSnapshot(
         snapshot: com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot,

@@ -165,7 +165,7 @@ fun SplitImportReviewRoute(
                 SplitQuestionCard(
                     ordinal = question.questionOrdinal,
                     selected = question.selected,
-                    confirmed = question.confirmState != SplitImportConfirmState.PENDING,
+                    confirmState = question.confirmState,
                     sourceUri = reviewableJob.sourceUri,
                     question = question,
                     onToggle = {
@@ -189,25 +189,21 @@ fun SplitImportReviewRoute(
                 enabled = reviewableJob.questions.any { it.selected },
                 onClick = {
                     scope.launch {
-                        val confirmList = reviewableJob.questions
-                            .filter { it.selected && it.confirmState == SplitImportConfirmState.PENDING }
-                            .sortedBy { it.questionOrdinal }
-                        for (question in confirmList) {
-                            val draftId = question.splitDraftId
-                            if (draftId != null) {
-                                repository.markConfirmed(
-                                    jobId = reviewableJob.jobId,
-                                    questionOrdinal = question.questionOrdinal,
-                                    confirmState = SplitImportConfirmState.SAVED,
-                                    splitDraftId = draftId,
-                                    occurredAtEpochMillis = System.currentTimeMillis(),
-                                )
+                        // 逐题提交（T4/AUD-03）：这里**只**负责打开最早的那道未提交题。
+                        // 过去在这里先把所有勾选题标成 SAVED，学生只录了第一题、其余题却已经
+                        // 显示「已录入」；现在标 SAVED 的唯一依据是提交回执（入库成功）。
+                        val nextDraftId = reviewableJob.questions
+                            .filter {
+                                it.selected &&
+                                    it.confirmState == SplitImportConfirmState.PENDING
                             }
-                        }
-                        val firstDraft = confirmList.mapNotNull { it.splitDraftId }.firstOrNull()
-                        if (firstDraft != null) {
-                            onOpenDraft(firstDraft)
+                            .sortedBy { it.questionOrdinal }
+                            .firstNotNullOfOrNull { it.splitDraftId }
+                        if (nextDraftId != null) {
+                            onOpenDraft(nextDraftId)
                         } else {
+                            // 没有可打开的未提交题：勾选的都交完了（或压根没有可打开的草稿），
+                            // 这个任务在复核页收尾。
                             repository.complete(reviewableJob.jobId, System.currentTimeMillis())
                         }
                     }
@@ -226,11 +222,16 @@ fun SplitImportReviewRoute(
 private fun SplitQuestionCard(
     ordinal: Int,
     selected: Boolean,
-    confirmed: Boolean,
+    confirmState: String,
     sourceUri: String?,
     question: SplitImportQuestionSummary,
     onToggle: () -> Unit,
 ) {
+    // 「已录入」只看真实回执（T4/AUD-03）：只有 SAVED 才算进了错题本，PENDING 如实写「待提交」。
+    // TUTOR_SESSION / REJECTED 今天没有生产写入方，它们既不是「已录入」也不冒充「待提交」，
+    // 只留未录入的图标；将来真写入时这条映射要一起改。
+    val saved = confirmState == SplitImportConfirmState.SAVED
+    val pending = confirmState == SplitImportConfirmState.PENDING
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -264,23 +265,23 @@ private fun SplitQuestionCard(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                 )
-                if (confirmed) {
+                if (saved || pending) {
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = "已录入",
-                        color = JadeActive,
+                        text = if (saved) "已录入" else "待提交",
+                        color = if (saved) JadeActive else InkSecondary,
                         style = MaterialTheme.typography.labelSmall,
                     )
                 }
             }
             Icon(
-                imageVector = if (confirmed) {
+                imageVector = if (saved) {
                     Icons.Outlined.CheckCircle
                 } else {
                     Icons.AutoMirrored.Outlined.KeyboardArrowRight
                 },
                 contentDescription = null,
-                tint = if (confirmed) JadeActive else InkSecondary,
+                tint = if (saved) JadeActive else InkSecondary,
                 modifier = Modifier.size(18.dp),
             )
         }

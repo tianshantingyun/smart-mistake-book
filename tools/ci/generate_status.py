@@ -3,6 +3,14 @@
 
 Values that have no measurement source are rendered as NOT_MEASURED,
 never as fabricated numbers (acceptance-audit 4.2 requirement).
+
+AUD-15（2026-10-15）再加两条口径：
+
+- **证据必须属于这一版源码**。`build/` 里留着上一轮编译出来的 `.class`/`.jar` 和 lint XML
+  是常态：只看"文件存在"就报 OK，等于把上一版源码的产物记成这一版源码的证据。编译证据
+  要求产物晚于本模块源码，lint 报告同样；证据不成立一律 NOT_MEASURED。
+- **run 上下文必须绑到一次真实运行**。`COMMIT_SHA`/`BRANCH` 由 CI 传入并与 git HEAD 核对，
+  拿不到就显式写 `unknown`，且 Overall 不判 PASS。
 """
 
 from __future__ import annotations
@@ -29,6 +37,22 @@ MODULES = [
     ":core:domain",
     ":feature:library",
     ":feature:capture",
+    ":feature:tutor",
+]
+
+# 与 `.github/workflows/android-check.yml` 的 Lint 步骤同一份清单（那里的原话：一个模块
+# 没被点名就永远不会被检查）。`lint<Flavor>Debug` 只匹配 :app——它是唯一有 product flavor
+# 的模块——所以库模块的 NewApi/RestrictedApi 在过去无人看见（KD-11/KD-12 登记过），状态页
+# 也从来没显示过它们。两处要一起改。
+LINT_LIBRARY_MODULES = [
+    ":core:data",
+    ":core:database",
+    ":core:export",
+    ":core:ui",
+    ":feature:capture",
+    ":feature:library",
+    ":feature:profile",
+    ":feature:review",
     ":feature:tutor",
 ]
 
@@ -78,14 +102,56 @@ def apk_outputs() -> dict[str, Path]:
     return results
 
 
-def lint_report(variant: str) -> tuple[int, int]:
-    report = gradle_dir(":app") / "build" / "reports" / f"lint-results-{variant}.xml"
+def newest_stamp(root: Path, pattern: str) -> float | None:
+    """root 下匹配 pattern 的文件里最新的 mtime；没有则 None。"""
+    if not root.exists():
+        return None
+    newest: float | None = None
+    for path in root.rglob(pattern):
+        if not path.is_file():
+            continue
+        stamp = path.stat().st_mtime
+        if newest is None or stamp > newest:
+            newest = stamp
+    return newest
+
+
+def source_stamp(module: str) -> float | None:
+    """本模块源码（含测试源）的最新 mtime，作为"这一版源码"的时间戳。"""
+    return newest_stamp(gradle_dir(module) / "src", "*")
+
+
+def format_stamp(stamp: float | None) -> str:
+    return datetime.fromtimestamp(stamp).strftime("%m-%d %H:%M") if stamp else "?"
+
+
+def staleness_reason(artifact: float | None, module: str, kind: str) -> str:
+    """空串表示证据可用；否则给出为什么不能用。
+
+    产物存在但**早于源码**时，它是上一版源码的产物——不能报成本次的证据（AUD-15：
+    旧 classes/APK/XML 不能报本次 OK）。取不到源码时同样不认。
+    """
+    if artifact is None:
+        return f"无{kind}"
+    sources = source_stamp(module)
+    if sources is None:
+        return f"无源码可对照（{kind}无法归属到这一版）"
+    if artifact < sources:
+        return f"{kind}早于源码（{format_stamp(artifact)} < 源码 {format_stamp(sources)}）"
+    return ""
+
+
+def lint_counts(module: str, report: Path) -> tuple[tuple[int, int] | None, str]:
+    """(errors, warnings)，或 (None, 原因)。报告缺/过期/解析失败都算没有证据。"""
     if not report.exists():
-        return -1, -1
+        return None, "无 lint 报告"
+    reason = staleness_reason(report.stat().st_mtime, module, "lint 报告")
+    if reason:
+        return None, reason
     try:
         root = ET.parse(report).getroot()
     except ET.ParseError:
-        return -1, -1
+        return None, "lint 报告解析失败"
     errors = warnings = 0
     for issue in root.iter("issue"):
         severity = issue.get("severity", "")
@@ -93,30 +159,96 @@ def lint_report(variant: str) -> tuple[int, int]:
             errors += 1
         elif severity == "Warning":
             warnings += 1
-    return errors, warnings
+    return (errors, warnings), ""
 
 
-def compile_status(module: str) -> str:
+def lint_summary() -> tuple[dict[str, str], bool | None, list[str]]:
+    """app 两个变体 + 全部 Android 库模块的 lint 证据 →（模板值, 三值判定, 无证据原因）。
+
+    三值判定：True = 每份报告都在且 0 error；False = 有报告但红了；None = 有模块没有可用
+    报告（"没测"绝不等于"通过"）。库模块逐模块列出，让"某个库的 lint 结果不可见"这件事
+    在页面上看得出来，而不是被两条 app 行盖住。
+    """
+    values: dict[str, str] = {}
+    notes: list[str] = []
+    errors = warnings = 0
+
+    for variant, key in (("localFirstDebug", "LINT_LOCAL_FIRST"), ("strictOfflineDebug", "LINT_STRICT_OFFLINE")):
+        report = gradle_dir(":app") / "build" / "reports" / f"lint-results-{variant}.xml"
+        counts, reason = lint_counts(":app", report)
+        if counts is None:
+            values[f"{key}_STATUS"] = NOT_MEASURED
+            values[f"{key}_ERRORS"] = NOT_MEASURED
+            values[f"{key}_WARNINGS"] = NOT_MEASURED
+            notes.append(f"`{variant}`：{reason}")
+            continue
+        variant_errors, variant_warnings = counts
+        errors += variant_errors
+        warnings += variant_warnings
+        values[f"{key}_STATUS"] = "OK" if variant_errors == 0 else "FAIL"
+        values[f"{key}_ERRORS"] = str(variant_errors)
+        values[f"{key}_WARNINGS"] = str(variant_warnings)
+
+    rows: list[str] = []
+    for module in LINT_LIBRARY_MODULES:
+        report = gradle_dir(module) / "build" / "reports" / "lint-results-debug.xml"
+        counts, reason = lint_counts(module, report)
+        if counts is None:
+            rows.append(f"| `{module}` | {NOT_MEASURED} | {NOT_MEASURED} | {NOT_MEASURED} |")
+            notes.append(f"`{module}`：{reason}")
+            continue
+        module_errors, module_warnings = counts
+        errors += module_errors
+        warnings += module_warnings
+        rows.append(f"| `{module}` | {'OK' if module_errors == 0 else 'FAIL'} | {module_errors} | {module_warnings} |")
+    values["LINT_LIBRARY_ROWS"] = "\n".join(rows)
+
+    if notes:
+        ok: bool | None = None
+        values["LINT_LIBRARY_STATUS"] = NOT_MEASURED
+        values["LINT_LIBRARY_ERRORS"] = NOT_MEASURED
+        values["LINT_LIBRARY_WARNINGS"] = NOT_MEASURED
+        values["LINT_LIBRARY_NOTE"] = (
+            "以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：" + "；".join(notes)
+        )
+    else:
+        ok = errors == 0
+        values["LINT_LIBRARY_STATUS"] = "OK" if ok else "FAIL"
+        values["LINT_LIBRARY_ERRORS"] = str(errors)
+        values["LINT_LIBRARY_WARNINGS"] = str(warnings)
+        values["LINT_LIBRARY_NOTE"] = (
+            f"{len(LINT_LIBRARY_MODULES) + 2} 份报告（app 2 变体 + {len(LINT_LIBRARY_MODULES)} 个 Android 库模块）"
+            f"都在且不早于各自源码；错误合计 {errors}。"
+        )
+    return values, ok, notes
+
+
+def compile_status(module: str) -> tuple[str, str]:
+    """(Status, 原因)。只有"产物晚于本模块源码"才算编译通过。
+
+    见模块头 AUD-15 一条：留着上一轮的 `.class`/`.jar` 不是证据。
+    """
     base = gradle_dir(module) / "build"
-    classes = base / "classes"
-    if classes.exists() and any(classes.rglob("*.class")):
-        return "OK"
-    # AGP modules package compiled classes into intermediates JARs instead
-    # of loose .class files under build/classes.
-    for name in ("compile_library_classes_jar", "compile_app_classes_jar"):
-        candidate = base / "intermediates" / name
-        if candidate.exists() and any(candidate.rglob("*.jar")):
-            return "OK"
-    return NOT_MEASURED
+    stamps = [
+        stamp
+        for stamp in (
+            newest_stamp(base / "classes", "*.class"),
+            # AGP 模块把编译结果打成 intermediates 里的 JAR，而不是 build/classes 下的散 class。
+            newest_stamp(base / "intermediates" / "compile_library_classes_jar", "*.jar"),
+            newest_stamp(base / "intermediates" / "compile_app_classes_jar", "*.jar"),
+        )
+        if stamp is not None
+    ]
+    if not stamps:
+        return NOT_MEASURED, "无编译产物"
+    reason = staleness_reason(max(stamps), module, "类产物")
+    return (NOT_MEASURED, reason) if reason else ("OK", "")
 
 
-def app_compile_status(variant: str) -> str:
-    jar_dir = (
-        gradle_dir(":app") / "build" / "intermediates" / "compile_app_classes_jar" / variant
-    )
-    if jar_dir.exists() and any(jar_dir.rglob("*.jar")):
-        return "OK"
-    return NOT_MEASURED
+def app_variant_evidence(variant: str) -> tuple[str, str]:
+    jar_dir = gradle_dir(":app") / "build" / "intermediates" / "compile_app_classes_jar" / variant
+    reason = staleness_reason(newest_stamp(jar_dir, "*.jar"), ":app", "类产物")
+    return (NOT_MEASURED, reason) if reason else ("OK", "")
 
 
 def coverage_reports(module: str) -> list[Path]:
@@ -279,6 +411,87 @@ def benchmark_metrics_text() -> str:
         return NOT_MEASURED
 
 
+def git_output(*args: str) -> str | None:
+    """git 命令的 stdout；无 git、非零退出、超时都只是"拿不到"，不抛。"""
+    try:
+        proc = subprocess.run(
+            ["git", *args], cwd=REPO, capture_output=True, text=True, timeout=60,
+        )
+    except Exception:  # noqa: BLE001
+        return None
+    if proc.returncode != 0:
+        return None
+    return proc.stdout.strip() or None
+
+
+def run_context() -> tuple[dict[str, str], bool]:
+    """(模板值, 上下文是否绑定)。
+
+    过去这里是写死的占位符（sha=`local`、branch=`unknown`）：一张不知道对应哪个提交的报表，
+    与"门全绿这个数字本身不携带对应哪版权威表"（kb_authority_shas 登记的那族）是同一个毛病。
+    现在：CI 传入的 COMMIT_SHA/BRANCH 优先，并与 git HEAD 核对；读不到就显式写 `unknown`，
+    绑定失败会经 [run_context_bound] 让 Overall 不判 PASS。
+    """
+    declared_sha = os.environ.get("COMMIT_SHA", "").strip()
+    declared_branch = os.environ.get("BRANCH", "").strip()
+    head_sha = git_output("rev-parse", "HEAD")
+    head_branch = git_output("rev-parse", "--abbrev-ref", "HEAD")
+
+    notes: list[str] = []
+    sha = declared_sha or head_sha or ""
+    if not sha:
+        notes.append("sha 拿不到（无 COMMIT_SHA，也读不到 git HEAD）")
+    elif declared_sha and head_sha and declared_sha != head_sha:
+        notes.append(f"COMMIT_SHA={declared_sha[:12]} 与 git HEAD={head_sha[:12]} 不一致")
+    branch = declared_branch or head_branch or ""
+    if not branch:
+        notes.append("branch 拿不到（无 BRANCH，也读不到 git HEAD 的分支）")
+
+    if declared_sha and head_sha:
+        sha_source = "CI 变量，与 git HEAD 一致"
+    elif declared_sha:
+        sha_source = "CI 变量（无 git 可核对）"
+    else:
+        sha_source = "git HEAD"
+    triggered_by = os.environ.get("TRIGGERED_BY", "").strip() or "unknown"
+
+    bound = not notes
+    values = {
+        "COMMIT_SHA": sha or "unknown",
+        "BRANCH": branch or "unknown",
+        "TRIGGERED_BY": triggered_by,
+        "RUN_CONTEXT": (
+            f"BOUND · sha `{sha[:12]}`（{sha_source}） · branch `{branch}` · 触发 {triggered_by}"
+            if bound
+            else "UNBOUND（" + "；".join(notes) + "）—— Overall 不判 PASS"
+        ),
+    }
+    return values, bound
+
+
+def job_flag() -> bool | None:
+    """CI 用 `JOB_STATUS: ${{ job.status }}` 显式传入；本地直接跑就没有这个变量。
+
+    原先是 `os.environ.get("JOB_STATUS", "success")`——缺省 "success" 让"没测到"变成了
+    "测过且绿"，本地运行或环境变量意外丢失时 Overall 会被抬成 PASS。没有就是 None（没测）。
+    """
+    status = os.environ.get("JOB_STATUS", "").strip()
+    return None if not status else status.lower() == "success"
+
+
+def overall_status(flags: list[bool | None]) -> str:
+    """三值汇总：有红即 FAIL；没有红但有"没测"即 NOT_MEASURED；全绿且全部测到才 PASS。
+
+    "拿不到"绝不当成"通过"：run 上下文未绑定（False）会直接判 FAIL，缺证据（None）会把
+    PASS 挡成 NOT_MEASURED。
+    """
+    if any(flag is False for flag in flags):
+        return "FAIL"
+    if any(flag is None for flag in flags):
+        return NOT_MEASURED
+    return "PASS"
+
+
 def main() -> int:
     if not TEMPLATE.exists():
         print(f"template missing: {TEMPLATE}", file=sys.stderr)
@@ -287,12 +500,12 @@ def main() -> int:
 
     values: dict[str, str] = {}
 
-    values["COMMIT_SHA"] = os.environ.get("COMMIT_SHA", "local")
+    context_values, run_context_bound = run_context()
+    values.update(context_values)
     values["BUILD_DATE"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    values["BRANCH"] = os.environ.get("BRANCH", "unknown")
-    values["TRIGGERED_BY"] = os.environ.get("TRIGGERED_BY", "manual")
     values["GENERATION_TIMESTAMP"] = datetime.now(timezone.utc).isoformat()
 
+    compile_notes: list[str] = []
     for module in MODULES:
         key = module.lstrip(":").replace(":", "_").upper()
         total, passed, failed = summarize_tests(module)
@@ -306,24 +519,32 @@ def main() -> int:
             values[f"{key}_TEST_PASSED"] = NOT_MEASURED
             values[f"{key}_TEST_FAILED"] = NOT_MEASURED
             values[f"{key}_TEST_DURATION"] = NOT_MEASURED
-        values[f"{key}_STATUS"] = compile_status(module)
+        status, reason = compile_status(module)
+        values[f"{key}_STATUS"] = status
+        if reason:
+            compile_notes.append(f"`{module}`：{reason}")
         values[f"{key}_DURATION"] = "-"
 
-    values["APP_LOCAL_FIRST_STATUS"] = app_compile_status("localFirstDebug")
-    values["APP_LOCAL_FIRST_DURATION"] = "-"
-    values["APP_STRICT_OFFLINE_STATUS"] = app_compile_status("strictOfflineDebug")
-    values["APP_STRICT_OFFLINE_DURATION"] = "-"
+    for variant, key in (("localFirstDebug", "APP_LOCAL_FIRST"), ("strictOfflineDebug", "APP_STRICT_OFFLINE")):
+        status, reason = app_variant_evidence(variant)
+        values[f"{key}_STATUS"] = status
+        if reason:
+            compile_notes.append(f"`:app:{variant}`：{reason}")
+        values[f"{key}_DURATION"] = "-"
 
-    for variant, key in (("localFirstDebug", "LINT_LOCAL_FIRST"), ("strictOfflineDebug", "LINT_STRICT_OFFLINE")):
-        errors, warnings = lint_report(variant)
-        if errors < 0:
-            values[f"{key}_STATUS"] = NOT_MEASURED
-            values[f"{key}_ERRORS"] = NOT_MEASURED
-            values[f"{key}_WARNINGS"] = NOT_MEASURED
-        else:
-            values[f"{key}_STATUS"] = "OK"
-            values[f"{key}_ERRORS"] = str(errors)
-            values[f"{key}_WARNINGS"] = str(warnings)
+    # 编译证据的判定：全新鲜 → True；有位置无证据 → None（没测不等于通过）。这个脚本看不到
+    # "编译失败"本身——失败留下的就是无产物/旧产物，所以它只会降级到 NOT_MEASURED，不会变成红。
+    compile_ok: bool | None = True if not compile_notes else None
+    values["COMPILE_EVIDENCE_NOTE"] = (
+        f"编译证据（要求产物晚于本模块源码）：{len(MODULES) + 2} 个模块/变体全部新鲜。"
+        if not compile_notes
+        else "编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— " + "；".join(compile_notes)
+    )
+
+    # Lint：app 两个变体 + 全部 Android 库模块（原先只读 app 变体，库模块的 NewApi 在页面上
+    # 完全不可见，见 LINT_LIBRARY_MODULES 的说明）。
+    lint_values, lint_ok, _lint_notes = lint_summary()
+    values.update(lint_values)
 
     # Coverage: only modules with a coverage XML render values; the rest stay
     # NOT_MEASURED. JVM modules use Kover, Android libraries the AGP+Jacoco
@@ -389,14 +610,24 @@ def main() -> int:
     values["TOOLS_TESTS_FAILED"] = tools_failed
     values["BENCHMARK_METRICS"] = benchmark_metrics_text()
 
-    job_ok = os.environ.get("JOB_STATUS", "success") == "success"
-    overall = "PASS" if (job_ok and gates_ok and tools_ok) else "FAIL"
+    # JOB_STATUS 没有缺省值：CI 用 `JOB_STATUS: ${{ job.status }}` 显式传入，本地跑就没有。
+    job_ok = job_flag()
+
+    def verdict(flag: bool | None) -> str:
+        return "OK" if flag is True else (NOT_MEASURED if flag is None else "FAIL")
+
+    # 三值：有红即 FAIL；没有红但有"没测"即 NOT_MEASURED；全绿且全部测到才 PASS。
+    # "拿不到"绝不当成"通过"——run 上下文拿不到时这一条就会把 PASS 挡掉。
+    overall = overall_status([job_ok, gates_ok, tools_ok, lint_ok, compile_ok, run_context_bound])
     values["OVERALL_STATUS"] = overall
     values["OVERALL_BREAKDOWN"] = " · ".join((
-        f"build job: {'OK' if job_ok else 'FAIL'}",
+        f"build job: {verdict(job_ok)}",
         f"KB gates: {'all OK' if gates_ok else f'{gates_ok_count}/{gates_total} OK or crashed'}",
         f"tools tests: {tools_passed}/{tools_total} passed"
         if tools_ok else f"tools tests: {tools_failed}/{tools_total} failed or run failed",
+        f"lint（app 2 变体 + {len(LINT_LIBRARY_MODULES)} 个库模块）: {verdict(lint_ok)}",
+        f"compile evidence: {verdict(compile_ok)}",
+        f"run context: {'BOUND' if run_context_bound else 'UNBOUND'}",
     ))
 
     # Known measurements first, then anything still unresolved in the

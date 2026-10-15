@@ -81,6 +81,20 @@ internal interface SplitImportDao {
     @Query("SELECT * FROM split_import_question WHERE job_id = :jobId ORDER BY question_ordinal")
     suspend fun readQuestions(jobId: String): List<SplitImportQuestionEntity>
 
+    /**
+     * 提交回执的反查口：一份草稿属于哪道切分题。`split_draft_id` 上有索引，这条是按点查写的。
+     * 同一份草稿理论上只挂一道题（预建草稿与题一一对应），仍取最小编号以保证结果稳定。
+     */
+    @Query(
+        """
+        SELECT * FROM split_import_question
+        WHERE split_draft_id = :splitDraftId
+        ORDER BY job_id, question_ordinal
+        LIMIT 1
+        """,
+    )
+    suspend fun readQuestionBySplitDraftId(splitDraftId: String): SplitImportQuestionEntity?
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertJob(job: SplitImportJobEntity)
 

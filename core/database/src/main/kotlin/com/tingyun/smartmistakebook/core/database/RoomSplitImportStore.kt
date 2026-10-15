@@ -105,6 +105,46 @@ internal class RoomSplitImportStore(
         changed
     }
 
+    /**
+     * 切分台账的**提交回执**：按草稿反查被切出来的那道题并置 SAVED（幂等）。
+     *
+     * 与 [markQuestionConfirmed] 的两点不同，都是这条链的语义要求：
+     *
+     * - 不要求任务还是 READY。回执到达时任务可能已经被学生先收尾了；压掉一笔真实入库的
+     *   回执，留下的是"题已经进错题本、复核页还写着待提交"的假象。
+     * - 不要求调用方知道 (jobId, 题号)：只有草稿 id 是提交侧知道的东西。任务级动作仍走上面那条。
+     *
+     * 草稿反查不中返回 false——不是切分来的草稿，这一笔本来就不该有。
+     */
+    suspend fun markQuestionSavedByDraftId(
+        splitDraftId: String,
+        occurredAtEpochMillis: Long,
+    ): Boolean = database.withWriteTransaction {
+        require(splitDraftId.isNotBlank()) { "Split draft id must not be blank" }
+        val dao = database.splitImportDao()
+        val question = dao.readQuestionBySplitDraftId(splitDraftId)
+            ?: return@withWriteTransaction false
+        if (question.confirmState == StudyDbValue.SplitImportConfirmState.SAVED) {
+            return@withWriteTransaction true
+        }
+        val changed = dao.updateConfirmState(
+            question.jobId,
+            question.questionOrdinal,
+            StudyDbValue.SplitImportConfirmState.SAVED,
+            question.splitDraftId,
+        ) == 1
+        if (changed) dao.touchJob(question.jobId, occurredAtEpochMillis)
+        changed
+    }
+
+    /** 按草稿反查它所属的分题任务（含全部题）；不是切分来的草稿返回 null。 */
+    suspend fun readBySplitDraftId(splitDraftId: String): SplitImportJobRecord? {
+        require(splitDraftId.isNotBlank()) { "Split draft id must not be blank" }
+        val dao = database.splitImportDao()
+        val question = dao.readQuestionBySplitDraftId(splitDraftId) ?: return null
+        return dao.readJobWithQuestions(question.jobId)?.toRecord()
+    }
+
     suspend fun markReady(
         jobId: String,
         questionCount: Int,

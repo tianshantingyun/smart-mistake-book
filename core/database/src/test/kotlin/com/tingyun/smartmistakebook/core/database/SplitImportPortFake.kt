@@ -154,6 +154,29 @@ class SplitImportPortFake : SplitImportPort {
         return true
     }
 
+    override suspend fun markSplitImportQuestionSavedByDraftId(
+        splitDraftId: String,
+        occurredAtEpochMillis: Long,
+    ): Boolean {
+        val jobId = jobs.keys.firstOrNull { id ->
+            questionsByJob.getValue(id).any { it.splitDraftId == splitDraftId }
+        } ?: return false
+        val qs = questionsByJob.getValue(jobId)
+        val index = qs.indexOfFirst { it.splitDraftId == splitDraftId }
+        if (qs[index].confirmState != StudyDbValue.SplitImportConfirmState.SAVED) {
+            qs[index] = qs[index].copy(confirmState = StudyDbValue.SplitImportConfirmState.SAVED)
+            jobs[jobId] = jobs.getValue(jobId).copy(updatedAtEpochMillis = occurredAtEpochMillis)
+        }
+        return true
+    }
+
+    override suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord? {
+        val jobId = jobs.keys.firstOrNull { id ->
+            questionsByJob.getValue(id).any { it.splitDraftId == splitDraftId }
+        } ?: return null
+        return rebuild(jobId)
+    }
+
     override suspend fun completeSplitImportJob(
         jobId: String,
         occurredAtEpochMillis: Long,

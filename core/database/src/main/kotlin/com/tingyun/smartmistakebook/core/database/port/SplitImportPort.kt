@@ -44,6 +44,18 @@ interface SplitImportPort {
         occurredAtEpochMillis: Long,
     ): Boolean
 
+    /**
+     * 提交回执：按草稿反查被切出来的那道题并置 SAVED（幂等）。提交侧只知道草稿 id，
+     * 也知道任务可能已被收尾，所以这条不要求任务处于 READY（详见 RoomSplitImportStore）。
+     */
+    suspend fun markSplitImportQuestionSavedByDraftId(
+        splitDraftId: String,
+        occurredAtEpochMillis: Long,
+    ): Boolean
+
+    /** 按草稿反查它所属的分题任务（含全部题）；不是切分来的草稿返回 null。 */
+    suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord?
+
     suspend fun completeSplitImportJob(jobId: String, occurredAtEpochMillis: Long): Boolean
 
     suspend fun abandonSplitImportJob(jobId: String, occurredAtEpochMillis: Long): Boolean

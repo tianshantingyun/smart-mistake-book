@@ -42,6 +42,7 @@ import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.CaptureWritingLayer
 import com.tingyun.smartmistakebook.core.domain.PendingCaptureItem
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.SplitImportCommitReceipts
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.CaptureDraftEditorMode
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentDecision
@@ -94,6 +95,14 @@ fun CaptureScreen(
     modelEgressAllowed: Boolean = false,
     /** 本机已保存过模型配置：设置引导据此区分"去配置"与"去完成能力测试"。 */
     modelConfigured: Boolean = false,
+    /**
+     * 切分台账的提交回执口（T4/AUD-03）：走切分复核那条流水（`CaptureResume`）时给，
+     * 其余入口保持 null——没有它，这个页面与从前逐字相同。界面层按依赖方向看不见
+     * `split_import_question`，只认这个窄接口。
+     */
+    splitImportReceipts: SplitImportCommitReceipts? = null,
+    /** 本题入库后同一分题任务里还有未提交的题：交出下一题的草稿 id（逐题续做）。 */
+    onOpenNextSplitQuestion: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -385,6 +394,22 @@ fun CaptureScreen(
             currentRevisionNumber = state.draftRevisionNumber,
             savedEntryId = workflowUiState.workflow.savedEntryId,
         )
+    }
+
+    // 逐题续做（T4/AUD-03）：本题的草稿真的入库了（只有 LIBRARY 提交成功才会置上
+    // committedEntryId），而同一分题任务里还有未提交的题，就直接进下一题——学生勾了一页里的
+    // 多道题、按下「录入所选」，要的是一道接一道录完，不是录完第一题就停在原地。
+    //
+    // 判据挂在可保存的 committedEntryId 上而不是一次性的界面事件上：提交成功后、界面还没来得及
+    // 处理时被杀进程，恢复回来这条判定照旧跑一次。普通录入没有下一题（或压根没接切分台账），
+    // 这里什么也不发生。
+    LaunchedEffect(state.committedEntryId, state.draftId) {
+        val committedDraftId = state.draftId ?: return@LaunchedEffect
+        if (state.committedEntryId == null) return@LaunchedEffect
+        val nextDraftId = splitImportReceipts
+            ?.readNextUnsubmittedDraft(committedDraftId)
+            ?: return@LaunchedEffect
+        onOpenNextSplitQuestion(nextDraftId)
     }
 
     LaunchedEffect(workflowUiState.confirmedTutorSession?.sessionId) {

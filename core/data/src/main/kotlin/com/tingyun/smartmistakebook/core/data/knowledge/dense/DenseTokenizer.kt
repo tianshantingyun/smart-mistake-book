@@ -162,7 +162,7 @@ internal class DenseTokenizer(
     }
 
     internal fun wordPiece(piece: String): List<Int> {
-        val codePoints = piece.codePoints().toArray()
+        val codePoints = codePointsOf(piece)
         if (codePoints.size > MAX_INPUT_CHARS_PER_WORD) return listOf(unkId)
         val out = ArrayList<Int>(codePoints.size)
         var start = 0
@@ -186,6 +186,30 @@ internal class DenseTokenizer(
             start = end
         }
         return out
+    }
+
+    /**
+     * 逐码点切分，语义与 `String.codePoints()` 相同：成对代理合成**一个**码点，落单的代理
+     * 各按一个码点算（`Character.charCount` 在两种情形下分别是 2 / 1，正是它把这两种情形
+     * 区分开的）。
+     *
+     * 为什么不用 `piece.codePoints()`：它是 `java.lang.CharSequence` 上 API 24 才有的默认
+     * 方法，minSdk 23 的设备上没有实现，也不在本模块 core library desugaring 的替换范围内
+     * （`:core:data:lintDebug` 对旧写法报 NewApi 错误就是这条），真机上会
+     * `NoSuchMethodError`。手写扫描用的 `String.codePointAt` / `Character.charCount` 都是
+     * API 1，且与 `codePoints()` 同一套算法。
+     */
+    private fun codePointsOf(text: String): IntArray {
+        // 码点数 ≤ 码元数，先按码元数开数组，最后按实际长度收口（避免一次装箱 List）。
+        val codePoints = IntArray(text.length)
+        var count = 0
+        var index = 0
+        while (index < text.length) {
+            val codePoint = text.codePointAt(index)
+            codePoints[count++] = codePoint
+            index += Character.charCount(codePoint)
+        }
+        return if (count == codePoints.size) codePoints else codePoints.copyOf(count)
     }
 }
 

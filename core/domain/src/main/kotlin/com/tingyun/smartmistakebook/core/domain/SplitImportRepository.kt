@@ -54,8 +54,11 @@ object SplitImportConfirmState {
  * Cut-one-import-into-questions ledger for whole-page / whole-PDF imports.
  * This interface intentionally depends only on the domain layer so the UI
  * never touches concrete database records.
+ *
+ * [SplitImportCommitReceipts] 是本台账的**窄口**（提交回执 + 逐题续做）：录入流按依赖方向
+ * 只该看见那两条，任务级的检索/收尾留在这里。
  */
-interface SplitImportRepository {
+interface SplitImportRepository : SplitImportCommitReceipts {
     fun observeActiveImports(): Flow<List<SplitImportJobSummary>>
 
     suspend fun readImport(jobId: String): SplitImportJobSummary?

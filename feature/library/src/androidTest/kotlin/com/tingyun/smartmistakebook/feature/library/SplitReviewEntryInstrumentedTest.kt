@@ -267,6 +267,13 @@ private class FakeSplitImportRepository(
         occurredAtEpochMillis: Long,
     ): Boolean = true
 
+    override suspend fun recordCommittedDraft(
+        splitDraftId: String,
+        occurredAtEpochMillis: Long,
+    ): Boolean = true
+
+    override suspend fun readNextUnsubmittedDraft(splitDraftId: String): String? = null
+
     override suspend fun complete(jobId: String, occurredAtEpochMillis: Long): Boolean = true
 
     override suspend fun abandon(jobId: String, occurredAtEpochMillis: Long): Boolean = true
