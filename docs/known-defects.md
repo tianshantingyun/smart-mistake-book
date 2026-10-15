@@ -1388,6 +1388,28 @@ attempt_count=1）——"按新口径失败可重试"没有出现；本轮无 cu
 不构成本条重开（无法证明是截断形态）。另观测到第 8 个 draft-583b094e（复用 page5 资源）的
 `CAPTURE_PARSE` 以 `PROVIDER_REJECTED_INPUT`（"题图检查未通过"）失败，一并记录、不归因。
 
+**2026-10-15/16 补记（本批九轨，工作树未提交）· 与本条相关的现状（四处变化、三处未动）：**
+
+- **失败上报唯一口 + 新增落点（T2）**：网关 7 处失败点改为唯一上报口 `reportModelCallFailure`——`execution` catch 5 处
+  （timeout / IOException / Incomplete / Invalid / IllegalArgument，`OpenAiCompatibleModelGateway.kt:271-291`）、终态解析 2 处，
+  以及**此前完全没有落点**的上游非 2xx 分支（现在带上 `httpStatus` 与错误响应体，`:388-417` / `:424-448`）；
+  日志行行为逐字不变（`error` 为 null 时不记，与改前一致）。另建默认关闭的诊断缝 `ModelCallFailureDiagnostics.sink`
+  （`ModelCallFailureDiagnostics.kt:37-70`）与 debug 专用写入实现（开关广播 `TEST_CAPTURE_MODEL_FAILURES`），
+  目的正是取本条第①类失败的原文——本轮设备段被配额阻断、**未取样**（见下）。
+- **新增一路可重试映射（KD-38③，与本条的四类映射并列）**：`OUTPUT_BUDGET_EXCEEDED` ＝
+  `ModelFailureCode.INCOMPLETE_OUTPUT` + `retryable=true`（`OpenAiCompatibleModelGateway.kt:891-895`），
+  catch 位置在 `IllegalArgumentException → INVALID_RESPONSE` 之前（`:281-285` / `:441-452` 对照 `:289-291`）——
+  **本条建立的四类映射语义不变**（形状错误仍不可重试）。
+- **未覆盖项 ③ 现在也覆盖「超预算」这一类（本轮记录者读码复核）**：派遣预算用满后 retryable 仍被改写成
+  `PERMANENT_FAILURE`（`RoomModelTaskRepository.kt:730-744`），与截断同源。
+- **未覆盖项 ①（三协议族）本轮未动**：`AnthropicMessagesProtocol.kt` / `GeminiGenerateContentProtocol.kt` /
+  `OpenAiResponsesProtocol.kt` 本批 `git status` 无改动（本轮记录者实测），① 的三条残留维持原状。
+- **未覆盖项 ⑥ 的残留未动**：`ModelTaskTransactionDao.kt` 本批无改动（`ModelTaskStatus.valueOf` / `ModelTaskStage.valueOf`
+  仍是裸 `valueOf`），本轮记录者实测确认。
+- **未覆盖项 ④（流式 `tool_calls` 轮 `content=null`）**：本批无相关改动，是否真实发生仍未验证。
+- **文案侧面（与 KD-38 剩余项同源）**：`AppFailure.kt:240` / `:258` 把 `INCOMPLETE_OUTPUT` 一律显示
+  「模型这次没写完」，本批新增的超预算失败码因此复用同一句 UI 文案（持久化 `ModelTaskFailure.message` 才区分）。
+
 **Reopen condition.** 上述未覆盖项被真实观测命中时重开——尤其第二个协议族出现
 "截断却仍判 INVALID_RESPONSE"，或流式 tool_calls 轮被结构性判死时；换用非
 Chat Completions 协议跑分题/整理前，按①补齐。
@@ -1500,6 +1522,20 @@ Chat Completions 协议跑分题/整理前，按①补齐。
 - **③ 低级别残留（维持）**：`OpenAiModelResponseParsers.kt:126-127` 注释仍称模型层兜 questionRegions
   契约（A2 已作废）；`CaptureWorkflowRepository.kt:427` 仍有第三份 `splitDrafts.size in 2..12` 硬编码
   （本节记录者回读确认仍在）。
+
+**2026-10-15/16 补记（本批九轨，工作树未提交）· 三条未闭合项现状：**
+
+- **③ 第一条残留仍在（行号漂移）**：`OpenAiModelResponseParsers.kt:127-128` 的注释仍写「a valid response must satisfy
+  the model-layer contract enforced inside CaptureAssessment」（A2 已把该契约作废）——本批 T1 改动了同一文件
+  （新增短标签截断与注释），但**这处注释未动**；行号由登记的 `:126-127` 漂到 `:127-128`（本轮记录者实测原文）。
+- **③ 第二条残留仍在**：`core/domain/.../CaptureWorkflowRepository.kt:427` 的第三份
+  `require(splitDrafts.size in 2..12)` 仍在（本轮记录者 grep 实测，行号与登记一致）。
+- **① 的 (a)/(b)/(c) 三条未动**：`CaptureAssessmentTasks.kt` 本批 `git status` 无改动（本轮记录者实测）——
+  关系轮 MULTIPLE_QUESTIONS + PASS 仍被通用规则拒、severity=REVIEW 仍被拒、`schemaVersion < 3` 旧分支原样。
+- **② 维持**：旧 INVALID_RESPONSE 边界窗口不被救活（requestId 确定性 + 不可重试 + 终态），本批未动。
+- **本批 T4（AUD-03）改的是同族另一文件**：`core/data/.../capture/RoomCaptureWorkflowRepository.kt` 的提交回执路径
+  （`confirmAndCommit` / `saveTutorSession`），与多页关系判定无关；本条引用的 `RoomBatchImportRepository.kt`、
+  `core/domain/CaptureWorkflowRepository.kt`、`CaptureAssessmentTasks.kt` 本批均未被触碰（行号引用不漂）。
 
 **Reopen condition.** 多页关系轮再次落 INVALID_RESPONSE（尤其模型回 MULTIPLE_QUESTIONS/
 非空 regions 的形态——关系轮的这两条现已容错，见「未闭合项状态」①）；A3① 钉子已可运行
@@ -1633,7 +1669,7 @@ model_task 写入路径上复现。
 
 **Reopen condition.** 提交再次无落库或 UI 无出口；或该锁死形态在机读题（选择题）通道复现。
 
-## KD-37 (open, 2026-10-14 登记（独立复核 medium；读码级，未设备复现）) · 「重新判定」出口存在确定性死路：快照身份稳定而时间戳每次新造
+## KD-37 (fixed 2026-10-15 于快照身份/DAO 层；提交待补（工作树未提交）；设备级 UI 端到端仍未达 —— 见「未达 / 剩余」) · 「重新判定」出口存在确定性死路：快照身份稳定而时间戳每次新造
 
 **Symptom（读码推断，来源：独立复核）.** KD-36 修复新增的「重新判定」出口可能永远不可能成功：
 结算载荷每跑一次都带新的时钟——`occurredAtEpochMillis = System.currentTimeMillis()`
@@ -1657,9 +1693,58 @@ settlement.occurredAtEpochMillis`（`TutorJudgedReviewSettler.kt:127/140`，记�
 **未验证.** 源码分析结论；真实 DAO 的冲突只在 instrumented 环境可见，本次未写设备级复现用例、
 未跑任何复现（独立复核亦标注"未构建设备级复现"）。
 
-**Reopen condition.** n/a —— 本条即 open；关闭条件 = 修好上述死路并有设备级「重试成功」的证据。
+**修法（2026-10-15，本批 T1；工作树未提交、提交待补）.** 时间戳容忍比较：
+`AttemptTransactionDao.saveEvidenceSnapshot`（`AttemptTransactionDao.kt:642-662`）不再用整实体相等判「同一张快照」，
+改调纯函数 `sameEvidenceSnapshotIdentity(existing, existingAttributions, candidate, candidateAttributions)`
+（新文件 `AssessmentEvidenceSnapshotIdentity.kt:23-30`，KDoc `:6-22`）：同 `snapshotId` 且**除 `capturedAtEpochMillis`
+外全部列**相等、归属行列表也相等 ⇒ 复用旧行、返回 false（不抛）；身份/内容/归属真变仍抛
+`ImmutablePayloadConflictException("assessment_evidence_snapshot", …)`（`existing == null` 显式归到「不可复用」，
+与旧行为等价）。先例写法是 `ModelTaskTransactionDao.kt:374` 的 `sameImmutableTutorResponse` / `:385` 的
+`withoutTutorResponseTiming`（「抹掉时序后相等」）；任务书里写的 `AttemptTransactionDao.kt:374-391` 指向的是
+`recordAnswerReveal`（不做时间戳容忍比较），不是先例——T1 已如实标注该指针错位。
 
-## KD-38 (open, 2026-10-15 登记；**下一批任务**） · 讲题计划的动作标签超 32 字符即整轮永久失败
+**验收证据（本批实跑，逐条注来源）.**
+
+- **instrumented（真 Room，设备一实跑）**：
+  `MSYS_NO_PATHCONV=1 ./gradlew :core:database:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class='com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest#reviewRetryReusesTheSnapshotRowWrittenBeforeARolledBackAdvance,com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest#onlyTheCaptureTimeMayDifferWhenTheSameSnapshotIdIsRewritten' --console=plain`
+  → `Starting 2 tests on test_device(AVD) - 14` / `Finished 2 tests`、BUILD SUCCESSFUL in 48s；报告
+  `core/database/build/outputs/androidTest-results/connected/debug/TEST-test_device(AVD) - 14-_core_database-.xml`
+  （2026-10-16 00:27 生成）`tests=2 failures=0 errors=0`，单例 0.408s / 1.611s。用例复现完整死路：写快照（首落 T1）→
+  令 advance 失败（poisoned `reviewQueueItemId`，事务整体回滚）→ 同一 snapshotId 换新时刻 T2 重写（旧代码在此抛冲突）
+  → 重试 `recordReviewAttempt` 成功，ledger 前缀 1 行、attemptEventCount/outboxCount 各 1，回读快照仍是 T1
+  （证明复用旧行、未被新时刻改写）；另一例钉「仍抛」的另一半（只差采集时刻不抛；归属权重变、内容列变仍抛）。
+- **JVM 单测**：`AssessmentEvidenceSnapshotIdentityTest`（4 例：只差采集时刻＝同一张；snapshotId 不同 / 9 个内容列逐一不同 /
+  归属行（含数量）不同＝不是同一张）—— 独立复核实跑
+  `:core:database:testDebugUnitTest --tests "*AssessmentEvidenceSnapshotIdentityTest*"` → tests=4 failures=0 errors=0。
+- **报告与源码级复核（独立核对）**：XML 的 mtime / tests / failures / timestamp / `test-result-exit-code.txt=0` 与
+  `StudyDatabaseInstrumentedTest.kt:911/972` 的断言语义（`:968` `assertEquals(firstCapture, persistedAttempt.assessmentSnapshot.capturedAtEpochMillis)`、
+  `:993` `changedAttribution is ImmutablePayloadConflictException`）逐项吻合；独立核对**未重跑**该仪器化用例（重跑会触发 AGP 卸包清数据）。
+- **本轮记录者实测（2026-10-16）**：两个用例名确实存在于 `StudyDatabaseInstrumentedTest.kt:911/972`；
+  `sameEvidenceSnapshotIdentity` 在 `AttemptTransactionDao.kt:653` 被调用、`:651` 注释写明「时间戳不是快照身份的一部分」；
+  APK `app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk`（205,979,834B、2026-10-15 23:49）
+  sha256=`ecd9e905db6b2540c61f0b3fca838abcfd4c5c583a8e2598cf87aa07da94ea57`，解包后 `sameEvidenceSnapshotIdentity`
+  在 dex 命中 1 次 —— 即设备一安装的那只包确带本修复（设备一的抄录值与独立核对的复算一致）。
+
+**未达 / 剩余（如实）.**
+
+- **设备级 UI 端到端仍未达**：设备一没能走到「完成一次判定结算后连点重新判定 ≥2 次」——opencode zen 周配额耗尽
+  （`GoUsageLimitError` / `limitName=weekly`；应用内能力测试 429 bodyBytes=168，host 直连复现，加 `x-opencode-session`
+  头后仍 429），库内 `problem` / `review_queue_item` / `attempt_submission` / `assessment_evidence_snapshot` /
+  `tutor_conversation` 均 0 行，设备上不存在可触发该按钮的状态。**因此本条原关闭条件里「设备级『重试成功』的证据」
+  一项未满足**；本条的闭合依据是 DAO 层 instrumented 证据，**不等于** UI 端到端「重新判定必成功」。
+- **复用旧行的语义后果（T1 如实标注）**：重试**不改写**已落库快照的 `capturedAtEpochMillis`（保持第一次那份，
+  instrumented 用例已钉住）；若产品希望刷新为重判时刻，需另行裁定。
+- 归属行顺序沿用既有口径（`toAttributionEntities()` 按 bindingId 排序 vs `findAttributions` ORDER BY binding_id），
+  本条只改时间戳这一维。
+- 独立复核结论（读码级 + 其自跑定向用例）：成立——容忍比较只排除 `capturedAtEpochMillis` 一列
+  （`AssessmentEvidenceSnapshotIdentity.kt:29`），其余全部列与归属行仍逐一比较，`existing == null` 也仍抛。
+
+**Reopen condition（2026-10-15 更新；原文保留）.** 原：n/a —— 本条即 open；关闭条件 = 修好上述死路并有设备级
+「重试成功」的证据（设备级一项仍未达，见上）。现：任何入口再次出现「同 snapshotId、新时间戳」的
+`ImmutablePayloadConflictException("assessment_evidence_snapshot")`；或下一批设备段补做「失败 → 重新判定 → 成功」
+走查后仍失败 —— 两者任一成立即按本条重开。
+
+## KD-38 (fixed 2026-10-15，提交待补（工作树未提交）；设备前后对照未达、触发频率仍未取样 —— 见「未达 / 剩余」) · 讲题计划的动作标签超 32 字符即整轮永久失败
 
 **Symptom.** 判定链设备复验时观察到：真实服务商（opencode zen / deepseek-v4.1-flash）对同一道题的
 讲题计划**连续 4 次 INVALID_RESPONSE、第 5 次才成功**；走查者当时抓到一条 logcat
@@ -1680,5 +1765,137 @@ settlement.occurredAtEpochMillis`（`TutorJudgedReviewSettler.kt:127/140`，记�
 一类的语义）而不是 INVALID_RESPONSE。修后补一条"超长标签不再整轮判死"的用例，并在设备上复验
 同一题的成功率变化。
 
-**Reopen condition.** n/a —— 本条即 open；关闭条件 = 修好并有"超长标签不判死"的测试证据。
+**修法（2026-10-15，本批 T1；① 与 ② 同时落地；工作树未提交、提交待补）.**
+
+1. **① 解析期按格式预算收敛短标签**（截断发生在 `distinct()` 之前；构造器**未放松**）：
+   计划/回应两条路由的动作标签 `nextMoves[].label` 取 `TutorSuggestedMove.MAX_LABEL_CHARS`（32）
+   （`OpenAiModelResponseParsers.kt:364`、`:408`）；`targetedEvidenceLabels` / `inferredKnowledgeLabels`
+   取 `TutorKnowledgeEvidence.MAX_LABEL_CHARS`（96）（`:353`/`:357`）；两条路由的题锚词 `anchorTerms`
+   取 `TutorRoundQuestionDeclaration.MAX_ANCHOR_TERM_CHARS`（64）（`:633`/`:646`）。预算常量仍在
+   `TutorTasks.kt:152`（96）、`:207`（32，KDoc 写明「解析期先 take、构造器仍严格校验——它同时守 DB 回读」）、
+   `:683`（64），`requireSafeModelText` 调用原样保留。
+2. **② 提示词声明并 bump 版本**：计划规则 12（`OpenAiModelTaskAdapters.kt:252`）与回应规则 8（`:349`）
+   各补一句预算声明，数值用常量插值（渲染为「label不超过32个字符」）；
+   `ModelPromptPolicyVersions.TUTOR_PLAN` = `tutor-plan-v18-figure-conditional` →
+   **`tutor-plan-v19-move-label-budget`**、`TUTOR_RESPOND` = `tutor-respond-v25-figure-conditional` →
+   **`tutor-respond-v26-move-label-budget`**（`ModelEgress.kt:55`/`:67`，KDoc 追加 v19/v26 变更说明）。
+3. **② 专用异常 + 网关归可重试**：新文件 `ModelTextBudget.kt` 定义
+   `ModelTextBudgetExceededException(message) : IllegalArgumentException`（语义＝这一次输出超出格式预算、重发可换抽样；
+   仍是 IAE 子类，既有 catch 行为不变），`requireSafeModelText` 的超预算分支改抛它
+   （`ModelTasks.kt:1219-1224`），blank/控制字符两条 `require` 留在原类型。网关两处映射新增
+   `catch (ModelTextBudgetExceededException)` → `OUTPUT_BUDGET_EXCEEDED`（`ModelFailureCode.INCOMPLETE_OUTPUT`、
+   `retryable=true`、文案「模型这次输出超出长度预算，可以重试」；`OpenAiCompatibleModelGateway.kt:281-285` 预发送防御性出口、
+   `:441-452` 响应解析出口、常量 `:891-895`），并排在 `catch (IllegalArgumentException) → INVALID_RESPONSE` 之前
+   （`:289-291`）——形状错误仍不可重试。
+
+**验收证据（逐条注来源）.**
+
+- **JVM 定向用例（独立复核实跑）**：`:core:data:testDebugUnitTest --tests "*TutorLabelBudgetTruncationTest*"
+  --tests "*TutorMoveLabelBudgetPromptTest*" --tests "*SmbkArchiveCodecTest*" --tests "*DenseTokenizerParityTest*"`
+  → 3 / 4 / 13 / 7，0 失败；另 `:core:model:test :core:data:testDebugUnitTest :feature:review:testDebugUnitTest
+  --tests "*TutorTasksTest*" --tests "*OpenAiCompatibleModelGatewayTest*" ...` → 63 / 17 / 5 等，0 失败。
+  新增用例名：`TutorLabelBudgetTruncationTest`（97 字知识标签截到 96、66 字锚词截到 64 且仍通过逐字锚绑定本轮题、
+  直接构造 33 字标签仍抛 `ModelTextBudgetExceededException`）；`TutorMoveLabelBudgetPromptTest`（计划/回应两条提示词
+  含「label不超过32个字符」、预算字面量 32、两个版本字面量——提示词一改，钉版本的用例先红）；
+  `OpenAiCompatibleModelGatewayTest` 三条（计划/回应 33 字符标签截断后整轮成功、正文级超预算 messageMarkdown > 12000
+  → 可重试 INCOMPLETE_OUTPUT）。
+- **包内确带修复（设备一 dex 扫描 + 独立核对复算 + 本轮记录者复算）**：APK sha256 同上（与 KD-37 同一只包）；
+  dex 命中 `ModelTextBudgetExceededException` ×2、`tutor-plan-v19-move-label-budget` ×2、
+  `tutor-respond-v26-move-label-budget` ×2、`exceeds budget` ×8、`OUTPUT_BUDGET_EXCEEDED` ×2
+  （前四串为设备一/独立核对的读数，`OUTPUT_BUDGET_EXCEEDED` 与 8 次 `exceeds budget` 为本轮记录者复算；
+  逐串命中数与两段材料互洽）。
+- **本轮记录者实测（2026-10-16，读码级）**：上述全部截断点、常量、版本字面量、`AppFailure` 映射与网关 catch 顺序
+  在树内逐一核对通过；旧字面量 `figure-conditional` 在**活代码/活文档**里零命中（仅剩
+  `docs/research/2026-10-03-stage4b-completion-record.md`、`2026-10-11-thin-vertical-slice-walkthrough.md:470`、
+  `algorithm-version-ledger.md:236` 的历史记录，以及 `.artifacts/`、`build/agent-batch11/clean-head/` 两处快照/暂存副本）。
+- **T1 侧自述**：本轨**未运行任何 Gradle**（编译与断言在其自述中为 UNVERIFIED），且他线当时在飞同一对文件
+  （`OpenAiCompatibleModelGateway.kt` / `OpenAiCompatibleModelGatewayTest.kt`，日志上报口改写）；合并时按区域核，
+  复核时 grep `OUTPUT_BUDGET_EXCEEDED` 与 `aTutorBodyBeyondItsTextBudgetIsRetryableInsteadOfPermanentlyFailed`。
+
+**未达 / 剩余（如实）.**
+
+- **设备前后对照未达、触发频率仍未取样**：设备一进「去讲题判定」在链条第一环断掉（录入→整理需模型 → opencode zen
+  周配额 429 → 造不出可复习题），**计划失败次数、最终成功、失败原文分类（标签越界/其他形状/截断/其他）一项未测**；
+  独立核对另证实「失败原文分类」的原始证据**不存在**（设备无 `files/debug-model-failures`、logcat 窗口无
+  `ModelFailureCapture|TUTOR_PLAN` 命中、仓库无相关记录）——即本条的触发频率自登记起至今仍为未验证。
+  T2 的捕获通道已武装过（设备一实测）但未触发，且随之后的卸载重装丢失。
+- **截断按 UTF-16 码元可能切断代理对（独立复核 low，未修）**：`String.take(n)` 在 emoji 处可留下孤立代理，
+  而 `requireSafeModelText` 只拒 ISO 控制字符与双向控制符（`ModelTasks.kt:1225-1237`）不拒孤立代理；
+  同批 `DebugModelFailureCapture` 为同一风险专门写了不切代理对的 `truncateToUtf8Bytes`，本条这侧没有等价保护。
+  只确认到显示层可渲染为「�」，未验证下游（JSON 序列化/导出）是否抛异常。
+- **UI 文案未分叉（T1 标注，读码级）**：`AppFailure.kt:240` 把 `INCOMPLETE_OUTPUT` 一律映到
+  `MODEL_OUTPUT_INVALID`、`:258` 显示「模型这次没写完」，所以超预算场景学生侧看到的仍是截断措辞；
+  持久化的 `ModelTaskFailure.message` 才是更准确的那句。要分开需要新失败码（DB 词表/迁移面），超出本批范围。
+- **同形但未点名的字段**：`TutorDebriefOutput.teachingFocusLabels`（预算 `TutorDebriefInput.MAX_DEBRIEF_LABEL_CHARS`）
+  与其它正文级模型文本**不做**解析期截断，只在③上受益（超预算 → 可重试）；是否补截断需另开一条。
+- **重试出口受派遣预算限制（与 KD-33 未覆盖项 ③ 同源，本轮记录者读码复核）**：预算用满后 retryable 会被改写成
+  `PERMANENT_FAILURE`（`RoomModelTaskRepository.kt:730-744`），`OUTPUT_BUDGET_EXCEEDED` 同样受此限制。
+- **台账未登记本批 bump（独立复核 low）**：`docs/research/algorithm-version-ledger.md:236` 的最新一条仍是
+  「批 4：`tutor-lobby-v17-export-layout-proposal`（plan/respond 不动）」，没有 v19/v26 这一行（历史行未被改错）。
+- T1 侧零编译零测试（见上「T1 侧自述」）。
+
+**Reopen condition（2026-10-15 更新；原文保留）.** 原：n/a —— 本条即 open；关闭条件 = 修好并有「超长标签不判死」的
+测试证据（测试证据已到，设备对照仍未达）。现：真实服务商上再次出现「超长标签 → 整轮永久失败」的形态；或下一批设备段
+做出前后对照后发现失败构成里仍有标签越界类（那说明截断之外的字段仍在判死）。
+
+## KD-39 (open, 2026-10-16 登记（独立复核 medium；读码级，未设备复现）) · 切分回执写在提交事务之外：「题已入库、台账仍 PENDING」且无补偿路径
+
+**Symptom（读码推断，来源：本批九轨独立复核 finding 1）.** 本批 T4 新增的 SAVED 回执
+（`RoomCaptureWorkflowRepository.confirmAndCommit` 拿到真实提交后调 `recordSplitImportCommit`，
+`:451-483`；讲题来源路径 `saveTutorSession` `:649-656`）写在提交事务**之外**：提交与回执是两次相邻的
+数据库调用，两步之间进程被杀/协程被取消，题已在库（`confirmState=COMMITTED`），而分题任务台账仍是 PENDING。
+
+**Impact.** 该分题任务永久停在「还有一道待提交」：`readNextUnsubmittedDraft` 排除刚提交的草稿、复核页无
+「放弃」出口、草稿 `COMMITTED` 读不回——三条路都不通，且无任何补偿/对账路径把它救回。窗口窄
+（两次相邻数据库调用之间），当前未设备复现。
+
+**Fix direction（待裁定）.** 二选一或组合：① 回执并入同一事务（提交与置 SAVED 原子）；② 保留两步但加对账
+补偿——启动/进入复核时按 `splitDraftId` 反查已 COMMITTED 的题把台账追平（T4 已有
+`readQuestionBySplitDraftId` 反查口，复用即可）。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 上述窗口被消除或补偿路径落地，并有一条
+「提交后被杀 → 重启后台账追平」的用例（instrumented 或设备）。
+
+## KD-40 (open, 2026-10-16 登记（本批独立复核 low）) · status.md 的 run_context 绑定陈旧：本地生成必显示 BOUND 且可指向旧提交
+
+**Symptom（来源：本批独立复核 finding 3；本轮记录者读码）.** 本批 T5 给状态页加了 `run_context()` 绑定
+（`tools/ci/generate_status.py:432-470`）：COMMIT_SHA/BRANCH 与 `git rev-parse HEAD` 不一致即 UNBOUND。
+本地手动生成时页面顶部固定显示 `BOUND · sha <生成时的 HEAD>`——本批记录里它指向 `a15aebb7`（本批之前的
+提交，生成时本批代码尚未提交）。页面不会自述「这是生成时刻的绑定」，读者容易把 sha 当成「页面描述的那个状态」。
+
+**Impact.** 低：不改变门判定（三值 Overall 与证据新鲜度已诚实化），只影响状态页可解读性——一份随本批提交的
+页面会指向本批之前的提交。
+
+**Fix direction（待裁定）.** 生成物头部补一句「绑定时刻 = 生成时刻，非所描述代码的提交」；或 CI 在
+commit-back 后重新生成（自指不可解，至少注明）。
+
+**Reopen condition.** n/a —— 登记性低危；读者被该 sha 误导时升级。
+
+## KD-41 (open, 2026-10-16 登记（本批独立复核 low）) · 小测题面损坏行 ⇒「重试出题」每次重生成、必再撞同一身份、再丢弃
+
+**Symptom（读码，来源：本批独立复核 finding 5）.** `KnowledgeQuizItemStore.save()` 在「既有行存在但解不开」
+（损坏载荷）时返回 null（`KnowledgeQuizItemStore.kt:66-79`），调用方把 null 当「未持久化」→ 显示 Unavailable；
+学生点「重试出题」→ 重新生成 → 再按同一 `(sessionId, knowledgeNodeId)` 身份保存 → 再撞同一损坏行 → 再丢弃。
+
+**Impact.** 低（需先有损坏行才会进这条死循环）：白烧一次模型调用、题面永远显示不出来。
+
+**Fix direction（待裁定）.** 损坏行按「不可复用」处理：读到解不开的行即覆盖重写（或先删后写），
+补一条「损坏行 → 重试可恢复」的用例。
+
+**Reopen condition.** n/a —— 登记性低危；损坏行在真实设备被观测到时升级。
+
+## KD-42 (open, 2026-10-16 登记（设备观察，本批 T3；独立核对补正一处）) · 批量导入在 staging 阶段被杀：该批静默丢弃、无用户可见提示
+
+**Symptom（设备观察，来源：本批 T3 设备段 + 独立核对补正）.** 批量导入（20 页）在 job 建立**之前**的
+staging 阶段杀进程：重进 App 后该批不存在（列表里没有、也没有失败条目），学生看到的是「什么都没发生」。
+独立核对补正：孤儿 staging 目录**非永久残留**——`ORPHAN_GRACE_MILLIS=60min` + `reconcileOrphans` 会在
+下次启动且超宽限后回收（`AndroidBatchImportSourceStaging` 常量、`RoomBatchImportRepository.kt:89`），
+磁盘面自愈。对照组：job 建立**之后**被杀可完整续跑（5/5 页 READY、无重复行、无新模型调用）。
+
+**Impact.** 低-中：数据面无损（源图还在相册、可重导），但用户面无任何「这批被中断了、请重导」的提示。
+
+**Fix direction（待裁定）.** 最小面：staging 开始时先登记一条「导入中」记录，被回收/超时后显示为
+「已中断，可重导」。
+
+**Reopen condition.** n/a —— 登记性低危；用户因此丢失过工作且无人察觉时升级。
 
