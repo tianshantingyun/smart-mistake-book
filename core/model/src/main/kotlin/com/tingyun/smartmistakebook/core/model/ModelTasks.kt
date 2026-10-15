@@ -1216,7 +1216,12 @@ internal fun String.requireSafeModelText(
     allowLineBreaks: Boolean,
 ) {
     require(isNotBlank()) { "$label must not be blank" }
-    require(length <= maxChars) { "$label exceeds budget" }
+    // KD-38：超预算是**专用**类型（不是普通 IllegalArgumentException）：它意味着"这一次输出的
+    // 文本超过了格式预算"，网关据此归到可重试的 INCOMPLETE_OUTPUT——而形状错误（未知键、坏枚举、
+    // 危险字符）仍走不可重试的 INVALID_RESPONSE。其余两条 `require` 有意留在原类型上。
+    if (length > maxChars) {
+        throw ModelTextBudgetExceededException("$label exceeds budget")
+    }
     require(none { it.isForbiddenModelTextCharacter(allowLineBreaks) }) {
         "$label contains unsafe control characters"
     }

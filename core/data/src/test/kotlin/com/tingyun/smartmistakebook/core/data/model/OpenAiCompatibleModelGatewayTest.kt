@@ -60,6 +60,7 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
+import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.AttachedImage
 import com.tingyun.smartmistakebook.core.model.AttachedImageKind
 import com.tingyun.smartmistakebook.core.model.TutorTurnHistoryEntry
@@ -645,6 +646,93 @@ class OpenAiCompatibleModelGatewayTest {
     }
 
     @Test
+    fun providerRejectionCaptureCarriesTheErrorBodyAndStatusButNoException() = runBlocking {
+        // 上游拒收（4xx/5xx）时的**响应体**是诊断的全部价值所在，而生产路径上此前除了那句用户
+        // 文案之外没有任何地方保留它。捕获打开时必须连状态码一起送到缝上。
+        val captured = mutableListOf<ModelCallFailureRecord>()
+        ModelCallFailureDiagnostics.sink = { captured += it }
+        try {
+            val gateway = OpenAiCompatibleModelGateway(
+                configurationStore = FakeConfigurationStore(CONFIGURATION),
+                assetSource = assetSource { _, _ -> asset() },
+                transport = modelTransport { _ ->
+                    ModelHttpResponse(429, """{"error":{"message":"rate limit exceeded"}}""")
+                },
+                clock = { AUTHORIZATION_NOW },
+            )
+
+            val failed = gateway.execute(authorizedAssessment(gateway)).toList().last()
+                as ModelGatewayEvent.Failed
+
+            assertEquals(ModelFailureCode.RATE_LIMITED, failed.failure.code)
+            val record = captured.single()
+            assertEquals(ModelTaskKind.CAPTURE_ASSESS, record.taskKind)
+            assertEquals(ModelFailureCode.RATE_LIMITED, record.failureCode)
+            assertTrue(record.retryable)
+            assertEquals(429, record.httpStatus)
+            assertEquals("""{"error":{"message":"rate limit exceeded"}}""", record.rawResponse)
+            assertNull(record.exceptionClass)
+            assertTrue(record.occurredAtEpochMillis > 0)
+        } finally {
+            ModelCallFailureDiagnostics.sink = null
+        }
+    }
+
+    @Test
+    fun parseFailureCaptureCarriesTheRawBodyTaskKindAndException() = runBlocking {
+        // 解析失败的构成——解析器读到的那一版原文 + 异常类与消息——就是 KD-38 设备侧归因要复核的
+        // 东西（"标签超预算"当时只剩一条已经轮转掉的 logcat）。捕获打开时这三样必须都在。
+        val captured = mutableListOf<ModelCallFailureRecord>()
+        ModelCallFailureDiagnostics.sink = { captured += it }
+        try {
+            val gateway = OpenAiCompatibleModelGateway(
+                configurationStore = FakeConfigurationStore(CONFIGURATION),
+                assetSource = assetSource { _, _ -> error("Tutor must not open image assets") },
+                transport = modelTransport { _ ->
+                    ModelHttpResponse(200, envelope("{ 这不是一个讲题计划 }"))
+                },
+                clock = { AUTHORIZATION_NOW },
+            )
+
+            val failed = gateway.execute(authorizedTutor(gateway)).toList().last()
+                as ModelGatewayEvent.Failed
+
+            assertEquals(ModelFailureCode.INVALID_RESPONSE, failed.failure.code)
+            val record = captured.single()
+            assertEquals(ModelTaskKind.TUTOR_PLAN, record.taskKind)
+            assertEquals(ModelFailureCode.INVALID_RESPONSE, record.failureCode)
+            assertFalse(record.retryable)
+            assertEquals(200, record.httpStatus)
+            assertTrue(record.rawResponse!!.contains("这不是一个讲题计划"))
+            assertTrue(record.exceptionClass != null)
+        } finally {
+            ModelCallFailureDiagnostics.sink = null
+        }
+    }
+
+    @Test
+    fun aBrokenCaptureSeamNeverChangesTheProductOutcome() = runBlocking {
+        // 诊断是旁路：写入实现自己抛异常时，学生看到的必须还是原来那条失败（不是崩溃、也不是换个归因）。
+        ModelCallFailureDiagnostics.sink = { throw IllegalStateException("capture failed") }
+        try {
+            val gateway = OpenAiCompatibleModelGateway(
+                configurationStore = FakeConfigurationStore(CONFIGURATION),
+                assetSource = assetSource { _, _ -> asset() },
+                transport = modelTransport { _ -> ModelHttpResponse(401, "") },
+                clock = { AUTHORIZATION_NOW },
+            )
+
+            val failed = gateway.execute(authorizedAssessment(gateway)).toList().last()
+                as ModelGatewayEvent.Failed
+
+            assertEquals(ModelFailureCode.AUTHENTICATION_FAILED, failed.failure.code)
+            assertFalse(failed.failure.retryable)
+        } finally {
+            ModelCallFailureDiagnostics.sink = null
+        }
+    }
+
+    @Test
     fun truncatedCompletionIsRetryableIncompleteOutputNotInvalidResponse() = runBlocking {
         // 上游声明 finish_reason=length/content_filter：这是"这次没写完"（可重试），
         // 不是"内容不可用"（不可重试）——后者会让学生拿不到重发出口（KD-33 的误判）。
@@ -782,6 +870,61 @@ class OpenAiCompatibleModelGatewayTest {
         ).last().let { it as ModelGatewayEvent.Completed }.output as TutorPlanOutput
 
         assertTrue(output.plan.suggestedMoves.isEmpty())
+    }
+
+    @Test
+    fun anOverBudgetMoveLabelIsTruncatedToTheDeclaredBudgetInsteadOfFailingTheRound() = runBlocking {
+        // KD-38：提示词现在声明 label 不超过 32 个字符（规则 12），但模型仍可能越界。超过预算的
+        // 短标签此前在构造器里抛 IllegalArgumentException → 整轮**永久**失败（INVALID_RESPONSE，
+        // 不可重试）。解析期按格式预算收敛后，这一轮照常成功。
+        val overBudgetLabel = "看".repeat(TutorSuggestedMove.MAX_LABEL_CHARS + 1)
+        val output = executeTutorPayload(
+            tutorPayload(
+                nextMoves = buildJsonArray {
+                    add(buildJsonObject {
+                        put("label", overBudgetLabel)
+                        put("type", "DEEPEN_REASONING")
+                    })
+                },
+            ),
+        ).last().let { it as ModelGatewayEvent.Completed }.output as TutorPlanOutput
+
+        val move = output.plan.suggestedMoves.single()
+        assertEquals(TutorSuggestedMove.MAX_LABEL_CHARS, move.label.length)
+        assertEquals(overBudgetLabel.take(TutorSuggestedMove.MAX_LABEL_CHARS), move.label)
+    }
+
+    @Test
+    fun aTutorBodyBeyondItsTextBudgetIsRetryableInsteadOfPermanentlyFailed() = runBlocking {
+        // 正文级文本不能靠截断收敛：超预算仍失败，但必须归**可重试**出口（KD-38 取向③）——
+        // "这一次输出没按声明的预算说话"是抽样问题，重发可能换一份更短的输出；形状错误才不可重试。
+        val failed = executeTutorRespondPayload(
+            tutorRespondPayload(
+                messageMarkdown = "答".repeat(TutorRespondOutput.MAX_MESSAGE_MARKDOWN_CHARS + 1),
+            ),
+        ).last() as ModelGatewayEvent.Failed
+
+        assertEquals(ModelFailureCode.INCOMPLETE_OUTPUT, failed.failure.code)
+        assertTrue(failed.failure.retryable)
+    }
+
+    @Test
+    fun aRespondMoveLabelBeyondTheBudgetIsTruncatedInsteadOfFailingTheRound() = runBlocking {
+        val overBudgetLabel = "看".repeat(TutorSuggestedMove.MAX_LABEL_CHARS + 1)
+        val output = parsedTutorResponse(
+            tutorRespondPayload(
+                nextMoves = buildJsonArray {
+                    add(buildJsonObject {
+                        put("label", overBudgetLabel)
+                        put("type", "DEEPEN_REASONING")
+                    })
+                },
+            ),
+        )
+
+        val move = output.suggestedMoves.single()
+        assertEquals(TutorSuggestedMove.MAX_LABEL_CHARS, move.label.length)
+        assertEquals(overBudgetLabel.take(TutorSuggestedMove.MAX_LABEL_CHARS), move.label)
     }
 
     @Test
@@ -2208,6 +2351,8 @@ class OpenAiCompatibleModelGatewayTest {
     private fun tutorPayload(
         includeDiagnostic: Boolean = true,
         includeNextMoves: Boolean = true,
+        /** 覆盖默认的 nextMoves 数组（KD-38 的越界标签用例）；null = 用默认三枚。 */
+        nextMoves: JsonElement? = null,
         extraTopLevel: Pair<String, JsonElement>? = null,
     ): String = Json.encodeToString(
         buildJsonObject {
@@ -2252,8 +2397,9 @@ class OpenAiCompatibleModelGatewayTest {
                     add(JsonPrimitive("函数单调性"))
                 },
             )
-            if (includeNextMoves) {
-                put(
+            when {
+                nextMoves != null -> put("nextMoves", nextMoves)
+                includeNextMoves -> put(
                     "nextMoves",
                     buildJsonArray {
                         add(buildJsonObject {

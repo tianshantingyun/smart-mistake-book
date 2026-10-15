@@ -49,8 +49,10 @@ object ModelPromptPolicyVersions {
      * 并加"配图一律用 GENERATE_FIGURE，attachedImages 仅兼容旧输出"的偏好句。
      * v18（批 2 修复轮 F2-3）：展示句改**条件式**（有当前题并生成成功时才展示；大厅没有
      * 可画的题，不做无条件承诺）。
+     * v19（KD-38）：规则 12 声明 nextMoves 的 `label` 预算（32 字符）——此前提示词里没有任何
+     * 预算声明，而超预算的标签会让整轮永久失败。
      */
-    const val TUTOR_PLAN = "tutor-plan-v18-figure-conditional"
+    const val TUTOR_PLAN = "tutor-plan-v19-move-label-budget"
     /**
      * v20：写工具改收代号（原始 id 退出提示词）+ 代号映射表 + 无题轮不结构性拒写（D5/D6）。
      * v21（D-M M7）：工具面新增两枚咨询工具（描述与写工具段），代号表显式含本科「未分类」兜底桶。
@@ -59,8 +61,10 @@ object ModelPromptPolicyVersions {
      * v24（4B 批 2 A2/F4）：生图有渲染路径（回复下方可展开配图卡），描述改为如实说会展示；
      * 并加"配图一律用 GENERATE_FIGURE，attachedImages 仅兼容旧输出"的偏好句。
      * v25（批 2 修复轮 F2-3）：展示句改**条件式**（有当前题并生成成功时才展示）。
+     * v26（KD-38）：规则 8 声明 nextMoves 的 `label` 预算（32 字符）——此前提示词里没有任何
+     * 预算声明，而超预算的标签会让整轮永久失败。
      */
-    const val TUTOR_RESPOND = "tutor-respond-v25-figure-conditional"
+    const val TUTOR_RESPOND = "tutor-respond-v26-move-label-budget"
     /**
      * v8：工具面教学口径随 D6/D7 更新（写不写由模型语义判定；代号用法）。
      * v10（A4）：允许申请 OFFER_SAVE_CURRENT_QUESTION（本地渲染确认卡、学生点了才执行），

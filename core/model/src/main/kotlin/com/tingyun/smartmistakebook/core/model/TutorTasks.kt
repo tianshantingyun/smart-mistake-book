@@ -144,6 +144,11 @@ data class TutorKnowledgeEvidence(
     }
 
     companion object {
+        /**
+         * 知识标签的字符预算（KD-38）：解析期对模型的 `inferredKnowledgeLabels` /
+         * `targetedEvidenceLabels` 先按它收敛，构造器仍严格（见 [TutorSuggestedMove.MAX_LABEL_CHARS]
+         * 的同一纪律）。
+         */
         const val MAX_LABEL_CHARS = 96
         const val MAX_DISCLOSED_EVIDENCE_MASS = 100.0
         const val MAX_DISCLOSED_OBSERVATIONS = 100
@@ -193,6 +198,12 @@ data class TutorSuggestedMove(
     }
 
     companion object {
+        /**
+         * 动作标签的字符预算（KD-38）。**解析期按这个预算收敛、构造器守完整性**：解析器对模型
+         * 吐出的 `nextMoves[].label` 先 `take(MAX_LABEL_CHARS)`，构造器仍严格校验（它同时守
+         * 数据库回读与本地构造）——绕过解析器的超长标签照旧被拒（超预算专用异常）。
+         * 提示词同步声明了这个预算（计划规则 12 / 回应规则 8），改数必须同时改提示词并 bump 版本。
+         */
         const val MAX_LABEL_CHARS = 32
     }
 }
@@ -665,6 +676,10 @@ data class TutorRoundQuestionDeclaration(
 
     companion object {
         const val MAX_ANCHOR_TERMS = 4
+        /**
+         * 题锚词的字符预算（KD-38）：解析期按它收敛（截断后仍是学生原话的前缀，逐字锚照旧核得上），
+         * 构造器仍严格——它同时守数据库回读。
+         */
         const val MAX_ANCHOR_TERM_CHARS = 64
     }
 }

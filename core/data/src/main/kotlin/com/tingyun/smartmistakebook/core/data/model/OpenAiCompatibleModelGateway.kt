@@ -43,6 +43,7 @@ import com.tingyun.smartmistakebook.core.model.ModelRequestBudgetExceededExcepti
 import com.tingyun.smartmistakebook.core.model.ModelRequestPayloadBudget
 import com.tingyun.smartmistakebook.core.model.ModelTaskFailure
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
+import com.tingyun.smartmistakebook.core.model.ModelTextBudgetExceededException
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import com.tingyun.smartmistakebook.core.model.ModelTaskStage
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
@@ -269,19 +270,24 @@ internal class OpenAiCompatibleModelGateway(
                 } catch (_: SecurityException) {
                     emit(failure(CONFIGURATION_CHANGED))
                 } catch (timeout: SocketTimeoutException) {
-                    logModelCallFailure(timeout)
+                    reportModelCallFailure(execution, TIMEOUT, error = timeout)
                     emit(failure(TIMEOUT))
                 } catch (network: IOException) {
-                    logModelCallFailure(network)
+                    reportModelCallFailure(execution, NETWORK_UNAVAILABLE, error = network)
                     emit(failure(NETWORK_UNAVAILABLE))
                 } catch (incomplete: IncompleteModelOutputException) {
-                    logModelCallFailure(incomplete)
+                    reportModelCallFailure(execution, INCOMPLETE_OUTPUT, error = incomplete)
                     emit(failure(INCOMPLETE_OUTPUT))
+                } catch (overBudget: ModelTextBudgetExceededException) {
+                    // KD-38：与截断同一出口（可重试）。这一处是**防御性**的对称：本地输入在构造期
+                    // 就已校验，真正走到这里的是响应解析路径（见 toGatewayEvent）。
+                    reportModelCallFailure(execution, OUTPUT_BUDGET_EXCEEDED, error = overBudget)
+                    emit(failure(OUTPUT_BUDGET_EXCEEDED))
                 } catch (invalid: InvalidModelResponseException) {
-                    logModelCallFailure(invalid)
+                    reportModelCallFailure(execution, INVALID_RESPONSE, error = invalid)
                     emit(failure(INVALID_RESPONSE))
                 } catch (invalid: IllegalArgumentException) {
-                    logModelCallFailure(invalid)
+                    reportModelCallFailure(execution, INVALID_RESPONSE, error = invalid)
                     emit(failure(INVALID_RESPONSE))
                 } finally {
                     Arrays.fill(keyChars, '\u0000')
@@ -385,30 +391,37 @@ private fun ModelHttpResponse.toGatewayEvent(
     modelVersion: String,
 ): ModelGatewayEvent {
     if (statusCode !in 200..299) {
-        return failure(
-            when (statusCode) {
-                401, 403 -> ModelTaskFailure(
-                    ModelFailureCode.AUTHENTICATION_FAILED,
-                    "模型认证失败，请在“我的”中检查 API Key",
-                    false,
-                )
-                429 -> ModelTaskFailure(
-                    ModelFailureCode.RATE_LIMITED,
-                    "模型请求较多，任务已保留，可以稍后重试",
-                    true,
-                )
-                in 500..599 -> ModelTaskFailure(
-                    ModelFailureCode.SERVICE_UNAVAILABLE,
-                    "模型服务暂时不可用，任务已保留",
-                    true,
-                )
-                else -> ModelTaskFailure(
-                    ModelFailureCode.PROVIDER_REJECTED_INPUT,
-                    "模型服务拒绝了这次请求，请检查模型兼容性",
-                    false,
-                )
-            },
+        val rejected = when (statusCode) {
+            401, 403 -> ModelTaskFailure(
+                ModelFailureCode.AUTHENTICATION_FAILED,
+                "模型认证失败，请在“我的”中检查 API Key",
+                false,
+            )
+            429 -> ModelTaskFailure(
+                ModelFailureCode.RATE_LIMITED,
+                "模型请求较多，任务已保留，可以稍后重试",
+                true,
+            )
+            in 500..599 -> ModelTaskFailure(
+                ModelFailureCode.SERVICE_UNAVAILABLE,
+                "模型服务暂时不可用，任务已保留",
+                true,
+            )
+            else -> ModelTaskFailure(
+                ModelFailureCode.PROVIDER_REJECTED_INPUT,
+                "模型服务拒绝了这次请求，请检查模型兼容性",
+                false,
+            )
+        }
+        // 上游拒收时**响应体就是全部诊断价值**所在（"拒绝了这次请求"究竟在说什么）；生产路径上
+        // 除了那句用户文案之外，此前没有任何地方保留它——这是捕获通道要接上的失败形态之一。
+        reportModelCallFailure(
+            execution = execution,
+            failure = rejected,
+            httpStatus = statusCode,
+            rawResponse = body,
         )
+        return failure(rejected)
     }
     return try {
         ModelGatewayEvent.Completed(
@@ -417,12 +430,38 @@ private fun ModelHttpResponse.toGatewayEvent(
     } catch (incomplete: IncompleteModelOutputException) {
         // 终态解析（含流式重建体）走的是这里：截断必须先分流，否则下面的 catch(_: Exception)
         // 会把"这次没写完"一律吞成 INVALID_RESPONSE（不可重试）——那正是要修的那次误判。
-        logModelCallFailure(incomplete)
+        reportModelCallFailure(
+            execution = execution,
+            failure = INCOMPLETE_OUTPUT,
+            error = incomplete,
+            httpStatus = statusCode,
+            rawResponse = body,
+        )
         failure(INCOMPLETE_OUTPUT)
+    } catch (overBudget: ModelTextBudgetExceededException) {
+        // KD-38：模型文本超出格式预算与截断同一出口——"这一次输出没按声明的预算说话"是抽样问题，
+        // 重发可能换一份更短的输出；而形状错误（未知键、坏枚举、危险字符）重发会逐字复现，
+        // 仍归下面的 INVALID_RESPONSE。少了这一条，超长标签就是整轮**永久**失败。
+        reportModelCallFailure(
+            execution = execution,
+            failure = OUTPUT_BUDGET_EXCEEDED,
+            error = overBudget,
+            httpStatus = statusCode,
+            rawResponse = body,
+        )
+        failure(OUTPUT_BUDGET_EXCEEDED)
     } catch (error: Exception) {
         // 归因（A4 的另一半）：解析失败此前在这里被静默吞掉，只剩一句"内容不可用"，
-        // 现场看不出是形状错误、字段越界还是枚举不认识。只记异常类与消息，不记任何报文。
-        logModelCallFailure(error)
+        // 现场看不出是形状错误、字段越界还是枚举不认识。日志仍只记异常类与消息；响应报文只有
+        // 默认关的调试捕获通道会带走（ModelCallFailureDiagnostics），它把"越界的那一版原文"
+        // 落进应用私有目录，供设备侧复核失败构成。
+        reportModelCallFailure(
+            execution = execution,
+            failure = INVALID_RESPONSE,
+            error = error,
+            httpStatus = statusCode,
+            rawResponse = body,
+        )
         failure(INVALID_RESPONSE)
     }
 }
@@ -776,19 +815,8 @@ private const val LIVE_REASONING_FIRST_EMIT_MILLIS = 1_000L
 private const val LIVE_REASONING_MAX_INTERVAL_MILLIS = 8_000L
 private const val LIVE_REASONING_MAX_FRAMES = 8
 
-/**
- * Diagnostics for a failed model call: the exception class and message only. Request and
- * response bodies are never logged — they carry student photos and text — and the credential
- * never reaches the log either.
- */
-private fun logModelCallFailure(error: Throwable) {
-    android.util.Log.e(
-        MODEL_CALL_LOG_TAG,
-        "Model call failed: ${error.javaClass.name}: ${error.message}",
-    )
-}
-
-private const val MODEL_CALL_LOG_TAG = "SmartMistakeBook"
+// 失败诊断（那一行日志 + 默认关的捕获缝）统一在 ModelCallFailureDiagnostics.kt：
+// reportModelCallFailure / logModelCallFailure / 记录类型都出自那里，本文件只负责在失败点调用。
 
 private fun invalidPreEnqueueAuthorization() = ModelEgressAuthorizationException(
     ModelFailureCode.EGRESS_AUTHORIZATION_INVALID,
@@ -850,6 +878,19 @@ private val INVALID_RESPONSE = ModelTaskFailure(
 private val INCOMPLETE_OUTPUT = ModelTaskFailure(
     ModelFailureCode.INCOMPLETE_OUTPUT,
     "模型这次没写完，可以重试",
+    true,
+)
+
+/**
+ * 模型这一轮的文本超出本地格式预算（KD-38）：**这次输出没按声明的预算说话**。
+ *
+ * 与上游声明的截断（[INCOMPLETE_OUTPUT] 的注释）同一出口、同一个失败码：重发可以换一份更短的
+ * 抽样；而形状错误（[INVALID_RESPONSE]）重发会逐字复现。文案单独写，是因为"没写完"与"写超了"
+ * 对现场复核是两件事，混成一句话会让归因无从下手。
+ */
+private val OUTPUT_BUDGET_EXCEEDED = ModelTaskFailure(
+    ModelFailureCode.INCOMPLETE_OUTPUT,
+    "模型这次输出超出长度预算，可以重试",
     true,
 )
 

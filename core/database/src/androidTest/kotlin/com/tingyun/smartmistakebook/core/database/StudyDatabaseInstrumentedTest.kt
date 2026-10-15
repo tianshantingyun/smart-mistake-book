@@ -908,6 +908,103 @@ class StudyDatabaseInstrumentedTest {
     }
 
     @Test
+    fun reviewRetryReusesTheSnapshotRowWrittenBeforeARolledBackAdvance() = runBlocking {
+        // KD-37「重新判定」死路：讲题判定结算先落快照、再走 recordReviewAttempt；attempt 事务
+        // 因 advance 失败整体回滚后，学生点「重新判定」会带着**新的采集时刻**重建同一个
+        // snapshotId 的快照。整实体比较（含时间戳）会把这次干净的重试判成"载荷被改写"，
+        // 而快照写入早于 recordAttempt 的幂等回放——于是这一行再也写不进去。
+        val (review, session) = saveStartedReview(
+            fingerprint = "record-review-snapshot-timing",
+            localDay = 20_004,
+            isCurrent = true,
+        )
+        val snapshotId = "review-snapshot-timing"
+        val firstCapture = OCCURRED_AT + 30_000
+        val laterCapture = firstCapture + 60_000
+        assertTrue(
+            runCatching {
+                store.saveAssessmentEvidenceSnapshot(
+                    evidenceSnapshot().copy(
+                        snapshotId = snapshotId,
+                        capturedAtEpochMillis = firstCapture,
+                    ),
+                )
+            }.isSuccess,
+        )
+
+        val command = reviewAttemptCommand(review, session, "snapshot-timing").let { write ->
+            write.copy(attempt = write.attempt.copy(assessmentSnapshotId = snapshotId))
+        }
+        val failed = runCatching {
+            store.recordReviewAttempt(command.copy(reviewQueueItemId = "missing-review-queue-item"))
+        }
+        assertTrue(failed.exceptionOrNull() is ImmutablePayloadConflictException)
+        assertNull(store.findAttemptPersistence(command.attempt.submissionId))
+        assertTrue(store.loadLearningLedger(LEARNER).validPrefix.isEmpty())
+
+        // 「重新判定」：同一个 snapshotId、新的采集时刻 → 必须复用旧行，而不是抛冲突。
+        val rewritten = runCatching {
+            store.saveAssessmentEvidenceSnapshot(
+                evidenceSnapshot().copy(
+                    snapshotId = snapshotId,
+                    capturedAtEpochMillis = laterCapture,
+                ),
+            )
+        }
+        assertTrue(
+            "同一快照的重试带着新时间戳回来时必须复用旧行：${rewritten.exceptionOrNull()}",
+            rewritten.isSuccess,
+        )
+
+        val recorded = store.recordReviewAttempt(command)
+        assertTrue(recorded.attempt.created)
+        assertTrue(recorded.advance.created)
+        assertEquals(1, store.loadLearningLedger(LEARNER).validPrefix.size)
+        val persistence = requireNotNull(store.findAttemptPersistence(command.attempt.submissionId))
+        assertEquals(1, persistence.attemptEventCount)
+        assertEquals(1, persistence.outboxCount)
+        // 复用 = 旧行原样存活（没有被新时刻改写）：库里仍是第一次那一份快照。
+        val persistedAttempt = recorded.attempt.attempt
+        assertEquals(firstCapture, persistedAttempt.assessmentSnapshot.capturedAtEpochMillis)
+    }
+
+    @Test
+    fun onlyTheCaptureTimeMayDifferWhenTheSameSnapshotIdIsRewritten() = runBlocking {
+        assertTrue(
+            "只差采集时刻 = 同一张快照：复用旧行，不抛冲突",
+            runCatching {
+                store.saveAssessmentEvidenceSnapshot(
+                    evidenceSnapshot().copy(capturedAtEpochMillis = OCCURRED_AT),
+                )
+            }.isSuccess,
+        )
+
+        val changedAttribution = runCatching {
+            store.saveAssessmentEvidenceSnapshot(
+                evidenceSnapshot().copy(
+                    attributions = listOf(
+                        evidenceSnapshot().attributions.single().copy(weight = 0.5),
+                    ),
+                ),
+            )
+        }.exceptionOrNull()
+        assertTrue(
+            "归属真的变了仍是另一份载荷：照旧抛冲突",
+            changedAttribution is ImmutablePayloadConflictException,
+        )
+
+        val changedContent = runCatching {
+            store.saveAssessmentEvidenceSnapshot(
+                evidenceSnapshot().copy(itemFamilyId = "family-other"),
+            )
+        }.exceptionOrNull()
+        assertTrue(
+            "身份/内容真的变了仍是另一份载荷：照旧抛冲突",
+            changedContent is ImmutablePayloadConflictException,
+        )
+    }
+
+    @Test
     fun recordReviewAttemptRejectsAttemptPreviouslyWrittenOutsideReviewTransaction() = runBlocking {
         val (review, session) = saveStartedReview(
             fingerprint = "record-review-plain-attempt",

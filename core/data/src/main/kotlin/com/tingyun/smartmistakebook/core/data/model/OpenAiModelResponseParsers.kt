@@ -77,6 +77,7 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRoundQuestionDeclaration
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
+import com.tingyun.smartmistakebook.core.model.TutorKnowledgeEvidence
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTurnPlan
 import com.tingyun.smartmistakebook.core.model.WritingLayer
@@ -346,19 +347,21 @@ internal fun JsonObject.toTutorPlan(
         )
     }
     val disclosedLabels = input.relevantLearningEvidence.mapTo(hashSetOf()) { it.displayName }
+    // KD-38：解析期按**格式预算**收敛模型文本，构造器仍守完整性（见 TutorTasks 的预算常量）。
+    // 超预算此前让整轮永久失败（不可重试的 INVALID_RESPONSE）；短标签字段按预算截断即可。
     val targetedLabels = array("targetedEvidenceLabels")
-        .map { it.jsonPrimitive.content }
+        .map { it.jsonPrimitive.content.take(TutorKnowledgeEvidence.MAX_LABEL_CHARS) }
         .distinct()
     require(targetedLabels.all(disclosedLabels::contains))
     val inferredLabels = array("inferredKnowledgeLabels")
-        .map { it.jsonPrimitive.content }
+        .map { it.jsonPrimitive.content.take(TutorKnowledgeEvidence.MAX_LABEL_CHARS) }
         .distinct()
     val suggestedMoves = array("nextMoves").mapIndexed { index, item ->
         val move = item.objectValue()
         move.requireOnlyKeys(TUTOR_MOVE_WIRE_KEYS)
         TutorSuggestedMove(
             id = "move-${input.cycleOrdinal}-${input.turnOrdinal}-${index + 1}",
-            label = move.requiredString("label"),
+            label = move.requiredString("label").take(TutorSuggestedMove.MAX_LABEL_CHARS),
             type = enumValue(move.requiredString("type")),
         )
     }
@@ -401,7 +404,8 @@ internal fun JsonObject.toTutorRespond(
         move.requireOnlyKeys(TUTOR_MOVE_WIRE_KEYS)
         TutorSuggestedMove(
             id = "tutor-respond-move-$stableSuffix-${index + 1}",
-            label = move.requiredString("label"),
+            // KD-38：动作标签在解析期按格式预算收敛（构造器仍严格——它同时守数据库回读）。
+            label = move.requiredString("label").take(TutorSuggestedMove.MAX_LABEL_CHARS),
             type = enumValue(move.requiredString("type")),
         )
     }
@@ -625,7 +629,8 @@ internal fun JsonObject.toCallBoundQuestion(): TutorRoundQuestionDeclaration? {
     return TutorRoundQuestionDeclaration(
         problemId = problemId,
         problemRevisionId = problemRevisionId,
-        anchorTerms = optionalArray("anchorTerms").map(JsonElement::requiredPrimitiveString),
+        anchorTerms = optionalArray("anchorTerms").map(JsonElement::requiredPrimitiveString)
+            .map { term -> term.take(TutorRoundQuestionDeclaration.MAX_ANCHOR_TERM_CHARS) },
     )
 }
 
@@ -635,7 +640,10 @@ internal fun JsonObject.toBoundQuestionDeclaration(): TutorRoundQuestionDeclarat
     return TutorRoundQuestionDeclaration(
         problemId = requiredString("problemId"),
         problemRevisionId = requiredString("problemRevisionId"),
-        anchorTerms = optionalArray("anchorTerms").map(JsonElement::requiredPrimitiveString),
+        // KD-38：锚词在解析期按格式预算收敛（逐字锚核对学生原话，截断后仍是原话的前缀）；
+        // 构造器仍严格——它同时守数据库回读。
+        anchorTerms = optionalArray("anchorTerms").map(JsonElement::requiredPrimitiveString)
+            .map { term -> term.take(TutorRoundQuestionDeclaration.MAX_ANCHOR_TERM_CHARS) },
     )
 }
 /**

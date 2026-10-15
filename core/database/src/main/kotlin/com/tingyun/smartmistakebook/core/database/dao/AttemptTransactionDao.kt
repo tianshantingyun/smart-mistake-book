@@ -645,7 +645,18 @@ internal abstract class AttemptTransactionDao {
         val inserted = insertEvidenceSnapshot(entity) != -1L
         if (!inserted) {
             val existing = findEvidenceSnapshot(snapshot.snapshotId)
-            if (existing != entity || findAttributions(snapshot.snapshotId) != attributions) {
+            // KD-37：同一 snapshotId 的重试带着**新的 capturedAtEpochMillis** 回来（快照由本次
+            // 结算时刻重建），比较必须时间戳容忍，否则「重新判定」永远死在这里——它早于
+            // recordAttempt 的幂等回放，第一次因 advance 失败而回滚的行就再也写不进去。
+            // 时间戳不是快照身份的一部分；身份与内容（含归属行）真的不同仍抛。
+            if (existing == null ||
+                !sameEvidenceSnapshotIdentity(
+                    existing = existing,
+                    existingAttributions = findAttributions(snapshot.snapshotId),
+                    candidate = entity,
+                    candidateAttributions = attributions,
+                )
+            ) {
                 throw ImmutablePayloadConflictException("assessment_evidence_snapshot", snapshot.snapshotId)
             }
             return false

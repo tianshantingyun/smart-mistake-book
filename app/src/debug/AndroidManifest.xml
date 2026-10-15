@@ -25,6 +25,16 @@
                 <action android:name="com.tingyun.smartmistakebook.TEST_SEED_MODEL_CONFIG" />
             </intent-filter>
         </receiver>
+        <!-- 失败模型调用响应原文的采集开关（KD-38/AUD-24 证据通道）：只随 debug 变体安装，
+             默认关，QA 用 adb 广播开/关（示例见 TestCaptureModelFailuresReceiver 的 KDoc）。
+             导出是 adb 驱动所必需，边界同样靠本清单所属的 debug 源集。 -->
+        <receiver
+            android:name=".TestCaptureModelFailuresReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.tingyun.smartmistakebook.TEST_CAPTURE_MODEL_FAILURES" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
