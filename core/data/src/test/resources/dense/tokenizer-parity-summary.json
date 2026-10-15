@@ -23,11 +23,11 @@
     "tokenizerJsonPath": "tools/dense_build/vocab/bge-small-zh-v1.5-tokenizer.json",
     "tokenizerJsonSha256": "48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26",
     "goldenPath": "tools/kb_coverage/tables/golden_queries_v2.json",
-    "goldenSha256": "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e",
+    "goldenSha256": "dbe093b203344673021dbee93fad8edac8e3da3e9772c0bf3bcb5ad65e8d94dc",
     "surfaceSample": {
       "count": 200,
       "seed": 20260924,
-      "universe": 43388,
+      "universe": 43265,
       "note": "从向量集（canonicalName + alias，条数随包现取）按种子抽取、排序"
     }
   },
@@ -52,12 +52,12 @@
   "files": {
     "cases": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-cases.txt",
-      "sha256": "8e78ce636995d7235af0b2993812c249e5778a6506ee92215770631bd6d74725",
+      "sha256": "39336fa8fa2201d55eccde0dada02e42bda32eba5f6dc10ec6c9f4fff1aed74e",
       "rows": 372
     },
     "stages": {
       "path": "core/data/src/test/resources/dense/tokenizer-parity-stages.txt",
-      "sha256": "c64feba4a262c29a6d6f8780593f68e66a0d1920be77a0b35ef75f3054651c33",
+      "sha256": "071d3218e7c0c40ff276960081b67c63f8d40621107c457d7cffc3b478ef110c",
       "rows": 68
     }
   }

@@ -497,7 +497,7 @@
    "contentId": "ext-phy-e14aad82a5-103",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:量纲法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:单位制",
      "role": "PRIMARY"
     }
    ]
@@ -681,7 +681,7 @@
    "contentId": "ext-phy-e14aad82a5-120b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:常见的速度分解模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:关联速度的分析-运动分解的核心思想",
      "role": "PRIMARY"
     }
    ]
@@ -796,7 +796,7 @@
    "contentId": "ext-phy-e14aad82a5-1219",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移",
      "role": "PRIMARY"
     }
    ]
@@ -1601,7 +1601,7 @@
    "contentId": "ext-phy-e14aad82a5-289",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像的综合分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像",
      "role": "PRIMARY"
     }
    ]
@@ -1877,7 +1877,7 @@
    "contentId": "ext-phy-e14aad82a5-325",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场中的仪器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度选择器",
      "role": "PRIMARY"
     }
    ]
@@ -2360,7 +2360,7 @@
    "contentId": "ext-phy-e14aad82a5-375",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量转化-导体克服安培力做功-其他形式能转化为电能-最终转化为内能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求解电能的思路-x1",
      "role": "PRIMARY"
     }
    ]
@@ -5741,7 +5741,7 @@
    "contentId": "ext-mat-8cd8e422a5-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦点三角形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -5971,7 +5971,7 @@
    "contentId": "ext-mat-621db1749c-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的平移与伸缩变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的变换",
      "role": "PRIMARY"
     }
    ]
@@ -6132,7 +6132,7 @@
    "contentId": "ext-che-f8568a6373-034b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:单质与氧化还原反应的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应与四种基本反应类型的关系",
      "role": "PRIMARY"
     }
    ]
@@ -6431,7 +6431,7 @@
    "contentId": "ext-che-f4eaf48efe-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -6799,7 +6799,7 @@
    "contentId": "ext-che-62064c1daf-035",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子交换膜的种类与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子交换膜",
      "role": "PRIMARY"
     }
    ]
@@ -7305,7 +7305,7 @@
    "contentId": "ext-che-466258eff2-028",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯及其化合物的价类二维图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:从化合价的角度认识cl2的化学性质-歧化反应",
      "role": "PRIMARY"
     }
    ]
@@ -7581,7 +7581,7 @@
    "contentId": "ext-phy-5a8d75eaf4-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的折射",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:全反射",
      "role": "PRIMARY"
     }
    ]
@@ -7742,7 +7742,7 @@
    "contentId": "ext-bio-3409a193bf-074",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究基因位于常染色体上还是x-y染色体同源区段上",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -8156,7 +8156,7 @@
    "contentId": "ext-bio-f90c4e2ecd-010b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -8616,7 +8616,7 @@
    "contentId": "ext-bio-9e6bf3826a-045",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传信息的翻译",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:翻译",
      "role": "PRIMARY"
     }
    ]
@@ -8731,7 +8731,7 @@
    "contentId": "ext-bio-d21b373a7f-025",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞周期",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞周期检验点与同步化",
      "role": "PRIMARY"
     }
    ]
@@ -9881,7 +9881,7 @@
    "contentId": "ext-bio-46ccd7afdc-047",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -11031,7 +11031,7 @@
    "contentId": "ext-bio-ece56c876e-035",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因编辑",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:同源重组与基因敲除",
      "role": "PRIMARY"
     }
    ]
@@ -11537,7 +11537,7 @@
    "contentId": "ext-bio-925fb82620-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA片段的电泳鉴定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:琼脂糖凝胶电泳",
      "role": "PRIMARY"
     }
    ]
@@ -11951,7 +11951,7 @@
    "contentId": "ext-bio-37ccea940d-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传信息的翻译",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:翻译",
      "role": "PRIMARY"
     }
    ]
@@ -12250,7 +12250,7 @@
    "contentId": "ext-bio-d7527e6bae-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -12618,7 +12618,7 @@
    "contentId": "ext-bio-f305df32f5-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算和常规应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算-含自交与自由交配",
      "role": "PRIMARY"
     }
    ]
@@ -12641,7 +12641,7 @@
    "contentId": "ext-bio-f305df32f5-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算和常规应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算-含自交与自由交配",
      "role": "PRIMARY"
     }
    ]
@@ -13400,7 +13400,7 @@
    "contentId": "ext-bio-483105b900-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -13515,7 +13515,7 @@
    "contentId": "ext-bio-ee9cb2bd60-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -14044,7 +14044,7 @@
    "contentId": "ext-bio-0b3efd9209-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律中的特殊分离比问题分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:个体或配子致死问题的处理-规律方法",
      "role": "PRIMARY"
     }
    ]
@@ -14205,7 +14205,7 @@
    "contentId": "ext-bio-e711cda5e0-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:染色体变异-x1",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂异常的原因分析",
      "role": "PRIMARY"
     }
    ]
@@ -14711,7 +14711,7 @@
    "contentId": "ext-bio-3db8761411-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:特异性免疫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:体液免疫",
      "role": "PRIMARY"
     }
    ]
@@ -16850,7 +16850,7 @@
    "contentId": "ext-bio-5224012f3a-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -17839,7 +17839,7 @@
    "contentId": "ext-bio-fb77a50cc1-024",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:微生物数量的测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:稀释涂布平板法计数",
      "role": "PRIMARY"
     }
    ]

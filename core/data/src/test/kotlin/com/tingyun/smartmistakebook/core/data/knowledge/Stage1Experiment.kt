@@ -71,6 +71,11 @@ internal class Stage1Experiment(
 
     private val chaptersInPool: List<String> = corpus.chaptersBySubject.values.flatten().distinct().sorted()
 
+    /** 词元数 ≠ 特征数的节点（空特征兜底含分隔符特征；正常应为空/已登记例外）。 */
+    val tokensByNode: Map<String, String> = corpus.multiTokenNodeIds.associateWith { nodeId ->
+        "特征 ${corpus.featuresByNodeId.getValue(nodeId).size} → 词元 ${corpus.tokensByNodeId.getValue(nodeId)}"
+    }
+
     val indexInfo: String =
         "indexVersion=${KnowledgeSearchFeatureExtractor.INDEX_VERSION} " +
             "docs=${corpus.nodes.size} featureRows=${corpus.indexRows} " +
@@ -625,9 +630,10 @@ internal class Stage1Experiment(
         appendLine()
         appendLine("- sqlite-jdbc（xerial）内嵌 SQLite 版本：`${fts.sqliteVersion}`；FTS5 建表成功；" +
             "`trigram` tokenizer 可用=${trigramFts.trigramAvailable}；数学函数 `ln()` 可用=${fts.mathFunctionsAvailable}")
-        appendLine("- 分词保真 / 文档长度对账（唯一特征反推：`D=特征数`、`avgdl=Σ特征数/N` 与 FTS5 实打分一致）：" +
+        appendLine("- 分词保真 / 文档长度对账（唯一特征反推：`D=词元数`、`avgdl=Σ词元数/N` 与 FTS5 实打分一致；" +
+            "词元数=unicode61 游程口径，正常特征 1:1，例外=空特征兜底里含分隔符的特征，见 `Stage1LexicalLab.Corpus.tokensByNodeId`）：" +
             "抽 ${lengthCheck.sampled} 篇，不一致 ${lengthCheck.mismatches.size} 篇，最大偏差 ${lengthCheck.maxDelta}" +
-            "${if (lengthCheck.ok) "（⇒ 臂 A' 的 len=特征数、tf 二值成立）" else "：${lengthCheck.mismatches}"}")
+            "${if (lengthCheck.ok) "（⇒ 臂 A' 的 len、tf 二值成立；词元≠特征的节点 ${tokensByNode.size} 个：${tokensByNode}）" else "：${lengthCheck.mismatches}"}")
         appendLine("- bm25 公式校验（固定夹具 ${formulaCheck.docsInFixture} 篇，avgdl=${formulaCheck.avgdlInFixture}，含 tf>1 与 idf 钳位）：" +
             "与 FTS5 实打分最大偏差 ${formulaCheck.maxDelta}；不套钳位时的最大偏差 ${formulaCheck.maxUnclampedDelta}" +
             "（钳位分支被走到=${formulaCheck.clampExercised}）")

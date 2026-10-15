@@ -94,8 +94,14 @@ class RealPackTest(unittest.TestCase):
         # 批次10 窗口内容另新建 4 个知识点（[CHEMISTRY] 研究物质结构的价值、[MATH] 获取数据的基本途径、
         # [PHYSICS] 家庭电路与安全用电、[PHYSICS] 材料科学及其应用）→ 成品实点 3741 − 386 + 4 = 3359
         # （量源 = 成品包与 HEAD 包逐点集合差：退场 386、新增 4；round-1 失败信息 `3355 != 3359`）。
+        # 2026-10-16 批次11 promote v15 再重钉（成品实测）：批次11 超配并点（point_merge.csv 批次11
+        # 新增 170 行）+ F2 窗口 1 行（`电磁振动-电磁波和传感器`→`电磁振荡`）共 171 行落地（退场 171，
+        # 全部可由 point_merge.csv 的已执行行解释、无无据退场）；同批新建拆点 22 个（new_points.csv
+        # 20 + new_points_manual.csv 2）→ 成品实点 3359 − 171 + 22 = 3210（量源 = 成品包与 HEAD 包
+        # 逐点集合差：退场 171、新增 22；本用例 round-1 失败信息 `3359 != 3210`；
+        # 复算脚本 build/agent-batch11/pin/measure_py_pins.py）。
         # 点数随入库/结构清理轮次变化，由执行轮在提交里维护本 pin。
-        self.assertEqual(3359, dp._point_count(pack))
+        self.assertEqual(3210, dp._point_count(pack))
 
     def test_purge_table_refs_is_clean_on_shipped(self):
         """成品已删过点、外部表已清过——再 purge 必须 0（无悬空引用残留）。"""

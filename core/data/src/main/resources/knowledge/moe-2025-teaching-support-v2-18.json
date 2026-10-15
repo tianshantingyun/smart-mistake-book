@@ -403,7 +403,7 @@
    "contentId": "ext-mat-e828727302-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分式放缩与糖水不等式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:飘带不等式",
      "role": "PRIMARY"
     }
    ]
@@ -426,7 +426,7 @@
    "contentId": "ext-mat-e828727302-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分式放缩与糖水不等式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:飘带不等式",
      "role": "PRIMARY"
     }
    ]
@@ -564,7 +564,7 @@
    "contentId": "ext-mat-4b90468dcb-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数中的双变量问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极值点偏移问题",
      "role": "PRIMARY"
     }
    ]
@@ -1093,7 +1093,7 @@
    "contentId": "ext-mat-9256f0401a-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等角定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
      "role": "PRIMARY"
     }
    ]
@@ -1415,7 +1415,7 @@
    "contentId": "ext-mat-9673d5e7a5-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -1553,7 +1553,7 @@
    "contentId": "ext-mat-ae56397cb1-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:子数列问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的插项与去项问题",
      "role": "PRIMARY"
     }
    ]
@@ -1645,7 +1645,7 @@
    "contentId": "ext-mat-b434ab451b-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布应用题的解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布",
      "role": "PRIMARY"
     }
    ]
@@ -1668,7 +1668,7 @@
    "contentId": "ext-mat-b434ab451b-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:超几何分布的判断与解题步骤",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:超几何分布",
      "role": "PRIMARY"
     }
    ]
@@ -2473,7 +2473,7 @@
    "contentId": "ext-mat-445c6c7dae-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布应用题的解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布",
      "role": "PRIMARY"
     }
    ]
@@ -2611,7 +2611,7 @@
    "contentId": "ext-mat-2a8b6b3878-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间点线面的位置关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:四个公理",
      "role": "PRIMARY"
     }
    ]
@@ -2657,7 +2657,7 @@
    "contentId": "ext-mat-cf5431f687-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用-线线平行-线面平行-面面平行-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平行关系之间的转化",
      "role": "PRIMARY"
     }
    ]
@@ -5164,7 +5164,7 @@
    "contentId": "ext-mat-a05a4f5163-035",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线和平面所成的角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:线面角的作法与几何法求角",
      "role": "PRIMARY"
     }
    ]
@@ -5486,7 +5486,7 @@
    "contentId": "ext-mat-8b5f712f59-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与平面所成角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:用向量法求解直线与平面所成角的方法",
      "role": "PRIMARY"
     }
    ]
@@ -6268,7 +6268,7 @@
    "contentId": "ext-mat-8adcb9249b-032",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三次函数图象的对称性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三次函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -6314,7 +6314,7 @@
    "contentId": "ext-mat-e8f0e9f1bf-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -6337,7 +6337,7 @@
    "contentId": "ext-mat-e8f0e9f1bf-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -7556,7 +7556,7 @@
    "contentId": "ext-mat-5efe542c4a-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分段函数的常见类型及解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的表示法",
      "role": "PRIMARY"
     }
    ]
@@ -7763,7 +7763,7 @@
    "contentId": "ext-mat-54808917b9-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -8062,7 +8062,7 @@
    "contentId": "ext-mat-d460e74e5f-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -8292,7 +8292,7 @@
    "contentId": "ext-mat-31bb00e5dd-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -10523,7 +10523,7 @@
    "contentId": "ext-mat-6f5c9feabe-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列组合常用六法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列组合的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -10960,7 +10960,7 @@
    "contentId": "ext-mat-34db3f7635-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:概率的基本性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:互斥事件与对立事件",
      "role": "PRIMARY"
     }
    ]
@@ -11627,7 +11627,7 @@
    "contentId": "ext-mat-33e797f7d2-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形的弧长与面积公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形弧长与面积公式",
      "role": "PRIMARY"
     }
    ]
@@ -11765,7 +11765,7 @@
    "contentId": "ext-mat-33e797f7d2-026",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形的弧长与面积公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形弧长与面积公式",
      "role": "PRIMARY"
     }
    ]
@@ -12064,7 +12064,7 @@
    "contentId": "ext-mat-832d8f9451-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -13950,7 +13950,7 @@
    "contentId": "ext-bio-34e20389c5-050",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:k值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群数量的变化",
      "role": "PRIMARY"
     }
    ]
@@ -13973,7 +13973,7 @@
    "contentId": "ext-bio-34e20389c5-051",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:k值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群数量的变化",
      "role": "PRIMARY"
     }
    ]
@@ -14939,7 +14939,7 @@
    "contentId": "ext-mat-155d7aed4b-039",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两圆的公共弦",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆系方程",
      "role": "PRIMARY"
     }
    ]
@@ -15169,7 +15169,7 @@
    "contentId": "ext-mat-80893ff1f7-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点与准线",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -15330,7 +15330,7 @@
    "contentId": "ext-mat-92e12b85b9-043",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦点三角形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -15445,7 +15445,7 @@
    "contentId": "ext-mat-92e12b85b9-048",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦点三角形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -15514,7 +15514,7 @@
    "contentId": "ext-mat-51afa2daf0-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极点极线",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线的切点弦",
      "role": "PRIMARY"
     }
    ]
@@ -15997,7 +15997,7 @@
    "contentId": "ext-mat-c532147adc-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的最值或范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
      "role": "PRIMARY"
     }
    ]
@@ -16342,7 +16342,7 @@
    "contentId": "ext-mat-8e37273f9f-011b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -16664,7 +16664,7 @@
    "contentId": "ext-mat-a66468915c-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -16848,7 +16848,7 @@
    "contentId": "ext-mat-44e5be8d6a-032",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列组合常用六法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列组合的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -16871,7 +16871,7 @@
    "contentId": "ext-mat-44e5be8d6a-032b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列组合常用六法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列组合的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -17170,7 +17170,7 @@
    "contentId": "ext-mat-424f3301ca-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形的弧长与面积公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形弧长与面积公式",
      "role": "PRIMARY"
     }
    ]
@@ -17193,7 +17193,7 @@
    "contentId": "ext-mat-424f3301ca-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:任意角与弧度制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数的定义",
      "role": "PRIMARY"
     }
    ]
@@ -17561,7 +17561,7 @@
    "contentId": "ext-mat-4d27bdb59c-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -17998,7 +17998,7 @@
    "contentId": "ext-mat-5e037851c4-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -18435,7 +18435,7 @@
    "contentId": "ext-mat-9d7938124d-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -18734,7 +18734,7 @@
    "contentId": "ext-mat-fa954b909d-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:齐次式的处理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:齐次式与切弦互化",
      "role": "PRIMARY"
     }
    ]
@@ -19516,7 +19516,7 @@
    "contentId": "ext-mat-f0dd33cb1b-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -19539,7 +19539,7 @@
    "contentId": "ext-mat-c4d84b071a-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的单调性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复合函数的定义与单调性",
      "role": "PRIMARY"
     }
    ]
@@ -19585,7 +19585,7 @@
    "contentId": "ext-mat-8ad486db63-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的平移与伸缩变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的变换",
      "role": "PRIMARY"
     }
    ]
@@ -19608,7 +19608,7 @@
    "contentId": "ext-mat-b0d0264221-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -21195,7 +21195,7 @@
    "contentId": "ext-mat-c0f3442df0-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两条直线的位置关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两条平行直线间的距离",
      "role": "PRIMARY"
     }
    ]
@@ -21333,7 +21333,7 @@
    "contentId": "ext-mat-3f89748810-038",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点与准线",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -21448,7 +21448,7 @@
    "contentId": "ext-mat-9db00e8ca4-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复合函数的定义与单调性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复合函数定义域忽略内层值域与外层定义域关系致错",
      "role": "PRIMARY"
     }
    ]
@@ -21931,7 +21931,7 @@
    "contentId": "ext-mat-94ac5b70f5-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -22483,7 +22483,7 @@
    "contentId": "ext-mat-c1cf9ecefc-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:根式与分数指数幂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数幂运算的一般原则",
      "role": "PRIMARY"
     }
    ]
@@ -23380,7 +23380,7 @@
    "contentId": "ext-mat-04622e0ad2-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用-线线平行-线面平行-面面平行-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平行关系之间的转化",
      "role": "PRIMARY"
     }
    ]
@@ -23426,7 +23426,7 @@
    "contentId": "ext-mat-04622e0ad2-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用-线线平行-线面平行-面面平行-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面与平面平行",
      "role": "PRIMARY"
     }
    ]
@@ -24001,7 +24001,7 @@
    "contentId": "ext-mat-31be25e678-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -24185,7 +24185,7 @@
    "contentId": "ext-mat-4a462ef52f-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布应用题的解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布",
      "role": "PRIMARY"
     }
    ]
@@ -24208,7 +24208,7 @@
    "contentId": "ext-mat-4a462ef52f-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:超几何分布的判断与解题步骤",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:超几何分布",
      "role": "PRIMARY"
     }
    ]
@@ -25174,7 +25174,7 @@
    "contentId": "ext-mat-04cad33fb4-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -25519,7 +25519,7 @@
    "contentId": "ext-mat-04cad33fb4-041",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:凹凸函数的几何特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二阶导数与函数的凹凸性",
      "role": "PRIMARY"
     }
    ]
@@ -26968,7 +26968,7 @@
    "contentId": "ext-mat-0e56aad79f-027",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象与描点法作图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:描点法作函数图象",
      "role": "PRIMARY"
     }
    ]
@@ -27635,7 +27635,7 @@
    "contentId": "ext-mat-a02e4fb9e4-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的有关概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的通项",
      "role": "PRIMARY"
     }
    ]
@@ -28601,7 +28601,7 @@
    "contentId": "ext-mat-bea560e2b1-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:凹凸函数的几何特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二阶导数与函数的凹凸性",
      "role": "PRIMARY"
     }
    ]
@@ -29360,7 +29360,7 @@
    "contentId": "ext-mat-62037f39e2-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -29406,7 +29406,7 @@
    "contentId": "ext-mat-62037f39e2-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明",
      "role": "PRIMARY"
     }
    ]
@@ -29567,7 +29567,7 @@
    "contentId": "ext-mat-cc379bd50e-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -30073,7 +30073,7 @@
    "contentId": "ext-mat-3ac9e93917-001c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:判断集合间的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:子集与集合的相等",
      "role": "PRIMARY"
     }
    ]
@@ -30188,7 +30188,7 @@
    "contentId": "ext-mat-98974bc4a8-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的单调性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复合函数的定义与单调性",
      "role": "PRIMARY"
     }
    ]
@@ -30211,7 +30211,7 @@
    "contentId": "ext-mat-98974bc4a8-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -30510,7 +30510,7 @@
    "contentId": "ext-mat-317574de19-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -30809,7 +30809,7 @@
    "contentId": "ext-mat-9bf5abe569-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -31982,7 +31982,7 @@
    "contentId": "ext-mat-cea51d2825-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形的弧长与面积公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形弧长与面积公式",
      "role": "PRIMARY"
     }
    ]
@@ -33132,7 +33132,7 @@
    "contentId": "ext-mat-29afb93041-031",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对含有一个量词命题的否定理解错误致错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:命题的否定-对命题p加以否定-得到一个新的命题-记作-读作-非p-或p的否定",
      "role": "PRIMARY"
     }
    ]
@@ -33914,7 +33914,7 @@
    "contentId": "ext-mat-625c3a0cab-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:中心对称与轴对称的坐标关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的对称问题",
      "role": "PRIMARY"
     }
    ]
@@ -34696,7 +34696,7 @@
    "contentId": "ext-mat-cfa8ae201e-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:异面直线所成角的求法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:异面直线所成的角",
      "role": "PRIMARY"
     }
    ]
@@ -34742,7 +34742,7 @@
    "contentId": "ext-mat-cfa8ae201e-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间点线面的位置关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:四个公理",
      "role": "PRIMARY"
     }
    ]
@@ -35294,7 +35294,7 @@
    "contentId": "ext-mat-3dc7c75617-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:异面直线所成角的求法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:异面直线所成的角",
      "role": "PRIMARY"
     }
    ]
@@ -36605,7 +36605,7 @@
    "contentId": "ext-mat-68937c1ee4-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -36628,7 +36628,7 @@
    "contentId": "ext-mat-5c244e5826-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:不等式恒成立",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:单变量不等式恒成立问题",
      "role": "PRIMARY"
     }
    ]
@@ -36881,7 +36881,7 @@
    "contentId": "ext-mat-9684ea5065-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:构造法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:累加法与累乘法求数列通项",
      "role": "PRIMARY"
     }
    ]
@@ -36927,7 +36927,7 @@
    "contentId": "ext-mat-9684ea5065-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -37134,7 +37134,7 @@
    "contentId": "ext-mat-73b8aa961f-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的平移与伸缩变换",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的变换",
      "role": "PRIMARY"
     }
    ]
@@ -37571,7 +37571,7 @@
    "contentId": "ext-mat-8e99166996-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -40032,7 +40032,7 @@
    "contentId": "ext-mat-3de8416b51-001d",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:线段的定比分点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:定比分点向量公式",
      "role": "PRIMARY"
     }
    ]
@@ -40630,7 +40630,7 @@
    "contentId": "ext-mat-5017ff76f4-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数中的双变量问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极值点偏移问题",
      "role": "PRIMARY"
     }
    ]
@@ -41136,7 +41136,7 @@
    "contentId": "ext-bio-df5a1763b4-040",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -41182,7 +41182,7 @@
    "contentId": "ext-bio-df5a1763b4-042",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -41205,7 +41205,7 @@
    "contentId": "ext-bio-df5a1763b4-043",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -41711,7 +41711,7 @@
    "contentId": "ext-bio-fb2ca61d8b-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -41734,7 +41734,7 @@
    "contentId": "ext-bio-fb2ca61d8b-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -41757,7 +41757,7 @@
    "contentId": "ext-bio-fb2ca61d8b-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -41780,7 +41780,7 @@
    "contentId": "ext-bio-fb2ca61d8b-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -42102,7 +42102,7 @@
    "contentId": "ext-bio-4ce367cc29-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:雄性不育与自交不亲和",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核质互作雄性不育与三系法育种",
      "role": "PRIMARY"
     }
    ]
@@ -42608,7 +42608,7 @@
    "contentId": "ext-mat-ec064fb170-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形的弧长与面积公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形弧长与面积公式",
      "role": "PRIMARY"
     }
    ]
@@ -42884,7 +42884,7 @@
    "contentId": "ext-mat-d68ad97a21-036",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -42976,7 +42976,7 @@
    "contentId": "ext-mat-5a3a3c8e9e-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:正弦函数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -43114,7 +43114,7 @@
    "contentId": "ext-mat-5a3a3c8e9e-023",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:正弦函数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -43505,7 +43505,7 @@
    "contentId": "ext-mat-291d8c846f-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -43988,7 +43988,7 @@
    "contentId": "ext-mat-7acb98c659-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -44011,7 +44011,7 @@
    "contentId": "ext-mat-7acb98c659-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -44034,7 +44034,7 @@
    "contentId": "ext-mat-7acb98c659-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -45138,7 +45138,7 @@
    "contentId": "ext-mat-ac5d633575-033",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆系方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆的位置关系",
      "role": "PRIMARY"
     }
    ]
@@ -45621,7 +45621,7 @@
    "contentId": "ext-bio-89d98ec49a-008b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题的总结",
      "role": "PRIMARY"
     }
    ]
@@ -45759,7 +45759,7 @@
    "contentId": "ext-bio-c244f5f146-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:原核细胞和真核细胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的多样性和统一性",
      "role": "PRIMARY"
     }
    ]
@@ -46518,7 +46518,7 @@
    "contentId": "ext-bio-c244f5f146-028",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物质出入细胞的方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:通道蛋白与载体蛋白的辨析",
      "role": "PRIMARY"
     }
    ]
@@ -46955,7 +46955,7 @@
    "contentId": "ext-bio-c244f5f146-046",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -47231,7 +47231,7 @@
    "contentId": "ext-bio-c244f5f146-053b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞凋亡",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞自噬",
      "role": "PRIMARY"
     }
    ]
@@ -47599,7 +47599,7 @@
    "contentId": "ext-bio-31654814b8-023",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用的原理",
      "role": "PRIMARY"
     }
    ]
@@ -48841,7 +48841,7 @@
    "contentId": "ext-bio-2b57888b0f-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:受精作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
      "role": "PRIMARY"
     }
    ]
@@ -49025,7 +49025,7 @@
    "contentId": "ext-bio-2b57888b0f-024",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对（多对）等位基因位置关系的判断",
      "role": "PRIMARY"
     }
    ]
@@ -49991,7 +49991,7 @@
    "contentId": "ext-bio-ec9b2217ea-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:现代生物进化理论",
      "role": "PRIMARY"
     }
    ]
@@ -50888,7 +50888,7 @@
    "contentId": "ext-bio-07c46f02a2-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:特异性免疫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:免疫系统的组成和功能",
      "role": "PRIMARY"
     }
    ]
@@ -51164,7 +51164,7 @@
    "contentId": "ext-bio-1a6b8873af-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:其他植物激素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物激素与动物激素的比较",
      "role": "PRIMARY"
     }
    ]
@@ -51233,7 +51233,7 @@
    "contentId": "ext-bio-1a6b8873af-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物生长调节剂的应用",
      "role": "PRIMARY"
     }
    ]
@@ -51279,7 +51279,7 @@
    "contentId": "ext-bio-1a6b8873af-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:其他植物激素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物激素间的相互作用",
      "role": "PRIMARY"
     }
    ]
@@ -51440,7 +51440,7 @@
    "contentId": "ext-bio-1e2cbd06a1-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:果酒和果醋的制作",
      "role": "PRIMARY"
     }
    ]
@@ -51463,7 +51463,7 @@
    "contentId": "ext-bio-1e2cbd06a1-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:果酒和果醋的制作",
      "role": "PRIMARY"
     }
    ]
@@ -51601,7 +51601,7 @@
    "contentId": "ext-bio-1e2cbd06a1-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:微生物的培养",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:微生物的选择培养和计数",
      "role": "PRIMARY"
     }
    ]
@@ -52015,7 +52015,7 @@
    "contentId": "ext-bio-376bd04002-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:琼脂糖凝胶电泳",
      "role": "PRIMARY"
     }
    ]
@@ -52130,7 +52130,7 @@
    "contentId": "ext-bio-376bd04002-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因导入受体细胞的方法",
      "role": "PRIMARY"
     }
    ]
@@ -52176,7 +52176,7 @@
    "contentId": "ext-bio-376bd04002-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因导入受体细胞的方法",
      "role": "PRIMARY"
     }
    ]
@@ -52222,7 +52222,7 @@
    "contentId": "ext-bio-376bd04002-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -52268,7 +52268,7 @@
    "contentId": "ext-bio-376bd04002-023",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -52636,7 +52636,7 @@
    "contentId": "ext-bio-1e8b534995-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:干细胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:诱导多能干细胞（iPS细胞）",
      "role": "PRIMARY"
     }
    ]
@@ -53441,7 +53441,7 @@
    "contentId": "ext-bio-ead76e685a-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:能量流动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态金字塔",
      "role": "PRIMARY"
     }
    ]
@@ -54223,7 +54223,7 @@
    "contentId": "ext-bio-808baa0568-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脱水缩合",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题的总结",
      "role": "PRIMARY"
     }
    ]
@@ -54683,7 +54683,7 @@
    "contentId": "ext-bio-bea581efd1-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -54706,7 +54706,7 @@
    "contentId": "ext-bio-bea581efd1-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:囊泡运输与蛋白质分选",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的分选（信号肽假说）",
      "role": "PRIMARY"
     }
    ]
@@ -55534,7 +55534,7 @@
    "contentId": "ext-bio-121dbc60f9-026",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的统一性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的多样性和统一性",
      "role": "PRIMARY"
     }
    ]
@@ -56316,7 +56316,7 @@
    "contentId": "ext-bio-5a6b49ba69-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
      "role": "PRIMARY"
     }
    ]
@@ -56891,7 +56891,7 @@
    "contentId": "ext-bio-0b30bf1136-027",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -56914,7 +56914,7 @@
    "contentId": "ext-bio-0b30bf1136-028",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -57006,7 +57006,7 @@
    "contentId": "ext-bio-0b30bf1136-032",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -58501,7 +58501,7 @@
    "contentId": "ext-bio-e38b2a3536-031",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -59260,7 +59260,7 @@
    "contentId": "ext-bio-d4037f8f5d-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:能量流动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态金字塔",
      "role": "PRIMARY"
     }
    ]
@@ -60042,7 +60042,7 @@
    "contentId": "ext-bio-f37689ac02-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -60824,7 +60824,7 @@
    "contentId": "ext-bio-5f510cdc4a-059",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -60847,7 +60847,7 @@
    "contentId": "ext-bio-5f510cdc4a-060",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -60870,7 +60870,7 @@
    "contentId": "ext-bio-5f510cdc4a-061",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -61399,7 +61399,7 @@
    "contentId": "ext-bio-5f510cdc4a-1885",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA片段的电泳鉴定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:琼脂糖凝胶电泳",
      "role": "PRIMARY"
     }
    ]
@@ -61422,7 +61422,7 @@
    "contentId": "ext-bio-5f510cdc4a-1913",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -61445,7 +61445,7 @@
    "contentId": "ext-bio-5f510cdc4a-1915",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -61468,7 +61468,7 @@
    "contentId": "ext-bio-5f510cdc4a-1916",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -61514,7 +61514,7 @@
    "contentId": "ext-bio-5f510cdc4a-1918",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -61537,7 +61537,7 @@
    "contentId": "ext-bio-5f510cdc4a-1919",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -61560,7 +61560,7 @@
    "contentId": "ext-bio-5f510cdc4a-1921",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]
@@ -61583,7 +61583,7 @@
    "contentId": "ext-bio-5f510cdc4a-1922",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程的应用",
      "role": "PRIMARY"
     }
    ]

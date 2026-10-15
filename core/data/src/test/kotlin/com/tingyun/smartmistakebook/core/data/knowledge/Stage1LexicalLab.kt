@@ -42,6 +42,9 @@ import kotlinx.serialization.json.Json
  * | D | `stage1-D-A+B+C2stage` | A+B + 两段式章门控 | ✅ 生产候选 |
  * | T | `stage1-T-trigram` | 同索引内容、只换 `tokenize='trigram'` | ❌ 只作对照 |
  */
+/** FTS5 unicode61 的"非词元"分隔口径（与 [Stage1LexicalLab] 的 MATCH 特征口径互补）。 */
+private val NON_ALNUM_RUNS = Regex("[^\\p{L}\\p{N}]+")
+
 internal object Stage1LexicalLab {
 
     // ------------------------------------------------------------------
@@ -114,6 +117,30 @@ internal object Stage1LexicalLab {
         val trustedBySubject: Map<String, List<KnowledgeNodeSeedRecord>> =
             nodes.filter { it.verificationStatus in RetrievalBenchmark.TRUSTED_VERIFICATION_STATUSES }
                 .groupBy { it.subject }
+
+        /**
+         * 特征 → FTS5 词元数（unicode61 口径 = `\p{L}`/`\p{N}` 的极大游程数）。
+         *
+         * **正常特征 = 1**（抽取器只由 L/N 字符组成）。唯一例外是 `fromNode` 的空特征兜底
+         * （`setOf(canonicalName.lowercase().take(48))`）：当节点名里所有片段都短到产不出特征、
+         * 名字本身又含分隔符（空格）时，兜底"特征"会被 unicode61 切成多个词条。
+         * **v15 实测**：两条官方节题名（`醇 酚` / `醛 酮`，F2 kit-06#4/#5 章层补建）属此类，
+         * 全库词元数 = 特征数 + 2（量源 `build/agent-batch11/pin/probe_features_replay.py`：
+         * 逐节点复刻抽取器 + FTS5 docsize 实测 532,398 vs 特征 532,396；与 JVM 侧
+         * `verifyDocumentLengths` 的 bm25 反解一致）。对账口径随之取**词元数**而非特征数——
+         * 门仍是 delta ≤ 1e-9 的逐位对账，异常源被钉在唯一处。
+         */
+        val tokensByNodeId: Map<String, Int> = featuresByNodeId.mapValues { (_, features) ->
+            features.sumOf { feature -> feature.split(NON_ALNUM_RUNS).count { it.isNotEmpty() } }
+        }
+
+        /** 全表词元总数（= FTS5 的 Σdl；正常等于 [indexRows]，含兜底例外时 + 例外数）。 */
+        val indexTokenRows: Long = tokensByNodeId.values.sumOf { it.toLong() }
+
+        /** 词元数 ≠ 特征数的节点（应为空或恰为兜底例外；对账门会逐条列出）。 */
+        val multiTokenNodeIds: List<String> = featuresByNodeId.keys
+            .filter { tokensByNodeId.getValue(it) != featuresByNodeId.getValue(it).size }
+            .sorted()
 
         /** 每个科里原子节点的章分布（金标章映射的覆盖面，报告里出数）。 */
         val chaptersBySubject: Map<String, List<String>> =
@@ -303,15 +330,17 @@ internal object Stage1LexicalLab {
             }
 
         /**
-         * **语料级文档长度对账**（臂 A' 的 `len = 特征数` / `tf 二值` 是否成立）。
+         * **语料级文档长度对账**（臂 A' 的 `len` / `tf 二值` 是否成立）。
          *
          * bm25 的长度项只依赖 `D / avgdl`（整体缩放不改变分数），所以要验证的不变量是：
-         * **每篇的 D 与全表 avgdl 之比 = 该节点特征数与平均特征数之比**。
+         * **每篇的 D 与全表 avgdl 之比 = 该节点（词元数）与平均（词元数）之比**。
          *
          * 做法：取**只出现在一篇文档里**的特征（唯一特征），它的 idf 只由 `(N, nHit=1)`
          * 决定、与文档长度无关；于是可以用 FTS5 实际返回的 `bm25()` 分数，与"按
-         * `D = 特征数`、`avgdl = Σ特征数 / N` 正演算出来的分数"逐位比对。正演对得上，
-         * 就说明语料里没有"一个特征被切成多个词条"这类长度失真。
+         * `D = 词元数`、`avgdl = Σ词元数 / N` 正演算出来的分数"逐位比对。正演对得上，
+         * 就说明语料里没有"一个特征被切成多个词条"这类长度失真（除已登记的兜底例外——
+         * 空特征兜底里含分隔符的"特征"，见 [Corpus.tokensByNodeId] 的说明与量源；
+         * 逐节点的例外清单由 [Corpus.multiTokenNodeIds] 给出，测试侧另有钉）。
          *
          * 说明：这里**不用 `fts5vocab`**——它的 `doc` 列在本 SQLite 上实测不是文档 rowid
          * （按它分组的规模与语料结构不符），语义没吃透就不拿它当判据；改用 FTS5 自身的
@@ -330,12 +359,12 @@ internal object Stage1LexicalLab {
                 .take(sampleLimit)
             require(uniqueTerms.isNotEmpty()) { "语料里没有唯一特征，无法对账文档长度" }
             val nodeCount = corpus.nodes.size
-            val avgdl = corpus.indexRows.toDouble() / nodeCount
+            val avgdl = corpus.indexTokenRows.toDouble() / nodeCount
             val idfUnique = kotlin.math.ln((nodeCount - 1 + 0.5) / (1 + 0.5))
             val mismatches = ArrayList<String>()
             var maxDelta = 0.0
             uniqueTerms.forEach { (term, nodeId) ->
-                val expectedD = corpus.featuresByNodeId.getValue(nodeId).size
+                val expectedD = corpus.tokensByNodeId.getValue(nodeId)
                 val predicted = -1.0 * idfUnique * (K1 + 1.0) /
                     (1.0 + K1 * (1.0 - B + B * expectedD / avgdl))
                 val actual = prepared(

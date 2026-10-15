@@ -77,6 +77,15 @@ import java.security.MessageDigest
  * （2026-09-23 实测对称差 0）；**名次**只在本侧窗口内解释——父节点随后块的条数与序不同
  * （镜像按包内出现序、真 SQL 按 rowid 序），同样的题可差 1~3 位。
  *
+ * **词面臂 + 第二份账本**（2026-10-14 加）：除上面这条融合臂外，本测试再按**纯词面次序**
+ * （第二次判分把 `queryText` 置 null，同一 store、同一深度 [RECALL_DEPTH]、同口径
+ * [SAMPLES_PER_QUERY]）判一遍，另落一份账本 `golden-lexical-misses-<运行戳>.txt`
+ * （设备 `Download/`，取回与融合臂账本并列）。它消灭的具体失败：融合臂与 JVM 镜像的 MISS
+ * 对称差（批 10 = 17）里混着"腿的差异"——镜像只有词面腿、装置路线不对等，量不出"镜像是否
+ * 忠实"。词面臂与镜像同路对拍、对称差应恒为 0（对照脚本
+ * `build/agent-batch11/d3/zero-drift-pairs.py`）。两臂共用同一次设备运行与预热；
+ * 融合臂的判分、墙钟与账本（`golden-fused-misses-*` / 既有打印格式）一行不动。
+ *
  * 说明：任务书写的"in-memory Room"在本模块不可达——`openInMemory` 是
  * `:core:database` 的 internal，而金标集与安装器都在 `:core:data`；本测试因此沿用
  * 参照测试（KnowledgeContextRetrievalInstrumentedTest）的具名文件库 + 跑完即删，
@@ -190,6 +199,48 @@ class GoldenRetrievalInstrumentedTest {
                 )
             }
 
+            // ===== 词面臂：第二遍判分（同一 store、同一深度 [RECALL_DEPTH]、同口径 [SAMPLES_PER_QUERY]）=====
+            // 存在的理由（消灭的具体失败）：上面融合臂与 JVM 镜像的 MISS 对称差（批 10 = 17）
+            // 混合了"腿的差异"（镜像只有词面腿），装置路线不对等时它量不出"镜像是否忠实"。
+            // 词面臂把 `queryText` 置 null ⇒ store 按契约走词面次序（RoomKnowledgeBaseStore 的
+            // rerankMatchOrder：queryText 为 null/blank ⇒ 原样返回词面次序），与镜像同路对拍。
+            // 融合臂的判分、墙钟与账本不动；两臂共用同一次设备运行与预热。
+            val elapsedMillisLexical = mutableListOf<Long>()
+            val perCaseLexical = cases.map { case ->
+                var hits = 0
+                var bestRank = 0
+                repeat(SAMPLES_PER_QUERY) {
+                    val started = SystemClock.elapsedRealtimeNanos()
+                    val recall = store.readSubjectKnowledgeRecallCandidates(
+                        subject = case.subject,
+                        searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(case.query),
+                        limit = RECALL_DEPTH,
+                        // 词面臂：不传 queryText（纯词面次序），别的口径与融合臂逐字相同。
+                        queryText = null,
+                    )
+                    elapsedMillisLexical += (SystemClock.elapsedRealtimeNanos() - started) / 1_000_000
+                    assertTrue(
+                        "${case.subject} 词面臂召回出现跨科节点（披露边界被破坏）",
+                        recall.all { it.subject == case.subject },
+                    )
+                    val candidates = recall.take(SCORED_TOP_K)
+                    val rank = candidates.indexOfFirst {
+                        it.knowledgeNodeId.endsWith(ATOMIC_SUFFIX + case.expectedSlug)
+                    }.let { if (it < 0) 0 else it + 1 }
+                    if (rank > 0) hits += 1
+                    bestRank = if (bestRank == 0) rank else minOf(bestRank, rank)
+                }
+                GoldenCaseScore(
+                    subject = case.subject,
+                    chapter = case.chapter,
+                    query = case.query,
+                    expectedSlug = case.expectedSlug,
+                    hitInAllSamples = hits == SAMPLES_PER_QUERY,
+                    hitInAnySample = hits > 0,
+                    bestRank = bestRank,
+                )
+            }
+
             val p95 = elapsedMillis.percentile95()
             val p50 = elapsedMillis.percentile(50)
             // 墙钟门**按腿是否在场分流**（用户 2026-09-25 裁定 Q1）：
@@ -207,6 +258,14 @@ class GoldenRetrievalInstrumentedTest {
             val chapterStats = perCase.groupBy { it.chapter }.map { entry ->
                 Triple(entry.key, entry.value.count { s -> s.hitInAllSamples }, entry.value.size)
             }
+            // 词面臂同口径汇总（判分口径与融合臂逐字相同：top-[SCORED_TOP_K]、全样本/任一样本）。
+            val lexicalP95 = elapsedMillisLexical.percentile95()
+            val lexicalP50 = elapsedMillisLexical.percentile(50)
+            val lexicalHitAllCount = perCaseLexical.count { it.hitInAllSamples }
+            val lexicalHitAnyCount = perCaseLexical.count { it.hitInAnySample }
+            val lexicalRecallMainAll = lexicalHitAllCount.toDouble() / perCaseLexical.size
+            val lexicalRecallMainAny = lexicalHitAnyCount.toDouble() / perCaseLexical.size
+            val lexicalMrrMain = perCaseLexical.map { if (it.bestRank > 0) 1.0 / it.bestRank else 0.0 }.average()
             // MISS 诊断（**判分口径不动**：上面的 top-5 分数仍来自裸 B 路 limit=5 的那次调用）。
             // 只对未命中的题放宽深度再召一次，回答"排到第几 / 到底在不在"——D-01 的两种病因
             // 靠这一个数分开：rank=N 是排序问题（IDF/长度归一化能救），absent 是索引/特征问题。
@@ -220,6 +279,26 @@ class GoldenRetrievalInstrumentedTest {
                 // `take` 不能省：store 返回"matched 优先 + 父节点随后"，序列可长过深度，
                 // 不截断就会报出超过声明深度的名次（2026-09-23 实测过一次 rank=284>256）。
                 val probeRank = probe.take(MISS_PROBE_LIMIT).indexOfFirst {
+                    it.knowledgeNodeId.endsWith(ATOMIC_SUFFIX + s.expectedSlug)
+                }.let { if (it < 0) 0 else it + 1 }
+                GoldenMiss(
+                    subject = s.subject,
+                    chapter = s.chapter,
+                    query = s.query,
+                    expectedSlug = s.expectedSlug,
+                    probeRank = probeRank,
+                )
+            }
+            // 词面臂 MISS 诊断：探针同样 `queryText=null`（与词面臂判分同一条词面次序），
+            // 窗口口径不动（limit=[RECALL_DEPTH] 后取返回序列前 [MISS_PROBE_LIMIT] 名）。
+            val missesLexical = perCaseLexical.filter { s -> !s.hitInAnySample }.map { s ->
+                val probeLexical = store.readSubjectKnowledgeRecallCandidates(
+                    subject = s.subject,
+                    searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(s.query),
+                    limit = RECALL_DEPTH,
+                    queryText = null,
+                )
+                val probeRank = probeLexical.take(MISS_PROBE_LIMIT).indexOfFirst {
                     it.knowledgeNodeId.endsWith(ATOMIC_SUFFIX + s.expectedSlug)
                 }.let { if (it < 0) 0 else it + 1 }
                 GoldenMiss(
@@ -268,6 +347,38 @@ class GoldenRetrievalInstrumentedTest {
             }
             // 产物契约断言（不是质量门）：条数 == 该次未命中数、逐行与判分结果对齐。
             assertMissLedgerMatchesScores(context, missLedger, misses)
+            // ===== 词面臂出数与账本（文件名含 lexical；融合臂账本路径与格式不动）=====
+            println("=== golden-instrumented 词面臂（lexical：queryText=null，真 SQL，档 2）===")
+            println(
+                "lexical route=B-bare->top5(v1生产形状, matched-first) indexVersion=" +
+                    KnowledgeSearchFeatureExtractor.INDEX_VERSION +
+                    " cases=" + perCaseLexical.size + " samplesPerQuery=" + SAMPLES_PER_QUERY +
+                    " p95=" + lexicalP95 + "ms p50=" + lexicalP50 + "ms max=" + elapsedMillisLexical.max(),
+            )
+            println(
+                "lexical 主集 Recall@5(全样本命中) = " + lexicalRecallMainAll +
+                    " (" + lexicalHitAllCount + "/" + perCaseLexical.size + ")",
+            )
+            println("lexical 主集 Recall@5(任一样本命中) = " + lexicalRecallMainAny)
+            println("lexical MRR(最优名次) = " + lexicalMrrMain)
+            val missLinesLexical = missesLexical.map { miss -> missLine(miss) }
+            val missLedgerLexical = writeMissLedger(
+                context = context,
+                missLines = missLinesLexical,
+                stem = MISS_LEDGER_STEM_LEXICAL,
+                pullName = MISS_LEDGER_NAME_LEXICAL,
+            )
+            println(
+                "lexical MISS 清单（" + missesLexical.size + "/" + perCaseLexical.size + " 例；rank = 预期节点在本路线" +
+                    "返回序列放宽窗口（前 " + MISS_PROBE_LIMIT + " 名）内的名次，absent = 该窗口内不存在）:",
+            )
+            if (missesLexical.isEmpty()) {
+                println("  （无 MISS：本路线 top-5 全命中）")
+            } else {
+                missLinesLexical.forEach { println(it) }
+            }
+            // 产物契约断言（不是质量门）：词面臂账本同样"读落盘那份 + 逐行对齐判分结果"。
+            assertMissLedgerMatchesScores(context, missLedgerLexical, missesLexical)
             // 回归地板（**下界，不是质量目标**）：基线 = v1 生产形状（D1 落地后 = matched 优先）
             // 真 SQL 实测 0.6444 / 0.5637（2026-09-24 复跑；D1 之前旧生产形 0.5444 / 0.1511 为历史记账）。
             // 地板故意贴紧基线下沿：这是"不得更差"的告示牌，任何真实退化都该立刻红，
@@ -378,11 +489,17 @@ class GoldenRetrievalInstrumentedTest {
      * # 清理历史：  adb shell rm /sdcard/Download/golden-fused-misses-*.txt
      * ```
      */
-    private fun writeMissLedger(context: android.content.Context, missLines: List<String>): Uri {
+    private fun writeMissLedger(
+        context: android.content.Context,
+        missLines: List<String>,
+        // 默认 = 融合臂（既有调用点一行不动的兼容口）；词面臂传 lexical 一对，两份账本互不覆盖。
+        stem: String = MISS_LEDGER_STEM,
+        pullName: String = MISS_LEDGER_NAME,
+    ): Uri {
         require(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             "账本落盘走 MediaStore.Downloads，需要 API 29+（本机 " + android.os.Build.VERSION.SDK_INT + "）"
         }
-        val deviceName = MISS_LEDGER_STEM + "-" + System.currentTimeMillis() + ".txt"
+        val deviceName = stem + "-" + System.currentTimeMillis() + ".txt"
         val uri = requireNotNull(
             context.contentResolver.insert(
                 MediaStore.Downloads.EXTERNAL_CONTENT_URI,
@@ -407,7 +524,7 @@ class GoldenRetrievalInstrumentedTest {
         println(
             "MISS 账本已落盘 = " + MISS_LEDGER_DEVICE_DIR + deviceName + " lines=" + missLines.size +
                 "（取回：adb pull " + MISS_LEDGER_DEVICE_DIR + deviceName +
-                " build/" + MISS_LEDGER_NAME + "）",
+                " build/" + pullName + "）",
         )
         return uri
     }
@@ -513,6 +630,10 @@ class GoldenRetrievalInstrumentedTest {
 
         /** 设备侧文件名主干：实际名 = `<主干>-<运行戳>.txt`（为什么必须带运行戳见 [writeMissLedger]）。 */
         const val MISS_LEDGER_STEM = "golden-fused-misses"
+
+        /** 词面臂账本（第二遍判分，queryText=null）：与融合臂账本并列落一份，文件名含 lexical。 */
+        const val MISS_LEDGER_NAME_LEXICAL = "golden-lexical-misses.txt"
+        const val MISS_LEDGER_STEM_LEXICAL = "golden-lexical-misses"
 
         /** 设备侧目录（`/sdcard` 就是 MediaStore 那个 Download/ 集合的 adb 别名）。 */
         const val MISS_LEDGER_DEVICE_DIR = "/sdcard/Download/"

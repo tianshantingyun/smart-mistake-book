@@ -377,7 +377,7 @@
    "contentId": "bio-fj-33-succession-judgment-method",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的类型判断-规律方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的演替",
      "role": "PRIMARY"
     }
    ]
@@ -561,7 +561,7 @@
    "contentId": "bio-fj-01-life-needs-cell-evidence",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生命活动离不开细胞",
      "role": "PRIMARY"
     }
    ]
@@ -814,7 +814,7 @@
    "contentId": "bio-fj-02-elements-as-compounds",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -975,7 +975,7 @@
    "contentId": "bio-fj-03-seed-storage-substances",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传的特点及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类",
      "role": "PRIMARY"
     }
    ]
@@ -1136,7 +1136,7 @@
    "contentId": "bio-fj-05-trypan-blue-viability",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞是基本的生命系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜的结构和功能",
      "role": "PRIMARY"
     }
    ]
@@ -1389,7 +1389,7 @@
    "contentId": "bio-fj-06-photosynthetic-tissue-chloroplast",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:用高倍显微镜观察叶绿体和细胞质的流动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:叶绿体",
      "role": "PRIMARY"
     }
    ]
@@ -1734,7 +1734,7 @@
    "contentId": "bio-fj-08-atp-not-only-direct-energy",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的能源物质与供能顺序",
      "role": "PRIMARY"
     }
    ]
@@ -1826,7 +1826,7 @@
    "contentId": "bio-fj-09-alcoholic-fermentation",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-探究酵母菌细胞呼吸的方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:无氧呼吸",
      "role": "PRIMARY"
     }
    ]
@@ -2079,7 +2079,7 @@
    "contentId": "bio-fj-11-respiration-rate-keywords",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -2148,7 +2148,7 @@
    "contentId": "bio-fj-12-mitosis-metaphase-feature",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -2194,7 +2194,7 @@
    "contentId": "bio-fj-12-mitosis-telophase-feature",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -2355,7 +2355,7 @@
    "contentId": "bio-fj-13-gamete-diversity-random-fertilization",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:受精作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
      "role": "PRIMARY"
     }
    ]
@@ -2746,7 +2746,7 @@
    "contentId": "bio-fj-20-base-pair-rule-3-noncomplementary-inverse",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的双螺旋结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA分子中碱基数量关系",
      "role": "PRIMARY"
     }
    ]
@@ -2769,7 +2769,7 @@
    "contentId": "bio-fj-20-base-pair-rule-4-at-over-gc",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的双螺旋结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA分子中碱基数量关系",
      "role": "PRIMARY"
     }
    ]
@@ -2884,7 +2884,7 @@
    "contentId": "bio-fj-22-methylation-not-mutation",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的表达",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:表观遗传",
      "role": "PRIMARY"
     }
    ]
@@ -3091,7 +3091,7 @@
    "contentId": "bio-fj-24-edema-essence",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组织水肿的成因",
      "role": "PRIMARY"
     }
    ]
@@ -3413,7 +3413,7 @@
    "contentId": "bio-fj-09-burning-vs-respiration",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸概念-实质和意义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有氧呼吸",
      "role": "PRIMARY"
     }
    ]
@@ -3620,7 +3620,7 @@
    "contentId": "bio-fj-15-male-sterile-line-breeding",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:雄性不育与自交不亲和",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核质互作雄性不育与三系法育种",
      "role": "PRIMARY"
     }
    ]
@@ -4126,7 +4126,7 @@
    "contentId": "bio-fj-03-starch-in-storage-organs",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类",
      "role": "PRIMARY"
     }
    ]
@@ -4172,7 +4172,7 @@
    "contentId": "bio-fj-05-phospholipid-in-water-benzene",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -4770,7 +4770,7 @@
    "contentId": "bio-fj-03-sex-hormone-function",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:激素",
      "role": "PRIMARY"
     }
    ]
@@ -5161,7 +5161,7 @@
    "contentId": "bio-fj-09-mixed-respiration-ratio",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有氧呼吸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的类型判断-规律方法",
      "role": "PRIMARY"
     }
    ]
@@ -5460,7 +5460,7 @@
    "contentId": "bio-fj-23-hardy-weinberg-preconditions",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算-含自交与自由交配",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传平衡定律",
      "role": "PRIMARY"
     }
    ]
@@ -6357,7 +6357,7 @@
    "contentId": "bio-kb3-f1-s1-2-n14",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:原核细胞和真核细胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的多样性和统一性",
      "role": "PRIMARY"
     }
    ]
@@ -6679,7 +6679,7 @@
    "contentId": "bio-kb3-f2-s2-2-n01",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的无机盐",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
      "role": "PRIMARY"
     }
    ]
@@ -6748,7 +6748,7 @@
    "contentId": "bio-kb3-f2-s2-2-n04",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的无机盐",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
      "role": "PRIMARY"
     }
    ]
@@ -6771,7 +6771,7 @@
    "contentId": "bio-kb3-f2-s2-2-n05",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的无机盐",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
      "role": "PRIMARY"
     }
    ]
@@ -7116,7 +7116,7 @@
    "contentId": "bio-kb3-f2-s2-3-n15",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类和脂质的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -7277,7 +7277,7 @@
    "contentId": "bio-kb3-f2-s2-4-n08",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的盐析变性与水解的辨析",
      "role": "PRIMARY"
     }
    ]
@@ -7461,7 +7461,7 @@
    "contentId": "bio-kb3-f3-s3-1-n05",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜的结构和功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜成分和结构的探究历程",
      "role": "PRIMARY"
     }
    ]
@@ -7484,7 +7484,7 @@
    "contentId": "bio-kb3-f3-s3-1-n06",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜的结构和功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜的制备",
      "role": "PRIMARY"
     }
    ]
@@ -7599,7 +7599,7 @@
    "contentId": "bio-kb3-f3-s3-1-n12",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜的结构和功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜成分和结构的探究历程",
      "role": "PRIMARY"
     }
    ]
@@ -7783,7 +7783,7 @@
    "contentId": "bio-kb3-f3-s3-2-n08",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:液泡",
      "role": "PRIMARY"
     }
    ]
@@ -7898,7 +7898,7 @@
    "contentId": "bio-kb3-f3-s3-2-n13",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:用高倍显微镜观察叶绿体和细胞质的流动",
      "role": "PRIMARY"
     }
    ]
@@ -8059,7 +8059,7 @@
    "contentId": "bio-kb3-f3-s3-2-n20",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:囊泡运输与蛋白质分选",
      "role": "PRIMARY"
     }
    ]
@@ -8358,7 +8358,7 @@
    "contentId": "bio-kb3-f5-s5-1-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种子萌发过程中细胞呼吸的变化分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验的分析方法",
      "role": "PRIMARY"
     }
    ]
@@ -8841,7 +8841,7 @@
    "contentId": "bio-kb3-f5-s5-2-n09",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类和脂质的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp与adp的转化",
      "role": "PRIMARY"
     }
    ]
@@ -8864,7 +8864,7 @@
    "contentId": "bio-kb3-f5-s5-2-n10",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类和脂质的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp与adp的转化",
      "role": "PRIMARY"
     }
    ]
@@ -9922,7 +9922,7 @@
    "contentId": "bio-kb3-f5-s5-4-3-n08",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -10313,7 +10313,7 @@
    "contentId": "bio-kb3-f3-s3-1-n13",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞膜的结构和功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:膜的流动镶嵌模型",
      "role": "PRIMARY"
     }
    ]
@@ -12038,7 +12038,7 @@
    "contentId": "bio-kb3-f4-s06-n04",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -12061,7 +12061,7 @@
    "contentId": "bio-kb3-f4-s06-n05",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -12084,7 +12084,7 @@
    "contentId": "bio-kb3-f4-s06-n06",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -12107,7 +12107,7 @@
    "contentId": "bio-kb3-f4-s06-n07",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -12130,7 +12130,7 @@
    "contentId": "bio-kb3-f4-s06-n08",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -12153,7 +12153,7 @@
    "contentId": "bio-kb3-f4-s06-n09",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -12176,7 +12176,7 @@
    "contentId": "bio-kb3-f4-s06-n10",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -12774,7 +12774,7 @@
    "contentId": "bio-kb3-f4-s10-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的糖类",
      "role": "PRIMARY"
     }
    ]
@@ -14039,7 +14039,7 @@
    "contentId": "bio-kb3-f4-s16-n01",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
      "role": "PRIMARY"
     }
    ]
@@ -14062,7 +14062,7 @@
    "contentId": "bio-kb3-f4-s16-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
      "role": "PRIMARY"
     }
    ]
@@ -14085,7 +14085,7 @@
    "contentId": "bio-kb3-f4-s16-n03",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
      "role": "PRIMARY"
     }
    ]
@@ -18915,7 +18915,7 @@
    "contentId": "bio-kb3-f4-s41-n08",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类和脂质的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp与adp的转化",
      "role": "PRIMARY"
     }
    ]
@@ -18938,7 +18938,7 @@
    "contentId": "bio-kb3-f4-s41-n09",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类和脂质的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp与adp的转化",
      "role": "PRIMARY"
     }
    ]
@@ -19030,7 +19030,7 @@
    "contentId": "bio-kb3-f4-s42-n01",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-探究酵母菌细胞呼吸的方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸概念-实质和意义",
      "role": "PRIMARY"
     }
    ]
@@ -19053,7 +19053,7 @@
    "contentId": "bio-kb3-f4-s42-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-探究酵母菌细胞呼吸的方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的类型判断-规律方法",
      "role": "PRIMARY"
     }
    ]
@@ -19605,7 +19605,7 @@
    "contentId": "bio-kb3-f4-s44-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有氧呼吸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:无氧呼吸",
      "role": "PRIMARY"
     }
    ]
@@ -20341,7 +20341,7 @@
    "contentId": "bio-kb3-f4-s48-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用的原理",
      "role": "PRIMARY"
     }
    ]
@@ -21652,7 +21652,7 @@
    "contentId": "bio-kb3-f4-s54-n07",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -21675,7 +21675,7 @@
    "contentId": "bio-kb3-f4-s54-n08",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -21836,7 +21836,7 @@
    "contentId": "bio-kb3-f4-s55-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种子萌发过程中细胞呼吸的变化分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验的分析方法",
      "role": "PRIMARY"
     }
    ]
@@ -22825,7 +22825,7 @@
    "contentId": "bio-allele-concept",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究基因位于常染色体上还是x-y染色体同源区段上",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -22963,7 +22963,7 @@
    "contentId": "bio-linkage",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
      "role": "PRIMARY"
     }
    ]
@@ -23331,7 +23331,7 @@
    "contentId": "bio-disaccharide",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脱水缩合",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的糖类",
      "role": "PRIMARY"
     }
    ]
@@ -23377,7 +23377,7 @@
    "contentId": "bio-lipid-functions",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类和脂质的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -23446,7 +23446,7 @@
    "contentId": "bio-protein-levels",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的基本单位-氨基酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的结构及其多样性",
      "role": "PRIMARY"
     }
    ]
@@ -23515,7 +23515,7 @@
    "contentId": "bio-nucleic-acid-functions",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸是遗传信息的携带者",
      "role": "PRIMARY"
     }
    ]
@@ -23699,7 +23699,7 @@
    "contentId": "bio-gap-material-cycle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态系统的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物质循环",
      "role": "PRIMARY"
     }
    ]
@@ -23791,7 +23791,7 @@
    "contentId": "bio-fx-virus-structure-classification",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的结构及其多样性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒",
      "role": "PRIMARY"
     }
    ]
@@ -23814,7 +23814,7 @@
    "contentId": "bio-fx-virus-living-cell-culture",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒",
      "role": "PRIMARY"
     }
    ]
@@ -23883,7 +23883,7 @@
    "contentId": "bio-fx-virus-nucleic-acid-identify",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的类型判断-规律方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒的鉴定与检测",
      "role": "PRIMARY"
     }
    ]
@@ -24067,7 +24067,7 @@
    "contentId": "bio-fx-constitutive-regulated-secretion",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:囊泡运输与蛋白质分选",
      "role": "PRIMARY"
     }
    ]
@@ -24320,7 +24320,7 @@
    "contentId": "bio-fx-exp-scientific-principle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探索光合作用原理的部分实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
      "role": "PRIMARY"
     }
    ]
@@ -24412,7 +24412,7 @@
    "contentId": "bio-fx-exp-purpose-phrasing",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究酶的专一性-高效性相关实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
      "role": "PRIMARY"
     }
    ]
@@ -24435,7 +24435,7 @@
    "contentId": "bio-fx-exp-hypothesis-writing",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究酶的专一性-高效性相关实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
      "role": "PRIMARY"
     }
    ]
@@ -24458,7 +24458,7 @@
    "contentId": "bio-fx-exp-principle-three-parts",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探索光合作用原理的部分实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
      "role": "PRIMARY"
     }
    ]
@@ -24481,7 +24481,7 @@
    "contentId": "bio-fx-exp-result-vs-conclusion",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究酶的专一性-高效性相关实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
      "role": "PRIMARY"
     }
    ]
@@ -24504,7 +24504,7 @@
    "contentId": "bio-fx-exp-design-procedure",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
      "role": "PRIMARY"
     }
    ]
@@ -24780,7 +24780,7 @@
    "contentId": "bio-fx-sugar-lipid-functions",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的糖类",
      "role": "PRIMARY"
     }
    ]
@@ -24803,7 +24803,7 @@
    "contentId": "bio-fx-protein-diversity-cause",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的基本单位-氨基酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的结构及其多样性",
      "role": "PRIMARY"
     }
    ]
@@ -25677,7 +25677,7 @@
    "contentId": "bio-fx-counting-formula",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:微生物的培养",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:稀释涂布平板法计数",
      "role": "PRIMARY"
     }
    ]
@@ -25861,7 +25861,7 @@
    "contentId": "bio-fx-meiosis-1-abnormal-rule",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂细胞中染色体-dna数量变化规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂异常的原因分析",
      "role": "PRIMARY"
     }
    ]
@@ -25884,7 +25884,7 @@
    "contentId": "bio-fx-meiosis-2-abnormal-rule",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂细胞中染色体-dna数量变化规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂异常的原因分析",
      "role": "PRIMARY"
     }
    ]
@@ -26160,7 +26160,7 @@
    "contentId": "bio-fx-free-mating-three-methods",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律中的特殊分离比问题分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算-含自交与自由交配",
      "role": "PRIMARY"
     }
    ]
@@ -26758,7 +26758,7 @@
    "contentId": "bio-fx-transgene-insertion-judge",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:性状分离比",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:外源基因整合位置的判断",
      "role": "PRIMARY"
     }
    ]
@@ -26850,7 +26850,7 @@
    "contentId": "bio-fx-x-linked-frequency",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -26896,7 +26896,7 @@
    "contentId": "bio-fx-hardy-weinberg-conditions",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算-含自交与自由交配",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传平衡定律",
      "role": "PRIMARY"
     }
    ]
@@ -26919,7 +26919,7 @@
    "contentId": "bio-fx-hardy-weinberg-calculation",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算-含自交与自由交配",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传平衡定律",
      "role": "PRIMARY"
     }
    ]
@@ -26942,7 +26942,7 @@
    "contentId": "bio-fx-xb-frequency-male-female",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:伴性遗传",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
      "role": "PRIMARY"
     }
    ]
@@ -26965,7 +26965,7 @@
    "contentId": "bio-fx-primer-essence-role",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
      "role": "PRIMARY"
     }
    ]
@@ -27356,7 +27356,7 @@
    "contentId": "bio-fx-euk-gene-processing",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的表达",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:转录后加工与内含子",
      "role": "PRIMARY"
     }
    ]
@@ -27379,7 +27379,7 @@
    "contentId": "bio-fx-operon-negative-regulation",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的表达",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:原核基因表达的调控",
      "role": "PRIMARY"
     }
    ]
@@ -27402,7 +27402,7 @@
    "contentId": "bio-fx-rna-interference",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因的表达",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:RNA干扰",
      "role": "PRIMARY"
     }
    ]
@@ -27425,7 +27425,7 @@
    "contentId": "bio-fx-dna-repair-three-types",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA损伤的修复机制",
      "role": "PRIMARY"
     }
    ]
@@ -27448,7 +27448,7 @@
    "contentId": "bio-fx-mismatch-repair",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA损伤的修复机制",
      "role": "PRIMARY"
     }
    ]
@@ -28460,7 +28460,7 @@
    "contentId": "bio-fx-photoinhibition-defense",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光系统与电子传递链",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光抑制与光保护",
      "role": "PRIMARY"
     }
    ]
@@ -28644,7 +28644,7 @@
    "contentId": "bio-fx-okazaki-fragments",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna连接酶",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的拓展",
      "role": "PRIMARY"
     }
    ]
@@ -28713,7 +28713,7 @@
    "contentId": "bio-fx-trisome-gamete-labeling",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:染色体变异-x1",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂异常的原因分析",
      "role": "PRIMARY"
     }
    ]
@@ -28989,7 +28989,7 @@
    "contentId": "bio-fx-haploid-breeding",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:单倍体",
      "role": "PRIMARY"
     }
    ]
@@ -29012,7 +29012,7 @@
    "contentId": "bio-fx-polyploid-breeding",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:多倍体",
      "role": "PRIMARY"
     }
    ]
@@ -29150,7 +29150,7 @@
    "contentId": "bio-fx-transcription-coupled-repair",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA损伤的修复机制",
      "role": "PRIMARY"
     }
    ]
@@ -29196,7 +29196,7 @@
    "contentId": "bio-fx-albumin-edema-mechanism",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:渗透压",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组织水肿的成因",
      "role": "PRIMARY"
     }
    ]
@@ -29242,7 +29242,7 @@
    "contentId": "bio-fx-light-quality-ecosystem-note",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态系统的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:信息传递",
      "role": "PRIMARY"
     }
    ]
@@ -29472,7 +29472,7 @@
    "contentId": "bio-fx-k-half-value-application",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸原理的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群数量的变化",
      "role": "PRIMARY"
     }
    ]
@@ -29932,7 +29932,7 @@
    "contentId": "bio-fx-greenhouse-effect",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物质循环",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酸雨与温室气体",
      "role": "PRIMARY"
     }
    ]
@@ -29978,7 +29978,7 @@
    "contentId": "bio-fx-info-types-ecosystem",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态系统的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:信息传递",
      "role": "PRIMARY"
     }
    ]
@@ -30162,7 +30162,7 @@
    "contentId": "bio-fx-osmotic-equip-static-pressure",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:渗透作用",
      "role": "PRIMARY"
     }
    ]
@@ -31082,7 +31082,7 @@
    "contentId": "bio-mo-fermentation-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:果酒和果醋的制作",
      "role": "PRIMARY"
     }
    ]
@@ -31105,7 +31105,7 @@
    "contentId": "bio-mo-fermentation-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:果酒和果醋的制作",
      "role": "PRIMARY"
     }
    ]
@@ -31128,7 +31128,7 @@
    "contentId": "bio-mo-fermentation-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:果酒和果醋的制作",
      "role": "PRIMARY"
     }
    ]
@@ -31611,7 +31611,7 @@
    "contentId": "bio-mo-fermentation-032",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:无菌技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:微生物的培养",
      "role": "PRIMARY"
     }
    ]
@@ -31726,7 +31726,7 @@
    "contentId": "bio-mo-fermentation-037",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的影响因素及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:发酵工程",
      "role": "PRIMARY"
     }
    ]
@@ -31749,7 +31749,7 @@
    "contentId": "bio-mo-fermentation-038",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的影响因素及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:发酵工程",
      "role": "PRIMARY"
     }
    ]
@@ -31772,7 +31772,7 @@
    "contentId": "bio-mo-fermentation-039",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的影响因素及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:发酵工程",
      "role": "PRIMARY"
     }
    ]
@@ -31864,7 +31864,7 @@
    "contentId": "bio-mo-population-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群的数量特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度",
      "role": "PRIMARY"
     }
    ]
@@ -31887,7 +31887,7 @@
    "contentId": "bio-mo-population-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群的数量特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度",
      "role": "PRIMARY"
     }
    ]
@@ -32255,7 +32255,7 @@
    "contentId": "bio-mo-population-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的影响因素及应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群数量的变化",
      "role": "PRIMARY"
     }
    ]
@@ -32324,7 +32324,7 @@
    "contentId": "bio-mo-cell-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞学说",
      "role": "PRIMARY"
     }
    ]
@@ -32347,7 +32347,7 @@
    "contentId": "bio-mo-cell-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞是基本的生命系统",
      "role": "PRIMARY"
     }
    ]
@@ -32416,7 +32416,7 @@
    "contentId": "bio-mo-cell-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的基本单位-氨基酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒",
      "role": "PRIMARY"
     }
    ]
@@ -32761,7 +32761,7 @@
    "contentId": "bio-mo-heredity-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:孟德尔两对相对性状的杂交实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对相对性状杂交实验过程",
      "role": "PRIMARY"
     }
    ]
@@ -33106,7 +33106,7 @@
    "contentId": "bio-mo-heredity-024",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:孟德尔两对相对性状的杂交实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对相对性状杂交实验过程",
      "role": "PRIMARY"
     }
    ]
@@ -33129,7 +33129,7 @@
    "contentId": "bio-mo-heredity-025",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:孟德尔两对相对性状的杂交实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对相对性状杂交实验过程",
      "role": "PRIMARY"
     }
    ]
@@ -33175,7 +33175,7 @@
    "contentId": "bio-mo-heredity-027",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:孟德尔两对相对性状的杂交实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对相对性状杂交实验过程",
      "role": "PRIMARY"
     }
    ]
@@ -33198,7 +33198,7 @@
    "contentId": "bio-mo-heredity-028",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:孟德尔两对相对性状的杂交实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对相对性状杂交实验过程",
      "role": "PRIMARY"
     }
    ]
@@ -33566,7 +33566,7 @@
    "contentId": "bio-mo-gene-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:受精作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
      "role": "PRIMARY"
     }
    ]
@@ -34210,7 +34210,7 @@
    "contentId": "bio-mo-nerve-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋在神经纤维上的传导",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:突触",
      "role": "PRIMARY"
     }
    ]
@@ -34716,7 +34716,7 @@
    "contentId": "bio-mo-cell-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -34923,7 +34923,7 @@
    "contentId": "bio-mo-cell-025",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:组成细胞的元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的化合物",
      "role": "PRIMARY"
     }
    ]
@@ -34992,7 +34992,7 @@
    "contentId": "bio-mo-cell-028",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的无机盐",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
      "role": "PRIMARY"
     }
    ]
@@ -35521,7 +35521,7 @@
    "contentId": "bio-mo-cell-052",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的盐析变性与水解的辨析",
      "role": "PRIMARY"
     }
    ]
@@ -35682,7 +35682,7 @@
    "contentId": "bio-mo-cell-060",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核苷酸",
      "role": "PRIMARY"
     }
    ]
@@ -35774,7 +35774,7 @@
    "contentId": "bio-mo-cell-064",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核酸是遗传信息的携带者",
      "role": "PRIMARY"
     }
    ]
@@ -35935,7 +35935,7 @@
    "contentId": "bio-mo-cell-engineering-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞融合",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物体细胞杂交技术",
      "role": "PRIMARY"
     }
    ]
@@ -35981,7 +35981,7 @@
    "contentId": "bio-mo-cell-engineering-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:单倍体",
      "role": "PRIMARY"
     }
    ]
@@ -36073,7 +36073,7 @@
    "contentId": "bio-mo-cell-engineering-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞融合",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物体细胞杂交技术",
      "role": "PRIMARY"
     }
    ]
@@ -36855,7 +36855,7 @@
    "contentId": "bio-mo-cell-engineering-046",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:胚胎移植",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:胚胎工程",
      "role": "PRIMARY"
     }
    ]
@@ -38603,7 +38603,7 @@
    "contentId": "bio-mo-genetic-engineering-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:载体",
      "role": "PRIMARY"
     }
    ]
@@ -38764,7 +38764,7 @@
    "contentId": "bio-mo-genetic-engineering-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:启动子与终止子的辨析",
      "role": "PRIMARY"
     }
    ]
@@ -38902,7 +38902,7 @@
    "contentId": "bio-mo-genetic-engineering-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因导入受体细胞的方法",
      "role": "PRIMARY"
     }
    ]
@@ -40420,7 +40420,7 @@
    "contentId": "bio-mo-ecosystem-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:能量流动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态金字塔",
      "role": "PRIMARY"
     }
    ]
@@ -41501,7 +41501,7 @@
    "contentId": "bio-mo-cell-090",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞器的结构和功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的合成和运输",
      "role": "PRIMARY"
     }
    ]
@@ -41984,7 +41984,7 @@
    "contentId": "bio-mo-environment-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态足迹",
      "role": "PRIMARY"
     }
    ]
@@ -42053,7 +42053,7 @@
    "contentId": "bio-mo-environment-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态足迹",
      "role": "PRIMARY"
     }
    ]
@@ -42099,7 +42099,7 @@
    "contentId": "bio-mo-environment-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态足迹与碳足迹",
      "role": "PRIMARY"
     }
    ]
@@ -42145,7 +42145,7 @@
    "contentId": "bio-mo-environment-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物多样性",
      "role": "PRIMARY"
     }
    ]
@@ -42168,7 +42168,7 @@
    "contentId": "bio-mo-environment-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物多样性",
      "role": "PRIMARY"
     }
    ]
@@ -42191,7 +42191,7 @@
    "contentId": "bio-mo-environment-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物多样性",
      "role": "PRIMARY"
     }
    ]
@@ -42283,7 +42283,7 @@
    "contentId": "bio-mo-environment-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物多样性",
      "role": "PRIMARY"
     }
    ]
@@ -42628,7 +42628,7 @@
    "contentId": "bio-mo-immunity-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:非特异性免疫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:免疫系统的组成和功能",
      "role": "PRIMARY"
     }
    ]
@@ -42697,7 +42697,7 @@
    "contentId": "bio-mo-immunity-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:非特异性免疫",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:免疫系统的组成和功能",
      "role": "PRIMARY"
     }
    ]
@@ -43571,7 +43571,7 @@
    "contentId": "bio-mo-gene-088",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:中心法则的提出及其发展",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:中心法则",
      "role": "PRIMARY"
     }
    ]
@@ -43640,7 +43640,7 @@
    "contentId": "bio-mo-gene-091",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因表达与性状的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞分化",
      "role": "PRIMARY"
     }
    ]
@@ -43824,7 +43824,7 @@
    "contentId": "bio-mo-cell-118",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -44606,7 +44606,7 @@
    "contentId": "bio-mo-gene-112",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因重组",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:受精作用",
      "role": "PRIMARY"
     }
    ]
@@ -44997,7 +44997,7 @@
    "contentId": "bio-mo-gene-130",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:单倍体",
      "role": "PRIMARY"
     }
    ]
@@ -45020,7 +45020,7 @@
    "contentId": "bio-mo-gene-131",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:育种",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:单倍体",
      "role": "PRIMARY"
     }
    ]
@@ -45894,7 +45894,7 @@
    "contentId": "bio-mo-cell-133",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种子萌发过程中细胞呼吸的变化分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验的分析方法",
      "role": "PRIMARY"
     }
    ]
@@ -46193,7 +46193,7 @@
    "contentId": "bio-mo-cell-147",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:能源物质与供能顺序",
      "role": "PRIMARY"
     }
    ]
@@ -46377,7 +46377,7 @@
    "contentId": "bio-mo-cell-156",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:环境因素参与调节植物的生命活动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的能源物质与供能顺序",
      "role": "PRIMARY"
     }
    ]
@@ -46400,7 +46400,7 @@
    "contentId": "bio-mo-cell-157",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:糖类和脂质的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp与adp的转化",
      "role": "PRIMARY"
     }
    ]
@@ -47136,7 +47136,7 @@
    "contentId": "bio-mo-cell-189",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合作用的原理",
      "role": "PRIMARY"
     }
    ]
@@ -47251,7 +47251,7 @@
    "contentId": "bio-mo-evolution-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:拉马克进化学说与自然选择学说的比较",
      "role": "PRIMARY"
     }
    ]
@@ -47320,7 +47320,7 @@
    "contentId": "bio-mo-evolution-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:协同进化与生物多样性的形成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物有共同祖先的证据",
      "role": "PRIMARY"
     }
    ]
@@ -47964,7 +47964,7 @@
    "contentId": "ext-che-4ddeefaa27-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:乙醇",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醇的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -47987,7 +47987,7 @@
    "contentId": "ext-che-22e4da5a7a-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -48033,7 +48033,7 @@
    "contentId": "ext-che-0614213d2c-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -48309,7 +48309,7 @@
    "contentId": "ext-che-7feb6686e1-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -48332,7 +48332,7 @@
    "contentId": "ext-che-e0e62d3438-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:催化剂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:催化剂-催化剂同等程度改变正逆反应速率-不影响平衡移动",
      "role": "PRIMARY"
     }
    ]
@@ -48355,7 +48355,7 @@
    "contentId": "ext-che-79644b1cee-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶度积",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:ksp的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -49229,7 +49229,7 @@
    "contentId": "wusan-chem-x3c4-monomer-chain-unit",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基本概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子",
      "role": "PRIMARY"
     }
    ]
@@ -49574,7 +49574,7 @@
    "contentId": "wusan-phy-v-28554957",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:晶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对晶体和非晶体的理解",
      "role": "PRIMARY"
     }
    ]
@@ -49735,7 +49735,7 @@
    "contentId": "wusan-che-v-4de1dbc4",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -49988,7 +49988,7 @@
    "contentId": "wusan-che-v-4f3b268e",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:影响化学平衡的因素",
      "role": "PRIMARY"
     }
    ]
@@ -50011,7 +50011,7 @@
    "contentId": "wusan-che-v-9fade2cc",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率常数和速率方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数与速率常数的有关计算",
      "role": "PRIMARY"
     }
    ]
@@ -50425,7 +50425,7 @@
    "contentId": "wusan-che-v-6b40dd6b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式书写注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -50678,7 +50678,7 @@
    "contentId": "wusan-phy-v-a41671eb",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧振子",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧振子模型",
      "role": "PRIMARY"
     }
    ]
@@ -51253,7 +51253,7 @@
    "contentId": "ext-che-4dd2e79693-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -51621,7 +51621,7 @@
    "contentId": "ext-che-4dd2e79693-038b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子-或离子-空间结构的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型",
      "role": "PRIMARY"
     }
    ]
@@ -51897,7 +51897,7 @@
    "contentId": "ext-che-4dd2e79693-050",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞空间利用率的计算",
      "role": "PRIMARY"
     }
    ]
@@ -51920,7 +51920,7 @@
    "contentId": "ext-che-4dd2e79693-050b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞中粒子配位数的计算",
      "role": "PRIMARY"
     }
    ]
@@ -51966,7 +51966,7 @@
    "contentId": "ext-che-4dd2e79693-051",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子分数坐标",
      "role": "PRIMARY"
     }
    ]
@@ -51989,7 +51989,7 @@
    "contentId": "ext-che-4dd2e79693-051b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -52012,7 +52012,7 @@
    "contentId": "ext-che-4dd2e79693-052",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -52035,7 +52035,7 @@
    "contentId": "ext-che-4dd2e79693-054",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子分数坐标",
      "role": "PRIMARY"
     }
    ]
@@ -52058,7 +52058,7 @@
    "contentId": "ext-che-4dd2e79693-055",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞投影",
      "role": "PRIMARY"
     }
    ]
@@ -52081,7 +52081,7 @@
    "contentId": "ext-che-4dd2e79693-055b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞投影",
      "role": "PRIMARY"
     }
    ]
@@ -52633,7 +52633,7 @@
    "contentId": "ext-che-4dd2e79693-075b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率常数和速率方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数与速率常数的有关计算",
      "role": "PRIMARY"
     }
    ]
@@ -53599,7 +53599,7 @@
    "contentId": "ext-che-4dd2e79693-094b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关ksp的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀溶解平衡易错六点",
      "role": "PRIMARY"
     }
    ]
@@ -53691,7 +53691,7 @@
    "contentId": "ext-che-4dd2e79693-096b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电离常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对数折线图四步法",
      "role": "PRIMARY"
     }
    ]
@@ -53783,7 +53783,7 @@
    "contentId": "ext-che-4dd2e79693-099c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电离常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分布分数图像",
      "role": "PRIMARY"
     }
    ]
@@ -53806,7 +53806,7 @@
    "contentId": "ext-che-4dd2e79693-100b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电离常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分布分数图像",
      "role": "PRIMARY"
     }
    ]
@@ -53852,7 +53852,7 @@
    "contentId": "ext-che-4dd2e79693-101b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氨基酸的结构与性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分布分数图像",
      "role": "PRIMARY"
     }
    ]
@@ -54266,7 +54266,7 @@
    "contentId": "ext-che-4dd2e79693-111b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:简单有机物同分异构体的书写",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:判断同分异构体数目的常用方法和思路",
      "role": "PRIMARY"
     }
    ]
@@ -54588,7 +54588,7 @@
    "contentId": "ext-che-4dd2e79693-117",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含苯环同分异构体数目的确定技巧",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:判断同分异构体数目的常用方法和思路",
      "role": "PRIMARY"
     }
    ]
@@ -55370,7 +55370,7 @@
    "contentId": "ext-che-4dd2e79693-137",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酯化反应实验探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验探究乙酸乙酯的制备",
      "role": "PRIMARY"
     }
    ]
@@ -55853,7 +55853,7 @@
    "contentId": "ext-phy-b6bd732b19-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:初速度为零的几个重点推论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
      "role": "PRIMARY"
     }
    ]
@@ -55876,7 +55876,7 @@
    "contentId": "ext-phy-b6bd732b19-010b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:初速度为零的几个重点推论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
      "role": "PRIMARY"
     }
    ]
@@ -56014,7 +56014,7 @@
    "contentId": "ext-phy-b6bd732b19-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及问题的分析和解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及相遇问题的实质及分析思路",
      "role": "PRIMARY"
     }
    ]
@@ -56451,7 +56451,7 @@
    "contentId": "ext-phy-b6bd732b19-042b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-木板模型的临界问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -56520,7 +56520,7 @@
    "contentId": "ext-phy-b6bd732b19-047",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分析板块模型的思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -56612,7 +56612,7 @@
    "contentId": "ext-phy-b6bd732b19-052",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-木板模型的临界问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -56704,7 +56704,7 @@
    "contentId": "ext-phy-afa44298fc-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:匀变速直线运动的规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:刹车类问题",
      "role": "PRIMARY"
     }
    ]
@@ -57371,7 +57371,7 @@
    "contentId": "ext-phy-b6bd732b19-069",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:三类情况分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动常见的临界状态",
      "role": "PRIMARY"
     }
    ]
@@ -57670,7 +57670,7 @@
    "contentId": "ext-phy-b6bd732b19-080",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨过程分析",
      "role": "PRIMARY"
     }
    ]
@@ -58153,7 +58153,7 @@
    "contentId": "ext-phy-b6bd732b19-094",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非弹性碰撞和完全非弹性碰撞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:完全非弹性碰撞",
      "role": "PRIMARY"
     }
    ]
@@ -58935,7 +58935,7 @@
    "contentId": "ext-phy-b6bd732b19-126b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电压表-电流表的改装",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电表的改装",
      "role": "PRIMARY"
     }
    ]
@@ -59395,7 +59395,7 @@
    "contentId": "ext-phy-b6bd732b19-143",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平动切割与转动切割的几种情形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:导体切割磁感线时的感应电动势",
      "role": "PRIMARY"
     }
    ]
@@ -59418,7 +59418,7 @@
    "contentId": "ext-phy-b6bd732b19-144",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平动切割与转动切割的几种情形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:导体切割磁感线时的感应电动势",
      "role": "PRIMARY"
     }
    ]
@@ -59487,7 +59487,7 @@
    "contentId": "ext-phy-b6bd732b19-146b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量转化-导体克服安培力做功-其他形式能转化为电能-最终转化为内能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求解电能的思路-x1",
      "role": "PRIMARY"
     }
    ]
@@ -59786,7 +59786,7 @@
    "contentId": "ext-phy-b6bd732b19-159",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:波动图象的信息",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像",
      "role": "PRIMARY"
     }
    ]
@@ -59855,7 +59855,7 @@
    "contentId": "ext-phy-b6bd732b19-161",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:波动图象的信息",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:机械波",
      "role": "PRIMARY"
     }
    ]
@@ -62224,7 +62224,7 @@
    "contentId": "ext-mat-91e0c2ace8-094c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆系方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆的位置关系",
      "role": "PRIMARY"
     }
    ]
@@ -62799,7 +62799,7 @@
    "contentId": "ext-mat-91e0c2ace8-106b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦点三角形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -62891,7 +62891,7 @@
    "contentId": "ext-mat-91e0c2ace8-108",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦点三角形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -63328,7 +63328,7 @@
    "contentId": "ext-mat-91e0c2ace8-116b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的最值或范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
      "role": "PRIMARY"
     }
    ]

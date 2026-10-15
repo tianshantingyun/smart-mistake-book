@@ -438,7 +438,7 @@
    "contentId": "ext-che-bef31d0de4-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:形成喷泉的原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的装置",
      "role": "PRIMARY"
     }
    ]
@@ -852,7 +852,7 @@
    "contentId": "ext-che-e5ccf9cc1e-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物命名易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
      "role": "PRIMARY"
     }
    ]
@@ -1841,7 +1841,7 @@
    "contentId": "ext-che-5b78d0e3af-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -1910,7 +1910,7 @@
    "contentId": "ext-che-5b78d0e3af-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞参数与密度计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -2071,7 +2071,7 @@
    "contentId": "ext-che-6e5105e0b4-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -2347,7 +2347,7 @@
    "contentId": "ext-che-6e5105e0b4-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -2600,7 +2600,7 @@
    "contentId": "ext-che-2ae6f40e31-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质概念和判断的几个-特殊点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质及其分类",
      "role": "PRIMARY"
     }
    ]
@@ -3152,7 +3152,7 @@
    "contentId": "ext-che-f09bbbc493-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -3198,7 +3198,7 @@
    "contentId": "ext-che-f09bbbc493-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -3842,7 +3842,7 @@
    "contentId": "ext-che-6b46c1c303-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热重法测定物质组成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热重分析确定金属化合物的组成",
      "role": "PRIMARY"
     }
    ]
@@ -4716,7 +4716,7 @@
    "contentId": "ext-che-45e2028183-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业制法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解饱和食盐水-氯碱工业",
      "role": "PRIMARY"
     }
    ]
@@ -5061,7 +5061,7 @@
    "contentId": "ext-che-78beaac7a8-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁-铁的氧化物和氢氧化物的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氢氧化物",
      "role": "PRIMARY"
     }
    ]
@@ -5452,7 +5452,7 @@
    "contentId": "ext-bio-7bf37bfb93-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞器的结构和功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:差速离心法",
      "role": "PRIMARY"
     }
    ]
@@ -5682,7 +5682,7 @@
    "contentId": "ext-bio-7bf37bfb93-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -6464,7 +6464,7 @@
    "contentId": "ext-che-053e11e3a1-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解池",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:惰性电极电解的四种类型",
      "role": "PRIMARY"
     }
    ]
@@ -8189,7 +8189,7 @@
    "contentId": "ext-che-10fd6d055d-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:全程速率-时间图像",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -8350,7 +8350,7 @@
    "contentId": "ext-che-10fd6d055d-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -8534,7 +8534,7 @@
    "contentId": "ext-che-a52360412a-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:熟练掌握溶解-过滤-蒸发等操作-认识化学方法在物质分离和提纯中的重要作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:粗盐提纯的试剂加入顺序",
      "role": "PRIMARY"
     }
    ]
@@ -9155,7 +9155,7 @@
    "contentId": "ext-che-58b83436a6-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞参数与密度计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -9201,7 +9201,7 @@
    "contentId": "ext-che-58b83436a6-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞参数与密度计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -9500,7 +9500,7 @@
    "contentId": "ext-che-6ed9df72fe-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -9523,7 +9523,7 @@
    "contentId": "ext-che-6ed9df72fe-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式书写注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -10581,7 +10581,7 @@
    "contentId": "ext-bio-7b174793ed-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:琼脂糖凝胶电泳",
      "role": "PRIMARY"
     }
    ]
@@ -10627,7 +10627,7 @@
    "contentId": "ext-bio-7b174793ed-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:琼脂糖凝胶电泳",
      "role": "PRIMARY"
     }
    ]
@@ -10673,7 +10673,7 @@
    "contentId": "ext-bio-7b174793ed-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:琼脂糖凝胶电泳",
      "role": "PRIMARY"
     }
    ]
@@ -10972,7 +10972,7 @@
    "contentId": "ext-che-58b83436a6-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞参数与密度计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -11225,7 +11225,7 @@
    "contentId": "ext-che-5de6d65b20-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -11754,7 +11754,7 @@
    "contentId": "ext-che-f668f4f6c0-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -11800,7 +11800,7 @@
    "contentId": "ext-che-f668f4f6c0-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:已知总方程式-书写电极反应式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电极反应式",
      "role": "PRIMARY"
     }
    ]
@@ -12651,7 +12651,7 @@
    "contentId": "ext-che-1911d042b4-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工生产中的复杂图像分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热重分析确定金属化合物的组成",
      "role": "PRIMARY"
     }
    ]
@@ -13226,7 +13226,7 @@
    "contentId": "ext-che-998cdd8cea-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -13525,7 +13525,7 @@
    "contentId": "ext-che-72ca720a85-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物命名易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
      "role": "PRIMARY"
     }
    ]
@@ -13801,7 +13801,7 @@
    "contentId": "ext-che-83562c0ddd-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子守恒法计算的原理",
      "role": "PRIMARY"
     }
    ]
@@ -14238,7 +14238,7 @@
    "contentId": "ext-che-106ee0d0cb-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:陌生化学方程式书写的思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分步法书写陌生非氧化还原方程式",
      "role": "PRIMARY"
     }
    ]
@@ -14284,7 +14284,7 @@
    "contentId": "ext-che-8205e0c685-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯气",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯水的成分",
      "role": "PRIMARY"
     }
    ]
@@ -14307,7 +14307,7 @@
    "contentId": "ext-che-8205e0c685-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯水的成分",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氯气",
      "role": "PRIMARY"
     }
    ]
@@ -14422,7 +14422,7 @@
    "contentId": "ext-bio-a922e322a3-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:原核细胞和真核细胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的多样性和统一性",
      "role": "PRIMARY"
     }
    ]
@@ -14514,7 +14514,7 @@
    "contentId": "ext-bio-5492ad5ff1-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -14560,7 +14560,7 @@
    "contentId": "ext-bio-5492ad5ff1-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -14583,7 +14583,7 @@
    "contentId": "ext-bio-5492ad5ff1-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -14606,7 +14606,7 @@
    "contentId": "ext-bio-5492ad5ff1-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -15825,7 +15825,7 @@
    "contentId": "ext-che-a13e903c71-021b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:连二亚硫酸钠的性质",
      "role": "PRIMARY"
     }
    ]
@@ -16400,7 +16400,7 @@
    "contentId": "ext-che-fffe765dc9-010b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关ksp的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀溶解平衡易错六点",
      "role": "PRIMARY"
     }
    ]
@@ -16515,7 +16515,7 @@
    "contentId": "ext-che-fffe765dc9-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -16676,7 +16676,7 @@
    "contentId": "ext-che-5be82fcaeb-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:根据有机反应中定量关系推断官能团的数目",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:黄酮哌酯是一种解痉药-可通过如下路线合成",
      "role": "PRIMARY"
     }
    ]
@@ -16722,7 +16722,7 @@
    "contentId": "ext-che-663847a2b8-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:根据有机反应中定量关系推断官能团的数目",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:黄酮哌酯是一种解痉药-可通过如下路线合成",
      "role": "PRIMARY"
     }
    ]
@@ -17412,7 +17412,7 @@
    "contentId": "ext-che-fcfd5bcde6-008b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见试剂的保存方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学试剂的保存方法",
      "role": "PRIMARY"
     }
    ]
@@ -18056,7 +18056,7 @@
    "contentId": "ext-che-bd6d24d1e7-004c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的手性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:手性分子",
      "role": "PRIMARY"
     }
    ]
@@ -18079,7 +18079,7 @@
    "contentId": "ext-che-bd6d24d1e7-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的手性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:手性分子",
      "role": "PRIMARY"
     }
    ]
@@ -18263,7 +18263,7 @@
    "contentId": "ext-che-6e671fea2f-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:拟卤素与卤素互化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤素互化物与拟卤素",
      "role": "PRIMARY"
     }
    ]
@@ -18953,7 +18953,7 @@
    "contentId": "ext-bio-d836b53afc-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:其他植物激素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物激素间的相互作用",
      "role": "PRIMARY"
     }
    ]
@@ -19620,7 +19620,7 @@
    "contentId": "ext-che-61d1bf85f1-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对下列物质分类-并完善表格内容",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -19689,7 +19689,7 @@
    "contentId": "ext-che-61d1bf85f1-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -19896,7 +19896,7 @@
    "contentId": "ext-che-025004618b-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -19965,7 +19965,7 @@
    "contentId": "ext-che-72c8f8a60f-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -20540,7 +20540,7 @@
    "contentId": "ext-che-3c813aa644-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:形成喷泉的原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的装置",
      "role": "PRIMARY"
     }
    ]
@@ -20701,7 +20701,7 @@
    "contentId": "ext-che-5f646498b6-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡的移动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:影响化学平衡的因素",
      "role": "PRIMARY"
     }
    ]
@@ -20747,7 +20747,7 @@
    "contentId": "ext-che-5f646498b6-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:影响化学平衡的因素",
      "role": "PRIMARY"
     }
    ]
@@ -20885,7 +20885,7 @@
    "contentId": "ext-che-002c4fed68-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -21644,7 +21644,7 @@
    "contentId": "ext-bio-2028b8d13b-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脂质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的脂质",
      "role": "PRIMARY"
     }
    ]
@@ -22035,7 +22035,7 @@
    "contentId": "ext-che-b0a7365d2d-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学实验基本操作禁忌",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学实验基本操作中的八个不能",
      "role": "PRIMARY"
     }
    ]
@@ -22242,7 +22242,7 @@
    "contentId": "ext-che-ae82ac501b-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子交换膜",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解饱和食盐水-氯碱工业",
      "role": "PRIMARY"
     }
    ]
@@ -23070,7 +23070,7 @@
    "contentId": "ext-che-74ae5b408a-016b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶度积",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:ksp的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -24059,7 +24059,7 @@
    "contentId": "ext-che-5796f534aa-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液蒸干灼烧时所得产物的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种盐溶液蒸干后产物的判断",
      "role": "PRIMARY"
     }
    ]
@@ -24082,7 +24082,7 @@
    "contentId": "ext-che-5796f534aa-016b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液蒸干灼烧时所得产物的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种盐溶液蒸干后产物的判断",
      "role": "PRIMARY"
     }
    ]
@@ -24105,7 +24105,7 @@
    "contentId": "ext-che-5796f534aa-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液蒸干灼烧时所得产物的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种盐溶液蒸干后产物的判断",
      "role": "PRIMARY"
     }
    ]
@@ -24174,7 +24174,7 @@
    "contentId": "ext-che-e8e221ed0f-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物命名易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
      "role": "PRIMARY"
     }
    ]
@@ -24381,7 +24381,7 @@
    "contentId": "ext-che-e8e221ed0f-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:同分异构现象和同分异构体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:简单有机物同分异构体的书写",
      "role": "PRIMARY"
     }
    ]
@@ -24910,7 +24910,7 @@
    "contentId": "ext-che-c343da7e81-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铜的冶炼",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:单质铜的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -25945,7 +25945,7 @@
    "contentId": "ext-che-309fd84b7e-006c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子光谱与电子跃迁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态、激发态与原子光谱",
      "role": "PRIMARY"
     }
    ]
@@ -25991,7 +25991,7 @@
    "contentId": "ext-che-309fd84b7e-006e",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子光谱与电子跃迁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态、激发态与原子光谱",
      "role": "PRIMARY"
     }
    ]
@@ -26336,7 +26336,7 @@
    "contentId": "ext-bio-4d7da8cb4e-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:血红蛋白的结构与功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因突变",
      "role": "PRIMARY"
     }
    ]
@@ -26382,7 +26382,7 @@
    "contentId": "ext-bio-4d7da8cb4e-003c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:血红蛋白的结构与功能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因突变",
      "role": "PRIMARY"
     }
    ]
@@ -26888,7 +26888,7 @@
    "contentId": "ext-che-8c7b6cf5e0-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质概念和判断的几个-特殊点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质及其分类",
      "role": "PRIMARY"
     }
    ]
@@ -26980,7 +26980,7 @@
    "contentId": "ext-che-8c7b6cf5e0-006b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属导电和电解质溶液导电的对比",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质溶液的导电性",
      "role": "PRIMARY"
     }
    ]
@@ -27095,7 +27095,7 @@
    "contentId": "ext-che-8c7b6cf5e0-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式题设错方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式的正误判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -27210,7 +27210,7 @@
    "contentId": "ext-che-055b5f1efb-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:同素异形体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:碳元素的单质有多种形式-下图依次是c60-石墨和金刚石的结构图",
      "role": "PRIMARY"
     }
    ]
@@ -27325,7 +27325,7 @@
    "contentId": "ext-che-596c6da0b6-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -27371,7 +27371,7 @@
    "contentId": "ext-che-596c6da0b6-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式书写注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -27647,7 +27647,7 @@
    "contentId": "ext-che-3ce5fd3c1d-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对下列物质分类-并完善表格内容",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -27785,7 +27785,7 @@
    "contentId": "ext-che-3ce5fd3c1d-010b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -28199,7 +28199,7 @@
    "contentId": "ext-che-60651bf275-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:弱电解质的电离平衡",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:强电解质与弱电解质",
      "role": "PRIMARY"
     }
    ]
@@ -28291,7 +28291,7 @@
    "contentId": "ext-che-60651bf275-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对电离平衡影响的四个不一定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:弱电解质的电离平衡",
      "role": "PRIMARY"
     }
    ]
@@ -29257,7 +29257,7 @@
    "contentId": "ext-che-dc68f36a22-009b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子交换膜的种类与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子交换膜",
      "role": "PRIMARY"
     }
    ]
@@ -29625,7 +29625,7 @@
    "contentId": "ext-bio-0c6eef6074-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:脱水缩合",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的结构及其多样性",
      "role": "PRIMARY"
     }
    ]
@@ -29809,7 +29809,7 @@
    "contentId": "ext-che-144a906566-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞参数与密度计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -30085,7 +30085,7 @@
    "contentId": "ext-che-ba36058bd6-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素周期表与原子结构的规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子结构与元素周期表的关系",
      "role": "PRIMARY"
     }
    ]
@@ -30522,7 +30522,7 @@
    "contentId": "ext-che-4670f7861c-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -31304,7 +31304,7 @@
    "contentId": "ext-bio-041d1a0d4c-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究基因位于常染色体上还是x-y染色体同源区段上",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -31350,7 +31350,7 @@
    "contentId": "ext-bio-041d1a0d4c-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对（多对）等位基因位置关系的判断",
      "role": "PRIMARY"
     }
    ]
@@ -31557,7 +31557,7 @@
    "contentId": "ext-che-3f355ed99d-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素",
      "role": "PRIMARY"
     }
    ]
@@ -31925,7 +31925,7 @@
    "contentId": "ext-che-d3637bf4e4-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -32891,7 +32891,7 @@
    "contentId": "ext-bio-aedf8c8d06-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -33466,7 +33466,7 @@
    "contentId": "ext-che-043d5a4425-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道理论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道",
      "role": "PRIMARY"
     }
    ]
@@ -34087,7 +34087,7 @@
    "contentId": "ext-che-3c71161440-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:全程速率-时间图像",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -34133,7 +34133,7 @@
    "contentId": "ext-che-3c71161440-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -34156,7 +34156,7 @@
    "contentId": "ext-che-3c71161440-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -34915,7 +34915,7 @@
    "contentId": "ext-che-27a88d9430-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:根据有机反应中定量关系推断官能团的数目",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:黄酮哌酯是一种解痉药-可通过如下路线合成",
      "role": "PRIMARY"
     }
    ]
@@ -35099,7 +35099,7 @@
    "contentId": "ext-che-80dc9e8d0c-005b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -35122,7 +35122,7 @@
    "contentId": "ext-che-80dc9e8d0c-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -35145,7 +35145,7 @@
    "contentId": "ext-che-80dc9e8d0c-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子分数坐标与晶胞投影图",
      "role": "PRIMARY"
     }
    ]
@@ -35352,7 +35352,7 @@
    "contentId": "ext-che-80dc9e8d0c-015b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -35375,7 +35375,7 @@
    "contentId": "ext-che-80dc9e8d0c-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -35444,7 +35444,7 @@
    "contentId": "ext-che-2d6cf03b75-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:微型工艺流程的过程评价",
      "role": "PRIMARY"
     }
    ]
@@ -35536,7 +35536,7 @@
    "contentId": "ext-che-2d6cf03b75-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化工流程题的分析模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀溶解平衡的应用",
      "role": "PRIMARY"
     }
    ]
@@ -35628,7 +35628,7 @@
    "contentId": "ext-che-ae3f5c9d23-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解池",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:阴、阳极的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -35812,7 +35812,7 @@
    "contentId": "ext-che-ae3f5c9d23-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的防护",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属防护的其他方法",
      "role": "PRIMARY"
     }
    ]
@@ -36502,7 +36502,7 @@
    "contentId": "ext-che-8fae19a1fa-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -36548,7 +36548,7 @@
    "contentId": "ext-che-8fae19a1fa-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关化学平衡常数易混易错点",
      "role": "PRIMARY"
     }
    ]
@@ -36847,7 +36847,7 @@
    "contentId": "ext-che-cb1f9ebb32-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:影响化学平衡的因素",
      "role": "PRIMARY"
     }
    ]
@@ -37997,7 +37997,7 @@
    "contentId": "ext-che-c22be1e36f-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:相对原子质量与近似相对原子质量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核素的相对原子质量与元素的相对原子质量",
      "role": "PRIMARY"
     }
    ]
@@ -38572,7 +38572,7 @@
    "contentId": "ext-che-e5f86d011f-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式书写注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -39607,7 +39607,7 @@
    "contentId": "ext-che-cd028acc60-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -39630,7 +39630,7 @@
    "contentId": "ext-che-cd028acc60-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -39653,7 +39653,7 @@
    "contentId": "ext-che-cd028acc60-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -40113,7 +40113,7 @@
    "contentId": "ext-che-5fce0adee9-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -40182,7 +40182,7 @@
    "contentId": "ext-che-5fce0adee9-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -40297,7 +40297,7 @@
    "contentId": "ext-che-364422b4cf-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量-阿伏加德罗常数",
      "role": "PRIMARY"
     }
    ]
@@ -40803,7 +40803,7 @@
    "contentId": "ext-che-049b7f9989-005b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化性-还原性的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化性-还原性强弱的比较",
      "role": "PRIMARY"
     }
    ]
@@ -42919,7 +42919,7 @@
    "contentId": "ext-che-c3ab790e04-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的离子积常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离",
      "role": "PRIMARY"
     }
    ]
@@ -43126,7 +43126,7 @@
    "contentId": "ext-che-c3ab790e04-007b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水的电离",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:水电离出的c水(H＋)与c水(OH－)的计算",
      "role": "PRIMARY"
     }
    ]
@@ -43356,7 +43356,7 @@
    "contentId": "ext-che-c3ab790e04-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -43609,7 +43609,7 @@
    "contentId": "ext-che-c3ab790e04-020b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酸碱中和滴定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中和滴定",
      "role": "PRIMARY"
     }
    ]
@@ -45058,7 +45058,7 @@
    "contentId": "ext-che-5892d1ea1a-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率—压强(或温度)图像",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-温度(压强)图像",
      "role": "PRIMARY"
     }
    ]
@@ -45104,7 +45104,7 @@
    "contentId": "ext-che-5892d1ea1a-002d",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对化学反应速率的影响规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-温度(压强)图像",
      "role": "PRIMARY"
     }
    ]
@@ -45173,7 +45173,7 @@
    "contentId": "ext-che-5892d1ea1a-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -45196,7 +45196,7 @@
    "contentId": "ext-che-5892d1ea1a-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -45840,7 +45840,7 @@
    "contentId": "ext-che-6fc1ebbbcb-013b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酯化反应实验探究",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验探究乙酸乙酯的制备",
      "role": "PRIMARY"
     }
    ]
@@ -47381,7 +47381,7 @@
    "contentId": "ext-che-539280dee0-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -47404,7 +47404,7 @@
    "contentId": "ext-che-539280dee0-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -47427,7 +47427,7 @@
    "contentId": "ext-che-539280dee0-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -47450,7 +47450,7 @@
    "contentId": "ext-che-539280dee0-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -47473,7 +47473,7 @@
    "contentId": "ext-che-539280dee0-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -47496,7 +47496,7 @@
    "contentId": "ext-che-539280dee0-005b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -47542,7 +47542,7 @@
    "contentId": "ext-che-539280dee0-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见阳离子的检验与推断依据",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子推断的四项原则",
      "role": "PRIMARY"
     }
    ]
@@ -47588,7 +47588,7 @@
    "contentId": "ext-che-539280dee0-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见阳离子的检验与推断依据",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子推断的方法与原则",
      "role": "PRIMARY"
     }
    ]
@@ -47749,7 +47749,7 @@
    "contentId": "ext-che-39e870c108-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子守恒法计算的原理",
      "role": "PRIMARY"
     }
    ]
@@ -48117,7 +48117,7 @@
    "contentId": "ext-bio-b7b8940347-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的分选（信号肽假说）",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:囊泡运输与蛋白质分选",
      "role": "PRIMARY"
     }
    ]
@@ -48370,7 +48370,7 @@
    "contentId": "ext-che-d8d6d8578f-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -49175,7 +49175,7 @@
    "contentId": "ext-che-6bf2e64662-017b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:亚硫酸及亚硫酸盐的性质",
      "role": "PRIMARY"
     }
    ]
@@ -50578,7 +50578,7 @@
    "contentId": "ext-che-fd24554fd4-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -50601,7 +50601,7 @@
    "contentId": "ext-che-fd24554fd4-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式书写注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -51176,7 +51176,7 @@
    "contentId": "ext-che-69f3a61f89-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:影响化学平衡的因素",
      "role": "PRIMARY"
     }
    ]
@@ -51337,7 +51337,7 @@
    "contentId": "ext-che-5d65ccc112-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化剂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的氧化剂与还原剂",
      "role": "PRIMARY"
     }
    ]
@@ -51429,7 +51429,7 @@
    "contentId": "ext-che-5d65ccc112-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子守恒法计算的原理",
      "role": "PRIMARY"
     }
    ]
@@ -51613,7 +51613,7 @@
    "contentId": "ext-che-84d5c92111-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -51820,7 +51820,7 @@
    "contentId": "ext-che-2ea875ef02-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:根据有机反应中定量关系推断官能团的数目",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:黄酮哌酯是一种解痉药-可通过如下路线合成",
      "role": "PRIMARY"
     }
    ]
@@ -52027,7 +52027,7 @@
    "contentId": "ext-che-19e132e0dc-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:熟练掌握溶解-过滤-蒸发等操作-认识化学方法在物质分离和提纯中的重要作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分离提纯",
      "role": "PRIMARY"
     }
    ]
@@ -52303,7 +52303,7 @@
    "contentId": "ext-bio-e190c6e132-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题的总结",
      "role": "PRIMARY"
     }
    ]
@@ -52625,7 +52625,7 @@
    "contentId": "ext-bio-a7eccbb0d1-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的作用和本质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:酶的特性",
      "role": "PRIMARY"
     }
    ]
@@ -53407,7 +53407,7 @@
    "contentId": "ext-che-8e1b7721a9-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -55454,7 +55454,7 @@
    "contentId": "ext-che-98e80691f8-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:构造原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子核外电子排布",
      "role": "PRIMARY"
     }
    ]
@@ -55500,7 +55500,7 @@
    "contentId": "ext-che-98e80691f8-012b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子光谱与电子跃迁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态、激发态与原子光谱",
      "role": "PRIMARY"
     }
    ]
@@ -55615,7 +55615,7 @@
    "contentId": "ext-che-98e80691f8-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子光谱与电子跃迁",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态、激发态与原子光谱",
      "role": "PRIMARY"
     }
    ]
@@ -55914,7 +55914,7 @@
    "contentId": "ext-che-2982b3ef36-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -56190,7 +56190,7 @@
    "contentId": "ext-bio-fe7aeee6be-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -56742,7 +56742,7 @@
    "contentId": "ext-che-aca30e2521-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -57363,7 +57363,7 @@
    "contentId": "ext-che-9d9489b3be-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式题设错方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式的正误判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -58191,7 +58191,7 @@
    "contentId": "ext-che-a813bfa01b-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:全程速率-时间图像",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -58214,7 +58214,7 @@
    "contentId": "ext-che-a813bfa01b-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对化学反应速率的影响规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-温度(压强)图像",
      "role": "PRIMARY"
     }
    ]
@@ -58260,7 +58260,7 @@
    "contentId": "ext-che-a813bfa01b-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:v-t图像分析改变条件对化学平衡的影响",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率-时间图像",
      "role": "PRIMARY"
     }
    ]
@@ -58789,7 +58789,7 @@
    "contentId": "ext-che-6e5651ee6b-001c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -58881,7 +58881,7 @@
    "contentId": "ext-che-6e5651ee6b-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -59387,7 +59387,7 @@
    "contentId": "ext-che-754d8480e3-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -59916,7 +59916,7 @@
    "contentId": "ext-che-4b16225acf-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -60031,7 +60031,7 @@
    "contentId": "ext-che-4b16225acf-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解原理应用的四点注意事项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解过程中溶液性质的变化与溶液复原",
      "role": "PRIMARY"
     }
    ]
@@ -60491,7 +60491,7 @@
    "contentId": "ext-bio-451d5c3142-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律中的特殊分离比问题分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:个体或配子致死问题的处理-规律方法",
      "role": "PRIMARY"
     }
    ]
@@ -60698,7 +60698,7 @@
    "contentId": "ext-che-fe38fc6798-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液蒸干灼烧时所得产物的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种盐溶液蒸干后产物的判断",
      "role": "PRIMARY"
     }
    ]
@@ -60790,7 +60790,7 @@
    "contentId": "ext-che-a73b5b4033-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素周期表与原子结构的规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子结构与元素周期表的关系",
      "role": "PRIMARY"
     }
    ]
@@ -61848,7 +61848,7 @@
    "contentId": "ext-che-2b01c6c6da-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化性-还原性的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:价态规律及其应用",
      "role": "PRIMARY"
     }
    ]
@@ -62170,7 +62170,7 @@
    "contentId": "ext-che-8004f74991-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -62193,7 +62193,7 @@
    "contentId": "ext-che-8004f74991-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -62446,7 +62446,7 @@
    "contentId": "ext-che-6c309eb69d-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道理论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道",
      "role": "PRIMARY"
     }
    ]
@@ -62469,7 +62469,7 @@
    "contentId": "ext-che-a361f56778-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -62768,7 +62768,7 @@
    "contentId": "ext-che-f4686ae2ac-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:形成喷泉的原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的装置",
      "role": "PRIMARY"
     }
    ]
@@ -63159,7 +63159,7 @@
    "contentId": "ext-che-54f0f2bb90-015c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:丁达尔效应",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -64125,7 +64125,7 @@
    "contentId": "ext-che-fa19c9abe5-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -64148,7 +64148,7 @@
    "contentId": "ext-che-fa19c9abe5-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -64194,7 +64194,7 @@
    "contentId": "ext-che-fa19c9abe5-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -64217,7 +64217,7 @@
    "contentId": "ext-che-fa19c9abe5-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -64309,7 +64309,7 @@
    "contentId": "ext-che-258405f3c6-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -64470,7 +64470,7 @@
    "contentId": "ext-che-050d0632c7-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -65091,7 +65091,7 @@
    "contentId": "ext-che-54f0f2bb90-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -65436,7 +65436,7 @@
    "contentId": "ext-che-86a0fcc39c-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -65574,7 +65574,7 @@
    "contentId": "ext-che-aa83e6fece-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对下列物质分类-并完善表格内容",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -65620,7 +65620,7 @@
    "contentId": "ext-che-aa83e6fece-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:共价化合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学键与物质类别的关系",
      "role": "PRIMARY"
     }
    ]
@@ -65735,7 +65735,7 @@
    "contentId": "ext-che-aa83e6fece-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -65873,7 +65873,7 @@
    "contentId": "ext-che-aa83e6fece-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -66057,7 +66057,7 @@
    "contentId": "ext-che-0f5d5e7383-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞中粒子数目、配位数、坐标与密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -66103,7 +66103,7 @@
    "contentId": "ext-che-0f5d5e7383-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞空间利用率的计算",
      "role": "PRIMARY"
     }
    ]
@@ -67460,7 +67460,7 @@
    "contentId": "ext-che-c75a6bf0d3-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -67506,7 +67506,7 @@
    "contentId": "ext-che-c75a6bf0d3-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -68150,7 +68150,7 @@
    "contentId": "ext-che-261c888347-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -68610,7 +68610,7 @@
    "contentId": "ext-che-c00b4f60cb-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关ksp的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀溶解平衡易错六点",
      "role": "PRIMARY"
     }
    ]
@@ -68725,7 +68725,7 @@
    "contentId": "ext-che-c00b4f60cb-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶度积",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:ksp的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -69277,7 +69277,7 @@
    "contentId": "ext-bio-8bb96c7ef3-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的盐析变性与水解的辨析",
      "role": "PRIMARY"
     }
    ]
@@ -69323,7 +69323,7 @@
    "contentId": "ext-bio-8bb96c7ef3-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题的总结",
      "role": "PRIMARY"
     }
    ]
@@ -69461,7 +69461,7 @@
    "contentId": "ext-che-b713c9900b-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:微粒浓度的大小比较理论依据",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒浓度大小的比较",
      "role": "PRIMARY"
     }
    ]
@@ -69668,7 +69668,7 @@
    "contentId": "ext-che-923cf868a0-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -69737,7 +69737,7 @@
    "contentId": "ext-che-747e72a70a-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量在化学方程式计算中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -70082,7 +70082,7 @@
    "contentId": "ext-che-03eac4cd30-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氧化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氧化物组成的确定",
      "role": "PRIMARY"
     }
    ]
@@ -70404,7 +70404,7 @@
    "contentId": "ext-che-c293e5af8b-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道理论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道",
      "role": "PRIMARY"
     }
    ]
@@ -70473,7 +70473,7 @@
    "contentId": "ext-che-c293e5af8b-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子-或离子-空间结构的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型",
      "role": "PRIMARY"
     }
    ]
@@ -70979,7 +70979,7 @@
    "contentId": "ext-che-5292ff1265-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素的易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤族元素",
      "role": "PRIMARY"
     }
    ]
@@ -71255,7 +71255,7 @@
    "contentId": "ext-che-b4cc61c65b-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业制硫酸的流程与原理",
      "role": "PRIMARY"
     }
    ]
@@ -71531,7 +71531,7 @@
    "contentId": "ext-che-f9be80d886-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:浓度计算的常用方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的量浓度",
      "role": "PRIMARY"
     }
    ]
@@ -72796,7 +72796,7 @@
    "contentId": "ext-che-394d61720c-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -72980,7 +72980,7 @@
    "contentId": "ext-che-2e0d25681e-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -73049,7 +73049,7 @@
    "contentId": "ext-che-2e0d25681e-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -73371,7 +73371,7 @@
    "contentId": "ext-bio-2f23d1b77e-006b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -73601,7 +73601,7 @@
    "contentId": "ext-bio-e39740e8e1-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -73624,7 +73624,7 @@
    "contentId": "ext-bio-e39740e8e1-007b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -73992,7 +73992,7 @@
    "contentId": "ext-che-ad0e90657e-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液稀释与混合的计算",
      "role": "PRIMARY"
     }
    ]
@@ -74751,7 +74751,7 @@
    "contentId": "ext-che-d448baba5f-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业制法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解饱和食盐水-氯碱工业",
      "role": "PRIMARY"
     }
    ]
@@ -74843,7 +74843,7 @@
    "contentId": "ext-che-d448baba5f-023",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:拟卤素与卤素互化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤素互化物与拟卤素",
      "role": "PRIMARY"
     }
    ]
@@ -74866,7 +74866,7 @@
    "contentId": "ext-che-d448baba5f-024",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:拟卤素与卤素互化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤素互化物与拟卤素",
      "role": "PRIMARY"
     }
    ]
@@ -74981,7 +74981,7 @@
    "contentId": "ext-che-d448baba5f-032",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:拟卤素与卤素互化物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:卤素互化物与拟卤素",
      "role": "PRIMARY"
     }
    ]
@@ -75372,7 +75372,7 @@
    "contentId": "ext-che-dd58d352ef-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:速率常数和速率方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数与速率常数的有关计算",
      "role": "PRIMARY"
     }
    ]
@@ -77005,7 +77005,7 @@
    "contentId": "ext-che-939ab7f34c-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物命名易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
      "role": "PRIMARY"
     }
    ]
@@ -77051,7 +77051,7 @@
    "contentId": "ext-che-939ab7f34c-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:红外光谱与质谱",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物分子结构的鉴定方法",
      "role": "PRIMARY"
     }
    ]
@@ -77304,7 +77304,7 @@
    "contentId": "ext-che-160cc122c8-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道理论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道",
      "role": "PRIMARY"
     }
    ]
@@ -77856,7 +77856,7 @@
    "contentId": "ext-che-b7cfdfda64-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫化氢的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氢硫酸的性质与硫化氢的检验",
      "role": "PRIMARY"
     }
    ]
@@ -79305,7 +79305,7 @@
    "contentId": "ext-che-fcb3194bcf-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对化学反应速率的影响规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:惰性气体对化学反应速率的影响",
      "role": "PRIMARY"
     }
    ]
@@ -79673,7 +79673,7 @@
    "contentId": "ext-che-6e73710210-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式题设错方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式的正误判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -79742,7 +79742,7 @@
    "contentId": "ext-bio-95250bd0fd-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究基因位于常染色体上还是x-y染色体同源区段上",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因位置的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -80064,7 +80064,7 @@
    "contentId": "ext-che-72913a9286-013b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道理论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道",
      "role": "PRIMARY"
     }
    ]
@@ -80225,7 +80225,7 @@
    "contentId": "ext-che-72913a9286-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的手性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:手性分子",
      "role": "PRIMARY"
     }
    ]
@@ -80317,7 +80317,7 @@
    "contentId": "ext-che-72913a9286-024",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键的极性和分子的极性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的极性",
      "role": "PRIMARY"
     }
    ]
@@ -80823,7 +80823,7 @@
    "contentId": "ext-che-089c778d20-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配位化合物",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配位键",
      "role": "PRIMARY"
     }
    ]
@@ -81007,7 +81007,7 @@
    "contentId": "ext-che-20e51f35b2-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的稀释和混合问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:强酸与弱酸-强碱与弱碱稀释时的ph变化图像",
      "role": "PRIMARY"
     }
    ]
@@ -82042,7 +82042,7 @@
    "contentId": "ext-che-0012df4ce9-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对下列物质分类-并完善表格内容",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -82226,7 +82226,7 @@
    "contentId": "ext-che-0012df4ce9-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -82617,7 +82617,7 @@
    "contentId": "ext-che-2540022b42-012b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐类水解的规律及拓展应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存",
      "role": "PRIMARY"
     }
    ]
@@ -82640,7 +82640,7 @@
    "contentId": "ext-che-2540022b42-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液蒸干灼烧时所得产物的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种盐溶液蒸干后产物的判断",
      "role": "PRIMARY"
     }
    ]
@@ -82755,7 +82755,7 @@
    "contentId": "ext-che-2540022b42-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:微粒浓度的大小比较理论依据",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒浓度大小的比较",
      "role": "PRIMARY"
     }
    ]
@@ -83054,7 +83054,7 @@
    "contentId": "ext-bio-4d59518957-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:人类遗传病",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传病的检测和预防",
      "role": "PRIMARY"
     }
    ]
@@ -83951,7 +83951,7 @@
    "contentId": "ext-che-81d97b1c5e-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:丁达尔效应",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体的性质及应用",
      "role": "PRIMARY"
     }
    ]
@@ -84595,7 +84595,7 @@
    "contentId": "ext-che-2c2c95102b-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -85354,7 +85354,7 @@
    "contentId": "ext-che-499da45dc7-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解原理应用的四点注意事项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -85377,7 +85377,7 @@
    "contentId": "ext-che-499da45dc7-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解原理应用的四点注意事项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解原理易错点",
      "role": "PRIMARY"
     }
    ]
@@ -85515,7 +85515,7 @@
    "contentId": "ext-che-0e0ef6766a-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解池",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:惰性电极电解的四种类型",
      "role": "PRIMARY"
     }
    ]
@@ -85538,7 +85538,7 @@
    "contentId": "ext-che-0e0ef6766a-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解原理应用的四点注意事项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
      "role": "PRIMARY"
     }
    ]
@@ -86918,7 +86918,7 @@
    "contentId": "ext-bio-98acc0ecdc-007b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算和常规应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分离定律的概率计算-含自交与自由交配",
      "role": "PRIMARY"
     }
    ]
@@ -88045,7 +88045,7 @@
    "contentId": "ext-che-745c00885b-007b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道理论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:杂化轨道",
      "role": "PRIMARY"
     }
    ]
@@ -88091,7 +88091,7 @@
    "contentId": "ext-che-745c00885b-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子-或离子-空间结构的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型",
      "role": "PRIMARY"
     }
    ]
@@ -88183,7 +88183,7 @@
    "contentId": "ext-che-745c00885b-012b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的手性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:手性分子",
      "role": "PRIMARY"
     }
    ]
@@ -88229,7 +88229,7 @@
    "contentId": "ext-che-3d616da613-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:对下列物质分类-并完善表格内容",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
      "role": "PRIMARY"
     }
    ]
@@ -88298,7 +88298,7 @@
    "contentId": "ext-che-3d616da613-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的无机物之间转化的一般规律",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:不同类别的物质之间的转化关系",
      "role": "PRIMARY"
     }
    ]
@@ -88436,7 +88436,7 @@
    "contentId": "ext-che-813727c8d6-001c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业制硫酸的流程与原理",
      "role": "PRIMARY"
     }
    ]
@@ -88804,7 +88804,7 @@
    "contentId": "ext-che-3d6a64f5a9-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分散系",
      "role": "PRIMARY"
     }
    ]
@@ -89172,7 +89172,7 @@
    "contentId": "ext-che-4a4ad3d6e8-012b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐溶液蒸干灼烧时所得产物的判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:六种盐溶液蒸干后产物的判断",
      "role": "PRIMARY"
     }
    ]
@@ -89287,7 +89287,7 @@
    "contentId": "ext-che-4a4ad3d6e8-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:微粒浓度的大小比较理论依据",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒浓度大小的比较",
      "role": "PRIMARY"
     }
    ]
@@ -89724,7 +89724,7 @@
    "contentId": "ext-che-c2bb80d694-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质概念和判断的几个-特殊点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质及其分类",
      "role": "PRIMARY"
     }
    ]
@@ -91035,7 +91035,7 @@
    "contentId": "ext-che-cf2c8dc456-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -91081,7 +91081,7 @@
    "contentId": "ext-che-cf2c8dc456-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式书写注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -93128,7 +93128,7 @@
    "contentId": "ext-bio-e9271fa3c3-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:原核细胞和真核细胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的多样性和统一性",
      "role": "PRIMARY"
     }
    ]
@@ -94209,7 +94209,7 @@
    "contentId": "ext-bio-7abf2f735b-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -94232,7 +94232,7 @@
    "contentId": "ext-bio-7abf2f735b-005b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物膜系统",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞的生物膜系统",
      "role": "PRIMARY"
     }
    ]
@@ -94278,7 +94278,7 @@
    "contentId": "ext-bio-7abf2f735b-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:囊泡运输与蛋白质分选",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分泌蛋白的分选（信号肽假说）",
      "role": "PRIMARY"
     }
    ]
@@ -95129,7 +95129,7 @@
    "contentId": "ext-che-4aca25a694-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酸碱中和滴定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中和滴定",
      "role": "PRIMARY"
     }
    ]
@@ -95773,7 +95773,7 @@
    "contentId": "ext-che-ded43bede2-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质概念和判断的几个-特殊点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质及其分类",
      "role": "PRIMARY"
     }
    ]
@@ -96371,7 +96371,7 @@
    "contentId": "ext-che-b823b36192-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -96394,7 +96394,7 @@
    "contentId": "ext-che-b823b36192-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -96716,7 +96716,7 @@
    "contentId": "ext-che-071d406960-004b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属导电和电解质溶液导电的对比",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解质溶液的导电性",
      "role": "PRIMARY"
     }
    ]
@@ -96854,7 +96854,7 @@
    "contentId": "ext-che-020cba294a-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:单质与氧化还原反应的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应与四种基本反应类型的关系",
      "role": "PRIMARY"
     }
    ]
@@ -97084,7 +97084,7 @@
    "contentId": "ext-che-020cba294a-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子守恒法计算的原理",
      "role": "PRIMARY"
     }
    ]
@@ -97498,7 +97498,7 @@
    "contentId": "ext-bio-dbce67b1b0-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:孟德尔两对相对性状的杂交实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对相对性状杂交实验过程",
      "role": "PRIMARY"
     }
    ]
@@ -97797,7 +97797,7 @@
    "contentId": "ext-che-72b20828f8-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:核外电子运动状态的表示和判断",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态原子核外电子排布的表示方法",
      "role": "PRIMARY"
     }
    ]
@@ -98165,7 +98165,7 @@
    "contentId": "ext-che-cdf4760f34-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式题设错方式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子方程式的正误判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -98257,7 +98257,7 @@
    "contentId": "ext-che-4112b48508-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞中粒子数目、配位数、坐标与密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -98418,7 +98418,7 @@
    "contentId": "ext-che-ca6bac23c7-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -98625,7 +98625,7 @@
    "contentId": "ext-che-6b9ae33803-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键的极性和分子的极性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子的极性",
      "role": "PRIMARY"
     }
    ]
@@ -99016,7 +99016,7 @@
    "contentId": "ext-che-b3c0f75ea5-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学反应速率及其计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学反应速率的计算方法",
      "role": "PRIMARY"
     }
    ]
@@ -99361,7 +99361,7 @@
    "contentId": "ext-che-1e9a37df8e-005b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物命名易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
      "role": "PRIMARY"
     }
    ]
@@ -99407,7 +99407,7 @@
    "contentId": "ext-che-1e9a37df8e-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物命名易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
      "role": "PRIMARY"
     }
    ]
@@ -99706,7 +99706,7 @@
    "contentId": "ext-che-b08c6c1c61-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -99775,7 +99775,7 @@
    "contentId": "ext-che-b08c6c1c61-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:热化学方程式书写注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -99821,7 +99821,7 @@
    "contentId": "ext-che-b08c6c1c61-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热-焓变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
      "role": "PRIMARY"
     }
    ]
@@ -100189,7 +100189,7 @@
    "contentId": "ext-che-3b6c218622-010b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:甲烷作燃料电池的负极反应物时-其电极反应式在不同的介质中有不同的写法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:燃料电池",
      "role": "PRIMARY"
     }
    ]
@@ -100442,7 +100442,7 @@
    "contentId": "ext-che-b0216673fb-007b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:结合-片段型-元素周期表推断短周期主族元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素推断的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -100511,7 +100511,7 @@
    "contentId": "ext-che-b0216673fb-011b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素周期表及其应用易混易错点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素的性质比较和判断易混易错点",
      "role": "PRIMARY"
     }
    ]
@@ -100718,7 +100718,7 @@
    "contentId": "ext-che-b0216673fb-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:结合-片段型-元素周期表推断短周期主族元素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:元素推断的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -101592,7 +101592,7 @@
    "contentId": "ext-che-7704eb367d-007b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:平衡常数的应用",
      "role": "PRIMARY"
     }
    ]
@@ -101615,7 +101615,7 @@
    "contentId": "ext-che-7704eb367d-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡常数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关化学平衡常数易混易错点",
      "role": "PRIMARY"
     }
    ]
@@ -101868,7 +101868,7 @@
    "contentId": "ext-che-968bcfe3c7-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶度积",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:ksp的影响因素",
      "role": "PRIMARY"
     }
    ]
@@ -102903,7 +102903,7 @@
    "contentId": "ext-che-25f43f1fc3-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氧化还原反应规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电子守恒法计算的原理",
      "role": "PRIMARY"
     }
    ]
@@ -103294,7 +103294,7 @@
    "contentId": "ext-che-26cfa23439-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分离提纯",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机物的分离和提纯",
      "role": "PRIMARY"
     }
    ]
@@ -103961,7 +103961,7 @@
    "contentId": "ext-che-387667e1e7-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中和滴定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中和滴定的误差分析方法",
      "role": "PRIMARY"
     }
    ]

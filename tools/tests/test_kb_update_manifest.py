@@ -317,11 +317,19 @@ class RealArtifactsTest(unittest.TestCase):
         # 382 行 2026-10-12 + 批次10 零材料点 1 行 2026-10-13 落 point_merge.csv）→ backfill
         # 实测 MERGE=639（量源 = 对成品包实跑 `um.backfill_from_tables` 与本用例 round-1 失败信息
         # `AssertionError: 256 != 639`；与表行数 point_merge.csv 639 行逐一对上）。
-        self.assertEqual(639, kinds.get(um.KIND_MERGE, 0))
+        # 2026-10-16 批次11 promote v15（成品包 v14 → v15）后重钉：639 → 810（+171 = 批次11 超配
+        # 并点 170 行 2026-10-14 + F2 窗口 1 行，全部落地：成品包与 HEAD 包逐点差 = 退场 171，
+        # 逐条可由 point_merge.csv 已执行行解释）→ backfill 实测 MERGE=810（量源 = 对成品包实跑
+        # `um.backfill_from_tables` 与本用例 round-1 失败信息 `AssertionError: 639 != 810`；
+        # 与表行数 point_merge.csv 810 行逐一对上；复算脚本
+        # build/agent-batch11/pin/measure_py_pins.py）。
+        self.assertEqual(810, kinds.get(um.KIND_MERGE, 0))
         # 2026-10-02 建点闭环：撤回 8 个"块过薄写不出材料"的新点 → point_delete.csv +8 行 → 192。
         # 2026-10-03 批次 3：改绑轮又删 1 行空操作删除（原 192 + 1）→ 193。
         # 2026-10-14 批次10 promote v14：批次10 残片删点 3 行（2 条化学、1 条数学）落
         # point_delete.csv（193 → 196）→ backfill 实测 DELETE=196（同一量源，与表行数 196 行一致）。
+        # 2026-10-16 批次11 promote v15：**DELETE 未动**（批次11 无删点行；退场 171 全为
+        # point_merge 并点）→ 仍 196（量源同上，对成品包实跑 backfill 实测）。
         self.assertEqual(196, kinds.get(um.KIND_DELETE, 0))
 
     def test_backfilled_entries_pass_shape_check(self):

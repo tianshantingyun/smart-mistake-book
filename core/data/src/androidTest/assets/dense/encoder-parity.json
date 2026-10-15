@@ -10,7 +10,7 @@
   },
   "textSource": {
     "path": "core\\data\\src\\test\\resources\\dense\\tokenizer-parity-cases.txt",
-    "sha256": "8e78ce636995d7235af0b2993812c249e5778a6506ee92215770631bd6d74725",
+    "sha256": "39336fa8fa2201d55eccde0dada02e42bda32eba5f6dc10ec6c9f4fff1aed74e",
     "note": "query 行含 BGE 查询前缀；surface 行是向量集原文（节点名/别名）"
   },
   "referenceVectors": {
@@ -20,14 +20,14 @@
     },
     "docs": {
       "path": "build\\dense-model\\int8-docs.npy",
-      "sha256": "977f38c639ba42316ca8f7d4d810e820eecc8d3d747953a402e46de98d86f86d"
+      "sha256": "2968415bf9bbdf8e4922292e2f50629637832cd5052b04f30c20a0cd98bb7319"
     },
     "producer": "onnxruntime 1.28.0 on build\\dense-model\\bge-small-zh-v1.5-int8.onnx",
     "modelSha256": "4d3b31355a3df4ff923db83bc76181f8581592de10f67502be825f519d2fa213"
   },
   "golden": {
     "path": "tools\\kb_coverage\\tables\\golden_queries_v2.json",
-    "sha256": "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e"
+    "sha256": "dbe093b203344673021dbee93fad8edac8e3da3e9772c0bf3bcb5ad65e8d94dc"
   },
   "alignmentSelfCheck": {
     "note": "用同一份 int8 ONNX 现场重跑 fixture 的 ids，与冻结 npy 逐行比 cosine",
@@ -37,11 +37,11 @@
   },
   "casesFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-cases.tsv",
-    "sha256": "e0d3264ddecf41e46a3473e6988acb0d2ed1bb0b47662dc6f2ab62b7ccbb2757"
+    "sha256": "ad32458db0ad4c1e1654e7d3e690b1d1f9d8eb96916be0d1e56cd5253e59f5f8"
   },
   "vectorsFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-vectors.f32",
-    "sha256": "ea3872a279ce47b9b1a9ddca121c80416fe4ea4be01f1d013581518c2cbaecc7",
+    "sha256": "b1a8631b38b737b42dee4e6018c6ec4174c38ab66a26bda29481071a781ea16d",
     "layout": "little-endian float32, row-major, N×512",
     "l2NormRange": [
       0.999999463558197,

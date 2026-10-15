@@ -64,7 +64,16 @@ TOKENIZER_RELATIVE = "tools/dense_build/vocab/bge-small-zh-v1.5-tokenizer.json"
 MODEL_MANIFEST_RELATIVE = "tools/dense_build/model-manifest.json"
 LEXICAL_LEG_RELATIVE = "build/production-lexical-leg.tsv"
 GOLDEN_RELATIVE = "tools/kb_coverage/tables/golden_queries_v2.json"
-GOLDEN_SHA256 = "473dbeac28280e34d765057625189f85ff7eafd8f6a34577519d2260f7c4302e"
+# 判官封存值。**2026-10-14 一次迁移到 v14 值（473dbeac… → 14b7cea8…）时本常量被落下**
+# （导出侧在 v14 之后仍按旧 sha 拒跑；`export_golden_query_vectors.py` 的 docstring 里点名
+# "属主需同步该常量与下游重生成"）。**2026-10-16 随批次11（v15 并点）金标迁移补齐并推进**：
+# 5 条 expectedSlug 按 manifest retired 的 supersededBy 改指（0 退役，条数仍 129）→ `dbe093b2…`；
+# **同日再随 F2 章层重建的 chapter 同步迁移推进到当前值**（16 条 chapter 改到 v15 包内
+# topic 链实测归属；slug/题面未动）。记录见 `docs/kb-golden-v2-protocol.md` 的
+# 「expectedSlug 迁移（2026-10-16，随批次11 v15 并点）」+「chapter 同步迁移（2026-10-16，
+# 随批次11 v15 F2 章层重建）」两节 + `build/agent-batch11/golden-migration.json`。此后下游
+# （stage3 参考数、两份设备 fixture、tokenizer fixture）随十二步链重生成。
+GOLDEN_SHA256 = "3dbe90736df42c9c22723dc06292b364ade92901604b5731033cf612c4f10e41"
 
 # ---- 模型档位（Stage-5 参数化：换件只换"哪一档"与档位坐标，路径名一律不动） ----
 #

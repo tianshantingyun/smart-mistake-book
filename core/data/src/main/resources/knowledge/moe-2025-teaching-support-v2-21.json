@@ -463,7 +463,7 @@
    "contentId": "ext-che-9da7640535-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -555,7 +555,7 @@
    "contentId": "ext-che-aa972e5664-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -1199,7 +1199,7 @@
    "contentId": "ext-che-ca6bac23c7-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -1268,7 +1268,7 @@
    "contentId": "ext-che-666531854e-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分析离子能否大量共存必备知识",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存问题解题要点",
      "role": "PRIMARY"
     }
    ]
@@ -2487,7 +2487,7 @@
    "contentId": "ext-che-e28044054a-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀滴定法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:滴定曲线",
      "role": "PRIMARY"
     }
    ]
@@ -2855,7 +2855,7 @@
    "contentId": "ext-bio-f1b4030f6e-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:受精作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
      "role": "PRIMARY"
     }
    ]
@@ -3568,7 +3568,7 @@
    "contentId": "ext-bio-b9f847e11d-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物生长调节剂的应用",
      "role": "PRIMARY"
     }
    ]
@@ -3936,7 +3936,7 @@
    "contentId": "ext-bio-5b5fa7bd85-029b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:三率-的关系及测定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
@@ -4350,7 +4350,7 @@
    "contentId": "ext-bio-207edcd171-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA复制的拓展",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:同位素标记法",
      "role": "PRIMARY"
     }
    ]
@@ -4580,7 +4580,7 @@
    "contentId": "ext-bio-3088f9fda7-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输的类型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
      "role": "PRIMARY"
     }
    ]
@@ -4741,7 +4741,7 @@
    "contentId": "ext-bio-e111eedf65-007c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞凋亡",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞坏死与细胞自噬",
      "role": "PRIMARY"
     }
    ]
@@ -5109,7 +5109,7 @@
    "contentId": "ext-mat-68ab4340ee-001c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对含有一个量词命题的否定理解错误致错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:命题的否定-对命题p加以否定-得到一个新的命题-记作-读作-非p-或p的否定",
      "role": "PRIMARY"
     }
    ]
@@ -6305,7 +6305,7 @@
    "contentId": "ext-mat-c8dfda12cb-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分段函数的常见类型及解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:相等函数与分段函数",
      "role": "PRIMARY"
     }
    ]
@@ -6489,7 +6489,7 @@
    "contentId": "ext-mat-d8ce033847-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -7041,7 +7041,7 @@
    "contentId": "ext-mat-15eb1ccaf4-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:中心对称与轴对称的坐标关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的对称问题",
      "role": "PRIMARY"
     }
    ]
@@ -8352,7 +8352,7 @@
    "contentId": "ext-mat-435684955e-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -9410,7 +9410,7 @@
    "contentId": "ext-mat-e61e3f6c3a-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:比较函数值的大小-先将自变量转化到同一个单调区间内-然后利用函数的单调性解决",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:构造函数-运用函数的单调性比较",
      "role": "PRIMARY"
     }
    ]
@@ -10491,7 +10491,7 @@
    "contentId": "ext-mat-fcc8a57b01-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -10652,7 +10652,7 @@
    "contentId": "ext-mat-843288a9fd-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数及其性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数的图象与性质应用",
      "role": "PRIMARY"
     }
    ]
@@ -11779,7 +11779,7 @@
    "contentId": "ext-mat-a6198e8d9b-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点与准线",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -12009,7 +12009,7 @@
    "contentId": "ext-mat-3878a1c497-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明",
      "role": "PRIMARY"
     }
    ]
@@ -12101,7 +12101,7 @@
    "contentId": "ext-mat-e1fe22cdc1-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -13205,7 +13205,7 @@
    "contentId": "ext-mat-f2b897dd97-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -13228,7 +13228,7 @@
    "contentId": "ext-mat-f2b897dd97-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -14125,7 +14125,7 @@
    "contentId": "ext-mat-8e7728999d-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与平面所成角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:用向量法求解直线与平面所成角的方法",
      "role": "PRIMARY"
     }
    ]
@@ -15344,7 +15344,7 @@
    "contentId": "ext-mat-fb3d865a55-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -15413,7 +15413,7 @@
    "contentId": "ext-mat-fb3d865a55-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -15505,7 +15505,7 @@
    "contentId": "ext-mat-05e1d810e0-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数及其性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数的图象与性质应用",
      "role": "PRIMARY"
     }
    ]
@@ -16471,7 +16471,7 @@
    "contentId": "ext-mat-dde1187192-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -16586,7 +16586,7 @@
    "contentId": "ext-mat-57e5aabddb-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -17322,7 +17322,7 @@
    "contentId": "ext-mat-f7d6c8e770-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -17368,7 +17368,7 @@
    "contentId": "ext-mat-f7d6c8e770-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -17690,7 +17690,7 @@
    "contentId": "ext-mat-891ad3b0f8-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -17851,7 +17851,7 @@
    "contentId": "ext-mat-fac0082456-029",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆中的范围与最值问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:与圆有关的最值问题",
      "role": "PRIMARY"
     }
    ]
@@ -20335,7 +20335,7 @@
    "contentId": "ext-mat-c2c1bcb660-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -22152,7 +22152,7 @@
    "contentId": "ext-mat-34209f6138-002c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -23003,7 +23003,7 @@
    "contentId": "ext-mat-7cab59a74e-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -23348,7 +23348,7 @@
    "contentId": "ext-mat-54f58ca872-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -24360,7 +24360,7 @@
    "contentId": "ext-mat-2d47da6c92-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与平面所成角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:用向量法求解直线与平面所成角的方法",
      "role": "PRIMARY"
     }
    ]
@@ -25234,7 +25234,7 @@
    "contentId": "ext-mat-68e5c3ce2f-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -25372,7 +25372,7 @@
    "contentId": "ext-mat-36915e6090-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数及其性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数的图象与性质应用",
      "role": "PRIMARY"
     }
    ]
@@ -25901,7 +25901,7 @@
    "contentId": "ext-mat-4788416d8c-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两条直线的位置关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:交点与距离问题的易错点",
      "role": "PRIMARY"
     }
    ]
@@ -26453,7 +26453,7 @@
    "contentId": "ext-mat-b74b04fd74-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -26614,7 +26614,7 @@
    "contentId": "ext-mat-2130c8877a-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明",
      "role": "PRIMARY"
     }
    ]
@@ -26637,7 +26637,7 @@
    "contentId": "ext-mat-9673d5e7a5-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -26660,7 +26660,7 @@
    "contentId": "ext-mat-9673d5e7a5-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列前项和的常用性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的前n项和",
      "role": "PRIMARY"
     }
    ]
@@ -27649,7 +27649,7 @@
    "contentId": "ext-mat-3f0f8a27e0-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -28684,7 +28684,7 @@
    "contentId": "ext-mat-d4bee93223-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:拼凑角思想",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角的变换技巧",
      "role": "PRIMARY"
     }
    ]
@@ -29167,7 +29167,7 @@
    "contentId": "ext-mat-291d8c846f-034",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期数列的常见形式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期数列的周期确认与求和要点",
      "role": "PRIMARY"
     }
    ]
@@ -29374,7 +29374,7 @@
    "contentId": "ext-mat-b6fbcfd043-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的前n项和",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列前项和的常用性质",
      "role": "PRIMARY"
     }
    ]
@@ -29420,7 +29420,7 @@
    "contentId": "ext-mat-b6fbcfd043-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -29466,7 +29466,7 @@
    "contentId": "ext-mat-b6fbcfd043-013c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -29627,7 +29627,7 @@
    "contentId": "ext-mat-de663645d9-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -30501,7 +30501,7 @@
    "contentId": "ext-mat-a1d2470421-001d",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对含有一个量词命题的否定理解错误致错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:命题的否定-对命题p加以否定-得到一个新的命题-记作-读作-非p-或p的否定",
      "role": "PRIMARY"
     }
    ]
@@ -32295,7 +32295,7 @@
    "contentId": "ext-mat-0f0f88e179-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分段函数的常见类型及解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:相等函数与分段函数",
      "role": "PRIMARY"
     }
    ]
@@ -32824,7 +32824,7 @@
    "contentId": "ext-mat-3f664d3b10-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数及其性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指数函数的图象与性质应用",
      "role": "PRIMARY"
     }
    ]
@@ -33905,7 +33905,7 @@
    "contentId": "ext-mat-62a93dd334-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:中心对称与轴对称的坐标关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的对称问题",
      "role": "PRIMARY"
     }
    ]
@@ -34779,7 +34779,7 @@
    "contentId": "ext-mat-bdb3de04f6-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -34848,7 +34848,7 @@
    "contentId": "ext-mat-bdb3de04f6-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -35078,7 +35078,7 @@
    "contentId": "ext-mat-31be25e678-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -35170,7 +35170,7 @@
    "contentId": "ext-mat-31be25e678-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的前n项和",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列前项和的常用性质",
      "role": "PRIMARY"
     }
    ]
@@ -35722,7 +35722,7 @@
    "contentId": "ext-mat-4a462ef52f-002c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布应用题的解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二项分布",
      "role": "PRIMARY"
     }
    ]
@@ -37148,7 +37148,7 @@
    "contentId": "ext-mat-f88c50d572-048",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:线段的定比分点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:定比分点向量公式",
      "role": "PRIMARY"
     }
    ]
@@ -37516,7 +37516,7 @@
    "contentId": "ext-mat-4539cc008d-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -37631,7 +37631,7 @@
    "contentId": "ext-mat-94595037ea-001c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分段函数的常见类型及解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:相等函数与分段函数",
      "role": "PRIMARY"
     }
    ]
@@ -37700,7 +37700,7 @@
    "contentId": "ext-mat-94595037ea-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -38712,7 +38712,7 @@
    "contentId": "ext-mat-d268df9242-037",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:异面直线所成角的求法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:异面直线所成的角",
      "role": "PRIMARY"
     }
    ]
@@ -39609,7 +39609,7 @@
    "contentId": "ext-mat-6ab00de485-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:内切球与球的相切问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
      "role": "PRIMARY"
     }
    ]
@@ -40322,7 +40322,7 @@
    "contentId": "ext-mat-f1774135fc-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:集合中元素的特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:忽视集合元素的互异性致错",
      "role": "PRIMARY"
     }
    ]
@@ -40874,7 +40874,7 @@
    "contentId": "ext-mat-4cc7709544-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:高次不等式及其解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:穿针引线法（解高次不等式）",
      "role": "PRIMARY"
     }
    ]
@@ -41012,7 +41012,7 @@
    "contentId": "ext-mat-914340cfdd-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间几何体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:多面体与旋转体",
      "role": "PRIMARY"
     }
    ]
@@ -42415,7 +42415,7 @@
    "contentId": "ext-mat-4d220bee77-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -42898,7 +42898,7 @@
    "contentId": "ext-mat-2f286365d8-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -43243,7 +43243,7 @@
    "contentId": "ext-mat-e26e7855db-002c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -44715,7 +44715,7 @@
    "contentId": "ext-mat-7042239ed3-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:中心对称与轴对称的坐标关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的对称问题",
      "role": "PRIMARY"
     }
    ]
@@ -45221,7 +45221,7 @@
    "contentId": "ext-mat-34a63ab036-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -45267,7 +45267,7 @@
    "contentId": "ext-mat-34a63ab036-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明",
      "role": "PRIMARY"
     }
    ]
@@ -45566,7 +45566,7 @@
    "contentId": "ext-mat-dd977a3d7f-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -46647,7 +46647,7 @@
    "contentId": "ext-mat-e099a16c22-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形的弧长与面积公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:扇形弧长与面积公式",
      "role": "PRIMARY"
     }
    ]
@@ -46785,7 +46785,7 @@
    "contentId": "ext-mat-e099a16c22-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:齐次式的处理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:齐次式与切弦互化",
      "role": "PRIMARY"
     }
    ]
@@ -46831,7 +46831,7 @@
    "contentId": "ext-mat-b9c25df297-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:拼凑角思想",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角的变换技巧",
      "role": "PRIMARY"
     }
    ]
@@ -48257,7 +48257,7 @@
    "contentId": "ext-mat-1ec1c382cc-002c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -48326,7 +48326,7 @@
    "contentId": "ext-mat-1ec1c382cc-008b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -48970,7 +48970,7 @@
    "contentId": "ext-mat-bf80ecdfc8-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分段函数的常见类型及解法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:相等函数与分段函数",
      "role": "PRIMARY"
     }
    ]
@@ -49568,7 +49568,7 @@
    "contentId": "ext-mat-8251cf1128-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -50764,7 +50764,7 @@
    "contentId": "ext-mat-c89a9447e6-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:边角互化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角形中的射影定理与常用恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -51339,7 +51339,7 @@
    "contentId": "ext-mat-47b62c1e54-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列的判定与证明",
      "role": "PRIMARY"
     }
    ]
@@ -51454,7 +51454,7 @@
    "contentId": "ext-mat-3bf19177a8-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -51707,7 +51707,7 @@
    "contentId": "ext-mat-d1afd2a941-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -51937,7 +51937,7 @@
    "contentId": "ext-mat-421f40944a-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列数与组合数的概念",
      "role": "PRIMARY"
     }
    ]
@@ -52581,7 +52581,7 @@
    "contentId": "ext-mat-9a9766d670-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -52742,7 +52742,7 @@
    "contentId": "ext-mat-10b98430fd-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对含有一个量词命题的否定理解错误致错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:命题的否定-对命题p加以否定-得到一个新的命题-记作-读作-非p-或p的否定",
      "role": "PRIMARY"
     }
    ]
@@ -52995,7 +52995,7 @@
    "contentId": "ext-mat-b942d074fc-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:单变量不等式恒成立问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:同构法",
      "role": "PRIMARY"
     }
    ]
@@ -54145,7 +54145,7 @@
    "contentId": "ext-mat-4026671972-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -54168,7 +54168,7 @@
    "contentId": "ext-mat-4026671972-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -54191,7 +54191,7 @@
    "contentId": "ext-mat-4026671972-006b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -54214,7 +54214,7 @@
    "contentId": "ext-mat-4026671972-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -55525,7 +55525,7 @@
    "contentId": "ext-mat-e96c0b1a67-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数极值与最值的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -57250,7 +57250,7 @@
    "contentId": "ext-mat-5c47ca3df0-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -58860,7 +58860,7 @@
    "contentId": "ext-mat-025bf5a476-011b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的周期性",
      "role": "PRIMARY"
     }
    ]
@@ -58998,7 +58998,7 @@
    "contentId": "ext-mat-025bf5a476-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值与范围问题",
      "role": "PRIMARY"
     }
    ]
@@ -59136,7 +59136,7 @@
    "contentId": "ext-mat-07f6a9695b-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值与范围问题",
      "role": "PRIMARY"
     }
    ]
@@ -59435,7 +59435,7 @@
    "contentId": "ext-mat-33ca557683-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值范围问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形中的最值与范围问题",
      "role": "PRIMARY"
     }
    ]
@@ -60056,7 +60056,7 @@
    "contentId": "ext-che-5c62da9e03-1164",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:下列各图为几种晶体或晶胞的构型示意图",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体",
      "role": "PRIMARY"
     }
    ]
@@ -60125,7 +60125,7 @@
    "contentId": "ext-che-5c62da9e03-1473",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:几种重要的醛-酮",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:醛-酮的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -60424,7 +60424,7 @@
    "contentId": "ext-mat-289deb9ecd-1016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆相交的弦长",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的弦长问题",
      "role": "PRIMARY"
     }
    ]
@@ -60815,7 +60815,7 @@
    "contentId": "ext-mat-289deb9ecd-1085",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦点三角形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -60838,7 +60838,7 @@
    "contentId": "ext-mat-289deb9ecd-1085b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点与准线",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
      "role": "PRIMARY"
     }
    ]
@@ -60953,7 +60953,7 @@
    "contentId": "ext-mat-289deb9ecd-1118b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -61344,7 +61344,7 @@
    "contentId": "ext-mat-289deb9ecd-1171b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判定与证明方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -61597,7 +61597,7 @@
    "contentId": "ext-mat-289deb9ecd-1249",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数的运算法则",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数的概念",
      "role": "PRIMARY"
     }
    ]
@@ -61666,7 +61666,7 @@
    "contentId": "ext-mat-289deb9ecd-1255b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -62402,7 +62402,7 @@
    "contentId": "ext-mat-289deb9ecd-1626",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数图象的识别",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由图象确定函数解析式的方法",
      "role": "PRIMARY"
     }
    ]
@@ -62885,7 +62885,7 @@
    "contentId": "ext-mat-289deb9ecd-223b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:凹凸函数的几何特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二阶导数与函数的凹凸性",
      "role": "PRIMARY"
     }
    ]
@@ -62931,7 +62931,7 @@
    "contentId": "ext-mat-289deb9ecd-228",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -63322,7 +63322,7 @@
    "contentId": "ext-mat-289deb9ecd-300b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:根据零点个数求参数的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数与所在区间的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -63805,7 +63805,7 @@
    "contentId": "ext-mat-289deb9ecd-446",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -65162,7 +65162,7 @@
    "contentId": "ext-mat-289deb9ecd-872",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间向量的有关概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间向量的有关定理",
      "role": "PRIMARY"
     }
    ]
@@ -65208,7 +65208,7 @@
    "contentId": "ext-mat-289deb9ecd-888",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:线段的定比分点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:定比分点向量公式",
      "role": "PRIMARY"
     }
    ]

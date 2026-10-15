@@ -1,8 +1,14 @@
 package com.tingyun.smartmistakebook.core.data.knowledge
 
+import com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseQueryEncoder
+import com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTestFixtures
+import com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseVectorAsset
+import com.tingyun.smartmistakebook.core.data.knowledge.dense.OnDeviceDenseRecallReranker
+import com.tingyun.smartmistakebook.core.database.DenseRecallCandidate
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtractor
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -91,6 +97,45 @@ class GoldenRetrievalJvmTest {
             index.recall(case.subject, case.query, limit = depth)
         }
 
+        // ===== A2（批 11）第三路 B-fused-mirror：融合路由（512 域 + 稠密重排）的 JVM 镜像 =====
+        // 与设备 `GoldenRetrievalInstrumentedTest` 的融合臂同口径：词面 512 候选域经
+        // `OnDeviceDenseRecallReranker`（**与设备同一实现**）重排。模型推理是 Android-only，
+        // 所以按仓库既有先例（DenseRecallRerankerTest）用**假编码器**喂离线导出的查询向量
+        // （`dense/golden-query-vectors.i8`；设备同变换 = 原文，批 11 设备探针实测 parity
+        // min cosine 0.99978）——覆盖"除模型本身之外的整条链路"。
+        val fusedVectors = loadGoldenQueryVectors()
+        assertEquals("题面向量条数应覆盖全部金标", cases.size, fusedVectors.size)
+        cases.forEach { case ->
+            assertTrue("fixture 缺该题面的查询向量：${case.query}", fusedVectors.containsKey(case.query))
+        }
+        val fusedAssetBytes = DenseTestFixtures.bytes(VECTOR_RESOURCE)
+        val fusedAsset = DenseVectorAsset.read(
+            fusedAssetBytes,
+            expectedSha256 = DenseVectorAsset.sha256(fusedAssetBytes),
+        )
+        val fusedEncoder = object : DenseQueryEncoder {
+            override fun encode(text: String): FloatArray =
+                fusedVectors[text] ?: error("fixture 缺该题面的查询向量：$text")
+        }
+        val fusedReranker = OnDeviceDenseRecallReranker(
+            tokenizer = { error("unused with the fake encoder") },
+            asset = { fusedAsset },
+            encoder = { fusedEncoder },
+        )
+        val fusedRerank: (String, String, List<DenseRecallCandidate>) -> List<DenseRecallCandidate>? =
+            { subject, queryText, candidates ->
+                runBlocking { fusedReranker.order(subject, queryText, candidates) }
+            }
+        val fused = RetrievalBenchmark.goldenFusedRoute(index, cases, fusedRerank)
+        // 融合臂的 MISS 探针口径与设备逐字相同：放宽到 [RetrievalBenchmark.FUSED_RECALL_DEPTH]（512）
+        // 再取前 [RetrievalBenchmark.MISS_PROBE_LIMIT]（256）——域的深度会改变 min-max 与重排
+        // （设备探针 = store(limit=512).take(256)，传 256 进去是**另一个域**）。
+        val fusedMisses = RetrievalBenchmark.goldenMisses(fused) { case, _ ->
+            RetrievalBenchmark.fusedRecallSequence(
+                index, case, RetrievalBenchmark.FUSED_RECALL_DEPTH, fusedRerank,
+            )
+        }
+
         // 结构性不变量（不是质量门）：两路判分行数一致且与题面逐行对齐。
         assertEquals("两路判分行数必须一致", cases.size, a.scores.size)
         assertEquals("两路判分行数必须一致", cases.size, b.scores.size)
@@ -124,10 +169,31 @@ class GoldenRetrievalJvmTest {
         )
         // 产物契约：落盘的 MISS 清单与逐章分布必须与判分结果逐条对齐（清单被删/少写当场红）。
         assertMissLedgerMatchesScores(metricsFile, listOf(a to aMisses, b to bMisses))
+        // A2（批 11）：融合镜像的独立指标文件（段渲染与主文件同源 goldenRouteSection，
+        // 供 mirror-misses 抽取口径逐字对齐；主文件的两路段格式**不动**）。
+        val fusedFile = File(repoRoot, "build/agent-batch11/d3/jvm-fused-metrics.txt")
+        fusedFile.parentFile?.mkdirs()
+        fusedFile.writeText(
+            buildString {
+                appendLine(
+                    "# golden-fused-mirror — A2 批 11 第三路（假编码器喂离线原文查询向量；" +
+                        "测量台，不断言质量阈值）",
+                )
+                appendLine("# pack=${pack.packId} nodes=${pack.nodes.size}")
+                appendLine("# index: $indexInfo")
+                appendLine("# golden: $goldenInfo")
+                appendLine("")
+                appendLine(RetrievalBenchmark.goldenRouteSection(fused, fusedMisses))
+            },
+        )
+        assertMissLedgerMatchesScores(fusedFile, listOf(fused to fusedMisses))
         println(
             "golden-jvm: A Recall@5=${a.recallAt5} MRR=${a.mrr}; " +
-                "B Recall@5=${b.recallAt5} MRR=${b.mrr}; MISS A=${aMisses.size} B=${bMisses.size}; " +
-                "指标已写 build/golden-jvm-metrics.txt（测量台：不断言质量阈值，预注册判据另行判定）",
+                "B Recall@5=${b.recallAt5} MRR=${b.mrr}; " +
+                "fused Recall@5=${fused.recallAt5} MRR=${fused.mrr}; " +
+                "MISS A=${aMisses.size} B=${bMisses.size} fused=${fusedMisses.size}; " +
+                "指标已写 build/golden-jvm-metrics.txt 与 " +
+                "build/agent-batch11/d3/jvm-fused-metrics.txt（测量台：不断言质量阈值，预注册判据另行判定）",
         )
     }
 
@@ -263,11 +329,78 @@ class GoldenRetrievalJvmTest {
             File(it, GOLDEN_REPO_DIR + "/" + GOLDEN_FILE_NAMES.first())
         }
 
+    /**
+     * A2（批 11）：离线查询向量 fixture（`dense/golden-query-vectors.i8`，由
+     * `tools/dense_build/export_golden_query_vectors.py` 生成）解析。
+     *
+     * 契约（不是质量门）：每题必须同时有 `[i8]`（int8+scale 规范表示）与 `[f32]`（判分实际
+     * 喂给假编码器的归一化向量），且两者一致（量化还原 cosine ≥ 0.9995；生成侧实测 min≈0.99983）
+     * ——它抓的是"fixture 被改错/行错位/只写一半"这类会悄悄让镜像喂错向量的失败。
+     */
+    private fun loadGoldenQueryVectors(): Map<String, FloatArray> {
+        val vectors = linkedMapOf<String, FloatArray>()
+        var query: String? = null
+        var f32: FloatArray? = null
+        var i8: Pair<Float, IntArray>? = null
+        fun flush() {
+            val current = query ?: return
+            val floats = f32 ?: error("fixture 题面缺 [f32] 行：$current")
+            val (scale, codes) = i8 ?: error("fixture 题面缺 [i8] 行：$current")
+            val dequantized = FloatArray(codes.size) { codes[it] * scale }
+            assertEquals("fixture [i8] 维度与 [f32] 不一致", floats.size, codes.size)
+            assertTrue(
+                "fixture [i8] 还原与 [f32] 不一致（cosine=${cosine(dequantized, floats)}）：$current",
+                cosine(dequantized, floats) >= 0.9995,
+            )
+            require(vectors.put(current, floats) == null) { "fixture 题面重复：$current" }
+        }
+        DenseTestFixtures.lines(FUSED_VECTOR_FIXTURE).forEach { line ->
+            if (line.isEmpty() || line.startsWith("#")) return@forEach
+            val fields = line.split('\t')
+            when (fields[0]) {
+                "[case]" -> {
+                    flush()
+                    query = DenseTestFixtures.unescape(fields[3])
+                    f32 = null
+                    i8 = null
+                }
+                "[i8]" -> {
+                    val parts = fields[2].split(' ')
+                    i8 = fields[1].toFloat() to IntArray(parts.size) { parts[it].toInt() }
+                }
+                "[f32]" -> {
+                    val parts = fields[1].split(' ')
+                    f32 = FloatArray(parts.size) { parts[it].toFloat() }
+                }
+                else -> error("fixture 行标识未知：${fields[0]}")
+            }
+        }
+        flush()
+        return vectors
+    }
+
+    private fun cosine(left: FloatArray, right: FloatArray): Double {
+        var dot = 0.0
+        var leftNorm = 0.0
+        var rightNorm = 0.0
+        for (index in left.indices) {
+            dot += left[index].toDouble() * right[index].toDouble()
+            leftNorm += left[index].toDouble() * left[index].toDouble()
+            rightNorm += right[index].toDouble() * right[index].toDouble()
+        }
+        if (leftNorm <= 0.0 || rightNorm <= 0.0) return 0.0
+        return dot / (Math.sqrt(leftNorm) * Math.sqrt(rightNorm))
+    }
+
     private companion object {
         /** 金标集权威源（D12 判官冻结）与 androidTest assets 副本的位置，两侧都相对仓库根。 */
         const val GOLDEN_REPO_DIR = "tools/kb_coverage/tables"
         const val GOLDEN_ASSET_DIR = "core/data/src/androidTest/assets/golden"
         val GOLDEN_FILE_NAMES = listOf("golden_queries_v2.json", "golden_queries_v2.json.sha256")
+
+        /** A2（批 11）融合镜像：离线查询向量 fixture 与稠密资产（classpath 资源，测试 + main 同 classpath）。 */
+        const val FUSED_VECTOR_FIXTURE = "dense/golden-query-vectors.i8"
+        const val VECTOR_RESOURCE = "knowledge/dense/bge-small-zh-int8.vec"
 
         /** 指标文件的路线分段头（`== 路线 ==`）。 */
         val SECTION_HEADER = Regex("^== (.+) ==$")

@@ -583,7 +583,7 @@
    "contentId": "ext-phy-8d83e74a51-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移",
      "role": "PRIMARY"
     }
    ]
@@ -767,7 +767,7 @@
    "contentId": "ext-phy-dedc65d07c-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用油膜法估测油酸分子的大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:油膜法估测油酸分子的大小",
      "role": "PRIMARY"
     }
    ]
@@ -813,7 +813,7 @@
    "contentId": "ext-phy-84c8fa9acd-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨过程分析",
      "role": "PRIMARY"
     }
    ]
@@ -1319,7 +1319,7 @@
    "contentId": "ext-phy-28d96980f3-028",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物体间恰好不发生相对滑动-的临界条件是物体间恰好达到最大静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:临界-极值问题",
      "role": "PRIMARY"
     }
    ]
@@ -1434,7 +1434,7 @@
    "contentId": "ext-phy-2fa662493c-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验仪器的选择技巧",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验设计的“三原则”与仪器选择",
      "role": "PRIMARY"
     }
    ]
@@ -1595,7 +1595,7 @@
    "contentId": "ext-phy-c14a6699a4-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:条件-①光从光密介质射入光疏介质-②入射角大于或等于临界角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:全反射",
      "role": "PRIMARY"
     }
    ]
@@ -1756,7 +1756,7 @@
    "contentId": "ext-phy-b7f7769a5d-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动态平衡问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力的动态平衡",
      "role": "PRIMARY"
     }
    ]
@@ -2124,7 +2124,7 @@
    "contentId": "ext-phy-d48c41dd01-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:降维法处理三维空间平衡",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对称法处理立体空间的共点力平衡",
      "role": "PRIMARY"
     }
    ]
@@ -2377,7 +2377,7 @@
    "contentId": "ext-phy-4e6077ff9a-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏安特性曲线的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏安特性曲线",
      "role": "PRIMARY"
     }
    ]
@@ -2630,7 +2630,7 @@
    "contentId": "ext-phy-845a8daf75-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动与曲面的结合分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动与斜面的结合分析",
      "role": "PRIMARY"
     }
    ]
@@ -2653,7 +2653,7 @@
    "contentId": "ext-phy-845a8daf75-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动的物理量求解-多过程问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动",
      "role": "PRIMARY"
     }
    ]
@@ -3067,7 +3067,7 @@
    "contentId": "ext-phy-2890a8a6ef-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:惯性的两种表现形式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-物体具有保持原来匀速直线运动状态或静止状态的性质-质量是惯性的唯一量度",
      "role": "PRIMARY"
     }
    ]
@@ -3159,7 +3159,7 @@
    "contentId": "ext-phy-cc66937bef-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对能量守恒定律的几点理解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量守恒定律",
      "role": "PRIMARY"
     }
    ]
@@ -3228,7 +3228,7 @@
    "contentId": "ext-phy-4b865de1e3-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分析板块模型的思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -3872,7 +3872,7 @@
    "contentId": "ext-phy-288e1effad-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:晶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对晶体和非晶体的理解",
      "role": "PRIMARY"
     }
    ]
@@ -3987,7 +3987,7 @@
    "contentId": "ext-phy-288e1effad-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究等温情况下气体压强与体积的关系实验",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究等温情况气体压强与体积关系的实验要点",
      "role": "PRIMARY"
     }
    ]
@@ -4056,7 +4056,7 @@
    "contentId": "ext-phy-6137d43959-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动态平衡问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力的动态平衡",
      "role": "PRIMARY"
     }
    ]
@@ -4309,7 +4309,7 @@
    "contentId": "ext-phy-ff426b02e4-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:活结与死结模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:活杆与定杆模型",
      "role": "PRIMARY"
     }
    ]
@@ -4608,7 +4608,7 @@
    "contentId": "ext-mat-982c247417-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -4815,7 +4815,7 @@
    "contentId": "ext-phy-99820bfc30-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨过程分析",
      "role": "PRIMARY"
     }
    ]
@@ -4976,7 +4976,7 @@
    "contentId": "ext-phy-1f062f3888-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电路动态分析的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电路动态分析的四种方法",
      "role": "PRIMARY"
     }
    ]
@@ -5091,7 +5091,7 @@
    "contentId": "ext-phy-3ccc1c7739-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动的物理量求解-多过程问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动",
      "role": "PRIMARY"
     }
    ]
@@ -5137,7 +5137,7 @@
    "contentId": "ext-mat-7372231440-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
      "role": "PRIMARY"
     }
    ]
@@ -5344,7 +5344,7 @@
    "contentId": "ext-phy-5366b173ae-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应与动量定理模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量定理在电磁感应中的应用",
      "role": "PRIMARY"
     }
    ]
@@ -5482,7 +5482,7 @@
    "contentId": "ext-phy-849ea9e86a-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验器材的选取",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验设计的“三原则”与仪器选择",
      "role": "PRIMARY"
     }
    ]
@@ -5896,7 +5896,7 @@
    "contentId": "ext-phy-1ae40def5d-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:洛伦兹力作用下的带电体运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:洛伦兹力作用下带电体的动态分析",
      "role": "PRIMARY"
     }
    ]
@@ -6172,7 +6172,7 @@
    "contentId": "ext-phy-cdcf494012-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验描迹法-一次抛动记录一个点-重复抛动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点的实验",
      "role": "PRIMARY"
     }
    ]
@@ -6425,7 +6425,7 @@
    "contentId": "ext-phy-4b2fecdd13-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多用电表的使用与欧姆表原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:欧姆表的原理与使用",
      "role": "PRIMARY"
     }
    ]
@@ -6816,7 +6816,7 @@
    "contentId": "ext-phy-9e20b9b678-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量观点和动量观点的应用条件",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动力学三大观点的基本理解和应用",
      "role": "PRIMARY"
     }
    ]
@@ -6839,7 +6839,7 @@
    "contentId": "ext-mat-dfae5c6f26-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:求解几何体外接球的半径的思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:墙角模型求外接球",
      "role": "PRIMARY"
     }
    ]
@@ -7322,7 +7322,7 @@
    "contentId": "ext-phy-f29cf80c18-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:线框切割磁感线模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应中的线框模型",
      "role": "PRIMARY"
     }
    ]
@@ -8196,7 +8196,7 @@
    "contentId": "ext-phy-4765c198af-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧振子",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧振子模型",
      "role": "PRIMARY"
     }
    ]
@@ -8587,7 +8587,7 @@
    "contentId": "ext-phy-12180f1216-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动力学图像法在动力学问题中的应用-数形结合思想",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能定理",
      "role": "PRIMARY"
     }
    ]
@@ -8794,7 +8794,7 @@
    "contentId": "ext-phy-89752a9c75-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹性势能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力做功与弹性势能变化的关系",
      "role": "PRIMARY"
     }
    ]
@@ -9001,7 +9001,7 @@
    "contentId": "ext-phy-2f9ea8e0cd-002c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力有无及方向的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -10611,7 +10611,7 @@
    "contentId": "ext-phy-b61822db21-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用油膜法估测油酸分子的大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:油膜法估测油酸分子的大小",
      "role": "PRIMARY"
     }
    ]
@@ -10703,7 +10703,7 @@
    "contentId": "ext-phy-d7ae747433-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动态平衡问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力的动态平衡",
      "role": "PRIMARY"
     }
    ]
@@ -10864,7 +10864,7 @@
    "contentId": "ext-phy-6067202e2e-001c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:半衰期",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:半衰期的理解-计算和应用",
      "role": "PRIMARY"
     }
    ]
@@ -11807,7 +11807,7 @@
    "contentId": "ext-phy-57dfaead91-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点的实验步骤",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点的实验",
      "role": "PRIMARY"
     }
    ]
@@ -11876,7 +11876,7 @@
    "contentId": "ext-phy-da7d35e7bf-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:两个重要结论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求解电偏转问题的两种思路",
      "role": "PRIMARY"
     }
    ]
@@ -13026,7 +13026,7 @@
    "contentId": "ext-phy-f15aacafdf-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动的实验创新与误差",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点实验的误差分析",
      "role": "PRIMARY"
     }
    ]
@@ -13118,7 +13118,7 @@
    "contentId": "ext-phy-c04f3bd3d9-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:常见的速度分解模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:关联速度的分析-运动分解的核心思想",
      "role": "PRIMARY"
     }
    ]
@@ -13279,7 +13279,7 @@
    "contentId": "ext-phy-952f27f324-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变压器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究变压器原副线圈电压与匝数的关系",
      "role": "PRIMARY"
     }
    ]
@@ -13555,7 +13555,7 @@
    "contentId": "ext-phy-4d30c0b091-006b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变压器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究变压器原副线圈电压与匝数的关系",
      "role": "PRIMARY"
     }
    ]
@@ -14015,7 +14015,7 @@
    "contentId": "ext-phy-aa3eac86a6-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验器材的选择",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电学实验设计的“三原则”与仪器选择",
      "role": "PRIMARY"
     }
    ]
@@ -14199,7 +14199,7 @@
    "contentId": "ext-phy-d22f36c833-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:降维法处理三维空间平衡",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对称法处理立体空间的共点力平衡",
      "role": "PRIMARY"
     }
    ]
@@ -14337,7 +14337,7 @@
    "contentId": "ext-phy-c02d0ec2bc-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:注意事项-1-调节各器件的高度-使光源灯丝发出的光能沿遮光筒轴线到达光屏",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用双缝干涉测量光的波长实验",
      "role": "PRIMARY"
     }
    ]
@@ -14889,7 +14889,7 @@
    "contentId": "ext-mat-c845fd1e63-002c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数的定义",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数值的符号规律",
      "role": "PRIMARY"
     }
    ]
@@ -15533,7 +15533,7 @@
    "contentId": "ext-phy-6addfe435c-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:测量电源的电动势和内阻",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:测量电源电动势和内阻的实验",
      "role": "PRIMARY"
     }
    ]
@@ -16223,7 +16223,7 @@
    "contentId": "ext-phy-749b30dbe3-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动的实验思路与器材",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点的实验原理与器材",
      "role": "PRIMARY"
     }
    ]
@@ -16729,7 +16729,7 @@
    "contentId": "ext-phy-485c4ea6f5-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力有无及方向的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -17005,7 +17005,7 @@
    "contentId": "ext-phy-8b8209c1d4-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像的综合分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像",
      "role": "PRIMARY"
     }
    ]
@@ -17028,7 +17028,7 @@
    "contentId": "ext-phy-8b8209c1d4-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:造成波动问题多解的主要因素有",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:解决波的多解问题的思路和步骤",
      "role": "PRIMARY"
     }
    ]
@@ -17097,7 +17097,7 @@
    "contentId": "ext-phy-8b8209c1d4-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多普勒效应的成因分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多普勒效应",
      "role": "PRIMARY"
     }
    ]
@@ -17419,7 +17419,7 @@
    "contentId": "ext-phy-f9c8d091e9-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的分解的多解问题",
      "role": "PRIMARY"
     }
    ]
@@ -17879,7 +17879,7 @@
    "contentId": "ext-phy-d07e79914a-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动与曲面的结合分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动与斜面的结合分析",
      "role": "PRIMARY"
     }
    ]
@@ -17925,7 +17925,7 @@
    "contentId": "ext-phy-d07e79914a-011b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动的物理量求解-多过程问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动",
      "role": "PRIMARY"
     }
    ]
@@ -18040,7 +18040,7 @@
    "contentId": "ext-phy-c6a0b386da-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用油膜法估测油酸分子的大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:油膜法估测油酸分子的大小",
      "role": "PRIMARY"
     }
    ]
@@ -18063,7 +18063,7 @@
    "contentId": "ext-phy-76c88e5046-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:分析板块模型的思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:板块模型",
      "role": "PRIMARY"
     }
    ]
@@ -18684,7 +18684,7 @@
    "contentId": "ext-phy-97b16a8a41-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:造成波动问题多解的主要因素有",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:解决波的多解问题的思路和步骤",
      "role": "PRIMARY"
     }
    ]
@@ -19075,7 +19075,7 @@
    "contentId": "ext-phy-af45d1db73-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点的实验步骤",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究平抛运动特点的实验",
      "role": "PRIMARY"
     }
    ]
@@ -19742,7 +19742,7 @@
    "contentId": "ext-phy-911b33ff4a-018b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及问题的分析和解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及相遇问题的实质及分析思路",
      "role": "PRIMARY"
     }
    ]
@@ -21214,7 +21214,7 @@
    "contentId": "ext-phy-82c4850dd2-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在分离的电场、磁场中的运动形式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在组合场-电场与磁场各位于一定的区域内-并不重叠-中的运动",
      "role": "PRIMARY"
     }
    ]
@@ -21490,7 +21490,7 @@
    "contentId": "ext-phy-e6270d0618-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹性势能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力做功与弹性势能变化的关系",
      "role": "PRIMARY"
     }
    ]
@@ -21789,7 +21789,7 @@
    "contentId": "ext-phy-ced0c3e323-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:含容电路的分析方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:含容电路的分析策略",
      "role": "PRIMARY"
     }
    ]
@@ -22226,7 +22226,7 @@
    "contentId": "ext-phy-1e9381a0e1-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:光的干涉",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:杨氏双缝干涉",
      "role": "PRIMARY"
     }
    ]
@@ -22502,7 +22502,7 @@
    "contentId": "ext-phy-71e5332f12-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电势",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电势高低与电势能大小的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -22847,7 +22847,7 @@
    "contentId": "ext-phy-570d1a09e3-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电势",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电势高低与电势能大小的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -22985,7 +22985,7 @@
    "contentId": "ext-phy-f2e423daf2-001c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力的常见认识误区",
      "role": "PRIMARY"
     }
    ]
@@ -23100,7 +23100,7 @@
    "contentId": "ext-mat-903d7064a6-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆中的范围与最值问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:与圆有关的最值问题",
      "role": "PRIMARY"
     }
    ]
@@ -23284,7 +23284,7 @@
    "contentId": "ext-phy-35be5ad443-018b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:加速度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度-速度的变化量-加速度的比较",
      "role": "PRIMARY"
     }
    ]
@@ -23629,7 +23629,7 @@
    "contentId": "ext-phy-7fc0771aeb-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动态平衡问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力的动态平衡",
      "role": "PRIMARY"
     }
    ]
@@ -23652,7 +23652,7 @@
    "contentId": "ext-phy-7fc0771aeb-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:相似三角形-动态三角形-拉密定理等方法解决临界极值问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:共点力的动态平衡",
      "role": "PRIMARY"
     }
    ]
@@ -24641,7 +24641,7 @@
    "contentId": "ext-phy-0928df672e-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及问题的分析和解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及相遇问题的实质及分析思路",
      "role": "PRIMARY"
     }
    ]
@@ -25124,7 +25124,7 @@
    "contentId": "ext-phy-2e840c24e2-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求电场力做功的方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静电力做功",
      "role": "PRIMARY"
     }
    ]
@@ -25147,7 +25147,7 @@
    "contentId": "ext-phy-2e840c24e2-011",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电场中的v-t图像分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电场中的v-t图像",
      "role": "PRIMARY"
     }
    ]
@@ -25469,7 +25469,7 @@
    "contentId": "ext-phy-a15b40d7cc-015",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合力与加速度速度的决定关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力、加速度与速度的关系",
      "role": "PRIMARY"
     }
    ]
@@ -25699,7 +25699,7 @@
    "contentId": "ext-mat-1f355a086e-009",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:半角公式与万能公式",
      "role": "PRIMARY"
     }
    ]
@@ -26044,7 +26044,7 @@
    "contentId": "ext-phy-57f0c6a9ae-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:机械能守恒定律的应用技巧",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非质点类物体的机械能守恒",
      "role": "PRIMARY"
     }
    ]
@@ -26067,7 +26067,7 @@
    "contentId": "ext-phy-d59a21ff9d-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨原理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:变轨过程分析",
      "role": "PRIMARY"
     }
    ]
@@ -26573,7 +26573,7 @@
    "contentId": "ext-phy-7151338d60-003b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移",
      "role": "PRIMARY"
     }
    ]
@@ -27401,7 +27401,7 @@
    "contentId": "ext-mat-c114939125-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
      "role": "PRIMARY"
     }
    ]
@@ -28229,7 +28229,7 @@
    "contentId": "ext-phy-7105d033a5-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传播特点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:机械波",
      "role": "PRIMARY"
     }
    ]
@@ -28252,7 +28252,7 @@
    "contentId": "ext-phy-7105d033a5-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:造成波动问题多解的主要因素有",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:解决波的多解问题的思路和步骤",
      "role": "PRIMARY"
     }
    ]
@@ -28390,7 +28390,7 @@
    "contentId": "ext-phy-0763583702-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:特点-f-b-f-v-即f垂直于b与v决定的平面-f与v始终垂直-洛伦兹力不做功",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:洛伦兹力",
      "role": "PRIMARY"
     }
    ]
@@ -28804,7 +28804,7 @@
    "contentId": "ext-phy-a6f0685cca-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传播方向和振动方向的判断-图像理解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像",
      "role": "PRIMARY"
     }
    ]
@@ -28827,7 +28827,7 @@
    "contentId": "ext-phy-a6f0685cca-003c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:造成波动问题多解的主要因素有",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:解决波的多解问题的思路和步骤",
      "role": "PRIMARY"
     }
    ]
@@ -28896,7 +28896,7 @@
    "contentId": "ext-phy-a6f0685cca-005c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多普勒效应的成因分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多普勒效应",
      "role": "PRIMARY"
     }
    ]
@@ -29218,7 +29218,7 @@
    "contentId": "ext-phy-0075ca8ac0-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场中的仪器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:仪器构造-质谱仪由粒子源-加速电场-偏转磁场和照相底片构成",
      "role": "PRIMARY"
     }
    ]
@@ -29264,7 +29264,7 @@
    "contentId": "ext-phy-0075ca8ac0-019",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场中的仪器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度选择器",
      "role": "PRIMARY"
     }
    ]
@@ -29287,7 +29287,7 @@
    "contentId": "ext-phy-0075ca8ac0-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场中的仪器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁流量计",
      "role": "PRIMARY"
     }
    ]
@@ -29402,7 +29402,7 @@
    "contentId": "ext-phy-adb97b2219-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场中的仪器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁流量计",
      "role": "PRIMARY"
     }
    ]
@@ -29701,7 +29701,7 @@
    "contentId": "ext-phy-1824f038cb-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的基础概念-重力-弹力-摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:重力",
      "role": "PRIMARY"
     }
    ]
@@ -29908,7 +29908,7 @@
    "contentId": "ext-phy-75fe45588b-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:感应电荷量的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁感应中电荷量的计算",
      "role": "PRIMARY"
     }
    ]
@@ -31012,7 +31012,7 @@
    "contentId": "ext-mat-361d925c60-004c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆相交的弦长",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的弦长问题",
      "role": "PRIMARY"
     }
    ]
@@ -31311,7 +31311,7 @@
    "contentId": "ext-mat-e61e011b5c-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的最值",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用导数研究函数的最值",
      "role": "PRIMARY"
     }
    ]
@@ -31817,7 +31817,7 @@
    "contentId": "ext-phy-376443a41a-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移",
      "role": "PRIMARY"
     }
    ]
@@ -32139,7 +32139,7 @@
    "contentId": "ext-phy-1a725b1f9c-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:含容电路的分析方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:含容电路的分析策略",
      "role": "PRIMARY"
     }
    ]
@@ -32507,7 +32507,7 @@
    "contentId": "ext-phy-16fb5aea45-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:抛体运动的规律及其应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动",
      "role": "PRIMARY"
     }
    ]
@@ -32691,7 +32691,7 @@
    "contentId": "ext-phy-bedea79fc4-006b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:合运动的性质与轨迹的判定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:两个直线运动合运动性质的判断",
      "role": "PRIMARY"
     }
    ]
@@ -33220,7 +33220,7 @@
    "contentId": "ext-phy-e3c0479174-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的基础概念-重力-弹力-摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的概念",
      "role": "PRIMARY"
     }
    ]
@@ -33611,7 +33611,7 @@
    "contentId": "ext-phy-a5080ef7df-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:创新实验验证动量守恒",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:验证动量守恒定律实验的原理与器材",
      "role": "PRIMARY"
     }
    ]
@@ -34163,7 +34163,7 @@
    "contentId": "ext-phy-f3025a6fdd-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平动切割与转动切割的几种情形",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:导体切割磁感线时的感应电动势",
      "role": "PRIMARY"
     }
    ]
@@ -34738,7 +34738,7 @@
    "contentId": "ext-phy-095a12feba-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对能量守恒定律的几点理解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量守恒定律",
      "role": "PRIMARY"
     }
    ]
@@ -34830,7 +34830,7 @@
    "contentId": "ext-mat-acf8e0010a-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:凹凸函数的几何特征",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:二阶导数与函数的凹凸性",
      "role": "PRIMARY"
     }
    ]
@@ -35198,7 +35198,7 @@
    "contentId": "ext-phy-086da04e4a-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:运动的合成与分解",
      "role": "PRIMARY"
     }
    ]
@@ -35359,7 +35359,7 @@
    "contentId": "ext-phy-c694ee939c-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:晶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对晶体和非晶体的理解",
      "role": "PRIMARY"
     }
    ]
@@ -35566,7 +35566,7 @@
    "contentId": "ext-phy-a5990a668a-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传播特点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:机械波",
      "role": "PRIMARY"
     }
    ]
@@ -35612,7 +35612,7 @@
    "contentId": "ext-phy-a5990a668a-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传播方向和振动方向的判断-图像理解",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:振动图像与波的图像",
      "role": "PRIMARY"
     }
    ]
@@ -35635,7 +35635,7 @@
    "contentId": "ext-phy-a5990a668a-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:造成波动问题多解的主要因素有",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:解决波的多解问题的思路和步骤",
      "role": "PRIMARY"
     }
    ]
@@ -35819,7 +35819,7 @@
    "contentId": "ext-phy-db2f426334-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力有无及方向的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -36279,7 +36279,7 @@
    "contentId": "ext-phy-7e347de814-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:半偏法测电表内阻",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电流半偏法测电流表内阻",
      "role": "PRIMARY"
     }
    ]
@@ -36670,7 +36670,7 @@
    "contentId": "ext-phy-a61d4f03ad-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用油膜法估测油酸分子的大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:油膜法估测油酸分子的大小",
      "role": "PRIMARY"
     }
    ]
@@ -36808,7 +36808,7 @@
    "contentId": "ext-phy-0eddb5c629-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对称性分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电场强度的叠加方法",
      "role": "PRIMARY"
     }
    ]
@@ -36900,7 +36900,7 @@
    "contentId": "ext-phy-6bd7680fd3-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:速度定义-位移与发生这段位移所用时间之比-表示物体运动快慢的物理量-是过程量",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平均速度与瞬时速度的区别",
      "role": "PRIMARY"
     }
    ]
@@ -36992,7 +36992,7 @@
    "contentId": "ext-phy-6bd7680fd3-019b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:初速度为零的几个重点推论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:在1t末-2t末-3t末-4t末-n-t末的速度比为-1-2-3-n",
      "role": "PRIMARY"
     }
    ]
@@ -37314,7 +37314,7 @@
    "contentId": "ext-phy-b2defc754e-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电压表差值法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:伏伏法（电压表差值法）",
      "role": "PRIMARY"
     }
    ]
@@ -37728,7 +37728,7 @@
    "contentId": "ext-phy-3a6293013c-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:实验误差",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:绝对误差与相对误差",
      "role": "PRIMARY"
     }
    ]
@@ -37751,7 +37751,7 @@
    "contentId": "ext-phy-3a6293013c-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁打点计时器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:打点计时器",
      "role": "PRIMARY"
     }
    ]
@@ -38119,7 +38119,7 @@
    "contentId": "ext-phy-b21ed83d33-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电容器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电容器充放电过程",
      "role": "PRIMARY"
     }
    ]
@@ -38372,7 +38372,7 @@
    "contentId": "ext-phy-4bf317ee35-007b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非弹性碰撞和完全非弹性碰撞",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:碰撞的可能性分析",
      "role": "PRIMARY"
     }
    ]
@@ -38510,7 +38510,7 @@
    "contentId": "ext-mat-7d121f7176-012c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:对含有一个量词命题的否定理解错误致错",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:命题的否定-对命题p加以否定-得到一个新的命题-记作-读作-非p-或p的否定",
      "role": "PRIMARY"
     }
    ]
@@ -38763,7 +38763,7 @@
    "contentId": "ext-mat-cc8d549df8-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的单调性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复合函数的定义与单调性",
      "role": "PRIMARY"
     }
    ]
@@ -39660,7 +39660,7 @@
    "contentId": "ext-phy-41052fd08f-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在交变电场中的运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在交变电磁场中的运动",
      "role": "PRIMARY"
     }
    ]
@@ -39683,7 +39683,7 @@
    "contentId": "ext-phy-41052fd08f-005",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在交变电场中的运动",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在交变电磁场中的运动",
      "role": "PRIMARY"
     }
    ]
@@ -40189,7 +40189,7 @@
    "contentId": "ext-phy-456775f343-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:能量转化-导体克服安培力做功-其他形式能转化为电能-最终转化为内能",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:求解电能的思路-x1",
      "role": "PRIMARY"
     }
    ]
@@ -40373,7 +40373,7 @@
    "contentId": "ext-phy-b48e6dd612-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动的物理量求解-多过程问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动",
      "role": "PRIMARY"
     }
    ]
@@ -41132,7 +41132,7 @@
    "contentId": "ext-phy-b6f8cbe195-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力有无及方向的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -41247,7 +41247,7 @@
    "contentId": "ext-phy-db15b62862-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用油膜法估测油酸分子的大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:油膜法估测油酸分子的大小",
      "role": "PRIMARY"
     }
    ]
@@ -41684,7 +41684,7 @@
    "contentId": "ext-phy-b6329b8543-012",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:向心力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究向心力大小与半径角速度质量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -42305,7 +42305,7 @@
    "contentId": "ext-mat-cbe7ab4957-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:同构法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:构造函数-运用函数的单调性比较",
      "role": "PRIMARY"
     }
    ]
@@ -43110,7 +43110,7 @@
    "contentId": "ext-mat-550f58da7b-030",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:线段的定比分点",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:定比分点向量公式",
      "role": "PRIMARY"
     }
    ]
@@ -43846,7 +43846,7 @@
    "contentId": "ext-phy-5a5050007c-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及问题的分析和解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及相遇问题的实质及分析思路",
      "role": "PRIMARY"
     }
    ]
@@ -44122,7 +44122,7 @@
    "contentId": "ext-phy-5bf11ffcd9-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多用电表的使用与读数",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多用电表的使用方法",
      "role": "PRIMARY"
     }
    ]
@@ -44398,7 +44398,7 @@
    "contentId": "ext-mat-d2c75880f2-005b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:中心对称与轴对称的坐标关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的对称问题",
      "role": "PRIMARY"
     }
    ]
@@ -44720,7 +44720,7 @@
    "contentId": "ext-phy-27916050fc-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:用油膜法估测油酸分子的大小",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:油膜法估测油酸分子的大小",
      "role": "PRIMARY"
     }
    ]
@@ -44927,7 +44927,7 @@
    "contentId": "ext-mat-0851e013ab-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:排列数与组合数的概念",
      "role": "PRIMARY"
     }
    ]
@@ -45893,7 +45893,7 @@
    "contentId": "ext-phy-4b3cbfeb92-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:位移",
      "role": "PRIMARY"
     }
    ]
@@ -46422,7 +46422,7 @@
    "contentId": "ext-phy-856c69c53e-018",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:空间抛体问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:立体空间中的抛体运动",
      "role": "PRIMARY"
     }
    ]
@@ -46491,7 +46491,7 @@
    "contentId": "ext-phy-9c73666e3a-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁打点计时器",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:打点计时器",
      "role": "PRIMARY"
     }
    ]
@@ -46859,7 +46859,7 @@
    "contentId": "ext-mat-95f2ccd476-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用-线线平行-线面平行-面面平行-的相互转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面与平面平行",
      "role": "PRIMARY"
     }
    ]
@@ -46951,7 +46951,7 @@
    "contentId": "ext-phy-ce9f317a5b-006b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物体间恰好不发生相对滑动-的临界条件是物体间恰好达到最大静摩擦力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:临界-极值问题",
      "role": "PRIMARY"
     }
    ]
@@ -47365,7 +47365,7 @@
    "contentId": "ext-phy-1973c2d598-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及问题的分析和解题思路",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:追及相遇问题的实质及分析思路",
      "role": "PRIMARY"
     }
    ]
@@ -47434,7 +47434,7 @@
    "contentId": "ext-phy-1973c2d598-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:往返类与刹车类问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:刹车类与双向可逆类问题对比",
      "role": "PRIMARY"
     }
    ]
@@ -47618,7 +47618,7 @@
    "contentId": "ext-phy-061d07e545-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:向心力",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究向心力大小与半径角速度质量的关系实验",
      "role": "PRIMARY"
     }
    ]
@@ -48331,7 +48331,7 @@
    "contentId": "ext-phy-9cd09b0a35-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动的物理量求解-多过程问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜抛运动",
      "role": "PRIMARY"
     }
    ]
@@ -48607,7 +48607,7 @@
    "contentId": "ext-phy-9579268f6f-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:晶体",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对晶体和非晶体的理解",
      "role": "PRIMARY"
     }
    ]
@@ -49389,7 +49389,7 @@
    "contentId": "ext-mat-19dbdd4311-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:不等式的基本性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等式的性质",
      "role": "PRIMARY"
     }
    ]
@@ -49688,7 +49688,7 @@
    "contentId": "ext-phy-5ea4ba1266-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:双星模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多星模型",
      "role": "PRIMARY"
     }
    ]
@@ -50033,7 +50033,7 @@
    "contentId": "ext-phy-d0a08f55f3-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:条件-①光从光密介质射入光疏介质-②入射角大于或等于临界角",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:全反射",
      "role": "PRIMARY"
     }
    ]
@@ -50194,7 +50194,7 @@
    "contentId": "ext-phy-9d4e47b803-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁感应强度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对磁感应强度定义式-b-的理解",
      "role": "PRIMARY"
     }
    ]
@@ -50240,7 +50240,7 @@
    "contentId": "ext-phy-9d4e47b803-006b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:特点-f-b-f-v-即f垂直于b与v决定的平面-f与v始终垂直-洛伦兹力不做功",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:洛伦兹力",
      "role": "PRIMARY"
     }
    ]

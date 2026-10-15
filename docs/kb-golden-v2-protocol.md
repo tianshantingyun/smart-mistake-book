@@ -301,3 +301,91 @@ manifest retired 条目**（`core/data/src/main/resources/knowledge/moe-2025-upd
 - 两份副本（androidTest assets 与 `tools/kb_coverage/tables/`）与两份 `.sha256` 同步更新，逐字节一致；
   两处 `FROZEN_GOLDEN_SHA256` 常量（`ProductionLexicalLegExportTest` / `Stage2LexicalScoresExportTest`）
   同步改为新封存值，附迁移记录。
+
+---
+
+## expectedSlug 迁移（2026-10-16，随批次11 v15 并点）
+
+**为什么迁**：批次11 超配（2026-10-14）把成品包从 v14（3,359 点）推到 v15（3,210 点）。冻结件里有
+**5 条 `expectedSlug` 指向已不存在的节点**——程序、工具与字节纪律照批次 3 / 批次10 两次迁移，
+一回事，不新裁：不改就永远算 MISS（指标被坏标签污染），手改又会破坏冻结件的字节规范。
+
+**怎么迁**：`tools/kb_coverage/retarget_golden_expected_slugs.py`（按映射 JSON 改两份副本 +
+重算两份 `.sha256`；写入前做**字节复现自检**，未改动部分逐字节不变）。映射与理由：
+`build/agent-batch11/golden-migration.json`——5 条的旧/新/supersededBy **全部照抄 manifest retired
+条目**（`core/data/src/main/resources/knowledge/moe-2025-update-manifest.json`，version=15），
+无自造目标；每条附 `chapterBasis`（映射后节点在 v15 包里的 topic 链实测）。
+
+| # | 科目 | 旧 expectedSlug | 新 expectedSlug（chapter 未动） | 依据（manifest retired reason 摘录） |
+|---|---|---|---|---|
+| 49 | CHEMISTRY | 盐溶液蒸干灼烧时所得产物的判断 | 六种盐溶液蒸干后产物的判断 | 同点重复并入 survivor：同一知识点（盐溶液蒸干（灼烧）产物判断的思路与特例） |
+| 93 | PHYSICS | 路程-物体运动轨迹的长度-只有大小-没有方向-是标量-其单位就是长度的单位 | 位移 | 两点为同一知识点（位移与路程的区别与联系）的重复建点；survivor 边界已明确纳入与路程的区分 |
+| 105 | PHYSICS | 动态平衡问题 | 共点力的动态平衡 | 同点双份；目标 61 条 > 46 条，宜由目标吸收本节点 |
+| 125 | PHYSICS | 流体模型 | 动量定理的应用-流体类模型 | 两点同为流体/微粒流柱状微元模型；对方 33 条材料远多于本点 6 条 |
+| 128 | PHYSICS | 用油膜法估测油酸分子的大小 | 油膜法估测油酸分子的大小 | 两节点名称仅差一个用字，边界与对象完全同文，属同一知识点重复建点 |
+
+**口径影响（如实记，不许无声改评测集）**：
+- 判分集 **129 → 129 条（0 退役）**；sha `14b7cea8…` → `dbe093b203344673021dbee93fad8edac8e3da3e9772c0bf3bcb5ad65e8d94dc`。
+- 5 条**全部同册同章**（其中 3 条的 survivor 落在章内下级 topic——位移 → 运动的描述·2 时间 位移、
+  共点力的动态平衡 → 相互作用·5 共点力的平衡、动量定理的应用-流体类模型 → 动量·2 动量定理——
+  册·章不变）⇒ `chapter` 一律未动，逐章分布不变（23 章）；题面/序号/总数未动。
+- 两份副本（androidTest assets 与 `tools/kb_coverage/tables/`）与两份 `.sha256` 同步更新，
+  逐字节一致；两处 `FROZEN_GOLDEN_SHA256` 常量（`ProductionLexicalLegExportTest` /
+  `Stage2LexicalScoresExportTest`）同步改为新封存值。**牵连面补齐**：`tools/dense_build/dense_asset.py`
+  的 `GOLDEN_SHA256`（v14 迁移时被落下的旧值 `473dbeac…`，本次一并推进到 v15 值）——它此前会让
+  dense 链（`stage3_expectation` 等经 `dense_asset.goldens()` 的步骤）整条拒跑。
+
+---
+
+## chapter 同步迁移（2026-10-16，随批次11 v15 F2 章层重建）
+
+**为什么迁**：批次11 的后半段（d 段 F2「章层重建」，kit-01/05/06 判「章级伪章」并补建官方章层，
+如 生物学必修1 的 `第五章第三节·细胞呼吸` 伪章 → 真章 `第五章` + 节主题 `细胞呼吸的原理和应用`）
+改了 16 条金标预期节点的 topic 链归属。金标 `chapter` 的一贯口径 = **包内 topic 链推导**
+（`Stage1LexicalLab.Corpus.chapterByNodeId` 的 `chapterOf` 同式；v14 时 129/129 与金标逐字一致，
+量源 `build/agent-batch11/pin/probe_two_chapter_rules.py` 对 HEAD/WT 两代包的实测：
+HEAD Rule C 差 0、WT Rule C 差 16）。不迁则「臂 C 章门控前提」不成立（`Stage1LexicalLabTest`
+的 `chapterMismatch` 门红），臂 C 的章过滤会对 16 条查不到候选——这正是不许无声跳过的那类脱节。
+
+**怎么迁**：`tools/kb_coverage/retarget_golden_expected_slugs.py`（按映射 JSON 改两份副本 +
+重算两份 `.sha256`；写入前做**字节复现自检**，未改动部分逐字节不变；工具原生的
+`newChapter` 字段支持「只改章」项——`newSlug` == `oldSlug` 时不改 slug）。映射与理由：
+`build/agent-batch11/golden-migration.json` 追加 16 条 **chapter-only** 项；本批并点未触及这 16 条
+（manifest 无对应 retired 条目、slug 未动），故无新 slug 映射、无自造目标；每条附 `chapterBasis`
+（v15 包内 topic 链实测，含 owning topic slug 与链）。**口径注记**：`check_golden_candidate.C4`
+用的是「所属 topic slug」口径，与本章节的「topic 链推导」口径在 v15 起对 9 条遗传条目分叉
+（owning topic slug 仍是 `生物学必修2·第一章第二节·遗传的基本规律`，链推导为
+`生物学必修2·第一章·遗传的基本规律`）——冻结件按链推导口径（同 v14 的 3 条物理条目）；
+新起草候选复核时两口径不得互串。
+
+| # | 科目 | slug（未动） | 改章（旧 → 新） | 依据（v15 包内 topic 链实测） |
+|---|---|---|---|---|
+| 0 | BIOLOGY | 细胞呼吸的易错辨析 | 生物学必修1·第五章第三节·细胞呼吸 → 生物学必修1·第五章·细胞呼吸的原理和应用 | owning topic `生物学必修1·第五章·细胞呼吸的原理和应用`（kit-05 章层补建） |
+| 1 | BIOLOGY | 实验-探究酵母菌细胞呼吸的方式 | 同上 | 同上 |
+| 2 | BIOLOGY | 有氧呼吸 | 同上 | 同上 |
+| 3 | BIOLOGY | 性状显隐性的判断 | 生物学必修2·第一章第二节·遗传的基本规律 → 生物学必修2·第一章·遗传的基本规律 | owning topic 未动，父层由「第一章第二节」伪层改挂新章层`第一章`（name 遗传因子的发现） |
+| 4 | BIOLOGY | 线粒体遗传的阈值效应 | 同上 | 同上 |
+| 5 | BIOLOGY | 遗传病的检测和预防 | 同上 | 同上 |
+| 6 | BIOLOGY | 遗传图解的书写规范 | 同上 | 同上 |
+| 7 | BIOLOGY | 纯合子与杂合子的判断 | 同上 | 同上 |
+| 8 | BIOLOGY | 遗传病的检测和预防（同 slug 第二题） | 同上 | 同上 |
+| 9 | BIOLOGY | 调查人群中的遗传病 | 同上 | 同上 |
+| 10 | BIOLOGY | 人类基因组测序 | 同上 | 同上 |
+| 11 | BIOLOGY | 姐妹染色单体上等位基因来源的判断 | 同上 | 同上 |
+| 12 | BIOLOGY | 限制酶 | 生物学选择性必修3·生物技术与工程·基因工程的基本操作程序 → 生物学选择性必修3·第三章·基因工程的基本操作程序 | owning topic `生物学选择性必修3·第三章·基因工程的基本操作程序`（kit-05#10 章名） |
+| 13 | BIOLOGY | pcr技术 | 同上 | 同上 |
+| 14 | BIOLOGY | 启动子与终止子的辨析 | 同上 | 同上 |
+| 26 | CHEMISTRY | 有机化合物的共面共线的判断 | 化学选择性必修3·有机化学基础·有机化合物的结构特点 → 化学选择性必修3·第一章·有机化合物的结构特点 | owning topic `化学选择性必修3·第一章·有机化合物的结构特点`（kit-05#5 章名） |
+
+**口径影响（如实记，不许无声改评测集）**：
+- 判分集 **129 → 129 条（0 退役）**；sha `dbe093b2…` → `3dbe90736df42c9c22723dc06292b364ade92901604b5731033cf612c4f10e41`。
+- 16 条改章把 4 组章标签换成 v15 包内归属形态（`第五章第三节·细胞呼吸` / `第一章第二节·遗传的基本规律` /
+  `生物技术与工程·基因工程的基本操作程序` / `有机化学基础·有机化合物的结构特点` → 各自的 F2 章层形态）；
+  **章数仍 23**（旧 4 组与新 4 组一一对换，逐章条数不变）；题面/序号/总数未动。
+- 两份副本（androidTest assets 与 `tools/kb_coverage/tables/`）与两份 `.sha256` 同步更新，
+  逐字节一致；两处 `FROZEN_GOLDEN_SHA256` 常量与 `tools/dense_build/dense_asset.py` 的
+  `GOLDEN_SHA256` 同步改为新封存值。**遗留（如实记）**：两份 dense 设备 fixture
+  （`encoder-parity.json` / `tokenizer-parity-summary.json`）里"生成时金标 sha"的来源字段记录的是
+  `dbe093b2…`（生成当时的输入）——本批未重生成 fixture（生成器 `gen_device_parity_fixture.py`
+  属他会话在飞文件、且 fixture 内容 = 题面/向量，章节字段不入编码链）；如需"来源字段与现行金标
+  同值"，由属主随十二步链重生成时顺带刷新。

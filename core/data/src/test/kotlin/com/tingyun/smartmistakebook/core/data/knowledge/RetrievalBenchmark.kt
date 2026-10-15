@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.knowledge
 
+import com.tingyun.smartmistakebook.core.database.DenseRecallCandidate
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtractor
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
@@ -449,6 +450,39 @@ internal object RetrievalBenchmark {
             }
         }
 
+        /**
+         * **A2（批 11）：融合路由（生产 `readSubjectKnowledgeRecallCandidates(..., queryText)`）
+         * 的逐条镜像。**
+         *
+         * 与 [recall] 的唯一差别：matched 序列先经 [rerank] 重排（**成员与长度不变**）——
+         * 对应端侧 `RoomKnowledgeBaseStore.rerankMatchOrder` 对稠密腿的调用（域 = 词面
+         * `limit` 召回集）。`rerank` 返回 `null`（腿掉/静默回退）⇒ 原样词面次序（与 store
+         * 的 `DenseRecallOrdering.orderOrLexical` 回退分支同语义）。返回形态与 [recall] 相同：
+         * `matched + parents` 的 `.distinctBy(id)` 序列。
+         *
+         * @param rerank (subject, queryText, candidates) → 重排后的候选；null = 腿不可用。
+         */
+        fun fusedRecall(
+            subject: String,
+            questionText: String,
+            limit: Int,
+            rerank: (subject: String, queryText: String, candidates: List<DenseRecallCandidate>) ->
+                List<DenseRecallCandidate>?,
+        ): List<KnowledgeNodeSeedRecord> {
+            val queryFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(questionText)
+            if (queryFeatures.isEmpty()) {
+                return emptyQueryFallbackOrder(trustedPool(subject)).take(limit)
+            }
+            val scored = matchedScored(subject, queryFeatures).take(limit)
+            val byId = scored.associate { (node, _) -> node.knowledgeNodeId to node }
+            val candidates = scored.map { (node, count) ->
+                DenseRecallCandidate(node.knowledgeNodeId, count)
+            }
+            val ordered = rerank(subject, questionText, candidates) ?: candidates
+            val matched = ordered.map { byId.getValue(it.knowledgeNodeId) }
+            return (matched + parentsOf(matched)).distinctBy { it.knowledgeNodeId }
+        }
+
         private fun trustedPool(subject: String): List<KnowledgeNodeSeedRecord> =
             nodesInPackOrder.filter {
                 it.subject == subject && it.verificationStatus in TRUSTED_VERIFICATION_STATUSES
@@ -532,6 +566,49 @@ internal object RetrievalBenchmark {
         )
     }
 
+    /** 融合路由的镜像深度 = 生产 `MAX_KNOWLEDGE_RECALL_CANDIDATES`（512），与设备逐字同口径。 */
+    const val FUSED_RECALL_DEPTH = 512
+
+    /** 融合镜像路线名（指标文件段头；与 [goldenBRoute] 的命名体例一致）。 */
+    const val FUSED_ROUTE_NAME = "B-fused-mirror(B512-dense-a0.5, matched-first)"
+
+    /**
+     * **A2（批 11）第三路：融合路由的 JVM 镜像**（与设备 `GoldenRetrievalInstrumentedTest`
+     * 的融合臂同口径）——词面 512 候选域经 [rerank]（测试用假编码器装配与设备同构的
+     * `OnDeviceDenseRecallReranker`）重排，matched + parents 判前 5。
+     *
+     * 判分口径与 [scoreGolden] **逐字相同**（top-[SCORED_TOP_K]、`:atomic:` 后缀命中、
+     * 同一 MISS 探针窗口）；本函数因为 [rerank] 可以是挂起实现（测试侧包 runBlocking）
+     * 而单独成文，不复制任何口径参数。
+     */
+    fun goldenFusedRoute(
+        index: BRouteMirrorIndex,
+        cases: List<GoldenCase>,
+        rerank: (subject: String, queryText: String, candidates: List<DenseRecallCandidate>) ->
+            List<DenseRecallCandidate>?,
+    ): GoldenRouteResult {
+        val scores = cases.map { case ->
+            val selected = fusedRecallSequence(index, case, FUSED_RECALL_DEPTH, rerank).take(SCORED_TOP_K)
+            val rank = selected.indexOfFirst {
+                it.knowledgeNodeId.endsWith(ATOMIC_ID_SUFFIX + case.expectedSlug)
+            }.let { if (it < 0) 0 else it + 1 }
+            GoldenScore(case, rank > 0, rank, selected.map { it.canonicalName }.take(3))
+        }
+        return GoldenRouteResult(route = FUSED_ROUTE_NAME, scores = scores)
+    }
+
+    /**
+     * 融合序列（判分与 MISS 探针共用同一入口）：[BRouteMirrorIndex.fusedRecall] 的转发，
+     * 保证"top-5 判分"与"放宽窗口名次"取的是同一条序列。
+     */
+    fun fusedRecallSequence(
+        index: BRouteMirrorIndex,
+        case: GoldenCase,
+        limit: Int,
+        rerank: (subject: String, queryText: String, candidates: List<DenseRecallCandidate>) ->
+            List<DenseRecallCandidate>?,
+    ): List<KnowledgeNodeSeedRecord> = index.fusedRecall(case.subject, case.query, limit, rerank)
+
     /**
      * 金标 JVM 指标文件。测量台性质——**不含阈值断言**（预注册判据见 docs/kb-vector-topic-decision.md）。
      *
@@ -554,18 +631,8 @@ internal object RetrievalBenchmark {
         appendLine("# index: $indexInfo")
         appendLine("# golden: $goldenInfo")
         for (result in listOf(a, b)) {
-            val misses = missesByRoute[result.route].orEmpty()
             appendLine("")
-            appendLine("== ${result.route} ==")
-            appendLine("Recall@5(主集)=${result.recallAt5} (${result.hits}/${result.total})")
-            appendLine("MRR=${result.mrr}")
-            appendLine("逐章 Recall@5:")
-            goldenChapterLines(result).forEach(::appendLine)
-            appendLine(
-                "MISS 清单（${misses.size} 例；rank = 预期节点在本路线返回序列放宽窗口" +
-                    "（前 $MISS_PROBE_LIMIT 名）内的名次，absent = 该窗口内不存在）:",
-            )
-            goldenMissLines(misses).forEach(::appendLine)
+            appendLine(goldenRouteSection(result, missesByRoute[result.route].orEmpty()))
         }
         appendLine("")
         appendLine("== 逐题 ==")
@@ -577,4 +644,23 @@ internal object RetrievalBenchmark {
             )
         }
     }
+
+    /**
+     * **单条路线一段**（段头 + 主集/MRR + 逐章 + MISS 清单），供 [goldenMetricsFile] 与
+     * A2 的独立融合镜像指标文件共用——第二份文件**不另写一套渲染**（两份对同一口径的
+     * 渲染一旦分叉，"按段抽取"的消费方就会读到不同含义）。
+     * 末尾不带空行（调用方自行拼接分隔）。
+     */
+    fun goldenRouteSection(result: GoldenRouteResult, misses: List<GoldenMiss>): String = buildString {
+        appendLine("== ${result.route} ==")
+        appendLine("Recall@5(主集)=${result.recallAt5} (${result.hits}/${result.total})")
+        appendLine("MRR=${result.mrr}")
+        appendLine("逐章 Recall@5:")
+        goldenChapterLines(result).forEach(::appendLine)
+        appendLine(
+            "MISS 清单（${misses.size} 例；rank = 预期节点在本路线返回序列放宽窗口" +
+                "（前 $MISS_PROBE_LIMIT 名）内的名次，absent = 该窗口内不存在）:",
+        )
+        goldenMissLines(misses).forEach(::appendLine)
+    }.trimEnd('\n')
 }

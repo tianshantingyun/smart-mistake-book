@@ -4,10 +4,11 @@
 
 ## Build Information
 
-- **Commit SHA**: `local`
-- **Build Date**: `2026-10-14`
-- **Branch**: `unknown`
-- **Triggered By**: `manual`
+- **Commit SHA**: `f1f42e3f3cf9dce8978147b15a00ee8df09c9b57`
+- **Build Date**: `2026-10-15`
+- **Branch**: `main`
+- **Triggered By**: `unknown`
+- **Run context**: BOUND · sha `f1f42e3f3cf9`（git HEAD） · branch `main` · 触发 unknown
 
 ## Build Results
 
@@ -15,47 +16,66 @@
 
 | Module | Status | Duration |
 |--------|--------|----------|
-| `:core:database` | OK | - |
-| `:core:data` | OK | - |
+| `:core:database` | NOT_MEASURED | - |
+| `:core:data` | NOT_MEASURED | - |
 | `:core:domain` | OK | - |
-| `:feature:library` | OK | - |
+| `:feature:library` | NOT_MEASURED | - |
 | `:feature:capture` | OK | - |
 | `:feature:tutor` | OK | - |
 | `:app:localFirst` | OK | - |
-| `:app:strictOffline` | OK | - |
+| `:app:strictOffline` | NOT_MEASURED | - |
+
+编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:database`：类产物早于源码（10-15 22:54 < 源码 10-15 23:24）；`:core:data`：类产物早于源码（10-16 04:53 < 源码 10-16 05:52）；`:feature:library`：类产物早于源码（10-15 23:21 < 源码 10-16 03:41）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-15 22:29）
 
 ### Unit Tests
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | 182 | 182 | 0 | - |
+| `:core:database` | 4 | 4 | 0 | - |
 | `:core:data` | 2 | 2 | 0 | - |
-| `:feature:library` | 39 | 39 | 0 | - |
+| `:feature:library` | 40 | 40 | 0 | - |
 | `:feature:capture` | 112 | 112 | 0 | - |
-| `:feature:tutor` | 209 | 209 | 0 | - |
+| `:feature:tutor` | 218 | 218 | 0 | - |
 
 ### Lint
 
+`lint<Flavor>Debug` 只匹配 `:app`，所以 Android 库模块单独列出（清单与 CI 的 Lint 步骤一致）。
+
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `lintLocalFirstDebug` | OK | 0 | 36 |
-| `lintStrictOfflineDebug` | OK | 0 | 38 |
+| `lintLocalFirstDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `lintStrictOfflineDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| Android 库模块（下表明细） | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+
+| Module | Status | Errors | Warnings |
+|--------|--------|--------|----------|
+| `:core:data` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:export` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:ui` | OK | 0 | 1 |
+| `:feature:capture` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:library` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:profile` | OK | 0 | 0 |
+| `:feature:review` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:tutor` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+
+以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-15 21:40 < 源码 10-15 22:29）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-15 22:29）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-16 05:52）；`:core:database`：lint 报告早于源码（10-13 21:32 < 源码 10-15 23:24）；`:core:export`：lint 报告早于源码（10-15 22:02 < 源码 10-15 22:19）；`:feature:capture`：lint 报告早于源码（10-13 21:32 < 源码 10-15 22:29）；`:feature:library`：lint 报告早于源码（10-15 23:22 < 源码 10-16 03:41）；`:feature:review`：lint 报告早于源码（10-15 22:03 < 源码 10-15 22:26）；`:feature:tutor`：lint 报告早于源码（10-13 21:32 < 源码 10-15 21:16）
 
 ### Release Build
 
 | Flavor | Status | APK Size | AAB Size |
 |--------|--------|----------|----------|
-| `localFirst` | OK | 162.8 MB | NOT_MEASURED |
-| `strictOffline` | OK | 150.8 MB | NOT_MEASURED |
+| `localFirst` | OK | 166.7 MB | NOT_MEASURED |
+| `strictOffline` | OK | 166.7 MB | NOT_MEASURED |
 
 ### APK/AAB Hashes
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | 206a74c2e49c2c49d0c0be73e9990107e4e4f74261f93082c8d08ff8ef528efa |
-| `localFirst-release.apk` | 736470b38b5fbfd0b588a186ffe42f7beb12711974c6a0fbb2cac13a86befd5c |
-| `strictOffline-debug.apk` | 9a83efc5573bf85308466d322d070133e096ce834752190707ddd241cfebb34b |
-| `strictOffline-release.apk` | eef11909ce52eafadb7d5f28eddb3d11e35f9aa91d9f81c3ac9132018356b9f6 |
+| `localFirst-debug.apk` | ecd9e905db6b2540c61f0b3fca838abcfd4c5c583a8e2598cf87aa07da94ea57 |
+| `localFirst-release.apk` | 1f073e9bcad9716c2ab6d90e4f70e2faddab7810020b38817e23b87523679d42 |
+| `strictOffline-debug.apk` | f92491e23227cff1a63f096626483aa03a84a852529c94481b16b7231dd43e40 |
+| `strictOffline-release.apk` | 978e71251d4060ee13f7cb67c8d8095cb28c9965f02ae7e0f5b994516f7f7d65 |
 
 ## Knowledge Base
 
@@ -90,40 +110,40 @@
 
 通过 24/24 项；全部为 0 才算绿。
 
-权威表 sha256（前 12 位）：`chapter_map.csv`=`e58b5d21dcfe`（门保护） · `chapter_by_source.csv`=`8efce39f8e61`（门保护） · `alias_map.csv`=`242f482faa09`（门保护） · `boundary_map.csv`=`cac7c72fd232`（报告型） · `prereq_map.csv`=`41423270330e`（门保护） · `material_bindings.csv`=`91584cad21a5`（门保护）
+权威表 sha256（前 12 位）：`chapter_map.csv`=`88d3cc21fc3b`（门保护） · `chapter_by_source.csv`=`4b0f18c85bab`（门保护） · `alias_map.csv`=`e67f1e8cfb6b`（门保护） · `boundary_map.csv`=`560029fd4a58`（报告型） · `prereq_map.csv`=`adc72654e3f1`（门保护） · `material_bindings.csv`=`c7c31baf0b78`（门保护）
 
 ### Tools Tests（Python，tools/tests 套件）
 
 | 总数 | 通过 | 失败 |
 |------|------|------|
-| 723 | 723 | 0 |
+| 737 | 737 | 0 |
 
 ### Retrieval Benchmark（:core:data 单测写入 build/benchmark-metrics.txt，逐字嵌入）
 
 ```
 Recall@5=1.0
-Precision@5=0.75
-MRR=0.9099999999999999
+Precision@5=0.77
+MRR=0.8766666666666666
 crossSubject=0
-[MATH] 求函数 f(x)=x²-2x-3 的单调递增区间 -> [三角函数的图象与性质, 函数的单调性, 导数法求函数单调区间的步骤]
-[MATH] 计算等差数列 1,3,5,7 的前100项和 -> [等差数列的常用性质, 等差数列前项和的常用性质, 求解等差数列基本量的策略]
-[MATH] 椭圆 x²/16+y²/9=1 的离心率是多少 -> [椭圆的离心率, 椭圆, 椭圆焦点三角形]
-[MATH] 求集合 A={1,2,3} 与 B={3,4,5} 的交集 -> [集合的含义与表示, 子集的个数问题, 交集与并集]
+[MATH] 求函数 f(x)=x²-2x-3 的单调递增区间 -> [三角函数的图象与性质, 函数的单调性, 幂函数的图象与性质]
+[MATH] 计算等差数列 1,3,5,7 的前100项和 -> [等差数列的常用性质, 等差数列前项和的常用性质, 等差数列前n项和最值问题]
+[MATH] 椭圆 x²/16+y²/9=1 的离心率是多少 -> [椭圆, 椭圆的离心率, 椭圆焦点三角形]
+[MATH] 求集合 A={1,2,3} 与 B={3,4,5} 的交集 -> [集合的含义与表示, 子集的个数问题, 集合中元素的特征]
 [MATH] 已知 sinα=3/5 求 tanα -> [函数y=Asin(ωx+φ)的图象, 同角三角函数的基本关系, 由Sn求an的步骤]
-[PHYSICS] 物体自由下落5秒末速度 -> [自由落体运动, 探究加速度与力、质量的关系实验, 关联速度的分析——运动分解的核心思想]
-[PHYSICS] 两物体碰撞前后动量守恒 -> [动量守恒定律, 创新实验验证动量守恒, 验证动量守恒定律实验的原理与器材]
-[PHYSICS] 电磁感应中磁通量变化产生感应电动势 -> [法拉第电磁感应定律, 电磁感应中的电路问题, 电磁感应中的三大动力学观点]
-[PHYSICS] 带电粒子在匀强磁场中做圆周运动的轨道半径 -> [带电粒子在磁场中的运动, 带电粒子在匀强电场中偏转的两个分运动, 带电粒子在叠加场]
-[PHYSICS] 变压器原副线圈电压比与匝数比 -> [探究变压器原副线圈电压与匝数的关系, 理想变压器的基本关系, 变压器]
+[PHYSICS] 物体自由下落5秒末速度 -> [关联速度的分析——运动分解的核心思想, 探究加速度与力、质量的关系实验, 自由落体运动]
+[PHYSICS] 两物体碰撞前后动量守恒 -> [动量守恒定律, 能量守恒定律, 验证动量守恒定律实验的原理与器材]
+[PHYSICS] 电磁感应中磁通量变化产生感应电动势 -> [法拉第电磁感应定律, 电磁感应中的电路问题, 导体切割磁感线时的感应电动势]
+[PHYSICS] 带电粒子在匀强磁场中做圆周运动的轨道半径 -> [带电粒子在磁场中的运动, 带电粒子在交变电磁场中的运动：, 带电粒子在匀强电场中偏转的两个分运动]
+[PHYSICS] 变压器原副线圈电压比与匝数比 -> [探究变压器原副线圈电压与匝数的关系, 理想变压器的基本关系, 等效法在变压器和远距离输电中的应用]
 [CHEMISTRY] 钠与水反应的现象和产物 -> [钠与水及酸、碱、盐溶液的反应, 过氧化钠, 可逆反应]
-[CHEMISTRY] 计算 2mol 氯化钠的质量 -> [过氧化钠, 摩尔质量的计算方法, 化学平衡计算的三段式法]
+[CHEMISTRY] 计算 2mol 氯化钠的质量 -> [过氧化钠, 物质的量浓度, 摩尔质量的计算方法]
 [CHEMISTRY] 盐酸与氢氧化钠发生中和反应 -> [过氧化钠, 中和热, 氧化还原反应方程式的配平方法]
 [CHEMISTRY] 苯的分子式和结构 -> [有机物分子分子式的确定, 化学键的符号表征——电子式, 合成高分子的结构和性质]
-[CHEMISTRY] 原电池中锌铜电极的电子流向 -> [原电池的工作原理 （以Zn－Cu原电池为例）, 判断原电池正、负极的方法, 电极反应式]
+[CHEMISTRY] 原电池中锌铜电极的电子流向 -> [原电池的工作原理 （以Zn－Cu原电池为例）, 燃料电池, 电极反应式]
 [BIOLOGY] 细胞器中含DNA的有哪些 -> [细胞器的结构和功能, DNA的双螺旋结构, DNA的复制]
 [BIOLOGY] 孟德尔分离定律的实质 -> [分离定律, 自由组合定律, 分离定律的概率计算（含自交与自由交配）]
 [BIOLOGY] 光合作用暗反应需要什么原料 -> [影响光合作用强度的环境因素, 光合作用的原理, 探索光合作用原理的部分实验]
-[BIOLOGY] 免疫系统对付病毒的途径 -> [病毒, 免疫系统的组成和功能, 生态系统的结构]
+[BIOLOGY] 免疫系统对付病毒的途径 -> [病毒, 免疫系统的组成和功能, 免疫学的应用]
 [BIOLOGY] 种群密度的调查方法 -> [种群密度, 种群的数量特征, 样方法]
 ```
 
@@ -168,11 +188,11 @@ NOT_MEASURED
 
 ## Overall Status
 
-**PASS**
+**NOT_MEASURED**
 
-build job: OK · KB gates: all OK · tools tests: 723/723 passed
+build job: NOT_MEASURED · KB gates: all OK · tools tests: 737/737 passed · lint（app 2 变体 + 9 个库模块）: NOT_MEASURED · compile evidence: NOT_MEASURED · run context: BOUND
 
 ---
 
-*Generated by CI at 2026-10-14T00:06:50.479584+00:00*
+*Generated by CI at 2026-10-15T22:24:44.121978+00:00*
 *Report version: 1.0*

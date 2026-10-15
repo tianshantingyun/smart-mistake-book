@@ -80,7 +80,12 @@ class RealPackTest(unittest.TestCase):
         # 新建 4 个知识点（[CHEMISTRY] 研究物质结构的价值、[MATH] 获取数据的基本途径、
         # [PHYSICS] 家庭电路与安全用电、[PHYSICS] 材料科学及其应用）→ 成品实点 3741 − 386 + 4 = 3359
         # （量源 = 成品包与 HEAD 包逐点集合差：退场 386、新增 4；round-1 失败信息 `3355 != 3359`）。
-        self.assertEqual(3359, dp._point_count(pack))
+        # 2026-10-16 批次11 promote v15 再重钉（成品实测）：批次11 超配并点 170 行 + F2 窗口 1 行
+        # 共 171 行落地（退场 171，全部可由 point_merge.csv 已执行行解释）；同批新建拆点 22 个
+        # （new_points.csv 20 + new_points_manual.csv 2）→ 成品实点 3359 − 171 + 22 = 3210
+        # （量源 = 成品包与 HEAD 包逐点集合差：退场 171、新增 22；本用例 round-1 失败信息
+        # `3359 != 3210`；复算脚本 build/agent-batch11/pin/measure_py_pins.py）。
+        self.assertEqual(3210, dp._point_count(pack))
 
 
 if __name__ == "__main__":
