@@ -2769,3 +2769,50 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **切分度量口径修正**（本折入提交）—— `tools/split_golden/measure_split_accuracy.py` 落盘（可重跑、无副作用）：**单题金标页「不拆分即正确」**（实现依据=最小拆分 2 块）；阈值 0.9/0.05 **未动**。修正后 **题数一致率 0.5714（2/7→4/7）、切残率 0（0/16）→ 仍未过门 → 4C③ 门后自动化继续不启用**；「漏」集中在 5/7 页无应用输出（真实缺口，非口径问题）。透明记账：上一轮 0.2857 中 2 页系定义错（单题页），其余 3 页是真漏。
 - **新登记（下一批）**：**KD-37**（「重新判定」出口确定性死路：快照身份稳定而时间戳每次新造 → 快照永久冲突；独立复核 medium、读码级未设备复现；AUD-23）；**KD-38**（讲题动作标签超 32 字符 → IllegalArgumentException → 整轮计划永久 INVALID_RESPONSE；机制实读、**触发频率未验证**（logcat 已轮转）；AUD-24）。
 - **未验证照录**：KD-38 的触发频率与修复效果未测；识别精度对照（原图 vs 采样图）未做；跨页合并质量未度量；金标集为模型标注无人工专家；度量脚本的"修正前"版本不可从 git 追溯（脚本自打印 v1 对照 2/7=0.2857 佐证）。
+
+---
+
+## 完成记录折入（九轨批：判定链收口 + 切片补走 + P1 先修工程）（2026-10-16）
+
+> 说明：本批由动态工作流 dwfrun-c3e276ad 执行（九轨并行：T1 判定链 ∥ T2 诊断通道 ∥ T3 切片补走 ∥ T4 切分提交 ∥
+> T5 Lint/状态页 ∥ T6 备份 ∥ T7 导出测试 ∥ T8 小测 ∥ T9 测量 → 七模块门禁 → 设备三段 → 独立核对/对抗性复核 → 记录）。
+> 提交：`038d50c0`（T1/T2）/`6a69c82b`（T4/T5）/`09f0c85c`（T6/T8 + T5 随附两件）/`a49b4c4f`（记录与登记）。
+> **只追加，既有正文未动。** 共享树说明：他线（`f094b9ad` 等）在飞文件（协议/工具环/知识库）未由本线提交；
+> T7 归属核实为他线（本线只补缺失测试的取向未执行——见记录 §2 T7）。批次记录：`docs/research/2026-10-16-verdict-chain-and-nine-track-batch-record.md`。
+
+- **KD-37（「重新判定」死路）**：`038d50c0` —— 时间戳容忍比较：`AttemptTransactionDao.saveEvidenceSnapshot` 改调纯函数
+  `sameEvidenceSnapshotIdentity`（同 `snapshotId` 且除 `capturedAtEpochMillis` 外全列相等、归属行列表相等 ⇒ 复用旧行不抛；
+  身份/内容/归属真变仍抛 `ImmutablePayloadConflictException`）。先例写法= `ModelTaskTransactionDao.sameImmutableTutorResponse`
+  （任务书指针错位已如实标注）。**证据**：instrumented 2/2（设备一实跑：写快照→advance 失败→新时间戳重试→成功）；
+  **设备级 UI 端到端未达**（opencode zen 周配额 429 阻断，记录 未达、不重试、不换凭据——owner 决定）。
+- **KD-38（标签超预算整轮判死）**：`038d50c0` —— ①解析期截断（动作标签 32 / 知识标签 96 / 锚词 64，构造器不放松）；
+  ②提示词声明并 bump（`tutor-plan-v19-move-label-budget` / `tutor-respond-v26-move-label-budget`）；③专用异常
+  `ModelTextBudgetExceededException` → 可重试 `OUTPUT_BUDGET_EXCEEDED`（catch 排在 IAE→INVALID_RESPONSE 之前）。
+  **证据**：JVM 用例 3/4/63 等（独立复核实跑）；**设备前后对照未达（配额）**、触发频率仍未取样；代理对切断（复核 low）
+  与台账未登记 v19/v26（复核 low）照录 KD-38 内。
+- **T2 失败构成诊断通道（debug-only）**：网关 7 处失败点统一 `reportModelCallFailure`（上游非 2xx 分支此前零落点，现带
+  `httpStatus` + 错误体）；`ModelCallFailureDiagnostics.sink`（默认关）+ debug 写入 `files/debug-model-failures/`
+  （原文 ≤64KiB 不切代理对、目录封顶 20）+ 广播开关；release 恒 null 无 IO。设备武装成功但未触发（429 走能力测试自己的记账）。
+- **T4/AUD-03 切分逐题提交**：`6a69c82b` —— 复核页不再预标 SAVED（只挑 selected+PENDING 最小序号交 `onOpenDraft`）；
+  回执写入点= `confirmAndCommit` 拿到真实回执后 / `saveTutorSession`；UI 逐题续做（`Routes.captureResume` 就地换下一题草稿）；
+  「已录入」只看 `confirmState==SAVED`。**证据**：core:data 仪器化 3/3（真实 Room）+ 设备三 3/3；**设备走查未达（配额）**；
+  独立复核 medium：回执在提交事务外 → 另立 **KD-39**（AUD-25）。
+- **T5/AUD-15 工程红门与状态页诚实化**：`6a69c82b`/`09f0c85c` —— `DenseTokenizer` 码点扫描（API 24 `codePoints()`→
+  手写扫描，等价用例 7/0/0 + 一次性探针全 65536 BMP/代理边界/50 万随机串 ALL MATCH）；`tools/ci/generate_status.py`
+  诚实口径（9 模块 lint + 逐模块明细、证据新鲜度、`JOB_STATUS` 无缺省、`run_context` 绑定 HEAD、Overall 三值）；
+  14 例生成器单测（737/737 OK）。`:feature:library:lintDebug`/`:core:data:lintDebug` 未由本批执行（如实记未测）；
+  KD-40（绑定陈旧）登记。
+- **T6/AUD-05 备份一致性**：`09f0c85c` —— 快照后按快照库反查引用资产并校验齐备（缺一即拒绝成包/恢复）、problemCount
+  取快照库；单测 + instrumented；独立复核：不会误拒合法包（窗口内新登记资产是「不入选」非「被拒」）；设备未达。
+- **T8/AUD-01/02 小测身份与恢复**：`09f0c85c` —— 身份纳入会话/日分量（保住「同次重试 1 笔」）、outbox 冲突显式处置、
+  题面持久化（恢复读回原题原选择、不自动新出题/再出网）；五类用例全绿 + 设备三实跑（3/3、2/2、5/5、17/17、2/2）；
+  KD-41（损坏行重试死路，复核 low）登记。独立复核确认「同次重试 1 笔」未被身份改动破坏。
+- **T9/AUD-11 分层测量（不改产品，留裁定）**：报告 `docs/research/2026-10-15-aud-11-verdict-granularity-cooldown-answer-key.md`
+  —— ①判词粒度：前置 KC 证据 → 整题判对（0.075→0.5，放大 6.67×，判词读全会话最新 accepted 证据、无节点过滤）；
+  ②冷却通道无关（模型写阻塞小测写，0/3 目标写落库）；③答案键无纠正/撤销/重放落点。
+- **T3 设备段**：job 建立后被杀可完整续跑（5/5 页 READY、无重复行、无新模型调用）——唯一正面结论；staging 阶段被杀
+  静默丢弃（**KD-42** 登记，孤儿目录 60 分钟回收自愈）；第二次复习/异常恢复/导出走查未达（零题 + 能力门 + 配额）。
+- **新登记（下一批）**：**KD-39**（切分回执在提交事务外，无补偿路径；medium；AUD-25）、**KD-40**（status.md 绑定陈旧，low）、
+  **KD-41**（小测损坏行重试死路，low）、**KD-42**（staging 阶段被杀静默丢弃，low）。
+- **未验证照录**：KD-37/38 设备级复验未达（配额）；KD-38 触发频率自登记起仍未取样；识别精度对照未做；金标集为模型
+  标注无人工专家；T7 归属未完全核清（导出缓存键测试随他线）；`docs/status.md` 未由本线提交（CI 生成物）。
