@@ -3,9 +3,12 @@ package com.tingyun.smartmistakebook.core.export
 import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
@@ -127,13 +130,116 @@ class MistakePdfBatchEligibilityTest {
         assertTrue("绝不能导出的备用文字" !in exportedText)
     }
 
+    /**
+     * AUD-06 ①②：批量键 = f(题数, 版式, 每题的单题键)，批量自己不再重算内容，所以这里钉的是
+     * 「每题键确实被批量键消费」——改可见备注、或改净化图（同 URI 换字节 / 同字节换 URI），
+     * 整批都必须换键，否则一次批量导出会命中旧 PDF。
+     */
+    @Test
+    fun visibleNoteAndCleanImageChangesRewriteTheBatchFingerprint() {
+        val visibleNote = MistakePdfLayout(includeNote = true)
+        val before = readyState("entry-a", "第一题", userNote = "旧备注")
+        val renamed = readyState("entry-a", "第一题", userNote = "新备注")
+
+        assertNotEquals(
+            batchFingerprint(listOf(before), visibleNote),
+            batchFingerprint(listOf(renamed), visibleNote),
+        )
+
+        // 净化图与备注勾选无关：有 clean-image 就一律进渲染（见 MistakePdfBatchEligibility 的
+        // Image 块），所以这里用默认版式（includeNote=false）同样要求换键。
+        val asset = sourceAsset("file:///clean-a.png")
+        val withImage = readyState("entry-a", "第一题", source = MistakeSourceSet.Present(listOf(asset)))
+        val rebytes = readyState(
+            "entry-a",
+            "第一题",
+            source = MistakeSourceSet.Present(listOf(asset.copy(contentSha256 = "b".repeat(64)))),
+        )
+        val moved = readyState(
+            "entry-a",
+            "第一题",
+            source = MistakeSourceSet.Present(
+                listOf(asset.copy(location = MistakeSourceLocation.Available("file:///clean-b.png"))),
+            ),
+        )
+
+        assertNotEquals(
+            batchFingerprint(listOf(withImage)),
+            batchFingerprint(listOf(rebytes)),
+        )
+        assertNotEquals(
+            batchFingerprint(listOf(withImage)),
+            batchFingerprint(listOf(moved)),
+        )
+    }
+
+    /**
+     * AUD-06 ③④：不渲染的字段不参与批量键（勾掉备注时的备注本身、从不进 PDF 的兜底文字），
+     * 相同内容重跑命中同一把键——否则整批导出每次都要重排重画。
+     */
+    @Test
+    fun unrenderedFieldsKeepTheBatchFingerprintStableAndRerunsMatch() {
+        val hiddenNote = MistakePdfLayout.DEFAULT
+        val visibleNote = MistakePdfLayout(includeNote = true)
+        val base = readyState("entry-a", "第一题", userNote = "旧备注")
+        val renamed = readyState("entry-a", "第一题", userNote = "新备注")
+        val otherFallback = base.copy(detail = base.detail.copy(fallbackMarkdown = "另一份兜底文字"))
+
+        assertEquals(
+            batchFingerprint(listOf(base), hiddenNote),
+            batchFingerprint(listOf(renamed), hiddenNote),
+        )
+        assertEquals(
+            batchFingerprint(listOf(base), hiddenNote),
+            batchFingerprint(listOf(otherFallback), hiddenNote),
+        )
+        // 正对照：同一份改动在 includeNote=true（会渲染备注）时必须换整批的键。
+        assertNotEquals(
+            batchFingerprint(listOf(base), visibleNote),
+            batchFingerprint(listOf(renamed), visibleNote),
+        )
+
+        val image = sourceAsset("file:///clean-a.png")
+        fun build(): List<MistakeDetailState> = listOf(
+            readyState("entry-a", "第一题", userNote = "先检查定义域"),
+            readyState("entry-b", "第二题", source = MistakeSourceSet.Present(listOf(image))),
+        )
+
+        assertEquals(
+            batchFingerprint(build(), visibleNote),
+            batchFingerprint(build(), visibleNote),
+        )
+    }
+
+    private fun batchFingerprint(
+        states: List<MistakeDetailState>,
+        layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    ): String = (
+        MistakePdfBatchEligibility.check(states, layout) as MistakePdfBatchEligibilityResult.Eligible
+        ).input.inputSha256
+
+    private fun sourceAsset(uri: String): MistakeSourceAsset = MistakeSourceAsset(
+        role = CLEAN_IMAGE_SOURCE_ROLE,
+        sourceAssetId = "clean-a",
+        contentSha256 = "a".repeat(64),
+        mimeType = "image/png",
+        byteSize = 1_024L,
+        width = 100,
+        height = 100,
+        sourceType = "GENERATED_FIGURE",
+        createdAtEpochMillis = 1L,
+        location = MistakeSourceLocation.Available(uri),
+    )
+
     private fun readyState(
         entryId: String,
         title: String,
+        source: MistakeSourceSet = MistakeSourceSet.Missing,
+        userNote: String? = null,
     ): MistakeDetailState.Ready {
         val block = ContentBlock.Paragraph("stem", "$title 的正式题面")
         return MistakeDetailState.Ready(
-            detail = detail(entryId, title),
+            detail = detail(entryId, title, source, userNote),
             questionDocument = CapturedQuestionDocument(
                 document = QuestionDocument(
                     id = "document-$entryId",
@@ -157,6 +263,8 @@ class MistakePdfBatchEligibilityTest {
     private fun detail(
         entryId: String,
         title: String,
+        source: MistakeSourceSet = MistakeSourceSet.Missing,
+        userNote: String? = null,
     ) = MistakeDetail(
         identity = MistakeDetailIdentity(
             errorBookEntryId = entryId,
@@ -167,6 +275,7 @@ class MistakePdfBatchEligibilityTest {
             subject = "数学",
         ),
         fallbackMarkdown = "绝不能导出的备用文字",
-        source = MistakeSourceSet.Missing,
+        source = source,
+        userNote = userNote,
     )
 }
