@@ -8,8 +8,21 @@
 检查项：
 1. 池键唯一（撞键即失败）；
 2. 判定表每行 `(chunk_rel, chunk_id)` 恰好命中一条池行，且池行 fp 非空；
-3. 若存在 key_remap.csv：旧键不得仍残留在池中、新键必须存在且 fp 与映射表一致、
-   判定表不得仍引用旧键（说明重映射没执行到位）。
+3. 若存在 key_remap.csv：新键必须存在且 fp 与映射表一致；另设 **fp 锚定迁移窗守卫**——
+   仅当 `old != new`、判定表仍引用 old、池中仍有 old、条目 fp 非空且
+   `池[old].fp == 条目.fp`（旧 id 仍持**同一内容**）时报「疑似未重映射」，交人工裁决，
+   不自动处置。
+
+    v1 的判据是「`old != new` 且判定引用 old ⇒ 未重映射」。它把两个 id 空间当一个：
+    key_remap 的 old 是 P0.2 重排**之前**的稠密编号（`sha256(rel)[:10]-NNN`），判定行的
+    键是重排**之后**的现空间 id，两者同前缀同位数、稠密重叠——新行会顶掉别的块的旧序号，
+    于是"判定引用了某个 old 键"证明不了任何未重映射。实树实测（2026-10-16）：v1 命中
+    6,011 条，逐条核 fp 后全部是复用类（`池[old].fp != 条目.fp`）；单例
+    `5c62da9e03-1133`（化学 53，池中 fp 4644e3fc5d68）对应映射条目 1133→1446
+    （fp 0151fd444c17，另一块）——两条 fp 不同即证判定行指现空间那块，不是被搬走的那块。
+    真断链（重映射已执行、old 已不在池）本就由检查项 2 的「判定悬空」拦住。
+    fp 相等才是唯一可靠的迁移窗特征（旧 id 上仍持同一内容），且仍可能是"内容相同的
+    另一行占了旧序号"，故只报「疑似」，不自动处置。
 
 用法：
     python tools/kb_coverage/verify_judgment_fp.py
@@ -67,17 +80,25 @@ def main(argv: list[str] | None = None) -> int:
             for entry in csv.DictReader(fh):
                 old = (entry["chunk_rel"], entry["old_chunk_id"])
                 new = (entry["chunk_rel"], entry["new_chunk_id"])
-                # 稠密重编号会复用旧序号数字（新行可能恰好顶着旧序号），
-                # 所以"旧键不在池中"不是不变式；成立的不变式是——
-                # 新键必须存在且 fp 与映射表一致（内容没变、只改 id），
-                # 且判定表不得仍引用旧键（说明重映射没执行到位）。
+                # 稠密重编号会复用旧序号数字（新行可能恰好顶着别的块的旧序号），
+                # 所以"旧键出现在映射表里"不是判定未重映射的证据；不变式是——
+                # 新键必须存在且 fp 与映射表一致（内容没变、只改 id）。
                 prows = pool.get(new)
                 if not prows:
                     problems.append(f"新键不在池：{new}")
                 elif (prows[0].get("fp") or "") != entry["fp"]:
                     problems.append(f"fp 不一致（映射表 vs 池）：{new}")
-                if old in jkeys:
-                    problems.append(f"判定仍引用旧键（未重映射）：{old}")
+                # fp 锚定迁移窗守卫（v2）：只有"旧 id 仍持**同一内容**"才谈得上
+                # "判定没跟着改号"。fp 不等 = 旧序号已被他块复用（真断链会由
+                # 检查项 2 的「判定悬空」拦住），不报。
+                # 恒等条目（old == new）对 fp 相等子句恒真，必须由 old != new 排除：
+                # 池里那一条就是它自己，判定引用它本就是对的（v1 实测假阳性 2,109 条）。
+                if entry["old_chunk_id"] == entry["new_chunk_id"] or old not in jkeys:
+                    continue
+                orows = pool.get(old)
+                old_fp = (orows[0].get("fp") or "") if orows else ""
+                if (entry["fp"] or "").strip() and old_fp == entry["fp"]:
+                    problems.append(f"疑似未重映射（旧键仍持旧内容）：{old}")
 
     print(f"判定 {len(judgments_rows)} 行 / 池 {len(pool)} 唯一键 / 问题 {len(problems)}")
     if problems:
