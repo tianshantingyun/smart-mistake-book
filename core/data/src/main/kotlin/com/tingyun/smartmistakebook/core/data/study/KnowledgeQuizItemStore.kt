@@ -28,8 +28,10 @@ import kotlinx.serialization.json.Json
  * 的第二笔写入撞 [ImmutablePayloadConflictException] 时，本题面**不是**被覆盖，而是回读
  * 既有行，屏幕上的题面与库里的题面因此不可能分叉。
  *
- * 损坏：`options_snapshot`/`answer_spec_snapshot` 解不开、或 schema 不是本题面版本时返回
- * null——调用方走既有失败出口（题面读不回就说读不回），绝不猜一个题面出来。
+ * 损坏（KD-41）：`options_snapshot`/`answer_spec_snapshot` 解不开、或 schema 不是本题面版本时
+ * 既不是"已有可用题面"、也不是"没有题面"——是"**不可复用**的一行"。读口照旧返回 null
+ * （绝不猜一个题面出来），写口则把这一行**原地覆盖重写**：不这么做，损坏行会把"重试出题"
+ * 顶死在同一身份上（每次重试白烧一次模型调用、题面永远显示不出来）。
  */
 internal class KnowledgeQuizItemStore(
     private val database: StudyDatabasePort,
@@ -37,7 +39,15 @@ internal class KnowledgeQuizItemStore(
 ) {
 
     /** 读回该会话该知识点已持久化的题面；无行或损坏 = null。 */
-    suspend fun read(sessionId: Long, knowledgeNodeId: String): TutorAssessmentItem? {
+    suspend fun read(sessionId: Long, knowledgeNodeId: String): TutorAssessmentItem? =
+        readSnapshot(sessionId, knowledgeNodeId)?.item
+
+    /**
+     * 读回该身份那一行呈现快照的**审计视图**（题面 + 键版本引用，AUD-11 ③）：
+     * 行在那 id / revision / 键载荷 schema 就报得出，题面本身读不回时 `item == null`
+     * ——坏行如实说坏，不猜题面（与 [read] 同一次解析，屏幕与审计面读到的题面不可能分叉）。
+     */
+    suspend fun readSnapshot(sessionId: Long, knowledgeNodeId: String): KnowledgeQuizItemSnapshotView? {
         val record = database.findAssessmentItemSnapshot(
             assessmentItemSnapshotId = knowledgeQuizItemSnapshotId(
                 learnerId = learnerId,
@@ -45,12 +55,21 @@ internal class KnowledgeQuizItemStore(
                 knowledgeNodeId = knowledgeNodeId,
             ),
         ) ?: return null
-        return decode(record)
+        val spec = answerSpec(record)
+        return KnowledgeQuizItemSnapshotView(
+            assessmentItemSnapshotId = record.assessmentItemSnapshotId,
+            itemRevision = record.itemRevision,
+            answerSpecSchema = spec?.schema,
+            item = decode(record, spec),
+        )
     }
 
     /**
-     * 落库并回读：返回库里那一行的题面（同身份已有行时返回既有行）。null = 行读写不出来
-     * （损坏）——调用方按失败出口处置，不拿内存里的题面顶替库里的题面。
+     * 落库并回读：返回库里那一行的题面。同身份已有**可复用**行时返回既有行（首见即真）；
+     * 既有行损坏时**覆盖重写**为 `item` 并回读（KD-41，重试因此可恢复）。
+     *
+     * null = 该行最终仍读不出来（本次要写的题面自己就解不开、或冲突根本不是本 id 的行引起的）
+     * ——调用方按失败出口处置，不拿内存里的题面顶替库里的题面。
      */
     suspend fun save(
         sessionId: Long,
@@ -63,17 +82,24 @@ internal class KnowledgeQuizItemStore(
             sessionId = sessionId,
             knowledgeNodeId = knowledgeNodeId,
         )
+        val incoming = record(
+            snapshotId = snapshotId,
+            item = item,
+            occurredAtEpochMillis = occurredAtEpochMillis,
+        )
         try {
-            database.saveAssessmentItemSnapshot(
-                record(
-                    snapshotId = snapshotId,
-                    item = item,
-                    occurredAtEpochMillis = occurredAtEpochMillis,
-                ),
-            )
+            database.saveAssessmentItemSnapshot(incoming)
         } catch (_: ImmutablePayloadConflictException) {
-            // 同一身份已有行（首见即真）：不是故障，是"这道题已经出过"。吃掉冲突回读既有行，
-            // 保证学生作答的那道题 = 之后恢复读回的那道题。
+            // 同一身份已有行且与本次不同。两种可能，按"这行还能不能用"分派：
+            // - 解得开 = 正常行（首见即真）：不是故障，是"这道题已经出过"。吃掉冲突回读既有行，
+            //   保证学生作答的那道题 = 之后恢复读回的那道题；
+            // - 解不开 = 损坏行（KD-41，不可复用）：改前这里只能回读出 null，而调用方会把
+            //   "重试出题"新生成的题面再交给本口、再撞同一行、再丢弃——白烧一次模型调用、
+            //   题面永远显示不出来。损坏行没有可保护的内容，原地覆盖重写，让重试有出路。
+            val existing = database.findAssessmentItemSnapshot(snapshotId)
+            if (existing != null && decode(existing) == null) {
+                database.overwriteAssessmentItemSnapshot(incoming)
+            }
         }
         return read(sessionId, knowledgeNodeId)
     }
@@ -120,13 +146,30 @@ internal class KnowledgeQuizItemStore(
         createdAtEpochMillis = occurredAtEpochMillis,
     )
 
-    private fun decode(record: AssessmentItemSnapshotSeedRecord): TutorAssessmentItem? {
+    /**
+     * 解键载荷（`answer_spec_snapshot`）；解不开 = null。
+     *
+     * 与 [decode] 分开一层：**键版本引用**（`spec.schema`）在"题面读不回"时也报得出来——
+     * AUD-11 ③ 的审计面要能说清"这行答的是哪一版键/这行坏在哪"，把版本闸与题面构造混在
+     * 一个函数里会让坏行只剩一个 null。
+     */
+    private fun answerSpec(record: AssessmentItemSnapshotSeedRecord): KnowledgeQuizAnswerSpec? =
+        runCatching {
+            answerSpecJson.decodeFromString(KnowledgeQuizAnswerSpec.serializer(), record.answerSpecSnapshot)
+        }.getOrNull()
+
+    /** 解一行（自带键载荷解析）。[readSnapshot] 走带 `spec` 的重载，避免同一行解析两遍。 */
+    private fun decode(record: AssessmentItemSnapshotSeedRecord): TutorAssessmentItem? =
+        decode(record, answerSpec(record))
+
+    private fun decode(
+        record: AssessmentItemSnapshotSeedRecord,
+        spec: KnowledgeQuizAnswerSpec?,
+    ): TutorAssessmentItem? {
         val choices = runCatching {
             optionsJson.decodeFromString(ListSerializer(TutorChoice.serializer()), record.optionsSnapshot)
         }.getOrNull() ?: return null
-        val spec = runCatching {
-            answerSpecJson.decodeFromString(KnowledgeQuizAnswerSpec.serializer(), record.answerSpecSnapshot)
-        }.getOrNull() ?: return null
+        if (spec == null) return null
         if (spec.schema != ANSWER_SPEC_SCHEMA) return null
         // 形状校验交给模型自己的 init（≥2 选项、答案属于选项集、选项 id 唯一）：
         // 解出来的东西不满足这些约束 = 这行坏了，返回 null 而不是把坏题面端上屏幕。
@@ -159,6 +202,24 @@ internal class KnowledgeQuizItemStore(
         }
     }
 }
+
+/**
+ * 一行知识点复习题面快照的**审计视图**（AUD-11 ③）：题面 + 它的键版本引用。
+ *
+ * 为什么需要它：证据行里只有方向/权重/理由等 11 个语义列，题面与答案键在
+ * `assessment_item_snapshot`（AUD-02）。错键要能被审计、被纠正（语义留 5B）之前，
+ * 先得能回答"这笔证据读的是哪一道题、哪一版键"。
+ *
+ * - [itemRevision]：呈现行的版本（同一身份首见即真，故它是题面的版本分量）；
+ * - [answerSpecSchema]：键载荷的 schema（`answer_spec_snapshot.schema`）——键版本闸；
+ * - [item]：库里的题面（含标准答案 `correctChoiceId`）；读不回 = null。
+ */
+internal data class KnowledgeQuizItemSnapshotView(
+    val assessmentItemSnapshotId: String,
+    val itemRevision: Int,
+    val answerSpecSchema: String?,
+    val item: TutorAssessmentItem?,
+)
 
 /**
  * 一道知识点复习题面的行身份：`(learner, 会话, 知识点)`。

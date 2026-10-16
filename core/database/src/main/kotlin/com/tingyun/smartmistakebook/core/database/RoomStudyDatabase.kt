@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.map
 import java.io.File
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
+import com.tingyun.smartmistakebook.core.database.port.FullLibraryScanNodeRecord
 import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
@@ -308,6 +309,10 @@ internal class RoomStudyDatabase(
         occurredAtEpochMillis: Long,
     ): Boolean = splitImports.markQuestionSavedByDraftId(splitDraftId, occurredAtEpochMillis)
 
+    override suspend fun reconcileCommittedQuestionDrafts(
+        occurredAtEpochMillis: Long,
+    ): Int = splitImports.reconcileCommittedQuestionDrafts(occurredAtEpochMillis)
+
     override suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord? =
         splitImports.readBySplitDraftId(splitDraftId)
 
@@ -582,6 +587,9 @@ internal class RoomStudyDatabase(
 
     override suspend fun readActiveKnowledgeNodeIds(ids: Set<String>): Set<String> =
         knowledgeBase.readActiveKnowledgeNodeIds(ids)
+
+    override suspend fun readFullLibraryScanNodes(): List<FullLibraryScanNodeRecord> =
+        knowledgeBase.readFullLibraryScanNodes()
 
     override suspend fun readKnowledgeSourcesByIds(ids: Set<String>): List<KnowledgeSourceSeedRecord> =
         knowledgeBase.readKnowledgeSourcesByIds(ids)
@@ -1207,6 +1215,37 @@ internal class RoomStudyDatabase(
     override suspend fun pruneMistakeExportRecords(keepNewest: Int): Int =
         database.mistakeExportRecordDao().prune(keepNewest)
 
+    override suspend fun createCleanRedrawTask(
+        command: CreateCleanRedrawTaskCommand,
+    ): CleanRedrawTaskRecord = database.cleanRedrawTaskDao().createTask(command)
+
+    override suspend fun readCleanRedrawTask(taskId: String): CleanRedrawTaskRecord? =
+        database.cleanRedrawTaskDao().readTask(taskId)
+
+    override suspend fun readCleanRedrawTaskByFingerprint(
+        requestFingerprint: String,
+    ): CleanRedrawTaskRecord? =
+        database.cleanRedrawTaskDao().readTaskByFingerprint(requestFingerprint)
+
+    override suspend fun readResumableCleanRedrawTasks(
+        maxAttempts: Int,
+        staleBeforeEpochMillis: Long,
+    ): List<CleanRedrawTaskRecord> = database.cleanRedrawTaskDao().readResumableTasks(
+        maxAttempts = maxAttempts,
+        staleBeforeEpochMillis = staleBeforeEpochMillis,
+    )
+
+    override suspend fun claimCleanRedrawTaskAttempt(
+        command: ClaimCleanRedrawTaskAttemptCommand,
+    ): CleanRedrawTaskRecord? = database.cleanRedrawTaskDao().claimTaskAttempt(command)
+
+    override suspend fun finishCleanRedrawTask(
+        command: FinishCleanRedrawTaskCommand,
+    ): CleanRedrawTaskRecord? = database.cleanRedrawTaskDao().finishTaskAttempt(command)
+
+    override suspend fun isCurrentProblemRevision(revisionId: String): Boolean =
+        database.problemDraftTransactionDao().isCurrentProblemRevision(revisionId)
+
     override suspend fun saveTutorConversationDraft(
         conversationId: String,
         draft: String,
@@ -1343,6 +1382,18 @@ internal class RoomStudyDatabase(
     ): AssessmentItemSnapshotSeedRecord? = database.immutableLearningFactDao()
         .findAssessmentItem(assessmentItemSnapshotId)
         ?.toRecord()
+
+    /**
+     * KD-41：损坏行的原地修复口（契约见
+     * `SeedAssessmentPort.overwriteAssessmentItemSnapshot`——只对"既有行解不开"用）。
+     *
+     * 覆盖写进来的内容走与 [saveAssessmentItemSnapshot] 同一道契约校验：修复口不能变成绕过
+     * 契约的旁路（借"修复"把非法行塞进库）。
+     */
+    override suspend fun overwriteAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord) {
+        DatabaseContractValidator.validateAssessmentItem(item)
+        database.immutableLearningFactDao().overwriteAssessmentItem(item.toEntity())
+    }
 
     override suspend fun saveAssessmentEvidenceSnapshot(
         snapshot: com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot,
@@ -1484,9 +1535,10 @@ internal class RoomStudyDatabase(
     ): ProjectionBatch = database.projectionTransactionDao()
         .loadProjectionBatch(projectionName, learnerId, limit)
 
-    override suspend fun recordChatEvidence(entries: List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>) {
+    override suspend fun recordChatEvidence(
+        entries: List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>,
+    ): com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceWriteReceipt =
         database.chatEvidenceDao().insertAsLedgerEvents(entries)
-    }
 
     override suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         database.chatEvidenceDao().readByLearner(learnerId)
@@ -1494,8 +1546,11 @@ internal class RoomStudyDatabase(
     override suspend fun readChatEvidenceByConversation(conversationId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         database.chatEvidenceDao().readByConversation(conversationId)
 
-    override suspend fun lastAcceptedChatEvidenceAtForKc(learnerId: String, knowledgeNodeId: String): Long? =
-        database.chatEvidenceDao().lastAcceptedAtForKc(learnerId, knowledgeNodeId)
+    override suspend fun lastAcceptedChatEvidenceAtForKc(
+        learnerId: String,
+        knowledgeNodeId: String,
+        sourceKind: String,
+    ): Long? = database.chatEvidenceDao().lastAcceptedAtForKc(learnerId, knowledgeNodeId, sourceKind)
 
     override suspend fun countAcceptedChatEvidenceSince(learnerId: String, sinceEpochMillis: Long): Int =
         database.chatEvidenceDao().countAcceptedSince(learnerId, sinceEpochMillis)

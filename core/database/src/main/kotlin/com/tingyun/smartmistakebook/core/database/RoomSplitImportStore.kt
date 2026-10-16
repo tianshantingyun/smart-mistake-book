@@ -145,6 +145,40 @@ internal class RoomSplitImportStore(
         return dao.readJobWithQuestions(question.jobId)?.toRecord()
     }
 
+    /**
+     * 读侧对账（KD-39）：把「草稿已入库、台账仍 PENDING」的题就地补写成 SAVED 回执（幂等）。
+     *
+     * 消灭的失败：提交落库与 [markQuestionSavedByDraftId] 之间被杀进程，题已经进了错题本、
+     * 台账却永远停在「待提交」——复核页显示过期状态、点「录入所选」还会重新打开一道已经录过的题。
+     * 这一笔不改动"SAVED 只由入库事实写成"的判据，只把**同一份依据**（草稿 COMMITTED）从库内
+     * 再读一次；[markQuestionSavedByDraftId] 的 KDoc 里三条语义在这里逐条成立：不要求任务 READY、
+     * 不要求调用方知道 (jobId, 题号)、反查不中就不是切分题。
+     *
+     * 落账的写与 [markQuestionSavedByDraftId] 是同一笔 DAO 写（`updateConfirmState(…, SAVED, …)`
+     * + `touchJob`），只是不逐行回调它：那会在本方法自己的写事务里再套一层写事务、并对每行重做
+     * 一次按草稿的点查，而这一刻的行 **正是**按同一条反查条件（`split_draft_id` 命中 + 仍 PENDING）
+     * 取出来的。取数与改写放在同一个写事务里：SELECT 与随后的 UPDATE 之间没有别的写者能插进来
+     * （SQLite 单写者 + Room 写事务），所以不会把期间刚被改成 REJECTED 的行覆盖成 SAVED。
+     * 幂等：已经是 SAVED 的行不在取数集里；两次对账的第二次拿不到任何行，返回 0。
+     *
+     * @return 本次补写的笔数（0 = 没有丢失的回执）。
+     */
+    suspend fun reconcileCommittedQuestionDrafts(occurredAtEpochMillis: Long): Int =
+        database.withWriteTransaction {
+            val dao = database.splitImportDao()
+            val stale = dao.findPendingQuestionsWithCommittedDraft()
+            stale.forEach { question ->
+                dao.updateConfirmState(
+                    question.jobId,
+                    question.questionOrdinal,
+                    StudyDbValue.SplitImportConfirmState.SAVED,
+                    question.splitDraftId,
+                )
+                dao.touchJob(question.jobId, occurredAtEpochMillis)
+            }
+            stale.size
+        }
+
     suspend fun markReady(
         jobId: String,
         questionCount: Int,

@@ -103,6 +103,13 @@ class SmartMistakeBookApplication : Application() {
     val startupState = MutableStateFlow<StartupState>(StartupState.Initializing)
 
     /**
+     * 本进程的启动时刻（应用对象创建即是进程开始）。AUD-09 的净化作业对账拿它当"租约判据"：
+     * 只接手**最后更新早于本进程**的作业行——上一进程被杀留下的行一定早于它，而本进程刚
+     * 发起的保存路径作业不会被对账抢走双跑（那会重复付费）。
+     */
+    private val processStartedAtEpochMillis = System.currentTimeMillis()
+
+    /**
      * 知识能力就绪位（决策台账 D-Q3：首装后台化）。
      *
      * **与 [startupState] 分开放**：`Ready` 是"错题与复习立刻可用"的秒开语义，本就绪位说的是
@@ -214,6 +221,13 @@ class SmartMistakeBookApplication : Application() {
 
     private lateinit var database: StudyDatabasePort
     private lateinit var reviewReminderCoordinator: ReviewReminderCoordinator
+
+    private val restartReason = MutableStateFlow<String?>(null)
+    internal val databaseRestartReason: StateFlow<String?> = restartReason
+
+    internal fun requireDatabaseRestart(message: String) {
+        restartReason.value = message
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -391,7 +405,14 @@ class SmartMistakeBookApplication : Application() {
                 // driving request exist before it is needed.
                 onWorkScheduled = { BatchImportDriver.enqueue(this) },
             )
-            backupRepository = BackupRepositoryFactory.create(this, database)
+            backupRepository = BackupRepositoryFactory.create(
+                context = this,
+                database = database,
+                // 6C-1：设置随包走。两个 DataStore 实例是启动时就装配好的那对（同一个文件
+                // 不能再建第二个实例），这里只把读口/写口交给备份仓库。
+                schedulingSettings = schedulingSettingsStore,
+                reviewReminders = reviewReminderRepository,
+            )
             // 确认卡执行路径 ③（A4）：聊天附图 → 既有录入链路。放在批量和采集之后——它两者都用到。
             tutorAttachedImageIntake = TutorAttachedImageIntakeFactory.create(
                 images = lobbyMessageImageIntake,
@@ -403,6 +424,21 @@ class SmartMistakeBookApplication : Application() {
             // for the student to reopen the screen; the worker no-ops quickly when
             // nothing is PROCESSING.
             BatchImportDriver.enqueue(this)
+            // AUD-09：上次运行里被进程杀死的净化作业（分类/重绘）没人收尾，题面会永远停在原图。
+            // 启动时接着做完（PENDING/FAILED 且尝试次数未耗尽）；只接手"最后更新早于本进程启动"
+            // 的行——本进程刚发起的作业不会被抢走双跑（那会重复付费）。没配模型时一行也不动
+            // （出网门 fail-closed），留待下次启动。
+            applicationScope.launch {
+                runCatching {
+                    captureRepository.resumePendingCleanRedraws(processStartedAtEpochMillis)
+                }.onFailure { failure ->
+                    android.util.Log.w(
+                        "SmartMistakeBook",
+                        "Clean redraw resume failed",
+                        failure,
+                    )
+                }
+            }
             // L7：上次运行里被系统/进程杀死的导出 worker 没人写终态，记录会永远"正在整理"。
             // 启动时对账一次（只动超过阈值的 RUNNING 行），把僵尸如实标成失败。
             applicationScope.launch {
@@ -440,6 +476,30 @@ class SmartMistakeBookApplication : Application() {
                     android.util.Log.w(
                         "SmartMistakeBook",
                         "Split import recovery failed",
+                        failure,
+                    )
+                }
+            }
+            // 丢失的提交回执（KD-39）：提交落库之后、写台账回执之前被杀进程，题已经进了错题本，
+            // 台账却永远停在「待提交」。启动时按库内事实补写回执（幂等），不进复核页、不续做
+            // 下一题也能追平；复核页装配与逐题续做各自还有同一笔读侧对账。单独一条协程：
+            // 这两笔修复互相独立，一处失败不该把另一处一起跳过。
+            applicationScope.launch {
+                runCatching {
+                    roomSplitImportRepository.reconcileCommittedQuestionDrafts(
+                        System.currentTimeMillis(),
+                    )
+                }.onSuccess { caughtUp ->
+                    if (caughtUp > 0) {
+                        android.util.Log.i(
+                            "SmartMistakeBook",
+                            "Reconciled $caughtUp split import question(s) committed without a receipt",
+                        )
+                    }
+                }.onFailure { failure ->
+                    android.util.Log.w(
+                        "SmartMistakeBook",
+                        "Split import receipt reconciliation failed",
                         failure,
                     )
                 }
@@ -532,8 +592,15 @@ class SmartMistakeBookApplication : Application() {
     }
 
     fun refreshReviewReminderSchedule() {
+        if (restartReason.value != null) return
         applicationScope.launch {
-            reviewReminderCoordinator.refresh()
+            try {
+                reviewReminderCoordinator.refresh()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // 系统恢复入口不能因暂时读不到偏好而使前台页面崩溃，下次恢复会再校准。
+            }
         }
     }
 
@@ -626,6 +693,7 @@ class SmartMistakeBookApplication : Application() {
     private fun newMistakeExportId(): String = "export:${UUID.randomUUID()}"
 
     fun refreshStudyExperience() {
+        if (restartReason.value != null) return
         val currentStartup = startupState.value
         if (currentStartup is StartupState.FatalFailure) {
             // 数据库未初始化成功，无学习记录可刷新；onResume 每次都会调用这里。

@@ -252,6 +252,18 @@ data class ImagePipelineClassifyInput(
     val imageWidth: Int,
     val imageHeight: Int,
     val subjectIdOverride: String? = null,
+    /**
+     * AUD-09（schema 17）：被分类的**源图字节**的 sha256。
+     *
+     * 消灭的具体失败：分类轮此前只按 `sourceAssetId` + 尺寸进指纹，而这两样都不是字节本身
+     * ——源图被替换（或 id 与内容脱钩）时，一个"同 id 同尺寸、不同字节"的请求会命中旧指纹，
+     * 净化作业的去重（"同指纹已成功 → 不再付费"）就会把**另一张图**当成已完成过。把字节 sha
+     * 带进输入（因而进指纹）之后，"同一张图"这句话才是按字节成立的事实。
+     *
+     * 可空：schema < [ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION] 的行没有这个键，
+     * 旧行读回按"当年没有它"重算指纹（见 `fingerprintPayload` 的 strip）。
+     */
+    val sourceImageSha256: String? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.IMAGE_PIPELINE_CLASSIFY
@@ -270,8 +282,15 @@ data class ImagePipelineClassifyInput(
         require(imageWidth > 0 && imageHeight > 0) {
             "Image pipeline classify dimensions must be positive"
         }
+        require(sourceImageSha256 == null || sourceImageSha256.isValidSourceImageSha256()) {
+            "Image pipeline classify source image sha must be a sha256 hex string"
+        }
     }
 }
+
+/** 规范化的小写 sha256（64 位十六进制）；分类输入的源图指纹与净化作业的合成键共用这一处判据。 */
+internal fun String.isValidSourceImageSha256(): Boolean =
+    length == SHA_256_HEX_CHARS && all(Char::isLowerHexDigit)
 
 @Serializable
 @SerialName("capture_parse")
@@ -451,6 +470,10 @@ data class ModelTaskRequest(
                         lobby.requestedLocalActions.isEmpty()
                 } != false,
         ) { "Legacy tutor requests cannot carry an interaction mode, a scaffold level or local actions" }
+        require(
+            schemaVersion >= IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION ||
+                (input as? ImagePipelineClassifyInput)?.sourceImageSha256 == null,
+        ) { "Legacy classify requests cannot carry a source image sha" }
         require(requestId.isNotBlank()) { "Model task request id must not be blank" }
         require(requestId.length <= MAX_ID_CHARS) { "Model task request id exceeds budget" }
         require(input.subjectId.isNotBlank()) { "Model task subject id must not be blank" }
@@ -504,7 +527,13 @@ data class ModelTaskRequest(
          * 是不同的逻辑操作（提示词不同），所以它必须进指纹；旧行读回按"当年没有这两个键"重算。
          */
         const val TUTOR_INTERACTION_MODE_SCHEMA_VERSION = 16
-        const val CURRENT_SCHEMA_VERSION = TUTOR_INTERACTION_MODE_SCHEMA_VERSION
+        /**
+         * Schema at which an image-pipeline classify round carries the **source image byte sha**
+         * (`ImagePipelineClassifyInput.sourceImageSha256`, AUD-09)：净化作业的"同一张图"要去重
+         * 与续跑，就必须按字节而不是按 id/尺寸说话。旧行读回按"当年没有这个键"重算指纹。
+         */
+        const val IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION = 17
+        const val CURRENT_SCHEMA_VERSION = IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION
         const val MAX_ID_CHARS = 256
     }
 }
@@ -648,10 +677,13 @@ sealed interface ModelGatewayEvent {
              * the snapshot status-message budget. Truncating here (instead of rejecting)
              * keeps a long reply streaming instead of failing the whole task; the terminal
              * [ModelGatewayEvent.Completed] always carries the full body.
+             *
+             * 截断走 [takeBudgetChars]（不切代理对）：`take(n)` 的边界若落在一个补充平面字符
+             * 中间，留下的末尾是孤立高代理，UI 上显示成「�」（KD-38 剩余项）。
              */
             fun of(text: String): Progress = Progress(
                 stage = ModelTaskStage.VALIDATING_OUTPUT,
-                userMessage = text.take(MAX_PROGRESS_MESSAGE_CHARS),
+                userMessage = text.takeBudgetChars(MAX_PROGRESS_MESSAGE_CHARS),
             )
         }
     }
@@ -780,6 +812,7 @@ object ModelTaskLogicalOperationFingerprint {
                     .withoutEmptyAttachedQuestion(input)
                     .withoutEmptyLocalActionOutcomes(input)
                     .withoutEmptyRequestedLocalActions(input)
+                    .withoutEmptyClassifySourceSha(input)
                     .withoutDefaultInteractionMode(input),
             )
         }
@@ -833,6 +866,8 @@ private fun ModelTaskRequest.fingerprintPayload(): String =
             // v1 编码器不认识 schema 16 引入的三件：交互模式 / 起步档（默认载体）与已提出的本地动作（空载体）。
             .withoutEmptyRequestedLocalActions(input)
             .withoutDefaultInteractionMode(input)
+            // v1 编码器不认识 schema 17 引入的分类源图 sha 键。
+            .withoutClassifySourceSha(input)
     } else {
         ModelTaskCodec.encodeRequest(this).let { encoded ->
             encoded
@@ -936,7 +971,50 @@ private fun ModelTaskRequest.fingerprintPayload(): String =
                 // schema 16 的交互模式 / 起步档：不加 schemaVersion 门控（守卫保证旧行只可能是
                 // 默认值，这条 strip 对非默认值是无操作——见函数注释）。
                 .withoutDefaultInteractionMode(input)
+                // schema 17 的分类源图 sha：旧行（<17）当年没有这个键，且守卫保证旧行只可能是
+                // null——strip 对非空 sha 是无操作（非空 sha 的行必然是 schema ≥ 17 的行）。
+                .let {
+                    if (schemaVersion <
+                        ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION
+                    ) {
+                        it.withoutClassifySourceSha(input)
+                    } else {
+                        it
+                    }
+                }
         }
+    }
+
+/**
+ * 去掉分类输入里 schema 17 之后才有的源图 sha 键（AUD-09）。
+ *
+ * 旧行读回必须按"当年没有这个键"重算指纹：`ModelTaskSnapshot` 的构造要求
+ * `requestFingerprint == ModelTaskFingerprint.of(request)`，多算一个 `null` 键就会让升级前
+ * 已落库的分类行读回即炸——而净化作业的续跑正要读回它们。
+ *
+ * 与 [withoutDefaultInteractionMode] 的差别：这里**不**由"值是否为空"当判据，而是只在
+ * schema 门控下被调用——schema ≥ 17 的行即使 sha 为 null，那个键也是当年写下的键，不能抹。
+ */
+private fun String.withoutClassifySourceSha(input: ModelTaskInput): String =
+    if (input is ImagePipelineClassifyInput) {
+        replace(",\"sourceImageSha256\":null", "")
+    } else {
+        this
+    }
+
+/**
+ * 逻辑操作指纹（无 schema 通道）版的同一条 strip：**空 sha 不落键**。
+ *
+ * 与 request 级路径的分工：那条按 schemaVersion 门控（schema ≥ 17 的行即使 sha 为 null 也保留
+ * 键，因为键是当年写下的）；这条**不看 schema**——同一个逻辑输入跨版本必须哈希一致，否则升级前
+ * 落库的旧分类行一旦再被 transition/verify（`verifyIntegrity` 会重算它）就会被判成脏行。
+ * 空 sha 与"当年没有这个键"因此在这里等价；非空 sha 是真正的另一次操作（另一张图），不抹。
+ */
+private fun String.withoutEmptyClassifySourceSha(input: ModelTaskInput): String =
+    if (input is ImagePipelineClassifyInput && input.sourceImageSha256 == null) {
+        replace(",\"sourceImageSha256\":null", "")
+    } else {
+        this
     }
 
 private fun String.withoutLegacyTutorStudentContext(input: ModelTaskInput): String =
@@ -1235,6 +1313,29 @@ private fun Char.isForbiddenModelTextCharacter(allowLineBreaks: Boolean): Boolea
         this == '\u200F' ||
         this in '\u202A'..'\u202E' ||
         this in '\u2066'..'\u2069'
+}
+
+/**
+ * 按**字符**（UTF-16 码元）预算截断，但不切碎代理对（KD-38 剩余项）。
+ *
+ * `String.take(n)` 以码元计数：第 n 个码元正好落在一个补充平面字符（emoji 等成对代理）**中间**时，
+ * 留下的末尾就是孤立高代理——渲染成「�」；而 [requireSafeModelText] 只拒 ISO 控制字符与双向控制符，
+ * 不拒孤立代理，于是它会一路进到快照/流式事件里。这里与 `DebugModelFailureCapture` 的
+ * `truncateToUtf8Bytes` 是同一保护思路（只少留、不制造半个字符），区别是预算单位是**字符**而不是
+ * 字节：边界落在成对代理中间时退一个码元（截到边界**前**），结果因此永远 `<= maxChars`——预算是
+ * 硬上界（[ModelGatewayEvent.Progress] 的 require 与 `ModelTaskSnapshot` 的 `<= MAX_MESSAGE_CHARS`
+ * 都按它判），宁可少留一个码元也不越界。
+ *
+ * 只保证**不制造**孤立代理：输入本身已带孤立代理（上游切坏的文本）时原样保留，不在这里"修复"。
+ *
+ * 公开给 core:data 的解析期截断点共用（KD-38 剩余项：`OpenAiModelResponseParsers` 的标签/锚词
+ * 截断与网关 `streamingPrefix` 原先直接用 `take(n)`）。
+ */
+fun String.takeBudgetChars(maxChars: Int): String {
+    if (maxChars <= 0) return ""
+    if (length <= maxChars) return this
+    val boundarySplitsPair = this[maxChars - 1].isHighSurrogate() && this[maxChars].isLowSurrogate()
+    return substring(0, if (boundarySplitsPair) maxChars - 1 else maxChars)
 }
 
 internal const val MAX_CAPTURE_SOURCE_DIMENSION = 20_000

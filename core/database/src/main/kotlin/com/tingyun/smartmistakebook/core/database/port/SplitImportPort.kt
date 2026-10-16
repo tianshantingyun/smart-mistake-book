@@ -53,6 +53,16 @@ interface SplitImportPort {
         occurredAtEpochMillis: Long,
     ): Boolean
 
+    /**
+     * 读侧对账（KD-39）：把「草稿已入库（COMMITTED）、台账仍 PENDING」的题补写成 SAVED（幂等），
+     * 返回本次补写的笔数。
+     *
+     * 与 [markSplitImportQuestionSavedByDraftId] 是同一判据的两种到达方式：那一条由提交侧主动
+     * 上报，这一条在提交与上报之间被杀进程之后，由台账的读路径（复核页装配、逐题续做、启动）
+     * 按库内事实自行追平。语义细节见 RoomSplitImportStore 的实现。
+     */
+    suspend fun reconcileCommittedQuestionDrafts(occurredAtEpochMillis: Long): Int
+
     /** 按草稿反查它所属的分题任务（含全部题）；不是切分来的草稿返回 null。 */
     suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord?
 

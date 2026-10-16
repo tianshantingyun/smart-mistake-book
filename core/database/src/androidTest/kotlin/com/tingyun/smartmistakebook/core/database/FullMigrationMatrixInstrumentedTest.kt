@@ -417,6 +417,181 @@ class FullMigrationMatrixInstrumentedTest {
     }
 
     /**
+     * AUD-09（v65→66）：新增 `clean_redraw_task`（净化作业台账：身份/状态/尝试次数/失败码）。
+     * 矩阵用的是空库，看不出"既有行还在不在、新表是不是空的"，这里用真库、真驱动实测：
+     * 1. 新表与两条索引按迁移建出来（列形状与实体声明逐位同形）；
+     * 2. 既有行一行不动（分类绑定行与候选行都还在——迁移不碰既有面）；
+     * 3. 新表**为空**——迁移不回填历史作业（"无台账"如实呈现，不编造历史重绘）；
+     * 4. 再开一次（同一库第二次经过迁移出口）形态与行不变——迁移幂等。
+     */
+    @Test
+    fun cleanRedrawTaskTableIsCreatedEmptyWithoutTouchingStoredRows() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave13-clean-redraw-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 65)
+            seedV65ClassificationRows(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v65 库迁到 66",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV66CleanRedrawShape(context, databaseName)
+
+            // 幂等：同一库再开一次（迁移已是 no-op）不得改变形态、既有行或新表的空态。
+            val reopened = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(STUDY_DATABASE_VERSION, reopened.readDatabaseVersion())
+            reopened.close()
+            inspectV66CleanRedrawShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 往导出的 65.json 建出来的库里写：一行真实 problem/revision + 一行分类绑定 + 一行分类候选
+     * （都是 v65 形态，带 KF-30/K5-B 的真值列）。显式关外键只用于少写父行占位——这里父行齐备。
+     */
+    private fun seedV65ClassificationRows(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$CLEAN_REDRAW_PROBLEM_ID', 'fp-wave13', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$CLEAN_REDRAW_REVISION_ID', '$CLEAN_REDRAW_PROBLEM_ID', 1, 'AUD-09 题', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave13-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_classification_binding` (
+                    `binding_id`, `problem_id`, `basis_revision_id`, `dimension`, `label_id`,
+                    `display_name`, `taxonomy_version`, `acceptance_source`,
+                    `accepted_at_epoch_millis`, `accepted_confidence`
+                ) VALUES (
+                    '$CLEAN_REDRAW_BINDING_ID', '$CLEAN_REDRAW_PROBLEM_ID',
+                    '$CLEAN_REDRAW_REVISION_ID',
+                    'KNOWLEDGE', 'math:knowledge:wave13', 'AUD-09 知识点',
+                    'local-policy-v1', 'LOCAL_POLICY_ACCEPTED',
+                    1700000000000, 0.93
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_classification_candidate` (
+                    `candidate_id`, `problem_id`, `basis_revision_id`, `dimension`, `label_id`,
+                    `display_name`, `confidence`, `accepted`, `acceptance_source`,
+                    `accepted_at_epoch_millis`
+                ) VALUES (
+                    '$CLEAN_REDRAW_CANDIDATE_ID', '$CLEAN_REDRAW_PROBLEM_ID',
+                    '$CLEAN_REDRAW_REVISION_ID',
+                    'KNOWLEDGE', 'math:knowledge:wave13-rejected', 'AUD-09 被拒候选',
+                    0.41, 0, 'LOCAL_POLICY_REJECTED',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：新表 + 两条索引在、既有行原样、新表为空（不回填历史作业）。 */
+    private fun inspectV66CleanRedrawShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertTrue(
+                "迁移必须把净化作业台账建出来",
+                "clean_redraw_task" in tableNames(connection),
+            )
+            assertEquals(
+                "列与实体声明逐位同形",
+                CLEAN_REDRAW_COLUMNS,
+                columnNames(connection, "clean_redraw_task"),
+            )
+            val indexStatement = connection.prepare(
+                "SELECT name FROM sqlite_master WHERE type = 'index' " +
+                    "AND tbl_name = 'clean_redraw_task'",
+            )
+            val indexNames = mutableSetOf<String>()
+            try {
+                while (indexStatement.step()) indexNames += indexStatement.getText(0)!!
+            } finally {
+                indexStatement.close()
+            }
+            assertEquals(
+                "两条查询索引一条不少（自动索引 sqlite_autoindex 除外）",
+                CLEAN_REDRAW_INDEX_NAMES,
+                indexNames.filterNot { it.startsWith("sqlite_autoindex") }.toSet(),
+            )
+            val countStatement = connection.prepare("SELECT COUNT(*) FROM `clean_redraw_task`")
+            try {
+                assertTrue(countStatement.step())
+                assertEquals("迁移不回填历史作业：新表必须是空的", 0L, countStatement.getLong(0))
+            } finally {
+                countStatement.close()
+            }
+            val bindingStatement = connection.prepare(
+                "SELECT `accepted_confidence` FROM `problem_classification_binding` " +
+                    "WHERE `binding_id` = '$CLEAN_REDRAW_BINDING_ID'",
+            )
+            try {
+                assertTrue("既有绑定行必须一行不丢", bindingStatement.step())
+                assertEquals("既有真值列原样保留", 0.93, bindingStatement.getDouble(0), 0.0)
+                assertFalse("旧行只有这一条", bindingStatement.step())
+            } finally {
+                bindingStatement.close()
+            }
+            val candidateStatement = connection.prepare(
+                "SELECT `confidence`, `accepted` FROM `problem_classification_candidate` " +
+                    "WHERE `candidate_id` = '$CLEAN_REDRAW_CANDIDATE_ID'",
+            )
+            try {
+                assertTrue("既有候选行必须一行不丢", candidateStatement.step())
+                assertEquals(
+                    "被拒候选的分数与权威原样保留",
+                    0.41,
+                    candidateStatement.getDouble(0),
+                    0.0,
+                )
+                assertEquals(
+                    "被拒标志不许被迁移改写",
+                    0L,
+                    candidateStatement.getLong(1),
+                )
+                assertFalse("旧行只有这一条", candidateStatement.step())
+            } finally {
+                candidateStatement.close()
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
+    /**
      * 往导出的 64.json 建出来的库里写：一行真实 problem/revision + 一行分类绑定（v64 形态，
      * 带 KF-30 的 `accepted_confidence` 真值）。显式关外键只用于少写父行占位——这里父行齐备。
      */
@@ -1449,6 +1624,29 @@ class FullMigrationMatrixInstrumentedTest {
         const val KF5B_PROBLEM_ID = "problem-wave12"
         const val KF5B_REVISION_ID = "revision-wave12"
         const val KF5B_BINDING_ID = "classification-wave12"
+
+        /** v65→66（AUD-09 净化作业台账）用例：新表列形状、索引名与旧行夹具值。 */
+        val CLEAN_REDRAW_COLUMNS = listOf(
+            "task_id",
+            "revision_id",
+            "source_asset_id",
+            "source_image_sha256",
+            "request_fingerprint",
+            "subject_id",
+            "status",
+            "attempt_count",
+            "last_failure_code",
+            "created_at_epoch_millis",
+            "updated_at_epoch_millis",
+        )
+        val CLEAN_REDRAW_INDEX_NAMES = setOf(
+            "index_clean_redraw_task_request_fingerprint",
+            "index_clean_redraw_task_status",
+        )
+        const val CLEAN_REDRAW_PROBLEM_ID = "problem-wave13"
+        const val CLEAN_REDRAW_REVISION_ID = "revision-wave13"
+        const val CLEAN_REDRAW_BINDING_ID = "classification-wave13"
+        const val CLEAN_REDRAW_CANDIDATE_ID = "classification-candidate-wave13"
 
         /** v59→60（L2 标题单源）用例：两列分叉的夹具值。 */
         const val TITLE_PROBLEM_ID = "problem-wave7"

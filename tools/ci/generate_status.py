@@ -31,6 +31,13 @@ OUTPUT = REPO / "docs" / "status.md"
 
 NOT_MEASURED = "NOT_MEASURED"
 
+# KD-40（2026-10-16 登记）：页面顶部的 sha 是**生成这一刻**读到的 HEAD，不是"本页所描述那一版
+# 代码的提交"——本批代码还没提交时本地生成，它指向的就是本批之前的提交（登记时实测指向
+# `a15aebb7`）。页面不把这一点说破，读者（包括下一批的自己）会把 sha 读成"这段描述对应的提交"。
+# 所以这句话与 sha/branch 印在同一处，且**不按 BOUND/UNBOUND 分支**：头部两种情况都会印出
+# sha/branch（UNBOUND 时是 declared sha 或 `unknown`），定义必须与绑定结果无关。
+RUN_CONTEXT_NOTE = "绑定时刻 = 生成时刻，非所描述代码的提交"
+
 MODULES = [
     ":core:database",
     ":core:data",
@@ -431,6 +438,11 @@ def run_context() -> tuple[dict[str, str], bool]:
     与"门全绿这个数字本身不携带对应哪版权威表"（kb_authority_shas 登记的那族）是同一个毛病。
     现在：CI 传入的 COMMIT_SHA/BRANCH 优先，并与 git HEAD 核对；读不到就显式写 `unknown`，
     绑定失败会经 [run_context_bound] 让 Overall 不判 PASS。
+
+    KD-40（2026-10-16 登记，本函数即修复落点）：绑定成立只说明"sha = 生成这一刻的 HEAD"，
+    不等于"sha = 本页所描述那一版代码的提交"——代码还没提交时本地生成（或 CI commit-back 之前
+    生成），页面顶部的 sha 就是**上一版**的提交。所以 [RUN_CONTEXT_NOTE] 与 sha/branch 一起
+    进页面头部；它不随绑定结果变化（见常量处的说明），页面上因此不存在"只有 sha、不解释"的读法。
     """
     declared_sha = os.environ.get("COMMIT_SHA", "").strip()
     declared_branch = os.environ.get("BRANCH", "").strip()
@@ -465,6 +477,7 @@ def run_context() -> tuple[dict[str, str], bool]:
             if bound
             else "UNBOUND（" + "；".join(notes) + "）—— Overall 不判 PASS"
         ),
+        "RUN_CONTEXT_NOTE": RUN_CONTEXT_NOTE,
     }
     return values, bound
 

@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.database.dao
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Embedded
 import androidx.room3.Insert
@@ -30,6 +31,21 @@ internal data class ReviewedKnowledgeCoverageRow(
 internal data class KnowledgeRecallCandidateRow(
     @Embedded val node: KnowledgeNodeEntity,
     val matchCount: Int,
+)
+
+/**
+ * 3E 全库扫描行：活跃知识点 → 在册绑定题（CHAR(31) 连接）+ 可出题材料组。
+ *
+ * `practiceUnitIds` 用 CHAR(31)（US，Unit Separator）连接而非默认逗号：id 是本系统自己生成的
+ * 不透明串（`practice-<sha256 前 16 字节 hex>` 等），分隔符一旦与 id 字符集重叠就会静默切错，
+ * 而 CHAR(31) 不在任何 id 的取值范围内——与 `ProblemDao.observeActiveMistakes` 的
+ * `GROUP_CONCAT(..., CHAR(31))` 同一约定。
+ */
+internal data class FullLibraryScanRow(
+    @ColumnInfo(name = "knowledge_node_id") val knowledgeNodeId: String,
+    val subject: String,
+    @ColumnInfo(name = "practice_unit_ids") val practiceUnitIds: String,
+    @ColumnInfo(name = "material_group_id") val materialGroupId: String?,
 )
 
 @Dao
@@ -230,6 +246,81 @@ internal interface ProblemOrganizationDao {
             "WHERE knowledge_node_id IN (:ids) AND status != 'RETIRED'",
     )
     suspend fun readActiveKnowledgeNodeIds(ids: Set<String>): List<String>
+
+    /**
+     * 3E 全库扫描的候选源：**活跃**知识点 → 它的**在册绑定题** + 可出题材料组。
+     *
+     * 三条判定逐条写死在这里（迁移/换库时只有这一处要改）：
+     * - **活跃**：`node.status != 'RETIRED'`（退役节点不进新工作，与
+     *   [readActiveKnowledgeNodeIds] 同一口径）。
+     * - **在册绑定题**：`practice_unit_knowledge_binding` 的题必须挂在 `error_book_entry`
+     *   （`status = 'ACTIVE'`）上——"有绑定题"指的是学生错题本里现在还在的题；同题多版本绑定
+     *   行先 `SELECT DISTINCT (node, unit)` 再聚合，去重后一个节点一条。
+     *   口径与 `MasteryOverviewDao.readSubjectMastery` 的 `bound_question_count` 一致。
+     *   **刻意不比 revision**：扫描是"发现薄弱点"的面，不是证据归属面；归属面"当前绑定"的
+     *   revision 口径在 [readCurrentKnowledgeBindingsForPracticeUnit]，两者不同源不互相覆盖。
+     * - **可出题材料**：非退役材料（`material.status != 'RETIRED'`）且**材料科目 = 节点科目**
+     *   （派发侧 `referencesFor(subject = entry.subject, ...)` 就是按科目取材料的，科目不符等于
+     *   排了却出不了题）；组取 `MIN(material_id)`，与
+     *   `StudyReviewPlannerService.quizAbleScopeNodes` 的"多份材料取字典序最小者"同义。
+     *   没有满足条件的材料 → `material_group_id` 为 NULL（**不在 SQL 里过滤掉这类节点**：
+     *   范围规则的单源在 core:domain 的 `fullLibraryScanCandidate`，读口只给事实）。
+     *
+     * 为什么不是"逐节点查一次"或复用 [readKnowledgeTeachingMaterialsForNodes]：那条读口按
+     * 节点集取材料（节点集上限 256、材料条数上限 `MAX_TEACHING_MATERIAL_CANDIDATES`），
+     * 全库规模下会先撞上限再截断——被截断的节点会被**误判成"没有材料"**（该排的没排），
+     * 而逐节点往返就是 N+1。这里一条查询取全，覆盖判定不做截断。
+     *
+     * `practice_unit_ids` 套 `COALESCE(..., '')`：INNER JOIN 已保证每组至少一行（实际非空），
+     * 显式兜底让"非空 String"这个 Kotlin 契约在 Room 的列可空性分析下也成立；读侧对空串本来就
+     * 按"没有绑定题"处理（`fullLibraryScanCandidate` 把空列表判成不在扫描范围）。
+     */
+    @Query(
+        """
+        SELECT
+            node.knowledge_node_id AS knowledge_node_id,
+            node.subject AS subject,
+            bound_units.practice_unit_ids AS practice_unit_ids,
+            material_group.material_group_id AS material_group_id
+        FROM knowledge_node AS node
+        INNER JOIN (
+            SELECT
+                bound.knowledge_node_id AS knowledge_node_id,
+                COALESCE(
+                    GROUP_CONCAT(bound.practice_unit_id, CHAR(31)),
+                    ''
+                ) AS practice_unit_ids
+            FROM (
+                SELECT DISTINCT
+                    binding.knowledge_node_id AS knowledge_node_id,
+                    binding.practice_unit_id AS practice_unit_id
+                FROM practice_unit_knowledge_binding AS binding
+                INNER JOIN error_book_entry AS entry
+                    ON entry.practice_unit_id = binding.practice_unit_id
+                   AND entry.status = 'ACTIVE'
+            ) AS bound
+            GROUP BY bound.knowledge_node_id
+        ) AS bound_units
+            ON bound_units.knowledge_node_id = node.knowledge_node_id
+        LEFT JOIN (
+            SELECT
+                material_binding.knowledge_node_id AS knowledge_node_id,
+                MIN(material.material_id) AS material_group_id
+            FROM knowledge_teaching_material_node_binding AS material_binding
+            INNER JOIN knowledge_teaching_material AS material
+                ON material.material_id = material_binding.material_id
+               AND material.status != 'RETIRED'
+            INNER JOIN knowledge_node AS material_node
+                ON material_node.knowledge_node_id = material_binding.knowledge_node_id
+               AND material_node.subject = material.subject
+            GROUP BY material_binding.knowledge_node_id
+        ) AS material_group
+            ON material_group.knowledge_node_id = node.knowledge_node_id
+        WHERE node.status != 'RETIRED'
+        ORDER BY node.knowledge_node_id
+        """,
+    )
+    suspend fun readFullLibraryScanNodes(): List<FullLibraryScanRow>
 
     /**
      * 按 id 读节点。**刻意不过滤 RETIRED**：这是历史解释路径（错题详情、掌握度列表要能

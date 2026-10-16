@@ -49,9 +49,10 @@ class KnowledgeQuizEvidenceIdentityInstrumentedTest {
             )
             assertTrue(first.evidenceRecorded)
 
-            // 同一次会话里的重试：同一身份、只晚 1 秒（同 KC 冷却内）。
-            // 门控这一轮判"冷却"，但**身份已经在库**——按身份重放不得留下第二笔、
-            // 也不得把已接受那行改写成拒绝行。
+            // 同一次会话里的重试：同一身份、只晚 1 秒。
+            // AUD-11 ①（2026-10-16）起小测通道不取同 KC 冷却，这一笔在**门控上是接受**——
+            // 于是真正被考的是身份层：按身份重放不得留下第二笔、也不得把已接受那行改写成
+            // 拒绝行（改前这一笔在门控被判冷却，验的是"被拒 + 身份去重"那条路，结论同一）。
             repository.submitKnowledgeQuizFeedback(
                 requestId = SESSION_ONE_REQUEST_ID,
                 knowledgeNodeId = NODE_ID,
@@ -112,10 +113,11 @@ class KnowledgeQuizEvidenceIdentityInstrumentedTest {
     @Test
     fun anAcceptedReplayOfOneIdentityNeverCollidesOnTheOutboxUniqueKeyOrLeavesASequenceGap() = runBlocking {
         withQuizFixture { database, repository ->
-            // 同一身份、隔了 13h（> 同 KC 冷却 12h）再写一次：这一次门控会**接受**，
-            // 于是真的走到 outbox 写入。改前：撞 event_kind+event_id 唯一键（ABORT）→
-            // 整个事务回滚 + 抛异常，学生看到"回写失败"而库里什么都没有。
-            // 现在：按身份静默 no-op——不写第二行、不推进学习序列。
+            // 同一身份、隔了 13h 再写一次：这一次门控会**接受**，于是真的走到 outbox 写入。
+            // 改前：撞 event_kind+event_id 唯一键（ABORT）→ 整个事务回滚 + 抛异常，学生看到
+            // "回写失败"而库里什么都没有。现在：按身份静默 no-op——不写第二行、不推进学习序列。
+            // （AUD-11 ① 起小测通道不再有 12h 冷却，13h 这个间隔对放行已无影响；用例保留原形状，
+            // 它钉的是 accepted 重放，与间隔无关。）
             repository.submitKnowledgeQuizFeedback(
                 requestId = SESSION_ONE_REQUEST_ID,
                 knowledgeNodeId = NODE_ID,
@@ -133,7 +135,7 @@ class KnowledgeQuizEvidenceIdentityInstrumentedTest {
                 conversationId = SESSION_ONE_CONVERSATION_ID,
             )
 
-            assertTrue("冷却已过，这一次门控是接受（才走得到 outbox 写入）", replay.evidenceRecorded)
+            assertTrue("小测通道的这笔写在门控上是接受（才走得到 outbox 写入）", replay.evidenceRecorded)
             val rows = database.readChatEvidenceByLearner(LEARNER_ID)
             assertEquals("按身份重放：账本里仍是一笔", 1, rows.size)
             assertEquals(DAY_ONE_AT, rows.single().created_at_epoch_millis)

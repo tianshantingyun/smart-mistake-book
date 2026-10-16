@@ -18,6 +18,7 @@ import com.tingyun.smartmistakebook.core.database.entity.KnowledgeTeachingMateri
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeTeachingMaterialNodeBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeReadPort
+import com.tingyun.smartmistakebook.core.database.port.FullLibraryScanNodeRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
 import kotlinx.coroutines.CancellationException
@@ -31,6 +32,13 @@ internal const val PSEUDO_NODE_DISPLAY_NAME = "未归类知识点"
 internal const val PSEUDO_TAXONOMY_VERSION = "pseudo-node-v1"
 
 private const val KNOWLEDGE_NODE_QUERY_CHUNK_SIZE = 400
+
+/**
+ * 全库扫描行的绑定题连接符（CHAR(31)，US）。**与 `ProblemOrganizationDao.readFullLibraryScanNodes` 里
+ * 的 `CHAR(31)` 必须成对**：SQL 是字面量、Kotlin 是这个常量，改一处不同步就会把 id 切错。
+ * 选 CHAR(31) 而不是逗号：实践单元 id 是不透明串，分隔符落在 id 字符集里就可能静默切错。
+ */
+private const val FULL_LIBRARY_SCAN_UNIT_SEPARATOR = "\u001F"
 
 /** 稠密腿（可选）的日志标签。 */
 private const val TAG = "KnowledgeRecall"
@@ -292,6 +300,25 @@ internal class RoomKnowledgeBaseStore(
             }
             .toSet()
     }
+
+    /**
+     * 3E 全库扫描候选源：一条查询取回「活跃知识点 → 在册绑定题 + 可出题材料组」。
+     *
+     * 读到的行**直接**映射，不在这一层做"有绑定题 ∧ 材料可出题"的范围过滤：范围规则的单源在
+     * core:domain 的 `fullLibraryScanCandidate`（读口给事实，领域定范围）。连接符与写入侧同一
+     * 常量 [FULL_LIBRARY_SCAN_UNIT_SEPARATOR]（CHAR(31)），不靠"id 里不会有逗号"这种假设。
+     */
+    suspend fun readFullLibraryScanNodes(): List<FullLibraryScanNodeRecord> =
+        database.problemOrganizationDao().readFullLibraryScanNodes().map { row ->
+            FullLibraryScanNodeRecord(
+                knowledgeNodeId = row.knowledgeNodeId,
+                subject = row.subject,
+                boundPracticeUnitIds = row.practiceUnitIds
+                    .split(FULL_LIBRARY_SCAN_UNIT_SEPARATOR)
+                    .filter(String::isNotBlank),
+                materialGroupId = row.materialGroupId,
+            )
+        }
 
     suspend fun readKnowledgeSourcesByIds(ids: Set<String>): List<KnowledgeSourceSeedRecord> {
         if (ids.isEmpty()) return emptyList()

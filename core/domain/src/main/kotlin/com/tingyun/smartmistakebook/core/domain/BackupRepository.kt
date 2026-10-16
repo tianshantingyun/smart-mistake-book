@@ -53,11 +53,31 @@ data class RestoreReceipt(
     val assetCount: Int,
     val fileCount: Int,
     val restartRequired: Boolean = true,
+    /**
+     * 设置载荷这次恢复落到本机的结果（6C-1）。[RestoreSettingsOutcome.WRITE_FAILED]
+     * 表示**部分恢复**：数据库已经切换到备份数据且保持一致，只有设置没写进去。
+     */
+    val settings: RestoreSettingsOutcome = RestoreSettingsOutcome.NOT_IN_ARCHIVE,
 ) {
     init {
         require(databaseSchemaVersion > 0)
         require(problemCount >= 0 && assetCount >= 0 && fileCount > 0)
     }
+}
+
+/** 恢复时本机设置的处置结果。 */
+enum class RestoreSettingsOutcome {
+    /** 备份里没有设置（v1 旧包，或成包时没装设置口）：本机设置原样不动。 */
+    NOT_IN_ARCHIVE,
+
+    /** 备份里的设置已写入本机 DataStore。 */
+    APPLIED,
+
+    /**
+     * 备份里有设置但写入失败：数据库已切到备份数据，设置仍是恢复前那份。
+     * 不回滚数据库——一致性已经达成，回滚只会把用户的数据再翻一遍。
+     */
+    WRITE_FAILED,
 }
 
 data class DeleteAllDataReceipt(
@@ -96,6 +116,13 @@ data class BackupManifestSummary(
     val problemCount: Int,
     val assetCount: Int,
     val fileCount: Int,
+    /** 成包时的应用版本（v2 起的版本戳）；v1 旧包缺席，为 null。 */
+    val appVersionName: String? = null,
+    val appVersionCode: Long? = null,
+    /** 成包时那份库的随包内容版本；未知为 null。 */
+    val contentVersion: String? = null,
+    /** 包内是否带设置（`settings.json`）；v1 旧包为 false。 */
+    val hasSettings: Boolean = false,
 )
 
 interface BackupRepository {

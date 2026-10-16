@@ -160,6 +160,24 @@ object StudyDbValue {
         const val PENDING = "PENDING"
     }
 
+    /**
+     * `learner_chat_evidence.source_kind` 的落库值：证据来自哪条写通道。
+     *
+     * 两个值此前散在两处 Kotlin 字符串里（写口 `KnowledgeEvidenceChannel` 的枚举实参与
+     * 本表 KDoc）；冷却查询/校准分桶按 `source_kind` 过滤与分组（AUD-11 ①②）后，这个字符串
+     * 成了 SQL 谓词的一部分——再留副本就会出现"写着一种、查的是另一种"的静默错配
+     * （行照样落库，但冷却永远查不到、校准永远分不出桶）。故收到本表：
+     * 写入侧（`KnowledgeEvidenceChannel.sourceKind`）与查询侧（DAO 的 `:sourceKind` 实参）
+     * 引用同一常量。
+     */
+    object ChatEvidenceSourceKind {
+        /** 模型讲题通道（MASTERY_UPDATE）。 */
+        const val MODEL_CHAT = "MODEL_CHAT"
+
+        /** 知识点测验客观作答通道（KNOWLEDGE_QUIZ）。 */
+        const val KNOWLEDGE_QUIZ = "KNOWLEDGE_QUIZ"
+    }
+
     object ReviewStatus {
         const val PLANNED = "PLANNED"
         const val IN_PROGRESS = "IN_PROGRESS"

@@ -20,8 +20,17 @@ import java.util.zip.InflaterInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
+/**
+ * 归档清单。`formatVersion` 1→2（6C-1）：
+ *   - v1：没有 settings、没有版本戳。缺省读回 null/false，旧包行为不变；
+ *   - v2：现在唯一写出的形态。新增版本戳（[SmbkArchiveMetadata]）与
+ *     `hasSettings`/`settingsDigest`（设置载荷 `settings.json` 的存在性与摘要）。
+ *
+ * 比 [SmbkManifest.FORMAT_VERSION] 新的归档在 [SmbkArchiveCodec.finalizeValidation] 里可读
+ * 拒绝：清单是"这个包该怎么读"的自述，读不懂就不许碰设备上的数据。
+ */
 @Serializable
-internal data class SmbkManifestV1(
+internal data class SmbkManifest(
     @SerialName("formatVersion")
     val formatVersion: Int = FORMAT_VERSION,
     @SerialName("databaseSchemaVersion")
@@ -34,6 +43,23 @@ internal data class SmbkManifestV1(
     val assetCount: Int,
     @SerialName("hashAlgorithm")
     val hashAlgorithm: String = "SHA-256",
+    /** 成包时的应用版本；v1 旧包缺席，读作 null。 */
+    @SerialName("appVersionName")
+    val appVersionName: String? = null,
+    @SerialName("appVersionCode")
+    val appVersionCode: Long? = null,
+    /**
+     * 成包时**那份快照库**的随包内容版本（`content_install_state.content_version`）。
+     * 未知时是 null（不是空串）：诊断栏只陈述"当时读到的是什么"。
+     */
+    @SerialName("contentVersion")
+    val contentVersion: String? = null,
+    /** 包内是否有 `settings.json`。与条目本身必须一致，否则在交换前拒绝。 */
+    @SerialName("hasSettings")
+    val hasSettings: Boolean = false,
+    /** `settings.json` 的 SHA-256；[hasSettings] 为真时必填。 */
+    @SerialName("settingsDigest")
+    val settingsDigest: String? = null,
     @SerialName("files")
     val files: List<SmbkFileRecord>,
     /**
@@ -48,9 +74,23 @@ internal data class SmbkManifestV1(
     val referencedAssets: List<String> = emptyList(),
 ) {
     companion object {
-        const val FORMAT_VERSION = 1
+        /** 写出的格式版本。 */
+        const val FORMAT_VERSION = 2
+
+        /** 仍可读的最旧格式版本：v1 旧包没有设置与版本戳，读作缺省值。 */
+        const val MIN_READABLE_FORMAT_VERSION = 1
     }
 }
+
+/**
+ * 归档的版本戳（诊断用）：成包时刻的应用版本与随包内容版本。全部可空——未知就写 null，
+ * 不用假值填。恢复不看这些字段（它们只回答"这个包从哪儿来"），所以 v1 旧包缺席也无碍。
+ */
+internal data class SmbkArchiveMetadata(
+    val appVersionName: String? = null,
+    val appVersionCode: Long? = null,
+    val contentVersion: String? = null,
+)
 
 @Serializable
 internal data class SmbkFileRecord(
@@ -104,11 +144,21 @@ internal object SmbkArchiveCodec {
     private const val ASSET_PREFIX = "assets/"
     private const val CHECKSUM_ENTRY = "checksums.sha256"
 
+    /** 包内设置载荷的条目名；成包、解包与恢复三处都取这一处，不各写一遍字符串。 */
+    internal const val SETTINGS_ENTRY = "settings.json"
+
     private const val LOCAL_HEADER_SIG = 0x04034b50L
     private const val CENTRAL_HEADER_SIG = 0x02014b50L
     private const val ZIP64_EOCD_LOCATOR_SIG = 0x07064b50L
 
-    private val json = Json { ignoreUnknownKeys = false }
+    /**
+     * `encodeDefaults`：清单必须**显式**写出 `formatVersion` 与 `hasSettings`——
+     * 这两项靠读侧默认值去猜，就没人能从包里直接看出"它是第几版、有没有设置"。
+     */
+    private val json = Json {
+        ignoreUnknownKeys = false
+        encodeDefaults = true
+    }
 
     /**
      * Writes an archive from an already-snapshotted database.
@@ -116,6 +166,10 @@ internal object SmbkArchiveCodec {
      * [referencedAssets] 是**快照库引用的资产集合**（与 [assets] 同一批文件），
      * [problemCount] 也必须是同一份快照库的数。全部被引用的资产都必须在 [assets] 里：
      * 两边漂开时成包失败，而不是写出一份"库引用了包内没有的图"的归档（AUD-05）。
+     *
+     * 成包永远写 `formatVersion` 2；[metadata] 是版本戳，[settings] 为 null 时写出
+     * `hasSettings=false` 且不带 `settings.json`（只该发生在测试或没装配设置口的装配上——
+     * 生产装配两者都在，见 `BackupRepositoryFactory`）。
      */
     fun create(
         archive: OutputStream,
@@ -125,6 +179,8 @@ internal object SmbkArchiveCodec {
         databaseSchemaVersion: Int,
         problemCount: Int,
         createdAtEpochMillis: Long,
+        metadata: SmbkArchiveMetadata = SmbkArchiveMetadata(),
+        settings: SmbkSettingsDocumentV1? = null,
     ): BackupReceipt {
         require(database.isFile) { "Database backup source is missing" }
         assets.forEach { asset ->
@@ -149,6 +205,14 @@ internal object SmbkArchiveCodec {
             sha256 = sha256(database),
             byteSize = database.length(),
         )
+        val settingsBytes = settings?.let(SmbkSettingsCodec::encode)
+        val settingsRecord = settingsBytes?.let { bytes ->
+            SmbkFileRecord(
+                path = SETTINGS_ENTRY,
+                sha256 = sha256(bytes),
+                byteSize = bytes.size.toLong(),
+            )
+        }
         val assetRecords = assets.map { asset ->
             SmbkFileRecord(
                 path = "$ASSET_PREFIX${asset.name}",
@@ -156,12 +220,17 @@ internal object SmbkArchiveCodec {
                 byteSize = asset.length(),
             )
         }
-        val manifest = SmbkManifestV1(
+        val manifest = SmbkManifest(
             databaseSchemaVersion = databaseSchemaVersion,
             createdAtEpochMillis = createdAtEpochMillis,
             problemCount = problemCount,
             assetCount = assetRecords.size,
-            files = listOf(databaseRecord) + assetRecords,
+            appVersionName = metadata.appVersionName,
+            appVersionCode = metadata.appVersionCode,
+            contentVersion = metadata.contentVersion,
+            hasSettings = settingsRecord != null,
+            settingsDigest = settingsRecord?.sha256,
+            files = listOfNotNull(databaseRecord, settingsRecord) + assetRecords,
             referencedAssets = referencedPaths,
         )
         val checksumLines = manifest.files.joinToString(separator = "\n") { record ->
@@ -170,10 +239,11 @@ internal object SmbkArchiveCodec {
 
         ZipOutputStream(archive).use { zip ->
             zip.putNextEntry(ZipEntry(MANIFEST_ENTRY))
-            zip.write(json.encodeToString(SmbkManifestV1.serializer(), manifest).toByteArray())
+            zip.write(json.encodeToString(SmbkManifest.serializer(), manifest).toByteArray())
             zip.closeEntry()
 
             copyEntry(zip, DATABASE_ENTRY, database)
+            settingsBytes?.let { bytes -> copyEntry(zip, SETTINGS_ENTRY, bytes) }
             assets.forEach { asset ->
                 copyEntry(zip, "$ASSET_PREFIX${asset.name}", asset)
             }
@@ -189,7 +259,7 @@ internal object SmbkArchiveCodec {
             problemCount = problemCount,
             assetCount = assetRecords.size,
             fileCount = manifest.files.size,
-            totalBytes = database.length() + assets.sumOf(File::length),
+            totalBytes = database.length() + (settingsBytes?.size ?: 0) + assets.sumOf(File::length),
         )
     }
 
@@ -229,13 +299,26 @@ internal object SmbkArchiveCodec {
                 val sizes = mutableMapOf<String, Long>()
                 var manifestText: String? = null
                 var checksumText: String? = null
+                var settingsText: String? = null
                 var totalDecompressed = 0L
                 records.forEach { record ->
                     when (record.name) {
                         MANIFEST_ENTRY -> manifestText = expandText(raf, record, limits)
                         CHECKSUM_ENTRY -> checksumText = expandText(raf, record, limits)
                         else -> {
-                            val result = expandEntry(raf, record, target = null, limits = limits)
+                            val keepPlain = record.name == SETTINGS_ENTRY
+                            if (keepPlain &&
+                                record.uncompressedSize > limits.maxManifestChars.toLong() * 4L
+                            ) {
+                                throw ArchiveIntegrityException("${record.name} 内容过长")
+                            }
+                            val result = expandEntry(
+                                raf,
+                                record,
+                                target = null,
+                                limits = limits,
+                                keepPlain = keepPlain,
+                            )
                             totalDecompressed = checkTotalBudget(
                                 totalDecompressed,
                                 result.bytesWritten,
@@ -243,10 +326,13 @@ internal object SmbkArchiveCodec {
                             )
                             digests[record.name] = result.sha256Hex
                             sizes[record.name] = result.bytesWritten
+                            if (keepPlain) {
+                                settingsText = String(result.plain ?: ByteArray(0), Charsets.UTF_8)
+                            }
                         }
                     }
                 }
-                finalizeValidation(manifestText, checksumText, digests, sizes)
+                finalizeValidation(manifestText, checksumText, settingsText, digests, sizes)
             }
         } catch (failure: ArchiveIntegrityException) {
             BackupValidation.Invalid(failure.message.orEmpty())
@@ -279,6 +365,7 @@ internal object SmbkArchiveCodec {
             staged.forEach { file -> file.delete() }
             File(destinationDir, "assets").listFiles().orEmpty().forEach { it.delete() }
             File(destinationDir, DATABASE_ENTRY).delete()
+            File(destinationDir, SETTINGS_ENTRY).delete()
         }
         return try {
             val spooled = spool(archive, File(destinationDir, ".archive.tmp"), limits)
@@ -289,6 +376,7 @@ internal object SmbkArchiveCodec {
                 val sizes = mutableMapOf<String, Long>()
                 var manifestText: String? = null
                 var checksumText: String? = null
+                var settingsText: String? = null
                 var totalDecompressed = 0L
                 records.forEach { record ->
                     when (record.name) {
@@ -299,7 +387,19 @@ internal object SmbkArchiveCodec {
                                 ?: throw ArchiveIntegrityException(
                                     "备份包含非法路径 ${record.name}",
                                 )
-                            val result = expandEntry(raf, record, target, limits)
+                            val keepPlain = record.name == SETTINGS_ENTRY
+                            if (keepPlain &&
+                                record.uncompressedSize > limits.maxManifestChars.toLong() * 4L
+                            ) {
+                                throw ArchiveIntegrityException("${record.name} 内容过长")
+                            }
+                            val result = expandEntry(
+                                raf,
+                                record,
+                                target,
+                                limits,
+                                keepPlain = keepPlain,
+                            )
                             staged += target
                             totalDecompressed = checkTotalBudget(
                                 totalDecompressed,
@@ -308,10 +408,13 @@ internal object SmbkArchiveCodec {
                             )
                             digests[record.name] = result.sha256Hex
                             sizes[record.name] = result.bytesWritten
+                            if (keepPlain) {
+                                settingsText = String(result.plain ?: ByteArray(0), Charsets.UTF_8)
+                            }
                         }
                     }
                 }
-                finalizeValidation(manifestText, checksumText, digests, sizes)
+                finalizeValidation(manifestText, checksumText, settingsText, digests, sizes)
             }
         } catch (failure: ArchiveIntegrityException) {
             cleanupStaging()
@@ -690,6 +793,7 @@ internal object SmbkArchiveCodec {
     private fun finalizeValidation(
         manifestText: String?,
         checksumText: String?,
+        settingsText: String?,
         stagedDigests: Map<String, String>,
         stagedSizes: Map<String, Long>,
     ): BackupValidation {
@@ -698,12 +802,15 @@ internal object SmbkArchiveCodec {
             return BackupValidation.Invalid("manifest 内容过长")
         }
         val parsed = try {
-            json.decodeFromString(SmbkManifestV1.serializer(), text)
+            json.decodeFromString(SmbkManifest.serializer(), text)
         } catch (failure: Exception) {
             return BackupValidation.Invalid("manifest 解析失败：${failure.message.orEmpty()}")
         }
-        if (parsed.formatVersion != SmbkManifestV1.FORMAT_VERSION) {
+        if (parsed.formatVersion > SmbkManifest.FORMAT_VERSION) {
             return BackupValidation.Invalid("备份格式版本过新，暂不支持恢复")
+        }
+        if (parsed.formatVersion < SmbkManifest.MIN_READABLE_FORMAT_VERSION) {
+            return BackupValidation.Invalid("备份格式版本过旧，暂不支持恢复")
         }
         if (parsed.hashAlgorithm != "SHA-256") {
             return BackupValidation.Invalid("不支持的校验算法")
@@ -725,6 +832,15 @@ internal object SmbkArchiveCodec {
         }
         if (checksums != parsed.files.associate { it.path to it.sha256 }) {
             return BackupValidation.Invalid("checksums.sha256 与 manifest 不一致")
+        }
+        val settingsProblem = settingsRejection(
+            declaredHasSettings = parsed.hasSettings,
+            declaredDigest = parsed.settingsDigest,
+            settingsText = settingsText,
+            stagedDigests = stagedDigests,
+        )
+        if (settingsProblem != null) {
+            return BackupValidation.Invalid(settingsProblem)
         }
         // AUD-05：包声明的引用集合必须逐条在包内（缺图在交换前就拒绝，不给"恢复到一半
         // 才发现图没了"的机会）。旧包没有这张清单，默认空表——不因此改变旧包的既有行为。
@@ -753,10 +869,56 @@ internal object SmbkArchiveCodec {
                 problemCount = parsed.problemCount,
                 assetCount = parsed.assetCount,
                 fileCount = parsed.files.size,
+                appVersionName = parsed.appVersionName,
+                appVersionCode = parsed.appVersionCode,
+                contentVersion = parsed.contentVersion,
+                hasSettings = parsed.hasSettings,
             ),
             checkedFileCount = parsed.files.size,
             totalBytes = parsed.files.sumOf { it.byteSize },
         )
+    }
+
+    /**
+     * `settings.json` 的存在性、摘要与兼容判定；返回可读拒因，null 表示通过。
+     *
+     *   - `hasSettings` 与包内条目必须一致：声明有却没有，就是把"设置丢了"伪装成旧包；
+     *     声明没有却带着，就是一份读侧无法解释的载荷——两种都在交换前拒绝；
+     *   - 摘要（manifest 的 `settingsDigest`）必须与载荷的 SHA-256 逐位一致：清单里的
+     *     存在性声明与字节不是一回事，只对存在性不对字节，改过的载荷还是能过；
+     *   - 版本与领域值域用 [SmbkSettingsCodec.rejectionReasonFor]：读不懂或值越界的设置
+     *     必须在**交换前**拒绝，否则只能等写 DataStore 时才失败——那是半恢复。
+     */
+    private fun settingsRejection(
+        declaredHasSettings: Boolean,
+        declaredDigest: String?,
+        settingsText: String?,
+        stagedDigests: Map<String, String>,
+    ): String? {
+        val stagedDigest = stagedDigests[SETTINGS_ENTRY]
+        if (!declaredHasSettings) {
+            if (stagedDigest != null || declaredDigest != null) {
+                return "settings.json 与 manifest 的 hasSettings 不一致"
+            }
+            return null
+        }
+        if (stagedDigest == null) {
+            return "备份声明包含设置但缺少 settings.json"
+        }
+        if (declaredDigest.isNullOrEmpty()) {
+            return "settings.json 缺少摘要"
+        }
+        if (declaredDigest != stagedDigest) {
+            return "settings.json 校验失败"
+        }
+        val settingsJson = settingsText
+            ?: return "备份声明包含设置但缺少 settings.json"
+        val document = try {
+            SmbkSettingsCodec.decode(settingsJson)
+        } catch (failure: Exception) {
+            return "settings.json 解析失败：${failure.message.orEmpty()}"
+        }
+        return SmbkSettingsCodec.rejectionReasonFor(document)
     }
 
     // ------------------------------------------------------------------
@@ -801,12 +963,19 @@ internal object SmbkArchiveCodec {
         zip.closeEntry()
     }
 
+    private fun copyEntry(zip: ZipOutputStream, path: String, bytes: ByteArray) {
+        zip.putNextEntry(ZipEntry(path))
+        zip.write(bytes)
+        zip.closeEntry()
+    }
+
     private fun destinationFile(
         destinationDir: File,
         entryName: String,
     ): File? {
         val normalized = entryName.replace('\\', '/')
         if (normalized == DATABASE_ENTRY) return File(destinationDir, DATABASE_ENTRY)
+        if (normalized == SETTINGS_ENTRY) return File(destinationDir, SETTINGS_ENTRY)
         if (!normalized.startsWith(ASSET_PREFIX)) return null
         val assetName = normalized.removePrefix(ASSET_PREFIX)
         if (
@@ -831,6 +1000,10 @@ internal object SmbkArchiveCodec {
         }
         return digest.digest().joinToString("") { byte -> "%02x".format(byte) }
     }
+
+    private fun sha256(bytes: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(bytes)
+            .joinToString("") { byte -> "%02x".format(byte) }
 
     private const val DEFAULT_BUFFER_SIZE = 8_192
     private const val MAX_ENTRY_NAME_LENGTH = 4_096

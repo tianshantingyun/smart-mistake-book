@@ -368,6 +368,9 @@ fun tutorToolRefusalText(errorKind: String): String = when {
             "POSITIVE_WITHOUT_EVIDENCE_ANCHOR",
             -> "没有能在这次对话里核对到的依据，没有计入掌握度"
 
+            // AUD-11 ① 复核（2026-10-16）：冷却只约束模型通道，故这里的"刚记过一次"必然是
+            // 本通道（讲题）自己更早的 accepted 记录——别的通道（知识点小测）的写不再是这条
+            // 拒因的来源。文案因此与本通道的真实成因一致，不改（改前它也从不声称"学生复习过"）。
             "SAME_KC_IN_COOLDOWN" -> "这个知识点刚记过一次，没有重复计入"
             "CONVERSATION_QUOTA_EXHAUSTED" -> "这次会话里的记录已经够多了，没有继续计入"
             "LEARNER_WINDOW_QUOTA_EXHAUSTED" -> "最近的记录已经够多了，没有继续计入"

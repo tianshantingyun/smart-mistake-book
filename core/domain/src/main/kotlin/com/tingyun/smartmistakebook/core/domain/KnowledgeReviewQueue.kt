@@ -82,18 +82,6 @@ data class KnowledgeReviewQueueEntry(
 }
 
 /**
- * 生成今天知识点复习队列（spec dual-review-entry §3.2）：对候选知识点用与错题排程同构的
- * 打分（[KnowledgeNodeScorer.scoreKnowledgeNode]）打分，再按**同一套**机制取队——时间预算 +
- * 多样性（同讲解材料/同科目软降权）+ 难度档轮换（[KnowledgeNodeScorer.DIFFICULTY_CYCLE]
- * 平局时轮换）。已掌握且新鲜的知识点被 scoreKnowledgeNode 跳过（不进队列）。纯函数，不依赖 DB/UI。
- *
- * 与错题排程的一处刻意差异：多样性只做**软降权**、不做"同族已用即停"的硬约束。知识点常共享
- * 一份讲解材料，硬约束会在共用材料时直接截断队列（学生永远只复习到第一个点）。
- *
- * 消灭的失败：知识点复习缺少"今天复习哪些点、按什么顺序"的确定队列，导致 UI 无从排程，
- * 或连续出同一份材料/同一科目的题，跨科交错与题目多样性失效。
- */
-/**
  * 知识点 → 其绑定题目的预测检索概率（取该点所有已知 FSRS 记忆中的**最小** R）。
  *
  * 用途：知识点自身没有记忆痕迹，其"是否快要忘"只能由承载它的题目来回答。取最小值是保守
@@ -134,6 +122,29 @@ fun knowledgeRecallRiskByNode(
 /** W0-4：日长单源在 `AlgorithmConstants.DAY_MILLIS`（本文件要 Double，故在此别名一次）。 */
 private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
 
+/**
+ * 生成今天知识点复习队列（spec dual-review-entry §3.2）：对候选知识点用与错题排程同构的
+ * 打分（[KnowledgeNodeScorer.scoreKnowledgeNode]）打分，再按**同一套**机制取队——时间预算 +
+ * 多样性（同讲解材料/同科目软降权）+ 难度档轮换（[KnowledgeNodeScorer.DIFFICULTY_CYCLE]
+ * 平局时轮换）。已掌握且新鲜的知识点被 scoreKnowledgeNode 跳过（不进队列）。纯函数，不依赖 DB/UI。
+ *
+ * **两个范围档**（3E 全库薄弱点扫描，2026-10-16 裁定「第二档 = 每日 10 个知识点」）：
+ * - [candidates] 第一档 = 今日错题复习队列的题绑定知识点（`extractReviewKnowledgeScope`）；
+ * - [fullLibraryScanCandidates] 第二档 = 全库「有绑定题的活跃知识点 ∩ 材料可出题」**减去**今日队列
+ *   后的候选（范围条件由 [fullLibraryScanCandidate] 落地，减法由调用方做）。
+ *
+ * 第二档**先**按分取前 [fullLibraryScanDailyCap] 个（F17 配额；平局按节点 id 定序，纯函数确定），
+ * 再与第一档**并集**（同一节点两档都有时以第一档为准），最后是同一套时间预算（F8 预算）+ 多样性
+ * 取队。因此最终队列里第二档的条目只少不多：名额封的是"进并集的增量"，不封今日队列那一档
+ * （"全库扫描不受今日队列限制"，反过来扫描也不该把今日队列挤掉）。
+ *
+ * 与错题排程的一处刻意差异：多样性只做**软降权**、不做"同族已用即停"的硬约束。知识点常共享
+ * 一份讲解材料，硬约束会在共用材料时直接截断队列（学生永远只复习到第一个点）。
+ *
+ * 消灭的失败：知识点复习缺少"今天复习哪些点、按什么顺序"的确定队列，导致 UI 无从排程，
+ * 或连续出同一份材料/同一科目的题，跨科交错与题目多样性失效；以及范围锁死今日错题并集时，
+ * 已经掌握不住的知识点只要今天错题没碰到就永远捞不回来（3E 的原始缺口）。
+ */
 fun selectKnowledgeReviewQueue(
     scorer: KnowledgeNodeScorer,
     candidates: List<KnowledgeReviewCandidate>,
@@ -144,18 +155,30 @@ fun selectKnowledgeReviewQueue(
      * 无已知先修）。先修未恢复的节点按有效稳定度压制、不被跳过——延续"未知 ≠ 缺失"约定。
      */
     prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
+    /** 3E 第二档候选（全库扫描）。默认空 = 单档行为逐位不变（既有调用方与用例不受影响）。 */
+    fullLibraryScanCandidates: List<KnowledgeReviewCandidate> = emptyList(),
+    /** 第二档每日名额上限（F17 配额；取值出处见 [FULL_LIBRARY_SCAN_DAILY_CAP]）。 */
+    fullLibraryScanDailyCap: Int = FULL_LIBRARY_SCAN_DAILY_CAP,
 ): List<KnowledgeNodeScorer.ScoredKnowledgeNode> {
     require(timeBudgetSeconds >= 0) { "Knowledge review time budget must not be negative" }
-    val pool = candidates
+    require(fullLibraryScanDailyCap >= 0) { "Full-library scan daily cap must not be negative" }
+    val scannedPicks = fullLibraryScanCandidates
         .mapNotNull { candidate ->
-            scorer.scoreKnowledgeNode(
-                knowledgeNodeId = candidate.knowledgeNodeId,
-                state = candidate.state,
-                now = now,
-                recallRisk = candidate.recallRisk,
-                prerequisiteStabilityDays =
-                    prerequisiteStabilityDaysByNode[candidate.knowledgeNodeId].orEmpty(),
-            )?.let { scored -> scored to candidate }
+            scoredCandidateOf(scorer, candidate, now, prerequisiteStabilityDaysByNode)
+        }
+        .sortedWith(
+            compareByDescending<Pair<KnowledgeNodeScorer.ScoredKnowledgeNode, KnowledgeReviewCandidate>> {
+                it.first.score
+            }.thenBy { it.first.knowledgeNodeId },
+        )
+        .take(fullLibraryScanDailyCap)
+        .map { (_, candidate) -> candidate }
+    // 并集：同 id 以第一档（今日队列）那一条为准，且不出现重复节点
+    // （KnowledgeReviewSessionPlan 拒绝重复 id）。
+    val pool = (candidates + scannedPicks)
+        .distinctBy(KnowledgeReviewCandidate::knowledgeNodeId)
+        .mapNotNull { candidate ->
+            scoredCandidateOf(scorer, candidate, now, prerequisiteStabilityDaysByNode)
         }
         .toMutableList()
     var remainingSeconds = timeBudgetSeconds
@@ -191,6 +214,22 @@ fun selectKnowledgeReviewQueue(
     }
     return selected
 }
+
+/** 单个候选的打分（两档共用同一出口，避免"两个档各写一遍打分参数"分叉）。 */
+private fun scoredCandidateOf(
+    scorer: KnowledgeNodeScorer,
+    candidate: KnowledgeReviewCandidate,
+    now: Long,
+    prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>>,
+): Pair<KnowledgeNodeScorer.ScoredKnowledgeNode, KnowledgeReviewCandidate>? =
+    scorer.scoreKnowledgeNode(
+        knowledgeNodeId = candidate.knowledgeNodeId,
+        state = candidate.state,
+        now = now,
+        recallRisk = candidate.recallRisk,
+        prerequisiteStabilityDays =
+            prerequisiteStabilityDaysByNode[candidate.knowledgeNodeId].orEmpty(),
+    )?.let { scored -> scored to candidate }
 
 /** 同讲解材料/同科目重复出现的软降权；权重与错题排程的 family/source 降权同量级。 */
 private fun diversityPenalty(

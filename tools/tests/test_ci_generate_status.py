@@ -9,6 +9,10 @@
 3. `JOB_STATUS` 缺省 `"success"`——本地跑（没有这个环境变量）也能把 Overall 抬成 PASS；
 4. `COMMIT_SHA`/`BRANCH` 写死 `local`/`unknown`——报表不携带"对应哪个提交"的信息，
    而门全绿这件事本身从来就不携带它。
+5. 绑定成立 ≠ 描述对应（KD-40，2026-10-16 登记）：本地生成（或 CI commit-back 之前生成）时
+   `BOUND · sha <生成时刻的 HEAD>` 指的是**上一版**提交，而页面只印 sha、不解释——读者会把 sha
+   读成"这段描述对应的提交"。所以 `RUN_CONTEXT_NOTE` 必须和 sha/branch 一起进页面头部，
+   且不随绑定结果变化。
 
 这里的断言全部走**三值**口径：测到且绿 = True，测到且红 = False，没测到 = None；
 Overall 只在全绿且全部测到时才是 PASS。
@@ -23,6 +27,10 @@ from pathlib import Path
 from unittest import mock
 
 from ci import generate_status as status
+
+# KD-40 的那句话钉成字面量：它的唯一职责就是"sha 是生成时刻的绑定，不是本页所描述代码的提交"。
+# 改文案必须同时改测试——否则页面会悄悄退回"只有 sha、不解释"的读法。
+BINDING_NOTE = "绑定时刻 = 生成时刻，非所描述代码的提交"
 
 
 def touch(path: Path, stamp: float) -> None:
@@ -185,6 +193,7 @@ class RunContextTest(unittest.TestCase):
         self.assertEqual("a" * 40, values["COMMIT_SHA"])
         self.assertEqual("main", values["BRANCH"])
         self.assertTrue(values["RUN_CONTEXT"].startswith("BOUND"), values["RUN_CONTEXT"])
+        self.assertEqual(BINDING_NOTE, values["RUN_CONTEXT_NOTE"], "绑定成立时也要自述 sha 是生成时刻的绑定")
 
     def test_unavailable_head_is_unknown_and_unbound(self) -> None:
         with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(
@@ -197,6 +206,7 @@ class RunContextTest(unittest.TestCase):
         self.assertEqual("unknown", values["BRANCH"])
         self.assertIn("UNBOUND", values["RUN_CONTEXT"])
         self.assertNotIn("local", values["COMMIT_SHA"])
+        self.assertEqual(BINDING_NOTE, values["RUN_CONTEXT_NOTE"], "未绑定时头部照样有 sha/branch 行，说明不能缺席")
 
     def test_declared_sha_that_disagrees_with_head_is_unbound(self) -> None:
         env = {"COMMIT_SHA": "b" * 40, "BRANCH": "main"}
@@ -208,6 +218,7 @@ class RunContextTest(unittest.TestCase):
         self.assertFalse(bound)
         self.assertIn("不一致", values["RUN_CONTEXT"])
         self.assertEqual("b" * 40, values["COMMIT_SHA"])
+        self.assertEqual(BINDING_NOTE, values["RUN_CONTEXT_NOTE"], "印的是 declared sha（≠HEAD）时更要说清它是什么")
 
     def test_declared_sha_matching_head_is_bound(self) -> None:
         env = {"COMMIT_SHA": "a" * 40, "BRANCH": "main", "TRIGGERED_BY": "push"}
@@ -219,6 +230,39 @@ class RunContextTest(unittest.TestCase):
         self.assertTrue(bound)
         self.assertIn("与 git HEAD 一致", values["RUN_CONTEXT"])
         self.assertEqual("push", values["TRIGGERED_BY"])
+
+
+class RunContextNoteTemplateTest(unittest.TestCase):
+    """KD-40 的另一半：那句话必须真的随模板进页面（这里读的是**仓库里那一份**模板）。
+
+    只改 `run_context` 不改模板、或占位符拼错，页面不会报错——替换扫描（main 尾部）会把
+    `{{RUN_CONTEXT_NOTE}}` 兜成 NOT_MEASURED，于是"没印说明"长得像"没测到说明"。
+    """
+
+    def template_text(self) -> str:
+        return status.TEMPLATE.read_text(encoding="utf-8")
+
+    def test_note_placeholder_sits_directly_under_the_run_context_line(self) -> None:
+        lines = self.template_text().splitlines()
+        context_line = next((i for i, line in enumerate(lines) if "{{RUN_CONTEXT}}" in line), None)
+        note_line = next((i for i, line in enumerate(lines) if "{{RUN_CONTEXT_NOTE}}" in line), None)
+
+        self.assertIsNotNone(context_line, "模板里没有 {{RUN_CONTEXT}}")
+        self.assertIsNotNone(note_line, "模板缺 {{RUN_CONTEXT_NOTE}}：页面不会印 KD-40 的那句话")
+        self.assertEqual(context_line + 1, note_line, "绑定说明要贴在 Run context 下面，不能散落别处")
+
+    def test_note_survives_rendering(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(
+            status, "git_output", side_effect=lambda *args: "a" * 40 if args == ("rev-parse", "HEAD") else "main"
+        ):
+            values, _ = status.run_context()
+
+        rendered = self.template_text()
+        for key, value in values.items():
+            rendered = rendered.replace("{{" + key + "}}", value)
+
+        self.assertNotIn("{{RUN_CONTEXT_NOTE}}", rendered, "占位符没被替换 ⇒ 页面印的是 NOT_MEASURED")
+        self.assertIn(BINDING_NOTE, rendered, "页面头部要能看到这句话本身")
 
 
 class JobAndOverallTest(unittest.TestCase):

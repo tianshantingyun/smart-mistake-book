@@ -332,11 +332,13 @@ interface StudyExperienceRepository : AutoCloseable {
     )
 
     /**
-     * 今天知识点复习计划（spec dual-review-entry §3.2）：从今日错题复习队列的题绑定
-     * 知识点范围（[extractReviewKnowledgeScope]）派生候选，用与错题同构的打分
-     * （[KnowledgeNodeScorer.scoreKnowledgeNode] + [selectKnowledgeReviewQueue]）在时间预算内
-     * 排出有序队列。空队列 = 今日无待复习知识点（全已掌握/新鲜）。返回 null = 今日无
-     * 复习计划或学习记录不可用。
+     * 今天知识点复习计划（spec dual-review-entry §3.2）：范围 = **今日错题复习队列的题绑定
+     * 知识点**（[extractReviewKnowledgeScope]，第一档）∪ **全库薄弱点扫描**（第二档：有绑定题的
+     * 活跃知识点 ∩ 材料可出题，减去今日队列，每日 ≤ [FULL_LIBRARY_SCAN_DAILY_CAP] 个；3E，
+     * 2026-10-16 裁定）。两档并集后用与错题同构的打分（[KnowledgeNodeScorer.scoreKnowledgeNode]
+     * + [selectKnowledgeReviewQueue]）在时间预算内排出有序队列。今日错题队列为空**不影响**第二档
+     * （"全库扫描，不受今日队列限制"）。空队列 = 今日无待复习知识点（全已掌握/新鲜/无可出题材料）。
+     * 返回 null = 今日无复习计划或学习记录不可用。
      */
     suspend fun currentKnowledgeReviewPlan(
         requestId: String,
@@ -362,7 +364,10 @@ interface StudyExperienceRepository : AutoCloseable {
      * 知识点复习题面落库（AUD-02）：把**本次会话**现场生成的题面写进呈现快照表，
      * 返回库里那一行的题面——同一会话同一知识点的重试拿到的是同一道题（首见即真）。
      *
-     * 返回 null = 该身份已有行但读不回/解不开（损坏）：调用方按失败出口处置，
+     * 损坏行（KD-41）按**不可复用**处置：该身份已有行但解不开时，本笔**覆盖重写**那一行
+     * （而不是把 null 顶回来），让"重试出题"可恢复；可正常读回的既有行仍不被覆盖。
+     *
+     * 返回 null = 该行最终仍读不出来（本次题面自己就解不开）：调用方按失败出口处置，
      * 不拿内存里的题面顶替库里的题面（否则恢复读回的是另一道题）。
      */
     suspend fun persistKnowledgeQuizItem(

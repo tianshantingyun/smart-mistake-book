@@ -753,11 +753,28 @@ internal abstract class ProblemDraftTransactionDao {
     @Query("SELECT 1 FROM problem_revision WHERE revision_id = :revisionId LIMIT 1")
     protected abstract suspend fun revisionExists(revisionId: String): Int?
 
+    @Query("SELECT 1 FROM error_book_entry WHERE current_revision_id = :revisionId LIMIT 1")
+    protected abstract suspend fun currentRevisionExists(revisionId: String): Int?
+
+    /**
+     * 该题修订是否仍是其错题条目**当前指向**的修订（= 该记录的最新题面）。
+     *
+     * 与 [attachCleanRedrawAsset] 的第二道判据同一处实现（同一条 SQL）：调用方（净化作业）在
+     * **付费之前**先问它——晚到结果只许挂到书里现在显示的那一版上。
+     */
+    open suspend fun isCurrentProblemRevision(revisionId: String): Boolean {
+        require(revisionId.isNotBlank()) { "revisionId must not be blank" }
+        return currentRevisionExists(revisionId) != null
+    }
+
     /**
      * Attaches a clean-redraw canonical asset to an already-committed problem
      * revision under the CLEAN_IMAGE role. Idempotent: inserting the same
-     * canonical asset or the same link is a no-op. Returns false when the
-     * revision does not exist.
+     * canonical asset or the same link is a no-op.
+     *
+     * 返回 false 的两种情形（AUD-09 ⑤）：修订不存在，或它**已不是其错题条目当前指向的修订**
+     * （书里已经显示别的题面）。晚到结果不许挂到已被取代的修订上；调用方按 `SUPERSEDED` 记录，
+     * 不是把它当成一次失败重试。
      */
     @Transaction
     open suspend fun attachCleanRedrawAsset(
@@ -767,6 +784,7 @@ internal abstract class ProblemDraftTransactionDao {
         require(revisionId.isNotBlank()) { "revisionId must not be blank" }
         require(asset.sourceAssetId.isNotBlank()) { "asset sourceAssetId must not be blank" }
         if (revisionExists(revisionId) == null) return false
+        if (currentRevisionExists(revisionId) == null) return false
         insertSourceAsset(asset.toEntity())
         insertRevisionSourceAsset(
             ProblemRevisionSourceAssetEntity(
@@ -1301,7 +1319,13 @@ private fun commitPayloadFingerprint(command: CommitProblemDraftCommand): String
     command.committedAtEpochMillis.toString(),
 )
 
-private fun stableSha256(vararg fields: String): String {
+/**
+ * 长度前缀的规范串摘要（`ab`+`c` 与 `a`+`bc` 必须摘到不同值）。
+ *
+ * internal（不是 private）：AUD-09 的净化作业身份（[com.tingyun.smartmistakebook.core.database.cleanRedrawTaskId]）
+ * 用同一份实现——同一模块里两份"稳定摘要"一旦漂开，同一组字段会在两条链上算出不同的身份。
+ */
+internal fun stableSha256(vararg fields: String): String {
     val canonical = buildString {
         fields.forEach { field -> append(field.length).append(':').append(field) }
     }

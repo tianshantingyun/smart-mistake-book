@@ -662,12 +662,23 @@ interface CaptureWorkflowRepository {
     /**
      * Attaches a clean-redraw image to an already-committed problem revision as a
      * CLEAN_IMAGE source asset, so mistake detail/export can prefer the clean sheet.
-     * Returns false when the revision does not exist. The bytes are re-encoded into
-     * the canonical asset vault; no network happens here.
+     * Returns false when the revision does not exist **or is no longer the revision its
+     * error-book entry points at** (AUD-09：晚到的净化结果只许挂到书里现在显示的那一版上).
+     * The bytes are re-encoded into the canonical asset vault; no network happens here.
      */
     suspend fun attachCleanRedrawImage(
         problemRevisionId: String,
         cleanImageBytes: ByteArray,
         cleanImageMimeType: String,
     ): Boolean
+
+    /**
+     * AUD-09 ④ 启动对账：接着做完上一进程留下的净化作业（`PENDING`/`FAILED` 且尝试次数未耗尽），
+     * 返回本次实际动过的行数。
+     *
+     * [staleBeforeEpochMillis] 是租约判据——应用传**本进程启动时刻**：本进程刚发起的作业不会被
+     * 对账抢走双跑（那会重复付费），上一进程被杀留下的行一定早于它。出网门关着时一行也不动
+     * （fail-closed），留待下次启动。默认 0（不接管）给测试替身与无库装配。
+     */
+    suspend fun resumePendingCleanRedraws(staleBeforeEpochMillis: Long): Int = 0
 }

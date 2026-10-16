@@ -118,6 +118,7 @@ import com.tingyun.smartmistakebook.core.database.ReviewedKnowledgeCoverageRecor
 import com.tingyun.smartmistakebook.core.database.ReviseProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.SeedResult
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
+import com.tingyun.smartmistakebook.core.database.port.FullLibraryScanNodeRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
@@ -428,11 +429,20 @@ class RoomBackedStudyExperienceRepositoryTest {
         }
     }
 
+    /**
+     * 3E 范围定稿（spec dual-review-entry §3.2「今日队列 + 全库第二档」，2026-10-16 裁定
+     * 「每日 ≤10 个知识点」）：知识点复习范围不再只来自今日错题队列的绑定知识点。
+     *
+     * 原用例（旧名 `currentKnowledgeReviewPlanKeepsOnlyQuizAbleScopeFromTodaysQueue`）的断言
+     * 逐条保留为**子集断言**：可出题的真节点仍在队列里、无材料的伪节点仍被排除、它的科目与
+     * 展示名不变。新增部分钉新语义：
+     * - 今日队列**之外**的薄弱点（第二档）能被捞回——这里刻意让它真的离开今日队列：
+     *   它绑的那道题有一个未达门槛的先修（KF-08 硬过滤），所以今天排不到它；
+     * - 读口返回但**没有可出题材料**的行不进队列（范围规则在 `fullLibraryScanCandidate`）；
+     * - 有材料但**没有在册绑定题**的节点不进队列（读口的行集就不含它，无时间信号）。
+     */
     @Test
-    fun currentKnowledgeReviewPlanKeepsOnlyQuizAbleScopeFromTodaysQueue() = runBlocking {
-        // 知识点复习范围 = 今天错题复习队列的题绑定知识点（spec dual-review-entry §3.2），
-        // 不是全知识库。KNOWLEDGE_QUIZ 以讲解材料为防臆造锚（§3.3）——无材料的伪节点
-        // （pseudo:MATH，未绑定题的占位）必须被排除，否则会话会排一个永远出不了题的死点。
+    fun currentKnowledgeReviewPlanCoversTodaysQueuePlusTheFullLibraryScan() = runBlocking {
         val database = FakeStudyDatabasePort().apply {
             addMistake(
                 MistakeRecord(
@@ -486,25 +496,164 @@ class RoomBackedStudyExperienceRepositoryTest {
                 knowledgeNodeId = "knowledge:function-monotonicity",
                 role = "PRIMARY",
             )
+
+            // ---- 第二档夹具：今日队列之外的薄弱点（3E）----
+            // 这道题绑两个点：chain-rule（有材料，应被捞回）与 limit-definition（无材料，应排除）。
+            // 它的先修 PREREQ 只有 0.2 的保守掌握 → KF-08 硬过滤 → 题今天排不进错题队列
+            // → chain-rule 真的落在"今日错题并集之外"。
+            addMistake(
+                MistakeRecord(
+                    entryId = "outside-entry",
+                    problemId = "outside-problem",
+                    problemRevisionId = "outside-revision",
+                    practiceUnitId = "outside-practice-unit",
+                    sourceKey = "capture:photo-2",
+                    subject = "MATH",
+                    title = "链式法则原题",
+                    problemMarkdown = "求复合函数的导数。",
+                    status = "ACTIVE",
+                    createdAtEpochMillis = 2_000,
+                    nextReviewAtEpochMillis = null,
+                    retrievability = null,
+                    knowledgeNodeIds = setOf(
+                        "knowledge:chain-rule",
+                        "knowledge:limit-definition",
+                    ),
+                ),
+            )
+            // 先建节点行（`addPrerequisiteRelation` 只会补建缺的行，不改已有行的展示名）。
+            addKnowledgeNode("knowledge:chain-rule", displayName = "链式法则")
+            addKnowledgeNode("knowledge:limit-definition", displayName = "极限定义")
+            // 有材料、有在册绑定题以外的第三种：**无绑定题**的节点（读口行集不含它）。
+            addKnowledgeNode("knowledge:only-material", displayName = "只有材料")
+            addPrerequisiteRelation(
+                prerequisiteKnowledgeNodeId = "knowledge:prerequisite",
+                dependentKnowledgeNodeId = "knowledge:chain-rule",
+            )
+            addBoundTeachingMaterial(
+                materialId = "material:chain-rule",
+                knowledgeNodeId = "knowledge:chain-rule",
+                type = "CONCEPT_EXPLANATION",
+                content = "链式法则的判定与用法。",
+            )
+            addBoundTeachingMaterial(
+                materialId = "material:only-material",
+                knowledgeNodeId = "knowledge:only-material",
+                type = "CONCEPT_EXPLANATION",
+                content = "没有任何绑定题的节点材料。",
+            )
+            publishMastery(
+                dependentKnowledgeNodeId = "knowledge:chain-rule",
+                dependentMastery = 0.9,
+                prerequisiteKnowledgeNodeId = "knowledge:prerequisite",
+                prerequisiteMastery = 0.2,
+            )
         }
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val repository = repository(database, applicationScope, seedCuratedFixture = false)
 
         try {
             repository.initialize()
+            // 前置夹具自证：第二档那道题确实**不在**今日错题队列里（否则本用例的"捞回"
+            // 只是今日挡的子集断言，证明不了 3E）。
+            assertTrue(
+                "KF-08 先修硬过滤必须把带缺前置的题挡在今日队列之外，实际队列：" +
+                    database.savedPlans.last().queue.map { it.practiceUnitId },
+                database.savedPlans.last().queue.none {
+                    it.practiceUnitId == "outside-practice-unit"
+                },
+            )
             val plan = requireNotNull(
                 repository.currentKnowledgeReviewPlan("knowledge-review-start", 2_000),
             )
-            // 计划范围精确来自今天队列绑定点，且只保留可出题（有材料）的点。
-            assertTrue(plan.queue.isNotEmpty())
-            assertEquals(
-                "knowledge:function-monotonicity",
-                plan.queue.single().knowledgeNodeId,
+            val queueIds = plan.queue.map { it.knowledgeNodeId }
+            // 原断言（子集形态）：今日队列的可出题真节点在队列里。
+            assertTrue(
+                "今日队列绑定的可出题节点必须在计划里，实际：$queueIds",
+                "knowledge:function-monotonicity" in queueIds,
             )
-            // 无材料伪节点被排除。
+            val todayEntry = plan.queue.single {
+                it.knowledgeNodeId == "knowledge:function-monotonicity"
+            }
+            assertEquals("MATH", todayEntry.subject)
+            assertEquals("函数单调性", todayEntry.displayName)
+            // 原断言：无材料伪节点被排除。
             assertTrue(plan.queue.none { it.knowledgeNodeId == "pseudo:MATH" })
-            assertEquals("MATH", plan.queue.single().subject)
-            assertEquals("函数单调性", plan.queue.single().displayName)
+            // 新语义：今日队列之外的全库薄弱点被捞回（第二档）。
+            val scannedEntry = plan.queue.single { it.knowledgeNodeId == "knowledge:chain-rule" }
+            assertEquals("MATH", scannedEntry.subject)
+            assertEquals("链式法则", scannedEntry.displayName)
+            // 范围条件：读口返回的行里，没有可出题材料的点不进队列。
+            assertTrue(queueIds.none { it == "knowledge:limit-definition" })
+            // 范围条件：没有在册绑定题的点不进队列（无时间信号，行集里也没有它）。
+            assertTrue(queueIds.none { it == "knowledge:only-material" })
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    @Test
+    fun currentKnowledgeReviewPlanScansTheLibraryEvenWhenTodaysQueueIsEmpty() = runBlocking {
+        // 3E 的另一半："全库扫描，不受今日队列限制"：今日错题队列**为空**时，第二档照样把
+        // 落单的薄弱点捞回来。这里让空队列真实发生——唯一那道题带一个未达门槛的先修，
+        // 被 KF-08 硬过滤挡在今日计划之外（题仍在册，所以它仍是扫描行）。
+        // 旧实现在 `planQueue.isEmpty()` 处直接早退，本用例会拿到空计划。
+        val database = FakeStudyDatabasePort().apply {
+            addMistake(
+                MistakeRecord(
+                    entryId = "blocked-entry",
+                    problemId = "blocked-problem",
+                    problemRevisionId = "blocked-revision",
+                    practiceUnitId = "blocked-practice-unit",
+                    sourceKey = "capture:blocked",
+                    subject = "MATH",
+                    title = "链式法则原题",
+                    problemMarkdown = "求复合函数的导数。",
+                    status = "ACTIVE",
+                    createdAtEpochMillis = 1_000,
+                    nextReviewAtEpochMillis = null,
+                    retrievability = null,
+                    knowledgeNodeIds = setOf("knowledge:chain-rule"),
+                ),
+            )
+            addKnowledgeNode("knowledge:chain-rule", displayName = "链式法则")
+            addPrerequisiteRelation(
+                prerequisiteKnowledgeNodeId = "knowledge:prerequisite",
+                dependentKnowledgeNodeId = "knowledge:chain-rule",
+            )
+            addBoundTeachingMaterial(
+                materialId = "material:chain-rule",
+                knowledgeNodeId = "knowledge:chain-rule",
+                type = "CONCEPT_EXPLANATION",
+                content = "链式法则的判定与用法。",
+            )
+            publishMastery(
+                dependentKnowledgeNodeId = "knowledge:chain-rule",
+                dependentMastery = 0.9,
+                prerequisiteKnowledgeNodeId = "knowledge:prerequisite",
+                prerequisiteMastery = 0.2,
+            )
+        }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, applicationScope, seedCuratedFixture = false)
+
+        try {
+            repository.initialize()
+            assertTrue(
+                "夹具自证：带缺前置的题必须被挡在今日队列之外，实际队列："
+                    + database.savedPlans.last().queue.map { it.practiceUnitId },
+                database.savedPlans.last().queue.isEmpty(),
+            )
+            val plan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("knowledge-review-start", 2_000),
+            )
+            assertEquals(
+                "今日队列为空也必须扫全库（第二档）",
+                listOf("knowledge:chain-rule"),
+                plan.queue.map { it.knowledgeNodeId },
+            )
+            assertEquals("链式法则", plan.queue.single().displayName)
         } finally {
             repository.close()
             applicationScope.cancel()
@@ -2132,11 +2281,40 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         command: TransitionModelTaskCommand,
     ): ModelTaskWriteResult = error("Model tasks are outside this study-repository fake")
 
-    override suspend fun recordChatEvidence(entries: List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>) {
+    /**
+     * 落库回执（AUD-11 ③-2）。本假件是**记录器**而不是库：仍逐条追加
+     * （既有用例依赖该形状，如 `recordedChatEvidence.single()`），但回执按 Room IGNORE 的
+     * 语义算——身份已在库的不进 `insertedAcceptedEvidenceIds`，既有行是被拒观察行的单独成档。
+     * 真库上的同一语义由 `KnowledgeQuizEvidenceLedgerReceiptInstrumentedTest` 覆盖。
+     */
+    override suspend fun recordChatEvidence(
+        entries: List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>,
+    ): com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceWriteReceipt {
+        val accepted = entries.filter { !it.isRejected }
+        fun alreadyInLibrary(entry: com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity) =
+            recordedChatEvidence.firstOrNull { it.evidence_id == entry.evidence_id }
+        val receipt = com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceWriteReceipt(
+            insertedAcceptedEvidenceIds = accepted
+                .filter { alreadyInLibrary(it) == null }
+                .map { it.evidence_id },
+            replayedAcceptedEvidenceIds = accepted
+                .filter { alreadyInLibrary(it)?.isRejected == false }
+                .map { it.evidence_id },
+            acceptedBlockedByRejectedRowEvidenceIds = accepted
+                .filter { alreadyInLibrary(it)?.isRejected == true }
+                .map { it.evidence_id },
+        )
         recordedChatEvidence += entries
+        return receipt
     }
 
-    override suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> = emptyList()
+    /**
+     * 按 learner 回读（AUD-11 ③：审计口 `KnowledgeQuizEvidenceAudit.scan()` 的读口）。
+     * 改前恒返回空表——那会让任何走"按 learner 取证据行"的用例在 JVM 上得到假空集；
+     * 现按 [recordedChatEvidence] 过滤（生产语义：该 learner 的全部证据行，含拒绝观察行）。
+     */
+    override suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
+        recordedChatEvidence.filter { it.learner_id == learnerId }
 
     override suspend fun readChatEvidenceByConversation(conversationId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         recordedChatEvidence.filter { it.conversation_id == conversationId }
@@ -2173,7 +2351,21 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         listOfNotNull(readLatestTutorSessionAnchor(practiceUnitId, learnerId))
     }
 
-    override suspend fun lastAcceptedChatEvidenceAtForKc(learnerId: String, knowledgeNodeId: String): Long? = null
+    /**
+     * 假件**不模拟冷却**（恒 null：既有用例的提交节奏本来就假设无冷却），因此也产生不出
+     * `SAME_KC_IN_COOLDOWN`。但记下"谁按哪个通道问过冷却"（AUD-11 ①）：写入口只该对模型
+     * 通道问——哪条通道取冷却年龄这一维在 JVM 上就钉得住，真 SQL 的分层由仪器化用例覆盖。
+     */
+    val kcCooldownQueries = mutableListOf<Pair<String, String>>()
+
+    override suspend fun lastAcceptedChatEvidenceAtForKc(
+        learnerId: String,
+        knowledgeNodeId: String,
+        sourceKind: String,
+    ): Long? {
+        kcCooldownQueries += knowledgeNodeId to sourceKind
+        return null
+    }
 
     override suspend fun countAcceptedChatEvidenceSince(learnerId: String, sinceEpochMillis: Long): Int = 0
 
@@ -2595,6 +2787,46 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         knowledgeNodes.mapTo(hashSetOf()) { it.knowledgeNodeId }.intersect(ids)
 
     /**
+     * 3E 全库扫描读口的假实现（新端口）：按真查询的三条事实从夹具派生——**只给事实，不做范围
+     * 过滤**。"有绑定题 ∧ 材料可出题"的判定在 core:domain 的 `fullLibraryScanCandidate`；
+     * 仓库层用例要钉的正是"无材料的行照样返回、但不进队列"这条分工。
+     *
+     * - 行集 = **有在册绑定题**的节点（对应真查询的 INNER JOIN：题必须挂在 ACTIVE 错题条目上）；
+     * - 绑定题 = 该错题记录的 `practiceUnitId`（夹具里 `MistakeRecord.knowledgeNodeIds` 就是它
+     *   的当前绑定）；
+     * - 科目 = 节点行的 `subject`（真查询同样取 `knowledge_node.subject`）；
+     * - 材料组 = 夹具里科目一致且绑定该节点的材料取 `materialId` 字典序最小者（真查询是同义的
+     *   `MIN(material_id)`；夹具材料全部视为未退役）。没有可用材料 → null（真查询的 LEFT JOIN）。
+     */
+    override suspend fun readFullLibraryScanNodes(): List<FullLibraryScanNodeRecord> {
+        val boundUnitsByNode = entries.values
+            .filter { it.status == "ACTIVE" }
+            .flatMap { mistake -> mistake.knowledgeNodeIds.map { it to mistake.practiceUnitId } }
+            .groupBy({ it.first }, { it.second })
+        return knowledgeNodes
+            .filter { it.knowledgeNodeId in boundUnitsByNode }
+            .map { node ->
+                FullLibraryScanNodeRecord(
+                    knowledgeNodeId = node.knowledgeNodeId,
+                    subject = node.subject,
+                    boundPracticeUnitIds = boundUnitsByNode
+                        .getValue(node.knowledgeNodeId)
+                        .distinct(),
+                    materialGroupId = materialNodeBindings
+                        .asSequence()
+                        .filter { it.knowledgeNodeId == node.knowledgeNodeId }
+                        .mapNotNull { binding ->
+                            teachingMaterials.firstOrNull { material ->
+                                material.materialId == binding.materialId &&
+                                    material.subject == node.subject
+                            }?.materialId
+                        }
+                        .minOrNull(),
+                )
+            }
+    }
+
+    /**
      * 夹具按"调和即全部接收"实现：这些用例测的是讲题/复习链路，不是调和本身
      * （调和的逐对象行为由 `BundledKnowledgeBaseInstallerTest` 覆盖）。
      */
@@ -2703,6 +2935,8 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         splitDraftId: String,
         occurredAtEpochMillis: Long,
     ): Boolean = false
+
+    override suspend fun reconcileCommittedQuestionDrafts(occurredAtEpochMillis: Long): Int = 0
 
     override suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord? = null
 
@@ -2906,6 +3140,15 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
     override suspend fun findAssessmentItemSnapshot(
         assessmentItemSnapshotId: String,
     ): AssessmentItemSnapshotSeedRecord? = assessmentItemSnapshots[assessmentItemSnapshotId]
+
+    override suspend fun overwriteAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord) {
+        // KD-41：真 DAO 是 `UPDATE ... WHERE assessment_item_snapshot_id = ?`——**只覆盖既有行、
+        // 无行不新增**（`ImmutableLearningFactDao.overwriteAssessmentItem`）。假库照此镜像：
+        // 若实现被误改成"无行也写"，本口会静默补一行，把那个 bug 藏起来。
+        if (assessmentItemSnapshots.containsKey(item.assessmentItemSnapshotId)) {
+            assessmentItemSnapshots[item.assessmentItemSnapshotId] = item
+        }
+    }
 
     override suspend fun saveAssessmentEvidenceSnapshot(snapshot: AssessmentEvidenceSnapshot) {
         evidenceSnapshots[snapshot.snapshotId] = snapshot

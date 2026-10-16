@@ -146,7 +146,14 @@ interface ModelTaskDatabasePort {
 
     suspend fun transitionModelTask(command: TransitionModelTaskCommand): ModelTaskWriteResult
 
-    suspend fun recordChatEvidence(entries: List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>)
+    /**
+     * 写入证据行（含账本事件分配）。**回报**落库结果（AUD-11 ③-2）：accepted 行被
+     * Room IGNORE 吃掉（同身份已在库）时，调用方不能再以为"已记录"——
+     * 见 [com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceWriteReceipt]。
+     */
+    suspend fun recordChatEvidence(
+        entries: List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>,
+    ): com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceWriteReceipt
 
     suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>
 
@@ -159,8 +166,19 @@ interface ModelTaskDatabasePort {
 
     // ---- Indexed gate queries (batch-scale: O(log n), no full-table pull) ----
 
-    /** Most recent accepted write to one KC by the learner, across all conversations. */
-    suspend fun lastAcceptedChatEvidenceAtForKc(learnerId: String, knowledgeNodeId: String): Long?
+    /**
+     * Most recent accepted write **of one channel** ([sourceKind]) to one KC by the learner,
+     * across all conversations.
+     *
+     * AUD-11 ①：冷却起点按通道取——两条写通道各自冷却（模型通道的自我重复由 12h 冷却挡，
+     * 客观作答通道按自身幂等身份防重）。查询在 DAO 侧带 `source_kind` 过滤，通道无关的读法
+     * 不再存在（那正是"小测写出模型写的冷却起点"的实测缺陷）。
+     */
+    suspend fun lastAcceptedChatEvidenceAtForKc(
+        learnerId: String,
+        knowledgeNodeId: String,
+        sourceKind: String,
+    ): Long?
 
     /** Accepted chat-evidence writes by the learner since [sinceEpochMillis]. */
     suspend fun countAcceptedChatEvidenceSince(learnerId: String, sinceEpochMillis: Long): Int
@@ -168,9 +186,9 @@ interface ModelTaskDatabasePort {
     /** Accepted chat-evidence writes in one conversation. */
     suspend fun countAcceptedChatEvidenceInConversation(conversationId: String): Int
 
-    /** Rejected-write counts grouped by gate reason (calibration input). */
+    /** Rejected-write counts grouped by channel and gate reason (calibration input). */
     suspend fun countRejectedChatEvidenceByReason(learnerId: String): List<com.tingyun.smartmistakebook.core.database.dao.RejectedReasonCountRow>
 
-    /** Accepted-write counts per epoch hour since [sinceEpochMillis] (calibration input). */
+    /** Accepted-write counts per channel per epoch hour since [sinceEpochMillis] (calibration input). */
     suspend fun countAcceptedChatEvidencePerHour(learnerId: String, sinceEpochMillis: Long): List<com.tingyun.smartmistakebook.core.database.dao.HourlyAcceptedCountRow>
 }

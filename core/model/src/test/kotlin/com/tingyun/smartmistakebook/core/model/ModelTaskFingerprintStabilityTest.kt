@@ -391,8 +391,12 @@ class ModelTaskFingerprintStabilityTest {
         val decoded = ModelTaskCodec.decodeRequest(legacyV7Json)
         assertEquals(7, decoded.schemaVersion)
         assertEquals(true, decoded.agentConsentGranted)
-        // 指纹稳定：decode 出的 v7 行（走 <8 strip，抹掉旧键）重算指纹 == 直接对旧 v7 JSON 的摘要
-        val legacyStripped = legacyV7Json.replace(",\"captureEgressConsentGranted\":true", "")
+        // 指纹稳定：decode 出的 v7 行（走 <8 strip，抹掉旧键）重算指纹 == 直接对旧 v7 JSON 的摘要。
+        // AUD-09（schema 17）：v7 编码器同样不认识 sourceImageSha256 键，strip 要一并抹掉——
+        // 当年的行里没有这个键，摘要必须按"没有它"成立。
+        val legacyStripped = legacyV7Json
+            .replace(",\"captureEgressConsentGranted\":true", "")
+            .replace(",\"sourceImageSha256\":null", "")
         val expectedFingerprint = MessageDigest.getInstance("SHA-256")
             .digest(legacyStripped.toByteArray(StandardCharsets.UTF_8))
             .joinToString("") { "%02x".format(it) }

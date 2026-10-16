@@ -4,10 +4,14 @@ import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.TutorSessionProblemAnchorRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
+import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlement
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementStatus
+import com.tingyun.smartmistakebook.core.model.EvidenceAttributionCertainty
+import com.tingyun.smartmistakebook.core.model.EvidenceAttributionRole
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
+import com.tingyun.smartmistakebook.core.model.LocalModelJudgedContract
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryOutcome
 import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import java.time.Clock
@@ -20,6 +24,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -28,7 +33,8 @@ import org.junit.Test
  * 讲题判定结算的决策表（第2条：复习作答与评级改由模型判定）。
  *
  * 判定合成顺序：本轮有本地核对的检查题作答 → 本地判定即判定（一条答错即判错，模型
- * 口头说对不作数）；没有检查题 → 取最近一条通过门控的模型判词；两样都没有 → 不写不推进。
+ * 口头说对不作数）；没有检查题 → 取最近一条通过门控、且**锚定在本题 KC 集**上的模型判词
+ * （AUD-11 ①）；两样都没有 → 不写不推进。
  * 定价非独立、题目级只落 HARD/AGAIN，依据 `docs/research/model-judged-verdict-pricing.md`。
  */
 class TutorJudgedReviewSettlerTest {
@@ -60,7 +66,8 @@ class TutorJudgedReviewSettlerTest {
             database.reviewLogEntries.single().sourceKind,
         )
         assertTrue(result.created)
-        // 空归属：这条通道只驱动题目级排期，不与模型的掌握度通道双写。
+        // 本地核对分支的驱动是检查题作答（没有节点可挂）：归属保持为空，与既有仪器化用例
+        // 「这条通道不动知识点掌握度」同一语义（AUD-11 ①只给模型判词分支落账）。
         assertTrue(database.lastEvidenceSnapshot?.attributions.isNullOrEmpty())
         assertEquals(1, database.attemptCount)
     }
@@ -132,6 +139,162 @@ class TutorJudgedReviewSettlerTest {
 
         assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
         assertEquals(0, database.attemptCount)
+    }
+
+    @Test
+    fun aPrerequisiteKnowledgeVerdictNoLongerFlipsTheWholeQuestion() = runBlocking {
+        // AUD-11 ① 的反例本体（报告 §1.2）：本题要考 kc-target（NEGATIVE，学生没做出来），
+        // 前置 kc-prereq 上有一条**更新**的半权 POSITIVE（0.15×0.5=0.075，"这一步会了"）。
+        // 修前：只按时间取最新 → 整题判成做对并按 0.5 记账（6.67× 放大）；修后：不锚定在本题
+        // KC 集上的证据无权驱动整题，判定由锚定的那条 NEGATIVE 做出。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(
+            direction = "NEGATIVE",
+            nodeId = QUESTION_KNOWLEDGE_NODE_ID,
+            evidenceId = "evidence-target",
+            createdAtEpochMillis = 2_600,
+            weight = 0.35,
+        )
+        database.recordedChatEvidence += modelVerdict(
+            direction = "POSITIVE",
+            nodeId = PREREQUISITE_KNOWLEDGE_NODE_ID,
+            evidenceId = "evidence-prereq",
+            createdAtEpochMillis = 2_700,
+            weight = 0.075,
+        )
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        assertFalse(requireNotNull(result.isCorrect))
+        assertEquals(
+            LearningEvidenceReason.MODEL_JUDGED_INCORRECT,
+            database.lastAttemptCommand?.evidence?.reason,
+        )
+        // 归属记的是驱动证据（target 节点），不是那条更"新"的前置证据。
+        val attribution = requireNotNull(database.lastEvidenceSnapshot?.attributions?.single())
+        assertEquals(QUESTION_KNOWLEDGE_NODE_ID, attribution.knowledgeNodeId)
+        assertEquals(0.35, attribution.weight, 0.0)
+    }
+
+    @Test
+    fun evidenceOnAnUnrelatedKnowledgeNodeIsNotAVerdict() = runBlocking {
+        // 只有外部（另一科）节点的证据：没有任何锚定在本题 KC 集上的 accepted 证据 →
+        // 保持阻塞（NO_VERDICT），不写 attempt、不落复习日志、不给假的记忆更新。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(
+            direction = "POSITIVE",
+            nodeId = UNRELATED_KNOWLEDGE_NODE_ID,
+        )
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
+        assertNull(result.isCorrect)
+        assertEquals(0, database.attemptCount)
+        assertTrue(database.reviewLogEntries.isEmpty())
+        assertNull(database.lastEvidenceSnapshot)
+    }
+
+    @Test
+    fun onlyExternalNodeEvidenceLeavesTheItemBlocked() = runBlocking {
+        // 外部节点证据即使**更新**（2_900 > 会话锚定 2_500）也不构成判词：不锚定 = 不是判词。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(
+            direction = "NEGATIVE",
+            nodeId = PREREQUISITE_KNOWLEDGE_NODE_ID,
+            createdAtEpochMillis = 2_900,
+        )
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
+        assertEquals(0, database.attemptCount)
+        assertEquals(PRACTICE_UNIT_ID, result.nextPracticeUnitId)
+    }
+
+    @Test
+    fun aQuestionWithoutKnowledgeNodesCanNeverAnchorAVerdict() = runBlocking {
+        // 诚实未分类的题（KC 集为空）：每条证据都在题面 KC 集之外 → 恒 NO_VERDICT。
+        // 这正是"锚定"的代价：宁可不判，也不把跨粒度的证据记成这次做对。
+        val database = seededDatabase(knowledgeNodeIds = emptySet())
+        database.recordedChatEvidence += modelVerdict(direction = "POSITIVE")
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
+        assertEquals(0, database.attemptCount)
+    }
+
+    @Test
+    fun anAnchoredVerdictWithoutAMatchingBindingStaysBlocked() = runBlocking {
+        // 锚定由题面 KC 集与库内现役绑定共同核实：KC 集里有节点、但库里没有该 revision 的绑定行
+        // （异常态）→ 不伪造归属、不推进（与"没有锚定证据"同一条出口）。
+        val database = seededDatabase(bindingRevisionId = "some-other-revision")
+        database.recordedChatEvidence += modelVerdict(direction = "POSITIVE")
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
+        assertEquals(0, database.attemptCount)
+        assertNull(database.lastEvidenceSnapshot)
+    }
+
+    @Test
+    fun theSettledSnapshotRecordsTheDrivingEvidenceWithItsBinding() = runBlocking {
+        // 归属落账的形状：绑定 = 该题该 revision 的现役绑定行（写入口会按五元组核对它），
+        // 节点 = 驱动证据的节点，权重 = 驱动证据的生效权重，快照 taxonomy 随该绑定。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(direction = "POSITIVE")
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        val snapshot = requireNotNull(database.lastEvidenceSnapshot)
+        val attribution = snapshot.attributions.single()
+        assertEquals(QUESTION_BINDING_ID, attribution.bindingId)
+        assertEquals(QUESTION_KNOWLEDGE_NODE_ID, attribution.knowledgeNodeId)
+        assertEquals("captured-revision", attribution.basisRevisionId)
+        assertEquals(BINDING_TAXONOMY_VERSION, attribution.taxonomyVersion)
+        assertEquals(0.15, attribution.weight, 0.0)
+        assertEquals(EvidenceAttributionRole.PRIMARY, attribution.role)
+        assertEquals(EvidenceAttributionCertainty.DIRECT, attribution.certainty)
+        // 归属的 basisRevision/taxonomy 必须与快照逐字一致（DatabaseContractValidator），
+        // 且 taxonomy 必须是那条绑定行的 taxonomy（AttemptTransactionDao 的五元组核对）。
+        assertEquals(attribution.taxonomyVersion, snapshot.taxonomyVersion)
+        assertEquals("captured-revision", snapshot.problemRevisionId)
+        assertNotEquals(LocalModelJudgedContract.TAXONOMY_VERSION, snapshot.taxonomyVersion)
+    }
+
+    @Test
+    fun aNewerSessionWithOnlyExternalEvidenceDoesNotHideTheAnchoredOne() = runBlocking {
+        // KD-36 的多会话回看与 AUD-11 ① 的锚定门共存：最新锚定的会话只有外部节点证据
+        // （不构成判词）→ 继续往旧会话找，旧会话里锚定的那条仍然是判词。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(
+            direction = "POSITIVE",
+            evidenceId = "evidence-anchored",
+            createdAtEpochMillis = 2_700,
+        )
+        database.recordedChatEvidence += modelVerdict(
+            direction = "NEGATIVE",
+            sessionId = "tutor-session-2",
+            nodeId = PREREQUISITE_KNOWLEDGE_NODE_ID,
+            evidenceId = "evidence-external",
+            createdAtEpochMillis = 3_500,
+        )
+        database.tutorSessionAnchors += anchor(sessionId = TUTOR_SESSION_ID, anchoredAt = 2_500)
+        database.tutorSessionAnchors += anchor(sessionId = "tutor-session-2", anchoredAt = 3_400)
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        assertTrue(requireNotNull(result.isCorrect))
+        // 归属仍指向**驱动**那条（旧会话的 anchored 证据）的节点。
+        assertEquals(
+            QUESTION_KNOWLEDGE_NODE_ID,
+            database.lastEvidenceSnapshot?.attributions?.single()?.knowledgeNodeId,
+        )
     }
 
     @Test
@@ -242,9 +405,56 @@ class TutorJudgedReviewSettlerTest {
         assertEquals(1, database.reviewLogEntries.size)
     }
 
+    @Test
+    fun replayingTheSameModelVerdictSettlementKeepsOneSnapshotId() = runBlocking {
+        // 模型判词分支的快照 id 是**内容寻址**（结算身份 + 归属内容）：同一条驱动证据重放 →
+        // 同一个 id → 真库走"复用旧行"（KD-37 的时间戳容忍），不会因为重跑/新时间戳另写一行。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(direction = "POSITIVE")
+
+        val settlement = startedSettlement(database)
+        val first = settle(database, settlement)
+        val firstSnapshotId = requireNotNull(database.lastEvidenceSnapshot).snapshotId
+        val replay = settle(database, settlement)
+
+        assertTrue(first.created)
+        assertFalse(replay.created)
+        assertEquals(firstSnapshotId, requireNotNull(database.lastEvidenceSnapshot).snapshotId)
+        assertEquals(1, database.attemptCount)
+    }
+
+    @Test
+    fun aChangedVerdictContentYieldsANewSnapshotId() = runBlocking {
+        // 内容寻址的另一半：判词内容真变（这里：检查题作答接手，归属从"驱动证据"变成空）→
+        // id 不同 → 不会撞"同 id 不同载荷"的身份冲突（KD-37 的同类死路）。本用例钉的是
+        // **快照身份**这一道门；已落 attempt 的重放冲突是另一条既有语义（真库 DAO 的
+        // `readAttemptReplay`），不在本用例范围。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(direction = "POSITIVE")
+        val settlement = startedSettlement(database)
+        settle(database, settlement)
+        val modelVerdictSnapshotId = requireNotNull(database.lastEvidenceSnapshot).snapshotId
+
+        database.tutorTurnResponses += choiceResponse(correct = true)
+        val second = settle(database, settlement)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, second.status)
+        val localCheckSnapshot = requireNotNull(database.lastEvidenceSnapshot)
+        assertNotEquals(modelVerdictSnapshotId, localCheckSnapshot.snapshotId)
+        assertTrue(localCheckSnapshot.attributions.isEmpty())
+    }
+
     // --- helpers -------------------------------------------------------------
 
-    private fun seededDatabase(): FakeStudyDatabasePort {
+    /**
+     * 这道保存题：KC 集默认带一个知识点（AUD-11 ① 的锚定门按 `MistakeRecord.knowledgeNodeIds`
+     * 判定），并给该节点播一条 `captured-revision` 上的现役绑定——归属落账必须是这条真实绑定行
+     * （写入口按五元组核对）。`knowledgeNodeIds = emptySet()` 用来构造"诚实未分类"的题。
+     */
+    private fun seededDatabase(
+        knowledgeNodeIds: Set<String> = setOf(QUESTION_KNOWLEDGE_NODE_ID),
+        bindingRevisionId: String = "captured-revision",
+    ): FakeStudyDatabasePort {
         val database = FakeStudyDatabasePort()
         database.addMistake(
             MistakeRecord(
@@ -260,7 +470,17 @@ class TutorJudgedReviewSettlerTest {
                 createdAtEpochMillis = 1_000,
                 nextReviewAtEpochMillis = null,
                 retrievability = null,
-                knowledgeNodeIds = emptySet(),
+                knowledgeNodeIds = knowledgeNodeIds,
+            ),
+        )
+        database.addPracticeUnitKnowledgeBinding(
+            PracticeUnitKnowledgeBindingRecord(
+                bindingId = QUESTION_BINDING_ID,
+                practiceUnitId = PRACTICE_UNIT_ID,
+                knowledgeNodeId = QUESTION_KNOWLEDGE_NODE_ID,
+                basisRevisionId = bindingRevisionId,
+                taxonomyVersion = BINDING_TAXONOMY_VERSION,
+                acceptedAtEpochMillis = 2_400,
             ),
         )
         database.tutorSessionAnchor = TutorSessionProblemAnchorRecord(
@@ -361,27 +581,43 @@ class TutorJudgedReviewSettlerTest {
         updatedAtEpochMillis = submittedAtEpochMillis,
     )
 
+    /**
+     * 一条讲题会话里落下的 chat-evidence。节点默认 = 本题 KC 集里的那个（锚定），
+     * 需要构造"前置/无关节点""另一个会话"的证据时显式换 [nodeId] / [sessionId]。
+     */
     private fun modelVerdict(
         direction: String,
         rejectedReason: String? = null,
+        nodeId: String = QUESTION_KNOWLEDGE_NODE_ID,
+        evidenceId: String = "evidence-1",
+        createdAtEpochMillis: Long = 2_700,
+        weight: Double = 0.15,
+        sessionId: String = TUTOR_SESSION_ID,
     ) = LearnerChatEvidenceEntity(
-        evidence_id = "evidence-1",
+        evidence_id = evidenceId,
         learner_id = LEARNER_ID,
-        conversation_id = TutorConversationIds.captured(TUTOR_SESSION_ID),
-        knowledge_node_id = "knowledge:function-monotonicity",
+        conversation_id = TutorConversationIds.captured(sessionId),
+        knowledge_node_id = nodeId,
         direction = direction,
-        weight = if (rejectedReason == null) 0.15 else 0.0,
+        weight = if (rejectedReason == null) weight else 0.0,
         reason_markdown = "模型判词",
         confidence = 0.9,
         source_kind = "MODEL_CHAT",
-        created_at_epoch_millis = 2_700,
+        created_at_epoch_millis = createdAtEpochMillis,
         rejected_reason = rejectedReason,
-        rejected_at_epoch_millis = rejectedReason?.let { 2_700 },
+        rejected_at_epoch_millis = rejectedReason?.let { createdAtEpochMillis },
     )
 
     private companion object {
         const val LEARNER_ID = "learner-1"
         const val PRACTICE_UNIT_ID = "captured-practice-unit"
         const val TUTOR_SESSION_ID = "tutor-session-1"
+        const val QUESTION_KNOWLEDGE_NODE_ID = "knowledge:function-monotonicity"
+        const val PREREQUISITE_KNOWLEDGE_NODE_ID = "knowledge:function-domain"
+        const val UNRELATED_KNOWLEDGE_NODE_ID = "knowledge:optics-refraction"
+        const val QUESTION_BINDING_ID = "binding:captured:function-monotonicity"
+
+        /** 分类确认写进绑定行的 taxonomy（`RoomMistakeOrganizationRepository` 的 `local-policy-v1`）。 */
+        const val BINDING_TAXONOMY_VERSION = "local-policy-v1"
     }
 }

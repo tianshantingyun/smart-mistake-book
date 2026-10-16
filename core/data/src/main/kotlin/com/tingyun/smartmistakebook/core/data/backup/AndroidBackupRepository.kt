@@ -2,8 +2,10 @@ package com.tingyun.smartmistakebook.core.data.backup
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import androidx.core.content.pm.PackageInfoCompat
 import com.tingyun.smartmistakebook.core.data.capture.AndroidCanonicalAssetVault
 import com.tingyun.smartmistakebook.core.data.capture.canonicalAssetFileIsIntact
+import com.tingyun.smartmistakebook.core.data.knowledge.BundledKnowledgePackResources
 import com.tingyun.smartmistakebook.core.data.settings.MODEL_SECRET_KEY_ALIAS
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
@@ -13,9 +15,17 @@ import com.tingyun.smartmistakebook.core.domain.BackupReceipt
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
 import com.tingyun.smartmistakebook.core.domain.DeleteAllDataReceipt
+import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.RestoreReceipt
+import com.tingyun.smartmistakebook.core.domain.RestoreSettingsOutcome
+import com.tingyun.smartmistakebook.core.domain.ReviewReminderPreferences
+import com.tingyun.smartmistakebook.core.domain.ReviewReminderRepository
+import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
+import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
 import com.tingyun.smartmistakebook.core.domain.StorageInventory
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
@@ -44,10 +54,17 @@ import java.util.concurrent.atomic.AtomicBoolean
  *     the Room open path and cannot be verified safely without a device.
  *     The two remaining cross-artifact rename steps are covered by the
  *     journal-driven startup rollback, which is exercised by tests.
+ *
+ * 6C-1：设置随包走（`settings.json` + 清单里的版本戳）。成包读 [schedulingSettings] /
+ * [reviewReminders]（未装配时为 null → 包内没有设置，`hasSettings=false`）；恢复在**交换前**
+ * 拒绝读不懂的设置（编解码层的版本与值域闸门），交换成功后才写 DataStore——写失败不回滚
+ * 已经一致的数据库，只在回执里如实标 [RestoreSettingsOutcome.WRITE_FAILED]。
  */
 class AndroidBackupRepository(
     private val context: Context,
     private val database: StudyDatabasePort,
+    private val schedulingSettings: SchedulingSettingsStore? = null,
+    private val reviewReminders: ReviewReminderRepository? = null,
 ) : BackupRepository {
     /** Maximum allowed compression ratio (uncompressed / compressed). */
     private companion object {
@@ -104,12 +121,18 @@ class AndroidBackupRepository(
      * 才登记的资产不算本次引用（它是下一包的）：它在那份快照里根本没有行，反查不到。
      * 快照里**已引用**的资产缺失/被替换则成包失败（见 [resolveReferencedAssetFiles]），
      * 不静默跳过。
+     *
+     * 6C-1 追加：版本戳（应用版本、随包内容版本）与设置快照都取"同一个时刻"——
+     * 内容版本取自**快照里那份库**（不是实时库），设置读失败则整包失败（静默少一份设置，
+     * 就是"备份看起来成功、恢复后设置丢了"）。
      */
     override suspend fun create(
         destination: OutputStream,
         options: BackupOptions,
     ): BackupReceipt = withContext(Dispatchers.IO) {
         val databaseFile = context.getDatabasePath(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        // 设置先读：读失败要在做快照之前失败，别留下半个归档的错觉。
+        val settings = readSettingsForBackup()
         // Consistency snapshot: VACUUM INTO when the device SQLite supports it,
         // otherwise WAL checkpoint + read-only copy (see BackupPort docs). The
         // archive is always built from the snapshot file, never from the live
@@ -133,11 +156,69 @@ class AndroidBackupRepository(
                     databaseSchemaVersion = snapshotFile.readSchemaVersion(),
                     problemCount = problemCount,
                     createdAtEpochMillis = System.currentTimeMillis(),
+                    metadata = SmbkArchiveMetadata(
+                        appVersionName = packageVersionName(),
+                        appVersionCode = packageVersionCode(),
+                        contentVersion = snapshot.readBundledContentVersion(),
+                    ),
+                    settings = settings,
                 )
             }
         } finally {
             snapshotFile.delete()
         }
+    }
+
+    /**
+     * 成包时的设置快照。未装配设置口（只有测试会这样）时返回 null → 包内没有
+     * `settings.json`、`hasSettings=false`，读侧不会把"没有设置"误读成"设置是默认值"。
+     *
+     * 装了设置口却读不出来时**成包失败**：一份声称完整、实际少了设置的包，比一次明确的
+     * 失败危险得多（用户会在恢复后才发现设置没了，而那时旧设置已被替换）。
+     */
+    private suspend fun readSettingsForBackup(): SmbkSettingsDocumentV1? {
+        val scheduling = schedulingSettings ?: return null
+        val reminders = reviewReminders ?: return null
+        return try {
+            val reminder = reminders.current()
+            SmbkSettingsDocumentV1(
+                desiredRetention = scheduling.options.first().desiredRetention,
+                examCalendar = scheduling.exams.first(),
+                optimizedFsrsParameters = scheduling.optimizedParameters.first()?.toList(),
+                reviewReminderEnabled = reminder.enabled,
+                reviewReminderMinutesAfterMidnight = reminder.minutesAfterMidnight,
+            )
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            error("设置读取失败，备份未完成：${failure.message.orEmpty()}")
+        }
+    }
+
+    /** 应用自身的 `versionName`；读不到就是 null（版本戳是诊断字段，不许假造）。 */
+    private fun packageVersionName(): String? = runCatching {
+        context.packageManager.getPackageInfo(context.packageName, 0).versionName
+    }.getOrNull()
+
+    /** 应用自身的 `versionCode`（API 28 起是 long 版本号，经 PackageInfoCompat 归一）。 */
+    private fun packageVersionCode(): Long? = runCatching {
+        PackageInfoCompat.getLongVersionCode(
+            context.packageManager.getPackageInfo(context.packageName, 0),
+        )
+    }.getOrNull()
+
+    /**
+     * 归档里那份库的随包内容版本（`content_install_state.content_version`）。
+     *
+     * 查的是**随包那个内容包**的进度行（`BundledKnowledgePackResources.updateManifest.packId`
+     * ——"哪个包是随包的"只有那一处说了算，不在这里抄一份 id）。解析随包清单失败时返回 null：
+     * 版本戳是诊断字段，读不到就写"未知"，不让备份因此失败。
+     */
+    private suspend fun StudyDatabasePort.readBundledContentVersion(): String? {
+        val packId = runCatching { BundledKnowledgePackResources.updateManifest?.packId }
+            .getOrNull()
+        if (packId.isNullOrEmpty()) return null
+        return readContentInstallState(packId)?.contentVersion?.takeIf { it.isNotEmpty() }
     }
 
     /**
@@ -238,8 +319,12 @@ class AndroidBackupRepository(
         val nextAssets = File(filesDir, "$ASSET_DIRECTORY.next")
         var swapStarted = false
         var databaseClosed = false
+        // Phase 2d 读出的设置载荷；Phase 8（交换提交后）才写入，故意放在 try 之外——
+        // 写设置的任何失败/取消都不许被下面那段回滚路径接住（那时 journal 已清，
+        // 回滚只会去删已经不存在的代，然后把"恢复失败，已回到原来的数据"说成事实）。
+        var restoredSettings: RestorableSettings? = null
 
-        return try {
+        val receipt = try {
             // Phase 1: Validate and unpack (counting compressed bytes for zip-bomb ratio)
             journal.writePhase(RestorePhase.VALIDATING)
             val countingSource = CountingInputStream(source)
@@ -308,6 +393,11 @@ class AndroidBackupRepository(
             // 出来的资产目录里，且与资产行记的字节数/SHA-256 逐位一致。缺一张就在这里
             // 拒绝——此时还没有任何切换发生，原数据、原图都还在原地。
             verifyStagedAssetClosure(staging, stagedDatabase.referencedAssets)
+
+            // Phase 2d: 设置载荷读进内存（6C-1）。兼容性闸门在编解码层（Phase 1 的 unpack
+            // 已经按版本/值域拒过），这里只是把载荷映射成领域对象；映射不可能失败，但若
+            // 真失败也必须发生在**交换前**——交换后才失败就是"数据库已切换、设置没进来"。
+            restoredSettings = readStagedSettings(staging)
 
             // Phase 3: Prepare generations and record the rollback journal.
             journal.writePhase(RestorePhase.BACKUP_CURRENT)
@@ -401,6 +491,7 @@ class AndroidBackupRepository(
             // 回执的数取自归档里那份库本身（题数）与刚刚过了闭合校验的引用集合
             // （题图数），不取 manifest 里那张没人核对过的清单（AUD-05）：
             // manifest 是成包那一刻写的，而用户要看到的是"这次恢复进来的是什么"。
+            // 设置结果在方法尾部补（Phase 8），此处留缺省值。
             RestoreReceipt(
                 databaseSchemaVersion = valid.manifest.databaseSchemaVersion,
                 problemCount = stagedDatabase.problemCount,
@@ -445,7 +536,82 @@ class AndroidBackupRepository(
             }
             throw failure
         }
+
+        // Phase 8（6C-1）：交换已提交、journal 已清，这里才写设置。写失败不回滚数据库
+        // （数据已经一致），只在回执里如实标 partial；app 层据此把"部分恢复"说出来。
+        val settingsOutcome = when (val settings = restoredSettings) {
+            null -> RestoreSettingsOutcome.NOT_IN_ARCHIVE
+            else -> applyRestoredSettings(settings)
+        }
+        return receipt.copy(settings = settingsOutcome)
     }
+
+    /**
+     * 归档里的设置载荷，解出来备用；包内没有设置（v1 旧包，或成包时没装设置口）返回 null。
+     *
+     * 版本与值域在 Phase 1 的 unpack 里已经过了编解码层的闸门（读不懂的包到不了这里），
+     * 这里只做"文档 → 领域对象"的映射；映射若失败仍必须在交换前抛（[BackupRestoreException]），
+     * 因为交换后才失败就是"数据库已切换、设置没进来"的半恢复。
+     */
+    private fun readStagedSettings(stagingDir: File): RestorableSettings? {
+        val settingsFile = File(stagingDir, SmbkArchiveCodec.SETTINGS_ENTRY)
+        if (!settingsFile.isFile) return null
+        return try {
+            val document = SmbkSettingsCodec.decode(settingsFile.readText())
+            RestorableSettings(
+                scheduling = SchedulingOptions(document.desiredRetention),
+                exams = document.examCalendar,
+                optimizedParameters = document.optimizedFsrsParameters?.toDoubleArray(),
+                reminder = ReviewReminderPreferences(
+                    enabled = document.reviewReminderEnabled,
+                    minutesAfterMidnight = document.reviewReminderMinutesAfterMidnight,
+                ),
+            )
+        } catch (failure: Exception) {
+            throw BackupRestoreException("备份设置无法读取：${failure.message.orEmpty()}", failure)
+        }
+    }
+
+    /**
+     * 把备份里的设置写进本机 DataStore。**只写偏好**：提醒只写 `enabled` 与
+     * `minutes_after_midnight` 两个键——系统通知授权不在本机偏好里（这里无法也不应复活它），
+     * 投递历史（"今天已经提醒过"）也不在备份载荷里、因此不会被覆盖。
+     *
+     * 写失败（或设置口未装配）返回 [RestoreSettingsOutcome.WRITE_FAILED]，绝不抛：
+     * 此刻数据库已一致，把它拖进回滚路径会把用户的数据再翻一遍。
+     */
+    private suspend fun applyRestoredSettings(settings: RestorableSettings): RestoreSettingsOutcome {
+        val scheduling = schedulingSettings ?: return RestoreSettingsOutcome.WRITE_FAILED
+        val reminders = reviewReminders ?: return RestoreSettingsOutcome.WRITE_FAILED
+        return try {
+            scheduling.setOptions(settings.scheduling)
+            scheduling.exams.first().forEach { existing -> scheduling.removeExam(existing.entryId) }
+            settings.exams.forEach { exam -> scheduling.addExam(exam) }
+            scheduling.setOptimizedParameters(settings.optimizedParameters)
+            reminders.setEnabled(settings.reminder.enabled)
+            reminders.setReminderTime(settings.reminder.minutesAfterMidnight)
+            RestoreSettingsOutcome.APPLIED
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            android.util.Log.w(
+                "SmartMistakeBook",
+                "设置写入失败；数据库已恢复，设置保持原样：${failure.message.orEmpty()}",
+            )
+            RestoreSettingsOutcome.WRITE_FAILED
+        }
+    }
+
+    /**
+     * 已映射成领域对象的设置载荷：映射即校验（[SchedulingOptions] / [ReviewReminderPreferences]
+     * 的构造器自带值域约束），到 Phase 8 只剩"写"这一个动作。
+     */
+    private data class RestorableSettings(
+        val scheduling: SchedulingOptions,
+        val exams: List<ExamCalendarEntry>,
+        val optimizedParameters: DoubleArray?,
+        val reminder: ReviewReminderPreferences,
+    )
 
     private fun deleteGenerationArtifacts(
         previousDb: File,
@@ -948,8 +1114,20 @@ internal class CountingInputStream(
 }
 
 object BackupRepositoryFactory {
+    /**
+     * [schedulingSettings] / [reviewReminders] 是设置随包走的读口与写口（6C-1）：装配方传
+     * 生产用的 DataStore 实例，备份把它们的偏好快照进 `settings.json`，恢复在交换成功后
+     * 写回。不传（测试装配）时包内没有设置——`hasSettings=false`，不是"设置是默认值"。
+     */
     fun create(
         context: Context,
         database: StudyDatabasePort,
-    ): BackupRepository = AndroidBackupRepository(context, database)
+        schedulingSettings: SchedulingSettingsStore? = null,
+        reviewReminders: ReviewReminderRepository? = null,
+    ): BackupRepository = AndroidBackupRepository(
+        context = context,
+        database = database,
+        schedulingSettings = schedulingSettings,
+        reviewReminders = reviewReminders,
+    )
 }

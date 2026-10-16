@@ -95,6 +95,28 @@ internal interface SplitImportDao {
     )
     suspend fun readQuestionBySplitDraftId(splitDraftId: String): SplitImportQuestionEntity?
 
+    /**
+     * 读侧对账（KD-39）的取数口：**草稿已经入库**（`problem_draft.status = 'COMMITTED'`）而台账
+     * 仍写着 PENDING 的题。
+     *
+     * 一条 JOIN 取代"逐题读草稿状态"的 N+1：草稿是否入库只在这个两表之间的等值条件里问，
+     * 不把整份草稿（修订 + 资产）读出来。两列都有索引（`split_draft_id`、`problem_draft.draft_id`），
+     * 且 `split_import_question.split_draft_id` 的外键指向 `problem_draft.draft_id`，JOIN 不会凭空匹配。
+     *
+     * 不加作业状态过滤：回执本身也不要求任务还是 READY（`RoomSplitImportStore.markQuestionSavedByDraftId`
+     * 的 KDoc 说明了为什么——一道已经入库的题不因任务被收尾而改变事实）。代价是这条在历史题行上
+     * 也走一遍索引扫描；它只在三个读触发点各跑一次（启动对账 / 进复核页 / 逐题续做），不在热路径上。
+     */
+    @Query(
+        """
+        SELECT question.* FROM split_import_question AS question
+        JOIN problem_draft AS draft ON draft.draft_id = question.split_draft_id
+        WHERE question.confirm_state = 'PENDING' AND draft.status = 'COMMITTED'
+        ORDER BY question.job_id, question.question_ordinal
+        """,
+    )
+    suspend fun findPendingQuestionsWithCommittedDraft(): List<SplitImportQuestionEntity>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertJob(job: SplitImportJobEntity)
 

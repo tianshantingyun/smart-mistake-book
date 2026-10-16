@@ -10,10 +10,12 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
+import com.tingyun.smartmistakebook.core.domain.FULL_LIBRARY_SCAN_DAILY_CAP
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewCandidate
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.core.domain.extractReviewKnowledgeScope
+import com.tingyun.smartmistakebook.core.domain.fullLibraryScanCandidate
 import com.tingyun.smartmistakebook.core.domain.knowledgeRecallRiskByNode
 import com.tingyun.smartmistakebook.core.domain.selectKnowledgeReviewQueue
 import com.tingyun.smartmistakebook.core.model.StudyDayMath
@@ -536,10 +538,16 @@ internal class StudyReviewPlannerService(
         }
         // 知识点复习不要求错题会话已启动：今日有 current 计划（含已完成）即可据此排知识点。
         val planQueue = currentPlan.queue
-        if (planQueue.isEmpty()) return KnowledgeReviewSessionPlan()
 
-        // 范围 = 今天错题复习队列的题绑定知识点并集（T1），只取今天队列实际覆盖的点，
-        // 不把整个知识库拖进来（spec §1.3：范围 = 今天错题里涉及的知识点）。
+        // 范围 = **今日错题队列的题绑定知识点（第一档）** ∪ **全库扫描（第二档，3E）**。
+        // 第二档 = 全库「有绑定题的活跃知识点 ∩ 材料可出题」− 今日队列（范围条件在
+        // `fullLibraryScanCandidate`），先按分取前 FULL_LIBRARY_SCAN_DAILY_CAP 个，再与第一档
+        // 并集，在 reviewTimeBudgetSeconds 内取队 —— 名额（F17 配额）+ 时间（F8 预算）双封顶
+        // （2026-10-16 裁定「第二档 = 每日 10 个知识点，时间预算沿用 20 分钟」）。
+        //
+        // 今日队列**为空不再是短路条件**：第二档存在的意义就是"不受今日队列限制"
+        // （`docs/research/2026-10-11-new-stages-spec.md` §3E、主线 3E 行）。今日没有到期的错题
+        // 时，全库扫描照样把落单的薄弱点捞回来——这正是范围定稿要关掉的那个缺口。
         val requestedScope = extractReviewKnowledgeScope(
             planQueue.map { queueItem ->
                 ReviewScopeQuestion(
@@ -548,12 +556,10 @@ internal class StudyReviewPlannerService(
                 )
             },
         )
-        if (requestedScope.isEmpty()) return KnowledgeReviewSessionPlan()
         // **已退役的知识点不进新复习计划。这一道必须在这里，不能塞进 resolveKnowledgeContexts**
         // ——那个函数只是名字/路径解析器，而掌握度列表（StudySnapshotBuilder）用的是同一个它，
         // 在解析器里过滤会让学生的旧记录凭空消失。
         val queueScope = database.readActiveKnowledgeNodeIds(requestedScope)
-        if (queueScope.isEmpty()) return KnowledgeReviewSessionPlan()
 
         val learnerSnapshot = learnerSnapshot()
         val resolvedContexts = resolveKnowledgeContexts(queueScope)
@@ -570,8 +576,7 @@ internal class StudyReviewPlannerService(
         // 只排可出题的知识点：KNOWLEDGE_QUIZ 以讲解材料 boundary 为防臆造锚（spec §3.3），
         // 无材料的伪节点（pseudo:*）或未装配材料的真节点无法出题，若进计划会让会话卡死。
         val materialGroupByNode = quizAbleScopeNodes(queueScope, subjectByNode)
-        if (materialGroupByNode.isEmpty()) return KnowledgeReviewSessionPlan()
-        val candidateIds = queueScope.filterTo(linkedSetOf()) { it in materialGroupByNode }
+        val todayCandidateIds = queueScope.filterTo(linkedSetOf()) { it in materialGroupByNode }
         // 知识点没有自己的记忆痕迹：到期风险由今天队列中承载它的题目的 FSRS 检索概率聚合
         // （取最小 R），而不是掌握度 EMA + 45 天悬崖（研究 2026-09-09 §1）。
         val boundUnitsByNode = planQueue
@@ -583,8 +588,39 @@ internal class StudyReviewPlannerService(
             nowEpochMillis = planningContext.planningAtEpochMillis,
             decay = planningDecay,
         )
+
+        // ---- 第二档：全库扫描（3E）----
+        // 一条查询取回全库「活跃知识点 → 在册绑定题 + 可出题材料组」；减去今日档**真正拿到的
+        // 候选池**（todayCandidateIds = 今日队列 ∩ 可出题材料）后按同一把打分核参与并集。
+        // 绑定题 id 全量随行带回，风险聚合不再逐节点往返（N+1 关掉）。
+        // 减法用 todayCandidateIds 而不是 requestedScope（对抗性复核 finding 4）：材料查询带
+        // 每科目 64 条上限，被今日错题碰到、却因这条截断没进今日候选池的弱掌握点，必须留给
+        // 第二档（全库查询不走截断路径）去捞——用 requestedScope 会把它再排除一次，两档都漏。
+        val scanRows = database.readFullLibraryScanNodes()
+            .filterNot { it.knowledgeNodeId in todayCandidateIds }
+        val scanRecallRiskByNode = knowledgeRecallRiskByNode(
+            boundPracticeUnitIdsByNode = scanRows.associate { row ->
+                row.knowledgeNodeId to row.boundPracticeUnitIds
+            },
+            memoryStates = learnerSnapshot.problemMemoryStates,
+            nowEpochMillis = planningContext.planningAtEpochMillis,
+            decay = planningDecay,
+        )
+        val scanCandidates = scanRows.mapNotNull { row ->
+            fullLibraryScanCandidate(
+                knowledgeNodeId = row.knowledgeNodeId,
+                subjectId = row.subject,
+                materialGroupId = row.materialGroupId,
+                boundPracticeUnitIds = row.boundPracticeUnitIds,
+                state = learnerSnapshot.knowledgeMasteryStates[row.knowledgeNodeId],
+                recallRisk = scanRecallRiskByNode[row.knowledgeNodeId],
+            )
+        }
+        val candidateIds = todayCandidateIds + scanCandidates.mapTo(linkedSetOf()) { it.knowledgeNodeId }
+        if (candidateIds.isEmpty()) return KnowledgeReviewSessionPlan()
         // KF-16 读侧接线（裁决 28）：知识点先修稳定度表——先修未恢复的点按有效稳定度压制，
         // 不被"已掌握则跳过"的判据放行（此前 `prerequisiteStabilityDays` 全仓无生产调用点）。
+        // 两档共用同一张图：图按科目分组、内部分块（256/查询），不是逐节点往返。
         val prerequisiteStabilityDaysByNode = knowledgePrerequisites
             .graphFor(candidateIds)
             .prerequisitesByDependent
@@ -595,7 +631,7 @@ internal class StudyReviewPlannerService(
             }
         val selected = selectKnowledgeReviewQueue(
             scorer = knowledgeNodeScorer,
-            candidates = candidateIds.map { knowledgeNodeId ->
+            candidates = todayCandidateIds.map { knowledgeNodeId ->
                 KnowledgeReviewCandidate(
                     knowledgeNodeId = knowledgeNodeId,
                     subjectId = subjectByNode[knowledgeNodeId]?.name ?: SubjectKind.GENERAL.name,
@@ -608,17 +644,29 @@ internal class StudyReviewPlannerService(
             now = planningContext.planningAtEpochMillis,
             timeBudgetSeconds = reviewTimeBudgetSeconds,
             prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
+            fullLibraryScanCandidates = scanCandidates,
+            fullLibraryScanDailyCap = FULL_LIBRARY_SCAN_DAILY_CAP,
         )
         if (selected.isEmpty()) return KnowledgeReviewSessionPlan()
+        // 会话条目只需要**入选**节点的名字与科目：今日档已解析，扫描档在这里补解析（≤ 每日名额），
+        // 不把全库节点拖进上下文解析（那是 O(库规模) 的读）。
+        val selectedIds = selected.mapTo(linkedSetOf()) { it.knowledgeNodeId }
+        val scannedSubjectByNode = scanCandidates
+            .filter { it.knowledgeNodeId in selectedIds }
+            .associate { it.knowledgeNodeId to it.subjectId }
+        val displayNameByNode = resolvedContexts.mapValues { (_, context) -> context.displayName } +
+            resolveKnowledgeContexts(selectedIds - resolvedContexts.keys).mapValues { (_, context) ->
+                context.displayName
+            }
         return KnowledgeReviewSessionPlan(
             queue = selected.map { scored ->
-                val context = resolvedContexts[scored.knowledgeNodeId]
                 val state = learnerSnapshot.knowledgeMasteryStates[scored.knowledgeNodeId]
                 KnowledgeReviewQueueEntry(
                     knowledgeNodeId = scored.knowledgeNodeId,
                     subject = subjectByNode[scored.knowledgeNodeId]?.name
+                        ?: scannedSubjectByNode[scored.knowledgeNodeId]
                         ?: SubjectKind.GENERAL.name,
-                    displayName = context?.displayName
+                    displayName = displayNameByNode[scored.knowledgeNodeId]
                         ?: scored.knowledgeNodeId,
                     masteryScore = state?.masteryScore,
                     lastEvidenceAtEpochMillis = state?.lastEvidenceAtEpochMillis,
@@ -626,6 +674,7 @@ internal class StudyReviewPlannerService(
             },
         )
     }
+
 
     private companion object {
         /** Difficulty mid-point on the FSRS 1..10 domain (spec 3.2). */

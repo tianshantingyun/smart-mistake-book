@@ -110,10 +110,16 @@ object LocalReviewSelfReportContract {
 
 /**
  * 讲题判定的题目级结算：模型出探针、本地核对客观作答、模型给语义判词，最终落成一次复习
- * attempt。快照**故意不带知识归属**——这条通道只驱动题目级排期（FSRS/记忆状态），
- * 知识点掌握度一律走模型判断的 chat-evidence 通道（`MasteryWriteGate`，≤0.15），
- * 避免一次讲题会话对同一 KC 双写。依据见
- * `docs/research/model-judged-verdict-pricing.md`。
+ * attempt。题目级定价（HARD/AGAIN，0.5）走这条通道；知识点掌握度由模型判断的 chat-evidence
+ * 通道写（`MasteryWriteGate`，≤0.15）。
+ *
+ * AUD-11 ①（2026-10-16 裁定）后本合同的**形状**含义收窄为"无归属的讲题判定快照"：
+ * `matches` 仍要求 `attributions.isEmpty()`——本地核对分支（判定来自检查题作答，没有
+ * chat-evidence 驱动）继续落这个形状；模型判词分支若锚定在本题 KC 集上，会把驱动证据落成
+ * 一条归属（`TutorJudgedReviewSettler.attributionForDrivingEvidence`），那时快照由
+ * `DatabaseContractValidator` 的归属支放行、taxonomy 也随该归属的绑定（不再是本合同的串）。
+ * 这里保留空归属分支是为了"旧形状的快照仍然可写"（与 [LocalReviewSelfReportContract] 同一理由）。
+ * 依据见 `docs/research/model-judged-verdict-pricing.md`。
  */
 object LocalModelJudgedContract {
     const val ASSESSMENT_ITEM_ID_PREFIX = "local-model-judged:"

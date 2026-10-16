@@ -2,32 +2,51 @@ package com.tingyun.smartmistakebook.core.data.backup
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.ContextWrapper
 import android.database.sqlite.SQLiteDatabase
+import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.database.AppendTutorStudentMessageDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
+import com.tingyun.smartmistakebook.core.database.ContentInstallStateRecord
 import com.tingyun.smartmistakebook.core.database.CreateTutorConversationDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.ErrorBookEntrySeedRecord
 import com.tingyun.smartmistakebook.core.database.PracticeUnitSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemRevisionSeedRecord
 import com.tingyun.smartmistakebook.core.database.ProblemSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
+import com.tingyun.smartmistakebook.core.data.knowledge.BundledKnowledgePackResources
 import com.tingyun.smartmistakebook.core.data.study.seedStudyFacts
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.data.settings.AndroidKeystoreModelSecretVault
+import com.tingyun.smartmistakebook.core.data.settings.DataStoreReviewReminderRepository
+import com.tingyun.smartmistakebook.core.data.settings.DataStoreSchedulingSettingsStore
 import com.tingyun.smartmistakebook.core.data.settings.MODEL_SECRET_KEY_ALIAS
 import com.tingyun.smartmistakebook.core.data.settings.ModelSecretBinding
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
+import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
+import com.tingyun.smartmistakebook.core.domain.RestoreSettingsOutcome
+import com.tingyun.smartmistakebook.core.domain.ReviewReminderDelivery
+import com.tingyun.smartmistakebook.core.domain.ReviewReminderPreferences
+import com.tingyun.smartmistakebook.core.domain.ReviewReminderRepository
+import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -41,6 +60,7 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.security.KeyStore
 import java.security.MessageDigest
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -355,6 +375,351 @@ class BackupRestoreInstrumentedTest {
             context.deleteDatabase(sourceName)
             archive.delete()
             backupDirectory.delete()
+        }
+    }
+
+    /**
+     * 6C-1 的设置往返：备份 → 改设置 → 恢复 → 设置回到备份里那份。
+     *
+     * 设置走**生产用的 DataStore 实现**（隔离存储目录，避免与 app 进程里那一对实例撞同一个
+     * 文件），数据库走真实仓库路径与真实的恢复交换。同时钉住两件事：
+     *   - 清单的版本戳：`hasSettings`、应用版本、内容版本（取自**快照库**里的
+     *     `content_install_state`）；
+     *   - 投递历史不在备份载荷里：恢复不许把它清掉（"今天已经提醒过"不能被旧包改写）。
+     */
+    @Test
+    fun settingsSurviveBackupAndRestoreRoundTrip() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        val isolatedRoot = File(context.cacheDir, "backup-settings-tests/${UUID.randomUUID()}")
+        val scopeJob = SupervisorJob()
+        val scope = CoroutineScope(scopeJob + Dispatchers.IO)
+        val scheduling = DataStoreSchedulingSettingsStore(
+            IsolatedStorageContext(context, isolatedRoot),
+            scope,
+        )
+        val reminders = DataStoreReviewReminderRepository(
+            IsolatedStorageContext(context, isolatedRoot),
+            scope,
+        )
+        try {
+            val database = StudyDatabaseFactory.open(context)
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
+            val packId = requireNotNull(
+                BundledKnowledgePackResources.updateManifest?.packId,
+            ) { "随包内容清单必须可读，否则内容版本戳无处可查" }
+            database.recordContentInstallState(
+                ContentInstallStateRecord(
+                    packId = packId,
+                    contentVersion = "backup-test-content-v1",
+                    appliedAtEpochMillis = 1_000L,
+                ),
+            )
+
+            val backupExams = listOf(
+                ExamCalendarEntry(
+                    entryId = "exam-math",
+                    subject = "MATH",
+                    examEpochDay = 20_700,
+                    title = "数学期末",
+                ),
+                ExamCalendarEntry(
+                    entryId = "exam-physics",
+                    subject = "PHYSICS",
+                    examEpochDay = 20_710,
+                    title = "物理期末",
+                ),
+            )
+            val backupParameters = List(21) { index -> 0.05 * (index + 1) }
+            scheduling.setOptions(SchedulingOptions(0.9))
+            backupExams.forEach { scheduling.addExam(it) }
+            scheduling.setOptimizedParameters(backupParameters.toDoubleArray())
+            reminders.setEnabled(true)
+            reminders.setReminderTime(18 * 60 + 30)
+            val claimedDelivery = ReviewReminderDelivery(
+                localEpochDay = 20_655,
+                zoneId = "Asia/Shanghai",
+            )
+            assertTrue(reminders.claimNotificationDelivery(claimedDelivery))
+
+            // 系统通知授权不是偏好、也不在包里：恢复前后它必须原样（"只存偏好"）。
+            val notificationsAuthorized =
+                NotificationManagerCompat.from(context).areNotificationsEnabled()
+
+            val repository = AndroidBackupRepository(context, database, scheduling, reminders)
+            // 判据取"成包前那一行"而不是写死的串：随包安装器可能在测试进程里并发写同一行，
+            // 而戳的语义是"快照那一刻那一行的值"——拿它对照才是在测取数来源本身。
+            val stampedContentVersion = database.readContentInstallState(packId)?.contentVersion
+            assertTrue("夹具必须让随包内容版本有值", !stampedContentVersion.isNullOrEmpty())
+            val archive = ByteArrayOutputStream()
+            val receipt = repository.create(archive)
+            assertEquals(1, receipt.problemCount)
+
+            val validation = repository.validate(ByteArrayInputStream(archive.toByteArray()))
+            assertTrue(validation is BackupValidation.Valid)
+            validation as BackupValidation.Valid
+            assertTrue("v2 成包必须带上设置", validation.manifest.hasSettings)
+            assertEquals(
+                "应用版本戳取自包管理器",
+                context.packageManager.getPackageInfo(context.packageName, 0).versionName,
+                validation.manifest.appVersionName,
+            )
+            assertEquals(
+                "内容版本戳取自快照库里的 content_install_state",
+                stampedContentVersion,
+                validation.manifest.contentVersion,
+            )
+
+            // 换成与备份逐字段不同的另一套设置：往返才有判据。
+            scheduling.setOptions(SchedulingOptions(0.8))
+            scheduling.exams.first().forEach { scheduling.removeExam(it.entryId) }
+            scheduling.addExam(
+                ExamCalendarEntry(
+                    entryId = "exam-other",
+                    subject = "CHEMISTRY",
+                    examEpochDay = 20_800,
+                    title = "化学期末",
+                ),
+            )
+            scheduling.setOptimizedParameters(null)
+            reminders.setEnabled(false)
+            reminders.setReminderTime(7 * 60)
+
+            val restoreReceipt = repository.restore(ByteArrayInputStream(archive.toByteArray()))
+
+            assertEquals("题数取自归档库本身", 1, restoreReceipt.problemCount)
+            assertEquals(
+                "备份里的设置写进了本机",
+                RestoreSettingsOutcome.APPLIED,
+                restoreReceipt.settings,
+            )
+            assertEquals(
+                "恢复只写偏好，不复活也不改动系统通知授权",
+                notificationsAuthorized,
+                NotificationManagerCompat.from(context).areNotificationsEnabled(),
+            )
+            assertEquals(0.9, scheduling.options.first().desiredRetention, 1e-9)
+            assertEquals(
+                backupExams.sortedBy { it.entryId },
+                scheduling.exams.first().sortedBy { it.entryId },
+            )
+            assertArrayEquals(
+                "本地拟合参数必须原样往返",
+                backupParameters.toDoubleArray(),
+                scheduling.optimizedParameters.first(),
+                0.0,
+            )
+            assertEquals(
+                ReviewReminderPreferences(enabled = true, minutesAfterMidnight = 18 * 60 + 30),
+                reminders.current(),
+            )
+            assertFalse(
+                "投递历史不在备份载荷里，恢复不许把它清掉",
+                reminders.claimNotificationDelivery(claimedDelivery),
+            )
+
+            database.close()
+            val restored = StudyDatabaseFactory.open(context)
+            assertEquals(1, restored.countMistakes())
+            restored.close()
+        } finally {
+            scopeJob.cancelAndJoin()
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+            isolatedRoot.deleteRecursively()
+        }
+    }
+
+    /**
+     * v1 旧包（没有 settings、没有版本戳）在新 app 上恢复**不炸**，且不改动本机设置：
+     * 缺省字段读作"包内没有设置"，不是"设置是默认值"。
+     */
+    @Test
+    fun restoringAV1ArchiveWithoutSettingsKeepsLocalSettingsUntouched() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        val isolatedRoot = File(context.cacheDir, "backup-v1-settings/${UUID.randomUUID()}")
+        val scopeJob = SupervisorJob()
+        val scope = CoroutineScope(scopeJob + Dispatchers.IO)
+        val scheduling = DataStoreSchedulingSettingsStore(
+            IsolatedStorageContext(context, isolatedRoot),
+            scope,
+        )
+        val reminders = DataStoreReviewReminderRepository(
+            IsolatedStorageContext(context, isolatedRoot),
+            scope,
+        )
+        val snapshotFile = File(context.cacheDir, "v1-restore-snapshot-${System.nanoTime()}.db")
+        try {
+            val database = StudyDatabaseFactory.open(context)
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
+            val localExam = ExamCalendarEntry(
+                entryId = "exam-local",
+                subject = "MATH",
+                examEpochDay = 20_900,
+                title = "本机考试",
+            )
+            scheduling.setOptions(SchedulingOptions(0.9))
+            scheduling.addExam(localExam)
+            reminders.setEnabled(true)
+            reminders.setReminderTime(6 * 60 + 15)
+
+            // 拿真实快照做一份 v1 归档：清单只有 v1 那会儿的字段。
+            database.snapshotForBackup(context.getDatabasePath(databaseName), snapshotFile)
+            val v1Archive = buildV1Archive(snapshotFile.readBytes())
+
+            val repository = AndroidBackupRepository(context, database, scheduling, reminders)
+            val receipt = repository.restore(ByteArrayInputStream(v1Archive))
+
+            assertEquals(1, receipt.problemCount)
+            assertEquals(
+                "v1 旧包没有设置载荷，本机设置原样不动",
+                RestoreSettingsOutcome.NOT_IN_ARCHIVE,
+                receipt.settings,
+            )
+            assertEquals(0.9, scheduling.options.first().desiredRetention, 1e-9)
+            assertEquals(listOf(localExam), scheduling.exams.first())
+            assertEquals(
+                ReviewReminderPreferences(enabled = true, minutesAfterMidnight = 6 * 60 + 15),
+                reminders.current(),
+            )
+
+            database.close()
+            val restored = StudyDatabaseFactory.open(context)
+            assertEquals(1, restored.countMistakes())
+            restored.close()
+        } finally {
+            scopeJob.cancelAndJoin()
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+            snapshotFile.delete()
+            isolatedRoot.deleteRecursively()
+        }
+    }
+
+    /**
+     * 设置写不进去时是**部分恢复**：回执如实标 [RestoreSettingsOutcome.WRITE_FAILED]，
+     * 数据库**不回滚**（它已经切换到备份数据且一致），原设置保持原样。
+     */
+    @Test
+    fun settingsWriteFailureIsReportedAsPartialWithoutRollingBackTheRestoredDatabase() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        val isolatedRoot = File(context.cacheDir, "backup-settings-failure/${UUID.randomUUID()}")
+        val scopeJob = SupervisorJob()
+        val scope = CoroutineScope(scopeJob + Dispatchers.IO)
+        val scheduling = DataStoreSchedulingSettingsStore(
+            IsolatedStorageContext(context, isolatedRoot),
+            scope,
+        )
+        try {
+            val database = StudyDatabaseFactory.open(context)
+            val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+            seedStudyFacts(context, database, databaseName, seed())
+            scheduling.setOptions(SchedulingOptions(0.9))
+
+            val repository = AndroidBackupRepository(
+                context,
+                database,
+                scheduling,
+                FailingReviewReminderRepository(),
+            )
+            val archive = ByteArrayOutputStream()
+            repository.create(archive)
+
+            // 恢复前把本机设置改成另一份：写失败时它必须还是这一份（没有被回滚成备份那份）。
+            scheduling.setOptions(SchedulingOptions(0.8))
+
+            val receipt = repository.restore(ByteArrayInputStream(archive.toByteArray()))
+
+            assertEquals(1, receipt.problemCount)
+            assertEquals(
+                "设置没写进去必须如实标 partial",
+                RestoreSettingsOutcome.WRITE_FAILED,
+                receipt.settings,
+            )
+            val restored = StudyDatabaseFactory.open(context)
+            assertEquals(
+                "设置写失败不回滚已经一致的数据库",
+                1,
+                restored.countMistakes(),
+            )
+            restored.close()
+        } finally {
+            scopeJob.cancelAndJoin()
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+            isolatedRoot.deleteRecursively()
+        }
+    }
+
+    /**
+     * v1 归档夹具：`formatVersion` 1、只有 v1 那会儿的清单字段（没有版本戳与设置字段），
+     * 数据条目与校验和按既有约定写全。
+     */
+    private fun buildV1Archive(databaseContent: ByteArray): ByteArray {
+        val databaseSha = sha256Hex(databaseContent)
+        val manifest = buildString {
+            append("{")
+            append("\"formatVersion\":1,")
+            append("\"databaseSchemaVersion\":32,")
+            append("\"createdAt\":1000,")
+            append("\"problemCount\":1,")
+            append("\"assetCount\":0,")
+            append("\"hashAlgorithm\":\"SHA-256\",")
+            append("\"files\":[")
+            append("{\"path\":\"database.sqlite\",\"sha256\":\"$databaseSha\",")
+            append("\"byteSize\":${databaseContent.size}}]}")
+        }
+        val output = ByteArrayOutputStream()
+        ZipOutputStream(output).use { zip ->
+            zip.putNextEntry(ZipEntry("manifest.json"))
+            zip.write(manifest.toByteArray())
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry("database.sqlite"))
+            zip.write(databaseContent)
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry("checksums.sha256"))
+            zip.write("$databaseSha *database.sqlite".toByteArray())
+            zip.closeEntry()
+        }
+        return output.toByteArray()
+    }
+
+    /**
+     * 只失败在"写"上的提醒设置口：读侧返回默认值（成包要用），写侧抛异常——复现
+     * "数据库已切换、设置写不进去"的形态，且不掺入其它故障。
+     */
+    private class FailingReviewReminderRepository : ReviewReminderRepository {
+        override val preferences: Flow<ReviewReminderPreferences> =
+            flowOf(ReviewReminderPreferences())
+
+        override suspend fun current(): ReviewReminderPreferences = ReviewReminderPreferences()
+
+        override suspend fun setEnabled(enabled: Boolean) {
+            error("reminder preference write is unavailable in this fixture")
+        }
+
+        override suspend fun setReminderTime(minutesAfterMidnight: Int) {
+            error("reminder preference write is unavailable in this fixture")
+        }
+
+        override suspend fun claimNotificationDelivery(delivery: ReviewReminderDelivery): Boolean =
+            true
+    }
+
+    /** 设置 DataStore 的隔离存储：同一个文件只允许一个实例，测试不能撞 app 进程那份。 */
+    private class IsolatedStorageContext(
+        base: Context,
+        private val root: File,
+    ) : ContextWrapper(base) {
+        override fun getApplicationContext(): Context = this
+
+        override fun getFilesDir(): File = File(root, "files").also { directory ->
+            check(directory.isDirectory || directory.mkdirs())
+        }
+
+        override fun getNoBackupFilesDir(): File = File(root, "no-backup").also { directory ->
+            check(directory.isDirectory || directory.mkdirs())
         }
     }
 

@@ -1,6 +1,9 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import android.util.Log
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceWriteReceipt
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
@@ -30,9 +33,18 @@ import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
  * - 测验通道：`anchorClass = CONFIRMED`（本次测验**直接选定**的知识点，不是检索候选/
  *   披露），置信 = [OBJECTIVE_ANSWER_CONFIDENCE]（本地机械判定对错，理由可引）。
  *
+ * AUD-11 ①（2026-10-16 裁定）把三路门控数据源里**同 KC 冷却**那一维收窄到模型通道：
+ * 12h 冷却防的是"模型在同一 KC 上的重复自证"，客观作答通道是独立信号，按自身幂等身份防重
+ * （细则与实测见 [write] 内的注释）。会话/滚动窗两维仍是通道无关的 learner 级配额。
+ *
+ * AUD-11 ③-2（可观察性先行）：[write] 的 accepted 结果现在带回**落库去向**
+ * （[KnowledgeEvidenceLedgerStatus]）——门放行不等于账本里有这笔事件，重放与身份粘性
+ * （既有行是被拒观察行）不再混为一谈。
+ *
  * 零 bump 理由：讲题通道逐字段与重构前一致；测验通道新增的是 rejected 观察行（不进投影）
  * 与 `anchor_class` 审计列（投影只读 `weight`），accepted 行的 weight/direction/时间戳
- * 一个字节没变（CONFIRMED 全权重）。
+ * 一个字节没变（CONFIRMED 全权重）。AUD-11 的改动是**准入参数**（哪些写被放行）与**读侧
+ * 回报**，不动投影器公式、不动事件载荷、不动指纹：见写入行与账本事件逐位不变的既有用例。
  */
 internal class KnowledgeEvidenceWriter(
     private val database: StudyDatabasePort,
@@ -50,12 +62,23 @@ internal class KnowledgeEvidenceWriter(
 
         // 门控数据源：三个索引支撑的精确查询（O(log n)，不做全表拉取）。
         // - 同 KC 冷却按 learner 粒度（跨会话）：防"我懂了"开新会话绕过。
+        //   **只对模型通道取**（AUD-11 ① 已裁定）：12h 冷却管的是"模型在同一个 KC 上的
+        //   重复自证"（对话判定在 12h 内相关、不独立），客观作答通道给的是独立信号，
+        //   它按自身幂等身份防重（同会话同题同选项 = 同一身份 = 一笔）、由会话/滚动窗
+        //   配额兜底。改前两条通道共用这一维、且查询通道无关：模型写之后当晚的小测
+        //   客观证据被 SAME_KC_IN_COOLDOWN 全数挡掉（实测落库 0/3，报告 §2.2）。
         // - 会话配额按本会话 accepted 数（null 会话 = 无会话通道，计 0——与讲题直调一致）。
-        // - learner 滚动窗配额按 learner 最近窗口内 accepted 总数（防多会话 farm）。
-        val lastSameKcWrite = database.lastAcceptedChatEvidenceAtForKc(
-            learnerId = request.learnerId,
-            knowledgeNodeId = request.knowledgeNodeId,
-        )
+        // - learner 滚动窗配额按 learner 最近窗口内 accepted 总数（防多会话 farm）；
+        //   这一维**通道无关**（配额本来就是 learner 级），保持原样。
+        val lastSameKcWrite = if (request.channel == KnowledgeEvidenceChannel.MODEL_CHAT) {
+            database.lastAcceptedChatEvidenceAtForKc(
+                learnerId = request.learnerId,
+                knowledgeNodeId = request.knowledgeNodeId,
+                sourceKind = request.channel.sourceKind,
+            )
+        } else {
+            null
+        }
         val sameKcLastWriteAgoMillis = lastSameKcWrite?.let { (now - it).coerceAtLeast(0) }
         val acceptedInWindow = database.countAcceptedChatEvidenceSince(
             learnerId = request.learnerId,
@@ -91,7 +114,7 @@ internal class KnowledgeEvidenceWriter(
                     baseWeight = result.weight,
                     anchorClass = request.anchorClass,
                 )
-                database.recordChatEvidence(
+                val receipt = database.recordChatEvidence(
                     listOf(
                         entry(
                             request = request,
@@ -101,11 +124,16 @@ internal class KnowledgeEvidenceWriter(
                         ),
                     ),
                 )
-                KnowledgeEvidenceWriteOutcome.Accepted(weight = effectiveWeight)
+                KnowledgeEvidenceWriteOutcome.Accepted(
+                    weight = effectiveWeight,
+                    ledgerStatus = receipt.ledgerStatusOf(evidenceId),
+                )
             }
             is MasteryWriteGate.GateResult.Rejected -> {
                 // 被拒 ≠ 删除：落 rejected 审计行（不进投影），拒因交回调用方。
                 // anchor_class 一并落上——校准要能区分"哪一档来路的证据被拒得最多"。
+                // 回执不消费：被拒行本来就不进账本，同身份 IGNORE 只影响"这条观察行有没有落到"
+                // （镜像面的观察性不在本次改动面内，见 KD-43 登记口径）。
                 database.recordChatEvidence(
                     listOf(
                         entry(
@@ -119,6 +147,30 @@ internal class KnowledgeEvidenceWriter(
                 KnowledgeEvidenceWriteOutcome.Rejected(reason = result.reason)
             }
         }
+    }
+
+    /**
+     * 把落库回执折成**一笔 accepted 写到底进没进账本**（AUD-11 ③-2 可观察性）。
+     *
+     * 消灭的失败：写入口此前对 IGNORE 无感知——"身份粘性"（库里那行是被拒观察行）时回报
+     * `Accepted`、调用方以为已记录，而账本永远不会有这笔事件。现在这一档单独成值并**落一条
+     * WARN 日志**（写入口自己看得见，不必等审计面回读）；正常重放不落日志——它是 AUD-01
+     * 的既有重试语义，每次都打会把日志变成噪声，值本身已在 outcome 上可读。
+     */
+    private fun ChatEvidenceWriteReceipt.ledgerStatusOf(
+        evidenceId: String,
+    ): KnowledgeEvidenceLedgerStatus = when (evidenceId) {
+        in acceptedBlockedByRejectedRowEvidenceIds -> {
+            Log.w(
+                LOG_TAG,
+                "accepted evidence write was IGNOREd by a rejected row of the same identity " +
+                    "(identity stickiness, KD-43); evidenceId=$evidenceId — the ledger will never " +
+                    "see this write",
+            )
+            KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW
+        }
+        in replayedAcceptedEvidenceIds -> KnowledgeEvidenceLedgerStatus.REPLAYED
+        else -> KnowledgeEvidenceLedgerStatus.LEDGERED
     }
 
     private fun entry(
@@ -148,8 +200,16 @@ internal enum class KnowledgeEvidenceChannel(
     val sourceKind: String,
     internal val idPrefix: String,
 ) {
-    MODEL_CHAT(sourceKind = "MODEL_CHAT", idPrefix = "chat-ev"),
-    KNOWLEDGE_QUIZ(sourceKind = "KNOWLEDGE_QUIZ", idPrefix = "knowledge-quiz"),
+    // source_kind 的字符串单源在 StudyDbValue.ChatEvidenceSourceKind：冷却查询与校准分桶
+    // 把它当 SQL 谓词/分组键用（AUD-11 ①），写入侧与查询侧必须逐字相同。
+    MODEL_CHAT(
+        sourceKind = StudyDbValue.ChatEvidenceSourceKind.MODEL_CHAT,
+        idPrefix = "chat-ev",
+    ),
+    KNOWLEDGE_QUIZ(
+        sourceKind = StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ,
+        idPrefix = "knowledge-quiz",
+    ),
 }
 
 /**
@@ -201,8 +261,37 @@ internal data class KnowledgeEvidenceWriteRequest(
     val occurredAtEpochMillis: Long,
 )
 
-/** 写入口的判定结果：accepted 带回生效权重（D9 施加后），rejected 带回拒因。 */
+/**
+ * 一笔 accepted 写的**落库去向**（AUD-11 ③-2）：门说"接受"不等于账本里有这笔事件。
+ *
+ * - [LEDGERED]：新行落成（已分配学习序列、已写 outbox）；
+ * - [REPLAYED]：同身份已在库且既有行也是 accepted——这是重试，按身份幂等（AUD-01），
+ *   不重复计入；
+ * - [BLOCKED_BY_REJECTED_ROW]：同身份已在库但既有行是**被拒观察行**——这笔写永远进不了
+ *   账本，既有行也不会被改写（身份粘性；缺陷登记 KD-43，纠正语义留 5B）。
+ *
+ * 调用方可以继续只看 [KnowledgeEvidenceWriteOutcome.Accepted]（语义未变），但"到底有没有
+ * 落进账本"从此不再无感知。
+ */
+internal enum class KnowledgeEvidenceLedgerStatus {
+    LEDGERED,
+    REPLAYED,
+    BLOCKED_BY_REJECTED_ROW,
+}
+
+/**
+ * 写入口的判定结果：accepted 带回生效权重（D9 施加后）与**落库去向**
+ *（[KnowledgeEvidenceLedgerStatus]，默认 [KnowledgeEvidenceLedgerStatus.LEDGERED]——
+ * 只表示"门放行了"，是否真落行进账本以字段为准）；rejected 带回拒因。
+ */
 internal sealed interface KnowledgeEvidenceWriteOutcome {
-    data class Accepted(val weight: Double) : KnowledgeEvidenceWriteOutcome
+    data class Accepted(
+        val weight: Double,
+        val ledgerStatus: KnowledgeEvidenceLedgerStatus = KnowledgeEvidenceLedgerStatus.LEDGERED,
+    ) : KnowledgeEvidenceWriteOutcome
+
     data class Rejected(val reason: MasteryWriteGate.RejectReason) : KnowledgeEvidenceWriteOutcome
 }
+
+/** 写入口的诊断标签（WARN 级只用于"这笔 accepted 没进账本"这一档）。 */
+private const val LOG_TAG = "KnowledgeEvidenceWriter"

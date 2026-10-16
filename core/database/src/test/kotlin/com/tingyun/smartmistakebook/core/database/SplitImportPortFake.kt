@@ -170,6 +170,13 @@ class SplitImportPortFake : SplitImportPort {
         return true
     }
 
+    /**
+     * 读侧对账（KD-39）在这个假件上**没有可问的事实**：它只存台账，不存草稿，也就无从知道
+     * 哪份草稿入库了。如实返回 0（"没有需要追平的回执"），而不是假装补写——需要真对账语义的
+     * 用例走真实 Room（core:data / core:database 的 instrumented 夹具）。
+     */
+    override suspend fun reconcileCommittedQuestionDrafts(occurredAtEpochMillis: Long): Int = 0
+
     override suspend fun readSplitImportJobByDraft(splitDraftId: String): SplitImportJobRecord? {
         val jobId = jobs.keys.firstOrNull { id ->
             questionsByJob.getValue(id).any { it.splitDraftId == splitDraftId }

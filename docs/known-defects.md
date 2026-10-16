@@ -1899,3 +1899,38 @@ staging 阶段杀进程：重进 App 后该批不存在（列表里没有、也�
 
 **Reopen condition.** n/a —— 登记性低危；用户因此丢失过工作且无人察觉时升级。
 
+
+## KD-43 (open, 2026-10-16 登记（AUD-11 报告 §3；medium）) · 答案键：错键判错之后没有纠正/撤销/重放的落点；身份粘性还会静默丢写
+
+**Symptom（实测，来源：`docs/research/2026-10-15-aud-11-verdict-granularity-cooldown-answer-key.md` §3；
+真库 + 真写入口，5/5 通过）.** 题面 A 客观正确、B 错误，模型把键指到 B，学生选 A（客观正确）：
+
+- 判答 `isCorrect = false` → 落 **NEGATIVE 0.35**（confidence 1.0，理由「知识点复习作答（答错）」）；
+  账本里只有一条 `ChatEvidenceSubmitted`、**没有 attempt/快照事件**——attempt 侧的纠正设施
+  （`AttemptCorrection` 一族）没有可纠正的对象。
+- 证据行里**没有题面/键/选项列**：`evidence_id = knowledge-quiz:<requestId>:<节点>`（只由 通道 + 命名空间 +
+  节点 派生），其余各列全是语义位（方向/权重/理由/置信/通道/时间/拒因/锚定等级）。
+- 纠正三路全落空：①同 requestId + 纠正后的键（冷却内）被 `SAME_KC_IN_COOLDOWN` 拒，且与既有行同 id
+  **连观察行都落不下来**；②换新身份仍拒（只多一条 rejected 观察行）；③**13h 后**纠正只**追加**一笔
+  POSITIVE——错判不被替换、不被补偿、不被抵消（append-only 并存）。
+- 撤销无落点：端口上的 chat-evidence 面只有写 + 读 + 计数（`ModelTaskDatabasePort`），全仓对
+  `learner_chat_evidence` 没有 UPDATE/DELETE 的写路径。
+- 重放：`LearningProjector.replay` **确定性复现**错判（`failureWeight = 0.35`、`masteryScore` 更低、
+  两次重放逐位相同）——重放洗不掉它，只会再积一次分。
+- **身份粘性（静默丢写）**：一条先被拒的写占住 `evidence_id`；条件变化后**同一身份**的合法写通过门、
+  写入口回报 `Accepted`，而 Room 的 IGNORE 把它吞掉——账本事件数不变、库里那一行仍是被拒状态。
+
+**Impact.** 中：错键一旦落库，学生的正确作答按「答错」长期计入掌握度（`0.35` lapse + 重放叠加），
+而系统里**没有任何**纠正、撤销、补偿或重放的落点；审计面在 T9 之前也无法定位「这笔证据读的是哪一道题、
+哪一版键」。两个面都会静默：错判静默留在账本里，身份粘性的丢写在写入口侧曾经完全无感。
+
+**Fix direction（待裁定，纠正语义留 5B）.** 二选一或组合：①错键被纠正后由一笔**补偿性账本事件**抵消
+（需要证据载荷能定位受影响的行——T9 已补审计口与键版本引用）；②写路径按「键已改判」单列一类事件；
+③明确裁定「恢复只读回原题面、改判走新会话/新身份」，把 ① 的缺口变成有意的产品边界。身份粘性那一半：
+T9 已把「accepted 被 IGNORE」变成可观察结果（`ChatEvidenceWriteReceipt` 三档 + WARN 日志，
+`KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW`），**谁该吃这个冲突仍未裁定**（是回写端
+报冲突、还是允许改写既有被拒行）。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 上面两半各自有明确处置落地：(a) 错键纠正/撤销/
+补偿至少一条路径 + 一条「错键 → 纠正 → 账本被抵消/被单列」的用例；(b)「同身份撞被拒行」的行为被裁定并
+有用例钉住（报冲突 / 覆盖重写 / 保持静默但记账）。

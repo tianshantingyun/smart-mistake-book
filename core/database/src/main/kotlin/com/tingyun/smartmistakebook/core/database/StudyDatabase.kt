@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.database.dao.BatchImportDao
 import com.tingyun.smartmistakebook.core.database.dao.BindingAuditSampleDao
 import com.tingyun.smartmistakebook.core.database.dao.BindingChangeDao
 import com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceDao
+import com.tingyun.smartmistakebook.core.database.dao.CleanRedrawTaskDao
 import com.tingyun.smartmistakebook.core.database.dao.ImmutableLearningFactDao
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeGroundingDao
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeNodeRelationDao
@@ -62,6 +63,7 @@ import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLattic
 import com.tingyun.smartmistakebook.core.database.entity.StudentModelPredictionEntity
 import com.tingyun.smartmistakebook.core.database.entity.PredictionOutcomeEntity
 import com.tingyun.smartmistakebook.core.database.entity.CanonicalSourceAssetEntity
+import com.tingyun.smartmistakebook.core.database.entity.CleanRedrawTaskEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptCorrectionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptSubmissionEntity
@@ -125,7 +127,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 65
+internal const val STUDY_DATABASE_VERSION = 66
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -220,6 +222,7 @@ internal object SplitImportLedgerStrings {
         AgentPendingRequestEntity::class,
         MistakeExportRecordEntity::class,
         BindingAuditSampleEntity::class,
+        CleanRedrawTaskEntity::class,
     ],
     version = STUDY_DATABASE_VERSION,
     exportSchema = true,
@@ -290,6 +293,8 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun splitImportDao(): SplitImportDao
 
     abstract fun batchImportDao(): BatchImportDao
+
+    abstract fun cleanRedrawTaskDao(): CleanRedrawTaskDao
 }
 
 object StudyDatabaseFactory {
@@ -375,6 +380,7 @@ object StudyDatabaseFactory {
             LIBRARY_CATALOG_MEMORY_INDEX_MIGRATION_62_63,
             PROBLEM_CLASSIFICATION_ACCEPTED_CONFIDENCE_MIGRATION_63_64,
             PROBLEM_CLASSIFICATION_CANDIDATE_MIGRATION_64_65,
+            CLEAN_REDRAW_TASK_MIGRATION_65_66,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

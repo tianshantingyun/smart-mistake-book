@@ -53,6 +53,21 @@ interface KnowledgeReadPort {
      * 分界见 `ProblemOrganizationDao.readActiveKnowledgeNodeIds` 的注释。
      */
     suspend fun readActiveKnowledgeNodeIds(ids: Set<String>): Set<String>
+
+    /**
+     * 3E 全库薄弱点扫描的候选源（spec dual-review-entry §3.2 的「全库第二档」，2026-10-16 裁定）：
+     * **每个活跃知识点 → 它的在册绑定题 id 全量 + 可出题材料组**，一条查询取回。
+     *
+     * 为什么是一次性的全库读而不是逐节点读：第二档要在**不知道哪些节点会被选中**之前就拿到全库
+     * 候选（今日队列之外的薄弱点恰恰是"计划里没有的点"，没法反查出来），逐节点读就是 N+1。
+     * 规模口径按 S9/S17 纪律（真实夹具 + 量化门）；本读口本身是单条查询，判定条件见
+     * `ProblemOrganizationDao.readFullLibraryScanNodes`。
+     *
+     * **读口只给事实，范围规则在 core:domain**：`fullLibraryScanCandidate` 判定"有绑定题 ∧
+     * 材料可出题"，`selectKnowledgeReviewQueue` 封每日名额——两者都在纯函数层可测，读口不重复
+     * 定义范围（否则同一规则两处权威，改一处另一处照旧跑）。
+     */
+    suspend fun readFullLibraryScanNodes(): List<FullLibraryScanNodeRecord>
     suspend fun readKnowledgeSourcesByIds(ids: Set<String>): List<KnowledgeSourceSeedRecord>
 
     suspend fun readKnowledgeNodeSourceBindings(
@@ -162,6 +177,29 @@ interface KnowledgeReadPort {
         const val MAX_TEACHING_MATERIAL_CANDIDATES = 1_024
     }
 }
+
+/**
+ * One row of the 3E full-library scan source ([KnowledgeReadPort.readFullLibraryScanNodes]):
+ * one **active** knowledge node's in-book bound questions plus its quiz-able material group.
+ *
+ * These are **facts, not a scope decision**: the node still may be ineligible (no bound question,
+ * no material) depending on which filters the read applied, and the authoritative range rule —
+ * "有绑定题 ∧ 材料可出题", minus today's queue, capped per day — lives in core:domain
+ * (`fullLibraryScanCandidate` / `selectKnowledgeReviewQueue`). Keeping the rule there is what
+ * makes it testable without a database, and keeps one authority instead of two.
+ *
+ * [subject] is the raw `knowledge_node.subject` (not a normalized enum): the dispatch side reads
+ * materials by exactly this value, so carrying it verbatim is what keeps "materials we found
+ * here" and "materials the quiz loader will find" the same material.
+ */
+data class FullLibraryScanNodeRecord(
+    val knowledgeNodeId: String,
+    val subject: String,
+    /** Bound practice units **in full** (order unspecified; callers aggregate, never index). */
+    val boundPracticeUnitIds: List<String>,
+    /** Quiz-able material group (`material_id`), or null when this node has no usable material. */
+    val materialGroupId: String?,
+)
 
 /**
  * Write port for knowledge base operations.

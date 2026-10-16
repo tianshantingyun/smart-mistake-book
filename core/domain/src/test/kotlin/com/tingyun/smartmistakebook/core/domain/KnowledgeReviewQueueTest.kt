@@ -9,6 +9,7 @@ import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import com.tingyun.smartmistakebook.core.model.ReviewReason
 import com.tingyun.smartmistakebook.core.model.ReviewDifficultyBand
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,6 +18,11 @@ import org.junit.Test
  * 知识点复习队列编排（spec dual-review-entry §3.2）：今天复习的知识点队列由错题排程同构的
  * 打分（scoreKnowledgeNode，T2）决定——打分、按时间预算取队，并在分数接近时用"同讲解材料/
  * 同科目降权"和"难度档轮换"（与错题排程同一套机制）让会话交错。纯函数。
+ *
+ * 3E（2026-10-16 裁定）：范围扩为**两档**——今日队列 + 全库扫描（有绑定题 ∧ 材料可出题 ∧
+ * 不在今日队列，每日 ≤ `FULL_LIBRARY_SCAN_DAILY_CAP` 个）。档内范围条件由
+ * `fullLibraryScanCandidate` 落地（无绑定题/无材料 = 不在范围），名额与时间预算两道封顶
+ * 由 `selectKnowledgeReviewQueue` 落地；本文件同时钉这两条。
  */
 class KnowledgeReviewQueueTest {
 
@@ -56,12 +62,14 @@ class KnowledgeReviewQueueTest {
         material: String? = "material-$id",
         state: KnowledgeMasteryState? = null,
         seconds: Int = 60,
+        recallRisk: Double? = null,
     ) = KnowledgeReviewCandidate(
         knowledgeNodeId = id,
         subjectId = subject,
         materialGroupId = material,
         state = state,
         estimatedDurationSeconds = seconds,
+        recallRisk = recallRisk,
     )
 
     @Test
@@ -338,4 +346,211 @@ class KnowledgeReviewQueueTest {
         masteryScore = 0.5,
         lastEvidenceAtEpochMillis = now,
     )
+
+    // ---- 3E 全库薄弱点扫描（第二档，2026-10-16 裁定「每日 10 个知识点」）----
+
+    @Test
+    fun fullLibraryScanCandidateStaysOutOfScopeWithoutBoundQuestionsOrMaterial() {
+        val state = mastery("kc-scan", MasteryStatus.CONFLICTED)
+        // 无绑定题 → 不在扫描范围：没有承载题就没有时间信号（需求定稿 R5 的残留边界）。
+        assertNull(
+            "无绑定题的节点不得成为扫描候选",
+            fullLibraryScanCandidate(
+                knowledgeNodeId = "kc-scan",
+                subjectId = "MATH",
+                materialGroupId = "material-kc-scan",
+                boundPracticeUnitIds = emptyList(),
+                state = state,
+                recallRisk = null,
+            ),
+        )
+        // 无可出题材料 → 不在扫描范围：排进会话也取不到题（spec §3.3 防臆造锚）。
+        assertNull(
+            "无材料的节点不得成为扫描候选",
+            fullLibraryScanCandidate(
+                knowledgeNodeId = "kc-scan",
+                subjectId = "MATH",
+                materialGroupId = null,
+                boundPracticeUnitIds = listOf("unit-1"),
+                state = state,
+                recallRisk = null,
+            ),
+        )
+        assertNull(
+            "空白材料组与 null 同义",
+            fullLibraryScanCandidate(
+                knowledgeNodeId = "kc-scan",
+                subjectId = "MATH",
+                materialGroupId = "  ",
+                boundPracticeUnitIds = listOf("unit-1"),
+                state = state,
+                recallRisk = null,
+            ),
+        )
+        // 有绑定题 + 有材料 → 候选；估时与今日档同一个中档基线，科目与材料组原样带上。
+        val candidate = requireNotNull(
+            fullLibraryScanCandidate(
+                knowledgeNodeId = "kc-scan",
+                subjectId = "MATH",
+                materialGroupId = "material-kc-scan",
+                boundPracticeUnitIds = listOf("unit-1"),
+                state = state,
+                recallRisk = 0.4,
+            ),
+        )
+        assertEquals("kc-scan", candidate.knowledgeNodeId)
+        assertEquals("MATH", candidate.subjectId)
+        assertEquals("material-kc-scan", candidate.materialGroupId)
+        assertEquals(state, candidate.state)
+        assertEquals(0.4, candidate.recallRisk!!, 1e-9)
+        assertEquals(
+            LogDurationModel.TIER_BASELINE_MEDIUM_SECONDS,
+            candidate.estimatedDurationSeconds,
+        )
+    }
+
+    @Test
+    fun recoversWeakNodesThatAreNotInTodaysQueue() {
+        // 第二档的意义：今日错题没碰到的薄弱点照样进队列（3E 的"不受今日队列限制"）。
+        val today = listOf(candidate("kc-today", state = mastery("kc-today", MasteryStatus.UNKNOWN)))
+        val scanned = listOf(
+            candidate("kc-outside", state = mastery("kc-outside", MasteryStatus.CONFLICTED)),
+        )
+        val queue = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = today,
+            now = now,
+            timeBudgetSeconds = 240,
+            fullLibraryScanCandidates = scanned,
+        )
+        assertEquals(
+            setOf("kc-today", "kc-outside"),
+            queue.mapTo(linkedSetOf()) { it.knowledgeNodeId },
+        )
+    }
+
+    @Test
+    fun capsTheFullLibraryScanAtTheDailyCap() {
+        val scanned = (1..FULL_LIBRARY_SCAN_DAILY_CAP + 5).map { index ->
+            candidate(
+                id = "kc-scan-$index",
+                material = "material-$index",
+                state = mastery("kc-scan-$index", MasteryStatus.CONFLICTED),
+            )
+        }
+        val queue = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = emptyList(),
+            now = now,
+            timeBudgetSeconds = 3_600,
+            fullLibraryScanCandidates = scanned,
+        )
+        assertEquals(
+            "第二档每日名额封顶必须生效（F17 配额）",
+            FULL_LIBRARY_SCAN_DAILY_CAP,
+            queue.size,
+        )
+        assertTrue(queue.all { it.knowledgeNodeId.startsWith("kc-scan-") })
+    }
+
+    @Test
+    fun aZeroDailyCapDisablesTheSecondTierEntirely() {
+        val scanned = listOf(
+            candidate("kc-outside", state = mastery("kc-outside", MasteryStatus.CONFLICTED)),
+        )
+        val queue = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = emptyList(),
+            now = now,
+            timeBudgetSeconds = 240,
+            fullLibraryScanCandidates = scanned,
+            fullLibraryScanDailyCap = 0,
+        )
+        assertTrue(queue.isEmpty())
+    }
+
+    @Test
+    fun timeBudgetDropsMergedTierEntriesAlike() {
+        // 名额之外还有时间预算这道封顶：1 个今日点 + 3 个扫描点，预算 120s / 每点 60s → 只排 2 个。
+        val today = listOf(
+            candidate("kc-today", state = mastery("kc-today", MasteryStatus.CONFLICTED), seconds = 60),
+        )
+        val scanned = (1..3).map { index ->
+            candidate(
+                id = "kc-scan-$index",
+                material = "material-$index",
+                state = mastery("kc-scan-$index", MasteryStatus.UNKNOWN),
+                seconds = 60,
+            )
+        }
+        val queue = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = today,
+            now = now,
+            timeBudgetSeconds = 120,
+            fullLibraryScanCandidates = scanned,
+        )
+        assertEquals(2, queue.size)
+    }
+
+    @Test
+    fun todayQueueEntryWinsWhenTheSameNodeIsInBothTiers() {
+        val todayState = mastery("kc-shared", MasteryStatus.CONFLICTED)
+        val queue = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = listOf(
+                candidate("kc-shared", material = "material-today", state = todayState),
+            ),
+            now = now,
+            timeBudgetSeconds = 240,
+            fullLibraryScanCandidates = listOf(
+                candidate("kc-shared", material = "material-scan", recallRisk = 0.2),
+            ),
+        )
+        val expected = requireNotNull(scorer.scoreKnowledgeNode("kc-shared", todayState, now)).score
+        assertEquals(1, queue.size)
+        assertEquals("并集同 id 必须以今日档那一条为准", expected, queue.single().score, 1e-9)
+    }
+
+    /**
+     * 规模门（S9/S17 纪律的 JVM 侧形态，同 `ReviewPlannerScaleBenchmarkTest` 的口径）：
+     * 全库 5000 个扫描候选，只按分取前 N、且整体在宽门内跑完——它钉的是"扫描不因库规模变成
+     * 逐节点/二次方开销"，不是微基准标定值。预热 2 次取 best-of-3，门给 1500ms（实际约几十毫秒）。
+     */
+    @Test
+    fun fiveThousandFullLibraryScanCandidatesStayWithinTheDailyCapAndScaleGate() {
+        val scanned = (1..5_000).map { index ->
+            candidate(
+                id = "kc-scan-$index",
+                material = "material-$index",
+                state = mastery("kc-scan-$index", MasteryStatus.LEARNING).copy(
+                    masteryScore = 0.2,
+                    conservativeMasteryScore = 0.1,
+                ),
+                seconds = 60,
+            )
+        }
+        fun runQueue() = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = emptyList(),
+            now = now,
+            timeBudgetSeconds = 1_200,
+            fullLibraryScanCandidates = scanned,
+        )
+
+        repeat(2) { runQueue() }
+        var bestMillis = Long.MAX_VALUE
+        var queue: List<KnowledgeNodeScorer.ScoredKnowledgeNode> = emptyList()
+        repeat(3) {
+            bestMillis = minOf(
+                bestMillis,
+                kotlin.system.measureTimeMillis { queue = runQueue() },
+            )
+        }
+        assertEquals(FULL_LIBRARY_SCAN_DAILY_CAP, queue.size)
+        assertTrue(
+            "5000 扫描候选取队 best-of-3 实测 ${bestMillis}ms，超过 1500ms 宽门",
+            bestMillis < 1_500,
+        )
+    }
 }

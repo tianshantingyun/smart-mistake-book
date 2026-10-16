@@ -70,6 +70,15 @@ interface SplitImportRepository : SplitImportCommitReceipts {
         occurredAtEpochMillis: Long,
     ): Boolean
 
+    /**
+     * 任务级确认口：按 (jobId, 题号) 直接置一个 `confirm_state`。
+     *
+     * 无生产调用方，保留给对账/续做路径（T1/KD-39 顺带裁定，保留不删）。
+     * 今天两条生产写路径都不需要它：[SplitImportCommitReceipts.recordCommittedDraft] 由提交
+     * 回执驱动、数据层的读侧对账由库内草稿状态驱动，两者都只要草稿 id；它要求调用方先知道
+     * (jobId, 题号)——正是已被 T4/AUD-03 废除的"打开草稿前预标 SAVED"那种用法。将来若出现
+     * "按题号如实标注 REJECTED / TUTOR_SESSION"的路径，落账应从它走。
+     */
     suspend fun markConfirmed(
         jobId: String,
         questionOrdinal: Int,

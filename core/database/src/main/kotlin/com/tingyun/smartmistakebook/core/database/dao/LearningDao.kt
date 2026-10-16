@@ -6,6 +6,7 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
+import androidx.room3.Update
 import com.tingyun.smartmistakebook.core.database.AttemptAdvanceProofRecord
 import com.tingyun.smartmistakebook.core.database.AttemptCorrectionRecord
 import com.tingyun.smartmistakebook.core.database.AnswerRevealWriteCommand
@@ -164,6 +165,18 @@ internal abstract class ImmutableLearningFactDao {
         if (findAssessmentItem(item.assessmentItemSnapshotId) == item) return false
         throw ImmutablePayloadConflictException("assessment_item_snapshot", item.assessmentItemSnapshotId)
     }
+
+    /**
+     * KD-41：按主键**整行原地覆盖**（`UPDATE ... WHERE assessment_item_snapshot_id = :id`）。
+     * 受影响行数 0 = 该 id 无行（不新增行）。
+     *
+     * 它刻意绕开 [saveAssessmentItem] 的不可变闸，因此**不是**一般 upsert：只由
+     * `StudyDatabasePort.overwriteAssessmentItemSnapshot` 在"既有行已确认解不开"时调用
+     * （契约见 `SeedAssessmentPort.overwriteAssessmentItemSnapshot`）；解得开的既有行继续
+     * 走 [saveAssessmentItem] 的冲突路径，正常行的"首见即真"不因本口改变。
+     */
+    @Update
+    abstract suspend fun overwriteAssessmentItem(item: AssessmentItemSnapshotEntity): Int
 
     @Transaction
     open suspend fun saveAssessmentEvent(event: AssessmentEventEntity): Boolean {

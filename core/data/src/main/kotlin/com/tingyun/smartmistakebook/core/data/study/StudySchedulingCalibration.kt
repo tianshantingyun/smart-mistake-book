@@ -67,10 +67,22 @@ internal class StudySchedulingCalibration(
         // P2 修正（审计 2026-09-28）：全用注入 Clock，不再直接读系统时钟。
         val hourWindowStart = clock.millis() - 30L * 24 * 60 * 60 * 1000
         val perHour = database.countAcceptedChatEvidencePerHour(learnerId, hourWindowStart)
+        // AUD-11 ①：DAO 的分桶行现在带 source_kind。同一批行切两刀——按拒因/小时求总数
+        //（原口径：滚动窗压力与占比都用它）与按通道摊开（新维：读得出"被挡掉的是哪一路"）。
         val observation = ChatEvidenceGateCalibration.GateObservation(
             acceptedCount = acceptedTotal,
-            rejectedByReason = rejected.associate { it.reason to it.count },
-            acceptedPerHour = perHour.associate { it.hourBucket to it.count },
+            rejectedByReason = rejected
+                .groupBy { it.reason }
+                .mapValues { (_, rows) -> rows.sumOf { it.count } },
+            acceptedPerHour = perHour
+                .groupBy { it.hourBucket }
+                .mapValues { (_, rows) -> rows.sumOf { it.count } },
+            rejectedBySourceKindAndReason = rejected
+                .groupBy { it.sourceKind }
+                .mapValues { (_, rows) -> rows.associate { it.reason to it.count } },
+            acceptedPerSourceKindPerHour = perHour
+                .groupBy { it.sourceKind }
+                .mapValues { (_, rows) -> rows.associate { it.hourBucket to it.count } },
         )
         if (observation.totalObservations == 0) return null
         return ChatEvidenceGateCalibration.calibrate(observation)

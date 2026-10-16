@@ -47,6 +47,22 @@ interface SeedAssessmentPort {
      */
     suspend fun findAssessmentItemSnapshot(assessmentItemSnapshotId: String): AssessmentItemSnapshotSeedRecord?
 
+    /**
+     * KD-41：**原地覆盖**一条已知损坏的呈现行（同 id 整行载荷重写，不新增行）。
+     *
+     * 为什么单开一口：损坏行**不可复用**——它身上没有"首见即真"要保护的题面，而
+     * [saveAssessmentItemSnapshot] 的冲突闸会把"重试出题"生成的新题面一直顶回来，调用方
+     * 因此被永久锁在失败出口（每次重试白烧一次模型调用、题面永远显示不出来）。让重试可恢复
+     * 就需要一条能重写这一行的写口。
+     *
+     * 契约（调用方负责，本口不替它判定）：
+     * - 只对**既有行解不开**用。解得开的既有行一律走 [saveAssessmentItemSnapshot] 的冲突路径
+     *   回读（首见即真），**绝不**走本口——正常行的不可变语义不因本口改变；
+     * - 覆盖写进来的内容照走同一套契约校验：不能借"修复"把非法载荷塞进库；
+     * - 无该 id 行 → 无操作（不新增行），调用方随后按读回结果处置。
+     */
+    suspend fun overwriteAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord)
+
     suspend fun saveAssessmentEvidenceSnapshot(snapshot: AssessmentEvidenceSnapshot)
 
     suspend fun appendAssessmentEvent(event: AssessmentEventSeedRecord)

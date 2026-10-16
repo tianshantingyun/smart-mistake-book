@@ -9,6 +9,7 @@
 - **Branch**: `{{BRANCH}}`
 - **Triggered By**: `{{TRIGGERED_BY}}`
 - **Run context**: {{RUN_CONTEXT}}
+- **Run context note**: {{RUN_CONTEXT_NOTE}}
 
 ## Build Results
 

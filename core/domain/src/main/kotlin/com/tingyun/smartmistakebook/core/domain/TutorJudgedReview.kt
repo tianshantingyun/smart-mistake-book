@@ -11,8 +11,10 @@ package com.tingyun.smartmistakebook.core.domain
  * 该通道非独立、题目级只落 HARD/AGAIN，依据见
  * `docs/research/model-judged-verdict-pricing.md`。
  *
- * 快照不带知识归属：这条通道只驱动题目级排期，知识点掌握度由模型的
- * chat-evidence 通道单独写，一次会话不对同一 KC 双写。
+ * 模型判词还必须**锚定在本题 KC 集**上（AUD-11 ①，2026-10-16 裁定）：只有前置/无关节点
+ * 证据时不判、不写、不推进（`NO_VERDICT`）。锚定成立时，驱动证据会落成 attempt 快照的一条
+ * 归属（节点 + 该题该 revision 的现役绑定）；本地核对分支（检查题作答）无 chat-evidence
+ * 驱动，归属为空。投影后果见 `TutorJudgedReviewSettler` 的类 KDoc。
  */
 data class TutorJudgedReviewSettlement(
     val requestId: String,

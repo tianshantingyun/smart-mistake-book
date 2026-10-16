@@ -258,6 +258,36 @@
 | `PROJECTOR` v12 → **v13**（复合串 `learning-core-v12 → v13`）；`ATTRIBUTION` v4 → **v5**；`EVIDENCE` / `SKIP_POLICY` / `FORGETTING_CURVE` / `SELECTOR` / `LEDGER` 不动（`SELECTOR_COMPOSITE` 内嵌 `PROJECTOR`，随复合串同步为 `learning-core-v13`） | 空绑定（诚实未分类）题的**重放归属来源**变更：v12 = 重放派生为空 → 退回写时快照（历史证据留在旧知识点）；v13 = 装配侧（`StudyProjectionDrainer.readCurrentPracticeUnitBindings`）在当前绑定集合为空时**复用既有** `ensurePseudoKnowledgeBinding` 物化 `pseudo:<科目>` 事实，再走同一条单源派生 `derivePracticeUnitBindingAttributions`。输出变化：同一账本下空绑定题的历史证据由旧节点改挂 pseudo 桶，旧节点因"重放从空表累加 + 差集删除"归零，证据不丢 | 与写路径 `StudyPracticeUnitFacts.attributionSetFor` 的空绑定分支逐条同规则：taxonomy 同常量 `pseudo-evidence-v1`、绑定 revision 取该题当前 revision、科目取 `problem.subject`、时间取 revision 创建时刻（确定性 ⇒ 重放幂等）；单条伪绑定派生为权重 1.0 / `PRIMARY` / `DIRECT`，`basisRevisionId` = 该 attempt 快照自己的 revision。物化只对 attempt / 揭示两个归属消费点触发（曝光事件不读归属，不为它写行）。写路径与增量 `project()` 一行未动，`PROJECTOR` bump 是重放语义变更触发的版本门 | 触发与登记：3C 批 1 记录 §4.4；旧行为登记 §3.13（本批取代）；K1 计划 §2d；本批升级裁定（见本节前言） | JVM 定向（本批自验，`2026-10-09`）：`BindingChangedReplayDrainerTest` **5/0/0**（新增：空绑定→pseudo+旧节点归零+归档保真、两态幂等（伪绑定可见/不可见）、曝光-only 负向不物化）；`BundledKnowledgeBaseInstallerTest` **6/0/0**（含 D-5 快路径判定两态纯函数用例）；`RoomBackedStudyExperienceRepositoryTest` **31/0/0**（写路径/增量逐位不变）；`ReplayFingerprintDrainerTest` + `ProjectionArchiveDrainerTest` + `ProjectionDrainerSuccessorsCacheTest` + `ProjectionDrainerDispatcherTest` **8/0/0**；`LearningProjectorReplayFingerprintTest` + `LearningProjectorTest` + `ProjectionVersionGuardTest` **27/0/0**；`KernelWave0SchemaContractTest` **7/0/0**（定串同步 v13——版本钉用例的职责，非放宽断言）。原始命令与末行见 K1 批 2 交付报告（正式门由协调方跑） | ✅ 走既有机制：bump 触发的重放先归档被替换的 v12 投影再覆盖（`StudyProjectionDrainer` 的 archive-before-replay），`projection_archive` 只增 |
 | `LearningCoreVersions` 其余串（含 `STUDY_DATABASE_VERSION` 61） | **不动** | 同批 D-5 装机快路径回归钉：`BundledKnowledgeBaseInstaller.install()` 的"`recorded.contentVersion == manifest.contentVersion` 即跳过"判定抽成 internal 纯函数 `isInstallUpToDate`——**纯抽取、判定口径逐字未变**、零投影/计划/账本输出，零 schema | K1 计划 §2e；契约 §5.2（只写侧车不 bump → 字段静默不到设备） | `BundledKnowledgeBaseInstallerTest` **6/0/0**（新增两态纯函数用例：一致 → 跳过；不一致 / 无进度行 / 无 manifest → 全量；非恒真）；既有 `install()` 快路径/全量路径用例同绿 | ➖（无投影输出变化，不触发重放） |
 
+### 3.20 KD-38 批 · 讲题动作标签预算（2026-10-15 修复 / 2026-10-16 提交 `038d50c0`）：提示词版本 v19/v26（零算法 bump）
+
+> 编号说明：§3.20 由 KD-38 批占用。本行只登记 `ModelEgress` 的**提示词策略版本**（非算法台账号段，
+> 自记）；§3.18 的批 1/批 2 行是历史记录、**不动**——那里记的 `v18`/`v25` 是那一批的值，本批是它
+> 之上的下一次 bump。KD-38 批自身不动 `LearningCoreVersions` / `STUDY_DATABASE_VERSION`
+> （本行的登记面只有提示词版本；同批其它轨的算法串变更按各自的行登记）。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `ModelEgress` 提示词版本（**非算法台账号段**，自记）：`tutor-plan-v18-figure-conditional` → **`tutor-plan-v19-move-label-budget`**；`tutor-respond-v25-figure-conditional` → **`tutor-respond-v26-move-label-budget`**；`tutor-lobby-v17-export-layout-proposal` **不动**（`ModelEgress.kt:55` / `:67` / `:83`） | 计划规则 12（`OpenAiModelTaskAdapters.kt:252`）与回应规则 8（`:349`）各补一句 `nextMoves[].label` 预算声明（渲染为「label不超过32个字符」，数值以 `TutorSuggestedMove.MAX_LABEL_CHARS` 插值）；同批解析期对**短标签**按预算收敛（动作标签 32 / 知识点标签 96 / 锚点词 64，`OpenAiModelResponseParsers.kt:353/357/364/408/633/646`），超预算改抛 `ModelTextBudgetExceededException`（`ModelTextBudget.kt:19`）→ 网关归**可重试** `INCOMPLETE_OUTPUT`（`OpenAiCompatibleModelGateway.kt:281-285`、`:441-452`、`:891`）；构造器与 `requireSafeModelText` 的校验一律**未放松**，正文级超预算仍走可重试失败 | **不改变任何算法数值**：账本 / 投影输出 / 计划公式一律不变；变的是"模型输出如何被接受"——一个 33 字符的动作标签此前把整轮计划判死且不可重试，现在解析期收敛（§3.18 同族：提示词策略版本改变出网请求形状）。带 egress 清单的**请求指纹**随清单里的 `promptPolicyVersion` 变（`ModelEgressManifest.promptPolicyVersion`；`ModelTasks.kt` 的 `fingerprintPayload()` 负载含整份请求，故指纹随之变） | KD-38（`docs/known-defects.md:1747`）；修复提交 `038d50c0`；版本字面量经逐字核对 `core/model/.../ModelEgress.kt:55`（plan，KDoc `:52-53`）/`:67`（respond，KDoc `:64-65`）/`:83`（lobby 不动）；预算常量 `TutorTasks.kt:152`（96）/`:207`（32）/`:683`（64） | `core:data`：`TutorMoveLabelBudgetPromptTest`（计划/回应两条提示词含预算声明与两个版本字面量——提示词一改，钉版本的用例先红）、`TutorLabelBudgetTruncationTest`（97 字标签截到 96、66 字锚词截到 64 且仍逐字绑定本轮题、直接构造 33 字标签仍抛 `ModelTextBudgetExceededException`）、`OpenAiCompatibleModelGatewayTest`（计划/回应 33 字标签截断后整轮成功；正文级超预算 → 可重试 `INCOMPLETE_OUTPUT`）。以上为 KD-38 批验收证据（批内自跑 + 独立复核复跑，见 known-defects 同条）；**设备前后对照未达**（服务商周配额 429），触发频率自登记起未取样 | ➖（无投影/计划输出变化，不触发重放） |
+
+> 同批（T10）的 KD-38 **剩余项**修复也**不 bump**：`String.takeBudgetChars`（`core/model/.../ModelTasks.kt`）
+> 让流式预览的按字符截断不再切碎代理对（`Progress.of`；原 `take(n)` 留下孤立高代理、渲染成「�」）。
+> 零版本串、零投影/计划/账本输出变化，只在预算边界正好落在成对代理中间时少留一个码元；
+> 证据见 `core:model` 的 `ModelTextSurrogateTruncationTest`。KD-38 同条「未达 / 剩余」里
+> **解析期**那批 `take(n)`（`core/data` 解析器）与网关 `streamingPrefix` 的同类切法不在本次修复面内。
+
+### 3.21 T9/AUD-11 ②③ · 冷却限通道 + 可观察性与审计面（2026-10-16，批次 3E/6C/AUD-09 同批）：零算法 bump
+
+> 编号说明：§3.21 由 T9（AUD-11 实施轨）占用；KD-38 批的 `v19`/`v26` 在 §3.20，不占新号。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `LearningCoreVersions.*`（`PROJECTOR`/`EVIDENCE`/`ATTRIBUTION`）/ `STUDY_DATABASE_VERSION`（65）/ 各指纹 schema / 提示词策略版本 | **全部未 bump**（一条不动） | ①**冷却范围是准入参数、不是公式**：AUD-11 ① 把 12h 同 KC 冷却限定在 MODEL_CHAT 通道（`MasteryWriteGate.SAME_KC_COOLDOWN_MILLIS` 的文档口径本就是"another **model** evidence write"）——变的是"哪些写被门放行"，不是放行后怎么记账；放行后的权重仍由既有常量与 D9 唯一数值分支决定（一个字节没改），投影器只读 `weight`/`direction`/时间戳 → **同一账本重放输出逐位不变**。②**不新增列、不动事件载荷**：AUD-11 ③ 的题面/键版本引用走**既有身份分量推导**（`KnowledgeQuizEvidenceAudit`：`evidence_id` + `conversation_id` + 知识点 → 题面行 id），`ChatEvidenceSubmitted` 与 `LearningLedgerFingerprint.chatEvidence` 一字未动；`ChatEvidenceWriteReceipt`/`KnowledgeEvidenceLedgerStatus` 是**读侧回报**，不落库、不进指纹。③校准分桶（`source_kind` 维）与报告新增字段是诊断读面，`GateObservation` 新字段全带默认空值 → 旧调用者口径逐字不变 | 裁定：`docs/research/2026-10-15-aud-11-verdict-granularity-cooldown-answer-key.md` §2.3（冷却限通道）+ §3.3（可观察性先行）；"投影层不读 `source_kind`"的源码事实：`core/domain/.../LearningProjector.kt:1546-1547`（来源由账本行自己的 `source_kind` 与 `conversation_id` 承载，投影层不再复制） | **本轨未跑 Gradle**（按轨纪律：门禁由批次串行执行）→ 待门禁实跑：`KnowledgeQuizCooldownChannelScopeInstrumentedTest`（真库：模型→小测放行 / 反向亦然 / 模型自冷却保持且严格 `<` 12h 边界 / IGNORE 回报三档 / 校准分桶带通道维）、`KnowledgeQuizEvidenceAuditInstrumentedTest`（真库：证据行对回题面 + 键版本；坏行只报键版本）、JVM：`KnowledgeEvidenceLedgerStatusTest`、`KnowledgeQuizEvidenceAuditTest`、`ChatEvidenceGateCalibrationTest`（新增 3 例，既有 6 例不动）。**既有 AUD-01/02 用例不回退**同样待门禁（其断言未改，仅两处注释随语义更新） | ➖（无投影输出变化，不触发重放） |
+
+> **同批写明的行为变化（诚实登记，不是 bump 条件）**：改后"同一用户操作序列"可能产生**不同的账本**
+> ——模型写不再挡当晚的小测客观证据、小测写也不再挡模型写（报告 §2.2 实测：改前当晚小测落库 0/3）。
+> 版本串管的是"同一账本重放是否给出同一结果"，与"哪些写会进账本"是两件事；后者正是本裁定要改的
+> 准入面。洪泛面复核读数已随本批落进校准面（`acceptedPerSourceKindPerHour` / `peakAcceptedBySourceKind`）。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

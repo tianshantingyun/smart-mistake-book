@@ -38,6 +38,11 @@ object MasteryWriteGate {
      * one KC within 12h are correlated, not independent evidence; the
      * independent signal for further problems on that KC comes from real
      * attempts on the attempt channel, not repeated model affirmations).
+     *
+     * AUD-11 ①（2026-10-16 已裁定）把这条"model evidence write"口径落到实现：冷却只约束
+     * **模型通道**——起点只认 MODEL_CHAT 的 accepted 行（写入口不再对客观作答通道取冷却年龄，
+     * 测验通道按自身幂等身份防重）。改前这一维与通道无关，客观判定（置信 1.0 的本地机械
+     * 判定，恰恰是文档所指的"independent signal"）反而被模型的冷却挡掉（实测见报告 §2.2）。
      */
     const val SAME_KC_COOLDOWN_MILLIS = 12L * 60 * 60 * 1000
 
@@ -286,7 +291,11 @@ object MasteryWriteGate {
          * 观察记录（被拒 ≠ 删除，见 runner 的 rejected 行）。
          */
         val objectiveAnswersContradictPositive: Boolean,
-        /** Age of the learner's most recent accepted write to the SAME KC (across all conversations). */
+        /**
+         * Age of the learner's most recent accepted **model** (MODEL_CHAT) write to the
+         * SAME KC, across all conversations. `null` = 没有可比较的前一笔（含"这条写不是
+         * 模型通道"——客观作答通道由写入口传 null，冷却不约束它，AUD-11 ①）。
+         */
         val sameKcLastWriteAgoMillis: Long?,
         /** Accepted writes in the current conversation. */
         val writesThisConversation: Int,

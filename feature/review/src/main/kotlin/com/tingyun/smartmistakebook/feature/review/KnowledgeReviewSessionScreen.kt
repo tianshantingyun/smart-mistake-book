@@ -66,13 +66,31 @@ fun KnowledgeReviewSessionScreen(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (plan.queue.isEmpty()) {
-        EmptyKnowledgeReviewScreen(onBack = onBack, modifier = modifier)
-        return
-    }
     val viewModel: KnowledgeReviewSessionViewModel = viewModel(
         factory = KnowledgeReviewSessionViewModelFactory(plan),
     )
+    if (viewModel.sessionRestoreFailed) {
+        RootPageColumn(modifier = modifier.testTag("knowledge_review_restore_failed")) {
+            KnowledgeSessionHeader(onBack = onBack)
+            Spacer(Modifier.height(18.dp))
+            Text(
+                text = "这次复习的知识点顺序无法恢复，请返回后重新开始。已记录的学习结果不会丢失。",
+                style = MaterialTheme.typography.bodyLarge,
+                color = SmartColors.InkSecondary,
+            )
+            Spacer(Modifier.height(16.dp))
+            PrimaryActionButton(
+                text = "返回复习首页",
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth().testTag("knowledge_review_finish"),
+            )
+        }
+        return
+    }
+    if (viewModel.queueSize == 0) {
+        EmptyKnowledgeReviewScreen(onBack = onBack, modifier = modifier)
+        return
+    }
     // 进入节点且未取题时自动取题；continueToNext 清空后这里会为新节点再次取题。
     // 恢复态（LOADED 但内存无题）走读回，不出网（AUD-02）——分支规则在
     // [knowledgeQuizLoadPath]，它与"恢复不自动新出题"同一条，单独可测。
@@ -114,6 +132,22 @@ fun KnowledgeReviewSessionScreen(
             style = MaterialTheme.typography.labelMedium,
         )
         PaperDivider(Modifier.padding(vertical = 18.dp))
+        if (entry == null && viewModel.completed) {
+            SectionHeader(title = "本次知识点复习已结束")
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = "跳过的知识点没有记录本次结果，之后仍可复习。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = SmartColors.InkSecondary,
+            )
+            Spacer(Modifier.height(18.dp))
+            PrimaryActionButton(
+                text = "完成今日知识点复习",
+                onClick = onFinished,
+                modifier = Modifier.fillMaxWidth().testTag("knowledge_review_finish"),
+            )
+            return@RootPageColumn
+        }
         if (entry != null) {
             SectionHeader(title = entry.displayName)
             Spacer(Modifier.height(6.dp))
@@ -289,6 +323,13 @@ private fun KnowledgeQuizContent(
 /**
  * 掌握度回写被门控拒收时的学生可读说明（纯函数，便于单测）：
  * 拒收原因是内部枚举名，面向学生必须翻译成人话。
+ *
+ * [SAME_KC_IN_COOLDOWN] 一句（AUD-11 ① 修正）：冷却自 2026-10-16 起**只约束模型通道**
+ * （`KnowledgeEvidenceWriter` 对客观作答通道不取冷却年龄），所以本通道的新写不会再以这个
+ * 理由被拒；这句只剩一种到达路径——**旧版本落进 SavedStateHandle 的拒因**
+ *（`KnowledgeReviewSessionViewModel` 会把 `KnowledgeQuizFeedbackResult` 序列化保存）。
+ * 改前文案是"这个知识点刚刚复习过"：当挡路的是**模型**的写、学生根本没复习过时它是错的
+ *（报告 §2.2 实测）。现文案只说本地能确证的事实——该知识点上刚有一笔更新的掌握记录。
  */
 internal fun knowledgeQuizRejectedReasonText(reason: String): String = when (reason) {
     "INTENT_BELOW_ROUTE_CONFIDENCE" -> "这次的作答意图还不够明确，先只作为观察"
@@ -297,7 +338,7 @@ internal fun knowledgeQuizRejectedReasonText(reason: String): String = when (rea
     "MASTERED_WITHOUT_EVIDENCE_ANCHOR",
     "POSITIVE_WITHOUT_EVIDENCE_ANCHOR",
     -> "这次没有找到可核对的依据，先只作为观察"
-    "SAME_KC_IN_COOLDOWN" -> "这个知识点刚刚复习过，这次先只作为观察"
+    "SAME_KC_IN_COOLDOWN" -> "这个知识点上刚有一笔更新的掌握记录，这次先只作为观察"
     "CONVERSATION_QUOTA_EXHAUSTED" -> "本次复习的观察记录已经够了，这次先不计入"
     "LEARNER_WINDOW_QUOTA_EXHAUSTED" -> "短时间内记录得比较多，这次先只作为观察"
     "ATTENTION_BELOW_FLOOR" -> "这次作答投入得还不够，先只作为观察"

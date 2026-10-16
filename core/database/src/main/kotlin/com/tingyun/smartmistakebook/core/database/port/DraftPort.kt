@@ -82,8 +82,14 @@ interface DraftWritePort {
 
     /**
      * Attaches a clean-redraw canonical asset to an already-committed problem
-     * revision under the CLEAN_IMAGE role. Returns false when the revision
-     * does not exist. Idempotent.
+     * revision under the CLEAN_IMAGE role. Idempotent.
+     *
+     * Returns false when the revision does not exist, **or when it is no longer the revision
+     * its error-book entry points at**（AUD-09 ⑤：晚到的净化结果只许挂到书里现在显示的那
+     * 一版上）。调用方（净化作业）按 `SUPERSEDED` 记录这条 false，而不是当成一次失败去重试；
+     * 同一判据的**读口**是 [CleanRedrawTaskPort.isCurrentProblemRevision]（付费之前先问它，
+     * 别为一挂不上的图花钱）——判据只在这一处 SQL 与那一处读口上，不在这里再声明一次
+     * （两个默认实现相撞会让 StudyDatabasePort 编译期就断）。
      */
     suspend fun attachCleanRedrawAsset(
         revisionId: String,

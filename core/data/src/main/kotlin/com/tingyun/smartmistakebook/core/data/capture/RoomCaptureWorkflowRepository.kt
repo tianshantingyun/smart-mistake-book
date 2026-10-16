@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.data.capture
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.tingyun.smartmistakebook.core.database.AppendProblemDraftSourceAssetCommand
 import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.CommitTutorSessionCommand
@@ -61,7 +62,6 @@ import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerpri
 import com.tingyun.smartmistakebook.core.model.CaptureDraftWorkspaceCodec
 import com.tingyun.smartmistakebook.core.model.CaptureDraftWorkspaceFingerprint
 import com.tingyun.smartmistakebook.core.model.ContentBlock
-import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyInput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyOutput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
@@ -101,6 +101,33 @@ class RoomCaptureWorkflowRepository internal constructor(
     /** Split-review ledger; null in tests that never split. */
     private val splitImports: RoomSplitImportRepository? = null,
 ) : CaptureWorkflowRepository {
+    /**
+     * AUD-09 净化作业执行器：把"分类 → 重绘 → 挂接"升级成有持久身份、可续跑、不重复付费的作业。
+     * 装配就是它的依赖缝——出网门与调用点同一实值（[captureEgressAllowed]），分类轮走模型台账
+     * （[modelTasks]，终态即重放），生成轮走 [cleanRedraw]（凭证门在实现里），挂接走 [database]。
+     */
+    private val cleanRedrawTasks = CleanRedrawTaskRunner(
+        tasks = database,
+        egressAllowed = captureEgressAllowed,
+        readSourceAsset = { assetId -> database.readCanonicalSourceAsset(assetId) },
+        // 读取时再核对一次（AUD-09：出网前逐位校验）：从"决定重绘"到真正出网之间文件仍可能
+        // 被替换；核对不过即放弃重绘，题面保留原图，失败落 SOURCE_UNREADABLE。
+        readSourceBytes = { record ->
+            runCatching { assetVault.resolve(record).readBytes() }.getOrNull()
+        },
+        classify = { request -> classifyProblemKind(request) },
+        generateClean = { record, bytes ->
+            cleanRedraw?.generateClean(bytes, record.mimeType)
+        },
+        attach = { revisionId, bytes, mimeType ->
+            attachCleanRedrawImage(
+                problemRevisionId = revisionId,
+                cleanImageBytes = bytes,
+                cleanImageMimeType = mimeType,
+            )
+        },
+    )
+
     override fun observePendingCaptures(): Flow<List<PendingCaptureItem>> =
         database.observePendingCaptureDrafts().map { records ->
             records.map { record -> record.toPendingCaptureItem() }
@@ -493,60 +520,95 @@ class RoomCaptureWorkflowRepository internal constructor(
             summary
         }
 
-    private suspend fun redrawAndAttachClean(
-        sourceAsset: CanonicalSourceAssetRecord,
-        revisionId: String,
-    ) {
-        val generator = cleanRedraw ?: return
-        // 读取时再核对一次：从"决定重绘"到真正出网之间文件仍可能被替换，这条链的字节
-        // 同样要在发送前过 vault.resolve 的逐位校验（失败即放弃重绘，题面保留原图）。
-        val original = runCatching { assetVault.resolve(sourceAsset) }.getOrElse { return }
-        val clean = generator.generateClean(original.readBytes(), sourceAsset.mimeType) ?: return
-        attachCleanRedrawImage(
-            problemRevisionId = revisionId,
-            cleanImageBytes = clean.bytes,
-            cleanImageMimeType = clean.mimeType,
-        )
-    }
-
     /**
-     * Runs one IMAGE_PIPELINE_CLASSIFY round on the committed photo and redraws only
-     * when the model says WITH_FIGURE. Runs inline (the classify is fast); the redraw
-     * itself stays async via [cleanRedrawScope] when injected, else inline fail-closed.
+     * Runs one clean-redraw job for a just-committed problem revision (AUD-09).
+     *
+     * 触发范围口径（测试同批钉住）：**只有提交成功（`created == true`）触发**；纯文字题
+     * （TEXT_ONLY）**不动作**——分类轮判定之后作业直接落 `SUCCEEDED`，不生成、不挂接。
+     *
+     * 装配了 [cleanRedrawScope] 时整段作业进后台（提交调用不等它：分类轮与生成轮都可能出网，
+     * 这正是"保存要快、作业慢慢做"的既有取舍）；没装配时内联（测试路径）。两条路径都
+     * fail-closed：作业的失败只落台账与日志，绝不把已经落库的提交改判成失败。
      */
     private suspend fun decideAndRedraw(
         sourceAsset: CanonicalSourceAssetRecord,
         revisionId: String,
         subjectId: String,
     ) {
-        val tasks = modelTasks ?: return
-        if (!captureEgressAllowed()) return
-        val shouldRedraw = try {
-            val classifyRequest = ModelTaskRequest(
-                requestId = "save-decision:$revisionId",
-                input = ImagePipelineClassifyInput(
-                    sourceAssetId = sourceAsset.sourceAssetId,
-                    imageWidth = sourceAsset.width,
-                    imageHeight = sourceAsset.height,
-                    subjectIdOverride = subjectId,
-                ),
-                occurredAtEpochMillis = System.currentTimeMillis(),
-                // 「配置模型 = 同意」的发送判据只有一处（`core:model` 的 agentConsentGranted KDoc）：
-                // 这里只回答自己知道的那一半——应用层开关，且取实值。写死 true 会把"开关关了
-                // 还能发"变成只靠上面那条前置 return 挡着，改一次控制流就静默失效。
-                agentConsentGranted = captureEgressAllowed(),
-            )
-            val terminal = tasks.execute(classifyRequest).last()
-            terminal.status == ModelTaskStatus.SUCCEEDED &&
-                (terminal.output as? ImagePipelineClassifyOutput)?.problemKind ==
-                ImagePipelineProblemKind.WITH_FIGURE
+        // 没有模型任务链 = 这个装配根本不发模型轮（与 `captureEgressAllowed` 同一口径的
+        // 装配侧门）：不建作业行、不记账——没有尝试过就没有欠账。
+        if (modelTasks == null) return
+        val identity = CleanRedrawTaskIdentity(
+            revisionId = revisionId,
+            sourceAssetId = sourceAsset.sourceAssetId,
+            subjectId = subjectId,
+        )
+        val scope = cleanRedrawScope
+        if (scope != null) {
+            scope.launch { runCleanRedrawJob(identity) }
+        } else {
+            runCleanRedrawJob(identity)
+        }
+    }
+
+    /**
+     * 跑一次净化作业并把结局**记录下来**（AUD-09 ⑤："返回值不再丢弃"）。
+     *
+     * 不吞取消（进程/作用域收尾不是失败）；其余异常只记录——提交早已落库，作业的意外
+     * 失败不许把它改判成失败。行本身留在台账里，由下次启动的对账按尝试上限续跑。
+     */
+    private suspend fun runCleanRedrawJob(identity: CleanRedrawTaskIdentity) {
+        val outcome = try {
+            cleanRedrawTasks.run(identity)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            Log.w(TAG, "Clean redraw ${identity.revisionId} failed before its ledger write", failure)
+            return
+        }
+        Log.i(TAG, "Clean redraw ${identity.revisionId} -> $outcome")
+    }
+
+    /**
+     * AUD-09 ④ 启动对账：接上一进程留下的净化作业接着做完（`PENDING`/`FAILED` 且尝试次数
+     * 未耗尽），返回本次**实际动过**的行数。
+     *
+     * [staleBeforeEpochMillis] 是租约判据（应用传"本进程启动时刻"）：本进程刚发起的作业不会被
+     * 对账抢走双跑（那会重复付费），而上一进程被杀留下的行一定早于它。出网门关着时一行也不动
+     * （fail-closed）——留待下次启动。
+     */
+    override suspend fun resumePendingCleanRedraws(
+        staleBeforeEpochMillis: Long,
+    ): Int = withContext(Dispatchers.IO) {
+        require(staleBeforeEpochMillis >= 0) {
+            "A clean redraw resume cutoff must not be negative"
+        }
+        val processed = try {
+            cleanRedrawTasks.resumePending(staleBeforeEpochMillis = staleBeforeEpochMillis)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            Log.w(TAG, "Clean redraw resume pass failed", failure)
+            0
+        }
+        if (processed > 0) {
+            Log.i(TAG, "Resumed $processed clean redraw task(s)")
+        }
+        processed
+    }
+
+    /** 分类轮（AUD-09 ①③）：终端快照的产物是分类判断才认；失败给 null（调用方落失败码）。 */
+    private suspend fun classifyProblemKind(request: ModelTaskRequest): ImagePipelineProblemKind? {
+        val tasks = modelTasks ?: return null
+        return try {
+            val terminal = tasks.execute(request).last()
+            if (terminal.status != ModelTaskStatus.SUCCEEDED) return null
+            (terminal.output as? ImagePipelineClassifyOutput)?.problemKind
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
-            false
+            null
         }
-        if (!shouldRedraw) return
-        scheduleCleanRedraw(sourceAsset, revisionId)
     }
 
     override suspend fun attachCleanRedrawImage(
@@ -673,29 +735,6 @@ class RoomCaptureWorkflowRepository internal constructor(
      */
     private suspend fun recordSplitImportCommit(draftId: String, occurredAtEpochMillis: Long) {
         splitImports?.recordCommittedDraft(draftId, occurredAtEpochMillis)
-    }
-
-    /**
-     * Schedules the commit-time clean redraw. With an injected application scope
-     * the redraw is fire-and-forget in the background so the save never blocks;
-     * without one it runs inline (tests). Both paths are fail-closed.
-     */
-    private suspend fun scheduleCleanRedraw(
-        sourceAsset: CanonicalSourceAssetRecord,
-        revisionId: String,
-    ) {
-        val scope = cleanRedrawScope
-        if (scope != null) {
-            scope.launch {
-                runCatching {
-                    redrawAndAttachClean(sourceAsset, revisionId)
-                }
-            }
-        } else {
-            runCatching {
-                redrawAndAttachClean(sourceAsset, revisionId)
-            }
-        }
     }
 
     override suspend fun endTutorSessionWithoutSaving(
@@ -969,6 +1008,9 @@ class RoomCaptureWorkflowRepository internal constructor(
         const val CAPTURE_IMPORT_VERSION = "capture-import-v1"
         const val DEFAULT_ESTIMATED_SECONDS = 180
         val FULL_IMAGE_REGION = NormalizedSourceRegion(0.0, 0.0, 1.0, 1.0)
+
+        /** 净化作业的日志标签（AUD-09 ⑤：结局要留痕，不只是"失败被吞"）。 */
+        const val TAG = "CleanRedraw"
     }
 }
 
