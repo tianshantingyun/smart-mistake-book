@@ -273,7 +273,7 @@
 > 让流式预览的按字符截断不再切碎代理对（`Progress.of`；原 `take(n)` 留下孤立高代理、渲染成「�」）。
 > 零版本串、零投影/计划/账本输出变化，只在预算边界正好落在成对代理中间时少留一个码元；
 > 证据见 `core:model` 的 `ModelTextSurrogateTruncationTest`。KD-38 同条「未达 / 剩余」里
-> **解析期**那批 `take(n)`（`core/data` 解析器）与网关 `streamingPrefix` 的同类切法不在本次修复面内。
+> **解析期**那批 `take(n)`（`core/data` 解析器）与网关 `streamingPrefix` 的同类切法**已在收尾修复批补齐**（§3.22）。
 
 ### 3.21 T9/AUD-11 ②③ · 冷却限通道 + 可观察性与审计面（2026-10-16，批次 3E/6C/AUD-09 同批）：零算法 bump
 
@@ -287,6 +287,14 @@
 > ——模型写不再挡当晚的小测客观证据、小测写也不再挡模型写（报告 §2.2 实测：改前当晚小测落库 0/3）。
 > 版本串管的是"同一账本重放是否给出同一结果"，与"哪些写会进账本"是两件事；后者正是本裁定要改的
 > 准入面。洪泛面复核读数已随本批落进校准面（`acceptedPerSourceKindPerHour` / `peakAcceptedBySourceKind`）。
+
+### 3.22 批次 12 收尾 · T8 判词归属落账 / T5 3E / T6 schema 66 / 截断补齐（2026-10-17）：零算法 bump（除 schema 66 的存储面）
+
+> 编号说明：本批 T9/T10 的登记在 §3.21/§3.20；本条覆盖同批 T8/T5/T6 与收尾修复。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `LearningCoreVersions.*`（`PROJECTOR`/`EVIDENCE`/`ATTRIBUTION`）**全部未 bump**；`STUDY_DATABASE_VERSION` 65→**66**（新增 `clean_redraw_task` 表，非破坏迁移）；各指纹 schema 未动 | **T8 判词归属落账（`TutorJudgedReviewSettler`）**：模型判词分支把驱动证据落成快照的一条 `KnowledgeEvidenceAttribution`（节点 + 现役绑定 + 生效权重）；快照 id 从 `stableId("tutor-judged-snapshot", requestId)` 改为**内容寻址**（追加归属分量；同内容重放命中同一行，内容真变写新行——防 KD-37 同类身份死路）。**T5 3E**：知识点复习候选加第二档（全库「有绑定题的活跃知识点 ∩ 可出题材料」− 今日候选池，`FULL_LIBRARY_SCAN_DAILY_CAP=10`）；**T6**：净化作业持久表 + 源图 sha 指纹 + 同指纹跳过 + 启动对账重试 + SUPERSEDED 保护；**收尾**：解析期 6 处 `take(n)` + 网关 `streamingPrefix` 改 `takeBudgetChars`（不切代理对）；`CleanRedrawTaskDao.claimTaskAttempt` 改以 UPDATE 命中行数为准（并发 CAS 修正） | **零算法 bump 的判据（逐条）**：① T8——投影器与两条归属派生路径**一行未动**（`LearningProjector.attributionsForAttempt` 的 upcast 派生自 KF-32 起就在「题有当前绑定（含 pseudo）」时从绑定事实派生归属；`projectMastery` 只读 `attempt.evidence.weight`）；新增内容只出现在**新**快照上，对**固定账本**重放逐位不变（判别先例 §3.12/§3.14）。② T5——知识点队列**非持久化**（会话内现排，`KnowledgeNodeScorer` 无版本串，同口径见 §3.12 相关说明）；错题计划（`ReviewPlannerV2.VERSION`）一行未动。③ T6/收尾——净化作业是**新增写路径**（新表、不参与既有投影/指纹）；截断与 CAS 修正不改变任何数值输出。④ schema 66 是**存储面**变更（新表 + 迁移），非算法数值 | T8 裁定=2026-10-16 用户批准（锚定 + 归属落账）；T5 裁定=同批（每日 10）；实现与证据见批次记录 `docs/research/2026-10-16-batch-12-twelve-track-record.md` §2 T5/T6/T8 与 §8 | T8：`TutorJudgedReviewSettlerTest`（前置 KC 证据 → NO_VERDICT；同节点证据仍判；归属指向驱动证据；坏绑定不伪造归属）；T5：`KnowledgeReviewQueueTest` 扩展 + `RoomBackedStudyExperienceRepositoryTest`（范围改写保留原断言为子集）；T6：`CleanRedrawTaskRunnerTest` 17/0、`CleanRedrawTaskInstrumentedTest` 2/2（设备）、`FullMigrationMatrixInstrumentedTest` 13/0（设备，1h36m）；收尾：单测门三模块 BUILD SUCCESSFUL（2026-10-17 主会话实跑）。**设备模型轨（KD-37/38 前后对照）仍 429 未达** | ➖（固定账本投影逐位不变，不触发重放）；**诚实登记**：题级 0.5 权重经归属/派生进入被绑定 KC 的流向在「题有当前绑定」路径上**先于本批存在**，T8 只在「绑定为空/派生为空」的回退路径上改变行为；与 `model-judged-verdict-pricing.md` §4(ii)「模型判对的 KC 写入上限 0.15」的张力属**既有**待裁定项（批次记录 §7 第 3 条） |
 
 ## 4. 谁在什么时候写这一行
 

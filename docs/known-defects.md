@@ -1838,7 +1838,7 @@ settlement.occurredAtEpochMillis`（`TutorJudgedReviewSettler.kt:127/140`，记�
 测试证据（测试证据已到，设备对照仍未达）。现：真实服务商上再次出现「超长标签 → 整轮永久失败」的形态；或下一批设备段
 做出前后对照后发现失败构成里仍有标签越界类（那说明截断之外的字段仍在判死）。
 
-## KD-39 (open, 2026-10-16 登记（独立复核 medium；读码级，未设备复现）) · 切分回执写在提交事务之外：「题已入库、台账仍 PENDING」且无补偿路径
+## KD-39 (fixed 2026-10-17，提交 `463a5dea`（读侧对账补偿）) · 切分回执写在提交事务之外：「题已入库、台账仍 PENDING」且无补偿路径
 
 **Symptom（读码推断，来源：本批九轨独立复核 finding 1）.** 本批 T4 新增的 SAVED 回执
 （`RoomCaptureWorkflowRepository.confirmAndCommit` 拿到真实提交后调 `recordSplitImportCommit`，
@@ -1856,7 +1856,13 @@ settlement.occurredAtEpochMillis`（`TutorJudgedReviewSettler.kt:127/140`，记�
 **Reopen condition.** n/a —— 本条即 open；关闭条件 = 上述窗口被消除或补偿路径落地，并有一条
 「提交后被杀 → 重启后台账追平」的用例（instrumented 或设备）。
 
-## KD-40 (open, 2026-10-16 登记（本批独立复核 low）) · status.md 的 run_context 绑定陈旧：本地生成必显示 BOUND 且可指向旧提交
+**关闭记录（2026-10-17，提交 `463a5dea`）.** 按 Fix direction ② 落地：读侧对账补偿
+（`RoomSplitImportStore.reconcileCommittedQuestionDrafts` 在同一写事务里把「草稿已 COMMITTED 且台账
+PENDING」的题补写 SAVED 回执，复核页装配/逐题续做/启动各跑一次）；instrumented
+`SplitImportReceiptReconciliationInstrumentedTest` 5/0（设备实跑，含「提交后被杀 → 重启追平」）。实现与
+证据详见批次记录 §2 T1/§3.3。
+
+## KD-40 (fixed 2026-10-17，提交 `463a5dea`（生成器补「绑定时刻」说明）) · status.md 的 run_context 绑定陈旧：本地生成必显示 BOUND 且可指向旧提交
 
 **Symptom（来源：本批独立复核 finding 3；本轮记录者读码）.** 本批 T5 给状态页加了 `run_context()` 绑定
 （`tools/ci/generate_status.py:432-470`）：COMMIT_SHA/BRANCH 与 `git rev-parse HEAD` 不一致即 UNBOUND。
@@ -1871,7 +1877,11 @@ commit-back 后重新生成（自指不可解，至少注明）。
 
 **Reopen condition.** n/a —— 登记性低危；读者被该 sha 误导时升级。
 
-## KD-41 (open, 2026-10-16 登记（本批独立复核 low）) · 小测题面损坏行 ⇒「重试出题」每次重生成、必再撞同一身份、再丢弃
+**关闭记录（2026-10-17，提交 `463a5dea`）.** `generate_status.py` 新增 `RUN_CONTEXT_NOTE`，头部 BOUND/UNBOUND
+两种情况都印「绑定时刻 = 生成时刻，非所描述代码的提交」；模板同步；生成器单测更新（`test_ci_generate_status.py`，
+T2 自跑 16 例）。见批次记录 §2 T2。
+
+## KD-41 (fixed 2026-10-17，提交 `463a5dea`（损坏行覆盖重写）) · 小测题面损坏行 ⇒「重试出题」每次重生成、必再撞同一身份、再丢弃
 
 **Symptom（读码，来源：本批独立复核 finding 5）.** `KnowledgeQuizItemStore.save()` 在「既有行存在但解不开」
 （损坏载荷）时返回 null（`KnowledgeQuizItemStore.kt:66-79`），调用方把 null 当「未持久化」→ 显示 Unavailable；
@@ -1884,7 +1894,12 @@ commit-back 后重新生成（自指不可解，至少注明）。
 
 **Reopen condition.** n/a —— 登记性低危；损坏行在真实设备被观测到时升级。
 
-## KD-42 (open, 2026-10-16 登记（设备观察，本批 T3；独立核对补正一处）) · 批量导入在 staging 阶段被杀：该批静默丢弃、无用户可见提示
+**关闭记录（2026-10-17，提交 `463a5dea`）.** 损坏行按「不可复用」处理：`save()` 撞
+`ImmutablePayloadConflictException` 后先分辨既有行还能不能解，解不开才**整行覆盖重写**（新增端口
+`overwriteAssessmentItemSnapshot`；正常行仍首见即真）；用例「损坏行 → 重试可恢复」；`KnowledgeQuizItemStoreTest`
+7/0（设备实跑）。见批次记录 §2 T3。
+
+## KD-42 (fixed 2026-10-17，提交 `463a5dea`；设备核由独立核对纠正——提示实际已显示) · 批量导入在 staging 阶段被杀：该批静默丢弃、无用户可见提示
 
 **Symptom（设备观察，来源：本批 T3 设备段 + 独立核对补正）.** 批量导入（20 页）在 job 建立**之前**的
 staging 阶段杀进程：重进 App 后该批不存在（列表里没有、也没有失败条目），学生看到的是「什么都没发生」。
@@ -1898,6 +1913,12 @@ staging 阶段杀进程：重进 App 后该批不存在（列表里没有、也�
 「已中断，可重导」。
 
 **Reopen condition.** n/a —— 登记性低危；用户因此丢失过工作且无人察觉时升级。
+
+**关闭记录（2026-10-17，提交 `463a5dea`）.** 读口 + 提示落地（staging 非空 ⇒ 批量导入入口显示「上次导入被中断，
+可重导」，带 testTag）；**设备核由独立核对纠正**：提示实际已显示——截图 `10_kd42_no_notice.png` 与
+`ver2.xml` 均命中 `batch_import_interrupted` 节点与同一文案，设备走查员误把空态截图当证据（自述「未观察到
+提示」不成立）。instrumented `BatchImportInterruptedStagingInstrumentedTest` 1/0、
+`BatchImportInterruptedNoticeInstrumentedTest` 2/0。见批次记录 §2 T4/§3.3/§3.5。
 
 
 ## KD-43 (open, 2026-10-16 登记（AUD-11 报告 §3；medium）) · 答案键：错键判错之后没有纠正/撤销/重放的落点；身份粘性还会静默丢写
@@ -1934,3 +1955,111 @@ T9 已把「accepted 被 IGNORE」变成可观察结果（`ChatEvidenceWriteRece
 **Reopen condition.** n/a —— 本条即 open；关闭条件 = 上面两半各自有明确处置落地：(a) 错键纠正/撤销/
 补偿至少一条路径 + 一条「错键 → 纠正 → 账本被抵消/被单列」的用例；(b)「同身份撞被拒行」的行为被裁定并
 有用例钉住（报冲突 / 覆盖重写 / 保持静默但记账）。
+
+## KD-44 (open, 2026-10-17 登记（批次 12 T8 对抗性复核 finding 1；medium；读码级）) · 判词锚定让「KC 集为空」的题永远拿不到判定：NO_VERDICT 永久阻塞 + 文案误导
+
+**Symptom（读码，来源：批次 12 对抗性复核）.** T8 的锚定判据（整题判决要求 ≥1 条 accepted 证据锚在
+`MistakeRecord.knowledgeNodeIds` 上）对「KC 集为空或只含伪节点」的题是一个永久阻塞：锚定集来自
+`knowledge_question_lattice`（有回执时还要求 accepted==MAX 且存在 KNOWLEDGE 分类行，`ProblemDao.kt:122-160`），
+而伪绑定/无绑定题读到空集 → 模型判词被整条丢弃 → NO_VERDICT 永久阻塞该复习项；提示文案
+「本次讲题还没有形成判定…」（`SmartMistakeBookDestinations.kt:513-518`）对「模型给了判词、但证据不锚定」的
+情形是误报（NO_VERDICT 的定义是「模型也没给出判词」，`TutorJudgedReview.kt:70-83`）。
+
+**Impact.** medium：这类题走讲题判定通道时永久卡住（与 KD-37 同类「唯一出口必然失败」的形态）；同时文案把
+「无锚定证据」说成「没有判定」。注意边界：绑定读口自身刻意「不要求匹配 KNOWLEDGE 分类」
+（`ProblemOrganizationDao.kt:522-533` KDoc），因此「空 KC 集」是合法状态而非数据损坏——缺口在出口与文案，
+不在锚定本身。
+
+**Fix direction（待裁定）.** ① 锚定集为空时给「本题无绑定知识点」的明确出口（文案按「无绑定」分流，
+不伪装成「没有判定」）；或 ② 允许伪节点（`pseudo:*`）参与锚定集。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 上述任一出口落地 + 一条「KC 集为空 → 明确可见出口
+（不永久静默）」的用例。
+
+## KD-45 (fixed 2026-10-17，提交 `463a5dea`) · 净化领取的比较交换会误报成功：并发下重复付费 + 双写终态
+
+**Symptom（读码，来源：批次 12 对抗性复核 finding 3）.** `claimTaskAttempt` 丢弃 UPDATE 的命中行数，
+改用「回读到的 `attemptCount == expected+1`」判领取：两个并发调用者读到同一版本 N 时，输家 UPDATE 命中 0 行，
+但赢家刚把行加到 N+1 → 输家回读也命中 → 误报领取成功，继续跑同一行作业（重复付费；两个执行者用相同
+expected 写终态，后写覆盖先写，SUCCEEDED 可被覆写成 FAILED/SUPERSEDED）。
+
+**关闭记录（2026-10-17，提交 `463a5dea`）.** 比较交换以 UPDATE 的**命中行数**为准：`claimed == 0` 即返回
+null（领不到）；`CleanRedrawTaskRunnerTest` 17/0 + 设备 `CleanRedrawTaskInstrumentedTest` 2/2 绿。
+见批次记录 §2 T6/§8。
+
+## KD-46 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 6；low）) · 3E「每日 10」实为「每次排计划 ≤10」
+
+**Symptom.** 知识点队列不落库（会话内现排，ledger §3.12 同口径），cap 只在 `selectKnowledgeReviewQueue`
+对第二档候选 `.take(FULL_LIBRARY_SCAN_DAILY_CAP)`；同日多次进入（或答题后重算）可拿到不同的 10 个节点，
+当日累计可超过 10。裁定（2026-10-16）的口径是「每日最多补捞 10 个」。
+
+**Impact.** low：单次会话的预算与体验不受影响；「每日」总量是近似值。若裁定本意是严格每日总量，需要落库
+当日已扫描集合（新增持久面）。
+
+**Fix direction（待裁定）.** ① 接受近似（KDoc 写明「每次排计划 ≤10，非严格每日」）；或 ② 落库当日已捞回集合。
+
+**Reopen condition.** n/a —— 登记性低危。
+
+## KD-47 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 8；low）) · 设置恢复是多键顺序写、非原子：WRITE_FAILED 文案「本机设置保持原样」可能与事实不符
+
+**Symptom.** `applyRestoredSettings` 依次调六个写口（setOptions→逐条删/加考试→setOptimizedParameters→
+setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDoc 与 UI 文案都称「设置仍是恢复前那份 /
+保持原样」，但失败可能发生在中途——留下「改了一半」的设置。
+
+**Impact.** low：只在恢复中途失败时发生；DB 已一致，设置半新半旧且文案误导。
+
+**Fix direction（待裁定）.** 文案改「设置未能完整写入，可能有部分设置已变」；或写前先快照旧值、失败时回滚。
+
+**Reopen condition.** n/a —— 登记性低危。
+
+## KD-48 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 9；low）) · 「可观察性先行」在应用里没有消费面
+
+**Symptom.** `KnowledgeQuizEvidenceAudit`（internal）全仓只有测试调用、无生产调用方；
+`KnowledgeEvidenceLedgerStatus` 无人读；「accepted 被 IGNORE 吞掉」暴露给学生的只是枚举值 + 一条 logcat WARN。
+作为「先行」可接受，但它不是「学生/开发能看见」的现状。
+
+**Impact.** low：写入口不再无感（回报 + WARN），但没有任何 UI/诊断面消费它。
+
+**Fix condition.** 在调试/审计面（如设置页诊断或复核屏）接一个只读消费点，或等 5B 的纠正语义一并接。
+
+**Reopen condition.** n/a —— 登记性低危。
+
+## KD-49 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 7；low）) · 切分对账查询没有可用索引前导列
+
+**Symptom.** 对账查询谓词只有 `confirm_state`（`SplitImportDao.kt:113-116`），现有索引
+`(job_id, confirm_state)` 无法用它做前导过滤 → 每次读触发全表扫；触发点在复核页 Flow 每次采集 / 每次取
+下一题 / 启动。个人库数百行规模下不是缺陷，但与实现 KDoc「走索引扫描」的说法不完全一致。
+
+**Impact.** low（规模小）；实现注释与事实有出入。
+
+**Fix direction.** 加 `(confirm_state)` 单列索引（需 schema 迁移）或在 KDoc 如实写明走全表扫。
+
+**Reopen condition.** n/a —— 登记性低危。
+
+## KD-50 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 10；low）) · `isCurrentProblemRevision` 判据比 KDoc 宽
+
+**Symptom.** `isCurrentProblemRevision`（`ProblemDraftTransactionDao.kt:757-761`）只查「有没有
+`error_book_entry.current_revision_id = 该修订`」，不校验条目状态（ACTIVE/ARCHIVED）也不校验条目属于同一
+practice unit——「挂到已归档条目的修订上」是它允许的形状，与 KDoc 措辞不完全对应。未观察到因此丢或错挂的
+实际路径，仅作边界记录。
+
+**Impact.** low（边界记录）。
+
+**Reopen condition.** n/a —— 登记性低危。
+
+## KD-51 (open, 2026-10-17 登记（批次 12 设备段观察；medium）) · 冷启动知识库搜索特性重建占死 SQLite 连接池：单条 SQL 等 270s、冷启 ANR、采集路径卡「正在安全保存」
+
+**Symptom（设备实测，emulator-5554；三次 reboot 后仍复现，宿主资源充足 64G/8.3G 空闲、CPU 39%）.**
+冷启动反复 ANR（`/data/anr/...SystemJobService` 同型记录，主线程栈落
+`BundledKnowledgePackResources.kt:132→:259` / `BundledKnowledgeBaseInstaller.kt:52` /
+`KnowledgeNodeRelationContract.kt:74`）；logcat「SQLiteConnectionPool ... unable to grant a connection ...
+for 270.20203 seconds」，阻塞语句 `DELETE FROM knowledge_search_feature WHERE subject = ?` /
+`INSERT OR IGNORE INTO knowledge_search_feature`。后果：采集路径卡在「正在安全保存…」、新草稿不落库，
+设备走查的 AUD-05/AUD-09 项因此无法完成。
+
+**Impact.** medium（依赖包规模与设备速度）：冷启动阶段 App 整体不可用（ANR）+ 采集写入被饿死。
+
+**Fix direction（待设计）.** 搜索特性重建改分块短事务 + 让读连接不被长写事务饿死；或重建降级为可中断后台
+（采集路径优先）。复现命令与日志见批次记录 §3.3/§3.5（独立核对替换记录 `anr_2026-10-16-19-59-37-873`）。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 冷启动不再出现 270s 级连接等待 + 一条设备级复现对照。
