@@ -71,6 +71,7 @@ import com.tingyun.smartmistakebook.core.model.TutorTurnPlan
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import com.tingyun.smartmistakebook.core.model.agentConsentMatches
 import com.tingyun.smartmistakebook.core.model.requiresImageInput
+import com.tingyun.smartmistakebook.core.model.takeBudgetChars
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -523,7 +524,8 @@ private suspend fun emitStreamingThenCompletion(
  * the terminal event.
  */
 private fun streamingPrefix(body: String): String =
-    body.take(MODEL_TASK_STATUS_MESSAGE_MAX_CHARS)
+    // KD-38 剩余项：按预算截断但不切代理对（take(n) 边界落在成对代理中间会留孤立高代理）。
+    body.takeBudgetChars(MODEL_TASK_STATUS_MESSAGE_MAX_CHARS)
 
 private const val STREAM_EMIT_CHUNK_INTERVAL = 8
 
