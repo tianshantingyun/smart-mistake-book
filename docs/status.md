@@ -4,11 +4,11 @@
 
 ## Build Information
 
-- **Commit SHA**: `f1f42e3f3cf9dce8978147b15a00ee8df09c9b57`
-- **Build Date**: `2026-10-15`
+- **Commit SHA**: `fa265487d7d48ba1274e8533d4e417109ea8eefd`
+- **Build Date**: `2026-10-16`
 - **Branch**: `main`
-- **Triggered By**: `unknown`
-- **Run context**: BOUND · sha `f1f42e3f3cf9`（git HEAD） · branch `main` · 触发 unknown
+- **Triggered By**: `push`
+- **Run context**: BOUND · sha `fa265487d7d4`（CI 变量，与 git HEAD 一致） · branch `main` · 触发 push
 
 ## Build Results
 
@@ -16,23 +16,23 @@
 
 | Module | Status | Duration |
 |--------|--------|----------|
-| `:core:database` | NOT_MEASURED | - |
-| `:core:data` | NOT_MEASURED | - |
+| `:core:database` | OK | - |
+| `:core:data` | OK | - |
 | `:core:domain` | OK | - |
-| `:feature:library` | NOT_MEASURED | - |
+| `:feature:library` | OK | - |
 | `:feature:capture` | OK | - |
 | `:feature:tutor` | OK | - |
 | `:app:localFirst` | OK | - |
-| `:app:strictOffline` | NOT_MEASURED | - |
+| `:app:strictOffline` | OK | - |
 
-编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:database`：类产物早于源码（10-15 22:54 < 源码 10-15 23:24）；`:core:data`：类产物早于源码（10-16 04:53 < 源码 10-16 05:52）；`:feature:library`：类产物早于源码（10-15 23:21 < 源码 10-16 03:41）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-15 22:29）
+编译证据（要求产物晚于本模块源码）：8 个模块/变体全部新鲜。
 
 ### Unit Tests
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | 4 | 4 | 0 | - |
-| `:core:data` | 2 | 2 | 0 | - |
+| `:core:database` | 188 | 188 | 0 | - |
+| `:core:data` | 781 | 781 | 0 | - |
 | `:feature:library` | 40 | 40 | 0 | - |
 | `:feature:capture` | 112 | 112 | 0 | - |
 | `:feature:tutor` | 218 | 218 | 0 | - |
@@ -43,23 +43,23 @@
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `lintLocalFirstDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `lintStrictOfflineDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| Android 库模块（下表明细） | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `lintLocalFirstDebug` | OK | 0 | 44 |
+| `lintStrictOfflineDebug` | OK | 0 | 43 |
+| Android 库模块（下表明细） | OK | 0 | 136 |
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `:core:data` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:export` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:data` | OK | 0 | 12 |
+| `:core:database` | OK | 0 | 0 |
+| `:core:export` | OK | 0 | 3 |
 | `:core:ui` | OK | 0 | 1 |
-| `:feature:capture` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:library` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:capture` | OK | 0 | 6 |
+| `:feature:library` | OK | 0 | 7 |
 | `:feature:profile` | OK | 0 | 0 |
-| `:feature:review` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:tutor` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:review` | OK | 0 | 4 |
+| `:feature:tutor` | OK | 0 | 16 |
 
-以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-15 21:40 < 源码 10-15 22:29）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-15 22:29）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-16 05:52）；`:core:database`：lint 报告早于源码（10-13 21:32 < 源码 10-15 23:24）；`:core:export`：lint 报告早于源码（10-15 22:02 < 源码 10-15 22:19）；`:feature:capture`：lint 报告早于源码（10-13 21:32 < 源码 10-15 22:29）；`:feature:library`：lint 报告早于源码（10-15 23:22 < 源码 10-16 03:41）；`:feature:review`：lint 报告早于源码（10-15 22:03 < 源码 10-15 22:26）；`:feature:tutor`：lint 报告早于源码（10-13 21:32 < 源码 10-15 21:16）
+11 份报告（app 2 变体 + 9 个 Android 库模块）都在且不早于各自源码；错误合计 0。
 
 ### Release Build
 
@@ -72,10 +72,10 @@
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | ecd9e905db6b2540c61f0b3fca838abcfd4c5c583a8e2598cf87aa07da94ea57 |
-| `localFirst-release.apk` | 1f073e9bcad9716c2ab6d90e4f70e2faddab7810020b38817e23b87523679d42 |
-| `strictOffline-debug.apk` | f92491e23227cff1a63f096626483aa03a84a852529c94481b16b7231dd43e40 |
-| `strictOffline-release.apk` | 978e71251d4060ee13f7cb67c8d8095cb28c9965f02ae7e0f5b994516f7f7d65 |
+| `localFirst-debug.apk` | cbef4f6de77105cde99cde134506c232e7f6c3cbb7ff1247b5c46a170297faa7 |
+| `localFirst-release.apk` | 6d59e58d2f9bedfa763e2f192125facfa2254adcef2c88198828119deb3258b2 |
+| `strictOffline-debug.apk` | 9b7425125e89f72136657ee15d62fc5192d468366dfd99e8d25533a319a4ace5 |
+| `strictOffline-release.apk` | e3d1e0e083f0be1c2f4128f79f0e4cbf6c34aaf4646d1011dc904af5b6d3be58 |
 
 ## Knowledge Base
 
@@ -110,13 +110,13 @@
 
 通过 24/24 项；全部为 0 才算绿。
 
-权威表 sha256（前 12 位）：`chapter_map.csv`=`88d3cc21fc3b`（门保护） · `chapter_by_source.csv`=`4b0f18c85bab`（门保护） · `alias_map.csv`=`e67f1e8cfb6b`（门保护） · `boundary_map.csv`=`560029fd4a58`（报告型） · `prereq_map.csv`=`adc72654e3f1`（门保护） · `material_bindings.csv`=`c7c31baf0b78`（门保护）
+权威表 sha256（前 12 位）：`chapter_map.csv`=`88d3cc21fc3b`（门保护） · `chapter_by_source.csv`=`4b0f18c85bab`（门保护） · `alias_map.csv`=`401b31bcc641`（门保护） · `boundary_map.csv`=`560029fd4a58`（报告型） · `prereq_map.csv`=`adc72654e3f1`（门保护） · `material_bindings.csv`=`c7c31baf0b78`（门保护）
 
 ### Tools Tests（Python，tools/tests 套件）
 
 | 总数 | 通过 | 失败 |
 |------|------|------|
-| 737 | 737 | 0 |
+| 736 | 736 | 0 |
 
 ### Retrieval Benchmark（:core:data 单测写入 build/benchmark-metrics.txt，逐字嵌入）
 
@@ -168,9 +168,9 @@ crossSubject=0
 
 | Module | Line Coverage | Branch Coverage |
 |--------|---------------|-----------------|
-| `:core:database` | NOT_MEASURED | NOT_MEASURED |
-| `:core:data` | NOT_MEASURED | NOT_MEASURED |
-| `:core:domain` | NOT_MEASURED | NOT_MEASURED |
+| `:core:database` | 8.2% | 9.3% |
+| `:core:data` | 58.4% | 47.0% |
+| `:core:domain` | 77.3% | 56.5% |
 
 ## Migration Tests
 
@@ -188,11 +188,11 @@ NOT_MEASURED
 
 ## Overall Status
 
-**NOT_MEASURED**
+**PASS**
 
-build job: NOT_MEASURED · KB gates: all OK · tools tests: 737/737 passed · lint（app 2 变体 + 9 个库模块）: NOT_MEASURED · compile evidence: NOT_MEASURED · run context: BOUND
+build job: OK · KB gates: all OK · tools tests: 736/736 passed · lint（app 2 变体 + 9 个库模块）: OK · compile evidence: OK · run context: BOUND
 
 ---
 
-*Generated by CI at 2026-10-15T22:24:44.121978+00:00*
+*Generated by CI at 2026-10-16T12:58:00.863378+00:00*
 *Report version: 1.0*
