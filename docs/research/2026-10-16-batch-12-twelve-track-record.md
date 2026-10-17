@@ -742,7 +742,7 @@ docs/research/algorithm-version-ledger.md
 
 ## 8. 收尾补记（主会话，2026-10-17）
 
-**提交（2 笔，未推送）**：
+**提交（3 笔 + 1 合并，已推送至 `29463733`）**：
 - `463a5dea` —— 十轨全部（83 文件清单剔除四个共编文件 + `66.json`，共 80 路径）。剔除的四个共编文件
   （`SecondaryScreens.kt`、`BatchImportRoute.kt`、`core/domain/.../BatchImportRepository.kt`、
   `core/data/.../RoomBatchImportRepository.kt`）载他线在飞改动，**留给该线按清单提交**——T7 的消息构造段与
@@ -750,6 +750,10 @@ docs/research/algorithm-version-ledger.md
   `SmartMistakeBookApplication.kt` 按记录 §6.3 整份纳入（含他线 restart-reason 块，自足、无未跟踪依赖）。
 - `472394ea` —— 收尾修复（2 文件）：`OpenAiModelResponseParsers.kt` 6 处解析期截断 + 网关 `streamingPrefix`
   改用 `takeBudgetChars`（KD-38 剩余项补齐；§3.20 末段的「不在本次修复面内」已被本批推翻，见 ledger §3.22）。
+- `43e3af9e` —— docs（本收尾补记 + KD 登记 + 主线/台账同步）。
+- `29463733` —— merge `origin/main`（CI 的 status.md 生成提交 `851271d4`；基线同为 `fa265487`，仅 status.md 变化）。
+  **推送结果（2026-10-17）**：首次直推被拒（远端已到 `851271d4`，本线按纪律不 rebase，merge 后推成
+  `851271d4..29463733`；`git ls-remote` 直查远端 = `29463733`）。推送捎带 KB 线已提交未推的 `9fbb534c`。
 
 **收尾修复（主会话，均已过门）**：
 - T6 领取 CAS 误报（对抗性复核 finding 3）：以 UPDATE 命中行数为准（`CleanRedrawTaskDao.kt`）→ `463a5dea`。
