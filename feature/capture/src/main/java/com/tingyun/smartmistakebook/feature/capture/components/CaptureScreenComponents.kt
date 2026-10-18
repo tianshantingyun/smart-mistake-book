@@ -411,6 +411,7 @@ internal fun AwaitingCorrectionCard(
 
 @Composable
 internal fun CaptureCommittedCard(
+    reusedExistingProblem: Boolean,
     onView: () -> Unit,
     onCaptureAnother: () -> Unit,
     modifier: Modifier = Modifier,
@@ -438,6 +439,15 @@ internal fun CaptureCommittedCard(
         Text(
             text = "原图和整理后的题面都已保存。现在可以查看这道题，或继续录入下一道。",
             modifier = Modifier.padding(top = 10.dp),
+            color = InkSecondary,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        // B5：新建入库还是复用了既有同一题，照提交回执如实说，不再把两者混成一句"已入库"。
+        Text(
+            text = captureCommittedReceiptLine(reusedExistingProblem),
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .testTag("capture_committed_receipt"),
             color = InkSecondary,
             style = MaterialTheme.typography.bodyMedium,
         )

@@ -419,7 +419,7 @@ private class PreparedPdfStore(
     )
 }
 
-private object ExportRootLock {
+internal object ExportRootLock {
     @Synchronized
     fun <T> withLock(exportDirectory: File, block: () -> T): T {
         val lockFile = File(exportDirectory.parentFile, ".mistake_pdf_exports.lock")
@@ -463,7 +463,11 @@ internal fun sha256File(file: File): String {
     return digest.digest().toHex()
 }
 
-private fun readRecordedDigest(file: File): String? {
+/**
+ * Reads a recorded `<sha256>\n` digest file (PDF 与 Word 产物共用同一摘要文件口径)。
+ * The PDF and Word exporters share this reader so their integrity checks cannot drift.
+ */
+internal fun readRecordedDigest(file: File): String? {
     if (!file.isFile || file.length() !in 65L..66L) return null
     val value = file.readText(StandardCharsets.US_ASCII).trim()
     return value.takeIf { it.matches(Regex("[a-f0-9]{64}")) }

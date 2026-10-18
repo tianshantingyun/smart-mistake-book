@@ -65,6 +65,70 @@ class CaptureWorkflowStateMachineTest {
         )
         assertEquals(CaptureWorkflowPhase.SAVED, saved.phase)
         assertEquals("entry-1", saved.savedEntryId)
+        // B5：默认（没有复用指示）就是新建入库，与 savedEntryId 同一次 reduce 写进来。
+        assertEquals(false, saved.savedReusedExistingProblem)
+    }
+
+    /**
+     * B5：复用指示与 savedEntryId 同生共死——SAVED 那一刻一起写进来；"再录一道"（Reset，
+     * 界面上就是 resetForNextCapture 走的那条）之后一起消失，不会把上一笔的复用指示带进下一道题。
+     */
+    @Test
+    fun `reuse receipt is written with the saved entry id and dies with the reset`() {
+        val imported = CaptureWorkflowStateMachine.reduce(
+            CaptureWorkflowStateMachine.reduce(
+                CaptureWorkflowState(),
+                CaptureWorkflowAction.ImportStarted(requestId = "import-1"),
+            ),
+            CaptureWorkflowAction.DraftImported(
+                draftId = "draft-1",
+                basisRevisionNumber = 1,
+                requestId = "import-1",
+            ),
+        )
+        val committing = CaptureWorkflowStateMachine.reduce(
+            imported,
+            CaptureWorkflowAction.CommitStarted(
+                draftId = "draft-1",
+                basisRevisionNumber = 1,
+                requestId = "commit-1",
+            ),
+        )
+
+        val savedReuse = CaptureWorkflowStateMachine.reduce(
+            committing,
+            CaptureWorkflowAction.CommitSucceeded(
+                draftId = "draft-1",
+                basisRevisionNumber = 1,
+                requestId = "commit-1",
+                savedEntryId = "entry-1",
+                reusedExistingProblem = true,
+            ),
+        )
+        assertEquals(CaptureWorkflowPhase.SAVED, savedReuse.phase)
+        assertTrue(savedReuse.savedReusedExistingProblem)
+
+        val reset = CaptureWorkflowStateMachine.reduce(
+            savedReuse,
+            CaptureWorkflowAction.Reset(),
+        )
+        assertEquals(CaptureWorkflowPhase.IDLE, reset.phase)
+        assertNull(reset.savedEntryId)
+        assertEquals(false, reset.savedReusedExistingProblem)
+    }
+
+    @Test
+    fun `a state that is not saved may not claim a reused problem`() {
+        val failure = runCatching {
+            CaptureWorkflowState(
+                phase = CaptureWorkflowPhase.COMMITTING,
+                draftId = "draft-1",
+                basisRevisionNumber = 1,
+                savedReusedExistingProblem = true,
+            )
+        }.exceptionOrNull()
+
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test

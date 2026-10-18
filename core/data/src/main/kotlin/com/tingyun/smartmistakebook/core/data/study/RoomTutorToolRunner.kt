@@ -536,7 +536,9 @@ internal class RoomTutorToolRunner(
             ),
         )
         return TutorToolExecution(
-            outcome = if (result.created) {
+            // B5：这里说的是"这一笔是不是刚写进去的"（false = 这一笔本来就已经存过），
+            // 与"有没有复用既有题行"（result.reusedExistingProblem）是两回事。
+            outcome = if (result.commit.created) {
                 TutorToolOutcome(
                     tool = TutorToolName.NOTEBOOK_WRITE,
                     ok = true,

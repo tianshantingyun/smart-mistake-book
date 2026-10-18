@@ -34,6 +34,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.model.ActionType
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.ModelFailureCode
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
@@ -81,7 +82,11 @@ internal fun TutorLobbyRoute(
      * 导出 sheet 的"开始导出"落点（4B B3-3）：装配处（app）入队后台导出并导航到「导出成果」。
      * 默认什么都不做 = 这个入口不接导出（sheet 仍会打开，只是确认按钮没有落点——测试替身）。
      */
-    onStartExport: (layout: MistakePdfLayout, entryIds: List<String>) -> Unit = { _, _ -> },
+    onStartExport: (
+        format: MistakeExportFormat,
+        layout: MistakePdfLayout,
+        entryIds: List<String>,
+    ) -> Unit = { _, _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     // 这条交互面长在哪一栏（K1 的判别列）：会话行按它写，一张配置对象说了算——
@@ -394,11 +399,12 @@ internal fun TutorLobbyRoute(
             state = sheet,
             catalogEntries = catalogEntries,
             onLayoutChange = viewModel::onExportLayoutChange,
+            onFormatChange = viewModel::onExportFormatChange,
             onToggleCandidate = viewModel::onExportCandidateToggle,
             onDismiss = viewModel::onExportSheetDismiss,
-            onConfirm = { layout, entryIds ->
+            onConfirm = { format, layout, entryIds ->
                 viewModel.onExportSheetDismiss()
-                onStartExport(layout, entryIds)
+                onStartExport(format, layout, entryIds)
             },
         )
     }

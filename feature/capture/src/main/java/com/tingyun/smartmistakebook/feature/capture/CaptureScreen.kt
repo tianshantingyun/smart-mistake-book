@@ -387,12 +387,15 @@ fun CaptureScreen(
     LaunchedEffect(
         workflowUiState.workflow.phase,
         workflowUiState.workflow.savedEntryId,
+        // B5：复用指示与 savedEntryId 同一次 reduce 写进 SAVED 状态，一起当键就不会漏读。
+        workflowUiState.workflow.savedReusedExistingProblem,
     ) {
         workflowEvents.applySaved(
             phase = workflowUiState.workflow.phase,
             origin = activeEntryOrigin,
             currentRevisionNumber = state.draftRevisionNumber,
             savedEntryId = workflowUiState.workflow.savedEntryId,
+            reusedExistingProblem = workflowUiState.workflow.savedReusedExistingProblem,
         )
     }
 
@@ -737,6 +740,7 @@ fun CaptureScreen(
 
         if (state.committedEntryId != null && activeEntryOrigin == CaptureEntryOrigin.LIBRARY) {
             CaptureCommittedCard(
+                reusedExistingProblem = state.committedReusedExistingProblem,
                 onView = { onLibraryEntryReady(state.committedEntryId.orEmpty()) },
                 onCaptureAnother = {
                     resetForNextCapture()

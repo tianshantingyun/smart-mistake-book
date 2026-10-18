@@ -13,7 +13,7 @@ import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.ContentInstallStateRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeContentUpdateCommand
 import com.tingyun.smartmistakebook.core.database.KnowledgeContentUpdateResult
-import com.tingyun.smartmistakebook.core.database.CommitProblemDraftResult
+import com.tingyun.smartmistakebook.core.database.ProblemDraftCommitOutcome
 import com.tingyun.smartmistakebook.core.database.AppendProblemDraftSourceAssetCommand
 import com.tingyun.smartmistakebook.core.database.AppendProblemDraftSourceAssetResult
 import com.tingyun.smartmistakebook.core.database.ReplaceProblemDraftCommand
@@ -431,7 +431,8 @@ class RoomBackedStudyExperienceRepositoryTest {
 
     /**
      * 3E 范围定稿（spec dual-review-entry §3.2「今日队列 + 全库第二档」，2026-10-16 裁定
-     * 「每日 ≤10 个知识点」）：知识点复习范围不再只来自今日错题队列的绑定知识点。
+     * 「每日 ≤10 个知识点」；KD-46：队列不落库，实际口径是每次排计划 ≤10、非严格每日累计）：
+     * 知识点复习范围不再只来自今日错题队列的绑定知识点。
      *
      * 原用例（旧名 `currentKnowledgeReviewPlanKeepsOnlyQuizAbleScopeFromTodaysQueue`）的断言
      * 逐条保留为**子集断言**：可出题的真节点仍在队列里、无材料的伪节点仍被排除、它的科目与
@@ -2459,7 +2460,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
 
     override suspend fun commitProblemDraft(
         command: CommitProblemDraftCommand,
-    ): CommitProblemDraftResult = error("Capture is outside this study-repository fake")
+    ): ProblemDraftCommitOutcome = error("Capture is outside this study-repository fake")
 
     override suspend fun appendProblemDraftSourceAsset(
         command: AppendProblemDraftSourceAssetCommand,
@@ -2488,7 +2489,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
 
     override suspend fun confirmAndCommitProblemDraftFromWorkspace(
         command: ConfirmAndCommitProblemDraftFromWorkspaceCommand,
-    ): CommitProblemDraftResult = error("Capture is outside this study-repository fake")
+    ): ProblemDraftCommitOutcome = error("Capture is outside this study-repository fake")
 
     override suspend fun confirmTutorSession(
         command: ConfirmTutorSessionCommand,
@@ -2514,7 +2515,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
 
     override suspend fun commitTutorSession(
         command: CommitTutorSessionCommand,
-    ): CommitProblemDraftResult = error("Capture is outside this study-repository fake")
+    ): ProblemDraftCommitOutcome = error("Capture is outside this study-repository fake")
 
     override suspend fun endTutorSession(
         command: EndTutorSessionCommand,
@@ -2555,6 +2556,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         sort: String,
+        favoriteOnly: Boolean,
     ): PagingSource<Int, LibraryCatalogRow> =
         error("Library is outside this study-repository fake")
 
@@ -2568,8 +2570,10 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         sort: String,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean,
     ): List<LibraryCatalogRow> = libraryRows
         .filter { row -> searchText.isBlank() || row.title.contains(searchText) }
+        .filter { row -> !favoriteOnly || row.isFavorite }
         .drop(offset)
         .take(limit)
 
@@ -2580,6 +2584,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean,
     ): Int = error("Library is outside this study-repository fake")
 
     override suspend fun libraryCatalogFacets(
@@ -2590,6 +2595,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         facet: String,
+        favoriteOnly: Boolean,
     ): List<LibraryFacetCountRecord> =
         error("Library is outside this study-repository fake")
 

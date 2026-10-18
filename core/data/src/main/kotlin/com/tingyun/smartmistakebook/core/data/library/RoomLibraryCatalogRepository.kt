@@ -32,6 +32,7 @@ class RoomLibraryCatalogRepository(
                     createdToEpochMillis = query.createdToEpochMillis,
                     sort = query.sort.name,
                     tokens = tokens,
+                    favoriteOnly = query.favoriteOnly,
                 ),
                 transform = LibraryCatalogRow::toCatalogItem,
             )
@@ -46,6 +47,7 @@ class RoomLibraryCatalogRepository(
                 createdFromEpochMillis = query.createdFromEpochMillis,
                 createdToEpochMillis = query.createdToEpochMillis,
                 sort = query.sort.name,
+                favoriteOnly = query.favoriteOnly,
             ),
             transform = LibraryCatalogRow::toCatalogItem,
         )
@@ -62,6 +64,7 @@ class RoomLibraryCatalogRepository(
                 masteryId = query.masteryId,
                 createdFromEpochMillis = query.createdFromEpochMillis,
                 createdToEpochMillis = query.createdToEpochMillis,
+                favoriteOnly = query.favoriteOnly,
             )
         } else {
             database.libraryCatalogCount(
@@ -71,6 +74,7 @@ class RoomLibraryCatalogRepository(
                 masteryId = query.masteryId,
                 createdFromEpochMillis = query.createdFromEpochMillis,
                 createdToEpochMillis = query.createdToEpochMillis,
+                favoriteOnly = query.favoriteOnly,
             )
         }
     }
@@ -95,6 +99,7 @@ class RoomLibraryCatalogRepository(
                 tokens = tokens,
                 offset = offset,
                 limit = limit,
+                favoriteOnly = query.favoriteOnly,
             )
         } else {
             database.libraryCatalogPage(
@@ -107,6 +112,7 @@ class RoomLibraryCatalogRepository(
                 sort = query.sort.name,
                 offset = offset,
                 limit = limit,
+                favoriteOnly = query.favoriteOnly,
             )
         }
         LibraryCatalogPage(
@@ -132,6 +138,7 @@ class RoomLibraryCatalogRepository(
                 createdFromEpochMillis = query.createdFromEpochMillis,
                 createdToEpochMillis = query.createdToEpochMillis,
                 facet = facet.name,
+                favoriteOnly = query.favoriteOnly,
             )
         } else {
             database.libraryCatalogFacets(
@@ -142,15 +149,16 @@ class RoomLibraryCatalogRepository(
                 createdFromEpochMillis = query.createdFromEpochMillis,
                 createdToEpochMillis = query.createdToEpochMillis,
                 facet = facet.name,
+                favoriteOnly = query.favoriteOnly,
             )
         }
         rows.map { row ->
             LibraryFacetCount(
                 id = row.id,
-                label = if (facet == LibraryFacetKind.MASTERY) {
-                    masteryLabel(row.id)
-                } else {
-                    row.label
+                label = when (facet) {
+                    LibraryFacetKind.MASTERY -> masteryLabel(row.id)
+                    // 收藏这一维的计数行由查询层给出固定 id/标签（一行 "favorite / 已收藏"）。
+                    else -> row.label
                 },
                 count = row.count,
             )
@@ -179,6 +187,7 @@ private fun LibraryCatalogRow.toCatalogItem() = LibraryCatalogItem(
     masteryId = masteryId,
     updatedAtEpochMillis = updatedAtEpochMillis,
     createdAtEpochMillis = createdAtEpochMillis,
+    isFavorite = isFavorite,
     nextReviewAtEpochMillis = nextReviewAtEpochMillis,
     retrievability = retrievability,
 )

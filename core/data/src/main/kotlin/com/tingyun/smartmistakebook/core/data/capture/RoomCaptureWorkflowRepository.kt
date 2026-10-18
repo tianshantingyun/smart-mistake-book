@@ -475,7 +475,7 @@ class RoomCaptureWorkflowRepository internal constructor(
             val originalFile = assetVault.resolve(draft.sourceAsset)
             val expected = request.workspaceIdentity.toDatabaseExpectation()
             val suffix = confirmationStableSuffix(request.workspaceIdentity)
-            val result = database.confirmAndCommitProblemDraftFromWorkspace(
+            val outcome = database.confirmAndCommitProblemDraftFromWorkspace(
                 ConfirmAndCommitProblemDraftFromWorkspaceCommand(
                     workspace = expected,
                     commit = CommitProblemDraftCommand(
@@ -491,13 +491,15 @@ class RoomCaptureWorkflowRepository internal constructor(
                     ),
                 ),
             )
+            val receipt = outcome.commit.receipt
             val summary = CapturedProblemCommitSummary(
                 draftId = request.draftId,
-                problemId = result.receipt.problemId,
-                problemRevisionId = result.receipt.problemRevisionId,
-                practiceUnitId = result.receipt.practiceUnitId,
-                errorBookEntryId = result.receipt.errorBookEntryId,
-                created = result.created,
+                problemId = receipt.problemId,
+                problemRevisionId = receipt.problemRevisionId,
+                practiceUnitId = receipt.practiceUnitId,
+                errorBookEntryId = receipt.errorBookEntryId,
+                created = outcome.commit.created,
+                reusedExistingProblem = outcome.reusedExistingProblem,
             )
             // 切分台账的提交回执（T4/AUD-03）：**这一份草稿真的入库了**是 SAVED 的唯一依据，
             // 所以这一笔写在拿到回执的地方，而不是等界面观察到"保存成功"。两个反面都是真失败：
@@ -510,10 +512,10 @@ class RoomCaptureWorkflowRepository internal constructor(
             // text-only problems keep the original. Never blocks or fails the commit —
             // a missing/failing model, generator, or classify round leaves the revision
             // with the original photo only.
-            if (result.created) {
+            if (outcome.commit.created) {
                 decideAndRedraw(
                     sourceAsset = draft.sourceAsset,
-                    revisionId = result.receipt.problemRevisionId,
+                    revisionId = receipt.problemRevisionId,
                     subjectId = draft.draftId,
                 )
             }
@@ -687,7 +689,7 @@ class RoomCaptureWorkflowRepository internal constructor(
             ?: error("Tutor session no longer exists")
         assetVault.resolve(session.sourceAsset)
         val suffix = stableSuffix(request.requestId)
-        val result = database.commitTutorSession(
+        val outcome = database.commitTutorSession(
             CommitTutorSessionCommand(
                 sessionId = request.sessionId,
                 commit = CommitProblemDraftCommand(
@@ -705,11 +707,12 @@ class RoomCaptureWorkflowRepository internal constructor(
         )
         CapturedProblemCommitSummary(
             draftId = session.draftId,
-            problemId = result.receipt.problemId,
-            problemRevisionId = result.receipt.problemRevisionId,
-            practiceUnitId = result.receipt.practiceUnitId,
-            errorBookEntryId = result.receipt.errorBookEntryId,
-            created = result.created,
+            problemId = outcome.commit.receipt.problemId,
+            problemRevisionId = outcome.commit.receipt.problemRevisionId,
+            practiceUnitId = outcome.commit.receipt.practiceUnitId,
+            errorBookEntryId = outcome.commit.receipt.errorBookEntryId,
+            created = outcome.commit.created,
+            reusedExistingProblem = outcome.reusedExistingProblem,
         ).also { summary ->
             // 同一笔回执语义（T4/AUD-03）：讲题来源的切分题在会话保存入库时才算真的进了错题本
             // ——「结束讲解不保存」走 endTutorSessionWithoutSaving，这里不会被调到。

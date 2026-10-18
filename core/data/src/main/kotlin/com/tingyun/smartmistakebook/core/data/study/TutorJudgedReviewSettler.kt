@@ -1,9 +1,11 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteCommand
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
+import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.domain.LogDurationModel
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlement
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementResult
@@ -35,9 +37,15 @@ import kotlinx.coroutines.flow.first
  *    AUD-11 ①（2026-10-16 裁定）：模型判词还必须在**本题 KC 集**（`MistakeRecord.knowledgeNodeIds`）
  *    上有锚定的 accepted 证据——前置/无关节点的证据只作观察，不再有权翻转整题；只有外部节点
  *    证据时按第 3 条走 `NO_VERDICT`（保持阻塞、可见），而不是判对（AUD-11 报告 §1.2 实测的
- *    半权 0.075 证据被放大成 0.5 的 6.67× 跨粒度放大即由这条路径产生）；
- * 3. 两样都没有 → 不写任何证据、不推进队列（`NO_VERDICT`）。产品裁定：无判定时保持阻塞，
- *    既不伪造"本次未作答"记录，也不给假的记忆更新。
+ *    半权 0.075 证据被放大成 0.5 的 6.67× 跨粒度放大即由这条路径产生）。
+ *    **KD-44（2026-10-17 裁定：后台自动解决、零用户参与）补齐「空 KC 集」这一档**：诚实未分类的题
+ *    在可见 KC 目录里读不到自己那条伪绑定（`ProblemDao` 的 KC 集要求 KNOWLEDGE 分类行，
+ *    `sourceType=PSEUDO_FALLBACK` 的绑定没有），锚定集因此恒为空、判词被整条丢弃 → 复习项
+ *    **永久阻塞**；现在锚定集改用该题 revision 的**伪绑定**节点（`pseudo:<科目>`，见
+ *    [pseudoAnchorBinding]），判词照常结算、归属指向那条伪绑定行、队列照常推进。
+ *    模型写在别的真实节点上的证据仍不构成判词（跨粒度不放行的口径不变）；
+ * 3. 两样都没有（含空 KC 集题连一条可锚定的模型证据都没有）→ 不写任何证据、不推进队列
+ *    （`NO_VERDICT`）。产品裁定：无判定时保持阻塞，既不伪造"本次未作答"记录，也不给假的记忆更新。
  *
  * 定价是本地的、非独立的：题目级只落 HARD（对）/ AGAIN（错），权重 0.5。依据见
  * `docs/research/model-judged-verdict-pricing.md`。
@@ -59,6 +67,11 @@ import kotlinx.coroutines.flow.first
  * 且与模型 chat-evidence 通道对同一节点的另一笔（≤0.15）并存。**零版本 bump**：投影器与两条归属
  * 派生路径一行未动，新增内容只出现在**新**快照上 → 固定账本的投影逐位不变（判别先例：台账
  * §3.12 M4 测验写通道 / §3.14 M2 提交期接线——写路径新增内容、对固定账本逐位不变 → 零 bump）。
+ *
+ * KD-44 的伪锚定只是**当时**的归属锚点，不需要自纠代码（与裁定"不加任何面向用户的绑定指引"
+ * 同一条纪律）：题事后被归类/改绑后，重放（`LearningProjector.attributionsForAttempt` 的 upcast）
+ * 从**当前绑定**重派生归属，历史证据自然改挂真实节点（KF-32 机制；
+ * `BindingChangedReplayDrainerTest` 的 KD-44 用例钉住这条）。
  *
  * 幂等：attempt/submission 由 (复习会话, 队列项) 派生，重复结算只生效一次（第二次是回放）。
  * 快照 id **内容寻址**（结算身份 + 归属内容）：同内容重放命中同一行（KD-37 的时间戳容忍继续
@@ -110,7 +123,7 @@ internal class TutorJudgedReviewSettler(
         // 新→旧取第一个**有判词**的会话（`resolveVerdict` 是 suspend，所以用显式循环）。
         var latestVerdict: Verdict? = null
         for (anchor in recentAnchors) {
-            latestVerdict = resolveVerdict(anchor.sessionId, mistake.knowledgeNodeIds)
+            latestVerdict = resolveVerdict(anchor.sessionId, mistake)
             if (latestVerdict != null) break
         }
         val verdict = latestVerdict?.takeIf { candidate ->
@@ -133,12 +146,14 @@ internal class TutorJudgedReviewSettler(
 
         // AUD-11 ①「归属落账」：模型判词分支的驱动证据落成一条归属（驱动证据的节点 + 该题该
         // revision 的现役绑定）。绑定解析不出来 = 这条证据的锚定在库里不可核实：不伪造归属、
-        // 不推进（与"没有锚定证据"同一条出口，保持阻塞、可见）。
+        // 不推进（与"没有锚定证据"同一条出口，保持阻塞、可见）。KD-44：空 KC 集题的锚定就是那条
+        // 伪绑定行（见 `pseudoAnchorBinding`），判词把它一并带出——归属落账不再重复解析。
         val attribution = verdict.drivingEvidence?.let { drivingEvidence ->
             attributionForDrivingEvidence(
                 practiceUnitId = mistake.practiceUnitId,
                 problemRevisionId = mistake.problemRevisionId,
                 drivingEvidence = drivingEvidence,
+                pseudoAnchor = verdict.pseudoAnchor,
             )
         }
         if (verdict.drivingEvidence != null && attribution == null) return noVerdict()
@@ -294,12 +309,17 @@ internal class TutorJudgedReviewSettler(
      * 正是重教的理由，不该把它永久算在头上（与 `tutorSessionObjectiveRecord` 同一原因）。
      *
      * 模型判词分支的取数口径（AUD-11 ①）：只认**门控接受**（`rejected_reason == null` 且
-     * `weight > 0`）且 `knowledge_node_id ∈ [questionKnowledgeNodeIds]`（本题 KC 集）的最新一条。
-     * 空 KC 集（诚实未分类的题）没有任何可锚定的证据 → 该会话不构成判词。
+     * `weight > 0`）且 `knowledge_node_id ∈ 锚定集`的最新一条。锚定集 = 本题 KC 集；
+     * **空 KC 集**（诚实未分类的题）时 = 该题 revision 的**伪绑定**节点（KD-44，解析见
+     * [pseudoAnchorBinding]），所以这类题的判词不再被整条丢弃；反过来，题面之外的真实节点
+     * 证据仍不构成判词。
+     *
+     * 一条可供锚定的证据都没有时**不解析锚定**——空 KC 集题的锚定解析会就地物化伪绑定，而
+     * 真·无判词（连接受过的证据都没有）的结算不该因此多写一行。
      */
     private suspend fun resolveVerdict(
         tutorSessionId: String,
-        questionKnowledgeNodeIds: Set<String>,
+        mistake: MistakeRecord,
     ): Verdict? {
         val responses = database.observeTutorTurnResponses(tutorSessionId).first()
         val latestCycle = responses.maxOfOrNull(TutorTurnResponseRecord::cycleOrdinal)
@@ -320,12 +340,24 @@ internal class TutorJudgedReviewSettler(
                 )
             }
         }
-        val evidence = database
+        // AUD-11 ①：跨粒度的证据无权翻转整题——前置 KC 的较新正向证据（半权 0.075）
+        // 曾压过目标 KC 的负向证据，把整题判成做对并按 0.5 记账（报告 §1.2 实测）。
+        val eligibleEvidence = database
             .readChatEvidenceByConversation(TutorConversationIds.captured(tutorSessionId))
             .filter { it.rejected_reason == null && it.weight > 0.0 }
-            // AUD-11 ①：跨粒度的证据无权翻转整题——前置 KC 的较新正向证据（半权 0.075）
-            // 曾压过目标 KC 的负向证据，把整题判成做对并按 0.5 记账（报告 §1.2 实测）。
-            .filter { it.knowledge_node_id in questionKnowledgeNodeIds }
+        if (eligibleEvidence.isEmpty()) return null
+        // KD-44：空 KC 集（诚实未分类）题的锚定集 = 该题 revision 的伪绑定节点；物化失败
+        // （返回 null）→ 锚定集为空 = 与"锚定不可核实"同一条出口：不判、不写、不推进。
+        val pseudoAnchor = if (mistake.knowledgeNodeIds.isEmpty()) {
+            pseudoAnchorBinding(mistake)
+        } else {
+            null
+        }
+        val anchorNodeIds = pseudoAnchor
+            ?.let { binding -> setOf(binding.knowledgeNodeId) }
+            ?: mistake.knowledgeNodeIds
+        val evidence = eligibleEvidence
+            .filter { it.knowledge_node_id in anchorNodeIds }
             .maxByOrNull { it.created_at_epoch_millis }
             ?: return null
         val isCorrect = when (evidence.direction) {
@@ -339,6 +371,49 @@ internal class TutorJudgedReviewSettler(
             // 模型判词：开放作答，κ≈0.70 的判定噪声（台账裁决 18）。
             fromLocalCheck = false,
             drivingEvidence = evidence,
+            pseudoAnchor = pseudoAnchor,
+        )
+    }
+
+    /**
+     * KD-44：本题的**伪绑定**——空 KC 集（诚实未分类）题的锚定与归属都落在这条行上。
+     * 已物化则直接取，未物化则复用既有物化先例就地物化
+     * （`StudyPracticeUnitFacts.attributionSetFor` 的空绑定分支与 `StudyProjectionDrainer.pseudoBindingFacts`
+     * 是同一份规则：同一个 `ensurePseudoKnowledgeBinding` 端口、同一 taxonomy 常量、revision 取本题、
+     * 科目取 `problem.subject`、时间取 revision 创建时刻 ⇒ 确定性、重放幂等）。
+     *
+     * **为什么用"表里全部行"读口而不是"当前绑定"**：题一旦被确认过（哪怕确认出的绑定集为空），
+     * `readCurrentKnowledgeBindingsForPracticeUnit` 只认"最近一次确认那一批"，此前物化的伪绑定行
+     * 不在那一批里（真库口径见 `BindingChangedReplayDrainerTest` 的幂等 (b) 分支）；而归属必须指向
+     * 一条**真实存在**的绑定行（写入口 `saveEvidenceSnapshot` 按五元组核对）。这也是调用方要把
+     * 解析结果显式带进 [attributionForDrivingEvidence] 的原因。
+     *
+     * 安全性（"审计遗迹"口径不适用）：候选被 (题, revision, `pseudo:<科目>`) 三重限定——同题同
+     * revision 的伪绑定行全指向同一个科目兜底节点，不存在"改绑后旧节点继续吃证据"的那种分叉；
+     * 取 bindingId 字典序最小者只为确定性（planning 侧 `pseudo-plan-v1` 与证据侧
+     * `pseudo-evidence-v1` 并存时优先后者，与写路径/重放选择同一个 taxonomy）。
+     *
+     * 返回 null = 无法物化（题没有评估记录，或端口/数据拒绝）→ 调用方按"锚定不可核实"处置。
+     */
+    private suspend fun pseudoAnchorBinding(
+        mistake: MistakeRecord,
+    ): PracticeUnitKnowledgeBindingRecord? {
+        val record = database.readPracticeUnitAssessment(mistake.practiceUnitId) ?: return null
+        val pseudoNodeId = "pseudo:${record.subject.uppercase()}"
+        database.readPracticeUnitKnowledgeBindings(mistake.practiceUnitId)
+            .filter { binding ->
+                binding.bindingId.isNotBlank() &&
+                    binding.knowledgeNodeId == pseudoNodeId &&
+                    binding.basisRevisionId == mistake.problemRevisionId
+            }
+            .minByOrNull(PracticeUnitKnowledgeBindingRecord::bindingId)
+            ?.let { existing -> return existing }
+        return database.ensurePseudoKnowledgeBinding(
+            practiceUnitId = mistake.practiceUnitId,
+            problemRevisionId = mistake.problemRevisionId,
+            taxonomyVersion = StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION,
+            subject = record.subject,
+            acceptedAtEpochMillis = record.revisionCreatedAtEpochMillis,
         )
     }
 
@@ -347,6 +422,10 @@ internal class TutorJudgedReviewSettler(
      * 的读口 `readCurrentPracticeUnitKnowledgeBindings`），同节点多行时取 bindingId 字典序最小
      * 者（确定性）；找不到返回 null——调用方按"锚定不可核实"处置，不伪造归属（题面 KC 集与
      * 库内绑定不一致属异常态，不该猜一条挂上）。
+     *
+     * KD-44：空 KC 集题的现役绑定就是那条**伪绑定**（[pseudoAnchorBinding]），而它按回执口径读不到
+     * （见该函数的 KDoc），所以由调用方作为显式候选传入；同一套过滤（节点 + revision）对两条来路
+     * 一视同仁——伪绑定行只有节点与 revision 都对上驱动证据时才会被选中，不因为"兜底"而放宽。
      *
      * 为什么必须是**真实绑定行**：`AttemptTransactionDao.saveEvidenceSnapshot` 对每条归属做
      * binding/practiceUnit/node/basisRevision/taxonomy 五元组核对，悬挂引用直接抛
@@ -361,8 +440,12 @@ internal class TutorJudgedReviewSettler(
         practiceUnitId: String,
         problemRevisionId: String,
         drivingEvidence: LearnerChatEvidenceEntity,
+        /** KD-44：空 KC 集题的伪绑定（见 [pseudoAnchorBinding]）；真绑定题恒 null。 */
+        pseudoAnchor: PracticeUnitKnowledgeBindingRecord? = null,
     ): KnowledgeEvidenceAttribution? {
-        val binding = database.readCurrentPracticeUnitKnowledgeBindings(practiceUnitId)
+        val candidates = database.readCurrentPracticeUnitKnowledgeBindings(practiceUnitId) +
+            listOfNotNull(pseudoAnchor)
+        val binding = candidates
             .filter { candidate ->
                 candidate.bindingId.isNotBlank() &&
                     candidate.knowledgeNodeId == drivingEvidence.knowledge_node_id &&
@@ -389,6 +472,12 @@ internal class TutorJudgedReviewSettler(
         val fromLocalCheck: Boolean,
         /** 模型判词分支的**驱动证据行**（本地核对分支没有 chat-evidence 驱动：null）。 */
         val drivingEvidence: LearnerChatEvidenceEntity? = null,
+        /**
+         * KD-44：这条判词用的**伪绑定锚点**（只有空 KC 集题的模型判词分支非 null）。
+         * 归属落账直接消费它——那一行按回执口径读不到（见 [pseudoAnchorBinding]），
+         * 也不能在这里重复解析（重复解析只会再走一次同一幂等物化）。
+         */
+        val pseudoAnchor: PracticeUnitKnowledgeBindingRecord? = null,
     )
 
     internal companion object {

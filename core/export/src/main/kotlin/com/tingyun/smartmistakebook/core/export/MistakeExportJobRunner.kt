@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import kotlinx.coroutines.CancellationException
 
@@ -13,10 +14,13 @@ import kotlinx.coroutines.CancellationException
  * 一个可注入、可在 JVM 上完整演练的单元——worker 只负责"入队身份 / 记录 / 通知"这些 IO 与
  * 编排，不参与排版或判定。
  *
- * 三个依赖都是函数：
+ * 四个依赖都是函数：
  * - [readExact]：按不可变版本读数（单题）；
  * - [readByEntryId]：按条目读当前正式版（批量：入口只带得动 entry id，键在 worker 侧解析）；
- * - [renderPdf]：真实现是 `MistakePdfExporter::prepare`，JVM 用例是假渲染器。
+ * - [renderPdf]：真实现是 `MistakePdfExporter::prepare`，JVM 用例是假渲染器；
+ * - [renderDocx]：真实现是 `MistakeDocxExporter::prepare`（6B-1）。缺省 null 保留旧调用点
+ *   的构造形状；DOCX 请求在没有它时**如实失败**，绝不悄悄回退成 PDF（那会拿 PDF 文件冒领
+ *   学生选的 Word 格式）。
  *
  * 结果三态而不是布尔：**不可导出**（题面自身不满足）与**渲染失败**（内容超预算/文件写入
  * 失败）对学生是两句不同的话，合并成一个"失败"会让"这道题本来就不能导出"看起来像系统故障。
@@ -25,6 +29,7 @@ class MistakeExportJobRunner(
     private val readExact: suspend (MistakeRevisionKey) -> MistakeDetailState,
     private val readByEntryId: suspend (String) -> MistakeDetailState,
     private val renderPdf: (MistakePdfExportInput) -> PreparedMistakePdf,
+    private val renderDocx: ((MistakePdfExportInput) -> PreparedMistakeDocx)? = null,
 ) {
 
     suspend fun run(request: MistakeExportJobRequest): MistakeExportJobOutcome = try {
@@ -37,12 +42,21 @@ class MistakeExportJobRunner(
     } catch (failure: MistakePdfExportException) {
         MistakeExportJobOutcome.Failed(
             when (request) {
-                is MistakeExportJobRequest.Single -> exportFailureMessage(failure.failure)
-                is MistakeExportJobRequest.Batch -> batchExportFailureMessage(failure.failure)
+                is MistakeExportJobRequest.Single ->
+                    exportFailureMessage(failure.failure, request.format)
+                is MistakeExportJobRequest.Batch ->
+                    batchExportFailureMessage(failure.failure, request.format)
             },
         )
     } catch (_: Exception) {
-        MistakeExportJobOutcome.Failed("这次没有整理出完整的 A4 文件，请稍后重新导出。")
+        MistakeExportJobOutcome.Failed(
+            when (request.format) {
+                MistakeExportFormat.PDF ->
+                    "这次没有整理出完整的 A4 文件，请稍后重新导出。"
+                MistakeExportFormat.DOCX ->
+                    "这次没有整理出完整的 Word 文档，请稍后重新导出。"
+            },
+        )
     }
 
     private suspend fun runSingle(
@@ -62,8 +76,13 @@ class MistakeExportJobRunner(
                     "Eligible single export must come from a ready detail"
                 }
                 render(
+                    request = request,
                     input = eligibility.input,
-                    displayName = exportDisplayName(identity.title, identity.revisionNumber),
+                    displayName = exportDisplayName(
+                        title = identity.title,
+                        revisionNumber = identity.revisionNumber,
+                        format = request.format,
+                    ),
                 )
             }
         }
@@ -88,19 +107,32 @@ class MistakeExportJobRunner(
             is MistakePdfBatchEligibilityResult.Ineligible ->
                 MistakeExportJobOutcome.Blocked(batchBlockedMessage(eligibility.reason))
             is MistakePdfBatchEligibilityResult.Eligible -> render(
+                request = request,
                 input = eligibility.input,
-                displayName = batchExportDisplayName(eligibility.includedCount),
+                displayName = batchExportDisplayName(eligibility.includedCount, request.format),
             )
         }
     }
 
     private fun render(
+        request: MistakeExportJobRequest,
         input: MistakePdfExportInput,
         displayName: String,
-    ): MistakeExportJobOutcome {
-        val prepared = renderPdf(input)
-        check(prepared.verifyIntegrity()) { "Prepared PDF failed integrity verification" }
-        return MistakeExportJobOutcome.Rendered(displayName = displayName, prepared = prepared)
+    ): MistakeExportJobOutcome = when (request.format) {
+        MistakeExportFormat.PDF -> {
+            val prepared = renderPdf(input)
+            check(prepared.verifyIntegrity()) { "Prepared PDF failed integrity verification" }
+            MistakeExportJobOutcome.Rendered(displayName = displayName, prepared = prepared)
+        }
+        MistakeExportFormat.DOCX -> {
+            val renderDocx = renderDocx
+                ?: return MistakeExportJobOutcome.Failed(
+                    "这次导出没有准备好 Word 生成器，请稍后重新导出。",
+                )
+            val prepared = renderDocx(input)
+            check(prepared.verifyIntegrity()) { "Prepared Word artifact failed integrity verification" }
+            MistakeExportJobOutcome.RenderedDocx(displayName = displayName, prepared = prepared)
+        }
     }
 }
 
@@ -115,11 +147,16 @@ sealed interface MistakeExportJobRequest {
     val exportId: String
     val layout: MistakePdfLayout
 
+    /** 交付格式（6B-1）：缺省 PDF = 旧的入队任务与既有入口的行为不变。 */
+    val format: MistakeExportFormat
+        get() = MistakeExportFormat.PDF
+
     /** 单题：入口给的是不可变版本三元组。 */
     data class Single(
         override val exportId: String,
         val key: MistakeRevisionKey,
         override val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+        override val format: MistakeExportFormat = MistakeExportFormat.PDF,
     ) : MistakeExportJobRequest {
         init {
             // 请求构造处就拒非法版式（防御其他调用点）：坏版式进 WorkManager 只会变成
@@ -133,6 +170,7 @@ sealed interface MistakeExportJobRequest {
         override val exportId: String,
         val entryIds: List<String>,
         override val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+        override val format: MistakeExportFormat = MistakeExportFormat.PDF,
     ) : MistakeExportJobRequest {
         init {
             require(layout.validate().isEmpty()) { "Invalid export layout: ${layout.validate()}" }
@@ -145,6 +183,12 @@ sealed interface MistakeExportJobOutcome {
     data class Rendered(
         val displayName: String,
         val prepared: PreparedMistakePdf,
+    ) : MistakeExportJobOutcome
+
+    /** 6B-1：Word 交付的渲染结果（与 [Rendered] 同构，产物类型不同）。 */
+    data class RenderedDocx(
+        val displayName: String,
+        val prepared: PreparedMistakeDocx,
     ) : MistakeExportJobOutcome
 
     data class Blocked(val message: String) : MistakeExportJobOutcome

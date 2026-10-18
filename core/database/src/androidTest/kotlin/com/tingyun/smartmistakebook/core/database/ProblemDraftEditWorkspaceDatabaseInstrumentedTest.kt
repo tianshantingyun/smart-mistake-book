@@ -227,14 +227,16 @@ class ProblemDraftEditWorkspaceDatabaseInstrumentedTest {
 
         val created = store.confirmAndCommitProblemDraftFromWorkspace(command)
 
-        assertTrue(created.created)
+        assertTrue(created.commit.created)
+        assertFalse("第一笔是新建入库", created.reusedExistingProblem)
         assertNull(store.readProblemDraftEditWorkspace(DRAFT_ID))
         val committedDraft = checkNotNull(store.readProblemDraft(DRAFT_ID))
         assertEquals(2, committedDraft.currentRevision.revisionNumber)
         assertEquals("最终题面", committedDraft.currentRevision.title)
         val replay = store.confirmAndCommitProblemDraftFromWorkspace(command)
-        assertFalse(replay.created)
-        assertEquals(created.receipt, replay.receipt)
+        assertFalse(replay.commit.created)
+        assertTrue("重放没有写出新题行，同样是复用", replay.reusedExistingProblem)
+        assertEquals(created.commit.receipt, replay.commit.receipt)
         assertTrue(
             runCatching {
                 store.confirmAndCommitProblemDraftFromWorkspace(

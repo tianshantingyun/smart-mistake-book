@@ -40,6 +40,16 @@ interface MistakeReadPort {
     ): Boolean
 
     /**
+     * C11：设置条目的收藏标记（行级更新，只改 `is_favorite` 与 `updated_at`）。
+     * 返回 false 表示这一行已经不在（调用方必须如实报失败，不能把没写进去当成写成了）。
+     */
+    suspend fun setErrorBookEntryFavorite(
+        entryId: String,
+        isFavorite: Boolean,
+        updatedAtEpochMillis: Long,
+    ): Boolean = false
+
+    /**
      * Reversibly removes an error-book entry from every user-facing surface
      * (catalog, search, review, mastery) by archiving it; learning history is
      * preserved and [restoreErrorBookEntry] brings it back.

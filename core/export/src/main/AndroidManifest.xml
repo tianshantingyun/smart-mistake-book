@@ -10,5 +10,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/mistake_pdf_export_paths" />
         </provider>
+        <provider
+            android:name="com.tingyun.smartmistakebook.core.export.MistakeDocxFileProvider"
+            android:authorities="${applicationId}.mistake-docx-exports"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/mistake_docx_export_paths" />
+        </provider>
     </application>
 </manifest>

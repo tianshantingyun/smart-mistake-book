@@ -39,6 +39,11 @@ internal fun interface MistakeNoteWriter {
     suspend fun write(entryId: String, note: String?, updatedAtEpochMillis: Long): Boolean
 }
 
+/** C11 收藏开关的写端口（与备注同一层：行级私有状态，不在修订链上）。 */
+internal fun interface MistakeFavoriteWriter {
+    suspend fun write(entryId: String, isFavorite: Boolean, updatedAtEpochMillis: Long): Boolean
+}
+
 internal fun interface MistakeArchiver {
     suspend fun archive(entryId: String, at: Long): Boolean
 }
@@ -76,6 +81,8 @@ internal class RoomMistakeDetailRepository(
     private val assetUriResolver: CanonicalAssetUriResolver,
     private val noteWriter: MistakeNoteWriter =
         MistakeNoteWriter { _, _, _ -> false },
+    private val favoriteWriter: MistakeFavoriteWriter =
+        MistakeFavoriteWriter { _, _, _ -> false },
     private val archiver: MistakeArchiver =
         MistakeArchiver { _, _ -> false },
     private val restorer: MistakeRestorer =
@@ -105,6 +112,16 @@ internal class RoomMistakeDetailRepository(
         require(updatedAtEpochMillis >= 0) { "updatedAtEpochMillis must not be negative" }
         val normalized = note?.trim()?.takeIf(String::isNotEmpty)
         return noteWriter.write(entryId, normalized, updatedAtEpochMillis)
+    }
+
+    override suspend fun setFavorite(
+        entryId: String,
+        isFavorite: Boolean,
+        updatedAtEpochMillis: Long,
+    ): Boolean {
+        require(entryId.isNotBlank()) { "entryId must not be blank" }
+        require(updatedAtEpochMillis >= 0) { "updatedAtEpochMillis must not be negative" }
+        return favoriteWriter.write(entryId, isFavorite, updatedAtEpochMillis)
     }
     override fun observe(errorBookEntryId: String): Flow<MistakeDetailState> {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
@@ -283,6 +300,7 @@ object MistakeDetailRepositoryFactory {
                 assetVault.resolve(sourceAsset).toURI().toASCIIString()
             },
             noteWriter = MistakeNoteWriter(database::updateErrorBookEntryNote),
+            favoriteWriter = MistakeFavoriteWriter(database::setErrorBookEntryFavorite),
             archiver = MistakeArchiver(database::archiveErrorBookEntry),
             restorer = MistakeRestorer(database::restoreErrorBookEntry),
             archivedObserver = ArchivedObserver {

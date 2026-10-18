@@ -136,6 +136,34 @@ internal abstract class MistakeDetailDao {
         return updateEntryNote(entryId, note, updatedAtEpochMillis) == 1
     }
 
+    /**
+     * C11 收藏的行级开关：只改这一行（收藏是条目的私有状态，不写修订链、不碰其它列）。
+     * 返回是否命中一行——调用方必须如实报失败，不能把没写进去当成写成了。
+     */
+    @Query(
+        """
+        UPDATE error_book_entry
+        SET is_favorite = :isFavorite,
+            updated_at_epoch_millis = :updatedAtEpochMillis
+        WHERE entry_id = :entryId
+        """,
+    )
+    protected abstract suspend fun updateEntryFavorite(
+        entryId: String,
+        isFavorite: Boolean,
+        updatedAtEpochMillis: Long,
+    ): Int
+
+    open suspend fun setEntryFavorite(
+        entryId: String,
+        isFavorite: Boolean,
+        updatedAtEpochMillis: Long,
+    ): Boolean {
+        require(entryId.isNotBlank()) { "entryId must not be blank" }
+        require(updatedAtEpochMillis >= 0) { "updatedAtEpochMillis must not be negative" }
+        return updateEntryFavorite(entryId, isFavorite, updatedAtEpochMillis) == 1
+    }
+
     @Query(
         """
         UPDATE error_book_entry

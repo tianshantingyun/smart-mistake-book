@@ -85,6 +85,21 @@ internal fun shouldAutoPersistCapture(
 internal const val MAX_CAPTURE_TITLE_CHARS = 24
 internal const val MAX_CAPTURE_SOURCE_PAGES = 8
 
+/**
+ * B5 去重可见化：「已存入错题本」卡片上那句如实回执。
+ *
+ * [reusedExistingProblem] 来自提交回执本身（命中既有同一题、或这一笔本来就是重放——
+ * 比如学生第一次提交超时后又点了一次，那一笔题其实就是他自己刚建出来的）。
+ * 因此这句**不许声称"错题本里之前就有"**（对重放情形是误报）：只说"同一题面只留一条、
+ * 这次复用了它"——两种情形下都为真（对抗性复核 finding，2026-10-18）。
+ */
+internal fun captureCommittedReceiptLine(reusedExistingProblem: Boolean): String =
+    if (reusedExistingProblem) {
+        "没有重复建题：同一题面的题在错题本里只留一条，这次复用了它。"
+    } else {
+        "这道题是新建入库的：错题本里之前没有同一道题。"
+    }
+
 
 internal data class CaptureTaskRetry(
     val replaceRequestId: Boolean,

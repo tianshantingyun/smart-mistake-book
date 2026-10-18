@@ -161,6 +161,11 @@ internal fun SmartMistakeBookRoot(
     val context = LocalContext.current
     val activity = context.findActivity()
     val application = context.applicationContext as SmartMistakeBookApplication
+    val databaseRestartReason by application.databaseRestartReason.collectAsStateWithLifecycle()
+    databaseRestartReason?.let { message ->
+        DatabaseRestartRequiredScreen(message = message, onClose = { activity?.closeForDatabaseRestart() })
+        return
+    }
     val startupState by application.startupState.collectAsStateWithLifecycle()
     // 知识能力就绪位（D-Q3）：与 startupState 分开——秒开语义由 startupState 保证，
     // 依赖知识库的入口读这一位，未就绪时如实说"准备中"，就绪后组合自动放行。
@@ -395,8 +400,8 @@ internal fun SmartMistakeBookRoot(
                     onOpenLibraryProblem = { navController.navigate(Routes.Library) },
                     // 导出 sheet（B3-3）：学生定稿的版式随任务入队，然后直接去「导出成果」
                     // 看后台进度——与错题本批量导出走同一条 4A 管线。
-                    onStartExport = { layout, entryIds ->
-                        application.startMistakeExportBatch(entryIds, layout)
+                    onStartExport = { format, layout, entryIds ->
+                        application.startMistakeExportBatch(entryIds, layout, format)
                         navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
                         }
@@ -467,8 +472,8 @@ internal fun SmartMistakeBookRoot(
                     attachedImageIntake = application.tutorAttachedImageIntake,
                     onOpenLibraryProblem = { navController.navigate(Routes.Library) },
                     // 历史重开也接同一条导出落点（本地动作只在大厅广告，行为一致）。
-                    onStartExport = { layout, entryIds ->
-                        application.startMistakeExportBatch(entryIds, layout)
+                    onStartExport = { format, layout, entryIds ->
+                        application.startMistakeExportBatch(entryIds, layout, format)
                         navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
                         }
@@ -591,11 +596,6 @@ internal fun SmartMistakeBookRoot(
                             onRetry = { planRetryNonce += 1 },
                         )
                         is KnowledgeReviewPlanState.Ready ->
-                            if (state.plan.isEmpty) {
-                                ReviewSessionGateMessage(
-                                    "今天没有需要复习的知识点——都已掌握或尚未到期。",
-                                )
-                            } else {
                                 KnowledgeReviewSessionScreen(
                                     plan = state.plan,
                                     onBack = onKnowledgeBack,
@@ -627,7 +627,6 @@ internal fun SmartMistakeBookRoot(
                                     onFinished = onKnowledgeBack,
                                     modifier = Modifier.testTag("root_knowledge_review_session"),
                                 )
-                            }
                     }
                 }
             }
@@ -694,6 +693,9 @@ internal fun SmartMistakeBookRoot(
             composable(Routes.BatchImport) {
                 BatchImportRoute(
                     repository = application.batchImportRepository,
+                    onOpenSavedEntry = { entryId ->
+                        navController.navigate(Routes.mistakeDetail(entryId))
+                    },
                     onOpenDraft = { draftId ->
                         navController.navigate(Routes.captureResume(draftId))
                     },
@@ -866,6 +868,13 @@ internal fun SmartMistakeBookRoot(
                 LearningMasteryScreen(
                     overview = experience.profile,
                     onBack = navController::popBackStack,
+                    onOpenLibrary = {
+                        navController.navigate(Routes.Library) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
                     knowledgeBaseAvailability = knowledgeBaseAvailability,
                 )
             }
@@ -931,6 +940,7 @@ internal fun SmartMistakeBookRoot(
                 StorageScreen(
                     onBack = navController::popBackStack,
                     backupRepository = application.backupRepository,
+                    onDatabaseClosed = application::requireDatabaseRestart,
                 )
             }
             }

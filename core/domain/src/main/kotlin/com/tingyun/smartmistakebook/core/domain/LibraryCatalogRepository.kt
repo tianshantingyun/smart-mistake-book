@@ -17,6 +17,8 @@ data class LibraryQuery(
     val createdFromEpochMillis: Long? = null,
     val createdToEpochMillis: Long? = null,
     val sort: LibrarySort = LibrarySort.RECENTLY_UPDATED,
+    /** C11：只看已收藏的条目（收藏是筛选的一维：分页/计数/facet/导出同一口径）。 */
+    val favoriteOnly: Boolean = false,
 )
 
 data class LibraryCatalogItem(
@@ -29,6 +31,8 @@ data class LibraryCatalogItem(
     val masteryId: String,
     val updatedAtEpochMillis: Long,
     val createdAtEpochMillis: Long,
+    /** C11 收藏：列表行开关的读值。 */
+    val isFavorite: Boolean = false,
     val nextReviewAtEpochMillis: Long?,
     val retrievability: Double?,
 ) {
@@ -91,4 +95,10 @@ enum class LibraryFacetKind {
     SUBJECT,
     SECTION,
     MASTERY,
+
+    /**
+     * C11 收藏：返回**一行** `favorite / 已收藏 / n`（n = 当前其余筛选下被收藏的条目数，
+     * 0 也如实返回）。与其它三维同一条"facet 不带自己这一维过滤"的口径。
+     */
+    FAVORITE,
 }

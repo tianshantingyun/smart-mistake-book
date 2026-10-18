@@ -16,6 +16,7 @@ import androidx.room3.DatabaseView
             revision.problem_markdown,
             entry.accepted_at_epoch_millis AS created_at_epoch_millis,
             entry.updated_at_epoch_millis AS updated_at_epoch_millis,
+            entry.is_favorite AS is_favorite,
             memory.next_review_at_epoch_millis,
             NULL AS retrievability,
             memory.learner_id AS memory_learner_id,
@@ -86,6 +87,9 @@ internal data class LibraryCatalogView(
     val createdAtEpochMillis: Long,
     @ColumnInfo(name = "updated_at_epoch_millis")
     val updatedAtEpochMillis: Long,
+    /** C11 收藏：条目级私有标记（`error_book_entry.is_favorite`，0/1）。 */
+    @ColumnInfo(name = "is_favorite")
+    val isFavorite: Boolean,
     @ColumnInfo(name = "next_review_at_epoch_millis")
     val nextReviewAtEpochMillis: Long?,
     val retrievability: Double?,

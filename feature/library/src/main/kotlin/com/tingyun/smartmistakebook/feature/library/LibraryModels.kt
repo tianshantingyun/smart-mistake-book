@@ -16,12 +16,21 @@ internal enum class LibraryFacet(
     SUBJECT("subject", "科目"),
     CHAPTER("chapter", "板块"),
     MASTERY("mastery", "掌握程度"),
+
+    /**
+     * C11 收藏：一维筛选（选项只有「已收藏」一个）。收藏是**条目级私有标记**，
+     * 在查询链上落成 `favoriteOnly`，不落进搜索文本。
+     */
+    FAVORITE("favorite", "收藏"),
     ;
 
     companion object {
         fun fromId(id: String?): LibraryFacet = entries.firstOrNull { it.id == id } ?: SUBJECT
     }
 }
+
+/** 收藏这一维的选项 id（唯一选项）。 */
+internal const val LIBRARY_FAVORITE_OPTION_ID = "favorite"
 
 /**
  * 「录入时间段」筛选档位（阶段 4A 批 1 · L5）：按条目创建时间取最近 N 天。
@@ -97,6 +106,8 @@ internal data class LibraryMistake(
     val chapterLabels: List<String> = emptyList(),
     val knowledgeLabels: List<String> = emptyList(),
     val mastery: MasteryState,
+    /** C11 收藏：列表行开关的读值（非分页替身路径没有收藏来源时恒为 false）。 */
+    val isFavorite: Boolean = false,
 ) {
     val contentPath: String = buildList {
         add(subject.studentLabel())
@@ -122,12 +133,18 @@ internal data class LibraryMistake(
         LibraryFacet.SUBJECT -> listOf(LibraryFacetOption(subject.name, subject.studentLabel()))
         LibraryFacet.CHAPTER -> chapterLabels.map { LibraryFacetOption(it, it) }
         LibraryFacet.MASTERY -> listOf(LibraryFacetOption(mastery.id, mastery.label))
+        LibraryFacet.FAVORITE -> if (isFavorite) {
+            listOf(LibraryFacetOption(LIBRARY_FAVORITE_OPTION_ID, "已收藏"))
+        } else {
+            emptyList()
+        }
     }
 
     fun hasFacetValue(facet: LibraryFacet, optionId: String): Boolean = when (facet) {
         LibraryFacet.SUBJECT -> subject.name == optionId
         LibraryFacet.CHAPTER -> optionId in chapterLabels
         LibraryFacet.MASTERY -> mastery.id == optionId
+        LibraryFacet.FAVORITE -> isFavorite && optionId == LIBRARY_FAVORITE_OPTION_ID
     }
 
     fun matchesNormalizedQuery(normalizedQuery: String): Boolean =
@@ -139,20 +156,24 @@ internal data class LibrarySelections(
     val subject: String? = null,
     val chapter: String? = null,
     val mastery: String? = null,
+    /** C11 收藏：选中时 = [LIBRARY_FAVORITE_OPTION_ID]，未选 = null（查询层落成 favoriteOnly）。 */
+    val favorite: String? = null,
 ) {
     val isEmpty: Boolean
-        get() = subject == null && chapter == null && mastery == null
+        get() = subject == null && chapter == null && mastery == null && favorite == null
 
     fun selectedOptionId(facet: LibraryFacet): String? = when (facet) {
         LibraryFacet.SUBJECT -> subject
         LibraryFacet.CHAPTER -> chapter
         LibraryFacet.MASTERY -> mastery
+        LibraryFacet.FAVORITE -> favorite
     }
 
     fun withSelection(facet: LibraryFacet, optionId: String?): LibrarySelections = when (facet) {
         LibraryFacet.SUBJECT -> copy(subject = optionId)
         LibraryFacet.CHAPTER -> copy(chapter = optionId)
         LibraryFacet.MASTERY -> copy(mastery = optionId)
+        LibraryFacet.FAVORITE -> copy(favorite = optionId)
     }
 }
 
@@ -168,6 +189,8 @@ internal data class LibraryUiState(
     val totalCount: Int = visibleMistakes.size,
     val hasMore: Boolean = false,
     val loaded: Boolean = true,
+    /** C11 收藏开关的写失败回执（写没进去必须如实说，不能默默回弹）。 */
+    val favoriteNotice: String? = null,
 ) {
     val hasActiveFilters: Boolean
         get() = query.isNotBlank() || !selections.isEmpty || timeRange != LibraryTimeRange.ALL
@@ -291,12 +314,24 @@ internal class LibraryCatalog(
         }
     }
 
+    /** 收藏开关后的本地回声（非分页替身路径没有查询链可刷新，靠这里保持一致）。 */
+    fun withFavorite(entryId: String, isFavorite: Boolean): LibraryCatalog =
+        LibraryCatalog(
+            mistakes.map { mistake ->
+                if (mistake.id == entryId) mistake.copy(isFavorite = isFavorite) else mistake
+            },
+        )
+
     private fun optionAvailableInHierarchy(
         facet: LibraryFacet,
         optionId: String,
         selections: LibrarySelections,
     ): Boolean {
-        if (facet == LibraryFacet.SUBJECT || facet == LibraryFacet.MASTERY) return true
+        if (facet == LibraryFacet.SUBJECT || facet == LibraryFacet.MASTERY ||
+            facet == LibraryFacet.FAVORITE
+        ) {
+            return true
+        }
         return mistakesByFacetValue.getValue(facet)[optionId].orEmpty().any { mistake ->
             selections.subject == null || mistake.hasFacetValue(LibraryFacet.SUBJECT, selections.subject)
         }
@@ -331,6 +366,7 @@ internal fun LibraryCatalogItem.toLibraryMistake(): LibraryMistake {
         chapterLabels = chapterLabels,
         knowledgeLabels = knowledgeLabels,
         mastery = MasteryState.fromId(masteryId),
+        isFavorite = isFavorite,
     )
 }
 

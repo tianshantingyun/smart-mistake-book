@@ -725,6 +725,8 @@ data class LibraryCatalogRow(
     val masteryId: String = "unknown",
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+    /** C11 收藏：条目级私有标记（列表行开关的读值）。 */
+    val isFavorite: Boolean = false,
     val nextReviewAtEpochMillis: Long?,
     val retrievability: Double?,
 ) {
@@ -1186,6 +1188,9 @@ data class BatchImportPageRecord(
     val boundaryAfterStatus: String,
     /** PENDING until the page's optional split attempt has run to completion. */
     val splitAfterStatus: String = StudyDbValue.BatchImportSplitStatus.PENDING,
+    /** Read projection of the linked draft; not part of the batch page ledger. */
+    val resultDraftStatus: String? = null,
+    val savedEntryId: String? = null,
 )
 
 data class BatchImportJobRecord(

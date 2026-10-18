@@ -37,7 +37,7 @@ class MistakeExportHubInstrumentedTest {
             }
         }
 
-        composeRule.onNodeWithText("正在整理 A4 版式…").assertExists()
+        composeRule.onNodeWithText("正在整理导出文件…").assertExists()
         composeRule.onNodeWithTag("export_hub_record_status_running-1").assertExists()
         composeRule.onNodeWithTag("export_hub_save_running-1").assertDoesNotExist()
         composeRule.onNodeWithTag("export_hub_share_running-1").assertDoesNotExist()

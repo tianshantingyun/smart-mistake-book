@@ -33,6 +33,7 @@ import com.tingyun.smartmistakebook.core.model.ActionType
 import com.tingyun.smartmistakebook.core.model.AppFailure
 import com.tingyun.smartmistakebook.core.model.AppFailureCode
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
@@ -345,6 +346,14 @@ internal class TutorConversationViewModel(
     fun onExportLayoutChange(layout: MistakePdfLayout) {
         updateState { state ->
             state.exportSheet?.let { sheet -> state.copy(exportSheet = sheet.copy(layout = layout)) }
+                ?: state
+        }
+    }
+
+    /** 学生在 sheet 里改了交付格式（6B-1）：PDF / Word，随「开始导出」进后台任务。 */
+    fun onExportFormatChange(format: MistakeExportFormat) {
+        updateState { state ->
+            state.exportSheet?.let { sheet -> state.copy(exportSheet = sheet.copy(format = format)) }
                 ?: state
         }
     }

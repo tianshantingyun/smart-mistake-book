@@ -431,7 +431,9 @@ class RoomBackedStudyExperienceRepository(
             initialized = true
             publishReadySnapshot(latestMistakes)
 
-            if (commitResult.created) {
+            // B5：这一口只关心"这次调用是不是做了写入"（幂等重放 = 已经存过），与"有没有
+            // 复用既有题行"无关，所以读的是 outcome.commit.created。
+            if (commitResult.commit.created) {
                 SaveTutorProblemReceipt.Saved(
                     problemId = revision.draftId,
                     entryCount = database.countMistakes(),

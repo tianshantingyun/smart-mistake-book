@@ -368,14 +368,24 @@ internal interface ProblemOrganizationDao {
     suspend fun deleteSearchFeaturesForNodes(ids: Set<String>)
 
     /**
-     * 整科删检索特征：抽取规则版本变化（`knowledge_search_index_state` 锚点落后于
-     * `KnowledgeSearchFeatureExtractor.INDEX_VERSION`）时按科重建用。
+     * 该科**已有特征行的节点 id**（整科重建的分块删除用，KD-51）。
      *
-     * 与 [deleteSearchFeaturesForNodes] 不同，它不挑节点——旧规则建的行哪怕节点一个没变
-     * 也是残缺的（v1 截断了 62% 节点的大半别名），必须整科换血。
+     * 重建必须整科换血——旧规则建的行哪怕节点一个没变也是残缺的（v1 截断了 62% 节点的
+     * 大半别名）；但**不能**再用一条 `DELETE ... WHERE subject = ?` 删完：那一条语句会把
+     * room3 的唯一写连接占住整段删除（全库 623,774 行量级，同进程其它写只能排队）。
+     * 这里先读 id 集，再按 [deleteSearchFeaturesForNodes] 分块删。两段在同一**读**快照内
+     * 读出，且 `knowledge_node_id` 非空（外键）——所以 id 集覆盖该科**全部**特征行，
+     * 分块删掉的行集与整科 DELETE 逐行相同（等价性由
+     * `KnowledgeSearchIndexRebuildChunkingInstrumentedTest` 的行集比对钉住）。
+     *
+     * 前提：一个节点 id 的特征行只属于一个 subject（[KnowledgeNodeSeedRecord.toSearchFeatures]
+     * 把节点的 subject 原样写进特征行）——所以按 id 删不会跨科多删。哪天节点能跨科改属，
+     * 这条前提就破了，须改回按科删。
+     *
+     * 不按"召回候选"读 id：非候选（已退役、未审校）节点的残留行同样在整科换血的范围内。
      */
-    @Query("DELETE FROM knowledge_search_feature WHERE subject = :subject")
-    suspend fun deleteSearchFeaturesForSubject(subject: String): Int
+    @Query("SELECT DISTINCT knowledge_node_id FROM knowledge_search_feature WHERE subject = :subject")
+    suspend fun readIndexedKnowledgeNodeIdsForSubject(subject: String): List<String>
 
     @Upsert
     suspend fun upsertKnowledgeSources(sources: List<KnowledgeSourceEntity>)

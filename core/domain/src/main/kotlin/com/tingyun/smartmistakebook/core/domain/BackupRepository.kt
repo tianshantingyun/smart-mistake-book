@@ -55,7 +55,8 @@ data class RestoreReceipt(
     val restartRequired: Boolean = true,
     /**
      * 设置载荷这次恢复落到本机的结果（6C-1）。[RestoreSettingsOutcome.WRITE_FAILED]
-     * 表示**部分恢复**：数据库已经切换到备份数据且保持一致，只有设置没写进去。
+     * 表示**部分恢复**：数据库已经切换到备份数据且保持一致；设置是多个键顺序写入的
+     * （非原子），失败时可能只写进去一部分，不保证仍是恢复前那份（KD-47）。
      */
     val settings: RestoreSettingsOutcome = RestoreSettingsOutcome.NOT_IN_ARCHIVE,
 ) {
@@ -74,8 +75,10 @@ enum class RestoreSettingsOutcome {
     APPLIED,
 
     /**
-     * 备份里有设置但写入失败：数据库已切到备份数据，设置仍是恢复前那份。
-     * 不回滚数据库——一致性已经达成，回滚只会把用户的数据再翻一遍。
+     * 备份里有设置但写入失败：数据库已切到备份数据；**设置不保证仍是恢复前那份**（KD-47）。
+     * 恢复设置是多个键的顺序写（选项、考试、优化参数、开关、提醒时间），非原子——中途失败时
+     * 前面已经成功的键会保留，本机设置可能半新半旧。不回滚数据库——数据库一致性已经达成，
+     * 回滚只会把用户的数据再翻一遍；也不为设置做失败回滚（需要旧值快照，超出本批范围）。
      */
     WRITE_FAILED,
 }

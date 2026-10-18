@@ -75,6 +75,9 @@ internal interface LibraryFtsSearchDao {
         val createdAtEpochMillis: Long,
         @ColumnInfo(name = "updated_at_epoch_millis")
         val updatedAtEpochMillis: Long,
+        /** C11 收藏：行级开关的读值（`catalog.is_favorite`，0/1）。 */
+        @ColumnInfo(name = "is_favorite")
+        val isFavorite: Boolean,
         @ColumnInfo(name = "next_review_at_epoch_millis")
         val nextReviewAtEpochMillis: Long?,
         val retrievability: Double?,
@@ -313,6 +316,7 @@ internal interface LibraryFtsSearchDao {
               :createdToEpochMillis IS NULL OR
                   catalog.created_at_epoch_millis <= :createdToEpochMillis
           )
+          AND (:favoriteOnly = 0 OR catalog.is_favorite = 1)
         """,
     )
     suspend fun countSearch(
@@ -322,6 +326,7 @@ internal interface LibraryFtsSearchDao {
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
     ): Int
 
     /** Offset-paged twin of [searchPagingSource] (same ranking), raw for the same reason. */
@@ -349,6 +354,7 @@ internal interface LibraryFtsSearchDao {
             "catalog.created_at_epoch_millis >= :createdFromEpochMillis) " +
             "AND (:createdToEpochMillis IS NULL OR " +
             "catalog.created_at_epoch_millis <= :createdToEpochMillis) " +
+            "AND (:favoriteOnly = 0 OR catalog.is_favorite = 1) " +
             "GROUP BY catalog.subject ORDER BY COUNT(*) DESC, id ASC",
     )
     suspend fun searchSubjectFacets(
@@ -357,6 +363,7 @@ internal interface LibraryFtsSearchDao {
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
     ): List<LibraryFacetCountRow>
 
     @Query(
@@ -377,6 +384,7 @@ internal interface LibraryFtsSearchDao {
             "catalog.created_at_epoch_millis >= :createdFromEpochMillis) " +
             "AND (:createdToEpochMillis IS NULL OR " +
             "catalog.created_at_epoch_millis <= :createdToEpochMillis) " +
+            "AND (:favoriteOnly = 0 OR catalog.is_favorite = 1) " +
             "GROUP BY classification.label_id, classification.display_name " +
             "ORDER BY COUNT(*) DESC, id ASC",
     )
@@ -386,6 +394,7 @@ internal interface LibraryFtsSearchDao {
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
     ): List<LibraryFacetCountRow>
 
     @Query(
@@ -404,12 +413,46 @@ internal interface LibraryFtsSearchDao {
             "catalog.created_at_epoch_millis >= :createdFromEpochMillis) " +
             "AND (:createdToEpochMillis IS NULL OR " +
             "catalog.created_at_epoch_millis <= :createdToEpochMillis) " +
+            "AND (:favoriteOnly = 0 OR catalog.is_favorite = 1) " +
             "GROUP BY catalog.mastery_id ORDER BY COUNT(*) DESC, id ASC",
     )
     suspend fun searchMasteryFacets(
         matchQuery: String,
         subjectId: String?,
         sectionId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
+    ): List<LibraryFacetCountRow>
+
+    /**
+     * C11 收藏这一维的计数（v67，FTS 链的孪生）：一行 `favorite / 已收藏 / n`。
+     * 与 [searchSubjectFacets] 等同一口径——其余筛选照常生效，**不**看 favoriteOnly。
+     */
+    @Query(
+        "SELECT 'favorite' AS id, '已收藏' AS label, COUNT(*) AS count " +
+            "FROM library_search_fts " +
+            "CROSS JOIN library_search_content AS content " +
+            "    ON content.content_row_id = library_search_fts.docid " +
+            "CROSS JOIN library_catalog AS catalog " +
+            "    ON catalog.problem_revision_id = content.problem_revision_id " +
+            "WHERE library_search_fts MATCH :matchQuery " +
+            "AND (:subjectId IS NULL OR catalog.subject = :subjectId) " +
+            "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
+            "WHERE c.problem_id = catalog.problem_id AND c.basis_revision_id = catalog.problem_revision_id " +
+            "AND c.dimension = 'CHAPTER' AND c.label_id = :sectionId)) " +
+            "AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId) " +
+            "AND (:createdFromEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis >= :createdFromEpochMillis) " +
+            "AND (:createdToEpochMillis IS NULL OR " +
+            "catalog.created_at_epoch_millis <= :createdToEpochMillis) " +
+            "AND catalog.is_favorite = 1",
+    )
+    suspend fun searchFavoriteFacets(
+        matchQuery: String,
+        subjectId: String?,
+        sectionId: String?,
+        masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>

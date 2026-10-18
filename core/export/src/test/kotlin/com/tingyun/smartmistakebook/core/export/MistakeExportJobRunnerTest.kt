@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
@@ -236,6 +237,117 @@ class MistakeExportJobRunnerTest {
         assertEquals(false, read)
     }
 
+    // ---- 6B-1：Word 交付走同一条编排，只有渲染器与文件名不同 ----
+
+    @Test
+    fun `a docx request renders through the docx renderer and names itself with the docx extension`() =
+        runBlocking {
+            val runner = runner(renderDocx = { input -> verifiedDocx(input.inputSha256) })
+
+            val outcome = runner.run(
+                MistakeExportJobRequest.Single(
+                    exportId = "export-docx",
+                    key = EXACT_KEY,
+                    format = MistakeExportFormat.DOCX,
+                ),
+            )
+
+            val rendered = outcome as MistakeExportJobOutcome.RenderedDocx
+            assertEquals("错题-函数单调区间-第3版.docx", rendered.displayName)
+            assertTrue(rendered.prepared.verifyIntegrity())
+        }
+
+    @Test
+    fun `a docx batch names itself by the included count`() = runBlocking {
+        val states = mapOf(
+            "entry-a" to readyState(identity = identity(entryId = "entry-a")),
+            "entry-b" to legacyState(entryId = "entry-b"),
+        )
+        val runner = runner(states = states, renderDocx = { input -> verifiedDocx(input.inputSha256) })
+
+        val outcome = runner.run(
+            MistakeExportJobRequest.Batch(
+                exportId = "export-docx-batch",
+                entryIds = states.keys.toList(),
+                format = MistakeExportFormat.DOCX,
+            ),
+        )
+
+        val rendered = outcome as MistakeExportJobOutcome.RenderedDocx
+        assertEquals("错题练习-1道.docx", rendered.displayName)
+    }
+
+    /** 没有 Word 渲染器时如实失败——绝不把 PDF 产物冒领成学生选的 Word 格式。 */
+    @Test
+    fun `a docx request without a docx renderer fails honestly instead of falling back to pdf`() =
+        runBlocking {
+            var pdfRendered = false
+            val runner = runner(
+                renderPdf = { input ->
+                    pdfRendered = true
+                    verifiedPrepared(input.inputSha256)
+                },
+            )
+
+            val outcome = runner.run(
+                MistakeExportJobRequest.Single(
+                    exportId = "export-docx-missing-renderer",
+                    key = EXACT_KEY,
+                    format = MistakeExportFormat.DOCX,
+                ),
+            )
+
+            val failed = outcome as MistakeExportJobOutcome.Failed
+            assertTrue(failed.message.contains("Word"))
+            assertEquals(false, pdfRendered)
+        }
+
+    @Test
+    fun `a docx render failure speaks about the Word document`() = runBlocking {
+        val runner = runner(
+            renderDocx = {
+                // 用"文件发布失败"而不是"内容超限"：批量的超限文案按学生可行动的
+                // "内容较多"表述（不点格式），而发布失败在 Word 侧明确说"Word 文档"。
+                throw MistakePdfExportException(MistakePdfExportFailure.FILE_PUBLISH_FAILED)
+            },
+        )
+
+        val outcome = runner.run(
+            MistakeExportJobRequest.Batch(
+                exportId = "export-docx-too-big",
+                entryIds = listOf(EXACT_KEY.entryId),
+                format = MistakeExportFormat.DOCX,
+            ),
+        )
+
+        val failed = outcome as MistakeExportJobOutcome.Failed
+        assertTrue(failed.message.contains("Word 文档"))
+    }
+
+    @Test
+    fun `a corrupted docx artifact is refused instead of reported as delivered`() = runBlocking {
+        val runner = runner(
+            renderDocx = {
+                PreparedMistakeDocx(
+                    file = File(temporaryFolder.newFolder("fake-docx"), PREPARED_DOCX_FILE_NAME)
+                        .apply { writeBytes("fake".toByteArray()) },
+                    sha256 = "a".repeat(64),
+                    inputSha256 = "b".repeat(64),
+                )
+            },
+        )
+
+        val outcome = runner.run(
+            MistakeExportJobRequest.Single(
+                exportId = "export-docx-corrupt",
+                key = EXACT_KEY,
+                format = MistakeExportFormat.DOCX,
+            ),
+        )
+
+        assertTrue(outcome is MistakeExportJobOutcome.Failed)
+    }
+
     // ---- fixtures ----
 
     private fun runner(
@@ -244,12 +356,14 @@ class MistakeExportJobRunnerTest {
         renderPdf: (MistakePdfExportInput) -> PreparedMistakePdf = { input ->
             verifiedPrepared(input.inputSha256)
         },
+        renderDocx: ((MistakePdfExportInput) -> PreparedMistakeDocx)? = null,
     ) = MistakeExportJobRunner(
         readExact = { key -> states[key.entryId] ?: MistakeDetailState.NotFound },
         readByEntryId = readByEntryId ?: { entryId ->
             states[entryId] ?: MistakeDetailState.NotFound
         },
         renderPdf = renderPdf,
+        renderDocx = renderDocx,
     )
 
     /** 真的可核对的产物：真文件 + 真摘要 + 目录名 == inputSha256。 */
@@ -265,6 +379,21 @@ class MistakeExportJobRunnerTest {
             sha256 = digest,
             inputSha256 = inputSha256,
             pageCount = 1,
+        )
+    }
+
+    /** Word 侧同口径的可核对产物（同目录名/摘要规则，文件名换成 mistake.docx）。 */
+    private fun verifiedDocx(inputSha256: String): PreparedMistakeDocx {
+        val directory = temporaryFolder.newFolder("docx-$inputSha256", inputSha256)
+        val docx = File(directory, PREPARED_DOCX_FILE_NAME).apply {
+            writeBytes("PK fake docx".toByteArray())
+        }
+        val digest = sha256File(docx)
+        File(directory, PREPARED_DOCX_DIGEST_FILE_NAME).writeText("$digest\n")
+        return PreparedMistakeDocx(
+            file = docx,
+            sha256 = digest,
+            inputSha256 = inputSha256,
         )
     }
 

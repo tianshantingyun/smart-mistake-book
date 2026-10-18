@@ -21,6 +21,8 @@ interface LibraryReadPort {
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         sort: String,
+        /** C11：只读已收藏的条目（false = 不按收藏过滤）。 */
+        favoriteOnly: Boolean = false,
     ): PagingSource<Int, LibraryCatalogRow>
 
     suspend fun libraryCatalogPage(
@@ -33,6 +35,7 @@ interface LibraryReadPort {
         sort: String,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean = false,
     ): List<LibraryCatalogRow>
 
     suspend fun libraryCatalogCount(
@@ -42,6 +45,7 @@ interface LibraryReadPort {
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
     ): Int
 
     suspend fun libraryCatalogFacets(
@@ -52,6 +56,11 @@ interface LibraryReadPort {
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         facet: String,
+        /**
+         * C11：其余维度（科目/板块/掌握程度）的计数要与当前筛选同口径；`FAVORITE` 这一维
+         * **不看自己**（favoriteOnly 对它无效，见 `LibraryQueryDao.favoriteFacets`）。
+         */
+        favoriteOnly: Boolean = false,
     ): List<LibraryFacetCountRecord>
 
     /**
@@ -70,6 +79,7 @@ interface LibraryReadPort {
         createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
+        favoriteOnly: Boolean = false,
     ): PagingSource<Int, LibraryCatalogRow> =
         error("FTS library search is not backed by this database port")
 
@@ -81,6 +91,7 @@ interface LibraryReadPort {
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
     ): Int = error("FTS library search is not backed by this database port")
 
     /** Offset-paged twin of [librarySearchPagingSource] with identical ranking. */
@@ -95,9 +106,13 @@ interface LibraryReadPort {
         tokens: List<String>,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean = false,
     ): List<LibraryCatalogRow> = error("FTS library search is not backed by this database port")
 
-    /** FTS-scoped facet counts ([facet] mirrors LibraryQueryDao facet kinds). */
+    /**
+     * FTS-scoped facet counts ([facet] mirrors LibraryQueryDao facet kinds; v67 起多一个
+     * `FAVORITE`——收藏这一维的计数同样不带自己的过滤，见 `LibraryQueryDao.favoriteFacets`)。
+     */
     suspend fun librarySearchFacets(
         matchQuery: String,
         subjectId: String?,
@@ -106,6 +121,7 @@ interface LibraryReadPort {
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         facet: String,
+        favoriteOnly: Boolean = false,
     ): List<LibraryFacetCountRecord> =
         error("FTS library search is not backed by this database port")
 

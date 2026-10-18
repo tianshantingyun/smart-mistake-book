@@ -222,6 +222,7 @@ internal class CaptureResumeCommands(
         state.sourcePageAssessmentSnapshots = applied.sourcePageAssessmentSnapshots
         state.selectedSourcePageIndex = 0
         state.committedEntryId = null
+        state.committedReusedExistingProblem = false
         state.selectedSubject = applied.selectedSubject
         state.correctedTitle = applied.correctedTitle
         state.titleEditedByUser = false

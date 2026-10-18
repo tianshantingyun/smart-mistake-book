@@ -30,7 +30,9 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -239,7 +241,45 @@ class CaptureViewModelTest {
 
             assertEquals(CaptureWorkflowPhase.SAVED, viewModel.uiState.value.workflow.phase)
             assertEquals("entry-1", viewModel.uiState.value.workflow.savedEntryId)
+            assertFalse("新建入库：回执里没有复用指示", viewModel.uiState.value.workflow.savedReusedExistingProblem)
             assertEquals("draft-1", repository.committedDraftIds.single())
+        }
+
+    @Test
+    fun `library confirmation carries the reuse receipt into the saved workflow state`() =
+        runTest(dispatcher.scheduler) {
+            val repository = FakeCaptureRepository(
+                commitResults = ArrayDeque(
+                    listOf(
+                        Result.success(commitSummaryFixture().copy(reusedExistingProblem = true)),
+                    ),
+                ),
+            )
+            val viewModel = CaptureViewModel(
+                savedStateHandle = SavedStateHandle(),
+                repository = repository,
+                modelTasks = FakeModelTasks(),
+                ioDispatcher = dispatcher,
+            )
+            viewModel.acceptSource(
+                uri = "file:///reuse.png",
+                source = CaptureInputSource.CAMERA,
+                origin = CaptureEntryOrigin.LIBRARY,
+                purpose = CaptureAcquisitionPurpose.NEW_CAPTURE,
+                requestId = "import-reuse",
+                occurredAtEpochMillis = 40,
+            )
+            advanceUntilIdle()
+
+            viewModel.confirm(
+                workspaceIdentity = workspaceIdentity(),
+                origin = CaptureEntryOrigin.LIBRARY,
+            )
+            advanceUntilIdle()
+
+            assertEquals(CaptureWorkflowPhase.SAVED, viewModel.uiState.value.workflow.phase)
+            assertEquals("entry-1", viewModel.uiState.value.workflow.savedEntryId)
+            assertTrue(viewModel.uiState.value.workflow.savedReusedExistingProblem)
         }
 
     @Test
@@ -378,6 +418,7 @@ class CaptureViewModelTest {
         practiceUnitId = "unit-1",
         errorBookEntryId = entryId,
         created = true,
+        reusedExistingProblem = false,
     )
 }
 
@@ -509,4 +550,5 @@ private fun commitSummaryFixture() = CapturedProblemCommitSummary(
     practiceUnitId = "unit-1",
     errorBookEntryId = "entry-1",
     created = true,
+    reusedExistingProblem = false,
 )

@@ -64,7 +64,8 @@ interface KnowledgeReadPort {
      * `ProblemOrganizationDao.readFullLibraryScanNodes`。
      *
      * **读口只给事实，范围规则在 core:domain**：`fullLibraryScanCandidate` 判定"有绑定题 ∧
-     * 材料可出题"，`selectKnowledgeReviewQueue` 封每日名额——两者都在纯函数层可测，读口不重复
+     * 材料可出题"，`selectKnowledgeReviewQueue` 封每次排计划的名额（KD-46：非严格每日累计）
+     * ——两者都在纯函数层可测，读口不重复
      * 定义范围（否则同一规则两处权威，改一处另一处照旧跑）。
      */
     suspend fun readFullLibraryScanNodes(): List<FullLibraryScanNodeRecord>

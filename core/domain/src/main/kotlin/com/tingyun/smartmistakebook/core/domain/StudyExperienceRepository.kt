@@ -334,7 +334,8 @@ interface StudyExperienceRepository : AutoCloseable {
     /**
      * 今天知识点复习计划（spec dual-review-entry §3.2）：范围 = **今日错题复习队列的题绑定
      * 知识点**（[extractReviewKnowledgeScope]，第一档）∪ **全库薄弱点扫描**（第二档：有绑定题的
-     * 活跃知识点 ∩ 材料可出题，减去今日队列，每日 ≤ [FULL_LIBRARY_SCAN_DAILY_CAP] 个；3E，
+     * 活跃知识点 ∩ 材料可出题，减去今日队列，每次排计划 ≤ [FULL_LIBRARY_SCAN_DAILY_CAP] 个
+     * （非严格每日总量，KD-46）；3E，
      * 2026-10-16 裁定）。两档并集后用与错题同构的打分（[KnowledgeNodeScorer.scoreKnowledgeNode]
      * + [selectKnowledgeReviewQueue]）在时间预算内排出有序队列。今日错题队列为空**不影响**第二档
      * （"全库扫描，不受今日队列限制"）。空队列 = 今日无待复习知识点（全已掌握/新鲜/无可出题材料）。

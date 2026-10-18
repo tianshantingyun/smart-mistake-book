@@ -154,6 +154,12 @@ internal data class ErrorBookEntryEntity(
     val updatedAtEpochMillis: Long,
     @ColumnInfo(name = "user_note")
     val userNote: String? = null,
+    /**
+     * C11 收藏：条目的私有标记（与 [userNote] 同层——可自由改动，不在 append-only 修订链上）。
+     * 默认 0 = 未收藏；旧库升级后全员 0（迁移不回填"历史收藏"，那是编造）。
+     */
+    @ColumnInfo(name = "is_favorite", defaultValue = "0")
+    val isFavorite: Boolean = false,
 )
 
 @Entity(

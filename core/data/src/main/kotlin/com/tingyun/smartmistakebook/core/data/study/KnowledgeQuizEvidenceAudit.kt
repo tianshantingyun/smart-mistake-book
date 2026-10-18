@@ -25,8 +25,12 @@ import com.tingyun.smartmistakebook.core.database.StudyDbValue
  *
  * 只读：不改行、不补写、对不上就是 null（**不猜**）。本口先立着——错键的纠正/撤销/重放
  * 语义按裁定留 5B（KD-43），在此之前至少要能看见"哪笔证据配哪道题"。
+ *
+ * **消费面（KD-48）**：类本身公开，[scanRows] 是给 app 调试/审计面（debug 源集的
+ * `KnowledgeEvidenceAuditActivity`）的只读口；[scan] 仍是模块内细节，返回的内部类型不越出
+ * core:data。两条口都只读、不改行，也不做纠正。
  */
-internal class KnowledgeQuizEvidenceAudit(
+class KnowledgeQuizEvidenceAudit(
     private val database: StudyDatabasePort,
     private val learnerId: String,
 ) {
@@ -36,7 +40,7 @@ internal class KnowledgeQuizEvidenceAudit(
      * ——它没有题面快照（题面在模型任务/会话那一侧），混进来只会给一堆永远为 null 的引用。
      * 拒绝观察行照样列出：审计要看的正是"被拒的这笔读的是哪道题"。
      */
-    suspend fun scan(): List<KnowledgeQuizEvidenceItemLink> {
+    internal suspend fun scan(): List<KnowledgeQuizEvidenceItemLink> {
         val itemStore = KnowledgeQuizItemStore(database, learnerId)
         return database.readChatEvidenceByLearner(learnerId)
             .filter { it.source_kind == StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ }
@@ -54,7 +58,43 @@ internal class KnowledgeQuizEvidenceAudit(
                 )
             }
     }
+
+    /**
+     * 调试/审计面的**只读**消费口（KD-48）：把 [scan] 的内部引用压成公开行——只保留身份与
+     * "对没对上"，不把题面解码类型带出 core:data。三种"对不上"在行上仍然彼此可分（见
+     * [KnowledgeQuizEvidenceAuditRow]），不合成一个看着像成功的状态。
+     */
+    suspend fun scanRows(): List<KnowledgeQuizEvidenceAuditRow> = scan().map { link ->
+        KnowledgeQuizEvidenceAuditRow(
+            evidenceId = link.evidenceId,
+            requestId = link.requestId,
+            knowledgeNodeId = link.knowledgeNodeId,
+            sessionId = link.sessionId,
+            itemSnapshotId = link.item?.assessmentItemSnapshotId,
+            itemUnreadable = link.item != null && link.item.item == null,
+        )
+    }
 }
+
+/**
+ * 审计面的公开只读行（KD-48）：一条知识点测验证据行及其题面引用状态。
+ *
+ * 每个"对不上"的出口留自己的 null 或标志：
+ * - [requestId] null：`evidence_id` 不是本通道形状；
+ * - [sessionId] null：`conversation_id` 不是本通道的会话写入标识；
+ * - [itemSnapshotId] null 且 [itemUnreadable] false：题面行不存在（会话对不上/隔日清理）；
+ * - [itemSnapshotId] 非 null 且 [itemUnreadable] true：行在，但键版本/载荷读不回（坏行）。
+ *
+ * 行里只有身份与状态，没有题面正文——审计面只回答"哪笔证据配哪道题"，不复制学生内容。
+ */
+data class KnowledgeQuizEvidenceAuditRow(
+    val evidenceId: String,
+    val requestId: String?,
+    val knowledgeNodeId: String,
+    val sessionId: Long?,
+    val itemSnapshotId: String?,
+    val itemUnreadable: Boolean,
+)
 
 /**
  * 一条知识点测验证据行对上的题面引用。

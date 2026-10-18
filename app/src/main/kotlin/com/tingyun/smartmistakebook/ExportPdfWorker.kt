@@ -15,6 +15,8 @@ import com.tingyun.smartmistakebook.core.domain.MistakeExportStatus
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobOutcome
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
+import com.tingyun.smartmistakebook.core.export.MISTAKE_DOCX_RECORD_PAGE_PLACEHOLDER
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import kotlinx.coroutines.CancellationException
 
@@ -93,13 +95,14 @@ class ExportPdfWorker(
         val request = MistakeExportJobCodec.decode(inputData.keyValueMap)
         if (request == null) {
             // 解码失败也必须留痕（"放弃必留痕"）：记录行在入队时已落 RUNNING，直接
-            // Result.failure() 会让 hub 永远显示"正在整理"（幽灵行）。能读到 exportId 就走与
-            // 其它放弃路径同一条重试/落 FAILED 的路；连 id 都没有时没有可标记的行
-            // （记录行按 exportId 落库），只能 failure。
+            // Result.failure() 会让 hub 永远显示"正在整理"（幽灵行）。能读到 exportId 就落
+            // FAILED；连 id 都没有时没有可标记的行（记录行按 exportId 落库），只能 failure。
+            // **不重试**：坏输入是确定性输入（重试不会变好），重试只会让记录多停两轮
+            // "正在整理"（对抗性复核 finding，2026-10-18）。
             val exportId = (inputData.keyValueMap[MistakeExportJobCodec.EXPORT_ID_KEY] as? String)
                 ?.takeIf { it.isNotBlank() }
                 ?: return Result.failure()
-            return giveUpOrRetry(
+            return giveUpNow(
                 app = app,
                 repository = app.mistakeExportRepository,
                 exportId = exportId,
@@ -138,6 +141,26 @@ class ExportPdfWorker(
                         // B3-4：请求了但被 fail-closed 跳过的版式功能如实说一句——计数不许蒸发
                         // （与分页器的 PdfPlan.skipped、导出 sheet 的"会跳过"提示同一判据）。
                         skippedNotice = mistakeExportSkippedNotice(request.layout),
+                        format = MistakeExportFormat.PDF,
+                    )
+                }
+                is MistakeExportJobOutcome.RenderedDocx -> {
+                    repository.recordSucceeded(
+                        exportId = request.exportId,
+                        displayName = outcome.displayName,
+                        inputSha256 = outcome.prepared.inputSha256,
+                        // 记录表的 artifact 摘要字段对两种格式同义（该产物的 SHA-256）。
+                        pdfSha256 = outcome.prepared.sha256,
+                        // Word 没有"页"；占位值见 MISTAKE_DOCX_RECORD_PAGE_PLACEHOLDER，
+                        // 成果入口对 Word 记录不展示页数。
+                        pageCount = MISTAKE_DOCX_RECORD_PAGE_PLACEHOLDER,
+                        atEpochMillis = System.currentTimeMillis(),
+                    )
+                    app.mistakeExportNotifications.postSucceeded(
+                        exportId = request.exportId,
+                        displayName = outcome.displayName,
+                        skippedNotice = mistakeExportSkippedNotice(request.layout),
+                        format = MistakeExportFormat.DOCX,
                     )
                 }
                 is MistakeExportJobOutcome.Blocked -> {
@@ -196,6 +219,21 @@ class ExportPdfWorker(
         failureMessage: String,
     ): Result {
         if (runAttemptCount < MAX_ATTEMPTS - 1) return Result.retry()
+        return giveUpNow(
+            app = app,
+            repository = repository,
+            exportId = exportId,
+            failureMessage = failureMessage,
+        )
+    }
+
+    /** 直接放弃（不重试）：落 FAILED 记录 + 通知，返回 failure。 */
+    private suspend fun giveUpNow(
+        app: SmartMistakeBookApplication,
+        repository: MistakeExportRepository,
+        exportId: String,
+        failureMessage: String,
+    ): Result {
         runCatching {
             repository.recordFailed(
                 exportId = exportId,
@@ -229,6 +267,7 @@ class ExportPdfWorker(
 internal object MistakeExportJobCodec {
     const val EXPORT_ID_KEY = "exportId"
     const val KIND_KEY = "kind"
+    const val FORMAT_KEY = "format"
     const val ENTRY_IDS_KEY = "entryIds"
     const val ENTRY_ID_KEY = "entryId"
     const val PROBLEM_ID_KEY = "problemId"
@@ -273,7 +312,7 @@ internal object MistakeExportJobCodec {
             ENTRY_ID_KEY to request.key.entryId,
             PROBLEM_ID_KEY to request.key.problemId,
             REVISION_ID_KEY to request.key.problemRevisionId,
-        ) + layoutEntries(request.layout)
+        ) + layoutEntries(request.layout) + formatEntry(request.format)
         is MistakeExportJobRequest.Batch -> {
             require(request.entryIds.none { it.contains(ENTRY_ID_SEPARATOR) }) {
                 "An export entry id must not contain a newline"
@@ -282,7 +321,7 @@ internal object MistakeExportJobCodec {
                 EXPORT_ID_KEY to request.exportId,
                 KIND_KEY to KIND_BATCH,
                 ENTRY_IDS_KEY to request.entryIds.joinToString(ENTRY_ID_SEPARATOR),
-            ) + layoutEntries(request.layout)
+            ) + layoutEntries(request.layout) + formatEntry(request.format)
         }
     }
 
@@ -290,6 +329,7 @@ internal object MistakeExportJobCodec {
         val exportId = (values[EXPORT_ID_KEY] as? String)?.takeIf { it.isNotBlank() }
             ?: return null
         val layout = layoutFromValues(values) ?: return null
+        val format = formatFromValues(values) ?: return null
         return when (val kind = values[KIND_KEY] as? String) {
             KIND_SINGLE -> {
                 val entryId = (values[ENTRY_ID_KEY] as? String)?.takeIf { it.isNotBlank() }
@@ -304,6 +344,7 @@ internal object MistakeExportJobCodec {
                         problemRevisionId = revisionId,
                     ),
                     layout = layout,
+                    format = format,
                 )
             }
             KIND_BATCH -> {
@@ -311,10 +352,28 @@ internal object MistakeExportJobCodec {
                     ?.split(ENTRY_ID_SEPARATOR)
                     ?.filter { it.isNotBlank() }
                     ?: return null
-                MistakeExportJobRequest.Batch(exportId = exportId, entryIds = entryIds, layout = layout)
+                MistakeExportJobRequest.Batch(
+                    exportId = exportId,
+                    entryIds = entryIds,
+                    layout = layout,
+                    format = format,
+                )
             }
             else -> null
         }
+    }
+
+    private fun formatEntry(format: MistakeExportFormat): Map<String, Any?> =
+        mapOf(FORMAT_KEY to format.token)
+
+    /**
+     * 缺格式键 = 6B-1 之前入队的旧任务 → 按 PDF（兼容）；键在但读不成合法格式 = null
+     * （整条请求拒：宁可丢弃一条坏任务，也不拿 PDF 冒领学生选的 Word 格式）。
+     */
+    private fun formatFromValues(values: Map<String, Any?>): MistakeExportFormat? {
+        if (FORMAT_KEY !in values) return MistakeExportFormat.PDF
+        val raw = values[FORMAT_KEY] as? String ?: return null
+        return MistakeExportFormat.fromToken(raw)
     }
 
     private fun layoutEntries(layout: MistakePdfLayout): Map<String, Any?> = mapOf(

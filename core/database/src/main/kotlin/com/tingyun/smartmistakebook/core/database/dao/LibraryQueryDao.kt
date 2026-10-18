@@ -38,6 +38,7 @@ internal interface LibraryQueryDao {
               :createdToEpochMillis IS NULL OR
                   catalog.created_at_epoch_millis <= :createdToEpochMillis
           )
+          AND (:favoriteOnly = 0 OR catalog.is_favorite = 1)
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -63,6 +64,8 @@ internal interface LibraryQueryDao {
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         sort: String,
+        /** C11：`true` = 只看已收藏（收藏是筛选的一维，不是排序）。 */
+        favoriteOnly: Boolean = false,
     ): PagingSource<Int, LibraryCatalogView>
 
     @Query(
@@ -87,6 +90,7 @@ internal interface LibraryQueryDao {
               :createdToEpochMillis IS NULL OR
                   catalog.created_at_epoch_millis <= :createdToEpochMillis
           )
+          AND (:favoriteOnly = 0 OR catalog.is_favorite = 1)
           AND (
               :searchText = '' OR instr(
                   lower(
@@ -115,11 +119,200 @@ internal interface LibraryQueryDao {
         sort: String,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean = false,
     ): List<LibraryCatalogView>
 
     @Query(
         """
         SELECT COUNT(*) FROM library_catalog AS catalog
+        WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
+          AND (
+              :sectionId IS NULL OR EXISTS (
+                  SELECT 1 FROM problem_classification_binding AS classification
+                  WHERE classification.problem_id = catalog.problem_id
+                    AND classification.basis_revision_id = catalog.problem_revision_id
+                    AND classification.dimension = 'CHAPTER'
+                    AND classification.label_id = :sectionId
+              )
+          )
+          AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
+          AND (:favoriteOnly = 0 OR catalog.is_favorite = 1)
+          AND (
+              :searchText = '' OR instr(
+                  lower(
+                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
+                      catalog.subject || CHAR(10) ||
+                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
+                      COALESCE(catalog.knowledge_labels, '')
+                  ),
+                  lower(:searchText)
+              ) > 0
+          )
+        """,
+    )
+    suspend fun count(
+        searchText: String,
+        subjectId: String?,
+        sectionId: String?,
+        masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
+    ): Int
+
+    @Query(
+        """
+        SELECT catalog.subject AS id, catalog.subject AS label, COUNT(*) AS count
+        FROM library_catalog AS catalog
+        WHERE (:sectionId IS NULL OR EXISTS (
+                  SELECT 1 FROM problem_classification_binding AS classification
+                  WHERE classification.problem_id = catalog.problem_id
+                    AND classification.basis_revision_id = catalog.problem_revision_id
+                    AND classification.dimension = 'CHAPTER'
+                    AND classification.label_id = :sectionId
+              ))
+          AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
+          AND (:favoriteOnly = 0 OR catalog.is_favorite = 1)
+          AND (
+              :searchText = '' OR instr(
+                  lower(
+                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
+                      catalog.subject || CHAR(10) ||
+                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
+                      COALESCE(catalog.knowledge_labels, '')
+                  ),
+                  lower(:searchText)
+              ) > 0
+          )
+        GROUP BY catalog.subject
+        ORDER BY COUNT(*) DESC, id ASC
+        """,
+    )
+    suspend fun subjectFacets(
+        searchText: String,
+        sectionId: String?,
+        masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
+    ): List<LibraryFacetCountRow>
+
+    @Query(
+        """
+        SELECT classification.label_id AS id, classification.display_name AS label, COUNT(*) AS count
+        FROM library_catalog AS catalog
+        INNER JOIN problem_classification_binding AS classification
+            ON classification.problem_id = catalog.problem_id
+           AND classification.basis_revision_id = catalog.problem_revision_id
+           AND classification.dimension = 'CHAPTER'
+        WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
+          AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
+          AND (:favoriteOnly = 0 OR catalog.is_favorite = 1)
+          AND (
+              :searchText = '' OR instr(
+                  lower(
+                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
+                      catalog.subject || CHAR(10) ||
+                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
+                      COALESCE(catalog.knowledge_labels, '')
+                  ),
+                  lower(:searchText)
+              ) > 0
+          )
+        GROUP BY classification.label_id, classification.display_name
+        ORDER BY COUNT(*) DESC, id ASC
+        """,
+    )
+    suspend fun sectionFacets(
+        searchText: String,
+        subjectId: String?,
+        masteryId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
+    ): List<LibraryFacetCountRow>
+
+    @Query(
+        """
+        SELECT catalog.mastery_id AS id, catalog.mastery_id AS label, COUNT(*) AS count
+        FROM library_catalog AS catalog
+        WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
+          AND (:sectionId IS NULL OR EXISTS (
+                  SELECT 1 FROM problem_classification_binding AS classification
+                  WHERE classification.problem_id = catalog.problem_id
+                    AND classification.basis_revision_id = catalog.problem_revision_id
+                    AND classification.dimension = 'CHAPTER'
+                    AND classification.label_id = :sectionId
+              ))
+          AND (
+              :createdFromEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
+          )
+          AND (
+              :createdToEpochMillis IS NULL OR
+                  catalog.created_at_epoch_millis <= :createdToEpochMillis
+          )
+          AND (:favoriteOnly = 0 OR catalog.is_favorite = 1)
+          AND (
+              :searchText = '' OR instr(
+                  lower(
+                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
+                      catalog.subject || CHAR(10) ||
+                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
+                      COALESCE(catalog.knowledge_labels, '')
+                  ),
+                  lower(:searchText)
+              ) > 0
+          )
+        GROUP BY catalog.mastery_id
+        ORDER BY COUNT(*) DESC, id ASC
+        """,
+    )
+    suspend fun masteryFacets(
+        searchText: String,
+        subjectId: String?,
+        sectionId: String?,
+        createdFromEpochMillis: Long?,
+        createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
+    ): List<LibraryFacetCountRow>
+
+    /**
+     * C11 收藏这一维的计数（v67）：一行 `favorite / 已收藏 / n`。
+     *
+     * 与其它三个 facet 同一条口径——**不带自己这一维的过滤**：已选科目/板块/掌握程度/时间窗
+     * 与搜索词都照常生效，但**不**看 favoriteOnly（否则选中"已收藏"后计数会自我约束成
+     * "在已收藏里还有多少已收藏"）。n = 当前窗口下被收藏的条目数，0 也如实返回（不落空列表：
+     * 界面要能显示"已收藏 (0)"而不是假装这一维不存在）。
+     */
+    @Query(
+        """
+        SELECT 'favorite' AS id, '已收藏' AS label, COUNT(*) AS count
+        FROM library_catalog AS catalog
         WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
           AND (
               :sectionId IS NULL OR EXISTS (
@@ -150,140 +343,14 @@ internal interface LibraryQueryDao {
                   lower(:searchText)
               ) > 0
           )
+          AND catalog.is_favorite = 1
         """,
     )
-    suspend fun count(
+    suspend fun favoriteFacets(
         searchText: String,
         subjectId: String?,
         sectionId: String?,
         masteryId: String?,
-        createdFromEpochMillis: Long?,
-        createdToEpochMillis: Long?,
-    ): Int
-
-    @Query(
-        """
-        SELECT catalog.subject AS id, catalog.subject AS label, COUNT(*) AS count
-        FROM library_catalog AS catalog
-        WHERE (:sectionId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'CHAPTER'
-                    AND classification.label_id = :sectionId
-              ))
-          AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
-          AND (
-              :createdFromEpochMillis IS NULL OR
-                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
-          )
-          AND (
-              :createdToEpochMillis IS NULL OR
-                  catalog.created_at_epoch_millis <= :createdToEpochMillis
-          )
-          AND (
-              :searchText = '' OR instr(
-                  lower(
-                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
-                      catalog.subject || CHAR(10) ||
-                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
-                      COALESCE(catalog.knowledge_labels, '')
-                  ),
-                  lower(:searchText)
-              ) > 0
-          )
-        GROUP BY catalog.subject
-        ORDER BY COUNT(*) DESC, id ASC
-        """,
-    )
-    suspend fun subjectFacets(
-        searchText: String,
-        sectionId: String?,
-        masteryId: String?,
-        createdFromEpochMillis: Long?,
-        createdToEpochMillis: Long?,
-    ): List<LibraryFacetCountRow>
-
-    @Query(
-        """
-        SELECT classification.label_id AS id, classification.display_name AS label, COUNT(*) AS count
-        FROM library_catalog AS catalog
-        INNER JOIN problem_classification_binding AS classification
-            ON classification.problem_id = catalog.problem_id
-           AND classification.basis_revision_id = catalog.problem_revision_id
-           AND classification.dimension = 'CHAPTER'
-        WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
-          AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId)
-          AND (
-              :createdFromEpochMillis IS NULL OR
-                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
-          )
-          AND (
-              :createdToEpochMillis IS NULL OR
-                  catalog.created_at_epoch_millis <= :createdToEpochMillis
-          )
-          AND (
-              :searchText = '' OR instr(
-                  lower(
-                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
-                      catalog.subject || CHAR(10) ||
-                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
-                      COALESCE(catalog.knowledge_labels, '')
-                  ),
-                  lower(:searchText)
-              ) > 0
-          )
-        GROUP BY classification.label_id, classification.display_name
-        ORDER BY COUNT(*) DESC, id ASC
-        """,
-    )
-    suspend fun sectionFacets(
-        searchText: String,
-        subjectId: String?,
-        masteryId: String?,
-        createdFromEpochMillis: Long?,
-        createdToEpochMillis: Long?,
-    ): List<LibraryFacetCountRow>
-
-    @Query(
-        """
-        SELECT catalog.mastery_id AS id, catalog.mastery_id AS label, COUNT(*) AS count
-        FROM library_catalog AS catalog
-        WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
-          AND (:sectionId IS NULL OR EXISTS (
-                  SELECT 1 FROM problem_classification_binding AS classification
-                  WHERE classification.problem_id = catalog.problem_id
-                    AND classification.basis_revision_id = catalog.problem_revision_id
-                    AND classification.dimension = 'CHAPTER'
-                    AND classification.label_id = :sectionId
-              ))
-          AND (
-              :createdFromEpochMillis IS NULL OR
-                  catalog.created_at_epoch_millis >= :createdFromEpochMillis
-          )
-          AND (
-              :createdToEpochMillis IS NULL OR
-                  catalog.created_at_epoch_millis <= :createdToEpochMillis
-          )
-          AND (
-              :searchText = '' OR instr(
-                  lower(
-                      catalog.title || CHAR(10) || catalog.problem_markdown || CHAR(10) ||
-                      catalog.subject || CHAR(10) ||
-                      COALESCE(catalog.chapter_labels, '') || CHAR(10) ||
-                      COALESCE(catalog.knowledge_labels, '')
-                  ),
-                  lower(:searchText)
-              ) > 0
-          )
-        GROUP BY catalog.mastery_id
-        ORDER BY COUNT(*) DESC, id ASC
-        """,
-    )
-    suspend fun masteryFacets(
-        searchText: String,
-        subjectId: String?,
-        sectionId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
     ): List<LibraryFacetCountRow>

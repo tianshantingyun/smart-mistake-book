@@ -511,6 +511,16 @@ data class CapturedProblemCommitSummary(
     val practiceUnitId: String,
     val errorBookEntryId: String,
     val created: Boolean,
+    /**
+     * B5 去重可见化：这次提交**没有写出新的题行**——命中了既有同一题（题级去重复用了它），
+     * 或者这本来就是同一笔提交的幂等重放。判据只有一处（`ProblemDraftTransactionDao`
+     * 提交事务里那次去重查询），本字段只是把它如实带出来。
+     *
+     * 与 [created] 回答的不是同一个问题：`created = true` 的提交既可能是新建入库，
+     * 也可能是复用了既有题行（前者本字段为 false，后者为 true）。界面据此在「已入库」上
+     * 如实区分「新建入库」与「已存在同一题（已复用）」。
+     */
+    val reusedExistingProblem: Boolean,
 )
 
 data class ConfirmedTutorSession(

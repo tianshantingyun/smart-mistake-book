@@ -4,7 +4,7 @@ import com.tingyun.smartmistakebook.core.database.AppendProblemDraftSourceAssetC
 import com.tingyun.smartmistakebook.core.database.AppendProblemDraftSourceAssetResult
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
-import com.tingyun.smartmistakebook.core.database.CommitProblemDraftResult
+import com.tingyun.smartmistakebook.core.database.ProblemDraftCommitOutcome
 import com.tingyun.smartmistakebook.core.database.ConfirmAndCommitProblemDraftFromWorkspaceCommand
 import com.tingyun.smartmistakebook.core.database.ConfirmProblemOrganizationCommand
 import com.tingyun.smartmistakebook.core.database.ConfirmProblemOrganizationResult
@@ -74,11 +74,16 @@ interface DraftWritePort {
         command: ConsumeProblemDraftEditWorkspaceCommand,
     ): Boolean
 
-    suspend fun commitProblemDraft(command: CommitProblemDraftCommand): CommitProblemDraftResult
+    /**
+     * 提交一份草稿（B5：回执里一并交回「这次提交有没有复用既有的题行」，口径见
+     * [ProblemDraftCommitOutcome]）。判据不在本口，也不在调用方：只有 DAO 提交事务里那次
+     * 题级去重查询说了算。
+     */
+    suspend fun commitProblemDraft(command: CommitProblemDraftCommand): ProblemDraftCommitOutcome
 
     suspend fun confirmAndCommitProblemDraftFromWorkspace(
         command: ConfirmAndCommitProblemDraftFromWorkspaceCommand,
-    ): CommitProblemDraftResult
+    ): ProblemDraftCommitOutcome
 
     /**
      * Attaches a clean-redraw canonical asset to an already-committed problem

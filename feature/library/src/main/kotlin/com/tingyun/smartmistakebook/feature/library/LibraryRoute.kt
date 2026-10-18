@@ -20,6 +20,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.LibraryAdd
 import androidx.compose.material.icons.outlined.PictureAsPdf
@@ -91,6 +93,21 @@ fun LibraryRoute(
             libraryViewModel.updateCatalog(entries.map(StudyCatalogEntry::toLibraryMistake))
         }
     }
+    // C11：收藏开关复用详情仓储的行级更新（与详情页同一列 `error_book_entry.is_favorite`，
+    // 只有一条事实源）。没接仓储的入口（预览/替身）开关不可用——界面如实置灰。
+    LaunchedEffect(mistakeDetailRepository) {
+        libraryViewModel.bindFavoriteWriter(
+            mistakeDetailRepository?.let { repository ->
+                LibraryFavoriteWriter { entryId, isFavorite ->
+                    repository.setFavorite(
+                        entryId = entryId,
+                        isFavorite = isFavorite,
+                        updatedAtEpochMillis = System.currentTimeMillis(),
+                    )
+                }
+            },
+        )
+    }
     LibraryContent(
         mistakeCount = entries.size,
         usePaging = catalogRepository != null,
@@ -99,6 +116,7 @@ fun LibraryRoute(
         onExportVisible = onExportVisible,
         onOpenExportResults = onOpenExportResults,
         onOpenItem = onOpenItem,
+        onToggleFavorite = libraryViewModel::toggleFavorite,
         viewModel = libraryViewModel,
         modifier = modifier,
     )
@@ -113,6 +131,7 @@ private fun LibraryContent(
     onExportVisible: (LibraryExportCandidates) -> Unit,
     onOpenExportResults: () -> Unit,
     onOpenItem: (String) -> Unit,
+    onToggleFavorite: (String, Boolean) -> Unit,
     viewModel: LibraryViewModel,
     modifier: Modifier,
 ) {
@@ -217,6 +236,16 @@ private fun LibraryContent(
                         selectedOptionId = uiState.selections.selectedOptionId(uiState.activeFacet),
                         onSelect = { viewModel.toggleFilter(uiState.activeFacet, it) },
                     )
+                    // 收藏开关的写失败必须看得见（默默回弹会把"没写进去"说成"写进去了"）。
+                    uiState.favoriteNotice?.let { notice ->
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = notice,
+                            modifier = Modifier.testTag("library_favorite_notice"),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = SmartColors.ErrorWarm,
+                        )
+                    }
                     if (usePaging) {
                         Spacer(Modifier.height(8.dp))
                         LibrarySortControl(
@@ -269,6 +298,9 @@ private fun LibraryContent(
                     LibraryItemRow(
                         mistake = mistake,
                         onClick = { onOpenItem(mistake.id) },
+                        onToggleFavorite = { favorite ->
+                            onToggleFavorite(mistake.id, favorite)
+                        },
                     )
                 }
             }
@@ -280,6 +312,9 @@ private fun LibraryContent(
                 LibraryItemRow(
                     mistake = mistake,
                     onClick = { onOpenItem(mistake.id) },
+                    onToggleFavorite = { favorite ->
+                        onToggleFavorite(mistake.id, favorite)
+                    },
                 )
             }
         }
@@ -475,6 +510,7 @@ private fun LibraryTimeRangeControl(
 private fun LibraryItemRow(
     mistake: LibraryMistake,
     onClick: () -> Unit,
+    onToggleFavorite: (Boolean) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -515,6 +551,25 @@ private fun LibraryItemRow(
                 color = masteryColor(mistake.mastery),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+            )
+        }
+        // C11 收藏开关（列表行）：点它只改这一行条目的收藏标记，不打开详情。
+        IconButton(
+            onClick = { onToggleFavorite(!mistake.isFavorite) },
+            modifier = Modifier.testTag("library_favorite_${mistake.id}"),
+        ) {
+            Icon(
+                imageVector = if (mistake.isFavorite) {
+                    Icons.Filled.Bookmark
+                } else {
+                    Icons.Outlined.BookmarkBorder
+                },
+                contentDescription = if (mistake.isFavorite) {
+                    "取消收藏 ${mistake.title}"
+                } else {
+                    "收藏 ${mistake.title}"
+                },
+                tint = if (mistake.isFavorite) SmartColors.Jade else SmartColors.InkSecondary,
             )
         }
         Icon(

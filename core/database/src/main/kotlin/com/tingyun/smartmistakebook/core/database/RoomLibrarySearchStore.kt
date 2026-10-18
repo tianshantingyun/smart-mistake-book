@@ -21,6 +21,7 @@ internal class RoomLibrarySearchStore(
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         sort: String,
+        favoriteOnly: Boolean = false,
     ): PagingSource<Int, LibraryCatalogRow> =
         MappingPagingSource(
             delegate = database.libraryQueryDao().pagingSource(
@@ -31,6 +32,7 @@ internal class RoomLibrarySearchStore(
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
                 sort = sort,
+                favoriteOnly = favoriteOnly,
             ),
             transform = LibraryCatalogView::toRow,
         )
@@ -44,6 +46,7 @@ internal class RoomLibrarySearchStore(
         createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
+        favoriteOnly: Boolean = false,
     ): PagingSource<Int, LibraryCatalogRow> {
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
         require(tokens.isNotEmpty()) { "FTS search needs at least one query token" }
@@ -60,6 +63,7 @@ internal class RoomLibrarySearchStore(
                         createdToEpochMillis = createdToEpochMillis,
                         sort = sort,
                         tokens = tokens,
+                        favoriteOnly = favoriteOnly,
                     ),
                 ),
                 transform = LibraryFtsSearchDao.LibrarySearchHitRow::toCatalogRow,
@@ -101,6 +105,7 @@ internal class RoomLibrarySearchStore(
         createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
+        favoriteOnly: Boolean = false,
         limit: Int? = null,
         offset: Int? = null,
     ): RoomRawQuery {
@@ -190,6 +195,10 @@ internal class RoomLibrarySearchStore(
             filters.append("\n  AND catalog.created_at_epoch_millis <= ?")
             bindings += createdToEpochMillis
         }
+        if (favoriteOnly) {
+            // C11：只看已收藏（筛选值本体是常量，没有可绑定的输入；开关的"开"由这一段表达）。
+            filters.append("\n  AND catalog.is_favorite = 1")
+        }
         val sortClause = when (sort) {
             "RECENTLY_CREATED" -> "catalog.created_at_epoch_millis DESC,\n    "
             else -> ""
@@ -232,6 +241,7 @@ internal class RoomLibrarySearchStore(
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
     ): Int {
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
         refreshProjection()
@@ -242,6 +252,7 @@ internal class RoomLibrarySearchStore(
             masteryId = masteryId,
             createdFromEpochMillis = createdFromEpochMillis,
             createdToEpochMillis = createdToEpochMillis,
+            favoriteOnly = favoriteOnly,
         )
     }
 
@@ -256,6 +267,7 @@ internal class RoomLibrarySearchStore(
         tokens: List<String>,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean = false,
     ): List<LibraryCatalogRow> {
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
         require(tokens.isNotEmpty()) { "FTS search needs at least one query token" }
@@ -270,6 +282,7 @@ internal class RoomLibrarySearchStore(
                 createdToEpochMillis = createdToEpochMillis,
                 sort = sort,
                 tokens = tokens,
+                favoriteOnly = favoriteOnly,
                 limit = limit,
                 offset = offset,
             ),
@@ -284,6 +297,7 @@ internal class RoomLibrarySearchStore(
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         facet: String,
+        favoriteOnly: Boolean = false,
     ): List<LibraryFacetCountRecord> {
         require(matchQuery.isNotBlank()) { "FTS search needs a non-blank MATCH expression" }
         refreshProjection()
@@ -295,6 +309,7 @@ internal class RoomLibrarySearchStore(
                 masteryId = masteryId,
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
+                favoriteOnly = favoriteOnly,
             )
             "SECTION" -> dao.searchSectionFacets(
                 matchQuery = matchQuery,
@@ -302,11 +317,21 @@ internal class RoomLibrarySearchStore(
                 masteryId = masteryId,
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
+                favoriteOnly = favoriteOnly,
             )
             "MASTERY" -> dao.searchMasteryFacets(
                 matchQuery = matchQuery,
                 subjectId = subjectId,
                 sectionId = sectionId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
+                favoriteOnly = favoriteOnly,
+            )
+            "FAVORITE" -> dao.searchFavoriteFacets(
+                matchQuery = matchQuery,
+                subjectId = subjectId,
+                sectionId = sectionId,
+                masteryId = masteryId,
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
             )
@@ -453,6 +478,7 @@ internal class RoomLibrarySearchStore(
         sort: String,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean = false,
     ): List<LibraryCatalogRow> {
         return database.libraryQueryDao()
             .page(
@@ -465,6 +491,7 @@ internal class RoomLibrarySearchStore(
                 sort = sort,
                 offset = offset,
                 limit = limit,
+                favoriteOnly = favoriteOnly,
             )
             .map(LibraryCatalogView::toRow)
     }
@@ -476,6 +503,7 @@ internal class RoomLibrarySearchStore(
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean = false,
     ): Int {
         return database.libraryQueryDao().count(
             searchText = searchText,
@@ -484,6 +512,7 @@ internal class RoomLibrarySearchStore(
             masteryId = masteryId,
             createdFromEpochMillis = createdFromEpochMillis,
             createdToEpochMillis = createdToEpochMillis,
+            favoriteOnly = favoriteOnly,
         )
     }
 
@@ -495,6 +524,7 @@ internal class RoomLibrarySearchStore(
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         facet: String,
+        favoriteOnly: Boolean = false,
     ): List<LibraryFacetCountRecord> {
         return when (facet) {
             "SUBJECT" -> database.libraryQueryDao().subjectFacets(
@@ -503,6 +533,7 @@ internal class RoomLibrarySearchStore(
                 masteryId = masteryId,
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
+                favoriteOnly = favoriteOnly,
             ).map(LibraryFacetCountRow::toRecord)
 
             "SECTION" -> database.libraryQueryDao().sectionFacets(
@@ -511,12 +542,23 @@ internal class RoomLibrarySearchStore(
                 masteryId = masteryId,
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
+                favoriteOnly = favoriteOnly,
             ).map(LibraryFacetCountRow::toRecord)
 
             "MASTERY" -> database.libraryQueryDao().masteryFacets(
                 searchText = searchText,
                 subjectId = subjectId,
                 sectionId = sectionId,
+                createdFromEpochMillis = createdFromEpochMillis,
+                createdToEpochMillis = createdToEpochMillis,
+                favoriteOnly = favoriteOnly,
+            ).map(LibraryFacetCountRow::toRecord)
+
+            "FAVORITE" -> database.libraryQueryDao().favoriteFacets(
+                searchText = searchText,
+                subjectId = subjectId,
+                sectionId = sectionId,
+                masteryId = masteryId,
                 createdFromEpochMillis = createdFromEpochMillis,
                 createdToEpochMillis = createdToEpochMillis,
             ).map(LibraryFacetCountRow::toRecord)
@@ -545,6 +587,7 @@ private fun LibraryCatalogView.toRow() = LibraryCatalogRow(
     masteryId = masteryId,
     createdAtEpochMillis = createdAtEpochMillis,
     updatedAtEpochMillis = updatedAtEpochMillis,
+    isFavorite = isFavorite,
     nextReviewAtEpochMillis = nextReviewAtEpochMillis,
     retrievability = retrievability,
 )
@@ -565,6 +608,7 @@ private fun LibraryFtsSearchDao.LibrarySearchHitRow.toCatalogRow() = LibraryCata
     masteryId = masteryId,
     createdAtEpochMillis = createdAtEpochMillis,
     updatedAtEpochMillis = updatedAtEpochMillis,
+    isFavorite = isFavorite,
     nextReviewAtEpochMillis = nextReviewAtEpochMillis,
     retrievability = retrievability,
 )

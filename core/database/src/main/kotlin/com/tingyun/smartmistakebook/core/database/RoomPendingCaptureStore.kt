@@ -210,7 +210,7 @@ private fun PendingCaptureHeadRow.toProblemDraftRecord(
     }
     val primarySource = sourceAssets.firstOrNull()?.sourceAsset
         ?: throw LearningLedgerIntegrityException("Pending draft $draftId has no source asset")
-    if (primarySource.sourceAssetId != primarySourceAssetId) {
+    if (primarySourceAssetId == null || primarySource.sourceAssetId != primarySourceAssetId) {
         throw LearningLedgerIntegrityException("Pending draft $draftId has a mismatched primary source")
     }
     return ProblemDraftRecord(

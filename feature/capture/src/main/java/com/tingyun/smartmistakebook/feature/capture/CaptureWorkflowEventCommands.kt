@@ -74,6 +74,7 @@ internal class CaptureWorkflowEventCommands(
         origin: CaptureEntryOrigin,
         currentRevisionNumber: Int?,
         savedEntryId: String?,
+        reusedExistingProblem: Boolean,
     ) {
         val saved = captureSavedWorkflowApplication(
             phase = phase,
@@ -82,6 +83,7 @@ internal class CaptureWorkflowEventCommands(
         ) ?: return
         if (saved.commitLibraryEntry) {
             state.committedEntryId = savedEntryId
+            state.committedReusedExistingProblem = reusedExistingProblem
             state.draftRevisionNumber = saved.nextRevisionNumber
         }
         onDeleteOwnedUri(state.receivedImageUri)

@@ -59,8 +59,12 @@ internal data class ProblemDraftEntity(
     @PrimaryKey
     @ColumnInfo(name = "draft_id")
     val draftId: String,
+    /**
+     * A8 手动建题（用户转写）的草稿**没有照片**，所以这一列可空（v67 起）：
+     * NULL = 这份草稿从创建起就没有源图，不是"图丢了"。照片草稿仍恒为非空。
+     */
     @ColumnInfo(name = "source_asset_id")
-    val sourceAssetId: String,
+    val sourceAssetId: String?,
     val origin: String,
     val status: String,
     @ColumnInfo(name = "current_revision_number")

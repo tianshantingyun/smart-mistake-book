@@ -92,6 +92,47 @@ class CapturePendingCapturesInstrumentedTest {
         assertEquals("draft-ready", openedDraftId)
     }
 
+    /**
+     * KD-17：单题采集（TUTOR 来源）在确认讲题之前离开流程，草稿没有会话、只有源图和整理态；
+     * 它同样出现在录入入口的待处理列表里，点开走 resume 路由恢复同一份草稿。
+     */
+    @Test
+    fun aSingleCaptureDraftParkedBeforeTutoringOpensItsDraft() {
+        var openedDraftId: String? = null
+        val repository = FakePendingCaptureRepository(
+            pending = listOf(
+                pendingItem(
+                    draftId = "draft-single-parked",
+                    stage = PendingCaptureStage.READY_TO_CONTINUE,
+                    title = "新拍题目",
+                    origin = CaptureEntryOrigin.TUTOR,
+                ),
+            ),
+        )
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                CaptureScreen(
+                    entryOrigin = CaptureEntryOrigin.TUTOR,
+                    repository = repository,
+                    modelTasks = FakePendingModelTasks(),
+                    onOpenModelSettings = {},
+                    onTutorSessionReady = {},
+                    onLibraryEntryReady = {},
+                    onSplitReady = {},
+                    onBack = {},
+                    onOpenPendingDraft = { openedDraftId = it },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("已保存原图，点此继续").performScrollTo().assertExists()
+        composeRule.onNodeWithTag("capture_pending_draft-single-parked")
+            .performScrollTo()
+            .performClick()
+
+        assertEquals("draft-single-parked", openedDraftId)
+    }
+
     @Test
     fun tutorReadyPendingItemOpensItsWaitingTutorSession() {
         var openedSessionId: String? = null
@@ -237,13 +278,14 @@ class CapturePendingCapturesInstrumentedTest {
         stage: PendingCaptureStage,
         title: String,
         tutorSessionId: String? = null,
-    ) = PendingCaptureItem(
-        draftId = draftId,
-        origin = if (tutorSessionId != null) {
+        origin: CaptureEntryOrigin = if (tutorSessionId != null) {
             CaptureEntryOrigin.TUTOR
         } else {
             CaptureEntryOrigin.LIBRARY
         },
+    ) = PendingCaptureItem(
+        draftId = draftId,
+        origin = origin,
         subject = "数学",
         title = title,
         currentRevisionNumber = 1,

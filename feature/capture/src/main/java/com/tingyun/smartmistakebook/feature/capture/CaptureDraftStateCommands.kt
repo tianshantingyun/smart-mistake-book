@@ -147,6 +147,7 @@ internal class CaptureDraftStateCommands(
         state.draftRevisionNumber = null
         state.canonicalSha256 = null
         state.committedEntryId = null
+        state.committedReusedExistingProblem = false
         state.selectedSubject = ""
         state.correctedTitle = ""
         state.titleEditedByUser = false

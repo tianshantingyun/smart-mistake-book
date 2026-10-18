@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook
 
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -209,6 +210,53 @@ class ExportPdfWorkerTest {
         assertEquals(
             "解析区暂不可用，已跳过。",
             mistakeExportSkippedNotice(MistakePdfLayout(includeSolution = true)),
+        )
+    }
+
+    /**
+     * 6B-1：交付格式随任务到达 worker——学生选的 Word 与后台产出的扩展名必须是同一份；
+     * 缺格式键 = 改版前入队的旧任务，按 PDF 渲染；键在但读不成合法格式 = 整条请求拒
+     * （不拿 PDF 冒领 Word）。
+     */
+    @Test
+    fun `a format survives the work input round trip for both request kinds`() {
+        val batch = MistakeExportJobRequest.Batch(
+            exportId = "export:format-batch",
+            entryIds = listOf("entry-a"),
+            format = MistakeExportFormat.DOCX,
+        )
+        val single = MistakeExportJobRequest.Single(
+            exportId = "export:format-single",
+            key = MistakeRevisionKey("entry-a", "problem-a", "revision-a"),
+            format = MistakeExportFormat.DOCX,
+        )
+
+        assertEquals(MistakeExportFormat.DOCX, MistakeExportJobCodec.decode(MistakeExportJobCodec.encode(batch))?.format)
+        assertEquals(MistakeExportFormat.DOCX, MistakeExportJobCodec.decode(MistakeExportJobCodec.encode(single))?.format)
+        assertEquals(
+            MistakeExportFormat.PDF,
+            MistakeExportJobCodec.decode(
+                MistakeExportJobCodec.encode(
+                    MistakeExportJobRequest.Batch(exportId = "export:format-default", entryIds = listOf("entry-a")),
+                ),
+            )?.format,
+        )
+    }
+
+    @Test
+    fun `an old request without a format key decodes to pdf and a bad one rejects the whole request`() {
+        val oldTask = mapOf(
+            MistakeExportJobCodec.EXPORT_ID_KEY to "export:old-format",
+            MistakeExportJobCodec.KIND_KEY to "batch",
+            MistakeExportJobCodec.ENTRY_IDS_KEY to "entry-a",
+        )
+        assertEquals(MistakeExportFormat.PDF, MistakeExportJobCodec.decode(oldTask)?.format)
+
+        assertNull(
+            MistakeExportJobCodec.decode(oldTask + (MistakeExportJobCodec.FORMAT_KEY to "doc")),
+        )
+        assertNull(
+            MistakeExportJobCodec.decode(oldTask + (MistakeExportJobCodec.FORMAT_KEY to 7)),
         )
     }
 }

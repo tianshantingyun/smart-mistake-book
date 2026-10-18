@@ -197,7 +197,8 @@ class ProblemDraftDatabaseInstrumentedTest {
 
         val command = commitCommand()
         val committed = store.commitProblemDraft(command)
-        assertTrue(committed.created)
+        assertTrue(committed.commit.created)
+        assertFalse("第一次提交是新建，不是复用", committed.reusedExistingProblem)
         assertEquals(StudyDbValue.ProblemDraftStatus.COMMITTED, store.readProblemDraft(DRAFT_ID)?.status)
         assertEquals(1, store.countMistakes())
         val mistake = store.observeMistakes().first().single()
@@ -206,8 +207,9 @@ class ProblemDraftDatabaseInstrumentedTest {
         assertNotNull(store.findMistakeBySourceKey("capture:$DRAFT_ID"))
 
         val replay = store.commitProblemDraft(command)
-        assertFalse(replay.created)
-        assertEquals(committed.receipt, replay.receipt)
+        assertFalse(replay.commit.created)
+        assertTrue("重放没有写出新题行，同样是复用", replay.reusedExistingProblem)
+        assertEquals(committed.commit.receipt, replay.commit.receipt)
         assertEquals(1, store.countMistakes())
 
         assertTrue(
@@ -292,16 +294,28 @@ class ProblemDraftDatabaseInstrumentedTest {
         val repeatedCommit = store.commitProblemDraft(secondCommand)
         val replay = store.commitProblemDraft(secondCommand)
 
-        assertTrue(repeatedCommit.created)
-        assertFalse(replay.created)
-        assertEquals(firstCommit.receipt.problemId, repeatedCommit.receipt.problemId)
-        assertEquals(firstCommit.receipt.problemRevisionId, repeatedCommit.receipt.problemRevisionId)
-        assertEquals(firstCommit.receipt.practiceUnitId, repeatedCommit.receipt.practiceUnitId)
-        assertEquals(firstCommit.receipt.errorBookEntryId, repeatedCommit.receipt.errorBookEntryId)
-        assertEquals(repeatedCommit.receipt, replay.receipt)
+        assertTrue(repeatedCommit.commit.created)
+        assertFalse(replay.commit.created)
+        assertFalse("第一笔是新建（新题行）", firstCommit.reusedExistingProblem)
+        assertTrue("同题面的第二笔复用了既有题行（B5 的复用指示）", repeatedCommit.reusedExistingProblem)
+        assertTrue("重放同样没有新建题行", replay.reusedExistingProblem)
+        assertEquals(firstCommit.commit.receipt.problemId, repeatedCommit.commit.receipt.problemId)
+        assertEquals(
+            firstCommit.commit.receipt.problemRevisionId,
+            repeatedCommit.commit.receipt.problemRevisionId,
+        )
+        assertEquals(
+            firstCommit.commit.receipt.practiceUnitId,
+            repeatedCommit.commit.receipt.practiceUnitId,
+        )
+        assertEquals(
+            firstCommit.commit.receipt.errorBookEntryId,
+            repeatedCommit.commit.receipt.errorBookEntryId,
+        )
+        assertEquals(repeatedCommit.commit.receipt, replay.commit.receipt)
         assertEquals(1, store.countMistakes())
         assertEquals(2, store.observeMistakes().first().single().captureOccurrenceCount)
-        val detail = checkNotNull(store.readMistakeDetail(firstCommit.receipt.errorBookEntryId))
+        val detail = checkNotNull(store.readMistakeDetail(firstCommit.commit.receipt.errorBookEntryId))
         assertEquals(
             setOf(ASSET_ID, secondAssetId),
             detail.sourceAssets.map { it.sourceAsset.sourceAssetId }.toSet(),
@@ -391,10 +405,11 @@ class ProblemDraftDatabaseInstrumentedTest {
 
         val committed = store.commitProblemDraft(commitCommand())
 
-        assertEquals("legacy-problem", committed.receipt.problemId)
-        assertEquals("legacy-revision", committed.receipt.problemRevisionId)
-        assertEquals("legacy-practice", committed.receipt.practiceUnitId)
-        assertEquals("legacy-entry", committed.receipt.errorBookEntryId)
+        assertEquals("legacy-problem", committed.commit.receipt.problemId)
+        assertEquals("legacy-revision", committed.commit.receipt.problemRevisionId)
+        assertEquals("legacy-practice", committed.commit.receipt.practiceUnitId)
+        assertEquals("legacy-entry", committed.commit.receipt.errorBookEntryId)
+        assertTrue("既有题行命中：这一笔也是复用", committed.reusedExistingProblem)
         assertEquals(1, store.countMistakes())
         assertEquals(1, store.observeMistakes().first().single().captureOccurrenceCount)
     }
@@ -505,7 +520,7 @@ class ProblemDraftDatabaseInstrumentedTest {
 
             persistent = StudyDatabaseFactory.open(context, databaseName)
             assertEquals(StudyDbValue.ProblemDraftStatus.COMMITTED, persistent.readProblemDraft(DRAFT_ID)?.status)
-            assertEquals(before.receipt, persistent.commitProblemDraft(command).receipt)
+            assertEquals(before.commit.receipt, persistent.commitProblemDraft(command).commit.receipt)
             assertEquals(1, persistent.countMistakes())
             persistent.close()
         } finally {
@@ -568,7 +583,8 @@ class ProblemDraftDatabaseInstrumentedTest {
         val firstSave = store.commitTutorSession(
             CommitTutorSessionCommand("tutor-session-1", commitCommand()),
         )
-        assertTrue(firstSave.created)
+        assertTrue(firstSave.commit.created)
+        assertFalse("第一笔讲题保存是新建", firstSave.reusedExistingProblem)
         assertEquals(1, store.countMistakes())
         val secondSave = store.commitTutorSession(
             CommitTutorSessionCommand(
@@ -583,16 +599,20 @@ class ProblemDraftDatabaseInstrumentedTest {
                 ),
             ),
         )
-        assertFalse(secondSave.created)
-        assertEquals(firstSave.receipt, secondSave.receipt)
+        assertFalse(secondSave.commit.created)
+        assertTrue("重放没有写出新题行，同样是复用", secondSave.reusedExistingProblem)
+        assertEquals(firstSave.commit.receipt, secondSave.commit.receipt)
         assertEquals(1, store.countMistakes())
         val savedSession = checkNotNull(store.readTutorSession("tutor-session-1"))
-        assertEquals(firstSave.receipt.errorBookEntryId, savedSession.commitReceipt?.errorBookEntryId)
+        assertEquals(
+            firstSave.commit.receipt.errorBookEntryId,
+            savedSession.commitReceipt?.errorBookEntryId,
+        )
         val savedDetail = checkNotNull(
             store.readExactMistakeDetail(
-                entryId = firstSave.receipt.errorBookEntryId,
-                problemId = firstSave.receipt.problemId,
-                problemRevisionId = firstSave.receipt.problemRevisionId,
+                entryId = firstSave.commit.receipt.errorBookEntryId,
+                problemId = firstSave.commit.receipt.problemId,
+                problemRevisionId = firstSave.commit.receipt.problemRevisionId,
             ),
         )
         assertEquals("tutor-session-1", savedDetail.tutorSessionId)

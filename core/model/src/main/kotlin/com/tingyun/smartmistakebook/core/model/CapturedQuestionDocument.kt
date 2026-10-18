@@ -105,7 +105,13 @@ object CapturedQuestionDocumentValidator {
         }
 
         value.blockEvidence.forEach { evidence ->
-            if (evidence.sourceAssetId.isBlank()) {
+            // A8（用户转写合法化）：**用户自己敲进去的**题面没有源图，`source_asset_id` 空是
+            // 诚实的形态（不是"丢了一张图"）。**只按 provenance 放行**——OCR/模型/导入结构
+            // 的块仍然必须指向真实的源资产；用户**改正**（USER_CORRECTION）也不放行：
+            // 它改的是别人产出的块，那块本该带源图。
+            if (evidence.sourceAssetId.isBlank() && evidence.provenance !=
+                QuestionBlockProvenance.USER_TRANSCRIPTION
+            ) {
                 add(
                     CapturedQuestionIssue(
                         CapturedQuestionIssueCode.BLANK_SOURCE_ASSET_ID,
@@ -155,7 +161,12 @@ object CapturedQuestionDocumentValidator {
                 add(CapturedQuestionIssue(CapturedQuestionIssueCode.UNRESOLVED_BLOCK, it.blockId))
             }
         value.blockEvidence
-            .filter { it.sourceRegion == null }
+            // A8（用户转写合法化）：手敲的块没有"在照片里的位置"，缺区域是诚实的形态。
+            // **只按 provenance 放行**（同上：USER_CORRECTION 不放行——它改的是有源图的块）。
+            .filter {
+                it.sourceRegion == null &&
+                    it.provenance != QuestionBlockProvenance.USER_TRANSCRIPTION
+            }
             .forEach {
                 add(CapturedQuestionIssue(CapturedQuestionIssueCode.MISSING_SOURCE_REGION, it.blockId))
             }

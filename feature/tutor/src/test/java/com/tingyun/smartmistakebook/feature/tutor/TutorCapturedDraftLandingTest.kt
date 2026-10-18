@@ -326,6 +326,7 @@ private class RecordingCaptureRepository(
             practiceUnitId = "unit-1",
             errorBookEntryId = "entry-1",
             created = true,
+            reusedExistingProblem = false,
         )
     }
 

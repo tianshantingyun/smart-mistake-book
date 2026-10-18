@@ -20,7 +20,8 @@ import org.junit.Test
  * 同科目降权"和"难度档轮换"（与错题排程同一套机制）让会话交错。纯函数。
  *
  * 3E（2026-10-16 裁定）：范围扩为**两档**——今日队列 + 全库扫描（有绑定题 ∧ 材料可出题 ∧
- * 不在今日队列，每日 ≤ `FULL_LIBRARY_SCAN_DAILY_CAP` 个）。档内范围条件由
+ * 不在今日队列，**每次排计划** ≤ `FULL_LIBRARY_SCAN_DAILY_CAP` 个；KD-46：不是严格的每日
+ * 累计总量，队列不落库、同日重排可再选）。档内范围条件由
  * `fullLibraryScanCandidate` 落地（无绑定题/无材料 = 不在范围），名额与时间预算两道封顶
  * 由 `selectKnowledgeReviewQueue` 落地；本文件同时钉这两条。
  */
@@ -347,7 +348,8 @@ class KnowledgeReviewQueueTest {
         lastEvidenceAtEpochMillis = now,
     )
 
-    // ---- 3E 全库薄弱点扫描（第二档，2026-10-16 裁定「每日 10 个知识点」）----
+    // ---- 3E 全库薄弱点扫描（第二档，2026-10-16 裁定「每日 10 个知识点」；KD-46：
+    // 队列不落库，实际口径是每次排计划 ≤10、非严格每日累计）----
 
     @Test
     fun fullLibraryScanCandidateStaysOutOfScopeWithoutBoundQuestionsOrMaterial() {
@@ -446,7 +448,7 @@ class KnowledgeReviewQueueTest {
             fullLibraryScanCandidates = scanned,
         )
         assertEquals(
-            "第二档每日名额封顶必须生效（F17 配额）",
+            "第二档每次排计划的名额封顶必须生效（F17 配额；KD-46 口径）",
             FULL_LIBRARY_SCAN_DAILY_CAP,
             queue.size,
         )

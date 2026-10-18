@@ -53,18 +53,49 @@ class LibraryCatalogTest {
     private val catalog = LibraryCatalog(mistakes)
 
     @Test
-    fun userVisibleFacetsOnlyContainContentHierarchyAndMastery() {
+    fun userVisibleFacetsOnlyContainContentHierarchyMasteryAndFavorite() {
         // 阶段 4A 批 1 · L5：知识点筛选层随 L5 裁定删除（`docs/agent-first-refactor-decisions-2026-09-23.md:1066`），
         // 一层筛选 = 科目 → 板块；知识点标签仍随条目展示与全文搜索，只是不再是一层筛选。
+        // C11（v67）加的是**收藏**这一维：条目级私有标记，不是内容层级。
         assertEquals(
             listOf(
                 LibraryFacet.SUBJECT,
                 LibraryFacet.CHAPTER,
                 LibraryFacet.MASTERY,
+                LibraryFacet.FAVORITE,
             ),
             LibraryFacet.entries,
         )
-        assertEquals(listOf("科目", "板块", "掌握程度"), LibraryFacet.entries.map { it.label })
+        assertEquals(
+            listOf("科目", "板块", "掌握程度", "收藏"),
+            LibraryFacet.entries.map { it.label },
+        )
+    }
+
+    @Test
+    fun favoriteFacetKeepsOnlyBookmarkedMistakesAndOnlyWhenBookmarked() {
+        val bookmarked = mistakes.map { mistake ->
+            if (mistake.id == "geometry") mistake.copy(isFavorite = true) else mistake
+        }
+        val bookmarkedCatalog = LibraryCatalog(bookmarked)
+
+        assertEquals(
+            "选中收藏这一维：只剩被收藏的条目",
+            setOf("geometry"),
+            bookmarkedCatalog.filter(
+                query = "",
+                selections = LibrarySelections(favorite = LIBRARY_FAVORITE_OPTION_ID),
+            ).mapTo(mutableSetOf(), LibraryMistake::id),
+        )
+        assertTrue(
+            "没有收藏的条目时这一维没有选项（不假装有数据）",
+            catalog.optionsFor(LibraryFacet.FAVORITE, LibrarySelections()).isEmpty(),
+        )
+        assertEquals(
+            "有收藏时选项只有一个「已收藏」",
+            listOf(LIBRARY_FAVORITE_OPTION_ID),
+            bookmarkedCatalog.optionsFor(LibraryFacet.FAVORITE, LibrarySelections()).map { it.id },
+        )
     }
 
     @Test

@@ -24,6 +24,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionRetriever
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeDetailRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.mistake.MistakeOrganizationRepositoryFactory
@@ -67,6 +68,7 @@ import com.tingyun.smartmistakebook.core.domain.SleepJournalStore
 import com.tingyun.smartmistakebook.core.domain.StudyExperienceRepository
 import com.tingyun.smartmistakebook.core.domain.SplitImportRepository
 import com.tingyun.smartmistakebook.core.data.splitimport.SplitImportRepositoryFactory
+import com.tingyun.smartmistakebook.core.export.MistakeDocxExporter
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRunner
 import com.tingyun.smartmistakebook.core.export.MistakePdfExporter
@@ -302,6 +304,8 @@ class SmartMistakeBookApplication : Application() {
                         .first { it != MistakeDetailState.Loading }
                 },
                 renderPdf = mistakePdfExporter::prepare,
+                // 6B-1：Word 交付与 PDF 共用同一条读快照/判定/记录/通知管线，只有渲染器不同。
+                renderDocx = MistakeDocxExporter(this)::prepare,
             )
             val roomSplitImportRepository = SplitImportRepositoryFactory.createConcrete(database)
             splitImportRepository = roomSplitImportRepository
@@ -624,10 +628,13 @@ class SmartMistakeBookApplication : Application() {
      *
      * 4B 批 4：`START_EXPORT` 的导出 sheet 把学生改完的版式（[layout]）随任务交给 worker——
      * 版式是渲染与缓存键的一部分，不能只活在 sheet 的内存里。
+     *
+     * 6B-1：[format] 是学生在导出 sheet 里选定的交付格式（缺省 PDF = 既有入口不变）。
      */
     fun startMistakeExportBatch(
         entryIds: List<String>,
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+        format: MistakeExportFormat = MistakeExportFormat.PDF,
     ) {
         val distinct = entryIds.distinct()
         if (distinct.isEmpty()) return
@@ -636,6 +643,7 @@ class SmartMistakeBookApplication : Application() {
                 exportId = newMistakeExportId(),
                 entryIds = distinct,
                 layout = layout,
+                format = format,
             ),
             kind = MistakeExportKind.BATCH,
         )

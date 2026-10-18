@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.TutorSessionProblemAnchorRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
+import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlement
@@ -34,7 +35,8 @@ import org.junit.Test
  *
  * 判定合成顺序：本轮有本地核对的检查题作答 → 本地判定即判定（一条答错即判错，模型
  * 口头说对不作数）；没有检查题 → 取最近一条通过门控、且**锚定在本题 KC 集**上的模型判词
- * （AUD-11 ①）；两样都没有 → 不写不推进。
+ * （AUD-11 ①）；**空 KC 集（诚实未分类）题的锚定集改取该题 revision 的伪绑定**（KD-44，
+ * 判词不再被永久丢弃）；两样都没有 → 不写不推进。
  * 定价非独立、题目级只落 HARD/AGAIN，依据 `docs/research/model-judged-verdict-pricing.md`。
  */
 class TutorJudgedReviewSettlerTest {
@@ -214,9 +216,9 @@ class TutorJudgedReviewSettlerTest {
     }
 
     @Test
-    fun aQuestionWithoutKnowledgeNodesCanNeverAnchorAVerdict() = runBlocking {
-        // 诚实未分类的题（KC 集为空）：每条证据都在题面 KC 集之外 → 恒 NO_VERDICT。
-        // 这正是"锚定"的代价：宁可不判，也不把跨粒度的证据记成这次做对。
+    fun aRealNodeEvidenceDoesNotAnchorAnUnclassifiedQuestion() = runBlocking {
+        // KC 集为空的题（诚实未分类）：锚定集是**本科未分类桶**（KD-44），所以锚定在别的真实节点
+        // 上的证据仍不构成判词——"宁可不判，也不把跨粒度的证据记成这次做对"这条口径没变。
         val database = seededDatabase(knowledgeNodeIds = emptySet())
         database.recordedChatEvidence += modelVerdict(direction = "POSITIVE")
 
@@ -227,9 +229,146 @@ class TutorJudgedReviewSettlerTest {
     }
 
     @Test
+    fun anUnclassifiedQuestionSettlesItsPseudoAnchoredVerdict() = runBlocking {
+        // KD-44（2026-10-17 裁定：后台自动解决、零用户参与）：诚实未分类的题在可见 KC 目录里读不到
+        // 自己那条伪绑定（`ProblemDao` 的 KC 集要求 KNOWLEDGE 分类行）→ 锚定集此前恒为空 → 讲题判词
+        // 被整条丢弃 → 复习项**永久阻塞**（学生答过、模型也判过，队列就是不动）。
+        // 现在锚定集取该题 revision 的伪绑定：判词照常结算到 pseudo:<科目>、归属指向那条伪绑定行、
+        // 队列照常推进。
+        val database = seededDatabase(knowledgeNodeIds = emptySet())
+        database.recordedChatEvidence += modelVerdict(
+            direction = "POSITIVE",
+            nodeId = PSEUDO_KNOWLEDGE_NODE_ID,
+        )
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        assertTrue(requireNotNull(result.isCorrect))
+        assertEquals(1, database.attemptCount)
+        // 归属落账 = 那条**伪绑定行**：节点是本科未分类桶、taxonomy 随该行（写入口按五元组核对真行）。
+        val snapshot = requireNotNull(database.lastEvidenceSnapshot)
+        val attribution = snapshot.attributions.single()
+        assertEquals(PSEUDO_BINDING_ID, attribution.bindingId)
+        assertEquals(PSEUDO_KNOWLEDGE_NODE_ID, attribution.knowledgeNodeId)
+        assertEquals("captured-revision", attribution.basisRevisionId)
+        assertEquals(
+            StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION,
+            attribution.taxonomyVersion,
+        )
+        assertEquals(
+            "快照 taxonomy 必须与归属逐字一致（DatabaseContractValidator）",
+            attribution.taxonomyVersion,
+            snapshot.taxonomyVersion,
+        )
+        // 物化与写路径/重放逐条同规则（taxonomy 同常量、revision 取本题、科目取 problem.subject、
+        // 时间取 revision 创建时刻）——"复用既有物化先例"的断言面。
+        val materialized = database.materializedPseudoBindings.single {
+            it.taxonomyVersion == StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION
+        }
+        assertEquals(PSEUDO_BINDING_ID, materialized.bindingId)
+        assertEquals("captured-revision", materialized.basisRevisionId)
+        assertEquals(
+            "时间取 revision 创建时刻（确定性 ⇒ 重放幂等）",
+            1_000L,
+            materialized.acceptedAtEpochMillis,
+        )
+        // 队列推进：这一项是队列里唯一一项，结算后会话完成、没有下一项。
+        assertEquals(1, result.progress.currentOrdinal)
+        assertEquals(StudyReviewSessionStatus.COMPLETED, result.progress.status)
+        assertNull(result.nextPracticeUnitId)
+        // 判词仍按来源落档：模型判词保持拟合排除（不因落进伪桶而改档）。
+        assertEquals(
+            ReviewLogSink.SOURCE_KIND_MODEL_JUDGED,
+            database.reviewLogEntries.single().sourceKind,
+        )
+    }
+
+    @Test
+    fun anAlreadyMaterializedPseudoBindingIsUsedInPlace() = runBlocking {
+        // KD-44 的另一半（"已物化则直接取"）：题已被别的路径物化过伪绑定（这里模拟规划侧
+        // `pseudo-plan-v1` 那一行），且它按**回执口径**读不到（`readCurrentBindingsForPracticeUnit`
+        // 只认"最近一次确认那一批"）→ 结算直接复用该行、不再另物化，归属的 taxonomy 随它。
+        val database = seededDatabase(knowledgeNodeIds = emptySet())
+        database.hidePseudoRowsFromCurrentBindings = true
+        database.addPracticeUnitKnowledgeBinding(
+            PracticeUnitKnowledgeBindingRecord(
+                bindingId = PSEUDO_PLAN_BINDING_ID,
+                practiceUnitId = PRACTICE_UNIT_ID,
+                knowledgeNodeId = PSEUDO_KNOWLEDGE_NODE_ID,
+                basisRevisionId = "captured-revision",
+                taxonomyVersion = PSEUDO_PLAN_TAXONOMY_VERSION,
+                acceptedAtEpochMillis = 2_000,
+            ),
+        )
+        database.recordedChatEvidence += modelVerdict(
+            direction = "NEGATIVE",
+            nodeId = PSEUDO_KNOWLEDGE_NODE_ID,
+        )
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        assertFalse(requireNotNull(result.isCorrect))
+        val attribution = requireNotNull(database.lastEvidenceSnapshot).attributions.single()
+        assertEquals(PSEUDO_PLAN_BINDING_ID, attribution.bindingId)
+        assertEquals(PSEUDO_PLAN_TAXONOMY_VERSION, attribution.taxonomyVersion)
+        assertTrue(
+            "已物化 → 不再另物化一行（settler 侧的 pseudo-evidence-v1 调用不该发生）",
+            database.materializedPseudoBindings.none {
+                it.taxonomyVersion == StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION
+            },
+        )
+    }
+
+    @Test
+    fun anUnclassifiedQuestionWithoutAnyVerdictIsStillBlocked() = runBlocking {
+        // "真·无判词"仍保持阻塞（KD-44 只补"有判词被丢弃"这一档）：这次讲题既没有本地核对的检查题
+        // 作答、也没有通过门控的模型判词 → 不写、不推进，也不为它物化伪绑定。
+        val database = seededDatabase(knowledgeNodeIds = emptySet())
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
+        assertNull(result.isCorrect)
+        assertEquals(0, database.attemptCount)
+        assertTrue(database.reviewLogEntries.isEmpty())
+        assertNull(database.lastEvidenceSnapshot)
+        assertEquals(0, result.progress.currentOrdinal)
+        assertEquals(PRACTICE_UNIT_ID, result.nextPracticeUnitId)
+        assertTrue(
+            "真·无判词 → 结算自己不物化伪绑定（计划期那条 pseudo-plan-v1 是另一条路径，不在本断言面内）",
+            database.materializedPseudoBindings.none {
+                it.taxonomyVersion == StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION
+            },
+        )
+    }
+
+    @Test
+    fun anUnclassifiedQuestionStaysBlockedWhenThePseudoBindingCannotBeMaterialized() = runBlocking {
+        // 空 KC 集题的判词仍可能"锚定不可核实"：伪绑定物化被拒（端口返回 null）时不伪造归属、
+        // 不推进——与既有的"锚定证据找不到绑定行"同一条出口（宁可阻塞，不猜一条挂上）。
+        val database = seededDatabase(knowledgeNodeIds = emptySet())
+        database.pseudoKnowledgeBindingEnabled = false
+        database.recordedChatEvidence += modelVerdict(
+            direction = "POSITIVE",
+            nodeId = PSEUDO_KNOWLEDGE_NODE_ID,
+        )
+
+        val result = settle(database)
+
+        assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
+        assertEquals(0, database.attemptCount)
+        assertNull(database.lastEvidenceSnapshot)
+        assertTrue(database.reviewLogEntries.isEmpty())
+    }
+
+    @Test
     fun anAnchoredVerdictWithoutAMatchingBindingStaysBlocked() = runBlocking {
         // 锚定由题面 KC 集与库内现役绑定共同核实：KC 集里有节点、但库里没有该 revision 的绑定行
         // （异常态）→ 不伪造归属、不推进（与"没有锚定证据"同一条出口）。
+        // KD-44 的伪绑定兜底**不适用于这一档**：KC 集非空 = 题已被归类，没有"空 KC 集"这个前提，
+        // 所以不会拿本科未分类桶去顶替一条对不上的真实绑定。
         val database = seededDatabase(bindingRevisionId = "some-other-revision")
         database.recordedChatEvidence += modelVerdict(direction = "POSITIVE")
 
@@ -238,6 +377,12 @@ class TutorJudgedReviewSettlerTest {
         assertEquals(TutorJudgedReviewSettlementStatus.NO_VERDICT, result.status)
         assertEquals(0, database.attemptCount)
         assertNull(database.lastEvidenceSnapshot)
+        assertTrue(
+            "KC 集非空的题不走伪绑定兜底",
+            database.materializedPseudoBindings.none {
+                it.taxonomyVersion == StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION
+            },
+        )
     }
 
     @Test
@@ -449,13 +594,14 @@ class TutorJudgedReviewSettlerTest {
     /**
      * 这道保存题：KC 集默认带一个知识点（AUD-11 ① 的锚定门按 `MistakeRecord.knowledgeNodeIds`
      * 判定），并给该节点播一条 `captured-revision` 上的现役绑定——归属落账必须是这条真实绑定行
-     * （写入口按五元组核对）。`knowledgeNodeIds = emptySet()` 用来构造"诚实未分类"的题。
+     * （写入口按五元组核对）。`knowledgeNodeIds = emptySet()` 用来构造"诚实未分类"的题（KD-44：
+     * 锚定集改取该题 revision 的伪绑定，伪锚定的输入行见 [PseudoAnchorFakeDatabase.assessment]）。
      */
     private fun seededDatabase(
         knowledgeNodeIds: Set<String> = setOf(QUESTION_KNOWLEDGE_NODE_ID),
         bindingRevisionId: String = "captured-revision",
-    ): FakeStudyDatabasePort {
-        val database = FakeStudyDatabasePort()
+    ): PseudoAnchorFakeDatabase {
+        val database = PseudoAnchorFakeDatabase()
         database.addMistake(
             MistakeRecord(
                 entryId = "captured-entry",
@@ -472,6 +618,24 @@ class TutorJudgedReviewSettlerTest {
                 retrievability = null,
                 knowledgeNodeIds = knowledgeNodeIds,
             ),
+        )
+        // KD-44：伪锚定物化的输入行（真库由 practice_unit + problem + problem_revision 联表给出：
+        // 科目 + 该 revision 的创建时刻；与写路径 `StudyPracticeUnitFacts`、重放
+        // `StudyProjectionDrainer` 读的是同一行）。
+        database.assessment = PracticeUnitAssessmentRecord(
+            practiceUnitId = PRACTICE_UNIT_ID,
+            problemId = "captured-problem",
+            problemRevisionId = "captured-revision",
+            subject = "MATH",
+            unitTitle = "函数原题",
+            promptMarkdown = "求函数的单调区间。",
+            questionDocumentSnapshot = null,
+            answerSpecId = null,
+            answerSpecSnapshot = null,
+            answerVerificationStatus = "UNKNOWN",
+            sourceType = "CAPTURE",
+            sourceReference = null,
+            revisionCreatedAtEpochMillis = 1_000,
         )
         database.addPracticeUnitKnowledgeBinding(
             PracticeUnitKnowledgeBindingRecord(
@@ -619,5 +783,73 @@ class TutorJudgedReviewSettlerTest {
 
         /** 分类确认写进绑定行的 taxonomy（`RoomMistakeOrganizationRepository` 的 `local-policy-v1`）。 */
         const val BINDING_TAXONOMY_VERSION = "local-policy-v1"
+
+        /** KD-44：本科未分类桶的节点 id（`ensurePseudoKnowledgeNode` 的 `pseudo:<科目>` 约定）。 */
+        const val PSEUDO_KNOWLEDGE_NODE_ID = "pseudo:MATH"
+
+        /** 证据侧伪绑定的 id 形状（`RoomKnowledgeBaseStore.ensurePseudoKnowledgeBinding`）。 */
+        const val PSEUDO_BINDING_ID =
+            "pseudo-binding:$PRACTICE_UNIT_ID:captured-revision:pseudo-evidence-v1:$PSEUDO_KNOWLEDGE_NODE_ID"
+
+        /** 规划侧伪绑定（`StudyReviewPlannerService`）——与证据侧 taxonomy 不同、行不同、节点同。 */
+        const val PSEUDO_PLAN_TAXONOMY_VERSION = "pseudo-plan-v1"
+        const val PSEUDO_PLAN_BINDING_ID =
+            "pseudo-binding:$PRACTICE_UNIT_ID:captured-revision:pseudo-plan-v1:$PSEUDO_KNOWLEDGE_NODE_ID"
+    }
+}
+
+/**
+ * KD-44：在既有 [FakeStudyDatabasePort] 上补齐三件真库有、假库默认没有的东西——
+ * ① **题目评估记录**（伪锚定物化的科目 / revision 创建时刻来源；真库是 `practice_unit` +
+ * `problem` + `problem_revision` 联表的一行，与写路径 `StudyPracticeUnitFacts`、重放
+ * `StudyProjectionDrainer` 读的是同一个读口）；
+ * ② **物化返回值留痕**（"已物化则直接取 / 未物化则复用既有物化先例"的断言面）；
+ * ③ **"当前绑定"的回执口径**（[hidePseudoRowsFromCurrentBindings]）：真库里题一旦被确认过
+ * （哪怕确认出的绑定集为空），此前物化的伪绑定行就不在"最近一次确认那一批"里
+ * （`readCurrentBindingsForPracticeUnit`）——归属必须靠调用方显式带上那条伪绑定候选。
+ *
+ * 不动共享 fake：这三件都是本用例独有的夹具需求（先例：`BindingChangedReplayDrainerTest` 的
+ * `LedgerAwareFakeDatabase` 同样就地补 `readPracticeUnitAssessment`）。
+ */
+private class PseudoAnchorFakeDatabase : FakeStudyDatabasePort() {
+    var assessment: PracticeUnitAssessmentRecord? = null
+    var hidePseudoRowsFromCurrentBindings: Boolean = false
+    val materializedPseudoBindings = mutableListOf<PracticeUnitKnowledgeBindingRecord>()
+
+    override suspend fun readPracticeUnitAssessment(
+        practiceUnitId: String,
+    ): PracticeUnitAssessmentRecord? =
+        assessment?.takeIf { record -> record.practiceUnitId == practiceUnitId }
+
+    override suspend fun ensurePseudoKnowledgeBinding(
+        practiceUnitId: String,
+        problemRevisionId: String,
+        taxonomyVersion: String,
+        subject: String,
+        acceptedAtEpochMillis: Long,
+    ): PracticeUnitKnowledgeBindingRecord? =
+        super.ensurePseudoKnowledgeBinding(
+            practiceUnitId = practiceUnitId,
+            problemRevisionId = problemRevisionId,
+            taxonomyVersion = taxonomyVersion,
+            subject = subject,
+            acceptedAtEpochMillis = acceptedAtEpochMillis,
+        )?.also { record -> materializedPseudoBindings += record }
+
+    /**
+     * 假库的"当前绑定"默认就是全部行（端口默认实现转发 [readPracticeUnitKnowledgeBindings]）；
+     * 打开开关后按真库口径把伪绑定行挡在外面。
+     */
+    override suspend fun readCurrentPracticeUnitKnowledgeBindings(
+        practiceUnitId: String,
+    ): List<PracticeUnitKnowledgeBindingRecord> =
+        super.readPracticeUnitKnowledgeBindings(practiceUnitId)
+            .filter { binding ->
+                !hidePseudoRowsFromCurrentBindings ||
+                    !binding.knowledgeNodeId.startsWith(PSEUDO_NODE_ID_PREFIX)
+            }
+
+    private companion object {
+        const val PSEUDO_NODE_ID_PREFIX = "pseudo:"
     }
 }

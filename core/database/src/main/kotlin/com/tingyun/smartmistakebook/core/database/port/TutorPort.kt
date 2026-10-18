@@ -1,6 +1,6 @@
 package com.tingyun.smartmistakebook.core.database.port
 
-import com.tingyun.smartmistakebook.core.database.CommitProblemDraftResult
+import com.tingyun.smartmistakebook.core.database.ProblemDraftCommitOutcome
 import com.tingyun.smartmistakebook.core.database.CommitTutorSessionCommand
 import com.tingyun.smartmistakebook.core.database.ConfirmTutorSessionCommand
 import com.tingyun.smartmistakebook.core.database.ConfirmTutorSessionFromWorkspaceCommand
@@ -114,9 +114,13 @@ interface TutorSessionPort {
 
     suspend fun readTutorSession(sessionId: String): TutorSessionRecord?
 
+    /**
+     * 讲题会话「保存到错题本」。B5：回执里一并交回「这次提交有没有复用既有的题行」
+     * （口径见 [com.tingyun.smartmistakebook.core.database.ProblemDraftCommitOutcome]）。
+     */
     suspend fun commitTutorSession(
         command: CommitTutorSessionCommand,
-    ): CommitProblemDraftResult
+    ): ProblemDraftCommitOutcome
 
     suspend fun endTutorSession(
         command: EndTutorSessionCommand,

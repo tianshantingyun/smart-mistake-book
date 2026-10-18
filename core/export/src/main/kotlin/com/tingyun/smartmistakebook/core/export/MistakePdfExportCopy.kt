@@ -1,26 +1,38 @@
 package com.tingyun.smartmistakebook.core.export
 
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
+
 /*
  * 导出面向学生的文案与文件名（阶段 4A 批 4 从 feature/library 的导出页迁来）。
  *
  * 迁到 core:export 的原因：同一批文案现在有两个消费者——后台 worker（把失败原因写进导出
  * 记录 / 通知）与「导出成果」入口（显示记录）。放在 UI 模块里，worker 就得在 app 层重抄
  * 一份，两边迟早说不一样的话。
+ *
+ * 6B-1：文件名与失败文案按交付格式（PDF/Word）分叉——扩展名同时是记录行唯一的持久格式
+ * 标记（零 schema），失败文案里的"PDF/A4"不能套在 Word 文件上。
  */
 
-/** 单题导出的文件名：去掉不安全路径字符，钉住版次。 */
-fun exportDisplayName(title: String, revisionNumber: Int): String {
+/** 单题导出的文件名：去掉不安全路径字符，钉住版次与交付格式。 */
+fun exportDisplayName(
+    title: String,
+    revisionNumber: Int,
+    format: MistakeExportFormat = MistakeExportFormat.PDF,
+): String {
     val safeTitle = title
         .replace(Regex("[\\\\/:*?\"<>|\\p{Cc}]"), " ")
         .replace(Regex("\\s+"), " ")
         .trim()
         .take(48)
         .ifBlank { "未命名错题" }
-    return "错题-$safeTitle-第${revisionNumber}版.pdf"
+    return "错题-$safeTitle-第${revisionNumber}版.${format.fileExtension}"
 }
 
 /** 批量导出的文件名：纳入题数在快照确定后才写进名字。 */
-fun batchExportDisplayName(includedCount: Int): String = "错题练习-${includedCount}道.pdf"
+fun batchExportDisplayName(
+    includedCount: Int,
+    format: MistakeExportFormat = MistakeExportFormat.PDF,
+): String = "错题练习-${includedCount}道.${format.fileExtension}"
 
 /**
  * 单题不可导出的学生可读原因。
@@ -45,15 +57,29 @@ fun exportBlockedMessage(reasons: Set<MistakePdfIneligibility>): String = when {
     else -> "这版题面还没有准备好，请稍后重新导出。"
 }
 
-/** 单题渲染失败的学生可读原因。 */
-fun exportFailureMessage(failure: MistakePdfExportFailure): String = when (failure) {
-    MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
-    MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
-    -> "这道题的内容超出了单题 A4 导出的范围，题目仍会原样保留。"
-    MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
-    MistakePdfExportFailure.GENERATED_PDF_INVALID,
-    MistakePdfExportFailure.FILE_PUBLISH_FAILED,
-    -> "这次没有整理出完整的 A4 文件，请稍后重新导出。"
+/** 单题渲染失败的学生可读原因（按交付格式说对文件名与版式）。 */
+fun exportFailureMessage(
+    failure: MistakePdfExportFailure,
+    format: MistakeExportFormat = MistakeExportFormat.PDF,
+): String = when (format) {
+    MistakeExportFormat.PDF -> when (failure) {
+        MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
+        MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
+        -> "这道题的内容超出了单题 A4 导出的范围，题目仍会原样保留。"
+        MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
+        MistakePdfExportFailure.GENERATED_PDF_INVALID,
+        MistakePdfExportFailure.FILE_PUBLISH_FAILED,
+        -> "这次没有整理出完整的 A4 文件，请稍后重新导出。"
+    }
+    MistakeExportFormat.DOCX -> when (failure) {
+        MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
+        MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
+        -> "这道题的内容超出了单题 Word 文档的范围，题目仍会原样保留。"
+        MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
+        MistakePdfExportFailure.GENERATED_PDF_INVALID,
+        MistakePdfExportFailure.FILE_PUBLISH_FAILED,
+        -> "这次没有整理出完整的 Word 文档，请稍后重新导出。"
+    }
 }
 
 /** 批量不可导出的学生可读原因。 */
@@ -65,13 +91,27 @@ fun batchBlockedMessage(reason: MistakePdfBatchIneligibility): String = when (re
         "当前这些题的题面还没有整理完整，暂时不能生成练习文件。"
 }
 
-/** 批量渲染失败的学生可读原因。 */
-fun batchExportFailureMessage(failure: MistakePdfExportFailure): String = when (failure) {
-    MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
-    MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
-    -> "当前结果的页数较多。缩小筛选范围后再导出，错题内容不会改变。"
-    MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
-    MistakePdfExportFailure.GENERATED_PDF_INVALID,
-    MistakePdfExportFailure.FILE_PUBLISH_FAILED,
-    -> "这次没有整理出完整的 A4 文件，请稍后重新导出。"
+/** 批量渲染失败的学生可读原因（按交付格式说对文件名与版式）。 */
+fun batchExportFailureMessage(
+    failure: MistakePdfExportFailure,
+    format: MistakeExportFormat = MistakeExportFormat.PDF,
+): String = when (format) {
+    MistakeExportFormat.PDF -> when (failure) {
+        MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
+        MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
+        -> "当前结果的页数较多。缩小筛选范围后再导出，错题内容不会改变。"
+        MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
+        MistakePdfExportFailure.GENERATED_PDF_INVALID,
+        MistakePdfExportFailure.FILE_PUBLISH_FAILED,
+        -> "这次没有整理出完整的 A4 文件，请稍后重新导出。"
+    }
+    MistakeExportFormat.DOCX -> when (failure) {
+        MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
+        MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
+        -> "当前结果的内容较多。缩小筛选范围后再导出，错题内容不会改变。"
+        MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
+        MistakePdfExportFailure.GENERATED_PDF_INVALID,
+        MistakePdfExportFailure.FILE_PUBLISH_FAILED,
+        -> "这次没有整理出完整的 Word 文档，请稍后重新导出。"
+    }
 }

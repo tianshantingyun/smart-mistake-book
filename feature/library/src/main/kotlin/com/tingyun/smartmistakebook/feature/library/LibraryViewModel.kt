@@ -31,6 +31,7 @@ internal class LibraryViewModel(
 ) : ViewModel() {
     private var catalog = LibraryCatalog(emptyList())
     private var catalogRepository: LibraryCatalogRepository? = null
+    private var favoriteWriter: LibraryFavoriteWriter? = null
     private var metadataJob: Job? = null
     private val repositoryFlow = MutableStateFlow<LibraryCatalogRepository?>(null)
 
@@ -39,6 +40,7 @@ internal class LibraryViewModel(
         subject = restoredSelection(LibraryFacet.SUBJECT),
         chapter = restoredSelection(LibraryFacet.CHAPTER),
         mastery = restoredSelection(LibraryFacet.MASTERY),
+        favorite = restoredSelection(LibraryFacet.FAVORITE),
     )
     private var sort = savedStateHandle.get<String>(SORT_KEY)
         ?.let { stored -> LibrarySort.entries.firstOrNull { it.name == stored } }
@@ -59,6 +61,7 @@ internal class LibraryViewModel(
             createdFromEpochMillis = createdFromEpochMillis,
             createdToEpochMillis = createdToEpochMillis,
             sort = sort,
+            favoriteOnly = initialSelections.favorite != null,
         ),
     )
 
@@ -123,6 +126,52 @@ internal class LibraryViewModel(
         refreshFromRepository()
     }
 
+    /**
+     * C11：绑定收藏开关的写端口（错题本栏复用详情仓储的行级更新——与详情页同一个
+     * `error_book_entry.is_favorite` 事实源）。没绑定时开关**不写**（预览/替身路径），
+     * 界面据此把开关置灰（不假装写入成功）。
+     */
+    fun bindFavoriteWriter(writer: LibraryFavoriteWriter?) {
+        favoriteWriter = writer
+    }
+
+    fun toggleFavorite(entryId: String, isFavorite: Boolean) {
+        if (entryId.isBlank()) return
+        val writer = favoriteWriter
+        if (writer == null) {
+            uiState = uiState.copy(favoriteNotice = FAVORITE_UNAVAILABLE_NOTICE)
+            return
+        }
+        viewModelScope.launch {
+            val written = try {
+                writer.write(entryId, isFavorite)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                false
+            }
+            if (!written) {
+                uiState = uiState.copy(favoriteNotice = FAVORITE_WRITE_FAILED_NOTICE)
+                return@launch
+            }
+            uiState = uiState.copy(favoriteNotice = null)
+            if (catalogRepository == null) {
+                // 非分页替身路径没有查询链可刷新：本地回声保持一致（分页路径靠 Room 的
+                // 失效追踪自动重查，不在这里手改可见行）。
+                catalog = catalog.withFavorite(entryId, isFavorite)
+                uiState = deriveUiState(
+                    query = uiState.query,
+                    activeFacet = uiState.activeFacet,
+                    selections = uiState.selections,
+                ).copy(favoriteNotice = null)
+            }
+        }
+    }
+
+    fun consumeFavoriteNotice() {
+        if (uiState.favoriteNotice != null) uiState = uiState.copy(favoriteNotice = null)
+    }
+
     fun updateQuery(value: String) {
         if (value == uiState.query) return
         savedStateHandle[QUERY_KEY] = value
@@ -164,6 +213,7 @@ internal class LibraryViewModel(
             )
             LibraryFacet.CHAPTER -> uiState.selections.copy(chapter = nextSelection)
             LibraryFacet.MASTERY -> uiState.selections.copy(mastery = nextSelection)
+            LibraryFacet.FAVORITE -> uiState.selections.copy(favorite = nextSelection)
         }
         persistSelections(nextSelections)
         if (catalogRepository != null) {
@@ -263,6 +313,7 @@ internal class LibraryViewModel(
         createdFromEpochMillis = createdFromEpochMillis,
         createdToEpochMillis = createdToEpochMillis,
         sort = sort,
+        favoriteOnly = uiState.selections.favorite != null,
     )
 
     private fun refreshFromRepository() {
@@ -285,6 +336,10 @@ internal class LibraryViewModel(
                 LibraryFacet.MASTERY -> repository.facets(
                     domainQuery,
                     DomainLibraryFacetKind.MASTERY,
+                )
+                LibraryFacet.FAVORITE -> repository.facets(
+                    domainQuery,
+                    DomainLibraryFacetKind.FAVORITE,
                 )
             }.map { facet -> LibraryFacetOption(facet.id, facet.label, facet.count) }
             ensureActive()
@@ -357,7 +412,14 @@ internal class LibraryViewModel(
         const val SORT_KEY = "library_sort"
         const val TIME_RANGE_KEY = "library_time_range"
         const val PAGE_SIZE = 30
+        const val FAVORITE_WRITE_FAILED_NOTICE = "收藏没有保存成功，请重试。"
+        const val FAVORITE_UNAVAILABLE_NOTICE = "当前入口不支持收藏。"
 
         fun selectionKey(facet: LibraryFacet): String = "library_filter_${facet.id}"
     }
+}
+
+/** C11：收藏开关的写端口（错题本栏不直接依赖详情仓储，只依赖这一个动作）。 */
+internal fun interface LibraryFavoriteWriter {
+    suspend fun write(entryId: String, isFavorite: Boolean): Boolean
 }

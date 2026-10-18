@@ -294,8 +294,13 @@ internal data class PendingCaptureIndexRow(
 internal data class PendingCaptureHeadRow(
     @ColumnInfo(name = "draft_id")
     val draftId: String,
+    /**
+     * v67 起 `problem_draft.source_asset_id` 可空（A8 手动建题的草稿没有照片）。
+     * 空源草稿的读取分支要连同**创建入口**一起落地；在那之前这里是可空读值，
+     * 消费方对 NULL 一律 fail-closed（不许把"没有源图"读成"有一张图"）。
+     */
     @ColumnInfo(name = "primary_source_asset_id")
-    val primarySourceAssetId: String,
+    val primarySourceAssetId: String?,
     @ColumnInfo(name = "draft_origin")
     val draftOrigin: String,
     @ColumnInfo(name = "draft_status")

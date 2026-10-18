@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.AssessmentItemSnapshotSeedReco
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -45,6 +46,49 @@ class KnowledgeQuizEvidenceAuditTest {
         assertEquals("knowledge-quiz-item.v1", item.answerSpecSchema)
         assertEquals("B", item.item?.correctChoiceId)
         assertEquals(listOf("A", "B"), item.item?.choices?.map { it.id })
+    }
+
+    @Test
+    fun `public audit rows keep linked unreadable and unmatched states apart`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val linkedSession = 1_700_000_000_001L
+        val brokenSession = 1_700_000_000_002L
+        database.assessmentItemSnapshots[snapshotId(linkedSession)] = snapshot(linkedSession)
+        database.assessmentItemSnapshots[snapshotId(brokenSession)] = snapshot(
+            sessionId = brokenSession,
+            itemRevision = 4,
+            answerSpecSchema = "knowledge-quiz-item.v99",
+        )
+        database.recordedChatEvidence += quizRow(
+            evidenceId = "knowledge-quiz:req-linked:$nodeId",
+            conversationId = "knowledge-quiz-review:$linkedSession",
+        )
+        database.recordedChatEvidence += quizRow(
+            evidenceId = "knowledge-quiz:req-broken:$nodeId",
+            conversationId = "knowledge-quiz-review:$brokenSession",
+        )
+        database.recordedChatEvidence += quizRow(
+            evidenceId = "knowledge-quiz:req-unmatched:$nodeId",
+            conversationId = "knowledge-quiz-review",
+        )
+
+        // KD-48 的公开只读口（debug/审计面消费）：三种状态必须仍然彼此可分。
+        val rows = audit(database).scanRows().associateBy { it.evidenceId }
+
+        val linked = checkNotNull(rows["knowledge-quiz:req-linked:$nodeId"])
+        assertEquals(snapshotId(linkedSession), linked.itemSnapshotId)
+        assertFalse(linked.itemUnreadable)
+        assertEquals(linkedSession, linked.sessionId)
+        assertEquals("req-linked", linked.requestId)
+
+        val broken = checkNotNull(rows["knowledge-quiz:req-broken:$nodeId"])
+        assertEquals("坏行仍要报得出题面行 id", snapshotId(brokenSession), broken.itemSnapshotId)
+        assertTrue("行在但题面读不回", broken.itemUnreadable)
+
+        val unmatched = checkNotNull(rows["knowledge-quiz:req-unmatched:$nodeId"])
+        assertNull(unmatched.sessionId)
+        assertNull(unmatched.itemSnapshotId)
+        assertFalse("没有题面行不等于坏行", unmatched.itemUnreadable)
     }
 
     @Test

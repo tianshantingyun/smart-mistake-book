@@ -12,7 +12,9 @@ package com.tingyun.smartmistakebook.core.domain
  * `docs/research/model-judged-verdict-pricing.md`。
  *
  * 模型判词还必须**锚定在本题 KC 集**上（AUD-11 ①，2026-10-16 裁定）：只有前置/无关节点
- * 证据时不判、不写、不推进（`NO_VERDICT`）。锚定成立时，驱动证据会落成 attempt 快照的一条
+ * 证据时不判、不写、不推进（`NO_VERDICT`）。**空 KC 集**（诚实未分类的题）的锚定集取该题
+ * revision 的伪绑定节点 `pseudo:<科目>`（KD-44，2026-10-17 裁定：后台自动解决、零用户参与）
+ * ——这类题的判词此前被整条丢弃、复习项永久阻塞；锚定成立时，驱动证据会落成 attempt 快照的一条
  * 归属（节点 + 该题该 revision 的现役绑定）；本地核对分支（检查题作答）无 chat-evidence
  * 驱动，归属为空。投影后果见 `TutorJudgedReviewSettler` 的类 KDoc。
  */

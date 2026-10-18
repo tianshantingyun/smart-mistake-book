@@ -543,7 +543,8 @@ internal class StudyReviewPlannerService(
         // 第二档 = 全库「有绑定题的活跃知识点 ∩ 材料可出题」− 今日队列（范围条件在
         // `fullLibraryScanCandidate`），先按分取前 FULL_LIBRARY_SCAN_DAILY_CAP 个，再与第一档
         // 并集，在 reviewTimeBudgetSeconds 内取队 —— 名额（F17 配额）+ 时间（F8 预算）双封顶
-        // （2026-10-16 裁定「第二档 = 每日 10 个知识点，时间预算沿用 20 分钟」）。
+        // （2026-10-16 裁定「第二档 = 每日 10 个知识点，时间预算沿用 20 分钟」；KD-46：队列不
+        // 落库，实际口径是每次排计划 ≤10、非严格每日累计）。
         //
         // 今日队列**为空不再是短路条件**：第二档存在的意义就是"不受今日队列限制"
         // （`docs/research/2026-10-11-new-stages-spec.md` §3E、主线 3E 行）。今日没有到期的错题
@@ -648,7 +649,8 @@ internal class StudyReviewPlannerService(
             fullLibraryScanDailyCap = FULL_LIBRARY_SCAN_DAILY_CAP,
         )
         if (selected.isEmpty()) return KnowledgeReviewSessionPlan()
-        // 会话条目只需要**入选**节点的名字与科目：今日档已解析，扫描档在这里补解析（≤ 每日名额），
+        // 会话条目只需要**入选**节点的名字与科目：今日档已解析，扫描档在这里补解析
+        // （≤ 每次排计划的名额，KD-46），
         // 不把全库节点拖进上下文解析（那是 O(库规模) 的读）。
         val selectedIds = selected.mapTo(linkedSetOf()) { it.knowledgeNodeId }
         val scannedSubjectByNode = scanCandidates

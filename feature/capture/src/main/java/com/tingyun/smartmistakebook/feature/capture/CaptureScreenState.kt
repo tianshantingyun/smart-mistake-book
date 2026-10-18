@@ -44,6 +44,12 @@ internal class CaptureScreenState {
     var draftRevisionNumber: Int? by mutableStateOf(null)
     var canonicalSha256: String? by mutableStateOf(null)
     var committedEntryId: String? by mutableStateOf(null)
+
+    /**
+     * B5 去重可见化：这一次入库是不是复用了错题本里既有的同一题。跟着 [committedEntryId]
+     * 一起保存（进程被杀后恢复回来，"已存入错题本"卡片上的那句回执照旧如实）。
+     */
+    var committedReusedExistingProblem: Boolean by mutableStateOf(false)
     var selectedSubject: String by mutableStateOf("")
     var correctedTitle: String by mutableStateOf("")
     var titleEditedByUser: Boolean by mutableStateOf(false)
@@ -113,6 +119,7 @@ internal class CaptureScreenState {
         "draftRevisionNumber" to draftRevisionNumber,
         "canonicalSha256" to canonicalSha256,
         "committedEntryId" to committedEntryId,
+        "committedReusedExistingProblem" to committedReusedExistingProblem,
         "selectedSubject" to selectedSubject,
         "correctedTitle" to correctedTitle,
         "titleEditedByUser" to titleEditedByUser,
@@ -156,6 +163,7 @@ internal class CaptureScreenState {
         draftRevisionNumber = saved["draftRevisionNumber"] as Int?
         canonicalSha256 = saved["canonicalSha256"] as String?
         committedEntryId = saved["committedEntryId"] as String?
+        committedReusedExistingProblem = saved["committedReusedExistingProblem"] as Boolean
         selectedSubject = saved["selectedSubject"] as String
         correctedTitle = saved["correctedTitle"] as String
         titleEditedByUser = saved["titleEditedByUser"] as Boolean

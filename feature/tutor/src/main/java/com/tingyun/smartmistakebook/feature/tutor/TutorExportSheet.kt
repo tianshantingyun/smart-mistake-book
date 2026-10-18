@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
@@ -60,6 +61,8 @@ internal data class TutorExportSheetState(
     val candidateEntryIds: List<String>,
     /** 已勾选要导出的条目 id。 */
     val selectedEntryIds: Set<String>,
+    /** 交付格式（6B-1）：默认 PDF = 既有入口与旧状态的行为不变。 */
+    val format: MistakeExportFormat = MistakeExportFormat.PDF,
 )
 
 /**
@@ -190,6 +193,18 @@ internal fun exportSkipNotice(layout: MistakePdfLayout): String? {
 }
 
 /**
+ * Word 交付的如实说明（6B-1）：选了 Word 才显示。
+ *
+ * 它消灭的失败：学生以为 Word 文件与 PDF 逐项一致，拿到的却是"图形只剩文字说明、没有作答
+ * 空白区、也不能从本应用直接打印"的版本。文案按当前实现的真实能力写，不承诺没做的事。
+ */
+internal fun exportFormatNotice(format: MistakeExportFormat): String? = when (format) {
+    MistakeExportFormat.PDF -> null
+    MistakeExportFormat.DOCX ->
+        "Word 版式：图形以文字说明呈现，暂不含作答空白区；打印请用 Word 打开后进行。"
+}
+
+/**
  * 勾选/取消一道题时的状态推进（纯函数，VM 只转发）。
  *
  * **未知 id（「从错题本再选」的条目）在勾选时并入候选集合**：picker 只能给目录内的条目，
@@ -239,9 +254,10 @@ internal fun TutorExportSheet(
     state: TutorExportSheetState,
     catalogEntries: List<StudyCatalogEntry>,
     onLayoutChange: (MistakePdfLayout) -> Unit,
+    onFormatChange: (MistakeExportFormat) -> Unit,
     onToggleCandidate: (entryId: String, selected: Boolean) -> Unit,
     onDismiss: () -> Unit,
-    onConfirm: (MistakePdfLayout, List<String>) -> Unit,
+    onConfirm: (MistakeExportFormat, MistakePdfLayout, List<String>) -> Unit,
 ) {
     var pickerOpen by remember { mutableStateOf(false) }
     val resolution = remember(state.candidateEntryIds, catalogEntries) {
@@ -250,6 +266,7 @@ internal fun TutorExportSheet(
     // 渲染的勾选态与提交集合同源：已勾选 ∩ 可解析候选（顺序按候选）。
     val selectedIds = state.submittableEntryIds(resolution)
     val skipNotice = exportSkipNotice(state.layout)
+    val formatNotice = exportFormatNotice(state.format)
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -305,6 +322,29 @@ internal fun TutorExportSheet(
                                 modifier = Modifier.testTag("tutor_export_sheet_template_$templateId"),
                             )
                         }
+                    }
+
+                    // 交付格式（6B-1）：与模板同区；选择随任务进 worker，成果入口按扩展名分流。
+                    SheetSectionLabel("文件格式")
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        MistakeExportFormat.entries.forEach { format ->
+                            OutlineActionChip(
+                                text = format.studentLabel,
+                                onClick = { onFormatChange(format) },
+                                selected = state.format == format,
+                                modifier = Modifier.testTag(
+                                    "tutor_export_sheet_format_${format.token}",
+                                ),
+                            )
+                        }
+                    }
+                    formatNotice?.let { notice ->
+                        Text(
+                            text = notice,
+                            modifier = Modifier.testTag("tutor_export_sheet_docx_notice"),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
 
                     SheetSectionLabel("栏数与字号")
@@ -455,7 +495,7 @@ internal fun TutorExportSheet(
                     Spacer(Modifier.height(2.dp))
                     PrimaryActionButton(
                         text = "开始导出（已勾 ${selectedIds.size} 道）",
-                        onClick = { onConfirm(state.layout, selectedIds) },
+                        onClick = { onConfirm(state.format, state.layout, selectedIds) },
                         enabled = selectedIds.isNotEmpty(),
                         modifier = Modifier
                             .fillMaxWidth()

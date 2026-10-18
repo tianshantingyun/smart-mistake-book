@@ -43,6 +43,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.MistakeExportRecord
 import com.tingyun.smartmistakebook.core.domain.MistakeExportStatus
+import com.tingyun.smartmistakebook.core.export.MistakeDocxDeliveryIntents
+import com.tingyun.smartmistakebook.core.export.MistakeDocxDocumentSaver
+import com.tingyun.smartmistakebook.core.export.MistakeDocxExporter
+import com.tingyun.smartmistakebook.core.export.MistakeDocxSaveResult
 import com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibility
 import com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryIntents
 import com.tingyun.smartmistakebook.core.export.MistakePdfDocumentSaver
@@ -50,6 +54,8 @@ import com.tingyun.smartmistakebook.core.export.MistakePdfExporter
 import com.tingyun.smartmistakebook.core.export.MistakePdfSaveResult
 import com.tingyun.smartmistakebook.core.export.PreparedMistakePdfToken
 import com.tingyun.smartmistakebook.core.export.PreparedPdfPrintAdapter
+import com.tingyun.smartmistakebook.core.export.deliveryFormat
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
@@ -77,6 +83,10 @@ const val MAX_LIBRARY_BATCH_EXPORT_QUESTIONS = MistakePdfBatchEligibility.MAX_QU
  * （`MistakePdfDeliveryIntents` / `MistakePdfDocumentSaver` / `PreparedPdfPrintAdapter`），
  * 不重写。产物在自己的缓存里被清理后，这里如实说"文件已清理，请重新导出"，不静默失败。
  *
+ * 6B-1：记录格式由 [deliveryFormat] 从 displayName 的扩展名判定（零 schema）。PDF 走既有
+ * 三件套；Word 走同构的 docx 交付链（保存/分享），**不显示打印**（没有 Word 的打印适配器）。
+ * 新增的 Word 记录与旧 PDF 记录在同一屏上按各自的格式动作，互不串用。
+ *
  * 通知点进来时（Android 13+ 授权场景）与未授权时的应用内退化，都落在这一屏。
  */
 @Composable
@@ -88,37 +98,59 @@ fun MistakeExportHubRoute(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val exporter = remember(context) { MistakePdfExporter(context) }
+    val pdfExporter = remember(context) { MistakePdfExporter(context) }
+    val docxExporter = remember(context) { MistakeDocxExporter(context) }
     val scope = rememberCoroutineScope()
     var pendingSaveToken by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingSaveFormat by rememberSaveable { mutableStateOf<String?>(null) }
     var actionInProgress by remember { mutableStateOf(false) }
     var actionMessage by remember { mutableStateOf<ExportHubMessage?>(null) }
 
     fun reopen(record: MistakeExportRecord): PreparedMistakePdfToken? =
         record.preparedPdfValueOrNull()?.let(PreparedMistakePdfToken::fromPersistedValue)
 
+    /** 产物还在不在：按记录格式走对应导出器（两条链各自 fail-closed）。 */
+    fun artifactAvailable(record: MistakeExportRecord): Boolean {
+        val token = reopen(record) ?: return false
+        return when (record.deliveryFormat()) {
+            MistakeExportFormat.PDF -> pdfExporter.reopenVerified(token) != null
+            MistakeExportFormat.DOCX -> docxExporter.reopenVerified(token) != null
+        }
+    }
+
     val saveLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         val token = PreparedMistakePdfToken.fromPersistedValue(pendingSaveToken)
+        val format = MistakeExportFormat.fromToken(pendingSaveFormat)
         pendingSaveToken = null
+        pendingSaveFormat = null
         val destination = result.data?.data
         if (result.resultCode != Activity.RESULT_OK || destination == null) {
             actionInProgress = false
             return@rememberLauncherForActivityResult
         }
-        if (token == null) {
+        if (token == null || format == null) {
             actionMessage = ExportHubMessage("保存所需的文件状态已失效，请重新打开后再保存。", true)
             actionInProgress = false
             return@rememberLauncherForActivityResult
         }
         scope.launch {
             val saveResult = withContext(Dispatchers.IO) {
-                exporter.reopenVerified(token)?.let { prepared ->
-                    MistakePdfDocumentSaver.save(context, prepared, destination)
+                when (format) {
+                    MistakeExportFormat.PDF -> pdfExporter.reopenVerified(token)
+                        ?.let { prepared ->
+                            MistakePdfDocumentSaver.save(context, prepared, destination)
+                                .toActionMessage()
+                        }
+                    MistakeExportFormat.DOCX -> docxExporter.reopenVerified(token)
+                        ?.let { prepared ->
+                            MistakeDocxDocumentSaver.save(context, prepared, destination)
+                                .toActionMessage()
+                        }
                 }
             }
-            actionMessage = saveResult?.toActionMessage()
+            actionMessage = saveResult
                 ?: ExportHubMessage("文件已清理，无法保存。请重新导出这一份。", true)
             actionInProgress = false
         }
@@ -142,8 +174,10 @@ fun MistakeExportHubRoute(
             )
         } else {
             records.forEach { record ->
+                val format = record.deliveryFormat()
                 ExportRecordRow(
                     record = record,
+                    format = format,
                     actionInProgress = actionInProgress,
                     onSave = {
                         val token = reopen(record)
@@ -159,7 +193,7 @@ fun MistakeExportHubRoute(
                             // "文件已清理"是把一次必然失败的操作塞给他。
                             scope.launch {
                                 val available = withContext(Dispatchers.IO) {
-                                    exporter.reopenVerified(token) != null
+                                    artifactAvailable(record)
                                 }
                                 if (!available) {
                                     actionInProgress = false
@@ -170,14 +204,23 @@ fun MistakeExportHubRoute(
                                     return@launch
                                 }
                                 pendingSaveToken = token.toPersistedValue()
+                                pendingSaveFormat = format.token
                                 runCatching {
                                     saveLauncher.launch(
-                                        MistakePdfDeliveryIntents.createDocument(
-                                            record.displayName.orEmpty(),
-                                        ),
+                                        when (format) {
+                                            MistakeExportFormat.PDF ->
+                                                MistakePdfDeliveryIntents.createDocument(
+                                                    record.displayName.orEmpty(),
+                                                )
+                                            MistakeExportFormat.DOCX ->
+                                                MistakeDocxDeliveryIntents.createDocument(
+                                                    record.displayName.orEmpty(),
+                                                )
+                                        },
                                     )
                                 }.onFailure {
                                     pendingSaveToken = null
+                                    pendingSaveFormat = null
                                     actionInProgress = false
                                     actionMessage = ExportHubMessage(
                                         "暂时无法打开保存位置，请稍后再试。",
@@ -192,18 +235,32 @@ fun MistakeExportHubRoute(
                         actionInProgress = true
                         scope.launch {
                             actionMessage = runCatching {
-                                val prepared = withContext(Dispatchers.IO) {
-                                    reopen(record)?.let(exporter::reopenVerified)
-                                } ?: error("Prepared export is unavailable")
                                 val shareIntent = withContext(Dispatchers.IO) {
-                                    MistakePdfDeliveryIntents.share(
-                                        context = context,
-                                        prepared = prepared,
-                                        displayName = record.displayName.orEmpty(),
-                                    )
+                                    when (format) {
+                                        MistakeExportFormat.PDF -> {
+                                            val prepared = reopen(record)
+                                                ?.let(pdfExporter::reopenVerified)
+                                                ?: error("Prepared export is unavailable")
+                                            MistakePdfDeliveryIntents.share(
+                                                context = context,
+                                                prepared = prepared,
+                                                displayName = record.displayName.orEmpty(),
+                                            )
+                                        }
+                                        MistakeExportFormat.DOCX -> {
+                                            val prepared = reopen(record)
+                                                ?.let(docxExporter::reopenVerified)
+                                                ?: error("Prepared Word export is unavailable")
+                                            MistakeDocxDeliveryIntents.share(
+                                                context = context,
+                                                prepared = prepared,
+                                                displayName = record.displayName.orEmpty(),
+                                            )
+                                        }
+                                    }
                                 }
                                 context.startActivity(
-                                    Intent.createChooser(shareIntent, "分享这份 A4 导出"),
+                                    Intent.createChooser(shareIntent, "分享这份导出"),
                                 )
                                 ExportHubMessage("已打开分享方式。", false)
                             }.getOrElse {
@@ -218,7 +275,7 @@ fun MistakeExportHubRoute(
                         scope.launch {
                             actionMessage = runCatching {
                                 val prepared = withContext(Dispatchers.IO) {
-                                    reopen(record)?.let(exporter::reopenVerified)
+                                    reopen(record)?.let(pdfExporter::reopenVerified)
                                 } ?: error("Prepared export is unavailable")
                                 val printManager = context.getSystemService(Context.PRINT_SERVICE)
                                     as? PrintManager
@@ -328,6 +385,7 @@ private fun ExportHubNotice(
 @Composable
 private fun ExportRecordRow(
     record: MistakeExportRecord,
+    format: MistakeExportFormat,
     actionInProgress: Boolean,
     onSave: () -> Unit,
     onShare: () -> Unit,
@@ -343,14 +401,14 @@ private fun ExportRecordRow(
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(
-                text = record.displayName ?: "正在整理 A4 版式…",
+                text = record.displayName ?: "正在整理导出文件…",
                 color = Ink,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "${formatExportTime(record.createdAtEpochMillis)} · ${record.statusLabel()}",
+                text = "${formatExportTime(record.createdAtEpochMillis)} · ${record.statusLabel(format)}",
                 modifier = Modifier.testTag("export_hub_record_status_${record.exportId}"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
@@ -367,7 +425,7 @@ private fun ExportRecordRow(
             if (record.status == MistakeExportStatus.SUCCEEDED) {
                 Spacer(Modifier.height(10.dp))
                 PrimaryActionButton(
-                    text = "保存 PDF",
+                    text = if (format == MistakeExportFormat.DOCX) "保存 Word" else "保存 PDF",
                     onClick = onSave,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -389,24 +447,32 @@ private fun ExportRecordRow(
                         icon = Icons.Outlined.Share,
                         enabled = !actionInProgress,
                     )
-                    OutlineActionChip(
-                        text = "打印",
-                        onClick = onPrint,
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("export_hub_print_${record.exportId}"),
-                        icon = Icons.Outlined.Print,
-                        enabled = !actionInProgress,
-                    )
+                    // Word 产物没有可用的打印适配器（PreparedPdfPrintAdapter 只认 PDF）：
+                    // 不摆一个必然失败的按钮，学生在 Word 里打印。
+                    if (format == MistakeExportFormat.PDF) {
+                        OutlineActionChip(
+                            text = "打印",
+                            onClick = onPrint,
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("export_hub_print_${record.exportId}"),
+                            icon = Icons.Outlined.Print,
+                            enabled = !actionInProgress,
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-private fun MistakeExportRecord.statusLabel(): String = when (status) {
+private fun MistakeExportRecord.statusLabel(format: MistakeExportFormat): String = when (status) {
     MistakeExportStatus.RUNNING -> "正在整理"
-    MistakeExportStatus.SUCCEEDED -> "已完成 · 共 ${pageCount ?: 0} 页"
+    MistakeExportStatus.SUCCEEDED -> when (format) {
+        // Word 没有"页"这一交付概念：记录行的 pageCount 是占位值，不展示（见批记录）。
+        MistakeExportFormat.PDF -> "已完成 · 共 ${pageCount ?: 0} 页"
+        MistakeExportFormat.DOCX -> "已完成 · Word 文档"
+    }
     MistakeExportStatus.FAILED -> "未完成"
 }
 
@@ -420,6 +486,16 @@ private fun MistakePdfSaveResult.toActionMessage(): ExportHubMessage = when (thi
     MistakePdfSaveResult.DESTINATION_UNAVAILABLE ->
         ExportHubMessage("没有完成保存，请换一个位置后再试。", true)
     MistakePdfSaveResult.DESTINATION_INTEGRITY_MISMATCH ->
+        ExportHubMessage("保存后的文件没有通过核对，请换一个位置后再试。", true)
+}
+
+private fun MistakeDocxSaveResult.toActionMessage(): ExportHubMessage = when (this) {
+    MistakeDocxSaveResult.SAVED -> ExportHubMessage("Word 文件已保存，并已重新核对完整。", false)
+    MistakeDocxSaveResult.INVALID_PREPARED_FILE ->
+        ExportHubMessage("文件状态已经变化，请重新导出后再保存。", true)
+    MistakeDocxSaveResult.DESTINATION_UNAVAILABLE ->
+        ExportHubMessage("没有完成保存，请换一个位置后再试。", true)
+    MistakeDocxSaveResult.DESTINATION_INTEGRITY_MISMATCH ->
         ExportHubMessage("保存后的文件没有通过核对，请换一个位置后再试。", true)
 }
 

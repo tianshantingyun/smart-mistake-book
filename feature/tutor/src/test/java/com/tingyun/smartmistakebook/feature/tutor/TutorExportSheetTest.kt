@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolTraceEntry
@@ -178,6 +179,16 @@ class TutorExportSheetTest {
         // 请求了解析区 = 如实说会被跳过（与分页器的 PdfPlan.skipped、worker 通知同一判据）。
         val notice = exportSkipNotice(MistakePdfLayout(includeSolution = true))
         assertEquals("解析区暂不可用：本次导出会跳过它，不会留空占位。", notice)
+    }
+
+    @Test
+    fun theWordFormatNoticeStatesItsRealLimitsAndPdfHasNone() {
+        // 6B-1：选了 Word 才提示能力边界；PDF 沿用既有版式，没有额外提示。
+        assertNull(exportFormatNotice(MistakeExportFormat.PDF))
+        val notice = requireNotNull(exportFormatNotice(MistakeExportFormat.DOCX))
+        assertTrue(notice.contains("图形以文字说明呈现"))
+        assertTrue(notice.contains("作答空白区"))
+        assertTrue(notice.contains("打印"))
     }
 
     private fun traceJson(vararg entries: TutorToolTraceEntry): String =

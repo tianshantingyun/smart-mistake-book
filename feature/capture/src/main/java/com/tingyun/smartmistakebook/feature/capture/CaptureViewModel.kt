@@ -175,8 +175,14 @@ class CaptureViewModel(
                     draftId = draftId,
                     workspaceIdentity = workspaceIdentity,
                 )
+                // B5：库录入的回执里带着"这次是不是复用了既有同一题"。它与 savedEntryId 一起
+                // 进 SAVED 状态（同一次 reduce 写进去），界面就不会看到"已保存、还不知道是不是复用"。
+                var reusedExistingProblem = false
                 val savedEntryId = when (origin) {
-                    CaptureEntryOrigin.LIBRARY -> repository.confirmAndCommit(request).errorBookEntryId
+                    CaptureEntryOrigin.LIBRARY -> repository.confirmAndCommit(request).let { summary ->
+                        reusedExistingProblem = summary.reusedExistingProblem
+                        summary.errorBookEntryId
+                    }
                     CaptureEntryOrigin.TUTOR -> repository.confirmForTutoring(request).let { session ->
                         pendingTutorSessionId.value = session.sessionId
                         confirmedTutorSession.value = session
@@ -190,6 +196,7 @@ class CaptureViewModel(
                         basisRevisionNumber = basisRevisionNumber,
                         requestId = requestId,
                         savedEntryId = savedEntryId,
+                        reusedExistingProblem = reusedExistingProblem,
                     ),
                 )
                 userError.value = null

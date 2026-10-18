@@ -104,7 +104,7 @@ class LibraryRepositoryInstrumentedTest {
             override fun getRefreshKey(state: PagingState<Int, LibraryCatalogItem>): Int? = null
         }
         private fun item(entry: StudyCatalogEntry) = LibraryCatalogItem(entry.entryId, entry.title,
-            entry.problemMarkdown, entry.subject, emptyList(), emptyList(), "unknown", 1, 1, null, null)
+            entry.problemMarkdown, entry.subject, emptyList(), emptyList(), "unknown", 1, 1, false, null, null)
     }
 
     private fun entry(id: String) = StudyCatalogEntry(id, "problem-$id", "revision-$id", "practice-$id",

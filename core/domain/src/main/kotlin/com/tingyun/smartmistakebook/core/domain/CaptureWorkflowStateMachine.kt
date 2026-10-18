@@ -27,6 +27,12 @@ data class CaptureWorkflowState(
     val failureCode: CaptureFailureCode? = null,
     val canRetry: Boolean = false,
     val savedEntryId: String? = null,
+    /**
+     * B5 去重可见化：这一次入库**没有写出新的题行**——复用了错题本里既有同一题，或者这本来
+     * 就是同一笔提交的重放。与 [savedEntryId] 同生共死（都是 SAVED 那一刻的事实，原子地写进来，
+     * 界面不会看到"已保存但还不知道是不是复用"的中间态）。
+     */
+    val savedReusedExistingProblem: Boolean = false,
 ) {
     init {
         require(draftId == null || draftId.isNotBlank()) {
@@ -41,6 +47,9 @@ data class CaptureWorkflowState(
         require(
             phase == CaptureWorkflowPhase.SAVED || savedEntryId == null,
         ) { "Only a saved capture may expose an entry id" }
+        require(
+            phase == CaptureWorkflowPhase.SAVED || !savedReusedExistingProblem,
+        ) { "Only a saved capture may report a reused existing problem" }
     }
 }
 
@@ -96,6 +105,11 @@ sealed interface CaptureWorkflowAction {
         override val basisRevisionNumber: Int,
         override val requestId: String,
         val savedEntryId: String?,
+        /**
+         * B5：这次提交是不是复用了既有同一题（默认 false = 新建入库；讲题会话还没入库时
+         * 走的是另一条路，不经过本动作）。
+         */
+        val reusedExistingProblem: Boolean = false,
     ) : CaptureWorkflowAction
 
     data class Failed(
@@ -137,6 +151,7 @@ object CaptureWorkflowStateMachine {
                 failureCode = null,
                 canRetry = false,
                 savedEntryId = null,
+                savedReusedExistingProblem = false,
             )
 
             is CaptureWorkflowAction.DraftImported -> state.copy(
@@ -189,6 +204,7 @@ object CaptureWorkflowStateMachine {
                 failureCode = null,
                 canRetry = false,
                 savedEntryId = action.savedEntryId,
+                savedReusedExistingProblem = action.reusedExistingProblem,
             )
 
             is CaptureWorkflowAction.Failed -> state.copy(

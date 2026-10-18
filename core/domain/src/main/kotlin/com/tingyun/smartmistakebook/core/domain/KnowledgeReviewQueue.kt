@@ -128,7 +128,9 @@ private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
  * 多样性（同讲解材料/同科目软降权）+ 难度档轮换（[KnowledgeNodeScorer.DIFFICULTY_CYCLE]
  * 平局时轮换）。已掌握且新鲜的知识点被 scoreKnowledgeNode 跳过（不进队列）。纯函数，不依赖 DB/UI。
  *
- * **两个范围档**（3E 全库薄弱点扫描，2026-10-16 裁定「第二档 = 每日 10 个知识点」）：
+ * **两个范围档**（3E 全库薄弱点扫描，2026-10-16 裁定「第二档 = 每日 10 个知识点」；
+ * KD-46：队列不落库，实际口径是**每次排计划 ≤10、非严格每日累计**，见
+ * [FULL_LIBRARY_SCAN_DAILY_CAP]）：
  * - [candidates] 第一档 = 今日错题复习队列的题绑定知识点（`extractReviewKnowledgeScope`）；
  * - [fullLibraryScanCandidates] 第二档 = 全库「有绑定题的活跃知识点 ∩ 材料可出题」**减去**今日队列
  *   后的候选（范围条件由 [fullLibraryScanCandidate] 落地，减法由调用方做）。
@@ -157,7 +159,10 @@ fun selectKnowledgeReviewQueue(
     prerequisiteStabilityDaysByNode: Map<String, Collection<Double?>> = emptyMap(),
     /** 3E 第二档候选（全库扫描）。默认空 = 单档行为逐位不变（既有调用方与用例不受影响）。 */
     fullLibraryScanCandidates: List<KnowledgeReviewCandidate> = emptyList(),
-    /** 第二档每日名额上限（F17 配额；取值出处见 [FULL_LIBRARY_SCAN_DAILY_CAP]）。 */
+    /**
+     * 第二档每次排计划的名额上限（F17 配额；取值出处与「非严格每日总量」口径见
+     * [FULL_LIBRARY_SCAN_DAILY_CAP] / KD-46）。
+     */
     fullLibraryScanDailyCap: Int = FULL_LIBRARY_SCAN_DAILY_CAP,
 ): List<KnowledgeNodeScorer.ScoredKnowledgeNode> {
     require(timeBudgetSeconds >= 0) { "Knowledge review time budget must not be negative" }

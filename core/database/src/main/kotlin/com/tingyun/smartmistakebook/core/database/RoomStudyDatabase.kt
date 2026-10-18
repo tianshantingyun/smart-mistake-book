@@ -73,6 +73,7 @@ internal class RoomStudyDatabase(
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         sort: String,
+        favoriteOnly: Boolean,
     ): PagingSource<Int, LibraryCatalogRow> =
         librarySearch.pagingSource(
             searchText = searchText,
@@ -82,6 +83,7 @@ internal class RoomStudyDatabase(
             createdFromEpochMillis = createdFromEpochMillis,
             createdToEpochMillis = createdToEpochMillis,
             sort = sort,
+            favoriteOnly = favoriteOnly,
         )
 
     override fun librarySearchPagingSource(
@@ -93,6 +95,7 @@ internal class RoomStudyDatabase(
         createdToEpochMillis: Long?,
         sort: String,
         tokens: List<String>,
+        favoriteOnly: Boolean,
     ): PagingSource<Int, LibraryCatalogRow> =
         librarySearch.searchPagingSource(
             matchQuery = matchQuery,
@@ -103,6 +106,7 @@ internal class RoomStudyDatabase(
             createdToEpochMillis = createdToEpochMillis,
             sort = sort,
             tokens = tokens,
+            favoriteOnly = favoriteOnly,
         )
 
     override suspend fun librarySearchCount(
@@ -112,6 +116,7 @@ internal class RoomStudyDatabase(
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean,
     ): Int = librarySearch.searchCount(
         matchQuery = matchQuery,
         subjectId = subjectId,
@@ -119,6 +124,7 @@ internal class RoomStudyDatabase(
         masteryId = masteryId,
         createdFromEpochMillis = createdFromEpochMillis,
         createdToEpochMillis = createdToEpochMillis,
+        favoriteOnly = favoriteOnly,
     )
 
     override suspend fun librarySearchPage(
@@ -132,6 +138,7 @@ internal class RoomStudyDatabase(
         tokens: List<String>,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean,
     ): List<LibraryCatalogRow> = librarySearch.searchPage(
         matchQuery = matchQuery,
         subjectId = subjectId,
@@ -143,6 +150,7 @@ internal class RoomStudyDatabase(
         tokens = tokens,
         offset = offset,
         limit = limit,
+        favoriteOnly = favoriteOnly,
     )
 
     override suspend fun librarySearchFacets(
@@ -153,6 +161,7 @@ internal class RoomStudyDatabase(
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         facet: String,
+        favoriteOnly: Boolean,
     ): List<LibraryFacetCountRecord> = librarySearch.searchFacets(
         matchQuery = matchQuery,
         subjectId = subjectId,
@@ -161,6 +170,7 @@ internal class RoomStudyDatabase(
         createdFromEpochMillis = createdFromEpochMillis,
         createdToEpochMillis = createdToEpochMillis,
         facet = facet,
+        favoriteOnly = favoriteOnly,
     )
 
     override suspend fun refreshLibrarySearchProjection() = librarySearch.refreshProjection()
@@ -175,6 +185,7 @@ internal class RoomStudyDatabase(
         sort: String,
         offset: Int,
         limit: Int,
+        favoriteOnly: Boolean,
     ): List<LibraryCatalogRow> = librarySearch.catalogPage(
         searchText = searchText,
         subjectId = subjectId,
@@ -185,6 +196,7 @@ internal class RoomStudyDatabase(
         sort = sort,
         offset = offset,
         limit = limit,
+        favoriteOnly = favoriteOnly,
     )
 
     override suspend fun libraryCatalogCount(
@@ -194,6 +206,7 @@ internal class RoomStudyDatabase(
         masteryId: String?,
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
+        favoriteOnly: Boolean,
     ): Int = librarySearch.catalogCount(
         searchText = searchText,
         subjectId = subjectId,
@@ -201,6 +214,7 @@ internal class RoomStudyDatabase(
         masteryId = masteryId,
         createdFromEpochMillis = createdFromEpochMillis,
         createdToEpochMillis = createdToEpochMillis,
+        favoriteOnly = favoriteOnly,
     )
 
     override suspend fun libraryCatalogFacets(
@@ -211,6 +225,7 @@ internal class RoomStudyDatabase(
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         facet: String,
+        favoriteOnly: Boolean,
     ): List<LibraryFacetCountRecord> = librarySearch.catalogFacets(
         searchText = searchText,
         subjectId = subjectId,
@@ -219,6 +234,7 @@ internal class RoomStudyDatabase(
         createdFromEpochMillis = createdFromEpochMillis,
         createdToEpochMillis = createdToEpochMillis,
         facet = facet,
+        favoriteOnly = favoriteOnly,
     )
 
     override fun observeLearningLedgerHead(learnerId: String): Flow<Long> {
@@ -772,6 +788,16 @@ internal class RoomStudyDatabase(
         updatedAtEpochMillis: Long,
     ): Boolean = database.mistakeDetailDao().setUserNote(entryId, note, updatedAtEpochMillis)
 
+    override suspend fun setErrorBookEntryFavorite(
+        entryId: String,
+        isFavorite: Boolean,
+        updatedAtEpochMillis: Long,
+    ): Boolean = database.mistakeDetailDao().setEntryFavorite(
+        entryId = entryId,
+        isFavorite = isFavorite,
+        updatedAtEpochMillis = updatedAtEpochMillis,
+    )
+
     override suspend fun createProblemDraft(
         command: CreateProblemDraftCommand,
     ): ProblemDraftWriteResult = database.problemDraftTransactionDao().create(command)
@@ -1029,11 +1055,11 @@ internal class RoomStudyDatabase(
 
     override suspend fun commitProblemDraft(
         command: CommitProblemDraftCommand,
-    ): CommitProblemDraftResult = database.problemDraftTransactionDao().commit(command)
+    ): ProblemDraftCommitOutcome = database.problemDraftTransactionDao().commit(command)
 
     override suspend fun confirmAndCommitProblemDraftFromWorkspace(
         command: ConfirmAndCommitProblemDraftFromWorkspaceCommand,
-    ): CommitProblemDraftResult = database.withWriteTransaction {
+    ): ProblemDraftCommitOutcome = database.withWriteTransaction {
         DatabaseContractValidator.validateConfirmAndCommitProblemDraftFromWorkspace(command)
         database.problemDraftTransactionDao().replayCommit(
             command = command.commit,
@@ -1274,15 +1300,16 @@ internal class RoomStudyDatabase(
 
     override suspend fun commitTutorSession(
         command: CommitTutorSessionCommand,
-    ): CommitProblemDraftResult = database.withWriteTransaction {
+    ): ProblemDraftCommitOutcome = database.withWriteTransaction {
         val result = database.problemDraftTransactionDao().commitTutorSession(command)
+        val receipt = result.commit.receipt
         database.tutorExposureDao().bindAnchor(
             PersistTutorSessionAnchorCommand(
                 sessionId = command.sessionId,
-                problemRevisionId = result.receipt.problemRevisionId,
-                practiceUnitId = result.receipt.practiceUnitId,
+                problemRevisionId = receipt.problemRevisionId,
+                practiceUnitId = receipt.practiceUnitId,
                 source = "DRAFT_COMMIT",
-                anchoredAtEpochMillis = result.receipt.committedAtEpochMillis,
+                anchoredAtEpochMillis = receipt.committedAtEpochMillis,
             ),
         )
         result

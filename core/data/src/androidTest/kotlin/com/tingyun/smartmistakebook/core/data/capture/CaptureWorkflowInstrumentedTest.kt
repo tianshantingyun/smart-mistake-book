@@ -89,6 +89,43 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
         assertTrue("expected CLEAN_IMAGE role", roles.contains("CLEAN_IMAGE"))
     }
 
+    /**
+     * KD-17：单题采集在模型能力门前离开流程（草稿已落库、还没确认讲题）后，录入入口的
+     * 「待处理题目」必须能列出它，点「继续」走既有 resume 路由能读回同一份草稿。
+     *
+     * 这里钉数据侧的两条事实：待处理列表包含 **TUTOR 来源** 的 EDITING 草稿（不是只收
+     * LIBRARY/批量草稿）；resume 读口给回的是同一 draftId / revision 的草稿。界面侧的
+     * 打开动作由 `CapturePendingCapturesInstrumentedTest` 覆盖。
+     */
+    @Test
+    fun aSingleCaptureDraftParkedBeforeTutoringIsListedAndResumableFromTheCaptureEntry() = runBlocking {
+        val imported = repository.importDraft(
+            CaptureDraftImportRequest(
+                requestId = "single-capture-parked-import",
+                localUri = privateUri(createPng(48, 48)).toString(),
+                source = CaptureInputSource.CAMERA,
+                origin = CaptureEntryOrigin.TUTOR,
+                occurredAtEpochMillis = 1_000,
+            ),
+        )
+
+        // 没有派发任何模型任务 = 流程停在「整理题目」/能力门；草稿仍是 EDITING。
+        val pending = repository.observePendingCaptures().first().single()
+        assertEquals(imported.draftId, pending.draftId)
+        assertEquals(CaptureEntryOrigin.TUTOR, pending.origin)
+        assertNull("还没确认讲题，不应该有会话", pending.tutorSessionId)
+        assertTrue(
+            "没有模型任务时应停在可继续的草稿态，而不是消失或冒充讲题就绪",
+            pending.stage == PendingCaptureStage.READY_TO_CONTINUE ||
+                pending.stage == PendingCaptureStage.MANUAL_REVIEW_REQUIRED,
+        )
+
+        val resumable = checkNotNull(repository.readPendingCapture(imported.draftId))
+        assertEquals(imported.draftId, resumable.draftId)
+        assertEquals(CaptureEntryOrigin.TUTOR, resumable.origin)
+        assertEquals(imported.revisionNumber, resumable.currentRevisionNumber)
+    }
+
     @Test
     fun abandoningAPendingCaptureIsRevisionCasGuardedAndRemovesItFromTheList() = runBlocking {
         val imported = repository.importDraft(

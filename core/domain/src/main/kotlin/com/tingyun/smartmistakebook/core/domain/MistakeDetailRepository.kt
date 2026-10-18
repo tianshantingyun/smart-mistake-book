@@ -36,6 +36,16 @@ interface MistakeDetailRepository {
         updatedAtEpochMillis: Long,
     ): Boolean = false
 
+    /**
+     * C11 收藏：把条目标成已收藏/未收藏（行级更新，只改 `is_favorite` 与更新时间）。
+     * 返回 false 表示没写进去（条目已不在）——调用方必须如实报失败。
+     */
+    suspend fun setFavorite(
+        entryId: String,
+        isFavorite: Boolean,
+        updatedAtEpochMillis: Long,
+    ): Boolean = false
+
     /** Reversibly hides an error-book entry from all surfaces; history preserved. */
     suspend fun archiveEntry(entryId: String, at: Long): Boolean = false
 

@@ -131,6 +131,75 @@ class BindingChangedReplayDrainerTest {
         }
 
     /**
+     * KD-44 的**自纠路径**：判词落在本科未分类桶（`pseudo:<科目>`）上的 attempt，在题被归类/
+     * 改绑到真实知识点之后，重放把它的证据改挂真实节点——投影器的 upcast
+     * （`LearningProjector.attributionsForAttempt`）从**当前绑定**重派生归属，快照上写死的那条
+     * 伪归属不再决定去向（KF-32 机制）。
+     *
+     * 消灭的失败：如果"伪桶上的判词"会粘住（例如重放退回写时快照），学生事后把题归类了，
+     * 这条历史证据仍算在未分类桶上——真实知识点的掌握度少一块，且桶里堆着本可以归类掉的证据。
+     * 与 KD-44 的写侧规则配套：写侧（settler）只加伪锚定、不加任何面向用户的绑定指引，
+     * 自纠完全交给这条既有重放路径。
+     *
+     * 夹具的归属形状（bindingId / taxonomy）就是 `TutorJudgedReviewSettler` 会写下的那一条
+     * （该写入形状由 `TutorJudgedReviewSettlerTest` 的伪锚定用例钉住）。
+     */
+    @Test
+    fun `an attempt settled on the pseudo bucket moves to the real node after the unit is bound`() =
+        runBlocking {
+            val database = LedgerAwareFakeDatabase()
+            // 夹具 = KD-44 写侧刚落的形态：快照 taxonomy 跟伪绑定行（`pseudo-evidence-v1`），
+            // 归属节点 = 本科未分类桶。
+            val attempt = attempt(
+                attributions = listOf(pseudoAttribution()),
+                taxonomyVersion = StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION,
+            )
+            val ledger = listOf<LearningLedgerEvent>(attempt, bindingChanged())
+            database.projectionLedger = ledger.map {
+                PersistedLearningLedgerEvent(it, LearningLedgerFingerprint.event(it))
+            }
+            database.publishLedgerHead(2)
+            // 重放前的投影 = KD-44 写侧刚落的形态：证据挂在伪桶上。
+            val displaced = LearningProjector().replay(LEARNER_ID, listOf(attempt)).snapshot
+            assertEquals(
+                "夹具前提：判词结算后的投影把证据记在伪桶上",
+                listOf("pseudo:MATH"),
+                displaced.knowledgeMasteryStates.keys.toList(),
+            )
+            database.publishDisplacedProjection(displaced)
+            // 学生事后把这题归到真实知识点（改绑事件的 current 面）：当前绑定 = kc-new，
+            // 伪绑定行不再是当前绑定。
+            database.bindingsByPracticeUnit[attempt.practiceUnitId] = listOf(
+                binding(bindingId = "binding-new", knowledgeNodeId = "kc-new"),
+            )
+            val drainer = StudyProjectionDrainer(
+                database = database,
+                learnerId = LEARNER_ID,
+                learningProjector = LearningProjector(),
+                clock = fixedClock,
+            )
+
+            val drained = requireNotNull(drainer.drain())
+
+            assertEquals(
+                "自纠：伪桶上的历史证据改挂真实节点，伪桶归零",
+                listOf("kc-new"),
+                drained.snapshot.knowledgeMasteryStates.keys.toList(),
+            )
+            assertEquals(
+                "自纠后的归属用当前绑定行（不再回写时快照里的伪绑定）",
+                "binding-new",
+                drained.snapshot.knowledgeMasteryStates.getValue("kc-new")
+                    .independentCorrectObservations.single().bindingId,
+            )
+            assertEquals(
+                "重放读的是当前绑定（不是表里全部行）",
+                listOf(attempt.practiceUnitId),
+                database.currentBindingReads,
+            )
+        }
+
+    /**
      * K1（3D 余件批 2）· KF-32 空绑定分支：一道「诚实未分类」（当前绑定为空）的题，重放后历史
      * 证据必须改挂 `pseudo:<科目>` 兜底桶、旧知识点归零、证据不丢（旧投影整份进归档）。
      *
@@ -328,7 +397,16 @@ class BindingChangedReplayDrainerTest {
             )
         }
 
-    private fun attempt(): Attempt = Attempt(
+    /**
+     * 夹具 attempt。快照 taxonomy 必须与归属逐字一致（`AssessmentEvidenceSnapshot` 的 init 守卫：
+     * basisRevision 同题、taxonomy 同串），生产侧同一口径见 `TutorJudgedReviewSettler`——快照
+     * taxonomy 跟驱动证据那条绑定行走（伪锚定判词的快照 taxonomy 因此是
+     * `pseudo-evidence-v1`，传伪归属时 [taxonomyVersion] 必须一起给）。
+     */
+    private fun attempt(
+        attributions: List<KnowledgeEvidenceAttribution> = listOf(writeTimeAttribution()),
+        taxonomyVersion: String = "taxonomy-v1",
+    ): Attempt = Attempt(
         attemptId = "attempt-1",
         presentationId = "presentation-1",
         responseOrdinal = 1,
@@ -340,7 +418,7 @@ class BindingChangedReplayDrainerTest {
             answerSpecId = "answer-1",
             itemFamilyId = "family-1",
             sourceBundleId = "bundle-1",
-            taxonomyVersion = "taxonomy-v1",
+            taxonomyVersion = taxonomyVersion,
             verification = AssessmentSnapshotVerification.VERIFIED,
             calibration = CalibrationSnapshot(
                 support = CalibrationSupport.SUPPORTED,
@@ -349,17 +427,7 @@ class BindingChangedReplayDrainerTest {
                 validFromEpochMillis = 0,
                 validUntilEpochMillis = Long.MAX_VALUE,
             ),
-            attributions = listOf(
-                KnowledgeEvidenceAttribution(
-                    bindingId = "binding-old",
-                    knowledgeNodeId = "kc-old",
-                    weight = 1.0,
-                    basisRevisionId = "revision-1",
-                    taxonomyVersion = "taxonomy-v1",
-                    role = EvidenceAttributionRole.PRIMARY,
-                    certainty = EvidenceAttributionCertainty.DIRECT,
-                ),
-            ),
+            attributions = attributions,
             capturedAtEpochMillis = BASE_EPOCH_MILLIS,
         ),
         evidence = LearningEvidence(
@@ -372,6 +440,33 @@ class BindingChangedReplayDrainerTest {
         durationSeconds = 45,
         studyDay = StudyDayContext(epochDay = 20_000L, timeZoneId = "Asia/Shanghai", utcOffsetMinutes = 480),
         eventSequence = 1,
+    )
+
+    /** 写时快照的归属（改绑前的旧节点）——[attempt] 的默认形状。 */
+    private fun writeTimeAttribution() = KnowledgeEvidenceAttribution(
+        bindingId = "binding-old",
+        knowledgeNodeId = "kc-old",
+        weight = 1.0,
+        basisRevisionId = "revision-1",
+        taxonomyVersion = "taxonomy-v1",
+        role = EvidenceAttributionRole.PRIMARY,
+        certainty = EvidenceAttributionCertainty.DIRECT,
+    )
+
+    /**
+     * KD-44：判词结算（`TutorJudgedReviewSettler`）在空 KC 集题上写下的那条归属——绑定 = 伪绑定行
+     * （id 形状见 `RoomKnowledgeBaseStore.ensurePseudoKnowledgeBinding`，taxonomy 见
+     * `StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION`）。权重字段只作展示/排序
+     * （`LearningProjector.projectMastery` 的幅度取整条 attempt 的证据权重），这里不影响断言。
+     */
+    private fun pseudoAttribution() = KnowledgeEvidenceAttribution(
+        bindingId = "pseudo-binding:$UNIT_ID:revision-1:pseudo-evidence-v1:pseudo:MATH",
+        knowledgeNodeId = "pseudo:MATH",
+        weight = 1.0,
+        basisRevisionId = "revision-1",
+        taxonomyVersion = StudyPracticeUnitFacts.PSEUDO_ATTRIBUTION_TAXONOMY_VERSION,
+        role = EvidenceAttributionRole.PRIMARY,
+        certainty = EvidenceAttributionCertainty.DIRECT,
     )
 
     private fun bindingChanged(

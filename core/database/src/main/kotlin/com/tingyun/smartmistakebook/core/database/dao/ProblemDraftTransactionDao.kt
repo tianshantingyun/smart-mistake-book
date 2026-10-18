@@ -18,6 +18,7 @@ import com.tingyun.smartmistakebook.core.database.DatabaseContractValidator
 import com.tingyun.smartmistakebook.core.database.EndTutorSessionCommand
 import com.tingyun.smartmistakebook.core.database.EndTutorSessionResult
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
+import com.tingyun.smartmistakebook.core.database.ProblemDraftCommitOutcome
 import com.tingyun.smartmistakebook.core.database.ProblemDraftCommitReceipt
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRecord
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRevisionRecord
@@ -45,6 +46,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
+import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjection
 import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import java.nio.charset.StandardCharsets
@@ -733,7 +735,7 @@ internal abstract class ProblemDraftTransactionDao {
     @Transaction
     open suspend fun commitTutorSession(
         command: CommitTutorSessionCommand,
-    ): CommitProblemDraftResult {
+    ): ProblemDraftCommitOutcome {
         DatabaseContractValidator.validateCommitTutorSession(command)
         val entity = findTutorSessionById(command.sessionId)
             ?: throw ImmutablePayloadConflictException("tutor_session", command.sessionId)
@@ -745,7 +747,11 @@ internal abstract class ProblemDraftTransactionDao {
             throw ImmutablePayloadConflictException("tutor_session_revision", command.sessionId)
         }
         session.commitReceipt?.let { existing ->
-            return CommitProblemDraftResult(created = false, receipt = existing)
+            // 这一笔会话早就存过了：这次一行也没写，题行也是既有那一行（B5 口径同 commitValidated）。
+            return ProblemDraftCommitOutcome(
+                commit = CommitProblemDraftResult(created = false, receipt = existing),
+                reusedExistingProblem = true,
+            )
         }
         return commitValidated(command.commit, allowTutorDraft = true)
     }
@@ -753,11 +759,20 @@ internal abstract class ProblemDraftTransactionDao {
     @Query("SELECT 1 FROM problem_revision WHERE revision_id = :revisionId LIMIT 1")
     protected abstract suspend fun revisionExists(revisionId: String): Int?
 
+    /**
+     * 只问"有没有 `error_book_entry` 当前指向这一版"：不校验条目状态（ACTIVE/ARCHIVED 都算
+     * 命中），也不限定条目属于哪个 practice unit（KD-50）。
+     */
     @Query("SELECT 1 FROM error_book_entry WHERE current_revision_id = :revisionId LIMIT 1")
     protected abstract suspend fun currentRevisionExists(revisionId: String): Int?
 
     /**
      * 该题修订是否仍是其错题条目**当前指向**的修订（= 该记录的最新题面）。
+     *
+     * **判据范围（KD-50，如实）**：只查 `error_book_entry.current_revision_id = :revisionId`
+     * 有没有命中——**不校验条目状态**（`ACTIVE` 与 `ARCHIVED` 都算"当前指向"），也**不校验**
+     * 条目与调用方是否属于同一个 practice unit。因此"挂到已归档条目的修订上"会返回 true；
+     * 本口只回答"书里这一条现在显示的是不是这一版"，不回答"这一版还该不该被更新"。
      *
      * 与 [attachCleanRedrawAsset] 的第二道判据同一处实现（同一条 SQL）：调用方（净化作业）在
      * **付费之前**先问它——晚到结果只许挂到书里现在显示的那一版上。
@@ -858,7 +873,7 @@ internal abstract class ProblemDraftTransactionDao {
     }
 
     @Transaction
-    open suspend fun commit(command: CommitProblemDraftCommand): CommitProblemDraftResult {
+    open suspend fun commit(command: CommitProblemDraftCommand): ProblemDraftCommitOutcome {
         DatabaseContractValidator.validateCommitProblemDraft(command)
         return commitValidated(command, allowTutorDraft = false)
     }
@@ -867,7 +882,7 @@ internal abstract class ProblemDraftTransactionDao {
     open suspend fun replayCommit(
         command: CommitProblemDraftCommand,
         allowTutorDraft: Boolean,
-    ): CommitProblemDraftResult? {
+    ): ProblemDraftCommitOutcome? {
         DatabaseContractValidator.validateCommitProblemDraft(command)
         val payloadFingerprint = commitPayloadFingerprint(command)
         val draft = findDraftEntity(command.draftId)
@@ -879,7 +894,10 @@ internal abstract class ProblemDraftTransactionDao {
             if (existing.payloadFingerprint != payloadFingerprint) {
                 throw ImmutablePayloadConflictException("problem_draft_commit", command.commandId)
             }
-            return CommitProblemDraftResult(created = false, receipt = existing.toRecord())
+            return ProblemDraftCommitOutcome(
+                commit = CommitProblemDraftResult(created = false, receipt = existing.toRecord()),
+                reusedExistingProblem = true,
+            )
         }
         findCommitReceiptByDraft(command.draftId)?.let {
             throw ImmutablePayloadConflictException("problem_draft_commit", command.draftId)
@@ -890,7 +908,7 @@ internal abstract class ProblemDraftTransactionDao {
     private suspend fun commitValidated(
         command: CommitProblemDraftCommand,
         allowTutorDraft: Boolean,
-    ): CommitProblemDraftResult {
+    ): ProblemDraftCommitOutcome {
         val payloadFingerprint = commitPayloadFingerprint(command)
         val draft = findDraftEntity(command.draftId)
             ?: throw ImmutablePayloadConflictException("problem_draft", command.draftId)
@@ -901,7 +919,10 @@ internal abstract class ProblemDraftTransactionDao {
             if (existing.payloadFingerprint != payloadFingerprint) {
                 throw ImmutablePayloadConflictException("problem_draft_commit", command.commandId)
             }
-            return CommitProblemDraftResult(created = false, receipt = existing.toRecord())
+            return ProblemDraftCommitOutcome(
+                commit = CommitProblemDraftResult(created = false, receipt = existing.toRecord()),
+                reusedExistingProblem = true,
+            )
         }
         findCommitReceiptByDraft(command.draftId)?.let {
             throw ImmutablePayloadConflictException("problem_draft_commit", command.draftId)
@@ -960,9 +981,17 @@ internal abstract class ProblemDraftTransactionDao {
             committedAtEpochMillis = command.committedAtEpochMillis,
         )
         insertCommitReceipt(receipt)
-        return CommitProblemDraftResult(created = true, receipt = receipt.toRecord())
+        return ProblemDraftCommitOutcome(
+            commit = CommitProblemDraftResult(created = true, receipt = receipt.toRecord()),
+            reusedExistingProblem = committedIds.reusedExistingProblem,
+        )
     }
 
+    /**
+     * 题级去重的**唯一判据**（4C·B5 的复用指示也从这里出去）：按规范指纹或「同科 + 同题面」
+     * 找既有题行；命中就复用它，不命中才新建。两条路的区别只体现在
+     * [CommittedProblemIds.reusedExistingProblem] 上，判据本身一个字都没动。
+     */
     private suspend fun resolveCommittedProblemIds(
         command: CommitProblemDraftCommand,
         draft: ProblemDraftEntity,
@@ -1053,6 +1082,7 @@ internal abstract class ProblemDraftTransactionDao {
             problemRevisionId = command.problemRevisionId,
             practiceUnitId = command.practiceUnitId,
             errorBookEntryId = command.errorBookEntryId,
+            reusedExistingProblem = false,
         )
     }
 
@@ -1091,6 +1121,7 @@ internal abstract class ProblemDraftTransactionDao {
             problemRevisionId = existing.problemRevisionId,
             practiceUnitId = existing.practiceUnitId,
             errorBookEntryId = entryId,
+            reusedExistingProblem = true,
         )
     }
 
@@ -1102,7 +1133,16 @@ internal abstract class ProblemDraftTransactionDao {
                 sourceAsset = checkNotNull(findSourceAsset(binding.sourceAssetId)).toRecord(),
             )
         }
-        val asset = checkNotNull(sourceAssets.firstOrNull()).sourceAsset
+        // v67 起 `problem_draft.source_asset_id` 可空（A8 手动建题的草稿没有照片）。
+        // 空源草稿的**读取分支**要连同创建入口一起落地（下一批）；现在没有任何生产者，
+        // 这里对空源行 fail-closed：不许把"没有源图"读成"有一张图"（旧实现会在
+        // firstOrNull() 上抛裸 NPE，这里把原因说清楚）。
+        val asset = checkNotNull(sourceAssets.firstOrNull()) {
+            "problem draft $draftId has no page-zero source asset"
+        }.sourceAsset
+        check(draft.sourceAssetId == null || draft.sourceAssetId == asset.sourceAssetId) {
+            "problem draft $draftId disagrees with its page-zero source asset"
+        }
         val revision = checkNotNull(findDraftRevision(draftId, draft.currentRevisionNumber))
         return ProblemDraftRecord(
             draftId = draft.draftId,
@@ -1126,6 +1166,8 @@ internal abstract class ProblemDraftTransactionDao {
         val problemRevisionId: String,
         val practiceUnitId: String,
         val errorBookEntryId: String,
+        /** B5：这一笔提交绑到了既有题行（true）还是刚写出来的新题行（false）。 */
+        val reusedExistingProblem: Boolean,
     )
 
     private suspend fun loadTutorSession(entity: TutorConversationEntity): TutorSessionRecord {
@@ -1154,8 +1196,12 @@ internal abstract class ProblemDraftTransactionDao {
             revision.subject == null ||
             revision.documentFingerprint !=
                 CapturedQuestionDocumentFingerprint.of(revisionRecord.questionDocument) ||
-            revisionRecord.questionDocument.blockEvidence.any {
-                it.sourceAssetId != draft.sourceAssetId
+            revisionRecord.questionDocument.blockEvidence.any { evidence ->
+                // A8（v67）：用户转写的块没有源图（空白 source_asset_id），逐块比对不适用。
+                // **只按 provenance 放行**——其它来源（OCR/模型/导入结构）仍必须指向草稿的源图。
+                val isUserTranscription = evidence.provenance ==
+                    QuestionBlockProvenance.USER_TRANSCRIPTION && evidence.sourceAssetId.isBlank()
+                !isUserTranscription && evidence.sourceAssetId != draft.sourceAssetId
             } ||
             CapturedQuestionDocumentValidator.validateForCommit(
                 revisionRecord.questionDocument,
@@ -1163,8 +1209,12 @@ internal abstract class ProblemDraftTransactionDao {
         ) {
             throw ImmutablePayloadConflictException("tutor_session_confirmation", sessionId)
         }
-        val sourceAsset = findSourceAsset(draft.sourceAssetId)
-            ?: throw ImmutablePayloadConflictException("canonical_source_asset", draft.sourceAssetId)
+        // 讲题会话必须带原题照片（模型要看图）：空源草稿不能开讲题会话——这里给明确的冲突码，
+        // 不让它落成空指针。
+        val sourceAssetId = draft.sourceAssetId
+            ?: throw ImmutablePayloadConflictException("canonical_source_asset", sessionId)
+        val sourceAsset = findSourceAsset(sourceAssetId)
+            ?: throw ImmutablePayloadConflictException("canonical_source_asset", sourceAssetId)
         val receipt = findCommitReceiptByDraft(draftId)
         when (draft.status) {
             StudyDbValue.ProblemDraftStatus.EDITING -> if (receipt != null) {

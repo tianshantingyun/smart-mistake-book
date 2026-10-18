@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 
 internal const val MISTAKE_EXPORT_CHANNEL_ID = "mistake_export_results"
 
@@ -53,7 +54,7 @@ internal class MistakeExportNotifications(
             "导出成果",
             NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
-            description = "A4 导出在后台整理完成、或这次没有完成时告诉你"
+            description = "错题导出在后台整理完成、或这次没有完成时告诉你"
             lockscreenVisibility = NotificationCompat.VISIBILITY_PRIVATE
         }
         notificationManager.createNotificationChannel(channel)
@@ -63,12 +64,26 @@ internal class MistakeExportNotifications(
         MISTAKE_EXPORT_CHANNEL_ID,
     )
 
-    fun postSucceeded(exportId: String, displayName: String, skippedNotice: String? = null) {
+    fun postSucceeded(
+        exportId: String,
+        displayName: String,
+        skippedNotice: String? = null,
+        format: MistakeExportFormat = MistakeExportFormat.PDF,
+    ) {
         post(
             exportId = exportId,
-            title = "A4 导出已完成",
+            // 6B-1：Word 交付没有"打印"这一步（打印适配器只认 PDF），文案按格式如实分叉。
+            title = when (format) {
+                MistakeExportFormat.PDF -> "A4 导出已完成"
+                MistakeExportFormat.DOCX -> "Word 导出已完成"
+            },
             text = buildString {
-                append(displayName).append(" 已可以保存、分享或打印。")
+                append(displayName).append(
+                    when (format) {
+                        MistakeExportFormat.PDF -> " 已可以保存、分享或打印。"
+                        MistakeExportFormat.DOCX -> " 已可以保存或分享。"
+                    },
+                )
                 // B3-4：请求了但被跳过的版式功能如实跟在结果里（不静默吞掉）。
                 skippedNotice?.takeIf(String::isNotBlank)?.let { notice ->
                     append(' ').append(notice)
@@ -93,7 +108,7 @@ internal class MistakeExportNotifications(
         ensureChannel()
         val notification = NotificationCompat.Builder(applicationContext, MISTAKE_EXPORT_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("正在整理 A4 版式")
+            .setContentTitle("正在整理导出文件")
             .setContentText("导出会在后台完成，你可以先离开这个页面。")
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
