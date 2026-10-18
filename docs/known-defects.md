@@ -1,5 +1,7 @@
 # Known Defects Register
 
+> **2026-10-18 绘图路线更新：** 所有生图入口统一判定，由模型按共享规则选择JS或图像模型；两者均为生图方式，正式统一接线待实施。当前约束见[教学图形契约](current/visual-generation-contract.md)。本文既有日期、提交、测试、缺陷与旧方案作为历史事实保留，不代表新路线已实现。
+
 Entries are numbered `KD-n` and marked in their heading as open or resolved.
 Resolved entries stay for provenance — they record the evidence that closed the
 defect and the condition that would reopen it — so the register is also the
@@ -697,7 +699,7 @@ the generic `catch (_: Exception)`.
 **Reopen condition.** 若 `organizeBatch` 的能力判定再抛 `IllegalArgumentException`
 而非 `BatchOrganizationUnavailableException`，则重新落入通用 catch。
 
-## KD-17 (open) · A single-capture draft has no resume entry after leaving the flow
+## KD-17 (closed 2026-10-18：事实核清——入口自 L4 `7f109251` 起已存在，本批补两条回归钉住；提交 `8335613f`) · A single-capture draft has no resume entry after leaving the flow
 
 **Symptom.** 错题本 → 拍照或上传 → 拍照并整理 → (no model: the flow parks at
 「整理题目」 with the capability gate) → back. The draft persists
@@ -718,6 +720,13 @@ drafts (reuse the resume route from a pending list or the 错题本 empty state)
 or keep the user in-flow / explicitly discard when the flow cannot be reopened.
 With a model configured the window is narrow (the flow auto-continues), so
 priority is low.
+
+**关闭记录（2026-10-18，提交 `8335613f`）.** 现状核清：录入入口的待处理列表自 `7f109251`（2026-10-03，L4）
+起已包含 TUTOR 来源 EDITING 草稿并可走 resume 路由恢复（`PendingCaptureDao.kt:141` 的 `WHERE d.status = 'EDITING'`
+不限 origin → `RoomPendingCaptureStore.kt:27` → `CaptureScreen.kt:913-925` → `SmartMistakeBookRoot.kt:656-657`
+`Routes.captureResume`）——本条登记的「无入口」在 L4 后已不成立。本批不加重叠入口，只补两条回归钉住该事实：
+`CaptureWorkflowInstrumentedTest.kt:92-127`（真库：TUTOR 来源 EDITING 草稿在列且可 resume）、
+`CapturePendingCapturesInstrumentedTest.kt:95-134`（入口态列出并点开）。见批次记录 §2 T6。
 
 **Reopen condition.** n/a — close by the chosen decision plus a device check
 that the draft is reachable or resolved.
@@ -1956,7 +1965,7 @@ T9 已把「accepted 被 IGNORE」变成可观察结果（`ChatEvidenceWriteRece
 补偿至少一条路径 + 一条「错键 → 纠正 → 账本被抵消/被单列」的用例；(b)「同身份撞被拒行」的行为被裁定并
 有用例钉住（报冲突 / 覆盖重写 / 保持静默但记账）。
 
-## KD-44 (open, 2026-10-17 登记（批次 12 T8 对抗性复核 finding 1；medium；读码级）) · 判词锚定让「KC 集为空」的题永远拿不到判定：NO_VERDICT 永久阻塞 + 文案误导
+## KD-44 (fixed 2026-10-18，提交 `8335613f`；裁定=后台自动结算、零用户参与) · 判词锚定让「KC 集为空」的题永远拿不到判定：NO_VERDICT 永久阻塞 + 文案误导
 
 **Symptom（读码，来源：批次 12 对抗性复核）.** T8 的锚定判据（整题判决要求 ≥1 条 accepted 证据锚在
 `MistakeRecord.knowledgeNodeIds` 上）对「KC 集为空或只含伪节点」的题是一个永久阻塞：锚定集来自
@@ -1976,6 +1985,16 @@ T9 已把「accepted 被 IGNORE」变成可观察结果（`ChatEvidenceWriteRece
 **Reopen condition.** n/a —— 本条即 open；关闭条件 = 上述任一出口落地 + 一条「KC 集为空 → 明确可见出口
 （不永久静默）」的用例。
 
+**关闭记录（2026-10-18，提交 `8335613f`；裁定原话：「要的是解决办法…需要自动化在后台做好，不要有用户的
+参与决定这类事，用户不需要知道」）.** 按裁定实施 **pseudo 锚定自动结算**：`TutorJudgedReviewSettler` 在本题
+KC 集为空（诚实未分类）时，把锚定集换成该题 revision 的伪绑定节点 `pseudo:<科目>`——已物化则直接取
+（表内全部行读口 + rev/node 三重限定），未物化则复用既有物化先例就地物化 → 判词正常结算、归属指向伪绑定行、
+队列推进；**零用户可见文案/指引**（「还没有形成判定」只留给真·无判词）。自纠路径：投影器
+`attributionsForAttempt` 的 upcast 从**当前绑定**派生——题后来被绑定/改绑后重放自然改挂真实节点（KF-32 机制，
+本批留证）。测试：`TutorJudgedReviewSettlerTest`（空 KC 集题正常结算到 pseudo、归属指向伪绑定、不再 NO_VERDICT；
+真·无判词仍 NO_VERDICT）+ 设备 `TutorJudgedReviewSettleInstrumentedTest` 2/0。零 bump 依据见 ledger §3.23。
+见批次记录 §2 T5。
+
 ## KD-45 (fixed 2026-10-17，提交 `463a5dea`) · 净化领取的比较交换会误报成功：并发下重复付费 + 双写终态
 
 **Symptom（读码，来源：批次 12 对抗性复核 finding 3）.** `claimTaskAttempt` 丢弃 UPDATE 的命中行数，
@@ -1987,7 +2006,7 @@ expected 写终态，后写覆盖先写，SUCCEEDED 可被覆写成 FAILED/SUPER
 null（领不到）；`CleanRedrawTaskRunnerTest` 17/0 + 设备 `CleanRedrawTaskInstrumentedTest` 2/2 绿。
 见批次记录 §2 T6/§8。
 
-## KD-46 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 6；low）) · 3E「每日 10」实为「每次排计划 ≤10」
+## KD-46 (fixed 2026-10-18，提交 `8335613f`（口径按计划默认=每次排计划 ≤10）) · 3E「每日 10」实为「每次排计划 ≤10」
 
 **Symptom.** 知识点队列不落库（会话内现排，ledger §3.12 同口径），cap 只在 `selectKnowledgeReviewQueue`
 对第二档候选 `.take(FULL_LIBRARY_SCAN_DAILY_CAP)`；同日多次进入（或答题后重算）可拿到不同的 10 个节点，
@@ -1998,9 +2017,14 @@ null（领不到）；`CleanRedrawTaskRunnerTest` 17/0 + 设备 `CleanRedrawTask
 
 **Fix direction（待裁定）.** ① 接受近似（KDoc 写明「每次排计划 ≤10，非严格每日」）；或 ② 落库当日已捞回集合。
 
+**关闭记录（2026-10-18，提交 `8335613f`）.** 按 ① 落地：KDoc 如实写明「每次排计划 ≤10，非严格每日总量」，
+同口径引用点六处同批改齐（`KnowledgeReviewFullLibraryScan.kt:5-15`、`KnowledgeReviewQueue.kt:131-133/:162-165`、
+`StudyExperienceRepository.kt:337-338`、`StudyReviewPlannerService.kt:546-547/:652-653`、`KnowledgePort.kt:66-69`，
+含测试注释）。口径按批准的计划默认，不再要求落库当日集合。见批次记录 §2 T6。
+
 **Reopen condition.** n/a —— 登记性低危。
 
-## KD-47 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 8；low）) · 设置恢复是多键顺序写、非原子：WRITE_FAILED 文案「本机设置保持原样」可能与事实不符
+## KD-47 (open（2026-10-18 部分落地：枚举/回执 KDoc 已如实化；面向用户文案留后续）；2026-10-17 登记（批次 12 对抗性复核 finding 8；low）) · 设置恢复是多键顺序写、非原子：WRITE_FAILED 文案「本机设置保持原样」可能与事实不符
 
 **Symptom.** `applyRestoredSettings` 依次调六个写口（setOptions→逐条删/加考试→setOptimizedParameters→
 setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDoc 与 UI 文案都称「设置仍是恢复前那份 /
@@ -2010,9 +2034,14 @@ setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDo
 
 **Fix direction（待裁定）.** 文案改「设置未能完整写入，可能有部分设置已变」；或写前先快照旧值、失败时回滚。
 
+**进展（2026-10-18，提交 `8335613f`）.** 枚举与 `RestoreReceipt` KDoc 已如实化（`BackupRepository.kt:56-60/:76-84`）；
+**面向用户文案仍未改**（`SecondaryScreens.kt:732`「设置未能写入，本机设置保持原样。」）——该字符串位于他线在飞
+新增 hunk（不可分离），按计划留给后续；同缺陷的日志（`AndroidBackupRepository.kt:599`）与测试 KDoc 亦未改。
+见批次记录 §2 T6。
+
 **Reopen condition.** n/a —— 登记性低危。
 
-## KD-48 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 9；low）) · 「可观察性先行」在应用里没有消费面
+## KD-48 (fixed 2026-10-18，提交 `8335613f`（调试面消费点已接）) · 「可观察性先行」在应用里没有消费面
 
 **Symptom.** `KnowledgeQuizEvidenceAudit`（internal）全仓只有测试调用、无生产调用方；
 `KnowledgeEvidenceLedgerStatus` 无人读；「accepted 被 IGNORE 吞掉」暴露给学生的只是枚举值 + 一条 logcat WARN。
@@ -2022,9 +2051,14 @@ setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDo
 
 **Fix condition.** 在调试/审计面（如设置页诊断或复核屏）接一个只读消费点，或等 5B 的纠正语义一并接。
 
+**关闭记录（2026-10-18，提交 `8335613f`）.** 调试面消费点已接：`KnowledgeQuizEvidenceAudit` 公开化 +
+新增公开 `scanRows()`/`KnowledgeQuizEvidenceAuditRow`（:67-97）；新增 debug-only
+`app/src/debug/kotlin/.../KnowledgeEvidenceAuditActivity.kt`（只读、无写路径），`app/src/debug/AndroidManifest.xml:18-25`
+注册（exported=true，与 `BindingAuditActivity` 同一边界）；三态用例（对上/坏行/未对上）落盘。见批次记录 §2 T6。
+
 **Reopen condition.** n/a —— 登记性低危。
 
-## KD-49 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 7；low）) · 切分对账查询没有可用索引前导列
+## KD-49 (fixed 2026-10-18，提交 `8335613f`（按 KDoc 方案如实化，不加索引）) · 切分对账查询没有可用索引前导列
 
 **Symptom.** 对账查询谓词只有 `confirm_state`（`SplitImportDao.kt:113-116`），现有索引
 `(job_id, confirm_state)` 无法用它做前导过滤 → 每次读触发全表扫；触发点在复核页 Flow 每次采集 / 每次取
@@ -2034,9 +2068,13 @@ setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDo
 
 **Fix direction.** 加 `(confirm_state)` 单列索引（需 schema 迁移）或在 KDoc 如实写明走全表扫。
 
+**关闭记录（2026-10-18，提交 `8335613f`）.** 按后者落地：`SplitImportDao.kt:98-116` 如实写明「谓词只有
+`confirm_state`、现有索引（`SplitImportEntities.kt:52-56` 三条）不适用、当前走全表扫；个人库规模可接受，
+不加索引」。见批次记录 §2 T6。
+
 **Reopen condition.** n/a —— 登记性低危。
 
-## KD-50 (open, 2026-10-17 登记（批次 12 对抗性复核 finding 10；low）) · `isCurrentProblemRevision` 判据比 KDoc 宽
+## KD-50 (fixed 2026-10-18，提交 `8335613f`（KDoc 与判据对齐）) · `isCurrentProblemRevision` 判据比 KDoc 宽
 
 **Symptom.** `isCurrentProblemRevision`（`ProblemDraftTransactionDao.kt:757-761`）只查「有没有
 `error_book_entry.current_revision_id = 该修订`」，不校验条目状态（ACTIVE/ARCHIVED）也不校验条目属于同一
@@ -2045,9 +2083,13 @@ practice unit——「挂到已归档条目的修订上」是它允许的形状�
 
 **Impact.** low（边界记录）。
 
+**关闭记录（2026-10-18，提交 `8335613f`）.** KDoc 与判据对齐：写明「只查条目当前修订指向
+（`error_book_entry.current_revision_id`），不校验条目状态（ACTIVE/ARCHIVED）也不校验同一 practice unit」
+（`ProblemDraftTransactionDao.kt` KD-50 处）。见批次记录 §2 T6。
+
 **Reopen condition.** n/a —— 登记性低危。
 
-## KD-51 (open, 2026-10-17 登记（批次 12 设备段观察；medium）) · 冷启动知识库搜索特性重建占死 SQLite 连接池：单条 SQL 等 270s、冷启 ANR、采集路径卡「正在安全保存」
+## KD-51 (fixed 2026-10-18，提交 `8335613f`；设备实测 0 条连接饥饿) · 冷启动知识库搜索特性重建占死 SQLite 连接池：单条 SQL 等 270s、冷启 ANR、采集路径卡「正在安全保存」
 
 **Symptom（设备实测，emulator-5554；三次 reboot 后仍复现，宿主资源充足 64G/8.3G 空闲、CPU 39%）.**
 冷启动反复 ANR（`/data/anr/...SystemJobService` 同型记录，主线程栈落
@@ -2063,3 +2105,79 @@ for 270.20203 seconds」，阻塞语句 `DELETE FROM knowledge_search_feature WH
 （采集路径优先）。复现命令与日志见批次记录 §3.3/§3.5（独立核对替换记录 `anr_2026-10-16-19-59-37-873`）。
 
 **Reopen condition.** n/a —— 本条即 open；关闭条件 = 冷启动不再出现 270s 级连接等待 + 一条设备级复现对照。
+
+**关闭记录（2026-10-18，提交 `8335613f`）.** T4 把整科重建从「一条长写事务（COUNT+整科 DELETE+一次性 INSERT）」
+改为「读相（计数+候选集走 `withReadTransaction`，不占写连接）+ 分块短写事务（删/插各按 64 节点一块，抽取在
+事务外）+ 块间可取消」，**锚点最后写**语义保持（崩溃/取消=整科重跑、无部分可见）。**设备实测**（人为构造的
+强制全量安装，非用户路径；改前基线取自批 12 记录、本次未重测）：13 条分块重建（MATH 285.6s/449.3s 等，
+独立核对更正 12→13），`install finished in 2781112 ms`，**全程 0 条 `unable to grant`**（改前为单条
+270.20203s 等待）；快路径冷启 install 1075ms、0 条饥饿；采集保存不再被饿死（约 15s 内进入「整理题目」，
+批 12 为卡死）。见批次记录 §2 T4/§3.2。
+
+**补记（2026-10-18 对抗性复核，medium；无已知生产可达路径）.** 分块重建的完整性门是 `indexed >= reviewed`，
+但 indexed 计数**不筛** `verification_status`（reviewed 才筛，`ProblemOrganizationDao.kt:228-235` vs `:215-221`）
+——若某科存在「有特征行但未审校」的节点，取消于删块之后仍可能通过门、读路径把残缺索引判完整（静默少召回）。
+已核当前无生产可达 I>R 路径（`KnowledgeBaseImportContract.kt:164` 禁 MODEL_CANDIDATE；退役删特征行；
+伪节点不写特征行），仅作边界登记；加固方向 = indexed 计数同筛 verification_status（一行 SQL）。
+
+## KD-52 (open, 2026-10-18 登记（批次 13 对抗性复核 finding 2 + 设备走查；medium）) · A8 手动建题只落了半边：schema/校验器已放行，但没有生产者，空源草稿读取路径硬崩
+
+**Symptom（读码 + 设备实测）.** 批次 13 的 A8 只落了：schema 67（`problem_draft.source_asset_id` 可空）+
+校验器按 `USER_TRANSCRIPTION` 放行。**没有创建入口**——`MANUAL_TRANSCRIPTION` 全仓只有 model 定义、
+生产代码无处设置（设备走查确认：录入屏只有 拍照/相册/整卷-PDF，无「手动建题」入口）；
+而读取路径对空源草稿是硬 `checkNotNull(sourceAssets.firstOrNull())` 抛 `IllegalStateException`（非类型化失败）：
+任何空源行出现时 resume/批处理/讲题会直接崩（`ProblemDraftTransactionDao.kt:1134-1146` 注释自认「空源草稿的
+读取分支要连同创建入口一起落地（下一批）；现在没有任何生产者，这里对空源行 fail-closed」）。
+
+**Impact.** medium：当前无生产者 ⇒ 无空源行 ⇒ 不会崩（fail-closed 是安全态）；但「手动建题」这个已批准的
+产品功能**整体不可达**，计划里 T2 的「手动题全链提交」验收在本树无法验证。
+
+**Fix direction（下一批首选）.** 创建入口（录入屏「手动建题」）+ 草稿链空源分支
+（`importDraft`/`initialDraftCommand`）+ 读取路径空源分支（`ProblemDraftTransactionDao:1136`、`RoomStudyDatabase:842`、
+`RoomBatchImportRepository:503`、`RoomTutorToolRunner:1071`、`RoomCaptureWorkflowRepository:470-480/649/680`）
++ 提交路径空源分支，一并落地并补全链用例。见批次记录 §2 T2/§3.5/§7。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 创建入口 + 全链提交用例落地（手动题 `created=true` 且
+证据 provenance=USER_TRANSCRIPTION）。
+
+## KD-53 (open, 2026-10-18 登记（批次 13 设备实测；medium）) · 大库的自建备份不可校验/不可恢复：单条目解压上限 100MB < 库体积
+
+**Symptom（设备实测）.** app 内创建完整备份 → UI 报「备份完成」（63,467,871 B）→ 同一文件走「校验一个备份文件」
+报 `备份无效：database.sqlite 超过单条目解压大小上限`；`SmbkArchiveCodec.kt:113` 单条目解压上限 100 MB，
+而该设备库 365,133,824 B（`VACUUM INTO` 快照）。⇒ **本设备上该备份不可校验、不可恢复**。
+
+**Impact.** medium：大库（当前内容包 + 使用后）上，备份产出的是一个"自己都验不过"的文件——备份功能在大库
+规模下实质失效；同时 AUD-05 的「缺引用资产」专用门在设备核里被这个更早的门遮挡（结果仍是交换前拒绝，
+但验的不是目标门）。
+
+**Fix direction（待设计）.** 上限与大库现实对齐（抬高上限并配资源预算），或改流式/分块解压校验
+（压缩比与总量门保留）。见批次记录 §3.4。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 大库（≥365MB 快照）的自建备份可在 app 内校验与恢复，
+且 AUD-05 专用门在设备上被真实触发。
+
+## KD-54 (open, 2026-10-18 登记（批次 13 设备实测；medium）) · 备份快照 VACUUM INTO 单语句占写连接 601s：备份期间其它写被饿死
+
+**Symptom（设备实测）.** 备份快照 `VACUUM INTO` 单语句占写连接最长 **601.274s**、期间 40 条
+`unable to grant a connection`（与 KD-51 同型、不同语句；KD-51 修的索引重建本身 0 条）——备份期间其它写
+（采集提交等）被饿死。
+
+**Impact.** medium：备份是用户主动动作但可能持续 10 分钟，期间 App 的写入路径全部排队（冷启动安装叠加时更糟）。
+
+**Fix direction（待设计）.** 与 KD-51 同思路但对象是快照：`VACUUM INTO` 的原子性要求单语句，只能
+① 让路（备份前把写队列排空 + 备份期间 UI 显式"备份中"并抑制其它写入口），或 ② 改分块 checkpoint 拷贝
+（需自证一致性）。见批次记录 §3.4。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 备份期间无分钟级写饥饿（设备对照）。
+
+## KD-55 (open, 2026-10-18 登记（批次 13 对抗性复核 finding 5；low）) · docx 嵌入图片直读 file:// 不再复核 sha/长度（与 PDF 侧同形的 TOCTOU）
+
+**Symptom.** docx 渲染时图片字节直接从 `file://` URI 读取（`DocxImageSource.kt:26-45`），不再复核记录里的
+`contentSha256`/`byteSize`——核对只在读详情时由 vault.resolve 做过（`AndroidCanonicalAssetVault.kt:273-281`），
+存在「读详情 → 渲染」之间的 TOCTOU 窗口。与 PDF 侧同形（非本批新引入），docx 侧同样没有第二次核对。
+
+**Impact.** low（窗口窄、需并发改文件）。
+
+**Fix direction.** 渲染前按记录里的 sha/长度复查一次（或直接读 vault 的规范句柄）。
+
+**Reopen condition.** n/a —— 登记性低危。
