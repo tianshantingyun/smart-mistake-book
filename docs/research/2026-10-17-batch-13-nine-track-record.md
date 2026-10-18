@@ -539,9 +539,12 @@ tools/export/verify_mistake_docx.py
 
 ## 8. 收尾补记（主会话，2026-10-18）
 
-**提交（1 笔已落，docs 提交随后）**：
+**提交（2 笔，已推送至 `5162a2ff`）**：
 - `8335613f` —— 七轨全部（记录 §6.1 的 111 路径剔除 `.artifacts/` 两脚本 + 补入 `67.json`，共 **110 文件**）。
   `SmartMistakeBookRoot.kt` 按 §6.3 整份纳入（T1 导出接线两 hunk + 他线小区段，先例 `463a5dea`）。
+- `5162a2ff` —— docs（本收尾补记 + KD 登记 + 主线/台账 §3.23/决策台账折入；主线与决策台账另载他线同日
+  **4E 统一生图与 JS 后端**路线修订段——整份文件纳入，如实注明）。
+- **推送结果（2026-10-18）**：`07382e23..5162a2ff`（fast-forward，无分叉）；`git ls-remote` 直查远端 = `5162a2ff`。
 
 **收尾修复（主会话，均已过门）**：
 - **T3 仪器化确定性红的根因**（§3.3）：不是产品面——`CaptureCommitReuseVisibilityInstrumentedTest` 第一条断言先碰
