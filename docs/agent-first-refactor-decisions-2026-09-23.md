@@ -2934,3 +2934,48 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
   无法继续；模拟器 DNS 根因=内建代理 10.0.2.3:53 无响应，以 `iptables nat OUTPUT DNAT` 修复。
 - **未验证照录**：设备模型轨（KD-37/38 复验、AUD-16 剩余）未达；KD-53 恢复未达（KD-56）；6B-2 设备链未达；
   4E JS/模型侧 method 未接；6C-2 未实施；对抗性复核 findings 为读码级。
+
+---
+
+## 完成记录折入（批次 15：PRD A/B + KD-56 + WG-05）（2026-10-20）
+
+> 说明：本批由动态工作流执行（九实施轨 + I1 集成 + 串行门禁 + D1 设备轨 + 独立核对 + 对抗复核 + 记录员）。**本批未提交**；
+> 记录时点 HEAD 仍 `dfe231bf` = origin/main。批次记录：`docs/research/2026-10-20-batch-15-prd-a-b-backup-wg05-record.md`。
+> 门禁结论仍是**单测门第 3 轮 exit=1、强门未通过、D1 阻塞**；以下“落地”只到代码/部分 JVM 级，不等于计划验收完成。
+
+- **PRD-02 / KD-43（答案键信任与定向纠错，schema 68）**：`learner_chat_evidence.corrects_evidence_id` + 索引 + 67→68 非破坏迁移；
+  账本新增 `EVIDENCE_CORRECTION`（`VOID` 排除、`REPLACE` 按账本最终替代重算并挂回原作答位置；目标必须更早，悬空/自指拒绝）；
+  投影/证据/账本三串同 bump（`projector-v14`/`evidence-v6`/`ledger-v4`，`learning-core-v14`）。键信任拆两轴：模型题面 `verificationStatus=UNKNOWN`、
+  `AUTO_VERIFIED` 只表示本地可机械判分；未核验/争议/迟到旧键只落 rejected 观察行，不新增数值掌握证据。小测“答案有问题”入口 + I1 接线落地。
+  复核后当前树又修了“已作答未核验键报告丢失”和“第二次报告命中第一条 VOID”两处；但 instrumented/设备未跑，读侧最新键按 `created_at` 与投影账本序
+  仍可能分叉、`expectedKeyVersion` 生产不传、UNKNOWN 键不能 UI 改键，**KD-43 保持 open**。
+- **PRD-03（原题修订）**：受控 `reviseProblem`（CAS + 持久幂等回执 + 显式冲突）、新 revision 追加、原图复制、旧 basis 的模型任务/重绘/关系失效、
+  机器可判题新 practice unit；详情“修改这道题” + 最小编辑 route/VM；保存前差异使用真实 `baselineAnswerSpecPresent`。`MistakeRevisionDiffTest` 6/0；
+  设备“编辑→杀→重开→复习→导出一致”未跑，历史 attempt 的 UI 读路径未找到。
+- **PRD-04（原生 PDF/DOCX）**：新增格式 sheet（默认 PDF、可选 Word、可取消），I1 把单题/批量格式随 `MistakeExportJobRequest` 入队；
+  格式进入渲染分流/缓存目录/记录扩展名身份；两个既有 app 回归已同步“先过格式 sheet”。JVM 3/0；仪器化/设备/真实接收应用未跑。
+- **PRD-08（草稿竞态）**：先写 8 个 JVM 反例/回归，再在 SavedState 加 `draftVersion` 与草稿写串行 CAS；旧读、迟到旧写、提交清稿不再覆盖/抹掉新输入。
+  JVM 8/0；真实进程死亡/设备恢复未跑，草稿持久写失败仍无学生可见提示。
+- **PRD-06 空态半边**：Review 四态（空库/有题无到期/待处理失败/正常）与 Library 待处理入口 + 手动建题提示落地；JVM 14/0；UI/设备未跑；
+  能力快照半边（TutorLocalAction/native schema/Route B）按计划顺延下一批。
+- **KD-56 / KD-54 / KD-53（备份栈）**：恢复重排——关库前对将晋升字节跑全量 integrity_check、先通知重启、终态写门、关库后 NonCancellable 交换；
+  快照默认走独立 SQLite 连接 `VACUUM INTO`（只读优先/独立 RW 回退/WAL 门），旧路径保留写门。JVM 生命周期 11/0；三项均无 ≥365MB 设备证据，
+  **全部保持 open**。写门仍只覆盖备份/采集两仓库，旧回退忽略 `wal_checkpoint` 结果行。
+- **KD-57（分享重试）**：成功/明确放弃才撤授权，可重试失败保留；10 分钟窗口与授权失效派生 Expired；系统返回键也走放弃出口。JVM 6/0；
+  instrumented/设备未跑，**保持 open**；10 分钟是待产品确认的自选值。
+- **KD-58 / KD-59 / KD-60（WG-05）**：历史 attachedImages 改 cache-only + 可读原因 + 显式“重新生成”走共享 coordinator/账本；生产经
+  `AttachedImageResolutionPort` 能力对象接线。KD-59（旧重载 ERROR/binding internal+测试工厂）与 KD-60（预算分列+账本拒绝给真实次数）代码级关闭并有 JVM 用例；
+  KD-58 仍因 core:ui 8 例未跑、无设备点击证据而**保持 open**。
+- **外部研究结论（不新增产品阈值）**：R1 确认 `VACUUM INTO` 是 SQLite 一致性快照（3.27+；只读支持 3.28+；Android framework 需 API 30+，只读放行未实测），
+  Room 3 `PassthroughConnectionPool.close()` 永久终态；R2 确认 QTI `correctResponse` 是评分声明而非核验证明，xAPI void/PROV revision/event sourcing 三种建模
+  回放语义不同，OATutor 只让人工键进 BKT。这些结论支撑本批“独立连接快照/重启生命周期/两轴键门/补偿事件”的方向，但不替代设备与真实质量证据。
+- **门禁 / 提交**：单测门第 3 轮 exit=1、强门未通过；D1 工单阻塞。记录时点 `emulator-5554` 在线，但本批未执行设备用例。9 个被引用的新生产文件仍未跟踪
+  （迁移/schema 68/port/diff/编辑 route+VM/格式 sheet/AttachedImageResolution/FigureGenerationBudgets），主会话提交时必须显式纳入。
+- **下一批**：按 A→B→C 进入 PRD-05（无模型三键与 undo）；4E 下一波 WG-06/07/08 用 schema 69；KD-56 必须继续作为 P0 先拿设备证据。
+
+### 批次 15 收尾实跑（2026-10-20，主会话）
+
+- **门禁**：单测门 11 模块 `exit=0`（2,870 tests / 0 failures，含 core:ui/app）；强门 `exit=0`（修 3 处 `EvidenceCorrection` 穷尽 `when` + 1 处非法 import）。
+- **设备 71/0**：365MiB 大库恢复 1/0（39.045s）、备份生命周期 3/0、独立快照 2/0、AUD-05 缺资产拒恢复 27/0、答案键纠错 11/0、原题 DB 5/0、library 21/0、分享 8/0、app 18/0；全量迁移矩阵 14/14。
+- **状态更正**：KD-53/54/56/57/58 关闭；KD-43 最小纠错链（a）设备 11/11 已过，(b) 身份粘性与 UNKNOWN 键 UI 改键仍 open；KD-47 文案仍在他线；新增 KD-61（非门控写/750ms 宽限）与 KD-62（回退 checkpoint/临时库清理）。
+- **未覆盖**：模型真实质量/Provider、PRD-06 能力快照、4E WG-02/04、真实接收应用打开、10 分钟分享窗口产品值、T3 历史作答 UI 读路径。

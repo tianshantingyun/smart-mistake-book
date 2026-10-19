@@ -314,6 +314,32 @@
 |---|---|---|---|---|---|
 | `LearningCoreVersions.*`（`PROJECTOR`/`EVIDENCE`/`ATTRIBUTION`）**全部未 bump**；`STUDY_DATABASE_VERSION` **67 不动**（本批零 schema 变更）；各指纹 schema / 提示词策略版本未动 | **4E.1 波次 1**：新增统一生图契约/策略/协调器端口与 `DefaultFigureGenerationCoordinator`/`FigurePromptAssembler`/`RoomFigureDispatchLedger`；图像通道改为只接受绑定 operation/method/源证据/配置的**已预留 dispatch context**（POST 前复核、旧无预留入口 fail-closed）；讲题 GENERATE_FIGURE/保存净化/后台重绘三入口统一转调（IMAGE_MODEL only，JS 不广告）。**KD-53**：备份条目上限按类型分层（DB 1 GiB/题图 100 MiB；总量 2 GiB、压缩比 100 保留）。**KD-54**：备份期写「让路」门（BackupWriteGate + 两仓库接入） | **零算法 bump 的判据**：① 4E.1 波次 1 是**准入与派发层**——投影器/判据公式/账本载荷一行未动；`FigureGenerationPolicy` 的预算门是入口声明（真门是既有 `model_task_operation.dispatch_count`，见 KD-60 的语义登记）；固定账本重放逐位不变。② KD-53/54 是备份**资源与并发**面（上限常量、写门），不进入投影/指纹/计划输出。**诚实登记**：图像预留与讲题工具环共享同一派发预算（KD-60，low）；「无预留→0 HTTP」防线在接口层偏弱（KD-59，low） | 4E 裁定=2026-10-18 用户裁定（统一生图、模型选方法；本波次按计划 §0.1 先图像后端）；KD-53/54 裁定=批次 13 设备实测后按计划 T4 落地。实现与证据见批次记录 `docs/research/2026-10-18-batch-14-eight-track-record.md` §2 T1/T4/§8 | T1：`FigureGenerationPolicyTest`/`FigurePromptParityTest`/`FigureGenerationCoordinatorTest`/`FigureGenerationWiringTest`（fake 后端端到端：统一 policyVersion、预留先于 POST、无预留调用=0）+ 设备 `TutorCommandRecompositionInstrumentedTest` 2/0；T4：`SmbkArchiveCodecTest`/`BackupRestoreInstrumentedTest` 27/0（设备）/`BackupCreateWriteGateInstrumentedTest` 1/0/`CaptureBackupWriteGateInstrumentedTest` 1/0；收尾门禁实跑：七模块单测 + feature:tutor exit=0、androidTest 编译四模块 + 整包 exit=0（2026-10-19 主会话） | ➖（不触发重放）；**未接**：WG-02/04/05/07/08、QuickJS 运行库、真实 Provider 质量（下一波） |
 
+### 3.25 批次 15 T2 · PRD-02 答案键信任与定向纠错（2026-10-19）：schema 68 + 投影/证据/账本三串同 bump
+
+> 编号说明：本条由 T2（PRD-02/KD-43）占用；schema 68 由本轨唯一写入，4E 下一批用 69。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` 67→**68**（`learner_chat_evidence.corrects_evidence_id TEXT NULL` + 索引，非破坏迁移）；`PROJECTOR` v13→**v14**；`EVIDENCE` v5→**v6**；`LEDGER` v3→**v4**；复合串 `learning-core-v13 → v14`（`SELECTOR_COMPOSITE` 同源常量随之） | **账本新增补偿事件 `EVIDENCE_CORRECTION`**（同 outbox kind 承载、载荷按 `source_kind` 区分）：`VOID` = 从有效证据集合排除目标；`REPLACE` = 按账本序列最终有效替代重算，且**挂回原作答位置/时间**（修复日不进学习时钟）。目标可指更早证据或更早更正（“改两次/撤销更正”），目标必须更早 ⇒ 不成环；悬空/自指在重放入口拒绝。**键信任两轴拆分**：`scoringMode=AUTO_VERIFIED` 仍表示“本地 ID 比较确定”，题面 `verificationStatus` 改为 `UNKNOWN`（模型生成无独立支持）；未核验/争议/迟到旧键只落 rejected 观察行（保留真实选择），不新增数值掌握证据。**旧行一字不改、不自动晋升旧反馈** | **为什么必须 bump（不是零 bump）**：①投影器新增“同一账本在有无更正事件时输出不同”的分支——固定无更正账本逐位不变，但含更正的账本无法靠增量路径表达（增量只累加）；②证据语义改变（被撤销证据不再贡献数值掌握）；③账本事件 kind 增加。三条各自都是 `LearningCoreVersions` 的登记轴，故三串同 bump；旧快照靠版本不匹配走 `commitFullReplay`（`projection_archive` 先归档） | 计划 `.zcode/plans/plan-2026-10-20-batch-15-prd-a-b-backup-wg05.md` §T2；PRD-02（`docs/superpowers/plans/2026-10-19-product-readiness-followup-plan.md:44-57`）；设计 §3.2/§3.3（`docs/superpowers/specs/2026-10-19-product-readiness-design.md:41-57`）；外部对照：QTI 3.0.1（correctResponse 是评分声明而非核验证明）、xAPI voiding、W3C PROV-O revision/invalidation、OATutor（人工键→BKT，模型只做 hint）——单一来源/未直读项按研究结论标注处理 | **本轨未跑 Gradle**（按轨纪律：门禁由批次串行执行）→ 待门禁实跑：`ChatEvidenceCorrectionReplayTest`（位置等价/撤销排除/改两次/撤销更正/同 KC 与其他 KC 不误伤/悬空自指拒绝）、`AnswerKeyTrustPolicyTest`（两轴判定表）、`AnswerKeyCorrectionInstrumentedTest`（真库：错键判错→改键、正确→撤销、重复请求、旧键迟到、纠错中被杀、增量==全量重放）、`KernelWave0SchemaContractTest`（68 头/列/索引）、`FullMigrationMatrixInstrumentedTest`（67→68 保行 + 可写更正 + 幂等） | ➖（尚未实跑；`commitFullReplay` 会在首个真机门禁时先归档旧投影） |
+
+> **批次 15 收尾补记（2026-10-20，记录员；只读核对，未跑 Gradle）**：
+> ① **门禁实跑已有部分结果**：`KernelWave0SchemaContractTest` 8/0、`AnswerKeyTrustPolicyTest` 5/0、`ChatEvidenceCorrectionReplayTest` 9/0、
+> `KnowledgeQuizFeedbackWriteTest` 5/0（XML 时点 02:13-02:17；由串行门禁执行，记录员未重跑）。但工单结论仍是**单测门第 3 轮 `exit=1`**，
+> `core:ui`/`app` 无当前结果，因此本行不能改写成“门禁通过”。`AnswerKeyCorrectionInstrumentedTest`（11 例）与 `FullMigrationMatrixInstrumentedTest`
+> 的 67→68 用例**未执行**，archive 未在真机门禁触发。
+> ② **68.json 当前 `identityHash=607250e58442607e8d8a83d2471d2f67`**，与 67 的 `9bf16ae8…` 不同（文件 mtime 01:39；由 KSP 重写还是手工更新未核实）；T2 原报告“从 67 复制”的问题在记录时点不再复现。
+> 但仍需注意 `ExportedSchemaContractTest` 只校验非空与 32 位十六进制，不能防“复制旧 hash”。
+> ③ **增量路径的边界照实写**：`ProjectionTransactionDao.kt:634-647` 对 `EVIDENCE_CORRECTION` 直接 `FULL_REPLAY_REQUIRED`；
+> `AnswerKeyCorrectionInstrumentedTest.kt:81-93` 所谓“增量 vs 全量”实际是“持久快照（drainer 产出） vs 从空快照全量重放”（full-vs-full），
+> 等价性由结构强制，不是该用例证明的。该用例也未跑。
+> ④ **不是零 bump** 的判据不变：投影输出、证据语义、账本 kind 三条都变；固定无更正账本逐位不变，但含更正的账本必须全量重放。
+> 若后续决定退回零 bump，必须逐条证明账本/指纹/投影输出逐位不变，本批没有这样的证明。
+> ⑤ 设备/真机首跑时 `commitFullReplay` 会先归档旧投影；本轮没有执行该路径，不能声称 archive 已落。
+> ⑥ **主会话收尾实跑（2026-10-20）**：单测门 11 模块 `exit=0`（含 core:ui/app）；`AnswerKeyCorrectionInstrumentedTest` **11/11 设备通过**
+> （错键→改键、撤销、改两次、重复请求、同 KC 不误伤、纠错中被杀、旧键迟到、未核验只观察、已作答回落争议），
+> `FullMigrationMatrixInstrumentedTest` **14/14**（13 首轮通过 + 修复 `getText` 读 NULL 断言后单跑 1/1；67→68 保行/可写/幂等过）。
+> `commitFullReplay` 在真机重放路径已执行（archive 先归档）；68.json `identityHash` 由本轮构建保持 `607250e5…`。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；
