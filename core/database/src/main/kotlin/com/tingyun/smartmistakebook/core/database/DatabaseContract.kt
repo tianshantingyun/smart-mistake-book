@@ -128,7 +128,8 @@ internal object DatabaseContractValidator {
         StudyDbValue.SourceAssetType.GENERATED_FIGURE,
     )
     fun validateCreateProblemDraft(command: CreateProblemDraftCommand) {
-        validateSourceAsset(command.sourceAsset)
+        // A8：空源创建只允许手动建题形态（用户转写）。照片链的创建仍必须带页 0 资产。
+        command.sourceAsset?.let(::validateSourceAsset)
         id(command.draftId, "draftId")
         command.requestFingerprint?.let { fingerprint ->
             requireContract(sha256.matches(fingerprint)) {
@@ -143,10 +144,17 @@ internal object DatabaseContractValidator {
             command.initialRevision.revisionNumber == 1 &&
                 command.initialRevision.basisRevisionNumber == null,
         ) { "Initial draft revision must start at revision 1 without a basis" }
-        requireContract(
-            command.initialRevision.author == StudyDbValue.ProblemDraftAuthor.CAPTURE_IMPORT,
-        ) { "Initial draft revision must be owned by the capture import boundary" }
-        validateDraftRevision(command.initialRevision, command.sourceAsset.sourceAssetId)
+        // A8：空源创建 = 手动建题，初始修订的作者是用户本人；照片链仍必须由导入边界拥有。
+        // 两个分支都只认各自那一个作者，不放宽成"任意作者皆可"。
+        val expectedAuthor = if (command.sourceAsset == null) {
+            StudyDbValue.ProblemDraftAuthor.USER
+        } else {
+            StudyDbValue.ProblemDraftAuthor.CAPTURE_IMPORT
+        }
+        requireContract(command.initialRevision.author == expectedAuthor) {
+            "Initial draft revision author does not match its creation boundary"
+        }
+        validateDraftRevision(command.initialRevision, command.sourceAsset?.sourceAssetId)
     }
 
     fun validateAppendProblemDraftSourceAsset(command: AppendProblemDraftSourceAssetCommand) {

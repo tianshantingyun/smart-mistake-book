@@ -39,6 +39,8 @@ import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
+import com.tingyun.smartmistakebook.core.export.MistakePaperDraft
+import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.ui.Divider
@@ -93,6 +95,12 @@ fun TutorRoute(
         layout: MistakePdfLayout,
         entryIds: List<String>,
     ) -> Unit = { _, _, _ -> },
+    /** 6B-2：选题后读题面、建可编辑卷面（null = 这个入口不接编辑态）。 */
+    readExportPaperEdit:
+        (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
+        null,
+    /** 6B-2：编辑态确认后的落点（装配处落盘草稿 + 入队后台重渲染）。 */
+    onStartEditedExport: (MistakePaperDraft, MistakeExportFormat) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     TutorLobbyRoute(
@@ -114,6 +122,8 @@ fun TutorRoute(
             attachedImageIntake = attachedImageIntake,
         ),
         onStartExport = onStartExport,
+        readExportPaperEdit = readExportPaperEdit,
+        onStartEditedExport = onStartEditedExport,
         modifier = modifier,
     )
 }

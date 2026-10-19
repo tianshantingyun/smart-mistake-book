@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.feature.capture
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -13,10 +14,19 @@ import com.tingyun.smartmistakebook.core.domain.CaptureSourcePage
 import com.tingyun.smartmistakebook.core.domain.CapturedProblemCommitSummary
 import com.tingyun.smartmistakebook.core.domain.ConfirmedTutorSession
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
+import com.tingyun.smartmistakebook.core.domain.CaptureWritingLayer
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.ResumableCaptureDraft
+import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
+import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
+import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
+import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
+import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
+import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.WritingLayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -59,6 +69,8 @@ class CaptureScreenInstrumentedTest {
         // 讲题来源不提供「整卷/PDF」：它的完成态是进入讲解，整卷管线的落点是错题本入库，
         // 在这里放一个终点不一致的入口就是死路（能力说明见 CaptureScreen 的参数 KDoc）。
         composeRule.onNodeWithTag("capture_mode_files").assertDoesNotExist()
+        // A8：手动建题的完成态是错题本入库；讲题来源需要原题照片，不提供这个入口。
+        composeRule.onNodeWithTag("capture_mode_manual").assertDoesNotExist()
     }
 
     @Test
@@ -86,18 +98,94 @@ class CaptureScreenInstrumentedTest {
         composeRule.onNodeWithTag("capture_take_picture_button").assertExists()
         composeRule.onNodeWithTag("capture_pick_photo_button").assertExists()
         composeRule.onNodeWithTag("capture_mode_files").assertExists()
+        // A8：错题本来源提供「手动建题」（无照片建题）。
+        composeRule.onNodeWithTag("capture_mode_manual").assertExists()
         composeRule.onNodeWithTag("capture_mode_files").performClick()
         composeRule.runOnIdle {
             assertEquals(1, fileImportOpened)
         }
     }
+
+    @Test
+    fun manualTranscriptionResumeShowsEditableFormWithoutSourceImage() {
+        composeRule.setContent {
+            MaterialTheme {
+                CaptureScreen(
+                    entryOrigin = CaptureEntryOrigin.LIBRARY,
+                    repository = FakeCaptureRepository(resumable = manualResumableDraft()),
+                    modelTasks = FakeModelTasks(),
+                    onOpenModelSettings = {},
+                    onTutorSessionReady = {},
+                    onLibraryEntryReady = {},
+                    onSplitReady = {},
+                    onBack = {},
+                    resumeDraftId = "manual-draft",
+                )
+            }
+        }
+
+        // A8：空源草稿恢复回来就是可编辑的手动转写表单——不是崩溃，也不是空的"录入方式"。
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithTag("capture_correction_form")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+        composeRule.onNodeWithTag("capture_screen").assertExists()
+        composeRule.onNodeWithTag("capture_correction_form").assertExists()
+        composeRule.onNodeWithTag("capture_transcription_input").assertExists()
+        composeRule.onNodeWithTag("capture_mode_chooser").assertDoesNotExist()
+    }
 }
 
-private class FakeCaptureRepository : CaptureWorkflowRepository {
+private fun manualResumableDraft(): ResumableCaptureDraft = ResumableCaptureDraft(
+    draftId = "manual-draft",
+    origin = CaptureEntryOrigin.LIBRARY,
+    sourceImageUri = null,
+    sourceAssetId = null,
+    sourceAssetSha256 = null,
+    sourceWidth = null,
+    sourceHeight = null,
+    sourceByteSize = null,
+    draftCreatedAtEpochMillis = 1_000,
+    currentRevisionNumber = 1,
+    currentRevisionDocumentFingerprint = "a".repeat(64),
+    currentRevisionCreatedAtEpochMillis = 1_000,
+    subject = null,
+    title = "新拍题目",
+    questionDocument = CapturedQuestionDocument(
+        document = QuestionDocument(
+            id = "document-manual",
+            blocks = listOf(ContentBlock.Paragraph("stem", "")),
+        ),
+        blockEvidence = listOf(
+            QuestionBlockEvidence(
+                blockId = "stem",
+                sourceAssetId = "",
+                sourceRegion = null,
+                writingLayer = WritingLayer.UNKNOWN,
+                provenance = QuestionBlockProvenance.USER_TRANSCRIPTION,
+                confidence = null,
+                reviewStatus = QuestionBlockReviewStatus.NEEDS_REVIEW,
+                producerVersion = null,
+            ),
+        ),
+    ),
+    transcription = "",
+    writingLayer = CaptureWritingLayer.UNKNOWN,
+    latestAssessmentTask = null,
+    latestParseTask = null,
+    tutorSessionId = null,
+    workspace = null,
+    updatedAtEpochMillis = 1_000,
+)
+
+private class FakeCaptureRepository(
+    private val resumable: ResumableCaptureDraft? = null,
+) : CaptureWorkflowRepository {
     override fun observePendingCaptures(): Flow<List<com.tingyun.smartmistakebook.core.domain.PendingCaptureItem>> =
         flowOf(emptyList())
 
-    override suspend fun readPendingCapture(draftId: String): com.tingyun.smartmistakebook.core.domain.ResumableCaptureDraft? = null
+    override suspend fun readPendingCapture(draftId: String): ResumableCaptureDraft? = resumable
 
     override suspend fun abandonPendingCapture(
         draftId: String,

@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.database.FinishCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.cleanRedrawTaskId
 import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
 import com.tingyun.smartmistakebook.core.domain.CleanImageResult
+import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyInput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskLogicalOperationFingerprint
@@ -134,7 +135,7 @@ class CleanRedrawTaskRunnerTest {
 
     @Test
     fun `a failed redraw round lands its failure code`() = runBlocking {
-        val harness = harness(generate = { _, _ -> null })
+        val harness = harness(generate = { _, _, _ -> null })
 
         val outcome = harness.runner.run(harness.identity())
 
@@ -379,7 +380,11 @@ class CleanRedrawTaskRunnerTest {
         val egressAllowed: Boolean,
         val readBytes: suspend (CanonicalSourceAssetRecord) -> ByteArray?,
         val classify: suspend (ModelTaskRequest) -> ImagePipelineProblemKind?,
-        val generate: suspend (CanonicalSourceAssetRecord, ByteArray) -> CleanImageResult?,
+        val generate: suspend (
+            CanonicalSourceAssetRecord,
+            ByteArray,
+            FigureDispatchParent.CleanRedrawTask,
+        ) -> CleanImageResult?,
         val attach: suspend (String, ByteArray, String) -> Boolean,
     ) {
         val source = SourceHolder(sourceAsset())
@@ -399,9 +404,9 @@ class CleanRedrawTaskRunnerTest {
                 classifyRequests += request
                 classify(request)
             },
-            generateClean = { record, bytes ->
+            generateClean = { record, bytes, parent ->
                 generateCalls += 1
-                generate(record, bytes)
+                generate(record, bytes, parent)
             },
             attach = { revisionId, bytes, mimeType ->
                 attachCalls += Triple(revisionId, bytes, mimeType)
@@ -474,8 +479,12 @@ class CleanRedrawTaskRunnerTest {
         classify: suspend (ModelTaskRequest) -> ImagePipelineProblemKind? = {
             ImagePipelineProblemKind.WITH_FIGURE
         },
-        generate: suspend (CanonicalSourceAssetRecord, ByteArray) -> CleanImageResult? =
-            { _, _ -> CleanImageResult(bytes = CLEAN_BYTES, mimeType = "image/png") },
+        generate: suspend (
+            CanonicalSourceAssetRecord,
+            ByteArray,
+            FigureDispatchParent.CleanRedrawTask,
+        ) -> CleanImageResult? =
+            { _, _, _ -> CleanImageResult(bytes = CLEAN_BYTES, mimeType = "image/png") },
         attach: suspend (String, ByteArray, String) -> Boolean = { _, _, _ -> true },
         readBytes: suspend (CanonicalSourceAssetRecord) -> ByteArray? = { SOURCE_BYTES },
     ): Harness = Harness(

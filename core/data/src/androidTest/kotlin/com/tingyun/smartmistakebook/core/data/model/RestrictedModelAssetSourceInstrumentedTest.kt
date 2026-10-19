@@ -81,16 +81,20 @@ class RestrictedModelAssetSourceInstrumentedTest {
                 occurredAtEpochMillis = 100,
             ),
         )
-        val record = checkNotNull(database.readCanonicalSourceAsset(draft.sourceAssetId))
+        // 照片导入的摘要必须带源图字段（A8 的空源形态只属于手动建题）。
+        val sourceAssetId = checkNotNull(draft.sourceAssetId)
+        val sourceWidth = checkNotNull(draft.width)
+        val sourceHeight = checkNotNull(draft.height)
+        val record = checkNotNull(database.readCanonicalSourceAsset(sourceAssetId))
         createdCanonical = vault.resolve(record)
         val request = ModelTaskRequest(
             requestId = "capture-assess:import-1",
             input = CaptureAssessmentInput(
                 draftId = draft.draftId,
-                sourceAssetId = draft.sourceAssetId,
+                sourceAssetId = sourceAssetId,
                 origin = CaptureAssessmentOrigin.LIBRARY,
-                imageWidth = draft.width,
-                imageHeight = draft.height,
+                imageWidth = sourceWidth,
+                imageHeight = sourceHeight,
             ),
             occurredAtEpochMillis = 100,
             egressManifest = manifest(draft, record.byteSize),
@@ -98,7 +102,7 @@ class RestrictedModelAssetSourceInstrumentedTest {
         val execution = ModelEgressPolicy.authorize(request, provider(), 101)
 
         val opened = AndroidRestrictedModelAssetSource(context, database)
-            .open(execution, draft.sourceAssetId)
+            .open(execution, sourceAssetId)
         val bytes = opened.use { it.stream.readBytes() }
         val hash = MessageDigest.getInstance("SHA-256").digest(bytes)
             .joinToString("") { "%02x".format(it) }
@@ -127,11 +131,11 @@ class RestrictedModelAssetSourceInstrumentedTest {
         approvedAtEpochMillis = 101,
         assets = listOf(
             ModelEgressAssetGrant(
-                assetId = draft.sourceAssetId,
-                sha256 = draft.sourceAssetSha256,
+                assetId = checkNotNull(draft.sourceAssetId),
+                sha256 = checkNotNull(draft.sourceAssetSha256),
                 byteSize = byteSize,
-                width = draft.width,
-                height = draft.height,
+                width = checkNotNull(draft.width),
+                height = checkNotNull(draft.height),
             ),
         ),
         disclosedData = setOf(

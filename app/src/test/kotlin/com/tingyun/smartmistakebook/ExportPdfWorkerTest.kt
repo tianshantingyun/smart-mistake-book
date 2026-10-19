@@ -259,4 +259,45 @@ class ExportPdfWorkerTest {
             MistakeExportJobCodec.decode(oldTask + (MistakeExportJobCodec.FORMAT_KEY to 7)),
         )
     }
+
+    /**
+     * 6B-2：编辑后的卷面只把 draft id 放进 WorkManager Data（块序列在应用私有目录），
+     * 版式与格式仍随任务走——三者任何一项丢了，worker 渲染的就不是学生确认的那份。
+     */
+    @Test
+    fun `an edited request round trips with its draft id layout and format`() {
+        val layout = MistakePdfLayout(columnCount = 2, includeNote = true)
+        val request = MistakeExportJobRequest.Edited(
+            exportId = "export:edited",
+            draftId = "export_1234",
+            layout = layout,
+            format = MistakeExportFormat.DOCX,
+        )
+
+        val decoded = MistakeExportJobCodec.decode(MistakeExportJobCodec.encode(request))
+
+        assertEquals(request, decoded)
+        assertEquals("export_1234", (decoded as MistakeExportJobRequest.Edited).draftId)
+    }
+
+    @Test
+    fun `an edited request without a draft id is rejected instead of becoming an empty paper`() {
+        assertNull(
+            MistakeExportJobCodec.decode(
+                mapOf(
+                    MistakeExportJobCodec.EXPORT_ID_KEY to "export:edited",
+                    MistakeExportJobCodec.KIND_KEY to "edited",
+                ),
+            ),
+        )
+        assertNull(
+            MistakeExportJobCodec.decode(
+                mapOf(
+                    MistakeExportJobCodec.EXPORT_ID_KEY to "export:edited",
+                    MistakeExportJobCodec.KIND_KEY to "edited",
+                    MistakeExportJobCodec.DRAFT_ID_KEY to " ",
+                ),
+            ),
+        )
+    }
 }

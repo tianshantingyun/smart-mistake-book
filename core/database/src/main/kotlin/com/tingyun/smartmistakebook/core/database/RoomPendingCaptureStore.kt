@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.database.dao.PendingCaptureSourceAssetR
 import com.tingyun.smartmistakebook.core.database.dao.PendingCaptureWorkspaceColumns
 import com.tingyun.smartmistakebook.core.database.dao.toSnapshot
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
+import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 
@@ -172,8 +173,12 @@ internal class RoomPendingCaptureStore(
             record.createdAtEpochMillis < draft.currentRevision.createdAtEpochMillis ||
             record.updatedAtEpochMillis < record.createdAtEpochMillis ||
             workspace.baseCandidateFingerprint != draft.currentRevision.documentFingerprint ||
-            workspace.workingDocument.blockEvidence.any {
-                it.sourceAssetId != draft.sourceAsset.sourceAssetId
+            workspace.workingDocument.blockEvidence.any { evidence ->
+                // A8：用户转写块没有源图（空白 source_asset_id）是合法形态；
+                // **只按 provenance 放行**，其它来源的块仍必须指向草稿的源资产。
+                val isUserTranscription = evidence.provenance ==
+                    QuestionBlockProvenance.USER_TRANSCRIPTION && evidence.sourceAssetId.isBlank()
+                !isUserTranscription && evidence.sourceAssetId != draft.sourceAsset?.sourceAssetId
             }
         ) {
             throw ProblemDraftEditWorkspaceIntegrityException(
@@ -208,9 +213,16 @@ private fun PendingCaptureHeadRow.toProblemDraftRecord(
             ),
         )
     }
+    // A8：空源是手动建题的合法形态（草稿从创建起就没有照片）。列与页绑定必须
+    // 同时为空或同时非空；半空形态仍是坏行。
     val primarySource = sourceAssets.firstOrNull()?.sourceAsset
-        ?: throw LearningLedgerIntegrityException("Pending draft $draftId has no source asset")
-    if (primarySourceAssetId == null || primarySource.sourceAssetId != primarySourceAssetId) {
+    if (primarySource == null) {
+        if (primarySourceAssetId != null) {
+            throw LearningLedgerIntegrityException(
+                "Pending draft $draftId has a mismatched primary source",
+            )
+        }
+    } else if (primarySourceAssetId == null || primarySource.sourceAssetId != primarySourceAssetId) {
         throw LearningLedgerIntegrityException("Pending draft $draftId has a mismatched primary source")
     }
     return ProblemDraftRecord(

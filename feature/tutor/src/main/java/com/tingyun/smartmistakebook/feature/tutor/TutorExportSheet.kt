@@ -34,6 +34,8 @@ import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
+import com.tingyun.smartmistakebook.core.export.MistakePaperDraft
+import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
@@ -63,6 +65,17 @@ internal data class TutorExportSheetState(
     val selectedEntryIds: Set<String>,
     /** 交付格式（6B-1）：默认 PDF = 既有入口与旧状态的行为不变。 */
     val format: MistakeExportFormat = MistakeExportFormat.PDF,
+    /**
+     * 6B-2：选题后进入编辑态的卷面（null = 仍在选题/版式表单）。
+     *
+     * 它和 sheet 的其余状态一样活在 ViewModel 里：旋转屏幕不会把学生改到一半的卷面丢掉。
+     * 进程死亡不恢复（与 sheet 的既有边界一致，见类 KDoc）。
+     */
+    val paperEdit: MistakePdfPaperEdit? = null,
+    /** 正在读题面、准备可编辑卷面。 */
+    val editLoading: Boolean = false,
+    /** 准备卷面失败的可读原因（没有可编辑的题面等）。 */
+    val editMessage: String? = null,
 )
 
 /**
@@ -258,7 +271,38 @@ internal fun TutorExportSheet(
     onToggleCandidate: (entryId: String, selected: Boolean) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: (MistakeExportFormat, MistakePdfLayout, List<String>) -> Unit,
+    /** 6B-2：带着当前勾选的题进入编辑态。 */
+    onEditRequest: (List<String>) -> Unit,
+    /** 编辑态返回选题（不改任何条目）。 */
+    onEditBack: () -> Unit,
+    onEditMove: (entryId: String, offset: Int) -> Unit,
+    onEditRemove: (entryId: String) -> Unit,
+    onEditRestore: (entryId: String) -> Unit,
+    onEditTitle: (entryId: String, title: String) -> Unit,
+    onEditBlockText: (entryId: String, blockId: String, text: String) -> Unit,
+    onEditChoiceText: (entryId: String, blockId: String, choiceId: String, text: String) -> Unit,
+    onEditNote: (entryId: String, note: String) -> Unit,
+    /** 编辑态确认：拿已定稿草稿走后台重渲染（而不是按条目重新读一遍）。 */
+    onConfirmEdited: (MistakePaperDraft) -> Unit,
 ) {
+    // 编辑态与选题表格是同一张 sheet 的两步；编辑态里不再渲染勾选表单。
+    state.paperEdit?.let { edit ->
+        TutorExportEditSheet(
+            edit = edit,
+            format = state.format,
+            onMove = onEditMove,
+            onRemove = onEditRemove,
+            onRestore = onEditRestore,
+            onTitleChange = onEditTitle,
+            onBlockTextChange = onEditBlockText,
+            onChoiceTextChange = onEditChoiceText,
+            onNoteChange = onEditNote,
+            onBack = onEditBack,
+            onConfirm = onConfirmEdited,
+            onDismiss = onDismiss,
+        )
+        return
+    }
     var pickerOpen by remember { mutableStateOf(false) }
     val resolution = remember(state.candidateEntryIds, catalogEntries) {
         resolveExportCandidates(state.candidateEntryIds, catalogEntries)
@@ -491,15 +535,37 @@ internal fun TutorExportSheet(
                         modifier = Modifier.testTag("tutor_export_sheet_pick_more"),
                     )
 
-                    // ---- ③ 确认 ----
+                    // ---- ③ 确认：先编辑卷面（6B-2），或按原样直接导出 ----
                     Spacer(Modifier.height(2.dp))
+                    if (state.editLoading) {
+                        Text(
+                            text = "正在准备可编辑的卷面…",
+                            modifier = Modifier.testTag("tutor_export_sheet_edit_loading"),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    state.editMessage?.let { message ->
+                        Text(
+                            text = message,
+                            modifier = Modifier.testTag("tutor_export_sheet_edit_message"),
+                            color = ErrorWarm,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     PrimaryActionButton(
-                        text = "开始导出（已勾 ${selectedIds.size} 道）",
-                        onClick = { onConfirm(state.format, state.layout, selectedIds) },
-                        enabled = selectedIds.isNotEmpty(),
+                        text = "下一步：编辑卷面（已勾 ${selectedIds.size} 道）",
+                        onClick = { onEditRequest(selectedIds) },
+                        enabled = selectedIds.isNotEmpty() && !state.editLoading,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .testTag("tutor_export_sheet_confirm"),
+                            .testTag("tutor_export_sheet_edit"),
+                    )
+                    OutlineActionChip(
+                        text = "不编辑，直接导出",
+                        onClick = { onConfirm(state.format, state.layout, selectedIds) },
+                        enabled = selectedIds.isNotEmpty(),
+                        modifier = Modifier.testTag("tutor_export_sheet_confirm"),
                     )
                     if (selectedIds.isEmpty()) {
                         Text(

@@ -3,6 +3,8 @@ package com.tingyun.smartmistakebook.core.database
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeEntity
+import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSearchIndexStateEntity
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
@@ -277,6 +279,86 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
             cache.issuedVerificationQueries.isEmpty(),
         )
     }
+
+    /**
+     * KD-51 补记（对抗性复核 finding）：indexed 计数必须与分母同筛 `verification_status`。
+     *
+     * 构造 I>R（旧口径）：R=1——一个已审校（SOURCE_GROUNDED）节点 A **没有**特征行；
+     * I=2——两个 MODEL_CANDIDATE 节点 B/C 各有特征行。旧 SQL 下 2≥1，完整性门被未审校
+     * 行骗过：A 永远不补索引、不可召回。新 SQL 下 I=0<R=1，门判不完整并在同一次召回里
+     * 只补缺，A 立即可召回。锚点先置成当前，确保走的是计数门而不是整科重建（重建会把 A
+     * 一并索引，掩盖被门挡住的形态）。
+     */
+    @Test
+    fun unreviewedFeatureRowsCannotInflateTheIndexedCountPastTheReviewedCount() = runBlocking {
+        val cache = KnowledgeSearchIndexCompleteness()
+        val store = open(cache)
+        val dao = store.database.problemOrganizationDao()
+        val reviewed = nodeEntity(
+            id = REVIEWED_ID,
+            name = "判断函数单调性",
+            status = KnowledgeNodeVerificationStatus.SOURCE_GROUNDED,
+        )
+        val candidateA = nodeEntity(
+            id = CANDIDATE_A_ID,
+            name = "候选甲",
+            status = KnowledgeNodeVerificationStatus.MODEL_CANDIDATE,
+        )
+        val candidateB = nodeEntity(
+            id = CANDIDATE_B_ID,
+            name = "候选乙",
+            status = KnowledgeNodeVerificationStatus.MODEL_CANDIDATE,
+        )
+        dao.insertKnowledgeNodes(listOf(reviewed, candidateA, candidateB))
+        // 只有未审校节点有特征行：旧分子把它们算成"已索引"，制造 I(2) > R(1)。
+        dao.insertKnowledgeSearchFeatures(
+            listOf(candidateA, candidateB).flatMap(KnowledgeNodeEntity::toSearchFeatures),
+        )
+        // 锚点当前：让读路径走计数门，而不是整科重建。
+        store.database.knowledgeSearchIndexStateDao().replace(
+            KnowledgeSearchIndexStateEntity(
+                subject = "MATH",
+                indexVersion = KnowledgeSearchFeatureExtractor.INDEX_VERSION,
+            ),
+        )
+
+        assertEquals("分母 = 已审校节点数", 1, dao.countReviewedKnowledgeNodesBySubject("MATH"))
+        assertEquals(
+            "indexed 分子必须排掉未审校节点的特征行（否则 I>R 会骗过完整性门）",
+            0,
+            dao.countIndexedKnowledgeNodesBySubject("MATH"),
+        )
+
+        val recalled = recall(store, "判断函数单调性")
+        assertTrue(
+            "门被 I>R 骗过时这个已审校节点永远不补索引、不可召回；ids=$recalled",
+            recalled.contains(REVIEWED_ID),
+        )
+        assertTrue(
+            "走的是计数门并落到只补缺：计数标签必须被下发；实际=${cache.issuedVerificationQueries.toList()}",
+            cache.issuedVerificationQueries.contains(SearchIndexVerificationQueries.COUNT_INDEXED),
+        )
+    }
+
+    private fun nodeEntity(
+        id: String,
+        name: String,
+        status: KnowledgeNodeVerificationStatus,
+    ) = KnowledgeNodeEntity(
+        knowledgeNodeId = id,
+        stableCode = "kd51-gate:math:${id.substringAfterLast(':')}",
+        subject = "MATH",
+        displayName = name,
+        canonicalName = name,
+        nodeKind = KnowledgeNodeKind.REASONING.name,
+        granularity = KnowledgeNodeGranularity.ATOMIC.name,
+        aliasesText = "",
+        boundaryMarkdown = "只判断给定函数在指定区间上的单调性。",
+        verificationStatus = status.name,
+        parentKnowledgeNodeId = null,
+        taxonomyVersion = "kd51-gate-test-v1",
+        createdAtEpochMillis = 1_000,
+    )
 
     /**
      * 场景（与生产路径逐条同形）：
@@ -558,5 +640,8 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
         const val PRACTICE_TWO = "practice-completeness-two"
         const val CONFIRMED_ALPHA_ID = "knowledge:user:alpha"
         const val CONFIRMED_BETA_ID = "knowledge:user:beta"
+        const val REVIEWED_ID = "knowledge:reviewed:monotonicity"
+        const val CANDIDATE_A_ID = "knowledge:candidate:a"
+        const val CANDIDATE_B_ID = "knowledge:candidate:b"
     }
 }

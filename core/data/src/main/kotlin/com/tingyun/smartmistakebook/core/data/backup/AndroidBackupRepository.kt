@@ -10,10 +10,12 @@ import com.tingyun.smartmistakebook.core.data.settings.MODEL_SECRET_KEY_ALIAS
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.domain.BackupActivity
 import com.tingyun.smartmistakebook.core.domain.BackupOptions
 import com.tingyun.smartmistakebook.core.domain.BackupReceipt
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
+import com.tingyun.smartmistakebook.core.domain.BackupWriteGate
 import com.tingyun.smartmistakebook.core.domain.DeleteAllDataReceipt
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.RestoreReceipt
@@ -25,6 +27,7 @@ import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
 import com.tingyun.smartmistakebook.core.domain.StorageInventory
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -65,7 +68,14 @@ class AndroidBackupRepository(
     private val database: StudyDatabasePort,
     private val schedulingSettings: SchedulingSettingsStore? = null,
     private val reviewReminders: ReviewReminderRepository? = null,
+    /**
+     * KD-54 的"让路"门：快照期间其它写入口短暂排队。生产用进程内共享实例；测试可注入
+     * 自己的门来观察状态与排队行为。默认共享保证"备份仓库"和"采集写入口"看到同一道门。
+     */
+    private val writeGate: BackupWriteGate = BackupWriteGate.shared,
 ) : BackupRepository {
+    override val activity: StateFlow<BackupActivity> = writeGate.activity
+
     /** Maximum allowed compression ratio (uncompressed / compressed). */
     private companion object {
         const val MAX_COMPRESSION_RATIO = 100.0
@@ -107,9 +117,11 @@ class AndroidBackupRepository(
         // 认领在数据库侧一个写事务内完成，因此认领前提交的任何新引用都会保住它的行；
         // 这里只负责删除被认领行的文件。返回值是真正删掉的图片数，与存储页文案
         //「已清理 N 张…题图」一致（行删掉但文件已不在时不该报成一张）。
-        val claimed = database.claimUnreferencedCanonicalAssets(
-            createdBeforeEpochMillis = System.currentTimeMillis() - ORPHAN_ASSET_GRACE_MILLIS,
-        )
+        val claimed = writeGate.withWriteAdmission("清理孤立题图") {
+            database.claimUnreferencedCanonicalAssets(
+                createdBeforeEpochMillis = System.currentTimeMillis() - ORPHAN_ASSET_GRACE_MILLIS,
+            )
+        }
         claimed.count { asset -> runCatching { vault.delete(asset) }.isSuccess }
     }
 
@@ -125,6 +137,10 @@ class AndroidBackupRepository(
      * 6C-1 追加：版本戳（应用版本、随包内容版本）与设置快照都取"同一个时刻"——
      * 内容版本取自**快照里那份库**（不是实时库），设置读失败则整包失败（静默少一份设置，
      * 就是"备份看起来成功、恢复后设置丢了"）。
+     *
+     * KD-54：快照段（checkpoint + `VACUUM INTO`）整体走 [writeGate] 的「让路」门——
+     * 快照前等在途写排空，快照期间其它写入口短暂排队，快照结束（成功/失败/取消）统一放行。
+     * 快照一致性机制（VACUUM INTO / 旧 SQLite 的 checkpoint + 只读拷贝）一字未改。
      */
     override suspend fun create(
         destination: OutputStream,
@@ -140,7 +156,15 @@ class AndroidBackupRepository(
         val snapshotDir = File(context.cacheDir, "backup-snapshots").apply { mkdirs() }
         val snapshotFile = File(snapshotDir, "snapshot-${System.nanoTime()}.db")
         try {
-            database.snapshotForBackup(databaseFile, snapshotFile)
+            // KD-54：快照段走「让路」门——先等备份开始时已经在途的写排空，再把
+            // `VACUUM INTO` 放进独占段；期间其它写入口短暂排队（超时给可重试提示），
+            // 不再把写请求送进被快照占住的连接池。成包/压缩/哈希不占写连接，留在门外。
+            writeGate.runBackup {
+                // 备份前的写队列排空（SQLite 侧，best effort）：TRUNCATE checkpoint 尝试
+                // 拿到写锁、把已提交的 WAL 收回主库；一致性仍由随后的 VACUUM INTO 保证。
+                database.checkpointForBackup()
+                database.snapshotForBackup(databaseFile, snapshotFile)
+            }
             withSnapshotDatabase(snapshotFile) { snapshot ->
                 // 题数与引用资产都取自**这一份快照**：实时库上的数会在窗口里超前于归档内容。
                 val problemCount = snapshot.countMistakes()
@@ -296,7 +320,11 @@ class AndroidBackupRepository(
                 throw BackupRestoreException("恢复已在进行中，重复的恢复请求被拒绝")
             }
             try {
-                doRestore(source)
+                // KD-54：恢复会关连接、换库文件；与备份快照互斥。备份进行中时这里
+                // 短暂排队后给明确提示，而不是让两条重操作在文件层互相踩。
+                writeGate.withWriteAdmission("恢复备份") {
+                    doRestore(source)
+                }
             } finally {
                 restoreInFlight.set(false)
             }
@@ -579,6 +607,9 @@ class AndroidBackupRepository(
      *
      * 写失败（或设置口未装配）返回 [RestoreSettingsOutcome.WRITE_FAILED]，绝不抛：
      * 此刻数据库已一致，把它拖进回滚路径会把用户的数据再翻一遍。
+     *
+     * **如实措辞（KD-47）**：多个键是顺序写的、非原子——失败可能发生在中途，前面已成功的键
+     * 会保留。所以回执/日志只能说"未能完整写入、可能有部分设置已变"，不能说"设置保持原样"。
      */
     private suspend fun applyRestoredSettings(settings: RestorableSettings): RestoreSettingsOutcome {
         val scheduling = schedulingSettings ?: return RestoreSettingsOutcome.WRITE_FAILED
@@ -596,7 +627,8 @@ class AndroidBackupRepository(
         } catch (failure: Exception) {
             android.util.Log.w(
                 "SmartMistakeBook",
-                "设置写入失败；数据库已恢复，设置保持原样：${failure.message.orEmpty()}",
+                "设置未能完整写入（多键顺序写，可能有部分设置已变）；" +
+                    "数据库已恢复：${failure.message.orEmpty()}",
             )
             RestoreSettingsOutcome.WRITE_FAILED
         }
@@ -1118,16 +1150,19 @@ object BackupRepositoryFactory {
      * [schedulingSettings] / [reviewReminders] 是设置随包走的读口与写口（6C-1）：装配方传
      * 生产用的 DataStore 实例，备份把它们的偏好快照进 `settings.json`，恢复在交换成功后
      * 写回。不传（测试装配）时包内没有设置——`hasSettings=false`，不是"设置是默认值"。
+     * [writeGate] 默认进程内共享门（KD-54），与采集等写入口同一实例。
      */
     fun create(
         context: Context,
         database: StudyDatabasePort,
         schedulingSettings: SchedulingSettingsStore? = null,
         reviewReminders: ReviewReminderRepository? = null,
+        writeGate: BackupWriteGate = BackupWriteGate.shared,
     ): BackupRepository = AndroidBackupRepository(
         context = context,
         database = database,
         schedulingSettings = schedulingSettings,
         reviewReminders = reviewReminders,
+        writeGate = writeGate,
     )
 }

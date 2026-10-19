@@ -103,6 +103,13 @@ fun CaptureScreen(
     splitImportReceipts: SplitImportCommitReceipts? = null,
     /** 本题入库后同一分题任务里还有未提交的题：交出下一题的草稿 id（逐题续做）。 */
     onOpenNextSplitQuestion: (String) -> Unit = {},
+    /**
+     * A7（4C）：系统分享进来的单张图片已在分享层拷成自有的 `question_*.img`，从这里交给
+     * 既有的"返回图"接收路径。只在首次组合（或新的分享）时应用一次；null = 没有待接收的分享。
+     */
+    initialSharedSourceUri: String? = null,
+    /** 上面那张图已经交给录入状态（无论接受或拒绝），调用方据此清掉一次性入参。 */
+    onInitialSharedSourceConsumed: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -200,11 +207,27 @@ fun CaptureScreen(
     // strictOffline（本构建不连接模型）：没有模型解析输出可等，草稿就绪即可
     // 用本地识别题面进入手动整理；题面校验通过就直接允许入库，不再等模型。
     val manualEntryMode = !modelEgressAllowed
-    val manualWorkspaceReady = manualEntryMode &&
+    // A8：手动建题的草稿没有照片（sourceAssetId == null）。工作区已水合时以证据形态为准；
+    // 还没水合时用"有草稿、无源哈希、无页、无待接收图片"这一组只可能来自手动创建的信号。
+    val manualTranscriptionDraft =
+        state.workspaceState?.isManualTranscriptionWorkspace() == true ||
+            (
+                state.draftId != null &&
+                    state.canonicalSha256 == null &&
+                    state.sourcePages.isEmpty() &&
+                    state.receivedImageUri == null
+                )
+    val manualWorkspaceReady = (manualEntryMode || manualTranscriptionDraft) &&
         state.draftId != null &&
         state.workspaceState != null
-    val manualCommitReady = manualEntryMode &&
-        captureCandidateIsUsable(state.workspaceState?.workingDocument)
+    val manualCommitReady = (
+        manualTranscriptionDraft &&
+            state.workspaceState?.manualTranscriptionCommitReady() == true
+        ) ||
+        (
+            manualEntryMode &&
+                captureCandidateIsUsable(state.workspaceState?.workingDocument)
+            )
     val entryGateOpen = candidateUsable || manualCommitReady
 
     val draftState = remember { CaptureDraftStateCommands(state) }
@@ -329,6 +352,12 @@ fun CaptureScreen(
             returnedImages = returnedImages,
             onWaitForCachePrune = { initialCachePrune.await() },
         )
+    }
+    val latestSharedSourceConsumed by rememberUpdatedState(onInitialSharedSourceConsumed)
+    LaunchedEffect(initialSharedSourceUri) {
+        val sharedUri = initialSharedSourceUri ?: return@LaunchedEffect
+        acquisition.acceptSharedImage(sharedUri)
+        latestSharedSourceConsumed()
     }
     fun launchCamera(
         purpose: CaptureAcquisitionPurpose = CaptureAcquisitionPurpose.NEW_CAPTURE,
@@ -731,6 +760,7 @@ fun CaptureScreen(
         SectionHeader(
             title = when {
                 state.committedEntryId != null -> "已存入错题本"
+                manualTranscriptionDraft -> "手动建题"
                 state.draftId != null -> "整理题目"
                 state.receivedImageUri != null -> "图片已安全接收"
                 else -> "录入方式"
@@ -743,10 +773,13 @@ fun CaptureScreen(
                 reusedExistingProblem = state.committedReusedExistingProblem,
                 onView = { onLibraryEntryReady(state.committedEntryId.orEmpty()) },
                 onCaptureAnother = {
+                    // A8：手动建题没有照片，下一题不该被直接推进相机——回到录入方式选择。
+                    val wasManualTranscription = state.canonicalSha256 == null &&
+                        state.sourcePages.isEmpty()
                     resetForNextCapture()
                     state.receivedImageUri = null
                     state.receivedInputSource = null
-                    launchCamera()
+                    if (!wasManualTranscription) launchCamera()
                 },
                 modifier = Modifier.padding(top = 14.dp),
             )
@@ -776,7 +809,8 @@ fun CaptureScreen(
                     modifier = Modifier.padding(top = 10.dp),
                 )
             }
-            if (!candidateUsable && !manualWorkspaceReady) {
+            // 手动建题不经过模型链：工作区水合前也不要闪出"去设置模型"或评估卡片。
+            if (!candidateUsable && !manualWorkspaceReady && !manualTranscriptionDraft) {
                 if (!captureModelReady) {
                     CaptureModelSetupBlock(
                         onOpenSettings = { afterWorkspaceFlush(onOpenModelSettings) },
@@ -830,7 +864,7 @@ fun CaptureScreen(
                 )
             }
             if (candidateUsable || manualWorkspaceReady) {
-                if (manualEntryMode) {
+                if (manualEntryMode && !manualTranscriptionDraft) {
                     Text(
                         text = "当前版本不连接模型：照片已用本地识别生成题面，请检查后手动整理录入。",
                         modifier = Modifier
@@ -858,9 +892,15 @@ fun CaptureScreen(
                     ?: state.recognitionBlockCount,
                 candidateKind = candidateKind,
                 candidateUsable = candidateUsable || manualWorkspaceReady,
-                manualEntry = manualEntryMode,
+                manualEntry = manualEntryMode || manualTranscriptionDraft,
+                manualTranscription = manualTranscriptionDraft,
+                initialEditorExpanded = manualTranscriptionDraft,
                 entryGateOpen = entryGateOpen,
-                entryGateMessage = if (assessmentBlocksEntry) "请先补拍完整的一道题。" else "",
+                entryGateMessage = if (assessmentBlocksEntry && !manualTranscriptionDraft) {
+                    "请先补拍完整的一道题。"
+                } else {
+                    ""
+                },
                 structuredProjectionEdited = state.workspaceState?.userEditedFields?.isNotEmpty() == true,
                 transcriptionEditable = state.workspaceState?.canEditAsOneTextField() != false,
                 completionIntent = when (activeEntryOrigin) {
@@ -911,6 +951,19 @@ fun CaptureScreen(
                     }
                 },
                 onOpenFiles = onOpenFileImport,
+                // A8：手动建题只在错题本来源提供——讲题要原题照片（模型要看图），
+                // 讲题来源放这个入口会走到确认才失败，是死路。
+                onStartManual = if (activeEntryOrigin == CaptureEntryOrigin.LIBRARY) {
+                    {
+                        if (!state.cameraLaunchInProgress && !state.photoImportInProgress &&
+                            !state.workflowInProgress
+                        ) {
+                            workflowViewModel.startManualDraft(activeEntryOrigin)
+                        }
+                    }
+                } else {
+                    null
+                },
                 modifier = Modifier.padding(top = 14.dp),
             )
             CaptureGuidance(Modifier.padding(top = 20.dp))

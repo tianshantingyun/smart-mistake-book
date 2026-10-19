@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.database.FinishCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.cleanRedrawTaskId
 import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
 import com.tingyun.smartmistakebook.core.domain.CleanImageResult
+import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyInput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskLogicalOperationFingerprint
@@ -93,8 +94,17 @@ internal class CleanRedrawTaskRunner(
     private val readSourceBytes: suspend (CanonicalSourceAssetRecord) -> ByteArray?,
     /** 分类轮；null = 这一轮没有给出判断（取消必须原样抛出，取消不是失败）。 */
     private val classify: suspend (ModelTaskRequest) -> ImagePipelineProblemKind?,
-    /** 净化生成（实现里已过凭证门）；null = 没产出（凭证/网络/provider/解码任一环节）。 */
-    private val generateClean: suspend (CanonicalSourceAssetRecord, ByteArray) -> CleanImageResult?,
+    /**
+     * 净化生成（实现里已过凭证门）；null = 没产出（凭证/网络/provider/解码任一环节）。
+     *
+     * 4E.1：第三个参数是该作业**已领取的持久尝试**——生成实现把它作为统一生图协调器的
+     * 派发父操作，图像 HTTP 没有这次持久预留就不会发出（账本/通道双重门）。
+     */
+    private val generateClean: suspend (
+        CanonicalSourceAssetRecord,
+        ByteArray,
+        FigureDispatchParent.CleanRedrawTask,
+    ) -> CleanImageResult?,
     /** 挂接写入（CLEAN_IMAGE 角色）；false = 没有可挂的目标。 */
     private val attach: suspend (String, ByteArray, String) -> Boolean,
     private val maxAttempts: Int = MAX_CLEAN_REDRAW_ATTEMPTS,
@@ -249,7 +259,14 @@ internal class CleanRedrawTaskRunner(
         } ?: return fail(claimed, CleanRedrawFailureCode.SOURCE_UNREADABLE)
 
         val clean = try {
-            generateClean(currentSource, sourceBytes)
+            generateClean(
+                currentSource,
+                sourceBytes,
+                FigureDispatchParent.CleanRedrawTask(
+                    taskId = claimed.taskId,
+                    attemptCount = claimed.attemptCount,
+                ),
+            )
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

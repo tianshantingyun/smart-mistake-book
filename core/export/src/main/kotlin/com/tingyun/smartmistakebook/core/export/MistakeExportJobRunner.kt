@@ -30,12 +30,18 @@ class MistakeExportJobRunner(
     private val readByEntryId: suspend (String) -> MistakeDetailState,
     private val renderPdf: (MistakePdfExportInput) -> PreparedMistakePdf,
     private val renderDocx: ((MistakePdfExportInput) -> PreparedMistakeDocx)? = null,
+    /**
+     * 6B-2：编辑后卷面的草稿读取口（draft id → 已定稿草稿）。缺省 null 保留旧调用点形状；
+     * 编辑请求在没有它时**如实失败**，绝不悄悄回退成"按条目重新读一遍"（那会丢掉学生的编辑）。
+     */
+    private val readPaperDraft: (suspend (String) -> MistakePaperDraft?)? = null,
 ) {
 
     suspend fun run(request: MistakeExportJobRequest): MistakeExportJobOutcome = try {
         when (request) {
             is MistakeExportJobRequest.Single -> runSingle(request)
             is MistakeExportJobRequest.Batch -> runBatch(request)
+            is MistakeExportJobRequest.Edited -> runEdited(request)
         }
     } catch (cancelled: CancellationException) {
         throw cancelled
@@ -46,6 +52,8 @@ class MistakeExportJobRunner(
                     exportFailureMessage(failure.failure, request.format)
                 is MistakeExportJobRequest.Batch ->
                     batchExportFailureMessage(failure.failure, request.format)
+                is MistakeExportJobRequest.Edited ->
+                    editedPaperFailureMessage(failure.failure, request.format)
             },
         )
     } catch (_: Exception) {
@@ -114,6 +122,37 @@ class MistakeExportJobRunner(
         }
     }
 
+    /**
+     * 6B-2：直接渲染一份已定稿的卷面草稿。
+     *
+     * **不重读条目、不重跑准入、不派发任何模型任务**：草稿里就是学生在编辑态看到并确认的那份
+     * 输入（块序列 + 版式 + 指纹）。草稿缺失/损坏/版式对不上时如实失败——宁可让这次导出
+     * 重来，也不拿一份不是学生确认过的卷面交付。
+     */
+    private suspend fun runEdited(
+        request: MistakeExportJobRequest.Edited,
+    ): MistakeExportJobOutcome {
+        val read = readPaperDraft
+            ?: return MistakeExportJobOutcome.Failed(
+                "这次导出没有准备好卷面草稿，请重新编辑后再导出。",
+            )
+        val draft = read(request.draftId)
+            ?: return MistakeExportJobOutcome.Failed(
+                "这份编辑后的卷面没有保存下来，请重新编辑后再导出。",
+            )
+        if (draft.input.layout != request.layout) {
+            return MistakeExportJobOutcome.Failed(
+                "这份卷面的版式已经变了，请重新编辑后再导出。",
+            )
+        }
+        val displayName = if (draft.edited) {
+            editedPaperDisplayName(draft.questionCount, request.format)
+        } else {
+            batchExportDisplayName(draft.questionCount, request.format)
+        }
+        return render(request = request, input = draft.input, displayName = displayName)
+    }
+
     private fun render(
         request: MistakeExportJobRequest,
         input: MistakePdfExportInput,
@@ -174,6 +213,25 @@ sealed interface MistakeExportJobRequest {
     ) : MistakeExportJobRequest {
         init {
             require(layout.validate().isEmpty()) { "Invalid export layout: ${layout.validate()}" }
+        }
+    }
+
+    /**
+     * 6B-2：**编辑后卷面**的入队请求。
+     *
+     * 只带草稿 id（短字符串）——卷面块序列在应用私有目录里，不塞进 WorkManager 的 10KB
+     * Data；worker 渲染前用 [MistakeExportJobRunner] 的草稿读取口取回。`layout` 与草稿里的
+     * 版式必须一致（学生确认的就是这份），不一致时如实失败而不是换一份版式交付。
+     */
+    data class Edited(
+        override val exportId: String,
+        val draftId: String,
+        override val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+        override val format: MistakeExportFormat = MistakeExportFormat.PDF,
+    ) : MistakeExportJobRequest {
+        init {
+            require(layout.validate().isEmpty()) { "Invalid export layout: ${layout.validate()}" }
+            require(draftId.isNotBlank()) { "An edited export needs a paper draft id" }
         }
     }
 }

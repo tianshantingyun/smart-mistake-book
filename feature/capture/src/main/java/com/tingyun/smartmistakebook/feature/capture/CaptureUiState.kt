@@ -35,7 +35,8 @@ data class CaptureWorkflowUiState(
 data class CaptureDraftImportedEvent(
     val requestId: String,
     val occurredAtEpochMillis: Long,
-    val sourceUri: String,
+    /** A8：手动建题没有来源文件——null 是诚实形态，不代表"文件丢了"。 */
+    val sourceUri: String?,
     val purpose: CaptureAcquisitionPurpose,
     val summary: CaptureDraftSummary,
 )

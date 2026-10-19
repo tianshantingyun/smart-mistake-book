@@ -118,6 +118,47 @@ class CaptureWorkspacePolicyTest {
     }
 
     @Test
+    fun `manual transcription draft starts editable and keeps its provenance`() {
+        val restored = restoreCaptureWorkspace(manualResumable(manualDocument()))
+
+        // A8：空源草稿恢复成手动转写模式（不是结构化文档）。
+        assertEquals(CaptureDraftEditorMode.MANUAL_TRANSCRIPTION, restored.state.editorMode)
+        assertTrue("空白手动题面必须能输入", restored.state.canEditAsOneTextField())
+        assertFalse("空题面还不能提交", restored.state.manualTranscriptionCommitReady())
+
+        val typed = restored.state.editSingleParagraph("求函数 f(x)=x^2 的单调区间。")
+
+        assertEquals(
+            "手敲的块继续编辑仍是用户转写（不是 USER_CORRECTION）",
+            QuestionBlockProvenance.USER_TRANSCRIPTION,
+            typed.workingDocument.blockEvidence.single().provenance,
+        )
+        assertEquals(CaptureDraftEditorMode.MANUAL_TRANSCRIPTION, typed.editorMode)
+        assertEquals("求函数 f(x)=x^2 的单调区间。", typed.transcription)
+        assertTrue(CaptureDraftEditedField.TRANSCRIPTION in typed.userEditedFields)
+        assertTrue("有内容后可提交", typed.manualTranscriptionCommitReady())
+    }
+
+    @Test
+    fun `photo draft with a blank paragraph stays uneditable as manual text`() {
+        val base = structuredDocument("新拍题目")
+        val paragraph = (base.document.blocks.first() as ContentBlock.Paragraph)
+            .copy(markdown = "")
+        val restored = restoreCaptureWorkspace(
+            resumable(
+                base.copy(
+                    document = base.document.copy(blocks = listOf(paragraph)),
+                    blockEvidence = base.blockEvidence.take(1),
+                ),
+            ),
+        )
+
+        assertFalse(restored.state.canEditAsOneTextField())
+        assertFalse(restored.state.isManualTranscriptionWorkspace())
+        assertEquals(CaptureDraftEditorMode.STRUCTURED_DOCUMENT, restored.state.editorMode)
+    }
+
+    @Test
     fun `existing meaningful paragraph remains a structured correction`() {
         val base = structuredDocument("新拍题目")
         val state = restoreCaptureWorkspace(
@@ -394,6 +435,50 @@ class CaptureWorkspacePolicyTest {
         tutorSessionId = null,
         workspace = null,
         updatedAtEpochMillis = 1_200,
+    )
+
+    private fun manualResumable(document: CapturedQuestionDocument) = ResumableCaptureDraft(
+        draftId = "manual-draft",
+        origin = CaptureEntryOrigin.LIBRARY,
+        sourceImageUri = null,
+        sourceAssetId = null,
+        sourceAssetSha256 = null,
+        sourceWidth = null,
+        sourceHeight = null,
+        sourceByteSize = null,
+        draftCreatedAtEpochMillis = 1_000,
+        currentRevisionNumber = 1,
+        currentRevisionDocumentFingerprint = SHA,
+        currentRevisionCreatedAtEpochMillis = 1_100,
+        subject = null,
+        title = "新拍题目",
+        questionDocument = document,
+        transcription = "",
+        writingLayer = CaptureWritingLayer.UNKNOWN,
+        latestAssessmentTask = null,
+        latestParseTask = null,
+        tutorSessionId = null,
+        workspace = null,
+        updatedAtEpochMillis = 1_200,
+    )
+
+    private fun manualDocument(markdown: String = "") = CapturedQuestionDocument(
+        document = QuestionDocument(
+            id = "manual-document",
+            blocks = listOf(ContentBlock.Paragraph("stem", markdown)),
+        ),
+        blockEvidence = listOf(
+            QuestionBlockEvidence(
+                blockId = "stem",
+                sourceAssetId = "",
+                sourceRegion = null,
+                writingLayer = WritingLayer.UNKNOWN,
+                provenance = QuestionBlockProvenance.USER_TRANSCRIPTION,
+                confidence = null,
+                reviewStatus = QuestionBlockReviewStatus.NEEDS_REVIEW,
+                producerVersion = null,
+            ),
+        ),
     )
 
     private fun structuredDocument(title: String) = CapturedQuestionDocument(

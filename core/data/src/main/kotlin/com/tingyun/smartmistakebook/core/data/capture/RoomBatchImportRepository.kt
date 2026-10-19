@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.database.ResolveBatchImportBoundaryComm
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.BatchImportBoundaryStatus
+import com.tingyun.smartmistakebook.core.domain.BatchImportDraftState
 import com.tingyun.smartmistakebook.core.domain.BatchImportJob
 import com.tingyun.smartmistakebook.core.domain.BatchOrganizationUnavailableException
 import com.tingyun.smartmistakebook.core.domain.BatchImportPage
@@ -110,6 +111,20 @@ internal class RoomBatchImportRepository(
                 job.toDomain(splitReadyJobId)
             }
         }.flowOn(Dispatchers.IO)
+
+    /**
+     * KD-42：整卷录入在 job 落库**之前**被杀时，列表里什么都没有（没有条目、也没有失败页），
+     * 唯一剩下的证据就是 staging 目录里那批没被任何任务认领的页面。这里把「未回收会话」的
+     * 读口接到持久层上——引用集与启动对账（[sourceStaging] 的 `reconcileOrphans` 调用）取自
+     * 同一份任务页列表，两边的「未回收」口径不会漂移。
+     */
+    override suspend fun hasInterruptedBatchImport(): Boolean = withContext(Dispatchers.IO) {
+        sourceStaging.hasOrphanedSessions(
+            referencedSourceUris = database.observeBatchImportJobs().first()
+                .flatMap { job -> job.pages.map(BatchImportPageRecord::sourceUri) }
+                .toSet(),
+        )
+    }
 
     override suspend fun createBatchImport(request: CreateBatchImportRequest): BatchImportJob =
         createImport(
@@ -416,28 +431,41 @@ internal class RoomBatchImportRepository(
                 )
             }
             if (splitProvider != null && resumable != null) {
-                try {
-                    recognizeAndSplitBatchPage(
-                        jobId = jobId,
-                        pageIndex = page.pageIndex,
-                        sourceUri = page.sourceUri,
-                        draftId = resumable.draftId,
-                        sourceAssetId = resumable.sourceAssetId,
-                        imageWidth = resumable.sourceWidth,
-                        imageHeight = resumable.sourceHeight,
-                        capture = capture,
-                        modelTasks = modelTasks,
-                        splitImports = splitProvider,
-                        occurrenceTime = page.createdAtEpochMillis,
-                        modelEgressAllowed = modelEgressAllowed,
+                // A8：手动建题的草稿没有源图（批次页正常不会指向它，但读取口已允许空源）。
+                // 没有页 0 图就没有可拆分的对象——跳过切分，让这一页按既有 best-effort
+                // 语义结算，而不是把 null 传进识别器。
+                val sourceAssetId = resumable.sourceAssetId
+                val sourceWidth = resumable.sourceWidth
+                val sourceHeight = resumable.sourceHeight
+                if (sourceAssetId == null || sourceWidth == null || sourceHeight == null) {
+                    android.util.Log.w(
+                        "BatchSplit",
+                        "Skipping split for batch page ${page.pageIndex}: its draft has no source image",
                     )
-                } catch (cancelled: CancellationException) {
-                    throw cancelled
-                } catch (failure: Exception) {
-                    // Split must never fail a page that already landed in the library;
-                    // the failure stays best-effort but is logged so a silently dead
-                    // auto-split is diagnosable.
-                    android.util.Log.w("BatchSplit", "split recognition failed", failure)
+                } else {
+                    try {
+                        recognizeAndSplitBatchPage(
+                            jobId = jobId,
+                            pageIndex = page.pageIndex,
+                            sourceUri = page.sourceUri,
+                            draftId = resumable.draftId,
+                            sourceAssetId = sourceAssetId,
+                            imageWidth = sourceWidth,
+                            imageHeight = sourceHeight,
+                            capture = capture,
+                            modelTasks = modelTasks,
+                            splitImports = splitProvider,
+                            occurrenceTime = page.createdAtEpochMillis,
+                            modelEgressAllowed = modelEgressAllowed,
+                        )
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (failure: Exception) {
+                        // Split must never fail a page that already landed in the library;
+                        // the failure stays best-effort but is logged so a silently dead
+                        // auto-split is diagnosable.
+                        android.util.Log.w("BatchSplit", "split recognition failed", failure)
+                    }
                 }
             }
             check(database.settleBatchImportPageSplit(jobId, page.pageIndex, now)) {
@@ -449,9 +477,8 @@ internal class RoomBatchImportRepository(
 
     /**
      * Deletes a page's staged source once nothing references it any more. A READY page
-     * counts as referencing it while its split stage is PENDING, because the split ledger
-     * stores that uri as the review page's source image — deleting it early would leave a
-     * review screen whose original photo cannot be opened.
+     * counts as referencing it while its split stage is PENDING. Preparing and ready
+     * split jobs keep that reference until review is completed or abandoned.
      */
     private suspend fun dropStagedSourceIfUnreferenced(sourceUri: String) {
         if (!database.hasRetainedBatchImportSourceUri(sourceUri)) {
@@ -487,6 +514,12 @@ internal class RoomBatchImportRepository(
                     page.resultDraftId == draftId
             }
             val draft = checkNotNull(database.readProblemDraft(draftId))
+            // A8：空源草稿（手动建题）没有页 0 源图，不可能承载批次页。这里跳过而不是
+            // 编造一张图或让整批读取失败：边界比较对这些页本就无源可读。
+            if (draft.sourceAssets.isEmpty()) {
+                index += groupedPages.size
+                continue
+            }
             require(draft.sourceAssets.size == groupedPages.size) {
                 "Batch page bundle changed after import"
             }
@@ -648,6 +681,13 @@ private fun BatchImportPageRecord.toDomain() = BatchImportPage(
         else -> error("Unsupported batch import page status")
     },
     draftId = resultDraftId,
+    draftState = if (resultDraftId == null) null else when (resultDraftStatus) {
+        StudyDbValue.ProblemDraftStatus.EDITING -> BatchImportDraftState.EDITING
+        StudyDbValue.ProblemDraftStatus.COMMITTED -> BatchImportDraftState.COMMITTED
+        StudyDbValue.ProblemDraftStatus.ABANDONED -> BatchImportDraftState.REMOVED
+        else -> BatchImportDraftState.UNAVAILABLE
+    },
+    savedEntryId = savedEntryId,
     failureCode = failureCode,
     attemptCount = attemptCount,
     updatedAtEpochMillis = updatedAtEpochMillis,

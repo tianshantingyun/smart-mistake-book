@@ -35,6 +35,15 @@ fun batchExportDisplayName(
 ): String = "错题练习-${includedCount}道.${format.fileExtension}"
 
 /**
+ * 编辑后卷面的文件名（6B-2）：如实标明这是改过的卷面，避免与同题数的原始导出同名混淆。
+ * 未编辑的卷面草稿仍用 [batchExportDisplayName]——"没改"在结果入口里也应是原来的名字。
+ */
+fun editedPaperDisplayName(
+    includedCount: Int,
+    format: MistakeExportFormat = MistakeExportFormat.PDF,
+): String = "错题练习-${includedCount}道-已编辑.${format.fileExtension}"
+
+/**
  * 单题不可导出的学生可读原因。
  *
  * 筛选层口径（L5 后）：还剩科目/板块/掌握程度/录入时间段——文案不再提已退场的"知识点"。
@@ -109,6 +118,31 @@ fun batchExportFailureMessage(
         MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
         MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
         -> "当前结果的内容较多。缩小筛选范围后再导出，错题内容不会改变。"
+        MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
+        MistakePdfExportFailure.GENERATED_PDF_INVALID,
+        MistakePdfExportFailure.FILE_PUBLISH_FAILED,
+        -> "这次没有整理出完整的 Word 文档，请稍后重新导出。"
+    }
+}
+
+/** 编辑后卷面的渲染失败（6B-2）：说清"卷面"而不是"筛选结果"，学生改的就是这份卷面。 */
+fun editedPaperFailureMessage(
+    failure: MistakePdfExportFailure,
+    format: MistakeExportFormat = MistakeExportFormat.PDF,
+): String = when (format) {
+    MistakeExportFormat.PDF -> when (failure) {
+        MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
+        MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
+        -> "这份卷子的内容超出了 A4 导出的范围，编辑不会改变错题内容。"
+        MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
+        MistakePdfExportFailure.GENERATED_PDF_INVALID,
+        MistakePdfExportFailure.FILE_PUBLISH_FAILED,
+        -> "这次没有整理出完整的 A4 文件，请稍后重新导出。"
+    }
+    MistakeExportFormat.DOCX -> when (failure) {
+        MistakePdfExportFailure.PAGE_LIMIT_EXCEEDED,
+        MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
+        -> "这份卷子的内容超出了 Word 文档的范围，编辑不会改变错题内容。"
         MistakePdfExportFailure.EXISTING_FILE_INTEGRITY_CONFLICT,
         MistakePdfExportFailure.GENERATED_PDF_INVALID,
         MistakePdfExportFailure.FILE_PUBLISH_FAILED,

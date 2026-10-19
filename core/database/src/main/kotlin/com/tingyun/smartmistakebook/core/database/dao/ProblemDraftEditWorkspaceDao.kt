@@ -17,6 +17,7 @@ import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftEditWorkspaceEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftRevisionEntity
+import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 
 @Dao
 internal abstract class ProblemDraftEditWorkspaceDao {
@@ -129,7 +130,13 @@ internal abstract class ProblemDraftEditWorkspaceDao {
             draft = draft,
             basisRevision = basisRevision,
             baseCandidateFingerprint = incomingWorkspace.baseCandidateFingerprint,
+            // A8：用户转写块没有源图，不参与"块证据必须指向草稿页 0"的绑定；
+            // **只按 provenance 放行**，其它来源的空白 id 仍会在这里被拒。
             sourceAssetIds = incomingWorkspace.workingDocument.blockEvidence
+                .filterNot { evidence ->
+                    evidence.provenance == QuestionBlockProvenance.USER_TRANSCRIPTION &&
+                        evidence.sourceAssetId.isBlank()
+                }
                 .map { it.sourceAssetId },
         )
 
@@ -294,8 +301,12 @@ internal abstract class ProblemDraftEditWorkspaceDao {
             entity.createdAtEpochMillis < revision.createdAtEpochMillis ||
             entity.updatedAtEpochMillis < entity.createdAtEpochMillis ||
             workspace.baseCandidateFingerprint != revision.documentFingerprint ||
-            workspace.workingDocument.blockEvidence.any {
-                it.sourceAssetId != draft.sourceAssetId
+            workspace.workingDocument.blockEvidence.any { evidence ->
+                // A8：用户转写块没有源图（空白 source_asset_id）是合法形态；
+                // **只按 provenance 放行**，其它来源的块仍必须指向这份草稿的源资产。
+                val isUserTranscription = evidence.provenance ==
+                    QuestionBlockProvenance.USER_TRANSCRIPTION && evidence.sourceAssetId.isBlank()
+                !isUserTranscription && evidence.sourceAssetId != draft.sourceAssetId
             }
         ) {
             throw integrity(entity.draftId, "metadata or candidate binding is invalid")

@@ -59,6 +59,54 @@ data class ReserveModelTaskRemoteDispatchCommand(
     }
 }
 
+/**
+ * 4E.1：为**同一逻辑操作的非任务派发**（图像生成/编辑）预留一次远程预算。
+ *
+ * 为什么不是 `reserveModelTaskRemoteDispatch`：图像调用发生在模型任务行处于 QUEUED/RUNNING
+ * 之外的工具执行阶段，那支命令会推进任务行的 `state_version`，与模型任务环自己的比较交换
+ * 撞车。这里只推进既有 `model_task_operation.dispatch_count`（**不新增表/列**），
+ * 因此任务行的状态机完全不动，账本仍是同一份持久预算。
+ *
+ * [reserveFinalAnswer] = 讲题父操作：本次预留后必须仍余 1 次给终答（最多用到第 5 次）。
+ */
+data class ReserveModelTaskOperationDispatchCommand(
+    val parentRequestId: String,
+    val remoteKind: String,
+    val method: String,
+    val reserveFinalAnswer: Boolean,
+    val occurredAtEpochMillis: Long,
+) {
+    init {
+        require(parentRequestId.isNotBlank()) {
+            "An operation dispatch reservation needs its parent request id"
+        }
+        require(remoteKind.isNotBlank()) { "An operation dispatch reservation needs a remote kind" }
+        require(method.isNotBlank()) { "An operation dispatch reservation needs a method" }
+        require(occurredAtEpochMillis >= 0) {
+            "An operation dispatch reservation time must not be negative"
+        }
+    }
+}
+
+data class ModelTaskOperationDispatchReservationResult(
+    val applied: Boolean,
+    val budgetExhausted: Boolean,
+    val logicalDispatchCount: Int,
+    val reservationId: String? = null,
+) {
+    init {
+        require(logicalDispatchCount >= 0) {
+            "Logical operation dispatch count must not be negative"
+        }
+        require(!applied || !budgetExhausted) {
+            "An applied operation dispatch reservation cannot be exhausted"
+        }
+        require(!applied || reservationId != null) {
+            "An applied operation dispatch reservation must carry its id"
+        }
+    }
+}
+
 data class TransitionModelTaskCommand(
     val taskId: String,
     val expectedStateVersion: Long,
@@ -143,6 +191,21 @@ interface ModelTaskDatabasePort {
     suspend fun reserveModelTaskRemoteDispatch(
         command: ReserveModelTaskRemoteDispatchCommand,
     ): ModelTaskDispatchReservationResult
+
+    /**
+     * 4E.1：为同一逻辑操作的图像生成/编辑预留一次远程预算。
+     *
+     * 默认实现是 fail-closed（不预留）：没有覆盖它的数据库端口不会让图像链绕过预算。
+     * 覆盖方只需原子递增既有 `model_task_operation.dispatch_count`，不推进任务行状态。
+     */
+    suspend fun reserveModelTaskOperationDispatch(
+        command: ReserveModelTaskOperationDispatchCommand,
+    ): ModelTaskOperationDispatchReservationResult = ModelTaskOperationDispatchReservationResult(
+        applied = false,
+        budgetExhausted = false,
+        logicalDispatchCount = 0,
+        reservationId = null,
+    )
 
     suspend fun transitionModelTask(command: TransitionModelTaskCommand): ModelTaskWriteResult
 

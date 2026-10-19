@@ -35,11 +35,12 @@ internal fun captureOwnedUriRecovery(
 
 internal data class CaptureResumeDraftApplication(
     val originName: String,
-    val receivedImageUri: String,
+    /** A8：手动建题的草稿没有照片——这里为 null，界面走手动转写路径。 */
+    val receivedImageUri: String?,
     val importOccurredAtEpochMillis: Long,
     val draftId: String,
     val draftRevisionNumber: Int,
-    val canonicalSha256: String,
+    val canonicalSha256: String?,
     val sourcePages: List<CaptureSourcePage>,
     val sourcePageAssessmentSnapshots: List<ModelTaskSnapshot?>,
     val selectedSubject: String,

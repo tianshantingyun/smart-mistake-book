@@ -131,6 +131,28 @@ class MistakePdfBatchEligibilityTest {
     }
 
     /**
+     * KD-55：批量 Image 块必须携带来源资产记录的 sha/长度——否则批量 docx 的题面图
+     * 会绕过渲染前复核（单题路径有，批量/卷面路径没有）。
+     */
+    @Test
+    fun batchImageBlocksCarryTheCleanImageRecordIntegrity() {
+        val result = MistakePdfBatchEligibility.check(
+            listOf(
+                readyState(
+                    "entry-a",
+                    "第一题",
+                    source = MistakeSourceSet.Present(listOf(sourceAsset("file:///clean-a.png"))),
+                ),
+            ),
+        ) as MistakePdfBatchEligibilityResult.Eligible
+
+        val image = result.input.blocks.filterIsInstance<MistakePdfBlock.Image>().single()
+        assertEquals("file:///clean-a.png", image.localUri)
+        assertEquals("a".repeat(64), image.expectedContentSha256)
+        assertEquals(1_024L, image.expectedByteSize)
+    }
+
+    /**
      * AUD-06 ①②：批量键 = f(题数, 版式, 每题的单题键)，批量自己不再重算内容，所以这里钉的是
      * 「每题键确实被批量键消费」——改可见备注、或改净化图（同 URI 换字节 / 同字节换 URI），
      * 整批都必须换键，否则一次批量导出会命中旧 PDF。

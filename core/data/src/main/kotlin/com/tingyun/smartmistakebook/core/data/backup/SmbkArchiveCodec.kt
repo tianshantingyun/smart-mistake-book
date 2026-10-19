@@ -109,10 +109,31 @@ internal data class SmbkFileRecord(
 internal data class SmbkResourceLimits(
     /** Maximum number of entries allowed in a backup archive. */
     val maxEntryCount: Int = 10_000,
-    /** Maximum size of a single decompressed entry (100 MB). */
+    /**
+     * Maximum size of a single **non-database** entry (100 MB).
+     *
+     * 题图逐张有限；数据库条目不能用这一档——KD-53 设备实测库 365,133,824 B，
+     * 旧实现把它和单张题图一起卡在 100 MB，自建备份因此"自己都验不过"。
+     * `database.sqlite` 用独立的 [maxDatabaseEntryBytes]。
+     */
     val maxSingleEntryBytes: Long = 100L * 1024 * 1024,
-    /** Maximum total decompressed size of all entries (500 MB). */
-    val maxTotalDecompressedBytes: Long = 500L * 1024 * 1024,
+    /**
+     * `database.sqlite` 条目的解压上限（1 GiB）。
+     *
+     * 库随使用增长（设备实测 365,133,824 B），留出约 2.8× 余量；压缩比门
+     * （[maxCompressionRatio]）、总量门（[maxTotalDecompressedBytes]）与压缩归档
+     * 体积门（[maxCompressedBytes]）仍然各自生效，抬高的只是"数据库这一类条目"的
+     * 单条目解压上限。真实 SQLite 文本/索引数据可压缩（设备样本 365 MB → 63 MB），
+     * 因此 1 GiB 的库在 1 GiB 的归档上限内仍可承载。
+     */
+    val maxDatabaseEntryBytes: Long = 1L * 1024 * 1024 * 1024,
+    /**
+     * Maximum total decompressed size of all entries (2 GB).
+     *
+     * 必须覆盖"数据库预算 + 若干题图"，否则抬高 [maxDatabaseEntryBytes] 只是把门
+     * 挪到下一道；它仍是所有条目解压 sum 的硬上限。
+     */
+    val maxTotalDecompressedBytes: Long = 2L * 1024 * 1024 * 1024,
     /** Maximum manifest text length (1 MB). */
     val maxManifestChars: Int = 1_000_000,
     /** Maximum allowed compression ratio (uncompressed / compressed). */
@@ -123,6 +144,26 @@ internal data class SmbkResourceLimits(
     companion object {
         val DEFAULT = SmbkResourceLimits()
     }
+}
+
+// 条目类型预算（KD-53）：
+//   - `database.sqlite` → SmbkResourceLimits.maxDatabaseEntryBytes（库体积随使用增长）；
+//   - 包自身的元数据（`manifest.json` / `checksums.sha256` / `settings.json`）→ 与
+//     expandText 相同的文本上限（maxManifestChars * 4 字节），不受题图单条目上限约束：
+//     清单大小由文件条目数与字段决定，把题图预算调小不该让包连说明都读不出来；
+//   - 其余条目（`assets/` 前缀的题图及未知名字）→ SmbkResourceLimits.maxSingleEntryBytes。
+//
+// 校验（SmbkArchiveCodec.validate）与恢复（SmbkArchiveCodec.unpack）都走
+// SmbkArchiveCodec.expandEntry，因此两侧同口径。
+//
+// 注意：这里刻意使用行注释而不是 KDoc——KDoc 内出现相邻的 `/` 与 `*`（例如路径通配写法）
+// 会开启嵌套块注释（Kotlin 块注释可嵌套），外层注释会一直开到 EOF。
+private fun SmbkResourceLimits.budgetFor(entryName: String): Long = when (entryName) {
+    SmbkArchiveCodec.DATABASE_ENTRY -> maxDatabaseEntryBytes
+    SmbkArchiveCodec.MANIFEST_ENTRY,
+    SmbkArchiveCodec.CHECKSUM_ENTRY,
+    SmbkArchiveCodec.SETTINGS_ENTRY -> maxManifestChars.toLong() * 4L
+    else -> maxSingleEntryBytes
 }
 
 /** Structural corruption of an untrusted archive (truncation, bad headers...). */
@@ -139,10 +180,15 @@ private data class SmbkZipRecord(
 )
 
 internal object SmbkArchiveCodec {
-    private const val MANIFEST_ENTRY = "manifest.json"
-    private const val DATABASE_ENTRY = "database.sqlite"
+    /** 包内清单条目名；类型预算（元数据上限）与解析都取这一处。 */
+    internal const val MANIFEST_ENTRY = "manifest.json"
+
+    /** 包内数据库条目名；类型预算与解包落点都取这一处，不各写一遍字符串。 */
+    internal const val DATABASE_ENTRY = "database.sqlite"
     private const val ASSET_PREFIX = "assets/"
-    private const val CHECKSUM_ENTRY = "checksums.sha256"
+
+    /** 包内校验和条目名；类型预算（元数据上限）取这一处。 */
+    internal const val CHECKSUM_ENTRY = "checksums.sha256"
 
     /** 包内设置载荷的条目名；成包、解包与恢复三处都取这一处，不各写一遍字符串。 */
     internal const val SETTINGS_ENTRY = "settings.json"
@@ -170,6 +216,11 @@ internal object SmbkArchiveCodec {
      * 成包永远写 `formatVersion` 2；[metadata] 是版本戳，[settings] 为 null 时写出
      * `hasSettings=false` 且不带 `settings.json`（只该发生在测试或没装配设置口的装配上——
      * 生产装配两者都在，见 `BackupRepositoryFactory`）。
+     *
+     * KD-53：[limits] 与校验/恢复是**同一份预算**。成包前先按条目类型核对（数据库条目用
+     * [SmbkResourceLimits.maxDatabaseEntryBytes]，其它条目用
+     * [SmbkResourceLimits.maxSingleEntryBytes]），并核对条目数、清单长度与总量，不允许
+     * 写出一个"自己都验不过"的归档；这些检查在写任何字节之前失败（`archive` 保持为空）。
      */
     fun create(
         archive: OutputStream,
@@ -181,12 +232,25 @@ internal object SmbkArchiveCodec {
         createdAtEpochMillis: Long,
         metadata: SmbkArchiveMetadata = SmbkArchiveMetadata(),
         settings: SmbkSettingsDocumentV1? = null,
+        limits: SmbkResourceLimits = SmbkResourceLimits.DEFAULT,
     ): BackupReceipt {
         require(database.isFile) { "Database backup source is missing" }
+        require(database.length() <= limits.maxDatabaseEntryBytes) {
+            "数据库备份源超过数据库条目预算：${database.length()} > " +
+                "${limits.maxDatabaseEntryBytes} 字节"
+        }
         assets.forEach { asset ->
             require(asset.isFile && asset.length() > 0L) {
                 "Canonical asset backup source is missing"
             }
+            require(asset.length() <= limits.maxSingleEntryBytes) {
+                "题图备份源超过单条目预算：${asset.name}"
+            }
+        }
+        // 条目数 = manifest + database + checksums +（可选 settings）+ 全部题图。
+        val expectedEntryCount = assets.size + 3 + if (settings != null) 1 else 0
+        require(expectedEntryCount <= limits.maxEntryCount) {
+            "备份条目数量超过预算：$expectedEntryCount > ${limits.maxEntryCount}"
         }
         val packagedPaths = assets.mapTo(HashSet<String>()) { asset -> "$ASSET_PREFIX${asset.name}" }
         referencedAssets.forEach { referenced ->
@@ -206,6 +270,13 @@ internal object SmbkArchiveCodec {
             byteSize = database.length(),
         )
         val settingsBytes = settings?.let(SmbkSettingsCodec::encode)
+        // 总量门与校验侧同口径：数据库 + 设置 + 全部题图。
+        val totalPayloadBytes =
+            database.length() + (settingsBytes?.size ?: 0) + assets.sumOf(File::length)
+        require(totalPayloadBytes <= limits.maxTotalDecompressedBytes) {
+            "备份内容总量超过解压预算：$totalPayloadBytes > " +
+                "${limits.maxTotalDecompressedBytes} 字节"
+        }
         val settingsRecord = settingsBytes?.let { bytes ->
             SmbkFileRecord(
                 path = SETTINGS_ENTRY,
@@ -236,10 +307,16 @@ internal object SmbkArchiveCodec {
         val checksumLines = manifest.files.joinToString(separator = "\n") { record ->
             "${record.sha256} *${record.path}"
         }
+        // 清单长度门（与 finalizeValidation 的 maxManifestChars 同口径）：成包不写出一份
+        // 读侧会因"manifest 内容过长"拒绝的归档。
+        val manifestJson = json.encodeToString(SmbkManifest.serializer(), manifest)
+        require(manifestJson.length <= limits.maxManifestChars) {
+            "备份清单超过长度预算：${manifestJson.length} > ${limits.maxManifestChars}"
+        }
 
         ZipOutputStream(archive).use { zip ->
             zip.putNextEntry(ZipEntry(MANIFEST_ENTRY))
-            zip.write(json.encodeToString(SmbkManifest.serializer(), manifest).toByteArray())
+            zip.write(manifestJson.toByteArray())
             zip.closeEntry()
 
             copyEntry(zip, DATABASE_ENTRY, database)
@@ -259,7 +336,7 @@ internal object SmbkArchiveCodec {
             problemCount = problemCount,
             assetCount = assetRecords.size,
             fileCount = manifest.files.size,
-            totalBytes = database.length() + (settingsBytes?.size ?: 0) + assets.sumOf(File::length),
+            totalBytes = totalPayloadBytes,
         )
     }
 
@@ -279,7 +356,8 @@ internal object SmbkArchiveCodec {
      *     manifest/checksum SHA-256 — data-level tampering is rejected;
      *   - entry count, single-entry size, total decompressed size and the
      *     compression ratio (zip-bomb defence) are enforced from the exact
-     *     central-directory sizes.
+     *     central-directory sizes. 单条目预算按条目类型取：`database.sqlite`
+     *     用独立的数据库上限（KD-53），其余条目仍按单图上限；总量与压缩比门不变。
      */
     fun validate(
         archive: InputStream,
@@ -698,6 +776,11 @@ internal object SmbkArchiveCodec {
     /**
      * Decompresses one entry, verifying CRC-32, the declared size and the
      * compression-ratio ceiling. Optionally writes the plaintext to [target].
+     *
+     * 单条目预算按**条目类型**取（KD-53）：`database.sqlite` 用
+     * [SmbkResourceLimits.maxDatabaseEntryBytes]，其余条目用
+     * [SmbkResourceLimits.maxSingleEntryBytes]。上限检查与实际解压字节都按同一预算，
+     * 中央目录声明与实际流各挡一次。
      */
     private fun expandEntry(
         raf: RandomAccessFile,
@@ -706,8 +789,9 @@ internal object SmbkArchiveCodec {
         limits: SmbkResourceLimits,
         keepPlain: Boolean = false,
     ): ExpandedEntry {
-        if (record.uncompressedSize > limits.maxSingleEntryBytes) {
-            throw ArchiveIntegrityException("${record.name} 超过单条目解压大小上限")
+        val entryBudget = limits.budgetFor(record.name)
+        if (record.uncompressedSize > entryBudget) {
+            throw ArchiveIntegrityException("${record.name} 超过条目解压大小上限")
         }
         if (record.compressedSize > 0 && record.uncompressedSize > 0) {
             val ratio = record.uncompressedSize.toDouble() / record.compressedSize
@@ -737,7 +821,7 @@ internal object SmbkArchiveCodec {
                     if (read > 0) {
                         written += read
                         if (written > record.uncompressedSize ||
-                            written > limits.maxSingleEntryBytes
+                            written > entryBudget
                         ) {
                             throw ArchiveIntegrityException("${record.name} 大小不一致")
                         }

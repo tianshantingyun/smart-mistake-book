@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.feature.capture
 
 import androidx.lifecycle.SavedStateHandle
+import com.tingyun.smartmistakebook.core.domain.BackupWriteDeferredException
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftSummary
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftWorkspaceIdentity
 import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
@@ -375,6 +376,117 @@ class CaptureViewModelTest {
             assertEquals(listOf("draft-1"), repository.committedDraftIds)
         }
 
+    /**
+     * KD-54：备份快照期间的保存被「让路」门挡住时，写**没有开始**——提示必须说清
+     * 原因与可重试性，而不是让用户以为数据库写坏了。
+     */
+    @Test
+    fun `a backup-deferred commit says the save never started and stays retryable`() =
+        runTest(dispatcher.scheduler) {
+            val repository = FakeCaptureRepository(
+                commitResults = ArrayDeque(
+                    listOf(
+                        Result.failure(
+                            BackupWriteDeferredException("备份正在进行，保存暂未执行"),
+                        ),
+                    ),
+                ),
+            )
+            val viewModel = CaptureViewModel(
+                savedStateHandle = SavedStateHandle(),
+                repository = repository,
+                modelTasks = FakeModelTasks(),
+                ioDispatcher = dispatcher,
+            )
+            viewModel.acceptSource(
+                uri = "file:///commit-deferred.png",
+                source = CaptureInputSource.CAMERA,
+                origin = CaptureEntryOrigin.LIBRARY,
+                purpose = CaptureAcquisitionPurpose.NEW_CAPTURE,
+                requestId = "import-commit-deferred",
+                occurredAtEpochMillis = 60,
+            )
+            advanceUntilIdle()
+
+            viewModel.confirm(workspaceIdentity(), CaptureEntryOrigin.LIBRARY)
+            advanceUntilIdle()
+
+            assertEquals(CaptureWorkflowPhase.FAILED, viewModel.uiState.value.workflow.phase)
+            val failure = requireNotNull(viewModel.uiState.value.userError)
+            assertEquals("备份正在进行，这次保存没有开始", failure.title)
+            assertTrue(failure.message.contains("等备份完成后重试"))
+            assertTrue(failure.message.contains("不会重复建题"))
+            assertTrue(failure.retryable)
+            assertTrue(failure.dataPreserved)
+        }
+
+    @Test
+    fun `manual transcription draft starts without a source and enters review`() =
+        runTest(dispatcher.scheduler) {
+            val repository = FakeCaptureRepository(
+                importResults = ArrayDeque(listOf(Result.success(manualDraftSummary()))),
+            )
+            val viewModel = CaptureViewModel(
+                savedStateHandle = SavedStateHandle(),
+                repository = repository,
+                modelTasks = FakeModelTasks(),
+                ioDispatcher = dispatcher,
+            )
+
+            viewModel.startManualDraft(
+                origin = CaptureEntryOrigin.LIBRARY,
+                requestId = "manual-1",
+                occurredAtEpochMillis = 10,
+            )
+            advanceUntilIdle()
+
+            val workflow = viewModel.uiState.value.workflow
+            assertEquals(CaptureWorkflowPhase.ASSESSING, workflow.phase)
+            assertEquals("manual-draft-1", workflow.draftId)
+            assertEquals("manual-1", workflow.latestRequestId)
+            val event = checkNotNull(viewModel.uiState.value.importedDraft)
+            assertNull("手动建题没有来源文件", event.sourceUri)
+            assertNull(event.summary.sourceAssetId)
+            assertTrue(event.summary.sourcePages.isEmpty())
+            assertNull(viewModel.uiState.value.userError)
+        }
+
+    @Test
+    fun `manual transcription is not offered to the tutor origin`() =
+        runTest(dispatcher.scheduler) {
+            val repository = FakeCaptureRepository()
+            val viewModel = CaptureViewModel(
+                savedStateHandle = SavedStateHandle(),
+                repository = repository,
+                modelTasks = FakeModelTasks(),
+                ioDispatcher = dispatcher,
+            )
+
+            viewModel.startManualDraft(
+                origin = CaptureEntryOrigin.TUTOR,
+                requestId = "manual-tutor",
+                occurredAtEpochMillis = 20,
+            )
+            advanceUntilIdle()
+
+            assertEquals(CaptureWorkflowPhase.IDLE, viewModel.uiState.value.workflow.phase)
+            assertNull(viewModel.uiState.value.importedDraft)
+            assertTrue(repository.importedUris.isEmpty())
+        }
+
+    private fun manualDraftSummary(): CaptureDraftSummary = CaptureDraftSummary(
+        draftId = "manual-draft-1",
+        sourceAssetId = null,
+        sourceAssetSha256 = null,
+        revisionNumber = 1,
+        width = null,
+        height = null,
+        byteSize = null,
+        status = "EDITING",
+        recognition = CaptureRecognitionSummary(),
+        sourcePages = emptyList(),
+    )
+
     private fun workspaceIdentity() = CaptureDraftWorkspaceIdentity(
         draftId = "draft-1",
         basisRevisionNumber = 1,
@@ -461,7 +573,7 @@ private class FakeCaptureRepository(
     override suspend fun importDraft(
         request: com.tingyun.smartmistakebook.core.domain.CaptureDraftImportRequest,
     ): CaptureDraftSummary {
-        importedUris += request.localUri
+        request.localUri?.let(importedUris::add)
         return importResults.removeFirst().getOrThrow()
     }
 

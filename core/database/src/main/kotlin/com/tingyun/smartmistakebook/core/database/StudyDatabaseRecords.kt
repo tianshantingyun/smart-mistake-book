@@ -815,9 +815,13 @@ data class ProblemDraftRevisionRecord(
 
 data class ProblemDraftRecord(
     val draftId: String,
-    val sourceAsset: CanonicalSourceAssetRecord,
-    val sourceAssets: List<ProblemDraftSourceAssetRecord> = listOf(
-        ProblemDraftSourceAssetRecord(pageIndex = 0, sourceAsset = sourceAsset),
+    /**
+     * A8：手动建题的草稿没有照片（v67 起 `problem_draft.source_asset_id` 可空）。
+     * null 表示**从创建起就没有源图**，不是图丢了；照片草稿仍恒为非空。
+     */
+    val sourceAsset: CanonicalSourceAssetRecord?,
+    val sourceAssets: List<ProblemDraftSourceAssetRecord> = listOfNotNull(
+        sourceAsset?.let { ProblemDraftSourceAssetRecord(pageIndex = 0, sourceAsset = it) },
     ),
     val origin: String,
     val status: String,
@@ -827,14 +831,16 @@ data class ProblemDraftRecord(
     val requestFingerprint: String? = null,
 ) {
     init {
-        require(sourceAssets.isNotEmpty()) { "A problem draft requires at least one source asset" }
+        require(sourceAssets.isNotEmpty() == (sourceAsset != null)) {
+            "Problem draft source pages must match its primary source"
+        }
         require(sourceAssets.map { it.pageIndex } == sourceAssets.indices.toList()) {
             "Problem draft source pages must be ordered and contiguous from zero"
         }
         require(sourceAssets.map { it.sourceAsset.sourceAssetId }.distinct().size == sourceAssets.size) {
             "Problem draft source assets must be unique"
         }
-        require(sourceAssets.first().sourceAsset == sourceAsset) {
+        require(sourceAssets.isEmpty() || sourceAssets.first().sourceAsset == sourceAsset) {
             "Problem draft primary source must be page zero"
         }
     }
@@ -893,7 +899,10 @@ data class ExpectedProblemDraftEditWorkspace(
 )
 
 data class CreateProblemDraftCommand(
-    val sourceAsset: CanonicalSourceAssetRecord,
+    /**
+     * null = 手动建题（用户转写）的空源草稿；其余创建路径仍必须带页 0 源资产。
+     */
+    val sourceAsset: CanonicalSourceAssetRecord?,
     val draftId: String,
     val origin: String,
     val initialRevision: ProblemDraftRevisionRecord,

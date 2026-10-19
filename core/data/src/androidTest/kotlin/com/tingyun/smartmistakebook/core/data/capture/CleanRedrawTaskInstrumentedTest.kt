@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskRecord
 import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskStatus
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
+import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
 import com.tingyun.smartmistakebook.core.domain.CleanImageResult
 import com.tingyun.smartmistakebook.core.domain.ConfirmCapturedProblemRequest
 import com.tingyun.smartmistakebook.core.domain.CapturedProblemCommitSummary
@@ -47,7 +48,7 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
         val first = redrawRepository(
             scope = firstScope,
             // 生成轮卡住（慢模型调用）：这次尝试会停在"已领取、还没产出"的 PENDING 上。
-            generate = { _, _ ->
+            generate = { _ ->
                 delay(30_000)
                 CleanImageResult(bytes = cleanPngBytes(), mimeType = "image/png")
             },
@@ -74,7 +75,7 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
         delay(100)
 
         // 重启：新仓库（新作用域/新资产库句柄）启动对账，接着做完。
-        val resumed = redrawRepository(scope = null, generate = { _, _ ->
+        val resumed = redrawRepository(scope = null, generate = { _ ->
             CleanImageResult(bytes = cleanPngBytes(), mimeType = "image/png")
         })
         val processed = resumed.resumePendingCleanRedraws(staleBeforeEpochMillis = Long.MAX_VALUE)
@@ -98,7 +99,7 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
     @Test
     fun aLateCleanRedrawResultIsSupersededInsteadOfAttachingToANewerRevision() = runBlocking {
         var generateCalls = 0
-        val repositoryWithFailingRedraw = redrawRepository(scope = null, generate = { _, _ ->
+        val repositoryWithFailingRedraw = redrawRepository(scope = null, generate = { _ ->
             generateCalls += 1
             null // 生成失败：行落 FAILED（attempt 1），题面还没有干净图
         })
@@ -139,7 +140,7 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
 
     private fun redrawRepository(
         scope: CoroutineScope?,
-        generate: suspend (ByteArray, String) -> CleanImageResult?,
+        generate: suspend (CleanImageRequest) -> CleanImageResult?,
     ): RoomCaptureWorkflowRepository = RoomCaptureWorkflowRepository(
         database,
         AndroidCanonicalAssetVault(context),

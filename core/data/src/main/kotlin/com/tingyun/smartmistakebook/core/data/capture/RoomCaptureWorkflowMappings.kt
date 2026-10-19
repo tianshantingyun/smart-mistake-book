@@ -117,6 +117,8 @@ internal fun ModelTaskSnapshot.matchesParse(
     val validatedAssessments = assessments.filterNotNull()
     val requestedSources = input.sourceAssets.sortedBy { it.pageIndex }
     val draftSources = draft.sourceAssets.sortedBy { it.pageIndex }
+    // A8：空源草稿没有任何页，解析任务对它不成立（下面 maxOf 也不接受空列表）。
+    if (draftSources.isEmpty()) return false
     if (requestedSources.size != draftSources.size) return false
     val parseProvider = provider
     val providerBindingMatches = parseProvider == null ||
@@ -231,11 +233,36 @@ internal fun validateImportReplay(
 ) {
     val matchesPersistedBinding =
         draft.requestFingerprint == importRequestFingerprint(request, imported) &&
-            draft.sourceAsset.hasSameCanonicalContent(imported)
+            draft.sourceAsset?.hasSameCanonicalContent(imported) == true
     if (!matchesPersistedBinding) {
         throw ImmutablePayloadConflictException("capture_import_request", request.requestId)
     }
 }
+
+/**
+ * A8：手动建题的导入重放判据——同一 requestId 重放必须落在同一份空源草稿上。
+ * 指纹只取创建请求的形状；草稿若带上了源资产，说明它根本不是那次手动创建。
+ */
+internal fun validateManualImportReplay(
+    draft: ProblemDraftRecord,
+    request: CaptureDraftImportRequest,
+) {
+    if (
+        draft.sourceAsset != null ||
+        draft.requestFingerprint != manualImportRequestFingerprint(request)
+    ) {
+        throw ImmutablePayloadConflictException("capture_import_request", request.requestId)
+    }
+}
+
+internal fun manualImportRequestFingerprint(
+    request: CaptureDraftImportRequest,
+): String = requestFingerprint(
+    "capture-manual-import-v1",
+    request.requestId,
+    request.origin.toDbValue(),
+    request.occurredAtEpochMillis.toString(),
+)
 
 internal fun validateCompletedReplacement(
     replaced: ProblemDraftRecord,
@@ -274,7 +301,7 @@ internal fun importRequestFingerprint(
 ): String = requestFingerprint(
     "capture-import-v2",
     request.requestId,
-    request.source.toDbValue(),
+    requireNotNull(request.source).toDbValue(),
     request.origin.toDbValue(),
     request.occurredAtEpochMillis.toString(),
     imported.sourceAssetId,
@@ -327,7 +354,9 @@ internal fun splitRequestFingerprint(
     request.expectedRevisionNumber.toString(),
     request.assessmentRequestId,
     request.sourceAssetId,
-    replaced.sourceAsset.contentSha256,
+    // 切分只对照片草稿有意义：空源草稿没有可裁的页 0 源图。
+    requireNotNull(replaced.sourceAsset) { "A manual draft has no source page to split" }
+        .contentSha256,
     regionIndex.toString(),
     region.fingerprintValue(),
     cropped.contentSha256,

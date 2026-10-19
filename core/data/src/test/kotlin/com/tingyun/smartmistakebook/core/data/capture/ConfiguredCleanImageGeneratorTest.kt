@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.data.model.ImageGenerationChannel
 import com.tingyun.smartmistakebook.core.data.model.ImageGenerationRequest
 import com.tingyun.smartmistakebook.core.data.model.ImageRedrawRequest
 import com.tingyun.smartmistakebook.core.data.model.ImageRedrawResult
+import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
 import com.tingyun.smartmistakebook.core.domain.ModelApiKey
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationMutationResult
@@ -11,6 +12,11 @@ import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationUpdate
 import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchDecision
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchRequest
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchReservation
+import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
@@ -21,7 +27,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Gating + channel-selection contract for the production clean-redraw generator.
+ * Gating + unified-coordinator contract for the production clean-redraw generator.
  * The network POST itself is covered by OpenAiImageGenerationChannel's
  * MockWebServer tests; here a fake channel factory substitutes the network.
  */
@@ -31,21 +37,21 @@ class ConfiguredCleanImageGeneratorTest {
     fun declinesWhenNetworkIsNotAllowed() = runBlocking {
         val generator = generator(networkRequestsAllowed = false)
 
-        assertNull(generator.generateClean(bytes("a"), "image/jpeg"))
+        assertNull(generate(generator))
     }
 
     @Test
     fun declinesWhenNoCredentialIsConfigured() = runBlocking {
         val generator = generator(credentialAvailable = false)
 
-        assertNull(generator.generateClean(bytes("a"), "image/jpeg"))
+        assertNull(generate(generator))
     }
 
     @Test
     fun declinesWhenCapabilityTestNeverRan() = runBlocking {
         val generator = generator(capability = null)
 
-        assertNull(generator.generateClean(bytes("a"), "image/jpeg"))
+        assertNull(generate(generator))
     }
 
     @Test
@@ -54,7 +60,7 @@ class ConfiguredCleanImageGeneratorTest {
             capability = configuredCapability().copy(supportsImageInput = false),
         )
 
-        assertNull(generator.generateClean(bytes("a"), "image/jpeg"))
+        assertNull(generate(generator))
     }
 
     @Test
@@ -67,7 +73,7 @@ class ConfiguredCleanImageGeneratorTest {
             },
         )
 
-        assertNull(generator.generateClean(bytes("a"), "image/jpeg"))
+        assertNull(generate(generator))
         assertTrue(channelCalled)
     }
 
@@ -83,7 +89,7 @@ class ConfiguredCleanImageGeneratorTest {
             },
         )
 
-        val result = generator.generateClean(bytes("source"), "image/jpeg")
+        val result = generate(generator)
 
         assertEquals("https://provider.test/v1", capturedBase)
         assertEquals("Bearer test-secret", capturedAuthorization)
@@ -92,6 +98,19 @@ class ConfiguredCleanImageGeneratorTest {
     }
 
     // -----------------------------------------------------------------
+
+    /** 4E.1：净化生成必须带持久派发父操作（这里是已领取的净化作业尝试）。 */
+    private suspend fun generate(generator: ConfiguredCleanImageGenerator) =
+        generator.generateClean(
+            CleanImageRequest(
+                originalBytes = bytes("a"),
+                mimeType = "image/jpeg",
+                parent = FigureDispatchParent.CleanRedrawTask(
+                    taskId = "clean-redraw-task-1",
+                    attemptCount = 1,
+                ),
+            ),
+        )
 
     private fun generator(
         credentialAvailable: Boolean = true,
@@ -107,20 +126,30 @@ class ConfiguredCleanImageGeneratorTest {
         ),
         channelFactory = channelFactory,
         networkRequestsAllowed = networkRequestsAllowed,
+        ledger = GrantingLedger(),
     )
 
     private class FakeRedrawChannel(
         private val cleanBytes: String,
         private val cleanMime: String,
     ) : ImageGenerationChannel {
-        override suspend fun redrawClean(request: ImageRedrawRequest): ImageRedrawResult =
+        override suspend fun redrawClean(
+            request: ImageRedrawRequest,
+            dispatch: com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding,
+        ): ImageRedrawResult =
             ImageRedrawResult(
                 imageBytes = cleanBytes.toByteArray(),
                 mimeType = cleanMime,
             )
 
-        override suspend fun generate(request: ImageGenerationRequest): ImageRedrawResult =
-            throw UnsupportedOperationException("generate not exercised by this fake")
+        override suspend fun generate(
+            request: ImageGenerationRequest,
+            dispatch: com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding,
+        ): ImageRedrawResult =
+            ImageRedrawResult(
+                imageBytes = cleanBytes.toByteArray(),
+                mimeType = cleanMime,
+            )
     }
 
     private class ChannelFactory(
@@ -130,6 +159,28 @@ class ConfiguredCleanImageGeneratorTest {
             baseUrl: String,
             authorization: String,
         ): ImageGenerationChannel = factory(baseUrl, authorization)
+    }
+
+    private class GrantingLedger : RemoteModelDispatchLedger {
+        override suspend fun reserve(
+            request: RemoteModelDispatchRequest,
+        ): RemoteModelDispatchDecision = RemoteModelDispatchDecision.Granted(
+            RemoteModelDispatchReservation(
+                reservationId = "test-reservation:${request.operationId}",
+                operationId = request.operationId,
+                parent = request.parent,
+                remoteKind = request.remoteKind,
+                method = request.method,
+                purpose = request.purpose,
+                policyVersion = request.policyVersion,
+                sourceImageSha256 = request.sourceImageSha256,
+                configurationFingerprint = request.configurationFingerprint,
+                attemptOrdinal = request.parent.let { parent ->
+                    (parent as? FigureDispatchParent.CleanRedrawTask)?.attemptCount ?: 1
+                },
+                reservedAtEpochMillis = request.occurredAtEpochMillis,
+            ),
+        )
     }
 
     private class FakeStore(

@@ -9,6 +9,8 @@ import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
+import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 
 /**
  * [TutorConversationViewModel] 的手工装配（与 `TutorSessionViewModelFactory` 同一风格）：
@@ -30,6 +32,10 @@ internal class TutorConversationViewModelFactory(
     private val pendingRequests: AgentPendingRequestRepository? = null,
     /** 确认卡三条执行路径的落点；装配处注入。 */
     private val localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
+    /** 6B-2：选题后读题面、建可编辑卷面（null = 这个入口不接编辑态）。 */
+    private val readExportPaperEdit:
+        (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
+        null,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(
@@ -48,6 +54,7 @@ internal class TutorConversationViewModelFactory(
             conversationArea = area,
             pendingRequests = pendingRequests,
             localActionLandings = localActionLandings,
+            readExportPaperEdit = readExportPaperEdit,
         ) as T
     }
 }

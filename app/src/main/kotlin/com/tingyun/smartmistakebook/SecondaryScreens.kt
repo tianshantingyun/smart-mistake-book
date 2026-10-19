@@ -58,8 +58,10 @@ import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationUpdate
 import com.tingyun.smartmistakebook.core.data.backup.BackupRestoreDatabaseClosedException
+import com.tingyun.smartmistakebook.core.domain.BackupActivity
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
+import com.tingyun.smartmistakebook.core.domain.RestoreSettingsOutcome
 import com.tingyun.smartmistakebook.core.domain.StorageInventory
 import com.tingyun.smartmistakebook.core.domain.currentCapabilityVerification
 import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
@@ -80,13 +82,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-private enum class CapabilityOperation {
-    IDLE,
-    SAVING,
-    TESTING,
-    CLEARING,
-}
 
 @Composable
 internal fun SecondaryHeader(title: String, onBack: () -> Unit) {
@@ -120,23 +115,25 @@ internal fun CapabilityScreen(
         window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
-    val screenScope = rememberCoroutineScope()
-    val configuration = configurationStore?.configuration
-        ?.collectAsStateWithLifecycle(initialValue = ModelConfigurationSnapshot())
-        ?.value ?: ModelConfigurationSnapshot()
-    var provider by remember { mutableStateOf("") }
-    var baseUrl by remember { mutableStateOf("") }
-    var modelId by remember { mutableStateOf("") }
-    var protocol by remember { mutableStateOf(ModelProviderProtocol.DEFAULT) }
-    var apiKey by remember { mutableStateOf("") }
-    var operation by remember { mutableStateOf(CapabilityOperation.IDLE) }
-    var operationMessage by remember { mutableStateOf<String?>(null) }
+    val form: CapabilityFormViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val screenScope = form.operationScope
+    val loadedConfiguration = configurationStore?.configuration
+        ?.collectAsStateWithLifecycle(initialValue = null)
+        ?.value
+    val configuration = loadedConfiguration ?: ModelConfigurationSnapshot()
+    var provider by form::provider
+    var baseUrl by form::baseUrl
+    var modelId by form::modelId
+    var protocol by form::protocol
+    var apiKey by form::apiKey
+    var operation by form::operation
+    var operationMessage by form::operationMessage
     /**
      * 清除配置与密钥**无法撤销**：清掉之后 Provider/Base URL/模型名/API Key 全丢，
      * 而密钥通常不在用户手边。删除全部数据那种更重的动作都有确认框，这里不能直清。
      */
     var confirmClear by remember { mutableStateOf(false) }
-    val formEnabled = operation == CapabilityOperation.IDLE
+    val formEnabled = operation == CapabilityOperation.IDLE && loadedConfiguration != null
     var calibrationReport by remember { mutableStateOf<CalibrationReport?>(null) }
     var calibrationUnavailable by remember { mutableStateOf(false) }
 
@@ -152,15 +149,15 @@ internal fun CapabilityScreen(
         }
     }
 
-    LaunchedEffect(configuration.configurationVersion, configuration.updatedAtEpochMillis) {
-        provider = configuration.provider
-        baseUrl = configuration.baseUrl
-        modelId = configuration.modelId
-        protocol = configuration.protocol
+    LaunchedEffect(loadedConfiguration?.configurationVersion, loadedConfiguration?.updatedAtEpochMillis) {
+        // 未加载不是空配置，不能用首帧占位覆盖保留的编辑草稿。
+        loadedConfiguration?.let(form::load)
     }
 
     RootPageColumn(modifier = Modifier.testTag("capability_screen")) {
-        SecondaryHeader(title = "大模型设置", onBack = onBack)
+        val committing = operation == CapabilityOperation.SAVING || operation == CapabilityOperation.CLEARING
+        androidx.activity.compose.BackHandler(enabled = committing) { }
+        SecondaryHeader(title = "大模型设置", onBack = { if (!committing) onBack() })
 
         if (capabilities.networkRequestsAllowed && configurationStore != null) {
             PaperDivider(Modifier.padding(vertical = 16.dp))
@@ -628,6 +625,7 @@ internal fun DataPrivacyScreen(
 internal fun StorageScreen(
     onBack: () -> Unit,
     backupRepository: BackupRepository,
+    onDatabaseClosed: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val operations: StorageOperationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
@@ -652,6 +650,8 @@ internal fun StorageScreen(
     val orphanGcStatus = orphanAssetGcStatusLine(
         orphanAssetGcPhase(orphanGcInfos.map { info -> info.state.name }),
     )
+    // KD-54：备份快照阶段的显式状态（写入口按同一道门短暂排队）。
+    val backupActivity by backupRepository.activity.collectAsState()
 
     val createBackup = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
@@ -729,18 +729,27 @@ internal fun StorageScreen(
                     } else {
                         ""
                     }
-                    "恢复完成：${receipt.problemCount} 道题、${receipt.assetCount} 张题图。$restartNote"
+                    // 部分恢复要说出来：数据库已切换，但备份里的设置没能写进本机——
+                    // 静默成功会让用户以为设置也恢复了。
+                    val settingsNote = if (receipt.settings == RestoreSettingsOutcome.WRITE_FAILED) {
+                        "设置未能写入，本机设置保持原样。"
+                    } else {
+                        ""
+                    }
+                    "恢复完成：${receipt.problemCount} 道题、${receipt.assetCount} 张题图。" +
+                        "$settingsNote$restartNote"
                 } else {
                     "无法读取所选备份。"
+                }
+                if (receipt?.restartRequired == true) {
+                    onDatabaseClosed(operationMessage.orEmpty())
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                operationMessage = if (failure is BackupRestoreDatabaseClosedException) {
-                    // 文件已回滚，但连接已关闭且无法热重开：必须重启后才能继续使用。
-                    "恢复失败，已回到原来的数据。请完全退出并重新打开应用后再继续。"
-                } else {
-                    "恢复失败，已尝试保留原数据。${failure.message.orEmpty()}"
+                operationMessage = storageRestoreFailureMessage(failure)
+                if (failure is BackupRestoreDatabaseClosedException) {
+                    onDatabaseClosed(operationMessage.orEmpty())
                 }
             } finally {
                 operationBusy = false
@@ -770,11 +779,13 @@ internal fun StorageScreen(
                                     "已删除数据库 ${formatBytes(receipt.deletedDatabaseBytes)}、" +
                                         "题图 ${formatBytes(receipt.deletedAssetBytes)}、" +
                                         "设置和临时文件。请重新打开应用。"
+                                onDatabaseClosed(operationMessage.orEmpty())
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
                             } catch (failure: Exception) {
                                 operationMessage =
                                     "删除未全部完成，请重启后重试。${failure.message.orEmpty()}"
+                                onDatabaseClosed(operationMessage.orEmpty())
                             } finally {
                                 operationBusy = false
                             }
@@ -823,6 +834,15 @@ internal fun StorageScreen(
             modifier = Modifier.padding(top = 10.dp),
             color = InkSecondary,
         )
+        if (backupActivity != BackupActivity.Idle) {
+            Text(
+                "正在生成备份快照；其它保存会短暂排队，等快照完成后继续。",
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .testTag("storage_backup_activity"),
+                color = InkSecondary,
+            )
+        }
         PrimaryActionButton(
             text = if (operationBusy) "正在处理…" else "创建完整备份",
             onClick = { createBackup.launch("smart-mistake-book-${System.currentTimeMillis()}.smbk") },
@@ -931,6 +951,15 @@ internal fun StorageScreen(
         )
     }
 }
+
+internal fun storageRestoreFailureMessage(failure: Exception): String =
+    if (failure is BackupRestoreDatabaseClosedException) {
+        val detail = failure.message?.takeIf(String::isNotBlank)
+            ?: "恢复未完成，当前本机数据状态需要核对。"
+        "$detail 请关闭应用后重新打开，并核对本机数据。"
+    } else {
+        "恢复失败，已尝试保留原数据。${failure.message.orEmpty()}"
+    }
 
 private fun formatBytes(bytes: Long): String = when {
     bytes >= 1_048_576L -> "%.1f MB".format(bytes / 1_048_576.0)

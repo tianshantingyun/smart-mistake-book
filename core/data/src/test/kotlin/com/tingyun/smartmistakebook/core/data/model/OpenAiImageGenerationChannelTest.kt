@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -44,6 +48,7 @@ class OpenAiImageGenerationChannelTest {
                     photoMimeType = "image/png",
                     instruction = "去手写",
                 ),
+                dispatchFor(oversized),
             )
         }
         assertTrue("超限的输入必须被拒绝", redraw.isFailure)
@@ -55,11 +60,61 @@ class OpenAiImageGenerationChannelTest {
                     sourceImageBytes = oversized,
                     sourceImageMimeType = "image/png",
                 ),
+                dispatchFor(oversized),
             )
         }
         assertTrue("超限的输入必须被拒绝", generate.isFailure)
 
         // 关键：拒绝发生在组请求之前——一格字节都不许发出去。
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
+    fun `refuses to post without a granted dispatch`() = runBlocking {
+        // 旧的无预留入口是 fail-closed 的：绕过 coordinator 的调用不得产生 HTTP。
+        val legacy = runCatching {
+            channel.generate(ImageGenerationRequest(prompt = "画一条数轴"))
+        }
+        assertTrue(legacy.exceptionOrNull() is ImageDispatchNotReservedException)
+        val legacyRedraw = runCatching {
+            channel.redrawClean(
+                ImageRedrawRequest(
+                    photoBytes = byteArrayOf(1),
+                    photoMimeType = "image/png",
+                    instruction = "清理",
+                ),
+            )
+        }
+        assertTrue(legacyRedraw.exceptionOrNull() is ImageDispatchNotReservedException)
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
+    fun `refuses a dispatch bound to different bytes or another configuration`() = runBlocking {
+        val source = byteArrayOf(1, 2, 3)
+        val request = ImageGenerationRequest(
+            prompt = "基于源图重绘",
+            sourceImageBytes = source,
+            sourceImageMimeType = "image/png",
+        )
+
+        val wrongSource = dispatchFor(source).copy(
+            sourceImageSha256 = figureSha256Hex(byteArrayOf(9, 9)),
+        )
+        val sourceError = runCatching {
+            channel.generate(request, wrongSource)
+        }.exceptionOrNull()
+        assertTrue(sourceError is ImageDispatchNotReservedException)
+
+        val wrongConfiguration = dispatchFor(source).copy(
+            configurationFingerprint = "another-image-configuration",
+        )
+        val configurationError = runCatching {
+            channel.generate(request, wrongConfiguration)
+        }.exceptionOrNull()
+        assertTrue(configurationError is ImageDispatchNotReservedException)
+
+        // 两项都是在组请求之前拒绝：一个字节都不发。
         assertEquals(0, server.requestCount)
     }
 
@@ -73,12 +128,14 @@ class OpenAiImageGenerationChannelTest {
             ),
         )
 
+        val source = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)
         val result = channel.redrawClean(
             ImageRedrawRequest(
-                photoBytes = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47),
+                photoBytes = source,
                 photoMimeType = "image/png",
                 instruction = "去除手写笔迹，保留印刷题面，重绘干净。",
             ),
+            dispatchFor(source),
         )
 
         val recorded = server.takeRequest()
@@ -95,13 +152,15 @@ class OpenAiImageGenerationChannelTest {
     fun `surfaces http failures as an exception`() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(500).setBody("boom"))
 
+        val source = byteArrayOf(1)
         val error = runCatching {
             channel.redrawClean(
                 ImageRedrawRequest(
-                    photoBytes = byteArrayOf(1),
+                    photoBytes = source,
                     photoMimeType = "image/png",
                     instruction = "清理",
                 ),
+                dispatchFor(source),
             )
         }.exceptionOrNull()
 
@@ -113,13 +172,15 @@ class OpenAiImageGenerationChannelTest {
     fun `rejects an empty image payload`() = runBlocking {
         server.enqueue(MockResponse().setBody("""{"created":1,"data":[]}"""))
 
+        val source = byteArrayOf(1)
         val error = runCatching {
             channel.redrawClean(
                 ImageRedrawRequest(
-                    photoBytes = byteArrayOf(1),
+                    photoBytes = source,
                     photoMimeType = "image/png",
                     instruction = "清理",
                 ),
+                dispatchFor(source),
             )
         }.exceptionOrNull()
 
@@ -140,6 +201,7 @@ class OpenAiImageGenerationChannelTest {
             ImageGenerationRequest(
                 prompt = "画出函数 f(x)=x^2 的抛物线，标注顶点与对称轴。",
             ),
+            dispatchFor(source = null),
         )
 
         val recorded = server.takeRequest()
@@ -161,16 +223,30 @@ class OpenAiImageGenerationChannelTest {
             ),
         )
 
+        val source = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)
         channel.generate(
             ImageGenerationRequest(
                 prompt = "基于此题图添加辅助线并重绘。",
-                sourceImageBytes = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47),
+                sourceImageBytes = source,
                 sourceImageMimeType = "image/png",
             ),
+            dispatchFor(source),
         )
 
         val recorded = server.takeRequest()
         assertEquals("/v1/images/edits", recorded.path)
         assertTrue(recorded.body.readUtf8().contains("辅助线"))
     }
+
+    /** 一份与当前通道配置/源图绑定的**已授予**预留上下文（测试替身，不经过网络）。 */
+    private fun dispatchFor(source: ByteArray?): FigureImageDispatchBinding =
+        FigureImageDispatchBinding(
+            reservationId = "test-reservation",
+            operationId = "test-operation",
+            method = FigureGenerationMethod.IMAGE_MODEL,
+            purpose = FigureGenerationPurpose.EXPLANATION,
+            attemptOrdinal = 1,
+            sourceImageSha256 = source?.let(::figureSha256Hex),
+            configurationFingerprint = channel.configurationFingerprint,
+        )
 }

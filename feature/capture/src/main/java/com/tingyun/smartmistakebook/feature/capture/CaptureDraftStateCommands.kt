@@ -96,16 +96,20 @@ internal class CaptureDraftStateCommands(
         requestId: String,
         occurredAtEpochMillis: Long,
     ) {
-        val imported = captureImportedNewModelTasks(
-            requestId = requestId,
-            sourceAssetId = draft.sourceAssetId,
-            pageCount = draft.sourcePages.size,
-        )
+        // A8：手动建题的空源草稿没有题图可评估/解析——不生成模型任务 id，
+        // 界面按"手动转写"路径直接进入编辑（见 CaptureScreen 的 manualTranscriptionDraft）。
+        val imported = draft.sourceAssetId?.let { sourceAssetId ->
+            captureImportedNewModelTasks(
+                requestId = requestId,
+                sourceAssetId = sourceAssetId,
+                pageCount = draft.sourcePages.size,
+            )
+        }
         state.draftId = draft.draftId
         state.draftRevisionNumber = draft.revisionNumber
         state.canonicalSha256 = draft.sourceAssetSha256
         state.sourcePages = draft.sourcePages
-        state.sourcePageAssessmentSnapshots = imported.pageSnapshots
+        state.sourcePageAssessmentSnapshots = imported?.pageSnapshots ?: emptyList()
         state.selectedSourcePageIndex = 0
         state.recognitionStateName = draft.recognition.state.name
         state.recognitionConfidence = draft.recognition.confidence
@@ -113,10 +117,10 @@ internal class CaptureDraftStateCommands(
         state.correctedTranscription = draft.recognition.candidateText
         state.correctedTitle = suggestCaptureTitle(draft.recognition.candidateText)
         state.titleEditedByUser = false
-        state.assessmentRequestId = imported.assessmentRequestId
-        state.assessmentSourceAssetId = imported.assessmentSourceAssetId
+        state.assessmentRequestId = imported?.assessmentRequestId
+        state.assessmentSourceAssetId = imported?.assessmentSourceAssetId
         state.assessmentOccurredAtEpochMillis = occurredAtEpochMillis
-        state.parseRequestId = imported.parseRequestId
+        state.parseRequestId = imported?.parseRequestId
     }
 
     /** Same filtering the rest of the screen applies: demo parses never adopt. */

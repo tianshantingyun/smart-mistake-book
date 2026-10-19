@@ -293,15 +293,18 @@ internal abstract class ProblemDraftTransactionDao {
     @Transaction
     open suspend fun create(command: CreateProblemDraftCommand): ProblemDraftWriteResult {
         DatabaseContractValidator.validateCreateProblemDraft(command)
-        val asset = command.sourceAsset.toEntity()
-        insertSourceAsset(asset)
-        if (findSourceAsset(asset.sourceAssetId)?.hasSameCanonicalContent(asset) != true) {
-            throw ImmutablePayloadConflictException("canonical_source_asset", asset.sourceAssetId)
+        // A8：空源（手动建题）不落 canonical 资产、不写页 0 绑定；照片链逐字保持旧行为。
+        val asset = command.sourceAsset?.toEntity()
+        if (asset != null) {
+            insertSourceAsset(asset)
+            if (findSourceAsset(asset.sourceAssetId)?.hasSameCanonicalContent(asset) != true) {
+                throw ImmutablePayloadConflictException("canonical_source_asset", asset.sourceAssetId)
+            }
         }
 
         val draft = ProblemDraftEntity(
             draftId = command.draftId,
-            sourceAssetId = asset.sourceAssetId,
+            sourceAssetId = asset?.sourceAssetId,
             origin = command.origin,
             status = StudyDbValue.ProblemDraftStatus.EDITING,
             currentRevisionNumber = 1,
@@ -311,14 +314,16 @@ internal abstract class ProblemDraftTransactionDao {
         )
         val revision = command.initialRevision.toEntity()
         val created = insertDraft(draft) != -1L
-        insertDraftSourceAsset(
-            ProblemDraftSourceAssetEntity(
-                draftId = draft.draftId,
-                pageIndex = 0,
-                sourceAssetId = asset.sourceAssetId,
-                attachedAtEpochMillis = draft.createdAtEpochMillis,
-            ),
-        )
+        if (asset != null) {
+            insertDraftSourceAsset(
+                ProblemDraftSourceAssetEntity(
+                    draftId = draft.draftId,
+                    pageIndex = 0,
+                    sourceAssetId = asset.sourceAssetId,
+                    attachedAtEpochMillis = draft.createdAtEpochMillis,
+                ),
+            )
+        }
         insertDraftRevision(revision)
 
         if (findDraftEntity(draft.draftId) != draft || findDraftRevision(draft.draftId, 1) != revision) {
@@ -402,7 +407,15 @@ internal abstract class ProblemDraftTransactionDao {
         val sourceAssetIds = findDraftSourceAssets(command.draftId).mapTo(mutableSetOf()) {
             it.sourceAssetId
         }
-        if (command.revision.questionDocument.blockEvidence.any { it.sourceAssetId !in sourceAssetIds }) {
+        // A8：空源草稿里的**用户转写块**没有源图（空白 source_asset_id），逐块比对不适用。
+        // **只按 provenance 放行**——其它来源的块仍必须指向这份草稿的源资产。
+        if (
+            command.revision.questionDocument.blockEvidence.any { evidence ->
+                val isUserTranscription = evidence.provenance ==
+                    QuestionBlockProvenance.USER_TRANSCRIPTION && evidence.sourceAssetId.isBlank()
+                !isUserTranscription && evidence.sourceAssetId !in sourceAssetIds
+            }
+        ) {
             throw ImmutablePayloadConflictException("problem_draft_source_asset", command.draftId)
         }
 
@@ -1133,14 +1146,15 @@ internal abstract class ProblemDraftTransactionDao {
                 sourceAsset = checkNotNull(findSourceAsset(binding.sourceAssetId)).toRecord(),
             )
         }
-        // v67 起 `problem_draft.source_asset_id` 可空（A8 手动建题的草稿没有照片）。
-        // 空源草稿的**读取分支**要连同创建入口一起落地（下一批）；现在没有任何生产者，
-        // 这里对空源行 fail-closed：不许把"没有源图"读成"有一张图"（旧实现会在
-        // firstOrNull() 上抛裸 NPE，这里把原因说清楚）。
-        val asset = checkNotNull(sourceAssets.firstOrNull()) {
-            "problem draft $draftId has no page-zero source asset"
-        }.sourceAsset
-        check(draft.sourceAssetId == null || draft.sourceAssetId == asset.sourceAssetId) {
+        // v67 起 `problem_draft.source_asset_id` 可空：A8 手动建题的草稿从创建起就没有照片。
+        // 空源是**合法形态**，读成 `sourceAsset = null` + 空页列表；但半空形态（列与页
+        // 绑定只对上一半）仍是坏行，fail-closed 并说清原因。不许把"没有源图"读成
+        // "有一张图"，也不许把坏行读成正常草稿。
+        val asset = sourceAssets.firstOrNull()?.sourceAsset
+        check((asset == null) == (draft.sourceAssetId == null)) {
+            "problem draft $draftId disagrees with its page-zero source asset"
+        }
+        check(asset == null || draft.sourceAssetId == asset.sourceAssetId) {
             "problem draft $draftId disagrees with its page-zero source asset"
         }
         val revision = checkNotNull(findDraftRevision(draftId, draft.currentRevisionNumber))
@@ -1275,14 +1289,18 @@ internal abstract class ProblemDraftTransactionDao {
         expectedCreatedAtEpochMillis: Long,
         requireEditingStatus: Boolean = false,
     ): Boolean {
-        val expectedAsset = expected.sourceAsset.toEntity()
+        val expectedAsset = expected.sourceAsset?.toEntity()
         val expectedRevision = expected.initialRevision.toEntity()
-        return existing.sourceAssetId == expectedAsset.sourceAssetId &&
+        return existing.sourceAssetId == expectedAsset?.sourceAssetId &&
             existing.origin == expected.origin &&
             existing.requestFingerprint == expected.requestFingerprint &&
             (!requireEditingStatus || existing.status == StudyDbValue.ProblemDraftStatus.EDITING) &&
             existing.createdAtEpochMillis == expectedCreatedAtEpochMillis &&
-            findSourceAsset(expectedAsset.sourceAssetId)?.hasSameCanonicalContent(expectedAsset) == true &&
+            (
+                expectedAsset == null ||
+                    findSourceAsset(expectedAsset.sourceAssetId)
+                        ?.hasSameCanonicalContent(expectedAsset) == true
+                ) &&
             findDraftRevision(existing.draftId, 1) == expectedRevision
     }
 }

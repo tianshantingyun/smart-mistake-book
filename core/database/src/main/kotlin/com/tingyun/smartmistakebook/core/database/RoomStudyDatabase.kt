@@ -839,6 +839,11 @@ internal class RoomStudyDatabase(
         result
     }
 
+    /**
+     * A8：手动建题的空源草稿是**合法记录**——`sourceAsset == null`、`sourceAssets` 为空，
+     * 不是"图丢了"。读取分支由 [ProblemDraftTransactionDao] 统一实现（空态 + 半空坏行
+     * fail-closed）；这里不再对空源行硬崩。
+     */
     override suspend fun readProblemDraft(draftId: String): ProblemDraftRecord? {
         require(draftId.isNotBlank()) { "draftId must not be blank" }
         return database.problemDraftTransactionDao().read(draftId)
@@ -1395,6 +1400,10 @@ internal class RoomStudyDatabase(
     override suspend fun reserveModelTaskRemoteDispatch(
         command: ReserveModelTaskRemoteDispatchCommand,
     ) = database.modelTaskTransactionDao().reserveRemoteDispatch(command)
+
+    override suspend fun reserveModelTaskOperationDispatch(
+        command: com.tingyun.smartmistakebook.core.database.ReserveModelTaskOperationDispatchCommand,
+    ) = database.modelTaskTransactionDao().reserveOperationRemoteDispatch(command)
 
     override suspend fun transitionModelTask(command: TransitionModelTaskCommand) =
         database.modelTaskTransactionDao().transition(command)

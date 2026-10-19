@@ -62,63 +62,54 @@ object MistakePdfBatchEligibility {
         }
 
         val includedCount = eligibleInputs.size
-        val blocks = eligibleInputs.flatMapIndexed { index, input ->
-            buildList {
-                add(
-                    MistakePdfBlock.SectionHeading(
-                        id = "question-$index-heading",
-                        text = "${index + 1}. ${input.title}",
-                    ),
-                )
-                add(
-                    MistakePdfBlock.Paragraph(
-                        id = "question-$index-meta",
-                        text = input.subtitle,
-                    ),
-                )
-                input.blocks.forEach { block ->
-                    add(block.withNamespacedId("question-$index-${block.id}"))
-                }
-                input.cleanImageLocalUri?.let { uri ->
-                    add(MistakePdfBlock.Image("question-$index-image", uri, "第 ${index + 1} 题 · 干净题面"))
-                }
-                if (layout.includeNote) input.userNote?.let { note ->
-                    add(MistakePdfBlock.Note("question-$index-note", note))
-                }
-            }
-        }
-        val sourceFingerprints = eligibleInputs.map(MistakePdfExportInput::inputSha256)
-        val combinedFingerprint = exportFingerprint(
-            "mistake-batch-v2",
-            includedCount.toString(),
-            layout.canonicalForm(),
-            *sourceFingerprints.toTypedArray(),
-        )
         return MistakePdfBatchEligibilityResult.Eligible(
-            input = MistakePdfExportInput(
-                errorBookEntryId = "batch",
-                problemId = "batch",
-                problemRevisionId = combinedFingerprint,
-                revisionNumber = 1,
-                title = "错题练习",
-                subject = "当前筛选",
-                subtitle = "按当前筛选整理 · 共 $includedCount 道",
-                documentTitle = null,
-                blocks = blocks,
-                questionDocumentSha256 = combinedFingerprint,
-                inputSha256 = combinedFingerprint,
-                maxPages = MistakePdfExportLimits.MAX_BATCH_PAGES,
-                maxRenderedLines = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
-                maxPdfBytes = MistakePdfExportLimits.MAX_BATCH_PDF_BYTES,
-                layout = layout,
-            ),
+            input = buildBatchExportInput(eligibleInputs, layout),
             includedCount = includedCount,
             omittedCount = states.size - includedCount,
         )
     }
 }
 
-private fun MistakePdfBlock.withNamespacedId(namespacedId: String): MistakePdfBlock = when (this) {
+/**
+ * 把有序的单题输入装配成一份批量导出快照（4A 既有口径，6B-2 卷面编辑共用）。
+ *
+ * 块装配与编号在 [buildPaperBlocks]；指纹仍是 `mistake-batch-v2 + 题数 + 版式 + 各题输入指纹`，
+ * 因此未编辑的卷面草稿走这里得到的快照与正常批量导出**逐位一致**。
+ */
+internal fun buildBatchExportInput(
+    inputs: List<MistakePdfExportInput>,
+    layout: MistakePdfLayout,
+): MistakePdfExportInput {
+    require(inputs.isNotEmpty()) { "A batch export needs at least one input" }
+    val questions = inputs.map(::paperQuestionOf)
+    val blocks = buildPaperBlocks(questions, layout)
+    val sourceFingerprints = inputs.map(MistakePdfExportInput::inputSha256)
+    val combinedFingerprint = exportFingerprint(
+        "mistake-batch-v2",
+        inputs.size.toString(),
+        layout.canonicalForm(),
+        *sourceFingerprints.toTypedArray(),
+    )
+    return MistakePdfExportInput(
+        errorBookEntryId = "batch",
+        problemId = "batch",
+        problemRevisionId = combinedFingerprint,
+        revisionNumber = 1,
+        title = "错题练习",
+        subject = "当前筛选",
+        subtitle = "按当前筛选整理 · 共 ${inputs.size} 道",
+        documentTitle = null,
+        blocks = blocks,
+        questionDocumentSha256 = combinedFingerprint,
+        inputSha256 = combinedFingerprint,
+        maxPages = MistakePdfExportLimits.MAX_BATCH_PAGES,
+        maxRenderedLines = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
+        maxPdfBytes = MistakePdfExportLimits.MAX_BATCH_PDF_BYTES,
+        layout = layout,
+    )
+}
+
+internal fun MistakePdfBlock.withNamespacedId(namespacedId: String): MistakePdfBlock = when (this) {
     is MistakePdfBlock.Image -> copy(id = namespacedId)
     is MistakePdfBlock.Note -> copy(id = namespacedId)
     is MistakePdfBlock.Paragraph -> copy(id = namespacedId)

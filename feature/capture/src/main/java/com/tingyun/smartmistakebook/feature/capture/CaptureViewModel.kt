@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.feature.capture
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tingyun.smartmistakebook.core.domain.BackupWriteDeferredException
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftImportRequest
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftSummary
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftWorkspaceIdentity
@@ -64,6 +65,8 @@ class CaptureViewModel(
     private val confirmedTutorSession = MutableStateFlow<ConfirmedTutorSession?>(null)
     private var pendingSourceCommand: PendingSourceCommand? = null
     private var pendingConfirmCommand: PendingConfirmCommand? = null
+    /** A8：手动建题的创建命令（失败重试要落在同一 requestId 上，不能重复建题）。 */
+    private var pendingManualDraftCommand: PendingManualDraftCommand? = null
 
     val uiState: StateFlow<CaptureWorkflowUiState> = combine(
         workflowState,
@@ -123,6 +126,8 @@ class CaptureViewModel(
             return
         }
         pendingConfirmCommand = null
+        // 新的照片来源接管后，旧的"手动建题"重试命令不再有效（否则失败重试会重放它）。
+        pendingManualDraftCommand = null
         val command = PendingSourceCommand(
             uri = uri,
             source = source,
@@ -140,10 +145,50 @@ class CaptureViewModel(
         runPendingSource(command)
     }
 
+    /**
+     * A8：手动建题——不拍照、不选图，直接创建一份空源草稿。
+     *
+     * 只在错题本来源开放：讲题会话要求原题照片（模型要看图），讲题来源的手动草稿
+     * 会在确认阶段成为死路，这里不提供假入口。请求沿用
+     * [CaptureWorkflowRepository.importDraft]，`localUri = null` 即"没有照片"。
+     */
+    fun startManualDraft(
+        origin: CaptureEntryOrigin,
+        requestId: String = UUID.randomUUID().toString(),
+        occurredAtEpochMillis: Long = System.currentTimeMillis(),
+    ) {
+        if (origin != CaptureEntryOrigin.LIBRARY) return
+        val current = workflowState.value
+        if (current.phase in BUSY_PHASES || current.draftId != null) return
+        val command = PendingManualDraftCommand(
+            requestId = requestId,
+            origin = origin,
+            occurredAtEpochMillis = occurredAtEpochMillis,
+        )
+        pendingManualDraftCommand = command
+        pendingSourceCommand = null
+        pendingConfirmCommand = null
+        userError.value = null
+        workflowState.value = CaptureWorkflowStateMachine.reduce(
+            current,
+            CaptureWorkflowAction.ImportStarted(
+                draftId = null,
+                basisRevisionNumber = null,
+                requestId = requestId,
+            ),
+        )
+        runManualDraft(command)
+    }
+
     fun retryFailedWorkflow() {
         if (workflowState.value.phase != CaptureWorkflowPhase.FAILED) return
         pendingConfirmCommand?.let { pending ->
             confirm(pending.workspaceIdentity, pending.origin)
+            return
+        }
+        pendingManualDraftCommand?.let { command ->
+            userError.value = null
+            runManualDraft(command)
             return
         }
         val command = pendingSourceCommand ?: return
@@ -203,7 +248,10 @@ class CaptureViewModel(
                 pendingConfirmCommand = null
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                // KD-54：「备份让路」不是保存失败——写根本没有开始，题面/照片都还在本机。
+                // 用同一档可重试错误，但把原因说清楚，用户不必猜为什么重试也要等。
+                val deferredByBackup = failure is BackupWriteDeferredException
                 workflowState.value = CaptureWorkflowStateMachine.reduce(
                     workflowState.value,
                     CaptureWorkflowAction.Failed(
@@ -216,12 +264,20 @@ class CaptureViewModel(
                 )
                 userError.value = appFailure(
                     code = AppFailureCode.DATABASE_WRITE_FAILED,
-                    title = "这次保存没有完成",
-                    message = when (origin) {
-                        CaptureEntryOrigin.LIBRARY ->
-                            "题目可能还没有保存完成。请直接重试，系统不会重复建题。"
-                        CaptureEntryOrigin.TUTOR ->
-                            "题目已经留在本机，但讲题会话可能还没有打开。请直接重试；不会自动存入错题本。"
+                    title = if (deferredByBackup) {
+                        "备份正在进行，这次保存没有开始"
+                    } else {
+                        "这次保存没有完成"
+                    },
+                    message = if (deferredByBackup) {
+                        "题目和照片都还在本机；等备份完成后重试即可，不会重复建题。"
+                    } else {
+                        when (origin) {
+                            CaptureEntryOrigin.LIBRARY ->
+                                "题目可能还没有保存完成。请直接重试，系统不会重复建题。"
+                            CaptureEntryOrigin.TUTOR ->
+                                "题目已经留在本机，但讲题会话可能还没有打开。请直接重试；不会自动存入错题本。"
+                        }
                     },
                     dataPreserved = true,
                     retryability = Retryability.RETRYABLE,
@@ -257,6 +313,7 @@ class CaptureViewModel(
     fun reset() {
         pendingSourceCommand = null
         pendingConfirmCommand = null
+        pendingManualDraftCommand = null
         pendingTutorSessionId.value = null
         importedDraftEvent.value = null
         confirmedTutorSession.value = null
@@ -325,7 +382,13 @@ class CaptureViewModel(
                         }
                     }
                 }
-                applyDraftSummary(summary, command)
+                applyDraftSummary(
+                    summary = summary,
+                    requestId = command.requestId,
+                    occurredAtEpochMillis = command.occurredAtEpochMillis,
+                    sourceUri = command.uri,
+                    purpose = command.purpose,
+                )
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -357,24 +420,82 @@ class CaptureViewModel(
         }
     }
 
+    private fun runManualDraft(command: PendingManualDraftCommand) {
+        viewModelScope.launch {
+            try {
+                val summary = withContext(ioDispatcher) {
+                    repository.importDraft(
+                        CaptureDraftImportRequest(
+                            requestId = command.requestId,
+                            origin = command.origin,
+                            occurredAtEpochMillis = command.occurredAtEpochMillis,
+                        ),
+                    )
+                }
+                applyDraftSummary(
+                    summary = summary,
+                    requestId = command.requestId,
+                    occurredAtEpochMillis = command.occurredAtEpochMillis,
+                    sourceUri = null,
+                    purpose = CaptureAcquisitionPurpose.NEW_CAPTURE,
+                )
+                pendingManualDraftCommand = null
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                // KD-54：备份让路不是创建失败——写没有开始；用可重试错误并说清原因。
+                val deferredByBackup = failure is BackupWriteDeferredException
+                workflowState.value = CaptureWorkflowStateMachine.reduce(
+                    workflowState.value,
+                    CaptureWorkflowAction.Failed(
+                        draftId = null,
+                        basisRevisionNumber = null,
+                        requestId = command.requestId,
+                        code = CaptureFailureCode.IMPORT_REJECTED,
+                        canRetry = true,
+                    ),
+                )
+                userError.value = appFailure(
+                    code = AppFailureCode.DATABASE_WRITE_FAILED,
+                    title = if (deferredByBackup) {
+                        "备份正在进行，这次手动建题没有开始"
+                    } else {
+                        "手动建题没有创建成功"
+                    },
+                    message = if (deferredByBackup) {
+                        "题面还没有保存；等备份完成后重试即可，不会重复建题。"
+                    } else {
+                        "这道题还没有保存。请直接重试，系统不会重复建题。"
+                    },
+                    dataPreserved = true,
+                    retryability = Retryability.RETRYABLE,
+                    primaryAction = ActionType.RETRY,
+                )
+            }
+        }
+    }
+
     private fun applyDraftSummary(
         summary: CaptureDraftSummary,
-        command: PendingSourceCommand,
+        requestId: String,
+        occurredAtEpochMillis: Long,
+        sourceUri: String?,
+        purpose: CaptureAcquisitionPurpose,
     ) {
         workflowState.value = CaptureWorkflowStateMachine.reduce(
             workflowState.value,
             CaptureWorkflowAction.DraftImported(
                 draftId = summary.draftId,
                 basisRevisionNumber = summary.revisionNumber,
-                requestId = command.requestId,
+                requestId = requestId,
             ),
         )
         pendingSourceCommand = null
         importedDraftEvent.value = CaptureDraftImportedEvent(
-            requestId = command.requestId,
-            occurredAtEpochMillis = command.occurredAtEpochMillis,
-            sourceUri = command.uri,
-            purpose = command.purpose,
+            requestId = requestId,
+            occurredAtEpochMillis = occurredAtEpochMillis,
+            sourceUri = sourceUri,
+            purpose = purpose,
             summary = summary,
         )
         userError.value = null
@@ -442,6 +563,13 @@ class CaptureViewModel(
     private data class PendingConfirmCommand(
         val workspaceIdentity: CaptureDraftWorkspaceIdentity,
         val origin: CaptureEntryOrigin,
+    )
+
+    /** A8：手动建题的创建命令（无来源文件、无来源类型）。 */
+    private data class PendingManualDraftCommand(
+        val requestId: String,
+        val origin: CaptureEntryOrigin,
+        val occurredAtEpochMillis: Long,
     )
 
     private companion object {

@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.model.FigureSchema
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.security.MessageDigest
 import java.util.zip.CRC32
 import java.util.zip.ZipInputStream
 import javax.xml.parsers.DocumentBuilderFactory
@@ -253,6 +254,100 @@ class DocxMistakeRendererTest {
         assertTrue(documentXml.contains("<wp:extent cx=\"947293\" cy=\"9472930\"/>"))
     }
 
+    /**
+     * KD-55 正常路径：干净题面的记录 sha/长度与实际文件一致时照常嵌入（复核不误伤）。
+     */
+    @Test
+    fun `a clean image that matches its record is embedded`() {
+        val png = pngBytes(width = 4, height = 2)
+        val imageFile = temporaryFolder.newFile("recorded.png").apply { writeBytes(png) }
+
+        val file = renderToFile(
+            input(
+                blocks = listOf(paragraph("题干")),
+                cleanImageLocalUri = imageFile.toURI().toString(),
+                cleanImageSha256 = sha256Hex(png),
+                cleanImageByteSize = png.size.toLong(),
+            ),
+        )
+
+        val parts = readZip(file)
+        assertArrayEquals(png, parts.getValue("word/media/image1.png"))
+    }
+
+    /**
+     * KD-55 失败路径：记录读完之后文件被换掉（TOCTOU）——渲染必须省略这张图，
+     * 不能把未经复核的字节写进 Word 包；题面其余内容照常渲染。
+     */
+    @Test
+    fun `a clean image that no longer matches its record is omitted instead of embedded`() {
+        val recorded = pngBytes(width = 4, height = 2)
+        val replacement = pngBytes(width = 8, height = 6)
+        val imageFile = temporaryFolder.newFile("swapped.png").apply { writeBytes(replacement) }
+
+        val file = renderToFile(
+            input(
+                blocks = listOf(paragraph("题干")),
+                cleanImageLocalUri = imageFile.toURI().toString(),
+                cleanImageSha256 = sha256Hex(recorded),
+                cleanImageByteSize = recorded.size.toLong(),
+            ),
+        )
+
+        val parts = readZip(file)
+        assertFalse(parts.keys.any { it.startsWith("word/media/") })
+        // 图被省略时连"干净题面"标题也不出现（与既有的读不出降级同一口径）。
+        assertEquals(
+            listOf("函数单调区间", "MATH · 第 3 版", "题面标题：题面", "题干"),
+            documentTexts(parts.getValue(MinimalDocxWriter.DOCUMENT_PART)),
+        )
+    }
+
+    /** KD-55：批量 Image 块同样按自己的记录复核（长度相同、字节不同 → 不嵌）。 */
+    @Test
+    fun `a batch image block is verified against its record before embedding`() {
+        val png = pngBytes(width = 2, height = 2)
+        val other = pngBytes(width = 3, height = 2)
+        val imageFile = temporaryFolder.newFile("batch-recorded.png").apply { writeBytes(png) }
+        val uri = imageFile.toURI().toString()
+
+        val matched = renderToFile(
+            input(
+                blocks = listOf(
+                    MistakePdfBlock.Image(
+                        id = "q1-image",
+                        localUri = uri,
+                        title = "第 1 题 · 干净题面",
+                        expectedContentSha256 = sha256Hex(png),
+                        expectedByteSize = png.size.toLong(),
+                    ),
+                ),
+            ),
+        )
+        assertTrue(readZip(matched).containsKey("word/media/image1.png"))
+
+        val mismatched = renderToFile(
+            input(
+                blocks = listOf(
+                    MistakePdfBlock.Image(
+                        id = "q1-image",
+                        localUri = uri,
+                        title = "第 1 题 · 干净题面",
+                        expectedContentSha256 = sha256Hex(other),
+                        expectedByteSize = png.size.toLong(),
+                    ),
+                ),
+            ),
+        )
+        val mismatchedParts = readZip(mismatched)
+        assertFalse(mismatchedParts.keys.any { it.startsWith("word/media/") })
+        // 块标题仍然在（图省略，题面文字不丢）。
+        assertTrue(
+            documentTexts(mismatchedParts.getValue(MinimalDocxWriter.DOCUMENT_PART))
+                .contains("第 1 题 · 干净题面"),
+        )
+    }
+
     @Test
     fun `a clean image that cannot be read is omitted while the rest of the document still renders`() {
         val file = renderToFile(
@@ -383,6 +478,8 @@ class DocxMistakeRendererTest {
         title: String = "函数单调区间",
         documentTitle: String? = "题面",
         cleanImageLocalUri: String? = null,
+        cleanImageSha256: String? = null,
+        cleanImageByteSize: Long? = null,
         userNote: String? = null,
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
@@ -398,9 +495,14 @@ class DocxMistakeRendererTest {
         questionDocumentSha256 = "a".repeat(64),
         inputSha256 = "b".repeat(64),
         cleanImageLocalUri = cleanImageLocalUri,
+        cleanImageSha256 = cleanImageSha256,
+        cleanImageByteSize = cleanImageByteSize,
         userNote = userNote,
         layout = layout,
     )
+
+    private fun sha256Hex(bytes: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
 
     private fun paragraph(text: String) = MistakePdfBlock.Paragraph(id = "paragraph-1", text = text)
 

@@ -10,6 +10,10 @@ import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationUpdate
 import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchDecision
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchRequest
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchReservation
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -309,7 +313,9 @@ class ConfiguredTutorFigureGeneratorTest {
 
         val provenance = requireNotNull(capturedProvenance)
         assertEquals(capturedId, provenance.figureId)
-        assertEquals("GENERATE_PROCESS", provenance.purpose)
+        // 4E.1：provenance 的 purpose 来自入口适配层的统一 purpose（GENERATE_PROCESS → EXPLANATION），
+        // 不再是旧 TutorFigureKind 名。
+        assertEquals("EXPLANATION", provenance.purpose)
         assertEquals(OpenAiImageGenerationChannel.DEFAULT_MODEL_ID, provenance.model)
         assertTrue(capturedId!!.startsWith("figure-"))
     }
@@ -392,7 +398,32 @@ class ConfiguredTutorFigureGeneratorTest {
         isIntact = isIntact,
         persistGenerated = persistGenerated,
         channelFactory = channelFactory,
+        ledger = GrantingLedger(),
     )
+
+    /**
+     * 4E.1：测试用持久账本替身——授予一份与请求同绑定的预留（不触库、不出网）。
+     * 生产装配用 `RoomFigureDispatchLedger`；这里只验证协调器"先预留、后调用通道"的顺序。
+     */
+    private class GrantingLedger : RemoteModelDispatchLedger {
+        override suspend fun reserve(
+            request: RemoteModelDispatchRequest,
+        ): RemoteModelDispatchDecision = RemoteModelDispatchDecision.Granted(
+            RemoteModelDispatchReservation(
+                reservationId = "test-reservation:${request.operationId}",
+                operationId = request.operationId,
+                parent = request.parent,
+                remoteKind = request.remoteKind,
+                method = request.method,
+                purpose = request.purpose,
+                policyVersion = request.policyVersion,
+                sourceImageSha256 = request.sourceImageSha256,
+                configurationFingerprint = request.configurationFingerprint,
+                attemptOrdinal = 1,
+                reservedAtEpochMillis = request.occurredAtEpochMillis,
+            ),
+        )
+    }
 
     /** 指纹参数的可读构造（函数没有 copy；这里给测试一份带默认值的形状）。 */
     private data class FingerprintArgs(

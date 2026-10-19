@@ -2,12 +2,16 @@ package com.tingyun.smartmistakebook.core.data.backup
 
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.BufferedOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -412,6 +416,232 @@ class SmbkArchiveCodecTest {
     }
 
     /**
+     * KD-53：`database.sqlite` 有自己的预算，不再与单张题图共用同一道单条目门。
+     * 用注入的小预算把「数据库 > 单图上限但 < 数据库上限」这条边界钉在小文件上。
+     */
+    @Test
+    fun `database entry uses its own budget while assets keep the single entry budget`() {
+        val database = tempBinaryFile("database.sqlite", incompressibleBytes(1_024, seed = 1L))
+        val asset = tempBinaryFile("asset-a.png", incompressibleBytes(128, seed = 2L))
+        val limits = SmbkResourceLimits(
+            maxSingleEntryBytes = 256L,
+            maxDatabaseEntryBytes = 4_096L,
+            maxTotalDecompressedBytes = 64L * 1_024L,
+        )
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = listOf(asset),
+            referencedAssets = listOf(asset),
+            databaseSchemaVersion = 30,
+            problemCount = 1,
+            createdAtEpochMillis = 1_000L,
+            limits = limits,
+        )
+        val archiveBytes = archive.toByteArray()
+
+        val validation = SmbkArchiveCodec.validate(
+            ByteArrayInputStream(archiveBytes),
+            limits = limits,
+        )
+        assertTrue(
+            "数据库条目高于单图上限、低于数据库上限时必须通过：$validation",
+            validation is BackupValidation.Valid,
+        )
+
+        val destination = unpackDestination("smbk-db-budget")
+        val unpacked = SmbkArchiveCodec.unpack(
+            ByteArrayInputStream(archiveBytes),
+            destination,
+            limits,
+        )
+        assertTrue("恢复侧与校验侧同口径，必须同样通过：$unpacked", unpacked is BackupValidation.Valid)
+        assertArrayEquals(
+            "数据库条目必须逐位解包",
+            database.readBytes(),
+            File(destination, "database.sqlite").readBytes(),
+        )
+    }
+
+    /**
+     * KD-53 负向：数据库条目超过**自己的**预算时，校验与解包都必须拒绝（同口径）。
+     * 单图上限放宽到很大，证明拒因来自数据库预算而不是别的门。
+     */
+    @Test
+    fun `database entry above its own budget is rejected by both validate and unpack`() {
+        val database = tempBinaryFile("database.sqlite", incompressibleBytes(2_048, seed = 3L))
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = emptyList(),
+            referencedAssets = emptyList(),
+            databaseSchemaVersion = 30,
+            problemCount = 1,
+            createdAtEpochMillis = 1_000L,
+        )
+        val archiveBytes = archive.toByteArray()
+        val limits = SmbkResourceLimits(
+            maxSingleEntryBytes = 1_000_000L,
+            maxDatabaseEntryBytes = 1_024L,
+            maxTotalDecompressedBytes = 1_000_000L,
+        )
+
+        val validation = SmbkArchiveCodec.validate(
+            ByteArrayInputStream(archiveBytes),
+            limits = limits,
+        )
+        assertTrue(validation is BackupValidation.Invalid)
+        assertTrue(
+            "拒因必须指向 database.sqlite：${(validation as BackupValidation.Invalid).reason}",
+            validation.reason.contains("database.sqlite"),
+        )
+
+        val destination = unpackDestination("smbk-db-over-budget")
+        val unpacked = SmbkArchiveCodec.unpack(
+            ByteArrayInputStream(archiveBytes),
+            destination,
+            limits,
+        )
+        assertTrue(unpacked is BackupValidation.Invalid)
+        assertTrue(
+            "恢复侧拒因必须与校验侧同一道门：${(unpacked as BackupValidation.Invalid).reason}",
+            unpacked.reason.contains("database.sqlite"),
+        )
+        assertTrue(
+            "被拒的数据库条目不能留在 staging 里",
+            !File(destination, "database.sqlite").exists(),
+        )
+    }
+
+    /**
+     * KD-53 成包面：不在成包时写出一个"自己都验不过"的归档。这条检查必须在写任何
+     * 字节之前失败（归档保持为空），而不是先写半包再让校验拒绝。
+     */
+    @Test
+    fun `create refuses a database beyond its budget before writing any bytes`() {
+        val database = tempBinaryFile("database.sqlite", incompressibleBytes(1_024, seed = 4L))
+        val archive = ByteArrayOutputStream()
+
+        val failure = runCatching {
+            SmbkArchiveCodec.create(
+                archive = archive,
+                database = database,
+                assets = emptyList(),
+                referencedAssets = emptyList(),
+                databaseSchemaVersion = 30,
+                problemCount = 0,
+                createdAtEpochMillis = 1_000L,
+                limits = SmbkResourceLimits(maxDatabaseEntryBytes = 512L),
+            )
+        }
+
+        assertTrue("超过数据库条目预算时必须成包失败", failure.isFailure)
+        assertTrue(failure.exceptionOrNull() is IllegalArgumentException)
+        assertEquals("校验失败不得留下半个归档", 0, archive.size())
+    }
+
+    /**
+     * KD-53 成包面的总量门：数据库 + 题图超过总预算时，同样在写任何字节之前失败。
+     * 这条与校验侧的 `checkTotalBudget` 同口径（同一 `SmbkResourceLimits`）。
+     */
+    @Test
+    fun `create refuses a payload beyond the total decompression budget before writing any bytes`() {
+        val database = tempBinaryFile("database.sqlite", incompressibleBytes(512, seed = 5L))
+        val asset = tempBinaryFile("asset-a.png", incompressibleBytes(512, seed = 6L))
+        val archive = ByteArrayOutputStream()
+
+        val failure = runCatching {
+            SmbkArchiveCodec.create(
+                archive = archive,
+                database = database,
+                assets = listOf(asset),
+                referencedAssets = listOf(asset),
+                databaseSchemaVersion = 30,
+                problemCount = 0,
+                createdAtEpochMillis = 1_000L,
+                limits = SmbkResourceLimits(maxTotalDecompressedBytes = 700L),
+            )
+        }
+
+        assertTrue("超过总量预算时必须成包失败", failure.isFailure)
+        assertTrue(failure.exceptionOrNull() is IllegalArgumentException)
+        assertEquals("校验失败不得留下半个归档", 0, archive.size())
+    }
+
+    /**
+     * KD-53 的真实体积回归：设备实测库 365,133,824 B（批次 13 设备读数）。旧上限
+     * （100 MB 单条目）会让这份自建备份"自己都验不过"；这里走完整的
+     * create → validate → unpack，并逐位比对解包出来的库。
+     *
+     * 数据用固定种子的伪随机字节（不可压缩），确保压缩比门不会先于预算门拒掉样本。
+     * 磁盘占用约 1.5 GB（源库 + 归档 + 校验 spool + 解包副本），超时给 5 分钟。
+     * 可用 `-Dsmbk.largeDbBytes=<n>` 缩小样本（默认就是设备实测体积）。
+     */
+    @Test(timeout = 300_000L)
+    fun `near device size database round trips through create validate and unpack`() {
+        val databaseBytes = System.getProperty("smbk.largeDbBytes")?.toLongOrNull()
+            ?: 365_133_824L
+        val root = File.createTempFile("smbk-large-db", "").apply {
+            delete()
+            mkdirs()
+        }
+        root.deleteOnExit()
+        try {
+            val database = File(root, "database.sqlite")
+            writePseudoRandom(database, databaseBytes, seed = 0x5EEDL)
+            val asset = File(root, "asset-large.png")
+            writePseudoRandom(asset, 64L * 1_024L, seed = 0xA55E7L)
+            val archive = File(root, "large.smbk")
+
+            val receipt = BufferedOutputStream(FileOutputStream(archive)).use { output ->
+                SmbkArchiveCodec.create(
+                    archive = output,
+                    database = database,
+                    assets = listOf(asset),
+                    referencedAssets = listOf(asset),
+                    databaseSchemaVersion = 67,
+                    problemCount = 1_234,
+                    createdAtEpochMillis = 1_000L,
+                )
+            }
+            assertEquals(
+                "回执总量必须等于源库 + 题图",
+                databaseBytes + asset.length(),
+                receipt.totalBytes,
+            )
+
+            val scratch = File(root, "validate-scratch").apply { mkdirs() }
+            val validation = FileInputStream(archive).use { input ->
+                SmbkArchiveCodec.validate(input, scratch)
+            }
+            assertTrue("大库备份必须能校验：$validation", validation is BackupValidation.Valid)
+            validation as BackupValidation.Valid
+            assertEquals(2, validation.checkedFileCount)
+
+            val destination = File(root, "unpacked").apply { mkdirs() }
+            val unpacked = FileInputStream(archive).use { input ->
+                SmbkArchiveCodec.unpack(input, destination)
+            }
+            assertTrue("大库备份必须能解包/恢复：$unpacked", unpacked is BackupValidation.Valid)
+            val restored = File(destination, "database.sqlite")
+            assertEquals(databaseBytes, restored.length())
+            assertEquals(
+                "解包出来的数据库必须与源快照逐位一致",
+                sha256Hex(database),
+                sha256Hex(restored),
+            )
+            assertEquals(
+                asset.length(),
+                File(destination, "assets/asset-large.png").length(),
+            )
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
+    /**
      * v2 成包面（6C-1）：版本戳与设置载荷都进包，且校验/解包都读得回来。
      * 摘要（`settingsDigest`）必须与包内 `settings.json` 的字节一致——存在性声明与
      * 载荷本身不是一回事。
@@ -796,6 +1026,45 @@ class SmbkArchiveCodecTest {
         java.security.MessageDigest.getInstance("SHA-256")
             .digest(bytes)
             .joinToString("") { byte -> "%02x".format(byte) }
+
+    /** KD-53 大库样本的逐位比对：流式算摘要，不把 365 MB 读进内存。 */
+    private fun sha256Hex(file: File): String {
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        file.inputStream().buffered().use { input ->
+            val buffer = ByteArray(64 * 1024)
+            while (true) {
+                val read = input.read(buffer)
+                if (read < 0) break
+                if (read > 0) digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+    }
+
+    private fun tempBinaryFile(name: String, bytes: ByteArray): File {
+        val file = File.createTempFile(name, ".tmp")
+        file.writeBytes(bytes)
+        file.deleteOnExit()
+        return file
+    }
+
+    /** 固定种子的伪随机字节：不可压缩，避免压缩比门先于预算门拒掉边界样本。 */
+    private fun incompressibleBytes(size: Int, seed: Long): ByteArray =
+        ByteArray(size).also { bytes -> java.util.Random(seed).nextBytes(bytes) }
+
+    private fun writePseudoRandom(file: File, size: Long, seed: Long) {
+        val random = java.util.Random(seed)
+        val buffer = ByteArray(64 * 1024)
+        file.outputStream().buffered(64 * 1024).use { output ->
+            var remaining = size
+            while (remaining > 0L) {
+                random.nextBytes(buffer)
+                val chunk = minOf(remaining, buffer.size.toLong()).toInt()
+                output.write(buffer, 0, chunk)
+                remaining -= chunk
+            }
+        }
+    }
 
     private fun tamperAsset(archiveBytes: ByteArray): ByteArray {
         val entries = linkedMapOf<String, ByteArray>()

@@ -263,7 +263,7 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
             database,
             AndroidCanonicalAssetVault(context),
             noTextRecognizer(),
-            cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { original, mime ->
+            cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { _ ->
                 com.tingyun.smartmistakebook.core.domain.CleanImageResult(
                     createPng(24, 24).readBytes(),
                     "image/png",
@@ -649,7 +649,10 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
             ),
         )
         val libraryBefore = checkNotNull(database.readProblemDraft(libraryDraft.draftId))
-        val libraryFile = File(context.filesDir, libraryBefore.sourceAsset.relativePath)
+        val libraryFile = File(
+            context.filesDir,
+            checkNotNull(libraryBefore.sourceAsset).relativePath,
+        )
         val tamperedBytes = libraryFile.readBytes().also { bytes ->
             bytes[bytes.lastIndex] = (bytes.last().toInt() xor 0x01).toByte()
         }
@@ -689,7 +692,9 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
             ),
         )
         val tutorBefore = checkNotNull(database.readProblemDraft(tutorDraft.draftId))
-        assertTrue(File(context.filesDir, tutorBefore.sourceAsset.relativePath).delete())
+        assertTrue(
+            File(context.filesDir, checkNotNull(tutorBefore.sourceAsset).relativePath).delete(),
+        )
 
         val tutorConfirmation = runCatching {
             repository.confirmForTutoring(
@@ -770,7 +775,7 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
             database,
             AndroidCanonicalAssetVault(context),
             noTextRecognizer(),
-            cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { original, mime ->
+            cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { _ ->
                 kotlinx.coroutines.delay(250)
                 cleanProduced.set(true)
                 com.tingyun.smartmistakebook.core.domain.CleanImageResult(
@@ -833,7 +838,7 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
             database,
             AndroidCanonicalAssetVault(context),
             noTextRecognizer(),
-            cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { original, mime ->
+            cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { _ ->
                 // Simulate a slow remote edit so the save must return first.
                 kotlinx.coroutines.delay(300)
                 cleanProduced.set(true)

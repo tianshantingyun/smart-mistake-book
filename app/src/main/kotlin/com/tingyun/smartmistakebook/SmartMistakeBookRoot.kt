@@ -72,6 +72,9 @@ import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.SmartDimens
 import com.tingyun.smartmistakebook.feature.capture.CaptureScreen
+import com.tingyun.smartmistakebook.feature.capture.CaptureShareIntakeRoute
+import com.tingyun.smartmistakebook.feature.capture.CaptureShareRequest
+import com.tingyun.smartmistakebook.feature.capture.CaptureShareRequestSaver
 import com.tingyun.smartmistakebook.feature.library.BatchImportRoute
 import com.tingyun.smartmistakebook.feature.library.LibraryExportCandidates
 import com.tingyun.smartmistakebook.feature.library.LibraryRoute
@@ -157,6 +160,7 @@ internal fun libraryExportRejectionNotice(candidates: LibraryExportCandidates): 
 internal fun SmartMistakeBookRoot(
     reviewOpenRequests: StateFlow<Long>,
     exportOpenRequests: StateFlow<Long>,
+    sharedCaptureRequests: StateFlow<CaptureShareRequest?>,
 ) {
     val context = LocalContext.current
     val activity = context.findActivity()
@@ -218,6 +222,14 @@ internal fun SmartMistakeBookRoot(
         .collectAsStateWithLifecycle(initialValue = emptyList<MistakeExportRecord>())
     val reviewOpenRequest by reviewOpenRequests.collectAsStateWithLifecycle()
     val exportOpenRequest by exportOpenRequests.collectAsStateWithLifecycle()
+    // A7（4C）：系统分享的待接收请求。MainActivity 投递一次，这里取走并清空（消费语义），
+    // 之后由接收页持有；旋转/进程重建时请求本身还能通过 Saver 恢复。
+    val sharedCaptureRequest by sharedCaptureRequests.collectAsStateWithLifecycle()
+    var pendingSharedCapture by rememberSaveable(stateSaver = CaptureShareRequestSaver) {
+        mutableStateOf<CaptureShareRequest?>(null)
+    }
+    // 单图分享：分享层落成自有的 question_*.img，交给录入页一次；消费后清空。
+    var pendingSharedImageUri by rememberSaveable { mutableStateOf<String?>(null) }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route ?: Routes.Review
     val isRootDestination = rootDestinations.any { it.route == currentRoute }
@@ -239,6 +251,17 @@ internal fun SmartMistakeBookRoot(
             navController.navigate(Routes.ExportResults) {
                 launchSingleTop = true
             }
+        }
+    }
+
+    // A7（4C）：系统分享 → 接收页。先从这里取走 MainActivity 的投递（消费一次），接收页
+    // 自己校验/落盘/分流；失败原因由接收页显示，不在这里吞掉。
+    LaunchedEffect(sharedCaptureRequest?.requestId) {
+        val request = sharedCaptureRequest ?: return@LaunchedEffect
+        pendingSharedCapture = request
+        (activity as? MainActivity)?.consumeSharedCapture(request.requestId)
+        navController.navigate(Routes.SharedCapture) {
+            launchSingleTop = true
         }
     }
 
@@ -406,6 +429,17 @@ internal fun SmartMistakeBookRoot(
                             launchSingleTop = true
                         }
                     },
+                    // 6B-2：选题后读题面建可编辑卷面（纯本地读取）；编辑确认后草稿落盘、
+                    // 后台重渲染，同样回到「导出成果」看结果。
+                    readExportPaperEdit = { entryIds, layout ->
+                        application.buildMistakePaperEdit(entryIds, layout)
+                    },
+                    onStartEditedExport = { draft, format ->
+                        application.startMistakeExportEdited(draft, format)
+                        navController.navigate(Routes.ExportResults) {
+                            launchSingleTop = true
+                        }
+                    },
                     modifier = Modifier.testTag("root_tutor"),
                 )
             }
@@ -474,6 +508,16 @@ internal fun SmartMistakeBookRoot(
                     // 历史重开也接同一条导出落点（本地动作只在大厅广告，行为一致）。
                     onStartExport = { format, layout, entryIds ->
                         application.startMistakeExportBatch(entryIds, layout, format)
+                        navController.navigate(Routes.ExportResults) {
+                            launchSingleTop = true
+                        }
+                    },
+                    // 历史重开也接同一条编辑落点（行为一致）。
+                    readExportPaperEdit = { entryIds, layout ->
+                        application.buildMistakePaperEdit(entryIds, layout)
+                    },
+                    onStartEditedExport = { draft, format ->
+                        application.startMistakeExportEdited(draft, format)
                         navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
                         }
@@ -688,6 +732,45 @@ internal fun SmartMistakeBookRoot(
                         }
                     },
                     onBack = navController::popBackStack,
+                    // A7（4C）：系统分享的单张图片（分享层已拷成自有文件）。应用一次后由
+                    // 下面这个回调清掉，返回/旋转不会重复套用。
+                    initialSharedSourceUri = pendingSharedImageUri,
+                    onInitialSharedSourceConsumed = { pendingSharedImageUri = null },
+                )
+            }
+            // A7（4C）：系统分享的接收页。单图 → 录入；多图/PDF → 整卷管线；失败留在原地
+            // 如实说原因，并给出重试 / 手动录入 / 关闭三条出路。
+            composable(Routes.SharedCapture) {
+                CaptureShareIntakeRoute(
+                    request = pendingSharedCapture,
+                    batchImports = application.batchImportRepository,
+                    onSingleImageReady = { ownedUri ->
+                        pendingSharedImageUri = ownedUri
+                        pendingSharedCapture = null
+                        navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY)) {
+                            popUpTo(Routes.SharedCapture) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onImportStarted = {
+                        pendingSharedCapture = null
+                        navController.navigate(Routes.BatchImport) {
+                            popUpTo(Routes.SharedCapture) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onManualEntry = {
+                        pendingSharedCapture = null
+                        navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY)) {
+                            popUpTo(Routes.SharedCapture) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onDismiss = {
+                        pendingSharedCapture = null
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.testTag("root_capture_share"),
                 )
             }
             composable(Routes.BatchImport) {

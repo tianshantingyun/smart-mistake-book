@@ -1,6 +1,9 @@
 package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
 import com.tingyun.smartmistakebook.core.model.ContentBlock
@@ -138,6 +141,8 @@ object MistakePdfEligibility {
             }
         }
         val documentFingerprint = CapturedQuestionDocumentFingerprint.of(document)
+        // 同一份资产记录同时给出 URI 与完整性字段（KD-55）：渲染前按它复核文件字节。
+        val cleanImage = cleanImageAsset(state.detail.source)
         return MistakePdfEligibilityResult.Eligible(
             MistakePdfExportInput(
                 errorBookEntryId = identity.errorBookEntryId,
@@ -149,7 +154,9 @@ object MistakePdfEligibility {
                 subtitle = "${identity.subject} · 第 ${identity.revisionNumber} 版",
                 documentTitle = document.document.title,
                 blocks = blocks,
-                cleanImageLocalUri = cleanImageUri(state.detail.source),
+                cleanImageLocalUri = (cleanImage?.location as? MistakeSourceLocation.Available)?.localUri,
+                cleanImageSha256 = cleanImage?.contentSha256,
+                cleanImageByteSize = cleanImage?.byteSize,
                 userNote = state.detail.userNote?.let(::safeInlineText)?.takeIf(String::isNotBlank),
                 questionDocumentSha256 = documentFingerprint,
                 inputSha256 = exportFingerprint(
@@ -163,26 +170,23 @@ object MistakePdfEligibility {
                     documentFingerprint,
                     layout.canonicalForm(),
                     if (layout.includeNote) state.detail.userNote?.let(::safeInlineText).orEmpty() else "",
-                    cleanImageUri(state.detail.source).orEmpty(),
-                    (state.detail.source as? com.tingyun.smartmistakebook.core.domain.MistakeSourceSet.Present)
-                        ?.assets?.firstOrNull { it.role == CLEAN_IMAGE_SOURCE_ROLE &&
-                            it.location is com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation.Available }
-                        ?.contentSha256.orEmpty(),
+                    (cleanImage?.location as? MistakeSourceLocation.Available)?.localUri.orEmpty(),
+                    cleanImage?.contentSha256.orEmpty(),
                 ),
                 layout = layout,
             ),
         )
     }
 
-    private fun cleanImageUri(
-        source: com.tingyun.smartmistakebook.core.domain.MistakeSourceSet,
-    ): String? = when (source) {
-        is com.tingyun.smartmistakebook.core.domain.MistakeSourceSet.Present ->
-            source.assets.firstNotNullOfOrNull { asset ->
-                (asset.location as? com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation.Available)
-                    ?.takeIf { asset.role == CLEAN_IMAGE_SOURCE_ROLE }
-                    ?.localUri
-            }
+    /**
+     * 干净题面的资产记录（role=CLEAN_IMAGE 且有可用位置）。URI 与完整性字段
+     * （sha/长度）必须来自**同一条**记录（KD-55），所以这里一次取出整条记录。
+     */
+    private fun cleanImageAsset(source: MistakeSourceSet): MistakeSourceAsset? = when (source) {
+        is MistakeSourceSet.Present -> source.assets.firstOrNull { asset ->
+            asset.role == CLEAN_IMAGE_SOURCE_ROLE &&
+                asset.location is MistakeSourceLocation.Available
+        }
         else -> null
     }
 
@@ -223,6 +227,13 @@ class MistakePdfExportInput internal constructor(
     val maxRenderedLines: Int = MistakePdfExportLimits.MAX_SINGLE_RENDERED_LINES,
     val maxPdfBytes: Long = MistakePdfExportLimits.MAX_SINGLE_PDF_BYTES,
     val cleanImageLocalUri: String? = null,
+    /**
+     * 干净题面图在资产记录里的内容 sha（KD-55）；docx 渲染前用它复核 `file://` 读到的
+     * 字节。null = 输入不携带记录（仅旧调用方/测试直接构造），此时不做该项复核。
+     */
+    val cleanImageSha256: String? = null,
+    /** 干净题面图在资产记录里的字节长度（KD-55），与 [cleanImageSha256] 同一条记录。 */
+    val cleanImageByteSize: Long? = null,
     /** 版式参数；默认 = 参数化前的固定版式（见 [MistakePdfLayout.DEFAULT]）。 */
     val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     /** 条目备注（includeNote 时才进渲染）；入口已做安全内联化。 */
@@ -237,7 +248,17 @@ class MistakePdfExportInput internal constructor(
 sealed interface MistakePdfBlock {
     val id: String
 
-    data class Image(override val id: String, val localUri: String, val title: String) : MistakePdfBlock
+    /**
+     * 批量快照里的题面图。[expectedContentSha256]/[expectedByteSize] 是资产记录里的完整性
+     * 字段（KD-55）：docx 渲染前用它复核读到的字节。默认 null = 旧调用方不携带记录。
+     */
+    data class Image(
+        override val id: String,
+        val localUri: String,
+        val title: String,
+        val expectedContentSha256: String? = null,
+        val expectedByteSize: Long? = null,
+    ) : MistakePdfBlock
 
     data class Note(override val id: String, val text: String) : MistakePdfBlock
 

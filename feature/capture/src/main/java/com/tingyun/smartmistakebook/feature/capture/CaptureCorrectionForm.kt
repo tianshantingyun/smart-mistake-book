@@ -85,6 +85,11 @@ internal fun CaptureCorrectionForm(
     candidateUsable: Boolean = transcription.isNotBlank(),
     /** 本构建不连接模型：本题面来自本地识别，展示口径与模型结果区分。 */
     manualEntry: Boolean = false,
+    /**
+     * A8：手动建题——没有照片、没有识别，题面完全由用户敲入。文案与初始展开态
+     * 都按这个形态展示（与"本地识别后核对"区分开）。
+     */
+    manualTranscription: Boolean = false,
     entryGateOpen: Boolean = true,
     entryGateMessage: String = "",
     initialEditorExpanded: Boolean = false,
@@ -102,7 +107,7 @@ internal fun CaptureCorrectionForm(
     structuredEditorState: CaptureWorkspaceUiState? = null,
     onStructuredBlockChange: (ContentBlock) -> Unit = {},
 ) {
-    if (!candidateUsable && !manualEntry) return
+    if (!candidateUsable && !manualEntry && !manualTranscription) return
 
     var editorExpanded by rememberSaveable { mutableStateOf(initialEditorExpanded) }
     val editingEnabled = !isSaving && !isRetryLocked
@@ -123,15 +128,19 @@ internal fun CaptureCorrectionForm(
             )
             Column(Modifier.padding(start = 10.dp)) {
                 Text(
-                    text = if (manualEntry) "核对并整理题面" else "题面可以直接使用",
+                    text = when {
+                        manualTranscription -> "手动建题"
+                        manualEntry -> "核对并整理题面"
+                        else -> "题面可以直接使用"
+                    },
                     color = Ink,
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = if (manualEntry) {
-                        "本地识别可能有误差，确认无误后录入。"
-                    } else {
-                        "题面已整理好，可以直接继续"
+                    text = when {
+                        manualTranscription -> "把题目完整敲进下面，确认无误后存入错题本。"
+                        manualEntry -> "本地识别可能有误差，确认无误后录入。"
+                        else -> "题面已整理好，可以直接继续"
                     },
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
@@ -141,7 +150,7 @@ internal fun CaptureCorrectionForm(
 
         if (!editorExpanded) {
             OutlineActionChip(
-                text = "题面有误，修改",
+                text = if (manualTranscription) "开始输入题面" else "题面有误，修改",
                 onClick = { editorExpanded = true },
                 enabled = editingEnabled,
                 modifier = Modifier
@@ -150,7 +159,11 @@ internal fun CaptureCorrectionForm(
             )
         } else {
             Text(
-                text = "只改有误的地方，原图会继续保留。",
+                text = if (manualTranscription) {
+                    "没有拍照：题面以你输入的内容为准。"
+                } else {
+                    "只改有误的地方，原图会继续保留。"
+                },
                 modifier = Modifier.padding(top = 14.dp),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
@@ -226,7 +239,15 @@ internal fun CaptureCorrectionForm(
                         onTranscriptionChange(it.take(StructuredContentLimits.MAX_TEXT_CHARS))
                     },
                     label = { Text("题面") },
-                    placeholder = { Text("只修改识别有误的部分") },
+                    placeholder = {
+                        Text(
+                            if (manualTranscription) {
+                                "把题目完整敲在这里"
+                            } else {
+                                "只修改识别有误的部分"
+                            },
+                        )
+                    },
                     minLines = 4,
                     maxLines = 10,
                     enabled = editingEnabled,

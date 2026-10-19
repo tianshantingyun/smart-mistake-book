@@ -166,7 +166,9 @@ class BackupRestoreInstrumentedTest {
      * 归档里那份库引用的每一张图都在包里，且包里**只有**那份库引用的图（快照之后才登记的
      * 资产是下一包的）；回执的题数也必须等于归档库里那份库自己的数。
      *
-     * 同时钉住取数来源：实时库端口在整个成包过程里只被要求做一件事——快照。旧实现用的是
+     * 同时钉住取数来源：实时库端口在整个成包过程里只被要求做一件事——快照（KD-54
+     * 追加的 `checkpointForBackup` 是快照前的写队列排空，不是读取，本夹具不记录它）。
+     * 旧实现用的是
      * 实时库的 `countMistakes()`，那个数在窗口里会超前于归档内容。
      */
     @Test
@@ -599,7 +601,12 @@ class BackupRestoreInstrumentedTest {
 
     /**
      * 设置写不进去时是**部分恢复**：回执如实标 [RestoreSettingsOutcome.WRITE_FAILED]，
-     * 数据库**不回滚**（它已经切换到备份数据且一致），原设置保持原样。
+     * 数据库**不回滚**（它已经切换到备份数据且一致）。
+     *
+     * KD-47：设置是多个键**顺序写、非原子**的——本夹具的失败点在提醒口
+     * （[FailingReviewReminderRepository.setEnabled]），此前的调度选项已写成备份那份。
+     * 所以"本机设置保持原样"不是事实（旧文案已改）；本用例把"失败前已成功的键保留"
+     * 钉成断言，防止以后又把非原子写当成原子来承诺。
      */
     @Test
     fun settingsWriteFailureIsReportedAsPartialWithoutRollingBackTheRestoredDatabase() = runBlocking {
@@ -627,7 +634,8 @@ class BackupRestoreInstrumentedTest {
             val archive = ByteArrayOutputStream()
             repository.create(archive)
 
-            // 恢复前把本机设置改成另一份：写失败时它必须还是这一份（没有被回滚成备份那份）。
+            // 恢复前把本机设置改成另一份（0.8）。写失败发生在提醒口——调度选项此前已被
+            // 写成备份那份 0.9，本机设置因此是"半新半旧"，不是恢复前那份。
             scheduling.setOptions(SchedulingOptions(0.8))
 
             val receipt = repository.restore(ByteArrayInputStream(archive.toByteArray()))
@@ -637,6 +645,13 @@ class BackupRestoreInstrumentedTest {
                 "设置没写进去必须如实标 partial",
                 RestoreSettingsOutcome.WRITE_FAILED,
                 receipt.settings,
+            )
+            assertEquals(
+                "KD-47：多键顺序写非原子——失败前已成功的调度键必须保留（0.9，而非恢复前的 0.8）；" +
+                    "'本机设置保持原样'不是事实",
+                0.9,
+                scheduling.options.first().desiredRetention,
+                1e-9,
             )
             val restored = StudyDatabaseFactory.open(context)
             assertEquals(
@@ -1194,8 +1209,16 @@ class BackupRestoreInstrumentedTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val scratch = File(context.cacheDir, "fault-single").apply { mkdirs() }
         try {
+            // KD-53 起数据库条目用自己的预算；这一档钉的是**题图**的单条目上限。
             val limits = SmbkResourceLimits(maxSingleEntryBytes = 256L)
-            val archive = buildSyntheticArchive(databaseContent = ByteArray(1_024) { 3 })
+            val archive = buildSyntheticArchive(
+                databaseContent = "db".toByteArray(),
+                extraAssets = mapOf(
+                    // 随机字节：确保先撞上单条目预算，而不是压缩比门。
+                    "assets/oversize.bin" to ByteArray(1_024)
+                        .also { java.util.Random(17L).nextBytes(it) },
+                ),
+            )
             val validation = SmbkArchiveCodec.validate(
                 ByteArrayInputStream(archive),
                 scratch,
@@ -1204,6 +1227,93 @@ class BackupRestoreInstrumentedTest {
             assertTrue("单条目超限必须被拒绝", validation is BackupValidation.Invalid)
         } finally {
             scratch.deleteRecursively()
+        }
+    }
+
+    /**
+     * KD-53：`database.sqlite` 的单条目预算与题图分开。数据库条目高于
+     * `maxSingleEntryBytes`、低于 `maxDatabaseEntryBytes` 时，**校验与解包都必须通过**——
+     * 旧实现这里会报 `database.sqlite 超过单条目解压大小上限`，正是设备实测的不可校验/
+     * 不可恢复。
+     */
+    @Test
+    fun databaseEntryUsesItsOwnBudgetOnBothValidateAndUnpack() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val scratch = File(context.cacheDir, "fault-db-budget-ok").apply { mkdirs() }
+        val destination = File(context.cacheDir, "fault-db-budget-unpack").apply { mkdirs() }
+        val databaseBytes = ByteArray(1_024).also { java.util.Random(11L).nextBytes(it) }
+        try {
+            val limits = SmbkResourceLimits(
+                maxSingleEntryBytes = 256L,
+                maxDatabaseEntryBytes = 4_096L,
+                maxTotalDecompressedBytes = 64L * 1024L,
+            )
+            val archive = buildSyntheticArchive(databaseContent = databaseBytes)
+
+            val validation = SmbkArchiveCodec.validate(
+                ByteArrayInputStream(archive),
+                scratch,
+                limits,
+            )
+            assertTrue(
+                "数据库条目高于单图上限、低于数据库上限时必须可校验：$validation",
+                validation is BackupValidation.Valid,
+            )
+
+            val unpacked = SmbkArchiveCodec.unpack(
+                ByteArrayInputStream(archive),
+                destination,
+                limits,
+            )
+            assertTrue(
+                "恢复侧与校验侧同口径，必须同样可解包：$unpacked",
+                unpacked is BackupValidation.Valid,
+            )
+            assertArrayEquals(databaseBytes, File(destination, "database.sqlite").readBytes())
+        } finally {
+            scratch.deleteRecursively()
+            destination.deleteRecursively()
+        }
+    }
+
+    /** KD-53 负向：数据库条目超过自己的预算时，校验与解包都必须拒绝（同口径）。 */
+    @Test
+    fun databaseEntryAboveItsOwnBudgetIsRejectedByBothPaths() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val scratch = File(context.cacheDir, "fault-db-budget-bad").apply { mkdirs() }
+        val destination = File(context.cacheDir, "fault-db-budget-bad-unpack").apply { mkdirs() }
+        val databaseBytes = ByteArray(2_048).also { java.util.Random(13L).nextBytes(it) }
+        try {
+            val limits = SmbkResourceLimits(
+                maxSingleEntryBytes = 1_000_000L,
+                maxDatabaseEntryBytes = 1_024L,
+                maxTotalDecompressedBytes = 1_000_000L,
+            )
+            val archive = buildSyntheticArchive(databaseContent = databaseBytes)
+
+            val validation = SmbkArchiveCodec.validate(
+                ByteArrayInputStream(archive),
+                scratch,
+                limits,
+            )
+            assertTrue(validation is BackupValidation.Invalid)
+            assertTrue(
+                (validation as BackupValidation.Invalid).reason.contains("database.sqlite"),
+            )
+
+            val unpacked = SmbkArchiveCodec.unpack(
+                ByteArrayInputStream(archive),
+                destination,
+                limits,
+            )
+            assertTrue(unpacked is BackupValidation.Invalid)
+            assertTrue(
+                (unpacked as BackupValidation.Invalid).reason.contains("database.sqlite"),
+            )
+            assertTrue(!File(destination, "database.sqlite").exists())
+        } finally {
+            scratch.deleteRecursively()
+            destination.deleteRecursively()
         }
     }
 

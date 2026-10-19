@@ -45,11 +45,12 @@ internal fun captureResumeRecognitionStateName(transcription: String): String =
 internal data class CaptureResumeModelTaskSelection(
     val pageIndex: Int,
     val assessmentSnapshot: ModelTaskSnapshot?,
-    val assessmentRequestId: String,
-    val assessmentSourceAssetId: String,
+    /** A8：空源草稿没有题图可评估——任务 id 与源资产 id 都是 null（不派发模型轮）。 */
+    val assessmentRequestId: String?,
+    val assessmentSourceAssetId: String?,
     val assessmentOccurredAtEpochMillis: Long,
     val parseSnapshot: ModelTaskSnapshot?,
-    val parseRequestId: String,
+    val parseRequestId: String?,
 )
 
 internal fun captureResumeModelTaskSelection(
@@ -59,6 +60,19 @@ internal fun captureResumeModelTaskSelection(
     pageTasks: List<ModelTaskSnapshot?>,
     latestParseTask: ModelTaskSnapshot?,
 ): CaptureResumeModelTaskSelection {
+    // A8：手动建题的草稿没有页 0 源图。不能对空列表取 page 0（旧实现会在这里崩），
+    // 也不能编造一个评估/解析请求——返回"没有模型任务"的空选择。
+    if (sourcePages.isEmpty()) {
+        return CaptureResumeModelTaskSelection(
+            pageIndex = 0,
+            assessmentSnapshot = null,
+            assessmentRequestId = null,
+            assessmentSourceAssetId = null,
+            assessmentOccurredAtEpochMillis = 0,
+            parseSnapshot = null,
+            parseRequestId = null,
+        )
+    }
     val pageIndex = captureResumePendingAssessmentPageIndex(
         pageCount = sourcePages.size,
         pageTasks = pageTasks,

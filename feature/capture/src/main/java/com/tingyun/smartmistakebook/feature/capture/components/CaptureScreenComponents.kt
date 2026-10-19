@@ -239,6 +239,8 @@ internal fun CaptureEntryModeChooser(
     onTakePicture: () -> Unit,
     onPickPhoto: () -> Unit,
     onOpenFiles: (() -> Unit)? = null,
+    /** A8：手动建题入口。null = 这个来源不提供（讲题来源需要原题照片）。 */
+    onStartManual: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -278,6 +280,24 @@ internal fun CaptureEntryModeChooser(
             )
             Text(
                 text = "整卷的多张照片或一份 PDF 从这里进；每一页都会保留。",
+                modifier = Modifier.padding(top = 6.dp),
+                color = InkMuted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        if (onStartManual != null) {
+            OutlineActionChip(
+                text = "手动建题",
+                onClick = onStartManual,
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth()
+                    .testTag("capture_mode_manual"),
+                icon = Icons.Outlined.CheckCircle,
+                contentDescription = "没有照片也能建题：直接输入题面并存入错题本",
+            )
+            Text(
+                text = "没有照片也能建题：直接敲题面，确认后存入错题本。",
                 modifier = Modifier.padding(top = 6.dp),
                 color = InkMuted,
                 style = MaterialTheme.typography.bodySmall,

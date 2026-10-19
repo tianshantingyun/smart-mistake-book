@@ -14,7 +14,18 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 private const val CAPTURE_CACHE_TTL_MILLIS = 24L * 60L * 60L * 1_000L
-private const val MAX_CAPTURE_BYTES = 20L * 1_024L * 1_024L
+
+/**
+ * 单张图片的字节预算（拍照/相册/系统分享共用一个口径）。
+ *
+ * `internal` 而不是 `private`：分享入口（A7）的单文件门 `MAX_SHARE_IMAGE_BYTES` 必须与它
+ * 同值，`CaptureSharePolicyTest` 用断言钉住两者；漂移会让"选择器能收、分享却不收"这种
+ * 半截口径重新出现。
+ */
+internal const val MAX_CAPTURE_BYTES = 20L * 1_024L * 1_024L
+
+/** 拍照/分享入口共用的私有图片缓存目录名（FileProvider 的 `capture_file_paths` 同口径）。 */
+internal const val CAPTURE_IMAGE_DIRECTORY = "captured_images"
 internal val captureCleanupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
 object CaptureCacheMaintenance {
@@ -32,7 +43,7 @@ object CaptureCacheMaintenance {
 }
 
 internal fun createCaptureUri(context: Context): Result<Uri> = runCatching {
-    val directory = File(context.cacheDir, "captured_images").also { folder ->
+    val directory = File(context.cacheDir, CAPTURE_IMAGE_DIRECTORY).also { folder ->
         check(folder.exists() || folder.mkdirs()) { "Cannot create capture cache directory" }
     }
     val image = File.createTempFile("question_", ".jpg", directory)
@@ -44,7 +55,7 @@ internal fun createCaptureUri(context: Context): Result<Uri> = runCatching {
 }
 
 internal fun importPickedPhoto(context: Context, sourceUri: Uri): Result<Uri> = runCatching {
-    val directory = File(context.cacheDir, "captured_images").also { folder ->
+    val directory = File(context.cacheDir, CAPTURE_IMAGE_DIRECTORY).also { folder ->
         check(folder.exists() || folder.mkdirs()) { "Cannot create capture cache directory" }
     }
     val image = File.createTempFile("question_", ".img", directory)
@@ -71,7 +82,7 @@ internal fun pruneOwnedCaptureCache(
     retainedUris: List<String>,
     deleteBeforeMillis: Long? = null,
 ) {
-    val directory = File(context.cacheDir, "captured_images")
+    val directory = File(context.cacheDir, CAPTURE_IMAGE_DIRECTORY)
     if (!directory.isDirectory) return
     val retainedNames = retainedUris.mapNotNull(::ownedCaptureFileName).toSet()
     pruneCaptureDirectory(directory, retainedNames, deleteBeforeMillis)
@@ -96,7 +107,7 @@ internal fun deleteOwnedCaptureAsync(context: Context, uri: String?) {
 
 internal fun deleteOwnedCapture(context: Context, uri: String) {
     val fileName = ownedCaptureFileName(uri) ?: return
-    val directory = File(context.cacheDir, "captured_images")
+    val directory = File(context.cacheDir, CAPTURE_IMAGE_DIRECTORY)
     val candidate = File(directory, fileName)
     runCatching {
         if (candidate.canonicalFile.parentFile == directory.canonicalFile) {
@@ -110,7 +121,7 @@ internal fun isOwnedCaptureUri(uri: String?): Boolean =
 
 internal fun ownedCaptureExists(context: Context, uri: String?): Boolean {
     val fileName = ownedCaptureFileName(uri ?: return false) ?: return false
-    val directory = File(context.cacheDir, "captured_images")
+    val directory = File(context.cacheDir, CAPTURE_IMAGE_DIRECTORY)
     return runCatching {
         val candidate = File(directory, fileName)
         candidate.canonicalFile.parentFile == directory.canonicalFile && candidate.isFile
@@ -134,7 +145,7 @@ private fun revokePickedPhotoGrant(context: Context, uri: Uri) {
 
 internal fun ownedCaptureWithinLimit(context: Context, uri: String): Boolean {
     val fileName = ownedCaptureFileName(uri) ?: return false
-    val directory = File(context.cacheDir, "captured_images")
+    val directory = File(context.cacheDir, CAPTURE_IMAGE_DIRECTORY)
     return captureFileWithinLimit(directory, fileName)
 }
 
@@ -184,7 +195,7 @@ internal fun copyCaptureStreamWithinLimit(
     return copied
 }
 
-private fun hasSupportedImageSignature(file: File): Boolean = runCatching {
+internal fun hasSupportedImageSignature(file: File): Boolean = runCatching {
     val header = ByteArray(32)
     val read = file.inputStream().buffered().use { it.read(header) }
     when {

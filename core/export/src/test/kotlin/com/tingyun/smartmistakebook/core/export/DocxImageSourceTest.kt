@@ -1,7 +1,9 @@
 package com.tingyun.smartmistakebook.core.export
 
 import java.io.File
+import java.security.MessageDigest
 import java.util.zip.CRC32
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -41,6 +43,88 @@ class DocxImageSourceTest {
         assertEquals("image/jpeg", image.contentType)
     }
 
+    /**
+     * KD-55 正常路径：记录里的 sha 与长度都匹配时，读口返回**同一份**字节（嵌入它的就是
+     * 刚复核过的那份）。大小写不敏感只为容错记录来源，不改变记录格式（仍是小写十六进制）。
+     */
+    @Test
+    fun `a matching record sha and length yields the verified bytes`() {
+        val png = pngBytes(width = 320, height = 200)
+        val file = imageFile("verified.png", png)
+        val sha = sha256Hex(png)
+
+        val image = requireNotNull(
+            DocxImageSource.read(
+                localUri = file.toURI().toString(),
+                expectedSha256 = sha,
+                expectedByteSize = png.size.toLong(),
+            ),
+        )
+
+        assertArrayEquals(png, image.bytes)
+        assertEquals(320, image.widthPx)
+        // 同一份记录用大写 hex 表达时仍接受（equals(ignoreCase = true)）。
+        assertArrayEquals(
+            png,
+            requireNotNull(
+                DocxImageSource.read(
+                    localUri = file.toURI().toString(),
+                    expectedSha256 = sha.uppercase(),
+                    expectedByteSize = png.size.toLong(),
+                ),
+            ).bytes,
+        )
+    }
+
+    /** KD-55 失败路径：记录长度与实际文件不符 → 按"读不出"降级，不返回任何字节。 */
+    @Test
+    fun `a record length mismatch is rejected before the bytes are trusted`() {
+        val png = pngBytes(width = 100, height = 50)
+        val file = imageFile("short.png", png)
+
+        assertNull(
+            DocxImageSource.read(
+                localUri = file.toURI().toString(),
+                expectedSha256 = sha256Hex(png),
+                expectedByteSize = png.size + 1L,
+            ),
+        )
+        // 只给长度（不给 sha）也同样核。
+        assertNull(
+            DocxImageSource.read(
+                localUri = file.toURI().toString(),
+                expectedByteSize = png.size - 1L,
+            ),
+        )
+    }
+
+    /**
+     * KD-55 失败路径：长度相同但字节已被换掉（TOCTOU 的代表形态）→ sha 不符，拒绝。
+     * 这正是"读详情时核过一次、渲染时文件已被替换"的窗口。
+     */
+    @Test
+    fun `a record sha mismatch is rejected even when the length matches`() {
+        val original = pngBytes(width = 100, height = 50)
+        val replacement = pngBytes(width = 101, height = 50)
+        assertEquals("夹具退化：两份字节必须等长才能钉住 sha 的作用", original.size, replacement.size)
+        val file = imageFile("replaced.png", replacement)
+
+        assertNull(
+            DocxImageSource.read(
+                localUri = file.toURI().toString(),
+                expectedSha256 = sha256Hex(original),
+                expectedByteSize = replacement.size.toLong(),
+            ),
+        )
+        // 只给 sha（不给长度）也同样核。
+        assertNull(
+            DocxImageSource.read(
+                localUri = file.toURI().toString(),
+                expectedSha256 = sha256Hex(original),
+            ),
+        )
+    }
+
     @Test
     fun `an unreadable or unsupported image degrades to null instead of failing the export`() {
         // 文件不存在
@@ -71,6 +155,9 @@ class DocxImageSourceTest {
 
     private fun imageFile(name: String, bytes: ByteArray): File =
         File(temporaryFolder.root, name).apply { writeBytes(bytes) }
+
+    private fun sha256Hex(bytes: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
 
     /** 结构完整的 PNG（签名 + IHDR + IEND）；读取口只解析头部。 */
     private fun pngBytes(width: Int, height: Int): ByteArray {

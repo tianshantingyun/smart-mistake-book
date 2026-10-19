@@ -33,6 +33,7 @@ import com.tingyun.smartmistakebook.core.data.model.sha256Hex
 import com.tingyun.smartmistakebook.core.data.splitimport.RoomSplitImportRepository
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftImportRequest
 import com.tingyun.smartmistakebook.core.domain.AppendCaptureDraftPageRequest
+import com.tingyun.smartmistakebook.core.domain.BackupWriteGate
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftWorkspaceSnapshot
 import com.tingyun.smartmistakebook.core.domain.SplitRegionDraftsRequest
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftSummary
@@ -42,6 +43,7 @@ import com.tingyun.smartmistakebook.core.domain.CaptureInputSource
 import com.tingyun.smartmistakebook.core.domain.CaptureSourcePage
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
+import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
 import com.tingyun.smartmistakebook.core.domain.CapturedProblemCommitSummary
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import java.io.File
@@ -100,6 +102,12 @@ class RoomCaptureWorkflowRepository internal constructor(
     private val captureEgressAllowed: () -> Boolean = { false },
     /** Split-review ledger; null in tests that never split. */
     private val splitImports: RoomSplitImportRepository? = null,
+    /**
+     * KD-54「让路」门：备份快照期间，采集侧的数据库写入口在门前短暂排队（超时给可重试
+     * 提示），而不是把写请求送进被 `VACUUM INTO` 占住的连接池。默认进程内共享实例，
+     * 与备份仓库同一道门；测试可注入自己的门。
+     */
+    private val writeGate: BackupWriteGate = BackupWriteGate.shared,
 ) : CaptureWorkflowRepository {
     /**
      * AUD-09 净化作业执行器：把"分类 → 重绘 → 挂接"升级成有持久身份、可续跑、不重复付费的作业。
@@ -116,8 +124,16 @@ class RoomCaptureWorkflowRepository internal constructor(
             runCatching { assetVault.resolve(record).readBytes() }.getOrNull()
         },
         classify = { request -> classifyProblemKind(request) },
-        generateClean = { record, bytes ->
-            cleanRedraw?.generateClean(bytes, record.mimeType)
+        generateClean = { record, bytes, parent ->
+            cleanRedraw?.generateClean(
+                CleanImageRequest(
+                    originalBytes = bytes,
+                    mimeType = record.mimeType,
+                    parent = parent,
+                    // 逻辑操作身份绑定持久作业（不含 method）；重试仍是同一操作。
+                    operationId = "clean-redraw-op:${parent.taskId}",
+                ),
+            )
         },
         attach = { revisionId, bytes, mimeType ->
             attachCleanRedrawImage(
@@ -127,6 +143,15 @@ class RoomCaptureWorkflowRepository internal constructor(
             )
         },
     )
+
+    /**
+     * KD-54：把一次数据库写放进备份让路门。**只包数据库写**，不包模型轮 / OCR / 重绘—
+     * 那些可能跑分钟级；包进来会让备份等待在途写排空时被它们拖住并超时。备份快照期间
+     * 到达的写会在门前短暂排队，超时抛可重试的
+     * [com.tingyun.smartmistakebook.core.domain.BackupWriteDeferredException]。
+     */
+    private suspend fun <T> admittedWrite(entry: String, block: suspend () -> T): T =
+        writeGate.withWriteAdmission(entry, block)
 
     override fun observePendingCaptures(): Flow<List<PendingCaptureItem>> =
         database.observePendingCaptureDrafts().map { records ->
@@ -149,11 +174,13 @@ class RoomCaptureWorkflowRepository internal constructor(
         require(abandonedAtEpochMillis > 0) {
             "Pending capture abandonment time must be positive"
         }
-        database.abandonPendingProblemDraft(
-            draftId = draftId,
-            expectedRevisionNumber = expectedRevisionNumber,
-            abandonedAtEpochMillis = abandonedAtEpochMillis,
-        )
+        admittedWrite("放弃待处理草稿") {
+            database.abandonPendingProblemDraft(
+                draftId = draftId,
+                expectedRevisionNumber = expectedRevisionNumber,
+                abandonedAtEpochMillis = abandonedAtEpochMillis,
+            )
+        }
     }
 
     override suspend fun readDraftWorkspace(
@@ -167,49 +194,69 @@ class RoomCaptureWorkflowRepository internal constructor(
         request: SaveCaptureDraftWorkspaceRequest,
     ): CaptureDraftWorkspaceSnapshot = withContext(Dispatchers.IO) {
         val encoded = CaptureDraftWorkspaceCodec.encode(request.workspace)
-        val result = database.saveProblemDraftEditWorkspace(
-            SaveProblemDraftEditWorkspaceCommand(
-                draftId = request.draftId,
-                basisRevisionNumber = request.basisRevisionNumber,
-                expectedWorkspaceVersion = request.expectedWorkspaceVersion,
-                expectedWorkspaceFingerprint = request.expectedWorkspaceFingerprint,
-                snapshotSchemaVersion = request.workspace.schemaVersion,
-                workspaceSnapshot = encoded,
-                workspaceFingerprint = CaptureDraftWorkspaceFingerprint.ofEncoded(encoded),
-                updatedAtEpochMillis = request.occurredAtEpochMillis,
-            ),
-        )
+        val result = admittedWrite("保存草稿工作区") {
+            database.saveProblemDraftEditWorkspace(
+                SaveProblemDraftEditWorkspaceCommand(
+                    draftId = request.draftId,
+                    basisRevisionNumber = request.basisRevisionNumber,
+                    expectedWorkspaceVersion = request.expectedWorkspaceVersion,
+                    expectedWorkspaceFingerprint = request.expectedWorkspaceFingerprint,
+                    snapshotSchemaVersion = request.workspace.schemaVersion,
+                    workspaceSnapshot = encoded,
+                    workspaceFingerprint = CaptureDraftWorkspaceFingerprint.ofEncoded(encoded),
+                    updatedAtEpochMillis = request.occurredAtEpochMillis,
+                ),
+            )
+        }
         result.workspace.toDomainWorkspaceSnapshot()
     }
 
     override suspend fun consumeDraftWorkspace(
         request: ConsumeCaptureDraftWorkspaceRequest,
     ): Boolean = withContext(Dispatchers.IO) {
-        database.consumeProblemDraftEditWorkspace(
-            ConsumeProblemDraftEditWorkspaceCommand(
-                draftId = request.identity.draftId,
-                basisRevisionNumber = request.identity.basisRevisionNumber,
-                expectedWorkspaceVersion = request.identity.workspaceVersion,
-                expectedWorkspaceFingerprint = request.identity.workspaceFingerprint,
-            ),
-        )
+        admittedWrite("消费草稿工作区") {
+            database.consumeProblemDraftEditWorkspace(
+                ConsumeProblemDraftEditWorkspaceCommand(
+                    draftId = request.identity.draftId,
+                    basisRevisionNumber = request.identity.basisRevisionNumber,
+                    expectedWorkspaceVersion = request.identity.workspaceVersion,
+                    expectedWorkspaceFingerprint = request.identity.workspaceFingerprint,
+                ),
+            )
+        }
     }
 
     override suspend fun importDraft(request: CaptureDraftImportRequest): CaptureDraftSummary =
         withContext(Dispatchers.IO) {
             val draftId = stableId("draft", request.requestId)
-            val imported = assetVault.import(
-                localUri = request.localUri,
-                sourceType = request.source.toDbValue(),
-                createdAtEpochMillis = request.occurredAtEpochMillis,
-            )
+            // A8：`localUri == null` 是**手动建题**——没有照片可导入，直接建一份空源草稿。
+            // 手动草稿的完成态是错题本入库；讲题会话要求原题照片（模型要看图），这里
+            // 明确拒绝 TUTOR 来源，不给一个走到确认才死掉的入口。
+            val localUri = request.localUri
+            require(localUri != null || request.origin == CaptureEntryOrigin.LIBRARY) {
+                "Manual transcription is only available for library captures"
+            }
+            val imported = localUri?.let { uri ->
+                assetVault.import(
+                    localUri = uri,
+                    sourceType = requireNotNull(request.source).toDbValue(),
+                    createdAtEpochMillis = request.occurredAtEpochMillis,
+                )
+            }
+            fun validateReplay(draft: ProblemDraftRecord) {
+                if (imported == null) {
+                    validateManualImportReplay(draft, request)
+                } else {
+                    validateImportReplay(draft, request, checkNotNull(imported))
+                }
+            }
             val existing = database.readProblemDraft(draftId)
             val draft = if (existing != null) {
-                validateImportReplay(existing, request, imported)
+                validateReplay(existing)
                 existing
             } else {
                 val created = createInitialDraft(draftId, request, imported)
-                if (!created.created) validateImportReplay(created.draft, request, imported)
+                if (!created.created) validateReplay(created.draft)
                 created.draft
             }
             if (draft.currentRevision.author != StudyDbValue.ProblemDraftAuthor.CAPTURE_IMPORT) {
@@ -226,15 +273,17 @@ class RoomCaptureWorkflowRepository internal constructor(
             sourceType = request.source.toDbValue(),
             createdAtEpochMillis = request.occurredAtEpochMillis,
         )
-        database.appendProblemDraftSourceAsset(
-            AppendProblemDraftSourceAssetCommand(
-                draftId = request.draftId,
-                expectedRevisionNumber = request.expectedRevisionNumber,
-                expectedSourceAssetCount = request.expectedPageCount,
-                sourceAsset = imported,
-                appendedAtEpochMillis = request.occurredAtEpochMillis,
-            ),
-        ).draft.toSummary()
+        admittedWrite("追加拍摄页") {
+            database.appendProblemDraftSourceAsset(
+                AppendProblemDraftSourceAssetCommand(
+                    draftId = request.draftId,
+                    expectedRevisionNumber = request.expectedRevisionNumber,
+                    expectedSourceAssetCount = request.expectedPageCount,
+                    sourceAsset = imported,
+                    appendedAtEpochMillis = request.occurredAtEpochMillis,
+                ),
+            )
+        }.draft.toSummary()
     }
 
     override suspend fun replaceDraft(
@@ -260,7 +309,7 @@ class RoomCaptureWorkflowRepository internal constructor(
                 null
             }
             replayedAsset?.let {
-                if (!completed.sourceAsset.hasSameCanonicalContent(replayedAsset)) {
+                if (completed.sourceAsset?.hasSameCanonicalContent(replayedAsset) != true) {
                     throw ImmutablePayloadConflictException(
                         "capture_replacement_request",
                         request.requestId,
@@ -281,14 +330,16 @@ class RoomCaptureWorkflowRepository internal constructor(
             occurredAtEpochMillis = request.occurredAtEpochMillis,
             requestFingerprint = replacementRequestFingerprint(replaced, request),
         )
-        val replacement = database.replaceProblemDraft(
-            ReplaceProblemDraftCommand(
-                replacedDraftId = request.replacedDraftId,
-                expectedReplacedRevisionNumber = request.expectedReplacedRevisionNumber,
-                replacement = replacementCommand,
-                replacedAtEpochMillis = request.occurredAtEpochMillis,
-            ),
-        ).replacement
+        val replacement = admittedWrite("替换草稿") {
+            database.replaceProblemDraft(
+                ReplaceProblemDraftCommand(
+                    replacedDraftId = request.replacedDraftId,
+                    expectedReplacedRevisionNumber = request.expectedReplacedRevisionNumber,
+                    replacement = replacementCommand,
+                    replacedAtEpochMillis = request.occurredAtEpochMillis,
+                ),
+            )
+        }.replacement
         recognizeReplacementBestEffort(replacement)
     }
 
@@ -300,7 +351,10 @@ class RoomCaptureWorkflowRepository internal constructor(
         require(replaced.currentRevision.revisionNumber == request.expectedRevisionNumber) {
             "Capture draft changed before it could be split"
         }
-        require(replaced.sourceAssets.size == 1 && replaced.sourceAsset.sourceAssetId == request.sourceAssetId) {
+        require(
+            replaced.sourceAssets.size == 1 &&
+                replaced.sourceAsset?.sourceAssetId == request.sourceAssetId,
+        ) {
             "Only one-page captures can be split automatically"
         }
         val splitDraftIds = request.regions.mapIndexed { index, region ->
@@ -324,11 +378,16 @@ class RoomCaptureWorkflowRepository internal constructor(
         }
         require(completed.all { it == null }) { "Capture split is only partially present" }
 
+        // 切分只对照片草稿成立；空源草稿没有可裁的页 0 源图（上面的 require 已挡住，
+        // 这里把"没有照片"和"照片有几页"分开表达，避免把空源读成一张假图）。
+        val splitSource = checkNotNull(replaced.sourceAsset) {
+            "A manual draft has no source page to split"
+        }
         val croppedAssets = mutableListOf<CanonicalSourceAssetRecord>()
         try {
             request.regions.forEach { region ->
                 croppedAssets += assetVault.crop(
-                    source = replaced.sourceAsset,
+                    source = splitSource,
                     region = region,
                     createdAtEpochMillis = request.occurredAtEpochMillis,
                 )
@@ -348,14 +407,16 @@ class RoomCaptureWorkflowRepository internal constructor(
                     ),
                 )
             }
-            val result = database.splitProblemDraft(
-                SplitProblemDraftCommand(
-                    replacedDraftId = replaced.draftId,
-                    expectedReplacedRevisionNumber = request.expectedRevisionNumber,
-                    replacements = replacements,
-                    splitAtEpochMillis = request.occurredAtEpochMillis,
-                ),
-            )
+            val result = admittedWrite("切分草稿") {
+                database.splitProblemDraft(
+                    SplitProblemDraftCommand(
+                        replacedDraftId = replaced.draftId,
+                        expectedReplacedRevisionNumber = request.expectedRevisionNumber,
+                        replacements = replacements,
+                        splitAtEpochMillis = request.occurredAtEpochMillis,
+                    ),
+                )
+            }
             val splitDrafts = result.replacements.map { it.toSummary() }
             CaptureDraftSplitResult(
                 created = result.created,
@@ -395,7 +456,13 @@ class RoomCaptureWorkflowRepository internal constructor(
                 request.assessmentRequestId,
                 request.occurredAtEpochMillis.toString(),
             ),
-            sourceUri = Uri.fromFile(assetVault.resolve(replaced.sourceAsset)).toString(),
+            sourceUri = Uri.fromFile(
+                assetVault.resolve(
+                    checkNotNull(replaced.sourceAsset) {
+                        "A manual draft has no source page to register for split review"
+                    },
+                ),
+            ).toString(),
             pageCount = 1,
             createdAtEpochMillis = request.occurredAtEpochMillis,
         )
@@ -410,13 +477,15 @@ class RoomCaptureWorkflowRepository internal constructor(
                 splitDraftId = splitDrafts.getOrNull(index)?.draftId,
             )
         }
-        splitImports.createSplitJob(command, questions)
-        // A false result means the job was already past PREPARING (a replay
-        // promoted it, or the student discarded it first), so it is not worth
-        // escalating. The case that does matter — a crash between these two
-        // writes — is repaired by the startup pass in
-        // RoomSplitImportRepository.reconcileStuckJobs.
-        splitImports.markReady(jobId, questions.size, request.occurredAtEpochMillis)
+        admittedWrite("登记切分作业") {
+            splitImports.createSplitJob(command, questions)
+            // A false result means the job was already past PREPARING (a replay
+            // promoted it, or the student discarded it first), so it is not worth
+            // escalating. The case that does matter — a crash between these two
+            // writes — is repaired by the startup pass in
+            // RoomSplitImportRepository.reconcileStuckJobs.
+            splitImports.markReady(jobId, questions.size, request.occurredAtEpochMillis)
+        }
         return jobId
     }
 
@@ -437,22 +506,24 @@ class RoomCaptureWorkflowRepository internal constructor(
                     createdAtEpochMillis = request.occurredAtEpochMillis,
                 )
                 try {
-                    database.createProblemDraft(
-                        initialDraftCommand(
-                            draftId = draftId,
-                            sourceAsset = cropped,
-                            origin = request.origin.toDbValue(),
-                            occurredAtEpochMillis = request.occurredAtEpochMillis,
-                            requestFingerprint = requestFingerprint(
-                                "batch-split-draft-v1",
-                                request.requestId,
-                                request.sourceAssetId,
-                                index.toString(),
-                                region.fingerprintValue(),
-                                cropped.contentSha256,
+                    admittedWrite("登记切分草稿") {
+                        database.createProblemDraft(
+                            initialDraftCommand(
+                                draftId = draftId,
+                                sourceAsset = cropped,
+                                origin = request.origin.toDbValue(),
+                                occurredAtEpochMillis = request.occurredAtEpochMillis,
+                                requestFingerprint = requestFingerprint(
+                                    "batch-split-draft-v1",
+                                    request.requestId,
+                                    request.sourceAssetId,
+                                    index.toString(),
+                                    region.fingerprintValue(),
+                                    cropped.contentSha256,
+                                ),
                             ),
-                        ),
-                    ).draft.toSummary()
+                        )
+                    }.draft.toSummary()
                 } catch (failure: Exception) {
                     if (database.readCanonicalSourceAsset(cropped.sourceAssetId) == null) {
                         runCatching { assetVault.delete(cropped) }
@@ -472,25 +543,29 @@ class RoomCaptureWorkflowRepository internal constructor(
             require(draft.origin == StudyDbValue.CaptureOrigin.LIBRARY) {
                 "Only mistake-library captures may be saved during confirmation"
             }
-            val originalFile = assetVault.resolve(draft.sourceAsset)
+            // A8：手动建题的草稿没有照片，没有可核对的源文件；照片草稿仍在这里先
+            // 逐位核对（读前失败即提交失败，fail-closed）。
+            draft.sourceAsset?.let { assetVault.resolve(it) }
             val expected = request.workspaceIdentity.toDatabaseExpectation()
             val suffix = confirmationStableSuffix(request.workspaceIdentity)
-            val outcome = database.confirmAndCommitProblemDraftFromWorkspace(
-                ConfirmAndCommitProblemDraftFromWorkspaceCommand(
-                    workspace = expected,
-                    commit = CommitProblemDraftCommand(
-                        commandId = "commit-$suffix",
-                        draftId = request.draftId,
-                        expectedRevisionNumber = expected.basisRevisionNumber + 1,
-                        problemId = "problem-$suffix",
-                        problemRevisionId = "revision-$suffix",
-                        practiceUnitId = "practice-$suffix",
-                        errorBookEntryId = "entry-$suffix",
-                        estimatedSeconds = DEFAULT_ESTIMATED_SECONDS,
-                        committedAtEpochMillis = expected.finalOccurredAtEpochMillis,
+            val outcome = admittedWrite("保存题目") {
+                database.confirmAndCommitProblemDraftFromWorkspace(
+                    ConfirmAndCommitProblemDraftFromWorkspaceCommand(
+                        workspace = expected,
+                        commit = CommitProblemDraftCommand(
+                            commandId = "commit-$suffix",
+                            draftId = request.draftId,
+                            expectedRevisionNumber = expected.basisRevisionNumber + 1,
+                            problemId = "problem-$suffix",
+                            problemRevisionId = "revision-$suffix",
+                            practiceUnitId = "practice-$suffix",
+                            errorBookEntryId = "entry-$suffix",
+                            estimatedSeconds = DEFAULT_ESTIMATED_SECONDS,
+                            committedAtEpochMillis = expected.finalOccurredAtEpochMillis,
+                        ),
                     ),
-                ),
-            )
+                )
+            }
             val receipt = outcome.commit.receipt
             val summary = CapturedProblemCommitSummary(
                 draftId = request.draftId,
@@ -512,12 +587,15 @@ class RoomCaptureWorkflowRepository internal constructor(
             // text-only problems keep the original. Never blocks or fails the commit —
             // a missing/failing model, generator, or classify round leaves the revision
             // with the original photo only.
+            // A8：空源草稿没有照片可用于图型分类/重绘；只有照片提交才跑这一轮。
             if (outcome.commit.created) {
-                decideAndRedraw(
-                    sourceAsset = draft.sourceAsset,
-                    revisionId = receipt.problemRevisionId,
-                    subjectId = draft.draftId,
-                )
+                draft.sourceAsset?.let { sourceAsset ->
+                    decideAndRedraw(
+                        sourceAsset = sourceAsset,
+                        revisionId = receipt.problemRevisionId,
+                        subjectId = draft.draftId,
+                    )
+                }
             }
             summary
         }
@@ -637,10 +715,12 @@ class RoomCaptureWorkflowRepository internal constructor(
             ),
             figureIdentity = figureId,
         )
-        database.attachCleanRedrawAsset(
-            revisionId = problemRevisionId,
-            asset = asset,
-        )
+        admittedWrite("挂接重绘图") {
+            database.attachCleanRedrawAsset(
+                revisionId = problemRevisionId,
+                asset = asset,
+            )
+        }
     }
 
     override suspend fun confirmForTutoring(
@@ -651,14 +731,18 @@ class RoomCaptureWorkflowRepository internal constructor(
         require(draft.origin == StudyDbValue.CaptureOrigin.TUTOR) {
             "Only tutor captures may create a tutor session"
         }
-        assetVault.resolve(draft.sourceAsset)
+        // A8：空源草稿（手动建题）没有照片可核对。讲题会话本身仍要求照片（模型要看图），
+        // 数据库确认口会以 `canonical_source_asset` 冲突码拒绝——这里不把空源读成一张假图。
+        draft.sourceAsset?.let { assetVault.resolve(it) }
         val expected = request.workspaceIdentity.toDatabaseExpectation()
-        database.confirmTutorSessionFromWorkspace(
-            ConfirmTutorSessionFromWorkspaceCommand(
-                workspace = expected,
-                sessionId = "tutor-session-${confirmationStableSuffix(request.workspaceIdentity)}",
-            ),
-        ).session.toDomainTutorSession()
+        admittedWrite("保存讲题题目") {
+            database.confirmTutorSessionFromWorkspace(
+                ConfirmTutorSessionFromWorkspaceCommand(
+                    workspace = expected,
+                    sessionId = "tutor-session-${confirmationStableSuffix(request.workspaceIdentity)}",
+                ),
+            )
+        }.session.toDomainTutorSession()
     }
 
     override suspend fun readTutorSession(sessionId: String): ConfirmedTutorSession? =
@@ -689,22 +773,24 @@ class RoomCaptureWorkflowRepository internal constructor(
             ?: error("Tutor session no longer exists")
         assetVault.resolve(session.sourceAsset)
         val suffix = stableSuffix(request.requestId)
-        val outcome = database.commitTutorSession(
-            CommitTutorSessionCommand(
-                sessionId = request.sessionId,
-                commit = CommitProblemDraftCommand(
-                    commandId = "commit-$suffix",
-                    draftId = session.draftId,
-                    expectedRevisionNumber = session.draftRevisionNumber,
-                    problemId = "problem-$suffix",
-                    problemRevisionId = "revision-$suffix",
-                    practiceUnitId = "practice-$suffix",
-                    errorBookEntryId = "entry-$suffix",
-                    estimatedSeconds = DEFAULT_ESTIMATED_SECONDS,
-                    committedAtEpochMillis = request.occurredAtEpochMillis,
+        val outcome = admittedWrite("保存讲题会话") {
+            database.commitTutorSession(
+                CommitTutorSessionCommand(
+                    sessionId = request.sessionId,
+                    commit = CommitProblemDraftCommand(
+                        commandId = "commit-$suffix",
+                        draftId = session.draftId,
+                        expectedRevisionNumber = session.draftRevisionNumber,
+                        problemId = "problem-$suffix",
+                        problemRevisionId = "revision-$suffix",
+                        practiceUnitId = "practice-$suffix",
+                        errorBookEntryId = "entry-$suffix",
+                        estimatedSeconds = DEFAULT_ESTIMATED_SECONDS,
+                        committedAtEpochMillis = request.occurredAtEpochMillis,
+                    ),
                 ),
-            ),
-        )
+            )
+        }
         CapturedProblemCommitSummary(
             draftId = session.draftId,
             problemId = outcome.commit.receipt.problemId,
@@ -737,18 +823,23 @@ class RoomCaptureWorkflowRepository internal constructor(
      * 入库的题永远显示待提交，正是本轨要消灭的那种假象。
      */
     private suspend fun recordSplitImportCommit(draftId: String, occurredAtEpochMillis: Long) {
-        splitImports?.recordCommittedDraft(draftId, occurredAtEpochMillis)
+        val ledger = splitImports ?: return
+        admittedWrite("记录切分提交回执") {
+            ledger.recordCommittedDraft(draftId, occurredAtEpochMillis)
+        }
     }
 
     override suspend fun endTutorSessionWithoutSaving(
         request: EndTutorSessionWithoutSaveRequest,
     ): EndTutorSessionWithoutSaveResult = withContext(Dispatchers.IO) {
-        val result = database.endTutorSession(
-            EndTutorSessionCommand(
-                sessionId = request.sessionId,
-                endedAtEpochMillis = request.occurredAtEpochMillis,
-            ),
-        )
+        val result = admittedWrite("结束讲题会话") {
+            database.endTutorSession(
+                EndTutorSessionCommand(
+                    sessionId = request.sessionId,
+                    endedAtEpochMillis = request.occurredAtEpochMillis,
+                ),
+            )
+        }
         EndTutorSessionWithoutSaveResult(
             sessionId = result.sessionId,
             draftId = result.draftId,
@@ -783,7 +874,11 @@ class RoomCaptureWorkflowRepository internal constructor(
         val workspaceSnapshot = editWorkspace?.toDomainWorkspaceSnapshot()
         val workspace = workspaceSnapshot?.workspace
         val sessionId = validTutorSessionId()
-        val sourceAvailable = runCatching { assetVault.resolve(draft.sourceAsset) }.isSuccess
+        // A8：空源不是"原图暂时打不开"——手动草稿从创建起就没有图。只有照片草稿
+        // 才做文件可用性判定；否则会被误标成 SOURCE_UNAVAILABLE。
+        val sourceAsset = draft.sourceAsset
+        val sourceAvailable = sourceAsset == null ||
+            runCatching { assetVault.resolve(sourceAsset) }.isSuccess
         val stage = when {
             !sourceAvailable -> PendingCaptureStage.SOURCE_UNAVAILABLE
             sessionId != null -> PendingCaptureStage.TUTOR_SESSION_READY
@@ -805,12 +900,15 @@ class RoomCaptureWorkflowRepository internal constructor(
             tutorSessionId = sessionId.takeIf {
                 stage == PendingCaptureStage.TUTOR_SESSION_READY
             },
+            hasSourceImage = sourceAsset != null,
         )
     }
 
     private fun PendingCaptureDraftRecord.toResumableCaptureDraft(): ResumableCaptureDraft {
         val sourcePages = draft.toDomainSourcePages()
-        val sourceFile = assetVault.resolve(draft.sourceAsset)
+        // A8：空源草稿没有文件可解析——源图字段留空，交给读取侧按"没有照片"处理
+        // （不是"照片丢了"，那条是照片草稿的 SOURCE_UNAVAILABLE）。
+        val sourceFile = draft.sourceAsset?.let { assetVault.resolve(it) }
         val tasks = validatedTasks()
         val workspaceSnapshot = editWorkspace?.toDomainWorkspaceSnapshot()
         val workspace = workspaceSnapshot?.workspace
@@ -821,12 +919,12 @@ class RoomCaptureWorkflowRepository internal constructor(
         return ResumableCaptureDraft(
             draftId = draft.draftId,
             origin = draft.origin.toDomainOrigin(),
-            sourceImageUri = Uri.fromFile(sourceFile).toString(),
-            sourceAssetId = draft.sourceAsset.sourceAssetId,
-            sourceAssetSha256 = draft.sourceAsset.contentSha256,
-            sourceWidth = draft.sourceAsset.width,
-            sourceHeight = draft.sourceAsset.height,
-            sourceByteSize = draft.sourceAsset.byteSize,
+            sourceImageUri = sourceFile?.let { Uri.fromFile(it).toString() },
+            sourceAssetId = draft.sourceAsset?.sourceAssetId,
+            sourceAssetSha256 = draft.sourceAsset?.contentSha256,
+            sourceWidth = draft.sourceAsset?.width,
+            sourceHeight = draft.sourceAsset?.height,
+            sourceByteSize = draft.sourceAsset?.byteSize,
             sourcePages = sourcePages,
             draftCreatedAtEpochMillis = draft.createdAtEpochMillis,
             currentRevisionNumber = draft.currentRevision.revisionNumber,
@@ -852,41 +950,67 @@ class RoomCaptureWorkflowRepository internal constructor(
     private suspend fun createInitialDraft(
         draftId: String,
         request: CaptureDraftImportRequest,
-        imported: CanonicalSourceAssetRecord,
+        imported: CanonicalSourceAssetRecord?,
     ): ProblemDraftWriteResult {
-        return database.createProblemDraft(
-            initialDraftCommand(
-                draftId = draftId,
-                sourceAsset = imported,
-                origin = request.origin.toDbValue(),
-                occurredAtEpochMillis = request.occurredAtEpochMillis,
-                requestFingerprint = importRequestFingerprint(request, imported),
-            ),
-        )
+        return admittedWrite("登记新草稿") {
+            database.createProblemDraft(
+                initialDraftCommand(
+                    draftId = draftId,
+                    sourceAsset = imported,
+                    origin = request.origin.toDbValue(),
+                    occurredAtEpochMillis = request.occurredAtEpochMillis,
+                    requestFingerprint = if (imported == null) {
+                        manualImportRequestFingerprint(request)
+                    } else {
+                        importRequestFingerprint(request, imported)
+                    },
+                ),
+            )
+        }
     }
 
+    /**
+     * 新建草稿的初始修订。
+     *
+     * [sourceAsset] 为 null 是 A8 的**手动建题**形态：没有照片、没有页 0 绑定，
+     * 题干块的 provenance 是 `USER_TRANSCRIPTION`（空 source_asset_id / 无区域是诚实形态）。
+     * **只在这个 provenance 上放行**；照片链的初始块仍是 `IMPORTED_STRUCTURE` + 源图 + 全图区域。
+     */
     private fun initialDraftCommand(
         draftId: String,
-        sourceAsset: CanonicalSourceAssetRecord,
+        sourceAsset: CanonicalSourceAssetRecord?,
         origin: String,
         occurredAtEpochMillis: Long,
         requestFingerprint: String,
     ): CreateProblemDraftCommand {
+        val manual = sourceAsset == null
         val initialDocument = CapturedQuestionDocument(
             document = QuestionDocument(
                 id = "document-$draftId",
                 blocks = listOf(ContentBlock.Paragraph(id = "stem", markdown = "")),
             ),
             blockEvidence = listOf(
-                QuestionBlockEvidence(
-                    blockId = "stem",
-                    sourceAssetId = sourceAsset.sourceAssetId,
-                    sourceRegion = FULL_IMAGE_REGION,
-                    writingLayer = WritingLayer.UNKNOWN,
-                    provenance = QuestionBlockProvenance.IMPORTED_STRUCTURE,
-                    reviewStatus = QuestionBlockReviewStatus.NEEDS_REVIEW,
-                    producerVersion = CAPTURE_IMPORT_VERSION,
-                ),
+                if (manual) {
+                    QuestionBlockEvidence(
+                        blockId = "stem",
+                        sourceAssetId = "",
+                        sourceRegion = null,
+                        writingLayer = WritingLayer.UNKNOWN,
+                        provenance = QuestionBlockProvenance.USER_TRANSCRIPTION,
+                        reviewStatus = QuestionBlockReviewStatus.NEEDS_REVIEW,
+                        producerVersion = null,
+                    )
+                } else {
+                    QuestionBlockEvidence(
+                        blockId = "stem",
+                        sourceAssetId = checkNotNull(sourceAsset).sourceAssetId,
+                        sourceRegion = FULL_IMAGE_REGION,
+                        writingLayer = WritingLayer.UNKNOWN,
+                        provenance = QuestionBlockProvenance.IMPORTED_STRUCTURE,
+                        reviewStatus = QuestionBlockReviewStatus.NEEDS_REVIEW,
+                        producerVersion = CAPTURE_IMPORT_VERSION,
+                    )
+                },
             ),
         )
         val revision = ProblemDraftRevisionRecord(
@@ -897,7 +1021,11 @@ class RoomCaptureWorkflowRepository internal constructor(
             title = "新拍题目",
             questionDocument = initialDocument,
             documentFingerprint = CapturedQuestionDocumentFingerprint.of(initialDocument),
-            author = StudyDbValue.ProblemDraftAuthor.CAPTURE_IMPORT,
+            author = if (manual) {
+                StudyDbValue.ProblemDraftAuthor.USER
+            } else {
+                StudyDbValue.ProblemDraftAuthor.CAPTURE_IMPORT
+            },
             createdAtEpochMillis = occurredAtEpochMillis,
         )
         return CreateProblemDraftCommand(
@@ -927,12 +1055,18 @@ class RoomCaptureWorkflowRepository internal constructor(
     private suspend fun recognizePendingDraft(
         draft: ProblemDraftRecord,
     ): CaptureDraftSummary {
-        val canonicalFile = assetVault.resolve(draft.sourceAsset)
+        // 只有 CAPTURE_IMPORT 作者的照片草稿会走到这里（手动建题的作者是 USER、
+        // 空源草稿没有可识别的图）。空源仍显式 fail-closed，不许把"没有照片"
+        // 读成"识别失败"以外的东西。
+        val sourceAsset = checkNotNull(draft.sourceAsset) {
+            "A manual draft has no source image to recognize"
+        }
+        val canonicalFile = assetVault.resolve(sourceAsset)
         val recognition = try {
             localTextRecognizer.recognize(
                 canonicalFile = canonicalFile,
-                imageWidth = draft.sourceAsset.width,
-                imageHeight = draft.sourceAsset.height,
+                imageWidth = sourceAsset.width,
+                imageHeight = sourceAsset.height,
             )
         } catch (cancelled: kotlinx.coroutines.CancellationException) {
             throw cancelled
@@ -941,7 +1075,7 @@ class RoomCaptureWorkflowRepository internal constructor(
         }
         val document = LocalOcrQuestionDocumentMapper.map(
             draftId = draft.draftId,
-            sourceAssetId = draft.sourceAsset.sourceAssetId,
+            sourceAssetId = sourceAsset.sourceAssetId,
             recognition = recognition,
         )
         val revision = ProblemDraftRevisionRecord(
@@ -956,13 +1090,15 @@ class RoomCaptureWorkflowRepository internal constructor(
             createdAtEpochMillis = draft.currentRevision.createdAtEpochMillis,
         )
         val revised = try {
-            database.reviseProblemDraft(
-                ReviseProblemDraftCommand(
-                    draftId = draft.draftId,
-                    expectedRevisionNumber = draft.currentRevision.revisionNumber,
-                    revision = revision,
-                ),
-            ).draft
+            admittedWrite("写入识别结果") {
+                database.reviseProblemDraft(
+                    ReviseProblemDraftCommand(
+                        draftId = draft.draftId,
+                        expectedRevisionNumber = draft.currentRevision.revisionNumber,
+                        revision = revision,
+                    ),
+                )
+            }.draft
         } catch (cancelled: kotlinx.coroutines.CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -981,12 +1117,12 @@ class RoomCaptureWorkflowRepository internal constructor(
     ) =
         CaptureDraftSummary(
             draftId = draftId,
-            sourceAssetId = sourceAsset.sourceAssetId,
-            sourceAssetSha256 = sourceAsset.contentSha256,
+            sourceAssetId = sourceAsset?.sourceAssetId,
+            sourceAssetSha256 = sourceAsset?.contentSha256,
             revisionNumber = currentRevision.revisionNumber,
-            width = sourceAsset.width,
-            height = sourceAsset.height,
-            byteSize = sourceAsset.byteSize,
+            width = sourceAsset?.width,
+            height = sourceAsset?.height,
+            byteSize = sourceAsset?.byteSize,
             status = status,
             recognition = recognitionSummary(recognitionFailed),
             sourcePages = toDomainSourcePages(),
@@ -1026,6 +1162,7 @@ object CaptureWorkflowRepositoryFactory {
         modelTasks: ModelTaskRepository? = null,
         captureEgressAllowed: () -> Boolean = { false },
         splitImports: RoomSplitImportRepository? = null,
+        writeGate: BackupWriteGate = BackupWriteGate.shared,
     ): CaptureWorkflowRepository =
         RoomCaptureWorkflowRepository(
             database = database,
@@ -1036,5 +1173,6 @@ object CaptureWorkflowRepositoryFactory {
             modelTasks = modelTasks,
             captureEgressAllowed = captureEgressAllowed,
             splitImports = splitImports,
+            writeGate = writeGate,
         )
 }

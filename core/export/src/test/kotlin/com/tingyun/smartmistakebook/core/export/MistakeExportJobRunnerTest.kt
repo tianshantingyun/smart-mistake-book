@@ -348,6 +348,126 @@ class MistakeExportJobRunnerTest {
         assertTrue(outcome is MistakeExportJobOutcome.Failed)
     }
 
+    // ---- 6B-2：编辑后的卷面走同一条编排，但渲染输入是学生确认过的草稿，不重读条目 ----
+
+    /**
+     * 编辑后导出 = 0 模型派发：导出编排没有任何模型端口；这里进一步钉住它连条目都不读，
+     * 渲染器拿到的就是草稿里的块序列。任何"按条目再读一遍"的实现都会让计数非零。
+     */
+    @Test
+    fun `an edited export renders the confirmed draft and never reads entries again`() = runBlocking {
+        val draft = editedTwoQuestionDraft()
+        var readExactCalls = 0
+        var readByEntryCalls = 0
+        var rendered: MistakePdfExportInput? = null
+        val runner = MistakeExportJobRunner(
+            readExact = {
+                readExactCalls += 1
+                error("An edited export must not read an exact revision")
+            },
+            readByEntryId = {
+                readByEntryCalls += 1
+                error("An edited export must not re-read an entry")
+            },
+            renderPdf = { input ->
+                rendered = input
+                verifiedPrepared(input.inputSha256)
+            },
+            readPaperDraft = { draftId -> if (draftId == "draft-1") draft else null },
+        )
+
+        val outcome = runner.run(
+            MistakeExportJobRequest.Edited(
+                exportId = "export-edited",
+                draftId = "draft-1",
+                layout = draft.input.layout,
+            ),
+        )
+
+        assertEquals(0, readExactCalls)
+        assertEquals(0, readByEntryCalls)
+        assertEquals(draft.input.blocks, rendered?.blocks)
+        assertEquals(draft.input.inputSha256, rendered?.inputSha256)
+        val renderedOutcome = outcome as MistakeExportJobOutcome.Rendered
+        assertEquals("错题练习-2道-已编辑.pdf", renderedOutcome.displayName)
+    }
+
+    @Test
+    fun `an edited export fails honestly when the draft or its reader is missing`() = runBlocking {
+        val withoutReader = runner(readPaperDraft = null)
+        val missingReader = withoutReader.run(
+            MistakeExportJobRequest.Edited(exportId = "export-1", draftId = "draft-1"),
+        ) as MistakeExportJobOutcome.Failed
+        assertTrue(missingReader.message.contains("卷面草稿"))
+
+        val missingDraft = runner(readPaperDraft = { null }).run(
+            MistakeExportJobRequest.Edited(exportId = "export-2", draftId = "draft-1"),
+        ) as MistakeExportJobOutcome.Failed
+        assertTrue(missingDraft.message.contains("没有保存下来"))
+    }
+
+    @Test
+    fun `an edited export refuses a draft built for another layout`() = runBlocking {
+        val draft = editedTwoQuestionDraft()
+        val runner = runner(readPaperDraft = { draft })
+
+        val outcome = runner.run(
+            MistakeExportJobRequest.Edited(
+                exportId = "export-layout-mismatch",
+                draftId = "draft-1",
+                layout = MistakePdfLayout(columnCount = 2),
+            ),
+        )
+
+        val failed = outcome as MistakeExportJobOutcome.Failed
+        assertTrue(failed.message.contains("版式"))
+    }
+
+    @Test
+    fun `an unedited paper draft through the edit request keeps the batch name`() = runBlocking {
+        val states = listOf(
+            readyState(),
+            readyState(identity(entryId = "entry-2", title = "第二题")),
+        )
+        val inputs = states.map { state ->
+            (MistakePdfEligibility.check(state) as MistakePdfEligibilityResult.Eligible).input
+        }
+        val draft = MistakePdfPaperEdit.fromInputs(inputs).toDraft()
+        val runner = runner(readPaperDraft = { draft })
+
+        val outcome = runner.run(
+            MistakeExportJobRequest.Edited(
+                exportId = "export-unedited",
+                draftId = "draft-1",
+                layout = draft.input.layout,
+            ),
+        )
+
+        val rendered = outcome as MistakeExportJobOutcome.Rendered
+        assertEquals("错题练习-2道.pdf", rendered.displayName)
+    }
+
+    @Test
+    fun `an edited docx export names itself with the docx extension`() = runBlocking {
+        val draft = editedTwoQuestionDraft()
+        val runner = runner(
+            readPaperDraft = { draft },
+            renderDocx = { input -> verifiedDocx(input.inputSha256) },
+        )
+
+        val outcome = runner.run(
+            MistakeExportJobRequest.Edited(
+                exportId = "export-edited-docx",
+                draftId = "draft-1",
+                layout = draft.input.layout,
+                format = MistakeExportFormat.DOCX,
+            ),
+        )
+
+        val rendered = outcome as MistakeExportJobOutcome.RenderedDocx
+        assertEquals("错题练习-2道-已编辑.docx", rendered.displayName)
+    }
+
     // ---- fixtures ----
 
     private fun runner(
@@ -357,6 +477,7 @@ class MistakeExportJobRunnerTest {
             verifiedPrepared(input.inputSha256)
         },
         renderDocx: ((MistakePdfExportInput) -> PreparedMistakeDocx)? = null,
+        readPaperDraft: (suspend (String) -> MistakePaperDraft?)? = null,
     ) = MistakeExportJobRunner(
         readExact = { key -> states[key.entryId] ?: MistakeDetailState.NotFound },
         readByEntryId = readByEntryId ?: { entryId ->
@@ -364,7 +485,22 @@ class MistakeExportJobRunnerTest {
         },
         renderPdf = renderPdf,
         renderDocx = renderDocx,
+        readPaperDraft = readPaperDraft,
     )
+
+    /** 两道题、改过第一题题干的可入队草稿（编辑后路径的公共夹具）。 */
+    private fun editedTwoQuestionDraft(): MistakePaperDraft {
+        val states = listOf(
+            readyState(),
+            readyState(identity(entryId = "entry-2", title = "第二题")),
+        )
+        val inputs = states.map { state ->
+            (MistakePdfEligibility.check(state) as MistakePdfEligibilityResult.Eligible).input
+        }
+        return MistakePdfPaperEdit.fromInputs(inputs)
+            .withBlockText(EXACT_KEY.entryId, "stem", "改过的题干")
+            .toDraft()
+    }
 
     /** 真的可核对的产物：真文件 + 真摘要 + 目录名 == inputSha256。 */
     private fun verifiedPrepared(inputSha256: String): PreparedMistakePdf {

@@ -33,6 +33,8 @@ import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
+import com.tingyun.smartmistakebook.core.export.MistakePaperDraft
+import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.model.ActionType
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
@@ -87,6 +89,15 @@ internal fun TutorLobbyRoute(
         layout: MistakePdfLayout,
         entryIds: List<String>,
     ) -> Unit = { _, _, _ -> },
+    /**
+     * 6B-2：选题后读题面、建可编辑卷面。null = 这个入口不接编辑态（sheet 上如实说一句，
+     * 仍可按原样导出）。读取是纯本地事实，不派发模型任务。
+     */
+    readExportPaperEdit:
+        (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
+        null,
+    /** 6B-2：编辑态确认后的落点（装配处落盘草稿 + 入队后台重渲染）。 */
+    onStartEditedExport: (MistakePaperDraft, MistakeExportFormat) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     // 这条交互面长在哪一栏（K1 的判别列）：会话行按它写，一张配置对象说了算——
@@ -102,6 +113,7 @@ internal fun TutorLobbyRoute(
             area = surfaceArea,
             pendingRequests = pendingRequests,
             localActionLandings = localActionLandings,
+            readExportPaperEdit = readExportPaperEdit,
         ),
     )
     val state by viewModel.uiState.collectAsState()
@@ -405,6 +417,19 @@ internal fun TutorLobbyRoute(
             onConfirm = { format, layout, entryIds ->
                 viewModel.onExportSheetDismiss()
                 onStartExport(format, layout, entryIds)
+            },
+            onEditRequest = viewModel::onExportEditRequest,
+            onEditBack = viewModel::onExportEditBack,
+            onEditMove = viewModel::onExportEditMove,
+            onEditRemove = viewModel::onExportEditRemove,
+            onEditRestore = viewModel::onExportEditRestore,
+            onEditTitle = viewModel::onExportEditTitle,
+            onEditBlockText = viewModel::onExportEditBlockText,
+            onEditChoiceText = viewModel::onExportEditChoiceText,
+            onEditNote = viewModel::onExportEditNote,
+            onConfirmEdited = { draft ->
+                viewModel.onExportSheetDismiss()
+                onStartEditedExport(draft, sheet.format)
             },
         )
     }

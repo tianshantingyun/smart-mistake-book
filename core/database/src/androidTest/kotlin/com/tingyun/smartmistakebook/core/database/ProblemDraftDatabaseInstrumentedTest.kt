@@ -764,12 +764,12 @@ class ProblemDraftDatabaseInstrumentedTest {
         val conflictingBase = splitCreateCommand("draft-split-rollback-2", "f", 3_000)
         val conflictingDocument = conflictingBase.initialRevision.questionDocument.copy(
             blockEvidence = conflictingBase.initialRevision.questionDocument.blockEvidence.map {
-                it.copy(sourceAssetId = blocker.sourceAsset.sourceAssetId)
+                it.copy(sourceAssetId = checkNotNull(blocker.sourceAsset).sourceAssetId)
             },
         )
         val conflictingChild = conflictingBase.copy(
-            sourceAsset = conflictingBase.sourceAsset.copy(
-                sourceAssetId = blocker.sourceAsset.sourceAssetId,
+            sourceAsset = checkNotNull(conflictingBase.sourceAsset).copy(
+                sourceAssetId = checkNotNull(blocker.sourceAsset).sourceAssetId,
             ),
             initialRevision = conflictingBase.initialRevision.copy(
                 questionDocument = conflictingDocument,
@@ -1247,7 +1247,7 @@ class ProblemDraftDatabaseInstrumentedTest {
             },
         )
         return command.copy(
-            sourceAsset = command.sourceAsset.copy(
+            sourceAsset = checkNotNull(command.sourceAsset).copy(
                 sourceAssetId = sourceAssetId,
                 contentSha256 = hash,
                 relativePath = "source-assets/$hash.jpg",

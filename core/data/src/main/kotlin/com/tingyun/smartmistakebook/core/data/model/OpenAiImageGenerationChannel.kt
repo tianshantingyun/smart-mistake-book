@@ -14,25 +14,36 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.ByteString.Companion.decodeBase64
 import java.util.concurrent.TimeUnit
+import com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding
 import com.tingyun.smartmistakebook.core.model.MODEL_EGRESS_MAX_ASSET_BYTES
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 
 /**
  * Image-to-image channel that calls an OpenAI-compatible
  * `POST /v1/images/edits` endpoint (e.g. gpt-image-2) with the photographed
  * problem and an instruction, and returns the clean redrawn figure.
  *
- * The MCP figure server wraps this channel; the model decides when to use it.
+ * 4E.1：唯一出网入口是带 [FigureImageDispatchBinding] 的重载。绑定必须在任何组请求/网络 IO
+ * **之前**复核（operation/method/源图 sha/配置指纹）；旧的无绑定额重载由接口默认实现
+ * fail-closed，因此本类不覆盖它——绕过 coordinator 的调用不会发出 HTTP。
  */
 internal class OpenAiImageGenerationChannel(
     private val baseUrl: String = "https://api.openai.com/v1",
     private val modelId: String = DEFAULT_MODEL_ID,
     private val client: OkHttpClient = defaultClient(),
     private val authorization: String? = null,
+    /** 与预留绑定的非秘密配置指纹（默认由 baseUrl+modelId 派生，见共享函数）。 */
+    internal val configurationFingerprint: String =
+        imageGenerationConfigurationFingerprint(baseUrl, modelId),
 ) : ImageGenerationChannel {
     private val json = Json { ignoreUnknownKeys = true }
 
-    override suspend fun redrawClean(request: ImageRedrawRequest): ImageRedrawResult =
+    override suspend fun redrawClean(
+        request: ImageRedrawRequest,
+        dispatch: FigureImageDispatchBinding,
+    ): ImageRedrawResult =
         withContext(Dispatchers.IO) {
+            requireServerBound(dispatch, figureSha256Hex(request.photoBytes))
             requireSourceWithinEgressBound(request.photoBytes)
             val mediaType = request.photoMimeType.toMediaType()
             val body = MultipartBody.Builder().setType(MultipartBody.FORM)
@@ -55,8 +66,15 @@ internal class OpenAiImageGenerationChannel(
             execute(http)
         }
 
-    override suspend fun generate(request: ImageGenerationRequest): ImageRedrawResult =
+    override suspend fun generate(
+        request: ImageGenerationRequest,
+        dispatch: FigureImageDispatchBinding,
+    ): ImageRedrawResult =
         withContext(Dispatchers.IO) {
+            requireServerBound(
+                dispatch,
+                request.sourceImageBytes?.let(::figureSha256Hex),
+            )
             if (request.sourceImageBytes != null) {
                 // Seeded: image-to-image via /v1/images/edits (same contract as redrawClean).
                 generateViaEdits(request)
@@ -65,6 +83,22 @@ internal class OpenAiImageGenerationChannel(
                 generateViaGenerations(request)
             }
         }
+
+    /**
+     * POST 前的强制绑定复核。`configurationFingerprint` 是本通道的真实出网端点/模型，
+     * 预留若绑在另一份配置上（用户中途改了 base URL/model）必须拒绝——否则一次预留会
+     * 被用来向另一个目标付费。
+     */
+    private fun requireServerBound(
+        dispatch: FigureImageDispatchBinding,
+        sourceImageSha256: String?,
+    ) {
+        requireImageDispatchBinding(
+            dispatch = dispatch,
+            sourceImageSha256 = sourceImageSha256,
+            configurationFingerprint = configurationFingerprint,
+        )
+    }
 
     private fun generateViaEdits(request: ImageGenerationRequest): ImageRedrawResult {
         val sourceBytes = requireNotNull(request.sourceImageBytes) {

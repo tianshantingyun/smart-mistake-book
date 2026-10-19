@@ -80,7 +80,13 @@ internal fun restoreCaptureWorkspace(draft: ResumableCaptureDraft): CaptureWorks
             baseCandidateFingerprint = draft.currentRevisionDocumentFingerprint,
             subject = workspace?.subject ?: draft.subject.orEmpty(),
             workingDocument = workingDocument,
-            editorMode = workspace?.editorMode ?: CaptureDraftEditorMode.STRUCTURED_DOCUMENT,
+            // A8：空源草稿（手动建题）没有照片，默认编辑模式就是手动转写；
+            // 照片草稿保持原来的结构化文档模式。
+            editorMode = workspace?.editorMode ?: if (draft.sourceAssetId == null) {
+                CaptureDraftEditorMode.MANUAL_TRANSCRIPTION
+            } else {
+                CaptureDraftEditorMode.STRUCTURED_DOCUMENT
+            },
             userEditedFields = workspace?.userEditedFields.orEmpty(),
             userEditedBlockIds = workspace?.userEditedBlockIds.orEmpty(),
             finalConfirmationRequest = workspace?.finalConfirmationRequest,
@@ -144,12 +150,27 @@ internal fun CaptureWorkspaceUiState.editBlock(updated: ContentBlock): CaptureWo
     val candidate = workingDocument.copy(
         document = workingDocument.document.copy(blocks = blocks),
         blockEvidence = workingDocument.blockEvidence.map { evidence ->
-            if (evidence.blockId != updated.id) evidence else evidence.copy(
-                provenance = QuestionBlockProvenance.USER_CORRECTION,
-                confidence = null,
-                reviewStatus = QuestionBlockReviewStatus.NEEDS_REVIEW,
-                producerVersion = null,
-            )
+            if (evidence.blockId != updated.id) {
+                evidence
+            } else {
+                // A8：用户**转写**的块本来就是用户自己敲的，继续编辑仍是同一个人写的
+                // 内容——provenance 保持 USER_TRANSCRIPTION（否则空白 source_asset_id
+                // 会被误判成"USER_CORRECTION 丢了源图"）。其它来源的块被改才记
+                // USER_CORRECTION（它们本该带源图）。
+                val provenance = if (
+                    evidence.provenance == QuestionBlockProvenance.USER_TRANSCRIPTION
+                ) {
+                    QuestionBlockProvenance.USER_TRANSCRIPTION
+                } else {
+                    QuestionBlockProvenance.USER_CORRECTION
+                }
+                evidence.copy(
+                    provenance = provenance,
+                    confidence = null,
+                    reviewStatus = QuestionBlockReviewStatus.NEEDS_REVIEW,
+                    producerVersion = null,
+                )
+            }
         },
     ).withDerivedCaptureTitle()
     if (CapturedQuestionDocumentValidator.validateDraft(candidate).isNotEmpty()) return this
@@ -205,10 +226,17 @@ internal fun CaptureWorkspaceUiState.ensureFinalConfirmation(
     )
 }
 
-internal fun CaptureWorkspaceUiState.canEditAsOneTextField(): Boolean =
-    (workingDocument.document.blocks.singleOrNull() as? ContentBlock.Paragraph)
-        ?.markdown
-        ?.isNotBlank() == true
+internal fun CaptureWorkspaceUiState.canEditAsOneTextField(): Boolean {
+    val paragraph = workingDocument.document.blocks.singleOrNull() as? ContentBlock.Paragraph
+        ?: return false
+    if (paragraph.markdown.isNotBlank()) return true
+    // A8：手动建题的初始题面就是**一个空白段落**（没有照片、没有识别文本）。
+    // 只对这个形态开放单框编辑：来源必须是 USER_TRANSCRIPTION，照片草稿的空白
+    // 初始题面仍走结构化编辑器（避免把"还没识别出内容"当成"用户已开始输入"）。
+    return editorMode == CaptureDraftEditorMode.MANUAL_TRANSCRIPTION &&
+        workingDocument.blockEvidence.singleOrNull()?.provenance ==
+        QuestionBlockProvenance.USER_TRANSCRIPTION
+}
 
 internal fun CaptureWorkspaceUiState.captureWritingLayer(): CaptureWritingLayer {
     val layers = workingDocument.blockEvidence
@@ -227,9 +255,25 @@ internal fun CaptureWorkspaceUiState.captureWritingLayer(): CaptureWritingLayer 
 internal fun CaptureWorkspaceUiState.editSingleParagraph(value: String): CaptureWorkspaceUiState {
     val paragraph = workingDocument.document.blocks.singleOrNull() as? ContentBlock.Paragraph
         ?: return this
-    if (paragraph.markdown.isBlank()) return this
+    // A8：手动建题的初始段落是空的，必须允许第一次输入。照片草稿的空白段落仍拒绝
+    // （那是"识别还没产出内容"，不是一个可编辑的题面）。判据必须带**空源**一维：
+    // 照片草稿的块 provenance 也是 USER_TRANSCRIPTION（见 editBlock 的 A8 注释），
+    // 只看 provenance 会把照片草稿的空白段落当手动题面放行（既有回归用例
+    // `blank candidate cannot be turned into a manual transcription` 钉住这一点）。
+    val manualTranscription = workingDocument.blockEvidence.singleOrNull()
+        ?.let { evidence ->
+            evidence.provenance == QuestionBlockProvenance.USER_TRANSCRIPTION &&
+                evidence.sourceAssetId.isBlank()
+        } == true
+    if (paragraph.markdown.isBlank() && !manualTranscription) return this
     return editBlock(paragraph.copy(markdown = safeParagraphEdit(value))).copy(
-        editorMode = CaptureDraftEditorMode.STRUCTURED_DOCUMENT,
+        // 手动转写模式是**展示状态**：用户继续输入不应把它悄悄改成结构化模式
+        // （提交时写入的快照要如实记着"这是手敲的题面"）。
+        editorMode = if (editorMode == CaptureDraftEditorMode.MANUAL_TRANSCRIPTION) {
+            CaptureDraftEditorMode.MANUAL_TRANSCRIPTION
+        } else {
+            CaptureDraftEditorMode.STRUCTURED_DOCUMENT
+        },
         userEditedFields = userEditedFields + CaptureDraftEditedField.TRANSCRIPTION,
     )
 }
@@ -242,6 +286,37 @@ internal fun captureCandidateIsUsable(candidate: CapturedQuestionDocument?): Boo
         .withFinalEvidenceDefaults(userEditedBlockIds = emptySet())
     return readyDocument.document.title?.isNotBlank() == true &&
         CapturedQuestionDocumentValidator.validateForCommit(readyDocument).isEmpty()
+}
+
+/**
+ * A8：这份工作区是不是"手动建题"的题面（编辑器模式 + 证据形态都必须是用户转写）。
+ * 判据只看 provenance，不看学科/标题等用户可填字段。
+ */
+internal fun CaptureWorkspaceUiState.isManualTranscriptionWorkspace(): Boolean =
+    editorMode == CaptureDraftEditorMode.MANUAL_TRANSCRIPTION &&
+        workingDocument.blockEvidence.isNotEmpty() &&
+        workingDocument.blockEvidence.all {
+            it.provenance == QuestionBlockProvenance.USER_TRANSCRIPTION &&
+                it.sourceAssetId.isBlank()
+        }
+
+/**
+ * A8：手动建题的提交门——题面非空、标题可派生、提交前证据升级后能过
+ * [CapturedQuestionDocumentValidator.validateForCommit]。
+ *
+ * 与 [captureCandidateIsUsable] 的区别：后者的候选来自 OCR/模型，证据在识别时就已
+ * 达到本地策略可接受；手敲题面的证据在用户输入前是 NEEDS_REVIEW，只有
+ * [prepareForFinalCommit] 的"改过的块 = USER_CONFIRMED / 其余 = 本地策略接受"
+ * 才会让它可提交。这里预跑同一条路径，只用于按钮可用性，不改变落库内容。
+ */
+internal fun CaptureWorkspaceUiState.manualTranscriptionCommitReady(): Boolean {
+    if (!isManualTranscriptionWorkspace()) return false
+    if (QuestionDocumentMarkdownProjection.project(workingDocument.document.copy(title = null)).isBlank()) {
+        return false
+    }
+    val prepared = prepareForFinalCommit()
+    return prepared.workingDocument.document.title?.isNotBlank() == true &&
+        CapturedQuestionDocumentValidator.validateForCommit(prepared.workingDocument).isEmpty()
 }
 
 /**

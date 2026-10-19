@@ -34,6 +34,7 @@ import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelGatewayFactor
 import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelCapabilityTesterFactory
 import com.tingyun.smartmistakebook.core.data.model.ModelTaskRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureGeneratorFactory
+import com.tingyun.smartmistakebook.core.data.visual.FigureGenerationCoordinationFactory
 import com.tingyun.smartmistakebook.core.data.model.RestrictedModelAssetSourceFactory
 import com.tingyun.smartmistakebook.core.data.model.UnavailableModelGateway
 import com.tingyun.smartmistakebook.core.data.study.StudyExperienceRepositoryFactory
@@ -71,7 +72,10 @@ import com.tingyun.smartmistakebook.core.data.splitimport.SplitImportRepositoryF
 import com.tingyun.smartmistakebook.core.export.MistakeDocxExporter
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
 import com.tingyun.smartmistakebook.core.export.MistakeExportJobRunner
+import com.tingyun.smartmistakebook.core.export.MistakePaperDraft
+import com.tingyun.smartmistakebook.core.export.MistakePaperDraftStore
 import com.tingyun.smartmistakebook.core.export.MistakePdfExporter
+import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.domain.TutorInteractionRepository
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
@@ -89,6 +93,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class SmartMistakeBookApplication : Application() {
@@ -218,6 +223,13 @@ class SmartMistakeBookApplication : Application() {
      */
     internal lateinit var mistakeExportJobRunner: MistakeExportJobRunner
 
+    /**
+     * 6B-2：编辑后卷面的草稿落盘（draft id → 块序列）。worker 渲染前读回，终态后清理。
+     * 放在 `filesDir`（不是 cacheDir）：草稿是后台任务的**输入**，被系统清掉会让已入队的
+     * 导出变成"没有可渲染的卷面"。
+     */
+    internal lateinit var mistakePaperDraftStore: MistakePaperDraftStore
+
     /** 导出通知（两态 + 未授权退化）；worker 与前台服务路径共用。 */
     internal val mistakeExportNotifications by lazy { MistakeExportNotifications(this) }
 
@@ -297,6 +309,9 @@ class SmartMistakeBookApplication : Application() {
             // L7 后台导出：记录仓库 + 渲染编排（读口与 exporter 都是既有实现，只做装配）。
             mistakeExportRepository = MistakeExportRepositoryFactory.create(database)
             val mistakePdfExporter = MistakePdfExporter(this)
+            mistakePaperDraftStore = MistakePaperDraftStore(
+                java.io.File(filesDir, "mistake_paper_drafts"),
+            )
             mistakeExportJobRunner = MistakeExportJobRunner(
                 readExact = mistakeDetailRepository::readExact,
                 readByEntryId = { entryId ->
@@ -306,6 +321,8 @@ class SmartMistakeBookApplication : Application() {
                 renderPdf = mistakePdfExporter::prepare,
                 // 6B-1：Word 交付与 PDF 共用同一条读快照/判定/记录/通知管线，只有渲染器不同。
                 renderDocx = MistakeDocxExporter(this)::prepare,
+                // 6B-2：编辑后的卷面从草稿读——不按条目重读，编辑结果就是渲染输入。
+                readPaperDraft = mistakePaperDraftStore::read,
             )
             val roomSplitImportRepository = SplitImportRepositoryFactory.createConcrete(database)
             splitImportRepository = roomSplitImportRepository
@@ -355,6 +372,16 @@ class SmartMistakeBookApplication : Application() {
                     assetSource = RestrictedModelAssetSourceFactory.create(this, database),
                 )
             } ?: UnavailableModelGateway()
+            // 4E.1（WG-01）：一个共享 coordinator + 持久派发账本，注入讲题工具与保存净化
+            // 两条入口；入口不再各自建图像通道/预算。没配模型时保持 null（各入口维持
+            // 既有"不可用"行为，不出网）。
+            val figureGenerationCoordinator = modelConfigurationStore?.let { configurationStore ->
+                FigureGenerationCoordinationFactory.create(
+                    database = database,
+                    configurationStore = configurationStore,
+                    networkRequestsAllowed = capabilities.networkRequestsAllowed,
+                )
+            }
             modelTaskRepository = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = gateway,
@@ -363,14 +390,18 @@ class SmartMistakeBookApplication : Application() {
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
                 // 4B A1：工具环生图（GENERATE_FIGURE）复用同一份模型凭证与 SSRF 防护通道；
                 // 没配模型时整条链保持 null（工具回"不可用"，不静默假成功）。
+                // 4E.1：统一转调共享 coordinator（policy/ledger/图像通道）。
                 // A2：生成结果登记 canonical 行（幂等键派生的 id），同键重放不再出网付费。
                 figureGenerator = modelConfigurationStore?.let { configurationStore ->
-                    TutorFigureGeneratorFactory.create(
-                        context = this,
-                        database = database,
-                        configurationStore = configurationStore,
-                        networkRequestsAllowed = capabilities.networkRequestsAllowed,
-                    )
+                    figureGenerationCoordinator?.let { coordinator ->
+                        TutorFigureGeneratorFactory.create(
+                            context = this,
+                            database = database,
+                            configurationStore = configurationStore,
+                            networkRequestsAllowed = capabilities.networkRequestsAllowed,
+                            coordinator = coordinator,
+                        )
+                    }
                 },
             )
             captureRepository = CaptureWorkflowRepositoryFactory.create(
@@ -378,11 +409,15 @@ class SmartMistakeBookApplication : Application() {
                 database = database,
                 // Clean redraw engine: reused by the save decision round once the
                 // model classifies the committed photo as figure-bearing.
+                // 4E.1：同一共享 coordinator；净化作业的持久领取尝试作为派发父操作。
                 cleanRedraw = modelConfigurationStore?.let { store ->
-                    ConfiguredCleanImageGeneratorFactory.create(
-                        configurationStore = store,
-                        networkRequestsAllowed = capabilities.networkRequestsAllowed,
-                    )
+                    figureGenerationCoordinator?.let { coordinator ->
+                        ConfiguredCleanImageGeneratorFactory.create(
+                            configurationStore = store,
+                            networkRequestsAllowed = capabilities.networkRequestsAllowed,
+                            coordinator = coordinator,
+                        )
+                    }
                 },
                 cleanRedrawScope = applicationScope,
                 // Save path runs a model classify round to decide redraw. Egress needs only a
@@ -647,6 +682,74 @@ class SmartMistakeBookApplication : Application() {
             ),
             kind = MistakeExportKind.BATCH,
         )
+    }
+
+    /**
+     * 6B-2：选题后读题面、建可编辑卷面（纯本地读取，不派发任何模型任务）。
+     *
+     * 读取口与 worker 的 `readByEntryId` 同一口径（当前正式版）；不能导出的题被略过，
+     * 一道都不剩时返回 null，由界面如实说明。
+     */
+    suspend fun buildMistakePaperEdit(
+        entryIds: List<String>,
+        layout: MistakePdfLayout,
+    ): MistakePdfPaperEdit? = withContext(Dispatchers.Default) {
+        MistakePdfPaperEdit.fromStates(entryIds, layout) { entryId ->
+            mistakeDetailRepository.observe(entryId).first { it != MistakeDetailState.Loading }
+        }
+    }
+
+    /**
+     * 6B-2：入队一次**编辑后卷面**的导出。
+     *
+     * 草稿先落盘、再入队（worker 按 draft id 读回）；写失败时不入队，但落一条 FAILED 记录，
+     * 让「导出成果」里有一句可读的失败原因，而不是一条什么都没有的点击。
+     */
+    fun startMistakeExportEdited(
+        draft: MistakePaperDraft,
+        format: MistakeExportFormat,
+    ) {
+        val exportId = newMistakeExportId()
+        // 草稿文件名用跨平台安全字符（导出 id 里的 ':' 在 Windows JVM 测试里不是合法文件名）。
+        val draftId = exportId.replace(':', '_')
+        applicationScope.launch {
+            try {
+                mistakePaperDraftStore.write(draftId, draft)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Throwable) {
+                android.util.Log.e(
+                    "SmartMistakeBook",
+                    "Paper draft could not be written for $exportId",
+                    failure,
+                )
+                val now = System.currentTimeMillis()
+                runCatching {
+                    mistakeExportRepository.recordStarted(
+                        exportId = exportId,
+                        kind = MistakeExportKind.BATCH,
+                        atEpochMillis = now,
+                    )
+                }
+                runCatching {
+                    mistakeExportRepository.recordFailed(
+                        exportId = exportId,
+                        failureMessage = "这次编辑的卷面没有保存下来，请重新编辑后再导出。",
+                        atEpochMillis = now,
+                    )
+                }
+                return@launch
+            }
+            enqueueMistakeExport(
+                request = MistakeExportJobRequest.Edited(
+                    exportId = exportId,
+                    draftId = draftId,
+                    layout = draft.input.layout,
+                    format = format,
+                ),
+                kind = MistakeExportKind.BATCH,
+            )
+        }
     }
 
     private fun enqueueMistakeExport(

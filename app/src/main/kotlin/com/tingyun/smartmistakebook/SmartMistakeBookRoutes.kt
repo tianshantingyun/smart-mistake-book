@@ -34,6 +34,11 @@ internal object Routes {
     /** 整卷/PDF/多张照片录入（L6 起是录入流内部的一步，不再是错题本栏的并列入口）。 */
     const val BatchImport = "capture/batch"
     /**
+     * A7（4C）：系统分享的接收页。只在 MainActivity 收到 SEND/SEND_MULTIPLE 时进入，
+     * 成功后跳录入页（单图）或整卷管线（多图/PDF），失败留在原地如实说明原因。
+     */
+    const val SharedCapture = "capture/shared"
+    /**
      * 「导出成果」（L7）：后台导出完成后的应用内入口，也是通知的落点。
      * 改前 `library/export` 是批量导出的前台预览页；导出后台化后它连同单题导出页一起退场，
      * 导出动作改为"入队后即可离开"。

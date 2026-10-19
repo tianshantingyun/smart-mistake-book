@@ -57,6 +57,11 @@ data class PendingCaptureItem(
     val updatedAtEpochMillis: Long,
     val stage: PendingCaptureStage,
     val tutorSessionId: String?,
+    /**
+     * A8：这份草稿有没有照片。手动建题（`sourceAssetId == null`）没有源图——
+     * 列表文案据此说"还没存入错题本"，而不是假的"已保存原图"。
+     */
+    val hasSourceImage: Boolean = true,
 ) {
     init {
         require(draftId.isNotBlank()) { "Pending capture draft id must not be blank" }
@@ -149,24 +154,26 @@ data class ConsumeCaptureDraftWorkspaceRequest(
 data class ResumableCaptureDraft(
     val draftId: String,
     val origin: CaptureEntryOrigin,
-    val sourceImageUri: String,
-    val sourceAssetId: String,
-    val sourceAssetSha256: String,
-    val sourceWidth: Int,
-    val sourceHeight: Int,
-    val sourceByteSize: Long,
+    /**
+     * A8：手动建题的草稿**没有照片**，源图相关字段全为 null、[sourcePages] 为空。
+     * 这不表示"图丢了"（那是照片草稿的 SOURCE_UNAVAILABLE），而是这份草稿从创建起
+     * 就没有源图——读取侧必须把两种形态分开，不许把空源读成一张假图。
+     */
+    val sourceImageUri: String?,
+    val sourceAssetId: String?,
+    val sourceAssetSha256: String?,
+    val sourceWidth: Int?,
+    val sourceHeight: Int?,
+    val sourceByteSize: Long?,
     val draftCreatedAtEpochMillis: Long,
-    val sourcePages: List<CaptureSourcePage> = listOf(
-        CaptureSourcePage(
-            pageIndex = 0,
-            imageUri = sourceImageUri,
-            sourceAssetId = sourceAssetId,
-            sourceAssetSha256 = sourceAssetSha256,
-            width = sourceWidth,
-            height = sourceHeight,
-            byteSize = sourceByteSize,
-            createdAtEpochMillis = draftCreatedAtEpochMillis,
-        ),
+    val sourcePages: List<CaptureSourcePage> = defaultCaptureSourcePages(
+        imageUri = sourceImageUri,
+        sourceAssetId = sourceAssetId,
+        sourceAssetSha256 = sourceAssetSha256,
+        width = sourceWidth,
+        height = sourceHeight,
+        byteSize = sourceByteSize,
+        createdAtEpochMillis = draftCreatedAtEpochMillis,
     ),
     val currentRevisionNumber: Int,
     val currentRevisionDocumentFingerprint: String,
@@ -177,7 +184,8 @@ data class ResumableCaptureDraft(
     val transcription: String,
     val writingLayer: CaptureWritingLayer,
     val latestAssessmentTask: ModelTaskSnapshot?,
-    val sourcePageAssessmentTasks: List<ModelTaskSnapshot?> = listOf(latestAssessmentTask),
+    val sourcePageAssessmentTasks: List<ModelTaskSnapshot?> =
+        if (sourcePages.isEmpty()) emptyList() else listOf(latestAssessmentTask),
     val latestParseTask: ModelTaskSnapshot?,
     val tutorSessionId: String?,
     val workspace: CaptureDraftWorkspaceSnapshot?,
@@ -185,19 +193,33 @@ data class ResumableCaptureDraft(
 ) {
     init {
         require(draftId.isNotBlank()) { "Resumable capture draft id must not be blank" }
-        require(sourceImageUri.isNotBlank()) { "Resumable capture source URI must not be blank" }
-        require(sourceAssetId.isNotBlank()) { "Resumable capture source id must not be blank" }
-        require(SHA_256.matches(sourceAssetSha256)) { "Resumable capture source hash is invalid" }
-        require(sourceWidth > 0 && sourceHeight > 0) {
-            "Resumable capture source dimensions must be positive"
+        val hasSource = sourceAssetId != null
+        require(
+            hasSource == (sourceImageUri != null && sourceAssetSha256 != null &&
+                sourceWidth != null && sourceHeight != null && sourceByteSize != null),
+        ) { "Resumable capture source fields must be present or absent together" }
+        if (hasSource) {
+            require(sourceImageUri.orEmpty().isNotBlank()) {
+                "Resumable capture source URI must not be blank"
+            }
+            require(SHA_256.matches(sourceAssetSha256.orEmpty())) {
+                "Resumable capture source hash is invalid"
+            }
+            require(sourceWidth!! > 0 && sourceHeight!! > 0) {
+                "Resumable capture source dimensions must be positive"
+            }
+            require(sourceByteSize!! > 0) { "Resumable capture source bytes must be positive" }
         }
-        require(sourceByteSize > 0) { "Resumable capture source bytes must be positive" }
-        require(sourcePages.isNotEmpty()) { "Resumable capture requires at least one source page" }
+        require(sourcePages.isNotEmpty() == hasSource) {
+            "Resumable capture source pages must match its primary source"
+        }
         require(sourcePages.map { it.pageIndex } == sourcePages.indices.toList()) {
             "Resumable capture source pages must be ordered and contiguous"
         }
-        require(sourcePages.first().sourceAssetId == sourceAssetId) {
-            "Resumable capture primary source must be page zero"
+        if (hasSource) {
+            require(sourcePages.first().sourceAssetId == sourceAssetId) {
+                "Resumable capture primary source must be page zero"
+            }
         }
         require(draftCreatedAtEpochMillis >= 0) { "Draft creation time must not be negative" }
         require(currentRevisionNumber > 0) { "Current draft revision must be positive" }
@@ -300,14 +322,23 @@ data class CaptureRecognitionSummary(
 
 data class CaptureDraftImportRequest(
     val requestId: String,
-    val localUri: String,
-    val source: CaptureInputSource,
     val origin: CaptureEntryOrigin,
     val occurredAtEpochMillis: Long,
+    /**
+     * `null` = **手动建题**：没有照片可导入，草稿以用户转写（`USER_TRANSCRIPTION`）
+     * 的空题面创建。非空时按既有照片链导入；[source] 必须同时给出。
+     */
+    val localUri: String? = null,
+    val source: CaptureInputSource? = null,
 ) {
     init {
         require(requestId.isNotBlank()) { "Capture import request id must not be blank" }
-        require(localUri.isNotBlank()) { "Capture import URI must not be blank" }
+        require((localUri == null) == (source == null)) {
+            "Capture import URI and input source must be present or absent together"
+        }
+        require(localUri == null || localUri.isNotBlank()) {
+            "Capture import URI must not be blank"
+        }
         require(occurredAtEpochMillis >= 0) { "Capture import time must not be negative" }
     }
 }
@@ -360,6 +391,39 @@ data class SplitCaptureDraftRequest(
         }
         require(occurredAtEpochMillis >= 0) { "Capture split time must not be negative" }
     }
+}
+
+/**
+ * A8：源图字段齐备时给出一页来源，缺任意一项（手动建题）就是空列表。
+ * 默认参数用：既保留照片草稿"单页自动派生"的旧行为，又不会为手动草稿编造一张图。
+ */
+private fun defaultCaptureSourcePages(
+    imageUri: String?,
+    sourceAssetId: String?,
+    sourceAssetSha256: String?,
+    width: Int?,
+    height: Int?,
+    byteSize: Long?,
+    createdAtEpochMillis: Long,
+): List<CaptureSourcePage> {
+    if (
+        imageUri == null || sourceAssetId == null || sourceAssetSha256 == null ||
+        width == null || height == null || byteSize == null
+    ) {
+        return emptyList()
+    }
+    return listOf(
+        CaptureSourcePage(
+            pageIndex = 0,
+            imageUri = imageUri,
+            sourceAssetId = sourceAssetId,
+            sourceAssetSha256 = sourceAssetSha256,
+            width = width,
+            height = height,
+            byteSize = byteSize,
+            createdAtEpochMillis = createdAtEpochMillis,
+        ),
+    )
 }
 
 /**
@@ -467,18 +531,34 @@ data class AppendCaptureDraftPageRequest(
 
 data class CaptureDraftSummary(
     val draftId: String,
-    val sourceAssetId: String,
-    val sourceAssetSha256: String,
+    /**
+     * A8：手动建题的草稿没有照片——源图字段全为 null、[sourcePages] 为空。
+     * 其余草稿仍必须带全部源图字段。
+     */
+    val sourceAssetId: String?,
+    val sourceAssetSha256: String?,
     val revisionNumber: Int,
-    val width: Int,
-    val height: Int,
-    val byteSize: Long,
+    val width: Int?,
+    val height: Int?,
+    val byteSize: Long?,
     val status: String,
     val recognition: CaptureRecognitionSummary = CaptureRecognitionSummary(),
     val sourcePages: List<CaptureSourcePage> = emptyList(),
 ) {
     init {
-        require(SHA_256.matches(sourceAssetSha256)) { "Source asset SHA-256 is invalid" }
+        val hasSource = sourceAssetId != null
+        require(
+            hasSource == (sourceAssetSha256 != null && width != null && height != null &&
+                byteSize != null),
+        ) { "Capture summary source fields must be present or absent together" }
+        if (hasSource) {
+            require(SHA_256.matches(sourceAssetSha256.orEmpty())) {
+                "Source asset SHA-256 is invalid"
+            }
+        }
+        require(sourcePages.isNotEmpty() == hasSource) {
+            "Capture summary source pages must match its source asset"
+        }
         require(sourcePages.isEmpty() || sourcePages.map { it.pageIndex } == sourcePages.indices.toList()) {
             "Capture summary source pages must be ordered and contiguous"
         }

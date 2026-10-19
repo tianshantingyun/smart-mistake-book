@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import kotlinx.coroutines.flow.StateFlow
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -129,6 +130,13 @@ data class BackupManifestSummary(
 )
 
 interface BackupRepository {
+    /**
+     * 备份活动的显式状态（KD-54）：[BackupActivity.Idle] 之外表示备份正在排空在途写
+     * 或生成快照。写入口按同一道 [BackupWriteGate] 短暂排队；界面用它说明"备份期间
+     * 保存会稍后继续"，而不是让用户等分钟级连接池超时。
+     */
+    val activity: StateFlow<BackupActivity>
+
     suspend fun inspect(): StorageInventory
 
     /**

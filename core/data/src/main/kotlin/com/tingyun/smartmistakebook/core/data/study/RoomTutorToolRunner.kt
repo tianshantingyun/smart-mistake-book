@@ -973,9 +973,18 @@ internal class RoomTutorToolRunner(
                 figure = TutorToolFigureTrace(kind = kind),
             )
         val sourceSheet = when (kind) {
-            // REDRAW 额外要求当前题的规范题面资产；`ProblemDraftRecord.sourceAsset` 非空
-            // 是构造契约（记录里必然带页 0 源资产），所以这里没有第二个空分支。
-            TutorFigureKind.REDRAW_PROBLEM -> draft.sourceAsset
+            // REDRAW 额外要求当前题的规范题面资产。A8 起 `ProblemDraftRecord.sourceAsset`
+            // 可空：手动建题的草稿没有照片，没有可重绘的原图——按 K2a 空范围处理
+            // （ok=true、不生成、不付费），而不是把空源当成一张图交出去或抛异常。
+            TutorFigureKind.REDRAW_PROBLEM -> draft.sourceAsset ?: return TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = call.tool,
+                    ok = true,
+                    summaryMarkdown = "这道题是手动输入的，没有原图可重绘；" +
+                        "不必重复申请，直接回答学生的问题。",
+                ),
+                figure = TutorToolFigureTrace(kind = kind),
+            )
             TutorFigureKind.GENERATE_PROCESS -> null
         }
         val result = try {
@@ -986,6 +995,8 @@ internal class RoomTutorToolRunner(
                     sourceSheet = sourceSheet,
                     // GENERATE_PROCESS 的当前题上下文（标题；本地取，模型不可填）。
                     problemContext = draft?.currentRevision?.title,
+                    // 4E.1：持久派发预留的父操作 = 本轮模型任务 requestId（工具环的命名空间）。
+                    parentOperationId = context.evidenceIdNamespace,
                 ),
             )
         } catch (cancelled: CancellationException) {

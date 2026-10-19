@@ -221,15 +221,24 @@ internal interface ProblemOrganizationDao {
     suspend fun countReviewedKnowledgeNodesBySubject(subject: String): Int
 
     /**
-     * 已索引的节点数（自愈的分子）。**不必**再排 RETIRED：退役时会
-     * 删掉该节点的特征行（见 `deleteSearchFeaturesForNodes`），所以两个计数同步下降。
-     * 若哪天真要改这里，必须同时改退役路径——两处必须一起动。
+     * 已索引的节点数（自愈的分子）。
+     *
+     * **必须与分母同筛 `verification_status`（KD-51 补记）**：分母
+     * [countReviewedKnowledgeNodesBySubject] 只数 CURATED / SOURCE_GROUNDED / USER_CONFIRMED；
+     * 分子若把未审校节点的特征行也算进来，I>R 会让「已索引 ≥ 已审校」的门误判完整——
+     * 删块之后取消的重建会被当成跑完，读路径静默少召回且不再自愈。
+     *
+     * RETIRED 仍不必单独排：退役时 `deleteSearchFeaturesForNodes` 会删掉该节点的特征行
+     * （分母也排它）。若哪天真要改这里，必须同时改退役路径——两处必须一起动。
      */
     @Query(
         """
-        SELECT COUNT(DISTINCT knowledge_node_id)
-        FROM knowledge_search_feature
-        WHERE subject = :subject
+        SELECT COUNT(DISTINCT feature.knowledge_node_id)
+        FROM knowledge_search_feature AS feature
+        INNER JOIN knowledge_node AS node
+          ON node.knowledge_node_id = feature.knowledge_node_id
+        WHERE feature.subject = :subject
+          AND node.verification_status IN ('CURATED', 'SOURCE_GROUNDED', 'USER_CONFIRMED')
         """,
     )
     suspend fun countIndexedKnowledgeNodesBySubject(subject: String): Int

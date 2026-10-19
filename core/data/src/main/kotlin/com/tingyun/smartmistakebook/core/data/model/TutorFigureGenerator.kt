@@ -5,36 +5,47 @@ import com.tingyun.smartmistakebook.core.data.capture.AndroidCanonicalAssetVault
 import com.tingyun.smartmistakebook.core.data.capture.ConfiguredCleanImageGenerator
 import com.tingyun.smartmistakebook.core.data.capture.GeneratedFigureProvenance
 import com.tingyun.smartmistakebook.core.data.capture.GuardedEditsChannelFactory
+import com.tingyun.smartmistakebook.core.data.visual.FigureImageBackend
+import com.tingyun.smartmistakebook.core.data.visual.DefaultFigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
+import com.tingyun.smartmistakebook.core.domain.UnavailableRemoteModelDispatchLedger
+import com.tingyun.smartmistakebook.core.model.FigureArtifact
+import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
+import com.tingyun.smartmistakebook.core.model.FigureFidelity
+import com.tingyun.smartmistakebook.core.model.FigureGenerationBudget
+import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
+import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
+import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
+import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
+import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
+import com.tingyun.smartmistakebook.core.model.FigureImageOperation
+import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
+import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
 
 /**
  * A1（阶段 4B）：工具环 `GENERATE_FIGURE` 的执行缝。
  *
- * 为什么是注入接口而不是 runner 直接出网：runner 被大量直调（单测/仪器化），而生图要复用
- * 生产凭证通道——`resolveImageCredential` 是**唯一**的图片门（A3 单源）、
- * `OpenAiImageGenerationChannel` 是**唯一**的生成实现（`/v1/images/edits` 有源图 /
- * `/v1/images/generations` 无源图两条路径），加上规范资产库的写入面；这些都只在 app
- * 装配期拿得到。生产由 [TutorFigureGeneratorFactory] 装配，经 `ModelTaskRepositoryFactory`
- * 穿到 runner。
+ * 4E.1 起，本缝不再自己决定"用哪种后端/怎么出网"：它把工具语义（kind/description）适配成
+ * 统一 [FigureGenerationRequest] + [com.tingyun.smartmistakebook.core.model.FigureGenerationProposal]，
+ * 转调 [FigureGenerationCoordinator]；coordinator 负责 policy 校验、持久派发预留、图像通道
+ * 调用与类型化产物。入口**不按 kind 选后端**——kind 只映射 purpose。
  *
- * 消灭的失败：工具面此前**没有任何生图执行路径**（`GENERATE_FIGURE` 只存在于设计稿），
- * 模型无法在工具环里要一张图。此接口把"要什么图"（模型语义）与"怎么生成/落盘"（本地）
- * 分开，runner 只解析**源图是当前题的哪条规范资产**，绝不接受模型供图。
+ * 消灭的失败：此前两处直接 `channel.generate`（本类与 `AttachedImageGeneratorFactory`）都没有
+ * 持久预算门；这里统一到 coordinator 后，没有预留的图像 HTTP 调用为 0。
  *
- * null（未注入）是显式的 fail-closed 装配态：runner 回"生图通道不可用"，不假装成功。
- * 结果只回 **id + 状态**（[TutorFigureResult]）——字节留在本地规范资产库，不进工具结果、
- * 不进下一轮提示词。
- *
- * A2（批 2）补上这条链的另一半：结果**落规范资产行 + 写文件隐式元数据**，并按幂等键
- * 命中已有生成图（[tutorFigureFingerprintId]）——同请求重放不再出网、不再付费。
+ * null（未注入协调器/未配置模型）是显式的 fail-closed 装配态：runner 回"生图通道不可用"，
+ * 不假装成功。结果只回 **id + 状态**——字节留在本地规范资产库，不进工具结果、不进下一轮提示词。
  */
 fun interface TutorFigureGenerator {
     suspend fun generate(request: TutorFigureRequest): TutorFigureResult
@@ -45,6 +56,10 @@ fun interface TutorFigureGenerator {
  *
  * [sourceSheet] 是**规范资产记录**而不是字节：读取时由 vault 再核对一次（文件存在 +
  * 字节数 + sha256 逐位一致），从"决定重绘"到真正出网之间文件被替换时不会把错字节发出去。
+ *
+ * [parentOperationId] 是宿主冻结的父模型任务 requestId（工具环的 `evidenceIdNamespace`）；
+ * 它是持久派发预留的来源。直调（测试/兼容）省略时生成一个**诊断用**合成 id——真实账本会因
+ * 找不到父操作而拒绝，仍然 fail-closed。
  */
 data class TutorFigureRequest(
     val kind: TutorFigureKind,
@@ -59,6 +74,8 @@ data class TutorFigureRequest(
      * REDRAW_PROBLEM 不使用它——源图本身就是上下文。
      */
     val problemContext: String? = null,
+    /** 父模型任务 requestId；null = 直调（账本会拒绝，不出网）。 */
+    val parentOperationId: String? = null,
 ) {
     init {
         require(description.isNotBlank()) { "A figure request needs a non-blank description" }
@@ -67,6 +84,9 @@ data class TutorFigureRequest(
         }
         require(kind != TutorFigureKind.REDRAW_PROBLEM || sourceSheet != null) {
             "REDRAW_PROBLEM requires the current problem's canonical source sheet"
+        }
+        require(parentOperationId == null || parentOperationId.isNotBlank()) {
+            "A figure parent operation id must be null or non-blank"
         }
     }
 }
@@ -116,17 +136,6 @@ enum class TutorFigureStatus {
  *
  * 返回 `figure-<sha256 hex>`：它同时是规范资产 id 与文件名（见 vault 的 `figureIdentity`），
  * 所以"同键重放"= 按 id 读回同一行，零 schema。
- *
- * 零 schema 下的**状态机表达**（设计稿 PENDING→GENERATED→REFERENCED；无新列可用，状态由
- * 现有持久事实**推导**，不另存一个会漂的副本）：
- * - `PENDING`：还没有 canonical 行——生成在途（界面由工具痕迹的"正在查阅…"体现）；
- * - `GENERATED`：canonical 行已登记（[StudyDatabasePort.registerCanonicalSourceAsset]）；
- * - `REFERENCED`：引用行已建立（消息落库同事务写 `tutor_message_source_asset`；已保存题面的
- *   重绘另写 `problem_revision_source_asset` role=CLEAN_IMAGE）。
- * 界面按"有没有引用 + 资产能否读回"消费（见 `GeneratedFiguresSection`）。
- *
- * 设计稿还要求"记录源图 sha 与 prompt sha"——零 schema 下没有这样的列，两者的**组合就是
- * 这个 id 本身**（指纹 = 源图 sha + prompt + 全部生成参数），可由 id 复算核对。
  */
 internal fun tutorFigureFingerprintId(
     kind: TutorFigureKind,
@@ -154,24 +163,17 @@ internal fun tutorFigureFingerprintId(
 }
 
 private fun sha256Hex(value: String): String =
-    sha256Hex(value.toByteArray(StandardCharsets.UTF_8))
+    sha256Hex(value.toByteArray(java.nio.charset.StandardCharsets.UTF_8))
 
 /** 字节的 sha256（配图链算源图 sha 用；与指纹的字符串哈希同一实现）。 */
-internal fun sha256Hex(value: ByteArray): String =
-    MessageDigest.getInstance("SHA-256")
-        .digest(value)
-        .joinToString(separator = "") { byte -> "%02x".format(byte) }
+internal fun sha256Hex(value: ByteArray): String = figureSha256Hex(value)
 
 /**
  * 生产装配（app 层入口）：复用用户已配置的模型凭证与 SSRF 防护客户端生成图，
  * 生成结果落规范资产库（与既有配图链同一 vault 写入面）并登记 canonical 行，只回 id+状态。
  *
- * 门是 [resolveImageCredential]（唯一实现）：本构建不可出网 / 没配模型 / 能力测试没确认
- * 图像输入 → 一律 [TutorFigureStatus.UNAVAILABLE]，一个字节都不发。
- *
- * A2：先按幂等键查已生成资产——命中且文件完好时**连门都不用过**（本地读回，不出网）；
- * 登记走 [StudyDatabasePort.registerCanonicalSourceAsset]（canonical 行是 GC 的可见面，
- * 引用由消息落库时建立）。
+ * 4E.1：出网统一经 app 注入的 [FigureGenerationCoordinator]（共享 ledger）；未注入协调器时
+ * 使用本类的内部协调器（仍走同一 policy/ledger 代码）。
  */
 object TutorFigureGeneratorFactory {
     fun create(
@@ -179,12 +181,12 @@ object TutorFigureGeneratorFactory {
         database: StudyDatabasePort,
         configurationStore: ModelConfigurationStore,
         networkRequestsAllowed: Boolean,
+        coordinator: FigureGenerationCoordinator,
     ): TutorFigureGenerator {
         val vault = AndroidCanonicalAssetVault(context.applicationContext)
         return ConfiguredTutorFigureGenerator(
             configurationStore = configurationStore,
             networkRequestsAllowed = networkRequestsAllowed,
-            // 读取前逐位核对（vault.resolve 是唯一实现）；失败即 null → FAILED，不发错字节。
             readSourceBytes = { record ->
                 runCatching { vault.resolve(record).readBytes() }.getOrNull()
             },
@@ -207,12 +209,13 @@ object TutorFigureGeneratorFactory {
                 record
             },
             channelFactory = GuardedEditsChannelFactory,
+            coordinator = coordinator,
         )
     }
 }
 
 /**
- * 生产决策逻辑（幂等 / 门 / 源图核对 / 通道 / 落盘 / id+状态）本体。
+ * 生产决策逻辑（幂等 / 门 / 源图核对 / coordinator / 落盘 / id+状态）本体。
  *
  * 依赖缝（[readSourceBytes] / [lookupGenerated] / [isIntact] / [persistGenerated]）刻意不直接
  * 拿 vault/database：它们是 Android/数据库类，直接依赖会把这段决策逻辑赶到只有设备才够得着的
@@ -233,8 +236,21 @@ internal class ConfiguredTutorFigureGenerator(
         provenance: GeneratedFigureProvenance,
     ) -> CanonicalSourceAssetRecord,
     private val channelFactory: ConfiguredCleanImageGenerator.ChannelFactory,
+    private val coordinator: FigureGenerationCoordinator? = null,
+    private val ledger: RemoteModelDispatchLedger = UnavailableRemoteModelDispatchLedger,
     private val now: () -> Long = System::currentTimeMillis,
 ) : TutorFigureGenerator {
+
+    /**
+     * 内部协调器（测试/未注入装配）：与生产协调器执行同一 policy/ledger/通道校验，
+     * 只是后端由本类的凭证门 + 注入的通道工厂构造。
+     */
+    private val effectiveCoordinator: FigureGenerationCoordinator =
+        coordinator ?: DefaultFigureGenerationCoordinator(
+            ledger = ledger,
+            openBackend = { openBackendFromSeams() },
+            now = now,
+        )
 
     override suspend fun generate(request: TutorFigureRequest): TutorFigureResult {
         // 先解析请求与幂等键（纯本地）：命中缓存时**不需要凭证**，也不再出网。
@@ -259,56 +275,107 @@ internal class ConfiguredTutorFigureGenerator(
                 generatedNow = false,
             )
         }
-        val credential = resolveImageCredential(configurationStore, networkRequestsAllowed)
+        // 门只有一处实现（A3）：resolveImageCredential。这里先做一次 fail-closed 预检，
+        // 使"没凭证/不可出网/能力未确认"在打开任何后端之前就返回 UNAVAILABLE；coordinator
+        // 的后端装配会再走同一道门（同一实现，不是第二份判定）。预检不发送，立即释放租约。
+        val preflight = resolveImageCredential(configurationStore, networkRequestsAllowed)
             ?: return TutorFigureResult(figureId = null, status = TutorFigureStatus.UNAVAILABLE)
-        return credential.apiKey.use { apiKey ->
-            val keyChars = apiKey.copyChars()
-            try {
-                val channel = try {
-                    channelFactory.create(
-                        baseUrl = credential.configuration.baseUrl,
-                        authorization = "Bearer ${String(keyChars)}",
-                    )
-                } catch (cancelled: CancellationException) {
-                    throw cancelled
-                } catch (_: Exception) {
-                    return@use failed()
-                }
-                val generated = try {
-                    channel.generate(channelRequest)
-                } catch (cancelled: CancellationException) {
-                    throw cancelled
-                } catch (_: Exception) {
-                    return@use failed()
-                }
-                val record = try {
+        preflight.apiKey.close()
+
+        val purpose = request.kind.toPurpose()
+        val target = when (request.kind) {
+            TutorFigureKind.REDRAW_PROBLEM -> FigureGenerationTarget(
+                fidelity = FigureFidelity.FAITHFUL,
+                requiresPixelFidelity = false,
+                requiresCompleteLabels = true,
+            )
+
+            TutorFigureKind.GENERATE_PROCESS -> FigureGenerationTarget(
+                fidelity = FigureFidelity.ILLUSTRATIVE,
+                requiresPixelFidelity = false,
+                requiresCompleteLabels = true,
+            )
+        }
+        val budget = FigureGenerationBudget(
+            remainingRemoteDispatches = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES,
+            reserveChatFinalAnswer = true,
+        )
+        val capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY
+        val source = request.sourceEvidence(channelRequest)
+        val constraints = request.hostConstraints()
+        val generationRequest = FigureGenerationRequest(
+            operationId = "figure-op:${request.kind.name}:$figureId",
+            purpose = purpose,
+            target = target,
+            capabilities = capabilities,
+            budget = budget,
+            dispatchParent = FigureDispatchParent.ModelTask(
+                requestId = request.parentOperationId ?: "figure-direct:${request.kind.name}",
+                reserveChatFinalAnswer = true,
+            ),
+            source = source,
+            constraints = constraints,
+            problemContext = request.problemContext,
+            prompt = FigurePromptAssembler.assemble(purpose, capabilities, budget),
+        )
+        val proposal = FigureGenerationPolicy.imageModelProposal(
+            request = generationRequest,
+            imageOperation = when (request.kind) {
+                TutorFigureKind.REDRAW_PROBLEM -> FigureImageOperation.EDIT
+                TutorFigureKind.GENERATE_PROCESS -> FigureImageOperation.GENERATE
+            },
+            imagePrompt = channelRequest.prompt,
+            reason = "入口适配层：本波次唯一已接通的方法是图像模型",
+        )
+        val outcome = effectiveCoordinator.generate(generationRequest, proposal)
+        return outcome.toTutorFigureResult(figureId)
+    }
+
+    private suspend fun FigureGenerationOutcome.toTutorFigureResult(
+        figureId: String,
+    ): TutorFigureResult =
+        when (status) {
+            FigureGenerationStatus.GENERATED,
+            FigureGenerationStatus.CACHED,
+            -> {
+                val artifact = artifact as? FigureArtifact.ImageAsset
+                    ?: return failed()
+                val persisted = try {
                     persistGenerated(
-                        generated.imageBytes,
-                        generated.mimeType,
+                        artifact.imageBytes(),
+                        artifact.mimeType,
                         now(),
                         figureId,
                         GeneratedFigureProvenance(
-                            model = OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+                            model = artifact.modelId ?: OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
                             figureId = figureId,
-                            purpose = request.kind.name,
+                            purpose = purpose.name,
                         ),
                     )
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (_: Exception) {
-                    return@use failed()
+                    return failed()
                 }
                 TutorFigureResult(
-                    figureId = record.sourceAssetId,
+                    figureId = persisted.sourceAssetId,
                     status = TutorFigureStatus.GENERATED,
-                    model = OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
-                    generatedNow = true,
+                    model = artifact.modelId ?: OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+                    generatedNow = status == FigureGenerationStatus.GENERATED,
                 )
-            } finally {
-                Arrays.fill(keyChars, '\u0000')
             }
+
+            FigureGenerationStatus.UNAVAILABLE -> TutorFigureResult(
+                figureId = null,
+                status = TutorFigureStatus.UNAVAILABLE,
+            )
+
+            FigureGenerationStatus.NO_FIGURE,
+            FigureGenerationStatus.NEED_SOURCE,
+            FigureGenerationStatus.REJECTED,
+            FigureGenerationStatus.FAILED,
+            -> failed()
         }
-    }
 
     /**
      * 请求 → 通道请求；REDRAW_PROBLEM 读源图前**再核对一次**规范记录（缝的实现负责
@@ -330,6 +397,74 @@ internal class ConfiguredTutorFigureGenerator(
         )
     }
 
+    private fun TutorFigureRequest.sourceEvidence(
+        channelRequest: ImageGenerationRequest,
+    ): FigureSourceEvidence? {
+        val bytes = channelRequest.sourceImageBytes ?: return null
+        val mimeType = channelRequest.sourceImageMimeType
+            ?: return null
+        return FigureSourceEvidence(
+            assetId = sourceSheet?.sourceAssetId,
+            contentSha256 = figureSha256Hex(bytes),
+            mimeType = mimeType,
+            imageBytes = bytes,
+        )
+    }
+
+    private fun TutorFigureRequest.hostConstraints(): List<String> = when (kind) {
+        TutorFigureKind.REDRAW_PROBLEM -> listOf(
+            "保留印刷题面的全部文字、标注、单位与点线关系",
+            "不增加题意之外的符号或条件",
+        )
+
+        TutorFigureKind.GENERATE_PROCESS -> listOf(
+            "只绘制与当前题相关的图形、数轴、步骤标注",
+            "不改写题面文字，不添加题意之外的符号",
+        )
+    }
+
+    /** 内部协调器的后端：凭证门 + 注入的通道工厂（生产用 GuardedEditsChannelFactory）。 */
+    private suspend fun openBackendFromSeams(): FigureImageBackend? {
+        val credential = resolveImageCredential(configurationStore, networkRequestsAllowed)
+            ?: return null
+        val configuration = credential.configuration
+        val keyChars = credential.apiKey.copyChars()
+        val closeAction = {
+            Arrays.fill(keyChars, '\u0000')
+            credential.apiKey.close()
+        }
+        val configurationFingerprint = imageGenerationConfigurationFingerprint(
+            configuration.baseUrl,
+            OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+        )
+        return try {
+            FigureImageBackend(
+                configurationFingerprint = configurationFingerprint,
+                // 通道工厂/端点解析推迟到账本授予之后（被拒时连通道都不建）；
+                // 指纹与预留同源，生产通道据此复核配置绑定。
+                openChannel = {
+                    channelFactory.create(
+                        baseUrl = configuration.baseUrl,
+                        authorization = "Bearer ${String(keyChars)}",
+                        configurationFingerprint = configurationFingerprint,
+                    )
+                },
+                closeAction = closeAction,
+            )
+        } catch (cancelled: CancellationException) {
+            closeAction()
+            throw cancelled
+        } catch (_: Exception) {
+            closeAction()
+            null
+        }
+    }
+
     private fun failed(): TutorFigureResult =
         TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
+}
+
+private fun TutorFigureKind.toPurpose(): FigureGenerationPurpose = when (this) {
+    TutorFigureKind.REDRAW_PROBLEM -> FigureGenerationPurpose.SOURCE_RECONSTRUCTION
+    TutorFigureKind.GENERATE_PROCESS -> FigureGenerationPurpose.EXPLANATION
 }

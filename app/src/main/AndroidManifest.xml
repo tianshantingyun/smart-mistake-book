@@ -19,12 +19,29 @@
         android:theme="@style/Theme.SmartMistakeBook"
         android:usesCleartextTraffic="false">
 
+        <!-- A7（4C）：singleTop——单 Activity 应用里分享/通知都落回同一个实例（onNewIntent），
+             既避免叠出第二个 MainActivity，也不会与 ActivityScenario 的 singleTask 限制冲突。 -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- A7（4C）：系统分享 → 录入入口。单文件与多文件各一条过滤；类型门在代码侧
+                 再收一遍（scheme/类型/数量/大小），这里只声明"愿意接收图片与 PDF"。 -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="application/pdf" />
             </intent-filter>
         </activity>
 

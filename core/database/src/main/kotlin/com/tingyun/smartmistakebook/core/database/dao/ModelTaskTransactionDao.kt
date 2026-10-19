@@ -9,7 +9,9 @@ import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
 import com.tingyun.smartmistakebook.core.database.LearningLedgerIntegrityException
 import com.tingyun.smartmistakebook.core.database.ModelTaskDispatchReservationResult
+import com.tingyun.smartmistakebook.core.database.ModelTaskOperationDispatchReservationResult
 import com.tingyun.smartmistakebook.core.database.ModelTaskWriteResult
+import com.tingyun.smartmistakebook.core.database.ReserveModelTaskOperationDispatchCommand
 import com.tingyun.smartmistakebook.core.database.ReserveModelTaskRemoteDispatchCommand
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.entity.ModelTaskEntity
@@ -307,6 +309,77 @@ internal abstract class ModelTaskTransactionDao {
             budgetExhausted = false,
             logicalDispatchCount = updatedOperation.dispatchCount,
             snapshot = persisted.verifyIntegrity(),
+        )
+    }
+
+    /**
+     * 4E.1：为同一逻辑操作的非任务派发（图像生成/编辑）预留一次远程预算。
+     *
+     * 只推进 `model_task_operation.dispatch_count`，**不推进任务行的 state_version/status**：
+     * 图像调用发生在工具执行阶段，模型任务环仍持有自己的快照并会在下一轮用自己的
+     * 比较交换去预留；若这里改任务行，模型环的预留会以陈旧版本撞车。
+     *
+     * 任务行不存在 → 无可复用的逻辑操作身份，fail-closed（applied=false）。
+     */
+    @Transaction
+    open suspend fun reserveOperationRemoteDispatch(
+        command: ReserveModelTaskOperationDispatchCommand,
+    ): ModelTaskOperationDispatchReservationResult {
+        val current = findByRequestId(command.parentRequestId)
+            ?: return ModelTaskOperationDispatchReservationResult(
+                applied = false,
+                budgetExhausted = false,
+                logicalDispatchCount = 0,
+                reservationId = null,
+            )
+        val operation = findOperation(current.operationFingerprint)
+            ?: return ModelTaskOperationDispatchReservationResult(
+                applied = false,
+                budgetExhausted = false,
+                logicalDispatchCount = 0,
+                reservationId = null,
+            )
+        // 讲题父操作必须给终答留 1 次（最多用到第 5 次）；独立转写/净化不硬留聊天位。
+        val reservedLimit = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES -
+            if (command.reserveFinalAnswer) 1 else 0
+        if (operation.dispatchCount >= reservedLimit) {
+            return ModelTaskOperationDispatchReservationResult(
+                applied = false,
+                budgetExhausted = true,
+                logicalDispatchCount = operation.dispatchCount,
+                reservationId = null,
+            )
+        }
+        require(command.occurredAtEpochMillis >= operation.updatedAtEpochMillis) {
+            "Operation dispatch reservation time must be monotonic"
+        }
+        val reserved = incrementOperationDispatchCount(
+            operationFingerprint = current.operationFingerprint,
+            maxDispatches = reservedLimit,
+            updatedAtEpochMillis = command.occurredAtEpochMillis,
+        ) == 1
+        val updated = findOperation(current.operationFingerprint)
+            ?: throw LearningLedgerIntegrityException("Model task operation disappeared")
+        if (!reserved) {
+            return ModelTaskOperationDispatchReservationResult(
+                applied = false,
+                budgetExhausted = updated.dispatchCount >= reservedLimit,
+                logicalDispatchCount = updated.dispatchCount,
+                reservationId = null,
+            )
+        }
+        val reservationId = "figure-dispatch:" + stableSha256(
+            current.operationFingerprint,
+            command.remoteKind,
+            command.method,
+            updated.dispatchCount.toString(),
+            command.occurredAtEpochMillis.toString(),
+        )
+        return ModelTaskOperationDispatchReservationResult(
+            applied = true,
+            budgetExhausted = false,
+            logicalDispatchCount = updated.dispatchCount,
+            reservationId = reservationId,
         )
     }
 

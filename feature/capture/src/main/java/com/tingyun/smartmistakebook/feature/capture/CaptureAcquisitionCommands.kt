@@ -153,6 +153,45 @@ internal class CaptureAcquisitionCommands(
         launchCamera(retakeAcquisitionPurpose(hasDraft = hasDraft))
     }
 
+    /**
+     * A7（4C）：系统分享进来的单张图片。
+     *
+     * 分享层（[CaptureShareIntake]）已经把字节拷成自有的 `question_*.img`；这里走的仍是
+     * 拍照/相册共用的"返回图"应用路径（`CaptureReturnedImagePlan.ApplyAsNew`），随后既有的
+     * 自动入库 effect 会像选图一样建草稿——不新开第二条录入链。
+     *
+     * 来源如实记为 [CaptureInputSource.PHOTO_PICKER]：规范资产只认 CAMERA / PHOTO_PICKER
+     * 两种来源，分享与相册同属"外部提供的一张图"；新增枚举值会牵动库内 token 契约与
+     * schema，A7 不为此改 schema。
+     *
+     * 录入页已有内容时**不覆盖**：拒绝并删掉预拷件，把原因写在页面上（分享是再录一道，
+     * 不是放弃当前这道）。
+     */
+    fun acceptSharedImage(ownedUri: String) {
+        if (!isOwnedCaptureUri(ownedUri)) {
+            state.captureError = CAPTURE_SHARED_IMAGE_MISSING_ERROR
+            return
+        }
+        val busy = state.workflowInProgress ||
+            state.cameraLaunchInProgress ||
+            state.photoImportInProgress ||
+            state.draftId != null ||
+            state.receivedImageUri != null
+        if (busy) {
+            deleteOwnedCaptureAsync(context, ownedUri)
+            state.captureError = CAPTURE_SHARED_IMAGE_BUSY_ERROR
+            return
+        }
+        returnedImages.apply(
+            CaptureReturnedImagePlan.ApplyAsNew(
+                uri = ownedUri,
+                deletePreviousUri = null,
+            ),
+            CaptureInputSource.PHOTO_PICKER,
+            CaptureAcquisitionPurpose.NEW_CAPTURE,
+        )
+    }
+
     private fun applyReplacementPrep(prep: CaptureReplacementLaunchPrep) {
         if (prep.requestId != null) {
             state.replacementRequestId = prep.requestId

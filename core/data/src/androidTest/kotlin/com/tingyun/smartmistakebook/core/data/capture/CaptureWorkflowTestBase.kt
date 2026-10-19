@@ -141,7 +141,7 @@ abstract class CaptureWorkflowTestBase {
             blockEvidence = listOf(
                 QuestionBlockEvidence(
                     blockId = "stem",
-                    sourceAssetId = pending.sourceAssetId,
+                    sourceAssetId = checkNotNull(pending.sourceAssetId),
                     sourceRegion = NormalizedSourceRegion(0.0, 0.0, 1.0, 1.0),
                     writingLayer = modelWritingLayer,
                     provenance = QuestionBlockProvenance.USER_CORRECTION,

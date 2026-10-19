@@ -38,6 +38,8 @@ import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
+import com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibility
+import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.Retryability
 import com.tingyun.smartmistakebook.core.model.TutorInteractionMode
@@ -110,6 +112,13 @@ internal class TutorConversationViewModel(
      * "把这一轮的草稿存进错题本"（执行路径 ①）；没有它，卡落到附图 / 错题本（②③）。
      */
     private val anchoredCaptureSessionId: String? = null,
+    /**
+     * 6B-2：选题后读题面、建可编辑卷面（装配处注入；null = 这个入口不接编辑态）。
+     * 读取是纯本地事实，不派发模型任务。
+     */
+    private val readExportPaperEdit:
+        (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
+        null,
     /**
      * 这条会话锚着的**那一道已在错题本里的题**（A4 执行路径 ②）：错题讲题页给它（这一页讲的
      * 就是这一条错题）。有它，模型申请"存 / 打开这一轮这道题"时那张卡的目标就是它；没有它，
@@ -382,6 +391,144 @@ internal class TutorConversationViewModel(
      */
     fun onExportSheetDismiss() {
         updateState { state -> state.copy(exportSheet = null) }
+    }
+
+    // ---- 卷面编辑态（6B-2）：只用本地题面事实，不派发模型任务 ----
+
+    /**
+     * 学生点「下一步：编辑卷面」：按当前勾选读题面并建可编辑卷面。
+     *
+     * 引擎为 null（测试替身/未接线入口）时如实说一句，不假装进入了编辑。读取失败与
+     * "一道题都不能导出"给同一句可行动提示；重试路径就是再点一次（状态允许）。
+     */
+    fun onExportEditRequest(entryIds: List<String>) {
+        val sheet = _uiState.value.exportSheet ?: return
+        if (entryIds.isEmpty() || sheet.editLoading) return
+        if (entryIds.size > MistakePdfBatchEligibility.MAX_QUESTIONS) {
+            updateState { state ->
+                state.exportSheet?.let { current ->
+                    state.copy(
+                        exportSheet = current.copy(
+                            editMessage = "一次最多编辑 " +
+                                "${MistakePdfBatchEligibility.MAX_QUESTIONS} 道题，" +
+                                "先缩小勾选范围再编辑。",
+                        ),
+                    )
+                } ?: state
+            }
+            return
+        }
+        val reader = readExportPaperEdit
+        if (reader == null) {
+            updateState { state ->
+                state.exportSheet?.let { current ->
+                    state.copy(
+                        exportSheet = current.copy(
+                            editMessage = "这个入口暂时不能编辑卷面，可以直接导出。",
+                        ),
+                    )
+                } ?: state
+            }
+            return
+        }
+        updateState { state ->
+            state.exportSheet?.let { current ->
+                state.copy(
+                    exportSheet = current.copy(editLoading = true, editMessage = null),
+                )
+            } ?: state
+        }
+        viewModelScope.launch {
+            val edit = try {
+                reader(entryIds, sheet.layout)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                null
+            }
+            updateState { state ->
+                val current = state.exportSheet
+                when {
+                    current == null -> state
+                    // 读取期间学生改了版式：这次读取的卷面不再是当前选择，清掉加载态让他重试。
+                    current.layout != sheet.layout -> state.copy(
+                        exportSheet = current.copy(
+                            editLoading = false,
+                            paperEdit = null,
+                            editMessage = "版式已改，请重新点「编辑卷面」。",
+                        ),
+                    )
+                    else -> state.copy(
+                        exportSheet = current.copy(
+                            editLoading = false,
+                            paperEdit = edit,
+                            editMessage = if (edit == null) {
+                                "这些题暂时没有可编辑的题面，先确认它们能导出。"
+                            } else {
+                                null
+                            },
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    /** 从编辑态返回选题：丢弃草稿（条目没有被改过，随时可以重来）。 */
+    fun onExportEditBack() {
+        updateState { state ->
+            state.exportSheet?.let { current ->
+                state.copy(
+                    exportSheet = current.copy(
+                        paperEdit = null,
+                        editLoading = false,
+                        editMessage = null,
+                    ),
+                )
+            } ?: state
+        }
+    }
+
+    fun onExportEditMove(entryId: String, offset: Int) {
+        updatePaperEdit { edit -> edit.withQuestionMoved(entryId, offset) }
+    }
+
+    fun onExportEditRemove(entryId: String) {
+        updatePaperEdit { edit -> edit.withQuestionRemoved(entryId) }
+    }
+
+    fun onExportEditRestore(entryId: String) {
+        updatePaperEdit { edit -> edit.withQuestionRestored(entryId) }
+    }
+
+    fun onExportEditTitle(entryId: String, title: String) {
+        updatePaperEdit { edit -> edit.withQuestionTitle(entryId, title) }
+    }
+
+    fun onExportEditBlockText(entryId: String, blockId: String, text: String) {
+        updatePaperEdit { edit -> edit.withBlockText(entryId, blockId, text) }
+    }
+
+    fun onExportEditChoiceText(
+        entryId: String,
+        blockId: String,
+        choiceId: String,
+        text: String,
+    ) {
+        updatePaperEdit { edit -> edit.withChoiceText(entryId, blockId, choiceId, text) }
+    }
+
+    /** 改卷面备注（只在"含备注"版式里进文件名；绝不写回 `error_book_entry.user_note`）。 */
+    fun onExportEditNote(entryId: String, note: String) {
+        updatePaperEdit { edit -> edit.withNote(entryId, note) }
+    }
+
+    private fun updatePaperEdit(transform: (MistakePdfPaperEdit) -> MistakePdfPaperEdit) {
+        updateState { state ->
+            val sheet = state.exportSheet ?: return@updateState state
+            val edit = sheet.paperEdit ?: return@updateState state
+            state.copy(exportSheet = sheet.copy(paperEdit = transform(edit)))
+        }
     }
 
     // ---- 输入与附件（B3：全部跨进程保留） ----

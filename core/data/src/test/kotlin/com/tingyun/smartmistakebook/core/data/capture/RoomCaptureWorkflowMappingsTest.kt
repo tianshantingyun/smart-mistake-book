@@ -366,14 +366,15 @@ class RoomCaptureWorkflowMappingsTest {
         status: ModelTaskStatus = ModelTaskStatus.SUCCEEDED,
         decision: CaptureAssessmentDecision = CaptureAssessmentDecision.PASS,
     ): ModelTaskSnapshot {
+        val sourceAsset = checkNotNull(draft.sourceAsset)
         val request = ModelTaskRequest(
             requestId = "assess-$assetId-${decision.name}-$occurredAt",
             input = CaptureAssessmentInput(
                 draftId = draft.draftId,
                 sourceAssetId = assetId,
                 origin = CaptureAssessmentOrigin.TUTOR,
-                imageWidth = draft.sourceAsset.width,
-                imageHeight = draft.sourceAsset.height,
+                imageWidth = sourceAsset.width,
+                imageHeight = sourceAsset.height,
             ),
             occurredAtEpochMillis = occurredAt,
         )

@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.export
 
 import java.io.File
+import java.security.MessageDigest
 
 /** 一张可从本地文件读出的题面图（PNG/JPEG），带交付所需的像素尺寸与部件元数据。 */
 internal data class DocxImageBytes(
@@ -21,15 +22,33 @@ internal data class DocxImageBytes(
  * 读不出（文件不存在/不是 PNG-JPEG/头部损坏）返回 null：**按 PDF 计划器的同口径降级**——
  * `MistakePdfPagePlanner` 在拿不到图片尺寸时就不排入这张图（:126-137），Word 侧同样省略
  * 图片、保留题面其余内容。与 PDF 渲染器的差异（它在这种输入上整份失败）见批记录。
+ *
+ * **记录完整性复核（KD-55）**：调用方给出资产记录里的 `contentSha256`/`byteSize` 时，
+ * 只有**这次读到的、即将嵌入的这份字节**同时匹配两者才返回图片，否则按"读不出"降级。
+ * 它消灭的失败是「读详情 → 渲染」之间的 TOCTOU：`file://` 读口本身不知道自己读的是不是
+ * 记录里那一份，先前只有 `vault.resolve` 在详情路径上核过一次；渲染前再核一次，被换掉/
+ * 截断的文件不会进 Word 包。长度先按 `File.length()` 预检（被换成超大文件时不整份读入），
+ * 读后再用同一份字节复核一次（stat 与 read 之间仍可能被换）。
  */
 internal object DocxImageSource {
-    fun read(localUri: String?): DocxImageBytes? {
+    fun read(
+        localUri: String?,
+        expectedSha256: String? = null,
+        expectedByteSize: Long? = null,
+    ): DocxImageBytes? {
         val uri = localUri?.takeIf(String::isNotBlank) ?: return null
         return try {
             val file = File(java.net.URI(uri))
             if (!file.isFile) return null
+            // 便宜的预检：记录长度不符就不读整份文件。
+            if (expectedByteSize != null && file.length() != expectedByteSize) return null
             val bytes = file.readBytes()
             if (bytes.isEmpty()) return null
+            // 读后复核：校验的就是下面要嵌入的那份字节。
+            if (expectedByteSize != null && bytes.size.toLong() != expectedByteSize) return null
+            if (expectedSha256 != null && !sha256Hex(bytes).equals(expectedSha256, ignoreCase = true)) {
+                return null
+            }
             when {
                 isPng(bytes) -> pngSize(bytes)?.let { size ->
                     DocxImageBytes(bytes, "png", "image/png", size[0], size[1])
@@ -43,6 +62,9 @@ internal object DocxImageSource {
             null
         }
     }
+
+    private fun sha256Hex(bytes: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(bytes).toHex()
 
     private val PNG_SIGNATURE = byteArrayOf(
         0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,

@@ -102,11 +102,15 @@ class ExportPdfWorker(
             val exportId = (inputData.keyValueMap[MistakeExportJobCodec.EXPORT_ID_KEY] as? String)
                 ?.takeIf { it.isNotBlank() }
                 ?: return Result.failure()
+            // 坏请求可能仍带着草稿 id：终态放弃时顺手清掉，别把块序列留成永久垃圾。
+            val draftId = (inputData.keyValueMap[MistakeExportJobCodec.DRAFT_ID_KEY] as? String)
+                ?.takeIf { it.isNotBlank() }
             return giveUpNow(
                 app = app,
                 repository = app.mistakeExportRepository,
                 exportId = exportId,
                 failureMessage = "这次导出的参数无法识别，没有生成文件。请重新发起导出。",
+                draftId = draftId,
             )
         }
         val repository = app.mistakeExportRepository
@@ -117,12 +121,20 @@ class ExportPdfWorker(
                 repository = repository,
                 exportId = request.exportId,
                 failureMessage = "学习数据还没准备好，这次导出没有开始。请稍后重新导出。",
+                draftId = request.editedDraftId,
             )
         }
 
-        val existing = repository.readRecord(request.exportId) ?: return Result.failure()
+        val existing = repository.readRecord(request.exportId) ?: run {
+            // 没有记录行就没有可回看的成果；编辑草稿留着只会变成永久垃圾。
+            runCatching { request.editedDraftId?.let(app.mistakePaperDraftStore::delete) }
+            return Result.failure()
+        }
         // 已有终态 = 这次导出早已落定（进程重建后的重跑）：幂等返回，不写第二份结果、不发第二次通知。
-        if (existing.status != MistakeExportStatus.RUNNING) return Result.success()
+        if (existing.status != MistakeExportStatus.RUNNING) {
+            runCatching { request.editedDraftId?.let(app.mistakePaperDraftStore::delete) }
+            return Result.success()
+        }
 
         return try {
             when (val outcome = app.mistakeExportJobRunner.run(request)) {
@@ -186,6 +198,8 @@ class ExportPdfWorker(
                     )
                 }
             }
+            // 6B-2：终态落定后才删编辑草稿——重试（异常/取消）期间仍要读得到它。
+            runCatching { request.editedDraftId?.let(app.mistakePaperDraftStore::delete) }
             Result.success()
         } catch (cancelled: CancellationException) {
             // WorkManager 停了这次执行：记录保持 RUNNING，策略允许时下一次执行继续。
@@ -196,6 +210,7 @@ class ExportPdfWorker(
                 repository = repository,
                 exportId = request.exportId,
                 failureMessage = "这次导出意外中断，请重新导出。",
+                draftId = request.editedDraftId,
             )
         }
     }
@@ -217,6 +232,7 @@ class ExportPdfWorker(
         repository: MistakeExportRepository,
         exportId: String,
         failureMessage: String,
+        draftId: String? = null,
     ): Result {
         if (runAttemptCount < MAX_ATTEMPTS - 1) return Result.retry()
         return giveUpNow(
@@ -224,6 +240,7 @@ class ExportPdfWorker(
             repository = repository,
             exportId = exportId,
             failureMessage = failureMessage,
+            draftId = draftId,
         )
     }
 
@@ -233,6 +250,7 @@ class ExportPdfWorker(
         repository: MistakeExportRepository,
         exportId: String,
         failureMessage: String,
+        draftId: String? = null,
     ): Result {
         runCatching {
             repository.recordFailed(
@@ -241,6 +259,7 @@ class ExportPdfWorker(
                 atEpochMillis = System.currentTimeMillis(),
             )
         }
+        runCatching { draftId?.let(app.mistakePaperDraftStore::delete) }
         app.mistakeExportNotifications.postFailed(
             exportId = exportId,
             failureMessage = failureMessage,
@@ -272,6 +291,8 @@ internal object MistakeExportJobCodec {
     const val ENTRY_ID_KEY = "entryId"
     const val PROBLEM_ID_KEY = "problemId"
     const val REVISION_ID_KEY = "revisionId"
+    /** 6B-2：编辑后卷面的草稿 id（块序列在应用私有目录，不进 WorkManager Data）。 */
+    const val DRAFT_ID_KEY = "draftId"
 
     const val LAYOUT_TEMPLATE_ID_KEY = "layoutTemplateId"
     const val LAYOUT_MARGIN_PT_KEY = "layoutMarginPt"
@@ -297,6 +318,7 @@ internal object MistakeExportJobCodec {
 
     private const val KIND_SINGLE = "single"
     private const val KIND_BATCH = "batch"
+    private const val KIND_EDITED = "edited"
     private const val ENTRY_ID_SEPARATOR = "\n"
     private const val BLOCK_ORDER_SEPARATOR = ","
 
@@ -323,6 +345,11 @@ internal object MistakeExportJobCodec {
                 ENTRY_IDS_KEY to request.entryIds.joinToString(ENTRY_ID_SEPARATOR),
             ) + layoutEntries(request.layout) + formatEntry(request.format)
         }
+        is MistakeExportJobRequest.Edited -> mapOf(
+            EXPORT_ID_KEY to request.exportId,
+            KIND_KEY to KIND_EDITED,
+            DRAFT_ID_KEY to request.draftId,
+        ) + layoutEntries(request.layout) + formatEntry(request.format)
     }
 
     fun decode(values: Map<String, Any?>): MistakeExportJobRequest? {
@@ -355,6 +382,16 @@ internal object MistakeExportJobCodec {
                 MistakeExportJobRequest.Batch(
                     exportId = exportId,
                     entryIds = entryIds,
+                    layout = layout,
+                    format = format,
+                )
+            }
+            KIND_EDITED -> {
+                val draftId = (values[DRAFT_ID_KEY] as? String)?.takeIf { it.isNotBlank() }
+                    ?: return null
+                MistakeExportJobRequest.Edited(
+                    exportId = exportId,
+                    draftId = draftId,
                     layout = layout,
                     format = format,
                 )
@@ -434,3 +471,7 @@ internal fun mistakeExportSkippedNotice(layout: MistakePdfLayout): String? {
             add("答案区仅附已有答案，缺失处已注明。")
     }.takeIf { it.isNotEmpty() }?.joinToString("\n")
 }
+
+/** 编辑请求的草稿 id；其它请求没有草稿（worker 终态清理只对编辑请求生效）。 */
+private val MistakeExportJobRequest.editedDraftId: String?
+    get() = (this as? MistakeExportJobRequest.Edited)?.draftId

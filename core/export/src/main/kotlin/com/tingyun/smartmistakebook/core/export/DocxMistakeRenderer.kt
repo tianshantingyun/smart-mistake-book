@@ -22,7 +22,8 @@ import kotlin.math.roundToInt
  * - 答案区/备注区：与 PDF 计划器同一判据、同一文案结构（文本内容一致）；
  * - 图片：`cleanImageLocalUri` 与批量 [MistakePdfBlock.Image] 都尝试按 PNG/JPEG 嵌入；
  *   读不出时省略该图、保留其余内容（PDF 计划器在拿不到尺寸时同样不排入这张图；
- *   PDF 渲染器在这种输入上整份失败，差异见批记录）；
+ *   PDF 渲染器在这种输入上整份失败，差异见批记录）。**KD-55**：输入若携带资产记录里的
+ *   sha/长度，嵌入前由 [DocxImageSource] 复核这份字节（不符 = 读不出，按同一降级处理）；
  * - 页数/分页：Word 自己排版，渲染器不设页数上限，只受字节预算约束（由 exporter 核）。
  *
  * **本批边界（6B-1）**：只做"把既有题面模型交付成 Word 文件"。应用内编辑 Word 与自然语言
@@ -80,13 +81,24 @@ internal object DocxMistakeRenderer {
     private data class EmbeddedImage(val uri: String, val part: DocxImagePart)
 
     /**
+     * 资产记录里这张图的完整性期望（KD-55）。null 字段 = 该输入不携带这一项期望
+     * （旧调用方/测试直接构造的导出输入），此时 [DocxImageSource] 不做对应复核。
+     */
+    private data class ImageExpectation(
+        val sha256: String?,
+        val byteSize: Long?,
+    )
+
+    /**
      * 需要嵌入的图，按**在文档里出现的顺序**（干净题面在前，块按排序后的顺序），
-     * 同一 uri 只嵌一份。读不出的 uri 直接不进列表（降级：省略图，不失败）。
+     * 同一 uri 只嵌一份。读不出（含记录 sha/长度不符）的 uri 直接不进列表
+     * （降级：省略图，不失败）。
      */
     private fun embeddedImages(
         input: MistakePdfExportInput,
         blocks: List<MistakePdfBlock>,
     ): List<EmbeddedImage> {
+        val expectations = imageExpectations(input, blocks)
         val uris = buildList {
             input.cleanImageLocalUri?.takeIf(String::isNotBlank)?.let(::add)
             blocks.filterIsInstance<MistakePdfBlock.Image>().forEach { block ->
@@ -95,7 +107,12 @@ internal object DocxMistakeRenderer {
         }.distinct()
         var index = 0
         return uris.mapNotNull { uri ->
-            val bytes = DocxImageSource.read(uri) ?: return@mapNotNull null
+            val expectation = expectations[uri]
+            val bytes = DocxImageSource.read(
+                localUri = uri,
+                expectedSha256 = expectation?.sha256,
+                expectedByteSize = expectation?.byteSize,
+            ) ?: return@mapNotNull null
             index += 1
             EmbeddedImage(
                 uri = uri,
@@ -109,6 +126,27 @@ internal object DocxMistakeRenderer {
                     contentType = bytes.contentType,
                 ),
             )
+        }
+    }
+
+    /**
+     * uri → 记录里的完整性期望。干净题面与批量 Image 块各带自己的记录字段；**同一 uri
+     * 按第一次出现的记录复核**——导出资格层构造的输入里同一 uri 只对应一条资产记录
+     * （干净图与批量图在批量输入里不会同时出现），重复出现的冲突输入没有真实来源。
+     * 没有记录字段（旧调用方）时该 uri 不做复核，行为与 6B-1 相同。
+     */
+    private fun imageExpectations(
+        input: MistakePdfExportInput,
+        blocks: List<MistakePdfBlock>,
+    ): Map<String, ImageExpectation> = buildMap {
+        input.cleanImageLocalUri?.takeIf(String::isNotBlank)?.let { uri ->
+            put(uri, ImageExpectation(input.cleanImageSha256, input.cleanImageByteSize))
+        }
+        blocks.filterIsInstance<MistakePdfBlock.Image>().forEach { block ->
+            val uri = block.localUri.takeIf(String::isNotBlank) ?: return@forEach
+            if (!containsKey(uri)) {
+                put(uri, ImageExpectation(block.expectedContentSha256, block.expectedByteSize))
+            }
         }
     }
 

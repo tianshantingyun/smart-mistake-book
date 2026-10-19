@@ -135,7 +135,9 @@ class MistakePdfEligibilityTest {
             blocks = listOf(ContentBlock.Paragraph("stem", "题目")),
             source = MistakeSourceSet.Present(
                 listOf(
-                    sourceAsset(role = "CAMERA", sourceAssetId = "original", uri = "file:///original.jpg"),
+                    sourceAsset(role = "CAMERA", sourceAssetId = "original", uri = "file:///original.jpg")
+                        // 干扰项：完整性字段与 CLEAN_IMAGE 不同，导出必须带**干净图那条**记录。
+                        .copy(contentSha256 = "c".repeat(64), byteSize = 2_048L),
                     sourceAsset(
                         role = "CLEAN_IMAGE",
                         sourceAssetId = "redraw",
@@ -149,6 +151,9 @@ class MistakePdfEligibilityTest {
             .input
 
         assertEquals("file:///redraw.png", input.cleanImageLocalUri)
+        // KD-55：URI 与完整性字段必须来自同一条记录（CLEAN_IMAGE，而不是排在前面的 CAMERA）。
+        assertEquals("a".repeat(64), input.cleanImageSha256)
+        assertEquals(1_024L, input.cleanImageByteSize)
     }
 
     /** B6 回退分支：没有重绘图时按现状——结构化图块照常渲染，原图不导出。 */

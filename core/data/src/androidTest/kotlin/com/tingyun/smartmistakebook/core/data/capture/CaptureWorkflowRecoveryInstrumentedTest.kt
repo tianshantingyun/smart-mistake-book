@@ -182,7 +182,8 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             draftId = original.draftId,
             expectedRevisionNumber = original.revisionNumber,
             assessmentRequestId = "capture-assess:split-original",
-            sourceAssetId = original.sourceAssetId,
+            // A8：照片导入的摘要必须带源图（空源形态只属于手动建题）。
+            sourceAssetId = checkNotNull(original.sourceAssetId),
             regions = listOf(
                 NormalizedSourceRegion(0.05, 0.02, 0.95, 0.40),
                 NormalizedSourceRegion(0.05, 0.48, 0.95, 0.96),
@@ -194,7 +195,15 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
 
         assertTrue(first.created)
         assertEquals(2, first.splitDrafts.size)
-        assertTrue(first.splitDrafts.all { it.width < original.width && it.height < original.height })
+        // A8：照片草稿/切分产物的源图字段必须齐备（空源形态只属于手动建题）。
+        val originalWidth = checkNotNull(original.width)
+        val originalHeight = checkNotNull(original.height)
+        assertTrue(
+            first.splitDrafts.all { split ->
+                checkNotNull(split.width) < originalWidth &&
+                    checkNotNull(split.height) < originalHeight
+            },
+        )
         assertEquals(
             StudyDbValue.ProblemDraftStatus.ABANDONED,
             database.readProblemDraft(original.draftId)?.status,
@@ -265,7 +274,9 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             ),
         )
 
-        val record = checkNotNull(database.readProblemDraft(draft.draftId)).sourceAsset
+        val record = checkNotNull(
+            checkNotNull(database.readProblemDraft(draft.draftId)).sourceAsset,
+        )
         assertEquals("规范记录宽 = 源宽 / 采样率", sampledWidth, record.width)
         assertEquals("规范记录高 = 源高 / 采样率", sampledHeight, record.height)
         assertTrue(
@@ -327,7 +338,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
                 draftId = replaced.draftId,
                 expectedRevisionNumber = replaced.currentRevision.revisionNumber,
                 assessmentRequestId = "capture-assess:split-sampled-source",
-                sourceAssetId = replaced.sourceAsset.sourceAssetId,
+                sourceAssetId = checkNotNull(replaced.sourceAsset).sourceAssetId,
                 regions = regions,
                 occurredAtEpochMillis = 12_600,
             )
@@ -338,7 +349,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             val splitDraft = checkNotNull(
                 database.readProblemDraft(result.splitDrafts.first().draftId),
             )
-            val cropped = splitDraft.sourceAsset
+            val cropped = checkNotNull(splitDraft.sourceAsset)
             val region = regions.first()
             assertTrue(
                 "裁剪产物长边必须在解码上限内：${maxOf(cropped.width, cropped.height)}",
@@ -471,7 +482,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
         assertEquals(draft.revisionNumber, recovered.currentRevisionNumber)
         assertEquals(draft.sourceAssetId, recovered.sourceAssetId)
         assertEquals(draft.sourceAssetSha256, recovered.sourceAssetSha256)
-        assertTrue(recovered.sourceImageUri.startsWith("file:"))
+        assertTrue(checkNotNull(recovered.sourceImageUri).startsWith("file:"))
         assertEquals(null, recovered.latestAssessmentTask)
         assertEquals(null, recovered.latestParseTask)
         assertEquals(
@@ -527,7 +538,9 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
                 occurredAtEpochMillis = 41_000,
             ),
         )
-        val sourceAsset = checkNotNull(database.readProblemDraft(missingDraft.draftId)).sourceAsset
+        val sourceAsset = checkNotNull(
+            checkNotNull(database.readProblemDraft(missingDraft.draftId)).sourceAsset,
+        )
         assertTrue(File(context.filesDir, sourceAsset.relativePath).delete())
 
         val pending = repository.observePendingCaptures().first().associateBy { it.draftId }
@@ -555,6 +568,11 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
                 occurredAtEpochMillis = occurredAt,
             ),
         )
+        // 照片导入的摘要必须带源图字段（A8 的空源形态只属于手动建题）。
+        val sourceAssetId = checkNotNull(draft.sourceAssetId)
+        val sourceAssetSha256 = checkNotNull(draft.sourceAssetSha256)
+        val sourceWidth = checkNotNull(draft.width)
+        val sourceHeight = checkNotNull(draft.height)
         var now = occurredAt
         val modelTasks = RoomModelTaskRepository(
             database = database,
@@ -566,10 +584,10 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             requestId = "pending-demo-assessment",
             input = CaptureAssessmentInput(
                 draftId = draft.draftId,
-                sourceAssetId = draft.sourceAssetId,
+                sourceAssetId = sourceAssetId,
                 origin = CaptureAssessmentOrigin.LIBRARY,
-                imageWidth = draft.width,
-                imageHeight = draft.height,
+                imageWidth = sourceWidth,
+                imageHeight = sourceHeight,
             ),
             occurredAtEpochMillis = occurredAt,
         )
@@ -582,10 +600,10 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
                 basisRevisionNumber = draft.revisionNumber,
                 sourceAssets = listOf(
                     CaptureSourceAssetRef(
-                        assetId = draft.sourceAssetId,
-                        sha256 = draft.sourceAssetSha256,
-                        width = draft.width,
-                        height = draft.height,
+                        assetId = sourceAssetId,
+                        sha256 = sourceAssetSha256,
+                        width = sourceWidth,
+                        height = sourceHeight,
                         pageIndex = 0,
                     ),
                 ),
@@ -605,10 +623,10 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             input = (parseRequest.input as CaptureParseInput).copy(
                 sourceAssets = listOf(
                     CaptureSourceAssetRef(
-                        assetId = draft.sourceAssetId,
+                        assetId = sourceAssetId,
                         sha256 = "b".repeat(64),
-                        width = draft.width,
-                        height = draft.height,
+                        width = sourceWidth,
+                        height = sourceHeight,
                         pageIndex = 0,
                     ),
                 ),
@@ -632,7 +650,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
         val staleAssessmentRequest = assessmentRequest.copy(
             requestId = "pending-stale-assessment",
             input = (assessmentRequest.input as CaptureAssessmentInput).copy(
-                imageWidth = draft.width + 1,
+                imageWidth = sourceWidth + 1,
             ),
         )
         database.createModelTask(
@@ -673,7 +691,9 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
                 occurredAtEpochMillis = 21_000,
             ),
         )
-        val sourceAsset = checkNotNull(database.readProblemDraft(draft.draftId)).sourceAsset
+        val sourceAsset = checkNotNull(
+            checkNotNull(database.readProblemDraft(draft.draftId)).sourceAsset,
+        )
         val canonicalFile = File(context.filesDir, sourceAsset.relativePath)
         assertTrue(canonicalFile.delete())
 
@@ -698,7 +718,9 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             ),
         )
 
-        val stored = checkNotNull(database.readProblemDraft(draft.draftId)).sourceAsset
+        val stored = checkNotNull(
+            checkNotNull(database.readProblemDraft(draft.draftId)).sourceAsset,
+        )
         assertEquals("image/png", stored.mimeType)
         assertTrue(stored.relativePath.endsWith(".png"))
     }
@@ -857,6 +879,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
                 occurredAtEpochMillis = 7_000,
             ),
         )
+        val sourceAssetId = checkNotNull(draft.sourceAssetId)
         val candidate = CapturedQuestionDocument(
             document = QuestionDocument(
                 id = "document-${draft.draftId}",
@@ -869,7 +892,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
             blockEvidence = listOf(
                 QuestionBlockEvidence(
                     blockId = "stem",
-                    sourceAssetId = draft.sourceAssetId,
+                    sourceAssetId = sourceAssetId,
                     sourceRegion = NormalizedSourceRegion(0.1, 0.1, 0.9, 0.45),
                     writingLayer = WritingLayer.PRINTED,
                     provenance = QuestionBlockProvenance.MODEL_DOCUMENT_PARSE,
@@ -879,7 +902,7 @@ class CaptureWorkflowRecoveryInstrumentedTest : CaptureWorkflowTestBase() {
                 ),
                 QuestionBlockEvidence(
                     blockId = "formula",
-                    sourceAssetId = draft.sourceAssetId,
+                    sourceAssetId = sourceAssetId,
                     sourceRegion = NormalizedSourceRegion(0.2, 0.5, 0.8, 0.75),
                     writingLayer = WritingLayer.HANDWRITTEN,
                     provenance = QuestionBlockProvenance.MODEL_DOCUMENT_PARSE,

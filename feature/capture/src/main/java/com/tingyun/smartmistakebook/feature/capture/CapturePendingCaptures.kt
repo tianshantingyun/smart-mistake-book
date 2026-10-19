@@ -114,7 +114,11 @@ internal fun summarizePendingCaptures(items: List<PendingCaptureItem>): PendingC
     )
 }
 
-internal fun pendingCaptureStageLabel(stage: PendingCaptureStage): String = when (stage) {
+internal fun pendingCaptureStageLabel(
+    stage: PendingCaptureStage,
+    /** A8：手动建题的草稿没有原图，不能声称"已保存原图"。 */
+    hasSourceImage: Boolean = true,
+): String = when (stage) {
     PendingCaptureStage.TUTOR_SESSION_READY -> "题目已保存，可以开始讲解"
     PendingCaptureStage.SOURCE_UNAVAILABLE -> "原图暂时打不开，请重新拍摄"
     PendingCaptureStage.RECAPTURE_REQUIRED -> "关键内容看不清，请重新拍摄"
@@ -122,7 +126,11 @@ internal fun pendingCaptureStageLabel(stage: PendingCaptureStage): String = when
     PendingCaptureStage.RETRY_OR_MANUAL -> "上次没有完成，点此继续"
     PendingCaptureStage.MANUAL_REVIEW_REQUIRED -> "题面还没整理完整，点此继续"
     PendingCaptureStage.READY_TO_REVIEW -> "题面已整理，可继续"
-    PendingCaptureStage.READY_TO_CONTINUE -> "已保存原图，点此继续"
+    PendingCaptureStage.READY_TO_CONTINUE -> if (hasSourceImage) {
+        "已保存原图，点此继续"
+    } else {
+        "还没存入错题本，点此继续"
+    }
 }
 
 @Composable
@@ -265,7 +273,10 @@ private fun PendingCaptureRow(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = pendingCaptureStageLabel(item.stage),
+                        text = pendingCaptureStageLabel(
+                            item.stage,
+                            hasSourceImage = item.hasSourceImage,
+                        ),
                         color = if (needsAttention) ErrorWarm else InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1,
