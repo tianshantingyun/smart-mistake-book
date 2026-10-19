@@ -99,20 +99,21 @@ class DenseRecallRerankerTest {
         assertEquals("期望次序 fixture 的查询数变了（每科 1 条）", 4, cases.size)
         assertEquals(
             "候选集条数变了（fixture 重新生成过？逐条核实后再改这里）",
-            // 2026-10-16 批次11 promote v15（原子点 3,359 → 3,210、别名 40,029 → 40,055、
-            // 资产 43,388 → 43,265 行）：词面腿按新包重出（build/production-lexical-leg.tsv）、
-            // fixture 随批重生成，逐 [case] 的 [candidate] 行数实测 = 291/383/193/184，合计 1,051
-            // （量源 = 本轮 fixture 逐行清点；与改前失败信息 `expected:<{0=302, 15=394, 50=199,
-            // 90=205}> but was:<{0=291, 15=383, 50=193, 90=184}>` 一致，TSV 的 query_id 行数同源）。
-            // 上一代（批次10 promote v14）：302/394/199/205，合计 1,100；
+            // 2026-10-20 批次13 promote v16（原子点 3,210 → 3,245、别名 40,055 → 40,765、
+            // 资产 43,265 → 44,010 行）：词面腿按新包重出（build/production-lexical-leg.tsv）、
+            // fixture 随批重生成，逐 [case] 的 [candidate] 行数实测 = 298/396/191/190，合计 1,075
+            // （量源 = 本轮 fixture 逐行清点；与改前失败信息 `expected:<{0=291, 15=383, 50=193,
+            // 90=184}> but was:<{0=298, 15=396, 50=191, 90=190}>` 一致，TSV 的 query_id 行数同源）。
+            // 上一代（批次11 promote v15）：291/383/193/184，合计 1,051；
+            // 更旧（批次10 promote v14）：302/394/199/205，合计 1,100；
             // 更旧（批次 8：43,718 行 = 3,741 + 39,977）：320/453/215/242，合计 1,230；
             // 再旧（批次 7：41,157 / 37,396）：323/447/214/235，合计 1,219；
             // 再旧（批次 5：41,126 / 37,365）：322/445/212/239；再旧（41,117 / 37,356）：316/443/211/238。
-            mapOf(0 to 291, 15 to 383, 50 to 193, 90 to 184),
+            mapOf(0 to 298, 15 to 396, 50 to 191, 90 to 190),
             cases.associate { it.index to it.candidates.size },
         )
-        // 上一代（批次10 promote v14）1,100；本代（批次11 promote v15）1,051 = 291 + 383 + 193 + 184（实测）。
-        assertEquals("候选总数变了", 1051, cases.sumOf { it.candidates.size })
+        // 上一代（批次11 promote v15）1,051；本代（批次13 promote v16）1,075 = 298 + 396 + 191 + 190（实测）。
+        assertEquals("候选总数变了", 1075, cases.sumOf { it.candidates.size })
         for (case in cases) {
             // 假编码器：模型件不在仓库里（见 assets/dense/README.md），喂 Python 侧记录的查询向量。
             val encoder = object : DenseQueryEncoder {

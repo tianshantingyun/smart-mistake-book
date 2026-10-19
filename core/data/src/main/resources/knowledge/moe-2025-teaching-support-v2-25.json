@@ -1,0 +1,2609 @@
+{
+ "schemaVersion": 4,
+ "packId": "moe-2025-four-subjects-v1",
+ "sources": [
+  {
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "subject": "BIOLOGY",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 27版五三",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "4B8F903AC2C5A9739CDCC344BA479B913BC40B09177389C4BFCF34FCEECA5001",
+   "importedAtEpochMillis": 1789733219373,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "subject": "BIOLOGY",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 6. 2026生物总复习",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "A260977C1AF61A08745DC6E7DF5F37300664058178B807E6D755BD2527F5F596",
+   "importedAtEpochMillis": 1789733218957,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-e7f072992e:biology",
+   "subject": "BIOLOGY",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（生物）",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "FB374225503742E2015DA9D9D9BA3DF15DD2B3D073068EA7C906DF9C56E35432",
+   "importedAtEpochMillis": 1790769112456,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  }
+ ],
+ "materials": [
+  {
+   "slug": "ext-bio-cb623abc4b-007",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "按行为辨别免疫细胞的方法（53精讲册·免疫调节P4）",
+   "summaryMarkdown": "通过细胞是否摄取呈递抗原、是否分泌细胞因子、是否裂解靶细胞等行为，可以区分抗原呈递细胞、辅助性T细胞、细胞毒性T细胞和B细胞。",
+   "applicabilityMarkdown": "PRIMARY 在免疫过程题中根据细胞行为或作用判断免疫细胞名称时使用。",
+   "contentMarkdown": "1.抗原呈递细胞：摄取病原体等，可将抗原信息呈递给辅助性T细胞。\\n2.辅助性T细胞：可与抗原呈递细胞、B细胞接触，并分泌细胞因子。\\n3.细胞毒性T细胞：与靶细胞接触后可增殖、分化；新形成的细胞毒性T细胞与靶细胞接触后使靶细胞裂解。\\n4.B细胞：可与病原体、辅助性T细胞接触，增殖、分化出浆细胞和记忆B细胞。",
+   "boundaryMarkdown": "按行为辨别时必须结合所处环节（是否接触抗原呈递细胞、是否分泌细胞因子、是否裂解靶细胞）；仅凭细胞名称或形态不能区分，树突状细胞等也属于抗原呈递细胞。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十六章免疫调节/1_专题资料包/1_第十六章 免疫调节  精讲册PDF.pdf（块 cb623abc4b-007）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-cb623abc4b-007",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:特异性免疫",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-cb623abc4b-013",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "器官移植成败取决于HLA配型与免疫抑制剂（53精讲册·免疫调节P7）",
+   "summaryMarkdown": "器官移植的成败主要取决于供者与受者的HLA是否一致或相近；免疫抑制剂的应用大大提高了移植成活率。",
+   "applicabilityMarkdown": "PRIMARY 分析器官移植排斥反应、判断移植前配型与用药方案时使用。",
+   "contentMarkdown": "1.移植前需考虑供者与受者的ABO血型及HLA是否一致或相近。\\n2.移植前对患者进行血浆置换可减轻免疫排斥反应。\\n3.免疫抑制剂的应用大大提高了器官移植的成活率。",
+   "boundaryMarkdown": "HLA配型相近可降低排斥但不能完全避免；免疫抑制剂在提高成活率的同时会降低机体免疫力，需权衡感染与肿瘤风险。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十六章免疫调节/1_专题资料包/1_第十六章 免疫调节  精讲册PDF.pdf（块 cb623abc4b-013）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-cb623abc4b-013",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:免疫学的应用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-85e02e27c3-011",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "去除细胞外Ca2+区分递质释放与动作电位传导（53精练册·神经调节P5）",
+   "summaryMarkdown": "去除细胞外Ca2+后，刺激神经纤维电表仍偏转但肌肉不收缩，直接加乙酰胆碱或刺激肌肉仍能收缩，说明Ca2+缺失阻断的是递质释放而非兴奋传导或肌肉收缩。",
+   "applicabilityMarkdown": "PRIMARY 分析神经—肌肉接点实验、判断药物或离子处理作用于传导还是传递环节时使用。",
+   "contentMarkdown": "1.神经肌肉接点处，乙酰胆碱的释放依赖细胞外液中的Ca2+。\\n2.去除细胞外液Ca2+后，刺激神经a处电表仍偏转，腓肠肌却不收缩，说明动作电位仍能传导而递质不能释放。\\n3.直接滴加乙酰胆碱或刺激b处，腓肠肌仍能收缩，说明肌肉收缩功能未受损，阻断点在神经末梢的递质释放。",
+   "boundaryMarkdown": "结论来自蛙坐骨神经—腓肠肌标本；去除Ca2+不影响动作电位产生，但会影响所有以Ca2+内流触发囊泡融合的化学突触，不能据此推断电突触。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/0_第十四章 神经调节  精练册PDF.pdf（块 85e02e27c3-011）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-85e02e27c3-011",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经递质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-85e02e27c3-012",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "动作电位幅度的全或无特性（53精练册·神经调节P6）",
+   "summaryMarkdown": "增大刺激强度时动作电位幅度不变，但细胞内Ca2+浓度的增幅变大，说明刺激强度可改变Ca2+内流与递质释放量而不改变动作电位幅度。",
+   "applicabilityMarkdown": "PRIMARY 分析刺激强度与动作电位幅度、递质释放量关系时使用。",
+   "contentMarkdown": "1.在同一细胞、相同条件下增大刺激强度，动作电位的幅度不变。\\n2.但细胞内Ca2+浓度的增幅随刺激强度增大而变大，递质释放量可随之增加。\\n3.因此刺激强度影响的是Ca2+内流与递质释放，而不是动作电位的幅度。",
+   "boundaryMarkdown": "全或无特性以同一细胞、相同离子浓度和通道状态为前提；改变细胞外Na+浓度或Na+通道活性时，动作电位幅度会改变。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/0_第十四章 神经调节  精练册PDF.pdf（块 85e02e27c3-012）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-85e02e27c3-012",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋的产生和传导",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-85e02e27c3-013",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "可兴奋细胞的范围（53精练册·神经调节P6）",
+   "summaryMarkdown": "能产生动作电位的细胞称为可兴奋细胞，包括神经细胞、肌肉细胞和某些腺细胞等类型。",
+   "applicabilityMarkdown": "PRIMARY 判断某类细胞能否产生动作电位、界定可兴奋细胞范围时使用。",
+   "contentMarkdown": "1.能产生动作电位的细胞称为可兴奋细胞。\\n2.可兴奋细胞包括神经细胞、肌肉细胞和某些腺细胞等类型。\\n3.判断细胞是否可兴奋，看其能否产生动作电位，而不是看细胞大小或代谢强弱。",
+   "boundaryMarkdown": "可兴奋细胞不等于所有活细胞；某些腺细胞可兴奋，但不能把所有腺细胞都归入可兴奋细胞。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/0_第十四章 神经调节  精练册PDF.pdf（块 85e02e27c3-013）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-85e02e27c3-013",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋的产生和传导",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-85e02e27c3-023",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "谷氨酸能突触的NMDA受体Mg2+阻塞与递质回收（53精练册·神经调节P11）",
+   "summaryMarkdown": "低频刺激时谷氨酸主要激活AMPA受体，NMDA受体通道被Mg2+阻塞；强直刺激解除阻塞后Na+内流增多、突触传递持久增强；谷氨酸回收受阻则使突触间隙递质增多、神经元过度兴奋。",
+   "applicabilityMarkdown": "PRIMARY 分析突触可塑性、谷氨酸回收障碍或兴奋性毒性、选择相关药物靶点时使用。",
+   "contentMarkdown": "1.低频刺激：少量谷氨酸主要激活AMPA受体通道；NMDA受体通道因Mg2+阻塞未被激活，突触后响应基本不变。\\n2.强直刺激：解除Mg2+阻塞后NMDA受体通道开放，更多Na+内流，动作电位幅度增大，突触传递持久增强。\\n3.递质回收受阻：抑制谷氨酰胺合成酶使谷氨酸回收受阻，突触间隙谷氨酸增多，更多受体通道激活、阳离子内流增加，神经元过度兴奋。",
+   "boundaryMarkdown": "NMDA通道的Mg2+阻塞具有电压依赖性，只有膜去极化到一定程度才解除；不同受体亚型与递质清除速率会改变结果，不能把低频与高频的差异直接外推到所有突触。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/0_第十四章 神经调节  精练册PDF.pdf（块 85e02e27c3-023）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-85e02e27c3-023",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经递质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-aae8de9434-005",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "交感与副交感对心脏和消化活动的拮抗（53精讲册·神经调节P3）",
+   "summaryMarkdown": "兴奋时交感神经占优势，心跳加快、胃肠蠕动和消化液分泌减弱；安静时副交感神经占优势，心跳减慢、胃肠蠕动和消化液分泌加强。",
+   "applicabilityMarkdown": "PRIMARY 判断机体处于兴奋或安静状态时自主神经的活动及对内脏器官的影响时使用。",
+   "contentMarkdown": "1.兴奋状态：交感神经活动占优势，心跳加快，胃肠蠕动和消化液分泌减弱。\\n2.安静状态：副交感神经活动占优势，心跳减慢，胃肠蠕动和消化液分泌加强。\\n3.两系统对同一器官的效应通常相反，使机体按状态切换能量分配。",
+   "boundaryMarkdown": "交感与副交感并非对所有器官都完全相反，例如唾液腺的分泌两者都可促进但成分不同；不能把拮抗关系绝对化。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/1_第十四章 神经调节  精讲册PDF.pdf（块 aae8de9434-005）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-aae8de9434-005",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经调节的结构基础",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-aae8de9434-012",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "突触单向传递的结构基础与信号转换（53精讲册·神经调节P6）",
+   "summaryMarkdown": "神经递质只存在于突触小泡中，只能由突触前膜释放并作用于突触后膜，因此兴奋在神经元间只能单向传递；突触处经历电信号→化学信号→电信号转换。",
+   "applicabilityMarkdown": "PRIMARY 解释兴奋在神经元间为何单向传递、描述突触处信号形式变化时使用。",
+   "contentMarkdown": "1.兴奋在神经纤维上以电信号（神经冲动）形式传导，在神经元之间通过突触传递。\\n2.神经递质只存在于突触小泡中，只能由突触前膜释放，作用于突触后膜，因此神经元间兴奋传递只能是单方向的。\\n3.突触处信号转换：电信号→化学信号→电信号。",
+   "boundaryMarkdown": "单向传递是化学突触的一般规律；递质作用于突触后膜后引起兴奋还是抑制，取决于受体类型，不能由递质种类直接推断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/1_第十四章 神经调节  精讲册PDF.pdf（块 aae8de9434-012）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-aae8de9434-012",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:突触",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-aae8de9434-012b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "静息电位与动作电位的表现及离子机制（53精讲册·神经调节P6）",
+   "summaryMarkdown": "静息时膜电位内负外正；受刺激时细胞膜对Na+通透性增加、Na+内流，膜电位变为外负内正，形成动作电位。",
+   "applicabilityMarkdown": "PRIMARY 判断静息电位与动作电位的表现、解释Na+内流与电位变化关系时使用。",
+   "contentMarkdown": "1.神经元未兴奋时，膜两侧电位表现为内负外正，即静息电位。\\n2.受刺激时，细胞膜对Na+通透性增加，Na+内流。\\n3.该部位膜电位变为外负内正，形成动作电位，并以局部电流形式沿神经纤维传导。",
+   "boundaryMarkdown": "静息电位主要由K+外流维持；动作电位峰值受细胞外Na+浓度影响，不能把任一离子浓度变化都直接等同于电位变化。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/1_第十四章 神经调节  精讲册PDF.pdf（块 aae8de9434-012）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-aae8de9434-012b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋在神经纤维上的传导",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-aae8de9434-023",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "大脑皮层四言语区受损症状与易混点（53精讲册·神经调节P12）",
+   "summaryMarkdown": "S区受损不能讲话、H区受损不能听懂话、V区受损不能看懂文字、W区受损不能写字；视觉中枢与V区、听觉中枢与H区、运动性失语与不能发声要区分。",
+   "applicabilityMarkdown": "PRIMARY 根据言语障碍表现定位受损言语区、辨析看到与看懂、听到与听懂等易混概念时使用。",
+   "contentMarkdown": "1.S区（运动性言语区）受损→运动性失语症：不能讲话。\\n2.H区（听觉性言语区）受损→听觉性失语症：不能听懂话。\\n3.V区（视觉性言语区）受损→失读症：不能看懂文字；W区（书写性言语区）受损→失写症：不能写字。\\n4.易混：视觉中枢负责看到、V区负责看懂；听觉中枢负责听到、H区负责听懂；运动性失语症是不能讲话，不是不能发声。",
+   "boundaryMarkdown": "只适用于大脑皮层言语区受损的定位判断；若损伤累及视觉或听觉中枢本身、或累及发声器官与传出通路，表现不同，不能只凭不能说话定为S区损伤。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/1_第十四章 神经调节  精讲册PDF.pdf（块 aae8de9434-023）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-aae8de9434-023",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:人脑的高级功能",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-aae8de9434-024",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "第一运动区的倒置、对侧与精细度规律（53精讲册·神经调节P12）",
+   "summaryMarkdown": "第一运动区主要位于中央前回，皮层代表区位置与躯体各部分倒置，头部器官运动中枢位于中央前回下部，一侧运动区支配对侧肢体，代表区大小与运动精细程度相关。",
+   "applicabilityMarkdown": "PRIMARY 判断大脑皮层运动区损伤后的症状、解释皮层代表区分布规律时使用。",
+   "contentMarkdown": "1.位置：第一运动区（躯体运动中枢）主要位于大脑皮层中央前回。\\n2.倒置与对侧：皮层代表区的位置与躯体各部分的关系是倒置的；一般一侧运动区支配对侧肢体的运动。\\n3.头部定位：控制头部器官运动的中枢位于中央前回下部。\\n4.代表区大小：与躯体运动的精细程度相关，运动越精细的部位代表区越大。",
+   "boundaryMarkdown": "倒置关系指躯干与四肢的代表区顺序；头部器官的代表区仍在中央前回下部，不能把倒置规律机械外推到所有部位。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/1_第十四章 神经调节  精讲册PDF.pdf（块 aae8de9434-024）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-aae8de9434-024",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:大脑皮层",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-f9956d3108-006",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "自主神经系统的组成与意义（53精练册·神经调节word）",
+   "summaryMarkdown": "自主神经系统属于传出神经，由交感神经和副交感神经组成，可使机体对外界刺激作出更精确的反应，更好地适应环境变化。",
+   "applicabilityMarkdown": "PRIMARY 判断自主神经系统的归属与功能、分析内脏活动的神经调节时使用。",
+   "contentMarkdown": "1.自主神经系统属于传出神经，包括交感神经和副交感神经。\\n2.其意义是使机体对外界刺激作出更精确的反应，使机体更好地适应环境的变化。\\n3.兴奋时交感神经占优势，可引起瞳孔扩张、支气管扩张、胃肠蠕动和消化腺分泌减弱。",
+   "boundaryMarkdown": "自主神经并非完全不受意识控制，排尿等过程可受大脑皮层调控；交感与副交感的效应也并非在所有器官都相反。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/3_第十四章 神经调节  精练册word.docx（块 f9956d3108-006）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-f9956d3108-006",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经调节的结构基础",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-f9956d3108-006b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "排尿反射的分级调节与排尿困难（53精练册·神经调节word）",
+   "summaryMarkdown": "兴奋状态下虽有强烈尿意却排尿困难，是因为大脑皮层抑制排尿反射，同时交感神经兴奋、副交感神经抑制，使排尿活动受到抑制。",
+   "applicabilityMarkdown": "PRIMARY 分析憋尿、排尿困难及大脑皮层对脊髓排尿中枢的调控时使用。",
+   "contentMarkdown": "1.排尿反射既受脊髓低级中枢控制，也受大脑皮层高级中枢调控。\\n2.兴奋状态下虽有强烈尿意却排尿困难：大脑皮层抑制排尿反射的发生，同时交感神经兴奋、副交感神经抑制，排尿活动受到抑制。\\n3.这说明自主神经系统并不完全自主，内脏活动受分级调节。",
+   "boundaryMarkdown": "该分析适用于排尿反射的分级调节；若脊髓排尿中枢或传出神经受损，大脑皮层无法通过脊髓完成排尿，表现会不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/3_第十四章 神经调节  精练册word.docx（块 f9956d3108-006）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-f9956d3108-006b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经系统的分级调节",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-37ccea940d-004",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "密码子与反密码子的对应及简并性（53精讲册·基因的表达P2）",
+   "summaryMarkdown": "mRNA上3个相邻碱基决定1个氨基酸，每3个碱基为1个密码子；tRNA上与密码子互补配对的3个碱基叫反密码子；一种氨基酸可对应多个密码子即简并性。",
+   "applicabilityMarkdown": "PRIMARY 区分密码子与反密码子、分析氨基酸与密码子数量关系及简并性时使用。",
+   "contentMarkdown": "1.RNA由RNA聚合酶以DNA为模板合成，包括mRNA、tRNA和rRNA三类。\\n2.mRNA上3个相邻碱基决定1个氨基酸，每3个这样的碱基叫作1个密码子。\\n3.tRNA上的3个碱基可与mRNA上的密码子互补配对，叫作反密码子；一种氨基酸可对应多个密码子，即密码子具有简并性。",
+   "boundaryMarkdown": "密码子位于mRNA上，反密码子位于tRNA上，二者不能混称；简并性指一种氨基酸对应多个密码子，不是多个氨基酸对应同一密码子。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十章基因的表达/1_专题资料包/0_第十章 基因的表达  精讲册PDF.pdf（块 37ccea940d-004）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-37ccea940d-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:密码子",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-37ccea940d-010",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "基因控制性状的两条途径（53精讲册·基因的表达P5）",
+   "summaryMarkdown": "基因可通过控制酶的合成来控制代谢过程，进而控制性状；也可通过控制蛋白质的结构直接控制性状。",
+   "applicabilityMarkdown": "PRIMARY 判断某性状由基因通过哪种途径控制、解释代谢病与结构蛋白异常时使用。",
+   "contentMarkdown": "1.间接途径：基因通过控制酶的合成来控制代谢过程，进而控制生物体的性状。\\n2.直接途径：基因通过控制蛋白质的结构直接控制生物体的性状。\\n3.同一性状可能同时受两条途径影响，分析时要写明具体环节。",
+   "boundaryMarkdown": "两条途径不是互斥的；不能把控制酶合成与控制蛋白质结构绝对对立，也不能把所有性状都归为单基因直接控制。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十章基因的表达/1_专题资料包/0_第十章 基因的表达  精讲册PDF.pdf（块 37ccea940d-010）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-37ccea940d-010",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因表达与性状的关系",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-37ccea940d-010b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "表观遗传的概念与DNA甲基化、组蛋白修饰（53精讲册·基因的表达P5）",
+   "summaryMarkdown": "表观遗传是基因碱基序列保持不变但基因表达和表型发生可遗传变化的现象；DNA甲基化和组蛋白修饰通过影响转录调控基因表达。",
+   "applicabilityMarkdown": "PRIMARY 判断某现象是否属于表观遗传、分析甲基化或组蛋白修饰对基因表达的影响时使用。",
+   "contentMarkdown": "1.表观遗传：生物体基因的碱基序列保持不变，但基因表达和表型发生可遗传变化的现象。\\n2.DNA甲基化：启动子区域甲基化会影响RNA聚合酶与启动子的结合，影响转录过程。\\n3.组蛋白修饰：改变染色质状态及其开放程度，进而调控基因表达，如组蛋白甲基化通常影响转录。",
+   "boundaryMarkdown": "表观遗传强调碱基序列不变而表达可遗传改变；若DNA序列本身发生改变则属于基因突变，不属于表观遗传。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十章基因的表达/1_专题资料包/0_第十章 基因的表达  精讲册PDF.pdf（块 37ccea940d-010）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-37ccea940d-010b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:表观遗传",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-37ccea940d-013",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "miRNA与circRNA竞争性结合调控基因表达（53精讲册·基因的表达P6）",
+   "summaryMarkdown": "miRNA与靶mRNA结合可使其降解、减少相应蛋白；circRNA与mRNA竞争性结合miRNA，从而调节基因表达。",
+   "applicabilityMarkdown": "PRIMARY 分析miRNA、circRNA对靶基因表达的调控及放射性心脏损伤等情境时使用。",
+   "contentMarkdown": "1.miRNA与靶mRNA结合，可使靶mRNA降解，使相应蛋白质减少，从而影响细胞过程。\\n2.circRNA与mRNA在细胞质中竞争性结合miRNA，减少miRNA对靶mRNA的作用，调节基因表达。\\n3.实例：miRNA与P基因mRNA结合使其降解、P蛋白减少，促进细胞凋亡；增多circRNA可减轻该效应。",
+   "boundaryMarkdown": "竞争性结合依赖序列互补；miRNA与circRNA的相对含量会改变调控方向，不能只凭单一分子含量判断表型。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十章基因的表达/1_专题资料包/0_第十章 基因的表达  精讲册PDF.pdf（块 37ccea940d-013）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-37ccea940d-013",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:RNA干扰",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-3b3eda0b1c-003",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "质壁分离的原理、观察与复原（53精讲册·物质输入输出P2）",
+   "summaryMarkdown": "原生质层伸缩性大于细胞壁，失水时发生质壁分离；过程中细胞液浓度增大、吸水能力增强；清水后复原且因细胞壁保护不会涨破，可用低倍镜观察紫色洋葱外表皮。",
+   "applicabilityMarkdown": "PRIMARY 解释质壁分离与复原现象、判断细胞吸水失水状态及选择实验材料与显微镜时使用。",
+   "contentMarkdown": "1.原理：原生质层的伸缩性大于细胞壁，植物细胞失水时原生质层与细胞壁分离，发生质壁分离。\\n2.过程：质壁分离过程中细胞液浓度增大，细胞的吸水能力逐渐增强。\\n3.复原：滴加清水后细胞吸水，质壁分离复原；因有细胞壁的保护，细胞不会涨破。\\n4.观察：用紫色洋葱鳞片叶外表皮，低倍显微镜即可观察。",
+   "boundaryMarkdown": "需要具有成熟大液泡和细胞壁的活植物细胞才能观察到明显质壁分离；死细胞或无大液泡的细胞不适用。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第四章细胞的物质输入和输出/1_专题资料包/1_第四章 细胞的物质输入和输出  精讲册PDF.pdf（块 3b3eda0b1c-003）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-3b3eda0b1c-003",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:质壁分离",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-1f9130f33a-009",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "分裂期核DNA无法解旋、不能转录（第05讲 细胞膜和细胞核·教师版解析）",
+   "summaryMarkdown": "染色质在分裂期螺旋化形成染色体，核DNA无法解旋、模板链不能暴露，故「有丝分裂各时期都进行核DNA的转录」的说法不成立。",
+   "applicabilityMarkdown": "PRIMARY：遇到「细胞在有丝分裂各时期都进行核DNA的转录」这类判断，或在分裂期能否进行核DNA转录的问题上定夺时。",
+   "contentMarkdown": "1. 易错说法：「细胞在有丝分裂各时期都进行核DNA的转录」不成立。\\n2. 依据：在有丝分裂过程中，染色质形成染色体，核DNA无法解旋，碱基不能暴露作模板，故无法转录。\\n3. 因此核DNA的转录只能发生在DNA能解旋的时期，不能认为分裂各时期都在转录。",
+   "boundaryMarkdown": "该结论针对核DNA（受染色质螺旋化限制）；线粒体与叶绿体DNA不形成染色质，其转录不受此限制；判断时先确认所问是核DNA还是细胞质DNA的转录。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/2027年高考生物一轮复习知识清单（全国通用）-G56/2027版/第05讲 细胞膜和细胞核（知识清单）（全国通用）（教师版）.docx（块 1f9130f33a-009）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-1f9130f33a-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:转录",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-8124fa2793-015",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用X染色体随机失活判断基因定位与致病基因来源（第17讲 伴性遗传·教师版解析）",
+   "summaryMarkdown": "女性体细胞仅一条X保持活性且失活随机，杂合子女性不同细胞分别表达不同等位基因；题干出现这种细胞水平的嵌合表达时即可判定该基因位于X染色体，并据此推断致病基因来源。",
+   "applicabilityMarkdown": "PRIMARY：题干给出某女性个体中部分细胞只表达一种等位基因、部分只表达另一种（细胞水平表达差异），要求判断基因位置与致病基因来源时。",
+   "contentMarkdown": "1. 剂量补偿：人类女性体细胞中仅有一条X染色体保持活性，从而使女性与男性体细胞中X染色体基因的表达水平相当。\\n2. 失活是随机的、两条X失活机会均等：杂合子女性体内不同细胞分别表达不同的等位基因（可表现为部分细胞只表达G蛋白、部分只表达g蛋白），因此失活的X不一定来自母方。\\n3. 题干出现这种细胞水平的分歧表达时，应判定相关基因位于X染色体且该个体为杂合子，再结合系谱与是否患病判断致病基因来源与遗传方式。",
+   "boundaryMarkdown": "依据是体细胞中X的随机失活，只适用于X连锁基因；常染色体基因成对存在、无剂量补偿，不能套用；失活状态经有丝分裂传给子细胞故嵌合可稳定存在，但题干细胞计数比例不必严格为1∶1；若表达差异另有来源，需与系谱等条件互证。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/2027年高考生物一轮复习知识清单（全国通用）-G56/2027版/第17讲 伴性遗传和人类遗传病（知识清单）（全国通用）（教师版）.docx（块 8124fa2793-015）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-8124fa2793-015",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:剂量补偿效应与巴氏小体",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-078f97ffff-018",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用无蛋白脂质体重组膜蛋白来鉴定通道蛋白（第04讲 蛋白质和核酸·情境探究）",
+   "summaryMarkdown": "把待测膜蛋白整合进不含蛋白质的脂质体、与普通脂质体同放低渗液作对照，若涨破更快即可排除「间接激活细胞内通道」的可能，判定该蛋白自身就是通道蛋白。",
+   "applicabilityMarkdown": "PRIMARY：要判定某膜蛋白本身是否为水通道（而不是间接激活细胞内已有通道的物质）、或分析脂质体重组实验的设计与结果时。",
+   "contentMarkdown": "1. 判断某膜蛋白是通道蛋白还是「间接激活水通道蛋白的物质」，关键是把该蛋白与细胞内其它成分分开考察。\\n2. 做法：把该蛋白整合进由双层磷脂分子围成、本身不含蛋白质的球形脂质体，另设普通脂质体（不含蛋白）作对照，同时放入蒸馏水中比较涨破时间。\\n3. 若含该蛋白的脂质体涨破时间比对照组短，说明水分子经该蛋白进入更快、该蛋白自身即可导水，可判定它是水通道蛋白；若两组无差别，则说明它只是间接激活细胞内通道。",
+   "boundaryMarkdown": "脂质体无细胞结构也无其它膜蛋白，只能判断该蛋白自身有无导水能力，不能说明它在活细胞中的数量变化与调节方式；两组脂质体的大小、膜脂组成、温度与渗透梯度须一致，因变量取涨破时间；Hg²⁺使该蛋白活性受抑（如改变空间结构）可作旁证但替代不了对照。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/2027年高考生物一轮复习讲义+练习+课件（新教材新高考）-G55/2027版/第04讲 蛋白质和核酸（复习讲义）（全国通用）（教师版）.docx（块 078f97ffff-018）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-078f97ffff-018",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究物质跨膜运输方式的实验设计",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-8ce3191e5a-013",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "果蝇性别由性指数决定、Y染色体决定雄性可育（第17讲 伴性遗传·考向02解析）",
+   "summaryMarkdown": "果蝇的性别由性指数即X染色体数目与常染色体组数之比决定（1为雌性、0.5为雄性），Y染色体不决定性别而决定雄性是否可育，常染色体隐性基因t纯合可把雌蝇转为雄蝇。",
+   "applicabilityMarkdown": "PRIMARY：题干给出果蝇性染色体组合异常（如XO、XXY、XYY）或常染色体隐性基因t纯合，要求判断个体性别与是否可育时。",
+   "contentMarkdown": "1. 果蝇的性别受胚胎性指数i影响：i为X染色体数目与常染色体组数之比，i＝1为雌性、i＝0.5为雄性。\\n2. Y染色体不参与果蝇的性别决定，但决定雄性的可育性：有Y染色体的雄性个体可育，无Y染色体的雄性个体不育（如XO为不育雄蝇）。\\n3. 常染色体隐性基因t纯合可导致雌蝇变为雄蝇：无Y染色体者（如ttXX）为不育雄蝇，含Y染色体者（如ttXXY、ttXYY）为可育雄蝇。",
+   "boundaryMarkdown": "该判定针对果蝇的X/A型性别决定，不能套用到「Y染色体决定雄性」的一般XY型动物；判断可育性要同时写出性指数与Y染色体的有无；题干换成其它物种时须按其性别决定方式另判。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/2027年高考生物一轮复习讲义+练习+课件（新教材新高考）-G55/2027版/第17讲 伴性遗传和人类遗传病（复习讲义）（全国通用）（教师版）.docx（块 8ce3191e5a-013）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-8ce3191e5a-013",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:其他性别决定方式简介-深度拓展",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-5f0623d07d-010",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "光反应中光能的两条去向与NADPH、ATP的供氢供能作用",
+   "summaryMarkdown": "光合色素吸收的光能用于水的光解和ATP合成；水的光解产生氧和NADPH，NADPH既作还原剂又为暗反应供能。",
+   "applicabilityMarkdown": "PRIMARY：梳理光反应产物来源、解释ATP与NADPH在暗反应中供氢供能作用时使用",
+   "contentMarkdown": "光合色素吸收的光能有两方面用途：一方面用于H2O分解产生氧和NADPH，另一方面用于ATP的合成。\\n水分解为氧和H+的同时，被叶绿体夺去两个电子；电子经传递后用于NADP+与H+结合形成NADPH。\\nNADPH既可作还原剂，又可为暗反应提供能量；暗反应的供氢由NADPH提供，供能由ATP和NADPH共同提供。",
+   "boundaryMarkdown": "限于叶绿体光反应阶段：NADPH与ATP由光反应产生后供暗反应使用，不能用于光合作用之外的能量供应判断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第10讲 捕获光能的色素和结构及光合作用的原理.docx（块 5f0623d07d-010）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-5f0623d07d-010",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光反应",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-27fc03d1fa-010",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "类囊体膜电子传递链与ATP合酶的作用",
+   "summaryMarkdown": "PSⅠ/PSⅡ推动电子传递，水的光解补充电子、PQ把H+运入类囊体腔，ATP合酶利用膜两侧H+电化学势能合成ATP。",
+   "applicabilityMarkdown": "PRIMARY：分析光反应电子传递方向、类囊体膜两侧H+浓度差来源与ATP合成机制时使用",
+   "contentMarkdown": "PSⅠ和PSⅡ是叶绿素与蛋白质构成的光系统，能吸收利用光能进行电子传递。\\n少数处于特殊状态的叶绿素分子被光激发后失去高能电子，并从水分子中夺取电子，使水分解为氧和H+；电子经PQ、Cytbf、PC等传递体形成电子流，最终受体是NADP+，NADP+与H+结合形成NADPH。\\n使类囊体膜两侧H+浓度差增加的过程有三条：水的光解产生H+、PQ把H+运输到类囊体腔、合成NADPH消耗H+。\\nATP合酶既有运输H+的功能，又能催化ATP合成；ATP合成依赖类囊体膜两侧H+浓度差形成的电化学势能。",
+   "boundaryMarkdown": "限于类囊体薄膜上的光反应；H+由类囊体腔经ATP合酶流向基质的方向不能颠倒，膜两侧H+浓度差被破坏则ATP合成受阻。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第11讲 光合作用的影响因素及其应用.docx（块 27fc03d1fa-010）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-27fc03d1fa-010",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光系统与电子传递链",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-e61842dd66-004",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "电泳图判读等位基因差异与酶切策略",
+   "summaryMarkdown": "电泳按碱基对数目区分条带，等位基因bp数不同可直接区分，bp数相同而序列不同需先用限制酶切割再电泳。",
+   "applicabilityMarkdown": "PRIMARY：解读遗传题电泳条带位置、判断等位基因碱基对数目差异与酶切位点归属时使用",
+   "contentMarkdown": "电泳图一般按碱基对数量（bp）区分：碱基对数目相同的基因处于同一位置、表现为同一条带。\\n等位基因所含碱基对数目不同时，二者条带位置不同，可直接由条带位置区分基因种类。\\n等位基因碱基对数目相同、仅碱基顺序不同（例如由碱基对替换产生）时，需先用限制酶切割再电泳；若某限制酶的识别位点仅基因A具有，则只有A被切成两段，切开后各段长度之和等于未切割时的长度。",
+   "boundaryMarkdown": "适用于以碱基对数目差异为基础的电泳判断；同一基因被酶切产生的多条带不能当作不同基因，条带归属须与酶切位点对应。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第17讲 基因分离定律重点题型突破.docx（块 e61842dd66-004）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-e61842dd66-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:遗传系谱图和电泳图谱分析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-7157b7d207-018",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "三系法（不育系·保持系·恢复系）的基因型与育性关系（第18讲·答案与解析）",
+   "summaryMarkdown": "雄性不育系花粉败育只能作母本；保持系与其杂交后代仍为S型不育，故保持系自交即可繁殖保持系；恢复系杂交得可育F1，F1自交F2可育与不育为3∶1。",
+   "applicabilityMarkdown": "PRIMARY：判断不育系、保持系、恢复系的基因型与后代育性，或解释连续回交获得雄性不育品系时。",
+   "contentMarkdown": "1. 雄性不育系产生的花粉败育，在杂交过程中只能作母本；保持系与其杂交，子代仍为细胞质不育、核内为rr的雄性不育类型，因此保持系自交即可获得大量保持系种子。\\n2. 雄性不育系与恢复系杂交，F1带恢复基因R而表现雄性可育；F1自交所得F2中可育与不育的比例为3∶1。\\n3. 雄性不育系的育性可通过环境因素调节而恢复，说明生物体性状是基因与环境因素共同决定的。",
+   "boundaryMarkdown": "只适用于核质互作型雄性不育：不育由细胞质基因与细胞核基因互作决定，核内无恢复基因时不育、含恢复基因时可育，不能按单纯核遗传推断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第18讲 基因分离定律拓展题型全扫描.docx（块 7157b7d207-018）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-7157b7d207-018",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核质互作雄性不育与三系法育种",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-0b3efd9209-006",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "两对等位基因是否遵循自由组合定律的判定（第20讲·题型2与例2提示）",
+   "summaryMarkdown": "判定两对等位基因是否遵循自由组合定律有两条依据：看两对基因在染色体上的位置关系，或看双杂合子自交、测交后代的分离比；三种位置关系对应不同比例。",
+   "applicabilityMarkdown": "PRIMARY：给出双杂合子自交或测交后代的表型比、要求判断两对基因是否独立遗传或推断基因位置关系时。",
+   "contentMarkdown": "1. 依据一（位置关系）：两对等位基因位于非同源染色体上时遵循自由组合定律；位于同一对同源染色体上时两基因连锁、不遵循。\\n2. 依据二（双杂合子自交，不计互换）：两基因独立时子代表型比为9∶3∶3∶1；相引型连锁时表现为3∶1；相斥型连锁时表现为2∶1∶1。\\n3. 依据三（测交，不计互换）：独立时测交子代为四种表型1∶1∶1∶1；连锁时只出现两种表型且为1∶1（相引型为双显性与双隐性两类，相斥型为两类单显组合）。",
+   "boundaryMarkdown": "以上比例均以不发生染色体互换为前提；若发生互换，双杂合子产生两多两少四种配子，自交与测交比都不再是上述整数比，须按重组型比例修正。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第20讲 自由组合定律中特殊分离比、探究不同对基因在常染色体上的位置.docx（块 0b3efd9209-006）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-0b3efd9209-006",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:两对（多对）等位基因位置关系的判断",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-0b3efd9209-024",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "由突变体表型组合推断基因功能并用分离比判定位置（限时练20·解析）",
+   "summaryMarkdown": "用单基因敲除株的表型可把性状归到基因：有A为齿状、无A为全缘说明A控制叶缘形状；只有A与B同时存在才有分泌腔说明该性状由两基因互补控制，F2双杂合自交呈9∶3∶4。",
+   "applicabilityMarkdown": "PRIMARY：给出单基因或双基因敲除（突变）株的表型表、要求推断基因功能或判断两对基因是否位于两对同源染色体上时。",
+   "contentMarkdown": "1. 由突变株表型归属基因功能：某性状随单个基因失活即改变，则该基因控制该性状（有A基因时叶缘齿状、无A基因时叶全缘，故A控制叶缘形状）。\\n2. 若某性状只在两基因同时存在（双显性）时出现，则说明该性状由两基因互补控制，任一基因失活都不表现。\\n3. 此类互补作用的F2双杂合自交分离比为9∶3∶4（双显∶单显∶其余），它是9∶3∶3∶1的变式，可同时判定两对基因位于非同源染色体上、遵循自由组合定律。",
+   "boundaryMarkdown": "仅适用于突变型为功能丧失型、不考虑染色体互换与其他基因干扰的情形；9∶3∶4是本类互补作用的取值，换成其他互作模式要重新推比例。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第20讲 自由组合定律中特殊分离比、探究不同对基因在常染色体上的位置.docx（块 0b3efd9209-024）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-0b3efd9209-024",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自由组合定律中的特殊分离比问题分析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-34dbf1aed8-005",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "lncRNA与miRNA调控基因表达的两条路径（第25讲·基因的表达）",
+   "summaryMarkdown": "lncRNA可在核内结合DNA模板链调控转录、在胞质与mRNA竞争结合沉默复合蛋白而影响翻译；miRNA与AGO等蛋白形成沉默复合蛋白，引导降解与其配对的RNA。",
+   "applicabilityMarkdown": "PRIMARY：分析图示中lncRNA、miRNA或siRNA对转录与翻译的调控，或评价RNA生物农药的优点时。",
+   "contentMarkdown": "1. lncRNA在细胞核中与DNA模板链结合调控转录，在细胞质中与mRNA竞争性结合沉默复合蛋白、影响翻译。\\n2. miRNA与AGO等蛋白结合形成沉默复合蛋白，引导降解与其配对结合的RNA：降解lncRNA可解除对翻译的影响，降解mRNA则直接调控翻译。\\n3. 外源RNA进入细胞后经加工可形成siRNA引导的沉默复合蛋白；RNA农药的优点在于专一性强、易降解、不会污染环境。",
+   "boundaryMarkdown": "本条只描述转录后与翻译水平的调控路径；解决具体问题时须区分miRNA降解的靶标是lncRNA还是mRNA，二者的效应方向相反。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第25讲 基因指导蛋白质的合成.docx（块 34dbf1aed8-005）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-34dbf1aed8-005",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:RNA干扰",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-34dbf1aed8-016",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "翻译的起始识别位点与核糖体的延伸过程（第25讲·基因的表达）",
+   "summaryMarkdown": "核糖体结合位点在mRNA5′端特定区域，与30S亚基rRNA的3′端互补配对；tRNA先进入A位，50S亚基催化P位肽链转移到A位氨基酸上，核糖体沿mRNA移动一个密码子。",
+   "applicabilityMarkdown": "PRIMARY：分析核糖体沿mRNA的移动方向、tRNA进位顺序或翻译起始识别位点时。",
+   "contentMarkdown": "1. 核糖体结合位点位于mRNA分子的5′端特定区域，其碱基与核糖体30S亚基rRNA的3′端碱基互补配对，是翻译起始的识别基础；密码子位于mRNA上。\\n2. 翻译延伸时携带氨基酸的tRNA先进入A位；50S亚基催化P位上tRNA携带的肽链转移到A位tRNA携带的氨基酸上，随后P位tRNA离开，核糖体沿mRNA移动一个密码子位置。",
+   "boundaryMarkdown": "本条以题中30S、50S亚基的原核核糖体为据；真核核糖体亚基名称不同，引用时须按教材对应名称区分，不能把30S、50S直接用于真核。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第25讲 基因指导蛋白质的合成.docx（块 34dbf1aed8-016）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-34dbf1aed8-016",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:翻译",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-8f23f60a54-007",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "生殖隔离的判据与「取食适应≠生殖隔离」的辨析（第29讲·生物的进化）",
+   "summaryMarkdown": "生殖隔离的判据是能否交配并产生可育后代；因基因突变获得取食新植物的适应不能据此判定发生了生殖隔离；协同进化发生在不同物种之间、生物与无机环境之间。",
+   "applicabilityMarkdown": "PRIMARY：判断某适应性差异（食性、习性等）能否作为物种分化或生殖隔离的证据时。",
+   "contentMarkdown": "1. 生殖隔离的判据：不同物种之间一般不能相互交配，即使交配成功，也不能产生可育的后代。\\n2. 对某一环境（如取食含毒素植物）的适应由基因突变与环境选择共同造成；取食能力的获得只是适应，不能由它推出与其他类群发生生殖隔离。\\n3. 协同进化指不同物种之间、生物与无机环境之间在相互影响中不断进化和发展，不能与单个基因突变引起的适应混同。",
+   "boundaryMarkdown": "生殖隔离的判定必须有交配或后代可育性证据；仅凭食性、栖息地或形态差异不能判定生殖隔离，行为隔离等也需有隔离证据支撑。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第29讲 生物的进化.docx（块 8f23f60a54-007）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-8f23f60a54-007",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:隔离在物种形成中的作用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-74b6cc56e2-008",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "离体蛙心灌流实验证明神经末梢的化学传递（第31讲·神经调节）",
+   "summaryMarkdown": "迷走神经属副交感神经、使心跳减慢；保留支配蛙心1的迷走神经、剔除蛙心2的神经，刺激蛙心1迷走神经使其跳动减慢后取任氏液注入蛙心2，若蛙心2出现相同减慢现象即可证明化学传递。",
+   "applicabilityMarkdown": "PRIMARY：设计或分析「神经末梢通过化学物质作用于效应器」的推理型实验题时。",
+   "contentMarkdown": "1. 由图2可知，电刺激迷走神经后心跳减慢，即迷走神经可使心跳减慢；结合交感神经使心跳加快，说明支配心脏的迷走神经为副交感神经。\\n2. 实验设计：蛙心1保留迷走神经、蛙心2剔除全部神经，用任氏液灌流；刺激蛙心1迷走神经使其跳动减慢后，把蛙心1的任氏液注入蛙心2。\\n3. 预期结果：蛙心2出现与蛙心1相同的心跳减慢现象，说明迷走神经对心脏的控制是通过化学物质（神经递质）实现的，而不是直接的电信号传导。",
+   "boundaryMarkdown": "结论成立的关键是蛙心2无神经支配、两心脏之间只有灌流液作为传递媒介；若液体未能在有效时间内到达或两心脏间仍有神经联系，实验不能证明化学传递。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第31讲 神经调节的结构基础和基本方式.docx（块 74b6cc56e2-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-74b6cc56e2-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:神经递质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b1dbe11e89-012",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "NO—谷氨酸正反馈与谷氨酸毒性（第32讲·神经冲动的产生和传导）",
+   "summaryMarkdown": "NO促进突触前谷氨酸释放，谷氨酸使突触后Na⁺、Ca²⁺过多内流并进一步促进NO生成，构成正反馈；钙超载使突触后神经元涨破坏死，可据此设计药物思路。",
+   "applicabilityMarkdown": "PRIMARY：分析正反馈调节实例，或为谷氨酸毒性相关疾病提出药物作用机制时。",
+   "contentMarkdown": "1. 环路：NO作用于突触前膜所在神经元使谷氨酸持续释放；谷氨酸作用于突触后膜，使Na⁺内流并促进Ca²⁺内流，钙依赖的NO合酶催化生成NO，再回到突触前——构成正反馈调节。\\n2. 危害：谷氨酸持续作用使Na⁺、Ca²⁺过多进入突触后神经元，其渗透压升高，导致突触后神经元涨破坏死（渐冻症的神经元损伤机制）。\\n3. 干预思路：抑制谷氨酸释放、抑制谷氨酸与AMPA受体的结合、抑制NMDA受体活性、抑制NO合酶的活性。",
+   "boundaryMarkdown": "该正反馈发生在谷氨酸能突触的NO—谷氨酸环路中；药物思路只是按机制提出的方向，实际疗效须另经实验验证。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第32讲 神经冲动的产生和传导.docx（块 b1dbe11e89-012）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b1dbe11e89-012",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:反馈调节",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b1dbe11e89-016",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "静息电位与动作电位的离子基础及电表偏转次数（限时练32·解析）",
+   "summaryMarkdown": "静息电位由K⁺外流形成，动作电位由细胞外Na⁺内流形成；增大胞外K⁺使静息电位绝对值减小，无Na⁺环境不能产生动作电位；两电极间断传导时只发生一次偏转。",
+   "applicabilityMarkdown": "PRIMARY：判断电位曲线各段对应的离子流，或预测阻断某段神经后电位记录仪的偏转次数时。",
+   "contentMarkdown": "1. 静息电位由K⁺的外流形成（静息电位的恢复阶段同样以K⁺外流为主，运输方式为协助扩散）；动作电位的形成由细胞外Na⁺大量内流导致。\\n2. 增大细胞外K⁺浓度使膜内外K⁺浓度差减小，静息电位绝对值减小；动作电位依赖细胞外Na⁺内流，在无Na⁺溶液中无法记录到动作电位。\\n3. 记录电极分置神经两处时，兴奋先后到达两极会出现两次方向相反的偏转；若在两电极之间阻断传导，兴奋只能到达一侧电极，只发生一次偏转。",
+   "boundaryMarkdown": "判断偏转次数必须先确定兴奋能否越过两电极之间的阻断点；「只发生一次偏转」指的是只出现原两次偏转中的前半段。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第32讲 神经冲动的产生和传导.docx（块 b1dbe11e89-016）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b1dbe11e89-016",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋在神经纤维上的传导",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b1dbe11e89-018",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "动作电位的幅度—频率编码与递质释放的钙依赖（限时练32·解析）",
+   "summaryMarkdown": "增大刺激强度动作电位幅度不变而频率增加、胞内Ca²⁺浓度升高；递质释放依赖胞外Ca²⁺内流；阻断Na⁺通道不影响静息电位，降低胞外K⁺使静息电位绝对值增大。",
+   "applicabilityMarkdown": "PRIMARY：分析刺激强度与动作电位幅度、频率的关系，或判断改变胞外离子浓度对静息电位与递质释放的影响时。",
+   "contentMarkdown": "1. 随着刺激强度的增加，膜电位（动作电位）幅度不发生变化、频率增加，胞内Ca²⁺浓度逐渐增加——刺激强度以频率而非幅度编码。\\n2. 突触小泡释放神经递质依赖细胞外Ca²⁺内流：去除细胞外液的Ca²⁺时Na⁺内流与动作电位不受影响，但释放的神经递质减少。\\n3. 静息电位由K⁺外流形成，用TTX阻断Na⁺通道不影响静息电位；降低培养液中的K⁺浓度使K⁺顺浓度梯度外流增加、静息电位绝对值增加，细胞更难达到动作电位。",
+   "boundaryMarkdown": "幅度不变、频率增加是对同一细胞在阈值以上刺激而言；改变胞外K⁺只影响静息电位、改变胞外Na⁺只影响动作电位，两者不可互相替换。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第32讲 神经冲动的产生和传导.docx（块 b1dbe11e89-018）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b1dbe11e89-018",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:兴奋的产生和传导",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-f190afa853-008",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "单克隆抗体制备的两次筛选（第36讲·免疫学的应用）",
+   "summaryMarkdown": "在制备单克隆抗体过程中需经两次筛选：第一次用选择培养基筛选出杂交瘤细胞；第二次利用抗原抗体特异性结合的原理，筛选出能产生特定抗体的杂交瘤细胞。",
+   "applicabilityMarkdown": "PRIMARY：说明或设计单克隆抗体制备流程中两次筛选的目的与方法时。",
+   "contentMarkdown": "1. 第一次筛选：用选择培养基筛选出杂交瘤细胞（未融合细胞与同种融合细胞不能存活）。\\n2. 第二次筛选：利用抗原抗体特异性结合的原理进行筛选，获得能产生特定抗体的杂交瘤细胞。\\n3. 两次筛选解决的是两个不同问题——先留下杂交瘤细胞，再从杂交瘤细胞中挑出产生所需抗体的那一株。",
+   "boundaryMarkdown": "选择培养基只能选出杂交瘤细胞，不能保证其产生所需抗体；两次筛选的顺序与原理不能互换。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第36讲 免疫失调和免疫学的应用.docx（块 f190afa853-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-f190afa853-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:单克隆抗体",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-f190afa853-008b",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "靶细胞死亡方式的判断：细胞凋亡与细胞坏死（第36讲·免疫学的应用）",
+   "summaryMarkdown": "免疫细胞清除靶细胞属于细胞凋亡；若病原体入侵靶细胞内大量增殖而使靶细胞裂解死亡，则为细胞坏死；细胞毒性T细胞分泌穿孔素、颗粒酶诱导肿瘤细胞凋亡，肿瘤细胞主要被巨噬细胞清除。",
+   "applicabilityMarkdown": "PRIMARY：判断免疫过程中靶细胞死亡属于凋亡还是坏死，或说明细胞毒性T细胞与巨噬细胞的作用时。",
+   "contentMarkdown": "1. 免疫细胞清除靶细胞，属于细胞凋亡。\\n2. 若是病原体入侵至靶细胞内、在靶细胞内大量增殖，最终使靶细胞裂解死亡，则为细胞坏死。\\n3. 活化的细胞毒性T细胞分泌穿孔素、颗粒酶诱导肿瘤细胞发生细胞凋亡；最终肿瘤细胞主要被巨噬细胞清除。",
+   "boundaryMarkdown": "凋亡与坏死的区分看死亡原因与过程（程序性死亡还是病原体增殖导致的裂解），不能只看「细胞死亡」这一结果。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第36讲 免疫失调和免疫学的应用.docx（块 f190afa853-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-f190afa853-008b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞凋亡",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-090c54e67d-008",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用胚根与胚芽鞘的敏感性差异比较两个未知生长素浓度（第37讲·提示）",
+   "summaryMarkdown": "胚芽鞘弯曲角度相同时两浓度可能分居最适浓度两侧，无法直接比大小；改用更敏感的胚根，弯曲（生长慢）一侧浓度相对较高、已进入抑制范围，据此可比较两浓度大小。",
+   "applicabilityMarkdown": "PRIMARY：给出两个未标记浓度处理、弯曲角度相同（αx＝αy）的实验结果，要求比较两浓度大小时。",
+   "contentMarkdown": "1. 与胚芽鞘相比，胚根对生长素更敏感；胚根弯曲生长时，弯曲（生长慢）一侧的生长素浓度相对较高，已抑制该侧生长。\\n2. 两个浓度使胚芽鞘产生相同弯曲角度时，二者可能分别位于最适浓度的两侧（一大一小），需换用更敏感的器官或增加其他实验才能比较大小。",
+   "boundaryMarkdown": "比较两浓度大小必须明确施加部位与弯曲方向；同一浓度对根与胚芽鞘的效应不同，不能把胚芽鞘的结论直接搬到根上。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第37讲 植物生长素及其生理作用.docx（块 090c54e67d-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-090c54e67d-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素的两重性",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-090c54e67d-017",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "生长素的极性运输与顶端优势（限时练37·答案）",
+   "summaryMarkdown": "生长素的极性运输是主动运输；顶芽产生的生长素运至侧芽使侧芽浓度较高而抑制侧芽生长，用极性运输抑制剂阻断运输可解除该抑制，低磷胁迫则促进极性运输。",
+   "applicabilityMarkdown": "PRIMARY：分析顶端优势、分蘖受抑制或极性运输抑制剂（如NPA）实验结果时。",
+   "contentMarkdown": "1. 生长素的极性运输方式是主动运输；顶芽产生的生长素运输至侧芽处，使侧芽处生长素浓度较高，从而抑制侧芽生长（顶端优势）。\\n2. 在正常供磷条件下，阻止生长素（或NAA）的极性运输能解除生长素对水稻分蘖产生的抑制作用——说明该抑制依赖极性运输。\\n3. 与正常供磷处理相比，低磷胁迫促进了水稻体内生长素的极性运输。",
+   "boundaryMarkdown": "极性运输指生长素只能从形态学上端运向形态学下端、与重力方向无关；上述结论来自水稻分蘖实验，推广到其他植物与器官需另验证。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第37讲 植物生长素及其生理作用.docx（块 090c54e67d-017）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-090c54e67d-017",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素的极性运输",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-2ceeb9ee27-005",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "时间生态位重叠指数的解读（第41讲·群落及其演替·解析）",
+   "summaryMarkdown": "生态位包括物种的空间位置、占用资源及与其他物种的关系；有捕食关系的两物种时间生态位重叠指数一般较大；与夜行物种重叠指数极小者可判断为昼行。",
+   "applicabilityMarkdown": "PRIMARY：给出生态位重叠指数表格、要求推断捕食关系、物种相似性或活动时间错开的物种时。",
+   "contentMarkdown": "1. 物种的生态位包括该物种所处的空间位置、占用资源的情况以及与其他物种的关系等；长时间调查生活在隐蔽、复杂环境中的猛兽数量可用红外触发相机（对动物干扰少）。\\n2. 存在捕食关系的两个物种生态位有重叠，其时间生态位重叠指数一般相对较大，可据此推测某物种的猎物。\\n3. 两物种时间生态位重叠指数最大（如0.93）说明栖息地、食物、天敌等相似度最高，可能属于同一属；与某夜行物种重叠指数最小者（接近0）可判断为昼行。",
+   "boundaryMarkdown": "重叠指数只反映时间维度上的重叠程度，不能单独确定种间关系或分类归属，须结合食性、栖息地等其他证据。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第41讲 群落及其演替.docx（块 2ceeb9ee27-005）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-2ceeb9ee27-005",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态位",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-2ceeb9ee27-017",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "由相对多度不能直接推断种群密度（第41讲·群落及其演替·解析）",
+   "summaryMarkdown": "密度是单位面积或体积内的个体数，相对多度只反映占比；植物个体总数变化未知时，即使某物种相对多度已知，也不能确定其种群密度变化。",
+   "applicabilityMarkdown": "PRIMARY：给出物种相对多度或占比曲线、要求判断某物种种群密度变化时。",
+   "contentMarkdown": "1. 密度是单位面积（或体积）内的个体数；相对多度只反映占比，二者不能直接换算。\\n2. 若某时间段群落中植物个体总数变化未知，则无法由相对多度变化确定某种群的种群密度变化。",
+   "boundaryMarkdown": "只有在个体总数（或总面积）已知且不变时，才能由相对多度变化推断密度变化；缺少总数信息时只能判「不能确定」。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第41讲 群落及其演替.docx（块 2ceeb9ee27-017）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-2ceeb9ee27-017",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-4eea527f87-018",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "初生演替与次生演替的起点与速度差异（限时练42·解析）",
+   "summaryMarkdown": "初生演替从无植被覆盖或植被被彻底消灭、无土壤基础的地方开始，过程漫长；次生演替在原有土壤条件基本保留、甚至保留繁殖体的地方发生，速度更快。",
+   "applicabilityMarkdown": "PRIMARY：判断某地发生的演替类型并比较两类演替速度时。",
+   "contentMarkdown": "1. 起点不同：初生演替发生在一个从来没有被植物覆盖的地面，或原来存在过植被、但被彻底消灭了的地方；次生演替发生在原有植被虽已不存在、但原有土壤条件基本保留（甚至保留了种子或其他繁殖体）的地方。\\n2. 速度不同：初生演替要从无到有建立生态，过程漫长；次生演替有土壤、种子等基础，速度更快。",
+   "boundaryMarkdown": "区分依据是起点与原有土壤、繁殖体条件，不是持续时间长短；被彻底消灭且无土壤基础的裸地属初生演替。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第42讲 生态系统的结构及其稳定性.docx（块 4eea527f87-018）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-4eea527f87-018",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的演替",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-4eea527f87-018b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "物种多样性与空间结构对虫害控制和稳定性的作用（限时练42·解析）",
+   "summaryMarkdown": "种植多种植物使动物种类增加、竞争与捕食关系更复杂，从而限制害虫种群增长；水平方向种不同种类、垂直方向种不同高度植物可提高资源利用率；稳定还须控制干扰强度并给予物质、能量投入。",
+   "applicabilityMarkdown": "PRIMARY：分析生态方案为何能控制虫害，或提出提高生态系统稳定性的措施时。",
+   "contentMarkdown": "1. 方案中植物种类多，动物种类相应增加，物种间的竞争、捕食等关系更复杂，使害虫种群数量增长受到限制；营养结构越复杂，抵抗力稳定性越高。\\n2. 利用空间结构：水平方向种植不同种类的植物，垂直方向种植不同高度的植物，可提高光、空间等环境资源的利用率。\\n3. 生态系统稳定依靠自身调节，但需控制对生态系统的干扰强度不超过自我调节能力，并给予相应的物质、能量投入。",
+   "boundaryMarkdown": "物种多样与复杂营养结构提高的是抵抗力稳定性；干扰强度超过生态系统的自我调节能力仍会导致系统崩溃。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第42讲 生态系统的结构及其稳定性.docx（块 4eea527f87-018）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-4eea527f87-018b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态系统的稳定性",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-4eea527f87-020",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "人类活动对群落演替方向与速度的改变（限时练42·解析）",
+   "summaryMarkdown": "人类活动可以改变群落演替的方向和速度；石漠化治理过程增加生态系统的生物种类，从而提高抵抗力稳定性；种植豆科植物可通过根部共生的根瘤菌生物固氮，增加土壤肥力。",
+   "applicabilityMarkdown": "PRIMARY：分析治理或修复工程为何能改变演替方向、或说明豆科植物改良土壤的原理时。",
+   "contentMarkdown": "1. 人类活动可以改变群落演替的方向和速度；石漠化治理过程增加了生态系统的生物种类，提高生态系统的抵抗力稳定性。\\n2. 种植豆科植物可以通过其根部共生的根瘤菌进行生物固氮，从而增加土壤肥力。",
+   "boundaryMarkdown": "人类活动改变演替方向与速度不等于必然提高稳定性；豆科固氮的改土效果以其根瘤菌能正常共生为前提。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第42讲 生态系统的结构及其稳定性.docx（块 4eea527f87-020）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-4eea527f87-020",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的演替",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-4eea527f87-020b",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "生态修复中选种与适度采伐的生态学道理（限时练42·解析）",
+   "summaryMarkdown": "按因地制宜、本土优先选择乔木体现协调原理；所选乔木生态位重叠较小，既避免竞争排斥又利于充分利用环境资源、为消费者提供食物和栖息空间；适度采伐把种群密度控制在有机物积累较快水平。",
+   "applicabilityMarkdown": "PRIMARY：评价生态修复的选种原则，或解释人工林为何要适度采伐时。",
+   "contentMarkdown": "1. 按「因地制宜，本土优先」的原则选择乔木，遵循的生态学原理是协调——保证生物与所处环境相互协调。\\n2. 所选乔木生态位重叠较小，既避免竞争排斥、实现共存，又利于充分利用环境资源、为消费者提供多样化的食物和栖息空间。\\n3. 适当采伐的目的是控制种群密度适度：密度过大时相互遮挡使总光合速率增加不多、呼吸速率持续增大，有机物积累减慢；控制在适度密度可保证有机物积累速率较快。",
+   "boundaryMarkdown": "采伐的「适度」由密度与有机物积累速率的关系决定，过多或过少都不利；选种原理针对当地环境，外来速生种不满足协调与本土优先。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第42讲 生态系统的结构及其稳定性.docx（块 4eea527f87-020）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-4eea527f87-020b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态工程",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-1e084f5620-008",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "含饲料输入系统的能量流动计算（第43讲·生态系统的能量流动·解析）",
+   "summaryMarkdown": "有饲料输入时流经生态系统的总能量＝生产者固定的太阳能＋饲料中的能量；粪便中的能量属上一营养级同化量；第二营养级同化量＝摄入量＋饲料－粪便；传递效率用下一营养级同化量除以本营养级同化量。",
+   "applicabilityMarkdown": "PRIMARY：计算含饲料（人工输入）生态系统的同化量、用于生长繁殖的能量或能量传递效率时。",
+   "contentMarkdown": "1. 流经该生态系统的总能量＝生产者固定的总太阳能＋饲料中的能量；粪便中的能量属于上一营养级的同化量，不计入本级同化量。\\n2. 第二营养级同化量＝摄入量（B）＋饲料（G）－粪便（F）；第二营养级生物用于自身生长、发育和繁殖的能量＝同化量－呼吸散失的能量（H）。\\n3. 第二营养级到第三营养级的能量传递效率＝第三营养级同化量÷第二营养级同化量×100％。\\n4. 将粪便、落叶投入沼气池并对沼渣、塘泥再利用，实现了能量的多级利用，提高能量利用率，使能量持续高效地流向对人类最有益的部分。",
+   "boundaryMarkdown": "公式中的饲料项只适用于有饲料（人工输入）的系统；无人工输入的天然系统同化量＝摄入量－粪便量，不能把饲料项照搬进去。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第43讲 生态系统的能量流动.docx（块 1e084f5620-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-1e084f5620-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:能量流动",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-1e084f5620-015",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "从能量流动角度理解防治害虫的意义（第43讲 限时练43·解析）",
+   "summaryMarkdown": "防治害虫属于人为调整能量流动关系，减少能量流向害虫，使能量持续高效地流向对人类最有益的部分。",
+   "applicabilityMarkdown": "PRIMARY：分析农业措施（防治害虫、除草等）从能量流动角度的意义时。",
+   "contentMarkdown": "能量流动的意义在于合理调整生态系统中的能量流动关系，使能量持续高效地流向对人类最有益的部分。\\n以果园防治害虫为例：害虫取食果树等植物会消耗能量；防治害虫可减少能量流向害虫，让更多能量流向苹果等对人类有益的部分。",
+   "boundaryMarkdown": "只用于解释人为措施对能量分配流向的影响；不能据此认为防治害虫提高了能量传递效率，它改变的是能量流向的对象而非传递效率数值。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第43讲 生态系统的能量流动.docx（块 1e084f5620-015）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-1e084f5620-015",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:能量流动",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-ccf105053c-019",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "生物富集的定义与营养级效应（第44讲 限时练44·解析(3)）",
+   "summaryMarkdown": "生物富集是生物体从环境吸收蓄积某元素或难降解化合物、使其浓度超过环境浓度的现象；营养级越高体内浓度越高。",
+   "applicabilityMarkdown": "PRIMARY：判断或解释重金属、难降解农药等沿食物链浓度升高的现象时。",
+   "contentMarkdown": "生物富集是指生物体从周围环境吸收、积蓄某种元素或难以降解的化合物，使其在机体内浓度超过环境浓度的现象。\\n这类物质难以排出、不易降解，因此生物所在营养级越高，体内重金属等有毒物质的浓度相对越高。",
+   "boundaryMarkdown": "针对难以降解、易蓄积的物质；能快速代谢排出的物质不适用，富集程度还受物质性质与生物代谢能力影响。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第44讲 生态系统的物质循环和信息传递.docx（块 ccf105053c-019）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-ccf105053c-019",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物富集",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-8f71bb2208-012",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "生态工程实例与所遵循原理的速判对照（第45讲·熟记常见生态工程实例）",
+   "summaryMarkdown": "实例—原理对照速判：无废弃物农业属循环；增层次、单一林、湿地破坏涉自生；载畜量、引种适生属协调；造林毁林涉整体。",
+   "applicabilityMarkdown": "PRIMARY：给出生态工程实例，要求判断所遵循或违背的生态工程原理时。",
+   "contentMarkdown": "循环：无废弃物农业属循环原理。\\n自生：人工林增加植被层次遵循自生；单一人工林稳定性低、湿地的破坏与水体的污染违背自生。\\n协调：草原确定合理载畜量、引种时考虑是否适应环境遵循协调；水体富营养化违背自生原理和协调原理。\\n整体：前面造林后面砍树违背整体；林业工程既号召农民种树又考虑农民生活遵循整体。",
+   "boundaryMarkdown": "为高考常见实例的对照清单而非全部生态工程原理；同一实例可同时涉及多个原理（如水华同时违背自生与协调），需按设问指向作答。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第45讲 人与环境.docx（块 8f71bb2208-012）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-8f71bb2208-012",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态工程",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b522fdca44-008",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "刚果红透明圈筛选纤维素分解菌及其假阳性（第47讲·解析）",
+   "summaryMarkdown": "纤维素被分解后红色复合物无法形成、出现透明圈；透明圈大而菌落小者降解能力强，但仍需发酵产酶实验排除假阳性。",
+   "applicabilityMarkdown": "PRIMARY：用刚果红染色法筛选、判读纤维素分解菌时。",
+   "contentMarkdown": "刚果红可与纤维素结合形成红色复合物；平板上纤维素被纤维素分解菌分解后则无法形成红色复合物，从而出现透明圈。菌落①的透明圈范围大、而且菌落小，说明其降解纤维素的能力强。\\n使用刚果红筛选和分离纤维素分解菌存在假阳性反应，即透明圈可能是由其他微生物降解刚果红而形成的，为确保是否得到目的菌，需要进行发酵产纤维素酶实验。",
+   "boundaryMarkdown": "透明圈大小与降解能力相关但不唯一确定，必须结合产酶实验确认；该判读只针对刚果红—纤维素体系。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第47讲 微生物的培养技术及应用.docx（块 b522fdca44-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b522fdca44-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:微生物筛选中的四种圈",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b522fdca44-008b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "影印法的定义与不转动角度的操作要点（第47讲·解析注）",
+   "summaryMarkdown": "影印法是用无菌绒布轻盖已长好菌落的原培养基、不转动角度把菌落原位复印到新培养基上的接种方法。",
+   "applicabilityMarkdown": "PRIMARY：遇到需要把同一批菌落原位接种到不同培养基（如含药与不含药平板）的实验时。",
+   "contentMarkdown": "影印法指用无菌绒布轻盖在已长好菌落的原培养基上，然后不转动任何角度，把绒布上的菌落按照原位接种到新的培养基上。\\n操作关键是「不转动角度」：只有保持方位一致，新培养基上的菌落才能与原平板上的菌落一一对应。",
+   "boundaryMarkdown": "用于菌落位置的对应接种，不能用于挑取单菌落纯化；绒布需无菌，菌落过大过多会使复印件模糊。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第47讲 微生物的培养技术及应用.docx（块 b522fdca44-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b522fdca44-008b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影印法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b522fdca44-010",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "血细胞计数板与稀释涂布平板法的误差方向相反（第47讲·解析(2)）",
+   "summaryMarkdown": "血细胞计数板会把死菌计入而偏高；稀释涂布平板法因多个细胞连成一个菌落而偏低，结果理论上更小。",
+   "applicabilityMarkdown": "PRIMARY：比较两种微生物计数方法的计数结果是偏高还是偏低时。",
+   "contentMarkdown": "血细胞计数板计数会把死菌也计入，结果比实际偏大；用稀释涂布平板法计数时，当两个或多个细胞连在一起，平板上观察到的只是一个菌落，结果比实际偏小。\\n因此理论上使用稀释涂布平板法比使用血细胞计数板直接计数的结果小。",
+   "boundaryMarkdown": "偏大、偏小是针对真实菌体数目的系统误差方向；两种方法都不能直接给出全部菌体的真实数目，必要时需结合其他方法校正。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第47讲 微生物的培养技术及应用.docx（块 b522fdca44-010）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b522fdca44-010",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:稀释涂布平板法计数",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b522fdca44-010b",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "抗生素起选择作用而不是诱导变异（第47讲·解析(4)）",
+   "summaryMarkdown": "链霉素不是诱导大肠杆菌产生抗性突变，而是在既有变异中把抗链霉素菌选择出来，使其比例增大。",
+   "applicabilityMarkdown": "PRIMARY：解释用抗生素处理后抗性菌比例升高的原因、辨析抗生素诱导抗性的错解时。",
+   "contentMarkdown": "影印培养实验中，链霉素在大肠杆菌抗链霉素抗性的形成中起到选择作用：抗性个体在药物选择下被保留、比例增大，而不是药物诱导产生了抗性变异。\\n观察实验结果可知，4号培养液中抗链霉素的大肠杆菌所占比例增大，正是选择作用的结果。",
+   "boundaryMarkdown": "只说明药物对已有变异的选择作用；不排除无药条件下抗性突变也会自发产生，突变率等其他因素不在此结论范围内。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第47讲 微生物的培养技术及应用.docx（块 b522fdca44-010）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b522fdca44-010b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-探究抗生素对细菌的选择作用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-4b7310e31f-016",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "核移植去核去的是纺锤体—染色体复合物（第49讲 限时练49·解析(1)）",
+   "summaryMarkdown": "MⅡ期卵母细胞中的「核」其实是纺锤体—染色体复合物；去核的目的在于使重构胚的遗传物质主要来自供核个体。",
+   "applicabilityMarkdown": "PRIMARY：涉及核移植去核对象、去核目的等操作细节的题目时。",
+   "contentMarkdown": "减数分裂Ⅱ中期(MⅡ期)卵母细胞中的「核」其实是纺锤体—染色体复合物，核移植操作中去除的就是它。\\n去核的目的是使重构胚的遗传物质主要来自提供细胞核的个体（如本题中的胎猴）。",
+   "boundaryMarkdown": "只描述MⅡ期卵母细胞的去核操作；去核后还需移入供体核才能构成重构胚，其它时期的卵母细胞形态不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第49讲 动物细胞工程.docx（块 4b7310e31f-016）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-4b7310e31f-016",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:动物体细胞核移植技术",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-4edfc14d16-021",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "双酶切要选末端类型不同的酶，避免反向连接与位点消失（第51讲 限时练51·答案(2)）",
+   "summaryMarkdown": "两酶切出的末端相同（同为平末端或黏性末端互补）时，目的基因会部分反向连接，且新序列无法被原有酶识别。",
+   "applicabilityMarkdown": "PRIMARY：为构建重组质粒选择限制酶、解释某双酶切组合为何不可用时。",
+   "contentMarkdown": "选双酶切组合要看两酶切出的末端类型是否相同：如Sma Ⅰ和EcoR Ⅴ切割后均产生平末端，Spe Ⅰ和Xba Ⅰ切割后产生的黏性末端相同，两种情况均会导致部分目的基因反向连接。\\n反向连接后新的序列无法被原有酶识别，给后续鉴定带来困难，因此应选末端不互补的两种酶切割。",
+   "boundaryMarkdown": "针对目的基因与载体的双酶切构建；还需避开目的基因内部的酶切位点，平末端连接效率本身也较低。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第51讲 基因工程的基本工具和基本操作程序.docx（块 4edfc14d16-021）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-4edfc14d16-021",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:限制酶",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-47476dac87-021",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "溶酶体酶的M6P分选与错运回收路径（第5讲 限时练5·答案）",
+   "summaryMarkdown": "溶酶体酶前体在内质网起步糖链、在高尔基体形成M6P标志，TGN的M6P受体识别后运入溶酶体；错运到胞外的经受体介导胞吞回收。",
+   "applicabilityMarkdown": "PRIMARY：分析溶酶体酶的分选路线、溶酶体形成途径或膜的信息交流功能时。",
+   "contentMarkdown": "溶酶体酶前体糖链的合成起始于内质网，M6P标志的形成（即溶酶体酶前体被磷酸化）发生在高尔基体中。\\n反面区(TGN)上的M6P受体蛋白能够识别溶酶体酶前体的M6P标志并与之结合，体现生物膜的信息交流功能，从而把酶定向运往溶酶体。\\ncis膜囊中没有被M6P标志的蛋白质则以胞吐的方式排出细胞，途经核糖体、内质网、高尔基体、细胞膜。\\n错误运往细胞外的溶酶体酶通过M6P受体介导的胞吞作用回收到前溶酶体中，这是溶酶体形成的另一条途径。",
+   "boundaryMarkdown": "描述溶酶体酶的典型分选路线；未被标志的蛋白质走向与错运后的回收机制不能混为一谈，判断依据是标志与受体的配对。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第5讲 细胞器之间的分工合作.docx（块 47476dac87-021）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-47476dac87-021",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:溶酶体",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-ffb71ded2b-012",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "无氧呼吸释放能量少，维持生命需消耗更多有机物（第9讲·解析(2)）",
+   "summaryMarkdown": "无氧呼吸分解同样多的有机物释放能量少，为获得足够能量维持生命活动，细胞反而要消耗更多有机物。",
+   "applicabilityMarkdown": "PRIMARY：比较有氧呼吸与无氧呼吸的能量与有机物消耗（涝害、根系缺氧题）时。",
+   "contentMarkdown": "与有氧呼吸相比，无氧呼吸释放的能量较少；当根系供氧不足、只能靠无氧呼吸供能时，为获得足够能量维持生命活动，消耗的有机物总量反而更多。\\n因此「无氧呼吸省有机物」的说法错误：其单位有机物的产能低，不能只比较消耗的葡萄糖分子数而不看释放的能量。",
+   "boundaryMarkdown": "以分解葡萄糖为前提；该结论比较的是产能效率，不涉及呼吸速率大小，也不涉及其他底物的无氧分解。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第9讲 细胞呼吸的原理和应用.docx（块 ffb71ded2b-012）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-ffb71ded2b-012",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的易错辨析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-ffb71ded2b-022",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "由O2吸收量与CO2释放量判断两种呼吸并换算葡萄糖消耗（第9讲 限时练9·答案(2)）",
+   "summaryMarkdown": "有氧呼吸O2吸收量与CO2释放量相等，多出的CO2来自无氧呼吸；按有氧1/6、无氧1/2换算葡萄糖消耗量即可比较两种呼吸强度。",
+   "applicabilityMarkdown": "PRIMARY：给出密闭容器或根系呼吸的O2、CO2数据，要求判断呼吸类型或计算两种呼吸强度之比时。",
+   "contentMarkdown": "有氧呼吸过程中O2吸收量与CO2释放量相等，因此CO2释放量与O2吸收量的差值即为无氧呼吸释放的CO2量。\\n再按1 mol葡萄糖有氧呼吸对应6 mol O2（消耗葡萄糖量＝O2吸收量/6）、无氧呼吸对应2 mol CO2（消耗葡萄糖量＝无氧呼吸CO2量/2）换算，即可比较两种呼吸消耗的葡萄糖量。",
+   "boundaryMarkdown": "只适用于以葡萄糖为底物、无氧呼吸产物为酒精和CO2的情形；使用数据前须排除外界CO2与实验装置的干扰。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第9讲 细胞呼吸的原理和应用.docx（块 ffb71ded2b-022）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-ffb71ded2b-022",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的类型判断-规律方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-0e11f8ffa9-025",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "油料种子萌发初期干重为何先增后减（第2课时 课时精练·答案(3)）",
+   "summaryMarkdown": "萌发初期脂肪转化为糖类，糖类含氧比例高使干重增加；后期呼吸作用消耗有机物，干重减少。",
+   "applicabilityMarkdown": "PRIMARY：分析油料（脂肪含量高）种子萌发过程中干重变化曲线的原因时。",
+   "contentMarkdown": "油料作物种子萌发初期（不进行光合作用）干重的变化趋势为先增加后减少。\\n原因是：种子萌发初期脂肪转化为糖类，糖类中氧元素含量较高，导致干重增加；后期呼吸作用消耗有机物，干重减少。",
+   "boundaryMarkdown": "只针对脂肪含量高的种子；淀粉类种子萌发时干重变化不同，不能套用先增后减的结论。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第一单元 第2课时 组成细胞的无机物、糖类和脂质.docx（块 0e11f8ffa9-025）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-0e11f8ffa9-025",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种子萌发过程中有机物的变化",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-3276db7ac0-023",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "二硫键参与时相对分子质量减少量的计算（第3课时 课时精练·解析(3)）",
+   "summaryMarkdown": "蛋白质相对分子质量的减少量＝脱去水分子质量＋形成二硫键脱去的氢质量；每形成一个二硫键脱去2个H。",
+   "applicabilityMarkdown": "PRIMARY：计算含二硫键蛋白质（如IgG）形成过程中相对分子质量的减少量时。",
+   "contentMarkdown": "若蛋白质由n个氨基酸构成、含4条肽链和4个二硫键，则减少的相对分子质量＝脱去的水分子的质量＋形成二硫键时脱去氢的质量＝(n－4)×18＋8＝18n－64。\\n要点：每形成一个二硫键要脱去2个H（减2），计算时不能只算脱水而漏掉二硫键。",
+   "boundaryMarkdown": "只统计脱水与二硫键脱氢两类损失；若还有肽链切除、化学修饰等其他变化，需另按实际过程计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第一单元 第3课时 蛋白质和核酸.docx（块 3276db7ac0-023）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-3276db7ac0-023",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质相关计算题的总结",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-3276db7ac0-024",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "验证某氨基酸必需性的饲喂实验设计（第3课时 课时精练·答案(2)）",
+   "summaryMarkdown": "用两种只差该氨基酸的全价饲料分别饲喂两组幼鼠，比较体重增加量，即可判断该氨基酸是否为必需氨基酸。",
+   "applicabilityMarkdown": "PRIMARY：设计或补全「某氨基酸是否为动物必需氨基酸」的探究实验时。",
+   "contentMarkdown": "设计要点：配食A含全部21种氨基酸，配食B除待测氨基酸外的20种氨基酸含量和比例与A相同；将20只生长发育状况相同的幼年大鼠平均分成甲、乙两组，分别每天饲喂等量食物A与食物B，其他饲养条件相同。\\n一段时间后测量两组幼鼠的体重并计算增加量：若乙组营养不良、体重增加缓慢而甲组正常，则待测氨基酸为大鼠的必需氨基酸。",
+   "boundaryMarkdown": "唯一变量是饲料中是否含该氨基酸；若两组摄食量不一致或动物能自行合成该氨基酸，结论会受影响。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第一单元 第3课时 蛋白质和核酸.docx（块 3276db7ac0-024）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-3276db7ac0-024",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-48f04d2e9b-006",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "由2n配子基因型反推减数分裂异常时期（第7单元 专题突破10·解析）",
+   "summaryMarkdown": "含不同等位基因的2n配子（如Ee）来自减数分裂Ⅰ同源染色体未分离；含相同等位基因的2n配子（如EE）来自减数分裂Ⅱ姐妹染色单体未均分。",
+   "applicabilityMarkdown": "PRIMARY：以异常配子或子代基因型为线索，判断减数分裂Ⅰ还是Ⅱ发生异常时。",
+   "contentMarkdown": "三倍体橡胶树由正常雄配子(n)与异常雌配子(2n)结合产生，可据子代基因型反推异常时期。\\n若雌配子为Ee（含一对同源染色体上的不同等位基因），说明减数分裂Ⅰ后期同源染色体未分离、都移向细胞一极，而减数分裂Ⅱ正常进行。\\n若雌配子为EE（等位基因相同），则母本减数分裂Ⅰ正常，而减数分裂Ⅱ后期姐妹染色单体分离形成的染色体都移向了细胞同一极。",
+   "boundaryMarkdown": "判断依据是配子中染色体的来源是同源还是相同；整组染色体额外增多的情形不属此分析，运算前先确认异常配子由哪一方产生。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第七单元 专题突破10 减数分裂与可遗传变异的关系.docx（块 48f04d2e9b-006）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-48f04d2e9b-006",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂异常的原因分析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-203bac48d2-016",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "「含某基因个体」的比例不等于该基因频率（第7单元 专题突破11·解析）",
+   "summaryMarkdown": "基因频率为p时，含该基因的个体比例为p²＋2pq（本题84%），由纯合子与杂合子两类相加得到。",
+   "applicabilityMarkdown": "PRIMARY：由基因频率推算含某等位基因个体的比例，或反向估算时。",
+   "contentMarkdown": "由基因频率计算「含某基因的个体」所占比例时，要把纯合子与杂合子合并：含Aat100基因个体的比例＝p²＋2pq。\\n如该基因频率为0.6（p＝0.6、q＝0.4），则含该基因的个体占比＝60%×60%＋2×60%×40%＝84%，而不是60%。",
+   "boundaryMarkdown": "计算前提是种群足够大、随机交配且无选择、迁移等偏离；直接把基因频率当作个体比例是最常见的失分点。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第七单元 专题突破11 基因频率与基因型频率的计算.docx（块 203bac48d2-016）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-203bac48d2-016",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-69c1a91d80-009",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "有丝分裂中出现的等位基因多为突变、减数分裂中多为互换（第29课时·解析）",
+   "summaryMarkdown": "姐妹染色单体上出现等位基因：有丝分裂时因基因突变；减数分裂时可能为四分体时期的互换或基因突变，因突变频率低，最可能为互换。",
+   "applicabilityMarkdown": "PRIMARY：由分裂图像或子细胞基因组成判断等位基因（如a）的来源时。",
+   "contentMarkdown": "判断姐妹染色单体上等位基因的来源：若发生在有丝分裂（如图中甲为有丝分裂后期），基因a出现的原因是基因突变。\\n若发生在减数分裂Ⅱ后期（如丁图），基因a的出现可能是同源染色体非姐妹染色单体之间的互换，也可能是基因突变；由于基因突变的频率是很低的，最可能的原因是四分体时期发生了互换。",
+   "boundaryMarkdown": "判断依据是分裂方式与变异频率；若发生缺失、易位等其他变异，或分裂时期判断有误，结论需另行分析。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第七单元 第29课时 基因突变和基因重组.docx（块 69c1a91d80-009）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-69c1a91d80-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:姐妹染色单体上等位基因来源的判断",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-69c1a91d80-025",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "雄性不育株只能作母本对育种方案的限制（第29课时 课时精练·答案(4)）",
+   "summaryMarkdown": "不育植株不能作父本，与可育株杂交、可育株自交或杂交都不能获得某些不育纯合基因型，方案设计要先排除这条死路。",
+   "applicabilityMarkdown": "PRIMARY：评价「利用现有雄性不育材料能否获得某不育纯合子」的育种可行性时。",
+   "contentMarkdown": "若F1中正常育性∶雄性不育＝1∶1，说明乙的雄性不育为显性突变；现有材料基因型为M1M1Bb不育、M1M1bb可育、M1M2Bb不育、M1M2bb可育。\\n利用现有材料进行杂交无法获得雄性不育纯合子（M1M1BB、M2M2BB），原因是F1中不育植株只能作为母本，与可育植株进行杂交，可育植株可自交或杂交，均不能获得上述不育纯合子。",
+   "boundaryMarkdown": "限制来自不育株不能产生可育花粉这一前提；若能获得可育的不育基因型或改用其他亲本组合，结论要重新推导。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第七单元 第29课时 基因突变和基因重组.docx（块 69c1a91d80-025）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-69c1a91d80-025",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:雄性不育与自交不亲和",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-69c1a91d80-029",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "由分子标记在F2易感病株中的存在频率定位抗病基因（第29课时 课时精练·解析(3)）",
+   "summaryMarkdown": "标记在易感病F2中出现的比例高说明离抗病基因远（重组多），比例低说明离得近，据此标出基因大体位置。",
+   "applicabilityMarkdown": "PRIMARY：用分子标记（片段存在情况表）确定目的基因在染色体上的位置时。",
+   "contentMarkdown": "已知抗病基因所在染色体上有T5、K10、RM27三个DNA片段，易感病品系同一染色体上没有相应片段；染色体上两个DNA片段之间发生互换的可能性，一般与其距离(cM)成正比。\\n检测F2易感病植株中这些片段的存在情况：存在T5片段的植株数量比较多，说明抗病基因远离T5；存在K10片段植株数量较少，说明K10离抗病基因位置近，据此标出抗病基因最可能的位置。",
+   "boundaryMarkdown": "依据是距离与互换率成正比；看的是易感病群体的标记分布，样本要足够大，否则频率差别不可靠。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第七单元 第29课时 基因突变和基因重组.docx（块 69c1a91d80-029）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-69c1a91d80-029",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分子标记与基因定位流程",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-ec2683c9fd-003",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用「缺失＋回补」确定激素与生理效应的关系（第3单元 专题突破2·典例解析）",
+   "summaryMarkdown": "先用ABA缺失突变体看干旱前后气孔开度不变，再在干旱下分ABA处理组与对照组比较气孔开度，证明干旱引起的气孔关闭依赖ABA。",
+   "applicabilityMarkdown": "PRIMARY：设计「证明某激素参与某生理反应」的实验思路时。",
+   "contentMarkdown": "实验思路分两步：①取ABA缺失突变体植株在正常条件下测定气孔开度，经干旱处理后，再测定气孔开度；预期结果是干旱处理前后气孔开度不变。\\n②将上述干旱处理的ABA缺失突变体植株分成两组，在干旱条件下，一组进行ABA处理，另一组作为对照组，一段时间后分别测定两组的气孔开度；预期结果是ABA处理组气孔开度减小，对照组气孔开度不变。",
+   "boundaryMarkdown": "前提是有对应的缺失突变体材料；预期结果须与假说对应，缺失体与野生型表现相同则假说不成立。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 专题突破2 实验技能解题策略.docx（块 ec2683c9fd-003）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-ec2683c9fd-003",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-ec2683c9fd-003b",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "验证两种激素协同作用的分组设计（第3单元 专题突破2·典例4答案）",
+   "summaryMarkdown": "验证赤霉素与生长素协同促进茎伸长，应设清水、赤霉素＋生长素、单用生长素、单用赤霉素四组，比较茎切段伸长。",
+   "applicabilityMarkdown": "PRIMARY：验证两种激素（或两个因素）是协同还是拮抗的实验设计时。",
+   "contentMarkdown": "可分组设计：取生长状况相同的豌豆幼苗、从同一部位切取等长的茎段若干段，平均分成A、B、C、D四组；A组培养液加清水，B组培养液加一定浓度的赤霉素和生长素，C组加一定浓度的生长素，D组加一定浓度的赤霉素。\\n每隔一段时间测量茎切段长度一次并求平均值比较：若B组伸长明显大于C、D组，说明两者具有协同作用。",
+   "boundaryMarkdown": "设计要守住单一变量与等量原则（切段来源、长度与溶液量一致）；只有单用与合用并列才能判断协同或拮抗。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 专题突破2 实验技能解题策略.docx（块 ec2683c9fd-003）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-ec2683c9fd-003b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验设计的四步模板",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-ec2683c9fd-004",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用损毁中枢的模型验证药物的作用靶点（第3单元 专题突破2·典例5答案）",
+   "summaryMarkdown": "要证明药物M通过下丘脑调控体温，需增设「下丘脑损毁＋M」组：若该组不解热，说明M的作用依赖下丘脑。",
+   "applicabilityMarkdown": "PRIMARY：设计实验判断某药物是否通过特定中枢或结构发挥作用时。",
+   "contentMarkdown": "已知药物A作用于下丘脑体温调节中枢调控体温；要探究结构类似物M是否也具有解热作用并通过影响下丘脑体温调节中枢调控体温，应在常规分组外增设「损毁下丘脑的发热家兔模型＋M溶液」组。\\n比较实验结果：前几组说明M与药物A一样具有解热作用；加入损毁下丘脑组后若M不再表现解热作用，即说明M的解热作用是通过影响下丘脑体温调节中枢实现的。",
+   "boundaryMarkdown": "该设计依赖下丘脑损毁模型的可行性；它只能证明作用依赖该中枢，不能排除药物同时作用于其他部位，也不能确定分子机制。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 专题突破2 实验技能解题策略.docx（块 ec2683c9fd-004）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-ec2683c9fd-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究动植物生命活动调节实验的思路与方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-ec2683c9fd-005",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "实验方案评价：未同施水涝、检测指标不对口（第3单元 专题突破2·典例6答案）",
+   "summaryMarkdown": "验证Z基因提高水涝下光合速率的方案里，野生型也要做6天淹水处理；检测指标应测CO2吸收等光合速率，而非叶绿素前体含量。",
+   "applicabilityMarkdown": "PRIMARY：评价「对照组处理不一致」「检测指标不能直接支撑结论」两类实验设计缺陷时。",
+   "contentMarkdown": "典例方案的两处不足：一是野生型与ygl突变体应均做6天淹水处理，否则处理条件不同，无法比较水涝条件下Z基因的作用；二是实验应检测CO2的吸收速率（或O2的释放速率或有机物的生成速率）等直接反映光合速率的指标，而不是叶绿素前体物质含量。\\n评价时按两条检查：变量是否唯一（各组除自变量外条件相同）、检测指标能否直接支撑结论。",
+   "boundaryMarkdown": "针对验证性实验的评价；若研究目的本就是探究叶绿素合成，检测叶绿素前体反而是合适指标，指标取舍取决于要回答的问题。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 专题突破2 实验技能解题策略.docx（块 ec2683c9fd-005）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-ec2683c9fd-005",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:对照实验的分析方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-6f89d7c917-004",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "CAM植物昼夜气孔与苹果酸储碳的适应（第3单元 专题突破3·解析）",
+   "summaryMarkdown": "CAM植物夜间气孔开放吸收并固定CO2储存在液泡、白天关闭减少水分散失，白天利用苹果酸脱羧释放的CO2进行光合。",
+   "applicabilityMarkdown": "PRIMARY：分析CAM植物在干旱环境中的固碳方式、或设计验证其液泡酸度昼夜变化的实验时。",
+   "contentMarkdown": "CAM植物（如植物甲）在干旱环境中：气孔白天关闭能防止白天因温度较高、蒸腾作用较强导致植物体水分散失过多；晚上气孔打开吸收二氧化碳储存固定，以保证光合作用等生命活动的正常进行。\\n白天有光照时，叶肉细胞能利用液泡中储存的苹果酸脱羧释放的CO2进行光合作用；据此可设计实验：在干旱条件下培养植物甲，分别在白天和晚上测定液泡内的pH，预期晚上的pH明显小于白天。",
+   "boundaryMarkdown": "描述干旱适应型的CAM固碳方式；昼夜酸度变化是由苹果酸储存与脱羧引起的，不适用于C3、C4植物的判断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 专题突破3 二氧化碳固定方式的多样性、光呼吸及光抑制.docx（块 6f89d7c917-004）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-6f89d7c917-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:c4植物-cam植物等特殊代谢类型",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-6f89d7c917-018",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "净光合速率与总光合速率的关系式含光呼吸项（第3单元 专题突破3·课时精练解析(3)）",
+   "summaryMarkdown": "净光合速率＝总光合速率－呼吸速率－光呼吸速率；只测净光合与呼吸速率无法求得总光合速率，还缺光呼吸速率。",
+   "applicabilityMarkdown": "PRIMARY：由净光合速率、呼吸速率推算总光合速率，或判断现有数据能否支撑某结论时。",
+   "contentMarkdown": "净光合速率＝总光合速率－呼吸速率－光呼吸速率，即总光合速率＝净光合速率＋细胞呼吸速率＋光呼吸速率。\\n若实验只能看到净光合速率和呼吸作用速率，而无法得知光呼吸速率，就不能据此计算（判断）总光合速率——这是光呼吸存在时常见的数据缺口。",
+   "boundaryMarkdown": "适用于存在光呼吸的植物（如C3植物）且需区分三类速率时；若实验条件抑制光呼吸或另有测定手段，关系式的取舍会变化。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 专题突破3 二氧化碳固定方式的多样性、光呼吸及光抑制.docx（块 6f89d7c917-018）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-6f89d7c917-018",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光呼吸",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-6f89d7c917-019",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "减轻光抑制的防御机制与提高叶绿素含量的误区（第三单元 专题突破3·课时精练）",
+   "summaryMarkdown": "植物通过调节光能在叶片上各去向的比例、提升修复能力减轻光抑制，具体包括叶绿体避光运动、提高光合产物生成速率、增强自由基清除能力和增强热耗散；提高叶绿素含量反而不能减轻光抑制。",
+   "applicabilityMarkdown": "PRIMARY：分析植物在强光下减轻光抑制的途径、判断各项措施能否减轻光抑制时使用",
+   "contentMarkdown": "光抑制严重时，光合结构受损的主要部位是位于类囊体薄膜上的色素蛋白复合体。\\n植物减轻光抑制的防御机制包括：调节光能在叶片上各去向的比例、提升修复能力；具体有叶绿体避光运动（减少对光的吸收）、提高光合产物生成速率（提高光合速率以消耗更多光能）、增强自由基清除能力（减少对光合结构的破坏）、增强热耗散。\\n注意：提高叶绿素含量会增加对光能的吸收，不能减轻光抑制。",
+   "boundaryMarkdown": "适用于从光能去向角度分析光抑制的缓解；不同植物与栽培条件下采取的防御途径可能不同，不能把某一条途径当作普遍唯一机制。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 专题突破3 二氧化碳固定方式的多样性、光呼吸及光抑制.docx（块 6f89d7c917-019）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-6f89d7c917-019",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光抑制与光保护",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-0f1df948bc-028",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用CO2释放量与O2吸收量定量两种呼吸强度（第11课时 细胞呼吸的原理和应用·课时精练）",
+   "summaryMarkdown": "有氧呼吸中葡萄糖∶O2∶CO2＝1∶6∶6，产酒精无氧呼吸中葡萄糖∶CO2＝1∶2；用CO2释放量与O2吸收量之差先求无氧呼吸CO2量，再按比例算出两种呼吸的强度之比。",
+   "applicabilityMarkdown": "PRIMARY：给出气体交换数据、要求判断并定量有氧呼吸与产酒精无氧呼吸强度时使用",
+   "contentMarkdown": "有氧呼吸过程中，葡萄糖的消耗量、O2吸收量和CO2释放量的比例为1∶6∶6；产酒精的无氧呼吸过程中，葡萄糖的消耗量和CO2释放量的比例为1∶2。\\n先由CO2释放量减去O2吸收量，得到无氧呼吸产生的CO2量，再按1∶2求出无氧呼吸消耗的葡萄糖量；由O2吸收量按1∶6求出有氧呼吸消耗的葡萄糖量。\\n两者相除即得无氧呼吸强度与有氧呼吸强度之比。",
+   "boundaryMarkdown": "只适用于有氧呼吸与产酒精无氧呼吸同时进行的情形；无氧呼吸产物为乳酸时不释放CO2，不能再用该差值法推算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 第11课时 细胞呼吸的原理和应用.docx（块 0f1df948bc-028）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-0f1df948bc-028",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的类型判断-规律方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-06ca8cc8ec-005",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "叶绿素含量的影响因素：光照条件与缺钾（第12课时 捕获光能的色素和结构·考点一）",
+   "summaryMarkdown": "叶绿素的形成需要光照；弱光下叶片叶绿素含量更高，以便在弱光下捕获更多光能；缺钾通过降低合成酶活性和影响Mg、N吸收两条途径使叶绿素合成减少。",
+   "applicabilityMarkdown": "PRIMARY：解释不同光强下叶片叶绿素含量差异、分析缺钾等矿质元素缺乏使叶绿素减少的机制时使用",
+   "contentMarkdown": "叶绿素的形成需要光照；取自藻席下层的样品叶绿素含量最高，原因是下层阳光少，需要大量叶绿素来捕获少量的阳光。\\n缺钾会使叶绿素合成相关酶的活性降低；缺钾还会影响细胞的渗透调节，进而影响细胞对Mg、N等元素的吸收，使叶绿素合成减少。\\n种子萌发形成幼苗的过程中，消耗的能量主要来自种子胚乳中储存的有机物，但光照有利于叶片叶绿素的形成。",
+   "boundaryMarkdown": "只覆盖光照与缺钾两条途径；缺钾通过酶活性与元素吸收两个层面间接影响，不能简单归为单一原因。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 第12课时 捕获光能的色素和结构及光合作用原理的探索.docx（块 06ca8cc8ec-005）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-06ca8cc8ec-005",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-55cc316d9b-020",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "蔗糖转运蛋白SUT1与光合产物运输受阻的表现（第13课时 光合作用的原理·课时精练）",
+   "summaryMarkdown": "蔗糖转运蛋白SUT1对蔗糖在韧皮部的装载和长距离运输起关键作用；其转运能力受抑制时蔗糖装载与长距离运输受阻，马铃薯块茎不能形成、产量降低。",
+   "applicabilityMarkdown": "PRIMARY：分析蔗糖在源库之间的装载与长距离运输、解释转运蛋白受抑制后块茎不能形成与减产时使用",
+   "contentMarkdown": "蔗糖转运蛋白SUT1对蔗糖在韧皮部的装载和长距离运输起关键作用。\\n光周期调节马铃薯块茎的形成与光合产物的运输有关：长日照下没有生成块茎的原因可能是长日照抑制了SUT1对蔗糖的转运能力，蔗糖在韧皮部的装载和长距离运输受阻。\\n蔗糖的装载和长距离运输受阻时，叶片中的糖分不能正常运向块茎，最终导致块茎产量降低。",
+   "boundaryMarkdown": "材料基于马铃薯光周期实验；SUT1受抑制时源器官糖分积累、库器官减产的方向不能直接外推到其他作物的产量表现。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 第13课时 光合作用的原理.docx（块 55cc316d9b-020）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-55cc316d9b-020",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光合产物的运输与转化",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b72318538e-024",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "光与蔗糖调控气孔开放的机制及气孔振荡（第14课时 光合作用的影响因素及其应用·课时精练）",
+   "summaryMarkdown": "光下保卫细胞光合吸收CO2使胞间CO2浓度下降、pH升高，淀粉转化为葡萄糖引起吸水、气孔开放；蔗糖经TOR激酶提高BAMI表达量、促进淀粉分解使气孔打开；气孔振荡是植物对干旱的适应。",
+   "applicabilityMarkdown": "PRIMARY：分析保卫细胞渗透调节与气孔开闭机制、解释TOR激酶或蔗糖处理影响气孔导度时使用",
+   "contentMarkdown": "光下保卫细胞进行光合作用吸收CO2，且吸收量大于呼吸作用释放CO2的量，导致细胞间CO2浓度下降、pH升高；淀粉转化为葡萄糖使细胞中葡萄糖浓度增高，保卫细胞吸水导致气孔开放。\\n蔗糖促进气孔打开的路径：蔗糖通过提高TOR激酶的活性，提高淀粉降解酶BAMI的表达量，促进淀粉分解为葡萄糖，使保卫细胞吸水、气孔打开；TOR激酶促进光照下保卫细胞中淀粉的迅速降解。\\n气孔振荡是植物对干旱条件的一种适应性反应：气孔关闭能降低蒸腾作用强度、减少水分散失，开放时保证CO2供应以进行光合作用。",
+   "boundaryMarkdown": "三条途径出自同一组实验结果，不能相互替代；气孔导度还受脱落酸等激素调节，本材料未涉及。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第三单元 第14课时 光合作用的影响因素及其应用.docx（块 b72318538e-024）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b72318538e-024",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:气孔开闭的调节因素",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-831bb49c8b-018",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "溶酶体酶的合成与M6P分选途径（第6课时 细胞器之间的协调配合·课时精练）",
+   "summaryMarkdown": "溶酶体是单层膜细胞器，其合成过程需要核糖体、内质网、高尔基体、囊泡、线粒体等多种结构参与；酶在高尔基体cis膜囊磷酸化后被M6P受体识别，才形成前溶酶体。",
+   "applicabilityMarkdown": "PRIMARY：分析溶酶体酶的合成与分选过程、判断磷酸化或M6P受体异常时的后果时使用",
+   "contentMarkdown": "溶酶体是一种单层膜的细胞器，主要存在于动物细胞中；其合成过程中需要核糖体、内质网、高尔基体、囊泡、线粒体等多种结构参与。\\n高尔基体cis膜囊对溶酶体酶磷酸化，磷酸化作为M6P受体识别的信号，只有被磷酸化的溶酶体酶才会形成前溶酶体。\\n细胞膜上还有少量M6P受体，可回收偶尔（错误）分泌到细胞外的磷酸化的溶酶体酶；高尔基体的pH大于前溶酶体。",
+   "boundaryMarkdown": "该分选方式针对带M6P标记的溶酶体酶，不适用于所有分泌蛋白；磷酸化或受体识别异常时酶不能正常进入溶酶体。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第二单元 第6课时 细胞器之间的协调配合.docx（块 831bb49c8b-018）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-831bb49c8b-018",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:溶酶体",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-9f8a8b505c-023",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "植物耐盐的离子转运调节",
+   "summaryMarkdown": "高盐胁迫下耐盐植物根细胞借助 Ca²⁺ 调节转运蛋白：胞外 Ca²⁺ 抑制转运蛋白 A 减少 Na⁺ 进入，并促进转运蛋白 C 将 Na⁺ 排出胞外，降低细胞内 Na⁺ 浓度。",
+   "applicabilityMarkdown": "PRIMARY：耐盐植物在高盐胁迫下离子转运与调节机制的实验分析。",
+   "contentMarkdown": "高盐胁迫下耐盐植物根细胞借助 Ca²⁺ 调节离子转运蛋白：一方面胞外 Ca²⁺ 抑制转运蛋白 A，减少 Na⁺ 进入细胞；另一方面促进转运蛋白 B 将 Ca²⁺ 转运入细胞内。\\n胞外 Na⁺ 与受体结合可促进胞内 H₂O₂ 浓度上升，间接促进转运蛋白 B 转运 Ca²⁺，从而促进转运蛋白 C 将 Na⁺ 排出胞外，降低细胞内 Na⁺ 浓度。\\n该过程依赖转运蛋白与能量供应（H⁺ 泵等），农业生产上可增施钙肥或灌溉稀释土壤盐浓度来促进耐盐作物增产。",
+   "boundaryMarkdown": "只讲耐盐离子转运的调节链条（Ca²⁺ 信号、转运蛋白方向与 Na⁺ 外排）；答题时须写清各转运蛋白的运输方向与依赖条件，使用 ATP 抑制剂会减少 H⁺ 泵外排，该能量驱动关系不能漏掉。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第二单元 第8课时 物质进出细胞的方式及影响因素.docx（块 9f8a8b505c-023）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-9f8a8b505c-023",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:主动运输",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-f1698370f9-008",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "不完全致死条件下分离比的折算（第五单元 专题突破5·拓展延伸）",
+   "summaryMarkdown": "不完全致死时先写出理论分离结果、再按存活率折算；Aa自交后代理论比例为AA∶Aa∶aa＝1∶2∶1，若aa个体有50%死亡，实际比例为2∶4∶1。",
+   "applicabilityMarkdown": "PRIMARY：子代分离比与理论不符、需判断配子或合子部分致死并求实际比例时使用",
+   "contentMarkdown": "不完全致死是部分配子或部分个体死亡，处理后代的基因型及比例会偏离理论值。\\n合子不完全致死的算法：先写出理论的基因型及比例（Aa自交后代为AA∶Aa∶aa＝1∶2∶1），再按存活率折算；若aa的个体有50%死亡，则后代的实际比例为1∶2∶1×50%＝2∶4∶1。\\n配子不完全致死的算法：处理对象是配子，先从理论配子比例出发（Aa理论上产生的雌、雄配子中A∶a＝1∶1）再作推算。",
+   "boundaryMarkdown": "只适用于不完全（部分）致死；完全致死时相应个体直接不出现，不能再用折算，且需先判断致死发生在配子阶段还是合子阶段。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第五单元 专题突破5 基因分离定律拓展题型突破.docx（块 f1698370f9-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-f1698370f9-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:个体或配子致死问题的处理-规律方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-f1698370f9-008b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "表型模拟：表型＝基因型＋环境（第五单元 专题突破5·题型五）",
+   "summaryMarkdown": "表型模拟指表型不仅取决于基因型、还受所处环境的影响，使基因型相同的个体在不同环境中表型不同；可用改变环境条件的实验区分表型模拟与真实基因型。",
+   "applicabilityMarkdown": "PRIMARY：解释基因型相同而表型不同的现象、设计实验判断某个体是隐性纯合子还是表型模拟时使用",
+   "contentMarkdown": "表型模拟是指生物的表型不仅仅取决于基因型，还受所处环境的影响，从而导致基因型相同的个体在不同环境中表型有差异，即表型与基因型不符合的现象。\\n实例：果蝇的长翅(V)和残翅(v)的遗传受到温度的影响，表型由基因型与环境共同决定。\\n判断方法：设计实验确认某残翅个体是vv的纯合子还是V_的表型模拟——把待测个体置于能区分表型的环境条件下培养，观察其表型是否随环境改变。",
+   "boundaryMarkdown": "表型模拟由环境改变引起、基因型并未改变，须与基因突变、表观遗传区分；判断实验的关键是设置能使两种基因型表现出差异的环境条件。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第五单元 专题突破5 基因分离定律拓展题型突破.docx（块 f1698370f9-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-f1698370f9-008b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:母性效应与表型模拟",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-1f50dcaea2-008",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "探究遗传物质的通用思路：把DNA与蛋白质分开后分别研究各自效应",
+   "summaryMarkdown": "噬菌体侵染实验与艾弗里的肺炎链球菌转化实验共用同一设计思路——先设法把DNA与蛋白质（或其他组分）分开，再分别观察各自的效应，从而判定谁是遗传物质。",
+   "applicabilityMarkdown": "PRIMARY：解答“探究某种生物的遗传物质是什么”的实验设计与方案评价题，判断方案是否体现分离与分别观察的对照思路。",
+   "contentMarkdown": "1.核心理念：要确定某种成分是否为遗传物质，必须把它与其他成分分开、单独观察其作用。\\n2.典型实现：艾弗里把肺炎链球菌的DNA与蛋白质等分开后分别加入培养体系；噬菌体侵染实验用放射性同位素分别标记DNA与蛋白质外壳并分别追踪。\\n3.判据：只有能引起转化（或进入宿主并指导子代形成）的那一组分才是遗传物质。",
+   "boundaryMarkdown": "用于判定“谁是遗传物质”的成分分离类实验；不适用于不涉及成分分离的观察实验，也不能回答遗传物质之外的问题（如基因表达调控的方式）。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第六单元 第25课时 DNA是主要的遗传物质.docx（块 1f50dcaea2-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-1f50dcaea2-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:检测遗传物质的方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-1f50dcaea2-028",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用核酸酶定向去除法鉴别病毒的遗传物质类型",
+   "summaryMarkdown": "提取病毒核酸后分别用DNA酶、RNA酶处理，再分别注射宿主观察发病情况，可判断该病毒的遗传物质是DNA还是RNA。",
+   "applicabilityMarkdown": "PRIMARY：解答“判断某病毒遗传物质是DNA还是RNA”的实验设计与结果预测题。",
+   "contentMarkdown": "1.分组处理：把病毒核酸提取物分别与DNA酶、RNA酶混合（运用减法原理），再分别注射入宿主。\\n2.结果判定：DNA酶处理组仍能发病（感染性未被消除）说明DNA不是遗传物质、RNA才是；反之若RNA酶处理组仍能发病，则遗传物质为DNA。\\n3.书写要求：结果预测按“某组发病、某组正常”分情况陈述，并与酶所破坏的核酸种类一一对应。",
+   "boundaryMarkdown": "适用于核酸已提出、可在体外处理的病毒材料；对只能以完整细胞为载体的遗传物质判定需改用同位素标记等其他方法。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第六单元 第25课时 DNA是主要的遗传物质.docx（块 1f50dcaea2-028）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-1f50dcaea2-028",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:检测遗传物质的方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-c16804caff-020",
+   "subject": "BIOLOGY",
+   "type": "MISCONCEPTION_GUIDE",
+   "title": "验证DNA半保留复制时不能先把子代DNA解成单链再离心",
+   "summaryMarkdown": "把繁殖一代的子代DNA处理成单链再离心，半保留复制与全保留复制的结果相同（含标记与不含标记的单链都各占一半），无法据此区分两种复制方式。",
+   "applicabilityMarkdown": "PRIMARY：评价“证明DNA以半保留方式复制”的实验方案，判断某操作能否区分半保留与全保留复制。",
+   "contentMarkdown": "1.陷阱操作：先把DNA解成单链再离心时，两种复制方式得到的含标记单链都占全部单链的一半，结果无差异。\\n2.正确做法：不解链、直接对双链DNA做密度梯度离心，依据杂合双链条带的位置区分半保留与全保留复制。\\n3.结论：凡“先变性成单链再离心”的方案都不能用来证明半保留复制。",
+   "boundaryMarkdown": "只针对区分半保留与全保留复制这一目的；解成单链后离心仍可用于判断标记链来源等其他分析。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第六单元 第26课时 DNA的结构、复制和基因的本质.docx（块 c16804caff-020）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-c16804caff-020",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:密度梯度离心",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-6a83e02797-026",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "微RNA的沉默机制：加工形成RISC－miRNA复合物后抑制靶mRNA翻译",
+   "summaryMarkdown": "微RNA基因先转录形成Pre－miRNA，进入细胞质后经酶切割和组装形成RISC－miRNA复合物，该复合物与靶基因转录形成的mRNA结合，从而抑制翻译过程。",
+   "applicabilityMarkdown": "PRIMARY：解答miRNA（微RNA）调控基因表达的机理题，判断抑制发生在转录层次还是翻译层次。",
+   "contentMarkdown": "1.形成：微RNA调控基因转录形成的Pre－miRNA进入细胞质，经过酶切割和组装后形成RISC－miRNA复合物。\\n2.作用：该复合物与靶基因（如lin－14）转录形成的mRNA结合，从而抑制其翻译过程。\\n3.层次：抑制发生在翻译层次而非转录水平；这类调控属于转录后水平的负向调控。",
+   "boundaryMarkdown": "解释的是转录后（翻译水平）的沉默机制、不改变DNA序列；转录水平的调控（如lncRNA与DNA结合调控转录）要另论。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第六单元 第27课时 基因的表达.docx（块 6a83e02797-026）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-6a83e02797-026",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:RNA干扰",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-e5a2a77e0e-003",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "引物上添加外源序列的两个要点：加在5′端、保持读码框",
+   "summaryMarkdown": "DNA聚合酶只能把脱氧核苷酸加到引物的3′端并沿5′→3′延伸，故保护碱基与限制酶识别序列应加在引物5′端；外源序列的碱基还会参与翻译编码，需与目的基因读框匹配，否则移码，可增补碱基校正。",
+   "applicabilityMarkdown": "PRIMARY：解答引物设计题——引物与模板链互补的位置、外源序列（酶切位点等）的添加位置以及融合蛋白读码框的校正。",
+   "contentMarkdown": "1.位置：引物是一小段与模板链3′端碱基序列互补的短单链核酸；延伸自引物3′端开始，故外加的限制酶识别序列必须加在引物5′端才不破坏目的基因。\\n2.读框：引物带入的碱基会与目的基因一起被翻译，若酶切位点碱基数与目的基因读框不合，会导致mRNA上密码子错位、氨基酸序列改变。\\n3.校正：在限制酶识别序列3′端增补1个碱基，使其与目的基因的碱基数相配、读码框不变，即可正常翻译。",
+   "boundaryMarkdown": "适用于把酶切位点、标签序列加在引物末端的构建策略；不涉及引物内部引入突变或简并设计（那是重叠延伸与定点突变引物的任务）。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 专题突破12 PCR技术的原理及其应用.docx（块 e5a2a77e0e-003）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-e5a2a77e0e-003",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-e5a2a77e0e-004",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "PCR扩增n次的引物与子代DNA数量关系",
+   "summaryMarkdown": "一个DNA分子扩增n次后：含模板链的DNA为2个、含引物A（或B）的DNA为2^n−1个、双链等长的子代DNA为2^n−2n个；共需引物2^(n+1)−2个，其中第n次复制需2^n个。",
+   "applicabilityMarkdown": "PRIMARY：解答PCR扩增中引物用量与子代DNA分子数的计算题。",
+   "contentMarkdown": "1.母链与引物：含模板链的DNA始终为2个；含引物A（或B）的DNA为2^n−1个（每条子链都由一段引物起始）。\\n2.引物总量：共需引物2^(n+1)−2个，其中第n次复制需要2^n个。\\n3.片段长度：双链等长的子代DNA为2^n−2n个；两条单链等长的目的片段从第2轮循环产物中开始出现。",
+   "boundaryMarkdown": "计算以“每条子链都由引物起始、引物不能重复利用”为前提；若体系含引物修饰或多重模板，需分别计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 专题突破12 PCR技术的原理及其应用.docx（块 e5a2a77e0e-004）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-e5a2a77e0e-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-e5a2a77e0e-006",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用引物对与扩增片段长度判断目的基因的插入方向",
+   "summaryMarkdown": "鉴定重组质粒中目的基因是否正确插入：选跨接头的引物对，正向与反向连接扩增出的片段长度不同；若换用另一对引物反而扩出与反向连接预期相符的短片段，即表明目的基因反向插入。",
+   "applicabilityMarkdown": "PRIMARY：解答PCR鉴定重组质粒中目的基因插入方向（正向连接或反向连接）的引物选择与结果分析题。",
+   "contentMarkdown": "1.思路：两引物分别位于插入片段两侧并跨过接头，使扩增产物的长度随插入方向而改变。\\n2.判定：正确连接时扩出预期长度的片段；若某对引物在另一菌落中扩出了400 bp的偏短片段，说明目的基因与质粒反向连接。\\n3.选择原则：应选扩增产物长度能区分两种方向的引物对（如乙和丙），否则无法判定连接方向。",
+   "boundaryMarkdown": "依赖接头两侧已知的引物位置与片段长度信息；若两个方向扩增产物长度相同则无法区分。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 专题突破12 PCR技术的原理及其应用.docx（块 e5a2a77e0e-006）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-e5a2a77e0e-006",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因的检测与鉴定",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-e5a2a77e0e-007",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "重叠延伸PCR的搭桥引物设计与分步扩增",
+   "summaryMarkdown": "把多个片段拼接成融合基因时，相邻片段的引物需带互补末端以实现“搭桥”；拼接4个片段需设计8种引物、其中6种起搭桥作用；搭桥后互补链可互作引物，后续扩增不必额外加引物。",
+   "applicabilityMarkdown": "PRIMARY：解答用重叠延伸（融合）PCR拼接基因片段的引物数量、步骤与反应体系设计题。",
+   "contentMarkdown": "1.搭桥原理：相邻片段引物间存在碱基互补配对片段，两产物变性后才能“搭桥”互补连接（图1第二阶段）。\\n2.引物数量：拼接n个片段需设计2n种引物，其中起搭桥作用的有2(n−1)种——拼接4个片段时为8种、6种。\\n3.分步原因：引物B和C本身含互补片段，置于同一反应体系会因互相配对而失效，故相关PCR必须分开进行。\\n4.后续扩增：搭桥后两条互补链可互相充当引物，PCR3不需要额外加入引物；大量扩增突变基因时用两端引物（如A和D）。",
+   "boundaryMarkdown": "适用于带互补末端的片段拼接；片段间无互补序列时需另设接头或改用其他拼接方法。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 专题突破12 PCR技术的原理及其应用.docx（块 e5a2a77e0e-007）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-e5a2a77e0e-007",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-e5a2a77e0e-009",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "反向PCR扩增已知序列两侧未知序列的两步法",
+   "summaryMarkdown": "已知序列外侧为未知序列时无法常规设计引物，可用反向PCR：先用限制酶切割并连接成环，再以已知序列设计一对引物向外侧反向扩增，得到含未知序列的链状产物。",
+   "applicabilityMarkdown": "PRIMARY：解答“如何扩增已知序列两侧的未知序列（如T－DNA插入位点侧翼序列）”的实验设计题。",
+   "contentMarkdown": "1.第一步连接成环：用限制酶切割DNA，再用DNA连接酶把片段连成环。\\n2.第二步反向扩增：根据已知序列设计一对引物，以环状DNA两条链为模板、从已知序列向未知序列方向扩增。\\n3.产物形态：利用Taq DNA聚合酶不能把DNA连接成环的特点，产物为链状DNA；子链沿5′→3′延伸，需据此确定引物序列。",
+   "boundaryMarkdown": "适用于未知序列紧邻已知序列、且酶切后能环化的材料；已知序列太短或酶切位点不合适时不能使用。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 专题突破12 PCR技术的原理及其应用.docx（块 e5a2a77e0e-009）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-e5a2a77e0e-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-e5a2a77e0e-019",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "黏性末端的补平方向：5′突出端可作模板，3′突出端不能",
+   "summaryMarkdown": "用DNA聚合酶补平黏性末端时，只有5′端突出的黏性末端能以其突出单链为模板、从互补链的3′端延伸补齐；3′端突出的黏性末端不能作为模板，无法用此法补平。",
+   "applicabilityMarkdown": "PRIMARY：解答基因工程中限制酶切割后末端补平与连接方案的设计、评价题。",
+   "contentMarkdown": "1.可行情形：5′端突出的黏性末端可充当模板，DNA聚合酶从其互补链的3′端开始连接脱氧核苷酸把末端补平。\\n2.不可行情形：3′端突出的黏性末端无法充当模板，不能从其互补链延伸，故不能用此法补平。\\n3.意义：需要补平末端再连接时，应按突出端类型挑选限制酶（如选XbaⅠ而非PstⅠ）。",
+   "boundaryMarkdown": "只讨论用DNA聚合酶补平黏性末端这一操作；平末端与黏性末端之间的连接（用T4 DNA连接酶等）不在此列。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 专题突破12 PCR技术的原理及其应用.docx（块 e5a2a77e0e-019）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-e5a2a77e0e-019",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:限制酶",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-eea0a6edbe-024",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "杂交瘤第一次筛选：HAT培养基淘汰未融合亲本与同种核融合细胞",
+   "summaryMarkdown": "B淋巴细胞与骨髓瘤细胞融合后，用HAT等选择培养基筛选：未融合的亲本细胞和融合的具同种核的细胞都会死亡，只有杂交瘤细胞能存活增殖。",
+   "applicabilityMarkdown": "PRIMARY：解答单克隆抗体制备中两次筛选的目的、操作与结果判断题。",
+   "contentMarkdown": "1.第一次筛选：用HAT等特定选择培养基，未融合的亲本细胞与同种核融合细胞均死亡，只有杂交瘤细胞存活。\\n2.第二次筛选：用抗原—抗体杂交检测（抗体检测阳性）挑出能分泌所需抗体的杂交瘤细胞。\\n3.前置条件：浆细胞是高度分化的细胞、不能增殖，故融合前不需原代培养扩大数量。",
+   "boundaryMarkdown": "选择培养基只能保证筛到杂交瘤细胞、不保证抗体特异性；能分泌目标抗体的克隆须再经克隆化培养与抗体检测确定。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第52课时 动物细胞工程.docx（块 eea0a6edbe-024）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-eea0a6edbe-024",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:单克隆抗体",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-eea0a6edbe-026",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "iPS细胞的分裂与定向分化能力",
+   "summaryMarkdown": "iPS细胞具有与胚胎干细胞类似的分裂和分化能力，在特定条件诱导下能定向分化为特定的组织器官，因此可用于异种再生等研究。",
+   "applicabilityMarkdown": "PRIMARY：解答iPS细胞特性、定向分化与再生医学应用的分析题。",
+   "contentMarkdown": "1.特性：iPS细胞能与胚胎干细胞类似地分裂和分化。\\n2.定向性：在特定条件诱导下可定向分化为特定的组织器官（如人源化肾）。\\n3.意义：为器官再生与疾病模型提供细胞来源，也可作为异种嵌合研究的供体细胞。",
+   "boundaryMarkdown": "描述其分化能力与用途；不能据此推断其在体内一定按需要方向分化（仍需特定诱导条件），也不含伦理争议判断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第52课时 动物细胞工程.docx（块 eea0a6edbe-026）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-eea0a6edbe-026",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:诱导多能干细胞（iPS细胞）",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-eea0a6edbe-026b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "Cas9蛋白只负责切割：识别由向导RNA完成",
+   "summaryMarkdown": "在向导RNA引导下，Cas9蛋白切割目标DNA双链，说明Cas9本身不具有识别作用；切割位点的特异性由向导RNA与靶序列的配对决定。",
+   "applicabilityMarkdown": "PRIMARY：解答CRISPR/Cas9基因编辑机理题，辨析向导RNA与Cas9蛋白的分工。",
+   "contentMarkdown": "1.分工：向导RNA以DNA为模板转录合成、携带与靶序列配对的信息；Cas9蛋白在向导RNA引导下切割目标DNA双链。\\n2.结论：Cas9蛋白不具有识别作用，识别特异性的责任在向导RNA。\\n3.易错点：Cas9切割的也是特定部位的磷酸二酯键，与限制酶切割的化学本质相同，但不能把识别功能安到Cas9蛋白上。",
+   "boundaryMarkdown": "只讨论Cas9与向导RNA的分工；不涉及脱靶效应、修复途径（非同源末端连接与同源重组修复）等后续环节。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第52课时 动物细胞工程.docx（块 eea0a6edbe-026）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-eea0a6edbe-026b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因编辑",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-b658060798-017",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "组蛋白修饰调控基因表达：去甲基化与去乙酰化抑制的解除",
+   "summaryMarkdown": "染色体组蛋白H3被修饰酶动态可逆地修饰，从而调控基因表达；注入组蛋白H3去甲基化酶Kdm4d的mRNA、并用组蛋白脱乙酰酶抑制剂TSA处理，可激活重构胚中分化潜能基因A的表达。",
+   "applicabilityMarkdown": "PRIMARY：解答表观遗传修饰（组蛋白甲基化与乙酰化）调控基因表达及其在克隆胚胎中应用的分析题。",
+   "contentMarkdown": "1.机制：组蛋白H3的修饰状态（甲基化、乙酰化）可逆地被修饰酶改变，进而调控基因A等基因的表达。\\n2.操作：将去甲基化酶Kdm4d的mRNA注入重构胚、并用脱乙酰酶抑制剂TSA处理，共同解除抑制、激活基因A的表达。\\n3.应用：激活重构胚分化潜能调控基因是克隆成功的关键步骤。",
+   "boundaryMarkdown": "不改变DNA碱基序列、属可逆的表观调控；不能把组蛋白修饰与基因突变混同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第53课时 胚胎工程.docx（块 b658060798-017）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-b658060798-017",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:表观遗传",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-653738a349-017",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "目的基因表达检测的两个层次：PCR查mRNA、抗原—抗体杂交查蛋白",
+   "summaryMarkdown": "检测目的基因是否成功表达分两步：用PCR技术检测是否转录出mRNA，用抗原—抗体杂交技术检测是否翻译出目的蛋白。",
+   "applicabilityMarkdown": "PRIMARY：解答“检测目的基因是否表达、是否翻译出蛋白”的分子检测方法选择与结果分析题。",
+   "contentMarkdown": "1.转录水平：可用PCR技术检测目的基因是否转录出了mRNA。\\n2.翻译水平：可用抗原—抗体杂交技术检测目的基因是否翻译出相应蛋白。\\n3.提示：转录检测与翻译检测分属两个层次，题目问“是否表达出蛋白”时应选抗原—抗体杂交。",
+   "boundaryMarkdown": "仅覆盖目的基因表达的转录与翻译两个分子检测层次；检测目的基因是否导入及性状是否表现需另用相应方法。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第55课时 基因工程的应用、蛋白质工程.docx（块 653738a349-017）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-653738a349-017",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因的检测与鉴定",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-653738a349-019",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "SsrA短肽标签介导的原核蛋白特异性降解",
+   "summaryMarkdown": "给模式蛋白接上C－末端SsrA短肽后，该蛋白会被大肠杆菌内源蛋白酶系统特异性识别并降解；用启动子驱动与降解标签配合，可动态调节目标蛋白量。",
+   "applicabilityMarkdown": "PRIMARY：解答原核表达中利用降解标签动态调控目标蛋白量、分析荧光强度变化趋势的实验题。",
+   "contentMarkdown": "1.标签机制：目标蛋白C－末端带SsrA短肽时，会被大肠杆菌内源蛋白酶系统特异性识别并降解。\\n2.动态调控：启动子停止转录后蛋白合成停止，而特异性降解持续，蛋白量随即下降，实现合成与降解的双环节调控。\\n3.联动设计：让阻遏蛋白也带SsrA标签，可通过其降解逐渐解除对目标基因的阻遏，使目标蛋白在生长稳定期回升（荧光由弱转强）。",
+   "boundaryMarkdown": "机制限于大肠杆菌等原核体系的SsrA降解标签策略；真核细胞不用该标签，不能直接类推。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第55课时 基因工程的应用、蛋白质工程.docx（块 653738a349-019）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-653738a349-019",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:原核基因表达的调控",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-653738a349-022",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "双酶切构建表达载体的选酶要点",
+   "summaryMarkdown": "双酶切构建表达载体时须注意：产生相同黏性末端的两种酶不能配对使用（易自连或反向连接）、E.coli DNA连接酶连平末端效率低、并要考虑连接后原位点是否还能被切开。",
+   "applicabilityMarkdown": "PRIMARY：解答“为构建表达载体应选择哪两种限制酶”及酶切方案评价题。",
+   "contentMarkdown": "1.避免同尾酶：切割产生相同黏性末端的两种酶（如XbaⅠ与SpeⅠ）配对使用会使载体自连或目的基因反向连接，只能取其一。\\n2.避免低效连接：E.coli DNA连接酶连接平末端效率低，故尽量选产生黏性末端的酶；T4 DNA连接酶可连接黏性末端和平末端。\\n3.预留再切位点：连接后接头序列可能不再是原限制酶识别序列，导致重组质粒无法再用原双酶切组合切割，影响后续鉴定。",
+   "boundaryMarkdown": "适用于以酶切—连接法构建重组质粒的场景；无缝克隆、同源重组等不依赖酶切位点的构建策略不受此限。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第55课时 基因工程的应用、蛋白质工程.docx（块 653738a349-022）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-653738a349-022",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:限制酶",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-653738a349-022b",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "提高酶耐热性的突变位点选择：邻近半胱氨酸且保守度低",
+   "summaryMarkdown": "理性设计耐热酶时，选择空间上离半胱氨酸更近、且保守度低的氨基酸位点进行替换，既易形成二硫键提升耐热性，又对酶功能影响较小。",
+   "applicabilityMarkdown": "PRIMARY：解答蛋白质工程中定点突变位点选择与耐热性改造设计的分析题。",
+   "contentMarkdown": "1.耐热原理：空间上相近的半胱氨酸之间容易形成二硫键，提升蛋白质的耐热性。\\n2.选点原则：替换位点应空间上离半胱氨酸更近（利于形成二硫键），同时保守度低（替换后对酶功能影响较小）。\\n3.取舍：两条原则共同决定改造位点的优先次序，而不是任选表面位点替换。",
+   "boundaryMarkdown": "属于提高耐热性的定点替换策略；位点保守度极高或远离半胱氨酸时，按此原则不应优先替换。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第十单元 第55课时 基因工程的应用、蛋白质工程.docx（块 653738a349-022）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-653738a349-022b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质工程",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-2097a27bee-019",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "诱导三倍体的处理时期：阻滞减数分裂而非第一次卵裂",
+   "summaryMarkdown": "用细胞松弛素B阻滞分裂诱导三倍体时，阻滞卵母细胞的减数分裂Ⅰ或Ⅱ可得到三倍体；阻滞受精卵的第一次卵裂会因受精卵本含两个染色体组、加倍后成为四倍体，三倍体出现率最低。",
+   "applicabilityMarkdown": "PRIMARY：解答用细胞松弛素B、秋水仙素等诱导多倍体时选择处理时期与预测倍性的分析题。",
+   "contentMarkdown": "1.目标判断：要得到三倍体，应在配子形成环节（减数分裂）作阻滞，使卵母细胞保留两个染色体组、与精子结合后成三倍体。\\n2.反例逻辑：受精卵本身已含两个染色体组，阻滞其第一次卵裂得到的是四倍体而非三倍体。\\n3.结论：比较不同处理时期时，阻滞受精卵第一次卵裂的一组三倍体出现率最低。",
+   "boundaryMarkdown": "只适用于“正常二倍体受精后阻滞”背景的诱导方案；不推广到未受精或倍性背景不同的材料。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/第四单元 第18课时 减数分裂与有丝分裂的比较及观察蝗虫精母细胞减数分裂装片.docx（块 2097a27bee-019）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-2097a27bee-019",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:多倍体",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-87302ac599-007",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "检测血液样品中HIV的两条实验思路",
+   "summaryMarkdown": "可利用HIV抗体或HIV抗原与血液样品做抗原—抗体杂交，出现阳性结果即证明样品含HIV；也可用RT－PCR检测HIV的RNA并进行电泳分析PCR产物。",
+   "applicabilityMarkdown": "PRIMARY：解答“设计实验验证血液样品中含有某种病毒”的实验思路与预期结果书写题。",
+   "contentMarkdown": "1.免疫学思路：利用HIV抗体（或HIV抗原）与血液样品进行抗原—抗体杂交，预期出现杂交带（阳性结果）。\\n2.分子生物学思路：利用RT－PCR技术检测血液样品中的HIV核酸、并通过电泳分析PCR产物，预期出现与HIV特定基因对应的条带。\\n3.选择依据：HIV是RNA病毒、表面有特定蛋白质抗原，人体感染后血液中有相应抗体，故抗原检测、抗体检测、核酸检测三条路线均可采用。",
+   "boundaryMarkdown": "针对以病毒核酸或抗原抗体为对象的实验室检测；窗口期等问题需另选核酸检测路线，本卡不覆盖灵敏度与假阳性的具体判断。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/高考共鸣点1 病毒的组成、结构、分类及增殖.docx（块 87302ac599-007）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-87302ac599-007",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒的鉴定与检测",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-0bcf625255-008",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "启动子决定表达部位，终止子位于基因下游且终止转录",
+   "summaryMarkdown": "启动子具有组织（细胞）特异性，要使目的基因仅在特定部位表达，应选用该部位特异性表达基因的启动子；终止子位于基因下游，作用是使转录在需要的地方停下来。",
+   "applicabilityMarkdown": "PRIMARY：解答表达载体中启动子选择（实现组织特异性表达）与终止子位置、作用的判断题。",
+   "contentMarkdown": "1.启动子：决定基因在何种组织或细胞中表达——若要求目的基因仅在水稻胚乳表达，应选在胚乳中特异性表达的基因的启动子。\\n2.终止子：是基因下游的一段有特殊序列结构的DNA片段，使转录在所需要的地方停下来（终止转录）。\\n3.布局：目的基因应插入启动子与终止子之间。",
+   "boundaryMarkdown": "讨论的是基因表达载体的调控元件布局；启动子不被翻译，改变的是表达部位与强度而非蛋白结构。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/高考共鸣点12 PCR引物的设计、修饰、选择与计算及限制酶、启动子的选择.docx（块 0bcf625255-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-0bcf625255-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:启动子与终止子的辨析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-0bcf625255-009",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "启动子是RNA聚合酶识别结合部位，串联启动子可提高转录效率",
+   "summaryMarkdown": "启动子的作用是作为RNA聚合酶识别并结合的部位、驱动目的基因转录；在同一载体上插入两个相同启动子，目的可能就是提高目的基因的转录效率。",
+   "applicabilityMarkdown": "PRIMARY：解答载体中启动子功能与多启动子设计意图的分析题。",
+   "contentMarkdown": "1.功能定位：启动子是RNA聚合酶识别并结合的部位，驱动目的基因转录。\\n2.设计意图：串联两个相同启动子，目的可能是提高目的基因的转录效率（增加转录起始频率）。\\n3.判读提示：凡问启动子某序列的作用，应从“RNA聚合酶识别结合、启动转录”作答，而不是翻译或终止。",
+   "boundaryMarkdown": "解释的是启动子的识别与转录起始功能及增强表达的设计；不涉及诱导型、组织特异型启动子的具体种类。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/高考共鸣点12 PCR引物的设计、修饰、选择与计算及限制酶、启动子的选择.docx（块 0bcf625255-009）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-0bcf625255-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:启动子与终止子的辨析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-d936a04f6f-008",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "用LacZ报告基因与X－gal蓝白斑比较启动子活性",
+   "summaryMarkdown": "把待测启动子接到报告基因前导入LacZ缺失菌株，在含X－gal的培养基上培养，通过菌落蓝色的深浅比较不同启动子的活性强弱。",
+   "applicabilityMarkdown": "PRIMARY：解答以报告基因检测启动子活性、初筛启动子强度的实验设计题。",
+   "contentMarkdown": "1.原理：β－半乳糖苷酶分解X－gal产生蓝色物质，使菌落呈蓝色；蓝色越深说明报告基因表达越强。\\n2.设计：将pR空质粒、pR－A、pR－B分别导入LacZ基因缺失菌株，接种到含X－gal的培养基上适宜条件培养，比较各组菌落蓝色深浅。\\n3.干扰控制：应选使菌株自身β－半乳糖苷酶活性最低的温度（如28 ℃），使外源启动子的信号最灵敏。",
+   "boundaryMarkdown": "以LacZ为报告基因、菌落颜色为读出方式，只能比较相对活性；需要精确定量时应改用酶活测定。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【1】2027年高考生物一轮复习讲义（考点详解）/高考共鸣点13 特殊PCR技术、双标记基因技术、基因编辑技术.docx（块 d936a04f6f-008）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-d936a04f6f-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:启动子与终止子的辨析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-d8165b3226-002",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "探究性实验的目的、假设与实验原理的书写（第9单元素养提升·实验设计基本方法）",
+   "summaryMarkdown": "探究性实验按自变量与因变量写实验目的；假设须能解释现象并取最可能的一种；实验原理按五步套路把已知条件、目的、材料与结果串成理论依据。",
+   "applicabilityMarkdown": "PRIMARY：要求写出探究性实验的实验目的、实验假设或实验原理时使用。",
+   "contentMarkdown": "1. 实验目的：探究性实验先分析自变量和因变量，目的通常写成探究自变量对因变量的影响、探究自变量与因变量的关系或探究自变量的作用。\\n2. 实验假设：假设是对变量间关系尚未证实的可能解释，可能正确也可能错误，但必须能解释题目现象或与题干相符；答题时写自己认为最可能的一种。\\n3. 实验原理：书写套路为已知条件找变量、根据目的提结论、依据材料判结果、结论结果巧联系、组织语言写原理。",
+   "boundaryMarkdown": "只适用于探究性实验的文字表述；验证性实验的目的直接写验证某结论，不必写成探究式；假设不是结论，不能把假设当作已证实的答案。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【3】2027届高考生物一轮复习解题方法课件/2026届高考生物一轮复习讲义第9单元素养提升 实验设计的一般原则和基本方法 探究动植物生命活动调节实验的思路与方法.docx（块 d8165b3226-002）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-d8165b3226-002",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-fa56135114-014",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "轮作与大棚施农家肥的增产原理（知识清单5·光合作用的影响因素及其应用）",
+   "summaryMarkdown": "轮作能充分利用土壤矿质元素、改善土壤并减少病虫害；大棚施农家肥后有机物被微生物分解产生CO2供作物利用，从而提高产量。",
+   "applicabilityMarkdown": "PRIMARY：解释轮作、施农家肥等传统农业管理措施为什么能提高作物产量时使用。",
+   "contentMarkdown": "1. 轮作：西瓜、玉米、辣椒轮作与固定种植玉米相比，能充分利用土壤中的矿质元素、改善土壤、减少病虫害的发生。\\n2. 施农家肥：大棚内多施农家肥，农家肥中的有机物被微生物分解产生CO2，其能被作物利用，从而提高作物产量。",
+   "boundaryMarkdown": "农家肥的增产作用主要来自微生物分解有机物产生的CO2，不能只归结为提供矿质元素；该解释适用于大棚等相对密闭、CO2易成为限制因子的环境。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/【4】2027届高考生物一轮复习知识清单填空/2027届高三生物一轮复习知识清单5：细胞的能量供应和利用.docx（块 fa56135114-014）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-fa56135114-014",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:传统农业生产中的典型管理措施",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-5f510cdc4a-1396",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "判断生长素有无的两个依据：产生部位与人为施加（53知识清单·生物 生长素）",
+   "summaryMarkdown": "判断某处有没有生长素，一看有没有产生部位，二看有没有人为施加。",
+   "applicabilityMarkdown": "PRIMARY：植物激素类实验分析题中先判断某材料或部位是否含生长素时。",
+   "contentMarkdown": "依据一：看有没有产生部位——有芽、幼嫩的叶、发育中的种子等产生生长素的部位，该处就可能有生长素。\\n依据二：看有没有人为施加——实验中人为添加了生长素（如含生长素的琼脂块），该处也有生长素。\\n用法：两条依据满足其一即判为有生长素，两条都不满足则不能认为有。",
+   "boundaryMarkdown": "该判据只解决有与无，不涉及浓度高低与作用效果；判出有生长素后再用两重性分析实验结果。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e7f072992e:biology",
+   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-1396）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-5f510cdc4a-1396",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-5f510cdc4a-2051",
+   "subject": "BIOLOGY",
+   "type": "METHOD_MODEL",
+   "title": "恒温技术：适用于有酶参与的生化反应（53知识清单·生物 实验技术）",
+   "summaryMarkdown": "恒温技术适用于有酶参与的生化反应，一般用水浴锅或恒温箱实现。",
+   "applicabilityMarkdown": "PRIMARY：实验题中为酶促反应设计并维持恒定温度、选择保温器材时。",
+   "contentMarkdown": "适用对象：有酶参与的生化反应，需要在整个反应过程中保持恒定的温度。\\n常用器材：一般用水浴锅或恒温箱提供恒温环境。\\n操作要点：先预热到目标温度再放入反应体系，使反应始终在设定温度下进行。",
+   "boundaryMarkdown": "水浴加热的目的通常是恒温而不是升温；温度过高会使酶失活、过低则反应过慢，关键在于温度恒定。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e7f072992e:biology",
+   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-2051）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-5f510cdc4a-2051",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-5f510cdc4a-611",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "细胞凋亡与细胞坏死的界定（53知识清单·生物 必修1 细胞的死亡）",
+   "summaryMarkdown": "细胞凋亡由基因决定，属生理性、程序性死亡；细胞坏死属病理性死亡，二者按是否由基因调控、是否属生理性程序过程区分。",
+   "applicabilityMarkdown": "PRIMARY：说明细胞凋亡的性质、辨析细胞凋亡与细胞坏死，或判断某一生理或病理过程属于哪一种死亡时。",
+   "contentMarkdown": "1. 细胞凋亡：由基因决定，属生理性、程序性死亡。\\n2. 分界：细胞坏死属病理性死亡；判断死亡类型看是否由基因决定、是否属生理性程序过程，不能只凭细胞死亡这一结果归类。",
+   "boundaryMarkdown": "凋亡的限定是「基因决定」与「生理性、程序性」两者并存，写成病理性死亡即为错；坏死是病理性死亡，也不能与程序性死亡混用。本条只给两者的定性分界，不含凋亡与坏死的形态学特征、分子通路与自噬相关内容。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e7f072992e:biology",
+   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-611）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-5f510cdc4a-611",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞凋亡",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-5f510cdc4a-611b",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "细胞坏死是病理性死亡（53知识清单·生物 必修1 细胞的死亡）",
+   "summaryMarkdown": "细胞坏死属病理性死亡，与由基因决定的生理性程序性凋亡相对；判断死亡类型先看是否由基因调控、是否属程序过程。",
+   "applicabilityMarkdown": "PRIMARY：说明细胞坏死的性质、把某种细胞死亡归入坏死一类，或与细胞凋亡作对照辨析时。",
+   "contentMarkdown": "1. 细胞坏死：属病理性死亡。\\n2. 对照口径：凋亡由基因决定、属生理性程序性死亡；坏死不属这一类，判断时先看死亡是否由基因调控、是否程序性。",
+   "boundaryMarkdown": "本条只界定坏死的性质及其与凋亡的分界，不涉及坏死的具体诱因、形态变化与是否引起炎症反应，也不涉及细胞自噬的机制；坏死不属生理性程序性死亡，勿与凋亡互换称呼。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e7f072992e:biology",
+   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-611）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-5f510cdc4a-611b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞坏死与细胞自噬",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-5f510cdc4a-813",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "T2噬菌体侵染细菌实验的结论：DNA才是T2噬菌体的遗传物质（53知识清单·生物）",
+   "summaryMarkdown": "T2噬菌体侵染细菌实验的结论是DNA才是T2噬菌体的遗传物质；这是针对T2噬菌体这一具体生物的结论，与「DNA是主要的遗传物质」的整体表述不同。",
+   "applicabilityMarkdown": "PRIMARY：回答T2噬菌体侵染细菌实验的结论、判断T2噬菌体的遗传物质，或为DNA是遗传物质提供实验依据时。",
+   "contentMarkdown": "1. 结论：DNA才是T2噬菌体的遗传物质。\\n2. 该结论把T2噬菌体的遗传物质落在DNA上，是支持DNA是遗传物质的实验依据之一。",
+   "boundaryMarkdown": "结论只针对T2噬菌体，不能外推到其他生物；对某一种具体生物，其遗传物质是DNA或RNA；「DNA是主要的遗传物质」是对生物界的整体表述，两者不能互换。本条不含该实验的操作流程、标记元素与误差分析。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e7f072992e:biology",
+   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（生物） / 2027版高中《53知识清单》彩色版（生物）/2027高中知识清单生物.pdf（块 5f510cdc4a-813）",
+   "reviewedAtEpochMillis": 1792414012820,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-5f510cdc4a-813",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:噬菌体侵染细菌实验",
+     "role": "PRIMARY"
+    }
+   ]
+  }
+ ]
+}

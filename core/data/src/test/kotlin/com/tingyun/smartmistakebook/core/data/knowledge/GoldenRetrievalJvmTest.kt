@@ -171,7 +171,8 @@ class GoldenRetrievalJvmTest {
         assertMissLedgerMatchesScores(metricsFile, listOf(a to aMisses, b to bMisses))
         // A2（批 11）：融合镜像的独立指标文件（段渲染与主文件同源 goldenRouteSection，
         // 供 mirror-misses 抽取口径逐字对齐；主文件的两路段格式**不动**）。
-        val fusedFile = File(repoRoot, "build/agent-batch11/d3/jvm-fused-metrics.txt")
+        // 随批次 13 改落点：build/agent-batch11/d3 → build/agent-batch13/d3；路径为口径注、非判据。
+        val fusedFile = File(repoRoot, "build/agent-batch13/d3/jvm-fused-metrics.txt")
         fusedFile.parentFile?.mkdirs()
         fusedFile.writeText(
             buildString {
@@ -193,7 +194,7 @@ class GoldenRetrievalJvmTest {
                 "fused Recall@5=${fused.recallAt5} MRR=${fused.mrr}; " +
                 "MISS A=${aMisses.size} B=${bMisses.size} fused=${fusedMisses.size}; " +
                 "指标已写 build/golden-jvm-metrics.txt 与 " +
-                "build/agent-batch11/d3/jvm-fused-metrics.txt（测量台：不断言质量阈值，预注册判据另行判定）",
+                "build/agent-batch13/d3/jvm-fused-metrics.txt（测量台：不断言质量阈值，预注册判据另行判定）",
         )
     }
 

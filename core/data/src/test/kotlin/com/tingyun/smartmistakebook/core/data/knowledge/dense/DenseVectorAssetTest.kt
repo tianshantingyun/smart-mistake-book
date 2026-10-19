@@ -50,8 +50,11 @@ class DenseVectorAssetTest {
         // 零材料点 1 点并入 + 3 条残片删点 + 4 个新点；资产按新包重打 43,388 行）。
         // 2026-10-16 批次11 promote v15 再重钉：3,359 → 3,210（批次11 超配并点 + F2 章层重建；
         // 资产按新包重打 43,265 行）。量源 = 本用例失败信息 `expected:<3359> but was:<3210>`
-        // 与旁车 corpus.atomicNodes 实测 3,210、资产头 count 三方一致。上一代（批次10）为 3,359。
-        assertEquals(3210, asset.nodeCount)
+        // 与旁车 corpus.atomicNodes 实测 3,210、资产头 count 三方一致。
+        // 2026-10-20 批次13 promote v16 再重钉：3,210 → 3,245（成品包原子点 +35；资产按新包
+        // 重打 44,010 行）。量源 = 本用例失败信息 `expected:<3210> but was:<3245>` 与旁车
+        // corpus.atomicNodes 实测 3,245、资产头 count 三方一致。上一代（批次11）为 3,210。
+        assertEquals(3245, asset.nodeCount)
     }
 
     @Test
@@ -109,8 +112,11 @@ class DenseVectorAssetTest {
         // 2026-10-14 批次10 promote v14 再重钉：3,741 → 3,359。
         // 2026-10-16 批次11 promote v15 再重钉：3,359 → 3,210（量源 = 本用例失败信息
         // `expected:<3359> but was:<3210>`；与随批重生成的 dense-scan-reference.txt 逐 [node]
-        // 行实测合计 3,210 一致，4 条 scan 的 493/1,007/830/880 之和）。上一代（批次10）为 3,359。
-        assertEquals("节点行总数变了", 3210, scans.sumOf { it.expected.size })
+        // 行实测合计 3,210 一致，4 条 scan 的 493/1,007/830/880 之和）。
+        // 2026-10-20 批次13 promote v16 再重钉：3,210 → 3,245（量源 = 本用例失败信息
+        // `expected:<3210> but was:<3245>`；与随批重生成的 dense-scan-reference.txt 逐 [node]
+        // 行实测合计 3,245 一致，4 条 scan 的 511/1,011/834/889 之和）。上一代（批次11）为 3,210。
+        assertEquals("节点行总数变了", 3245, scans.sumOf { it.expected.size })
         for (scan in scans) {
             val scores = asset.nodeScores(scan.query, scan.subject.lowercase())
             assertEquals("scan#${scan.index} 学科=${scan.subject} 的节点数", scan.expected.size, scores.size)

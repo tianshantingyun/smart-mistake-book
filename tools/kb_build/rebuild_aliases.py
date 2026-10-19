@@ -19,8 +19,20 @@
 3. **全局互斥**：同一学科内，一个名字只能归一个节点——被两个以上节点同时claim的候选
    一律丢弃（否则"按别名匹配"本身就歧义）。
 
+## 人工例外表（`tables/alias_exceptions.csv`）
+
+判据 2 会周期性把人工补的检索名冲掉：批11 撤回点名（原名检索需求）每次重建都会消失。
+例外表是**人工定稿层**，表头 `subject,slug,alias,reason`，登记者优先：
+
+- 例外条目仍要过判据 2 的形状门（长度/字符/坏名）与判据 3 的学科互斥门
+  （不能等于同学科另一节点主名，同一名字不能登记给两个节点）；
+- 例外与重建结果冲突（同一名字被别的节点从标题派生出来）时，**以例外表为准**：
+  归登记者，其它节点让位，冲突条数计入 `exception_conflicts`；
+- 表不存在 = 无例外，重建行为与旧版完全一致。
+
 门禁 `ghost_aliases` 的口径（"既不等于主名、也不来自当前绑定材料的标题"）与本判据同源，
-所以重建后该指标必然为 0；`alias_collision`（新增）则守住第 3 条的长期不变量。
+例外表登记的名字同样算有据可依（gate 读同一张表），所以重建后该指标必然为 0；
+`alias_collision`（新增）则守住第 3 条的长期不变量。
 
 ## 用法
 
@@ -40,6 +52,8 @@ from kb_build import gate, pack_io
 TABLES = Path(__file__).resolve().parent / "tables"
 ALIAS_MAP = "alias_map.csv"
 DROPPED = "alias_dropped.csv"
+EXCEPTIONS = "alias_exceptions.csv"
+EXCEPTION_FIELDS = ("subject", "slug", "alias", "reason")
 NAME_MAX = 24
 # 句末标点与**逗号**：名字里不会出现逗号——出现就说明是"从句/句子片段"
 # （实测拦下 `奇偶性性质法求参：拆出含参部分，由不含参` 这类截断）。
@@ -94,8 +108,81 @@ def bound_titles() -> dict[tuple[str, str], set[str]]:
     return titles
 
 
-def rebuild(pack: dict, titles: dict[tuple[str, str], set[str]] | None = None) -> dict:
+def load_exceptions(path: Path | None = None) -> dict[tuple[str, str], set[str]]:
+    """读人工例外表：(subject, slug) -> {alias}。表不存在 = 无例外。
+
+    `reason` 是登记依据（供人复核），不参与合并；缺列直接报错，避免表头写错后
+    静默把所有例外当成不存在。
+    """
+    path = TABLES / EXCEPTIONS if path is None else Path(path)
+    if not path.exists():
+        return {}
+    out: dict[tuple[str, str], set[str]] = defaultdict(set)
+    with path.open(encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        missing = [f for f in EXCEPTION_FIELDS if f not in (reader.fieldnames or [])]
+        if missing:
+            raise ValueError(f"{path.name} 缺少列：{missing}")
+        for row in reader:
+            subject = (row.get("subject") or "").strip().upper()
+            slug = (row.get("slug") or "").strip()
+            alias = (row.get("alias") or "").strip()
+            if subject and slug and alias:
+                out[(subject, slug)].add(alias)
+    return dict(out)
+
+
+def _validate_exceptions(
+        node_by_key: dict[tuple[str, str], dict],
+        names_by_subject: dict[str, set[str]],
+        exceptions: dict[tuple[str, str], set[str]],
+) -> tuple[dict[tuple[str, str], set[str]], list[dict], dict[tuple[str, str], tuple[str, str]]]:
+    """例外条目的三道门。返回 (有效例外, 拒绝记录, 唯一登记归属)。
+
+    - 形状：沿用 `title_usable`（长度/标点/坏名/残片）；
+    - 主名：不能等于同学科另一节点的主名（判据 3 的核心歧义）；
+    - 例外表自身互斥：同一名字登记给同学科两个节点 → 两条都拒绝。
+    """
+    rejected: list[dict] = []
+    valid: dict[tuple[str, str], set[str]] = defaultdict(set)
+    registered: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
+    for key, aliases in exceptions.items():
+        subject, _slug = key
+        point = node_by_key.get(key)
+        for alias in sorted({(a or "").strip() for a in aliases if (a or "").strip()}):
+            if point is None:
+                rejected.append({"subject": subject, "slug": key[1], "alias": alias,
+                                 "reason": "节点不存在（subject/slug 无对应知识点）"})
+                continue
+            reason = title_usable(alias)
+            if reason:
+                rejected.append({"subject": subject, "slug": point["slug"], "alias": alias,
+                                 "reason": f"例外条目形状不合格：{reason}"})
+                continue
+            if alias == point["name"]:
+                rejected.append({"subject": subject, "slug": point["slug"], "alias": alias,
+                                 "reason": "与主名相同（冗余）"})
+                continue
+            if alias in (names_by_subject[subject] - {point["name"]}):
+                rejected.append({"subject": subject, "slug": point["slug"], "alias": alias,
+                                 "reason": "与同学科另一节点主名相同（歧义）"})
+                continue
+            valid[key].add(alias)
+            registered[(subject, alias)].add(key)
+    for (subject, alias), keys in sorted(registered.items()):
+        if len(keys) > 1:
+            for key in sorted(keys):
+                valid[key].discard(alias)
+                rejected.append({"subject": subject, "slug": key[1], "alias": alias,
+                                 "reason": f"同学科 {len(keys)} 个节点同时登记（歧义）"})
+    owner = {key: next(iter(keys)) for key, keys in registered.items() if len(keys) == 1}
+    return valid, rejected, owner
+
+
+def rebuild(pack: dict, titles: dict[tuple[str, str], set[str]] | None = None,
+            exceptions: dict[tuple[str, str], set[str]] | None = None) -> dict:
     titles = bound_titles() if titles is None else titles
+    exceptions = load_exceptions() if exceptions is None else exceptions
     # 候选取集：每个节点的候选（主名另算，不参与互斥）
     candidates: dict[tuple[str, str], set[str]] = {}
     dropped: list[dict] = []
@@ -125,17 +212,40 @@ def rebuild(pack: dict, titles: dict[tuple[str, str], set[str]] | None = None) -
         # 与自己的主名相同 → 冗余（App 侧 aliases 是集合，重复值直接被契约拒）
         keep.discard(point["name"])
         candidates[key] = keep
-    # 全局互斥：被多个节点 claim 的候选全部丢弃
+    # 例外表：人工登记的点名别名是定稿层，仍要过形状/主名互斥门
+    valid_exceptions, exceptions_rejected, exception_owner = _validate_exceptions(
+        node_by_key, names_by_subject, exceptions)
+    # 全局互斥：被多个节点 claim 的候选全部丢弃；例外表登记的名字归登记者，
+    # 其它节点的同名派生候选让位（登记者优先），让位条数计入 exception_conflicts。
     claim = Counter()
     for keep in candidates.values():
         for alias in keep:
             claim[alias] += 1
+    exception_conflicts = 0
     for key, keep in candidates.items():
-        for alias in [a for a in keep if claim[a] > 1]:
+        subject = key[0]
+        for alias in [a for a in keep if claim[a] > 1 or (subject, a) in exception_owner]:
+            owner = exception_owner.get((subject, alias))
+            if owner == key:
+                continue
             keep.discard(alias)
-            dropped.append({"subject": key[0], "slug": node_by_key[key]["slug"],
-                            "candidate": alias, "reason": f"被 {claim[alias]} 个节点同时 claim（全局互斥）"})
-    return {"candidates": candidates, "dropped": dropped, "node_by_key": node_by_key}
+            if owner is not None:
+                exception_conflicts += 1
+                dropped.append({"subject": subject, "slug": node_by_key[key]["slug"],
+                                "candidate": alias,
+                                "reason": f"例外表登记给 {owner[1]}（登记者优先）"})
+            else:
+                dropped.append({"subject": subject, "slug": node_by_key[key]["slug"],
+                                "candidate": alias,
+                                "reason": f"被 {claim[alias]} 个节点同时 claim（全局互斥）"})
+    for key, aliases in valid_exceptions.items():
+        candidates[key] |= aliases
+    for key, point in node_by_key.items():
+        candidates[key].discard(point["name"])
+    return {"candidates": candidates, "dropped": dropped, "node_by_key": node_by_key,
+            "exceptions_applied": sum(len(v) for v in valid_exceptions.values()),
+            "exception_conflicts": exception_conflicts,
+            "exceptions_rejected": exceptions_rejected}
 
 
 def apply_to_pack(pack: dict, plan: dict) -> dict:
@@ -177,6 +287,10 @@ def main(argv: list[str] | None = None) -> int:
     candidates = plan["candidates"]
     with_alias = sum(1 for v in candidates.values() if v)
     print(f"节点 {len(candidates)}：有别名 {with_alias}，别名总数 {sum(len(v) for v in candidates.values())}")
+    print(f"例外：应用 {plan['exceptions_applied']}，冲突改判 {plan['exception_conflicts']}，"
+          f"拒绝 {len(plan['exceptions_rejected'])}")
+    for row in plan["exceptions_rejected"][:8]:
+        print(f"   [{row['subject']}/{row['slug']}] {row['alias']}：{row['reason']}")
     print(f"丢弃候选 {len(plan['dropped'])}（按原因）:")
     for reason, count in Counter(d["reason"].split("：")[0] for d in plan["dropped"]).most_common(8):
         print(f"   {reason:<26} {count}")

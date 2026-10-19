@@ -4,11 +4,12 @@
 
 ## Build Information
 
-- **Commit SHA**: `fa265487d7d48ba1274e8533d4e417109ea8eefd`
-- **Build Date**: `2026-10-16`
+- **Commit SHA**: `8eb69460ea6864c00fe7253d76159a3e5d24016b`
+- **Build Date**: `2026-10-19`
 - **Branch**: `main`
-- **Triggered By**: `push`
-- **Run context**: BOUND · sha `fa265487d7d4`（CI 变量，与 git HEAD 一致） · branch `main` · 触发 push
+- **Triggered By**: `unknown`
+- **Run context**: BOUND · sha `8eb69460ea68`（git HEAD） · branch `main` · 触发 unknown
+- **Run context note**: 绑定时刻 = 生成时刻，非所描述代码的提交
 
 ## Build Results
 
@@ -16,26 +17,26 @@
 
 | Module | Status | Duration |
 |--------|--------|----------|
-| `:core:database` | OK | - |
-| `:core:data` | OK | - |
+| `:core:database` | NOT_MEASURED | - |
+| `:core:data` | NOT_MEASURED | - |
 | `:core:domain` | OK | - |
 | `:feature:library` | OK | - |
-| `:feature:capture` | OK | - |
+| `:feature:capture` | NOT_MEASURED | - |
 | `:feature:tutor` | OK | - |
 | `:app:localFirst` | OK | - |
-| `:app:strictOffline` | OK | - |
+| `:app:strictOffline` | NOT_MEASURED | - |
 
-编译证据（要求产物晚于本模块源码）：8 个模块/变体全部新鲜。
+编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:database`：类产物早于源码（10-20 02:56 < 源码 10-20 03:05）；`:core:data`：类产物早于源码（10-20 02:14 < 源码 10-20 02:53）；`:feature:capture`：类产物早于源码（10-20 01:51 < 源码 10-20 02:44）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-20 02:05）
 
 ### Unit Tests
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | 188 | 188 | 0 | - |
-| `:core:data` | 781 | 781 | 0 | - |
-| `:feature:library` | 40 | 40 | 0 | - |
-| `:feature:capture` | 112 | 112 | 0 | - |
-| `:feature:tutor` | 218 | 218 | 0 | - |
+| `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:data` | 905 | 905 | 0 | - |
+| `:feature:library` | 47 | 47 | 0 | - |
+| `:feature:capture` | 148 | 148 | 0 | - |
+| `:feature:tutor` | 227 | 227 | 0 | - |
 
 ### Lint
 
@@ -43,23 +44,23 @@
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `lintLocalFirstDebug` | OK | 0 | 44 |
-| `lintStrictOfflineDebug` | OK | 0 | 43 |
-| Android 库模块（下表明细） | OK | 0 | 136 |
+| `lintLocalFirstDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `lintStrictOfflineDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| Android 库模块（下表明细） | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `:core:data` | OK | 0 | 12 |
-| `:core:database` | OK | 0 | 0 |
-| `:core:export` | OK | 0 | 3 |
-| `:core:ui` | OK | 0 | 1 |
-| `:feature:capture` | OK | 0 | 6 |
-| `:feature:library` | OK | 0 | 7 |
+| `:core:data` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:export` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:ui` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:capture` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:library` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:feature:profile` | OK | 0 | 0 |
-| `:feature:review` | OK | 0 | 4 |
-| `:feature:tutor` | OK | 0 | 16 |
+| `:feature:review` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:tutor` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 
-11 份报告（app 2 变体 + 9 个 Android 库模块）都在且不早于各自源码；错误合计 0。
+以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-17 21:09 < 源码 10-20 02:05）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-20 02:05）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-20 02:53）；`:core:database`：无 lint 报告；`:core:export`：lint 报告早于源码（10-17 21:08 < 源码 10-19 01:29）；`:core:ui`：lint 报告早于源码（10-13 21:30 < 源码 10-19 23:50）；`:feature:capture`：lint 报告早于源码（10-13 21:32 < 源码 10-20 02:44）；`:feature:library`：lint 报告早于源码（10-17 21:08 < 源码 10-20 01:49）；`:feature:review`：lint 报告早于源码（10-17 21:08 < 源码 10-19 23:38）；`:feature:tutor`：lint 报告早于源码（10-17 21:08 < 源码 10-20 02:03）
 
 ### Release Build
 
@@ -72,10 +73,10 @@
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | cbef4f6de77105cde99cde134506c232e7f6c3cbb7ff1247b5c46a170297faa7 |
-| `localFirst-release.apk` | 6d59e58d2f9bedfa763e2f192125facfa2254adcef2c88198828119deb3258b2 |
-| `strictOffline-debug.apk` | 9b7425125e89f72136657ee15d62fc5192d468366dfd99e8d25533a319a4ace5 |
-| `strictOffline-release.apk` | e3d1e0e083f0be1c2f4128f79f0e4cbf6c34aaf4646d1011dc904af5b6d3be58 |
+| `localFirst-debug.apk` | 71c08532505aa22ec920286934695024f9c900f4de9f0f59dcf0908ce0acf748 |
+| `localFirst-release.apk` | 1f073e9bcad9716c2ab6d90e4f70e2faddab7810020b38817e23b87523679d42 |
+| `strictOffline-debug.apk` | 7db9f94dd59aa5eef73b0005520fe49f09cb0366b8ab6589d62c34ae4b6cb8e7 |
+| `strictOffline-release.apk` | 978e71251d4060ee13f7cb67c8d8095cb28c9965f02ae7e0f5b994516f7f7d65 |
 
 ## Knowledge Base
 
@@ -110,19 +111,19 @@
 
 通过 24/24 项；全部为 0 才算绿。
 
-权威表 sha256（前 12 位）：`chapter_map.csv`=`88d3cc21fc3b`（门保护） · `chapter_by_source.csv`=`4b0f18c85bab`（门保护） · `alias_map.csv`=`401b31bcc641`（门保护） · `boundary_map.csv`=`560029fd4a58`（报告型） · `prereq_map.csv`=`adc72654e3f1`（门保护） · `material_bindings.csv`=`c7c31baf0b78`（门保护）
+权威表 sha256（前 12 位）：`chapter_map.csv`=`f4cd2b4bcebd`（门保护） · `chapter_by_source.csv`=`35111c68bb4b`（门保护） · `alias_map.csv`=`5f8ceeab42cd`（门保护） · `boundary_map.csv`=`560029fd4a58`（报告型） · `prereq_map.csv`=`d05a51e2c83d`（门保护） · `material_bindings.csv`=`2553d17f08fe`（门保护）
 
 ### Tools Tests（Python，tools/tests 套件）
 
 | 总数 | 通过 | 失败 |
 |------|------|------|
-| 736 | 736 | 0 |
+| 767 | 761 | 6 |
 
 ### Retrieval Benchmark（:core:data 单测写入 build/benchmark-metrics.txt，逐字嵌入）
 
 ```
 Recall@5=1.0
-Precision@5=0.77
+Precision@5=0.78
 MRR=0.8766666666666666
 crossSubject=0
 [MATH] 求函数 f(x)=x²-2x-3 的单调递增区间 -> [三角函数的图象与性质, 函数的单调性, 幂函数的图象与性质]
@@ -131,20 +132,20 @@ crossSubject=0
 [MATH] 求集合 A={1,2,3} 与 B={3,4,5} 的交集 -> [集合的含义与表示, 子集的个数问题, 集合中元素的特征]
 [MATH] 已知 sinα=3/5 求 tanα -> [函数y=Asin(ωx+φ)的图象, 同角三角函数的基本关系, 由Sn求an的步骤]
 [PHYSICS] 物体自由下落5秒末速度 -> [关联速度的分析——运动分解的核心思想, 探究加速度与力、质量的关系实验, 自由落体运动]
-[PHYSICS] 两物体碰撞前后动量守恒 -> [动量守恒定律, 能量守恒定律, 验证动量守恒定律实验的原理与器材]
+[PHYSICS] 两物体碰撞前后动量守恒 -> [动量守恒定律, 验证动量守恒定律实验的原理与器材, 能量守恒定律]
 [PHYSICS] 电磁感应中磁通量变化产生感应电动势 -> [法拉第电磁感应定律, 电磁感应中的电路问题, 导体切割磁感线时的感应电动势]
-[PHYSICS] 带电粒子在匀强磁场中做圆周运动的轨道半径 -> [带电粒子在磁场中的运动, 带电粒子在交变电磁场中的运动：, 带电粒子在匀强电场中偏转的两个分运动]
+[PHYSICS] 带电粒子在匀强磁场中做圆周运动的轨道半径 -> [带电粒子在磁场中的运动, 带电粒子在交变电磁场中的运动：, 带电粒子在叠加场]
 [PHYSICS] 变压器原副线圈电压比与匝数比 -> [探究变压器原副线圈电压与匝数的关系, 理想变压器的基本关系, 等效法在变压器和远距离输电中的应用]
-[CHEMISTRY] 钠与水反应的现象和产物 -> [钠与水及酸、碱、盐溶液的反应, 过氧化钠, 可逆反应]
+[CHEMISTRY] 钠与水反应的现象和产物 -> [钠与水及酸、碱、盐溶液的反应, 过氧化钠, 铁与水蒸气反应的注意事项]
 [CHEMISTRY] 计算 2mol 氯化钠的质量 -> [过氧化钠, 物质的量浓度, 摩尔质量的计算方法]
 [CHEMISTRY] 盐酸与氢氧化钠发生中和反应 -> [过氧化钠, 中和热, 氧化还原反应方程式的配平方法]
-[CHEMISTRY] 苯的分子式和结构 -> [有机物分子分子式的确定, 化学键的符号表征——电子式, 合成高分子的结构和性质]
+[CHEMISTRY] 苯的分子式和结构 -> [有机物分子分子式的确定, 化学键的符号表征——电子式, 超分子]
 [CHEMISTRY] 原电池中锌铜电极的电子流向 -> [原电池的工作原理 （以Zn－Cu原电池为例）, 燃料电池, 电极反应式]
 [BIOLOGY] 细胞器中含DNA的有哪些 -> [细胞器的结构和功能, DNA的双螺旋结构, DNA的复制]
 [BIOLOGY] 孟德尔分离定律的实质 -> [分离定律, 自由组合定律, 分离定律的概率计算（含自交与自由交配）]
 [BIOLOGY] 光合作用暗反应需要什么原料 -> [影响光合作用强度的环境因素, 光合作用的原理, 探索光合作用原理的部分实验]
 [BIOLOGY] 免疫系统对付病毒的途径 -> [病毒, 免疫系统的组成和功能, 免疫学的应用]
-[BIOLOGY] 种群密度的调查方法 -> [种群密度, 种群的数量特征, 样方法]
+[BIOLOGY] 种群密度的调查方法 -> [种群密度, 种群的数量特征, 种群密度的其他调查方法]
 ```
 
 ## Performance Metrics
@@ -168,9 +169,9 @@ crossSubject=0
 
 | Module | Line Coverage | Branch Coverage |
 |--------|---------------|-----------------|
-| `:core:database` | 8.2% | 9.3% |
-| `:core:data` | 58.4% | 47.0% |
-| `:core:domain` | 77.3% | 56.5% |
+| `:core:database` | NOT_MEASURED | NOT_MEASURED |
+| `:core:data` | NOT_MEASURED | NOT_MEASURED |
+| `:core:domain` | NOT_MEASURED | NOT_MEASURED |
 
 ## Migration Tests
 
@@ -188,11 +189,11 @@ NOT_MEASURED
 
 ## Overall Status
 
-**PASS**
+**FAIL**
 
-build job: OK · KB gates: all OK · tools tests: 736/736 passed · lint（app 2 变体 + 9 个库模块）: OK · compile evidence: OK · run context: BOUND
+build job: NOT_MEASURED · KB gates: all OK · tools tests: 6/767 failed or run failed · lint（app 2 变体 + 9 个库模块）: NOT_MEASURED · compile evidence: NOT_MEASURED · run context: BOUND
 
 ---
 
-*Generated by CI at 2026-10-16T12:58:00.863378+00:00*
+*Generated by CI at 2026-10-19T19:51:23.089219+00:00*
 *Report version: 1.0*

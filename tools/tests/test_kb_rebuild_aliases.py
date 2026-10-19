@@ -9,9 +9,26 @@
 
 from __future__ import annotations
 
+import csv
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from kb_build import rebuild_aliases as ra
+
+EXCEPTIONS_FILE = "alias_exceptions.csv"
+
+
+def write_exceptions(tables_dir: Path, rows: list[tuple[str, str, str, str]]) -> Path:
+    """按真实表头写一份例外表（测试夹具）。"""
+    tables_dir.mkdir(parents=True, exist_ok=True)
+    path = tables_dir / EXCEPTIONS_FILE
+    with path.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(["subject", "slug", "alias", "reason"])
+        writer.writerows(rows)
+    return path
 
 
 def point(slug: str, name: str, aliases: list[str] | None = None) -> dict:
@@ -127,6 +144,116 @@ class RebuildTest(unittest.TestCase):
         again = ra.rebuild(pack, {("MATH", "函数的概念"): {"函数的概念与三要素"},
                                   ("MATH", "导数的概念"): {"导数的概念与导函数"}})
         stats = ra.apply_to_pack(pack, again)
+        self.assertEqual(0, stats["nodes_changed"])
+
+
+class AliasExceptionsTest(unittest.TestCase):
+    """人工例外表：登记的点名别名必须活过每一次重建。
+
+    它消灭的失败：重建只认"主名 + 该点绑定材料的标题"，批11 撤回点名的检索需求
+    （原名）在每次窗口重建时都被整表重写冲掉——手插 alias_map 行活不过下一次重建。
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tables_dir = Path(self._tmp.name)
+        patcher = mock.patch.object(ra, "TABLES", self.tables_dir)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _pack(self):
+        return pack_with([
+            ("某册·某章·甲", point("甲概念", "甲概念")),
+            ("某册·某章·乙", point("乙概念", "乙概念")),
+        ])
+
+    def test_exception_alias_is_merged_when_no_bound_title_matches(self):
+        write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "手插点名", "批11 撤回点名检索需求 2026-10-17"),
+        ])
+        plan = ra.rebuild(self._pack(), {("MATH", "甲概念"): {"绑定标题别名"}})
+        self.assertEqual({"绑定标题别名", "手插点名"},
+                         plan["candidates"][("MATH", "甲概念")])
+        self.assertEqual(1, plan["exceptions_applied"])
+
+    def test_exception_alias_survives_apply(self):
+        write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "手插点名", "批11 撤回点名检索需求 2026-10-17"),
+        ])
+        pack = self._pack()
+        plan = ra.rebuild(pack, {("MATH", "甲概念"): set()})
+        ra.apply_to_pack(pack, plan)
+        node = pack["subjects"][0]["topics"][1]["knowledgePoints"][0]
+        self.assertEqual(["甲概念", "手插点名"], node["aliases"])
+
+    def test_exception_wins_over_derived_claim_and_counts_conflict(self):
+        write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "共用别名", "登记者优先"),
+        ])
+        plan = ra.rebuild(self._pack(), {
+            ("MATH", "甲概念"): {"共用别名"},
+            ("MATH", "乙概念"): {"共用别名"},
+        })
+        self.assertIn("共用别名", plan["candidates"][("MATH", "甲概念")])
+        self.assertNotIn("共用别名", plan["candidates"][("MATH", "乙概念")])
+        self.assertEqual(1, plan["exception_conflicts"])
+        self.assertTrue(any("例外" in d["reason"] for d in plan["dropped"]),
+                        plan["dropped"])
+
+    def test_exception_with_bad_shape_is_rejected(self):
+        write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "已知函数 f(x) 在区间上单调递增", "坏形状"),
+        ])
+        plan = ra.rebuild(self._pack(), {})
+        self.assertEqual(set(), plan["candidates"][("MATH", "甲概念")])
+        self.assertEqual(1, len(plan["exceptions_rejected"]))
+        self.assertTrue(any("形状" in r["reason"] for r in plan["exceptions_rejected"]),
+                        plan["exceptions_rejected"])
+
+    def test_exception_colliding_with_other_node_name_is_rejected(self):
+        write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "乙概念", "撞同学科主名"),
+        ])
+        plan = ra.rebuild(self._pack(), {})
+        self.assertEqual(set(), plan["candidates"][("MATH", "甲概念")])
+        self.assertTrue(any("主名" in r["reason"] for r in plan["exceptions_rejected"]),
+                        plan["exceptions_rejected"])
+
+    def test_same_alias_registered_by_two_nodes_is_rejected(self):
+        write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "共用别名", "甲登记"),
+            ("MATH", "乙概念", "共用别名", "乙登记"),
+        ])
+        plan = ra.rebuild(self._pack(), {})
+        self.assertEqual(set(), plan["candidates"][("MATH", "甲概念")])
+        self.assertEqual(set(), plan["candidates"][("MATH", "乙概念")])
+        self.assertEqual(2, len(plan["exceptions_rejected"]))
+        self.assertTrue(all("同时登记" in r["reason"] for r in plan["exceptions_rejected"]),
+                        plan["exceptions_rejected"])
+
+    def test_entry_falls_back_when_exception_row_is_removed(self):
+        path = write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "手插点名", "批11 撤回点名检索需求 2026-10-17"),
+        ])
+        titles = {("MATH", "甲概念"): {"绑定标题别名"}}
+        first = ra.rebuild(self._pack(), titles)
+        self.assertIn("手插点名", first["candidates"][("MATH", "甲概念")])
+        path.unlink()
+        second = ra.rebuild(self._pack(), titles)
+        self.assertNotIn("手插点名", second["candidates"][("MATH", "甲概念")])
+        self.assertEqual({"绑定标题别名"}, second["candidates"][("MATH", "甲概念")])
+
+    def test_rebuild_with_exceptions_is_idempotent(self):
+        write_exceptions(self.tables_dir, [
+            ("MATH", "甲概念", "手插点名", "批11 撤回点名检索需求 2026-10-17"),
+        ])
+        titles = {("MATH", "甲概念"): {"绑定标题别名"}}
+        pack = self._pack()
+        first = ra.rebuild(pack, titles)
+        self.assertIn("手插点名", first["candidates"][("MATH", "甲概念")])
+        ra.apply_to_pack(pack, first)
+        stats = ra.apply_to_pack(pack, ra.rebuild(pack, titles))
         self.assertEqual(0, stats["nodes_changed"])
 
 

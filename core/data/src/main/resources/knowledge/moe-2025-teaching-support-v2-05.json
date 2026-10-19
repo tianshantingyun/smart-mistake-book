@@ -1642,7 +1642,7 @@
    "contentId": "bio-fj-08-optimal-temperature-measurement",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -1918,7 +1918,7 @@
    "contentId": "bio-fj-10-circular-chromatography-colors",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -2976,7 +2976,7 @@
    "contentId": "bio-fj-23-adaptation-relativity-reason",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:适应的普遍性与相对性",
      "role": "PRIMARY"
     }
    ]
@@ -3206,7 +3206,7 @@
    "contentId": "bio-fj-33-symbiosis-vs-protocooperation-detail",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -3229,7 +3229,7 @@
    "contentId": "bio-fj-33-parasitism-vs-predation-examples",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -3252,7 +3252,7 @@
    "contentId": "bio-fj-33-competition-examples",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -3574,7 +3574,7 @@
    "contentId": "bio-fj-13-meiosis-mitosis-connection",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂与有丝分裂的比较",
      "role": "PRIMARY"
     }
    ]
@@ -3965,7 +3965,7 @@
    "contentId": "bio-fj-32-cutworm-control-case",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度的其他调查方法",
      "role": "PRIMARY"
     }
    ]
@@ -5437,7 +5437,7 @@
    "contentId": "bio-fj-20-three-replication-hypotheses",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA半保留复制的实验证据（梅塞尔森-斯塔尔实验）",
      "role": "PRIMARY"
     }
    ]
@@ -5736,7 +5736,7 @@
    "contentId": "bio-fj-23-evolution-essence",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群、基因库与生物进化的实质",
      "role": "PRIMARY"
     }
    ]
@@ -8611,7 +8611,7 @@
    "contentId": "bio-kb3-f5-s5-1-n13",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -8634,7 +8634,7 @@
    "contentId": "bio-kb3-f5-s5-1-n14",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -9255,7 +9255,7 @@
    "contentId": "bio-kb3-f5-s5-4-1-n01",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -9324,7 +9324,7 @@
    "contentId": "bio-kb3-f5-s5-4-1-n04",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -9347,7 +9347,7 @@
    "contentId": "bio-kb3-f5-s5-4-1-n05",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -9393,7 +9393,7 @@
    "contentId": "bio-kb3-f5-s5-4-1-n07",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -10451,7 +10451,7 @@
    "contentId": "bio-kb3-f5-s5-1-n15",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -17857,7 +17857,7 @@
    "contentId": "bio-kb3-f4-s38-n02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -17880,7 +17880,7 @@
    "contentId": "bio-kb3-f4-s38-n03",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18179,7 +18179,7 @@
    "contentId": "bio-kb3-f4-s38-n17",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18202,7 +18202,7 @@
    "contentId": "bio-kb3-f4-s38-n18",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18225,7 +18225,7 @@
    "contentId": "bio-kb3-f4-s38-n19",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18248,7 +18248,7 @@
    "contentId": "bio-kb3-f4-s38-n20",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18271,7 +18271,7 @@
    "contentId": "bio-kb3-f4-s38-n21",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18478,7 +18478,7 @@
    "contentId": "bio-kb3-f4-s38-n31",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18501,7 +18501,7 @@
    "contentId": "bio-kb3-f4-s38-n32",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -18524,7 +18524,7 @@
    "contentId": "bio-kb3-f4-s38-n33",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -20042,7 +20042,7 @@
    "contentId": "bio-kb3-f4-s46-n04",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -20065,7 +20065,7 @@
    "contentId": "bio-kb3-f4-s46-n05",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -20847,7 +20847,7 @@
    "contentId": "bio-kb3-f4-s51-n01",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用的内部因素",
      "role": "PRIMARY"
     }
    ]
@@ -24297,7 +24297,7 @@
    "contentId": "bio-fx-exp-parallel-repetition",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生物学实验技术与方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验设计的原则、思路书写与方案评价",
      "role": "PRIMARY"
     }
    ]
@@ -24642,7 +24642,7 @@
    "contentId": "bio-fx-auxin-lateral-transport-exp",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素的极性运输",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素运输与分布的探究实验",
      "role": "PRIMARY"
     }
    ]
@@ -24665,7 +24665,7 @@
    "contentId": "bio-fx-auxin-polar-transport-exp",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素的极性运输",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素运输与分布的探究实验",
      "role": "PRIMARY"
     }
    ]
@@ -27126,7 +27126,7 @@
    "contentId": "bio-fx-rt-pcr",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -27149,7 +27149,7 @@
    "contentId": "bio-fx-inverse-pcr",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -27172,7 +27172,7 @@
    "contentId": "bio-fx-overlap-extension-pcr",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -27195,7 +27195,7 @@
    "contentId": "bio-fx-megaprimer-pcr",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -27218,7 +27218,7 @@
    "contentId": "bio-fx-primer-mutation-rounds",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -27241,7 +27241,7 @@
    "contentId": "bio-fx-nested-pcr",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -29219,7 +29219,7 @@
    "contentId": "bio-fx-gravity-light-hormone-distribution",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素的极性运输",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生长素运输与分布的探究实验",
      "role": "PRIMARY"
     }
    ]
@@ -29564,7 +29564,7 @@
    "contentId": "bio-fx-interspecific-relations",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -37200,7 +37200,7 @@
    "contentId": "bio-mo-community-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -37384,7 +37384,7 @@
    "contentId": "bio-mo-community-010",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -37522,7 +37522,7 @@
    "contentId": "bio-mo-community-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度的其他调查方法",
      "role": "PRIMARY"
     }
    ]
@@ -39822,7 +39822,7 @@
    "contentId": "bio-mo-gene-055",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA半保留复制的实验证据（梅塞尔森-斯塔尔实验）",
      "role": "PRIMARY"
     }
    ]
@@ -46147,7 +46147,7 @@
    "contentId": "bio-mo-cell-145",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -46906,7 +46906,7 @@
    "contentId": "bio-mo-cell-179",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -47935,7 +47935,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第九章 有机化学基础/第02讲 烃（教师版）.docx（块 024618b63e-005）",
-   "reviewedAtEpochMillis": 1789741889464,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-024618b63e-005",
@@ -47958,7 +47958,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习卓越讲义重难点/资料/（重点·方法·点拨）第57讲 卤代烃　醇　酚- （教师版）.docx（块 4ddeefaa27-005）",
-   "reviewedAtEpochMillis": 1789741889464,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4ddeefaa27-005",
@@ -47981,7 +47981,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第六章 化学反应与能量/第01讲 化学反应的热效应（复习讲义）（福建专用）（教师版）.docx（块 22e4da5a7a-002）",
-   "reviewedAtEpochMillis": 1789741889464,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-22e4da5a7a-002",
@@ -48050,7 +48050,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第五章 物质结构与性质 元素周期律/第02讲 原子结构与性质（复习讲义）（全国通用）（教师版）.docx（块 d7fc4505d9-014）",
-   "reviewedAtEpochMillis": 1789741889464,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-d7fc4505d9-014",
@@ -48096,7 +48096,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高三化学一轮复习讲义（新高考通用）/资料/第七章　第33讲　分子的性质　配合物与超分子（教师版）.docx（块 3b15fc287d-001）",
-   "reviewedAtEpochMillis": 1789741889464,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-3b15fc287d-001",
@@ -48326,7 +48326,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 化学平衡状态 化学平衡的移动（知识清单）（全国通用）（学生版）.docx（块 e0e62d3438-005）",
-   "reviewedAtEpochMillis": 1789741889464,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-e0e62d3438-005",
@@ -48349,7 +48349,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第八章 水溶液中的离子反应与平衡/专题04 沉淀溶解平衡（知识清单）（全国通用）（教师版）.docx（块 79644b1cee-004）",
-   "reviewedAtEpochMillis": 1789741889464,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-79644b1cee-004",
@@ -50994,7 +50994,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-011）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-011",
@@ -51247,7 +51247,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-020）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-020",
@@ -51523,7 +51523,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-036）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-036",
@@ -51891,7 +51891,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-050）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-050",
@@ -51914,7 +51914,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-050）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-050b",
@@ -51960,7 +51960,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-051）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-051",
@@ -51983,7 +51983,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-051）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-051b",
@@ -52006,7 +52006,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-052）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-052",
@@ -52029,7 +52029,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-054）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-054",
@@ -52052,7 +52052,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-055）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-055",
@@ -52075,7 +52075,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-055）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-055b",
@@ -52627,7 +52627,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-075）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-075b",
@@ -52903,7 +52903,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-080）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-080c",
@@ -53248,7 +53248,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-087）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-087b",
@@ -53363,7 +53363,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-090）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-090",
@@ -53685,7 +53685,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-096）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-096b",
@@ -53731,7 +53731,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-097）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-097b",
@@ -53754,7 +53754,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-099）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-099b",
@@ -53777,7 +53777,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-099）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-099c",
@@ -53800,7 +53800,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-100）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-100b",
@@ -53823,7 +53823,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-101）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-101",
@@ -53846,7 +53846,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-101）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-101b",
@@ -53938,7 +53938,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-104）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-104",
@@ -53961,7 +53961,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-104）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-104b",
@@ -54030,7 +54030,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-105）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-105",
@@ -54053,7 +54053,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-105）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-105b",
@@ -54260,7 +54260,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-111）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-111b",
@@ -54582,7 +54582,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-117）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-117",
@@ -55088,7 +55088,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-129）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-129",
@@ -55180,7 +55180,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-131）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-131b",
@@ -55272,7 +55272,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-134）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-134",
@@ -55732,7 +55732,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-9c54443f53:chemistry",
    "sourceLocator": "桌面资料 05-【化学】2027版高中《解题觉醒》 / 05-【化学】2027版高中《解题觉醒》/化学解题觉醒-第2册 名师大招册.pdf（块 4dd2e79693-145）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-4dd2e79693-145",
@@ -56307,7 +56307,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-035）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-035",
@@ -56445,7 +56445,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-042）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-042b",
@@ -56606,7 +56606,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-052）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-052",
@@ -56698,7 +56698,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理要点觉醒.pdf（块 afa44298fc-001）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-afa44298fc-001",
@@ -56813,7 +56813,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理要点觉醒.pdf（块 afa44298fc-003）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-afa44298fc-003",
@@ -56928,7 +56928,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理要点觉醒.pdf（块 afa44298fc-004）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-afa44298fc-004",
@@ -57020,7 +57020,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理要点觉醒.pdf（块 afa44298fc-004）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-afa44298fc-004e",
@@ -58147,7 +58147,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-094）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-094",
@@ -59481,7 +59481,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-146）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-146b",
@@ -59527,7 +59527,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-147）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-147b",
@@ -59780,7 +59780,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-159）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-159",
@@ -59849,7 +59849,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-161）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-161",
@@ -60033,7 +60033,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-5b2dfb6dc5:physics",
    "sourceLocator": "桌面资料 04-【物理】2027版高中《解题觉醒》 / 04-【物理】2027版高中《解题觉醒》/物理解题觉醒-第2册 名师大招册.pdf（块 b6bd732b19-167）",
-   "reviewedAtEpochMillis": 1789757124890,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-b6bd732b19-167",
@@ -61045,7 +61045,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-049）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-049",
@@ -61068,7 +61068,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-049）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-049b",
@@ -62149,13 +62149,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-091）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-091",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的切线方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的切点弦方程",
      "role": "PRIMARY"
     }
    ]
@@ -62195,7 +62195,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-093）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-093",
@@ -62218,7 +62218,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-094）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-094c",
@@ -62517,7 +62517,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-101）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-101",
@@ -62793,7 +62793,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-106）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-106b",
@@ -62885,7 +62885,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-108）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-108",
@@ -63322,7 +63322,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3692ca65ed:math",
    "sourceLocator": "桌面资料 02-【数学】2027版高中《解题觉醒》 / 02-【数学】2027版高中《解题觉醒》/数学解题觉醒-第2册 名师大招册.pdf（块 91e0c2ace8-116）",
-   "reviewedAtEpochMillis": 1789757548788,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-91e0c2ace8-116b",

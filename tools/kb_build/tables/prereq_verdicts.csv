@@ -394,7 +394,7 @@ PHYSICS,波长,波速v-波长λ和频率f-周期t的关系-v-λf,inverted,v=λf�
 PHYSICS,波的干涉,求解的基本思路,unrelated,泛化解题思路非干涉具体前置
 PHYSICS,波的干涉,波动图象的特点,valid,干涉建立在波形相位关系之上
 PHYSICS,多普勒效应,外部作用导致-n-突变,unrelated,N突变是受力分析，与多普勒无关
-PHYSICS,多普勒效应的成因分析,多普勒效应在生活中的应用,inverted,应用建立在成因之上，方向反
+PHYSICS,多普勒效应的成因分析,多普勒效应在生活中的应用,unrelated,"退役 2026-10-17：目标名已由批次11 并入「多普勒效应」（point_merge.csv 行 749）；现边「多普勒效应在生活中的应用←多普勒效应」由收口行（PHYSICS,多普勒效应,多普勒效应在生活中的应用,inverted）声明；本行不再作前置依据"
 PHYSICS,多普勒效应在生活中的应用,地球同步卫星,unrelated,同步卫星与多普勒应用无关
 PHYSICS,光的反射和折射,光的偏振,unrelated,偏振与反射折射是章内平行子题
 PHYSICS,光路可逆性,光的衍射,unrelated,光路可逆与衍射无前置依赖
@@ -571,7 +571,7 @@ PHYSICS,动力学中的经典模型,板块模型,inverted,"覆盖无据边 ('PHY
 CHEMISTRY,分散系,共价键,unrelated,分散系与共价键分属不同主题
 CHEMISTRY,胶体,联合制碱法-侯氏制碱法,unrelated,胶体与侯氏制碱法无关联
 CHEMISTRY,丁达尔效应,nahco3与碱反应的应用,unrelated,丁达尔效应与NaHCO3反应无关
-CHEMISTRY,电解质,电解水,inverted,电解水依赖电解质与电离知识
+CHEMISTRY,电解质,电解水,unrelated,"退役 2026-10-17：目标名已由批次11 并入「电解质及其分类」（point_merge.csv 行 685）；现边「电解水←电解质及其分类」由收口行（CHEMISTRY,电解质及其分类,电解水,inverted）声明；本行不再作前置依据"
 CHEMISTRY,非电解质,阿伏加德罗常数-10大-陷阱,unrelated,非电解质与NA陷阱无关联
 CHEMISTRY,物理变化,焰色试验的应用,unrelated,焰色试验是物理变化实例非前置
 CHEMISTRY,化学变化,化合价,unrelated,化学变化与化合价互不依赖
@@ -976,7 +976,7 @@ CHEMISTRY,多糖-淀粉与纤维素,水的电离平衡移动的影响因素,unre
 CHEMISTRY,糖类的结构和性质,糖类的组成和分类,valid,先分类再逐类学结构和性质
 CHEMISTRY,糖类的结构和性质易混易错点,糖类的结构和性质,valid,易错点在主干之后依赖主干
 CHEMISTRY,蛋白质,蒸馏,unrelated,蒸馏是分离方法非蛋白质前置
-CHEMISTRY,蛋白质的结构与性质,蛋白质和氨基酸的结构与性质,valid,理解蛋白质须先知氨基酸和肽键
+CHEMISTRY,蛋白质的结构与性质,蛋白质和氨基酸的结构与性质,unrelated,"退役 2026-10-17：批次11 并点解环 drop_prereq=蛋白质和氨基酸的结构与性质（point_merge.csv 行 691；merge_points.py 从前置并集丢弃该 slug）；反向边「蛋白质和氨基酸的结构与性质←蛋白质的结构与性质」由收口行（CHEMISTRY,蛋白质和氨基酸的结构与性质,蛋白质的结构与性质,valid）声明；本行不再作前置依据"
 CHEMISTRY,蛋白质和氨基酸的结构与性质,蛋白质,valid,先知蛋白质概念再学结构与性质
 CHEMISTRY,有关蛋白质的易混易错点,有关合成高分子的易混易错点,unrelated,两个不同主题的易错点无前置
 CHEMISTRY,核酸,核外电子运动状态,unrelated,电子运动状态是原子结构无关
@@ -1127,7 +1127,7 @@ BIOLOGY,光反应,信息传递,unrelated,光合作用与生态系统信息传递
 BIOLOGY,暗反应,无菌技术,unrelated,光合作用与发酵技术无关
 BIOLOGY,色素,自由组合定律的内容,unrelated,光合色素与遗传定律无关
 BIOLOGY,类囊体,突触,unrelated,叶绿体结构与神经调节无关
-BIOLOGY,光合作用,光反应,inverted,光合作用是概念光反应是其阶段
+BIOLOGY,光合作用,光反应,unrelated,"退役 2026-10-17：目标名已由批次11 并入「光合作用的原理」（point_merge.csv 行 645）；现边「光反应←光合作用的原理」由收口行（BIOLOGY,光合作用的原理,光反应,inverted）声明；本行不再作前置依据"
 BIOLOGY,影响光合作用强度的环境因素,光合作用的原理,valid,影响因素分析基于光合原理（收口 2026-10-14：覆盖无据边 ('BIOLOGY', '影响光合作用强度的环境因素', '光合作用的原理')；重指 光合作用的影响因素→影响光合作用强度的环境因素（point_merge.csv 行 264，point 侧））
 BIOLOGY,光合作用的原理,光合作用,valid,先知光合作用概念再学原理
 BIOLOGY,细胞增殖,细胞器的结构和功能,unrelated,细胞器功能与增殖核心无关

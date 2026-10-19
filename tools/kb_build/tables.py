@@ -30,6 +30,7 @@ CHAPTER_MAP = "chapter_map.csv"
 # 来源定位单元 -> 教材（册, 章），章节归属的主表（101 行，人工核对）
 CHAPTER_BY_SOURCE = "chapter_by_source.csv"
 ALIAS_MAP = "alias_map.csv"
+ALIAS_EXCEPTIONS = "alias_exceptions.csv"
 BOUNDARY_MAP = "boundary_map.csv"
 PREREQ_MAP = "prereq_map.csv"
 MATERIAL_BINDINGS = "material_bindings.csv"
@@ -106,6 +107,24 @@ def load_alias_map() -> dict[tuple[str, str], list[str]]:
     out: dict[tuple[str, str], list[str]] = {}
     for r in rows:
         out.setdefault((r["subject"].strip(), r["slug"].strip()), []).append(r["alias"].strip())
+    return out
+
+
+def load_alias_exceptions() -> dict[tuple[str, str], set[str]]:
+    """人工登记的别名例外：(subject, slug) -> {alias}。
+
+    `rebuild_aliases` 重建时把这些名字并入候选（登记者优先）；门禁
+    `ghost_aliases` 也读同一张表，否则合法的例外别名会被当成"幽灵别名"判红。
+    缺表 = 无例外，行为与旧版一致。
+    """
+    rows = _read(ALIAS_EXCEPTIONS)
+    _require_columns(ALIAS_EXCEPTIONS, rows, ("subject", "slug", "alias", "reason"))
+    out: dict[tuple[str, str], set[str]] = {}
+    for r in rows:
+        key = (r["subject"].strip().upper(), r["slug"].strip())
+        alias = r["alias"].strip()
+        if alias:
+            out.setdefault(key, set()).add(alias)
     return out
 
 

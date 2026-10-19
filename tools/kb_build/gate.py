@@ -369,6 +369,7 @@ def evaluate() -> list[Metric]:
     pack = pack_io.load_json(pack_io.pack_path())
     materials = pack_io.load_materials()
     declared_prereq = tables.load_prereq_map()
+    alias_exceptions = tables.load_alias_exceptions()
 
     points = list(pack_io.iter_points(pack))
     bound_ids = {
@@ -428,7 +429,9 @@ def evaluate() -> list[Metric]:
                 m5.detail.append(f"[{material.get('subject')}] {material.get('title', '')[:50]}")
     metrics.append(m5)
 
-    # 6) 幽灵别名：别名既不等于主名、也不来自当前绑定材料的标题
+    # 6) 幽灵别名：别名既不等于主名、也不来自当前绑定材料的标题。
+    # 人工例外表登记的名字同样有据可依（与 rebuild_aliases 同一张表、同一口径），
+    # 否则窗口重建后合法的点名检索名会被这里判红。
     titles_by_node: dict[str, set[str]] = {}
     for _path, material in materials:
         for b in (material.get("bindings") or []):
@@ -437,10 +440,11 @@ def evaluate() -> list[Metric]:
     for subject, _t, point in points:
         node_id = f"kb:{pack_id}:{subject.lower()}:atomic:{point['slug']}"
         titles = titles_by_node.get(node_id, set())
+        allowed = alias_exceptions.get((subject, point["slug"]), set())
         for alias in point.get("aliases") or []:
             if alias == point["name"]:
                 continue
-            if alias not in titles:
+            if alias not in titles and alias not in allowed:
                 m6.value += 1
                 if len(m6.detail) < 40:
                     m6.detail.append(f"[{subject}] {point['name'][:30]} -> {alias[:44]}")

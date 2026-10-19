@@ -1263,7 +1263,7 @@
    "contentId": "chem-fx-hua-xue-ping-heng-zhuang-tai-de-pan-du-f43x02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡状态",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡状态的判断标志与伪标志",
      "role": "PRIMARY"
     }
    ]
@@ -1286,7 +1286,7 @@
    "contentId": "chem-fx-bu-neng-zuo-wei-hua-xue-ping-heng-zhua-f43x03",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡状态",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学平衡状态的判断标志与伪标志",
      "role": "PRIMARY"
     }
    ]
@@ -15362,7 +15362,7 @@
    "contentId": "bio-hierarchical-regulation-axis",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:甲状腺激素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:分级调节（下丘脑—垂体—靶腺体轴）",
      "role": "PRIMARY"
     }
    ]
@@ -15868,7 +15868,7 @@
    "contentId": "bio-inverse-pcr-unknown-flanking",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -15914,7 +15914,7 @@
    "contentId": "bio-qpcr-taqman-probe-principle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -15937,7 +15937,7 @@
    "contentId": "bio-rt-pcr-principle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -15960,7 +15960,7 @@
    "contentId": "bio-nested-pcr-two-rounds",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -18352,7 +18352,7 @@
    "contentId": "bio-predator-prey-relationship",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -18375,7 +18375,7 @@
    "contentId": "bio-biology-ecology-trim",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:生态位",
      "role": "PRIMARY"
     }
    ]
@@ -18904,7 +18904,7 @@
    "contentId": "bio-kb-cyanobacteria-features",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:原核细胞和真核细胞",
      "role": "PRIMARY"
     }
    ]
@@ -19157,7 +19157,7 @@
    "contentId": "bio-kb-virus-structure-nucleic-acid",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒",
      "role": "PRIMARY"
     }
    ]
@@ -19364,7 +19364,7 @@
    "contentId": "bio-kb-water-polarity-and-properties",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞中的水",
      "role": "PRIMARY"
     }
    ]
@@ -20859,7 +20859,7 @@
    "contentId": "bio-kb-chloroplast-structure-function",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:叶绿体",
      "role": "PRIMARY"
     }
    ]
@@ -21710,7 +21710,7 @@
    "contentId": "bio-kb-temperature-enzyme-activity-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -21733,7 +21733,7 @@
    "contentId": "bio-kb-ph-enzyme-activity-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -21756,7 +21756,7 @@
    "contentId": "bio-kb-atp-structure-composition",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构",
      "role": "PRIMARY"
     }
    ]
@@ -22170,7 +22170,7 @@
    "contentId": "bio-kb-pigment-extraction-separation-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -22193,7 +22193,7 @@
    "contentId": "bio-kb-pigment-band-analysis",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -25344,7 +25344,7 @@
    "contentId": "bio-kb-semiconservative-replication-evidence",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA半保留复制的实验证据（梅塞尔森-斯塔尔实验）",
      "role": "PRIMARY"
     }
    ]
@@ -25505,7 +25505,7 @@
    "contentId": "bio-kb-dna-structure-replication-misjudgments",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
      "role": "PRIMARY"
     }
    ]
@@ -26333,7 +26333,7 @@
    "contentId": "bio-kb-adaptation-meaning-and-relativity",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:适应的普遍性与相对性",
      "role": "PRIMARY"
     }
    ]
@@ -26402,7 +26402,7 @@
    "contentId": "bio-kb-adaptation-formation-necessary-conditions",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:适应的普遍性与相对性",
      "role": "PRIMARY"
     }
    ]
@@ -26425,7 +26425,7 @@
    "contentId": "bio-kb-population-gene-pool-gene-frequency",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群、基因库与生物进化的实质",
      "role": "PRIMARY"
     }
    ]
@@ -27069,7 +27069,7 @@
    "contentId": "bio-kb-reflex-arc-structure-and-damage",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:反射弧",
      "role": "PRIMARY"
     }
    ]
@@ -27644,7 +27644,7 @@
    "contentId": "bio-kb2-01-virus-structure",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒",
      "role": "PRIMARY"
     }
    ]
@@ -29599,7 +29599,7 @@
    "contentId": "bio-kb2-08-temperature-enzyme-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -29622,7 +29622,7 @@
    "contentId": "bio-kb2-08-ph-enzyme-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -29645,7 +29645,7 @@
    "contentId": "bio-kb2-08-atp-structure",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构",
      "role": "PRIMARY"
     }
    ]
@@ -30013,7 +30013,7 @@
    "contentId": "bio-kb2-10-pigment-extraction",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -30036,7 +30036,7 @@
    "contentId": "bio-kb2-10-pigment-bands",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -31761,7 +31761,7 @@
    "contentId": "bio-kb2-23-adaptation-natural-selection",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:适应的普遍性与相对性",
      "role": "PRIMARY"
     }
    ]
@@ -31784,7 +31784,7 @@
    "contentId": "bio-kb2-23-gene-frequency-concepts",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群、基因库与生物进化的实质",
      "role": "PRIMARY"
     }
    ]
@@ -33210,7 +33210,7 @@
    "contentId": "bio-kb2-31-cutting-rooting-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:植物生长调节剂的应用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探索植物生长调节剂促进插条生根的最适浓度",
      "role": "PRIMARY"
     }
    ]
@@ -33417,7 +33417,7 @@
    "contentId": "bio-kb2-32-other-survey-methods",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度的其他调查方法",
      "role": "PRIMARY"
     }
    ]
@@ -33624,7 +33624,7 @@
    "contentId": "bio-kb2-33-interspecific-relations",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -39374,7 +39374,7 @@
    "contentId": "bio-fj-08-temperature-enzyme-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -39397,7 +39397,7 @@
    "contentId": "bio-fj-08-ph-enzyme-experiment",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -39604,7 +39604,7 @@
    "contentId": "bio-fj-08-atp-vs-glucose-energy",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的合成和利用",
      "role": "PRIMARY"
     }
    ]
@@ -40294,7 +40294,7 @@
    "contentId": "bio-fj-10-pigment-extraction-principle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -40317,7 +40317,7 @@
    "contentId": "bio-fj-10-pigment-separation-principle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -40340,7 +40340,7 @@
    "contentId": "bio-fj-10-pigment-bands-order",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -40363,7 +40363,7 @@
    "contentId": "bio-fj-10-pigment-experiment-abnormal",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -40570,7 +40570,7 @@
    "contentId": "bio-fj-10-nadph-role",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:光反应",
      "role": "PRIMARY"
     }
    ]
@@ -40731,7 +40731,7 @@
    "contentId": "bio-fj-10-internal-factors-photosynthesis",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用的内部因素",
      "role": "PRIMARY"
     }
    ]
@@ -41260,7 +41260,7 @@
    "contentId": "bio-fj-11-leaf-area-index",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用的内部因素",
      "role": "PRIMARY"
     }
    ]
@@ -42272,7 +42272,7 @@
    "contentId": "bio-fj-13-meiosis-vs-mitosis",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:减数分裂与有丝分裂的比较",
      "role": "PRIMARY"
     }
    ]
@@ -44549,7 +44549,7 @@
    "contentId": "bio-fj-20-semiconservative-evidence",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA半保留复制的实验证据（梅塞尔森-斯塔尔实验）",
      "role": "PRIMARY"
     }
    ]
@@ -45584,7 +45584,7 @@
    "contentId": "bio-fj-23-adaptation-features",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:适应的普遍性与相对性",
      "role": "PRIMARY"
     }
    ]
@@ -45722,7 +45722,7 @@
    "contentId": "bio-fj-23-population-gene-pool",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因频率",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群、基因库与生物进化的实质",
      "role": "PRIMARY"
     }
    ]
@@ -46826,7 +46826,7 @@
    "contentId": "bio-fj-33-mutualism-protocooperation",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -46849,7 +46849,7 @@
    "contentId": "bio-fj-33-predation-parasitism-competition",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -46872,7 +46872,7 @@
    "contentId": "bio-fj-33-predation-vs-parasitism-detail",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -47855,7 +47855,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第36讲 机械振动（高效培优讲义）（教师版）.docx（块 1502c494e5-004）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-1502c494e5-004",
@@ -47878,7 +47878,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第62讲 光学实验（复习讲义）（湖南专用）（教师版）.docx（块 1467c820b7-009）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-1467c820b7-009",
@@ -47924,7 +47924,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（四川专用）/第29讲 电场力的性质（复习讲义）（四川专用）（教师版）.docx（块 e7fa99d324-002）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-e7fa99d324-002",
@@ -47970,7 +47970,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第34讲 电场能的性质（复习讲义）（黑吉辽蒙专用）（教师版）.docx（块 0fd1abe2b2-002）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-0fd1abe2b2-002",
@@ -48039,13 +48039,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（四川专用）/第38讲 磁场 磁场对电流和运动电荷的作用（复习讲义）（四川专用）（教师版）.docx（块 9eede05898-002）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-9eede05898-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:磁场的基本概念和性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:地磁场",
      "role": "PRIMARY"
     }
    ]
@@ -48223,7 +48223,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题01 匀变速直线运动及其规律（知识清单）（全国通用）（学生版）.docx（块 c0ba28c663-011）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-c0ba28c663-011",
@@ -48430,7 +48430,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第02讲 匀变速直线运动的规律（复习讲义）（黑吉辽蒙专用）（教师版）.docx（块 32af80d1f1-014）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-32af80d1f1-014",
@@ -49994,7 +49994,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题10 静电场（知识清单）（全国通用）（教师版）.docx（块 8e81cd70b9-022）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-8e81cd70b9-022",
@@ -50063,7 +50063,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题12 磁场（知识清单）（全国通用）（教师版）.docx（块 e219890fe7-009）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-e219890fe7-009",
@@ -50178,7 +50178,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（福建专用）/第02讲 匀变速直线运动的规律（复习讲义）（福建专用）（教师版）.docx（块 1cb07cf16e-002）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-1cb07cf16e-002",
@@ -50339,7 +50339,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习考点精讲精练（新高考通用）/2026版/第40讲 原子物理（高效培优讲义）（教师版）.docx（块 11e0cd0998-004）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-11e0cd0998-004b",
@@ -50776,7 +50776,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题04 曲线运动（知识清单）（全国通用）（教师版）.docx（块 14007d0207-004）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-14007d0207-004",
@@ -51443,7 +51443,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题13 电磁感应（知识清单）（全国通用）（学生版）.docx（块 5870475655-008）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-5870475655-008",
@@ -51558,7 +51558,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-48689b61de:physics",
    "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题14 交变电流（知识清单）（全国通用）（学生版）.docx（块 e0dafc554c-005）",
-   "reviewedAtEpochMillis": 1789739846865,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-phy-e0dafc554c-005",
@@ -52869,7 +52869,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/7.1 空间几何体的结构特征、表面积和体积/训练册PDF/7.1　空间几何体的结构特征、表面积和体积.pdf（块 695daa53da-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-695daa53da-008",
@@ -53283,7 +53283,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/7.2 直线、平面平行的判定与性质/训练册PDF/7.2　直线、平面平行的判定与性质.pdf（块 5b737469ca-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-5b737469ca-004",
@@ -54065,7 +54065,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/7.4空间角与距离、空间向量及其应用/训练册PDF/7.4　空间角与距离、空间向量及其应用.pdf（块 95e236319c-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-95e236319c-001",
@@ -54088,7 +54088,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/7.4空间角与距离、空间向量及其应用/训练册PDF/7.4　空间角与距离、空间向量及其应用.pdf（块 95e236319c-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-95e236319c-001b",
@@ -54525,7 +54525,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/7.4空间角与距离、空间向量及其应用/训练册PDF/7.4　空间角与距离、空间向量及其应用.pdf（块 95e236319c-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-95e236319c-009c",
@@ -54755,7 +54755,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/7.4空间角与距离、空间向量及其应用/训练册PDF/7.4　空间角与距离、空间向量及其应用.pdf（块 95e236319c-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-95e236319c-013",
@@ -54939,7 +54939,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/7.4空间角与距离、空间向量及其应用/训练册PDF/7.4　空间角与距离、空间向量及其应用.pdf（块 95e236319c-016）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-95e236319c-016c",
@@ -55077,7 +55077,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/一年创新•风向练/训练册PDF/一年创新风向练.pdf（块 7c74c864c5-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-7c74c864c5-003",
@@ -55491,7 +55491,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/培优10  球的切、接问题/训练册PDF/培优10　球的切、接问题.pdf（块 b6e979f79a-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-b6e979f79a-008",
@@ -55629,7 +55629,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/训练册PDF/培优11　空间几何体的截面与交线问题.pdf（块 6e17f801c0-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-6e17f801c0-002",
@@ -55721,7 +55721,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/训练册PDF/培优11　空间几何体的截面与交线问题.pdf（块 6e17f801c0-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-6e17f801c0-004b",
@@ -55744,7 +55744,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/训练册PDF/培优11　空间几何体的截面与交线问题.pdf（块 6e17f801c0-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-6e17f801c0-005",
@@ -55767,7 +55767,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/训练册PDF/培优11　空间几何体的截面与交线问题.pdf（块 6e17f801c0-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-6e17f801c0-006",
@@ -55859,7 +55859,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/培优12 空间几何体的动态和探索问题/训练册PDF/培优12　空间几何体的动态和探索问题.pdf（块 7c4b964403-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-7c4b964403-003",
@@ -56135,7 +56135,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题七  立体几何与空间向量/培优12 空间几何体的动态和探索问题/训练册PDF/培优12　空间几何体的动态和探索问题.pdf（块 7c4b964403-011）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-7c4b964403-011",
@@ -56641,7 +56641,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题三 导数及其应用/3.2利用导数研究函数的单调性、极值和最值/训练册PDF/3.2　利用导数研究函数的单调性、极值和最值.pdf（块 395579b2b1-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-395579b2b1-004",
@@ -56986,7 +56986,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题三 导数及其应用/3.2利用导数研究函数的单调性、极值和最值/训练册PDF/3.2　利用导数研究函数的单调性、极值和最值.pdf（块 395579b2b1-011）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-395579b2b1-011b",
@@ -57055,7 +57055,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题三 导数及其应用/3.3导数的综合应用/训练册PDF/3.3　导数的综合应用.pdf（块 ac521ef808-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-ac521ef808-002",
@@ -57078,7 +57078,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题三 导数及其应用/3.3导数的综合应用/训练册PDF/3.3　导数的综合应用.pdf（块 ac521ef808-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-ac521ef808-002b",
@@ -57308,7 +57308,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题三 导数及其应用/培优2 隐零点问题/训练册PDF/培优2　隐零点问题.pdf（块 ca796f367b-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-ca796f367b-002",
@@ -57791,7 +57791,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题九 计数原理、概率与统计/9.2 随机事件、古典概型与 条件概率/训练册PDF/9.2　随机事件、古典概型与条件概率.pdf（块 b850815dc4-011）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-b850815dc4-011",
@@ -58274,7 +58274,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题二 函数及其性质/2.2基本初等函数/训练册PDF/2.2　基本初等函数.pdf（块 00ff671da7-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-00ff671da7-002",
@@ -58734,7 +58734,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题二 函数及其性质/2.4函数的零点与方程的根/训练册PDF/2.4　函数的零点与方程的根.pdf（块 a0656377b5-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-a0656377b5-004",
@@ -59355,7 +59355,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/8.1直线与圆/训练册PDF/8.1　直线和圆.pdf（块 45351bbbe7-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-45351bbbe7-002",
@@ -59608,7 +59608,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/8.1直线与圆/训练册PDF/8.1　直线和圆.pdf（块 45351bbbe7-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-45351bbbe7-013",
@@ -59861,7 +59861,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/8.2椭圆/训练册PDF/8.2　椭圆.pdf（块 7ba2891571-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-7ba2891571-008b",
@@ -60137,7 +60137,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/8.3双曲线/训练册PDF/8.3　双曲线.pdf（块 dc82490e60-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-dc82490e60-009",
@@ -60229,13 +60229,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/8.4抛物线/训练册PDF/8.4　抛物线.pdf（块 3ff4a6091d-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-3ff4a6091d-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -60436,7 +60436,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/8.5 圆锥曲线的综合问题/训练册PDF/8.5　圆锥曲线的综合问题.pdf（块 3d7022f6d6-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-3d7022f6d6-006",
@@ -60482,7 +60482,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/8.5 圆锥曲线的综合问题/训练册PDF/8.5　圆锥曲线的综合问题.pdf（块 3d7022f6d6-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-3d7022f6d6-008",
@@ -60597,7 +60597,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/一年创新•风向练/训练册PDF/一年创新风向练.pdf（块 6e860c89fd-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-6e860c89fd-002b",
@@ -60781,7 +60781,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优13 圆锥曲线中的弦长与面积问题/训练册PDF/培优13　圆锥曲线中的弦长与面积问题.pdf（块 f966e85634-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-f966e85634-009",
@@ -60850,7 +60850,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优14 圆锥曲线中的最值和范围问题/训练册PDF/培优14　圆锥曲线中的最值或范围问题.pdf（块 ca59020c9b-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-ca59020c9b-002",
@@ -60919,7 +60919,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优14 圆锥曲线中的最值和范围问题/训练册PDF/培优14　圆锥曲线中的最值或范围问题.pdf（块 ca59020c9b-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-ca59020c9b-004b",
@@ -61126,7 +61126,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优15 圆锥曲线中的定点、定值和定线问题/训练册PDF/培优15　圆锥曲线中的定点、定值和定线问题.pdf（块 8ae4bcba5e-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-8ae4bcba5e-006",
@@ -61195,13 +61195,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/训练册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d994fcb41d-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d994fcb41d-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -61218,13 +61218,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/训练册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d994fcb41d-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d994fcb41d-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -61241,13 +61241,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/训练册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d994fcb41d-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d994fcb41d-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -61333,13 +61333,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/训练册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d994fcb41d-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d994fcb41d-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -61356,13 +61356,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/训练册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d994fcb41d-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d994fcb41d-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -61402,7 +61402,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/训练册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d994fcb41d-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d994fcb41d-010",
@@ -61862,7 +61862,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题六 数列/6.2等差数列/训练册PDF/6.2　等差数列.pdf（块 eb06dd91c4-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-eb06dd91c4-003",
@@ -62046,7 +62046,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题六 数列/6.2等差数列/训练册PDF/6.2　等差数列.pdf（块 eb06dd91c4-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-eb06dd91c4-008",
@@ -62805,7 +62805,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题六 数列/培优9  衍生数列问题/训练册PDF/培优9　衍生数列问题.pdf（块 2602fd0aad-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-2602fd0aad-001b",
@@ -63242,7 +63242,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.1三角函数的概念、诱导公式、三角恒等变换/训练册PDF/4.1　三角函数的概念、诱导公式、三角恒等变换.pdf（块 04f7dd8847-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-04f7dd8847-009",
@@ -63288,7 +63288,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.2三角函数的图象与性质/训练册PDF/4.2　三角函数的图象与性质.pdf（块 221256755a-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-221256755a-001b",
@@ -63380,7 +63380,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.2三角函数的图象与性质/训练册PDF/4.2　三角函数的图象与性质.pdf（块 221256755a-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-221256755a-004",
@@ -63587,7 +63587,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.2三角函数的图象与性质/训练册PDF/4.2　三角函数的图象与性质.pdf（块 221256755a-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-221256755a-010",
@@ -63794,13 +63794,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.3解三角形/训练册PDF/4.3　解三角形.pdf（块 e4c87437a2-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-e4c87437a2-005b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角平分线定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角平分线长的求法",
      "role": "PRIMARY"
     }
    ]
@@ -63840,7 +63840,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.3解三角形/训练册PDF/4.3　解三角形.pdf（块 e4c87437a2-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-e4c87437a2-006",
@@ -63978,7 +63978,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.3解三角形/训练册PDF/4.3　解三角形.pdf（块 e4c87437a2-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-e4c87437a2-009b",
@@ -64185,7 +64185,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.3解三角形/训练册PDF/4.3　解三角形.pdf（块 e4c87437a2-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-e4c87437a2-013",
@@ -64254,7 +64254,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/4.3解三角形/训练册PDF/4.3　解三角形.pdf（块 e4c87437a2-014）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-e4c87437a2-014b",
@@ -64300,7 +64300,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/一年创新•风向练/训练册PDF/一年创新风向练.pdf（块 1e160396f7-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-1e160396f7-001b",
@@ -64346,7 +64346,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/一年创新•风向练/训练册PDF/一年创新风向练.pdf（块 1e160396f7-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-1e160396f7-002b",
@@ -64369,7 +64369,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/一年创新•风向练/训练册PDF/一年创新风向练.pdf（块 1e160396f7-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-1e160396f7-002c",
@@ -64392,7 +64392,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/训练册PDF/培优6　三角函数中ω的范围问题.pdf（块 d06a1e260a-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d06a1e260a-001",
@@ -64530,7 +64530,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/训练册PDF/培优6　三角函数中ω的范围问题.pdf（块 d06a1e260a-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d06a1e260a-003b",
@@ -64714,7 +64714,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优7 解三角形中的最值和范围问题/训练册PDF/培优7　解三角形中的最值和范围问题.pdf（块 47f6cc7b06-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-47f6cc7b06-001d",
@@ -64898,7 +64898,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优7 解三角形中的最值和范围问题/训练册PDF/培优7　解三角形中的最值和范围问题.pdf（块 47f6cc7b06-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-47f6cc7b06-005b",
@@ -64944,7 +64944,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优7 解三角形中的最值和范围问题/训练册PDF/培优7　解三角形中的最值和范围问题.pdf（块 47f6cc7b06-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-47f6cc7b06-006b",
@@ -64967,7 +64967,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/分层训练/专题四 三角函数与解三角形/培优7 解三角形中的最值和范围问题/训练册PDF/培优7　解三角形中的最值和范围问题.pdf（块 47f6cc7b06-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-47f6cc7b06-006c",
@@ -65082,7 +65082,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题一 集合、常用逻辑用语与不等式/题型透析/讲解册PDF/专题一 集合、常用逻辑用语与不等式.pdf（块 62ae019851-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-62ae019851-001e",
@@ -65197,7 +65197,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题一 集合、常用逻辑用语与不等式/题型透析/讲解册PDF/专题一 集合、常用逻辑用语与不等式.pdf（块 62ae019851-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-62ae019851-002e",
@@ -65312,7 +65312,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题一 集合、常用逻辑用语与不等式/题型透析/讲解册PDF/专题一 集合、常用逻辑用语与不等式.pdf（块 62ae019851-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-62ae019851-006",
@@ -65726,7 +65726,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优10  球的切、接问题/讲解册PDF/培优10　球的切、接问题.pdf（块 54bbe673d9-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-54bbe673d9-006",
@@ -65864,7 +65864,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优10  球的切、接问题/讲解册PDF/培优10　球的切、接问题.pdf（块 54bbe673d9-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-54bbe673d9-008d",
@@ -65887,7 +65887,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优10  球的切、接问题/讲解册PDF/培优10　球的切、接问题.pdf（块 54bbe673d9-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-54bbe673d9-009",
@@ -65910,7 +65910,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优10  球的切、接问题/讲解册PDF/培优10　球的切、接问题.pdf（块 54bbe673d9-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-54bbe673d9-009b",
@@ -66071,7 +66071,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/讲解册PDF/培优11　空间几何体的截面与交线问题.pdf（块 f535f6e724-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-f535f6e724-004b",
@@ -66094,7 +66094,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/讲解册PDF/培优11　空间几何体的截面与交线问题.pdf（块 f535f6e724-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-f535f6e724-004c",
@@ -66163,7 +66163,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/讲解册PDF/培优11　空间几何体的截面与交线问题.pdf（块 f535f6e724-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-f535f6e724-005c",
@@ -66186,7 +66186,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/讲解册PDF/培优11　空间几何体的截面与交线问题.pdf（块 f535f6e724-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-f535f6e724-006",
@@ -66209,7 +66209,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优11 空间几何体的截面与交线问题/讲解册PDF/培优11　空间几何体的截面与交线问题.pdf（块 f535f6e724-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-f535f6e724-006b",
@@ -66485,7 +66485,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优12 空间几何体的动态和探索问题/讲解册PDF/培优12　空间几何体的动态和探索问题.pdf（块 6b581c0987-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-6b581c0987-006b",
@@ -66577,7 +66577,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/培优12 空间几何体的动态和探索问题/讲解册PDF/培优12　空间几何体的动态和探索问题.pdf（块 6b581c0987-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-6b581c0987-008b",
@@ -66853,7 +66853,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/题型透析/讲解册PDF/专题七　立体几何与空间向量.pdf（块 d1643f50bc-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d1643f50bc-003d",
@@ -66991,7 +66991,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/题型透析/讲解册PDF/专题七　立体几何与空间向量.pdf（块 d1643f50bc-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d1643f50bc-007",
@@ -67037,7 +67037,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题七  立体几何与空间向量/题型透析/讲解册PDF/专题七　立体几何与空间向量.pdf（块 d1643f50bc-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d1643f50bc-008",
@@ -67152,7 +67152,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题三 导数及其应用/培优1  三次函数的性质研究/讲解册PDF/培优1　三次函数性质综合.pdf（块 4e258ba37b-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-4e258ba37b-001",
@@ -67773,7 +67773,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题三 导数及其应用/培优4导数中的双变量问题/讲解册PDF/培优4　导数中的双变量问题.pdf（块 7fc43c22c1-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-7fc43c22c1-006",
@@ -67980,7 +67980,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题三 导数及其应用/题型透析/讲解册PDF/专题三　导数及其应用.pdf（块 338167e90a-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-338167e90a-001b",
@@ -69452,7 +69452,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题二 函数及其性质/题型透析/讲解册PDF/专题二 函数及其性质.pdf（块 80fe6c0ef5-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-80fe6c0ef5-004b",
@@ -69682,7 +69682,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题二 函数及其性质/题型透析/讲解册PDF/专题二 函数及其性质.pdf（块 80fe6c0ef5-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-80fe6c0ef5-008b",
@@ -69981,7 +69981,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题五 平面向量与复数/题型透析/讲解册PDF/专题五　平面向量与复数.pdf（块 e99f917373-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-e99f917373-001d",
@@ -70418,13 +70418,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/讲解册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d97665d2d9-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d97665d2d9-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -70441,13 +70441,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/讲解册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d97665d2d9-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d97665d2d9-002b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -70464,13 +70464,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/讲解册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d97665d2d9-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d97665d2d9-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -70510,13 +70510,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题八 平面解析几何/培优16 圆锥曲线中的角度问题/讲解册PDF/培优16　圆锥曲线中的角度问题.pdf（块 d97665d2d9-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-d97665d2d9-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的角度问题",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角相等与角平分线的证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -70717,7 +70717,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题八 平面解析几何/题型透析/讲解册PDF/专题八　平面解析几何.pdf（块 bc0b63ec32-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-bc0b63ec32-001c",
@@ -70878,7 +70878,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题八 平面解析几何/题型透析/讲解册PDF/专题八　平面解析几何.pdf（块 bc0b63ec32-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-bc0b63ec32-007",
@@ -71344,7 +71344,7 @@
    "contentId": "ext-mat-9e21a7e47c-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的常用性质",
      "role": "PRIMARY"
     }
    ]
@@ -71890,7 +71890,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/讲解册PDF/培优6　三角函数中ω的范围问题.pdf（块 c8a4430e4d-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-c8a4430e4d-001",
@@ -71913,7 +71913,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/讲解册PDF/培优6　三角函数中ω的范围问题.pdf（块 c8a4430e4d-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-c8a4430e4d-001b",
@@ -71936,7 +71936,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/讲解册PDF/培优6　三角函数中ω的范围问题.pdf（块 c8a4430e4d-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-c8a4430e4d-001c",
@@ -71982,7 +71982,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/讲解册PDF/培优6　三角函数中ω的范围问题.pdf（块 c8a4430e4d-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-c8a4430e4d-002b",
@@ -72005,7 +72005,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/培优6 三角函数中ω的范围范围/讲解册PDF/培优6　三角函数中ω的范围问题.pdf（块 c8a4430e4d-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-c8a4430e4d-003b",
@@ -72695,7 +72695,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/题型透析/讲解册PDF/专题四　三角函数与解三角形.pdf（块 98e813b184-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-98e813b184-006c",
@@ -72764,7 +72764,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/题型透析/讲解册PDF/专题四　三角函数与解三角形.pdf（块 98e813b184-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-98e813b184-007c",
@@ -72856,7 +72856,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/题型透析/讲解册PDF/专题四　三角函数与解三角形.pdf（块 98e813b184-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-98e813b184-008d",
@@ -72925,13 +72925,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:math",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题四 三角函数与解三角形/题型透析/讲解册PDF/专题四　三角函数与解三角形.pdf（块 98e813b184-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-98e813b184-009c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角平分线定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角平分线长的求法",
      "role": "PRIMARY"
     }
    ]

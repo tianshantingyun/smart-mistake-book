@@ -1918,7 +1918,7 @@
    "contentId": "math-zero-count-direct-solve",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数的判断方法与常用结论",
      "role": "PRIMARY"
     }
    ]
@@ -1941,7 +1941,7 @@
    "contentId": "math-zero-count-graph-direct-method",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数的判断方法与常用结论",
      "role": "PRIMARY"
     }
    ]
@@ -1964,7 +1964,7 @@
    "contentId": "math-zero-count-two-function-intersection",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数的判断方法与常用结论",
      "role": "PRIMARY"
     }
    ]
@@ -2010,7 +2010,7 @@
    "contentId": "math-zero-count-theorem-plus-monotonicity",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数的判断方法与常用结论",
      "role": "PRIMARY"
     }
    ]
@@ -5552,7 +5552,7 @@
    "contentId": "math-xianglin-liangxiang-ji-gouzao-gexiang-dengbi",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -7254,7 +7254,7 @@
    "contentId": "math-chord-of-contact-unit-circle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的切线方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的切点弦方程",
      "role": "PRIMARY"
     }
    ]
@@ -7277,7 +7277,7 @@
    "contentId": "math-chord-of-contact-shifted-circle",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的切线方程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的切点弦方程",
      "role": "PRIMARY"
     }
    ]
@@ -8197,7 +8197,7 @@
    "contentId": "math-parabola-focal-chord-length",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -8220,7 +8220,7 @@
    "contentId": "math-parabola-focal-chord-x1x2-fixed",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -8243,7 +8243,7 @@
    "contentId": "math-parabola-focal-chord-y1y2-fixed",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -8266,7 +8266,7 @@
    "contentId": "math-parabola-focal-chord-reciprocal-fixed",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -8312,7 +8312,7 @@
    "contentId": "math-parabola-ab-diameter-circle-tangent-mn",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -8335,7 +8335,7 @@
    "contentId": "math-parabola-mn-diameter-circle-tangent-ab",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -18386,7 +18386,7 @@
    "contentId": "math-hj-lingdian-xiangguan-jielun",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数的判断方法与常用结论",
      "role": "PRIMARY"
     }
    ]
@@ -26183,7 +26183,7 @@
    "contentId": "math-hj-s63-gp-judge",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -27609,7 +27609,7 @@
    "contentId": "math-hj-s88-focus-chord",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线焦半径",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抛物线的焦点弦",
      "role": "PRIMARY"
     }
    ]
@@ -32899,7 +32899,7 @@
    "contentId": "math-fx-pingfenxian-dengmianji-fa",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角平分线定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:角平分线长的求法",
      "role": "PRIMARY"
     }
    ]
@@ -36533,7 +36533,7 @@
    "contentId": "math-fx-dengbi-panding-sifa",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -38534,7 +38534,7 @@
    "contentId": "math-mo-dengbi-panding-yaodian",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
      "role": "PRIMARY"
     }
    ]
@@ -41409,7 +41409,7 @@
    "contentId": "math-mo-lingdian-geshu-sifa",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数的判断方法与常用结论",
      "role": "PRIMARY"
     }
    ]
@@ -43594,7 +43594,7 @@
    "contentId": "math-mo-dengbi-qzheng-xiangfu",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的有关概念",
      "role": "PRIMARY"
     }
    ]
@@ -47383,7 +47383,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第01讲 物质的分类及转化（复习讲义）（四川专用）（教师版）.docx（块 96397bfcc6-024）",
-   "reviewedAtEpochMillis": 1789732986467,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-96397bfcc6-024",
@@ -47567,7 +47567,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第01讲 物质的量、气体摩尔体积（复习讲义）（安徽专用）（教师版）.docx（块 ce5ba68671-002）",
-   "reviewedAtEpochMillis": 1789732986467,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-ce5ba68671-002",
@@ -47797,7 +47797,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-d8b718d85a:biology",
    "sourceLocator": "桌面资料 2026年新高考资料(4) / 2026年新高考资料(4)/二轮复习/2026高考生物二轮课件/高考总复习二轮生物PPT课件/配套课件/大单元1　细胞是生物体结构与生命活动的基本单位/层级3　素养整合 诠释应用.pptx（块 c13f2ac12a-005）",
-   "reviewedAtEpochMillis": 1789733278691,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c13f2ac12a-005",
@@ -48027,7 +48027,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习卓越讲义重难点/资料/（重点·方法·点拨）第58讲 醛、酮、羧酸、酯、酰胺- （教师版）.docx（块 138d8deb9f-001）",
-   "reviewedAtEpochMillis": 1789742035158,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-138d8deb9f-001b",
@@ -48096,7 +48096,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第九章 有机化学基础/第02讲 烃（教师版）.docx（块 024618b63e-008）",
-   "reviewedAtEpochMillis": 1789742035158,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-024618b63e-008b",
@@ -48119,7 +48119,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习卓越讲义重难点/资料/（重点·方法·点拨）第58讲 醛、酮、羧酸、酯、酰胺- （教师版）.docx（块 138d8deb9f-007）",
-   "reviewedAtEpochMillis": 1789742035158,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-138d8deb9f-007b",
@@ -51362,7 +51362,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-003",
@@ -51408,7 +51408,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-004",
@@ -51477,7 +51477,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-005b",
@@ -51523,7 +51523,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-006b",
@@ -51546,7 +51546,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-007",
@@ -51661,7 +51661,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-009",
@@ -52006,7 +52006,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-015）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-015b",
@@ -52236,7 +52236,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-018）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-018c",
@@ -52282,7 +52282,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-019）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-019b",
@@ -52328,7 +52328,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/不定项和多项选择题/专题PDF/不定项和多项选择题 《分层训练》PDF.pdf（块 8c5f3169c5-020）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-8c5f3169c5-020",
@@ -52627,7 +52627,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题1 细胞的分子组成/专题PDF/专题1 细胞的分子组成 《分层训练》PDF.pdf（块 cebcb9d917-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-cebcb9d917-005",
@@ -52926,13 +52926,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题10 遗传的分子基础/专题PDF/专题10 遗传的分子基础 《分层训练》PDF.pdf（块 248a054779-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-248a054779-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:dna的复制",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA半保留复制的实验证据（梅塞尔森-斯塔尔实验）",
      "role": "PRIMARY"
     }
    ]
@@ -52995,7 +52995,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题10 遗传的分子基础/专题PDF/专题10 遗传的分子基础 《分层训练》PDF.pdf（块 248a054779-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-248a054779-003",
@@ -53225,7 +53225,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题10 遗传的分子基础/专题PDF/专题10 遗传的分子基础 《分层训练》PDF.pdf（块 248a054779-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-248a054779-007b",
@@ -53271,7 +53271,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题10 遗传的分子基础/专题PDF/专题10 遗传的分子基础 《分层训练》PDF.pdf（块 248a054779-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-248a054779-008",
@@ -53317,7 +53317,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题10 遗传的分子基础/专题PDF/专题10 遗传的分子基础 《分层训练》PDF.pdf（块 248a054779-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-248a054779-008c",
@@ -53501,7 +53501,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题10 遗传的分子基础/专题PDF/专题10 遗传的分子基础 《分层训练》PDF.pdf（块 248a054779-015）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-248a054779-015",
@@ -53754,7 +53754,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题11 生物的变异与进化/专题PDF/专题11 生物的变异与进化 《分层训练》PDF.pdf（块 1de8d85aa8-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-1de8d85aa8-005b",
@@ -53777,7 +53777,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题11 生物的变异与进化/专题PDF/专题11 生物的变异与进化 《分层训练》PDF.pdf（块 1de8d85aa8-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-1de8d85aa8-006",
@@ -54030,7 +54030,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题11 生物的变异与进化/专题PDF/专题11 生物的变异与进化 《分层训练》PDF.pdf（块 1de8d85aa8-012）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-1de8d85aa8-012",
@@ -54168,7 +54168,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题11 生物的变异与进化/专题PDF/专题11 生物的变异与进化 《分层训练》PDF.pdf（块 1de8d85aa8-015）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-1de8d85aa8-015",
@@ -54513,7 +54513,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题13 神经调节/专题PDF/专题13 神经调节 《分层训练》PDF.pdf（块 881f12d357-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-881f12d357-004b",
@@ -54743,7 +54743,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题13 神经调节/专题PDF/专题13 神经调节 《分层训练》PDF.pdf（块 881f12d357-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-881f12d357-010b",
@@ -55042,7 +55042,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题13 神经调节/专题PDF/专题13 神经调节 《分层训练》PDF.pdf（块 881f12d357-020）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-881f12d357-020",
@@ -55226,7 +55226,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题14 体液调节/专题PDF/专题14 体液调节 《分层训练》PDF.pdf（块 2b9586914c-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2b9586914c-002",
@@ -55341,7 +55341,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题14 体液调节/专题PDF/专题14 体液调节 《分层训练》PDF.pdf（块 2b9586914c-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2b9586914c-006",
@@ -55364,7 +55364,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题14 体液调节/专题PDF/专题14 体液调节 《分层训练》PDF.pdf（块 2b9586914c-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2b9586914c-006b",
@@ -55686,7 +55686,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题14 体液调节/专题PDF/专题14 体液调节 《分层训练》PDF.pdf（块 2b9586914c-011）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2b9586914c-011e",
@@ -55985,7 +55985,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题15 免疫调节/专题PDF/专题15 免疫调节 《分层训练》PDF.pdf（块 2907715275-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2907715275-001e",
@@ -56445,13 +56445,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题15 免疫调节/专题PDF/专题15 免疫调节 《分层训练》PDF.pdf（块 2907715275-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2907715275-008b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:抗原",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:胸腺依赖性抗原与胸腺非依赖性抗原",
      "role": "PRIMARY"
     }
    ]
@@ -56629,7 +56629,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题15 免疫调节/专题PDF/专题15 免疫调节 《分层训练》PDF.pdf（块 2907715275-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2907715275-010c",
@@ -56721,7 +56721,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题15 免疫调节/专题PDF/专题15 免疫调节 《分层训练》PDF.pdf（块 2907715275-012）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2907715275-012b",
@@ -56859,7 +56859,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题16 植物生命活动的调节/专题PDF/专题16 植物生命活动的调节 《分层训练》PDF.pdf（块 449af6bec2-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-449af6bec2-002",
@@ -56905,7 +56905,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题16 植物生命活动的调节/专题PDF/专题16 植物生命活动的调节 《分层训练》PDF.pdf（块 449af6bec2-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-449af6bec2-003",
@@ -57135,7 +57135,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题16 植物生命活动的调节/专题PDF/专题16 植物生命活动的调节 《分层训练》PDF.pdf（块 449af6bec2-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-449af6bec2-008b",
@@ -57296,13 +57296,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题17 种群及其动态/专题PDF/专题17 种群及其动态 《分层训练》PDF.pdf（块 524cba8aa4-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-524cba8aa4-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -57503,7 +57503,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题17 种群及其动态/专题PDF/专题17 种群及其动态 《分层训练》PDF.pdf（块 524cba8aa4-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-524cba8aa4-007b",
@@ -57549,13 +57549,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题17 种群及其动态/专题PDF/专题17 种群及其动态 《分层训练》PDF.pdf（块 524cba8aa4-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-524cba8aa4-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种群密度的其他调查方法",
      "role": "PRIMARY"
     }
    ]
@@ -57572,7 +57572,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题17 种群及其动态/专题PDF/专题17 种群及其动态 《分层训练》PDF.pdf（块 524cba8aa4-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-524cba8aa4-008b",
@@ -58308,7 +58308,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-002b",
@@ -58607,7 +58607,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-005",
@@ -58699,7 +58699,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-007",
@@ -58929,7 +58929,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-010c",
@@ -59021,7 +59021,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-012）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-012",
@@ -59113,7 +59113,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-013c",
@@ -59297,7 +59297,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-017）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-017b",
@@ -59389,7 +59389,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题19 生态系统及其稳定性、人与环境/专题PDF/专题19 生态系统及其稳定性、人与环境 《分层训练》PDF.pdf（块 7aebb35df1-019）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7aebb35df1-019b",
@@ -59665,7 +59665,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题2 细胞的结构与功能/专题PDF/专题2 细胞的结构与功能 《分层训练》PDF.pdf（块 3199bef3a3-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-3199bef3a3-004b",
@@ -60010,7 +60010,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题2 细胞的结构与功能/专题PDF/专题2 细胞的结构与功能 《分层训练》PDF.pdf（块 3199bef3a3-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-3199bef3a3-010",
@@ -60033,7 +60033,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题2 细胞的结构与功能/专题PDF/专题2 细胞的结构与功能 《分层训练》PDF.pdf（块 3199bef3a3-011）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-3199bef3a3-011",
@@ -60102,7 +60102,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题2 细胞的结构与功能/专题PDF/专题2 细胞的结构与功能 《分层训练》PDF.pdf（块 3199bef3a3-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-3199bef3a3-013",
@@ -60194,7 +60194,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题20 发酵工程/专题PDF/专题20 发酵工程 《分层训练》PDF.pdf（块 b40cdc0a76-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b40cdc0a76-002",
@@ -60263,7 +60263,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题20 发酵工程/专题PDF/专题20 发酵工程 《分层训练》PDF.pdf（块 b40cdc0a76-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b40cdc0a76-003",
@@ -60424,7 +60424,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题20 发酵工程/专题PDF/专题20 发酵工程 《分层训练》PDF.pdf（块 b40cdc0a76-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b40cdc0a76-006",
@@ -60493,7 +60493,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题20 发酵工程/专题PDF/专题20 发酵工程 《分层训练》PDF.pdf（块 b40cdc0a76-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b40cdc0a76-007",
@@ -60608,7 +60608,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题21 细胞工程/专题PDF/专题21 细胞工程 《分层训练》PDF.pdf（块 320a959ba0-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-320a959ba0-001b",
@@ -60631,7 +60631,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题21 细胞工程/专题PDF/专题21 细胞工程 《分层训练》PDF.pdf（块 320a959ba0-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-320a959ba0-001c",
@@ -60677,7 +60677,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题21 细胞工程/专题PDF/专题21 细胞工程 《分层训练》PDF.pdf（块 320a959ba0-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-320a959ba0-002b",
@@ -60723,7 +60723,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题21 细胞工程/专题PDF/专题21 细胞工程 《分层训练》PDF.pdf（块 320a959ba0-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-320a959ba0-003",
@@ -60907,7 +60907,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题21 细胞工程/专题PDF/专题21 细胞工程 《分层训练》PDF.pdf（块 320a959ba0-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-320a959ba0-005c",
@@ -61045,7 +61045,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-001",
@@ -61091,13 +61091,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-002",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61114,7 +61114,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-003",
@@ -61160,7 +61160,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-005",
@@ -61183,7 +61183,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-006",
@@ -61229,7 +61229,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-007",
@@ -61252,7 +61252,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-007b",
@@ -61298,7 +61298,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-009",
@@ -61321,7 +61321,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-010",
@@ -61390,7 +61390,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-012）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-012",
@@ -61459,7 +61459,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-014）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-014",
@@ -61597,7 +61597,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-016）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-016b",
@@ -61689,13 +61689,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-020）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-020",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61712,13 +61712,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-020）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-020b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61735,13 +61735,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-021）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-021",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61758,13 +61758,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-021）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-021b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61781,13 +61781,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-022）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-022",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61804,13 +61804,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-023）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-023",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61896,13 +61896,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-025）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-025",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -61988,13 +61988,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-028）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-028",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -62103,7 +62103,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-031）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-031",
@@ -62149,7 +62149,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-032）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-032",
@@ -62172,7 +62172,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-033）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-033",
@@ -62195,13 +62195,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-033）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-033b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因的检测与鉴定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因插入方向的鉴定（PCR与酶切）",
      "role": "PRIMARY"
     }
    ]
@@ -62218,13 +62218,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-034）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-034",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因的检测与鉴定",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:目的基因插入方向的鉴定（PCR与酶切）",
      "role": "PRIMARY"
     }
    ]
@@ -62241,7 +62241,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-034）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-034b",
@@ -62310,7 +62310,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-036）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-036",
@@ -62356,7 +62356,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-037）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-037",
@@ -62563,7 +62563,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-043）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-043",
@@ -62586,7 +62586,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-043）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-043b",
@@ -62609,7 +62609,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-044）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-044",
@@ -62678,7 +62678,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题20 发酵工程/专题PDF/专题20 发酵工程 《分层训练》PDF.pdf（块 b40cdc0a76-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b40cdc0a76-001",
@@ -62793,7 +62793,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-046）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-046",
@@ -62816,7 +62816,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-050）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-050",
@@ -63161,7 +63161,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题5 细胞呼吸/专题PDF/专题5 细胞呼吸 《分层训练》PDF.pdf（块 035ebaef9d-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-035ebaef9d-008",
@@ -63299,7 +63299,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题6 光合作用/专题PDF/专题6 光合作用 《分层训练》PDF.pdf（块 46ec017dac-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-46ec017dac-003",
@@ -63368,7 +63368,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题6 光合作用/专题PDF/专题6 光合作用 《分层训练》PDF.pdf（块 46ec017dac-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-46ec017dac-007",
@@ -63552,7 +63552,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题6 光合作用/专题PDF/专题6 光合作用 《分层训练》PDF.pdf（块 46ec017dac-015）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-46ec017dac-015b",
@@ -63575,7 +63575,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题6 光合作用/专题PDF/专题6 光合作用 《分层训练》PDF.pdf（块 46ec017dac-016）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-46ec017dac-016",
@@ -64150,7 +64150,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-006）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-006",
@@ -64219,7 +64219,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-007",
@@ -64242,7 +64242,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-007）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-007b",
@@ -64265,7 +64265,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-008",
@@ -64288,7 +64288,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-009）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-009",
@@ -64334,7 +64334,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-010b",
@@ -64357,7 +64357,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-010）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-010c",
@@ -64380,7 +64380,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-011）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-011",
@@ -64403,7 +64403,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-012）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-012",
@@ -64426,7 +64426,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-012）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-012b",
@@ -64472,7 +64472,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-013",
@@ -64495,7 +64495,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-013b",
@@ -64564,7 +64564,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-016）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-016",
@@ -64656,7 +64656,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-019）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-019",
@@ -64794,13 +64794,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题7 细胞的生命历程/专题PDF/专题7 细胞的生命历程 《分层训练》PDF.pdf（块 b7b14638ac-024）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-b7b14638ac-024",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:同位素标记法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞分裂中的同位素标记分析",
      "role": "PRIMARY"
     }
    ]
@@ -65001,7 +65001,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题8 基因的分离定律和自由组合定律/专题PDF/专题8 基因的分离定律和自由组合定律 《分层训练》PDF.pdf（块 636de2a928-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-636de2a928-005",
@@ -65346,7 +65346,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题8 基因的分离定律和自由组合定律/专题PDF/专题8 基因的分离定律和自由组合定律 《分层训练》PDF.pdf（块 636de2a928-013）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-636de2a928-013",
@@ -65415,7 +65415,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题8 基因的分离定律和自由组合定律/专题PDF/专题8 基因的分离定律和自由组合定律 《分层训练》PDF.pdf（块 636de2a928-014）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-636de2a928-014b",
@@ -65829,7 +65829,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-049）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-049",
@@ -65852,13 +65852,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题22 基因工程/专题PDF/专题22 基因工程 《分层训练》PDF.pdf（块 5b6cb16a7f-049）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-5b6cb16a7f-049b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:pcr技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:PCR衍生技术（巢式、重叠延伸、反向、RT-PCR与qPCR等）",
      "role": "PRIMARY"
     }
    ]
@@ -66059,7 +66059,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题3 细胞的物质输入和输出/专题PDF/专题3 细胞的物质输入和输出 《分层训练》PDF.pdf（块 7533a1e1fd-008）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-7533a1e1fd-008",
@@ -66128,13 +66128,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题4 酶和ATP/专题PDF/专题4 酶和ATP 《分层训练》PDF.pdf（块 f83dfd45c1-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-f83dfd45c1-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响酶促反应的因素分析",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:探究温度与pH对酶活性的影响",
      "role": "PRIMARY"
     }
    ]
@@ -66818,13 +66818,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题6 光合作用/专题PDF/专题6 光合作用 《分层训练》PDF.pdf（块 46ec017dac-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-46ec017dac-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -67255,7 +67255,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题8 基因的分离定律和自由组合定律/专题PDF/专题8 基因的分离定律和自由组合定律 《分层训练》PDF.pdf（块 636de2a928-022）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-636de2a928-022",
@@ -67370,7 +67370,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题8 基因的分离定律和自由组合定律/专题PDF/专题8 基因的分离定律和自由组合定律 《分层训练》PDF.pdf（块 636de2a928-025）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-636de2a928-025",
@@ -67416,7 +67416,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题8 基因的分离定律和自由组合定律/专题PDF/专题8 基因的分离定律和自由组合定律 《分层训练》PDF.pdf（块 636de2a928-026）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-636de2a928-026",
@@ -67876,7 +67876,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题9 伴性遗传与人类遗传病/专题PDF/专题9 伴性遗传与人类遗传病 《分层训练》PDF.pdf（块 87ebe669c6-017）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-87ebe669c6-017",
@@ -68106,7 +68106,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/专题9 伴性遗传与人类遗传病/专题PDF/专题9 伴性遗传与人类遗传病 《分层训练》PDF.pdf（块 87ebe669c6-033）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-87ebe669c6-033",
@@ -68681,7 +68681,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题10 遗传的分子基础.pdf（块 414fa62f1d-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-414fa62f1d-005",
@@ -68819,7 +68819,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题11 生物的变异与进化.pdf（块 c496a62e4c-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c496a62e4c-002b",
@@ -68842,7 +68842,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题11 生物的变异与进化.pdf（块 c496a62e4c-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c496a62e4c-003",
@@ -69233,7 +69233,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题13 神经调节.pdf（块 812daccffe-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-812daccffe-003c",
@@ -69348,7 +69348,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题14 体液调节.pdf（块 4a138bdd58-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-4a138bdd58-002b",
@@ -69440,7 +69440,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题14 体液调节.pdf（块 4a138bdd58-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-4a138bdd58-004",
@@ -69808,7 +69808,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题16 植物生命活动的调节.pdf（块 2b574e2e2b-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2b574e2e2b-002b",
@@ -69877,7 +69877,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题16 植物生命活动的调节.pdf（块 2b574e2e2b-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-2b574e2e2b-004",
@@ -70061,13 +70061,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题18 群落及其演替.pdf（块 c8fe7f3b48-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c8fe7f3b48-001b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:群落的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:种间关系",
      "role": "PRIMARY"
     }
    ]
@@ -70084,7 +70084,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题18 群落及其演替.pdf（块 c8fe7f3b48-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c8fe7f3b48-002",
@@ -70176,7 +70176,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题19 生态系统及其稳定性、人与环境.pdf（块 a9fe57afcd-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-a9fe57afcd-002b",
@@ -70268,7 +70268,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题19 生态系统及其稳定性、人与环境.pdf（块 a9fe57afcd-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-a9fe57afcd-004b",
@@ -70705,7 +70705,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题21 细胞工程.pdf（块 c168f35dac-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c168f35dac-001b",
@@ -70751,7 +70751,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题21 细胞工程.pdf（块 c168f35dac-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c168f35dac-002b",
@@ -70866,7 +70866,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题22 基因工程.pdf（块 9869eb9e2d-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-9869eb9e2d-001",
@@ -70889,7 +70889,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题22 基因工程.pdf（块 9869eb9e2d-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-9869eb9e2d-001b",
@@ -71096,7 +71096,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题22 基因工程.pdf（块 9869eb9e2d-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-9869eb9e2d-004d",
@@ -71602,13 +71602,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题4 酶和ATP.pdf（块 91078593c9-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792413987949,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-91078593c9-002e",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构与作用",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构",
      "role": "PRIMARY"
     }
    ]
@@ -71855,7 +71855,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题5 细胞呼吸.pdf（块 59423ea42b-002）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-59423ea42b-002f",
@@ -71878,13 +71878,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题6 光合作用.pdf（块 6c193f35a8-001）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-6c193f35a8-001",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -72022,7 +72022,7 @@
    "contentId": "ext-bio-6c193f35a8-002c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用强度的环境因素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:影响光合作用的内部因素",
      "role": "PRIMARY"
     }
    ]
@@ -72154,13 +72154,13 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题6 光合作用.pdf（块 6c193f35a8-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-6c193f35a8-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:捕获光能的色素和结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:绿叶中色素的提取和分离",
      "role": "PRIMARY"
     }
    ]
@@ -72545,7 +72545,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题7 细胞的生命历程.pdf（块 36daaa0e4a-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-36daaa0e4a-003d",
@@ -72660,7 +72660,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题7 细胞的生命历程.pdf（块 36daaa0e4a-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-36daaa0e4a-004d",
@@ -72775,7 +72775,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题7 细胞的生命历程.pdf（块 36daaa0e4a-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-36daaa0e4a-005e",
@@ -73074,7 +73074,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题8 基因的分离定律和自由组合定律.pdf（块 1446061363-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-1446061363-004",
@@ -73281,7 +73281,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题8 基因的分离定律和自由组合定律.pdf（块 1446061363-005）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-1446061363-005f",
@@ -73626,7 +73626,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题9 伴性遗传与人类遗传病.pdf（块 c98b0853f5-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c98b0853f5-003d",
@@ -73649,7 +73649,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题9 伴性遗传与人类遗传病.pdf（块 c98b0853f5-003）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c98b0853f5-003e",
@@ -73695,7 +73695,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题9 伴性遗传与人类遗传病.pdf（块 c98b0853f5-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c98b0853f5-004b",
@@ -73833,7 +73833,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-7b2647b433:biology",
    "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.生物学.新高考版.高三.全一册_学生用书全一册/本书配套电子教参/知识清单/专题PDF/专题9 伴性遗传与人类遗传病.pdf（块 c98b0853f5-004）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-c98b0853f5-004h",
@@ -74270,7 +74270,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3dd32e4bb8:biology",
    "sourceLocator": "桌面资料 06-【生物】2027版高中《解题觉醒》 / 06-【生物】2027版高中《解题觉醒》/生物解题觉醒-第1册 主书.pdf（块 9752acd916-075）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-9752acd916-075",
@@ -74408,7 +74408,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3dd32e4bb8:biology",
    "sourceLocator": "桌面资料 06-【生物】2027版高中《解题觉醒》 / 06-【生物】2027版高中《解题觉醒》/生物解题觉醒-第1册 主书.pdf（块 9752acd916-094）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-9752acd916-094",
@@ -74638,7 +74638,7 @@
    "derivationKind": "REVIEWED_SYNTHESIS",
    "sourceId": "desktop-src-3dd32e4bb8:biology",
    "sourceLocator": "桌面资料 06-【生物】2027版高中《解题觉醒》 / 06-【生物】2027版高中《解题觉醒》/生物解题觉醒-第1册 主书.pdf（块 9752acd916-160）",
-   "reviewedAtEpochMillis": 1789780065665,
+   "reviewedAtEpochMillis": 1792418197154,
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-bio-9752acd916-160",

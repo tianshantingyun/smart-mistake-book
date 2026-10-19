@@ -95,7 +95,7 @@ MATH,selective-functions-candidate-002,COVERED,等差数列,理解等差数列�
 MATH,selective-functions-candidate-003,COVERED,等差数列的前n项和,探索并掌握等差数列的前n项和公式,另见 等差数列的有关公式
 MATH,selective-functions-candidate-004,COVERED,求解等差数列基本量的策略,"能在具体的问题情境中,发现数列的等差关系,并解决相应的问题",
 MATH,selective-functions-candidate-005,COVERED,数列的概念,体会等差数列与一元一次函数的关系,
-MATH,selective-functions-candidate-006,COVERED,等比数列,理解等比数列的概念和通项公式的意义,通项另见 等比数列的通项
+MATH,selective-functions-candidate-006,COVERED,等比数列的有关概念,理解等比数列的概念和通项公式的意义,通项另见 等比数列的通项
 MATH,selective-functions-candidate-007,COVERED,等比数列的前n项和,探索并掌握等比数列的前n项和公式,另见 等比数列的有关公式
 MATH,selective-functions-candidate-008,COVERED,求解等比数列基本量的策略,"能在具体的问题情境中,发现数列的等比关系,并解决相应的问题",
 MATH,selective-functions-candidate-009,COVERED,数列的概念,体会等比数列与指数函数的关系,
@@ -294,7 +294,7 @@ MATH,elective-d-beauty-math-candidate-002,NOT_COVERED,,",对称美未设节点",
 MATH,elective-d-beauty-math-candidate-003,NOT_COVERED,,",周期美未设节点",
 MATH,elective-d-beauty-math-candidate-004,NOT_COVERED,,",和谐美/黄金分割/斐波那契未设节点",
 MATH,elective-d-music-math-candidate-001,PARTIAL,正弦函数,"纯音可以用正弦函数来表达,音高与正弦函数的频率相关,响度与振幅相关",音物理关系面未单设
-MATH,elective-d-music-math-candidate-002,PARTIAL,等比数列,十二平均律与等比数列相关,律制背景未单设
+MATH,elective-d-music-math-candidate-002,PARTIAL,等比数列的有关概念,十二平均律与等比数列相关,律制背景未单设
 MATH,elective-d-music-math-candidate-003,NOT_COVERED,,",节拍与分数未设节点",
 MATH,elective-d-music-math-candidate-004,NOT_COVERED,,",乐器中的数学未设节点",
 MATH,elective-d-music-math-candidate-005,NOT_COVERED,,",乐曲中的数学未设节点",
