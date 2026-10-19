@@ -421,7 +421,7 @@
 - 本记录新增/修改的文档（同样未提交）：本文件、`docs/known-defects.md`、`docs/REFACTOR-MASTER-LINE.md`、
   `docs/research/algorithm-version-ledger.md`、`docs/agent-first-refactor-decisions-2026-09-23.md`。
 - 他线未跟踪的 `CapabilityFormViewModel.kt`、`DatabaseRestartRequiredScreen.kt` 仍使 HEAD 树不可独立编译；本批不代提交，也不修 HEAD。
-- **代码提交 `032fce0e`（99 文件）**；**文档提交**：本文件与 5 个台账文件；**推送结果**：推送后补记（非快进先 merge，不 rebase）。
+- **代码提交 `032fce0e`（99 文件）**；**文档提交 `aa499d88`（6 文件）**；**推送结果（2026-10-20）**：`dfe231bf..aa499d88` fast-forward 到 `origin/main`，`git ls-remote` 复核 = `aa499d88`；工作树剩余为其他线在飞文件，本批不代提交。
 
 ## 9. 主会话收尾实跑（2026-10-20，覆盖 §3 的旧门禁结论）
 
