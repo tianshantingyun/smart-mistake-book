@@ -525,6 +525,8 @@ tmp/t6_selfcheck.py
 
 **提交**：`759148ba` —— 六轨全部（记录 §6.1 的 107 路径剔除 `tmp/t6_selfcheck.py`，共 **106 文件**；`MistakePdfPagePlanner`/`RoomModelTaskRepository`/`OpenAiModelProtocol`/`TutorSessionPanel`/schema 契约测试等他线文件不在清单、未纳入；`SecondaryScreens`/`SmartMistakeBookRoot`/`MainActivity` 等共享文件按 §6.3 整份纳入并注明含他线区段）；docs 提交随后。
 
+**推送结果（2026-10-19）**：`e76ffd28..15d80be0`（fast-forward，无分叉；含 `759148ba` + `15d80be0` 两笔）；`git ls-remote` 直查远端 = `15d80be0`。用户已授权此后批次收口自动推送。
+
 **门禁实跑复核（本记录 §4 的矛盾以本节为准）**：主会话按脚本原命令重跑两段——① 单测门（脚本七模块 **+** `:feature:tutor:testDebugUnitTest` 消歧）→ **exit=0**（全 UP-TO-DATE，沿用批内绿色产物）；② 强门禁（androidTest 编译四模块 + `:app:assembleLocalFirstDebug`）→ **exit=0**。即：材料字段的 `1/1` 是**首轮**值、修复环末轮已修好（`strongVerdict` 的「全 0」为真），导出字段陈旧。**集合矛盾处置**：以脚本命令为准（含 core:database、不含 feature:tutor）；本轮补跑 feature:tutor 消歧，两集合均绿。
 
 **收尾修复（主会话，均已验证）**：
