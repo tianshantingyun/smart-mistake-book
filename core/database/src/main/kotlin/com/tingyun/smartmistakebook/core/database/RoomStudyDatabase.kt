@@ -24,6 +24,9 @@ import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRec
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeQuestionLatticeRecord
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
+import com.tingyun.smartmistakebook.core.database.port.MistakeRevisionWritePort
+import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemCommand
+import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemResult
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 
@@ -38,7 +41,7 @@ internal class RoomStudyDatabase(
      */
     private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
         KnowledgeSearchIndexCompleteness(),
-) : StudyDatabasePort {
+) : StudyDatabasePort, MistakeRevisionWritePort {
     private val knowledgeResearchReviewStore = RoomKnowledgeResearchReviewStore(database)
 
     private val problemOrganization =
@@ -841,7 +844,7 @@ internal class RoomStudyDatabase(
 
     /**
      * A8：手动建题的空源草稿是**合法记录**——`sourceAsset == null`、`sourceAssets` 为空，
-     * 不是"图丢了"。读取分支由 [ProblemDraftTransactionDao] 统一实现（空态 + 半空坏行
+     * 不是"图丢了"。读取分支由 ProblemDraftTransactionDao 统一实现（空态 + 半空坏行
      * fail-closed）；这里不再对空源行硬崩。
      */
     override suspend fun readProblemDraft(draftId: String): ProblemDraftRecord? {
@@ -1744,6 +1747,12 @@ internal class RoomStudyDatabase(
 
     override fun observeArchivedErrorBookEntries(): Flow<List<ArchivedEntrySummaryRow>> =
         database.mistakeDetailDao().archivedEntries()
+
+    // PRD-03: the controlled revision-edit command. Kept as the last member so the in-flight
+    // KDoc-only hunk above stays untouched.
+    override suspend fun reviseCommittedProblem(
+        command: ReviseCommittedProblemCommand,
+    ): ReviseCommittedProblemResult = database.mistakeDetailDao().reviseCommittedProblem(command)
 }
 
 

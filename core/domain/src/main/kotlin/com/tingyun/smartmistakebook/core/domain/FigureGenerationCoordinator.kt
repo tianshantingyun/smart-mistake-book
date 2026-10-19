@@ -33,11 +33,12 @@ interface FigureGenerationCoordinator {
  * 图像方法所需的**已预留派发上下文**：后端在 POST 之前必须收到它，并核对
  * operation/method/源证据/配置绑定。
  *
- * 这不是给调用方自报的普通参数：唯一构造点是
- * [RemoteModelDispatchReservation] 被账本授予之后（见 core:data 的协调器与通道）。
+ * KD-59：构造器收窄为 `internal`——生产只能经 [fromReservation] 从账本授予的
+ * [RemoteModelDispatchReservation] 派生；测试必须显式 opt-in [FigureDispatchBindingTestFactory]
+ * 并使用 [forTest]（名字即声明，不得在生产路径调用）。
  * 后端实现仍应在发送前复核（拒绝旁路调用），不能信任"我拿到了一个对象"。
  */
-data class FigureImageDispatchBinding(
+data class FigureImageDispatchBinding internal constructor(
     /** 账本授予的预留 id（durable 记录派生的稳定 id，不是随机口令）。 */
     val reservationId: String,
     /** 宿主冻结的逻辑操作身份，不含 method。 */
@@ -65,4 +66,62 @@ data class FigureImageDispatchBinding(
             "A figure dispatch binding needs a configuration fingerprint"
         }
     }
+
+    companion object {
+        /**
+         * 生产唯一构造入口：账本授予预留之后，按预留的身份派生绑定。
+         *
+         * 绑定字段与预留逐项一致（不复制成两份可漂移的事实）；协调器只在
+         * `RemoteModelDispatchDecision.Granted` 分支调用它。
+         */
+        fun fromReservation(
+            reservation: RemoteModelDispatchReservation,
+        ): FigureImageDispatchBinding = FigureImageDispatchBinding(
+            reservationId = reservation.reservationId,
+            operationId = reservation.operationId,
+            method = reservation.method,
+            purpose = reservation.purpose,
+            attemptOrdinal = reservation.attemptOrdinal,
+            sourceImageSha256 = reservation.sourceImageSha256,
+            configurationFingerprint = reservation.configurationFingerprint,
+        )
+
+        /**
+         * 测试工厂：显式 opt-in [FigureDispatchBindingTestFactory] 才能调用。
+         * 生产路径必须走 [fromReservation]（KD-59）。
+         */
+        @FigureDispatchBindingTestFactory
+        fun forTest(
+            reservationId: String,
+            operationId: String,
+            purpose: FigureGenerationPurpose,
+            configurationFingerprint: String,
+            sourceImageSha256: String? = null,
+            method: FigureGenerationMethod = FigureGenerationMethod.IMAGE_MODEL,
+            attemptOrdinal: Int = 1,
+        ): FigureImageDispatchBinding = FigureImageDispatchBinding(
+            reservationId = reservationId,
+            operationId = operationId,
+            method = method,
+            purpose = purpose,
+            attemptOrdinal = attemptOrdinal,
+            sourceImageSha256 = sourceImageSha256,
+            configurationFingerprint = configurationFingerprint,
+        )
+    }
 }
+
+/**
+ * KD-59 的测试工厂 opt-in 标记。
+ *
+ * 为什么需要：`internal` 构造器在 Kotlin 多模块工程里只对 `core:domain` 自己可见，
+ * 协调器在 `core:data`；测试同样在别的模块。把测试构造收拢到一个**名字可见**、
+ * 必须显式 opt-in 的工厂里，既保留跨模块可测性，又让生产代码误用成为编译错误。
+ */
+@RequiresOptIn(
+    message = "仅供测试构造派发绑定；生产路径必须来自账本授予的预留（fromReservation）",
+    level = RequiresOptIn.Level.ERROR,
+)
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+annotation class FigureDispatchBindingTestFactory

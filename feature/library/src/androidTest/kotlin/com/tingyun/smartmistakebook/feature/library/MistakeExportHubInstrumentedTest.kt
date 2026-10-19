@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -79,6 +80,32 @@ class MistakeExportHubInstrumentedTest {
         composeRule.onNodeWithTag("export_hub_save_cleaned-1").performClick()
 
         composeRule.onNodeWithText("文件已清理，无法保存。请重新导出这一份。").assertExists()
+    }
+
+    /**
+     * PRD-04：分享失败必须说对是哪一种失败。产物真的被缓存清理时照实说"文件已清理"，
+     * 不能把"文件还在、只是没打开分享方式"也说成同一句（改前所有异常共用一个原因）。
+     */
+    @Test
+    fun aCleanedUpArtifactFailsClosedWithAnHonestMessageOnShare() {
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeExportHubRoute(
+                    records = listOf(succeededRecord(exportId = "cleaned-share-1")),
+                    onBack = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("export_hub_share_cleaned-share-1").performClick()
+
+        // 分享意图的准备工作在 IO 线程：等到动作结果行真的出现再断言。
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText("文件已清理，无法分享。请重新导出这一份。")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+        composeRule.onNodeWithText("文件已清理，无法分享。请重新导出这一份。").assertExists()
     }
 
     @Test

@@ -59,6 +59,14 @@ enum class CaptureShareRejection {
     NOT_A_PDF,
     UNREADABLE,
     IMPORT_FAILED,
+
+    /**
+     * 读授权已经不可用：进程重建后授权随进程消失、被系统收回，或超过了接收窗口。
+     *
+     * 单独一个理由，不能并进 [UNREADABLE]——文件本身没坏，重试同一 URI 也不会成功，
+     * 用户的出路是从系统里重新分享。
+     */
+    AUTHORIZATION_EXPIRED,
 }
 
 /** 分享接收的终局。成功两种落点：单图进录入页、多图/PDF 进既有整卷管线。 */
@@ -175,11 +183,41 @@ internal fun captureShareRejectionMessage(reason: CaptureShareRejection): String
         "这个文件读不出来，可能已损坏或没有读取权限。"
     CaptureShareRejection.IMPORT_FAILED ->
         "文件已经收到，但这次没有保存成功，请稍后重试。"
+    CaptureShareRejection.AUTHORIZATION_EXPIRED -> CAPTURE_SHARE_EXPIRED_MESSAGE
 }
 
-/** 可重试的失败：读取/落库的瞬时失败；类型、大小与数量门重试也不会变。 */
+/** 可重试的失败：读取/落库的瞬时失败；类型、大小、数量与授权失效重试也不会变。 */
 internal fun captureShareRejectionIsRetryable(reason: CaptureShareRejection): Boolean =
     reason == CaptureShareRejection.UNREADABLE || reason == CaptureShareRejection.IMPORT_FAILED
+
+/** 授权失效的出口文案：和 [CaptureShareRejection.AUTHORIZATION_EXPIRED] 共用同一句。 */
+internal const val CAPTURE_SHARE_EXPIRED_MESSAGE =
+    "这次分享的内容已经失效，请从系统里重新分享一次。"
+
+/**
+ * 一次分享的读授权最长可用 10 分钟。
+ *
+ * 系统只把读授权给到接收它的活动/任务；进程被回收后 `rememberSaveable` 还能把请求恢复成
+ * 非空，但授权已经不在了。接收页因此按"收下分享的时刻 + 上限"派生过期，而不是把恢复出来
+ * 的非空请求当成永远可读；正常的手动重试远在窗口内完成。
+ */
+const val CAPTURE_SHARE_AUTHORIZATION_TIMEOUT_MILLIS = 10L * 60L * 1_000L
+
+/**
+ * 分享授权是否已超时。
+ *
+ * 恰好走到上限即判过期（页面上的定时器在 deadline 处停下，不会留下一个永远可点的
+ * "再试一次"）。`now < authorizedAt`（系统时钟回拨）不判过期，避免一次回拨把还在窗口内的
+ * 分享直接判死；非正的窗口一律立即过期。
+ */
+internal fun captureShareAuthorizationExpired(
+    nowEpochMillis: Long,
+    authorizedAtEpochMillis: Long,
+    timeoutMillis: Long = CAPTURE_SHARE_AUTHORIZATION_TIMEOUT_MILLIS,
+): Boolean {
+    if (timeoutMillis <= 0L) return true
+    return nowEpochMillis - authorizedAtEpochMillis >= timeoutMillis
+}
 
 /**
  * 录入页此刻还有一道题在进行：分享的图片不覆盖它。

@@ -44,6 +44,7 @@ import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
 import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
 import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
@@ -630,12 +631,26 @@ internal abstract class ProjectionTransactionDao {
                         outbox = row.toRecord(),
                     )
                 }
-                EVENT_KIND_CHAT_EVIDENCE -> readChatEvidence(row)?.let { outcome ->
-                    PersistedIncrementalLearningEvent(
+                EVENT_KIND_CHAT_EVIDENCE -> when (val outcome = readChatEvidence(row)) {
+                    null -> null
+                    // PRD-02：定向纠正/撤销与 ATTEMPT_CORRECTION / BINDING_CHANGED 同类——
+                    // 只有从空快照重放才能把"被撤销/被替代"的证据从历史累加里拿掉。
+                    is EvidenceCorrection -> return batchStop(
+                        projectionName,
+                        learnerId,
+                        checkpoint,
+                        ledgerHead,
+                        events,
+                        ProjectionBatchStopReason.FULL_REPLAY_REQUIRED,
+                        expected,
+                        "Evidence correction ${row.eventId} requires a full ledger replay",
+                    )
+                    is ChatEvidenceSubmitted -> PersistedIncrementalLearningEvent(
                         event = outcome,
                         canonicalFingerprint = row.canonicalFingerprint,
                         outbox = row.toRecord(),
                     )
+                    else -> null
                 }
                 else -> null
             } ?: return batchStop(
@@ -949,13 +964,21 @@ internal abstract class ProjectionTransactionDao {
             validated.record(row)
         }
         if (commit.mode == ProjectionCommitMode.INCREMENTAL &&
-            rows.any {
-                it.eventKind != EVENT_KIND_ATTEMPT && it.eventKind != EVENT_KIND_ANSWER_REVEAL
-                    && it.eventKind != EVENT_KIND_TUTOR_ANSWER_EXPOSURE
-                    && it.eventKind != EVENT_KIND_CHAT_EVIDENCE
-            }
+            (
+                rows.any {
+                    it.eventKind != EVENT_KIND_ATTEMPT && it.eventKind != EVENT_KIND_ANSWER_REVEAL
+                        && it.eventKind != EVENT_KIND_TUTOR_ANSWER_EXPOSURE
+                        && it.eventKind != EVENT_KIND_CHAT_EVIDENCE
+                } ||
+                    rows.any { row ->
+                        row.eventKind == EVENT_KIND_CHAT_EVIDENCE &&
+                            findChatEvidence(row.eventId)?.corrects_evidence_id != null
+                    }
+                )
         ) {
-            throw ProjectionCasConflictException("Incremental commit cannot cross a correction")
+            throw ProjectionCasConflictException(
+                "Incremental commit cannot cross a correction",
+            )
         }
         verifyAppliedEventWindows(commit.snapshot, commit.learnerId, validated)
 
@@ -1517,15 +1540,19 @@ internal abstract class ProjectionTransactionDao {
      * The evidence row carries the payload; the outbox row carries identity,
      * sequence and fingerprint. The model event's sequence is the outbox
      * sequence, so the recomputed fingerprint pins the pair together.
+     *
+     * PRD-02：同一张表/同一个 outbox kind 现在承载两种载荷——普通证据
+     * [ChatEvidenceSubmitted] 与定向纠正 [EvidenceCorrection]；类型由 `source_kind` 决定，
+     * 指纹按各自 kind 重算（旧行逐位不变）。
      */
     private fun resolveChatEvidence(
         row: ProjectionOutboxEntity,
         entity: LearnerChatEvidenceEntity?,
-    ): ChatEvidenceSubmitted? {
+    ): LearningLedgerEvent? {
         if (entity == null || entity.learner_id != row.learnerId) return null
-        val outcome = runCatching { entity.toChatEvidenceModel(row.outboxSequence) }.getOrNull() ?: return null
-        if (LearningLedgerFingerprint.chatEvidence(outcome) != row.canonicalFingerprint) return null
-        return outcome
+        val event = runCatching { entity.toLearningEvent(row.outboxSequence) }.getOrNull() ?: return null
+        if (LearningLedgerFingerprint.event(event) != row.canonicalFingerprint) return null
+        return event
     }
 
     /**
@@ -1609,7 +1636,7 @@ internal abstract class ProjectionTransactionDao {
         entity = findProjectionTutorExposure(row.eventId),
     )
 
-    private suspend fun readChatEvidence(row: ProjectionOutboxEntity): ChatEvidenceSubmitted? =
+    private suspend fun readChatEvidence(row: ProjectionOutboxEntity): LearningLedgerEvent? =
         resolveChatEvidence(row, findChatEvidence(row.eventId))
 
     private suspend fun readBindingChanged(row: ProjectionOutboxEntity): BindingChanged? =

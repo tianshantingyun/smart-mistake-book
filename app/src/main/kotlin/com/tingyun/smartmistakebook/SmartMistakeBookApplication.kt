@@ -50,6 +50,7 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.BatchImportRepository
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
+import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
@@ -236,6 +237,15 @@ class SmartMistakeBookApplication : Application() {
     private lateinit var database: StudyDatabasePort
     private lateinit var reviewReminderCoordinator: ReviewReminderCoordinator
 
+    /**
+     * T6/WG-05：历史配图的显式重生成必须复用初始化阶段创建的**同一个**共享 coordinator
+     * （policy/ledger/通道）。`attachedImageResolver` 是公开装配口，UI 只在 startup Ready
+     * 后读取；@Volatile 只是防御未来把初始化移出主线程。没配模型时为 null，重生成如实回
+     * 不可用。
+     */
+    @Volatile
+    private var attachedImageCoordinator: FigureGenerationCoordinator? = null
+
     private val restartReason = MutableStateFlow<String?>(null)
     internal val databaseRestartReason: StateFlow<String?> = restartReason
 
@@ -382,6 +392,7 @@ class SmartMistakeBookApplication : Application() {
                     networkRequestsAllowed = capabilities.networkRequestsAllowed,
                 )
             }
+            attachedImageCoordinator = figureGenerationCoordinator
             modelTaskRepository = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = gateway,
@@ -451,6 +462,9 @@ class SmartMistakeBookApplication : Application() {
                 // 不能再建第二个实例），这里只把读口/写口交给备份仓库。
                 schedulingSettings = schedulingSettingsStore,
                 reviewReminders = reviewReminderRepository,
+                // KD-56：恢复在关闭 Room 连接池**之前**把"请先不要操作"交给 UI；不接这条，
+                // 关库前的通知是 no-op，界面会继续撞已关闭的连接池（code 21）。
+                onRestartRequired = ::requireDatabaseRestart,
             )
             // 确认卡执行路径 ③（A4）：聊天附图 → 既有录入链路。放在批量和采集之后——它两者都用到。
             tutorAttachedImageIntake = TutorAttachedImageIntakeFactory.create(
@@ -646,12 +660,20 @@ class SmartMistakeBookApplication : Application() {
     /**
      * L7：启动一次**单题**后台导出。入队后即可离开页面——渲染归 WorkManager，成果在
      * 「导出成果」与完成通知里。
+     *
+     * PRD-04 / T4：[format] 是原生详情页在格式 sheet 里选定的交付格式（缺省 PDF = 既有
+     * 调用点行为不变）。格式必须随任务进 WorkManager——只在界面上选而不入队，学生就会
+     * 「看到选了 Word、拿到 PDF」。
      */
-    fun startMistakeExportSingle(key: MistakeRevisionKey) {
+    fun startMistakeExportSingle(
+        key: MistakeRevisionKey,
+        format: MistakeExportFormat = MistakeExportFormat.PDF,
+    ) {
         enqueueMistakeExport(
             request = MistakeExportJobRequest.Single(
                 exportId = newMistakeExportId(),
                 key = key,
+                format = format,
             ),
             kind = MistakeExportKind.SINGLE,
         )
@@ -879,6 +901,8 @@ class SmartMistakeBookApplication : Application() {
             configurationStore = modelConfigurationStore,
             networkRequestsAllowed = capabilities.networkRequestsAllowed,
             resolveCurrentSheetBytes = resolveCurrentSheetBytes,
+            // 与工具环/净化共用同一个 coordinator；null = 没有配置模型，重生成不可用。
+            coordinator = attachedImageCoordinator,
         )
 
     override fun onTerminate() {

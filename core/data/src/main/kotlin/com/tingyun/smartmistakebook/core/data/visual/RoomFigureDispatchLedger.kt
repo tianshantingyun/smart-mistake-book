@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchReservation
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchRequest as DispatchRequest
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
+import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -67,12 +68,25 @@ internal class RoomFigureDispatchLedger(
                 result.logicalDispatchCount == 0 -> RemoteModelDispatchDenialCode.PARENT_NOT_FOUND
                 else -> RemoteModelDispatchDenialCode.CONFLICT
             }
+            // KD-60：拒绝理由必须可读地说清“共享预算 + 真实已派发次数”，
+            // 不能只回一句“没有生成成功”。
+            val usableLimit = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES -
+                if (parent.reserveChatFinalAnswer) 1 else 0
+            val budgetDetail = buildString {
+                append("本逻辑操作已派发 ").append(result.logicalDispatchCount)
+                append(" 次（上限 ").append(usableLimit).append(" 次")
+                if (parent.reserveChatFinalAnswer) {
+                    append("，另为讲题终答保留 1 次")
+                }
+                append("）")
+                append("；图像生成与讲题工具轮共享同一份 durable 预算")
+            }
             return RemoteModelDispatchDecision.Denied(
                 code = code,
                 message = if (code == RemoteModelDispatchDenialCode.BUDGET_EXHAUSTED) {
-                    "逻辑操作的远程派发预算已用尽（讲题须保留终答位），未出网"
+                    "逻辑操作的远程派发预算已用尽：$budgetDetail；未出网"
                 } else {
-                    "没有可复用的持久派发记录，未出网"
+                    "没有可复用的持久派发记录：$budgetDetail；未出网"
                 },
             )
         }

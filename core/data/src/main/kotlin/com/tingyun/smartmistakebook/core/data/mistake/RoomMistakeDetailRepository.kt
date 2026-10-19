@@ -7,22 +7,34 @@ import com.tingyun.smartmistakebook.core.database.MistakeDetailRecord
 import com.tingyun.smartmistakebook.core.database.MistakeDetailSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.MistakeRevisionSummaryRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.database.port.MistakeRevisionWritePort
+import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemCommand
+import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemResult
+import com.tingyun.smartmistakebook.core.database.port.RevisedProblemRevisionRecord
 import com.tingyun.smartmistakebook.core.domain.ArchivedMistakeRef
 import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionChange
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionDiff
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionReceipt
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionSummary
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
+import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemCommand
+import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemResult
 import com.tingyun.smartmistakebook.core.domain.TutorConversationReference
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
+import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjection
 import java.net.URI
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -72,6 +84,11 @@ internal fun interface MistakeRevisionHistoryReader {
     suspend fun read(errorBookEntryId: String): List<MistakeRevisionSummaryRecord>
 }
 
+/** Narrow write seam so read-only test doubles never need a database. */
+internal fun interface MistakeRevisionWriter {
+    suspend fun revise(command: ReviseCommittedProblemCommand): ReviseCommittedProblemResult
+}
+
 internal class RoomMistakeDetailRepository(
     private val recordReader: MistakeDetailRecordReader,
     private val exactRecordReader: ExactMistakeDetailRecordReader,
@@ -89,6 +106,7 @@ internal class RoomMistakeDetailRepository(
         MistakeRestorer { _, _ -> false },
     private val archivedObserver: ArchivedObserver =
         ArchivedObserver { kotlinx.coroutines.flow.flowOf(emptyList()) },
+    private val revisionWriter: MistakeRevisionWriter? = null,
 ) : MistakeDetailRepository {
     override suspend fun archiveEntry(entryId: String, at: Long): Boolean {
         require(entryId.isNotBlank()) { "entryId must not be blank" }
@@ -123,6 +141,153 @@ internal class RoomMistakeDetailRepository(
         require(updatedAtEpochMillis >= 0) { "updatedAtEpochMillis must not be negative" }
         return favoriteWriter.write(entryId, isFavorite, updatedAtEpochMillis)
     }
+    override suspend fun reviseProblem(
+        command: ReviseMistakeProblemCommand,
+    ): ReviseMistakeProblemResult = withContext(Dispatchers.IO) {
+        val writer = revisionWriter ?: return@withContext ReviseMistakeProblemResult.NotSupported
+        val resolvedTitle = resolveRevisionTitle(command)
+            ?: return@withContext ReviseMistakeProblemResult.InvalidDocument(
+                listOf("MISSING_TITLE"),
+            )
+        if (resolvedTitle.length > MAX_REVISION_TITLE_CHARS) {
+            return@withContext ReviseMistakeProblemResult.InvalidDocument(
+                listOf("TITLE_TOO_LONG"),
+            )
+        }
+        val document = command.questionDocument.copy(
+            document = command.questionDocument.document.copy(title = resolvedTitle),
+        )
+        val issues = CapturedQuestionDocumentValidator.validateForCommit(document)
+        if (issues.isNotEmpty()) {
+            return@withContext ReviseMistakeProblemResult.InvalidDocument(
+                issues.map { issue -> "${issue.code}:${issue.blockId.orEmpty()}" },
+            )
+        }
+        val snapshot = try {
+            CapturedQuestionDocumentCodec.encode(document)
+        } catch (failure: IllegalArgumentException) {
+            return@withContext ReviseMistakeProblemResult.InvalidDocument(
+                listOf(failure.message ?: "INVALID_STRUCTURED_CONTENT"),
+            )
+        }
+        val markdown = QuestionDocumentMarkdownProjection.project(document.document)
+        if (markdown.isBlank()) {
+            return@withContext ReviseMistakeProblemResult.InvalidDocument(listOf("EMPTY_QUESTION"))
+        }
+        val fingerprint = CapturedQuestionDocumentFingerprint.of(document)
+        val sourceReference = revisionReceiptToken(
+            command = command,
+            resolvedTitle = resolvedTitle,
+            contentFingerprint = fingerprint,
+        )
+        val result = writer.revise(
+            ReviseCommittedProblemCommand(
+                commandId = command.commandId,
+                sourceReference = sourceReference,
+                entryId = command.entryId,
+                expectedRevisionId = command.expectedRevisionId,
+                expectedRevisionNumber = command.expectedRevisionNumber,
+                newRevisionId = "revision-edit-${command.commandId}",
+                title = resolvedTitle,
+                problemMarkdown = markdown,
+                questionDocumentSnapshot = snapshot,
+                contentFingerprint = fingerprint,
+                revisedAtEpochMillis = command.revisedAtEpochMillis,
+            ),
+        )
+        result.toDomainResult(resolvedTitle)
+    }
+
+    private suspend fun ReviseCommittedProblemResult.toDomainResult(
+        requestedTitle: String,
+    ): ReviseMistakeProblemResult = when (this) {
+        is ReviseCommittedProblemResult.Saved -> ReviseMistakeProblemResult.Saved(
+            receipt = record.toDomainReceipt(requestedTitle),
+            created = created,
+        )
+        is ReviseCommittedProblemResult.Unchanged -> ReviseMistakeProblemResult.Unchanged(
+            // Nothing was written: there is no before/after to report.
+            receipt = record.toDomainReceipt(requestedTitle, computeChanges = false),
+        )
+        is ReviseCommittedProblemResult.Conflict -> ReviseMistakeProblemResult.Conflict(
+            expectedRevisionId = expectedRevisionId,
+            expectedRevisionNumber = expectedRevisionNumber,
+            currentRevisionId = currentRevisionId,
+            currentRevisionNumber = currentRevisionNumber,
+            currentRevisionTitle = currentTitle,
+        )
+        is ReviseCommittedProblemResult.DuplicateCommandPayloadConflict ->
+            ReviseMistakeProblemResult.DuplicateCommandConflict(commandId)
+        ReviseCommittedProblemResult.NotFound -> ReviseMistakeProblemResult.NotFound
+    }
+
+    private suspend fun RevisedProblemRevisionRecord.toDomainReceipt(
+        requestedTitle: String,
+        computeChanges: Boolean = true,
+    ): MistakeRevisionReceipt {
+        val changes = if (computeChanges) revisionChanges(this, requestedTitle) else emptyList()
+        return MistakeRevisionReceipt(
+            entryId = entryId,
+            problemId = problemId,
+            problemRevisionId = problemRevisionId,
+            revisionNumber = revisionNumber,
+            previousRevisionId = previousRevisionId,
+            previousRevisionNumber = previousRevisionNumber,
+            title = title,
+            contentFingerprint = contentFingerprint,
+            answerSpecPresent = answerSpecPresent,
+            createdAtEpochMillis = createdAtEpochMillis,
+            changes = changes,
+            cancelledModelTaskCount = invalidation.cancelledModelTaskCount,
+            supersededCleanRedrawCount = invalidation.supersededCleanRedrawCount,
+            staleRelationCount = invalidation.staleRelationCount,
+        )
+    }
+
+    private suspend fun revisionChanges(
+        record: RevisedProblemRevisionRecord,
+        requestedTitle: String,
+    ): List<MistakeRevisionChange> {
+        val previous = readExactState(
+            MistakeRevisionKey(record.entryId, record.problemId, record.previousRevisionId),
+        ) as? MistakeDetailState.Ready
+            ?: return emptyList()
+        val next = readExactState(
+            MistakeRevisionKey(record.entryId, record.problemId, record.problemRevisionId),
+        ) as? MistakeDetailState.Ready
+            ?: return emptyList()
+        return MistakeRevisionDiff.between(
+            previousTitle = previous.detail.identity.title,
+            previousDocument = previous.questionDocument,
+            nextTitle = requestedTitle,
+            nextDocument = next.questionDocument,
+            previousHadAnswerSpec = record.previousAnswerSpecPresent,
+        )
+    }
+
+    private fun resolveRevisionTitle(command: ReviseMistakeProblemCommand): String? =
+        command.title?.trim()?.takeIf(String::isNotEmpty)
+            ?: command.questionDocument.document.title?.trim()?.takeIf(String::isNotEmpty)
+
+    private fun revisionReceiptToken(
+        command: ReviseMistakeProblemCommand,
+        resolvedTitle: String,
+        contentFingerprint: String,
+    ): String {
+        val payload = buildString {
+            append(command.entryId).append('\n')
+            append(command.expectedRevisionId).append('\n')
+            append(command.expectedRevisionNumber).append('\n')
+            append(contentFingerprint).append('\n')
+            append(resolvedTitle)
+        }
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(payload.toByteArray(StandardCharsets.UTF_8))
+            .joinToString(separator = "") { byte -> "%02x".format(byte) }
+        return "${ReviseCommittedProblemCommand.RECEIPT_PREFIX}${command.commandId}:" +
+            "${command.expectedRevisionId}:$digest"
+    }
+
     override fun observe(errorBookEntryId: String): Flow<MistakeDetailState> {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
         return flow {
@@ -200,6 +365,7 @@ internal class RoomMistakeDetailRepository(
         return MistakeDetailState.Ready(
             detail = toDetail(identity),
             questionDocument = document,
+            answerSpecPresent = answerSpecPresent,
         )
     }
 
@@ -272,6 +438,7 @@ internal class RoomMistakeDetailRepository(
 
     private companion object {
         const val MAX_BATCH_SIZE = 100
+        const val MAX_REVISION_TITLE_CHARS = 160
     }
 }
 
@@ -309,6 +476,12 @@ object MistakeDetailRepositoryFactory {
                         ArchivedMistakeRef(entryId = row.entryId, title = row.title)
                     }
                 }
+            },
+            // Production's StudyDatabasePort is also the revision-write port. A read-only
+            // deployment (or a test double) keeps the existing read behavior and reports edits
+            // as NotSupported instead of pretending they were saved.
+            revisionWriter = (database as? MistakeRevisionWritePort)?.let { port ->
+                MistakeRevisionWriter { command -> port.reviseCommittedProblem(command) }
             },
         )
     }

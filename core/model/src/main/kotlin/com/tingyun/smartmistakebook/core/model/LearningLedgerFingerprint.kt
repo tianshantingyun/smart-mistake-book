@@ -10,6 +10,8 @@ object LearningLedgerFingerprint {
     const val ATTEMPT_SCHEMA_VERSION = "learning-ledger-attempt-canonical-v3"
     /** KF-32：改绑补偿事件的规范指纹 schema 版本（载荷形状与其他 kind 不同，单独成号）。 */
     const val BINDING_CHANGE_SCHEMA_VERSION = "learning-ledger-binding-change-canonical-v1"
+    /** PRD-02：chat evidence 定向纠正/撤销的规范指纹 schema 版本（新 kind，单独成号）。 */
+    const val EVIDENCE_CORRECTION_SCHEMA_VERSION = "learning-ledger-evidence-correction-canonical-v1"
 
     fun event(event: LearningLedgerEvent): String = when (event) {
         is Attempt -> attempt(event)
@@ -17,6 +19,7 @@ object LearningLedgerFingerprint {
         is TutorAnswerExposureOutcome -> tutorAnswerExposure(event)
         is AttemptCorrection -> correction(event)
         is ChatEvidenceSubmitted -> chatEvidence(event)
+        is EvidenceCorrection -> evidenceCorrection(event)
         is BindingChanged -> bindingChanged(event)
     }
 
@@ -45,6 +48,23 @@ object LearningLedgerFingerprint {
         field("weight", event.weight.toString())
         field("eventSequence", event.eventSequence)
         field("occurredAtEpochMillis", event.occurredAtEpochMillis)
+    }
+
+    /**
+     * PRD-02 定向纠正/撤销的规范载荷。新 kind 用独立 schema 版本：既有 chat evidence 的
+     * 指纹逐位不变（历史行的 on-disk 指纹不需要重写）。
+     */
+    fun evidenceCorrection(event: EvidenceCorrection): String = digest {
+        field("eventType", "EVIDENCE_CORRECTION")
+        field("schemaVersion", EVIDENCE_CORRECTION_SCHEMA_VERSION)
+        field("correctionId", event.correctionId)
+        field("targetEvidenceId", event.targetEvidenceId)
+        field("kind", event.kind.name)
+        field("replacementDirection", event.replacementDirection.name)
+        field("replacementWeight", java.lang.Double.toHexString(event.replacementWeight))
+        field("reasonMarkdown", event.reasonMarkdown)
+        field("occurredAtEpochMillis", event.occurredAtEpochMillis)
+        field("eventSequence", event.eventSequence)
     }
 
     fun answerReveal(outcome: AnswerRevealOutcome): String = digest {

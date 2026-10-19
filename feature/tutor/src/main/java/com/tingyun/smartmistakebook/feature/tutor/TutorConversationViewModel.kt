@@ -66,6 +66,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * 智能体交互面的**对话状态唯一持有者**（C2）。
@@ -156,6 +158,28 @@ internal class TutorConversationViewModel(
     val uiState: StateFlow<TutorConversationUiState> = _uiState.asStateFlow()
 
     private var draftPersistJob: Job? = null
+
+    /**
+     * 草稿的本地编辑版本（PRD-08）：随实例状态保存，用来判断"恢复输入 / 内存里的新输入"是否
+     * 比会话行里的持久副本更近。每次草稿真的变化（输入、提交清稿、恢复覆盖）加一。
+     */
+    private var draftVersion: Long = restored.draftVersion
+
+    /** 上一次观察到的草稿：只有它变化才算一次本地编辑（其他状态变化不加版本）。 */
+    private var lastObservedDraft: String = restored.draft
+
+    /**
+     * 草稿写的**唯一串行口**（PRD-08）：输入保存与提交清稿都从这里过。
+     *
+     * 会话行没有可比较的版本列，所以 CAS 放在内存里：写之前读当前输入，写入的不是当前输入
+     * （被更晚的编辑取代）就不写；清稿时输入框已非空（清稿之后学生又写了）就不清。
+     * 串行化保证最后发起的那次写一定落在更早的写之后——迟到的旧写不能把新输入盖回去。
+     * 只覆盖草稿这两个写口，别把整个仓库包成第二套离线引擎。
+     */
+    private val draftWrites = TutorDraftWriteGate(
+        delegate = conversations,
+        currentDraft = { _uiState.value.draft },
+    )
 
     // 下面两个协作件必须在 `init` **之前**声明：`init` 里的 `viewModelScope.launch` 在
     // `Dispatchers.Main.immediate` 上会**同步**执行到它的第一个挂起点，而空会话那一帧
@@ -266,7 +290,7 @@ internal class TutorConversationViewModel(
      * 它只通过回调读写这里的状态，状态仍只有这一个持有者。
      */
     private val sendCommands = TutorLobbySendCommands(
-        conversations = conversations,
+        conversations = draftWrites,
         modelTasks = modelTasks,
         imageIntake = imageIntake,
         conversationArea = conversationArea,
@@ -543,14 +567,14 @@ internal class TutorConversationViewModel(
             val occurredAt = System.currentTimeMillis()
             runCatching {
                 if (next.isBlank()) {
-                    conversations.clearDraft(
+                    draftWrites.clearDraft(
                         ClearTutorConversationDraftCommand(
                             conversationId = conversationId,
                             occurredAtEpochMillis = occurredAt,
                         ),
                     )
                 } else {
-                    conversations.saveDraft(
+                    draftWrites.saveDraft(
                         SaveTutorConversationDraftCommand(
                             conversationId = conversationId,
                             draft = next,
@@ -797,13 +821,25 @@ internal class TutorConversationViewModel(
 
     // ---- 内部 ----
 
+    /**
+     * 从会话行补读草稿——只在**没有任何本地草稿事实**时。
+     *
+     * 会话行的副本是异步写的：进程重建时它可能比 SavedStateHandle 里的恢复输入更旧（写失败、
+     * 写到一半被杀，或学生已经继续输入）。此前这里无条件 `state.copy(draft = saved)`，一次
+     * 晚到的旧读会把学生屏幕上的新输入直接盖回去；读失败还会被当成"读到空草稿"清空输入。
+     * 现在先看本地草稿版本：恢复版本 > 0 或读的过程中发生过任何草稿变化，就丢弃这次旧读；
+     * 读失败/读不到行则保持原状。慢读期间学生开始输入也走同一条判据。
+     */
     private suspend fun reloadDraftFromConversationRow() {
+        if (draftVersion > 0L) return
         val conversationId = _uiState.value.conversationId
         if (conversationId.isBlank()) return
         val saved = runCatching {
             conversations.observeConversation(conversationId).first()
-        }.getOrNull()?.conversation?.studentDraft.orEmpty()
-        updateState { state -> state.copy(draft = saved) }
+        }.getOrNull() ?: return
+        // 读期间学生输入 / 提交清稿：这次读回的是更早的副本，不能盖掉它。
+        if (draftVersion > 0L) return
+        updateState { state -> state.copy(draft = saved.conversation.studentDraft.orEmpty()) }
     }
 
     private fun observeLiveTurn(conversationKey: String, tasks: List<ModelTaskSnapshot>) {
@@ -812,9 +848,49 @@ internal class TutorConversationViewModel(
 
     private fun updateState(transform: (TutorConversationUiState) -> TutorConversationUiState) {
         _uiState.update(transform)
+        val current = _uiState.value
+        // PRD-08：草稿的本地编辑版本跟着真正变化的草稿走；其他状态变化不推进版本。
+        if (current.draft != lastObservedDraft) {
+            lastObservedDraft = current.draft
+            draftVersion += 1L
+        }
         // B3：跨进程保留的那八件在这里统一写进 SavedStateHandle——只有一个写入点
         // （键与恢复都在 `TutorConversationSavedState` 里，与这里同一组事实）。
-        persistTutorConversationState(savedStateHandle, _uiState.value)
+        persistTutorConversationState(savedStateHandle, current, draftVersion)
+    }
+}
+
+/**
+ * 草稿写的**唯一串行口**（PRD-08）：输入保存与提交清稿都从这里过。
+ *
+ * 消灭的两个具体失败（都会让学生的字从持久副本里消失）：
+ * 1. 提交清稿的写落在新输入之后：学生按下发送后马上又打了字，清稿的事务晚到，把新输入抹掉；
+ * 2. 迟到的旧写：一次更早的保存已经在 SQL 里（取消协程撤不回它），落库时盖掉更晚的输入。
+ *
+ * 会话行没有可比较的版本列，因此 CAS 放在这里：写之前读当前输入，写的不是当前输入就不写；
+ * 清稿时输入框已非空就不清。串行化保证更晚发起的那次写照常落在更早的写之后。只包这两个写
+ * 口，不把仓库复制成第二套离线引擎。
+ */
+internal class TutorDraftWriteGate(
+    private val delegate: TutorConversationRepository,
+    private val currentDraft: () -> String,
+) : TutorConversationRepository by delegate {
+
+    private val writeLock = Mutex()
+
+    override suspend fun saveDraft(command: SaveTutorConversationDraftCommand) {
+        writeLock.withLock {
+            // 这次要写的已经不是屏幕上的输入：更晚的编辑/清稿取代了它，写它只会把旧字盖回去。
+            if (currentDraft() != command.draft) return@withLock
+            delegate.saveDraft(command)
+        }
     }
 
+    override suspend fun clearDraft(command: ClearTutorConversationDraftCommand) {
+        writeLock.withLock {
+            // 提交清稿之后学生又打了字：清的是已发出去的那句话，不许连新输入一起抹掉。
+            if (currentDraft().isNotBlank()) return@withLock
+            delegate.clearDraft(command)
+        }
+    }
 }

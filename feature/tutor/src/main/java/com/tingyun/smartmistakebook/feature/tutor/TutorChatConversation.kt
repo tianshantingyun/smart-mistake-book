@@ -14,6 +14,9 @@ import com.tingyun.smartmistakebook.core.domain.TutorContextWindow
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.model.AttachedImage
+import com.tingyun.smartmistakebook.core.model.AttachedImageResolution
+import com.tingyun.smartmistakebook.core.model.AttachedImageResolutionPort
+import com.tingyun.smartmistakebook.core.model.AttachedImageUnavailableReason
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
@@ -222,7 +225,20 @@ internal fun TutorChatExchange(
     onOpenModelSettings: () -> Unit,
     onMove: (TutorSuggestedMove) -> Unit,
     onRevealSolution: (TutorSuggestedMove) -> Unit,
+    /**
+     * 历史配图读取。生产实现同时实现 [AttachedImageResolutionPort]，因此既保留旧的
+     * `String?` 函数签名（面板/路由无需改），又能给卡片真实原因与显式重生成出口。
+     */
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
+    /**
+     * WG-05：历史配图的**显式重新生成**出口。参数是这条历史消息的模型任务 requestId ——
+     * 重生成必须绑定原消息的父操作/预算，不能用当前另一道题的操作身份。
+     * null = 不提供按钮（只读历史资产）；若 [attachedImageResolver] 实现了
+     * [AttachedImageResolutionPort]，则使用端口提供的重生成（生产路径）。
+     */
+    attachedImageRegenerator: (
+        suspend (parentRequestId: String, image: AttachedImage) -> AttachedImageResolution
+    )? = null,
     /** 学生消息附图的规范资产读取器；为 null 时不渲染气泡里的图片。 */
     studentImageIntake: LobbyMessageImageIntake? = null,
     assistantBottomModifier: Modifier = Modifier,
@@ -310,12 +326,43 @@ internal fun TutorChatExchange(
                                 }
                         }
                         attachedImageResolver?.let { resolver ->
+                            // 生产解析器同时实现 AttachedImageResolutionPort：旧函数类型
+                            // 让面板/路由无需改签名，这里做能力检测拿到真实原因与重生成；
+                            // 测试/旧装配的普通 lambda 仍走下面的兼容回退。
+                            val resolutionPort = resolver as? AttachedImageResolutionPort
                             ready.attachedImages
                                 .takeIf { it.isNotEmpty() }
                                 ?.let { images ->
                                     AttachedImagesSection(
                                         images = images,
-                                        resolve = resolver,
+                                        // WG-05：历史打开/展开/旋转只读本地资产；null 不再
+                                        // 静默——由卡片给可读原因与显式“重新生成”。
+                                        resolve = { image ->
+                                            resolutionPort?.resolve(image)
+                                                ?: resolver(image)?.let { uri ->
+                                                    AttachedImageResolution.Ready(uri)
+                                                }
+                                                ?: AttachedImageResolution.Unavailable(
+                                                    AttachedImageUnavailableReason.NOT_GENERATED,
+                                                    "这条历史消息在本机没有已生成的副本",
+                                                )
+                                        },
+                                        // 显式动作绑定**这一轮**的模型任务（原操作/预算）。
+                                        regenerate = attachedImageRegenerator?.let { regenerator ->
+                                            val action:
+                                                suspend (AttachedImage) -> AttachedImageResolution =
+                                                { image ->
+                                                    regenerator(task.request.requestId, image)
+                                                }
+                                            action
+                                        } ?: resolutionPort?.let { port ->
+                                            val action:
+                                                suspend (AttachedImage) -> AttachedImageResolution =
+                                                { image ->
+                                                    port.regenerate(task.request.requestId, image)
+                                                }
+                                            action
+                                        },
                                     )
                                 }
                         }

@@ -182,6 +182,62 @@ enum class AssessmentSnapshotVerification {
     UNVERIFIED,
 }
 
+/**
+ * 答案键**独立核验**状态（PRD-02 / 设计 §3.2）。它与"本地机械可判"是两条轴：
+ *
+ * - `VERIFIED`：键有独立支持（人工/独立流程核验）；
+ * - `USER_ASSERTED`：键由用户明确更正，来源如实保留（不是机器金标）；
+ * - `UNKNOWN`：模型生成且未独立核验、被质疑、或题面读不回——**不得**因本地
+ *   `selectedChoiceId == correctChoiceId` 比较成功而升级成已验证。
+ *
+ * `scoringMode = AUTO_VERIFIED` 只说明"对错可由本地 ID 比较确定"，不蕴含本枚举。
+ */
+enum class AnswerKeyVerification {
+    VERIFIED,
+    USER_ASSERTED,
+    UNKNOWN,
+}
+
+/**
+ * 一次写入前的键信任判定（纯函数，供写入口与用例共用）。
+ *
+ * [mayWriteNumericEvidence] = 只有键本身有独立支持（[AnswerKeyVerification.VERIFIED] /
+ * [AnswerKeyVerification.USER_ASSERTED]）且题面读得回时才为 true；未核验/争议键保留会话
+ * 反馈与真实选择，不新增数值掌握证据。
+ */
+data class AnswerKeyTrustDecision(
+    val verification: AnswerKeyVerification,
+    val mayWriteNumericEvidence: Boolean,
+    val keyVersion: String,
+) {
+    companion object {
+        /** 键版本引用缺失时的如实取值——不猜、不用题面 schema 冒充。 */
+        const val UNKNOWN_KEY_VERSION = "unknown-key-version"
+    }
+}
+
+/**
+ * 把题面快照上的 `verification_status`（`StudyDbValue.VerificationStatus` 的历史/当前落库值）
+ * 折成两轴判定。未知字符串一律按 [AnswerKeyVerification.UNKNOWN] 处理（fail-closed）。
+ */
+fun answerKeyTrustDecision(
+    verificationStatus: String?,
+    itemReadable: Boolean,
+    keyVersion: String?,
+): AnswerKeyTrustDecision {
+    val verification = when {
+        !itemReadable -> AnswerKeyVerification.UNKNOWN
+        verificationStatus == "VERIFIED" -> AnswerKeyVerification.VERIFIED
+        verificationStatus == "USER_ASSERTED" -> AnswerKeyVerification.USER_ASSERTED
+        else -> AnswerKeyVerification.UNKNOWN
+    }
+    return AnswerKeyTrustDecision(
+        verification = verification,
+        mayWriteNumericEvidence = verification != AnswerKeyVerification.UNKNOWN,
+        keyVersion = keyVersion ?: AnswerKeyTrustDecision.UNKNOWN_KEY_VERSION,
+    )
+}
+
 enum class EvidenceAttributionRole {
     PRIMARY,
     SECONDARY,
@@ -475,6 +531,76 @@ data class ChatEvidenceSubmitted(
         /** 任意方向的全局封顶。 */
         const val MAX_CHAT_EVIDENCE_WEIGHT = 0.35
     }
+}
+
+/**
+ * 定向纠正/撤销一条 chat evidence 的补偿事件（PRD-02 / 设计 §3.3）。
+ *
+ * 语义：
+ * - [EvidenceCorrectionKind.VOID]：**从有效证据集合排除**目标（不是把权重改零后继续推进）；
+ * - [EvidenceCorrectionKind.REPLACE]：目标证据的方向/权重按本次载荷重算——重放时仍挂在
+ *   **原作答的位置与时间**，不在修复日追加一笔正向；
+ * - 目标可以是一条更早的 [ChatEvidenceSubmitted]，也可以是一条更早的 `EvidenceCorrection`
+ *   （“改两次/撤销更正”）；目标必须更早出现（账本序列严格递增），因此**不可能成环**。
+ *
+ * **仅全量重放消费**（与 [AttemptCorrection]、[BindingChanged] 同类）：读批遇到它即以
+ * `FULL_REPLAY_REQUIRED` 停下，增量提交也拒绝跨过它。它不改写/删除任何历史行。
+ *
+ * 键版本 = 本事件在账本里的 `eventSequence`（账本位置即版本；不另造可漂移的版本号）。
+ */
+enum class EvidenceCorrectionKind {
+    VOID,
+    REPLACE,
+}
+
+data class EvidenceCorrection(
+    val correctionId: String,
+    val targetEvidenceId: String,
+    val kind: EvidenceCorrectionKind,
+    /** VOID 必须为 NONE；REPLACE 必须为 POSITIVE/NEGATIVE。 */
+    val replacementDirection: LearningEvidenceDirection,
+    val replacementWeight: Double,
+    val reasonMarkdown: String,
+    override val occurredAtEpochMillis: Long,
+    override val eventSequence: Long,
+) : LearningLedgerEvent {
+    init {
+        require(correctionId.isNotBlank()) { "Evidence-correction id must not be blank" }
+        require(targetEvidenceId.isNotBlank()) { "Evidence-correction target must not be blank" }
+        require(targetEvidenceId != correctionId) {
+            "An evidence correction must not target itself"
+        }
+        require(reasonMarkdown.isNotBlank()) { "Evidence-correction reason must not be blank" }
+        require(replacementWeight.isFinite()) { "Evidence-correction weight must be finite" }
+        require(occurredAtEpochMillis >= 0) { "Evidence-correction time must not be negative" }
+        require(eventSequence > 0) { "Evidence-correction sequence must be positive" }
+        when (kind) {
+            EvidenceCorrectionKind.VOID -> {
+                require(replacementDirection == LearningEvidenceDirection.NONE) {
+                    "A void correction carries no replacement direction"
+                }
+                require(replacementWeight == 0.0) {
+                    "A void correction carries no replacement weight"
+                }
+            }
+            EvidenceCorrectionKind.REPLACE -> {
+                require(replacementDirection != LearningEvidenceDirection.NONE) {
+                    "A replacement correction must carry a direction"
+                }
+                require(
+                    replacementWeight > 0.0 &&
+                        replacementWeight <= ChatEvidenceSubmitted.MAX_CHAT_EVIDENCE_WEIGHT,
+                ) { "Replacement evidence weight must be in (0, ${ChatEvidenceSubmitted.MAX_CHAT_EVIDENCE_WEIGHT}]" }
+            }
+        }
+    }
+
+    override val ledgerEventId: String
+        get() = correctionId
+
+    /** 键版本 = 账本位置（见 KDoc）。 */
+    val keyVersion: Long
+        get() = eventSequence
 }
 
 /**

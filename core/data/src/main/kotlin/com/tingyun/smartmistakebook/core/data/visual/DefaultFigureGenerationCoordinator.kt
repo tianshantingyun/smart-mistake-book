@@ -239,15 +239,8 @@ class DefaultFigureGenerationCoordinator internal constructor(
                 diagnostics = reservationDecision.message,
             )
         }
-        val dispatch = FigureImageDispatchBinding(
-            reservationId = reservation.reservationId,
-            operationId = reservation.operationId,
-            method = reservation.method,
-            purpose = reservation.purpose,
-            attemptOrdinal = reservation.attemptOrdinal,
-            sourceImageSha256 = reservation.sourceImageSha256,
-            configurationFingerprint = reservation.configurationFingerprint,
-        )
+        // KD-59：绑定只能从账本授予的预留派生（构造器 internal）。
+        val dispatch = FigureImageDispatchBinding.fromReservation(reservation)
         val imagePrompt = requireNotNull(proposal.imagePrompt) {
             "policy accepted an IMAGE_MODEL proposal without an image prompt"
         }

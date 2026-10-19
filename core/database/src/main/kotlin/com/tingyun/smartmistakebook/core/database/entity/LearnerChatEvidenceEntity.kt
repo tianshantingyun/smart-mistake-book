@@ -23,6 +23,8 @@ import androidx.room3.PrimaryKey
         Index(value = ["learner_id", "knowledge_node_id", "created_at_epoch_millis"]),
         Index(value = ["learner_id", "created_at_epoch_millis"]),
         Index(value = ["conversation_id"]),
+        // PRD-02：按目标证据定位定向纠正/撤销（迟到旧判分校验、回执与审计）。
+        Index(value = ["corrects_evidence_id"]),
     ],
 )
 data class LearnerChatEvidenceEntity(
@@ -58,8 +60,30 @@ data class LearnerChatEvidenceEntity(
      * NULL = 列引入前写入的 legacy 行，一律按全权重对待，不追溯降权。
      */
     val anchor_class: String? = null,
+    /**
+     * v68 / PRD-02：定向纠正/撤销的**明确目标**（被纠正的那条证据的 `evidence_id`）。
+     *
+     * - `source_kind = KEY_CORRECTION`（替代）或 `KEY_VOID`（撤销）时非 NULL；
+     * - 普通证据（MODEL_CHAT / KNOWLEDGE_QUIZ）为 NULL；
+     * - 指向“答案有问题”且**尚无证据**的中性预报告（rejected 观察行）为 NULL——它只是
+     *   “该键暂停计分”的请求，不冒充一笔账本更正。
+     *
+     * 原证据行一字不改：撤销/替代都由这条新行（以及它的账本事件）表达。
+     */
+    val corrects_evidence_id: String? = null,
 ) {
     /** True when this row is a rejected (observation-only, non-projected) evidence. */
     val isRejected: Boolean
         get() = rejected_reason != null
+
+    companion object {
+        /** 替代一条证据的 `source_kind`（账本事件 `EVIDENCE_CORRECTION` / REPLACE）。 */
+        const val SOURCE_KIND_KEY_CORRECTION = "KEY_CORRECTION"
+
+        /** 撤销一条证据/更正的 `source_kind`（账本事件 `EVIDENCE_CORRECTION` / VOID）。 */
+        const val SOURCE_KIND_KEY_VOID = "KEY_VOID"
+
+        fun isCorrectionSourceKind(sourceKind: String): Boolean =
+            sourceKind == SOURCE_KIND_KEY_CORRECTION || sourceKind == SOURCE_KIND_KEY_VOID
+    }
 }

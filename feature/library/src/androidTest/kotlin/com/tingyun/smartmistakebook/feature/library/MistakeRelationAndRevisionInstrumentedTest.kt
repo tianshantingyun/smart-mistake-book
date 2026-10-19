@@ -1,39 +1,54 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.domain.ArchivedMistakeRef
 import com.tingyun.smartmistakebook.core.domain.ConfirmedMistakeOrganization
 import com.tingyun.smartmistakebook.core.domain.ConfirmedProblemRelation
 import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
+import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationPreparation
 import com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionChange
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionChangeKind
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionReceipt
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionSummary
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationConfirmation
 import com.tingyun.smartmistakebook.core.domain.ProblemOrganizationSelection
+import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemCommand
+import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemResult
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
+import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ProblemRelationKind
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
+import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
+import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
+import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.WritingLayer
 import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -140,6 +155,224 @@ class MistakeRelationAndRevisionInstrumentedTest {
             .performClick()
 
         assertEquals("revision-2", selectedRevisionId)
+    }
+
+    @Test
+    fun currentRevisionOffersEdit() {
+        var editRequested = 0
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailContent(
+                    state = readyState(revisionNumber = 2, revisionId = "revision-2"),
+                    onBack = {},
+                    onExport = {},
+                    onEditRequested = { editRequested += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_detail_edit").performScrollTo().performClick()
+        assertEquals(1, editRequested)
+    }
+
+    @Test
+    fun historicalRevisionStaysReadOnlyWithoutEditEntry() {
+        var editRequested = 0
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailContent(
+                    state = readyState(revisionNumber = 1, revisionId = "revision-1"),
+                    onBack = {},
+                    onExport = {},
+                    revisionHistory = revisionHistory(),
+                    selectedRevisionId = "revision-1",
+                    onEditRequested = { editRequested += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_detail_edit").assertDoesNotExist()
+        assertEquals(0, editRequested)
+    }
+
+    @Test
+    fun detailEditEntryOpensTheEditorOnTheCurrentRevision() {
+        val repository = EditableDetailRepository(
+            state = readyState(revisionNumber = 2, revisionId = "revision-2"),
+            reviseResult = savedResult(),
+        )
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailRoute(
+                    errorBookEntryId = "entry-1",
+                    repository = repository,
+                    organizationRepository = confirmedRelationRepository(),
+                    modelTasks = NoOpModelTasks,
+                    profile = StudyProfileOverview(),
+                    catalogEntries = listOf(catalogEntry("entry-1", "problem-1", "revision-2")),
+                    onBack = {},
+                    onExport = {},
+                    onTutor = {},
+                    onOpenRelatedMistake = {},
+                    onOpenModelSettings = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_detail_edit").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_screen").assertExists()
+        composeRule.onNodeWithTag("mistake_revision_edit_title").assertExists()
+        composeRule.onNodeWithTag("mistake_revision_edit_save").assertExists()
+    }
+
+    @Test
+    fun editorShowsDiffAndSavesAgainstTheExpectedRevision() {
+        val repository = EditableDetailRepository(
+            state = readyState(revisionNumber = 2, revisionId = "revision-2"),
+            reviseResult = savedResult(),
+        )
+        var done = false
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeRevisionEditRoute(
+                    entryId = "entry-1",
+                    repository = repository,
+                    onBack = {},
+                    onDone = { done = true },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_revision_edit_title")
+            .performTextReplacement("更正后的标题")
+        composeRule.onNodeWithTag("mistake_revision_edit_diff").assertExists()
+        composeRule.onNodeWithTag("mistake_revision_edit_save").performScrollTo().performClick()
+        composeRule.waitUntil(timeoutMillis = 5_000) { repository.lastCommand != null }
+
+        val command = checkNotNull(repository.lastCommand)
+        assertEquals("revision-2", command.expectedRevisionId)
+        assertEquals(2, command.expectedRevisionNumber)
+        assertEquals("更正后的标题", command.questionDocument.document.title)
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            runCatching {
+                composeRule.onNodeWithText(
+                    "已保存第 3 版；旧版本与历史作答仍可查看。",
+                ).assertExists()
+            }.isSuccess
+        }
+        composeRule.onNodeWithTag("mistake_revision_edit_done").performScrollTo().performClick()
+        assertTrue(done)
+    }
+
+    @Test
+    fun editorConflictKeepsTheDraftAndOffersReload() {
+        val repository = EditableDetailRepository(
+            state = readyState(revisionNumber = 2, revisionId = "revision-2"),
+            reviseResult = ReviseMistakeProblemResult.Conflict(
+                expectedRevisionId = "revision-2",
+                expectedRevisionNumber = 2,
+                currentRevisionId = "revision-3",
+                currentRevisionNumber = 3,
+                currentRevisionTitle = "别处更新后的题",
+            ),
+        )
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeRevisionEditRoute(
+                    entryId = "entry-1",
+                    repository = repository,
+                    onBack = {},
+                    onDone = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_revision_edit_title")
+            .performTextReplacement("我的未保存草稿")
+        composeRule.onNodeWithTag("mistake_revision_edit_save").performScrollTo().performClick()
+        composeRule.waitUntil(timeoutMillis = 5_000) { repository.lastCommand != null }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("mistake_revision_edit_conflict").assertExists()
+        composeRule.onNodeWithTag("mistake_revision_edit_reload").assertExists()
+        composeRule.onNodeWithTag("mistake_revision_edit_title")
+            .assertTextContains("我的未保存草稿")
+    }
+
+    private fun savedResult(): ReviseMistakeProblemResult.Saved {
+        val edited = CapturedQuestionDocument(
+            document = QuestionDocument(
+                id = "question-revision-3",
+                title = "更正后的标题",
+                blocks = listOf(ContentBlock.Paragraph("stem", "更正后的题干。")),
+            ),
+            blockEvidence = listOf(
+                QuestionBlockEvidence(
+                    blockId = "stem",
+                    sourceAssetId = "",
+                    sourceRegion = null,
+                    writingLayer = WritingLayer.UNKNOWN,
+                    provenance = QuestionBlockProvenance.USER_TRANSCRIPTION,
+                    confidence = null,
+                    reviewStatus = QuestionBlockReviewStatus.USER_CONFIRMED,
+                    producerVersion = null,
+                ),
+            ),
+        )
+        return ReviseMistakeProblemResult.Saved(
+            receipt = MistakeRevisionReceipt(
+                entryId = "entry-1",
+                problemId = "problem-1",
+                problemRevisionId = "revision-3",
+                revisionNumber = 3,
+                previousRevisionId = "revision-2",
+                previousRevisionNumber = 2,
+                title = "更正后的标题",
+                contentFingerprint = CapturedQuestionDocumentFingerprint.of(edited),
+                createdAtEpochMillis = 3_000,
+                changes = listOf(
+                    MistakeRevisionChange(
+                        kind = MistakeRevisionChangeKind.TITLE,
+                        label = "标题",
+                        before = "函数最值（第 2 版）",
+                        after = "更正后的标题",
+                    ),
+                ),
+            ),
+            created = true,
+        )
+    }
+
+    private inner class EditableDetailRepository(
+        private val state: MistakeDetailState.Ready,
+        private val reviseResult: ReviseMistakeProblemResult,
+    ) : MistakeDetailRepository {
+        var lastCommand: ReviseMistakeProblemCommand? = null
+
+        override fun observe(errorBookEntryId: String): Flow<MistakeDetailState> = flowOf(state)
+        override fun observeExact(key: MistakeRevisionKey): Flow<MistakeDetailState> = flowOf(state)
+        override suspend fun readExact(key: MistakeRevisionKey): MistakeDetailState = state
+        override fun observeRevisionHistory(
+            errorBookEntryId: String,
+        ): Flow<List<MistakeRevisionSummary>> = flowOf(revisionHistory())
+        override suspend fun updateUserNote(
+            entryId: String,
+            note: String?,
+            updatedAtEpochMillis: Long,
+        ): Boolean = true
+        override suspend fun setFavorite(
+            entryId: String,
+            isFavorite: Boolean,
+            updatedAtEpochMillis: Long,
+        ): Boolean = true
+        override suspend fun archiveEntry(entryId: String, at: Long): Boolean = true
+        override suspend fun restoreEntry(entryId: String, at: Long): Boolean = true
+        override fun observeArchived(): Flow<List<ArchivedMistakeRef>> = flowOf(emptyList())
+        override suspend fun reviseProblem(
+            command: ReviseMistakeProblemCommand,
+        ): ReviseMistakeProblemResult {
+            lastCommand = command
+            return reviseResult
+        }
     }
 
     private fun confirmedRelationRepository(): MistakeOrganizationRepository =

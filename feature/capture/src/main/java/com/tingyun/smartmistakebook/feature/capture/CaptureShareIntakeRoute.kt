@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.capture
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,8 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +40,8 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * A7（4C）：系统分享的录入入口。
@@ -44,8 +50,17 @@ import kotlinx.coroutines.CancellationException
  * 如实摆出来（重试 / 去手动录入 / 关闭）。失败时的"原文件还在"为真：接收过程中的所有
  * 临时字节都在自有缓存里，且失败路径会删掉预拷件；学生的原文件从未被移动或改写。
  *
- * `request == null` 是前台恢复后的形态：分享 intent 里的临时授权随进程消失，无法再读，
- * 因此直接说"已经失效，请重新分享"，而不是留在一个永远转圈的进度条上。
+ * **"再试一次"为什么能成功（KD-57）**：接收失败不撤销读授权；只有成功（字节已落到自有
+ * 缓存/既有管线）或用户明确放弃（手动录入 / 关闭 / 返回）时才释放。可重试失败留在原地，
+ * 再试一次读的是同一批仍被授权的 URI。
+ *
+ * **Expired 是派生值**：`request == null` 只是其中一种来源。授权在读取时被收回
+ * （[CaptureShareRejection.AUTHORIZATION_EXPIRED]）或超过接收窗口
+ * （[CAPTURE_SHARE_AUTHORIZATION_TIMEOUT_MILLIS]）都会翻成 Expired；收下分享的时刻
+ * 跟着 `rememberSaveable` 走，所以进程重建恢复出来的非空请求不会变成永不过期。
+ *
+ * [clock] / [authorizationTimeoutMillis] 是仪器化用例的时钟缝：超时是十分钟级别的行为，
+ * 不注入时钟就只能在测试里真等十分钟，或者根本测不到 Expired。
  */
 @Composable
 fun CaptureShareIntakeRoute(
@@ -56,21 +71,65 @@ fun CaptureShareIntakeRoute(
     onManualEntry: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    authorizationTimeoutMillis: Long = CAPTURE_SHARE_AUTHORIZATION_TIMEOUT_MILLIS,
+    clock: () -> Long = { System.currentTimeMillis() },
 ) {
     val context = LocalContext.current
     val intake = remember(context, batchImports) {
         CaptureShareIntake(context = context.applicationContext, batchImports = batchImports)
     }
     var retryNonce by remember(request?.requestId) { mutableIntStateOf(0) }
-    var state by remember(request?.requestId) {
-        mutableStateOf<CaptureShareRouteState>(
-            if (request == null) CaptureShareRouteState.Expired else CaptureShareRouteState.Working,
+    var attempt by remember(request?.requestId) {
+        mutableStateOf<CaptureShareRouteState>(CaptureShareRouteState.Working)
+    }
+    // 收下分享的时刻必须跟着 Saver 走：进程重建后按时钟继续过期，而不是"恢复即永久可读"。
+    var authorizedAtEpochMillis by rememberSaveable(request?.requestId) {
+        mutableStateOf(clock())
+    }
+    // "现在"刻意不保存：恢复后必须用当前时钟重算，否则旧时间跟着回来就永不过期。
+    var nowEpochMillis by remember(request?.requestId) { mutableLongStateOf(clock()) }
+    // 读取时授权被拒（intake 返回 AUTHORIZATION_EXPIRED）：由授权有效性派生的 Expired。
+    // 跟着 Saver 走：旋转/重建后仍是 Expired，不再对同一批失效 URI 重读一次。
+    var expiredByResult by rememberSaveable(request?.requestId) { mutableStateOf(false) }
+    val expired = request == null ||
+        expiredByResult ||
+        captureShareAuthorizationExpired(
+            nowEpochMillis = nowEpochMillis,
+            authorizedAtEpochMillis = authorizedAtEpochMillis,
+            timeoutMillis = authorizationTimeoutMillis,
         )
+    val routeState: CaptureShareRouteState = if (expired) {
+        CaptureShareRouteState.Expired
+    } else {
+        attempt
+    }
+
+    // 到 deadline 主动翻成过期：失败卡上的"再试一次"不能在窗口结束后继续可点。
+    LaunchedEffect(request?.requestId, authorizedAtEpochMillis, authorizationTimeoutMillis) {
+        if (request == null) return@LaunchedEffect
+        while (true) {
+            val now = clock()
+            nowEpochMillis = now
+            val remaining = authorizedAtEpochMillis + authorizationTimeoutMillis - now
+            if (remaining <= 0L) break
+            delay(remaining)
+        }
     }
 
     LaunchedEffect(request?.requestId, retryNonce) {
         val pending = request ?: return@LaunchedEffect
-        state = CaptureShareRouteState.Working
+        val attemptAt = clock()
+        nowEpochMillis = attemptAt
+        if (
+            captureShareAuthorizationExpired(
+                nowEpochMillis = attemptAt,
+                authorizedAtEpochMillis = authorizedAtEpochMillis,
+                timeoutMillis = authorizationTimeoutMillis,
+            )
+        ) {
+            return@LaunchedEffect
+        }
+        attempt = CaptureShareRouteState.Working
         // 外部输入不吃掉整进程：任何未归类的异常都要变成一条如实的、可重试的失败。
         val result = try {
             intake.intake(pending)
@@ -87,25 +146,50 @@ fun CaptureShareIntakeRoute(
             is CaptureShareResult.ImageBatch -> onImportStarted()
             is CaptureShareResult.Pdf -> onImportStarted()
             is CaptureShareResult.Rejected -> {
-                state = CaptureShareRouteState.Failed(
-                    reason = result.reason,
-                    message = result.message,
-                )
+                if (result.reason == CaptureShareRejection.AUTHORIZATION_EXPIRED) {
+                    expiredByResult = true
+                } else {
+                    attempt = CaptureShareRouteState.Failed(
+                        reason = result.reason,
+                        message = result.message,
+                    )
+                }
             }
         }
     }
 
+    // 明确放弃（手动录入 / 关闭 / 返回）才释放仍握着的授权；成功路径由 intake 负责。
+    // 撤销是 Binder 调用：放到 IO 上做，导航/清空 pending 仍回主线程，不阻塞输入。
+    val abandonScope = rememberCoroutineScope()
+    val abandonShare: (() -> Unit) -> Unit = { next ->
+        val pending = request
+        if (pending == null) {
+            next()
+        } else {
+            abandonScope.launch {
+                try {
+                    intake.releaseReadGrants(pending)
+                } finally {
+                    next()
+                }
+            }
+        }
+    }
+    // 系统返回键由 NavHost 直接 pop 的话不会走 abandonShare：外部 URI 读授权会一直留着，
+    // Root 的 pendingSharedCapture 也不清空。这里接管返回，与页头返回/关闭同一出口。
+    BackHandler { abandonShare(onDismiss) }
+
     RootPageColumn(
         modifier = modifier.testTag("share_intake_root"),
     ) {
-        CaptureShareHeader(onBack = onDismiss)
+        CaptureShareHeader(onBack = { abandonShare(onDismiss) })
         Text(
             text = "从其他应用分享进来的图片或 PDF 会直接进入录入。",
             color = SmartColors.InkSecondary,
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(Modifier.height(14.dp))
-        when (val current = state) {
+        when (val current = routeState) {
             CaptureShareRouteState.Working -> {
                 Text(
                     text = "正在接收分享的文件…",
@@ -130,18 +214,28 @@ fun CaptureShareIntakeRoute(
                 message = CAPTURE_SHARE_EXPIRED_MESSAGE,
                 retryable = false,
                 onRetry = {},
-                onManualEntry = onManualEntry,
-                onDismiss = onDismiss,
+                onManualEntry = { abandonShare(onManualEntry) },
+                onDismiss = { abandonShare(onDismiss) },
             )
             is CaptureShareRouteState.Failed -> CaptureShareFailureCard(
                 message = current.message,
                 retryable = captureShareRejectionIsRetryable(current.reason),
                 onRetry = {
-                    state = CaptureShareRouteState.Working
-                    retryNonce += 1
+                    val retryAt = clock()
+                    nowEpochMillis = retryAt
+                    if (
+                        !captureShareAuthorizationExpired(
+                            nowEpochMillis = retryAt,
+                            authorizedAtEpochMillis = authorizedAtEpochMillis,
+                            timeoutMillis = authorizationTimeoutMillis,
+                        )
+                    ) {
+                        attempt = CaptureShareRouteState.Working
+                        retryNonce += 1
+                    }
                 },
-                onManualEntry = onManualEntry,
-                onDismiss = onDismiss,
+                onManualEntry = { abandonShare(onManualEntry) },
+                onDismiss = { abandonShare(onDismiss) },
             )
         }
     }
@@ -157,9 +251,6 @@ private sealed interface CaptureShareRouteState {
         val message: String,
     ) : CaptureShareRouteState
 }
-
-internal const val CAPTURE_SHARE_EXPIRED_MESSAGE =
-    "这次分享的内容已经失效，请从系统里重新分享一次。"
 
 @Composable
 private fun CaptureShareFailureCard(

@@ -19,6 +19,7 @@ import com.tingyun.smartmistakebook.core.model.Attempt
 import com.tingyun.smartmistakebook.core.model.AttemptCorrection
 import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
 import com.tingyun.smartmistakebook.core.model.KnowledgeEvidenceAttribution
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshotFreshness
@@ -296,6 +297,7 @@ internal class StudyProjectionDrainer(
                 is TutorAnswerExposureOutcome -> event.practiceUnitId
                 is AttemptCorrection -> null
                 is ChatEvidenceSubmitted -> null
+                is EvidenceCorrection -> null
                 is BindingChanged -> null
             }
         }.distinct()
@@ -307,6 +309,7 @@ internal class StudyProjectionDrainer(
                 is TutorAnswerExposureOutcome -> null
                 is AttemptCorrection -> null
                 is ChatEvidenceSubmitted -> null
+                is EvidenceCorrection -> null
                 is BindingChanged -> null
             }
         }
@@ -399,6 +402,9 @@ internal class StudyProjectionDrainer(
                 is com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome -> EVENT_KIND_ANSWER_REVEAL
                 is TutorAnswerExposureOutcome -> EVENT_KIND_TUTOR_ANSWER_EXPOSURE
                 is ChatEvidenceSubmitted -> EVENT_KIND_CHAT_EVIDENCE
+                // PRD-02：定向纠正与普通 chat evidence 共用 outbox kind，读边界按载荷类型
+                // 强制全量重放；回执也必须逐字对回 outbox 行。
+                is EvidenceCorrection -> EVENT_KIND_CHAT_EVIDENCE
                 is BindingChanged -> EVENT_KIND_BINDING_CHANGED
             },
             eventId = event.ledgerEventId,

@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -457,6 +458,141 @@ class FullMigrationMatrixInstrumentedTest {
      * 往导出的 65.json 建出来的库里写：一行真实 problem/revision + 一行分类绑定 + 一行分类候选
      * （都是 v65 形态，带 KF-30/K5-B 的真值列）。显式关外键只用于少写父行占位——这里父行齐备。
      */
+    /**
+     * PRD-02 / KD-43（v67→68）：`learner_chat_evidence` 增加 `corrects_evidence_id` + 索引。
+     *
+     * 用真库、真驱动实测：
+     * 1. 旧证据行**一字不改**（方向/权重/理由/来源/锚定等级原样），新列读回 NULL；
+     * 2. 新列与索引按迁移建出来（列名与 68.json 逐字一致）；
+     * 3. 迁移后可以插入一条指向旧行的定向更正（`corrects_evidence_id` 非空）；
+     * 4. 再开一次（迁移已是 no-op）形态与行不变——迁移幂等。
+     */
+    @Test
+    fun chatEvidenceCorrectionTargetIsAddedToV67RowsWithoutRewritingThem() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave15-answer-key-correction-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 67)
+            seedV67ChatEvidenceRow(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v67 库迁到 68",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV68AnswerKeyShape(context, databaseName)
+
+            val reopened = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(STUDY_DATABASE_VERSION, reopened.readDatabaseVersion())
+            reopened.close()
+            inspectV68AnswerKeyShape(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    private fun seedV67ChatEvidenceRow(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL(
+                """
+                INSERT INTO `learner_chat_evidence` (
+                    `evidence_id`, `learner_id`, `conversation_id`, `knowledge_node_id`,
+                    `direction`, `weight`, `reason_markdown`, `confidence`, `source_kind`,
+                    `created_at_epoch_millis`, `rejected_reason`, `rejected_at_epoch_millis`,
+                    `anchor_class`
+                ) VALUES (
+                    '$V67_EVIDENCE_ID', 'learner-1', 'knowledge-quiz-review:1700000000000',
+                    'kc-monotonicity', 'NEGATIVE', 0.35, 'v67 旧证据', 1.0, 'KNOWLEDGE_QUIZ',
+                    1700000000000, NULL, NULL, 'CONFIRMED'
+                )
+                """.trimIndent(),
+            )
+        } finally {
+            connection.close()
+        }
+    }
+
+    private fun inspectV68AnswerKeyShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertTrue(
+                "迁移必须把 corrects_evidence_id 追加到 learner_chat_evidence",
+                "corrects_evidence_id" in columnNames(connection, "learner_chat_evidence"),
+            )
+            val indexStatement = connection.prepare(
+                "SELECT name FROM sqlite_master WHERE type = 'index' " +
+                    "AND tbl_name = 'learner_chat_evidence'",
+            )
+            val indexNames = mutableSetOf<String>()
+            try {
+                while (indexStatement.step()) indexNames += indexStatement.getText(0)!!
+            } finally {
+                indexStatement.close()
+            }
+            assertTrue(
+                "corrects_evidence_id 索引必须随迁移建出来",
+                "index_learner_chat_evidence_corrects_evidence_id" in indexNames,
+            )
+
+            val oldRow = connection.prepare(
+                "SELECT `direction`, `weight`, `reason_markdown`, `source_kind`, `anchor_class`, " +
+                    "`corrects_evidence_id` FROM `learner_chat_evidence` " +
+                    "WHERE `evidence_id` = '$V67_EVIDENCE_ID'",
+            )
+            try {
+                assertTrue("旧证据行必须一行不丢", oldRow.step())
+                assertEquals("方向原样", "NEGATIVE", oldRow.getText(0))
+                assertEquals("权重原样", 0.35, oldRow.getDouble(1), 0.0)
+                assertEquals("理由原样", "v67 旧证据", oldRow.getText(2))
+                assertEquals("来源原样", "KNOWLEDGE_QUIZ", oldRow.getText(3))
+                assertEquals("锚定等级原样", "CONFIRMED", oldRow.getText(4))
+                assertTrue(
+                    "旧行不是一条纠正：新列必须是 NULL（不编造历史目标）",
+                    oldRow.isNull(5),
+                )
+                assertFalse("旧行只有这一条", oldRow.step())
+            } finally {
+                oldRow.close()
+            }
+
+            connection.execSQL(
+                """
+                INSERT INTO `learner_chat_evidence` (
+                    `evidence_id`, `learner_id`, `conversation_id`, `knowledge_node_id`,
+                    `direction`, `weight`, `reason_markdown`, `confidence`, `source_kind`,
+                    `created_at_epoch_millis`, `rejected_reason`, `rejected_at_epoch_millis`,
+                    `anchor_class`, `corrects_evidence_id`
+                ) VALUES (
+                    'key-correction:v68:target', 'learner-1',
+                    'knowledge-quiz-review:1700000000000', 'kc-monotonicity', 'POSITIVE', 0.15,
+                    '答案键更正', 1.0, 'KEY_CORRECTION', 1700000001000, NULL, NULL, NULL,
+                    '$V67_EVIDENCE_ID'
+                )
+                """.trimIndent(),
+            )
+            val correction = connection.prepare(
+                "SELECT `corrects_evidence_id` FROM `learner_chat_evidence` " +
+                    "WHERE `evidence_id` = 'key-correction:v68:target'",
+            )
+            try {
+                assertTrue("迁移后的表必须能承载定向更正", correction.step())
+                assertEquals(V67_EVIDENCE_ID, correction.getText(0))
+            } finally {
+                correction.close()
+            }
+            connection.execSQL(
+                "DELETE FROM `learner_chat_evidence` WHERE `evidence_id` = 'key-correction:v68:target'",
+            )
+        } finally {
+            connection.close()
+        }
+    }
+
     private fun seedV65ClassificationRows(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
         try {
@@ -1647,6 +1783,9 @@ class FullMigrationMatrixInstrumentedTest {
         const val CLEAN_REDRAW_REVISION_ID = "revision-wave13"
         const val CLEAN_REDRAW_BINDING_ID = "classification-wave13"
         const val CLEAN_REDRAW_CANDIDATE_ID = "classification-candidate-wave13"
+
+        /** PRD-02（v67→68）：迁移前的一条旧证据行。 */
+        const val V67_EVIDENCE_ID = "knowledge-quiz:v67-old-evidence:kc-monotonicity"
 
         /** v59→60（L2 标题单源）用例：两列分叉的夹具值。 */
         const val TITLE_PROBLEM_ID = "problem-wave7"

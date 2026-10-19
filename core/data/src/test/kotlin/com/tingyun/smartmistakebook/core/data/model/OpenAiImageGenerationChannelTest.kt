@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.domain.FigureDispatchBindingTestFactory
 import com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding
 import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
@@ -14,6 +15,7 @@ import org.junit.Before
 import org.junit.Test
 import java.util.Base64
 
+@OptIn(FigureDispatchBindingTestFactory::class)
 class OpenAiImageGenerationChannelTest {
 
     private lateinit var server: MockWebServer
@@ -69,9 +71,10 @@ class OpenAiImageGenerationChannelTest {
         assertEquals(0, server.requestCount)
     }
 
+    @Suppress("DEPRECATION_ERROR")
     @Test
     fun `refuses to post without a granted dispatch`() = runBlocking {
-        // 旧的无预留入口是 fail-closed 的：绕过 coordinator 的调用不得产生 HTTP。
+        // 旧的无预留入口是 fail-closed 的（KD-59：ERROR 级弃用）；绕过 coordinator 的调用不得产生 HTTP。
         val legacy = runCatching {
             channel.generate(ImageGenerationRequest(prompt = "画一条数轴"))
         }
@@ -240,7 +243,7 @@ class OpenAiImageGenerationChannelTest {
 
     /** 一份与当前通道配置/源图绑定的**已授予**预留上下文（测试替身，不经过网络）。 */
     private fun dispatchFor(source: ByteArray?): FigureImageDispatchBinding =
-        FigureImageDispatchBinding(
+        FigureImageDispatchBinding.forTest(
             reservationId = "test-reservation",
             operationId = "test-operation",
             method = FigureGenerationMethod.IMAGE_MODEL,

@@ -50,6 +50,15 @@ class KnowledgeQuizEvidenceAuditInstrumentedTest {
             )
             assertEquals("落库并回读的是同一道题", item, canonical)
 
+            // PRD-02：模型生成题面默认 UNKNOWN（本地可判 ≠ 键已核验）。本用例测的是
+            // 证据行↔题面快照的配对，不是键信任门；把这一行显式标成独立核验，
+            // 让作答走既有 accepted 路径。
+            val snapshotId = knowledgeQuizItemSnapshotId(LEARNER_ID, SESSION_ID, NODE_ID)
+            val storedSnapshot = requireNotNull(database.findAssessmentItemSnapshot(snapshotId))
+            database.overwriteAssessmentItemSnapshot(
+                storedSnapshot.copy(verificationStatus = "VERIFIED"),
+            )
+
             // 提交身份与写入标识都照 feature 层形态（KnowledgeReviewSessionViewModel）：
             // 这两条字符串是审计口解析的输入，形态变了这条用例当场红。
             val requestId = "knowledge-quiz:review:$SESSION_ID:${item.id}:A"

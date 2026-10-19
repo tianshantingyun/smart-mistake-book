@@ -21,7 +21,7 @@ import java.io.File
  * 3. **指纹列合并**（W0-2）：`review_plan` 的 `input_fingerprint` 在 53.json 里存在、在 54.json 里不存在；
  *    迁移的 INSERT..SELECT **逐列覆盖新表的每一列**（非破坏 = 旧行照搬，而不是"重建后只剩默认值"）。
  *
- * 阶段 4A 批 1 追加一层：**当前 schema 头的一致性**（版本常量 == 导出的最高版本 JSON == 66），
+ * 阶段 4A 批 1 追加一层：**当前 schema 头的一致性**（版本常量 == 导出的最高版本 JSON == 68），
  * 把"版本提了但 schema 没导出"从仪器化矩阵提前到 JVM 上炸。
  *
  * 与仪器测试的分工：这里管"DDL 与 schema 文件一致 + 语句形状"，
@@ -44,10 +44,51 @@ class KernelWave0SchemaContractTest {
         assertEquals(
             "阶段 3C 后半批 2（S18 目录记忆态连接索引）的 schema 头是 63；KF-30（分类接受置信度列）" +
                 "把当前 schema 头推到 64；K5-B（分类候选集，含被拒候选）推到 65；" +
-                "AUD-09（净化作业台账 clean_redraw_task）推到 66——" +
+                "AUD-09（净化作业台账 clean_redraw_task）推到 66；" +
+                "C11/A8（条目收藏列 + 手动草稿空源资产）推到 67；" +
+                "PRD-02/KD-43（答案解析纠正目标列）推到 68——" +
                 "下一次 bump 请同步本字面量",
-            66,
+            68,
             STUDY_DATABASE_VERSION,
+        )
+    }
+
+    /**
+     * PRD-02 / KD-43（v67→68）：`learner_chat_evidence` 增加**明确目标**列 + 索引；67 里没有。
+     * 非破坏新增：旧行读回 NULL（不是一条纠正），迁移只加列/索引、不改写任何历史行。
+     */
+    @Test
+    fun `the chat evidence correction target column is added only in 68`() {
+        val v67 = exportedTable("learner_chat_evidence", version = 67)
+        val v68 = exportedTable("learner_chat_evidence", version = 68)
+
+        assertTrue(
+            "67 里不得有 corrects_evidence_id（否则这条迁移没有意义）",
+            "corrects_evidence_id" !in columnShape(v67.createSql),
+        )
+        assertTrue(
+            "68 里必须有 corrects_evidence_id",
+            "corrects_evidence_id" in columnShape(v68.createSql),
+        )
+        assertEquals(
+            "只追加一列，其余列一列不许少",
+            v67.fields.map { it.fieldPath } + "corrects_evidence_id",
+            v68.fields.map { it.fieldPath },
+        )
+        assertTrue(
+            "索引必须随迁移建出来（迟到旧判分/回执按目标定位）",
+            v68.indices.any { it.createSql.contains("corrects_evidence_id") },
+        )
+        assertTrue(
+            "迁移 DDL 与导出 schema 的列名/表名逐字一致",
+            LEARNER_CHAT_EVIDENCE_CORRECTS_DDL_67_68.contains("`learner_chat_evidence`") &&
+                LEARNER_CHAT_EVIDENCE_CORRECTS_DDL_67_68.contains("`corrects_evidence_id`"),
+        )
+        assertTrue(
+            "迁移必须建出与 68.json 同名的索引",
+            LEARNER_CHAT_EVIDENCE_CORRECTS_INDEX_DDL_67_68.contains(
+                "index_learner_chat_evidence_corrects_evidence_id",
+            ),
         )
     }
 
@@ -254,9 +295,11 @@ class KernelWave0SchemaContractTest {
          * 2026-10-02（3B 批次 B4/KF-32）：同步 `projector-v12` / `attribution-v4` / `ledger-v3`。
          * 2026-10-09（K1 批 2）：同步 `projector-v13` / `attribution-v5`（空绑定重放改挂 pseudo，
          * 台账 §3.19）——版本钉用例的职责就是随 bump 同步，不是放宽断言。
+         * 2026-10-19（批次 15 T2/PRD-02）：同步 `projector-v14` / `evidence-v6` / `ledger-v4`
+         * （chat evidence 定向纠正/撤销进入重放，台账 §3.25）。
          */
         const val CURRENT_PROJECTOR_VERSION =
-            "learning-core-v13(projector-v13,evidence-v5,curve-v3,skip-v4,attribution-v5,ledger-v3)"
+            "learning-core-v14(projector-v14,evidence-v6,curve-v3,skip-v4,attribution-v5,ledger-v4)"
 
         val json = Json { ignoreUnknownKeys = true }
         /** 只认真正的列定义（反引号列名 + 类型），不认 PRIMARY KEY / FOREIGN KEY 子句里的列名。 */
@@ -277,7 +320,14 @@ private data class Wave0SchemaDatabase(
 private data class Wave0SchemaEntity(
     @SerialName("tableName") val tableName: String,
     @SerialName("createSql") val createSql: String,
+    @SerialName("fields") val fields: List<Wave0SchemaField> = emptyList(),
     @SerialName("indices") val indices: List<Wave0SchemaIndex> = emptyList(),
+)
+
+@Serializable
+private data class Wave0SchemaField(
+    @SerialName("fieldPath") val fieldPath: String,
+    @SerialName("columnName") val columnName: String,
 )
 
 @Serializable

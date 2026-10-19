@@ -13,6 +13,7 @@ import java.io.InputStream
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -34,14 +35,19 @@ import kotlinx.coroutines.withContext
  *   `createPdfImport` 的私有 staging + `PdfRenderer` 里；预拷只会让同样的字节多落一次盘。
  *
  * 所有失败都返回带原因的 [CaptureShareResult.Rejected]：入口会把原因如实显示出来，
- * 不把"这份文件没读出来"和"这次没保存成功"混成一句泛化错误。
+ * 不把"这份文件没读出来"和"这次没保存成功"混成一句泛化错误。读授权被收回
+ * （[CaptureShareRejection.AUTHORIZATION_EXPIRED]）也与前两者分开。
+ *
+ * **授权的生命周期**（KD-57）：失败路径不撤销读授权，可重试失败才能真的"再试一次"；
+ * 只有成功（字节已落到自有缓存/既有管线）才撤，或调用方在用户明确放弃时调
+ * [releaseReadGrants]。
  */
 class CaptureShareIntake(
     private val context: Context,
     private val batchImports: BatchImportRepository,
 ) {
-    suspend fun intake(request: CaptureShareRequest): CaptureShareResult =
-        withContext(Dispatchers.IO) {
+    suspend fun intake(request: CaptureShareRequest): CaptureShareResult {
+        val result = withContext(Dispatchers.IO) {
             try {
                 when (
                     val plan = planCaptureShare(
@@ -54,10 +60,34 @@ class CaptureShareIntake(
                     is CaptureSharePlan.Pdf -> importPdf(plan.uri)
                     is CaptureSharePlan.Images -> importImages(plan.uris)
                 }
-            } finally {
-                request.uris.forEach(::revokeReadGrant)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: SecurityException) {
+                // 授权随进程消失/被系统收回：文件本身没问题，重试同一 URI 也不会成功。
+                rejected(CaptureShareRejection.AUTHORIZATION_EXPIRED)
             }
         }
+        // 只在成功时撤销：失败可能是瞬时的，"再试一次"还要读同一批 URI。
+        if (result !is CaptureShareResult.Rejected) {
+            // 与读取保持同一条线程纪律：Binder 撤销不占主线程。NonCancellable 保证
+            // "已经成功"之后即便接收页被取消，也把授权收掉，不把成功路径变成泄漏。
+            withContext(NonCancellable + Dispatchers.IO) { releaseReadGrants(request) }
+        }
+        return result
+    }
+
+    /**
+     * 用户明确放弃这次分享（手动录入 / 关闭 / 返回）时释放读授权。
+     *
+     * 失败路径刻意不撤授权：撤回是 KD-57 里"再试一次必然失败"的根因。
+     * `revokeUriPermission` 是 Binder 调用，必须与读取/成功路径同一条 IO 线程纪律，
+     * 不能占主线程；`NonCancellable` 保证用户已经离开页面时撤销仍会完成。
+     */
+    suspend fun releaseReadGrants(request: CaptureShareRequest) {
+        withContext(NonCancellable + Dispatchers.IO) {
+            request.uris.forEach(::revokeReadGrant)
+        }
+    }
 
     /**
      * 多张图片 → 既有整卷管线。预拷到自有缓存后把自有 URI 交给批量仓库（它要求 content
@@ -139,21 +169,33 @@ class CaptureShareIntake(
     }
 
     private fun captureShareKindFor(uri: String, declaredMimeType: String?): CaptureShareKind? {
-        val resolved = runCatching {
+        // SecurityException 不吞：那是"授权没了"，不是"类型未知"。
+        val resolved = try {
             context.contentResolver.getType(Uri.parse(uri))
-        }.getOrNull()
+        } catch (authorizationLost: SecurityException) {
+            throw authorizationLost
+        } catch (_: Exception) {
+            null
+        }
         // 解析类型优先；部分 provider 对任何文件都报 application/octet-stream，此时退到
         // 发送方声明的类型，再由图片魔数 / PDF 文件头做二次确认。
         return captureShareKindOf(resolved) ?: captureShareKindOf(declaredMimeType)
     }
 
-    private fun sourceByteSize(uri: String): Long? = runCatching {
-        context.contentResolver
-            .query(Uri.parse(uri), arrayOf(OpenableColumns.SIZE), null, null, null)
-            ?.use { cursor ->
-                if (cursor.moveToFirst() && !cursor.isNull(0)) cursor.getLong(0) else null
-            }
-    }.getOrNull()?.takeIf { size -> size >= 0L }
+    private fun sourceByteSize(uri: String): Long? {
+        val size = try {
+            context.contentResolver
+                .query(Uri.parse(uri), arrayOf(OpenableColumns.SIZE), null, null, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst() && !cursor.isNull(0)) cursor.getLong(0) else null
+                }
+        } catch (authorizationLost: SecurityException) {
+            throw authorizationLost
+        } catch (_: Exception) {
+            null
+        }
+        return size?.takeIf { it >= 0L }
+    }
 
     private fun stageSharedImage(sourceUri: String): SharedImageStage {
         val directory = File(context.cacheDir, CAPTURE_IMAGE_DIRECTORY)
@@ -165,6 +207,10 @@ class CaptureShareIntake(
         }.getOrNull() ?: return SharedImageStage.Rejected(CaptureShareRejection.IMPORT_FAILED)
         val stream = try {
             context.contentResolver.openInputStream(Uri.parse(sourceUri))
+        } catch (authorizationLost: SecurityException) {
+            // 读授权在打开时被拒：先把预拷件删掉，再交给 intake 统一报 AUTHORIZATION_EXPIRED。
+            target.delete()
+            throw authorizationLost
         } catch (_: Exception) {
             null
         }
@@ -172,7 +218,13 @@ class CaptureShareIntake(
             target.delete()
             return SharedImageStage.Rejected(CaptureShareRejection.UNREADABLE)
         }
-        val copyResult = stream.use { input -> copySharedImageStream(input, target) }
+        val copyResult = try {
+            stream.use { input -> copySharedImageStream(input, target) }
+        } catch (authorizationLost: SecurityException) {
+            // 读到一半授权被撤回：同样不能把半截预拷件留在缓存里。
+            target.delete()
+            throw authorizationLost
+        }
         if (copyResult is ImageCopyResult.Rejected) {
             target.delete()
             return SharedImageStage.Rejected(copyResult.reason)
@@ -202,7 +254,7 @@ class CaptureShareIntake(
     ): ImageCopyResult {
         var totalBytes = 0L
         var consecutiveEmptyReads = 0
-        val copied = runCatching {
+        val copied = try {
             destination.outputStream().buffered().use { output ->
                 val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                 while (true) {
@@ -224,7 +276,12 @@ class CaptureShareIntake(
                 }
             }
             true
-        }.getOrDefault(false)
+        } catch (authorizationLost: SecurityException) {
+            // 读到一半授权被收回：同样按授权过期报，而不是"文件损坏"。
+            throw authorizationLost
+        } catch (_: Exception) {
+            false
+        }
         if (!copied || totalBytes <= 0L) {
             return ImageCopyResult.Rejected(CaptureShareRejection.UNREADABLE)
         }
@@ -237,6 +294,8 @@ class CaptureShareIntake(
     private fun readPdfHeader(uri: String): PdfHeader {
         val stream = try {
             context.contentResolver.openInputStream(Uri.parse(uri))
+        } catch (authorizationLost: SecurityException) {
+            throw authorizationLost
         } catch (_: Exception) {
             null
         } ?: return PdfHeader.UNREADABLE
@@ -265,6 +324,8 @@ class CaptureShareIntake(
                     PdfHeader.NOT_A_PDF
                 }
             }
+        } catch (authorizationLost: SecurityException) {
+            throw authorizationLost
         } catch (_: Exception) {
             PdfHeader.UNREADABLE
         }

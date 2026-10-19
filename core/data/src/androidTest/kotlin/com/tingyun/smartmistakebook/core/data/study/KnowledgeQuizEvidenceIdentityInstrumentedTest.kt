@@ -13,6 +13,8 @@ import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
+import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
+import com.tingyun.smartmistakebook.core.model.TutorChoice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -174,6 +176,10 @@ class KnowledgeQuizEvidenceIdentityInstrumentedTest {
         )
         try {
             seedStudyFacts(context, database, databaseName, quizSeed())
+            // PRD-02：本用例测的是证据身份/幂等，不是键信任门；把两场会话的题面键
+            // 显式标成独立核验（模型生成默认 UNKNOWN，只会落观察行）。
+            trustQuizKey(database, SESSION_ONE_START, NODE_ID)
+            trustQuizKey(database, SESSION_TWO_START, NODE_ID)
             block(database, repository)
         } finally {
             repository.close()
@@ -181,6 +187,27 @@ class KnowledgeQuizEvidenceIdentityInstrumentedTest {
             database.close()
             context.deleteDatabase(databaseName)
         }
+    }
+
+    private suspend fun trustQuizKey(
+        database: StudyDatabasePort,
+        sessionId: Long,
+        nodeId: String,
+    ) {
+        val item = TutorAssessmentItem(
+            id = "knowledge-quiz:item:$nodeId",
+            stemMarkdown = "题干",
+            choices = listOf(
+                TutorChoice(id = "A", markdown = "选项 A"),
+                TutorChoice(id = "B", markdown = "选项 B"),
+            ),
+            correctChoiceId = "A",
+            knowledgeNodeIds = setOf(nodeId),
+        )
+        KnowledgeQuizItemStore(database, LEARNER_ID).save(sessionId, nodeId, item, 1_000)
+        val snapshotId = knowledgeQuizItemSnapshotId(LEARNER_ID, sessionId, nodeId)
+        val record = requireNotNull(database.findAssessmentItemSnapshot(snapshotId))
+        database.overwriteAssessmentItemSnapshot(record.copy(verificationStatus = "VERIFIED"))
     }
 
     private fun quizSeed() = StudySeedBundle(
@@ -210,6 +237,8 @@ class KnowledgeQuizEvidenceIdentityInstrumentedTest {
         const val NODE_ID = "kc-monotonicity"
         const val TAXONOMY_VERSION = "cn-highschool-m1-v1"
         const val DAY_ONE_AT = 1_700_000_000_000L
+        const val SESSION_ONE_START = 1_700_000_000_000L
+        const val SESSION_TWO_START = 1_700_086_400_000L
         const val ONE_DAY_MILLIS = 24L * 60 * 60 * 1_000
         const val THIRTEEN_HOURS_MILLIS = 13L * 60 * 60 * 1_000
 

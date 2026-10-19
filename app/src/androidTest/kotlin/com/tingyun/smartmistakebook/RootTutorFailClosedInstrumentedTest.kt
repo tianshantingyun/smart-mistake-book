@@ -266,7 +266,7 @@ class RootTutorFailClosedInstrumentedTest {
         composeRule.onNodeWithTag("profile_learning_mastery").assertExists()
 
         composeRule.onNodeWithTag("nav_review").performClick()
-        waitForText("暂无学习记录")
+        waitForText("还没有可复习的题")
         waitForText("暂无待复习题")
     }
 

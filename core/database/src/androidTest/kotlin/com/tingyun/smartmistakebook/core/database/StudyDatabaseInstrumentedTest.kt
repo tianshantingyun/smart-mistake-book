@@ -2000,6 +2000,7 @@ class StudyDatabaseInstrumentedTest {
                 }
                 is com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome -> Unit
                 is com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted -> Unit
+                is com.tingyun.smartmistakebook.core.model.EvidenceCorrection -> Unit
                 is com.tingyun.smartmistakebook.core.model.AttemptCorrection -> Unit
                 // KF-32：改绑事件无呈现态权威（同修正）。
                 is com.tingyun.smartmistakebook.core.model.BindingChanged -> Unit
@@ -2019,6 +2020,7 @@ class StudyDatabaseInstrumentedTest {
             is com.tingyun.smartmistakebook.core.model.TutorAnswerExposureOutcome ->
                 "TUTOR_ANSWER_EXPOSURE_OUTCOME"
             is com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted -> "CHAT_EVIDENCE_SUBMITTED"
+            is com.tingyun.smartmistakebook.core.model.EvidenceCorrection -> "CHAT_EVIDENCE_SUBMITTED"
             is com.tingyun.smartmistakebook.core.model.AttemptCorrection -> "ATTEMPT_CORRECTION"
             is com.tingyun.smartmistakebook.core.model.BindingChanged -> "BINDING_CHANGED"
         },

@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.data.model.ImageGenerationRequest
 import com.tingyun.smartmistakebook.core.data.model.ImageRedrawRequest
 import com.tingyun.smartmistakebook.core.data.model.ImageRedrawResult
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
+import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.domain.ModelApiKey
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationMutationResult
@@ -17,6 +18,12 @@ import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchRequest
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchReservation
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
+import com.tingyun.smartmistakebook.core.model.FigureGenerationProposal
+import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
+import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
+import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
@@ -97,6 +104,22 @@ class ConfiguredCleanImageGeneratorTest {
         assertEquals("image/png", result.mimeType)
     }
 
+    /**
+     * KD-60：净化入口声明共享上限 + 未预读余量，不再用常量 6 冒充实余量。
+     */
+    @Test
+    fun declaresTheSharedOperationBudgetWithoutAFakeRemainingCount() = runBlocking {
+        val coordinator = CapturingCoordinator()
+        val generator = generator(coordinator = coordinator)
+
+        generate(generator)
+
+        val budget = coordinator.requests.single().budget
+        assertNull("上限不是余量", budget.remainingRemoteDispatches)
+        assertEquals(ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES, budget.operationDispatchLimit)
+        assertTrue(budget.sharesOperationBudgetWithToolRounds)
+    }
+
     // -----------------------------------------------------------------
 
     /** 4E.1：净化生成必须带持久派发父操作（这里是已领取的净化作业尝试）。 */
@@ -119,6 +142,7 @@ class ConfiguredCleanImageGeneratorTest {
         channelFactory: ChannelFactory = ChannelFactory { _, _ ->
             FakeRedrawChannel("default", "image/png")
         },
+        coordinator: FigureGenerationCoordinator? = null,
     ) = ConfiguredCleanImageGenerator(
         configurationStore = FakeStore(
             credentialAvailable = credentialAvailable,
@@ -126,8 +150,28 @@ class ConfiguredCleanImageGeneratorTest {
         ),
         channelFactory = channelFactory,
         networkRequestsAllowed = networkRequestsAllowed,
+        coordinator = coordinator,
         ledger = GrantingLedger(),
     )
+
+    /** 只捕获入口构造的统一请求；返回 FAILED 让测试不依赖后端。 */
+    private class CapturingCoordinator : FigureGenerationCoordinator {
+        val requests = mutableListOf<FigureGenerationRequest>()
+
+        override suspend fun generate(
+            request: FigureGenerationRequest,
+            proposal: FigureGenerationProposal,
+        ): FigureGenerationOutcome {
+            requests += request
+            return FigureGenerationOutcome(
+                operationId = request.operationId,
+                purpose = request.purpose,
+                method = FigureGenerationMethod.IMAGE_MODEL,
+                status = FigureGenerationStatus.FAILED,
+                diagnostics = "capture only",
+            )
+        }
+    }
 
     private class FakeRedrawChannel(
         private val cleanBytes: String,

@@ -234,37 +234,46 @@ fun MistakeExportHubRoute(
                         actionMessage = null
                         actionInProgress = true
                         scope.launch {
-                            actionMessage = runCatching {
-                                val shareIntent = withContext(Dispatchers.IO) {
+                            // 产物缺失与"打开分享方式"失败是两件不同的事：前者文件真的没了，
+                            // 后者文件还在、重试可能成功。改前一律说"文件已清理"，把后者也说错。
+                            val preparedIntent = runCatching {
+                                withContext(Dispatchers.IO) {
                                     when (format) {
-                                        MistakeExportFormat.PDF -> {
-                                            val prepared = reopen(record)
-                                                ?.let(pdfExporter::reopenVerified)
-                                                ?: error("Prepared export is unavailable")
-                                            MistakePdfDeliveryIntents.share(
-                                                context = context,
-                                                prepared = prepared,
-                                                displayName = record.displayName.orEmpty(),
-                                            )
-                                        }
-                                        MistakeExportFormat.DOCX -> {
-                                            val prepared = reopen(record)
-                                                ?.let(docxExporter::reopenVerified)
-                                                ?: error("Prepared Word export is unavailable")
-                                            MistakeDocxDeliveryIntents.share(
-                                                context = context,
-                                                prepared = prepared,
-                                                displayName = record.displayName.orEmpty(),
-                                            )
-                                        }
+                                        MistakeExportFormat.PDF -> reopen(record)
+                                            ?.let(pdfExporter::reopenVerified)
+                                            ?.let { prepared ->
+                                                MistakePdfDeliveryIntents.share(
+                                                    context = context,
+                                                    prepared = prepared,
+                                                    displayName = record.displayName.orEmpty(),
+                                                )
+                                            }
+                                        MistakeExportFormat.DOCX -> reopen(record)
+                                            ?.let(docxExporter::reopenVerified)
+                                            ?.let { prepared ->
+                                                MistakeDocxDeliveryIntents.share(
+                                                    context = context,
+                                                    prepared = prepared,
+                                                    displayName = record.displayName.orEmpty(),
+                                                )
+                                            }
                                     }
                                 }
-                                context.startActivity(
-                                    Intent.createChooser(shareIntent, "分享这份导出"),
-                                )
-                                ExportHubMessage("已打开分享方式。", false)
-                            }.getOrElse {
-                                ExportHubMessage("文件已清理，无法分享。请重新导出这一份。", true)
+                            }
+                            val shareIntent = preparedIntent.getOrNull()
+                            actionMessage = when {
+                                shareIntent != null -> runCatching {
+                                    context.startActivity(
+                                        Intent.createChooser(shareIntent, "分享这份导出"),
+                                    )
+                                    ExportHubMessage("已打开分享方式。", false)
+                                }.getOrElse {
+                                    ExportHubMessage("暂时无法打开分享方式，请稍后再试。", true)
+                                }
+                                preparedIntent.isSuccess ->
+                                    ExportHubMessage("文件已清理，无法分享。请重新导出这一份。", true)
+                                else ->
+                                    ExportHubMessage("暂时无法准备分享文件，请稍后再试。", true)
                             }
                             actionInProgress = false
                         }

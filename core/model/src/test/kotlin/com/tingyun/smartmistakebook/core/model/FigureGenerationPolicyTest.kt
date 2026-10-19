@@ -158,6 +158,28 @@ class FigureGenerationPolicyTest {
         )
     }
 
+    /**
+     * KD-60：声明面没有预读 durable 余量时（`remainingRemoteDispatches == null`），
+     * 策略门**不得**拿常量 6 冒充余额放行/拒绝——真正的预算门是账本；这里只允许
+     * 请求进入预留阶段，由账本决定。
+     */
+    @Test
+    fun anUnknownRemainingBalanceDefersToTheDurableLedger() {
+        val request = request(
+            budget = FigureGenerationBudget(
+                operationDispatchLimit = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES,
+                remainingRemoteDispatches = null,
+                reserveChatFinalAnswer = true,
+            ),
+            parent = FigureDispatchParent.ModelTask("task-1", reserveChatFinalAnswer = true),
+        )
+
+        assertTrue(
+            FigureGenerationPolicy.validate(request, imageProposal(request))
+                is FigureGenerationValidation.Accepted,
+        )
+    }
+
     @Test
     fun aRequestWithoutAPersistentParentCannotGenerate() {
         val request = request(parent = null)

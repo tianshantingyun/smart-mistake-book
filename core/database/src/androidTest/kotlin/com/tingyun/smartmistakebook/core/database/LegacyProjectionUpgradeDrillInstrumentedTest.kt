@@ -20,6 +20,7 @@ import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.EvidenceAttributionCertainty
 import com.tingyun.smartmistakebook.core.model.EvidenceAttributionRole
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
 import com.tingyun.smartmistakebook.core.model.KnowledgeEvidenceAttribution
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshotJson
 import com.tingyun.smartmistakebook.core.model.LearningEvidence
@@ -545,6 +546,7 @@ class LegacyProjectionUpgradeDrillInstrumentedTest {
         is AnswerRevealOutcome -> "ANSWER_REVEAL_OUTCOME"
         is AttemptCorrection -> "ATTEMPT_CORRECTION"
         is ChatEvidenceSubmitted -> "CHAT_EVIDENCE_SUBMITTED"
+        is EvidenceCorrection -> "CHAT_EVIDENCE_SUBMITTED"
         is TutorAnswerExposureOutcome -> "TUTOR_ANSWER_EXPOSURE_OUTCOME"
         is BindingChanged -> "BINDING_CHANGED"
     }

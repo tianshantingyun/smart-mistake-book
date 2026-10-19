@@ -7,10 +7,13 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.domain.BatchImportStatus
 import com.tingyun.smartmistakebook.feature.capture.MAX_SHARE_IMAGE_BYTES
+import java.io.File
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -139,6 +142,32 @@ class SharedCaptureEntryInstrumentedTest {
         composeRule.onNodeWithText("20 MB", substring = true).assertExists()
         composeRule.waitForIdle()
         assertEquals(before, pendingDraftIds(application))
+    }
+
+    @Test
+    fun aRetryableShareFailureCanBeRetriedAndSucceeds() {
+        waitForTag("root_review")
+        val application = application()
+        val before = pendingDraftIds(application)
+        // 同一个 URI 先不存在（读取失败但授权仍在），重试前再写入真实 PNG。
+        val source = SharedCaptureTestFiles.fileUri(context, "retry.png") { }
+        val sourceFile = File(
+            File(context.cacheDir, "captured_images"),
+            Uri.parse(source.toString()).lastPathSegment.orEmpty(),
+        )
+
+        share(singleShareIntent(source))
+        waitForTag("share_intake_rejected")
+        composeRule.onNodeWithTag("share_intake_retry").assertExists()
+
+        sourceFile.writeBytes(SharedCaptureTestFiles.pngBytes())
+        composeRule.onNodeWithTag("share_intake_retry").performScrollTo().performClick()
+
+        waitForTag("capture_screen")
+        composeRule.waitUntil(timeoutMillis = 60_000) {
+            pendingDraftIds(application).size > before.size
+        }
+        assertEquals(before.size + 1, pendingDraftIds(application).size)
     }
 
     @Test

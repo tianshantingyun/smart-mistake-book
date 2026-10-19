@@ -10,7 +10,10 @@ import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEnti
 import com.tingyun.smartmistakebook.core.database.entity.LearningSequenceEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProjectionOutboxEntity
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrectionKind
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
+import com.tingyun.smartmistakebook.core.model.LearningLedgerEvent
 import com.tingyun.smartmistakebook.core.model.LearningLedgerFingerprint
 import kotlinx.coroutines.flow.Flow
 
@@ -109,14 +112,16 @@ internal abstract class ChatEvidenceDao {    /**
         if (freshAccepted.isNotEmpty()) {
             val outboxRows = freshAccepted.map { entry ->
                 val sequence = allocateSequence(entry.learner_id)
-                val event = entry.toChatEvidenceModel(sequence)
+                // PRD-02：普通证据与定向纠正共用本表/本 outbox kind；载荷类型由 source_kind
+                // 决定（proj 读边界据此分出 `EVIDENCE_CORRECTION` 并强制全量重放）。
+                val event = entry.toLearningEvent(sequence)
                 ProjectionOutboxEntity(
                     outboxId = "learning-outbox:${entry.learner_id}:$EVENT_KIND_CHAT_EVIDENCE:${entry.evidence_id}",
                     learnerId = entry.learner_id,
                     outboxSequence = sequence,
                     eventKind = EVENT_KIND_CHAT_EVIDENCE,
                     eventId = entry.evidence_id,
-                    canonicalFingerprint = LearningLedgerFingerprint.chatEvidence(event),
+                    canonicalFingerprint = LearningLedgerFingerprint.event(event),
                     status = StudyDbValue.OutboxStatus.PENDING,
                     createdAtEpochMillis = entry.created_at_epoch_millis,
                 )
@@ -190,6 +195,7 @@ internal abstract class ChatEvidenceDao {    /**
         SELECT COUNT(*) FROM learner_chat_evidence
         WHERE learner_id = :learnerId AND rejected_reason IS NULL
           AND created_at_epoch_millis >= :sinceEpochMillis
+          AND source_kind NOT IN ('KEY_CORRECTION', 'KEY_VOID')
         """,
     )
     abstract suspend fun countAcceptedSince(learnerId: String, sinceEpochMillis: Long): Int
@@ -199,6 +205,7 @@ internal abstract class ChatEvidenceDao {    /**
         """
         SELECT COUNT(*) FROM learner_chat_evidence
         WHERE conversation_id = :conversationId AND rejected_reason IS NULL
+          AND source_kind NOT IN ('KEY_CORRECTION', 'KEY_VOID')
         """,
     )
     abstract suspend fun countAcceptedInConversation(conversationId: String): Int
@@ -232,6 +239,7 @@ internal abstract class ChatEvidenceDao {    /**
         FROM learner_chat_evidence
         WHERE learner_id = :learnerId AND rejected_reason IS NULL
           AND created_at_epoch_millis >= :sinceEpochMillis
+          AND source_kind NOT IN ('KEY_CORRECTION', 'KEY_VOID')
         GROUP BY source_kind, hourBucket
         ORDER BY hourBucket DESC
         """,
@@ -265,6 +273,38 @@ internal fun LearnerChatEvidenceEntity.toChatEvidenceModel(eventSequence: Long):
         occurredAtEpochMillis = created_at_epoch_millis,
         eventSequence = eventSequence,
     )
+
+/**
+ * PRD-02：一行 `learner_chat_evidence` 按其 `source_kind` 解码成账本事件。
+ *
+ * - 普通证据（MODEL_CHAT / KNOWLEDGE_QUIZ）→ [ChatEvidenceSubmitted]（形状与 v67 逐位相同）；
+ * - `KEY_CORRECTION` / `KEY_VOID` → [EvidenceCorrection]（独立指纹 schema；目标列
+ *   `corrects_evidence_id` 必须非空）。
+ *
+ * 被拒观察行永远不走到这里（`insertAsLedgerEvents` 不为 rejected 行分配序列/写 outbox）；
+ * 若有人把一条没有目标的纠正行塞进账本，这里会**显式失败**而不是猜一个目标出来。
+ */
+internal fun LearnerChatEvidenceEntity.toLearningEvent(eventSequence: Long): LearningLedgerEvent =
+    if (LearnerChatEvidenceEntity.isCorrectionSourceKind(source_kind)) {
+        EvidenceCorrection(
+            correctionId = evidence_id,
+            targetEvidenceId = requireNotNull(corrects_evidence_id) {
+                "A ledger correction row must carry corrects_evidence_id"
+            },
+            kind = if (source_kind == LearnerChatEvidenceEntity.SOURCE_KIND_KEY_VOID) {
+                EvidenceCorrectionKind.VOID
+            } else {
+                EvidenceCorrectionKind.REPLACE
+            },
+            replacementDirection = LearningEvidenceDirection.valueOf(direction),
+            replacementWeight = weight,
+            reasonMarkdown = reason_markdown,
+            occurredAtEpochMillis = created_at_epoch_millis,
+            eventSequence = eventSequence,
+        )
+    } else {
+        toChatEvidenceModel(eventSequence)
+    }
 
 
 /**

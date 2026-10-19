@@ -17,11 +17,16 @@ import kotlinx.coroutines.launch
  *
  * 读侧：[restoreTutorConversationUiState] 给初始状态；写侧：[persistTutorConversationUiState]
  * 每次状态变化调用一次。**没有任何一件走 `remember`**：跨进程会丢的东西不许活在组合里。
+ *
+ * 注意这里保的是**系统保存的实例状态**，不是长期存储：用户强制停止/清除数据后不会恢复
+ * （见 Android「Save UI states」）。因此它只用来抵住"恢复之后又被更旧的会话行副本盖掉"，
+ * 不承诺任何未落盘按键在强杀后一定回来。
  */
 internal fun SavedStateHandle.restoredTutorConversationState(): TutorConversationPreservedState =
     TutorConversationPreservedState(
         conversationId = get<String>(KEY_CONVERSATION_ID)?.takeIf(String::isNotBlank).orEmpty(),
         draft = get<String>(KEY_DRAFT).orEmpty(),
+        draftVersion = get<Long>(KEY_DRAFT_VERSION) ?: 0L,
         pendingImageUris = get<ArrayList<String>>(KEY_PENDING_IMAGES).orEmpty(),
         pendingCameraImageUri = get<String>(KEY_PENDING_CAMERA_URI),
         attachMenuOpen = get<Boolean>(KEY_ATTACH_MENU_OPEN) == true,
@@ -35,6 +40,15 @@ internal fun SavedStateHandle.restoredTutorConversationState(): TutorConversatio
 internal data class TutorConversationPreservedState(
     val conversationId: String,
     val draft: String,
+    /**
+     * 草稿的本地编辑版本：每次学生改动输入（含提交清稿）在 [TutorConversationViewModel]
+     * 里加一，并随实例状态一起保存。
+     *
+     * 它要与**会话行里的草稿副本**比较先后：行里的副本是异步写的、可能更旧或干脆没写成，
+     * 而这里的是学生最后一次在屏幕上看到的内容。> 0 = 本机有过草稿编辑，恢复时不许被行覆盖。
+     * 0 = 没有可比较的本地事实（旧版本实例状态 / 从未编辑），才允许从行补读。
+     */
+    val draftVersion: Long = 0L,
     val pendingImageUris: List<String>,
     val pendingCameraImageUri: String?,
     val attachMenuOpen: Boolean,
@@ -52,9 +66,11 @@ internal data class TutorConversationPreservedState(
 internal fun persistTutorConversationState(
     savedStateHandle: SavedStateHandle,
     state: TutorConversationUiState,
+    draftVersion: Long,
 ) {
     savedStateHandle[KEY_CONVERSATION_ID] = state.conversationId
     savedStateHandle[KEY_DRAFT] = state.draft
+    savedStateHandle[KEY_DRAFT_VERSION] = draftVersion
     savedStateHandle[KEY_PENDING_IMAGES] = ArrayList(state.pendingImages.map { it.localUri })
     savedStateHandle[KEY_PENDING_CAMERA_URI] = state.pendingCameraImageUri
     savedStateHandle[KEY_ATTACH_MENU_OPEN] = state.attachMenuOpen
@@ -66,6 +82,7 @@ internal fun persistTutorConversationState(
 
 private const val KEY_CONVERSATION_ID = "tutorConversationId"
 private const val KEY_DRAFT = "tutorConversationDraft"
+private const val KEY_DRAFT_VERSION = "tutorConversationDraftVersion"
 private const val KEY_PENDING_IMAGES = "tutorConversationPendingImages"
 private const val KEY_PENDING_CAMERA_URI = "tutorConversationPendingCameraUri"
 private const val KEY_ATTACH_MENU_OPEN = "tutorConversationAttachMenuOpen"

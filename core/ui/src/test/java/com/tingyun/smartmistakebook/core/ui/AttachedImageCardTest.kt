@@ -2,8 +2,11 @@ package com.tingyun.smartmistakebook.core.ui
 
 import com.tingyun.smartmistakebook.core.model.AttachedImage
 import com.tingyun.smartmistakebook.core.model.AttachedImageKind
+import com.tingyun.smartmistakebook.core.model.AttachedImageResolution
+import com.tingyun.smartmistakebook.core.model.AttachedImageUnavailableReason
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -63,8 +66,14 @@ class AttachedImageCardTest {
             null
         }
 
-        assertEquals(AttachedImageRenderState.Failed, cache.stateOf("figure-b"))
-        assertEquals(AttachedImageRenderState.Failed, cache.stateOf("figure-b"))
+        assertEquals(
+            AttachedImageRenderState.Failed(AttachedImageUnavailableReason.NOT_GENERATED),
+            cache.stateOf("figure-b"),
+        )
+        assertEquals(
+            AttachedImageRenderState.Failed(AttachedImageUnavailableReason.NOT_GENERATED),
+            cache.stateOf("figure-b"),
+        )
         assertEquals(1, resolveCalls)
     }
 
@@ -75,6 +84,51 @@ class AttachedImageCardTest {
             AttachedImageRenderState.Ready("file://a"),
             attachedImageRenderState("file://a"),
         )
-        assertEquals(AttachedImageRenderState.Failed, attachedImageRenderState(null))
+        assertEquals(
+            AttachedImageRenderState.Failed(AttachedImageUnavailableReason.NOT_GENERATED),
+            attachedImageRenderState(null),
+        )
+    }
+
+    /**
+     * KD-58：缓存未命中不再静默——折叠行就能看到“未就绪”，展开后有可读原因与
+     * “重新生成”显式动作；不是渲染时自动发起的第二个生图请求。
+     */
+    @Test
+    fun aCacheMissShowsAReadableReasonAndTheExplicitRegenerateAction() {
+        val state = attachedImageRenderState(
+            AttachedImageResolution.Unavailable(AttachedImageUnavailableReason.NOT_GENERATED),
+        ) as AttachedImageRenderState.Failed
+
+        assertEquals("未就绪", attachedImageStatusHint(state))
+        assertTrue(attachedImageFailureMessage(state).contains("不会自动"))
+        assertTrue(attachedImageCanRegenerate(state))
+        assertEquals("重新生成", ATTACHED_IMAGE_REGENERATE_LABEL)
+    }
+
+    @Test
+    fun damagedOrSourceMissingCopiesDoNotOfferBlindRegeneration() {
+        val damaged = AttachedImageRenderState.Failed(AttachedImageUnavailableReason.DAMAGED)
+        val missingSource =
+            AttachedImageRenderState.Failed(AttachedImageUnavailableReason.SOURCE_UNAVAILABLE)
+
+        assertFalse(attachedImageCanRegenerate(damaged))
+        assertFalse(attachedImageCanRegenerate(missingSource))
+        assertTrue(attachedImageFailureMessage(damaged).contains("损坏"))
+        assertTrue(attachedImageFailureMessage(missingSource).contains("题面原图"))
+    }
+
+    @Test
+    fun aFailedRegenerationKeepsTheReasonAndAllowsAnotherExplicitTry() {
+        val state = attachedImageRenderState(
+            AttachedImageResolution.Unavailable(
+                reason = AttachedImageUnavailableReason.REGENERATION_FAILED,
+                detail = "逻辑操作预算已用尽（图像与工具轮共享），未出网",
+            ),
+        ) as AttachedImageRenderState.Failed
+
+        assertEquals("逻辑操作预算已用尽（图像与工具轮共享），未出网", state.detail)
+        assertTrue(attachedImageFailureMessage(state).contains("没有成功"))
+        assertTrue(attachedImageCanRegenerate(state))
     }
 }

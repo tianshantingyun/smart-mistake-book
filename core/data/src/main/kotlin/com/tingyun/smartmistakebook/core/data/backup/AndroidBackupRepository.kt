@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.core.data.backup
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteException
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.PackageInfoCompat
 import com.tingyun.smartmistakebook.core.data.capture.AndroidCanonicalAssetVault
@@ -27,6 +29,7 @@ import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
 import com.tingyun.smartmistakebook.core.domain.StorageInventory
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -62,6 +65,16 @@ import java.util.concurrent.atomic.AtomicBoolean
  * [reviewReminders]（未装配时为 null → 包内没有设置，`hasSettings=false`）；恢复在**交换前**
  * 拒绝读不懂的设置（编解码层的版本与值域闸门），交换成功后才写 DataStore——写失败不回滚
  * 已经一致的数据库，只在回执里如实标 [RestoreSettingsOutcome.WRITE_FAILED]。
+ *
+ * KD-54（快照不占写连接）：成包优先用**独立于 Room 的 SQLite 连接**跑 `VACUUM INTO`
+ * （[FrameworkVacuumIntoSnapshotEngine]），不再走 room3 的单一写连接，因此不再需要把
+ * 写入口关在门外。只有独立连接不可用（旧版 SQLite / 厂商拒绝只读语句）时才回退到
+ * 旧的 Room 连接快照，并保留全写者屏障（[BackupWriteGate.runBackup]）。
+ *
+ * KD-56（恢复关库不可逆）：交换段的顺序是「先停写 → 通知界面进入重启态 → 关库 → 换文件」。
+ * 关库之后本类不再调用注入的 [database] 端口；写入口经 [writeGate] 立即失败。生产装配
+ * 必须把 [restartNotifier] 接到 `SmartMistakeBookApplication.requireDatabaseRestart`，
+ * 否则界面要等恢复返回后才知道要重启，关库到重启页之间的窗口仍然存在。
  */
 class AndroidBackupRepository(
     private val context: Context,
@@ -70,9 +83,29 @@ class AndroidBackupRepository(
     private val reviewReminders: ReviewReminderRepository? = null,
     /**
      * KD-54 的"让路"门：快照期间其它写入口短暂排队。生产用进程内共享实例；测试可注入
-     * 自己的门来观察状态与排队行为。默认共享保证"备份仓库"和"采集写入口"看到同一道门。
+     * 自己的门来观察状态与排队行为。
+     *
+     * 注意默认值：生产装配走 [BackupRepositoryFactory.create]，它显式注入进程内共享门
+     * （`BackupWriteGate.shared`）。直接构造本类时默认给一个**独立门**——测试之间共享
+     * 进程时，一次恢复关闭数据库的终态不应污染其它用例；测试要观察与采集入口的联动
+     * 时显式传同一个门即可。
      */
-    private val writeGate: BackupWriteGate = BackupWriteGate.shared,
+    private val writeGate: BackupWriteGate = BackupWriteGate(),
+    /** 成包快照策略（KD-54）；测试可注入替身做确定性用例。 */
+    private val snapshotEngine: DatabaseSnapshotEngine = FrameworkVacuumIntoSnapshotEngine(),
+    /**
+     * 恢复进入交换段前把"请重启"原因交给界面（KD-56）。生产接
+     * `SmartMistakeBookApplication::requireDatabaseRestart`；不接时只在恢复返回后由
+     * 存储页的既有 `onDatabaseClosed` 回调设置，关库后的窗口更长。
+     */
+    private val restartNotifier: (String) -> Unit = {},
+    /**
+     * 通知重启后、关闭 room3 连接池前的有界等待（毫秒）：给 Compose 一帧时间把
+     * 数据库观察者从内容树里摘掉。它**不是**正确性保证，只是把"关库时仍有观察者
+     * 在查询"的窗口压小；真正的安全来自"关库后不再碰 Room"和写门终态。
+     * 测试传 0。
+     */
+    private val observerQuiesceMillis: Long = 750L,
 ) : BackupRepository {
     override val activity: StateFlow<BackupActivity> = writeGate.activity
 
@@ -138,9 +171,11 @@ class AndroidBackupRepository(
      * 内容版本取自**快照里那份库**（不是实时库），设置读失败则整包失败（静默少一份设置，
      * 就是"备份看起来成功、恢复后设置丢了"）。
      *
-     * KD-54：快照段（checkpoint + `VACUUM INTO`）整体走 [writeGate] 的「让路」门——
-     * 快照前等在途写排空，快照期间其它写入口短暂排队，快照结束（成功/失败/取消）统一放行。
-     * 快照一致性机制（VACUUM INTO / 旧 SQLite 的 checkpoint + 只读拷贝）一字未改。
+     * KD-54 追加：快照优先走**独立于 room3 连接池**的 SQLite 连接（
+     * [FrameworkVacuumIntoSnapshotEngine]）。独立连接上的 `VACUUM INTO` 不占那条唯一
+     * 的 Room 写连接，因此快照期间写入口不必排队，也不会出现分钟级
+     * `unable to grant a connection`。只有独立连接不可用（旧 SQLite / 厂商拒绝）时
+     * 才回退到 [database] 的快照，并照旧整段走 [writeGate] 的全写者屏障。
      */
     override suspend fun create(
         destination: OutputStream,
@@ -149,21 +184,33 @@ class AndroidBackupRepository(
         val databaseFile = context.getDatabasePath(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
         // 设置先读：读失败要在做快照之前失败，别留下半个归档的错觉。
         val settings = readSettingsForBackup()
-        // Consistency snapshot: VACUUM INTO when the device SQLite supports it,
-        // otherwise WAL checkpoint + read-only copy (see BackupPort docs). The
-        // archive is always built from the snapshot file, never from the live
-        // database file.
+        // Consistency snapshot: an independent connection first (KD-54), then
+        // the legacy Room-connection path behind the writer gate. The archive
+        // is always built from the snapshot file, never from the live database.
         val snapshotDir = File(context.cacheDir, "backup-snapshots").apply { mkdirs() }
         val snapshotFile = File(snapshotDir, "snapshot-${System.nanoTime()}.db")
+        // 整段成包与恢复互斥（KD-56）：恢复的交换段会关库换文件，不能和一份仍在
+        // 读取活库的备份重叠。独立连接快照不会让普通写排队，所以这里不占用
+        // runBackup 的写者屏障。
+        val backupJob = writeGate.beginBackupJob("创建完整备份")
         try {
-            // KD-54：快照段走「让路」门——先等备份开始时已经在途的写排空，再把
-            // `VACUUM INTO` 放进独占段；期间其它写入口短暂排队（超时给可重试提示），
-            // 不再把写请求送进被快照占住的连接池。成包/压缩/哈希不占写连接，留在门外。
-            writeGate.runBackup {
-                // 备份前的写队列排空（SQLite 侧，best effort）：TRUNCATE checkpoint 尝试
-                // 拿到写锁、把已提交的 WAL 收回主库；一致性仍由随后的 VACUUM INTO 保证。
-                database.checkpointForBackup()
-                database.snapshotForBackup(databaseFile, snapshotFile)
+            val independentSnapshot = try {
+                snapshotEngine.snapshot(databaseFile, snapshotFile)
+            } catch (cancelled: CancellationException) {
+                // 备份被取消时不得改走旧回退（那会重新占住写连接继续做快照）。
+                throw cancelled
+            } catch (_: Exception) {
+                false
+            }
+            if (!independentSnapshot) {
+                // KD-54：旧回退仍然占 Room 写连接，必须保留全写者屏障——先等在途写
+                // 排空，快照期间其它写入口短暂排队（超时给可重试提示）。
+                writeGate.runBackup {
+                    // 备份前的写队列排空（SQLite 侧，best effort）：TRUNCATE checkpoint
+                    // 尝试拿到写锁、把已提交的 WAL 收回主库；一致性仍由随后的快照保证。
+                    database.checkpointForBackup()
+                    database.snapshotForBackup(databaseFile, snapshotFile)
+                }
             }
             withSnapshotDatabase(snapshotFile) { snapshot ->
                 // 题数与引用资产都取自**这一份快照**：实时库上的数会在窗口里超前于归档内容。
@@ -189,6 +236,7 @@ class AndroidBackupRepository(
                 )
             }
         } finally {
+            backupJob.end()
             snapshotFile.delete()
         }
     }
@@ -320,10 +368,13 @@ class AndroidBackupRepository(
                 throw BackupRestoreException("恢复已在进行中，重复的恢复请求被拒绝")
             }
             try {
-                // KD-54：恢复会关连接、换库文件；与备份快照互斥。备份进行中时这里
-                // 短暂排队后给明确提示，而不是让两条重操作在文件层互相踩。
-                writeGate.withWriteAdmission("恢复备份") {
-                    doRestore(source)
+                // KD-56：恢复登记后**阻止新备份**，但校验/解包阶段不阻塞普通写；
+                // 交换段由 doRestore 在关库前调用 admission.beginCommit() 排空并挡住写。
+                val admission = writeGate.beginRestore("恢复备份")
+                try {
+                    doRestore(source, admission)
+                } finally {
+                    admission.endRestore()
                 }
             } finally {
                 restoreInFlight.set(false)
@@ -331,7 +382,10 @@ class AndroidBackupRepository(
         }
 
     /** suspend：Phase 2b 会用归档库端口读它的题数与引用集合（两条都是挂起读）。 */
-    private suspend fun doRestore(source: InputStream): RestoreReceipt {
+    private suspend fun doRestore(
+        source: InputStream,
+        admission: BackupWriteGate.RestoreAdmission,
+    ): RestoreReceipt {
         val restoreId = UUID.randomUUID().toString()
         val root = File(context.cacheDir, "restore-$restoreId")
         val staging = File(root, "staging").apply { mkdirs() }
@@ -347,6 +401,9 @@ class AndroidBackupRepository(
         val nextAssets = File(filesDir, "$ASSET_DIRECTORY.next")
         var swapStarted = false
         var databaseClosed = false
+        // 是否已经把"请重启"交给界面（KD-56）。它与 databaseClosed 分开：通知发生在
+        // 关库之前，失败时要能把更准确的消息再交给同一个界面。
+        var restartNotified = false
         // Phase 2d 读出的设置载荷；Phase 8（交换提交后）才写入，故意放在 try 之外——
         // 写设置的任何失败/取消都不许被下面那段回滚路径接住（那时 journal 已清，
         // 回滚只会去删已经不存在的代，然后把"恢复失败，已回到原来的数据"说成事实）。
@@ -427,7 +484,13 @@ class AndroidBackupRepository(
             // 真失败也必须发生在**交换前**——交换后才失败就是"数据库已切换、设置没进来"。
             restoredSettings = readStagedSettings(staging)
 
-            // Phase 3: Prepare generations and record the rollback journal.
+            // Phase 3: Prepare the **entire next generation before closing the
+            // live database** (KD-56). The old order closed Room first and only
+            // then copied 365MB + ran a full integrity_check on the live path;
+            // during that multi-second/minute window every other Room consumer
+            // in the process hit a closed PassthroughConnectionPool and the
+            // process died on the main thread. Here the only work left after
+            // close() is the rename/fsync of already-prepared files.
             journal.writePhase(RestorePhase.BACKUP_CURRENT)
             deleteGenerationArtifacts(previousDb, nextDb, previousAssets, nextAssets)
             journal.recordGenerationPaths(
@@ -440,15 +503,6 @@ class AndroidBackupRepository(
                 stagingDir = root,
             )
             journal.recordCurrentState(databaseFile, assetRoot)
-
-            // Phase 4: Close the database and perform the atomic switch.
-            journal.writePhase(RestorePhase.SWAPPING)
-            database.close()
-            databaseClosed = true
-            listOf(
-                File("${databaseFile.absolutePath}-wal"),
-                File("${databaseFile.absolutePath}-shm"),
-            ).forEach { it.delete() }
 
             // Build the next asset generation and make it durable BEFORE any
             // pointer moves.
@@ -468,7 +522,48 @@ class AndroidBackupRepository(
             fsyncFile(nextDb)
             fsyncDir(databasesDir)
 
-            swapStarted = true
+            // Full integrity check on the exact bytes that will be promoted,
+            // while the live database is still open and every consumer still
+            // works. Post-close verification is intentionally reduced to a
+            // cheap header/open check (below).
+            verifyPreparedDatabase(nextDb)
+
+            // Phase 4: Close the database and perform the atomic switch.
+            // beginCommit() drains in-flight writers and blocks new ones; after
+            // it returns, no gate-wired writer can touch Room until the process
+            // restarts.
+            //
+            // KD-56: stop background workers before the pool closes (same
+            // best-effort cancellation the delete-all path uses). A worker that
+            // runs one more DAO query after close would hit the terminal pool.
+            runCatching {
+                androidx.work.WorkManager.getInstance(context.applicationContext).cancelAllWork()
+            }
+            admission.beginCommit()
+
+            // KD-56: tell the UI to take over BEFORE the pool is closed. room3's
+            // close() is terminal; the restart screen must replace database-backed
+            // content, not be set after restore() returns.
+            withContext(kotlinx.coroutines.NonCancellable) {
+                restartNotifier("正在完成备份恢复，请先不要操作…")
+                restartNotified = true
+                // Bounded grace for Compose to dispose database observers. This is
+                // not a correctness guarantee; the gate terminal below is.
+                if (observerQuiesceMillis > 0L) delay(observerQuiesceMillis)
+                journal.writePhase(RestorePhase.SWAPPING)
+                writeGate.markDatabaseClosedForRestart()
+                database.close()
+                databaseClosed = true
+            }
+            listOf(
+                File("${databaseFile.absolutePath}-wal"),
+                File("${databaseFile.absolutePath}-shm"),
+            ).forEach { it.delete() }
+
+            // 从连接池关闭开始，本进程只剩「把文件换完 + 记账」这一条路：取消会让
+            // 进程停在一个已关闭的 Room 连接上，因此这一段不可取消。
+            withContext(kotlinx.coroutines.NonCancellable) {
+                swapStarted = true
 
             // Atomic switch #1: database. Each rename is atomic within the
             // same directory; the journal (written above) is the pointer that
@@ -499,9 +594,10 @@ class AndroidBackupRepository(
             }
             fsyncDir(filesDir)
 
-            // Phase 5: Verify restored database
+            // Phase 5: Cheap post-swap check. The full integrity check ran on
+            // the identical bytes in verifyPreparedDatabase() before close.
             journal.writePhase(RestorePhase.VERIFYING)
-            verifyRestoredDatabase(databaseFile)
+            verifySwappedDatabaseShape(databaseFile)
 
             // Phase 6: Fsync to ensure durability
             journal.writePhase(RestorePhase.FSYNCING)
@@ -520,12 +616,14 @@ class AndroidBackupRepository(
             // （题图数），不取 manifest 里那张没人核对过的清单（AUD-05）：
             // manifest 是成包那一刻写的，而用户要看到的是"这次恢复进来的是什么"。
             // 设置结果在方法尾部补（Phase 8），此处留缺省值。
-            RestoreReceipt(
+            val successReceipt = RestoreReceipt(
                 databaseSchemaVersion = valid.manifest.databaseSchemaVersion,
                 problemCount = stagedDatabase.problemCount,
                 assetCount = stagedDatabase.referencedAssets.size,
                 fileCount = valid.manifest.fileCount,
             )
+            successReceipt
+            }
         } catch (failure: Exception) {
             runCatching { journal.writePhase(RestorePhase.ROLLING_BACK) }
             val entry = journal.readEntry()
@@ -541,6 +639,10 @@ class AndroidBackupRepository(
                         failure,
                     )
                     if (databaseClosed) {
+                        restartNotifier(
+                            "恢复未完成且回滚不完整，相关数据已隔离。" +
+                                "请完全退出并重新打开应用，再核对本机数据。",
+                        )
                         throw BackupRestoreDatabaseClosedException(quarantined.message.orEmpty(), quarantined)
                     }
                     throw quarantined
@@ -557,9 +659,19 @@ class AndroidBackupRepository(
                 // 文件已回滚到恢复前状态，但进程内连接已在 swap 前关闭；database
                 // 端口是构造注入到全部仓库的，无法热重开——如实告知用户必须重启，
                 // 而不是让其带着一个已关闭的连接继续操作。
+                restartNotifier(
+                    "恢复失败，已回到恢复前的数据。请完全退出并重新打开应用。",
+                )
                 throw BackupRestoreDatabaseClosedException(
                     "恢复失败，已回到原来的数据。",
                     failure,
+                )
+            }
+            if (restartNotified) {
+                // 已经让界面进入重启态但交换尚未开始：原数据没有被替换，消息必须
+                // 说清这一点，不能让"正在完成恢复"停在界面上。
+                restartNotifier(
+                    "恢复未完成，原数据没有被替换。请完全退出并重新打开应用。",
                 )
             }
             throw failure
@@ -567,10 +679,24 @@ class AndroidBackupRepository(
 
         // Phase 8（6C-1）：交换已提交、journal 已清，这里才写设置。写失败不回滚数据库
         // （数据已经一致），只在回执里如实标 partial；app 层据此把"部分恢复"说出来。
-        val settingsOutcome = when (val settings = restoredSettings) {
-            null -> RestoreSettingsOutcome.NOT_IN_ARCHIVE
-            else -> applyRestoredSettings(settings)
+        // 设置写入也放进 NonCancellable：交换完成后被取消（例如重启页已经替换了内容树、
+        // ViewModel scope 被清）不能让"数据库已恢复、设置只写了一半"变成一个悄悄消失的
+        // 半成品——写失败仍按既有口径如实标 WRITE_FAILED。
+        val settingsOutcome = withContext(kotlinx.coroutines.NonCancellable) {
+            when (val settings = restoredSettings) {
+                null -> RestoreSettingsOutcome.NOT_IN_ARCHIVE
+                else -> applyRestoredSettings(settings)
+            }
         }
+        val settingsNote = if (settingsOutcome == RestoreSettingsOutcome.WRITE_FAILED) {
+            "设置未能完整写入，可能有部分设置已变。"
+        } else {
+            ""
+        }
+        restartNotifier(
+            "恢复完成：${receipt.problemCount} 道题、${receipt.assetCount} 张题图。" +
+                settingsNote + "请完全退出并重新打开应用。",
+        )
         return receipt.copy(settings = settingsOutcome)
     }
 
@@ -691,8 +817,49 @@ class AndroidBackupRepository(
             // WorkManager may not be initialized; continue cleanup
         }
 
-        // 2. Close and delete database files (including generation artifacts)
-        database.close()
+        // 2. Stop writers, tell the UI, then close and delete database files.
+        // KD-56: this is the same irreversible close as restore. The gate
+        // terminal makes every gate-wired writer fail fast after close instead
+        // of touching a closed PassthroughConnectionPool.
+        val admission = writeGate.beginRestore("删除全部数据")
+        var restartNotified = false
+        try {
+            admission.beginCommit()
+            withContext(kotlinx.coroutines.NonCancellable) {
+                restartNotifier("正在删除全部数据，请先不要操作…")
+                restartNotified = true
+                if (observerQuiesceMillis > 0L) delay(observerQuiesceMillis)
+                writeGate.markDatabaseClosedForRestart()
+                database.close()
+                deleteAllDatabaseFiles(databaseFile)
+            }
+        } catch (failure: Exception) {
+            if (restartNotified) {
+                restartNotifier(
+                    "删除未全部完成。请完全退出并重新打开应用，再核对本机数据。",
+                )
+            }
+            throw failure
+        } finally {
+            admission.endRestore()
+        }
+        deleteAllNonDatabaseFiles(
+            assetRoot = assetRoot,
+            preferenceFiles = preferenceFiles,
+            datastoreFiles = datastoreFiles,
+            tempFiles = tempFiles,
+        )
+
+        DeleteAllDataReceipt(
+            deletedDatabaseBytes = databaseBytes,
+            deletedAssetBytes = assetBytes,
+            deletedPreferenceBytes = preferenceBytes + datastoreFiles.sumOf(File::length),
+            deletedTempBytes = tempBytes,
+            deletedSecretVaultBytes = deleteSecretVaultAndKeystore(),
+        )
+    }
+
+    private fun deleteAllDatabaseFiles(databaseFile: File) {
         listOf(
             databaseFile,
             File("${databaseFile.absolutePath}-wal"),
@@ -700,7 +867,14 @@ class AndroidBackupRepository(
             File("${databaseFile.absolutePath}.prev"),
             File("${databaseFile.absolutePath}.next"),
         ).forEach { it.delete() }
+    }
 
+    private fun deleteAllNonDatabaseFiles(
+        assetRoot: File,
+        preferenceFiles: List<File>,
+        datastoreFiles: List<File>,
+        tempFiles: List<File>,
+    ) {
         // 3. Delete canonical assets (including generation artifacts)
         assetRoot.listFiles().orEmpty().forEach { it.deleteRecursively() }
         assetRoot.delete()
@@ -719,6 +893,24 @@ class AndroidBackupRepository(
         // 6. Delete temporary/cache files
         tempFiles.forEach { it.deleteRecursively() }
 
+        // 9. Delete notifications
+        try {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager
+            notificationManager.cancelAll()
+        } catch (_: Exception) {
+            // Notification manager may not be available
+        }
+
+        // 10. Delete restore journals and quarantined restore artifacts.
+        context.noBackupFilesDir.listFiles().orEmpty()
+            .filter {
+                it.name.startsWith("restore-journal-") || it.name == "restore-quarantine"
+            }
+            .forEach { it.deleteRecursively() }
+    }
+
+    private fun deleteSecretVaultAndKeystore(): Long {
         // 7. Delete secret vault files (API key ciphertext)
         val secretVaultDir = File(context.noBackupFilesDir, "model-secrets")
         val secretVaultBytes = if (secretVaultDir.exists()) {
@@ -741,30 +933,7 @@ class AndroidBackupRepository(
         } catch (_: Exception) {
             // Keystore may not be accessible; continue cleanup
         }
-
-        // 9. Delete notifications
-        try {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
-                as android.app.NotificationManager
-            notificationManager.cancelAll()
-        } catch (_: Exception) {
-            // Notification manager may not be available
-        }
-
-        // 10. Delete restore journals and quarantined restore artifacts.
-        context.noBackupFilesDir.listFiles().orEmpty()
-            .filter {
-                it.name.startsWith("restore-journal-") || it.name == "restore-quarantine"
-            }
-            .forEach { it.deleteRecursively() }
-
-        DeleteAllDataReceipt(
-            deletedDatabaseBytes = databaseBytes,
-            deletedAssetBytes = assetBytes,
-            deletedPreferenceBytes = preferenceBytes + datastoreFiles.sumOf(File::length),
-            deletedTempBytes = tempBytes,
-            deletedSecretVaultBytes = secretVaultBytes,
-        )
+        return secretVaultBytes
     }
 
     private fun canonicalAssetRoot(): File {
@@ -920,11 +1089,14 @@ class AndroidBackupRepository(
     }
 
     /**
-     * Verify the restored database is valid and can be opened by Room.
+     * Verify the **prepared next generation** before the live database is closed
+     * (KD-56). This runs while every other Room consumer still works, so a long
+     * `integrity_check` on a 365MB database no longer sits in the closed-pool
+     * window.
      */
-    private fun verifyRestoredDatabase(databaseFile: File) {
-        if (!databaseFile.exists()) {
-            throw BackupRestoreException("恢复后的数据库文件不存在")
+    private fun verifyPreparedDatabase(databaseFile: File) {
+        if (!databaseFile.isFile) {
+            throw BackupRestoreException("准备写入的恢复数据库文件不存在")
         }
 
         // Check SQLite magic bytes
@@ -934,15 +1106,15 @@ class AndroidBackupRepository(
             String(buffer.take(16).toByteArray())
         }
         if (!magic.startsWith("SQLite format 3")) {
-            throw BackupRestoreException("恢复后的文件不是有效的 SQLite 数据库")
+            throw BackupRestoreException("准备写入的恢复文件不是有效的 SQLite 数据库")
         }
 
         // Run integrity check
         try {
-            android.database.sqlite.SQLiteDatabase.openDatabase(
+            SQLiteDatabase.openDatabase(
                 databaseFile.absolutePath,
                 null,
-                android.database.sqlite.SQLiteDatabase.OPEN_READONLY,
+                SQLiteDatabase.OPEN_READONLY,
             ).use { db ->
                 val cursor = db.rawQuery("PRAGMA integrity_check", null)
                 cursor.use {
@@ -956,7 +1128,40 @@ class AndroidBackupRepository(
                     }
                 }
             }
-        } catch (e: android.database.sqlite.SQLiteException) {
+        } catch (e: SQLiteException) {
+            throw BackupRestoreException("无法打开准备写入的恢复数据库", e)
+        }
+    }
+
+    /**
+     * Cheap post-swap check: the file must exist, start with the SQLite magic
+     * and be openable. The full integrity check already ran on the same bytes
+     * in [verifyPreparedDatabase] **before** `close()`; keeping the post-swap
+     * phase short is the point of the KD-56 reordering.
+     */
+    private fun verifySwappedDatabaseShape(databaseFile: File) {
+        if (!databaseFile.isFile || databaseFile.length() == 0L) {
+            throw BackupRestoreException("恢复后的数据库文件不存在或为空")
+        }
+        val magic = databaseFile.inputStream().use { stream ->
+            val buffer = ByteArray(16)
+            stream.read(buffer)
+            String(buffer.take(16).toByteArray())
+        }
+        if (!magic.startsWith("SQLite format 3")) {
+            throw BackupRestoreException("恢复后的文件不是有效的 SQLite 数据库")
+        }
+        try {
+            SQLiteDatabase.openDatabase(
+                databaseFile.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY,
+            ).use { db ->
+                // Reading user_version proves the header (and therefore page 1)
+                // is readable after the rename; no Room instance is involved.
+                db.version
+            }
+        } catch (e: SQLiteException) {
             throw BackupRestoreException("无法打开恢复后的数据库", e)
         }
     }
@@ -1118,6 +1323,165 @@ class BackupRestoreException(message: String, cause: Throwable? = null) :
 class BackupRestoreDatabaseClosedException(message: String, cause: Throwable? = null) :
     Exception(message, cause)
 
+/**
+ * 成包快照策略（KD-54）。实现必须在**不占用 room3 共享连接池**的前提下写出
+ * [snapshotTarget]；返回 true 只表示"写出了一份非空、可读的快照"，false 表示
+ * "这个策略在当前设备不可用"，调用方可以回退到旧的 Room 连接快照（那里有全写者屏障）。
+ *
+ * 之所以要这个缝：Room 3 的 `AndroidSQLiteDriver` 报告 `hasConnectionPool=true`，
+ * `withRawConnection(isReadOnly=true)` 仍是**同一条可写连接**——把 `VACUUM INTO`
+ * 放上去就会像设备实测那样占住唯一写连接 601s（KD-54）。独立连接 + WAL 读写不互斥
+ * 才是"备份期间写入口不必排队"的前提。
+ */
+interface DatabaseSnapshotEngine {
+    suspend fun snapshot(sourceDatabaseFile: File, snapshotTarget: File): Boolean
+}
+
+/**
+ * 用**独立于 Room 的 framework SQLite 连接**跑 `VACUUM INTO`。
+ *
+ * - 独立连接有自己的连接池；`VACUUM INTO` 在源库上只开读事务，WAL 模式下不阻塞
+ *   其它连接的写，也不占 Room 的写连接。
+ * - SQLite 3.28.0 起 `VACUUM INTO` 支持只读源连接；但 Android framework 的
+ *   `SQLiteDatabase` 另有语句守卫（`sqlite3_stmt_readonly(VACUUM INTO)=0`），所以
+ *   这里**不假设**只读一定放行：只读失败后改用独立的 `OPEN_READWRITE` 连接重试，
+ *   它仍不是 Room 的连接。framework SQLite < 3.27 时返回 false（旧回退）。
+ * - 快照落盘后按 `quick_check` + `user_version` 复核；任何失败都删掉半截目标，
+ *   绝不让成包读到一份"看起来存在"的坏快照。
+ *
+ * 设备侧只读放行与否由设备轨用例实测（研究阶段标为 UNVERIFIED）；无论走只读还是
+ * 可写重试，都不会退回 Room 写连接。
+ */
+class FrameworkVacuumIntoSnapshotEngine : DatabaseSnapshotEngine {
+    override suspend fun snapshot(
+        sourceDatabaseFile: File,
+        snapshotTarget: File,
+    ): Boolean {
+        if (!sourceDatabaseFile.isFile) return false
+        if (!deleteTarget(snapshotTarget)) return false
+        val probe = probeSource(sourceDatabaseFile) ?: return false
+        if (!isAtLeast(probe.sqliteVersion, 3, 27, 0)) return false
+        // 独立连接只在 WAL 下才能保证读不阻塞写；非 WAL 的库走旧回退（带全写者屏障），
+        // 否则一个长读事务会把 Room 的写锁住，正是 KD-54 要消灭的形态。
+        if (!probe.journalMode.equals("wal", ignoreCase = true)) return false
+
+        val attempts = buildList {
+            // 3.28.0 起核心支持只读源；先按最严格的只读连接试。
+            if (isAtLeast(probe.sqliteVersion, 3, 28, 0)) {
+                add(SQLiteDatabase.OPEN_READONLY)
+            }
+            // 独立可写连接仍是"非 Room"连接；厂商拒绝只读 VACUUM INTO 时用它。
+            add(SQLiteDatabase.OPEN_READWRITE)
+        }
+        for (flags in attempts) {
+            repeat(VACUUM_ATTEMPTS) { attempt ->
+                if (attempt > 0) delay(VACUUM_RETRY_DELAY_MILLIS)
+                if (vacuumInto(sourceDatabaseFile, snapshotTarget, flags)) {
+                    if (verifySnapshot(snapshotTarget, probe.userVersion)) return true
+                    deleteTarget(snapshotTarget)
+                    // 写出来了却读不过：不是"策略不可用"，不要无限重试。
+                    return false
+                }
+                deleteTarget(snapshotTarget)
+            }
+        }
+        return false
+    }
+
+    private fun probeSource(sourceDatabaseFile: File): Probe? {
+        val flagsToTry = intArrayOf(
+            SQLiteDatabase.OPEN_READONLY,
+            SQLiteDatabase.OPEN_READWRITE,
+        )
+        for (flags in flagsToTry) {
+            try {
+                SQLiteDatabase.openDatabase(
+                    sourceDatabaseFile.absolutePath,
+                    null,
+                    flags,
+                ).use { db ->
+                    val version = db.rawQuery("SELECT sqlite_version()", null).use { cursor ->
+                        if (cursor.moveToFirst()) cursor.getString(0) else null
+                    }
+                    val journalMode = db.rawQuery("PRAGMA journal_mode", null).use { cursor ->
+                        if (cursor.moveToFirst()) cursor.getString(0) else null
+                    }
+                    if (version != null && journalMode != null) {
+                        return Probe(
+                            sqliteVersion = version,
+                            userVersion = db.version,
+                            journalMode = journalMode,
+                        )
+                    }
+                }
+            } catch (_: Exception) {
+                // 换下一种打开方式；两种都失败才判定"独立连接不可用"。
+            }
+        }
+        return null
+    }
+
+    private fun vacuumInto(source: File, target: File, flags: Int): Boolean = try {
+        SQLiteDatabase.openDatabase(source.absolutePath, null, flags).use { db ->
+            val escapedPath = target.absolutePath.replace("'", "''")
+            db.execSQL("VACUUM INTO '$escapedPath'")
+        }
+        target.isFile && target.length() > 0L
+    } catch (_: Exception) {
+        false
+    }
+
+    private fun verifySnapshot(target: File, expectedUserVersion: Int): Boolean {
+        if (!target.isFile || target.length() == 0L) return false
+        val ok = try {
+            SQLiteDatabase.openDatabase(
+                target.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY,
+            ).use { db ->
+                if (db.version != expectedUserVersion) return false
+                db.rawQuery("PRAGMA quick_check", null).use { cursor ->
+                    cursor.moveToFirst() && cursor.getString(0) == "ok"
+                }
+            }
+        } catch (_: SQLiteException) {
+            false
+        }
+        if (!ok) return false
+        runCatching {
+            java.io.RandomAccessFile(target, "r").use { raf -> raf.fd.sync() }
+        }
+        return true
+    }
+
+    private fun deleteTarget(target: File): Boolean = !target.exists() || target.delete()
+
+    private fun isAtLeast(version: String, major: Int, minor: Int, patch: Int): Boolean {
+        val parts = version.split('.').mapNotNull { part -> part.toIntOrNull() }
+        val actual = listOf(
+            parts.getOrElse(0) { 0 },
+            parts.getOrElse(1) { 0 },
+            parts.getOrElse(2) { 0 },
+        )
+        val required = listOf(major, minor, patch)
+        for (index in 0..2) {
+            if (actual[index] != required[index]) return actual[index] > required[index]
+        }
+        return true
+    }
+
+    private data class Probe(
+        val sqliteVersion: String,
+        val userVersion: Int,
+        val journalMode: String,
+    )
+
+    private companion object {
+        const val VACUUM_ATTEMPTS = 3
+        const val VACUUM_RETRY_DELAY_MILLIS = 250L
+    }
+}
+
 /** Counts bytes read from the wrapped stream, used to detect zip bombs. */
 internal class CountingInputStream(
     delegate: InputStream,
@@ -1151,6 +1515,11 @@ object BackupRepositoryFactory {
      * 生产用的 DataStore 实例，备份把它们的偏好快照进 `settings.json`，恢复在交换成功后
      * 写回。不传（测试装配）时包内没有设置——`hasSettings=false`，不是"设置是默认值"。
      * [writeGate] 默认进程内共享门（KD-54），与采集等写入口同一实例。
+     *
+     * [onRestartRequired]（KD-56）：恢复在**关闭 room3 连接池之前**把"请重启"原因交给
+     * 界面。生产装配必须接 `SmartMistakeBookApplication::requireDatabaseRestart`
+     * （Application 里工厂调用的 `onRestartRequired = ::requireDatabaseRestart`）；
+     * 不接时仍能恢复，但界面要等 `restore()` 返回后才进入重启页，关库后的窗口更长。
      */
     fun create(
         context: Context,
@@ -1158,11 +1527,13 @@ object BackupRepositoryFactory {
         schedulingSettings: SchedulingSettingsStore? = null,
         reviewReminders: ReviewReminderRepository? = null,
         writeGate: BackupWriteGate = BackupWriteGate.shared,
+        onRestartRequired: (String) -> Unit = {},
     ): BackupRepository = AndroidBackupRepository(
         context = context,
         database = database,
         schedulingSettings = schedulingSettings,
         reviewReminders = reviewReminders,
         writeGate = writeGate,
+        restartNotifier = onRestartRequired,
     )
 }

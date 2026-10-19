@@ -15,7 +15,10 @@ import org.junit.Test
  * 用例变红（两条链各有自己的 happy path）。
  *
  * 这条用例用**源码对拍**钉住"单一来源"：本模块里 `supportsImageInput` 只允许出现在
- * `ImageCredentialGate.kt` 一处；三条图片链都必须经 `resolveImageCredential`。
+ * `ImageCredentialGate.kt` 一处；仍在出网的两条图片链都必须经 `resolveImageCredential`。
+ *
+ * WG-05 起旧 `attachedImages` 工厂改为 cache-only（显式重生成交给共享 coordinator），
+ * 因此它不再属于"需要过凭证门"的链路；这条用例额外钉住它**不得**再内联一份门。
  * 这是变异测试的静态落点——把内联门抄回去，这条就红。
  */
 class ImageCredentialGateSingleSourceTest {
@@ -33,7 +36,6 @@ class ImageCredentialGateSingleSourceTest {
 
         listOf(
             "capture/ConfiguredCleanImageGenerator.kt",
-            "model/AttachedImageGeneratorFactory.kt",
             "model/TutorFigureGenerator.kt",
         ).forEach { path ->
             val chain = source(path)
@@ -46,5 +48,18 @@ class ImageCredentialGateSingleSourceTest {
                 chain.contains("supportsImageInput"),
             )
         }
+
+        // WG-05 / KD-58：历史 attachedImages 工厂已改为 cache-only + 显式重生成经共享
+        // coordinator——它本身不再读凭证/建通道，因此既不能有第二份门，也不该再被列进
+        // “需要过凭证门”的链路清单。
+        val legacyFactory = source("model/AttachedImageGeneratorFactory.kt")
+        assertFalse(
+            "旧工厂不得再读凭证（生成已移交给 coordinator）",
+            legacyFactory.contains("resolveImageCredential"),
+        )
+        assertFalse(
+            "旧工厂不得内联能力判定",
+            legacyFactory.contains("supportsImageInput"),
+        )
     }
 }

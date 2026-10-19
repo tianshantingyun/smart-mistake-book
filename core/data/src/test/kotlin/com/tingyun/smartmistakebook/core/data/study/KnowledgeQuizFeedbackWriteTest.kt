@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
+import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
+import com.tingyun.smartmistakebook.core.model.TutorChoice
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import java.time.Clock
 import java.time.Instant
@@ -25,6 +27,8 @@ import org.junit.Test
 class KnowledgeQuizFeedbackWriteTest {
 
     private val learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID
+    private val sessionId = 5_000L
+    private val conversationId = "knowledge-quiz-review:$sessionId"
 
     private fun repository(database: FakeStudyDatabasePort): RoomBackedStudyExperienceRepository {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
@@ -36,8 +40,34 @@ class KnowledgeQuizFeedbackWriteTest {
         )
     }
 
-    private fun anchoredDatabase(nodeId: String = "kc-monotonicity") = FakeStudyDatabasePort().apply {
-        knowledgeNodes += KnowledgeNodeSeedRecord(
+    /**
+     * PRD-02：把本次会话/知识点的题面键标记为**独立核验**（`VERIFIED`）——本文件的重点是
+     * 既有门控与权重；未核验键的保守行为由 `AnswerKeyCorrectionInstrumentedTest` 覆盖。
+     */
+    private suspend fun FakeStudyDatabasePort.trustQuizKey(
+        sessionId: Long,
+        nodeId: String,
+        correctChoiceId: String = "A",
+    ) {
+        val item = TutorAssessmentItem(
+            id = "knowledge-quiz:item:$nodeId",
+            stemMarkdown = "题干",
+            choices = listOf(
+                TutorChoice(id = "A", markdown = "选项 A"),
+                TutorChoice(id = "B", markdown = "选项 B"),
+            ),
+            correctChoiceId = correctChoiceId,
+            knowledgeNodeIds = setOf(nodeId),
+        )
+        KnowledgeQuizItemStore(this, learnerId).save(sessionId, nodeId, item, 1_000)
+        val snapshotId = knowledgeQuizItemSnapshotId(learnerId, sessionId, nodeId)
+        val record = requireNotNull(findAssessmentItemSnapshot(snapshotId))
+        overwriteAssessmentItemSnapshot(record.copy(verificationStatus = "VERIFIED"))
+    }
+
+    private suspend fun anchoredDatabase(nodeId: String = "kc-monotonicity"): FakeStudyDatabasePort {
+        val database = FakeStudyDatabasePort()
+        database.knowledgeNodes += KnowledgeNodeSeedRecord(
             knowledgeNodeId = nodeId,
             stableCode = "math.function.monotonicity",
             subject = "MATH",
@@ -47,6 +77,8 @@ class KnowledgeQuizFeedbackWriteTest {
             createdAtEpochMillis = 1_000,
             canonicalName = "函数单调性",
         )
+        database.trustQuizKey(sessionId, nodeId)
+        return database
     }
 
     @Test
@@ -61,7 +93,7 @@ class KnowledgeQuizFeedbackWriteTest {
                 correctChoiceId = "A",
                 selectedChoiceId = "A",
                 occurredAtEpochMillis = 5_000,
-                conversationId = "knowledge-quiz-review:test-session",
+                conversationId = conversationId,
             )
 
             assertTrue(result.isCorrect)
@@ -71,7 +103,7 @@ class KnowledgeQuizFeedbackWriteTest {
             assertEquals("kc-monotonicity", evidence.knowledge_node_id)
             assertEquals(TutorEvidenceDirection.POSITIVE.name, evidence.direction)
             assertEquals("KNOWLEDGE_QUIZ", evidence.source_kind)
-            assertEquals("knowledge-quiz-review:test-session", evidence.conversation_id)
+            assertEquals(conversationId, evidence.conversation_id)
             assertEquals("knowledge-quiz:req-correct:kc-monotonicity", evidence.evidence_id)
             assertTrue(evidence.weight > 0.0)
             assertEquals(5_000L, evidence.created_at_epoch_millis)
@@ -99,7 +131,7 @@ class KnowledgeQuizFeedbackWriteTest {
                 correctChoiceId = "A",
                 selectedChoiceId = "B",
                 occurredAtEpochMillis = 6_000,
-                conversationId = "knowledge-quiz-review:test-session",
+                conversationId = conversationId,
             )
 
             assertFalse(result.isCorrect)
@@ -118,6 +150,8 @@ class KnowledgeQuizFeedbackWriteTest {
         // 防止模型/调用方凭臆造节点污染掌握度。D-M M4：被拒 ≠ 什么都不落——与讲题
         // 通道一致，落一条 rejected 观察行（审计/校准读得到"哪一档来路被拒得最多"）。
         val database = FakeStudyDatabasePort()
+        // 题面键独立核验（否则先被键信任门挡成 ANSWER_KEY_UNVERIFIED，测不到“未锚定”这一支）。
+        database.trustQuizKey(sessionId, "kc-not-in-library")
         val repository = repository(database)
 
         try {
@@ -127,7 +161,7 @@ class KnowledgeQuizFeedbackWriteTest {
                 correctChoiceId = "A",
                 selectedChoiceId = "A",
                 occurredAtEpochMillis = 7_000,
-                conversationId = "knowledge-quiz-review:test-session",
+                conversationId = conversationId,
             )
 
             assertTrue(result.isCorrect)
@@ -158,7 +192,7 @@ class KnowledgeQuizFeedbackWriteTest {
                     correctChoiceId = "A",
                     selectedChoiceId = "A",
                     occurredAtEpochMillis = 8_000L + attempt,
-                    conversationId = "knowledge-quiz-review:test-session",
+                    conversationId = conversationId,
                 )
             }
             val ids = database.recordedChatEvidence.map { it.evidence_id }.distinct()
@@ -176,7 +210,9 @@ class KnowledgeQuizFeedbackWriteTest {
      */
     @Test
     fun aNewReviewSessionIsNotBlockedByAnExhaustedEarlierSession() = runBlocking {
+        val newSessionId = 6_000L
         val database = anchoredDatabase()
+        database.trustQuizKey(newSessionId, "kc-monotonicity")
         database.acceptedChatEvidenceByConversation[
             "knowledge-quiz-review:exhausted-session"
         ] = MasteryWriteGate.MAX_WRITES_PER_CONVERSATION
@@ -189,7 +225,7 @@ class KnowledgeQuizFeedbackWriteTest {
                 correctChoiceId = "A",
                 selectedChoiceId = "A",
                 occurredAtEpochMillis = 9_000,
-                conversationId = "knowledge-quiz-review:new-session",
+                conversationId = "knowledge-quiz-review:$newSessionId",
             )
 
             assertTrue("New session must not inherit an exhausted quota", result.evidenceRecorded)

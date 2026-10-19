@@ -11,8 +11,10 @@ package com.tingyun.smartmistakebook.core.model
  *   这里按 method 严格正交：JS 只带 program，IMAGE_MODEL 只带 imageOperation/imagePrompt。
  * - 入口把宿主约束丢掉、把 purpose 改成"讲解"冒充"题面重建"时，校验会拒绝——proposal 的
  *   purpose 必须等于宿主冻结的 purpose，宿主约束必须逐条保留（约束未被降级）。
- * - 没有持久父操作/剩余预算时仍出网。这里在预留之前就拒绝，与 core:domain 的
+ * - 没有持久父操作/显式已知预算不足时仍出网。这里在预留之前就拒绝，与 core:domain 的
  *   `RemoteModelDispatchLedger` 的 durable 判定形成两道门（策略门 + 账本门）。
+ *   预算未预读（`remainingRemoteDispatches == null`）时策略门放行，由账本做真门；
+ *   账本拒绝会把真实已派发次数回给诊断（KD-60）。
  *
  * 只做校验，不做路由：它不按 purpose 选 method，也不替入口改选。
  */

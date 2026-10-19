@@ -70,6 +70,8 @@ class MistakeExportBackgroundInstrumentedTest {
         composeRule.onNodeWithTag("mistake_detail_export_a4")
             .performScrollTo()
             .performClick()
+        waitForTag("mistake_export_format_sheet")
+        composeRule.onNodeWithTag("mistake_export_format_confirm").performClick()
         waitForTag("mistake_export_hub")
 
         // 离开：成果入口 → 详情 → 错题本。详情页（触发导出的页面）在这里被销毁。
@@ -163,6 +165,8 @@ class MistakeExportBackgroundInstrumentedTest {
             composeRule.onNodeWithTag("mistake_detail_export_a4")
                 .performScrollTo()
                 .performClick()
+            waitForTag("mistake_export_format_sheet")
+            composeRule.onNodeWithTag("mistake_export_format_confirm").performClick()
             waitForTag("mistake_export_hub")
 
             // 渲染被闸门挡住：离开之前，这条记录必须仍在进行。

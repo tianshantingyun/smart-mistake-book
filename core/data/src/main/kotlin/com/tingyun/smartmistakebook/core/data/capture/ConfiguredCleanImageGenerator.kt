@@ -6,6 +6,7 @@ import com.tingyun.smartmistakebook.core.data.model.OpenAiImageGenerationChannel
 import com.tingyun.smartmistakebook.core.data.model.imageGenerationConfigurationFingerprint
 import com.tingyun.smartmistakebook.core.data.model.resolveGuardedEdits
 import com.tingyun.smartmistakebook.core.data.model.resolveImageCredential
+import com.tingyun.smartmistakebook.core.data.model.sharedOperationFigureBudget
 import com.tingyun.smartmistakebook.core.data.visual.DefaultFigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.data.visual.FigureImageBackend
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
@@ -17,7 +18,6 @@ import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.domain.UnavailableRemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.model.FigureArtifact
 import com.tingyun.smartmistakebook.core.model.FigureFidelity
-import com.tingyun.smartmistakebook.core.model.FigureGenerationBudget
 import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
 import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
@@ -27,7 +27,6 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
-import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
@@ -80,10 +79,8 @@ internal class ConfiguredCleanImageGenerator(
         preflight.apiKey.close()
 
         val capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY
-        val budget = FigureGenerationBudget(
-            remainingRemoteDispatches = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES,
-            reserveChatFinalAnswer = false,
-        )
+        // KD-60：声明共享上限 + 未预读余量（真门在持久账本）。
+        val budget = sharedOperationFigureBudget(reserveChatFinalAnswer = false)
         val sourceSha = figureSha256Hex(request.originalBytes)
         val generationRequest = FigureGenerationRequest(
             operationId = request.operationId ?: "clean-redraw-op:$sourceSha",

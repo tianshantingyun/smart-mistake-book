@@ -15,6 +15,22 @@ interface MistakeDetailRepository {
     suspend fun readExact(key: MistakeRevisionKey): MistakeDetailState
 
     /**
+     * Saves a corrected question document as the next immutable revision of the entry, using the
+     * caller's expected current revision as a compare-and-swap guard.
+     *
+     * The command is idempotent by [ReviseMistakeProblemCommand.commandId]: retrying the same
+     * command (even with a fresh timestamp) returns the receipt of the revision it already
+     * created. A different command that lands on a moved head returns
+     * [ReviseMistakeProblemResult.Conflict] instead of overwriting the newer revision.
+     *
+     * The default is honest "not supported" so non-database repositories never report a write
+     * they did not perform.
+     */
+    suspend fun reviseProblem(
+        command: ReviseMistakeProblemCommand,
+    ): ReviseMistakeProblemResult = ReviseMistakeProblemResult.NotSupported
+
+    /**
      * Reads an ordered immutable snapshot. Implementations may collapse this into one database
      * transaction; the default preserves compatibility for non-database repositories.
      */
@@ -107,6 +123,13 @@ sealed interface MistakeDetailState {
     data class Ready(
         val detail: MistakeDetail,
         val questionDocument: CapturedQuestionDocument,
+        /**
+         * 这一版题面是否带机器可判题的答案与解析（`problem_revision.answer_spec_id`）。
+         *
+         * 编辑页用它把“保存后会丢掉旧答案”放进**保存前**差异；缺省 false 只适用于
+         * 不来自数据库的替身/旧构造点，生产读取必须给出真实值。
+         */
+        val answerSpecPresent: Boolean = false,
     ) : MistakeDetailState
 
     /** A pre-structured-content record. Markdown is authoritative only in this state. */
@@ -220,4 +243,107 @@ sealed interface MistakeSourceLocation {
     }
 
     data object Unavailable : MistakeSourceLocation
+}
+
+/**
+ * Stable command identity for one revision edit. [commandId] is the idempotency key; callers
+ * must keep it stable across retries (a new timestamp alone does not make a new command).
+ */
+data class ReviseMistakeProblemCommand(
+    val commandId: String,
+    val entryId: String,
+    val expectedRevisionId: String,
+    val expectedRevisionNumber: Int,
+    val questionDocument: CapturedQuestionDocument,
+    val revisedAtEpochMillis: Long,
+    val title: String? = null,
+) {
+    init {
+        require(commandId.matches(COMMAND_ID_PATTERN)) {
+            "Revision command id must be a stable identifier"
+        }
+        require(entryId.isNotBlank()) { "Error-book entry id must not be blank" }
+        require(expectedRevisionId.isNotBlank()) { "Expected revision id must not be blank" }
+        require(expectedRevisionNumber > 0) { "Expected revision number must be positive" }
+        require(revisedAtEpochMillis >= 0) { "Revision time must not be negative" }
+    }
+
+    private companion object {
+        // No ':' (the durable receipt token is colon-delimited), no LIKE wildcards.
+        val COMMAND_ID_PATTERN = Regex("[A-Za-z0-9.-]{1,128}")
+    }
+}
+
+/** Receipt for the immutable revision that is now (or was already) the entry's head. */
+data class MistakeRevisionReceipt(
+    val entryId: String,
+    val problemId: String,
+    val problemRevisionId: String,
+    val revisionNumber: Int,
+    val previousRevisionId: String,
+    val previousRevisionNumber: Int,
+    val title: String,
+    val contentFingerprint: String,
+    /** 这次回执指向的 revision 是否带机器可判题的答案（撤销回旧版时可能为 true）。 */
+    val answerSpecPresent: Boolean = false,
+    val createdAtEpochMillis: Long,
+    val changes: List<MistakeRevisionChange>,
+    val cancelledModelTaskCount: Int = 0,
+    val supersededCleanRedrawCount: Int = 0,
+    val staleRelationCount: Int = 0,
+) {
+    init {
+        require(entryId.isNotBlank())
+        require(problemId.isNotBlank())
+        require(problemRevisionId.isNotBlank())
+        require(revisionNumber > 0)
+        require(previousRevisionNumber > 0)
+        require(title.isNotBlank())
+        require(contentFingerprint.matches(SHA_256))
+    }
+
+    private companion object {
+        val SHA_256 = Regex("[a-f0-9]{64}")
+    }
+}
+
+sealed interface ReviseMistakeProblemResult {
+    /**
+     * The edit was written (or an identical command retry found its existing receipt). [created]
+     * is false when no new revision row was written: an idempotent retry, or a content-identical
+     * revert to an older immutable revision.
+     */
+    data class Saved(
+        val receipt: MistakeRevisionReceipt,
+        val created: Boolean,
+    ) : ReviseMistakeProblemResult
+
+    /** The edited document is identical to the current revision; nothing was written. */
+    data class Unchanged(
+        val receipt: MistakeRevisionReceipt,
+    ) : ReviseMistakeProblemResult
+
+    /** The entry moved on (or was never at the caller's expected revision). Nothing was written. */
+    data class Conflict(
+        val expectedRevisionId: String,
+        val expectedRevisionNumber: Int,
+        val currentRevisionId: String?,
+        val currentRevisionNumber: Int?,
+        val currentRevisionTitle: String? = null,
+    ) : ReviseMistakeProblemResult
+
+    /** The same command id was reused with a different payload; nothing was written. */
+    data class DuplicateCommandConflict(
+        val commandId: String,
+    ) : ReviseMistakeProblemResult
+
+    /** The structured document failed commit validation; nothing was written. */
+    data class InvalidDocument(
+        val issues: List<String>,
+    ) : ReviseMistakeProblemResult
+
+    data object NotFound : ReviseMistakeProblemResult
+
+    /** This repository cannot write revisions (e.g. a read-only test double). */
+    data object NotSupported : ReviseMistakeProblemResult
 }

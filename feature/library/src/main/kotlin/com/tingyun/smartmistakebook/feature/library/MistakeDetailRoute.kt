@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -99,7 +100,31 @@ fun MistakeDetailRoute(
     var selectedRevisionId by rememberSaveable(errorBookEntryId) {
         mutableStateOf<String?>(null)
     }
-    val revisionHistoryFlow = remember(errorBookEntryId, repository) {
+    var editing by rememberSaveable(errorBookEntryId) { mutableStateOf(false) }
+    var savedRevisionNotice by rememberSaveable(errorBookEntryId) {
+        mutableStateOf<String?>(null)
+    }
+    var refreshToken by rememberSaveable(errorBookEntryId) { mutableIntStateOf(0) }
+    if (editing) {
+        MistakeRevisionEditRoute(
+            entryId = errorBookEntryId,
+            repository = repository,
+            onBack = {
+                editing = false
+                // A save may have succeeded even if the learner used the back arrow instead of
+                // the completion button; always re-read the head when leaving the editor.
+                refreshToken += 1
+            },
+            onDone = {
+                editing = false
+                savedRevisionNotice = "已保存题面修改；复习、导出和再次打开都会使用当前版本。"
+                refreshToken += 1
+            },
+            modifier = modifier,
+        )
+        return
+    }
+    val revisionHistoryFlow = remember(errorBookEntryId, repository, refreshToken) {
         if (errorBookEntryId.isBlank()) {
             flowOf(emptyList())
         } else {
@@ -116,6 +141,7 @@ fun MistakeDetailRoute(
         errorBookEntryId,
         repository,
         selectedRevision,
+        refreshToken,
     ) {
         if (errorBookEntryId.isBlank()) {
             flowOf(MistakeDetailState.NotFound)
@@ -145,6 +171,8 @@ fun MistakeDetailRoute(
         },
         onOpenRelatedMistake = onOpenRelatedMistake,
         onOpenModelSettings = onOpenModelSettings,
+        onEditRequested = { editing = true },
+        revisionNotice = savedRevisionNotice,
         modifier = modifier,
         knowledgeBaseAvailability = knowledgeBaseAvailability,
     )
@@ -166,6 +194,8 @@ internal fun MistakeDetailContent(
     onSelectRevision: (MistakeRevisionSummary) -> Unit = {},
     onOpenRelatedMistake: (String) -> Unit = {},
     onOpenModelSettings: () -> Unit = {},
+    onEditRequested: (() -> Unit)? = null,
+    revisionNotice: String? = null,
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
 ) {
@@ -173,6 +203,24 @@ internal fun MistakeDetailContent(
         modifier = modifier.testTag("mistake_detail_screen"),
     ) {
         MistakeDetailHeader(onBack)
+        revisionNotice?.let { notice ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("mistake_detail_revision_notice"),
+                shape = RoundedCornerShape(10.dp),
+                color = JadeSoft.copy(alpha = 0.5f),
+                border = BorderStroke(1.dp, Outline),
+            ) {
+                Text(
+                    text = notice,
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(12.dp),
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+        }
         Spacer(Modifier.height(12.dp))
         if (
             selectedRevisionId != null &&
@@ -202,6 +250,7 @@ internal fun MistakeDetailContent(
                 onSelectRevision = onSelectRevision,
                 onOpenRelatedMistake = onOpenRelatedMistake,
                 onOpenModelSettings = onOpenModelSettings,
+                onEdit = onEditRequested,
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
             )
             is MistakeDetailState.Legacy -> LegacyDetail(state.detail)
@@ -314,6 +363,7 @@ private fun ReadyDetail(
     onSelectRevision: (MistakeRevisionSummary) -> Unit,
     onOpenRelatedMistake: (String) -> Unit,
     onOpenModelSettings: () -> Unit,
+    onEdit: (() -> Unit)?,
     knowledgeBaseAvailability: KnowledgeBaseAvailability,
 ) {
     Column(
@@ -368,6 +418,17 @@ private fun ReadyDetail(
                 icon = Icons.AutoMirrored.Outlined.Chat,
                 contentDescription = "继续或开始讲解这道错题",
             )
+            if (onEdit != null) {
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onEdit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("mistake_detail_edit"),
+                ) {
+                    Text("修改这道题")
+                }
+            }
         }
         Spacer(Modifier.height(8.dp))
         OutlineActionChip(
@@ -379,6 +440,7 @@ private fun ReadyDetail(
         SourceSection(
             source = state.detail.source,
             revisionId = state.detail.identity.problemRevisionId,
+            isHistorical = isViewingHistoricalRevision,
         )
         if (!isViewingHistoricalRevision && repository != null) {
             MistakeUserNoteCard(
@@ -431,6 +493,7 @@ private fun MistakeUserNoteCard(
 ) {
     val scope = rememberCoroutineScope()
     var editing by rememberSaveable(entryId) { mutableStateOf(false) }
+    var savedNote by rememberSaveable(entryId, note) { mutableStateOf(note) }
     var draft by rememberSaveable(entryId) { mutableStateOf(note.orEmpty()) }
     var saving by remember { mutableStateOf(false) }
     var message by rememberSaveable(entryId) { mutableStateOf<String?>(null) }
@@ -451,12 +514,12 @@ private fun MistakeUserNoteCard(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = {
+                TextButton(enabled = !saving, onClick = {
                     editing = !editing
-                    draft = note.orEmpty()
+                    draft = savedNote.orEmpty()
                     message = null
                 }) {
-                    Text(if (editing) "取消" else if (note.isNullOrBlank()) "添加" else "编辑")
+                    Text(if (editing) "取消" else if (savedNote.isNullOrBlank()) "添加" else "编辑")
                 }
             }
             if (editing) {
@@ -484,6 +547,7 @@ private fun MistakeUserNoteCard(
                                 )
                                 saving = false
                                 if (saved) {
+                                    savedNote = draft.trim().takeIf(String::isNotEmpty)
                                     editing = false
                                     message = "已保存备注"
                                 } else {
@@ -499,9 +563,9 @@ private fun MistakeUserNoteCard(
                     colors = ButtonDefaults.buttonColors(containerColor = JadeActive),
                     modifier = Modifier.testTag("mistake_detail_note_save"),
                 ) { Text(if (saving) "保存中…" else "保存备注") }
-            } else if (!note.isNullOrBlank()) {
+            } else if (!savedNote.isNullOrBlank()) {
                 Text(
-                    text = note,
+                    text = savedNote.orEmpty(),
                     color = Ink,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -897,6 +961,7 @@ private const val REVISION_TIME_PATTERN = "yyyy年M月d日 HH:mm"
 private fun SourceSection(
     source: MistakeSourceSet,
     revisionId: String,
+    isHistorical: Boolean = false,
 ) {
     val assets = source.displayAssets()
     if (assets.isEmpty()) return
@@ -928,6 +993,7 @@ private fun SourceSection(
                     asset = asset,
                     position = index + 1,
                     total = assets.size,
+                    isHistorical = isHistorical,
                 )
             }
         }
@@ -939,6 +1005,7 @@ private fun SourceAssetPreview(
     asset: MistakeSourceAsset,
     position: Int,
     total: Int,
+    isHistorical: Boolean = false,
 ) {
     val availableLocation = asset.location as? MistakeSourceLocation.Available
     val imageUri = availableLocation?.localUri
@@ -961,7 +1028,12 @@ private fun SourceAssetPreview(
             .testTag("mistake_detail_source_asset_$position"),
     ) {
         Text(
-            text = if (total == 1) "原图" else "原图 $position / $total",
+            text = when {
+                asset.role == CLEAN_IMAGE_SOURCE_ROLE && isHistorical -> "旧版重绘（仅历史题面）"
+                asset.role == CLEAN_IMAGE_SOURCE_ROLE -> "重绘"
+                total == 1 -> "原图"
+                else -> "原图 $position / $total"
+            },
             color = Ink,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,

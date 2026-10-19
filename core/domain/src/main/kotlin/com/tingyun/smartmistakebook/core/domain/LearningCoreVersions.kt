@@ -6,8 +6,11 @@ object LearningCoreVersions {
      * v4 → v5（W4-2 投影批，2026-10-02，裁决 26）：「看答案」补知识点归因——独立
      * `AnswerRevealOutcome` 事件除题卡外也把该题绑定的知识点记忆卡按一次遗忘失败 lapse。
      * 号段沿用 3A 登记的 `evidence-v5`（「看答案口径」），本批落用。
+     *
+     * v5 → v6（批次 15 T2/PRD-02，2026-10-19）：chat evidence 可被定向撤销/替代；证据语义
+     * 集合变化（被撤销的证据不再贡献数值掌握），与 `PROJECTOR` v14 / `LEDGER` v4 同 bump。
      */
-    const val EVIDENCE = "evidence-v5"
+    const val EVIDENCE = "evidence-v6"
 
     /**
      * v5 → v6（2026-09-11）：`projectChatEvidence` 开始写 `lastEvidenceAt` /
@@ -68,8 +71,13 @@ object LearningCoreVersions {
      * 输出变化：同一账本在 v12 下把空绑定题的历史证据留在旧节点，v13 改挂 pseudo（旧节点归零、
      * 证据不丢）→ 存量投影必须全量重放（`commitFullReplay` 先归档被替换快照，W0-1 ③）。
      * 取代 K1 计划 §4 的"零 bump"预期（裁定见 `algorithm-version-ledger.md` §3.19）。
+     * v13 → v14（批次 15 T2/PRD-02，2026-10-19）：**chat evidence 的定向纠正/撤销**进入
+     * 重放。账本新增 `EVIDENCE_CORRECTION` 补偿事件（`LEDGER` v3 → v4；`EVIDENCE` v5 → v6）：
+     * 撤销 = 从有效证据集合排除；替代 = 按账本序列最终有效替代重算，且始终挂回**原作答位置**
+     * （修复日不进学习时钟）。无更正事件的固定账本逐位不变；有更正的账本必须从空快照重放，
+     * 否则增量路径会把被撤销的证据当成既成事实继续累加。
      */
-    const val PROJECTOR = "projector-v13"
+    const val PROJECTOR = "projector-v14"
     const val FORGETTING_CURVE = "curve-v3"
     const val SKIP_POLICY = "skip-v4"
 
@@ -91,8 +99,12 @@ object LearningCoreVersions {
     /**
      * 账本事件契约串（3B 批次 B4/KF-32，2026-10-02）：v2 → v3 新增补偿事件 kind
      * `BINDING_CHANGED`（仅全量重放消费，与 `ATTEMPT_CORRECTION` 同类）。
+     *
+     * v3 → v4（批次 15 T2/PRD-02，2026-10-19）：新增补偿事件 kind `EVIDENCE_CORRECTION`
+     * （chat evidence 的定向纠正/撤销；`learner_chat_evidence.corrects_evidence_id` 为载荷
+     * 目标列；仅全量重放消费）。
      */
-    const val LEDGER = "ledger-v3"
+    const val LEDGER = "ledger-v4"
     const val PREDICTION_INTERVAL = "prediction-interval-v1"
 
     // D-M M6（2026-10-02）：`REVIEW_PLANNER`（V1 计划版本串）与其复合串 `REVIEW_COMPOSITE`
@@ -108,7 +120,7 @@ object LearningCoreVersions {
     const val SELECTOR = "selector-v7"
 
     const val PROJECTION_COMPOSITE =
-        "learning-core-v13($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
+        "learning-core-v14($PROJECTOR,$EVIDENCE,$FORGETTING_CURVE,$SKIP_POLICY,$ATTRIBUTION,$LEDGER)"
     const val SELECTOR_COMPOSITE =
-        "learning-core-v13($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
+        "learning-core-v14($SELECTOR,$PROJECTOR,$SKIP_POLICY,$PREDICTION_INTERVAL,$LEDGER)"
 }

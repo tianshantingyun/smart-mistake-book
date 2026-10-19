@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.tingyun.smartmistakebook.core.domain.NewIntroductionPolicy
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.StudyReviewOverview
+import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
@@ -53,8 +54,39 @@ fun ReviewRoute(
     onStartKnowledgeReview: (() -> Unit)? = null,
     /** 今日可复习知识点数（spec §3.1）；null = 未加载/不可用。>0 才显示知识点入口。 */
     knowledgeReviewCount: Int? = null,
+    /**
+     * 错题本里已保存的题数（PRD-06 空态半边）。null = 未接线/未知——此时绝不断言"还没有题"。
+     * I1 接线建议：`experience.catalog.size.takeIf { experience.status == StudyDataStatus.READY }`。
+     */
+    savedQuestionCount: Int? = null,
+    /**
+     * 待处理录入任务中需要学生继续的数量（只读）。
+     * 来源建议：`CaptureWorkflowRepository.observePendingCaptures()` 里
+     * `SOURCE_UNAVAILABLE / RECAPTURE_REQUIRED / RETRY_OR_MANUAL` 的条数——只读现有状态，
+     * 不新增模型调用、不重新拍照。
+     */
+    pendingFailedTaskCount: Int = 0,
+    /**
+     * 空库的录入入口（PRD-06）。I1 接线建议：
+     * `{ navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY)) }`——与错题本栏同一入口，
+     * 落到含"手动建题"的方式选择，不误入要求照片的讲题入口。null = 未接线，不渲染 CTA。
+     */
+    onCapture: (() -> Unit)? = null,
+    /**
+     * 继续处理待处理任务。I1 接线建议同上（录入页同页展示待处理列表）；null = 不渲染入口。
+     */
+    onContinuePendingTasks: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
+    val surfaceState = resolveReviewSurfaceState(
+        scheduledCount = overview.scheduledCount,
+        activeSessionId = overview.activeSessionId,
+        completedToday = overview.completedToday,
+        hasLearningEvidence = profile.hasLearningEvidence,
+        savedQuestionCount = savedQuestionCount,
+        pendingFailedTaskCount = pendingFailedTaskCount,
+        intakeBacklogCount = overview.intakeBacklogCount,
+    )
     RootPageColumn(
         modifier = modifier.testTag("review_root"),
     ) {
@@ -62,15 +94,24 @@ fun ReviewRoute(
         Spacer(Modifier.height(24.dp))
         SectionHeader(title = "今日复习")
         Spacer(Modifier.height(24.dp))
-        if (shouldShowReviewSummary(overview.scheduledCount, profile.hasLearningEvidence)) {
+        if (surfaceState == ReviewSurfaceState.NORMAL) {
             ReviewSummary(overview)
         } else {
-            Text(
-                text = "暂无学习记录",
-                color = SmartColors.InkSecondary,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.testTag("review_no_learning_record"),
-            )
+            reviewStateCopy(surfaceState, pendingFailedTaskCount)?.let { copy ->
+                ReviewStateNotice(
+                    copy = copy,
+                    action = when (surfaceState) {
+                        ReviewSurfaceState.EMPTY_LIBRARY -> onCapture
+                        ReviewSurfaceState.PENDING_FAILED_TASKS -> onContinuePendingTasks
+                        else -> null
+                    },
+                    actionTestTag = when (surfaceState) {
+                        ReviewSurfaceState.EMPTY_LIBRARY -> "review_capture_button"
+                        ReviewSurfaceState.PENDING_FAILED_TASKS -> "review_continue_pending_tasks"
+                        else -> "review_state_action"
+                    },
+                )
+            }
         }
         Spacer(Modifier.height(30.dp))
         // 双复习入口（spec dual-review-entry §3.1）：知识点复习与错题复习并列、学生自由选，
@@ -100,6 +141,22 @@ fun ReviewRoute(
             icon = Icons.AutoMirrored.Outlined.MenuBook,
             enabled = overview.scheduledCount > 0 && !overview.completedToday,
         )
+        // 失败待处理任务在正常计划态下也要保留入口：它属于录入任务，不是复习队列的一部分。
+        if (surfaceState != ReviewSurfaceState.PENDING_FAILED_TASKS &&
+            reviewPendingTasksEntryVisible(
+                count = pendingFailedTaskCount,
+                hasContinue = onContinuePendingTasks != null,
+            )
+        ) {
+            Spacer(Modifier.height(12.dp))
+            OutlineActionChip(
+                text = "继续处理 $pendingFailedTaskCount 道待处理题目",
+                onClick = requireNotNull(onContinuePendingTasks),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("review_continue_pending_tasks"),
+            )
+        }
         // Intake backlog coverage promise (spec batch-intake §6 P3): questions
         // recorded but not yet introduced carry no learning pressure; the
         // surface shows them as a plan ("每天约 X 题新学，约 M 天覆盖") so a
@@ -167,10 +224,113 @@ fun ReviewRoute(
     }
 }
 
-internal fun shouldShowReviewSummary(
+/**
+ * 复习首页四态（PRD-06 空态半边）：
+ * - [NORMAL]：有今日计划 / 进行中会话 / 今日已完成 → 统计摘要；
+ * - [EMPTY_LIBRARY]：快照明确为空且没有任何学习证据 → 录入 CTA；
+ * - [NO_DUE_QUESTIONS]：有题（或已有历史证据）但今天没有到期 → 与"没有题"分开；
+ * - [PENDING_FAILED_TASKS]：有需要学生继续的录入任务（且无今日计划）→ 保留继续入口；
+ * - [UNKNOWN]：题数未接线 / 快照未就绪 → 保留既有"暂无学习记录"，不谎称空库。
+ */
+internal enum class ReviewSurfaceState {
+    NORMAL,
+    EMPTY_LIBRARY,
+    NO_DUE_QUESTIONS,
+    PENDING_FAILED_TASKS,
+    UNKNOWN,
+}
+
+internal fun resolveReviewSurfaceState(
     scheduledCount: Int,
+    activeSessionId: String?,
+    completedToday: Boolean,
     hasLearningEvidence: Boolean,
-): Boolean = scheduledCount > 0 || hasLearningEvidence
+    savedQuestionCount: Int?,
+    pendingFailedTaskCount: Int,
+    intakeBacklogCount: Int = 0,
+): ReviewSurfaceState = when {
+    scheduledCount > 0 || activeSessionId != null || completedToday -> ReviewSurfaceState.NORMAL
+    pendingFailedTaskCount > 0 -> ReviewSurfaceState.PENDING_FAILED_TASKS
+    savedQuestionCount != null && savedQuestionCount > 0 -> ReviewSurfaceState.NO_DUE_QUESTIONS
+    // 待引入的新题（intake backlog）同样是"已保存的题"：只是今天还没到期。
+    intakeBacklogCount > 0 -> ReviewSurfaceState.NO_DUE_QUESTIONS
+    // 有学习证据说明历史上存在过题（可能已归档、不在当前目录）：不能谎称从没有题。
+    hasLearningEvidence -> ReviewSurfaceState.NO_DUE_QUESTIONS
+    savedQuestionCount == 0 -> ReviewSurfaceState.EMPTY_LIBRARY
+    else -> ReviewSurfaceState.UNKNOWN
+}
+
+/** 空态/待处理态的固定文案；只描述真实存在的数据与本地动作，不承诺模型能力。 */
+internal data class ReviewStateCopy(
+    val title: String,
+    val supportingText: String,
+    val actionLabel: String? = null,
+)
+
+internal fun reviewStateCopy(
+    state: ReviewSurfaceState,
+    pendingFailedTaskCount: Int = 0,
+): ReviewStateCopy? = when (state) {
+    ReviewSurfaceState.NORMAL -> null
+    ReviewSurfaceState.EMPTY_LIBRARY -> ReviewStateCopy(
+        // 只说"没有可复习的题"：已移出的题不在复习池里，不能断言整个错题本为空。
+        title = "还没有可复习的题",
+        supportingText = "先录入第一道题。没有照片也可以手动输入题面，之后这里会安排复习。",
+        actionLabel = "录入第一道题",
+    )
+    ReviewSurfaceState.NO_DUE_QUESTIONS -> ReviewStateCopy(
+        title = "今天没有到期的题",
+        supportingText = "到期安排会出现在这里；已保存的内容可以到错题本查看。",
+    )
+    ReviewSurfaceState.PENDING_FAILED_TASKS -> ReviewStateCopy(
+        title = "还有题目没有处理完",
+        supportingText = "还有 $pendingFailedTaskCount 道录入没有处理完，记录保存在本机；" +
+            "可从待处理列表继续。",
+        actionLabel = "继续处理",
+    )
+    ReviewSurfaceState.UNKNOWN -> ReviewStateCopy(
+        title = "暂无学习记录",
+        supportingText = "学习记录生成后会显示在这里。",
+    )
+}
+
+internal fun reviewPendingTasksEntryVisible(count: Int, hasContinue: Boolean): Boolean =
+    count > 0 && hasContinue
+
+@Composable
+private fun ReviewStateNotice(
+    copy: ReviewStateCopy,
+    action: (() -> Unit)?,
+    actionTestTag: String,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = copy.title,
+            color = SmartColors.Ink,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.testTag("review_state_title"),
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = copy.supportingText,
+            color = SmartColors.InkSecondary,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.testTag("review_state_supporting"),
+        )
+        if (copy.actionLabel != null && action != null) {
+            Spacer(Modifier.height(14.dp))
+            PrimaryActionButton(
+                text = copy.actionLabel,
+                onClick = action,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .testTag(actionTestTag),
+            )
+        }
+    }
+}
 
 /**
  * 知识点复习入口的显隐规则（spec dual-review-entry §3.1）：今天真有可复习知识点

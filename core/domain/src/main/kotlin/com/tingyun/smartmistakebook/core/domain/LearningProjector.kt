@@ -11,6 +11,8 @@ import com.tingyun.smartmistakebook.core.model.BindingChanged
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.EventTimeTrust
 import com.tingyun.smartmistakebook.core.model.EvidenceAttributionCertainty
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrectionKind
 import com.tingyun.smartmistakebook.core.model.IndependentCorrectObservation
 import com.tingyun.smartmistakebook.core.model.IncrementalLearningEvent
 import com.tingyun.smartmistakebook.core.model.KnowledgeEvidenceAttribution
@@ -49,6 +51,8 @@ data class LearningProjectionResult(
     val ignoredTutorAnswerExposureOutcomeIds: Set<String> = emptySet(),
     val conflictedTutorAnswerExposureOutcomeIds: Set<String> = emptySet(),
     val deferredTutorAnswerExposureOutcomeIds: Set<String> = emptySet(),
+    /** PRD-02：本次重放消费的 chat-evidence 定向纠正。 */
+    val appliedEvidenceCorrectionIds: Set<String> = emptySet(),
     val presentationProjectionStates: Map<String, PresentationProjectionState> = emptyMap(),
 )
 
@@ -502,6 +506,10 @@ class LearningProjector(
         val corrections = linkedMapOf<String, AttemptCorrection>()
         val presentationOrdinals = mutableMapOf<String, Int>()
         val answerRevealSequences = mutableMapOf<String, Long>()
+        // PRD-02：定向纠正按 target 归组；目标必须是**更早出现**的 chat evidence / 纠正。
+        // 序列严格递增 ⇒ 目标图是 DAG，成环在结构上不可能；悬空/自指在这里当场拒绝。
+        val evidenceCorrectionsByTarget = linkedMapOf<String, MutableList<EvidenceCorrection>>()
+        val seenEvidenceIds = linkedSetOf<String>()
         // S8：一次 pass 内每个事件指纹只解析一次；有读边界验过的值就直接复用。
         val resolvedFingerprints = HashMap<String, String>()
         fun fingerprintOf(event: LearningLedgerEvent): String = resolvedFingerprints.getOrPut(event.ledgerEventId) {
@@ -522,7 +530,7 @@ class LearningProjector(
                     answerRevealSequences.put(event.presentationId, event.eventSequence) == null,
                 ) { "A presentation may have only one terminal answer-reveal outcome" }
                 is TutorAnswerExposureOutcome -> Unit
-                is ChatEvidenceSubmitted -> Unit
+                is ChatEvidenceSubmitted -> seenEvidenceIds += event.evidenceId
                 // KF-32：改绑补偿事件不改写任何历史行，它宣告"重放时按当前绑定重派生归属"——
                 // 效果在 [currentBindingsByPracticeUnit] 的消费里，事件本身只需通过 id/序号校验。
                 is BindingChanged -> Unit
@@ -531,6 +539,15 @@ class LearningProjector(
                         "A correction must follow the attempt it replaces"
                     }
                     corrections[event.attemptId] = event
+                }
+                is EvidenceCorrection -> {
+                    require(event.targetEvidenceId in seenEvidenceIds) {
+                        "An evidence correction must target an earlier chat evidence or correction"
+                    }
+                    evidenceCorrectionsByTarget
+                        .getOrPut(event.targetEvidenceId) { mutableListOf() }
+                        .add(event)
+                    seenEvidenceIds += event.correctionId
                 }
             }
         }
@@ -541,6 +558,7 @@ class LearningProjector(
         val revealRecords = mutableMapOf<String, AppliedAnswerRevealRecord>()
         val tutorExposureRecords = mutableMapOf<String, AppliedTutorAnswerExposureRecord>()
         val correctionRecords = mutableMapOf<String, AppliedCorrectionRecord>()
+        val appliedEvidenceCorrections = linkedSetOf<String>()
         val presentationProjectionStates = mutableMapOf<String, PresentationProjectionState>()
         val ambiguous = linkedSetOf<String>()
         var replayAt = 0L
@@ -654,13 +672,40 @@ class LearningProjector(
                     )
                 }
                 is ChatEvidenceSubmitted -> {
-                    val knowledgeNodeId = knowledgeNodeSuccessors.resolve(event.knowledgeNodeId)
-                    masteryStates[knowledgeNodeId] = projectChatEvidence(
-                        previous = masteryStates[knowledgeNodeId],
-                        knowledgeNodeId = knowledgeNodeId,
-                        event = event,
-                        effectiveAtEpochMillis = effectiveAt,
-                    )
+                    // PRD-02：先把这条证据的**最终有效效果**按账本序列解析出来（可能被更早的
+                    // 更正排除，也可能被最后一条有效替代改写），再挂在**原作答位置**上投影。
+                    // 修复日不新增一笔正向：effectiveAt 仍来自这条原事件。
+                    when (
+                        val effect = resolveEvidenceEffect(
+                            evidenceId = event.evidenceId,
+                            ownEffect = EvidenceEffect.Applied(
+                                direction = event.direction,
+                                weight = event.weight,
+                            ),
+                            correctionsByTarget = evidenceCorrectionsByTarget,
+                        )
+                    ) {
+                        EvidenceEffect.Excluded -> Unit
+                        is EvidenceEffect.Applied -> {
+                            val effectiveEvent = if (effect.direction == event.direction &&
+                                effect.weight == event.weight
+                            ) {
+                                event
+                            } else {
+                                event.copy(
+                                    direction = effect.direction,
+                                    weight = effect.weight,
+                                )
+                            }
+                            val knowledgeNodeId = knowledgeNodeSuccessors.resolve(event.knowledgeNodeId)
+                            masteryStates[knowledgeNodeId] = projectChatEvidence(
+                                previous = masteryStates[knowledgeNodeId],
+                                knowledgeNodeId = knowledgeNodeId,
+                                event = effectiveEvent,
+                                effectiveAtEpochMillis = effectiveAt,
+                            )
+                        }
+                    }
                 }
                 is BindingChanged -> Unit
                 is AttemptCorrection -> {
@@ -672,8 +717,21 @@ class LearningProjector(
                     )
                     correctionWatermark = maxOf(correctionWatermark ?: 0L, effectiveAt)
                 }
+                is EvidenceCorrection -> {
+                    // 只进结果（本轮重放消费了哪些更正），不进快照：更正的权威事实是
+                    // learner_chat_evidence 行 + 账本；重放是它唯一的消费方。
+                    appliedEvidenceCorrections += event.correctionId
+                    // 更正事件的真实发生时间只进"纠错水位"（决策新鲜度/审计），**不进**
+                    // 学习时钟：否则修复日会被当成一次新的练习日。
+                    correctionWatermark = maxOf(
+                        correctionWatermark ?: 0L,
+                        event.occurredAtEpochMillis,
+                    )
+                }
             }
-            replayAt = effectiveAt
+            if (event !is EvidenceCorrection) {
+                replayAt = effectiveAt
+            }
         }
 
         val projectedAt = replayAt
@@ -720,10 +778,63 @@ class LearningProjector(
             conflictedAttemptIds = emptySet(),
             ambiguousAttemptIds = ambiguous,
             correctedAttemptIds = corrections.keys.toSet(),
+            appliedEvidenceCorrectionIds = appliedEvidenceCorrections,
             appliedAnswerRevealOutcomeIds = revealRecords.keys.toSet(),
             appliedTutorAnswerExposureOutcomeIds = tutorExposureRecords.keys.toSet(),
             presentationProjectionStates = outputPresentationStates,
         )
+    }
+
+    /**
+     * PRD-02：一条 chat evidence 的最终有效效果。**只读账本序列**（`correctionsByTarget`
+     * 由第一遍按事件序收集）：
+     *
+     * - 撤销 = [EvidenceEffect.Excluded]（从有效证据集合排除，不是零权重继续推进）；
+     * - 替代 = 最后一条**未被撤销**的 `REPLACE`；若该更正自己又被更正/撤销，递归到它自己的
+     *   最终有效效果（“改两次/撤销更正”）；
+     * - 目标图按严格递增的账本序列构造，递归必然终止（禁止悬空/自指/成环）。
+     *
+     * 结果只取决于账本，不取决于“今天是哪一天”，因此增量与全量重放同源。
+     */
+    private fun resolveEvidenceEffect(
+        evidenceId: String,
+        ownEffect: EvidenceEffect,
+        correctionsByTarget: Map<String, List<EvidenceCorrection>>,
+    ): EvidenceEffect {
+        val effectiveness = HashMap<String, Boolean>()
+        fun isEffective(correction: EvidenceCorrection): Boolean =
+            effectiveness.getOrPut(correction.correctionId) {
+                correctionsByTarget[correction.correctionId].orEmpty()
+                    .filter { it.kind == EvidenceCorrectionKind.VOID }
+                    .none { isEffective(it) }
+            }
+
+        val resolved = HashMap<String, EvidenceEffect>()
+        fun resolve(id: String, fallback: EvidenceEffect): EvidenceEffect =
+            resolved.getOrPut(id) {
+                val active = correctionsByTarget[id].orEmpty().filter(::isEffective)
+                val last = active.lastOrNull() ?: return@getOrPut fallback
+                when (last.kind) {
+                    EvidenceCorrectionKind.VOID -> EvidenceEffect.Excluded
+                    EvidenceCorrectionKind.REPLACE -> resolve(
+                        id = last.correctionId,
+                        fallback = EvidenceEffect.Applied(
+                            direction = last.replacementDirection,
+                            weight = last.replacementWeight,
+                        ),
+                    )
+                }
+            }
+        return resolve(evidenceId, ownEffect)
+    }
+
+    private sealed interface EvidenceEffect {
+        data class Applied(
+            val direction: LearningEvidenceDirection,
+            val weight: Double,
+        ) : EvidenceEffect
+
+        data object Excluded : EvidenceEffect
     }
 
     private fun projectChatEvidence(

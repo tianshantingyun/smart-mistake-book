@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.model
 import com.tingyun.smartmistakebook.core.data.capture.ConfiguredCleanImageGenerator
 import com.tingyun.smartmistakebook.core.data.capture.GeneratedFigureProvenance
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
+import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.domain.ModelApiKey
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationMutationResult
@@ -14,6 +15,12 @@ import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchDecision
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchRequest
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchReservation
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
+import com.tingyun.smartmistakebook.core.model.FigureGenerationProposal
+import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
+import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
+import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -224,6 +231,60 @@ class ConfiguredTutorFigureGeneratorTest {
         }
     }
 
+    /**
+     * KD-60：入口声明的预算必须是“共享上限 + 未预读余量”，不得再把常量 6 当作余额。
+     */
+    @Test
+    fun declaresTheSharedOperationBudgetWithoutAFakeRemainingCount() = runBlocking {
+        val coordinator = CapturingCoordinator()
+        val generator = generator(coordinator = coordinator)
+
+        generator.generate(
+            TutorFigureRequest(
+                kind = TutorFigureKind.GENERATE_PROCESS,
+                description = "画一张图",
+                parentOperationId = "task-1",
+            ),
+        )
+
+        val budget = coordinator.requests.single().budget
+        assertNull("上限不是余量", budget.remainingRemoteDispatches)
+        assertEquals(ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES, budget.operationDispatchLimit)
+        assertTrue(budget.sharesOperationBudgetWithToolRounds)
+    }
+
+    /**
+     * KD-60：账本拒绝的真实原因（共享预算/已派发次数）必须沿结果回到调用方，
+     * 不能只剩一句“配图没有生成成功”。
+     */
+    @Test
+    fun aBudgetDenialKeepsItsReadableDiagnosticsOnTheResult() = runBlocking {
+        val diagnostic = "本逻辑操作已派发 5 次（上限 5 次，另为讲题终答保留 1 次）；" +
+            "图像生成与讲题工具轮共享同一份 durable 预算；未出网"
+        val coordinator = object : FigureGenerationCoordinator {
+            override suspend fun generate(
+                request: FigureGenerationRequest,
+                proposal: FigureGenerationProposal,
+            ): FigureGenerationOutcome = FigureGenerationOutcome(
+                operationId = request.operationId,
+                purpose = request.purpose,
+                method = FigureGenerationMethod.IMAGE_MODEL,
+                status = FigureGenerationStatus.FAILED,
+                diagnostics = diagnostic,
+            )
+        }
+        val result = generator(coordinator = coordinator).generate(
+            TutorFigureRequest(
+                kind = TutorFigureKind.GENERATE_PROCESS,
+                description = "画一张图",
+                parentOperationId = "task-1",
+            ),
+        )
+
+        assertEquals(TutorFigureStatus.FAILED, result.status)
+        assertEquals(diagnostic, result.diagnostics)
+    }
+
     @Test
     fun redrawReadsTheVerifiedSourceAndSeedsTheChannel() = runBlocking {
         val requests = mutableListOf<ImageGenerationRequest>()
@@ -387,6 +448,7 @@ class ConfiguredTutorFigureGeneratorTest {
             sourceSheet.copy(sourceAssetId = figureId)
         },
         channelFactory: ChannelFactory = ChannelFactory { _, _ -> FakeChannel() },
+        coordinator: FigureGenerationCoordinator? = null,
     ) = ConfiguredTutorFigureGenerator(
         configurationStore = FakeStore(
             credentialAvailable = credentialAvailable,
@@ -398,8 +460,28 @@ class ConfiguredTutorFigureGeneratorTest {
         isIntact = isIntact,
         persistGenerated = persistGenerated,
         channelFactory = channelFactory,
+        coordinator = coordinator,
         ledger = GrantingLedger(),
     )
+
+    /** 只捕获入口构造的统一请求；返回 UNAVAILABLE 让测试不依赖后端。 */
+    private class CapturingCoordinator : FigureGenerationCoordinator {
+        val requests = mutableListOf<FigureGenerationRequest>()
+
+        override suspend fun generate(
+            request: FigureGenerationRequest,
+            proposal: FigureGenerationProposal,
+        ): FigureGenerationOutcome {
+            requests += request
+            return FigureGenerationOutcome(
+                operationId = request.operationId,
+                purpose = request.purpose,
+                method = FigureGenerationMethod.IMAGE_MODEL,
+                status = FigureGenerationStatus.UNAVAILABLE,
+                diagnostics = "capture only",
+            )
+        }
+    }
 
     /**
      * 4E.1：测试用持久账本替身——授予一份与请求同绑定的预留（不触库、不出网）。
@@ -452,10 +534,16 @@ class ConfiguredTutorFigureGeneratorTest {
         private val failure: Boolean = false,
         private val onGenerate: () -> Unit = {},
     ) : ImageGenerationChannel {
-        override suspend fun redrawClean(request: ImageRedrawRequest): ImageRedrawResult =
+        override suspend fun redrawClean(
+            request: ImageRedrawRequest,
+            dispatch: com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding,
+        ): ImageRedrawResult =
             throw UnsupportedOperationException("redrawClean is not used by the figure tool")
 
-        override suspend fun generate(request: ImageGenerationRequest): ImageRedrawResult {
+        override suspend fun generate(
+            request: ImageGenerationRequest,
+            dispatch: com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding,
+        ): ImageRedrawResult {
             onGenerate()
             requests += request
             prompts += request.prompt

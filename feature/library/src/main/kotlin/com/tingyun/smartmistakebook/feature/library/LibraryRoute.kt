@@ -79,6 +79,18 @@ fun LibraryRoute(
     entries: List<StudyCatalogEntry>,
     catalogRepository: LibraryCatalogRepository? = null,
     mistakeDetailRepository: MistakeDetailRepository? = null,
+    /**
+     * 待处理录入任务中需要学生继续的数量（PRD-06 空态半边；只读）。
+     * 来源建议：`CaptureWorkflowRepository.observePendingCaptures()` 里
+     * `SOURCE_UNAVAILABLE / RECAPTURE_REQUIRED / RETRY_OR_MANUAL` 的条数。
+     */
+    pendingFailedTaskCount: Int = 0,
+    /**
+     * 继续处理待处理任务。I1 接线建议：
+     * `{ navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY)) }`——录入页同页展示
+     * 待处理列表，不要求重新拍照。null = 未接线，不渲染入口。
+     */
+    onContinuePendingTasks: (() -> Unit)? = null,
     onCapture: () -> Unit,
     onExportVisible: (LibraryExportCandidates) -> Unit,
     onOpenExportResults: () -> Unit,
@@ -112,6 +124,8 @@ fun LibraryRoute(
         mistakeCount = entries.size,
         usePaging = catalogRepository != null,
         mistakeDetailRepository = mistakeDetailRepository,
+        pendingFailedTaskCount = pendingFailedTaskCount,
+        onContinuePendingTasks = onContinuePendingTasks,
         onCapture = onCapture,
         onExportVisible = onExportVisible,
         onOpenExportResults = onOpenExportResults,
@@ -127,6 +141,8 @@ private fun LibraryContent(
     mistakeCount: Int,
     usePaging: Boolean,
     mistakeDetailRepository: MistakeDetailRepository?,
+    pendingFailedTaskCount: Int,
+    onContinuePendingTasks: (() -> Unit)?,
     onCapture: () -> Unit,
     onExportVisible: (LibraryExportCandidates) -> Unit,
     onOpenExportResults: () -> Unit,
@@ -163,6 +179,21 @@ private fun LibraryContent(
                     lineHeight = 42.sp,
                     fontWeight = FontWeight.Bold,
                 )
+                // PRD-06 空态半边：上次没处理完的录入不能因为错题本为空就失去继续入口。
+                if (libraryPendingTasksEntryVisible(
+                        count = pendingFailedTaskCount,
+                        hasContinue = onContinuePendingTasks != null,
+                    )
+                ) {
+                    Spacer(Modifier.height(10.dp))
+                    OutlineActionChip(
+                        text = libraryPendingTasksEntryLabel(pendingFailedTaskCount),
+                        onClick = requireNotNull(onContinuePendingTasks),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("library_pending_tasks"),
+                    )
+                }
                 if (emptyState == LibraryEmptyState.CATALOG_EMPTY) {
                     EmptyLibraryResult(
                         state = emptyState,
@@ -628,6 +659,14 @@ private fun EmptyLibraryResult(
             color = SmartColors.InkSecondary,
         )
         if (state == LibraryEmptyState.CATALOG_EMPTY) {
+            // 首装没有照片也能起步：录入页有本地「手动建题」入口，不依赖模型能力。
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = LIBRARY_EMPTY_MANUAL_HINT,
+                style = MaterialTheme.typography.bodySmall,
+                color = SmartColors.InkSecondary,
+                modifier = Modifier.testTag("library_empty_manual_hint"),
+            )
             Spacer(Modifier.height(16.dp))
             PrimaryActionButton(
                 text = "录入",
@@ -707,3 +746,16 @@ private fun ArchivedEntriesSection(
         }
     }
 }
+
+/**
+ * PRD-06：待处理任务入口只在"真有待处理数"且"真接了继续回调"时出现——
+ * 没有落点的按钮会把"继续"说成谎言。
+ */
+internal fun libraryPendingTasksEntryVisible(count: Int, hasContinue: Boolean): Boolean =
+    count > 0 && hasContinue
+
+internal fun libraryPendingTasksEntryLabel(count: Int): String =
+    "继续处理 $count 道待处理题目"
+
+/** 首装空态补充说明：指向本地手动建题（不需要照片或模型）。 */
+internal const val LIBRARY_EMPTY_MANUAL_HINT = "没有照片也可以：在录入页选择「手动建题」。"

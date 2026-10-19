@@ -31,9 +31,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.AttachedImage
 import com.tingyun.smartmistakebook.core.model.AttachedImageKind
+import com.tingyun.smartmistakebook.core.model.AttachedImageResolution
+import com.tingyun.smartmistakebook.core.model.AttachedImageUnavailableReason
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /** 附加图的默认折叠标题（纯函数，便于单测）：按 kind 给教育语境图题。 */
@@ -46,39 +50,112 @@ internal fun attachedImageCollapsedTitle(image: AttachedImage): String = when (i
  * A4（4B）：配图卡的三态。
  *
  * - [Generating]：解析/生成中（转圈 + 文案）；旋转/重建后重新解析时也会短暂出现；
- * - [Failed]：这次没成——给学生一个**重试**出口，重试走幂等键（已生成过的图不会再付费）；
+ * - [Failed]：这次没有本地可渲染的图——带**可读原因**；只有可安全重试的原因才显示
+ *   “重新生成”（显式用户动作，走共享协调器，不在渲染时自动发请求）；
  * - [Ready]：本地 URI 到手，展开即见图。
  *
- * 消灭的失败：此前只有"图尚未生成"一句静态占位——生成中、失败、成功三种状态在学生眼里
- * 一模一样，失败后也没有任何可点的出口。
+ * KD-58：此前只有一句静态“图未能生成”，缓存未命中与真正失败长得一样，也没有原因。
  */
 sealed interface AttachedImageRenderState {
     data object Generating : AttachedImageRenderState
+
     data class Ready(val localUri: String) : AttachedImageRenderState
-    data object Failed : AttachedImageRenderState
+
+    data class Failed(
+        val reason: AttachedImageUnavailableReason = AttachedImageUnavailableReason.NOT_GENERATED,
+        val detail: String? = null,
+    ) : AttachedImageRenderState
 }
 
-/** 解析结果 → 渲染状态（纯函数：null = 没拿到 URI = 这次失败）。 */
+/** 旧的 `String?` 结果 → 渲染状态（null = 本地没有可用副本，最常见是缓存未命中）。 */
 internal fun attachedImageRenderState(localUri: String?): AttachedImageRenderState =
-    localUri?.let(AttachedImageRenderState::Ready) ?: AttachedImageRenderState.Failed
+    if (localUri != null) {
+        AttachedImageRenderState.Ready(localUri)
+    } else {
+        AttachedImageRenderState.Failed(AttachedImageUnavailableReason.NOT_GENERATED)
+    }
+
+/** 显式解析结果 → 渲染状态（保留原因与有界诊断）。 */
+internal fun attachedImageRenderState(
+    resolution: AttachedImageResolution,
+): AttachedImageRenderState = when (resolution) {
+    is AttachedImageResolution.Ready -> AttachedImageRenderState.Ready(resolution.localUri)
+    is AttachedImageResolution.Unavailable -> AttachedImageRenderState.Failed(
+        reason = resolution.reason,
+        detail = resolution.detail,
+    )
+}
+
+/** “重新生成”按钮的唯一文案（测试与 UI 共用）。 */
+internal const val ATTACHED_IMAGE_REGENERATE_LABEL: String = "重新生成"
+
+/**
+ * 折叠行上的状态提示：未就绪在折叠态就能看见，不必展开才发现少了一张图。
+ */
+internal fun attachedImageStatusHint(state: AttachedImageRenderState): String? = when (state) {
+    AttachedImageRenderState.Generating -> "生成中"
+    is AttachedImageRenderState.Ready -> null
+    is AttachedImageRenderState.Failed -> "未就绪"
+}
+
+/** 这张图当前是否应提供显式“重新生成”。损坏/缺源不盲目重生成。 */
+internal fun attachedImageCanRegenerate(state: AttachedImageRenderState.Failed): Boolean =
+    when (state.reason) {
+        AttachedImageUnavailableReason.NOT_GENERATED,
+        AttachedImageUnavailableReason.REGENERATION_UNAVAILABLE,
+        AttachedImageUnavailableReason.REGENERATION_REJECTED,
+        AttachedImageUnavailableReason.REGENERATION_FAILED,
+        -> true
+
+        AttachedImageUnavailableReason.DAMAGED,
+        AttachedImageUnavailableReason.LOCAL_READ_FAILED,
+        AttachedImageUnavailableReason.SOURCE_UNAVAILABLE,
+        -> false
+    }
+
+/** 失败态的主文案（中文、说清“没有自动发请求”）。 */
+internal fun attachedImageFailureMessage(state: AttachedImageRenderState.Failed): String =
+    when (state.reason) {
+        AttachedImageUnavailableReason.NOT_GENERATED ->
+            "这张配图在本机没有已生成的副本；打开历史消息不会自动联网生成。"
+
+        AttachedImageUnavailableReason.DAMAGED ->
+            "这张配图在本机的副本已损坏，未自动重新生成。"
+
+        AttachedImageUnavailableReason.LOCAL_READ_FAILED ->
+            "本机读取这张配图失败（没有发起联网生成）。"
+
+        AttachedImageUnavailableReason.SOURCE_UNAVAILABLE ->
+            "缺少这张图所需的题面原图，无法重绘。"
+
+        AttachedImageUnavailableReason.REGENERATION_UNAVAILABLE ->
+            "本机没有可用的生图通道（未配置图像模型）。"
+
+        AttachedImageUnavailableReason.REGENERATION_REJECTED ->
+            "这次重新生成没有通过派发检查。"
+
+        AttachedImageUnavailableReason.REGENERATION_FAILED ->
+            "重新生成没有成功。"
+    }
 
 /**
  * 讲题回复附加图锚点：默认折叠为一行缩略摘要（图标 + 图题），点击展开为 [BoundedLocalImage]。
- * 图以 [imageLocalUri]（本地 file/content）渲染，绝不联网；[imageLocalUri] 为空时渲染一个"图未就绪"占位。
- * 与 [ThinkingCollapsibleCard] 同源——教育语境下先给文字讲解，图作为可选展开，不抢正文。
+ * 图以 [imageLocalUri]（本地 file/content）渲染，绝不联网。
  *
- * A4：状态三态化（[state]）；[onRetry] 非空时失败态给一个"重试"按钮（生产里重试走幂等键）。
+ * KD-58：[onRegenerate] 是**显式用户动作**——只有用户点“重新生成”才会进入共享 coordinator；
+ * 打开消息/展开/旋转不会触发任何生图请求。
  */
 @Composable
 fun AttachedImageCard(
     image: AttachedImage,
     state: AttachedImageRenderState,
     modifier: Modifier = Modifier,
-    onRetry: (() -> Unit)? = null,
+    onRegenerate: (() -> Unit)? = null,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val title = attachedImageCollapsedTitle(image)
     val accessibilityText = image.accessibilityText.ifBlank { image.description }
+    val statusHint = attachedImageStatusHint(state)
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -97,7 +174,10 @@ fun AttachedImageCard(
                 modifier = Modifier.size(16.dp),
             )
             Text(
-                text = if (expanded) "已展开" else title,
+                text = buildString {
+                    append(if (expanded) "已展开" else title)
+                    statusHint?.let { append(" · ").append(it) }
+                },
                 color = InkSecondary,
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier.padding(horizontal = 6.dp),
@@ -138,23 +218,39 @@ fun AttachedImageCard(
                     )
                 }
 
-                AttachedImageRenderState.Failed -> Column(
+                is AttachedImageRenderState.Failed -> Column(
                     modifier = Modifier.padding(vertical = 8.dp),
                 ) {
                     Text(
-                        text = "图未能生成。",
+                        text = attachedImageFailureMessage(state),
                         color = InkMuted,
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    onRetry?.let { retry ->
-                        TextButton(
-                            onClick = retry,
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                                horizontal = 0.dp,
-                                vertical = 2.dp,
-                            ),
-                        ) {
-                            Text(text = "重试", style = MaterialTheme.typography.labelMedium)
+                    state.detail?.takeIf { it.isNotBlank() }?.let { detail ->
+                        Text(
+                            text = detail,
+                            color = InkMuted,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(top = 2.dp),
+                        )
+                    }
+                    if (attachedImageCanRegenerate(state)) {
+                        onRegenerate?.let { regenerate ->
+                            TextButton(
+                                onClick = regenerate,
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                                    horizontal = 0.dp,
+                                    vertical = 2.dp,
+                                ),
+                                modifier = Modifier.testTag(
+                                    "attached_image_regenerate_${image.imageId}",
+                                ),
+                            ) {
+                                Text(
+                                    text = ATTACHED_IMAGE_REGENERATE_LABEL,
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
                         }
                     }
                 }
@@ -227,7 +323,7 @@ fun GeneratedFigureCard(
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
 
-                AttachedImageRenderState.Failed -> Text(
+                is AttachedImageRenderState.Failed -> Text(
                     text = "配图暂不可用。",
                     color = InkMuted,
                     style = MaterialTheme.typography.bodySmall,
@@ -268,20 +364,19 @@ internal class GeneratedFigureAssetCache(
 /**
  * Renders a reply's [images] as a stack of foldable figure cards, resolving each
  * intent to its local URI asynchronously. The text reply renders immediately and
- * the figures fill in (or show a "生成中/未生成" placeholder) without blocking.
+ * the figures fill in (or show a readable "未就绪" state) without blocking.
  *
- * This is the lightweight standalone pipeline for model-authored bitmap figures —
- * structured scene rendering was deleted with the visual chain (D-Q5), so this is
- * the only figure path a reply has.
- *
- * A4：三态（生成中/失败可重试/就绪）。重试只重跑**这一张**的解析——生产实现按幂等键
- * 命中已生成资产，重试不会重复付费。
+ * WG-05 / KD-58：
+ * - [resolve] 是 **cache-only**：打开/展开/旋转只读本地资产；
+ * - [regenerate] 是用户显式动作的出口（绑定原消息的父操作，经共享协调器）；
+ *   为 null 时不显示按钮。
  */
 @Composable
 fun AttachedImagesSection(
     images: List<AttachedImage>,
-    resolve: suspend (AttachedImage) -> String?,
+    resolve: suspend (AttachedImage) -> AttachedImageResolution,
     modifier: Modifier = Modifier,
+    regenerate: (suspend (AttachedImage) -> AttachedImageResolution)? = null,
 ) {
     val scope = rememberCoroutineScope()
     var states by remember(images) {
@@ -290,8 +385,17 @@ fun AttachedImagesSection(
         )
     }
     suspend fun resolveInto(image: AttachedImage) {
-        val uri = runCatching { resolve(image) }.getOrNull()
-        states = states + (image.imageId to attachedImageRenderState(uri))
+        val resolution = try {
+            resolve(image)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            AttachedImageResolution.Unavailable(
+                AttachedImageUnavailableReason.LOCAL_READ_FAILED,
+                failure.message?.take(AttachedImageResolution.MAX_DETAIL_CHARS),
+            )
+        }
+        states = states + (image.imageId to attachedImageRenderState(resolution))
     }
     LaunchedEffect(images) {
         images.forEach { image ->
@@ -304,9 +408,24 @@ fun AttachedImagesSection(
             AttachedImageCard(
                 image = image,
                 state = states[image.imageId] ?: AttachedImageRenderState.Generating,
-                onRetry = {
-                    states = states + (image.imageId to AttachedImageRenderState.Generating)
-                    scope.launch { resolveInto(image) }
+                onRegenerate = regenerate?.let { action ->
+                    val retry: () -> Unit = {
+                        states = states + (image.imageId to AttachedImageRenderState.Generating)
+                        scope.launch {
+                            val resolution = try {
+                                action(image)
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (failure: Exception) {
+                                AttachedImageResolution.Unavailable(
+                                    AttachedImageUnavailableReason.REGENERATION_FAILED,
+                                    failure.message?.take(AttachedImageResolution.MAX_DETAIL_CHARS),
+                                )
+                            }
+                            states = states + (image.imageId to attachedImageRenderState(resolution))
+                        }
+                    }
+                    retry
                 },
             )
         }

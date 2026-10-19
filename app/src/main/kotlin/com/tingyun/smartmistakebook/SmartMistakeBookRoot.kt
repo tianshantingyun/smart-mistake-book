@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -53,8 +54,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionCommand
+import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionStatus
+import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionWriter
+import com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepository
 import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.domain.PendingCaptureStage
 import com.tingyun.smartmistakebook.core.domain.currentCapabilityVerification
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
 import com.tingyun.smartmistakebook.core.domain.isReady
@@ -79,6 +86,7 @@ import com.tingyun.smartmistakebook.feature.library.BatchImportRoute
 import com.tingyun.smartmistakebook.feature.library.LibraryExportCandidates
 import com.tingyun.smartmistakebook.feature.library.LibraryRoute
 import com.tingyun.smartmistakebook.feature.library.MAX_LIBRARY_BATCH_EXPORT_QUESTIONS
+import com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheet
 import com.tingyun.smartmistakebook.feature.library.MistakeExportHubRoute
 import com.tingyun.smartmistakebook.feature.library.MistakeDetailRoute
 import com.tingyun.smartmistakebook.core.domain.MistakeExportRecord
@@ -88,6 +96,7 @@ import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.feature.library.SplitImportReviewRoute
 import com.tingyun.smartmistakebook.feature.profile.ProfileRoute
 import com.tingyun.smartmistakebook.feature.review.CapturedReviewSessionScreen
+import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizAnswerIssue
 import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizLoadResult
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewQuizLoader
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionScreen
@@ -100,10 +109,13 @@ import com.tingyun.smartmistakebook.feature.tutor.buildTutorDebriefRequestForApp
 import com.tingyun.smartmistakebook.feature.tutor.TutorRoute
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal data class TeachingArtifactLoad(
     val practiceUnitId: String? = null,
@@ -155,6 +167,26 @@ internal fun libraryExportRejectionNotice(candidates: LibraryExportCandidates): 
             "当前结果超过 $MAX_LIBRARY_BATCH_EXPORT_QUESTIONS 道。按科目、板块、掌握程度或录入时间段筛选后，就能直接导出。"
         LibraryExportCandidates.NothingVisible -> "当前没有可导出的错题。"
     }
+
+/**
+ * PRD-04 / T4：原生导出入口（错题详情单题、错题本「导出当前筛选」）在**入队前**先选格式。
+ *
+ * 只在内存里存在：sheet 关闭（确认/取消）即清空。取消不导航、不入队；确认才把选定的
+ * [com.tingyun.smartmistakebook.core.model.MistakeExportFormat] 原样交给
+ * `startMistakeExportSingle/Batch`，与既有讲题页导出 sheet 走同一条格式身份链。
+ */
+private sealed interface PendingExportTarget {
+    data class Single(val key: MistakeRevisionKey) : PendingExportTarget
+    data class Batch(val entryIds: List<String>) : PendingExportTarget
+}
+
+/**
+ * PRD-02/T2：一次"答案有问题"报告的稳定身份。同一 (知识点, 题面, 已选选项, 理由) 重复提交
+ * 是同一笔（writer 回 REPLAYED，不堆重复观察行）；换目标或换理由才是另一笔。
+ */
+private fun knowledgeQuizAnswerIssueRequestId(issue: KnowledgeQuizAnswerIssue): String =
+    "answer-issue:${issue.knowledgeNodeId}:${issue.itemId}:" +
+        "${issue.selectedChoiceId ?: "neutral"}:${issue.reason.hashCode().toUInt()}"
 
 @Composable
 internal fun SmartMistakeBookRoot(
@@ -210,6 +242,14 @@ internal fun SmartMistakeBookRoot(
             verifiedModelCapabilities?.authenticationFailed == true,
     )
     val applicationUiScope = rememberCoroutineScope()
+    // PRD-02 / T2：知识点复习"答案有问题"的唯一写入口。与判分反馈共用同一 learner 身份
+    // （仓库默认 learner），只追加纠正/争议观察行，不改写原作答。
+    val answerKeyCorrectionWriter = remember(application) {
+        AnswerKeyCorrectionWriter(
+            database = application.studyDatabase,
+            learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID,
+        )
+    }
     val experience by repository.snapshot.collectAsStateWithLifecycle()
     // 讲题页的 artifact 装载器随"第三路径"一起删除（阶段 2c）：`experience.tutorPracticeUnitId`
     // 在生产里恒为 null，装载器每次都只是空转；错题复习那一侧有它自己的装载器
@@ -218,6 +258,19 @@ internal fun SmartMistakeBookRoot(
     // L7 导出后台化：错题本不再有前台导出页；这里只留"为什么这次没入队"的一次性说明，
     // 在「导出成果」入口里如实说（超限/没有可导出的题），入队成功的记录走数据库流。
     var pendingExportNotice by rememberSaveable { mutableStateOf<String?>(null) }
+    // PRD-04/T4：原生导出先选格式；null = 没有待确认的导出（不渲染 sheet）。
+    var pendingExportTarget by remember { mutableStateOf<PendingExportTarget?>(null) }
+    // PRD-06/T8：待处理录入里需要学生继续的数量（只读现有状态，不新增模型调用）。
+    // 只计入"学生还能继续"的失败态；TUTOR_SESSION_READY 等正常可续做的不算失败。
+    val pendingFailedTaskCount by remember(application.captureRepository) {
+        application.captureRepository.observePendingCaptures().map { captures ->
+            captures.count { capture ->
+                capture.stage == PendingCaptureStage.SOURCE_UNAVAILABLE ||
+                    capture.stage == PendingCaptureStage.RECAPTURE_REQUIRED ||
+                    capture.stage == PendingCaptureStage.RETRY_OR_MANUAL
+            }
+        }
+    }.collectAsStateWithLifecycle(initialValue = 0)
     val exportRecords by application.mistakeExportRepository.observeRecords()
         .collectAsStateWithLifecycle(initialValue = emptyList<MistakeExportRecord>())
     val reviewOpenRequest by reviewOpenRequests.collectAsStateWithLifecycle()
@@ -355,6 +408,19 @@ internal fun SmartMistakeBookRoot(
                         overview = experience.review,
                         profile = experience.profile,
                         knowledgeReviewCount = knowledgeReviewCount,
+                        // PRD-06/T8：只有数据确实 READY 才把题数交给空态判定；加载中/出错
+                        // 时传 null，界面不会把"还不知道"说成"还没有题"。
+                        savedQuestionCount = experience.catalog.size
+                            .takeIf { experience.status == StudyDataStatus.READY },
+                        pendingFailedTaskCount = pendingFailedTaskCount,
+                        // 空库录入与"继续处理待处理"都指到含「手动建题」的同一录入入口
+                        // （与错题本栏一致），不误入要求照片的讲题入口。
+                        onCapture = {
+                            navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY))
+                        },
+                        onContinuePendingTasks = {
+                            navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY))
+                        },
                         onStartReview = {
                             applicationUiScope.launch {
                                 try {
@@ -530,18 +596,24 @@ internal fun SmartMistakeBookRoot(
                     entries = experience.catalog,
                     catalogRepository = application.libraryCatalogRepository,
                     mistakeDetailRepository = application.mistakeDetailRepository,
+                    pendingFailedTaskCount = pendingFailedTaskCount,
+                    onContinuePendingTasks = {
+                        navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY))
+                    },
                     // 错题本栏只有一个「录入」动作（L6）：整卷/PDF 不再是这里的并列入口，
                     // 它是录入流内部的一步（见 Routes.Capture 的方式选择）。
                     onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.LIBRARY)) },
-                    // L7：批量导出改为"入队后即可离开"。三态如实分流——上限内才入队；
-                    // 超限/没有题不下单，把原因带到「导出成果」里说清楚。
+                    // L7：批量导出改为"入队后即可离开"。PRD-04/T4：上限内先弹格式 sheet，
+                    // 确认后才入队并跳「导出成果」；超限/没有题仍然不下单，把原因带到
+                    // 「导出成果」里如实说清楚。
                     onExportVisible = { candidates ->
                         if (candidates is LibraryExportCandidates.Candidates) {
-                            application.startMistakeExportBatch(candidates.entryIds)
-                        }
-                        pendingExportNotice = libraryExportRejectionNotice(candidates)
-                        navController.navigate(Routes.ExportResults) {
-                            launchSingleTop = true
+                            pendingExportTarget = PendingExportTarget.Batch(candidates.entryIds)
+                        } else {
+                            pendingExportNotice = libraryExportRejectionNotice(candidates)
+                            navController.navigate(Routes.ExportResults) {
+                                launchSingleTop = true
+                            }
                         }
                     },
                     onOpenExportResults = {
@@ -669,6 +741,67 @@ internal fun SmartMistakeBookRoot(
                                     },
                                     submitAnswer = repository::submitKnowledgeQuizFeedback,
                                     onFinished = onKnowledgeBack,
+                                    // PRD-02/T2：答案有问题 → 定向撤销/争议观察。写入口用
+                                    // applicationScope（离开本页也照样落库）：未看答案时是
+                                    // 中性预报告（暂停该题面计分），已作答时撤销该条证据并
+                                    // 同时落争议行；若该作答只有 rejected 观察行（未核验键），
+                                    // writer 回落为争议观察，不再把反馈丢成“没有记下来”。
+                                    // 成功不额外弹提示（下次作答按暂停计分）。
+                                    onReportAnswerIssue = { issue ->
+                                        application.applicationScope.launch {
+                                            // 失败必须让学生看见：对话框的确认语已经说
+                                            // "记下"，把拒绝/异常吞掉就是假成功。
+                                            val failure = try {
+                                                val receipt = answerKeyCorrectionWriter.submit(
+                                                    AnswerKeyCorrectionCommand(
+                                                        requestId =
+                                                            knowledgeQuizAnswerIssueRequestId(issue),
+                                                        knowledgeNodeId = issue.knowledgeNodeId,
+                                                        // UI 回调不带复习会话号；中性观察行只把
+                                                        // 它当行的外键文本，键信任判定不读这一列。
+                                                        conversationId =
+                                                            "knowledge-quiz-review:answer-issue:" +
+                                                                issue.itemId,
+                                                        itemId = issue.itemId,
+                                                        selectedChoiceId = issue.selectedChoiceId,
+                                                        // 撤销目标证据；目标不存在/非账本证据时
+                                                        // writer 会回 REJECTED，不静默假成功。
+                                                        voidTarget = true,
+                                                        reasonMarkdown = issue.reason,
+                                                        occurredAtEpochMillis =
+                                                            System.currentTimeMillis(),
+                                                    ),
+                                                )
+                                                if (
+                                                    receipt.status ==
+                                                    AnswerKeyCorrectionStatus.REJECTED ||
+                                                    receipt.status ==
+                                                    AnswerKeyCorrectionStatus.CONFLICT
+                                                ) {
+                                                    "${receipt.status} ${receipt.reason}"
+                                                } else {
+                                                    null
+                                                }
+                                            } catch (cancelled: CancellationException) {
+                                                throw cancelled
+                                            } catch (failure: Throwable) {
+                                                failure.toString()
+                                            }
+                                            if (failure != null) {
+                                                android.util.Log.w(
+                                                    "SmartMistakeBook",
+                                                    "Answer-key issue was not recorded: $failure",
+                                                )
+                                                withContext(Dispatchers.Main) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "这次反馈没有记下来，请再试一次。",
+                                                        Toast.LENGTH_LONG,
+                                                    ).show()
+                                                }
+                                            }
+                                        }
+                                    },
                                     modifier = Modifier.testTag("root_knowledge_review_session"),
                                 )
                     }
@@ -910,12 +1043,9 @@ internal fun SmartMistakeBookRoot(
                     onBack = navController::popBackStack,
                     // L7：导出改为后台任务——点下即入队，离开页面不再取消渲染；
                     // 跳到「导出成果」看进度/结果，通知是同一结果的另一条路径。
+                    // PRD-04/T4：先选 PDF/Word，确认后才入队（取消不导航、不入队）。
                     onExport = { key ->
-                        application.startMistakeExportSingle(key)
-                        pendingExportNotice = null
-                        navController.navigate(Routes.ExportResults) {
-                            launchSingleTop = true
-                        }
+                        pendingExportTarget = PendingExportTarget.Single(key)
                     },
                     onTutor = { key ->
                         navController.navigate(Routes.mistakeTutor(key)) {
@@ -1023,11 +1153,44 @@ internal fun SmartMistakeBookRoot(
                 StorageScreen(
                     onBack = navController::popBackStack,
                     backupRepository = application.backupRepository,
-                    onDatabaseClosed = application::requireDatabaseRestart,
+                    // 恢复仓库在关库前/返回前已经发布过准确的重启原因（含“设置未能完整
+                    // 写入、可能有部分设置已变”）。存储页传回的 operationMessage 可能更旧
+                    // 或更绝对（例如“本机设置保持原样”），不能覆盖仓库的最终通知；
+                    // 只有仓库还没发布原因时（例如异常路径之外）才用它兜底。
+                    onDatabaseClosed = { message ->
+                        if (application.databaseRestartReason.value == null) {
+                            application.requireDatabaseRestart(message)
+                        }
+                    },
                 )
             }
             }
         }
+    }
+    // PRD-04/T4：原生单题/批量导出共用的格式 sheet。取消只清目标（不导航/不入队）；
+    // 确认才把格式原样随任务交给 worker，并跳「导出成果」看后台进度。
+    pendingExportTarget?.let { target ->
+        MistakeExportFormatSheet(
+            subtitle = when (target) {
+                is PendingExportTarget.Single -> "导出这一道错题"
+                is PendingExportTarget.Batch ->
+                    "导出当前筛选的 ${target.entryIds.size} 道题"
+            },
+            onDismiss = { pendingExportTarget = null },
+            onConfirm = { format ->
+                pendingExportTarget = null
+                when (target) {
+                    is PendingExportTarget.Single ->
+                        application.startMistakeExportSingle(target.key, format)
+                    is PendingExportTarget.Batch ->
+                        application.startMistakeExportBatch(target.entryIds, format = format)
+                }
+                pendingExportNotice = null
+                navController.navigate(Routes.ExportResults) {
+                    launchSingleTop = true
+                }
+            },
+        )
     }
 }
 

@@ -767,6 +767,8 @@ data class MistakeDetailRecord(
     val tutorSessionId: String? = null,
     val tutorQuestionRevisionNumber: Int? = null,
     val practiceUnitId: String = "legacy-practice-unit",
+    /** 这一版是否带机器可判题的答案与解析（`problem_revision.answer_spec_id` 非空）。 */
+    val answerSpecPresent: Boolean = false,
     /** Learner's private note on the entry; never leaves the device in a model egress payload. */
     val userNote: String? = null,
     /** True when the entry has been archived (hidden from surfaces, history preserved). */

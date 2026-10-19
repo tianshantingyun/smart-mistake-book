@@ -39,8 +39,22 @@ internal class KnowledgeQuizItemStore(
 ) {
 
     /** 读回该会话该知识点已持久化的题面；无行或损坏 = null。 */
-    suspend fun read(sessionId: Long, knowledgeNodeId: String): TutorAssessmentItem? =
-        readSnapshot(sessionId, knowledgeNodeId)?.item
+    suspend fun read(sessionId: Long, knowledgeNodeId: String): TutorAssessmentItem? {
+        val stored = readSnapshot(sessionId, knowledgeNodeId)?.item ?: return null
+        // PRD-02：题面快照一字不改；但**读给会话**的题面要带上账本里最新有效的键替代，
+        // 否则 UI 的本地判题（`item.evaluateChoice`）与写入口的更正键会分叉，ViewModel 的
+        // 判答一致性校验会当场失败。没有更正时行为逐位不变。
+        val correctedKey = latestCorrectedKey(
+            rows = database.readChatEvidenceByLearner(learnerId),
+            knowledgeNodeId = knowledgeNodeId,
+            itemId = stored.id,
+        )
+        return if (correctedKey != null && correctedKey != stored.correctChoiceId) {
+            stored.copy(correctChoiceId = correctedKey)
+        } else {
+            stored
+        }
+    }
 
     /**
      * 读回该身份那一行呈现快照的**审计视图**（题面 + 键版本引用，AUD-11 ③）：
@@ -60,6 +74,8 @@ internal class KnowledgeQuizItemStore(
             assessmentItemSnapshotId = record.assessmentItemSnapshotId,
             itemRevision = record.itemRevision,
             answerSpecSchema = spec?.schema,
+            verificationStatus = record.verificationStatus,
+            scoringMode = record.scoringMode,
             item = decode(record, spec),
         )
     }
@@ -133,9 +149,12 @@ internal class KnowledgeQuizItemStore(
                 knowledgeNodeIds = item.knowledgeNodeIds.sorted(),
             ),
         ),
-        // 本题面是本地机械判定的单选（对错由 selectedChoiceId == correctChoiceId 得出），
-        // 落 VERIFIED + AUTO_VERIFIED；会话专用（不产生 attempt 记录）落 SESSION_ONLY。
-        verificationStatus = StudyDbValue.VerificationStatus.VERIFIED,
+        // PRD-02：**两轴拆分**。`scoringMode = AUTO_VERIFIED` 只声明"对错可由本地
+        // `selectedChoiceId == correctChoiceId` 机械确定"；它**不**表示键本身已被独立核验。
+        // 模型生成的题面没有独立支持，故 `verificationStatus = UNKNOWN`——写入口据此只保留
+        // 会话反馈与真实选择，不新增数值掌握证据（要计分须先把该行升级为 VERIFIED/
+        // USER_ASSERTED，例如用户明确更正或独立核验流程）。
+        verificationStatus = StudyDbValue.VerificationStatus.UNKNOWN,
         assessmentEligibility = StudyDbValue.AssessmentEligibility.SESSION_ONLY,
         scoringMode = StudyDbValue.ScoringMode.AUTO_VERIFIED,
         // 题面不依赖学习快照版本，也不参与投影检查点：两列落固定标记与 0，不伪造一个投影位点。
@@ -218,6 +237,10 @@ internal data class KnowledgeQuizItemSnapshotView(
     val assessmentItemSnapshotId: String,
     val itemRevision: Int,
     val answerSpecSchema: String?,
+    /** 键**独立核验**状态（`VERIFIED`/`USER_ASSERTED`/`UNKNOWN`）；与本地可判性两轴。 */
+    val verificationStatus: String?,
+    /** 本地判分方式（`AUTO_VERIFIED` 等）；**不**蕴含键已验证。 */
+    val scoringMode: String?,
     val item: TutorAssessmentItem?,
 )
 

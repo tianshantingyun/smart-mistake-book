@@ -27,6 +27,7 @@ import com.tingyun.smartmistakebook.core.data.settings.DataStoreSchedulingSettin
 import com.tingyun.smartmistakebook.core.data.settings.MODEL_SECRET_KEY_ALIAS
 import com.tingyun.smartmistakebook.core.data.settings.ModelSecretBinding
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
+import com.tingyun.smartmistakebook.core.domain.BackupWriteGate
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.RestoreSettingsOutcome
 import com.tingyun.smartmistakebook.core.domain.ReviewReminderDelivery
@@ -142,12 +143,18 @@ class BackupRestoreInstrumentedTest {
             val deleted = repository.deleteAllData()
             assertTrue(deleted.deletedDatabaseBytes > 0L)
 
+            // KD-56：deleteAllData 与恢复一样关闭 room3 连接池（终态），生产里必须
+            // 重启。这里用"新开库 + 新仓库"模拟重启后的进程，再走恢复。
             val reopenedEmpty = StudyDatabaseFactory.open(context)
             assertEquals(0, reopenedEmpty.countMistakes())
-            reopenedEmpty.close()
+            val restartedRepository = AndroidBackupRepository(
+                context = context,
+                database = reopenedEmpty,
+                writeGate = BackupWriteGate(),
+            )
 
             val restoreReceipt = FileInputStream(archive).use { input ->
-                repository.restore(input)
+                restartedRepository.restore(input)
             }
             assertEquals(1, restoreReceipt.problemCount)
 
@@ -219,10 +226,11 @@ class BackupRestoreInstrumentedTest {
                 created.await()
             }
 
-            assertEquals(
-                "题数与引用集合只能问快照库；实时库端口上除了做一份快照不该有第二次读取",
-                listOf("snapshotForBackup"),
-                liveCalls,
+            assertTrue(
+                "题数与引用集合只能问快照库；实时库端口除了旧回退的一份快照之外不得有读取，" +
+                    "实际：$liveCalls",
+                liveCalls.none { it == "countMistakes" } &&
+                    liveCalls.all { it == "snapshotForBackup" },
             )
 
             val firstClosure = unpackedArchiveClosure(context, firstArchive, File(scratch, "first"))

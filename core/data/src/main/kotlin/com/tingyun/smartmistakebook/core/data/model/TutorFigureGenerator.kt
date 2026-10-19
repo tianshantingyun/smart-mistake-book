@@ -17,7 +17,6 @@ import com.tingyun.smartmistakebook.core.domain.UnavailableRemoteModelDispatchLe
 import com.tingyun.smartmistakebook.core.model.FigureArtifact
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.FigureFidelity
-import com.tingyun.smartmistakebook.core.model.FigureGenerationBudget
 import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
 import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
@@ -27,7 +26,6 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
-import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import java.util.Arrays
@@ -96,12 +94,16 @@ data class TutorFigureRequest(
  *
  * [model] 与 [generatedNow] 是 A2/A4 的记账半：模型标识（谁生成的）与"这次是否真的出网"
  * （幂等命中=false 时不得声称"本次生成已计入额度"——那是一句假账）。
+ *
+ * [diagnostics] 是 KD-60 的可读半：账本拒绝（共享预算已用尽/真实已派发次数）与后端失败的
+ * 有界原文必须能沿结果回到调用方；不再只剩一句“配图没有生成成功”。
  */
 data class TutorFigureResult(
     val figureId: String?,
     val status: TutorFigureStatus,
     val model: String? = null,
     val generatedNow: Boolean = false,
+    val diagnostics: String? = null,
 ) {
     init {
         require(figureId == null || status == TutorFigureStatus.GENERATED) {
@@ -110,6 +112,13 @@ data class TutorFigureResult(
         require(figureId != null || !generatedNow) {
             "Only a generated figure can claim a fresh generation"
         }
+        require(diagnostics == null || diagnostics.length <= MAX_DIAGNOSTICS_CHARS) {
+            "A figure diagnostic must be at most $MAX_DIAGNOSTICS_CHARS chars"
+        }
+    }
+
+    companion object {
+        const val MAX_DIAGNOSTICS_CHARS: Int = 512
     }
 }
 
@@ -255,7 +264,7 @@ internal class ConfiguredTutorFigureGenerator(
     override suspend fun generate(request: TutorFigureRequest): TutorFigureResult {
         // 先解析请求与幂等键（纯本地）：命中缓存时**不需要凭证**，也不再出网。
         val channelRequest = request.toChannelRequest()
-            ?: return failed()
+            ?: return failed("源图读取失败，未生成（不把被替换的字节发出去）")
         val figureId = tutorFigureFingerprintId(
             kind = request.kind,
             sourceImageSha256 = request.sourceSheet?.contentSha256,
@@ -267,7 +276,7 @@ internal class ConfiguredTutorFigureGenerator(
         val existing = lookupGenerated(figureId)
         if (existing != null) {
             // 行在但文件坏了：不出网、不重付（"一次生成一次付费"是硬规则），如实失败。
-            if (!isIntact(existing)) return failed()
+            if (!isIntact(existing)) return failed("已生成资产的本地副本损坏，未重付重生成")
             return TutorFigureResult(
                 figureId = existing.sourceAssetId,
                 status = TutorFigureStatus.GENERATED,
@@ -279,7 +288,11 @@ internal class ConfiguredTutorFigureGenerator(
         // 使"没凭证/不可出网/能力未确认"在打开任何后端之前就返回 UNAVAILABLE；coordinator
         // 的后端装配会再走同一道门（同一实现，不是第二份判定）。预检不发送，立即释放租约。
         val preflight = resolveImageCredential(configurationStore, networkRequestsAllowed)
-            ?: return TutorFigureResult(figureId = null, status = TutorFigureStatus.UNAVAILABLE)
+            ?: return TutorFigureResult(
+                figureId = null,
+                status = TutorFigureStatus.UNAVAILABLE,
+                diagnostics = "本机没有可用的图像凭证/能力（未出网）",
+            )
         preflight.apiKey.close()
 
         val purpose = request.kind.toPurpose()
@@ -296,10 +309,8 @@ internal class ConfiguredTutorFigureGenerator(
                 requiresCompleteLabels = true,
             )
         }
-        val budget = FigureGenerationBudget(
-            remainingRemoteDispatches = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES,
-            reserveChatFinalAnswer = true,
-        )
+        // KD-60：声明共享上限 + 未预读余量（真门在持久账本）。
+        val budget = sharedOperationFigureBudget(reserveChatFinalAnswer = true)
         val capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY
         val source = request.sourceEvidence(channelRequest)
         val constraints = request.hostConstraints()
@@ -339,7 +350,7 @@ internal class ConfiguredTutorFigureGenerator(
             FigureGenerationStatus.CACHED,
             -> {
                 val artifact = artifact as? FigureArtifact.ImageAsset
-                    ?: return failed()
+                    ?: return failed("协调器没有返回可持久化的图像产物")
                 val persisted = try {
                     persistGenerated(
                         artifact.imageBytes(),
@@ -354,8 +365,10 @@ internal class ConfiguredTutorFigureGenerator(
                     )
                 } catch (cancelled: CancellationException) {
                     throw cancelled
-                } catch (_: Exception) {
-                    return failed()
+                } catch (failure: Exception) {
+                    return failed(
+                        "生成成功但本地保存失败：${failure.message ?: "未知错误"}",
+                    )
                 }
                 TutorFigureResult(
                     figureId = persisted.sourceAssetId,
@@ -368,13 +381,14 @@ internal class ConfiguredTutorFigureGenerator(
             FigureGenerationStatus.UNAVAILABLE -> TutorFigureResult(
                 figureId = null,
                 status = TutorFigureStatus.UNAVAILABLE,
+                diagnostics = diagnostics,
             )
 
             FigureGenerationStatus.NO_FIGURE,
             FigureGenerationStatus.NEED_SOURCE,
             FigureGenerationStatus.REJECTED,
             FigureGenerationStatus.FAILED,
-            -> failed()
+            -> failed(diagnostics)
         }
 
     /**
@@ -460,8 +474,12 @@ internal class ConfiguredTutorFigureGenerator(
         }
     }
 
-    private fun failed(): TutorFigureResult =
-        TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
+    private fun failed(diagnostics: String? = null): TutorFigureResult =
+        TutorFigureResult(
+            figureId = null,
+            status = TutorFigureStatus.FAILED,
+            diagnostics = diagnostics?.take(TutorFigureResult.MAX_DIAGNOSTICS_CHARS),
+        )
 }
 
 private fun TutorFigureKind.toPurpose(): FigureGenerationPurpose = when (this) {

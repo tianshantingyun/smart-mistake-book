@@ -152,8 +152,27 @@ object FigurePromptAssembler {
         append("源证据不足时返回NEED_SOURCE；不要向用户索取文件路径或URL。")
     }
 
+    /**
+     * KD-60：把**上限**、**真实余量**与**共享语义**分列说清。
+     *
+     * 旧文本写“本操作剩余远程派发上限：6 次”，把常量上限当成了余额；长工具环先烧掉几轮后，
+     * 配图被判 `BUDGET_EXHAUSTED` 时提示词与诊断都看不出真实原因。现在：
+     * - 上限来自 durable 策略（图像与工具轮共享）；
+     * - 余量未预读时如实说“未预读”，由账本在预留时判定（拒绝时回真实已派发次数）；
+     * - 讲题终答保留位单独一行。
+     */
     private fun budgetGuidance(budget: FigureGenerationBudget): String = buildString {
-        append("本操作剩余远程派发上限：").append(budget.remainingRemoteDispatches).append(" 次。")
+        append("本逻辑操作的远程派发上限：").append(budget.operationDispatchLimit).append(" 次")
+        if (budget.sharesOperationBudgetWithToolRounds) {
+            append("；图像生成/编辑与讲题工具轮共享这一份持久预算，不单独增加额度")
+        }
+        append("。")
+        val remaining = budget.remainingRemoteDispatches
+        if (remaining != null) {
+            append("宿主读到当前剩余 ").append(remaining).append(" 次。")
+        } else {
+            append("当前剩余未预读：由持久账本在预留时判定，余额不足时不执行且不出网。")
+        }
         if (budget.reserveChatFinalAnswer) {
             append("讲题父操作必须保留 1 次终答派发：余额只剩 1 次时不再执行生图。")
         } else {

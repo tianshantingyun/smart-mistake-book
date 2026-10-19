@@ -152,22 +152,45 @@ data class FigureGenerationCapabilities(
 /**
  * 宿主声明的生图预算（**声明面**；durable 权威在 core:domain 的 `RemoteModelDispatchLedger`）。
  *
+ * KD-60：这里必须把**上限**与**当前余量**分开，不能再用常量 6 冒充“还剩 6 次”：
+ * - [operationDispatchLimit] 是同一逻辑操作的远程派发**上限**（讲题工具轮与图像派发共享）；
+ * - [remainingRemoteDispatches] 是宿主从持久账本读到的**真实余量**。本波次的生产入口
+ *   不预读账本（读一次要额外的持久读口），因此为 null——由账本在预留时做真门，
+ *   拒绝时回真实已派发次数；声明面只如实说“未预读”。
+ *
  * [reserveChatFinalAnswer] = 讲题父操作必须给终答留 1 次派发；独立转写/净化作业终态本地保存，
  * 不硬留聊天位（提示词 §5）。
  */
 data class FigureGenerationBudget(
-    val remainingRemoteDispatches: Int = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES,
+    /** 同一逻辑操作的远程派发上限（含工具轮与图像派发），不是余量。 */
+    val operationDispatchLimit: Int = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES,
+    /** 真实剩余次数；null = 宿主未预读，交由持久账本在预留时判定（fail-closed 真门）。 */
+    val remainingRemoteDispatches: Int? = null,
     val reserveChatFinalAnswer: Boolean = false,
+    /** 图像生成/编辑与讲题工具轮共享同一份 durable 预算（当前架构；KD-60）。 */
+    val sharesOperationBudgetWithToolRounds: Boolean = true,
 ) {
     init {
-        require(remainingRemoteDispatches >= 0) {
+        require(operationDispatchLimit >= 0) {
+            "The operation dispatch limit must not be negative"
+        }
+        require(remainingRemoteDispatches == null || remainingRemoteDispatches >= 0) {
             "Remaining remote dispatches must not be negative"
+        }
+        require(remainingRemoteDispatches == null || remainingRemoteDispatches <= operationDispatchLimit) {
+            "Remaining remote dispatches must not exceed the operation dispatch limit"
         }
     }
 
-    /** 本次生图是否还允许占用一次远程派发（本地 JS 不占远程，但本波次不启用 JS）。 */
-    fun allowsOneRemoteDispatch(): Boolean =
-        remainingRemoteDispatches >= if (reserveChatFinalAnswer) 2 else 1
+    /**
+     * 声明面的预算判断。未预读（null）**放行到账本门**——常量上限不得被当成余额；
+     * 账本拒绝时不出网，并把真实已派发次数回给诊断。
+     */
+    fun allowsOneRemoteDispatch(): Boolean {
+        val required = if (reserveChatFinalAnswer) 2 else 1
+        val remaining = remainingRemoteDispatches ?: return true
+        return remaining >= required
+    }
 }
 
 /**

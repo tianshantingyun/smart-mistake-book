@@ -16,15 +16,17 @@ import java.security.MessageDigest
  * 通道在组请求/发 POST **之前**复核 operation/method/源图 sha/配置指纹，任何一项不符即抛
  * [ImageDispatchNotReservedException]，一个字节都不发。
  *
- * 不带 dispatch 的旧重载保留为**fail-closed 迁移面**（默认直接抛，不发送）：
- * - `AttachedImageGeneratorFactory` 的兼容 `attachedImages` 链仍调用它——按 WG-05 的
- *   "历史 resolver cache-only"方向，它不再能生成新图（显式重生成需走 coordinator）；
- * - 旧测试替身可以只实现旧重载：带 dispatch 的默认实现先做绑定校验、再委托旧重载，
- *   因此生产通道与测试替身共享同一"先校验、后执行"的顺序。
+ * 不带 dispatch 的旧重载保留为**fail-closed 迁移面**（默认直接抛，不发送），且已按
+ * KD-59 标为 [DeprecationLevel.ERROR]：
+ * - 新代码不得实现/调用它；生产图像后端只实现带绑定的方法；
+ * - 带绑定的默认实现**不再委托**给旧重载——只实现旧重载的替身拿不到任何调用，
+ *   因此"先校验、后委托"的弱防线不存在了（KD-59）。
  */
 interface ImageGenerationChannel {
     /**
      * 图像编辑（有源图）。生产实现必须在任何网络 IO 前复核 [dispatch] 与真实源图字节。
+     *
+     * 默认实现只做绑定形状校验然后 fail-closed：不存在"委托给可覆盖的旧重载"的路径。
      */
     suspend fun redrawClean(
         request: ImageRedrawRequest,
@@ -35,11 +37,16 @@ interface ImageGenerationChannel {
             sourceImageSha256 = figureSha256Hex(request.photoBytes),
             configurationFingerprint = null,
         )
-        return redrawClean(request)
+        throw ImageDispatchNotReservedException(
+            "the reserved redraw entry point must be implemented by the image backend; " +
+                "the unbound legacy entry point is never delegated to",
+        )
     }
 
     /**
      * 图像生成（可选源图种子）。生产实现必须在任何网络 IO 前复核 [dispatch]。
+     *
+     * 默认实现同上：校验绑定形状后 fail-closed，不委托旧重载。
      */
     suspend fun generate(
         request: ImageGenerationRequest,
@@ -50,15 +57,22 @@ interface ImageGenerationChannel {
             sourceImageSha256 = request.sourceImageBytes?.let(::figureSha256Hex),
             configurationFingerprint = null,
         )
-        return generate(request)
+        throw ImageDispatchNotReservedException(
+            "the reserved image generation entry point must be implemented by the image backend; " +
+                "the unbound legacy entry point is never delegated to",
+        )
     }
 
     /**
-     * 旧的无预留入口：默认 fail-closed。
+     * 旧的无预留入口：默认 fail-closed，且为 ERROR 级弃用（KD-59）。
      *
-     * 生产 `OpenAiImageGenerationChannel` 不覆盖它（因此任何绕过 coordinator 的调用都在
-     * 内存里立刻失败）；只实现旧入口的测试替身会被带 dispatch 的默认实现委托到。
+     * 生产 `OpenAiImageGenerationChannel` 不覆盖它；任何绕过 coordinator 的调用都在
+     * 内存里立刻失败，不会产生 HTTP。
      */
+    @Deprecated(
+        message = "无预留的图像入口已禁用（KD-59）：经 FigureGenerationCoordinator 取得绑定",
+        level = DeprecationLevel.ERROR,
+    )
     suspend fun redrawClean(request: ImageRedrawRequest): ImageRedrawResult =
         throw ImageDispatchNotReservedException(
             "image redraw requires a granted dispatch reservation; " +
@@ -66,6 +80,10 @@ interface ImageGenerationChannel {
         )
 
     /** 旧的无预留入口：默认 fail-closed（见 [redrawClean] 的说明）。 */
+    @Deprecated(
+        message = "无预留的图像入口已禁用（KD-59）：经 FigureGenerationCoordinator 取得绑定",
+        level = DeprecationLevel.ERROR,
+    )
     suspend fun generate(request: ImageGenerationRequest): ImageRedrawResult =
         throw ImageDispatchNotReservedException(
             "image generation requires a granted dispatch reservation; " +

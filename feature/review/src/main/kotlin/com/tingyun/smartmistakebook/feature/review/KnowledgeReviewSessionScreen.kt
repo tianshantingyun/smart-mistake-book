@@ -12,15 +12,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -49,6 +55,19 @@ import com.tingyun.smartmistakebook.core.ui.SmartColors
  * [restoreQuiz] = 进程重建后把**原题面**读回来（只读，不出网）。由 ViewModel 依持久化的
  * 加载状态决定走哪条：有题面可读回就绝不重出题。
  */
+/**
+ * "答案有问题"的一次预报告（PRD-02）。
+ *
+ * [selectedChoiceId] 为 null = 学生**还没提交**（中性入口：不提前泄露答案）；非 null =
+ * 已作答后的定向反馈，目标证据可由 `(知识点, 题面, 选择)` 定位。
+ */
+data class KnowledgeQuizAnswerIssue(
+    val knowledgeNodeId: String,
+    val itemId: String,
+    val selectedChoiceId: String?,
+    val reason: String,
+)
+
 @Composable
 fun KnowledgeReviewSessionScreen(
     plan: KnowledgeReviewSessionPlan,
@@ -64,6 +83,8 @@ fun KnowledgeReviewSessionScreen(
         conversationId: String,
     ) -> KnowledgeQuizFeedbackResult,
     onFinished: () -> Unit,
+    /** PRD-02：答案有问题入口；默认 no-op，由集成轨（I1）接纠正/暂停计分的写入口。 */
+    onReportAnswerIssue: (KnowledgeQuizAnswerIssue) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val viewModel: KnowledgeReviewSessionViewModel = viewModel(
@@ -196,7 +217,9 @@ fun KnowledgeReviewSessionScreen(
                 KnowledgeQuizContent(
                     viewModel = viewModel,
                     item = item,
+                    knowledgeNodeId = entry?.knowledgeNodeId.orEmpty(),
                     submitAnswer = submitAnswer,
+                    onReportAnswerIssue = onReportAnswerIssue,
                 )
             }
         }
@@ -262,6 +285,7 @@ private fun KnowledgeSessionHeader(onBack: () -> Unit) {
 private fun KnowledgeQuizContent(
     viewModel: KnowledgeReviewSessionViewModel,
     item: TutorAssessmentItem,
+    knowledgeNodeId: String,
     submitAnswer: suspend (
         requestId: String,
         knowledgeNodeId: String,
@@ -270,7 +294,10 @@ private fun KnowledgeQuizContent(
         occurredAtEpochMillis: Long,
         conversationId: String,
     ) -> KnowledgeQuizFeedbackResult,
+    onReportAnswerIssue: (KnowledgeQuizAnswerIssue) -> Unit,
 ) {
+    var issueDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var issueReason by rememberSaveable { mutableStateOf("") }
     SafeMarkdownText(
         markdown = item.stemMarkdown,
         color = SmartColors.Ink,
@@ -318,6 +345,82 @@ private fun KnowledgeQuizContent(
             },
         )
     }
+    // PRD-02："答案有问题"入口。未作答时用中性文案（不提前泄露答案）；已作答时带上
+    // 真实选择，供纠错写入口定位目标证据。
+    TextButton(
+        onClick = { issueDialogVisible = true },
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(
+                if (viewModel.submittedChoice == null) {
+                    "knowledge_review_report_issue_neutral"
+                } else {
+                    "knowledge_review_report_issue"
+                },
+            ),
+    ) {
+        Text(
+            text = if (viewModel.submittedChoice == null) {
+                "这道题的答案有问题？"
+            } else {
+                "这道题的答案有问题，反馈一下"
+            },
+            color = SmartColors.InkSecondary,
+            style = MaterialTheme.typography.labelMedium,
+        )
+    }
+    if (issueDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { issueDialogVisible = false },
+            title = { Text("答案有问题") },
+            text = {
+                Column {
+                    Text(
+                        text = if (viewModel.submittedChoice == null) {
+                            "先记下这道题的题面问题，本题不按对错计分；你的答案仍然会保留。"
+                        } else {
+                            "说明这道题的答案/选项哪里有问题；已记录的作答不会被改写。"
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = SmartColors.InkSecondary,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = issueReason,
+                        onValueChange = { issueReason = it },
+                        label = { Text("问题说明（可留空）") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("knowledge_review_issue_reason"),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onReportAnswerIssue(
+                            KnowledgeQuizAnswerIssue(
+                                knowledgeNodeId = knowledgeNodeId,
+                                itemId = item.id,
+                                selectedChoiceId = viewModel.submittedChoice,
+                                reason = issueReason.ifBlank { "答案/选项有问题" },
+                            ),
+                        )
+                        issueDialogVisible = false
+                        issueReason = ""
+                    },
+                    modifier = Modifier.testTag("knowledge_review_issue_confirm"),
+                ) {
+                    Text(if (viewModel.submittedChoice == null) "记下，先不计分" else "提交反馈")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { issueDialogVisible = false }) {
+                    Text("取消")
+                }
+            },
+        )
+    }
 }
 
 /**
@@ -343,6 +446,11 @@ internal fun knowledgeQuizRejectedReasonText(reason: String): String = when (rea
     "LEARNER_WINDOW_QUOTA_EXHAUSTED" -> "短时间内记录得比较多，这次先只作为观察"
     "ATTENTION_BELOW_FLOOR" -> "这次作答投入得还不够，先只作为观察"
     "CONTRADICTORY_SEMANTICS" -> "这次的判断前后不太一致，先只作为观察"
+    // PRD-02：键信任/纠错门的新拒因——都**不**声称已计入掌握度。
+    "ANSWER_KEY_UNVERIFIED" -> "这道题的答案还没有经过独立核对，这次只记录你的选择，不计入掌握度"
+    "ANSWER_KEY_VERSION_STALE" -> "这道题的答案刚刚更正过；旧键下的这次判分不再计入"
+    "ANSWER_KEY_DISPUTED" -> "这道题的答案已标记为有争议，暂停计分"
+    "EVIDENCE_IDENTITY_STICKY" -> "这次作答没有写入掌握度记录（同一次作答已有更早的观察记录）"
     else -> "这次先只作为观察记录"
 }
 

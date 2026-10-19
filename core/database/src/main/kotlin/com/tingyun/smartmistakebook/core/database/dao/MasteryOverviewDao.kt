@@ -130,6 +130,10 @@ internal interface MasteryOverviewDao {
      * Model-issued evidence aggregates per knowledge node, split by whether the
      * write gate accepted it — a node whose evidence is mostly rejected is a
      * different story from one whose evidence landed.
+     *
+     * PRD-02：`KEY_CORRECTION`/`KEY_VOID` 是“对某条证据的定向更正/撤销”，不是新的
+     * 接受证据；计入 `accepted_count`/最近接受会把纠错日误报成一次新的练习。
+     * 与 `ChatEvidenceDao` 的配额查询同一口径，二者都排除这两种 source_kind。
      */
     @Query(
         """
@@ -142,6 +146,7 @@ internal interface MasteryOverviewDao {
         FROM learner_chat_evidence
         WHERE learner_id = :learnerId
           AND knowledge_node_id IN (:knowledgeNodeIds)
+          AND source_kind NOT IN ('KEY_CORRECTION', 'KEY_VOID')
         GROUP BY knowledge_node_id
         """,
     )

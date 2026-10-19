@@ -83,6 +83,36 @@ class ExportedSchemaContractTest {
         )
     }
 
+    /**
+     * 消灭的具体失败（批次 15 复核）：68.json 的 `identityHash` 与 `setupQueries` 都
+     * 直接复制了 67 的值——新装库会把旧身份写进 `room_master_table`，迁移/身份校验拿到
+     * 与 KSP 生成物不一致的哈希。两条必须同源，否则只看字段"非空且是 32 位 hex"看不出来。
+     */
+    @Test
+    fun everySchemaMasterTableHashMatchesItsIdentityHash() {
+        val schemas = File("schemas")
+            .walkTopDown()
+            .filter { it.isFile && it.extension == "json" }
+            .toList()
+        schemas.forEach { file ->
+            val database = json.decodeFromString<SchemaFile>(file.readText()).database
+            val masterInsert = database.setupQueries.firstOrNull { query ->
+                query.contains("INSERT", ignoreCase = true) &&
+                    query.contains("room_master_table") &&
+                    query.contains("identity_hash")
+            }
+            assertTrue(
+                "${file.name} must insert the room_master_table identity hash",
+                masterInsert != null,
+            )
+            assertTrue(
+                "identityHash must match the room_master_table insert in ${file.name}: " +
+                    masterInsert,
+                masterInsert!!.contains("'${database.identityHash}'"),
+            )
+        }
+    }
+
     private val File.nameWithoutVersion: Int
         get() = nameWithoutExtension.toInt()
 

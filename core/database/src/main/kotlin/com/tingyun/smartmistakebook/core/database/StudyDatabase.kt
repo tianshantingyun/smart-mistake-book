@@ -127,7 +127,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 67
+internal const val STUDY_DATABASE_VERSION = 68
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -382,6 +382,7 @@ object StudyDatabaseFactory {
             PROBLEM_CLASSIFICATION_CANDIDATE_MIGRATION_64_65,
             CLEAN_REDRAW_TASK_MIGRATION_65_66,
             FAVORITE_AND_MANUAL_DRAFT_MIGRATION_66_67,
+            ANSWER_KEY_CORRECTION_MIGRATION_67_68,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()
