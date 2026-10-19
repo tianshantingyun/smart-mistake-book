@@ -85,7 +85,11 @@ class RealPackTest(unittest.TestCase):
         # （new_points.csv 20 + new_points_manual.csv 2）→ 成品实点 3359 − 171 + 22 = 3210
         # （量源 = 成品包与 HEAD 包逐点集合差：退场 171、新增 22；本用例 round-1 失败信息
         # `3359 != 3210`；复算脚本 build/agent-batch11/pin/measure_py_pins.py）。
-        self.assertEqual(3210, dp._point_count(pack))
+        # 2026-10-20 批次13 promote v17 再重钉（成品实测）：批次13 新建 116 点（85 个零材料点
+        # 按「空点收口」撤回：84 行记删 point_delete.csv、1 点并入近义 survivor）→ 删 3 残点
+        # → 窗口② 建 7 点 → 成品实点 3210 + 116 − 85 − 3 + 7 = 3245（量源 = 成品包实跑
+        # _point_count 与本用例 round-1 失败信息 `3210 != 3245`）。
+        self.assertEqual(3245, dp._point_count(pack))
 
 
 if __name__ == "__main__":

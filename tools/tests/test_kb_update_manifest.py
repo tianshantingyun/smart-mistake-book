@@ -323,14 +323,19 @@ class RealArtifactsTest(unittest.TestCase):
         # `um.backfill_from_tables` 与本用例 round-1 失败信息 `AssertionError: 639 != 810`；
         # 与表行数 point_merge.csv 810 行逐一对上；复算脚本
         # build/agent-batch11/pin/measure_py_pins.py）。
-        self.assertEqual(810, kinds.get(um.KIND_MERGE, 0))
+        # 2026-10-20 批次13 promote v17 后重钉：810 → 811（+1；point_merge.csv 现 811 行数据，
+        # 回填逐一对上；量源 = 对成品包实跑 um.backfill_from_tables 与本用例 round-1 失败信息
+        # `810 != 811`；新增行为批次13 空点收口并点）。
+        self.assertEqual(811, kinds.get(um.KIND_MERGE, 0))
         # 2026-10-02 建点闭环：撤回 8 个"块过薄写不出材料"的新点 → point_delete.csv +8 行 → 192。
         # 2026-10-03 批次 3：改绑轮又删 1 行空操作删除（原 192 + 1）→ 193。
         # 2026-10-14 批次10 promote v14：批次10 残片删点 3 行（2 条化学、1 条数学）落
         # point_delete.csv（193 → 196）→ backfill 实测 DELETE=196（同一量源，与表行数 196 行一致）。
         # 2026-10-16 批次11 promote v15：**DELETE 未动**（批次11 无删点行；退场 171 全为
         # point_merge 并点）→ 仍 196（量源同上，对成品包实跑 backfill 实测）。
-        self.assertEqual(196, kinds.get(um.KIND_DELETE, 0))
+        # 2026-10-20 批次13 promote v17 后重钉：196 → 283（+87 = 3 残点删除 + 84 行零材料
+        # 新点「空点撤回」记删；point_delete.csv 现 283 行数据、回填逐一对上；量源同上）。
+        self.assertEqual(283, kinds.get(um.KIND_DELETE, 0))
 
     def test_backfilled_entries_pass_shape_check(self):
         doc = um.empty(self.pack["packId"])
