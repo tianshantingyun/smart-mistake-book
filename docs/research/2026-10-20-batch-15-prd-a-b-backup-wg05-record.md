@@ -406,7 +406,7 @@
 ## 8. 提交 / 推送占位
 
 - **工作流自身未执行 git 写操作**；主会话收尾按显式清单分两笔提交。
-- **代码/测试提交 `032fce0e`（99 文件）**：22,976 insertions / 537 deletions；包含 9 个新生产文件、全部新测试与 schema 68。
+- **代码/测试提交 `032fce0e`（99 文件）**：21,976 insertions / 537 deletions；包含 9 个新生产文件、全部新测试与 schema 68。
 - **文档提交**：本记录与 `known-defects.md`/主线/台账/决策台账 5 个文件随后提交（哈希见本节末尾）。
 - 9 个新生产文件已全部纳入；列表保留如下：
   1. `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/AnswerKeyCorrectionMigration_67_68.kt`
