@@ -2039,6 +2039,10 @@ setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDo
 新增 hunk（不可分离），按计划留给后续；同缺陷的日志（`AndroidBackupRepository.kt:599`）与测试 KDoc 亦未改。
 见批次记录 §2 T6。
 
+**2026-10-19 再核（批次 14 T5）**：日志/注释侧已按批 14 落（`AndroidBackupRepository.kt:608-633` 明写「只能说
+『未能完整写入、可能有部分设置已变』，不能说『设置保持原样』」）；**面向用户文案仍未改**——`SecondaryScreens.kt:734-735`
+该串为他线在飞新增行（HEAD 无此串），本批未动。KD-47 保持 open。
+
 **Reopen condition.** n/a —— 登记性低危。
 
 ## KD-48 (fixed 2026-10-18，提交 `8335613f`（调试面消费点已接）) · 「可观察性先行」在应用里没有消费面
@@ -2120,7 +2124,7 @@ for 270.20203 seconds」，阻塞语句 `DELETE FROM knowledge_search_feature WH
 已核当前无生产可达 I>R 路径（`KnowledgeBaseImportContract.kt:164` 禁 MODEL_CANDIDATE；退役删特征行；
 伪节点不写特征行），仅作边界登记；加固方向 = indexed 计数同筛 verification_status（一行 SQL）。
 
-## KD-52 (open, 2026-10-18 登记（批次 13 对抗性复核 finding 2 + 设备走查；medium）) · A8 手动建题只落了半边：schema/校验器已放行，但没有生产者，空源草稿读取路径硬崩
+## KD-52 (fixed 2026-10-19，批次 14 T2；设备全链 PASS) · A8 手动建题只落了半边：schema/校验器已放行，但没有生产者，空源草稿读取路径硬崩
 
 **Symptom（读码 + 设备实测）.** 批次 13 的 A8 只落了：schema 67（`problem_draft.source_asset_id` 可空）+
 校验器按 `USER_TRANSCRIPTION` 放行。**没有创建入口**——`MANUAL_TRANSCRIPTION` 全仓只有 model 定义、
@@ -2140,6 +2144,13 @@ for 270.20203 seconds」，阻塞语句 `DELETE FROM knowledge_search_feature WH
 **Reopen condition.** n/a —— 本条即 open；关闭条件 = 创建入口 + 全链提交用例落地（手动题 `created=true` 且
 证据 provenance=USER_TRANSCRIPTION）。
 
+**关闭记录（2026-10-19，批次 14 T2；设备全链 PASS）.** 生产者落地：录入屏「手动建题」→ `startManualDraft`
+→ `importDraft(localUri=null)` 空源草稿（初始块 USER_TRANSCRIPTION、空 `source_asset_id`、无区域、作者 USER）+
+读取/提交路径空源分支 + 全链用例。**设备实测全链**：录入方式含「手动建题」→ 填标题/题面 → 「保存修改并存入
+错题本」→ 回执「这道题是新建入库的」→ 错题本 1 道题 → 详情页题面一致 → 导出 PDF 内容一致不崩。
+`ManualTranscriptionCaptureInstrumentedTest` 3/0、`MistakePdfMissingSourceInstrumentedTest` 1/0（设备）。
+**同批连带修复**：既有回归 `CaptureWorkspacePolicyTest` 的空白照片段落误放行（high，见批次记录 §8 收尾修复）。
+
 ## KD-53 (open, 2026-10-18 登记（批次 13 设备实测；medium）) · 大库的自建备份不可校验/不可恢复：单条目解压上限 100MB < 库体积
 
 **Symptom（设备实测）.** app 内创建完整备份 → UI 报「备份完成」（63,467,871 B）→ 同一文件走「校验一个备份文件」
@@ -2156,6 +2167,13 @@ for 270.20203 seconds」，阻塞语句 `DELETE FROM knowledge_search_feature WH
 **Reopen condition.** n/a —— 本条即 open；关闭条件 = 大库（≥365MB 快照）的自建备份可在 app 内校验与恢复，
 且 AUD-05 专用门在设备上被真实触发。
 
+**2026-10-19 进展（批次 14 T4）**：上限已按条目类型分层（`database.sqlite` 1 GiB / 题图仍 100 MiB；总量 2 GiB、
+压缩比 100 保留）——**校验侧设备实测关闭**（365,133,824 B 单条目过校验，「备份有效：4 个文件全部通过校验」）；
+**恢复侧未达**：app 内两次恢复均以 main 线程 `SQLException: Connection pool is closed` 崩溃并启动回滚（独立缺陷
+见 **KD-56**）。**新增低危**：解包先写盘、磁盘预检在后（staging 上限=总量门 2 GiB，恶意/损坏归档可先占掉约
+2 GiB 剩余空间；压缩比门挡不住写盘量——`SmbkArchiveCodec.kt:124-145` + `AndroidBackupRepository.kt:337/361-395`），
+待把 free-space 预检前移到解包前或给 staging 单独预算。
+
 ## KD-54 (open, 2026-10-18 登记（批次 13 设备实测；medium）) · 备份快照 VACUUM INTO 单语句占写连接 601s：备份期间其它写被饿死
 
 **Symptom（设备实测）.** 备份快照 `VACUUM INTO` 单语句占写连接最长 **601.274s**、期间 40 条
@@ -2170,6 +2188,12 @@ for 270.20203 seconds」，阻塞语句 `DELETE FROM knowledge_search_feature WH
 
 **Reopen condition.** n/a —— 本条即 open；关闭条件 = 备份期间无分钟级写饥饿（设备对照）。
 
+**2026-10-19 进展（批次 14 T4）**：「让路」形态已落地（`BackupWriteGate` + 采集仓库 admittedWrite + 备份仓库自身），
+但**覆盖只有两条仓库**：其余写路径（复习调度/知识写入/掌握度/导出记录/提醒协调等）仍直连 DAO——设备实测快照
+期间仍有 **9 条 `unable to grant`、最坏 90.014s**（批 13 记录为 601s/40 条，量级下降但**分钟级饥饿仍在，不能关账**）。
+附带两处文案/行为：孤立图清理 worker 在备份期间连吃 3 次 deferred 变 FAILED（界面「这次没清理完」）；
+恢复撞上备份时文案「恢复失败…备份正在进行…」。待把写门覆盖到全部 DAO 直写入口（或把快照改成可让路的形态）。
+
 ## KD-55 (open, 2026-10-18 登记（批次 13 对抗性复核 finding 5；low）) · docx 嵌入图片直读 file:// 不再复核 sha/长度（与 PDF 侧同形的 TOCTOU）
 
 **Symptom.** docx 渲染时图片字节直接从 `file://` URI 读取（`DocxImageSource.kt:26-45`），不再复核记录里的
@@ -2179,5 +2203,89 @@ for 270.20203 seconds」，阻塞语句 `DELETE FROM knowledge_search_feature WH
 **Impact.** low（窗口窄、需并发改文件）。
 
 **Fix direction.** 渲染前按记录里的 sha/长度复查一次（或直接读 vault 的规范句柄）。
+
+**关闭记录（2026-10-19，批次 14 T5）.** 已按 Fix direction 落地：`DocxImageSource` 新增记录 sha/长度复核
+（`File.length()` 预检 + 读后同一份字节的 size+sha256 复核，不符按既有「读不出」口径省略图）；导出输入/批量
+Image 块/卷面编辑/草稿 DTO 全链携带来源资产记录；用例覆盖匹配、长度不符、等长换字节（TOCTOU）。见批次记录
+§2 T5。
+
+**Reopen condition.** n/a —— 登记性低危。
+
+## KD-56 (open, 2026-10-19 登记（批次 14 设备实测；high）) · 大库恢复在 app 内崩溃：main 线程 `SQLException: Connection pool is closed` + 启动回滚
+
+**Symptom（设备实测，两次复现）.** 批次 13 的自建备份（63,467,871 B；内库 365,133,824 B）在 app 内恢复：
+第一次 04:26:33 FATAL EXCEPTION main `android.database.SQLException: Error code: 21, message: Connection pool is
+closed`（`androidx.room3 PassthroughConnectionPool.useConnection`）→ 进程死亡；重启后启动对账回滚，横幅
+「备份恢复没有完成／已回到恢复之前的数据」（诊断号 `startup:restore-reverted:815bed99-…`）；第二次重试同样崩溃
+（`d73c2a84-…`）。校验侧已通过（见 KD-53 进展）。
+
+**Impact.** high：大库恢复（本机真实规模）在设备上**不可用**——恢复是「换机/重装」的唯一通道；且崩溃发生在
+main 线程（进程死亡），回滚语义正确但用户拿不到数据。
+
+**归因边界（照实）**：批次 13 时代恢复在「单条目上限」门就被拒、从未走到交换路径——本形态是**首次在真实大库
+上执行 swap** 时暴露；是否由批次 14 T4 的写门/让路改动引入，还是既有潜伏缺陷，尚未定因（两份诊断号里只有
+`d73c2a84` 有三张截图佐证，`815bed99` 无落盘佐证——独立核对实测）。
+
+**Fix direction（下一批首选）**：定位「恢复交换路径里谁在池关闭后仍持有连接」——沿 `AndroidBackupRepository`
+的 swap/关库时序与 T4 新接入的写门（`BackupWriteGate`）交叉核对；补一条「大库恢复 → 不崩、数据可读」的设备级
+用例。见批次记录 §3.3。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 大库自建备份在设备上完成恢复且不崩（与 KD-53 关闭条件同批）。
+
+## KD-57 (open, 2026-10-19 登记（批次 14 对抗性复核；medium）) · 分享接收「再试一次」必然失败：授权在 finally 里被无条件撤销，Expired 分支不可达
+
+**Symptom（读码）.** `CaptureShareIntake` 的 `finally` 无条件 `revokeReadGrant` 掉本次分享的全部 URI 授权
+（`CaptureShareIntake.kt:57-59`），而「再试一次」只对 `UNREADABLE`/`IMPORT_FAILED` 开放（`CaptureSharePolicy.kt:179-180`）
+——第二次尝试必然再失败且理由变成「文件可能已损坏或没有读取权限」；另外进程/配置重建时 `pendingSharedCapture`
+由 `rememberSaveable` 恢复成非空（`SmartMistakeBookRoot.kt:228-230`），为「授权已随进程消失」准备的
+`CaptureShareRouteState.Expired` 分支（要求 request==null，`CaptureShareIntakeRoute.kt:146-153`）几乎不可达，
+用户拿到的是 UNREADABLE 这句错话。
+
+**Impact.** medium：失败态出口不可用（重试死路 + 文案误因）。
+
+**Fix direction.** 失败路径不撤授权（成功才撤），或把 Expired 判据改为「恢复态即过期」；补失败重试用例。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 「再试一次」在授权仍有效时真的能重试成功 + Expired 可达。
+
+## KD-58 (open, 2026-10-19 登记（批次 14 对抗性复核；medium）) · 旧 attachedImages 兼容链静默失败：无预留重载默认抛、异常被吞成 null
+
+**Symptom（读码）.** 模型输出 `attachedImages` 的历史 resolver 走无预留旧重载
+（`AttachedImageGeneratorFactory.kt:48` 的 `channel.generate(request)`），而生产通道不覆盖该重载 → 默认实现抛
+`ImageDispatchNotReservedException`（`ImageGenerationChannel.kt:62-73`），被 `resolveOne` 的
+`catch(Exception){ null }` 吞掉（`AttachedImageGenerator.kt:88-90`）——用户只看到少一张图、没有原因。
+方向（WG-05 历史 resolver cache-only）是有意的，但「缓存未命中=静默不可用」这一档没有可读理由，也没有用例点名
+（单测替身仍覆盖旧重载所以测试是绿的）。
+
+**Impact.** medium：历史消息缺图不可解释；一旦新实现者沿用旧重载，预留防线也被绕过（见 KD-59）。
+
+**Fix direction.** 缓存未命中给显式「可重新生成」动作与文案（WG-05 落地时一并做）；补一条点名用例。
+
+**Reopen condition.** n/a —— 本条即 open；关闭条件 = 缓存未命中不再静默（有可读原因/动作）+ WG-05 接线落地。
+
+## KD-59 (open, 2026-10-19 登记（批次 14 对抗性复核；low）) · 「无预留→0 HTTP」在接口层偏弱：旧重载可被覆盖、binding 公开可自造
+
+**Symptom（读码）.** `ImageGenerationChannel` 带 dispatch 的默认实现只核 sha/非空 id/可选配置指纹，然后委托给
+**可被实现者覆盖的旧重载**，且委托时 `configurationFingerprint=null`（跳过配置绑定复核，
+`ImageGenerationChannel.kt:29-54`）；`FigureImageDispatchBinding` 是公开类、构造器公开，任何调用方都能自造一个
+`method=IMAGE_MODEL`、sourceSha 匹配的 binding。今天没有生产实现者覆盖旧重载（不构成可复现旁路），但测试替身
+正是以旧方式实现——这条路一旦被新实现者沿用就会重新打开。
+
+**Impact.** low（当前无可复现旁路；防线强度依赖实现者自律）。
+
+**Fix direction.** 旧重载改为 `@Deprecated(level=ERROR)` 或收窄可见性；binding 构造器 internal 化 + 测试工厂。
+
+**Reopen condition.** n/a —— 登记性低危。
+
+## KD-60 (open, 2026-10-19 登记（批次 14 对抗性复核；low）) · 图像预留与讲题工具环共享同一派发预算：先烧工具轮会让配图被判 BUDGET_EXHAUSTED
+
+**Symptom（读码）.** T1 的图像预留与讲题工具环共用同一 `model_task_operation.dispatch_count`：
+`reservedLimit=MAX_DISPATCHES-1=5`（留终答位，`RoomFigureDispatchLedger.kt:41-97` + `ModelTaskTransactionDao.kt:342-345`），
+而工具环自己用 6 预留。一个逻辑操作里先烧掉几轮工具后，最后一次配图会被判 `BUDGET_EXHAUSTED`，工具结果只说
+「配图没有生成成功」，真实原因是共享预算被聊天轮吃掉；入口声明的 `FigureGenerationBudget(remainingRemoteDispatches=6)`
+是常量、不反映 durable 余量（policy 的预算门只是装饰，真门是账本）。
+
+**Impact.** low-中：配图在长工具环里可能被预算判死且理由不可读；预算语义与文档不一致。
+
+**Fix direction.** 预算声明从账本读实余量（或把配图预算与聊天轮预算分列并在诊断里说清）。
 
 **Reopen condition.** n/a —— 登记性低危。
