@@ -122,6 +122,14 @@ internal class TutorConversationViewModel(
         (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
         null,
     /**
+     * 6B-3：自然语言改卷的模型端口。null = 这个入口不接模型改卷（界面不显示这一块，
+     * 不广告没接上的能力）；手动编辑与导出不受影响。
+     *
+     * 端口只返回白名单命令 JSON；解析、越界校验与落地都在 [TutorPaperEditApplier]。
+     * 它拿到的是**卷面副本**，没有写回错题条目的通道。
+     */
+    private val paperEditAssistant: TutorPaperEditAssistant? = null,
+    /**
      * 这条会话锚着的**那一道已在错题本里的题**（A4 执行路径 ②）：错题讲题页给它（这一页讲的
      * 就是这一条错题）。有它，模型申请"存 / 打开这一轮这道题"时那张卡的目标就是它；没有它，
      * 这类申请在本页没有可执行目标、挂不出卡（本地不伪造一张点了无处落地的卡）。
@@ -458,7 +466,15 @@ internal class TutorConversationViewModel(
         updateState { state ->
             state.exportSheet?.let { current ->
                 state.copy(
-                    exportSheet = current.copy(editLoading = true, editMessage = null),
+                    exportSheet = current.copy(
+                        editLoading = true,
+                        editMessage = null,
+                        // 重新准备卷面 = 上一次模型改卷的输入/交代不再对应当前草稿。
+                        paperEditInstruction = "",
+                        paperEditBusy = false,
+                        paperEditMessage = null,
+                        paperEditMessageIsError = false,
+                    ),
                 )
             } ?: state
         }
@@ -507,6 +523,10 @@ internal class TutorConversationViewModel(
                         paperEdit = null,
                         editLoading = false,
                         editMessage = null,
+                        paperEditInstruction = "",
+                        paperEditBusy = false,
+                        paperEditMessage = null,
+                        paperEditMessageIsError = false,
                     ),
                 )
             } ?: state
@@ -545,6 +565,132 @@ internal class TutorConversationViewModel(
     /** 改卷面备注（只在"含备注"版式里进文件名；绝不写回 `error_book_entry.user_note`）。 */
     fun onExportEditNote(entryId: String, note: String) {
         updatePaperEdit { edit -> edit.withNote(entryId, note) }
+    }
+
+    // ---- 自然语言改卷（6B-3）：模型只给白名单命令，本地整批校验后才落草稿 ----
+
+    /** 学生在编辑态里写下的一句改卷要求（超长按上限截断，不静默丢前缀）。 */
+    fun onExportEditInstructionChange(value: String) {
+        updateState { state ->
+            state.exportSheet?.let { sheet ->
+                state.copy(
+                    exportSheet = sheet.copy(
+                        paperEditInstruction = value.take(
+                            TutorPaperEditPrompt.MAX_INSTRUCTION_CHARS,
+                        ),
+                        // 旧的拒绝/应用交代不再对应当前这句要求。
+                        paperEditMessage = null,
+                        paperEditMessageIsError = false,
+                    ),
+                )
+            } ?: state
+        }
+    }
+
+    /**
+     * 把当前卷面副本 + 学生要求交给模型端口，并把返回的白名单命令整批落到**副本**上。
+     *
+     * 四条边界：
+     * 1. 端口为 null（未接线）时只给一句如实说明、不改草稿——界面本来就不显示这一块；
+     * 2. 模型输出非法/越界 → [TutorPaperEditApplier] 整批拒绝，`paperEdit` 保持原样并说明；
+     * 3. 等待期间学生手动改了卷面 → 这次结果丢弃（不把他刚改的内容盖掉）；
+     * 4. 应用成功后 `toDraft()` 已重算导出指纹；确认导出用的就是这份新副本。
+     */
+    fun onExportEditWithModel() {
+        val sheet = _uiState.value.exportSheet ?: return
+        val edit = sheet.paperEdit ?: return
+        if (sheet.paperEditBusy || sheet.paperEditInstruction.isBlank()) return
+        val assistant = paperEditAssistant
+        if (assistant == null) {
+            updateState { state ->
+                state.exportSheet?.let { current ->
+                    state.copy(
+                        exportSheet = current.copy(
+                            paperEditMessage = "这个入口暂时不能交给模型改卷面，仍可手动编辑。",
+                            paperEditMessageIsError = true,
+                        ),
+                    )
+                } ?: state
+            }
+            return
+        }
+        val instruction = sheet.paperEditInstruction.trim()
+        updateState { state ->
+            state.exportSheet?.let { current ->
+                state.copy(
+                    exportSheet = current.copy(
+                        paperEditBusy = true,
+                        paperEditMessage = null,
+                        paperEditMessageIsError = false,
+                    ),
+                )
+            } ?: state
+        }
+        viewModelScope.launch {
+            val raw = try {
+                assistant.commandsFor(edit, instruction)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                null
+            }
+            updateState { state ->
+                val current = state.exportSheet ?: return@updateState state
+                val currentEdit = current.paperEdit
+                when {
+                    // 编辑态已退出（返回选题 / 收起 sheet）：这次结果没有落点。
+                    currentEdit == null -> state
+                    // 等待期间学生手动改过（实例换了）：他的改动优先，这次结果丢弃。
+                    currentEdit !== edit -> state.copy(
+                        exportSheet = current.copy(
+                            paperEditBusy = false,
+                            paperEditMessage = "卷面在等待时被改过，这次结果没有应用。",
+                            paperEditMessageIsError = true,
+                        ),
+                    )
+                    raw == null -> state.copy(
+                        exportSheet = current.copy(
+                            paperEditBusy = false,
+                            paperEditMessage = "这次没有改成；卷面保持原样，可以再试一次。",
+                            paperEditMessageIsError = true,
+                        ),
+                    )
+                    else -> when (val outcome = TutorPaperEditApplier.apply(edit, raw)) {
+                        is TutorPaperEditApplication.Applied -> state.copy(
+                            exportSheet = current.copy(
+                                paperEdit = outcome.edit,
+                                paperEditInstruction = "",
+                                paperEditBusy = false,
+                                paperEditMessage = tutorPaperEditAppliedMessage(outcome),
+                                paperEditMessageIsError = false,
+                            ),
+                        )
+                        is TutorPaperEditApplication.Rejected -> state.copy(
+                            exportSheet = current.copy(
+                                paperEdit = edit,
+                                paperEditBusy = false,
+                                paperEditMessage = "没有应用：${outcome.reason} 卷面保持原样。",
+                                paperEditMessageIsError = true,
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun tutorPaperEditAppliedMessage(
+        outcome: TutorPaperEditApplication.Applied,
+    ): String = buildString {
+        if (!outcome.edit.isEdited) {
+            append("这些修改没有改变卷面内容，导出仍用原来的卷面。")
+        } else {
+            append("已按白名单命令改好这份卷面副本（${outcome.appliedCommandCount} 条），")
+            append("导出指纹已重算；确认后按这份副本生成文件。")
+        }
+        if (outcome.figureReviewEntryIds.isNotEmpty()) {
+            append("有 ${outcome.figureReviewEntryIds.size} 道题的文字改过，原图需复核，不会自动重画。")
+        }
     }
 
     private fun updatePaperEdit(transform: (MistakePdfPaperEdit) -> MistakePdfPaperEdit) {

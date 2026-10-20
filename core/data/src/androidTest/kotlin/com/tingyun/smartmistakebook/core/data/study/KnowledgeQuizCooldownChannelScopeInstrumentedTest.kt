@@ -30,8 +30,8 @@ import org.junit.runner.RunWith
  * 1. 模型写之后 1h 的小测写**放行且落库**（改前：`SAME_KC_IN_COOLDOWN`，当晚小测证据 0/3）；
  * 2. 反向亦然：小测写的 accepted 行不再是模型写的冷却起点（改前它挡掉模型的下一笔）；
  * 3. 模型通道自己的 12h 冷却**保持**（含严格 `<` 边界：12h−1ms 拒、正好 12h 放行）；
- * 4. `accepted 被 IGNORE` 可读：正常重放 = REPLAYED，身份粘性（既有行是被拒观察行）
- *    = BLOCKED_BY_REJECTED_ROW 且账本真的没有这笔事件；
+ * 4. `accepted 被 IGNORE` 可读且自纠：正常重放 = REPLAYED；身份粘性（既有行是被拒观察行）
+ *    = 保留观察行、合法写换新身份入账并报 LEDGERED_AFTER_REJECTED_IDENTITY（KD-43(b)）；
  * 5. 校准分桶带上 `source_kind` 维（真 SQL 的 GROUP BY，写入值与查询值必须逐字一致）。
  *
  * 写通道请求形状对齐生产：讲题通道照 `RoomTutorToolRunner.masteryUpdate`（方向/理解档/置信/
@@ -141,33 +141,59 @@ class KnowledgeQuizCooldownChannelScopeInstrumentedTest {
     }
 
     @Test
-    fun anAcceptedWriteBlockedByARejectedRowIsReportedAndStaysOutOfTheLedger() = runBlocking {
-        withRealDatabase { database ->
-            val writer = KnowledgeEvidenceWriter(database)
-            // 身份粘性（AUD-11 ③ 附带测到、登记 KD-43）：同一身份先被拒（置信不足），
-            // 条件变化后同一身份的合法写过门、却在落库被 IGNORE 吞掉。
-            val rejected = writer.write(
-                modelRequest("req-sticky", occurredAtEpochMillis = T0, evidenceConfidence = 0.5),
-            )
-            assertEquals(
-                MasteryWriteGate.RejectReason.EVIDENCE_BELOW_CONFIDENCE,
-                (rejected as KnowledgeEvidenceWriteOutcome.Rejected).reason,
-            )
+    fun aWriteBlockedByARejectedRowIsCompensatedUnderAFreshIdentityWithoutTouchingTheObservation() =
+        runBlocking {
+            withRealDatabase { database ->
+                val writer = KnowledgeEvidenceWriter(database)
+                // 身份粘性（AUD-11 ③ 附带测到、登记 KD-43(b)）：同一身份先被拒（置信不足），
+                // 条件变化后同一身份的合法写通过门。裁定：观察行保留，合法写换新身份入账。
+                val rejected = writer.write(
+                    modelRequest("req-sticky", occurredAtEpochMillis = T0, evidenceConfidence = 0.5),
+                )
+                assertEquals(
+                    MasteryWriteGate.RejectReason.EVIDENCE_BELOW_CONFIDENCE,
+                    (rejected as KnowledgeEvidenceWriteOutcome.Rejected).reason,
+                )
 
-            val accepted = writer.write(modelRequest("req-sticky", occurredAtEpochMillis = T0 + 1))
+                val accepted = writer.write(modelRequest("req-sticky", occurredAtEpochMillis = T0 + 1))
 
-            val outcome = accepted as KnowledgeEvidenceWriteOutcome.Accepted
-            assertEquals(
-                "门放行但没进账本——这一档必须单独可读（写入口不再无感知）",
-                KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW,
-                outcome.ledgerStatus,
-            )
-            val row = database.readChatEvidenceByLearner(LEARNER_ID)
-                .single { it.evidence_id == modelEvidenceId("req-sticky") }
-            assertTrue("既有被拒行不被改写（IGNORE 语义）", row.isRejected)
-            assertEquals("账本里没有这笔事件", 0, chatEvents(database).size)
+                val outcome = accepted as KnowledgeEvidenceWriteOutcome.Accepted
+                assertEquals(
+                    "回执标记粘性：换了新身份并且已经入账",
+                    KnowledgeEvidenceLedgerStatus.LEDGERED_AFTER_REJECTED_IDENTITY,
+                    outcome.ledgerStatus,
+                )
+                val rows = database.readChatEvidenceByLearner(LEARNER_ID)
+                val observation = rows.single { it.evidence_id == modelEvidenceId("req-sticky") }
+                assertTrue("既有被拒行不被改写（IGNORE 语义）", observation.isRejected)
+                val compensatedId = knowledgeEvidenceIdAfterRejectedIdentity(
+                    modelEvidenceId("req-sticky"),
+                    NODE_ID,
+                )
+                val compensated = rows.single { it.evidence_id == compensatedId }
+                assertNull("新身份落的是正常证据", compensated.rejected_reason)
+                assertEquals(
+                    "账本里正好有这一笔补偿事件",
+                    listOf(compensatedId),
+                    chatEvents(database).map { it.evidenceId },
+                )
+
+                // 同一请求重试：补偿身份已存在 → 重放，不再多一笔。
+                // 时间推到模型通道 12h 冷却之外，否则这一笔会先被冷却挡成 Rejected。
+                val replay = writer.write(
+                    modelRequest(
+                        "req-sticky",
+                        occurredAtEpochMillis = T0 + TWELVE_HOURS_MILLIS + 1,
+                    ),
+                )
+                assertEquals(
+                    KnowledgeEvidenceLedgerStatus.REPLAYED_AFTER_REJECTED_IDENTITY,
+                    (replay as KnowledgeEvidenceWriteOutcome.Accepted).ledgerStatus,
+                )
+                assertEquals("重放不推进序列、不写第二条 outbox", 1, chatEvents(database).size)
+                assertEquals(2, database.readChatEvidenceByLearner(LEARNER_ID).size)
+            }
         }
-    }
 
     @Test
     fun anAcceptedReplayIsReportedAsReplayedWithoutASecondLedgerEvent() = runBlocking {

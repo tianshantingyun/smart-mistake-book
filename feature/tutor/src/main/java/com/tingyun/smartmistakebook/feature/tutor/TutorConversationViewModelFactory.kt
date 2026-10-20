@@ -36,6 +36,8 @@ internal class TutorConversationViewModelFactory(
     private val readExportPaperEdit:
         (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
         null,
+    /** 6B-3：自然语言改卷的模型端口；null = 这个入口不接模型改卷。 */
+    private val paperEditAssistant: TutorPaperEditAssistant? = null,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(
@@ -55,6 +57,7 @@ internal class TutorConversationViewModelFactory(
             pendingRequests = pendingRequests,
             localActionLandings = localActionLandings,
             readExportPaperEdit = readExportPaperEdit,
+            paperEditAssistant = paperEditAssistant,
         ) as T
     }
 }

@@ -1487,6 +1487,45 @@ internal class RoomStudyDatabase(
         ReviewAttemptWriteResult(attempt = attempt, advance = advance)
     }
 
+    /**
+     * PRD-05：attempt 级撤销的原子边界。
+     *
+     * 一个写事务内完成三件事：
+    1. 追加 VOID 更正行 + outbox（即持久回执；同一 correction id 重放返回 created=false）；
+    2. 会话指针回退一格（`review_session` 原位更新 + 新 revision 行；不删除旧 revision）；
+    3. 把该 attempt 的 review_log 行标记为 `scheduling_eligible=0`（行保留供审计）。
+     *
+     * 崩溃语义：三件事同事务提交，杀进程要么全有要么全无；重试靠 correction id 幂等。
+     */
+    override suspend fun undoReviewAttempt(
+        command: ReviewAttemptUndoCommand,
+    ): ReviewAttemptUndoResult = database.withWriteTransaction {
+        val correction = this@RoomStudyDatabase.appendAttemptCorrection(command.correction)
+        val rewind = database.reviewPlanTransactionDao().rewindSession(
+            command = ReviewSessionRewindCommand(
+                sessionId = command.sessionId,
+                expectedStateVersion = command.expectedStateVersion,
+                attemptId = command.attemptId,
+                practiceUnitId = command.practiceUnitId,
+                undoneAtEpochMillis = command.undoneAtEpochMillis,
+            ),
+            applyRewind = correction.created,
+        )
+        if (correction.created) {
+            database.learningDao().markReviewLogSchedulingIneligible(
+                learnerId = command.learnerId,
+                sourceId = command.attemptId,
+            )
+        }
+        ReviewAttemptUndoResult(
+            created = correction.created,
+            correction = correction.correction,
+            canonicalFingerprint = correction.canonicalFingerprint,
+            outboxId = correction.outboxId,
+            session = rewind.session,
+        )
+    }
+
     override suspend fun recordAnswerReveal(
         command: AnswerRevealWriteCommand,
     ): AnswerRevealWriteResult {

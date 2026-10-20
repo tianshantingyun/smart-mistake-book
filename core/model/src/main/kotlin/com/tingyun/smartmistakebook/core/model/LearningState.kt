@@ -658,7 +658,31 @@ data class BindingChanged(
     }
 }
 
-/** Corrections are only consumed by a full ledger replay; incremental projection rejects them by type. */
+/**
+ * 定向纠正一条 attempt 的补偿事件（PRD-02 / 设计 §3.3；PRD-05 撤销键复用本事件）。
+ *
+ * 只有全量重放消费它；增量投影的类型不接受它（读批遇到 `ATTEMPT_CORRECTION` 即以
+ * `FULL_REPLAY_REQUIRED` 停下）。
+ *
+ * 两种语义：
+ * - **REPLACE**：按 [replacementEvidence]/[replacementMemoryOutcome] 在**原账本位置/时间**
+ *   重算，不把修复日当成新练习日；
+ * - **VOID**（PRD-05 撤销键，见 [isVoid]）：目标 attempt 的**学习效果完全排除**——不推进
+ *   记忆卡（`projectMemory` 不执行）、不写掌握度；但 attempt 行、`responseOrdinal`、
+ *   曝光/揭示事实与审计记录全部保留（事件溯源：不能从账本里假装它没发生）。
+ *
+ * **为什么 VOID 要伪装成 replacement**：表 `attempt_correction` 的
+ * `replacement_evidence_*` / `replacement_memory_outcome` 全是 NOT NULL，且没有 kind 列。
+ * 唯一 schema 合法的"零证据"形状是 `NONE + 0 + ANSWER_REVEALED`，但它在重放里**不是 no-op**
+ * ——`applyAttempt` 先 `projectMemory` 才在 weight==0 处返回，会把 ANSWER_REVEALED 记成一次
+ * 真实 lapse。所以本模型用 [VOID_REASON_PREFIX] 作显式哨兵：投影器在看到它时**在进入
+ * `projectMemory` 之前**分支排除。绝不能靠 weight=0 表达撤销。正常"看答案"的 replacement
+ * 不带前缀，两者在账本里可区分（真实看答案不会被误判为撤销）。
+ *
+ * 同一 attempt 的最终有效更正按账本序列 last-write-wins（既有语义）：最后一条是 VOID 则排除，
+ * 是 REPLACE 则按新载荷重算。VOID 本身不可再"撤销"——重新作答会产生新的 attempt；
+ * 要让被撤销的本次作答重新生效，只能追加一条 REPLACE（现有 `appendAttemptCorrection` 路径）。
+ */
 data class AttemptCorrection(
     val correctionId: String,
     val attemptId: String,
@@ -688,10 +712,59 @@ data class AttemptCorrection(
                     replacementEvidence.reason == LearningEvidenceReason.ANSWER_REVEALED
             },
         ) { "Replacement memory outcome must match replacement evidence" }
+        if (reasonMarkdown.startsWith(VOID_REASON_PREFIX)) {
+            require(
+                replacementEvidence.direction == LearningEvidenceDirection.NONE &&
+                    replacementEvidence.weight == 0.0 &&
+                    replacementEvidence.reason == LearningEvidenceReason.ANSWER_REVEALED &&
+                    replacementMemoryOutcome == ProblemMemoryOutcome.ANSWER_REVEALED,
+            ) {
+                "A void-prefixed correction must carry the zero-evidence sentinel payload"
+            }
+        }
     }
+
+    /** 是否是 PRD-05 的撤销事件（见类 KDoc 的哨兵说明）。 */
+    val isVoid: Boolean
+        get() = reasonMarkdown.startsWith(VOID_REASON_PREFIX)
 
     override val ledgerEventId: String
         get() = correctionId
+
+    companion object {
+        /**
+         * 机器可判的 VOID 哨兵前缀。它不是给人看的文案：投影器/审计按前缀识别，
+         * 因此任何写入方都必须通过 [voidOf] 构造，不要手拼字符串。
+         */
+        const val VOID_REASON_PREFIX = "[void-attempt:v1]"
+
+        /**
+         * 构造一条撤销更正。`reasonMarkdown` 是学生可见/审计说明，前缀由本工厂补齐。
+         *
+         * 载荷取 `NONE + 0 + ANSWER_REVEALED` 是 NOT NULL 列与
+         * `LearningEvidence`/`ProblemMemoryOutcome` 约束下唯一合法的"无证据"形状；
+         * **语义仍由前缀决定**——不带前缀的同形 replacement 仍按"看答案"处理。
+         */
+        fun voidOf(
+            correctionId: String,
+            attemptId: String,
+            reasonMarkdown: String,
+            occurredAtEpochMillis: Long,
+            eventSequence: Long,
+        ): AttemptCorrection = AttemptCorrection(
+            correctionId = correctionId,
+            attemptId = attemptId,
+            replacementEvidence = LearningEvidence(
+                direction = LearningEvidenceDirection.NONE,
+                weight = 0.0,
+                reason = LearningEvidenceReason.ANSWER_REVEALED,
+            ),
+            replacementMemoryOutcome = ProblemMemoryOutcome.ANSWER_REVEALED,
+            reasonMarkdown = "$VOID_REASON_PREFIX $reasonMarkdown",
+            occurredAtEpochMillis = occurredAtEpochMillis,
+            eventSequence = eventSequence,
+        )
+    }
 }
 
 @Serializable

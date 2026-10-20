@@ -306,6 +306,8 @@ private abstract class LedgerOnlyProjectionTransactionDao : ProjectionTransactio
         .sortedBy(ProjectionOutboxEntity::outboxSequence)
         .take(limit)
 
+    override suspend fun voidedPresentationIds(learnerId: String): List<String> = emptyList()
+
     override suspend fun lastAllocatedSequence(learnerId: String): Long? = allocatedSequence
 
     override suspend fun findAttemptsByIds(attemptIds: List<String>): List<AttemptEventEntity> =

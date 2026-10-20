@@ -71,7 +71,8 @@ data class TutorLocalActionLandings(
  * 3. **五 kind 各有落点**：存题（两种拼写）/ 打开某题走既有的三条真路径；导出（4B B3-3）
  *    打开导出 sheet——版式提议随裁决结果交给交互面，真正的导出在 sheet 上学生点「开始导出」
  *    之后才入队；复习计划调整的流程尚未接线，落 [TutorLocalActionTarget.NOT_WIRED_YET]——
- *    **卡照挂、执行如实说"还不能自动做"**，不假装成功；
+ *    PRD-06 起它不再广告/准入，新请求挂不出卡；只有升级前落库的旧卡会走到这里，执行时如实说
+ *    "还不能自动做"，不假装成功；
  * 4. **回喂**：`AgentPendingRequestRepository.readResolvedRequests` 读回已裁决的行——进程死亡
  *    之后照样读得到（行在库里，不在内存里）。
  */

@@ -93,6 +93,17 @@ class OpenAiSseTest {
     }
 
     @Test
+    fun contentStreamCutOffBeforeAnyTerminalFrameIsIncompleteOutput() {
+        // 上游/网络在中途断开：正文已经到了一部分，但既没有 finish_reason 也没有 [DONE]。
+        // 这半段不是"模型写完了的答复"，必须按截断终态处理，而不是原样返回。
+        val raw = "data: {\"choices\":[{\"delta\":{\"content\":\"{\\\"ok\\\":\"}}]}\n\n"
+
+        assertThrows(IncompleteModelOutputException::class.java) {
+            OpenAiSse.reconstructedChatCompletion(raw)
+        }
+    }
+
+    @Test
     fun completedStreamKeepsNoTruncatingFinishReason() {
         val raw = """
             data: {"choices":[{"delta":{"content":"{\"ok\":true}"}}]}

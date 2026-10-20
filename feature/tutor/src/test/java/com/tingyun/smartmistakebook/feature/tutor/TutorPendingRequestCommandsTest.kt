@@ -263,18 +263,46 @@ class TutorPendingRequestCommandsTest {
     }
 
     @Test
-    fun addToReviewPlanHangsACardAndSaysHonestlyThatItIsNotWiredYet() = runBlocking {
-        val commands = commands()
+    fun addToReviewPlanIsNoLongerAdmittedSoNoNewCardIsHung() = runBlocking {
+        // PRD-06：接线前不广告 —— 也不准挂新卡。模型伪造一条未广告的请求时，本地直接拒，
+        // 界面不会出现一张"点了不能做"的卡。
         val suspension = suspendAction(
-            commands,
+            commands(),
             TutorLocalAction.ADD_TO_REVIEW_PLAN,
             TutorLocalActionContext(libraryProblemId = "problem-9"),
-        )!!
+        )
 
-        assertEquals(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, suspension.request.kind)
+        assertNull(suspension)
+        assertTrue(repository.readPendingRequests("AGENT").isEmpty())
+    }
+
+    @Test
+    fun aLegacyAddToReviewPlanCardStillSaysHonestlyThatItCannotDoIt() = runBlocking {
+        // 升级前已经落库的行是**旧卡**：它不再被广告，但学生已经能看到它。裁决必须照常
+        // 落终态，并如实说"还不能自动做"——不许假装计划已经改好，也不许让卡悬死。
+        val legacy = AgentPendingRequest(
+            requestId = "agent-req:legacy:ADD_TO_REVIEW_PLAN:0000000000000001",
+            conversationArea = "AGENT",
+            conversationId = "conversation-1",
+            logicalOperationId = "logical-1",
+            messageId = "message-1",
+            kind = AgentPendingRequestKind.ADD_TO_REVIEW_PLAN,
+            payloadJson = """{"libraryProblemId":"problem-9"}""",
+            status = AgentPendingRequestStatus.PENDING,
+            createdAtEpochMillis = 10,
+        )
+        repository.seed(listOf(legacy))
+        val commands = commands()
+
+        assertTrue(
+            "旧卡文案必须明说现在还不能自动做",
+            pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, legacy.payloadJson)
+                .detail.contains("还不能自动做"),
+        )
+
         val decision = commands.decide(
-            state = suspension.state,
-            requestId = suspension.request.requestId,
+            state = turn(),
+            requestId = legacy.requestId,
             decision = AgentPendingRequestDecision.ACCEPT,
         )!!
 
@@ -282,6 +310,10 @@ class TutorPendingRequestCommandsTest {
         assertFeedBack(
             kind = "ADD_TO_REVIEW_PLAN",
             detail = notWiredYetDetail(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN),
+        )
+        assertEquals(
+            AgentPendingRequestStatus.ACCEPTED,
+            repository.readResolvedRequests("AGENT").single().status,
         )
     }
 

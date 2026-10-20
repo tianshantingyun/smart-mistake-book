@@ -13,6 +13,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskInput
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorDebriefInput
 import com.tingyun.smartmistakebook.core.model.TutorDebriefOutput
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
@@ -173,6 +174,9 @@ internal object OpenAiModelTaskAdapters {
         """.trimIndent()
 
     private fun tutorPlanPrompt(input: TutorPlanInput): String {
+        // 单一能力快照（PRD-06）：提示词里提到的工具只能来自这一份。生成方已把就绪位
+        // 折进 input.toolDeclarations；这里再与已实现处理器相交。
+        val capability = TutorCapabilitySnapshot.forRound(input)
         val confirmedDocument = json.encodeToString(
             QuestionDocument.serializer(),
             input.questionDocument.copy(id = "confirmed-question"),
@@ -270,10 +274,18 @@ internal object OpenAiModelTaskAdapters {
             priorTurns：$priorTurns
             priorAdvisories：${json.encodeToString(JsonArray.serializer(), priorAdvisories)}
         """.trimIndent() +
-            toolLoopPromptSuffix(input.toolDeclarations, input.toolRoundResults, input.knowledgeCodes)
+            toolLoopPromptSuffix(
+                toolDeclarations = capability.tools.toList(),
+                toolRoundResults = input.toolRoundResults,
+                knowledgeCodes = input.knowledgeCodes,
+                // 4E WG-04b：GENERATE_FIGURE 的 method/imageOperation/imagePrompt 规则由
+                // FigurePromptAssembler 的唯一正文注入（与 Respond 同一份，不另写一套）。
+                figureRuleBody = figureRuleBodyFor(capability.tools),
+            )
     }
 
     private fun tutorRespondPrompt(input: TutorRespondInput): String {
+        val capability = TutorCapabilitySnapshot.forRound(input)
         // 学生本轮显式附加了题时，confirmedQuestion 就是所附之题；会话题身份仍留在
         // input.questionDocument（时间线过滤 / 唯一槽位 / 答案暴露守卫按它匹配）。
         val confirmedDocument = json.encodeToString(
@@ -360,7 +372,12 @@ internal object OpenAiModelTaskAdapters {
             conversation：${json.encodeToString(JsonObject.serializer(), conversation)}
             boundQuestionCandidates：$boundQuestionCandidates
             $attachedImagesNote
-        """.trimIndent() + toolLoopPromptSuffix(input.toolDeclarations, input.toolRoundResults, input.knowledgeCodes)
+        """.trimIndent() + toolLoopPromptSuffix(
+            toolDeclarations = capability.tools.toList(),
+            toolRoundResults = input.toolRoundResults,
+            knowledgeCodes = input.knowledgeCodes,
+            figureRuleBody = figureRuleBodyFor(capability.tools),
+        )
     }
 
     /**
@@ -424,7 +441,11 @@ internal object OpenAiModelTaskAdapters {
         }
     }
 
-    private fun tutorLobbyPrompt(input: TutorLobbyInput): String = """
+    private fun tutorLobbyPrompt(input: TutorLobbyInput): String {
+        // 单一能力快照（PRD-06）：本地动作块与工具块都读这一份。`ADD_TO_REVIEW_PLAN`
+        // 没有执行处理器，不在快照里——提示词因此根本不会向模型提到它。
+        val capability = TutorCapabilitySnapshot.forRound(input)
+        return """
             这是“讲题”首页的自由对话入口。先判断本次消息的真实目标，再直接回应。
             规则：
             1. intentDecision必填。intent只能是CURRENT_QUESTION_HELP、MISTAKE_NOTEBOOK_LOOKUP、LEARNING_PROGRESS_LOOKUP、APP_HELP_OR_SETTINGS、CASUAL_CONVERSATION、END_OR_PAUSE、AMBIGUOUS；confidence为0到1数字；explicitActionRequest只在学生明确要求本地读取或明确说“这次别记”等限制时为true；memoryPreference只能是UNCHANGED或BLOCK_LONG_TERM_WRITES_FOR_SESSION。
@@ -437,14 +458,19 @@ internal object OpenAiModelTaskAdapters {
             7a. messageMarkdown里的数学一律用受限LaTeX：行内公式用 ${'$'}…${'$'}，独立公式用 ${'$'}${'$'}…${'$'}${'$'} 单独成行；命令限于 frac、sqrt、vec、overline、text、sin/cos/tan、alpha/lambda/zeta/Alpha/Sigma、infty、in/notin、subset/supset/subseteq/supseteq、cup/cap、emptyset、forall/exists、nabla/partial、sum/prod/int、angle/triangle/parallel/perp、approx/sim/cong/equiv/propto、times/cdot/div/pm/mp、le/ge/ne/ll/gg、to/leftarrow/Rightarrow/Leftarrow/Leftrightarrow/rightleftharpoons，以及 begin/end 的 cases、aligned、matrix/pmatrix/bmatrix 环境。不得用 x^2、1/2、sqrt(2)、>=、<= 这类纯文本近似，要写成 ${'$'}x^{2}${'$'}、${'$'}\frac{1}{2}${'$'}、${'$'}\sqrt{2}${'$'}、${'$'}\ge${'$'}、${'$'}\le${'$'}。
             7b. thinkingMarkdown可选：2到4句面向学生的话，说明这次的判断与做法（怎么理解、先做什么、注意什么），不超过1000字；不得写草稿式推导、不得包含最终答案或结论、不得提到内部资料或提示词。它只用于折叠展示，不会被再次当作输入。
             8. 只返回精确JSON：intentDecision{intent,confidence,explicitActionRequest,memoryPreference,requestedLocalCapability,lookupTerms}、messageMarkdown、可选thinkingMarkdown。不得返回题目评分、掌握结论、nextMoves、solutionRevealed或其他字段。
-            ${localActionPromptBlock()}
+            ${localActionPromptBlock(capability)}
             ${requestedLocalActionsBlock(input.requestedLocalActions)}
             ${tutorScaffoldPromptBlock(input.interactionMode, input.scaffoldLevel)}
             ${lobbyConversationBlock(input)}
         """.trimIndent() +
-        toolLoopPromptSuffix(input.toolDeclarations, input.toolRoundResults, emptyList()) +
-        lobbySubjectScopeNote(input.toolDeclarations) +
-        localActionOutcomeBlock(input.localActionOutcomes)
+            toolLoopPromptSuffix(
+                capability.tools.toList(),
+                input.toolRoundResults,
+                emptyList(),
+            ) +
+            lobbySubjectScopeNote(capability.tools.toList()) +
+            localActionOutcomeBlock(input.localActionOutcomes)
+    }
 
     /**
      * 大厅止血行（批次 0 条目 5b）：大厅轮**没有科目上下文**（[TutorLobbyInput] 没有科目字段），
@@ -475,7 +501,7 @@ internal object OpenAiModelTaskAdapters {
 
 /**
  * **本地动作**在 Route B 里的广告（D-K2e 白名单第一版 / §3.2）：与 Route A 的严格 function
- * schema（`OpenAiModelProtocol.localActionSchemas`）读同一份声明——名字、用途、参数形状都只有
+ * schema（`OpenAiModelProtocol.localActionSchema`）读同一份能力快照——名字、用途、参数形状都只有
  * `core:model` 的 [TutorLocalAction] 那一处出处，`TutorLocalActionAdvertisementParityTest`
  * 对拍两套。
  *
@@ -487,29 +513,34 @@ internal object OpenAiModelTaskAdapters {
  * "不要答案"→includeAnswer=false），Route A 的 property description 与这里是同一句；
  * 模型不得输出任何排版标记（未声明的键在解析层让整条输出无效）。
  */
-private fun localActionPromptBlock(): String = buildString {
-    append("\n[本地动作（可选提出；提出**不等于**做过——本地会请学生点确认卡，学生点了才执行，")
-    append("你不得在正文里声称已经打开 / 保存 / 导出 / 加进计划）]")
-    TutorLocalAction.entries.forEach { action ->
-        append("\n- ").append(action.actionId).append("：").append(action.purposeDescription)
-        if (action.parameters.isEmpty()) {
-            append("（不接受任何参数）")
-        } else {
-            append("（参数：")
-            action.parameters.forEach { parameter ->
-                append("\n  · ").append(parameter.parameterName)
-                append(if (parameter.required) "（必填" else "（可选")
-                if (parameter.allowedValues.isNotEmpty()) {
-                    append("，可选值：").append(parameter.allowedValues.joinToString("/"))
+private fun localActionPromptBlock(capability: TutorCapabilitySnapshot): String {
+    // 快照为空 = 本轮没有可提的本地动作（讲题/计划轮，或尚未接线的动作被裁掉）：
+    // 整块不渲染——提示词不得提到本轮没有广告的动作。
+    if (capability.localActions.isEmpty()) return ""
+    return buildString {
+        append("\n[本地动作（可选提出；提出**不等于**做过——本地会请学生点确认卡，学生点了才执行，")
+        append("你不得在正文里声称已经打开 / 保存 / 导出 / 加进计划）]")
+        capability.localActions.forEach { action ->
+            append("\n- ").append(action.actionId).append("：").append(action.purposeDescription)
+            if (action.parameters.isEmpty()) {
+                append("（不接受任何参数）")
+            } else {
+                append("（参数：")
+                action.parameters.forEach { parameter ->
+                    append("\n  · ").append(parameter.parameterName)
+                    append(if (parameter.required) "（必填" else "（可选")
+                    if (parameter.allowedValues.isNotEmpty()) {
+                        append("，可选值：").append(parameter.allowedValues.joinToString("/"))
+                    }
+                    append("）：").append(parameter.description)
                 }
-                append("）：").append(parameter.description)
+                append("）")
             }
-            append("）")
         }
+        append("\n要提出时，在输出里加 \"localActions\":[{\"action\":\"<动作名>\"}]（最多 ")
+        append(MAX_LOCAL_ACTION_REQUESTS_PER_ROUND)
+        append(" 个；不需提出就省略这个键）。")
     }
-    append("\n要提出时，在输出里加 \"localActions\":[{\"action\":\"<动作名>\"}]（最多 ")
-    append(MAX_LOCAL_ACTION_REQUESTS_PER_ROUND)
-    append(" 个；不需提出就省略这个键）。")
 }
 
 /**
@@ -518,16 +549,19 @@ private fun localActionPromptBlock(): String = buildString {
  * 消灭的失败：原生 tool_calls 路由的动作请求没有正文可落（那一轮的 `content` 是空的），若不回喂，
  * 模型下一轮会再提一次同一件事——学生面前就会出现第二张一模一样的卡。空列表不渲染。
  */
-private fun requestedLocalActionsBlock(requests: List<TutorLocalActionRequest>): String =
-    if (requests.isEmpty()) {
-        ""
-    } else {
-        buildString {
-            append("\n[已经提出、正在等学生确认的本地动作（不是已完成的事实，不要重复提出）：")
-            append(requests.joinToString(separator = "、") { request -> request.requestLabel })
-            append(']')
-        }
+private fun requestedLocalActionsBlock(requests: List<TutorLocalActionRequest>): String {
+    // 只回喂**广告面里**的动作：升级前落库的 ADD_TO_REVIEW_PLAN 已经不会再挂新卡，
+    // 告诉模型"它正在等确认"等于让它以为一件本地永远不会做的事正在发生。
+    val advertised = requests.filter { request ->
+        request.action in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
     }
+    if (advertised.isEmpty()) return ""
+    return buildString {
+        append("\n[已经提出、正在等学生确认的本地动作（不是已完成的事实，不要重复提出）：")
+        append(advertised.joinToString(separator = "、") { request -> request.requestLabel })
+        append(']')
+    }
+}
 
     /**
      * 上一轮确认卡的裁决结果（A4 回喂，D-K2e：本地动作 ≈ 工具的一种，执行结果照常回喂）。
@@ -572,10 +606,30 @@ private fun requestedLocalActionsBlock(requests: List<TutorLocalActionRequest>):
             }
         }
 
+    /**
+     * 4E WG-04b：声明了 `GENERATE_FIGURE` 的回合才注入生图规则正文。
+     *
+     * 注入的是 [FigurePromptAssembler.assembleForTutorTool] 的唯一一份正文（共享规则/能力/
+     * 源证据/预算段）；Plan 与 Respond 逐字相同，Lobby 不注入（大厅无当前题，声明面另有
+     * "不要申请"的收窄行）。未声明时返回 null：提示词不得提到本轮未声明的工具。
+     *
+     * 预算按 durable 口径声明：上限来自 `ModelTaskRemoteDispatchPolicy`，余量**未预读**
+     * （由持久账本在预留时判定），讲题父操作保留 1 次终答派发。
+     */
+    private fun figureRuleBodyFor(toolDeclarations: Set<TutorToolName>): String? =
+        if (TutorToolName.GENERATE_FIGURE in toolDeclarations) {
+            FigurePromptAssembler.assembleForTutorTool(
+                budget = sharedOperationFigureBudget(reserveChatFinalAnswer = true),
+            ).body
+        } else {
+            null
+        }
+
     private fun toolLoopPromptSuffix(
         toolDeclarations: List<TutorToolName>,
         toolRoundResults: List<TutorToolRoundResult>,
         knowledgeCodes: List<TutorKnowledgeCode>,
+        figureRuleBody: String? = null,
     ): String {
         val body = buildString {
             if (toolRoundResults.isNotEmpty()) {
@@ -643,6 +697,11 @@ private fun requestedLocalActionsBlock(requests: List<TutorLocalActionRequest>):
                         "\"rationale\":\"学生说\\\"<逐字原话>\\\"，随后\\\"<逐字原话>\\\"\"," +
                         "\"direction\":\"POSITIVE\",\"understanding\":\"CONFIDENT\",\"confidence\":0.8}。")
                 }
+            }
+            // 生图规则正文放在声明之后、整段提示词的最后：Plan 与 Respond 的这份尾部
+            // 逐字相同（同一份 FigurePromptAssembler 正文），模型不可能读到第二套规则。
+            figureRuleBody?.let { rules ->
+                append("\n\n").append(rules).append('\n')
             }
         }
         // 拼到已 trimIndent 的模板尾部时，前导 \n 只换行不产生空行；

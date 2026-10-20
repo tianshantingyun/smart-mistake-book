@@ -30,7 +30,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -145,6 +147,78 @@ class StudySubmissionWithoutFixtureInstrumentedTest {
                 "无绑定题必须落 pseudo:<SUBJECT> 绑定，实际：$bindings",
                 bindings.singleOrNull { it.knowledgeNodeId == "pseudo:MATH" },
             )
+        } finally {
+            repository.close()
+            database.close()
+            applicationScope.cancel()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * PRD-05 无模型路径：已保存题的答案与解析来自本地库，不依赖任何模型调用；
+     * `isTrusted` 是"有可信答案键"的显式状态（UI 用它在没有可信答案时给出跳过出口）。
+     */
+    @Test
+    fun savedAnswerAndExplanationAreReadableWithoutAnyModelArtifact() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "prd05-stored-answer-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val database: StudyDatabasePort = StudyDatabaseFactory.open(context, databaseName)
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = RoomBackedStudyExperienceRepository(
+            database = database,
+            applicationScope = applicationScope,
+        )
+        try {
+            seedStudyFacts(context, database, databaseName, machineCheckableSeed())
+            repository.initialize()
+
+            val stored = requireNotNull(repository.storedReviewAnswer(UNIT_ID)) {
+                "A saved practice unit must expose its locally stored answer"
+            }
+            assertTrue("VERIFIED single-choice key = 可信答案", stored.isTrusted)
+            assertEquals("同时比较驻点与端点", stored.answerMarkdown)
+            assertEquals("正确答案：同时比较驻点与端点", stored.explanationMarkdown)
+        } finally {
+            repository.close()
+            database.close()
+            applicationScope.cancel()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 反例：答案键未验证时不得伪称可自动判对——返回 `isTrusted=false`，没有编造的答案。
+     */
+    @Test
+    fun savedAnswerWithoutAVerifiedKeyIsReportedUntrustedRatherThanGuessed() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "prd05-untrusted-answer-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val database: StudyDatabasePort = StudyDatabaseFactory.open(context, databaseName)
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = RoomBackedStudyExperienceRepository(
+            database = database,
+            applicationScope = applicationScope,
+        )
+        try {
+            val seed = machineCheckableSeed().let { bundle ->
+                bundle.copy(
+                    revisions = bundle.revisions.map { revision ->
+                        revision.copy(
+                            answerVerificationStatus = StudyDbValue.VerificationStatus.UNKNOWN,
+                        )
+                    },
+                )
+            }
+            seedStudyFacts(context, database, databaseName, seed)
+            repository.initialize()
+
+            val stored = requireNotNull(repository.storedReviewAnswer(UNIT_ID))
+            assertFalse("未验证的答案键不能被当成可信答案", stored.isTrusted)
+            assertNull("没有可信答案时不得编造答案文本", stored.answerMarkdown)
+            assertNull(stored.explanationMarkdown)
         } finally {
             repository.close()
             database.close()

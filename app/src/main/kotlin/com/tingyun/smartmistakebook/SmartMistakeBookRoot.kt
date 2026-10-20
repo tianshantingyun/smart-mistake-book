@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -67,6 +68,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
 import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.domain.StudyReviewAdvanceResult
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.domain.PrerequisiteRemediation
 import com.tingyun.smartmistakebook.core.domain.ReTeachOpening
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
@@ -89,6 +91,7 @@ import com.tingyun.smartmistakebook.feature.library.MAX_LIBRARY_BATCH_EXPORT_QUE
 import com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheet
 import com.tingyun.smartmistakebook.feature.library.MistakeExportHubRoute
 import com.tingyun.smartmistakebook.feature.library.MistakeDetailRoute
+import com.tingyun.smartmistakebook.feature.library.MistakePaperEditRoute
 import com.tingyun.smartmistakebook.core.domain.MistakeExportRecord
 import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
 import com.tingyun.smartmistakebook.core.domain.SplitImportRepository
@@ -97,6 +100,7 @@ import com.tingyun.smartmistakebook.feature.library.SplitImportReviewRoute
 import com.tingyun.smartmistakebook.feature.profile.ProfileRoute
 import com.tingyun.smartmistakebook.feature.review.CapturedReviewSessionScreen
 import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizAnswerIssue
+import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizAnswerKeyCorrection
 import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizLoadResult
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewQuizLoader
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionScreen
@@ -188,6 +192,45 @@ private fun knowledgeQuizAnswerIssueRequestId(issue: KnowledgeQuizAnswerIssue): 
     "answer-issue:${issue.knowledgeNodeId}:${issue.itemId}:" +
         "${issue.selectedChoiceId ?: "neutral"}:${issue.reason.hashCode().toUInt()}"
 
+/**
+ * KD-43：UNKNOWN 键「改正答案键」（REPLACE）的稳定身份。
+ *
+ * 同一 (知识点, 题面, 新键, 这次作答) 重复提交是同一笔——writer 回 REPLAYED、不重复入账；
+ * 换新键或换一次作答才是另一笔。对话框双击/旋转重建都落在这个身份上。
+ */
+private fun knowledgeQuizAnswerKeyCorrectionRequestId(
+    correction: KnowledgeQuizAnswerKeyCorrection,
+): String = "answer-key-replace:${correction.knowledgeNodeId}:${correction.itemId}:" +
+    "${correction.newCorrectChoiceId}:${correction.selectedChoiceId ?: "none"}"
+
+/**
+ * 6B-2 原生卷面编辑路由（T6）。
+ *
+ * 来源题 id 由发起导出的入口（错题详情单题 / 错题本当前筛选 / 上一次原生编辑）给出，
+ * 顺序即卷面顺序。id 之间用单元分隔符拼接后整体做一次 URI 编码：Navigation 解码一次，
+ * 这里只解一次，与 `Routes.mistakeDetail` 同一层数（多编/少编都会让 id 对不上）。
+ */
+private const val MistakePaperEditRoutePattern = "mistake/paper-edit/{entryIds}"
+private const val MistakePaperEditEntryIdsArgument = "entryIds"
+private const val MistakePaperEditSeparator = "\u001F"
+
+private fun encodeMistakePaperEditEntryIds(entryIds: List<String>): String =
+    entryIds
+        .map(String::trim)
+        .filter(String::isNotEmpty)
+        .distinct()
+        .joinToString(MistakePaperEditSeparator)
+
+private fun decodeMistakePaperEditEntryIds(raw: String?): List<String> =
+    raw.orEmpty()
+        .split(MistakePaperEditSeparator)
+        .map(String::trim)
+        .filter(String::isNotEmpty)
+        .distinct()
+
+private fun mistakePaperEditRoute(entryIds: List<String>): String =
+    "mistake/paper-edit/" + Uri.encode(encodeMistakePaperEditEntryIds(entryIds))
+
 @Composable
 internal fun SmartMistakeBookRoot(
     reviewOpenRequests: StateFlow<Long>,
@@ -260,6 +303,14 @@ internal fun SmartMistakeBookRoot(
     var pendingExportNotice by rememberSaveable { mutableStateOf<String?>(null) }
     // PRD-04/T4：原生导出先选格式；null = 没有待确认的导出（不渲染 sheet）。
     var pendingExportTarget by remember { mutableStateOf<PendingExportTarget?>(null) }
+    // 6B-2（T6）：上一次**原生**导出（详情单题 / 错题本当前筛选 / 原生卷面编辑）的来源题 id。
+    // 「导出成果」里只有产物身份、没有题 id，所以「编辑卷面」入口只回放这里，绝不从导出记录
+    // 反推；讲题 sheet 的导出版式是学生定制的、不随 id 带过来，故清空而不冒充。
+    // 存成编码串：rememberSaveable 的默认 Saver 对 List 的实现类型并不稳定，String 一定可存。
+    var lastPaperEditEntryIdsRaw by rememberSaveable { mutableStateOf("") }
+    val lastPaperEditEntryIds = remember(lastPaperEditEntryIdsRaw) {
+        decodeMistakePaperEditEntryIds(lastPaperEditEntryIdsRaw)
+    }
     // PRD-06/T8：待处理录入里需要学生继续的数量（只读现有状态，不新增模型调用）。
     // 只计入"学生还能继续"的失败态；TUTOR_SESSION_READY 等正常可续做的不算失败。
     val pendingFailedTaskCount by remember(application.captureRepository) {
@@ -490,6 +541,9 @@ internal fun SmartMistakeBookRoot(
                     // 导出 sheet（B3-3）：学生定稿的版式随任务入队，然后直接去「导出成果」
                     // 看后台进度——与错题本批量导出走同一条 4A 管线。
                     onStartExport = { format, layout, entryIds ->
+                        // 讲题 sheet 的版式可能是学生定制的，而原生编辑入口按默认版式重建；
+                        // 不把这份来源挂到「编辑卷面」上（否则"重新生成"会换掉学生选的版式）。
+                        lastPaperEditEntryIdsRaw = ""
                         application.startMistakeExportBatch(entryIds, layout, format)
                         navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
@@ -501,6 +555,9 @@ internal fun SmartMistakeBookRoot(
                         application.buildMistakePaperEdit(entryIds, layout)
                     },
                     onStartEditedExport = { draft, format ->
+                        // 编辑 sheet 不把来源题 id 交出来：宁可收起「编辑卷面」入口，
+                        // 也不拿上一次别的来源冒充这一份（T6 的"不猜来源"）。
+                        lastPaperEditEntryIdsRaw = ""
                         application.startMistakeExportEdited(draft, format)
                         navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
@@ -573,6 +630,9 @@ internal fun SmartMistakeBookRoot(
                     onOpenLibraryProblem = { navController.navigate(Routes.Library) },
                     // 历史重开也接同一条导出落点（本地动作只在大厅广告，行为一致）。
                     onStartExport = { format, layout, entryIds ->
+                        // 讲题 sheet 的版式可能是学生定制的，而原生编辑入口按默认版式重建；
+                        // 不把这份来源挂到「编辑卷面」上（否则"重新生成"会换掉学生选的版式）。
+                        lastPaperEditEntryIdsRaw = ""
                         application.startMistakeExportBatch(entryIds, layout, format)
                         navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
@@ -583,6 +643,9 @@ internal fun SmartMistakeBookRoot(
                         application.buildMistakePaperEdit(entryIds, layout)
                     },
                     onStartEditedExport = { draft, format ->
+                        // 编辑 sheet 不把来源题 id 交出来：宁可收起「编辑卷面」入口，
+                        // 也不拿上一次别的来源冒充这一份（T6 的"不猜来源"）。
+                        lastPaperEditEntryIdsRaw = ""
                         application.startMistakeExportEdited(draft, format)
                         navController.navigate(Routes.ExportResults) {
                             launchSingleTop = true
@@ -802,6 +865,89 @@ internal fun SmartMistakeBookRoot(
                                             }
                                         }
                                     },
+                                    // KD-43（T7）：UNKNOWN 键的「改正答案键」走 REPLACE：
+                                    // 保留被拒观察行，把这次作答按用户断言的新键重判成
+                                    // 新身份的证据入账。回执如实说结果，不把 CONFLICT
+                                    // 或拒绝说成"已改好"。
+                                    onCorrectAnswerKey = { correction ->
+                                        application.applicationScope.launch {
+                                            val message = try {
+                                                // T7 CAS：期望键版本 = 对话框读到的最新版本；
+                                                // 没读到就在提交前现取一次（不能传 null 关掉 CAS——
+                                                // 那会让迟到改正静默覆盖更新的改正）。
+                                                val expectedKeyVersion =
+                                                    correction.expectedKeyVersion
+                                                        ?: answerKeyCorrectionWriter
+                                                            .currentKeyVersionForItem(
+                                                                correction.itemId,
+                                                            )
+                                                val receipt = answerKeyCorrectionWriter.submit(
+                                                    AnswerKeyCorrectionCommand(
+                                                        requestId =
+                                                            knowledgeQuizAnswerKeyCorrectionRequestId(
+                                                                correction,
+                                                            ),
+                                                        knowledgeNodeId =
+                                                            correction.knowledgeNodeId,
+                                                        // 用屏幕带过来的**本会话**标识定位这次
+                                                        // 作答；常量 itemId 会在旧会话里找到另一条
+                                                        // 观察行，把键改正写到错误的事实上。
+                                                        conversationId =
+                                                            correction.conversationId
+                                                                ?: "knowledge-quiz-review:" +
+                                                                "key-correction:" +
+                                                                correction.itemId,
+                                                        itemId = correction.itemId,
+                                                        selectedChoiceId =
+                                                            correction.selectedChoiceId,
+                                                        newCorrectChoiceId =
+                                                            correction.newCorrectChoiceId,
+                                                        voidTarget = false,
+                                                        expectedKeyVersion = expectedKeyVersion,
+                                                        reasonMarkdown =
+                                                            "学生改正答案键：本题正确选项应为 " +
+                                                                correction.newCorrectChoiceId,
+                                                        occurredAtEpochMillis =
+                                                            System.currentTimeMillis(),
+                                                    ),
+                                                )
+                                                when (receipt.status) {
+                                                    AnswerKeyCorrectionStatus.RECORDED ->
+                                                        "答案键已改正：这次作答会按新答案重新判定" +
+                                                            "并计入掌握度。"
+                                                    AnswerKeyCorrectionStatus.REPLAYED ->
+                                                        "这次改正已经记过，没有重复写入。"
+                                                    AnswerKeyCorrectionStatus.CONFLICT ->
+                                                        "答案键在别处已更新，这次没有写入。" +
+                                                            "请返回后重新进入再试。"
+                                                    AnswerKeyCorrectionStatus.REJECTED ->
+                                                        "这次改正没有写下来：" +
+                                                            receipt.reason.orEmpty()
+                                                }
+                                            } catch (cancelled: CancellationException) {
+                                                throw cancelled
+                                            } catch (failure: Throwable) {
+                                                android.util.Log.w(
+                                                    "SmartMistakeBook",
+                                                    "Answer-key correction failed: $failure",
+                                                )
+                                                "这次改正没有写下来，请再试一次。"
+                                            }
+                                            withContext(Dispatchers.Main) {
+                                                Toast.makeText(
+                                                    context,
+                                                    message,
+                                                    Toast.LENGTH_LONG,
+                                                ).show()
+                                            }
+                                        }
+                                    },
+                                    // 版本位是按**当前题面**读的，不是会话共用单值：Root 拿不到
+                                    // 屏幕内的 currentItem，由屏幕在对话框打开时按 item.id 现读；
+                                    // 读不到时 submit 前再兜底取一次（见上），CAS 始终生效。
+                                    loadAnswerKeyVersion = { itemId ->
+                                        answerKeyCorrectionWriter.currentKeyVersionForItem(itemId)
+                                    },
                                     modifier = Modifier.testTag("root_knowledge_review_session"),
                                 )
                     }
@@ -951,6 +1097,49 @@ internal fun SmartMistakeBookRoot(
                     notice = pendingExportNotice,
                     onDismissNotice = { pendingExportNotice = null },
                     onBack = navController::popBackStack,
+                    // 6B-2（T6）：来源题只来自本组件发起过的原生导出；拿不到就不摆入口。
+                    paperEditEntryIds = lastPaperEditEntryIds,
+                    onEditPaper = { entryIds ->
+                        navController.navigate(mistakePaperEditRoute(entryIds)) {
+                            launchSingleTop = true
+                        }
+                    },
+                )
+            }
+            // 6B-2（T6）：原生卷面编辑。不依赖模型 START_EXPORT 卡，也不派发模型任务；
+            // 只改导出文档副本，确认后走既有的 Edited 入队管线（草稿落盘 → 后台重渲染）。
+            composable(
+                route = MistakePaperEditRoutePattern,
+                arguments = listOf(
+                    navArgument(MistakePaperEditEntryIdsArgument) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entry ->
+                val rawEntryIds = entry.arguments
+                    ?.getString(MistakePaperEditEntryIdsArgument)
+                val requestedEntryIds = remember(rawEntryIds) {
+                    decodeMistakePaperEditEntryIds(rawEntryIds)
+                }
+                MistakePaperEditRoute(
+                    entryIds = requestedEntryIds,
+                    // 与 worker 读题面同一条只读口径；默认版式 = 原生导出入口的版式。
+                    loadPaper = { entryIds ->
+                        application.buildMistakePaperEdit(entryIds, MistakePdfLayout.DEFAULT)
+                    },
+                    onBack = navController::popBackStack,
+                    onExport = { draft, format ->
+                        // 这份编辑稿是最近一次原生导出的来源：回到「导出成果」还能接着编辑。
+                        lastPaperEditEntryIdsRaw =
+                            encodeMistakePaperEditEntryIds(requestedEntryIds)
+                        application.startMistakeExportEdited(draft, format)
+                        navController.navigate(Routes.ExportResults) {
+                            launchSingleTop = true
+                        }
+                    },
+                    modifier = Modifier.testTag("root_native_paper_edit"),
                 )
             }
             composable(Routes.CaptureResume) { entry ->
@@ -1046,6 +1235,13 @@ internal fun SmartMistakeBookRoot(
                     // PRD-04/T4：先选 PDF/Word，确认后才入队（取消不导航、不入队）。
                     onExport = { key ->
                         pendingExportTarget = PendingExportTarget.Single(key)
+                    },
+                    // 6B-2（T6）：当前版本可直接进原生卷面编辑（历史版本只读，由页面自己
+                    // 判断）。只带来源题 id；读取与导出都不经过模型。
+                    onEditPaper = { key ->
+                        navController.navigate(mistakePaperEditRoute(listOf(key.entryId))) {
+                            launchSingleTop = true
+                        }
                     },
                     onTutor = { key ->
                         navController.navigate(Routes.mistakeTutor(key)) {
@@ -1179,6 +1375,13 @@ internal fun SmartMistakeBookRoot(
             onDismiss = { pendingExportTarget = null },
             onConfirm = { format ->
                 pendingExportTarget = null
+                // 6B-2（T6）：这份原生导出是「导出成果」里「编辑卷面」的来源；顺序照原样带过去。
+                lastPaperEditEntryIdsRaw = when (target) {
+                    is PendingExportTarget.Single ->
+                        encodeMistakePaperEditEntryIds(listOf(target.key.entryId))
+                    is PendingExportTarget.Batch ->
+                        encodeMistakePaperEditEntryIds(target.entryIds)
+                }
                 when (target) {
                     is PendingExportTarget.Single ->
                         application.startMistakeExportSingle(target.key, format)

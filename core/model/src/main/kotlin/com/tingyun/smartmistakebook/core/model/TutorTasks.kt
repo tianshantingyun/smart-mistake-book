@@ -214,6 +214,7 @@ data class TutorSuggestedMove(
  */
 @Serializable
 @SerialName("tutor_plan")
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 data class TutorPlanInput(
     val sessionId: String,
     val draftRevisionNumber: Int,
@@ -250,6 +251,13 @@ data class TutorPlanInput(
      * "教学材料未加载"，模型不得假装手里有资料。加载成功但零命中时保持 false。
      */
     val teachingReferencesLoadFailed: Boolean = false,
+    /**
+     * 4E WG-04b（请求 schema 18）：有界视觉上下文（最近一份程序源码 / 当前 state /
+     * 截断诊断 / 能力版本）。null 时不落键（`EncodeDefault(NEVER)`），旧行指纹不变；
+     * 非空即另一次逻辑输入。
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val visualContext: TutorVisualContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_PLAN
@@ -406,6 +414,7 @@ data class TutorChatHistoryEntry(
  */
 @Serializable
 @SerialName("tutor_respond")
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 data class TutorRespondInput(
     val sessionId: String,
     val draftRevisionNumber: Int,
@@ -476,6 +485,9 @@ data class TutorRespondInput(
      * 同一口径——派发时未赋码（code = null），core:data 会话注册表派生前赋码回写。
      */
     val knowledgeCodes: List<TutorKnowledgeCode> = emptyList(),
+    /** 4E WG-04b（schema 18）：与 [TutorPlanInput.visualContext] 同一口径。 */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val visualContext: TutorVisualContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_RESPOND

@@ -46,8 +46,12 @@ internal object OpenAiChatCompletionsProtocol : ModelWireProtocol {
         enableNativeTools: Boolean,
     ): String = OpenAiModelProtocol.requestBody(modelId, input, images, stream, enableNativeTools)
 
-    override fun parseCompletion(body: String, input: ModelTaskInput, modelVersion: String): ModelTaskOutput =
-        OpenAiModelProtocol.parseResponse(body, input, modelVersion)
+    override fun parseCompletion(body: String, input: ModelTaskInput, modelVersion: String): ModelTaskOutput {
+        // 非流式回合同样受工具 payload 预算约束：否则"协议不支持流式聚合"的降级路径会成为
+        // 绕过 512 KiB / 64 KiB 的后门。形状校验仍由 parseResponse 负责。
+        OpenAiSse.requireToolCallPayloadBudget(body)
+        return OpenAiModelProtocol.parseResponse(body, input, modelVersion)
+    }
 
     override fun streamDelta(payload: String): String? = OpenAiSse.deltaContent(payload)
 
@@ -206,3 +210,13 @@ internal object OpenAiChatCompletionsProtocol : ModelWireProtocol {
         )
     }.toString()
 }
+
+/**
+ * 本协议是否把 SSE 的 `delta.tool_calls` 聚合成终态 `message.tool_calls`（WG-04a）。
+ *
+ * 只有 OpenAI Chat Completions 实现了这条聚合与终态门；Responses/Anthropic/Gemini 走 Route B
+ * （`supportsNativeTools=false`），工具意图在 `content` 信封里，不经过这里。网关据此决定
+ * "声明了工具的回合还能不能流式"：不能聚合时显式 `stream=false`，绝不流式丢掉 tool_calls。
+ */
+internal val ModelWireProtocol.supportsStreamedToolCallAggregation: Boolean
+    get() = this === OpenAiChatCompletionsProtocol

@@ -114,19 +114,10 @@ internal class KnowledgeEvidenceWriter(
                     baseWeight = result.weight,
                     anchorClass = request.anchorClass,
                 )
-                val receipt = database.recordChatEvidence(
-                    listOf(
-                        entry(
-                            request = request,
-                            evidenceId = evidenceId,
-                            weight = effectiveWeight,
-                            rejectedReason = null,
-                        ),
-                    ),
-                )
-                KnowledgeEvidenceWriteOutcome.Accepted(
-                    weight = effectiveWeight,
-                    ledgerStatus = receipt.ledgerStatusOf(evidenceId),
+                writeAcceptedWithStickyIdentityCompensation(
+                    request = request,
+                    evidenceId = evidenceId,
+                    effectiveWeight = effectiveWeight,
                 )
             }
             is MasteryWriteGate.GateResult.Rejected -> {
@@ -150,25 +141,93 @@ internal class KnowledgeEvidenceWriter(
     }
 
     /**
+     * 落一笔 accepted 证据；若同身份已被**被拒观察行**占住（身份粘性，KD-43(b)），
+     * 保留那条观察行，并自动换一个**确定性新身份**把这次合法写落进账本。
+     *
+     * 消灭的失败：身份粘性此前是静默丢写——门放行了、写入口回报 `Accepted`，但 Room 的
+     * IGNORE 让这笔事实永远进不了账本，学生/审计都看不到。现在的处置不交给用户：
+     * 旧观察行一字不改（它仍是"当时被拒"的真实记录），合法写在
+     * [knowledgeEvidenceIdAfterRejectedIdentity] 这个新身份下落库（同一输入恒同一新身份，
+     * 重试因此按身份幂等、不会重复计分），回执用
+     * [KnowledgeEvidenceLedgerStatus.LEDGERED_AFTER_REJECTED_IDENTITY] /
+     * [KnowledgeEvidenceLedgerStatus.REPLAYED_AFTER_REJECTED_IDENTITY] **显式标记"这次经历过
+     * 粘性"**，不再与普通落库混为一谈。
+     *
+     * 反例（只补一层、不掩盖故障）：若新身份本身也被一条被拒行占住，不再无限换身份——
+     * 如实回 [KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW]。
+     */
+    private suspend fun writeAcceptedWithStickyIdentityCompensation(
+        request: KnowledgeEvidenceWriteRequest,
+        evidenceId: String,
+        effectiveWeight: Double,
+    ): KnowledgeEvidenceWriteOutcome.Accepted {
+        val primary = recordAccepted(request, evidenceId, effectiveWeight)
+        if (primary.ledgerStatus != KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW) {
+            return primary
+        }
+        val compensatedId = knowledgeEvidenceIdAfterRejectedIdentity(
+            evidenceId = evidenceId,
+            knowledgeNodeId = request.knowledgeNodeId,
+        )
+        val compensated = recordAccepted(request, compensatedId, effectiveWeight)
+        val compensatedStatus = when (compensated.ledgerStatus) {
+            KnowledgeEvidenceLedgerStatus.LEDGERED ->
+                KnowledgeEvidenceLedgerStatus.LEDGERED_AFTER_REJECTED_IDENTITY
+
+            KnowledgeEvidenceLedgerStatus.REPLAYED ->
+                KnowledgeEvidenceLedgerStatus.REPLAYED_AFTER_REJECTED_IDENTITY
+
+            KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW ->
+                KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW
+
+            // 只在二次补偿时才可能取到后两个值；见枚举 KDoc。
+            KnowledgeEvidenceLedgerStatus.LEDGERED_AFTER_REJECTED_IDENTITY,
+            KnowledgeEvidenceLedgerStatus.REPLAYED_AFTER_REJECTED_IDENTITY,
+            -> compensated.ledgerStatus
+        }
+        Log.w(
+            LOG_TAG,
+            "accepted evidence write hit a rejected row of the same identity " +
+                "(identity stickiness, KD-43(b)); original=$evidenceId " +
+                "compensated=$compensatedId status=$compensatedStatus",
+        )
+        return compensated.copy(ledgerStatus = compensatedStatus)
+    }
+
+    private suspend fun recordAccepted(
+        request: KnowledgeEvidenceWriteRequest,
+        evidenceId: String,
+        effectiveWeight: Double,
+    ): KnowledgeEvidenceWriteOutcome.Accepted {
+        val receipt = database.recordChatEvidence(
+            listOf(
+                entry(
+                    request = request,
+                    evidenceId = evidenceId,
+                    weight = effectiveWeight,
+                    rejectedReason = null,
+                ),
+            ),
+        )
+        return KnowledgeEvidenceWriteOutcome.Accepted(
+            weight = effectiveWeight,
+            ledgerStatus = receipt.ledgerStatusOf(evidenceId),
+        )
+    }
+
+    /**
      * 把落库回执折成**一笔 accepted 写到底进没进账本**（AUD-11 ③-2 可观察性）。
      *
-     * 消灭的失败：写入口此前对 IGNORE 无感知——"身份粘性"（库里那行是被拒观察行）时回报
-     * `Accepted`、调用方以为已记录，而账本永远不会有这笔事件。现在这一档单独成值并**落一条
-     * WARN 日志**（写入口自己看得见，不必等审计面回读）；正常重放不落日志——它是 AUD-01
-     * 的既有重试语义，每次都打会把日志变成噪声，值本身已在 outcome 上可读。
+     * 正常重放仍报 [KnowledgeEvidenceLedgerStatus.REPLAYED]——它是 AUD-01 的既有重试语义；
+     * 身份粘性报 [KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW]，由
+     * [writeAcceptedWithStickyIdentityCompensation] 负责自动补偿。
      */
     private fun ChatEvidenceWriteReceipt.ledgerStatusOf(
         evidenceId: String,
     ): KnowledgeEvidenceLedgerStatus = when (evidenceId) {
-        in acceptedBlockedByRejectedRowEvidenceIds -> {
-            Log.w(
-                LOG_TAG,
-                "accepted evidence write was IGNOREd by a rejected row of the same identity " +
-                    "(identity stickiness, KD-43); evidenceId=$evidenceId — the ledger will never " +
-                    "see this write",
-            )
+        in acceptedBlockedByRejectedRowEvidenceIds ->
             KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW
-        }
+
         in replayedAcceptedEvidenceIds -> KnowledgeEvidenceLedgerStatus.REPLAYED
         else -> KnowledgeEvidenceLedgerStatus.LEDGERED
     }
@@ -235,6 +294,40 @@ internal fun knowledgeEvidenceId(
     }
 }
 
+/**
+ * 身份粘性补偿用的**新身份**（KD-43(b)）：同一次合法写撞上同 id 的被拒观察行时，
+ * 保留观察行、把合法事实写到这个确定性派生身份上。
+ *
+ * 标记插在**节点段之前**（保持 `<通道>:…:<节点>` 的既有形状）：审计读口
+ * `knowledgeQuizEvidenceRequestIdOf` 仍能把这条行解析成"哪次提交"（requestId 带
+ * `:after-rejected-identity` 后缀），不会因为补偿身份变成"认不出的形状"。
+ *
+ * 为什么是确定性派生而不是随机 id：同一 `(namespace, channel, 节点)` 的重试必须继续
+ * 落到同一个补偿身份，才能沿用既有"同身份 = 同语义"的幂等规则（不重复计分）。
+ */
+internal fun knowledgeEvidenceIdAfterRejectedIdentity(
+    evidenceId: String,
+    knowledgeNodeId: String,
+): String = insertBeforeTrailingNodeSegment(
+    evidenceId = evidenceId,
+    knowledgeNodeId = knowledgeNodeId,
+    insertedSegment = "after-rejected-identity",
+)
+
+/** 在证据 id 的尾部 `:<节点>` 段之前插入一个标记段；形状不符时退化为追加。 */
+internal fun insertBeforeTrailingNodeSegment(
+    evidenceId: String,
+    knowledgeNodeId: String,
+    insertedSegment: String,
+): String {
+    val nodeSuffix = ":$knowledgeNodeId"
+    return if (knowledgeNodeId.isNotEmpty() && evidenceId.endsWith(nodeSuffix)) {
+        evidenceId.removeSuffix(nodeSuffix) + ":$insertedSegment" + nodeSuffix
+    } else {
+        "$evidenceId:$insertedSegment"
+    }
+}
+
 /** 一次证据写的语义输入（数值与门控由 [KnowledgeEvidenceWriter] 本地决定）。 */
 internal data class KnowledgeEvidenceWriteRequest(
     val learnerId: String,
@@ -267,16 +360,25 @@ internal data class KnowledgeEvidenceWriteRequest(
  * - [LEDGERED]：新行落成（已分配学习序列、已写 outbox）；
  * - [REPLAYED]：同身份已在库且既有行也是 accepted——这是重试，按身份幂等（AUD-01），
  *   不重复计入；
- * - [BLOCKED_BY_REJECTED_ROW]：同身份已在库但既有行是**被拒观察行**——这笔写永远进不了
- *   账本，既有行也不会被改写（身份粘性；缺陷登记 KD-43，纠正语义留 5B）。
+ * - [BLOCKED_BY_REJECTED_ROW]：同身份已在库但既有行是**被拒观察行**，且补偿身份也被占住
+ *   （正常路径下写入口会自动补偿，见
+ *   [knowledgeEvidenceIdAfterRejectedIdentity]）——这一档只在补偿也失败时出现，如实报故障；
+ * - [LEDGERED_AFTER_REJECTED_IDENTITY]：撞上被拒观察行后，**新身份**下的合法写已落账本；
+ * - [REPLAYED_AFTER_REJECTED_IDENTITY]：撞上被拒观察行后，**新身份**下的合法写已存在
+ *   （同一次重试），不重复计入。
+ *
+ * 后两档是 KD-43(b) 的"回执标记粘性"：调用方既能确认"事实已入账"，又能知道这笔写经历过
+ * 身份冲突（而不是普通的首次落库/重放）。
  *
  * 调用方可以继续只看 [KnowledgeEvidenceWriteOutcome.Accepted]（语义未变），但"到底有没有
- * 落进账本"从此不再无感知。
+ * 落进账本、是否绕过了被拒身份"从此不再无感知。
  */
 internal enum class KnowledgeEvidenceLedgerStatus {
     LEDGERED,
     REPLAYED,
     BLOCKED_BY_REJECTED_ROW,
+    LEDGERED_AFTER_REJECTED_IDENTITY,
+    REPLAYED_AFTER_REJECTED_IDENTITY,
 }
 
 /**

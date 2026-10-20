@@ -1,7 +1,10 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
+import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -81,6 +84,33 @@ class TutorLocalActionExecutionTest {
         )
         // 复习计划调整仍未接通：它是**真实的一张卡**（学生同意/拒绝都是真实决定），执行那一步
         // 走 NOT_WIRED_YET，由执行方如实说"还不能自动做"（不假装成功）。
+        assertEquals(
+            TutorLocalActionTarget.NOT_WIRED_YET,
+            tutorLocalActionTarget(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, context),
+        )
+    }
+
+    @Test
+    fun theExecutionRoutesAndTheCapabilitySnapshotAgree() {
+        // 广告面（快照）与执行路由必须是同一份事实：被广告的动作一定有非 NOT_WIRED_YET
+        // 的落点；没接线的动作一定不在快照里，执行时如实说"还不能自动做"。
+        val context = TutorLocalActionContext(
+            captureSessionId = "tutor-session-1",
+            libraryProblemId = "problem-1",
+            attachedImageAssetIds = listOf("asset-1"),
+        )
+        TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.forEach { action ->
+            val kind = agentPendingRequestKind(TutorPermissionSubject.LocalAction(action))
+            requireNotNull(kind)
+            assertNotEquals(
+                "$action 已被广告，必须有真实执行路由",
+                TutorLocalActionTarget.NOT_WIRED_YET,
+                tutorLocalActionTarget(kind, context),
+            )
+        }
+        assertFalse(
+            TutorLocalAction.ADD_TO_REVIEW_PLAN in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS,
+        )
         assertEquals(
             TutorLocalActionTarget.NOT_WIRED_YET,
             tutorLocalActionTarget(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, context),

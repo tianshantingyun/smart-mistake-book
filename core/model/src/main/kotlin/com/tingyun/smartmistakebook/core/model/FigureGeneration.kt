@@ -472,7 +472,13 @@ sealed interface FigureArtifact {
     }
 }
 
-/** coordinator 的统一状态。 */
+/**
+ * coordinator 的统一状态。
+ *
+ * `@Serializable`：4E WG-04b 起它作为本地工具痕迹（`TutorToolFigureTrace.status`）的
+ * 持久字段；痕迹只进 UI、不进模型输入。
+ */
+@Serializable
 enum class FigureGenerationStatus {
     /** 本次真实调用后端并产出新图。 */
     GENERATED,

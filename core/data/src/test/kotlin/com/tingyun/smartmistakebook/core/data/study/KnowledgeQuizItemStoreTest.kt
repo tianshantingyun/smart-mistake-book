@@ -1,6 +1,9 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.AssessmentItemSnapshotSeedRecord
+import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
+import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorChoice
 import kotlinx.coroutines.runBlocking
@@ -154,6 +157,68 @@ class KnowledgeQuizItemStoreTest {
         assertNotEquals(
             knowledgeQuizItemSnapshotId(learnerId, 5_000L, "kc-confl"),
             knowledgeQuizItemSnapshotId(learnerId, 5_000L + 24L * 60 * 60 * 1_000, "kc-confl"),
+        )
+    }
+
+    @Test
+    fun aCorrectedKeyDoesNotLeakIntoTheNextSessionsNewQuestion() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val store = store(database)
+        val itemId = "knowledge-quiz:item:kc-confl"
+        // 会话 5000 的 UNKNOWN 键被用户改正为 B（写入形状与 recordUserAssertedKeyCorrection 一致）。
+        database.recordChatEvidence(
+            listOf(
+                LearnerChatEvidenceEntity(
+                    evidence_id = "chat-ev:knowledge-quiz:review:5000:$itemId:B:kc-confl:key-fix:B",
+                    learner_id = learnerId,
+                    conversation_id = "knowledge-quiz-review:5000",
+                    knowledge_node_id = "kc-confl",
+                    direction = LearningEvidenceDirection.POSITIVE.name,
+                    weight = 0.18,
+                    reason_markdown =
+                        knowledgeQuizKeyCorrectionReasonPrefix(itemId, "B") + "用户改正",
+                    confidence = 1.0,
+                    source_kind = StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ,
+                    created_at_epoch_millis = 1_000L,
+                ),
+            ),
+        )
+
+        store.save(
+            sessionId = 5_000L,
+            knowledgeNodeId = "kc-confl",
+            item = item("kc-confl"),
+            occurredAtEpochMillis = 11_000L,
+        )
+        assertEquals(
+            "同会话的键改正生效",
+            "B",
+            store.read(sessionId = 5_000L, knowledgeNodeId = "kc-confl")?.correctChoiceId,
+        )
+
+        // 隔日新会话重新生成题面：选项里根本没有 B。旧键若被套用，TutorAssessmentItem 的
+        // init 会抛异常（加载失败）；即便恰巧包含 B，也会用旧题的键给新题判分。
+        val nextQuestion = TutorAssessmentItem(
+            id = itemId,
+            stemMarkdown = "隔日新题",
+            choices = listOf(
+                TutorChoice(id = "A", markdown = "新正确项"),
+                TutorChoice(id = "C", markdown = "新干扰项"),
+            ),
+            correctChoiceId = "A",
+            knowledgeNodeIds = setOf("kc-confl"),
+        )
+        store.save(
+            sessionId = 6_000L,
+            knowledgeNodeId = "kc-confl",
+            item = nextQuestion,
+            occurredAtEpochMillis = 12_000L,
+        )
+
+        assertEquals(
+            "新会话的新题面必须使用自己的快照键，不继承旧会话的改正",
+            "A",
+            store.read(sessionId = 6_000L, knowledgeNodeId = "kc-confl")?.correctChoiceId,
         )
     }
 

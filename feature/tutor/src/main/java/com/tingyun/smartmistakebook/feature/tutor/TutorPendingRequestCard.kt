@@ -140,9 +140,11 @@ internal fun pendingRequestCopy(
             acceptLabel = "去导出",
         )
     }
+    // 旧卡（升级前落库的行）：这个动作已经不再广告，但学生面前可能已经有一张。
+    // 文案与执行端的 notWiredYetDetail 同一口径：明说"还不能自动做"，不假装改过计划。
     AgentPendingRequestKind.ADD_TO_REVIEW_PLAN -> TutorPendingRequestCopy(
         title = "把这题放进复习计划？",
-        detail = "复习计划调整还在单独设计；这一版点了不会改动计划。",
+        detail = "这一步现在还不能自动做：复习计划的调整还没接通，点了不会改动计划。",
         acceptLabel = "知道了",
     )
 }

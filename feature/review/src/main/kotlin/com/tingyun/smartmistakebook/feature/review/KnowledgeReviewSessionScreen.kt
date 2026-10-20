@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,6 +47,7 @@ import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
+import kotlinx.coroutines.launch
 
 /**
  * 知识点复习会话（spec dual-review-entry §3.3/§3.4）：一次"今日知识点复习"从首页进入后，
@@ -68,6 +72,27 @@ data class KnowledgeQuizAnswerIssue(
     val reason: String,
 )
 
+/**
+ * KD-43：UNKNOWN 键的“改正答案键”请求（REPLACE）。
+ *
+ * 字段对齐纠正写入口：`itemId + newCorrectChoiceId` 表达“新键是什么”，
+ * [expectedKeyVersion] 是题面级键版本 CAS（上一次改正回执的 `keyVersion`；0/null = 尚无改正），
+ * [selectedChoiceId] 是学生这次的真实作答——键未核验时账本里没有已接受证据，写入口要靠它
+ * 把这次作答按新键重判入账。
+ */
+data class KnowledgeQuizAnswerKeyCorrection(
+    val knowledgeNodeId: String,
+    val itemId: String,
+    val newCorrectChoiceId: String,
+    val expectedKeyVersion: Long?,
+    val selectedChoiceId: String?,
+    /**
+     * 本会话写入标识（`knowledge-quiz-review:<会话起点>`）。改正必须重判**本会话**这次
+     * 作答，不能按常量的 itemId 命中旧会话的观察行。null = 旧调用，写入口退回旧定位。
+     */
+    val conversationId: String? = null,
+)
+
 @Composable
 fun KnowledgeReviewSessionScreen(
     plan: KnowledgeReviewSessionPlan,
@@ -85,6 +110,19 @@ fun KnowledgeReviewSessionScreen(
     onFinished: () -> Unit,
     /** PRD-02：答案有问题入口；默认 no-op，由集成轨（I1）接纠正/暂停计分的写入口。 */
     onReportAnswerIssue: (KnowledgeQuizAnswerIssue) -> Unit = {},
+    /**
+     * KD-43：UNKNOWN 键的“改正答案键”（REPLACE）入口。**null = 本会话不提供**；
+     * 由集成轨（I1）在题面键未独立核验时传入，接
+     * `AnswerKeyCorrectionWriter.submit(voidTarget = false)`。
+     */
+    onCorrectAnswerKey: ((KnowledgeQuizAnswerKeyCorrection) -> Unit)? = null,
+    /** 题面级键版本（上一次改正回执的 `keyVersion`；null/0 = 尚无改正）。 */
+    answerKeyVersion: Long? = null,
+    /**
+     * 打开“改正答案键”时读取**当前**题面级键版本（T7 CAS）。Root 拿不到屏幕内的当前题面，
+     * 由屏幕按 `item.id` 现读；读不到时仍由写入口在提交前兜底取一次，不退回"不做 CAS"。
+     */
+    loadAnswerKeyVersion: (suspend (itemId: String) -> Long)? = null,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: KnowledgeReviewSessionViewModel = viewModel(
@@ -220,6 +258,9 @@ fun KnowledgeReviewSessionScreen(
                     knowledgeNodeId = entry?.knowledgeNodeId.orEmpty(),
                     submitAnswer = submitAnswer,
                     onReportAnswerIssue = onReportAnswerIssue,
+                    onCorrectAnswerKey = onCorrectAnswerKey,
+                    answerKeyVersion = answerKeyVersion,
+                    loadAnswerKeyVersion = loadAnswerKeyVersion,
                 )
             }
         }
@@ -295,9 +336,17 @@ private fun KnowledgeQuizContent(
         conversationId: String,
     ) -> KnowledgeQuizFeedbackResult,
     onReportAnswerIssue: (KnowledgeQuizAnswerIssue) -> Unit,
+    onCorrectAnswerKey: ((KnowledgeQuizAnswerKeyCorrection) -> Unit)?,
+    answerKeyVersion: Long?,
+    loadAnswerKeyVersion: (suspend (itemId: String) -> Long)?,
 ) {
     var issueDialogVisible by rememberSaveable { mutableStateOf(false) }
     var issueReason by rememberSaveable { mutableStateOf("") }
+    var keyCorrectionVisible by rememberSaveable { mutableStateOf(false) }
+    var correctedChoiceId by rememberSaveable { mutableStateOf<String?>(null) }
+    // 改正对话框打开时按当前题面现读的键版本（题面切换时重置，避免把上一题的版本带过来）。
+    var loadedKeyVersion by remember(item.id) { mutableStateOf<Long?>(null) }
+    val keyVersionScope = rememberCoroutineScope()
     SafeMarkdownText(
         markdown = item.stemMarkdown,
         color = SmartColors.Ink,
@@ -416,6 +465,118 @@ private fun KnowledgeQuizContent(
             },
             dismissButton = {
                 TextButton(onClick = { issueDialogVisible = false }) {
+                    Text("取消")
+                }
+            },
+        )
+    }
+    // KD-43：UNKNOWN 键的“改正答案键”。只在集成轨传入了写入口、且这次作答已提交时出现
+    // （改正要把这次真实作答按新键重判入账；未作答时没有可重判的事实）。
+    if (onCorrectAnswerKey != null && viewModel.submittedChoice != null) {
+        TextButton(
+            onClick = {
+                keyCorrectionVisible = true
+                loadedKeyVersion = answerKeyVersion
+                val loader = loadAnswerKeyVersion
+                if (loader != null) {
+                    keyVersionScope.launch {
+                        // 读失败 = 版本未知：保留 null，由 Root 在提交前再取一次；不显示假版本。
+                        loadedKeyVersion = runCatching { loader(item.id) }.getOrNull()
+                            ?: answerKeyVersion
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("knowledge_review_correct_key"),
+        ) {
+            Text(
+                text = "改正答案键",
+                color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
+    }
+    if (keyCorrectionVisible && onCorrectAnswerKey != null) {
+        AlertDialog(
+            onDismissRequest = {
+                keyCorrectionVisible = false
+                correctedChoiceId = null
+            },
+            title = { Text("改正答案键") },
+            text = {
+                Column {
+                    Text(
+                        text = "题面：${item.id}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = SmartColors.InkSecondary,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "选择你认为正确的选项。改正后，这次作答会按新答案重新判定并计入" +
+                            "掌握度；原来的观察记录会保留。",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = SmartColors.InkSecondary,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    item.choices.forEach { choice ->
+                        OutlinedButton(
+                            onClick = { correctedChoiceId = choice.id },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 6.dp)
+                                .testTag("knowledge_review_correct_key_choice_${choice.id}"),
+                            border = if (correctedChoiceId == choice.id) {
+                                BorderStroke(2.dp, SmartColors.Jade)
+                            } else {
+                                null
+                            },
+                        ) {
+                            Text("${choice.id}. ${choice.markdown}")
+                        }
+                    }
+                    val shownKeyVersion = loadedKeyVersion ?: answerKeyVersion
+                    Text(
+                        text = if (shownKeyVersion != null) {
+                            "键版本：$shownKeyVersion（用于避免覆盖更新的改正）"
+                        } else {
+                            "提交时会按账本里的最新键版本校验，避免覆盖更新的改正。"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = SmartColors.InkSecondary,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val newCorrectChoiceId = correctedChoiceId ?: return@TextButton
+                        onCorrectAnswerKey(
+                            KnowledgeQuizAnswerKeyCorrection(
+                                knowledgeNodeId = knowledgeNodeId,
+                                itemId = item.id,
+                                newCorrectChoiceId = newCorrectChoiceId,
+                                expectedKeyVersion = loadedKeyVersion ?: answerKeyVersion,
+                                selectedChoiceId = viewModel.submittedChoice,
+                                conversationId = viewModel.conversationId,
+                            ),
+                        )
+                        keyCorrectionVisible = false
+                        correctedChoiceId = null
+                    },
+                    enabled = correctedChoiceId != null,
+                    modifier = Modifier.testTag("knowledge_review_correct_key_confirm"),
+                ) {
+                    Text("按这个选项改正")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        keyCorrectionVisible = false
+                        correctedChoiceId = null
+                    },
+                ) {
                     Text("取消")
                 }
             },

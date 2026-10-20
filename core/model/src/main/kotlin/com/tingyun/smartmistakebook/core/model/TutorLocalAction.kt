@@ -17,11 +17,12 @@ import kotlinx.serialization.Serializable
  * ## 一处声明的两套广告（同源纪律）
  *
  * 这份名单同时喂**两套协议广告**：Route A 的严格 function schema
- * （`OpenAiModelProtocol.localActionSchemas`：name/description/parameters 全部从这里出）与
+ * （`OpenAiModelProtocol.localActionSchema`：name/description/parameters 全部从这里出）与
  * Route B 的提示词文本块（`OpenAiModelTaskAdapters.localActionPromptBlock`：同样是这里的
  * 名字、用途与参数）。此前工具面的文案漂过三次（`TutorToolDescriptions` 的注释记着那次
  * 事故），本地动作从第一天起就只有这一份：[purposeDescription] / [nativePurposeDescription]
- * 是唯一出处，[TutorLocalActionAdvertisementsTest] 把两套广告与这份声明逐项对拍。
+ * 是唯一出处，`TutorLocalActionAdvertisementParityTest` 把两套广告与
+ * [TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS] 逐项对拍。
  *
  * ## 参数形状：默认空集，`START_EXPORT` 例外（4B 批 4 裁定）
  *
@@ -53,7 +54,14 @@ enum class TutorLocalAction {
     /** 发起选择导出（检索 → 勾选 → 本地排版 → 导出可打印文件）。插眼 5 点名的高风险流程。 */
     START_EXPORT,
 
-    /** 提出复习计划调整（把某题纳入计划）：模型提出行为，请求学生同意。 */
+    /**
+     * 提出复习计划调整（把某题纳入计划）：模型提出行为，请求学生同意。
+     *
+     * **PRD-06：执行处理器尚未接线，本版不广告、不准入。** 它保留在枚举里只为两件事：
+     * ① 解析层仍能识别旧版本/伪造请求并整条拒绝（而不是"忽略一下"）；② 升级前已经落库的
+     * 确认卡行还能读回，执行端如实说"还不能自动做"。接线（阶段 3B 复习计划调整）时把它
+     * 加进 `TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS`，广告/准入/执行同时生效。
+     */
     ADD_TO_REVIEW_PLAN,
     ;
 

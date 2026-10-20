@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.model
 
 import com.tingyun.smartmistakebook.core.data.model.wire.ModelWireProtocol
+import com.tingyun.smartmistakebook.core.data.model.wire.supportsStreamedToolCallAggregation
 import com.tingyun.smartmistakebook.core.model.MODEL_EXTERNAL_TRANSPORT_REQUEST_LIMIT_BYTES
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -9,6 +10,9 @@ import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.Proxy
 import java.net.UnknownHostException
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
 import java.util.Arrays
 import java.util.UUID
@@ -289,7 +293,18 @@ internal suspend fun Call.awaitBoundedSseResponse(
                 override fun onResponse(call: Call, response: Response) {
                     try {
                         response.use {
+                            // WG-04a: aggregate the native tool increments while reading, so a
+                            // malformed or over-budget tool payload aborts this round instead of
+                            // being buffered and only rejected after the whole stream arrived.
+                            val toolCallBudget = if (
+                                it.code in 200..299 && protocol.supportsStreamedToolCallAggregation
+                            ) {
+                                OpenAiSse.StreamedToolCallBudget()
+                            } else {
+                                null
+                            }
                             val raw = it.body.byteStream().readSse { frame ->
+                                toolCallBudget?.observe(frame)
                                 protocol.streamReasoningDelta(frame)?.let { delta ->
                                     onReasoningDelta?.invoke(delta)
                                 }
@@ -355,7 +370,7 @@ private fun sseChunksOf(protocol: ModelWireProtocol, rawSse: String): List<Strin
  * what makes the streamed chain-of-thought visible while the answer is still forming.
  */
 private fun java.io.InputStream.readSse(onFrame: ((String) -> Unit)? = null): String {
-    val output = StringBuilder()
+    val accumulator = Utf8SseAccumulator()
     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
     var lastScannedEnd = 0
     var frameScanStart = 0
@@ -363,7 +378,8 @@ private fun java.io.InputStream.readSse(onFrame: ((String) -> Unit)? = null): St
         while (true) {
             val read = read(buffer)
             if (read < 0) break
-            output.append(String(buffer, 0, read, StandardCharsets.UTF_8))
+            accumulator.append(buffer, read)
+            val output = accumulator.text
             if (onFrame != null && output.isNotEmpty()) {
                 val boundary = output.lastIndexOf(SSE_FRAME_SEPARATOR)
                 if (boundary >= frameScanStart) {
@@ -378,9 +394,79 @@ private fun java.io.InputStream.readSse(onFrame: ((String) -> Unit)? = null): St
             if (containsDoneTerminatorAfter(output, lastScannedEnd)) break
             lastScannedEnd = output.length
         }
-        return output.toString()
+        return accumulator.finish()
     } finally {
         Arrays.fill(buffer, 0.toByte())
+    }
+}
+
+/**
+ * Decodes the SSE bytes through one stateful UTF-8 decoder. Decoding each network read on its own
+ * (`String(buffer, 0, read, UTF_8)`) replaced every multi-byte character that happened to straddle
+ * a read boundary — a tool argument payload could be "complete" yet already corrupted (CJK/emoji
+ * are exactly what a source program contains). Incomplete trailing bytes are held until the next
+ * read; only a genuinely truncated stream ends with U+FFFD.
+ */
+internal class Utf8SseAccumulator {
+    private val decoder = StandardCharsets.UTF_8.newDecoder()
+        .onMalformedInput(CodingErrorAction.REPLACE)
+        .onUnmappableCharacter(CodingErrorAction.REPLACE)
+    private val builder = StringBuilder()
+    private var pending = EMPTY_BYTES
+
+    val text: CharSequence
+        get() = builder
+
+    fun append(bytes: ByteArray, length: Int) {
+        val inputBytes = if (pending.isEmpty()) {
+            ByteBuffer.wrap(bytes, 0, length)
+        } else {
+            val combined = ByteArray(pending.size + length)
+            pending.copyInto(combined)
+            bytes.copyInto(combined, pending.size, 0, length)
+            ByteBuffer.wrap(combined)
+        }
+        decode(inputBytes, endOfInput = false)
+        pending = if (inputBytes.hasRemaining()) {
+            ByteArray(inputBytes.remaining()).also { remaining -> inputBytes.get(remaining) }
+        } else {
+            EMPTY_BYTES
+        }
+    }
+
+    fun finish(): String {
+        // Set end-of-input and let the decoder replace any dangling partial sequence.
+        decode(ByteBuffer.wrap(pending), endOfInput = true)
+        pending = EMPTY_BYTES
+        val out = CharBuffer.allocate(DECODE_CHARS)
+        while (decoder.flush(out).isOverflow) {
+            out.flip()
+            builder.append(out)
+            out.clear()
+        }
+        out.flip()
+        builder.append(out)
+        return builder.toString()
+    }
+
+    private fun decode(input: ByteBuffer, endOfInput: Boolean) {
+        val out = CharBuffer.allocate(DECODE_CHARS)
+        while (true) {
+            val result = decoder.decode(input, out, endOfInput)
+            out.flip()
+            builder.append(out)
+            out.clear()
+            when {
+                result.isUnderflow -> return
+                result.isOverflow -> continue
+                else -> throw IllegalStateException("UTF-8 decoder failed: $result")
+            }
+        }
+    }
+
+    private companion object {
+        private val EMPTY_BYTES = ByteArray(0)
+        private const val DECODE_CHARS = 8 * 1024
     }
 }
 

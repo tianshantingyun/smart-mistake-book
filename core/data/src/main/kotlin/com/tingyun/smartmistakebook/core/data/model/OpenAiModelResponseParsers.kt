@@ -21,6 +21,8 @@ import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.FigureAxis
 import com.tingyun.smartmistakebook.core.model.FigureCoordinate
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureLabel
 import com.tingyun.smartmistakebook.core.model.FigurePoint
 import com.tingyun.smartmistakebook.core.model.FigurePolyline
@@ -70,6 +72,7 @@ import com.tingyun.smartmistakebook.core.model.AttachedImageKind
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
+import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
@@ -441,7 +444,15 @@ internal fun JsonObject.toTutorRespond(
 }
 
 internal val TUTOR_TOOL_REQUESTS_WIRE_KEYS = setOf("intentDecision", "toolRequests")
-private val TUTOR_TOOL_CALL_WIRE_KEYS =
+
+/**
+ * 一条工具调用的 args 白名单（**两条路由共用**）。
+ *
+ * 4E WG-04b：生图新增 `method`/`program`/`imageOperation`/`imagePrompt`。四个键都登记在
+ * 同一张表里，Route B 信封与原生 `tool_calls` arguments 由同一个 [toTutorToolCall] 解析——
+ * "某条路由多认一个键/少认一个键"只在特定 provider 上现形，双路由对拍就是为它设的门。
+ */
+internal val TUTOR_TOOL_CALL_WIRE_KEYS =
     setOf(
         "tool",
         "terms",
@@ -464,6 +475,13 @@ private val TUTOR_TOOL_CALL_WIRE_KEYS =
         // arguments 及 Route A 的 function schema 逐字一致）。
         "kind",
         "description",
+        // 4E WG-04b：模型选择的生图方法/图像操作/具体提示词，以及 JS program 载体。
+        // program 在本构建**不执行**：解析出来只是为了让 TutorToolCall 的构造校验
+        // 结构性拒绝（而不是静默忽略一个模型真的发出来的载荷）。
+        "method",
+        "program",
+        "imageOperation",
+        "imagePrompt",
     )
 
 internal fun JsonObject.toTutorToolRequests(
@@ -473,32 +491,53 @@ internal fun JsonObject.toTutorToolRequests(
     return TutorToolRequestsOutput(
         intentDecision = objectValue("intentDecision").toTutorIntentDecision(),
         calls = optionalArray("toolRequests")
-            ?.mapIndexed { index, element ->
+            ?.map { element ->
                 val call = element.objectValue()
-                call.requireOnlyKeys(TUTOR_TOOL_CALL_WIRE_KEYS)
-                TutorToolCall(
+                call.toTutorToolCall(
                     tool = enumValue(call.requiredString("tool")),
-                    rationale = call.requiredString("rationale"),
-                    terms = call.optionalArray("terms").map(JsonElement::requiredPrimitiveString),
-                    direction = call.optionalString("direction")?.let { enumValue<TutorEvidenceDirection>(it) },
-                    understanding = call.optionalString("understanding")?.let { enumValue<TutorUnderstandingTier>(it) },
-                    difficultyTier = call.optionalString("difficultyTier")?.let { enumValue<TutorDifficultyTier>(it) },
-                    confidence = call.optionalDouble("confidence") ?: 0.8,
-                    extendedResult = call.optionalBoolean("extendedResult") ?: false,
-                    boundQuestion = call.toCallBoundQuestion(),
-                    advisoryScope = call.optionalString("advisoryScope")
-                        ?.let { enumValue<TutorAdvisoryScope>(it) },
-                    advisoryKind = call.optionalString("advisoryKind")
-                        ?.let { enumValue<TutorAdvisoryKind>(it) },
-                    payloadMarkdown = call.optionalString("payloadMarkdown"),
-                    // 4B A1：与原生 tool_calls arguments 同名同义（同一份 TutorToolCall
-                    // 契约校验兜底：缺 kind/超长 description/带 terms 都在构造层拒）。
-                    figureKind = call.optionalString("kind")?.let { enumValue<TutorFigureKind>(it) },
-                    figureDescription = call.optionalString("description"),
                 )
             }
             ?: throw InvalidModelResponseException(),
         modelVersion = modelVersion,
+    )
+}
+
+/**
+ * 一条工具调用 args 的唯一解析点（4E WG-04b：Route A 原生 `tool_calls` 与 Route B
+ * `toolRequests[]` 都走这里）。
+ *
+ * 逐字同义不是靠"两边各写一份、看起来一样"保证的：白名单、字段名、枚举解析和
+ * [TutorToolCall] 的构造校验全部只有这一处。未知键、非法枚举、缺字段与生图载荷不合法
+ * 都以 [InvalidModelResponseException]（IllegalArgumentException）整条拒。
+ */
+internal fun JsonObject.toTutorToolCall(tool: TutorToolName): TutorToolCall {
+    requireOnlyKeys(TUTOR_TOOL_CALL_WIRE_KEYS)
+    return TutorToolCall(
+        tool = tool,
+        rationale = requiredString("rationale"),
+        terms = optionalArray("terms").map(JsonElement::requiredPrimitiveString),
+        direction = optionalString("direction")?.let { enumValue<TutorEvidenceDirection>(it) },
+        understanding = optionalString("understanding")?.let { enumValue<TutorUnderstandingTier>(it) },
+        difficultyTier = optionalString("difficultyTier")?.let { enumValue<TutorDifficultyTier>(it) },
+        confidence = optionalDouble("confidence") ?: 0.8,
+        extendedResult = optionalBoolean("extendedResult") ?: false,
+        boundQuestion = toCallBoundQuestion(),
+        advisoryScope = optionalString("advisoryScope")
+            ?.let { enumValue<TutorAdvisoryScope>(it) },
+        advisoryKind = optionalString("advisoryKind")
+            ?.let { enumValue<TutorAdvisoryKind>(it) },
+        payloadMarkdown = optionalString("payloadMarkdown"),
+        // 4B A1：与原生 tool_calls arguments 同名同义（同一份 TutorToolCall
+        // 契约校验兜底：缺 kind/超长 description/带 terms 都在构造层拒）。
+        figureKind = optionalString("kind")?.let { enumValue<TutorFigureKind>(it) },
+        figureDescription = optionalString("description"),
+        // 4E WG-04b：方法/操作/提示词按枚举逐字解析；TutorToolCall 的构造器拒绝
+        // JS 与 program（本构建没有运行库），并把"只有操作没有提示词"判成不完整载荷。
+        figureMethod = optionalString("method")?.let { enumValue<FigureGenerationMethod>(it) },
+        figureProgram = optionalString("program"),
+        figureImageOperation = optionalString("imageOperation")
+            ?.let { enumValue<FigureImageOperation>(it) },
+        figureImagePrompt = optionalString("imagePrompt"),
     )
 }
 

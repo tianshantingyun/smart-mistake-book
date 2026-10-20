@@ -76,6 +76,14 @@ internal data class TutorExportSheetState(
     val editLoading: Boolean = false,
     /** 准备卷面失败的可读原因（没有可编辑的题面等）。 */
     val editMessage: String? = null,
+    /** 6B-3：学生给模型的一句改卷要求（只活在 ViewModel；旋转不丢，进程死亡不恢复）。 */
+    val paperEditInstruction: String = "",
+    /** 模型改卷在途：按钮不可重复点，手动编辑仍可用。 */
+    val paperEditBusy: Boolean = false,
+    /** 上一次模型改卷的交代：应用了几条，或为什么整批没应用（草稿保持原样）。 */
+    val paperEditMessage: String? = null,
+    /** [paperEditMessage] 是否属于拒绝/失败（界面据此用警示色）。 */
+    val paperEditMessageIsError: Boolean = false,
 )
 
 /**
@@ -282,6 +290,10 @@ internal fun TutorExportSheet(
     onEditBlockText: (entryId: String, blockId: String, text: String) -> Unit,
     onEditChoiceText: (entryId: String, blockId: String, choiceId: String, text: String) -> Unit,
     onEditNote: (entryId: String, note: String) -> Unit,
+    /** 6B-3：这个入口是否接上了自然语言改卷（null 端口 = 不显示，避免广告未接线能力）。 */
+    modelEditAvailable: Boolean,
+    onEditInstructionChange: (String) -> Unit,
+    onEditWithModel: () -> Unit,
     /** 编辑态确认：拿已定稿草稿走后台重渲染（而不是按条目重新读一遍）。 */
     onConfirmEdited: (MistakePaperDraft) -> Unit,
 ) {
@@ -297,6 +309,13 @@ internal fun TutorExportSheet(
             onBlockTextChange = onEditBlockText,
             onChoiceTextChange = onEditChoiceText,
             onNoteChange = onEditNote,
+            modelEditAvailable = modelEditAvailable,
+            instruction = state.paperEditInstruction,
+            modelEditBusy = state.paperEditBusy,
+            modelEditMessage = state.paperEditMessage,
+            modelEditMessageIsError = state.paperEditMessageIsError,
+            onInstructionChange = onEditInstructionChange,
+            onModelEdit = onEditWithModel,
             onBack = onEditBack,
             onConfirm = onConfirmEdited,
             onDismiss = onDismiss,

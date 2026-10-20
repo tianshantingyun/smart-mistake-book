@@ -78,6 +78,32 @@ class TutorLocalActionAdmissionTest {
     }
 
     @Test
+    fun anUnwiredActionIsRejectedEvenWhenTheRoundExplicitlyAllowsEveryAction() {
+        // ADD_TO_REVIEW_PLAN 还没有执行处理器：它不在广告面里，也不准被准入。
+        // 即使调用方把"全部动作"塞进本轮放行集合，也不能把它变成一张卡——否则模型伪造
+        // 一条未广告的请求就能让界面出现一张"点了不能做"的卡。
+        assertNull(
+            tutorLocalActionAdmission(
+                request = TutorLocalActionRequest(action = TutorLocalAction.ADD_TO_REVIEW_PLAN),
+                context = TutorLocalActionContext(libraryProblemId = "problem-9"),
+                permissionContext = TutorRoundPermissionContext(
+                    allowedActions = TutorLocalAction.entries.toSet(),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun theRoundPermissionSourceDropsUnwiredActionsBeforeTheyReachAdmission() {
+        assertEquals(
+            emptySet<TutorLocalAction>(),
+            allowedLocalActions(
+                listOf(TutorLocalActionRequest(action = TutorLocalAction.ADD_TO_REVIEW_PLAN)),
+            ),
+        )
+    }
+
+    @Test
     fun aSaveWithoutAnythingToSaveHangsNoCard() {
         assertNull(
             tutorLocalActionAdmission(

@@ -1,11 +1,13 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuizFeedbackResult
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.domain.knowledgeQuizMasteryVerdict
+import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
 import com.tingyun.smartmistakebook.core.model.KnowledgeAnchorClass
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
@@ -125,8 +127,51 @@ internal class KnowledgeQuizFeedbackWriter(
         }
         // 后续作答按**最新有效替代键**校验：用户更正过的键来源是 USER_ASSERTED（不是机器
         // 金标），也不改写题面快照。没有更正时仍以快照键为准。
+        // KD-43：读侧排序与账本序一致（见 [latestCorrectedKey]）；账本读不出完整前缀时
+        // 显式退化为行时间序（该降级在函数 KDoc 里写明，不再默默分叉）。
         val correctedKey = snapshotItem?.let {
-            latestCorrectedKey(existingRows, knowledgeNodeId, it.id)
+            latestCorrectedKey(
+                rows = existingRows,
+                knowledgeNodeId = knowledgeNodeId,
+                itemId = it.id,
+                // 没有键替代行时不读整条账本（绝大多数作答都走这条）；有替代行才需要
+                // 账本序，读不完整时函数内部显式降级为时间序。
+                ledgerOrder = if (existingRows.hasKeyCorrectionEvidence(it.id)) {
+                    database.correctionLedgerOrder(learnerId)
+                } else {
+                    null
+                },
+                // 只认本会话的替代键：`itemId` 是常量，跨会话套用旧题键会给新题误判。
+                sessionId = sessionId,
+            )
+        }
+        // UNKNOWN 键被用户改正后，这次作答已经以**新身份**按新键重判并入了账本
+        // （见 AnswerKeyCorrectionWriter.recordUserAssertedKeyCorrection）。同一身份的
+        // 重试不得再补一笔：直接按已有事实回报 recorded。
+        val keyFixEvidenceId = if (correctedKey != null && correctChoiceId == correctedKey) {
+            snapshotItem?.let { item ->
+                rejectedAnswerObservationId(
+                    rows = existingRows,
+                    knowledgeNodeId = knowledgeNodeId,
+                    itemId = item.id,
+                    selectedChoiceId = selectedChoiceId,
+                    conversationId = conversationId,
+                )?.let { observationId ->
+                    knowledgeQuizKeyFixEvidenceId(
+                        rejectedAnswerEvidenceId = observationId,
+                        knowledgeNodeId = knowledgeNodeId,
+                        newCorrectChoiceId = correctedKey,
+                    )
+                }
+            }
+        } else {
+            null
+        }
+        if (keyFixEvidenceId != null && existingRows.any { !it.isRejected && it.evidence_id == keyFixEvidenceId }) {
+            return KnowledgeQuizFeedbackResult(
+                isCorrect = isCorrect,
+                evidenceRecorded = true,
+            )
         }
         val expectedKey = correctedKey ?: snapshotItem?.correctChoiceId
         val keyMatches = expectedKey != null && expectedKey == correctChoiceId
@@ -210,18 +255,22 @@ internal class KnowledgeQuizFeedbackWriter(
             ),
         )
         return when (writeOutcome) {
-            is KnowledgeEvidenceWriteOutcome.Accepted -> if (
-                writeOutcome.ledgerStatus == KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW
-            ) {
-                // 同身份已有一条 rejected 观察行（如早期未核验键的尝试）：accepted 写进不了账本。
-                // 不改写历史行、不凭重试伪造事实——如实回报"没有记录"。
-                KnowledgeQuizFeedbackResult(
-                    isCorrect = isCorrect,
-                    evidenceRecorded = false,
-                    rejectedReason = "EVIDENCE_IDENTITY_STICKY",
-                )
-            } else {
-                KnowledgeQuizFeedbackResult(
+            is KnowledgeEvidenceWriteOutcome.Accepted -> when (writeOutcome.ledgerStatus) {
+                KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW ->
+                    // 写入口已自动补偿一次；补偿身份也被占住才会到这里。不改写历史行、
+                    // 不凭重试伪造事实——如实回报"没有记录"。
+                    KnowledgeQuizFeedbackResult(
+                        isCorrect = isCorrect,
+                        evidenceRecorded = false,
+                        rejectedReason = "EVIDENCE_IDENTITY_STICKY",
+                    )
+
+                KnowledgeEvidenceLedgerStatus.LEDGERED,
+                KnowledgeEvidenceLedgerStatus.REPLAYED,
+                // KD-43(b)：合法写已换新身份入账；观察行保留、回执标记粘性。
+                KnowledgeEvidenceLedgerStatus.LEDGERED_AFTER_REJECTED_IDENTITY,
+                KnowledgeEvidenceLedgerStatus.REPLAYED_AFTER_REJECTED_IDENTITY,
+                -> KnowledgeQuizFeedbackResult(
                     isCorrect = isCorrect,
                     evidenceRecorded = true,
                 )
@@ -292,28 +341,131 @@ internal fun knowledgeQuizKeyCorrectionNewCorrectChoice(
     return if (separator > 0) rest.substring(0, separator) else null
 }
 
-/** 同一题面最近一条**未被撤销**的替代键；没有 = null。 */
+/**
+ * 用户改正答案键后，这次作答以**新身份**重判入账时使用的证据 id（KD-43 / UNKNOWN 键 REPLACE）。
+ *
+ * 为什么挂在被拒观察行的 id 上：被拒观察行保留原样（它记录的是"当时键未核验"的真实状态），
+ * 合法事实必须换一个新身份才能进账本；用 `(观察行 id, 新键)` 派生让同一命令重试恒落同一 id
+ * （幂等），换一个键则是另一笔事实。
+ */
+internal fun knowledgeQuizKeyFixEvidenceId(
+    rejectedAnswerEvidenceId: String,
+    knowledgeNodeId: String,
+    newCorrectChoiceId: String,
+): String = insertBeforeTrailingNodeSegment(
+    evidenceId = rejectedAnswerEvidenceId,
+    knowledgeNodeId = knowledgeNodeId,
+    insertedSegment = "key-fix:$newCorrectChoiceId",
+)
+
+/**
+ * 同一题面最近一条**未被撤销**的有效替代键；没有 = null。
+ *
+ * 来源有两类，都按**账本序**（[ledgerOrder]）取最后一条：
+ * 1. `KEY_CORRECTION` 更正行（针对已接受证据的定向 REPLACE）；
+ * 2. UNKNOWN 键的"改正答案键"写入的**已接受作答行**（理由带同一机器前缀，KD-43）。
+ *
+ * [ledgerOrder] = 证据 id → 账本事件序列（只含已接受账本事件）。**降级规则（显式）**：
+ * 为 null（账本读不完整/不可用）或任一候选行不在映射里时，退回
+ * `created_at_epoch_millis`、再以行序作决定性 tie-break——这与旧行为一致，只在
+ * 同毫秒/时钟回拨时才可能与账本序分叉；调用方应如实知道这是降级路径，不要把它当成
+ * 账本序保证。
+ *
+ * [sessionId] 非 null 时只取**该会话**的键替代。题面快照按 `(learner, 会话, 知识点)` 存，
+ * 但 `itemId` 是常量：若不按会话隔离，隔日新生成的题面会继承旧题的键（新题不含该选项时
+ * 直接抛异常；含该选项时用旧题的键判分）。会话无法判定的替代行在过滤模式下**不生效**
+ * （fail-closed），宁可退回快照键，也不跨会话套用一个来历不明的键。
+ */
 internal fun latestCorrectedKey(
     rows: List<LearnerChatEvidenceEntity>,
     knowledgeNodeId: String,
     itemId: String,
+    ledgerOrder: Map<String, Long>? = null,
+    sessionId: Long? = null,
 ): String? {
+    val rowsById = rows.associateBy { it.evidence_id }
+    fun sessionOf(row: LearnerChatEvidenceEntity): Long? = when (row.source_kind) {
+        // 定向纠正/撤销的 `conversation_id` 可能是命令侧的文本标识；它纠正的**目标证据**
+        // 才属于某场复习会话，沿 corrects_evidence_id 取目标的会话。
+        LearnerChatEvidenceEntity.SOURCE_KIND_KEY_CORRECTION,
+        LearnerChatEvidenceEntity.SOURCE_KIND_KEY_VOID ->
+            row.corrects_evidence_id
+                ?.let(rowsById::get)
+                ?.let { knowledgeQuizSessionIdOf(it.conversation_id) }
+
+        else -> knowledgeQuizSessionIdOf(row.conversation_id)
+    }
     val voidedCorrections = rows.asSequence()
         .filter {
             it.source_kind == LearnerChatEvidenceEntity.SOURCE_KIND_KEY_VOID && !it.isRejected
         }
         .mapNotNull(LearnerChatEvidenceEntity::corrects_evidence_id)
         .toSet()
-    return rows.asReversed()
-        .filter {
-            it.source_kind == LearnerChatEvidenceEntity.SOURCE_KIND_KEY_CORRECTION &&
-                !it.isRejected &&
-                it.knowledge_node_id == knowledgeNodeId &&
-                it.evidence_id !in voidedCorrections
+    val correctionPrefix = "answer-key-correction:$itemId:"
+    val candidates = rows.mapIndexedNotNull { index, row ->
+        if (row.isRejected) return@mapIndexedNotNull null
+        if (row.knowledge_node_id != knowledgeNodeId) return@mapIndexedNotNull null
+        if (row.evidence_id in voidedCorrections) return@mapIndexedNotNull null
+        if (sessionId != null && sessionOf(row) != sessionId) return@mapIndexedNotNull null
+        val isDirectedCorrection =
+            row.source_kind == LearnerChatEvidenceEntity.SOURCE_KIND_KEY_CORRECTION
+        val isUserAssertedAnswer =
+            row.source_kind == StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ &&
+                row.reason_markdown.startsWith(correctionPrefix)
+        if (!isDirectedCorrection && !isUserAssertedAnswer) return@mapIndexedNotNull null
+        val correctedKey = knowledgeQuizKeyCorrectionNewCorrectChoice(row.reason_markdown, itemId)
+            ?: return@mapIndexedNotNull null
+        CorrectedKeyCandidate(row = row, rowIndex = index, correctedKey = correctedKey)
+    }
+    if (candidates.isEmpty()) return null
+    val ledgerOrdered = ledgerOrder?.takeIf { order ->
+        candidates.all { it.row.evidence_id in order }
+    }
+    val latest = if (ledgerOrdered != null) {
+        candidates.maxByOrNull { ledgerOrdered.getValue(it.row.evidence_id) }
+    } else {
+        candidates.maxWithOrNull(
+            compareBy<CorrectedKeyCandidate> { it.row.created_at_epoch_millis }
+                .thenBy { it.rowIndex },
+        )
+    }
+    return latest?.correctedKey
+}
+
+private data class CorrectedKeyCandidate(
+    val row: LearnerChatEvidenceEntity,
+    val rowIndex: Int,
+    val correctedKey: String,
+)
+
+/**
+ * 证据 id → 账本序列。只接受**完整**的账本前缀；GAP/CONFLICT 或读取失败返回 null，
+ * 由 [latestCorrectedKey] 走显式降级（时间序）。
+ */
+internal suspend fun StudyDatabasePort.correctionLedgerOrder(
+    learnerId: String,
+): Map<String, Long>? {
+    val ledger = runCatching { loadLearningLedger(learnerId) }.getOrNull() ?: return null
+    if (ledger.status != LearningLedgerReadStatus.COMPLETE) return null
+    return ledger.validPrefix.mapNotNull { persisted ->
+        when (val event = persisted.event) {
+            is EvidenceCorrection -> event.ledgerEventId to event.eventSequence
+            is ChatEvidenceSubmitted -> event.ledgerEventId to event.eventSequence
+            else -> null
         }
-        .firstNotNullOfOrNull {
-            knowledgeQuizKeyCorrectionNewCorrectChoice(it.reason_markdown, itemId)
-        }
+    }.toMap()
+}
+
+internal fun List<LearnerChatEvidenceEntity>.hasKeyCorrectionEvidence(
+    itemId: String,
+): Boolean = any { row ->
+    if (row.isRejected) return@any false
+    val directedCorrection =
+        row.source_kind == LearnerChatEvidenceEntity.SOURCE_KIND_KEY_CORRECTION
+    val userAssertedAnswer =
+        row.source_kind == StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ &&
+            row.reason_markdown.startsWith("answer-key-correction:$itemId:")
+    directedCorrection || userAssertedAnswer
 }
 
 private fun LearnerChatEvidenceEntity.isDisputeObservationFor(
@@ -326,6 +478,29 @@ private fun LearnerChatEvidenceEntity.isDisputeObservationFor(
     return knowledge_node_id == knowledgeNodeId &&
         reason_markdown.startsWith(knowledgeQuizKeyDisputeReasonPrefix(itemId))
 }
+
+/**
+ * 这道题这次选择的 **UNKNOWN 键**被拒作答观察行 id（KD-43）。只认原始作答通道
+ * （`KNOWLEDGE_QUIZ`）且拒因为 `ANSWER_KEY_UNVERIFIED`；没有 = null。
+ *
+ * [conversationId] 非 null 时只认**本次会话**的观察行。`itemId` 是常量而题面/选项按会话
+ * 重新生成：不加会话分量时，下一场复习里同一个 `selectedChoiceId` 会命中上一场的观察行，
+ * 进而命中上一场已入账的 key-fix 证据 id，把这次的合法作答静默当成"已记录"。
+ */
+internal fun rejectedAnswerObservationId(
+    rows: List<LearnerChatEvidenceEntity>,
+    knowledgeNodeId: String,
+    itemId: String,
+    selectedChoiceId: String,
+    conversationId: String? = null,
+): String? = rows.asReversed().firstOrNull { row ->
+    row.isRejected &&
+        row.rejected_reason == REJECT_ANSWER_KEY_UNVERIFIED &&
+        row.knowledge_node_id == knowledgeNodeId &&
+        row.source_kind == StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ &&
+        (conversationId == null || row.conversation_id == conversationId) &&
+        row.evidence_id.contains(":$itemId:$selectedChoiceId")
+}?.evidence_id
 
 // ---- 定向纠正 / 撤销 ----
 
@@ -344,7 +519,12 @@ data class AnswerKeyCorrectionCommand(
     val replacementCorrect: Boolean? = null,
     /** true = 撤销目标；false = 用替代判分重算目标。 */
     val voidTarget: Boolean = false,
-    /** 可选的键版本 CAS（= 上一次更正事件的账本序列；0 = 尚无更正）。 */
+    /**
+     * 可选的键版本 CAS：
+     * - 有账本目标（定向纠正）时 = 上一次指向该目标的更正事件账本序列（0 = 尚无更正）；
+     * - UNKNOWN 键的 REPLACE（无账本目标）时 = **题面级**键版本，即该题所有键替代事件
+     *   （更正行/用户断言作答行）账本序列的最大值（0 = 尚无替代）。
+     */
     val expectedKeyVersion: Long? = null,
     val reasonMarkdown: String,
     val occurredAtEpochMillis: Long,
@@ -371,6 +551,10 @@ enum class AnswerKeyCorrectionStatus {
 data class AnswerKeyCorrectionReceipt(
     val correctionId: String,
     val status: AnswerKeyCorrectionStatus,
+    /**
+     * 被纠正的已接受证据 id；UNKNOWN 键的 REPLACE 没有已接受目标，
+     * 这里指向**被保留的被拒作答观察行**（说明重判的是哪一笔作答）。
+     */
     val targetEvidenceId: String?,
     val affectedKnowledgeNodeIds: Set<String>,
     val replayPending: Boolean,
@@ -405,6 +589,13 @@ data class AnswerKeyCorrectionReceipt(
  * 落成 rejected 观察行**（例如题面键未核验）时同样不能假装写账本更正：按
  * `itemId + selectedChoiceId` 找不到已接受目标，就回落到同一条争议观察行，让学生的报告
  * 真的被记下、该键暂停计分，而不是回 `ANSWER_KEY_TARGET_NOT_FOUND` 丢反馈。
+ *
+ * **UNKNOWN 键的 REPLACE（KD-43）**：键未核验时账本里没有可纠正的已接受作答，只有一条
+ * `ANSWER_KEY_UNVERIFIED` 观察行。此时 `voidTarget = false` 且带
+ * `itemId/newCorrectChoiceId/selectedChoiceId` 会走 [recordUserAssertedKeyCorrection]：
+ * 观察行保留，学生这次作答按用户断言的新键重判成一条**新身份**的普通证据入账（理由带
+ * `answer-key-correction:<itemId>:<新键>:` 前缀，后续作答据此校验），投影/重放因此看到
+ * 真实结果。这是 UI“改正答案键”对话框的落点。
  */
 class AnswerKeyCorrectionWriter(
     private val database: StudyDatabasePort,
@@ -440,8 +631,19 @@ class AnswerKeyCorrectionWriter(
             return recordDisputeObservation(command)
         }
 
+        // UNKNOWN 键的“改正答案键”（REPLACE）：账本里可能没有可纠正的已接受作答——
+        // 当前这次作答只落成 rejected 观察行（同题面更早会话可能另有已接受行）。
+        val unverifiedObservation = if (!command.voidTarget) {
+            findUnverifiedAnswerObservation(command, rows)
+        } else {
+            null
+        }
         val target = resolveTarget(command, rows)
         if (target == null) {
+            // 保留观察行，按用户断言的新键把这次作答以新身份重判入账（KD-43 / PRD-02）。
+            if (unverifiedObservation != null) {
+                return recordUserAssertedKeyCorrection(command, unverifiedObservation)
+            }
             // 已作答但该作答只落成 rejected 观察行（最常见：题面键 UNKNOWN）时，账本里
             // 没有可撤销的已接受证据。UI 的“答案有问题”仍然是真实反馈：退回中性争议
             // 观察行（暂停该键计分、保留真实选择），而不是把反馈丢成 TARGET_NOT_FOUND。
@@ -449,6 +651,17 @@ class AnswerKeyCorrectionWriter(
                 return recordDisputeObservation(command)
             }
             return rejected("ANSWER_KEY_TARGET_NOT_FOUND")
+        }
+        // 隐式定位到了更早会话的已接受作答，而**当前**这次作答是更新的 rejected 观察行：
+        // 改正的是学生眼前这一笔，不是旧会话那一笔。
+        if (command.targetEvidenceId == null && unverifiedObservation != null) {
+            val targetIndex = rows.indexOfFirst { it.evidence_id == target.evidence_id }
+            val observationIndex = rows.indexOfFirst {
+                it.evidence_id == unverifiedObservation.evidence_id
+            }
+            if (observationIndex > targetIndex) {
+                return recordUserAssertedKeyCorrection(command, unverifiedObservation)
+            }
         }
         if (target.learner_id != learnerId || target.isRejected || !target.isLedgerEvidence()) {
             return rejected("ANSWER_KEY_TARGET_NOT_LEDGERED")
@@ -574,6 +787,164 @@ class AnswerKeyCorrectionWriter(
     }
 
     /**
+     * UNKNOWN 键的“改正答案键”（KD-43）：账本里没有可 REPLACE 的已接受证据，因此不改写
+     * 任何历史行，而是**保留**那条 `ANSWER_KEY_UNVERIFIED` 观察行，按用户断言的新键把
+     * 学生这次真实作答**重判**为一笔新身份的有效证据（`source_kind = KNOWLEDGE_QUIZ`，
+     * 理由带 `answer-key-correction:<itemId>:<新键>:` 机器前缀）。
+     *
+     * 为什么不是一条 `KEY_CORRECTION` 事件：账本更正要求目标必须是更早的**已接受**事件，
+     * 而被拒观察行按设计永不进账本；伪造一个目标会让重放拒绝整条账本。把“新键 + 重判后的
+     * 这笔作答”作为普通证据入账，既让投影/重放看到真实结果，也让后续读取
+     * （[latestCorrectedKey]）按账本序拿到新键。
+     *
+     * 幂等：新身份 = `(观察行 id, 新键)`；同一命令重试 REPLAYED，换一个键是另一笔事实。
+     * `expectedKeyVersion` 走**题面级**键版本 CAS（该题所有键替代事件的账本序列最大值；
+     * 0 = 尚无替代），迟到请求显式 CONFLICT。
+     */
+    private suspend fun recordUserAssertedKeyCorrection(
+        command: AnswerKeyCorrectionCommand,
+        observation: LearnerChatEvidenceEntity,
+    ): AnswerKeyCorrectionReceipt {
+        val itemId = command.itemId ?: return rejected("ANSWER_KEY_CORRECTION_ITEM_REQUIRED")
+        if (itemId.isBlank()) return rejected("ANSWER_KEY_CORRECTION_ITEM_REQUIRED")
+        val newCorrectChoiceId = command.newCorrectChoiceId
+            ?: return rejected("ANSWER_KEY_REPLACEMENT_KEY_REQUIRED")
+        if (newCorrectChoiceId.isBlank()) return rejected("ANSWER_KEY_REPLACEMENT_KEY_REQUIRED")
+        val selectedChoiceId = command.selectedChoiceId
+            ?: return rejected("ANSWER_KEY_REPLACEMENT_ANSWER_REQUIRED")
+
+        val evidenceId = knowledgeQuizKeyFixEvidenceId(
+            rejectedAnswerEvidenceId = observation.evidence_id,
+            knowledgeNodeId = observation.knowledge_node_id,
+            newCorrectChoiceId = newCorrectChoiceId,
+        )
+        val expected = command.expectedKeyVersion
+        if (expected != null) {
+            val current = currentKeyVersionForItem(itemId)
+            if (current != expected) {
+                return AnswerKeyCorrectionReceipt(
+                    correctionId = evidenceId,
+                    status = AnswerKeyCorrectionStatus.CONFLICT,
+                    targetEvidenceId = observation.evidence_id,
+                    affectedKnowledgeNodeIds = setOf(observation.knowledge_node_id),
+                    replayPending = false,
+                    keyVersion = current,
+                    reason = "ANSWER_KEY_VERSION_CONFLICT",
+                )
+            }
+        }
+
+        // 新键必须是该题面真实存在的选项（与定向 REPLACE 同一判据）；题面读不回时不猜。
+        // 这条写入绕过了证据门控（纠正路径的既有设计），所以必须自己守住两个前提：
+        // 题面读得回、知识点真实锚定——否则就会借“改键”把证据写进不存在的节点。
+        val sessionId = knowledgeQuizSessionIdOf(observation.conversation_id)
+            ?: knowledgeQuizSessionIdOf(command.conversationId)
+        val storedItem = sessionId?.let {
+            KnowledgeQuizItemStore(database, learnerId)
+                .readSnapshot(it, observation.knowledge_node_id)
+                ?.item
+        } ?: return rejected("ANSWER_KEY_ITEM_UNREADABLE")
+        if (storedItem.choices.none { it.id == newCorrectChoiceId }) {
+            return rejected("ANSWER_KEY_CHOICE_NOT_IN_ITEM")
+        }
+        if (database.readKnowledgeNodesByIds(setOf(observation.knowledge_node_id)).isEmpty()) {
+            return rejected("ANSWER_KEY_NODE_NOT_ANCHORED")
+        }
+
+        val rejudgedCorrect = selectedChoiceId == newCorrectChoiceId
+        val verdict = knowledgeQuizMasteryVerdict(rejudgedCorrect)
+        val entry = LearnerChatEvidenceEntity(
+            evidence_id = evidenceId,
+            learner_id = learnerId,
+            conversation_id = observation.conversation_id,
+            knowledge_node_id = observation.knowledge_node_id,
+            direction = verdict.direction.name,
+            weight = if (rejudgedCorrect) {
+                MasteryWriteGate.positiveWeightFor(verdict.understanding)
+            } else {
+                MasteryWriteGate.negativeWeight()
+            },
+            reason_markdown = knowledgeQuizKeyCorrectionReasonPrefix(itemId, newCorrectChoiceId) +
+                command.reasonMarkdown,
+            confidence = OBJECTIVE_ANSWER_CONFIDENCE,
+            source_kind = StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ,
+            created_at_epoch_millis = command.occurredAtEpochMillis,
+            anchor_class = MasteryWriteGate.ANCHOR_CLASS_CONFIRMED,
+        )
+        val receipt = database.recordChatEvidence(listOf(entry))
+        val recorded = evidenceId in receipt.insertedAcceptedEvidenceIds
+        val replayed = evidenceId in receipt.replayedAcceptedEvidenceIds
+        if (!recorded && !replayed) {
+            return rejected("ANSWER_KEY_CORRECTION_NOT_LEDGERED").copy(
+                correctionId = evidenceId,
+                targetEvidenceId = observation.evidence_id,
+            )
+        }
+        return AnswerKeyCorrectionReceipt(
+            correctionId = evidenceId,
+            status = if (recorded) {
+                AnswerKeyCorrectionStatus.RECORDED
+            } else {
+                AnswerKeyCorrectionStatus.REPLAYED
+            },
+            // 指向被保留的观察行：它记录了“当时键未核验”的真实状态，永不被改写。
+            targetEvidenceId = observation.evidence_id,
+            affectedKnowledgeNodeIds = setOf(observation.knowledge_node_id),
+            replayPending = recorded,
+            keyVersion = ledgerSequenceOf(evidenceId),
+        )
+    }
+
+    /**
+     * 题面级键版本 = 该题所有键替代事件（更正行/用户断言作答行）的账本序列最大值。
+     *
+     * 公开给 UI 作为“改正答案键”的 CAS 期望值（T7）：Root 在提交前取当前值并传入
+     * `expectedKeyVersion`，迟到请求因此显式 CONFLICT，而不是静默覆盖更新的改正。
+     */
+    suspend fun currentKeyVersionForItem(itemId: String): Long {
+        val prefix = "answer-key-correction:$itemId:"
+        return database.loadLearningLedger(learnerId).validPrefix
+            .mapNotNull { persisted ->
+                when (val event = persisted.event) {
+                    is EvidenceCorrection ->
+                        event.eventSequence.takeIf { event.reasonMarkdown.startsWith(prefix) }
+
+                    is ChatEvidenceSubmitted ->
+                        event.eventSequence.takeIf { event.reasonMarkdown.startsWith(prefix) }
+
+                    else -> null
+                }
+            }
+            .maxOrNull()
+            ?: 0L
+    }
+
+    /**
+     * UNKNOWN 键留下的被拒作答观察行（键信任门把作答保留成观察、没有账本目标）。
+     * 只认 `ANSWER_KEY_UNVERIFIED`：其它拒因（未锚定/配额/争议）不允许借“改键”绕过门控。
+     */
+    private fun findUnverifiedAnswerObservation(
+        command: AnswerKeyCorrectionCommand,
+        rows: List<LearnerChatEvidenceEntity>,
+    ): LearnerChatEvidenceEntity? {
+        val itemId = command.itemId ?: return null
+        val selectedChoiceId = command.selectedChoiceId ?: return null
+        // 生产入口把当前复习会话带进 command.conversationId；题面/选项按会话重新生成，
+        // 因此只认本会话的观察行（旧会话的同一选项不能当作"这次作答"被重判）。
+        // 无法解析会话的旧调用（文本命令 id）退回不按会话过滤的既有行为。
+        val targetSession = knowledgeQuizSessionIdOf(command.conversationId)
+        return rows.asReversed().firstOrNull { row ->
+            row.isRejected &&
+                row.rejected_reason == REJECT_ANSWER_KEY_UNVERIFIED &&
+                row.knowledge_node_id == command.knowledgeNodeId &&
+                row.source_kind == StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ &&
+                (targetSession == null ||
+                    knowledgeQuizSessionIdOf(row.conversation_id) == targetSession) &&
+                row.evidence_id.contains(":$itemId:$selectedChoiceId")
+        }
+    }
+
+    /**
      * 中性"答案有问题"入口（未看答案时）：写一条 rejected 观察行，前缀里带题面 id。
      * 之后同题面的提交在 [KnowledgeQuizFeedbackWriter] 里被判为"暂停计分"。
      */
@@ -632,6 +1003,7 @@ class AnswerKeyCorrectionWriter(
         }
         val itemId = command.itemId ?: return null
         val selectedChoiceId = command.selectedChoiceId ?: return null
+        val keyFixPrefix = "answer-key-correction:$itemId:"
         return rows.asReversed().firstOrNull { row ->
             row.knowledge_node_id == command.knowledgeNodeId &&
                 row.isLedgerEvidence() &&
@@ -640,6 +1012,10 @@ class AnswerKeyCorrectionWriter(
                 // 撤销该更正、让原错误键重新计入掌握度（且不再写新的争议行）。
                 row.source_kind == StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ &&
                 row.corrects_evidence_id == null &&
+                // UNKNOWN 键改正写入的 key-fix 行也是 KNOWLEDGE_QUIZ，且 id 里带
+                // `:itemId:choiceId`；它不是原始作答（是上一次改正的结果），不能当成本次
+                // 改正的目标，否则同一改正命令重试会再写一条 KEY_CORRECTION 而不是 REPLAY。
+                !row.reason_markdown.startsWith(keyFixPrefix) &&
                 row.evidence_id.contains(":$itemId:$selectedChoiceId")
         }
     }

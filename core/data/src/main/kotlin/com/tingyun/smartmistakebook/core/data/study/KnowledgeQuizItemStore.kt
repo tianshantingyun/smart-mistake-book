@@ -44,13 +44,32 @@ internal class KnowledgeQuizItemStore(
         // PRD-02：题面快照一字不改；但**读给会话**的题面要带上账本里最新有效的键替代，
         // 否则 UI 的本地判题（`item.evaluateChoice`）与写入口的更正键会分叉，ViewModel 的
         // 判答一致性校验会当场失败。没有更正时行为逐位不变。
+        //
+        // KD-43（修复）：两处必须与写入口同源——
+        // 1. 候选排序传账本序（读不完整时由 `latestCorrectedKey` 显式降级为时间序）；
+        // 2. 只接受**本会话**的键替代。题面快照按 `(learner, 会话, 知识点)` 存储，而
+        //    `itemId` 是 `knowledge-quiz:item:<node>` 的常量：隔日新会话会生成新题面/新选项，
+        //    若把上一会话的键套到新题面，轻则 `correctChoiceId` 不在选项集中而抛异常，
+        //    重则用旧题的键给新题判分。
+        val rows = database.readChatEvidenceByLearner(learnerId)
         val correctedKey = latestCorrectedKey(
-            rows = database.readChatEvidenceByLearner(learnerId),
+            rows = rows,
             knowledgeNodeId = knowledgeNodeId,
             itemId = stored.id,
+            ledgerOrder = if (rows.hasKeyCorrectionEvidence(stored.id)) {
+                database.correctionLedgerOrder(learnerId)
+            } else {
+                null
+            },
+            sessionId = sessionId,
         )
-        return if (correctedKey != null && correctedKey != stored.correctChoiceId) {
-            stored.copy(correctChoiceId = correctedKey)
+        // 防御：同会话的替代键若不在本题选项集内（历史脏数据），不把会抛异常的题面端上屏幕；
+        // 保持快照里的原键。正常情况下这条分支不可达。
+        val appliesToThisItem = correctedKey != null &&
+            correctedKey != stored.correctChoiceId &&
+            stored.choices.any { it.id == correctedKey }
+        return if (appliesToThisItem) {
+            stored.copy(correctChoiceId = requireNotNull(correctedKey))
         } else {
             stored
         }

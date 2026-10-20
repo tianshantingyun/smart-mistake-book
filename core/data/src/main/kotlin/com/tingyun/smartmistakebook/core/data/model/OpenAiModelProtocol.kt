@@ -51,6 +51,7 @@ import com.tingyun.smartmistakebook.core.model.StructuredChoice
 import com.tingyun.smartmistakebook.core.model.StructuredContentLimits
 import com.tingyun.smartmistakebook.core.model.StructuredContentSanitizer
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorChoice
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
@@ -62,10 +63,6 @@ import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
-import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
-import com.tingyun.smartmistakebook.core.model.TutorFigureKind
-import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
-import com.tingyun.smartmistakebook.core.model.TutorDifficultyTier
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTurnPlan
 import com.tingyun.smartmistakebook.core.model.WritingLayer
@@ -230,15 +227,11 @@ internal object OpenAiModelProtocol {
     private fun nativeToolSchemas(
         input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
     ): JsonArray? {
-        val declarations = when (input) {
-            is com.tingyun.smartmistakebook.core.model.TutorRespondInput -> input.toolDeclarations
-            is com.tingyun.smartmistakebook.core.model.TutorLobbyInput -> input.toolDeclarations
-            // Plan 复用 Respond 的工具环（D8）：同一 5 工具面。
-            is com.tingyun.smartmistakebook.core.model.TutorPlanInput -> input.toolDeclarations
-            else -> return null
-        }
-        val localActionSchemas = localActionSchemas(input)
-        if (declarations.isEmpty() && localActionSchemas == null) return null
+        // 单一能力快照（PRD-06）：工具与本地动作都从这一份出。生成方已经把"配置/依赖
+        // 就绪"折进本轮的声明集（没就绪的工具根本不在 input.toolDeclarations 里）；
+        // 这里再与"已实现处理器"相交，确保只广告真的能执行的函数。
+        val capability = TutorCapabilitySnapshot.forRound(input)
+        if (capability.tools.isEmpty() && capability.localActions.isEmpty()) return null
         // 单一代号通道（D5）：MASTERY_UPDATE 的 terms[0] 用本会话已披露代号做 enum 白名单
         // （Structured Outputs 约束解码——非法代号在解码层即不可产生）；空集合（大厅 /
         // 无预披露）不出 enum，越界仍由服务端结构性拒兜底。
@@ -248,7 +241,7 @@ internal object OpenAiModelProtocol {
             else -> emptyList()
         }.mapNotNull { entry -> entry.code }
         return buildJsonArray {
-            declarations.forEach { tool ->
+            capability.tools.forEach { tool ->
                 add(
                     buildJsonObject {
                         put("type", "function")
@@ -266,15 +259,17 @@ internal object OpenAiModelProtocol {
                     },
                 )
             }
-            localActionSchemas?.forEach { schema -> add(schema) }
+            capability.localActions.forEach { action ->
+                add(localActionSchema(action))
+            }
         }
     }
 
     /**
      * **本地动作**在 Route A 里的广告（D-K2e 白名单第一版 / §3.2）：与 Route B 的提示词块
-     * （`OpenAiModelTaskAdapters.localActionPromptBlock`）读同一份声明
-     * （`core:model` 的 [com.tingyun.smartmistakebook.core.model.TutorLocalAction]）——
-     * 名字、用途、参数形状都只有那一处出处，`TutorLocalActionAdvertisementParityTest` 对拍两套。
+     * （`OpenAiModelTaskAdapters.localActionPromptBlock`）读同一份能力快照——名字、用途、
+     * 参数形状都只有 `core:model` 一处出处，`TutorLocalActionAdvertisementParityTest`
+     * 对拍两套。动作集合由 [TutorCapabilitySnapshot.forRound] 给（只含已实现处理器）。
      *
      * 形状放行**只给大厅轮**：确认卡（本地动作的执行面）目前长在智能体栏这一条交互面上；
      * 讲题/计划轮还没有卡的生产者，声明了就是"广告一个没人接的东西"（与"点了没反应"同罪）。
@@ -285,67 +280,58 @@ internal object OpenAiModelProtocol {
      * 造不出参数）。4B B3 起 `START_EXPORT` 有参数：`templateId` 必填并带 `enum`（约束解码
      * 下非法模板结构性地不可产生），其余版式字段可选、逐字段描述里写明学生口头要求的映射。
      */
-    private fun localActionSchemas(
-        input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
-    ): JsonArray? {
-        if (input !is com.tingyun.smartmistakebook.core.model.TutorLobbyInput) return null
-        return buildJsonArray {
-            com.tingyun.smartmistakebook.core.model.TutorLocalAction.entries.forEach { action ->
-                add(
+    private fun localActionSchema(
+        action: com.tingyun.smartmistakebook.core.model.TutorLocalAction,
+    ): JsonObject = buildJsonObject {
+        put("type", "function")
+        put(
+            "function",
+            buildJsonObject {
+                put("name", action.actionId)
+                put("description", action.nativePurposeDescription)
+                put(
+                    "parameters",
                     buildJsonObject {
-                        put("type", "function")
+                        put("type", "object")
                         put(
-                            "function",
+                            "properties",
                             buildJsonObject {
-                                put("name", action.actionId)
-                                put("description", action.nativePurposeDescription)
-                                put(
-                                    "parameters",
-                                    buildJsonObject {
-                                        put("type", "object")
-                                        put(
-                                            "properties",
-                                            buildJsonObject {
-                                                action.parameters.forEach { parameter ->
-                                                    put(
-                                                        parameter.parameterName,
-                                                        buildJsonObject {
-                                                            put("type", "string")
-                                                            put("description", parameter.description)
-                                                            if (parameter.allowedValues.isNotEmpty()) {
-                                                                put(
-                                                                    "enum",
-                                                                    buildJsonArray {
-                                                                        parameter.allowedValues.forEach { value ->
-                                                                            add(JsonPrimitive(value))
-                                                                        }
-                                                                    },
-                                                                )
-                                                            }
-                                                        },
-                                                    )
-                                                }
-                                            },
-                                        )
-                                        put(
-                                            "required",
-                                            buildJsonArray {
-                                                action.parameters
-                                                    .filter { parameter -> parameter.required }
-                                                    .forEach { parameter ->
-                                                        add(JsonPrimitive(parameter.parameterName))
-                                                    }
-                                            },
-                                        )
-                                        put("additionalProperties", JsonPrimitive(false))
-                                    },
-                                )
+                                action.parameters.forEach { parameter ->
+                                    put(
+                                        parameter.parameterName,
+                                        buildJsonObject {
+                                            put("type", "string")
+                                            put("description", parameter.description)
+                                            if (parameter.allowedValues.isNotEmpty()) {
+                                                put(
+                                                    "enum",
+                                                    buildJsonArray {
+                                                        parameter.allowedValues.forEach { value ->
+                                                            add(JsonPrimitive(value))
+                                                        }
+                                                    },
+                                                )
+                                            }
+                                        },
+                                    )
+                                }
                             },
                         )
+                        put(
+                            "required",
+                            buildJsonArray {
+                                action.parameters
+                                    .filter { parameter -> parameter.required }
+                                    .forEach { parameter ->
+                                        add(JsonPrimitive(parameter.parameterName))
+                                    }
+                            },
+                        )
+                        put("additionalProperties", JsonPrimitive(false))
                     },
                 )
-            }
-        }
+            },
+        )
     }
 
     /**
@@ -455,6 +441,57 @@ internal object OpenAiModelProtocol {
                         )
                     }
                     if (figureGeneration) {
+                        // 4E WG-04b：模型显式选择方法/图像操作/具体提示词。本构建
+                        // availableMethods 只有 IMAGE_MODEL——schema 里**只广告**这一个值，
+                        // 未接通的 JS 不出现（解析层仍会拒绝越界值，不靠广告当门）。
+                        put(
+                            "method",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "enum",
+                                    buildJsonArray { add(JsonPrimitive("IMAGE_MODEL")) },
+                                )
+                                put(
+                                    "description",
+                                    "生图方法；本构建只接通图像模型。未列出的方法不可用，" +
+                                        "不得输出其载荷",
+                                )
+                            },
+                        )
+                        put(
+                            "imageOperation",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "enum",
+                                    buildJsonArray {
+                                        add(JsonPrimitive("EDIT"))
+                                        add(JsonPrimitive("GENERATE"))
+                                    },
+                                )
+                                put(
+                                    "description",
+                                    "EDIT＝基于已授权的当前题原图编辑；GENERATE＝按 imagePrompt 生成",
+                                )
+                            },
+                        )
+                        put(
+                            "imagePrompt",
+                            buildJsonObject {
+                                put("type", "string")
+                                put(
+                                    "maxLength",
+                                    com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
+                                        .MAX_IMAGE_PROMPT_UTF8_BYTES,
+                                )
+                                put(
+                                    "description",
+                                    "具体生图提示词：说明画什么、保留什么、禁止改变什么；" +
+                                        "不含路径、URL 或数据指令",
+                                )
+                            },
+                        )
                         // A1：kind 二选一 + description 有硬上限（本地仍兜底校验；
                         // Route B 信封路由的同名字段由 TUTOR_TOOL_CALL_WIRE_KEYS 收口）。
                         put(
@@ -595,8 +632,14 @@ internal object OpenAiModelProtocol {
                         }
                         advisoryRead -> add(JsonPrimitive("advisoryScope"))
                         figureGeneration -> {
+                            // strict provider 要求 required 覆盖全部 properties
+                            // （additionalProperties=false）。新字段与旧字段一并必填：
+                            // 解析层仍兼容旧 Route B 调用，但 Route A 的声明面要求显式选择。
                             add(JsonPrimitive("kind"))
                             add(JsonPrimitive("description"))
+                            add(JsonPrimitive("method"))
+                            add(JsonPrimitive("imageOperation"))
+                            add(JsonPrimitive("imagePrompt"))
                         }
                     }
                 },
@@ -693,29 +736,10 @@ internal object OpenAiModelProtocol {
             val function = call.objectValue("function")
             val toolName = enumValue<TutorToolName>(function.requiredString("name"))
             val arguments = parseObject(function.requiredString("arguments"))
-            TutorToolCall(
-                tool = toolName,
-                rationale = arguments.requiredString("rationale"),
-                terms = arguments.optionalArray("terms").map { it.jsonPrimitive.content },
-                direction = arguments.optionalString("direction")?.let { enumValue<TutorEvidenceDirection>(it) },
-                understanding = arguments.optionalString("understanding")?.let { enumValue<TutorUnderstandingTier>(it) },
-                difficultyTier = arguments.optionalString("difficultyTier")?.let { enumValue<TutorDifficultyTier>(it) },
-                confidence = arguments.optionalDouble("confidence") ?: 0.8,
-                // 写工具的本次调用锚在哪道题：与 json_object 信封路由同一组扁平字段
-                // （problemId / problemRevisionId / anchorTerms），两条路由因此都能表达它。
-                boundQuestion = arguments.toCallBoundQuestion(),
-                // D-M M7：咨询工具的 scope/kind/payload 与 Route B 同名同义——
-                // 两条路由共用同一份 TutorToolCall 契约校验。
-                advisoryScope = arguments.optionalString("advisoryScope")
-                    ?.let { enumValue<com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope>(it) },
-                advisoryKind = arguments.optionalString("advisoryKind")
-                    ?.let { enumValue<com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind>(it) },
-                payloadMarkdown = arguments.optionalString("payloadMarkdown"),
-                // 4B A1：生图工具与 Route B 信封**同名同义**（wire 键 `kind`/`description`，
-                // 与 strictFunctionSchema 的声明逐字一致——KD-30：两路由漂开只在某种 provider 上现形）。
-                figureKind = arguments.optionalString("kind")?.let { enumValue<TutorFigureKind>(it) },
-                figureDescription = arguments.optionalString("description"),
-            )
+            // 4E WG-04b：与 json_object 信封路由**共用同一个解析点**（白名单、枚举、
+            // 生图 method/program/imageOperation/imagePrompt 都只有这一处口径）。
+            // 原生路由此前不看未知键——模型多写一个键会被静默忽略；现在与 Route B 同拒。
+            arguments.toTutorToolCall(tool = toolName)
         }
         val intentDecision = responseContent
             ?.let { runCatching { parseObject(it.unwrapJsonFence()) }.getOrNull() }

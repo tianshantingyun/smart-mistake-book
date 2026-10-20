@@ -8,9 +8,11 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
+import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
+import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorChoice
 import kotlinx.coroutines.CoroutineScope
@@ -102,18 +104,34 @@ class AnswerKeyCorrectionInstrumentedTest {
                 repository.readPersistedKnowledgeQuizItem(SESSION_ID, NODE)?.correctChoiceId,
             )
 
-            // 后续已有新作答：同一题面（本夹具固定 item id，模拟“恢复同一题面”）按**更正后的键**
-            // （B）作答可以正常计分；生产上新生成的题面会得到新的 item id，不继承旧题面的键更正。
-            // 题面快照本身不改写，新键来自账本里的更正事件。
-            val followUp = fixture.submitAnswer(
+            // 跨会话：题面按会话重新生成，旧会话的键改正**不继承**。SESSION_ID+1 的
+            // 夹具题面虽与上一场逐字相同，也按自己的快照键（A）判分——不能让上一场的
+            // 键给新题面判分（新题若不含该选项会直接抛异常；含则可能判反）。
+            assertEquals(
+                "新会话必须使用自己的快照键，不继承旧会话的改正",
+                "A",
+                repository.readPersistedKnowledgeQuizItem(SESSION_ID + 1, NODE)?.correctChoiceId,
+            )
+
+            // 迟到旧键：在新会话按上一场的键（B）作答必须被拒，不能凭旧改正计分。
+            val stale = fixture.submitAnswer(
                 correctChoiceId = "B",
                 selectedChoiceId = "B",
                 sessionId = SESSION_ID + 1,
             )
-            assertTrue("更正后的键可继续按现有规则计分", followUp.evidenceRecorded)
+            assertFalse("跨会话的旧键作答不得计分", stale.evidenceRecorded)
+            assertEquals(REJECT_ANSWER_KEY_VERSION_STALE, stale.rejectedReason)
+
+            // 新会话按自己的快照键（A）作答：正常计分，且不会复用上一场的 key-fix 身份。
+            val followUp = fixture.submitAnswer(
+                correctChoiceId = "A",
+                selectedChoiceId = "A",
+                sessionId = SESSION_ID + 1,
+            )
+            assertTrue("新会话按自己的键作答应正常计分", followUp.evidenceRecorded)
             repository.refresh()
             assertEquals(
-                "历史替代 0.15 + 后续作答 0.15",
+                "历史替代 0.15 + 新会话作答 0.15",
                 0.30,
                 fixture.mastery(NODE).successWeight,
                 1e-9,
@@ -498,6 +516,75 @@ class AnswerKeyCorrectionInstrumentedTest {
             assertTrue(
                 "未核验键的反馈不得伪造账本事实",
                 database.loadLearningLedger(LEARNER_ID).validPrefix.isEmpty(),
+            )
+        }
+    }
+
+    @Test
+    fun anUnverifiedKeyReplacedThroughTheUiRejudgesTheRejectedAnswerAndReplays() = runBlocking {
+        withFixture(markKeyVerified = false) { database, repository, fixture ->
+            // 题面存在但 verificationStatus = UNKNOWN（模型生成后的默认状态）。
+            fixture.persistItem(SESSION_ID, NODE)
+            val answer = fixture.submitAnswer(correctChoiceId = "A", selectedChoiceId = "B")
+            assertFalse("UNKNOWN 键不得新增数值证据", answer.evidenceRecorded)
+            assertEquals("ANSWER_KEY_UNVERIFIED", answer.rejectedReason)
+            val observation = database.readChatEvidenceByLearner(LEARNER_ID)
+                .single { it.source_kind == "KNOWLEDGE_QUIZ" }
+            assertTrue(observation.isRejected)
+
+            // UI“改正答案键”的 REPLACE：itemId + 新键 + 这次真实作答 + 题面级键版本 CAS。
+            val command = AnswerKeyCorrectionCommand(
+                requestId = "fix-unverified-key",
+                knowledgeNodeId = NODE,
+                conversationId = fixture.conversationId,
+                itemId = ITEM_ID,
+                selectedChoiceId = "B",
+                newCorrectChoiceId = "B",
+                expectedKeyVersion = 0,
+                reasonMarkdown = "答案键应为 B",
+                occurredAtEpochMillis = T0 + 10_000,
+            )
+            val receipt = fixture.correctionWriter().submit(command)
+            assertEquals(AnswerKeyCorrectionStatus.RECORDED, receipt.status)
+            val keyFixId = knowledgeQuizKeyFixEvidenceId(
+                rejectedAnswerEvidenceId = observation.evidence_id,
+                knowledgeNodeId = NODE,
+                newCorrectChoiceId = "B",
+            )
+            assertEquals(keyFixId, receipt.correctionId)
+
+            val ledger = database.loadLearningLedger(LEARNER_ID)
+            assertEquals("重判后的作答进账本（不是伪造的 KEY_CORRECTION）", 1, ledger.validPrefix.size)
+            val event = ledger.validPrefix.single().event as ChatEvidenceSubmitted
+            assertEquals(keyFixId, event.evidenceId)
+            assertEquals(LearningEvidenceDirection.POSITIVE, event.direction)
+
+            // 观察行保留；新证据是另一条身份。
+            val rows = database.readChatEvidenceByLearner(LEARNER_ID)
+            assertTrue(
+                "原被拒观察行一字不改",
+                rows.single { it.evidence_id == observation.evidence_id }.isRejected,
+            )
+            assertNull(rows.single { it.evidence_id == keyFixId }.rejected_reason)
+
+            repository.refresh()
+            assertTrue(
+                "改正后的作答按新键计入掌握度",
+                fixture.mastery(NODE).successWeight > 0.0,
+            )
+
+            // 同一身份重试（调用方已按新键判题）：不得再补一笔。
+            val resubmit = fixture.submitAnswer(correctChoiceId = "B", selectedChoiceId = "B")
+            assertTrue(resubmit.evidenceRecorded)
+            assertEquals(
+                "重试不推进账本",
+                1,
+                database.loadLearningLedger(LEARNER_ID).validPrefix.size,
+            )
+            assertEquals(
+                "库里仍是观察行 + 新身份那一条",
+                2,
+                database.readChatEvidenceByLearner(LEARNER_ID).size,
             )
         }
     }

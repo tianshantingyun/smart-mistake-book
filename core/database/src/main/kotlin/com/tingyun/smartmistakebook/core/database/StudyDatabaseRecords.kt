@@ -664,6 +664,49 @@ data class ReviewSessionAdvanceResult(
     val receipt: ReviewSessionAdvanceReceipt,
 )
 
+/**
+ * PRD-05：撤销一次复习 attempt 的会话回退命令。
+ *
+ * 目标 attempt 必须正是把会话推进到 [expectedStateVersion] 的那一次（由
+ * `review_session_advance_receipt` 证明）；回退只减一格 `current_ordinal`，不删除任何
+ * revision/attempt/receipt 历史。
+ */
+data class ReviewSessionRewindCommand(
+    val sessionId: String,
+    val expectedStateVersion: Long,
+    val attemptId: String,
+    val practiceUnitId: String,
+    val undoneAtEpochMillis: Long,
+)
+
+data class ReviewSessionRewindResult(
+    val created: Boolean,
+    val session: ReviewSessionRecord,
+)
+
+/**
+ * PRD-05：attempt 级撤销的数据库命令。`correction` 必须是
+ * `AttemptCorrection.VOID_REASON_PREFIX` 标记的 VOID 载荷；更正、会话回退与 review_log
+ * 的有效样本标记在**同一写事务**里完成。
+ */
+data class ReviewAttemptUndoCommand(
+    val learnerId: String,
+    val sessionId: String,
+    val expectedStateVersion: Long,
+    val practiceUnitId: String,
+    val attemptId: String,
+    val undoneAtEpochMillis: Long,
+    val correction: AttemptCorrectionRecord,
+)
+
+data class ReviewAttemptUndoResult(
+    val created: Boolean,
+    val correction: AttemptCorrection,
+    val canonicalFingerprint: String,
+    val outboxId: String,
+    val session: ReviewSessionRecord,
+)
+
 data class StudySeedBundle(
     val problems: List<ProblemSeedRecord>,
     val revisions: List<ProblemRevisionSeedRecord>,
@@ -1316,6 +1359,11 @@ data class ReviewLogSampleRecord(
     val deltaTDays: Double? = null,
     /** W2-4/KF-23：FSRS 状态（0..3）；null=迁移前的旧行口径不明，重放走 elapsed 启发式。 */
     val state: Int? = null,
+    /**
+     * PRD-05：该行是否仍是**有效证据**。撤销 attempt 时只把它置 false（行保留供审计），
+     * 消费侧（日程/统计/训练样本）必须按同一口径排除。
+     */
+    val schedulingEligible: Boolean = true,
 )
 
 /** W2-4/KF-23：该卡最近一次复习行的两个事实（review_log.state 的派生依据）。 */

@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 
@@ -50,6 +51,9 @@ fun tutorLocalActionAdmission(
     context: TutorLocalActionContext,
     permissionContext: TutorRoundPermissionContext = TutorRoundPermissionContext(),
 ): TutorLocalActionAdmission? {
+    // ⓪ 已实现处理器：没有执行路由的动作不进广告面，也不准入。模型伪造一条未广告的
+    // 请求（或旧版本遗留的拼写）时，本地在这里拒绝——不挂一张"点了也不能做"的新卡。
+    if (request.action !in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS) return null
     // ① 形状：参数键必须在声明里；必填项必须在。
     val declared = request.action.parameters
     val declaredNames = declared.map { parameter -> parameter.parameterName }.toSet()
@@ -87,6 +91,8 @@ fun tutorLocalActionAdmission(
      */
     actionParameters: Map<String, String> = emptyMap(),
 ): TutorLocalActionAdmission? {
+    // ⓪ 已实现处理器（两种拼写同一道门）：不在能力快照里的对象连档位都不适用。
+    if (!subject.isImplemented()) return null
     // 档位与本轮放行（四个动作恒 ask；没放行连卡都不出现）。
     val decision = tutorPermissionDecision(subject, permissionContext)
     if (!decision.requiresConsentCard) return null
@@ -156,11 +162,19 @@ private val SAVE_KINDS = setOf(
  */
 fun allowedLocalActions(requests: List<TutorLocalActionRequest>): Set<TutorLocalAction> =
     requests.filter { request ->
-        val declaredNames = request.action.parameters
-            .map { parameter -> parameter.parameterName }
-            .toSet()
-        request.parameters.keys.all { key -> key in declaredNames }
+        // 未接线的动作不因"形状合法"就被放行：放行集合本身也读同一份已实现集合。
+        request.action in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS &&
+            request.parameters.keys.all { key ->
+                key in request.action.parameters.map { parameter -> parameter.parameterName }
+            }
     }.map { request -> request.action }.toSet()
+
+/** 对象是否有真实执行处理器（工具：执行分支；动作：非 NOT_WIRED_YET 的路由）。 */
+private fun TutorPermissionSubject.isImplemented(): Boolean = when (this) {
+    is TutorPermissionSubject.Tool -> tool in TutorCapabilitySnapshot.IMPLEMENTED_TOOLS
+    is TutorPermissionSubject.LocalAction ->
+        action in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
+}
 
 /**
  * 这一轮的工具痕迹里"在等学生确认"的调用 → 对应的待确认 kind。

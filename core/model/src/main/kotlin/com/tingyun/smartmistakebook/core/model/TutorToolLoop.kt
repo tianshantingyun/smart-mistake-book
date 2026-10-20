@@ -45,6 +45,23 @@ enum class TutorFigureKind {
 }
 
 /**
+ * kind 只映射**用途**，不映射方法（4E.1 契约 §3）：入口不得用 kind 固定后端。
+ */
+fun TutorFigureKind.figureGenerationPurpose(): FigureGenerationPurpose = when (this) {
+    TutorFigureKind.REDRAW_PROBLEM -> FigureGenerationPurpose.SOURCE_RECONSTRUCTION
+    TutorFigureKind.GENERATE_PROCESS -> FigureGenerationPurpose.EXPLANATION
+}
+
+/**
+ * kind 的**默认**图像操作（仅在模型没有显式声明 imageOperation 时使用）：
+ * 重绘题面默认 EDIT（有源图），生成过程图默认 GENERATE（无源图）。它不是方法/用途映射。
+ */
+fun TutorFigureKind.defaultImageOperation(): FigureImageOperation = when (this) {
+    TutorFigureKind.REDRAW_PROBLEM -> FigureImageOperation.EDIT
+    TutorFigureKind.GENERATE_PROCESS -> FigureImageOperation.GENERATE
+}
+
+/**
  * ADVISORY_* 的作用域（D-M M7）：咨询行挂在哪个目标上。
  *
  * - [NODE]：`terms[0]` 是**本会话已披露的知识点代号**（D5：绝不用原始 id）——写侧解析该
@@ -180,6 +197,25 @@ data class TutorToolCall(
      * 与本地固定的说明拼成，模型无法经它传图片、URL 或生成参数。
      */
     val figureDescription: String? = null,
+    /**
+     * 4E WG-04b：模型选择的生图**方法**（wire 键 `method`）。本波次只有
+     * [FigureGenerationMethod.IMAGE_MODEL] 真实接通；JS 运行库未过门，出现即拒。
+     * 省略 = 旧调用（只有 kind/description），适配层按真实可用方法构造显式 proposal。
+     */
+    val figureMethod: FigureGenerationMethod? = null,
+    /**
+     * JS 方法的完整源码（wire 键 `program`）。JS 未接通时该载荷**一律拒绝**：既不执行，
+     * 也不把它当普通文本收下。形状先保留，供 WG-04 后续波次复用同一 [TutorToolCall]。
+     */
+    val figureProgram: String? = null,
+    /** IMAGE_MODEL 内部的图像操作（wire 键 `imageOperation`）：EDIT/GENERATE。 */
+    val figureImageOperation: FigureImageOperation? = null,
+    /**
+     * 具体生图提示词（wire 键 `imagePrompt`，UTF-8 ≤
+     * [FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES]）。它只进图像 API，不替代
+     * 宿主冻结的 purpose/target/constraints。
+     */
+    val figureImagePrompt: String? = null,
 ) {
     init {
         require(rationale.isNotBlank() && rationale.length <= MAX_TOOL_RATIONALE_CHARS) {
@@ -304,11 +340,69 @@ data class TutorToolCall(
             require(figureDescription.none(Char::isISOControl)) {
                 "A GENERATE_FIGURE description must not carry control characters"
             }
+            // 4E WG-04b：JS 运行库未过门 → program 一律拒绝（不是"先收下再忽略"）。
+            require(figureProgram == null) {
+                "The JS program carrier is unavailable in this build; do not send program"
+            }
+            require(figureMethod == null || figureMethod == FigureGenerationMethod.IMAGE_MODEL) {
+                "Only IMAGE_MODEL is available for GENERATE_FIGURE in this build"
+            }
+            val operation = figureImageOperation
+            val imagePrompt = figureImagePrompt
+            // 新载荷必须成对：只有操作没有提示词，或只有提示词没有操作，都是不完整的选择。
+            require((operation == null) == (imagePrompt == null)) {
+                "An imageOperation must be paired with an imagePrompt"
+            }
+            if (figureMethod != null) {
+                require(operation != null && imagePrompt != null) {
+                    "IMAGE_MODEL must state both imageOperation and imagePrompt"
+                }
+            }
+            imagePrompt?.let { prompt ->
+                require(prompt.isNotBlank()) { "An imagePrompt must not be blank" }
+                require(prompt.none { char -> char.isISOControl() && char != '\n' }) {
+                    "An imagePrompt must not carry control characters"
+                }
+                require(
+                    figureUsageUtf8Bytes(prompt) <= FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES,
+                ) {
+                    "An imagePrompt must be at most " +
+                        "${FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES} UTF-8 bytes"
+                }
+            }
         } else {
-            require(figureKind == null && figureDescription == null) {
-                "Only GENERATE_FIGURE carries a figure kind or description"
+            require(
+                figureKind == null &&
+                    figureDescription == null &&
+                    figureMethod == null &&
+                    figureProgram == null &&
+                    figureImageOperation == null &&
+                    figureImagePrompt == null,
+            ) {
+                "Only GENERATE_FIGURE carries figure fields"
             }
         }
+    }
+
+    /**
+     * 这次调用对应的统一 proposal（4E WG-04b）。
+     *
+     * 旧调用（只有 kind/description）也会得到一个**显式** `method=IMAGE_MODEL` 的 proposal：
+     * 本机唯一真实接通的方法，且由宿主适配层补上，不让下游再猜一次。JS 永远不会出现在这里
+     * （构造器已拒）；返回 null 仅当不是生图工具。
+     */
+    fun toFigureGenerationProposal(): FigureGenerationProposal? {
+        if (tool != TutorToolName.GENERATE_FIGURE) return null
+        val kind = figureKind ?: return null
+        return FigureGenerationProposal(
+            policyVersion = FigureGenerationPolicyVersion.VALUE,
+            decision = FigureGenerationDecision.GENERATE,
+            purpose = kind.figureGenerationPurpose(),
+            method = figureMethod ?: FigureGenerationMethod.IMAGE_MODEL,
+            reason = rationale,
+            imageOperation = figureImageOperation ?: kind.defaultImageOperation(),
+            imagePrompt = figureImagePrompt ?: figureDescription,
+        )
     }
 
     companion object {

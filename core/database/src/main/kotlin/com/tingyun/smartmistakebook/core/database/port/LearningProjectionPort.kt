@@ -100,6 +100,15 @@ interface AttemptWritePort {
     suspend fun appendAttemptCorrection(correction: AttemptCorrectionRecord): AttemptCorrectionResult
 
     /**
+     * PRD-05：原子撤销（VOID 更正 + 会话回退 + review_log 有效样本标记）。
+     * 默认抛错：旧替身必须显式实现，不能静默把撤销当作 no-op。
+     */
+    suspend fun undoReviewAttempt(
+        command: com.tingyun.smartmistakebook.core.database.ReviewAttemptUndoCommand,
+    ): com.tingyun.smartmistakebook.core.database.ReviewAttemptUndoResult =
+        throw UnsupportedOperationException("Review undo is not implemented by this database port")
+
+    /**
      * Raw collected review evidence (spec mastery-scheduling 3.1). Insert is
      * idempotent per (learner, source id); collection is decoupled from
      * scheduling and never blocks the ledger path on failure.

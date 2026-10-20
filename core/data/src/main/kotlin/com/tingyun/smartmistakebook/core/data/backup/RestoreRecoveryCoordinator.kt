@@ -364,6 +364,13 @@ internal object RestoreGenerationSupport {
         context.filesDir.listFiles { file -> file.name.startsWith("restore-rollback-") }
             .orEmpty()
             .forEach { dir -> dir.deleteRecursively() }
+        // KD-62②：成包/校验中途被杀留下的临时快照也要在启动时清掉，否则会长期占磁盘：
+        // - `cache/backup-snapshots/`（成包用的 VACUUM INTO 快照目录）；
+        // - `databases/backup-snapshot-*.db`（为了只读打开快照而复制出来的临时库 + sidecar）。
+        cleanupOrphanBackupArtifacts(
+            databaseDir = databaseDir(context),
+            cacheDir = context.cacheDir,
+        )
         // Drop quarantines older than 30 days.
         val cutoff = System.currentTimeMillis() - QUARANTINE_RETENTION_MILLIS
         File(context.noBackupFilesDir, "restore-quarantine")
@@ -378,6 +385,34 @@ internal object RestoreGenerationSupport {
         ).parentFile ?: context.filesDir
 
     private const val QUARANTINE_RETENTION_MILLIS = 30L * 24L * 60L * 60L * 1000L
+}
+
+/**
+ * KD-62②：清理成包/校验中途被杀留下的临时快照（启动时调用，纯文件操作，便于单测）。
+ *
+ * - `cacheDir/backup-snapshots/`：成包用的一致性快照目录（`snapshot-*.db`）；
+ * - `databaseDir/backup-snapshot-*.db`：为了只读打开快照复制出来的临时库，连同
+ *   `-wal`/`-shm` 一起删。
+ *
+ * 进程启动时不可能有备份仍在进行，所以这里的残留按定义都是孤儿；只删这两种已知形状，
+ * 不碰正式库或 `restore-*`（后者由调用方按既有规则处理）。
+ */
+internal fun cleanupOrphanBackupArtifacts(
+    databaseDir: File?,
+    cacheDir: File?,
+) {
+    cacheDir?.listFiles { file -> file.name == "backup-snapshots" }
+        .orEmpty()
+        .forEach { dir -> dir.deleteRecursively() }
+    databaseDir?.listFiles { file ->
+        file.isFile && file.name.startsWith("backup-snapshot-")
+    }.orEmpty().forEach { file ->
+        listOf(
+            file,
+            File("${file.absolutePath}-wal"),
+            File("${file.absolutePath}-shm"),
+        ).forEach(File::delete)
+    }
 }
 
 /** fsync a directory so that renames/deletes inside it are durable. */

@@ -265,6 +265,148 @@ sealed interface StudyReviewAdvanceResult {
     val nextPracticeUnitId: String?
 }
 
+/**
+ * 三键自评（PRD-05 / 裁定 32、36）：对=Good、卡顿=Hard、错=Again，**没有 Easy**。
+ *
+ * 语义钉死（Anki 官方对 Hard 误用的警告）：
+ * - [GOOD]/[HARD] 都必须是"回忆成功"（HARD = 费力但想起来了）；
+ * - 没想起来/答错必须是 [AGAIN]，不允许用 Hard 吸收失败。
+ */
+enum class ReviewSelfReportKey {
+    GOOD,
+    HARD,
+    AGAIN,
+}
+
+/**
+ * 新自评提交形状（不复用 `selectedChoiceId` 当自评档）。
+ *
+ * 幂等：同一 [requestId] 在数据库里派生同一个 submission/attempt，双击、旋转、提交中断后
+ * 重试都只会生效一次。[sessionId]+[expectedStateVersion] 让会话版本由界面自己持有并在
+ * undo→重评后前进（不再依赖外部捕获的旧版本）。
+ */
+data class StudySelfReportedReviewSubmission(
+    val requestId: String,
+    val sessionId: String,
+    val expectedStateVersion: Long,
+    val presentationId: String,
+    val practiceUnitId: String,
+    val key: ReviewSelfReportKey,
+    val responseOrdinal: Int,
+    val durationSeconds: Int,
+    val occurredAtEpochMillis: Long,
+    /**
+     * 机器可判题的可选客观选择：**只用于本机反馈**，不改变本 attempt 的
+     * SELF_REPORTED 证据口径（PRD-05 明确不写成 LOCAL_CHECKED）。
+     */
+    val selectedChoiceId: String? = null,
+    /** 提交前已展示的提示次数；写进 attempt 审计与定价上下文。 */
+    val hintCount: Int = 0,
+    /** Silent interaction signals (spec §2.14)，与选择提交同口径采集。 */
+    val scrollUpCount: Int = 0,
+    val interruptionCount: Int = 0,
+    val awayMillis: Long = 0,
+) {
+    init {
+        require(requestId.isNotBlank()) { "Self-report request id must not be blank" }
+        require(sessionId.isNotBlank()) { "Self-report session id must not be blank" }
+        require(expectedStateVersion >= 0) { "Expected review-session version must not be negative" }
+        require(presentationId.isNotBlank()) { "Self-report presentation id must not be blank" }
+        require(practiceUnitId.isNotBlank()) { "Self-report practice unit id must not be blank" }
+        require(responseOrdinal > 0) { "Self-report response ordinal must be positive" }
+        require(durationSeconds >= 0) { "Self-report duration must not be negative" }
+        require(occurredAtEpochMillis >= 0) { "Self-report time must not be negative" }
+        require(selectedChoiceId == null || selectedChoiceId.isNotBlank()) {
+            "Self-report selected choice id must not be blank when provided"
+        }
+        require(hintCount >= 0 && scrollUpCount >= 0 && interruptionCount >= 0) {
+            "Self-report counts must not be negative"
+        }
+        require(awayMillis >= 0) { "Self-report away time must not be negative" }
+    }
+}
+
+/** 三键自评 attempt 的持久化结果；[objectiveChoiceCorrect] 仅在本机核对可用时非空。 */
+data class StudySelfReportedReviewResult(
+    val attemptId: String,
+    val created: Boolean,
+    val evidenceReason: LearningEvidenceReason,
+    val objectiveChoiceCorrect: Boolean?,
+    override val progress: StudyReviewSessionProgress,
+    /** Null exactly when [progress] completed the persisted review session. */
+    override val nextPracticeUnitId: String?,
+) : StudyReviewAdvanceResult {
+    init {
+        require(
+            (progress.status == StudyReviewSessionStatus.COMPLETED) ==
+                (nextPracticeUnitId == null),
+        ) { "A completed review session must not expose a next practice unit" }
+        require(nextPracticeUnitId == null || nextPracticeUnitId.isNotBlank()) {
+            "Next review practice-unit id must not be blank"
+        }
+    }
+}
+
+/**
+ * attempt 级撤销（PRD-05 / 设计 §3.3）：追加一条 VOID 更正、把会话指针回退一格、并返回
+ * 持久回执。[requestId] 是幂等键（确定性 correction id）；同一请求重放不会再回退。
+ *
+ * 撤销**不删除**原 attempt、不删除曝光/揭示事实；它只把该 attempt 从有效证据集合排除。
+ */
+data class StudyReviewUndoRequest(
+    val requestId: String,
+    val sessionId: String,
+    val expectedStateVersion: Long,
+    val presentationId: String,
+    val practiceUnitId: String,
+    val attemptId: String,
+    val occurredAtEpochMillis: Long,
+) {
+    init {
+        require(requestId.isNotBlank()) { "Undo request id must not be blank" }
+        require(sessionId.isNotBlank()) { "Undo session id must not be blank" }
+        require(expectedStateVersion >= 0) { "Expected review-session version must not be negative" }
+        require(presentationId.isNotBlank()) { "Undo presentation id must not be blank" }
+        require(practiceUnitId.isNotBlank()) { "Undo practice unit id must not be blank" }
+        require(attemptId.isNotBlank()) { "Undo attempt id must not be blank" }
+        require(occurredAtEpochMillis >= 0) { "Undo time must not be negative" }
+    }
+}
+
+/** 撤销的持久回执：correction 行 + outbox 行即回执，不另建计数表。 */
+data class StudyReviewUndoResult(
+    val correctionId: String,
+    val created: Boolean,
+    override val progress: StudyReviewSessionProgress,
+    /** 回退后应重新作答的题（同一题）；[progress] 完成时才有 null。 */
+    override val nextPracticeUnitId: String?,
+) : StudyReviewAdvanceResult {
+    init {
+        require(correctionId.isNotBlank()) { "Undo correction id must not be blank" }
+        require(
+            (progress.status == StudyReviewSessionStatus.COMPLETED) ==
+                (nextPracticeUnitId == null),
+        ) { "A completed review session must not expose a next practice unit" }
+        require(nextPracticeUnitId == null || nextPracticeUnitId.isNotBlank()) {
+            "Next review practice-unit id must not be blank"
+        }
+    }
+}
+
+/**
+ * 这道已保存题在本机可信存储里的答案/解析（PRD-05 无模型路径）。
+ *
+ * [isTrusted] = 存在经过验证、可解析的答案规格。false 时调用方必须如实说"没有可信的已存
+ * 答案"，允许自评/跳过/请求讲题，**不得伪称自动判对**。
+ */
+data class ReviewStoredAnswer(
+    val answerMarkdown: String?,
+    val explanationMarkdown: String?,
+) {
+    val isTrusted: Boolean
+        get() = !answerMarkdown.isNullOrBlank()
+}
+
 data class StudyAnswerRevealRequest(
     val requestId: String,
     val presentationId: String,
@@ -309,6 +451,38 @@ interface StudyExperienceRepository : AutoCloseable {
         expectedStateVersion: Long,
         submission: StudyChoiceSubmission,
     ): StudyReviewChoiceSubmissionResult
+
+    /**
+     * PRD-05：三键自评复习作答。写入 `SELF_REPORTED_RECALL` / `SELF_REPORTED_STUCK`（不是
+     * LOCAL_CHECKED / MODEL_JUDGED），并在**同一事务**里推进持久复习队列。
+     *
+     * 幂等：[StudySelfReportedReviewSubmission.requestId] 决定 submission/attempt 身份；
+     * 重复/中断重试只生效一次。
+     *
+     * 默认实现抛错：这是新边界，旧替身/旧构建必须显式实现，不能静默把自评吞掉。
+     */
+    suspend fun submitReviewSelfReport(
+        submission: StudySelfReportedReviewSubmission,
+    ): StudySelfReportedReviewResult =
+        throw UnsupportedOperationException("Self-reported review is not implemented by this repository")
+
+    /**
+     * PRD-05：撤销最近一次复习 attempt。原子地追加 VOID 更正 + 回退会话指针 + 留下持久回执；
+     * 原 attempt/曝光事实保留，记忆卡与掌握度完全排除该 attempt。
+     *
+     * 幂等：同一 [StudyReviewUndoRequest.requestId] 只回退一次。
+     * 默认实现抛错（旧替身必须显式实现）。
+     */
+    suspend fun undoReviewSelfReport(
+        request: StudyReviewUndoRequest,
+    ): StudyReviewUndoResult =
+        throw UnsupportedOperationException("Review undo is not implemented by this repository")
+
+    /**
+     * PRD-05 无模型路径：这道已保存题在本机可信存储里的答案/解析。null = 题不存在；
+     * 返回对象 `isTrusted=false` = 没有可信答案键（调用方必须如实说明）。
+     */
+    suspend fun storedReviewAnswer(practiceUnitId: String): ReviewStoredAnswer? = null
 
     /**
      * 讲题判定的结算：这道无工件题在讲题会话里被检查过之后，把判定落成复习 attempt 并推进队列。

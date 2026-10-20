@@ -93,6 +93,11 @@ fun MistakeDetailRoute(
     onTutor: (MistakeRevisionKey) -> Unit,
     onOpenRelatedMistake: (String) -> Unit,
     onOpenModelSettings: () -> Unit,
+    /**
+     * 6B-2 原生编辑入口：当前版本进入卷面编辑（只改导出文档副本，不改这一版题面）。
+     * 历史版本只读，不显示该入口。null = 装配处未接线，页面不摆一个点了没反应的按钮。
+     */
+    onEditPaper: ((MistakeRevisionKey) -> Unit)? = null,
     /** 知识能力就绪位（D-Q3）：未就绪时智能整理如实说"准备中"，不发起、也不误报模型未配置。 */
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
@@ -172,6 +177,7 @@ fun MistakeDetailRoute(
         onOpenRelatedMistake = onOpenRelatedMistake,
         onOpenModelSettings = onOpenModelSettings,
         onEditRequested = { editing = true },
+        onEditPaper = onEditPaper,
         revisionNotice = savedRevisionNotice,
         modifier = modifier,
         knowledgeBaseAvailability = knowledgeBaseAvailability,
@@ -195,6 +201,7 @@ internal fun MistakeDetailContent(
     onOpenRelatedMistake: (String) -> Unit = {},
     onOpenModelSettings: () -> Unit = {},
     onEditRequested: (() -> Unit)? = null,
+    onEditPaper: ((MistakeRevisionKey) -> Unit)? = null,
     revisionNotice: String? = null,
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
@@ -251,6 +258,9 @@ internal fun MistakeDetailContent(
                 onOpenRelatedMistake = onOpenRelatedMistake,
                 onOpenModelSettings = onOpenModelSettings,
                 onEdit = onEditRequested,
+                onEditPaper = onEditPaper?.let { callback ->
+                    { callback(checkNotNull(state.exportRevisionKeyOrNull())) }
+                },
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
             )
             is MistakeDetailState.Legacy -> LegacyDetail(state.detail)
@@ -364,6 +374,7 @@ private fun ReadyDetail(
     onOpenRelatedMistake: (String) -> Unit,
     onOpenModelSettings: () -> Unit,
     onEdit: (() -> Unit)?,
+    onEditPaper: (() -> Unit)?,
     knowledgeBaseAvailability: KnowledgeBaseAvailability,
 ) {
     Column(
@@ -437,6 +448,15 @@ private fun ReadyDetail(
             modifier = Modifier.testTag("mistake_detail_export_a4"),
             icon = Icons.Outlined.PictureAsPdf,
         )
+        // 6B-2：当前版本可进入卷面编辑（只改导出文档副本）；历史版本只读，不提供入口。
+        if (!isViewingHistoricalRevision && onEditPaper != null) {
+            Spacer(Modifier.height(8.dp))
+            OutlineActionChip(
+                text = "编辑卷面",
+                onClick = onEditPaper,
+                modifier = Modifier.testTag("mistake_detail_edit_paper"),
+            )
+        }
         SourceSection(
             source = state.detail.source,
             revisionId = state.detail.identity.problemRevisionId,

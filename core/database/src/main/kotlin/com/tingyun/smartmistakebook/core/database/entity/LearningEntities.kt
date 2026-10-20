@@ -1030,8 +1030,9 @@ internal data class ReviewLogEntity(
     /**
      * 落库值的口径（W1-4 起与写入方同源，见 `ReviewLogSink.SOURCE_KIND_*` 与
      * `ReviewSample.*_KIND`）：ATTEMPT（真实作答）/ LOCAL_CHECKED（讲题本地核对，进拟合）/
-     * MODEL_JUDGED（讲题模型判词，拟合排除）/ REVEAL（看答案，拟合排除）。
-     * SELF_REPORT / VISUAL 是保留字面量，暂无生产写入方；列本身无 CHECK 约束。
+     * MODEL_JUDGED（讲题模型判词，拟合排除）/ REVEAL（看答案，拟合排除）/
+     * SELF_REPORT（PRD-05 三键自评，作答类证据，参与拟合）。
+     * VISUAL 是保留字面量，暂无生产写入方；列本身无 CHECK 约束。
      */
     @ColumnInfo(name = "source_kind")
     val sourceKind: String,
@@ -1040,7 +1041,10 @@ internal data class ReviewLogEntity(
     val sourceId: String,
     @ColumnInfo(name = "evidence_weight")
     val evidenceWeight: Double,
-    /** False for observation-only rows (cooldown-suppressed, spec 2.7). */
+    /**
+     * 该行是否仍是**有效证据**。False 用于观察行（冷却压制，spec 2.7）与 PRD-05 被撤销的
+     * attempt（置 0，行保留供审计）；日程/统计/拟合样本/前条判定必须共用这一口径。
+     */
     @ColumnInfo(name = "scheduling_eligible", defaultValue = "1")
     val schedulingEligible: Boolean = true,
     /** MORNING/NOON/AFTERNOON/EVENING/NIGHT at review time (spec 2.12). */

@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.data.model
 
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorToolName
@@ -14,6 +15,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -23,12 +25,13 @@ import org.junit.Test
  *
  * 判别格是**集合与形状的逐项对拍**，而不是"两处都提到了动作"：
  *
- * - Route A（原生 function schema，`OpenAiModelProtocol.localActionSchemas`）里出现的动作名、
+ * - Route A（原生 function schema，`OpenAiModelProtocol.localActionSchema`）里出现的动作名、
  *   每个动作的参数字段名与必填集合；
  * - Route B（提示词块，`OpenAiModelTaskAdapters.localActionPromptBlock`）里列出的动作名与
  *   参数（或"不接受任何参数"）；
- * - 两边都必须**恰好**等于 `core:model` 的 [TutorLocalAction] 声明——多一个、少一个、
- *   名称不同、参数不同，这条用例都红。
+ * - 两边都必须**恰好**等于 `core:model` 的能力快照里**已实现**的本地动作——多一个、少一个、
+ *   名称不同、参数不同，这条用例都红。`ADD_TO_REVIEW_PLAN` 还没有执行处理器，因此两套
+ *   广告里都不许出现它（旧行照旧由执行端如实说"还不能自动做"）。
  *
  * 为什么值得一条专门的用例：工具面的文案在这里漂过三次（`TutorToolDescriptions` 的注释记着
  * 那次事故），而本地动作**同时**出现在两套广告里——漂一次的代价是"Route A 允许模型传参、
@@ -47,7 +50,7 @@ class TutorLocalActionAdvertisementParityTest {
             name to AdvertisedShape(properties.keys, required.toSet(), properties)
         }
 
-        val declared = TutorLocalAction.entries.associate { action ->
+        val declared = TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.associate { action ->
             action.actionId to (
                 action.parameters.map { parameter -> parameter.parameterName }.toSet() to
                     action.parameters.filter { parameter -> parameter.required }
@@ -65,7 +68,7 @@ class TutorLocalActionAdvertisementParityTest {
 
         // 参数**取值**同源（4B B3）：声明里的 allowedValues 必须逐字进 Route A 的 enum
         // （约束解码下非法取值结构性地不可产生）；没有枚举的字段不许偷偷加 enum。
-        TutorLocalAction.entries.forEach { action ->
+        TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.forEach { action ->
             val properties = requireNotNull(advertised[action.actionId]).properties
             action.parameters.forEach { parameter ->
                 val property = properties.getValue(parameter.parameterName).jsonObject
@@ -113,7 +116,7 @@ class TutorLocalActionAdvertisementParityTest {
     fun routeBAdvertisesExactlyTheDeclaredActionsAndParameterShapes() {
         val prompt = localActionPrompt()
 
-        TutorLocalAction.entries.forEach { action ->
+        TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.forEach { action ->
             assertTrue(
                 "Route B 的提示词里没有 ${action.actionId}",
                 prompt.contains(action.actionId),
@@ -144,6 +147,28 @@ class TutorLocalActionAdvertisementParityTest {
         // 反向：广告里不得出现名单外的动作名（"ACTION_" 前缀不属于任何工具名，用它做探针）。
         val unknown = Regex("ACTION_[A-Z_]+").findAll(prompt).map { it.value }.toSet()
         assertEquals(emptySet<String>(), unknown)
+        // 尚未接线的动作**不在**广告里：模型看不到它，也就不可能"提了然后什么也没发生"。
+        assertFalse(
+            "Route B 不得广告还没接通的 ADD_TO_REVIEW_PLAN",
+            prompt.contains(TutorLocalAction.ADD_TO_REVIEW_PLAN.actionId),
+        )
+    }
+
+    @Test
+    fun routeANeverAdvertisesTheUnwiredReviewPlanActionAndMatchesTheSnapshot() {
+        val actionNames = localActionNativeSchemas().map { function ->
+            function.getValue("name").jsonPrimitive.content
+        }.toSet()
+
+        assertFalse(
+            "Route A 不得广告还没接通的 ADD_TO_REVIEW_PLAN",
+            TutorLocalAction.ADD_TO_REVIEW_PLAN.actionId in actionNames,
+        )
+        assertEquals(
+            "两套广告的动作集合必须都等于已实现处理器集合",
+            TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.map(TutorLocalAction::actionId).toSet(),
+            actionNames,
+        )
     }
 
     @Test
@@ -164,13 +189,36 @@ class TutorLocalActionAdvertisementParityTest {
                 projectionIsCurrent = true,
             ),
         )
-        val actionNames = TutorLocalAction.entries.map(TutorLocalAction::actionId).toSet()
+        val actionNames = TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
+            .map(TutorLocalAction::actionId)
+            .toSet()
 
         assertEquals(emptySet<String>(), planTools.map { it.first }.intersect(actionNames))
         assertEquals(
-            "大厅轮必须同时广告全部四个本地动作",
+            "大厅轮必须同时广告全部已实现本地动作",
             actionNames,
             actionNamesOfLobbyRound(),
+        )
+    }
+
+    @Test
+    fun bothRoutesAdvertiseOnlyTheToolsTheRoundDeclares() {
+        // 就绪位（图像后端/知识材料）由生成方折进本轮的声明集；两套广告都只读这一份集合，
+        // 因此"没就绪 = 没声明 = 不出现在任何一条路由里"。这里用 GENERATE_FIGURE 当探针。
+        val input = TutorLobbyInput(
+            conversationId = "conversation-1",
+            messageOrdinal = 1,
+            studentMessage = "帮我看看这道题",
+            toolDeclarations = listOf(TutorToolName.NOTEBOOK_READ),
+        )
+        val nativeNames = toolsOf(input).map { (name, _) -> name }.toSet()
+        val prompt = OpenAiModelTaskAdapters.prompt(input)
+
+        assertTrue(TutorToolName.NOTEBOOK_READ.name in nativeNames)
+        assertFalse(TutorToolName.GENERATE_FIGURE.name in nativeNames)
+        assertFalse(
+            "Route B 不得提到本轮未声明的 GENERATE_FIGURE",
+            prompt.contains(TutorToolName.GENERATE_FIGURE.name),
         )
     }
 

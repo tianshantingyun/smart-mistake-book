@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,13 +18,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer
+import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealRequest
+import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealResult
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
+import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
 import com.tingyun.smartmistakebook.core.ui.LocalModeLine
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
@@ -78,10 +89,90 @@ fun CapturedReviewSessionScreen(
     onRetrySettlement: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     questionState: com.tingyun.smartmistakebook.core.domain.MistakeDetailState? = null,
+    /**
+     * PRD-05：三键自评通道。提供时本题不再依赖模型判定——作答后按对/卡顿/错自评、
+     * 看已存答案、下一题；模型只作可选讲解路径。null = 未接线（保留旧行为）。
+     *
+     * I1 接线：`onSubmitSelfReport = { repository.submitReviewSelfReport(it) }`、
+     * `onUndoReview = { repository.undoReviewSelfReport(it) }`、
+     * `onContinue = continueReview`、`storedAnswer = repository.storedReviewAnswer(entry.practiceUnitId)`。
+     */
+    reviewSessionId: String? = null,
+    reviewStateVersion: Long? = null,
+    /**
+     * attempt 的呈现身份。默认并入题版本与会话身份：题版本变更或跨日新会话时，
+     * 旧的 attempt/回执不会串到新呈现上。I1 接线时可显式传入。
+     */
+    presentationId: String = capturedReviewPresentationId(entry, reviewSessionId),
+    storedAnswer: com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer? = null,
+    onSubmitSelfReport:
+        (suspend (com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewSubmission) ->
+            com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewResult)? = null,
+    onUndoReview:
+        (suspend (com.tingyun.smartmistakebook.core.domain.StudyReviewUndoRequest) ->
+            com.tingyun.smartmistakebook.core.domain.StudyReviewUndoResult)? = null,
+    /**
+     * 展示已存答案即真实曝光：必须落 reveal outcome，撤销后重评才不会被当成独立作答。
+     * null = 宿主未接线（不写曝光记录，自评仍可用）。
+     */
+    onRevealAnswer:
+        (suspend (StudyAnswerRevealRequest) -> StudyAnswerRevealResult)? = null,
+    onContinue: ((com.tingyun.smartmistakebook.core.domain.StudyReviewAdvanceResult) -> Unit)? = null,
+    onSessionRewound:
+        ((com.tingyun.smartmistakebook.core.domain.StudyReviewSessionProgress) -> Unit)? = null,
+    /** 无可信答案时的"跳过"出口；不写证据、不伪称判对。 */
+    onSkipQuestion: (() -> Unit)? = null,
 ) {
     val safeQueueSize = queueSize.coerceAtLeast(1)
     val safeQueuePosition = queuePosition.coerceIn(1, safeQueueSize)
     val problemScrollState = rememberScrollState()
+    val selfReportAvailable = selfReportChannelReady(
+        hasSubmit = onSubmitSelfReport != null,
+        hasUndo = onUndoReview != null,
+        sessionId = reviewSessionId,
+        stateVersion = reviewStateVersion,
+    )
+    val selfReportViewModel: ReviewSelfReportViewModel? = if (selfReportAvailable) {
+        viewModel(key = "captured-self-report:$presentationId")
+    } else {
+        null
+    }
+    val startedAtEpochMillis = remember(presentationId) { System.currentTimeMillis() }
+    if (selfReportViewModel != null) {
+        LaunchedEffect(selfReportViewModel.undoStatus, selfReportViewModel.latestProgress) {
+            if (selfReportViewModel.undoStatus == SelfReportUndoStatus.UNDONE) {
+                selfReportViewModel.latestProgress?.let { onSessionRewound?.invoke(it) }
+            }
+        }
+    }
+    // 自评记录后 UI 会展示已存答案/解析——只有可信答案才是真实曝光。没有这笔 outcome，
+    // 撤销后的重评会被当成"没看过答案"的独立作答。无可信答案时面板只是如实说明，
+    // 不能冒充看过答案（reveal 写入也会因无机判工件而失败）。
+    val hasTrustedStoredAnswer = storedAnswer?.isTrusted == true
+    var revealWriteFailed by remember(presentationId) { mutableStateOf(false) }
+    val revealWriter = onRevealAnswer
+    val selfReportState = selfReportViewModel
+    if (selfReportState != null && revealWriter != null) {
+        LaunchedEffect(
+            selfReportState.recorded?.attemptId,
+            presentationId,
+            hasTrustedStoredAnswer,
+        ) {
+            if (selfReportState.recorded == null || !hasTrustedStoredAnswer) {
+                return@LaunchedEffect
+            }
+            revealWriteFailed = runCatching {
+                revealWriter(
+                    StudyAnswerRevealRequest(
+                        requestId = "request:$presentationId:reveal:1",
+                        presentationId = presentationId,
+                        practiceUnitId = entry.practiceUnitId,
+                        occurredAtEpochMillis = System.currentTimeMillis(),
+                    ),
+                )
+            }.isFailure
+        }
+    }
     RootPageColumn(modifier = modifier.testTag("captured_review_session_root")) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
@@ -126,7 +217,139 @@ fun CapturedReviewSessionScreen(
             CapturedReviewQuestionContent(entry, questionState)
         }
         Spacer(Modifier.height(24.dp))
-        if (tutorJudgedAvailable) {
+        if (selfReportViewModel != null) {
+            // PRD-05 无模型闭环：三键自评 + 已存答案 + 下一题 + undo。
+            val recorded = selfReportViewModel.recorded
+            ReviewSelfReportKeys(
+                selected = selfReportViewModel.selectedKey,
+                enabled = recorded == null &&
+                    selfReportViewModel.status != SelfReportStatus.RECORDING,
+                pendingSubmit = selfReportViewModel.hasPendingSubmit,
+                onSelect = { key ->
+                    if (selfReportViewModel.status == SelfReportStatus.RECORDING) {
+                        return@ReviewSelfReportKeys
+                    }
+                    if (recorded != null) return@ReviewSelfReportKeys
+                    selfReportViewModel.acknowledgeUndo()
+                    selfReportViewModel.select(key)
+                    selfReportViewModel.requestSubmit(
+                        presentationId = presentationId,
+                        practiceUnitId = entry.practiceUnitId,
+                        fallbackSessionId = requireNotNull(reviewSessionId),
+                        fallbackStateVersion = requireNotNull(reviewStateVersion),
+                        selectedChoiceId = null,
+                        durationSeconds = ((System.currentTimeMillis() - startedAtEpochMillis)
+                            .coerceAtLeast(0L) / 1_000L).toInt(),
+                        occurredAtEpochMillis = System.currentTimeMillis(),
+                        submit = requireNotNull(onSubmitSelfReport),
+                    )
+                },
+            )
+            ReviewSelfReportStatusLine(
+                status = selfReportViewModel.status,
+                undoStatus = selfReportViewModel.undoStatus,
+                undoReceipt = selfReportViewModel.undoReceipt,
+            )
+            if (recorded != null) {
+                Spacer(Modifier.height(12.dp))
+                ReviewSelfReportReceipt(recorded = recorded)
+                Spacer(Modifier.height(10.dp))
+                ReviewStoredAnswerPanel(
+                    storedAnswer = storedAnswer ?: ReviewStoredAnswer(
+                        answerMarkdown = null,
+                        explanationMarkdown = null,
+                    ),
+                    visible = true,
+                )
+                if (revealWriteFailed) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = "已存答案的曝光记录没有写下来；撤销后重评可能被当成未看过答案。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SmartColors.ErrorWarm,
+                        modifier = Modifier.testTag("review_reveal_write_failed"),
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(
+                        onClick = {
+                            selfReportViewModel.requestUndo(
+                                presentationId = presentationId,
+                                practiceUnitId = entry.practiceUnitId,
+                                occurredAtEpochMillis = System.currentTimeMillis(),
+                                undo = requireNotNull(onUndoReview),
+                            )
+                        },
+                        enabled = selfReportViewModel.undoStatus !=
+                            SelfReportUndoStatus.RECORDING,
+                        modifier = Modifier.testTag("review_undo_answer"),
+                    ) {
+                        Text(
+                            if (selfReportViewModel.undoStatus == SelfReportUndoStatus.FAILED) {
+                                "重试撤销"
+                            } else {
+                                "撤销这次作答"
+                            },
+                        )
+                    }
+                    if (onContinue != null) {
+                        TextButton(
+                            onClick = {
+                                selfReportViewModel.recordedResultOrNull()?.let(onContinue)
+                            },
+                            modifier = Modifier.testTag("review_next_item"),
+                        ) {
+                            Text(
+                                if (recorded.progress().status ==
+                                    StudyReviewSessionStatus.COMPLETED
+                                ) {
+                                    "完成今日复习"
+                                } else {
+                                    "下一题"
+                                },
+                            )
+                        }
+                    }
+                }
+            } else {
+                Spacer(Modifier.height(10.dp))
+                ReviewStoredAnswerPanel(
+                    storedAnswer = storedAnswer,
+                    visible = false,
+                )
+                if (storedAnswerAvailability(storedAnswer) ==
+                    StoredAnswerAvailability.UNTRUSTED &&
+                    onSkipQuestion != null
+                ) {
+                    TextButton(
+                        onClick = onSkipQuestion,
+                        modifier = Modifier.testTag("review_skip_question"),
+                    ) {
+                        Text("先跳过这道题（不记录对错）")
+                    }
+                }
+                if (selfReportViewModel.undoStatus == SelfReportUndoStatus.UNDONE) {
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        text = "已回到本题。曝光/看过答案的事实仍保留；重新作答会记为第 " +
+                            "${selfReportViewModel.currentAttemptOrdinal()} 次响应。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SmartColors.InkSecondary,
+                        modifier = Modifier.testTag("review_undo_reattempt_notice"),
+                    )
+                }
+            }
+            if (tutorJudgedAvailable) {
+                Spacer(Modifier.height(8.dp))
+                TextButton(
+                    onClick = onOpenTutorJudge,
+                    modifier = Modifier.testTag("captured_review_tutor_judged_button"),
+                ) {
+                    Text("请求讲题（可选）")
+                }
+            }
+        } else if (tutorJudgedAvailable) {
             Text(
                 text = "先按自己的思路把它做一遍，然后去讲题：模型会出检查题，对错由本机核对，" +
                     "判定完成后自动记入复习并进入下一题。",
@@ -174,5 +397,26 @@ fun CapturedReviewSessionScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
+    }
+}
+
+/**
+ * 无工件错题的 attempt 呈现身份：题版本 + 练习单元，并在有会话身份时并入会话。
+ *
+ * 消灭的失败：同一道题换了 problemRevision（题被改正/重新保存）或进入跨日的新复习会话时，
+ * 若 continue 用旧 presentation，界面会恢复上一次的"已记录/可撤销"状态，甚至把旧 attempt
+ * 的回执展示在新题上。会话身份为空时保持旧格式（未接线不编造）。
+ */
+internal fun capturedReviewPresentationId(
+    entry: StudyCatalogEntry,
+    sessionId: String?,
+): String = buildString {
+    append("presentation:captured-review:")
+    append(entry.problemRevisionId)
+    append(':')
+    append(entry.practiceUnitId)
+    sessionId?.takeIf(String::isNotBlank)?.let { session ->
+        append(":session:")
+        append(session)
     }
 }

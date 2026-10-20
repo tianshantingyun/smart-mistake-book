@@ -43,6 +43,13 @@ data class LearningProjectionResult(
     val missingSequence: Long? = null,
     val ambiguousAttemptIds: Set<String> = emptySet(),
     val correctedAttemptIds: Set<String> = emptySet(),
+    /**
+     * PRD-05：被 VOID 更正**完全排除学习效果**的 attempt。
+     *
+     * 它们仍在 [appliedAttemptIds]（账本行、序号、曝光/审计事实还在），但记忆卡与掌握度
+     * 没有消费它们——调用方不要把它读成"这次复习发生过并计分"。
+     */
+    val voidedAttemptIds: Set<String> = emptySet(),
     val appliedAnswerRevealOutcomeIds: Set<String> = emptySet(),
     val ignoredAnswerRevealOutcomeIds: Set<String> = emptySet(),
     val conflictedAnswerRevealOutcomeIds: Set<String> = emptySet(),
@@ -569,19 +576,6 @@ class LearningProjector(
             when (event) {
                 is Attempt -> {
                     val correction = corrections[event.attemptId]
-                    val correctedAttempt = if (correction == null) {
-                        event
-                    } else {
-                        event.copy(
-                            evidence = correction.replacementEvidence,
-                            problemMemoryOutcome = correction.replacementMemoryOutcome,
-                        )
-                    }
-                    val effective = applyRevealCausality(
-                        attempt = correctedAttempt,
-                        answerRevealSequence = answerRevealSequences[event.presentationId],
-                        causalSequence = event.eventSequence,
-                    )
                     val presentationState = presentationProjectionStates.getOrPut(event.presentationId) {
                         PresentationProjectionState(
                             event.presentationId,
@@ -589,29 +583,64 @@ class LearningProjector(
                             memoryProjectionApplied = false,
                         )
                     }
-                    applyAttempt(
-                        memoryStates,
-                        masteryStates,
-                        effective,
-                        ambiguous,
-                        suppressDuplicateRevealMemory = presentationState.answerRevealSequence != null,
-                        effectiveAtEpochMillis = effectiveAt,
-                        knowledgeNodeSuccessors = knowledgeNodeSuccessors,
-                        dispersion = dispersion,
-                        // KF-32：重放期归属按当前绑定重派生（缺项退回写时快照）。
-                        currentBindings = currentBindingsByPracticeUnit[effective.practiceUnitId],
-                    )
-                    presentationProjectionStates[event.presentationId] = presentationState.copy(
-                        asOfLedgerSequence = event.eventSequence,
-                        memoryProjectionApplied = true,
-                    )
-                    attemptRecords[event.attemptId] = AppliedAttemptRecord(
-                        attemptId = event.attemptId,
-                        canonicalFingerprint = fingerprintOf(event),
-                        eventSequence = event.eventSequence,
-                        presentationId = event.presentationId,
-                        responseOrdinal = event.responseOrdinal,
-                    )
+                    if (correction?.isVoid == true) {
+                        // PRD-05：VOID = 从**有效证据集合**排除，不是权重改零后继续推进。
+                        // - 不调用 projectMemory（题卡不建/不 lapse/不移动 nextReview）
+                        // - 不调用 projectMastery（知识点掌握度零变化）
+                        // - 不跑 applyRevealCausality（本 attempt 不产生任何证据）
+                        // - attempt 行、responseOrdinal、曝光/揭示事实与审计记录全部保留
+                        //
+                        // memoryProjectionApplied 保持原值：本次作答没有消费过记忆投影，
+                        // 之后（例如撤销后重评前）真正的看答案事件仍必须能落一次 lapse；
+                        // 若在这里置 true，一次被撤销的作答会把后续 reveal 的罚分吞掉。
+                        attemptRecords[event.attemptId] = AppliedAttemptRecord(
+                            attemptId = event.attemptId,
+                            canonicalFingerprint = fingerprintOf(event),
+                            eventSequence = event.eventSequence,
+                            presentationId = event.presentationId,
+                            responseOrdinal = event.responseOrdinal,
+                        )
+                        presentationProjectionStates[event.presentationId] = presentationState.copy(
+                            asOfLedgerSequence = event.eventSequence,
+                        )
+                    } else {
+                        val correctedAttempt = if (correction == null) {
+                            event
+                        } else {
+                            event.copy(
+                                evidence = correction.replacementEvidence,
+                                problemMemoryOutcome = correction.replacementMemoryOutcome,
+                            )
+                        }
+                        val effective = applyRevealCausality(
+                            attempt = correctedAttempt,
+                            answerRevealSequence = answerRevealSequences[event.presentationId],
+                            causalSequence = event.eventSequence,
+                        )
+                        applyAttempt(
+                            memoryStates,
+                            masteryStates,
+                            effective,
+                            ambiguous,
+                            suppressDuplicateRevealMemory = presentationState.answerRevealSequence != null,
+                            effectiveAtEpochMillis = effectiveAt,
+                            knowledgeNodeSuccessors = knowledgeNodeSuccessors,
+                            dispersion = dispersion,
+                            // KF-32：重放期归属按当前绑定重派生（缺项退回写时快照）。
+                            currentBindings = currentBindingsByPracticeUnit[effective.practiceUnitId],
+                        )
+                        presentationProjectionStates[event.presentationId] = presentationState.copy(
+                            asOfLedgerSequence = event.eventSequence,
+                            memoryProjectionApplied = true,
+                        )
+                        attemptRecords[event.attemptId] = AppliedAttemptRecord(
+                            attemptId = event.attemptId,
+                            canonicalFingerprint = fingerprintOf(event),
+                            eventSequence = event.eventSequence,
+                            presentationId = event.presentationId,
+                            responseOrdinal = event.responseOrdinal,
+                        )
+                    }
                 }
                 is AnswerRevealOutcome -> {
                     val presentationState = presentationProjectionStates.getOrPut(event.presentationId) {
@@ -778,6 +807,7 @@ class LearningProjector(
             conflictedAttemptIds = emptySet(),
             ambiguousAttemptIds = ambiguous,
             correctedAttemptIds = corrections.keys.toSet(),
+            voidedAttemptIds = corrections.filterValues(AttemptCorrection::isVoid).keys.toSet(),
             appliedEvidenceCorrectionIds = appliedEvidenceCorrections,
             appliedAnswerRevealOutcomeIds = revealRecords.keys.toSet(),
             appliedTutorAnswerExposureOutcomeIds = tutorExposureRecords.keys.toSet(),

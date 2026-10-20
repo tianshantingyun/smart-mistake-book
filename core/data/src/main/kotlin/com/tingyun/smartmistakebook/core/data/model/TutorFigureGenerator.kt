@@ -20,14 +20,16 @@ import com.tingyun.smartmistakebook.core.model.FigureFidelity
 import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
 import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
-import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
+import com.tingyun.smartmistakebook.core.model.defaultImageOperation
+import com.tingyun.smartmistakebook.core.model.figureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
+import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
 
@@ -63,8 +65,20 @@ data class TutorFigureRequest(
     val kind: TutorFigureKind,
     val description: String,
     /**
-     * REDRAW_PROBLEM 的源题面规范记录（runner 从会话 → 草稿解析，**不是**模型给的）；
-     * GENERATE_PROCESS 必须为 null（模型无法经任何字段提供图片）。
+     * 4E WG-04b：模型选择的 IMAGE_MODEL 图像操作。省略时按 kind 取旧默认
+     * （REDRAW_PROBLEM→EDIT、GENERATE_PROCESS→GENERATE），旧调用点逐字不变。
+     * EDIT 必须有已授权的当前题源图；GENERATE 不读源图。
+     */
+    val imageOperation: FigureImageOperation = kind.defaultImageOperation(),
+    /**
+     * 4E WG-04b：模型给的具体生图提示词；null = 旧调用，沿用按 kind 拼好的历史指令。
+     * 它只进图像 API，不替代宿主冻结的 purpose/target/constraints。
+     */
+    val imagePrompt: String? = null,
+    /**
+     * 当前题的源题面规范记录（runner 从会话 → 草稿解析，**不是**模型给的）。
+     * 只有 EDIT 可以携带（4E WG-04b 起由图像操作决定，而不是由 kind 决定）；
+     * GENERATE 必须为 null——模型无法经任何字段提供图片。
      */
     val sourceSheet: CanonicalSourceAssetRecord? = null,
     /**
@@ -77,11 +91,27 @@ data class TutorFigureRequest(
 ) {
     init {
         require(description.isNotBlank()) { "A figure request needs a non-blank description" }
-        require(kind == TutorFigureKind.REDRAW_PROBLEM || sourceSheet == null) {
-            "Only REDRAW_PROBLEM may carry a source sheet"
+        // 4E WG-04b：源图由**图像操作**决定，而不是由 kind 决定——kind 只映射用途。
+        // 旧调用（REDRAW 默认 EDIT）行为不变；GENERATE_PROCESS + EDIT 也允许带当前题源图。
+        require(sourceSheet == null || imageOperation == FigureImageOperation.EDIT) {
+            "Only an EDIT figure request may carry a source sheet"
         }
-        require(kind != TutorFigureKind.REDRAW_PROBLEM || sourceSheet != null) {
-            "REDRAW_PROBLEM requires the current problem's canonical source sheet"
+        // EDIT 的语义就是"基于已授权源图"：没有源图就不可能成立，必须在构造层拒绝，
+        // 而不是让生成器带着空源图走到通道。
+        require(imageOperation != FigureImageOperation.EDIT || sourceSheet != null) {
+            "An EDIT figure request requires the current problem's canonical source sheet"
+        }
+        imagePrompt?.let { prompt ->
+            require(prompt.isNotBlank()) { "A figure image prompt must not be blank" }
+            require(prompt.none { char -> char.isISOControl() && char != '\n' }) {
+                "A figure image prompt must not carry control characters"
+            }
+            require(
+                figureUsageUtf8Bytes(prompt) <= FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES,
+            ) {
+                "A figure image prompt must be at most " +
+                    "${FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES} UTF-8 bytes"
+            }
         }
         require(parentOperationId == null || parentOperationId.isNotBlank()) {
             "A figure parent operation id must be null or non-blank"
@@ -104,6 +134,11 @@ data class TutorFigureResult(
     val model: String? = null,
     val generatedNow: Boolean = false,
     val diagnostics: String? = null,
+    /**
+     * 4E WG-04b：本次**逻辑操作**的稳定 id（不含 method；换方法/重试不复制身份）。
+     * null = 生成尚未开始（无题/无源图/无凭证），不是"用了空 id"。
+     */
+    val operationId: String? = null,
 ) {
     init {
         require(figureId == null || status == TutorFigureStatus.GENERATED) {
@@ -114,6 +149,9 @@ data class TutorFigureResult(
         }
         require(diagnostics == null || diagnostics.length <= MAX_DIAGNOSTICS_CHARS) {
             "A figure diagnostic must be at most $MAX_DIAGNOSTICS_CHARS chars"
+        }
+        require(operationId == null || operationId.isNotBlank()) {
+            "A figure operation id must be null or non-blank"
         }
     }
 
@@ -130,6 +168,8 @@ enum class TutorFigureStatus {
     GENERATED,
     FAILED,
     UNAVAILABLE,
+    /** 4E WG-04b：这次请求是 EDIT，但没有可用的已授权源图——未执行、未出网。 */
+    NEED_SOURCE,
 }
 
 /**
@@ -273,15 +313,20 @@ internal class ConfiguredTutorFigureGenerator(
             quality = IMAGE_GENERATION_QUALITY,
             format = channelRequest.outputFormat,
         )
+        // 稳定逻辑操作 id：不含 method，换方法/重试沿用同一个身份。
+        val operationId = "figure-op:${request.kind.name}:$figureId"
         val existing = lookupGenerated(figureId)
         if (existing != null) {
             // 行在但文件坏了：不出网、不重付（"一次生成一次付费"是硬规则），如实失败。
-            if (!isIntact(existing)) return failed("已生成资产的本地副本损坏，未重付重生成")
+            if (!isIntact(existing)) {
+                return failed("已生成资产的本地副本损坏，未重付重生成", operationId)
+            }
             return TutorFigureResult(
                 figureId = existing.sourceAssetId,
                 status = TutorFigureStatus.GENERATED,
                 model = OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
                 generatedNow = false,
+                operationId = operationId,
             )
         }
         // 门只有一处实现（A3）：resolveImageCredential。这里先做一次 fail-closed 预检，
@@ -295,7 +340,7 @@ internal class ConfiguredTutorFigureGenerator(
             )
         preflight.apiKey.close()
 
-        val purpose = request.kind.toPurpose()
+        val purpose = request.kind.figureGenerationPurpose()
         val target = when (request.kind) {
             TutorFigureKind.REDRAW_PROBLEM -> FigureGenerationTarget(
                 fidelity = FigureFidelity.FAITHFUL,
@@ -315,7 +360,7 @@ internal class ConfiguredTutorFigureGenerator(
         val source = request.sourceEvidence(channelRequest)
         val constraints = request.hostConstraints()
         val generationRequest = FigureGenerationRequest(
-            operationId = "figure-op:${request.kind.name}:$figureId",
+            operationId = operationId,
             purpose = purpose,
             target = target,
             capabilities = capabilities,
@@ -331,26 +376,27 @@ internal class ConfiguredTutorFigureGenerator(
         )
         val proposal = FigureGenerationPolicy.imageModelProposal(
             request = generationRequest,
-            imageOperation = when (request.kind) {
-                TutorFigureKind.REDRAW_PROBLEM -> FigureImageOperation.EDIT
-                TutorFigureKind.GENERATE_PROCESS -> FigureImageOperation.GENERATE
-            },
+            // 模型选的图像操作原样进入 proposal（不再由 kind 重算一遍）。
+            imageOperation = request.imageOperation,
             imagePrompt = channelRequest.prompt,
             reason = "入口适配层：本波次唯一已接通的方法是图像模型",
         )
         val outcome = effectiveCoordinator.generate(generationRequest, proposal)
-        return outcome.toTutorFigureResult(figureId)
+        return outcome.toTutorFigureResult(figureId = figureId, operationId = operationId)
     }
 
     private suspend fun FigureGenerationOutcome.toTutorFigureResult(
         figureId: String,
-    ): TutorFigureResult =
-        when (status) {
+        operationId: String,
+    ): TutorFigureResult {
+        // 块体（不是表达式体）：分支里有多处早退 return（产物/落盘失败），
+        // 表达式体不允许显式 return。
+        return when (status) {
             FigureGenerationStatus.GENERATED,
             FigureGenerationStatus.CACHED,
             -> {
                 val artifact = artifact as? FigureArtifact.ImageAsset
-                    ?: return failed("协调器没有返回可持久化的图像产物")
+                    ?: return failed("协调器没有返回可持久化的图像产物", operationId)
                 val persisted = try {
                     persistGenerated(
                         artifact.imageBytes(),
@@ -368,6 +414,7 @@ internal class ConfiguredTutorFigureGenerator(
                 } catch (failure: Exception) {
                     return failed(
                         "生成成功但本地保存失败：${failure.message ?: "未知错误"}",
+                        operationId,
                     )
                 }
                 TutorFigureResult(
@@ -375,6 +422,7 @@ internal class ConfiguredTutorFigureGenerator(
                     status = TutorFigureStatus.GENERATED,
                     model = artifact.modelId ?: OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
                     generatedNow = status == FigureGenerationStatus.GENERATED,
+                    operationId = operationId,
                 )
             }
 
@@ -386,29 +434,45 @@ internal class ConfiguredTutorFigureGenerator(
 
             FigureGenerationStatus.NO_FIGURE,
             FigureGenerationStatus.NEED_SOURCE,
+            -> TutorFigureResult(
+                figureId = null,
+                status = TutorFigureStatus.NEED_SOURCE,
+                diagnostics = diagnostics,
+            )
+
             FigureGenerationStatus.REJECTED,
             FigureGenerationStatus.FAILED,
-            -> failed(diagnostics)
+            -> failed(diagnostics, operationId)
         }
+    }
 
     /**
-     * 请求 → 通道请求；REDRAW_PROBLEM 读源图前**再核对一次**规范记录（缝的实现负责
+     * 请求 → 通道请求；EDIT 读源图前**再核对一次**规范记录（缝的实现负责
      * `vault.resolve` 的逐位校验），核对不过即 null → FAILED（不把被替换的字节发出去）。
+     *
+     * 提示词优先用模型给的 imagePrompt；旧调用（null）沿用按 kind 拼好的历史指令，
+     * 因此旧路径的 prompt/幂等键逐字不变。
      */
-    private fun TutorFigureRequest.toChannelRequest(): ImageGenerationRequest? = when (kind) {
-        TutorFigureKind.REDRAW_PROBLEM -> {
-            val sheet = requireNotNull(sourceSheet) { "REDRAW_PROBLEM source sheet is contract-enforced" }
-            val bytes = readSourceBytes(sheet) ?: return null
-            ImageGenerationRequest(
-                prompt = attachedImageRedrawInstruction(),
-                sourceImageBytes = bytes,
-                sourceImageMimeType = sheet.mimeType,
+    private fun TutorFigureRequest.toChannelRequest(): ImageGenerationRequest? =
+        when (imageOperation) {
+            FigureImageOperation.EDIT -> {
+                val sheet = requireNotNull(sourceSheet) { "EDIT source sheet is contract-enforced" }
+                val bytes = readSourceBytes(sheet) ?: return null
+                ImageGenerationRequest(
+                    prompt = imagePrompt ?: defaultPrompt(),
+                    sourceImageBytes = bytes,
+                    sourceImageMimeType = sheet.mimeType,
+                )
+            }
+
+            FigureImageOperation.GENERATE -> ImageGenerationRequest(
+                prompt = imagePrompt ?: defaultPrompt(),
             )
         }
 
-        TutorFigureKind.GENERATE_PROCESS -> ImageGenerationRequest(
-            prompt = attachedImageProcessPrompt(description, problemContext),
-        )
+    private fun TutorFigureRequest.defaultPrompt(): String = when (kind) {
+        TutorFigureKind.REDRAW_PROBLEM -> attachedImageRedrawInstruction()
+        TutorFigureKind.GENERATE_PROCESS -> attachedImageProcessPrompt(description, problemContext)
     }
 
     private fun TutorFigureRequest.sourceEvidence(
@@ -474,15 +538,14 @@ internal class ConfiguredTutorFigureGenerator(
         }
     }
 
-    private fun failed(diagnostics: String? = null): TutorFigureResult =
+    private fun failed(
+        diagnostics: String? = null,
+        operationId: String? = null,
+    ): TutorFigureResult =
         TutorFigureResult(
             figureId = null,
             status = TutorFigureStatus.FAILED,
             diagnostics = diagnostics?.take(TutorFigureResult.MAX_DIAGNOSTICS_CHARS),
+            operationId = operationId,
         )
-}
-
-private fun TutorFigureKind.toPurpose(): FigureGenerationPurpose = when (this) {
-    TutorFigureKind.REDRAW_PROBLEM -> FigureGenerationPurpose.SOURCE_RECONSTRUCTION
-    TutorFigureKind.GENERATE_PROCESS -> FigureGenerationPurpose.EXPLANATION
 }

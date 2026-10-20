@@ -341,6 +341,27 @@ internal abstract class ProjectionTransactionDao {
         presentationIds: List<String>,
     ): List<PresentationProjectionStateEntity>
 
+    /**
+     * PRD-05 VOID：被撤销的 attempt 所属呈现 id。
+     *
+     * 全量重放时 VOID attempt 不消费记忆投影（`memoryProjectionApplied=false`），而撤销前
+     * 的持久呈现态仍是 true。呈现态校验必须允许这两档之间按账本合法迁移；其余字段仍逐位
+     * 必对，不能整行放过。
+     */
+    @Query(
+        """
+        SELECT DISTINCT a.presentation_id
+        FROM attempt_correction c
+        INNER JOIN attempt_event a
+          ON a.learner_id = c.learner_id
+         AND a.submission_id = c.submission_id
+         AND a.attempt_id = c.attempt_id
+        WHERE c.learner_id = :learnerId
+          AND c.reason_markdown LIKE '[void-attempt:v1]%'
+        """,
+    )
+    protected abstract suspend fun voidedPresentationIds(learnerId: String): List<String>
+
     @Query(
         """
         SELECT * FROM presentation_projection_state
@@ -1329,7 +1350,22 @@ internal abstract class ProjectionTransactionDao {
                 state.presentationId to state.toModel(commit.snapshot.checkpoint.lastSequence)
             }
         }
-        if (commit.presentationProjectionStates != expected) {
+        // PRD-05：VOID 是“从有效证据集合排除”，全量重放会合法地把该呈现的
+        // memoryProjectionApplied 从 true 变为 false（撤销后的重评再变回 true）。
+        // 只对“该呈现确有 VOID 更正”的 id 放开这一位；其余字段仍逐位相等。
+        val voidedPresentations = voidedPresentationIds(commit.learnerId).toSet()
+        val matches = commit.presentationProjectionStates.size == expected.size &&
+            commit.presentationProjectionStates.all { (presentationId, actual) ->
+                val wanted = expected[presentationId] ?: return@all false
+                if (presentationId in voidedPresentations) {
+                    actual.copy(
+                        memoryProjectionApplied = wanted.memoryProjectionApplied,
+                    ) == wanted
+                } else {
+                    actual == wanted
+                }
+            }
+        if (!matches) {
             throw ProjectionCasConflictException(
                 "Projected presentation authority differs from the immutable ledger",
             )

@@ -10,7 +10,10 @@ import androidx.room3.Transaction
 import androidx.room3.Upsert
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
 import com.tingyun.smartmistakebook.core.database.ReviewSessionAdvanceCommand
+import com.tingyun.smartmistakebook.core.database.ReviewSessionRewindCommand
+import com.tingyun.smartmistakebook.core.database.ReviewSessionRewindResult
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.database.toRecord
 import com.tingyun.smartmistakebook.core.database.entity.ActiveReviewPlanSlotEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewPlanEntity
 import com.tingyun.smartmistakebook.core.database.entity.ReviewQueueItemEntity
@@ -333,6 +336,35 @@ internal abstract class ReviewPlanTransactionDao {
         completedAtEpochMillis: Long?,
     ): Int
 
+    /**
+     * PRD-05 undo：把会话指针回退一格。只允许从**当前版本**回退，且 current_ordinal > 0；
+     * 已完成的会话回到 IN_PROGRESS 并重新占用活动槽位（completed_at 清空）。
+     */
+    @Query(
+        """
+        UPDATE review_session
+        SET status = :inProgressStatus,
+            active_session_key = review_plan_id,
+            completed_at_epoch_millis = NULL,
+            last_active_at_epoch_millis = :undoneAtEpochMillis,
+            current_ordinal = current_ordinal - 1,
+            state_version = state_version + 1
+        WHERE review_session_id = :reviewSessionId
+          AND state_version = :expectedStateVersion
+          AND current_ordinal = :expectedOrdinal
+          AND current_ordinal > 0
+          AND (status = :inProgressStatus OR status = :completedStatus)
+        """,
+    )
+    protected abstract suspend fun compareAndSetSessionRewind(
+        reviewSessionId: String,
+        expectedStateVersion: Long,
+        expectedOrdinal: Int,
+        inProgressStatus: String,
+        completedStatus: String,
+        undoneAtEpochMillis: Long,
+    ): Int
+
     @Transaction
     open suspend fun savePlan(
         plan: ReviewPlanEntity,
@@ -429,7 +461,10 @@ internal abstract class ReviewPlanTransactionDao {
         val validCurrentState = current.status == StudyDbValue.ReviewStatus.IN_PROGRESS &&
             current.activeSessionKey == current.reviewPlanId &&
             current.stateVersion == command.expectedStateVersion &&
-            current.stateVersion == current.currentOrdinal.toLong() &&
+            // PRD-05：undo 会把指针回退一格但版本继续递增，因此这里不能再要求
+            // version == ordinal（否则撤销后永远无法再次推进）。真正的不变量是：
+            // 调用方拿到的 revision 行必须逐字等于当前会话状态（下一行），且版本单调。
+            current.stateVersion >= current.currentOrdinal.toLong() &&
             current.completedAtEpochMillis == null &&
             currentRevision == current.toRevision() &&
             current.currentOrdinal in 0 until queueSize &&
@@ -488,6 +523,109 @@ internal abstract class ReviewPlanTransactionDao {
         )
     }
 
+    /**
+     * PRD-05 undo：把会话指针回退一格并写成新的不可变 revision。
+     *
+     * 证明链（缺一即拒）：
+     * - 目标 attempt 的 advance receipt 的 `toVersion` 必须等于**当前**会话版本
+     *   （即它是最后推进的那一次，不能撤销更早的题）；
+     * - receipt 的队列项/题必须等于 `currentOrdinal - 1` 那一项；
+     * - 当前版本必须有逐字匹配的 revision 行。
+     *
+     * [applyRewind] = false 只用于**已提交撤销的重放**：此时更正行（幂等回执）已存在，
+     * 会话早已回退，直接返回当前状态，不重复减格。
+     */
+    @Transaction
+    open suspend fun rewindSession(
+        command: ReviewSessionRewindCommand,
+        applyRewind: Boolean,
+    ): ReviewSessionRewindResult {
+        val current = findSession(command.sessionId)
+            ?: throw ImmutablePayloadConflictException("review_session", command.sessionId)
+        if (!applyRewind) {
+            // 已提交撤销的重放：回执（advance receipt）必须证明这个 attempt 属于本会话/本题，
+            // 否则调用方用同一个 request id 配错 session 也会被当成幂等成功。
+            val replayReceipt = findAdvanceReceipt(command.attemptId)
+                ?: throw ImmutablePayloadConflictException(
+                    "review_session_rewind_receipt",
+                    command.attemptId,
+                )
+            if (replayReceipt.reviewSessionId != command.sessionId ||
+                replayReceipt.practiceUnitId != command.practiceUnitId
+            ) {
+                throw ImmutablePayloadConflictException("review_session_rewind", command.attemptId)
+            }
+            return ReviewSessionRewindResult(created = false, session = current.toRecord())
+        }
+        if (command.expectedStateVersion == Long.MAX_VALUE ||
+            current.stateVersion != command.expectedStateVersion ||
+            current.currentOrdinal <= 0
+        ) {
+            throw ImmutablePayloadConflictException("review_session_rewind", command.attemptId)
+        }
+        val receipt = findAdvanceReceipt(command.attemptId)
+            ?: throw ImmutablePayloadConflictException("review_session_rewind_receipt", command.attemptId)
+        val currentRevision = findSessionRevision(command.sessionId, command.expectedStateVersion)
+        val plan = findPlan(current.reviewPlanId)
+            ?: throw ImmutablePayloadConflictException("review_plan", current.reviewPlanId)
+        val queueSize = countQueueItems(current.reviewPlanId)
+        val redoOrdinal = current.currentOrdinal - 1
+        val queueItem = findQueueItemAtOrdinal(current.reviewPlanId, redoOrdinal)
+        val activeLearnerSessions = findActiveSessionsForLearner(plan.learnerId)
+        val activeSessionValid = when (current.status) {
+            StudyDbValue.ReviewStatus.COMPLETED ->
+                current.activeSessionKey == null && activeLearnerSessions.isEmpty()
+            StudyDbValue.ReviewStatus.IN_PROGRESS ->
+                current.activeSessionKey == current.reviewPlanId &&
+                    activeLearnerSessions.size == 1 &&
+                    activeLearnerSessions.single().reviewSessionId == current.reviewSessionId
+            else -> false
+        }
+        val valid = currentRevision == current.toRevision() &&
+            queueSize > 0 &&
+            current.currentOrdinal <= queueSize &&
+            current.completedAtEpochMillis == current.lastActiveAtEpochMillis.takeIf {
+                current.status == StudyDbValue.ReviewStatus.COMPLETED
+            } &&
+            activeSessionValid &&
+            receipt.reviewSessionId == command.sessionId &&
+            receipt.toVersion == current.stateVersion &&
+            receipt.fromVersion + 1 == receipt.toVersion &&
+            receipt.practiceUnitId == command.practiceUnitId &&
+            receipt.occurredAtEpochMillis == current.lastActiveAtEpochMillis &&
+            queueItem != null &&
+            queueItem.reviewQueueItemId == receipt.reviewQueueItemId &&
+            queueItem.practiceUnitId == command.practiceUnitId &&
+            queueItem.ordinal == redoOrdinal
+        if (!valid) {
+            throw ImmutablePayloadConflictException("review_session_rewind", command.attemptId)
+        }
+        val next = current.copy(
+            status = StudyDbValue.ReviewStatus.IN_PROGRESS,
+            activeSessionKey = current.reviewPlanId,
+            completedAtEpochMillis = null,
+            currentOrdinal = redoOrdinal,
+            lastActiveAtEpochMillis = maxOf(
+                current.lastActiveAtEpochMillis,
+                command.undoneAtEpochMillis,
+            ),
+            stateVersion = current.stateVersion + 1,
+        )
+        if (compareAndSetSessionRewind(
+                reviewSessionId = current.reviewSessionId,
+                expectedStateVersion = current.stateVersion,
+                expectedOrdinal = current.currentOrdinal,
+                inProgressStatus = StudyDbValue.ReviewStatus.IN_PROGRESS,
+                completedStatus = StudyDbValue.ReviewStatus.COMPLETED,
+                undoneAtEpochMillis = next.lastActiveAtEpochMillis,
+            ) != 1
+        ) {
+            throw ImmutablePayloadConflictException("review_session_rewind", command.sessionId)
+        }
+        insertSessionRevision(next.toRevision())
+        return ReviewSessionRewindResult(created = true, session = next.toRecord())
+    }
+
     private suspend fun requireInitialSession(session: ReviewSessionEntity) {
         val plan = findPlan(session.reviewPlanId)
         val queueSize = countQueueItems(session.reviewPlanId)
@@ -531,10 +669,14 @@ internal abstract class ReviewPlanTransactionDao {
             proof != null &&
             queueSize > 0 &&
             fromRevision.status == StudyDbValue.ReviewStatus.IN_PROGRESS &&
-            fromRevision.currentOrdinal.toLong() == existing.fromVersion &&
+            // PRD-05：undo 让 state_version 与 current_ordinal 解耦（回退一格但版本继续递增），
+            // 所以回放校验不能再用 "version == ordinal"。真正的不变量是一步一格：
+            // from 的 ordinal + 1 == to 的 ordinal，且队列项正是 from 的那一格。
+            fromRevision.currentOrdinal >= 0 &&
+            fromRevision.currentOrdinal < queueSize &&
             fromRevision.hasSameImmutableIdentity(toRevision) &&
             toRevision.stateVersion == existing.toVersion &&
-            toRevision.currentOrdinal.toLong() == existing.toVersion &&
+            toRevision.currentOrdinal == fromRevision.currentOrdinal + 1 &&
             toRevision.lastActiveAtEpochMillis == existing.occurredAtEpochMillis &&
             toRevision.status == if (completed) {
                 StudyDbValue.ReviewStatus.COMPLETED
@@ -543,7 +685,7 @@ internal abstract class ReviewPlanTransactionDao {
             } &&
             toRevision.completedAtEpochMillis == existing.occurredAtEpochMillis.takeIf { completed } &&
             queueItem.reviewPlanId == toRevision.reviewPlanId &&
-            queueItem.ordinal.toLong() == existing.fromVersion &&
+            queueItem.ordinal == fromRevision.currentOrdinal &&
             queueItem.practiceUnitId == existing.practiceUnitId &&
             proof.learnerId == plan.learnerId &&
             proof.attemptId == existing.attemptId &&

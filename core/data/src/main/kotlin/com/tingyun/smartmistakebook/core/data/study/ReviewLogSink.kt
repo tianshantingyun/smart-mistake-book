@@ -87,6 +87,12 @@ internal class ReviewLogSink(
             // scheduling capped at Good; hint/retry-assisted correct logged as
             // Good while scheduling used Hard). The learner's own key survives
             // verbatim in evidence_weight (0.9/0.8/0.7/1.0).
+            //
+            // PRD-05 三键（对=Good 0.8 / 卡顿=Hard 0.7 / 错=Again 1.0）：自评路径**不参与**
+            // 注意力/答题时长折扣（见 `StudySubmissionPreparer.prepareSelfReportedSubmission`），
+            // 所以 evidence_weight 就是原档本身；rating 仍是调度实际使用的档。两者分列，
+            // 优化器拟合 rating，原档可从 weight 逐位读出（0.7 若被折扣到 0.665 会掉成 Good，
+            // 这正是"三键不做折扣"要消灭的失败）。
             val rating = FsrsEvidenceRatingMapper.schedulingRatingFor(evidence.reason, evidence.weight)
             // W2-4/KF-23：派生本行复习时卡片所处的状态（与迁移回填**同一口径**）：
             // 无前条=New(0)、前条 AGAIN=Relearning(3)、同一学习日=Learning(1)、跨学习日=Review(2)。
@@ -135,8 +141,29 @@ internal class ReviewLogSink(
         profileComputed = false
     }
 
-    suspend fun reviewSamples(): List<ReviewSample> =
+    /**
+     * PRD-05：撤销把 review_log 行移出有效证据集合后，必须丢掉本实例派生的画像缓存。
+     *
+     * 缓存只在 [record] 后失效（本类原先唯一的写口）；undo 走另一条写路径
+     * （`markReviewLogSchedulingIneligible`），不调用它就会让时区画像/回访建议继续
+     * 使用一条已被撤销的样本——正是"跨 store 有效证据口径不一致"。
+     */
+    fun invalidateCachedProfile() {
+        cachedProfile = null
+        profileComputed = false
+    }
+
+    /**
+     * 有效证据视图（PRD-05）：撤销 attempt 的行保留在 review_log（审计），但
+     * `scheduling_eligible=0` 后不再参与任何消费——日程、统计、训练样本共用这一口径，
+     * 避免"投影已排除、优化器仍把原作答当训练样本"的跨 store 分裂。
+     */
+    private suspend fun eligibleRows(): List<ReviewLogSampleRecord> =
         database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+            .filter { it.schedulingEligible }
+
+    suspend fun reviewSamples(): List<ReviewSample> =
+        eligibleRows()
             .map { row ->
                 ReviewSample(
                     practiceUnitId = row.practiceUnitId,
@@ -157,7 +184,7 @@ internal class ReviewLogSink(
      * model — subjective reports and reveals are not solving-time evidence.
      */
     suspend fun observedAttemptDurations(): List<Pair<String, Double>> =
-        database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+        eligibleRows()
             .asSequence()
             .filter { it.sourceKind == SOURCE_KIND_ATTEMPT && it.durationMs > 0 }
             .map { it.practiceUnitId to it.durationMs / 1000.0 }
@@ -168,8 +195,7 @@ internal class ReviewLogSink(
      * `avoidancePracticeUnitIds` 与 `confidenceAtErrorByPracticeUnit` 此前各扫一遍
      * 同一条查询（计划组装时的两倍读放大），这里把读与派生拆开。
      */
-    suspend fun readReviewSamples(): List<ReviewLogSampleRecord> =
-        database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+    suspend fun readReviewSamples(): List<ReviewLogSampleRecord> = eligibleRows()
 
     /**
      * Avoidance units (spec §6 / D'Mello 2013): cards switched away from at
@@ -260,7 +286,7 @@ internal class ReviewLogSink(
 
     private suspend fun timeOfDayProfile(): TimeOfDayProfile? {
         if (profileComputed) return cachedProfile
-        val samples = database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+        val samples = eligibleRows()
         val observations = samples.mapNotNull(::toObservation)
         cachedProfile = if (observations.isEmpty()) null else TimeOfDayCalibrator.profile(observations)
         profileComputed = true
@@ -268,8 +294,7 @@ internal class ReviewLogSink(
     }
 
     private suspend fun observations(): List<TimeOfDayObservation> =
-        database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
-            .mapNotNull(::toObservation)
+        eligibleRows().mapNotNull(::toObservation)
 
     private fun toObservation(row: ReviewLogSampleRecord): TimeOfDayObservation? {
         val bucket = runCatching { TimeBucket.valueOf(row.timeBucket) }.getOrNull()

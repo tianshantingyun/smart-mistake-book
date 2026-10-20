@@ -24,10 +24,12 @@ import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
+import com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
 import com.tingyun.smartmistakebook.core.domain.StudyExperienceRepository
 import com.tingyun.smartmistakebook.core.domain.StudyExperienceSnapshot
 import com.tingyun.smartmistakebook.core.domain.StudyReviewAdvanceResult
+import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionProgress
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlement
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementStatus
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
@@ -154,6 +156,17 @@ internal fun ReviewSessionDestination(
     val practiceUnitId = displayedPracticeUnitId
     val ordinal = displayedOrdinal
     val queueSize = displayedQueueSize
+    // PRD-05 无模型路径：已保存题在本机可信存储里的答案/解析。null 也可能是"还没读到"，
+    // 屏幕把 null 当未知（不冒充"没有可信答案"）；加载完再按 isTrusted 如实展示。
+    val storedAnswer by produceState<ReviewStoredAnswer?>(
+        initialValue = null,
+        key1 = experience.status,
+        key2 = practiceUnitId,
+    ) {
+        value = practiceUnitId
+            ?.takeIf { experience.status == StudyDataStatus.READY }
+            ?.let { repository.storedReviewAnswer(it) }
+    }
     val capturedEntry = experience.catalog.firstOrNull { catalogEntry ->
         catalogEntry.practiceUnitId == practiceUnitId
     }
@@ -184,6 +197,17 @@ internal fun ReviewSessionDestination(
         if (result.progress.status == StudyReviewSessionStatus.COMPLETED) {
             navController.popBackStack(Routes.Review, false)
         }
+    }
+    /**
+     * PRD-05 undo 成功后回退显示进度：只更新会话版本/序号/队列大小，**不换题、不换
+     * presentation**。重新作答必须沿用同一个 presentation，曝光事实才能延续（撤销后重评
+     * 不是"第一次看这道题"）。
+     */
+    val stageReviewRewound: (StudyReviewSessionProgress) -> Unit = { progress ->
+        displayedSessionId = progress.sessionId
+        displayedSessionVersion = progress.stateVersion
+        displayedOrdinal = progress.currentOrdinal
+        displayedQueueSize = progress.queueSize
     }
 
     // 讲题判定结算的可见状态（KD-36）：没有形成判定 / 没有写成功时不再是无声的 no-op。
@@ -277,7 +301,9 @@ internal fun ReviewSessionDestination(
             onBack = onReviewBack,
             capabilities = capabilities,
             practiceUnitId = practiceUnitId,
-            presentationId = "presentation:review:$sessionId:$sessionVersion:$practiceUnitId",
+            // presentation 只由 (会话, 题目) 决定：undo 会把 stateVersion 推前，但呈现身份
+            // 不能跟着变——否则撤销后的重评会创建新 VM、丢掉曝光/第 N 次响应的事实。
+            presentationId = "presentation:review:$sessionId:$practiceUnitId",
             teachingArtifact = artifactLoad.artifact,
             profile = experience.profile,
             reTeachOpening = artifactLoad.reTeachOpening,
@@ -293,6 +319,15 @@ internal fun ReviewSessionDestination(
             },
             onRevealAnswer = repository::revealAnswer,
             onContinue = continueReview,
+            // PRD-05：三键自评/undo 的真实写入口。四项缺一，屏幕会退回旧机判通道。
+            onSubmitSelfReport = { submission -> repository.submitReviewSelfReport(submission) },
+            onUndoReview = { request -> repository.undoReviewSelfReport(request) },
+            storedAnswer = storedAnswer,
+            reviewSessionId = sessionId,
+            reviewStateVersion = sessionVersion,
+            onSessionRewound = stageReviewRewound,
+            // 跳过 = 不写证据、该题保持到期；直接回复习首页，不伪造"完成"。
+            onSkipQuestion = onReviewBack,
             onRequestTutorPretest = capturedEntry?.let { entry ->
                 {
                     // PretestRouting.TUTOR_JUDGED_FLOW (spec
@@ -339,6 +374,17 @@ internal fun ReviewSessionDestination(
             },
             settlementNotice = settlementNotice,
             onRetrySettlement = { settlementAttempt += 1 },
+            // PRD-05 无模型闭环：三键自评 + 已存答案 + 下一题 + undo。无工件题在
+            // strictOffline 下也能完成本地复习，不再只剩"去讲题判定"这一条路。
+            storedAnswer = storedAnswer,
+            reviewSessionId = sessionId,
+            reviewStateVersion = sessionVersion,
+            onSubmitSelfReport = { submission -> repository.submitReviewSelfReport(submission) },
+            onUndoReview = { request -> repository.undoReviewSelfReport(request) },
+            onRevealAnswer = repository::revealAnswer,
+            onContinue = continueReview,
+            onSessionRewound = stageReviewRewound,
+            onSkipQuestion = onReviewBack,
         )
         else -> ReviewSessionGateMessage(
             "当前题目暂时不可用，未记录本次作答。",

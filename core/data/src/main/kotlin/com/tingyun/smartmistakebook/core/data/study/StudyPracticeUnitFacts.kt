@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.domain.PracticeUnitBindingFacts
+import com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer
 import com.tingyun.smartmistakebook.core.domain.derivePracticeUnitBindingAttributions
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
@@ -129,6 +130,76 @@ internal class StudyPracticeUnitFacts(
     }
 
     /**
+     * PRD-05 三键自评所需的全部事实。**不要求机器可判**：已保存但无机判工件的题也能复习。
+     *
+     * 证据快照仍走 `AssessmentEvidenceSnapshot` 的 VERIFIED 形状，但这里的 VERIFIED 只表示
+     * "题面/绑定事实来自本机权威表"——[StudySelfReportFacts.assessmentItem] 为 null 时
+     * **不存在可信答案键**，界面必须如实说明，不能伪称自动判对。
+     *
+     * 归属与机判路径完全同源（`attributionSetFor`，无绑定时物化 pseudo 桶），因此自评证据
+     * 也会进知识点掌握投影——这是裁定 36"自评 = 作答类证据、准入记忆卡"的落点。
+     */
+    suspend fun selfReportFacts(practiceUnitId: String): StudySelfReportFacts {
+        val record = database.readPracticeUnitAssessment(practiceUnitId)
+            ?: error("Practice unit $practiceUnitId does not exist in the local library")
+        val assessmentItem = assessmentItemOf(record)
+        val (taxonomyVersion, attributions) = attributionSetFor(record)
+        val snapshotId = writeContext.stableId(
+            SELF_REPORT_SNAPSHOT_ID_NAMESPACE,
+            buildString {
+                append(record.practiceUnitId).append('\n')
+                append(record.problemRevisionId).append('\n')
+                append(taxonomyVersion).append('\n')
+                attributions.forEach { attribution ->
+                    append(attribution.bindingId).append(':')
+                    append(attribution.knowledgeNodeId).append(':')
+                    append(attribution.weight).append(':')
+                    append(attribution.role.name).append(':')
+                    append(attribution.certainty.name).append('\n')
+                }
+            },
+        )
+        return StudySelfReportFacts(
+            assessmentItem = assessmentItem,
+            storedAnswer = storedAnswerOf(assessmentItem),
+            evidenceSnapshot = AssessmentEvidenceSnapshot(
+                snapshotId = snapshotId,
+                assessmentItemId = writeContext.stableId(
+                    SELF_REPORT_ITEM_ID_NAMESPACE,
+                    "${record.practiceUnitId}\n${record.problemRevisionId}",
+                ),
+                practiceUnitId = record.practiceUnitId,
+                problemRevisionId = record.problemRevisionId,
+                answerSpecId = SELF_REPORT_ANSWER_SPEC_ID,
+                itemFamilyId = SELF_REPORT_ITEM_FAMILY_ID_PREFIX + record.practiceUnitId,
+                sourceBundleId = null,
+                taxonomyVersion = taxonomyVersion,
+                verification = AssessmentSnapshotVerification.VERIFIED,
+                calibration = CalibrationSnapshot.unknown(),
+                attributions = attributions,
+                capturedAtEpochMillis = record.revisionCreatedAtEpochMillis,
+            ),
+        )
+    }
+
+    /** PRD-05 无模型路径：本机可信的答案/解析。题不存在返回 null；不可信返回 isTrusted=false。 */
+    suspend fun storedAnswerFor(practiceUnitId: String): ReviewStoredAnswer? {
+        val record = database.readPracticeUnitAssessment(practiceUnitId) ?: return null
+        return storedAnswerOf(assessmentItemOf(record))
+    }
+
+    private fun storedAnswerOf(assessmentItem: TutorAssessmentItem?): ReviewStoredAnswer {
+        if (assessmentItem == null) {
+            return ReviewStoredAnswer(answerMarkdown = null, explanationMarkdown = null)
+        }
+        val correct = assessmentItem.choices.first { it.id == assessmentItem.correctChoiceId }
+        return ReviewStoredAnswer(
+            answerMarkdown = correct.markdown,
+            explanationMarkdown = explanationOf(assessmentItem),
+        )
+    }
+
+    /**
      * 选项 + 标准答案的派生。门槛（缺一即不可机判）：
      * - 答案验证状态 VERIFIED 且带非空 answerSpecId；
      * - 答案规格是可解析的 `single-choice.v1`（含 correctChoiceId），且标准答案属于选项集；
@@ -248,6 +319,12 @@ internal class StudyPracticeUnitFacts(
         const val PSEUDO_ATTRIBUTION_TAXONOMY_VERSION = "pseudo-evidence-v1"
         const val ITEM_FAMILY_ID_PREFIX = "saved-question:"
         const val SINGLE_CHOICE_SCHEMA = "single-choice.v1"
+
+        /** PRD-05：自评证据快照的身份命名空间（与机判快照分开，互不覆盖）。 */
+        const val SELF_REPORT_ANSWER_SPEC_ID = "self-report.v1"
+        const val SELF_REPORT_ITEM_FAMILY_ID_PREFIX = "self-report:"
+        private const val SELF_REPORT_ITEM_ID_NAMESPACE = "self-report-item"
+        private const val SELF_REPORT_SNAPSHOT_ID_NAMESPACE = "self-report-snapshot"
         private const val SCHEMA_FIELD = "schema"
         private const val CORRECT_CHOICE_FIELD = "correctChoiceId"
         private const val ARTIFACT_ID_NAMESPACE = "practice-unit-artifact"
@@ -255,6 +332,13 @@ internal class StudyPracticeUnitFacts(
         private const val SNAPSHOT_ID_NAMESPACE = "assessment-snapshot"
     }
 }
+
+/** PRD-05：三键自评所需的题面事实；[assessmentItem] 为 null = 本题没有可信机判答案。 */
+internal data class StudySelfReportFacts(
+    val assessmentItem: TutorAssessmentItem?,
+    val storedAnswer: ReviewStoredAnswer,
+    val evidenceSnapshot: AssessmentEvidenceSnapshot,
+)
 
 /** 提交/揭示共用的派生结果（选项、标准答案、讲解文本与不可变证据快照）。 */
 internal data class StudySubmissionFacts(

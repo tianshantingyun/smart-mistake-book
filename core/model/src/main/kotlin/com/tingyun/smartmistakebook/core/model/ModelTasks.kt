@@ -474,6 +474,10 @@ data class ModelTaskRequest(
             schemaVersion >= IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION ||
                 (input as? ImagePipelineClassifyInput)?.sourceImageSha256 == null,
         ) { "Legacy classify requests cannot carry a source image sha" }
+        require(
+            schemaVersion >= TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION ||
+                ((planInput?.visualContext == null) && (respondInput?.visualContext == null)),
+        ) { "Legacy tutor requests cannot carry a visual context" }
         require(requestId.isNotBlank()) { "Model task request id must not be blank" }
         require(requestId.length <= MAX_ID_CHARS) { "Model task request id exceeds budget" }
         require(input.subjectId.isNotBlank()) { "Model task subject id must not be blank" }
@@ -533,7 +537,14 @@ data class ModelTaskRequest(
          * 与续跑，就必须按字节而不是按 id/尺寸说话。旧行读回按"当年没有这个键"重算指纹。
          */
         const val IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION = 17
-        const val CURRENT_SCHEMA_VERSION = IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION
+        /**
+         * Schema at which a Plan/Respond round may carry the **bounded visual context**
+         * (`TutorVisualContext`, 4E WG-04b): the latest program source, current state and
+         * truncation diagnostics for a fix/repair turn. The field is `@EncodeDefault(NEVER)`:
+         * null never lands a key, so schema-17 rows keep their exact encoding and fingerprints.
+         */
+        const val TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION = 18
+        const val CURRENT_SCHEMA_VERSION = TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION
         const val MAX_ID_CHARS = 256
     }
 }

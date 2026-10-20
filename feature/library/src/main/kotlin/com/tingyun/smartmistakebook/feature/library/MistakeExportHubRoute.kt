@@ -88,6 +88,9 @@ const val MAX_LIBRARY_BATCH_EXPORT_QUESTIONS = MistakePdfBatchEligibility.MAX_QU
  * 新增的 Word 记录与旧 PDF 记录在同一屏上按各自的格式动作，互不串用。
  *
  * 通知点进来时（Android 13+ 授权场景）与未授权时的应用内退化，都落在这一屏。
+ *
+ * 6B-2：本屏同时是原生「编辑卷面」入口之一。来源题 id 由装配处随导航带进来（导出记录里只有
+ * 产物身份，没有题 id）；本页**不猜来源**，拿不到 id 时就不摆一个点了也没用的按钮。
  */
 @Composable
 fun MistakeExportHubRoute(
@@ -95,6 +98,10 @@ fun MistakeExportHubRoute(
     notice: String? = null,
     onDismissNotice: () -> Unit = {},
     onBack: () -> Unit,
+    /** 6B-2：上一次原生导出（详情单题 / 错题本当前筛选）的来源题 id，顺序由装配处给出。 */
+    paperEditEntryIds: List<String> = emptyList(),
+    /** 6B-2：非 null 且来源非空时显示「编辑卷面」入口；回调原样交出来源 id。 */
+    onEditPaper: ((List<String>) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -163,6 +170,29 @@ fun MistakeExportHubRoute(
         Spacer(Modifier.height(8.dp))
         notice?.let { text ->
             ExportHubNotice(message = text, onDismiss = onDismissNotice)
+            Spacer(Modifier.height(10.dp))
+        }
+        // 6B-2 原生编辑入口：不依赖模型 START_EXPORT 卡；来源由装配处提供，这里不猜。
+        val editPaper = onEditPaper
+        // 入口标题按实际可编辑的题数报，空白/重复 id 不冒充题目。
+        val editEntryIds = paperEditEntryIds
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+            .distinct()
+        if (editPaper != null && editEntryIds.isNotEmpty()) {
+            OutlineActionChip(
+                text = "编辑卷面后再导出（${editEntryIds.size} 题）",
+                onClick = { editPaper(editEntryIds) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("export_hub_edit_paper"),
+            )
+            Text(
+                text = "只改这份卷面，不改错题本里的题目；确认后重新生成文件。",
+                modifier = Modifier.testTag("export_hub_edit_paper_notice"),
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+            )
             Spacer(Modifier.height(10.dp))
         }
         if (records.isEmpty()) {

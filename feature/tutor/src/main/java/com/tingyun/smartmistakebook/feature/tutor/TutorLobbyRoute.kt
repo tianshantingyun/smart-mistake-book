@@ -96,6 +96,14 @@ internal fun TutorLobbyRoute(
     readExportPaperEdit:
         (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
         null,
+    /**
+     * 6B-3：自然语言改卷的模型端口（输入一句要求 + 当前卷面副本，返回白名单命令 JSON）。
+     *
+     * null = 这个入口不接模型改卷：编辑态不显示「让 AI 改卷面」，手动编辑与导出照旧。
+     * 端口拿到的是卷面副本；真正的白名单解析/越界校验/落地在 `TutorPaperEditApplier`。
+     */
+    paperEditAssistant: (suspend (instruction: String, paper: MistakePdfPaperEdit) -> String)? =
+        null,
     /** 6B-2：编辑态确认后的落点（装配处落盘草稿 + 入队后台重渲染）。 */
     onStartEditedExport: (MistakePaperDraft, MistakeExportFormat) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
@@ -103,6 +111,7 @@ internal fun TutorLobbyRoute(
     // 这条交互面长在哪一栏（K1 的判别列）：会话行按它写，一张配置对象说了算——
     // ViewModel 建会话行时读它（下面的 factory），屏幕的配置也带它，两处不会漂。
     val surfaceArea = TutorConversationAreas.AGENT
+    val paperEditCommandSource = paperEditAssistant
     val viewModel: TutorConversationViewModel = viewModel(
         factory = TutorConversationViewModelFactory(
             conversations = conversations,
@@ -114,6 +123,14 @@ internal fun TutorLobbyRoute(
             pendingRequests = pendingRequests,
             localActionLandings = localActionLandings,
             readExportPaperEdit = readExportPaperEdit,
+            paperEditAssistant = paperEditCommandSource?.let { source ->
+                object : TutorPaperEditAssistant {
+                    override suspend fun commandsFor(
+                        paper: MistakePdfPaperEdit,
+                        instruction: String,
+                    ): String = source(instruction, paper)
+                }
+            },
         ),
     )
     val state by viewModel.uiState.collectAsState()
@@ -427,6 +444,10 @@ internal fun TutorLobbyRoute(
             onEditBlockText = viewModel::onExportEditBlockText,
             onEditChoiceText = viewModel::onExportEditChoiceText,
             onEditNote = viewModel::onExportEditNote,
+            // 6B-3：null 端口不渲染这一块（不广告未接线的能力）。
+            modelEditAvailable = paperEditCommandSource != null,
+            onEditInstructionChange = viewModel::onExportEditInstructionChange,
+            onEditWithModel = viewModel::onExportEditWithModel,
             onConfirmEdited = { draft ->
                 viewModel.onExportSheetDismiss()
                 onStartEditedExport(draft, sheet.format)

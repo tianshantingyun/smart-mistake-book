@@ -1,11 +1,13 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
+import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorUnderstandingTier
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -49,31 +51,76 @@ class KnowledgeEvidenceLedgerStatusTest {
     }
 
     @Test
-    fun `an accepted write blocked by an earlier rejected row reports blocked`() = runBlocking {
-        // 身份粘性（AUD-11 ③ 附带测到、登记 KD-43）：先一笔被拒的写占住 identity，条件变化后
-        // 同一身份的合法写通过门、却在落库被 IGNORE 吞掉——账本永远不会有这笔事件。
-        val database = FakeStudyDatabasePort()
-        val writer = KnowledgeEvidenceWriter(database)
-        val rejected = writer.write(modelRequest(requestId = "req-sticky"))
-        assertEquals(
-            "节点不在库里 → 未锚定拒绝（第一笔占住 identity）",
-            KnowledgeEvidenceWriteOutcome.Rejected(MasteryWriteGate.RejectReason.KNOWLEDGE_NODE_NOT_ANCHORED),
-            rejected,
-        )
+    fun `an accepted write blocked by an earlier rejected row is compensated under a fresh identity`() =
+        runBlocking {
+            // 身份粘性（AUD-11 ③ 附带测到、登记 KD-43(b)）：先一笔被拒的写占住 identity，
+            // 条件变化后同一身份的合法写通过门。裁定：观察行保留，合法写换新身份入账，
+            // 回执标记粘性（零用户参与）。
+            val database = FakeStudyDatabasePort()
+            val writer = KnowledgeEvidenceWriter(database)
+            val rejected = writer.write(modelRequest(requestId = "req-sticky"))
+            assertEquals(
+                "节点不在库里 → 未锚定拒绝（第一笔占住 identity）",
+                KnowledgeEvidenceWriteOutcome.Rejected(MasteryWriteGate.RejectReason.KNOWLEDGE_NODE_NOT_ANCHORED),
+                rejected,
+            )
 
-        // 条件变化（节点被导入 / 冷却过期都算）：同一身份这一次通过门。
-        database.knowledgeNodes += nodeSeed()
-        val second = writer.write(modelRequest(requestId = "req-sticky", occurredAtEpochMillis = 13_000))
+            // 条件变化（节点被导入 / 冷却过期都算）：同一身份这一次通过门。
+            database.knowledgeNodes += nodeSeed()
+            val second = writer.write(modelRequest(requestId = "req-sticky", occurredAtEpochMillis = 13_000))
 
-        assertEquals(
-            "门放行了（不是拒绝），但这一笔进不了账本——这一档必须单独可读",
-            KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW,
-            accepted(second).ledgerStatus,
-        )
-        // "既有被拒行不被改写 / 库里仍只有一行"是**真库**上的断言（本假件是记录器，
-        // 逐条追加、不模拟 IGNORE 的存储后果）：见
-        // `KnowledgeQuizCooldownChannelScopeInstrumentedTest.anAcceptedWriteBlockedByARejectedRowIsReportedAndStaysOutOfTheLedger`。
-    }
+            assertEquals(
+                "合法写换新身份真正入了账本，且回执明确标记“经历过身份粘性”",
+                KnowledgeEvidenceLedgerStatus.LEDGERED_AFTER_REJECTED_IDENTITY,
+                accepted(second).ledgerStatus,
+            )
+            val primaryId = "chat-ev:req-sticky:mastery_update:$nodeId"
+            val compensatedId = knowledgeEvidenceIdAfterRejectedIdentity(primaryId, nodeId)
+            assertTrue(
+                "被拒观察行保留（未被覆盖/删除）",
+                database.recordedChatEvidence.first { it.evidence_id == primaryId }.isRejected,
+            )
+            val compensated = database.recordedChatEvidence.single { it.evidence_id == compensatedId }
+            assertEquals("新身份落的是正常证据", null, compensated.rejected_reason)
+            assertEquals(13_000L, compensated.created_at_epoch_millis)
+        }
+
+    @Test
+    fun `a compensated identity that is itself blocked stays loud instead of silently succeeding`() =
+        runBlocking {
+            // 反例：补偿身份也被一条被拒观察行占住（数据损坏/另一写入者）。只补一层，
+            // 不无限换身份，不把“没进账本”伪装成成功。
+            val database = FakeStudyDatabasePort().apply { knowledgeNodes += nodeSeed() }
+            val primaryId = "chat-ev:req-double:mastery_update:$nodeId"
+            database.recordedChatEvidence += rejectedRow(primaryId)
+            database.recordedChatEvidence += rejectedRow(
+                knowledgeEvidenceIdAfterRejectedIdentity(primaryId, nodeId),
+            )
+            val writer = KnowledgeEvidenceWriter(database)
+
+            val outcome = writer.write(modelRequest(requestId = "req-double"))
+
+            assertEquals(
+                "补偿也失败时如实报 BLOCKED（不假装已入账）",
+                KnowledgeEvidenceLedgerStatus.BLOCKED_BY_REJECTED_ROW,
+                accepted(outcome).ledgerStatus,
+            )
+        }
+
+    private fun rejectedRow(evidenceId: String) = LearnerChatEvidenceEntity(
+        evidence_id = evidenceId,
+        learner_id = learnerId,
+        conversation_id = "tutor-session:1",
+        knowledge_node_id = nodeId,
+        direction = TutorEvidenceDirection.NEGATIVE.name,
+        weight = 0.0,
+        reason_markdown = "先前的被拒观察",
+        confidence = 0.9,
+        source_kind = "MODEL_CHAT",
+        created_at_epoch_millis = 1_000,
+        rejected_reason = MasteryWriteGate.RejectReason.KNOWLEDGE_NODE_NOT_ANCHORED.name,
+        rejected_at_epoch_millis = 1_000,
+    )
 
     @Test
     fun `only the model channel asks for the same-kc cooldown`() = runBlocking {

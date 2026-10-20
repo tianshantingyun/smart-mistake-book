@@ -56,6 +56,14 @@ internal fun TutorExportEditSheet(
     onBlockTextChange: (entryId: String, blockId: String, text: String) -> Unit,
     onChoiceTextChange: (entryId: String, blockId: String, choiceId: String, text: String) -> Unit,
     onNoteChange: (entryId: String, note: String) -> Unit,
+    /** 6B-3：端口接上时才渲染自然语言改卷；null 端口 = 不显示。 */
+    modelEditAvailable: Boolean,
+    instruction: String,
+    modelEditBusy: Boolean,
+    modelEditMessage: String?,
+    modelEditMessageIsError: Boolean,
+    onInstructionChange: (String) -> Unit,
+    onModelEdit: () -> Unit,
     onBack: () -> Unit,
     onConfirm: (MistakePaperDraft) -> Unit,
     onDismiss: () -> Unit,
@@ -103,6 +111,50 @@ internal fun TutorExportEditSheet(
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
                     )
+
+                    // 6B-3：自然语言改卷（只在这条入口接上模型端口时出现）。
+                    if (modelEditAvailable) {
+                        Text(
+                            text = "用一句话改卷面",
+                            modifier = Modifier.testTag("tutor_export_edit_ai_section"),
+                            color = Ink,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        OutlinedTextField(
+                            value = instruction,
+                            onValueChange = onInstructionChange,
+                            label = { Text("例如：删掉第二题，把第一题标题改短一点") },
+                            enabled = !modelEditBusy,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("tutor_export_edit_ai_instruction"),
+                        )
+                        Text(
+                            text = "只改这份卷面副本：模型只能删题、加回已删除的题、调序、" +
+                                "改文字；改备注还需版式打开「含备注」。不能改图，也不会写回错题本。",
+                            modifier = Modifier.testTag("tutor_export_edit_ai_hint"),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        PrimaryActionButton(
+                            text = if (modelEditBusy) "正在改卷面…" else "让 AI 改卷面",
+                            onClick = onModelEdit,
+                            enabled = instruction.isNotBlank() && !modelEditBusy,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("tutor_export_edit_ai_apply"),
+                        )
+                    }
+                    modelEditMessage?.let { message ->
+                        Text(
+                            text = message,
+                            modifier = Modifier.testTag("tutor_export_edit_ai_message"),
+                            color = if (modelEditMessageIsError) ErrorWarm else InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+
                     if (edit.omittedCount > 0) {
                         Text(
                             text = "另有 ${edit.omittedCount} 道暂时不能导出，已略过。",
@@ -172,7 +224,8 @@ internal fun TutorExportEditSheet(
                     PrimaryActionButton(
                         text = "确认导出（${edit.questions.size} 题）",
                         onClick = { onConfirm(edit.toDraft()) },
-                        enabled = !edit.hasBlankText,
+                        // 模型改卷在途时不允许抢跑：否则会导出改到一半之前的副本。
+                        enabled = !edit.hasBlankText && !modelEditBusy,
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("tutor_export_edit_confirm"),

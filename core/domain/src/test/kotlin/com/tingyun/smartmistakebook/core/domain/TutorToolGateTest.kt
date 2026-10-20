@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -39,6 +40,13 @@ class TutorToolGateTest {
             ),
             TUTOR_TOOL_DECLARATIONS,
         )
+    }
+
+    @Test
+    fun `every declared tool has a real handler in the capability snapshot`() {
+        // PRD-06 同源：页面声明面与"已实现处理器"必须是同一组工具。多一枚声明 = 广告一个
+        // 没有执行分支的函数；少一枚 = 有处理器却永远不广告（两处名单漂移会在这里先红）。
+        assertEquals(TutorCapabilitySnapshot.IMPLEMENTED_TOOLS, TUTOR_TOOL_DECLARATIONS)
     }
 
     @Test

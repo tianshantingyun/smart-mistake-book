@@ -21,6 +21,10 @@ import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.domain.tutorSessionObjectiveRecord
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
+import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
+import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.KnowledgeAnchorClass
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
@@ -36,6 +40,8 @@ import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolFigureTrace
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
+import com.tingyun.smartmistakebook.core.model.defaultImageOperation
+import com.tingyun.smartmistakebook.core.model.figureGenerationPurpose
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.isReady
 import kotlinx.coroutines.CancellationException
@@ -947,6 +953,10 @@ internal class RoomTutorToolRunner(
         val description = requireNotNull(call.figureDescription) {
             "GENERATE_FIGURE description is contract-enforced"
         }
+        // 4E WG-04b：模型显式选择的图像操作；旧调用按 kind 取旧默认（REDRAW→EDIT、
+        // PROCESS→GENERATE）。kind 只映射 purpose，方法在本构建恒为 IMAGE_MODEL。
+        val operation = call.figureImageOperation ?: kind.defaultImageOperation()
+        val purpose = kind.figureGenerationPurpose()
         val generator = figureGenerator
             ?: return TutorToolExecution(
                 TutorToolOutcome(
@@ -955,43 +965,73 @@ internal class RoomTutorToolRunner(
                     summaryMarkdown = "本机没有可用的生图通道，未生成配图；不要反复申请。",
                     errorKind = FIGURE_UNAVAILABLE,
                 ),
+                figure = TutorToolFigureTrace(
+                    kind = kind,
+                    method = FigureGenerationMethod.IMAGE_MODEL,
+                    purpose = purpose,
+                    status = FigureGenerationStatus.UNAVAILABLE,
+                ),
             )
         // F2：**两种 kind 的共同前置**是"有当前题"——意图矩阵本意是"大厅/查库/闲聊轮没有
         // 可画的题"，但 Route B 的意图由模型自报，不能只靠矩阵。没有当前题时两种图都不生成
         // （GENERATE_PROCESS 也一样：没有题锚的过程图只是一次无锚点的付费生成），
         // 按 K2a 回 ok=true 空范围、**不调用生成器**。
         val draft = currentDraft(context)
-            ?: return TutorToolExecution(
-                outcome = TutorToolOutcome(
-                    tool = call.tool,
-                    ok = true,
-                    summaryMarkdown = "本轮没有可画的题：这次对话没有正在处理的题目。" +
-                        "不必重复申请，直接回答学生的问题。",
-                ),
-                // A4：空范围也是 ok=true（K2a），但工具卡不能因此说"已生成"——带上事实半
-                // （kind、无 id）让渲染层说"本轮没有可画的题"。
-                figure = TutorToolFigureTrace(kind = kind),
-            )
-        val sourceSheet = when (kind) {
-            // REDRAW 额外要求当前题的规范题面资产。A8 起 `ProblemDraftRecord.sourceAsset`
-            // 可空：手动建题的草稿没有照片，没有可重绘的原图——按 K2a 空范围处理
-            // （ok=true、不生成、不付费），而不是把空源当成一张图交出去或抛异常。
-            TutorFigureKind.REDRAW_PROBLEM -> draft.sourceAsset ?: return TutorToolExecution(
-                outcome = TutorToolOutcome(
-                    tool = call.tool,
-                    ok = true,
-                    summaryMarkdown = "这道题是手动输入的，没有原图可重绘；" +
-                        "不必重复申请，直接回答学生的问题。",
-                ),
-                figure = TutorToolFigureTrace(kind = kind),
-            )
-            TutorFigureKind.GENERATE_PROCESS -> null
+        val sourceSheet = when (operation) {
+            FigureImageOperation.EDIT -> {
+                if (draft == null) {
+                    return emptyScopeFigure(
+                        call = call,
+                        kind = kind,
+                        purpose = purpose,
+                        // EDIT 没有源图：对 REDRAW 仍然是"没有可画的题"（与旧行为逐字一致），
+                        // 对过程图则明确说没有原图可编辑——两种情况都不出网。
+                        summaryMarkdown = if (kind == TutorFigureKind.REDRAW_PROBLEM) {
+                            "本轮没有可画的题：这次对话没有正在处理的题目。" +
+                                "不必重复申请，直接回答学生的问题。"
+                        } else {
+                            "这道题没有原图可以编辑：这次对话没有正在处理的题目。" +
+                                "不必重复申请，直接回答学生的问题。"
+                        },
+                    )
+                }
+                // A8 起 `ProblemDraftRecord.sourceAsset` 可空：手动建题的草稿没有照片，
+                // 没有可编辑的源图——按 K2a 空范围处理（ok=true、不生成、不付费）。
+                draft.sourceAsset ?: return emptyScopeFigure(
+                    call = call,
+                    kind = kind,
+                    purpose = purpose,
+                    summaryMarkdown = if (kind == TutorFigureKind.REDRAW_PROBLEM) {
+                        "这道题是手动输入的，没有原图可重绘；" +
+                            "不必重复申请，直接回答学生的问题。"
+                    } else {
+                        "这道题没有原图可以编辑；不必重复申请，直接回答学生的问题。"
+                    },
+                )
+            }
+
+            // GENERATE 不读源图，但仍要求有当前题（无锚点的生成是白烧预算）。
+            FigureImageOperation.GENERATE -> {
+                if (draft == null) {
+                    return emptyScopeFigure(
+                        call = call,
+                        kind = kind,
+                        purpose = purpose,
+                        summaryMarkdown = "本轮没有可画的题：这次对话没有正在处理的题目。" +
+                            "不必重复申请，直接回答学生的问题。",
+                    )
+                }
+                null
+            }
         }
         val result = try {
             generator.generate(
                 TutorFigureRequest(
                     kind = kind,
                     description = description,
+                    imageOperation = operation,
+                    // 模型给的具体提示词原样交给图像 API；null = 旧调用沿用历史指令。
+                    imagePrompt = call.figureImagePrompt,
                     sourceSheet = sourceSheet,
                     // GENERATE_PROCESS 的当前题上下文（标题；本地取，模型不可填）。
                     problemContext = draft?.currentRevision?.title,
@@ -1014,11 +1054,17 @@ internal class RoomTutorToolRunner(
         ) {
             attachGeneratedRedrawToRevision(context, result.figureId)
         }
+        // 4E WG-04b：痕迹记录**实际执行**的方法/用途/逻辑操作与终态；旧行（null）由
+        // TutorToolFigureTrace 的默认值保持逐字不变。
         val figureTrace = TutorToolFigureTrace(
             kind = kind,
             figureId = result.figureId,
             model = result.model,
             generatedNow = result.generatedNow,
+            method = FigureGenerationMethod.IMAGE_MODEL,
+            purpose = purpose,
+            operationId = result.operationId,
+            status = result.traceStatus(),
         )
         return when (result.status) {
             TutorFigureStatus.GENERATED -> TutorToolExecution(
@@ -1053,7 +1099,48 @@ internal class RoomTutorToolRunner(
                 ),
                 figure = figureTrace,
             )
+
+            // 生成器判定源图不足（例如缝核对失败后的 NEED_SOURCE）：没有出网、没有产物，
+            // 结果按 K2a 的"本轮不生成"形态回给模型，但痕迹如实记录终态。
+            TutorFigureStatus.NEED_SOURCE -> TutorToolExecution(
+                outcome = TutorToolOutcome(
+                    tool = call.tool,
+                    ok = true,
+                    summaryMarkdown = "这次没有可用的源图，未生成配图；不必重复申请，" +
+                        "直接回答学生的问题。",
+                ),
+                figure = figureTrace,
+            )
         }
+    }
+
+    /** 生图空范围（无题/无源图）：ok=true、不调用生成器，痕迹如实记录终态与用途。 */
+    private fun emptyScopeFigure(
+        call: TutorToolCall,
+        kind: TutorFigureKind,
+        purpose: FigureGenerationPurpose,
+        summaryMarkdown: String,
+    ): TutorToolExecution = TutorToolExecution(
+        outcome = TutorToolOutcome(
+            tool = call.tool,
+            ok = true,
+            summaryMarkdown = summaryMarkdown,
+        ),
+        figure = TutorToolFigureTrace(
+            kind = kind,
+            method = FigureGenerationMethod.IMAGE_MODEL,
+            purpose = purpose,
+            status = FigureGenerationStatus.NEED_SOURCE,
+        ),
+    )
+
+    /** 生图结果 → 痕迹终态：幂等命中（未本次出网）记为 CACHED，不冒充 GENERATED。 */
+    private fun TutorFigureResult.traceStatus(): FigureGenerationStatus = when (status) {
+        TutorFigureStatus.GENERATED ->
+            if (generatedNow) FigureGenerationStatus.GENERATED else FigureGenerationStatus.CACHED
+        TutorFigureStatus.FAILED -> FigureGenerationStatus.FAILED
+        TutorFigureStatus.UNAVAILABLE -> FigureGenerationStatus.UNAVAILABLE
+        TutorFigureStatus.NEED_SOURCE -> FigureGenerationStatus.NEED_SOURCE
     }
 
     /**

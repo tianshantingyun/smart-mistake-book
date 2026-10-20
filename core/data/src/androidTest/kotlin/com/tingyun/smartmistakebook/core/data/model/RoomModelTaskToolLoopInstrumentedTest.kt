@@ -47,6 +47,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -396,6 +399,83 @@ class RoomModelTaskToolLoopInstrumentedTest {
     }
 
     @Test
+    fun nativeActionSurvivesWhenTheFinalAnswerDoesNotRepeatIt() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "native-action-completion-${System.nanoTime()}.db"
+        val database = StudyDatabaseFactory.open(context, databaseName)
+        try {
+            val nativeAction = OpenAiModelProtocol.parseResponse(
+                responseBody = """
+                    {"choices":[{"message":{"content":null,"tool_calls":[
+                      {"id":"export-1","type":"function","function":{"name":"START_EXPORT",
+                       "arguments":"{\"templateId\":\"practice_sheet\",\"columnCount\":2}"}}
+                    ]}}]}
+                """.trimIndent(),
+                input = request().input,
+                modelVersion = "tool-loop-model-v1",
+            )
+            val gateway = ScriptedGateway(provider, listOf(nativeAction, finalAnswerOutput()))
+            val repository = RoomModelTaskRepository(
+                database = database,
+                gateway = gateway,
+                clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+            )
+
+            val completed = repository.execute(request()).toList().last()
+            assertEquals(ModelTaskStatus.SUCCEEDED, completed.status)
+            assertEquals(0, repository.toolRunner.executedCallCount)
+            val persisted = checkNotNull(database.readModelTask(request().requestId))
+            val output = persisted.output as TutorLobbyOutput
+            val encoded = Json.encodeToJsonElement(TutorLobbyOutput.serializer(), output).jsonObject
+            assertEquals(
+                Json.parseToJsonElement(
+                    """[{"action":"START_EXPORT","parameters":{"templateId":"practice_sheet","columnCount":"2"}}]""",
+                ),
+                encoded["requestedLocalActions"] ?: JsonArray(emptyList()),
+            )
+            assertTrue("模型最终答复没有重复提出动作", output.localActions.isEmpty())
+        } finally {
+            database.close()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    @Test
+    fun repeatedActionsAcrossToolRoundsAreHandedOffOnce() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "repeated-action-completion-${System.nanoTime()}.db"
+        val database = StudyDatabaseFactory.open(context, databaseName)
+        try {
+            val action = com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest(
+                com.tingyun.smartmistakebook.core.model.TutorLocalAction.OPEN_PROBLEM,
+            )
+            val round = toolRequestOutput().copy(localActions = listOf(action))
+            val gateway = ScriptedGateway(
+                provider,
+                listOf(round, round.copy(calls = emptyList()), finalAnswerOutput()),
+            )
+            val repository = RoomModelTaskRepository(
+                database = database,
+                gateway = gateway,
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+            )
+
+            val completed = repository.execute(request()).toList().last()
+            assertEquals(ModelTaskStatus.SUCCEEDED, completed.status)
+            val output = checkNotNull(database.readModelTask(request().requestId)).output as TutorLobbyOutput
+            val encoded = Json.encodeToJsonElement(TutorLobbyOutput.serializer(), output).jsonObject
+            assertEquals(
+                Json.parseToJsonElement("""[{"action":"OPEN_PROBLEM"}]"""),
+                encoded["requestedLocalActions"] ?: JsonArray(emptyList()),
+            )
+        } finally {
+            database.close()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    @Test
     fun secondDispatchCarriesRoundResultsAndNonEmptyDeclarations() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val databaseName = "tool-loop-carrier-${System.nanoTime()}.db"
@@ -565,8 +645,10 @@ class RoomModelTaskToolLoopInstrumentedTest {
     }
 
     @Test
-    fun aLobbyRoundSecondDispatchDeclaresTheFullToolFace() = runBlocking {
-        // D7 大厅全工具面：第二轮输入的声明集就是同一页的全量声明（4B A1 起为 8 枚）。
+    fun aLobbyRoundSecondDispatchDeclaresEveryReadyTool() = runBlocking {
+        // D7 大厅全工具面：第二轮输入的声明集是同一页的**就绪**工具。
+        // PRD-06：测试 provider 的 supportsImageInput=false（没有可用的图像后端），
+        // 因此 GENERATE_FIGURE 不在广告里；知识材料在本用例 ready，KNOWLEDGE_READ 仍在。
         val context = ApplicationProvider.getApplicationContext<Context>()
         val databaseName = "lobby-five-tools-${System.nanoTime()}.db"
         context.deleteDatabase(databaseName)
@@ -584,10 +666,13 @@ class RoomModelTaskToolLoopInstrumentedTest {
 
             val second = gateway.dispatchLog[1].input as TutorLobbyInput
             assertEquals(
-                com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS.toList(),
+                (
+                    com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS -
+                        com.tingyun.smartmistakebook.core.model.TutorToolName.GENERATE_FIGURE
+                    ).toList(),
                 second.toolDeclarations,
             )
-            assertEquals(8, second.toolDeclarations.size)
+            assertEquals(7, second.toolDeclarations.size)
         } finally {
             database.close()
             context.deleteDatabase(databaseName)

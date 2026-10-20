@@ -129,10 +129,14 @@ import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
+import com.tingyun.smartmistakebook.core.domain.FsrsRating
+import com.tingyun.smartmistakebook.core.domain.ReviewSample
+import com.tingyun.smartmistakebook.core.domain.ReviewSelfReportKey
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
 import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealRequest
 import com.tingyun.smartmistakebook.core.domain.StudyChoiceSubmission
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
+import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewSubmission
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.model.AnswerRevealOutcome
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
@@ -888,6 +892,59 @@ class RoomBackedStudyExperienceRepositoryTest {
                 LearningEvidenceReason.INCORRECT_AFTER_HINT,
                 submitted.attempt.evidenceReason,
             )
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    /**
+     * PRD-05 无模型路径与幂等（裁定 32/36）：三键自评走既有 `recordReviewAttempt`
+     * 同事务推进，写 SELF_REPORTED 证据；同一 request id 重放只生效一次；
+     * review_log 的原档（0.7）与调度档（Hard）分列。
+     */
+    @Test
+    fun `self report writes self-reported evidence, advances the session and is idempotent`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        val startedAt = Instant.parse("2026-01-02T08:05:00Z").toEpochMilli()
+
+        try {
+            repository.initialize()
+            val started = requireNotNull(
+                repository.startOrResumeReviewSession("self-report-start", startedAt),
+            )
+            val practiceUnitId = repository.snapshot.value.review.scheduledPracticeUnitIds.first()
+            val submission = StudySelfReportedReviewSubmission(
+                requestId = "self-report-1",
+                sessionId = started.sessionId,
+                expectedStateVersion = started.stateVersion,
+                presentationId = "review-presentation:self-report",
+                practiceUnitId = practiceUnitId,
+                key = ReviewSelfReportKey.HARD,
+                responseOrdinal = 1,
+                durationSeconds = 15,
+                occurredAtEpochMillis = startedAt + 1,
+            )
+
+            val result = repository.submitReviewSelfReport(submission)
+            assertTrue(result.created)
+            assertEquals(LearningEvidenceReason.SELF_REPORTED_RECALL, result.evidenceReason)
+            assertEquals(started.currentOrdinal + 1, result.progress.currentOrdinal)
+            assertEquals(started.stateVersion + 1, result.progress.stateVersion)
+            val row = database.reviewLogEntries.single()
+            assertEquals(ReviewLogSink.SOURCE_KIND_SELF_REPORT, row.sourceKind)
+            assertEquals("卡顿原档 0.7 逐位落库", 0.7, row.evidenceWeight, 0.0)
+            assertEquals("调度档 = Hard", FsrsRating.HARD.storedRating, row.rating)
+            assertEquals(ReviewSample.STATE_NEW, row.state)
+
+            // 双击/进程中断后的重试：同一 request id 不再写 attempt/review_log、不再推进会话。
+            val replay = repository.submitReviewSelfReport(submission)
+            assertFalse("重放不得创建第二次 attempt", replay.created)
+            assertEquals(result.attemptId, replay.attemptId)
+            assertEquals(1, database.reviewLogEntries.size)
+            assertEquals(1, database.attemptCount)
         } finally {
             repository.close()
             scope.cancel()
@@ -3349,6 +3406,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
                     evidenceWeight = entry.evidenceWeight,
                     deltaTDays = entry.deltaTDays,
                     state = entry.state,
+                    schedulingEligible = entry.schedulingEligible,
                 )
             }
 
@@ -3369,7 +3427,12 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         learnerId: String,
         practiceUnitId: String,
     ): PersistedReviewLogLast? = reviewLogEntries
-        .filter { it.learnerId == learnerId && it.practiceUnitId == practiceUnitId }
+        .filter {
+            it.learnerId == learnerId &&
+                it.practiceUnitId == practiceUnitId &&
+                // 与真 Room DAO 同口径（PRD-05）：被 VOID 撤销的行不参与"前条"判定。
+                it.schedulingEligible
+        }
         .maxByOrNull(ReviewLogEntry::reviewedAtEpochMillis)
         ?.let { PersistedReviewLogLast(it.rating, it.reviewedAtEpochMillis) }
 

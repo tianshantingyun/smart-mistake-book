@@ -11,13 +11,29 @@ internal class RoomBackupSupportStore(
         // database file is packaged. This stays the cheap flush; the archive
         // flow itself uses snapshotForBackup below for the consistency
         // snapshot.
+        //
+        // KD-62①：`PRAGMA wal_checkpoint(TRUNCATE)` 的结果行必须**校验**，不能消费后忽略。
+        // busy=1 表示 TRUNCATE 被长写者/其他连接挡下、checkpoint 没有完成；此时主库可能
+        // 缺 WAL 里已提交的页，继续复制会静默产出一份不一致的备份。宁可让备份明确失败。
+        var busy = 0
+        var log = -1
+        var checkpointed = -1
+        var sawRow = false
         database.withRawConnection(isReadOnly = false) { connection ->
             connection.usePrepared("PRAGMA wal_checkpoint(TRUNCATE)") { statement ->
-                while (statement.step()) {
-                    // Checkpoint result row is intentionally consumed and ignored.
+                if (statement.step()) {
+                    sawRow = true
+                    busy = statement.getInt(0)
+                    log = statement.getInt(1)
+                    checkpointed = statement.getInt(2)
                 }
             }
         }
+        if (!sawRow) {
+            error("备份前的 WAL checkpoint 没有返回结果行，无法确认落盘完成；备份已中止")
+        }
+        checkpointCompletionProblem(busy = busy, log = log, checkpointed = checkpointed)
+            ?.let { problem -> error("备份前的 WAL checkpoint 未完成：$problem") }
     }
 
     suspend fun snapshotForBackup(
@@ -133,4 +149,32 @@ internal class RoomBackupSupportStore(
             }
         }
     }
+}
+
+/**
+ * KD-62①：`PRAGMA wal_checkpoint(TRUNCATE)` 结果行的完成判据（纯函数，便于单测）。
+ *
+ * 返回值语义取自 SQLite 文档：第一列 `busy` = 1 表示 TRUNCATE 被挡下、checkpoint **没有**
+ * 完成；第二/三列是 WAL 页数与已回写主库的页数，**两列都是 -1** 表示当前连接不在 WAL
+ * 模式（没有 WAL 可 checkpoint，属合法 no-op）。其余组合里“已回写页数 < WAL 页数”视为
+ * 未完成。
+ *
+ * 返回 null = 可以继续成包；非 null = 必须中止（绝不拿可能缺页的主库去复制）。
+ */
+internal fun checkpointCompletionProblem(
+    busy: Int,
+    log: Int,
+    checkpointed: Int,
+): String? {
+    if (busy != 0) {
+        return "busy=$busy（checkpoint 被其他连接或长写者挡下）"
+    }
+    if (log < 0 && checkpointed < 0) return null
+    if (log < 0 || checkpointed < 0) {
+        return "结果行不完整（log=$log, checkpointed=$checkpointed）"
+    }
+    if (checkpointed < log) {
+        return "只回写了 $checkpointed/$log 页"
+    }
+    return null
 }

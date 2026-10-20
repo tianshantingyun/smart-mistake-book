@@ -99,6 +99,12 @@ fun TutorRoute(
     readExportPaperEdit:
         (suspend (entryIds: List<String>, layout: MistakePdfLayout) -> MistakePdfPaperEdit?)? =
         null,
+    /**
+     * 6B-3：自然语言改卷的模型端口（一句要求 + 卷面副本 → 白名单命令 JSON）。
+     * null = 不接模型改卷，编辑态不显示这一块。
+     */
+    paperEditAssistant: (suspend (instruction: String, paper: MistakePdfPaperEdit) -> String)? =
+        null,
     /** 6B-2：编辑态确认后的落点（装配处落盘草稿 + 入队后台重渲染）。 */
     onStartEditedExport: (MistakePaperDraft, MistakeExportFormat) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
@@ -123,6 +129,7 @@ fun TutorRoute(
         ),
         onStartExport = onStartExport,
         readExportPaperEdit = readExportPaperEdit,
+        paperEditAssistant = paperEditAssistant,
         onStartEditedExport = onStartEditedExport,
         modifier = modifier,
     )

@@ -6,7 +6,9 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.AttentionSignal
 import com.tingyun.smartmistakebook.core.domain.FsrsEvidenceRatingMapper
 import com.tingyun.smartmistakebook.core.domain.MasteryEvidencePolicy
+import com.tingyun.smartmistakebook.core.domain.ReviewSelfReportKey
 import com.tingyun.smartmistakebook.core.domain.StudyChoiceSubmission
+import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewSubmission
 import com.tingyun.smartmistakebook.core.model.AssessmentAssistanceEvent
 import com.tingyun.smartmistakebook.core.model.AssessmentEvidenceSnapshot
 import com.tingyun.smartmistakebook.core.model.AssessmentSnapshotVerification
@@ -188,11 +190,138 @@ internal class StudySubmissionPreparer(
     }
 
 
+    /**
+     * PRD-05 三键自评：证据写 `SELF_REPORTED_RECALL` / `SELF_REPORTED_STUCK`（裁定 32/36），
+     * **不写 LOCAL_CHECKED / MODEL_JUDGED**。
+     *
+     * 定价：
+     * - 对 = Good 原档 0.8 → `ASSISTED_RECALL`（自评永不是 INDEPENDENT）；
+     * - 卡顿 = Hard 原档 0.7 → `ASSISTED_RECALL`（费力但回忆成功）；
+     * - 错 = Again 原档 1.0 → `RETRIEVAL_FAILURE`。
+     *
+     * **三键不做注意力/答题时长折扣**（这是"原档与折扣分列"在本仓无新列时的落点）：
+     * 0.7 若被折扣到 0.665，`reportedRatingFor` 会掉进 `else -> GOOD`，把 Hard 静默抬成
+     * Good——恰好是 Anki 官方警告的"Hard 吸收失败/高估记忆"。因此原档逐位落
+     * `review_log.evidence_weight`，调度档由 `review_log.rating` 单独表达。
+     *
+     * 已存在的答题前 reveal 不在这里处理：DB 的 `canonicalizeAttemptForPresentation` 会把
+     * 整条证据改写为 ANSWER_REVEALED（既有语义），与机判路径一致。
+     */
+    suspend fun prepareSelfReportedSubmission(
+        submission: StudySelfReportedReviewSubmission,
+    ): PreparedSelfReportedSubmission {
+        val facts = practiceUnitFacts.selfReportFacts(submission.practiceUnitId)
+        val objective = submission.selectedChoiceId?.let { choiceId ->
+            facts.assessmentItem
+                ?.takeIf { item -> item.choices.any { it.id == choiceId } }
+                ?.evaluateChoice(choiceId)
+        }
+        val evidence = SelfReportedReviewEvidence.evidenceFor(submission.key)
+        val outcome = SelfReportedReviewEvidence.memoryOutcomeFor(submission.key)
+        val submittedResponse = if (objective != null) {
+            AttemptSubmittedResponse.Choice(
+                choiceId = objective.choice.id,
+                choiceMarkdown = objective.choice.markdown,
+                submittedAtEpochMillis = submission.occurredAtEpochMillis,
+            )
+        } else {
+            AttemptSubmittedResponse.Choice(
+                choiceId = "self-report:${submission.key.name.lowercase()}",
+                choiceMarkdown = selfReportResponseMarkdown(submission.key),
+                submittedAtEpochMillis = submission.occurredAtEpochMillis,
+            )
+        }
+        val revealedBefore = database.findAnswerRevealForPresentation(
+            learnerId = learnerId,
+            presentationId = submission.presentationId,
+        )
+        return PreparedSelfReportedSubmission(
+            evidenceSnapshot = facts.evidenceSnapshot,
+            command = AttemptWriteCommand(
+                learnerId = learnerId,
+                submissionId = writeContext.stableId("submission", submission.requestId),
+                attemptId = writeContext.stableId("attempt", submission.requestId),
+                presentationId = submission.presentationId,
+                assessmentSnapshotId = facts.evidenceSnapshot.snapshotId,
+                submittedResponse = submittedResponse,
+                evidence = evidence,
+                problemMemoryOutcome = outcome,
+                occurredAtEpochMillis = submission.occurredAtEpochMillis,
+                durationSeconds = submission.durationSeconds,
+                studyDay = writeContext.studyDayAt(submission.occurredAtEpochMillis),
+                hintCount = submission.hintCount,
+                revealedBeforeAnswer = revealedBefore != null,
+            ),
+            objectiveChoiceCorrect = objective?.isCorrect,
+        )
+    }
+
+    private fun selfReportResponseMarkdown(key: ReviewSelfReportKey): String =
+        SelfReportedReviewEvidence.responseMarkdown(key)
+
     internal data class PreparedChoiceSubmission(
         val evidenceSnapshot: AssessmentEvidenceSnapshot,
         val command: AttemptWriteCommand,
         val isCorrect: Boolean,
     )
 
+    internal data class PreparedSelfReportedSubmission(
+        val evidenceSnapshot: AssessmentEvidenceSnapshot,
+        val command: AttemptWriteCommand,
+        /** 仅当本题有可信机判答案且学生给了选择时非空；它是本机反馈，不改变证据口径。 */
+        val objectiveChoiceCorrect: Boolean?,
+    )
+}
 
+/**
+ * PRD-05 三键 → 账本证据的唯一映射（裁定 32/36）。
+ *
+ * 单独成对象是为了让"三键区别"能被纯单元测试逐位钉住：数据层写什么证据、记忆卡走哪个
+ * outcome、调度映射成哪一档，不依赖 Room/UI 夹具。**没有 Easy 分支**——三键之外的评分
+ * 在类型上不存在。
+ *
+ * 原档与折扣分列：这里给出的 weight 就是原档（0.8/0.7/1.0），自评路径不再乘注意力/时长
+ * 折扣（`prepareSelfReportedSubmission` 不走 `prepareChoiceSubmission` 的折扣链）。
+ */
+internal object SelfReportedReviewEvidence {
+    /**
+     * 三键原档 == `FsrsEvidenceRatingMapper` 的 Good/Hard/Again 权重。
+     * 0.7 若被折扣到 0.665 会被 `reportedRatingFor` 归为 Good，静默把"卡顿"抬成"对"。
+     */
+    const val GOOD_WEIGHT = FsrsEvidenceRatingMapper.RATING_GOOD_WEIGHT
+    const val HARD_WEIGHT = FsrsEvidenceRatingMapper.RATING_HARD_WEIGHT
+    const val AGAIN_WEIGHT = FsrsEvidenceRatingMapper.RATING_AGAIN_WEIGHT
+
+    /** HARD 必须是"费力但想起来了"——方向仍为 POSITIVE，不是失败。 */
+    fun evidenceFor(key: ReviewSelfReportKey): LearningEvidence = when (key) {
+        ReviewSelfReportKey.GOOD -> LearningEvidence(
+            direction = LearningEvidenceDirection.POSITIVE,
+            weight = GOOD_WEIGHT,
+            reason = LearningEvidenceReason.SELF_REPORTED_RECALL,
+        )
+        ReviewSelfReportKey.HARD -> LearningEvidence(
+            direction = LearningEvidenceDirection.POSITIVE,
+            weight = HARD_WEIGHT,
+            reason = LearningEvidenceReason.SELF_REPORTED_RECALL,
+        )
+        ReviewSelfReportKey.AGAIN -> LearningEvidence(
+            direction = LearningEvidenceDirection.NEGATIVE,
+            weight = AGAIN_WEIGHT,
+            reason = LearningEvidenceReason.SELF_REPORTED_STUCK,
+        )
+    }
+
+    /** 自评永不是 INDEPENDENT_RECALL；Good/Hard 都是 assisted（主观报告不作独立证据）。 */
+    fun memoryOutcomeFor(key: ReviewSelfReportKey): ProblemMemoryOutcome = when (key) {
+        ReviewSelfReportKey.GOOD,
+        ReviewSelfReportKey.HARD,
+        -> ProblemMemoryOutcome.ASSISTED_RECALL
+        ReviewSelfReportKey.AGAIN -> ProblemMemoryOutcome.RETRIEVAL_FAILURE
+    }
+
+    fun responseMarkdown(key: ReviewSelfReportKey): String = when (key) {
+        ReviewSelfReportKey.GOOD -> "自评：对（顺利回忆）"
+        ReviewSelfReportKey.HARD -> "自评：卡顿（费力但想起来了）"
+        ReviewSelfReportKey.AGAIN -> "自评：错（没想起来/答错）"
+    }
 }

@@ -114,11 +114,29 @@ data class TutorToolTraceEntry(
  * 金额不在任何地方记录（不猜）。
  */
 @Serializable
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 data class TutorToolFigureTrace(
     val kind: TutorFigureKind,
     val figureId: String? = null,
     val model: String? = null,
+    /**
+     * 这是旧形状里**始终落键**的布尔事实：编码器全局 `encodeDefaults=false` 会把 false
+     * 当默认值省略，旧实现因此写出过两种字节形状。4E WG-04b 明确它在旧形状里存在，
+     * 用 `@EncodeDefault(ALWAYS)` 固定下来（只会补上 `false` 这个键，不引入新字段）。
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.ALWAYS)
     val generatedNow: Boolean = false,
+    /**
+     * 4E WG-04b：这次调用**实际执行**的方法（本波次只可能是 IMAGE_MODEL）。null = 旧痕迹
+     * （批次 1/2 写下的行没有这个键），不把缺失猜成任何一种方法。
+     */
+    val method: FigureGenerationMethod? = null,
+    /** 由 kind 映射出的业务用途（方法不决定用途）。null = 旧痕迹。 */
+    val purpose: FigureGenerationPurpose? = null,
+    /** 稳定逻辑操作 id（不含 method；换方法/重试不复制身份）。null = 未开始（无题/无源图）。 */
+    val operationId: String? = null,
+    /** 这次逻辑操作的终态（GENERATED/CACHED/NEED_SOURCE/...）；null = 旧痕迹。 */
+    val status: FigureGenerationStatus? = null,
 ) {
     init {
         require(figureId == null || figureId.isNotBlank()) {
@@ -129,6 +147,13 @@ data class TutorToolFigureTrace(
         }
         require(figureId != null || !generatedNow) {
             "Only a generated figure can claim a fresh generation"
+        }
+        // JS 未接通：痕迹记录的是实际执行的方法，不可能出现 JS。
+        require(method == null || method == FigureGenerationMethod.IMAGE_MODEL) {
+            "A figure trace can only record the actually executed image-model method"
+        }
+        require(operationId == null || operationId.isNotBlank()) {
+            "A figure trace operation id must be null or non-blank"
         }
     }
 }

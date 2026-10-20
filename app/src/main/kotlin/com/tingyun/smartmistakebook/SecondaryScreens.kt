@@ -724,20 +724,12 @@ internal fun StorageScreen(
                     }
                 }
                 operationMessage = if (receipt != null) {
-                    val restartNote = if (receipt.restartRequired) {
-                        "请完全退出并重新打开应用。"
-                    } else {
-                        ""
-                    }
-                    // 部分恢复要说出来：数据库已切换，但备份里的设置没能写进本机——
-                    // 静默成功会让用户以为设置也恢复了。
-                    val settingsNote = if (receipt.settings == RestoreSettingsOutcome.WRITE_FAILED) {
-                        "设置未能写入，本机设置保持原样。"
-                    } else {
-                        ""
-                    }
-                    "恢复完成：${receipt.problemCount} 道题、${receipt.assetCount} 张题图。" +
-                        "$settingsNote$restartNote"
+                    storageRestoreCompletionMessage(
+                        problemCount = receipt.problemCount,
+                        assetCount = receipt.assetCount,
+                        settings = receipt.settings,
+                        restartRequired = receipt.restartRequired,
+                    )
                 } else {
                     "无法读取所选备份。"
                 }
@@ -950,6 +942,32 @@ internal fun StorageScreen(
             color = InkSecondary,
         )
     }
+}
+
+/**
+ * 恢复完成后的面向用户文案（KD-47）。
+ *
+ * 消灭的失败：`WRITE_FAILED` 旧文案说“本机设置保持原样”，但恢复设置是**多个键的顺序写**
+ * （选项、考试、优化参数、开关、提醒时间），非原子——中途失败时前面已成功的键会保留，
+ * 本机设置可能半新半旧。文案只能如实说“未能完整写入、可能有部分设置已变”。
+ */
+internal fun storageRestoreCompletionMessage(
+    problemCount: Int,
+    assetCount: Int,
+    settings: RestoreSettingsOutcome,
+    restartRequired: Boolean,
+): String {
+    val settingsNote = if (settings == RestoreSettingsOutcome.WRITE_FAILED) {
+        "设置未能完整写入，可能有部分设置已变。"
+    } else {
+        ""
+    }
+    val restartNote = if (restartRequired) {
+        "请完全退出并重新打开应用。"
+    } else {
+        ""
+    }
+    return "恢复完成：$problemCount 道题、$assetCount 张题图。$settingsNote$restartNote"
 }
 
 internal fun storageRestoreFailureMessage(failure: Exception): String =

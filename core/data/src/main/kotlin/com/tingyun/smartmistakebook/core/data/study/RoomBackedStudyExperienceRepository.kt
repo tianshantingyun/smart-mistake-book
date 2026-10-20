@@ -2,8 +2,11 @@ package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
+import com.tingyun.smartmistakebook.core.database.AttemptCorrectionRecord
+import com.tingyun.smartmistakebook.core.database.ReviewAttemptUndoCommand
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
+import com.tingyun.smartmistakebook.core.model.AttemptCorrection
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteCommand
 import com.tingyun.smartmistakebook.core.database.ReviewSessionRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
@@ -23,6 +26,11 @@ import com.tingyun.smartmistakebook.core.domain.LogDurationModel
 import com.tingyun.smartmistakebook.core.domain.PredictionAuditSink
 import com.tingyun.smartmistakebook.core.domain.KnowledgeNodeScorer
 import com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2
+import com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer
+import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewResult
+import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewSubmission
+import com.tingyun.smartmistakebook.core.domain.StudyReviewUndoRequest
+import com.tingyun.smartmistakebook.core.domain.StudyReviewUndoResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuestionLatticeRow
 import com.tingyun.smartmistakebook.core.domain.PlannedReasonCalibration
 import com.tingyun.smartmistakebook.core.domain.SourceCalibration
@@ -571,17 +579,21 @@ class RoomBackedStudyExperienceRepository(
         val reviewPlan = requireNotNull(
             database.observeReviewPlanForSession(sessionId).first(),
         ) { "No persisted review plan owns session $sessionId" }
-        requireNotNull(
+        val session = requireNotNull(
             (reviewPlan.activeSession ?: reviewPlan.latestSession)?.takeIf {
                 it.reviewSessionId == sessionId
             },
         ) { "Review session $sessionId does not belong to its persisted plan" }
         val orderedQueue = reviewPlan.queue.sortedBy { it.ordinal }
+        // 队列项由**本次提交的题**定位（同一计划不允许重复 practice unit）：
+        // - undo 之后 stateVersion 与 currentOrdinal 解耦，不能拿版本号当队列序号；
+        // - 提交成功但回执未回到界面时，重试会晚于会话推进，此时 session.currentOrdinal
+        //   已经指向下一题，按它定位会把重放误判成"另一题"。
         val queueItem = requireNotNull(
-            orderedQueue.singleOrNull { it.ordinal.toLong() == expectedStateVersion },
-        ) { "Expected review-session version does not identify one planned queue item" }
-        require(queueItem.practiceUnitId == submission.practiceUnitId) {
-            "Review answer belongs to another planned practice unit"
+            orderedQueue.singleOrNull { it.practiceUnitId == submission.practiceUnitId },
+        ) { "Review answer belongs to a practice unit outside the persisted plan" }
+        require(session.currentOrdinal <= orderedQueue.size) {
+            "Review session pointer is outside the persisted queue"
         }
 
         val prepared = submissionPreparer.prepareChoiceSubmission(submission)
@@ -649,6 +661,151 @@ class RoomBackedStudyExperienceRepository(
                 ?.practiceUnitId,
         )
     }
+
+    /**
+     * PRD-05：三键自评复习。与机判路径共用同一套"提交 + 会话推进"事务，但证据口径是
+     * `SELF_REPORTED_*`（裁定 32/36），且**不写** prediction 回归（自评不是独立客观结果）。
+     */
+    override suspend fun submitReviewSelfReport(
+        submission: StudySelfReportedReviewSubmission,
+    ): StudySelfReportedReviewResult = runOperation {
+        val reviewPlan = requireNotNull(
+            database.observeReviewPlanForSession(submission.sessionId).first(),
+        ) { "No persisted review plan owns session ${submission.sessionId}" }
+        val session = requireNotNull(
+            (reviewPlan.activeSession ?: reviewPlan.latestSession)?.takeIf {
+                it.reviewSessionId == submission.sessionId
+            },
+        ) { "Review session ${submission.sessionId} does not belong to its persisted plan" }
+        val orderedQueue = reviewPlan.queue.sortedBy { it.ordinal }
+        // 队列项由**本次提交的题**定位（计划内 practice unit 唯一）：
+        // undo→重评 时版本号前进而 ordinal 回退，版本不能当序号；
+        // 幂等重放又可能晚于会话推进（currentOrdinal 已指向下一题），按 ordinal 会误判。
+        val queueItem = requireNotNull(
+            orderedQueue.singleOrNull { it.practiceUnitId == submission.practiceUnitId },
+        ) { "Self-reported review belongs to a practice unit outside the persisted plan" }
+        require(session.currentOrdinal <= orderedQueue.size) {
+            "Review session pointer is outside the persisted queue"
+        }
+
+        val prepared = submissionPreparer.prepareSelfReportedSubmission(submission)
+        val priorMemory = currentLearnerSnapshot().problemMemoryStates
+            ?.get(submission.practiceUnitId)
+        database.saveAssessmentEvidenceSnapshot(prepared.evidenceSnapshot)
+        val writeResult = database.recordReviewAttempt(
+            ReviewAttemptWriteCommand(
+                attempt = prepared.command,
+                sessionId = submission.sessionId,
+                expectedStateVersion = submission.expectedStateVersion,
+                reviewQueueItemId = queueItem.reviewQueueItemId,
+                practiceUnitId = queueItem.practiceUnitId,
+            ),
+        )
+        if (writeResult.attempt.created) {
+            reviewLogSink.record(
+                practiceUnitId = submission.practiceUnitId,
+                // 落账本里权威化的那份证据（reveal 后会被 DB 改写为 ANSWER_REVEALED）。
+                evidence = writeResult.attempt.attempt.evidence,
+                occurredAtEpochMillis = submission.occurredAtEpochMillis,
+                durationSeconds = submission.durationSeconds,
+                studyDay = prepared.command.studyDay,
+                sourceKind = ReviewLogSink.SOURCE_KIND_SELF_REPORT,
+                sourceId = writeResult.attempt.attempt.attemptId,
+                priorMemory = priorMemory,
+                scrollUpCount = submission.scrollUpCount,
+                awayMillis = submission.awayMillis,
+                plannedReason = queueItem.reasonSnapshot.takeIf(String::isNotBlank),
+                editCount = (submission.responseOrdinal - 1).coerceAtLeast(0),
+                interruptionCount = submission.interruptionCount,
+            )
+        }
+        val progress = writeResult.advance.session.toProgress(orderedQueue.size)
+        latestMistakes = database.observeMistakes().first()
+        initialized = true
+        publishReadySnapshot(latestMistakes)
+        StudySelfReportedReviewResult(
+            attemptId = writeResult.attempt.attempt.attemptId,
+            created = writeResult.attempt.created,
+            evidenceReason = writeResult.attempt.attempt.evidence.reason,
+            objectiveChoiceCorrect = prepared.objectiveChoiceCorrect,
+            progress = progress,
+            nextPracticeUnitId = orderedQueue
+                .getOrNull(progress.currentOrdinal)
+                ?.practiceUnitId,
+        )
+    }
+
+    /**
+     * PRD-05：撤销最近一次自评 attempt。数据库事务内追加 VOID 更正 + 回退会话 +
+     * 把 review_log 行移出有效证据；这里负责把新进度投影回快照。
+     *
+     * 重评保留原 presentation：调用方继续使用同一个 presentationId；本方法不生成新呈现、
+     * 不撤销已发生的答案曝光。
+     */
+    override suspend fun undoReviewSelfReport(
+        request: StudyReviewUndoRequest,
+    ): StudyReviewUndoResult = runOperation {
+        val attempt = requireNotNull(database.readAttemptP0(request.attemptId)) {
+            "Undo target attempt ${request.attemptId} does not exist"
+        }
+        require(attempt.attempt.presentationId == request.presentationId) {
+            "Undo target belongs to another presentation"
+        }
+        require(attempt.attempt.practiceUnitId == request.practiceUnitId) {
+            "Undo target belongs to another practice unit"
+        }
+        val reviewPlan = requireNotNull(
+            database.observeReviewPlanForSession(request.sessionId).first(),
+        ) { "No persisted review plan owns session ${request.sessionId}" }
+        val orderedQueue = reviewPlan.queue.sortedBy { it.ordinal }
+        val correctionId = writeContext.stableId(UNDO_ID_NAMESPACE, request.requestId)
+        val correction = AttemptCorrection.voidOf(
+            correctionId = correctionId,
+            attemptId = request.attemptId,
+            reasonMarkdown = "学生撤销了本次复习自评",
+            occurredAtEpochMillis = request.occurredAtEpochMillis,
+            // 账本序号由数据库事务分配；此处的占位值不参与任何校验/指纹。
+            eventSequence = 1,
+        )
+        val undo = database.undoReviewAttempt(
+            ReviewAttemptUndoCommand(
+                learnerId = learnerId,
+                sessionId = request.sessionId,
+                expectedStateVersion = request.expectedStateVersion,
+                practiceUnitId = request.practiceUnitId,
+                attemptId = request.attemptId,
+                undoneAtEpochMillis = request.occurredAtEpochMillis,
+                correction = AttemptCorrectionRecord(
+                    learnerId = learnerId,
+                    submissionId = attempt.submissionId,
+                    correctionId = correction.correctionId,
+                    attemptId = correction.attemptId,
+                    replacementEvidence = correction.replacementEvidence,
+                    replacementMemoryOutcome = correction.replacementMemoryOutcome,
+                    reasonMarkdown = correction.reasonMarkdown,
+                    occurredAtEpochMillis = correction.occurredAtEpochMillis,
+                ),
+            ),
+        )
+        // review_log 行的有效口径刚在数据库事务里改过（撤销售出的那一行），
+        // 本实例的时区画像缓存必须一起失效，否则统计/提醒还会用被撤销的样本。
+        reviewLogSink.invalidateCachedProfile()
+        val progress = undo.session.toProgress(orderedQueue.size)
+        latestMistakes = database.observeMistakes().first()
+        initialized = true
+        publishReadySnapshot(latestMistakes)
+        StudyReviewUndoResult(
+            correctionId = undo.correction.correctionId,
+            created = undo.created,
+            progress = progress,
+            nextPracticeUnitId = orderedQueue
+                .getOrNull(progress.currentOrdinal)
+                ?.practiceUnitId,
+        )
+    }
+
+    override suspend fun storedReviewAnswer(practiceUnitId: String): ReviewStoredAnswer? =
+        practiceUnitFacts.storedAnswerFor(practiceUnitId)
 
     override suspend fun settleTutorJudgedReview(
         settlement: TutorJudgedReviewSettlement,
@@ -949,5 +1106,7 @@ class RoomBackedStudyExperienceRepository(
         /** 知识点复习会话的固定 conversation id（同一复习会话内计数防刷，非聊天会话）。 */
         private const val KNOWLEDGE_QUIZ_CONVERSATION_ID = "knowledge-quiz-review"
         private const val DEFAULT_REVIEW_TIME_BUDGET_SECONDS = 20 * 60
+        /** PRD-05：撤销回执命名空间（确定性 correction id = 幂等键）。 */
+        private const val UNDO_ID_NAMESPACE = "review-undo"
     }
 }

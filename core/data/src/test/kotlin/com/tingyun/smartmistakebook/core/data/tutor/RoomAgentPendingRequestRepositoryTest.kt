@@ -93,7 +93,9 @@ class RoomAgentPendingRequestRepositoryTest {
         val suspended = consent.suspend(
             state = turn(),
             command = SuspendTurnForConsentCommand(
-                subject = TutorPermissionSubject.LocalAction(TutorLocalAction.ADD_TO_REVIEW_PLAN),
+                // PRD-06：ADD_TO_REVIEW_PLAN 未接线，准入会拒；这里验证的是"裁决落终态 +
+                // 相位推进"，用已实现的 OPEN_PROBLEM 走同一条路径。
+                subject = TutorPermissionSubject.LocalAction(TutorLocalAction.OPEN_PROBLEM),
                 conversationArea = "AGENT",
                 conversationId = "conversation-1",
                 payloadJson = """{"libraryProblemId":"rev-1"}""",
@@ -106,7 +108,7 @@ class RoomAgentPendingRequestRepositoryTest {
             command = DecidePendingRequestCommand(
                 requestId = suspended.request.requestId,
                 decision = AgentPendingRequestDecision.ACCEPT,
-                resolutionNote = "纳入计划",
+                resolutionNote = "打开这道题",
                 occurredAtEpochMillis = 200L,
             ),
         )!!
@@ -115,7 +117,7 @@ class RoomAgentPendingRequestRepositoryTest {
             ResolveAgentPendingRequestDatabaseCommand(
                 requestId = suspended.request.requestId,
                 status = "ACCEPTED",
-                resolutionNote = "纳入计划",
+                resolutionNote = "打开这道题",
                 resolvedAtEpochMillis = 200L,
             ),
             port.resolvedCommands.single(),

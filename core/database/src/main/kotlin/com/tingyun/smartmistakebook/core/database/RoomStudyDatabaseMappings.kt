@@ -486,4 +486,5 @@ internal fun ReviewLogSampleProjection.toRecord() = ReviewLogSampleRecord(
     plannedReason = plannedReason,
     deltaTDays = deltaTDays,
     state = state,
+    schedulingEligible = schedulingEligible,
 )

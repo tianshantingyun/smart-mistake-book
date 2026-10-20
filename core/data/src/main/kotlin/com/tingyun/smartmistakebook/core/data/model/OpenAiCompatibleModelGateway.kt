@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.data.model
 
 import com.tingyun.smartmistakebook.core.data.model.wire.ModelWireProtocol
 import com.tingyun.smartmistakebook.core.data.model.wire.protocolFor
+import com.tingyun.smartmistakebook.core.data.model.wire.supportsStreamedToolCallAggregation
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
@@ -157,8 +158,6 @@ internal class OpenAiCompatibleModelGateway(
                     )
                     val images = readApprovedImages(execution, provider.modelId, imageReadPlan)
                     try {
-                        val stream = provider.supportsStreaming &&
-                            execution.request.input.usesOpenAiSse()
                         // 协议由配置驱动（spec §3.2 显式协议选择）；未实现的协议在此 fail fast，
                         // 不会静默降级成别的协议去发请求。
                         val protocol = protocolFor(credential.configuration.protocol)
@@ -170,6 +169,19 @@ internal class OpenAiCompatibleModelGateway(
                         // 故此处可安全地按能力位宽放，不会污染非工具环 dispatch。
                         val enableNativeTools = provider.supportsFunctionCalling &&
                             protocol.supportsNativeTools
+                        val nativeToolRound = protocol.usesNativeToolRoute(
+                            execution.request.input,
+                            enableNativeTools,
+                        )
+                        // WG-04a 终态门：协议不能把 SSE 工具增量聚合成完整 tool_calls 时，
+                        // 声明工具的回合显式走非流式（完整信封），不能继续流式把它静静丢掉。
+                        val stream = shouldStreamModelResponse(
+                            supportsStreaming = provider.supportsStreaming,
+                            usesSseSurface = execution.request.input.usesOpenAiSse(),
+                            nativeToolRound = nativeToolRound,
+                            protocolSupportsStreamedToolCalls =
+                                protocol.supportsStreamedToolCallAggregation,
+                        )
                         val requestBody = protocol.requestBody(
                             modelId = provider.modelId,
                             input = execution.request.input,
@@ -179,11 +191,11 @@ internal class OpenAiCompatibleModelGateway(
                         )
                         // 实时文本的通道按**协议路由**分流（A6）：Route B 回合的 content 增量是
                         // json_object / prompt 信封，不进正文通道；只有 Route A 才可能逐字长出正文。
-                        val liveTextRoute = liveTextRoute(
-                            protocol = protocol,
-                            input = execution.request.input,
-                            enableNativeTools = enableNativeTools,
-                        )
+                        val liveTextRoute = if (nativeToolRound) {
+                            LiveTextRoute.NATIVE_TOOLS
+                        } else {
+                            LiveTextRoute.ENVELOPE
+                        }
                         emit(
                             ModelGatewayEvent.Progress(
                                 stage = ModelTaskStage.VALIDATING_OUTPUT,
@@ -700,15 +712,22 @@ private enum class LiveTextRoute {
     ENVELOPE,
 }
 
-private fun liveTextRoute(
-    protocol: ModelWireProtocol,
-    input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
-    enableNativeTools: Boolean,
-): LiveTextRoute = if (protocol.usesNativeToolRoute(input, enableNativeTools)) {
-    LiveTextRoute.NATIVE_TOOLS
-} else {
-    LiveTextRoute.ENVELOPE
-}
+/**
+ * 这一轮要不要发 `stream=true`。
+ *
+ * 消灭的失败（WG-04a）：协议尚不能把 SSE 的 `delta.tool_calls` 聚合成终态时，声明了工具的
+ * 回合仍按 `supportsStreaming && usesOpenAiSse()` 走流式，原生工具调用会在重建体里静静消失，
+ * 工具环根本不会执行。此时显式改用非流式请求（完整响应天然含 `message.tool_calls`），不追加
+ * 探测请求、也不把半段参数当可执行程序。非工具回合的流式政策保持原意。
+ */
+internal fun shouldStreamModelResponse(
+    supportsStreaming: Boolean,
+    usesSseSurface: Boolean,
+    nativeToolRound: Boolean,
+    protocolSupportsStreamedToolCalls: Boolean,
+): Boolean = supportsStreaming &&
+    usesSseSurface &&
+    (!nativeToolRound || protocolSupportsStreamedToolCalls)
 
 /**
  * 发送请求，并在流式读取期间**实时**转发两条通道：思考链与回答正文（推理模型先吐很久思考、

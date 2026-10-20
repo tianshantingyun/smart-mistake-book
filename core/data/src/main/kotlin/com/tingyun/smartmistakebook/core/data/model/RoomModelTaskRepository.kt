@@ -2,13 +2,14 @@ package com.tingyun.smartmistakebook.core.data.model
 
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ReserveModelTaskRemoteDispatchCommand
-import com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import com.tingyun.smartmistakebook.core.data.study.TutorKnowledgeCodeRegistry
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.domain.isReady
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.domain.ModelGateway
 import com.tingyun.smartmistakebook.core.domain.masteryUpdateCodeWhitelist
@@ -36,6 +37,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.domain.TutorPermissionSubject
 import com.tingyun.smartmistakebook.core.domain.TutorPermissionTier
 import com.tingyun.smartmistakebook.core.domain.TutorRoundPermissionContext
+import com.tingyun.smartmistakebook.core.domain.TUTOR_TOOL_DECLARATIONS
 import com.tingyun.smartmistakebook.core.domain.tutorPermissionDecision
 import com.tingyun.smartmistakebook.core.model.TOOL_AWAITING_CONSENT_ERROR_KIND
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
@@ -55,6 +57,7 @@ import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.disclosesQuestionCandidates
@@ -87,8 +90,11 @@ class RoomModelTaskRepository internal constructor(
     /**
      * 知识能力就绪位（D-Q3）：工具环的 KNOWLEDGE_READ 在内容没就位时回"还在准备"。
      * 必需参数（无默认）：落一个默认值就等于留一条"忘了接线 → 静默零命中"的后门。
+     *
+     * PRD-06：它同时是能力快照的"知识材料就绪"位——没就绪时 KNOWLEDGE_READ 连广告都不出现
+     * （而不是先广告、再让模型拿到一句"还在准备"）。
      */
-    knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
+    private val knowledgeBaseAvailability: StateFlow<KnowledgeBaseAvailability>,
     /**
      * A1 生图执行缝（4B）：生产由 app 经 [ModelTaskRepositoryFactory] 注入
      * `TutorFigureGeneratorFactory` 的产物。
@@ -96,8 +102,11 @@ class RoomModelTaskRepository internal constructor(
      * 默认 null 与上面那个必需参数不同：null 不是"静默零命中"——`GENERATE_FIGURE` 会回
      * **可见的**"本机没有可用的生图通道"错误结果（工具卡灰色小字也照实说），忘了接线当场
      * 看得见；测试直调不必被生图通道绑住。
+     *
+     * PRD-06：非 null 且本轮 provider 确认支持图片能力时，`GENERATE_FIGURE` 才进广告面；
+     * 否则模型连这枚工具都看不到（不是先广告、再回一句"不可用"）。
      */
-    figureGenerator: TutorFigureGenerator? = null,
+    private val figureGenerator: TutorFigureGenerator? = null,
 ) : ModelTaskRepository {
     internal val toolRunner = RoomTutorToolRunner(database, knowledgeBaseAvailability, figureGenerator)
 
@@ -150,15 +159,7 @@ class RoomModelTaskRepository internal constructor(
      */
     private val activeExecutions = ConcurrentHashMap<String, Job>()
 
-    override fun execute(request: ModelTaskRequest): Flow<ModelTaskSnapshot> = flow<ModelTaskSnapshot> {
-        val executionJob = currentCoroutineContext()[Job]
-        if (executionJob != null) activeExecutions[request.requestId] = executionJob
-        try {
-            collectExecute(request).collect { snapshot -> emit(snapshot) }
-        } finally {
-            if (executionJob != null) activeExecutions.remove(request.requestId, executionJob)
-        }
-    }.flowOn(Dispatchers.IO)
+    override fun execute(request: ModelTaskRequest): Flow<ModelTaskSnapshot> = collectExecute(request)
 
     /**
      * 学生按下「停止」（A2）：取消这一轮的在途 Job，然后在 [NonCancellable] 里把任务写进既有
@@ -222,10 +223,6 @@ class RoomModelTaskRepository internal constructor(
         ).snapshot
         emit(initial)
         if (initial.status.isTerminal) return@flow
-        // 新一轮派发从**空痕迹**开始：同一次派发的重试不该把上一轮的查阅叠进来
-        //（这里清得动是因为真正的写入方在终态时才读它，见 observeToolTrace 的说明）。
-        toolTraces.clear(request.requestId)
-
         var executionStart = initial
         var ownerCompletion = CompletableDeferred<Unit>()
         while (true) {
@@ -243,8 +240,12 @@ class RoomModelTaskRepository internal constructor(
             ownerCompletion = CompletableDeferred()
         }
 
+        val executionJob = currentCoroutineContext()[Job]
+        if (executionJob != null) activeExecutions[request.requestId] = executionJob
         var remoteDispatchWasReserved = false
         try {
+            // 只有执行所有者可以清痕迹，等待者不能抹掉正在执行的工具结果。
+            toolTraces.clear(request.requestId)
             var current = prepareForExecution(executionStart)
             emit(current)
             val declaredProvider = gateway.capabilities()
@@ -276,10 +277,14 @@ class RoomModelTaskRepository internal constructor(
             // 每轮派遣独立 reserve（预算记账，MAX_DISPATCHES=6 = 5 轮工具 + 1 轮终答，
             // 见 a4109e1 与 D-001 2026-09-09 增补）；本地工具执行不占派遣预算。
             // 工具轮配额用尽（MAX_TOOL_ROUNDS=5）后不再声明工具，模型必须直接作答。
-            var roundRequest = request
+            // PRD-06：派遣前先把"配置/依赖就绪"折进本轮的声明集——**第一条派遣**也必须
+            // 只广告真的能执行的工具。工具环的收敛集只写回第二轮，不能拿它补第一轮。
+            val declaredTools = toolDeclarationsFor(request.input, declaredProvider)
+            var roundRequest = request.copy(
+                input = request.input.withDeclaredTools(declaredTools),
+            )
             var toolRoundsUsed = 0
             var toolRoundResults = emptyList<TutorToolRoundResult>()
-            val declaredTools = toolDeclarationsFor(roundRequest.input)
             var answered = false
             while (!answered) {
             val execution = try {
@@ -401,9 +406,23 @@ class RoomModelTaskRepository internal constructor(
                             terminalEventSeen = true
                             return@onEach
                         }
+                        val eventToPersist = if (
+                            event is ModelGatewayEvent.Completed &&
+                            event.output is TutorLobbyOutput &&
+                            roundRequest.input is TutorLobbyInput
+                        ) {
+                            event.copy(
+                                output = (event.output as TutorLobbyOutput).copy(
+                                    requestedLocalActions = (roundRequest.input as TutorLobbyInput)
+                                        .requestedLocalActions,
+                                ),
+                            )
+                        } else {
+                            event
+                        }
                         current = applyGatewayEvent(
                             current = current,
-                            event = event,
+                            event = eventToPersist,
                             declaredProvider = declaredProvider,
                             enforceRemoteDispatchBudget = remoteDispatchWasReserved,
                         )
@@ -503,7 +522,10 @@ class RoomModelTaskRepository internal constructor(
                     ),
                 )
                 // 收敛声明集：保留本轮已声明且仍允许的工具（非空），配额由轮次守卫保证。
-                val converged = toolDeclarationsFor(roundRequest.input).toList()
+                val converged = toolDeclarationsFor(
+                    roundRequest.input,
+                    declaredProvider,
+                ).toList()
                 // KNOWLEDGE_READ 本轮追加披露的节点已进注册表：下一轮输入带**全会话**披露集
                 // （只增不减），映射表才能在前缀区保持稳定、模型引用的 K6 在下一轮仍可见。
                 val sessionKnowledgeCodes = sessionKnowledgeCodeRegistry(
@@ -518,7 +540,14 @@ class RoomModelTaskRepository internal constructor(
                         // 本轮模型提出的本地动作（原生 tool_calls 路由的唯一落点）：并进下一轮
                         // 输入，模型据此知道"已经在等学生确认"（不重复提），本地据此在回合收尾时
                         // 挂出那些卡（交互面读终态快照的输入）。
-                        newLocalActions = requests.localActions,
+                        //
+                        // PRD-06：没有执行处理器的动作（ADD_TO_REVIEW_PLAN）先在这里裁掉——
+                        // 回喂"已经在等确认"等于告诉模型一件本地永远不会做的事，正是
+                        // "提了没反应"；它本来也不在广告面里。
+                        newLocalActions = requests.localActions.filter { request ->
+                            request.action in
+                                TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
+                        },
                     ),
                     egressManifest = roundRequest.egressManifest,
                 )
@@ -568,6 +597,10 @@ class RoomModelTaskRepository internal constructor(
                 )
             }
         } catch (cancelled: CancellationException) {
+            if (cancelled is StudentStoppedTheTurn) {
+                // 学生停止必须先落终态再交出执行权，否则等待者会接管并重新派发。
+                withContext(NonCancellable) { landCancelledTerminal(request.requestId) }
+            }
             throw cancelled
         } catch (failure: Exception) {
             val latest = database.readModelTask(request.requestId) ?: throw failure
@@ -587,6 +620,7 @@ class RoomModelTaskRepository internal constructor(
                 )
             }
         } finally {
+            if (executionJob != null) activeExecutions.remove(request.requestId, executionJob)
             processActiveOperations.remove(operationFingerprint, ownerCompletion)
             ownerCompletion.complete(Unit)
         }
@@ -885,17 +919,62 @@ class RoomModelTaskRepository internal constructor(
             .joinToString(separator = "") { byte -> "%02x".format(byte) }
 
     /**
-     * 同页声明**全量五个**工具（`docs/tutor-surface-unification.md` §5.6；2026-09-21 裁定
-     * D7/D8 把 Plan 也纳入）：智能体页所有模型调用（Plan / Respond / 大厅）同一工具面，
-     * 声明集按页面给，**代码零场景分叉**。
+     * 这一轮**真的可以广告**的工具（`docs/tutor-surface-unification.md` §5.6；2026-09-21
+     * 裁定 D7/D8 把 Plan 也纳入）：智能体页所有模型调用（Plan / Respond / 大厅）同一工具面，
+     * **代码零入口分叉**；裁掉的只有本机事实（处理器是否实现、依赖是否就绪）。
      *
-     * 声明全量不等于放行全量——逐次裁决只剩两条，都取自模型自己这一轮的语义输出：意图授权
-     * 矩阵（意图 × 置信度 × 声明集）与 MASTERY_UPDATE 的代号白名单（本会话已披露集合）。
-     * 无题轮不再结构性拒写（D6）：写不写由模型语义判定，低置信/无引文写入由统一本地门挡。
+     * PRD-06：声明集不再是无条件的全量——图像后端/知识材料没就绪时对应工具不出现在
+     * 模型面前。声明仍不等于放行：逐次裁决只剩两条，都取自模型自己这一轮的语义输出：
+     * 意图授权矩阵（意图 × 置信度 × 声明集）与 MASTERY_UPDATE 的代号白名单（本会话已披露
+     * 集合）。无题轮不再结构性拒写（D6）：写不写由模型语义判定，低置信/无引文写入由统一
+     * 本地门挡。
      */
-    internal fun toolDeclarationsFor(input: ModelTaskInput): Set<TutorToolName> = when (input) {
-        is TutorPlanInput, is TutorRespondInput, is TutorLobbyInput -> TUTOR_TOOL_DECLARATIONS
-        else -> emptySet()
+    internal fun toolDeclarationsFor(
+        input: ModelTaskInput,
+        declaredProvider: ProviderCapabilitySnapshot,
+    ): Set<TutorToolName> {
+        // 空声明 = 入口没有限制（旧请求/首轮默认）：先补页面默认声明面，再按就绪位裁。
+        // 空列表被当成“没有任何工具”会让首轮模型完全看不到工具，模型仍可能按旧提示词
+        // 申请工具，工具环却把它当未声明丢弃（批次 16 设备用例暴露）。
+        val effectiveInput = when (input) {
+            is TutorLobbyInput -> if (input.toolDeclarations.isEmpty()) {
+                input.copy(toolDeclarations = TUTOR_TOOL_DECLARATIONS.toList())
+            } else {
+                input
+            }
+            is TutorPlanInput -> if (input.toolDeclarations.isEmpty()) {
+                input.copy(toolDeclarations = TUTOR_TOOL_DECLARATIONS.toList())
+            } else {
+                input
+            }
+            is TutorRespondInput -> if (input.toolDeclarations.isEmpty()) {
+                input.copy(toolDeclarations = TUTOR_TOOL_DECLARATIONS.toList())
+            } else {
+                input
+            }
+            else -> input
+        }
+        return TutorCapabilitySnapshot.forRound(effectiveInput)
+            .withDependencies(
+                imageBackendReady = figureGenerator != null && declaredProvider.supportsImageInput,
+                knowledgeMaterialReady = knowledgeBaseAvailability.value.isReady,
+            )
+            .tools
+    }
+
+    /**
+     * 把能力快照折进本轮派遣的输入（只有声明集变化，其余字段逐字保留）。
+     *
+     * 不是"改写用户的请求"：持久化/指纹用的是入口 request；这里只裁**这一轮告诉模型什么**。
+     * 工具环后续轮次的收敛集本来就写回输入（[withToolRoundProgress]），这里补的是第一轮。
+     */
+    private fun ModelTaskInput.withDeclaredTools(
+        tools: Set<TutorToolName>,
+    ): ModelTaskInput = when (this) {
+        is TutorLobbyInput -> copy(toolDeclarations = tools.toList())
+        is TutorPlanInput -> copy(toolDeclarations = tools.toList())
+        is TutorRespondInput -> copy(toolDeclarations = tools.toList())
+        else -> this
     }
 
     /**

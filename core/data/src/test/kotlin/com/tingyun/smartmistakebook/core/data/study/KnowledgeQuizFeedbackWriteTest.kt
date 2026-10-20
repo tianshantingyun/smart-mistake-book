@@ -203,6 +203,165 @@ class KnowledgeQuizFeedbackWriteTest {
     }
 
     /**
+     * KD-43（UNKNOWN 键 → REPLACE）：模型生成的键未核验时，作答只落 rejected 观察行；
+     * 学生用“改正答案键”断言新键后，观察行保留，这次作答按新键重判成一条**新身份**的
+     * 有效证据入账（可被投影/重放消费），同一身份重试不再补第二笔。
+     */
+    @Test
+    fun anUnverifiedKeyCorrectedByTheUserRejudgesTheRejectedAnswerExactlyOnce() = runBlocking {
+        val nodeId = "kc-unverified"
+        val database = FakeStudyDatabasePort()
+        database.knowledgeNodes += KnowledgeNodeSeedRecord(
+            knowledgeNodeId = nodeId,
+            stableCode = "math.function.monotonicity",
+            subject = "MATH",
+            displayName = "函数单调性",
+            parentKnowledgeNodeId = null,
+            taxonomyVersion = "cn-highschool-m1-v1",
+            createdAtEpochMillis = 1_000,
+            canonicalName = "函数单调性",
+        )
+        val item = TutorAssessmentItem(
+            id = "knowledge-quiz:item:$nodeId",
+            stemMarkdown = "题干",
+            choices = listOf(
+                TutorChoice(id = "A", markdown = "选项 A"),
+                TutorChoice(id = "B", markdown = "选项 B"),
+            ),
+            correctChoiceId = "A",
+            knowledgeNodeIds = setOf(nodeId),
+        )
+        // 不升级 verificationStatus：模型生成的题面默认 UNKNOWN。
+        KnowledgeQuizItemStore(database, learnerId).save(sessionId, nodeId, item, 1_000)
+        val repository = repository(database)
+        // 生产提交身份（KnowledgeReviewSessionViewModel.knowledgeQuizSubmissionId）含
+        // `:题面:选项`；改正键入口按这个形状定位被拒观察行，测试不能用短 id。
+        val firstRequestId = "knowledge-quiz:review:$sessionId:${item.id}:B"
+
+        try {
+            val first = repository.submitKnowledgeQuizFeedback(
+                requestId = firstRequestId,
+                knowledgeNodeId = nodeId,
+                correctChoiceId = "A",
+                selectedChoiceId = "B",
+                occurredAtEpochMillis = 5_000,
+                conversationId = conversationId,
+            )
+            assertFalse("UNKNOWN 键不得新增数值证据", first.evidenceRecorded)
+            assertEquals("ANSWER_KEY_UNVERIFIED", first.rejectedReason)
+            val observation = database.recordedChatEvidence.single {
+                it.source_kind == "KNOWLEDGE_QUIZ"
+            }
+            assertTrue("真实作答保留成观察行", observation.isRejected)
+
+            val receipt = AnswerKeyCorrectionWriter(database, learnerId).submit(
+                AnswerKeyCorrectionCommand(
+                    requestId = "fix-unverified-key",
+                    knowledgeNodeId = nodeId,
+                    conversationId = conversationId,
+                    itemId = item.id,
+                    selectedChoiceId = "B",
+                    newCorrectChoiceId = "B",
+                    expectedKeyVersion = 0,
+                    reasonMarkdown = "答案键应为 B",
+                    occurredAtEpochMillis = 6_000,
+                ),
+            )
+            assertEquals(AnswerKeyCorrectionStatus.RECORDED, receipt.status)
+            assertEquals(setOf(nodeId), receipt.affectedKnowledgeNodeIds)
+
+            val keyFixId = knowledgeQuizKeyFixEvidenceId(
+                rejectedAnswerEvidenceId = observation.evidence_id,
+                knowledgeNodeId = nodeId,
+                newCorrectChoiceId = "B",
+            )
+            val accepted = database.recordedChatEvidence.single { it.evidence_id == keyFixId }
+            assertEquals("新身份落的是正常证据", null, accepted.rejected_reason)
+            assertEquals("KNOWLEDGE_QUIZ", accepted.source_kind)
+            assertTrue("按新键重判为答对 → 正向权重", accepted.weight > 0)
+            assertTrue(
+                "替代键写进机器可读前缀，后续作答据此校验",
+                accepted.reason_markdown.startsWith(
+                    knowledgeQuizKeyCorrectionReasonPrefix(item.id, "B"),
+                ),
+            )
+            assertTrue(
+                "原被拒观察行一字不改",
+                database.recordedChatEvidence.first {
+                    it.evidence_id == observation.evidence_id
+                }.isRejected,
+            )
+
+            // 同一身份重试：已由改正后的作答覆盖，不得再补一笔。
+            val resubmit = repository.submitKnowledgeQuizFeedback(
+                requestId = firstRequestId,
+                knowledgeNodeId = nodeId,
+                correctChoiceId = "B",
+                selectedChoiceId = "B",
+                occurredAtEpochMillis = 7_000,
+                conversationId = conversationId,
+            )
+            assertTrue("重试如实回报已记录", resubmit.evidenceRecorded)
+            assertEquals(
+                "不得因重试再补一笔“换新身份”的证据",
+                1,
+                database.recordedChatEvidence.count { it.evidence_id == keyFixId },
+            )
+
+            // 同一改正命令重试按身份幂等（CAS 用 null：与既有定向纠正一致，
+            // 带旧 expectedKeyVersion 的重试按设计显式 CONFLICT）。
+            val replay = AnswerKeyCorrectionWriter(database, learnerId).submit(
+                AnswerKeyCorrectionCommand(
+                    requestId = "fix-unverified-key",
+                    knowledgeNodeId = nodeId,
+                    conversationId = conversationId,
+                    itemId = item.id,
+                    selectedChoiceId = "B",
+                    newCorrectChoiceId = "B",
+                    expectedKeyVersion = null,
+                    reasonMarkdown = "答案键应为 B",
+                    occurredAtEpochMillis = 6_000,
+                ),
+            )
+            assertEquals(AnswerKeyCorrectionStatus.REPLAYED, replay.status)
+
+            // 下一场复习：题面按会话重新生成，上一场的键改正**不得**跨会话生效。
+            // 旧实现按常量的 itemId 命中上一场的观察行 → 命中上一场的 key-fix 证据 id →
+            // 新会话的合法作答被静默当成"已记录"。这里钉住新会话仍按自己的快照键走
+            // UNKNOWN 观察行，且观察行是**新写的一笔**。
+            val nextSessionId = 6_000L
+            KnowledgeQuizItemStore(database, learnerId).save(
+                sessionId = nextSessionId,
+                knowledgeNodeId = nodeId,
+                item = item,
+                occurredAtEpochMillis = 9_000,
+            )
+            val nextSession = repository.submitKnowledgeQuizFeedback(
+                requestId = "knowledge-quiz:review:$nextSessionId:${item.id}:A",
+                knowledgeNodeId = nodeId,
+                correctChoiceId = "A",
+                selectedChoiceId = "A",
+                occurredAtEpochMillis = 10_000,
+                conversationId = "knowledge-quiz-review:$nextSessionId",
+            )
+            assertFalse(
+                "新会话不得复用上一场的 key-fix 证据",
+                nextSession.evidenceRecorded,
+            )
+            assertEquals("ANSWER_KEY_UNVERIFIED", nextSession.rejectedReason)
+            assertEquals(
+                "新会话必须留下自己的观察行",
+                2,
+                database.recordedChatEvidence.count {
+                    it.isRejected && it.source_kind == "KNOWLEDGE_QUIZ"
+                },
+            )
+        } finally {
+            repository.close()
+        }
+    }
+
+    /**
      * Regression for the P1 where the conversation id was a global constant, so
      * the per-session write quota became a lifetime quota: once 50 evidence rows
      * were accepted, every later answer was rejected forever. A new session must

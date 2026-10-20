@@ -718,8 +718,11 @@ internal object DatabaseContractValidator {
         positive(session.timeBudgetSeconds, "session.timeBudgetSeconds")
         nonNegative(session.projectionCheckpoint, "session.projectionCheckpoint")
         nonNegative(session.stateVersion, "session.stateVersion")
-        requireContract(session.stateVersion == session.currentOrdinal.toLong()) {
-            "Review-session stateVersion must equal currentOrdinal"
+        // PRD-05 attempt 级 undo 会把指针回退一格但版本继续递增（版本是 CAS 单调水位，
+        // 不能倒退）。因此不变量是 version ≥ ordinal，而非相等；ordinal 的推进仍由
+        // advance/rewind 的逐格 receipt + revision 校验保证。
+        requireContract(session.stateVersion >= session.currentOrdinal.toLong()) {
+            "Review-session stateVersion must not fall behind currentOrdinal"
         }
         val completed = session.status == StudyDbValue.ReviewStatus.COMPLETED
         requireContract(completed == (session.completedAtEpochMillis != null)) {
