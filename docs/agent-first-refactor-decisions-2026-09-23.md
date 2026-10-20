@@ -2979,3 +2979,59 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **设备 71/0**：365MiB 大库恢复 1/0（39.045s）、备份生命周期 3/0、独立快照 2/0、AUD-05 缺资产拒恢复 27/0、答案键纠错 11/0、原题 DB 5/0、library 21/0、分享 8/0、app 18/0；全量迁移矩阵 14/14。
 - **状态更正**：KD-53/54/56/57/58 关闭；KD-43 最小纠错链（a）设备 11/11 已过，(b) 身份粘性与 UNKNOWN 键 UI 改键仍 open；KD-47 文案仍在他线；新增 KD-61（非门控写/750ms 宽限）与 KD-62（回退 checkpoint/临时库清理）。
 - **未覆盖**：模型真实质量/Provider、PRD-06 能力快照、4E WG-02/04、真实接收应用打开、10 分钟分享窗口产品值、T3 历史作答 UI 读路径。
+
+---
+
+## 完成记录折入（批次 16：PRD-05 三键/undo + 4E WG-04 + PRD-06 能力快照 + 6B-2/3）（2026-10-21）
+
+> 说明：本批由动态工作流执行（T1a/T1b/T2~T8 + I1 + 串行门禁 + D1 + 独立核对 + 对抗复核 + 记录员）。**本批未提交**；
+> 记录时点 HEAD 仍 `a200f27b`（本地领先 `origin/main=1d8bb937` 4 笔，未推送）。**门禁工单结论：单测门第 3 轮 `exit=1`；
+> 强门未跑；D1 阻塞**。以下“落地”只到代码/测试落盘级，不等于计划验收完成。批次记录：
+> `docs/research/2026-10-21-batch-16-prd05-wg04-capabilities-record.md`。只追加，既有正文未动。
+
+- **PRD-05 / 5a（三键、undo、无模型路径，零 DB schema）**：三键 Good/Hard/Again（无 Easy）→ `SELF_REPORTED_RECALL`
+  （Good 0.8 / Hard 0.7，均为 `ASSISTED_RECALL`）与 `SELF_REPORTED_STUCK`（1.0），原档落 `review_log.evidence_weight`、
+  调度档落 `rating`，自评永非 `INDEPENDENT_CORRECT`；稳定 request id 自评提交 + 持久回执；attempt 级 undo 采用
+  **无 schema VOID 哨兵**（`[void-attempt:v1]` + `NONE/0/ANSWER_REVEALED`，投影器在 `projectMemory` 前排除，
+  保留 attempt/序号/曝光），更正 + 会话回退 + `review_log.scheduling_eligible=0` 同事务；无模型题可看已存答案/解析、
+  三键自评、跳过/请求讲题，不伪称机判。**记录时点树内另有 app 接线与自评后写 reveal 的修复（未归任何轨自报），
+  未编译/未测试**。`TutorJudgedReviewSettler.expectedStateVersion` 与撤销后版本的耦合仍留给 I1/T5 收口。
+- **4E WG-04（SSE 终态门 + 请求 schema 18）**：WG-04a 按 `index` 聚合 `delta.tool_calls`，只在终帧
+  `finish_reason=tool_calls` 且参数严格 JSON 后产出调用；`length/content_filter`/缺失终态/坏帧/重复越界 index 一律
+  fail-closed；512KiB 工具 payload、64KiB sourceJs、128 calls 预算在读取期计费；跨 read 使用有状态 UTF-8 解码；
+  不支持聚合的工具回合强制 `stream=false`。WG-04b `TutorVisualContext`（`@EncodeDefault(NEVER)`）+ `TutorToolCall`
+  的 `method/program/imageOperation/imagePrompt`，原生 schema 与 Route B 同一解析点；**只广告 IMAGE_MODEL，JS 仍
+  UNAVAILABLE**。**真实 Provider/设备未验证**；WG-06/07/08 只落设计件，schema 69 留批次 17。
+- **PRD-06 能力快照**：新增 `TutorCapabilitySnapshot` 作为唯一广告源——已实现处理器 ∩ 配置/依赖就绪 ∩ 本轮声明/权限；
+  native schema、Route B 提示词、admission、执行端同源。`ADD_TO_REVIEW_PLAN` 不再广告/准入（执行端仍 `NOT_WIRED_YET`，
+  旧落库卡如实说“还不能自动做”）；`GENERATE_FIGURE` 仅在图像后端装配且 provider 支持图片能力时广告；
+  `KNOWLEDGE_READ` 仅在知识材料 Ready 时广告；首轮派遣前即裁剪声明集。快照外仍有工具/动作名单（测试与人工同步）。
+- **6B-2 原生编辑入口**：新增不依赖模型的 `MistakePaperEditRoute`，导出成果/错题详情接“编辑卷面”；未编辑沿用批量导出
+  同一快照与 `inputSha256`（逐位不变），编辑后重算指纹、保留来源题面文档指纹，不反写原题；I1 已接 Root 路由。
+  **设备链未跑**。
+- **6B-3 有界自然语言改卷**：白名单七命令（增/删/调序/改文字/卷面备注等）+ 严格解析器 + 原子 applier，只改
+  `MistakePdfPaperEdit` 副本，非法/越界整批拒绝并保留草稿，应用后 `toDraft()` 重算指纹；编辑 sheet 接可注入模型端口，
+  未注入时隐藏入口。**app 尚未注入真实适配器，真实模型质量 UNVERIFIED**。
+- **小修（KD-43(b)/47/62）**：KD-43(b) 自动补偿（被拒观察行保留、合法写换确定性新身份入账、回执标粘性；补偿身份也被占住
+  仍显式冲突）；UNKNOWN 键 UI 走 REPLACE（改正答案键对话框 + 题面级键版本 CAS + 按新键重判入账 + 读侧账本序/本会话隔离）；
+  KD-47 面向用户文案改为“设置未能完整写入，可能有部分设置已变”；KD-62 ①校验 `wal_checkpoint` 结果行、②启动清理
+  `backup-snapshots/` 与 `backup-snapshot-*.db`；KD-62③（写门覆盖）仍归 KD-61。**KD-43 因门禁/设备未跑仍 open；
+  KD-47 按源码文案关闭；KD-62 ①+② 代码级关闭、③ 保持 open**。
+- **schema / 算法台账**：DB 仍 **68**，请求 schema 18；`LearningCoreVersions.*` **全部未 bump**（VOID 哨兵零 bump 判据见
+  `algorithm-version-ledger.md` §3.26：此前无生产写入方、固定账本逐位不变、哨兵与真实 reveal 不同形）。
+- **门禁 / 设备 / 提交**：单测门第 3 轮 `exit=1`（`core:data` 测试编译失败，树内已补 import/重载/JsonObject 但无整轮重跑）；
+  记录时点只读聚合 2026-10-21 的 402 个测试 XML（failures/errors 均为 0，含本批新增类）只作旁证，不代替整轮门禁；
+  强门未跑；`emulator-5554` 在线但 D1 未执行（无 androidTest 结果）。本批未提交、未推送；共享脏文件按计划整文件纳入并保留他线 hunk。
+- **下一批**：先修门禁/强门并跑 D1；PRD-05 真库 instrumented 与真实数据启用（仍挂 3D）；WG-04 真实 Provider；6B-3 app 注入；
+  批次 17 按 T8 设计件实施 schema 69 的 WG-08 → WG-06 → WG-07。
+
+### 批次 16 收尾实跑（2026-10-21，主会话）
+
+- **门禁**：单测门 11 模块 `exit=0`（3,029 tests / 0 failures）；强门 `exit=0`（六模块 androidTest 编译 + 整包）。
+- **设备 64/0**：PRD-05 自评/undo/重放 24/0、`ReviewUndoTransactionInstrumentedTest` 4/4、6B-2 原生编辑 8/8、
+  PRD-06 能力快照广告-执行 1/1、批次 15 备份回归 27/0。
+- **收尾修复**：VOID 呈现态校验只放开 `memoryProjectionApplied` 一位（`ProjectionTransactionDao`）；首轮空
+  `toolDeclarations` 补默认工具集（`RoomModelTaskRepository`）；测试侧修 `attempt` 嵌套、`latestSession`、fake DAO。
+- **状态**：KD-43/47 关闭；KD-62 ①+② 关闭、③ 归 KD-61；KD-61 保持 open。PRD-05 设备数据层/UI 合同通过、无设备 UI 点击；
+  6B-3 仍未注入真实模型端口；T8 设计件由主会话代写，schema 69 留批次 17。
+- **提交/推送**：按显式文件清单提交并自动推送；GitHub 连接需重试（基线 4 笔 backlog 一并）。

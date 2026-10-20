@@ -340,6 +340,27 @@
 > `FullMigrationMatrixInstrumentedTest` **14/14**（13 首轮通过 + 修复 `getText` 读 NULL 断言后单跑 1/1；67→68 保行/可写/幂等过）。
 > `commitFullReplay` 在真机重放路径已执行（archive 先归档）；68.json `identityHash` 由本轮构建保持 `607250e5…`。
 
+### 3.26 批次 16 · PRD-05 attempt VOID 哨兵 / 4E WG-04 请求 schema 18（2026-10-21）：零 DB schema、零算法 bump
+
+> 编号说明：本条由批次 16 占用。T1a 选择**无 schema 的 VOID 哨兵**，所以 `STUDY_DATABASE_VERSION` 维持 **68**；
+> 请求 schema 17→18 属模型请求合同、不是算法台账号段（随本行自记）。schema **69 本批未被占用**，按 T8 设计件留批次 17 的 WG-08。
+> 本条同时登记批次 16 的“零 bump 判据”，避免把新语义写成“没改过”。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` **68 不动**（零迁移；`review_log.scheduling_eligible` 在 67/68 已存在）；`LearningCoreVersions.*`（`PROJECTOR`/`EVIDENCE`/`ATTRIBUTION`/`LEDGER`）**全部未 bump**；各指纹 schema 未动 | **PRD-05 attempt 级 undo 用 VOID 哨兵**：`AttemptCorrection.reasonMarkdown` 以 `[void-attempt:v1]` 开头、载荷固定为 `NONE / weight=0 / ANSWER_REVEALED`（schema 合法零证据形状，构造期 `require` 禁止带前缀却携带真实证据，`LearningState.kt:715-767`）。投影器在**重放路径**进入 `projectMemory` **之前**识别并跳过该 attempt 的记忆/掌握度/揭示因果，但**保留** attempt 行、`responseOrdinal`、曝光与审计（`LearningProjector.kt:586`、`:810` 输出 `voidedAttemptIds`；增量投影遇更正走 `FULL_REPLAY_REQUIRED`）。DB 侧在同一写事务里追加更正 + 回退会话 + `review_log.scheduling_eligible=0`（`RoomStudyDatabase.kt:1502-1537`、`LearningDao.kt:234`） | **零 bump 判据（逐条）**：① 本批之前 `appendAttemptCorrection` **没有生产写入方**（只有测试调用），因此任何已存库都不可能出现该哨兵；② 不含哨兵的固定账本重放输出逐位不变（新增分支只在 `isVoid` 为真时进入）；③ 哨兵与普通零权重 replacement **不同形**：无前缀的 `NONE/0/ANSWER_REVEALED` 仍按“看答案”推进，前缀由 `voidOf` 唯一构造，不会把真实 reveal 误判为撤销；④ DB 列/表未变，`scheduling_eligible` 是既有列；⑤ `voidedAttemptIds` 是投影结果字段，不落新表。**若将来出现历史库含哨兵、或哨兵语义再改**，必须重新评估是否 bump `PROJECTOR`（当前无此路径）。**未采用**“零权重 replacement”直接表达 VOID：`applyAttempt` 先 `projectMemory` 再在 `weight==0` 返回，会被解释成一次 AGAIN/lapse（外部研究 R1 同结论） | 计划 `.zcode/plans/plan-2026-10-21-batch-16-prd05-wg04-capabilities.md:26-42`（T1 优先 VOID 哨兵；不可表达才占 69）；PRD-05 三键/曝光/undo 语义（`docs/superpowers/plans/2026-10-19-product-readiness-followup-plan.md:81-91`、`docs/superpowers/specs/2026-10-19-product-readiness-design.md:53-63`）；外部对照 R1（Microsoft Event Sourcing / Compensating Transaction；Anki undo 行为矩阵；FSRS 四档评分） | **本记录员未运行 Gradle**。只读门禁产物：`ReviewUndoReplayTest` 6/0（core:domain 2026-10-21 02:19）、`ReviewSelfReportContractTest` 7/0（core:data 05:07）；`ReviewUndoTransactionInstrumentedTest`（原子 undo/幂等/拒绝撤销更早 attempt/undo→重评/增量 FULL_REPLAY_REQUIRED/全重放排除/曝光后重评仍非独立）与 `SelfReportedReviewInstrumentedTest` **已写未跑**。这些 XML 不能代替整轮门禁（工单第 3 轮 exit=1） | ➖（零 bump，不触发重放） |
+| 请求 schema `CURRENT_SCHEMA_VERSION` 17 → **18**（`TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION`） | **4E WG-04b**：`TutorVisualContext`（源码/state/诊断，`@EncodeDefault(NEVER)`，null 时键完全省略、旧 schema 17 行编码与指纹逐位不变）；`TutorToolCall` 增 `figureMethod/figureProgram/figureImageOperation/figureImagePrompt`（原生 schema 与 Route B 共用一个 `toTutorToolCall` 解析点，JS 一律拒、只广告 IMAGE_MODEL） | **非算法数值变更**：只改模型请求/响应合同与提示词声明面；账本/投影/计划/打分公式未动。`@EncodeDefault(NEVER)` 是“旧指纹不变”的结构保证（`TutorVisualContext.kt:17`、`ModelTasks.kt:546-547`） | 计划 §T3（`:49-52`）；4E 计划 `:242-250`；契约 `docs/current/visual-generation-contract.md:128/136/138/169` | 已写未跑：`TutorVisualContextFingerprintTest`（旧指纹不变、非空 context 变指纹、schema 18）、`TutorFigureMethodDualParseTest`（两路由逐字同义、JS/program 双拒）、`TutorFigureProposalExecutionTest`、`TutorToolFigureTraceFieldsTest`；只读 XML 7/0（2026-10-21 05:07） | ➖（无投影输出变化） |
+
+> **本批另有两个“非算法”常量需要追溯**：`OpenAiSse.kt:563` 的 512KiB、`:566` 的 64KiB 是
+> `docs/current/visual-generation-contract.md:84` 的**产品预算**（待设备性能验收），不是 OpenAI/SSE 外部标准；
+> `:572` 的 128 tool calls 以官方 Node SDK 为工程锚点。三者只作用于工具参数累积/解码，不进入投影/计划/打分。
+>
+> **批次 16 收尾实跑（2026-10-21）**：单测门 11 模块 **3,029/0**、设备 **64/0**（含 PRD-05 自评/undo 24/0、
+> 6B-2 原生编辑 8/8、能力快照 1/1、批次 15 备份回归 27/0）。零 bump 判据不变；另修两处**不改算法输出**的工程缺陷：
+> ① 呈现态校验对“确有 VOID 更正”的呈现只放开 `memoryProjectionApplied` 一位（`ProjectionTransactionDao`），
+> 防止全量重放把合法的 true→false 当冲突；② 首轮空 `toolDeclarations` 先补默认工具集再按就绪位裁剪
+> （`RoomModelTaskRepository`），防止模型看不到任何工具被工具环丢弃。两条只影响守卫/广告面，不改变投影/计划/打分输出。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

@@ -1930,7 +1930,7 @@ staging 阶段杀进程：重进 App 后该批不存在（列表里没有、也�
 `BatchImportInterruptedNoticeInstrumentedTest` 2/0。见批次记录 §2 T4/§3.3/§3.5。
 
 
-## KD-43 (open（2026-10-20 收尾：纠正/撤销/重放设备 11/11 已过；身份粘性 (b) 与 UNKNOWN 键 UI 改键仍未裁定）；2026-10-16 登记（AUD-11 报告 §3；medium）) · 答案键：错键判错之后没有纠正/撤销/重放的落点；身份粘性还会静默丢写
+## KD-43 (fixed 2026-10-21（批次 16 收尾：单元 3,029/0 + 设备 24/0 含身份粘性自动补偿/UNKNOWN 键 REPLACE/跨会话隔离）；2026-10-16 登记（AUD-11 报告 §3；medium）) · 答案键：错键判错之后没有纠正/撤销/重放的落点；身份粘性还会静默丢写
 
 **Symptom（实测，来源：`docs/research/2026-10-15-aud-11-verdict-granularity-cooldown-answer-key.md` §3；
 真库 + 真写入口，5/5 通过）.** 题面 A 客观正确、B 错误，模型把键指到 B，学生选 A（客观正确）：
@@ -1977,17 +1977,30 @@ T9 已把「accepted 被 IGNORE」变成可观察结果（`ChatEvidenceWriteRece
 `AnswerKeyCorrectionInstrumentedTest` 现有 11 例（含“已作答未核验键争议”“第二次报告不命中第一条 VOID”）与 `FullMigrationMatrixInstrumentedTest` 的 67→68 用例
 **均未执行**，因此不能按关闭条件关账。
 
-**仍未达 / 边界（保持 open）**：设备 `AnswerKeyCorrectionInstrumentedTest` 11/11 已过（2026-10-20 收尾；含错键→改键、
-撤销、改两次、重复请求、同 KC 不误伤、纠错中被杀、旧键迟到、未核验键只观察、已作答后报告回落争议）；读侧
-`latestCorrectedKey` 按 `created_at_epoch_millis` 行序取（`KnowledgeQuizFeedbackWriter.kt:296-317`），投影按账本序列取，
-同毫秒/时钟回拨可能分叉；`expectedKeyVersion` 只有进程内 `Mutex` 串行、生产 UI 不传该字段；模型生成的 UNKNOWN 键当前只能争议/暂停计分，
-不能通过 UI 走 `REPLACE` 真正改键；旧 VERIFIED 行不批量回填/重判。身份粘性那一半仍未另立裁定：`KnowledgeEvidenceWriter.kt:170/270-279`
-仍把“同身份已被拒观察行占住”报为 `BLOCKED_BY_REJECTED_ROW`，本批未改成覆盖或显式冲突（(b) 半未关）。见批次记录 §2.2/§9.2。
+**2026-10-21 收尾实跑（关闭）**：单元门 11 模块 **3,029/0**；设备 `SelfReportedReviewInstrumentedTest` 1/1、
+`AnswerKeyCorrectionInstrumentedTest` 12/12、`KnowledgeQuizCooldownChannelScopeInstrumentedTest` 7/7、
+`ReviewUndoTransactionInstrumentedTest` 4/4 全部通过。读侧 `KnowledgeQuizItemStore` 已传 `sessionId` 与
+`correctionLedgerOrder`（只接受本会话键替代）；UNKNOWN 键 REPLACE 对话框与 Root 的 `loadAnswerKeyVersion`
+兜底已接线；自动补偿与“补偿身份也被占住”的反例有 JVM 与设备证据。UI 对话框无单独设备点击，但写路径/重放有设备证据。
 
-**Reopen condition.** n/a —— 本条即 open；关闭条件 = 上面两半各自有明确处置落地：(a) 错键纠正/撤销/
+**2026-10-21 进展（批次 16 T1a/T1b/T7；提交前记录）.** 三处落树：
+① **(b) 自动补偿**——`KnowledgeEvidenceWriter.kt:117/159-192` 先按原身份写，撞住被拒观察行时换确定性新身份
+（`knowledgeEvidenceIdAfterRejectedIdentity`，`:308-337`）再写；回执新增 `LEDGERED_AFTER_REJECTED_IDENTITY`/
+`REPLAYED_AFTER_REJECTED_IDENTITY`（`:371-380`），上层 `KnowledgeQuizFeedbackWriter.kt:250-272` 按“已入账”回报；
+补偿身份也被占住时仍报 `BLOCKED_BY_REJECTED_ROW`（反例，不无限换身份）。被拒观察行由 DAO IGNORE 保留、不改写。
+② **UNKNOWN 键 UI 走 REPLACE**——`KnowledgeReviewSessionScreen.kt:455-560` 新增“改正答案键”对话框；
+`KnowledgeQuizFeedbackWriter.kt:595-665` 保留观察行并按用户断言的新键把这次作答重判成新身份证据（`recordUserAssertedKeyCorrection`
+`:804-853`），`expectedKeyVersion` 为题面级 CAS（`:856-874`）；I1 接线见 `SmartMistakeBookRoot.kt:872-950`
+（`loadAnswerKeyVersion` 按 item.id 现读，提交前兜底取版本，不再传 null 关掉 CAS）。
+③ **读侧同源/跨会话隔离**——`latestCorrectedKey` 支持账本序（`:379-445`）；`KnowledgeQuizItemStore.kt:41-70`
+同时传 `sessionId` 与 `correctionLedgerOrder`，只接受本会话的键替代，避免常量 itemId 把旧会话的键套到新题面。
+测试已写：`KnowledgeEvidenceLedgerStatusTest`（含补偿身份也占住的反例）、`KnowledgeQuizFeedbackWriteTest`
+（UNKNOWN 改正重判恰一次）、`LatestCorrectedKeyOrderTest`（账本序/撤销回退/显式降级）、设备
+`AnswerKeyCorrectionInstrumentedTest` 增量。该段为提交前记录；收尾实跑已补单元/设备证据并关闭（见下）。
+
+**Reopen condition.** 再次出现错键无纠正落点或身份粘性静默丢写时重开；关闭条件 = 上面两半各自有明确处置落地：(a) 错键纠正/撤销/
 补偿至少一条路径 + 一条「错键 → 纠正 → 账本被抵消/被单列」的用例；(b)「同身份撞被拒行」的行为被裁定并
-有用例钉住（报冲突 / 覆盖重写 / 保持静默但记账）。**当前判定**：(a) 的代码、JVM 与设备用例已过；UNKNOWN 键的 UI 改键路径未落地；
-(b) 仍未裁定，故不关闭。
+有用例钉住（报冲突 / 覆盖重写 / 保持静默但记账）。**当前判定**：收尾实跑单元 3,029/0、设备 24/0 通过，已关闭。
 
 ## KD-44 (fixed 2026-10-18，提交 `8335613f`；裁定=后台自动结算、零用户参与) · 判词锚定让「KC 集为空」的题永远拿不到判定：NO_VERDICT 永久阻塞 + 文案误导
 
@@ -2048,7 +2061,7 @@ null（领不到）；`CleanRedrawTaskRunnerTest` 17/0 + 设备 `CleanRedrawTask
 
 **Reopen condition.** n/a —— 登记性低危。
 
-## KD-47 (open（2026-10-20 仅剩面向用户文案；2026-10-18 部分落地：枚举/回执 KDoc 已如实化；2026-10-17 登记（批次 12 对抗性复核 finding 8；low）) · 设置恢复是多键顺序写、非原子：WRITE_FAILED 文案「本机设置保持原样」可能与事实不符
+## KD-47 (fixed 2026-10-21（批次 16 T7；单元测试通过：StorageRestoreFeedbackTest 4/0）；2026-10-17 登记（批次 12 对抗性复核 finding 8；low）) · 设置恢复是多键顺序写、非原子：WRITE_FAILED 文案「本机设置保持原样」可能与事实不符
 
 **Symptom.** `applyRestoredSettings` 依次调六个写口（setOptions→逐条删/加考试→setOptimizedParameters→
 setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDoc 与 UI 文案都称「设置仍是恢复前那份 /
@@ -2069,7 +2082,15 @@ setEnabled→setReminderTime），中途失败返回 `WRITE_FAILED`；枚举 KDo
 
 **2026-10-20 再核（批次 15 记录）**：剩余项只有面向用户文案。`SecondaryScreens.kt:735` 在 `WRITE_FAILED` 时仍拼
 「设置未能写入，本机设置保持原样。」；仓库自己的 KDoc 明确多键顺序写非原子、只能说「可能有部分设置已变」。该文件属他线在飞、
-本批未改；`docs/research/2026-10-20-batch-15-prd-a-b-backup-wg05-record.md` §6 第 14 行照录。KD-47 保持 open。
+本批未改；`docs/research/2026-10-20-batch-15-prd-a-b-backup-wg05-record.md` §6 第 14 行照录。KD-47 保持 open（关闭见下条）。
+
+**关闭记录（2026-10-21，批次 16 T7；代码级）.** 面向用户文案已在唯一调用点改为如实说法：
+`app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt:954-962` 新增纯函数
+`storageRestoreCompletionMessage`，`WRITE_FAILED` 返回「设置未能完整写入，可能有部分设置已变。」；
+恢复完成消息由该函数生成（`:727-732`）。测试 `app/src/test/kotlin/com/tingyun/smartmistakebook/StorageRestoreFeedbackTest.kt`
+新增两条（`WRITE_FAILED` 文案与另外两态），共 4 例。**证据边界**：记录员未重跑 Gradle；记录时点只读看到
+`app/build/test-results/testLocalFirstDebugUnitTest/TEST-...StorageRestoreFeedbackTest.xml`（2026-10-21 05:05，tests=4 failures=0 errors=0）。
+本条是文案改动，源码位置与文案已逐字核对，故判 fixed；不据此声称设置恢复的原子性已解决（缺陷原意只是文案误导）。
 
 **Reopen condition.** n/a —— 登记性低危。
 
@@ -2418,7 +2439,10 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **Reopen condition.** 再次出现“关库后仍查询”的崩溃/错误时按本条继续；关闭条件 = 非门控写入口在关库前被硬性排空或证明不可达。
 
-## KD-62 (open, 2026-10-20 登记（批次 15 收尾复核；low）) · 备份回退与清理残余：checkpoint 结果行被忽略、成包临时库无启动清理、写门只覆盖两仓库
+**2026-10-21 批次 16 再核**：T7 只做了 KD-62 的 ①+②（见下条），**写门覆盖面未扩大**；KD-62③ 仍归本条。
+本条保持 open，无新增证据；设备恢复/并发写未跑。
+
+## KD-62 (fixed ①+② 2026-10-21（批次 16 T7；RoomBackupCheckpointValidationTest 5/0、BackupTempArtifactCleanupTest 2/0；③ 保留 KD-61）；2026-10-20 登记（批次 15 收尾复核；low）) · 备份回退与清理残余：checkpoint 结果行被忽略、成包临时库无启动清理、写门只覆盖两仓库
 
 **Symptom（读码）.** ① 旧回退的 `checkpointForBackup` 消费 `wal_checkpoint(TRUNCATE)` 结果行后不校验是否真的完成
 （`RoomBackupSupportStore.kt:15-19`），非 WAL/长写者场景一致性依赖“备份期无写者”；② 进程在成包/校验中途被杀时，
@@ -2428,5 +2452,13 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Impact.** low（独立快照成功时通常不走回退；清理缺口影响磁盘空间）。
 
 **Fix direction.** 校验 checkpoint 的实际完成状态；启动清理覆盖成包临时库/目录；写门覆盖或明确边界。
+
+**2026-10-21 收尾（批次 16 T7；单元门通过）.** ① 已关闭：`RoomBackupSupportStore.kt:15-37` 读取
+`PRAGMA wal_checkpoint(TRUNCATE)` 的 busy/log/checkpointed 三列，`checkpointCompletionProblem`（`:155-184`）判定未完成即
+`error(...)` 中止备份；非 WAL 的 `-1/-1` 视为合法 no-op。② 已关闭：`RestoreRecoveryCoordinator.kt:370-373` 在启动
+`cleanupOrphans` 调用 `cleanupOrphanBackupArtifacts`（`:400-416`），删除 `cache/backup-snapshots/` 与
+`databases/backup-snapshot-*.db`（含 `-wal/-shm`），不碰正式库/`restore-*`。③ **未动**：写门仍只覆盖备份/采集两仓库，
+归 KD-61。单元门 11 模块 3,029/0 中 `RoomBackupCheckpointValidationTest` 5/0、`BackupTempArtifactCleanupTest` 2/0 通过。
+①+② 关闭，③ 保留 KD-61。
 
 **Reopen condition.** n/a —— 登记性低危；出现回退一致性故障或磁盘被临时库占满时升级处置。
