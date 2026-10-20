@@ -1,5 +1,7 @@
 # 阶段 4B · 智能体生图与文档导出 完成记录 · 2026-10-03/04
 
+> **2026-10-18 绘图路线更新：** 所有生图入口统一判定，由模型按共享规则选择JS或图像模型；两者均为生图方式，正式统一接线待实施。当前约束见[教学图形契约](../current/visual-generation-contract.md)。本文既有日期、提交、测试、缺陷与旧方案作为历史事实保留，不代表新路线已实现。
+
 > 依据：主线 4B 行（`docs/REFACTOR-MASTER-LINE.md`）、phasing 阶段 4B（依赖 2、4A）、
 > 设计契约 `docs/research/2026-09-28-imagegen-and-export-design.md`（A1–A6 + B1–B6）、
 > 阶段计划 `docs/research/2026-10-03-stage4b-plan.md`（提交 `87e97270`）、4A 完成记录

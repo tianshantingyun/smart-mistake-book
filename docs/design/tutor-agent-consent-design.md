@@ -1,5 +1,7 @@
 # 讲题栏智能体化：全局模型同意（配置模型 = 全局同意）
 
+> **2026-10-18 绘图路线更新：** 所有生图入口统一判定，由模型按共享规则选择JS或图像模型；两者均为生图方式，正式统一接线待实施。当前约束见[教学图形契约](../current/visual-generation-contract.md)。本文既有日期、提交、测试、缺陷与旧方案作为历史事实保留，不代表新路线已实现。
+
 Branch: `feat/model-driven-clean-image` · Worktree: `.worktrees/image-pipeline`
 Date: 2026-09-05 · Status: **implemented (ratified by code)**
 Scope: tutor conversation becomes a WeChat-style agent — no per-message/per-move egress confirmations; one global "model agent" consent covers capture assess/parse/classify AND tutor plan/respond/visual.
@@ -620,3 +622,7 @@ the recovery LaunchedEffects do not fire and the UI shows the settings CTA via t
   sound.
 - The `TutorTurnSendStateMachine` consent-action rename is a judgment call (optional); no persisted
   encoding depends on `TutorSendPhase`, so either choice is safe.
+
+## Planned local visual execution boundary (2026-10-18)
+
+JS source generation uses existing authorized tutor tasks; it adds no consent store or per-figure approval flow. Execution/controls/replay are local and require no external-send permit. Source-image semantic rebuilding still requires real asset disclosure and the existing image-input gates. Pixel cleanup/illustration keeps its separate external capability and accounting. Old VISUAL_GENERATE/REVIEW matrix rows are historical, not new task kinds. See the current visual contract; this extension is not yet implemented.

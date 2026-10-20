@@ -1,0 +1,66 @@
+{
+  "root": "D:\\smart mistake book\\build\\kb-staging",
+  "gates": {
+    "ok": false,
+    "count": 24,
+    "failed": [
+      {
+        "key": "unbound_points",
+        "title": "无教学材料绑定的知识点",
+        "value": 14,
+        "detail": [
+          "[MATH] 周期数列的周期确认与求和要点",
+          "[PHYSICS] 实验步骤",
+          "[PHYSICS] 热学实验的注意事项",
+          "[PHYSICS] 光学实验中的误差分析",
+          "[PHYSICS] 必备实验仪器的原理及使用",
+          "[CHEMISTRY] 焰色反应",
+          "[CHEMISTRY] “位－构－性”关系的应用",
+          "[CHEMISTRY] 常见的装置",
+          "[CHEMISTRY] V2O5常用作SO2转化为SO3的催化剂。",
+          "[CHEMISTRY] 同系物、同分异构体的概念和判断易混易错点"
+        ]
+      }
+    ]
+  },
+  "report_only": {
+    "ok": true,
+    "contract_counts": {
+      "boundary_rows": 20,
+      "boundary_effective": 19,
+      "boundary_stale": 0,
+      "boundary_missing": 1,
+      "mb_rows": 598,
+      "mb_effective": 598,
+      "mb_arrear": 0,
+      "mb_material_missing": 0,
+      "mb_point_missing": 0,
+      "mb_empty": 0
+    },
+    "legacy_types": {
+      "legacy_total": 0
+    },
+    "legacy_baseline": 0
+  },
+  "consistency": {
+    "ok": true,
+    "topics": 398,
+    "points": 3356,
+    "failed": {}
+  },
+  "roundtrip": {
+    "ok": true,
+    "files": 25,
+    "failed": 0
+  },
+  "manifest": {
+    "ok": true,
+    "problems": []
+  },
+  "dense": {
+    "ok": true,
+    "checks": 10,
+    "failed": []
+  },
+  "ok": false
+}

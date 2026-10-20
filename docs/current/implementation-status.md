@@ -1,5 +1,7 @@
 # Implementation Status
 
+> **2026-10-18 绘图路线更新：** 所有生图入口统一判定，由模型按共享规则选择JS或图像模型；两者均为生图方式，正式统一接线待实施。当前约束见[教学图形契约](visual-generation-contract.md)。本文既有日期、提交、测试、缺陷与旧方案作为历史事实保留，不代表新路线已实现。其中旧 visual generate/review 接线条目仅对应当时实现；当前 ModelTaskKind 无这两个任务。
+
 > **IMPORTANT**: This document contains hand-written status notes from development sessions.
 > For the authoritative, CI-generated build status, see `docs/status.md`
 > (auto-generated from commit SHA, test XML results, APK/AAB hashes, and benchmark results).

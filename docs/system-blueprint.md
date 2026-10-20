@@ -896,7 +896,7 @@ ML Kit 文档扫描依赖 Google Play Services 动态下载，不可作为中国
 
 ### 12.5 安全结构化渲染
 
-优先使用原生 Compose AST 渲染，禁止 raw HTML、JavaScript、iframe、远程图片、远程字体和任意 URI 自动加载。
+正文优先使用原生 Compose AST，禁止 raw HTML、iframe、远程图片/字体和任意 URI 自动加载。2026-10-18 教学绘图允许独立 program 字段的模型 JS，仅在 4E 隔离进程中计算数据；正文及 Compose draw 不执行脚本。通用场景经严格预算和校验后由原生绘制，详见 docs/current/visual-generation-contract.md（正式功能待实施）。
 
 渲染限制：
 

@@ -1,0 +1,42 @@
+[
+  {
+    "module": "core/model",
+    "tests": 416,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reports": 39
+  },
+  {
+    "module": "core/domain",
+    "tests": 566,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reports": 75
+  },
+  {
+    "module": "core/database",
+    "tests": 182,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reports": 39
+  },
+  {
+    "module": "core/data",
+    "tests": 747,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reports": 99
+  },
+  {
+    "module": "feature/tutor",
+    "tests": 209,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reports": 25
+  }
+]

@@ -1,0 +1,93 @@
+[
+  {
+    "module": "core/model",
+    "task": "test",
+    "tests": 416,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/domain",
+    "task": "test",
+    "tests": 559,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/database",
+    "task": "testDebugUnitTest",
+    "tests": 181,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/data",
+    "task": "testDebugUnitTest",
+    "tests": 731,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/export",
+    "task": "testDebugUnitTest",
+    "tests": 63,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/ui",
+    "task": "testDebugUnitTest",
+    "tests": 38,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "feature/capture",
+    "task": "testDebugUnitTest",
+    "tests": 110,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "feature/review",
+    "task": "testDebugUnitTest",
+    "tests": 39,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "feature/tutor",
+    "task": "testDebugUnitTest",
+    "tests": 209,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "feature/library",
+    "task": "testDebugUnitTest",
+    "tests": 39,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "feature/profile",
+    "task": "testDebugUnitTest",
+    "tests": 6,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "app",
+    "task": "testLocalFirstDebugUnitTest",
+    "tests": 47,
+    "failures": 0,
+    "skipped": 0
+  },
+  {
+    "module": "app",
+    "task": "testStrictOfflineDebugUnitTest",
+    "tests": 48,
+    "failures": 0,
+    "skipped": 0
+  }
+]

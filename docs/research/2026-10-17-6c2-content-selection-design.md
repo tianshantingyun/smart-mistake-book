@@ -544,6 +544,16 @@ digest = SHA-256(  "smbk-selection-v1\n"
 
 ---
 
+## 7. 统一生图接入后的闭包补充（2026-10-18）
+
+本节承接[4E的WG-08](../superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md#wg-08状态预算恢复与备份)与[后续计划](../../.zcode/plans/plan-2026-10-18-followup-figure-wiring.md)。旧schema66的84表/90边/5组合法选择是原探针快照，不代表加入新图表后仍成立；本次不把尚未迁移的表写进附录A机器JSON，也不声称已重跑Android恢复。
+
+- [ ] 实际4E迁移落地后，从最新Room导出重新生成类别/FK/软引用/裁剪顺序及closureVersion/digest，覆盖六个拟新增记录表与旧作业operation关联，不写死版本68或旧84表数量。
+- [ ] 题目/消息引用作为保留根计算JS程序、快照、必要预览及canonical图像的可达闭包；同一程序被保留题目和被删除会话共用时仍须保留，不能按整表类别删除。共享operation/attempt按存活宿主与引用分行筛选，扩展现有SPLIT机制，不全部归SESSIONS或IMAGES。
+- [ ] 程序和快照作为持久事实、预览/字体版本与图像字节按实际引用进入清单；不可把JS预览当唯一图事实。必要文件缺失/hash不符在交换前拒绝，未固定派生缓存按既有可重建规则处理。
+- [ ] 增加混合JS/IMAGE_MODEL、共享图双根、删除会话保留题、不同selection、未知程序版本、缺预览、源revision改变的成包/恢复用例；历史查看/导出0模型派发，恢复ledger不归零，不复活外发授权。
+- [ ] 本设计沿用快照库裁剪、不动实时库；其基于VACUUM的路线需先解决KD-53大库上限与KD-54快照写饥饿并设备复验。不能用内容勾选扩展绕过已有备份正确性问题，也不在本节替未决产品选项代签。
+
 ## 附录 A · 类别 → 表（机器可读，唯一数据源）
 
 > 本块由自检脚本解析（`<!-- 6c2-plan:begin -->` 标记内）。改动只改这里，
@@ -970,3 +980,12 @@ PRAGMA integrity_check;                                    -- 期望 'ok'
 | 迁移期外键关闭 / Room 在 onOpen 开外键 | `FavoriteAndManualDraftMigration_66_67.kt:18-20`（他线在飞，只读）；`KernelWave0Migration_53_54.kt:63-66`；`RoomBackupSupportStore.kt:107-135` |
 | 66→67 的 DDL 差异（不新增/不删 FK 边） | `FavoriteAndManualDraftMigration_66_67.kt:46-48`（加列）、`:54-75`（`problem_draft` 重建，FK 逐字不变、仅 `source_asset_id` 变可空）、`:78-142`（视图加列） |
 | schema 事实（84 表 / 2 视图 / 90 条 FK 边） | `core/database/schemas/…/66.json`（机器导出，identityHash `f1cf3cdf…`）；`67.json` 尚未导出（`ls` 实测，只有 6–66 共 66 份） |
+
+
+## 8. 2026-10-19 产品纠错与备份前置补充
+
+先完成[PRD-07](../superpowers/plans/2026-10-19-product-readiness-followup-plan.md)的KD-53/54/47，再扩内容勾选。现有VACUUM方案不能长期占Room写连接；旧API fallback必须有真实写者屏障与checkpoint结果核验，不能仅靠“空闲”注释。独立连接/增量备份的支持度以实际驱动/设备证据为准。
+
+- [ ] PRD-02/03新增题/键版本、纠正/撤销事件、源引用和待重放回执后，按实际schema重新枚举FK与软引用。学习记录保留其必要键/题版本/目标证据，不能勾掉会话后把有效证据来源一起丢失。
+- [ ] 纠正中/重放中备份恢复要保持持久回执与一致有效视图，恢复后本地续处理但不自动发送外部请求；删会话保题与两方法共享图继续沿第7节闭包规则。
+- [ ] 本文旧schema66机器附录/SQL是历史研究证据，不改成新schema已验；实际迁移落地后另出新版清单与往返报告。

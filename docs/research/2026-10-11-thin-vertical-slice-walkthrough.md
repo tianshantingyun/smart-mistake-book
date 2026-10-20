@@ -1,5 +1,7 @@
 # 薄纵向切片走查（录入 → 复习 → 判定 → 档案）— 2026-10-11
 
+> **2026-10-18 绘图路线更新：** 所有生图入口统一判定，由模型按共享规则选择JS或图像模型；两者均为生图方式，正式统一接线待实施。当前约束见[教学图形契约](../current/visual-generation-contract.md)。本文既有日期、提交、测试、缺陷与旧方案作为历史事实保留，不代表新路线已实现。
+
 > 数据：`C:\Users\听云\Pictures\错题数据集`（155 张 JPG，~8 MB/张，化学/生物试卷页）
 > 设备：`test_device`（emulator-5554，API 34，1080×2400），`localFirstDebug` 包
 > `com.tingyun.smartmistakebook.localfirst`（本次走查期间安装，应用数据全新）

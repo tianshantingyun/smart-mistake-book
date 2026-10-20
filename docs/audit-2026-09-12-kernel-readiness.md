@@ -1,5 +1,7 @@
 # smart mistake book 生产就绪度审计 · 完整记录
 
+> **2026-10-18 绘图路线更新：** 所有生图入口统一判定，由模型按共享规则选择JS或图像模型；两者均为生图方式，正式统一接线待实施。当前约束见[教学图形契约](current/visual-generation-contract.md)。本文既有日期、提交、测试、缺陷与旧方案作为历史事实保留，不代表新路线已实现。
+
 > **审计问题**：这套软件，尤其是内核，是否达到生产级质量标准？
 > **审计对象**：`D:\smart mistake book` 的**已提交代码**（`main`）。工作树中另有并发会话的未提交改动（`docs/known-defects.md`、`ProblemDao.kt`、`ModelEgress.kt`、`MasteryWriteGate.kt`、`RoomTutorToolRunner.kt`、`RawConnectionAccess.kt` 等十余个文件），**不属于本次范围**，全程未被修改、暂存、提交或还原。
 > **审计日期**：2026-09-12
