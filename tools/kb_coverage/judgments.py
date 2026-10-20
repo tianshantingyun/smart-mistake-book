@@ -57,6 +57,10 @@ PARTS = ("MATH", "PHYSICS", "CHEMISTRY", "BIOLOGY", "UNASSIGNED")
 COLUMNS = ("chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
            "summary", "applicability", "content", "boundary", "note", "midx")
 
+# materialize 写入侧的科目缩写（slug 前缀 ext-<subj3>-…）。放在这里是为了让
+# "判定行 → 包内 material slug"只有一份实现：materialize 写、漂移检查读，同源。
+SUBJ3 = {"MATH": "mat", "PHYSICS": "phy", "CHEMISTRY": "che", "BIOLOGY": "bio"}
+
 
 def parts_dir() -> Path:
     """片目录：`tools/kb_coverage/tables/material_judgments/`。"""
@@ -74,6 +78,22 @@ def key(row: dict) -> tuple[str, str, str]:
     带空白的 midx 与不带的是同一行——判重、补行、定位都必须按同一把钥匙对齐。"""
     return ((row.get("chunk_rel") or ""), (row.get("chunk_id") or ""),
             (row.get("midx") or "").strip())
+
+
+def material_slug(row: dict, subject: str | None) -> str | None:
+    """判定行 → 包内 material slug（与 `materialize.write` 的写入公式同源）。
+
+    `ext-{subj3}-{chunk_id 第一段}-{chunk_id 末段}{midx}`；subject 不是四科
+    （UNASSIGNED/None）或 chunk_id 不含 `-` 时返回 None（该行无法定位到包内材料）。
+    """
+    if subject not in SUBJ3:
+        return None
+    chunk_id = row.get("chunk_id") or ""
+    if "-" not in chunk_id:
+        return None
+    digest = chunk_id.split("-", 1)[0]
+    index = chunk_id.rsplit("-", 1)[-1]
+    return f"ext-{SUBJ3[subject]}-{digest}-{index}{(row.get('midx') or '').strip()}"
 
 
 def _read_part(path: Path) -> list[dict]:

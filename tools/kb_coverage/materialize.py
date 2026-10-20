@@ -54,11 +54,11 @@ sys.path.insert(0, str(REPO / "tools"))
 from kb_build import material_provenance as prov  # noqa: E402
 from kb_build import pack_io  # noqa: E402
 from kb_coverage import extraction_state as es  # noqa: E402
-from kb_coverage import judgments  # noqa: E402
+from kb_coverage import judgments as judgment_tables  # noqa: E402
 from kb_coverage.office_extract import load_chunks  # noqa: E402
 
 # 判定表是**分片目录**（按科目的 5 片，见 kb_coverage/judgments.py）。
-JUDGMENTS = judgments.parts_dir()
+JUDGMENTS = judgment_tables.parts_dir()
 COLUMNS = ("chunk_rel", "chunk_id", "action", "node_slug", "type", "title",
            "summary", "applicability", "content", "boundary", "note", "midx")
 ROLES = ("PRIMARY",)
@@ -67,7 +67,9 @@ TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "MISCONCEPTION_GUIDE"}
 SAFE_SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 ROLL_AT_CHARS = 2_500_000
 
-SUBJ3 = {"MATH": "mat", "PHYSICS": "phy", "CHEMISTRY": "che", "BIOLOGY": "bio"}
+# 保留这个名字给 `apply_rejudged_materials` / `restore_rebind_protected` 等调用方，
+# 但定义只留一份在 judgments.py：写入与漂移检查必须用同一个 slug 公式。
+SUBJ3 = judgment_tables.SUBJ3
 
 
 def _now_ms() -> int:
@@ -128,7 +130,7 @@ def _existing_source_entries() -> dict[str, dict]:
 def load_judgments() -> list[dict]:
     if not JUDGMENTS.exists():
         return []
-    rows = judgments.load_all(JUDGMENTS)
+    rows = judgment_tables.load_all(JUDGMENTS)
     for r in rows:
         missing = [c for c in COLUMNS if c not in r]
         if missing:
@@ -263,10 +265,8 @@ def write(judgments: list[dict]) -> dict:
         if r["action"] != "MATERIAL":
             continue
         subject = ch["subject"]
-        h = r["chunk_id"].split("-", 1)[0]
-        idx = r["chunk_id"].rsplit("-", 1)[-1]
-        slug = f"ext-{SUBJ3[subject]}-{h}-{idx}{(r.get('midx') or '').strip()}"
-        assert SAFE_SLUG.match(slug), slug
+        slug = judgment_tables.material_slug(r, subject)
+        assert slug is not None and SAFE_SLUG.match(slug), slug
         if slug in existing_slugs:
             prev = existing_targets.get(slug)
             if prev != r["node_slug"]:

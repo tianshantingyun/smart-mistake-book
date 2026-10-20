@@ -138,7 +138,19 @@ def _is_latex_damaged(text: str) -> bool:
                 return True                      # 拼出不存在的命令：被前一个命令吞掉
     return False
 
-_CONTROL_CHARS = "\x0c\t\r\x08\x07\x0b"
+# 契约同源：`KnowledgeTeachingMaterialContract.text`（core/database/.../KnowledgeTeachingMaterialContract.kt:216-229）
+# 拒绝 `Char.isISOControl() && character !in "\n\r\t"`。ISO 控制的码位范围是
+# C0(0x00-0x1F) + DEL(0x7F) + C1(0x80-0x9F)；去掉契约明确允许的 \n \r \t。
+#
+# 2026-10-20 扩集前的旧集合是 "\x0c\t\r\x08\x07\x0b"（只抽查 FF/TAB/CR/BS/BEL/VT）：
+# 它既漏掉 C0 其余码位与整个 C1/DEL 段，又把契约允许的 TAB/CR 当成缺陷。本次按契约
+# 收紧为同一判据。扩集前对成品 25 卷 64,973 条材料 + staging + 135,085 行判定表做过
+# 只读全量扫描：新旧判据命中均为 0，因此没有需要登记例外的合法控制符。
+_CONTRACT_ALLOWED_CONTROLS = frozenset("\n\r\t")
+_CONTROL_CHARS = frozenset(
+    chr(code) for code in range(0x00, 0xA0)
+    if (code < 0x20 or 0x7F <= code <= 0x9F) and chr(code) not in _CONTRACT_ALLOWED_CONTROLS
+)
 
 # ---------------------------------------------------------------------------
 # 控制字符把反斜杠替换掉：`\alpha` → `0x07 + lpha`、`\right` → `0x0D + ight`
@@ -268,10 +280,14 @@ class Metric:
     title: str
     value: int = 0
     detail: list[str] = field(default_factory=list)
+    # 已登记的历史欠账基线：value <= baseline 视为通过（value == baseline 只报 INFO）。
+    # 默认 0 = 容差为零，与既有各门语义一致；只有显式登记过基线的门才允许非零读数
+    # 不判红。基线不是放宽判据：超过它仍然 FAIL，且只有评审过的存量欠账才能进基线。
+    baseline: int = 0
 
     @property
     def ok(self) -> bool:
-        return self.value == 0
+        return self.value <= self.baseline
 
 
 def is_extraction_residue(name: str) -> bool:
@@ -362,6 +378,111 @@ def exam_leak_metric() -> Metric:
         # 陈旧豁免（键已不再命中/指纹已变）不判红——它只说明豁免表可清理，
         # 不会放过任何新命中；把条数放在 detail 里保持可见。
         m.detail.append(f"（豁免表陈旧 {len(stale)} 条，非判红项）")
+    return m
+
+
+# 契约 text() 实际校验的材料字段（KnowledgeTeachingMaterialContract.kt:85-91）。
+# subject/sourceLocator 与另外 5 个字段一样走 text() 的 ISO 控制判据，必须同扫；
+# materialId/stableCode 走 id()（连 \n\r\t 都拒），但它们在包 JSON 里是派生字段
+# （sidecar 只有 slug），本门不重复实现派生规则。
+_MATERIAL_TEXT_FIELDS = ("subject", "title", "summaryMarkdown", "applicabilityMarkdown",
+                         "contentMarkdown", "boundaryMarkdown", "sourceLocator")
+
+
+def control_chars_metric(materials) -> Metric:
+    """材料含控制字符（契约同源判据，见 `_CONTROL_CHARS`）。
+
+    逐字段定位：detail 里写出命中的字段名，后续若发现某字符在某字段是合法用法，
+    例外必须按（材料, 字段, 字符）登记，而不是把字符从全局集合里拿掉。
+    """
+    m = Metric("control_chars", "材料含控制字符（C0 除 \\n\\r\\t + DEL/C1）")
+    for _path, material in materials:
+        hit_fields = [
+            k for k in _MATERIAL_TEXT_FIELDS
+            if any(ch in (material.get(k) or "") for ch in _CONTROL_CHARS)
+        ]
+        if hit_fields:
+            m.value += 1
+            if len(m.detail) < 40:
+                m.detail.append(
+                    f"[{material.get('subject')}] {material.get('slug', '')[:60]}"
+                    f": {','.join(hit_fields)}")
+    return m
+
+
+# ---------------------------------------------------------------------------
+# 判定源 ↔ 包文本漂移的**已登记基线**（2026-10-20 实测，只读对拍）。
+#
+# 377 = content 差异 194 + boundary 差异 183；其中 182 条两字段同时不同，故涉及
+# 唯一 material slug 195 条。逐条 slug 与两侧文本指纹归档在
+# build/agent-batch14/a/judgment-drift-baseline.csv（377 行，field 级）。
+#
+# 为什么是基线而不是"修完再开门"：这 377 处已核为**双通道历史分歧**——判定表保留
+# 旧判词，包内是后批作者改写版；两侧各自自洽，且样本 ext-mat-9a51501f22-003
+# （集合的含义与表示）不在 build/agent-input/rejudged_replacements.csv 的重判替换集里，
+# 说明它们不是"重判只写回判定源"造成的新漂移。把存量一次清零才会让门上线，等于用
+# 一次大回写掩盖真正的增量风险。
+#
+# 口径（不放宽判据）：
+#   - value == 基线：报 INFO（历史欠账，不阻塞晋升）；
+#   - value >  基线：FAIL（出现新的、未登记的漂移）；
+#   - 基线只许**下调**：回写/重判清掉多少，就把常量改成新的实测值；不得上调。
+JUDGMENT_PACK_DRIFT_BASELINE = 377
+
+
+def judgment_pack_drift_metric(materials=None, rows=None) -> Metric:
+    """判定表 MATERIAL 行 ↔ 包内同 slug 材料的 content/boundary 逐字对拍。
+
+    判定表是入库的**判定源**，包内文本是**落盘结果**；两者同键（material slug，
+    由 `kb_coverage.judgments.material_slug` 生成，与 materialize 写入侧同源）却
+    文本不同，说明有人只改了一边（例如文本修复只写回 sidecar、没回写判定表）。
+    这类漂移让"判定源可复核"失效：看表以为材料是 A 版，实际分发的是 B 版。
+
+    value = content 差异字段数 + boundary 差异字段数 + 判定行有/包内无条数
+    + 无法定位 slug 条数（后两者不是"文本不同"，但"查不了"同样不能判绿）。
+    包内 `ext-*` 材料没有对应 MATERIAL 判定行只作提示（材料也可能来自
+    authored/registry 批次，不能一概判红）。
+
+    存量基线见 `JUDGMENT_PACK_DRIFT_BASELINE`：等于基线报 INFO，超过基线才红。
+    """
+    from kb_coverage import judgment_drift
+
+    m = Metric("judgment_pack_drift", "判定源与包文本漂移（同 slug content/boundary 不等）",
+               baseline=JUDGMENT_PACK_DRIFT_BASELINE)
+    try:
+        if rows is None:
+            rows = judgment_drift.load_rows()
+        if materials is None:
+            materials = [mat for _path, mat in pack_io.load_materials()]
+        result = judgment_drift.compare(rows, materials)
+    except (OSError, ValueError) as exc:
+        # 判定表/包读不出时不能"查不了=绿"：置 1、**撤掉基线**并在 detail 里说明。
+        m.value = 1
+        m.baseline = 0
+        m.detail.append(f"检查不可执行：{exc}")
+        return m
+
+    m.value = result["value"]
+    m.detail.append(
+        f"content 差异 {len(result['content_diffs'])}；"
+        f"boundary 差异 {len(result['boundary_diffs'])}；"
+        f"判定行有/包内无 {len(result['missing'])}；"
+        f"包内 ext-* 材料无 MATERIAL 判定行 {result['orphan_ext']}（提示，不判红）")
+    if m.value == m.baseline:
+        m.detail.append(
+            f"等于已登记基线 {m.baseline}（历史双通道分歧，INFO，不判红；"
+            f"归档 build/agent-batch14/a/judgment-drift-baseline.csv；超过基线即 FAIL）")
+    elif m.value > m.baseline:
+        m.detail.append(f"超过已登记基线 {m.baseline}：新增 {m.value - m.baseline} 处，FAIL")
+    else:
+        m.detail.append(
+            f"低于已登记基线 {m.baseline}：已清账 {m.baseline - m.value} 处（基线只许下调）")
+    for d in result["content_diffs"][:8]:
+        m.detail.append(f"content {d['slug']} ← {d['node_slug']}")
+    for d in result["boundary_diffs"][:8]:
+        m.detail.append(f"boundary {d['slug']} ← {d['node_slug']}")
+    for d in result["missing"][:8]:
+        m.detail.append(f"missing {d['slug']} ← {d['node_slug']}（{d['chunk_id']}{d['midx']}）")
     return m
 
 
@@ -547,8 +668,7 @@ def evaluate() -> list[Metric]:
     # 9c) shell 展开残迹：`$0` → /usr/bin/bash、`$$` → PID、`$` 被吃成奇数个
     #     这三条与 m9b 是同一类事故（文本被丢进 shell 上下文）的不同症状，
     #     分成独立指标是为了让"哪一环坏了"一眼可读。
-    field_names = ("title", "summaryMarkdown", "applicabilityMarkdown",
-                   "contentMarkdown", "boundaryMarkdown")
+    field_names = _MATERIAL_TEXT_FIELDS
     m9c = Metric("shell_expansion", "材料文本含 shell 展开残迹（$0/$$/$ 不成对）")
     m9d = Metric("dollar_unbalanced", "材料文本的 $ 不成对（数学分隔符被吃掉）")
     for _path, material in materials:
@@ -566,17 +686,8 @@ def evaluate() -> list[Metric]:
     metrics.append(m9c)
     metrics.append(m9d)
 
-    # 10) 控制字符
-    m10 = Metric("control_chars", "材料含控制字符")
-    for _path, material in materials:
-        blob = "".join(material.get(k) or "" for k in
-                       ("title", "summaryMarkdown", "applicabilityMarkdown",
-                        "contentMarkdown", "boundaryMarkdown"))
-        if any(ch in blob for ch in _CONTROL_CHARS):
-            m10.value += 1
-            if len(m10.detail) < 40:
-                m10.detail.append(f"[{material.get('subject')}] {material.get('slug', '')[:60]}")
-    metrics.append(m10)
+    # 10) 控制字符（契约同源判据；见 _CONTROL_CHARS）
+    metrics.append(control_chars_metric(materials))
 
     # 11) 章节归属：单元覆盖率与"定位串必须由章表（含节点级覆盖）推导"
     from kb_build import gen_chapter_table
@@ -697,6 +808,11 @@ def evaluate() -> list[Metric]:
     # 18) 判定表 MATERIAL 行的例题派生泄漏（未豁免；判据与 kb_coverage.check_exam_leak 同源，
     #     误报逐条豁免在 tables/material_exam_exemptions.csv，见 exam_leak_metric）。
     metrics.append(exam_leak_metric())
+
+    # 判定源 ↔ 包文本漂移（judgment_pack_drift_metric）单独挂在
+    # tools/ci/run_kb_checks.py 的 `judgment_drift` 节：它是**评审源**与落盘文本的
+    # 对账，不是包自身的内容缺陷；放进 evaluate() 会让 promote 在历史漂移清账前
+    # 整批不可用（2026-10-20 实测现存 377 处，待逐条回写判定源/包）。
 
     return metrics
 

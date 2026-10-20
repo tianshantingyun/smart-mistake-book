@@ -49,6 +49,16 @@ def run(root: Path) -> dict:
                         "detail": m.detail[:10]} for m in metrics if not m.ok],
         }
 
+        # 判定源（material_judgments/*.csv）↔ 包内同 slug 材料的 content/boundary
+        # 逐字对拍。它是评审源与落盘文本的对账，不进 gate.evaluate()（那里是包自身
+        # 缺陷门，promote 读同一结果；对账未清账不应让晋升路径整批不可用）。
+        drift = gate.judgment_pack_drift_metric()
+        sections["judgment_drift"] = {
+            "ok": drift.ok,
+            "value": drift.value,
+            "detail": drift.detail[:10],
+        }
+
         consistency, stats = check_pack_contract.evaluate(root)
         bad = {name: problems for name, problems in consistency.items() if problems}
         # 报告型计数：boundary_map 只报数（INFO）；material_bindings 的节点缺/空/欠账三桶
@@ -121,7 +131,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(result, ensure_ascii=False, indent=1))
     else:
         print(f"kb checks（{root}）：")
-        for name in ("gates", "consistency", "roundtrip", "manifest", "dense"):
+        for name in ("gates", "consistency", "roundtrip", "manifest", "dense",
+                     "judgment_drift"):
             section = result[name]
             mark = "OK  " if section["ok"] else "FAIL"
             extra = ""
@@ -135,6 +146,8 @@ def main(argv: list[str] | None = None) -> int:
                 extra = "：" + "; ".join(section["problems"][:3])
             if name == "dense" and section["failed"]:
                 extra = "：" + "; ".join(f"{f['name']}（{f['detail']}）" for f in section["failed"])
+            if name == "judgment_drift" and not section["ok"]:
+                extra = f"：{section['value']} 处（content/boundary/缺失）"
             print(f"  {mark} {name}{extra}")
         ro = result["report_only"]
         cc = ro["contract_counts"]

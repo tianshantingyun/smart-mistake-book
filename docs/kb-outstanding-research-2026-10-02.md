@@ -2,6 +2,16 @@
 
 > 2026-10-13当前收口入口：先读§8的AUD-04/07/18/19与MASTER LINE §7。下方v9/历史样本是当时基线，不代表当前成品或候选；不要沿用历史计数决定晋升。
 
+> **现行数字（2026-10-20 复算；下文 §1–§7 为 2026-10-02 的 v9 历史快照，§8 为 2026-10-13 快照，均按日期保留，不据以裁决）**
+> - 知识点 **3,245**（主题 425）——`core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json`（v17，`version=17`）。
+> - 教学材料 **64,973** 条——`moe-2025-teaching-support-v2-01..25.json` 的 `materials` 合计（`moe-2025-update-manifest.json` 同指 v17）。
+> - 课标覆盖 COVERED **390** / PARTIAL **73** / NOT_COVERED **198** / UNDECIDED **0**，分母 **661**——`knowledge-production/kb-coverage-alignment-2026-v2.json` 的 `total`。
+> - 薄料 live **205**（零材料 0、仅 1 条 205；BIO 42 / CHEM 56 / MATH 53 / PHYS 54）——`PYTHONPATH=tools python -m kb_build.report_material_gaps`；台账文件 `knowledge-production/node-material-gaps-2026-09.csv` 仍为 661 行（未重写）。
+> - 超配（>4 条）**2,482**（≥4 2,667 / =4 185；>4 持有 63,102 条、超出前 4 的绑定 53,174；最大 145）——按包内 `materials[].bindings[0]` 复算（(subject, slug) 口径）。
+> - 未判（机械 SKIP）**61,170**（已判定 125,465 / 待判定 0）——`PYTHONPATH=tools python -m kb_coverage.count_unjudged`。
+>
+> 旧值→现行值速查（仅这六项；文中其余数字属对应日期的历史结论）：点 3,866（v9）/3,741（v13）→3,245；材料 50,383（v9）/59,008（v13）→64,973；覆盖 352/73/236→390/73/198（分母均 661）；薄料 571→205；超配 2,518→2,482（>4 口径）；未判机械 SKIP 107,160→61,170。
+
 - 日期：2026-10-02 ｜ 仓库 HEAD：`a96bc8ce`（写作期间内核线推进：`890d966f` → `a96bc8ce`；工作树另有他线在飞改动，见 §6.4）
 - 读者：项目负责人。本文回答四件事：**还剩什么、为什么重要、怎么做、依赖谁与怎么验收**。
 - 素材：`build/agent-outstanding/baseline.md` + 六份事实卡（`build/agent-outstanding/group-1.md`…`build/agent-outstanding/group-6.md`）。
@@ -135,6 +145,8 @@
 
 #### ①-3 超配节点与节点粒度（2,754 / 2,518 / 37,466；最大 139；运行时无 per-node 上限）
 
+> 2026-10-20 复算：≥4 **2,667** / >4 **2,482** / =4 **185**；>4 持有 **63,102** 条、超出前 4 的绑定 **53,174**；最大 **145**（MATH「三角函数的图象与性质」）。下文 2,754/2,518/37,466/139 为 2026-10-02 快照。
+
 > 与 ⑥-3（`tools/kb_build/overfull_nodes.py` 跑不通）合并为本条；⑥-3 不再单列。
 
 - **事实**：本会话只读复算（`R4`）：3,866 节点全部有绑定；**≥4 条 2,754 / >4 条 2,518 / =4 条 236**；>4 节点持有 **47,538** 条，超出前 4 的绑定 **37,466**；>10 1,595 / >20 828 / >50 114 / >100 6；最大 **139 = BIOLOGY「基因工程」**；零材料节点 0。运行时无条数门：取数上界 1,024（`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/port/KnowledgePort.kt:133`）、全局字符预算 **20,000**（`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/TutorTasks.kt:357`）、排序 `roleRank→typePriority→title→materialId`（`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/RoomTutorTeachingReferenceRepository.kt:126-134`），该文件注释自述「没有条数上限之后…预算通常装得下（一题 5 个中位节点约 3,800 字符，预算 20,000）」。工具腐烂：`tools/kb_build/overfull_nodes.py` 本会话实跑 → `KeyError: 'materials'`（`:75` 把卷索引 glob 进 load，改法工具自述 `:17-21` 走 `pack_io.sidecar_paths()`）；自述数字 `:11-13` 仍是 1,670/23,825/17,145（旧）；机制描述 `:9-10` 仍是「排前面的 4 条进预算，其余一条也拿不到」（与运行时代码相反）。上游生成器仍按 4 裁（`tools/kb_build/merge_candidate_verdicts.py:165` `MAX_VISIBLE = 4`）。
@@ -175,6 +187,8 @@
 - **预计工作量**：小（约 1 个代理轮）。
 
 #### ①-7 薄料账本已陈旧（台账 661 行 vs live 571；275 行仍 thin、384 行已 ≥2 条）
+
+> 2026-10-20 复算：live **205**（零材料 0 / 仅 1 条 205；BIO 42 / CHEM 56 / MATH 53 / PHYS 54）；台账文件仍 661 行。下文 571/275/384 为 2026-10-02 快照。
 
 - **事实**：台账 `knowledge-production/node-material-gaps-2026-09.csv` 本会话数行 661，全部 `tier=thin`、`material_count=1`（按科 PHYSICS 269 / MATH 197 / CHEMISTRY 175 / BIOLOGY 20）。live 重算（`build/agent-outstanding/group-1.md:224-227`）：缺口共 **571**（零材料 0 / 仅 1 条 571；BIO 141 / CHEM 133 / MATH 158 / PHYS 139）。逐行对照现包：2 个 slug 已不在包、**275 行仍是 thin**、**384 行已 ≥2 条**。生成器 `tools/kb_build/report_material_gaps.py:18-19,34`。
 - **对学生的影响**：571 个知识点只有一条材料可讲；若把陈旧台账当权威（派补料单、验收对账），会对着已加厚/已消失的节点派活，缺口账目失真。
@@ -279,6 +293,8 @@
 ### 组③ 覆盖验收与教材
 
 #### ③-1 课标对照台账的真实数字、完整性门与判定通道
+
+> 2026-10-20 复算：COVERED **390** / PARTIAL **73** / NOT_COVERED **198** / UNDECIDED **0**（分母 **661**）——`knowledge-production/kb-coverage-alignment-2026-v2.json` 的 `total`；下文 352/73/236 为 2026-10-02 快照。
 
 - **事实**：本会话逐条聚合 `knowledge-production/kb-coverage-alignment-2026-v2.json`（`R6`）→ COVERED 352 / PARTIAL 73 / NOT_COVERED 236 / UNDECIDED 0，分母 661；逐科 MATH 130/308=0.4221、PHYSICS 71/138=0.5145、CHEMISTRY 51/73=0.6986、BIOLOGY 100/142=0.7042（与基线一致）。完整性门：`PYTHONPATH=tools python -m kb_coverage.alignment --check` exit 0、`tools.tests.test_kb_alignment` 5 tests OK（`build/agent-outstanding/group-3.md:14-15`，本会话未复跑）。判定通道：全部 661 条 `reviewState=AI_REVIEWED`、reviewer=Qwen3.8-27B，**无一条人工审校**。旧数字残留：`docs/kb-problem-register-2026-09-15.md:616` 仍写「数学 118/308」；全仓 docs 未找到现行 130/308（`build/agent-outstanding/group-3.md:18`）。
 - **对学生的影响**：对外宣称「覆盖 X/Y」时，判定通道是 AI 语义判定而非人工审校——不标通道会让人误判证据等级；公布旧数字（118）会让复算者对不上账。
@@ -472,6 +488,8 @@
 - **预计工作量**：九科课标逐条审校是数十人日量级；EPUB 审校本轮不建议排期。
 
 #### ⑤-4 机械 SKIP 107,160 块从未抽检（验收门已定，无执行产物）
+
+> 2026-10-20 复算：未判（机械 SKIP）**61,170**（`PYTHONPATH=tools python -m kb_coverage.count_unjudged`：已判定 125,465 / 待判定 0）；本节 107,160 为 2026-10-02 快照。
 
 - **事实**：本会话数行 `tools/kb_coverage/tables/mechanical_skips.csv` = **107,160**；分类前几名：题目派生（含成套选项）68,705 / 题目派生（含答案判定语）30,503 / 广告宣传 2,480 / 同内容指纹重复（只留首次）1,131 / 题目派生（标题是题号/来源）992 / 「过短（<40 字）」若干档合计数千（`build/agent-outstanding/group-5.md:91-92`）。验收门已定（`docs/agent-first-refactor-decisions-2026-09-23.md:2437`：分层抽检、报误杀率、报告落 `docs/research/`、误杀率高于阈值则重开该判据的分流）；全仓搜「误杀」只命中决策/设计/分期 3 个文档，`docs/research/` 无对应报告。
 - **对学生的影响**：池子里 57.4% 的料被机械判为「题目/广告/过短/重复」后静默丢弃；若「讲解+例题混合块」被误杀，学生就少一份讲解材料，且没有任何抽样数据说明误杀率。
@@ -1205,6 +1223,8 @@ PY
 ## 8. 2026-10-13审计任务接入（当前收口以本节为准）
 
 旧§1为2026-10-02历史基线，不作为当前成品计数。当前：成品v13为3741点/59008材料/527退役；staging为3356点/59008材料/912退役。批次9的D-1按95.15%点估计过门，CI和模型标注纪律如实保留；14空点、22失效覆盖目标及最终D-3/D-5仍未共同收口。任务位置见 [MASTER LINE §7](REFACTOR-MASTER-LINE.md#7-2026-10-13审计任务归位与执行批次)。
+
+> 2026-10-20 复算（v17）：成品 **3,245 点 / 64,973 材料**；覆盖 **390/661**；薄料 **205**；超配（>4）**2,482**；未判（机械 SKIP）**61,170**。本节 v13/v13-staging 数字为 2026-10-13 快照。
 
 ### AUD-04 · D-3最终消费检索（P1）
 

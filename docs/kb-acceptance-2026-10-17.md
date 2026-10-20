@@ -1,58 +1,98 @@
-# 教材目录覆盖验收（课标内容要求口径）
+# 教材目录覆盖验收（F14 双口径：主线 426 条 / 全量 661 条）
 
-> 文书日期：**2026-10-20**（文件名沿用 2026-10-17 批次验收槽位；v16 终态在此补记）
-> 验收对象：v16 现包 `build/kb-staging/moe-2025-four-subjects-v1.json`（`moe-2025-update-manifest.json` version=**16**，sha256 `f6098c41d4901d56bd33106b205e7489fa6bf078d3853413c674976b5b84386c`）
-> 验收口径：**覆盖课标内容要求 390/661（COVERED / (总数 − UNDECIDED) = 59.00%）**；目录只读对照，不读教材正文，原文不入库。
+> 文书日期：**2026-10-20**（v18 补记 2026-10-21；文件名沿用 2026-10-17 批次验收槽位）
+> 验收对象：v18 现包 `build/kb-staging/moe-2025-four-subjects-v1.json`（`moe-2025-update-manifest.json` version=**18**，contentVersion=**d82a05607bdb622a**；主包 sha256 `f6098c41d4901d56bd33106b205e7489fa6bf078d3853413c674976b5b84386c`，425 主题 / 3,245 知识点 / 25 件 sidecar 64,973 材料——本报告实算）
+> 验收口径（**主口径**，F14）：**主线课标内容要求 = 必修 + 选择性必修**，分母 **204 + 222 = 426**；**COVERED 374/426 = 87.79%**（PARTIAL 43、NOT_COVERED 9、UNDECIDED 0）。**选修 235 条单列报告**（COVERED 16 / PARTIAL 30 / NOT_COVERED 189），不计入主口径。
+> 旧口径（**附录 A** 保留，双口径并列）：全量 661 条 **COVERED 390/661 = 59.00%**（PARTIAL 73、NOT_COVERED 198、UNDECIDED 0）。
 > 性质：本验收核的是**教材目录（章/节名与节点位置）↔ 现包主题树**及**课标内容要求 status**；**不是「题库全覆盖」承诺**，也不是教材正文内容验收。
 
 ## 1. 结论
 
-1. **主口径（课标内容要求）**：**COVERED 390 / 661 = 59.00%**。其中 PARTIAL **73/661 = 11.04%**、NOT_COVERED **198/661 = 29.95%**、UNDECIDED **0**。按已发布规则同时公布分子、分母与 UNDECIDED 绝对数（`knowledge-production/kb-coverage-alignment-2026-v2.json` 的 `publishedRule`）。
-2. **分科（COVERED/该科总数）**：数学 **138/308 = 44.81%**；物理 **81/138 = 58.70%**；化学 **59/73 = 80.82%**；生物学 **112/142 = 78.87%**。
-3. **有 target 的条目**：**463/661**（390 COVERED + 73 PARTIAL）；198 条 NOT_COVERED 无 target。课标 target 悬空 0（逐节台账自检）。
-4. **口径分解（不改变主口径）**：必修 **184/204 = 90.20%**；选择性必修 **190/222 = 85.59%**；选修 **16/235 = 6.81%**。NOT_COVERED 的 **189/198 = 95.45%** 落在选修模块——主口径 59.00% 被 235 条选修/活动型要求拉低，引用时必须带分母口径，不能直接当作「必修内容只覆盖六成」。
-5. **教材目录侧（v16 实读）**：官方 **340 节 340/340 有落点**（0 无落点、0 不可解析）；官方 **90 章 90/90 带官方章名**；历史缺失 **13 节 13/13 已补建同名节位**（点数为 v16 实读；7 节 0 点/0 材料空壳＝化学 5 + 生物 2、6 节已挂点 18 点/材料 197 条——材料数据逐节台账）。20 行非节单列，不进入 340 分母。
-6. **一句话**：**课标内容要求覆盖 390/661（59.00%），缺口集中在选修/活动型要求；教材目录结构已 340/340 有落点、90/90 章名，但册位偏差、点级归属与 7 个空壳节仍未闭合。**
+1. **主口径（F14：必修 + 选择性必修 = 426 条）**：**COVERED 374/426 = 87.79%**；PARTIAL **43/426 = 10.09%**；NOT_COVERED **9/426 = 2.11%**；UNDECIDED **0**。按已发布规则同时公布分子、分母与 UNDECIDED 绝对数（`knowledge-production/kb-coverage-alignment-2026-v2.json` 的 `publishedRule`）。
+2. **主线分科（COVERED/该科主线总数）**：数学 **127/156 = 81.41%**；物理 **78/87 = 89.66%**；化学 **58/63 = 92.06%**；生物学 **111/120 = 92.50%**。
+3. **选修 235 条（单列，不进主口径）**：COVERED **16/235 = 6.81%**；PARTIAL **30/235 = 12.77%**；NOT_COVERED **189/235 = 80.43%**；UNDECIDED **0**。189 条逐条见 `docs/research/2026-10-13-elective-coverage-report.md`，本报告只复算计数与构成。
+4. **选修 NOT_COVERED 189 的构成**：按学科 MATH **125/189 = 66.14%**、PHYSICS **42/189 = 22.22%**、CHEMISTRY **7/189 = 3.70%**、BIOLOGY **15/189 = 7.94%**；按理由 **未设节点 175/189 = 92.59%**、**非知识点对象 13/189 = 6.88%**、**E 类自主课程 1/189 = 0.53%**。子模块构成见 §3.1。
+5. **主线 NOT_COVERED 9 的构成与处置**：MATH 6（必修 3 + 选择性必修 3）、PHYSICS 1（必修）、CHEMISTRY 1（必修）、BIOLOGY 1（选择性必修）；理由 7 条非知识点对象 + 2 条未设节点。**9 条与 `knowledge-production/f14-waivers.csv` 的 9 行逐条同集（本报告实算 `same set=True`）**：F14 要求的「逐条补料或登记豁免」按批次10 处置记录已闭环（47 条：COVERED 32 / 豁免 9 / 补料 6＝SUPPLY_EXISTING 2 + SUPPLY_NEW 4，见 `docs/kb-batch10-2026-10-13.md` §2）。**豁免不等于 COVERED**：9 条仍按 NOT_COVERED 计入分母。
+6. **教材目录侧（v16 终态台账；v18 结构计数复核不变）**：官方 **340 节 340/340 有落点**（0 无落点、0 不可解析）；官方 **90 章 90/90 带官方章名**；历史缺失 **13 节 13/13 已补建同名节位**（7 节 0 点/0 材料空壳＝化学 5 + 生物 2、6 节已挂点 18 点/材料 197 条——材料数据逐节台账）。20 行非节单列，不进入 340 分母。
+7. **一句话**：**主线（必修+选择性必修）覆盖 374/426（87.79%），9 条缺口全部登记豁免；选修 235 条单列，NOT_COVERED 189 条（80.43%）集中在数学选修 A/B 与物理选修 1/2/3。旧全量口径 390/661（59.00%）保留在附录 A，不得与主口径混用。教材目录结构已 340/340 有落点、90/90 章名，但册位偏差、点级归属与 7 个空壳节仍未闭合。**
 
 ## 2. 办法
 
 ### 2.1 目录只读对照（不读教材正文、原文不入库）
 
 - **官方节表**：四份 W-7 报告（`docs/kb-textbook-toc-align/{CHEMISTRY,BIOLOGY,PHYSICS,MATH}.md`，2026-09-21）逐册表，共 **21 册 / 90 章 / 340 官方节 + 20 非节行 = 360 行**。W-7 报告自述口径：视觉读人教社官方电子教材目录页，**页图取完即删、未留存、未抄正文**（见 `PHYSICS.md`/`BIOLOGY.md` 文首）。
-- **现包**：`build/kb-staging/moe-2025-four-subjects-v1.json`，v16，**425 主题 / 3,245 知识点**；sidecar 25 件共 **64,973 材料**（化学 18,307 / 生物学 13,704 / 物理 18,494 / 数学 14,468）。
+- **现包**：`build/kb-staging/moe-2025-four-subjects-v1.json`，**v18**（manifest version=18，contentVersion `d82a05607bdb622a`），**425 主题 / 3,245 知识点**；sidecar 25 件共 **64,973 材料**（化学 18,307 / 生物学 13,704 / 物理 18,494 / 数学 14,468）。
 - **逐节 join 顺序**：官方节同名主题（名或 slug 末段）→ 同名/含节名点所在主题 → FINAL §3「现包现状」指认覆盖主题 → 官方章容器；同级多落点全部列出。台账自检：落点缺失 0、材料孤儿绑定 0、课标 target 悬空 0（`SECTION-BY-SECTION-LEDGER.md` §1 自检表）。
 - **章名判定**：以四份 W-7 报告的官方章名为准。`reference/standard_chapter_names.json` 仍有 5 处与官方不同（生物 2：选必1 第一章缺「人体的」、选必2 第四章旧名「生态环境的保护」；物理 3：必修三第十二章多「与可持续发展」、选必三第二章少顿号、选必三第五章多「和核反应」），已在 `PHYSICS.md`/`BIOLOGY.md` 登记，生物 2 处亦见 FINAL §5；本验收不拿带缺陷的 reference 名反推 90/90。
 - **不读正文**：本验收只核章名/节名与节点位置，不核节内知识点表述、不核教材正文、不把教材原文或页图入库；W-7 读目录的页图已删除、未留存。
 
-### 2.2 课标覆盖口径（alignment 台账复算）
+### 2.2 课标覆盖口径（F14：主线/选修分开实算）
 
-- **台账**：`tools/kb_coverage/tables/curriculum_alignment.csv`，**661 行**（MATH 308 / PHYSICS 138 / CHEMISTRY 73 / BIOLOGY 142）；status：COVERED **390**、PARTIAL **73**、NOT_COVERED **198**、UNDECIDED **0**；有 target **463** 行。
-- **逐科实算**：
+- **台账**：`tools/kb_coverage/tables/curriculum_alignment.csv`，**661 行**（MATH 308 / PHYSICS 138 / CHEMISTRY 73 / BIOLOGY 142）；status：COVERED **390**、PARTIAL **73**、NOT_COVERED **198**、UNDECIDED **0**（全量口径，附录 A）。
+- **分组规则（本报告实算，按 `candidate_slug` 前缀）**：`required-*` = 必修（**204** 行）；`selective-*` = 选择性必修（**222** 行）；`elective-*` = 选修（**235** 行）；无其他前缀（unclassified=0）。**主线 = required-* + selective-* = 426 行**；选修 235 行单列，不进入主口径分子/分母。
+- **主口径（主线 426）分科实算**：
 
-| 学科 | 总数 | COVERED | PARTIAL | NOT_COVERED | UNDECIDED | COVERED/总数 |
-|---|---|---|---|---|---|---|
-| 数学 MATH | 308 | 138 | 39 | 131 | 0 | 44.81% |
-| 物理 PHYSICS | 138 | 81 | 14 | 43 | 0 | 58.70% |
-| 化学 CHEMISTRY | 73 | 59 | 6 | 8 | 0 | 80.82% |
-| 生物学 BIOLOGY | 142 | 112 | 14 | 16 | 0 | 78.87% |
-| **合计** | **661** | **390** | **73** | **198** | **0** | **59.00%** |
+| 学科 | 主线总数 | COVERED | PARTIAL | NOT_COVERED | UNDECIDED | COVERED/主线 |
+|---|---:|---:|---:|---:|---:|---:|
+| 数学 MATH | 156 | 127 | 23 | 6 | 0 | 81.41% |
+| 物理 PHYSICS | 87 | 78 | 8 | 1 | 0 | 89.66% |
+| 化学 CHEMISTRY | 63 | 58 | 4 | 1 | 0 | 92.06% |
+| 生物学 BIOLOGY | 120 | 111 | 8 | 1 | 0 | 92.50% |
+| **合计** | **426** | **374** | **43** | **9** | **0** | **87.79%** |
 
-- **已发布规则**：`knowledge-production/kb-coverage-alignment-2026-v2.json` 的 `publishedRule` 写明「覆盖率 = COVERED / (总数 − UNDECIDED)；分子、分母、UNDECIDED 绝对数同时公布」。本验收按该规则复算：**390 / (661 − 0) = 390/661 = 59.00%**。
+- **选修 235 单列实算**：
+
+| 学科 | 选修总数 | COVERED | PARTIAL | NOT_COVERED | UNDECIDED | COVERED/选修 |
+|---|---:|---:|---:|---:|---:|---:|
+| 数学 MATH | 152 | 11 | 16 | 125 | 0 | 7.24% |
+| 物理 PHYSICS | 51 | 3 | 6 | 42 | 0 | 5.88% |
+| 化学 CHEMISTRY | 10 | 1 | 2 | 7 | 0 | 10.00% |
+| 生物学 BIOLOGY | 22 | 1 | 6 | 15 | 0 | 4.55% |
+| **合计** | **235** | **16** | **30** | **189** | **0** | **6.81%** |
+
+- **已发布规则**：`knowledge-production/kb-coverage-alignment-2026-v2.json` 的 `publishedRule` 写明「覆盖率 = COVERED / (总数 − UNDECIDED)；分子、分母、UNDECIDED 绝对数同时公布」。本报告按该规则复算：主口径 **374 / (426 − 0) = 374/426 = 87.79%**；选修单列 **16/235 = 6.81%**；全量旧口径 **390/661 = 59.00%**（附录 A）。三套数字共用同一批 status，不重新判定。
 - **判定来源**：alignment JSON `reviewedAt=2026-10-19`、reviewer=`Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）`、`reviewState=AI_REVIEWED`。本验收**只复算/复述既有判定，不重新判定**；逐条 statement 与理由见 §3。
-- **NOT_COVERED 理由字段**：CSV 的 `note` 在 196/198 行为空，理由实际落在 `evidence_phrase`（去前导标点后读取）；另 2 行 `note` 有值（论文型学术活动）。§3 的「理由」列按「note 优先、否则 evidence_phrase」取值，未改写理由。
+- **有 target 的条目**：全量 **463/661**（COVERED + PARTIAL）；主线 **417/426**、选修 **46/235**。NOT_COVERED 无 target；课标 target 悬空 0（逐节台账自检）。
+- **NOT_COVERED 理由字段**：CSV 的 `note` 在 **196/198** 行为空，理由实际落在 `evidence_phrase`（去前导标点后读取）；另 2 行 `note` 有值（均为论文型学术活动）。§3 的「理由」列按「note 优先、否则 evidence_phrase」取值，未改写理由。
 
 ### 2.3 与本验收分离的检索读数（不作为覆盖证据）
 
 - **D-3 预注册（2026-10-16；其零漂移/判读纪律为批 13 v16 复跑提供参照）**：`docs/research/2026-10-16-d3-round1-prereg.md` 冻结了融合 α 臂的判读规则（A0=α0.5、A1=α0.7、逐章点估计、按章 cluster 配对 bootstrap、零漂移硬门）。该轮结果为 **不采纳、逐字回滚 α=0.5**（同文件「结果（2026-10-16）」节）；批 13 的 v16 复跑按同型零漂移门出数，**不是 α=0.7 采纳轮**。
 - **批次 13 的 D-3 产物（v16 装置）实读**：设备融合臂 Recall@5 **0.7751937984496124（100/129）**、MRR **0.6228682170542638**；词面臂 **0.689922480620155（89/129）**；同路零漂移词面 **0/PASS**、融合 **0/PASS**（`zero-drift-b13.out.txt`：`lexical=PASS fused=PASS`；同路 symdiff 均 0，跨路 13、device 两腿 13 只作情报）。逐章 0.80 达标 **14/24**、未达标 10、最小 **0.0000**；主集 0.90 差距 **0.124806**（还差 17 题命中到 117/129 下沿）。
-- **边界**：以上 D-3 读数是**检索装置/质量读数**，**不进入** §1 的 X/Y 分子或分母，也不构成「题库全覆盖」。检索资产侧另做只读核验：本验收实跑 `python tools/dense_build/check_asset.py` → **EXIT=0**，`.vec` 旁车 `packSha256=f6098c41…` 与 v16 包一致、`layout` 44,010 条逐条一致、`vectorCount=44010`、`DenseRecallAssembly.VECTOR_ASSET_SHA256=8e216ee…` 与旁车 `sha256` 同值；即早前 `build/agent-batch13/e/golden-pack-verify-report.md` 附加发现 1 的「仍为 v15」已被 00:50 的资产重生成覆盖，当前不再成立。D-3 读数仍只作检索参照。
+- **边界**：以上 D-3 读数是**检索装置/质量读数**，**不进入** §1 的 X/Y 分子或分母，也不构成「题库全覆盖」。检索资产侧另做只读核验：本验收实跑 `python tools/dense_build/check_asset.py` → **EXIT=0**，`.vec` 旁车 `packSha256=f6098c41…` 与当前主包一致（v18 只改 sidecar 文本，主包 sha 未变）、`layout` 44,010 条逐条一致、`vectorCount=44010`、`DenseRecallAssembly.VECTOR_ASSET_SHA256=8e216ee…` 与旁车 `sha256` 同值；即早前 `build/agent-batch13/e/golden-pack-verify-report.md` 附加发现 1 的「仍为 v15」已被 00:50 的资产重生成覆盖，当前不再成立。D-3 读数仍只作检索参照。**批次14 v18 未跑 D-3（§7.6）；本节读数属于 v16 装置，不得当作 v18 基线。**
 
-## 3. NOT_COVERED 逐条理由（198 条）
+## 3. NOT_COVERED 逐条理由（主线 9 + 选修 189；全量 198）
 
-### 3.1 总览
+### 3.1 总览（双口径，本报告实算）
+
+**3.1a 主线 NOT_COVERED 9 条**（计入主口径）
+
+| 学科 | NOT_COVERED | 必修 | 选择性必修 | 未设节点 | 非知识点对象 |
+|---|---:|---:|---:|---:|---:|
+| MATH | 6 | 3 | 3 | 0 | 6 |
+| PHYSICS | 1 | 1 | 0 | 1 | 0 |
+| CHEMISTRY | 1 | 1 | 0 | 1 | 0 |
+| BIOLOGY | 1 | 0 | 1 | 0 | 1 |
+| **合计** | **9** | **5** | **4** | **2** | **7** |
+
+> 9 条与 `knowledge-production/f14-waivers.csv` 逐条同集（本报告实算 `same set=True`）：7 条非知识点对象（论文/课题/态度型）、2 条未设节点（物理环境污染、化学法规/安全意识）。**豁免登记不等于覆盖**，9 条仍按 NOT_COVERED 计入 426 分母。
+
+**3.1b 选修 NOT_COVERED 189 条**（单列，不计入主口径）
+
+| 学科 | NOT_COVERED | 未设节点 | 非知识点对象 | E 类自主课程 | 子模块构成（条数） |
+|---|---:|---:|---:|---:|---|
+| MATH | 125 | 124 | 0 | 1 | 选修A 46（微积分16/空间向量18/概率统计12）；选修B 45（微积分14/应用统计16/空间向量9/模型6）；选修C 19（逻辑3/数学模型5/社会调查11）；选修D 14（美与数学4/音乐3/美术4/体育3）；选修E 1 |
+| PHYSICS | 42 | 42 | 0 | 0 | 选修1 14；选修2 16；选修3 12 |
+| CHEMISTRY | 7 | 7 | 0 | 0 | 化学与社会 3；实验化学 1；发展中的化学科学 3 |
+| BIOLOGY | 15 | 2 | 13 | 0 | 现实生活应用 5；职业规划前瞻 7；学业发展基础 3 |
+| **合计** | **189** | **175** | **13** | **1** | — |
+
+> 读法：选修 189 条中 175 条「未设节点」、13 条「非知识点对象」、1 条「学校自主开发 E 类课程」；按学科数学 125（66.14%）、物理 42（22.22%）、化学 7（3.70%）、生物 15（7.94%）。逐条见 `docs/research/2026-10-13-elective-coverage-report.md`。
+
+**3.1c 全量 198 对照（旧 661 口径；与 3.1a/3.1b 同源，不重复判定）**
 
 | 学科 | NOT_COVERED | 必修 | 选择性必修 | 选修 | 未设节点 | 非知识点对象 | 其他 |
-|---|---|---|---|---|---|---|---|
+|---|---:|---:|---:|---:|---:|---:|---:|
 | MATH | 131 | 3 | 3 | 125 | 124 | 6 | 1 |
 | PHYSICS | 43 | 1 | 0 | 42 | 43 | 0 | 0 |
 | CHEMISTRY | 8 | 1 | 0 | 7 | 8 | 0 | 0 |
@@ -62,6 +102,8 @@
 > 读法：**「未设节点」= 现包没有对应节点**；**「非知识点对象」= 论文/课题研究/职业规划等非知识点型要求**；「其他」= 学校自主开发 E 类课程（非统一知识点对象）。198 条中 189 条属选修模块，必修仅 5 条、选择性必修仅 4 条。
 
 ### 3.2 逐条表（按学科分列；课标要求为 statement 摘要，完整原文见 CSV/alignment JSON）
+
+> 本表保留**全量 198 条**逐条明细（旧 661 口径的完整底账，便于与附录 A 对账）；主口径只取其中**主线 9 条**，选修 189 条的单列报告见 `docs/research/2026-10-13-elective-coverage-report.md`。本表不改写任何理由。
 
 #### MATH（NOT_COVERED 131 条）
 
@@ -285,38 +327,57 @@
 
 | 依据件 | 位置 | 本验收读取/复算内容 |
 |---|---|---|
-| FINAL 覆盖对照表（v16 终态） | `docs/kb-textbook-toc-align/FINAL-COVERAGE-TABLE.md` | 头部 v16 实读、§1a 终态表、90/90 章名、13 缺节终态；历史 §2–§11 未改 |
-| 逐节终验台账 | `docs/kb-textbook-toc-align/SECTION-BY-SECTION-LEDGER.md` | 340 官方节 + 20 非节；落点/材料/课标条目/批11处置；自检 360/360 ✅ |
-| 课标对齐 CSV | `tools/kb_coverage/tables/curriculum_alignment.csv` | 661 行 → 390/73/198/0；463 行有 target；198 条 NOT_COVERED 逐条理由 |
+| FINAL 覆盖对照表（v16 终态） | `docs/kb-textbook-toc-align/FINAL-COVERAGE-TABLE.md` | 头部 v16 实读、§1a 终态表、90/90 章名、13 缺节终态；历史 §2–§11 未改；本报告按 v18 包复核计数不变 |
+| 逐节终验台账 | `docs/kb-textbook-toc-align/SECTION-BY-SECTION-LEDGER.md` | 340 官方节 + 20 非节；落点/材料/课标条目/批11处置；自检 360/360 ✅（台账版本标注仍为 v16，v18 结构计数不变） |
+| 课标对齐 CSV | `tools/kb_coverage/tables/curriculum_alignment.csv` | 661 行 → 全量 390/73/198/0；前缀分组 → 主线 426（374/43/9/0）+ 选修 235（16/30/189/0）；463 行有 target；198 条 NOT_COVERED 逐条理由 |
 | 课标对齐 JSON | `knowledge-production/kb-coverage-alignment-2026-v2.json` | `publishedRule`、`total`（390/73/198/0、分母 661）、逐科 counts、661 条 statement、`reviewedAt=2026-10-19` |
+| 选修单列报告 | `docs/research/2026-10-13-elective-coverage-report.md` | 选修 235 → 16/30/189/0；189 条逐条与 9 条主线逐条；本报告复算计数一致 |
+| F14 豁免登记 | `knowledge-production/f14-waivers.csv` | 9 行 + 表头；本报告实算与主线 NOT_COVERED 9 条逐条同集（`same set=True`） |
 | W-7 报告（4 份） | `docs/kb-textbook-toc-align/{MATH,PHYSICS,CHEMISTRY,BIOLOGY}.md` | 21 册 / 90 章 / 340 官方节 + 20 非节；官方章名；目录只读口径 |
 | 章名基准件 | `docs/kb-textbook-toc-align/reference/standard_chapter_names.json` | 21 册 / 90 章；5 处已知差异（生物 2、物理 3）只作基准、不反推 90/90 |
-| v16 包与 manifest | `build/kb-staging/moe-2025-four-subjects-v1.json`、`moe-2025-update-manifest.json` | 425 主题 / 3,245 点；version=16；sha256 `f6098c41…`；25 件 sidecar 64,973 材料 |
+| v18 包与 manifest | `build/kb-staging/moe-2025-four-subjects-v1.json`、`moe-2025-update-manifest.json` | 425 主题 / 3,245 点；version=18；contentVersion `d82a05607bdb622a`；主包 sha256 `f6098c41…`；25 件 sidecar 64,973 材料 |
+| 批次14 乱码修复记录 | `build/agent-batch14/fix-record.md`、`build/agent-batch14/verify.txt` | 2 条 mojibake 的四层锁步、逐字节 diff 契约、全库复扫 C1=0 |
+| 批次14 门读数 | `tools/kb_build/gate.py`、`build/agent-batch14/print_gate_readings.py`、`build/agent-batch14/a/judgment-drift-baseline.csv` | 控制字符门与 Kotlin 契约同源（0）；判定源↔包文本漂移 377（content 194 + boundary 183，基线 INFO） |
+| 批次14 空点/选修处置 | `build/agent-batch14/ww/w1_zero_material_adjudication.md` | 4 TWIN + 3 选修共 7 候选，0 个干净切分，全部不建点/不改绑；幂等读数改绑 0、材料 64,973、悬空 0 |
+| 批次14 A 层裁量 | `build/agent-batch14/a/reopen-decision.md`、`build/agent-batch14/a/_stats_a_recheck.py` | 60,512 块 / 420 键；point 1,053.333、Wilson lower 326.901、genuine 5/5 → SEAL |
 | D-3 预注册（2026-10-16；零漂移/判读纪律为批 13 v16 复跑参照） | `docs/research/2026-10-16-d3-round1-prereg.md` | 冻结规则 + 2026-10-16 结果（不采纳、回滚 α=0.5）；本验收只引规则与结论，不把 D-3 当覆盖证据 |
-| 批次 13 D-3 读数 | `build/agent-batch13/d3/{zero-drift-b13.out.txt,zero-drift-b13.json,device-metrics.txt,chapter-gap-b13.out.txt}` | 产物实读：同路零漂移 0/0 PASS/PASS；融合 100/129=0.7752、词面 89/129=0.6899；14/24 章 ≥0.80、最小 0.0000 |
-| v16 金标/包核验 | `build/agent-batch13/e/golden-pack-verify-report.md`、`build/agent-batch13/golden-migration-v16-chapter.json` | 报告实读：金标 129/129 命中 v16/v15；金标 chapter-only 迁移 1 条（idx=12 限制酶，slug/题面/条数未动）；dense `.vec` 本验收实跑 `check_asset.py` EXIT=0，当前与 v16 包一致（早前报告 red 已被重生成覆盖） |
+| 批次 13 D-3 读数（v16，不是 v18） | `build/agent-batch13/d3/{zero-drift-b13.out.txt,zero-drift-b13.json,device-metrics.txt,chapter-gap-b13.out.txt}` | 产物实读：同路零漂移 0/0 PASS/PASS；融合 100/129=0.7752、词面 89/129=0.6899；14/24 章 ≥0.80、最小 0.0000；**v18 未跑 D-3（§7.6）** |
+| v16 金标/包核验 | `build/agent-batch13/e/golden-pack-verify-report.md`、`build/agent-batch13/golden-migration-v16-chapter.json` | 报告实读：金标 129/129 命中 v16/v15；金标 chapter-only 迁移 1 条（idx=12 限制酶，slug/题面/条数未动）；dense `.vec` 本验收实跑 `check_asset.py` EXIT=0，当前与主包一致（早前报告 red 已被重生成覆盖） |
 
 ## 5. 边界与未覆盖声明
 
-1. **不是「题库全覆盖」**：390/661 是课标内容要求 status 口径，不表示所有可能考题、题型、难度或解法都已入库；本验收没有、也不能据此承诺题库全覆盖。
+1. **不是「题库全覆盖」**：主口径 374/426 是课标内容要求 status 口径，旧口径 390/661 是同一批 status 的全量口径；两者都不表示所有可能考题、题型、难度或解法都已入库。
 2. **不是教材正文覆盖**：只核章/节名与节点位置，不核正文表述、例题、实验、插图；W-7 目录页图已删除、未留存，教材原文不入库。
-3. **NOT_COVERED 198 条是明确声明，不是隐藏缺口**：177 条「未设节点」、20 条「非知识点对象」、1 条「学校自主开发 E 类课程」；按模块 5 必修 / 4 选择性必修 / 189 选修。明细见 §3，未用 PARTIAL 或估算值回填。
-4. **PARTIAL 73 条不计入分子**：部分覆盖（73/661=11.04%）单列；若把 PARTIAL 并入分子，会得到 463/661=70.05%，但这不是已发布规则，本验收不采用。
+3. **NOT_COVERED 是明确声明，不是隐藏缺口**：主口径 **9 条**（必修 5 + 选择性必修 4，全部登记豁免：未设节点 2、非知识点对象 7）；选修单列 **189 条**（未设节点 175、非知识点对象 13、E 类自主课程 1）。明细见 §3，未用 PARTIAL 或估算值回填。
+4. **PARTIAL 不计入分子**：主口径 PARTIAL **43/426 = 10.09%**；旧全量 PARTIAL **73/661 = 11.04%**；本验收不采用「(COVERED+PARTIAL)/总数」作为发布口径。
 5. **340/340 有落点 ≠ 册位/点级全对**：同名节 221 条中含少量册位仍错者（如化学必修一「原子结构与元素周期表」落在选必2）；册位偏差以 FINAL §4.3 历史节与逐节台账「现包落点」列为准，本验收不重判、不掩盖。
 6. **13 缺节「已补建」≠ 内容完成**：13/13 同名节位在册（点数 v16 实读、材料数据逐节台账），但 7 节仍是 0 点/0 材料空壳（化学 5 + 生物 2）；6 节已挂点 18 点、材料 197 条。空壳节和材料缺口明确列为未完成内容，不计入「内容已覆盖」。
 7. **材料 64,973 条是 sidecar 绑定数，不是教材原文**：材料为结构化总结/授权教辅绑定，计数只证明绑定存在，不证明每条材料正确、充分或适合学生；本验收不核材料质量。
 8. **课标判定为 AI 复核，不含逐条人工审校**：alignment JSON 的 661 条均为 `AI_REVIEWED`（Qwen3.8-27B，2026-10-19），本验收只复算其 status，不重新裁决；若要对外发布「覆盖率」，应同时披露该判定通道。
-9. **分母含 235 条选修/活动型要求**：59.00% 是与 661 条全量分母对应的口径；必修 90.20%、选择性必修 85.59% 是同一批判定的分解，不能脱离分母单独引用。
-10. **检索读数与覆盖结论分离**：D-3 的 0.7752/0.6899/零漂移读数只证明检索装置与金标在 v16 上的可复现性，不是覆盖证据；当前 dense `.vec` 已与 v16 包一致（`check_asset.py` EXIT=0），但检索读数仍不能替代覆盖结论。
+9. **双口径不得混用**：主口径分母 **426**（必修 + 选择性必修），选修 **235** 单列；旧口径分母 **661**（含 235 选修）。F14 裁定见 `docs/agent-first-refactor-decisions-2026-09-23.md:2510`；F14 理由页同时要求「保留全量口径并列公布」（`docs/kb-outstanding-research-2026-10-02.md:681-687`）。引用时必须写明口径，不能把 87.79% 与 59.00% 互相替代。
+10. **检索读数与覆盖结论分离**：D-3 的 0.7752/0.6899/零漂移读数只证明检索装置与金标在 **v16** 上的可复现性，不是覆盖证据；**v18 未跑 D-3（§7.6），不得把 v16 读数当作 v18 基线**。当前 dense `.vec` 已与主包一致（`check_asset.py` EXIT=0），但检索读数仍不能替代覆盖结论。
 11. **reference 件不是无缺陷权威**：`standard_chapter_names.json` 仍有 5 处与 W-7 官方名不同（生物 2、物理 3）；本验收以 W-7 官方名为准，reference 只作册/章数基准。
-12. **未验证项**：本验收未运行 Gradle/设备/仪器化；未读取教材正文；未对 64,973 条材料做逐条质量复核；未对 198 条 NOT_COVERED 做二次人工语义复核。dense `.vec` 与 v16 包的一致性已由 `python tools/dense_build/check_asset.py`（EXIT=0）核验，不再列为未验证。
+12. **未验证项**：本验收未运行 Gradle/设备/仪器化；未读取教材正文；未对 64,973 条材料做逐条质量复核；未对 198 条 NOT_COVERED 做二次人工语义复核；**D-3 v18 未跑**；A 层 60,512 块未判（§7.5）。dense `.vec` 与当前主包的一致性已由 `python tools/dense_build/check_asset.py`（EXIT=0）核验，不再列为未验证。
+13. **豁免 ≠ 覆盖**：9 条主线 NOT_COVERED 全部在 `knowledge-production/f14-waivers.csv` 登记豁免；这是「不设节点」的处置记录，不是「已覆盖」的证据。F14 的「47 条主线缺口」在批次10 已处置（COVERED 32 / 豁免 9 / 补料 6＝SUPPLY_EXISTING 2 + SUPPLY_NEW 4，`docs/kb-batch10-2026-10-13.md` §2），本版台账只剩这 9 条。
+14. **v18 文本修复不改变覆盖数字**：v18 只修 2 条 sidecar 乱码，主题/点/材料数与 v16/v17 相同；覆盖率和材料数不能因版本号变化而重述。
+15. **A 层未判池不在本验收**：**61,170 块未判**（A 层 60,512 + 广告 627 + 版权 25 + 空白 4 + 目录 2）；本验收只覆盖已判池 **125,465 块**；420 样本是估计证据，不是验收计数（§7.5）。
 
-## 6. 复现与读法
+## 6. 复现与读法（本报告实算）
 
 ```
-# 包身份
-sha256sum build/kb-staging/moe-2025-four-subjects-v1.json
-# 课标 status 复算（661 行 → 390/73/198/0）
+# 主口径/选修单列：661 行 → 前缀分组 426 + 235；状态 374/43/9/0 与 16/30/189/0
+PYTHONIOENCODING=utf-8 python build/agent-batch14/acceptance_recount.py
+
+# 主线 NOT_COVERED 9 与 f14-waivers.csv 同集校验
+PYTHONIOENCODING=utf-8 python build/agent-batch14/acceptance_verify_waivers.py
+
+# v18 包身份与结构统计（425 主题 / 3,245 点 / 64,973 材料）
+PYTHONIOENCODING=utf-8 python build/agent-batch14/acceptance_pack_stats.py
+
+# 门读数：control_chars=0；judgment_pack_drift=377（等于基线，INFO）
+PYTHONIOENCODING=utf-8 python build/agent-batch14/print_gate_readings.py
+
+# 旧口径（附录 A）：661 行 → 390/73/198/0
 python - <<'PY'
 import csv, collections
 rows=list(csv.DictReader(open("tools/kb_coverage/tables/curriculum_alignment.csv", encoding="utf-8-sig")))
@@ -324,6 +385,104 @@ print(len(rows), collections.Counter(r["status"] for r in rows))
 PY
 ```
 
-> 结论引用格式（必须带口径）：**「覆盖课标内容要求 390/661（59.00%，COVERED/(总数−UNDECIDED)；PARTIAL 73，NOT_COVERED 198，UNDECIDED 0）」**。不得简写为「覆盖率 59%」而不带分母，不得写成「题库全覆盖」。
+> 结论引用格式（主口径，必须带分母）：**「主线（必修+选择性必修）覆盖 374/426 = 87.79%（COVERED/(426−UNDECIDED)；PARTIAL 43，NOT_COVERED 9，UNDECIDED 0；9 条 NOT_COVERED 均已登记豁免）」**。选修单列引用格式：**「选修 235 条：COVERED 16/235 = 6.81%，PARTIAL 30，NOT_COVERED 189」**。旧全量口径引用格式：**「全量 661 条：COVERED 390/661 = 59.00%，PARTIAL 73，NOT_COVERED 198，UNDECIDED 0」**。不得省略分母，不得把 87.79% 与 59.00% 混用，不得写成「题库全覆盖」。
 
-> **补记（2026-10-20）**：批次13 晋升后的收口补提交把成品包版本由 v16 修正为 **v17**（`contentVersion` 由过期记录值刷新为 `ecce9989aa81bc63`，经 promote 正规路径写入；v17 与 v16 的内容差仅 6 字节乱码修复文本，点位与材料数不变）。本验收的全部覆盖数字（390/661 = 59.00%）与材料数（64,973）在 v17 上不变；D-3 检索读数（0.7752 / 0.6899）在同一内容上测得。版本引用以 v17 为准，详见批报《补记》。
+## 附录 A：旧口径（全量 661，保留并列，不删）
+
+> F14 裁定要求「主线为分母」的同时**保留全量口径并列公布**（`docs/kb-outstanding-research-2026-10-02.md:681-687`）。本附录保留改写前的 390/661 口径与分科表，供历史对比；**不得与主口径混用**。
+
+- **全量 661**：COVERED **390**、PARTIAL **73**、NOT_COVERED **198**、UNDECIDED **0**；**COVERED/(661−0) = 390/661 = 59.00%**；PARTIAL **73/661 = 11.04%**；NOT_COVERED **198/661 = 29.95%**。
+- **分科（COVERED/该科总数）**：
+
+| 学科 | 总数 | COVERED | PARTIAL | NOT_COVERED | UNDECIDED | COVERED/总数 |
+|---|---:|---:|---:|---:|---:|---:|
+| 数学 MATH | 308 | 138 | 39 | 131 | 0 | 44.81% |
+| 物理 PHYSICS | 138 | 81 | 14 | 43 | 0 | 58.70% |
+| 化学 CHEMISTRY | 73 | 59 | 6 | 8 | 0 | 80.82% |
+| 生物学 BIOLOGY | 142 | 112 | 14 | 16 | 0 | 78.87% |
+| **合计** | **661** | **390** | **73** | **198** | **0** | **59.00%** |
+
+- **旧口径分解**：必修 **184/204 = 90.20%**；选择性必修 **190/222 = 85.59%**；选修 **16/235 = 6.81%**。NOT_COVERED 的 **189/198 = 95.45%** 落在选修模块——这正是 F14 改口径的原因：59.00% 会被 235 条选修/活动型要求拉低，不能直接当作「必修内容只覆盖六成」。
+- **旧口径复算**：见 §6 最后一段（661 行 → 390/73/198/0）。
+
+> **历史补记（2026-10-20，v17）**：批次13 晋升后的收口补提交把成品包版本由 v16 修正为 **v17**（`contentVersion` 由过期记录值刷新为 `ecce9989aa81bc63`，经 promote 正规路径写入；v17 与 v16 的内容差仅 6 字节乱码修复文本，点位与材料数不变）。本验收的全部覆盖数字（390/661 = 59.00%）与材料数（64,973）在 v17 上不变；D-3 检索读数（0.7752 / 0.6899）在同一内容上测得。v18 已接续 v17（§7.1），版本引用以 v18 为准。
+
+## 7. 批次14（2026-10-20）v18
+
+> 本节记录批次14 对发布口径有影响的事项；覆盖数字仍以 §1/§2.2 的**本报告实算**为准。所有数字均标出来源命令或实读文件；v18 包身份见 §7.1。
+
+### 7.1 v18 包身份（本报告实算）
+
+- manifest：version=**18**，contentVersion=**d82a05607bdb622a**；主包 sha256 `f6098c41d4901d56bd33106b205e7489fa6bf078d3853413c674976b5b84386c`（与 v16/v17 相同：v18 只改 sidecar 文本）。
+- 结构：**425 主题 / 3,245 知识点**（MATH 834 / PHYSICS 889 / CHEMISTRY 1,011 / BIOLOGY 511）；25 件 sidecar **64,973 材料**（MATH 14,468 / PHYSICS 18,494 / CHEMISTRY 18,307 / BIOLOGY 13,704）；绑定节点 3,245、悬空 0（`build/agent-batch14/ww/w4_manifest-readback.log` 实读）。
+- 晋升：`build/agent-batch14/ww/real-promote-v18.log` 实读——28 个文件，gates/consistency/roundtrip/manifest 四门 OK，version→18，压平 0 条，contentVersion→`d82a05607bdb622a`；`build/agent-batch14/ww/w4_manifest-readback.log` 实读——成品/staging 均为 version=18、contentVersion=`d82a05607bdb622a`，复算 contentVersion 记录==复算 True，成品/staging 28/28、不同 0。
+- **覆盖数字不变**：v18 与 v16/v17 的主题/点/材料数相同，§1/§2.2 的 374/426、16/235、390/661 均不变。
+- 复算命令：`PYTHONIOENCODING=utf-8 python build/agent-batch14/acceptance_pack_stats.py`（本报告实跑：pack sha256、version、contentVersion、425/3,245/64,973 一次输出）。
+
+### 7.2 乱码锁步（四层）
+
+- 对象：v17 遗留 2 条随包乱码，均在 `moe-2025-teaching-support-v2-02.json`：
+  - `ext-che-e1f44db337-030` 的 `contentMarkdown`：`$ï¼5.6ã0ï¼$` → `$（5.6、0）$`；判定表完整字节 `ef bc 88 35 2e 36 e3 80 81 30 ef bc 89` 按 latin-1→UTF-8 解码为 `（5.6、0）`。
+  - `ext-che-1ff1c78002-001c` 的 `boundaryMarkdown`：`â少â指的是…` → `“少”指的是…`；判定表完整字节 `e2 80 9c`/`e2 80 9d` 解码为 `“`/`”`。
+- 四层锁步：成品 sidecar / staging sidecar / 判定表 `tools/kb_coverage/tables/material_judgments/CHEMISTRY.csv` / `knowledge-production/judgment-verdicts/`。前三层修复后逐字节一致；verdicts 无同键行，未改。
+- 指纹（本报告实跑 `sha256sum` 复核当前值）：成品/staging JSON `a58cbb4f…` → **`c28eb2303213a8236503adcd61924b242c4b3c2deb03b6946443b44a92b79dbc`**（4,718,215→4,718,216 B，+1）；CHEMISTRY.csv `544ac425…` → **`7f14c7e8aaea21088cac9af94884fc2c1b380f2fdfbc7a3a06d90e1cc6f5be07`**（25,256,202→25,256,187 B，−15）。
+- 逐字节 diff 契约：`fixed == backup.replace(old_utf8, new_utf8)` 每条 PASS；仅目标字段变化；EOL/BOM 不变；C0/U+FFFD 修复前后均 0（`build/agent-batch14/verify.txt`）。
+- 全库复扫（本报告实跑 `build/agent-batch14/scan_control_chars_all_json.py`）：成品 32 个 JSON、staging 40 个 JSON，新判据命中 **无**；`build/agent-batch14/fix-record.md` 记录成品 25 卷 + staging 25 卷 + 5 张判定表 + 1 个 verdict CSV 的 C1 合计 **0**，23,023 个 JSON/CSV/JSONL 文件中活跃三层无命中（命中只在历史备份/沙箱/scratch）。`â` 在 05/11/18/21 与 MATH.csv 的 `b̂/â` 是回归记号，不是乱码。
+- 边界：本次只修文本，不改点/材料数、不改 contentId、不重生成索引；未跑 Android 构建/单测（纯资源文本修复）。
+
+### 7.3 门同源（判据与产物同源）
+
+- **控制字符门与 Kotlin 契约同源**：`tools/kb_build/gate.py` 的 `_CONTROL_CHARS` 改为 `KnowledgeTeachingMaterialContract.text()` 的同一判据——C0（除 `\n\r\t`）+ DEL + C1；扫描字段从 5 个扩到 7 个（含 `subject`、`sourceLocator`）。本报告实跑 `build/agent-batch14/print_gate_readings.py`：`control_chars: value=0 ok=True`。
+- **判定源↔包文本漂移门与 materialize 同源**：`judgment_pack_drift` 用 `judgments.material_slug()`（与 `materialize.write` 同一公式）把判定表 MATERIAL 行与包内同 slug 材料的 `contentMarkdown`/`boundaryMarkdown` 逐字对拍；`value = content 差异 + boundary 差异 + 判定行有/包内无 + 无法定位`。本报告实跑 `PYTHONPATH=tools python -m kb_coverage.judgment_drift`：判定表 MATERIAL 行 **53,531**、唯一 slug **53,531**、包内材料 **64,973**、同 slug 命中 **53,531**；**content 差异 194 + boundary 差异 183 + 判定行有/包内无 0 + 无法定位 0 = 377**。涉及 195 个唯一 slug，逐条归档 `build/agent-batch14/a/judgment-drift-baseline.csv`（377 行 + 表头）。
+- **门位置与基线语义**：`judgment_pack_drift` 不放进 `gate.evaluate()`（否则 promote 在历史漂移清账前整批不可用），只挂在 `tools/ci/run_kb_checks.py` 的 `judgment_drift` 节；`value == 377` 报 INFO，**超过基线才 FAIL**，基线只许下调。本报告实跑 `print_gate_readings.py`：`judgment_pack_drift: value=377 ok=True`（等于已登记基线）。
+- **旧日志说明**：`build/agent-batch14/run_kb_checks.log`（21:56）早于基线登记（`gate.py` 22:24），其 `FAIL judgment_drift: 377 处` 是历史读数；当前实跑为 `value=377 ok=True`（等于基线，INFO）。`real-promote-v18.log` 的 gates/consistency/roundtrip/manifest 四门 OK；`run_kb_checks.log` 的 gates/consistency/roundtrip/manifest/dense 均 OK。
+- 边界：377 是**已登记历史双通道分歧**（判定表旧判词 vs 包内后批作者改写版），不是新漂移；本次没有清零，也没有放宽判据——只把「等于基线」从 FAIL 改为 INFO，超过基线仍 FAIL。
+
+### 7.4 空点/选修处置（窗口①）
+
+- `build/agent-batch14/ww/w1_zero_material_adjudication.md` 实读：4 个「建后零材料」TWIN 点 + 3 条选修「已建但 0 材料」点，共 7 个候选；判定口径为「材料正文按内容**唯一**归属新点、且与孪生/现存节点边界不重叠」。
+- 结论：**0 个干净切分 → 全部不建点、不改绑、不删并**；未写 staging，未改 `new_points_manual.csv` / `material_rebind.csv` / `point_delete.csv` / `point_merge.csv`。
+- 逐项：BIOLOGY Cre-LoxP（在包，1 条材料属其不收项，0 条唯一归属）；CHEMISTRY 自偶电离（merge:812 已并）；PHYSICS 万有引力成就（merge:811 已并）；PHYSICS 对称法（merge:810 已并）；MATH 偏导数（delete:214 已撤）；MATH 数列有界性（delete:209 已撤）；MATH 随机化回答法（delete:224 已撤）。
+- 幂等读数（该文件 §4 实读；本报告实跑 `PYTHONPATH=tools python -m kb_build.rebind_materials` 复核）：`改绑 0；跳过（幂等/错行）9575；材料总数 64973；悬空绑定 0；可写回 True`；`new_points_manual.csv` 1,940 数据行、`material_rebind.csv` 9,575 数据行不变（`wc -l` 1,941 / 9,576 含表头）。
+- 边界：该窗口只处理「空点/选修有料可配」名单，不扩展到名单外；「不建点」是**无干净材料**的判定，不是「这些选修内容已覆盖」。其中「偏导数」对应 `elective-b-calculus-candidate-014`，在 CSV 中仍为 NOT_COVERED（属选修 189 条）；「数列的有界性及其判定」「敏感性问题调查的随机化回答法」是点级候选，未在 alignment 台账中单列，其上级选修要求的状态不由本次建点决定。本次处置**不改变** §1/§2.2 的任何覆盖率。
+
+### 7.5 A 层裁量结论与边界
+
+- `build/agent-batch14/a/reopen-decision.md`（2026-10-21）实读 + 本报告实跑 `build/agent-batch14/a/_stats_a_recheck.py`：A 层未判池 `kit-573..1833` = 1,261 件 / **60,512 块**；14 层 × 30 键 = **420 键**（426 行，14 个 MATERIAL 键 / 20 行）。
+- 预注册合取门：point **1,053.333 < 1,500 FAIL**；Wilson 合成 lower **326.901 < 800 FAIL**；genuine **5/5（严口径 4/5）PASS** → **SEAL（封层，不重开）**。
+- 稳健性：bootstrap lower **396.713**、FPC lower **273.022**，三种口径下界均 <800；按 MATERIAL 行数（20）点估计 **1,426.7** 仍 <1,500。
+- SEAL 含义：A 层 60,512 块保持未判；不追加抽样；420 样本的 14 个 MATERIAL 键 / 20 行**不晋升、不入库、不进队列**；KB/判定表/既有提交不变。
+- 边界：**61,170 块未判（A 层 60,512 + 广告 627 + 版权 25 + 空白 4 + 目录 2）；本批验收口径只覆盖已判池 125,465 块**；420 样本是估计证据，不是验收计数。单模型判定、块级抽样、形态由路径判定、选项为块内判定——预注册局限不改变 SEAL。
+- 复算命令：`PYTHONIOENCODING=utf-8 python build/agent-batch14/a/_stats_a_recheck.py`（本报告实跑：426 行/420 键、14 MATERIAL 键/20 行、POINT 1053.333333、bootstrap/FPC 见上）；`PYTHONIOENCODING=utf-8 python build/agent-batch14/a/_verify_decision_numbers.py`（本报告实跑：RESULT OK）。
+
+### 7.6 D-3 v18 基线
+
+- **未跑**。本报告实查：`build/` 下只有 `agent-batch10/d3`、`agent-batch11/d3`、`agent-batch13/d3`，**无 `agent-batch14/d3` 或任何 v18 D-3 产物**；`find build -maxdepth 4 -newermt 2026-10-20` 的 D-3/zero-drift/device-metrics/chapter-gap 命中仅 batch13 文件。因此本节**不填 v18 新读数**，也不把 v16 读数改标为 v18。
+- 最近基线仍是批次13 v16（`build/agent-batch13/d3/`）：融合 Recall@5 **100/129 = 0.775194**、词面 **89/129 = 0.689922**、同路零漂移 **0/PASS/PASS**；逐章 ≥0.80 **14/24**、最小 **0.0000**。该读数只适用于 v16 装置，**不是 v18 基线**。
+- dense 资产：`python tools/dense_build/check_asset.py` 本报告实跑 **EXIT=0**；`.vec` 旁车 `packSha256=f6098c41…` 与当前主包一致，`vectorCount=44010`、layout 44,010 条一致。v18 只改 sidecar 文本、主包 sha 未变，故无需重打 dense；但「资产一致」不等于「v18 检索已复测」。
+- 结论：**D-3 v18 基线待跑**；在跑之前，任何 v18 检索数字都不得引用 v16 读数替代。
+
+### 7.7 本节复算命令汇总
+
+```
+# v18 包身份/结构
+PYTHONIOENCODING=utf-8 python build/agent-batch14/acceptance_pack_stats.py
+# 乱码修复后当前指纹（成品/staging sidecar 02、判定表）
+sha256sum core/data/src/main/resources/knowledge/moe-2025-teaching-support-v2-02.json \
+  build/kb-staging/moe-2025-teaching-support-v2-02.json \
+  tools/kb_coverage/tables/material_judgments/CHEMISTRY.csv
+# 乱码修复后全库控制字符复扫（只读）
+PYTHONIOENCODING=utf-8 python build/agent-batch14/scan_control_chars_all_json.py
+# 门读数（control_chars / judgment_pack_drift）
+PYTHONIOENCODING=utf-8 python build/agent-batch14/print_gate_readings.py
+# 判定源↔包文本漂移明细
+PYTHONPATH=tools PYTHONIOENCODING=utf-8 python -m kb_coverage.judgment_drift
+# 空点/选修处置幂等读数（只读，无 --write）
+PYTHONPATH=tools PYTHONIOENCODING=utf-8 python -m kb_build.rebind_materials
+wc -l tools/kb_build/tables/new_points_manual.csv tools/kb_build/tables/material_rebind.csv
+# A 层裁量复算
+PYTHONIOENCODING=utf-8 python build/agent-batch14/a/_stats_a_recheck.py
+PYTHONIOENCODING=utf-8 python build/agent-batch14/a/_verify_decision_numbers.py
+# dense 资产一致性
+python tools/dense_build/check_asset.py
+```

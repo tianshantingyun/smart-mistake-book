@@ -127,6 +127,8 @@ class GateTest(unittest.TestCase):
         # 判据与材料侧同源；下方哨兵断言它归零。
         # 2026-10-11 新增 `exam_leak`（判定表 MATERIAL 行的例题派生泄漏，判据与
         # kb_coverage.check_exam_leak 同源）；下方哨兵断言它归零。
+        # 2026-10-20 的 `judgment_pack_drift` 是**独立对账节**（run_kb_checks），
+        # 不进 evaluate()：它查评审源与落盘文本是否分叉，不属于包自身缺陷门。
         self.assertEqual(
             {"bad_names", "starred_names", "duplicate_names", "unbound_points",
              "unbound_materials", "ghost_aliases", "alias_collision", "undeclared_prereq",
