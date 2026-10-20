@@ -334,6 +334,6 @@
 
 ### 9.5 提交与推送
 
-- **代码/测试提交 `f3ea18b8`（104 文件）**；文档提交待本文件；推送结果待网络恢复后补记。
+- **代码/测试提交 `f3ea18b8`（104 文件）**；**文档提交 `6e5c7342`（7 文件）**；**推送结果（2026-10-21）**：`74876108..6e5c7342` fast-forward 到 `origin/main`，`git ls-remote` 复核 = `6e5c7342`。
 - 代码/文档将按显式文件清单分笔提交；`SmartMistakeBookRoot.kt`、`SmartMistakeBookDestinations.kt`、`SecondaryScreens.kt`、`OpenAiModelProtocol.kt`、`RoomModelTaskRepository.kt`、`MistakeDetailRoute.kt`、`docs/known-defects.md`、主线、台账、决策台账整文件纳入并保留他线 hunk。
 - 推送仍受 GitHub 连接影响：基线 4 笔 backlog + 本批提交需在收口时重试；非快进先 merge，不 rebase。
