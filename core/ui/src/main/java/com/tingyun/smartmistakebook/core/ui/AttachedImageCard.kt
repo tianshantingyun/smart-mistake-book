@@ -52,7 +52,7 @@ internal fun attachedImageCollapsedTitle(image: AttachedImage): String = when (i
  * - [Generating]：解析/生成中（转圈 + 文案）；旋转/重建后重新解析时也会短暂出现；
  * - [Failed]：这次没有本地可渲染的图——带**可读原因**；只有可安全重试的原因才显示
  *   “重新生成”（显式用户动作，走共享协调器，不在渲染时自动发请求）；
- * - [Ready]：本地 URI 到手，展开即见图。
+ * - [Ready]：本地 URI 到手，展开后仍需本地解码；解码失败在卡内呈现，不改生成事实。
  *
  * KD-58：此前只有一句静态“图未能生成”，缓存未命中与真正失败长得一样，也没有原因。
  */
@@ -152,10 +152,19 @@ fun AttachedImageCard(
     modifier: Modifier = Modifier,
     onRegenerate: (() -> Unit)? = null,
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable(image.imageId) { mutableStateOf(false) }
+    var localLoadState by remember(image.imageId, state) { mutableStateOf(LocalImageLoadState.LOADING) }
+    // A URI resolving successfully does not guarantee that its bytes can still be decoded.
+    val displayState = if (state is AttachedImageRenderState.Ready &&
+        localLoadState == LocalImageLoadState.UNAVAILABLE
+    ) {
+        AttachedImageRenderState.Failed(AttachedImageUnavailableReason.LOCAL_READ_FAILED)
+    } else {
+        state
+    }
     val title = attachedImageCollapsedTitle(image)
     val accessibilityText = image.accessibilityText.ifBlank { image.description }
-    val statusHint = attachedImageStatusHint(state)
+    val statusHint = attachedImageStatusHint(displayState)
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -163,7 +172,15 @@ fun AttachedImageCard(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .clickable { expanded = !expanded }
+                .clickable {
+                    if (!expanded && state is AttachedImageRenderState.Ready &&
+                        localLoadState == LocalImageLoadState.UNAVAILABLE
+                    ) {
+                        // Explicitly reopening retries local bytes, never image generation.
+                        localLoadState = LocalImageLoadState.LOADING
+                    }
+                    expanded = !expanded
+                }
                 .fillMaxWidth()
                 .padding(vertical = 2.dp),
         ) {
@@ -175,12 +192,12 @@ fun AttachedImageCard(
             )
             Text(
                 text = buildString {
-                    append(if (expanded) "已展开" else title)
+                    append(title)
                     statusHint?.let { append(" · ").append(it) }
                 },
                 color = InkSecondary,
                 style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.padding(horizontal = 6.dp),
+                modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
             )
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
@@ -194,12 +211,13 @@ fun AttachedImageCard(
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut(),
         ) {
-            when (state) {
+            when (displayState) {
                 is AttachedImageRenderState.Ready -> BoundedLocalImage(
-                    imageUri = state.localUri,
+                    imageUri = displayState.localUri,
                     contentDescription = accessibilityText,
                     expanded = expanded,
                     modifier = Modifier.fillMaxWidth(),
+                    onLoadStateChange = { localLoadState = it },
                 )
 
                 AttachedImageRenderState.Generating -> Row(
@@ -222,11 +240,19 @@ fun AttachedImageCard(
                     modifier = Modifier.padding(vertical = 8.dp),
                 ) {
                     Text(
-                        text = attachedImageFailureMessage(state),
+                        text = attachedImageFailureMessage(displayState),
                         color = InkMuted,
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    state.detail?.takeIf { it.isNotBlank() }?.let { detail ->
+                    if (accessibilityText.isNotBlank()) {
+                        Text(
+                            text = accessibilityText,
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                    displayState.detail?.takeIf { it.isNotBlank() }?.let { detail ->
                         Text(
                             text = detail,
                             color = InkMuted,
@@ -234,7 +260,7 @@ fun AttachedImageCard(
                             modifier = Modifier.padding(top = 2.dp),
                         )
                     }
-                    if (attachedImageCanRegenerate(state)) {
+                    if (attachedImageCanRegenerate(displayState)) {
                         onRegenerate?.let { regenerate ->
                             TextButton(
                                 onClick = regenerate,

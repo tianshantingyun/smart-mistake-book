@@ -31,6 +31,7 @@ class LibraryRepositoryInstrumentedTest {
 
     @Test fun repositoryFacetOptionsCanActuallyBeSelected() {
         show()
+        compose.onNodeWithTag("library_filter_toggle").performClick()
         compose.onNodeWithTag("library_filter_subject_${"MATH".hashCode().toUInt()}").performClick()
         compose.waitForIdle()
         assertEquals("MATH", repository.lastQuery.subjectId)
@@ -43,10 +44,29 @@ class LibraryRepositoryInstrumentedTest {
         compose.onNodeWithTag("library_result_count").assertTextEquals("2 道题")
     }
 
+    @Test fun expandedFiltersKeepSortAndTimeRangeWiredToTheOriginalQuery() {
+        show()
+        compose.onNodeWithTag("library_filter_toggle").performClick()
+        compose.onNodeWithTag("library_sort_recently_created").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(LibrarySort.RECENTLY_CREATED, repository.lastQuery.sort) }
+        compose.onNodeWithTag("library_time_range_last7").performScrollTo().performClick()
+        compose.runOnIdle {
+            org.junit.Assert.assertNotNull(repository.lastQuery.createdFromEpochMillis)
+            org.junit.Assert.assertNotNull(repository.lastQuery.createdToEpochMillis)
+        }
+        compose.onNodeWithTag("library_filter_toggle").performScrollTo().performClick()
+        compose.onNodeWithTag("library_selected_time").performScrollTo().assertIsDisplayed().performClick()
+        compose.runOnIdle {
+            assertEquals(null, repository.lastQuery.createdFromEpochMillis)
+            assertEquals(null, repository.lastQuery.createdToEpochMillis)
+            assertEquals(LibrarySort.RECENTLY_CREATED, repository.lastQuery.sort)
+        }
+    }
+
     @Test fun exportCountDescribesAllCandidatesEvenWhenOnlyOneRowHasLoaded() {
         entries.value = (1..80).map { entry("entry-$it") }
         show()
-        compose.onNodeWithTag("library_export_visible").assertTextContains("导出当前 80 道")
+        compose.onNodeWithTag("library_export_visible").assertContentDescriptionEquals("导出当前 80 道")
     }
 
     @Test fun aLateOldQueryCannotOverwriteTheCurrentCount() {

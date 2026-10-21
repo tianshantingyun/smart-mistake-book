@@ -17,6 +17,7 @@ import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.domain.UnavailableRemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.model.FigureArtifact
+import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.FigureFidelity
 import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
 import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome

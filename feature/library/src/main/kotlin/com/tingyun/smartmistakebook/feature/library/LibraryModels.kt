@@ -108,6 +108,8 @@ internal data class LibraryMistake(
     val mastery: MasteryState,
     /** C11 收藏：列表行开关的读值（非分页替身路径没有收藏来源时恒为 false）。 */
     val isFavorite: Boolean = false,
+    /** Reload saved pictures when this row's source revision changes, even if its title does not. */
+    val imageVersionKey: String = id,
 ) {
     val contentPath: String = buildList {
         add(subject.studentLabel())
@@ -352,6 +354,7 @@ internal fun StudyCatalogEntry.toLibraryMistake(): LibraryMistake {
         chapterLabels = chapterLabels,
         knowledgeLabels = knowledgeLabels,
         mastery = masteryStatus.toLibraryMastery(),
+        imageVersionKey = problemRevisionId,
     )
 }
 
@@ -367,6 +370,7 @@ internal fun LibraryCatalogItem.toLibraryMistake(): LibraryMistake {
         knowledgeLabels = knowledgeLabels,
         mastery = MasteryState.fromId(masteryId),
         isFavorite = isFavorite,
+        imageVersionKey = updatedAtEpochMillis.toString(),
     )
 }
 

@@ -19,12 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.LibraryAdd
-import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Icon
@@ -32,13 +28,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -50,6 +46,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -57,21 +54,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.tingyun.smartmistakebook.core.domain.ArchivedMistakeRef
 import com.tingyun.smartmistakebook.core.domain.LibrarySort
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.LibraryCatalogRepository
-import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageLazyColumn
-import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
-import com.tingyun.smartmistakebook.core.ui.SubjectIcon
 import kotlinx.coroutines.launch
 
 @Composable
@@ -156,6 +148,7 @@ private fun LibraryContent(
     val pagingItems = if (usePaging) viewModel.pagingData.collectAsLazyPagingItems() else null
     val visibleMistakeCount = if (usePaging) uiState.totalCount else uiState.visibleMistakes.size
     val loading = usePaging && !uiState.loaded
+    var filtersExpanded by rememberSaveable { mutableStateOf(false) }
     val emptyState = resolveLibraryEmptyState(
         totalMistakeCount = mistakeCount,
         visibleMistakeCount = if (loading) 1 else visibleMistakeCount,
@@ -164,20 +157,18 @@ private fun LibraryContent(
     RootPageLazyColumn(
         modifier = modifier.testTag("library_root"),
         contentPadding = PaddingValues(
-            start = 26.dp,
-            top = 0.dp,
-            end = 26.dp,
+            start = 16.dp,
+            top = 8.dp,
+            end = 16.dp,
             bottom = 12.dp,
         ),
     ) {
         item(key = "library_header") {
             Column {
-                Text(
-                    text = "错题本",
-                    color = SmartColors.Ink,
-                    fontSize = 34.sp,
-                    lineHeight = 42.sp,
-                    fontWeight = FontWeight.Bold,
+                LibraryPageHeader(
+                    showCapture = emptyState != LibraryEmptyState.CATALOG_EMPTY,
+                    onCapture = onCapture,
+                    onOpenResults = onOpenExportResults,
                 )
                 // PRD-06 空态半边：上次没处理完的录入不能因为错题本为空就失去继续入口。
                 if (libraryPendingTasksEntryVisible(
@@ -194,39 +185,6 @@ private fun LibraryContent(
                             .testTag("library_pending_tasks"),
                     )
                 }
-                if (emptyState == LibraryEmptyState.CATALOG_EMPTY) {
-                    EmptyLibraryResult(
-                        state = emptyState,
-                        canClear = false,
-                        onCapture = onCapture,
-                        onClear = {},
-                    )
-                } else {
-                    Spacer(Modifier.height(12.dp))
-                    // 只有一个「录入」动作（L6）：拍照、相册、整卷/PDF 都在录入里选，
-                    // 错题本栏不再有第二个并列入口。
-                    PrimaryActionButton(
-                        text = "录入",
-                        onClick = onCapture,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp)
-                            .testTag("library_capture_button"),
-                        icon = Icons.Outlined.LibraryAdd,
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                // 「导出成果」（L7）：后台导出的永久应用内落点。始终可见——通知未授权时
-                // 它是退化入口，也是"图书馆里有没有整理好的 A4"这一问题的唯一答案。
-                OutlineActionChip(
-                    text = "导出成果",
-                    onClick = onOpenExportResults,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("library_export_results"),
-                    icon = Icons.Outlined.PictureAsPdf,
-                )
-                PaperDivider(Modifier.padding(vertical = 8.dp))
                 ArchivedEntriesSection(
                     repository = mistakeDetailRepository,
                     onRestore = { entryId ->
@@ -238,35 +196,53 @@ private fun LibraryContent(
                         }
                     },
                 )
-                if (emptyState != LibraryEmptyState.CATALOG_EMPTY) {
+                if (emptyState == LibraryEmptyState.CATALOG_EMPTY) {
+                    EmptyLibraryResult(emptyState, canClear = false, onCapture = onCapture, onClear = {})
+                } else {
+                    Spacer(Modifier.height(12.dp))
                     LibrarySearchField(
                         query = uiState.query,
                         onQueryChange = viewModel::updateQuery,
                     )
-                    Spacer(Modifier.height(10.dp))
-                    SectionHeader(
-                        title = "分类筛选",
-                        action = {
-                            Text(
-                                text = "${uiState.totalCount} 道题",
-                                modifier = Modifier.testTag("library_result_count"),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = SmartColors.InkSecondary,
-                            )
+                    Spacer(Modifier.height(4.dp))
+                    LibraryResultToolbar(
+                        count = visibleMistakeCount,
+                        sortLabel = if (usePaging) sortLabel(uiState.sort) else null,
+                        filterCount = LibraryFacet.entries.count { uiState.selections.selectedOptionId(it) != null } +
+                            if (uiState.timeRange != LibraryTimeRange.ALL) 1 else 0,
+                        expanded = filtersExpanded,
+                        canExport = (pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0,
+                        onToggleFilters = { filtersExpanded = !filtersExpanded },
+                        onExport = {
+                            // Export the full current query, including pages not loaded on screen.
+                            viewModel.exportVisible(MAX_LIBRARY_BATCH_EXPORT_QUESTIONS, onExportVisible)
                         },
                     )
-                    Spacer(Modifier.height(4.dp))
-                    FacetTabs(
-                        activeFacet = uiState.activeFacet,
-                        onSelect = viewModel::selectFacet,
+                    LibrarySelectedFilters(
+                        state = uiState,
+                        onRemoveFacet = { viewModel.toggleFilter(it, null) },
+                        onRemoveTimeRange = { viewModel.selectTimeRange(LibraryTimeRange.ALL) },
                     )
-                    Spacer(Modifier.height(4.dp))
-                    FacetOptions(
-                        facet = uiState.activeFacet,
-                        options = uiState.activeOptions,
-                        selectedOptionId = uiState.selections.selectedOptionId(uiState.activeFacet),
-                        onSelect = { viewModel.toggleFilter(uiState.activeFacet, it) },
-                    )
+                    AnimatedVisibility(visible = filtersExpanded) {
+                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                            .background(SmartColors.JadeSoft.copy(alpha = 0.35f)).padding(12.dp)) {
+                            FacetTabs(activeFacet = uiState.activeFacet, onSelect = viewModel::selectFacet)
+                            FacetOptions(
+                                facet = uiState.activeFacet,
+                                options = uiState.activeOptions,
+                                selectedOptionId = uiState.selections.selectedOptionId(uiState.activeFacet),
+                                onSelect = { viewModel.toggleFilter(uiState.activeFacet, it) },
+                            )
+                            if (usePaging) {
+                                Spacer(Modifier.height(12.dp))
+                                Text("排序", style = MaterialTheme.typography.labelMedium, color = SmartColors.InkSecondary)
+                                LibrarySortControl(sort = uiState.sort, onSelect = viewModel::selectSort)
+                                Spacer(Modifier.height(8.dp))
+                                Text("录入时间", style = MaterialTheme.typography.labelMedium, color = SmartColors.InkSecondary)
+                                LibraryTimeRangeControl(timeRange = uiState.timeRange, onSelect = viewModel::selectTimeRange)
+                            }
+                        }
+                    }
                     // 收藏开关的写失败必须看得见（默默回弹会把"没写进去"说成"写进去了"）。
                     uiState.favoriteNotice?.let { notice ->
                         Spacer(Modifier.height(6.dp))
@@ -277,40 +253,11 @@ private fun LibraryContent(
                             color = SmartColors.ErrorWarm,
                         )
                     }
-                    if (usePaging) {
-                        Spacer(Modifier.height(8.dp))
-                        LibrarySortControl(
-                            sort = uiState.sort,
-                            onSelect = viewModel::selectSort,
-                        )
-                        Spacer(Modifier.height(6.dp))
-                        LibraryTimeRangeControl(
-                            timeRange = uiState.timeRange,
-                            onSelect = viewModel::selectTimeRange,
-                        )
-                    }
-                    if ((pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0) {
-                        Spacer(Modifier.height(10.dp))
-                        OutlineActionChip(
-                            text = "导出当前 ${visibleMistakeCount} 道",
-                            onClick = {
-                                // 与按钮口径一致：按当前筛选拉全量 id，而不是
-                                // Paging 已加载的子集；超限时入口不会下单，由「导出成果」
-                                // 如实说明原因（L7 起没有前台导出页）。
-                                viewModel.exportVisible(
-                                    MAX_LIBRARY_BATCH_EXPORT_QUESTIONS,
-                                ) { ids -> onExportVisible(ids) }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("library_export_visible"),
-                            icon = Icons.Outlined.PictureAsPdf,
-                        )
-                    }
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
-        if (emptyState == LibraryEmptyState.FILTERED_EMPTY) {
+        if (emptyState == LibraryEmptyState.FILTERED_EMPTY || emptyState == LibraryEmptyState.SEARCH_EMPTY) {
             item(key = "library_empty") {
                 EmptyLibraryResult(
                     state = emptyState,
@@ -322,12 +269,14 @@ private fun LibraryContent(
         } else if (emptyState == null && pagingItems != null) {
             items(
                 count = pagingItems.itemCount,
+                key = pagingItems.itemKey { it.entryId },
                 contentType = pagingItems.itemContentType { _ -> "library_item" },
             ) { index ->
                 val mistake = pagingItems[index]?.toLibraryMistake()
                 if (mistake != null) {
-                    LibraryItemRow(
+                    LibraryQuestionCard(
                         mistake = mistake,
+                        sourceRepository = mistakeDetailRepository,
                         onClick = { onOpenItem(mistake.id) },
                         onToggleFavorite = { favorite ->
                             onToggleFavorite(mistake.id, favorite)
@@ -340,8 +289,9 @@ private fun LibraryContent(
                 items = uiState.visibleMistakes,
                 key = LibraryMistake::id,
             ) { mistake ->
-                LibraryItemRow(
+                LibraryQuestionCard(
                     mistake = mistake,
+                    sourceRepository = mistakeDetailRepository,
                     onClick = { onOpenItem(mistake.id) },
                     onToggleFavorite = { favorite ->
                         onToggleFavorite(mistake.id, favorite)
@@ -365,10 +315,12 @@ private fun LibrarySearchField(
         onValueChange = onQueryChange,
         modifier = Modifier
             .fillMaxWidth()
-            .height(54.dp)
+            .defaultMinSize(minHeight = 56.dp)
             .testTag("library_search_field"),
         singleLine = true,
-        placeholder = { Text("搜索题目、板块或知识点") },
+        placeholder = { Text("搜索题目、板块或知识点", style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium, color = SmartColors.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
         leadingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Search,
@@ -390,14 +342,16 @@ private fun LibrarySearchField(
         } else {
             null
         },
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = SmartColors.Jade,
-            unfocusedBorderColor = SmartColors.Outline,
+            unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+            focusedContainerColor = SmartColors.OnJade,
+            unfocusedContainerColor = SmartColors.OnJade,
             focusedTextColor = SmartColors.Ink,
             unfocusedTextColor = SmartColors.Ink,
             focusedLeadingIconColor = SmartColors.Jade,
-            unfocusedLeadingIconColor = SmartColors.InkSecondary,
+            unfocusedLeadingIconColor = SmartColors.Ink,
             cursorColor = SmartColors.Jade,
         ),
     )
@@ -409,26 +363,25 @@ private fun FacetTabs(
     onSelect: (LibraryFacet) -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         LibraryFacet.entries.forEach { facet ->
             val selected = facet == activeFacet
             Column(
                 modifier = Modifier
-                    .weight(1f)
                     .defaultMinSize(minHeight = 48.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .semantics { role = Role.Tab }
+                    .semantics { role = Role.Tab; this.selected = selected }
                     .clickable { onSelect(facet) }
-                    .padding(vertical = 8.dp)
+                    .padding(horizontal = 10.dp, vertical = 8.dp)
                     .testTag("library_facet_${facet.id}"),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = facet.label,
-                    color = if (selected) SmartColors.Jade else SmartColors.InkSecondary,
-                    fontSize = 13.sp,
+                    color = SmartColors.Ink,
+                    fontSize = 14.sp,
                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                     maxLines = 1,
                 )
@@ -538,90 +491,6 @@ private fun LibraryTimeRangeControl(
 }
 
 @Composable
-private fun LibraryItemRow(
-    mistake: LibraryMistake,
-    onClick: () -> Unit,
-    onToggleFavorite: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 56.dp)
-            .clickable(onClick = onClick)
-            .padding(vertical = 4.dp)
-            .testTag("library_item_${mistake.id}"),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SubjectIcon(
-            subject = mistake.subject,
-            contentDescription = "${mistake.title} 学科",
-            modifier = Modifier.size(44.dp),
-        )
-        Spacer(Modifier.width(14.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                text = mistake.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = SmartColors.Ink,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(Modifier.height(3.dp))
-            Text(
-                text = mistake.summary,
-                style = MaterialTheme.typography.bodySmall,
-                color = SmartColors.InkSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(
-                text = "${mistake.contentPath} · ${mistake.mastery.label}",
-                style = MaterialTheme.typography.labelMedium,
-                color = masteryColor(mistake.mastery),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        // C11 收藏开关（列表行）：点它只改这一行条目的收藏标记，不打开详情。
-        IconButton(
-            onClick = { onToggleFavorite(!mistake.isFavorite) },
-            modifier = Modifier.testTag("library_favorite_${mistake.id}"),
-        ) {
-            Icon(
-                imageVector = if (mistake.isFavorite) {
-                    Icons.Filled.Bookmark
-                } else {
-                    Icons.Outlined.BookmarkBorder
-                },
-                contentDescription = if (mistake.isFavorite) {
-                    "取消收藏 ${mistake.title}"
-                } else {
-                    "收藏 ${mistake.title}"
-                },
-                tint = if (mistake.isFavorite) SmartColors.Jade else SmartColors.InkSecondary,
-            )
-        }
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-            contentDescription = "打开 ${mistake.title}",
-            tint = SmartColors.InkSecondary,
-        )
-    }
-}
-
-@Composable
-private fun masteryColor(mastery: MasteryState) = when (mastery) {
-    MasteryState.MASTERED -> SmartColors.Jade
-    MasteryState.UNKNOWN -> SmartColors.InkSecondary
-    MasteryState.LEARNING,
-    MasteryState.CONFLICTED,
-    MasteryState.STALE,
-    -> SmartColors.ErrorWarm
-}
-
-@Composable
 private fun EmptyLibraryResult(
     state: LibraryEmptyState,
     canClear: Boolean,
@@ -673,7 +542,6 @@ private fun EmptyLibraryResult(
                 onClick = onCapture,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp)
                     .testTag("library_capture_button"),
                 icon = Icons.Outlined.LibraryAdd,
             )
@@ -704,13 +572,12 @@ private fun ArchivedEntriesSection(
     }
     if (archived.isEmpty()) return
     Column(Modifier.fillMaxWidth()) {
-        OutlineActionChip(
-            text = "已移出的题（${archived.size}）",
+        TextButton(
             onClick = { expanded = !expanded },
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("library_archived_toggle"),
-        )
+            modifier = Modifier.testTag("library_archived_toggle"),
+        ) {
+            Text("已移出的题（${archived.size}）", style = MaterialTheme.typography.labelMedium)
+        }
         AnimatedVisibility(visible = expanded) {
             Column(Modifier.padding(top = 8.dp)) {
                 archived.forEach { item ->

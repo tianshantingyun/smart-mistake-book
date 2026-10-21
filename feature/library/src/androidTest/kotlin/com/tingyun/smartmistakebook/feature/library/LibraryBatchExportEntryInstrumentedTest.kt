@@ -37,6 +37,7 @@ class LibraryBatchExportEntryInstrumentedTest {
             }
         }
 
+        composeRule.onNodeWithTag("library_filter_toggle").performClick()
         composeRule.onNodeWithTag(
             "library_filter_subject_${SubjectKind.MATH.name.hashCode().toUInt()}",
         ).performClick()

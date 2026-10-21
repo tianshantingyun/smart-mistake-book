@@ -5,16 +5,28 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import kotlin.math.ceil
@@ -47,15 +59,16 @@ fun BoundedLocalImage(
     onLoadStateChange: (LocalImageLoadState) -> Unit = {},
 ) {
     val context = LocalContext.current
-    val preview by produceState<LocalImagePreview>(
-        LocalImagePreview.Loading,
-        imageUri,
-        sourceRegion,
-    ) {
-        val bitmap = withContext(Dispatchers.IO) {
-            decodeBoundedBitmap(context, Uri.parse(imageUri), sourceRegion)
+    val density = LocalDensity.current
+    var lastImageSize by remember { mutableStateOf(IntSize.Zero) }
+    // A new source must not reuse the previous bitmap while its decoder is still running.
+    val preview by key(imageUri, sourceRegion) {
+        produceState<LocalImagePreview>(LocalImagePreview.Loading) {
+            val bitmap = withContext(Dispatchers.IO) {
+                decodeBoundedBitmap(context, Uri.parse(imageUri), sourceRegion)
+            }
+            value = bitmap?.let(LocalImagePreview::Available) ?: LocalImagePreview.Unavailable
         }
-        value = bitmap?.let(LocalImagePreview::Available) ?: LocalImagePreview.Unavailable
     }
     val loadState = when (preview) {
         LocalImagePreview.Loading -> LocalImageLoadState.LOADING
@@ -65,14 +78,29 @@ fun BoundedLocalImage(
     LaunchedEffect(imageUri, sourceRegion, loadState) {
         onLoadStateChange(loadState)
     }
+    if (preview == LocalImagePreview.Loading) {
+        val placeholderSize = if (lastImageSize != IntSize.Zero) {
+            with(density) { Modifier.size(lastImageSize.width.toDp(), lastImageSize.height.toDp()) }
+        } else {
+            Modifier.height(96.dp)
+        }
+        Box(
+            modifier = modifier
+                .heightIn(max = if (expanded) expandedMaxHeight else collapsedMaxHeight)
+                .then(placeholderSize),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+        }
+    }
     (preview as? LocalImagePreview.Available)?.bitmap?.let { bitmap ->
         Image(
             bitmap = bitmap.asImageBitmap(),
             contentDescription = contentDescription,
             contentScale = ContentScale.Fit,
-            modifier = modifier.heightIn(
-                max = if (expanded) expandedMaxHeight else collapsedMaxHeight,
-            ),
+            modifier = modifier
+                .heightIn(max = if (expanded) expandedMaxHeight else collapsedMaxHeight)
+                .onSizeChanged { lastImageSize = it },
         )
     }
 }

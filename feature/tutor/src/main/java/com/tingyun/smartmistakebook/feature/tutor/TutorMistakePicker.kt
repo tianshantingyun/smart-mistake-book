@@ -3,14 +3,17 @@ package com.tingyun.smartmistakebook.feature.tutor
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -61,6 +64,16 @@ internal fun TutorMistakePickerDialog(
                     onValueChange = { value -> query = value.take(MAX_PICKER_QUERY_CHARS) },
                     singleLine = true,
                     label = { Text("按题目、章节或知识点筛选") },
+                    trailingIcon = if (query.isNotEmpty()) {
+                        {
+                            IconButton(
+                                onClick = { query = "" },
+                                modifier = Modifier.testTag("${testTagPrefix}_picker_clear_query"),
+                            ) {
+                                Icon(Icons.Outlined.Close, contentDescription = "清空搜索")
+                            }
+                        }
+                    } else null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("${testTagPrefix}_picker_query"),
@@ -133,14 +146,11 @@ private fun MistakePickerRow(
                 addAll(entry.knowledgeLabels.take(2))
             }
             if (meta.isNotEmpty()) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        text = meta.joinToString(" · "),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = InkSecondary,
-                        maxLines = 1,
-                    )
-                }
+                Text(
+                    text = meta.joinToString(" · "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = InkSecondary,
+                )
             }
         }
     }

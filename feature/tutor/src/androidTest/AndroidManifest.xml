@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Test-only provider; exposes only the PNG fixtures registered by these tests. -->
+        <provider
+            android:name="com.tingyun.smartmistakebook.feature.tutor.ControlledImageProvider"
+            android:authorities="com.tingyun.smartmistakebook.feature.tutor.test.uiimages"
+            android:exported="false" />
+    </application>
+</manifest>
