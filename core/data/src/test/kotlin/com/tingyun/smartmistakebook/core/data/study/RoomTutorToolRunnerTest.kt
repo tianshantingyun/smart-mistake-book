@@ -1859,7 +1859,10 @@ class RoomTutorToolRunnerTest {
         val outcome = runner.run(figureCall(kind = TutorFigureKind.REDRAW_PROBLEM), sessionContext())
 
         assertTrue(outcome.ok)
-        assertEquals("revision-draft-figure-6" to "figure-key-2", port.attached.single())
+        assertEquals(
+            Triple("revision-draft-figure-6", "figure-key-2", "CLEAN_IMAGE"),
+            port.attached.single(),
+        )
     }
 
     @Test
@@ -1919,7 +1922,7 @@ class RoomTutorToolRunnerTest {
         private val draft: ProblemDraftRecord?,
         private val failAttach: Boolean = false,
     ) : FakeStudyDatabasePort() {
-        val attached = mutableListOf<Pair<String, String>>()
+        val attached = mutableListOf<Triple<String, String, String>>()
 
         override suspend fun readProblemDraft(draftId: String): ProblemDraftRecord? =
             draft?.takeIf { it.draftId == draftId }
@@ -1930,9 +1933,10 @@ class RoomTutorToolRunnerTest {
         override suspend fun attachCleanRedrawAsset(
             revisionId: String,
             asset: CanonicalSourceAssetRecord,
+            role: String,
         ): Boolean {
             if (failAttach) error("clean image link failed")
-            attached += revisionId to asset.sourceAssetId
+            attached += Triple(revisionId, asset.sourceAssetId, role)
             return true
         }
     }

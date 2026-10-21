@@ -14,19 +14,25 @@ import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchDecision
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchKind
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchRequest
+import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchReservation
 import com.tingyun.smartmistakebook.core.model.FigureArtifact
+import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.FigureGenerationDecision
 import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
 import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 import com.tingyun.smartmistakebook.core.model.FigureGenerationProposal
 import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
+import com.tingyun.smartmistakebook.core.model.FigureGenerationSourceKind
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationValidation
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
+import com.tingyun.smartmistakebook.core.model.figureBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /**
  * 一次图像后端的生命周期句柄：配置指纹 + **惰性**鉴权通道 + 凭证释放。
@@ -120,6 +126,11 @@ class DefaultFigureGenerationCoordinator internal constructor(
     private val ledger: RemoteModelDispatchLedger,
     private val openBackend: suspend () -> FigureImageBackend?,
     private val now: () -> Long = System::currentTimeMillis,
+    /**
+     * 4E WG-08 T1b：审计台账记录器。默认 [FigureGenerationAuditRecorder.Noop]——
+     * 旧调用（测试/未接审计的装配）不产生任何持久写入，结果与改前逐位一致。
+     */
+    private val audit: FigureGenerationAuditRecorder = FigureGenerationAuditRecorder.Noop,
 ) : FigureGenerationCoordinator {
 
     override suspend fun generate(
@@ -203,6 +214,41 @@ class DefaultFigureGenerationCoordinator internal constructor(
     ): FigureGenerationOutcome {
         val sourceBytes = request.source?.imageBytes()
         val sourceSha = sourceBytes?.let(::figureSha256Hex)
+        // 审计从"这次操作确实拿到后端、准备预留"开始：PENDING 先落，reservation 授予后
+        // 才进 RUNNING 并建 attempt。后端不可用（UNAVAILABLE）没有操作，不建行。
+        val state = FigureGenerationAuditState(
+            operation = request.auditOperation(proposal, sourceSha, now()),
+            finalAnswerReserved = request.finalAnswerReserved(),
+            audit = audit,
+            now = now,
+        )
+        try {
+            state.begin()
+            return dispatchWithReservation(
+                request = request,
+                proposal = proposal,
+                backend = backend,
+                state = state,
+                sourceBytes = sourceBytes,
+                sourceSha = sourceSha,
+            )
+        } catch (cancelled: CancellationException) {
+            // 应用被杀/用户取消：账本已扣的预留与已开始的尝试都如实落 CANCELLED。
+            // NonCancellable 是必需的——普通 withContext 在一个已取消的协程里会立刻抛，
+            // 终态就永远写不下去。
+            withContext(NonCancellable) { state.cancel() }
+            throw cancelled
+        }
+    }
+
+    private suspend fun dispatchWithReservation(
+        request: FigureGenerationRequest,
+        proposal: FigureGenerationProposal,
+        backend: FigureImageBackend,
+        state: FigureGenerationAuditState,
+        sourceBytes: ByteArray?,
+        sourceSha: String?,
+    ): FigureGenerationOutcome {
         val occurredAt = now()
         val reservationDecision = try {
             ledger.reserve(
@@ -223,6 +269,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
+            state.finishFailedOperation()
             return outcome(
                 request = request,
                 proposal = proposal,
@@ -232,21 +279,54 @@ class DefaultFigureGenerationCoordinator internal constructor(
         }
         val reservation = when (reservationDecision) {
             is RemoteModelDispatchDecision.Granted -> reservationDecision.reservation
-            is RemoteModelDispatchDecision.Denied -> return outcome(
-                request = request,
-                proposal = proposal,
-                status = FigureGenerationStatus.FAILED,
-                diagnostics = reservationDecision.message,
-            )
+            is RemoteModelDispatchDecision.Denied -> {
+                // 没有授予就没有派发：operation 落 FAILED，计数 0/0，attempt 不建。
+                state.finishFailedOperation()
+                return outcome(
+                    request = request,
+                    proposal = proposal,
+                    status = FigureGenerationStatus.FAILED,
+                    diagnostics = reservationDecision.message,
+                )
+            }
         }
+        // 顺序是硬要求：operation PENDING → RUNNING，attempt 必须在 reservation 授予之后
+        // 才 RUNNING（"有预留才算开始一次尝试"）。
+        state.beginAttempt(reservation)
         // KD-59：绑定只能从账本授予的预留派生（构造器 internal）。
         val dispatch = FigureImageDispatchBinding.fromReservation(reservation)
         val imagePrompt = requireNotNull(proposal.imagePrompt) {
             "policy accepted an IMAGE_MODEL proposal without an image prompt"
         }
+        val imageOperation = proposal.imageOperation
+        if (imageOperation == null) {
+            state.failAttempt("IMAGE_MODEL proposal 缺少图像操作")
+            return outcome(
+                request = request,
+                proposal = proposal,
+                status = FigureGenerationStatus.REJECTED,
+                diagnostics = "IMAGE_MODEL proposal 缺少图像操作",
+                attemptId = state.attemptId,
+            )
+        }
+        val channel = try {
+            backend.channel()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            state.failAttempt(boundedFailure(failure))
+            return outcome(
+                request = request,
+                proposal = proposal,
+                status = FigureGenerationStatus.FAILED,
+                diagnostics = boundedFailure(failure),
+                attemptId = state.attemptId,
+            )
+        }
+        // 从这里开始真的可能在线上花掉一次派发：即使后面失败/取消，used 也如实记 1。
+        state.markDispatched()
         val generated = try {
-            val channel = backend.channel()
-            when (proposal.imageOperation) {
+            when (imageOperation) {
                 FigureImageOperation.EDIT -> {
                     // EDIT 走带源图的生成请求（通道内部即 `/images/edits`）；这与旧工具链
                     // 的重绘路径同形状，源图字节来自宿主核对后的证据。
@@ -274,22 +354,18 @@ class DefaultFigureGenerationCoordinator internal constructor(
                     ),
                     dispatch,
                 )
-
-                null -> return outcome(
-                    request = request,
-                    proposal = proposal,
-                    status = FigureGenerationStatus.REJECTED,
-                    diagnostics = "IMAGE_MODEL proposal 缺少图像操作",
-                )
             }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
+            val diagnostics = boundedFailure(failure)
+            state.failAttempt(diagnostics)
             return outcome(
                 request = request,
                 proposal = proposal,
                 status = FigureGenerationStatus.FAILED,
-                diagnostics = boundedFailure(failure),
+                diagnostics = diagnostics,
+                attemptId = state.attemptId,
             )
         }
         val artifact = FigureArtifact.ImageAsset(
@@ -301,13 +377,148 @@ class DefaultFigureGenerationCoordinator internal constructor(
             assetId = null,
             imageBytes = generated.imageBytes,
         )
+        state.succeed()
         return outcome(
             request = request,
             proposal = proposal,
             status = FigureGenerationStatus.GENERATED,
             artifact = artifact,
+            attemptId = state.attemptId,
         )
     }
+
+    /**
+     * 一次操作的审计状态（只活在这次调用里）。
+     *
+     * 所有写入都经 [auditWrite]：recorder 失败/取消失败**不影响**生成结果；取消只由
+     * [generateWithBackend] 的 NonCancellable 收尾统一落账。
+     */
+    private class FigureGenerationAuditState(
+        private val operation: FigureGenerationAuditOperation,
+        private val finalAnswerReserved: Boolean,
+        private val audit: FigureGenerationAuditRecorder,
+        private val now: () -> Long,
+    ) {
+        private var operationRecorded: Boolean = false
+        private var attempt: FigureGenerationAuditAttempt? = null
+        private var attemptRecorded: Boolean = false
+        private var reservedRemoteDispatches: Int = 0
+        private var usedRemoteDispatches: Int = 0
+
+        /** 只有真的写进 attempt 行时才回给入口；否则 null（入口据此跳过回填）。 */
+        val attemptId: String?
+            get() = if (attemptRecorded) attempt?.attemptId else null
+
+        suspend fun begin() {
+            operationRecorded = auditWrite { audit.beginOperation(operation) } ?: false
+        }
+
+        suspend fun beginAttempt(reservation: RemoteModelDispatchReservation) {
+            reservedRemoteDispatches = 1
+            auditWrite { audit.markOperationRunning(operation.operationId, now()) }
+            val row = FigureGenerationAuditAttempt(
+                attemptId = "figure-attempt:${operation.operationId}:${reservation.attemptOrdinal}:" +
+                    reservation.method.name,
+                operationId = operation.operationId,
+                attemptOrdinal = reservation.attemptOrdinal,
+                method = reservation.method,
+                reservationId = reservation.reservationId,
+                inputFingerprint = operation.basisFingerprint,
+                sourceSha256 = reservation.sourceImageSha256,
+                startedAtEpochMillis = now(),
+            )
+            attempt = row
+            attemptRecorded = auditWrite { audit.beginAttempt(row) } ?: false
+        }
+
+        fun markDispatched() {
+            usedRemoteDispatches = 1
+        }
+
+        suspend fun succeed() {
+            finishAttempt(FigureGenerationAuditOutcome.SUCCEEDED, outputAssetId = null, diagnostics = null)
+            finishOperation(FigureGenerationAuditOutcome.SUCCEEDED)
+        }
+
+        suspend fun failAttempt(diagnostics: String) {
+            finishAttempt(FigureGenerationAuditOutcome.FAILED, outputAssetId = null, diagnostics = diagnostics)
+            finishOperation(FigureGenerationAuditOutcome.FAILED)
+        }
+
+        suspend fun finishFailedOperation() {
+            finishOperation(FigureGenerationAuditOutcome.FAILED)
+        }
+
+        suspend fun cancel() {
+            finishAttempt(
+                FigureGenerationAuditOutcome.CANCELLED,
+                outputAssetId = null,
+                diagnostics = "已取消",
+            )
+            finishOperation(FigureGenerationAuditOutcome.CANCELLED)
+        }
+
+        private suspend fun finishAttempt(
+            outcome: FigureGenerationAuditOutcome,
+            outputAssetId: String?,
+            diagnostics: String?,
+        ) {
+            val row = attempt ?: return
+            if (!attemptRecorded) return
+            auditWrite {
+                audit.finishAttempt(
+                    attemptId = row.attemptId,
+                    outcome = outcome,
+                    outputAssetId = outputAssetId,
+                    diagnostics = diagnostics,
+                    endedAtEpochMillis = now(),
+                )
+            }
+        }
+
+        private suspend fun finishOperation(outcome: FigureGenerationAuditOutcome) {
+            if (!operationRecorded) return
+            auditWrite {
+                audit.finishOperation(
+                    operationId = operation.operationId,
+                    outcome = outcome,
+                    reservedRemoteDispatches = reservedRemoteDispatches,
+                    usedRemoteDispatches = usedRemoteDispatches,
+                    finalAnswerReserved = finalAnswerReserved,
+                    updatedAtEpochMillis = now(),
+                )
+            }
+        }
+    }
+
+    private fun FigureGenerationRequest.auditOperation(
+        proposal: FigureGenerationProposal,
+        sourceSha256: String?,
+        createdAtEpochMillis: Long,
+    ): FigureGenerationAuditOperation {
+        val parent = requireNotNull(dispatchParent) {
+            "policy accepted an unbound figure request"
+        }
+        return FigureGenerationAuditOperation(
+            operationId = operationId,
+            sourceKind = sourceKind ?: when (parent) {
+                is FigureDispatchParent.ModelTask -> FigureGenerationSourceKind.TUTOR_MESSAGE
+                is FigureDispatchParent.CleanRedrawTask -> FigureGenerationSourceKind.CLEAN_REDRAW
+            },
+            sourceId = sourceId ?: when (parent) {
+                is FigureDispatchParent.ModelTask -> parent.requestId
+                is FigureDispatchParent.CleanRedrawTask -> parent.taskId
+            },
+            basisFingerprint = basisFingerprint
+                ?: figureBasisFingerprint(operationId, sourceSha256, proposal.imagePrompt),
+            purpose = purpose,
+            policyVersion = proposal.policyVersion,
+            createdAtEpochMillis = createdAtEpochMillis,
+        )
+    }
+
+    private fun FigureGenerationRequest.finalAnswerReserved(): Boolean =
+        (dispatchParent as? FigureDispatchParent.ModelTask)?.reserveChatFinalAnswer ?: false
 
     private fun outcome(
         request: FigureGenerationRequest,
@@ -315,6 +526,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
         status: FigureGenerationStatus,
         artifact: FigureArtifact? = null,
         diagnostics: String? = null,
+        attemptId: String? = null,
     ): FigureGenerationOutcome = FigureGenerationOutcome(
         operationId = request.operationId,
         purpose = request.purpose,
@@ -322,6 +534,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
         status = status,
         artifact = artifact,
         diagnostics = diagnostics?.take(FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS),
+        attemptId = attemptId,
     )
 
     private fun boundedFailure(failure: Exception): String =
@@ -330,8 +543,24 @@ class DefaultFigureGenerationCoordinator internal constructor(
 }
 
 /**
+ * 审计写入的 best-effort 包装：**取消除外**，任何持久化失败都不改变生成本身的结论。
+ * 单独抽出来是因为 operation/attempt 的每个写口都要同一条语义（写不进 ≠ 没生成）。
+ */
+private suspend fun <T> auditWrite(block: suspend () -> T): T? =
+    try {
+        block()
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Exception) {
+        null
+    }
+
+/**
  * app 装配口：一个共享 coordinator（共享 ledger + 共享凭证门/通道工厂），
  * 注入讲题与净化入口。没配模型时调用方保持 null（各入口维持既有"不可用"行为）。
+ *
+ * 4E WG-08 T1b 起同时接入审计记录器：操作/尝试行落 schema 69 的两张表。记录器只写审计，
+ * 不读预算；数据库端口不可用时（测试替身/旧库）默认实现"做不到"，生成路径不受影响。
  */
 object FigureGenerationCoordinationFactory {
     fun create(
@@ -346,5 +575,6 @@ object FigureGenerationCoordinationFactory {
                 networkRequestsAllowed = networkRequestsAllowed,
             )
         },
+        audit = RoomFigureGenerationAuditRecorder(database),
     )
 }

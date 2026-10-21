@@ -23,7 +23,7 @@
 - **官方节表**：四份 W-7 报告（`docs/kb-textbook-toc-align/{CHEMISTRY,BIOLOGY,PHYSICS,MATH}.md`，2026-09-21）逐册表，共 **21 册 / 90 章 / 340 官方节 + 20 非节行 = 360 行**。W-7 报告自述口径：视觉读人教社官方电子教材目录页，**页图取完即删、未留存、未抄正文**（见 `PHYSICS.md`/`BIOLOGY.md` 文首）。
 - **现包**：`build/kb-staging/moe-2025-four-subjects-v1.json`，**v18**（manifest version=18，contentVersion `d82a05607bdb622a`），**425 主题 / 3,245 知识点**；sidecar 25 件共 **64,973 材料**（化学 18,307 / 生物学 13,704 / 物理 18,494 / 数学 14,468）。
 - **逐节 join 顺序**：官方节同名主题（名或 slug 末段）→ 同名/含节名点所在主题 → FINAL §3「现包现状」指认覆盖主题 → 官方章容器；同级多落点全部列出。台账自检：落点缺失 0、材料孤儿绑定 0、课标 target 悬空 0（`SECTION-BY-SECTION-LEDGER.md` §1 自检表）。
-- **章名判定**：以四份 W-7 报告的官方章名为准。`reference/standard_chapter_names.json` 仍有 5 处与官方不同（生物 2：选必1 第一章缺「人体的」、选必2 第四章旧名「生态环境的保护」；物理 3：必修三第十二章多「与可持续发展」、选必三第二章少顿号、选必三第五章多「和核反应」），已在 `PHYSICS.md`/`BIOLOGY.md` 登记，生物 2 处亦见 FINAL §5；本验收不拿带缺陷的 reference 名反推 90/90。
+- **章名判定**：以四份 W-7 报告的官方章名为准。`reference/standard_chapter_names.json` 仍有 5 处与官方不同（生物 2：选必1 第一章缺「人体的」、选必2 第四章旧名「生态环境的保护」；物理 3：必修三第十二章多「与可持续发展」、选必三第二章少顿号、选必三第五章多「和核反应」），已在 `PHYSICS.md`/`BIOLOGY.md` 登记，生物 2 处亦见 FINAL §5；本验收不拿带缺陷的 reference 名反推 90/90。**（2026-10-21 补记：reference 副本的 5 处章名已于 2026-10-20 按 W-7 官方名对齐——生物 2 处、物理 3 处，见 `docs/kb-textbook-toc-align/reference/README.md`「已知待修 / 本轮修订」；本行「仍有 5 处不同」为历史原文，90/90 判定与覆盖数字不变。）**
 - **不读正文**：本验收只核章名/节名与节点位置，不核节内知识点表述、不核教材正文、不把教材原文或页图入库；W-7 读目录的页图已删除、未留存。
 
 ### 2.2 课标覆盖口径（F14：主线/选修分开实算）
@@ -334,7 +334,7 @@
 | 选修单列报告 | `docs/research/2026-10-13-elective-coverage-report.md` | 选修 235 → 16/30/189/0；189 条逐条与 9 条主线逐条；本报告复算计数一致 |
 | F14 豁免登记 | `knowledge-production/f14-waivers.csv` | 9 行 + 表头；本报告实算与主线 NOT_COVERED 9 条逐条同集（`same set=True`） |
 | W-7 报告（4 份） | `docs/kb-textbook-toc-align/{MATH,PHYSICS,CHEMISTRY,BIOLOGY}.md` | 21 册 / 90 章 / 340 官方节 + 20 非节；官方章名；目录只读口径 |
-| 章名基准件 | `docs/kb-textbook-toc-align/reference/standard_chapter_names.json` | 21 册 / 90 章；5 处已知差异（生物 2、物理 3）只作基准、不反推 90/90 |
+| 章名基准件 | `docs/kb-textbook-toc-align/reference/standard_chapter_names.json` | 21 册 / 90 章；5 处已知差异（生物 2、物理 3）只作基准、不反推 90/90；**2026-10-21 补记：5 处已按 W-7 官方名对齐（`reference/README.md` 记修订后 sha256 `8491642f…`），本格为历史读数** |
 | v18 包与 manifest | `build/kb-staging/moe-2025-four-subjects-v1.json`、`moe-2025-update-manifest.json` | 425 主题 / 3,245 点；version=18；contentVersion `d82a05607bdb622a`；主包 sha256 `f6098c41…`；25 件 sidecar 64,973 材料 |
 | 批次14 乱码修复记录 | `build/agent-batch14/fix-record.md`、`build/agent-batch14/verify.txt` | 2 条 mojibake 的四层锁步、逐字节 diff 契约、全库复扫 C1=0 |
 | 批次14 门读数 | `tools/kb_build/gate.py`、`build/agent-batch14/print_gate_readings.py`、`build/agent-batch14/a/judgment-drift-baseline.csv` | 控制字符门与 Kotlin 契约同源（0）；判定源↔包文本漂移 377（content 194 + boundary 183，基线 INFO） |
@@ -356,8 +356,8 @@
 8. **课标判定为 AI 复核，不含逐条人工审校**：alignment JSON 的 661 条均为 `AI_REVIEWED`（Qwen3.8-27B，2026-10-19），本验收只复算其 status，不重新裁决；若要对外发布「覆盖率」，应同时披露该判定通道。
 9. **双口径不得混用**：主口径分母 **426**（必修 + 选择性必修），选修 **235** 单列；旧口径分母 **661**（含 235 选修）。F14 裁定见 `docs/agent-first-refactor-decisions-2026-09-23.md:2510`；F14 理由页同时要求「保留全量口径并列公布」（`docs/kb-outstanding-research-2026-10-02.md:681-687`）。引用时必须写明口径，不能把 87.79% 与 59.00% 互相替代。
 10. **检索读数与覆盖结论分离**：D-3 的 0.7752/0.6899/零漂移读数只证明检索装置与金标在 **v16** 上的可复现性，不是覆盖证据；**v18 未跑 D-3（§7.6），不得把 v16 读数当作 v18 基线**。当前 dense `.vec` 已与主包一致（`check_asset.py` EXIT=0），但检索读数仍不能替代覆盖结论。
-11. **reference 件不是无缺陷权威**：`standard_chapter_names.json` 仍有 5 处与 W-7 官方名不同（生物 2、物理 3）；本验收以 W-7 官方名为准，reference 只作册/章数基准。
-12. **未验证项**：本验收未运行 Gradle/设备/仪器化；未读取教材正文；未对 64,973 条材料做逐条质量复核；未对 198 条 NOT_COVERED 做二次人工语义复核；**D-3 v18 未跑**；A 层 60,512 块未判（§7.5）。dense `.vec` 与当前主包的一致性已由 `python tools/dense_build/check_asset.py`（EXIT=0）核验，不再列为未验证。
+11. **reference 件不是无缺陷权威**：`standard_chapter_names.json` 仍有 5 处与 W-7 官方名不同（生物 2、物理 3）；本验收以 W-7 官方名为准，reference 只作册/章数基准。**（2026-10-21 补记：上述 5 处已按 W-7 官方名对齐，见 `reference/README.md`；本项按历史原文保留，不据此重判。）**
+12. **未验证项**：本验收未运行 Gradle/设备/仪器化；未读取教材正文；未对 64,973 条材料做逐条质量复核；未对 198 条 NOT_COVERED 做二次人工语义复核；**D-3 v18 未跑**；A 层 60,512 块未判（§7.5）。dense `.vec` 与当前主包的一致性已由 `python tools/dense_build/check_asset.py`（EXIT=0）核验，不再列为未验证。**（2026-10-21 补记：批次14 D-3 的编译阻塞已解除（原 `OpenAiModelResponseParsers.kt` 未解析引用已修复并入库）；`build/agent-batch14/d3/` 目录已存在，但仍无完整 v18 D-3 读数，故「D-3 v18 未跑」结论不变，详见 §7.6。）**
 13. **豁免 ≠ 覆盖**：9 条主线 NOT_COVERED 全部在 `knowledge-production/f14-waivers.csv` 登记豁免；这是「不设节点」的处置记录，不是「已覆盖」的证据。F14 的「47 条主线缺口」在批次10 已处置（COVERED 32 / 豁免 9 / 补料 6＝SUPPLY_EXISTING 2 + SUPPLY_NEW 4，`docs/kb-batch10-2026-10-13.md` §2），本版台账只剩这 9 条。
 14. **v18 文本修复不改变覆盖数字**：v18 只修 2 条 sidecar 乱码，主题/点/材料数与 v16/v17 相同；覆盖率和材料数不能因版本号变化而重述。
 15. **A 层未判池不在本验收**：**61,170 块未判**（A 层 60,512 + 广告 627 + 版权 25 + 空白 4 + 目录 2）；本验收只覆盖已判池 **125,465 块**；420 样本是估计证据，不是验收计数（§7.5）。
@@ -461,6 +461,7 @@ PY
 - 最近基线仍是批次13 v16（`build/agent-batch13/d3/`）：融合 Recall@5 **100/129 = 0.775194**、词面 **89/129 = 0.689922**、同路零漂移 **0/PASS/PASS**；逐章 ≥0.80 **14/24**、最小 **0.0000**。该读数只适用于 v16 装置，**不是 v18 基线**。
 - dense 资产：`python tools/dense_build/check_asset.py` 本报告实跑 **EXIT=0**；`.vec` 旁车 `packSha256=f6098c41…` 与当前主包一致，`vectorCount=44010`、layout 44,010 条一致。v18 只改 sidecar 文本、主包 sha 未变，故无需重打 dense；但「资产一致」不等于「v18 检索已复测」。
 - 结论：**D-3 v18 基线待跑**；在跑之前，任何 v18 检索数字都不得引用 v16 读数替代。
+- **（2026-10-21 批次15 补记）v18 D-3 已跑**：设备融合 Recall@5 **100/129 = 0.775194**、词面 **89/129 = 0.689922**、同路零漂移 **词面 PASS / 融合 PASS**（与 v16 的对称差 0）、MRR 0.622868、p95 56ms / p50 43ms、`denseLegLive=true`；JVM 融合镜像与设备逐位一致；vs v16 配对差 **0.0000（p=1.0）**；逐章 ≥0.80 仍 **14/24**、最小 0.0000。证据 `build/agent-batch15/d3/`，叙述与预注册见 `docs/research/2026-10-21-d3-round2-prereg.md` 与 `docs/kb-batch15-2026-10-21.md`。上节「未跑」为批次14 时点记录，保留原文。
 
 ### 7.7 本节复算命令汇总
 

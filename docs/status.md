@@ -4,11 +4,11 @@
 
 ## Build Information
 
-- **Commit SHA**: `a200f27bf6feb19137d485329967b126952f0950`
-- **Build Date**: `2026-10-20`
+- **Commit SHA**: `2163810dc64e765d22d7b22596665d540d5fc89e`
+- **Build Date**: `2026-10-21`
 - **Branch**: `main`
 - **Triggered By**: `unknown`
-- **Run context**: BOUND · sha `a200f27bf6fe`（git HEAD） · branch `main` · 触发 unknown
+- **Run context**: BOUND · sha `2163810dc64e`（git HEAD） · branch `main` · 触发 unknown
 - **Run context note**: 绑定时刻 = 生成时刻，非所描述代码的提交
 
 ## Build Results
@@ -18,25 +18,25 @@
 | Module | Status | Duration |
 |--------|--------|----------|
 | `:core:database` | NOT_MEASURED | - |
-| `:core:data` | NOT_MEASURED | - |
-| `:core:domain` | NOT_MEASURED | - |
+| `:core:data` | OK | - |
+| `:core:domain` | OK | - |
 | `:feature:library` | NOT_MEASURED | - |
 | `:feature:capture` | NOT_MEASURED | - |
-| `:feature:tutor` | OK | - |
+| `:feature:tutor` | NOT_MEASURED | - |
 | `:app:localFirst` | NOT_MEASURED | - |
 | `:app:strictOffline` | NOT_MEASURED | - |
 
-编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:database`：类产物早于源码（10-20 02:56 < 源码 10-20 22:18）；`:core:data`：类产物早于源码（10-20 02:14 < 源码 10-20 22:37）；`:core:domain`：类产物早于源码（10-20 02:13 < 源码 10-20 22:12）；`:feature:library`：类产物早于源码（10-20 01:51 < 源码 10-20 21:51）；`:feature:capture`：类产物早于源码（10-20 01:51 < 源码 10-20 02:44）；`:app:localFirstDebug`：类产物早于源码（10-20 02:40 < 源码 10-20 21:37）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-20 21:37）
+编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:database`：类产物早于源码（10-21 23:32 < 源码 10-21 23:38）；`:feature:library`：类产物早于源码（10-21 23:31 < 源码 10-21 23:38）；`:feature:capture`：类产物早于源码（10-20 01:51 < 源码 10-20 02:44）；`:feature:tutor`：类产物早于源码（10-21 20:43 < 源码 10-21 20:51）；`:app:localFirstDebug`：类产物早于源码（10-21 04:42 < 源码 10-21 23:15）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-21 23:15）
 
 ### Unit Tests
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:data` | 905 | 905 | 0 | - |
-| `:feature:library` | 47 | 47 | 0 | - |
+| `:core:database` | 203 | 203 | 0 | - |
+| `:core:data` | 3 | 3 | 0 | - |
+| `:feature:library` | 52 | 52 | 0 | - |
 | `:feature:capture` | 148 | 148 | 0 | - |
-| `:feature:tutor` | 227 | 227 | 0 | - |
+| `:feature:tutor` | 246 | 246 | 0 | - |
 
 ### Lint
 
@@ -53,14 +53,14 @@
 | `:core:data` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:core:export` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:ui` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:ui` | OK | 0 | 1 |
 | `:feature:capture` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:feature:library` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:feature:profile` | OK | 0 | 0 |
 | `:feature:review` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:tutor` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:feature:tutor` | OK | 0 | 16 |
 
-以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-17 21:09 < 源码 10-20 21:37）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-20 21:37）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-20 22:37）；`:core:database`：无 lint 报告；`:core:export`：lint 报告早于源码（10-17 21:08 < 源码 10-19 01:29）；`:core:ui`：lint 报告早于源码（10-13 21:30 < 源码 10-19 23:50）；`:feature:capture`：lint 报告早于源码（10-13 21:32 < 源码 10-20 02:44）；`:feature:library`：lint 报告早于源码（10-17 21:08 < 源码 10-20 21:51）；`:feature:review`：lint 报告早于源码（10-17 21:08 < 源码 10-20 22:20）；`:feature:tutor`：lint 报告早于源码（10-17 21:08 < 源码 10-20 02:03）
+以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-17 21:09 < 源码 10-21 23:15）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-21 23:15）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-21 23:34）；`:core:database`：无 lint 报告；`:core:export`：lint 报告早于源码（10-17 21:08 < 源码 10-19 01:29）；`:feature:capture`：lint 报告早于源码（10-13 21:32 < 源码 10-20 02:44）；`:feature:library`：lint 报告早于源码（10-21 23:35 < 源码 10-21 23:38）；`:feature:review`：lint 报告早于源码（10-17 21:08 < 源码 10-21 04:29）
 
 ### Release Build
 
@@ -73,7 +73,7 @@
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | 71c08532505aa22ec920286934695024f9c900f4de9f0f59dcf0908ce0acf748 |
+| `localFirst-debug.apk` | 716a194ebdf99436a4cec5021480a65a95ab526ae58b6f51d11232a8f19a9da0 |
 | `localFirst-release.apk` | 1f073e9bcad9716c2ab6d90e4f70e2faddab7810020b38817e23b87523679d42 |
 | `strictOffline-debug.apk` | 7db9f94dd59aa5eef73b0005520fe49f09cb0366b8ab6589d62c34ae4b6cb8e7 |
 | `strictOffline-release.apk` | 978e71251d4060ee13f7cb67c8d8095cb28c9965f02ae7e0f5b994516f7f7d65 |
@@ -117,7 +117,7 @@
 
 | 总数 | 通过 | 失败 |
 |------|------|------|
-| 785 | 784 | 1 |
+| 785 | 785 | 0 |
 
 ### Retrieval Benchmark（:core:data 单测写入 build/benchmark-metrics.txt，逐字嵌入）
 
@@ -189,11 +189,11 @@ NOT_MEASURED
 
 ## Overall Status
 
-**FAIL**
+**NOT_MEASURED**
 
-build job: NOT_MEASURED · KB gates: all OK · tools tests: 1/785 failed or run failed · lint（app 2 变体 + 9 个库模块）: NOT_MEASURED · compile evidence: NOT_MEASURED · run context: BOUND
+build job: NOT_MEASURED · KB gates: all OK · tools tests: 785/785 passed · lint（app 2 变体 + 9 个库模块）: NOT_MEASURED · compile evidence: NOT_MEASURED · run context: BOUND
 
 ---
 
-*Generated by CI at 2026-10-20T14:38:10.799903+00:00*
+*Generated by CI at 2026-10-21T15:51:05.946848+00:00*
 *Report version: 1.0*

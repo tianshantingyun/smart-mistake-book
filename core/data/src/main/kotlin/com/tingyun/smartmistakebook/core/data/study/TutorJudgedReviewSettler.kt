@@ -98,18 +98,19 @@ internal class TutorJudgedReviewSettler(
             },
         ) { "Review session ${settlement.sessionId} does not belong to its persisted plan" }
         val orderedQueue = reviewPlan.queue.sortedBy { it.ordinal }
+        // 队列项由**本次结算的题**定位（计划内 practice unit 唯一），不能拿
+        // expectedStateVersion 当序号：它是会话写入版本（每次提交/撤销各 +1），undo 后与
+        // currentOrdinal 解耦；而幂等重放又可能晚于推进（currentOrdinal 已指向下一题）。
+        // 口径与 `submitReviewChoice` / `submitReviewSelfReport` 一致；版本只用于写事务 CAS。
         val queueItem = requireNotNull(
-            orderedQueue.singleOrNull { it.ordinal.toLong() == settlement.expectedStateVersion },
-        ) { "Expected review-session version does not identify one planned queue item" }
-        require(queueItem.practiceUnitId == settlement.practiceUnitId) {
-            "Settlement belongs to another planned practice unit"
-        }
+            orderedQueue.singleOrNull { it.practiceUnitId == settlement.practiceUnitId },
+        ) { "Settlement belongs to a practice unit outside the persisted plan" }
         val mistake = requireNotNull(
             database.observeMistakes().first()
                 .singleOrNull { it.practiceUnitId == settlement.practiceUnitId },
         ) { "The planned saved question is no longer active" }
 
-        val isHeadItem = session.currentOrdinal.toLong() == settlement.expectedStateVersion
+        val isHeadItem = session.currentOrdinal == queueItem.ordinal
         // 判词从**最近锚定的若干个会话**里找，而不是只读最新一条（KD-36）：讲题页每次进入
         // 都是一个新会话（A1「进入即新开」），学生"答过一次、又进去看了一眼就退出"时，
         // 最新锚定的会话里没有作答行——只读最新一条就会把真正作答的那次错过去，

@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.database.CommitTutorSessionCommand
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtractor
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
+import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATES
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
@@ -281,12 +282,17 @@ internal class RoomTutorToolRunner(
     /**
      * 读知识点（KNOWLEDGE_READ）：检索 → 返回**代号 + 名称 + 边界前 80 字 + 绑定材料摘要**。
      *
-     * 路由 = **v1 生产形状：裸 B 路 limit=[KNOWLEDGE_READ_NODE_LIMIT]**（SQL 倒排二值 TF 排序，
-     * 无 A 路精排）。2026-09-22 曾统一成 B512→A 精排（与归类/拍照同源），但金标实测显示该
-     * 路由在主集上 0.5222→0.3444、p95 663ms 超预算，是净伤害（详见
-     * docs/kb-vector-topic-decision.md §3.2 与 KD-24），当日回滚到本形状——零回归。
-     * B 路二值 TF 的"少公共 gram 精确节点排不进前 5"偏置是已知词面缺陷（登记册 D-01），
-     * 按 D12 预注册由已开启的 dense 兜底议题解决，不在词面路由上打补丁。
+     * 路由 = **A2：金标/设备融合臂同构的 B512 融合**（`limit = MAX_KNOWLEDGE_RECALL_CANDIDATES`
+     * + 原始题面给稠密腿，`RoomKnowledgeBaseStore` 在 512 候选域内重排），**查询后立刻
+     * `.take([KNOWLEDGE_READ_NODE_LIMIT])`**——512 只决定稠密腿能重排多大的域，渲染与取材料
+     * 仍只碰前 5 个节点，绝不把整个候选域塞进工具结果/prompt。
+     *
+     * 为什么是这条路（2026-10-21 A2）：设备真 SQL 实测 B5 纯词面主集 Recall@5 = 0.6444，
+     * 而金标判的融合路由 = 0.7752（129 条，`GoldenRetrievalInstrumentedTest`）；此前生产学生
+     * 走 B5，判得好的那条路由只有判官在走。改为 512 深度后生产与判官**逐字同构**（同一
+     * `readSubjectKnowledgeRecallCandidates(limit=512, queryText=题面)` → 取前 5）。
+     * 2026-09-22 回滚的是"B512→A 路精排"（p95 663ms、主集 0.3444），不是本形状：这里
+     * 不引入 A 路 select，返回形态与条数仍是原 top-5。
      *
      * 单一代号通道（D5，关审计断链 E-03）：此前只回"名字+边界"，模型没有任何渠道拿到可写入的
      * 知识点标识，MASTERY_UPDATE 因此在聊天路径结构性不可达。现在每个返回节点都带本会话代号
@@ -322,9 +328,11 @@ internal class RoomTutorToolRunner(
         val nodes = port.readSubjectKnowledgeRecallCandidates(
             subject = subject,
             searchFeatures = features,
-            limit = KNOWLEDGE_READ_NODE_LIMIT,
+            // A2：查询深度 = 金标融合臂的 512（稠密腿的重排域）；queryText 让稠密腿在场。
+            limit = MAX_KNOWLEDGE_RECALL_CANDIDATES,
             queryText = questionText,
-        )
+            // A2：渲染/取材料前显式截到展示条数——工具结果形态与条数不变，512 不进 prompt。
+        ).take(KNOWLEDGE_READ_NODE_LIMIT)
         if (nodes.isEmpty()) {
             return TutorToolExecution(
                 outcome = TutorToolOutcome(
@@ -399,7 +407,12 @@ internal class RoomTutorToolRunner(
     }
 
     private companion object {
-        /** 裸 B 路召回的最终展示条数（v1 生产形状；B512→A 统一路由已回滚，见 KD-24）。 */
+        /**
+         * 渲染/取材料的最终展示条数（工具结果形态的一部分，**不是**查询深度）。
+         * A2 起查询深度 = `MAX_KNOWLEDGE_RECALL_CANDIDATES`（512，金标融合臂同构）；
+         * 本常量只决定 `readSubjectKnowledgeRecallCandidates(...).take(...)` 的截断点，
+         * 512 个候选绝不进结果文本（单工具结果仍受 2k 预算约束）。
+         */
         const val KNOWLEDGE_READ_NODE_LIMIT = 5
         const val KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS = 60
     }

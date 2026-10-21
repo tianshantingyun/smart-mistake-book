@@ -2559,6 +2559,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
     override suspend fun attachCleanRedrawAsset(
         revisionId: String,
         asset: com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord,
+        role: String,
     ): Boolean = error("Capture is outside this study-repository fake")
 
     /** D-M M7：咨询工具的"当前题"作用域要用它解析 practice unit（默认无会话 → 空范围）。 */

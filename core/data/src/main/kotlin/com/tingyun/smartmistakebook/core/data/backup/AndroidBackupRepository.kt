@@ -955,7 +955,7 @@ class AndroidBackupRepository(
     }
 
     /**
-     * 归档库在预验证时一并读出的闭合数据：题数与四表引用口径下仍被引用的资产行。
+     * 归档库在预验证时一并读出的闭合数据：题数与引用口径（含图生成尝试产物）下仍被引用的资产行。
      * 恢复回执与 [verifyStagedAssetClosure] 都用它，而不是 manifest 里那张清单。
      */
     private data class StagedDatabaseInspection(

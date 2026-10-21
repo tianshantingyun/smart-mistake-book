@@ -535,6 +535,43 @@ class TutorJudgedReviewSettlerTest {
     }
 
     @Test
+    fun afterUndoTheSessionVersionIsNotTheQueueOrdinalAndTheHeadItemStillSettles() = runBlocking {
+        // 真实 undo 的形状：一次提交把会话推进到 version=1/ordinal=1，撤销再写一版把指针
+        // 退回 ordinal=0（version=2）。此后 stateVersion 与队列序号彻底解耦——结算必须按
+        // **本题在计划里的队列项**定位（与 submitReviewChoice/submitReviewSelfReport 同一口径），
+        // 否则"撤销 → 去讲题 → 回来结算"会拿 version=2 去找 ordinal==2 的队列项，找不到就
+        // fail-closed，学生重讲之后复习进度永远推不动。
+        val database = seededDatabase()
+        database.recordedChatEvidence += modelVerdict(
+            direction = "POSITIVE",
+            evidenceId = "evidence-after-undo",
+            // 撤销发生在判词之后（学生撤销完才重新进讲题页作答）：新鲜度门槛必须放行。
+            createdAtEpochMillis = 3_000,
+        )
+        val settlement = startedSettlement(database)
+        val plan = database.savedPlans.single()
+        val rewound = requireNotNull(plan.latestSession).copy(
+            currentOrdinal = 0,
+            stateVersion = settlement.expectedStateVersion + 2,
+            lastActiveAtEpochMillis = 2_900,
+        )
+        database.latestSessions[plan.plan.reviewPlanId] = rewound
+        val planIndex = database.savedPlans.indexOf(plan)
+        database.savedPlans[planIndex] = plan.copy(
+            activeSession = rewound,
+            latestSession = rewound,
+        )
+
+        val result = settle(database, settlement.copy(expectedStateVersion = rewound.stateVersion))
+
+        assertEquals(TutorJudgedReviewSettlementStatus.RECORDED, result.status)
+        assertTrue(requireNotNull(result.isCorrect))
+        assertEquals(1, database.attemptCount)
+        assertEquals(1, result.progress.currentOrdinal)
+        assertEquals(rewound.stateVersion + 1, result.progress.stateVersion)
+    }
+
+    @Test
     fun replayingTheSameSettlementDoesNotDoubleWrite() = runBlocking {
         val database = seededDatabase()
         database.tutorTurnResponses += choiceResponse(correct = true)
