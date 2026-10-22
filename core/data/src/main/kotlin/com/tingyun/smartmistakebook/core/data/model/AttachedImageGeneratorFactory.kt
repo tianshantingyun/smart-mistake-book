@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.model
 import android.content.Context
 import android.net.Uri
 import com.tingyun.smartmistakebook.core.data.capture.AndroidCanonicalAssetVault
+import com.tingyun.smartmistakebook.core.data.visual.RoomFigureGenerationAuditRecorder
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
@@ -93,6 +94,8 @@ object AttachedImageGeneratorFactory {
         coordinator: FigureGenerationCoordinator?,
     ): AttachedImageGenerator {
         val vault = AndroidCanonicalAssetVault(context.applicationContext)
+        // 审计回填与 coordinator 的 recorder 指向同一张台账（同一个 database 端口）。
+        val audit = RoomFigureGenerationAuditRecorder(database)
         return AttachedImageGenerator(
             lookupExisting = { figureId -> database.readCanonicalSourceAsset(figureId) },
             isIntact = { record -> runCatching { vault.resolve(record) }.isSuccess },
@@ -111,6 +114,7 @@ object AttachedImageGeneratorFactory {
             resolveCurrentSheetBytes = resolveCurrentSheetBytes,
             uriFor = { record -> Uri.fromFile(vault.resolve(record)).toString() },
             coordinator = coordinator,
+            recordOutputAsset = { attemptId, assetId -> audit.attachOutputAsset(attemptId, assetId) },
         )
     }
 }

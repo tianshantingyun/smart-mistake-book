@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.core.data.capture
 
 import android.database.sqlite.SQLiteDatabase
+import com.tingyun.smartmistakebook.core.data.model.sha256Hex
+import com.tingyun.smartmistakebook.core.data.visual.insertFigureGenerationAuditFixture
 import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskRecord
 import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskStatus
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
@@ -133,6 +135,65 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
             "旧修订也不许被挂（SUPERSEDED 的语义是「不挂」，不是「改挂别处」）",
             0L,
             cleanImageLinkCount(committed.problemRevisionId),
+        )
+    }
+
+    /**
+     * F2（T1b 缺口）：保存期净化（不是详情页显式重绘）成功挂接后也必须回填
+     * `figure_generation_attempt.output_asset_id`。此前 `RoomCaptureWorkflowRepository`
+     * 构造 runner 时没注入 `onAttached`，保存期链的产物在审计里永远没有 output。
+     */
+    @Test
+    fun saveTimeCleanRedrawBackfillsTheAttemptOutputAsset() = runBlocking {
+        val attemptId = "figure-attempt:clean-redraw-op:save-time:1:IMAGE_MODEL"
+        insertFigureGenerationAuditFixture(
+            context = context,
+            database = database,
+            databaseName = databaseName,
+            operationId = "clean-redraw-op:save-time",
+            attemptId = attemptId,
+            operationStatus = "RUNNING",
+            attemptStatus = "RUNNING",
+            outputAssetId = null,
+            createdAtEpochMillis = 1_000,
+            updatedAtEpochMillis = 1_000,
+            startedAtEpochMillis = 1_000,
+        )
+        val generated = cleanPngBytes()
+        val repository = redrawRepository(
+            scope = null,
+            generate = {
+                CleanImageResult(
+                    bytes = generated,
+                    mimeType = "image/png",
+                    attemptId = attemptId,
+                )
+            },
+        )
+
+        commitOneMistake(
+            repository = repository,
+            requestId = "clean-redraw-backfill-commit",
+            title = "保存期回填审计题",
+        )
+
+        val outputAssetId = SQLiteDatabase.openDatabase(
+            context.getDatabasePath(databaseName).absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READWRITE,
+        ).use { db ->
+            db.rawQuery(
+                "SELECT output_asset_id FROM figure_generation_attempt WHERE attempt_id = ?",
+                arrayOf(attemptId),
+            ).use { cursor ->
+                assertTrue("审计行必须存在", cursor.moveToFirst())
+                if (cursor.isNull(0)) null else cursor.getString(0)
+            }
+        }
+        assertEquals(
+            "保存期净化成功后必须回填产物资产 id（与 attach 的幂等键同一口径）",
+            "clean-" + sha256Hex(generated),
+            outputAssetId,
         )
     }
 

@@ -488,6 +488,8 @@ class MistakePdfPaperEditTest {
         assertEquals(expected.cleanImageLocalUri, actual.cleanImageLocalUri)
         assertEquals(expected.cleanImageSha256, actual.cleanImageSha256)
         assertEquals(expected.cleanImageByteSize, actual.cleanImageByteSize)
+        assertEquals(expected.questionImageRole, actual.questionImageRole)
+        assertEquals(expected.solutionImages, actual.solutionImages)
         assertEquals(expected.layout, actual.layout)
         assertEquals(expected.userNote, actual.userNote)
     }

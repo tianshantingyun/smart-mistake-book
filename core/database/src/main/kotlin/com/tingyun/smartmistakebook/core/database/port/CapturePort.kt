@@ -14,11 +14,11 @@ interface CaptureReadPort {
     suspend fun readUnreferencedCanonicalAssets(): List<CanonicalSourceAssetRecord>
 
     /**
-     * [readUnreferencedCanonicalAssets] 的**补集**：四表引用口径下仍被任一引用形态
-     * （题面修订、草稿页束、草稿主图、学生消息附图）引用的规范资产行。
+     * [readUnreferencedCanonicalAssets] 的**补集**：五类引用口径下仍被任一引用形态
+     * （题面修订、草稿页束、草稿主图、学生消息附图、图生成尝试产物）引用的规范资产行。
      *
      * 备份成包与恢复前闭合都按它反查"必须进包的题图"（AUD-05）。做成补集而不是第二份
-     * 四表 EXISTS："被引用"的定义仍只有 [readUnreferencedCanonicalAssets] 那一处，
+     * 五类 EXISTS："被引用"的定义仍只有 [readUnreferencedCanonicalAssets] 那一处，
      * 清理与备份不会各自漂开；同时它天然包含"将来新增的引用形态"，不漏收。
      *
      * 默认实现抛异常而不是返回空表：空表在调用方语义里是"没有任何图被引用"，

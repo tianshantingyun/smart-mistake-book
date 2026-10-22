@@ -24,8 +24,9 @@ const val FIGURE_GENERATION_RUNNING_TIMEOUT_MILLIS: Long = 30L * 60L * 1_000L
  *   "启动时偷偷再付一次钱"的路径，也不存在"自动重试死循环"。
  * - **不抹产物**：只改状态/诊断/结束时刻；已回填的 `output_asset_id` 留着——它仍是证据，
  *   且 GC 与备份继续把它当引用（见 `PendingCaptureDao.findUnreferencedCanonicalAssets`）。
- * - **只碰 RUNNING**：`PENDING` 不在这里处理（还没开始跑、也没有在途结论）；已经终态的行
- *   不会被改写（晚到终态不许被对账覆盖）。
+ * - **只碰两类行**：`RUNNING` 僵尸，以及 `SUCCEEDED` 但 `output_asset_id IS NULL` 的
+ *   假成功（协调器先写成功、入口随后才落盘；落盘失败时行会永远"成功但没产物"）。`PENDING`
+ *   不在这里处理（还没开始跑、也没有在途结论）；已回填产物的终态行不会被改写。
  *
  * 租约口径：`staleBefore = max(本进程启动时刻, 现在 - 超时窗口)`。
  * - 启动时：截止 = 本进程启动时刻，上一进程留下的 RUNNING 立刻被收尾（进程都换了，
@@ -87,7 +88,8 @@ class FigureGenerationReconciler(
 }
 
 /**
- * 一次对账的结果：真正从 RUNNING 改成 FAILED 的操作数与尝试数。
+ * 一次对账的结果：真正改成 FAILED 的操作数与尝试数（僵尸 RUNNING + SUCCEEDED 但无产物的
+ * 假成功行）。
  *
  * 计数是"真的改了行"的数，不是"扫到候选"的数——重复对账返回 0，调用方据此判断是否值得
  * 写日志。

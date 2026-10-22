@@ -18,6 +18,7 @@ import com.tingyun.smartmistakebook.core.export.MistakeExportJobRequest
 import com.tingyun.smartmistakebook.core.export.MISTAKE_DOCX_RECORD_PAGE_PLACEHOLDER
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayoutFeature
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -152,7 +153,10 @@ class ExportPdfWorker(
                         displayName = outcome.displayName,
                         // B3-4：请求了但被 fail-closed 跳过的版式功能如实说一句——计数不许蒸发
                         // （与分页器的 PdfPlan.skipped、导出 sheet 的"会跳过"提示同一判据）。
-                        skippedNotice = mistakeExportSkippedNotice(request.layout),
+                        skippedNotice = mistakeExportSkippedNotice(
+                            layout = request.layout,
+                            solutionSectionRendered = outcome.solutionSectionRendered,
+                        ),
                         format = MistakeExportFormat.PDF,
                     )
                 }
@@ -171,7 +175,10 @@ class ExportPdfWorker(
                     app.mistakeExportNotifications.postSucceeded(
                         exportId = request.exportId,
                         displayName = outcome.displayName,
-                        skippedNotice = mistakeExportSkippedNotice(request.layout),
+                        skippedNotice = mistakeExportSkippedNotice(
+                            layout = request.layout,
+                            solutionSectionRendered = outcome.solutionSectionRendered,
+                        ),
                         format = MistakeExportFormat.DOCX,
                     )
                 }
@@ -460,11 +467,19 @@ internal object MistakeExportJobCodec {
 /**
  * 请求了但被 fail-closed 跳过的版式功能 → 完成通知里的如实一句（B3-4）；没有跳过时 null。
  *
- * 与 `MistakePdfPagePlanner` 的 `PdfPlan.skipped`、导出 sheet 的"会跳过"提示读同一份判据
- * （[MistakePdfLayout.unsupportedRequestedFeatures]）——三处不会一处说了另一处没说。
+ * 判据是**计划层的实际结果**：`unsupportedRequestedFeatures()` 只能回答"请求了什么"，
+ * 而 WG-07 起解析区在确有 TUTOR_EXPLANATION 图时会被真的排入、并从 `PdfPlan.skipped`
+ * 移除。因此 [solutionSectionRendered] 来自渲染结果（`MistakeExportJobOutcome`），
+ * 这里据此把 SOLUTION_SECTION 从"已跳过"里去掉——不能一边画出讲解图一边说"已跳过"。
  */
-internal fun mistakeExportSkippedNotice(layout: MistakePdfLayout): String? {
+internal fun mistakeExportSkippedNotice(
+    layout: MistakePdfLayout,
+    solutionSectionRendered: Boolean = false,
+): String? {
     val features = layout.unsupportedRequestedFeatures()
+        .filterNot {
+            it == MistakePdfLayoutFeature.SOLUTION_SECTION && solutionSectionRendered
+        }
     return buildList {
         if (features.isNotEmpty()) add(features.joinToString(separator = "、") { it.studentLabel } + "暂不可用，已跳过。")
         if (layout.includeAnswer || layout.templateId == MistakePdfLayout.TEMPLATE_WITH_ANSWERS)

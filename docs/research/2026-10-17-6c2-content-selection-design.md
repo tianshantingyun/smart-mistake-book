@@ -449,6 +449,9 @@ v3 的写侧只写 3；读侧 `MIN_READABLE_FORMAT_VERSION` 保持 1（`:81`）�
 
 ### 5.1 v3 清单结构
 
+> v2 更新（2026-10-21）：`closureVersion=2`、`selection.schemaVersion=2`、`rowCounts` 覆盖 86 表、
+> `trimmedTableCount` 上限 78；现行规则与机器清单见 §9.7 / §9.11。
+
 ```jsonc
 {
   "formatVersion": 3,                 // 2 → 3；读侧 MIN_READABLE 仍为 1
@@ -517,6 +520,8 @@ digest = SHA-256(  "smbk-selection-v1\n"
 
 ### 6.1 待裁定（3 条需要人裁；其余为实施时自决并登记）
 
+> 2026-10-21 T8：①/②/③ 三项仍未裁定；§9.9 只列影响面，不代签，也不选默认。
+
 | # | 项 | 选项 | 影响 | 建议 |
 | --- | --- | --- | --- | --- |
 | ① | 「仅图片」组合（mask=8）是否在 UI 提供 | a) 不提供；b) 提供并提示 | a) 少一个无意义入口；b) 用户能导出一包**恢复后会被孤儿回收清掉**的图 | **a**（§1.5 的宽限期证据） |
@@ -544,7 +549,23 @@ digest = SHA-256(  "smbk-selection-v1\n"
 
 ---
 
+## 7. 统一生图接入后的闭包补充（2026-10-18）
+
+> 2026-10-21 T8：本节 5 个复选项仍未勾；schema 69 的机器清单重算与用例展开见 §9。
+> 其中 JS/预览/未知程序版本仍为前向设计（schema 69 没有对应表），不得写成已覆盖。
+
+本节承接[4E的WG-08](../superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md#wg-08状态预算恢复与备份)与[后续计划](../../.zcode/plans/plan-2026-10-18-followup-figure-wiring.md)。旧schema66的84表/90边/5组合法选择是原探针快照，不代表加入新图表后仍成立；本次不把尚未迁移的表写进附录A机器JSON，也不声称已重跑Android恢复。
+
+- [ ] 实际4E迁移落地后，从最新Room导出重新生成类别/FK/软引用/裁剪顺序及closureVersion/digest，覆盖六个拟新增记录表与旧作业operation关联，不写死版本68或旧84表数量。
+- [ ] 题目/消息引用作为保留根计算JS程序、快照、必要预览及canonical图像的可达闭包；同一程序被保留题目和被删除会话共用时仍须保留，不能按整表类别删除。共享operation/attempt按存活宿主与引用分行筛选，扩展现有SPLIT机制，不全部归SESSIONS或IMAGES。
+- [ ] 程序和快照作为持久事实、预览/字体版本与图像字节按实际引用进入清单；不可把JS预览当唯一图事实。必要文件缺失/hash不符在交换前拒绝，未固定派生缓存按既有可重建规则处理。
+- [ ] 增加混合JS/IMAGE_MODEL、共享图双根、删除会话保留题、不同selection、未知程序版本、缺预览、源revision改变的成包/恢复用例；历史查看/导出0模型派发，恢复ledger不归零，不复活外发授权。
+- [ ] 本设计沿用快照库裁剪、不动实时库；其基于VACUUM的路线需先解决KD-53大库上限与KD-54快照写饥饿并设备复验。不能用内容勾选扩展绕过已有备份正确性问题，也不在本节替未决产品选项代签。
+
 ## 附录 A · 类别 → 表（机器可读，唯一数据源）
+
+> **历史版本**：本附录是 schema 66 的机器清单（84 表 / 90 边），已被 §9 的 v2（schema 69）取代；
+> 保留为研究证据，实施不得据此写代码。当前清单以 §9.11 的 `6c2-plan-v2` 块为准。
 
 > 本块由自检脚本解析（`<!-- 6c2-plan:begin -->` 标记内）。改动只改这里，
 > 然后重跑附录 E 的校验——脚本会把「文档」与「Room schema 导出的真实 FK 图」逐条对拍。
@@ -970,3 +991,1228 @@ PRAGMA integrity_check;                                    -- 期望 'ok'
 | 迁移期外键关闭 / Room 在 onOpen 开外键 | `FavoriteAndManualDraftMigration_66_67.kt:18-20`（他线在飞，只读）；`KernelWave0Migration_53_54.kt:63-66`；`RoomBackupSupportStore.kt:107-135` |
 | 66→67 的 DDL 差异（不新增/不删 FK 边） | `FavoriteAndManualDraftMigration_66_67.kt:46-48`（加列）、`:54-75`（`problem_draft` 重建，FK 逐字不变、仅 `source_asset_id` 变可空）、`:78-142`（视图加列） |
 | schema 事实（84 表 / 2 视图 / 90 条 FK 边） | `core/database/schemas/…/66.json`（机器导出，identityHash `f1cf3cdf…`）；`67.json` 尚未导出（`ls` 实测，只有 6–66 共 66 份） |
+
+
+## 8. 2026-10-19 产品纠错与备份前置补充
+
+> schema 69 的清单重算、共享 operation/attempt 行规则与 §7 用例展开见 §9。
+
+先完成[PRD-07](../superpowers/plans/2026-10-19-product-readiness-followup-plan.md)的KD-53/54/47，再扩内容勾选。现有VACUUM方案不能长期占Room写连接；旧API fallback必须有真实写者屏障与checkpoint结果核验，不能仅靠“空闲”注释。独立连接/增量备份的支持度以实际驱动/设备证据为准。
+
+- [ ] PRD-02/03新增题/键版本、纠正/撤销事件、源引用和待重放回执后，按实际schema重新枚举FK与软引用。学习记录保留其必要键/题版本/目标证据，不能勾掉会话后把有效证据来源一起丢失。
+- [ ] 纠正中/重放中备份恢复要保持持久回执与一致有效视图，恢复后本地续处理但不自动发送外部请求；删会话保题与两方法共享图继续沿第7节闭包规则。
+- [ ] 本文旧schema66机器附录/SQL是历史研究证据，不改成新schema已验；实际迁移落地后另出新版清单与往返报告。
+
+## 9. schema 69 机器清单重算（T8，2026-10-21）
+
+> 状态：**只写文档，未实现**。§7 的 5 个复选项仍未勾；本文不声称 6C-2 已落地、已通过门禁或已在设备上验证。
+> 上游：计划 `.zcode/plans/plan-2026-10-21-batch-17-wg08-wg06-wg07.md:87-89`、批次 17 基线
+> `docs/research/2026-10-22-batch-17-baseline.md:151-156`、T1a 交付的 schema 69。
+> 本节取代附录 A 作为**当前**机器清单；附录 A 保留为 schema 66 的历史研究证据，实施不得再按它写代码。
+
+### 9.0 结论摘要
+
+1. schema 69 是 **86 表 / 2 视图 / 92 条 FK 边**（66 与 68 均为 84 / 2 / 90）。新增
+   `figure_generation_operation`、`figure_generation_attempt` 两表，新增
+   `tutor_message_source_asset.role`、`tutor_message_source_asset.basis_revision_id`、
+   `clean_redraw_task.operation_id`、`problem_revision_source_asset.ordinal` 四列。
+   证据：`69.json`（version 69，identityHash `6633b7c2fe223041c4a2927203853f4f`）；
+   `FigureGenerationMigration_68_69.kt:35-49`。
+2. 84 张旧表的类别**不变**（ISSUE_BOOK 30 / MASTERY 35 / SESSIONS 6 / IMAGES 1 / ALWAYS 7 /
+   DERIVED 2 / SPLIT 3）。两张新表加入 SPLIT，成为**行级 split 家族**：不新设类别，也不整表归
+   SESSIONS 或 IMAGES。86 张表全覆盖、无重复（§9.2、§9.12）。
+3. 类别闭包仍是 **5 条边**，未变。新边 `attempt→operation` 是家族内边；新边
+   `attempt→canonical_source_asset` 是行级边，且 attempt 的行类别只能落在 ISSUE_BOOK 或 SESSIONS，
+   两者本来都蕴含 IMAGES（§9.3）。
+4. 软引用清单从 38 条收缩为 **20 条**：删除 4 条“其实已是硬 FK / 空 target”的旧条目，
+   新增 3 条 69 新列/新表条目、补列 1 条旧漏项，并把检查口径从“**悬空必须 0 行**”改为
+   “**裁剪后悬空集合 ⊆ 裁剪前悬空集合**”。这不是放宽：删会话路径
+   `TutorConversationDao.kt:570-580` 只删消息与会话，`model_task`、`learner_chat_evidence` 等
+   历史软引用本来就会悬空；零行检查会拒绝合法用户的备份（§9.4）。
+5. 共享 operation/attempt 采用**两级行级筛选**：先按宿主类别取种子（`source_kind`），再把
+   “产出资产仍被存活根引用”的 operation/attempt 拉回；attempt 的 `output_asset_id` 会钉住资产，
+   成为**第 5 个资产引用站点**。全选跳过行筛选；真子集遇未知 `source_kind` fail-closed（§9.5）。
+6. 裁剪顺序 **78 项**（旧 76 + 2），在 `problem_draft` 与 `canonical_source_asset` 之间插入
+   attempt→operation。旧 76 项在 69 的 FK 图上仍是合法拓扑序（0 违规）；`canonical_source_asset`
+   移到第 50 位，仍早于 `problem_revision`(73) / `problem`(74)（§9.6）。
+7. `closureVersion` 1→2；`closureDigest` 前缀改为 `smbk-selection-v2`，`rowCounts` 覆盖 86 表；
+   给出空库全选 golden `d6ec73ac…`。当前 `SmbkArchiveCodec.FORMAT_VERSION=2`（`:78`），
+   当前写侧 `FORMAT_VERSION=2`，v3 选择包只存在于 §5.1 草案、未实现过 v3 写侧，因此不存在需要兼容的
+   v1 选择包（§9.7）。
+8. §7 的七类用例已展开为 C1–C7，外加 C8 横切检查，全部标注“设计用例，未执行”。其中 JS、
+   预览、未知程序版本因 schema 69 没有对应表，只能作为前向设计，不能声称已覆盖（§9.8）。
+9. 三项待用户裁定（mask=8 仅图片、mask=0 空选择、派生索引恒裁）**仍未裁定**；机器清单用
+   `OPEN` 标记，不选默认、不代签。§6.1 其余 5 项同样未决（§9.9）。
+10. 工作树已有 T1b/T5 在飞改动（audit recorder、`sourceKind`、五站点资产引用），但未提交、未跑
+    门禁；T2a 保存复制仍需核对。6C-2 启用裁剪前，必须把这些在飞改动与 §9.5 的行规则对齐并跑门禁；
+    本清单不把在飞代码当已验收（§9.10）。
+
+### 9.1 schema 69 的事实
+
+| 项 | 66 / 68 | 69 | 证据 |
+| --- | --- | --- | --- |
+| 表（Room entity） | 84 | 86 | `69.json` `entities` |
+| 视图 | 2（`library_catalog`、`knowledge_question_lattice`） | 同左 | `69.json` `views` |
+| FK 边 | 90 | 92 | `69.json` 逐表 `foreignKeys` |
+| identityHash | 66 `f1cf3cdf…` / 68 `607250e5…` | `6633b7c2fe223041c4a2927203853f4f` | `69.json` |
+| 新增表 | — | `figure_generation_operation`、`figure_generation_attempt` | 迁移 `:52-88` |
+| 新增列 | — | 上述四列 | 迁移 `:38-41`、`:108-132` |
+
+新增表的约束（DDL 见 `FigureGenerationMigration_68_69.kt:52-102`；T1a 自报与 `69.json` 逐字一致，
+本轮未跑 T1a 的契约测试）：
+
+| 表 | 主键 / 唯一 | 外键 | 索引 |
+| --- | --- | --- | --- |
+| `figure_generation_operation` | `operation_id` PK | 无（`source_kind/source_id` 是多态弱引用，故意不建 FK） | `(source_kind, source_id)`、`(status, updated_at_epoch_millis)` |
+| `figure_generation_attempt` | `attempt_id` PK；`(operation_id, attempt_ordinal)` UNIQUE | `operation_id → figure_generation_operation` RESTRICT；`output_asset_id → canonical_source_asset` RESTRICT | `output_asset_id` |
+
+四列的旧行语义（迁移不回填、不猜）：
+
+- `tutor_message_source_asset.role`：NULL = 旧行角色未知；CLEAN_IMAGE / TUTOR_EXPLANATION /
+  SOURCE_EVIDENCE 由 T1b/T2a 写。
+- `tutor_message_source_asset.basis_revision_id`：NULL = 旧行没有冻结 basis。
+- `clean_redraw_task.operation_id`：NULL = 历史净化作业没有生成操作台账。
+- `problem_revision_source_asset.ordinal`：NOT NULL DEFAULT 0；旧行 = 单一源图第 0 张。
+
+视图不参与裁剪：它们没有行，DDL 也不动；裁剪后基表仍存在（可能为空），视图继续可查询。
+`room_master_table` 与 `sqlite_sequence` 同样不动（沿用 §2.4-6 的 v1 约束）。
+
+### 9.2 类别（v2）
+
+84 张旧表的类别逐字沿用 v1 附录 A（覆盖校验见 §9.12）；新增两张表进 SPLIT。完整表清单见 §9.11
+的机器块，这里只给口径与计数：
+
+| 类别 | 位 | 表数 | v2 变化 |
+| --- | --- | --- | --- |
+| ISSUE_BOOK 错题本 | 1 | 30 | 不变 |
+| MASTERY 掌握库 | 2 | 35 | 不变 |
+| SESSIONS 会话 | 4 | 6 | 不变 |
+| IMAGES 图片 | 8 | 1（`canonical_source_asset`） | 不变；资产**行**策略见 §9.5 |
+| ALWAYS 恒随包 | — | 7 | 不变 |
+| DERIVED 恒裁/待裁定 | — | 2 | 是否恒裁仍是三项待裁定之一（§9.9-③） |
+| SPLIT 按行 | — | 5（旧 3 + 新 2） | 新增 `figure_generation_attempt`、`figure_generation_operation` |
+
+`figure_generation_operation` 的归属按 `source_kind` 决定：
+
+| `source_kind` | 类别 | 当前写入者 / `source_id` 实际值 | 状态 |
+| --- | --- | --- | --- |
+| `TUTOR_MESSAGE` | SESSIONS | T1b 在飞：`parentOperationId ?: operationId`（`TutorFigureGenerator.kt:375`、`:391-392`）、`parentRequestId`（`AttachedImageGenerator.kt:182`）、`parent.requestId`（`DefaultFigureGenerationCoordinator.kt:504-514` 旧调用回退）。**不保证能反查到 `tutor_message` 行** | 在飞（未提交 / 未跑门禁） |
+| `PROBLEM_REVISION` | ISSUE_BOOK | 枚举已存在（`FigureGeneration.kt:67-79`）；**生产无写入者**（只有测试构造）；意图是 revision id | 保留 / 未验证 |
+| `CLEAN_REDRAW` | ISSUE_BOOK | T1b 在飞：父为 `CleanRedrawTask` 时 `taskId`；父为 `ModelTask` 时 `parent.requestId`（`ConfiguredCleanImageGenerator.kt:110-113`） | 在飞（未提交 / 未跑门禁） |
+| `CAPTURE_PARSE` | ISSUE_BOOK | 枚举已存在；**生产无写入者**；意图是采集解析的草稿/作业 id | 保留 / 未验证 |
+
+为什么不能整表归 SESSIONS 或 IMAGES：一条 `TUTOR_MESSAGE` 来源的 operation 完全可能产出被保存题
+revision 引用的干净图；mask=9（错题本+图片，不含会话）删会话时，这条 operation 必须因为
+“产物仍被存活题目引用”而保留（§9.5）。整表归 SESSIONS 会把它删掉、丢失来源；整表归 IMAGES 又会
+把已删会话的生成历史带进“只要图片”的包。两者都违反“按存活宿主与引用分行”。
+
+这张表的重点是**类别**，不是 `source_id` 的行语义。§9.5 的 O_seed 只看 `source_kind`，**不反查**
+`source_id` 指向哪一行；机器块把 `source_id` 的软引用标为 `informational`，原因就在这里。工作树
+已有 T1b 在飞改动（新 `FigureGenerationAuditRecorder.kt` / `RoomFigureGenerationAuditRecorder.kt`、
+修改 `DefaultFigureGenerationCoordinator.kt`、新增 `FigureGenerationSourceKind`），本轨只读、未跑
+门禁，不能把它们当成已验收事实。
+
+`PROBLEM_REVISION` / `CAPTURE_PARSE` 的枚举已存在，但生产入口没有写入者（只有测试构造）；
+`ModelEgress.kt:99-103` 同样把 `PROBLEM_RELATE` / `TUTOR_EVALUATE` / `REVIEW_RERANK` 标为无出网映射。
+这两项在机器块里标 `RESERVED` / `verified:false`，不得当成已被真实数据验证的映射。
+
+### 9.3 FK 闭包（v2）
+
+推导规则不变：**外键子表被选中 ⇒ 父表类别必须被选中**；同类边、指向 ALWAYS 的边不计。
+把 69 的 92 条边按“表→类别”折叠后，去掉同类/ALWAYS 边，剩下的仍是 5 条：
+
+```
+ISSUE_BOOK ⇒ IMAGES
+SESSIONS   ⇒ ISSUE_BOOK
+SESSIONS   ⇒ IMAGES
+MASTERY    ⇒ ISSUE_BOOK
+MASTERY    ⇒ SESSIONS
+```
+
+传递闭包：`MASTERY` 仍等于全选（MASTERY⇒SESSIONS⇒ISSUE_BOOK⇒IMAGES）。新增的两条边不改变它：
+
+| 新边 | 类型 | 为什么不新增类别边 |
+| --- | --- | --- |
+| `figure_generation_attempt.operation_id → figure_generation_operation.operation_id` | 家族内 RESTRICT | 父子同属一个 split 家族，按同一条行规则同进同退 |
+| `figure_generation_attempt.output_asset_id → canonical_source_asset.source_asset_id` | 行级 RESTRICT | attempt 的行类别只能是 ISSUE_BOOK 或 SESSIONS；两者都已蕴含 IMAGES。若未来新增一个不蕴含 IMAGES 的 `source_kind` 类别，闭包校验必须先红 |
+
+这四列都没有新增 FK：`role`/`ordinal` 不是引用；`basis_revision_id`、`operation_id` 是软引用
+（§9.4）。因此“新增 FK 边 ⇒ 重算闭包”的规则在 69 上只产生上述两条边，5 条类别边不变。
+
+机器块的 `rowLevelEdges` 还列了 model_task 家族原有的三条 split 边：`model_task_event →
+model_task`、`model_task → model_task_operation`、`tutor_answer_exposure → model_task`。它们被类别
+折叠排除，但仍是硬 FK；前两条由同一 `task_kind` 谓词三级删除保证，第三条的正常 kind 是
+`TUTOR_*`（SESSIONS），与 exposure 同类同删。若出现异常 kind，I1 的 `foreign_key_check` 会兜底，
+不会静默产出悬空库。
+
+组合合法性由闭包直接给出（枚举全部 16 个 mask 的校验见 §9.12）：
+
+- 闭包自洽：`0`、`8`、`9`、`13`、`15`。
+- 非法（子类别缺父类别）：`1`–`7`、`10`–`12`、`14`；仓储层必须拒绝，不静默补齐。
+- `8` 与 `0` 虽然闭包自洽，但属于三项待裁定（§9.9-①/②），机器块标 `OPEN`，不是“已允许”。
+
+### 9.4 软引用（v2）
+
+v1 的 38 条清单有几条已经与 66 之后的 schema 漂开；v2 先做**范围收缩**，再做**口径修正**：
+
+- 只列**跨类别、跨 split 家族、指向资产、指向 ALWAYS、或需要 FTS 对齐**的引用。
+- 同类别内部引用（例如 `clean_redraw_task.revision_id → problem_revision`、`review_queue_item →
+  review_queue`）随整个类别同删同留，不逐条校验；旧清单里的这类条目只作历史样本。
+- `opaqueColumns` 明确列出“名字像引用、其实不是行引用”的列，避免下一个人再把它塞回软引用表。
+
+因此 38→20 **不是** 38−4+3 的算术：同类别内部条目整体退出校验清单，下面 4 条删除与 3 条新增是
+**边界条目**的增减；完整 20 条见 §9.11。
+
+#### 9.4.1 删除的旧条目（4 条）
+
+| 旧条目 | 为什么删 | 证据 |
+| --- | --- | --- |
+| `knowledge_grounding_resolution.knowledge_node_id → knowledge_node` | 69 里已是硬 FK | `69.json` 该表 `foreignKeys` |
+| `attempt_event.submission_id → attempt_submission` | 已是硬 FK | 同上 |
+| `assessment_evidence_attribution.knowledge_node_id → knowledge_node` | 它是复合 FK 的一列（→ `practice_unit_knowledge_binding`），不是独立软引用 | 同上 |
+| `review_queue_item.item_family_id → ""` | 空 target；实际值是 `ITEM_FAMILY_ID_PREFIX + practice_unit_id`，是家族令牌不是行主键 | `StudyPracticeUnitFacts.kt:121` |
+
+`library_search_fts.docid` 保留，但标 `virtual:true`：它是 FTS4 外部内容表的虚拟列，schema 实体
+字段里没有它；检查方式是 rebuild 之后 `docid` 孤儿数为 0，而不是一般软引用 SQL。
+
+#### 9.4.2 新增 / 重算的条目（3 条）
+
+| 条目 | 类别 | 强度 | 说明 |
+| --- | --- | --- | --- |
+| `tutor_message_source_asset.basis_revision_id → problem_revision` | cross-category（SESSIONS⇒ISSUE_BOOK，已闭包） | strong | 69 新列；NULL=旧行未知；非空且源行存活时必须可解析 |
+| `clean_redraw_task.operation_id → figure_generation_operation` | split-family | strong | 69 新列；NULL=历史作业；非空且 task 存活时必须可解析（§9.5 的 O_seed 会保住它） |
+| `figure_generation_operation.source_id → *source-hint*` | split-family | **informational / weak-host-hint** | 只按 `source_kind` 分类；**不保证 `source_id` 指向宿主行**（T1b 在飞值是父操作/请求 id，§9.2）；共享图保留时来源行可能已删，不能算悬空失败；真子集遇未知 `source_kind` fail-closed |
+
+补列：`clean_redraw_task.subject_id → problem_draft`（旧清单漏列；`CleanRedrawTaskRunner.kt:28` 说明它
+是提交路径的草稿 id；same-category / weak-host-hint，草稿提交后允许悬空）。它不随 69 新增，但属于
+“名字像引用”的真实列。
+
+另外两条旧的 `model_task.subject_id` / `model_task_operation.subject_id` 从“cross-category”改标
+`by-kind`：TUTOR_* 行的目标是 SESSIONS（同类），CAPTURE/PROBLEM 行的目标是 ISSUE_BOOK（同类），
+`IMAGE_PIPELINE_CLASSIFY` 的目标可能是资产（IMAGES，ISSUE_BOOK 已蕴含），`KNOWLEDGE_QUIZ` /
+`REVIEW_RERANK` 的目标是 ALWAYS。它们不是单一类别边，不能用一个 `cross-category` 标签糊过去。
+
+#### 9.4.3 检查口径：no-new-dangling，而不是 0 行
+
+v1 要求每条检查 SQL 返回 0 行。69 之后这条口径会**拒绝合法备份**，证据是删会话路径：
+
+`TutorConversationDao.deleteConversation`（`:570-580`）只做 `deleteMessages` + `deleteConversationRow`。
+`model_task`、`learner_chat_evidence`、`tutor_answer_exposure` 等没有指向 `tutor_conversation` 的
+级联外键，删会话后它们的 `subject_id` / `conversation_id` / `session_id` 会留在库里悬空。
+用户删过会话再备份，0 行检查会失败——但数据并没有被裁剪破坏，它只是本来就带着历史悬空。
+
+v2 的 I4 因此改为：
+
+1. 在任何 DELETE 之前，对每条 `check=no-new-dangling` 的软引用跑一次，记下悬空的**源行主键集合**
+   `D_pre`（按 check id 分组）。
+2. 裁剪后再跑一次，得 `D_post`。
+3. 断言 `D_post ⊆ D_pre`（只允许减少或不变，不允许新增）。
+4. `figure_generation_operation.source_id` 不参与这个断言（`check=informational`）：共享图保留时
+   来源行可能已删（且 `source_id` 本来就未必是行主键），这是行级规则的预期结果。
+5. `library_search_fts.docid` 走 rebuild 后的孤儿数核对；`always` 引用只作说明（目标恒在）。
+
+这条口径消灭的具体失败：**删过会话的用户无法再创建子集备份**。它仍然抓住真正的裁剪损坏：
+如果裁剪把某个选中类别的目标行删掉、导致源行新悬空，`D_post` 会多出 `D_pre` 里没有的键，成包失败。
+
+恢复侧（S3）不能重放 `D_pre`，因此只做**结构性**检查：闭包、硬 FK、以及 §9.5 的 figure 行规则
+可完全重算；同类别历史悬空只报诊断，不拒绝。残余风险：第三方重裁如果只新增同类别悬空、且行数
+不变，`closureDigest` 抓不到；这是 v2 已知的限制，登记在 §9.10，不用一个未实现的摘要字段假装解决。
+
+### 9.5 共享 operation / attempt 的行级规则
+
+#### 9.5.1 为什么必须按行
+
+一张 `figure_generation_operation` 没有指向宿主的外键，只有 `(source_kind, source_id)` 弱引用。
+同一条 operation 的产物资产可能同时被：
+
+- 一条 `tutor_message_source_asset`（SESSIONS，消息附图 / 讲解图）引用；
+- 一条 `problem_revision_source_asset`（ISSUE_BOOK，保存后的题面/干净图）引用。
+
+mask=9 删 SESSIONS 时，消息链接被删，但题面 revision 的链接还在。如果按整表 SESSIONS 删
+operation/attempt，就会出现“题目还引用着资产，但产出它的操作台账没了”；如果按整表 IMAGES 保留，
+又会把已删会话的所有生成历史带进包。所以必须按**存活宿主 + 存活引用**逐行决定。
+
+这里的“宿主存活”按 `source_kind` 的**类别**是否被选中判定，**不按 `source_id` 反查行**：T1b 在飞
+写入的 `source_id` 是父操作/请求 id，不保证能反查到消息/草稿行（§9.2）。引用侧才是真正的行级判据：
+`output_asset_id` 是否仍被存活根引用（O_ref）。
+
+#### 9.5.2 算法（与 §9.11 的 `figureRowFilter.steps` 同一份事实）
+
+在**同一个快照事务**内、任何 DELETE 之前：
+
+1. **根资产集 R**：按选择读四张根引用表——
+   `problem_revision_source_asset`、`problem_draft_source_asset`、`problem_draft.source_asset_id`
+   （仅当 ISSUE_BOOK 选中）；`tutor_message_source_asset`（仅当 SESSIONS 选中）。
+   `IMAGES` 选中但题/会话未选中时 R 为空。
+2. **种子 operation O_seed**：
+   - SESSIONS 选中 ⇒ `source_kind='TUTOR_MESSAGE'` 的全部 operation；
+   - ISSUE_BOOK 选中 ⇒ `source_kind IN ('PROBLEM_REVISION','CLEAN_REDRAW','CAPTURE_PARSE')` 的全部 operation；
+   - 再加存活 `clean_redraw_task.operation_id` 指向的 operation（即使 source_kind 与预期不一致，也保住）。
+   - O_seed **只看 `source_kind` 的类别，不反查 `source_id` 的宿主行**：T1b 在飞实现的 `source_id` 是
+     `parentOperationId` / `parentRequestId` / `operationId` 一类父操作身份，不是统一的行主键
+     （§9.2）。把“宿主行存在”当种子条件会误删合法操作。
+3. **被引用 operation O_ref**：`output_asset_id ∈ R` 的 attempt 所属 operation。它们可能来自未选中的
+   宿主类别（被删会话/被删草稿），因为图仍被保存题引用。
+4. `O_keep = O_seed ∪ O_ref`。
+5. `A_keep` = `operation_id ∈ O_keep` 的**全部** attempt，外加 `output_asset_id ∈ R` 的 attempt
+   （后者通常已被前者覆盖，显式写出是为了不依赖顺序）。
+6. `P = R ∪ A_keep 的非空 output_asset_id`。这是打包资产集，也是第 5 个资产引用站点。
+7. 先 `DELETE figure_generation_attempt WHERE attempt_id ∉ A_keep`，再
+   `DELETE figure_generation_operation WHERE operation_id ∉ O_keep`。
+
+为什么 `A_keep` 取“O_keep 的全部 attempt”而不是只留被引用的那一条：attempt 行是 operation 的
+审计历史；保留一条、删掉同 operation 的其他 attempt 会让 `used_remote_dispatches` 这类审计镜像
+与行数对不上。全留的代价是这些 attempt 的 `output_asset_id` 都要进 P——这与 T5 的 GC 口径
+（`attempt.output_asset_id` 钉住资产）一致，不是额外扩张。
+
+#### 9.5.3 SQL 形状（参数绑定，不拼串）
+
+```sql
+-- 预扫：必须在第 1 条 DELETE 之前执行
+CREATE TEMP TABLE kept_asset(asset_id TEXT PRIMARY KEY);
+INSERT INTO kept_asset
+SELECT source_asset_id FROM problem_revision_source_asset WHERE :issue_book = 1
+UNION SELECT source_asset_id FROM problem_draft_source_asset WHERE :issue_book = 1
+UNION SELECT source_asset_id FROM problem_draft
+      WHERE :issue_book = 1 AND source_asset_id IS NOT NULL
+UNION SELECT source_asset_id FROM tutor_message_source_asset WHERE :sessions = 1;
+
+CREATE TEMP TABLE kept_operation(op_id TEXT PRIMARY KEY);
+INSERT INTO kept_operation
+SELECT operation_id FROM figure_generation_operation
+ WHERE (:sessions = 1 AND source_kind = 'TUTOR_MESSAGE')
+    OR (:issue_book = 1 AND source_kind IN
+        ('PROBLEM_REVISION','CLEAN_REDRAW','CAPTURE_PARSE'));
+INSERT OR IGNORE INTO kept_operation
+SELECT o.operation_id FROM figure_generation_operation o
+ WHERE EXISTS (SELECT 1 FROM figure_generation_attempt a
+               JOIN kept_asset k ON k.asset_id = a.output_asset_id
+               WHERE a.operation_id = o.operation_id);
+INSERT OR IGNORE INTO kept_operation
+SELECT operation_id FROM clean_redraw_task
+ WHERE :issue_book = 1 AND operation_id IS NOT NULL;
+
+CREATE TEMP TABLE kept_attempt(attempt_id TEXT PRIMARY KEY);
+INSERT INTO kept_attempt
+SELECT attempt_id FROM figure_generation_attempt
+ WHERE operation_id IN (SELECT op_id FROM kept_operation)
+    OR output_asset_id IN (SELECT asset_id FROM kept_asset);
+
+-- 真子集：未知 kind 且未被共享引用拉回 → 失败并报出 operation_id（期望 0 行）
+SELECT operation_id FROM figure_generation_operation
+ WHERE source_kind NOT IN (:k1, :k2, :k3, :k4)
+   AND operation_id NOT IN (SELECT op_id FROM kept_operation);
+
+-- 到裁剪位置时
+DELETE FROM figure_generation_attempt
+ WHERE attempt_id NOT IN (SELECT attempt_id FROM kept_attempt);
+DELETE FROM figure_generation_operation
+ WHERE operation_id NOT IN (SELECT op_id FROM kept_operation);
+```
+
+`attempt_id` / `operation_id` 都是 NOT NULL 主键，`NOT IN` 不会遇到 NULL 语义陷阱。
+未知 `source_kind`：真子集在预扫阶段，凡未知 kind 且**不在 O_keep** 的 operation → 直接失败并报出
+`operation_id`，不猜、不整表归档；已被共享产物（O_ref）或存活 `clean_redraw_task.operation_id`
+拉入 O_keep 的未知 kind → 保留（它是存活图的来源，不需要分类）；全选（mask=15）跳过行筛选，
+未知 kind 原样保留。将来新增 kind 并写入映射时必须 bump `closureVersion`。
+
+#### 9.5.4 资产第 5 站点（硬前置）
+
+`figure_generation_attempt.output_asset_id` 是 RESTRICT 外键。只要 attempt 行在包里，资产行与
+文件就必须在包里。已提交基线的资产引用口径是四表（`PendingCaptureDao.kt:30-61`）；工作树的 T5
+在飞改动已把第五支 `figure_generation_attempt.output_asset_id` 加进
+`findUnreferencedCanonicalAssets`（当前 `PendingCaptureDao.kt:31-78`，第五支在 `:71-74`），
+`readReferencedCanonicalAssets` 仍取它的补集（`RoomStudyDatabase.kt:874-881`）。本轨只读、未跑测试。
+6C-2 必须复用同一口径；若该在飞改动不随批次落地，6C-2 不得启用裁剪，否则会出现：
+
+- 裁剪保留了 attempt（因为宿主或引用），但 `readReferencedCanonicalAssets` 看不到它；
+- I5 按四表口径通过，成包成功；
+- 恢复后的库里 attempt 指向的资产文件不在包内——图丢了，但没人报错。
+
+机器块把 `assetPinRule.sites` 写成 5，并把“I5 与 readReferencedCanonicalAssets 必须同源”写进
+`figureRowFilter.steps`。该在飞改动未随批次落地时，6C-2 不得启用裁剪。
+
+#### 9.5.5 四个走查
+
+| 场景 | R | O_seed | O_ref | 结果 |
+| --- | --- | --- | --- | --- |
+| 双根共享图：O(TUTOR_MESSAGE)→A，A 同时被消息 M 与 revision Rv 引用；mask=9 | A（revision 链接；消息链接被删前不计） | 不含 O（SESSIONS 未选） | 含 O（A∈R） | A+文件进包；O 及其全部 attempt 保留；消息链接删；revision 链接在；恢复详情有图 |
+| 删会话后再备份：M 已删，A 仍被 Rv 引用；mask=9 | A | 不含 O | 含 O | O 保留；`source_id` 可能悬空或本就指向父请求，`check=informational`，不触发 no-new-dangling；A 进包 |
+| 只在消息里出现、未保存到题的图；mask=9 | 不含 A | 不含 O | 不含 O | O/attempt 先删；canonical 行按 IMAGES 整表保留，文件不进包；恢复后由孤儿回收处理 |
+| 全选 mask=15 | 不适用 | 不适用 | 不适用 | 跳过行筛选，整表保留（含未知 kind / JS 行） |
+
+去重注意：`canonical_source_asset.content_sha256` 有唯一索引（`69.json`），同一资产可能被多次
+attempt 产出、被多条根引用指向。O_ref 会把所有产出它的 operation 拉回，不能假设“一条资产只有一个
+attempt”。
+
+### 9.6 裁剪顺序（v2）
+
+78 = 86 表 − 7 ALWAYS − 1 `library_search_fts`（虚拟表由 rebuild 收尾）。v2 的 78 项在 69 的 FK 图上
+逐边校验 0 违规；旧 76 项是它的子序列、相对顺序未改。v2 只在 `problem_draft`(47) 与
+`canonical_source_asset` 之间插入两项：
+
+```
+43 clean_redraw_task
+47 problem_draft
+48 figure_generation_attempt     ← 新增；必须在 operation 与 asset 之前
+49 figure_generation_operation   ← 新增；attempt 的父
+50 canonical_source_asset        ← 原 48，后移 2
+51 batch_import_job              ← 原 49，后移 2
+```
+
+被后移的关键位置（旧 → 新）：`attempt_event` 63→65、`answer_reveal_outcome` 67→69、
+`assessment_answer_reveal_event` 68→70、`assessment_evidence_snapshot` 69→71、`practice_unit` 70→72、
+`problem_revision` 71→73、`problem` 72→74、`model_task` 58→60、`model_task_operation` 59→61。
+v1 附录 B 的“最容易写错的四处”按新序号重写：
+
+- `canonical_source_asset`(50) 早于 `problem_revision`(73)/`problem`(74) 是**对的**：引用它的 link 表
+  与 draft 已先删；
+- `answer_reveal_outcome`(69) 必须早于 `assessment_answer_reveal_event`(70)；
+- `attempt_event`(65) 必须早于 `assessment_evidence_snapshot`(71)；
+- `model_task`(60) 必须早于 `model_task_operation`(61)（后者是前者的父）。
+
+新增两项的顺序理由：`attempt` 同时 RESTRICT 引用 `operation` 与 `canonical_source_asset`，所以必须
+最先删；`operation` 只被 attempt 与 `clean_redraw_task.operation_id` 引用，放在 attempt 之后、asset
+之前即可。`clean_redraw_task`(43) 早于 `operation`(49) 不构成悬空：若 task 存活，§9.5 的 O_seed 会把
+operation 保住；若 task 被删，软引用随行消失。
+
+预扫（§9.5.3）必须在第 1 条 DELETE（`tutor_message_source_asset`）之前完成，因为四张根引用表在
+顺序里很靠前；不能等删到第 48 位再回头找“哪些资产原本被引用”。
+
+`canonical_source_asset`：IMAGES 选中时跳过整表删除（v2 语义）；IMAGES 未选中（当前只有 mask=0，
+待裁定）时整表删。`figure_generation_attempt/operation` 是**谓词删除**，不是整表删。
+`model_task` 家族仍是按 kind 的同谓词三级删除，三处共用同一个 kind 集合（§2.4-7 不变）。
+`library_search_fts` 不在顺序里；`ISSUE_BOOK` 未选中（mask 0/8）导致 `library_search_content` 被删时，
+收尾执行 `INSERT INTO library_search_fts(library_search_fts) VALUES('rebuild')`。
+
+### 9.7 closureVersion 与 digest（v2）
+
+`closureVersion` 只在**规则表**变化时 bump，不是 `schemaVersion` 的别名。69 同时改变了表集合、
+FK 边、软引用范围与行级规则，所以 1→2 是必须的；未来 schema 70 如果不动规则表，不必跟着 bump。
+
+当前发布面：`SmbkArchiveCodec.FORMAT_VERSION = 2`（`:78`），`MIN_READABLE_FORMAT_VERSION = 1`
+（`:81`）。v3 选择包只存在于 §5.1 的草案，写侧从未实现；因此**不存在已落盘的 closureVersion=1 选择包**，
+不需要为 v1 保留读侧规则表。若将来读到 `formatVersion=3` 但 `closureVersion` 不是 2，按“规则版本
+不认识”在交换前拒绝（与 `SmbkArchiveCodec.kt:893-896` 的格式版本闸门同一纪律）。
+
+manifest 的 `selection` 块 v2：
+
+```jsonc
+"selection": {
+  "schemaVersion": 2,              // 记录形状；v3 写侧未实现，直接升 2
+  "categoryMask": 9,
+  "categories": ["ISSUE_BOOK", "IMAGES"],
+  "assetPolicy": "INCLUDED",
+  "closureVersion": 2,
+  "closureDigest": "sha256:…",
+  "rowCounts": { "problem": 128, "…": 0 },   // 86 表全量；split 表为行级筛选后的行数
+  "trimmedTableCount": 33                    // 删除行数 > 0 的表数；v2 上限 78
+}
+```
+
+> v2 的合法 mask（9/13/15）都含 IMAGES，因此 `assetPolicy` 只能是 `INCLUDED`；`ABSENT`（无图子集）属
+> §6.1-⑤ 未决，不在本清单，也不是 6C-2 的已实现能力。
+
+`closureDigest` 算法（定稿 v2）：
+
+```
+digest = SHA-256( "smbk-selection-v2\n"
+                + "closureVersion=2\n"
+                + "categories=" + categories.sorted().joinToString(",") + "\n"
+                + "assetPolicy=" + assetPolicy + "\n"
+                + rowCounts.keys.sorted().joinToString("") { "$it=${rowCounts[it]}\n" } )
+```
+
+空库、全选、`assetPolicy=INCLUDED` 的 golden（86 表全 0）：
+
+```
+categories=IMAGES,ISSUE_BOOK,MASTERY,SESSIONS
+SHA-256 = d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6
+```
+
+三项待裁定不改变这个 golden：空库里派生表也是 0 行，③ 的 a/b/c 都得到同一 rowCounts；①/② 只决定
+mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据，权威始终是包内库实测（沿用
+`SmbkArchiveCodec.kt:66-72` 的立场）；它只用于同构对拍与第三方重裁的粗筛。
+
+`rowCounts` 必须覆盖全部 86 表，包括值为 0 的表；漏键会让摘要不可比。split 表（`model_task*`、
+`figure_generation_*`）的计数是**行级筛选后**的实际行数，不是类别表总数。
+
+### 9.8 §7 用例（设计用例，未执行）
+
+以下用例全部是**设计**：本轮没有 Gradle、没有设备、没有真实备份往返，状态一律“未执行”。
+依赖列写明需要哪条轨先落地；依赖未落地时，用例不可写成“通过”。
+
+#### C1 混合 JS / IMAGE_MODEL
+
+- 前置：T1b 在飞实现已写 operation/attempt（未提交、未跑门禁）。夹具在同一个 operation O
+  （`source_kind=TUTOR_MESSAGE`）下放
+  `attempt0 method=IMAGE_MODEL output=A1`、`attempt1 method=JS output=NULL`，可选
+  `attempt2 method=JS output=A2`。
+- 动作：mask=13 与 mask=15 各成包 → 恢复。
+- 断言：`method` 不参与筛选，A_keep 含 O 的全部 attempt；P 含 A1（与 A2）；恢复/打开历史/导出
+  **0 次模型派发**，不执行 JS；`model_task_operation.dispatch_count` / `clean_redraw_task.attempt_count`
+  恢复前后不变；`method=JS` 且 output=NULL 的 attempt 不钉任何资产。
+- 边界：schema 69 **没有** JS program/snapshot/preview 表（`docs/research/2026-10-21-4e-wg060708-schema-design.md:37-39`
+  仍是预留），本用例只能验证
+  `attempt.method` 的行级处理，不能声称 JS 运行、快照保真或未知程序版本已覆盖（见 C5-c）。
+
+#### C2 双根共享图
+
+- 前置：资产 A 由 O（`source_kind=TUTOR_MESSAGE`；`source_id` 不要求等于 M）产出；A 同时被
+  `tutor_message_source_asset(M)` 与 `problem_revision_source_asset(Rv, role=CLEAN_IMAGE)` 引用。
+- 动作：mask=9（错题本+图片，不含会话）成包 → 恢复到干净库。
+- 断言：A 的行与文件都在包内；Rv 的链接在；M 的链接不在；O 及全部 attempt 保留（O_ref）；P 含 O 的
+  全部 output；详情页能显示 A；五站点 GC 不删 A；恢复/详情/导出 0 派发。
+- 负向：若没有 Rv 链接（legacy 只在消息里），A 不属于 R；mask=9 下 O/attempt 可被裁，包内不含 A，
+  恢复后题目无图——这是“题没有拥有这张图”的如实结果，不是裁剪 bug。
+
+#### C3 删会话保题
+
+- 前置：从讲题会话保存题目（T2a 在飞/未验收；同事务把消息 visual link 复制到 revision），随后调用
+  `deleteConversation`（只删消息与会话，`TutorConversationDao.kt:570-580`）。
+- 动作：mask=9 与 mask=13 各成包 → 恢复。
+- 断言：revision 链接与 A 存活；消息/消息链接已删；O 保留；`source_id` 可能悬空或本就指向父请求
+  （informational，不参与 no-new-dangling）；mask=9 的包包含题目图；mask=13 的包包含题目图且不含
+  已删会话；I4 `D_post ⊆ D_pre` 成立；恢复后详情/导出正常；0 派发。
+- 同场断言：`model_task` / `learner_chat_evidence` / `tutor_answer_exposure` 的历史悬空是**删会话路径
+  的既有结果**，不得让 I4 0 行检查阻断备份；它们也不因裁剪新增（§9.4.3）。
+
+#### C4 不同 selection
+
+- 闭包合法：mask=15（全选）、13（题+会话+图）、9（题+图）。逐一成包/恢复。
+- 待裁定：mask=8（仅图）、0（空）只有在 §9.9-①/② 裁定允许后才可创建；未裁定前 `create()` 必须
+  拒绝，不能“先做出来再说”。
+- 非法：1–7、10–12、14 在 `BackupSelection` 构造/`create()` 拒绝，不产出文件，不静默补齐。
+- 断言：每个 mask 的类别表 0 行/保行符合 §9.2；figure 行规则符合 §9.5；回执如实写出 mask/categories/
+  assetPolicy；恢复替换语义的前置文案把“未包含的类别会被清空”说全；`rowCounts` 与裁剪后实测一致，
+  `closureDigest` 可复算。
+- 派生策略：③ 的 a/b/c 各跑一遍全选，只有 a/c 会裁派生表；b 的全选与 v2 等价（除新表外）。
+
+#### C5 未知版本
+
+- 5a：manifest `selection.closureVersion` ≠ 2、`selection.schemaVersion` 不认识、或 mask 不在允许集合
+  → 交换前拒绝；原库可读，没有 generation 产物。
+- 5b：真子集里出现未知 `figure_generation_operation.source_kind` → 成包前失败并报 `operation_id`；
+  mask=15 全选原样保留，不分类、不删。
+- 5c（前向）：未来 JS 程序版本未知时，只用**已验证快照/文字**只读呈现，不执行源码、不联网补图；
+  若程序/快照/字体缺失且该预览是唯一渲染事实 → 交换前拒绝；若预览只是可重建缓存 → 丢弃并重建。
+  schema 69 没有 program/snapshot 表，本项现在**无法执行**，只是给 4E.2/4E.3 的约束。
+- 5d：v1/v2 旧包没有 `selection` 块 → 读作全量，行为逐字不变（`MIN_READABLE_FORMAT_VERSION=1`）。
+
+#### C6 缺预览
+
+- 69 代理用例：被存活链接引用的 canonical 资产文件缺失或 SHA 不符 → 成包/恢复在交换前失败，报出
+  缺失的 asset id；绝不产出“成功但少图”的包（复用现有 `resolveReferencedAssetFiles` 与
+  `verifyStagedAssetClosure`）。
+- 前向 JS 用例：预览若是唯一渲染事实，缺失/哈希不符 = 拒绝；若 program + snapshot + font 齐全、
+  预览只是可重建派生缓存，则丢弃并重建，不把“预览缺失”写成完整成功。依据是 4E 计划
+  `docs/superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md:129-134`：预览走 canonical
+  vault，必需字节缺失拒绝完整包，未知版本只读已验证快照/文字、不执行源码。
+- 断言：没有半份包、没有假成功；恢复后不会用一张错图/旧图冒充。
+
+#### C7 源 revision 改变
+
+- 前置：revision R1 有图 A（`tutor_message_source_asset.basis_revision_id=R1` 或保存复制后的 revision
+  链接）；题目编辑到 R2；R1 的晚到结果在 R2 之后返回（T3 的显式重绘/晚到路径）。
+- 动作：确认晚到结果被标 `SUPERSEDED` / 不挂到 R2；mask=9 成包 → 恢复。
+- 断言：R1 的链接仍以 R1 为 basis；R2 没有旧图；operation 的 `SUPERSEDED` 与 attempt 的终态
+  （SUCCEEDED/FAILED/CANCELLED）原样保留；
+  恢复/详情/导出 0 派发；账本计数不变；导出/详情按当前 revision 的 role 过滤，不把 R1 的图挂到 R2。
+- 负向：若晚到结果覆盖了新 revision，或用 `expectedRevisionId` 失配仍挂接，本用例红（属 T3/WG-06，
+  不是 6C-2 单独能修的）。
+
+#### C8 横切：资产 / 账本 / 授权
+
+- 被保留 attempt 的 output 缺文件 → 交换前拒绝；五站点引用集合与包内 `assets/` 双向相等。
+- 恢复后 `model_task_operation.dispatch_count`、`clean_redraw_task.attempt_count` 不清零；不复活
+  外发授权/租约/sleep journal（这些本来就不随包，见 §4.1）。
+- 打开详情、展开、旋转、导出、恢复本身 **0 次模型派发**；真实 Provider 仍 UNVERIFIED。
+
+### 9.9 三项待用户裁定（本轨不代签）
+
+| # | 待裁定 | 选项 | 影响 / 证据 | 机器清单的当前状态 |
+| --- | --- | --- | --- | --- |
+| ① | 是否提供“仅图片”组合（mask=8） | a) UI 不提供；b) 提供并提示 | b) 的包内资产没有任何引用者；当前 `create()` 只收 `readReferencedCanonicalAssets()`（`AndroidBackupRepository.kt:218-220`），mask=8 下引用集合为空，包内 `assets/` 也会为空——要真正导图必须新增“无引用资产也收”的 assetPolicy；即使收了，恢复后 `cleanupOrphanAssets` 也会按 30 分钟宽限把旧创建时间的资产清掉（`AndroidBackupRepository.kt:123`、`:148-160`；启动 enqueue `SmartMistakeBookApplication.kt:475`）。产物是“恢复完就蒸发” | `maskPolicy.openMasks` 标 `OPEN`；闭包自洽不等于允许；空 assets 策略属 ① 的裁定范围 |
+| ② | 是否允许空选择（mask=0） | a) 禁止（至少勾一项）；b) 允许 | b) 的产物是重置包：恢复后本机只剩知识层与设置，其余全部被替换 | 同上，`OPEN` |
+| ③ | 派生索引（`knowledge_search_feature` + `knowledge_search_index_state`）是否恒裁 | a) 恒裁 + 恢复后读时自愈；b) 全选时保留；c) 恒裁 + 恢复后后台重建 | a) 包最小，首次召回某科可能现场整科重建（v1 研究记录过 16.6s 级长尾）；b) 全选包接近 v2 大小（旧测 623,774 行特征）；c) 恢复回执后异步重建，用户无感 | `derivedPolicy.decision = OPEN`，三选项全列，不选默认 |
+
+**这三点必须由用户裁定，实现不得默认任一分支**。本节的机器清单只把三种状态表达清楚：
+①/② 决定 `create()` 是否接受 mask 8/0；③ 决定全选时是否删两张派生表（从而改变 rowCounts /
+trimmedTableCount / digest），但不改变类别、FK、软引用与顺序规则。
+
+§6.1 实际列了 8 条待裁定；按批次 17 基线 `:156`，T8 只点名上述三项，**其余 5 项（类别文案、
+无图子集、治理台账归类、合并恢复、VACUUM 耗时）保持未决**，本轨不代签。
+
+### 9.10 未验证与风险
+
+1. **T1b 在飞（工作树，未提交/未跑门禁）**：已见 `FigureGenerationAuditRecorder.kt`、
+   `RoomFigureGenerationAuditRecorder.kt`、`DefaultFigureGenerationCoordinator.kt` 修改与
+   `FigureGenerationSourceKind`；本轨只读，未验收。recorder 默认是 `Noop`，生产是否真的注入由 I1
+   装配决定，未验证。`source_id` 不是统一宿主行主键（§9.2），所以行规则只按 `source_kind` 分类。
+   两张新表在迁移后为空，真实行尚未观测；`PROBLEM_REVISION` / `CAPTURE_PARSE` 没有生产写入者，
+   标 `RESERVED` / `verified:false`。
+2. **T5 在飞（工作树，未提交/未跑测试）**：`PendingCaptureDao.kt` 的
+   `findUnreferencedCanonicalAssets` 已加第五支（`:71-74`），`AndroidBackupRepository` 的 KDoc 已改口径；
+   本轨只读，未跑测试。若该改动不随批次落地，启用裁剪会漏收被 attempt 钉住的图（§9.5.4）。
+3. **T2a 在飞/未验收**（工作树 `RoomTutorToolRunner.kt` 有改动）：保存时复制消息 visual link 到
+   revision 必须是同事务规则；没有它，mask=9 会丢掉只存在于消息里的图。旧数据没有复制过的图按
+   “题没有拥有它”处理，不伪造。
+4. **JS / 预览 / 未知程序版本**：schema 69 没有 program/snapshot/preview 表；C1 只能测 `method` 行，
+   C5-c/C6 只能作为前向设计。JS 运行库、4E.2/4E.3、真实质量门仍后置。
+5. **删会话的既有悬空**：`TutorConversationDao.kt:570-580` 不清 `model_task`、`learner_chat_evidence`、
+   `tutor_answer_exposure` 等；v2 用 no-new-dangling 放行历史悬空。恢复侧无法区分“历史悬空”与
+   “第三方重裁新增的同类别悬空”，这是已知限制（§9.4.3）。
+6. **T1a KDoc 的 purpose 漂移**：`FigureGenerationEntities.kt:29-31` 列了 `QUESTION_DIAGRAM`，
+   `core:model` 的 `FigureGenerationPurpose`（`FigureGeneration.kt:42-57`）没有该值，实际是
+   SOURCE_TRANSCRIPTION / SOURCE_RECONSTRUCTION / EXPLANATION / ILLUSTRATION / PIXEL_CLEANUP。
+   本清单不按 purpose 分类，故不影响闭包；T1b 落盘前需对齐，别把 KDoc 当枚举。
+7. **未跑 Gradle/设备**：本轮没有编译、单测、androidTest、迁移矩阵或真实备份往返；§9.12 只是
+   对 `69.json` 与本节 JSON 的静态/脚本一致性检查。schema 69 在真机上的迁移行为以 T1a 的
+   `FullMigrationMatrixInstrumentedTest` 与批次 17 的 D1 为准。
+8. **IMAGES 行策略**：选中 IMAGES 时 canonical 行整表保留、包内只收 P；未进入 P 的未引用行随包保留
+   但不带文件，恢复后由既有孤儿回收处理。这是 v2 语义，不是本次新增的产品选项；仍应设备复核
+   “恢复后未引用行不会让详情/导出误判”。
+9. **视图**：`library_catalog`、`knowledge_question_lattice` 不参与裁剪；裁剪后基表仍存在（空表也
+   存在），视图可继续查询。未在设备上验证视图在裁剪库上的行为。
+10. **三项待裁定**：未裁定前，mask 8/0 与派生策略都不能当成默认；任何“先按 a 实现”的代码都违反
+    §9.9。
+
+### 9.11 机器可读清单 v2
+
+> 解析标记：`<!-- 6c2-plan-v2:begin -->` / `<!-- 6c2-plan-v2:end -->`。旧的 `6c2-plan` 标记仍是
+> schema 66 历史块，当前实现只读 v2。`closureVersion=2` 与本块同源；`identityHash` 必须等于
+> `69.json` 的 `database.identityHash`。
+
+<!-- 6c2-plan-v2:begin -->
+```json
+{
+  "closureVersion": 2,
+  "schemaVersion": 69,
+  "identityHash": "6633b7c2fe223041c4a2927203853f4f",
+  "note": "v2（schema 69）：84 张旧表类别不变；新增 figure_generation_operation/attempt 为行级 split 家族；闭包规则见 §9.3，行级规则见 §9.5。",
+  "categories": {
+    "ISSUE_BOOK": {
+      "bit": 1,
+      "label": "错题本",
+      "tables": [
+        "problem",
+        "problem_revision",
+        "practice_unit",
+        "error_book_entry",
+        "problem_relation",
+        "problem_classification_binding",
+        "problem_classification_candidate",
+        "problem_organization_receipt",
+        "practice_unit_knowledge_binding",
+        "problem_revision_source_asset",
+        "problem_draft",
+        "problem_draft_source_asset",
+        "problem_draft_revision",
+        "problem_draft_edit_snapshot",
+        "problem_draft_commit_receipt",
+        "batch_import_job",
+        "batch_import_page",
+        "split_import_job",
+        "split_import_question",
+        "clean_redraw_task",
+        "library_search_content",
+        "library_search_fts",
+        "library_search_outbox",
+        "knowledge_grounding_request",
+        "knowledge_grounding_resolution",
+        "knowledge_research_review_bundle",
+        "knowledge_research_review_source",
+        "mistake_export_record",
+        "binding_audit_sample",
+        "llm_teaching_advisory"
+      ]
+    },
+    "MASTERY": {
+      "bit": 2,
+      "label": "掌握库",
+      "tables": [
+        "assessment_item_snapshot",
+        "assessment_event",
+        "assessment_evidence_snapshot",
+        "assessment_evidence_attribution",
+        "assessment_presentation",
+        "assessment_answer_reveal_event",
+        "answer_reveal_outcome",
+        "attempt_submission",
+        "attempt_event",
+        "attempt_correction",
+        "binding_change_event",
+        "learning_sequence",
+        "projection_outbox",
+        "learner_projection_snapshot",
+        "projection_archive",
+        "learner_problem_memory_state",
+        "learner_knowledge_mastery_state",
+        "independent_correct_observation",
+        "applied_attempt_record",
+        "applied_correction_record",
+        "applied_answer_reveal_record",
+        "applied_tutor_answer_exposure_record",
+        "presentation_projection_state",
+        "review_plan",
+        "active_review_plan_slot",
+        "review_queue_item",
+        "review_queue_knowledge_node",
+        "review_queue_reason",
+        "review_session",
+        "review_session_revision",
+        "review_session_advance_receipt",
+        "review_log",
+        "student_model_prediction",
+        "prediction_outcome",
+        "learner_chat_evidence"
+      ]
+    },
+    "SESSIONS": {
+      "bit": 4,
+      "label": "会话",
+      "tables": [
+        "tutor_conversation",
+        "tutor_message",
+        "tutor_message_source_asset",
+        "agent_pending_request",
+        "tutor_answer_exposure",
+        "tutor_answer_exposure_outcome"
+      ]
+    },
+    "IMAGES": {
+      "bit": 8,
+      "label": "图片",
+      "tables": [
+        "canonical_source_asset"
+      ]
+    }
+  },
+  "alwaysTables": [
+    "knowledge_node",
+    "knowledge_source",
+    "knowledge_node_source_binding",
+    "knowledge_node_relation",
+    "knowledge_teaching_material",
+    "knowledge_teaching_material_node_binding",
+    "content_install_state"
+  ],
+  "derivedTables": [
+    "knowledge_search_feature",
+    "knowledge_search_index_state"
+  ],
+  "splitTables": [
+    "model_task_event",
+    "model_task",
+    "model_task_operation",
+    "figure_generation_attempt",
+    "figure_generation_operation"
+  ],
+  "modelTaskKindCategory": {
+    "CAPTURE_ASSESS": "ISSUE_BOOK",
+    "CAPTURE_PARSE": "ISSUE_BOOK",
+    "PROBLEM_CLASSIFY": "ISSUE_BOOK",
+    "PROBLEM_RELATE": "ISSUE_BOOK",
+    "IMAGE_PIPELINE_CLASSIFY": "ISSUE_BOOK",
+    "TUTOR_PLAN": "SESSIONS",
+    "TUTOR_RESPOND": "SESSIONS",
+    "TUTOR_LOBBY": "SESSIONS",
+    "TUTOR_EVALUATE": "SESSIONS",
+    "LEARNING_SUMMARIZE": "SESSIONS",
+    "REVIEW_RERANK": "MASTERY",
+    "KNOWLEDGE_QUIZ": "MASTERY"
+  },
+  "modelTaskRowFilter": {
+    "appliesTo": [
+      "model_task_event",
+      "model_task",
+      "model_task_operation"
+    ],
+    "deletedKinds": "modelTaskKindCategory 中类别未被选中的 kind 集合（全选时为空）",
+    "steps": [
+      "DELETE model_task_event WHERE task_id IN (SELECT task_id FROM model_task WHERE task_kind IN :deleted_kinds)",
+      "DELETE model_task WHERE task_kind IN :deleted_kinds",
+      "DELETE model_task_operation WHERE task_kind IN :deleted_kinds"
+    ],
+    "unknownKind": "真子集遇映射外的 kind → fail-closed；全选保留",
+    "note": "三处共用同一 kind 集合；model_task 是 model_task_operation 的子，删除顺序 event→task→operation"
+  },
+  "figureOperationSourceKindCategory": {
+    "TUTOR_MESSAGE": "SESSIONS",
+    "PROBLEM_REVISION": "ISSUE_BOOK",
+    "CLEAN_REDRAW": "ISSUE_BOOK",
+    "CAPTURE_PARSE": "ISSUE_BOOK"
+  },
+  "figureSourceIdSemantics": {
+    "TUTOR_MESSAGE": "T1b 在飞：TutorFigureGenerator 写 parentOperationId ?: operationId；AttachedImageGenerator 写 parentRequestId；coordinator 旧调用回退写 parent.requestId。不是统一的 tutor_message 行主键，不能按 source_id 反查消息行",
+    "PROBLEM_REVISION": "保留：意图是 problem_revision.revision_id；生产无写入者，未验证",
+    "CLEAN_REDRAW": "T1b 在飞：父为 CleanRedrawTask 时写 taskId；父为 ModelTask 时写 parent.requestId。不是统一的行主键",
+    "CAPTURE_PARSE": "保留：意图是采集解析的草稿/作业 id；生产无写入者，未验证"
+  },
+  "figureRowFilter": {
+    "appliesTo": [
+      "figure_generation_attempt",
+      "figure_generation_operation"
+    ],
+    "when": "仅真子集（任一类别未勾选）；mask=15 全选时整表保留、不做行级筛选",
+    "prepass": "同一事务内、任何 DELETE 之前物化 kept_asset / kept_operation / kept_attempt 三张临时表",
+    "steps": [
+      "R = 存活根引用表指向的资产（problem_revision_source_asset / problem_draft_source_asset / problem_draft.source_asset_id 当 ISSUE_BOOK 选中；tutor_message_source_asset 当 SESSIONS 选中）",
+      "O_seed = 类别被选中的 operation（source_kind 按 figureOperationSourceKindCategory）+ 存活 clean_redraw_task.operation_id 指向的 operation",
+      "O_ref = 产出资产属于 R 的 attempt 所属 operation（被删会话/题目域仍因共享图保留）",
+      "O_keep = O_seed ∪ O_ref",
+      "A_keep = operation_id ∈ O_keep 的全部 attempt ∪ output_asset_id ∈ R 的 attempt",
+      "P = R ∪ A_keep 的非空 output_asset_id（第五个资产引用站点；I5 与 readReferencedCanonicalAssets 必须同源）",
+      "DELETE figure_generation_attempt WHERE attempt_id ∉ A_keep；再 DELETE figure_generation_operation WHERE operation_id ∉ O_keep"
+    ],
+    "unknownSourceKind": "真子集：未知 kind 且不在 O_keep → fail-closed；已被共享产物/clean_redraw 引用拉入 O_keep 的 → 保留；全选保留；新增 kind 必须 bump closureVersion",
+    "methodPolicy": "method 不参与筛选；JS 行只作为数据保留，恢复/导出/查看均不执行 JS",
+    "sharedOutput": "同一资产可被多条根引用与多次 attempt 产出（content_sha256 唯一、去重），不得假设 1:1"
+  },
+  "rebuildTables": [
+    "library_search_fts"
+  ],
+  "expectedClosure": [
+    [
+      "ISSUE_BOOK",
+      "IMAGES"
+    ],
+    [
+      "MASTERY",
+      "ISSUE_BOOK"
+    ],
+    [
+      "MASTERY",
+      "SESSIONS"
+    ],
+    [
+      "SESSIONS",
+      "ISSUE_BOOK"
+    ],
+    [
+      "SESSIONS",
+      "IMAGES"
+    ]
+  ],
+  "rowLevelEdges": [
+    {
+      "child": "model_task_event",
+      "parent": "model_task",
+      "column": "task_id",
+      "kind": "split-family-intra",
+      "onDelete": "RESTRICT",
+      "note": "同一 task_kind 谓词三级删除的最深一级"
+    },
+    {
+      "child": "model_task",
+      "parent": "model_task_operation",
+      "column": "operation_fingerprint",
+      "kind": "split-family-intra",
+      "onDelete": "RESTRICT",
+      "note": "同一 task_kind 谓词；operation 是 task 的父，删除顺序 task→operation"
+    },
+    {
+      "child": "tutor_answer_exposure",
+      "parent": "model_task",
+      "column": "model_task_request_id",
+      "kind": "cross-family-to-split",
+      "onDelete": "RESTRICT",
+      "note": "SESSIONS 表硬 FK 到 split 的 model_task；正常 kind 为 TUTOR_*（SESSIONS），kind 谓词删同一集合；异常 kind 由 I1 兜底"
+    },
+    {
+      "child": "figure_generation_attempt",
+      "parent": "figure_generation_operation",
+      "column": "operation_id",
+      "kind": "split-family-intra",
+      "onDelete": "RESTRICT"
+    },
+    {
+      "child": "figure_generation_attempt",
+      "parent": "canonical_source_asset",
+      "column": "output_asset_id",
+      "kind": "attempt-output-pin",
+      "onDelete": "RESTRICT",
+      "note": "行级边；attempt 行类别 ∈ {ISSUE_BOOK,SESSIONS}，两者都已蕴含 IMAGES，故不新增类别闭包"
+    }
+  ],
+  "assetRoots": [
+    {
+      "table": "problem_revision_source_asset",
+      "column": "source_asset_id",
+      "category": "ISSUE_BOOK"
+    },
+    {
+      "table": "problem_draft_source_asset",
+      "column": "source_asset_id",
+      "category": "ISSUE_BOOK"
+    },
+    {
+      "table": "problem_draft",
+      "column": "source_asset_id",
+      "category": "ISSUE_BOOK"
+    },
+    {
+      "table": "tutor_message_source_asset",
+      "column": "source_asset_id",
+      "category": "SESSIONS"
+    }
+  ],
+  "assetPinRule": {
+    "definition": "keptAssets = 四张根引用表在存活行上的资产 ∪ 存活 attempt 的 output_asset_id",
+    "sites": 5,
+    "requirement": "实现 6C-2 前必须把 attempt.output_asset_id 并入 findUnreferencedCanonicalAssets / readReferencedCanonicalAssets（T5），否则 I5 会漏收被 attempt 钉住的图",
+    "canonicalRowPolicy": "IMAGES 选中时 canonical_source_asset 整表保留（v2 语义）；包内文件只含 keptAssets，未引用行随包保留但不带文件，恢复后由既有孤儿回收处理"
+  },
+  "softReferences": [
+    {
+      "table": "model_task",
+      "column": "subject_id",
+      "targetTable": "*by-task-kind*",
+      "kind": "by-kind",
+      "check": "no-new-dangling",
+      "strength": "weak-host-hint",
+      "checkDetail": "host existence only for non-terminal statuses; terminal rows may dangle",
+      "note": "仅非终态任务要求宿主存在；终态历史任务允许宿主已删"
+    },
+    {
+      "table": "model_task_operation",
+      "column": "subject_id",
+      "targetTable": "*by-task-kind*",
+      "kind": "by-kind",
+      "check": "no-new-dangling",
+      "strength": "weak-host-hint",
+      "checkDetail": "kind known only; host existence not required (ledger outlives host)",
+      "note": "预算台账先于宿主存在：只校验 kind 已知，不要求宿主行仍存在"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "capture_draft_id",
+      "targetTable": "problem_draft",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_practice_unit_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_problem_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_id",
+      "targetTable": "*by-anchor-kind*",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong",
+      "note": "TEXT_ONLY 时为空；EPHEMERAL_DRAFT/PROBLEM_REVISION 按 anchor_kind 解析"
+    },
+    {
+      "table": "tutor_message",
+      "column": "bound_problem_id",
+      "targetTable": "problem",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_message",
+      "column": "bound_problem_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_message_source_asset",
+      "column": "basis_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong",
+      "note": "schema 69 新增列；NULL=旧行未知，不回填"
+    },
+    {
+      "table": "learner_chat_evidence",
+      "column": "conversation_id",
+      "targetTable": "tutor_conversation",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong",
+      "note": "删会话路径不清证据行：现存悬空只能由 no-new-dangling 放行，不得要求 0 行"
+    },
+    {
+      "table": "binding_change_event",
+      "column": "practice_unit_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "student_model_prediction",
+      "column": "practice_unit_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "review_log",
+      "column": "card_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong",
+      "note": "pseudo:<SUBJECT> 桶不是 practice_unit 行，检查须排除 pseudo: 前缀"
+    },
+    {
+      "table": "clean_redraw_task",
+      "column": "subject_id",
+      "targetTable": "problem_draft",
+      "kind": "same-category",
+      "check": "no-new-dangling",
+      "strength": "weak-host-hint",
+      "note": "提交路径传草稿 id；草稿提交后允许悬空（历史作业）"
+    },
+    {
+      "table": "clean_redraw_task",
+      "column": "operation_id",
+      "targetTable": "figure_generation_operation",
+      "kind": "split-family",
+      "check": "no-new-dangling",
+      "strength": "strong",
+      "note": "schema 69 新增列；NULL=旧行无台账；非空且源行存活时必须可解析"
+    },
+    {
+      "table": "figure_generation_operation",
+      "column": "source_id",
+      "targetTable": "*by-source-kind*",
+      "kind": "split-family",
+      "check": "informational",
+      "strength": "weak-host-hint",
+      "note": "schema 69 新增；按 source_kind 解析宿主；共享图保留时宿主被删是预期结果，不作悬空失败；子集成包遇未知 kind fail-closed"
+    },
+    {
+      "table": "library_search_fts",
+      "column": "docid",
+      "targetTable": "library_search_content",
+      "kind": "same-category",
+      "check": "rebuild-consistency",
+      "strength": "informational",
+      "virtual": true,
+      "note": "FTS4 外部内容表虚拟列；以 rebuild 后 docid 孤儿数为核对，不参与一般软引用"
+    },
+    {
+      "table": "learner_chat_evidence",
+      "column": "knowledge_node_id",
+      "targetTable": "knowledge_node",
+      "kind": "always",
+      "check": "none",
+      "strength": "informational"
+    },
+    {
+      "table": "llm_teaching_advisory",
+      "column": "knowledge_node_id",
+      "targetTable": "knowledge_node",
+      "kind": "always",
+      "check": "none",
+      "strength": "informational"
+    },
+    {
+      "table": "student_model_prediction",
+      "column": "knowledge_node_id",
+      "targetTable": "knowledge_node",
+      "kind": "always",
+      "check": "none",
+      "strength": "informational"
+    }
+  ],
+  "opaqueColumns": [
+    {
+      "table": "figure_generation_attempt",
+      "column": "reservation_id",
+      "reason": "账本授予句柄（figure-dispatch:<sha> / clean-redraw-dispatch:<task>:<n>），不是行主键；无目标列可引用"
+    },
+    {
+      "table": "review_queue_item",
+      "column": "item_family_id",
+      "reason": "前缀+practice_unit_id 的家族令牌，不是行引用（旧 v1 清单把它列成空 target，v2 移除）"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_revision_id",
+      "reason": "anchor 键空间的一部分（questionDocumentId:draftRevisionNumber），由 anchor_id/anchor_kind 承载行引用"
+    },
+    {
+      "table": "figure_generation_operation",
+      "column": "basis_fingerprint",
+      "reason": "冻结输入的哈希，不是行引用"
+    },
+    {
+      "table": "figure_generation_attempt",
+      "column": "input_fingerprint",
+      "reason": "请求逻辑指纹，不是行引用"
+    }
+  ],
+  "trimOrder": [
+    "tutor_message_source_asset",
+    "tutor_message",
+    "split_import_question",
+    "split_import_job",
+    "review_session_advance_receipt",
+    "review_session_revision",
+    "review_session",
+    "review_queue_reason",
+    "review_queue_knowledge_node",
+    "review_queue_item",
+    "review_log",
+    "projection_outbox",
+    "projection_archive",
+    "problem_revision_source_asset",
+    "problem_relation",
+    "problem_organization_receipt",
+    "problem_draft_source_asset",
+    "problem_draft_edit_snapshot",
+    "problem_draft_revision",
+    "problem_draft_commit_receipt",
+    "problem_classification_candidate",
+    "problem_classification_binding",
+    "presentation_projection_state",
+    "prediction_outcome",
+    "student_model_prediction",
+    "model_task_event",
+    "mistake_export_record",
+    "llm_teaching_advisory",
+    "library_search_outbox",
+    "library_search_content",
+    "learning_sequence",
+    "learner_problem_memory_state",
+    "learner_chat_evidence",
+    "knowledge_search_index_state",
+    "knowledge_search_feature",
+    "knowledge_research_review_source",
+    "knowledge_research_review_bundle",
+    "knowledge_grounding_resolution",
+    "knowledge_grounding_request",
+    "independent_correct_observation",
+    "learner_knowledge_mastery_state",
+    "error_book_entry",
+    "clean_redraw_task",
+    "binding_change_event",
+    "binding_audit_sample",
+    "batch_import_page",
+    "problem_draft",
+    "figure_generation_attempt",
+    "figure_generation_operation",
+    "canonical_source_asset",
+    "batch_import_job",
+    "assessment_presentation",
+    "assessment_evidence_attribution",
+    "practice_unit_knowledge_binding",
+    "assessment_event",
+    "assessment_item_snapshot",
+    "applied_tutor_answer_exposure_record",
+    "tutor_answer_exposure_outcome",
+    "tutor_answer_exposure",
+    "model_task",
+    "model_task_operation",
+    "applied_correction_record",
+    "attempt_correction",
+    "applied_attempt_record",
+    "attempt_event",
+    "attempt_submission",
+    "applied_answer_reveal_record",
+    "learner_projection_snapshot",
+    "answer_reveal_outcome",
+    "assessment_answer_reveal_event",
+    "assessment_evidence_snapshot",
+    "practice_unit",
+    "problem_revision",
+    "problem",
+    "agent_pending_request",
+    "tutor_conversation",
+    "active_review_plan_slot",
+    "review_plan"
+  ],
+  "maskPolicy": {
+    "closedMasks": [
+      15,
+      13,
+      9
+    ],
+    "openMasks": [
+      {
+        "mask": 8,
+        "decision": "IMAGES_ONLY",
+        "state": "OPEN",
+        "note": "产物恢复后资产无引用者，孤儿回收会清掉；是否提供由用户裁定"
+      },
+      {
+        "mask": 0,
+        "decision": "EMPTY_SELECTION",
+        "state": "OPEN",
+        "note": "产物是重置包（仅知识层+设置）；是否允许由用户裁定"
+      }
+    ],
+    "unknownMask": "REJECT",
+    "closingRule": "子类别隐含父类别；不静默补齐、不静默缩水；create() 只接受自洽选择"
+  },
+  "derivedPolicy": {
+    "decision": "OPEN",
+    "options": [
+      "ALWAYS_TRIM",
+      "KEEP_ON_FULL_SELECTION",
+      "TRIM_AND_REBUILD_AFTER_RESTORE"
+    ],
+    "note": "derivedTables 不属于任何用户类别；三选项只改变全选时是否裁它们，改变 rowCounts/trimmedTableCount/digest，不改变类别/FK/软引用/顺序规则"
+  },
+  "digest": {
+    "algorithm": "sha256( \"smbk-selection-v2\\n\" + \"closureVersion=2\\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\\n\" + \"assetPolicy=\" + assetPolicy + \"\\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\\n\" } )",
+    "rowCountsSource": "裁剪后快照的逐表 COUNT(*)；split 表按行级筛选后的行数",
+    "trimmedTableCount": "删除行数 > 0 的表数（不含 FTS rebuild）；v2 上限 78",
+    "goldenEmptyFull": {
+      "mask": 15,
+      "assetPolicy": "INCLUDED",
+      "sha256": "d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6",
+      "note": "69 schema、空库、全选；rowCounts 为全部 86 表=0；三选项下派生表也是 0 行，故该向量不受三项待裁定影响"
+    }
+  }
+}
+```
+<!-- 6c2-plan-v2:end -->
+
+### 9.12 复跑与校验（本轮实际执行）
+
+本轮用 Python 直接读 `69.json` 与本节 v2 JSON 做静态对拍；没有 Gradle、没有设备、没有备份往返。
+执行的是同一份 `69.json`（T1a 交付），不是记忆或旧 schema。
+
+实际断言与结果：
+
+| # | 检查 | 结果 |
+| --- | --- | --- |
+| 1 | `69.json` version / identityHash / entities / views / FK 边 | 69 / `6633b7c2fe223041c4a2927203853f4f` / 86 / 2 / 92 |
+| 2 | 86 表是否恰好被 类别 + ALWAYS + DERIVED + SPLIT 覆盖一次 | 86/86；缺失 0、多余 0；类别计数 30/35/6/1/7/2/5 |
+| 3 | 从 69 的真实 FK 边折叠出的类别闭包 vs `expectedClosure` | 5 条边逐条相等 |
+| 4 | 78 项 `trimOrder`：覆盖 86−7 ALWAYS−1 FTS；逐边拓扑序 | 78 项、唯一、覆盖完整、0 违规 |
+| 5 | 20 条软引用的表/列/目标（或 `*…*` 特殊标记）是否存在；是否误把硬 FK 列当软引用 | 全部存在；无硬 FK 重叠；FTS `docid` 按虚拟列例外；`source_id` 是 `*source-hint*` |
+| 6 | 16 个 mask 的闭包自洽性 | 自洽 0/8/9/13/15；其余 11 个非法 |
+| 7 | 空库全选 `closureDigest` | `d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6` |
+| 8 | 69.json 的新表/新列/索引/外键数量 | 2 表、4 列、4 索引（operation 2 + attempt 2）、2 条新 FK；本轨只读迁移与 69.json，未运行 T1a 契约测试（T1a 自报静态比对通过，UNVERIFIED） |
+
+**没有执行**：Gradle 单测/编译、`FullMigrationMatrixInstrumentedTest`、真实备份创建→恢复、设备迁移
+1→69/68→69、真实 Provider。以上一律 UNVERIFIED；不得把本节静态对拍写成门禁通过。
+
+复跑方式（下一批实施时建议落到 `tools/backup/`）：读取 `69.json` 与
+`<!-- 6c2-plan-v2:begin -->` 内的 JSON；按 #2 做集合相等，按 #3 从 `foreignKeys` 折叠闭包，按 #4 做
+拓扑排序校验，按 #7 复算摘要。任何一项差异都说明“文档规则”与“schema 69”漂开，必须先改清单再写代码。

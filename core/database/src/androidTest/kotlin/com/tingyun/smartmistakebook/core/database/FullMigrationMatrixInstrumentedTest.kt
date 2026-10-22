@@ -495,6 +495,379 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /**
+     * 4E WG-08（v68→69）：图生成 operation/attempt 审计台账 + 三处追加列。
+     * 矩阵用的是空库，看不出"旧行还在不在、追加列对旧行是什么值、约束真不真"，这里用真库实测：
+     * 1. 两张新表与四条索引（含 `(operation_id, attempt_ordinal)` 唯一）按迁移建出来
+     *    （列形状与实体声明逐位同形）；
+     * 2. 旧行一行不动：消息附图行/修订附图行/净化作业行原样，新列分别读回 NULL/NULL/0
+     *    （未知就是 NULL，不编造历史角色）；
+     * 3. 新表**为空**——迁移不回填历史生成（"无台账"如实呈现，不编造历史尝试）；
+     * 4. 约束真的生效：重复 ordinal 写不进、缺父 operation 的尝试写不进、attempt 引用的
+     *    operation 不许删（RESTRICT）；
+     * 5. 再开一次（同一库第二次经过迁移出口）形态与行不变——迁移幂等。
+     */
+    @Test
+    fun figureGenerationLedgerIsCreatedWithoutTouchingV68RowsAndIdempotent() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "wave17-figure-generation-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 68)
+            seedV68FigureRows(context, databaseName)
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v68 库迁到 69",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            inspectV69FigureShape(context, databaseName)
+
+            // 幂等：同一库再开一次（迁移已是 no-op）不得改变形态、旧行或新表的空态。
+            val reopened = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(STUDY_DATABASE_VERSION, reopened.readDatabaseVersion())
+            reopened.close()
+            inspectV69FigureShape(context, databaseName)
+
+            assertFigureLedgerConstraints(context, databaseName)
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 往导出的 68.json 建出来的库里写：一张规范资产 + 一道题/修订 + 修订附图 +
+     * 一个会话/学生消息/消息附图 + 一行净化作业（v68 形态，没有 operation_id）。
+     * 显式关外键只用于少写父行占位——这里父行齐备。
+     */
+    private fun seedV68FigureRows(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = OFF")
+            connection.execSQL(
+                """
+                INSERT INTO `canonical_source_asset` (
+                    `source_asset_id`, `content_sha256`, `relative_path`, `mime_type`,
+                    `byte_size`, `width`, `height`, `source_type`, `created_at_epoch_millis`
+                ) VALUES (
+                    '$FIGURE_ASSET_ID', '${"a".repeat(64)}', 'source-assets/wave17.jpg',
+                    'image/jpeg', 4096, 1200, 1600, 'CLEAN_REDRAW', 1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem` (
+                    `problem_id`, `canonical_fingerprint`, `subject`, `created_at_epoch_millis`
+                ) VALUES ('$FIGURE_PROBLEM_ID', 'fp-wave17', 'MATH', 1700000000000)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision` (
+                    `revision_id`, `problem_id`, `revision_number`, `title`, `problem_markdown`,
+                    `answer_spec_id`, `answer_spec_snapshot`, `answer_verification_status`,
+                    `source_type`, `source_reference`, `content_fingerprint`,
+                    `created_at_epoch_millis`
+                ) VALUES (
+                    '$FIGURE_REVISION_ID', '$FIGURE_PROBLEM_ID', 1, 'WG-08 题', '题面',
+                    NULL, NULL, 'UNKNOWN',
+                    'CAPTURE_CONFIRMED', NULL, 'fp-wave17-rev',
+                    1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `problem_revision_source_asset` (
+                    `problem_revision_id`, `source_asset_id`, `role`
+                ) VALUES ('$FIGURE_REVISION_ID', '$FIGURE_ASSET_ID', 'CLEAN_IMAGE')
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `tutor_conversation` (
+                    `conversation_id`, `anchor_kind`, `status`,
+                    `created_at_epoch_millis`, `updated_at_epoch_millis`, `last_turn_ordinal`
+                ) VALUES (
+                    '$FIGURE_CONVERSATION_ID', 'PROBLEM', 'ACTIVE',
+                    1700000000000, 1700000000000, 0
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `tutor_message` (
+                    `message_id`, `conversation_id`, `ordinal`, `role`, `body_markdown`,
+                    `status`, `created_at_epoch_millis`
+                ) VALUES (
+                    '$FIGURE_MESSAGE_ID', '$FIGURE_CONVERSATION_ID', 0, 'STUDENT',
+                    'v68 学生附图', 'COMPLETED', 1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `tutor_message_source_asset` (
+                    `message_id`, `source_asset_id`, `ordinal`
+                ) VALUES ('$FIGURE_MESSAGE_ID', '$FIGURE_ASSET_ID', 0)
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `clean_redraw_task` (
+                    `task_id`, `revision_id`, `source_asset_id`, `source_image_sha256`,
+                    `request_fingerprint`, `subject_id`, `status`, `attempt_count`,
+                    `last_failure_code`, `created_at_epoch_millis`, `updated_at_epoch_millis`
+                ) VALUES (
+                    '$FIGURE_CLEAN_TASK_ID', '$FIGURE_REVISION_ID', '$FIGURE_ASSET_ID',
+                    '${"a".repeat(64)}', '${"b".repeat(64)}', 'subject-wave17', 'SUCCEEDED', 1,
+                    NULL, 1700000000000, 1700000100000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("PRAGMA foreign_keys = ON")
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 迁移后的真库形状：两张新表 + 索引/唯一/外键在、旧行原样且追加列诚实、新表为空。 */
+    private fun inspectV69FigureShape(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            val tables = tableNames(connection)
+            assertTrue(
+                "迁移必须把图生成操作台账建出来",
+                FIGURE_OPERATION_TABLE in tables,
+            )
+            assertTrue(
+                "迁移必须把图生成尝试台账建出来",
+                FIGURE_ATTEMPT_TABLE in tables,
+            )
+            assertEquals(
+                "operation 列与实体声明逐位同形",
+                FIGURE_OPERATION_COLUMNS,
+                columnNames(connection, FIGURE_OPERATION_TABLE),
+            )
+            assertEquals(
+                "attempt 列与实体声明逐位同形",
+                FIGURE_ATTEMPT_COLUMNS,
+                columnNames(connection, FIGURE_ATTEMPT_TABLE),
+            )
+            assertEquals(
+                "operation 两条查询索引一条不少",
+                FIGURE_OPERATION_INDEX_NAMES,
+                indexNames(connection, FIGURE_OPERATION_TABLE),
+            )
+            assertEquals(
+                "attempt 的唯一索引与输出资产索引一条不少",
+                FIGURE_ATTEMPT_INDEX_NAMES,
+                indexNames(connection, FIGURE_ATTEMPT_TABLE),
+            )
+            assertTrue(
+                "(operation_id, attempt_ordinal) 必须是 UNIQUE 索引（终态 attempt 不许复活）",
+                indexSql(
+                    connection,
+                    "index_figure_generation_attempt_operation_id_attempt_ordinal",
+                )?.startsWith("CREATE UNIQUE INDEX") == true,
+            )
+            assertEquals(
+                "attempt 对 operation 与输出资产都是 RESTRICT 外键",
+                setOf(
+                    Triple(FIGURE_OPERATION_TABLE, "operation_id", "RESTRICT"),
+                    Triple("canonical_source_asset", "output_asset_id", "RESTRICT"),
+                ),
+                foreignKeys(connection, FIGURE_ATTEMPT_TABLE).toSet(),
+            )
+
+            val messageLink = connection.prepare(
+                "SELECT `message_id`, `source_asset_id`, `ordinal`, `role`, `basis_revision_id` " +
+                    "FROM `tutor_message_source_asset` WHERE `message_id` = '$FIGURE_MESSAGE_ID'",
+            )
+            try {
+                assertTrue("旧消息附图行必须一行不丢", messageLink.step())
+                assertEquals(FIGURE_MESSAGE_ID, messageLink.getText(0))
+                assertEquals(FIGURE_ASSET_ID, messageLink.getText(1))
+                assertEquals(0L, messageLink.getLong(2))
+                assertTrue(
+                    "旧行没有角色：role 必须是 NULL（不编造历史角色）",
+                    messageLink.isNull(3),
+                )
+                assertTrue(
+                    "旧行没有 basis：basis_revision_id 必须是 NULL（不编造）",
+                    messageLink.isNull(4),
+                )
+                assertFalse("旧行只有这一条", messageLink.step())
+            } finally {
+                messageLink.close()
+            }
+
+            val revisionLink = connection.prepare(
+                "SELECT `problem_revision_id`, `role`, `ordinal` " +
+                    "FROM `problem_revision_source_asset` " +
+                    "WHERE `problem_revision_id` = '$FIGURE_REVISION_ID'",
+            )
+            try {
+                assertTrue("旧修订附图行必须一行不丢", revisionLink.step())
+                assertEquals(FIGURE_REVISION_ID, revisionLink.getText(0))
+                assertEquals("角色原样", "CLEAN_IMAGE", revisionLink.getText(1))
+                assertEquals(
+                    "旧行没有顺序：必须读回 DEFAULT 0（单一源图 = 第 0 张）",
+                    0L,
+                    revisionLink.getLong(2),
+                )
+                assertFalse("旧行只有这一条", revisionLink.step())
+            } finally {
+                revisionLink.close()
+            }
+
+            val cleanTask = connection.prepare(
+                "SELECT `revision_id`, `source_image_sha256`, `status`, `attempt_count`, " +
+                    "`updated_at_epoch_millis`, `operation_id` FROM `clean_redraw_task` " +
+                    "WHERE `task_id` = '$FIGURE_CLEAN_TASK_ID'",
+            )
+            try {
+                assertTrue("旧净化作业行必须一行不丢", cleanTask.step())
+                assertEquals(FIGURE_REVISION_ID, cleanTask.getText(0))
+                assertEquals("a".repeat(64), cleanTask.getText(1))
+                assertEquals("SUCCEEDED", cleanTask.getText(2))
+                assertEquals(1L, cleanTask.getLong(3))
+                assertEquals(1_700_000_100_000L, cleanTask.getLong(4))
+                assertTrue(
+                    "旧作业没有 operation：operation_id 必须是 NULL（不编造历史操作）",
+                    cleanTask.isNull(5),
+                )
+                assertFalse("旧行只有这一条", cleanTask.step())
+            } finally {
+                cleanTask.close()
+            }
+
+            assertTrue(
+                "迁移不回填历史生成：operation 新表必须为空",
+                tableRowCount(connection, FIGURE_OPERATION_TABLE) == 0L,
+            )
+            assertTrue(
+                "迁移不回填历史尝试：attempt 新表必须为空",
+                tableRowCount(connection, FIGURE_ATTEMPT_TABLE) == 0L,
+            )
+        } finally {
+            connection.close()
+        }
+    }
+
+    /** 新表的约束是否真的生效（唯一健在、父行不可删、缺输出资产写不进），并回收测试行。 */
+    private fun assertFigureLedgerConstraints(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL("PRAGMA foreign_keys = ON")
+            connection.execSQL(
+                """
+                INSERT INTO `$FIGURE_OPERATION_TABLE` (
+                    `operation_id`, `learner_id`, `source_kind`, `source_id`,
+                    `basis_fingerprint`, `purpose`, `policy_version`, `status`,
+                    `reserved_remote_dispatches`, `used_remote_dispatches`,
+                    `final_answer_reserved`, `created_at_epoch_millis`, `updated_at_epoch_millis`
+                ) VALUES (
+                    '$FIGURE_OPERATION_ID', 'learner-wave17', 'PROBLEM_REVISION',
+                    '$FIGURE_REVISION_ID', 'basis-wave17', 'SOURCE_RECONSTRUCTION', 'policy-v1',
+                    'PENDING', 1, 0, 0, 1700000000000, 1700000000000
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                INSERT INTO `$FIGURE_ATTEMPT_TABLE` (
+                    `attempt_id`, `operation_id`, `attempt_ordinal`, `method`, `status`,
+                    `provider_snapshot`, `model_snapshot`, `source_sha256`, `input_fingerprint`,
+                    `output_asset_id`, `reservation_id`, `diagnostics`,
+                    `started_at_epoch_millis`, `ended_at_epoch_millis`
+                ) VALUES (
+                    '$FIGURE_ATTEMPT_ID', '$FIGURE_OPERATION_ID', 0, 'IMAGE_MODEL', 'SUCCEEDED',
+                    'provider-wave17', 'model-wave17', '${"a".repeat(64)}', 'input-wave17',
+                    '$FIGURE_ASSET_ID', 'reservation-wave17', NULL,
+                    1700000000000, 1700000100000
+                )
+                """.trimIndent(),
+            )
+
+            val duplicateOrdinal = runCatching {
+                connection.execSQL(
+                    """
+                    INSERT INTO `$FIGURE_ATTEMPT_TABLE` (
+                        `attempt_id`, `operation_id`, `attempt_ordinal`, `method`, `status`,
+                        `input_fingerprint`, `started_at_epoch_millis`
+                    ) VALUES (
+                        '$FIGURE_ATTEMPT_ID-duplicate', '$FIGURE_OPERATION_ID', 0,
+                        'IMAGE_MODEL', 'RUNNING', 'input-wave17', 1700000000000
+                    )
+                    """.trimIndent(),
+                )
+            }
+            assertTrue(
+                "(operation_id, attempt_ordinal) 必须唯一：重复 ordinal 必须写不进；" +
+                    "${duplicateOrdinal.exceptionOrNull()}",
+                duplicateOrdinal.exceptionOrNull() != null,
+            )
+
+            val missingOutputAsset = runCatching {
+                connection.execSQL(
+                    """
+                    INSERT INTO `$FIGURE_ATTEMPT_TABLE` (
+                        `attempt_id`, `operation_id`, `attempt_ordinal`, `method`, `status`,
+                        `input_fingerprint`, `output_asset_id`, `started_at_epoch_millis`
+                    ) VALUES (
+                        '$FIGURE_ATTEMPT_ID-missing', '$FIGURE_OPERATION_ID', 1,
+                        'IMAGE_MODEL', 'FAILED', 'input-wave17-arm2', 'missing-asset-wave17',
+                        1700000000000
+                    )
+                    """.trimIndent(),
+                )
+            }
+            assertTrue(
+                "输出资产外键必须真实生效：不存在的 asset 写不进；" +
+                    "${missingOutputAsset.exceptionOrNull()}",
+                missingOutputAsset.exceptionOrNull() != null,
+            )
+
+            val blockedDelete = runCatching {
+                connection.execSQL(
+                    "DELETE FROM `$FIGURE_OPERATION_TABLE` " +
+                        "WHERE `operation_id` = '$FIGURE_OPERATION_ID'",
+                )
+            }
+            assertTrue(
+                "attempt 引用的 operation 不许删除（RESTRICT）；" +
+                    "${blockedDelete.exceptionOrNull()}",
+                blockedDelete.exceptionOrNull() != null,
+            )
+            assertEquals(
+                "删除被拒后父行必须还在",
+                1L,
+                tableRowCount(connection, FIGURE_OPERATION_TABLE),
+            )
+
+            connection.execSQL(
+                "DELETE FROM `$FIGURE_ATTEMPT_TABLE` " +
+                    "WHERE `operation_id` = '$FIGURE_OPERATION_ID'",
+            )
+            connection.execSQL(
+                "DELETE FROM `$FIGURE_OPERATION_TABLE` " +
+                    "WHERE `operation_id` = '$FIGURE_OPERATION_ID'",
+            )
+            assertEquals(
+                "子行删掉后父行才删得掉（证明拦住删除的确实是 RESTRICT 而不是别的）",
+                0L,
+                tableRowCount(connection, FIGURE_OPERATION_TABLE),
+            )
+        } finally {
+            connection.close()
+        }
+    }
+
     private fun seedV67ChatEvidenceRow(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
         try {
@@ -1504,6 +1877,64 @@ class FullMigrationMatrixInstrumentedTest {
         }
     }
 
+    /** 某表上的查询索引名（自动索引 sqlite_autoindex 除外）。 */
+    private fun indexNames(connection: SQLiteConnection, table: String): Set<String> {
+        val statement = connection.prepare(
+            "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = ?",
+        )
+        try {
+            statement.bindText(1, table)
+            val names = mutableSetOf<String>()
+            while (statement.step()) {
+                val name = statement.getText(0)!!
+                if (!name.startsWith("sqlite_autoindex")) names += name
+            }
+            return names
+        } finally {
+            statement.close()
+        }
+    }
+
+    /** 某索引的原始建索引语句（`CREATE UNIQUE INDEX` 与否是唯一性的直接证据）。 */
+    private fun indexSql(connection: SQLiteConnection, indexName: String): String? {
+        val statement = connection.prepare(
+            "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?",
+        )
+        try {
+            statement.bindText(1, indexName)
+            return if (statement.step()) statement.getText(0) else null
+        } finally {
+            statement.close()
+        }
+    }
+
+    /** `(引用表, 子列, on_delete)`；顺序不作断言（由调用方转成 set 比对）。 */
+    private fun foreignKeys(
+        connection: SQLiteConnection,
+        table: String,
+    ): List<Triple<String, String, String>> {
+        val statement = connection.prepare("PRAGMA foreign_key_list(`$table`)")
+        try {
+            val rows = mutableListOf<Triple<String, String, String>>()
+            while (statement.step()) {
+                rows += Triple(statement.getText(2)!!, statement.getText(3)!!, statement.getText(6)!!)
+            }
+            return rows
+        } finally {
+            statement.close()
+        }
+    }
+
+    private fun tableRowCount(connection: SQLiteConnection, table: String): Long {
+        val statement = connection.prepare("SELECT COUNT(*) FROM `$table`")
+        try {
+            assertTrue("COUNT(*) 必须有结果", statement.step())
+            return statement.getLong(0)
+        } finally {
+            statement.close()
+        }
+    }
+
     /** 迁移后的真库形状：两死列/整表都没了，旧行原样还在。 */
     private fun inspectV57M5Shape(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
@@ -1774,6 +2205,8 @@ class FullMigrationMatrixInstrumentedTest {
             "last_failure_code",
             "created_at_epoch_millis",
             "updated_at_epoch_millis",
+            // v68→69（4E WG-08）：旧作业没有 operation，NULL = 未知。
+            "operation_id",
         )
         val CLEAN_REDRAW_INDEX_NAMES = setOf(
             "index_clean_redraw_task_request_fingerprint",
@@ -1783,6 +2216,57 @@ class FullMigrationMatrixInstrumentedTest {
         const val CLEAN_REDRAW_REVISION_ID = "revision-wave13"
         const val CLEAN_REDRAW_BINDING_ID = "classification-wave13"
         const val CLEAN_REDRAW_CANDIDATE_ID = "classification-candidate-wave13"
+
+        /** v68→69（4E WG-08 图生成审计台账）用例：新表列形状、索引名与旧行夹具值。 */
+        const val FIGURE_OPERATION_TABLE = "figure_generation_operation"
+        const val FIGURE_ATTEMPT_TABLE = "figure_generation_attempt"
+        val FIGURE_OPERATION_COLUMNS = listOf(
+            "operation_id",
+            "learner_id",
+            "source_kind",
+            "source_id",
+            "basis_fingerprint",
+            "purpose",
+            "policy_version",
+            "status",
+            "reserved_remote_dispatches",
+            "used_remote_dispatches",
+            "final_answer_reserved",
+            "created_at_epoch_millis",
+            "updated_at_epoch_millis",
+        )
+        val FIGURE_ATTEMPT_COLUMNS = listOf(
+            "attempt_id",
+            "operation_id",
+            "attempt_ordinal",
+            "method",
+            "status",
+            "provider_snapshot",
+            "model_snapshot",
+            "source_sha256",
+            "input_fingerprint",
+            "output_asset_id",
+            "reservation_id",
+            "diagnostics",
+            "started_at_epoch_millis",
+            "ended_at_epoch_millis",
+        )
+        val FIGURE_OPERATION_INDEX_NAMES = setOf(
+            "index_figure_generation_operation_source_kind_source_id",
+            "index_figure_generation_operation_status_updated_at_epoch_millis",
+        )
+        val FIGURE_ATTEMPT_INDEX_NAMES = setOf(
+            "index_figure_generation_attempt_operation_id_attempt_ordinal",
+            "index_figure_generation_attempt_output_asset_id",
+        )
+        const val FIGURE_ASSET_ID = "asset-wave17"
+        const val FIGURE_PROBLEM_ID = "problem-wave17"
+        const val FIGURE_REVISION_ID = "revision-wave17"
+        const val FIGURE_CONVERSATION_ID = "conversation-wave17"
+        const val FIGURE_MESSAGE_ID = "message-wave17"
+        const val FIGURE_CLEAN_TASK_ID = "clean-task-wave17"
+        const val FIGURE_OPERATION_ID = "figure-op:wave17"
+        const val FIGURE_ATTEMPT_ID = "figure-attempt:wave17:0"
 
         /** PRD-02（v67→68）：迁移前的一条旧证据行。 */
         const val V67_EVIDENCE_ID = "knowledge-quiz:v67-old-evidence:kc-monotonicity"

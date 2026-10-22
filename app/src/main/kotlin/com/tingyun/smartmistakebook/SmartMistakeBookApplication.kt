@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.StrictMode
 import com.tingyun.smartmistakebook.core.data.capture.CaptureWorkflowRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.capture.ConfiguredCleanImageGeneratorFactory
+import com.tingyun.smartmistakebook.core.data.capture.ExplicitRedrawServiceFactory
 import com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.backup.BackupRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery
@@ -35,6 +36,7 @@ import com.tingyun.smartmistakebook.core.data.model.ConfiguredModelCapabilityTes
 import com.tingyun.smartmistakebook.core.data.model.ModelTaskRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureGeneratorFactory
 import com.tingyun.smartmistakebook.core.data.visual.FigureGenerationCoordinationFactory
+import com.tingyun.smartmistakebook.core.data.visual.FigureGenerationReconciler
 import com.tingyun.smartmistakebook.core.data.model.RestrictedModelAssetSourceFactory
 import com.tingyun.smartmistakebook.core.data.model.UnavailableModelGateway
 import com.tingyun.smartmistakebook.core.data.study.StudyExperienceRepositoryFactory
@@ -293,7 +295,55 @@ class SmartMistakeBookApplication : Application() {
                 schedulingSettingsStore = schedulingSettingsStore,
                 optimizedFsrsParameters = optimizedParameters,
             )
-            mistakeDetailRepository = MistakeDetailRepositoryFactory.create(this, database)
+            val gateway = modelConfigurationStore?.let { configurationStore ->
+                ConfiguredModelGatewayFactory.create(
+                    configurationStore = configurationStore,
+                    assetSource = RestrictedModelAssetSourceFactory.create(this, database),
+                )
+            } ?: UnavailableModelGateway()
+            // 4E.1（WG-01）：一个共享 coordinator + 持久派发账本，注入讲题工具与保存净化
+            // 两条入口；入口不再各自建图像通道/预算。没配模型时保持 null（各入口维持
+            // 既有"不可用"行为，不出网）。
+            // 4E WG-08 T1b：`FigureGenerationCoordinationFactory` 已把审计记录器接到这个
+            // 共享 coordinator 上（operation/attempt 两张表）。审计只写证据，预算权威仍是
+            // 派发账本；写不进审计不影响生成结论。
+            val figureGenerationCoordinator = modelConfigurationStore?.let { configurationStore ->
+                FigureGenerationCoordinationFactory.create(
+                    database = database,
+                    configurationStore = configurationStore,
+                    networkRequestsAllowed = capabilities.networkRequestsAllowed,
+                )
+            }
+            attachedImageCoordinator = figureGenerationCoordinator
+            // 同一份净化引擎既给保存路径（captureRepository.cleanRedraw）也给用户显式重绘：
+            // 两者共享同一 coordinator（凭证门/预算账本/审计记录）与同一套派发父操作。
+            val cleanImageGenerator = modelConfigurationStore?.let { store ->
+                figureGenerationCoordinator?.let { coordinator ->
+                    ConfiguredCleanImageGeneratorFactory.create(
+                        configurationStore = store,
+                        networkRequestsAllowed = capabilities.networkRequestsAllowed,
+                        coordinator = coordinator,
+                    )
+                }
+            }
+            // 4E WG-06 T3：详情页的"重绘干净题面"只有用户点击才建行/派发；落盘直接复用
+            // capture 的 attach（同一份 CLEAN_IMAGE 引用 + current-revision 判据）。
+            // attach 在这里只捕获装配对象，真正的仓库在下面创建，调用发生在启动完成之后。
+            val explicitRedrawService = ExplicitRedrawServiceFactory.create(
+                context = this,
+                database = database,
+                cleanImageGenerator = cleanImageGenerator,
+                attach = { revisionId, bytes, mimeType ->
+                    captureRepository.attachCleanRedrawImage(revisionId, bytes, mimeType)
+                },
+                egressAllowed = { modelConfigurationStore != null },
+                scope = applicationScope,
+            )
+            mistakeDetailRepository = MistakeDetailRepositoryFactory.create(
+                context = this,
+                database = database,
+                explicitRedraw = explicitRedrawService,
+            )
             tutorRoundQuestionRetriever = TutorRoundQuestionRetrieverFactory.create(
                 mistakeDetailRepository,
             )
@@ -376,23 +426,6 @@ class SmartMistakeBookApplication : Application() {
                 },
                 scope = applicationScope,
             ).also(ReviewReminderCoordinator::start)
-            val gateway = modelConfigurationStore?.let { configurationStore ->
-                ConfiguredModelGatewayFactory.create(
-                    configurationStore = configurationStore,
-                    assetSource = RestrictedModelAssetSourceFactory.create(this, database),
-                )
-            } ?: UnavailableModelGateway()
-            // 4E.1（WG-01）：一个共享 coordinator + 持久派发账本，注入讲题工具与保存净化
-            // 两条入口；入口不再各自建图像通道/预算。没配模型时保持 null（各入口维持
-            // 既有"不可用"行为，不出网）。
-            val figureGenerationCoordinator = modelConfigurationStore?.let { configurationStore ->
-                FigureGenerationCoordinationFactory.create(
-                    database = database,
-                    configurationStore = configurationStore,
-                    networkRequestsAllowed = capabilities.networkRequestsAllowed,
-                )
-            }
-            attachedImageCoordinator = figureGenerationCoordinator
             modelTaskRepository = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = gateway,
@@ -421,15 +454,8 @@ class SmartMistakeBookApplication : Application() {
                 // Clean redraw engine: reused by the save decision round once the
                 // model classifies the committed photo as figure-bearing.
                 // 4E.1：同一共享 coordinator；净化作业的持久领取尝试作为派发父操作。
-                cleanRedraw = modelConfigurationStore?.let { store ->
-                    figureGenerationCoordinator?.let { coordinator ->
-                        ConfiguredCleanImageGeneratorFactory.create(
-                            configurationStore = store,
-                            networkRequestsAllowed = capabilities.networkRequestsAllowed,
-                            coordinator = coordinator,
-                        )
-                    }
-                },
+                // 4E WG-06 T3：与详情页显式重绘共用同一个实例（同一凭证门/预算/审计）。
+                cleanRedraw = cleanImageGenerator,
                 cleanRedrawScope = applicationScope,
                 // Save path runs a model classify round to decide redraw. Egress needs only a
                 // configured model: the global "model agent" consent toggle was removed
@@ -472,6 +498,29 @@ class SmartMistakeBookApplication : Application() {
                 capture = captureRepository,
                 batchImports = batchImportRepository,
             )
+            // 4E WG-08（T5）：上一进程在"operation/attempt 已置 RUNNING、终态还没落"时被杀，
+            // 审计台账会永远显示"仍在生成"。启动时把早于本进程的僵尸行落成 FAILED：产物原样
+            // 保留、诊断写"待核实"、不自动重派（审计端口结构上没有派发入口）。
+            applicationScope.launch {
+                runCatching {
+                    FigureGenerationReconciler(database)
+                        .reconcileStaleRunning(processStartedAtEpochMillis)
+                }.onSuccess { report ->
+                    if (report.failedOperations > 0 || report.failedAttempts > 0) {
+                        android.util.Log.i(
+                            "SmartMistakeBook",
+                            "Reconciled ${report.failedOperations} figure operation(s) and " +
+                                "${report.failedAttempts} attempt(s) stuck in RUNNING",
+                        )
+                    }
+                }.onFailure { failure ->
+                    android.util.Log.w(
+                        "SmartMistakeBook",
+                        "Figure generation reconcile failed",
+                        failure,
+                    )
+                }
+            }
             OrphanAssetGc.enqueue(this)
             // An import interrupted by a process kill is resumed without waiting
             // for the student to reopen the screen; the worker no-ops quickly when
@@ -488,6 +537,28 @@ class SmartMistakeBookApplication : Application() {
                     android.util.Log.w(
                         "SmartMistakeBook",
                         "Clean redraw resume failed",
+                        failure,
+                    )
+                }
+            }
+            // 4E WG-06（T3）：用户点过重绘、但上一进程在完成前被杀的行由保存期对账明确跳过
+            // （两类作业不互相抢），必须在这里单独续跑：只接手带 `explicit-redraw-op:` 前缀、
+            // PENDING/FAILED 且尝试额度未耗尽的显式行；启动本身不新建任何作业，出网门关着时
+            // 一行也不动（fail-closed）。
+            applicationScope.launch {
+                runCatching {
+                    explicitRedrawService.resumePending(processStartedAtEpochMillis)
+                }.onSuccess { processed ->
+                    if (processed > 0) {
+                        android.util.Log.i(
+                            "SmartMistakeBook",
+                            "Resumed $processed explicit redraw task(s)",
+                        )
+                    }
+                }.onFailure { failure ->
+                    android.util.Log.w(
+                        "SmartMistakeBook",
+                        "Explicit redraw resume failed",
                         failure,
                     )
                 }

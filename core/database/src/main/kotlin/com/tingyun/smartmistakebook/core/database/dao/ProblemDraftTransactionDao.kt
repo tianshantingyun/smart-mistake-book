@@ -43,12 +43,16 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionSourceAssetEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
+import com.tingyun.smartmistakebook.core.model.QUESTION_SOURCE_ROLE
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjection
 import com.tingyun.smartmistakebook.core.model.TutorConversationIds
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
@@ -66,7 +70,13 @@ internal data class ExactCommittedProblemRow(
     val entryUpdatedAtEpochMillis: Long?,
 )
 
-internal const val CLEAN_IMAGE_SOURCE_ROLE = "CLEAN_IMAGE"
+/** 修订上已有的一条视觉链接（保存事务复制助手消息引用时用于去重与续排 ordinal）。 */
+internal data class ExistingRevisionVisualLink(
+    @ColumnInfo(name = "source_asset_id")
+    val sourceAssetId: String,
+    val role: String,
+    val ordinal: Int,
+)
 
 @Dao
 internal abstract class ProblemDraftTransactionDao {
@@ -103,6 +113,17 @@ internal abstract class ProblemDraftTransactionDao {
     protected abstract suspend fun insertRevisionSourceAsset(
         entity: ProblemRevisionSourceAssetEntity,
     ): Long
+
+    @Query(
+        """
+        DELETE FROM problem_revision_source_asset
+        WHERE problem_revision_id = :revisionId AND role = :role
+        """,
+    )
+    protected abstract suspend fun deleteRevisionSourceAssetsByRole(
+        revisionId: String,
+        role: String,
+    ): Int
 
     @Insert
     protected abstract suspend fun insertCommitReceipt(entity: ProblemDraftCommitReceiptEntity)
@@ -234,6 +255,44 @@ internal abstract class ProblemDraftTransactionDao {
 
     @Query("SELECT * FROM tutor_conversation WHERE capture_draft_id = :draftId LIMIT 1")
     protected abstract suspend fun findConversationByDraft(draftId: String): TutorConversationEntity?
+
+    /**
+     * 本会话的助手消息（保存时复制视觉引用的来源）。只读助手行：学生消息的附图是源证据，
+     * 已由草稿页束在 `QUESTION_SOURCE` 下复制，重复复制只会制造第二份同图引用。
+     */
+    @Query(
+        """
+        SELECT * FROM tutor_message
+        WHERE conversation_id = :conversationId AND role = 'ASSISTANT'
+        ORDER BY ordinal ASC, message_id ASC
+        """,
+    )
+    protected abstract suspend fun findAssistantMessages(
+        conversationId: String,
+    ): List<TutorMessageEntity>
+
+    @Query(
+        """
+        SELECT link.* FROM tutor_message_source_asset AS link
+        JOIN tutor_message AS message ON message.message_id = link.message_id
+        WHERE link.message_id IN (:messageIds)
+        ORDER BY message.ordinal ASC, link.ordinal ASC
+        """,
+    )
+    protected abstract suspend fun findMessageVisualLinks(
+        messageIds: List<String>,
+    ): List<TutorMessageSourceAssetEntity>
+
+    @Query(
+        """
+        SELECT source_asset_id, role, ordinal
+        FROM problem_revision_source_asset
+        WHERE problem_revision_id = :revisionId
+        """,
+    )
+    protected abstract suspend fun findRevisionVisualLinks(
+        revisionId: String,
+    ): List<ExistingRevisionVisualLink>
 
     protected suspend fun findTutorSessionById(sessionId: String): TutorConversationEntity? =
         findConversationEntity(TutorConversationIds.captured(sessionId))
@@ -796,29 +855,42 @@ internal abstract class ProblemDraftTransactionDao {
     }
 
     /**
-     * Attaches a clean-redraw canonical asset to an already-committed problem
-     * revision under the CLEAN_IMAGE role. Idempotent: inserting the same
-     * canonical asset or the same link is a no-op.
+     * Attaches a canonical asset to an already-committed problem revision under the caller's
+     * visual [role]. Idempotent: inserting the same canonical asset or the same link is a no-op.
+     *
+     * 默认角色仍是 `CLEAN_IMAGE`（既有净化重绘调用逐位不变）；4E WG-06 起调用方可以给
+     * `TUTOR_EXPLANATION` 等角色，挂接不再把"视觉引用"写死成一种用途。
      *
      * 返回 false 的两种情形（AUD-09 ⑤）：修订不存在，或它**已不是其错题条目当前指向的修订**
      * （书里已经显示别的题面）。晚到结果不许挂到已被取代的修订上；调用方按 `SUPERSEDED` 记录，
      * 不是把它当成一次失败重试。
+     *
+     * **同一修订的 CLEAN_IMAGE 是"当前干净题面"的单值事实**：新产物挂接时先删掉同 revision
+     * 同角色的旧链接，再插新链接。此前只插入不替换，同一 revision 会累积多张 CLEAN_IMAGE，
+     * 详情/导出按 `(role, asset_id)` 取第一张，新重绘完成后仍显示/导出旧图。旧 canonical 资产
+     * 行不删（审计 attempt.output_asset_id 与 GC 引用口径仍把它当证据）。
+     * 讲解图（TUTOR_EXPLANATION）允许多张，不受这条替换规则影响。
      */
     @Transaction
     open suspend fun attachCleanRedrawAsset(
         revisionId: String,
         asset: CanonicalSourceAssetRecord,
+        role: String = VisualRole.CLEAN_IMAGE.name,
     ): Boolean {
         require(revisionId.isNotBlank()) { "revisionId must not be blank" }
         require(asset.sourceAssetId.isNotBlank()) { "asset sourceAssetId must not be blank" }
+        require(role.isNotBlank()) { "role must not be blank" }
         if (revisionExists(revisionId) == null) return false
         if (currentRevisionExists(revisionId) == null) return false
         insertSourceAsset(asset.toEntity())
+        if (role == VisualRole.CLEAN_IMAGE.name) {
+            deleteRevisionSourceAssetsByRole(revisionId = revisionId, role = role)
+        }
         insertRevisionSourceAsset(
             ProblemRevisionSourceAssetEntity(
                 problemRevisionId = revisionId,
                 sourceAssetId = asset.sourceAssetId,
-                role = CLEAN_IMAGE_SOURCE_ROLE,
+                role = role,
             ),
         )
         return true
@@ -968,8 +1040,16 @@ internal abstract class ProblemDraftTransactionDao {
                 ProblemRevisionSourceAssetEntity(
                     problemRevisionId = committedIds.problemRevisionId,
                     sourceAssetId = source.sourceAssetId,
-                    role = "QUESTION_SOURCE",
+                    role = QUESTION_SOURCE_ROLE,
                 ),
+            )
+        }
+        // 4E WG-06：讲题会话里生成的图（干净题面/讲解图）与回执、题行在**同一个事务**里
+        // 变成题目的持久视觉引用；删除会话不会再带走它们。普通采集提交没有会话可复制。
+        if (allowTutorDraft) {
+            copyAssistantVisualLinksToRevision(
+                draftId = command.draftId,
+                revisionId = committedIds.problemRevisionId,
             )
         }
         if (
@@ -998,6 +1078,51 @@ internal abstract class ProblemDraftTransactionDao {
             commit = CommitProblemDraftResult(created = true, receipt = receipt.toRecord()),
             reusedExistingProblem = committedIds.reusedExistingProblem,
         )
+    }
+
+    /**
+     * 把**本会话助手消息**的视觉引用复制到刚提交的题面修订（与提交同事务）。
+     *
+     * 四条口径（4E WG-06 T2a）：
+     * - 只读助手消息：学生消息附图是源证据，已由草稿页束在 [QUESTION_SOURCE_ROLE] 下复制；
+     * - 与已有 `QUESTION_SOURCE` 同资产的链接**不复制**，避免同一张原图出现第二个角色；
+     * - 角色为 NULL 的旧行**跳过**——旧行角色未知，不按痕迹猜（不把讲解图当题面图）；
+     * - 角色与顺序照消息引用落库：同一角色按消息顺序续排 `ordinal`，不覆盖既有链接。
+     *
+     * 删会话只会级联删消息引用；这里写下的题目修订引用是独立事实，题目与图都留下。
+     */
+    private suspend fun copyAssistantVisualLinksToRevision(draftId: String, revisionId: String) {
+        val conversation = findConversationByDraft(draftId) ?: return
+        val messages = findAssistantMessages(conversation.conversationId)
+        if (messages.isEmpty()) return
+        val messageLinks = findMessageVisualLinks(
+            messages.map(TutorMessageEntity::messageId),
+        )
+        if (messageLinks.isEmpty()) return
+        val existing = findRevisionVisualLinks(revisionId)
+        val questionSourceAssetIds = existing
+            .asSequence()
+            .filter { link -> link.role == QUESTION_SOURCE_ROLE }
+            .mapTo(mutableSetOf<String>(), ExistingRevisionVisualLink::sourceAssetId)
+        val nextOrdinalByRole = existing
+            .groupBy(ExistingRevisionVisualLink::role)
+            .mapValues { (_, links) -> links.maxOf(ExistingRevisionVisualLink::ordinal) + 1 }
+            .toMutableMap()
+        messageLinks.forEach { link ->
+            // 旧行 role = NULL：角色未知，跳过而不是按痕迹回退猜测。
+            val role = link.role ?: return@forEach
+            if (link.sourceAssetId in questionSourceAssetIds) return@forEach
+            val ordinal = nextOrdinalByRole[role] ?: 0
+            val inserted = insertRevisionSourceAsset(
+                ProblemRevisionSourceAssetEntity(
+                    problemRevisionId = revisionId,
+                    sourceAssetId = link.sourceAssetId,
+                    role = role,
+                    ordinal = ordinal,
+                ),
+            )
+            if (inserted != -1L) nextOrdinalByRole[role] = ordinal + 1
+        }
     }
 
     /**

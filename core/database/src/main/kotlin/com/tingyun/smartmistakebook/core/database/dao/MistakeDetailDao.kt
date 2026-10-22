@@ -20,6 +20,7 @@ import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemCom
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemResult
 import com.tingyun.smartmistakebook.core.database.port.RevisedBasisInvalidation
 import com.tingyun.smartmistakebook.core.database.port.RevisedProblemRevisionRecord
+import com.tingyun.smartmistakebook.core.model.carriesAcrossTextRevision
 import kotlinx.coroutines.flow.Flow
 
 internal data class MistakeDetailRow(
@@ -162,6 +163,7 @@ internal data class RevisionSourceLinkRow(
     @ColumnInfo(name = "source_asset_id")
     val sourceAssetId: String,
     val role: String,
+    val ordinal: Int,
 )
 
 internal data class CancellableModelTaskRow(
@@ -643,10 +645,10 @@ internal abstract class MistakeDetailDao {
 
     @Query(
         """
-        SELECT source_asset_id, role
+        SELECT source_asset_id, role, ordinal
         FROM problem_revision_source_asset
         WHERE problem_revision_id = :revisionId
-        ORDER BY role ASC, source_asset_id ASC
+        ORDER BY role ASC, ordinal ASC, source_asset_id ASC
         """,
     )
     protected abstract suspend fun findRevisionSourceLinks(
@@ -882,16 +884,19 @@ internal abstract class MistakeDetailDao {
                 createdAtEpochMillis = command.revisedAtEpochMillis,
             ),
         )
-        // Keep the original photos visible on the new revision; generated clean redraws belong to
-        // the old basis and stay only on the historical revision.
+        // Keep only the source photos/evidence visible on the new revision; generated clean
+        // redraws, explanation figures and question diagrams belong to the old basis and stay
+        // only on the historical revision (4E WG-06 T2a allowlist, not a "not CLEAN_IMAGE" filter
+        // — that would silently carry every future role into a new problem statement).
         findRevisionSourceLinks(command.expectedRevisionId)
-            .filterNot { link -> link.role == CLEAN_IMAGE_SOURCE_ROLE }
+            .filter { link -> carriesAcrossTextRevision(link.role) }
             .forEach { link ->
                 insertRevisionSourceAsset(
                     ProblemRevisionSourceAssetEntity(
                         problemRevisionId = command.newRevisionId,
                         sourceAssetId = link.sourceAssetId,
                         role = link.role,
+                        ordinal = link.ordinal,
                     ),
                 )
             }
@@ -1092,7 +1097,6 @@ internal abstract class MistakeDetailDao {
     private companion object {
         const val MAX_BATCH_SIZE = 100
         const val USER_REVISION_SOURCE_TYPE = "USER_REVISION"
-        const val CLEAN_IMAGE_SOURCE_ROLE = "CLEAN_IMAGE"
         const val WHOLE_PROBLEM_UNIT_KEY = "whole-problem"
         const val WHOLE_PROBLEM_UNIT_KIND = "WHOLE_PROBLEM"
         const val DEFAULT_ESTIMATED_SECONDS = 180

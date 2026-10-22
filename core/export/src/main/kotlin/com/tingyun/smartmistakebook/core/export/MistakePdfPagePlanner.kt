@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.model.MathMetrics
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayoutFeature
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import kotlin.math.max
 import kotlin.math.min
 
@@ -24,8 +25,11 @@ private const val FOOTER_RESERVE_BELOW_TEXT = 10f
  * 下 geometry 与字号因子都是原常数（48pt 边距、48/12+10=22 页脚、fontScale 2→1.0 因子），
  * 输出与参数化前等价；`MistakePdfPlannerGoldenTest` 钉住这一等价的结构与摘要。
  *
- * `plan()` 的结果是 [PdfPlan]：页面×计划项 + 被 fail-closed 跳过的版式功能
- * （当前只有解析区——没有数据源，不留占位脏字）。
+ * `plan()` 的结果是 [PdfPlan]：页面×计划项 + 被 fail-closed 跳过的版式功能。
+ *
+ * 4E WG-07 起解析区有了数据源：**只收** role=TUTOR_EXPLANATION 的讲解过程图
+ * （[MistakePdfExportInput.solutionImages]），独立成区排在答案区之后；没有讲解图时仍按
+ * `unsupportedRequestedFeatures` fail-closed 跳过（不留占位脏字）。
  */
 internal object MistakePdfPagePlanner {
     const val PAGE_WIDTH = 595
@@ -124,7 +128,8 @@ internal object MistakePdfPagePlanner {
                 }
             add(spacer(typography))
             if (cleanImageSize != null) {
-                add(line("干净题面", PdfLineStyle.SECTION_HEADING, typography))
+                // 4E WG-07：题目区图 = CLEAN_IMAGE（旧调用方 null 同义），其次 QUESTION_DIAGRAM。
+                add(line(questionImageLabel(input.questionImageRole), PdfLineStyle.SECTION_HEADING, typography))
                 val width = imageWidth(cleanImageSize, layout, typography, geometry)
                 add(
                     PdfPlannedItem.Image(
@@ -135,7 +140,7 @@ internal object MistakePdfPagePlanner {
                 )
                 add(spacer(typography))
             }
-            orderedBlocks(input.blocks, layout).forEach { block ->
+            orderedBlocks(questionAreaBlocks(input.blocks), layout).forEach { block ->
                 when (block) {
                     is MistakePdfBlock.Image -> {
                         val size = cleanImageSizes[block.localUri]
@@ -180,14 +185,8 @@ internal object MistakePdfPagePlanner {
                             addWrapped(block.prompt, PdfLineStyle.BODY, measure, typography, geometry.columnWidthPt)
                         }
                         block.choices.forEachIndexed { index, choice ->
-                            val states = buildList {
-                                if (choice.selected) add("已选")
-                                if (!choice.enabled || !block.enabled) add("不可选")
-                            }.joinToString(separator = "、", prefix = " [", postfix = "]")
-                                .takeIf { it != " []" }
-                                .orEmpty()
                             addWrapped(
-                                choiceLabel(index) + choice.text + states,
+                                choiceLabel(index) + choice.text,
                                 PdfLineStyle.CHOICE,
                                 measure,
                                 typography,
@@ -217,14 +216,21 @@ internal object MistakePdfPagePlanner {
                 skipped += PdfLayoutSkip(MistakePdfLayoutFeature.ANSWER_SECTION,
                     MistakePdfLayoutSkipReason.NO_ANSWER_AVAILABLE)
             }
+            // 4E WG-07：解析区只排讲解过程图（TUTOR_EXPLANATION），独立成区排在答案区之后。
+            val solutionRendered = addSolutionSection(input, cleanImageSizes, typography, geometry)
             // 请求了但当前实现撑不住的功能：按布局自己的判据（unsupportedRequestedFeatures）
             // fail-closed 跳过。导出入口的"会跳过"提示与结果通知读的是同一份判据。
-            layout.unsupportedRequestedFeatures().forEach { feature ->
-                skipped += PdfLayoutSkip(
-                    feature = feature,
-                    reason = MistakePdfLayoutSkipReason.UNSUPPORTED_LAYOUT_FEATURE,
-                )
-            }
+            // 解析区例外：真的排出了讲解图就不再登记"跳过"（登记了会说反话）。
+            layout.unsupportedRequestedFeatures()
+                .filterNot { feature ->
+                    feature == MistakePdfLayoutFeature.SOLUTION_SECTION && solutionRendered
+                }
+                .forEach { feature ->
+                    skipped += PdfLayoutSkip(
+                        feature = feature,
+                        reason = MistakePdfLayoutSkipReason.UNSUPPORTED_LAYOUT_FEATURE,
+                    )
+                }
             addNoteSection(input, measure, typography, geometry)
         }
         return RawPlanDraft(items = items, skipped = skipped)
@@ -343,6 +349,54 @@ internal object MistakePdfPagePlanner {
         }
         add(spacer(typography))
         return missing
+    }
+
+    /**
+     * 题目区块序列：解析区角色的图块不参与题目区排版（WG-07 的"同过滤"）。
+     *
+     * 资格层不会产出这种块（讲解图在 [MistakePdfExportInput.solutionImages] 里），这里是
+     * 二道闸——即使有人把讲解图塞进块序列，也不会出现在题目区。
+     */
+    private fun questionAreaBlocks(blocks: List<MistakePdfBlock>): List<MistakePdfBlock> =
+        blocks.filterNot { block ->
+            block is MistakePdfBlock.Image && block.role == VisualRole.TUTOR_EXPLANATION.name
+        }
+
+    /**
+     * 解析区（4E WG-07）：只排 [MistakePdfExportInput.solutionImages]（资格层已限定为
+     * TUTOR_EXPLANATION），独立成区排在答案区之后、备注区之前。
+     *
+     * 未请求解析区或没有讲解图时**不排**：前者是学生的选择，后者保持原 fail-closed 口径
+     * （由调用方按 `unsupportedRequestedFeatures` 登记"跳过"，不留占位脏字）。真的排了图
+     * 就返回 true，调用方据此不再登记"跳过解析区"。
+     *
+     * 讲解图是**必图**：模型给了这张图、输入也带了它，就必须能拿到像素尺寸；拿不到时整份
+     * 导出 fail-closed（`GENERATED_PDF_INVALID`），不静默少画一张。
+     */
+    private fun MutableList<PdfPlannedItem>.addSolutionSection(
+        input: MistakePdfExportInput,
+        imageSizes: Map<String, PdfImageSize>,
+        typography: PdfTypography,
+        geometry: PdfPageGeometry,
+    ): Boolean {
+        if (!input.layout.includeSolution) return false
+        val images = input.solutionImages
+        if (images.isEmpty()) return false
+        add(line("解析", PdfLineStyle.SECTION_HEADING, typography, keepWithNext = true))
+        images.forEach { image ->
+            val size = imageSizes[image.localUri]
+                ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
+            val width = imageWidth(size, input.layout, typography, geometry)
+            add(
+                PdfPlannedItem.Image(
+                    height = size.layoutHeight(width),
+                    width = width,
+                    localUri = image.localUri,
+                ),
+            )
+        }
+        add(spacer(typography))
+        return true
     }
 
     /** 备注区（`error_book_entry.user_note`）：只在请求且确有内容时渲染。 */
@@ -475,9 +529,10 @@ internal data class PdfLayoutSkip(
 /**
  * 一次分页的完整产物：页面 + 被跳过的版式功能。
  *
- * **[skipped] 的消费者（4B B3-4）**：导出入口（sheet 的"解析区暂不可用，本次会跳过"）与
- * 结果通知（"已跳过"）读的是与这里同源的 `MistakePdfLayout.unsupportedRequestedFeatures()`；
- * 计划层用例按它断言 fail-closed（不留占位脏字）。
+ * **[skipped] 的消费者（4B B3-4，WG-07 起以计划为准）**：导出入口的"会跳过"提示与结果
+ * 通知读的是 `MistakePdfLayout.unsupportedRequestedFeatures()`；计划层在这里把"真的排出了
+ * 解析图"的解析区从跳过列表里去掉（不能一边画出讲解图一边说"已跳过"）。计划层用例按它
+ * 断言 fail-closed（不留占位脏字）。
  */
 internal data class PdfPlan(
     val pages: List<List<PdfPlannedItem>>,

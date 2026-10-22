@@ -73,8 +73,10 @@ object MistakePdfBatchEligibility {
 /**
  * 把有序的单题输入装配成一份批量导出快照（4A 既有口径，6B-2 卷面编辑共用）。
  *
- * 块装配与编号在 [buildPaperBlocks]；指纹仍是 `mistake-batch-v2 + 题数 + 版式 + 各题输入指纹`，
- * 因此未编辑的卷面草稿走这里得到的快照与正常批量导出**逐位一致**。
+ * 块装配与编号在 [buildPaperBlocks]；解析区图（WG-07）按**题序**汇总成卷面附录里的
+ * 独立一组（[aggregateSolutionImages]），每道题的视觉引用都保留。指纹是
+ * `mistake-batch-v3 + 题数 + 版式 + 解析图身份 + 各题输入指纹`，因此未编辑的卷面草稿走
+ * 这里得到的快照与正常批量导出**逐位一致**。
  */
 internal fun buildBatchExportInput(
     inputs: List<MistakePdfExportInput>,
@@ -83,11 +85,21 @@ internal fun buildBatchExportInput(
     require(inputs.isNotEmpty()) { "A batch export needs at least one input" }
     val questions = inputs.map(::paperQuestionOf)
     val blocks = buildPaperBlocks(questions, layout)
+    // 解析区图只有在请求解析区时才进导出输入（不请求时既不渲染也不进缓存键）。
+    val solutionImages = if (layout.includeSolution) {
+        aggregateSolutionImages(questions)
+    } else {
+        emptyList<MistakePdfExportImage>()
+    }
     val sourceFingerprints = inputs.map(MistakePdfExportInput::inputSha256)
     val combinedFingerprint = exportFingerprint(
-        "mistake-batch-v2",
+        "mistake-batch-v3",
         inputs.size.toString(),
         layout.canonicalForm(),
+        solutionImages.size.toString(),
+        *solutionImages
+            .flatMap { image -> listOf(image.role, image.localUri, image.contentSha256.orEmpty()) }
+            .toTypedArray(),
         *sourceFingerprints.toTypedArray(),
     )
     return MistakePdfExportInput(
@@ -105,9 +117,20 @@ internal fun buildBatchExportInput(
         maxPages = MistakePdfExportLimits.MAX_BATCH_PAGES,
         maxRenderedLines = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
         maxPdfBytes = MistakePdfExportLimits.MAX_BATCH_PDF_BYTES,
+        solutionImages = solutionImages,
         layout = layout,
     )
 }
+
+/**
+ * 卷面附录里的解析区图：按题序拼接、同一 uri 只保留一份（同一张讲解图被两道题引用时
+ * 不重复嵌入）。删题后重建卷面时自然只留下剩余题目的图。
+ */
+internal fun aggregateSolutionImages(
+    questions: List<MistakePdfPaperQuestion>,
+): List<MistakePdfExportImage> = questions
+    .flatMap(MistakePdfPaperQuestion::solutionImages)
+    .distinctBy(MistakePdfExportImage::localUri)
 
 internal fun MistakePdfBlock.withNamespacedId(namespacedId: String): MistakePdfBlock = when (this) {
     is MistakePdfBlock.Image -> copy(id = namespacedId)

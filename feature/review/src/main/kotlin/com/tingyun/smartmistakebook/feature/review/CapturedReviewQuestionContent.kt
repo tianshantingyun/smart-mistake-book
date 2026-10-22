@@ -26,6 +26,7 @@ import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
 import com.tingyun.smartmistakebook.core.ui.LocalImageLoadState
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
@@ -45,7 +46,11 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
         SafeMarkdownText(entry.problemMarkdown, MaterialTheme.typography.bodyLarge, color = SmartColors.Ink)
     }
     val source = ready?.detail?.source as? MistakeSourceSet.Present
-    val assets = source?.assets.orEmpty().filter { it.role != "CLEAN_IMAGE" }
+    // "查看原图"只收题目区资产：干净题面（CLEAN_IMAGE）不是原图，讲解图（TUTOR_EXPLANATION）
+    // 更不是——T2a 起 revision 会持久化讲解链接，这个读口必须同步按角色过滤（WG-06）。
+    val assets = source?.assets.orEmpty().filter {
+        it.role != VisualRole.CLEAN_IMAGE.name && it.role != VisualRole.TUTOR_EXPLANATION.name
+    }
     var showOriginal by rememberSaveable(entry.entryId, entry.problemRevisionId) { mutableStateOf(false) }
     if (assets.isNotEmpty()) {
         TextButton(onClick = { showOriginal = true }, modifier = Modifier.testTag("captured_review_source_open")) {
@@ -69,7 +74,7 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
                                 modifier = Modifier.fillMaxWidth(), onLoadStateChange = {
                                     failed = it == LocalImageLoadState.UNAVAILABLE
                                 })
-                            if (failed) Text("这一页原图无法读取，其他内容仍可查看。", color = SmartColors.ErrorWarm)
+                            if (failed) Text("这一页原图无法读取，其他内容仍可查看。", color = SmartColors.ErrorText)
                         }
                     }
                 }

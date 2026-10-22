@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
+import com.tingyun.smartmistakebook.core.model.MistakePdfLayoutFeature
 import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
 import com.tingyun.smartmistakebook.core.export.MistakePaperDraft
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
@@ -40,7 +42,6 @@ import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.model.TutorToolName
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.Outline
@@ -173,7 +174,8 @@ internal fun exportLayoutSummary(layout: MistakePdfLayout): String {
                 "不含答案"
             },
         )
-        if (layout.includeSolution) add("含解析（暂不可用）")
+        // WG-07：解析区只排讲解过程图（不提供文字解析）；摘要如实说"图"。
+        if (layout.includeSolution) add("含解析图")
         if (layout.includeNote) add("含备注")
         if (layout.marginPt != MistakePdfLayout.DEFAULT_MARGIN_PT) {
             add("边距 ${layout.marginPt}pt")
@@ -202,12 +204,23 @@ private fun exportBlockKindLabel(token: String): String = when (MistakePdfBlockK
     null -> token
 }
 
-/** 请求了但会被 fail-closed 跳过的版式功能 → sheet 上的如实提示；没有时 null。 */
+/**
+ * 请求了但会被 fail-closed 跳过的版式功能 → sheet 上的如实提示；没有时 null。
+ *
+ * 解析区（WG-07）不再是"暂不可用"：它现在只排讲解过程图。文案必须说清这个边界——
+ * 不承诺文字解析，也不谎称"整块都会跳过"（有讲解图时会排出来）。
+ */
 internal fun exportSkipNotice(layout: MistakePdfLayout): String? {
     val features = layout.unsupportedRequestedFeatures()
     return buildList {
-        if (features.isNotEmpty()) add(features.joinToString(separator = "、") { it.studentLabel } +
-            "暂不可用：本次导出会跳过它，不会留空占位。")
+        if (MistakePdfLayoutFeature.SOLUTION_SECTION in features) {
+            add("解析区只排讲解过程图：没有讲解图的题会跳过解析区；文字解析暂不提供。")
+        }
+        val otherFeatures = features - MistakePdfLayoutFeature.SOLUTION_SECTION
+        if (otherFeatures.isNotEmpty()) {
+            add(otherFeatures.joinToString(separator = "、") { it.studentLabel } +
+                "暂不可用：本次导出会跳过它，不会留空占位。")
+        }
         if (layout.includeAnswer || layout.templateId == MistakePdfLayout.TEMPLATE_WITH_ANSWERS)
             add("答案区仅附已有答案，缺失的题目会逐题注明。")
     }.takeIf { it.isNotEmpty() }?.joinToString("\n")
@@ -515,7 +528,7 @@ internal fun TutorExportSheet(
                         Text(
                             text = notice,
                             modifier = Modifier.testTag("tutor_export_sheet_skip_notice"),
-                            color = ErrorWarm,
+                            color = ErrorText,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -568,7 +581,7 @@ internal fun TutorExportSheet(
                         Text(
                             text = message,
                             modifier = Modifier.testTag("tutor_export_sheet_edit_message"),
-                            color = ErrorWarm,
+                            color = ErrorText,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }

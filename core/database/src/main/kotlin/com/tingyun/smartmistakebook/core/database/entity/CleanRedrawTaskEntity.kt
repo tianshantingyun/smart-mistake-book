@@ -63,4 +63,11 @@ internal data class CleanRedrawTaskEntity(
     val createdAtEpochMillis: Long,
     @ColumnInfo(name = "updated_at_epoch_millis")
     val updatedAtEpochMillis: Long,
+    /**
+     * 这次净化作业对应的图生成操作（4E WG-08，v68→69，可空）。
+     * NULL = 历史作业没有操作台账（迁移不回填）；新作业由创建方显式给出。
+     * 它只指向审计台账，**不是**预算：尝试上限仍看 [attemptCount]。
+     */
+    @ColumnInfo(name = "operation_id")
+    val operationId: String? = null,
 )

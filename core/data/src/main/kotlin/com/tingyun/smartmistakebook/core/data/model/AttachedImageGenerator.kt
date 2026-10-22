@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.model
 
 import com.tingyun.smartmistakebook.core.data.capture.GeneratedFigureProvenance
+import com.tingyun.smartmistakebook.core.data.visual.recordFigureOutputAsset
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
@@ -17,11 +18,13 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
+import com.tingyun.smartmistakebook.core.model.FigureGenerationSourceKind
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
+import com.tingyun.smartmistakebook.core.model.figureBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.coroutines.CancellationException
 
@@ -61,6 +64,12 @@ class AttachedImageGenerator(
     /** 显式重生成通道；null = 本装配没有可用协调器（不生成、不假成功）。 */
     private val coordinator: FigureGenerationCoordinator? = null,
     private val now: () -> Long = System::currentTimeMillis,
+    /**
+     * 4E WG-08 T1b：产物登记成功后的审计回填（attemptId → 规范资产 id）。
+     * 默认无操作：旧装配/测试不接审计时行为逐位不变。
+     */
+    private val recordOutputAsset: suspend (attemptId: String, assetId: String) -> Unit =
+        { _, _ -> },
 ) {
     /**
      * 批量 cache-only 解析，按 `imageId` 给出显式结果（不再用“缺 key = 失败”表达）。
@@ -141,8 +150,10 @@ class AttachedImageGenerator(
                 imageBytes = bytes,
             )
         }
+        // 稳定逻辑操作 id（不含 method）；审计来源是**原消息**（显式重生成仍属于它）。
+        val operationId = "attached-image-op:$parentRequestId:${image.kind.name}:$figureId"
         val generationRequest = FigureGenerationRequest(
-            operationId = "attached-image-op:$parentRequestId:${image.kind.name}:$figureId",
+            operationId = operationId,
             purpose = purpose,
             target = when (image.kind) {
                 AttachedImageKind.REDRAW_PROBLEM -> FigureGenerationTarget(
@@ -167,6 +178,13 @@ class AttachedImageGenerator(
             source = source,
             constraints = hostConstraints(image.kind),
             prompt = FigurePromptAssembler.assemble(purpose, capabilities, budget),
+            sourceKind = FigureGenerationSourceKind.TUTOR_MESSAGE,
+            sourceId = parentRequestId,
+            basisFingerprint = figureBasisFingerprint(
+                operationId = operationId,
+                sourceSha256 = source?.contentSha256,
+                imagePrompt = request.prompt,
+            ),
         )
         // 本波次唯一已接通的生成方法是 IMAGE_MODEL；入口只适配本意图，不建方法选择表。
         val proposal = FigureGenerationPolicy.imageModelProposal(
@@ -261,6 +279,8 @@ class AttachedImageGenerator(
                         "生成成功但本地保存失败：${failure.boundedMessage()}",
                     )
                 }
+                // WG-08：产物已登记，回填这次 attempt 的 output_asset_id（best-effort）。
+                recordFigureOutputAsset(recordOutputAsset, attemptId, record.sourceAssetId)
                 AttachedImageResolution.Ready(uriFor(record))
             }
 

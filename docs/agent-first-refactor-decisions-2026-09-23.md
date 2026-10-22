@@ -3035,3 +3035,57 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **状态**：KD-43/47 关闭；KD-62 ①+② 关闭、③ 归 KD-61；KD-61 保持 open。PRD-05 设备数据层/UI 合同通过、无设备 UI 点击；
   6B-3 仍未注入真实模型端口；T8 设计件由主会话代写，schema 69 留批次 17。
 - **提交/推送**：按显式文件清单提交并自动推送；GitHub 连接需重试（基线 4 笔 backlog 一并）。
+
+---
+
+## 完成记录折入（批次 17：4E WG-08 schema 69 / WG-06 / WG-07 + PRD-05/06/08 + 6C-2 重算）（2026-10-22）
+
+> 说明：本批由动态工作流执行（T0 基线 → T1a/T1b/T2a/T2b/T3/T4/T5/T6/T7/T8 → I1 → 门禁 → D1 → 独立核对/对抗复核 → 修复环 → 记录员）。
+> **本批未提交**；记录时点未运行 git。门禁工单结论：单测门第 3 轮 `exit=0`、强门第 1 轮 `exit=0`（脚本自报）；
+> 设备 99 例 97 过/2 红。以下“落地”只到代码/测试落盘级，不等于计划验收完成。批次记录：
+> `docs/research/2026-10-22-batch-17-wg08-wg06-wg07-record.md`。只追加，既有正文未动。
+
+- **4E WG-08 / schema 69（T1a/T1b/T5）**：`STUDY_DATABASE_VERSION` 68→69；新增
+  `figure_generation_operation` / `figure_generation_attempt` 两审计表（FK RESTRICT、operation+ordinal 唯一、
+  output_asset_id 索引），追加 `tutor_message_source_asset.role/basis_revision_id`、`clean_redraw_task.operation_id`、
+  `problem_revision_source_asset.ordinal DEFAULT 0`；68→69 纯追加迁移保旧行。**预算权威未变**：仍为
+  `model_task_operation.dispatch_count` / `clean_redraw_task.attempt_count`；审计三计数只镜像、不参与派发判定。
+  GC 引用口径加第五支 `figure_generation_attempt.output_asset_id`（成功/RUNNING/带产物失败行 pin），备份/恢复同口径；
+  新增 `FigureGenerationReconciler`（进程启动租约 + 30min 超时）把僵尸 RUNNING 落 FAILED 并保留产物、不自动重派。
+- **角色单源与保存/详情（WG-06 T1b/T2a/T2b）**：`VisualRole` 四角色 + `QUESTION_SOURCE_ROLE` 单源；讲题 trace
+  `REDRAW_PROBLEM→CLEAN_IMAGE`、`GENERATE_PROCESS→TUTOR_EXPLANATION`。`commitTutorSession` 在同一事务内把本会话
+  助手消息视觉链接复制到 revision（跳过 NULL、QUESTION_SOURCE 去重、ordinal 续排）；文本修订只允许
+  QUESTION_SOURCE/SOURCE_EVIDENCE 跟随。详情拆题目区/讲解折叠区，题目区不显示讲解图；旧单 CLEAN_IMAGE 顺序/标签不变。
+  书库卡片与复习“查看原图”同步排除讲解图（复核后的跨页面闭合）。
+- **显式重绘（WG-06 T3）**：新增 `ExplicitRedrawService`，命令 `problemRevisionId/expectedRevisionId/role/reason`；
+  复用 `clean_redraw_task` 的持久身份/尝试上限/预算父操作，确定性 taskId + 指纹含 revision/源图 sha/USER_REQUESTED；
+  forced 路径跳过分类与 TEXT_ONLY；current-revision CAS；晚到 SUPERSEDED；失败码/重试/进行中；启动续跑只接
+  `explicit-redraw-op:` 行。**在途重复领取**已按复核修复：PENDING 已领取时不再 launch，claim 只允许未领取或 stale 行。
+- **导出角色（WG-07 T4）**：题目区 CLEAN_IMAGE 优先、其次 QUESTION_DIAGRAM；解析区只收 TUTOR_EXPLANATION 且
+  `includeSolution=true`；`inputSha256`/`mistake-batch-v3` 含全部视觉引用；DOCX 同过滤、缺必图 fail-closed；
+  卷面副本/草稿保留题图角色与解析图；完成通知按“实际是否排出解析区”说真话。旧单 CLEAN_IMAGE 的 PDF 计划/DOCX
+  字节保持逐位一致。导出链无模型派发入口。
+- **PRD-05 / 5a（T6）**：`TutorJudgedReviewSettler` 改为按 `practiceUnitId` 定位队列项、`currentOrdinal` 判队首，
+  `expectedStateVersion` 只作写事务 CAS——undo 后请求讲题不再 fail-closed。新增 7 条隔离库设备 UI。D1 首轮 7 例中
+  good 键/旋转 2 例红（自评后 reveal 用机判快照写同一 presentation，撞 `ImmutablePayloadConflictException`）；
+  修复已落树（可机判题复用机判快照身份），**修复后设备复跑未提供，PRD-05 设备验收仍 UNVERIFIED**。
+- **PRD-06 / PRD-08（T7）**：新增两个设备用例（空库 CTA→LIBRARY 手动建题且 `model_task=0`；Tutor 草稿
+  `ActivityScenario.recreate` 恢复、不建会话行/不派发）。D1 自报 2/2 通过。**但两用例会 `clearAllData()` 清空
+  生产库，隔离缺陷未修（高）**；强停/进程死亡仍未覆盖。
+- **6C-2 重算（T8，只设计）**：按 schema 69 重算 86 表/2 视图/92 FK、类别闭包 5 条、裁剪顺序 78 项、软引用 20 条、
+  `closureVersion=2`、空库全选 digest golden；共享 operation/attempt 按宿主与资产引用分行。三项产品裁定
+  （仅图片 mask=8、空选择 mask=0、派生索引恒裁）保持 **OPEN**；6C-2 未实现、未勾。
+- **复核后的修复与残留**：复核提出的显式重绘并发、同 revision 多 CLEAN_IMAGE、PRD-05 快照冲突、书库/复习读侧
+  讲解图、`sheetSourceAsset` 回退、导出完成通知、保存期净化 attempt 回填、无凭证预检、审计假成功对账均已在工作树
+  有对应修复（静态）；但**未提供修复后的门禁/设备复跑证据**。仍未修：设备测试清库（高）、operation 计数口径
+  （低）、`basis_revision_id` 无生产写入（低）、卷面默认编辑稿不含讲解图（低）。KD-61 保持 open，且批次 17
+  新增审计/对账直写使非门控旁路扩大。
+- **schema / 算法台账**：DB **69**；请求 schema **18** 未动；`LearningCoreVersions.*` 全部未 bump
+  （零 bump 判据见 `algorithm-version-ledger.md` §3.27：新表无投影/计划/打分读取、计数是审计镜像、纯追加迁移、
+  角色不进公式、显式重绘复用既有尝试上限）。
+- **门禁 / 设备 / 提交**：单测门第 3 轮 `exit=0`、强门第 1 轮 `exit=0`（脚本自报）；D1 设备 99 例 97 过/2 红；
+  JVM 指定类 core:data 14/21/7、core:export 15/16/21 均 0 失败（D1 自报）。本批未提交、未推送；
+  共享脏文件整文件纳入并保留他线 hunk（MistakePdfPagePlanner UV-10、StudyDatabasePort/RoomStudyDatabase T1b+T5、
+  MistakeDetailRoute T2b+T3、Root 外部 5 处改动待主会话裁决）。
+- **下一批**：先修设备测试隔离、复跑 PRD-05 修复后 7 例与门禁；再复跑审计假成功对账/凭证门预检的修复证据，
+  处理 operation 计数口径与 HEAD 一致性；真实 Provider（PRD-09）仍 UNVERIFIED；6C-2 三项裁定仍待用户。

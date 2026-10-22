@@ -21,6 +21,7 @@ import com.tingyun.smartmistakebook.core.database.ReviseProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.SaveProblemDraftEditWorkspaceCommand
 import com.tingyun.smartmistakebook.core.database.SplitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.ConfirmedProblemOrganizationRecord
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -86,8 +87,8 @@ interface DraftWritePort {
     ): ProblemDraftCommitOutcome
 
     /**
-     * Attaches a clean-redraw canonical asset to an already-committed problem
-     * revision under the CLEAN_IMAGE role. Idempotent.
+     * Attaches a canonical visual asset to an already-committed problem revision under the
+     * caller's [role]（默认 `CLEAN_IMAGE`，净化重绘的既有调用逐位不变）。Idempotent.
      *
      * Returns false when the revision does not exist, **or when it is no longer the revision
      * its error-book entry points at**（AUD-09 ⑤：晚到的净化结果只许挂到书里现在显示的那
@@ -99,6 +100,7 @@ interface DraftWritePort {
     suspend fun attachCleanRedrawAsset(
         revisionId: String,
         asset: CanonicalSourceAssetRecord,
+        role: String = VisualRole.CLEAN_IMAGE.name,
     ): Boolean
 }
 /**

@@ -16,10 +16,18 @@ import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
+import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationAttemptEntity
+import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperationEntity
+import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.FigureGenerationReconcileCounts
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.FullLibraryScanNodeRecord
 import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
+import com.tingyun.smartmistakebook.core.database.port.RevisionImageSource
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeQuestionLatticeRecord
@@ -867,6 +875,10 @@ internal class RoomStudyDatabase(
     /**
      * 引用集合 = 全表行 − 未引用行（AUD-05：备份成包/恢复闭合的"必须进包的图"）。
      *
+     * 引用口径含图生成尝试产物（`figure_generation_attempt.output_asset_id`）——因为它与
+     * 清理认领共用 [PendingCaptureDao.findUnreferencedCanonicalAssets] 这一处判定，备份/恢复
+     * 自动纳入，不需要第二个 EXISTS 列表（见 `CaptureReadPort.readReferencedCanonicalAssets`）。
+     *
      * 两条查询读的是**同一份快照库文件**（成包时先把实时库快照下来，再对快照文件开只读口），
      * 那份文件没有写者，因此相减得到的引用集合与归档里的库自带的自洽：既不会把快照之后
      * 才登记的图算进来（快照里根本没有那行），也不会漏掉快照里已引用的图。
@@ -1093,10 +1105,12 @@ internal class RoomStudyDatabase(
     override suspend fun attachCleanRedrawAsset(
         revisionId: String,
         asset: CanonicalSourceAssetRecord,
+        role: String,
     ): Boolean = database.withWriteTransaction {
         database.problemDraftTransactionDao().attachCleanRedrawAsset(
             revisionId = revisionId,
             asset = asset,
+            role = role,
         )
     }
 
@@ -1249,6 +1263,106 @@ internal class RoomStudyDatabase(
     override suspend fun pruneMistakeExportRecords(keepNewest: Int): Int =
         database.mistakeExportRecordDao().prune(keepNewest)
 
+    /**
+     * 4E WG-08 启动对账：只落 `FAILED` 终态，不重派、不抹产物（见 `FigureGenerationAuditPort`）。
+     * 判定与两段更新在 DAO 的同一个写事务里完成。
+     */
+    override suspend fun reconcileStaleFigureGenerationRuns(
+        staleBeforeEpochMillis: Long,
+        atEpochMillis: Long,
+        diagnostics: String,
+    ): FigureGenerationReconcileCounts =
+        database.figureGenerationReconcileDao().reconcileStaleRunning(
+            staleBeforeEpochMillis = staleBeforeEpochMillis,
+            atEpochMillis = atEpochMillis,
+            diagnostics = diagnostics,
+        )
+
+    /**
+     * 4E WG-08 T1b：建立操作行（`PENDING`）。同一 `operationId` 的重放是 IGNORE——
+     * 既有行保留它的状态，不因重放被覆盖回 PENDING。三个审计计数在建立时全为 0，
+     * 只在 [finishFigureGenerationOperation] 落终态时写。
+     */
+    override suspend fun beginFigureGenerationOperation(
+        command: BeginFigureGenerationOperationCommand,
+    ): Boolean {
+        database.figureGenerationDao().insertOperation(
+            FigureGenerationOperationEntity(
+                operationId = command.operationId,
+                learnerId = command.learnerId,
+                sourceKind = command.sourceKind,
+                sourceId = command.sourceId,
+                basisFingerprint = command.basisFingerprint,
+                purpose = command.purpose,
+                policyVersion = command.policyVersion,
+                status = command.status,
+                reservedRemoteDispatches = 0,
+                usedRemoteDispatches = 0,
+                finalAnswerReserved = false,
+                createdAtEpochMillis = command.createdAtEpochMillis,
+                updatedAtEpochMillis = command.createdAtEpochMillis,
+            ),
+        )
+        return true
+    }
+
+    override suspend fun markFigureGenerationOperationRunning(
+        operationId: String,
+        updatedAtEpochMillis: Long,
+    ): Boolean = database.figureGenerationDao().updateOperationStatus(
+        operationId = operationId,
+        status = "RUNNING",
+        updatedAtEpochMillis = updatedAtEpochMillis,
+    ) > 0
+
+    override suspend fun finishFigureGenerationOperation(
+        command: FinishFigureGenerationOperationCommand,
+    ): Boolean = database.figureGenerationDao().finishOperation(
+        operationId = command.operationId,
+        status = command.status,
+        reservedRemoteDispatches = command.reservedRemoteDispatches,
+        usedRemoteDispatches = command.usedRemoteDispatches,
+        finalAnswerReserved = command.finalAnswerReserved,
+        updatedAtEpochMillis = command.updatedAtEpochMillis,
+    ) > 0
+
+    override suspend fun beginFigureGenerationAttempt(
+        command: BeginFigureGenerationAttemptCommand,
+    ): Boolean {
+        database.figureGenerationDao().insertAttempt(
+            FigureGenerationAttemptEntity(
+                attemptId = command.attemptId,
+                operationId = command.operationId,
+                attemptOrdinal = command.attemptOrdinal,
+                method = command.method,
+                status = command.status,
+                sourceSha256 = command.sourceSha256,
+                inputFingerprint = command.inputFingerprint,
+                reservationId = command.reservationId,
+                startedAtEpochMillis = command.startedAtEpochMillis,
+            ),
+        )
+        return true
+    }
+
+    override suspend fun finishFigureGenerationAttempt(
+        command: FinishFigureGenerationAttemptCommand,
+    ): Boolean = database.figureGenerationDao().finishAttempt(
+        attemptId = command.attemptId,
+        status = command.status,
+        outputAssetId = command.outputAssetId,
+        diagnostics = command.diagnostics,
+        endedAtEpochMillis = command.endedAtEpochMillis,
+    ) > 0
+
+    override suspend fun attachFigureGenerationAttemptOutput(
+        attemptId: String,
+        outputAssetId: String,
+    ): Boolean = database.figureGenerationDao().attachAttemptOutputAsset(
+        attemptId = attemptId,
+        outputAssetId = outputAssetId,
+    ) > 0
+
     override suspend fun createCleanRedrawTask(
         command: CreateCleanRedrawTaskCommand,
     ): CleanRedrawTaskRecord = database.cleanRedrawTaskDao().createTask(command)
@@ -1279,6 +1393,23 @@ internal class RoomStudyDatabase(
 
     override suspend fun isCurrentProblemRevision(revisionId: String): Boolean =
         database.problemDraftTransactionDao().isCurrentProblemRevision(revisionId)
+
+    override suspend fun readLatestCleanRedrawTask(
+        revisionId: String,
+        operationIdPrefix: String?,
+    ): CleanRedrawTaskRecord? = database.cleanRedrawTaskDao()
+        .readLatestTaskForRevision(revisionId, operationIdPrefix)
+
+    override fun observeLatestCleanRedrawTask(
+        revisionId: String,
+        operationIdPrefix: String?,
+    ): Flow<CleanRedrawTaskRecord?> = database.cleanRedrawTaskDao()
+        .observeLatestTaskForRevision(revisionId, operationIdPrefix)
+
+    override suspend fun readRevisionImageSources(
+        problemRevisionId: String,
+    ): List<RevisionImageSource> = database.cleanRedrawTaskDao()
+        .readRevisionImageSources(problemRevisionId)
 
     override suspend fun saveTutorConversationDraft(
         conversationId: String,

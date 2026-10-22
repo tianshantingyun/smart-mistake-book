@@ -24,10 +24,12 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
+import com.tingyun.smartmistakebook.core.model.FigureGenerationSourceKind
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
+import com.tingyun.smartmistakebook.core.model.figureBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
@@ -72,6 +74,17 @@ internal class ConfiguredCleanImageGenerator(
             now = now,
         )
 
+    /**
+     * 与 [generateClean] 的第一道门同一实现（[resolveImageCredential]），只是不发送、不建行。
+     * 显式重绘/启动对账据此在建任务行之前回答"现在有没有能力"。
+     */
+    override suspend fun isAvailable(): Boolean {
+        val credential = resolveImageCredential(configurationStore, networkRequestsAllowed)
+            ?: return false
+        credential.apiKey.close()
+        return true
+    }
+
     override suspend fun generateClean(request: CleanImageRequest): CleanImageResult? {
         // 门只有一处实现（A3）：resolveImageCredential（本构建不可出网 / 没配凭证 /
         // 能力测试没确认图像输入 → null）。预检不发送，立即释放租约。
@@ -83,8 +96,9 @@ internal class ConfiguredCleanImageGenerator(
         // KD-60：声明共享上限 + 未预读余量（真门在持久账本）。
         val budget = sharedOperationFigureBudget(reserveChatFinalAnswer = false)
         val sourceSha = figureSha256Hex(request.originalBytes)
+        val operationId = request.operationId ?: "clean-redraw-op:$sourceSha"
         val generationRequest = FigureGenerationRequest(
-            operationId = request.operationId ?: "clean-redraw-op:$sourceSha",
+            operationId = operationId,
             purpose = FigureGenerationPurpose.PIXEL_CLEANUP,
             target = FigureGenerationTarget(
                 fidelity = FigureFidelity.FAITHFUL,
@@ -105,6 +119,17 @@ internal class ConfiguredCleanImageGenerator(
                 capabilities = capabilities,
                 budget = budget,
             ),
+            // WG-08：净化生成的来源是**持久净化作业**（taskId），不是源图资产。
+            sourceKind = FigureGenerationSourceKind.CLEAN_REDRAW,
+            sourceId = when (val parent = request.parent) {
+                is FigureDispatchParent.CleanRedrawTask -> parent.taskId
+                is FigureDispatchParent.ModelTask -> parent.requestId
+            },
+            basisFingerprint = figureBasisFingerprint(
+                operationId = operationId,
+                sourceSha256 = sourceSha,
+                imagePrompt = CLEAN_REDRAW_INSTRUCTION,
+            ),
         )
         val proposal = FigureGenerationPolicy.imageModelProposal(
             request = generationRequest,
@@ -119,7 +144,13 @@ internal class ConfiguredCleanImageGenerator(
     private fun FigureGenerationOutcome.toCleanImageResult(): CleanImageResult? =
         if (status == FigureGenerationStatus.GENERATED || status == FigureGenerationStatus.CACHED) {
             (artifact as? FigureArtifact.ImageAsset)?.let { artifact ->
-                CleanImageResult(bytes = artifact.imageBytes(), mimeType = artifact.mimeType)
+                CleanImageResult(
+                    bytes = artifact.imageBytes(),
+                    mimeType = artifact.mimeType,
+                    // 两条入口（保存期净化/显式重绘）落盘后都用它回填
+                    // attempt.output_asset_id；attemptId 只是审计身份，不是预算句柄。
+                    attemptId = attemptId,
+                )
             }
         } else {
             null

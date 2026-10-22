@@ -35,7 +35,9 @@ import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementStatu
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
 import com.tingyun.smartmistakebook.core.model.AppCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.NetworkMode
+import com.tingyun.smartmistakebook.core.model.QUESTION_SOURCE_ROLE
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.feature.review.CapturedReviewSessionScreen
 import com.tingyun.smartmistakebook.feature.review.ReviewSessionScreen
 import com.tingyun.smartmistakebook.feature.review.ReviewTutorSettlementNotice
@@ -629,9 +631,23 @@ internal fun canonicalRecordForSheet(
     )
 }
 
-/** 重绘题面用哪一张：干净重绘优先，否则原图；没有本机位置的资产直接跳过。 */
+/**
+ * 重绘题面用哪一张：当前干净题面优先，其次原题照片/源证据/题图。
+ *
+ * **绝不回退到 TUTOR_EXPLANATION**：讲解图是解析区图，不是题目本身；把它当"当前题面"
+ * 交给图像模型，会把讲解过程重绘成一张假题面。没有可用题目区图时返回 null（不派发）。
+ * 与 `ExplicitRedrawService.pickExplicitRedrawSource` 同一取舍。
+ */
 internal fun sheetSourceAsset(source: MistakeSourceSet): MistakeSourceAsset? {
     val assets = (source as? MistakeSourceSet.Present)?.assets.orEmpty()
         .filter { it.location is MistakeSourceLocation.Available }
-    return assets.firstOrNull { it.role == CLEAN_PROBLEM_SHEET_ROLE } ?: assets.firstOrNull()
+    // 旧库可能有多张历史重绘：当前题面取最新那张（创建时刻；同刻按资产 id 确定性）。
+    return assets.filter { it.role == CLEAN_PROBLEM_SHEET_ROLE }
+        .maxWithOrNull(compareBy<MistakeSourceAsset> { it.createdAtEpochMillis }
+            .thenBy { it.sourceAssetId })
+        ?: assets.firstOrNull { it.role == QUESTION_SOURCE_ROLE }
+        ?: assets.firstOrNull { it.role == VisualRole.SOURCE_EVIDENCE.name }
+        ?: assets.firstOrNull { it.role == VisualRole.QUESTION_DIAGRAM.name }
+        // 旧数据/兼容角色（例如历史 "ORIGINAL"）：只排除讲解图，其它仍按原行为兜底。
+        ?: assets.firstOrNull { it.role != VisualRole.TUTOR_EXPLANATION.name }
 }

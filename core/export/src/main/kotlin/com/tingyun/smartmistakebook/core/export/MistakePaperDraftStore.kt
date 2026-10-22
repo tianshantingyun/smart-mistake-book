@@ -177,6 +177,8 @@ class MistakePaperDraftStore(
         cleanImageLocalUri = cleanImageLocalUri,
         cleanImageSha256 = cleanImageSha256,
         cleanImageByteSize = cleanImageByteSize,
+        questionImageRole = questionImageRole,
+        solutionImages = solutionImages.map { image -> image.toDto() },
         layout = layout,
         userNote = userNote,
     )
@@ -200,10 +202,26 @@ class MistakePaperDraftStore(
             cleanImageLocalUri = cleanImageLocalUri,
             cleanImageSha256 = cleanImageSha256,
             cleanImageByteSize = cleanImageByteSize,
+            questionImageRole = questionImageRole,
+            solutionImages = solutionImages.map { image -> image.toModel() },
             layout = layout,
             userNote = userNote,
         )
     }.getOrNull()
+
+    private fun MistakePdfExportImage.toDto(): PaperImageDto = PaperImageDto(
+        role = role,
+        localUri = localUri,
+        contentSha256 = contentSha256,
+        byteSize = byteSize,
+    )
+
+    private fun PaperImageDto.toModel(): MistakePdfExportImage = MistakePdfExportImage(
+        role = role,
+        localUri = localUri,
+        contentSha256 = contentSha256,
+        byteSize = byteSize,
+    )
 
     private companion object {
         const val FORMAT_VERSION = 1
@@ -248,6 +266,7 @@ private fun MistakePdfBlock.toDto(): PaperBlockDto = when (this) {
         title = title,
         expectedContentSha256 = expectedContentSha256,
         expectedByteSize = expectedByteSize,
+        role = role,
     )
     is MistakePdfBlock.Note -> PaperBlockDto.Note(id, text)
 }
@@ -276,6 +295,7 @@ private fun PaperBlockDto.toModel(): MistakePdfBlock = when (this) {
         title = title,
         expectedContentSha256 = expectedContentSha256,
         expectedByteSize = expectedByteSize,
+        role = role,
     )
     is PaperBlockDto.Note -> MistakePdfBlock.Note(id, text)
 }
@@ -312,8 +332,20 @@ private data class PaperInputDto(
     /** 干净题面图的记录完整性（KD-55）；旧草稿缺这两项时按"不携带记录"处理。 */
     val cleanImageSha256: String? = null,
     val cleanImageByteSize: Long? = null,
+    /** 题目区图角色（WG-07）；旧草稿缺省 = 不携带角色（按 CLEAN_IMAGE 处理）。 */
+    val questionImageRole: String? = null,
+    /** 解析区图（WG-07）：卷面副本必须原样保存全部视觉引用；旧草稿缺省为空。 */
+    val solutionImages: List<PaperImageDto> = emptyList(),
     val layout: MistakePdfLayout,
     val userNote: String? = null,
+)
+
+@Serializable
+private data class PaperImageDto(
+    val role: String,
+    val localUri: String,
+    val contentSha256: String? = null,
+    val byteSize: Long? = null,
 )
 
 @Serializable
@@ -372,6 +404,8 @@ private sealed interface PaperBlockDto {
         /** 记录完整性（KD-55）；旧草稿缺这两项时按"不携带记录"处理。 */
         val expectedContentSha256: String? = null,
         val expectedByteSize: Long? = null,
+        /** 图角色（WG-07）；旧草稿缺省 = 不携带角色。 */
+        val role: String? = null,
     ) : PaperBlockDto
 
     @Serializable

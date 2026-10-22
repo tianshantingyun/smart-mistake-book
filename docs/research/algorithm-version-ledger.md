@@ -361,6 +361,20 @@
 > 防止全量重放把合法的 true→false 当冲突；② 首轮空 `toolDeclarations` 先补默认工具集再按就绪位裁剪
 > （`RoomModelTaskRepository`），防止模型看不到任何工具被工具环丢弃。两条只影响守卫/广告面，不改变投影/计划/打分输出。
 
+### 3.27 批次 17 · 4E WG-08 schema 69 / operation·attempt 审计镜像（2026-10-22）：schema 69 + 零算法 bump
+
+> 编号说明：本条由批次 17 占用。`STUDY_DATABASE_VERSION` 68→**69**，新增两张图生成审计表与四个追加列；
+> 学习投影/计划/打分/提示词版本**全部未 bump**。请求 schema 仍为 18（批次 16 已登记，本批未动）。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` 68 → **69**（`FigureGenerationMigration_68_69`） | **4E WG-08 审计持久化**：新增 `figure_generation_operation`（`operation_id` PK、`source_kind`/`source_id`/`basis_fingerprint`、`status`、三个审计镜像计数）与 `figure_generation_attempt`（`attempt_id` PK、operation FK RESTRICT、`(operation_id,attempt_ordinal)` UNIQUE、`output_asset_id` FK RESTRICT）；追加 `tutor_message_source_asset.role`/`basis_revision_id`、`clean_redraw_task.operation_id`、`problem_revision_source_asset.ordinal DEFAULT 0` | **不是算法数值变更**。审计表只记录“谁申请/派发/产出”，不参与投影、复习计划、掌握度或预算判定；预算权威仍是 `model_task_operation.dispatch_count` 与 `clean_redraw_task.attempt_count`（两表 68/69 逐字不变，审计表无指向预算表的外键）。`VisualRole` 是持久角色枚举（CLEAN_IMAGE/TUTOR_EXPLANATION/QUESTION_DIAGRAM/SOURCE_EVIDENCE），只影响读侧分组/导出过滤，不进任何公式。导出 `mistake-export-v3`/`mistake-batch-v3` 是内容指纹版本，不是算法版本 | 计划 `.zcode/plans/plan-2026-10-21-batch-17-wg08-wg06-wg07.md:21-35`；设计件 `docs/research/2026-10-21-4e-wg060708-schema-design.md`；迁移/实体 `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/FigureGenerationMigration_68_69.kt:36`、`entity/FigureGenerationEntities.kt` | **本记录员未运行 Gradle**。门禁材料：单测门第 3 轮 `exit=0`、强门第 1 轮 `exit=0`（脚本自报）；D1 设备迁移矩阵 `FullMigrationMatrixInstrumentedTest` `OK (15 tests)`（含 68→69 保行/幂等、1→69 全循环）；69.json 静态核对：`version=69`、`identityHash=6633b7c2fe223041c4a2927203853f4f`、86 实体/2 视图/92 FK（本记录员 Python 读取） | ➖（无投影输出变化，不触发重放） |
+| `LearningCoreVersions.*`（`PROJECTOR`/`EVIDENCE`/`ATTRIBUTION`/`LEDGER`）**全部未 bump**；各指纹 schema 未动；提示词版本未动 | 批次 17 的 WG-06/07 改动集中在角色持久化、保存复制时序、详情/导出读侧过滤与显式重绘状态机 | **零 bump 判据（逐条）**：① 新表/新列没有投影器、复习计划器、打分器、校准读取（`figure_generation_*` 只被审计写入与启动对账读写）；② operation 的三个计数是审计镜像，生产代码无预算读取口，预算仍走既有账本；③ 68→69 是纯追加迁移，旧行保行、旧表/索引/视图逐字不变（`FigureGenerationSchemaContractTest` + 设备矩阵）；④ 角色只改变“哪些资产进题目区/解析区”，旧单 CLEAN_IMAGE 的既有输出由 golden 钉住（T4 JVM）；⑤ 显式重绘复用 `clean_redraw_task` 与其尝试上限，没有新增调度/打分路径。**若将来审计行被用于预算/调度，或角色语义进入投影输入，必须重新评估 bump** | 计划 `:35`、`:116-117`；T1a/T4 契约测试与 golden | 已写未由本记录员执行：`FigureGenerationSchemaContractTest`、`KernelWave0SchemaContractTest`、`MistakeExportVisualRoleTest`；D1 自报 JVM `MistakeExportVisualRoleTest`/`DocxMistakeRendererTest` 与设备 17/17 通过 | ➖（零 bump，不触发重放） |
+
+> **本批非算法常量追溯**：T1a 的四个可空列与两表 DDL 由迁移常量定义，`69.json` 由 KSP 生成后与迁移 DDL 逐字一致（T1a 静态比对自报）；
+> D1 的设备迁移是运行时证据，但真实 Provider 质量/费用仍 UNVERIFIED（本批全部模型验证为 fake/夹具）。
+> 批次 17 记录见 `docs/research/2026-10-22-batch-17-wg08-wg06-wg07-record.md`。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

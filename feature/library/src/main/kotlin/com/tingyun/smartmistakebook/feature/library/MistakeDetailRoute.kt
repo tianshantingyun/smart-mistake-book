@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -7,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +48,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawFailureReason
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawPhase
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawRequestResult
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawState
 import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
@@ -58,7 +67,10 @@ import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
+import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
@@ -311,7 +323,7 @@ private fun MistakeDetailHeader(onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(58.dp),
+            .heightIn(min = 58.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
@@ -357,6 +369,7 @@ private fun LoadingDetail() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ReadyDetail(
     state: MistakeDetailState.Ready,
@@ -429,32 +442,40 @@ private fun ReadyDetail(
                 icon = Icons.AutoMirrored.Outlined.Chat,
                 contentDescription = "继续或开始讲解这道错题",
             )
-            if (onEdit != null) {
-                Spacer(Modifier.height(8.dp))
-                OutlinedButton(
-                    onClick = onEdit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("mistake_detail_edit"),
-                ) {
-                    Text("修改这道题")
-                }
-            }
         }
-        Spacer(Modifier.height(8.dp))
-        OutlineActionChip(
+        PaperDivider(Modifier.padding(vertical = 18.dp))
+        SectionHeader("题面")
+        Spacer(Modifier.height(12.dp))
+        StructuredContentRenderer(
+            document = state.questionDocument.document,
+            choicesEnabled = false,
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (!isViewingHistoricalRevision && onEdit != null) {
+            InlineActionButton("修改这道题", onEdit, Modifier.testTag("mistake_detail_edit"))
+        }
+        InlineActionButton(
             text = if (isViewingHistoricalRevision) "导出这一版 A4" else "导出 A4",
             onClick = onExport,
             modifier = Modifier.testTag("mistake_detail_export_a4"),
-            icon = Icons.Outlined.PictureAsPdf,
         )
         // 6B-2：当前版本可进入卷面编辑（只改导出文档副本）；历史版本只读，不提供入口。
         if (!isViewingHistoricalRevision && onEditPaper != null) {
             Spacer(Modifier.height(8.dp))
-            OutlineActionChip(
+            InlineActionButton(
                 text = "编辑卷面",
                 onClick = onEditPaper,
                 modifier = Modifier.testTag("mistake_detail_edit_paper"),
+            )
+        }
+        }
+        // 4E WG-06 T3：用户显式重绘只对当前版本开放；历史版本只读（旧修订的结果已 SUPERSEDED）。
+        if (!isViewingHistoricalRevision && repository != null && repository.supportsExplicitRedraw()) {
+            Spacer(Modifier.height(8.dp))
+            ExplicitRedrawSection(
+                revisionId = state.detail.identity.problemRevisionId,
+                repository = repository,
             )
         }
         SourceSection(
@@ -482,12 +503,10 @@ private fun ReadyDetail(
                 )
             }
         }
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("题面")
-        Spacer(Modifier.height(12.dp))
-        StructuredContentRenderer(
-            document = state.questionDocument.document,
-            choicesEnabled = false,
+        // 讲解图属于解析区：默认折叠，绝不混进上面的题目图片区（4E WG-06 T2b）。
+        ExplanationSourceSection(
+            source = state.detail.source,
+            revisionId = state.detail.identity.problemRevisionId,
         )
         if (!isViewingHistoricalRevision && organizationRepository != null && modelTasks != null) {
             MistakeOrganizationSection(
@@ -504,6 +523,153 @@ private fun ReadyDetail(
         Spacer(Modifier.height(24.dp))
     }
 }
+
+/**
+ * 4E WG-06 T3：详情页的显式重绘入口与状态。
+ *
+ * 状态来自持久台账（`clean_redraw_task`），观察本身不派发；只有点击按钮才调用
+ * `requestExplicitRedraw`。失败时展示原因，额度未耗尽给"重试重绘"。
+ */
+@Composable
+private fun ExplicitRedrawSection(
+    revisionId: String,
+    repository: MistakeDetailRepository,
+) {
+    val state by repository.observeExplicitRedraw(revisionId)
+        .collectAsState(initial = ExplicitRedrawState.Idle)
+    val scope = rememberCoroutineScope()
+    var submitting by remember(revisionId) { mutableStateOf(false) }
+    var message by rememberSaveable(revisionId) { mutableStateOf<String?>(null) }
+    val busy = submitting || state.phase == ExplicitRedrawPhase.RUNNING
+    val buttonLabel = when {
+        busy -> "重绘中…"
+        state.phase == ExplicitRedrawPhase.FAILED && state.canRetry -> "重试重绘"
+        state.phase == ExplicitRedrawPhase.IDLE -> "重绘干净题面"
+        else -> null
+    }
+
+    Column(Modifier.fillMaxWidth()) {
+        buttonLabel?.let { label ->
+            OutlinedButton(
+                onClick = {
+                    message = null
+                    submitting = true
+                    scope.launch {
+                        val result = try {
+                            repository.requestExplicitRedraw(
+                                ExplicitRedrawCommand(
+                                    problemRevisionId = revisionId,
+                                    expectedRevisionId = revisionId,
+                                    reason = EXPLICIT_REDRAW_UI_REASON,
+                                ),
+                            )
+                        } catch (failure: Exception) {
+                            ExplicitRedrawRequestResult.Rejected(
+                                failure.message ?: "REQUEST_FAILED",
+                            )
+                        }
+                        submitting = false
+                        message = explicitRedrawResultMessage(result)
+                    }
+                },
+                enabled = !busy,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("mistake_detail_redraw"),
+            ) { Text(label) }
+        }
+        if (busy) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .testTag("mistake_detail_redraw_progress"),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                    color = JadeActive,
+                )
+                Text(
+                    text = explicitRedrawStatusText(state) ?: "正在重绘题面…",
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        } else {
+            explicitRedrawStatusText(state)?.let { status ->
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = status,
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("mistake_detail_redraw_status"),
+                )
+            }
+        }
+        message?.let { notice ->
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = notice,
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("mistake_detail_redraw_message"),
+            )
+        }
+    }
+}
+
+/** 详情页发起重绘的固定理由（用户动作；写入命令的审计字段，不参与作业身份）。 */
+internal const val EXPLICIT_REDRAW_UI_REASON: String = "用户在详情页请求重新生成干净题面"
+
+/** 状态文案（JVM 可测）：null = 不显示状态行。 */
+internal fun explicitRedrawStatusText(state: ExplicitRedrawState): String? = when (state.phase) {
+    ExplicitRedrawPhase.IDLE -> null
+    ExplicitRedrawPhase.RUNNING -> if (state.attemptCount == 0) {
+        "已提交重绘，等待开始…"
+    } else {
+        "正在重绘题面（第 ${state.attemptCount} 次尝试）…"
+    }
+    ExplicitRedrawPhase.FAILED -> buildString {
+        append("上次重绘失败：")
+        append(explicitRedrawFailureText(state.failureReason))
+        if (!state.canRetry) append("；重试次数已用完")
+    }
+    ExplicitRedrawPhase.SUCCEEDED -> "已生成新的干净题面。"
+    ExplicitRedrawPhase.SUPERSEDED -> "题面已更新，这次重绘没有执行。"
+}
+
+/** 失败原因文案（JVM 可测）。 */
+internal fun explicitRedrawFailureText(reason: ExplicitRedrawFailureReason?): String =
+    when (reason) {
+        ExplicitRedrawFailureReason.SOURCE_UNREADABLE -> "原图读不出来"
+        ExplicitRedrawFailureReason.REDRAW_FAILED -> "生成没有成功"
+        ExplicitRedrawFailureReason.ATTACH_FAILED -> "新图没能保存到这道题"
+        ExplicitRedrawFailureReason.UNKNOWN, null -> "未知原因"
+    }
+
+/** 命令结果的人员可读提示（JVM 可测）；null = 不需要额外提示。 */
+internal fun explicitRedrawResultMessage(result: ExplicitRedrawRequestResult): String? =
+    when (result) {
+        is ExplicitRedrawRequestResult.Accepted,
+        is ExplicitRedrawRequestResult.AlreadySettled,
+        ExplicitRedrawRequestResult.NotSupported,
+        -> null
+
+        ExplicitRedrawRequestResult.NotCurrentRevision ->
+            "题面已更新，请回到当前版本后再重绘。"
+
+        ExplicitRedrawRequestResult.NoSource ->
+            "这道题没有可用的原图，暂时不能重绘。"
+
+        ExplicitRedrawRequestResult.Unavailable ->
+            "还没有可用的模型配置，先在设置里配置模型后再重绘。"
+
+        is ExplicitRedrawRequestResult.Rejected ->
+            "重绘请求未被接受（${result.reason}）。"
+    }
 
 @Composable
 private fun MistakeUserNoteCard(
@@ -793,6 +959,10 @@ private fun LegacyDetail(detail: MistakeDetail) {
             color = Ink,
             style = MaterialTheme.typography.bodyLarge,
         )
+        ExplanationSourceSection(
+            source = detail.source,
+            revisionId = detail.identity.problemRevisionId,
+        )
         Spacer(Modifier.height(24.dp))
     }
 }
@@ -983,7 +1153,8 @@ private fun SourceSection(
     revisionId: String,
     isHistorical: Boolean = false,
 ) {
-    val assets = source.displayAssets()
+    // 题目区只拿题目资产；讲解图走下方独立的折叠讲解区，绝不混进题面图片。
+    val assets = source.detailAssets().question
     if (assets.isEmpty()) return
 
     var expanded by rememberSaveable(revisionId) { mutableStateOf(false) }
@@ -1020,16 +1191,64 @@ private fun SourceSection(
     }
 }
 
+/**
+ * 讲解图折叠区（4E WG-06 T2b）。讲题工具产出的过程图是解析材料，不是题目本身：
+ * 默认收起，只有学生主动展开才出现；题目区永远不会渲染这些资产。
+ */
+@Composable
+private fun ExplanationSourceSection(
+    source: MistakeSourceSet,
+    revisionId: String,
+) {
+    val assets = source.detailAssets().explanation
+    if (assets.isEmpty()) return
+
+    var expanded by rememberSaveable(revisionId) { mutableStateOf(false) }
+    Spacer(Modifier.height(18.dp))
+    SectionHeader(
+        title = "讲解图",
+        action = {
+            OutlineActionChip(
+                text = if (expanded) "收起讲解图" else explanationToggleLabel(assets.size),
+                onClick = { expanded = !expanded },
+                modifier = Modifier.testTag("mistake_detail_explanation_toggle"),
+                icon = Icons.Outlined.Image,
+                selected = expanded,
+            )
+        },
+    )
+    if (expanded) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+                .testTag("mistake_detail_explanation_content"),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            assets.forEachIndexed { index, asset ->
+                SourceAssetPreview(
+                    asset = asset,
+                    position = index + 1,
+                    total = assets.size,
+                    isExplanation = true,
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun SourceAssetPreview(
     asset: MistakeSourceAsset,
     position: Int,
     total: Int,
     isHistorical: Boolean = false,
+    isExplanation: Boolean = false,
 ) {
     val availableLocation = asset.location as? MistakeSourceLocation.Available
     val imageUri = availableLocation?.localUri
     var imageExpanded by rememberSaveable(asset.sourceAssetId) { mutableStateOf(false) }
+    var viewing by rememberSaveable(asset.sourceAssetId, imageUri) { mutableStateOf(false) }
     var loadState by remember(imageUri) {
         mutableStateOf(
             if (imageUri == null) LocalImageLoadState.UNAVAILABLE else LocalImageLoadState.LOADING,
@@ -1045,10 +1264,13 @@ private fun SourceAssetPreview(
                 imageExpanded = !imageExpanded
             }
             .padding(12.dp)
-            .testTag("mistake_detail_source_asset_$position"),
+            .testTag(
+                "${if (isExplanation) "mistake_detail_explanation_asset" else "mistake_detail_source_asset"}_$position",
+            ),
     ) {
         Text(
             text = when {
+                isExplanation -> if (total == 1) "讲解图" else "讲解图 $position / $total"
                 asset.role == CLEAN_IMAGE_SOURCE_ROLE && isHistorical -> "旧版重绘（仅历史题面）"
                 asset.role == CLEAN_IMAGE_SOURCE_ROLE -> "重绘"
                 total == 1 -> "原图"
@@ -1061,7 +1283,11 @@ private fun SourceAssetPreview(
         if (imageUri != null) {
             BoundedLocalImage(
                 imageUri = imageUri,
-                contentDescription = if (total == 1) "错题原图" else "错题原图 $position",
+                contentDescription = when {
+                    isExplanation -> if (total == 1) "讲解图" else "讲解图 $position"
+                    total == 1 -> "错题原图"
+                    else -> "错题原图 $position"
+                },
                 expanded = imageExpanded,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1079,16 +1305,58 @@ private fun SourceAssetPreview(
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
         )
+        if (imageUri != null && loadState == LocalImageLoadState.AVAILABLE) {
+            InlineActionButton("查看大图", { viewing = true })
+        }
+    }
+    if (viewing && imageUri != null) {
+        LocalImageViewer(imageUri, if (isExplanation) "讲解图 $position" else "错题原图 $position", { viewing = false })
     }
 }
 
-internal const val CLEAN_IMAGE_SOURCE_ROLE = "CLEAN_IMAGE"
+/** 持久角色值来自 [VisualRole] 单源；保留别名给列表缩略图与既有测试。 */
+internal val CLEAN_IMAGE_SOURCE_ROLE: String = VisualRole.CLEAN_IMAGE.name
 
+/** 详情页角色分区：题目区与讲解区各拿各的资产，互不混排。 */
+internal data class MistakeDetailAssets(
+    val question: List<MistakeSourceAsset>,
+    val explanation: List<MistakeSourceAsset>,
+)
+
+internal fun MistakeSourceSet.detailAssets(): MistakeDetailAssets = when (this) {
+    MistakeSourceSet.Missing -> MistakeDetailAssets(emptyList(), emptyList())
+    is MistakeSourceSet.Present -> {
+        val explanation = assets.filter { it.role == VisualRole.TUTOR_EXPLANATION.name }
+        val question = assets.filterNot { it.role == VisualRole.TUTOR_EXPLANATION.name }
+        // 同一修订可能留有历史上多次重绘的 CLEAN_IMAGE：最新的那张才是"当前干净题面"
+        // （attach 侧现在也会替换旧链接；这里对旧库数据按创建时间兜底选新）。
+        val clean = question.filter { it.role == CLEAN_IMAGE_SOURCE_ROLE }
+            .sortedWith(compareByDescending<MistakeSourceAsset> { it.createdAtEpochMillis }
+                .thenBy { it.sourceAssetId })
+        // 旧数据（只有 CLEAN_IMAGE/QUESTION_SOURCE）保持"重绘在前、其余原顺序"的逐位结果。
+        MistakeDetailAssets(
+            question = clean + question.filterNot { it.role == CLEAN_IMAGE_SOURCE_ROLE },
+            explanation = explanation,
+        )
+    }
+}
+
+/**
+ * 列表缩略图/题图预览用的题目区资产。
+ *
+ * **TUTOR_EXPLANATION 永远不在这里**：它是解析区图，不是题目本身。此前只把 CLEAN_IMAGE
+ * 提前、其余全保留，导致书库卡片把讲解图逐张标成"题图"（4E WG-06 新增角色数据的读侧
+ * 影响面；详情页/导出早已按角色过滤，这里是遗漏的读口）。
+ */
 internal fun MistakeSourceSet.displayAssets(): List<MistakeSourceAsset> = when (this) {
     MistakeSourceSet.Missing -> emptyList()
     is MistakeSourceSet.Present -> {
         val clean = assets.filter { it.role == CLEAN_IMAGE_SOURCE_ROLE }
-        val original = assets.filterNot { it.role == CLEAN_IMAGE_SOURCE_ROLE }
+            .sortedWith(compareByDescending<MistakeSourceAsset> { it.createdAtEpochMillis }
+                .thenBy { it.sourceAssetId })
+        val original = assets.filterNot {
+            it.role == CLEAN_IMAGE_SOURCE_ROLE || it.role == VisualRole.TUTOR_EXPLANATION.name
+        }
         // Clean redraws (if attached at commit time) come first; originals stay available.
         clean + original
     }
@@ -1110,4 +1378,10 @@ private fun sourceToggleLabel(assetCount: Int): String = if (assetCount == 1) {
     "查看原图"
 } else {
     "查看原图（$assetCount）"
+}
+
+private fun explanationToggleLabel(assetCount: Int): String = if (assetCount == 1) {
+    "查看讲解图"
+} else {
+    "查看讲解图（$assetCount）"
 }

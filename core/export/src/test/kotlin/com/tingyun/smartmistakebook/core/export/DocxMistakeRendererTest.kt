@@ -11,6 +11,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -276,34 +277,33 @@ class DocxMistakeRendererTest {
     }
 
     /**
-     * KD-55 失败路径：记录读完之后文件被换掉（TOCTOU）——渲染必须省略这张图，
-     * 不能把未经复核的字节写进 Word 包；题面其余内容照常渲染。
+     * KD-55 失败路径（4E WG-07 起 fail-closed）：记录读完之后文件被换掉（TOCTOU）——
+     * 渲染必须失败，不能把未经复核的字节写进 Word 包，也不能交出一份少了题目图的"成功"文档。
      */
     @Test
-    fun `a clean image that no longer matches its record is omitted instead of embedded`() {
+    fun `a clean image that no longer matches its record fails the render`() {
         val recorded = pngBytes(width = 4, height = 2)
         val replacement = pngBytes(width = 8, height = 6)
         val imageFile = temporaryFolder.newFile("swapped.png").apply { writeBytes(replacement) }
+        val output = File(temporaryFolder.root, "swapped.docx")
 
-        val file = renderToFile(
-            input(
-                blocks = listOf(paragraph("题干")),
-                cleanImageLocalUri = imageFile.toURI().toString(),
-                cleanImageSha256 = sha256Hex(recorded),
-                cleanImageByteSize = recorded.size.toLong(),
-            ),
-        )
+        val failure = assertThrows(MistakePdfExportException::class.java) {
+            DocxMistakeRenderer.render(
+                input(
+                    blocks = listOf(paragraph("题干")),
+                    cleanImageLocalUri = imageFile.toURI().toString(),
+                    cleanImageSha256 = sha256Hex(recorded),
+                    cleanImageByteSize = recorded.size.toLong(),
+                ),
+                output,
+            )
+        }
 
-        val parts = readZip(file)
-        assertFalse(parts.keys.any { it.startsWith("word/media/") })
-        // 图被省略时连"干净题面"标题也不出现（与既有的读不出降级同一口径）。
-        assertEquals(
-            listOf("函数单调区间", "MATH · 第 3 版", "题面标题：题面", "题干"),
-            documentTexts(parts.getValue(MinimalDocxWriter.DOCUMENT_PART)),
-        )
+        assertEquals(MistakePdfExportFailure.GENERATED_PDF_INVALID, failure.failure)
+        assertFalse("fail-closed 时不许写出半份文档", output.exists())
     }
 
-    /** KD-55：批量 Image 块同样按自己的记录复核（长度相同、字节不同 → 不嵌）。 */
+    /** KD-55：批量 Image 块同样按自己的记录复核（长度相同、字节不同 → 整份失败）。 */
     @Test
     fun `a batch image block is verified against its record before embedding`() {
         val png = pngBytes(width = 2, height = 2)
@@ -326,54 +326,45 @@ class DocxMistakeRendererTest {
         )
         assertTrue(readZip(matched).containsKey("word/media/image1.png"))
 
-        val mismatched = renderToFile(
-            input(
-                blocks = listOf(
-                    MistakePdfBlock.Image(
-                        id = "q1-image",
-                        localUri = uri,
-                        title = "第 1 题 · 干净题面",
-                        expectedContentSha256 = sha256Hex(other),
-                        expectedByteSize = png.size.toLong(),
+        val mismatched = File(temporaryFolder.root, "batch-mismatched.docx")
+        assertThrows(MistakePdfExportException::class.java) {
+            DocxMistakeRenderer.render(
+                input(
+                    blocks = listOf(
+                        MistakePdfBlock.Image(
+                            id = "q1-image",
+                            localUri = uri,
+                            title = "第 1 题 · 干净题面",
+                            expectedContentSha256 = sha256Hex(other),
+                            expectedByteSize = png.size.toLong(),
+                        ),
                     ),
                 ),
-            ),
-        )
-        val mismatchedParts = readZip(mismatched)
-        assertFalse(mismatchedParts.keys.any { it.startsWith("word/media/") })
-        // 块标题仍然在（图省略，题面文字不丢）。
-        assertTrue(
-            documentTexts(mismatchedParts.getValue(MinimalDocxWriter.DOCUMENT_PART))
-                .contains("第 1 题 · 干净题面"),
-        )
+                mismatched,
+            )
+        }
+        assertFalse(mismatched.exists())
     }
 
     @Test
-    fun `a clean image that cannot be read is omitted while the rest of the document still renders`() {
-        val file = renderToFile(
-            input(
-                blocks = listOf(paragraph("题干")),
-                cleanImageLocalUri = File(temporaryFolder.root, "missing.png").toURI().toString(),
-            ),
-        )
+    fun `a clean image that cannot be read fails the render`() {
+        val output = File(temporaryFolder.root, "missing-clean.docx")
 
-        val parts = readZip(file)
-        assertEquals(
-            setOf(
-                MinimalDocxWriter.CONTENT_TYPES_PART,
-                MinimalDocxWriter.PACKAGE_RELS_PART,
-                MinimalDocxWriter.DOCUMENT_PART,
-            ),
-            parts.keys,
-        )
-        assertEquals(
-            listOf("函数单调区间", "MATH · 第 3 版", "题面标题：题面", "题干"),
-            documentTexts(parts.getValue(MinimalDocxWriter.DOCUMENT_PART)),
-        )
+        assertThrows(MistakePdfExportException::class.java) {
+            DocxMistakeRenderer.render(
+                input(
+                    blocks = listOf(paragraph("题干")),
+                    cleanImageLocalUri = File(temporaryFolder.root, "missing.png").toURI().toString(),
+                ),
+                output,
+            )
+        }
+
+        assertFalse(output.exists())
     }
 
     @Test
-    fun `a batch image block embeds its file or degrades to its title alone`() {
+    fun `a batch image block must be readable instead of degrading to its title alone`() {
         val png = pngBytes(width = 2, height = 2)
         val imageFile = temporaryFolder.newFile("batch.png").apply { writeBytes(png) }
         val missingUri = File(temporaryFolder.root, "gone.png").toURI().toString()
@@ -392,15 +383,14 @@ class DocxMistakeRendererTest {
                 .contains("第 1 题 · 干净题面"),
         )
 
-        val degraded = renderToFile(
-            input(blocks = listOf(MistakePdfBlock.Image("q1-image", missingUri, "第 1 题 · 干净题面"))),
-        )
-        val degradedParts = readZip(degraded)
-        assertFalse(degradedParts.keys.any { it.startsWith("word/media/") })
-        assertTrue(
-            documentTexts(degradedParts.getValue(MinimalDocxWriter.DOCUMENT_PART))
-                .contains("第 1 题 · 干净题面"),
-        )
+        val missingOutput = File(temporaryFolder.root, "gone-image.docx")
+        assertThrows(MistakePdfExportException::class.java) {
+            DocxMistakeRenderer.render(
+                input(blocks = listOf(MistakePdfBlock.Image("q1-image", missingUri, "第 1 题 · 干净题面"))),
+                missingOutput,
+            )
+        }
+        assertFalse(missingOutput.exists())
     }
 
     @Test

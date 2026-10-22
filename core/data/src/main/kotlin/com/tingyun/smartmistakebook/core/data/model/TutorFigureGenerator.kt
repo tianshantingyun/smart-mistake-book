@@ -7,6 +7,8 @@ import com.tingyun.smartmistakebook.core.data.capture.GeneratedFigureProvenance
 import com.tingyun.smartmistakebook.core.data.capture.GuardedEditsChannelFactory
 import com.tingyun.smartmistakebook.core.data.visual.FigureImageBackend
 import com.tingyun.smartmistakebook.core.data.visual.DefaultFigureGenerationCoordinator
+import com.tingyun.smartmistakebook.core.data.visual.RoomFigureGenerationAuditRecorder
+import com.tingyun.smartmistakebook.core.data.visual.recordFigureOutputAsset
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
@@ -21,12 +23,14 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
 import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
+import com.tingyun.smartmistakebook.core.model.FigureGenerationSourceKind
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.defaultImageOperation
+import com.tingyun.smartmistakebook.core.model.figureBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
@@ -233,6 +237,8 @@ object TutorFigureGeneratorFactory {
         coordinator: FigureGenerationCoordinator,
     ): TutorFigureGenerator {
         val vault = AndroidCanonicalAssetVault(context.applicationContext)
+        // 审计回填与 coordinator 的 recorder 指向同一张台账（同一个 database 端口）。
+        val audit = RoomFigureGenerationAuditRecorder(database)
         return ConfiguredTutorFigureGenerator(
             configurationStore = configurationStore,
             networkRequestsAllowed = networkRequestsAllowed,
@@ -259,6 +265,7 @@ object TutorFigureGeneratorFactory {
             },
             channelFactory = GuardedEditsChannelFactory,
             coordinator = coordinator,
+            recordOutputAsset = { attemptId, assetId -> audit.attachOutputAsset(attemptId, assetId) },
         )
     }
 }
@@ -288,6 +295,12 @@ internal class ConfiguredTutorFigureGenerator(
     private val coordinator: FigureGenerationCoordinator? = null,
     private val ledger: RemoteModelDispatchLedger = UnavailableRemoteModelDispatchLedger,
     private val now: () -> Long = System::currentTimeMillis,
+    /**
+     * 4E WG-08 T1b：产物登记成功后的审计回填（attemptId → 规范资产 id）。
+     * 默认无操作：旧装配/测试不接审计时行为逐位不变。
+     */
+    private val recordOutputAsset: suspend (attemptId: String, assetId: String) -> Unit =
+        { _, _ -> },
 ) : TutorFigureGenerator {
 
     /**
@@ -358,6 +371,8 @@ internal class ConfiguredTutorFigureGenerator(
         val budget = sharedOperationFigureBudget(reserveChatFinalAnswer = true)
         val capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY
         val source = request.sourceEvidence(channelRequest)
+        // WG-08：来源是**原消息**（父模型任务的 requestId）；没有父任务时退回操作身份。
+        val sourceId = request.parentOperationId ?: operationId
         val constraints = request.hostConstraints()
         val generationRequest = FigureGenerationRequest(
             operationId = operationId,
@@ -373,6 +388,13 @@ internal class ConfiguredTutorFigureGenerator(
             constraints = constraints,
             problemContext = request.problemContext,
             prompt = FigurePromptAssembler.assemble(purpose, capabilities, budget),
+            sourceKind = FigureGenerationSourceKind.TUTOR_MESSAGE,
+            sourceId = sourceId,
+            basisFingerprint = figureBasisFingerprint(
+                operationId = operationId,
+                sourceSha256 = source?.contentSha256,
+                imagePrompt = channelRequest.prompt,
+            ),
         )
         val proposal = FigureGenerationPolicy.imageModelProposal(
             request = generationRequest,
@@ -417,6 +439,8 @@ internal class ConfiguredTutorFigureGenerator(
                         operationId,
                     )
                 }
+                // WG-08：产物已登记，回填这次 attempt 的 output_asset_id（best-effort，不反悔生成）。
+                recordFigureOutputAsset(recordOutputAsset, attemptId, persisted.sourceAssetId)
                 TutorFigureResult(
                     figureId = persisted.sourceAssetId,
                     status = TutorFigureStatus.GENERATED,

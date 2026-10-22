@@ -2442,6 +2442,16 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **2026-10-21 批次 16 再核**：T7 只做了 KD-62 的 ①+②（见下条），**写门覆盖面未扩大**；KD-62③ 仍归本条。
 本条保持 open，无新增证据；设备恢复/并发写未跑。
 
+**2026-10-22 批次 17 再核（只收窄/反证，不关闭）**：写门覆盖面**仍未扩大**——`grep -rn withWriteAdmission --include=*.kt core feature app` 的
+生产代码命中仍只有 `AndroidBackupRepository.kt:153`（清理孤立题图）与 `RoomCaptureWorkflowRepository.kt:166`（采集写入口；行号随他线编辑从 154 移到 166）；
+复习调度/知识写入/掌握度/导出/提醒仍是 DAO 直写。本批反而**新增了不经写门的直写面**：图生成 operation/attempt 审计
+（`FigureGenerationRecorderPort` → `RoomStudyDatabase` → `FigureGenerationDao`）与启动僵尸对账
+（`FigureGenerationReconcileDao`，入口 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/visual/FigureGenerationReconciler.kt:51`）都在写门之外；
+显式重绘的任务行/终态写同样直写。设备侧 D1 自报 `BackupRestoreInstrumentedTest` 32/32、`BackupLargeDatabaseScaleInstrumentedTest` 1/1（365MiB）通过，
+但大库用例的并发写显式走 `gate.withWriteAdmission("设备大库写入口")`
+（`core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/backup/BackupLargeDatabaseScaleInstrumentedTest.kt:104`），仍不覆盖上述旁路。
+故本条保持 **open**，且旁路集合比批次 16 更大；关闭条件不变（非门控写入口在关库前被硬性排空或证明不可达）。
+
 ## KD-62 (fixed ①+② 2026-10-21（批次 16 T7；RoomBackupCheckpointValidationTest 5/0、BackupTempArtifactCleanupTest 2/0；③ 保留 KD-61）；2026-10-20 登记（批次 15 收尾复核；low）) · 备份回退与清理残余：checkpoint 结果行被忽略、成包临时库无启动清理、写门只覆盖两仓库
 
 **Symptom（读码）.** ① 旧回退的 `checkpointForBackup` 消费 `wal_checkpoint(TRUNCATE)` 结果行后不校验是否真的完成

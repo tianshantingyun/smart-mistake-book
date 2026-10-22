@@ -106,11 +106,26 @@ private fun MistakeDetailState.inlineImages(): InlineImagesState {
     // Revision evidence retains reading order even when source links are returned in asset-ID order.
     val sourceOrder = (this as? MistakeDetailState.Ready)?.questionDocument?.blockEvidence
         ?.map { it.sourceAssetId }?.distinct()?.withIndex()?.associate { it.value to it.index }.orEmpty()
+    // displayAssets() 已排除讲解图，并把"当前干净题面"（最新一张）放在最前。这里只在
+    // 原图组内按题面证据的阅读顺序重排；干净题面组保持 displayAssets 的顺序（index），
+    // 否则再按 createdAt 升序会把多张历史重绘倒回"旧图在前"。
     val images = detail.source.displayAssets()
         .filter { it.mimeType.startsWith("image/", ignoreCase = true) }
         .distinctBy { it.sourceAssetId }
-        .sortedWith(compareBy<MistakeSourceAsset> { if (it.role == CLEAN_IMAGE_SOURCE_ROLE) 0 else 1 }
-            .thenBy { sourceOrder[it.sourceAssetId] ?: Int.MAX_VALUE }
-            .thenBy { it.createdAtEpochMillis })
+        .withIndex()
+        .sortedWith(
+            compareBy<IndexedValue<MistakeSourceAsset>> {
+                if (it.value.role == CLEAN_IMAGE_SOURCE_ROLE) 0 else 1
+            }
+                .thenBy {
+                    if (it.value.role == CLEAN_IMAGE_SOURCE_ROLE) {
+                        it.index
+                    } else {
+                        sourceOrder[it.value.sourceAssetId] ?: Int.MAX_VALUE
+                    }
+                }
+                .thenBy { it.value.createdAtEpochMillis },
+        )
+        .map { it.value }
     return InlineImagesState.Images(images)
 }

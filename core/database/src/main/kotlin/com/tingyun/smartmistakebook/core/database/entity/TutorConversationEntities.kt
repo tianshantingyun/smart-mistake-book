@@ -257,4 +257,15 @@ internal data class TutorMessageSourceAssetEntity(
     @ColumnInfo(name = "source_asset_id")
     val sourceAssetId: String,
     val ordinal: Int,
+    /**
+     * 这张附图在讲解/题面里的角色（4E WG-08，v68→69）：CLEAN_IMAGE / TUTOR_EXPLANATION /
+     * SOURCE_EVIDENCE（集合开放）。旧行 NULL = 角色未知——迁移不回填、不猜测。
+     */
+    @ColumnInfo(name = "role")
+    val role: String? = null,
+    /**
+     * 这张附图基于哪一版题面（v68→69）。旧行 NULL = 未知；新行由保存方显式给出。
+     */
+    @ColumnInfo(name = "basis_revision_id")
+    val basisRevisionId: String? = null,
 )

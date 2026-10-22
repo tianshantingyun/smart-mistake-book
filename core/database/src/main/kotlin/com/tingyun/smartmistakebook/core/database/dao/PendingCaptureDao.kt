@@ -27,6 +27,19 @@ internal data class CanonicalSourceAssetRow(
 
 @Dao
 internal interface PendingCaptureDao {
+    /**
+     * 孤儿候选 = **五类引用形态**都不指向它的规范资产行。
+     *
+     * 第五支是 4E WG-08 的图生成尝试产物（`figure_generation_attempt.output_asset_id`）。
+     * pin 策略写在这里，清理与备份都读同一份判定：
+     * - `SUCCEEDED`：成功产物必须 pin；
+     * - `RUNNING`：产物可能已在落盘后回填、终态还没写（进程被杀），按"可恢复"pin——
+     *   启动对账把它标 FAILED 时**保留** `output_asset_id`，所以这张图在对账后仍然 pin；
+     * - `FAILED` / `CANCELLED`：契约上 `output_asset_id` 为 NULL（没有产物就没有 pin）；
+     * - 异常/晚到回填让失败/取消行也带着产物时，**仍然 pin**：这一行对资产是 RESTRICT 外键，
+     *   把它当孤儿删除会让整个认领事务撞约束失败；而且产物是"这张图从哪来"的证据，
+     *   不能当孤儿回收。故这里刻意**不按 status 过滤**——引用是物理的，不是状态的。
+     */
     @Query(
         """
         SELECT asset.source_asset_id,
@@ -54,7 +67,11 @@ internal interface PendingCaptureDao {
           AND NOT EXISTS (
             SELECT 1 FROM tutor_message_source_asset AS message_link
             WHERE message_link.source_asset_id = asset.source_asset_id
-        )
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM figure_generation_attempt AS attempt_output
+            WHERE attempt_output.output_asset_id = asset.source_asset_id
+          )
         ORDER BY asset.created_at_epoch_millis ASC, asset.source_asset_id ASC
         """,
     )
@@ -64,8 +81,9 @@ internal interface PendingCaptureDao {
      * 全表资产行。**本身不含任何引用口径**——它与 [findUnreferencedCanonicalAssets] 相减
      * 得到的那一份才是"仍被引用"（见 `RoomStudyDatabase.readReferencedCanonicalAssets`）。
      *
-     * 这样引用口径仍然只有一处（上面那条四表 NOT EXISTS）：清理认领与备份成包读的是同一个
-     * 判定的两侧，将来新增第五种引用形态时不会出现"清理不删、备份却漏收"的半截口径。
+     * 这样引用口径仍然只有一处（上面那条五类 NOT EXISTS，含图生成尝试产物）：清理认领与
+     * 备份成包读的是同一个判定的两侧，将来新增引用形态时不会出现"清理不删、备份却漏收"的
+     * 半截口径。
      */
     @Query(
         """

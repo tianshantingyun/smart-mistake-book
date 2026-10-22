@@ -211,6 +211,21 @@ class ExportPdfWorkerTest {
             "解析区暂不可用，已跳过。",
             mistakeExportSkippedNotice(MistakePdfLayout(includeSolution = true)),
         )
+        assertNull(
+            "计划层真的排入了解析图：完成通知不许再说'已跳过'",
+            mistakeExportSkippedNotice(
+                layout = MistakePdfLayout(includeSolution = true),
+                solutionSectionRendered = true,
+            ),
+        )
+        assertEquals(
+            "解析图排入时，答案区的口径仍独立成立",
+            "答案区仅附已有答案，缺失处已注明。",
+            mistakeExportSkippedNotice(
+                layout = MistakePdfLayout(includeSolution = true, includeAnswer = true),
+                solutionSectionRendered = true,
+            ),
+        )
     }
 
     /**

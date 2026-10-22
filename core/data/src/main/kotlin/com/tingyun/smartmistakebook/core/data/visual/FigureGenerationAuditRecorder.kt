@@ -19,7 +19,9 @@ import kotlinx.coroutines.CancellationException
  * - **审计写失败不影响生成**：实现必须吞掉持久化失败（取消除外），返回 false；协调器据此
  *   把 attemptId 置空，但生成结果照旧。
  * - **终态 attempt 不复活**：每次尝试只 begin 一次、finish 一次；回填产物只改
- *   `output_asset_id`，不改状态。
+ *   `output_asset_id`，不改状态。唯一例外是启动对账把"SUCCEEDED 但 output 一直为空"的
+ *   假成功纠正为 FAILED（见 `FigureGenerationReconciler`）——那不是新尝试，而是把
+ *   与产物事实不符的终态改成待核实。
  */
 internal interface FigureGenerationAuditRecorder {
 

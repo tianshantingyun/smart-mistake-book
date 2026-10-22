@@ -11,6 +11,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolTraceEntry
 import com.tingyun.smartmistakebook.core.model.TutorTurnToolTrace
 import com.tingyun.smartmistakebook.core.model.encodeTutorTurnToolTrace
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -173,12 +174,25 @@ class TutorExportSheetTest {
     }
 
     @Test
-    fun theSkipNoticeTellsTheStudentTheSolutionSectionWillBeSkipped() {
+    fun theSkipNoticeStatesTheRealSolutionImageBoundary() {
         // 没请求解析区 = 没有提示（空载体不渲染）。
         assertNull(exportSkipNotice(MistakePdfLayout.DEFAULT))
-        // 请求了解析区 = 如实说会被跳过（与分页器的 PdfPlan.skipped、worker 通知同一判据）。
-        val notice = exportSkipNotice(MistakePdfLayout(includeSolution = true))
-        assertEquals("解析区暂不可用：本次导出会跳过它，不会留空占位。", notice)
+        // 请求了解析区 = 如实说"只排讲解过程图、没有图才跳过、不提供文字解析"（WG-07）。
+        // 不承诺文字解析，也不谎称整块都会跳过（有讲解图时会真的排出来）。
+        val notice = requireNotNull(exportSkipNotice(MistakePdfLayout(includeSolution = true)))
+        assertEquals(
+            "解析区只排讲解过程图：没有讲解图的题会跳过解析区；文字解析暂不提供。",
+            notice,
+        )
+        assertTrue(notice.contains("讲解过程图"))
+        assertTrue(notice.contains("文字解析暂不提供"))
+    }
+
+    @Test
+    fun theLayoutSummaryCallsTheSolutionAreaAnImageArea() {
+        val summary = exportLayoutSummary(MistakePdfLayout(includeSolution = true))
+        assertTrue(summary.contains("含解析图"))
+        assertFalse(summary.contains("暂不可用"))
     }
 
     @Test

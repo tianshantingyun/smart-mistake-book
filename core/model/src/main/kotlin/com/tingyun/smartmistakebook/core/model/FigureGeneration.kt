@@ -56,6 +56,28 @@ enum class FigureGenerationPurpose {
     PIXEL_CLEANUP,
 }
 
+/**
+ * 图生成操作的**来源种类**（4E WG-08 audit 的软引用，不建外键）。
+ *
+ * 一条生成操作必须能回答"它属于哪条消息/哪一版题面/哪个净化作业/哪次采集解析"。
+ * 多态来源不建外键——同一条操作记录要能指向不同宿主表；由 [FigureGenerationRequest]
+ * 的 `sourceKind/sourceId` 携带，落 `figure_generation_operation`。
+ */
+@Serializable
+enum class FigureGenerationSourceKind {
+    /** 讲题会话里的助手消息（含历史 `attachedImages` 的显式重生成）。 */
+    TUTOR_MESSAGE,
+
+    /** 题目修订（保存事务里的题图/讲解图）。 */
+    PROBLEM_REVISION,
+
+    /** 持久净化作业（`clean_redraw_task` 的一次尝试）。 */
+    CLEAN_REDRAW,
+
+    /** 采集解析（拍照导入/拆分导入的解析产物）。 */
+    CAPTURE_PARSE,
+}
+
 /** 统一决策（提示词文件 §2）。 */
 @Serializable
 enum class FigureGenerationDecision {
@@ -293,9 +315,29 @@ data class FigureGenerationRequest(
      * 它是宿主数据，不是模型可改写的指令；coordinator 校验其 policyVersion 后仅用于诊断。
      */
     val prompt: FigureGenerationPrompt? = null,
+    /**
+     * 4E WG-08：审计台账的来源种类。null = 旧调用，由 coordinator 按 [dispatchParent] 派生
+     * （ModelTask → TUTOR_MESSAGE、CleanRedrawTask → CLEAN_REDRAW）；入口适配层应显式填。
+     */
+    val sourceKind: FigureGenerationSourceKind? = null,
+    /** 来源行 id（消息 / 修订 / 净化作业 / 解析作业）；null = 旧调用，由父操作派生。 */
+    val sourceId: String? = null,
+    /**
+     * 冻结输入的稳定指纹（64 位小写 SHA-256）。同一操作重放必须命中同一值；null = 旧调用，
+     * coordinator 按 operationId + 源图 sha + imagePrompt 派生（见 [figureBasisFingerprint]）。
+     */
+    val basisFingerprint: String? = null,
 ) {
     init {
         require(operationId.isNotBlank()) { "A figure operation id must not be blank" }
+        require(sourceId == null || sourceId.isNotBlank()) {
+            "A figure source id must be null or non-blank"
+        }
+        require(
+            basisFingerprint == null ||
+                (basisFingerprint.length == SHA_256_HEX_CHARS &&
+                    basisFingerprint.all(Char::isLowerHexDigit)),
+        ) { "A figure basis fingerprint must be a lowercase SHA-256" }
         require(constraints.size <= FigureGenerationPolicy.MAX_CONSTRAINTS) {
             "A figure request carries at most ${FigureGenerationPolicy.MAX_CONSTRAINTS} constraints"
         }
@@ -514,9 +556,19 @@ data class FigureGenerationOutcome(
     val status: FigureGenerationStatus,
     val artifact: FigureArtifact? = null,
     val diagnostics: String? = null,
+    /**
+     * 4E WG-08：这次生成在审计台账里的**尝试 id**（已开始的 attempt 才有；未预留/未开始时 null）。
+     *
+     * 产物落盘发生在入口而不是 coordinator，所以入口在登记规范资产成功后用它回填
+     * `figure_generation_attempt.output_asset_id`；它只是审计身份，不是预算句柄。
+     */
+    val attemptId: String? = null,
 ) {
     init {
         require(operationId.isNotBlank()) { "A figure outcome needs an operation id" }
+        require(attemptId == null || attemptId.isNotBlank()) {
+            "A figure outcome attempt id must be null or non-blank"
+        }
         require(
             (artifact == null) ||
                 (status == FigureGenerationStatus.GENERATED || status == FigureGenerationStatus.CACHED),
@@ -548,3 +600,32 @@ fun figureSha256Hex(value: ByteArray): String =
     MessageDigest.getInstance("SHA-256")
         .digest(value)
         .joinToString(separator = "") { byte -> "%02x".format(byte) }
+
+/**
+ * 生成操作**冻结输入**的稳定指纹（4E WG-08 audit 的 `basis_fingerprint`）。
+ *
+ * 口径：`sha256("figure-basis-v1|operationId|sourceSha|imagePrompt")`（缺省段用 `-`）。
+ * - 带 operationId（不含 method）：同一操作换方法/重试命中同一 basis；
+ * - 带源图 sha：同一题面换了源图就是另一个输入；
+ * - 带 imagePrompt：同一操作换了具体图像指令同样算输入变了。
+ *
+ * 这是**输入身份的判据**，不是预算键、不是产物幂等键；生产入口与 coordinator 的旧调用
+ * 回退共用这一份实现，避免两处拼串漂移。
+ */
+fun figureBasisFingerprint(
+    operationId: String,
+    sourceSha256: String?,
+    imagePrompt: String?,
+): String {
+    require(operationId.isNotBlank()) { "A figure basis needs an operation id" }
+    require(sourceSha256 == null || sourceSha256.length == SHA_256_HEX_CHARS) {
+        "A figure basis source sha must be SHA-256"
+    }
+    val canonical = buildString {
+        append("figure-basis-v1")
+        append('|').append(operationId)
+        append('|').append(sourceSha256 ?: "-")
+        append('|').append(imagePrompt ?: "-")
+    }
+    return figureSha256Hex(canonical.toByteArray(StandardCharsets.UTF_8))
+}

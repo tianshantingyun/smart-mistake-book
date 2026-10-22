@@ -8,6 +8,7 @@ import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskStatus
 import com.tingyun.smartmistakebook.core.database.CreateCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.FinishCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.cleanRedrawTaskId
+import com.tingyun.smartmistakebook.core.database.explicitRedrawOperationId
 import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
 import com.tingyun.smartmistakebook.core.domain.CleanImageResult
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
@@ -219,6 +220,31 @@ class CleanRedrawTaskRunnerTest {
         assertEquals(1, harness.attachCalls.size)
     }
 
+    /**
+     * F6 回归：`PENDING` 同时是"待做"与"在途"。第二个并发请求读到第一次领取后的
+     * attempt_count 再领一次，会让同一作业两个执行者同时出网/付费。租约截止之外的在途行
+     * 必须拒绝领取（新请求/`executeTask` 传 0），启动对账才用进程启动时刻接手旧行。
+     */
+    @Test
+    fun `an in-flight pending task cannot be claimed by a second concurrent request`() = runBlocking {
+        val harness = harness()
+        val inFlight = harness.seedRow(
+            status = CleanRedrawTaskStatus.PENDING,
+            attemptCount = 1,
+            createdAtEpochMillis = 500,
+            updatedAtEpochMillis = 1_500,
+            operationId = explicitRedrawOperationId("clean-redraw-in-flight"),
+        )
+
+        val outcome = harness.runner.runExplicit(inFlight)
+
+        assertEquals("在途行不得被第二个执行者领取", CleanRedrawTaskOutcome.SKIPPED, outcome)
+        assertEquals("不许发出第二次付费生成", 0, harness.generateCalls)
+        val row = harness.store.rows.getValue(inFlight.taskId)
+        assertEquals("尝试次数不得被第二次请求再 +1", 1, row.attemptCount)
+        assertEquals("状态保持为原执行者的在途", CleanRedrawTaskStatus.PENDING, row.status)
+    }
+
     @Test
     fun `a resume whose source image changed is superseded`() = runBlocking {
         val harness = harness()
@@ -371,6 +397,99 @@ class CleanRedrawTaskRunnerTest {
         assertEquals(CleanRedrawTaskStatus.PENDING, harness.taskRow().status)
     }
 
+    @Test
+    fun `a capture resume never touches an explicit redraw row`() = runBlocking {
+        val harness = harness()
+        val explicit = harness.seedRow(
+            status = CleanRedrawTaskStatus.PENDING,
+            attemptCount = 1,
+            createdAtEpochMillis = 500,
+            updatedAtEpochMillis = 500,
+            operationId = explicitRedrawOperationId("clean-redraw-explicit-1"),
+        )
+
+        val processed = harness.runner.resumePending(staleBeforeEpochMillis = 1_000)
+
+        assertEquals(
+            "保存期对账不许接手用户显式重绘行（它会重新分类成 TEXT_ONLY 并标成功）",
+            0,
+            processed,
+        )
+        assertEquals(0, harness.classifyCalls)
+        assertEquals(0, harness.generateCalls)
+        assertEquals(
+            CleanRedrawTaskStatus.PENDING,
+            harness.store.rows.getValue(explicit.taskId).status,
+        )
+    }
+
+    @Test
+    fun `the forced explicit path skips the classify round and redraws a text only problem`() = runBlocking {
+        // 分类轮若被调用会给出 TEXT_ONLY：保存期路径会因此不动作；强制路径必须照样重绘。
+        val harness = harness(classify = { ImagePipelineProblemKind.TEXT_ONLY })
+        val explicit = harness.seedRow(
+            status = CleanRedrawTaskStatus.PENDING,
+            attemptCount = 0,
+            createdAtEpochMillis = 500,
+            updatedAtEpochMillis = 500,
+            operationId = explicitRedrawOperationId("clean-redraw-explicit-2"),
+        )
+
+        val outcome = harness.runner.runExplicit(explicit)
+
+        assertEquals(CleanRedrawTaskOutcome.SUCCEEDED, outcome)
+        assertEquals("显式重绘不做分类轮", 0, harness.classifyCalls)
+        assertEquals("用户已要求重绘：TEXT_ONLY 不许短路", 1, harness.generateCalls)
+        assertEquals(1, harness.attachCalls.size)
+        assertEquals(
+            CleanRedrawTaskStatus.SUCCEEDED,
+            harness.store.rows.getValue(explicit.taskId).status,
+        )
+    }
+
+    @Test
+    fun `the forced path refuses a save-time row without the explicit operation prefix`() = runBlocking {
+        val harness = harness()
+        val capture = harness.seedRow(
+            status = CleanRedrawTaskStatus.PENDING,
+            attemptCount = 0,
+            createdAtEpochMillis = 500,
+            updatedAtEpochMillis = 500,
+            operationId = null,
+        )
+
+        val outcome = harness.runner.runExplicit(capture)
+
+        assertEquals(
+            "保存期作业误入强制路径会把分类判定绕过去，必须拒绝",
+            CleanRedrawTaskOutcome.SKIPPED,
+            outcome,
+        )
+        assertEquals(0, harness.generateCalls)
+        assertEquals(CleanRedrawTaskStatus.PENDING, harness.store.rows.getValue(capture.taskId).status)
+    }
+
+    @Test
+    fun `a successful attach notifies the entry so the audit output can be backfilled`() = runBlocking {
+        val harness = harness(
+            generate = { _, _, _ ->
+                CleanImageResult(
+                    bytes = CLEAN_BYTES,
+                    mimeType = "image/png",
+                    attemptId = "figure-attempt:clean-redraw-op:task:1:IMAGE_MODEL",
+                )
+            },
+        )
+
+        harness.runner.run(harness.identity())
+
+        assertEquals(1, harness.attachedResults.size)
+        assertEquals(
+            "figure-attempt:clean-redraw-op:task:1:IMAGE_MODEL",
+            harness.attachedResults.single().attemptId,
+        )
+    }
+
     // ---- harness ----
 
     private class SourceHolder(var value: CanonicalSourceAssetRecord?)
@@ -392,6 +511,7 @@ class CleanRedrawTaskRunnerTest {
         var generateCalls = 0
         val attachCalls = mutableListOf<Triple<String, ByteArray, String>>()
         val classifyRequests = mutableListOf<ModelTaskRequest>()
+        val attachedResults = mutableListOf<CleanImageResult>()
         private var clock = 1_000L
 
         val runner = CleanRedrawTaskRunner(
@@ -413,6 +533,7 @@ class CleanRedrawTaskRunnerTest {
                 attach(revisionId, bytes, mimeType)
             },
             now = { clock++ },
+            onAttached = { clean -> attachedResults += clean },
         )
 
         fun identity() = CleanRedrawTaskIdentity(
@@ -432,6 +553,7 @@ class CleanRedrawTaskRunnerTest {
             lastFailureCode: String? = null,
             createdAtEpochMillis: Long,
             updatedAtEpochMillis: Long,
+            operationId: String? = null,
         ): CleanRedrawTaskRecord {
             val fingerprint = contentFingerprint()
             val record = CleanRedrawTaskRecord(
@@ -452,6 +574,7 @@ class CleanRedrawTaskRunnerTest {
                 lastFailureCode = lastFailureCode,
                 createdAtEpochMillis = createdAtEpochMillis,
                 updatedAtEpochMillis = updatedAtEpochMillis,
+                operationId = operationId,
             )
             store.rows[record.taskId] = record
             return record
@@ -516,6 +639,7 @@ class CleanRedrawTaskRunnerTest {
                 lastFailureCode = null,
                 createdAtEpochMillis = command.createdAtEpochMillis,
                 updatedAtEpochMillis = command.createdAtEpochMillis,
+                operationId = command.operationId,
             )
             rows[command.taskId] = created
             return created
@@ -545,8 +669,14 @@ class CleanRedrawTaskRunnerTest {
             command: ClaimCleanRedrawTaskAttemptCommand,
         ): CleanRedrawTaskRecord? {
             val row = rows[command.taskId] ?: return null
+            // 与 DAO 的领取 SQL 同形：首次（attempt 0）或 FAILED 可领；已领取的 PENDING
+            // 只有在租约截止之后才可领（并发请求不得二次领取同一个在途作业）。
+            val claimable = row.status == CleanRedrawTaskStatus.FAILED ||
+                (row.status == CleanRedrawTaskStatus.PENDING &&
+                    (row.attemptCount == 0 ||
+                        row.updatedAtEpochMillis <= command.staleBeforeEpochMillis))
             if (
-                row.status !in CleanRedrawTaskStatus.RESUMABLE ||
+                !claimable ||
                 row.attemptCount != command.expectedAttemptCount ||
                 row.attemptCount >= command.maxAttempts
             ) {

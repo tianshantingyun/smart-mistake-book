@@ -18,6 +18,7 @@ import com.tingyun.smartmistakebook.core.database.ProblemSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.data.knowledge.BundledKnowledgePackResources
 import com.tingyun.smartmistakebook.core.data.study.seedStudyFacts
+import com.tingyun.smartmistakebook.core.data.visual.insertFigureGenerationAuditFixture
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
@@ -50,6 +51,7 @@ import kotlinx.serialization.json.Json
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -381,6 +383,148 @@ class BackupRestoreInstrumentedTest {
             )
             restored.close()
         } finally {
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+            context.deleteDatabase(sourceName)
+            archive.delete()
+            backupDirectory.delete()
+        }
+    }
+
+    /**
+     * 68 旧包（图生成审计表还不存在）恢复后必须由 Room 迁移到 69：旧题原样保留，两张新表
+     * 建出来且为空。
+     *
+     * 这是 T5 与 T1a 的接缝用例：迁移没注册、或恢复只在验证副本上迁移而没落到实际库上，
+     * 这个用例会直接失败。旧包没有 attempt 行，所以恢复前的资产闭合不受影响。
+     */
+    @Test
+    fun schema68ArchiveRestoresAndMigratesTo69() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val sourceName = "schema-68-source-${System.nanoTime()}.db"
+        val backupDirectory = File(context.filesDir, "backup-schema-68").apply { mkdirs() }
+        val archive = File(backupDirectory, "schema-68-${System.nanoTime()}.smbk")
+        // 隔离说明：本类运行在 core:data 的 androidTest APK 里（合并清单的 package 与
+        // targetPackage 都是 `com.tingyun.smartmistakebook.core.data.test`），这里删的是
+        // 测试 APK 私有数据目录里的同名库，不是已安装生产应用的库。**不要**把这段搬到
+        // app 模块的 androidTest——那里的 context 指向真实应用数据（见
+        // DestructiveDeviceTestGuard）。
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        context.deleteDatabase(sourceName)
+        try {
+            createDatabaseFromExportedSchema(context, sourceName, version = 68)
+            SQLiteDatabase.openDatabase(
+                context.getDatabasePath(sourceName).absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READWRITE,
+            ).use { db ->
+                db.insertOrThrow(
+                    "problem",
+                    null,
+                    ContentValues().apply {
+                        put("problem_id", "problem-68")
+                        put("canonical_fingerprint", "d".repeat(64))
+                        put("subject", "MATH")
+                        put("created_at_epoch_millis", 1_000L)
+                    },
+                )
+                db.insertOrThrow(
+                    "problem_revision",
+                    null,
+                    ContentValues().apply {
+                        put("revision_id", "revision-68")
+                        put("problem_id", "problem-68")
+                        put("revision_number", 1)
+                        put("title", "68 旧包题")
+                        put("problem_markdown", "从 68 旧包恢复后仍能找到这道题。")
+                        put("answer_verification_status", "UNKNOWN")
+                        put("source_type", "TEST")
+                        put("content_fingerprint", "e".repeat(64))
+                        put("created_at_epoch_millis", 1_000L)
+                    },
+                )
+                db.insertOrThrow(
+                    "practice_unit",
+                    null,
+                    ContentValues().apply {
+                        put("practice_unit_id", "practice-68")
+                        put("problem_id", "problem-68")
+                        put("problem_revision_id", "revision-68")
+                        put("unit_key", "unit:68")
+                        put("unit_kind", "PROBLEM")
+                        put("title", "68 旧包题")
+                        put("prompt_markdown", "从 68 旧包恢复后仍能找到这道题。")
+                        put("estimated_seconds", 180)
+                        put("created_at_epoch_millis", 1_000L)
+                    },
+                )
+                db.insertOrThrow(
+                    "error_book_entry",
+                    null,
+                    ContentValues().apply {
+                        put("entry_id", "entry-68")
+                        put("practice_unit_id", "practice-68")
+                        put("problem_id", "problem-68")
+                        put("current_revision_id", "revision-68")
+                        put("status", "ACTIVE")
+                        put("accepted_at_epoch_millis", 1_000L)
+                        put("updated_at_epoch_millis", 1_000L)
+                    },
+                )
+            }
+
+            val current = StudyDatabaseFactory.open(context)
+            val repository = AndroidBackupRepository(context, current)
+            FileOutputStream(archive).use { output ->
+                SmbkArchiveCodec.create(
+                    archive = output,
+                    database = context.getDatabasePath(sourceName),
+                    assets = emptyList(),
+                    referencedAssets = emptyList(),
+                    databaseSchemaVersion = 68,
+                    problemCount = 1,
+                    createdAtEpochMillis = 1_000L,
+                )
+            }
+
+            val restoreReceipt = FileInputStream(archive).use { input ->
+                repository.restore(input)
+            }
+            assertEquals(
+                "回执里的版本是包自己的版本（68），不是迁移后的版本",
+                68,
+                restoreReceipt.databaseSchemaVersion,
+            )
+            assertEquals(1, restoreReceipt.problemCount)
+
+            val restored = StudyDatabaseFactory.open(context)
+            try {
+                assertEquals(
+                    "68 旧包恢复后必须由 Room 迁移到当前版本",
+                    69,
+                    restored.readDatabaseVersion(),
+                )
+                assertEquals("旧题必须保留", 1, restored.countMistakes())
+            } finally {
+                restored.close()
+            }
+            assertTrue(
+                "迁移后必须建出操作审计表",
+                tableExists(
+                    context,
+                    StudyDatabaseFactory.DEFAULT_DATABASE_NAME,
+                    "figure_generation_operation",
+                ),
+            )
+            assertTrue(
+                "迁移后必须建出尝试审计表",
+                tableExists(
+                    context,
+                    StudyDatabaseFactory.DEFAULT_DATABASE_NAME,
+                    "figure_generation_attempt",
+                ),
+            )
+        } finally {
+            // 同上：只清测试 APK 自己的库。
             context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
             context.deleteDatabase(sourceName)
             archive.delete()
@@ -990,6 +1134,222 @@ class BackupRestoreInstrumentedTest {
     }
 
     /**
+     * 4E WG-08 的 GC 口径：图生成尝试的产物也是引用（`figure_generation_attempt.output_asset_id`）。
+     *
+     * 三个方向都钉住：
+     * - 成功尝试的产物必须 pin；
+     * - **可恢复**的 RUNNING 尝试（产物已回填、终态还没写）也必须 pin；
+     * - 失败尝试**带着产物**时也必须 pin——契约上失败/取消没有产物，但异常/晚到回填可能留下
+     *   一行带 `output_asset_id` 的 FAILED 行；它对资产是 RESTRICT 外键，当孤儿删会让整个
+     *   认领事务撞约束。产物同时是证据，不能当垃圾回收。
+     */
+    @Test
+    fun generationAttemptOutputsArePinnedAgainstOrphanCleanup() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "figure-generation-gc-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val planted = mutableListOf<CanonicalSourceAssetRecord>()
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            seedStudyFacts(context, database, databaseName, seed())
+            val succeeded = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "attempt-succeeded",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            val failedWithOutput = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "attempt-failed-with-output",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            val runningWithOutput = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "attempt-running-output",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-gc-succeeded",
+                attemptId = "attempt-gc-succeeded",
+                operationStatus = "SUCCEEDED",
+                attemptStatus = "SUCCEEDED",
+                outputAssetId = succeeded.sourceAssetId,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+            )
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-gc-failed-with-output",
+                attemptId = "attempt-gc-failed-with-output",
+                operationStatus = "FAILED",
+                attemptStatus = "FAILED",
+                outputAssetId = failedWithOutput.sourceAssetId,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+            )
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-gc-running-with-output",
+                attemptId = "attempt-gc-running-with-output",
+                operationStatus = "RUNNING",
+                attemptStatus = "RUNNING",
+                outputAssetId = runningWithOutput.sourceAssetId,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                startedAtEpochMillis = 2_000,
+            )
+
+            val removed = AndroidBackupRepository(context, database).cleanupOrphanAssets()
+
+            assertEquals("被图生成尝试引用的资产一张都不许回收", 0, removed)
+            assertEquals(succeeded, database.readCanonicalSourceAsset(succeeded.sourceAssetId))
+            assertEquals(
+                failedWithOutput,
+                database.readCanonicalSourceAsset(failedWithOutput.sourceAssetId),
+            )
+            assertEquals(
+                runningWithOutput,
+                database.readCanonicalSourceAsset(runningWithOutput.sourceAssetId),
+            )
+            assertTrue(assetFile(context, succeeded).isFile)
+            assertTrue(assetFile(context, failedWithOutput).isFile)
+            assertTrue(assetFile(context, runningWithOutput).isFile)
+            val referenced = database.readReferencedCanonicalAssets()
+                .mapTo(HashSet()) { record -> record.sourceAssetId }
+            assertTrue(
+                "备份闭合与 GC 必须读同一份引用口径（尝试产物在其中）",
+                succeeded.sourceAssetId in referenced &&
+                    failedWithOutput.sourceAssetId in referenced &&
+                    runningWithOutput.sourceAssetId in referenced,
+            )
+            database.close()
+        } finally {
+            planted.forEach { assetFile(context, it).delete() }
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 失败/取消尝试**没有产物**时不该 pin 任何东西：契约上 `output_asset_id` 为 NULL，
+     * 这张图仍是孤儿，清理照常回收。否则"每次失败都留下一个永不回收的资产"会无界增长。
+     */
+    @Test
+    fun failedGenerationAttemptWithoutAProductDoesNotPinItsSourceAsset() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "figure-generation-gc-failed-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val planted = mutableListOf<CanonicalSourceAssetRecord>()
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            seedStudyFacts(context, database, databaseName, seed())
+            val orphan = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "attempt-without-output",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-gc-failed-no-output",
+                attemptId = "attempt-gc-failed-no-output",
+                operationStatus = "FAILED",
+                attemptStatus = "FAILED",
+                outputAssetId = null,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+            )
+
+            val removed = AndroidBackupRepository(context, database).cleanupOrphanAssets()
+
+            assertEquals("没有产物的失败尝试不 pin 资产", 1, removed)
+            assertNull(database.readCanonicalSourceAsset(orphan.sourceAssetId))
+            assertFalse(assetFile(context, orphan).exists())
+            database.close()
+        } finally {
+            planted.forEach { assetFile(context, it).delete() }
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 备份闭包：只被图生成尝试引用的产物也必须进包，且包内库的引用集合与回执资产数一致。
+     * 反向的判据在恢复侧——[restoreIsRejectedWhenAGenerationAttemptOutputAssetIsMissing]。
+     */
+    @Test
+    fun backupClosureIncludesGenerationAttemptOutputs() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+        val planted = mutableListOf<CanonicalSourceAssetRecord>()
+        val scratch = File(context.cacheDir, "attempt-closure-${System.nanoTime()}")
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            seedStudyFacts(context, database, databaseName, seed())
+            val output = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "attempt-closure",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-closure",
+                attemptId = "attempt-closure",
+                operationStatus = "SUCCEEDED",
+                attemptStatus = "SUCCEEDED",
+                outputAssetId = output.sourceAssetId,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+            )
+
+            val archive = ByteArrayOutputStream()
+            val receipt = AndroidBackupRepository(context, database).create(archive)
+
+            assertEquals("尝试产物必须进包（也只有这一张被引用）", 1, receipt.assetCount)
+            val closure = unpackedArchiveClosure(context, archive.toByteArray(), scratch)
+            assertTrue(
+                "包内库的引用集合必须含尝试产物",
+                closure.referencedAssets.any { record ->
+                    record.sourceAssetId == output.sourceAssetId
+                },
+            )
+            assertEquals(1, closure.problemCount)
+            assertEquals(
+                "回执资产数必须等于包内库自己的引用集合",
+                closure.referencedAssets.size,
+                receipt.assetCount,
+            )
+            database.close()
+        } finally {
+            planted.forEach { assetFile(context, it).delete() }
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+            scratch.deleteRecursively()
+        }
+    }
+
+    /**
      * 按 vault 的落盘约定种一张真图：`source-assets/<sha256>.jpg` 加与之匹配的行。
      * `vault.delete` 会核对大小与 SHA-256，只插行不落文件的夹具会让清理计数失去意义。
      *
@@ -1031,7 +1391,7 @@ class BackupRestoreInstrumentedTest {
     ): File = File(context.filesDir, asset.relativePath)
 
     /**
-     * 大堂的真实引用形态：学生消息附图建立 `tutor_message_source_asset` 引用（四表引用口径
+     * 大堂的真实引用形态：学生消息附图建立 `tutor_message_source_asset` 引用（引用口径
      * 里的一支）。资产行必须先登记，引用才能建立（RESTRICT 外键）。
      */
     private suspend fun referenceViaStudentMessage(
@@ -1070,6 +1430,19 @@ class BackupRestoreInstrumentedTest {
             File("${databaseFile.absolutePath}-shm"),
         ).forEach { it.delete() }
     }
+
+    /** 迁移后某张表是否真的建出来（读 sqlite_master；表名走参数绑定，不拼 SQL）。 */
+    private fun tableExists(context: Context, databaseName: String, table: String): Boolean =
+        SQLiteDatabase.openDatabase(
+            context.getDatabasePath(databaseName).absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READWRITE,
+        ).use { db ->
+            db.rawQuery(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+                arrayOf(table),
+            ).use { cursor -> cursor.moveToFirst() }
+        }
 
     /** 一个归档解出来的闭合事实：包内库引用哪些图、它自己有多少道题。 */
     private data class UnpackedArchiveClosure(
@@ -1394,7 +1767,7 @@ class BackupRestoreInstrumentedTest {
      * 恢复必须在**切换前**被拒绝，且原因指明缺的是哪张；原数据、包外的原图都不许动。
      *
      * 构造方式刻意绕开 manifest 的引用清单（声明为空）：这样校验层一路放行，
-     * 只有对归档库的四表反查才能发现缺图——测的正是权威判据本身。
+     * 只有对归档库的引用反查才能发现缺图——测的正是权威判据本身。
      */
     @Test
     fun restoreIsRejectedWhenTheArchivedDatabaseReferencesAMissingAsset() = runBlocking {
@@ -1450,6 +1823,88 @@ class BackupRestoreInstrumentedTest {
             assertEquals(1, database.countMistakes())
             assertEquals(referenced, database.readCanonicalSourceAsset(referenced.sourceAssetId))
             assertTrue(assetFile(context, referenced).isFile)
+            database.close()
+        } finally {
+            planted.forEach { assetFile(context, it).delete() }
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+            scratch.deleteRecursively()
+        }
+    }
+
+    /**
+     * 恢复前的资产闭合必须覆盖**图生成尝试产物**：包里的库引用了 `attempt.output_asset_id`，
+     * 但包里没有这张图 → 在交换前拒绝，原因指出缺的是哪张，原库/原行/原图都不动。
+     *
+     * 构造刻意绕开 manifest 的引用清单（声明为空）：只有对归档库的引用反查才能发现缺图。
+     * 若 `findUnreferencedCanonicalAssets` 没把 attempt 产物算进引用，这个用例会"恢复成功"，
+     * 把一份缺图的数据集当成完整备份换上去。
+     */
+    @Test
+    fun restoreIsRejectedWhenAGenerationAttemptOutputAssetIsMissing() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+        val planted = mutableListOf<CanonicalSourceAssetRecord>()
+        val scratch = File(context.cacheDir, "missing-attempt-output-${System.nanoTime()}")
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            seedStudyFacts(context, database, databaseName, seed())
+            val output = plantCanonicalAsset(
+                context = context,
+                database = database,
+                seed = "attempt-missing-output",
+                createdAtEpochMillis = 2_000,
+                planted = planted,
+            )
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-missing-output",
+                attemptId = "attempt-missing-output",
+                operationStatus = "SUCCEEDED",
+                attemptStatus = "SUCCEEDED",
+                outputAssetId = output.sourceAssetId,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+            )
+
+            scratch.mkdirs()
+            val snapshotCopy = File(scratch, "snapshot.db")
+            database.snapshotForBackup(
+                context.getDatabasePath(databaseName),
+                snapshotCopy,
+            )
+            val archive = ByteArrayOutputStream()
+            SmbkArchiveCodec.create(
+                archive = archive,
+                database = snapshotCopy,
+                assets = emptyList(),
+                referencedAssets = emptyList(),
+                databaseSchemaVersion = database.readDatabaseVersion(),
+                problemCount = 1,
+                createdAtEpochMillis = 1_000L,
+            )
+
+            val failure = runCatching {
+                AndroidBackupRepository(context, database).restore(
+                    ByteArrayInputStream(archive.toByteArray()),
+                )
+            }
+
+            assertTrue("尝试产物不在包内时必须拒绝恢复", failure.isFailure)
+            val message = (failure.exceptionOrNull() as? BackupRestoreException)
+                ?.message.orEmpty()
+            assertTrue("拒绝原因要可读，实际：$message", message.contains("题图"))
+            assertTrue(
+                "拒绝原因要指出缺的是哪张图，实际：$message",
+                message.contains(output.relativePath.substringAfterLast('/')),
+            )
+            // 切换没有发生：原库、原行、原图都在原地。
+            assertEquals(1, database.countMistakes())
+            assertEquals(output, database.readCanonicalSourceAsset(output.sourceAssetId))
+            assertTrue(assetFile(context, output).isFile)
             database.close()
         } finally {
             planted.forEach { assetFile(context, it).delete() }

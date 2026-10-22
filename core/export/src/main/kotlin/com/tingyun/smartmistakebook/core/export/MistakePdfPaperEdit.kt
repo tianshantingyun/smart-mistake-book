@@ -9,8 +9,7 @@ import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
  *
  * **边界（计划 §2 最后一条）**：这里只改渲染输入 `MistakePdfExportInput` 的块序列；错题条目、
  * 题面文档与 revision 一概不写。编辑后的卷面用 [MistakePaperDraft] 交给既有 JobRequest 管线：
- * PDF 沿用既有 `MistakePdfPagePlanner`（本批不修改），docx 沿用 6B-1 渲染器；编辑只改输入模型，
- * 不新造排版器。
+ * PDF 沿用既有 `MistakePdfPagePlanner`，docx 沿用既有渲染器；编辑只改输入模型，不新造排版器。
  *
  * **题的单位**：一个 [MistakePdfPaperQuestion] 对应一次可导出判定产出的单题输入
  * （`MistakePdfEligibility` 的 `Eligible.input`）。卷面 = 这些单题输入的有序列表。这样
@@ -239,6 +238,14 @@ class MistakePdfPaperEdit private constructor(
             // 否则编辑后的 docx 会绕过渲染前复核。
             cleanImageSha256 = sourceInput.cleanImageSha256,
             cleanImageByteSize = sourceInput.cleanImageByteSize,
+            questionImageRole = sourceInput.questionImageRole,
+            // WG-07：解析区图跟着**当前**题序走（删掉的题不会在附录里留下它的讲解图）；
+            // 没请求解析区时不进导出输入（题目上的视觉引用仍留在卷面题里，开关打开即可用）。
+            solutionImages = if (layout.includeSolution) {
+                aggregateSolutionImages(questions)
+            } else {
+                emptyList<MistakePdfExportImage>()
+            },
             layout = layout,
             userNote = sourceInput.userNote,
         )
@@ -349,6 +356,16 @@ data class MistakePdfPaperQuestion(
     /** 干净题面图在资产记录里的完整性期望（KD-55），装配时随图内联进 Image 块。 */
     val cleanImageSha256: String? = null,
     val cleanImageByteSize: Long? = null,
+    /** 题目区图的资产角色（WG-07）：CLEAN_IMAGE / QUESTION_DIAGRAM；null = 旧调用方。 */
+    val questionImageRole: String? = null,
+    /**
+     * 这道题的解析区图（role=TUTOR_EXPLANATION，WG-07）。
+     *
+     * **卷面副本保留全部视觉引用**：编辑/调序/删题都在题目这一层操作，图跟着题走；
+     * 装配成卷面时按题序汇总成附录里的解析区（[aggregateSolutionImages]），不会因为
+     * "编辑了文字"就把讲解过程图丢掉。
+     */
+    val solutionImages: List<MistakePdfExportImage> = emptyList(),
 ) {
     init {
         require(entryId.isNotBlank()) { "A paper question needs an entry id" }
@@ -366,6 +383,8 @@ internal fun paperQuestionOf(input: MistakePdfExportInput): MistakePdfPaperQuest
         note = input.userNote,
         cleanImageSha256 = input.cleanImageSha256,
         cleanImageByteSize = input.cleanImageByteSize,
+        questionImageRole = input.questionImageRole,
+        solutionImages = input.solutionImages,
     )
 
 /**
@@ -398,10 +417,12 @@ internal fun buildPaperBlocks(
                 MistakePdfBlock.Image(
                     id = "question-$index-image",
                     localUri = uri,
-                    title = "第 ${index + 1} 题 · 干净题面",
+                    // WG-07：CLEAN_IMAGE/旧卷面仍叫"干净题面"，QUESTION_DIAGRAM 叫"题图"。
+                    title = "第 ${index + 1} 题 · ${questionImageLabel(question.questionImageRole)}",
                     // KD-55：把来源记录的 sha/长度带进批量块，渲染前用它复核文件字节。
                     expectedContentSha256 = question.cleanImageSha256,
                     expectedByteSize = question.cleanImageByteSize,
+                    role = question.questionImageRole,
                 ),
             )
         }
@@ -429,6 +450,13 @@ internal fun paperContentFingerprint(
     layout.canonicalForm(),
     questions.size.toString(),
     questions.joinToString(separator = "\n") { question ->
+        // WG-07：解析区图也是这份卷面会交付的内容，role+位置+sha 全部进键；
+        // 没请求解析区时它不渲染，也就不进键（同一份题面不会因未渲染的图白换缓存键）。
+        val solutionImages = if (layout.includeSolution) {
+            question.solutionImages
+        } else {
+            emptyList<MistakePdfExportImage>()
+        }
         listOf(
             exportFingerprint(
                 "paper-question-v1",
@@ -438,7 +466,17 @@ internal fun paperContentFingerprint(
                 question.cleanImageLocalUri.orEmpty(),
                 question.cleanImageSha256.orEmpty(),
                 question.cleanImageByteSize?.toString().orEmpty(),
+                question.questionImageRole.orEmpty(),
                 question.note.orEmpty(),
+                solutionImages.size.toString(),
+                solutionImages.joinToString(separator = ",") { image ->
+                    exportFingerprint(
+                        "paper-solution-image-v1",
+                        image.role,
+                        image.localUri,
+                        image.contentSha256.orEmpty(),
+                    )
+                },
             ),
             question.blocks.joinToString(separator = ",") { block ->
                 block.contentFingerprint()
@@ -490,6 +528,7 @@ private fun MistakePdfBlock.contentFingerprint(): String = when (this) {
         title,
         expectedContentSha256.orEmpty(),
         expectedByteSize?.toString().orEmpty(),
+        role.orEmpty(),
     )
     is MistakePdfBlock.Note -> exportFingerprint("paper-block-v1", "note", id, text)
 }

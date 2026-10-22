@@ -11,6 +11,8 @@ import com.tingyun.smartmistakebook.core.database.dao.BindingAuditSampleDao
 import com.tingyun.smartmistakebook.core.database.dao.BindingChangeDao
 import com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceDao
 import com.tingyun.smartmistakebook.core.database.dao.CleanRedrawTaskDao
+import com.tingyun.smartmistakebook.core.database.dao.FigureGenerationDao
+import com.tingyun.smartmistakebook.core.database.dao.FigureGenerationReconcileDao
 import com.tingyun.smartmistakebook.core.database.dao.ImmutableLearningFactDao
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeGroundingDao
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeNodeRelationDao
@@ -64,6 +66,8 @@ import com.tingyun.smartmistakebook.core.database.entity.StudentModelPredictionE
 import com.tingyun.smartmistakebook.core.database.entity.PredictionOutcomeEntity
 import com.tingyun.smartmistakebook.core.database.entity.CanonicalSourceAssetEntity
 import com.tingyun.smartmistakebook.core.database.entity.CleanRedrawTaskEntity
+import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationAttemptEntity
+import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperationEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptCorrectionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptSubmissionEntity
@@ -127,7 +131,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 68
+internal const val STUDY_DATABASE_VERSION = 69
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -223,6 +227,8 @@ internal object SplitImportLedgerStrings {
         MistakeExportRecordEntity::class,
         BindingAuditSampleEntity::class,
         CleanRedrawTaskEntity::class,
+        FigureGenerationOperationEntity::class,
+        FigureGenerationAttemptEntity::class,
     ],
     version = STUDY_DATABASE_VERSION,
     exportSchema = true,
@@ -295,6 +301,10 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun batchImportDao(): BatchImportDao
 
     abstract fun cleanRedrawTaskDao(): CleanRedrawTaskDao
+
+    abstract fun figureGenerationDao(): FigureGenerationDao
+
+    abstract fun figureGenerationReconcileDao(): FigureGenerationReconcileDao
 }
 
 object StudyDatabaseFactory {
@@ -383,6 +393,7 @@ object StudyDatabaseFactory {
             CLEAN_REDRAW_TASK_MIGRATION_65_66,
             FAVORITE_AND_MANUAL_DRAFT_MIGRATION_66_67,
             ANSWER_KEY_CORRECTION_MIGRATION_67_68,
+            FIGURE_GENERATION_MIGRATION_68_69,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

@@ -11,6 +11,9 @@ import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskStatus
 import com.tingyun.smartmistakebook.core.database.CreateCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.FinishCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.entity.CleanRedrawTaskEntity
+import com.tingyun.smartmistakebook.core.database.port.RevisionImageSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * 净化作业台账（AUD-09）的读写口。三条不变量在这里、不在调用方：
@@ -23,8 +26,9 @@ import com.tingyun.smartmistakebook.core.database.entity.CleanRedrawTaskEntity
  *    新一轮的判定里。
  *
  * 与 `MistakeExportRecordDao` 的分工：那张表的"运行中"是显式状态（`RUNNING`），这里的
- * `PENDING` 同时覆盖"待做"与"在途"——区分二者的是 `updated_at`（领取会刷新它），
- * 启动对账按"最后更新早于本进程启动时刻"判"这一行是不是上一进程留下的"。
+ * `PENDING` 同时覆盖"待做"与"在途"——区分二者的是 `attempt_count` + `updated_at`：
+ * 首次领取（`attempt_count == 0`）总可领；已领取的在途行只有超过租约截止（启动对账传
+ * "本进程启动时刻"）才允许再领，防止两个并发请求各领一次、同一作业重复出网付费。
  */
 @Dao
 internal abstract class CleanRedrawTaskDao {
@@ -62,6 +66,58 @@ internal abstract class CleanRedrawTaskDao {
     ): List<CleanRedrawTaskEntity>
 
     /**
+     * 某条修订上最近一次作业。[likePattern] 是 SQL LIKE 模式（如 `explicit-redraw-op:%`）；
+     * null = 不按操作类型筛。显式重绘详情区只看自己那一类行，不把保存期净化当成用户请求。
+     */
+    @Query(
+        """
+        SELECT * FROM clean_redraw_task
+        WHERE revision_id = :revisionId
+          AND (:likePattern IS NULL OR operation_id LIKE :likePattern)
+        ORDER BY created_at_epoch_millis DESC, task_id DESC
+        LIMIT 1
+        """,
+    )
+    protected abstract suspend fun findLatestTask(
+        revisionId: String,
+        likePattern: String?,
+    ): CleanRedrawTaskEntity?
+
+    @Query(
+        """
+        SELECT * FROM clean_redraw_task
+        WHERE revision_id = :revisionId
+          AND (:likePattern IS NULL OR operation_id LIKE :likePattern)
+        ORDER BY created_at_epoch_millis DESC, task_id DESC
+        LIMIT 1
+        """,
+    )
+    protected abstract fun observeLatestTask(
+        revisionId: String,
+        likePattern: String?,
+    ): Flow<CleanRedrawTaskEntity?>
+
+    /**
+     * 修订上已登记的视觉引用（角色 + 资产 id + 内容 sha）。显式重绘只据此选源图；
+     * 文件字节仍由 vault 按规范记录读取并在发送前核对 sha。
+     */
+    @Query(
+        """
+        SELECT link.role AS role,
+               asset.source_asset_id AS sourceAssetId,
+               asset.content_sha256 AS contentSha256
+        FROM problem_revision_source_asset AS link
+        JOIN canonical_source_asset AS asset
+          ON asset.source_asset_id = link.source_asset_id
+        WHERE link.problem_revision_id = :problemRevisionId
+        ORDER BY link.role ASC, asset.source_asset_id ASC
+        """,
+    )
+    protected abstract suspend fun findRevisionImageSources(
+        problemRevisionId: String,
+    ): List<RevisionImageSourceRow>
+
+    /**
      * 领取一次尝试的比较交换。**同时清空 `last_failure_code`**：那一列记的是"最近一次**已结束**
      * 尝试失败在哪一环"，领取之后这一行又回到"在途"（`PENDING`），上一轮的失败码对该状态不成立
      * ——[CleanRedrawTaskRecord] 的契约是有码 ⟺ `FAILED`，不清就会在续跑一条 FAILED 行时直接抛
@@ -78,18 +134,23 @@ internal abstract class CleanRedrawTaskDao {
             last_failure_code = NULL,
             updated_at_epoch_millis = :claimedAtEpochMillis
         WHERE task_id = :taskId
-          AND status IN (:resumableStatuses)
           AND attempt_count = :expectedAttemptCount
           AND attempt_count < :maxAttempts
+          AND (
+              status = :failedStatus
+              OR (status = :pendingStatus AND attempt_count = 0)
+              OR (status = :pendingStatus AND updated_at_epoch_millis <= :staleBeforeEpochMillis)
+          )
         """,
     )
     protected abstract suspend fun claimAttempt(
         taskId: String,
         expectedAttemptCount: Int,
         nextAttemptCount: Int,
-        resumableStatuses: List<String>,
         pendingStatus: String,
+        failedStatus: String,
         maxAttempts: Int,
+        staleBeforeEpochMillis: Long,
         claimedAtEpochMillis: Long,
     ): Int
 
@@ -125,6 +186,7 @@ internal abstract class CleanRedrawTaskDao {
             lastFailureCode = null,
             createdAtEpochMillis = command.createdAtEpochMillis,
             updatedAtEpochMillis = command.createdAtEpochMillis,
+            operationId = command.operationId,
         )
         if (insertTask(candidate) != -1L) return candidate.toRecord()
         // 已有行 = 重放：身份必须逐位一致，否则是调用方拿另一个身份撞了同一个 taskId。
@@ -164,6 +226,46 @@ internal abstract class CleanRedrawTaskDao {
         ).map(CleanRedrawTaskEntity::toRecord)
     }
 
+    /** 某条修订上最近一次作业（含终态）；[operationIdPrefix] null = 不筛操作类型。 */
+    open suspend fun readLatestTaskForRevision(
+        revisionId: String,
+        operationIdPrefix: String? = null,
+    ): CleanRedrawTaskRecord? {
+        require(revisionId.isNotBlank()) { "A clean redraw revision id must not be blank" }
+        require(operationIdPrefix == null || operationIdPrefix.isNotBlank()) {
+            "A clean redraw operation id prefix must be null or non-blank"
+        }
+        return findLatestTask(revisionId, operationIdPrefix?.let { "$it%" })?.toRecord()
+    }
+
+    /** 与 [readLatestTaskForRevision] 同口径的观察流。 */
+    open fun observeLatestTaskForRevision(
+        revisionId: String,
+        operationIdPrefix: String? = null,
+    ): Flow<CleanRedrawTaskRecord?> {
+        require(revisionId.isNotBlank()) { "A clean redraw revision id must not be blank" }
+        require(operationIdPrefix == null || operationIdPrefix.isNotBlank()) {
+            "A clean redraw operation id prefix must be null or non-blank"
+        }
+        return observeLatestTask(revisionId, operationIdPrefix?.let { "$it%" })
+            .map { entity -> entity?.toRecord() }
+    }
+
+    open suspend fun readRevisionImageSources(
+        problemRevisionId: String,
+    ): List<RevisionImageSource> {
+        require(problemRevisionId.isNotBlank()) {
+            "A problem revision id must not be blank"
+        }
+        return findRevisionImageSources(problemRevisionId).map { row ->
+            RevisionImageSource(
+                role = row.role,
+                sourceAssetId = row.sourceAssetId,
+                contentSha256 = row.contentSha256,
+            )
+        }
+    }
+
     /**
      * 领取一次尝试；返回领取后的行，领不到（别人领走 / 次数耗尽 / 已是终态）返回 null。
      */
@@ -175,9 +277,10 @@ internal abstract class CleanRedrawTaskDao {
             taskId = command.taskId,
             expectedAttemptCount = command.expectedAttemptCount,
             nextAttemptCount = command.expectedAttemptCount + 1,
-            resumableStatuses = CleanRedrawTaskStatus.RESUMABLE,
             pendingStatus = CleanRedrawTaskStatus.PENDING,
+            failedStatus = CleanRedrawTaskStatus.FAILED,
             maxAttempts = command.maxAttempts,
+            staleBeforeEpochMillis = command.staleBeforeEpochMillis,
             claimedAtEpochMillis = command.occurredAtEpochMillis,
         )
         // 比较交换以 UPDATE 的命中行数为准：命中 0 行 = 别人先领走 / 次数耗尽 / 已是终态。
@@ -207,6 +310,13 @@ internal abstract class CleanRedrawTaskDao {
     }
 }
 
+/** 修订视觉引用查询的行形状（列别名与 [RevisionImageSource] 的字段同名）。 */
+internal data class RevisionImageSourceRow(
+    val role: String,
+    val sourceAssetId: String,
+    val contentSha256: String,
+)
+
 internal fun CleanRedrawTaskEntity.toRecord() = CleanRedrawTaskRecord(
     taskId = taskId,
     revisionId = revisionId,
@@ -219,6 +329,7 @@ internal fun CleanRedrawTaskEntity.toRecord() = CleanRedrawTaskRecord(
     lastFailureCode = lastFailureCode,
     createdAtEpochMillis = createdAtEpochMillis,
     updatedAtEpochMillis = updatedAtEpochMillis,
+    operationId = operationId,
 )
 
 private fun CleanRedrawTaskEntity.hasSameIdentity(other: CleanRedrawTaskEntity): Boolean =
@@ -227,4 +338,5 @@ private fun CleanRedrawTaskEntity.hasSameIdentity(other: CleanRedrawTaskEntity):
         sourceAssetId == other.sourceAssetId &&
         sourceImageSha256 == other.sourceImageSha256 &&
         requestFingerprint == other.requestFingerprint &&
-        subjectId == other.subjectId
+        subjectId == other.subjectId &&
+        operationId == other.operationId

@@ -92,42 +92,62 @@ internal class StudyPracticeUnitFacts(
         val assessmentItem = assessmentItemOf(record)
             ?: error("Practice unit $practiceUnitId is not a machine-checkable question")
         val (taxonomyVersion, attributions) = attributionSetFor(record)
-        val answerSpecId = requireNotNull(record.answerSpecId)
         return StudySubmissionFacts(
             assessmentItem = assessmentItem,
             explanationMarkdown = explanationOf(assessmentItem),
-            evidenceSnapshot = AssessmentEvidenceSnapshot(
-                snapshotId = writeContext.stableId(
-                    SNAPSHOT_ID_NAMESPACE,
-                    buildString {
-                        append(record.practiceUnitId).append('\n')
-                        append(record.problemRevisionId).append('\n')
-                        append(taxonomyVersion).append('\n')
-                        attributions.forEach { attribution ->
-                            append(attribution.bindingId).append(':')
-                            append(attribution.knowledgeNodeId).append(':')
-                            append(attribution.weight).append(':')
-                            append(attribution.role.name).append(':')
-                            append(attribution.certainty.name).append('\n')
-                        }
-                    },
-                ),
-                assessmentItemId = assessmentItem.id,
-                practiceUnitId = record.practiceUnitId,
-                problemRevisionId = record.problemRevisionId,
-                answerSpecId = answerSpecId,
-                // 保存下来的题没有来源包身份（practice unit 记录里没有该列）：
-                // null = 不参与同源错峰（KF-17），与无 fixture 的 release 行为一致。
-                itemFamilyId = ITEM_FAMILY_ID_PREFIX + record.practiceUnitId,
-                sourceBundleId = null,
+            evidenceSnapshot = assessmentEvidenceSnapshot(
+                record = record,
+                assessmentItem = assessmentItem,
+                answerSpecId = requireNotNull(record.answerSpecId),
                 taxonomyVersion = taxonomyVersion,
-                verification = AssessmentSnapshotVerification.VERIFIED,
-                calibration = CalibrationSnapshot.unknown(),
                 attributions = attributions,
-                capturedAtEpochMillis = record.revisionCreatedAtEpochMillis,
             ),
         )
     }
+
+    /**
+     * 机判/揭示共用的证据快照。身份只由"题 + revision + 归属集 + 答案规格"决定：
+     * **同一道可机判题的自评、机判与揭示必须拿到同一个 snapshotId**，否则先由自评建立的
+     * presentation 会绑在另一个快照上，随后的 reveal 写入按机判快照调用
+     * `loadOrCreatePresentation` 时直接撞 `assessment_presentation`——PRD-05 自评后
+     * 展示已存答案的确定性失败（自评快照与机判快照分命名空间造成）。
+     */
+    private fun assessmentEvidenceSnapshot(
+        record: PracticeUnitAssessmentRecord,
+        assessmentItem: TutorAssessmentItem,
+        answerSpecId: String,
+        taxonomyVersion: String,
+        attributions: List<KnowledgeEvidenceAttribution>,
+    ): AssessmentEvidenceSnapshot = AssessmentEvidenceSnapshot(
+        snapshotId = writeContext.stableId(
+            SNAPSHOT_ID_NAMESPACE,
+            buildString {
+                append(record.practiceUnitId).append('\n')
+                append(record.problemRevisionId).append('\n')
+                append(taxonomyVersion).append('\n')
+                attributions.forEach { attribution ->
+                    append(attribution.bindingId).append(':')
+                    append(attribution.knowledgeNodeId).append(':')
+                    append(attribution.weight).append(':')
+                    append(attribution.role.name).append(':')
+                    append(attribution.certainty.name).append('\n')
+                }
+            },
+        ),
+        assessmentItemId = assessmentItem.id,
+        practiceUnitId = record.practiceUnitId,
+        problemRevisionId = record.problemRevisionId,
+        answerSpecId = answerSpecId,
+        // 保存下来的题没有来源包身份（practice unit 记录里没有该列）：
+        // null = 不参与同源错峰（KF-17），与无 fixture 的 release 行为一致。
+        itemFamilyId = ITEM_FAMILY_ID_PREFIX + record.practiceUnitId,
+        sourceBundleId = null,
+        taxonomyVersion = taxonomyVersion,
+        verification = AssessmentSnapshotVerification.VERIFIED,
+        calibration = CalibrationSnapshot.unknown(),
+        attributions = attributions,
+        capturedAtEpochMillis = record.revisionCreatedAtEpochMillis,
+    )
 
     /**
      * PRD-05 三键自评所需的全部事实。**不要求机器可判**：已保存但无机判工件的题也能复习。
@@ -138,13 +158,43 @@ internal class StudyPracticeUnitFacts(
      *
      * 归属与机判路径完全同源（`attributionSetFor`，无绑定时物化 pseudo 桶），因此自评证据
      * 也会进知识点掌握投影——这是裁定 36"自评 = 作答类证据、准入记忆卡"的落点。
+     *
+     * **可机判题复用机判快照身份**（[assessmentEvidenceSnapshot]）：同一 presentation 先写
+     * 自评作答、再展示已存答案（reveal）时，两次写入必须指向同一个 `assessment_snapshot_id`。
+     * 分命名空间会让 reveal 在 `loadOrCreatePresentation` 撞上"快照不同"的不可变冲突
+     * （PRD-05 设备验收的 `review_reveal_write_failed`）。只有**不可机判**的题才落到独立的
+     * `self-report-snapshot`：那种题没有机判快照可比，也不存在可信答案 reveal。
      */
     suspend fun selfReportFacts(practiceUnitId: String): StudySelfReportFacts {
         val record = database.readPracticeUnitAssessment(practiceUnitId)
             ?: error("Practice unit $practiceUnitId does not exist in the local library")
         val assessmentItem = assessmentItemOf(record)
         val (taxonomyVersion, attributions) = attributionSetFor(record)
-        val snapshotId = writeContext.stableId(
+        val evidenceSnapshot = if (assessmentItem != null) {
+            assessmentEvidenceSnapshot(
+                record = record,
+                assessmentItem = assessmentItem,
+                answerSpecId = requireNotNull(record.answerSpecId),
+                taxonomyVersion = taxonomyVersion,
+                attributions = attributions,
+            )
+        } else {
+            selfReportEvidenceSnapshot(record, taxonomyVersion, attributions)
+        }
+        return StudySelfReportFacts(
+            assessmentItem = assessmentItem,
+            storedAnswer = storedAnswerOf(assessmentItem),
+            evidenceSnapshot = evidenceSnapshot,
+        )
+    }
+
+    /** 不可机判题的取证快照：没有可信答案键，独立身份避免冒充机判/揭示快照。 */
+    private fun selfReportEvidenceSnapshot(
+        record: PracticeUnitAssessmentRecord,
+        taxonomyVersion: String,
+        attributions: List<KnowledgeEvidenceAttribution>,
+    ): AssessmentEvidenceSnapshot = AssessmentEvidenceSnapshot(
+        snapshotId = writeContext.stableId(
             SELF_REPORT_SNAPSHOT_ID_NAMESPACE,
             buildString {
                 append(record.practiceUnitId).append('\n')
@@ -158,29 +208,22 @@ internal class StudyPracticeUnitFacts(
                     append(attribution.certainty.name).append('\n')
                 }
             },
-        )
-        return StudySelfReportFacts(
-            assessmentItem = assessmentItem,
-            storedAnswer = storedAnswerOf(assessmentItem),
-            evidenceSnapshot = AssessmentEvidenceSnapshot(
-                snapshotId = snapshotId,
-                assessmentItemId = writeContext.stableId(
-                    SELF_REPORT_ITEM_ID_NAMESPACE,
-                    "${record.practiceUnitId}\n${record.problemRevisionId}",
-                ),
-                practiceUnitId = record.practiceUnitId,
-                problemRevisionId = record.problemRevisionId,
-                answerSpecId = SELF_REPORT_ANSWER_SPEC_ID,
-                itemFamilyId = SELF_REPORT_ITEM_FAMILY_ID_PREFIX + record.practiceUnitId,
-                sourceBundleId = null,
-                taxonomyVersion = taxonomyVersion,
-                verification = AssessmentSnapshotVerification.VERIFIED,
-                calibration = CalibrationSnapshot.unknown(),
-                attributions = attributions,
-                capturedAtEpochMillis = record.revisionCreatedAtEpochMillis,
-            ),
-        )
-    }
+        ),
+        assessmentItemId = writeContext.stableId(
+            SELF_REPORT_ITEM_ID_NAMESPACE,
+            "${record.practiceUnitId}\n${record.problemRevisionId}",
+        ),
+        practiceUnitId = record.practiceUnitId,
+        problemRevisionId = record.problemRevisionId,
+        answerSpecId = SELF_REPORT_ANSWER_SPEC_ID,
+        itemFamilyId = SELF_REPORT_ITEM_FAMILY_ID_PREFIX + record.practiceUnitId,
+        sourceBundleId = null,
+        taxonomyVersion = taxonomyVersion,
+        verification = AssessmentSnapshotVerification.VERIFIED,
+        calibration = CalibrationSnapshot.unknown(),
+        attributions = attributions,
+        capturedAtEpochMillis = record.revisionCreatedAtEpochMillis,
+    )
 
     /** PRD-05 无模型路径：本机可信的答案/解析。题不存在返回 null；不可信返回 isTrusted=false。 */
     suspend fun storedAnswerFor(practiceUnitId: String): ReviewStoredAnswer? {
@@ -320,7 +363,10 @@ internal class StudyPracticeUnitFacts(
         const val ITEM_FAMILY_ID_PREFIX = "saved-question:"
         const val SINGLE_CHOICE_SCHEMA = "single-choice.v1"
 
-        /** PRD-05：自评证据快照的身份命名空间（与机判快照分开，互不覆盖）。 */
+        /**
+         * PRD-05：**不可机判题**的自评证据快照身份。可机判题复用机判快照
+         * （[SNAPSHOT_ID_NAMESPACE]），使自评作答与随后的 reveal 落在同一 presentation 快照上。
+         */
         const val SELF_REPORT_ANSWER_SPEC_ID = "self-report.v1"
         const val SELF_REPORT_ITEM_FAMILY_ID_PREFIX = "self-report:"
         private const val SELF_REPORT_ITEM_ID_NAMESPACE = "self-report-item"

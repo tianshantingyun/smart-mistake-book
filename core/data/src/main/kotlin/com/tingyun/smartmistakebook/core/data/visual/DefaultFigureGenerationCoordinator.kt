@@ -435,6 +435,12 @@ class DefaultFigureGenerationCoordinator internal constructor(
             usedRemoteDispatches = 1
         }
 
+        /**
+         * 生成成功即落 SUCCEEDED，`output_asset_id` 留给入口落盘后回填（coordinator 不知道
+         * 资产 id）。若入口 persist/attach 失败，这一行会短暂地"成功但无产物"；启动对账
+         * （`FigureGenerationReconciler`）会把结束时刻早于进程启动、仍无 output 的 SUCCEEDED
+         * 行纠正为 FAILED 待核实，因此不会永久留下假成功。
+         */
         suspend fun succeed() {
             finishAttempt(FigureGenerationAuditOutcome.SUCCEEDED, outputAssetId = null, diagnostics = null)
             finishOperation(FigureGenerationAuditOutcome.SUCCEEDED)

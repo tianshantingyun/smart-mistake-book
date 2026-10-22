@@ -210,6 +210,12 @@ internal data class ProblemRevisionSourceAssetEntity(
     @ColumnInfo(name = "source_asset_id")
     val sourceAssetId: String,
     val role: String,
+    /**
+     * 同一修订同一角色下的附图顺序（4E WG-08，v68→69）。
+     * 非空 + DEFAULT 0：旧行没有顺序，单一源图就是第 0 张（迁移不回填、不猜测）。
+     */
+    @ColumnInfo(name = "ordinal", defaultValue = "0")
+    val ordinal: Int = 0,
 )
 
 @Entity(

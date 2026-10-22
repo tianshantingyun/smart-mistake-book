@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -20,10 +21,13 @@ import kotlin.math.roundToInt
  * - 页脚：PDF 每页画"第 n / m 页"；Word 包不写页眉页脚部件（需要时在 Word 里插入页码），
  *   正文内容不受影响；
  * - 答案区/备注区：与 PDF 计划器同一判据、同一文案结构（文本内容一致）；
- * - 图片：`cleanImageLocalUri` 与批量 [MistakePdfBlock.Image] 都尝试按 PNG/JPEG 嵌入；
- *   读不出时省略该图、保留其余内容（PDF 计划器在拿不到尺寸时同样不排入这张图；
- *   PDF 渲染器在这种输入上整份失败，差异见批记录）。**KD-55**：输入若携带资产记录里的
- *   sha/长度，嵌入前由 [DocxImageSource] 复核这份字节（不符 = 读不出，按同一降级处理）；
+ * - 图片（4E WG-07）：题目区图 = `cleanImageLocalUri`（CLEAN_IMAGE 优先、其次
+ *   QUESTION_DIAGRAM）；批量 [MistakePdfBlock.Image] 与解析区
+ *   [MistakePdfExportInput.solutionImages]（只含 TUTOR_EXPLANATION，且仅
+ *   `layout.includeSolution=true`）都按 PNG/JPEG 嵌入。**必图 fail-closed**：任何一张
+ *   声明了要交付的图读不出、或与资产记录的 sha/长度不符，整份 Word 渲染失败——不再
+ *   "省略这张图、保留其余内容"（那会让学生拿到一份少图却看起来成功的文档）；
+ *   role=TUTOR_EXPLANATION 的图块不参与题目区渲染（与 PDF 侧同一过滤）；
  * - 页数/分页：Word 自己排版，渲染器不设页数上限，只受字节预算约束（由 exporter 核）。
  *
  * **本批边界（6B-1）**：只做"把既有题面模型交付成 Word 文件"。应用内编辑 Word 与自然语言
@@ -61,7 +65,11 @@ internal object DocxMistakeRenderer {
             "xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\""
 
     fun render(input: MistakePdfExportInput, output: File) {
+        // WG-07：解析区角色的图块不进题目区（与 PDF 计划器同一过滤；资格层也不会产出这种块）。
         val blocks = orderedBlocks(input.blocks, input.layout)
+            .filterNot { block ->
+                block is MistakePdfBlock.Image && block.role == VisualRole.TUTOR_EXPLANATION.name
+            }
         val images = embeddedImages(input, blocks)
         val documentXml = documentXml(input, blocks, images)
         val parts = buildList {
@@ -90,29 +98,26 @@ internal object DocxMistakeRenderer {
     )
 
     /**
-     * 需要嵌入的图，按**在文档里出现的顺序**（干净题面在前，块按排序后的顺序），
-     * 同一 uri 只嵌一份。读不出（含记录 sha/长度不符）的 uri 直接不进列表
-     * （降级：省略图，不失败）。
+     * 需要嵌入的图（**必图**），按**在文档里出现的顺序**：题目图 → 卷面图块 → 解析区图；
+     * 同一 uri 只嵌一份。
+     *
+     * 任何一张读不出（含记录 sha/长度不符、文件缺失、不是 PNG/JPEG）都 fail-closed：
+     * `GENERATED_PDF_INVALID`，不写出半份文档。它消灭的失败是「Word 看起来导出成功了，
+     * 学生打开才发现题目图/讲解图少了一张」——PDF 侧在同样输入上本来就整份失败，
+     * Word 侧不再用"降级省略"给出一个看起来成功的坏产物。
      */
     private fun embeddedImages(
         input: MistakePdfExportInput,
         blocks: List<MistakePdfBlock>,
     ): List<EmbeddedImage> {
         val expectations = imageExpectations(input, blocks)
-        val uris = buildList {
-            input.cleanImageLocalUri?.takeIf(String::isNotBlank)?.let(::add)
-            blocks.filterIsInstance<MistakePdfBlock.Image>().forEach { block ->
-                block.localUri.takeIf(String::isNotBlank)?.let(::add)
-            }
-        }.distinct()
         var index = 0
-        return uris.mapNotNull { uri ->
-            val expectation = expectations[uri]
+        return expectations.map { (uri, expectation) ->
             val bytes = DocxImageSource.read(
                 localUri = uri,
-                expectedSha256 = expectation?.sha256,
-                expectedByteSize = expectation?.byteSize,
-            ) ?: return@mapNotNull null
+                expectedSha256 = expectation.sha256,
+                expectedByteSize = expectation.byteSize,
+            ) ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
             index += 1
             EmbeddedImage(
                 uri = uri,
@@ -130,10 +135,9 @@ internal object DocxMistakeRenderer {
     }
 
     /**
-     * uri → 记录里的完整性期望。干净题面与批量 Image 块各带自己的记录字段；**同一 uri
-     * 按第一次出现的记录复核**——导出资格层构造的输入里同一 uri 只对应一条资产记录
-     * （干净图与批量图在批量输入里不会同时出现），重复出现的冲突输入没有真实来源。
-     * 没有记录字段（旧调用方）时该 uri 不做复核，行为与 6B-1 相同。
+     * uri → 记录里的完整性期望。题目图、卷面 Image 块与解析区图各带自己的记录字段；
+     * **同一 uri 按第一次出现的记录复核**——导出资格层构造的输入里同一 uri 只对应一条
+     * 资产记录。没有记录字段（旧调用方）时该 uri 不做复核，但读不出仍然是失败（见上）。
      */
     private fun imageExpectations(
         input: MistakePdfExportInput,
@@ -143,9 +147,17 @@ internal object DocxMistakeRenderer {
             put(uri, ImageExpectation(input.cleanImageSha256, input.cleanImageByteSize))
         }
         blocks.filterIsInstance<MistakePdfBlock.Image>().forEach { block ->
-            val uri = block.localUri.takeIf(String::isNotBlank) ?: return@forEach
+            val uri = block.localUri.takeIf(String::isNotBlank)
+                ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
             if (!containsKey(uri)) {
                 put(uri, ImageExpectation(block.expectedContentSha256, block.expectedByteSize))
+            }
+        }
+        if (input.layout.includeSolution) {
+            input.solutionImages.forEach { image ->
+                if (!containsKey(image.localUri)) {
+                    put(image.localUri, ImageExpectation(image.contentSha256, image.byteSize))
+                }
             }
         }
     }
@@ -207,7 +219,13 @@ internal object DocxMistakeRenderer {
             ?.takeIf(String::isNotBlank)
             ?.let(imagesByUri::get)
             ?.let { embedded ->
-                body.append(textParagraph("干净题面", DocxTextStyle.HEADING, typography))
+                body.append(
+                    textParagraph(
+                        questionImageLabel(input.questionImageRole),
+                        DocxTextStyle.HEADING,
+                        typography,
+                    ),
+                )
                 drawingId += 1
                 val (cx, cy) = imageExtent(input.layout, embedded.part)
                 body.append(
@@ -281,6 +299,19 @@ internal object DocxMistakeRenderer {
         answerSection(input.blocks, input.layout)?.let { lines ->
             body.append(textParagraph("答案", DocxTextStyle.HEADING, typography))
             lines.forEach { line -> body.append(textParagraph(line, DocxTextStyle.BODY, typography)) }
+        }
+        // 解析区（WG-07）：只排讲解过程图，独立成区排在答案区之后、备注区之前。
+        if (input.layout.includeSolution && input.solutionImages.isNotEmpty()) {
+            body.append(textParagraph("解析", DocxTextStyle.HEADING, typography))
+            input.solutionImages.forEach { image ->
+                val embedded = imagesByUri[image.localUri]
+                    ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
+                drawingId += 1
+                val (cx, cy) = imageExtent(input.layout, embedded.part)
+                body.append(
+                    MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy),
+                )
+            }
         }
         noteSection(input)?.let { note ->
             body.append(textParagraph("我的备注", DocxTextStyle.HEADING, typography))

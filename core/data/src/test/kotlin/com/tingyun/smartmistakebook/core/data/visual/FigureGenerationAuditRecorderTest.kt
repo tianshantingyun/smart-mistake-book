@@ -197,7 +197,7 @@ class FigureGenerationAuditRecorderTest {
     @Test
     fun withoutARecorderTheLegacyOutcomeIsBitForBitUnchanged() = runBlocking {
         val ledger = AuditLedger()
-        val channel = AuditChannel()
+        val channel = AuditChannel(events = ledger.events)
         val coordinator = DefaultFigureGenerationCoordinator(
             ledger = ledger,
             openBackend = { backend(channel) },
@@ -234,7 +234,7 @@ class FigureGenerationAuditRecorderTest {
     @Test
     fun anAuditRecorderFailureNeverBlocksGenerationOrTheBudget() = runBlocking {
         val ledger = AuditLedger()
-        val channel = AuditChannel()
+        val channel = AuditChannel(events = ledger.events)
         val coordinator = coordinator(ledger, channel, audit = FailingAuditRecorder())
 
         val request = request()
@@ -376,6 +376,8 @@ class FigureGenerationAuditRecorderTest {
     private class AuditChannel(
         private val cancelled: Boolean = false,
         private val failure: Exception? = null,
+        /** 与账本共用事件表，记录"预留之后真的走到通道"这一次派发。 */
+        private val events: MutableList<String>? = null,
     ) : ImageGenerationChannel {
         val resultBytes: ByteArray = byteArrayOf(5, 6, 7, 8)
         var generateCalls: Int = 0
@@ -386,6 +388,7 @@ class FigureGenerationAuditRecorderTest {
             dispatch: FigureImageDispatchBinding,
         ): ImageRedrawResult {
             generateCalls += 1
+            events?.add("post")
             if (cancelled) throw CancellationException("cancelled")
             failure?.let { throw it }
             return ImageRedrawResult(
@@ -436,7 +439,6 @@ class FigureGenerationAuditRecorderTest {
             diagnostics: String?,
             endedAtEpochMillis: Long,
         ): Boolean {
-            if (eventsAttemptId == null) eventsAttemptId = attemptId
             attemptFinishes += AttemptFinish(attemptId, outcome, outputAssetId, diagnostics)
             events += "attempt:${outcome.name}"
             return true

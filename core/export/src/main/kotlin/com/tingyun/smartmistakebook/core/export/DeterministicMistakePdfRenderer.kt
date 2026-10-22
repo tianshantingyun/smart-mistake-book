@@ -9,6 +9,7 @@ import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import com.tingyun.smartmistakebook.core.model.MathMetrics
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -34,7 +35,14 @@ internal object DeterministicMistakePdfRenderer {
     fun render(input: MistakePdfExportInput, output: File) {
         val imageSizes = buildList {
             input.cleanImageLocalUri?.let(::add)
-            input.blocks.filterIsInstance<MistakePdfBlock.Image>().forEach { add(it.localUri) }
+            // 解析区图（WG-07）：与题目区图同一份尺寸表；只排真正会画的那些。
+            if (input.layout.includeSolution) {
+                input.solutionImages.forEach { image -> add(image.localUri) }
+            }
+            input.blocks
+                .filterIsInstance<MistakePdfBlock.Image>()
+                .filterNot { block -> block.role == VisualRole.TUTOR_EXPLANATION.name }
+                .forEach { block -> add(block.localUri) }
         }.distinct().associateWith { uri ->
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeFile(localImagePath(uri), bounds)

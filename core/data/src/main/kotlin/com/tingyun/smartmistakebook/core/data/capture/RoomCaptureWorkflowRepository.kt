@@ -142,6 +142,18 @@ class RoomCaptureWorkflowRepository internal constructor(
                 cleanImageMimeType = mimeType,
             )
         },
+        // 4E WG-08 T1b：保存期净化也必须在产物落盘后回填
+        // `figure_generation_attempt.output_asset_id`（审计链不区分"保存期/显式"两条入口）。
+        // 资产 id 与 `attachCleanRedrawImage` 的落盘幂等键同一口径（`clean-` + 输出字节 sha）。
+        // 回填是 best-effort（runner 包住异常）：失败只丢一条审计链接，不改判已成功的挂接。
+        onAttached = { clean ->
+            clean.attemptId?.let { attemptId ->
+                database.attachFigureGenerationAttemptOutput(
+                    attemptId = attemptId,
+                    outputAssetId = "clean-" + sha256Hex(clean.bytes),
+                )
+            }
+        },
     )
 
     /**
@@ -962,7 +974,7 @@ class RoomCaptureWorkflowRepository internal constructor(
                     requestFingerprint = if (imported == null) {
                         manualImportRequestFingerprint(request)
                     } else {
-                        importRequestFingerprint(request, imported)
+                        importRequestFingerprint(request, checkNotNull(imported))
                     },
                 ),
             )
