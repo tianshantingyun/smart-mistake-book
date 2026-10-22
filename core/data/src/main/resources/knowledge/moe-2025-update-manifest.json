@@ -1,8 +1,8 @@
 {
  "schemaVersion": 2,
  "packId": "moe-2025-four-subjects-v1",
- "version": 18,
- "contentVersion": "d82a05607bdb622a",
+ "version": 19,
+ "contentVersion": "c4a72c0755dc6645",
  "retired": [
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA分子的多样性与特异性",
