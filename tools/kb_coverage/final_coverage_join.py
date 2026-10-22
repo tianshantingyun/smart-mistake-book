@@ -1259,7 +1259,7 @@ def render_ledger(ledger: list[LedgerRow], index: PackIndex, curriculum: Curricu
         pack_display = pack_display.resolve().relative_to(REPO).as_posix()
     except ValueError:
         pass
-    lines.append(f"- **现包**：`{pack_display}`（v16，sha256 "
+    lines.append(f"- **现包**：`{pack_display}`（v18，sha256 "
                  f"{_sha256(pack_path or DEFAULT_PACK)[:16]}…，"
                  f"{len(index.topics)} 主题 / {len(index.point_to_topic):,} 知识点）；"
                  f"sidecar 材料 **{index.total_materials:,}** 条。")
@@ -1268,7 +1268,7 @@ def render_ledger(ledger: list[LedgerRow], index: PackIndex, curriculum: Curricu
     lines.append("- **材料数**：落点子树（含后代主题）内知识点所绑定的去重材料数。")
     lines.append("- **处置注**：只取 `FINAL-COVERAGE-TABLE.md` §4 与 §11 原文（批11 F2 残差处置，逐条保留 "
                  "item_id 与 disposition）；批1–10 的处置已折入 §3 现包现状基线，批12/13 无逐节处置原文入 FINAL，"
-                 "故不补写，v16 实测体现在“现包落点”列。")
+                 "故不补写，v18 实测体现在“现包落点”列。")
     lines.append("")
     lines.append(f"**自检：{len(sections)} 官方节 + {len(nonsec)} 非节 = {len(ledger)}**"
                  f"（期望 {TOTAL_OFFICIAL_SECTIONS} + {TOTAL_NONSECTIONS} = "
@@ -1372,8 +1372,9 @@ def render_ledger(ledger: list[LedgerRow], index: PackIndex, curriculum: Curricu
     lines.append("- `chapter_structure_full.json`：22 键 / 91 章 / 471 节；含「物理其余」127 节兜底，"
                  "去兜底 344 节。与官方 340 节的差异来自物理 5 节多出、数学 1 节缺失（FINAL §5 已登记），"
                  "本台账的 340 键以四份 W-7 报告为准。")
-    lines.append("- `standard_chapter_names.json`：21 册 / 90 章；生物 2 处章名仍为旧版"
-                 "（选必1 第一章缺「人体的」、选必2 第四章「生态环境的保护」），仅作章数/册数基准。")
+    lines.append("- `standard_chapter_names.json`：21 册 / 90 章；5 处章名已于 2026-10-20 按 W-7 官方名对齐"
+                 "（生物 2：选必1 第一章「人体的内环境与稳态」、选必2 第四章「人与环境」；物理 3），"
+                 "本基准件现为 0 处旧名。")
     lines.append("- FINAL 成文于批11；批12/13 无逐节处置原文入表，处置注列不补写。")
     lines.append("")
     return "\n".join(lines)
