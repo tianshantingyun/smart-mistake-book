@@ -233,20 +233,15 @@
 - 6C-2 三项产品裁定仍 OPEN（仅图片 mask=8、空选择 mask=0、派生索引恒裁），本批不代签、不实现。
 - WG-02/03/09/10、JS/QuickJS、4E.2/3 未开工；KD-61 保持 open（见 `docs/known-defects.md`）。
 
-## 7. 提交 / 推送占位
+## 7. 提交 / 推送结果
 
-> 本节只是占位，记录员未执行任何 git 命令；实际提交/推送由主会话按计划 §6 执行。
+- **提交**：`ecb1b3e6`（79 files changed，20,687 insertions，337 deletions）。
+- **推送**：`30f7a287..ecb1b3e6` → `origin/main`（`git push` exit=0）；本地 `main` 与远端一致。
+- **纳入边界**：按 §2/§8 的显式文件清单分块暂存（每组 ≤6 个路径）；共享脏文件整文件纳入并保留他线 hunk：`RoomCaptureWorkflowRepository`（含保存期 onAttached 与他线 `checkNotNull`）、`MistakePdfPagePlanner`（保留 UV-10）、`SmartMistakeBookApplication`/`SmartMistakeBookDestinations`、`ProblemDraftTransactionDao` 等。未提交 `SmartMistakeBookRoot.kt` 的他线布局改动、`BatchImport*`、`docs/current/*`、`tools/kb_*`、`knowledge-production/*` 与根目录临时产物。
+- **安全边界**：Mimosa 在 commit/push 前未得到完整扫描结论（`scanner_enobufs`），按兼容策略继续；**不宣称项目安全**。
+- **设备副作用**：PRD-06/08 的 opt-in 用例在 `emulator-5554` 上清空了已安装 App 的数据；这是专用测试设备上的用例行为，不是产品行为。
+- **提交前复跑**：单测门 11 模块 exit=0、强门 exit=0；设备复验见 §8.2。未跑真实 Provider/365MiB+visual/强停恢复，仍按 §8.3 标 UNVERIFIED。
 
-- **本轨产出（只文档）**：`docs/research/2026-10-22-batch-17-wg08-wg06-wg07-record.md`（新增）、`docs/known-defects.md`、`docs/REFACTOR-MASTER-LINE.md`、`docs/research/algorithm-version-ledger.md`、`docs/agent-first-refactor-decisions-2026-09-23.md`。
-- **代码轨产出**：按各轨自报清单（§2）整组纳入；共享脏文件整文件纳入并保留他线 hunk：
-  - `core/export/MistakePdfPagePlanner.kt`：保留 UV-10 hunk。
-  - `core/database/StudyDatabasePort.kt` / `RoomStudyDatabase.kt`：同时含 T1b 与 T5 改动，需一并复核两轨 hunk。
-  - `feature/library/MistakeDetailRoute.kt`：含 T2b 与 T3 改动。
-  - `SmartMistakeBookApplication.kt`：I1 独占；Root 被他线并发修改的 5 处 hunk 需主会话裁决归属。
-  - `app/ExportPdfWorker.kt`、`SmartMistakeBookDestinations.kt`、`feature/library/LibraryInlineImages.kt`、`feature/review/CapturedReviewQuestionContent.kt`、`core/data/study/StudyPracticeUnitFacts.kt` 等复核后修复文件按实际 diff 纳入。
-- **不要提交**：他线未跟踪的 `BatchImport*`/`docs/current/*`/`tools/kb_*`/`knowledge-production/*`，以及根目录 `.agent*`/`tmp/`/`out/` 等临时产物。
-- **推送**：按长期授权自动 push；非快进先 merge、不 rebase；网络失败重试。Mimosa 无完整结论，不宣称安全。
-- **提交前必须重跑**：单测门 + 强门（修复后）、D1（PRD-05 隔离修复后）；未跑不得在提交信息里写“全绿”。
 
 ## 附录：本记录员实际执行的只读命令（可复跑）
 
