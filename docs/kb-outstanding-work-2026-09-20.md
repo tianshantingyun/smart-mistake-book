@@ -1,6 +1,6 @@
 > 本文件已过时：知识库未竟清单以 docs/kb-outstanding-research-2026-10-02.md 为准（2026-10-02）。
 
-> **现行数字（2026-10-20 复算）**：知识点 **3,245**（主题 425）/ 教学材料 **64,973** 条（sidecar v2-01..25）/ 课标覆盖 **390**/661（PARTIAL 73、NOT_COVERED 198、UNDECIDED 0）/ 薄料 live **205**（零材料 0）/ 超配（>4）**2,482** / 未判（机械 SKIP）**61,170**。复算入口：`moe-2025-four-subjects-v1.json`（v17）、`moe-2025-teaching-support-v2-*.json`、`kb-coverage-alignment-2026-v2.json`、`PYTHONPATH=tools python -m kb_build.report_material_gaps`、`PYTHONPATH=tools python -m kb_coverage.count_unjudged`。下文 2026-09-20 快照与 2026-10-02 注记按日期保留。
+> **现行数字（2026-10-20 复算）**：知识点 **3,245**（主题 425）/ 教学材料 **64,973** 条（sidecar v2-01..25）/ 课标覆盖 **390**/661（PARTIAL 73、NOT_COVERED 198、UNDECIDED 0）/ 薄料 live **205**（零材料 0）/ 超配（>4）**2,482** / 未判（机械 SKIP）**61,170**。复算入口：`moe-2025-four-subjects-v1.json`（现行 v19；2026-10-20 复算时为 v17；A1 采纳则 v20）、`moe-2025-teaching-support-v2-*.json`、`kb-coverage-alignment-2026-v2.json`、`PYTHONPATH=tools python -m kb_build.report_material_gaps`、`PYTHONPATH=tools python -m kb_coverage.count_unjudged`。下文 2026-09-20 快照与 2026-10-02 注记按日期保留。
 
 # 知识库未竟工作清单（2026-09-20 快照）
 

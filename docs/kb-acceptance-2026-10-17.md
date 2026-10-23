@@ -487,3 +487,71 @@ PYTHONIOENCODING=utf-8 python build/agent-batch14/a/_verify_decision_numbers.py
 # dense 资产一致性
 python tools/dense_build/check_asset.py
 ```
+
+## 8. 批次18（2026-10-22）补记
+
+> 本节为批次18 收口补记，**只追加、不改写**：§1–§7 的旧读数（v16/v18 时点、D-3 0.7752/0.6899 等）全部保留为历史时点，不因本节重述。本节数字为 2026-10-23/24 实跑或实读，命令见 §8.7；未重跑的设备读数单独标注来源。
+
+### 8.1 A1 臂结论：未启动
+
+- **未启动、未写包、未跑设备、未判读、未采纳**。批次17 的预注册（`docs/research/2026-10-22-d3-round3-a1-prereg.md`）与 31 条 T/C-only 候选（`knowledge-production/alias-exceptions-candidate-2026-10-22.csv`）已就位；装置门未过——`core:data` 单测编译被他线在飞文件挡住，错因从 `FigureGenerationAuditRecorderTest.kt:439 eventsAttemptId` 移到 `ExplicitRedrawService.kt:65 SHA_256_HEX_CHARS`（移动靶），按预注册 §3「门未过即不写 A1 包」（`docs/kb-batch17-2026-10-22.md` §2、§5）。批次18 未产生 A1 臂的包/设备/读数产物，A1 仍待装置门转绿。
+- 说明：批次18 的两次检索实跑是 **dense-union（lever-1）** 与 **同义归一化（lever-2）**，不是 A1；两臂均未采纳（§8.3）。
+
+### 8.2 当前包版本与戳（本报告实跑/实读）
+
+- manifest：version=**19**，contentVersion=**`c4a72c0755dc6645`**（`core/data/src/main/resources/knowledge/moe-2025-update-manifest.json` 与 `build/kb-staging/moe-2025-update-manifest.json` 同值；批次17 `build/agent-batch17/real-promote-v19.log` 实读：`version → 19`、`内容戳 → c4a72c0755dc6645`）。
+- 主包 sha256 **`f6098c41d4901d56bd33106b205e7489fa6bf078d3853413c674976b5b84386c`**（与 v18 相同：v19 只改 4 个 sidecar 的 19 处旧标签，主包未变）。
+- 结构：**425 主题 / 3,245 知识点**；25 件 sidecar **64,973 材料**（化学 18,307 / 生物学 13,704 / 物理 18,494 / 数学 14,468）。逐节台账 `SECTION-BY-SECTION-LEDGER.md`（本次重生成）自检 **360/360**：落点缺失 0、材料孤儿绑定 0、课标 target 悬空 0；落点来源 `exact 221 / final_arrow 71 / point_contains 22 / point_exact 25 / final_point 1`。批次18 **未晋升新版本**（无 v20；`build/agent-batch18/` 无 promote 产物）。
+
+### 8.3 D-3 读数：两臂均未采纳，无新基线
+
+- **A1 未启动，故无 A1 的 D-3 读数，也无新基线**。当前采用的基线仍是批次15 在 v18 上跑出的 D-3：融合 Recall@5 **100/129 = 0.775194**、词面 **89/129 = 0.689922**、MRR **0.622868**、同路零漂移 **PASS/PASS**（`build/agent-batch15/d3/`；§7.6 批次15 补记）。v19 主包 sha 与 v18 相同、dense 资产未重打，故该基线口径不变。
+- 批次18 同型装置跑了两次臂，均**未采纳**（`build/agent-batch18/lever-1|lever-2`）：
+  - **lever-1（dense-union）**：设备融合 **100/129 = 0.775194**、词面 **89/129 = 0.689922**、融合 MRR **0.622868**；同路零漂移 词面 **0/PASS**、融合 **0/PASS**；与 A0 对称差 **0/0/0/0**、配对差 **0.0000（p=1.0000）**——读数与 A0 完全一致，无增益，**不采纳**，已回滚并逐文件 sha 复核（`lever-1/step_r1_rollback.log`）。
+  - **lever-2（同义归一化）**：设备融合 **99/129 = 0.767442**、词面 **87/129 = 0.674419**、融合 MRR **0.612791**；同路零漂移 **0/PASS、0/PASS**；与 A0 对称差 3/2，配对差 **−0.0078（95% CI [−0.0442, 0.0217]，p=0.9190）**——回退，**不采纳**，已回滚并逐文件 sha 复核（`lever-2/step_r1_rollback.log`）。
+- 结论：**无新基线**；基线仍为 100/129（融合）/89/129（词面）。0.90 的最终结论按方向文件留给后续结构臂，本节不改判。
+
+### 8.4 182 条提案裁决状态
+
+- `knowledge-production/curriculum-warning-human-review-decisions-2025-v1.json` 实读：**182/182 已裁**，`reviewState=AI_ADJUDICATED_PENDING_USER_REVIEW`（AI 裁决、待用户复核），reviewer=`KB 批次18 提案裁决员（AI，用户可覆盖）`，`reviewedAt=2026-10-23T15:39:30Z`。
+- 分布：**APPROVE 0 / REJECT 50 / DEFER 132**。分科：MATH 28（0/15/13）；BIOLOGY 154（0/35/119；其中 provided 79 条为 0/5/74，supplemented 75 条为 0/30/45；`provenanceNote` 记录 BIOLOGY 第 80–154 条由汇总员补裁，因上游载荷截断，已裁 79 条未改动）。
+- 边界：这是**裁决登记**，未落包、未改 `curriculum_alignment.csv`、未执行 promotion；0 条 APPROVE 意味着本轮不新增/不改建节点。批次17 报告 §5 的「未做」状态至此变为「已裁、待用户复核」。
+
+### 8.5 2 页 UNCERTAIN 状态
+
+- **两页均已定死并转为 ACCEPT**（源页重读 2026-10-24）：
+  - PHYSICS **p41**（跨页版 书页 63｜64）：原 UNCERTAIN 7 处逐条定死（①–⑦），另修正正文「且 v₁ 越大，过河时间越短」、解析(2)「t=d/v_合」与首图/手写批注；`items_min=35`、`items_numbered=14` 沿用审计清点（`knowledge-production/2027-53-fill/PHYSICS/p0041.counts.json`）。
+  - PHYSICS **p79**（跨页版 书页 139｜140）：原 UNCERTAIN 2 处定死（比较表「关系」行电势差格、旁批编号③），另修正示例「沿 z 轴正方向」并删去无出处红批；`items_min=38`、`items_numbered=29` 沿用（`p0079.counts.json`）。
+- 裁定表实读：`tools/kb_coverage/tables/transcription_pages.csv` 两行均为 `status=done / verdict=ACCEPT`（p41 items_min 35、p79 items_min 38）。
+- 转写门（本报告实跑 `python tools/kb_coverage/check_transcripts.py`）：**页数 1205｜已转写 1205｜缺失 0；闸门 pass 1205；全部通过**（输出存档 `build/agent-batch18/ledger_refresh/check_transcripts.log`）。
+- 边界：两页为**源页重读**、未再换人审计；`transcript_audits.csv` 的 p41/p79 两行已由 UNCERTAIN 改为 ACCEPT，其余行未动。
+
+### 8.6 覆盖数字与旧读数
+
+- **覆盖结论不变**：v19 只改 sidecar 标签、不改主题/点/材料数；主线 **374/426 = 87.79%**（PARTIAL 43、NOT_COVERED 9、UNDECIDED 0）、选修 **16/235 = 6.81%**、全量 **390/661 = 59.00%** 仍以 §1/§2.2/附录 A 的本报告实算为准，本节不重算、不改写。
+- **旧读数保留为时点**：§2.3/§7.6 的 v16 D-3（100/129、89/129、零漂移 PASS/PASS）与批次15 的 v18 D-3 补记均保持原文；§7.1 的 v18 包身份（version=18、`d82a05607bdb622a`）是 v18 时点，不得当作当前版本。当前版本以 §8.2 的 v19 / `c4a72c0755dc6645` 为准。
+- 未验证项：本节未跑 Gradle/设备；lever 读数为 `build/agent-batch18/` 既有实跑产物的只读复核，未重跑设备；182 裁决为用户复核前的 AI 结论；A1 仍未跑。
+
+### 8.7 本节复算命令
+
+```
+# 逐节台账重生成（写前备份在 build/agent-batch18/backup/ledger-refresh/）
+PYTHONPATH=tools python tools/kb_coverage/final_coverage_join.py --write
+# 转写门
+PYTHONPATH=tools python tools/kb_coverage/check_transcripts.py
+# 包身份
+python - <<'PY'
+import json
+for p in ("core/data/src/main/resources/knowledge/moe-2025-update-manifest.json",
+          "build/kb-staging/moe-2025-update-manifest.json"):
+    d=json.load(open(p,encoding="utf-8")); print(p, d["version"], d["contentVersion"])
+PY
+# 182 裁决分布
+python - <<'PY'
+import json
+d=json.load(open("knowledge-production/curriculum-warning-human-review-decisions-2025-v1.json",encoding="utf-8"))
+print(d["reviewState"], d["summary"])
+PY
+```
+
+> 引用格式：**「批次18：A1 未启动；包 v19（contentVersion `c4a72c0755dc6645`，主包 sha `f6098c41…`）；D-3 两臂均未采纳，基线仍 100/129（融合）/89/129（词面）；182 裁决 0 批准 / 50 拒绝 / 132 暂缓（待用户复核）；PHYSICS p41/p79 已转 ACCEPT，转写门 1205/1205。」**

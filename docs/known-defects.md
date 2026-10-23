@@ -790,7 +790,7 @@ that the draft is reachable or resolved.
 `DatabaseContractViolationException: material.contentMarkdown contains unsupported control characters`，
 427 条用例 1 条红。
 
-**Root cause.** `gate.py` 的 `control_chars` 指标只查少量控制符（本轮实测仍报 80，与回修前一致），
+**Root cause.** 修复前 `gate.py` 的 `control_chars` 指标只查少量控制符（2026-09-19 实测仍报 80，与回修前一致），
 而 App 契约（`KnowledgeTeachingMaterialContract.text`）拒的是
 **全部 ISO 控制符（Cc，排除 \n\r\t）＋双向控制符**（U+061C、U+200E/F、U+202A–202E、U+2066–2069）。
 两条判据不同源，于是"Python 门全绿、App 直接崩"。
@@ -802,8 +802,7 @@ that the draft is reachable or resolved.
 （结果时间 09:34，晚于清理 09:33）。
 
 **Fix.** 清理脚本 `build/clean_contract_chars.py`（按契约语义清 Cc + 双向控制符，写回卷）。
-**未做**：把 gate 的 control_chars 换成与契约同源的判据 —— 这是漏修，记在此处；
-下次动 `gate.py` 时应当直接从契约抄集合，否则同类缺陷仍只能靠 Kotlin 用例在最后一刻发现。
+**补修已落地（2026-10-20/21，提交 `74876108`）**：`gate.py:145-153` 的 `_CONTROL_CHARS` 已改为按契约 `text()` 的 ISO 控制判据生成（C0 除 `\n\r\t` + DEL/C1），`control_chars` 逐字段扫描 7 个文本字段；新增 `tools/tests/test_kb_control_chars_contract.py` 钉住“必须命中 / 必须放行”两侧。双向控制符仍不在该门判据内，由 Kotlin 契约用例兜住；原“未做”项关闭。
 
 **Reopen condition.** n/a —— 由 `BundledTeachingMaterialsContractTest` 持续守门。
 
@@ -1069,7 +1068,9 @@ commit-back 步骤条件是 `if: success()`，**任何一处红都会让 `docs/s
 仓库里那份停在 `74626e8` / 2026-09-21，KB 段与 gate 行数为 **0**（实测 `grep -c` = 0）。
 后果是"门全绿"这句话在 09-21 之后**没有任何随仓库的凭据**。
 
-**归因（三条，全部有 CI 日志原文）**：
+**2026-10-24 复读（最新 CI）.** `gh run list` 最新 main push 为 run `39818426751`（headSha `9d2096ad`，2026-10-22T16:57:24Z），结论 **failure**：`check` job 的 `Knowledge build toolchain tests` 与 `Knowledge pack gate and table-pack consistency` 两步均 **success**（Python 工具链已绿）；唯一失败步骤是 `Unit tests`，红在 `:core:export:compileDebugKotlin FAILED`——`MistakePaperDraftStore.kt` 的 `kotlinx.serialization` 引用解析不到，HEAD 的 `core/export/build.gradle.kts` 缺该插件与依赖（本地工作树已加、未提交）；同一步骤另报 `:core:database:kspDebugKotlin FAILED`——HEAD 的 `port/CleanRedrawTaskPort.kt` 缺 `RevisionImageSource` 定义（本地工作树已补、未提交）。`instrumented` job 同样在 `:core:export:compileDebugKotlin` 编译失败。commit-back 条件仍是 `if: success()`（`.github/workflows/android-check.yml:145`），`docs/status.md` 仍不会被写回。
+
+**历史归因（2026-09-21 run `36337107924`，三条，全部有 CI 日志原文；当前红因见上）**：
 1. **`chapter_map.csv` 5 行坏 slug**（已提交那一版）：`ValueError: chapter_map.csv: 5 行的 slug
    在知识包中不存在（可能写成了 name）：[('CHEMISTRY','水电离出的c(H+)（或c(OH-)）的计算'),
    ('CHEMISTRY','装置气密性检查方法'), ('PHYSICS','游标卡尺的读数'), ('PHYSICS','库仑力作用下的平衡'),
@@ -1089,11 +1090,11 @@ commit-back 步骤条件是 `if: success()`，**任何一处红都会让 `docs/s
 → FileNotFoundError 而不是预期的 ValueError）改成 `tempfile.gettempdir()`；门数分母从写死的
 `/22` 改为从 `gate.evaluate()` 现算（实际 23，真跑会打印 `23/22`），并给 status.md 加"权威表
 sha256"一行（同一张 `chapter_map.csv` 本地绿 / CI 红——读数必须带它对应哪版表）。
-**未做（不属本会话可改范围）**：①②；`feature:library` 的断言失败。
+**未做（2026-09-28 时点，不属本会话可改范围）**：①②；`feature:library` 的断言失败。**2026-10-24 复核**：Python 工具链已绿（①②不再是红因），`feature:library` 断言失败不再是当前红因；当前红因是 HEAD 缺件导致的 `core:export` / `core:database` 编译失败（见上）。
 **本轮交付**：本地重生成 `docs/status.md`（23/23 逐门读数 + 权威表 sha + 472/472 工具测试），
 使"门全绿"重新有随仓库的凭据——但它**不是 CI 产物**，触发方式为 `local-manual`。
 
-**Reopen condition.** ①②被对方修好后，CI `check` job 应转绿；若届时 commit-back 仍不写回，
+**Reopen condition.** 上述两处 HEAD 缺件（`core:export` 的 `kotlinx.serialization`、`core:database` 的 `RevisionImageSource`）修好后，CI `check` job 应转绿；若届时 commit-back 仍不写回，
 说明还有第三条红未归因——按 `gh run view <id> --json jobs` 的步骤级结论重新归因，不要猜。
 
 ## KD-28 (open, 2026-09-28 判为**接受边界**) · `kb_build` 的 9 科白名单仍抄两份（`KnowledgeBaseImportContract` 与 `SubjectKind` 各一份）
@@ -2269,7 +2270,7 @@ checkpoint 结果行被忽略、写门仍只覆盖两仓库）另登记为 KD-62
 ④ 旧回退的 `checkpointForBackup` 仍忽略 `wal_checkpoint(TRUNCATE)` 的结果行（`RoomBackupSupportStore.kt:15-19`），一致性依赖“备份期无写者”
 （独立快照成功时不会走此路径，但回退时风险仍在）。KD-54 保持 open。
 
-## KD-55 (open, 2026-10-18 登记（批次 13 对抗性复核 finding 5；low）) · docx 嵌入图片直读 file:// 不再复核 sha/长度（与 PDF 侧同形的 TOCTOU）
+## KD-55 (fixed 2026-10-19（批次 14 T5 读后复核）/ 2026-10-23（批次 18 T8 有界读入）；2026-10-18 登记（批次 13 对抗性复核 finding 5；low）) · docx 嵌入图片直读 file:// 不再复核 sha/长度（与 PDF 侧同形的 TOCTOU）
 
 **Symptom.** docx 渲染时图片字节直接从 `file://` URI 读取（`DocxImageSource.kt:26-45`），不再复核记录里的
 `contentSha256`/`byteSize`——核对只在读详情时由 vault.resolve 做过（`AndroidCanonicalAssetVault.kt:273-281`），
@@ -2283,6 +2284,16 @@ checkpoint 结果行被忽略、写门仍只覆盖两仓库）另登记为 KD-62
 （`File.length()` 预检 + 读后同一份字节的 size+sha256 复核，不符按既有「读不出」口径省略图）；导出输入/批量
 Image 块/卷面编辑/草稿 DTO 全链携带来源资产记录；用例覆盖匹配、长度不符、等长换字节（TOCTOU）。见批次记录
 §2 T5。
+
+**2026-10-23 批次 18 T8 加固（有界读入）.** 在批次 14 的读后复核之上，`DocxImageSource.read` 仍先按
+`expectedByteSize` 预检 `File.length()`，但读取改为 `readBounded`：只读记录长度、再多探 1 字节；文件在
+`stat` 与 `read` 之间变长时超出部分不会进入内存，变短或变大均返回 null（`DocxImageSource.kt:45-94`）；
+随后用同一份即将嵌入的字节复核长度与 sha256。渲染器在写文件前先读取并校验全部图片，任一不符即
+`GENERATED_PDF_INVALID`，不写半份文件（`DocxMistakeRenderer.kt:73-84`、`:116-120`；渲染器生产代码本批未改）。
+用例：`DocxImageSourceTest` 8/0（含增长/缩短/长度不符）、`DocxMistakeRendererTest` 17/0（含仅长度不符不落盘）；
+只读构建工件 XML 为 failures=0/errors=0（2026-10-24 02:41）。**本记录员未运行 Gradle**；Gradle 门禁结果仍以
+批次材料为准。旧卷面草稿反序列化后 `expectedContentSha256/expectedByteSize` 缺省为 null 时仍回退
+`file.readBytes()`（无上界、无 sha 复核），属已登记降级路径，不抵消主路径修复。
 
 **Reopen condition.** n/a —— 登记性低危。
 

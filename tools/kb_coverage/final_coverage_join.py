@@ -1259,7 +1259,8 @@ def render_ledger(ledger: list[LedgerRow], index: PackIndex, curriculum: Curricu
         pack_display = pack_display.resolve().relative_to(REPO).as_posix()
     except ValueError:
         pass
-    lines.append(f"- **现包**：`{pack_display}`（v18，sha256 "
+    version, content_version = _pack_identity(pack_path or DEFAULT_PACK)
+    lines.append(f"- **现包**：`{pack_display}`（v{version}，contentVersion {content_version}，sha256 "
                  f"{_sha256(pack_path or DEFAULT_PACK)[:16]}…，"
                  f"{len(index.topics)} 主题 / {len(index.point_to_topic):,} 知识点）；"
                  f"sidecar 材料 **{index.total_materials:,}** 条。")
@@ -1268,7 +1269,7 @@ def render_ledger(ledger: list[LedgerRow], index: PackIndex, curriculum: Curricu
     lines.append("- **材料数**：落点子树（含后代主题）内知识点所绑定的去重材料数。")
     lines.append("- **处置注**：只取 `FINAL-COVERAGE-TABLE.md` §4 与 §11 原文（批11 F2 残差处置，逐条保留 "
                  "item_id 与 disposition）；批1–10 的处置已折入 §3 现包现状基线，批12/13 无逐节处置原文入 FINAL，"
-                 "故不补写，v18 实测体现在“现包落点”列。")
+                 f"故不补写，v{version} 实测体现在“现包落点”列。")
     lines.append("")
     lines.append(f"**自检：{len(sections)} 官方节 + {len(nonsec)} 非节 = {len(ledger)}**"
                  f"（期望 {TOTAL_OFFICIAL_SECTIONS} + {TOTAL_NONSECTIONS} = "
@@ -1382,6 +1383,19 @@ def render_ledger(ledger: list[LedgerRow], index: PackIndex, curriculum: Curricu
 
 # ---------------------------------------------------------------------------
 # CLI
+
+
+def _pack_identity(pack_path: Path) -> tuple[str, str]:
+    """当前包版本与内容戳：优先读同目录 manifest，缺失时退回包内字段。"""
+    manifest = Path(pack_path).parent / "moe-2025-update-manifest.json"
+    if manifest.exists():
+        doc = json.loads(manifest.read_text(encoding="utf-8"))
+        version = str(doc.get("version") or "?")
+        content_version = str(doc.get("contentVersion") or "?")
+        return version, content_version
+    pack = json.loads(Path(pack_path).read_text(encoding="utf-8"))
+    return (str(pack.get("version") or "?"),
+            str(pack.get("contentVersion") or "?"))
 
 
 def _sha256(path: Path) -> str:

@@ -3,8 +3,8 @@
 > 2026-10-13当前收口入口：先读§8的AUD-04/07/18/19与MASTER LINE §7。下方v9/历史样本是当时基线，不代表当前成品或候选；不要沿用历史计数决定晋升。
 
 > **现行数字（2026-10-20 复算；下文 §1–§7 为 2026-10-02 的 v9 历史快照，§8 为 2026-10-13 快照，均按日期保留，不据以裁决）**
-> - 知识点 **3,245**（主题 425）——`core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json`（v17，`version=17`）。
-> - 教学材料 **64,973** 条——`moe-2025-teaching-support-v2-01..25.json` 的 `materials` 合计（`moe-2025-update-manifest.json` 同指 v17）。
+> - 知识点 **3,245**（主题 425）——`core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json`（现行 v19，manifest `version=19`；2026-10-20 复算时为 v17；A1 采纳则 v20）。
+> - 教学材料 **64,973** 条——`moe-2025-teaching-support-v2-01..25.json` 的 `materials` 合计（`moe-2025-update-manifest.json` 同指 v19）。
 > - 课标覆盖 COVERED **390** / PARTIAL **73** / NOT_COVERED **198** / UNDECIDED **0**，分母 **661**——`knowledge-production/kb-coverage-alignment-2026-v2.json` 的 `total`。
 > - 薄料 live **205**（零材料 0、仅 1 条 205；BIO 42 / CHEM 56 / MATH 53 / PHYS 54）——`PYTHONPATH=tools python -m kb_build.report_material_gaps`；台账文件 `knowledge-production/node-material-gaps-2026-09.csv` 仍为 661 行（未重写）。
 > - 超配（>4 条）**2,482**（≥4 2,667 / =4 185；>4 持有 63,102 条、超出前 4 的绑定 53,174；最大 145）——按包内 `materials[].bindings[0]` 复算（(subject, slug) 口径）。
@@ -1224,7 +1224,7 @@ PY
 
 旧§1为2026-10-02历史基线，不作为当前成品计数。当前：成品v13为3741点/59008材料/527退役；staging为3356点/59008材料/912退役。批次9的D-1按95.15%点估计过门，CI和模型标注纪律如实保留；14空点、22失效覆盖目标及最终D-3/D-5仍未共同收口。任务位置见 [MASTER LINE §7](REFACTOR-MASTER-LINE.md#7-2026-10-13审计任务归位与执行批次)。
 
-> 2026-10-20 复算（v17）：成品 **3,245 点 / 64,973 材料**；覆盖 **390/661**；薄料 **205**；超配（>4）**2,482**；未判（机械 SKIP）**61,170**。本节 v13/v13-staging 数字为 2026-10-13 快照。
+> 2026-10-20 复算（现行 v19；复算时为 v17）：成品 **3,245 点 / 64,973 材料**；覆盖 **390/661**；薄料 **205**；超配（>4）**2,482**；未判（机械 SKIP）**61,170**。本节 v13/v13-staging 数字为 2026-10-13 快照。
 
 ### AUD-04 · D-3最终消费检索（P1）
 

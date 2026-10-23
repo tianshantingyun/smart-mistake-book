@@ -4,11 +4,11 @@
 
 ## Build Information
 
-- **Commit SHA**: `f2adf825c173047db41c0c42b08d140e4c6874cf`
-- **Build Date**: `2026-10-22`
+- **Commit SHA**: `9d2096adcd2ebd4072377626754318c6fb327499`
+- **Build Date**: `2026-10-23`
 - **Branch**: `main`
 - **Triggered By**: `unknown`
-- **Run context**: BOUND · sha `f2adf825c173`（git HEAD） · branch `main` · 触发 unknown
+- **Run context**: BOUND · sha `9d2096adcd2e`（git HEAD） · branch `main` · 触发 unknown
 - **Run context note**: 绑定时刻 = 生成时刻，非所描述代码的提交
 
 ## Build Results
@@ -17,26 +17,26 @@
 
 | Module | Status | Duration |
 |--------|--------|----------|
-| `:core:database` | NOT_MEASURED | - |
+| `:core:database` | OK | - |
 | `:core:data` | NOT_MEASURED | - |
-| `:core:domain` | OK | - |
-| `:feature:library` | NOT_MEASURED | - |
-| `:feature:capture` | NOT_MEASURED | - |
+| `:core:domain` | NOT_MEASURED | - |
+| `:feature:library` | OK | - |
+| `:feature:capture` | OK | - |
 | `:feature:tutor` | NOT_MEASURED | - |
 | `:app:localFirst` | NOT_MEASURED | - |
 | `:app:strictOffline` | NOT_MEASURED | - |
 
-编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:database`：类产物早于源码（10-22 19:00 < 源码 10-22 19:15）；`:core:data`：类产物早于源码（10-22 19:06 < 源码 10-22 19:08）；`:feature:library`：类产物早于源码（10-21 23:31 < 源码 10-22 19:29）；`:feature:capture`：类产物早于源码（10-20 01:51 < 源码 10-20 02:44）；`:feature:tutor`：类产物早于源码（10-21 20:43 < 源码 10-22 19:40）；`:app:localFirstDebug`：类产物早于源码（10-21 04:42 < 源码 10-21 23:15）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-21 23:15）
+编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:data`：类产物早于源码（10-24 00:01 < 源码 10-24 02:19）；`:core:domain`：类产物早于源码（10-24 00:00 < 源码 10-24 01:58）；`:feature:tutor`：类产物早于源码（10-23 22:43 < 源码 10-23 22:56）；`:app:localFirstDebug`：类产物早于源码（10-24 00:01 < 源码 10-24 02:10）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-24 02:10）
 
 ### Unit Tests
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | 203 | 203 | 0 | - |
-| `:core:data` | 3 | 3 | 0 | - |
-| `:feature:library` | 52 | 52 | 0 | - |
+| `:core:database` | 211 | 211 | 0 | - |
+| `:core:data` | 1032 | 1032 | 0 | - |
+| `:feature:library` | 65 | 65 | 0 | - |
 | `:feature:capture` | 148 | 148 | 0 | - |
-| `:feature:tutor` | 246 | 246 | 0 | - |
+| `:feature:tutor` | 255 | 255 | 0 | - |
 
 ### Lint
 
@@ -53,14 +53,14 @@
 | `:core:data` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:core:export` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:ui` | OK | 0 | 1 |
+| `:core:ui` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:feature:capture` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:feature:library` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:profile` | OK | 0 | 0 |
+| `:feature:profile` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:feature:review` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 | `:feature:tutor` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
 
-以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-17 21:09 < 源码 10-21 23:15）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-21 23:15）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-22 19:08）；`:core:database`：无 lint 报告；`:core:export`：lint 报告早于源码（10-17 21:08 < 源码 10-22 19:41）；`:feature:capture`：lint 报告早于源码（10-13 21:32 < 源码 10-20 02:44）；`:feature:library`：lint 报告早于源码（10-21 23:35 < 源码 10-22 19:29）；`:feature:review`：lint 报告早于源码（10-17 21:08 < 源码 10-21 04:29）；`:feature:tutor`：lint 报告早于源码（10-21 20:52 < 源码 10-22 19:40）
+以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-23 21:43 < 源码 10-24 02:10）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-24 02:10）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-24 02:19）；`:core:database`：无 lint 报告；`:core:export`：lint 报告早于源码（10-17 21:08 < 源码 10-23 21:31）；`:core:ui`：lint 报告早于源码（10-23 22:42 < 源码 10-23 22:54）；`:feature:capture`：lint 报告早于源码（10-22 20:56 < 源码 10-23 22:28）；`:feature:library`：lint 报告早于源码（10-23 21:04 < 源码 10-23 22:41）；`:feature:profile`：lint 报告早于源码（10-22 21:00 < 源码 10-23 22:28）；`:feature:review`：lint 报告早于源码（10-22 21:00 < 源码 10-23 22:28）；`:feature:tutor`：lint 报告早于源码（10-23 21:25 < 源码 10-23 22:56）
 
 ### Release Build
 
@@ -73,9 +73,9 @@
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | 716a194ebdf99436a4cec5021480a65a95ab526ae58b6f51d11232a8f19a9da0 |
+| `localFirst-debug.apk` | 5de7b9dd29e9d55437bc455cf74d2129e02f914a1e61e10dab040263008de5f7 |
 | `localFirst-release.apk` | 1f073e9bcad9716c2ab6d90e4f70e2faddab7810020b38817e23b87523679d42 |
-| `strictOffline-debug.apk` | 7db9f94dd59aa5eef73b0005520fe49f09cb0366b8ab6589d62c34ae4b6cb8e7 |
+| `strictOffline-debug.apk` | 778ef4046a11b245c2975c6fe69d04bd01a5055aab452ff0f05120b9472c06fa |
 | `strictOffline-release.apk` | 978e71251d4060ee13f7cb67c8d8095cb28c9965f02ae7e0f5b994516f7f7d65 |
 
 ## Knowledge Base
@@ -195,5 +195,5 @@ build job: NOT_MEASURED · KB gates: all OK · tools tests: 785/785 passed · li
 
 ---
 
-*Generated by CI at 2026-10-22T11:43:46.492834+00:00*
+*Generated by CI at 2026-10-23T18:20:21.216504+00:00*
 *Report version: 1.0*
