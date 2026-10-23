@@ -1,7 +1,9 @@
 package com.tingyun.smartmistakebook.core.data.backup
 
+import com.tingyun.smartmistakebook.core.domain.BackupContentCategory
 import com.tingyun.smartmistakebook.core.domain.BackupManifestSummary
 import com.tingyun.smartmistakebook.core.domain.BackupReceipt
+import com.tingyun.smartmistakebook.core.domain.BackupSelectionSummary
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -21,10 +23,14 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 /**
- * 归档清单。`formatVersion` 1→2（6C-1）：
+ * 归档清单。`formatVersion` 1→2（6C-1）→3（6C-2）：
  *   - v1：没有 settings、没有版本戳。缺省读回 null/false，旧包行为不变；
- *   - v2：现在唯一写出的形态。新增版本戳（[SmbkArchiveMetadata]）与
- *     `hasSettings`/`settingsDigest`（设置载荷 `settings.json` 的存在性与摘要）。
+ *   - v2：版本戳（[SmbkArchiveMetadata]）与 `hasSettings`/`settingsDigest`；
+ *   - v3：新增 `selection` 块（[SmbkSelectionRecord]）。v1/v2 的包**没有这个键**，读回
+ *     null，语义是「整库全量」（与旧包行为逐字一致）；v3 的 `selection` 块**必须存在**
+ *     （设计 §3.2-S1）——读侧遇到 `formatVersion>=3` 却没有 selection 的清单直接拒绝，
+ *     不把它猜成全量。没有 selection 的写出路径仍按 v2 落盘（[LEGACY_FORMAT_VERSION]），
+ *     因此"旧测试/旧调用面"与生产 v3 包在格式上一眼可分。
  *
  * 比 [SmbkManifest.FORMAT_VERSION] 新的归档在 [SmbkArchiveCodec.finalizeValidation] 里可读
  * 拒绝：清单是"这个包该怎么读"的自述，读不懂就不许碰设备上的数据。
@@ -72,13 +78,73 @@ internal data class SmbkManifest(
      */
     @SerialName("referencedAssets")
     val referencedAssets: List<String> = emptyList(),
+    /**
+     * 本包的内容选择（6C-2，formatVersion=3 起）。**null = v1/v2 旧包的全量语义**；
+     * `formatVersion>=3` 时它必须非 null（读侧在 [finalizeValidation] 里拒绝缺失）。
+     * 读侧的严格闸门（closureVersion、digest、rowCounts 全键、与包内库逐表对拍）在恢复
+     * 校验（T5）里，本类负责携带与格式/自洽判定。
+     */
+    @SerialName("selection")
+    val selection: SmbkSelectionRecord? = null,
 ) {
     companion object {
-        /** 写出的格式版本。 */
-        const val FORMAT_VERSION = 2
+        /** 写出的格式版本：v3 = v2 + 必填 `selection` 块。 */
+        const val FORMAT_VERSION = 3
+
+        /**
+         * 不带 selection 的写出格式：v2（6C-1 的版本戳 + 设置）。v3 的 selection 块是
+         * 必填的，所以 `create(selection=null)` 只能写成 v2——不能写一份 v3 却缺选择块，
+         * 那正是读侧要拒绝的自相矛盾清单。
+         */
+        const val LEGACY_FORMAT_VERSION = 2
 
         /** 仍可读的最旧格式版本：v1 旧包没有设置与版本戳，读作缺省值。 */
         const val MIN_READABLE_FORMAT_VERSION = 1
+    }
+}
+
+/**
+ * v3 清单的 `selection` 块（6C-2）：这次备份带了哪几类内容、按哪版闭包规则裁的、裁完每张表
+ * 有多少行。
+ *
+ * 全部字段在**写侧**由 `AndroidBackupRepository.create` + `SmbkSelectionPlan` 生成；本类
+ * 故意不做 `init` 约束——读侧遇到未来版本的记录必须能先解析出来，再由恢复校验按
+ * 「规则版本不认识 / mask 不合法 / digest 不符」在交换前拒绝，而不是在 JSON 解码时抛一个
+ * 无法解释的异常。
+ */
+@Serializable
+internal data class SmbkSelectionRecord(
+    /** 记录形状版本；本批写出 2。 */
+    @SerialName("schemaVersion")
+    val schemaVersion: Int,
+    /** 四个类别位的按位或（9/13/15）。 */
+    @SerialName("categoryMask")
+    val categoryMask: Int,
+    /** 与 [categoryMask] 一致的类别名（`BackupContentCategory.name`）。 */
+    @SerialName("categories")
+    val categories: List<String>,
+    /** 资产策略；本批唯一写出值 `INCLUDED`（无图子集不实现）。 */
+    @SerialName("assetPolicy")
+    val assetPolicy: String,
+    /** 闭包规则表版本；本批写出 [SmbkSelectionPlan.CLOSURE_VERSION]。 */
+    @SerialName("closureVersion")
+    val closureVersion: Int,
+    /** `SmbkSelectionPlan.closureDigest` 的 v2 摘要（原始小写 hex，无前缀）。 */
+    @SerialName("closureDigest")
+    val closureDigest: String,
+    /** 裁剪后快照的逐表行数；必须覆盖 86 张表（值为 0 也写）。 */
+    @SerialName("rowCounts")
+    val rowCounts: Map<String, Long>,
+    /** 实际删除过数据行的表数（不含 FTS rebuild）；全选只裁派生索引时通常 ≤2，无删除为 0。 */
+    @SerialName("trimmedTableCount")
+    val trimmedTableCount: Int,
+) {
+    companion object {
+        /** 本批写出的记录形状版本。 */
+        const val CURRENT_SCHEMA_VERSION = 2
+
+        /** `selection` 块首次出现的清单格式版本；比它旧的格式不定义这个键。 */
+        const val INTRODUCED_FORMAT_VERSION = 3
     }
 }
 
@@ -213,9 +279,16 @@ internal object SmbkArchiveCodec {
      * [problemCount] 也必须是同一份快照库的数。全部被引用的资产都必须在 [assets] 里：
      * 两边漂开时成包失败，而不是写出一份"库引用了包内没有的图"的归档（AUD-05）。
      *
-     * 成包永远写 `formatVersion` 2；[metadata] 是版本戳，[settings] 为 null 时写出
+     * 成包写出的格式版本由 [selection] 决定：带选择块写 [SmbkManifest.FORMAT_VERSION]=3；
+     * [selection]=null 表示旧「整库全量」调用面，写出 [SmbkManifest.LEGACY_FORMAT_VERSION]=2
+     * （绝不写一份缺 selection 的 v3）。[metadata] 是版本戳，[settings] 为 null 时写出
      * `hasSettings=false` 且不带 `settings.json`（只该发生在测试或没装配设置口的装配上——
      * 生产装配两者都在，见 `BackupRepositoryFactory`）。
+     *
+     * [selection] 是 v3 的内容选择块（6C-2）。**在写任何字节之前**校验：mask 只能是
+     * 9/13/15、`categories` 必须与 mask 一致、`rowCounts` 必须覆盖 86 表、digest 必须与
+     * 同输入重算的一致。非法选择在这里抛 `IllegalArgumentException`，`archive` 保持为空
+     * ——绝不写出半包。
      *
      * KD-53：[limits] 与校验/恢复是**同一份预算**。成包前先按条目类型核对（数据库条目用
      * [SmbkResourceLimits.maxDatabaseEntryBytes]，其它条目用
@@ -233,7 +306,9 @@ internal object SmbkArchiveCodec {
         metadata: SmbkArchiveMetadata = SmbkArchiveMetadata(),
         settings: SmbkSettingsDocumentV1? = null,
         limits: SmbkResourceLimits = SmbkResourceLimits.DEFAULT,
+        selection: SmbkSelectionRecord? = null,
     ): BackupReceipt {
+        selection?.let(::requireWritableSelection)
         require(database.isFile) { "Database backup source is missing" }
         require(database.length() <= limits.maxDatabaseEntryBytes) {
             "数据库备份源超过数据库条目预算：${database.length()} > " +
@@ -292,6 +367,12 @@ internal object SmbkArchiveCodec {
             )
         }
         val manifest = SmbkManifest(
+            // v3 的 selection 块必填：没有选择块的写出面只能是 v2（见 create KDoc）。
+            formatVersion = if (selection == null) {
+                SmbkManifest.LEGACY_FORMAT_VERSION
+            } else {
+                SmbkManifest.FORMAT_VERSION
+            },
             databaseSchemaVersion = databaseSchemaVersion,
             createdAtEpochMillis = createdAtEpochMillis,
             problemCount = problemCount,
@@ -303,6 +384,7 @@ internal object SmbkArchiveCodec {
             settingsDigest = settingsRecord?.sha256,
             files = listOfNotNull(databaseRecord, settingsRecord) + assetRecords,
             referencedAssets = referencedPaths,
+            selection = selection,
         )
         val checksumLines = manifest.files.joinToString(separator = "\n") { record ->
             "${record.sha256} *${record.path}"
@@ -337,7 +419,66 @@ internal object SmbkArchiveCodec {
             assetCount = assetRecords.size,
             fileCount = manifest.files.size,
             totalBytes = totalPayloadBytes,
+            selectionMask = selection?.categoryMask ?: BackupContentCategory.FULL_MASK,
+            trimmedTableCount = selection?.trimmedTableCount ?: 0,
         )
+    }
+
+    /**
+     * 写侧闸门：非法选择在写任何字节之前失败。
+     *
+     * 与 `BackupSelection.requireCreatable` 同一口径的**第二道**（仓储已先拒一次）：
+     * 9/13/15 之外（含 0/8 与未闭合组合）一律抛；`categories` 必须与 mask 位和一致；
+     * `rowCounts` 必须恰好覆盖 86 表；`closureDigest` 必须能由同输入重算出来。
+     * 不做任何补齐或缩水。
+     */
+    private fun requireWritableSelection(selection: SmbkSelectionRecord) {
+        require(selection.categoryMask in SmbkSelectionPlan.allowedMasks) {
+            "备份内容选择非法：mask=${selection.categoryMask}；" +
+                "只允许 ${SmbkSelectionPlan.allowedMasks.joinToString("/")}"
+        }
+        require(selection.schemaVersion == SmbkSelectionRecord.CURRENT_SCHEMA_VERSION) {
+            "备份内容选择 schemaVersion=${selection.schemaVersion}，" +
+                "本批写出 ${SmbkSelectionRecord.CURRENT_SCHEMA_VERSION}"
+        }
+        require(selection.closureVersion == SmbkSelectionPlan.CLOSURE_VERSION) {
+            "备份内容选择 closureVersion=${selection.closureVersion}，" +
+                "本批写出 ${SmbkSelectionPlan.CLOSURE_VERSION}"
+        }
+        require(selection.assetPolicy == SmbkSelectionPlan.ASSET_POLICY_INCLUDED) {
+            "备份内容选择 assetPolicy=${selection.assetPolicy}，" +
+                "本批只支持 ${SmbkSelectionPlan.ASSET_POLICY_INCLUDED}"
+        }
+        val categories = selection.categories.map { name ->
+            SmbkSelectionCategory.entries.firstOrNull { it.name == name }
+                ?: throw IllegalArgumentException("备份内容选择含未知类别：$name")
+        }
+        require(categories.toSet().size == categories.size) {
+            "备份内容选择含重复类别：${selection.categories}"
+        }
+        val expectedCategories = SmbkSelectionPlan.categoriesOf(selection.categoryMask)
+        require(categories.toSet() == expectedCategories) {
+            "备份内容选择 categories=${selection.categories} 与 " +
+                "mask=${selection.categoryMask}（$expectedCategories）不一致"
+        }
+        require(selection.rowCounts.keys == SmbkSelectionPlan.rowCountKeys) {
+            val missing = (SmbkSelectionPlan.rowCountKeys - selection.rowCounts.keys).sorted()
+            val extra = (selection.rowCounts.keys - SmbkSelectionPlan.rowCountKeys).sorted()
+            "备份内容选择的 rowCounts 必须覆盖 86 表：missing=$missing extra=$extra"
+        }
+        require(selection.trimmedTableCount in 0..SmbkSelectionPlan.trimOrder.size) {
+            "备份内容选择 trimmedTableCount=${selection.trimmedTableCount} 越界 " +
+                "(0..${SmbkSelectionPlan.trimOrder.size})"
+        }
+        val recomputed = SmbkSelectionPlan.closureDigest(
+            categories = categories,
+            assetPolicy = selection.assetPolicy,
+            rowCounts = selection.rowCounts,
+        )
+        require(selection.closureDigest == recomputed) {
+            "备份内容选择的 closureDigest 与重算不一致：declared=${selection.closureDigest} " +
+                "recomputed=$recomputed"
+        }
     }
 
     /**
@@ -899,6 +1040,27 @@ internal object SmbkArchiveCodec {
         if (parsed.hashAlgorithm != "SHA-256") {
             return BackupValidation.Invalid("不支持的校验算法")
         }
+        // 6C-2（T5）：selection 块的**严格读侧闸门**。v1/v2 包没有这个键，读作 null = 全量
+        // （旧语义）；formatVersion>=3 的包**必须**带 selection（设计 §3.2-S1），缺失时
+        // 不能猜成全量——那会把一份被剥掉选择块的子集/残缺包按全量恢复并清空本机数据。
+        // 只要清单带了 selection，它就必须与本机规则表版本完全自洽。这里在解包/恢复的
+        // Phase 1 就拒绝——仍在交换之前，原库一个字节都不动。
+        // 声明 vs 包内库实测（未勾选类别 0 行、86 表逐表行数）在恢复的 Phase 2b 之后另行核对。
+        val declaredSelection = parsed.selection
+        val selectionSummary = if (declaredSelection == null) {
+            if (parsed.formatVersion >= SmbkSelectionRecord.INTRODUCED_FORMAT_VERSION) {
+                return BackupValidation.Invalid(
+                    "备份格式版本=${parsed.formatVersion} 缺少内容选择块（selection）：" +
+                        "v3 起必须声明备份内容，无法确认这份包带了哪些类别，恢复被拒绝",
+                )
+            }
+            null
+        } else {
+            when (val checked = readableSelection(declaredSelection, parsed.formatVersion)) {
+                is SelectionRead.Valid -> checked.summary
+                is SelectionRead.Invalid -> return BackupValidation.Invalid(checked.reason)
+            }
+        }
         val expectedPaths = parsed.files.map { it.path }.toSet()
         if (expectedPaths != stagedSizes.keys) {
             return BackupValidation.Invalid("备份文件列表与内容不一致")
@@ -957,10 +1119,117 @@ internal object SmbkArchiveCodec {
                 appVersionCode = parsed.appVersionCode,
                 contentVersion = parsed.contentVersion,
                 hasSettings = parsed.hasSettings,
+                selection = selectionSummary,
+                // 恢复侧 Phase 2c.1 用它和包内库逐表 COUNT 对拍（mask=15 也要对）。
+                // v1/v2 没有 selection 块 → null（全量语义，不做行数对拍）。
+                selectionRowCounts = declaredSelection?.rowCounts,
             ),
             checkedFileCount = parsed.files.size,
             totalBytes = parsed.files.sumOf { it.byteSize },
         )
+    }
+
+    /**
+     * 读侧的 selection 判定（T5）。**所有**字段都在交换前判定：格式版本、记录版本、
+     * 闭包规则版本、mask、categories、资产策略、86 表 rowCounts、trimmedTableCount 与
+     * closureDigest。任何一项不符都返回可读拒因，调用方把它变成
+     * [BackupValidation.Invalid]（`validate` 与 `unpack` 共用同一道门）。
+     *
+     * 为什么不在 JSON 解码时就抛：读侧必须能先解析出**未来版本**的记录，再按「规则版本
+     * 不认识」给出可解释的拒绝（与格式版本闸门同一纪律）；解码异常只能得到一句
+     * "manifest 解析失败"，说不清是哪条规则不认识。
+     */
+    private fun readableSelection(
+        record: SmbkSelectionRecord,
+        formatVersion: Int,
+    ): SelectionRead {
+        if (formatVersion < SmbkSelectionRecord.INTRODUCED_FORMAT_VERSION) {
+            return SelectionRead.Invalid(
+                "备份内容选择块与格式版本不一致：formatVersion=$formatVersion 不定义 selection",
+            )
+        }
+        if (record.schemaVersion != SmbkSelectionRecord.CURRENT_SCHEMA_VERSION) {
+            return SelectionRead.Invalid(
+                "备份内容选择的 schemaVersion=${record.schemaVersion} 不受支持，" +
+                    "本机只读 ${SmbkSelectionRecord.CURRENT_SCHEMA_VERSION}",
+            )
+        }
+        if (record.closureVersion != SmbkSelectionPlan.CLOSURE_VERSION) {
+            return SelectionRead.Invalid(
+                "备份内容选择的 closureVersion=${record.closureVersion} 不受支持，" +
+                    "本机规则表为 ${SmbkSelectionPlan.CLOSURE_VERSION}",
+            )
+        }
+        if (record.categoryMask !in SmbkSelectionPlan.allowedMasks) {
+            return SelectionRead.Invalid(
+                "备份内容选择的 mask=${record.categoryMask} 不被允许；" +
+                    "只接受 ${SmbkSelectionPlan.allowedMasks.joinToString("/")}",
+            )
+        }
+        val declared = record.categories.map { name ->
+            BackupContentCategory.entries.firstOrNull { it.name == name }
+                ?: return SelectionRead.Invalid("备份内容选择包含未知类别：$name")
+        }
+        if (declared.toSet().size != declared.size) {
+            return SelectionRead.Invalid("备份内容选择包含重复类别：${record.categories}")
+        }
+        val fromMask = BackupContentCategory.entries
+            .filterTo(LinkedHashSet()) { category -> record.categoryMask and category.bit != 0 }
+        if (declared.toSet() != fromMask) {
+            return SelectionRead.Invalid(
+                "备份内容选择的 categories=${record.categories} 与 " +
+                    "mask=${record.categoryMask} 不一致",
+            )
+        }
+        if (record.assetPolicy != SmbkSelectionPlan.ASSET_POLICY_INCLUDED) {
+            return SelectionRead.Invalid(
+                "备份内容选择的 assetPolicy=${record.assetPolicy} 不受支持，" +
+                    "本机只读 ${SmbkSelectionPlan.ASSET_POLICY_INCLUDED}",
+            )
+        }
+        if (record.rowCounts.keys != SmbkSelectionPlan.rowCountKeys) {
+            val missing = (SmbkSelectionPlan.rowCountKeys - record.rowCounts.keys).sorted()
+            val extra = (record.rowCounts.keys - SmbkSelectionPlan.rowCountKeys).sorted()
+            return SelectionRead.Invalid(
+                "备份内容选择的 rowCounts 必须覆盖 86 表：missing=$missing extra=$extra",
+            )
+        }
+        if (record.rowCounts.values.any { count -> count < 0L }) {
+            return SelectionRead.Invalid("备份内容选择的 rowCounts 含负数")
+        }
+        if (record.trimmedTableCount !in 0..SmbkSelectionPlan.trimOrder.size) {
+            return SelectionRead.Invalid(
+                "备份内容选择的 trimmedTableCount=${record.trimmedTableCount} 越界 " +
+                    "(0..${SmbkSelectionPlan.trimOrder.size})",
+            )
+        }
+        val recomputed = runCatching {
+            SmbkSelectionPlan.closureDigest(
+                categories = SmbkSelectionPlan.categoriesOf(record.categoryMask),
+                assetPolicy = record.assetPolicy,
+                rowCounts = record.rowCounts,
+            )
+        }.getOrElse { failure ->
+            return SelectionRead.Invalid(
+                "备份内容选择无法重算摘要：${failure.message.orEmpty()}",
+            )
+        }
+        if (record.closureDigest != recomputed) {
+            return SelectionRead.Invalid(
+                "备份内容选择的 closureDigest 与重算不一致：" +
+                    "declared=${record.closureDigest} recomputed=$recomputed",
+            )
+        }
+        return SelectionRead.Valid(
+            BackupSelectionSummary(mask = record.categoryMask, categories = fromMask),
+        )
+    }
+
+    /** [readableSelection] 的判定结果；[Invalid] 携带可读拒因。 */
+    private sealed interface SelectionRead {
+        data class Valid(val summary: BackupSelectionSummary) : SelectionRead
+
+        data class Invalid(val reason: String) : SelectionRead
     }
 
     /**

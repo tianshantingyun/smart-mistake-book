@@ -190,6 +190,11 @@ fun RestoreStartupOutcome.attentionRequired(): RestoreRecoveryAttention = when (
  * Public startup entry point. The application MUST call this before opening
  * the study database so an interrupted restore can never leave a mixed
  * generation visible to Room.
+ *
+ * 6C-2 T5：本入口**不**重建派生搜索索引——它运行在数据库打开之前。恢复成功后
+ * "哪个库需要按科重建"由 [RestoreIndexRebuildMarker] 持久化；装配层（I1）在数据库
+ * 重新打开后调用 [RestoreIndexRebuildCoordinator.rebuildPending]。标记与恢复 journal
+ * 解耦：journal 在成功路径上会被清掉，而待重建事实必须活过这一次清账。
  */
 object BackupRestoreStartupRecovery {
     fun recoverOnStartup(context: Context): RestoreStartupOutcome {

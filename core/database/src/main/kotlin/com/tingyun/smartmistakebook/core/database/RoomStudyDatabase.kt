@@ -65,6 +65,14 @@ internal class RoomStudyDatabase(
         searchIndexCompleteness,
     )
 
+    /**
+     * 6C-2 T5：恢复后按科重建派生搜索索引。与读时自愈/内容安装共用同一个
+     * [KnowledgeSearchIndexCompleteness] 实例——重建进入/退出都会失效该科判定，
+     * 否则并发召回可能把重建前的"完整"判定继续当数。
+     */
+    private val knowledgeSearchIndexBuilder =
+        KnowledgeSearchIndexBuilder(database, searchIndexCompleteness)
+
     /** 内容调和是独立关注点，与读取/导入分开（见 `RoomKnowledgeContentReconciler` 的 KDoc）。 */
     private val contentReconciler = RoomKnowledgeContentReconciler(database, searchIndexCompleteness)
     private val backupSupport = RoomBackupSupportStore(database)
@@ -596,6 +604,20 @@ internal class RoomStudyDatabase(
         subject: String,
         limit: Int,
     ): List<KnowledgeNodeSeedRecord> = knowledgeBase.readSubjectKnowledgeNodes(subject, limit)
+
+    /**
+     * 6C-2 T5：恢复后派生索引按科重建的窄端口（`KnowledgeSearchIndexRebuildPort`）。
+     *
+     * 走与内容安装/读时自愈相同的 [KnowledgeSearchIndexBuilder.rebuildSubject]（KD-51 的
+     * 分块短写事务、锚点最后写），不另写一套重建逻辑。恢复本身已经关闭了 room3 连接池，
+     * 所以调用方（I1）只会在**数据库重新打开之后**调用这里。
+     */
+    override suspend fun listKnowledgeSubjects(): List<String> =
+        database.problemOrganizationDao().readKnowledgeSubjects()
+
+    override suspend fun rebuildKnowledgeSearchIndex(subject: String) {
+        knowledgeSearchIndexBuilder.rebuildSubject(subject)
+    }
 
     override suspend fun readSubjectKnowledgeRecallCandidates(
         subject: String,

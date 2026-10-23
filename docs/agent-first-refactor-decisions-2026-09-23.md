@@ -3089,3 +3089,69 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
   MistakeDetailRoute T2b+T3、Root 外部 5 处改动待主会话裁决）。
 - **下一批**：先修设备测试隔离、复跑 PRD-05 修复后 7 例与门禁；再复跑审计假成功对账/凭证门预检的修复证据，
   处理 operation 计数口径与 HEAD 一致性；真实 Provider（PRD-09）仍 UNVERIFIED；6C-2 三项裁定仍待用户。
+
+---
+
+## 完成记录折入（批次 18：6C-2 内容选择备份 v3 + KD-55 加固）（2026-10-23）
+
+> 说明：本批由动态工作流执行（T0 基线 → T1 域选择 → T2 机器清单 → T3 裁剪器 → T4 manifest v3 → T5 恢复/重建
+> → T6 UI → T8 KD-55 → I1 集成 → 门禁 → D1 设备 → 独立核对/对抗复核 → 记录员）。**本批未提交、未推送**；
+> 记录时点 HEAD 为 `9d2096ad`（= `origin/main`）。门禁工单结论：单测门第 1 轮 `exit=0`、强门第 1 轮 `exit=0`
+> （脚本自报，记录员未复跑）；D1 设备材料见下。批次记录：
+> `docs/research/2026-10-23-batch-18-6c2-record.md`。只追加，既有正文未动。
+
+### 裁定折入（用户已确认，2026-10-23）
+
+1. **不提供「仅图片」组合（mask=8）**：该组合的资产行没有任何引用者，恢复后会被 30 分钟宽限的孤儿回收清掉，
+   属于“恢复完就蒸发”的入口。UI 不提供、仓储/编解码拒绝。
+2. **禁止空选择（mask=0）**：空选择产物是“重置包”，恢复会按替换语义清空本机全部数据；UI 不可达、仓储拒绝。
+3. **派生索引恒裁，恢复完成后按科后台重建（a+c）**：`knowledge_search_feature` /
+   `knowledge_search_index_state` 两张表恒裁（全选 15 也裁），恢复交换提交后写「待重建」标记，下一次数据库
+   打开后按 `knowledge_subject` 调 `KnowledgeSearchIndexBuilder.rebuildSubject`；重建失败不回滚已恢复的数据，
+   保留标记并在下次启动重试。
+
+允许的 UI/仓储组合只有 **9（题+图）、13（题+会话+图）、15（全选）**；1–7、10–12、14 未闭合，0/8 被产品裁定
+禁止；所有拒绝都不静默补齐、不静默缩水。上述裁定取代设计件 §9.9/机器块中仍标 `OPEN` 的 `openMasks` 与
+`derivedPolicy`（设计件回写仍为文档债，见批次记录 §5.2/§6.1）。
+
+### 本批结果（增量）
+
+- **6C-2 域/机器清单（T1/T2）**：新 `BackupSelection` 四类别位、5 条闭包、`requireCreatable` 只接受 9/13/15；
+  新 `SmbkSelectionPlan`（schema 69：86 表/2 视图/92 FK、类别 30/35/6/1、ALWAYS 7、DERIVED 2、SPLIT 5、
+  trimOrder 78、软引用 20、资产根 4、`closureVersion=2`、v2 digest、空库全选 golden 命中）。JVM 工件
+  `BackupSelectionTest` 14/0、`SmbkSelectionPlanTest` 11/0。
+- **快照裁剪器（T3）**：只按路径打开快照、`foreign_keys=ON` 在 `BEGIN` 前、单事务删除、FTS `rebuild`、
+  I1–I7、有删除或真子集 `freelist_count>0` 才 `VACUUM`、空间预检、WAL/SHM 清理、fsync；全选也裁派生索引。
+  设备材料 7/7（当前测试文件已增至 9 例，最终树未复跑）。
+- **manifest v3 + 成包（T4）**：`FORMAT_VERSION=3`、`selection.schemaVersion=2`、86 表 `rowCounts`、
+  `trimmedTableCount`、`closureDigest`；无 selection 的写出面写 v2；v3 缺 selection 读侧拒绝；非法选择在写任何
+  字节前拒绝。`SmbkArchiveCodecTest` 30/0；D1 成包 3/3（材料中“全选跳过裁剪器”的旧语义已被当前树覆盖：
+  当前全选也走裁剪器，`trimmedTableCount=1`、派生索引 0 行）。
+- **恢复校验 + 派生索引重建（T5）**：交换前逐表 `COUNT(*)` 对拍（mask=15 也比）+ 未勾选类别 0 行；
+  派生索引恒裁；交换后写待重建标记；重启后按科重建，失败保留标记。`BackupSelectionRestoreInstrumentedTest`
+  当前 8 例，D1 材料 7/7；`BackupRestoreInstrumentedTest` D1 材料 33/33。
+- **设置页 UI（T6）**：四类别勾选、依赖传播/锁定、默认全选、0/8 不可达；创建前 `requireCreatable`；
+  恢复前先校验并弹确认框说明“包内容 + 未包含类别会被清空”，恢复回执显示 selection 并由 Root 覆盖仓库通用
+  重启文案。当前 UI 测试 11 例，D1 材料 10/10（新增的恢复前确认例未在材料内）。
+- **KD-55（T8）**：DOCX 图片读入在批次 14 读后复核之上改为按 `expectedByteSize` 有界读取（读满记录长度后只
+  多探 1 字节，增长部分不进入内存），读后用同一份字节复核长度与 sha256；不符 fail-closed、不写半份文件。
+  `DocxImageSourceTest` 8/0、`DocxMistakeRendererTest` 17/0。KD-55 记为 fixed；KD-61 未动、保持 open。
+- **I1 集成**：`BackupRepositoryFactory` 收到同一个 `StudyDatabasePort`（同时实现重建端口）；启动 `Ready` 后
+  异步消费待重建标记。Root 的存储页回调以 `replaceExisting` 让恢复回执文案覆盖仓库通用消息。
+
+### 门禁 / 设备 / 算法台账（照实）
+
+- 单测门 11 模块第 1 轮 `exit=0`、强门第 1 轮 `exit=0`（工单材料）；记录员只读构建工件显示本批关键 JVM 类
+  14/11/30/8/17 均 0 失败（2026-10-24 02:41–02:43），未复跑 Gradle。
+- D1（`emulator-5554`，API 34）：迁移 15/15、裁剪 7/7、成包 3/3、恢复选择域 7/7、恢复回归 33/33、UI 10/10、
+  365MiB 全选/子集+空间预检 1/1；未使用 `connectedAndroidTest`。**但当前测试文件已增至 9/8/11 例，
+  新增例未在设备复跑；最终树设备验收 UNVERIFIED。**
+- **零算法 bump**：DB schema 仍 69，请求 schema 仍 18，`LearningCoreVersions.*` 全部未 bump；`formatVersion=3`/
+  `selection.schemaVersion=2`/`closureVersion=2` 是备份归档合同版本，不进入投影/计划/打分/校准。
+  详见 `algorithm-version-ledger.md` §3.28。
+- **未闭合/保留**：设计件 §9.9 与机器块仍标 OPEN；恢复侧 S3 软引用重跑未实现；写侧不拒负 `rowCounts`；
+  `BackupSelectionSummary` 缺 `assetPolicy`；裁剪器 I5 与生产 SQL 未同源；裁剪器 API 无“必须是快照”守卫；
+  “删除全部数据”不清待重建标记。均为低危/文档债，见批次记录 §5.2/§6。
+- **下一批**：先复跑最终树设备（裁剪 9 例、恢复 8 例、UI 11 例、成包 3 例、365MiB 1 例）与门禁；回写设计件
+  §9.9/机器块；补 S3/写侧负计数等低危；真实 Provider（PRD-09）仍 UNVERIFIED；6C-2 暂记“代码级完成、
+  验收部分 UNVERIFIED”，不勾选关闭。

@@ -151,6 +151,17 @@ internal interface ProblemOrganizationDao {
     )
     suspend fun readSubjectKnowledgeNodes(subject: String, limit: Int): List<KnowledgeNodeEntity>
 
+    /**
+     * 库里出现过的知识点科目（去重、稳定排序）。
+     *
+     * 6C-2 T5 的恢复后重建用它兜底：待重建标记通常已经带了恢复时读到的科目列表，
+     * 只有标记为空（旧标记、或恢复时知识点表为空而之后又被导入）才回落到这条查询。
+     * 不按 `verification_status` 过滤——整科重建自身会决定哪些节点进索引与分母，
+     * 这里只回答"库里有哪些科"。
+     */
+    @Query("SELECT DISTINCT subject FROM knowledge_node ORDER BY subject ASC")
+    suspend fun readKnowledgeSubjects(): List<String>
+
     // ---- "当前工作"的读路径：一律排除已退役内容 ----
     //
     // 退役的节点从新工作里消失（不再被召回、不再进整理提示词、不再进新复习计划），

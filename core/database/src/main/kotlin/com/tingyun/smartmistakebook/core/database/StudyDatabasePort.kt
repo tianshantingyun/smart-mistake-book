@@ -36,6 +36,7 @@ import com.tingyun.smartmistakebook.core.database.port.TutorReadPort
 import com.tingyun.smartmistakebook.core.database.port.TutorSessionPort
 import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
 import com.tingyun.smartmistakebook.core.model.ImmutablePayloadConflict
+import com.tingyun.smartmistakebook.core.model.KnowledgeSearchIndexRebuildPort
 
 const val MAX_REVIEW_COMPLETION_HISTORY_DAYS = 1_500
 const val MAX_KNOWLEDGE_RECALL_CANDIDATES = 512
@@ -115,7 +116,8 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     BindingAuditPort,
     CleanRedrawTaskPort,
     FigureGenerationAuditPort,
-    FigureGenerationRecorderPort {
+    FigureGenerationRecorderPort,
+    KnowledgeSearchIndexRebuildPort {
 
     /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */
     suspend fun readDatabaseVersion(): Int = 0

@@ -1,9 +1,13 @@
 package com.tingyun.smartmistakebook.core.data.backup
 
+import com.tingyun.smartmistakebook.core.domain.BackupContentCategory
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.BufferedOutputStream
@@ -194,6 +198,11 @@ class SmbkArchiveCodecTest {
             databaseSchemaVersion = 30,
             problemCount = 1,
             createdAtEpochMillis = 6_000L,
+            selection = selectionFixture(
+                mask = 15,
+                rowCounts = emptyRowCounts(),
+                trimmedTableCount = 0,
+            ),
         )
 
         val futureManifest = ByteArrayOutputStream()
@@ -676,7 +685,11 @@ class SmbkArchiveCodecTest {
         val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(archive.toByteArray()))
         assertTrue(validation is BackupValidation.Valid)
         validation as BackupValidation.Valid
-        assertEquals(SmbkManifest.FORMAT_VERSION, validation.manifest.formatVersion)
+        assertEquals(
+            "没有 selection 的写出面必须是 v2（v3 的 selection 块必填）",
+            SmbkManifest.LEGACY_FORMAT_VERSION,
+            validation.manifest.formatVersion,
+        )
         assertEquals("0.2.0-localfirst", validation.manifest.appVersionName)
         assertEquals(2L, validation.manifest.appVersionCode)
         assertEquals("a73be83c7319c649", validation.manifest.contentVersion)
@@ -726,8 +739,16 @@ class SmbkArchiveCodecTest {
         val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(archive.toByteArray()))
         assertTrue(validation is BackupValidation.Valid)
         validation as BackupValidation.Valid
-        assertEquals(SmbkManifest.FORMAT_VERSION, validation.manifest.formatVersion)
+        assertEquals(
+            "没有 selection 的写出面必须是 v2（v3 的 selection 块必填）",
+            SmbkManifest.LEGACY_FORMAT_VERSION,
+            validation.manifest.formatVersion,
+        )
         assertTrue(!validation.manifest.hasSettings)
+        assertNull(
+            "v2 包没有 selection 块，必须读作全量而不是空选择",
+            validation.manifest.selection,
+        )
 
         val destination = unpackDestination("smbk-v2-no-settings")
         assertTrue(
@@ -756,6 +777,7 @@ class SmbkArchiveCodecTest {
         assertEquals(null, validation.manifest.appVersionCode)
         assertEquals(null, validation.manifest.contentVersion)
         assertEquals(2, validation.checkedFileCount)
+        assertNull("v1 旧包没有 selection 块，读作全量", validation.manifest.selection)
 
         val destination = unpackDestination("smbk-v1-compat")
         val unpacked = SmbkArchiveCodec.unpack(ByteArrayInputStream(archive), destination)
@@ -768,9 +790,324 @@ class SmbkArchiveCodecTest {
         )
     }
 
-    /** >2 拒：读不懂的格式版本必须在交换前拒绝，文案沿用既有那句。 */
+    /**
+     * v3 成包面（6C-2）：`selection` 块逐字段往返，且 `closureDigest` 必须与
+     * `SmbkSelectionPlan` 的 v2 算法同源（同输入重算相等）。
+     */
     @Test
-    fun `archive format version above two is rejected with the existing reason`() {
+    fun `v3 round trip carries the selection block and its digest`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val asset = tempFile("asset-a.png", "asset-content")
+        val archive = ByteArrayOutputStream()
+        val rowCounts = emptyRowCounts().toMutableMap().apply {
+            put("problem", 4L)
+            put("canonical_source_asset", 1L)
+            put("library_search_fts", 4L)
+        }
+        val selection = selectionFixture(
+            mask = 9,
+            rowCounts = rowCounts,
+            trimmedTableCount = 33,
+        )
+
+        val receipt = SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = listOf(asset),
+            referencedAssets = listOf(asset),
+            databaseSchemaVersion = 32,
+            problemCount = 4,
+            createdAtEpochMillis = 11_000L,
+            selection = selection,
+        )
+
+        assertEquals("回执必须如实带出选择", 9, receipt.selectionMask)
+        assertEquals(33, receipt.trimmedTableCount)
+
+        val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(archive.toByteArray()))
+        assertTrue(validation is BackupValidation.Valid)
+        validation as BackupValidation.Valid
+        assertEquals(3, validation.manifest.formatVersion)
+        assertEquals(SmbkManifest.FORMAT_VERSION, validation.manifest.formatVersion)
+        val summary = validation.manifest.selection
+            ?: error("v3 包必须读出 selection")
+        assertEquals(9, summary.mask)
+        assertEquals(
+            setOf(BackupContentCategory.ISSUE_BOOK, BackupContentCategory.IMAGES),
+            summary.categories,
+        )
+        assertEquals(
+            selection.closureDigest,
+            SmbkSelectionPlan.closureDigest(
+                categories = SmbkSelectionPlan.categoriesOf(9),
+                assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+                rowCounts = rowCounts,
+            ),
+        )
+
+        val destination = unpackDestination("smbk-v3-selection")
+        val unpacked = SmbkArchiveCodec.unpack(
+            ByteArrayInputStream(archive.toByteArray()),
+            destination,
+        )
+        assertTrue(unpacked is BackupValidation.Valid)
+        assertEquals(9, (unpacked as BackupValidation.Valid).manifest.selection?.mask)
+    }
+
+    /**
+     * v3 读侧闸门（T5）：规则版本/mask/categories/资产策略/rowCounts/trimmedTableCount/digest
+     * 任何一项不符都在**交换前**拒绝；v2 格式带 selection 同样是自相矛盾的清单。
+     *
+     * 这里逐项改一份自建 v3 包的 manifest（其余条目逐字节不变）——这正是恢复校验要挡的
+     * 形状：清单可以撒谎，读侧不能靠"能解析"就放行。
+     */
+    @Test
+    fun `v3 selection read side rejects unsupported or inconsistent blocks`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val archive = ByteArrayOutputStream()
+        val rowCounts = emptyRowCounts().toMutableMap().apply { put("problem", 1L) }
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = emptyList(),
+            referencedAssets = emptyList(),
+            databaseSchemaVersion = 32,
+            problemCount = 1,
+            createdAtEpochMillis = 12_000L,
+            selection = selectionFixture(mask = 9, rowCounts = rowCounts, trimmedTableCount = 10),
+        )
+        val archiveBytes = archive.toByteArray()
+        val json = Json { ignoreUnknownKeys = false; encodeDefaults = true }
+        val manifest = json.decodeFromString(SmbkManifest.serializer(), manifestText(archiveBytes))
+        val baseSelection = requireNotNull(manifest.selection) { "夹具必须写出 selection" }
+
+        fun validateWith(
+            selection: SmbkSelectionRecord = baseSelection,
+            formatVersion: Int = manifest.formatVersion,
+        ): BackupValidation = SmbkArchiveCodec.validate(
+            ByteArrayInputStream(
+                rewriteEntry(
+                    archiveBytes,
+                    "manifest.json",
+                    json.encodeToString(
+                        SmbkManifest.serializer(),
+                        manifest.copy(formatVersion = formatVersion, selection = selection),
+                    ),
+                ),
+            ),
+        )
+
+        val nine = SmbkSelectionPlan.categoriesOf(9)
+        val cases: List<Pair<String, BackupValidation>> = listOf(
+            "closureVersion" to validateWith(baseSelection.copy(closureVersion = 1)),
+            "schemaVersion" to validateWith(baseSelection.copy(schemaVersion = 1)),
+            "mask=8" to validateWith(
+                baseSelection.copy(
+                    categoryMask = 8,
+                    categories = SmbkSelectionPlan.categoriesOf(8).map { it.name },
+                    closureDigest = SmbkSelectionPlan.closureDigest(
+                        SmbkSelectionPlan.categoriesOf(8),
+                        SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+                        baseSelection.rowCounts,
+                    ),
+                ),
+            ),
+            "categories" to validateWith(
+                baseSelection.copy(categories = listOf("IMAGES")),
+            ),
+            "assetPolicy" to validateWith(
+                baseSelection.copy(
+                    assetPolicy = "ABSENT",
+                    closureDigest = SmbkSelectionPlan.closureDigest(
+                        nine,
+                        "ABSENT",
+                        baseSelection.rowCounts,
+                    ),
+                ),
+            ),
+            "rowCounts" to validateWith(
+                baseSelection.copy(rowCounts = baseSelection.rowCounts - "problem"),
+            ),
+            "trimmedTableCount" to validateWith(baseSelection.copy(trimmedTableCount = 79)),
+            "closureDigest" to validateWith(
+                baseSelection.copy(closureDigest = "0".repeat(64)),
+            ),
+            "格式版本" to validateWith(formatVersion = 2),
+        )
+
+        cases.forEach { (marker, validation) ->
+            assertTrue("$marker 必须被拒绝：$validation", validation is BackupValidation.Invalid)
+            val reason = (validation as BackupValidation.Invalid).reason
+            assertTrue(
+                "$marker 的拒因必须可读且指向内容选择：$reason",
+                reason.contains("备份内容选择"),
+            )
+            assertTrue("$marker 的拒因必须点名具体字段：$reason", reason.contains(marker))
+        }
+    }
+
+    /**
+     * v2 包（没有 `selection` 键）照旧可读可解包：缺省读作 null = 整库全量，
+     * 不能把它当成「空选择」而让恢复侧拒绝一份合法的旧包。
+     */
+    @Test
+    fun `v2 archive without selection stays readable and reads as the full backup`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val asset = tempFile("asset-a.png", "asset-content")
+        val archive = buildLegacyArchive(database, listOf(asset), formatVersion = 2)
+
+        val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(archive))
+        assertTrue(validation is BackupValidation.Valid)
+        validation as BackupValidation.Valid
+        assertEquals(2, validation.manifest.formatVersion)
+        assertNull(
+            "v2 包没有 selection 块，必须读作全量而不是空选择",
+            validation.manifest.selection,
+        )
+
+        val destination = unpackDestination("smbk-v2-compat")
+        assertTrue(
+            SmbkArchiveCodec.unpack(ByteArrayInputStream(archive), destination)
+                is BackupValidation.Valid,
+        )
+        assertEquals("database-content", File(destination, "database.sqlite").readText())
+    }
+
+    /**
+     * v3 必须带 selection（设计 §3.2-S1）：被剥掉 selection 的 v3 清单不能被读成"全量"，
+     * 否则一份子集/残缺包会按全量恢复并清空本机未包含的类别。`null` 与"键被删掉"两种
+     * 形状都要拒绝。
+     */
+    @Test
+    fun `v3 archive without a selection block is rejected`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = emptyList(),
+            referencedAssets = emptyList(),
+            databaseSchemaVersion = 32,
+            problemCount = 1,
+            createdAtEpochMillis = 14_000L,
+            selection = selectionFixture(
+                mask = 15,
+                rowCounts = emptyRowCounts(),
+                trimmedTableCount = 0,
+            ),
+        )
+        val archiveBytes = archive.toByteArray()
+        val json = Json { ignoreUnknownKeys = false; encodeDefaults = true }
+        val manifest = json.decodeFromString(
+            SmbkManifest.serializer(),
+            manifestText(archiveBytes),
+        )
+        val strippedManifest = json.encodeToString(
+            SmbkManifest.serializer(),
+            manifest.copy(formatVersion = SmbkManifest.FORMAT_VERSION, selection = null),
+        )
+        val withoutKey = strippedManifest.replace(",\"selection\":null", "")
+        assertTrue("夹具必须真的删掉 selection 键", withoutKey != strippedManifest)
+
+        listOf("显式 null" to strippedManifest, "缺少键" to withoutKey).forEach { (label, text) ->
+            val validation = SmbkArchiveCodec.validate(
+                ByteArrayInputStream(rewriteEntry(archiveBytes, "manifest.json", text)),
+            )
+            assertTrue("$label 必须被拒绝：$validation", validation is BackupValidation.Invalid)
+            val reason = (validation as BackupValidation.Invalid).reason
+            assertTrue(
+                "$label 的拒因必须说明缺内容选择块：$reason",
+                reason.contains("内容选择块"),
+            )
+        }
+        // 恢复走 unpack，同一道 finalizeValidation 也必须拒绝。
+        val unpacked = SmbkArchiveCodec.unpack(
+            ByteArrayInputStream(rewriteEntry(archiveBytes, "manifest.json", withoutKey)),
+            unpackDestination("smbk-v3-no-selection"),
+        )
+        assertTrue("unpack 也必须拒绝 v3 缺 selection：$unpacked", unpacked is BackupValidation.Invalid)
+    }
+
+    /**
+     * 非法选择在**写任何字节之前**拒绝：0/8、未闭合 mask、categories 与 mask 不符、
+     * rowCounts 漏表、digest 不符都抛 `IllegalArgumentException`，`archive` 保持为空。
+     * 仓储层还有 `BackupSelection.requireCreatable` 的同一道闸门（先于快照）。
+     */
+    @Test
+    fun `create rejects a non-creatable selection before writing any bytes`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val validRowCounts = emptyRowCounts()
+        val validCategories = SmbkSelectionPlan.categoriesOf(9).map { it.name }
+        val validDigest = SmbkSelectionPlan.closureDigest(
+            categories = SmbkSelectionPlan.categoriesOf(9),
+            assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            rowCounts = validRowCounts,
+        )
+        fun record(
+            mask: Int,
+            categories: List<String> = validCategories,
+            rowCounts: Map<String, Long> = validRowCounts,
+            digest: String = validDigest,
+        ) = SmbkSelectionRecord(
+            schemaVersion = SmbkSelectionRecord.CURRENT_SCHEMA_VERSION,
+            categoryMask = mask,
+            categories = categories,
+            assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            closureVersion = SmbkSelectionPlan.CLOSURE_VERSION,
+            closureDigest = digest,
+            rowCounts = rowCounts,
+            trimmedTableCount = 0,
+        )
+
+        val invalid = listOf(
+            "空选择 mask=0" to record(mask = 0, categories = emptyList()),
+            "仅图片 mask=8" to record(
+                mask = 8,
+                categories = listOf(BackupContentCategory.IMAGES.name),
+            ),
+            "未闭合 mask=1" to record(
+                mask = 1,
+                categories = listOf(BackupContentCategory.ISSUE_BOOK.name),
+            ),
+            "categories 与 mask 不符" to record(
+                mask = 9,
+                categories = listOf(
+                    BackupContentCategory.MASTERY.name,
+                    BackupContentCategory.IMAGES.name,
+                ),
+            ),
+            "rowCounts 漏表" to record(
+                mask = 9,
+                rowCounts = mapOf("problem" to 1L),
+            ),
+            "digest 不符" to record(mask = 9, digest = "0".repeat(64)),
+        )
+
+        invalid.forEach { (label, selection) ->
+            val archive = ByteArrayOutputStream()
+            val failure = assertThrows(IllegalArgumentException::class.java) {
+                SmbkArchiveCodec.create(
+                    archive = archive,
+                    database = database,
+                    assets = emptyList(),
+                    referencedAssets = emptyList(),
+                    databaseSchemaVersion = 32,
+                    problemCount = 0,
+                    createdAtEpochMillis = 12_000L,
+                    selection = selection,
+                )
+            }
+            assertEquals("$label 必须不产出任何归档字节", 0, archive.size())
+            assertTrue(
+                "$label 的拒因必须说明选择非法：${failure.message}",
+                failure.message.orEmpty().contains("备份内容选择"),
+            )
+        }
+    }
+
+    /** >3 拒：读不懂的格式版本必须在交换前拒绝，文案沿用既有那句。 */
+    @Test
+    fun `archive format version above three is rejected with the existing reason`() {
         val database = tempFile("database.sqlite", "database-content")
         val archive = ByteArrayOutputStream()
         SmbkArchiveCodec.create(
@@ -781,12 +1118,17 @@ class SmbkArchiveCodecTest {
             databaseSchemaVersion = 32,
             problemCount = 1,
             createdAtEpochMillis = 10_000L,
+            selection = selectionFixture(
+                mask = 15,
+                rowCounts = emptyRowCounts(),
+                trimmedTableCount = 0,
+            ),
         )
 
         val manifest = manifestText(archive.toByteArray())
         val declaredVersion = "\"formatVersion\":${SmbkManifest.FORMAT_VERSION}"
         assertTrue("夹具必须真的由当前版本写出 formatVersion", manifest.contains(declaredVersion))
-        val futureManifest = manifest.replace(declaredVersion, "\"formatVersion\":3")
+        val futureManifest = manifest.replace(declaredVersion, "\"formatVersion\":4")
         assertTrue("夹具必须真的把版本改成了未来版本", futureManifest != manifest)
 
         val validation = SmbkArchiveCodec.validate(
@@ -963,11 +1305,45 @@ class SmbkArchiveCodecTest {
         reviewReminderMinutesAfterMidnight = 18 * 60 + 30,
     )
 
+    /** `rowCounts` 的 86 表全零底稿（manifest 摘要必须覆盖全部表，0 也写）。 */
+    private fun emptyRowCounts(): Map<String, Long> =
+        SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
+
+    /** v3 `selection` 夹具：digest 用与成包侧同一个 `SmbkSelectionPlan` 算法。 */
+    private fun selectionFixture(
+        mask: Int,
+        rowCounts: Map<String, Long>,
+        trimmedTableCount: Int,
+    ): SmbkSelectionRecord {
+        val categories = SmbkSelectionPlan.categoriesOf(mask)
+        return SmbkSelectionRecord(
+            schemaVersion = SmbkSelectionRecord.CURRENT_SCHEMA_VERSION,
+            categoryMask = mask,
+            categories = categories.map { it.name },
+            assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            closureVersion = SmbkSelectionPlan.CLOSURE_VERSION,
+            closureDigest = SmbkSelectionPlan.closureDigest(
+                categories = categories,
+                assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+                rowCounts = rowCounts,
+            ),
+            rowCounts = rowCounts,
+            trimmedTableCount = trimmedTableCount,
+        )
+    }
+
     /**
-     * v1 旧包夹具：清单里**没有** v2 的版本戳与设置字段（那会儿它们还不存在），
-     * 摘要/大小仍按 v1 的既有约定写全，好让 v1 兼容读走的是与旧 app 相同的形状。
+     * v1/v2 旧包夹具：清单里**没有** selection、v2 的版本戳与设置字段（那会儿它们还不存在），
+     * 摘要/大小仍按旧约定写全，好让兼容读走的是与旧 app 相同的形状。
      */
-    private fun buildV1Archive(database: File, assets: List<File>): ByteArray {
+    private fun buildV1Archive(database: File, assets: List<File>): ByteArray =
+        buildLegacyArchive(database, assets, formatVersion = 1)
+
+    private fun buildLegacyArchive(
+        database: File,
+        assets: List<File>,
+        formatVersion: Int,
+    ): ByteArray {
         val records = listOf(
             Triple("database.sqlite", sha256Hex(database.readBytes()), database.length()),
         ) + assets.map { asset ->
@@ -975,7 +1351,7 @@ class SmbkArchiveCodecTest {
         }
         val manifest = buildString {
             append("{")
-            append("\"formatVersion\":1,")
+            append("\"formatVersion\":$formatVersion,")
             append("\"databaseSchemaVersion\":29,")
             append("\"createdAt\":1000,")
             append("\"problemCount\":1,")

@@ -24,12 +24,28 @@ data class StorageInventory(
     }
 }
 
+/**
+ * 成包选项（6C-2）。
+ *
+ * 内容选择默认全选（[BackupSelection.FULL]，mask=15），与 v2 的「整库 + 全部资产」在
+ * 用户数据上等价（派生搜索索引恒裁、恢复后按科重建）。
+ * 合法性**不在这里**判定：界面需要构造不自洽的中间态，而 `create()` 必须先用
+ * [BackupSelection.requireCreatable] 拒绝 0/8 与未闭合组合（不静默补齐）。
+ */
 data class BackupOptions(
-    val includeAssets: Boolean = true,
+    val selection: BackupSelection = BackupSelection.FULL,
 ) {
-    init {
-        require(includeAssets) { "First backup version always includes canonical assets" }
-    }
+    /**
+     * 兼容属性，已退役：图片是否随包由 [BackupSelection] 的 `IMAGES` 类别承载。
+     *
+     * 旧成包路径（批次 18 T4 前）仍读这个属性；保留只读镜像可避免跨模块编译中断。
+     * 新代码不得使用它，也不要据此判断闭包——闭包只认 [BackupSelection]。
+     */
+    @Deprecated(
+        message = "includeAssets 已退役：图片由 BackupSelection 的 IMAGES 类别承载",
+    )
+    val includeAssets: Boolean
+        get() = BackupContentCategory.IMAGES in selection.categories
 }
 
 data class BackupReceipt(
@@ -39,12 +55,20 @@ data class BackupReceipt(
     val assetCount: Int,
     val fileCount: Int,
     val totalBytes: Long,
+    /** 这次成包的内容选择（mask 9/13/15）；默认 15 即 v2 旧语义。 */
+    val selectionMask: Int = BackupContentCategory.FULL_MASK,
+    /** 这次裁剪删掉了数据行的表数（全选且无删除时为 0）。 */
+    val trimmedTableCount: Int = 0,
 ) {
     init {
         require(createdAtEpochMillis >= 0L)
         require(databaseSchemaVersion > 0)
         require(problemCount >= 0 && assetCount >= 0 && fileCount > 0)
         require(totalBytes > 0L)
+        require(selectionMask in BackupSelection.ALLOWED_MASKS) {
+            "Backup receipt selection mask must be one of ${BackupSelection.ALLOWED_MASKS}"
+        }
+        require(trimmedTableCount >= 0)
     }
 }
 
@@ -60,6 +84,11 @@ data class RestoreReceipt(
      * （非原子），失败时可能只写进去一部分，不保证仍是恢复前那份（KD-47）。
      */
     val settings: RestoreSettingsOutcome = RestoreSettingsOutcome.NOT_IN_ARCHIVE,
+    /**
+     * 这份备份声明的内容选择（6C-2）。`null` = v1/v2 旧包，读作**全量**；
+     * 非 null 时回执与界面必须如实说明「未包含的类别已随替换语义清空」。
+     */
+    val selection: BackupSelectionSummary? = null,
 ) {
     init {
         require(databaseSchemaVersion > 0)
@@ -127,6 +156,17 @@ data class BackupManifestSummary(
     val contentVersion: String? = null,
     /** 包内是否带设置（`settings.json`）；v1 旧包为 false。 */
     val hasSettings: Boolean = false,
+    /**
+     * 包声明的**内容选择**（6C-2，formatVersion=3 起）。`null` = v1/v2 旧包，
+     * 读作全量；非 null 时恢复侧必须在交换前校验它与包内库实测一致。
+     */
+    val selection: BackupSelectionSummary? = null,
+    /**
+     * 包声明的逐表行数（v3 selection 的 `rowCounts`，86 表）。恢复侧用它和**包内库**
+     * 逐表 `COUNT(*)` 对拍（mask=15 也照样对拍，防止"子集包伪装全量"或载荷/清单漂开）；
+     * v1/v2 旧包没有这个声明，为 null。
+     */
+    val selectionRowCounts: Map<String, Long>? = null,
 )
 
 interface BackupRepository {
@@ -150,6 +190,14 @@ interface BackupRepository {
      */
     suspend fun cleanupOrphanAssets(): Int
 
+    /**
+     * 生成备份包。
+     *
+     * 实现必须在写出任何字节前用 [BackupOptions.selection] 的
+     * [BackupSelection.requireCreatable] 做闸门：只接受闭包自洽且 mask ∈ {9,13,15}
+     * 的选择；0（空选择）、8（仅图片）与未闭合组合一律拒绝，**不静默补齐**
+     * （批次 18 产品裁定，见 [BackupSelection]）。
+     */
     suspend fun create(
         destination: OutputStream,
         options: BackupOptions = BackupOptions(),

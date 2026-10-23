@@ -375,6 +375,24 @@
 > D1 的设备迁移是运行时证据，但真实 Provider 质量/费用仍 UNVERIFIED（本批全部模型验证为 fake/夹具）。
 > 批次 17 记录见 `docs/research/2026-10-22-batch-17-wg08-wg06-wg07-record.md`。
 
+### 3.28 批次 18 · 6C-2 内容选择备份 v3 / KD-55 有界读入（2026-10-23）：DB schema 69 不动、零算法 bump
+
+> 编号说明：本条由批次 18 占用。`STUDY_DATABASE_VERSION` 维持 **69**；请求 schema 维持 **18**；
+> `LearningCoreVersions.*`（`PROJECTOR`/`EVIDENCE`/`ATTRIBUTION`/`LEDGER`）与各投影/计划/打分指纹**全部未 bump**。
+> 本条登记的 `formatVersion=3`/`selection.schemaVersion=2`/`closureVersion=2` 是**备份归档合同版本**，不是学习算法版本。
+> 零 bump 判据：选择只决定“哪些表/资产进包”和恢复后是否重建派生索引；投影器、复习计划器、打分器、校准均不读
+> `selection`，派生索引只是缓存，DB schema 未变；旧账本/旧投影的固定输入重放输出逐位不变。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| 备份清单 `SmbkManifest.FORMAT_VERSION` 2→**3**；`SmbkSelectionRecord.CURRENT_SCHEMA_VERSION=2`；`SmbkSelectionPlan.CLOSURE_VERSION=2`；digest 前缀 `smbk-selection-v2` | 6C-2 内容选择备份：manifest 新增 `selection` 块（categoryMask/categories/assetPolicy/closureVersion/closureDigest/rowCounts/trimmedTableCount）；4 类别位 ISSUE_BOOK=1/MASTERY=2/SESSIONS=4/IMAGES=8；只允许 mask 9/13/15；闭包 5 条；86 表 rowCounts（0 也写）；派生两张表恒裁；恢复后按科重建 | **digest v2**：`SHA-256("smbk-selection-v2\nclosureVersion=2\ncategories=" + categories.sorted().joinToString(",") + "\nassetPolicy=" + assetPolicy + "\n" + rowCounts.keys.sorted().joinToString("") { "$it=${rowCounts[it]}\n" })`；空库全选 golden `d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6`；`rowCounts` 必须覆盖 86 键。**非算法数值变更**：不进入投影/计划/打分/校准公式 | 计划 `.zcode/plans/plan-2026-10-23-batch-18-6c2-backup-selection.md:9-13,34-43`；设计 `docs/research/2026-10-17-6c2-content-selection-design.md:122-190,336-386,448-501,1388-1439,1586-2191`；实现 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/SmbkSelectionPlan.kt:38-63,192-271,604-637`、`SmbkArchiveCodec.kt:84-148,298-311,435-482,1043-1063,1142-1226` | **本记录员未运行 Gradle**。只读构建工件：`BackupSelectionTest` 14/0、`SmbkSelectionPlanTest` 11/0、`SmbkArchiveCodecTest` 30/0（2026-10-24 02:41–02:43，failures/errors 均 0）；D1 设备材料：迁移 15/15、裁剪 7/7、成包 3/3、恢复选择域 7/7、恢复回归 33/33、UI 10/10、365MiB 1/1（最终树测试例数已增至 9/8/11，未复跑）。独立核对材料报告 trimOrder 对 92 条 FK 0 违规、空库全选 digest 逐字命中 golden | ➖（无投影输出变化，不触发重放） |
+| `LearningCoreVersions.*` / 各指纹 schema / 请求 schema 18 **全部未 bump**；`STUDY_DATABASE_VERSION` **69 不动** | 批次 18 只改备份写读合同、恢复校验、派生索引重建与 UI 勾选；KD-55 只改 DOCX 图片读入（有界读 + 同字节 sha/长度复核） | **零 bump 判据（逐条）**：① `selection` 只被备份成包/恢复路径读取，投影/计划/打分/校准无读取口；② `rowCounts` 是裁剪后快照的 `COUNT(*)`，不是学习事实；③ 派生索引两张表是 `knowledge_node` 的缓存，恒裁+重建不改变知识事实；④ DB schema 69 未改（无新表/列/迁移）；⑤ 旧包 v1/v2 缺 `selection` 读作全量，旧账本/投影的固定输入重放逐位不变；⑥ KD-55 只影响 DOCX 读图是否 fail-closed，不进入任何算法输入。**若将来 `selection` 被用于学习算法或派生索引参与数值判定，必须重新评估 bump** | 计划 `:18-43`；设计 §3.2/§9.7；实现 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/AndroidBackupRepository.kt:184-188,218-243,1196-1271,1287-1367`、`RestoreIndexRebuild.kt:144-229`、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxImageSource.kt:45-94` | JVM 工件：`SmbkArchiveCodecTest` 30/0、`DocxImageSourceTest` 8/0、`DocxMistakeRendererTest` 17/0；`BackupSelectionRestoreInstrumentedTest` 当前 8 例、D1 材料 7/7（最终树未复跑） | ➖（零 bump，不触发重放） |
+
+> **本批非算法常量/合同追溯**：`allowedMasks={9,13,15}`、`closureDigest` v2、`formatVersion=3`、`selection.schemaVersion=2`、
+> `closureVersion=2` 均只作用于 `.smbk` 归档的写入/读取，不改变学习投影、复习计划、掌握度或预算。`trimmedTableCount` 是报告字段，
+> 不是算法输出。KD-55 的 `expectedByteSize` 是有界读入上界，不是算法参数。批次 18 记录见
+> `docs/research/2026-10-23-batch-18-6c2-record.md`。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.export
 
 import java.io.File
+import java.io.InputStream
 import java.security.MessageDigest
 
 /** 一张可从本地文件读出的题面图（PNG/JPEG），带交付所需的像素尺寸与部件元数据。 */
@@ -27,8 +28,9 @@ internal data class DocxImageBytes(
  * 只有**这次读到的、即将嵌入的这份字节**同时匹配两者才返回图片，否则按"读不出"降级。
  * 它消灭的失败是「读详情 → 渲染」之间的 TOCTOU：`file://` 读口本身不知道自己读的是不是
  * 记录里那一份，先前只有 `vault.resolve` 在详情路径上核过一次；渲染前再核一次，被换掉/
- * 截断的文件不会进 Word 包。长度先按 `File.length()` 预检（被换成超大文件时不整份读入），
- * 读后再用同一份字节复核一次（stat 与 read 之间仍可能被换）。
+ * 截断的文件不会进 Word 包。长度先按 `File.length()` 预检，随后**按记录长度有界读取**
+ * （读满记录长度后只多探一个字节）：stat 与 read 之间文件被换成更大的文件时，增长部分
+ * 不会进入内存；变短或变大都 fail-closed。最后用同一份即将嵌入的字节复核长度与 sha256。
  */
 internal object DocxImageSource {
     fun read(
@@ -40,9 +42,18 @@ internal object DocxImageSource {
         return try {
             val file = File(java.net.URI(uri))
             if (!file.isFile) return null
-            // 便宜的预检：记录长度不符就不读整份文件。
-            if (expectedByteSize != null && file.length() != expectedByteSize) return null
-            val bytes = file.readBytes()
+            val bytes = if (expectedByteSize == null) {
+                file.readBytes()
+            } else {
+                // 记录长度也是读入上界：超出 ByteArray 上限的记录直接失败，不做截断读取。
+                if (expectedByteSize < 0L || expectedByteSize > Int.MAX_VALUE.toLong()) return null
+                // 便宜的预检：stat 长度不符就不打开文件。
+                if (file.length() != expectedByteSize) return null
+                // 有界读取：最多读记录长度，再多探一个字节确认文件没有在 stat 与 read 之间变大。
+                file.inputStream().use { input ->
+                    readBounded(input, expectedByteSize.toInt())
+                } ?: return null
+            }
             if (bytes.isEmpty()) return null
             // 读后复核：校验的就是下面要嵌入的那份字节。
             if (expectedByteSize != null && bytes.size.toLong() != expectedByteSize) return null
@@ -61,6 +72,25 @@ internal object DocxImageSource {
         } catch (_: Exception) {
             null
         }
+    }
+
+    /**
+     * 有界读取（KD-55）：最多从 [input] 取 [expectedByteSize] 字节，随后只多探一个字节。
+     *
+     * 读不满（文件在 `File.length()` 与 read 之间变短）或多出（变大）都返回 null；
+     * **多出的部分不会被读进内存**——这正是它相对 `readBytes()` 消灭的失败：记录长度已知时，
+     * 被换成超大文件不会拖垮内存、也不会在下游才靠长度比较"兜底"。
+     */
+    internal fun readBounded(input: InputStream, expectedByteSize: Int): ByteArray? {
+        if (expectedByteSize < 0) return null
+        val bytes = ByteArray(expectedByteSize)
+        var offset = 0
+        while (offset < expectedByteSize) {
+            val read = input.read(bytes, offset, expectedByteSize - offset)
+            if (read < 0) return null
+            offset += read
+        }
+        return if (input.read() == -1) bytes else null
     }
 
     private fun sha256Hex(bytes: ByteArray): String =

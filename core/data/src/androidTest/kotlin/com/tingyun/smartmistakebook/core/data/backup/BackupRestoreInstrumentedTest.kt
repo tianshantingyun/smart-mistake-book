@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.backup
 import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
@@ -164,9 +165,56 @@ class BackupRestoreInstrumentedTest {
             assertEquals(1, restored.countMistakes())
             restored.close()
         } finally {
+            RestoreIndexRebuildMarker.clear(context)
             context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
             archive.delete()
             backupDirectory.delete()
+        }
+    }
+
+    /**
+     * 6C-2 T5：全量恢复也必须把派生搜索索引清空，并留下"待重建"标记。
+     *
+     * 派生索引是 `knowledge_node`（恒随包）的纯派生缓存；成包侧已经恒裁（全选也走裁剪器），
+     * 恢复侧仍对旧包（v1/v2）和第三方重裁包兜底清空。清空后的正常路径是
+     * 数据库重开后按科重建（`RestoreIndexRebuildCoordinator`），读时自愈只是兜底。
+     */
+    @Test
+    fun fullRestoreLeavesDerivedSearchIndexEmptyAndMarksItForRebuild() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = StudyDatabaseFactory.DEFAULT_DATABASE_NAME
+        context.deleteDatabase(databaseName)
+        RestoreIndexRebuildMarker.clear(context)
+        try {
+            val source = StudyDatabaseFactory.open(context, databaseName)
+            seedStudyFacts(context, source, databaseName, seed())
+            val archive = ByteArrayOutputStream()
+            AndroidBackupRepository(context, source).create(archive)
+            source.close()
+
+            val restoreDatabase = StudyDatabaseFactory.open(context, databaseName)
+            AndroidBackupRepository(context, restoreDatabase)
+                .restore(ByteArrayInputStream(archive.toByteArray()))
+
+            val restoredFile = context.getDatabasePath(databaseName)
+            SQLiteDatabase.openDatabase(
+                restoredFile.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY,
+            ).use { restored ->
+                assertEquals(
+                    0L,
+                    DatabaseUtils.queryNumEntries(restored, "knowledge_search_feature"),
+                )
+                assertEquals(
+                    0L,
+                    DatabaseUtils.queryNumEntries(restored, "knowledge_search_index_state"),
+                )
+            }
+            assertTrue("恢复后必须留下待重建标记", RestoreIndexRebuildMarker.exists(context))
+        } finally {
+            RestoreIndexRebuildMarker.clear(context)
+            context.deleteDatabase(databaseName)
         }
     }
 

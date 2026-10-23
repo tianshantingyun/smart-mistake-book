@@ -9,6 +9,8 @@ import com.tingyun.smartmistakebook.core.data.capture.ExplicitRedrawServiceFacto
 import com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.backup.BackupRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery
+import com.tingyun.smartmistakebook.core.data.backup.RestoreIndexRebuildCoordinator
+import com.tingyun.smartmistakebook.core.data.backup.RestoreIndexRebuildStatus
 import com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryAttention
 import com.tingyun.smartmistakebook.core.data.tutor.AgentPendingRequestRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.tutor.TutorAttachedImageIntakeFactory
@@ -481,6 +483,10 @@ class SmartMistakeBookApplication : Application() {
                 // driving request exist before it is needed.
                 onWorkScheduled = { BatchImportDriver.enqueue(this) },
             )
+            // 6C-2 I1：这里的 `database` 同时也是 T5 的搜索索引重建端口
+            // （`StudyDatabasePort` 继承 core:model 的 `KnowledgeSearchIndexRebuildPort`）。
+            // 备份工厂拿到的就是这个实例；恢复完成后的「待重建」标记在**下一次数据库
+            // 打开后**由下方协调器消费同一个实例，不另建第二份重建实现。
             backupRepository = BackupRepositoryFactory.create(
                 context = this,
                 database = database,
@@ -580,6 +586,40 @@ class SmartMistakeBookApplication : Application() {
             // restore did not land.
             restoreRecoveryFailure(restoreRecovery)?.let { failure ->
                 startupState.value = failure
+            }
+            // 6C-2 T5/I1（产品裁定 ③-a+c）：恢复侧把两张派生索引表**恒裁**，并把
+            // 「哪些科需要重建」写进 `noBackupFilesDir` 的待重建标记。标记只能在数据库
+            // **重新打开之后**消费——恢复那个进程已经关掉了 room3 连接池，本进程才能开库。
+            // 没有标记时协调器立即返回；重建失败**不回滚**已恢复的数据库（索引只是派生
+            // 缓存），标记保留到下一次启动；读时自愈仍是兜底。放后台，不拖慢 Ready。
+            applicationScope.launch {
+                try {
+                    val rebuild = RestoreIndexRebuildCoordinator.rebuildPending(
+                        context = this@SmartMistakeBookApplication,
+                        database = database,
+                    )
+                    when (rebuild.status) {
+                        RestoreIndexRebuildStatus.NOTHING_PENDING -> Unit
+                        RestoreIndexRebuildStatus.REBUILT -> android.util.Log.i(
+                            "SmartMistakeBook",
+                            rebuild.message,
+                        )
+                        RestoreIndexRebuildStatus.PARTIAL_FAILURE -> android.util.Log.w(
+                            "SmartMistakeBook",
+                            rebuild.message,
+                        )
+                    }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (failure: Throwable) {
+                    // 协调器内部已按科兜住失败；这里只兜标记读写/列科目等意外，
+                    // 保留标记（不删除），下一次启动再试。
+                    android.util.Log.w(
+                        "SmartMistakeBook",
+                        "Search index rebuild after restore failed; pending marker kept",
+                        failure,
+                    )
+                }
             }
             // A split job left in PREPARING by an interrupted create→ready sequence
             // is visible in the review screen but refuses every operation on it,

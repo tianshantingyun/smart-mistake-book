@@ -13,9 +13,11 @@ import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.BackupActivity
+import com.tingyun.smartmistakebook.core.domain.BackupContentCategory
 import com.tingyun.smartmistakebook.core.domain.BackupOptions
 import com.tingyun.smartmistakebook.core.domain.BackupReceipt
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
+import com.tingyun.smartmistakebook.core.domain.BackupSelectionSummary
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
 import com.tingyun.smartmistakebook.core.domain.BackupWriteGate
 import com.tingyun.smartmistakebook.core.domain.DeleteAllDataReceipt
@@ -181,6 +183,9 @@ class AndroidBackupRepository(
         destination: OutputStream,
         options: BackupOptions,
     ): BackupReceipt = withContext(Dispatchers.IO) {
+        // 6C-2 写侧闸门：非法选择（0/8、未闭合组合）在**任何副作用之前**拒绝——
+        // 不读设置、不做快照、不写一个字节。仓储不静默补齐（产品裁定）。
+        val selection = options.selection.requireCreatable()
         val databaseFile = context.getDatabasePath(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
         // 设置先读：读失败要在做快照之前失败，别留下半个归档的错觉。
         val settings = readSettingsForBackup()
@@ -212,6 +217,24 @@ class AndroidBackupRepository(
                     database.snapshotForBackup(databaseFile, snapshotFile)
                 }
             }
+            // 6C-2（设计 §2.2）：快照已经是独立文件、还没有任何读口在读它——这里是裁剪器的
+            // 唯一插入点（只碰快照，不碰实时库）。
+            //   - 派生索引**恒裁**（产品裁定 ③）：全选（15）与子集（9/13）都走裁剪器；
+            //     全选只删两张派生表、用户类别一行不动，子集再按闭包删未选类别。
+            //   - 裁剪器单事务删行、I1–I7 对拍、有删除（或真子集仍留空闲页）才 VACUUM；
+            //     题数与引用在裁剪**之后**从同一份快照读。
+            // 裁剪器失败让成包失败（finally 删快照），绝不发半包。
+            val report = BackupSnapshotTrimmer().trim(snapshotFile, selection.mask)
+            check(report.selectionMask == selection.mask) {
+                "裁剪报告 mask=${report.selectionMask} 与选择 ${selection.mask} 不一致"
+            }
+            val rowCounts = report.postRowCounts
+            val trimmedTableCount = report.trimmedTableCount
+            val selectionRecord = selectionRecord(
+                mask = selection.mask,
+                rowCounts = rowCounts,
+                trimmedTableCount = trimmedTableCount,
+            )
             withSnapshotDatabase(snapshotFile) { snapshot ->
                 // 题数与引用资产都取自**这一份快照**：实时库上的数会在窗口里超前于归档内容。
                 val problemCount = snapshot.countMistakes()
@@ -220,7 +243,9 @@ class AndroidBackupRepository(
                 SmbkArchiveCodec.create(
                     archive = destination,
                     database = snapshotFile,
-                    assets = if (options.includeAssets) assetFiles else emptyList(),
+                    // 本批允许的 9/13/15 都含 IMAGES；图片集合随内容选择关闭的入口
+                    // 只在旧 `includeAssets` 镜像里（已退役），这里直接按引用集合收图。
+                    assets = assetFiles,
                     // 声明的是快照库的引用集合本身：若将来允许"只备数据库"，收图与声明
                     // 一旦不一致，成包会当场失败，而不是写出 DB 引用了包内没有的图的归档。
                     referencedAssets = assetFiles,
@@ -233,6 +258,7 @@ class AndroidBackupRepository(
                         contentVersion = snapshot.readBundledContentVersion(),
                     ),
                     settings = settings,
+                    selection = selectionRecord,
                 )
             }
         } finally {
@@ -347,6 +373,32 @@ class AndroidBackupRepository(
         }
     }
 
+    /**
+     * v3 manifest 的 `selection` 块（6C-2）。digest 用 §9.7 的 v2 算法；`rowCounts` 必须
+     * 覆盖 86 表，`assetPolicy` 只能是 `INCLUDED`（本批合法 mask 都含图片）。
+     */
+    private fun selectionRecord(
+        mask: Int,
+        rowCounts: Map<String, Long>,
+        trimmedTableCount: Int,
+    ): SmbkSelectionRecord {
+        val categories = SmbkSelectionPlan.categoriesOf(mask)
+        return SmbkSelectionRecord(
+            schemaVersion = SmbkSelectionRecord.CURRENT_SCHEMA_VERSION,
+            categoryMask = mask,
+            categories = categories.map { category -> category.name },
+            assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            closureVersion = SmbkSelectionPlan.CLOSURE_VERSION,
+            closureDigest = SmbkSelectionPlan.closureDigest(
+                categories = categories,
+                assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+                rowCounts = rowCounts,
+            ),
+            rowCounts = rowCounts,
+            trimmedTableCount = trimmedTableCount,
+        )
+    }
+
     override suspend fun validate(source: InputStream): BackupValidation =
         withContext(Dispatchers.IO) {
             // Streaming validation: entries are written to a scratch directory
@@ -408,6 +460,9 @@ class AndroidBackupRepository(
         // 写设置的任何失败/取消都不许被下面那段回滚路径接住（那时 journal 已清，
         // 回滚只会去删已经不存在的代，然后把"恢复失败，已回到原来的数据"说成事实）。
         var restoredSettings: RestorableSettings? = null
+        // Phase 2e 从包内库读到的科目列表；交换提交后写进"待重建"标记（T5）。
+        // 放在 try 之外，成功路径的 Phase 7 之后要用它。
+        var restoredKnowledgeSubjects: List<String> = emptyList()
 
         val receipt = try {
             // Phase 1: Validate and unpack (counting compressed bytes for zip-bomb ratio)
@@ -478,6 +533,19 @@ class AndroidBackupRepository(
             // 出来的资产目录里，且与资产行记的字节数/SHA-256 逐位一致。缺一张就在这里
             // 拒绝——此时还没有任何切换发生，原数据、原图都还在原地。
             verifyStagedAssetClosure(staging, stagedDatabase.referencedAssets)
+
+            // Phase 2c.1（6C-2 T5）：声明 vs 包内库实测。清单是包自己带的，可以撒谎；
+            // 逐表行数（覆盖 mask=15）与未勾选类别都必须与包内库一致。任何不符都在交换前拒绝。
+            verifyDeclaredSelectionAgainstStagedDatabase(
+                stagingDb,
+                valid.manifest.selection,
+                valid.manifest.selectionRowCounts,
+            )
+
+            // Phase 2c.2（6C-2 T5，产品裁定 ③-a+c）：派生索引恒裁并把科目列表带出去。
+            // 无论 mask 9/13/15、无论 v1/v2 旧包，交换进来的库都不带派生行；读时自愈仍
+            // 是兜底，但正常路径由「重启后按科后台重建」接管（见 RestoreIndexRebuildCoordinator）。
+            restoredKnowledgeSubjects = resetDerivedSearchIndex(stagingDb)
 
             // Phase 2d: 设置载荷读进内存（6C-1）。兼容性闸门在编解码层（Phase 1 的 unpack
             // 已经按版本/值域拒过），这里只是把载荷映射成领域对象；映射不可能失败，但若
@@ -612,15 +680,38 @@ class AndroidBackupRepository(
             root.deleteRecursively()
             journal.clear()
 
+            // Phase 7b（6C-2 T5）：派生索引已经被恒裁，把"待重建"事实持久化到下一次
+            // 数据库打开之后。写标记失败**不能**让恢复失败：数据库已经一致，读时自愈
+            // 仍能按科重建（代价是首查长尾）；这里只如实告警。
+            runCatching {
+                RestoreIndexRebuildMarker.write(
+                    context,
+                    PendingRestoreIndexRebuild(
+                        restoreId = restoreId,
+                        createdAtEpochMillis = System.currentTimeMillis(),
+                        selectionMask = valid.manifest.selection?.mask,
+                        subjects = restoredKnowledgeSubjects,
+                    ),
+                )
+            }.onFailure { markerFailure ->
+                android.util.Log.w(
+                    "SmartMistakeBook",
+                    "恢复完成但待重建标记写入失败，搜索索引将走读时自愈：" +
+                        markerFailure.message.orEmpty(),
+                )
+            }
+
             // 回执的数取自归档里那份库本身（题数）与刚刚过了闭合校验的引用集合
             // （题图数），不取 manifest 里那张没人核对过的清单（AUD-05）：
             // manifest 是成包那一刻写的，而用户要看到的是"这次恢复进来的是什么"。
+            // selection 取自已通过严格读侧闸门的清单摘要：v1/v2 为 null = 全量。
             // 设置结果在方法尾部补（Phase 8），此处留缺省值。
             val successReceipt = RestoreReceipt(
                 databaseSchemaVersion = valid.manifest.databaseSchemaVersion,
                 problemCount = stagedDatabase.problemCount,
                 assetCount = stagedDatabase.referencedAssets.size,
                 fileCount = valid.manifest.fileCount,
+                selection = valid.manifest.selection,
             )
             successReceipt
             }
@@ -1086,6 +1177,185 @@ class AndroidBackupRepository(
                     problems.joinToString(separator = "、"),
             )
         }
+    }
+
+    /**
+     * Phase 2c.1（6C-2 T5）：清单的 selection 声明 vs **包内库实测**。
+     *
+     * 两件事都在交换前做，权威判据始终是包内库（清单是包自己带的，可以撒谎）：
+     * 1. **逐表行数对拍**：manifest `rowCounts` 的 86 个键必须与包内库 `COUNT(*)` 逐表相等。
+     *    这覆盖了 mask=15（没有未选类别可查）的情形——一份只有题/图的子集包被改写成
+     *    「全量」时，声明行数与包内实际行数必然漂开；digest/rowCounts 的自洽只能证明
+     *    清单内部一致，不能证明载荷是那份清单描述的内容。
+     * 2. **未勾选类别必须 0 行**：即使行数对拍通过，声明为未包含的类别也不许带数据。
+     *
+     * v1/v2（selection=null）是全量语义，跳过。表不存在按 0 行处理：旧 schema 的包还没有
+     * 这些表，Room 迁移会建出空表，与"未包含"等价。任何不符都在交换前拒绝——原数据、
+     * 原图仍在原地。
+     */
+    private fun verifyDeclaredSelectionAgainstStagedDatabase(
+        stagedDatabaseFile: File,
+        selection: BackupSelectionSummary?,
+        declaredRowCounts: Map<String, Long>?,
+    ) {
+        if (selection == null) return
+        if (declaredRowCounts == null) {
+            throw BackupRestoreException(
+                "备份内容选择缺少逐表行数声明，恢复被拒绝",
+            )
+        }
+        val unselectedTables = BackupContentCategory.entries
+            .filter { it !in selection.categories }
+            .flatMap { category ->
+                val planCategory = SmbkSelectionPlan.categoryTables.keys
+                    .firstOrNull { plan -> plan.name == category.name }
+                    ?: throw BackupRestoreException(
+                        "备份内容选择类别 ${category.name} 未在 schema 机器清单中登记，恢复被拒绝",
+                    )
+                SmbkSelectionPlan.categoryTables.getValue(planCategory)
+            }
+        val mismatched = mutableListOf<String>()
+        val nonEmpty = mutableListOf<String>()
+        try {
+            SQLiteDatabase.openDatabase(
+                stagedDatabaseFile.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY,
+            ).use { database ->
+                val allTables = SmbkSelectionPlan.allTables
+                val existing = existingTables(database, allTables)
+                val actualCounts = LinkedHashMap<String, Long>(allTables.size)
+                allTables.forEach { table ->
+                    actualCounts[table] = if (table in existing) {
+                        val quoted = "\"" + table.replace("\"", "\"\"") + "\""
+                        database.rawQuery("SELECT COUNT(*) FROM $quoted", null).use { cursor ->
+                            if (!cursor.moveToFirst()) {
+                                throw BackupRestoreException("无法读取包内表 $table 的行数")
+                            }
+                            cursor.getLong(0)
+                        }
+                    } else {
+                        0L
+                    }
+                }
+                allTables.forEach { table ->
+                    val declared = declaredRowCounts[table] ?: 0L
+                    val actual = actualCounts.getValue(table)
+                    if (declared != actual) mismatched += "$table declared=$declared actual=$actual"
+                }
+                unselectedTables.forEach { table ->
+                    val actual = actualCounts[table] ?: 0L
+                    if (actual > 0L) nonEmpty += "$table=$actual"
+                }
+            }
+        } catch (failure: BackupRestoreException) {
+            throw failure
+        } catch (failure: Exception) {
+            throw BackupRestoreException(
+                "核对备份内容选择失败，恢复被拒绝：${failure.message.orEmpty()}",
+                failure,
+            )
+        }
+        if (mismatched.isNotEmpty()) {
+            val detail = mismatched.take(8).joinToString("、") +
+                if (mismatched.size > 8) "…共 ${mismatched.size} 张表" else ""
+            throw BackupRestoreException(
+                "备份内容选择与包内数据不一致：逐表行数与声明不符（$detail），恢复被拒绝",
+            )
+        }
+        if (nonEmpty.isNotEmpty()) {
+            throw BackupRestoreException(
+                "备份声明的内容选择与包内数据不一致：未勾选类别仍有数据" +
+                    "（${nonEmpty.joinToString("、")}），恢复被拒绝",
+            )
+        }
+    }
+
+    /**
+     * Phase 2c.2（6C-2 T5，产品裁定 ③-a+c）：派生搜索索引**恒裁**，并返回包内库出现过的
+     * 知识点科目（供交换后写"待重建"标记）。
+     *
+     * 为什么恢复侧也要裁：成包侧虽然已经把派生索引恒裁（全选也走裁剪器），恢复侧仍要对
+     * 旧包（v1/v2）和被第三方重裁的包兜底；`knowledge_search_feature` 只是 `knowledge_node`
+     * 的派生缓存，恢复时清掉不会丢任何事实，却能让"恢复后按科重建"成为唯一口径。
+     * 索引与锚点成对删除，读时自愈/后台重建不会把旧索引误当成完整。
+     *
+     * 单文件交付：删除写完后 `wal_checkpoint(TRUNCATE)`，随后 Phase 3 只复制主文件到
+     * `nextDb`——不 checkpoint，删除会留在 `-wal` 里被复制动作丢掉（或者更糟：主文件里
+     * 仍是旧索引行）。
+     */
+    private fun resetDerivedSearchIndex(stagedDatabaseFile: File): List<String> {
+        val subjects = mutableListOf<String>()
+        val path = stagedDatabaseFile.absolutePath
+        try {
+            SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE).use { database ->
+                val existing = existingTables(
+                    database,
+                    listOf("knowledge_node") + SmbkSelectionPlan.derivedTables,
+                )
+                database.beginTransaction()
+                try {
+                    if ("knowledge_node" in existing) {
+                        database.rawQuery(
+                            "SELECT DISTINCT subject FROM knowledge_node ORDER BY subject ASC",
+                            null,
+                        ).use { cursor ->
+                            while (cursor.moveToNext()) {
+                                subjects += cursor.getString(0)
+                            }
+                        }
+                    }
+                    // 顺序取裁剪器的同一份拓扑序（锚点先于特征行）；虽然这里在一个事务里，
+                    // 但沿用同一顺序，避免将来拆事务时留下"锚点在、索引没了"的假完整态。
+                    SmbkSelectionPlan.trimOrder
+                        .filter { it in SmbkSelectionPlan.derivedTables }
+                        .forEach { table ->
+                            if (table in existing) {
+                                val quoted = "\"" + table.replace("\"", "\"\"") + "\""
+                                database.execSQL("DELETE FROM $quoted")
+                            }
+                        }
+                    database.setTransactionSuccessful()
+                } finally {
+                    database.endTransaction()
+                }
+                // 把删除从 WAL 收回到主库：Phase 3 只复制 database.sqlite 一个文件。
+                // **checkpoint 失败必须失败**：忽略它会让主文件仍带旧派生行，而 `-wal`
+                // 随后被删掉——"恒裁"静默失效，恢复进来的库又带着一份可能过期的索引。
+                database.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).use { cursor ->
+                    if (cursor.moveToFirst() && cursor.getInt(0) != 0) {
+                        error("wal_checkpoint 未完成，派生索引删除未落回主文件")
+                    }
+                }
+            }
+        } catch (failure: Exception) {
+            throw BackupRestoreException(
+                "清除派生搜索索引失败，恢复被拒绝：${failure.message.orEmpty()}",
+                failure,
+            )
+        } finally {
+            listOf(File("$path-wal"), File("$path-shm")).forEach { sidecar -> sidecar.delete() }
+        }
+        return subjects
+    }
+
+    /** 给定的表名里，实际存在于 [database] 的那些（旧 schema 的包没有派生表/知识点表）。 */
+    private fun existingTables(
+        database: SQLiteDatabase,
+        candidates: List<String>,
+    ): Set<String> {
+        if (candidates.isEmpty()) return emptySet()
+        val placeholders = candidates.joinToString(",") { "?" }
+        val found = mutableSetOf<String>()
+        database.rawQuery(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ($placeholders)",
+            candidates.toTypedArray(),
+        ).use { cursor ->
+            while (cursor.moveToNext()) {
+                found += cursor.getString(0)
+            }
+        }
+        return found
     }
 
     /**

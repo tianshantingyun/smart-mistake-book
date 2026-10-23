@@ -303,6 +303,40 @@ class DocxMistakeRendererTest {
         assertFalse("fail-closed 时不许写出半份文档", output.exists())
     }
 
+    /**
+     * KD-55 长度变化：文件比记录长/短都必须整份失败。这里让 sha 与**实际文件**一致、
+     * 只让长度与记录不符，确保拒绝来自长度复核本身（sha 与长度是同一条资产记录的两种表述），
+     * 并且不留下半份文档。
+     */
+    @Test
+    fun `a clean image whose length no longer matches its record fails the render`() {
+        val png = pngBytes(width = 4, height = 2)
+        val variants = listOf(
+            "grown" to png + byteArrayOf(0x00),
+            "truncated" to png.copyOf(png.size - 1),
+        )
+
+        variants.forEach { (name, actual) ->
+            val imageFile = temporaryFolder.newFile("$name.png").apply { writeBytes(actual) }
+            val output = File(temporaryFolder.root, "$name.docx")
+
+            val failure = assertThrows(MistakePdfExportException::class.java) {
+                DocxMistakeRenderer.render(
+                    input(
+                        blocks = listOf(paragraph("题干")),
+                        cleanImageLocalUri = imageFile.toURI().toString(),
+                        cleanImageSha256 = sha256Hex(actual),
+                        cleanImageByteSize = png.size.toLong(),
+                    ),
+                    output,
+                )
+            }
+
+            assertEquals(MistakePdfExportFailure.GENERATED_PDF_INVALID, failure.failure)
+            assertFalse("fail-closed 时不许写出半份文档", output.exists())
+        }
+    }
+
     /** KD-55：批量 Image 块同样按自己的记录复核（长度相同、字节不同 → 整份失败）。 */
     @Test
     fun `a batch image block is verified against its record before embedding`() {

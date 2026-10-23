@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
+import androidx.compose.foundation.layout.heightIn
+import android.net.Uri
 import android.view.WindowManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,16 +22,17 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
+import androidx.compose.material3.Checkbox
+import com.tingyun.smartmistakebook.core.ui.ClaudeFilterChip as FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -59,7 +63,13 @@ import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationUpdate
 import com.tingyun.smartmistakebook.core.data.backup.BackupRestoreDatabaseClosedException
 import com.tingyun.smartmistakebook.core.domain.BackupActivity
+import com.tingyun.smartmistakebook.core.domain.BackupContentCategory
+import com.tingyun.smartmistakebook.core.domain.BackupManifestSummary
+import com.tingyun.smartmistakebook.core.domain.BackupOptions
+import com.tingyun.smartmistakebook.core.domain.BackupReceipt
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
+import com.tingyun.smartmistakebook.core.domain.BackupSelection
+import com.tingyun.smartmistakebook.core.domain.BackupSelectionSummary
 import com.tingyun.smartmistakebook.core.domain.BackupValidation
 import com.tingyun.smartmistakebook.core.domain.RestoreSettingsOutcome
 import com.tingyun.smartmistakebook.core.domain.StorageInventory
@@ -68,7 +78,6 @@ import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
 import com.tingyun.smartmistakebook.core.model.AppCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.CalibrationReport
 import com.tingyun.smartmistakebook.core.model.NetworkMode
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
@@ -77,6 +86,7 @@ import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import java.io.OutputStream
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -85,18 +95,7 @@ import kotlinx.coroutines.withContext
 
 @Composable
 internal fun SecondaryHeader(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回")
-        }
-        Spacer(Modifier.width(4.dp))
-        Text(text = title, style = MaterialTheme.typography.headlineSmall, color = Ink)
-    }
+    com.tingyun.smartmistakebook.core.ui.ClaudePageHeader(title, onBack = onBack)
 }
 
 @Composable
@@ -186,27 +185,16 @@ internal fun CapabilityScreen(
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodyMedium,
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("capability_protocol_group"),
-            ) {
-                ModelProviderProtocol.entries.forEach { candidate ->
-                    FilterChip(
-                        selected = protocol == candidate,
-                        onClick = {
-                            protocol = candidate
-                            operationMessage = null
-                        },
-                        label = { Text(candidate.displayLabel()) },
-                        enabled = formEnabled,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 6.dp)
-                            .testTag("capability_protocol_${candidate.name}"),
-                    )
-                }
-            }
+            com.tingyun.smartmistakebook.core.ui.ClaudeSegmentedControl(
+                segments = ModelProviderProtocol.entries.map { candidate ->
+                    com.tingyun.smartmistakebook.core.ui.ClaudeSegment(candidate.name,
+                        candidate.displayLabel(), "capability_protocol_${candidate.name}")
+                },
+                selectedId = protocol.name,
+                onSelect = { selected -> protocol = ModelProviderProtocol.valueOf(selected); operationMessage = null },
+                enabled = formEnabled,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp).testTag("capability_protocol_group"),
+            )
             OutlinedTextField(
                 value = provider,
                 onValueChange = {
@@ -625,7 +613,12 @@ internal fun DataPrivacyScreen(
 internal fun StorageScreen(
     onBack: () -> Unit,
     backupRepository: BackupRepository,
-    onDatabaseClosed: (String) -> Unit,
+    /**
+     * [replaceExisting] 为真表示这条消息来自**恢复成功的回执**（含包声明的 selection 与
+     * 设置结果），比仓库在关库前发布的那条进度/计数消息更完整，必须覆盖它；失败/删除路径
+     * 仍以仓库先发布的那条原因为准（`replaceExisting=false`）。
+     */
+    onDatabaseClosed: (String, Boolean) -> Unit,
 ) {
     val context = LocalContext.current
     val operations: StorageOperationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
@@ -636,6 +629,14 @@ internal fun StorageScreen(
     var operationMessage by operations::message
     var operationBusy by operations::busy
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    // 6C-2：点「创建」那一刻的内容选择。系统文件选择器返回前面板仍可能重组，
+    // 因此把选择冻结在这里再交给 create，而不是在回调里重新读界面状态。
+    var pendingSelectionMask by rememberSaveable {
+        mutableStateOf(BackupContentCategory.FULL_MASK)
+    }
+    // 6C-2 恢复前置确认：先校验拿到包声明的 selection，再让用户确认"未包含的类别会被
+    // 清空"。确认前不调用 restore——通用按钮不能一按就替换整机数据。
+    var pendingRestore by remember { mutableStateOf<PendingRestore?>(null) }
 
     LaunchedEffect(backupRepository, inventoryRetry) {
         val result = runCatching { backupRepository.inspect() }
@@ -653,21 +654,61 @@ internal fun StorageScreen(
     // KD-54：备份快照阶段的显式状态（写入口按同一道门短暂排队）。
     val backupActivity by backupRepository.activity.collectAsState()
 
+    fun performRestore(uri: Uri) {
+        operationBusy = true
+        operationMessage = "正在校验并恢复备份…"
+        scope.launch {
+            try {
+                val receipt = withContext(Dispatchers.IO) {
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        backupRepository.restore(input)
+                    }
+                }
+                operationMessage = if (receipt != null) {
+                    storageRestoreCompletionMessage(
+                        problemCount = receipt.problemCount,
+                        assetCount = receipt.assetCount,
+                        settings = receipt.settings,
+                        restartRequired = receipt.restartRequired,
+                        selection = receipt.selection,
+                    )
+                } else {
+                    "无法读取所选备份。"
+                }
+                if (receipt?.restartRequired == true) {
+                    // 回执含 selection（未包含类别已清空），必须覆盖仓库发出的通用进度/计数文案。
+                    onDatabaseClosed(operationMessage.orEmpty(), true)
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                operationMessage = storageRestoreFailureMessage(failure)
+                if (failure is BackupRestoreDatabaseClosedException) {
+                    onDatabaseClosed(operationMessage.orEmpty(), false)
+                }
+            } finally {
+                operationBusy = false
+            }
+        }
+    }
+
     val createBackup = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         operationBusy = true
-        operationMessage = "正在创建完整备份…"
+        operationMessage = "正在创建备份…"
         scope.launch {
             try {
+                val selection = backupSelectionOfMask(pendingSelectionMask)
                 val receipt = withContext(Dispatchers.IO) {
                     context.contentResolver.openOutputStream(uri)?.use { output ->
-                        backupRepository.create(output)
+                        createBackupArchive(backupRepository, output, selection)
                     }
                 }
                 operationMessage = if (receipt != null) {
-                    "备份完成：${receipt.problemCount} 道题、${receipt.assetCount} 张题图。"
+                    "备份完成：${receipt.problemCount} 道题、${receipt.assetCount} 张题图。" +
+                        backupSelectionSentence(receipt.selectionMask)
                 } else {
                     "无法写入所选位置，备份未完成。"
                 }
@@ -696,7 +737,8 @@ internal fun StorageScreen(
                 }
                 operationMessage = when (validation) {
                     is BackupValidation.Valid ->
-                        "备份有效：${validation.checkedFileCount} 个文件全部通过校验。"
+                        "备份有效：${validation.checkedFileCount} 个文件全部通过校验。" +
+                            backupManifestSelectionSentence(validation.manifest)
                     is BackupValidation.Invalid -> "备份无效：${validation.reason}"
                     null -> "无法读取所选备份。"
                 }
@@ -715,34 +757,29 @@ internal fun StorageScreen(
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         operationBusy = true
-        operationMessage = "正在校验并恢复备份…"
+        operationMessage = "正在校验备份…"
         scope.launch {
             try {
-                val receipt = withContext(Dispatchers.IO) {
+                // 先校验：拿到 manifest 的 selection 后才能把「这份包只含…、未包含的类别
+                // 会被清空」说全。校验只读流，不碰本机数据；确认后再走 restore。
+                val validation = withContext(Dispatchers.IO) {
                     context.contentResolver.openInputStream(uri)?.use { input ->
-                        backupRepository.restore(input)
+                        backupRepository.validate(input)
                     }
                 }
-                operationMessage = if (receipt != null) {
-                    storageRestoreCompletionMessage(
-                        problemCount = receipt.problemCount,
-                        assetCount = receipt.assetCount,
-                        settings = receipt.settings,
-                        restartRequired = receipt.restartRequired,
-                    )
-                } else {
-                    "无法读取所选备份。"
-                }
-                if (receipt?.restartRequired == true) {
-                    onDatabaseClosed(operationMessage.orEmpty())
+                when (validation) {
+                    is BackupValidation.Valid -> {
+                        pendingRestore = PendingRestore(uri, validation.manifest)
+                        operationMessage = null
+                    }
+                    is BackupValidation.Invalid ->
+                        operationMessage = "备份无效，恢复未开始：${validation.reason}"
+                    null -> operationMessage = "无法读取所选备份。"
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                operationMessage = storageRestoreFailureMessage(failure)
-                if (failure is BackupRestoreDatabaseClosedException) {
-                    onDatabaseClosed(operationMessage.orEmpty())
-                }
+                operationMessage = "校验失败，文件可能已损坏，恢复未开始。${failure.message.orEmpty()}"
             } finally {
                 operationBusy = false
             }
@@ -754,7 +791,7 @@ internal fun StorageScreen(
             onDismissRequest = { confirmDelete = false },
             title = { Text("删除全部数据？") },
             text = {
-                Text("会删除本机数据库、题图、设置和临时文件，且不会自动备份。请先确认已创建完整备份。")
+                Text("会删除本机数据库、题图、设置和临时文件，且不会自动备份。请先确认已创建备份。")
             },
             confirmButton = {
                 TextButton(
@@ -771,13 +808,13 @@ internal fun StorageScreen(
                                     "已删除数据库 ${formatBytes(receipt.deletedDatabaseBytes)}、" +
                                         "题图 ${formatBytes(receipt.deletedAssetBytes)}、" +
                                         "设置和临时文件。请重新打开应用。"
-                                onDatabaseClosed(operationMessage.orEmpty())
+                                onDatabaseClosed(operationMessage.orEmpty(), false)
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
                             } catch (failure: Exception) {
                                 operationMessage =
                                     "删除未全部完成，请重启后重试。${failure.message.orEmpty()}"
-                                onDatabaseClosed(operationMessage.orEmpty())
+                                onDatabaseClosed(operationMessage.orEmpty(), false)
                             } finally {
                                 operationBusy = false
                             }
@@ -789,6 +826,34 @@ internal fun StorageScreen(
             },
             dismissButton = {
                 TextButton(onClick = { confirmDelete = false }) {
+                    Text("取消")
+                }
+            },
+        )
+    }
+
+    pendingRestore?.let { pending ->
+        AlertDialog(
+            onDismissRequest = { pendingRestore = null },
+            title = { Text("恢复这份备份？") },
+            text = {
+                Text(
+                    text = backupRestoreConfirmationText(pending.manifest),
+                    modifier = Modifier.testTag("storage_restore_selection_confirmation"),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingRestore = null
+                        performRestore(pending.uri)
+                    },
+                ) {
+                    Text("确认恢复")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingRestore = null }) {
                     Text("取消")
                 }
             },
@@ -808,7 +873,7 @@ internal fun StorageScreen(
                 else -> "正在读取本机占用…"
             },
             modifier = Modifier.padding(top = 10.dp),
-            color = if (inventoryFailed) ErrorWarm else InkSecondary,
+            color = if (inventoryFailed) ErrorText else InkSecondary,
             style = MaterialTheme.typography.bodyMedium,
         )
         if (inventoryFailed && current == null) {
@@ -820,9 +885,10 @@ internal fun StorageScreen(
             ) { Text("重试读取") }
         }
         PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("完整备份")
+        SectionHeader("备份内容")
         Text(
-            "备份包含学习数据库和规范题图，不包含 API Key、授权租约或临时文件。恢复会先校验，再分阶段替换；失败时回滚原数据。",
+            "下方勾选的内容会随包带走：学习数据和规范题图；不包含 API Key、授权租约或临时文件。" +
+                "恢复会先校验、再让确认包内类别，最后分阶段替换；失败时回滚原数据。",
             modifier = Modifier.padding(top = 10.dp),
             color = InkSecondary,
         )
@@ -835,14 +901,13 @@ internal fun StorageScreen(
                 color = InkSecondary,
             )
         }
-        PrimaryActionButton(
-            text = if (operationBusy) "正在处理…" else "创建完整备份",
-            onClick = { createBackup.launch("smart-mistake-book-${System.currentTimeMillis()}.smbk") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp)
-                .testTag("storage_create_backup"),
+        BackupContentSelectionSection(
             enabled = !operationBusy,
+            busy = operationBusy,
+            onCreateBackup = { selection ->
+                pendingSelectionMask = selection.mask
+                createBackup.launch("smart-mistake-book-${System.currentTimeMillis()}.smbk")
+            },
         )
         OutlinedButton(
             onClick = { validateBackup.launch(arrayOf("application/octet-stream", "application/zip")) },
@@ -945,17 +1010,226 @@ internal fun StorageScreen(
 }
 
 /**
+ * 6C-2 备份内容勾选面板：四个类别、依赖闭包与 0/8 的界面禁令。
+ *
+ * 消灭的失败：
+ * 1. 用户勾「错题本」却漏掉图片 → 包内题面引用缺失的资产，恢复后详情页无图。
+ *    勾选走 [BackupSelection.closed] 的同一份闭包（不在这里复制依赖表）。
+ * 2. 取消「会话」却留下依赖它的「掌握库」→ 未闭合组合被仓储拒绝（或要求静默补齐）。
+ *    取消一个类别时联动取消所有依赖它的已选类别。
+ * 3. 用户清空选择或只留图片 → mask 0（重置包）或 mask 8（恢复后被孤儿回收清空）。
+ *    勾选/取消只在结果 ∈ {9,13,15} 时生效；其余点击被忽略并把原因写在行下。
+ *
+ * 选择状态归面板所有：进入页面默认全选，离开页面丢弃（[rememberSaveable] 只跨重建）。
+ */
+@Composable
+internal fun BackupContentSelectionSection(
+    enabled: Boolean,
+    busy: Boolean,
+    onCreateBackup: (BackupSelection) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var selectedMask by rememberSaveable {
+        mutableStateOf(BackupContentCategory.FULL_MASK)
+    }
+    val selection = backupSelectionOfMask(selectedMask)
+
+    Column(modifier = modifier.testTag("backup_selection_section")) {
+        Text(
+            "选择这次要带走的内容。题图随错题本一起备份；掌握库依赖讲题会话。" +
+                "未勾选的类别不会随包带走，恢复时会按替换语义清空。",
+            modifier = Modifier.padding(top = 6.dp),
+            color = InkSecondary,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        for (category in BackupContentCategory.ALL) {
+            val checked = category in selection.categories
+            // 只有「取消后仍是允许组合」的类别可点；0/8 因此永远不可达。
+            val removable = checked &&
+                toggleBackupCategory(selection, category, checked = false) != selection
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = { next ->
+                        selectedMask = toggleBackupCategory(selection, category, next).mask
+                    },
+                    enabled = enabled && (!checked || removable),
+                    modifier = Modifier.testTag("backup_category_${category.name}"),
+                )
+                Spacer(Modifier.width(8.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        backupCategoryLabel(category),
+                        color = Ink,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        backupCategoryDescription(category),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    if (checked && !removable) {
+                        Text(
+                            backupCategoryLockReason(category),
+                            modifier = Modifier.testTag("backup_category_lock_${category.name}"),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+            }
+        }
+        Text(
+            backupSelectionSummaryText(selection),
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .testTag("backup_selection_summary"),
+            color = InkSecondary,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        PrimaryActionButton(
+            text = if (busy) "正在处理…" else "创建备份",
+            onClick = { onCreateBackup(selection) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+                .testTag("storage_create_backup"),
+            enabled = enabled,
+        )
+    }
+}
+
+/** mask → 选择。只认四个已知位；界面永远从允许组合生成，不做补齐。 */
+internal fun backupSelectionOfMask(mask: Int): BackupSelection =
+    BackupSelection.of(
+        BackupContentCategory.ALL
+            .filter { category -> mask and category.bit != 0 }
+            .toSet(),
+    )
+
+/** 成包调用点：选择必须先过域闸门，再交给仓储（0/8 与未闭合组合不会到达仓储）。 */
+internal suspend fun createBackupArchive(
+    repository: BackupRepository,
+    output: OutputStream,
+    selection: BackupSelection,
+): BackupReceipt {
+    selection.requireCreatable()
+    return repository.create(output, BackupOptions(selection = selection))
+}
+
+/**
+ * 勾选传播（唯一入口）：勾选补全依赖闭包；取消联动取消依赖它的类别。
+ *
+ * 结果不是 {9,13,15} 时原样返回（点击无效）——0/8 与未闭合组合不可达，
+ * 也不静默补齐或缩水。闭包计算复用 [BackupSelection.closed]，不复制依赖表。
+ */
+internal fun toggleBackupCategory(
+    selection: BackupSelection,
+    category: BackupContentCategory,
+    checked: Boolean,
+): BackupSelection {
+    val current = selection.categories
+    if (checked) {
+        if (category in current) return selection
+        val candidate = BackupSelection.of(current + category).closed()
+        return if (candidate.mask in BackupSelection.ALLOWED_MASKS) candidate else selection
+    }
+    if (category !in current) return selection
+    val remaining = current
+        .filter { selected ->
+            selected != category &&
+                category !in BackupSelection.of(setOf(selected)).closed().categories
+        }
+        .toSet()
+    val candidate = BackupSelection.of(remaining)
+    return if (candidate.mask in BackupSelection.ALLOWED_MASKS) candidate else selection
+}
+
+internal fun backupCategoryLabel(category: BackupContentCategory): String = when (category) {
+    BackupContentCategory.ISSUE_BOOK -> "错题本"
+    BackupContentCategory.MASTERY -> "掌握库"
+    BackupContentCategory.SESSIONS -> "会话"
+    BackupContentCategory.IMAGES -> "图片"
+}
+
+private fun backupCategoryDescription(category: BackupContentCategory): String = when (category) {
+    BackupContentCategory.ISSUE_BOOK -> "题目、题面修订、练习单元、草稿、标签与关系。"
+    BackupContentCategory.MASTERY -> "学习证据、复习计划与队列、预测与教学建议。"
+    BackupContentCategory.SESSIONS -> "讲题会话、消息与消息附图。"
+    BackupContentCategory.IMAGES -> "规范题图与图片字节；随错题本一起备份。"
+}
+
+private fun backupCategoryLockReason(category: BackupContentCategory): String = when (category) {
+    BackupContentCategory.ISSUE_BOOK -> "错题本和题图是备份的基础，至少保留。"
+    BackupContentCategory.IMAGES -> "题图随错题本一起备份，不能单独取消。"
+    BackupContentCategory.SESSIONS -> "有已选类别依赖讲题会话，不能单独取消。"
+    BackupContentCategory.MASTERY -> "有已选类别依赖掌握库，不能单独取消。"
+}
+
+internal fun backupCategoriesLabel(categories: Iterable<BackupContentCategory>): String =
+    categories.sortedBy { it.ordinal }.joinToString("、") { backupCategoryLabel(it) }
+
+internal fun backupSelectionSummaryText(selection: BackupSelection): String {
+    val label = "将备份：${backupCategoriesLabel(selection.categories)}。"
+    return if (selection.isFull) {
+        label
+    } else {
+        label + "未勾选的类别不会随包带走，恢复时会被清空。"
+    }
+}
+
+/** 成包回执里的内容选择（来自仓储如实回报的 mask）。 */
+internal fun backupSelectionSentence(mask: Int): String =
+    "备份内容：${backupCategoriesLabel(backupSelectionOfMask(mask).categories)}。"
+
+/**
+ * 包声明的选择的一句话（校验成功提示、恢复前确认共用）。
+ *
+ * v1/v2（selection=null）按全量说明；子集必须点名**未包含的类别**并说明恢复的替换语义
+ * 会把它们清空——这正是设计 §3.3 要求恢复前说全的那句话。
+ */
+internal fun backupManifestSelectionSentence(manifest: BackupManifestSummary): String {
+    val selection = manifest.selection
+        ?: return "备份内容：全部（旧版备份按全量恢复）。"
+    val label = "备份内容：${backupCategoriesLabel(selection.categories)}。"
+    if (selection.isFull) return label
+    val missing = BackupContentCategory.ALL - selection.categories
+    return label + "未包含的类别（${backupCategoriesLabel(missing)}）恢复时会被清空。"
+}
+
+/** 恢复前确认框正文：包内容 + 替换语义 + "当前数据不会自动备份"。 */
+internal fun backupRestoreConfirmationText(manifest: BackupManifestSummary): String =
+    backupManifestSelectionSentence(manifest) +
+        "恢复会替换当前全部数据；当前数据不会自动备份。"
+
+/** 已通过校验、等待用户确认的恢复目标。 */
+private data class PendingRestore(
+    val uri: Uri,
+    val manifest: BackupManifestSummary,
+)
+
+/**
  * 恢复完成后的面向用户文案（KD-47）。
  *
  * 消灭的失败：`WRITE_FAILED` 旧文案说“本机设置保持原样”，但恢复设置是**多个键的顺序写**
  * （选项、考试、优化参数、开关、提醒时间），非原子——中途失败时前面已成功的键会保留，
  * 本机设置可能半新半旧。文案只能如实说“未能完整写入、可能有部分设置已变”。
+ *
+ * 6C-2：回执必须说明这份包带了哪些类别；`null` 是 v1/v2 旧包，按全量理解。
+ * 恢复成功时这条文案会以 `replaceExisting=true` 交给重启页，覆盖仓库在关库前发布的
+ * 通用进度/计数消息——用户最终看到的重启说明必须包含 selection。
  */
 internal fun storageRestoreCompletionMessage(
     problemCount: Int,
     assetCount: Int,
     settings: RestoreSettingsOutcome,
     restartRequired: Boolean,
+    selection: BackupSelectionSummary? = null,
 ): String {
     val settingsNote = if (settings == RestoreSettingsOutcome.WRITE_FAILED) {
         "设置未能完整写入，可能有部分设置已变。"
@@ -967,7 +1241,14 @@ internal fun storageRestoreCompletionMessage(
     } else {
         ""
     }
-    return "恢复完成：$problemCount 道题、$assetCount 张题图。$settingsNote$restartNote"
+    val selectionNote = if (selection == null) {
+        "备份内容：全部（旧版备份按全量恢复）。"
+    } else {
+        // 恢复是替换语义：没勾的类别已被清空，回执必须如实说明（T1 RestoreReceipt.selection）。
+        val replacedNote = if (selection.isFull) "" else "未包含的类别已按替换语义清空。"
+        "备份内容：${backupCategoriesLabel(selection.categories)}。$replacedNote"
+    }
+    return "恢复完成：$problemCount 道题、$assetCount 张题图。$selectionNote$settingsNote$restartNote"
 }
 
 internal fun storageRestoreFailureMessage(failure: Exception): String =

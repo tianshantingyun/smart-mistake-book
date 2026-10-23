@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook
 
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.layout.Row
+
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -8,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -79,7 +83,6 @@ import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
-import com.tingyun.smartmistakebook.core.ui.SmartDimens
 import com.tingyun.smartmistakebook.feature.capture.CaptureScreen
 import com.tingyun.smartmistakebook.feature.capture.CaptureShareIntakeRoute
 import com.tingyun.smartmistakebook.feature.capture.CaptureShareRequest
@@ -419,7 +422,8 @@ internal fun SmartMistakeBookRoot(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(bottom = innerPadding.calculateBottomPadding()),
+                    .padding(bottom = innerPadding.calculateBottomPadding())
+                    .consumeWindowInsets(innerPadding),
             ) {
             composable(Routes.Review) { entry ->
                 val destinationLifecycle by entry.lifecycle.currentStateFlow
@@ -1349,12 +1353,13 @@ internal fun SmartMistakeBookRoot(
                 StorageScreen(
                     onBack = navController::popBackStack,
                     backupRepository = application.backupRepository,
-                    // 恢复仓库在关库前/返回前已经发布过准确的重启原因（含“设置未能完整
-                    // 写入、可能有部分设置已变”）。存储页传回的 operationMessage 可能更旧
-                    // 或更绝对（例如“本机设置保持原样”），不能覆盖仓库的最终通知；
-                    // 只有仓库还没发布原因时（例如异常路径之外）才用它兜底。
-                    onDatabaseClosed = { message ->
-                        if (application.databaseRestartReason.value == null) {
+                    // 恢复仓库在关库前/返回前已经发布过准确的重启原因。恢复成功后，存储页
+                    // 用回执（含 manifest 的 selection 与设置结果）拼出的文案**更完整**，
+                    // 必须覆盖仓库那条只带题数/题图的进度消息（replaceExisting=true）；
+                    // 失败/删除路径仍以仓库先发布的原因优先（replaceExisting=false），
+                    // 避免较旧或更绝对的 UI 文案覆盖它。
+                    onDatabaseClosed = { message, replaceExisting ->
+                        if (replaceExisting || application.databaseRestartReason.value == null) {
                             application.requireDatabaseRestart(message)
                         }
                     },
@@ -1405,7 +1410,7 @@ internal fun ReviewSessionGateMessage(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 26.dp, vertical = 24.dp),
+            .padding(horizontal = 16.dp, vertical = 24.dp),
     ) {
         Text(
             text = message,
@@ -1445,7 +1450,7 @@ private fun StudyDataStatusLine(status: StudyDataStatus) {
         modifier = Modifier
             .fillMaxWidth()
             .background(if (status == StudyDataStatus.ERROR) JadeSoft else Paper)
-            .padding(horizontal = 26.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         color = if (status == StudyDataStatus.ERROR) InkSecondary else JadeActive,
         fontSize = 13.sp,
         fontWeight = FontWeight.Medium,
@@ -1460,47 +1465,24 @@ private fun SmartBottomBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(SmartDimens.BottomBarHeight)
             .background(Paper),
     ) {
         PaperDivider()
-        NavigationBar(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .navigationBarsPadding(),
-            containerColor = Paper,
-            tonalElevation = 0.dp,
-            windowInsets = WindowInsets(0),
+                .navigationBarsPadding()
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .then(Modifier.selectableGroup()),
         ) {
             rootDestinations.forEach { destination ->
                 val selected = selectedRoute == destination.route
-                NavigationBarItem(
+                com.tingyun.smartmistakebook.core.ui.ClaudeNavigationItem(
                     selected = selected,
                     onClick = { onSelect(destination) },
-                    icon = {
-                        Icon(
-                            imageVector = destination.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(27.dp),
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = destination.label,
-                            fontSize = 13.sp,
-                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                        )
-                    },
-                    modifier = Modifier.testTag(destination.testTag),
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = JadeActive,
-                        selectedTextColor = JadeActive,
-                        indicatorColor = JadeSoft,
-                        unselectedIconColor = InkSecondary,
-                        unselectedTextColor = InkSecondary,
-                    ),
-                    alwaysShowLabel = true,
+                    icon = destination.icon,
+                    label = destination.label,
+                    modifier = Modifier.weight(1f).testTag(destination.testTag),
                 )
             }
         }

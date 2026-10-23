@@ -1,11 +1,14 @@
 package com.tingyun.smartmistakebook.core.export
 
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.InputStream
 import java.security.MessageDigest
 import java.util.zip.CRC32
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -121,6 +124,49 @@ class DocxImageSourceTest {
             DocxImageSource.read(
                 localUri = file.toURI().toString(),
                 expectedSha256 = sha256Hex(original),
+            ),
+        )
+    }
+
+    /**
+     * KD-55 有界读取：`File.length()` 预检与真正读入之间文件可能被换成更大的文件。
+     * 读入必须以记录长度为上界——读满记录长度后只多探一个字节，绝不把增长的部分整份读进内存、
+     * 再靠读后比较长度来"兜底"。
+     */
+    @Test
+    fun `a file that grows after the length check is never read past the recorded bound`() {
+        val recorded = pngBytes(width = 4, height = 2)
+        val grown = recorded + ByteArray(64 * 1024) { 0x41 }
+        val delegate = ByteArrayInputStream(grown)
+        var pulled = 0
+        val bounded = object : InputStream() {
+            override fun read(): Int {
+                if (pulled > recorded.size) {
+                    throw AssertionError("读取越过记录长度 + 1：有界读取失效")
+                }
+                val value = delegate.read()
+                if (value >= 0) pulled += 1
+                return value
+            }
+        }
+
+        assertNull(DocxImageSource.readBounded(bounded, recorded.size))
+        assertTrue(
+            "最多只能读到记录长度 + 1 字节（实际 $pulled）",
+            pulled <= recorded.size + 1,
+        )
+    }
+
+    /** KD-55 长度变化：文件在预检与读入之间变短时，不返回一份长度不足的"图片"。 */
+    @Test
+    fun `a file that shrinks after the length check is rejected instead of returning short bytes`() {
+        val recorded = pngBytes(width = 4, height = 2)
+        val truncated = recorded.copyOf(recorded.size - 1)
+
+        assertNull(
+            DocxImageSource.readBounded(
+                ByteArrayInputStream(truncated),
+                recorded.size,
             ),
         )
     }
