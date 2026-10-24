@@ -121,6 +121,45 @@ class BackupRestoreInstrumentedTest {
         }
     }
 
+    /**
+     * 批次 19 T2-3：全清数据必须连「待重建」标记一起删。
+     *
+     * 消灭的失败：恢复会留下 `restore-index-rebuild-pending.json`（Phase 7b），而
+     * `deleteAllData` 只清 journal 与隔离件——用户"恢复 → 立刻反悔 → 删除全部数据"后，
+     * 标记指向的科目已经随库一起没了，下次启动会把空库当"恢复后待重建"重跑（或对
+     * 不存在的科目反复失败重试），`RestoreIndexRebuildCoordinator` 永远消费不掉它。
+     */
+    @Test
+    fun deleteAllDataClearsThePendingRestoreIndexRebuildMarker() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        RestoreIndexRebuildMarker.clear(context)
+        try {
+            // 直接写一份"恢复刚完成"形态的标记：全清路径只关心文件存在与否。
+            RestoreIndexRebuildMarker.write(
+                context,
+                PendingRestoreIndexRebuild(
+                    restoreId = "delete-all-marker-test",
+                    createdAtEpochMillis = System.currentTimeMillis(),
+                    selectionMask = 9,
+                    subjects = listOf("MATH"),
+                ),
+            )
+            assertTrue("夹具必须先写下待重建标记", RestoreIndexRebuildMarker.exists(context))
+
+            val database = StudyDatabaseFactory.open(context)
+            AndroidBackupRepository(context, database).deleteAllData()
+
+            assertFalse(
+                "全清数据后不得残留待重建标记（库已被删，标记指向的科目不复存在）",
+                RestoreIndexRebuildMarker.exists(context),
+            )
+        } finally {
+            RestoreIndexRebuildMarker.clear(context)
+            context.deleteDatabase(StudyDatabaseFactory.DEFAULT_DATABASE_NAME)
+        }
+    }
+
     @Test
     fun backupDeleteAndRestoreRoundTripPreservesCatalog() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()

@@ -108,6 +108,18 @@ class AndroidBackupRepository(
      * 测试传 0。
      */
     private val observerQuiesceMillis: Long = 750L,
+    /**
+     * KD-61：恢复/清库在排空**接门**写者（`beginCommit`）之后、进入观察者宽限与
+     * 关库之前调用一次——生产装配用它**取消并等待进程内应用级 collector**
+     * （启动对账/续跑/安装等；多数未接写门，且位于本批不可改的热区文件），使它们
+     * 既不在关库瞬间带着在途 SQL，也不在关库后落进已关闭连接池（code 21）。
+     *
+     * 契约：钩子必须自带时限（恢复不能被一个挂死的 collector 无限拖住），超时未排空
+     * 也要返回（残余如实归 KD-61 登记）。钩子抛异常会中止本次恢复/清库——此时连接池
+     * **尚未关闭**（finally 里的 `endRestore` 重新放行写者），是安全的失败点。
+     * null（默认）= 无 quiesce，行为与本钩子加入前逐位相同。
+     */
+    private val backgroundQuiesce: (suspend () -> Unit)? = null,
 ) : BackupRepository {
     override val activity: StateFlow<BackupActivity> = writeGate.activity
 
@@ -547,6 +559,21 @@ class AndroidBackupRepository(
             // 是兜底，但正常路径由「重启后按科后台重建」接管（见 RestoreIndexRebuildCoordinator）。
             restoredKnowledgeSubjects = resetDerivedSearchIndex(stagingDb)
 
+            // Phase 2c.3（批次 19 T2-4，设计 §3.2-S3 / §9.4.3）：恢复侧软引用重查。
+            // 仍在 Phase 3 之前——失败走「尚未 swap，直接清临时件」分支，原数据不动。
+            // 只重查结构上可重算的口径（split 表 kind 级谎报 + §9.5 figure 行规则）；
+            // no-new-dangling 的 15 条在恢复侧无法判定 D_pre，按 §9.4.3 不做拒绝。
+            val softReferenceProblems = RestoreSoftReferenceRecheck.recheck(
+                stagedDatabaseFile = stagingDb,
+                mask = valid.manifest.selection?.mask,
+            )
+            if (softReferenceProblems.isNotEmpty()) {
+                throw BackupRestoreException(
+                    "备份内容选择的软引用与包内数据不一致" +
+                        "（${softReferenceProblems.take(3).joinToString("；")}），恢复被拒绝",
+                )
+            }
+
             // Phase 2d: 设置载荷读进内存（6C-1）。兼容性闸门在编解码层（Phase 1 的 unpack
             // 已经按版本/值域拒过），这里只是把载荷映射成领域对象；映射不可能失败，但若
             // 真失败也必须发生在**交换前**——交换后才失败就是"数据库已切换、设置没进来"。
@@ -615,6 +642,10 @@ class AndroidBackupRepository(
             withContext(kotlinx.coroutines.NonCancellable) {
                 restartNotifier("正在完成备份恢复，请先不要操作…")
                 restartNotified = true
+                // KD-61：先做硬性 quiesce（取消并等应用级 collector 收尾），再给 Compose
+                // 观察者宽限。顺序不能反：collector 的最后一笔在途 SQL 必须在 close() 前
+                // 归还连接，否则就是"关库瞬间仍在执行语句"的原生竞态。
+                backgroundQuiesce?.invoke()
                 // Bounded grace for Compose to dispose database observers. This is
                 // not a correctness guarantee; the gate terminal below is.
                 if (observerQuiesceMillis > 0L) delay(observerQuiesceMillis)
@@ -919,6 +950,9 @@ class AndroidBackupRepository(
             withContext(kotlinx.coroutines.NonCancellable) {
                 restartNotifier("正在删除全部数据，请先不要操作…")
                 restartNotified = true
+                // KD-61：与恢复同一道关库前 quiesce——清库同样关闭连接池，应用级
+                // collector 的在途写同样不能撞上它。
+                backgroundQuiesce?.invoke()
                 if (observerQuiesceMillis > 0L) delay(observerQuiesceMillis)
                 writeGate.markDatabaseClosedForRestart()
                 database.close()
@@ -994,9 +1028,13 @@ class AndroidBackupRepository(
         }
 
         // 10. Delete restore journals and quarantined restore artifacts.
+        // 批次 19 T2-3：连带清「待重建」标记——全清数据后库是空的，标记若残留，
+        // 下次启动会把空库当"恢复后待重建"重跑一遍（或永久空转在失败重试上）。
         context.noBackupFilesDir.listFiles().orEmpty()
             .filter {
-                it.name.startsWith("restore-journal-") || it.name == "restore-quarantine"
+                it.name.startsWith("restore-journal-") ||
+                    it.name == "restore-quarantine" ||
+                    it.name == RestoreIndexRebuildMarker.FILE_NAME
             }
             .forEach { it.deleteRecursively() }
     }
@@ -1798,6 +1836,12 @@ object BackupRepositoryFactory {
         reviewReminders: ReviewReminderRepository? = null,
         writeGate: BackupWriteGate = BackupWriteGate.shared,
         onRestartRequired: (String) -> Unit = {},
+        /**
+         * KD-61：关库前的硬性 quiesce（取消并等应用级 collector）。生产装配传
+         * `SmartMistakeBookApplication` 的实现（取消 applicationScope 并限时 join 其
+         * 子协程）；不传（测试装配）时无 quiesce，行为与加入前逐位相同。
+         */
+        backgroundQuiesce: (suspend () -> Unit)? = null,
     ): BackupRepository = AndroidBackupRepository(
         context = context,
         database = database,
@@ -1805,5 +1849,6 @@ object BackupRepositoryFactory {
         reviewReminders = reviewReminders,
         writeGate = writeGate,
         restartNotifier = onRestartRequired,
+        backgroundQuiesce = backgroundQuiesce,
     )
 }

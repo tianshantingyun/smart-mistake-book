@@ -466,6 +466,11 @@ internal object SmbkArchiveCodec {
             val extra = (selection.rowCounts.keys - SmbkSelectionPlan.rowCountKeys).sorted()
             "备份内容选择的 rowCounts 必须覆盖 86 表：missing=$missing extra=$extra"
         }
+        // 批次 19 T2-1：与读侧（readableSelection）同规同文案——读侧拒负数的包，
+        // 写侧不能自己产出来。
+        require(selection.rowCounts.values.all { count -> count >= 0L }) {
+            "备份内容选择的 rowCounts 含负数"
+        }
         require(selection.trimmedTableCount in 0..SmbkSelectionPlan.trimOrder.size) {
             "备份内容选择 trimmedTableCount=${selection.trimmedTableCount} 越界 " +
                 "(0..${SmbkSelectionPlan.trimOrder.size})"
@@ -1221,7 +1226,13 @@ internal object SmbkArchiveCodec {
             )
         }
         return SelectionRead.Valid(
-            BackupSelectionSummary(mask = record.categoryMask, categories = fromMask),
+            // assetPolicy = manifest 声明值（批次 19 T2-2）：能走到这里的一定已过
+            // 「只读 INCLUDED」的闸门；照抄声明值而不是写死常量，让摘要与清单同源。
+            BackupSelectionSummary(
+                mask = record.categoryMask,
+                categories = fromMask,
+                assetPolicy = record.assetPolicy,
+            ),
         )
     }
 

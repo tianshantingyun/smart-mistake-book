@@ -520,7 +520,9 @@ digest = SHA-256(  "smbk-selection-v1\n"
 
 ### 6.1 待裁定（3 条需要人裁；其余为实施时自决并登记）
 
-> 2026-10-21 T8：①/②/③ 三项仍未裁定；§9.9 只列影响面，不代签，也不选默认。
+> 2026-10-21 T8 时点 ①/②/③ 三项仍未裁定；**2026-10-23 用户裁定**（批次 18 计划 `:9-13`，转录于
+> `docs/research/2026-10-23-batch-18-6c2-record.md` §1.2）：①=a 不提供、②=a 禁止、③=a+c 恒裁+恢复后
+> 按科后台重建，已实施（§9.9/§9.11）。下表 ①②③ 的「建议」列与裁定一致；④–⑧ 仍未决。
 
 | # | 项 | 选项 | 影响 | 建议 |
 | --- | --- | --- | --- | --- |
@@ -553,14 +555,16 @@ digest = SHA-256(  "smbk-selection-v1\n"
 
 > 2026-10-21 T8：本节 5 个复选项仍未勾；schema 69 的机器清单重算与用例展开见 §9。
 > 其中 JS/预览/未知程序版本仍为前向设计（schema 69 没有对应表），不得写成已覆盖。
+> 2026-10-24 回写（批次 18 实施后）：第 1、5 项已按证据勾选；第 2–4 项保持未勾，逐条注记
+> 实际执行状态；三项产品裁定已由用户裁出并实施（§9.9）。
 
 本节承接[4E的WG-08](../superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md#wg-08状态预算恢复与备份)与[后续计划](../../.zcode/plans/plan-2026-10-18-followup-figure-wiring.md)。旧schema66的84表/90边/5组合法选择是原探针快照，不代表加入新图表后仍成立；本次不把尚未迁移的表写进附录A机器JSON，也不声称已重跑Android恢复。
 
-- [ ] 实际4E迁移落地后，从最新Room导出重新生成类别/FK/软引用/裁剪顺序及closureVersion/digest，覆盖六个拟新增记录表与旧作业operation关联，不写死版本68或旧84表数量。
-- [ ] 题目/消息引用作为保留根计算JS程序、快照、必要预览及canonical图像的可达闭包；同一程序被保留题目和被删除会话共用时仍须保留，不能按整表类别删除。共享operation/attempt按存活宿主与引用分行筛选，扩展现有SPLIT机制，不全部归SESSIONS或IMAGES。
-- [ ] 程序和快照作为持久事实、预览/字体版本与图像字节按实际引用进入清单；不可把JS预览当唯一图事实。必要文件缺失/hash不符在交换前拒绝，未固定派生缓存按既有可重建规则处理。
-- [ ] 增加混合JS/IMAGE_MODEL、共享图双根、删除会话保留题、不同selection、未知程序版本、缺预览、源revision改变的成包/恢复用例；历史查看/导出0模型派发，恢复ledger不归零，不复活外发授权。
-- [ ] 本设计沿用快照库裁剪、不动实时库；其基于VACUUM的路线需先解决KD-53大库上限与KD-54快照写饥饿并设备复验。不能用内容勾选扩展绕过已有备份正确性问题，也不在本节替未决产品选项代签。
+- [x] 实际4E迁移落地后，从最新Room导出重新生成类别/FK/软引用/裁剪顺序及closureVersion/digest，覆盖六个拟新增记录表与旧作业operation关联，不写死版本68或旧84表数量。（2026-10-23 批次 18 已实施：`SmbkSelectionPlan.kt` 从 `69.json` 重新生成——86 表 / 2 视图 / 92 FK、trimOrder 78、软引用 20、`closureVersion=2`、digest 前缀 `smbk-selection-v2`、空库全选 golden `d6ec73ac…dad6`；`SmbkSelectionPlanTest` 11 例 JVM 0 失败，且含「与 §9.11 机器块逐字段同源」断言；设备复验见批次 18 记录 §8。实际落地 schema 69 新增 **2** 张表（`figure_generation_operation` / `figure_generation_attempt`），非拟议的 6 张——JS 程序/快照表在 69 不存在。）
+- [ ] 题目/消息引用作为保留根计算JS程序、快照、必要预览及canonical图像的可达闭包；同一程序被保留题目和被删除会话共用时仍须保留，不能按整表类别删除。共享operation/attempt按存活宿主与引用分行筛选，扩展现有SPLIT机制，不全部归SESSIONS或IMAGES。（2026-10-24 注：figure 侧已实施——§9.5 行级规则落地于 `BackupSnapshotTrimmer`（`smbk_kept_operation`/`smbk_kept_attempt` 预扫 + 五站点资产钉住），裁剪器 mask=9 设备用例验证共享图双根保留（§9.8-C2）；JS 程序/快照/预览在 schema 69 无对应表，仍是前向设计。）
+- [ ] 程序和快照作为持久事实、预览/字体版本与图像字节按实际引用进入清单；不可把JS预览当唯一图事实。必要文件缺失/hash不符在交换前拒绝，未固定派生缓存按既有可重建规则处理。（2026-10-24 注：canonical 图像字节的「缺失/hash 不符交换前拒绝」已实施并有用例（§9.8-C6）；JS 程序/快照/预览的清单化未实施——schema 69 无表。）
+- [ ] 增加混合JS/IMAGE_MODEL、共享图双根、删除会话保留题、不同selection、未知程序版本、缺预览、源revision改变的成包/恢复用例；历史查看/导出0模型派发，恢复ledger不归零，不复活外发授权。（2026-10-24 注：执行状态逐条见 §9.8——C2、C4、C5a/C5d 与 C6 的 canonical 资产部分已执行并通过；C1（JS 混排）、C3（删会话产品路径）、C5c、C7 未执行。）
+- [x] 本设计沿用快照库裁剪、不动实时库；其基于VACUUM的路线需先解决KD-53大库上限与KD-54快照写饥饿并设备复验。不能用内容勾选扩展绕过已有备份正确性问题，也不在本节替未决产品选项代签。（2026-10-24 注：KD-53/KD-54 已于 2026-10-20 批次 15 收尾标 fixed（`docs/known-defects.md`，365MiB 设备实跑）；批次 18 的 365MiB 全选/子集+空间预检用例 1/1（901.6s）再次在设备复验裁剪+VACUUM 路线（批次 18 记录 §8.2）；写门覆盖残余另列 KD-61/62（low，open）。三项产品选项已由用户裁定（§9.9），本节未代签。）
 
 ## 附录 A · 类别 → 表（机器可读，唯一数据源）
 
@@ -1005,7 +1009,15 @@ PRAGMA integrity_check;                                    -- 期望 'ok'
 
 ## 9. schema 69 机器清单重算（T8，2026-10-21）
 
-> 状态：**只写文档，未实现**。§7 的 5 个复选项仍未勾；本文不声称 6C-2 已落地、已通过门禁或已在设备上验证。
+> 状态（2026-10-24 回写）：**已实施——批次 18（2026-10-23/24）按本节落地**。机器清单落地为
+> `SmbkSelectionPlan.kt`（与 §9.11 机器块逐字段同源，`SmbkSelectionPlanTest` 11 例 JVM 0 失败）；裁剪器、
+> manifest v3（`FORMAT_VERSION=3`、`selection.schemaVersion=2`，`SmbkArchiveCodec.kt:92`/`:144`）、恢复交换前
+> 校验、派生索引恒裁+按科重建、设置页勾选 UI 同批交付。单测门/强门 exit=0 与设备复验（裁剪器 9 + 成包 3 +
+> 恢复选择域 8 + 恢复回归 33 = 53 例 OK、迁移 15/15、UI 11/11、365MiB 1/1）见
+> `docs/research/2026-10-23-batch-18-6c2-record.md` §8。实测数字：**86 表 / 2 视图 / 92 FK、trimOrder 78、
+> 软引用 20、closureVersion=2、空库全选 digest golden `d6ec73ac…dad6`**（`SmbkSelectionPlanTest.kt:595` 钉住）。
+> §9.1–§9.10 正文未逐句改写，保留 2026-10-21（T8）时点的历史记录——其中「当前 FORMAT_VERSION=2 /
+> v3 写侧未实现 / 三项待裁定」等时点性描述已被批次 18 覆盖；§9.9 与 §9.11 机器块已按裁定与实施回写。
 > 上游：计划 `.zcode/plans/plan-2026-10-21-batch-17-wg08-wg06-wg07.md:87-89`、批次 17 基线
 > `docs/research/2026-10-22-batch-17-baseline.md:151-156`、T1a 交付的 schema 69。
 > 本节取代附录 A 作为**当前**机器清单；附录 A 保留为 schema 66 的历史研究证据，实施不得再按它写代码。
@@ -1041,8 +1053,9 @@ PRAGMA integrity_check;                                    -- 期望 'ok'
    v1 选择包（§9.7）。
 8. §7 的七类用例已展开为 C1–C7，外加 C8 横切检查，全部标注“设计用例，未执行”。其中 JS、
    预览、未知程序版本因 schema 69 没有对应表，只能作为前向设计，不能声称已覆盖（§9.8）。
-9. 三项待用户裁定（mask=8 仅图片、mask=0 空选择、派生索引恒裁）**仍未裁定**；机器清单用
-   `OPEN` 标记，不选默认、不代签。§6.1 其余 5 项同样未决（§9.9）。
+9. 三项待用户裁定（mask=8 仅图片、mask=0 空选择、派生索引恒裁）——2026-10-21（T8）时点仍未裁定，
+   机器清单用 `OPEN` 标记、不选默认、不代签；**2026-10-23 已由用户裁出并实施**（①不提供 8、②禁止 0、
+   ③恒裁 + 恢复后按科重建，见 §9.9 与 §9.11 的回写）。§6.1 其余 5 项仍保持未决（§9.9）。
 10. 工作树已有 T1b/T5 在飞改动（audit recorder、`sourceKind`、五站点资产引用），但未提交、未跑
     门禁；T2a 保存复制仍需核对。6C-2 启用裁剪前，必须把这些在飞改动与 §9.5 的行规则对齐并跑门禁；
     本清单不把在飞代码当已验收（§9.10）。
@@ -1089,7 +1102,7 @@ PRAGMA integrity_check;                                    -- 期望 'ok'
 | SESSIONS 会话 | 4 | 6 | 不变 |
 | IMAGES 图片 | 8 | 1（`canonical_source_asset`） | 不变；资产**行**策略见 §9.5 |
 | ALWAYS 恒随包 | — | 7 | 不变 |
-| DERIVED 恒裁/待裁定 | — | 2 | 是否恒裁仍是三项待裁定之一（§9.9-③） |
+| DERIVED 恒裁（已裁） | — | 2 | 2026-10-23 裁定恒裁 + 恢复完成后按科重建（§9.9-③），已实施 |
 | SPLIT 按行 | — | 5（旧 3 + 新 2） | 新增 `figure_generation_attempt`、`figure_generation_operation` |
 
 `figure_generation_operation` 的归属按 `source_kind` 决定：
@@ -1149,7 +1162,8 @@ model_task`、`model_task → model_task_operation`、`tutor_answer_exposure →
 
 - 闭包自洽：`0`、`8`、`9`、`13`、`15`。
 - 非法（子类别缺父类别）：`1`–`7`、`10`–`12`、`14`；仓储层必须拒绝，不静默补齐。
-- `8` 与 `0` 虽然闭包自洽，但属于三项待裁定（§9.9-①/②），机器块标 `OPEN`，不是“已允许”。
+- `8` 与 `0` 虽然闭包自洽，但 2026-10-23 裁定不提供/禁止（§9.9-①/②），机器块 `state=REJECTED`，
+  UI 不可达、仓储不可创建，不是“已允许”。
 
 ### 9.4 软引用（v2）
 
@@ -1430,19 +1444,28 @@ categories=IMAGES,ISSUE_BOOK,MASTERY,SESSIONS
 SHA-256 = d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6
 ```
 
-三项待裁定不改变这个 golden：空库里派生表也是 0 行，③ 的 a/b/c 都得到同一 rowCounts；①/② 只决定
-mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据，权威始终是包内库实测（沿用
+裁定不改变这个 golden：空库里派生表也是 0 行（③ 已裁恒裁+重建）；①/② 只决定 mask=8/0 是否可创建
+（已裁拒绝），不改变算法。`closureDigest` 不是权威判据，权威始终是包内库实测（沿用
 `SmbkArchiveCodec.kt:66-72` 的立场）；它只用于同构对拍与第三方重裁的粗筛。
 
 `rowCounts` 必须覆盖全部 86 表，包括值为 0 的表；漏键会让摘要不可比。split 表（`model_task*`、
 `figure_generation_*`）的计数是**行级筛选后**的实际行数，不是类别表总数。
 
-### 9.8 §7 用例（设计用例，未执行）
+### 9.8 §7 用例（执行状态已按批次 18 回写）
 
-以下用例全部是**设计**：本轮没有 Gradle、没有设备、没有真实备份往返，状态一律“未执行”。
-依赖列写明需要哪条轨先落地；依赖未落地时，用例不可写成“通过”。
+> 2026-10-21 T8 时点：以下用例全部是**设计**，无 Gradle、无设备、无真实备份往返，状态一律「未执行」。
+> 2026-10-24 回写：批次 18 实施后，**C2、C4、C5a/C5d 与 C6 的 canonical 资产部分**已在 JVM 与设备
+> （emulator-5554）执行并通过（证据：`docs/research/2026-10-23-batch-18-6c2-record.md` §8.1/§8.2——
+> `BackupSelectionTest` 14/0、`SmbkSelectionPlanTest` 11/0、`SmbkArchiveCodecTest` 30/0；设备裁剪器 9 +
+> 成包 3 + 恢复选择域 8 + 恢复回归 33 = 53 例 OK、UI 11/11、365MiB 1/1）。其余条目保持未执行/前向，
+> 状态逐条标注在用例首行。依赖列写明需要哪条轨先落地；依赖未落地时，用例不写成「通过」。
 
 #### C1 混合 JS / IMAGE_MODEL
+
+**状态（2026-10-24）：未执行。** JS 混排、多 attempt/operation、恢复后 0 派发断言均未跑（schema 69 无
+JS 表）。行级共享 operation 的保留规则已被裁剪器 mask=9 用例间接覆盖
+（`mask9TrimsSessionsAndMasteryButKeepsSharedFigureOperation`：被题面共享图拉回的 O_TUTOR 保留、只被已删
+会话引用的 O_SESSION_ONLY 删除），但该夹具每个 operation 仅 1 个 attempt、未设 `method` 维度，不能记为本用例通过。
 
 - 前置：T1b 在飞实现已写 operation/attempt（未提交、未跑门禁）。夹具在同一个 operation O
   （`source_kind=TUTOR_MESSAGE`）下放
@@ -1458,6 +1481,11 @@ mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据�
 
 #### C2 双根共享图
 
+**状态（2026-10-24）：已执行并通过（设备）。** `BackupSnapshotTrimmerInstrumentedTest.mask9TrimsSessionsAndMasteryButKeepsSharedFigureOperation`：
+共享图与题面图进 `referencedAssetIds`、只被已删会话引用的图被排除、会话/掌握库哨兵 VACUUM 后不在快照字节中；
+恢复侧 `BackupSelectionRestoreInstrumentedTest.subsetNineRestoreReportsSelectionTrimsDerivedIndexAndRebuildsAfterReopen`。
+设备裁剪器 9/9、四链路 53 例 OK（批次 18 记录 §8.2）。
+
 - 前置：资产 A 由 O（`source_kind=TUTOR_MESSAGE`；`source_id` 不要求等于 M）产出；A 同时被
   `tutor_message_source_asset(M)` 与 `problem_revision_source_asset(Rv, role=CLEAN_IMAGE)` 引用。
 - 动作：mask=9（错题本+图片，不含会话）成包 → 恢复到干净库。
@@ -1467,6 +1495,10 @@ mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据�
   恢复后题目无图——这是“题没有拥有这张图”的如实结果，不是裁剪 bug。
 
 #### C3 删会话保题
+
+**状态（2026-10-24）：未执行（产品路径）。** 批次 18 用例直接种数据，未走「保存题 → `deleteConversation`
+→ 再备份」链；I4 的 no-new-dangling（`BackupSnapshotTrimmer.kt` pre/post 悬空集合对拍，15 条检查）已实现，
+但没有「删会话历史悬空」夹具的专属用例。
 
 - 前置：从讲题会话保存题目（T2a 在飞/未验收；同事务把消息 visual link 复制到 revision），随后调用
   `deleteConversation`（只删消息与会话，`TutorConversationDao.kt:570-580`）。
@@ -1479,6 +1511,12 @@ mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据�
 
 #### C4 不同 selection
 
+**状态（2026-10-24）：已执行并通过（JVM + 设备）。** `BackupSelectionTest` 14/0（16 mask 往返、仅 9/13/15
+可创建、0/8 闭包自洽仍拒、未闭合不补齐）；裁剪器 9 / 成包 3 / 恢复 8 / UI 11 设备全过（批次 18 记录 §8.2）；
+回执 mask 与恢复前确认文案由 UI 用例钉住（`restoreReceiptNamesTheSelectedCategories`、
+`restoreConfirmationNamesThePackageAndWhatWillBeCleared`）。原「待裁定 mask=8/0」已按 §9.9 裁定落地为拒绝；
+派生策略按裁定③执行（全选也裁派生、恢复后重建）。
+
 - 闭包合法：mask=15（全选）、13（题+会话+图）、9（题+图）。逐一成包/恢复。
 - 待裁定：mask=8（仅图）、0（空）只有在 §9.9-①/② 裁定允许后才可创建；未裁定前 `create()` 必须
   拒绝，不能“先做出来再说”。
@@ -1489,6 +1527,14 @@ mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据�
 - 派生策略：③ 的 a/b/c 各跑一遍全选，只有 a/c 会裁派生表；b 的全选与 v2 等价（除新表外）。
 
 #### C5 未知版本
+
+**状态（2026-10-24）：5a/5d 已执行并通过；5b 已实现未专测；5c 前向无法执行。** 5a：
+`SmbkArchiveCodecTest.v3 selection read side rejects unsupported or inconsistent blocks`、恢复
+`invalidDigestRowCountsAndClosureVersionAreRejectedBeforeSwapAndLiveDataStays`（交换前拒绝、原库可读）；
+5b：`BackupSnapshotTrimmer` 对未知 `source_kind` / 未知 task kind 真子集 fail-closed（`:704-716`、`:721-738`，
+全选保留），无专属用例；5d：`v1 archive without settings stays readable…`、`v2 archive without selection stays
+readable and reads as the full backup`、恢复 `legacyV2ArchiveWithoutSelectionRestoresAsFullAndTrimsDerivedIndex`
+（v2 旧包恢复现在也裁派生索引并重建，与裁定③一致）。
 
 - 5a：manifest `selection.closureVersion` ≠ 2、`selection.schemaVersion` 不认识、或 mask 不在允许集合
   → 交换前拒绝；原库可读，没有 generation 产物。
@@ -1501,6 +1547,12 @@ mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据�
 
 #### C6 缺预览
 
+**状态（2026-10-24）：canonical 资产部分已执行并通过；JS 预览部分前向未执行。**
+`tampered asset fails validation with a business reason`、`missing listed asset fails validation before any
+restore`、`archive whose declared referenced asset is missing fails validation`、`create refuses a referenced
+asset that is not part of the package`（均在成包/交换前拒绝，不产半份包）；五站点资产钉住（含
+`figure_generation_attempt.output_asset_id`）由裁剪器 `FULL_ASSET_PINS_SQL` 与 `PendingCaptureDao` 同口径实施。
+
 - 69 代理用例：被存活链接引用的 canonical 资产文件缺失或 SHA 不符 → 成包/恢复在交换前失败，报出
   缺失的 asset id；绝不产出“成功但少图”的包（复用现有 `resolveReferencedAssetFiles` 与
   `verifyStagedAssetClosure`）。
@@ -1511,6 +1563,8 @@ mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据�
 - 断言：没有半份包、没有假成功；恢复后不会用一张错图/旧图冒充。
 
 #### C7 源 revision 改变
+
+**状态（2026-10-24）：未执行。** 依赖 T3/WG-06 的晚到结果/SUPERSEDED 路径，批次 18 未涉及。
 
 - 前置：revision R1 有图 A（`tutor_message_source_asset.basis_revision_id=R1` 或保存复制后的 revision
   链接）；题目编辑到 R2；R1 的晚到结果在 R2 之后返回（T3 的显式重绘/晚到路径）。
@@ -1523,25 +1577,37 @@ mask=8/0 是否可创建，不改变算法。`closureDigest` 不是权威判据�
 
 #### C8 横切：资产 / 账本 / 授权
 
+**状态（2026-10-24）：部分——资产闭合已执行；账本/授权断言保持未验证。** 缺文件/SHA 不符交换前拒绝
+已执行（见 C6 引用用例）；五站点引用集合与包内 `assets/` 对拍已实施（裁剪器 `FULL_ASSET_PINS_SQL` /
+`FIVE_SITE_ASSET_IDS_SQL`，codec 用例 `create records the snapshot problem count and packages only the
+referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatch_count` / `clean_redraw_task.attempt_count`
+不清零、全程 0 次模型派发、不复活外发授权/租约——批次 18 无专属断言；真实 Provider 无凭据，UNVERIFIED。
+
 - 被保留 attempt 的 output 缺文件 → 交换前拒绝；五站点引用集合与包内 `assets/` 双向相等。
 - 恢复后 `model_task_operation.dispatch_count`、`clean_redraw_task.attempt_count` 不清零；不复活
   外发授权/租约/sleep journal（这些本来就不随包，见 §4.1）。
 - 打开详情、展开、旋转、导出、恢复本身 **0 次模型派发**；真实 Provider 仍 UNVERIFIED。
 
-### 9.9 三项待用户裁定（本轨不代签）
+### 9.9 三项产品裁定（已裁并实施，2026-10-23）
 
-| # | 待裁定 | 选项 | 影响 / 证据 | 机器清单的当前状态 |
+> **裁定记录**：2026-10-23 用户裁定（批次 18 计划 `:9-13`，转录于
+> `docs/research/2026-10-23-batch-18-6c2-record.md` §1.2；批次 19 计划 §2 维持）：
+> **①=a 不提供 mask=8；②=a 禁止 mask=0；③=a+c 派生索引恒裁 + 恢复完成后按科后台重建**。
+> 允许的 UI/仓储组合只有 **9（题+图）、13（题+会话+图）、15（全选）**；0/8 与未闭合组合（1–7、10–12、14）
+> UI 禁止、仓储拒绝，**不静默补齐、不静默缩水**。已于批次 18 实施（证据见下表末列）。
+
+| # | 裁定项 | 已裁结论（2026-10-23） | 影响 / 证据（2026-10-21 设计期评估，`文件:行` 为当时树，保留为裁定依据） | 实施与验证 |
 | --- | --- | --- | --- | --- |
-| ① | 是否提供“仅图片”组合（mask=8） | a) UI 不提供；b) 提供并提示 | b) 的包内资产没有任何引用者；当前 `create()` 只收 `readReferencedCanonicalAssets()`（`AndroidBackupRepository.kt:218-220`），mask=8 下引用集合为空，包内 `assets/` 也会为空——要真正导图必须新增“无引用资产也收”的 assetPolicy；即使收了，恢复后 `cleanupOrphanAssets` 也会按 30 分钟宽限把旧创建时间的资产清掉（`AndroidBackupRepository.kt:123`、`:148-160`；启动 enqueue `SmartMistakeBookApplication.kt:475`）。产物是“恢复完就蒸发” | `maskPolicy.openMasks` 标 `OPEN`；闭包自洽不等于允许；空 assets 策略属 ① 的裁定范围 |
-| ② | 是否允许空选择（mask=0） | a) 禁止（至少勾一项）；b) 允许 | b) 的产物是重置包：恢复后本机只剩知识层与设置，其余全部被替换 | 同上，`OPEN` |
-| ③ | 派生索引（`knowledge_search_feature` + `knowledge_search_index_state`）是否恒裁 | a) 恒裁 + 恢复后读时自愈；b) 全选时保留；c) 恒裁 + 恢复后后台重建 | a) 包最小，首次召回某科可能现场整科重建（v1 研究记录过 16.6s 级长尾）；b) 全选包接近 v2 大小（旧测 623,774 行特征）；c) 恢复回执后异步重建，用户无感 | `derivedPolicy.decision = OPEN`，三选项全列，不选默认 |
+| ① | 是否提供“仅图片”组合（mask=8） | **a) 不提供** | b) 的包内资产没有任何引用者；当时 `create()` 只收 `readReferencedCanonicalAssets()`（`AndroidBackupRepository.kt:218-220`），mask=8 下引用集合为空，包内 `assets/` 也会为空——要真正导图必须新增“无引用资产也收”的 assetPolicy；即使收了，恢复后 `cleanupOrphanAssets` 也会按 30 分钟宽限把旧创建时间的资产清掉（`AndroidBackupRepository.kt:123`、`:148-160`；启动 enqueue `SmartMistakeBookApplication.kt:475`）。产物是“恢复完就蒸发” | `SmbkSelectionPlan.allowedMasks={9,13,15}`（`SmbkSelectionPlan.kt:53-57`）；`BackupSelection.requireCreatable()` 拒 0/8（`BackupSelection.kt:136-145`；JVM `BackupSelectionTest` 14/0，含 `empty selection and images only are closed but still rejected before create`）；UI 0/8 不可达（`BackupSelectionUiInstrumentedTest.emptyAndImagesOnlySelectionsStayUnreachable`，设备 11/11） |
+| ② | 是否允许空选择（mask=0） | **a) 禁止（至少勾一项）** | b) 的产物是重置包：恢复后本机只剩知识层与设置，其余全部被替换 | 同 ①：域/清单/裁剪器/仓储/UI 各层拒绝（裁剪器 `invalidMasksAreRejectedBeforeTheSnapshotIsTouched`）；UI 勾选面板关到底仍停在 9，0/8 不可达 |
+| ③ | 派生索引（`knowledge_search_feature` + `knowledge_search_index_state`）是否恒裁 | **a+c) 恒裁 + 恢复完成后按科后台重建**（§6.1-③ 的 a+c：全选也裁；重建在恢复完成、数据库重开后按科异步执行，失败保留标记、不回滚恢复） | a) 包最小，首次召回某科可能现场整科重建（v1 研究记录过 16.6s 级长尾）；b) 全选包接近 v2 大小（旧测 623,774 行特征）；c) 恢复回执后异步重建，用户无感 | `AndroidBackupRepository` 对**所有** mask（含全选）调用裁剪器（`:218-243`）；裁剪器断言派生两表 post=0（`BackupSnapshotTrimmer.kt:391-394`）并在删除路径裁它们（`:492`）；全选 `trimmedTableCount` 只数实际有行的派生表（裁剪器 mask=15 用例断言 2；成包夹具只有 `knowledge_search_index_state` 有行 → 1，`BackupSelectionCreateInstrumentedTest.fullSelectionAlsoTrimsDerivedIndexRowsButKeepsUserCategories`）；恢复后 `RestoreIndexRebuild` 按科 `rebuildKnowledgeSearchIndex`（`RestoreIndexRebuild.kt:184-198`），失败保留 `restore-index-rebuild-pending.json` 并返回 `PARTIAL_FAILURE`（`rebuildFailureKeepsMarkerAndDoesNotRollBackTheRestoredDatabase`） |
 
-**这三点必须由用户裁定，实现不得默认任一分支**。本节的机器清单只把三种状态表达清楚：
-①/② 决定 `create()` 是否接受 mask 8/0；③ 决定全选时是否删两张派生表（从而改变 rowCounts /
-trimmedTableCount / digest），但不改变类别、FK、软引用与顺序规则。
+机器清单只保留两种状态：**允许**（`closedMasks` 9/13/15）与**拒绝**（0/8 按裁定拒绝 + 11 个未闭合组合按
+闭包拒绝）。③ 落地后**全选包不再与 v2 字节等价**（派生两表恒裁）——不得由“全选也走裁剪器”推导出
+“全选包 = v2 包”（批次 18 记录 §6.3 同此）。
 
-§6.1 实际列了 8 条待裁定；按批次 17 基线 `:156`，T8 只点名上述三项，**其余 5 项（类别文案、
-无图子集、治理台账归类、合并恢复、VACUUM 耗时）保持未决**，本轨不代签。
+§6.1 实际列了 8 条待裁定；按批次 17 基线 `:156`，T8 只点名上述三项。三项已裁（上表）；**其余 5 项
+（类别文案、无图子集、治理台账归类、合并恢复、VACUUM 耗时）保持未决**，本轨不代签。
 
 ### 9.10 未验证与风险
 
@@ -1574,14 +1640,18 @@ trimmedTableCount / digest），但不改变类别、FK、软引用与顺序规�
    “恢复后未引用行不会让详情/导出误判”。
 9. **视图**：`library_catalog`、`knowledge_question_lattice` 不参与裁剪；裁剪后基表仍存在（空表也
    存在），视图可继续查询。未在设备上验证视图在裁剪库上的行为。
-10. **三项待裁定**：未裁定前，mask 8/0 与派生策略都不能当成默认；任何“先按 a 实现”的代码都违反
-    §9.9。
+10. **三项裁定（2026-10-23 已裁）**：mask 8/0 拒绝与派生恒裁+恢复后重建已是用户裁定后的实施事实
+    （§9.9），不再是“先按 a 实现”的默认；其余未决项照旧不得默认。
 
 ### 9.11 机器可读清单 v2
 
 > 解析标记：`<!-- 6c2-plan-v2:begin -->` / `<!-- 6c2-plan-v2:end -->`。旧的 `6c2-plan` 标记仍是
 > schema 66 历史块，当前实现只读 v2。`closureVersion=2` 与本块同源；`identityHash` 必须等于
 > `69.json` 的 `database.identityHash`。
+> 2026-10-24 回写：本块已由批次 18 实施为 `SmbkSelectionPlan.kt`，`SmbkSelectionPlanTest`（
+> `plan data matches the section 9_11 machine block field for field`）断言两处逐字段同源——改本块即改
+> 代码契约。`maskPolicy`/`derivedPolicy` 已按 2026-10-23 裁定回写；`openMasks` 键名与 0/8 两项是测试
+> 解析契约保留，其 `state` 已由设计期 `OPEN` 改为 `REJECTED`。
 
 <!-- 6c2-plan-v2:begin -->
 ```json
@@ -2155,27 +2225,29 @@ trimmedTableCount / digest），但不改变类别、FK、软引用与顺序规�
       {
         "mask": 8,
         "decision": "IMAGES_ONLY",
-        "state": "OPEN",
-        "note": "产物恢复后资产无引用者，孤儿回收会清掉；是否提供由用户裁定"
+        "state": "REJECTED",
+        "note": "2026-10-23 用户裁定不提供（批次 18 记录 §1.2-①）：产物恢复后资产无引用者，孤儿回收会清掉；UI 不可达、仓储拒绝，不静默补齐"
       },
       {
         "mask": 0,
         "decision": "EMPTY_SELECTION",
-        "state": "OPEN",
-        "note": "产物是重置包（仅知识层+设置）；是否允许由用户裁定"
+        "state": "REJECTED",
+        "note": "2026-10-23 用户裁定禁止（批次 18 记录 §1.2-②）：产物是重置包（仅知识层+设置）；UI 不可达、仓储拒绝"
       }
     ],
     "unknownMask": "REJECT",
-    "closingRule": "子类别隐含父类别；不静默补齐、不静默缩水；create() 只接受自洽选择"
+    "closingRule": "子类别隐含父类别；不静默补齐、不静默缩水；create() 只接受自洽选择",
+    "note": "openMasks 键名与 0/8 两项是 SmbkSelectionPlanTest 的解析契约（断言该数组恰好列出 0/8 且均不可创建）；state 已按 2026-10-23 裁定由设计期 OPEN 改为 REJECTED，允许集合 = closedMasks = allowedMasks = {9,13,15}"
   },
   "derivedPolicy": {
-    "decision": "OPEN",
+    "decision": "TRIM_AND_REBUILD_AFTER_RESTORE",
+    "decidedAt": "2026-10-23",
     "options": [
       "ALWAYS_TRIM",
       "KEEP_ON_FULL_SELECTION",
       "TRIM_AND_REBUILD_AFTER_RESTORE"
     ],
-    "note": "derivedTables 不属于任何用户类别；三选项只改变全选时是否裁它们，改变 rowCounts/trimmedTableCount/digest，不改变类别/FK/软引用/顺序规则"
+    "note": "已裁并实施（批次 18 记录 §1.2-③，即 §6.1-③ 的 a+c）：恒裁（全选也裁两张派生表，AndroidBackupRepository 对所有 mask 调用裁剪器）+ 恢复完成后按科后台重建（RestoreIndexRebuild 按科 rebuildKnowledgeSearchIndex，失败保留标记 PARTIAL_FAILURE）。不改变类别/FK/软引用/顺序规则；全选包不再与 v2 字节等价"
   },
   "digest": {
     "algorithm": "sha256( \"smbk-selection-v2\\n\" + \"closureVersion=2\\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\\n\" + \"assetPolicy=\" + assetPolicy + \"\\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\\n\" } )",
@@ -2185,7 +2257,7 @@ trimmedTableCount / digest），但不改变类别、FK、软引用与顺序规�
       "mask": 15,
       "assetPolicy": "INCLUDED",
       "sha256": "d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6",
-      "note": "69 schema、空库、全选；rowCounts 为全部 86 表=0；三选项下派生表也是 0 行，故该向量不受三项待裁定影响"
+      "note": "69 schema、空库、全选；rowCounts 为全部 86 表=0；派生表恒裁（裁定③）下也是 0 行，该向量不受裁定影响；SmbkSelectionPlanTest 以此为 golden 断言"
     }
   }
 }

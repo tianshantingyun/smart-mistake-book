@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.backup
 
+import com.tingyun.smartmistakebook.core.domain.BackupSelectionSummary
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.booleanOrNull
@@ -454,6 +455,19 @@ class SmbkSelectionPlanTest {
         listOf(1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 14).forEach { mask ->
             assertFalse("mask=$mask 缺父类别，闭包不自洽", SmbkSelectionPlan.isClosureConsistent(mask))
         }
+    }
+
+    /**
+     * 批次 19 T2-2 的同源钉：写侧策略常量（core:data 的机器清单）与读侧摘要常量
+     * （core:domain 的 [BackupSelectionSummary]）是两处字面量——改一处不改另一处，
+     * 回执就会把 INCLUDED 的包说成别的策略。这里对拍两个常量。
+     */
+    @Test
+    fun `asset policy constants on both sides stay identical`() {
+        assertEquals(
+            BackupSelectionSummary.ASSET_POLICY_INCLUDED,
+            SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+        )
     }
 
     // ---- 夹具 ----

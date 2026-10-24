@@ -398,6 +398,141 @@ class BackupSelectionRestoreInstrumentedTest {
         }
     }
 
+    /**
+     * 批次 19 T2-4（设计 §3.2-S3）：第三方重裁/拼接的子集包——清单自洽（rowCounts 按拼接后
+     * 的库如实改写、digest 重算，Phase 1 与 2c.1 都放过）、类别表也干净，但 split 表里留了
+     * **未选类别 kind** 的任务行（讲题类 TUTOR_RESPOND，mask=9 未选会话）。此前没有任何
+     * 恢复侧校验能抓到它（`model_task` 不是类别表，行数声明又与实测一致）；Phase 2c.3 的
+     * 软引用重查必须在**交换前**拒绝，原库不动。
+     */
+    @Test
+    fun thirdPartyRepackagedSubsetWithUnselectedTaskKindRowsIsRejectedBeforeSwap() = runBlocking {
+        val database = openSeededDatabase()
+        val archive = createArchive(database, BackupSelection.of(issueBookAndImages()))
+        try {
+            val lyingArchive = repackWithModifiedDatabase(
+                archive = archive,
+                mutateDatabase = { db ->
+                    db.insertOrThrow(
+                        "model_task_operation",
+                        null,
+                        ContentValues().apply {
+                            put("operation_fingerprint", "op-lie-tutor")
+                            put("subject_id", "t5-conversation")
+                            put("task_kind", "TUTOR_RESPOND")
+                            put("dispatch_count", 0)
+                            put("created_at_epoch_millis", 1_000L)
+                            put("updated_at_epoch_millis", 1_000L)
+                        },
+                    )
+                    db.insertOrThrow(
+                        "model_task",
+                        null,
+                        ContentValues().apply {
+                            put("task_id", "task-lie-tutor")
+                            put("request_id", "req-lie-tutor")
+                            put("request_fingerprint", "fp-lie-tutor")
+                            put("operation_fingerprint", "op-lie-tutor")
+                            put("request_snapshot", "{}")
+                            put("task_kind", "TUTOR_RESPOND")
+                            put("subject_id", "t5-conversation")
+                            put("status", "SUCCEEDED")
+                            put("state_version", 1)
+                            put("stage", "DONE")
+                            put("user_message", "")
+                            put("attempt_count", 0)
+                            put("created_at_epoch_millis", 1_000L)
+                            put("updated_at_epoch_millis", 1_000L)
+                        },
+                    )
+                },
+                mutateSelectionCounts = { counts ->
+                    counts["model_task_operation"] = (counts["model_task_operation"] ?: 0L) + 1L
+                    counts["model_task"] = (counts["model_task"] ?: 0L) + 1L
+                },
+            )
+
+            val repository = AndroidBackupRepository(context, database)
+            val selfConsistent = repository.validate(ByteArrayInputStream(lyingArchive))
+            assertTrue(
+                "拼接包必须自洽到能通过 Phase 1 与逐表行数对拍：$selfConsistent",
+                selfConsistent is BackupValidation.Valid,
+            )
+
+            val failure = assertThrows(BackupRestoreException::class.java) {
+                runBlocking { repository.restore(ByteArrayInputStream(lyingArchive)) }
+            }
+            assertTrue(
+                "拒因必须指向软引用重查并点名 kind：${failure.message}",
+                failure.message.orEmpty().contains("软引用与包内数据不一致") &&
+                    failure.message.orEmpty().contains("TUTOR_RESPOND"),
+            )
+            assertEquals("拒绝后原库不动", 1, database.countMistakes())
+        } finally {
+            database.close()
+        }
+    }
+
+    /**
+     * 批次 19 T2-4（§9.5 O_keep 行级规则）：拼接包留了一条 SESSIONS 类 `source_kind` 的
+     * figure operation，既没有产物在存活根引用里（O_ref）、也没有存活清图任务钉住
+     * （O_seed 第三支）——合法裁剪器一定会删掉它。恢复侧重算 O_keep 后必须在交换前拒绝。
+     */
+    @Test
+    fun thirdPartyRepackagedSubsetWithUnreferencedFigureOperationIsRejectedBeforeSwap() = runBlocking {
+        val database = openSeededDatabase()
+        val archive = createArchive(database, BackupSelection.of(issueBookAndImages()))
+        try {
+            val lyingArchive = repackWithModifiedDatabase(
+                archive = archive,
+                mutateDatabase = { db ->
+                    db.insertOrThrow(
+                        "figure_generation_operation",
+                        null,
+                        ContentValues().apply {
+                            put("operation_id", "op-lie-figure")
+                            put("learner_id", "learner:local")
+                            put("source_kind", "TUTOR_MESSAGE")
+                            put("source_id", "message-lie")
+                            put("basis_fingerprint", "f".repeat(64))
+                            put("purpose", "TUTOR_EXPLAIN")
+                            put("policy_version", "test-v1")
+                            put("status", "SUCCEEDED")
+                            put("reserved_remote_dispatches", 0)
+                            put("used_remote_dispatches", 0)
+                            put("final_answer_reserved", 0)
+                            put("created_at_epoch_millis", 1_000L)
+                            put("updated_at_epoch_millis", 1_000L)
+                        },
+                    )
+                },
+                mutateSelectionCounts = { counts ->
+                    counts["figure_generation_operation"] =
+                        (counts["figure_generation_operation"] ?: 0L) + 1L
+                },
+            )
+
+            val repository = AndroidBackupRepository(context, database)
+            val selfConsistent = repository.validate(ByteArrayInputStream(lyingArchive))
+            assertTrue(
+                "拼接包必须自洽到能通过 Phase 1 与逐表行数对拍：$selfConsistent",
+                selfConsistent is BackupValidation.Valid,
+            )
+
+            val failure = assertThrows(BackupRestoreException::class.java) {
+                runBlocking { repository.restore(ByteArrayInputStream(lyingArchive)) }
+            }
+            assertTrue(
+                "拒因必须点名 figure operation 的行级规则：${failure.message}",
+                failure.message.orEmpty().contains("软引用与包内数据不一致") &&
+                    failure.message.orEmpty().contains("figure_generation_operation 留有"),
+            )
+            assertEquals("拒绝后原库不动", 1, database.countMistakes())
+        } finally {
+            database.close()
+        }
+    }
+
     // ------------------------------------------------------------------
     // 夹具
     // ------------------------------------------------------------------
@@ -617,6 +752,101 @@ class BackupSelectionRestoreInstrumentedTest {
         }
         return output.toByteArray()
     }
+
+    /**
+     * 第三方重裁/拼接包夹具（批次 19 T2-4）：解开一份**合法** v3 包，直接改包内库
+     * （改完 checkpoint 收回主文件），再按改动后的库如实改写 manifest 的
+     * `rowCounts`/`closureDigest`/`database.sqlite` 摘要与 `checksums.sha256`——
+     * 绕过一切成包侧闸门（裁剪器 I1–I7），只让**恢复侧**的校验去抓。
+     */
+    private fun repackWithModifiedDatabase(
+        archive: ByteArray,
+        mutateDatabase: (SQLiteDatabase) -> Unit,
+        mutateSelectionCounts: (MutableMap<String, Long>) -> Unit,
+    ): ByteArray {
+        val staging = File(context.cacheDir, "repack-${System.nanoTime()}").apply { mkdirs() }
+        try {
+            ZipInputStream(ByteArrayInputStream(archive)).use { zip ->
+                while (true) {
+                    val entry = zip.nextEntry ?: break
+                    val target = File(staging, entry.name)
+                    target.parentFile?.mkdirs()
+                    target.outputStream().use { output -> output.write(zip.readBytes()) }
+                    zip.closeEntry()
+                }
+            }
+            val databaseFile = File(staging, SmbkArchiveCodec.DATABASE_ENTRY)
+            SQLiteDatabase.openDatabase(
+                databaseFile.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READWRITE,
+            ).use { db ->
+                mutateDatabase(db)
+                // 删除/插入必须落回主文件：归档只打包 database.sqlite 一个文件。
+                db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).use { it.moveToFirst() }
+            }
+
+            val manifest = JSONObject(manifestJson(archive))
+            val selection = manifest.getJSONObject("selection")
+            val counts = rowCountsOf(selection).toMutableMap().also(mutateSelectionCounts)
+            val rewrittenCounts = JSONObject()
+            counts.forEach { (table, count) -> rewrittenCounts.put(table, count) }
+            selection.put("rowCounts", rewrittenCounts)
+            selection.put(
+                "closureDigest",
+                SmbkSelectionPlan.closureDigest(
+                    categories = SmbkSelectionPlan.categoriesOf(selection.getInt("categoryMask")),
+                    assetPolicy = selection.getString("assetPolicy"),
+                    rowCounts = counts,
+                ),
+            )
+            val files = manifest.getJSONArray("files")
+            val databaseSha = sha256Hex(databaseFile.readBytes())
+            val checksums = StringBuilder()
+            for (index in 0 until files.length()) {
+                val record = files.getJSONObject(index)
+                if (record.getString("path") == SmbkArchiveCodec.DATABASE_ENTRY) {
+                    record.put("sha256", databaseSha)
+                    record.put("byteSize", databaseFile.length())
+                }
+                if (checksums.isNotEmpty()) {
+                    checksums.append('\n')
+                }
+                checksums.append(record.getString("sha256"))
+                    .append(" *")
+                    .append(record.getString("path"))
+            }
+
+            val output = ByteArrayOutputStream()
+            ZipOutputStream(output).use { zipOutput ->
+                zipOutput.putNextEntry(ZipEntry(SmbkArchiveCodec.MANIFEST_ENTRY))
+                zipOutput.write(manifest.toString().toByteArray(Charsets.UTF_8))
+                zipOutput.closeEntry()
+                zipOutput.putNextEntry(ZipEntry(SmbkArchiveCodec.DATABASE_ENTRY))
+                zipOutput.write(databaseFile.readBytes())
+                zipOutput.closeEntry()
+                File(staging, "assets").listFiles().orEmpty()
+                    .filter { it.isFile }
+                    .sortedBy { it.name }
+                    .forEach { asset ->
+                        zipOutput.putNextEntry(ZipEntry("assets/${asset.name}"))
+                        zipOutput.write(asset.readBytes())
+                        zipOutput.closeEntry()
+                    }
+                zipOutput.putNextEntry(ZipEntry("checksums.sha256"))
+                zipOutput.write(checksums.toString().toByteArray(Charsets.UTF_8))
+                zipOutput.closeEntry()
+            }
+            return output.toByteArray()
+        } finally {
+            staging.deleteRecursively()
+        }
+    }
+
+    private fun sha256Hex(bytes: ByteArray): String =
+        java.security.MessageDigest.getInstance("SHA-256")
+            .digest(bytes)
+            .joinToString("") { byte -> "%02x".format(byte) }
 
     private fun rowCountsOf(selection: JSONObject): Map<String, Long> {
         val rowCounts = selection.getJSONObject("rowCounts")

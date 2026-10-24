@@ -130,5 +130,21 @@ object AlgorithmConstants {
         /** 等待压力：宽限天数与饱和坡度（天）。 */
         const val WAITING_GRACE_DAYS: Double = 7.0
         const val WAITING_BONUS_RAMP_DAYS: Double = 83.0
+
+        /**
+         * G6 扩容爬升（考前冲刺，批次 19/T4）：考试窗口内每日复习时间预算随考试临近
+         * **线性放大**的最大增幅——考试当天最多在基础预算上扩本比例（0.5 = +50%，
+         * 同时放大新引入切片与复习预算），窗口边缘为 0，无考试日/窗口外恒不参与
+         * （`StudyReviewPlannerService.examCapacityBudgetSeconds` 消费）。
+         *
+         * **PENDING_CALIBRATION**：幅度是起步占位量级，不是校准值。插眼 1（2026-09-25
+         * 阶段 0 收口，用户选 A）只裁了**形状与窗口**（重要性 × 窗口内线性衰减、窗口默认
+         * 14 天、范围 1–60）与重要性档（高/中/低 = 1.0/0.7/0.4——`ExamCalendarEntry` 尚无
+         * importance 字段、设置屏未接，本批未接线；当前所有考试按高档 1.0 处理）；
+         * "预算放大多少"无外部先例可引（Deckline/Deadline2 先例只做每日目标层、不动预算，
+         * `docs/research/2026-09-25-mastery-mechanism-review.md` §2.4），待 Wave X 离线
+         * 模拟校准。改这个数属产品裁定面，不许在实现里顺手调整。
+         */
+        const val EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION: Double = 0.5
     }
 }

@@ -393,6 +393,23 @@
 > 不是算法输出。KD-55 的 `expectedByteSize` 是有界读入上界，不是算法参数。批次 18 记录见
 > `docs/research/2026-10-23-batch-18-6c2-record.md`。
 
+### 3.29 批次 19 · 5B-G6 考前扩容爬升/薄弱优先 + G8 回收域层半边 + 6C-2 加固（2026-10-24）：DB schema 69 不动、零版本 bump、新常量 PENDING_CALIBRATION 登记
+
+> 编号说明：本条由批次 19 占用。`STUDY_DATABASE_VERSION` 维持 **69**（T5 零 schema，`schemas/` 止于 69.json）；
+> 请求 schema 维持 **18**；`ReviewPlannerV2.VERSION="review-planner-v4"` **未 bump 且该文件零改动**（错题排程器
+> 完全未触碰）；`LearningCoreVersions.*`（投影/证据/归属/账本）全部未 bump。本条登记的不是算法版本变更，而是
+> **新能力常量的落账**（G6 爬升幅度）与零 bump 判据。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| 新常量 `AlgorithmConstants.ReviewScoring.EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION = 0.5`（`AlgorithmConstants.kt:148`，KDoc 标 **PENDING_CALIBRATION**）；消费点 `StudyReviewPlannerService.examCapacityBudgetSeconds`（:140-174）：窗口内预算 = 基础 ×（1 + 0.5 × ramp）；窗口常量 `EXAM_RAMP_DAYS = 14`（`StudyReviewPlannerService.kt:800`，复用插眼 1 已裁默认窗口）；3E 扫描到期压力接既有 EXAM 通道（:310-330 读门、:383-397 `maxOf(ramp, scanBackedDuePressure(...))` 仅 ramp>0 生效，复用 `EXAM_WEIGHT` 不加新权重） | 5B-G6 排程半边：考试窗口内每日复习时间预算随临近**线性放大**（考试当天 +50%、窗口边缘 0）；无考试日/窗口外**逐位不变**（`ramp<=0.0 return baseBudgetSeconds` 短路、扫描读门 `any{ in 0..EXAM_RAMP_DAYS }` 为 false→emptyMap、候选 examPriority 在 ramp==0 时原样返回） | **PENDING_CALIBRATION**：0.5 是起步占位量级、**不是校准值**——插眼 1（2026-09-25）只裁形状与窗口（重要性 × 线性衰减、窗口默认 14 天/范围 1–60）与重要性档（高/中/低=1.0/0.7/0.4；`ExamCalendarEntry` 尚无 importance 字段未接线，当前全按高档 1.0）；幅度无外部先例（Deckline/Deadline2 只做每日目标层不动预算），待 **Wave X 离线模拟校准**，改数属产品裁定面。零 bump 判据：无考试日/窗口外输入的计划逐位不变（结构保证 + 指纹级测试断言 planFingerprint 相等、timeBudget 均 1200、扫描读计数 0）；窗口内预算变化是**新能力**（此前预算恒定），不改变任何既有输入的历史重放输出；预算只影响排程建议、不进投影/证据/账本 | 计划 `.zcode/plans/plan-2026-10-23-batch-19-6c2-closeout-5b-halves.md:28-31,56-61`；实现 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/StudyReviewPlannerService.kt:123-174,310-330,383-397,800`、`core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/AlgorithmConstants.kt:131-148`；决策台账「批次 19」小节（G6 常量登记） | **无 Gradle 执行证据**：`StudyReviewPlannerExamWindowTest`（六组用例）在树但受 core:data 测试编译红连坐从未运行、修复后未复跑（单测门第 3 轮 exit=1）——执行 UNVERIFIED；不变性以结构读码闭合（复核发现#3 逐路径核对）。G6 关联 3E 侧 `KnowledgeReviewQueueTest` 22/0（门禁轨 2026-10-24 定向实跑） | ➖（无既有输入的输出变化，不触发重放） |
+| `PaperAnswer*` 五件（Sheet/KeyChain/RecycleJudge/EvidenceFeedback/SheetRecycler）+ `InMemoryPaperAnswerRecycleStore`：**零 DB schema**、零 UI、生产零消费 | 5B-G8 回收域层半边：答卷身份幂等键（指纹+题+学习日）、出卷答案键链模型、客观题本地判纯函数（键不可信→`PendingVerification` 不写数值掌握）、LOCAL_CHECKED 回灌端口（幂等义务在契约 KDoc；判词通道默认抛 UnsupportedOperationException） | **不进入任何算法公式**：域模型+纯函数+接口+内存仓储（`putIfAbsent` 原子去重），无投影/计划/打分读取口；键信任判定复用 `core:model` 的 `answerKeyTrustDecision` 单源；真实落库批次若取 schema 70 须另行登记 | 计划 `:63-69`；实现 `core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/PaperAnswer*.kt`（5 件）、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/InMemoryPaperAnswerRecycleStore.kt` | 37 用例（8+11+6+5+7）在树、断言实质（复核逐项核对），**无 Gradle 执行证据**（UNVERIFIED）；接线批次必带端口并发幂等验收 | ➖（无生产消费，不触发重放） |
+| 6C-2 加固（批次 18 遗留五项）+ KD-61 quiesce：写侧拒负 rowCounts、`BackupSelectionSummary.assetPolicy`、deleteAllData 清标记、S3 软引用重查（`RestoreSoftReferenceRecheck`）、I5 SQL 单源化（`CanonicalAssetReferenceSites`） | 备份归档合同内的加固，不触 `formatVersion=3`/`selection.schemaVersion=2`/`closureVersion=2`（批次 18 已登记） | 全部为校验/清理/显示面：不进入投影/计划/打分/校准公式；`assetPolicy` 是 manifest 字段的摘要透传 | 批次 19 记录 `docs/research/2026-10-23-batch-19-record.md` §2.3 | 设备实跑：备份回归四类 **56/56**（EXIT=0；批次 18 的 53 例不回退+T2 新增 3 例）；core:data 四个 JVM 测试类无 Gradle 执行证据（编译红连坐，修复后未复跑） | ➖（归档合同不变，不触发重放） |
+
+> **本批非算法常量追溯**：`EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION=0.5` 是本批唯一新增数值常量，**唯一口径 =
+> 代码 KDoc + 决策台账「批次 19」小节 + 本条**（Wave X 校准前不是校准值，不许顺手调整）；`EXAM_RAMP_DAYS=14` 是
+> 插眼 1 已裁窗口的私有伴生复用，非新裁定。批次 19 记录见 `docs/research/2026-10-23-batch-19-record.md`。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

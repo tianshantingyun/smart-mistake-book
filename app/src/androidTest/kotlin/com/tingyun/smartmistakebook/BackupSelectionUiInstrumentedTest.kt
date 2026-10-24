@@ -244,8 +244,14 @@ class BackupSelectionUiInstrumentedTest {
         assertTrue(subset.contains("错题本"))
         assertTrue(subset.contains("图片"))
         assertTrue("替换语义下没勾的类别会被清空，回执必须说明", subset.contains("未包含的类别已按替换语义清空"))
-        assertFalse("子集回执不能声称带了掌握库", subset.contains("掌握库"))
-        assertFalse("子集回执不能声称带了会话", subset.contains("会话"))
+        // 批次 19 T2-6：子集回执必须**点名**不含的类别（括注口径），且是"不含"而非声称带上；
+        // 同时转述 manifest 的资产策略（assetPolicy=INCLUDED → 题图随包）。
+        assertTrue(
+            "回执必须点名不含的类别",
+            subset.contains("（不含掌握库、会话）"),
+        )
+        assertTrue("回执必须与创建/确认同口径转述资产策略", subset.contains("题图随包"))
+        assertFalse("子集回执不能声称带了全部类别", subset.contains("错题本、掌握库、会话、图片"))
 
         val full = storageRestoreCompletionMessage(
             problemCount = 2,

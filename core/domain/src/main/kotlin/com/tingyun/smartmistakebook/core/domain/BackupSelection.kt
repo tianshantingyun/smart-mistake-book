@@ -144,7 +144,12 @@ class BackupSelection private constructor(
         return this
     }
 
-    fun summary(): BackupSelectionSummary = BackupSelectionSummary(mask = mask, categories = categories)
+    fun summary(): BackupSelectionSummary = BackupSelectionSummary(
+        mask = mask,
+        categories = categories,
+        // 写侧能成包的组合（9/13/15）都含 IMAGES，资产策略恒为 INCLUDED（6C-2 本批裁定）。
+        assetPolicy = BackupSelectionSummary.ASSET_POLICY_INCLUDED,
+    )
 
     override fun equals(other: Any?): Boolean =
         this === other || (other is BackupSelection && categories == other.categories)
@@ -173,10 +178,15 @@ class BackupSelection private constructor(
  *
  * 不变量：`mask` 必须与 `categories` 的位和一致——这正是「如实回执」的最小条件，
  * 避免出现「回执说只含题，实际却带了会话」这种自相矛盾的描述。
+ *
+ * [assetPolicy]（批次 19 T2-2）= manifest 声明的资产策略：类别集合说「包里有图片这一类」，
+ * 它说「题图**字节**是否随包」。缺了这个字段，回执/UI 就无法区分「图片类别在、字节也在」
+ * 与「图片类别在、字节没带走」——后者（ABSENT）本批不实现，但消费点必须能如实转述。
  */
 data class BackupSelectionSummary(
     val mask: Int,
     val categories: Set<BackupContentCategory>,
+    val assetPolicy: String = ASSET_POLICY_INCLUDED,
 ) {
     init {
         require(mask in 0..BackupContentCategory.FULL_MASK) {
@@ -188,4 +198,13 @@ data class BackupSelectionSummary(
     }
 
     val isFull: Boolean get() = mask == BackupContentCategory.FULL_MASK
+
+    companion object {
+        /**
+         * 唯一已实现的资产策略：题图字节随包。与写侧的
+         * `SmbkSelectionPlan.ASSET_POLICY_INCLUDED`（core:data）必须同值——两处字面量
+         * 由 `SmbkSelectionPlanTest` 对拍钉住，改一处不改另一处会先红。
+         */
+        const val ASSET_POLICY_INCLUDED: String = "INCLUDED"
+    }
 }

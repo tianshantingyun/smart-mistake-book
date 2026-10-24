@@ -1105,6 +1105,88 @@ class SmbkArchiveCodecTest {
         }
     }
 
+    /**
+     * 批次 19 T2-1：写侧与读侧同规拒负 rowCounts。
+     *
+     * 消灭的失败：读侧 `readableSelection` 拒「rowCounts 含负数」，写侧却接受并成包——
+     * 一份带负行数的 v3 包只有等别人恢复时才在交换前被拒，成包侧毫无提示。
+     * 写侧必须在写任何字节之前先拒，拒因与读侧同一句。
+     */
+    @Test
+    fun `create rejects negative row counts before writing any bytes`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val negativeRowCounts = emptyRowCounts().toMutableMap()
+            .apply { put("problem", -1L) }
+        val negativeDigest = SmbkSelectionPlan.closureDigest(
+            categories = SmbkSelectionPlan.categoriesOf(9),
+            assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            rowCounts = negativeRowCounts,
+        )
+
+        val archive = ByteArrayOutputStream()
+        val failure = assertThrows(IllegalArgumentException::class.java) {
+            SmbkArchiveCodec.create(
+                archive = archive,
+                database = database,
+                assets = emptyList(),
+                referencedAssets = emptyList(),
+                databaseSchemaVersion = 32,
+                problemCount = 0,
+                createdAtEpochMillis = 12_000L,
+                selection = SmbkSelectionRecord(
+                    schemaVersion = SmbkSelectionRecord.CURRENT_SCHEMA_VERSION,
+                    categoryMask = 9,
+                    categories = SmbkSelectionPlan.categoriesOf(9).map { it.name },
+                    assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+                    closureVersion = SmbkSelectionPlan.CLOSURE_VERSION,
+                    // digest 按负行数如实重算，确保唯一可能失败的闸门就是负数检查。
+                    closureDigest = negativeDigest,
+                    rowCounts = negativeRowCounts,
+                    trimmedTableCount = 0,
+                ),
+            )
+        }
+        assertEquals("必须不产出任何归档字节", 0, archive.size())
+        assertEquals(
+            "拒因必须与读侧同一句（readableSelection 的负数拒因）",
+            "备份内容选择的 rowCounts 含负数",
+            failure.message,
+        )
+    }
+
+    /**
+     * 批次 19 T2-2：读出的 selection 摘要必须携带 manifest 的 assetPolicy。
+     *
+     * 消灭的失败：`BackupSelectionSummary` 缺 assetPolicy，回执/UI 只能显示类别、
+     * 无法说明题图字节是否随包——将来出现 ABSENT 策略的包时消费点只能沉默或瞎说。
+     */
+    @Test
+    fun `v3 selection summary carries the manifest asset policy`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val archive = ByteArrayOutputStream()
+        val rowCounts = emptyRowCounts().toMutableMap().apply { put("problem", 2L) }
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = emptyList(),
+            referencedAssets = emptyList(),
+            databaseSchemaVersion = 32,
+            problemCount = 2,
+            createdAtEpochMillis = 13_000L,
+            selection = selectionFixture(mask = 9, rowCounts = rowCounts, trimmedTableCount = 0),
+        )
+
+        val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(archive.toByteArray()))
+        assertTrue(validation is BackupValidation.Valid)
+        validation as BackupValidation.Valid
+        val summary = requireNotNull(validation.manifest.selection) { "v3 包必须读出 selection" }
+        assertEquals(
+            "摘要的 assetPolicy 必须等于 manifest 声明值",
+            SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            summary.assetPolicy,
+        )
+    }
+
     /** >3 拒：读不懂的格式版本必须在交换前拒绝，文案沿用既有那句。 */
     @Test
     fun `archive format version above three is rejected with the existing reason`() {

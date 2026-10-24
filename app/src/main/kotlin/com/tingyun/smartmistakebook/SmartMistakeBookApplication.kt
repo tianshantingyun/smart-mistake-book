@@ -102,6 +102,16 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class SmartMistakeBookApplication : Application() {
+    /**
+     * KD-61：恢复/清库关库前等应用级 collector 排空的上限。取值与写门的
+     * `maxWriteQueueWaitMillis` 默认同量级（2s）——"关库前多等 collector 一会"与
+     * "接门写在恢复交换段排队多久"是同一类有界等待；超时如实记日志并把残余归
+     * KD-61（恢复不能被挂死的 collector 无限拖住）。
+     */
+    private companion object {
+        const val BACKGROUND_WRITER_QUIESCE_TIMEOUT_MILLIS: Long = 2_000L
+    }
+
     // SupervisorJob stops sibling cancellation but does NOT swallow a child's
     // uncaught exception — without a handler it reaches the process default
     // handler and kills the app. This backstop logs instead of crashing; the
@@ -111,6 +121,18 @@ class SmartMistakeBookApplication : Application() {
     }
 
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default + coroutineCrashBackstop)
+
+    /**
+     * KD-61（批次 19 T3）：DataStore 专用 scope，**不参与恢复关库前的应用级 collector
+     * quiesce**。两个原因：
+     * 1. DataStore 写的是偏好文件，不进 room3 连接池——它不在 KD-61 的写入口面里，
+     *    quiesce 它没有任何收益；
+     * 2. 恢复的 Phase 8（交换成功后）要经 `applyRestoredSettings` 往 DataStore 写回
+     *    设置；若它的 actor scope 已被取消，`edit` 会因 actor 通道关闭而失败（设置恢复
+     *    静默降级为 WRITE_FAILED），超时未排空路径下消息甚至永远无人消费（恢复挂死）。
+     * 给偏好持久化一个与 collector 分离的存活面，Phase 8 行为与 quiesce 引入前逐位一致。
+     */
+    private val dataStoreScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + coroutineCrashBackstop)
 
     val startupState = MutableStateFlow<StartupState>(StartupState.Initializing)
 
@@ -284,7 +306,7 @@ class SmartMistakeBookApplication : Application() {
             // Stage-3 稠密腿（可选）：装配失败/未启用即返回 null，检索退回纯词面。
             // 总开关在 core:data 的 DenseRecallAssembly.ENABLED（一行回退）。
             database = StudyDatabaseFactory.open(this, denseRerank = DenseRecallAssembly.reranker(this))
-            schedulingSettingsStore = DataStoreSchedulingSettingsStore(this, applicationScope)
+            schedulingSettingsStore = DataStoreSchedulingSettingsStore(this, dataStoreScope)
             // Settings are read synchronously to mirror the synchronous database
             // open above; a scheduling-flag flip applies on the next launch so a
             // single session's projection model stays stable (spec 2.20).
@@ -388,8 +410,8 @@ class SmartMistakeBookApplication : Application() {
             )
             val roomSplitImportRepository = SplitImportRepositoryFactory.createConcrete(database)
             splitImportRepository = roomSplitImportRepository
-            reviewReminderRepository = DataStoreReviewReminderRepository(this, applicationScope)
-            sleepJournalStore = DataStoreSleepJournalStore(this, applicationScope)
+            reviewReminderRepository = DataStoreReviewReminderRepository(this, dataStoreScope)
+            sleepJournalStore = DataStoreSleepJournalStore(this, dataStoreScope)
             registerActivityLifecycleCallbacks(
                 object : ActivityLifecycleCallbacks {
                     // Silent sleep-window collection (spec 2.14): every time
@@ -497,6 +519,23 @@ class SmartMistakeBookApplication : Application() {
                 // KD-56：恢复在关闭 Room 连接池**之前**把"请先不要操作"交给 UI；不接这条，
                 // 关库前的通知是 no-op，界面会继续撞已关闭的连接池（code 21）。
                 onRestartRequired = ::requireDatabaseRestart,
+                // KD-61：关库前对应用级 collector 做硬性 quiesce——取消整个 applicationScope
+                // 并限时等子协程把最后一笔在途写跑完（collector 多数没接写门，且部分实现
+                // 位于不可改的热区文件；见 BackgroundWriterQuiesce.kt 的失败指认）。此刻进程
+                // 已注定重启，scope 终态是刻意的。
+                backgroundQuiesce = {
+                    val drained = quiesceApplicationScopeWriters(
+                        scope = applicationScope,
+                        timeoutMillis = BACKGROUND_WRITER_QUIESCE_TIMEOUT_MILLIS,
+                    )
+                    if (!drained) {
+                        android.util.Log.w(
+                            "SmartMistakeBook",
+                            "Background writers not fully drained before database close " +
+                                "(KD-61 residual); proceeding with restore",
+                        )
+                    }
+                },
             )
             // 确认卡执行路径 ③（A4）：聊天附图 → 既有录入链路。放在批量和采集之后——它两者都用到。
             tutorAttachedImageIntake = TutorAttachedImageIntakeFactory.create(
@@ -986,7 +1025,7 @@ class SmartMistakeBookApplication : Application() {
 
     val modelConfigurationStore: ModelConfigurationStore? by lazy {
         if (capabilities.networkRequestsAllowed) {
-            DataStoreModelConfigurationStore(this, applicationScope)
+            DataStoreModelConfigurationStore(this, dataStoreScope)
         } else {
             null
         }

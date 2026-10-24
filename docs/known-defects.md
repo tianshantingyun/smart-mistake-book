@@ -2463,6 +2463,51 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 （`core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/backup/BackupLargeDatabaseScaleInstrumentedTest.kt:104`），仍不覆盖上述旁路。
 故本条保持 **open**，且旁路集合比批次 16 更大；关闭条件不变（非门控写入口在关库前被硬性排空或证明不可达）。
 
+**2026-10-24 批次 19 T3 处置（部分接入 + 硬性 quiesce + 旁路清单登记；保持 open）**：
+
+现状核实（`grep withWriteAdmission` 生产代码命中，批次 19 T3 实测）：仍是两仓库——
+`AndroidBackupRepository.kt`（清理孤立题图，`admittedWrite` 语义）与 `RoomCaptureWorkflowRepository.kt`
+（采集写入口 `admittedWrite`，全部保存/切分/提交/挂接走它；`resumePendingCleanRedraws` 除外，见下）。
+恢复关库窗口 = `beginCommit()` 排空接门写者 → restartNotifier → 750ms 观察者宽限 →
+`markDatabaseClosedForRestart()` → `database.close()`（`AndroidBackupRepository.kt` 交换段）。
+
+本批三项改动（先读码核实、测试先行；本轨不跑 Gradle，测试由门禁轨执行）：
+1. **图生成僵尸对账接入写门**：`FigureGenerationReconciler` 构造注入 `BackupWriteGate.shared`，
+   对账写包进 `withWriteAdmission("图生成僵尸对账")`——批次 17 点名的旁路之一关闭（恢复交换段它被拒、
+   关库终态立即失败，不再撞 code 21 / 写进将被换掉的旧库）。JVM 用例：
+   `FigureGenerationReconcilerTest`（恢复交换段被拒不写 / 终态立即失败 / 空闲门直通）。
+2. **关库前硬性 quiesce 钩子**：`AndroidBackupRepository` 新增 `backgroundQuiesce`（默认 null=行为不变），
+   在 `beginCommit` 之后、750ms 宽限与关库之前调用；`deleteAllData` 同一位置对称接入。
+   生产装配（`SmartMistakeBookApplication`）传「取消整个 applicationScope + 限时 2s join 全部子协程」
+   （`BackgroundWriterQuiesce.kt`）：协程取消是协作式的，在途 DAO 写把当前 SQL 跑完再退出，join 等
+   「最后一笔归还连接」——把"关库瞬间仍有应用级 collector 带着在途 SQL"与"关库后 collector 再发起写"
+   两条都关掉。钩子抛异常中止恢复且**不关库**（交换前失败分支，写门回 Idle、活库可读）。
+   配套：四个 DataStore 工厂（调度设置/提醒偏好/睡眠日志/模型配置）换到独立 `dataStoreScope`——
+   DataStore 不进 room3 连接池、不在写入口面里，且恢复 Phase 8 要往它写回设置；留在 applicationScope
+   会让 actor 随 quiesce 取消（`edit` 撞关闭通道 → 设置恢复降级 WRITE_FAILED，超时路径甚至挂死）。
+   用例：`BackgroundWriterQuiesceTest`（app JVM，在途写先于返回完成/挂死者超时放弃/quiesce 后新 launch
+   no-op/空 scope 立即返回）、`RestoreBackgroundQuiesceInstrumentedTest`（core:data androidTest，
+   quiesce 位于 notify 与 close 之间且门未终态；钩子抛异常→不关库、门回 Idle、活库可读）。
+3. **旁路清单（未接门、未排空，登记为残余）**——按入口家族：
+   - 热区文件（本批禁改，接门须改调用方）：BatchImport/SplitImport 全族（`BatchImportDriverWorker`
+     → `drivePendingImports`；启动两笔对账 `reconcileStuckJobs`/`reconcileCommittedQuestionDrafts`）、
+     `MistakeExportJobRunner`（`ExportPdfWorker` 的 recordSucceeded/Failed + 启动僵尸对账）、
+     `RoomMistakeDetailRepository`、`RoomTutorToolRunner`（含 `TutorConversationDao` 全部写方）、
+     `CleanRedrawTaskPort` 实现
+     （`resumePendingCleanRedraws` 的任务行领取/终态写、显式重绘续跑）、`ReviewReminderCoordinator`、
+     knowledge 证据/测验写（`KnowledgeEvidenceWriter`/`KnowledgeQuizFeedbackWriter`）、
+     `RoomModelTaskToolRounds`、`RoomAgentPendingRequestRepository`（create/resolve 两写口）。
+     其中**应用级 collector 已被 ② 的 quiesce 覆盖**（它们全部 `applicationScope.launch`：两笔切分对账、
+     净化/显式重绘续跑、导出僵尸对账、知识包安装、学习库初始化/FSRS——取消+join 后不再发起新写）；
+     残余是**用户动作路径**（恢复窗口内学生仍可操作直至重启横幅接管）与下一条。
+   - WorkManager worker 在途 SQL：`cancelAllWork()` 只取消不 join——worker 已开始的语句仍可能与
+     close() 竞态（原生层）。750ms 宽限部分吸收。
+   - UI（viewModelScope/Compose）写：未接门也不在 applicationScope——继续靠重启横幅 + 750ms 启发宽限。
+   - quiesce 超时路径：挂死（不吃取消）的 collector 会让 2s 超时后照常关库（如实记日志），该在途写仍属残余。
+   状态：**open（收窄）**。关闭条件不变：非门控写入口在关库前被硬性排空或证明不可达。
+   未跑项：本轨未执行任何 Gradle 测试（门禁轨 P5/P6/P7 跑单测/androidTest 编译/设备）；设备端
+   D1 换机演练将首次以真实 collector 在飞的状态走恢复全链。
+
 ## KD-62 (fixed ①+② 2026-10-21（批次 16 T7；RoomBackupCheckpointValidationTest 5/0、BackupTempArtifactCleanupTest 2/0；③ 保留 KD-61）；2026-10-20 登记（批次 15 收尾复核；low）) · 备份回退与清理残余：checkpoint 结果行被忽略、成包临时库无启动清理、写门只覆盖两仓库
 
 **Symptom（读码）.** ① 旧回退的 `checkpointForBackup` 消费 `wal_checkpoint(TRUNCATE)` 结果行后不校验是否真的完成
@@ -2483,3 +2528,22 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 ①+② 关闭，③ 保留 KD-61。
 
 **Reopen condition.** n/a —— 登记性低危；出现回退一致性故障或磁盘被临时库占满时升级处置。
+
+## KD-63 (open, 2026-10-24 登记（批次 19 P8 复核发现；low）) · deleteAllData 清「待重建」标记的时机在第 10 步，留窄崩溃窗口；S3 重查 finally 无条件删 staged 边车未注明防御性质
+
+**Symptom（读码 + 复核对拍）.** ① `AndroidBackupRepository.deleteAllData` 的 try/finally（`finally { admission.endRestore() }`）
+在 `deleteAllNonDatabaseFiles` 调用之前结束；标记过滤在 `deleteAllNonDatabaseFiles` 第 10 步（~:1028-1040，
+`it.name == RestoreIndexRebuildMarker.FILE_NAME`，批次 19 T2-3 新增）。此时库文件已删、写门已 endRestore 重放行——
+若进程在「库已删、标记未删」窗口崩溃，残留 `restore-index-rebuild-pending.json` 会让下次启动把空库当恢复后待重建
+重跑（`RestoreIndexRebuild.kt:202-210` 仅 failed.isEmpty() 时 clear；`:213-220` 失败重写标记），失败科目每启动重试
+（正是该改动注释自己描述的失败形态）。配套断言 `BackupRestoreInstrumentedTest.deleteAllDataClearsThePendingRestoreIndexRebuildMarker`
+（:125-161，设备 56/56 中已过，归门禁）。② `RestoreSoftReferenceRecheck` 的 try/finally
+（`finally { 删 "$path-wal"/"$path-shm" }`，:192）无条件删除 staged 库边车——数据结局与旧代码相同
+（恢复 Phase 3 本来只 `copyTo` 主文件，WAL 帧进不了 next 代），**不是新数据丢失模式**，但属防御性清理而未注明。
+
+**Impact.** low（窗口窄：需恰在库已删、标记未删之间崩溃；后果是空库上的一次无意义重建重试，不丢数据）。
+
+**Fix direction.** ① 把标记删除提前到不可逆段（关库删库）之前，或在协调器消费标记时校验「库非空/版本匹配」再重建；
+② 在 `RestoreSoftReferenceRecheck` finally 注明防御性清理语义（或仅在确认边车为本阶段自建时删除）。
+
+**Reopen condition.** 出现「全清数据后每次启动重跑派生索引重建」类现象时按本条处置；修复后以崩溃注入或顺序断言关闭。

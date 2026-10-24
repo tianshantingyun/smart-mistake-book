@@ -3155,3 +3155,71 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **下一批**：先复跑最终树设备（裁剪 9 例、恢复 8 例、UI 11 例、成包 3 例、365MiB 1 例）与门禁；回写设计件
   §9.9/机器块；补 S3/写侧负计数等低危；真实 Provider（PRD-09）仍 UNVERIFIED；6C-2 暂记“代码级完成、
   验收部分 UNVERIFIED”，不勾选关闭。
+
+## 完成记录折入（批次 19：6C-2 收口尾 + 5B 两半边 + 3E/PRD-11 设备）（2026-10-24）
+
+> 说明：本批由动态工作流执行（T0 基线 → T1/T2/T3/T4/T5 并行 → I1 集成 → P5 门禁 → P7 设备（D1/T6/T7）
+> → P8 双复核 → P9 修复环 → P10 记录员）。**本批未提交、未推送**；记录时点 HEAD 仍为 `311f7de1`
+> （= `origin/main`，记录员只读复核）。**工程门未过：单测门第 3 轮 `exit=1`（core:data 测试编译红已在树修复
+> 但无 Gradle exit=0 复跑；app quiesce 测试 4 例 1 竞态红未复跑），强门未跑。** 设备实跑：D1 换机演练 6/0、
+> 备份回归 56/56、迁移 15/15、R8 冒烟+本地任务线 5/5+网络观测=0。批次记录：
+> `docs/research/2026-10-23-batch-19-record.md`。只追加，既有正文未动；不重启任何已裁项。
+
+### 裁定登记（沿用已裁，本批零新裁定）
+
+1. **6C-2 三裁定维持**（2026-10-23 已裁，本批 T1 回写设计件 §9.9/§9.11/§7 后文档债清）：不提供 mask=8、
+   禁止 mask=0、派生索引恒裁+恢复后按科重建；允许组合仅 9/13/15，不静默补齐/缩水。机器块
+   `openMasks={0,8}` 测试解析契约不变。
+2. **G8/G14 边界（5B 契约时细化，本批为"回收域层半边"落法）**：本批只做 G8 回收半边——不实现 G14、
+   不代填权重；开放题走既有判词通道的**接口形态**（`PaperOpenAnswerJudgingChannel` 默认抛
+   `UnsupportedOperationException`），模型侧不实现；UI 零（入口留 G14/5B 契约后）；导出侧键链接线
+   （`MistakeExportRecord` 增 answerKey 字段族）为接线批次遗留，本批只落域模型+接口+内存仓储。
+3. **回灌事实必须是学生作答证据**：生成图/清图不得冒充答卷；重传幂等不重复计分（attemptKey 派生自
+   指纹+题+学习日，不同卷/不同日不撞键，复用 AUD-01/02 身份）；本地判"选项 ID 对照"不等于答案键可信
+   ——沿 PRD-02 两轴规则，键不可信（UNKNOWN）该题判"待核验"（`PendingVerification` 档），不写数值掌握
+   （命令构造三重锁死只收 VERIFIED/USER_ASSERTED 的 LocalChecked 档）。
+
+### G6 扩容爬升常量登记（PENDING_CALIBRATION，不许顺手调整）
+
+- **新常量**：`AlgorithmConstants.ReviewScoring.EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION = 0.5`
+  （`core/domain/.../AlgorithmConstants.kt:148`）。语义：考试窗口内每日复习时间预算随临近线性放大的
+  **最大增幅**（考试当天 +50%，窗口边缘 0，无考试日/窗口外恒不参与；消费点
+  `StudyReviewPlannerService.examCapacityBudgetSeconds`）。窗口常量 `EXAM_RAMP_DAYS = 14`
+  （`StudyReviewPlannerService.kt:800` 私有 companion）复用插眼 1 已裁默认窗口。
+- **PENDING_CALIBRATION 理由（代码 KDoc 同文）**：插眼 1（2026-09-25 阶段 0 收口）只裁了**形状与窗口**
+  （重要性 × 窗口内线性衰减、窗口默认 14 天、范围 1–60）与重要性档（高/中/低=1.0/0.7/0.4——
+  `ExamCalendarEntry` 尚无 importance 字段、设置屏未接，本批未接线，当前所有考试按高档 1.0）；
+  “预算放大多少”无外部先例可引（Deckline/Deadline2 先例只做每日目标层不动预算），待 **Wave X 离线模拟
+  校准**。**改这个数属产品裁定面，不许在实现里顺手调整。**
+- 不变性：无考试日/窗口外逐位不变（ramp≤0 原值返回、扫描读门 `any{ in 0..EXAM_RAMP_DAYS }` 为 false、
+  扫描压力仅 ramp>0 生效——结构保证 + 指纹级测试钉住）；`ReviewPlannerV2` 零改动零 bump
+  （`VERSION="review-planner-v4"` 未变）。算法台账登记见 `algorithm-version-ledger.md` §3.29。
+
+### 本批结果（增量）
+
+- **6C-2 收口尾（T1/T2/D1）**：设计件文档债回写；六项加固（写侧拒负 rowCounts、摘要 assetPolicy 四处
+  同口径、deleteAllData 清待重建标记、恢复交换前 S3 软引用重查（`RestoreSoftReferenceRecheck` 新文件，
+  两侧规则逐项对拍无误拒）、I5 五站点 SQL 单源化（`CanonicalAssetReferenceSites`）、子集文案按 mask 实示）；
+  D1 换机演练设备门全过（mask 15/9/13 三条 + 损坏包停交换前 + 真实杀进程两阶段恢复）；备份回归 56/56
+  （批次 18 的 53 例不回退）。**换机与跨重置恢复退出门实测达标。**
+- **KD-61 处置（T3，open（收窄））**：图生成僵尸对账接既有写门 + 恢复/清库关库前硬性 quiesce（取消
+  applicationScope + 限时 2s join；四 DataStore 工厂拆独立 scope 保 Phase 8 设置写；钩子异常不关库）；
+  旁路四类残余登记于条目。
+- **5B-G6 排程半边（T4）**：扩容爬升 + 3E 扫描到期压力接既有 EXAM 通道（不加新权重常量）。
+- **5B-G8 回收域层半边（T5）**：`PaperAnswerSheet`（身份幂等键）/`PaperAnswerKeyChain`（键链模型+信任
+  判定复用 core:model 单源）/`PaperAnswerRecycleJudge`（客观题本地判纯函数）/`PaperAnswerEvidenceFeedback`
+  （LOCAL_CHECKED 回灌端口，幂等义务写入契约 KDoc）/`PaperAnswerSheetRecycler`（编排）+
+  `InMemoryPaperAnswerRecycleStore`（putIfAbsent 原子去重）；11 新文件 37 用例、零 schema、零 UI、生产零消费。
+- **新缺陷 KD-63**（本批复核发现，低）：`deleteAllData` 清"待重建"标记在第 10 步（库已删、写门已重放行），
+  窗口内崩溃残留标记会让下次启动对空库重跑重建。
+
+### 未闭合/保留（照实）
+
+- **工程门未过**：单测门第 3 轮 `exit=1`、强门未跑——提交前置；`BackgroundWriterQuiesceTest` 1 例竞态红；
+  core:data 四个新/改 JVM 测试类、`StudyReviewPlannerExamWindowTest`、T5 全部 37 用例无 Gradle 执行证据；
+  `BackupSelectionUiInstrumentedTest`/`RestoreBackgroundQuiesceInstrumentedTest` 未复跑。
+- **G8 接线批次遗留**：导出侧键链持久化、UI 入口（G14/5B 契约后）、`PaperAnswerEvidenceFeedbackPort` 生产
+  实现（**必带并发幂等验收**：同 attemptKey 并发提交恰一次计分）、真实落库仓储（若需表为 schema 70）。
+- G5 选择器待裁不动；importance 字段未接线；真实 Provider/PRD-09 UNVERIFIED；API23/arm64/16KB 宿主不可行
+  如实标注、strictOffline/benchmark/internal/R8 未跑；3E 设备侧复验未做；`SmartMistakeBookRoot.kt`
+  他线动画改造引用未跟踪文件——本批提交必须排除。

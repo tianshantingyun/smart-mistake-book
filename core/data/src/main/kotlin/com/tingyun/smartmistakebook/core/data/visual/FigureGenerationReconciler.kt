@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.visual
 
 import com.tingyun.smartmistakebook.core.database.port.FigureGenerationAuditPort
+import com.tingyun.smartmistakebook.core.domain.BackupWriteGate
 
 /**
  * 一次 RUNNING 行在多长时间没有落终态后算"超时"（30 分钟）。
@@ -38,6 +39,15 @@ const val FIGURE_GENERATION_RUNNING_TIMEOUT_MILLIS: Long = 30L * 60L * 1_000L
 class FigureGenerationReconciler(
     private val audit: FigureGenerationAuditPort,
     private val now: () -> Long = System::currentTimeMillis,
+    /**
+     * KD-61：启动对账是应用级 collector——恢复关库窗口内它可能仍在写。接入备份写门
+     * （与采集/备份仓库同一进程内共享实例）后：恢复交换段它短暂排队、超时抛
+     * [com.tingyun.smartmistakebook.core.domain.BackupWriteDeferredException]（不落进
+     * 将被换掉的旧库），关库终态后立即失败而不是撞已关闭连接池（code 21）。
+     * 与 [com.tingyun.smartmistakebook.core.data.capture.RoomCaptureWorkflowRepository]
+     * 同一默认口径。
+     */
+    private val writeGate: BackupWriteGate = BackupWriteGate.shared,
 ) {
     /**
      * 对账一次。返回真正落成终态的操作/尝试数。
@@ -65,11 +75,13 @@ class FigureGenerationReconciler(
         if (staleBeforeEpochMillis >= atEpochMillis) {
             return FigureGenerationReconcileReport(failedOperations = 0, failedAttempts = 0)
         }
-        val counts = audit.reconcileStaleFigureGenerationRuns(
-            staleBeforeEpochMillis = staleBeforeEpochMillis,
-            atEpochMillis = atEpochMillis,
-            diagnostics = STALE_RUNNING_DIAGNOSTICS,
-        )
+        val counts = writeGate.withWriteAdmission("图生成僵尸对账") {
+            audit.reconcileStaleFigureGenerationRuns(
+                staleBeforeEpochMillis = staleBeforeEpochMillis,
+                atEpochMillis = atEpochMillis,
+                diagnostics = STALE_RUNNING_DIAGNOSTICS,
+            )
+        }
         return FigureGenerationReconcileReport(
             failedOperations = counts.failedOperations,
             failedAttempts = counts.failedAttempts,

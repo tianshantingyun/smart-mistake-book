@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.data.backup
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
+import com.tingyun.smartmistakebook.core.database.dao.CanonicalAssetReferenceSites
 import java.io.File
 import java.io.FileInputStream
 import java.io.RandomAccessFile
@@ -1208,7 +1209,9 @@ class BackupSnapshotTrimmer(
         )
     }
 
-    private companion object {
+    // 批次 19 T2-5：companion 从 private 改 internal，只为让单源钉测试
+    // （CanonicalAssetReferenceSingleSourceTest）能对拍 FIVE_SITE_ASSET_IDS_SQL 与共享谓词。
+    internal companion object {
         const val CHECK_NO_NEW_DANGLING = "no-new-dangling"
 
         /**
@@ -1240,28 +1243,16 @@ class BackupSnapshotTrimmer(
         """.trimIndent()
 
         /**
-         * 生产 `findUnreferencedCanonicalAssets` 的五站点补集（与
-         * `PendingCaptureDao.findUnreferencedCanonicalAssets` 同一口径）。裁剪器用它反查
+         * 生产 `findUnreferencedCanonicalAssets` 的五站点补集。裁剪器用它反查
          * "库自己认为被引用的资产"，再与 §9.5 的 pin 集合对拍。
+         *
+         * 批次 19 T2-5（I5 单源化）：这份 SQL 不再手写第二遍——由
+         * [CanonicalAssetReferenceSites.UNREFERENCED_PREDICATE_SQL]（与清理认领同一处定义）
+         * 取反对偶生成：`WHERE NOT (五个 NOT EXISTS)` ≡ 五个 `EXISTS` 的析取，
+         * 语义逐位不变。将来新增第六类引用形态只改共享谓词，两侧同变。
          */
-        val FIVE_SITE_ASSET_IDS_SQL = """
-            SELECT asset.source_asset_id
-            FROM canonical_source_asset AS asset
-            WHERE EXISTS (
-                    SELECT 1 FROM problem_revision_source_asset AS revision_link
-                    WHERE revision_link.source_asset_id = asset.source_asset_id)
-               OR EXISTS (
-                    SELECT 1 FROM problem_draft_source_asset AS draft_link
-                    WHERE draft_link.source_asset_id = asset.source_asset_id)
-               OR EXISTS (
-                    SELECT 1 FROM problem_draft AS draft
-                    WHERE draft.source_asset_id = asset.source_asset_id)
-               OR EXISTS (
-                    SELECT 1 FROM tutor_message_source_asset AS message_link
-                    WHERE message_link.source_asset_id = asset.source_asset_id)
-               OR EXISTS (
-                    SELECT 1 FROM figure_generation_attempt AS attempt_output
-                    WHERE attempt_output.output_asset_id = asset.source_asset_id)
-        """.trimIndent()
+        val FIVE_SITE_ASSET_IDS_SQL: String =
+            "SELECT asset.source_asset_id FROM canonical_source_asset AS asset " +
+                "WHERE NOT (" + CanonicalAssetReferenceSites.UNREFERENCED_PREDICATE_SQL + ")"
     }
 }

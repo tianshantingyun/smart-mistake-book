@@ -39,42 +39,12 @@ internal interface PendingCaptureDao {
      * - 异常/晚到回填让失败/取消行也带着产物时，**仍然 pin**：这一行对资产是 RESTRICT 外键，
      *   把它当孤儿删除会让整个认领事务撞约束失败；而且产物是"这张图从哪来"的证据，
      *   不能当孤儿回收。故这里刻意**不按 status 过滤**——引用是物理的，不是状态的。
+     *
+     * 批次 19 T2-5（I5 单源化）：查询文本整体取自
+     * [CanonicalAssetReferenceSites.FIND_UNREFERENCED_CANONICAL_ASSETS_SQL]——五站点谓词
+     * 只有那一处定义，备份裁剪器（`BackupSnapshotTrimmer`）的 I5 对拍由同一谓词生成。
      */
-    @Query(
-        """
-        SELECT asset.source_asset_id,
-               asset.content_sha256,
-               asset.relative_path,
-               asset.mime_type,
-               asset.byte_size,
-               asset.width,
-               asset.height,
-               asset.source_type,
-               asset.created_at_epoch_millis
-        FROM canonical_source_asset AS asset
-        WHERE NOT EXISTS (
-            SELECT 1 FROM problem_revision_source_asset AS revision_link
-            WHERE revision_link.source_asset_id = asset.source_asset_id
-        )
-          AND NOT EXISTS (
-            SELECT 1 FROM problem_draft_source_asset AS draft_link
-            WHERE draft_link.source_asset_id = asset.source_asset_id
-        )
-          AND NOT EXISTS (
-            SELECT 1 FROM problem_draft AS draft
-            WHERE draft.source_asset_id = asset.source_asset_id
-        )
-          AND NOT EXISTS (
-            SELECT 1 FROM tutor_message_source_asset AS message_link
-            WHERE message_link.source_asset_id = asset.source_asset_id
-          )
-          AND NOT EXISTS (
-            SELECT 1 FROM figure_generation_attempt AS attempt_output
-            WHERE attempt_output.output_asset_id = asset.source_asset_id
-          )
-        ORDER BY asset.created_at_epoch_millis ASC, asset.source_asset_id ASC
-        """,
-    )
+    @Query(CanonicalAssetReferenceSites.FIND_UNREFERENCED_CANONICAL_ASSETS_SQL)
     suspend fun findUnreferencedCanonicalAssets(): List<CanonicalSourceAssetRow>
 
     /**

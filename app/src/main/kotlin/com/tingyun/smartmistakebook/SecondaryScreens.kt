@@ -1174,8 +1174,33 @@ private fun backupCategoryLockReason(category: BackupContentCategory): String = 
 internal fun backupCategoriesLabel(categories: Iterable<BackupContentCategory>): String =
     categories.sortedBy { it.ordinal }.joinToString("、") { backupCategoryLabel(it) }
 
+/**
+ * 类别集合 → 内容命名（批次 19 T2-6）：全选只列类别；子集括注**不含**的类别
+ * （「错题本、图片（不含掌握库、会话）」口径）。创建面板摘要、创建回执、恢复前确认、
+ * 恢复回执四处共用——同一份包在四处看到的是同一句话，不再一律像"完整备份"。
+ */
+internal fun backupSelectionContentLabel(categories: Set<BackupContentCategory>): String {
+    val included = backupCategoriesLabel(categories)
+    if (BackupContentCategory.maskOf(categories) == BackupContentCategory.FULL_MASK) {
+        return included
+    }
+    val excluded = BackupContentCategory.ALL - categories
+    return "$included（不含${backupCategoriesLabel(excluded)}）"
+}
+
+/**
+ * 资产策略短语（批次 19 T2-2）：转述 manifest 的 `assetPolicy`——INCLUDED=题图字节随包；
+ * 其它策略如实报值不猜（当前读侧只放行 INCLUDED，后半分支给未来策略留诚实转述）。
+ */
+internal fun backupAssetPolicyPhrase(assetPolicy: String): String =
+    if (assetPolicy == BackupSelectionSummary.ASSET_POLICY_INCLUDED) {
+        "题图随包"
+    } else {
+        "题图策略未知（$assetPolicy）"
+    }
+
 internal fun backupSelectionSummaryText(selection: BackupSelection): String {
-    val label = "将备份：${backupCategoriesLabel(selection.categories)}。"
+    val label = "将备份：${backupSelectionContentLabel(selection.categories)}。"
     return if (selection.isFull) {
         label
     } else {
@@ -1183,23 +1208,25 @@ internal fun backupSelectionSummaryText(selection: BackupSelection): String {
     }
 }
 
-/** 成包回执里的内容选择（来自仓储如实回报的 mask）。 */
+/** 成包回执里的内容选择（来自仓储如实回报的 mask）；资产策略按写侧唯一值随句说明。 */
 internal fun backupSelectionSentence(mask: Int): String =
-    "备份内容：${backupCategoriesLabel(backupSelectionOfMask(mask).categories)}。"
+    "备份内容：${backupSelectionContentLabel(backupSelectionOfMask(mask).categories)}；" +
+        backupAssetPolicyPhrase(BackupSelectionSummary.ASSET_POLICY_INCLUDED) + "。"
 
 /**
  * 包声明的选择的一句话（校验成功提示、恢复前确认共用）。
  *
  * v1/v2（selection=null）按全量说明；子集必须点名**未包含的类别**并说明恢复的替换语义
- * 会把它们清空——这正是设计 §3.3 要求恢复前说全的那句话。
+ * 会把它们清空——这正是设计 §3.3 要求恢复前说全的那句话。资产策略（assetPolicy）
+ * 与创建回执同口径转述（批次 19 T2-2/T2-6）。
  */
 internal fun backupManifestSelectionSentence(manifest: BackupManifestSummary): String {
     val selection = manifest.selection
         ?: return "备份内容：全部（旧版备份按全量恢复）。"
-    val label = "备份内容：${backupCategoriesLabel(selection.categories)}。"
+    val label = "备份内容：${backupSelectionContentLabel(selection.categories)}；" +
+        backupAssetPolicyPhrase(selection.assetPolicy) + "。"
     if (selection.isFull) return label
-    val missing = BackupContentCategory.ALL - selection.categories
-    return label + "未包含的类别（${backupCategoriesLabel(missing)}）恢复时会被清空。"
+    return label + "未包含的类别恢复时会被清空。"
 }
 
 /** 恢复前确认框正文：包内容 + 替换语义 + "当前数据不会自动备份"。 */
@@ -1245,8 +1272,10 @@ internal fun storageRestoreCompletionMessage(
         "备份内容：全部（旧版备份按全量恢复）。"
     } else {
         // 恢复是替换语义：没勾的类别已被清空，回执必须如实说明（T1 RestoreReceipt.selection）。
+        // 批次 19 T2-2/T2-6：与恢复前确认、创建回执同口径——点名不含的类别 + 转述资产策略。
         val replacedNote = if (selection.isFull) "" else "未包含的类别已按替换语义清空。"
-        "备份内容：${backupCategoriesLabel(selection.categories)}。$replacedNote"
+        "备份内容：${backupSelectionContentLabel(selection.categories)}；" +
+            backupAssetPolicyPhrase(selection.assetPolicy) + "。$replacedNote"
     }
     return "恢复完成：$problemCount 道题、$assetCount 张题图。$selectionNote$settingsNote$restartNote"
 }

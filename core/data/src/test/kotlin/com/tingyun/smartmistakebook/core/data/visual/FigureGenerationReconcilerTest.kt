@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.data.visual
 
 import com.tingyun.smartmistakebook.core.database.port.FigureGenerationAuditPort
 import com.tingyun.smartmistakebook.core.database.port.FigureGenerationReconcileCounts
+import com.tingyun.smartmistakebook.core.domain.BackupWriteDeferredException
+import com.tingyun.smartmistakebook.core.domain.BackupWriteGate
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,7 +30,7 @@ class FigureGenerationReconcilerTest {
                     failedAttempts = 3,
                 ),
             )
-            val reconciler = FigureGenerationReconciler(audit) { NOW }
+            val reconciler = FigureGenerationReconciler(audit, { NOW })
 
             val report = reconciler.reconcileStaleRunning(
                 processStartedAtEpochMillis = PROCESS_STARTED,
@@ -56,7 +58,7 @@ class FigureGenerationReconcilerTest {
         val audit = RecordingAudit(
             counts = FigureGenerationReconcileCounts(failedOperations = 1, failedAttempts = 1),
         )
-        val reconciler = FigureGenerationReconciler(audit) { NOW }
+        val reconciler = FigureGenerationReconciler(audit, { NOW })
 
         reconciler.reconcileStaleRunning(
             processStartedAtEpochMillis = NOW - 120_000L,
@@ -75,7 +77,7 @@ class FigureGenerationReconcilerTest {
         val audit = RecordingAudit(
             counts = FigureGenerationReconcileCounts(failedOperations = 9, failedAttempts = 9),
         )
-        val reconciler = FigureGenerationReconciler(audit) { NOW }
+        val reconciler = FigureGenerationReconciler(audit, { NOW })
 
         val report = reconciler.reconcileStaleRunning(
             processStartedAtEpochMillis = NOW,
@@ -95,7 +97,7 @@ class FigureGenerationReconcilerTest {
         val audit = RecordingAudit(
             counts = FigureGenerationReconcileCounts(failedOperations = 0, failedAttempts = 0),
         )
-        val reconciler = FigureGenerationReconciler(audit) { NOW }
+        val reconciler = FigureGenerationReconciler(audit, { NOW })
 
         val nonPositiveStart = runCatching {
             reconciler.reconcileStaleRunning(processStartedAtEpochMillis = 0L)
@@ -110,6 +112,89 @@ class FigureGenerationReconcilerTest {
         }
         assertTrue(nonPositiveTimeout.isFailure)
         assertTrue("参数不合法时不得碰库", audit.calls.isEmpty())
+    }
+
+    /**
+     * KD-61（批次 19 T3）：启动对账是应用级 collector，恢复交换段（beginCommit 之后、
+     * 关库之前）到达的这次写必须被写门挡下——不落进即将被换掉的旧库，超时抛可重试的
+     * [BackupWriteDeferredException]，调用方（Application 的 runCatching）记日志、下次
+     * 启动再收尾。改前这里直写端口：断言"写未发生 + 明确被拒"会失败（红）。
+     */
+    @Test
+    fun `a reconcile arriving in the restore commit window is deferred without writing`() =
+        runBlocking {
+            val audit = RecordingAudit(
+                counts = FigureGenerationReconcileCounts(failedOperations = 5, failedAttempts = 5),
+            )
+            val gate = BackupWriteGate(maxWriteQueueWaitMillis = 100L, drainTimeoutMillis = 1_000L)
+            val reconciler = FigureGenerationReconciler(audit, { NOW }, gate)
+            val admission = gate.beginRestore("恢复备份")
+            admission.beginCommit()
+
+            try {
+                val failure = runCatching {
+                    reconciler.reconcileStaleRunning(
+                        processStartedAtEpochMillis = PROCESS_STARTED,
+                        runningTimeoutMillis = 60_000L,
+                    )
+                }.exceptionOrNull()
+
+                assertTrue(
+                    "恢复交换段里的对账写必须被写门拒绝（可重试），实际：$failure",
+                    failure is BackupWriteDeferredException,
+                )
+                assertTrue(
+                    "被拒的对账不得碰库：写会落进即将被换掉的旧库",
+                    audit.calls.isEmpty(),
+                )
+            } finally {
+                admission.endRestore()
+            }
+        }
+
+    /** KD-61：关库终态后（连接池已关）到达的对账必须立即失败，而不是撞 code 21。 */
+    @Test
+    fun `a reconcile arriving after the database is closed for restart fails fast`() =
+        runBlocking {
+            val audit = RecordingAudit(
+                counts = FigureGenerationReconcileCounts(failedOperations = 5, failedAttempts = 5),
+            )
+            val gate = BackupWriteGate()
+            gate.markDatabaseClosedForRestart()
+            val reconciler = FigureGenerationReconciler(audit, { NOW }, gate)
+
+            val failure = runCatching {
+                reconciler.reconcileStaleRunning(
+                    processStartedAtEpochMillis = PROCESS_STARTED,
+                    runningTimeoutMillis = 60_000L,
+                )
+            }.exceptionOrNull()
+
+            assertTrue(
+                "关库终态后的对账必须立即抛 BackupWriteDeferredException，实际：$failure",
+                failure is BackupWriteDeferredException,
+            )
+            assertTrue("终态后不得有任何库访问", audit.calls.isEmpty())
+        }
+
+    /** 接门不得改变常态行为：门空闲时对账照常执行（对齐采集仓库 admittedWrite 语义）。 */
+    @Test
+    fun `an idle gate lets the reconcile write pass through unchanged`() = runBlocking {
+        val audit = RecordingAudit(
+            counts = FigureGenerationReconcileCounts(failedOperations = 1, failedAttempts = 2),
+        )
+        val gate = BackupWriteGate()
+        val reconciler = FigureGenerationReconciler(audit, { NOW }, gate)
+
+        val report = reconciler.reconcileStaleRunning(
+            processStartedAtEpochMillis = PROCESS_STARTED,
+            runningTimeoutMillis = 60_000L,
+        )
+
+        assertEquals(1, audit.calls.size)
+        assertEquals(PROCESS_STARTED, audit.calls.single().staleBefore)
+        assertEquals(1, report.failedOperations)
+        assertEquals(2, report.failedAttempts)
     }
 
     /** 只实现"对账"的端口：没有派发/预留/插入尝试入口，重派在结构上不可达。 */

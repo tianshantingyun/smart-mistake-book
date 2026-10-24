@@ -137,6 +137,88 @@ internal class StudyReviewPlannerService(
         .filter { it >= 0 }
         .minOrNull()
 
+    /**
+     * G6 扩容爬升（考前冲刺，批次 19/T4）：考试窗口内每日复习时间预算随考试临近线性放大。
+     *
+     * 形状与窗口**复用**已接线的考前权重坡道（[examPriorityOf]——插眼 1 已裁的窗口内线性
+     * 衰减、默认 [EXAM_RAMP_DAYS] 天）：窗口边缘 ramp=0 → 预算**原值返回**（无考试日/窗口外
+     * 逐位不变，不做任何算术）；考试当天 ramp=1 → 最多放大
+     * [AlgorithmConstants.ReviewScoring.EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION]
+     * （PENDING_CALIBRATION 占位幅度）。多科并行取各科爬升的**最大值**：预算是全天一口，
+     * 各科差异化由 [examPriorityOf] 的科目坡道在打分侧承担，预算侧不叠加。
+     *
+     * 纯函数形态，供 [createReviewPlan] 求当日生效预算——新引入切片（NewIntroductionPolicy
+     * 的 1/3 份）与 V2 排程预算共用同一值；追平配额（ceil(backlog/daysLeft)）在此基础上叠加。
+     */
+    internal fun examCapacityBudgetSeconds(
+        exams: List<ExamCalendarEntry>,
+        localDayEpochDay: Long,
+        baseBudgetSeconds: Int,
+    ): Int {
+        val ramp = exams.maxOfOrNull { entry ->
+            val daysUntil = entry.examEpochDay - localDayEpochDay
+            if (daysUntil in 0..EXAM_RAMP_DAYS) {
+                1.0 - daysUntil.toDouble() / EXAM_RAMP_DAYS
+            } else {
+                0.0
+            }
+        } ?: 0.0
+        if (ramp <= 0.0) return baseBudgetSeconds
+        val extraSeconds = (
+            baseBudgetSeconds *
+                AlgorithmConstants.ReviewScoring.EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION *
+                ramp
+            ).toInt()
+        return baseBudgetSeconds + extraSeconds
+    }
+
+    /**
+     * G6 薄弱优先（考前冲刺）：3E 全库扫描分接入排程打分的**既有 EXAM 通道**。
+     *
+     * 消灭的失败：考前，某知识点在册的另一道绑定题已高度衰减（或被 leech 压制）时，该知识点
+     * 的**其余**候选题自身的到期风险看不出这一点（V2 各题只看自己的记忆状态），冲刺排程因此
+     * 无法把"整个知识点正在掉"的题排前——考试考的是知识点，不是单题。3E 扫描的节点级聚合
+     * （绑定题最小检索概率，[knowledgeRecallRiskByNode]）补上这半边：同一函数、同一 decay，
+     * 与知识点队列（[currentKnowledgeReviewPlan]）同源。
+     *
+     * 通道纪律：只取扫描的**到期压力分量**（1 − minR）；掌握分量不接入——题级 WEAKNESS 通道
+     * 已消费同一份节点掌握态（插眼 1 裁定"掌握缺口不乘（WEAKNESS 3.0 已在场）"的同一逻辑），
+     * 重复计同一信号等于暗改权重表。**不加新权重常量**：压力与坡道同为 0..1，经 maxOf 折进
+     * examPriority（EXAM_WEIGHT 既有消费点，V2 零改动）。
+     *
+     * 门：仅当该科目当天在考试窗口内（[examPriorityOf] > 0）才生效——无考试日/窗口外逐位
+     * 不变（含不触发全库扫描读）。
+     */
+    private fun scanBackedDuePressure(
+        scanRetrievalByNode: Map<String, Double>,
+        knowledgeNodeIds: Set<String>,
+    ): Double {
+        var pressure = 0.0
+        for (nodeId in knowledgeNodeIds) {
+            val retrieval = scanRetrievalByNode[nodeId] ?: continue
+            val nodePressure = 1.0 - retrieval
+            if (nodePressure > pressure) pressure = nodePressure
+        }
+        return pressure
+    }
+
+    /** 全库扫描行 → 节点级最小检索概率（与知识点队列同一聚合 [knowledgeRecallRiskByNode]、同一 decay）。 */
+    private suspend fun readScanRetrievalByNode(
+        learnerSnapshot: LearnerSnapshot,
+        planningContext: PlanningContext,
+    ): Map<String, Double> {
+        val rows = database.readFullLibraryScanNodes()
+        if (rows.isEmpty()) return emptyMap()
+        return knowledgeRecallRiskByNode(
+            boundPracticeUnitIdsByNode = rows.associate { row ->
+                row.knowledgeNodeId to row.boundPracticeUnitIds
+            },
+            memoryStates = learnerSnapshot.problemMemoryStates,
+            nowEpochMillis = planningContext.planningAtEpochMillis,
+            decay = planningDecay,
+        )
+    }
+
 
     /**
      * L2 tier baseline (spec §2): map the FSRS difficulty (1..10) onto the
@@ -228,6 +310,22 @@ internal class StudyReviewPlannerService(
         //    （原来各扫一遍同一条查询）；
         // ③ 新题难度档一次批量读（原来逐题一次咨询行查询，见 `difficultyTierByUnit`）。
         val exams = readExams()
+        // G6 扩容爬升（批次 19/T4）：窗口内每日预算随考试临近线性放大；
+        // 无考试日/窗口外原值返回（ramp ≤ 0 短路，不做任何算术）。
+        val effectiveReviewBudgetSeconds = examCapacityBudgetSeconds(
+            exams = exams,
+            localDayEpochDay = localDayEpochDay,
+            baseBudgetSeconds = reviewTimeBudgetSeconds,
+        )
+        // G6 薄弱优先：任一科目当天在考试窗口内才读**一次**全库扫描（无考试日零额外读）。
+        // 节点级聚合与知识点队列同一函数/同一 decay；折算门在候选组装处（按科目坡道 > 0）。
+        val scanRetrievalByNode = if (
+            exams.any { (it.examEpochDay - localDayEpochDay) in 0..EXAM_RAMP_DAYS }
+        ) {
+            readScanRetrievalByNode(learnerSnapshot, planningContext)
+        } else {
+            emptyMap()
+        }
         val reviewLogSamples = reviewLogSink.readReviewSamples()
         val avoidanceUnits = reviewLogSink.avoidancePracticeUnitIds(reviewLogSamples)
         // Spec 3.4: the pseudo knowledge node must exist in knowledge_node
@@ -285,11 +383,25 @@ internal class StudyReviewPlannerService(
                         .coerceIn(0, MAX_REPEAT_CAPTURE_BONUS_COUNT).toDouble() /
                         MAX_REPEAT_CAPTURE_BONUS_COUNT,
                     eligibleSinceEpochMillis = mistake.createdAtEpochMillis,
+                    // G6 薄弱优先：科目在窗口内时，扫描节点级到期压力（0..1）与科目坡道
+                    //（0..1）取大者走同一 EXAM 通道；ramp=0（无考试日/窗口外）原样返回。
                     examPriority = examPriorityOf(
                         exams = exams,
                         subject = mistake.subject,
                         localDayEpochDay = localDayEpochDay,
-                    ),
+                    ).let { ramp ->
+                        if (ramp > 0.0) {
+                            maxOf(
+                                ramp,
+                                scanBackedDuePressure(
+                                    scanRetrievalByNode = scanRetrievalByNode,
+                                    knowledgeNodeIds = mistake.knowledgeNodeIds,
+                                ),
+                            )
+                        } else {
+                            ramp
+                        }
+                    },
                 )
             }
 
@@ -340,7 +452,7 @@ internal class StudyReviewPlannerService(
                                 ?: planningContext.planningAtEpochMillis,
                         )
                     },
-                    timeBudgetSeconds = reviewTimeBudgetSeconds,
+                    timeBudgetSeconds = effectiveReviewBudgetSeconds,
                     daysLeftToExam = daysUntilNearestExamOf(exams, localDayEpochDay),
                 )
                 val introducedIds = decision.introduced.mapTo(hashSetOf()) { it.practiceUnitId }
@@ -361,7 +473,7 @@ internal class StudyReviewPlannerService(
             candidates = finalCandidates,
             localDayEpochDay = planningContext.localDate.toEpochDay(),
             timeZoneId = studyZoneId.id,
-            timeBudgetSeconds = reviewTimeBudgetSeconds,
+            timeBudgetSeconds = effectiveReviewBudgetSeconds,
             planningAtEpochMillis = planningContext.planningAtEpochMillis,
             // Spec §2.9 / §6-L4: the KC prerequisite graph. Feeding it here is what
             // makes the prerequisite gate live at all — without it `prereqGap` is
