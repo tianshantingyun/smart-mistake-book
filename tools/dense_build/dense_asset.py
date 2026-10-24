@@ -73,7 +73,11 @@ GOLDEN_RELATIVE = "tools/kb_coverage/tables/golden_queries_v2.json"
 # 「expectedSlug 迁移（2026-10-16，随批次11 v15 并点）」+「chapter 同步迁移（2026-10-16，
 # 随批次11 v15 F2 章层重建）」两节 + `build/agent-batch11/golden-migration.json`。此后下游
 # （stage3 参考数、两份设备 fixture、tokenizer fixture）随十二步链重生成。
-GOLDEN_SHA256 = "3dbe90736df42c9c22723dc06292b364ade92901604b5731033cf612c4f10e41"
+# **2026-10-20 随批次13 promote v16 的 chapter-only 迁移推进到当前值**：1 条（BIOLOGY 限制酶）
+# 的 chapter 跟随 v16 包 topic 链归属（基因工程的基本操作程序 → 重组DNA技术的基本工具）；
+# expectedSlug/题面/条数均未动（129）。映射与依据：
+# `build/agent-batch13/golden-migration-v16-chapter.json`。本次只同步金标 sha（向量/语料未变）。
+GOLDEN_SHA256 = "eabef10228916d46a18aaaa4e3084f5bacdf6e07ce3a3f8384d31ff71c6f2102"
 
 # ---- 模型档位（Stage-5 参数化：换件只换"哪一档"与档位坐标，路径名一律不动） ----
 #

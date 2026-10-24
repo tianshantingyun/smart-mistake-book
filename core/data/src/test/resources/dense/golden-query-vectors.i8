@@ -1,6 +1,6 @@
 # golden-query-vectors — 金标 v2 查询的离线向量（设备同变换：原文，无前缀）
 # 生成：python tools/dense_build/export_golden_query_vectors.py（int8 ONNX + 冻结 tokenizer；见脚本头）
-# golden sha256=14b7cea8ea29b3788237152618e558a6bc6d3b441edaf3bc508ec460b47ca7a7 cases=129 dim=512 goldenConstantStale=473dbeac28280e34
+# golden sha256=eabef10228916d46a18aaaa4e3084f5bacdf6e07ce3a3f8384d31ff71c6f2102 cases=129 dim=512 goldenConstantStale=eabef10228916d46
 # 用途：GoldenRetrievalJvmTest 的 B-fused-mirror 路——假编码器按题面返回 [f32] 向量；
 #       [i8] 是同一向量的规范 int8+scale 表示，测试侧复核两者一致（量化还原 cosine≥0.9995）。
 # 实测锚（批11 设备探针）：设备原文向量 ↔ 本文件离线原文向量 min cosine 0.999776 / median 0.999834。

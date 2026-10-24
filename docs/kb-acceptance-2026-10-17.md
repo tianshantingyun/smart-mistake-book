@@ -555,3 +555,53 @@ PY
 ```
 
 > 引用格式：**「批次18：A1 未启动；包 v19（contentVersion `c4a72c0755dc6645`，主包 sha `f6098c41…`）；D-3 两臂均未采纳，基线仍 100/129（融合）/89/129（词面）；182 裁决 0 批准 / 50 拒绝 / 132 暂缓（待用户复核）；PHYSICS p41/p79 已转 ACCEPT，转写门 1205/1205。」**
+
+## 9. 批次19（2026-10-24/25）补记
+
+> 本节为批次19 收口补记，**只追加、不改写**：§1–§8 的旧读数（v16/v18/v19 时点、D-3 0.7752 等）全部保留为历史时点，不因本节重述。本节数字为 2026-10-24/25 实跑或实读（执行轮产物 `build/agent-batch19/` 实读 + 收口轮脚本实跑，逐处注明），命令见 §9.4；设备读数未在本收口重跑。批次19 批报：`docs/kb-batch19-2026-10-23.md`。
+
+### 9.1 当前包版本与戳（v20，批次19 A1 采纳）
+
+- manifest：version=**20**，contentVersion=**`ebf477816c318704`**（`core/data/src/main/resources/knowledge/moe-2025-update-manifest.json`；批次19 A1 `build/agent-batch19/a1-promote-run.log` 实读：`version → 20`、`内容戳 → ebf477816c318704`、28 文件晋升、压平 0）。
+- 主包 sha256 **`298f4c0c41519d5116b8d35340edd6f7b4e073573950b4eb0a13e01b32822150`**（v19→v20：31 条 T/C-only 别名入库，`alias_exceptions.csv` 31→33 行、`alias_map.csv` 37,551 数据行、别名 40,765→40,796、变更节点 21——`a1-dryrun.out.txt`、`a1-rebuild-write.out.txt`）。
+- dense 资产 `.vec` sha256 **`0536d0d1cda99bd5614bc94d9176628d7ce999938db1c289b3b44600ae13b23a`**（**44,041 行** = 3,245 canonical + 40,796 alias；写前 `8e216ee1…`），与 `DenseRecallAssembly.kt:107` `VECTOR_ASSET_SHA256` 逐字节一致（`a1-final.md` §三实测重算）。
+- 金标 `golden_queries_v2.json` sha `eabef102…`（129 条 / 24 章）未变；结构 425 主题 / 3,245 知识点 / 64,973 材料未变。
+- 标题向量臂在本节时点内**已执行并逐字回滚**（§9.2），回滚后 stateAfter 与 A1 采纳态逐位同；v20 + `0536d0d1…` 即当前基准。
+
+### 9.2 v19 基准与两臂读数（`docs/kb-direction-2026-10-22.md` §5 口径）
+
+- **开工基准（v19 时期）**：D-3 基线 = 融合 **100/129 = 0.775194**、词面 **89/129 = 0.689922**、MRR **0.622868**（v18 实测、v19 主包未变沿用，§8.2/§8.3 原文保留）。
+- **A1 臂（31 条 T/C-only 别名）——采纳，新基线**：设备融合 **117/129 = 0.9069767441860465**、MRR **0.7322997416020672**；设备词面 **102/129 = 0.7907**（预注册 +13 预测逐位兑现）；p50=38ms / p95=51ms、overBudget=0；同路零漂移 **PASS/PASS**（symdiff 0/0）；按章 cluster 配对 bootstrap（20k/seed0）**B−A = +0.131783，95% CI [0.0769, 0.1926]，p=0.0001**；三规则逐条成立（主集严格更高 + 24 章逐章不劣〔12 高 12 同 0 低，收口轮逐章对比实跑核验〕+ 负向守卫 CI 上界 ≥0）。逐题翻转：修复 17、新增 0（13 条词面增益带入融合 + 4 条融合重排；收口轮账本集合运算）。证据：`build/agent-batch19/a1/`、`a1-final.md`。
+- **标题向量臂（材料 title 入 dense，104,959 行资产）——不判读、逐字回滚**：离线链重出与钉值完成后，装置同路融合零漂移 **symdiff=3 FAIL**（exit=2）——根因为装置两侧稠密资产代际错配（APK 内嵌 `0536d0d1…` 23:16 代 vs 工作树 `9d9bf3f5…` 02:46 重导，JVM 直读），按预注册「非 0 = 装置缺陷，该臂不判读」；三规则未求值；21/21 文件 sha 回 title-PRE、`check_asset.py` 10/10 OK、stateAfter=v20。JVM intel 读数 118/129 留档不判读（`title/jvm-fused-metrics.txt`、`title-final.md`）。
+- 批次15 A2 门证据补录 **done**：`:core:data:testDebugUnitTest --rerun` 全套 **1033/1033**（0 失败 0 错误 0 跳过）+ `GoldenRetrievalJvmTest` 2/2（`a2-evidence-summary.md`）。
+
+### 9.3 0.90 结案建议（预估口径，非臂结论）
+
+- **主集 0.90 已由 A1 达成**：117/129 = 0.9069767 ≥ 0.90，且过该臂全部门。金标为冻结的 `golden_queries_v2.json`（129 条），该读数不外推为泛化结论。
+- **dense-union 前置实测（K=64）判 go**（`docs/research/2026-10-23-kb-dense-union-estimate.md`，估计不是臂）：4 条 A0 absent 的 dense 全科名次 = 镁 **1**、活结与死结模型 **2**、力的分解 **7**、等和线 **336**——**3/4 远在 K=64 内**；并集（词面 512 ∪ dense 64）对 A0 29 条 MISS 的结构覆盖率 **28/29**（25 域内 + 3 absent 可救）。以 A1（12 MISS，其中 2 absent 可救 / 1 不可）为新基线计，**单独靠并集的主集上限约 119/129**；无新增算力面（`nodeScores` 本就全扫）。
+- **已知边界**：等和线 1 条（dense 全科名次 336）并集救不了，按 dense-union 预注册 §4 预案转内容侧。
+- **结案口径**：按方向文件 §5，0.90 的**最终结论仍以 dense-union 臂实测为准**（预估读不出融合后名次；臂须过全部门并独立成钉）；A1 之后的跨线施工建议为 **go——推进 core/database 并集臂**。
+
+### 9.4 本节复算命令
+
+```
+# 包身份
+python -c "import json; d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8')); print(d['version'], d['contentVersion'])"
+# dense 资产身份与陈旧性
+sha256sum core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec
+python tools/dense_build/check_asset.py
+# A1 显著性与逐章（JSON 字段直读）
+python - <<'PY'
+import json
+d=json.load(open('build/agent-batch19/a1/significance-fused-vs-A0.json',encoding='utf-8'))
+print('a(A0)=',d['a']['recall'],'b(A1)=',d['b']['recall'],d['paired'])
+ap,bp=d['a']['per_chapter'],d['b']['per_chapter']
+print('lower_in_b=',sum(1 for k in bp if k in ap and bp[k]<ap[k]))
+PY
+# dense-union 预估全链复算（内置对拍门）
+python build/agent-batch19/scripts/dense_union_estimate.py
+# 零漂移复跑（A1）
+python build/agent-batch19/a1/zero_drift.py
+```
+
+> 引用格式：**「批次19：A1 采纳——包 v20（contentVersion `ebf477816c318704`，主包 sha `298f4c0c…`）+ dense `0536d0d1…`（44,041 行）为新基线；D-3 融合主集 117/129 = 0.9069767（首次 ≥0.90）、词面 102/129、MRR 0.7323、零漂移 PASS/PASS、显著性 +0.1318（CI [0.0769, 0.1926]，p=0.0001）、三规则成立；标题向量臂零漂移装置缺陷（symdiff=3）不判读、逐字回滚（21/21 核验）；dense-union 前置实测 go（K=64：3/4 absent 名次 1/2/7、对 A0 结构覆盖 28/29；A1 基线单独并集上限约 119/129、等和线 1 条转内容侧）；批次15 A2 证据补录 1033/1033。」**

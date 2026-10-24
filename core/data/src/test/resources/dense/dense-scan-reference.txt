@@ -3,7 +3,7 @@
 # 节点分口径：该节点全部向量 cosine 的 max；cosine = scale[r] * Σ_i int8[r][i] * query[i]（float64）
 # 查询向量：build/dense-model/int8-queries.npy（同一 int8 ONNX 输出）的 L2 归一化值
 # 端侧只要求与 scoreKm 在 1e-5 内一致（差值是累加顺序）；scoreBlas 是同数据的 fp32 对照
-[asset]	sha256=8e216ee1719b8a18f213a1629572017fbd97d4e7d96a882e9acdf33ca12ad45e	magic=SMBV	version=1	dim=512	count=44010	dtypeCode=1	idsBytesLength=3312795	expectedBytes=26021979
+[asset]	sha256=0536d0d1cda99bd5614bc94d9176628d7ce999938db1c289b3b44600ae13b23a	magic=SMBV	version=1	dim=512	count=44041	dtypeCode=1	idsBytesLength=3315027	expectedBytes=26040207
 [quantize]	simple	0.5 -0.25 0.125 -1.0	64.0 -32.0 16.0 -127.0	0.007874015718698502	极值 -1.0 ⇒ scale=1/127
 [quantize]	zero_vector	0.0 0.0 0.0	0.0 0.0 0.0	1.0	退化：max=0 ⇒ scale=1.0、q 全 0（不产生 NaN）
 [quantize]	rounding	0.9 0.1 -0.7	127.0 14.0 -99.0	0.007086614146828651	四舍五入到最近整数格
@@ -454,7 +454,7 @@
 [node]	kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的类型判断-规律方法	0.7397817669526925	0.7397817669526925
 [node]	kb:moe-2025-four-subjects-v1:biology:atomic:测定光合速率与呼吸速率的常用方法	0.49774884882712644	0.4977488488271265
 [node]	kb:moe-2025-four-subjects-v1:biology:atomic:光合作用与细胞呼吸“关键点”的移动	0.6008518719630722	0.6008518719630722
-[node]	kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的易错辨析	0.5379595903275964	0.5379595903275964
+[node]	kb:moe-2025-four-subjects-v1:biology:atomic:细胞呼吸的易错辨析	0.7124818453106301	0.7124818453106301
 [node]	kb:moe-2025-four-subjects-v1:biology:atomic:人体呼吸运动的调节方式	0.5503537435031476	0.5503537435031476
 [node]	kb:moe-2025-four-subjects-v1:biology:atomic:呼吸熵	0.5217306112044466	0.5217306112044466
 [node]	kb:moe-2025-four-subjects-v1:biology:atomic:探索光合作用原理的部分实验	0.525096999397049	0.5250969993970489
@@ -1554,7 +1554,7 @@
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:关于点对称	0.582814241976724	0.582814241976724
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:函数值域的求法	0.48008481376416895	0.48008481376416895
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:配方法-主要用于二次函数或可化为二次函数的函数-要特别注意自变量的取值范围	0.4872312495597731	0.48723124955977315
-[node]	kb:moe-2025-four-subjects-v1:math:atomic:判别式法-主要用于含有二次的分式函数-形如	0.4566511051987602	0.4566511051987602
+[node]	kb:moe-2025-four-subjects-v1:math:atomic:判别式法-主要用于含有二次的分式函数-形如	0.4630149262497859	0.4630149262497859
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:为奇函数	0.44822229573652217	0.4482222957365222
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:函数的奇偶性-周期性-对称性关系	0.4687133579500611	0.4687133579500611
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:抽象函数的性质综合	0.540784145154958	0.540784145154958
@@ -1605,7 +1605,7 @@
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:性质法-利用函数性质-若能确定函数的单调性-则其零点个数不难得到	0.4621521655533284	0.46215216555332844
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:直接法-利用零点存在的判定定理构建不等式求解	0.45117313646847224	0.4511731364684722
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:分离参数法-分离参数后转化为求函数的值域-最值-问题求解	0.555968879057355	0.555968879057355
-[node]	kb:moe-2025-four-subjects-v1:math:atomic:对勾函数	0.6893593636339114	0.6893593636339113
+[node]	kb:moe-2025-four-subjects-v1:math:atomic:对勾函数	0.7686219616429426	0.7686219616429427
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:分式型函数的值域	0.4756410012208604	0.4756410012208605
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:挖掘单调性解不等式	0.510823361582152	0.5108233615821519
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:部分奇偶性	0.499595613062501	0.499595613062501
@@ -1804,7 +1804,7 @@
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:不等式恒成立	0.47796439399995544	0.4779643939999554
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:绝对值不等式	0.5345189003066948	0.5345189003066948
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:重要不等式-当且仅当时取号	0.45382178461935735	0.4538217846193573
-[node]	kb:moe-2025-four-subjects-v1:math:atomic:利用基本不等式求最值	0.5877517891803674	0.5877517891803674
+[node]	kb:moe-2025-four-subjects-v1:math:atomic:利用基本不等式求最值	0.6336247488396897	0.6336247488396897
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:不等式恒成立与能成立问题	0.5213824096225427	0.5213824096225427
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:含参一元二次不等式的解法	0.4475999607155314	0.4475999607155313
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:连续使用基本不等式忽略等号同时成立致错	0.43404687244622	0.43404687244622
@@ -2265,7 +2265,7 @@
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:组合	0.46942613132543465	0.46942613132543465
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:二项式定理	0.5770581209963596	0.5770581209963594
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:容斥原理	0.47372830911431796	0.473728309114318
-[node]	kb:moe-2025-four-subjects-v1:math:atomic:二项式系数的性质	0.41956139462296177	0.4195613946229618
+[node]	kb:moe-2025-four-subjects-v1:math:atomic:二项式系数的性质	0.4707292408038117	0.47072924080381173
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:分组分配问题	0.4406111193145192	0.44061111931451913
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:二项展开式系数最大项	0.47271573508052406	0.472715735080524
 [node]	kb:moe-2025-four-subjects-v1:math:atomic:排列组合审题三步法	0.37844465053527826	0.37844465053527826
@@ -2454,7 +2454,7 @@
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:追及与相遇问题	0.5435340139433611	0.5435340139433611
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:用自由落体运动测重力加速度	0.3971736309434453	0.3971736309434453
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:自由落体运动	0.41486444022548996	0.41486444022548996
-[node]	kb:moe-2025-four-subjects-v1:physics:atomic:胡克定律	0.3609414680825839	0.3609414680825839
+[node]	kb:moe-2025-four-subjects-v1:physics:atomic:胡克定律	0.3987488156871436	0.39874881568714365
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:静摩擦力	0.45969153968678195	0.459691539686782
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:滑动摩擦力	0.43800952316823155	0.4380095231682315
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:力的分解	0.46456809837358765	0.46456809837358776

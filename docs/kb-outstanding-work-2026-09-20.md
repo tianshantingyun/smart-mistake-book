@@ -1,6 +1,6 @@
 > 本文件已过时：知识库未竟清单以 docs/kb-outstanding-research-2026-10-02.md 为准（2026-10-02）。
 
-> **现行数字（2026-10-20 复算）**：知识点 **3,245**（主题 425）/ 教学材料 **64,973** 条（sidecar v2-01..25）/ 课标覆盖 **390**/661（PARTIAL 73、NOT_COVERED 198、UNDECIDED 0）/ 薄料 live **205**（零材料 0）/ 超配（>4）**2,482** / 未判（机械 SKIP）**61,170**。复算入口：`moe-2025-four-subjects-v1.json`（现行 v19；2026-10-20 复算时为 v17；A1 采纳则 v20）、`moe-2025-teaching-support-v2-*.json`、`kb-coverage-alignment-2026-v2.json`、`PYTHONPATH=tools python -m kb_build.report_material_gaps`、`PYTHONPATH=tools python -m kb_coverage.count_unjudged`。下文 2026-09-20 快照与 2026-10-02 注记按日期保留。
+> **现行数字（2026-10-20 复算）**：知识点 **3,245**（主题 425）/ 教学材料 **64,973** 条（sidecar v2-01..25）/ 课标覆盖 **390**/661（PARTIAL 73、NOT_COVERED 198、UNDECIDED 0）/ 薄料 live **205**（零材料 0）/ 超配（>4）**2,482** / 未判（机械 SKIP）**61,170**。复算入口：`moe-2025-four-subjects-v1.json`（现行 **v20**，批次19 A1 采纳 2026-10-25；2026-10-20 复算时为 v17、批次18 时 v19）、`moe-2025-teaching-support-v2-*.json`、`kb-coverage-alignment-2026-v2.json`、`PYTHONPATH=tools python -m kb_build.report_material_gaps`、`PYTHONPATH=tools python -m kb_coverage.count_unjudged`。下文 2026-09-20 快照与 2026-10-02 注记按日期保留。
 
 # 知识库未竟工作清单（2026-09-20 快照）
 
@@ -119,3 +119,16 @@ W-1（错绑，池小、影响检索精度）→ W-2（薄料，用第 3 节新�
 W-4（攒一批真机跑一次）→ W-5（独立）。W-3 旧块池已归档舍弃，不再排期；
 唯一例外是 `extracted_chunks.jsonl` 里冻结的 17.7 万块——若 W-2 补料时发现
 某缺口只有旧块池里有干净文本，可按块捡回（不需要源文件）。
+
+## 6. 批次19 补记（2026-10-24/25 执行，2026-10-25 登记）
+
+> 数字来源：`build/agent-batch19/` 各执行员落盘产物实读 + 收口轮脚本实跑；批报 `docs/kb-batch19-2026-10-23.md`、验收补记 `docs/kb-acceptance-2026-10-17.md` §9。基线演进：A0（v19 时期，融合 100/129）→ **A1 采纳（v20，117/129 = 0.9069767）**。
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **批次15 A2 证据** | **done（补录）** | `:core:data:testDebugUnitTest --rerun` 全套 exit=0、**1033/1033**（0 失败 0 错误 0 跳过、132 XML 聚合）+ `GoldenRetrievalJvmTest` 单独 2/2；JVM 判官指纹 sha `62c232fc…`（他人 ` M` 态只记录未触碰）。`build/agent-batch19/{a2-evidence-summary.md,a2-evidence.log,a2-goldenretrieval.log}` |
+| **第三杠杆（材料标题向量入 dense）执行结果** | **已执行 → 不判读 → 逐字回滚（未采纳、非新基线）** | 离线链重出 104,959 行资产（+60,918 title 行；38,377 行与既有表面等值、净新表面 22,541）后，装置同路融合零漂移 **symdiff=3 FAIL**（exit=2）——根因 = 装置两侧稠密资产代际错配（APK 内嵌 `0536d0d1…` 23:16 代 vs 工作树 `9d9bf3f5…` 02:46 重导），按预注册「非 0 = 装置缺陷，该臂不判读」；三规则未求值。回滚 21/21 文件 sha 核验、`check_asset.py` 10/10 OK、stateAfter=v20（与 A1 采纳态逐位同）。JVM intel 读数 **118/129**（`title/jvm-fused-metrics.txt`）留档不判读。证据：`build/agent-batch19/{title-final.md,title-touched-files.txt,backup/*.pre-title,title-sha/}`、`title/{zero-drift.out.txt,judge-files-record.md}`；预注册 §7 已填（`docs/research/2026-10-23-title-vector-arm-prereg.md`） |
+| **`dense_asset.py` / `model-manifest.json` 遗留处置** | **仍为批次13 遗留在飞修改态，两臂均未触碰，待该线收口** | `dense_asset.py` sha `2dafbfa994a3c664…` 与预注册 §4 冻结值一致（零触碰）；`model-manifest.json` 在标题臂曾获链驱动增量、已随回滚**逐字回 PRE `7f1f6e8d…`**，npy 回 A1 代（`3fecbfcf…`/`8d4a1eed…`）；同态在飞的 `export_bge_int8.py`、`gen_device_parity_fixture.py` 原样保留。处置口径不变：「他臂所有、不代改不回滚」 |
+| **他线判官修改态登记** | **记录在案，臂间可比性由零漂移门保证** | JVM `GoldenRetrievalJvmTest.kt` sha `62c232fcbf3ffd11…` git ` M`（3+/3−：融合镜像落点 batch13→batch14，判分逻辑零改动；A1/标题两轮出数同状态）；设备 `GoldenRetrievalInstrumentedTest.kt` sha `c2280255a9b0db2b…` 干净。A1 轮零漂移 PASS/PASS；标题轮 FAIL 已定位为资产代际差、非判官差（`a1/judge-files-record.md`、`title/judge-files-record.md`） |
+| **dense-union 跨线状态** | **预注册冻结 → 前置实测 go → 待跨线施工（core/database 并集臂）** | 预注册 `docs/research/2026-10-22-dense-union-prereg.md`（§5 结果节仍待臂）；前置实测（估计非臂）：K=64 口径下 4 条 absent 的 dense 全科名次 = 镁 1 / 活结与死结模型 2 / 力的分解 7 / 等和线 336——**3/4 结构可召回**；并集（词面 512 ∪ dense 64）对 A0 29 条 MISS 结构覆盖率 **28/29**；以 A1（12 MISS）为基线单独并集主集上限约 **119/129**；等和线 1 条转内容侧（已知边界）。结论 **go——值得推进跨线施工**，需他会话协调 core/database 窗口、独立成臂、按预注册全门判读。证据：`docs/research/2026-10-23-kb-dense-union-estimate.md`、`build/agent-batch19/dense-union-estimate/`。批次18 lever-1 同思路已实测并回滚（无采纳态残留，`docs/kb-batch18-2026-10-23.md` §3） |
+| **登记待裁定（新增）** | `ProductionLexicalLegExportTest` V1_D1_MRR 两源 ULP 级分歧 | A1 Python④ 锚 `0.6206718346253229` vs Kotlin 回读重算恒为 `0.6206718346253232`（差 ≈3×1e-16；设备词面 MRR 落盘读数即 …232）——由标题臂回滚轮在恢复态补做逐位复核后登记；A1 锚保留不动、不代改不断言放宽，两源口径裁定后复跑转绿（`build/agent-batch19/title-final.md` §四） |

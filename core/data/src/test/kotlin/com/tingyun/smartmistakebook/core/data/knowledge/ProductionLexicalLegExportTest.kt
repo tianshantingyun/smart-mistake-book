@@ -203,12 +203,15 @@ class ProductionLexicalLegExportTest {
                     " | rank=" + (if (probeRank > 0) probeRank.toString() else "absent")
             }
 
-        // **数值锚：2026-10-20 随批次13 promote v16（成品包原子点 3,210 → 3,245；本轮新点/删点/
-        // 改绑；金标 chapter-only 迁移 1 条（限制酶），sha `3dbe9073…` → `eabef102…`）后按实测重钉。**
-        // 判官仍是 v2 129 条；本轮 gradle 门实测：hits=89（round-1 失败信息
-        // `expected:<87> but was:<89>`），主集/MRR 取同轮 `build/golden-jvm-metrics.txt` 的
-        // `B-route-mirror` 段（`Recall@5(主集)=0.689922480620155 (89/129)` /
-        // `MRR=0.534496124031008`），并由下方"与 B 段逐行对账"断言交叉复核。
+        // **数值锚：2026-10-24 随批次19 A1 别名臂（31 条 T/C-only 别名入库，promote v20；包
+        // `f6098c41…` → `298f4c0c…`；dense 按新包重打 44,010 → 44,041 行）后按实测重钉。**
+        // 判官仍是 v2 129 条；本轮 gradle 门实测：hits=102（round-1 失败信息
+        // `expected:<89> but was:<102>`），主集/MRR 取同轮 `tools/dense_build/stage3_expectation.py`
+        // 的"词面腿（生产 v1，D1 形）"判读（同一 TSV、同一判分口径；102/129 =
+        // 0.7906976744186046 / MRR 0.6206718346253229），并由下方"与 B 段逐行对账"断言交叉复核。
+        // 上一代（2026-10-20 批次13 promote v16：原子点 3,210 → 3,245；金标 chapter-only 迁移 1 条）：
+        // hits=89（round-1 失败信息 `expected:<87> but was:<89>`）/ 0.689922480620155 /
+        // 0.534496124031008。
         // 上一代（2026-10-16 批次11 promote v15：原子点 3,359 → 3,210 = 批次11 超配并点 + F2 章层
         // 重建（topic 层重建/迁移，点数随并点减少）+ 金标迁移（5 条改指 + 16 条 chapter 同步改到
         // v15 包内 topic 链归属；见 docs/kb-golden-v2-protocol.md 两节））：hits=87
@@ -219,10 +222,11 @@ class ProductionLexicalLegExportTest {
         // 0.6589147286821705 / 0.5173126614987081；（批次 5）：84/129 = 0.6511627906976745 /
         // 0.5236434108527133；（批次 3）：82/129 = 0.6356589147286822 / 0.4996124031007753；
         // 再旧（58 / 0.6444444444444445 / 0.5637037037037038）= v1 金标 90 条 + 3,572 节点/27,794 别名时代。
-        // 这是数据变化导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
-        assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 89/129（判官 v2 + v16 包实测）", 89, hits)
-        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.689922480620155", V1_D1_MAIN, main, 0.0)
-        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.534496124031008", V1_D1_MRR, mrr, 0.0)
+        // 这是数据变化导致的期望漂移（A1 预注册 §6 预测词面 89 → 102，实测 +13 逐位兑现），
+        // 不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
+        assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 102/129（判官 v2 + v20 包实测）", 102, hits)
+        assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.7906976744186046", V1_D1_MAIN, main, 0.0)
+        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.6206718346253229", V1_D1_MRR, mrr, 0.0)
 
         // ---- 与 build/golden-jvm-metrics.txt 的 B-route-mirror 段逐行对账（含逐题 MISS 集合与 rank） ----
         val metricsFile = File(repoRoot, "build/golden-jvm-metrics.txt")
@@ -327,15 +331,20 @@ class ProductionLexicalLegExportTest {
         /**
          * 生产 v1（裸 B 路 limit=5、D1 形 = matched 优先）的判读数：`build/golden-jvm-metrics.txt` 的 B 段。
          *
-         * **口径**：v2 判官（2026-10-20 v16 chapter-only 迁移后 129 条 / 24 章）+ 当前随包
-         * （v16，3,245 原子节点）。
+         * **口径**：v2 判官（129 条 / 24 章）+ 当前随包（v20，3,245 原子节点 + 40,796 别名）。
          *
-         * **2026-10-20 批次13 promote v16（成品包原子点 3,210 → 3,245；本轮新点/删点/改绑；
-         * 金标 chapter-only 迁移 1 条，sha `3dbe9073…` → `eabef102…`）重钉**：
-         * 命中集 → 主集 **89/129 = 0.689922480620155**、MRR **0.534496124031008**（净 +2 命中）。
-         * 实测量源：本轮 round-1 失败信息报 hits = 89（`expected:<87> but was:<89>`）+ 同轮
-         * `build/golden-jvm-metrics.txt` B 段的 `Recall@5(主集)=…`/`MRR=…`（与本文件回读重算由下方
-         * 逐行对账断言交叉复核）。
+         * **2026-10-24 批次19 A1 别名臂（31 条 T/C-only 别名入库，promote v20，包
+         * `f6098c41…` → `298f4c0c…`；dense 重打 44,010 → 44,041 行）重钉**：
+         * 命中集 → 主集 **102/129 = 0.7906976744186046**、MRR **0.6206718346253229**（净 +13 命中，
+         * 与 A1 预注册 `docs/research/2026-10-22-d3-round3-a1-prereg.md` §6 的 89 → 102 预测逐位兑现）。
+         * 实测量源：本轮 round-1 失败信息报 hits = 102（`expected:<89> but was:<102>`）+ 同轮
+         * `tools/dense_build/stage3_expectation.py` 的"词面腿（生产 v1，D1 形）"判读（同一 TSV、
+         * 同一判分口径；与本文件回读重算由下方逐行对账断言交叉复核）。
+         * 上一代（2026-10-20 批次13 promote v16：原子点 3,210 → 3,245；金标 chapter-only 迁移 1 条，
+         * sha `3dbe9073…` → `eabef102…`）重钉：
+         * 主集 89/129 = 0.689922480620155、MRR 0.534496124031008（净 +2 命中）。
+         * 实测量源：round-1 失败信息报 hits = 89（`expected:<87> but was:<89>`）+ 同轮
+         * `build/golden-jvm-metrics.txt` B 段的 `Recall@5(主集)=…`/`MRR=…`。
          * 上一代（2026-10-16 批次11 promote v15：原子点 3,359 → 3,210：批次11 超配并点 + F2 章层重建）
          * + 金标迁移（5 条改指；16 条 chapter 随 F2 同步改到 v15 包内 topic 链归属）：
          * 主集 87/129 = 0.6744186046511628、MRR 0.5215762273901811（净 +6 命中）。
@@ -352,8 +361,8 @@ class ProductionLexicalLegExportTest {
          * 重钉的只是锚值，判据（容差 0.0、top-5、命中定义）与口径一律未动。
          */
         const val B_ROUTE = "B-route-mirror(v1-bare-B5, matched-first)"
-        const val V1_D1_MAIN = 0.689922480620155
-        const val V1_D1_MRR = 0.534496124031008
+        const val V1_D1_MAIN = 0.7906976744186046
+        const val V1_D1_MRR = 0.6206718346253229
 
         /** 判分窗口（与生产 return 形态同口径：D1 形下前 5 名全在 matched 侧）。 */
         const val SCORED_TOP_K = 5

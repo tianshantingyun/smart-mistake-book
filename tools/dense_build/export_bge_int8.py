@@ -624,6 +624,44 @@ def main():
     #   （小档的包体收益正在这里），激活与计算保持 fp32 ⇒ 句向量几乎不变。
     #   **不引入新依赖、不改 ORT 语义**：图上做的是"存 int8、算 fp32"这一件事，可逐节点复核。
     comparison = {}
+    if args.skip_export:
+        # --skip-export（"只做对拍（复用已有 ONNX）"）：fp32/int8 ONNX **一概不重导**——"模型档
+        # 不变"的前提就是这两份件逐字节不动，只对当前包重算 npy 与对拍数。条目里描述"这两份
+        # ONNX 当初是怎么量出来的"的字段（quantizationRouteComparison / weightsOnly / caliber）
+        # 本轮没有重测 ⇒ 原样继承清单里本档既有条目，并在在位 ONNX 的 sha 与清单记录不符时
+        # **明确拒绝**（继承只对同一件成立；对不上说明模型换过，必须跑完整导出）。
+        # 【2026-10-24 修复，批次19 A1 dense 重打 ②】此路径自 Stage-5 第三轮把
+        # weightsOnly/quantizationRouteComparison 写进下方条目构造后就一直坏：那些字段只在
+        # 完整导出分支赋值，skip 模式跑到条目构造必 KeyError/NameError——skip 自 Stage-3
+        # （1fb9b188）引入后从未在含该字段的时代跑通过。本块让"复用已有 ONNX"真正可用。
+        if not (fp32_path.is_file() and int8_path.is_file()):
+            raise SystemExit("--skip-export 需要已有 ONNX 在位：%s / %s（先跑一次完整导出）"
+                             % (fp32_path, int8_path))
+        _manifest_path = root.joinpath(*D.MODEL_MANIFEST_RELATIVE.split("/"))
+        if not _manifest_path.is_file():
+            raise SystemExit("--skip-export 需要已有清单（先跑一次完整导出）：%s" % _manifest_path)
+        _previous = (json.loads(_manifest_path.read_text(encoding="utf-8"))
+                     .get("modelEntries") or {}).get(profile["key"]) or {}
+        _prev_onnx = _previous.get("onnx") or {}
+        _fp32_sha_now = D.sha256_file(fp32_path)
+        _int8_sha_now = D.sha256_file(int8_path)
+        if _prev_onnx.get("fp32Sha256") != _fp32_sha_now or _prev_onnx.get("int8Sha256") != _int8_sha_now:
+            raise SystemExit("--skip-export 的在位 ONNX 与清单记录不符（fp32 %s vs %s / int8 %s vs %s）"
+                             "——'复用'只对同一份件成立，请跑完整导出"
+                             % (str(_prev_onnx.get("fp32Sha256"))[:16], _fp32_sha_now[:16],
+                                str(_prev_onnx.get("int8Sha256"))[:16], _int8_sha_now[:16]))
+        comparison = dict(_previous.get("quantizationRouteComparison") or {})
+        _prev_wo = _prev_onnx.get("weightsOnly") or {}
+        _prev_caliber = comparison.get("caliber") or {}
+        # 条目构造只引用 stats 的 convertedEmbeddings / embeddingSkipped / embedLevels 三个键；
+        # skip 模式下它们是"上一轮完整导出的既成事实"，照抄清单（不伪造新测量）。
+        stats = dict(convertedEmbeddings=_prev_wo.get("convertedEmbeddingTables"),
+                     embeddingSkipped=_prev_wo.get("embeddingSkipped"),
+                     embedLevels=int(_prev_caliber.get("embedLevels", 1)),
+                     embedResidualExtraBytes=int(_prev_caliber.get("embedResidualExtraBytes", 0)))
+        print("[skip-export] 复用已有 ONNX：fp32 %s / int8 %s（与清单记录一致）；"
+              "量化口径与路线对比继承清单本档条目（本轮未重测）"
+              % (_fp32_sha_now[:16], _int8_sha_now[:16]))
     if not args.skip_export:
         quant_tmp = root / "build" / "tmp-dense-quant"
         quant_tmp.mkdir(parents=True, exist_ok=True)
