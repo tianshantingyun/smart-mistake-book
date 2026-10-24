@@ -3164,6 +3164,13 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 > 但无 Gradle exit=0 复跑；app quiesce 测试 4 例 1 竞态红未复跑），强门未跑。** 设备实跑：D1 换机演练 6/0、
 > 备份回归 56/56、迁移 15/15、R8 冒烟+本地任务线 5/5+网络观测=0。批次记录：
 > `docs/research/2026-10-23-batch-19-record.md`。只追加，既有正文未动；不重启任何已裁项。
+>
+> **〔主会话收口更正，2026-10-25〕**：上段"未提交、工程门未过"为记录员时点状态，已被推翻——主会话实跑：
+> 单测门 11 模块本批全绿（core:data 1061 例中 3 失败均为他线 KB/dense 在飞金标漂移——`ProductionLexicalLegExportTest`
+> 等三类的测试文件/夹具在他线 M 状态，本批零触碰，点名归因不改）；`BackgroundWriterQuiesceTest` 强制重跑 **4/0**；
+> 强门 **exit=0**；`BackupSelectionUiInstrumentedTest` 设备复跑 **OK(11)**。提交 **`0f4fd012`**（46 文件，
+> `SmartMistakeBookRoot.kt` 按复核发现#7 排除——他线动画改造引用未跟踪 `ClaudeMotion.kt`）已推送
+> `311f7de1..0f4fd012`。详见批次记录 §7。
 
 ### 裁定登记（沿用已裁，本批零新裁定）
 

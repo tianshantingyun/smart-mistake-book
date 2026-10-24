@@ -246,3 +246,20 @@ grep -n "^## KD-" docs/known-defects.md | tail -5    # 最高 KD-62 → 新缺�
 ```
 
 > 未执行：任何 `./gradlew`、`adb`、`am instrument`、`connectedAndroidTest`；任何 git 写命令。门禁/设备结论均标注来源（工单材料/修复环材料/复核材料），不冒充本记录员实跑。
+
+## 7. 主会话收口（2026-10-25 凌晨，实跑证据）
+
+> 本节由主会话在提交/推送前实测补记；修复环材料与记录员时点（§3"单测门第 3 轮 exit=1、强门未跑"）之后发生的事实以此为准。
+
+### 7.1 门禁复跑（发现#1/#2 修复后的最终树）
+
+- **单测门**（11 模块 `--continue`，主会话实跑）：本批全部绿。core:data 1061 例中 3 失败——`ProductionLexicalLegExportTest.exportProductionV1LexicalScoresAsFusionInput`（MRR 期望 0.6206718346253229 实测 …232）、`Stage1LexicalLabTest.stage1ArmsScoreFrozenGoldenSetAndWriteArtifacts`、`Stage2LexicalScoresExportTest.exportArmAFts5ScoresAsFusionInput`（87 vs 101）——**三处均为他线 KB/dense 在飞金标漂移**（`ProductionLexicalLegExportTest.kt` 本身是他线 M 改动、`tools/dense_build/*` 同批在飞），本批零触碰，点名归因不改。本批关键类当轮 XML 全绿（01:26）：RestoreSoftReferenceRecheck 7/0、CanonicalAssetReferenceSingleSource 2/0、StudyReviewPlannerExamWindow 6/0、InMemoryPaperAnswerRecycleStore 7/0、FigureGenerationReconciler 7/0、SmbkArchiveCodec 32/0、SmbkSelectionPlan 12/0。
+- **发现#2 关账**：`BackgroundWriterQuiesceTest` 以 `--tests` 强制重跑 → **4/0 绿**（01:29:07 XML）。修复环给测试加的 `writerStarted` 闩（launch 后确认协程体已执行再 quiesce）消除了"cancel 赶在协程体首行之前到达"的自竞态。
+- **强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（BUILD SUCCESSFUL）。
+- **`BackupSelectionUiInstrumentedTest` 设备复跑**（§5 登记的最后一个未复跑项，2026-10-25 01:4x）：重建双 APK + `adb install -r -t` + `am instrument -e class …localfirst.test/androidx.test.runner.AndroidJUnitRunner`（`emulator-5554`）→ **OK (11 tests)**——T2-6 文案改动后的 UI 面（子集回执「（不含掌握库、会话）」点名断言）在最终提交树上设备实测通过。
+
+### 7.2 提交与推送
+
+- 提交 `0f4fd012`（46 文件：19 M + 25 ?? + 2 新记录 = 5,819 插入/133 删除），分 11 块 add（≤6 路径/块）；**`SmartMistakeBookRoot.kt` 按发现#7 明确排除**（他线 NavHost 动画改造引用未跟踪 `ClaudeMotion.kt`，本批未改）。
+- 推送 `311f7de1..0f4fd012`（origin/main，快进一次成功）。
+- Mimosa 提交/推送仍无完整扫描结论（scanner_enobufs）——不宣称项目安全。
