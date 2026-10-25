@@ -197,6 +197,46 @@ class AdaptiveQuestionSelectorTest {
     }
 
     @Test
+    fun `ask decisions carry the selected prediction model version for audit`() {
+        // CALIBRATION 走 selectCalibration 的 ASK_CALIBRATION 出口，不依赖 skip/状态门；
+        // 本用例只钉"被选候选的预测器版本随决策走"。
+        val decision = selector.select(
+            AdaptiveSelectionRequest(
+                learnerSnapshot = snapshot(masteredState()),
+                targetKnowledgeNodeIds = setOf("kc-a"),
+                requestedTargetKind = AdaptiveTargetKind.CALIBRATION,
+                userRequestedQuestion = true,
+                candidates = listOf(calibration),
+                decisionAtEpochMillis = 800,
+            ),
+        )
+
+        assertEquals(AdaptiveDecisionKind.ASK_CALIBRATION, decision.kind)
+        assertEquals(
+            "PREDICTOR_ELO is excluded from SELECTOR_COMPOSITE; the chosen interval's " +
+                "modelVersion must travel on the decision itself",
+            "prediction-v1",
+            decision.predictionModelVersion,
+        )
+    }
+
+    @Test
+    fun `non-selecting decisions do not claim a prediction model version`() {
+        val decision = selector.select(
+            AdaptiveSelectionRequest(
+                learnerSnapshot = snapshot(masteredState()),
+                targetKnowledgeNodeIds = setOf("kc-a"),
+                requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
+                candidates = listOf(foundation),
+                decisionAtEpochMillis = 800,
+            ),
+        )
+
+        assertEquals(AdaptiveDecisionKind.NO_SAFE_CANDIDATE, decision.kind)
+        assertEquals(null, decision.predictionModelVersion)
+    }
+
+    @Test
     fun `tiny post error evidence cannot borrow old weight to skip foundation`() {
         val calibrationSnapshot = observation("seed", 1, 100).calibration
         val state = masteredState().copy(

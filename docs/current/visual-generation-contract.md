@@ -19,7 +19,7 @@ JS仍可自由使用函数/循环/采样/状态组合通用图元，不为题型
 - 桌面 QuickJS 实验：3 个程序、33 个场景、13 项检查通过；另有移动宽度预览。它证明程序绘图及资源控制可行，不代表真实模型生成成功率。
 - Android 独立探针：AGP 9.3.0、Kotlin 2.3.21、coroutines 1.11.0，消费 quickjs-kt-android 1.0.15 编译成功；API 34/x86_64/4 KB 页设备 6 项检查通过，包含隔离权限、中文、死循环、内存、硬 watchdog、重建。
 - 正式采用 [quickjs-kt v1.0.15 固定源码](https://github.com/dokar3/quickjs-kt/tree/a081755bcdb18ee6afa7ffee25b8fa976f06d31f)，commit `a081755bcdb18ee6afa7ffee25b8fa976f06d31f`，保留 MIT/QuickJS 许可证。用 NDK r28c `28.2.13676358` 重建，构建依赖及子模块也记录 SHA，不动态追最新版本。
-- 发布 AAR 的 PT_LOAD 为 16 KB 对齐，但 GNU_RELRO 结束未对齐；APK zipalign 通过不能解除该问题。源码重建、API 23、arm64、16 KB 真正加载、R8 尚未验证，全部是启用前阻断门。[Android 官方检查要求](https://developer.android.com/guide/practices/page-sizes#check-relro)。
+- 发布 AAR（quickjs-kt-android 1.0.15）四 ABI 的 PT_LOAD 均为 16 KB 对齐；GNU_RELRO 终点非 16 KB 整倍数（arm64 余 4096、x86_64 余 12288）但 RELRO 独占 LOAD 段（余数页内无可写段），按 [Android 官方检查要求](https://developer.android.com/guide/practices/page-sizes#check-relro) 明文豁免判合规——"If the GNU_RELRO segment is in its own LOAD segment, the non-zero value returned is still compliant"——不构成阻断门；逐 ABI 实测与判据原文见 [16KB 研究](../research/2026-10-25-16kb-arm64-api23-build.md) §2.4/§1.5。源码重建前置改判为消费发布 AAR（主会话裁定 2，2026-10-25：钉版+构件 sha256 记录，自建 AAR 仅作运行时实测失败回退）；16 KB 真机加载、API 23/arm64 运行时、R8 后 JNI 面仍待设备轨验证，仍是启用前门。
 - AndroidX JavaScriptEngine 1.1.1 的 minSdk 26 不覆盖本项目 23，故不作为第一版统一运行库；Zipline 不作为不可信代码安全边界；D3 的纯算法可按需移植，p5.js、JSXGraph、Konva、Penrose、Vega 的浏览器/DOM/Canvas/Wasm 依赖不直接塞入 QuickJS。各库版本、许可和取舍见研究报告。
 
 研究与可复跑证据：仓库 `.jez/artifacts/research-brief-flexible-js-drawing-2026-10-17.md`，`.jez/artifacts/android-visual-runtime-probe-2026-10-17/research-findings.md`、`probe-result.json`。研究产物不得当作正式功能完成记录。

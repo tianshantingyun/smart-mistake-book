@@ -171,7 +171,8 @@ def test_fake_run_exercises_all_classification_paths():
         else:
             assert required in classes, classes
     js_classes = {r["js"]["classification"] for r in report["task_records"]}
-    assert js_classes == {"JS_STUB_NOT_WIRED"}
+    # 默认运行未注入引擎：JS 后端如实降级为 NOT_AVAILABLE，不得冒充成功。
+    assert js_classes == {"JS_NOT_AVAILABLE"}
     assert report["pairing"]["switch_events"] >= 1
 
 
@@ -310,3 +311,283 @@ def test_machinery_verdict_independent_of_quality_gates():
     report = fem.run_fake_evaluation(output_dir=None)
     assert report["machinery_check"]["verdict"] in ("PASS", "FAIL")
     assert report["machinery_check"]["quality_gates_are_informational"] is True
+
+
+# ---------------------------------------------------------------------------
+# 8) JS 后端接线（批次 21 T4）：引擎端口 / NOT_AVAILABLE / 后端切换 / 配对形状
+#
+# 这些用例只验证**端口机制**：真实 QuickJS 执行归设备轨
+# （core:data QuickJsVisualExecutionEngineInstrumentedTest），本文件一律注入 fake
+# 引擎，不装载 QuickJS、不触碰 Android。真实引擎适配器（设备/ADB 侧）只需实现
+# JsEnginePort 的 availability()/run() 两个方法，经 JsPort(engine=...) 注入。
+# ---------------------------------------------------------------------------
+
+_SCENE_JSON = '{"schemaVersion":1,"sceneId":"feval-probe","content":[{"contentId":"c0"}]}'
+
+
+def _js_task(task_id: str = "BL-T-0001", group: str = "proportion_coordinates") -> dict:
+    return {
+        "task_id": task_id,
+        "set": "blind",
+        "group": group,
+        "figure_type": "proportion",
+        "problem_statement": "测试题面（不得出现在引擎请求里）",
+        "fact_expectations": [
+            {"kind": "numeric", "key": "ratio", "expected": 0.5, "critical": True}
+        ],
+        "review_source": {
+            "annotator": "model",
+            "human_expert": False,
+            "evidence_limitation": "模型标注，无人工专家",
+        },
+    }
+
+
+def _rendered_result() -> dict:
+    return {
+        "status": "RENDERED",
+        "scene_json": _SCENE_JSON,
+        "scene_schema_version": 1,
+        "content_ids": ["c0"],
+    }
+
+
+class _FakeVisualEngine:
+    """core:domain.VisualExecutionEngine 结果形状的测试替身。"""
+
+    def __init__(self, *, available: bool = True, result: dict | None = None, error=None):
+        self._available = available
+        self._result = result
+        self._error = error
+        self.requests: list[dict] = []
+
+    def availability(self) -> dict:
+        return {
+            "available": self._available,
+            "engine": {"name": "fake-visual-engine", "driver": "test"},
+            "reason": None if self._available else "fake engine not available",
+        }
+
+    def run(self, request: dict) -> dict:
+        self.requests.append(request)
+        if self._error is not None:
+            raise self._error
+        return self._result
+
+
+def test_js_port_without_engine_reports_not_available_and_never_success():
+    record = fem.JsPort().evaluate(_js_task())
+    assert record["backend"] == "JS"
+    assert record["status"] == "NOT_AVAILABLE"
+    assert record["classification"] == "JS_NOT_AVAILABLE"
+    assert record["artifact"] is None
+    assert record["dispatches_used"] == 0
+    assert record["first_image_latency_ms"] is None
+    assert record["fact_verification"] == "UNVERIFIED"
+    assert record["quality_accepted"] is False
+    assert "NOT_AVAILABLE" in record["note"]
+
+
+def test_js_port_does_not_execute_when_probe_says_unavailable():
+    engine = _FakeVisualEngine(available=False)
+    record = fem.JsPort(engine=engine).evaluate(_js_task())
+    assert record["status"] == "NOT_AVAILABLE"
+    assert record["classification"] == "JS_NOT_AVAILABLE"
+    assert engine.requests == []
+
+
+def test_js_port_runs_render_scene_program_through_injected_engine():
+    engine = _FakeVisualEngine(result=_rendered_result())
+    record = fem.JsPort(engine=engine).evaluate(_js_task())
+
+    assert record["status"] == "AVAILABLE"
+    # 产物引用 ≠ 合格：分类显式带 UNVERIFIED，事实核验未接。
+    assert record["classification"] == "JS_RENDERED_UNVERIFIED"
+    assert record["artifact"] == {
+        "scene_sha256": hashlib.sha256(_SCENE_JSON.encode("utf-8")).hexdigest(),
+        "scene_bytes": len(_SCENE_JSON.encode("utf-8")),
+        "scene_schema_version": 1,
+        "content_ids": ["c0"],
+    }
+    assert record["fact_verification"] == "UNVERIFIED"
+    assert record["quality_accepted"] is False
+    assert record["dispatches_used"] == 0  # JS 本地执行不占远程派发（契约 :138）
+    assert record["tokens"]["status"] == "not_applicable_local"
+    assert record["cost"]["amount"] is None
+    assert record["cost"]["status"] == "not_applicable_local"
+    assert record["first_image_latency_ms"] is not None
+    assert record["first_image_latency_ms"] >= 0
+
+    (request,) = engine.requests
+    assert request["sourceJs"] == fem.RENDER_SCENE_PROGRAM_JS
+    for key in (
+        "programId",
+        "sourceJs",
+        "sceneRevision",
+        "stateJson",
+        "viewport",
+        "timeMs",
+        "seed",
+        "theme",
+        "explicitUserRetry",
+    ):
+        assert key in request, key
+    assert json.loads(request["stateJson"]) == {
+        "taskId": "BL-T-0001",
+        "group": "proportion_coordinates",
+    }
+    # 防面向结果：端口不得把夹具预期值/题面喂给引擎。
+    dumped = json.dumps(request, ensure_ascii=False)
+    assert "fact_expectations" not in dumped
+    assert "0.5" not in dumped
+    assert "测试题面" not in dumped
+
+
+def test_js_port_maps_engine_rejection_to_bounded_failure():
+    engine = _FakeVisualEngine(
+        result={
+            "status": "REJECTED",
+            "reason": "PHASE_TIMEOUT",
+            "diagnostics": "x" * 10_000,
+        }
+    )
+    record = fem.JsPort(engine=engine).evaluate(_js_task())
+
+    assert record["status"] == "AVAILABLE"
+    assert record["classification"] == "JS_FAILED_PHASE_TIMEOUT"
+    assert record["artifact"] is None
+    assert record["first_image_latency_ms"] is None
+    assert record["quality_accepted"] is False
+    assert len(record["diagnostics"]) <= fem.MAX_DIAGNOSTICS_CHARS
+
+
+def test_js_port_protocol_violation_is_failure_not_success():
+    engine = _FakeVisualEngine(result={"status": "OK"})
+    record = fem.JsPort(engine=engine).evaluate(_js_task())
+    assert record["status"] == "AVAILABLE"
+    assert record["classification"] == "JS_FAILED_ENGINE_PROTOCOL"
+    assert record["artifact"] is None
+    assert record["quality_accepted"] is False
+
+
+def test_js_port_engine_lost_during_run_degrades_to_not_available():
+    engine = _FakeVisualEngine(error=fem.JsEngineUnavailable("device offline"))
+    record = fem.JsPort(engine=engine).evaluate(_js_task())
+    assert record["status"] == "NOT_AVAILABLE"
+    assert record["classification"] == "JS_NOT_AVAILABLE"
+    assert "device offline" in record["diagnostics"]
+    assert record["artifact"] is None
+
+
+def test_pairing_record_shape_contains_both_backends_and_honest_js_status():
+    report = fem.run_fake_evaluation(output_dir=None)
+    for r in report["task_records"]:
+        assert list(r["backends"]) == ["IMAGE_MODEL", "JS"]
+        assert r["backends"]["IMAGE_MODEL"] is r["image_model"]
+        assert r["backends"]["JS"] is r["js"]
+        js = r["js"]
+        assert js["backend"] == "JS"
+        assert js["status"] in ("AVAILABLE", "NOT_AVAILABLE")
+        assert js["dispatches_used"] == 0
+        assert js["fact_verification"] == "UNVERIFIED"
+        assert js["quality_accepted"] is False
+        assert js["cost"]["amount"] is None
+        if js["status"] == "NOT_AVAILABLE":
+            assert js["classification"] == "JS_NOT_AVAILABLE"
+            assert js["artifact"] is None
+    pairing = report["pairing"]
+    assert pairing["primary_backend"] == "IMAGE_MODEL"
+    assert pairing["backends"]["IMAGE_MODEL"]["status"] == "FAKE_DRIVER"
+    assert pairing["backends"]["JS"]["status"] == "NOT_AVAILABLE"
+    assert report["backends"]["enumeration"] == ["IMAGE_MODEL", "JS"]
+
+
+def test_runner_supports_js_primary_backend_and_bidirectional_switch_records():
+    blind = fem.load_frozen_tasks(HERE / "tasks_blind_120.json")
+    reject_ids = {
+        task["task_id"] for index, task in enumerate(blind) if index % 5 == 0 and index < 10
+    }
+
+    class _SwitchingEngine(_FakeVisualEngine):
+        def run(self, request: dict) -> dict:
+            self.requests.append(request)
+            state = json.loads(request["stateJson"])
+            if state["taskId"] in reject_ids:
+                return {
+                    "status": "REJECTED",
+                    "reason": "INVALID_PROGRAM",
+                    "diagnostics": "probe rejection",
+                }
+            return _rendered_result()
+
+    engine = _SwitchingEngine()
+    report = fem.run_fake_evaluation(
+        output_dir=None,
+        backend="JS",
+        js_port=fem.JsPort(engine=engine),
+    )
+
+    assert report["backends"]["enumeration"] == ["IMAGE_MODEL", "JS"]
+    assert report["backends"]["primary"] == "JS"
+    assert report["pairing"]["primary_backend"] == "JS"
+    # JS 产物事实核验未接：质量门不可评，不得把 RENDERED 当合格。
+    assert report["quality_gates"]["applies_to"] == "JS"
+    assert report["quality_gates"]["evaluable"] is False
+
+    records = report["task_records"]
+    assert all(r["primary_backend"] == "JS" for r in records)
+    assert all(r["final_accepted"] is False for r in records)
+    assert all(r["js"]["classification"] != "JS_NOT_AVAILABLE" for r in records)
+    assert any(r["first_attempt_pass"] for r in records)
+
+    switched = [r for r in records if r.get("switch_event")]
+    assert switched, "JS 主运行的失败题应记录 JS→IMAGE_MODEL 切换"
+    for r in switched:
+        event = r["switch_event"]
+        assert event["from_method"] == "JS"
+        assert event["to_method"] == "IMAGE_MODEL"
+        assert event["operation_id"] == r["operation_id"]
+        assert event["dispatches_before_switch"] == 0  # JS 本地执行不占远程派发
+        assert event["image_model_result"] == r["image_model"]["classification"]
+        assert r["js"]["classification"].startswith("JS_FAILED_")
+
+
+def test_default_run_records_js_not_available_in_machinery_check():
+    report = fem.run_fake_evaluation(output_dir=None)
+    paths = report["machinery_check"]["exercised_paths"]
+    assert paths["js_backend_recorded"] is True
+    assert paths["js_backend_honest_status"] is True
+    assert paths["js_never_claims_quality"] is True
+    assert paths["backends_pairing_complete"] is True
+    assert "js_stub_recorded" not in paths
+    assert report["machinery_check"]["verdict"] == "PASS"
+
+
+def test_js_port_probe_exception_degrades_to_not_available():
+    class _BrokenProbeEngine:
+        def availability(self) -> dict:
+            raise RuntimeError("probe boom")
+
+        def run(self, frame: dict) -> dict:
+            raise AssertionError("must not run when the probe fails")
+
+    record = fem.JsPort(engine=_BrokenProbeEngine()).evaluate(_js_task())
+    assert record["status"] == "NOT_AVAILABLE"
+    assert record["classification"] == "JS_NOT_AVAILABLE"
+    assert "probe boom" in record["diagnostics"]
+    assert record["artifact"] is None
+
+
+def test_runner_rejects_unknown_backend():
+    with pytest.raises(ValueError):
+        fem.run_fake_evaluation(output_dir=None, backend="NOT_A_BACKEND")
+
+
+def test_js_primary_run_refuses_quality_gate_enforcement():
+    # JS 事实核验未接，不允许把机制产物当质量门结论。
+    with pytest.raises(ValueError):
+        fem.run_fake_evaluation(
+            output_dir=None,
+            backend="JS",
+            enforce_quality_gates=True,
+        )

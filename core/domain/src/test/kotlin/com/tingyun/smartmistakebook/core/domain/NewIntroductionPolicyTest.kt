@@ -92,6 +92,62 @@ class NewIntroductionPolicyTest {
     }
 
     @Test
+    fun `a backlog exceeding the whole daily budget defers everything and grants zero`() {
+        // KD-64 (batch 20 T10 device record): timeBudget=300 with a single
+        // 600s candidate — the all-oversized deadlock branch coerced
+        // sliceBudget down to the whole budget, deferred the top candidate
+        // anyway, and computed granted = effectiveSlice − 300 < 0, crashing
+        // IntakeDecision's require. An item larger than the WHOLE daily
+        // budget is not a daily-intake item (it needs a special dedicated
+        // session — the same semantic previewBacklog applies): it must be
+        // deferred honestly and the round must grant zero, never a negative
+        // slice.
+        val decision = NewIntroductionPolicy.decide(
+            candidates = listOf(candidate("huge", 600)),
+            timeBudgetSeconds = 300,
+        )
+        assertEquals(emptyList<String>(), decision.introduced.map { it.practiceUnitId })
+        assertEquals(listOf("huge"), decision.deferred.map { it.practiceUnitId })
+        assertEquals(0, decision.grantedSliceSeconds)
+    }
+
+    @Test
+    fun `deadlock expansion still admits a companion that fits the whole budget`() {
+        // Same deadlock shape with a smaller companion: the top candidate
+        // (600s) exceeds the whole 300s budget and is deferred honestly, but
+        // the companion (150s) fits the whole budget — the deadlock guard's
+        // expansion is its only path in (150s > the normal 50s cap would
+        // defer it forever, the silent permanent stall the guard exists to
+        // kill). It must be introduced and the granted slice must report its
+        // TRUE billed time, never a negative fiction (KD-64 crash shape:
+        // granted used to be effectiveSlice − remaining = 100 − 150 < 0).
+        val decision = NewIntroductionPolicy.decide(
+            candidates = listOf(candidate("huge", 600, createdAt = 0), candidate("mid", 150, createdAt = 1)),
+            timeBudgetSeconds = 300,
+        )
+        assertEquals(listOf("mid"), decision.introduced.map { it.practiceUnitId })
+        assertEquals(listOf("huge"), decision.deferred.map { it.practiceUnitId })
+        assertEquals(150, decision.grantedSliceSeconds)
+    }
+
+    @Test
+    fun `deadlock introduction bills its true duration as the granted slice`() {
+        // Deadlock guard working as designed: the top candidate exceeds the
+        // normal cap (100s slice / 2 = 50s) but fits the whole budget, so the
+        // day expands to its true duration and it IS introduced. The granted
+        // slice must report what was actually billed — its true duration
+        // (250s ≤ the 300s budget) — not the stale effectiveSlice remainder
+        // the old formula reported (100s) once `remaining` no longer starts
+        // at effectiveSlice in the deadlock branch.
+        val decision = NewIntroductionPolicy.decide(
+            candidates = listOf(candidate("big", 250)),
+            timeBudgetSeconds = 300,
+        )
+        assertEquals(listOf("big"), decision.introduced.map { it.practiceUnitId })
+        assertEquals(250, decision.grantedSliceSeconds)
+    }
+
+    @Test
     fun `deferred items carry no state and can be introduced tomorrow`() {
         val decision = NewIntroductionPolicy.decide(
             candidates = listOf(candidate("a", 90), candidate("b", 90), candidate("c", 90)),
@@ -128,6 +184,31 @@ class NewIntroductionPolicyTest {
         val exam = NewIntroductionPolicy.preview(60, 100, 1200, daysLeftToExam = 6)
         assertEquals(10, exam.perDayItems)
         assertEquals(6, exam.daysToCover)
+    }
+
+    @Test
+    fun `arithmetic preview hides the oversized items that previewBacklog marks unschedulable`() {
+        val backlog = listOf(candidate("huge", 5_000), candidate("normal", 90))
+
+        // 旧 UI 用的算术近似：2 题 / 每天 3 题 → 1 天"安排完"，unschedulableCount 恒 0。
+        val arithmetic = NewIntroductionPolicy.preview(
+            backlogCount = backlog.size,
+            typicalItemSeconds = 90,
+            timeBudgetSeconds = 900,
+        )
+        assertEquals(0, arithmetic.unschedulableCount)
+        assertEquals("约 1 天安排完", 1, arithmetic.daysToCover)
+
+        // 真实政策模拟：5000s 的单题超过整日预算（900s），永远不可能按日引入。
+        val simulated = NewIntroductionPolicy.previewBacklog(backlog, timeBudgetSeconds = 900)
+        assertEquals(1, simulated.unschedulableCount)
+
+        // 回归钉：UI 的覆盖承诺不得再来自 preview()——它会把 unschedulable 题计入
+        // "安排完"，而 decide() 永远不会引入它们。
+        assertTrue(
+            "preview() must stay a rough estimate; only previewBacklog() may back a coverage promise",
+            simulated.unschedulableCount > 0 && arithmetic.unschedulableCount == 0,
+        )
     }
 
     @Test

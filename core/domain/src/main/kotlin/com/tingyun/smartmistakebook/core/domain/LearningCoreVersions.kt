@@ -107,6 +107,18 @@ object LearningCoreVersions {
     const val LEDGER = "ledger-v4"
     const val PREDICTION_INTERVAL = "prediction-interval-v1"
 
+    /**
+     * G5-A 预测器版本串（批次 21 T2，2026-10-25）：`EloCorrectnessPredictor` 产出的
+     * `PredictedCorrectnessInterval.modelVersion`。Elo 状态是台账前缀的**读侧纯折叠**
+     * （零新表、零写入、不进投影快照），没有"版本不匹配 → 全量重放"的持久面，故
+     * **不进** [SELECTOR_COMPOSITE]——其分量都是持久投影/判据的版本串，而预测身份
+     * 随区间自身的 modelVersion 字段走，并由 `AdaptiveDecision.predictionModelVersion`
+     * 带进决策审计面（批次 21 复核修正：此前决策对象只带 selectorVersion，预测器版本
+     * 在 ASK 决策上不可区分）。v1 全部超参为 proso 生产值（逐字段标
+     * PENDING_CALIBRATION，未在本项目数据上校准，Wave X 线）；校准改值时 bump 本串。
+     */
+    const val PREDICTOR_ELO = "predictor-elo-v1"
+
     // D-M M6（2026-10-02）：`REVIEW_PLANNER`（V1 计划版本串）与其复合串 `REVIEW_COMPOSITE`
     // 已随 V1 `ReviewPlanner` 类退场——V1 生产不可达（默认 V2 且无翻闸点），删的是不可达
     // 路径，不触发任何 bump。V2 的有效串是 `ReviewPlannerV2.VERSION`（见其 KDoc）。

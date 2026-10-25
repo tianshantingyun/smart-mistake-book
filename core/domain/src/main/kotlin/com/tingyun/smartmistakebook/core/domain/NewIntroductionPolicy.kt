@@ -61,7 +61,19 @@ object NewIntroductionPolicy {
         val introduced: List<IntakeCandidate>,
         /** Candidates left in the intake backlog — NOT candidates today. */
         val deferred: List<IntakeCandidate>,
-        /** Time slice actually granted to introductions (seconds). */
+        /**
+         * Time slice actually billed to introductions (seconds) — the true
+         * duration sum of [introduced], zero when nothing is introduced.
+         *
+         * KD-64: this used to be computed as `effectiveSlice - remaining`,
+         * an identity that only holds while `remaining` starts at
+         * [NewIntroductionPolicy.NEW_INTRODUCE_SHARE]-derived
+         * `effectiveSlice`; in the all-oversized deadlock branch `remaining`
+         * starts at the expanded budget instead, so the old formula could go
+         * NEGATIVE (crashing this class's non-negative require, recorded by
+         * batch 20 T10 on device) or understate the billed time. It now
+         * reports billed truth in every branch; never negative.
+         */
         val grantedSliceSeconds: Int,
     ) {
         init {
@@ -120,6 +132,14 @@ object NewIntroductionPolicy {
         // to the highest-priority candidate's TRUE duration so it can be
         // introduced. Without this, an oversized problem would defer forever —
         // a silent permanent stall of the backlog.
+        // KD-64: when even the top candidate's true duration exceeds the
+        // WHOLE daily budget, the expansion is futile for it — such an item
+        // is not a daily-intake candidate at all (it needs a special session;
+        // the same semantic previewBacklog applies) and is deferred honestly,
+        // granting zero. The expansion still admits a smaller companion that
+        // fits the whole budget (billed at its true duration) — that is the
+        // guard's anti-stall purpose. Either way the granted slice reports
+        // the true billed sum: never a negative slice, never a capped fiction.
         val allOversized = ordered.isNotEmpty() &&
             ordered.all { it.estimatedDurationSeconds > effectiveCap }
         val (sliceBudget, capBudget) = if (allOversized) {
@@ -151,7 +171,14 @@ object NewIntroductionPolicy {
         return IntakeDecision(
             introduced = introduced,
             deferred = deferred,
-            grantedSliceSeconds = effectiveSlice - remaining,
+            // Granted = the TRUE billed sum of what was introduced. In the
+            // normal path this is identical to `effectiveSlice - remaining`
+            // (every introduction decrements `remaining` by its duration);
+            // in the deadlock branch `remaining` starts at the expanded
+            // budget, where the old formula misreported — negatively when
+            // nothing fit (the KD-64 IllegalArgumentException), stale-slice
+            // when something did.
+            grantedSliceSeconds = introduced.sumOf { it.estimatedDurationSeconds },
         )
     }
 
@@ -165,14 +192,19 @@ object NewIntroductionPolicy {
     }.thenBy(IntakeCandidate::createdAtEpochMillis)
 
     /**
-     * Coverage-plan preview (spec `batch-intake-spec.md` §6, P3 algorithm
-     * support): how many days the intake backlog needs at the daily pace,
-     * with an optional end date. Pure presentation math — the UI renders
-     * "每天 N 题 × M 天全覆盖" from this; no scheduling side effects.
+     * **粗略算术估计，不是排期承诺。** Complexity/duration outliers are invisible here:
+     * a backlog item larger than a whole daily budget can never be introduced by [decide],
+     * yet this function still divides its count by a per-day average and reports
+     * `unschedulableCount = 0`. A UI that renders "约 M 天安排完" from this promises
+     * coverage the scheduler cannot deliver (KD-64 复核：学生看到的承诺与真实引入不符).
+     *
+     * 需要可兑现的覆盖计划时必须用 [previewBacklog]（逐日模拟 [decide] 并单独报告
+     * [CoveragePreview.unschedulableCount]），不要用本函数生成对用户的覆盖承诺。
+     * 保留本函数只为既有调用点的兼容；生产 UI 的接线/改口是 feature 热区的遗留项。
      *
      * @param backlogCount questions still in the intake backlog.
      * @param typicalItemSeconds the per-item duration estimate the daily
-     *   slice is computed from (e.g. the backlog's median estimate).
+     *   slice is computed from (e.g., the backlog's median estimate).
      * @param timeBudgetSeconds the WHOLE daily review budget.
      * @param daysLeftToExam 0/null = no exam pressure.
      */

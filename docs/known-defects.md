@@ -2548,7 +2548,7 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **Reopen condition.** 出现「全清数据后每次启动重跑派生索引重建」类现象时按本条处置；修复后以崩溃注入或顺序断言关闭。
 
-## KD-64 (open, 2026-10-25 登记（批次 20 设备轨 T10；中）) · NewIntroductionPolicy 全超尺寸死锁分支 granted slice 可为负 → IllegalArgumentException，3E 排计划在「全部候选时长 > 当日时间预算」配置下崩溃
+## KD-64 (fixed 2026-10-26 批次 21 T1 域层修复 + 设备复验 3/3) · NewIntroductionPolicy 全超尺寸死锁分支 granted slice 可为负 → IllegalArgumentException，3E 排计划在「全部候选时长 > 当日时间预算」配置下崩溃
 
 **Symptom（设备实跑 + 源码推导）.** 批次 20 T10 设备用例 `StudyReviewPlanner3EScanInstrumentedTest`（真 Room 种子库直跑 `StudyReviewPlannerService.createReviewPlan`）2/3 红：`java.lang.IllegalArgumentException: Granted slice must not be negative`，栈 `NewIntroductionPolicy$IntakeDecision.<init>(NewIntroductionPolicy.kt:68)` ← `decide(:151)` ← `StudyReviewPlannerService.createReviewPlan(:435)`。机制（基线 §8.3 读码证明）：`NewIntroductionPolicy.kt:68` `require(grantedSliceSeconds >= 0)`；`:154` 附近 `grantedSliceSeconds = effectiveSlice - remaining`；全超尺寸死锁分支（`:122-129`）中 sliceBudget = topDuration.coerceAtMost(timeBudgetSeconds) 而 capBudget = topDuration 无上界（`:52-53` 仅 require>0）——全部候选 `estimatedDurationSeconds > timeBudgetSeconds` 时全数 deferred、remaining 停在 timeBudget > effectiveSlice → granted < 0。具体触发例：timeBudget=300、单候选 duration=600 → granted = effectiveSlice−300 < 0。JVM 对照 `StudyReviewPlannerExamWindowTest` 6/0/0 绿 = 该形状 JVM 未覆盖。两文件均 git 干净（HEAD 态），非本批引入。
 
@@ -2557,6 +2557,8 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Fix direction.** 域层修复（不在批次 20 设备轨授权内，待实施轨）：全超尺寸死锁分支对 granted 做 coerceAtLeast(0) 或在死锁分支给 top 候选保底切片并如实记 deferred；时长上界（`:52-53`）按产品口径另裁。补 JVM 用例覆盖「全候选超尺寸」形状后再清。
 
 **Reopen condition.** 设备/JVM 任一「全候选 estimatedDurationSeconds > timeBudgetSeconds」用例红即按本条处置；修复后 T10 两红例转绿 + 新 JVM 形状用例全绿关闭。
+
+**Verified fixed（2026-10-26，批次 21 T1 域层修复）.** 修复 = granted 记账公式改为引入候选真实时长之和 `introduced.sumOf { it.estimatedDurationSeconds }`（`NewIntroductionPolicy.kt:181`），不再用只在常规路径成立的恒等式 `effectiveSlice − remaining`——死锁分支 `remaining` 从扩大的 sliceBudget 起算，旧公式在该分支既可报负（本条崩溃本体）也可低估（top 可入死锁形状实费 250s 只报 100s）。语义取向（两案对拍后裁定）：采纳推荐案「granted 钳到零」的忠实实现——全超预算候选如实 deferred、该轮 granted = 0（对齐 `previewBacklog` 的「超全预算 = 专项会话、非日引入项」语义）；否决「timeBudget 全给 top、当日不引入新卡」——top > timeBudget 时照样装不下，对崩溃形状无效，且会冻结本可引入的伴候选、重造死锁保护要消灭的永久滞留，还改动了引入集合（排程语义）超出缺陷本体。introduced/deferred 划分逻辑零改动；伴候选仍可经扩片引入（T10 用例「全超尺寸死锁保护会把它当日引入」注释所依赖的行为保持），如按真实时长记账。修复后锚点：IntakeDecision require `:80`、死锁分支 `:143-152`（KD-64 注释 `:135` 起）、granted 公式 `:181`。证据：JVM 直测红→绿（kotlin-compiler-embeddable 2.3.21 直编 + JUnitCore 直跑，非 Gradle）——修复前 19 例 3 红（两例 `IllegalArgumentException: Granted slice must not be negative` = T10 同构形状 timeBudget=300/单候选 600 及伴候选形状 600/150，一例记账断言 250≠100）；修复后 19/19 绿，含既有 granted 精确断言（180 / ≥300 / ≤600 / 90）全部不变 = 常规路径取值逐位不变。**设备复验（2026-10-26 批次 21 设备轨）**：`StudyReviewPlanner3EScanInstrumentedTest` → `OK (3 tests)`、`AM_EXIT=0`（`build/device-track-batch21/step1-kd64-run1.log`）——T10 两红例转绿。JVM `NewIntroductionPolicyTest` 13/13（XML `tests="13" failures="0" errors="0"`，2026-10-26 05:20）。门禁 `:core:domain:test`/强门由主会话脚本执行并报 `exit=0`（工单转录；本记录员未跑 Gradle）；批次 19 `StudyReviewPlannerExamWindowTest` 六例不回退由门禁覆盖。**本条关闭。**
 
 ## KD-65 (open, 2026-10-25 登记（批次 20 复核发现 #10；低）) · OpenAiModelResponseParsers KDoc 与白名单不符：「purpose」实际在 FIGURE_GENERATION_WIRE_KEYS 内且另有值校验
 
@@ -2567,3 +2569,63 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Fix direction.** 改 KDoc 使其与集合成员一致（说明 purpose 在白名单内、另有取值校验拒绝模型回填）；不改行为。
 
 **Reopen condition.** 若后续改动把 purpose 值校验放松或白名单语义变化时按本条重审。
+
+## KD-66 (open, 2026-10-26 登记（批次 21 T3/复核发现 #1/#13/#21；高）) · QuickJS issue #240 使引擎硬期限不能返回：`execute()` 永不返回、`close()` 卡死、`inFlight` 不复位
+
+**Symptom（设备实跑 + 源码/上游源码核对）.** quickjs-kt-android 1.0.15（钉 commit `a081755`）的 issue #240：脚本用一个 job 先 `Promise.resolve().then(f)` 排队下一个再自旋时，`evaluate()` 在 `awaitEvaluateResult` 的排水循环内持 `jsMutex` 永不返回，另一线程的 `close()` 也抢同一把锁卡死；`evaluationTimeoutMillis`/`interruptEvaluation()` 都不能让队列排空。批次 21 设备轨真跑：单独 `issue240...` 用例 `timeout 60` → `Terminated`、`AM_EXIT=124`（`build/device-track-batch21/step2-quickjs-issue240-real.log`）；类级运行 7 个点后无 summary，线程栈显示 `quickjs-visual-js` 卡在 `executePendingJob←awaitEvaluateResult←evalAndAwait`、`quickjs-visual-force-close` 卡在 `QuickJs.close→yieldThread`（`step2-thread-dump.txt:458-560`）。`QuickJsVisualExecutionEngine` 的 `withTimeout(hard+500ms)` 无法抢占 `withContext(jsDispatcher)` 内的同步 JNI；`finally` 不执行 → `inFlight=true` 永久，后续 `execute()` 只回 BUSY。
+
+**Impact.** high（调用方拿不到硬期限上界；任何不可信图程序可拖死一个引擎实例；当前契约 §4 的进程级硬终止未落地）。
+
+**Fix direction.** ① 4E.2 落 `:visual_js` `isolatedProcess` + AIDL 控制通道 + `killProcess(myPid())` 进程级硬终止（唯一能终止任意循环的层）；② 上游发 >1.0.15 修复后升级并把观察型用例反转为"必须协作中断"断言；③ 引擎层维持 accept-the-leak：每事务独立 daemon dispatcher、强弃 close 放专用守护线程、失败即 fuse/BUSY，如实现 KDoc 所述。
+
+**Reopen condition.** 4E.2 进程隔离落地或上游修复版升级后，以"issue #240 形状在 hard+500ms 内返回拒绝、且后续请求可用"的设备用例关闭；在此之前不得把 T3 标成运行时完成。
+
+## KD-67 (open, 2026-10-26 登记（批次 21 T2/复核发现 #15；中）) · G5-A 生产候选全部 `contentVerified=false`：即使接线也到不了 ASK，CLARIFY_OR_CONFIRM 无消费者
+
+**Symptom（读码 + 用例）.** 唯一生产题面写入方 `KnowledgeQuizItemStore.record` 固定 `verificationStatus = UNKNOWN`（`KnowledgeQuizItemStore.kt:173-176`）；`AdaptiveSelectionAssembler` 只把 `VERIFIED`/`USER_ASSERTED` 置真（`:162-163`），错题候选恒 false（`:194`）；`AdaptiveQuestionSelector.safeBaseCandidates` 要求 `contentVerified=true`（`:241`），未核验目标返回 `CLARIFY_OR_CONFIRM`（`:288-292`）。feature/app 全仓没有 `CLARIFY_OR_CONFIRM` 的消费者，也没有把行升级为 VERIFIED/USER_ASSERTED 的写方；测试 `assembled production candidates stay fail-closed to clarify until verified` 钉住该出口。
+
+**Impact.** medium（G5-A 代码落地但产品面不可用；不是回归，是 fail-closed 死端）。
+
+**Fix direction.** 产品侧补"题面核验写方"（谁在什么条件下把行升为 VERIFIED/USER_ASSERTED）与 `CLARIFY_OR_CONFIRM` 消费者（确认卡/补题入口）；不得为接通而放宽选择器 `contentVerified` 判据。接线时同时把 `AdaptiveSelectionAssembler` 从 `internal` 提升为跨模块可用端口（或在 core/domain 定义接口 + 实现），并改热区 VM。
+
+**Reopen condition.** 出现真实生产候选可被标为 VERIFIED/USER_ASSERTED 的写路径且 feature/review 消费 CLARIFY 决策后，以"生产候选能进 ASK、未核验候选仍 CLARIFY"的设备/集成用例关闭。
+
+## KD-68 (open, 2026-10-26 登记（批次 21 T1/复核发现 #16；中）) · 新题积压 UI 承诺不可调度项：用 `preview` 算术而非 `previewBacklog`，`unschedulableCount` 无生产消费者
+
+**Symptom（读码）.** `NewIntroductionPolicy.preview` 是粗略算术（固定参考预算 900s、把超全预算项也计入"每天约 X 题"），`previewBacklog` 才标 `unschedulableCount`；`ReviewRoute.kt:529` 调 `preview`、`:558` 固定 `DEFAULT_INTAKE_DAILY_BUDGET_SECONDS=900`；`StudyReviewPlannerService.kt:468` 只保留 `introducedIds`，deferred 新题从当日计划消失；`unschedulableCount`/`previewBacklog` 在生产 main/feature/app 无消费者。学生仍会看到"还有 N 道新题待学：每天约 X 题，约 M 天安排完"，而超全预算题在真实预算下永远不会被引入。
+
+**Impact.** medium（KD-64 崩溃已修，但产品承诺与实际调度不一致；用户被误导，不是数据损坏）。
+
+**Fix direction.** feature/review 热区空出后，把 `ReviewRoute` 的积压预览改为 `previewBacklog(...)` 并消费 `unschedulableCount`（文案区分"可日引入"与"需专项会话"）；`StudySnapshotBuilder.intakeBacklogCount` 与计划器使用同一口径；保留 `preview` 仅作兼容/测试。
+
+**Reopen condition.** `ReviewIntakeBacklogPreviewInstrumentedTest` 覆盖"全超预算项显示为不可调度/专项会话"且真实计划不再承诺其日引入后关闭。
+
+## KD-69 (open, 2026-10-26 登记（批次 21 设备轨步五/复核发现 #12；低）) · `internal`/`benchmark` buildType minify=true 但无 proguardFiles：R8 剥掉 WorkManager/Room 生成类，启动 FATAL
+
+**Symptom（设备实跑）.** `:app:assembleLocalFirstInternal`（minify=true、无 proguardFiles）装机启动崩溃：`java.lang.RuntimeException: Unable to get provider androidx.startup.InitializationProvider` ← `androidx.startup.StartupException: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init>` ← `Room.getGeneratedImplementation`（`build/device-track-batch21/step5-r8-logcat.txt:372-410`）。根因：`app/build.gradle.kts:58-70` 的 `benchmark`（`:58-64`）与 `internal`（`:65-70`）只设 `isMinifyEnabled = true`，没有 `proguardFiles(...)`；只有 release（`:71-80`）配了默认规则 + `proguard-rules.pro`。同批 release 冒烟：BUILD SUCCESSFUL 3m24s、装机启动 PID=13393、523 行 logcat 中 FATAL/ANR/ClassNotFound 等全 0（`step5-r8-release-logcat.txt`）。
+
+**Impact.** low（仅内部/基准构建；不进 release 包，但会让 minified debug 冒烟假红/无法用于验证）。
+
+**Fix direction.** 给 `internal`/`benchmark` 补 `proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")`（或关闭其 minify）；补 `assembleLocalFirstInternal` 启动冒烟。改构建配置属共享文件/他线风险，先与主会话确认再动。
+
+**Reopen condition.** `internal` minified 构建装机启动无 `WorkDatabase_Impl`/Room/WorkManager 生成类缺失后关闭；release 冒烟不得回退。
+
+## KD-70 (open, 2026-10-26 登记（批次 21 T3/复核发现 #6/#21；中）) · QuickJS 内存上限路径在 x86_64 未成立：设备实际 `INVALID_PROGRAM`，契约要求的 `MEMORY_LIMIT` 未达
+
+**Symptom（设备实跑）.** `memoryOverTheHeapBudgetIsRejectedAsAMemoryLimit` 断言 `MEMORY_LIMIT`，设备实际 `INVALID_PROGRAM: program failed in phase prepare: InternalError: string too long`（旧夹具；`step2-quickjs-oom-detail.log:1-6`，独立复跑 3/3 同）；改用分配型探针（数组/对象持续增长）后仍 `INVALID_PROGRAM`，诊断 `program failed in phase prepare: null`（`step2-oom-attribution.log`）。`classifyJsException` 只按 `lowered.contains("out of memory")` 归类（`QuickJsVisualExecutionEngine.kt:416`），AAR 异常消息丢失/文案不同即落 INVALID_PROGRAM。断言未放宽（符合纪律），但契约 §4"内存超限不截断成正确图、返回有界诊断"的具体拒因未被设备证明。
+
+**Impact.** medium（内存上限的**可观测拒因**未验证；引擎仍返回有界拒绝、不崩，故非安全洞；但测试门红、契约判据未落地）。
+
+**Fix direction.** ① 用能真实触达 QuickJS 堆上限的夹具（分阶段分配并在 OOM 前读 `memoryUsage` 记录）重跑设备用例；② 若 AAR 在 x86_64 的 OOM 必然先报 `string too long`/`prepare null`，则把契约/用例改为"有界拒绝 + 诊断保留原因"的可证判据，需先裁定（不得直接放宽断言）；③ `classifyJsException` 增加结构化诊断或明确已知边界。
+
+**Reopen condition.** 设备用例以 `MEMORY_LIMIT`（或经裁定的等价判据）转绿，且 `memoryUsage`/诊断证据落盘后关闭。
+
+## KD-71 (open, 2026-10-26 登记（批次 21 T3 复核发现 #22；低）) · `QuickJsVisualExecutionEngine` close/execute 竞态：closed 检查与 `currentTransaction.set` 之间的窗口
+
+**Symptom（读码）.** `execute()` 先 `closed.get()` 检查，再 `inFlight.compareAndSet`，之后才 `currentTransaction.set(transaction)`（`QuickJsVisualExecutionEngine.kt:152-158`）；`close()` 只 `currentTransaction.get()?.forceAbandon()`（`:203-207`）。并发 close 恰好落在窗口内会读到 null，不强弃；随后 execute 仍会创建 QuickJs 并执行/返回成功，与"关闭后 execute 立即回 ENGINE_CLOSED"的终端语义不完全一致。
+
+**Impact.** low（概率低；需要 close 与 execute 精确并发，且 close 后仍可能有一次执行）。
+
+**Fix direction.** 把 `currentTransaction.set` 提前到 `inFlight` CAS 成功之后立即执行，并在 set 后再次检查 `closed`（若已 closed 则 forceAbandon + 回 ENGINE_CLOSED）；或用一个原子状态对象同时承载 closed/inFlight/currentTransaction。补并发 close/execute 用例。
+
+**Reopen condition.** 新增并发用例证明 close 后不再有成功执行、且 in-flight 事务被强弃后关闭。

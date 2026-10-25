@@ -12,14 +12,15 @@
 | `freeze_manifest.json` | 两份任务集的 SHA-256 冻结清单。评测门每次运行前校验，不一致即拒绝（防"看到结果后改夹具"）。变更任务集：重跑 `build_frozen_tasks.py` 重新冻结并留审计记录。 |
 | `budget.json` | 显式评测预算清单：每操作 6 次远程派发上限（六派发总门，`docs/current/visual-generation-contract.md:138` + `core/model/.../ModelTasks.kt:61`）、终答预留、运行级上限；**费用未知记未知、不写 0**（设计§6 :95）。 |
 | `build_frozen_tasks.py` | 冻结任务集生成器（固定种子，重跑逐字节相同）。事实预期由题族参数独立计算，从不来自模型/驱动输出。 |
-| `figure_eval_gate.py` | 评测门：夹具完整性校验、fake IMAGE_MODEL 驱动、JS 留桩、两后端配对/切换记录、指标聚合（首图 p50/p95、总时长、token/费用字段与采集点）、按 PRD 原文引用的质量门常量、JSON/MD 报告输出。 |
+| `figure_eval_gate.py` | 评测门：夹具完整性校验、fake IMAGE_MODEL 驱动、JS 后端接线（`JsPort` 可注入引擎；不可用如实 NOT_AVAILABLE）、两后端配对/切换记录、指标聚合（首图 p50/p95、总时长、token/费用字段与采集点）、按 PRD 原文引用的质量门常量、JSON/MD 报告输出。 |
 | `test_figure_eval_gate.py` | 机制测试（`python -m pytest tools/figure_eval/test_figure_eval_gate.py -q`）。 |
 | `reports/` | fake 驱动机制自检报告工件（JSON/MD）。 |
 
 ## 运行
 
 ```bash
-python tools/figure_eval/figure_eval_gate.py            # fake 机制自检，写 reports/
+python tools/figure_eval/figure_eval_gate.py                 # fake 机制自检，写 reports/
+python tools/figure_eval/figure_eval_gate.py --backend JS    # JS 主后端（无注入引擎→NOT_AVAILABLE）
 python -m pytest tools/figure_eval/test_figure_eval_gate.py -q
 ```
 
@@ -46,12 +47,29 @@ python -m pytest tools/figure_eval/test_figure_eval_gate.py -q
 6. **成功语义**：明确要图却 NO_FIGURE / 降级为文字只算安全退路，不算生图成功
    （设计§6 :93）——harness 分类与合格计数同口径。
 
-## JS 后端留桩与 T4 接入点
+## JS 后端接线（批次 21 T4）
 
-`figure_eval_gate.JsPortStub` 是 QuickJS 执行端口就位（T4）前的留桩：
-`run_fake_evaluation(js_port=...)` 接受同形端口对象，T4 落地后实现
-`evaluate(task)`（与 IMAGE_MODEL 记录同形）即可接入配对分母；JS 本地执行不占
-远程派发（契约 :138）。JS 在产品侧仍是 UNAVAILABLE，不广告（批次 20 已裁边界）。
+`figure_eval_gate.JsPort` 经 `JsEnginePort` 端口接 `core:domain.VisualExecutionEngine`
+（T3 真实现 `QuickJsVisualExecutionEngine`）：
+
+- **注入点**：`JsPort(engine=...)`。适配器只实现 `availability()` 与 `run(frame)`
+  两个方法（结果形状取端口 `Rendered`/`Rejected` 两态）。真实引擎适配器在设备轨
+  （QuickJS 原生库按 ABI 装载、隔离进程/硬终止行为归
+  `QuickJsVisualExecutionEngineInstrumentedTest`），本 harness 不装载 QuickJS。
+- **产物引用**：`RENDER_SCENE_PROGRAM_JS` 是一个符合契约 §3.2 的 RenderScene 探针
+  程序（prepare 恰一批、render 只引用本事务 contentId）。RENDERED 回传
+  `scene_sha256`/`scene_bytes`/`content_ids`，分类固定 `JS_RENDERED_UNVERIFIED`：
+  harness 没有 RenderScene 事实提取器，`fact_verification=UNVERIFIED`、
+  `quality_accepted=False`，**不构成题意合格**。
+- **不可用如实降级**：未注入引擎、探测失败、执行中失联 → `status=NOT_AVAILABLE`、
+  `classification=JS_NOT_AVAILABLE`，无产物/无延迟。默认 CLI 就是这一态。
+- **后端切换**：`run_fake_evaluation(backend="JS")`（CLI `--backend JS`）把 JS 设为
+  主后端；每条任务记录的 `backends` 同时含 `IMAGE_MODEL` 与 `JS` 两条记录，切换事件
+  双向（IMAGE_MODEL↔JS，同一 operation、预算不重置）。JS 主运行时质量门
+  `evaluable=False`（事实核验未接），不输出假门值。
+- JS 本地执行不占远程派发（契约 :138），`dispatches_used=0`；token/费用不适用，
+  金额记 null、不写 0。
+- JS 在产品侧仍是 UNAVAILABLE，不广告（批次 20 已裁边界）。
 
 ## 已知缺口（如实）
 
@@ -61,6 +79,9 @@ python -m pytest tools/figure_eval/test_figure_eval_gate.py -q
   字段与采集点（`METRIC_COLLECTION_POINTS`）；真实 key 到位后随启用门补列。
 - 真实 Provider 成功率/延迟/费用：UNVERIFIED。fake 报告中的门值（如
   首次合格 48.33%）是机制自检输入，**不是**模型质量。
+- JS 路径事实核验未接：RenderScene 产物到 `fact_expectations` 的提取/核验器不存在，
+  所以 RENDERED 不判合格、JS 主运行质量门不可评。真实设备引擎适配器（`JsEnginePort`
+  实现）也尚未落树，默认运行只能如实得到 NOT_AVAILABLE。
 - 评审来源当前只有"模型标注，无人工专家"；启用判定前需按 PRD-09 :132 补
   人工专家复核或明确证据限制下的降级口径。
 

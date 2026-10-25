@@ -120,6 +120,16 @@ data class AdaptiveDecision(
     val reasonCodes: Set<String>,
     val selectorVersion: String,
     val projectionCheckpointSequence: Long,
+    /**
+     * 所选候选的预测器身份（`PredictedCorrectnessInterval.modelVersion`），未选中候选
+     * （SKIP/CLARIFY/NO_SAFE）或候选无预测时为 null。
+     *
+     * 消灭的失败：`PREDICTOR_ELO` 明确不进 [LearningCoreVersions.SELECTOR_COMPOSITE]
+     * （读侧纯折叠、无持久重放面），若决策对象只带 selectorVersion，同一选择器版本下
+     * 由不同预测器版本产生的 ASK 决策在审计面上无法区分。KDoc 所说"预测身份随区间自身的
+     * modelVersion 走"必须落到决策对象上，而不是只存在于被丢弃的候选里。
+     */
+    val predictionModelVersion: String? = null,
 ) {
     init {
         require(
@@ -200,6 +210,7 @@ class AdaptiveQuestionSelector {
             AdaptiveDecisionKind.ASK,
             candidate.assessmentItemId,
             setOf("TARGET_MATCH", "SAFE_VERIFIED_CANDIDATE", "HARD_CHALLENGE_CORRIDOR"),
+            candidate.predictedCorrectness?.modelVersion,
         )
     }
 
@@ -221,6 +232,7 @@ class AdaptiveQuestionSelector {
             AdaptiveDecisionKind.ASK_CALIBRATION,
             candidate.assessmentItemId,
             reasons + "CALIBRATION_ONLY",
+            candidate.predictedCorrectness?.modelVersion,
         )
     }
 
@@ -288,12 +300,14 @@ class AdaptiveQuestionSelector {
         kind: AdaptiveDecisionKind,
         selectedId: String?,
         reasons: Set<String>,
+        predictionModelVersion: String? = null,
     ) = AdaptiveDecision(
         kind = kind,
         selectedAssessmentItemId = selectedId,
         reasonCodes = reasons,
         selectorVersion = VERSION,
         projectionCheckpointSequence = request.learnerSnapshot.checkpoint.lastSequence,
+        predictionModelVersion = predictionModelVersion,
     )
 
     companion object {

@@ -190,6 +190,13 @@ dependencies {
     implementation(libs.litert.api.play.delivery)
     implementation(libs.okhttp)
     implementation(libs.androidx.work.runtime.ktx)
+    // 4E JS 视觉引擎（批次 21 裁定 2）：quickjs-kt-android 钉版 1.0.15——sha256/传递依赖/回退判据
+    // 见 gradle/libs.versions.toml 对应条目；AAR 自带 jni/<abi>/libquickjs.so，无需 packagingOptions
+    // （全仓唯一 quickjs 生产者，无同名 so 冲突；abiFilters 把四 ABI 裁成 arm64-v8a + x86_64）。
+    // 消费面：仅本模块主源 QuickJsVisualExecutionEngine 与 androidTest。本地 JVM 单测**不执行任何
+    // QuickJs 路径**（QuickJs.create 会 System.loadLibrary("quickjs")，JVM 无该原生库）——
+    // QuickJsVisualExecutionEngineJvmTest 钉住"预算/关闭检查先于引擎实例化"这一不变量。
+    implementation(libs.quickjs.kt.android)
     testImplementation(libs.junit)
     testImplementation(libs.okhttp.mockwebserver)
     // Stage-1 词面检索实验台（WP-C）：JVM 单测里跑**真** SQLite FTS5 + bm25() 的口径对照。

@@ -423,6 +423,46 @@
 > 与学习算法无关（影响=放弃 32 位设备安装面）；T6 诊断账本三重封顶（6 文件×64KiB×300 条）是运维参数；
 > 两者均不登记为本表算法变更。R5 的 Elo/探索额度等提案数值**未实现**（待用户裁定），不存在常量落账。
 
+### 3.31 批次 21 T2 · G5-A 双端口（2026-10-25）：新增 `PREDICTOR_ELO="predictor-elo-v1"`，其余零 bump；超参逐项 PENDING_CALIBRATION
+
+> 编号说明：本条由批次 21 T2（计划 `.zcode/plans/plan-2026-10-25-batch-21-kd64-g5a-quickjs.md` §2 的 T2；
+> 主会话裁定 1 = G5 选项 A）占用。`STUDY_DATABASE_VERSION` 维持 **69**（零新表、零迁移）；请求 schema 维持 **18**
+> （零 ModelTaskKind、零提示词、零请求 schema）；`LearningCoreVersions` 仅**新增** `PREDICTOR_ELO`，
+> `PROJECTOR`/`EVIDENCE`/`ATTRIBUTION`/`LEDGER`/`SELECTOR`/`SELECTOR_COMPOSITE` 全部未 bump；
+> `AdaptiveQuestionSelector` 的选择判据/走廊未改（fail-closed 语义原样）；决策对象新增 `predictionModelVersion` 审计字段（见 §5 #18 复核修正），不属于算法判据变化、不 bump 版本串。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| 新增 `LearningCoreVersions.PREDICTOR_ELO = "predictor-elo-v1"`（`LearningCoreVersions.kt`，`PREDICTION_INTERVAL` 同级）；**不进** `SELECTOR_COMPOSITE` | G5-A 预测端口 `AdaptiveCorrectnessPredictor` + `EloCorrectnessPredictor`（`core/domain`，移植 proso-apps `PriorCurrentPredictiveModel`，MIT）与读侧装配器 `AdaptiveSelectionAssembler`（`core/data/study`） | **点预测**：`p = guess + (1−guess)·sigmoid(skill)`，`guess = 1/选项数`（选项数缺失/≤0 → guess=0，修正关闭）；`skill` 两分支——无历史 `prior − difficulty`，重答 `current_skill + timeShift/max(seconds_ago, 0.001)`。**更新**：局部技能每次 `current += (pfaeGood|pfaeBad)·(result−p)`（首答基线 = prior − difficulty）；首答门 `prior += α(u)·residual`、`difficulty −= α(i)·residual`，`α(n)=eloAlpha/(1+eloDynamicAlpha·n)`，u=`user_first_answers`（该学习者已首答的节点数，pre-increment）、i=`item_first_answers`（该节点被首答次数，单学习者恒 0）。**区间**：`h(n)=clamp(0.5/√(1+n), 0.05, 0.5)`，界 = `roundTo(6)(p±h)` 夹到 [0,1]（n=0 → 全宽 → 走廊必拒）。**降级**：缺/≤0/倒挂的上次时间 → 先验分支（不猜插值）；GAP/CONFLICT/读失败 → 候选无预测。**全部超参 PENDING_CALIBRATION**（proso 生产值 0.8/0.05/3.4/0.3/80.0；h0=0.5、24h 有效期为移植补全的新判据） | 公式权威 = proso-apps 源码 https://github.com/adaptive-learning/proso-apps/blob/master/proso/models/prediction.py:164-236,353-364（MIT，2026-10-25 `gh api` 实拉全文核对）；移植口径 `docs/research/2026-10-25-elo-predictor-spec.md` §1/§4；实现 `core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/EloCorrectnessPredictor.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/AdaptiveSelectionAssembler.kt` | **执行证据（非 Gradle 直跑）**：`python tmp/verify_batch21.py` → 69/69（工单）；记录员实读 XML：`EloCorrectnessPredictorTest` 14/0、`AdaptiveSelectionAssemblerTest` 10/0、`AdaptiveQuestionSelectorTest` 21/0（2026-10-26 05:20–05:22）。Gradle 单测门 `exit=0` 由主会话脚本执行（工单转录；记录员未跑 Gradle）。用例：`core/domain/src/test/.../EloCorrectnessPredictorTest.kt`（公式金样/确定性/降级/走廊边界/O(n) 比例探针/超参防误用）、`core/data/src/test/.../AdaptiveSelectionAssemblerTest.kt`（通道过滤/修正链/GAP/候选装配/缓存透明/取消传播）。金样值由 JVM Temurin 21 `jshell` 按同公式算出后硬编码（1e-9 容差） | ➖（读侧派生：状态是台账前缀纯函数，零新表、零写入、不进投影快照——无既有输入的重放输出变化，不触发重放） |
+
+**两处对 R4 规格的显式偏差（以主源为准，按全局规则 8 记录）**：
+
+1. **首答 α 的两个计数**：R4 §4.1 规则 3 草拟"user/item 合并为节点级一个 n（数学等价）"。主源实测为**两个独立计数分别
+   作用 prior 与 difficulty**（`prediction.py:229-236`）；单学习者下 item 计数在首答时恒 0、user 计数随已首答节点数增长，
+   两者只在第一个节点相等——"数学等价"前提不成立。实现按主源两计数形态（R4 §4.1 的状态数据类本身也同时携带两个计数），
+   首答步长因此逐节点衰减（0.8 → 0.8/1.05 → …）。
+2. **缺/坏上次时间的降级**：proso 对 falsy `last_time` 取 `seconds_ago=315460000`（≈无回升，`prediction.py:197`）；R4 §2.2.4/§4.5
+   规定更保守的**先验分支**。实现按 R4（不猜插值；时间倒挂同理，而非 proso 的 `max(seconds_ago, 0.001)` 巨幅回升）。
+
+**零 bump / 不进 COMPOSITE 判据**：Elo 状态是读侧纯折叠，无持久投影面，版本不匹配不存在"全量重放"消费者；预测身份随
+`PredictedCorrectnessInterval.modelVersion`（= `PREDICTOR_ELO`）逐区间携带。`SELECTOR`/`SELECTOR_COMPOSITE` 的分量都是持久投影/
+判据版本串，本批选择器零改动、无输出变化 → 不 bump（判定已留痕于 `LearningCoreVersions.kt` 的 `PREDICTOR_ELO` KDoc）。
+
+**登记项**：R4 §4.3.3 要求的决策台账登记（proso 超参 PENDING_CALIBRATION + §2.2.5 时长扩展登记项）已由本批记录员在
+`docs/agent-first-refactor-decisions-2026-09-23.md` 的"批次 21 主会话四项裁定"小节折入（引计划 §1）。
+跨会话复用旧题面的候选池语义仍为 R5 §5 未裁项（装配器本批只装当次会话池）；装配器候选字段映射（错题 `contentVerified=false`、
+`targetKind=FOUNDATION`、`informationValue=0.0`）是保守读侧映射，不是算法数值，随生产调用点接线批次一并复核。
+
+**与 AUD-17 的口径隔离（复核发现 #25）**：Elo 有效流消费全部已接受 `knowledge-quiz` 事件（含首答、同日重答、重答；只按
+VOID/REPLACE 折叠），而 AUD-17 可预测长程样本排除 `REVOKED_OR_OBSERVED`/`MODEL_JUDGED`/`REVEAL`/`FIRST_OF_CARD`/
+`SAME_DAY_REPEAT`。两者不是同一台账、同一分母；Wave X 不得把 Elo 状态当 AUD-17 样本使用，也不得把 Elo 预测效果与
+AUD-17 校准结果互相替代。
+
+> **本批非算法常量追溯**：`PREDICTOR_ELO="predictor-elo-v1"` 是本批唯一新增版本串；`EloHyperparameters.PROSO_PRODUCTION_DEFAULTS`
+> 七个字段全部标 PENDING_CALIBRATION，**唯一口径 = 代码 KDoc + R4 §4.1/§4.4 + 本条**（Wave X 校准前不是校准值，
+> 不许顺手调整；校准改值必须 bump `PREDICTOR_ELO`）。装配器的 `QUIZ_REVEAL_STATE_HIDDEN="HIDDEN"` 是既有列值字面，
+> `saved-question:` 前缀复用 `StudyReviewPlannerService` 既有映射，均非算法参数。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

@@ -111,6 +111,12 @@ jobs:
           :feature:profile:lintDebug :feature:review:lintDebug
           :feature:tutor:lintDebug
           --console=plain
+      - name: Dependency pin gate (quickjs AAR/POM/.module sha256 + resolved Kotlin runtime)
+        # `lintVitalAnalyzeLocalFirstRelease` above leaves artifact-dependencies.xml
+        # with the resolved runtime graph. The quickjs AAR POM silently raises
+        # kotlin-stdlib to 2.4.10 while the catalog compiles with 2.3.21; this gate
+        # makes that override explicit and fails on future drift.
+        run: python3 tools/ci/check_dependency_pins.py
       - name: Unit-test coverage reports (feed the status report)
         # JVM modules use Kover; Android libraries use the AGP+Jacoco report
         # because Kover 0.9.1 cannot see AGP 9's built-in-Kotlin variants (KD-5).

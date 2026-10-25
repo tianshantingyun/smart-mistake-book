@@ -136,6 +136,8 @@
 
 > **（2026-10-25 批次 20：PRD-09 harness 可先行半边已落树，勾选框不动——真实质量门未过）**：120 盲测任务（6 组×20）+24 开发集已冻结为 SHA-256 manifest 防篡改夹具（`tools/figure_eval/`，review_source 必填、事实预期 288 条其中 critical 209、开发集不计入 120 分母）；评测预算清单落盘（费用未知记未知、六派发总门引用契约:138+ModelTasks.kt:61）；两后端配对/切换框架 + 指标字段（首图 p50/p95/总时长/token/费用）就位；fake 驱动端到端报告在盘（JSON+MD），18 项机制测试实跑全绿（pytest 18 passed）；JS 后端留桩（NOT_WIRED）待 T4 VisualExecutionEngine 端口接线。**真实 Provider 质量/费用 UNVERIFIED（无 key）**；盲测 120 例未跑；门常量是启用目标非已达。见 `docs/research/2026-10-25-batch-20-record.md` §3.5。
 
+> **（2026-10-26 批次 21：JsPort 已换可注入适配器；合规件落盘；勾选框仍不动）**：`JsPortStub` 已由 `JsPort` 替换，支持注入 `VisualExecutionEngine` 适配器与 IMAGE_MODEL/JS 双向切换记录；机制测试实跑 **30 passed**（`pytest tools/figure_eval/test_figure_eval_gate.py -q`），fake 报告显式 `JS: NOT_AVAILABLE`（未注入/不可用，不冒充质量）、`js_backend_honest_status ✓`。**真实 JS 后端只在设备轨可执行，本批未在设备上跑 PRD-09 真实质量；真实 Provider 质量/费用仍 UNVERIFIED。** 合规件（T7）：G5 三档文案 `docs/ai-content-disclosure-copy.md`、G6 12 项上架材料清单 `docs/research/2026-10-25-store-launch-materials-checklist.md`、G7 十项台账登记已落；G1/G2 应用内显式标识与设置页嵌入仍待 feature/tutor、core/ui、SecondaryScreens 热区空出。见 `docs/research/2026-10-25-batch-21-record.md` §3.4/§3.6。
+
 退出门：工程、语义、可读性、恢复和真实质量分别有证据。手机截图/API34探针、手写程序不能代替真实Provider成功率。上述百分比/时延是待实测的启用目标，不得写成已达到。
 
 ### PRD-10：后续阶段承接，避免再次断线

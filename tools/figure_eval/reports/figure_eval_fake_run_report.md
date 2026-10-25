@@ -21,18 +21,24 @@
 
 ## 3. 两后端配对/切换
 
-- 配对子集任务数：24；切换事件：11；JS 后端状态：NOT_WIRED
-- 配对子集检验两后端与双向切换，不强制所有题跑两遍（design §6 :93）
+- 主后端：**IMAGE_MODEL**；后端枚举：IMAGE_MODEL / JS
+- 配对子集任务数：24；切换事件：11
+- IMAGE_MODEL：FAKE_DRIVER（driver=fake）
+- JS：NOT_AVAILABLE（driver=none；reason=未注入 VisualExecutionEngine 适配器：T3 真引擎只在设备轨可执行，本进程无从确认可用）
+- 配对子集检验两后端与双向切换，不强制所有题跑两遍（design §6 :93）；JS 状态取自端口探测（NOT_AVAILABLE 时该题不产生 JS 成功记录）
+- JS 本地执行不占远程派发（契约 :138）；RENDERED 仅为产物引用，事实核验 UNVERIFIED，不冒充成功
 - 分类语义：明确要图却 NO_FIGURE / 降级为文字只算安全退路，不算生图成功（design §6 :93）
 
 ## 4. 指标（fake 值，非真实质量；真实值待 key）
 
-| 指标 | IMAGE_MODEL (fake p50) | IMAGE_MODEL (fake p95) | JS |
+| 指标 | IMAGE_MODEL (fake p50) | IMAGE_MODEL (fake p95) | JS (p50/p95) |
 |---|---|---|---|
-| 首图延迟 ms | 83947 | 143545 | 留桩无样本 |
-| 总时长 ms | 47708 | 144275 | 留桩无样本 |
-| token 输入/输出 | null（待真实 usage） | null | null |
-| 费用 | unknown | — | — |
+| 首图延迟 ms | 83947 | 143545 | 无样本（NOT_AVAILABLE） |
+| 总时长 ms | 47708 | 144275 | 无样本（NOT_AVAILABLE） |
+| token 输入/输出 | null（待真实 usage） | null | 不适用（本地执行） |
+| 费用 | unknown | — | 不适用（本地执行，金额记 null 不写 0） |
+
+- JS 样本来源：无（引擎未注入/不可用 → NOT_AVAILABLE）
 
 采集点（字段与采集点先落）：
 - `first_image_latency_ms`：figure_generation_attempt.started_at_epoch_millis → ended_at_epoch_millis（core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/entity/FigureGenerationEntities.kt 首个 GENERATED attempt）；harness 侧同字段。已知缺口：该表暂无 token/费用/首图延迟专用列（批次 20 零 schema 决定，真实 key 到位后随启用门补列）。
@@ -49,7 +55,7 @@
 | 预算内最终合格率 | ≥95% | 62.50% | 120 | [0.536, 0.706] | NOT_MET |
 | 关键题意错误被接受 | =0 | 0 | — | — | MET |
 | 首图 p95（IMAGE_MODEL） | ≤120000 ms | 143545 | — | — | False |
-| 首图 p95（JS） | ≤30000 ms | 留桩无样本 | — | — | 不可判（如实记 null） |
+| 首图 p95（JS） | ≤30000 ms | JS 事实核验未接 | — | — | 不可判（如实记 null） |
 
 分组最终合格率（阈值每组 ≥90%，fake 值）：
 
@@ -72,7 +78,10 @@
 - critical_mismatch_observed: ✓
 - critical_mismatch_accepted_zero: ✓
 - switch_event_recorded: ✓
-- js_stub_recorded: ✓
+- js_backend_recorded: ✓
+- js_backend_honest_status: ✓
+- js_never_claims_quality: ✓
+- backends_pairing_complete: ✓
 - budget_cap_respected: ✓
 - **verdict: PASS**
 
