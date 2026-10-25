@@ -3,7 +3,7 @@
 # 节点分口径：该节点全部向量 cosine 的 max；cosine = scale[r] * Σ_i int8[r][i] * query[i]（float64）
 # 查询向量：build/dense-model/int8-queries.npy（同一 int8 ONNX 输出）的 L2 归一化值
 # 端侧只要求与 scoreKm 在 1e-5 内一致（差值是累加顺序）；scoreBlas 是同数据的 fp32 对照
-[asset]	sha256=0536d0d1cda99bd5614bc94d9176628d7ce999938db1c289b3b44600ae13b23a	magic=SMBV	version=1	dim=512	count=44041	dtypeCode=1	idsBytesLength=3315027	expectedBytes=26040207
+[asset]	sha256=79a22270b54180f6ba5346a4f56d87eb16e5f335107ac9877cbb142fd4515446	magic=SMBV	version=1	dim=512	count=44043	dtypeCode=1	idsBytesLength=3315135	expectedBytes=26041347
 [quantize]	simple	0.5 -0.25 0.125 -1.0	64.0 -32.0 16.0 -127.0	0.007874015718698502	极值 -1.0 ⇒ scale=1/127
 [quantize]	zero_vector	0.0 0.0 0.0	0.0 0.0 0.0	1.0	退化：max=0 ⇒ scale=1.0、q 全 0（不产生 NaN）
 [quantize]	rounding	0.9 0.1 -0.7	127.0 14.0 -99.0	0.007086614146828651	四舍五入到最近整数格

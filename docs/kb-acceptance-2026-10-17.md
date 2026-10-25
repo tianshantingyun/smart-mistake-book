@@ -664,3 +664,54 @@ python build/agent-batch19/a1/zero_drift.py
 **宣告：知识库封装完毕（最终验收标准 v1.0 达成，2026-10-25）。** 基线定格：包 **v20**（contentVersion `ebf477816c318704`，主包 sha `298f4c0c…`）+ dense `0536d0d1…`（44,041 行）+ 检索基线 **117/129 = 0.9069767**（B1 判读）+ 覆盖终态主线 **400/426 = 0.9390**（A2 判读）。自此转入**维护态**：包零写（新增材料须走自产料池门 + 晋升，会使已测检索基线失效）；遗留边界（B4 的 12 条 MISS、选修 235、等和线词汇缺口、薄料补料）与增强臂（dense-union 并集、系统性别名扩充）按 §10.5 登记移交维护线；E2 用户复核开放中。
 
 > 引用格式：**「批次20 终验落章（2026-10-25）：最终验收标准 v1.0 五组判据全达标——A 八门全绿 + 43 条 PARTIAL 终审 applied（主线 426 = 400/16/10，覆盖 0.9390，UPGRADE 26/KEEP 16/WAIVE 1）；B1 融合主集 117/129 = 0.9069767（快照轮实测复现，同代 MATCH）+ B2 零漂移 PASS/PASS + B3 p50=38/p95=48ms 0 超预算 + B4 边界登记；C1 1033/1033（存档读数）+ C2 denseLegLive=true；D1 ULP 锚 fixed-green（重钉 …232，1/1+2/2 绿）+ D2 逐 sha 对拍一致 + D3 文书落章；E 组登记移交。标题向量臂批次20 clean 重测收束：规则②否决（数列 10/11→9/11）不采纳、逐字回滚，stateAfter = v20 + `0536d0d1…`（HEAD `558185c9`）。**封装完毕**，转入维护态。」**
+
+## 11. v21 内容更新后基线（批次22，2026-10-26 落章）
+
+> 本节为**批次22 采纳落章**，只追加不改写：§1–§10 的历史时点读数与 v20 终验宣告全部保留原文。判据来源 = `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md`（v1.0，v21 状态刷新见该文末节）；预注册 = `docs/research/2026-10-26-kb-v21-content-update-prereg.md`（非劣四判据）；批报 = `docs/kb-batch22-2026-10-26.md`。v21 内容更新裁定 **adopted=true**，四条非劣判据全通过，**未回滚**。本批是内容更新，不是检索机制臂；不主张任何分数提升。
+
+### 11.1 基线身份（v20 → v21）
+
+| 项 | v20（写前） | v21（采纳后） | 证据 |
+|---|---|---|---|
+| manifest | version 20 / contentVersion `ebf477816c318704` / sha `0210dc02…` | version **21** / contentVersion **`9f9e99ceec47cf8c`** / sha **`c4d38750…`** | `core/data/src/main/resources/knowledge/moe-2025-update-manifest.json`；`build/agent-batch22/consistency.txt` §1；本文书轮 `python` 读取 |
+| 主包 | sha `298f4c0c…` | sha **`a719248448f314d1a6e6bfc74e3a101f07960d08d6985ade3d1c97f3efe6da36`** | `sha256sum`；`build/agent-batch22/consistency.txt` §1 |
+| dense `.vec` | `0536d0d1…`（44,041） | **`79a22270b54180f6…`**（**44,043** vectors / 26,041,347 B） | `sha256sum`/`stat`；`build/agent-batch22/dense.log:223-224` |
+| `.vec` 旁车 | `4c911fc3…` | **`68ed524a…`**（`vectorCount=44,043`、`aliasVectors=40,798`、`packSha256=a7192484…`） | `sha256sum` + JSON；`build/agent-batch22/consistency.txt` §2 |
+| 别名表 | exceptions 33 / map 37,551 / dropped 22,559 | exceptions **35** / map **37,553** / dropped **22,559**（未变） | csv 计数；`git diff` +2/+2；`build/agent-batch22/consistency.txt` §3 |
+| 节点别名 | `MATH/等和线` 23 条（含主名） | **25 条**（含主名；新增 2 条正文派生别名） | 预注册 §1.1；`build/agent-batch22/consistency.txt` §3 |
+| 材料/侧车 | 64,973 / 25 sidecar / 0 未绑 / 全 PRIMARY | **同左，零写**；sidecar 聚合仍 `ed1c6d4f…` | `build/agent-batch22/consistency.txt` §6；`build/agent-batch22/material-touched-files.txt:1-15` |
+| 判官/金标 | 设备 `c2280255…`、JVM `62c232fc…`、镜像 `8c2a2ef0…`、金标 `eabef102…` | **同左，本批零改**（JVM 判官保留既存 ` M`：batch13→14 注释，sha 未变） | `build/agent-batch22/consistency.txt` §5；`sha256sum` |
+
+### 11.2 B 组检索（v21 设备读数，主判读）
+
+| 判据 | v20 终验（2026-10-25） | v21（2026-10-26） | 证据 |
+|---|---|---|---|
+| B1 设备融合主集 ≥0.90 | 117/129 = 0.9069767；MRR 0.7322997416020672 | **117/129 = 0.9069767441860465**；MRR **0.7322997416020672**；与 v20 **逐位持平**；`am instrument` OK (1 test)、同代 MATCH | `build/agent-batch22/v21/device-metrics.txt:3-5`；`build/agent-batch22/v21/step3_run_device.log:19-24`；`build/agent-batch22/v21/post-install-samegen.txt:2-5` |
+| B2 同路零漂移 symdiff=0 | PASS/PASS | **PASS/PASS**：lexical **27/27/common 27**、fused **12/12/common 12**，symdiff 0 | `build/agent-batch22/v21/zero-drift.json`；批报 §6.1；本文书轮 `zero_drift.py` 复跑 |
+| B3 预算 p95≤250 / p50≤150、overBudget=0 | p50=38 / p95=48 / max=116 | **p50=40 / p95=57 / max=164**，overBudget=0 | `build/agent-batch22/v21/device-metrics.txt:2` |
+| B4 剩余 MISS 登记 | 12 条 fused MISS；等和线词汇缺口 | **12 条同集**；等和线四路仍 `absent`；节点别名 23→25；32 块材料不变；无新增 MISS | `build/agent-batch22/v21/device-fused-misses.txt`；批报 §5.2/§8 |
+
+- **非劣四判据**（预注册 §2.2）：①主集 ≥117/129 成立；②24/24 逐章全等（lower 0 / higher 0 / equal 24）；③零漂移同路两门 PASS/PASS；④按章 cluster 配对 bootstrap（`--reps 20000 --seed 0`，A=v21、B=A1）融合/词面均 delta **0.0**、95% CI **[0.0,0.0]**、p=1.0，上界 ≥0。**四条全过，adopted=true**（批报 §6）。
+- **无增益**：24/24 全等、MISS 同集、delta 0.0 只证明非劣；本批不承诺分数提升。
+
+### 11.3 A/C/D/E 组状态（v21 刷新）
+
+- **A1**：结构规模沿用 v20 终验（425 主题 / 3,245 点 / 64,973 材料 / 25 侧车；包结构只改别名，未改节点/材料；dense 资产/测试夹具另有重打）；八门 rc=0、`overall red=0`（`build/agent-batch22/gates/summary.txt:1-17`；`py_suite` 785 tests OK）。
+- **A2**：主线 426 覆盖终态维持 **400/426 = 0.9390**（本批未改覆盖台账、未重跑覆盖重算；数值沿用批次20 终验，见 §10.2 与判据 A2）。
+- **A3**：溯源/豁免不变；25 sidecar 聚合 `ed1c6d4f…` 与 v20 相同（本批零写材料正文）。
+- **C1**：**未重跑** `:core:data` 全套；批次22 只跑定向 `GoldenRetrievalJvmTest` 与 dense 4 类（`build/agent-batch22/dense-jvm-tests.log:1,100`）。C1 的全套证据仍为批次19/20 存档 1033/1033；本批**不称“全套绿”**。
+- **C2**：设备指标 `denseLegLive=true`（`build/agent-batch22/v21/device-metrics.txt:2`）。
+- **D1**：八门 rc=0；`ProductionLexicalLegExportTest` 钉值未漂（`102 / 0.7906976744186046 / 0.6206718346253232`），`DenseRecallRerankerTest` 等 4 类定向绿；**全库单测未重跑**（不得由定向测试推出全库绿）。
+- **D2**：v21 身份见 §11.1；`DenseRecallAssembly.kt:108` 常量 `79a22270…`；`DenseRecallRerankerTest.kt` 候选总数 1,075→1,074（实测重钉）；判官/金标/镜像本批零改（JVM 判官保留既存 ` M`：batch13→14 注释，sha 未变）。
+- **D3**：本 §11 + 批报 `docs/kb-batch22-2026-10-26.md` + 预注册 §7.10 + 判据刷新节；复算命令见批报 §9。
+- **E1/E2**：维持登记（A 层封层 / 选修 235 / 84 空点 / 91 容量 / 3 条冲突；182/114/402 用户复核开放中）。
+- **E3**：dense-union 并集臂批次21 **终裁不采纳、已逐字回滚**（`docs/kb-batch21-2026-10-26.md:280-285`）；标题向量臂批次20 已收束；**v21 内容更新不属于增强臂**，不得用本批非劣口径替代机制臂的严格更高。
+- **E4**：`等和线` 别名结果 = 新增 2 条（节点 23→25 含主名），单点四路仍 `absent`、只报不判；32 块材料不变；剩余 4 条候选不写入/不测量/不判读；薄料行 23 仍 KEEP、本批零写（批报 §3/§8）。
+
+### 11.4 达成宣告与边界
+
+- **v1.0 达成宣告维持（不撤销）**：B1 **117/129 = 0.9069767441860465 ≥ 0.90**，B2/B3/B4 按上述刷新；A/C/D/E 组按 §11.3 登记。v21 为**内容更新后的新基线**，不是新验收宣告、不是涨分宣告。**C1 全套未在 v21 重跑，沿用批次19/20 存档 1033/1033；v21 的 C1 独立证据为未重跑，不写成 v21 全套复验通过。**
+- **stateAfter**：v21（contentVersion `9f9e99ceec47cf8c`、主包 `a7192484…`）+ 新 `.vec` `79a22270…`（44,043 vectors；旁车 `68ed524a…`）。
+- **边界**：设备为 emulator-5584（非真机）；C1 全套未重跑；无第二评测集；材料轨零写；单点 absent；ULP 两源（…229/…232）沿用；工作树 v21 改动未提交。
+- **使用面**：`KNOWLEDGE_READ` 模型可见面风险（R1–R6：材料摘要缺省/截断、标题正文缺失、boundary 截断、2k 名义预算、换行）已登记在 `docs/kb-outstanding-work-2026-09-20.md` §9 与 `docs/research/2026-10-26-kb-usage-surface-audit.md`；本批未改工具/契约，不构成 v1.0 达标缺口，但列交接项。
+- **复算**：批报 §9（身份/逐章/零漂移/显著性/46 条写面）；本 §11 各表证据路径。

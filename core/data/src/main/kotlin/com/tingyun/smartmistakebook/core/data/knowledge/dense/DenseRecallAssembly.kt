@@ -87,16 +87,17 @@ object DenseRecallAssembly {
      * （`DenseAssetProvenanceTest` 钉住"这里的常量 == 旁车 == 实际文件"三处一致）。
      * 不匹配 ⇒ 判不可用：宁可没有稠密腿，也不用一份来路不明的向量表排序。
      *
-     * 2026-10-24 随批次19 A1 别名臂（31 条 T/C-only 别名入库，promote v20，包 sha `f6098c41…` →
-     * `298f4c0c…`）+ dense 重打：44,010 → **44,041 行**（3,245 原子节点 + 40,796 别名），
-     * sha `8e216ee1…` → 本值。
+     * 2026-10-26 随批次22 v21 别名更新（MATH/等和线 23 → 25 别名入库，主包 sha `298f4c0c…` →
+     * `a7192484…`）+ dense 重打：44,041 → **44,043 行**（3,245 原子节点 + 40,798 别名），
+     * sha `0536d0d1…` → 本值。
      * 量源 = 新 `.vec` 的实测 sha256（`sha256sum core/data/src/main/resources/knowledge/dense/
-     * bge-small-zh-int8.vec` 独立复算 0536d0d1…）与旁车 `…vec.json` 记录逐位一致；
-     * 旁车 `packSha256`（298f4c0c…）亦等于现行成品包实测 sha256（三方同源，`DenseAssetProvenanceTest` 复核）。
+     * bge-small-zh-int8.vec` 独立复算 79a22270…）与旁车 `…vec.json` 记录逐位一致；
+     * 旁车 `packSha256`（a7192484…）亦等于现行成品包实测 sha256（三方同源，`DenseAssetProvenanceTest` 复核）。
      * 生成链 = `tools/dense_build/README.md` §1：模型件经实测未变（fp32 `519a2f46…` / int8
      * `4d3b3135…` 与清单一致 ⇒ export --skip-export 只重算 npy 与对拍，ONNX 逐字节未动）→
      * pack（还原精度 min 0.999747）→ stage3 期望值（refFusedD1 117/129）→ 夹具 ×5 重出 →
-     * run_kb_checks / test_dense_asset_gate / check_asset 全绿（批次19 a1-dense.log 台账）。
+     * run_kb_checks / test_dense_asset_gate / check_asset 全绿（批次22 build/agent-batch22/dense.log 台账）。
+     * 上一代：批次19（v20）的 44,041 行（3,245 + 40,796）/ `0536d0d1…`；
      * 上一代：批次13（v16）的 44,010 行（3,245 + 40,765）/ `8e216ee1…`；
      * 上一代：批次11（v15）的 43,265 行（3,210 + 40,055）/ `6b65271f…`；
      * 更旧：批次10（v14）的 43,388 行（3,359 + 40,029）/ `7a70c01f…`；
@@ -104,7 +105,7 @@ object DenseRecallAssembly {
      * 批次 7 的 41,157 行 / `a68d6ed5…`；批次 5 的 41,126 行 / `28a14ec1…`；
      * 再旧：批次 3 的 41,117 行 / `8dbc0d54…`。
      */
-    const val VECTOR_ASSET_SHA256 = "0536d0d1cda99bd5614bc94d9176628d7ce999938db1c289b3b44600ae13b23a"
+    const val VECTOR_ASSET_SHA256 = "79a22270b54180f6ba5346a4f56d87eb16e5f335107ac9877cbb142fd4515446"
 
     /** 生产装配：不可用（未启用）时返回 `null`。 */
     fun reranker(context: Context): DenseRecallReranker? {

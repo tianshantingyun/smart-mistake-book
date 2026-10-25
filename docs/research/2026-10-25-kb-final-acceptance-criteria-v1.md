@@ -6,6 +6,7 @@
 > 每条给出测量方式；全部达标即宣告「封装完毕」，其后进入维护态 + 增强臂。
 > 口径裁定（随本标准冻结）：①主线 43 条 PARTIAL 逐条终审终态化；②dense-union 为验收后增强臂，不挡结案。
 > 「达成时点状态」列刷新口径（批次20 结案文书员，2026-10-25）：判据文字与测量方式一字未动，仅末列按**终验快照轮实测**刷新（快照 = `build/agent-batch20/acceptance-snapshot.md`；读数 = 快照轮 2026-10-25 实测/对拍，C1 快照轮未重跑项如实标注），逐条附证据路径；复算命令见 `docs/kb-acceptance-2026-10-17.md` §10 与 `docs/kb-batch20-2026-10-25.md` 附录。
+> 批次22 v21 状态刷新（2026-10-26 追加）：v21 内容更新 adopted=true；判据文字与测量方式未动，原「达成时点状态」列保留 2026-10-25 v20 终验快照；v21 刷新见文末「批次22 v21 达成状态刷新」节。依据：`docs/research/2026-10-26-kb-v21-content-update-prereg.md`、`docs/kb-batch22-2026-10-26.md`、`docs/kb-acceptance-2026-10-17.md` §11。
 
 ## A. 内容完备与正确
 
@@ -51,3 +52,28 @@
 ## 达成宣告条件
 
 A1–A3、B1–B4、C1–C2、D1–D3 全部「实测达标 + 证据路径可复算」且 E 组逐条登记 → 验收文书 §10 落章宣告**封装完毕**，转入维护态。
+
+## 批次22 v21 达成状态刷新（2026-10-26 追加）
+
+> 本表只刷新「达成时点状态」，不改判据文字与测量方式；原表（上）保留 2026-10-25 v20 终验快照。v21 内容更新裁定 **adopted=true**，四条非劣判据全过，未回滚；v21 为内容更新后新基线，**不主张涨分**。证据主体 = `docs/kb-batch22-2026-10-26.md`、`build/agent-batch22/` 产物、`docs/kb-acceptance-2026-10-17.md` §11。
+
+| # | v20 终态（2026-10-25） | v21 刷新（2026-10-26） | 证据 |
+|---|---|---|---|
+| A1 | 八门 rc=0、overall red=0（v20 快照） | **维持**：八门 rc=0、overall red=0；结构 425 主题 / 3,245 点 / 64,973 材料 / 25 侧车（包结构只改别名；dense 资产/测试夹具另有重打） | `build/agent-batch22/gates/summary.txt:1-17`；`build/agent-batch22/consistency.txt` §1/§6 |
+| A2 | 400/426 = 0.9390（43 行终审 applied） | **维持**：本批未改覆盖台账、未重跑覆盖重算；数值沿用 v20 终验 | 本文件 A2；验收 §10.2（本批未重跑） |
+| A3 | 终审复验绿（豁免 10 行、零伪造 provenance） | **维持**：25 sidecar 聚合 `ed1c6d4f…` 不变；本批材料零写 | `build/agent-batch22/consistency.txt` §6；`build/agent-batch22/material-touched-files.txt:1-15` |
+| B1 | 117/129 = 0.9069767；MRR 0.7322997416020672 | **117/129 = 0.9069767441860465**；MRR **0.7322997416020672**；p50=40 / p95=57 / max=164、overBudget=0；同代 MATCH | `build/agent-batch22/v21/device-metrics.txt:2-5`；`build/agent-batch22/v21/step3_run_device.log:19-24`；`build/agent-batch22/v21/post-install-samegen.txt:2-5` |
+| B2 | PASS/PASS（fused/lexical symdiff=0） | **PASS/PASS**：lexical 27/27/common 27、fused 12/12/common 12，symdiff 0 | `build/agent-batch22/v21/zero-drift.json`；批报 §6.1 |
+| B3 | p50=38 / p95=48 / max=116、0 超预算 | **p50=40 / p95=57 / max=164、0 超预算**（预算 150/250） | `build/agent-batch22/v21/device-metrics.txt:2` |
+| B4 | 12 条 fused MISS；等和线 23 别名 / 32 块材料 | **12 条同集**；等和线 **25 别名**（23→25，含主名）/ 32 块材料；单点四路 `absent`；无新增 MISS | `build/agent-batch22/v21/device-fused-misses.txt`；预注册 §1.1/§2.4；批报 §5.2/§8 |
+| C1 | 1033/1033（批次19/20 存档；快照轮未重跑） | **未重跑全套**；批次22 仅定向 `GoldenRetrievalJvmTest` + dense 4 类；全套证据仍为存档 1033/1033 | `build/agent-batch22/dense-jvm-tests.log:1,100`；`build/agent-batch22/v21/step5_run_jvm.log`；验收 §11.3 |
+| C2 | denseLegLive=true（快照轮实测） | **true** | `build/agent-batch22/v21/device-metrics.txt:2` |
+| D1 | fixed-green（ULP 锚重钉 …232；1/1+2/2 绿；八门 rc=0） | **八门 rc=0；ProductionLexicalLegExportTest 锚未漂（102 / 0.7906976744186046 / 0.6206718346253232）；定向 4 类绿；全库单测未重跑** | `build/agent-batch22/gates/summary.txt`；`build/agent-batch22/consistency.txt` §3；`build/agent-batch22/dense-jvm-tests.log` |
+| D2 | v20 / `ebf477816c318704` / `0536d0d1…` | **v21 / `9f9e99ceec47cf8c` / 主包 `a7192484…` / `.vec 79a22270…`（44,043 行）/ alias 35·37,553·22,559** | `build/agent-batch22/consistency.txt` §1-§3；本文书轮 sha 复核 |
+| D3 | v20 落章（验收 §10 + 批报 + 预注册） | **v21 落章**：验收 §11 + 批报 + 预注册 §7.10 + 本刷新节 | `docs/kb-batch22-2026-10-26.md`；`docs/kb-acceptance-2026-10-17.md` §11 |
+| E1 | 登记终态 | **维持**（A 层封层 / 选修 235 / 84 空点 / 91 容量 / 3 条冲突） | 验收 §10.5 |
+| E2 | 182/114/402 用户复核开放中 | **维持**（本批未处理） | 验收 §10.5 |
+| E3 | dense-union 待跨线；标题向量臂已收束 | **dense-union 批次21 终裁不采纳、已逐字回滚；标题臂已收束；v21 内容更新不是增强臂** | `docs/kb-batch21-2026-10-26.md:280-285`；验收 §11.3 |
+| E4 | 等和线词汇缺口；薄料维护项 | **等和线 25 别名、单点四路 absent、32 块材料；剩余 4 条候选不写；薄料行 23 KEEP、本批零写** | 预注册 §1.1/§2.4；`build/agent-batch22/material-touched-files.txt:1-15`；批报 §8 |
+
+**刷新后的达成判断**：v1.0 达成宣告**维持（不撤销）**——B1 **117/129 = 0.9069767441860465 ≥ 0.90**；B2/B3/B4 按 v21 实测；B1/B2/B3/B4/D2/D3 已按 v21 刷新；A1/D1 八门与结构对拍通过；A2/C1 未重跑/未重算，沿用 v20 终验并如实标注；E 组维持登记。v21 为新基线，**不主张涨分**；C1 全套未在 v21 重跑，不能写成“v21 全套绿”或“v21 全套复验通过”。

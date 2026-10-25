@@ -2,6 +2,8 @@
 
 > **现行数字（2026-10-20 复算）**：知识点 **3,245**（主题 425）/ 教学材料 **64,973** 条（sidecar v2-01..25）/ 课标覆盖 **390**/661（PARTIAL 73、NOT_COVERED 198、UNDECIDED 0）/ 薄料 live **205**（零材料 0）/ 超配（>4）**2,482** / 未判（机械 SKIP）**61,170**。复算入口：`moe-2025-four-subjects-v1.json`（现行 **v20**，批次19 A1 采纳 2026-10-25；2026-10-20 复算时为 v17、批次18 时 v19）、`moe-2025-teaching-support-v2-*.json`、`kb-coverage-alignment-2026-v2.json`、`PYTHONPATH=tools python -m kb_build.report_material_gaps`、`PYTHONPATH=tools python -m kb_coverage.count_unjudged`。下文 2026-09-20 快照与 2026-10-02 注记按日期保留。
 
+> **更新（2026-10-26 批次22）**：现行基线已由 v20 升至 **v21**（contentVersion `9f9e99ceec47cf8c`、主包 `a7192484…`）+ dense **`79a22270…`（44,043 行 / 26,041,347 B）**；检索基线仍 **117/129 = 0.9069767**（非劣，非增益）；验收 §11 与判据状态刷新已落章。下方 §1–§8 的既有数字为历史时点，按日期保留；细则见 §9。
+
 # 知识库未竟工作清单（2026-09-20 快照）
 
 用户指令：未做的先以文档形式记下来；缺料的新增补源已记录（**先不读取**）；
@@ -160,3 +162,17 @@ W-4（攒一批真机跑一次）→ W-5（独立）。W-3 旧块池已归档舍
 | **验收状态（本臂未采纳）** | **B1 仍为 A1 117/129；验收文书未改** | 本臂不构成新 B1 验收（B2 未过）；`docs/kb-acceptance-2026-10-17.md` §11 未追加、`docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` 状态列未刷新（按 ask 第 3 条“若采纳”条件不成立）。批次20 验收宣告（封装完毕）与 E 组登记维持不变 |
 
 **批次21 终裁补记（主循环，2026-10-26）**：`dense-union 并集臂` 已于主循环逐字回滚（8 tracked 文件 checkout + `DenseUnionRecallTest.kt` 删除，porcelain 空）并复跑绿（JVM 判官 + DenseRecall* **BUILD SUCCESSFUL 1m24s**）；终裁 **不采纳、结案**（设备与 A1 逐位相同 + 并入执行确证 + 批18 同口径二次复现；JVM 镜像不兼容超集为不可判读装置原因）。重开条件见预注册 §7.10；基线维持 **A1 117/129**。
+
+**批次22 追记（2026-10-26）**：§8 末行所述「验收文书未改 / §11 未追加 / 判据状态未刷新」已被批次22 取代——验收 §11 已追加、判据状态已刷新；批次21 dense-union 仍「不采纳、已回滚」；当前基线 = **v21**（见 §9）。
+
+## 9. 批次22 v21 维护态行（2026-10-26：内容更新 adopted，基线 v21）
+
+> 数字来源：`build/agent-batch22/` 产物实读 + 批报 `docs/kb-batch22-2026-10-26.md` + 验收 §11 + 判据刷新节。基线：HEAD `062e18f0` + 包 **v21**（contentVersion `9f9e99ceec47cf8c`，主包 `a7192484…`）+ dense **`79a22270…`（44,043 行）** + 检索基线 **117/129 = 0.9069767**（与 A1 持平，非增益）。v20 旧数字见 §7/§8，按日期保留。
+
+| 项 | 维护态 | 读数与证据 |
+|---|---|---|
+| **v21 内容更新（批次22）** | **adopted=true——新基线 v21；未回滚** | 2 条正文派生别名写入 `MATH/等和线`：`其和为 k 的等和线`、`k 的取值影响等和线的位置`（S2_STRUCTURAL，材料 `ext-mat-91e0c2ace8-058b` 正文加粗 span）。`alias_exceptions` 35 / `alias_map` 37,553 / `alias_dropped` 22,559 数据行；别名 40,796→40,798；promote **v21**（contentVersion `9f9e99ceec47cf8c`、主包 `a7192484…`）；dense **44,043 行 / 26,041,347 B / `79a22270…`**（旁车 `68ed524a…`）。设备融合 **117/129 = 0.9069767441860465**、MRR **0.7322997416020672**、p50=40 / p95=57 / max=164、overBudget=0；词面 102/129、MRR 0.6206718346253232；24/24 逐章全等；同路零漂移 **PASS/PASS**（lexical 27/27、fused 12/12）；显著性（按章 cluster 配对 bootstrap，20k/seed0，A=v21、B=A1）delta **0.0**、95% CI **[0.0,0.0]**、p=1.0；**无分数增益**。证据：批报 §4–§6；`build/agent-batch22/consistency.txt`；`build/agent-batch22/v21/device-metrics.txt:2-5,32-35`；`build/agent-batch22/v21/zero-drift.json`；`build/agent-batch22/v21/significance-*-v21-vs-A1.json` |
+| **等和线（别名结果 + 单点状态）** | **别名 23→25；单点仍 absent，只报不判** | 新增 2 条 S2_STRUCTURAL 正文派生别名（非金标题反推）；节点别名 **23→25**（含主名）、32 块材料不变。单点四路 `rank=absent`：`build/agent-batch22/v21/device-fused-misses.txt:8`、`build/agent-batch22/v21/device-lexical-misses.txt:13`、`build/agent-batch22/v21/jvm-fused-misses.txt:8`、`build/agent-batch22/v21/jvm-lexical-misses.txt:13`；当前口径无已知翻转入径；**不得因单点结果改别名/阈值/参数**。剩余 4 条候选（`其和为 1 的等和线（三点共线的充要条件）`、`&#124;k&#124; 的几何意义`、`等和线过 O 点时 k=0`、`直线 AB 及与它平行的直线称为等和线`）**不写入、不测量、不判读**。证据：预注册 §1.1/§2.4；批报 §3/§5.2/§8.1 |
+| **薄料（补/登记）** | **blocked——本批零写；专版维护项** | 薄料 3 条终审结论维持：行 07（导数定义在极限中的计算）、行 26（电磁说-麦克斯韦）已 UPGRADE；行 23（必备实验仪器的原理及使用）KEEP——仍有 1 条 PRIMARY 材料 `phy-basic-instruments-principle-use`（不是错挂），缺的「电路元器件识别」半边仍在 `电路中的基本概念`。全包 **0 待执行 REBIND / 0 未绑 / 全 PRIMARY / 无 SUPPORTING 现行通道**。补料会使已测 117/129 基线失效，须走自产料池门 + 晋升（2027 版《53》源登记流程不变）。证据：`build/agent-batch22/material-touched-files.txt:1-15`；预注册 §1.2；批报 §8.2 |
+| **使用面（交接项）** | **R1–R6 风险登记；本批未修复** | R1 P1 材料摘要非每节点一条（53.3% 节点无材料段；6.1% 误区材料占 76.1% 槽位）；R2 P1 材料标题/正文缺失（只 ≤60 字摘要）；R3 P1 `take(60)` 静默截断（27.2% 被切、640 条 LaTeX 损伤）；R4 P2 boundary `take(80)`（82.3% 被切、58.7% 范围短语在 80 字后）；R5 P2 2k 预算名义化（最大 2,079 B > 2,000 B）；R6 P3 13 条 summary / 6 条 boundary 含换行。归属：R1/R6 本线可改；R2/R5 智能体面契约侧；R3/R4 两侧。交接下一步：契约侧决定正文/标题披露与 2k 单位/执行点；本线侧改每节点材料取数、摘要 ≤60 字公式安全、boundary 范围前置、换行归一。本批未改 `RoomTutorToolRunner`、未改契约。证据：`docs/research/2026-10-26-kb-usage-surface-audit.md:13-40,46-233,333-339`；批报 §7 |
+| **验收状态（v21）** | **验收 §11 已追加；判据状态已刷新；v1.0 达成宣告维持（不撤销）** | B1 **117/129 = 0.9069767441860465 ≥ 0.90**；B2 PASS/PASS；B3 p50=40 / p95=57 / max=164、overBudget=0；B4 单点 absent 登记；A/C/D/E 状态见验收 §11 与判据刷新节。v21 为内容更新后新基线，**不构成涨分宣告**。dense-union 批次21 仍不采纳、已回滚；标题向量臂已收束；E2 用户复核开放。C1 全套未重跑（仅定向 JVM 4 类 + 判官），沿用批次19/20 存档 1033/1033，不写成“v21 全套绿”。证据：`docs/kb-acceptance-2026-10-17.md` §11；`docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` 刷新节；批报 §6/§8 |

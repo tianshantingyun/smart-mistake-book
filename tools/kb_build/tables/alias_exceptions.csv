@@ -32,3 +32,5 @@ MATH,二项式系数的性质,二项式系数最大的项,批次16 别名候选�
 MATH,数列的单调性与最值问题,邻项比较法求最大项,批次16 别名候选（T/C）：邻项比较法求数列的最大项与最小项
 MATH,数列的单调性与最值问题,数列最大项的判定,批次16 别名候选（T/C）：数列最大项与最小项的判定不等式
 MATH,数列的单调性与最值问题,二次函数型通项最值,批次16 别名候选（T/C）：二次函数法求数列最值（正文含二次函数法）
+MATH,等和线,其和为 k 的等和线,2026-10-26 正文派生候选（body-alias-v1/S2_STRUCTURAL）：材料块 ext-mat-91e0c2ace8-058b（moe-2025-teaching-support-v2-05.json）contentMarkdown 加粗 span「**其和为 $k$ 的等和线**」；同 section 含「称为/即」cue；df_node=1（S2 要求≥1）；归一后 10 字；取自正文加粗 span，非金标题反推。
+MATH,等和线,k 的取值影响等和线的位置,2026-10-26 正文派生候选（body-alias-v1/S2_STRUCTURAL）：材料块 ext-mat-91e0c2ace8-058b（moe-2025-teaching-support-v2-05.json）contentMarkdown 加粗 span「**$k$ 的取值影响等和线的位置**」；同 section 含「即/当/若」cue；df_node=1；归一后 13 字；正文命题，供人工复核。

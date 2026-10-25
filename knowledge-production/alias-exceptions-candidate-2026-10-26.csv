@@ -1,0 +1,7 @@
+subject,slug,alias,reason
+MATH,等和线,其和为 k 的等和线,2026-10-26 正文派生候选（body-alias-v1/S2_STRUCTURAL）：材料块 ext-mat-91e0c2ace8-058b（moe-2025-teaching-support-v2-05.json）contentMarkdown 加粗 span「**其和为 $k$ 的等和线**」；同 section 含「称为/即」cue；df_node=1（S2 要求≥1）；归一后 10 字；取自正文加粗 span，非金标题反推。
+MATH,等和线,k 的取值影响等和线的位置,2026-10-26 正文派生候选（body-alias-v1/S2_STRUCTURAL）：材料块 ext-mat-91e0c2ace8-058b（moe-2025-teaching-support-v2-05.json）contentMarkdown 加粗 span「**$k$ 的取值影响等和线的位置**」；同 section 含「即/当/若」cue；df_node=1；归一后 13 字；正文命题，供人工复核。
+MATH,等和线,其和为 1 的等和线（三点共线的充要条件）,2026-10-26 正文派生候选（body-alias-v1/S2_STRUCTURAL）：材料块 ext-mat-91e0c2ace8-058（moe-2025-teaching-support-v2-05.json）contentMarkdown 加粗 span「**其和为 1 的等和线（三点共线的充要条件）**」；同 section 含「即/称为」cue；df_node=1；归一后 21 字；与现有别名「和为 1 的等和线」为包含关系。
+MATH,等和线,|k| 的几何意义,2026-10-26 正文派生候选（body-alias-v1/S2_STRUCTURAL）：材料块 ext-mat-91e0c2ace8-058b（moe-2025-teaching-support-v2-05.json）contentMarkdown 加粗 span「**$|k|$ 的几何意义**」；同 section 含「即」cue；df_node=1；归一后 9 字；正文派生。
+MATH,等和线,等和线过 O 点时 k=0,2026-10-26 正文派生候选（body-alias-v1/S1_REPEATED_CLAUSE）：材料块 ext-mat-00720a4e16-007（moe-2025-teaching-support-v2-21.json）与 ext-mat-cae9d81dcd-001b（同 sidecar）contentMarkdown 逐字重复「等和线过 O 点时 k＝0。」；df_node=2；归一后全角＝→=；两材料均 PRIMARY、单绑定。
+MATH,等和线,直线 AB 及与它平行的直线称为等和线,2026-10-26 正文派生候选（body-alias-v1/S1_REPEATED_CLAUSE）：材料块 ext-mat-00720a4e16-007（moe-2025-teaching-support-v2-21.json）与 ext-mat-cae9d81dcd-001b（同 sidecar）contentMarkdown 逐字重复「直线 AB 及与它平行的直线称为等和线。」；df_node=2；两材料均 PRIMARY、单绑定。

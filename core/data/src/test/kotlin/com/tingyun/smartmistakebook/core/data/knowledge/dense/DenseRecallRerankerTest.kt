@@ -99,11 +99,13 @@ class DenseRecallRerankerTest {
         assertEquals("期望次序 fixture 的查询数变了（每科 1 条）", 4, cases.size)
         assertEquals(
             "候选集条数变了（fixture 重新生成过？逐条核实后再改这里）",
-            // 2026-10-24 批次19 A1 别名臂（31 条 T/C-only 别名入库，promote v20、资产 44,010 →
-            // 44,041 行）：词面腿按新包重出、fixture 随批重生成（stage3_device_sim.py），逐 [case]
-            // 的 [candidate] 行数实测 = 298/397/191/189，合计仍 1,075（量源 = 本轮 fixture 逐行
-            // 清点；case15 +1 / case90 −1：候选域 = 词面腿前 512 行，新别名把一条候选顶进 case15
-            // 的域、同时把 case90 的一条挤出——合计守恒是巧合不是门）。
+            // 2026-10-26 批次22 v21 别名更新（MATH/等和线 23 → 25 别名，主包 298f4c0c… →
+            // a7192484…、资产 44,041 → 44,043 行）：词面腿按新包重出（数据行 39,026 → 39,022，
+            // sha 9904afd0… → 1b563807…）、fixture 随链重生成（stage3_device_sim.py），逐 [case]
+            // 的 [candidate] 行数实测 = 298/397/190/189，合计 1,074（量源 =
+            // build/agent-batch22/dense-device-sim.log + 本 fixture 逐行清点；case50 191 → 190：
+            // 候选域 = 词面腿前 512 行，本代词面行集变化后该 case 的候选域少一条）。
+            // 上一代（批次19 A1 别名臂，资产 44,010 → 44,041 行）：298/397/191/189，合计 1,075；
             // 上一代（批次13 promote v16，原子点 3,210 → 3,245、别名 40,055 → 40,765、
             // 资产 43,265 → 44,010 行）：298/396/191/190，合计 1,075；
             // 上一代（批次11 promote v15）：291/383/193/184，合计 1,051；
@@ -111,12 +113,13 @@ class DenseRecallRerankerTest {
             // 更旧（批次 8：43,718 行 = 3,741 + 39,977）：320/453/215/242，合计 1,230；
             // 再旧（批次 7：41,157 / 37,396）：323/447/214/235，合计 1,219；
             // 再旧（批次 5：41,126 / 37,365）：322/445/212/239；再旧（41,117 / 37,356）：316/443/211/238。
-            mapOf(0 to 298, 15 to 397, 50 to 191, 90 to 189),
+            mapOf(0 to 298, 15 to 397, 50 to 190, 90 to 189),
             cases.associate { it.index to it.candidates.size },
         )
-        // 上一代（批次13 promote v16）1,075 = 298 + 396 + 191 + 190；本代（批次19 A1 别名臂）
-        // 仍 1,075 = 298 + 397 + 191 + 189（逐项实测；case15 +1 / case90 −1 相抵是巧合）。
-        assertEquals("候选总数变了", 1075, cases.sumOf { it.candidates.size })
+        // 本代（批次22 v21）1,074 = 298 + 397 + 190 + 189（逐项实测）；
+        // 上一代（批次19 A1 别名臂）1,075 = 298 + 397 + 191 + 189；再上一代（批次13 promote v16）
+        // 1,075 = 298 + 396 + 191 + 190。
+        assertEquals("候选总数变了", 1074, cases.sumOf { it.candidates.size })
         for (case in cases) {
             // 假编码器：模型件不在仓库里（见 assets/dense/README.md），喂 Python 侧记录的查询向量。
             val encoder = object : DenseQueryEncoder {
