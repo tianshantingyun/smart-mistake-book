@@ -276,3 +276,14 @@ grep -n "^## \|^### " docs/research/2026-10-25-*.md # R3 §9.1/§9.2、R4 §1.5/
 ```
 
 > 未执行：任何 `./gradlew`、`adb`、`am instrument`、`connectedAndroidTest`；任何 git 写命令。门禁/设备/修复环结论均标注来源（工单材料/设备轨 evidence/修复环材料/复核材料），不冒充本记录员实跑。
+
+## 8. 主会话收口（2026-10-25，实跑证据）
+
+> 本节由主会话在提交/推送前实测补记；§6"工程门"三项前置全部达成，提交 `29b46f21` 已落地。
+
+- **单测门全量复跑**（11 模块 `--continue`，主会话实跑）：**exit=0**（BUILD SUCCESSFUL，修复环后的树未再变，227 任务全 UP-TO-DATE——修复环复跑 exit=0 的留痕成立）。
+- **强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（BUILD SUCCESSFUL，10 executed / 261 up-to-date）。
+- **提交**：`29b46f21`（79 文件，24,354 插入/158 删除），按 §7 的 20 块分块 add；**排除项未触碰**（Root、app 其余 5 开工即脏 M、feature/\*、core/ui、他线 core:data/export/domain M、settings.gradle.kts、.gitignore、docs/current、tools/kb_\*、.agent_\* 杂物）。
+- **推送**：GitHub 443 首次不可达（连接重置 + 5 次连接超时）——后台重试循环挂起，恢复后连同文档尾提交一并推送；推送结果以 §8 补记后的 git log 为准。
+- Mimosa 提交仍无完整扫描结论（scanner_enobufs）——不宣称项目安全。
+- **待用户裁定项提醒**（本批研究产出，未裁不动）：① G5 选项 A/C 取舍 + Elo 状态落表与否 + 探索额度（R5 文档）；② T4 消费形态（quickjs-kt 发布 AAR 直接消费 vs 钉源码 NDK r28c 自建）+ RELRO 豁免判据回写契约；③ 32 位设备（armv7/x86）不可安装的机型面收窄（T8 已按研究结论落地 abiFilters，本条为知悉性呈报）；④ G7 未成年人标识叠加义务（R3）。
