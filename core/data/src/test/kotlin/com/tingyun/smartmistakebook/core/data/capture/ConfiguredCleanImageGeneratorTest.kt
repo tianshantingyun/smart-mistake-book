@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.data.model.ImageGenerationRequest
 import com.tingyun.smartmistakebook.core.data.model.ImageRedrawRequest
 import com.tingyun.smartmistakebook.core.data.model.ImageRedrawResult
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.domain.ModelApiKey
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification
@@ -24,6 +25,7 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationProposal
 import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
@@ -100,8 +102,15 @@ class ConfiguredCleanImageGeneratorTest {
 
         assertEquals("https://provider.test/v1", capturedBase)
         assertEquals("Bearer test-secret", capturedAuthorization)
-        assertArrayEquals(bytes("cleaned-bytes"), result!!.bytes)
-        assertEquals("image/png", result.mimeType)
+        val ref = result as? FigureArtifactRef.CanonicalImage
+        assertTrue("产物是 canonical 图片引用（4E WG-03 类型化缝）", ref != null)
+        assertArrayEquals(bytes("cleaned-bytes"), ref!!.imageBytes())
+        assertEquals("image/png", ref.mimeType)
+        assertEquals(
+            "内容 sha 与字节一致（构造即核对）",
+            figureSha256Hex(bytes("cleaned-bytes")),
+            ref.contentSha256,
+        )
     }
 
     /**

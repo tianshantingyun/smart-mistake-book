@@ -601,6 +601,15 @@ interface StudyExperienceRepository : AutoCloseable {
     suspend fun plannedReasonCalibrations(): List<PlannedReasonCalibration> = emptyList()
 
     /**
+     * AUD-17 合格长程样本台账（**只读分类视图**，批次 20 / T9 为 Wave X 准备）：review_log
+     * 原始行按排除原因分类（撤销/观察、MODEL_JUDGED、REVEAL、首条、同日重复 → 最终可预测
+     * 长程数；缺时间/缺状态只统计最终集合），判据与 `FsrsParameterOptimizer.predictableSampleCount`
+     * 同口径。400 门只引用常量（`LongRangeSampleLedgerReport.gateFloor`），本出口不做达标
+     * 判定、不写任何启用路径；本批不接 UI。默认 null = 实现不提供该视图。
+     */
+    suspend fun longRangeSampleLedger(): LongRangeSampleLedgerReport? = null
+
+    /**
      * Data-driven calibration for the mastery-evidence write gate
      * (research tutor-evidence-gate §4): rejection composition and
      * window-quota pressure from the collected chat evidence. Suggestions

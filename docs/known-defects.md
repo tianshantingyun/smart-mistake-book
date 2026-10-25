@@ -2547,3 +2547,23 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 ② 在 `RestoreSoftReferenceRecheck` finally 注明防御性清理语义（或仅在确认边车为本阶段自建时删除）。
 
 **Reopen condition.** 出现「全清数据后每次启动重跑派生索引重建」类现象时按本条处置；修复后以崩溃注入或顺序断言关闭。
+
+## KD-64 (open, 2026-10-25 登记（批次 20 设备轨 T10；中）) · NewIntroductionPolicy 全超尺寸死锁分支 granted slice 可为负 → IllegalArgumentException，3E 排计划在「全部候选时长 > 当日时间预算」配置下崩溃
+
+**Symptom（设备实跑 + 源码推导）.** 批次 20 T10 设备用例 `StudyReviewPlanner3EScanInstrumentedTest`（真 Room 种子库直跑 `StudyReviewPlannerService.createReviewPlan`）2/3 红：`java.lang.IllegalArgumentException: Granted slice must not be negative`，栈 `NewIntroductionPolicy$IntakeDecision.<init>(NewIntroductionPolicy.kt:68)` ← `decide(:151)` ← `StudyReviewPlannerService.createReviewPlan(:435)`。机制（基线 §8.3 读码证明）：`NewIntroductionPolicy.kt:68` `require(grantedSliceSeconds >= 0)`；`:154` 附近 `grantedSliceSeconds = effectiveSlice - remaining`；全超尺寸死锁分支（`:122-129`）中 sliceBudget = topDuration.coerceAtMost(timeBudgetSeconds) 而 capBudget = topDuration 无上界（`:52-53` 仅 require>0）——全部候选 `estimatedDurationSeconds > timeBudgetSeconds` 时全数 deferred、remaining 停在 timeBudget > effectiveSlice → granted < 0。具体触发例：timeBudget=300、单候选 duration=600 → granted = effectiveSlice−300 < 0。JVM 对照 `StudyReviewPlannerExamWindowTest` 6/0/0 绿 = 该形状 JVM 未覆盖。两文件均 git 干净（HEAD 态），非本批引入。
+
+**Impact.** 中（合法配置「单候选时长超过当日时间预算」下计划创建直接崩溃；设备已复现 2 例；JVM 门未覆盖该分支，回归面前裸）。
+
+**Fix direction.** 域层修复（不在批次 20 设备轨授权内，待实施轨）：全超尺寸死锁分支对 granted 做 coerceAtLeast(0) 或在死锁分支给 top 候选保底切片并如实记 deferred；时长上界（`:52-53`）按产品口径另裁。补 JVM 用例覆盖「全候选超尺寸」形状后再清。
+
+**Reopen condition.** 设备/JVM 任一「全候选 estimatedDurationSeconds > timeBudgetSeconds」用例红即按本条处置；修复后 T10 两红例转绿 + 新 JVM 形状用例全绿关闭。
+
+## KD-65 (open, 2026-10-25 登记（批次 20 复核发现 #10；低）) · OpenAiModelResponseParsers KDoc 与白名单不符：「purpose」实际在 FIGURE_GENERATION_WIRE_KEYS 内且另有值校验
+
+**Symptom（读码对拍）.** `OpenAiModelResponseParsers.kt` 的 `toCapturedFigureProposal` KDoc 称 policyVersion 与 purpose「故意不在白名单里」，但 `FIGURE_GENERATION_WIRE_KEYS` 实际包含 `"purpose"`（decision/purpose/method/reason/fidelity/constraints/program/imageOperation/imagePrompt），且代码另做 `wirePurpose != SOURCE_TRANSCRIPTION` 即抛的值校验——行为仍是 fail-closed（错误 purpose 整轮拒），只是注释表述与集合成员不符。
+
+**Impact.** low（纯文档性；行为正确且 fail-closed，但误导后续维护者对白名单边界的判断）。
+
+**Fix direction.** 改 KDoc 使其与集合成员一致（说明 purpose 在白名单内、另有取值校验拒绝模型回填）；不改行为。
+
+**Reopen condition.** 若后续改动把 purpose 值校验放松或白名单语义变化时按本条重审。

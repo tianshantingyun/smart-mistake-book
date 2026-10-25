@@ -16,6 +16,7 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.CaptureTranscriptionReview
 import com.tingyun.smartmistakebook.core.domain.CaptureWritingLayer
 import com.tingyun.smartmistakebook.core.domain.ConfirmCapturedProblemRequest
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.domain.SaveCaptureDraftWorkspaceRequest
 import com.tingyun.smartmistakebook.core.model.CaptureDraftEditedField
 import com.tingyun.smartmistakebook.core.model.CaptureDraftEditorMode
@@ -30,6 +31,7 @@ import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.WritingLayer
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.flow.first
@@ -240,6 +242,21 @@ abstract class CaptureWorkflowTestBase {
             classifyProblemKind = ImagePipelineProblemKind.WITH_FIGURE,
         ),
         knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+    )
+
+    /**
+     * 测试产物：canonical 图片引用（4E WG-03 类型化挂接缝的夹具）。内容 sha 与字节一致
+     * （引用构造时即核对），modelId 给一个假模型——挂接侧的 provenance 按它流动。
+     */
+    protected fun canonicalFigureRef(
+        bytes: ByteArray,
+        attemptId: String? = null,
+    ): FigureArtifactRef.CanonicalImage = FigureArtifactRef.CanonicalImage(
+        imageBytes = bytes,
+        mimeType = "image/png",
+        contentSha256 = figureSha256Hex(bytes),
+        modelId = "fake-image-model",
+        attemptId = attemptId,
     )
 
     protected fun clearOwnedFlatDirectory(

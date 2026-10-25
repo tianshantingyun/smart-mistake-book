@@ -30,6 +30,10 @@ private const val FOOTER_RESERVE_BELOW_TEXT = 10f
  * 4E WG-07 起解析区有了数据源：**只收** role=TUTOR_EXPLANATION 的讲解过程图
  * （[MistakePdfExportInput.solutionImages]），独立成区排在答案区之后；没有讲解图时仍按
  * `unsupportedRequestedFeatures` fail-closed 跳过（不留占位脏字）。
+ *
+ * T7（2026-10-25）起每张 AI 生成图（CLEAN_IMAGE/TUTOR_EXPLANATION，判据见
+ * [isAiGeneratedExportImage]）图下带一行固定图注"本图由 AI 生成"（《生成合成内容标识办法》
+ * 第四条第二款）；图注是渲染时派生，不进导出输入与指纹。
  */
 internal object MistakePdfPagePlanner {
     const val PAGE_WIDTH = 595
@@ -138,6 +142,12 @@ internal object MistakePdfPagePlanner {
                         localUri = input.cleanImageLocalUri,
                     ),
                 )
+                // T7（显式 AI 标识）：CLEAN_IMAGE/讲解图是模型生成图，图下加固定图注
+                // （第四条第二款"导出文件须含显式标识"）；QUESTION_DIAGRAM 不伪报（见
+                // AiGeneratedImageCaption KDoc）。
+                if (isAiGeneratedExportImage(input.questionImageRole)) {
+                    add(line(AI_GENERATED_IMAGE_CAPTION, PdfLineStyle.META, typography))
+                }
                 add(spacer(typography))
             }
             orderedBlocks(questionAreaBlocks(input.blocks), layout).forEach { block ->
@@ -148,6 +158,10 @@ internal object MistakePdfPagePlanner {
                         add(line(block.title, PdfLineStyle.SECTION_HEADING, typography, keepWithNext = true))
                         val width = imageWidth(size, layout, typography, geometry)
                         add(PdfPlannedItem.Image(size.layoutHeight(width), width, localUri = block.localUri))
+                        // T7：批量卷面图块按角色显式标识（null = 旧块按题目区图处理）。
+                        if (isAiGeneratedExportImage(block.role)) {
+                            add(line(AI_GENERATED_IMAGE_CAPTION, PdfLineStyle.META, typography))
+                        }
                     }
                     is MistakePdfBlock.Note -> {
                         if (layout.includeNote) {
@@ -394,6 +408,10 @@ internal object MistakePdfPagePlanner {
                     localUri = image.localUri,
                 ),
             )
+            // T7：讲解图（TUTOR_EXPLANATION，只由生成路径产出）逐图显式标识。
+            if (isAiGeneratedExportImage(image.role)) {
+                add(line(AI_GENERATED_IMAGE_CAPTION, PdfLineStyle.META, typography))
+            }
         }
         add(spacer(typography))
         return true

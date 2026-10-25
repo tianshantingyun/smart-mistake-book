@@ -43,6 +43,7 @@ import com.tingyun.smartmistakebook.core.domain.CaptureInputSource
 import com.tingyun.smartmistakebook.core.domain.CaptureSourcePage
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
 import com.tingyun.smartmistakebook.core.domain.CapturedProblemCommitSummary
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
@@ -59,11 +60,15 @@ import com.tingyun.smartmistakebook.core.domain.ReplaceCaptureDraftRequest
 import com.tingyun.smartmistakebook.core.domain.SaveTutorSessionRequest
 import com.tingyun.smartmistakebook.core.domain.SaveCaptureDraftWorkspaceRequest
 import com.tingyun.smartmistakebook.core.domain.SplitCaptureDraftRequest
+import com.tingyun.smartmistakebook.core.model.CapturedFigureReference
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.CaptureDraftWorkspaceCodec
 import com.tingyun.smartmistakebook.core.model.CaptureDraftWorkspaceFingerprint
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.FigureGenerationDecision
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyInput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyOutput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
@@ -123,7 +128,17 @@ class RoomCaptureWorkflowRepository internal constructor(
         readSourceBytes = { record ->
             runCatching { assetVault.resolve(record).readBytes() }.getOrNull()
         },
-        classify = { request -> classifyProblemKind(request) },
+        // WG-02（4E）：分类轮先看转写期同型 proposal——已有有效判定就不重复调
+        // IMAGE_PIPELINE_CLASSIFY（从转写到提交只判一次）；缺省/失效才出网判定。
+        classify = { request ->
+            resolveCleanRedrawClassifyKind(
+                request = request,
+                readCommittedDocument = { draftId ->
+                    database.readProblemDraft(draftId)?.currentRevision?.questionDocument
+                },
+                needsJudgment = { classifyProblemKind(request) },
+            )
+        },
         generateClean = { record, bytes, parent ->
             cleanRedraw?.generateClean(
                 CleanImageRequest(
@@ -135,23 +150,28 @@ class RoomCaptureWorkflowRepository internal constructor(
                 ),
             )
         },
-        attach = { revisionId, bytes, mimeType ->
-            attachCleanRedrawImage(
+        attach = { revisionId, artifact ->
+            attachCleanRedrawArtifact(
                 problemRevisionId = revisionId,
-                cleanImageBytes = bytes,
-                cleanImageMimeType = mimeType,
+                artifact = artifact,
             )
         },
         // 4E WG-08 T1b：保存期净化也必须在产物落盘后回填
         // `figure_generation_attempt.output_asset_id`（审计链不区分"保存期/显式"两条入口）。
-        // 资产 id 与 `attachCleanRedrawImage` 的落盘幂等键同一口径（`clean-` + 输出字节 sha）。
-        // 回填是 best-effort（runner 包住异常）：失败只丢一条审计链接，不改判已成功的挂接。
-        onAttached = { clean ->
-            clean.attemptId?.let { attemptId ->
-                database.attachFigureGenerationAttemptOutput(
-                    attemptId = attemptId,
-                    outputAssetId = "clean-" + sha256Hex(clean.bytes),
-                )
+        // 资产 id 与挂接实现的落盘幂等键同一口径（`clean-` + 输出字节 sha——类型化引用里的
+        // contentSha256 就是同一口径的 sha）。回填是 best-effort（runner 包住异常）：失败只丢
+        // 一条审计链接，不改判已成功的挂接。
+        onAttached = { artifact ->
+            when (artifact) {
+                is FigureArtifactRef.CanonicalImage -> artifact.attemptId?.let { attemptId ->
+                    database.attachFigureGenerationAttemptOutput(
+                        attemptId = attemptId,
+                        outputAssetId = "clean-" + artifact.contentSha256,
+                    )
+                }
+
+                // JS 快照（4E.2 前生产不产生）：没有 canonical 资产可回填，如实不写。
+                is FigureArtifactRef.JsSnapshot -> Unit
             }
         },
     )
@@ -602,10 +622,15 @@ class RoomCaptureWorkflowRepository internal constructor(
             // A8：空源草稿没有照片可用于图型分类/重绘；只有照片提交才跑这一轮。
             if (outcome.commit.created) {
                 draft.sourceAsset?.let { sourceAsset ->
+                    // WG-02：提交把工作区文档落成确认修订，这里按当前修订读回，转写期的
+                    // 图形引用随文档一起走到提交侧（读不到就按缺省走分类，fail-closed）。
+                    val committedDocument = database.readProblemDraft(request.draftId)
+                        ?.currentRevision?.questionDocument
                     decideAndRedraw(
                         sourceAsset = sourceAsset,
                         revisionId = receipt.problemRevisionId,
                         subjectId = draft.draftId,
+                        committedDocument = committedDocument,
                     )
                 }
             }
@@ -618,6 +643,12 @@ class RoomCaptureWorkflowRepository internal constructor(
      * 触发范围口径（测试同批钉住）：**只有提交成功（`created == true`）触发**；纯文字题
      * （TEXT_ONLY）**不动作**——分类轮判定之后作业直接落 `SUCCEEDED`，不生成、不挂接。
      *
+     * WG-02（4E）：[committedDocument] 是提交落库的那份题面文档。转写期若已带同型
+     * proposal，按 [captureParseFigureDecision] 复用：可执行/无需生成照常建作业（分类被
+     * 短路，不重复判）；NEED_SOURCE 先准备源、方法未接通（JS）仅记录——两种都不建作业行、
+     * 不出网，也不伪报完成。TEXT_ONLY/WITH_FIGURE 只是最下游 runner 的既有路由位，
+     * **不决定生成方法**（方法由 proposal 携带，能力门在执行侧）。
+     *
      * 装配了 [cleanRedrawScope] 时整段作业进后台（提交调用不等它：分类轮与生成轮都可能出网，
      * 这正是"保存要快、作业慢慢做"的既有取舍）；没装配时内联（测试路径）。两条路径都
      * fail-closed：作业的失败只落台账与日志，绝不把已经落库的提交改判成失败。
@@ -626,10 +657,27 @@ class RoomCaptureWorkflowRepository internal constructor(
         sourceAsset: CanonicalSourceAssetRecord,
         revisionId: String,
         subjectId: String,
+        committedDocument: CapturedQuestionDocument?,
     ) {
         // 没有模型任务链 = 这个装配根本不发模型轮（与 `captureEgressAllowed` 同一口径的
         // 装配侧门）：不建作业行、不记账——没有尝试过就没有欠账。
         if (modelTasks == null) return
+        when (captureParseFigureDecision(committedDocument, sourceAsset)) {
+            is CaptureParseFigureDecision.ExecuteProposal -> Unit
+            CaptureParseFigureDecision.NoFigureNeeded -> Unit
+            CaptureParseFigureDecision.NeedsSourcePreparation -> {
+                Log.i(TAG, "Clean redraw for $revisionId deferred: transcription judged NEED_SOURCE")
+                return
+            }
+            CaptureParseFigureDecision.MethodUnavailable -> {
+                Log.i(
+                    TAG,
+                    "Clean redraw for $revisionId skipped: transcription picked an unavailable method",
+                )
+                return
+            }
+            CaptureParseFigureDecision.NeedsJudgment -> Unit
+        }
         val identity = CleanRedrawTaskIdentity(
             revisionId = revisionId,
             sourceAssetId = sourceAsset.sourceAssetId,
@@ -703,6 +751,7 @@ class RoomCaptureWorkflowRepository internal constructor(
         }
     }
 
+    /** 4E WG-03 前的旧签名：生产链已改走 [attachCleanRedrawArtifact]；本体重持原实现（字节版无外部 sha 声明可核对）。 */
     override suspend fun attachCleanRedrawImage(
         problemRevisionId: String,
         cleanImageBytes: ByteArray,
@@ -732,6 +781,61 @@ class RoomCaptureWorkflowRepository internal constructor(
                 revisionId = problemRevisionId,
                 asset = asset,
             )
+        }
+    }
+
+    override suspend fun attachCleanRedrawArtifact(
+        problemRevisionId: String,
+        artifact: FigureArtifactRef,
+    ): Boolean = withContext(Dispatchers.IO) {
+        // 4E WG-03：挂接按**类型化引用**分流——canonical 图片先核对（生成侧声明的内容 sha
+        // 必须与要落盘的字节逐位一致），核对通过才落盘并绑定题目修订；provenance 按真实
+        // 方法/模型填写，不再从裸字节里硬编码猜。JS 快照（4E.2 前）没有挂接路径，如实拒绝。
+        when (artifact) {
+            is FigureArtifactRef.CanonicalImage -> {
+                val cleanImageBytes = artifact.imageBytes()
+                val cleanImageMimeType = artifact.mimeType
+                require(cleanImageMimeType == "image/jpeg" || cleanImageMimeType == "image/png") {
+                    "Clean redraw must be a JPEG or PNG"
+                }
+                // 核对通过才绑定：字节在生成与挂接之间被替换/截断时，声明的 sha 对不上——
+                // 不落盘、不挂接，由调用方按既有失败码处置（绝不把换了内容的字节挂成"这张图"）。
+                if (sha256Hex(cleanImageBytes) != artifact.contentSha256) {
+                    Log.w(TAG, "Clean redraw bytes no longer match their artifact sha; refusing to attach")
+                    return@withContext false
+                }
+                // A2：重绘图也是**模型生成的图**——sourceType 用 GENERATED_FIGURE（与工具链同值），
+                // 编号按内容 sha 稳定派生（同一张重绘重复落盘是同一行同一文件），并把隐式 AI
+                // 标识写进文件字节；canonical 行 + CLEAN_IMAGE 引用由 attachCleanRedrawAsset 建立。
+                val figureId = "clean-" + artifact.contentSha256
+                val asset = assetVault.persistCleanImageBytes(
+                    bytes = cleanImageBytes,
+                    mimeType = cleanImageMimeType,
+                    sourceType = StudyDbValue.SourceAssetType.GENERATED_FIGURE,
+                    createdAtEpochMillis = System.currentTimeMillis(),
+                    provenance = GeneratedFigureProvenance(
+                        // 按真实方法填写：provider 报了模型版本就用它；没报就用这次请求
+                        // 实际发往的模型（edits 通道默认模型），不猜第三个名字。
+                        model = artifact.modelId ?: OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+                        figureId = figureId,
+                        purpose = "CLEAN_REDRAW",
+                    ),
+                    figureIdentity = figureId,
+                )
+                admittedWrite("挂接重绘图") {
+                    database.attachCleanRedrawAsset(
+                        revisionId = problemRevisionId,
+                        asset = asset,
+                    )
+                }
+            }
+
+            is FigureArtifactRef.JsSnapshot -> {
+                // 4E.2 之前没有任何 JS 挂接路径（JS 仍 UNAVAILABLE）：如实拒绝，不把快照
+                // 冒充成图片资产。返回 false → 执行器按既有语义落 SUPERSEDED。
+                Log.w(TAG, "Clean redraw produced a JS snapshot, which has no attach path before 4E.2")
+                false
+            }
         }
     }
 
@@ -822,6 +926,7 @@ class RoomCaptureWorkflowRepository internal constructor(
                     sourceAsset = session.sourceAsset,
                     revisionId = summary.problemRevisionId,
                     subjectId = session.draftId,
+                    committedDocument = session.confirmedRevision.questionDocument,
                 )
             }
         }
@@ -1163,6 +1268,104 @@ class RoomCaptureWorkflowRepository internal constructor(
         /** 净化作业的日志标签（AUD-09 ⑤：结局要留痕，不只是"失败被吞"）。 */
         const val TAG = "CleanRedraw"
     }
+}
+
+/**
+ * WG-02（4E）：转写期同型 proposal 在提交/续跑时的复用判定。
+ *
+ * 它消灭的具体失败：此前提交路径**无条件**再跑一次 IMAGE_PIPELINE_CLASSIFY——转写轮
+ * 已经判过"这张图要生成/不需要图"，同一份判定从转写到提交被付费两次；而旧 proposal
+ * 换题/重裁/源 SHA 变化后又可能被错误复用。判定只看绑定事实，不看分类输出的
+ * TEXT_ONLY/WITH_FIGURE（那不决定生成方法——方法由 proposal 携带）。
+ */
+internal sealed interface CaptureParseFigureDecision {
+    /** 已有可执行的 GENERATE(IMAGE_MODEL) proposal：直接执行，不重复分类。 */
+    data class ExecuteProposal(val reference: CapturedFigureReference) : CaptureParseFigureDecision
+
+    /** 已有 NO_FIGURE 判定：记无需生成终态（不分类、不生成、不伪报已产图）。 */
+    data object NoFigureNeeded : CaptureParseFigureDecision
+
+    /** 已有 NEED_SOURCE 判定：先准备源；不出网、不建作业（源备好后是新一次采集）。 */
+    data object NeedsSourcePreparation : CaptureParseFigureDecision
+
+    /** proposal 选了本构建未接通的方法（JS）或判 UNAVAILABLE：仅记录不执行。 */
+    data object MethodUnavailable : CaptureParseFigureDecision
+
+    /** 无 proposal 或全部失效（换题/重裁/SHA 变化）：缺省且需判定，才调 IMAGE_PIPELINE_CLASSIFY。 */
+    data object NeedsJudgment : CaptureParseFigureDecision
+}
+
+/**
+ * 转写期 proposal 的复用/失效判定（纯函数，JVM 可测）。
+ *
+ * 换题与重裁在采集链里都产生**新的规范资产**（`assetVault.crop` 生成新 assetId），源字节
+ * 变化则体现为 sha 不一致——所以绑定判据 `sourceAssetId + sourceImageSha256` 同时覆盖
+ * 三种失效场景，不需要额外字段。
+ */
+internal fun captureParseFigureDecision(
+    document: CapturedQuestionDocument?,
+    source: CanonicalSourceAssetRecord,
+): CaptureParseFigureDecision {
+    val references = document?.figureReferences.orEmpty()
+    if (references.isEmpty()) return CaptureParseFigureDecision.NeedsJudgment
+    val bound = references.filter {
+        it.sourceAssetId == source.sourceAssetId && it.sourceImageSha256 == source.contentSha256
+    }
+    if (bound.isEmpty()) return CaptureParseFigureDecision.NeedsJudgment
+    bound.firstOrNull {
+        it.proposal.decision == FigureGenerationDecision.GENERATE &&
+            it.proposal.method == FigureGenerationMethod.IMAGE_MODEL
+    }?.let { return CaptureParseFigureDecision.ExecuteProposal(it) }
+    if (bound.any { it.proposal.decision == FigureGenerationDecision.GENERATE }) {
+        return CaptureParseFigureDecision.MethodUnavailable
+    }
+    if (bound.any { it.proposal.decision == FigureGenerationDecision.UNAVAILABLE }) {
+        return CaptureParseFigureDecision.MethodUnavailable
+    }
+    if (bound.any { it.proposal.decision == FigureGenerationDecision.NEED_SOURCE }) {
+        return CaptureParseFigureDecision.NeedsSourcePreparation
+    }
+    return CaptureParseFigureDecision.NoFigureNeeded
+}
+
+/**
+ * 分类轮的 WG-02 短路：净化作业按修订/源图建分类请求前，先读当前题面文档里的同型
+ * proposal；与该源图绑定一致时直接给 runner 它需要的路由位，**不派发分类模型轮**。
+ *
+ * 返回的 WITH_FIGURE/TEXT_ONLY 只是 `CleanRedrawTaskRunner` 的既有路由位（WITH_FIGURE
+ * →继续生成、TEXT_ONLY →作业完成不生成）；生成方法由 proposal 携带，能力/预算门在
+ * 执行侧（coordinator/账本），分类结果**不**决定方法。绑定不匹配（SHA 变化/换题/重裁）、
+ * 文档读不出、或请求不带草稿身份时，退回真实分类（[needsJudgment]）——fail-closed。
+ */
+internal suspend fun resolveCleanRedrawClassifyKind(
+    request: ModelTaskRequest,
+    readCommittedDocument: suspend (String) -> CapturedQuestionDocument?,
+    needsJudgment: suspend () -> ImagePipelineProblemKind?,
+): ImagePipelineProblemKind? {
+    val input = request.input as? ImagePipelineClassifyInput
+        ?: return needsJudgment()
+    val draftId = input.subjectIdOverride ?: return needsJudgment()
+    val document = try {
+        readCommittedDocument(draftId)
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Exception) {
+        null
+    }
+    val bound = document?.figureReferences.orEmpty().filter {
+        it.sourceAssetId == input.sourceAssetId && it.sourceImageSha256 == input.sourceImageSha256
+    }
+    bound.firstOrNull {
+        it.proposal.decision == FigureGenerationDecision.GENERATE &&
+            it.proposal.method == FigureGenerationMethod.IMAGE_MODEL
+    }?.let { return ImagePipelineProblemKind.WITH_FIGURE }
+    if (
+        bound.isNotEmpty() &&
+        bound.all { it.proposal.decision == FigureGenerationDecision.NO_FIGURE }
+    ) {
+        return ImagePipelineProblemKind.TEXT_ONLY
+    }
+    return needsJudgment()
 }
 
 object CaptureWorkflowRepositoryFactory {

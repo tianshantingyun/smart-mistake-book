@@ -1,13 +1,15 @@
 package com.tingyun.smartmistakebook.core.data.capture
 
 import android.database.sqlite.SQLiteDatabase
+import com.tingyun.smartmistakebook.core.data.readyKnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.data.model.FakeModelGateway
+import com.tingyun.smartmistakebook.core.data.model.RoomModelTaskRepository
 import com.tingyun.smartmistakebook.core.data.model.sha256Hex
 import com.tingyun.smartmistakebook.core.data.visual.insertFigureGenerationAuditFixture
 import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskRecord
 import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskStatus
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
-import com.tingyun.smartmistakebook.core.domain.CleanImageResult
 import com.tingyun.smartmistakebook.core.domain.ConfirmCapturedProblemRequest
 import com.tingyun.smartmistakebook.core.domain.CapturedProblemCommitSummary
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftImportRequest
@@ -15,6 +17,8 @@ import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
 import com.tingyun.smartmistakebook.core.domain.CaptureInputSource
 import com.tingyun.smartmistakebook.core.domain.CaptureTranscriptionReview
 import com.tingyun.smartmistakebook.core.domain.CaptureWritingLayer
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
+import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import java.io.File
@@ -32,27 +36,35 @@ import org.junit.Test
 
 /**
  * AUD-09（4D）净化作业的**设备侧**验收：任务持久行 + 故障续跑 + 晚到结果不挂新修订。
+ * 4E WG-03 起：TEXT_ONLY 记 `NO_FIGURE` 终态（不伪报已产图）；生成请求已发出、结果未知的
+ * 行停在 `AWAITING_VERIFICATION`，重启对账**不盲目补发**。
  *
- * 两条用例都用真库、真驱动（真迁移后的 schema 66）跑：
- * 1. **PENDING 行重启后被重试**：生成轮被"进程被杀"（作用域取消）打断 → 行留在 `PENDING`；
- *    新仓库启动对账接着做完，且**分类轮是重放不是重派**（同一 `requestId` 的模型任务仍是
- *    1 次派遣——"不能靠重放已提交操作静默再计费"）；
- * 2. **SUPERSEDED 不挂新修订**：题面已被新修订取代（合成 5B 修订编辑会产生的状态）之后，
- *    晚到的净化结果标 `SUPERSEDED`、**一分钱都不再花**（生成轮不再被调用），旧修订也不挂图。
+ * 用例都用真库、真驱动（真迁移后的 schema）跑：
+ * 1. **生成轮被杀 → 待核实，不补发**：作用域取消在生成轮（请求已可能发出）→ 行落
+ *    `AWAITING_VERIFICATION`；新仓库启动对账不接手（0 行）、生成不再被调用、题面保留原图；
+ * 2. **SUPERSEDED 不挂新修订**：题面已被新修订取代之后，晚到的净化结果标 `SUPERSEDED`、
+ *    **一分钱都不再花**（生成轮不再被调用），旧修订也不挂图；
+ * 3. **TEXT_ONLY → NO_FIGURE 终态**：分类判纯文字 → 行落 `NO_FIGURE`（不是 SUCCEEDED），
+ *    不生成、不挂接、原题照常可保存。
  *
  * 既有 capture 仪器化（`CaptureWorkflowInstrumentedTest` 的三条重绘用例）同批回归，不回退。
  */
 class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
 
+    /**
+     * 4E WG-03：进程死在生成轮（已发出、结果未知）→ 行停在待核实；启动对账**不接手**、
+     * **不补发**生成（外部调用不保证恰好一次，Provider 幂等/查询能力未验证前不赌重发）。
+     * 分类轮是重放（模型台账终态即返回），派遣次数不变。
+     */
     @Test
-    fun interruptedPendingCleanRedrawTaskIsRetriedOnResumeWithoutPayingTwice() = runBlocking {
+    fun interruptedGenerationStaysAwaitingVerificationAndIsNeverReSent() = runBlocking {
         val firstScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         val first = redrawRepository(
             scope = firstScope,
-            // 生成轮卡住（慢模型调用）：这次尝试会停在"已领取、还没产出"的 PENDING 上。
+            // 生成轮卡住（慢模型调用）：请求已可能发出，这次尝试会停在"待核实"上。
             generate = { _ ->
                 delay(30_000)
-                CleanImageResult(bytes = cleanPngBytes(), mimeType = "image/png")
+                canonicalFigureRef(cleanPngBytes())
             },
         )
         val committed = commitOneMistake(
@@ -61,41 +73,81 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
             title = "续跑重绘题",
         )
 
-        val interrupted = awaitTask { it.attemptCount >= 1 }
+        val taskId = awaitTaskStatus(CleanRedrawTaskStatus.AWAITING_VERIFICATION)
+        val interrupted = checkNotNull(database.readCleanRedrawTask(taskId))
         assertEquals(
-            "进程被杀时行必须留在 PENDING（还没有终态）",
-            CleanRedrawTaskStatus.PENDING,
+            "生成请求已发出、结果未知：行停在待核实，不再是可续跑的 PENDING",
+            CleanRedrawTaskStatus.AWAITING_VERIFICATION,
             interrupted.status,
         )
         assertEquals("这一行已经领取过一次尝试", 1, interrupted.attemptCount)
-        // 领取（attemptCount=1）发生在分类轮**之前**：领取一到就断言分类行会撞竞态——等它真落成 SUCCEEDED。
         val classifyBefore = awaitClassifySucceeded(committed.problemRevisionId)
         assertEquals(ModelTaskStatus.SUCCEEDED, classifyBefore.status)
 
-        // ≈ 进程被杀：作用域取消，正在等的生成轮到此为止（行留在 PENDING）。
+        // ≈ 进程被杀：作用域取消，正在等的生成轮到此为止（行停在待核实）。
         firstScope.cancel()
         delay(100)
 
-        // 重启：新仓库（新作用域/新资产库句柄）启动对账，接着做完。
+        // 重启：新仓库启动对账——待核实行**不被接手**（不盲目补发）。
+        var generateCallsAfterRestart = 0
         val resumed = redrawRepository(scope = null, generate = { _ ->
-            CleanImageResult(bytes = cleanPngBytes(), mimeType = "image/png")
+            generateCallsAfterRestart += 1
+            canonicalFigureRef(cleanPngBytes())
         })
         val processed = resumed.resumePendingCleanRedraws(staleBeforeEpochMillis = Long.MAX_VALUE)
 
-        assertEquals("一行被接手", 1, processed)
-        val row = checkNotNull(database.readCleanRedrawTask(interrupted.taskId))
-        assertEquals(CleanRedrawTaskStatus.SUCCEEDED, row.status)
-        assertEquals("第二次尝试落账", 2, row.attemptCount)
-        assertTrue("干净图必须挂上", cleanImageAttached(committed.errorBookEntryId))
-
+        assertEquals("待核实行不许被对账接手（不盲目补发）", 0, processed)
+        assertEquals("生成绝不补发第二次", 0, generateCallsAfterRestart)
+        val row = checkNotNull(database.readCleanRedrawTask(taskId))
+        assertEquals(
+            "行仍停在待核实（用户看原图，不赌一次可能重复付费的重发）",
+            CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+            row.status,
+        )
+        assertFalse("待核实没有产物：不许挂图", cleanImageAttached(committed.errorBookEntryId))
         val classifyAfter = checkNotNull(
             database.readModelTask("save-decision:${committed.problemRevisionId}"),
         )
         assertEquals(
-            "分类轮是重放（终态即返回）不是重派：派遣次数不许从 1 变多——不能靠重放已提交操作静默再计费",
+            "分类轮派遣次数不变（本用例没有任何补发）",
             classifyBefore.attemptCount,
             classifyAfter.attemptCount,
         )
+    }
+
+    /**
+     * 4E WG-03：TEXT_ONLY 记 `NO_FIGURE` 终态。分类判纯文字 → 行落 NO_FIGURE（不是
+     * SUCCEEDED——不伪报已产图），不生成、不挂接；**原题照常保存**（无凭据/无需生成都
+     * 不影响提交）。
+     */
+    @Test
+    fun textOnlyCommitRecordsNoFigureTerminalWithoutAttaching() = runBlocking {
+        var generateCalls = 0
+        val repository = redrawRepository(
+            scope = null,
+            classifyKind = ImagePipelineProblemKind.TEXT_ONLY,
+            generate = { _ ->
+                generateCalls += 1
+                canonicalFigureRef(cleanPngBytes())
+            },
+        )
+
+        val committed = commitOneMistake(
+            repository = repository,
+            requestId = "clean-redraw-nofigure-commit",
+            title = "纯文字题",
+        )
+
+        assertTrue("无需生成不影响提交：原题必须真的落库", committed.created)
+        val taskId = awaitTaskStatus(CleanRedrawTaskStatus.NO_FIGURE)
+        val row = checkNotNull(database.readCleanRedrawTask(taskId))
+        assertEquals(
+            "TEXT_ONLY 落 NO_FIGURE 终态，不伪报已产图",
+            CleanRedrawTaskStatus.NO_FIGURE,
+            row.status,
+        )
+        assertEquals("纯文字不生成", 0, generateCalls)
+        assertFalse("纯文字不挂图", cleanImageAttached(committed.errorBookEntryId))
     }
 
     @Test
@@ -162,13 +214,7 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
         val generated = cleanPngBytes()
         val repository = redrawRepository(
             scope = null,
-            generate = {
-                CleanImageResult(
-                    bytes = generated,
-                    mimeType = "image/png",
-                    attemptId = attemptId,
-                )
-            },
+            generate = { canonicalFigureRef(generated, attemptId) },
         )
 
         commitOneMistake(
@@ -201,14 +247,22 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
 
     private fun redrawRepository(
         scope: CoroutineScope?,
-        generate: suspend (CleanImageRequest) -> CleanImageResult?,
+        generate: suspend (CleanImageRequest) -> FigureArtifactRef?,
+        classifyKind: ImagePipelineProblemKind = ImagePipelineProblemKind.WITH_FIGURE,
     ): RoomCaptureWorkflowRepository = RoomCaptureWorkflowRepository(
         database,
         AndroidCanonicalAssetVault(context),
         noTextRecognizer(),
         cleanRedraw = CleanImageGenerator(generate),
         cleanRedrawScope = scope,
-        modelTasks = withFigureClassifyModelTasks(),
+        modelTasks = RoomModelTaskRepository(
+            database = database,
+            gateway = FakeModelGateway(
+                stepDelayMillis = 0,
+                classifyProblemKind = classifyKind,
+            ),
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+        ),
         captureEgressAllowed = { true },
     )
 
@@ -264,6 +318,39 @@ class CleanRedrawTaskInstrumentedTest : CaptureWorkflowTestBase() {
     }
 
     private fun cleanPngBytes(): ByteArray = createPng(width = 24, height = 24).readBytes()
+
+    /**
+     * 等台账里出现指定状态的行，返回其 task_id。走**裸连接**读：待核实/NO_FIGURE 都不在
+     * "可续跑"读口里（对账不该看见它们），经 readResumable 轮询永远等不到。
+     */
+    private suspend fun awaitTaskStatus(status: String): String {
+        var taskId: String? = null
+        withTimeout(15_000) {
+            while (taskId == null) {
+                taskId = withRawDatabaseQuery { db ->
+                    db.rawQuery(
+                        "SELECT task_id FROM clean_redraw_task WHERE status = ? LIMIT 1",
+                        arrayOf(status),
+                    ).use { cursor ->
+                        if (cursor.moveToFirst()) cursor.getString(0) else null
+                    }
+                }
+                if (taskId == null) delay(25)
+            }
+        }
+        return checkNotNull(taskId)
+    }
+
+    /** [withRawDatabase] 的取值版（读一条查询结果）。 */
+    private fun <T> withRawDatabaseQuery(block: (SQLiteDatabase) -> T): T {
+        val path = File(context.getDatabasePath(databaseName).absolutePath)
+        val raw = SQLiteDatabase.openDatabase(path.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+        try {
+            return block(raw)
+        } finally {
+            raw.close()
+        }
+    }
 
     /** 等分类轮的模型任务行落成 SUCCEEDED（它晚于重绘行的领取、早于生成轮）。 */
     private suspend fun awaitClassifySucceeded(revisionId: String): ModelTaskSnapshot {

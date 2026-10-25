@@ -201,6 +201,9 @@ class MistakeExportVisualRoleTest {
             "line/SPACER/8.00/false/0/",
             "line/SECTION_HEADING/22.00/false/0/干净题面",
             "image/249.50/499.00/0",
+            // T7：AI 生成图（CLEAN_IMAGE；旧调用方 null 按题目图处理）图下显式图注，
+            // role-aware 与 legacy 两侧同得，等价断言不受影响。
+            "line/META/16.00/false/0/本图由 AI 生成",
             "line/SPACER/8.00/false/0/",
             "line/BODY/18.00/false/0/题干",
             "line/SPACER/8.00/false/0/",

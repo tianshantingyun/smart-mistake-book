@@ -10,7 +10,7 @@ import com.tingyun.smartmistakebook.core.database.FinishCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.cleanRedrawTaskId
 import com.tingyun.smartmistakebook.core.database.isExplicitRedrawOperation
 import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
-import com.tingyun.smartmistakebook.core.domain.CleanImageResult
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyInput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
@@ -44,11 +44,16 @@ internal data class CleanRedrawTaskIdentity(
 
 /** 一次净化作业的结局（提交路径拿它记账/打日志，不再把返回值丢掉）。 */
 internal enum class CleanRedrawTaskOutcome {
-    /** 作业做完（含"分类判定为纯文字题，不需要重绘"——作业本身完成）。 */
+    /** 图已生成并挂上题目修订（4E WG-03 起不再覆盖"纯文字"——那是 [NO_FIGURE]）。 */
     SUCCEEDED,
 
     /** 同一请求指纹已有成功行（或本行已成功）：**不重复付费**。 */
     ALREADY_SUCCEEDED,
+
+    /**
+     * 分类判定这道题不需要生成图（4E WG-03）：终态、无产物、无挂接——**不伪报已产图**。
+     */
+    NO_FIGURE,
 
     /** 这一轮失败，失败码已落台账；尝试次数未耗尽时下次启动续跑。 */
     FAILED,
@@ -56,7 +61,7 @@ internal enum class CleanRedrawTaskOutcome {
     /** 没有可挂的目标（修订不在/已不是当前题面/源图已不是那一张）或工作已由别行完成。 */
     SUPERSEDED,
 
-    /** 没动作：没配模型（出网门关着）、台账写不进、尝试耗尽、或已被别的执行者领走。 */
+    /** 没动作：没配模型（出网门关着）、台账写不进、尝试耗尽、已被别的执行者领走、或结果未知的在途行。 */
     SKIPPED,
 }
 
@@ -100,14 +105,17 @@ internal class CleanRedrawTaskRunner(
      *
      * 4E.1：第三个参数是该作业**已领取的持久尝试**——生成实现把它作为统一生图协调器的
      * 派发父操作，图像 HTTP 没有这次持久预留就不会发出（账本/通道双重门）。
+     *
+     * 4E WG-03：产物以类型化 [FigureArtifactRef] 返回（canonical 图或 JS 快照）——方法/
+     * 模型/内容 sha 随产物流动，挂接侧不再从裸字节里猜来源。
      */
     private val generateClean: suspend (
         CanonicalSourceAssetRecord,
         ByteArray,
         FigureDispatchParent.CleanRedrawTask,
-    ) -> CleanImageResult?,
-    /** 挂接写入（CLEAN_IMAGE 角色）；false = 没有可挂的目标。 */
-    private val attach: suspend (String, ByteArray, String) -> Boolean,
+    ) -> FigureArtifactRef?,
+    /** 挂接写入（按类型化引用分流角色与 provenance）；false = 没有可挂的目标。 */
+    private val attach: suspend (String, FigureArtifactRef) -> Boolean,
     private val maxAttempts: Int = MAX_CLEAN_REDRAW_ATTEMPTS,
     private val now: () -> Long = System::currentTimeMillis,
     /**
@@ -116,7 +124,7 @@ internal class CleanRedrawTaskRunner(
      * `ExplicitRedrawService` 注入，保存期净化由 `RoomCaptureWorkflowRepository` 注入。
      * 没有接审计的装配保持默认空操作。回调失败不影响这一轮的结论（审计是证据，不是业务判据）。
      */
-    private val onAttached: suspend (CleanImageResult) -> Unit = {},
+    private val onAttached: suspend (FigureArtifactRef) -> Unit = {},
 ) {
     init {
         require(maxAttempts >= 1) { "A clean redraw attempt limit must be positive" }
@@ -130,8 +138,8 @@ internal class CleanRedrawTaskRunner(
 
     /**
      * 提交成功后的触发（AUD-09 ①③⑤）。**只有这一条链会为一次提交建行**：调用方（采集仓库）
-     * 只在提交真的落库（`created == true`）时调它，纯文字题在这里被分类轮判定后直接落
-     * `SUCCEEDED`（TEXT_ONLY 不动作）。
+     * 只在提交真的落库（`created == true`）时调它，纯文字题在这里被分类轮判定后落
+     * `NO_FIGURE` 终态（无需生成——不产图、不挂接、不伪报已产图）。
      */
     suspend fun run(identity: CleanRedrawTaskIdentity): CleanRedrawTaskOutcome {
         if (!egressAllowed()) return CleanRedrawTaskOutcome.SKIPPED
@@ -244,8 +252,17 @@ internal class CleanRedrawTaskRunner(
         if (row.status == CleanRedrawTaskStatus.SUPERSEDED) {
             return CleanRedrawTaskOutcome.SKIPPED
         }
+        // 无需生成的终态重放：结论已终局，不重分类、不产图（4E WG-03）。
+        if (row.status == CleanRedrawTaskStatus.NO_FIGURE) {
+            return CleanRedrawTaskOutcome.NO_FIGURE
+        }
+        // 待核实行（生成请求已发出、结果未知）：不盲目补发（4E WG-03）。领取 CAS 本就会拒绝
+        // 这一状态，这里显式短路是把意图写在读得到的代码里，而不是只藏在 SQL 判据中。
+        if (row.status == CleanRedrawTaskStatus.AWAITING_VERIFICATION) {
+            return CleanRedrawTaskOutcome.SKIPPED
+        }
         if (!egressAllowed()) return CleanRedrawTaskOutcome.SKIPPED
-        // ② 同指纹已 SUCCEEDED → 跳过不重复付费。同指纹 = 同一个分类请求（同一张图 + 同一草稿
+        // ② 同指纹已有 SUCCEEDED → 跳过不重复付费。同指纹 = 同一个分类请求（同一张图 + 同一草稿
         // 身份 + 同一发送判据）：另一行已经把这份工作做完，这一行不再花第二次钱。
         val sibling = tasks.readCleanRedrawTaskByFingerprint(row.requestFingerprint)
         if (sibling != null && sibling.taskId != row.taskId &&
@@ -253,6 +270,14 @@ internal class CleanRedrawTaskRunner(
         ) {
             finish(row, CleanRedrawTaskStatus.SUPERSEDED, failureCode = null)
             return CleanRedrawTaskOutcome.ALREADY_SUCCEEDED
+        }
+        // 同指纹已判"无需生成"：这一行落同一终态，不为已判纯文字的图再花一轮分类/生成
+        // （4E WG-03：NO_FIGURE 也是"已做完"，只是做完的形态是"不需要"）。
+        if (sibling != null && sibling.taskId != row.taskId &&
+            sibling.status == CleanRedrawTaskStatus.NO_FIGURE
+        ) {
+            finish(row, CleanRedrawTaskStatus.NO_FIGURE, failureCode = null)
+            return CleanRedrawTaskOutcome.NO_FIGURE
         }
         // 领取这一轮：次数 +1（上限之内、且没有别人先领走）。领不到 = 这次不要再跑。
         val claimed = tasks.claimCleanRedrawTaskAttempt(
@@ -290,10 +315,11 @@ internal class CleanRedrawTaskRunner(
             if (kind == null) {
                 return fail(claimed, CleanRedrawFailureCode.CLASSIFY_FAILED)
             }
-            // TEXT_ONLY：触发范围口径说"不动作"——不生成、不挂接、不占后续尝试。
+            // TEXT_ONLY：记"无需生成"终态（4E WG-03）——不生成、不挂接、不占后续尝试，
+            // 也**不伪报已产图**（SUCCEEDED 从此只表"图真的挂上了"）。
             if (kind != ImagePipelineProblemKind.WITH_FIGURE) {
-                finish(claimed, CleanRedrawTaskStatus.SUCCEEDED, failureCode = null)
-                return CleanRedrawTaskOutcome.SUCCEEDED
+                finish(claimed, CleanRedrawTaskStatus.NO_FIGURE, failureCode = null)
+                return CleanRedrawTaskOutcome.NO_FIGURE
             }
         }
         // ⑤ 付费之前先核目标：修订不在、或已不是其错题条目当前指向的那一版 → 不生成、标 SUPERSEDED。
@@ -308,6 +334,15 @@ internal class CleanRedrawTaskRunner(
         } catch (_: Exception) {
             null
         } ?: return fail(claimed, CleanRedrawFailureCode.SOURCE_UNREADABLE)
+
+        // 4E WG-03：**发出之前**落"待核实"标记。进程死在生成轮（请求已出、结果未知）→
+        // 行停在 AWAITING_VERIFICATION：对账不接手、新触发领不走——不盲目补发（外部调用
+        // 不保证恰好一次，Provider 幂等/查询能力未经实际验证前不拿来当重发依据）。
+        // 标记写不进（台账坏/无库）就不发这一次可能无法追认的钱——与 createTask 同一道
+        // "没有记账就不付费"的原则。结果已知（正常返回/失败）后由同一 finish CAS 覆写。
+        if (!markAwaitingVerification(claimed)) {
+            return CleanRedrawTaskOutcome.SKIPPED
+        }
 
         val clean = try {
             generateClean(
@@ -325,7 +360,7 @@ internal class CleanRedrawTaskRunner(
         } ?: return fail(claimed, CleanRedrawFailureCode.REDRAW_FAILED)
 
         val attached = try {
-            attach(claimed.revisionId, clean.bytes, clean.mimeType)
+            attach(claimed.revisionId, clean)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
@@ -342,7 +377,7 @@ internal class CleanRedrawTaskRunner(
     }
 
     /** 产物回填通知是 best-effort：失败/取消不改判这一轮已经成功的挂接。 */
-    private suspend fun notifyAttached(clean: CleanImageResult) {
+    private suspend fun notifyAttached(clean: FigureArtifactRef) {
         try {
             onAttached(clean)
         } catch (cancelled: CancellationException) {
@@ -350,6 +385,26 @@ internal class CleanRedrawTaskRunner(
         } catch (_: Exception) {
             // 见 onAttached 的 KDoc：审计链接丢了，不等于图没挂上。
         }
+    }
+
+    /**
+     * 落"待核实"标记（同一 finish CAS，attemptCount 仍是领到的那一版）。返回标记是否
+     * **真的写进**了台账：写不进（无库/坏账本）时调用方不得发出这次付费请求。
+     */
+    private suspend fun markAwaitingVerification(row: CleanRedrawTaskRecord): Boolean = try {
+        tasks.finishCleanRedrawTask(
+            FinishCleanRedrawTaskCommand(
+                taskId = row.taskId,
+                expectedAttemptCount = row.attemptCount,
+                status = CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+                lastFailureCode = null,
+                occurredAtEpochMillis = now(),
+            ),
+        ) != null
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Exception) {
+        false
     }
 
     /** 核"修订仍存在且仍是其错题条目当前指向的那一版"。读口"做不到"（没库）时按不过判。 */

@@ -86,6 +86,8 @@ import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBundleExporter
+import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBootstrap
 import java.io.OutputStream
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
@@ -629,6 +631,8 @@ internal fun StorageScreen(
     var operationMessage by operations::message
     var operationBusy by operations::busy
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    // T6：诊断包导出的操作消息（与备份操作消息分开，避免互相覆盖）。
+    var diagnosticsMessage by remember { mutableStateOf<String?>(null) }
     // 6C-2：点「创建」那一刻的内容选择。系统文件选择器返回前面板仍可能重组，
     // 因此把选择冻结在这里再交给 create，而不是在回调里重新读界面状态。
     var pendingSelectionMask by rememberSaveable {
@@ -780,6 +784,46 @@ internal fun StorageScreen(
                 throw cancelled
             } catch (failure: Exception) {
                 operationMessage = "校验失败，文件可能已损坏，恢复未开始。${failure.message.orEmpty()}"
+            } finally {
+                operationBusy = false
+            }
+        }
+    }
+
+    // T6：导出诊断包——SAF CreateDocument + 保存后复读校验（照备份导出的既有模式）。
+    // 诊断记录只存本机，导出是它离开设备的唯一路径（用户显式选择目标，不自动外发）。
+    val exportDiagnostics = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("text/plain"),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        operationBusy = true
+        diagnosticsMessage = "正在导出诊断包…"
+        scope.launch {
+            try {
+                val ledger = DiagnosticsBootstrap.ledger
+                diagnosticsMessage = if (ledger == null) {
+                    "本机还没有诊断记录。"
+                } else {
+                    val savedDigest = withContext(Dispatchers.IO) {
+                        val bundle = DiagnosticsBundleExporter.bundleText(
+                            events = ledger.readAll(),
+                            meta = DiagnosticsBundleExporter.metaFrom(
+                                context,
+                                DiagnosticsBootstrap.flavor,
+                            ),
+                        )
+                        DiagnosticsBundleExporter.writeAndVerify(context, uri, bundle)
+                    }
+                    if (savedDigest != null) {
+                        "诊断包已导出，并通过保存后复读校验。"
+                    } else {
+                        "无法写入所选位置，导出未完成。"
+                    }
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                diagnosticsMessage = "导出失败，本机记录不受影响。${failure.message.orEmpty()}"
             } finally {
                 operationBusy = false
             }
@@ -995,6 +1039,51 @@ internal fun StorageScreen(
                 modifier = Modifier
                     .padding(top = 10.dp)
                     .testTag("storage_operation_message"),
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        // T6 诊断节：启动自检"上次异常退出"的只读提示 + 本机诊断包导出入口。
+        // 横幅不自动外发、可忽略；Root/启动横幅是本批禁改热区，提示落在本设置页，
+        // 学生反馈问题时从同一页导出诊断包（本地优先闭环，R2 选型 §1）。
+        PaperDivider(Modifier.padding(vertical = 18.dp))
+        SectionHeader("诊断")
+        DiagnosticsBootstrap.lastExitNotice?.let { notice ->
+            Text(
+                text = notice,
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .testTag("diagnostics_exit_notice"),
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+        Text(
+            "应用只把崩溃与无响应记录保存在本机（总量自动封顶，不会自动上传）。" +
+                "导出的诊断包含最近的事件与应用版本，供反馈问题时附带。",
+            modifier = Modifier.padding(top = 10.dp),
+            color = InkSecondary,
+        )
+        OutlinedButton(
+            onClick = {
+                exportDiagnostics.launch(
+                    "smart-mistake-book-diagnostics-${System.currentTimeMillis()}.txt",
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+                .testTag("diagnostics_export"),
+            enabled = !operationBusy,
+        ) {
+            Text("导出诊断包")
+        }
+        diagnosticsMessage?.let { message ->
+            Text(
+                text = message,
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .testTag("diagnostics_operation_message"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )

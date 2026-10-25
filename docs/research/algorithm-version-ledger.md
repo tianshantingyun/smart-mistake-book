@@ -410,6 +410,19 @@
 > 代码 KDoc + 决策台账「批次 19」小节 + 本条**（Wave X 校准前不是校准值，不许顺手调整）；`EXAM_RAMP_DAYS=14` 是
 > 插眼 1 已裁窗口的私有伴生复用，非新裁定。批次 19 记录见 `docs/research/2026-10-23-batch-19-record.md`。
 
+### 3.30 批次 20 · 零 bump 判据登记（2026-10-25）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动，本批无任何算法版本变更
+
+> 编号说明：本条登记批次 20（4E WG-02/03/10 + JS 地基 + 五研究线 + beta 准备件，记录
+> `docs/research/2026-10-25-batch-20-record.md`）的**零 bump 判据**——本批不 bump 任何版本串，落账原因如下。
+
+| 版本串 | 变更 | 公式/口径 | 数据来源 | 测试证据 | archive |
+|---|---|---|---|---|---|
+| `STUDY_DATABASE_VERSION` 维持 **69**（本批零 schema：`core/database/schemas/` 无 70.json、git status 空，记录员复测）；请求 schema 维持 **18**（`ModelTasks.kt:546-547` 未动）；`ReviewPlannerV2.VERSION="review-planner-v4"` 未 bump 且该文件 clean；`LearningCoreVersions.*` 全部未 bump；`AdaptiveQuestionSelector` 本批零改动（R5 G5 只研究+提案） | 批次 20 的算法面新增均为**只读视图/端口/文档模型**，不进任何投影/计划/打分/校准公式：① T9 `LongRangeSampleLedger`（合格长程样本台账只读分类视图：分类器判据逐字复用 `predictableSampleCount` 同口径并有等价对拍用例 `LongRangeSampleLedgerReadTest.kt:68` 钉住；400 门只引用常量 gateFloor=MIN_SAMPLES_FOR_FITTING 不做达标判定；零 UI 零启用开关、生产零消费）；② T4 `VisualExecutionEngine` 执行端口（纯 JVM 端口+fake+17 契约用例，非算法组件、零依赖引入）；③ T2 `CapturedFigureReference`（题目文档的类型化图引用模型，`@EncodeDefault(NEVER)` 保证空引用不落键、旧文档 decode→重算指纹逐位稳定——不改变任何既有投影/排程输入）；④ T3/WG-03 净化续跑改造（clean_redraw_task 状态机扩 NO_FIGURE/AWAITING_VERIFICATION，DB 列复用既有 status、零 schema） | 零 bump 判据：无任何版本串变更；无任何既有输入的历史重放输出变化（T9 只读无写口、T4 无生产消费、T2 指纹兼容有测试钉住、T3 状态机只影响生图任务生命周期不进排程/投影公式）；T10 设备用例 1 绿 2 红（KD-64）暴露的是 `NewIntroductionPolicy` 既有缺陷，非本批算法改动 | 批次 20 记录 §3.2/§3.3/§3.4/§3.9/§3.10、§6；复核 #16/#22（指纹兼容、G5 零改动）；KD-64/KD-65 登记 | T5 fake 机制测试 18 passed（复核实跑 pytest）；JVM/设备执行证据归门禁转录（记录员未复跑 Gradle/设备）；`CapturedFigureReferenceTest`（core:model）14 例、`LongRangeSampleLedgerReadTest` 等在树 | ➖（零 bump，无既有输入的输出变化，不触发重放） |
+
+> **本批非算法常量追溯**：T8 的 `ndk.abiFilters=arm64-v8a+x86_64`（`app/build.gradle.kts:39`）是构建打包配置，
+> 与学习算法无关（影响=放弃 32 位设备安装面）；T6 诊断账本三重封顶（6 文件×64KiB×300 条）是运维参数；
+> 两者均不登记为本表算法变更。R5 的 Elo/探索额度等提案数值**未实现**（待用户裁定），不存在常量落账。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

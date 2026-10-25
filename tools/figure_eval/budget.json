@@ -1,0 +1,59 @@
+{
+  "budget_version": "figure-eval-budget-v1",
+  "frozen_at": "2026-10-25T00:00:00+08:00",
+  "scope": "PRD-09 生图质量评测（批次 20 / T5 可先行半边）。质量评测必须在显式预算清单内运行，不后台自发花费（docs/superpowers/specs/2026-10-19-product-readiness-design.md §6 :95 原文）。",
+  "citations": {
+    "six_dispatch_total_gate": {
+      "source": "docs/current/visual-generation-contract.md:138",
+      "quote": "统一管线每个逻辑操作最多6次Provider模型执行派发，文本决策/带图修复与图像生成/编辑共用持久ledger；JS本地执行不占远程派发。讲题预留1次终答，故余额1时撤两路工具"
+    },
+    "six_dispatch_constant": {
+      "source": "core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasks.kt:61",
+      "quote": "const val MAX_DISPATCHES: Int = 6"
+    },
+    "unknown_cost_rule": {
+      "source": "docs/superpowers/specs/2026-10-19-product-readiness-design.md §6 :95",
+      "quote": "token/费用按真实返回和配置计，未知费用标未知，不写0"
+    },
+    "final_answer_reservation": {
+      "source": "docs/current/figure-generation-prompt-policy.md §5 :101",
+      "quote": "对讲题父操作，文本规划、带图决策/修复及IMAGE_MODEL生成/编辑都计入现有最多6次Provider模型执行派发，保留1次终答余额；JS本地执行不占远程派发"
+    }
+  },
+  "per_operation": {
+    "remote_dispatch_cap": 6,
+    "final_answer_reservation": 1,
+    "final_answer_reservation_applies_to": "讲题父操作（独立转写/净化作业终态本地保存，不硬留聊天终答位）",
+    "switch_does_not_reset_budget": "切换方法仍是同一 operation（operationId 不含 method），预算不重置（契约 §7.1 :138 / 提示词 §5 :99）"
+  },
+  "per_task": {
+    "max_remote_dispatches": 6,
+    "max_backend_pair_runs": 2,
+    "repair_dispatches_within_budget_only": true,
+    "js_local_execution_consumes_remote_dispatch": false
+  },
+  "run_level": {
+    "blind_task_count": 120,
+    "dev_task_count": 24,
+    "dev_in_denominator": false,
+    "max_total_remote_dispatches": 864,
+    "max_total_remote_dispatches_basis": "120 盲测 × 每任务 6 次上限（开发集另计 24×6=144，仅在开发迭代需要时使用）",
+    "repeat_policy": "重复同一题只作稳定性观察，不算独立新样本（设计§6 :91）"
+  },
+  "cost": {
+    "status": "unknown",
+    "amount": null,
+    "currency": null,
+    "note": "真实 Provider 无凭据，单价未知：未知费用记未知、不写 0（设计§6 :95）。待 key 配置后按真实返回与配置计。"
+  },
+  "tokens": {
+    "input": null,
+    "output": null,
+    "status": "unknown",
+    "note": "token 计数按真实 Provider usage 返回采集；fake 驱动无 usage，字段先落、值记 null/unknown。"
+  },
+  "enforcement": {
+    "harness_side": "fake 运行零真实派发（fake 驱动不出网）；配对/切换/修复的派发计数仍按本清单上限校验（超限即记 FAILED_BUDGET_EXHAUSTED，不越门）。",
+    "production_side": "真实运行时每次外部派发前须在持久 ledger 预留（RoomFigureDispatchLedger 的 durable 门），fail-closed；评测 harness 不替代生产预算权威。"
+  }
+}

@@ -75,11 +75,11 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
         assertEquals(1, before.sourceAssets.size)
         assertEquals("QUESTION_SOURCE", before.sourceAssets.single().role)
 
+        val cleanBytes = createPng(32, 32).readBytes()
         assertTrue(
-            repository.attachCleanRedrawImage(
+            repository.attachCleanRedrawArtifact(
                 problemRevisionId = committed.problemRevisionId,
-                cleanImageBytes = createPng(32, 32).readBytes(),
-                cleanImageMimeType = "image/png",
+                artifact = canonicalFigureRef(cleanBytes),
             ),
         )
 
@@ -264,10 +264,7 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
             AndroidCanonicalAssetVault(context),
             noTextRecognizer(),
             cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { _ ->
-                com.tingyun.smartmistakebook.core.domain.CleanImageResult(
-                    createPng(24, 24).readBytes(),
-                    "image/png",
-                )
+                canonicalFigureRef(createPng(24, 24).readBytes())
             },
             modelTasks = withFigureClassifyModelTasks(),
             captureEgressAllowed = { true },
@@ -778,10 +775,7 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
             cleanRedraw = com.tingyun.smartmistakebook.core.domain.CleanImageGenerator { _ ->
                 kotlinx.coroutines.delay(250)
                 cleanProduced.set(true)
-                com.tingyun.smartmistakebook.core.domain.CleanImageResult(
-                    createPng(22, 22).readBytes(),
-                    "image/png",
-                )
+                canonicalFigureRef(createPng(22, 22).readBytes())
             },
             cleanRedrawScope = saveScope,
             modelTasks = withFigureClassifyModelTasks(),
@@ -842,10 +836,7 @@ class CaptureWorkflowInstrumentedTest : CaptureWorkflowTestBase() {
                 // Simulate a slow remote edit so the save must return first.
                 kotlinx.coroutines.delay(300)
                 cleanProduced.set(true)
-                com.tingyun.smartmistakebook.core.domain.CleanImageResult(
-                    createPng(20, 20).readBytes(),
-                    "image/png",
-                )
+                canonicalFigureRef(createPng(20, 20).readBytes())
             },
             cleanRedrawScope = saveScope,
             modelTasks = withFigureClassifyModelTasks(),

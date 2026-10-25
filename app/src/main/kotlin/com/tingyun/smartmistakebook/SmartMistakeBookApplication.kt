@@ -87,6 +87,7 @@ import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorKnowledgeContextLoader
 import com.tingyun.smartmistakebook.core.domain.TutorTeachingReferenceRepository
 import com.tingyun.smartmistakebook.feature.capture.CaptureCacheMaintenance
+import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBootstrap
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -117,6 +118,8 @@ class SmartMistakeBookApplication : Application() {
     // handler and kills the app. This backstop logs instead of crashing; the
     // full stack stays visible in logcat.
     private val coroutineCrashBackstop = CoroutineExceptionHandler { _, failure ->
+        // T6：协程未捕获异常在 logcat 之外追加落进本机诊断账本（重启后仍可经诊断包导出）。
+        DiagnosticsBootstrap.recordCoroutineFailure(failure)
         android.util.Log.e("SmartMistakeBook", "Uncaught applicationScope coroutine failure", failure)
     }
 
@@ -281,6 +284,14 @@ class SmartMistakeBookApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // T6 beta 反馈闭环：诊断装配先于一切初始化——启动最早的崩溃也要有记录。
+        // 崩溃 handler 链回系统 previous（杀进程行为不变）；看门狗只记录不杀进程；
+        // 启动对账（"上次异常退出"横幅文案）放后台协程，不阻塞启动。各环节内部吞错，
+        // 记录只落本机 filesDir/diagnostics（零外发；strictOffline 无 INTERNET 权限）。
+        DiagnosticsBootstrap.install(this, BuildConfig.FLAVOR)
+        applicationScope.launch {
+            runCatching { DiagnosticsBootstrap.reconcileAtStartup(processStartedAtEpochMillis) }
+        }
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
@@ -353,12 +364,14 @@ class SmartMistakeBookApplication : Application() {
             // 4E WG-06 T3：详情页的"重绘干净题面"只有用户点击才建行/派发；落盘直接复用
             // capture 的 attach（同一份 CLEAN_IMAGE 引用 + current-revision 判据）。
             // attach 在这里只捕获装配对象，真正的仓库在下面创建，调用发生在启动完成之后。
+            // 4E WG-03：挂接缝升级为类型化 FigureArtifactRef（canonical 图先核对内容 sha
+            // 才绑定修订；provenance 按真实方法填写）。
             val explicitRedrawService = ExplicitRedrawServiceFactory.create(
                 context = this,
                 database = database,
                 cleanImageGenerator = cleanImageGenerator,
-                attach = { revisionId, bytes, mimeType ->
-                    captureRepository.attachCleanRedrawImage(revisionId, bytes, mimeType)
+                attach = { revisionId, artifact ->
+                    captureRepository.attachCleanRedrawArtifact(revisionId, artifact)
                 },
                 egressAllowed = { modelConfigurationStore != null },
                 scope = applicationScope,

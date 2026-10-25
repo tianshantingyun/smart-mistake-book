@@ -23,6 +23,7 @@ import com.tingyun.smartmistakebook.core.domain.FsrsScheduleMath
 import com.tingyun.smartmistakebook.core.domain.HLRPredictionAuditService
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.domain.LogDurationModel
+import com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerReport
 import com.tingyun.smartmistakebook.core.domain.PredictionAuditSink
 import com.tingyun.smartmistakebook.core.domain.KnowledgeNodeScorer
 import com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2
@@ -914,6 +915,10 @@ class RoomBackedStudyExperienceRepository(
 
     override suspend fun plannedReasonCalibrations(): List<PlannedReasonCalibration> =
         calibration.plannedReasonCalibrations()
+
+    /** AUD-17 台账只读出口（批次 20 / T9）：委托 review_log 的唯一属主，纯读派生。 */
+    override suspend fun longRangeSampleLedger(): LongRangeSampleLedgerReport =
+        reviewLogSink.longRangeSampleLedger()
 
     override suspend fun chatEvidenceGateCalibration():
         ChatEvidenceGateCalibration.GateCalibrationReport? =

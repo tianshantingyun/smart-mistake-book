@@ -11,7 +11,7 @@ import com.tingyun.smartmistakebook.core.data.visual.DefaultFigureGenerationCoor
 import com.tingyun.smartmistakebook.core.data.visual.FigureImageBackend
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
-import com.tingyun.smartmistakebook.core.domain.CleanImageResult
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
@@ -85,7 +85,7 @@ internal class ConfiguredCleanImageGenerator(
         return true
     }
 
-    override suspend fun generateClean(request: CleanImageRequest): CleanImageResult? {
+    override suspend fun generateClean(request: CleanImageRequest): FigureArtifactRef? {
         // 门只有一处实现（A3）：resolveImageCredential（本构建不可出网 / 没配凭证 /
         // 能力测试没确认图像输入 → null）。预检不发送，立即释放租约。
         val preflight = resolveImageCredential(configurationStore, networkRequestsAllowed)
@@ -138,15 +138,24 @@ internal class ConfiguredCleanImageGenerator(
             reason = "入口适配层：保存期净化使用当前唯一已接通的图像模型方法",
         )
         val outcome = effectiveCoordinator.generate(generationRequest, proposal)
-        return outcome.toCleanImageResult()
+        return outcome.toArtifactRef()
     }
 
-    private fun FigureGenerationOutcome.toCleanImageResult(): CleanImageResult? =
+    /**
+     * 4E WG-03：产物升级为类型化 [FigureArtifactRef]——方法/模型/内容 sha 从 coordinator 的
+     * 产物**随产物一起**带到挂接侧，provenance 按真实方法填写、幂等键按真实字节 sha 核对。
+     * 非 canonical 图片产物（本批的装配不可能产生 JS——policy 是 IMAGE_MODEL_ONLY）如实
+     * decline（null），不把不认识的形状硬挂上去。
+     */
+    private fun FigureGenerationOutcome.toArtifactRef(): FigureArtifactRef? =
         if (status == FigureGenerationStatus.GENERATED || status == FigureGenerationStatus.CACHED) {
-            (artifact as? FigureArtifact.ImageAsset)?.let { artifact ->
-                CleanImageResult(
-                    bytes = artifact.imageBytes(),
-                    mimeType = artifact.mimeType,
+            (artifact as? FigureArtifact.ImageAsset)?.let { asset ->
+                FigureArtifactRef.CanonicalImage(
+                    imageBytes = asset.imageBytes(),
+                    mimeType = asset.mimeType,
+                    contentSha256 = asset.contentSha256,
+                    // provider 响应里的真实模型版本；没报时挂接侧按请求模型兜底（见 attach 侧）。
+                    modelId = asset.modelId,
                     // 两条入口（保存期净化/显式重绘）落盘后都用它回填
                     // attempt.output_asset_id；attemptId 只是审计身份，不是预算句柄。
                     attemptId = attemptId,

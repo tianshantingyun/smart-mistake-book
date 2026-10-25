@@ -10,12 +10,14 @@ import com.tingyun.smartmistakebook.core.database.FinishCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.cleanRedrawTaskId
 import com.tingyun.smartmistakebook.core.database.explicitRedrawOperationId
 import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
-import com.tingyun.smartmistakebook.core.domain.CleanImageResult
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
 import com.tingyun.smartmistakebook.core.model.ImagePipelineClassifyInput
 import com.tingyun.smartmistakebook.core.model.ImagePipelineProblemKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskLogicalOperationFingerprint
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -31,8 +33,10 @@ import org.junit.Test
  * - **失败落码**：分类失败 / 生成失败 / 源图不可读 / 挂接失败各有码，不再吞成 false/null；
  * - **续跑**：被杀留下的 `PENDING` 行重启后被接手，且**重建的分类请求与原来那一轮逐位相同**
  *   （否则模型台账会把它当成另一轮，既接不上又可能再付一次钱）；
- * - **边界**：TEXT_ONLY 不动作、目标已不是当前题面在付费前就被拦、尝试次数耗尽不再跑、
- *   出网门关着一行也不动、晚于租约截止的行不被抢走。
+ * - **边界**：TEXT_ONLY 记 `NO_FIGURE` 终态（不伪报已产图）、已发出未知的生成停在
+ *   `AWAITING_VERIFICATION` 不盲目补发、挂接缝收到**类型化** [FigureArtifactRef]
+ *   （canonical 图与 JS 快照两形都能穿越）、目标已不是当前题面在付费前就被拦、
+ *   尝试次数耗尽不再跑、出网门关着一行也不动、晚于租约截止的行不被抢走。
  */
 class CleanRedrawTaskRunnerTest {
 
@@ -108,16 +112,212 @@ class CleanRedrawTaskRunnerTest {
         )
     }
 
+    /**
+     * 4E WG-03：移除 TEXT_ONLY 直接当生成完成的捷径。分类判纯文字 → 作业记 `NO_FIGURE`
+     * **终态**（"无需生成"），不再伪报 `SUCCEEDED`（旧读法＝"已产图"）。
+     */
     @Test
-    fun `a text only problem commits the task without redrawing`() = runBlocking {
+    fun `a text only problem records a no figure terminal without faking a produced image`() =
+        runBlocking {
+            val harness = harness(classify = { ImagePipelineProblemKind.TEXT_ONLY })
+
+            val outcome = harness.runner.run(harness.identity())
+
+            assertEquals(
+                "无需生成是它自己的终态语义，不再冒充 SUCCEEDED（已产图）",
+                CleanRedrawTaskOutcome.NO_FIGURE,
+                outcome,
+            )
+            assertEquals("TEXT_ONLY 不动作：不生成", 0, harness.generateCalls)
+            assertTrue("TEXT_ONLY 不动作：不挂接", harness.attachCalls.isEmpty())
+            assertEquals(CleanRedrawTaskStatus.NO_FIGURE, harness.taskRow().status)
+            assertNull("无需生成不是失败，不带失败码", harness.taskRow().lastFailureCode)
+        }
+
+    /** NO_FIGURE 终态重放：同一身份再触发不再跑分类（结论已终局），结局仍是 NO_FIGURE。 */
+    @Test
+    fun `a no figure terminal is replayed without another classify round`() = runBlocking {
         val harness = harness(classify = { ImagePipelineProblemKind.TEXT_ONLY })
+        harness.runner.run(harness.identity())
+        assertEquals(1, harness.classifyCalls)
+
+        val second = harness.runner.run(harness.identity())
+
+        assertEquals(CleanRedrawTaskOutcome.NO_FIGURE, second)
+        assertEquals("结论已终局：分类不许再跑一遍", 1, harness.classifyCalls)
+        assertEquals(CleanRedrawTaskStatus.NO_FIGURE, harness.taskRow().status)
+    }
+
+    /** 同指纹已有 NO_FIGURE 行：这一行落同一终态，不为已判"无需生成"的图再花一轮分类/生成。 */
+    @Test
+    fun `a sibling fingerprint that concluded no figure is not paid again`() = runBlocking {
+        val harness = harness(classify = { ImagePipelineProblemKind.TEXT_ONLY })
+        harness.runner.run(harness.identity())
+        val concluded = harness.taskRow()
+        harness.store.rows.clear()
+        harness.store.rows["clean-redraw-sibling-nofigure"] = concluded.copy(
+            taskId = "clean-redraw-sibling-nofigure",
+            revisionId = "revision-sibling-nofigure",
+            status = CleanRedrawTaskStatus.NO_FIGURE,
+        )
+        harness.classifyCalls = 0
+        harness.generateCalls = 0
+
+        val outcome = harness.runner.run(harness.identity())
+
+        assertEquals(CleanRedrawTaskOutcome.NO_FIGURE, outcome)
+        assertEquals("同指纹已判无需生成：不许再跑分类", 0, harness.classifyCalls)
+        assertEquals("同指纹已判无需生成：不许跑生成（付费轮）", 0, harness.generateCalls)
+        assertEquals(
+            CleanRedrawTaskStatus.NO_FIGURE,
+            harness.taskRow().status,
+        )
+    }
+
+    /**
+     * 4E WG-03：已发出但结果未知的生成请求保留"待核实"。进程死在生成轮（结果未知）→
+     * 行停在 `AWAITING_VERIFICATION`：启动对账**不接手**（不盲目补发——Provider 幂等/查询
+     * 能力未实际验证前，重发就是可能重复付费的赌注），也不许新触发再领取。
+     */
+    @Test
+    fun `a generation whose result is unknown stays awaiting verification and is never re-sent`() =
+        runBlocking {
+            val harness = harness(
+                generate = { _, _, _ ->
+                    // ≈ 进程在"请求已发出、结果未知"处被杀：取消原样抛出（不是失败）。
+                    throw CancellationException("进程被杀在生成轮")
+                },
+            )
+
+            val failure = runCatching { harness.runner.run(harness.identity()) }.exceptionOrNull()
+            assertTrue(failure is CancellationException)
+
+            val row = harness.taskRow()
+            assertEquals(
+                "结果未知：行停在待核实，不是可续跑的 PENDING",
+                CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+                row.status,
+            )
+            assertEquals("尝试已被领取一次", 1, row.attemptCount)
+
+            val processed = harness.runner.resumePending(staleBeforeEpochMillis = 1_000)
+
+            assertEquals("对账不许接手待核实行（不盲目补发）", 0, processed)
+            assertEquals("生成不许被补发第二次", 1, harness.generateCalls)
+            assertEquals(
+                "行仍停在待核实",
+                CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+                harness.taskRow().status,
+            )
+        }
+
+    /** 新触发同样领不走待核试行（领取 CAS 只认 FAILED/首领 PENDING）。 */
+    @Test
+    fun `an awaiting verification row cannot be claimed by a new trigger`() = runBlocking {
+        val harness = harness(classify = { ImagePipelineProblemKind.TEXT_ONLY })
+        // 直接合成一条"已发出、结果未知"的行（与真实断点同形：已领取、停在待核实）。
+        val awaiting = harness.seedRow(
+            status = CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+            attemptCount = 1,
+            createdAtEpochMillis = 500,
+            updatedAtEpochMillis = 500,
+        )
+
+        val outcome = harness.runner.run(harness.identity())
+
+        assertEquals(
+            "结果未知期间不许有第二个执行者再领一次（可能重复付费）",
+            CleanRedrawTaskOutcome.SKIPPED,
+            outcome,
+        )
+        assertEquals(0, harness.generateCalls)
+        assertEquals(
+            CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+            harness.store.rows.getValue(awaiting.taskId).status,
+        )
+    }
+
+    /** 结果已知（正常返回）的生成从待核实标记一路落终态：中途态对挂接链不可见。 */
+    @Test
+    fun `a known generation result finishes from the awaiting marker`() = runBlocking {
+        var statusInFlight: String? = null
+        lateinit var liveHarness: Harness
+        val harness = harness(
+            generate = { _, _, _ ->
+                statusInFlight = liveHarness.taskRow().status
+                canonicalRef(CLEAN_BYTES)
+            },
+        )
+        liveHarness = harness
 
         val outcome = harness.runner.run(harness.identity())
 
         assertEquals(CleanRedrawTaskOutcome.SUCCEEDED, outcome)
-        assertEquals("TEXT_ONLY 不动作：不生成", 0, harness.generateCalls)
-        assertTrue("TEXT_ONLY 不动作：不挂接", harness.attachCalls.isEmpty())
-        assertEquals(CleanRedrawTaskStatus.SUCCEEDED, harness.taskRow().status)
+        assertEquals(
+            "生成轮进行中：行必须已经落在待核实上（付费请求已可能发出）",
+            CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+            statusInFlight,
+        )
+        assertEquals(
+            "结果已知后覆写为真正的终态",
+            CleanRedrawTaskStatus.SUCCEEDED,
+            harness.taskRow().status,
+        )
+        assertEquals(1, harness.attachCalls.size)
+    }
+
+    /** 挂接缝收到的是类型化引用：方法/字节 sha/模型标识按真实生成结果流动，不再靠挂接处猜。 */
+    @Test
+    fun `the attach seam receives the typed artifact ref of the real method`() = runBlocking {
+        val harness = harness(
+            generate = { _, _, _ ->
+                FigureArtifactRef.CanonicalImage(
+                    imageBytes = CLEAN_BYTES,
+                    mimeType = "image/png",
+                    contentSha256 = figureSha256Hex(CLEAN_BYTES),
+                    modelId = "provider-reported-model-7",
+                )
+            },
+        )
+
+        harness.runner.run(harness.identity())
+
+        val (revisionId, ref) = harness.attachCalls.single()
+        assertEquals(harness.identity().revisionId, revisionId)
+        assertTrue("canonical 图片走 CanonicalImage 形", ref is FigureArtifactRef.CanonicalImage)
+        ref as FigureArtifactRef.CanonicalImage
+        assertEquals(FigureGenerationMethod.IMAGE_MODEL, ref.method)
+        assertEquals(figureSha256Hex(CLEAN_BYTES), ref.contentSha256)
+        assertEquals("provider-reported-model-7", ref.modelId)
+        assertEquals("image/png", ref.mimeType)
+    }
+
+    /**
+     * JS 快照位（4E.2 前的生产装配不产生它）：执行器对引用**方法无关**——JsSnapshot 与
+     * CanonicalImage 走同一条类型化缝（能不能挂由挂接实现回答，不由执行器猜方法）。
+     */
+    @Test
+    fun `a js snapshot artifact traverses the same typed seam`() = runBlocking {
+        val harness = harness(
+            generate = { _, _, _ ->
+                FigureArtifactRef.JsSnapshot(
+                    programId = "program-1",
+                    snapshotId = "snapshot-1",
+                )
+            },
+        )
+
+        val outcome = harness.runner.run(harness.identity())
+
+        assertEquals(CleanRedrawTaskOutcome.SUCCEEDED, outcome)
+        val ref = harness.attachCalls.single().second
+        assertTrue(ref is FigureArtifactRef.JsSnapshot)
+        assertEquals(FigureGenerationMethod.JS, ref.method)
+        assertEquals(
+            "产物通知同样收到类型化引用（审计回填按方法分流）",
+            "snapshot-1",
+            (harness.attachedResults.single() as FigureArtifactRef.JsSnapshot).snapshotId,
+        )
     }
 
     @Test
@@ -179,7 +379,7 @@ class CleanRedrawTaskRunnerTest {
 
     @Test
     fun `an attach that loses its target is superseded after generating`() = runBlocking {
-        val harness = harness(attach = { _, _, _ -> false })
+        val harness = harness(attach = { _, _ -> false })
 
         val outcome = harness.runner.run(harness.identity())
 
@@ -473,9 +673,11 @@ class CleanRedrawTaskRunnerTest {
     fun `a successful attach notifies the entry so the audit output can be backfilled`() = runBlocking {
         val harness = harness(
             generate = { _, _, _ ->
-                CleanImageResult(
-                    bytes = CLEAN_BYTES,
+                FigureArtifactRef.CanonicalImage(
+                    imageBytes = CLEAN_BYTES,
                     mimeType = "image/png",
+                    contentSha256 = figureSha256Hex(CLEAN_BYTES),
+                    modelId = "fake-image-model",
                     attemptId = "figure-attempt:clean-redraw-op:task:1:IMAGE_MODEL",
                 )
             },
@@ -487,6 +689,39 @@ class CleanRedrawTaskRunnerTest {
         assertEquals(
             "figure-attempt:clean-redraw-op:task:1:IMAGE_MODEL",
             harness.attachedResults.single().attemptId,
+        )
+    }
+
+    /**
+     * 4E WG-03 验收"切换同 operation"：操作身份绑定持久作业（`clean-redraw-op:<taskId>`，
+     * 不含 method）。同一条作业行内换产物方法（第一次 IMAGE_MODEL 失败 → 重试走 JS 快照
+     * 形状），派发父操作/操作 id 的派生输入不变——换方法不是换一次新的付费操作。
+     */
+    @Test
+    fun `switching the artifact method keeps the same operation identity`() = runBlocking {
+        val parents = mutableListOf<FigureDispatchParent.CleanRedrawTask>()
+        val harness = harness(
+            generate = { _, _, parent ->
+                parents += parent
+                if (parents.size == 1) null else FigureArtifactRef.JsSnapshot("program-1", "snapshot-1")
+            },
+        )
+        harness.runner.run(harness.identity())
+        assertEquals(CleanRedrawTaskStatus.FAILED, harness.taskRow().status)
+
+        val processed = harness.runner.resumePending(staleBeforeEpochMillis = 100_000)
+
+        assertEquals("重试作业被对账接手并完成一轮", 1, processed)
+        assertEquals(
+            "重试成功后行落真正的成功终态",
+            CleanRedrawTaskStatus.SUCCEEDED,
+            harness.taskRow().status,
+        )
+        assertEquals(
+            "两次尝试派发的是同一条持久作业：操作 id 派生输入（clean-redraw-op:<taskId>）" +
+                "不含 method，换方法仍是同一操作",
+            parents[0].taskId,
+            parents[1].taskId,
         )
     }
 
@@ -503,15 +738,15 @@ class CleanRedrawTaskRunnerTest {
             CanonicalSourceAssetRecord,
             ByteArray,
             FigureDispatchParent.CleanRedrawTask,
-        ) -> CleanImageResult?,
-        val attach: suspend (String, ByteArray, String) -> Boolean,
+        ) -> FigureArtifactRef?,
+        val attach: suspend (String, FigureArtifactRef) -> Boolean,
     ) {
         val source = SourceHolder(sourceAsset())
         var classifyCalls = 0
         var generateCalls = 0
-        val attachCalls = mutableListOf<Triple<String, ByteArray, String>>()
+        val attachCalls = mutableListOf<Pair<String, FigureArtifactRef>>()
         val classifyRequests = mutableListOf<ModelTaskRequest>()
-        val attachedResults = mutableListOf<CleanImageResult>()
+        val attachedResults = mutableListOf<FigureArtifactRef>()
         private var clock = 1_000L
 
         val runner = CleanRedrawTaskRunner(
@@ -528,12 +763,12 @@ class CleanRedrawTaskRunnerTest {
                 generateCalls += 1
                 generate(record, bytes, parent)
             },
-            attach = { revisionId, bytes, mimeType ->
-                attachCalls += Triple(revisionId, bytes, mimeType)
-                attach(revisionId, bytes, mimeType)
+            attach = { revisionId, ref ->
+                attachCalls += revisionId to ref
+                attach(revisionId, ref)
             },
             now = { clock++ },
-            onAttached = { clean -> attachedResults += clean },
+            onAttached = { ref -> attachedResults += ref },
         )
 
         fun identity() = CleanRedrawTaskIdentity(
@@ -606,9 +841,8 @@ class CleanRedrawTaskRunnerTest {
             CanonicalSourceAssetRecord,
             ByteArray,
             FigureDispatchParent.CleanRedrawTask,
-        ) -> CleanImageResult? =
-            { _, _, _ -> CleanImageResult(bytes = CLEAN_BYTES, mimeType = "image/png") },
-        attach: suspend (String, ByteArray, String) -> Boolean = { _, _, _ -> true },
+        ) -> FigureArtifactRef? = { _, _, _ -> canonicalRef(CLEAN_BYTES) },
+        attach: suspend (String, FigureArtifactRef) -> Boolean = { _, _ -> true },
         readBytes: suspend (CanonicalSourceAssetRecord) -> ByteArray? = { SOURCE_BYTES },
     ): Harness = Harness(
         store = FakeCleanRedrawTaskStore(),
@@ -721,6 +955,18 @@ private const val SHA_B =
 
 private val SOURCE_BYTES = byteArrayOf(1, 2, 3)
 private val CLEAN_BYTES = byteArrayOf(9, 8, 7)
+
+/** 测试默认产物：canonical 图片引用，字节 sha 与内容一致（挂接核对按它成立）。 */
+private fun canonicalRef(
+    bytes: ByteArray,
+    attemptId: String? = null,
+): FigureArtifactRef.CanonicalImage = FigureArtifactRef.CanonicalImage(
+    imageBytes = bytes,
+    mimeType = "image/png",
+    contentSha256 = figureSha256Hex(bytes),
+    modelId = "fake-image-model",
+    attemptId = attemptId,
+)
 
 /** 夹具源图：id 与 sha 都来自同一条规范记录（真实链上 id 也是内容派生的）。 */
 private fun sourceAsset(): CanonicalSourceAssetRecord = CanonicalSourceAssetRecord(

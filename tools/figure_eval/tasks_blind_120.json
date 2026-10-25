@@ -1,0 +1,4566 @@
+{
+  "set": "blind",
+  "frozen_at": "2026-10-25T00:00:00+08:00",
+  "task_count": 120,
+  "policy": "PRD-09 盲测集：冻结后不得修改；不得用于调 prompt；启用判定须用未见集（设计§6 :91 / PRD-09 :132）。修改须重新冻结并留审计记录。",
+  "tasks": [
+    {
+      "task_id": "BLD-PROPCOORD-001",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "ratio_bar",
+      "sample_category_4e": "截图1 比例条（3:1/1:1 精确比例、标签可读，非截图图片）",
+      "problem_statement": "画一条线段并分成两段，使两段长度比为 1:1；在图中以可读标签标注比值 “1:1”，不得用照片截图充当。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "segment_length_ratio",
+          "expected": 1.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "ratio_label",
+          "expected": [
+            "1:1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "segment_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-002",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "ratio_bar",
+      "sample_category_4e": "截图1 比例条（3:1/1:1 精确比例、标签可读，非截图图片）",
+      "problem_statement": "画一条线段并分成两段，使两段长度比为 3:1；在图中以可读标签标注比值 “3:1”，不得用照片截图充当。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "segment_length_ratio",
+          "expected": 3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "ratio_label",
+          "expected": [
+            "3:1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "segment_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-003",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "ratio_bar",
+      "sample_category_4e": "截图1 比例条（3:1/1:1 精确比例、标签可读，非截图图片）",
+      "problem_statement": "画一条线段并分成两段，使两段长度比为 4:1；在图中以可读标签标注比值 “4:1”，不得用照片截图充当。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "segment_length_ratio",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "ratio_label",
+          "expected": [
+            "4:1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "segment_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-004",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "ratio_bar",
+      "sample_category_4e": "截图1 比例条（3:1/1:1 精确比例、标签可读，非截图图片）",
+      "problem_statement": "画一条线段并分成两段，使两段长度比为 7:3；在图中以可读标签标注比值 “7:3”，不得用照片截图充当。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "segment_length_ratio",
+          "expected": 2.3333333333333335,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "ratio_label",
+          "expected": [
+            "7:3"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "segment_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-005",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "ratio_bar",
+      "sample_category_4e": "截图1 比例条（3:1/1:1 精确比例、标签可读，非截图图片）",
+      "problem_statement": "画一条线段并分成两段，使两段长度比为 2:3；在图中以可读标签标注比值 “2:3”，不得用照片截图充当。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "segment_length_ratio",
+          "expected": 0.6666666666666666,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "ratio_label",
+          "expected": [
+            "2:3"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "segment_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-006",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "ratio_bar",
+      "sample_category_4e": "截图1 比例条（3:1/1:1 精确比例、标签可读，非截图图片）",
+      "problem_statement": "画一条线段并分成两段，使两段长度比为 3:1；在图中以可读标签标注比值 “3:1”，不得用照片截图充当。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "segment_length_ratio",
+          "expected": 3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "ratio_label",
+          "expected": [
+            "3:1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "segment_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-007",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "coordinate_point_plot",
+      "sample_category_4e": "比例/坐标类：坐标精确标注",
+      "problem_statement": "在平面直角坐标系中标出点 P(5,5)，画出该点到两坐标轴的虚线垂线，并标注其所在象限（第一象限）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "point_x",
+          "expected": 5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "point_y",
+          "expected": 5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "point_label",
+          "expected": [
+            "P(5,5)"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-008",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "coordinate_point_plot",
+      "sample_category_4e": "比例/坐标类：坐标精确标注",
+      "problem_statement": "在平面直角坐标系中标出点 P(-2,-3)，画出该点到两坐标轴的虚线垂线，并标注其所在象限（第三象限）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "point_x",
+          "expected": -2.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "point_y",
+          "expected": -3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "point_label",
+          "expected": [
+            "P(-2,-3)"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-009",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "coordinate_point_plot",
+      "sample_category_4e": "比例/坐标类：坐标精确标注",
+      "problem_statement": "在平面直角坐标系中标出点 P(6,-2)，画出该点到两坐标轴的虚线垂线，并标注其所在象限（第四象限）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "point_x",
+          "expected": 6.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "point_y",
+          "expected": -2.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "point_label",
+          "expected": [
+            "P(6,-2)"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-010",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "coordinate_point_plot",
+      "sample_category_4e": "比例/坐标类：坐标精确标注",
+      "problem_statement": "在平面直角坐标系中标出点 P(-3,2)，画出该点到两坐标轴的虚线垂线，并标注其所在象限（第二象限）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "point_x",
+          "expected": -3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "point_y",
+          "expected": 2.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "point_label",
+          "expected": [
+            "P(-3,2)"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-011",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "coordinate_point_plot",
+      "sample_category_4e": "比例/坐标类：坐标精确标注",
+      "problem_statement": "在平面直角坐标系中标出点 P(-2,-3)，画出该点到两坐标轴的虚线垂线，并标注其所在象限（第三象限）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "point_x",
+          "expected": -2.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "point_y",
+          "expected": -3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "point_label",
+          "expected": [
+            "P(-2,-3)"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-012",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "number_line",
+      "sample_category_4e": "比例/坐标类：数轴刻度与顺序",
+      "problem_statement": "在数轴上标出 1/3 与 1/2 的位置（刻度一致、间距按真实值），并用从小到大的顺序标注两个数。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "ascending_order",
+          "expected": [
+            "1/3",
+            "1/2"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "marked_points",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "numeric",
+          "key": "value_of_1_3",
+          "expected": 0.3333333333333333,
+          "tolerance": 1e-09,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-013",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "number_line",
+      "sample_category_4e": "比例/坐标类：数轴刻度与顺序",
+      "problem_statement": "在数轴上标出 1/3 与 1/2 的位置（刻度一致、间距按真实值），并用从小到大的顺序标注两个数。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "ascending_order",
+          "expected": [
+            "1/3",
+            "1/2"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "marked_points",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "numeric",
+          "key": "value_of_1_3",
+          "expected": 0.3333333333333333,
+          "tolerance": 1e-09,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-014",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "number_line",
+      "sample_category_4e": "比例/坐标类：数轴刻度与顺序",
+      "problem_statement": "在数轴上标出 1/2 与 2/3 的位置（刻度一致、间距按真实值），并用从小到大的顺序标注两个数。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "ascending_order",
+          "expected": [
+            "1/2",
+            "2/3"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "marked_points",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "numeric",
+          "key": "value_of_1_2",
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-015",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "number_line",
+      "sample_category_4e": "比例/坐标类：数轴刻度与顺序",
+      "problem_statement": "在数轴上标出 1/3 与 1/2 的位置（刻度一致、间距按真实值），并用从小到大的顺序标注两个数。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "ascending_order",
+          "expected": [
+            "1/3",
+            "1/2"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "marked_points",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "numeric",
+          "key": "value_of_1_3",
+          "expected": 0.3333333333333333,
+          "tolerance": 1e-09,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-016",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "map_scale_segment",
+      "sample_category_4e": "比例/坐标类：比例尺换算",
+      "problem_statement": "地图比例尺为 1:25000，图上两地距离 6 厘米。画一条带刻度的线段表示该段路程，并标注实际距离 150000 厘米。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "real_distance_cm",
+          "expected": 150000.0,
+          "tolerance": 1e-06,
+          "critical": true,
+          "unit": "cm"
+        },
+        {
+          "kind": "label_set",
+          "key": "scale_label",
+          "expected": [
+            "1:25000"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-017",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "map_scale_segment",
+      "sample_category_4e": "比例/坐标类：比例尺换算",
+      "problem_statement": "地图比例尺为 1:10000，图上两地距离 7 厘米。画一条带刻度的线段表示该段路程，并标注实际距离 70000 厘米。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "real_distance_cm",
+          "expected": 70000.0,
+          "tolerance": 1e-06,
+          "critical": true,
+          "unit": "cm"
+        },
+        {
+          "kind": "label_set",
+          "key": "scale_label",
+          "expected": [
+            "1:10000"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-018",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "map_scale_segment",
+      "sample_category_4e": "比例/坐标类：比例尺换算",
+      "problem_statement": "地图比例尺为 1:50000，图上两地距离 4 厘米。画一条带刻度的线段表示该段路程，并标注实际距离 200000 厘米。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "real_distance_cm",
+          "expected": 200000.0,
+          "tolerance": 1e-06,
+          "critical": true,
+          "unit": "cm"
+        },
+        {
+          "kind": "label_set",
+          "key": "scale_label",
+          "expected": [
+            "1:50000"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-019",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "map_scale_segment",
+      "sample_category_4e": "比例/坐标类：比例尺换算",
+      "problem_statement": "地图比例尺为 1:25000，图上两地距离 6 厘米。画一条带刻度的线段表示该段路程，并标注实际距离 150000 厘米。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "real_distance_cm",
+          "expected": 150000.0,
+          "tolerance": 1e-06,
+          "critical": true,
+          "unit": "cm"
+        },
+        {
+          "kind": "label_set",
+          "key": "scale_label",
+          "expected": [
+            "1:25000"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-PROPCOORD-020",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "map_scale_segment",
+      "sample_category_4e": "比例/坐标类：比例尺换算",
+      "problem_statement": "地图比例尺为 1:10000，图上两地距离 7 厘米。画一条带刻度的线段表示该段路程，并标注实际距离 70000 厘米。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "real_distance_cm",
+          "expected": 70000.0,
+          "tolerance": 1e-06,
+          "critical": true,
+          "unit": "cm"
+        },
+        {
+          "kind": "label_set",
+          "key": "scale_label",
+          "expected": [
+            "1:10000"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-001",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "function_area_plot",
+      "sample_category_4e": "截图2 F-x 面积（F(x)=F0(1-x/h)，x=h/2 时面积=3F0h/8）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#work",
+      "problem_statement": "画出 F(x)=F0(1−x/h) 在 0≤x≤h 上的图像，用阴影表示 0 到 h/2 与 x 轴围成的面积，并给出该面积以 W/(F0h) 计的读数（解析值 3/8=0.375）。这是函数绘图 oracle，不假设真实拔塞题总拉力终点为 0。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "area_W_over_F0h_at_half",
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "axis_labels",
+          "expected": [
+            "F/F₀",
+            "x/h"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "curve_value_at_x_equals_h",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-002",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "function_area_plot",
+      "sample_category_4e": "截图2 F-x 面积（F(x)=F0(1-x/h)，x=h/2 时面积=3F0h/8）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#work",
+      "problem_statement": "画出 F(x)=F0(1−x/h) 在 0≤x≤h 上的图像，用阴影表示 0 到 h/2 与 x 轴围成的面积，并给出该面积以 W/(F0h) 计的读数（解析值 3/8=0.375）。这是函数绘图 oracle，不假设真实拔塞题总拉力终点为 0。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "area_W_over_F0h_at_half",
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "axis_labels",
+          "expected": [
+            "F/F₀",
+            "x/h"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "curve_value_at_x_equals_h",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-003",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "function_area_plot",
+      "sample_category_4e": "截图2 F-x 面积（F(x)=F0(1-x/h)，x=h/2 时面积=3F0h/8）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#work",
+      "problem_statement": "画出 F(x)=F0(1−x/h) 在 0≤x≤h 上的图像，用阴影表示 0 到 h/2 与 x 轴围成的面积，并给出该面积以 W/(F0h) 计的读数（解析值 3/8=0.375）。这是函数绘图 oracle，不假设真实拔塞题总拉力终点为 0。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "area_W_over_F0h_at_half",
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "axis_labels",
+          "expected": [
+            "F/F₀",
+            "x/h"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "curve_value_at_x_equals_h",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-004",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "function_area_plot",
+      "sample_category_4e": "截图2 F-x 面积（F(x)=F0(1-x/h)，x=h/2 时面积=3F0h/8）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#work",
+      "problem_statement": "画出 F(x)=F0(1−x/h) 在 0≤x≤h 上的图像，用阴影表示 0 到 h/2 与 x 轴围成的面积，并给出该面积以 W/(F0h) 计的读数（解析值 3/8=0.375）。这是函数绘图 oracle，不假设真实拔塞题总拉力终点为 0。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "area_W_over_F0h_at_half",
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "axis_labels",
+          "expected": [
+            "F/F₀",
+            "x/h"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "curve_value_at_x_equals_h",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-005",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "function_area_plot",
+      "sample_category_4e": "截图2 F-x 面积（F(x)=F0(1-x/h)，x=h/2 时面积=3F0h/8）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#work",
+      "problem_statement": "画出 F(x)=F0(1−x/h) 在 0≤x≤h 上的图像，用阴影表示 0 到 h/2 与 x 轴围成的面积，并给出该面积以 W/(F0h) 计的读数（解析值 3/8=0.375）。这是函数绘图 oracle，不假设真实拔塞题总拉力终点为 0。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "area_W_over_F0h_at_half",
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "axis_labels",
+          "expected": [
+            "F/F₀",
+            "x/h"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "curve_value_at_x_equals_h",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-006",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "function_area_plot",
+      "sample_category_4e": "截图2 F-x 面积（F(x)=F0(1-x/h)，x=h/2 时面积=3F0h/8）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#work",
+      "problem_statement": "画出 F(x)=F0(1−x/h) 在 0≤x≤h 上的图像，用阴影表示 0 到 h/2 与 x 轴围成的面积，并给出该面积以 W/(F0h) 计的读数（解析值 3/8=0.375）。这是函数绘图 oracle，不假设真实拔塞题总拉力终点为 0。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "area_W_over_F0h_at_half",
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "axis_labels",
+          "expected": [
+            "F/F₀",
+            "x/h"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "curve_value_at_x_equals_h",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-007",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "force_diagram_incline",
+      "sample_category_4e": "截图5 受力图（方向遵循物理条件）",
+      "problem_statement": "物块静止在倾角为 30° 的斜面上。画出受力示意图：重力 G 竖直向下、支持力 N 垂直斜面、摩擦力 f 沿斜面向上（阻碍下滑趋势）。不得把摩擦力画成水平方向。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "friction_direction",
+          "expected": "along_incline_up",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "force_labels",
+          "expected": [
+            "重力G",
+            "支持力N",
+            "摩擦力f"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-008",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "force_diagram_cork",
+      "sample_category_4e": "截图5 受力图（摩擦/气压合力按实际向下标注，不照搬横箭头误导）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#cork",
+      "problem_statement": "向上拔瓶塞时，画木塞受力示意：拉力 F 向上，瓶内气压与摩擦的合力按实际方向向下标注；不得沿用原截图用横箭头“区分力”的画法。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "pressure_friction_resultant_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "pull_direction",
+          "expected": "up",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "force_labels",
+          "expected": [
+            "拉力F"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-009",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "force_diagram_incline",
+      "sample_category_4e": "截图5 受力图（方向遵循物理条件）",
+      "problem_statement": "物块静止在倾角为 30° 的斜面上。画出受力示意图：重力 G 竖直向下、支持力 N 垂直斜面、摩擦力 f 沿斜面向上（阻碍下滑趋势）。不得把摩擦力画成水平方向。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "friction_direction",
+          "expected": "along_incline_up",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "force_labels",
+          "expected": [
+            "重力G",
+            "支持力N",
+            "摩擦力f"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-010",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "force_diagram_cork",
+      "sample_category_4e": "截图5 受力图（摩擦/气压合力按实际向下标注，不照搬横箭头误导）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#cork",
+      "problem_statement": "向上拔瓶塞时，画木塞受力示意：拉力 F 向上，瓶内气压与摩擦的合力按实际方向向下标注；不得沿用原截图用横箭头“区分力”的画法。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "pressure_friction_resultant_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "pull_direction",
+          "expected": "up",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "force_labels",
+          "expected": [
+            "拉力F"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-011",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "force_diagram_incline",
+      "sample_category_4e": "截图5 受力图（方向遵循物理条件）",
+      "problem_statement": "物块静止在倾角为 30° 的斜面上。画出受力示意图：重力 G 竖直向下、支持力 N 垂直斜面、摩擦力 f 沿斜面向上（阻碍下滑趋势）。不得把摩擦力画成水平方向。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "friction_direction",
+          "expected": "along_incline_up",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "force_labels",
+          "expected": [
+            "重力G",
+            "支持力N",
+            "摩擦力f"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-012",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "cork_phase_diagram",
+      "sample_category_4e": "截图6 拔塞阶段（x=0、h/2、h 相对位移、无裁切、公式不显示原始 TeX）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#cork",
+      "problem_statement": "画拔塞过程的三个阶段图：u=x/h = 0、1/2、1 时木塞相对瓶口基准的位置（u=1 时木塞底部到达瓶口），瓶口基准线保持水平，位移按真实比例，公式以可读文本呈现而不是原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "phase_order",
+          "expected": [
+            "u=0",
+            "u=1/2",
+            "u=1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "u_at_half_height",
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "baseline_label",
+          "expected": [
+            "瓶口基准"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-013",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "cork_phase_diagram",
+      "sample_category_4e": "截图6 拔塞阶段（x=0、h/2、h 相对位移、无裁切、公式不显示原始 TeX）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#cork",
+      "problem_statement": "画拔塞过程的三个阶段图：u=x/h = 0、1/2、1 时木塞相对瓶口基准的位置（u=1 时木塞底部到达瓶口），瓶口基准线保持水平，位移按真实比例，公式以可读文本呈现而不是原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "phase_order",
+          "expected": [
+            "u=0",
+            "u=1/2",
+            "u=1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "u_at_half_height",
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "baseline_label",
+          "expected": [
+            "瓶口基准"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-014",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "cork_phase_diagram",
+      "sample_category_4e": "截图6 拔塞阶段（x=0、h/2、h 相对位移、无裁切、公式不显示原始 TeX）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#cork",
+      "problem_statement": "画拔塞过程的三个阶段图：u=x/h = 0、1/2、1 时木塞相对瓶口基准的位置（u=1 时木塞底部到达瓶口），瓶口基准线保持水平，位移按真实比例，公式以可读文本呈现而不是原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "phase_order",
+          "expected": [
+            "u=0",
+            "u=1/2",
+            "u=1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "u_at_half_height",
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "baseline_label",
+          "expected": [
+            "瓶口基准"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-015",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "cork_phase_diagram",
+      "sample_category_4e": "截图6 拔塞阶段（x=0、h/2、h 相对位移、无裁切、公式不显示原始 TeX）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#cork",
+      "problem_statement": "画拔塞过程的三个阶段图：u=x/h = 0、1/2、1 时木塞相对瓶口基准的位置（u=1 时木塞底部到达瓶口），瓶口基准线保持水平，位移按真实比例，公式以可读文本呈现而不是原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "phase_order",
+          "expected": [
+            "u=0",
+            "u=1/2",
+            "u=1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "u_at_half_height",
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "baseline_label",
+          "expected": [
+            "瓶口基准"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-016",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "cork_phase_diagram",
+      "sample_category_4e": "截图6 拔塞阶段（x=0、h/2、h 相对位移、无裁切、公式不显示原始 TeX）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#cork",
+      "problem_statement": "画拔塞过程的三个阶段图：u=x/h = 0、1/2、1 时木塞相对瓶口基准的位置（u=1 时木塞底部到达瓶口），瓶口基准线保持水平，位移按真实比例，公式以可读文本呈现而不是原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "phase_order",
+          "expected": [
+            "u=0",
+            "u=1/2",
+            "u=1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "u_at_half_height",
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "baseline_label",
+          "expected": [
+            "瓶口基准"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-017",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "wave_superposition",
+      "sample_category_4e": "新组合样例：波叠加/轨迹采样（只新增模型程序与数据）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#waves",
+      "problem_statement": "两列同频同相正弦波振幅分别为 1 与 0.5，画出各自波形与叠加后的合成波形，并标注合成振幅 1.5。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "resultant_amplitude",
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "wave_count",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "label_set",
+          "key": "wave_labels",
+          "expected": [
+            "合成"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-018",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "wave_superposition",
+      "sample_category_4e": "新组合样例：波叠加/轨迹采样（只新增模型程序与数据）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#waves",
+      "problem_statement": "两列同频同相正弦波振幅分别为 2.5 与 1.5，画出各自波形与叠加后的合成波形，并标注合成振幅 4。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "resultant_amplitude",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "wave_count",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "label_set",
+          "key": "wave_labels",
+          "expected": [
+            "合成"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-019",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "wave_superposition",
+      "sample_category_4e": "新组合样例：波叠加/轨迹采样（只新增模型程序与数据）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#waves",
+      "problem_statement": "两列同频同相正弦波振幅分别为 0.8 与 0.4，画出各自波形与叠加后的合成波形，并标注合成振幅 1.2。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "resultant_amplitude",
+          "expected": 1.2000000000000002,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "wave_count",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "label_set",
+          "key": "wave_labels",
+          "expected": [
+            "合成"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-MECHPHASE-020",
+      "set": "blind",
+      "group": "mechanics_phases",
+      "group_name": "力学/阶段",
+      "figure_type": "wave_superposition",
+      "sample_category_4e": "新组合样例：波叠加/轨迹采样（只新增模型程序与数据）",
+      "research_fixture_ref": ".jez/artifacts/flexible-js-drawing-2026-10-17/output/programs.json#waves",
+      "problem_statement": "两列同频同相正弦波振幅分别为 1.5 与 1.5，画出各自波形与叠加后的合成波形，并标注合成振幅 3。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "resultant_amplitude",
+          "expected": 3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "wave_count",
+          "expected": 2,
+          "critical": false
+        },
+        {
+          "kind": "label_set",
+          "key": "wave_labels",
+          "expected": [
+            "合成"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-001",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "flow_card",
+      "sample_category_4e": "截图3 解题流程（原生卡片与公式，不把流程强制画进 Canvas）",
+      "problem_statement": "做一张解一元一次方程 6x+5=2x+11 的流程卡：按“移项 → 合并同类项 → 系数化为 1”三步组织，每步给出该方程的具体算式。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "step_order",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "step_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-002",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "flow_card",
+      "sample_category_4e": "截图3 解题流程（原生卡片与公式，不把流程强制画进 Canvas）",
+      "problem_statement": "做一张解一元一次方程 7x+-3=1x+4 的流程卡：按“移项 → 合并同类项 → 系数化为 1”三步组织，每步给出该方程的具体算式。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "step_order",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "step_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-003",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "flow_card",
+      "sample_category_4e": "截图3 解题流程（原生卡片与公式，不把流程强制画进 Canvas）",
+      "problem_statement": "做一张解一元一次方程 7x+-3=1x+4 的流程卡：按“移项 → 合并同类项 → 系数化为 1”三步组织，每步给出该方程的具体算式。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "step_order",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "step_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-004",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "flow_card",
+      "sample_category_4e": "截图3 解题流程（原生卡片与公式，不把流程强制画进 Canvas）",
+      "problem_statement": "做一张解一元一次方程 2x+3=5x+7 的流程卡：按“移项 → 合并同类项 → 系数化为 1”三步组织，每步给出该方程的具体算式。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "step_order",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "step_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-005",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "flow_card",
+      "sample_category_4e": "截图3 解题流程（原生卡片与公式，不把流程强制画进 Canvas）",
+      "problem_statement": "做一张解一元一次方程 6x+5=2x+11 的流程卡：按“移项 → 合并同类项 → 系数化为 1”三步组织，每步给出该方程的具体算式。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "step_order",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "step_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-006",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "flow_card",
+      "sample_category_4e": "截图3 解题流程（原生卡片与公式，不把流程强制画进 Canvas）",
+      "problem_statement": "做一张解一元一次方程 5x+2=2x+8 的流程卡：按“移项 → 合并同类项 → 系数化为 1”三步组织，每步给出该方程的具体算式。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "step_order",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "step_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-007",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "flow_card",
+      "sample_category_4e": "截图3 解题流程（原生卡片与公式，不把流程强制画进 Canvas）",
+      "problem_statement": "做一张解一元一次方程 4x+1=1x+9 的流程卡：按“移项 → 合并同类项 → 系数化为 1”三步组织，每步给出该方程的具体算式。",
+      "fact_expectations": [
+        {
+          "kind": "ordering",
+          "key": "step_order",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "step_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-008",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "formula_render",
+      "sample_category_4e": "流程/公式类：公式标注与判别式",
+      "problem_statement": "渲染一元二次方程 1x²-4x+4=0 的求根公式图示：用颜色/引线标出 a=1、b=-4、c=4 的对应位置，并标注判别式 Δ=b²−4ac=0。公式以可读形式呈现，不得泄漏原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "discriminant",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "coefficient_labels",
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-009",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "formula_render",
+      "sample_category_4e": "流程/公式类：公式标注与判别式",
+      "problem_statement": "渲染一元二次方程 1x²-4x+4=0 的求根公式图示：用颜色/引线标出 a=1、b=-4、c=4 的对应位置，并标注判别式 Δ=b²−4ac=0。公式以可读形式呈现，不得泄漏原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "discriminant",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "coefficient_labels",
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-010",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "formula_render",
+      "sample_category_4e": "流程/公式类：公式标注与判别式",
+      "problem_statement": "渲染一元二次方程 3x²-5x-2=0 的求根公式图示：用颜色/引线标出 a=3、b=-5、c=-2 的对应位置，并标注判别式 Δ=b²−4ac=49。公式以可读形式呈现，不得泄漏原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "discriminant",
+          "expected": 49.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "coefficient_labels",
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-011",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "formula_render",
+      "sample_category_4e": "流程/公式类：公式标注与判别式",
+      "problem_statement": "渲染一元二次方程 2x²+4x-6=0 的求根公式图示：用颜色/引线标出 a=2、b=4、c=-6 的对应位置，并标注判别式 Δ=b²−4ac=64。公式以可读形式呈现，不得泄漏原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "discriminant",
+          "expected": 64.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "coefficient_labels",
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-012",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "formula_render",
+      "sample_category_4e": "流程/公式类：公式标注与判别式",
+      "problem_statement": "渲染一元二次方程 1x²-3x+2=0 的求根公式图示：用颜色/引线标出 a=1、b=-3、c=2 的对应位置，并标注判别式 Δ=b²−4ac=1。公式以可读形式呈现，不得泄漏原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "discriminant",
+          "expected": 1.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "coefficient_labels",
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-013",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "formula_render",
+      "sample_category_4e": "流程/公式类：公式标注与判别式",
+      "problem_statement": "渲染一元二次方程 2x²-7x+3=0 的求根公式图示：用颜色/引线标出 a=2、b=-7、c=3 的对应位置，并标注判别式 Δ=b²−4ac=25。公式以可读形式呈现，不得泄漏原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "discriminant",
+          "expected": 25.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "coefficient_labels",
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-014",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "formula_render",
+      "sample_category_4e": "流程/公式类：公式标注与判别式",
+      "problem_statement": "渲染一元二次方程 2x²-7x+3=0 的求根公式图示：用颜色/引线标出 a=2、b=-7、c=3 的对应位置，并标注判别式 Δ=b²−4ac=25。公式以可读形式呈现，不得泄漏原始 TeX。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "discriminant",
+          "expected": 25.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "coefficient_labels",
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-015",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "conversion_table",
+      "sample_category_4e": "流程/公式类：单位换算表",
+      "problem_statement": "画一张单位换算表：54 km/h 换算为 m/s（除以 3.6），表内给出换算算式与结果（保留三位有效数字）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "converted_ms",
+          "expected": 15.0,
+          "tolerance": 0.01,
+          "critical": true,
+          "unit": "m/s"
+        },
+        {
+          "kind": "label_set",
+          "key": "unit_labels",
+          "expected": [
+            "km/h",
+            "m/s"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-016",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "conversion_table",
+      "sample_category_4e": "流程/公式类：单位换算表",
+      "problem_statement": "画一张单位换算表：54 km/h 换算为 m/s（除以 3.6），表内给出换算算式与结果（保留三位有效数字）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "converted_ms",
+          "expected": 15.0,
+          "tolerance": 0.01,
+          "critical": true,
+          "unit": "m/s"
+        },
+        {
+          "kind": "label_set",
+          "key": "unit_labels",
+          "expected": [
+            "km/h",
+            "m/s"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-017",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "conversion_table",
+      "sample_category_4e": "流程/公式类：单位换算表",
+      "problem_statement": "画一张单位换算表：72 km/h 换算为 m/s（除以 3.6），表内给出换算算式与结果（保留三位有效数字）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "converted_ms",
+          "expected": 20.0,
+          "tolerance": 0.01,
+          "critical": true,
+          "unit": "m/s"
+        },
+        {
+          "kind": "label_set",
+          "key": "unit_labels",
+          "expected": [
+            "km/h",
+            "m/s"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-018",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "conversion_table",
+      "sample_category_4e": "流程/公式类：单位换算表",
+      "problem_statement": "画一张单位换算表：126 km/h 换算为 m/s（除以 3.6），表内给出换算算式与结果（保留三位有效数字）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "converted_ms",
+          "expected": 35.0,
+          "tolerance": 0.01,
+          "critical": true,
+          "unit": "m/s"
+        },
+        {
+          "kind": "label_set",
+          "key": "unit_labels",
+          "expected": [
+            "km/h",
+            "m/s"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-019",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "conversion_table",
+      "sample_category_4e": "流程/公式类：单位换算表",
+      "problem_statement": "画一张单位换算表：90 km/h 换算为 m/s（除以 3.6），表内给出换算算式与结果（保留三位有效数字）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "converted_ms",
+          "expected": 25.0,
+          "tolerance": 0.01,
+          "critical": true,
+          "unit": "m/s"
+        },
+        {
+          "kind": "label_set",
+          "key": "unit_labels",
+          "expected": [
+            "km/h",
+            "m/s"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-FLOWFORM-020",
+      "set": "blind",
+      "group": "flow_formula",
+      "group_name": "流程/公式",
+      "figure_type": "conversion_table",
+      "sample_category_4e": "流程/公式类：单位换算表",
+      "problem_statement": "画一张单位换算表：90 km/h 换算为 m/s（除以 3.6），表内给出换算算式与结果（保留三位有效数字）。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "converted_ms",
+          "expected": 25.0,
+          "tolerance": 0.01,
+          "critical": true,
+          "unit": "m/s"
+        },
+        {
+          "kind": "label_set",
+          "key": "unit_labels",
+          "expected": [
+            "km/h",
+            "m/s"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-001",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "labeled_source_rebuild",
+      "sample_category_4e": "源图重建：标注完整保留",
+      "problem_statement": "按源图重建题面示意图，保留全部 4 个印刷标注：电源、开关、灯泡、电流表；位置关系与源图一致，不补造源图没有的元素。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "preserved_labels",
+          "expected": [
+            "电源",
+            "开关",
+            "灯泡",
+            "电流表"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "label_count",
+          "expected": 4,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-002",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "labeled_source_rebuild",
+      "sample_category_4e": "源图重建：标注完整保留",
+      "problem_statement": "按源图重建题面示意图，保留全部 3 个印刷标注：重心O、支点P、拉力F；位置关系与源图一致，不补造源图没有的元素。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "preserved_labels",
+          "expected": [
+            "重心O",
+            "支点P",
+            "拉力F"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "label_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-003",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "labeled_source_rebuild",
+      "sample_category_4e": "源图重建：标注完整保留",
+      "problem_statement": "按源图重建题面示意图，保留全部 4 个印刷标注：入射光线、法线、反射光线、反射角；位置关系与源图一致，不补造源图没有的元素。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "preserved_labels",
+          "expected": [
+            "入射光线",
+            "法线",
+            "反射光线",
+            "反射角"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "label_count",
+          "expected": 4,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-004",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "labeled_source_rebuild",
+      "sample_category_4e": "源图重建：标注完整保留",
+      "problem_statement": "按源图重建题面示意图，保留全部 4 个印刷标注：入射光线、法线、反射光线、反射角；位置关系与源图一致，不补造源图没有的元素。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "preserved_labels",
+          "expected": [
+            "入射光线",
+            "法线",
+            "反射光线",
+            "反射角"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "label_count",
+          "expected": 4,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-005",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "labeled_source_rebuild",
+      "sample_category_4e": "源图重建：标注完整保留",
+      "problem_statement": "按源图重建题面示意图，保留全部 4 个印刷标注：电源、开关、灯泡、电流表；位置关系与源图一致，不补造源图没有的元素。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "preserved_labels",
+          "expected": [
+            "电源",
+            "开关",
+            "灯泡",
+            "电流表"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "label_count",
+          "expected": 4,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-006",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "labeled_source_rebuild",
+      "sample_category_4e": "源图重建：标注完整保留",
+      "problem_statement": "按源图重建题面示意图，保留全部 3 个印刷标注：重心O、支点P、拉力F；位置关系与源图一致，不补造源图没有的元素。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "preserved_labels",
+          "expected": [
+            "重心O",
+            "支点P",
+            "拉力F"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "label_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-007",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "labeled_source_rebuild",
+      "sample_category_4e": "源图重建：标注完整保留",
+      "problem_statement": "按源图重建题面示意图，保留全部 4 个印刷标注：点A、点B、点C、边AB；位置关系与源图一致，不补造源图没有的元素。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "preserved_labels",
+          "expected": [
+            "点A",
+            "点B",
+            "点C",
+            "边AB"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "label_count",
+          "expected": 4,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-008",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "axis_rebuild",
+      "sample_category_4e": "源图重建：坐标系范围与刻度",
+      "problem_statement": "重建源图的坐标轴：保留取值范围 [0, 1] 与共 5 个刻度（含端点），刻度均匀、标数字可读。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "axis_min",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "axis_max",
+          "expected": 1.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "tick_count",
+          "expected": 5,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-009",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "axis_rebuild",
+      "sample_category_4e": "源图重建：坐标系范围与刻度",
+      "problem_statement": "重建源图的坐标轴：保留取值范围 [-5, 5] 与共 11 个刻度（含端点），刻度均匀、标数字可读。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "axis_min",
+          "expected": -5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "axis_max",
+          "expected": 5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "tick_count",
+          "expected": 11,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-010",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "axis_rebuild",
+      "sample_category_4e": "源图重建：坐标系范围与刻度",
+      "problem_statement": "重建源图的坐标轴：保留取值范围 [-5, 5] 与共 11 个刻度（含端点），刻度均匀、标数字可读。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "axis_min",
+          "expected": -5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "axis_max",
+          "expected": 5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "tick_count",
+          "expected": 11,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-011",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "axis_rebuild",
+      "sample_category_4e": "源图重建：坐标系范围与刻度",
+      "problem_statement": "重建源图的坐标轴：保留取值范围 [0, 100] 与共 6 个刻度（含端点），刻度均匀、标数字可读。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "axis_min",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "axis_max",
+          "expected": 100.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "tick_count",
+          "expected": 6,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-012",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "axis_rebuild",
+      "sample_category_4e": "源图重建：坐标系范围与刻度",
+      "problem_statement": "重建源图的坐标轴：保留取值范围 [-10, 10] 与共 6 个刻度（含端点），刻度均匀、标数字可读。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "axis_min",
+          "expected": -10.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "axis_max",
+          "expected": 10.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "tick_count",
+          "expected": 6,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-013",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "axis_rebuild",
+      "sample_category_4e": "源图重建：坐标系范围与刻度",
+      "problem_statement": "重建源图的坐标轴：保留取值范围 [0, 1] 与共 5 个刻度（含端点），刻度均匀、标数字可读。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "axis_min",
+          "expected": 0.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "axis_max",
+          "expected": 1.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "tick_count",
+          "expected": 5,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-014",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "axis_rebuild",
+      "sample_category_4e": "源图重建：坐标系范围与刻度",
+      "problem_statement": "重建源图的坐标轴：保留取值范围 [-5, 5] 与共 11 个刻度（含端点），刻度均匀、标数字可读。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "axis_min",
+          "expected": -5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "axis_max",
+          "expected": 5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "tick_count",
+          "expected": 11,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-015",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "grid_redraw",
+      "sample_category_4e": "源图重建：格点关系保持",
+      "problem_statement": "按源图重绘方格网：4 行 4 列共 16 格，格线均匀、行列为整数计数，不改变格点关系。",
+      "fact_expectations": [
+        {
+          "kind": "count",
+          "key": "cell_count",
+          "expected": 16,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "row_count",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "column_count",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-016",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "grid_redraw",
+      "sample_category_4e": "源图重建：格点关系保持",
+      "problem_statement": "按源图重绘方格网：3 行 4 列共 12 格，格线均匀、行列为整数计数，不改变格点关系。",
+      "fact_expectations": [
+        {
+          "kind": "count",
+          "key": "cell_count",
+          "expected": 12,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "row_count",
+          "expected": 3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "column_count",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-017",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "grid_redraw",
+      "sample_category_4e": "源图重建：格点关系保持",
+      "problem_statement": "按源图重绘方格网：6 行 4 列共 24 格，格线均匀、行列为整数计数，不改变格点关系。",
+      "fact_expectations": [
+        {
+          "kind": "count",
+          "key": "cell_count",
+          "expected": 24,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "row_count",
+          "expected": 6.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "column_count",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-018",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "grid_redraw",
+      "sample_category_4e": "源图重建：格点关系保持",
+      "problem_statement": "按源图重绘方格网：6 行 4 列共 24 格，格线均匀、行列为整数计数，不改变格点关系。",
+      "fact_expectations": [
+        {
+          "kind": "count",
+          "key": "cell_count",
+          "expected": 24,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "row_count",
+          "expected": 6.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "column_count",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-019",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "grid_redraw",
+      "sample_category_4e": "源图重建：格点关系保持",
+      "problem_statement": "按源图重绘方格网：3 行 4 列共 12 格，格线均匀、行列为整数计数，不改变格点关系。",
+      "fact_expectations": [
+        {
+          "kind": "count",
+          "key": "cell_count",
+          "expected": 12,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "row_count",
+          "expected": 3.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "column_count",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-SRCREBLD-020",
+      "set": "blind",
+      "group": "source_rebuild",
+      "group_name": "源图重建",
+      "figure_type": "grid_redraw",
+      "sample_category_4e": "源图重建：格点关系保持",
+      "problem_statement": "按源图重绘方格网：5 行 5 列共 25 格，格线均匀、行列为整数计数，不改变格点关系。",
+      "fact_expectations": [
+        {
+          "kind": "count",
+          "key": "cell_count",
+          "expected": 25,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "row_count",
+          "expected": 5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "numeric",
+          "key": "column_count",
+          "expected": 5.0,
+          "tolerance": 1e-09,
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-001",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "handwriting_mark_removal",
+      "sample_category_4e": "去手写：仅去手写、保留印刷",
+      "problem_statement": "去除图中的手写批注（红笔勾、对号、波浪线），完整保留印刷内容（题干第(1)问、题干第(2)问、图1、坐标轴）；保留内容不得被误删或模糊。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_printed_labels",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "removed_handwriting",
+          "expected": [
+            "红笔勾",
+            "对号",
+            "波浪线"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-002",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "handwriting_mark_removal",
+      "sample_category_4e": "去手写：仅去手写、保留印刷",
+      "problem_statement": "去除图中的手写批注（红笔勾、对号、波浪线），完整保留印刷内容（题干第(1)问、题干第(2)问、图1、坐标轴）；保留内容不得被误删或模糊。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_printed_labels",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "removed_handwriting",
+          "expected": [
+            "红笔勾",
+            "对号",
+            "波浪线"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-003",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "handwriting_mark_removal",
+      "sample_category_4e": "去手写：仅去手写、保留印刷",
+      "problem_statement": "去除图中的手写批注（红笔勾、对号、波浪线），完整保留印刷内容（题干第(1)问、题干第(2)问、图1、坐标轴）；保留内容不得被误删或模糊。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_printed_labels",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "removed_handwriting",
+          "expected": [
+            "红笔勾",
+            "对号",
+            "波浪线"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-004",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "handwriting_mark_removal",
+      "sample_category_4e": "去手写：仅去手写、保留印刷",
+      "problem_statement": "去除图中的手写批注（红笔勾、对号、波浪线），完整保留印刷内容（题干第(1)问、题干第(2)问、图1、坐标轴）；保留内容不得被误删或模糊。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_printed_labels",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "removed_handwriting",
+          "expected": [
+            "红笔勾",
+            "对号",
+            "波浪线"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-005",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "handwriting_mark_removal",
+      "sample_category_4e": "去手写：仅去手写、保留印刷",
+      "problem_statement": "去除图中的手写批注（红笔勾、对号、波浪线），完整保留印刷内容（题干第(1)问、题干第(2)问、图1、坐标轴）；保留内容不得被误删或模糊。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_printed_labels",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "removed_handwriting",
+          "expected": [
+            "红笔勾",
+            "对号",
+            "波浪线"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-006",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "handwriting_mark_removal",
+      "sample_category_4e": "去手写：仅去手写、保留印刷",
+      "problem_statement": "去除图中的手写批注（红笔勾、对号、波浪线），完整保留印刷内容（题干第(1)问、题干第(2)问、图1、坐标轴）；保留内容不得被误删或模糊。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_printed_labels",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "removed_handwriting",
+          "expected": [
+            "红笔勾",
+            "对号",
+            "波浪线"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-007",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "handwriting_mark_removal",
+      "sample_category_4e": "去手写：仅去手写、保留印刷",
+      "problem_statement": "去除图中的手写批注（红笔勾、对号、波浪线），完整保留印刷内容（题干第(1)问、题干第(2)问、图1、坐标轴）；保留内容不得被误删或模糊。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_printed_labels",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "removed_handwriting",
+          "expected": [
+            "红笔勾",
+            "对号",
+            "波浪线"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-008",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "answer_stroke_erase",
+      "sample_category_4e": "去手写：擦除作答笔迹",
+      "problem_statement": "擦除学生作答笔迹（x=5、答：x=5），保留题干与解答步骤的印刷文字（解：设未知数为 x、由题意列方程、移项得）；被擦除内容不得残留可辨认字迹。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_stem_labels",
+          "expected": [
+            "解：设未知数为 x",
+            "由题意列方程",
+            "移项得"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "erased_answer",
+          "expected": [
+            "x=5",
+            "答：x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-009",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "answer_stroke_erase",
+      "sample_category_4e": "去手写：擦除作答笔迹",
+      "problem_statement": "擦除学生作答笔迹（x=5、答：x=5），保留题干与解答步骤的印刷文字（解：设未知数为 x、由题意列方程、移项得）；被擦除内容不得残留可辨认字迹。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_stem_labels",
+          "expected": [
+            "解：设未知数为 x",
+            "由题意列方程",
+            "移项得"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "erased_answer",
+          "expected": [
+            "x=5",
+            "答：x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-010",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "answer_stroke_erase",
+      "sample_category_4e": "去手写：擦除作答笔迹",
+      "problem_statement": "擦除学生作答笔迹（x=5、答：x=5），保留题干与解答步骤的印刷文字（解：设未知数为 x、由题意列方程、移项得）；被擦除内容不得残留可辨认字迹。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_stem_labels",
+          "expected": [
+            "解：设未知数为 x",
+            "由题意列方程",
+            "移项得"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "erased_answer",
+          "expected": [
+            "x=5",
+            "答：x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-011",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "answer_stroke_erase",
+      "sample_category_4e": "去手写：擦除作答笔迹",
+      "problem_statement": "擦除学生作答笔迹（x=5、答：x=5），保留题干与解答步骤的印刷文字（解：设未知数为 x、由题意列方程、移项得）；被擦除内容不得残留可辨认字迹。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_stem_labels",
+          "expected": [
+            "解：设未知数为 x",
+            "由题意列方程",
+            "移项得"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "erased_answer",
+          "expected": [
+            "x=5",
+            "答：x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-012",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "answer_stroke_erase",
+      "sample_category_4e": "去手写：擦除作答笔迹",
+      "problem_statement": "擦除学生作答笔迹（x=5、答：x=5），保留题干与解答步骤的印刷文字（解：设未知数为 x、由题意列方程、移项得）；被擦除内容不得残留可辨认字迹。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_stem_labels",
+          "expected": [
+            "解：设未知数为 x",
+            "由题意列方程",
+            "移项得"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "erased_answer",
+          "expected": [
+            "x=5",
+            "答：x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-013",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "answer_stroke_erase",
+      "sample_category_4e": "去手写：擦除作答笔迹",
+      "problem_statement": "擦除学生作答笔迹（x=5、答：x=5），保留题干与解答步骤的印刷文字（解：设未知数为 x、由题意列方程、移项得）；被擦除内容不得残留可辨认字迹。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_stem_labels",
+          "expected": [
+            "解：设未知数为 x",
+            "由题意列方程",
+            "移项得"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "erased_answer",
+          "expected": [
+            "x=5",
+            "答：x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-014",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "answer_stroke_erase",
+      "sample_category_4e": "去手写：擦除作答笔迹",
+      "problem_statement": "擦除学生作答笔迹（x=5、答：x=5），保留题干与解答步骤的印刷文字（解：设未知数为 x、由题意列方程、移项得）；被擦除内容不得残留可辨认字迹。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_stem_labels",
+          "expected": [
+            "解：设未知数为 x",
+            "由题意列方程",
+            "移项得"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "label_absent",
+          "key": "erased_answer",
+          "expected": [
+            "x=5",
+            "答：x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-015",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "scan_stain_cleanup",
+      "sample_category_4e": "去手写：去污渍保印刷",
+      "problem_statement": "去除扫描污渍与噪点，保留印刷题号与文字（选择题第1题、选择题第2题、填空题第3题）；净化结果不冒充原像素修复，仅作语义清图。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_print_labels",
+          "expected": [
+            "选择题第1题",
+            "选择题第2题",
+            "填空题第3题"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "kept_label_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-016",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "scan_stain_cleanup",
+      "sample_category_4e": "去手写：去污渍保印刷",
+      "problem_statement": "去除扫描污渍与噪点，保留印刷题号与文字（选择题第1题、选择题第2题、填空题第3题）；净化结果不冒充原像素修复，仅作语义清图。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_print_labels",
+          "expected": [
+            "选择题第1题",
+            "选择题第2题",
+            "填空题第3题"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "kept_label_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-017",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "scan_stain_cleanup",
+      "sample_category_4e": "去手写：去污渍保印刷",
+      "problem_statement": "去除扫描污渍与噪点，保留印刷题号与文字（选择题第1题、选择题第2题、填空题第3题）；净化结果不冒充原像素修复，仅作语义清图。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_print_labels",
+          "expected": [
+            "选择题第1题",
+            "选择题第2题",
+            "填空题第3题"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "kept_label_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-018",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "scan_stain_cleanup",
+      "sample_category_4e": "去手写：去污渍保印刷",
+      "problem_statement": "去除扫描污渍与噪点，保留印刷题号与文字（选择题第1题、选择题第2题、填空题第3题）；净化结果不冒充原像素修复，仅作语义清图。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_print_labels",
+          "expected": [
+            "选择题第1题",
+            "选择题第2题",
+            "填空题第3题"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "kept_label_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-019",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "scan_stain_cleanup",
+      "sample_category_4e": "去手写：去污渍保印刷",
+      "problem_statement": "去除扫描污渍与噪点，保留印刷题号与文字（选择题第1题、选择题第2题）；净化结果不冒充原像素修复，仅作语义清图。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_print_labels",
+          "expected": [
+            "选择题第1题",
+            "选择题第2题"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "kept_label_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-DEHANDWR-020",
+      "set": "blind",
+      "group": "handwriting_removal",
+      "group_name": "去手写",
+      "figure_type": "scan_stain_cleanup",
+      "sample_category_4e": "去手写：去污渍保印刷",
+      "problem_statement": "去除扫描污渍与噪点，保留印刷题号与文字（选择题第1题、选择题第2题、填空题第3题）；净化结果不冒充原像素修复，仅作语义清图。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "kept_print_labels",
+          "expected": [
+            "选择题第1题",
+            "选择题第2题",
+            "填空题第3题"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "kept_label_count",
+          "expected": 3,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-001",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "plant_cell_illustration",
+      "sample_category_4e": "自然插画：教学示意",
+      "problem_statement": "画一张植物细胞教学示意插画（自然风格、非照片），标注细胞壁、细胞核、液泡三个结构，名称与指向部位正确对应。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "organelle_labels",
+          "expected": [
+            "细胞壁",
+            "细胞核",
+            "液泡"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-002",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "plant_cell_illustration",
+      "sample_category_4e": "自然插画：教学示意",
+      "problem_statement": "画一张植物细胞教学示意插画（自然风格、非照片），标注细胞壁、细胞核、液泡三个结构，名称与指向部位正确对应。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "organelle_labels",
+          "expected": [
+            "细胞壁",
+            "细胞核",
+            "液泡"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-003",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "plant_cell_illustration",
+      "sample_category_4e": "自然插画：教学示意",
+      "problem_statement": "画一张植物细胞教学示意插画（自然风格、非照片），标注细胞壁、细胞核、液泡三个结构，名称与指向部位正确对应。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "organelle_labels",
+          "expected": [
+            "细胞壁",
+            "细胞核",
+            "液泡"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-004",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "plant_cell_illustration",
+      "sample_category_4e": "自然插画：教学示意",
+      "problem_statement": "画一张植物细胞教学示意插画（自然风格、非照片），标注细胞壁、细胞核、液泡三个结构，名称与指向部位正确对应。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "organelle_labels",
+          "expected": [
+            "细胞壁",
+            "细胞核",
+            "液泡"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-005",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "plant_cell_illustration",
+      "sample_category_4e": "自然插画：教学示意",
+      "problem_statement": "画一张植物细胞教学示意插画（自然风格、非照片），标注细胞壁、细胞核、液泡三个结构，名称与指向部位正确对应。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "organelle_labels",
+          "expected": [
+            "细胞壁",
+            "细胞核",
+            "液泡"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-006",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "plant_cell_illustration",
+      "sample_category_4e": "自然插画：教学示意",
+      "problem_statement": "画一张植物细胞教学示意插画（自然风格、非照片），标注细胞壁、细胞核、液泡三个结构，名称与指向部位正确对应。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "organelle_labels",
+          "expected": [
+            "细胞壁",
+            "细胞核",
+            "液泡"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-007",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "plant_cell_illustration",
+      "sample_category_4e": "自然插画：教学示意",
+      "problem_statement": "画一张植物细胞教学示意插画（自然风格、非照片），标注细胞壁、细胞核、液泡三个结构，名称与指向部位正确对应。",
+      "fact_expectations": [
+        {
+          "kind": "label_set",
+          "key": "organelle_labels",
+          "expected": [
+            "细胞壁",
+            "细胞核",
+            "液泡"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-008",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "free_fall_illustration",
+      "sample_category_4e": "自然插画：物理情景",
+      "problem_statement": "画自由落体示意插画：小球自静止下落，速度 v 与重力加速度 g 的方向均竖直向下；不得把速度方向画成水平或向上。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "velocity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "vector_labels",
+          "expected": [
+            "v",
+            "g"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-009",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "free_fall_illustration",
+      "sample_category_4e": "自然插画：物理情景",
+      "problem_statement": "画自由落体示意插画：小球自静止下落，速度 v 与重力加速度 g 的方向均竖直向下；不得把速度方向画成水平或向上。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "velocity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "vector_labels",
+          "expected": [
+            "v",
+            "g"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-010",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "free_fall_illustration",
+      "sample_category_4e": "自然插画：物理情景",
+      "problem_statement": "画自由落体示意插画：小球自静止下落，速度 v 与重力加速度 g 的方向均竖直向下；不得把速度方向画成水平或向上。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "velocity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "vector_labels",
+          "expected": [
+            "v",
+            "g"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-011",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "free_fall_illustration",
+      "sample_category_4e": "自然插画：物理情景",
+      "problem_statement": "画自由落体示意插画：小球自静止下落，速度 v 与重力加速度 g 的方向均竖直向下；不得把速度方向画成水平或向上。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "velocity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "vector_labels",
+          "expected": [
+            "v",
+            "g"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-012",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "free_fall_illustration",
+      "sample_category_4e": "自然插画：物理情景",
+      "problem_statement": "画自由落体示意插画：小球自静止下落，速度 v 与重力加速度 g 的方向均竖直向下；不得把速度方向画成水平或向上。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "velocity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "vector_labels",
+          "expected": [
+            "v",
+            "g"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-013",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "free_fall_illustration",
+      "sample_category_4e": "自然插画：物理情景",
+      "problem_statement": "画自由落体示意插画：小球自静止下落，速度 v 与重力加速度 g 的方向均竖直向下；不得把速度方向画成水平或向上。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "velocity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "vector_labels",
+          "expected": [
+            "v",
+            "g"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-014",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "free_fall_illustration",
+      "sample_category_4e": "自然插画：物理情景",
+      "problem_statement": "画自由落体示意插画：小球自静止下落，速度 v 与重力加速度 g 的方向均竖直向下；不得把速度方向画成水平或向上。",
+      "fact_expectations": [
+        {
+          "kind": "direction",
+          "key": "velocity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "direction",
+          "key": "gravity_direction",
+          "expected": "down",
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "vector_labels",
+          "expected": [
+            "v",
+            "g"
+          ],
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-015",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "lever_illustration",
+      "sample_category_4e": "自然插画：生活情景",
+      "problem_statement": "画用撬棒撬石头的情景插画：支点位置正确，动力臂与阻力臂长度比 2:1，标注“支点”“动力臂”“阻力臂”。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "arm_length_ratio",
+          "expected": 2.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "lever_labels",
+          "expected": [
+            "支点",
+            "动力臂",
+            "阻力臂"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-016",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "lever_illustration",
+      "sample_category_4e": "自然插画：生活情景",
+      "problem_statement": "画用撬棒撬石头的情景插画：支点位置正确，动力臂与阻力臂长度比 5:2，标注“支点”“动力臂”“阻力臂”。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "arm_length_ratio",
+          "expected": 2.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "lever_labels",
+          "expected": [
+            "支点",
+            "动力臂",
+            "阻力臂"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-017",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "lever_illustration",
+      "sample_category_4e": "自然插画：生活情景",
+      "problem_statement": "画用撬棒撬石头的情景插画：支点位置正确，动力臂与阻力臂长度比 4:1，标注“支点”“动力臂”“阻力臂”。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "arm_length_ratio",
+          "expected": 4.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "lever_labels",
+          "expected": [
+            "支点",
+            "动力臂",
+            "阻力臂"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-018",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "lever_illustration",
+      "sample_category_4e": "自然插画：生活情景",
+      "problem_statement": "画用撬棒撬石头的情景插画：支点位置正确，动力臂与阻力臂长度比 3:2，标注“支点”“动力臂”“阻力臂”。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "arm_length_ratio",
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "lever_labels",
+          "expected": [
+            "支点",
+            "动力臂",
+            "阻力臂"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-019",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "lever_illustration",
+      "sample_category_4e": "自然插画：生活情景",
+      "problem_statement": "画用撬棒撬石头的情景插画：支点位置正确，动力臂与阻力臂长度比 2:1，标注“支点”“动力臂”“阻力臂”。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "arm_length_ratio",
+          "expected": 2.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "lever_labels",
+          "expected": [
+            "支点",
+            "动力臂",
+            "阻力臂"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    },
+    {
+      "task_id": "BLD-NATILLA-020",
+      "set": "blind",
+      "group": "natural_illustration",
+      "group_name": "自然插画",
+      "figure_type": "lever_illustration",
+      "sample_category_4e": "自然插画：生活情景",
+      "problem_statement": "画用撬棒撬石头的情景插画：支点位置正确，动力臂与阻力臂长度比 5:2，标注“支点”“动力臂”“阻力臂”。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "arm_length_ratio",
+          "expected": 2.5,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "lever_labels",
+          "expected": [
+            "支点",
+            "动力臂",
+            "阻力臂"
+          ],
+          "critical": true
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    }
+  ]
+}

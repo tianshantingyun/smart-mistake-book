@@ -17,11 +17,17 @@ import com.tingyun.smartmistakebook.core.model.CaptureAssessmentSeverity
 import com.tingyun.smartmistakebook.core.model.CapturePageRelation
 import com.tingyun.smartmistakebook.core.model.CaptureParseInput
 import com.tingyun.smartmistakebook.core.model.CaptureParseOutput
+import com.tingyun.smartmistakebook.core.model.CapturedFigureReference
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.FigureAxis
 import com.tingyun.smartmistakebook.core.model.FigureCoordinate
+import com.tingyun.smartmistakebook.core.model.FigureFidelity
+import com.tingyun.smartmistakebook.core.model.FigureGenerationDecision
 import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicyVersion
+import com.tingyun.smartmistakebook.core.model.FigureGenerationProposal
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureLabel
 import com.tingyun.smartmistakebook.core.model.FigurePoint
@@ -85,6 +91,7 @@ import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTurnPlan
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import com.tingyun.smartmistakebook.core.model.takeBudgetChars
+import com.tingyun.smartmistakebook.core.model.validateCapturedFigureProposalShape
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -152,6 +159,8 @@ internal fun JsonObject.toCapturedDocument(
     val wireBlocks = array("blocks")
     require(wireBlocks.isNotEmpty() && wireBlocks.size <= StructuredContentLimits.MAX_BLOCKS)
     val metadata = mutableListOf<BlockMetadata>()
+    // WG-02：figure_request 块产出的类型化引用（同型 proposal + 请求侧源绑定）。
+    val figureReferences = mutableListOf<CapturedFigureReference>()
     val blocks = wireBlocks.mapIndexed { blockIndex, item ->
         val block = item.objectValue()
         val blockId = "block-${blockIndex + 1}"
@@ -166,7 +175,11 @@ internal fun JsonObject.toCapturedDocument(
         metadata += BlockMetadata(
             sourceAssetId = source.assetId,
             region = region,
-            writingLayer = if (blockType == "figure" || blockType == "diagram_note") {
+            writingLayer = if (
+                blockType == "figure" ||
+                blockType == "diagram_note" ||
+                blockType == "figure_request"
+            ) {
                 WritingLayer.DIAGRAM
             } else {
                 enumValue(block.requiredString("writingLayer"))
@@ -202,12 +215,32 @@ internal fun JsonObject.toCapturedDocument(
                 alternativeText = block.requiredString("alternativeText"),
                 schema = block.objectValue("schema").toFigureSchema(blockIndex),
             )
+            "figure_request" -> {
+                // WG-02：CAPTURE_PARSE 需要图时返回同型 proposal。绑定字段全部取自请求侧
+                // 事实（源页/裁切/草稿修订/sha），不取信模型回填；正文只落占位说明，
+                // 源码与图像提示词只进类型化引用，不进正文/图片 URI。
+                figureReferences += CapturedFigureReference(
+                    proposal = block.objectValue("generation").toCapturedFigureProposal(),
+                    sourceAssetId = source.assetId,
+                    sourcePageIndex = source.pageIndex,
+                    sourceRegion = region,
+                    sourceImageSha256 = source.sha256,
+                    basisRevisionNumber = input.basisRevisionNumber,
+                )
+                ContentBlock.Paragraph(
+                    id = blockId,
+                    markdown = "图示：${block.requiredString("alternativeText")}",
+                )
+            }
             "diagram_note" -> ContentBlock.Paragraph(
                 id = blockId,
                 markdown = "图示：${block.requiredString("alternativeText")}",
             )
             else -> throw InvalidModelResponseException()
         }
+    }
+    if (figureReferences.size > CapturedFigureReference.MAX_FIGURE_REFERENCES) {
+        throw InvalidModelResponseException()
     }
     val rawDocument = QuestionDocument(
         id = "document-${input.draftId}",
@@ -235,6 +268,7 @@ internal fun JsonObject.toCapturedDocument(
         capturedDocument = CapturedQuestionDocument(
             document = sanitized.document,
             blockEvidence = evidence,
+            figureReferences = figureReferences,
         ),
         modelVersion = modelVersion,
     )
@@ -255,6 +289,57 @@ internal fun JsonObject.toImagePipelineClassify(
         formulas = formulas,
         modelVersion = modelVersion,
     )
+}
+
+/**
+ * `figure_request` 块里 `generation` 对象的键白名单（WG-02）。
+ *
+ * `policyVersion` 与 `purpose` **故意不在白名单里**：策略版本与宿主冻结的用途是本地事实，
+ * 模型回填即整轮拒（fail-closed），由 parser 统一写入当前值。
+ */
+internal val FIGURE_GENERATION_WIRE_KEYS = setOf(
+    "decision",
+    "purpose",
+    "method",
+    "reason",
+    "fidelity",
+    "constraints",
+    "program",
+    "imageOperation",
+    "imagePrompt",
+)
+
+/**
+ * 解析一条转写期同型 proposal（WG-02）：严格白名单 + 严格形状校验，不过即整轮拒。
+ *
+ * JS 方法在本构建**不广告**（提示词只声明 IMAGE_MODEL），但解析层接受它的字段位并
+ * **记录**（`method=JS` + `program`）——执行门在能力校验，JS 仍是 UNAVAILABLE；
+ * 这让"模型选了未接通方法"可观测、可审计，而不是静默丢弃或整轮报废。
+ */
+internal fun JsonObject.toCapturedFigureProposal(): FigureGenerationProposal {
+    requireOnlyKeys(FIGURE_GENERATION_WIRE_KEYS)
+    val wirePurpose = optionalString("purpose")
+    if (wirePurpose != null && wirePurpose != FigureGenerationPurpose.SOURCE_TRANSCRIPTION.name) {
+        throw InvalidModelResponseException()
+    }
+    val proposal = FigureGenerationProposal(
+        policyVersion = FigureGenerationPolicyVersion.VALUE,
+        decision = enumValue<FigureGenerationDecision>(requiredString("decision")),
+        purpose = FigureGenerationPurpose.SOURCE_TRANSCRIPTION,
+        method = optionalString("method")?.let { enumValue<FigureGenerationMethod>(it) },
+        reason = optionalString("reason").orEmpty(),
+        fidelity = optionalString("fidelity")?.let { enumValue<FigureFidelity>(it) },
+        constraints = optionalArray("constraints").map(JsonElement::requiredPrimitiveString),
+        program = optionalString("program"),
+        imageOperation = optionalString("imageOperation")
+            ?.let { enumValue<FigureImageOperation>(it) },
+        imagePrompt = optionalString("imagePrompt"),
+    )
+    // 严格校验走 core:model 的单一形状判据（与复用期同一份），不在这里另写一套。
+    if (validateCapturedFigureProposalShape(proposal) != null) {
+        throw InvalidModelResponseException()
+    }
+    return proposal
 }
 
 internal fun JsonObject.toFigureSchema(blockIndex: Int): FigureSchema =

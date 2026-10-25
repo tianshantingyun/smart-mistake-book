@@ -11,6 +11,7 @@ import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureStatus
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.domain.FigureImageDispatchBinding
 import com.tingyun.smartmistakebook.core.domain.ModelApiKey
 import com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification
@@ -126,7 +127,8 @@ class FigureGenerationWiringTest {
         )
 
         assertNotNull(clean)
-        assertTrue(clean!!.bytes.contentEquals(cleanChannel.resultBytes))
+        val cleanRef = clean as FigureArtifactRef.CanonicalImage
+        assertTrue(cleanRef.imageBytes().contentEquals(cleanChannel.resultBytes))
         val cleanRequest = cleanLedger.requests.single()
         assertEquals(FigureGenerationPolicy.POLICY_VERSION, cleanRequest.policyVersion)
         assertEquals(FigureGenerationPurpose.PIXEL_CLEANUP, cleanRequest.purpose)

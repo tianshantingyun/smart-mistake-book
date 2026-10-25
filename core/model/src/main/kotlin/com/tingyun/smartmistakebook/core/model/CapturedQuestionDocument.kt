@@ -10,13 +10,165 @@ import kotlinx.serialization.json.Json
  * Markdown is only a leaf payload inside [QuestionDocument], never the authoritative whole record.
  */
 @Serializable
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 data class CapturedQuestionDocument(
     val schemaVersion: Int = CURRENT_SCHEMA_VERSION,
     val document: QuestionDocument,
     val blockEvidence: List<QuestionBlockEvidence>,
+    /**
+     * WG-02（4E）：转写期图形的**类型化引用**。CAPTURE_PARSE 需要图时返回同型 proposal
+     * （[FigureGenerationProposal]），图形通过这里进入题目文档——不把源码塞进正文、不写
+     * 图片 URI；正文里只有占位说明（图示文字）。
+     *
+     * `@EncodeDefault(NEVER)`：空引用**不落键**。这是指纹稳定性的硬要求——
+     * `RoomMistakeDetailRepository`/`RoomMistakeOrganizationRepository` 读回已提交文档时按
+     * decode→重算→比对存库 `contentFingerprint` 判损坏，多一个空键就会把升级前的全部旧题
+     * 判成 CorruptSnapshot（与 `ModelTasks.kt` 的 `bf8be888` 教训同一条纪律）。
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val figureReferences: List<CapturedFigureReference> = emptyList(),
 ) {
     companion object {
         const val CURRENT_SCHEMA_VERSION = 1
+    }
+}
+
+/**
+ * 转写期一条图形的类型化引用（WG-02）：同型 proposal + 请求侧事实的源绑定。
+ *
+ * 绑定字段（[sourceAssetId]/[sourcePageIndex]/[sourceRegion]/[sourceImageSha256]/
+ * [basisRevisionNumber]）由 parser 从 `CaptureParseInput` 填入，**不取信模型回填**——
+ * 换题（assetId 变）、重裁（裁切产生新 asset）、源 SHA 变化都体现为绑定不匹配，
+ * 复用判定（core:data 的净化作业入口）据此让旧 proposal 失效，而不是重新执行它。
+ */
+@Serializable
+data class CapturedFigureReference(
+    val proposal: FigureGenerationProposal,
+    val sourceAssetId: String,
+    val sourcePageIndex: Int,
+    val sourceRegion: NormalizedSourceRegion,
+    val sourceImageSha256: String,
+    val basisRevisionNumber: Int,
+) {
+    init {
+        require(sourceAssetId.isNotBlank() && sourceAssetId.length <= ModelTaskRequest.MAX_ID_CHARS) {
+            "A captured figure reference needs its source asset id"
+        }
+        require(sourcePageIndex >= 0) {
+            "A captured figure reference page index must not be negative"
+        }
+        require(sourceRegion.isValidModelRegion()) {
+            "A captured figure reference region is invalid"
+        }
+        require(sourceImageSha256.isValidSourceImageSha256()) {
+            "A captured figure reference sha must be a lowercase SHA-256 value"
+        }
+        require(basisRevisionNumber > 0) {
+            "A captured figure reference basis revision must be positive"
+        }
+        require(validateCapturedFigureProposalShape(proposal) == null) {
+            "A captured figure reference proposal does not match the transcription figure contract"
+        }
+    }
+
+    companion object {
+        /**
+         * 一份题目文档携带的图形引用上限。取 8：转写引用与 `figure_request` 块一一对应
+         * （一块一引用），而文档快照有 128k 字符硬预算——不设上限时，一个退化输出
+         * （几十条各带图像载荷的引用）会把越界异常推迟到保存/落库路径深处才炸。
+         */
+        const val MAX_FIGURE_REFERENCES = 8
+    }
+}
+
+/** 转写期同型 proposal 的形状判据（单一来源：core:data 的解析期与复用期共用，不各写一套）。 */
+enum class CapturedFigureProposalShapeIssue {
+    POLICY_VERSION_MISMATCH,
+    PURPOSE_NOT_TRANSCRIPTION,
+    GENERATE_WITHOUT_METHOD,
+    METHOD_PAYLOAD_MISMATCH,
+    PROGRAM_BLANK,
+    PROGRAM_OVER_BUDGET,
+    IMAGE_PROMPT_BLANK,
+    IMAGE_PROMPT_OVER_BUDGET,
+    DECISION_WITH_PAYLOAD,
+}
+
+/**
+ * 同型 proposal 的**请求无关**形状校验（WG-02）。
+ *
+ * 它消灭的具体失败：模型侧 proposal 第一次进入系统（转写）时，若只靠
+ * `FigureGenerationPolicy.validate`（需要完整宿主请求），要么构造不出请求而放过坏形状、
+ * 要么各调用点各写一份判据。这里把不依赖宿主请求的规则收成一处：策略版本、宿主冻结的
+ * 用途（题面转写）、GENERATE 必须显式给 method、方法与载荷严格正交、载荷预算。
+ * 能力/预算/预留那半边仍由执行期的 `FigureGenerationPolicy` + coordinator 门守——
+ * **形状合法不等于可执行**（本构建 JS 只记录不执行）。
+ */
+fun validateCapturedFigureProposalShape(
+    proposal: FigureGenerationProposal,
+): CapturedFigureProposalShapeIssue? {
+    if (proposal.policyVersion != FigureGenerationPolicyVersion.VALUE) {
+        return CapturedFigureProposalShapeIssue.POLICY_VERSION_MISMATCH
+    }
+    if (proposal.purpose != FigureGenerationPurpose.SOURCE_TRANSCRIPTION) {
+        return CapturedFigureProposalShapeIssue.PURPOSE_NOT_TRANSCRIPTION
+    }
+    return when (proposal.decision) {
+        FigureGenerationDecision.GENERATE -> {
+            val method = proposal.method
+                ?: return CapturedFigureProposalShapeIssue.GENERATE_WITHOUT_METHOD
+            when (method) {
+                FigureGenerationMethod.JS -> {
+                    if (proposal.imageOperation != null || proposal.imagePrompt != null) {
+                        return CapturedFigureProposalShapeIssue.METHOD_PAYLOAD_MISMATCH
+                    }
+                    val program = proposal.program
+                        ?: return CapturedFigureProposalShapeIssue.METHOD_PAYLOAD_MISMATCH
+                    if (program.isBlank()) {
+                        return CapturedFigureProposalShapeIssue.PROGRAM_BLANK
+                    }
+                    if (figureUsageUtf8Bytes(program) > FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES) {
+                        return CapturedFigureProposalShapeIssue.PROGRAM_OVER_BUDGET
+                    }
+                    null
+                }
+
+                FigureGenerationMethod.IMAGE_MODEL -> {
+                    if (proposal.program != null) {
+                        return CapturedFigureProposalShapeIssue.METHOD_PAYLOAD_MISMATCH
+                    }
+                    if (proposal.imageOperation == null || proposal.imagePrompt == null) {
+                        return CapturedFigureProposalShapeIssue.METHOD_PAYLOAD_MISMATCH
+                    }
+                    if (proposal.imagePrompt.isNullOrBlank()) {
+                        return CapturedFigureProposalShapeIssue.IMAGE_PROMPT_BLANK
+                    }
+                    if (
+                        figureUsageUtf8Bytes(proposal.imagePrompt) >
+                        FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES
+                    ) {
+                        return CapturedFigureProposalShapeIssue.IMAGE_PROMPT_OVER_BUDGET
+                    }
+                    null
+                }
+            }
+        }
+
+        FigureGenerationDecision.NO_FIGURE,
+        FigureGenerationDecision.NEED_SOURCE,
+        FigureGenerationDecision.UNAVAILABLE,
+        -> {
+            if (
+                proposal.method != null ||
+                proposal.program != null ||
+                proposal.imageOperation != null ||
+                proposal.imagePrompt != null
+            ) {
+                CapturedFigureProposalShapeIssue.DECISION_WITH_PAYLOAD
+            } else {
+                null
+            }
+        }
     }
 }
 
@@ -81,6 +233,8 @@ enum class CapturedQuestionIssueCode {
     MISSING_PRODUCER_VERSION,
     UNRESOLVED_BLOCK,
     EMPTY_QUESTION,
+    /** WG-02：图形引用超出文档预算（形状/绑定校验在 [CapturedFigureReference] 构造层）。 */
+    FIGURE_REFERENCE_BUDGET_EXCEEDED,
 }
 
 data class CapturedQuestionIssue(
@@ -102,6 +256,12 @@ object CapturedQuestionDocumentValidator {
         val evidenceIds = value.blockEvidence.map(QuestionBlockEvidence::blockId)
         if (blockIds.toSet().size != blockIds.size || evidenceIds != blockIds) {
             add(CapturedQuestionIssue(CapturedQuestionIssueCode.EVIDENCE_DOES_NOT_MATCH_BLOCKS))
+        }
+
+        // WG-02：图形引用只查预算（形状与源绑定在 CapturedFigureReference 构造层强制）；
+        // 提交门（validateForCommit）不因引用拒绝——保存后引用仍在是验收项。
+        if (value.figureReferences.size > CapturedFigureReference.MAX_FIGURE_REFERENCES) {
+            add(CapturedQuestionIssue(CapturedQuestionIssueCode.FIGURE_REFERENCE_BUDGET_EXCEEDED))
         }
 
         value.blockEvidence.forEach { evidence ->

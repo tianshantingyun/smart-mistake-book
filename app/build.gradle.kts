@@ -28,6 +28,16 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        // 16 KB page-size readiness (batch 20 / T8, per docs/research/2026-10-25-16kb-arm64-api23-build.md §5):
+        // keeps only the two ABIs whose bundled .so files are fully 16 KB ELF-aligned.
+        // Drops: ML Kit 32-bit .so (armeabi-v7a/x86 LOAD p_align=4096; x86 RELRO shares a
+        // page with writable data — the exact crash shape called out by the official guide),
+        // the half-broken x86 ABI (litert ships no x86), and ~23 MiB of uncompressed 32-bit .so.
+        // Cost (product-level, accepted for this track): no install on pure 32-bit armv7 devices.
+        ndk {
+            abiFilters += setOf("arm64-v8a", "x86_64")
+        }
     }
 
     flavorDimensions += "networkMode"

@@ -150,15 +150,24 @@ internal object OpenAiModelTaskAdapters {
 
     private const val PARSE_PROMPT =
         "把题目转成可编辑结构化文档，不要解题或填写答案。返回title和blocks数组；每块含" +
-            "type(paragraph/formula/choice_group/figure/diagram_note)、pageIndex、region(0到1的left/top/right/bottom)、" +
-            "writingLayer(PRINTED/HANDWRITTEN/MIXED/DIAGRAM)、confidence。paragraph含markdown；" +
-            "formula含latex和alternativeText；choice_group含promptMarkdown与choices[{markdown,accessibilityLabel}]；" +
-            "能准确重建的figure含title(可选)、alternativeText、schema。schema仅允许：" +
-            "cartesian{xAxis/yAxis{minimum,maximum,label,tickCount},polylines[{points[{x,y}],label,style}]," +
-            "points[{x,y,label,style}],labels[{x,y,text}]}；或symbol_table{headers,rows}。" +
-            "style仅PRIMARY/SECONDARY/EMPHASIS。复杂几何、化学装置或无法可靠重建的图不要猜测，" +
-            "改用diagram_note含alternativeText。忽略并省略所有ID，它们由本地生成。" +
-            "保持原题顺序，数学公式使用受限LaTeX，绝不标记正确选项。"
+            "type(paragraph/formula/choice_group/figure/figure_request/diagram_note)、pageIndex、" +
+            "region(0到1的left/top/right/bottom)、writingLayer(PRINTED/HANDWRITTEN/MIXED/DIAGRAM)、confidence。" +
+            "paragraph含markdown；formula含latex和alternativeText；choice_group含promptMarkdown与" +
+            "choices[{markdown,accessibilityLabel}]；能准确重建的figure含title(可选)、alternativeText、schema。" +
+            "schema仅允许：cartesian{xAxis/yAxis{minimum,maximum,label,tickCount}," +
+            "polylines[{points[{x,y}],label,style}],points[{x,y,label,style}],labels[{x,y,text}]}；" +
+            "或symbol_table{headers,rows}。style仅PRIMARY/SECONDARY/EMPHASIS。" +
+            "复杂几何、化学装置或无法可靠重建的图不要猜测，也不要编造schema：需要本地生成该图时用" +
+            "figure_request块，含alternativeText（图的文字说明）与generation对象。generation仅允许" +
+            "decision(GENERATE/NO_FIGURE/NEED_SOURCE/UNAVAILABLE)、purpose、method、reason、" +
+            "fidelity(FAITHFUL/SEMANTIC/ILLUSTRATIVE)、constraints(字符串数组)、program、" +
+            "imageOperation(EDIT/GENERATE)、imagePrompt这些键。decision为GENERATE时method只能" +
+            "IMAGE_MODEL（本构建未接通其他方法），必须成对给出imageOperation与imagePrompt" +
+            "（以源图该区域为基准重绘用EDIT，无源生成用GENERATE），并省略program；" +
+            "decision为NO_FIGURE、NEED_SOURCE或UNAVAILABLE时省略method、program、" +
+            "imageOperation与imagePrompt，仅给reason。不得返回policyVersion，" +
+            "也不得返回任何图片、URL、base64、SVG或代码。不需要生成的图示仅用diagram_note含alternativeText。" +
+            "忽略并省略所有ID，它们由本地生成。保持原题顺序，数学公式使用受限LaTeX，绝不标记正确选项。"
 
     private fun imagePipelineClassifyPrompt(input: ImagePipelineClassifyInput): String =
         """

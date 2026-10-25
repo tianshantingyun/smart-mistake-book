@@ -8,6 +8,9 @@ import com.tingyun.smartmistakebook.core.domain.AttemptConfidenceAssessment
 import com.tingyun.smartmistakebook.core.domain.ConfidenceLevel
 import com.tingyun.smartmistakebook.core.domain.FsrsEvidenceRatingMapper
 import com.tingyun.smartmistakebook.core.domain.FsrsRating
+import com.tingyun.smartmistakebook.core.domain.LongRangeSampleCandidate
+import com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedger
+import com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerReport
 import com.tingyun.smartmistakebook.core.domain.ReviewSample
 import com.tingyun.smartmistakebook.core.domain.SourceCalibration
 import com.tingyun.smartmistakebook.core.model.StudyDayMath
@@ -176,6 +179,35 @@ internal class ReviewLogSink(
                     state = row.state,
                 )
             }
+
+    /**
+     * AUD-17 合格长程样本台账（批次 20 / T9，**只读**）：review_log 的**原始面**（含
+     * 撤销/观察行）按排除原因逐行分类——撤销/观察、MODEL_JUDGED、REVEAL、首条、同日重复、
+     * 可预测长程，缺时间/缺状态只统计最终集合（口径原文见
+     * `docs/research/2026-09-28-algorithm-fix-plan.md:493`）。
+     *
+     * 与 [reviewSamples] 的差别是刻意的：有效证据视图在读口就丢掉撤销行（消费侧共用口径），
+     * 台账要"原始/排除/可预测数分列"，撤销行必须保留到分类那一步。分类判据全部在域层
+     * （[LongRangeSampleLedger]，与 `predictableSampleCount` 同口径并被等价用例钉住）。
+     *
+     * 只读保证：不写库、不读也不失效任何派生缓存（含时区画像缓存）、不做 400 达标判定、
+     * 无启用开关；400 门仅由报告引用常量（gateFloor）。
+     */
+    suspend fun longRangeSampleLedger(): LongRangeSampleLedgerReport =
+        LongRangeSampleLedger.classify(
+            database.readReviewLogSamples(learnerId, REVIEW_LOG_SAMPLE_LIMIT)
+                .map { row ->
+                    LongRangeSampleCandidate(
+                        practiceUnitId = row.practiceUnitId,
+                        reviewedAtEpochMillis = row.reviewedAtEpochMillis,
+                        rating = row.rating,
+                        sourceKind = row.sourceKind,
+                        deltaTDays = row.deltaTDays,
+                        state = row.state,
+                        schedulingEligible = row.schedulingEligible,
+                    )
+                },
+        )
 
     /**
      * Observed real-answer durations for the duration-model warm-up (spec

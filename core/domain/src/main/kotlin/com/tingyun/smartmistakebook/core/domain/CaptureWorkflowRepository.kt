@@ -755,12 +755,28 @@ interface CaptureWorkflowRepository {
      * Returns false when the revision does not exist **or is no longer the revision its
      * error-book entry points at** (AUD-09：晚到的净化结果只许挂到书里现在显示的那一版上).
      * The bytes are re-encoded into the canonical asset vault; no network happens here.
+     *
+     * 4E WG-03 起生产链走**类型化** [attachCleanRedrawArtifact]；这个字节版旧签名保留是
+     * 因为 feature 各模块的既有测试替身仍实现着它（本批热区禁改，后续批次随热区回卷收口）。
      */
     suspend fun attachCleanRedrawImage(
         problemRevisionId: String,
         cleanImageBytes: ByteArray,
         cleanImageMimeType: String,
     ): Boolean
+
+    /**
+     * 4E WG-03：类型化挂接——canonical 图片先核对（产物声明的内容 sha 与要落盘的字节
+     * 逐位一致），**核对通过才绑定题目修订**；provenance 按产物携带的真实方法/模型填写。
+     * JS 快照（4E.2 前）没有挂接路径，如实返回 false。
+     *
+     * 默认 false（做不到）：测试替身与无库装配不假装挂上。生产实现见
+     * `RoomCaptureWorkflowRepository`。
+     */
+    suspend fun attachCleanRedrawArtifact(
+        problemRevisionId: String,
+        artifact: FigureArtifactRef,
+    ): Boolean = false
 
     /**
      * AUD-09 ④ 启动对账：接着做完上一进程留下的净化作业（`PENDING`/`FAILED` 且尝试次数未耗尽），

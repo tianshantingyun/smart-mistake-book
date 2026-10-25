@@ -15,16 +15,17 @@ import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
 import com.tingyun.smartmistakebook.core.database.port.RevisionImageSource
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
-import com.tingyun.smartmistakebook.core.domain.CleanImageResult
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawFailureReason
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawPhase
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawRequestResult
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawState
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.model.QUESTION_SOURCE_ROLE
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import java.nio.charset.StandardCharsets
+import java.util.Collections
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -89,12 +90,12 @@ internal fun pickExplicitRedrawSource(
 /**
  * 显式重绘落盘后的规范资产 id。
  *
- * 与生产挂接实现（`RoomCaptureWorkflowRepository.attachCleanRedrawImage`）同一口径：
+ * 与生产挂接实现（`RoomCaptureWorkflowRepository.attachCleanRedrawArtifact`）同一口径：
  * 生成图以 `figureIdentity = "clean-" + sha256(输出字节)` 落盘，资产 id 就是这个幂等键。
  * 只用于把审计 attempt 的 `output_asset_id` 回填；不参与任何预算判断。
+ * 4E WG-03：sha 直接取类型化引用携带的 [contentSha256]（构造时已与字节核对），不再重算。
  */
-internal fun explicitRedrawAssetId(bytes: ByteArray): String =
-    "clean-" + figureSha256Hex(bytes)
+internal fun explicitRedrawAssetId(contentSha256: String): String = "clean-$contentSha256"
 
 /**
  * 4E WG-06 T3：详情页的用户显式重绘服务。
@@ -124,8 +125,8 @@ class ExplicitRedrawService internal constructor(
     private val readSourceBytes: suspend (CanonicalSourceAssetRecord) -> ByteArray?,
     /** 生产实现是 `ConfiguredCleanImageGenerator`；null = 当前构建没有可用图像能力。 */
     private val cleanImageGenerator: CleanImageGenerator?,
-    /** 挂接（生产是 `CaptureWorkflowRepository.attachCleanRedrawImage`）；false = 目标已不在。 */
-    private val attach: suspend (String, ByteArray, String) -> Boolean,
+    /** 挂接（生产是 `CaptureWorkflowRepository.attachCleanRedrawArtifact`，类型化引用）；false = 目标已不在。 */
+    private val attach: suspend (String, FigureArtifactRef) -> Boolean,
     /** 审计回填（best-effort）；默认不写。 */
     private val recordOutputAsset: suspend (attemptId: String, assetId: String) -> Unit =
         { _, _ -> },
@@ -250,6 +251,21 @@ class ExplicitRedrawService internal constructor(
         ) {
             return ExplicitRedrawRequestResult.AlreadySettled(state)
         }
+        // 待核实行（生成请求已发出、结果未知）分两种，必须区分：
+        // - **本进程执行者还在跑**（request() 启动的后台执行未结束）：与"在途 PENDING"同一口径，
+        //   如实返回 Accepted"进行中"，不再起第二个执行者（领取 CAS 也拒绝该态）。
+        // - **执行者不在了**（进程死在生成轮/协程被取消）：runAttempt 对该态显式短路 SKIPPED
+        //   （不盲目补发，4E WG-03——外部调用不保证恰好一次），启动对账也不接手（RESUMABLE 只有
+        //   PENDING/FAILED）——没有任何东西会再动这一行，走 launchExecution 再返回 Accepted 是
+        //   "已受理、实际什么都不会发生"的谎报。如实拒绝并保留行：UI 至少给出"重绘请求未被接受
+        //   （AWAITING_VERIFICATION）"的可见反馈，行等显式的"重新核实/放弃"路径。该路径与独立
+        //   UI 态需要 core/domain 与 feature/library 的类型/文案改动（他线热区），登记为遗留。
+        if (row.status == CleanRedrawTaskStatus.AWAITING_VERIFICATION) {
+            if (taskId in inFlightExecutions) {
+                return ExplicitRedrawRequestResult.Accepted(state)
+            }
+            return ExplicitRedrawRequestResult.Rejected("AWAITING_VERIFICATION")
+        }
         // 在途（PENDING 且已领取）：另一个执行者正在跑。不再 launch 第二个执行者——
         // 即使启动，领取租约也会拒绝它；这里直接如实返回"进行中"，省掉一次空转。
         if (row.status == CleanRedrawTaskStatus.PENDING && row.attemptCount > 0) {
@@ -336,7 +352,21 @@ class ExplicitRedrawService internal constructor(
         }
     }
 
+    /**
+     * 本进程仍在跑的显式重绘执行者（taskId）。
+     *
+     * 它消灭的具体失败：`AWAITING_VERIFICATION` 行无法从行本身区分"生成轮进行中"与
+     * "进程死在生成轮的孤儿行"（两种形态在台账里逐字节相同——T3 在发出付费请求**之前**
+     * 落该标记，正是为了让崩溃留下"结果未知"的诚实行）。request() 靠它区分：执行者活着
+     * → Accepted"进行中"；没有执行者 → 如实 Rejected（没有任何东西会再接手这一行）。
+     * 只覆盖 [launchExecution]（request() 的派发路径）；启动对账不接 AWAITING 行
+     * （RESUMABLE 只有 PENDING/FAILED），不存在它漏登记的执行者。
+     * 进程边界即生命周期：进程死则集合清空，孤儿行如实暴露。
+     */
+    private val inFlightExecutions: MutableSet<String> = Collections.synchronizedSet(HashSet())
+
     private fun launchExecution(taskId: String) {
+        inFlightExecutions.add(taskId)
         scope.launch {
             try {
                 executeTask(taskId)
@@ -344,17 +374,26 @@ class ExplicitRedrawService internal constructor(
                 throw cancelled
             } catch (_: Exception) {
                 // 行留在 PENDING；启动对账会在尝试额度内接手（不静默重付，也不假装做完了）。
+            } finally {
+                inFlightExecutions.remove(taskId)
             }
         }
     }
 
     /**
-     * 生成并挂接成功后的审计回填。`attemptId` 为 null（没有审计台账/coordinator 未接）时
-     * 不动作；回填失败由 runner 的 best-effort 包装吞掉，不改判这一轮。
+     * 生成并挂接成功后的审计回填。canonical 图片按内容 sha 回填产物资产 id（与挂接实现的
+     * 幂等键同一口径）；JS 快照（4E.2 前）没有 canonical 资产，如实不回填。`attemptId` 为
+     * null（没有审计台账/coordinator 未接）时不动作；回填失败由 runner 的 best-effort 包装
+     * 吞掉，不改判这一轮。
      */
-    private suspend fun recordCleanOutput(clean: CleanImageResult) {
-        val attemptId = clean.attemptId ?: return
-        recordOutputAsset(attemptId, explicitRedrawAssetId(clean.bytes))
+    private suspend fun recordCleanOutput(artifact: FigureArtifactRef) {
+        val attemptId = artifact.attemptId ?: return
+        when (artifact) {
+            is FigureArtifactRef.CanonicalImage ->
+                recordOutputAsset(attemptId, explicitRedrawAssetId(artifact.contentSha256))
+
+            is FigureArtifactRef.JsSnapshot -> Unit
+        }
     }
 
     private fun CleanRedrawTaskRecord.toExplicitRedrawState(): ExplicitRedrawState =
@@ -414,7 +453,7 @@ private fun StringBuilder.appendField(value: String) {
  * - [database] 同时是显式重绘台账、规范资产读口与审计回填口；
  * - [cleanImageGenerator] 是共享 coordinator 下的凭证门实现；null = 没配模型（UI 仍显示入口，
  *   点击后如实回"先配置模型"，不建行）；
- * - [attach] 直接复用 `CaptureWorkflowRepository.attachCleanRedrawImage`（同一份落盘 +
+ * - [attach] 直接复用 `CaptureWorkflowRepository.attachCleanRedrawArtifact`（同一份落盘 +
  *   CLEAN_IMAGE 引用 + current-revision 判据，不复制第二份实现）；
  * - [scope] 是应用作用域：用户点击后执行，进程被杀由启动对账接手。
  */
@@ -423,7 +462,7 @@ object ExplicitRedrawServiceFactory {
         context: Context,
         database: StudyDatabasePort,
         cleanImageGenerator: CleanImageGenerator?,
-        attach: suspend (String, ByteArray, String) -> Boolean,
+        attach: suspend (String, FigureArtifactRef) -> Boolean,
         egressAllowed: () -> Boolean,
         scope: CoroutineScope,
     ): ExplicitRedrawService {

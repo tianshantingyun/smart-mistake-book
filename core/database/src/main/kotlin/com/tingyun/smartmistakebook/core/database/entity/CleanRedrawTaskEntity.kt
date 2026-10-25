@@ -20,8 +20,9 @@ import androidx.room3.Index
  * - `subject_id`：重建同一轮分类请求所需的题目身份（提交路径传草稿 id）。**不在身份摘要里**：
  *   它是请求的输入而不是作业的身份；但少了它就无法在续跑时复算出同一个请求指纹，
  *   于是分类轮会变成一次新的付费派遣。
- * - `status`：`PENDING`（待做/在途）→ `SUCCEEDED` / `FAILED` / `SUPERSEDED`（终态）。
- *   `SUCCEEDED` 也覆盖"分类判定为纯文字题，不需要重绘"——作业本身的终态，不是"挂了图"。
+ * - `status`：`PENDING`（待做/在途）→ `SUCCEEDED`（图已生成并挂上）/ `FAILED` / `SUPERSEDED` /
+ *   `NO_FIGURE`（4E WG-03：分类判"无需生成"的终态——不伪报已产图）/ `AWAITING_VERIFICATION`
+ *   （4E WG-03：生成请求已发出、结果未知的"待核实"——不盲目补发，也不可再领取/续跑）。
  * - `attempt_count`：**已经开始过**的尝试次数。领取一次加一（见 DAO 的 CAS）；达到
  *   `MAX_CLEAN_REDRAW_ATTEMPTS` 后对账不再接手——费用因此有上界。
  * - `last_failure_code`：最近一次失败的原因码（`CleanRedrawFailureCode`）；成功时清空。

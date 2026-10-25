@@ -13,7 +13,7 @@ import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
 import com.tingyun.smartmistakebook.core.database.port.RevisionImageSource
 import com.tingyun.smartmistakebook.core.domain.CleanImageGenerator
 import com.tingyun.smartmistakebook.core.domain.CleanImageRequest
-import com.tingyun.smartmistakebook.core.domain.CleanImageResult
+import com.tingyun.smartmistakebook.core.domain.FigureArtifactRef
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawFailureReason
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawPhase
@@ -21,6 +21,7 @@ import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawRequestResult
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawState
 import com.tingyun.smartmistakebook.core.model.QUESTION_SOURCE_ROLE
 import com.tingyun.smartmistakebook.core.model.VisualRole
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -82,8 +83,8 @@ class ExplicitRedrawServiceTest {
         )
         assertEquals(fingerprint, row.requestFingerprint)
         assertEquals(
-            "生成产物的审计 attempt 必须回填到规范资产 id",
-            listOf("attempt-1" to explicitRedrawAssetId(CLEAN_BYTES)),
+            "生成产物的审计 attempt 必须回填到规范资产 id（与引用携带的内容 sha 同口径）",
+            listOf("attempt-1" to explicitRedrawAssetId(figureSha256Hex(CLEAN_BYTES))),
             fixture.backfilled,
         )
     }
@@ -209,6 +210,37 @@ class ExplicitRedrawServiceTest {
         val state = fixture.service.observe(REVISION_ID).first()
         assertEquals(ExplicitRedrawPhase.FAILED, state.phase)
         assertEquals("重试次数已用完", false, state.canRetry)
+    }
+
+    /**
+     * 批次 20 复核修复环：进程死在生成轮（或协程被取消）会把显式重绘行留在
+     * `AWAITING_VERIFICATION`（生成请求已发出、结果未知）。此时再次点击重绘：
+     * - 不得返回 Accepted——`runAttempt` 对该态显式短路 SKIPPED（不盲目补发，4E WG-03），
+     *   没有执行者会接手它，Accepted 是"已受理、什么都不会发生"的谎报；
+     * - 不得补发、不得改写行状态——对账与再触发的"不盲目补发"边界照旧，行等显式的
+     *   "重新核实/放弃"路径（独立 UI 态需 core/domain 与 feature/library 热区，登记遗留）。
+     */
+    @Test
+    fun `a request for a row awaiting verification is rejected and does not redispatch`() = runBlocking {
+        val fixture = fixture()
+        val taskId = fixture.seedExplicitTask(attemptCount = 1)
+        fixture.store.rows[taskId] = fixture.store.rows.getValue(taskId).copy(
+            status = CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+        )
+
+        val result = fixture.service.request(fixture.command())
+
+        assertEquals(
+            "待核实行的再点必须如实拒绝，不得谎报 Accepted",
+            ExplicitRedrawRequestResult.Rejected("AWAITING_VERIFICATION"),
+            result,
+        )
+        assertEquals("待核实行不盲目补发", 0, fixture.generateCalls)
+        assertEquals(
+            "行保留待核实态，等待显式的核实/放弃路径",
+            CleanRedrawTaskStatus.AWAITING_VERIFICATION,
+            fixture.store.rows.getValue(taskId).status,
+        )
     }
 
     @Test
@@ -379,7 +411,7 @@ class ExplicitRedrawServiceTest {
     private class Fixture(
         val store: FakeCleanRedrawStore,
         val service: ExplicitRedrawService,
-        var generate: suspend (CleanImageRequest) -> CleanImageResult?,
+        var generate: suspend (CleanImageRequest) -> FigureArtifactRef?,
         var attachResult: Boolean,
         val cleanBytes: ByteArray,
         val maxAttempts: Int,
@@ -400,9 +432,11 @@ class ExplicitRedrawServiceTest {
             role = role,
         )
 
-        fun cleanResult(): CleanImageResult = CleanImageResult(
-            bytes = cleanBytes,
+        fun cleanResult(): FigureArtifactRef.CanonicalImage = FigureArtifactRef.CanonicalImage(
+            imageBytes = cleanBytes,
             mimeType = "image/png",
+            contentSha256 = figureSha256Hex(cleanBytes),
+            modelId = "fake-image-model",
             attemptId = "attempt-1",
         )
 
@@ -442,7 +476,7 @@ class ExplicitRedrawServiceTest {
         lateinit var fixture: Fixture
         val generator = if (generatorAvailable) {
             object : CleanImageGenerator {
-                override suspend fun generateClean(request: CleanImageRequest): CleanImageResult? {
+                override suspend fun generateClean(request: CleanImageRequest): FigureArtifactRef? {
                     fixture.generateCalls += 1
                     generateGate?.await()
                     return fixture.generate(request)
@@ -464,7 +498,7 @@ class ExplicitRedrawServiceTest {
             },
             readSourceBytes = { SOURCE_BYTES },
             cleanImageGenerator = generator,
-            attach = { revisionId, _, _ ->
+            attach = { revisionId, _ ->
                 fixture.attachCalls += 1
                 fixture.attachRevisions += revisionId
                 fixture.attachResult
@@ -479,7 +513,15 @@ class ExplicitRedrawServiceTest {
         fixture = Fixture(
             store = store,
             service = service,
-            generate = { CleanImageResult(bytes = CLEAN_BYTES, mimeType = "image/png", attemptId = "attempt-1") },
+            generate = {
+                FigureArtifactRef.CanonicalImage(
+                    imageBytes = CLEAN_BYTES,
+                    mimeType = "image/png",
+                    contentSha256 = figureSha256Hex(CLEAN_BYTES),
+                    modelId = "fake-image-model",
+                    attemptId = "attempt-1",
+                )
+            },
             attachResult = true,
             cleanBytes = CLEAN_BYTES,
             maxAttempts = MAX_ATTEMPTS,

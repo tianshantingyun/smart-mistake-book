@@ -28,6 +28,8 @@ import kotlin.math.roundToInt
  *   声明了要交付的图读不出、或与资产记录的 sha/长度不符，整份 Word 渲染失败——不再
  *   "省略这张图、保留其余内容"（那会让学生拿到一份少图却看起来成功的文档）；
  *   role=TUTOR_EXPLANATION 的图块不参与题目区渲染（与 PDF 侧同一过滤）；
+ * - AI 图显式标识（T7）：CLEAN_IMAGE/讲解图逐图带"本图由 AI 生成"图注（与 PDF 同判据，
+ *   见 `AiGeneratedImageCaption`）；QUESTION_DIAGRAM 与原文不伪报；
  * - 页数/分页：Word 自己排版，渲染器不设页数上限，只受字节预算约束（由 exporter 核）。
  *
  * **本批边界（6B-1）**：只做"把既有题面模型交付成 Word 文件"。应用内编辑 Word 与自然语言
@@ -231,6 +233,12 @@ internal object DocxMistakeRenderer {
                 body.append(
                     MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy),
                 )
+                // T7：题目区生成图（CLEAN_IMAGE；旧调用方 null 按题目图处理）图下显式标识。
+                if (isAiGeneratedExportImage(input.questionImageRole)) {
+                    body.append(
+                        textParagraph(AI_GENERATED_IMAGE_CAPTION, DocxTextStyle.META, typography),
+                    )
+                }
             }
 
         blocks.forEach { block ->
@@ -282,6 +290,12 @@ internal object DocxMistakeRenderer {
                         body.append(
                             MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy),
                         )
+                        // T7：批量卷面图块按角色显式标识（null = 旧块按题目区图处理）。
+                        if (isAiGeneratedExportImage(block.role)) {
+                            body.append(
+                                textParagraph(AI_GENERATED_IMAGE_CAPTION, DocxTextStyle.META, typography),
+                            )
+                        }
                     }
                 }
                 is MistakePdfBlock.Figure -> {
@@ -311,6 +325,12 @@ internal object DocxMistakeRenderer {
                 body.append(
                     MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy),
                 )
+                // T7：讲解图（TUTOR_EXPLANATION，只由生成路径产出）逐图显式标识。
+                if (isAiGeneratedExportImage(image.role)) {
+                    body.append(
+                        textParagraph(AI_GENERATED_IMAGE_CAPTION, DocxTextStyle.META, typography),
+                    )
+                }
             }
         }
         noteSection(input)?.let { note ->

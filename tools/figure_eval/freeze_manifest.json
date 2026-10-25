@@ -1,0 +1,32 @@
+{
+  "manifest_version": 1,
+  "frozen_at": "2026-10-25T00:00:00+08:00",
+  "generator_sha256": "630b3c0e680b86f85765c8514ae20413d681ad0a25df9b5d366e15fe5e798cf4",
+  "policy": "评测门每次运行前校验下列 sha256；不一致即拒绝运行（防面向结果改夹具）。变更任务集必须重新冻结：重跑 build_frozen_tasks.py 并在新 frozen_at 下留审计记录。",
+  "files": {
+    "tasks_blind_120.json": {
+      "sha256": "8b9567e12d4e18e2f0814caa93c4c2f733e0a861ee125240b53b13def36fa647",
+      "task_count": 120,
+      "group_counts": {
+        "proportion_coordinates": 20,
+        "mechanics_phases": 20,
+        "flow_formula": 20,
+        "source_rebuild": 20,
+        "handwriting_removal": 20,
+        "natural_illustration": 20
+      }
+    },
+    "tasks_dev_24.json": {
+      "sha256": "9fbb9067c37bedcc9629c3b286d3f84aeffdb000a6dbff43650d6ccf73bdcefb",
+      "task_count": 24,
+      "group_counts": {
+        "proportion_coordinates": 4,
+        "mechanics_phases": 4,
+        "flow_formula": 4,
+        "source_rebuild": 4,
+        "handwriting_removal": 4,
+        "natural_illustration": 4
+      }
+    }
+  }
+}

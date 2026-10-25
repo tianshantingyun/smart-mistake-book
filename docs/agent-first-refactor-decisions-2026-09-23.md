@@ -3230,3 +3230,70 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - G5 选择器待裁不动；importance 字段未接线；真实 Provider/PRD-09 UNVERIFIED；API23/arm64/16KB 宿主不可行
   如实标注、strictOffline/benchmark/internal/R8 未跑；3E 设备侧复验未做；`SmartMistakeBookRoot.kt`
   他线动画改造引用未跟踪文件——本批提交必须排除。
+
+---
+
+## 完成记录折入（批次 20：4E WG-02/03/10 + JS 地基 + 五研究线 + beta 准备件）（2026-10-25）
+
+> 批次记录：`docs/research/2026-10-25-batch-20-record.md`；基线：`docs/research/2026-10-25-batch-20-baseline.md`。
+> 门禁：单测门第 3 轮 `exit=1`→修复环复跑 `exit=0`（范围未注明）；**强门未跑**——提交前置。零 schema 零版本 bump。
+
+### 研究选型裁定登记（R1–R4 采纳、R5 提案待裁）
+
+- **R1 JS 引擎选型（采纳+悬置修正）**：维持既有裁定 dokar3/quickjs-kt v1.0.15 钉 commit `a081755`（绑定层
+  Apache-2.0 + 内嵌 bellard/quickjs 04be246 MIT、minSdk 23、四 ABI、memoryLimit/maxStackSize/interruptEvaluation、
+  与 RenderScene 纯计算契约契合）；Zipline（官方自述不作不可信代码安全边界）、quickjs-ng 自建 JNI（与"直接采用
+  选型库"冲突）、Rhino（it-android minSdk 26）淘汰。**消费形态悬置**：R1 原判"发布 AAR RELRO 未对齐→必须钉源码
+  NDK r28c 自建"被 R4/官方豁免判据（GNU_RELRO 独占 LOAD 段非零余数仍合规）证伪——复核裁决 R4 正确（发布 AAR
+  四 ABI 全合规；10-17 探针判读未应用豁免），源码重建若保留理由只剩供应链钉版；T4 真实接入前必须收口并按 R4
+  口径改写契约 `visual-generation-contract.md:22` 判据。硬终止三层：库只提供协作层，进程级 watchdog+killProcess
+  按契约 §4 自建；issue #240（job 队列自续绕过协作中断）真实接入时必须进仪器化用例。
+- **R2 崩溃反馈闭环（采纳）**：自写最小 UncaughtExceptionHandler + ApplicationExitInfo(API30+) 启动自检 + 环形
+  文件缓冲 + 既有 SAF 导出；零新依赖、结构性零外发（strictOffline 无 INTERNET 权限）、零新增隐私面；ACRA
+  （Apache-2.0）留作后备；API 23–29 ANR 缺口如实登记不伪覆盖。
+- **R3 AI 内容标识（义务清单采纳）**：《标识办法》（2025-09-01 施行）核心义务=显式标识（第四条）+隐式标识
+  （第五条三要素，已落但未按 TC260 XMP 规范）；本批仅 G3（导出图注，P1）落地，**G1/G2（P0 讲题界面/App 内角标）
+  热区未落待下批，T7 不声称完成/已合规**（R3 §9 登记）；G4–G6 登记、G7 未成年人叠加呈用户裁定。
+- **R4 16KB/arm64/API23 构建面（采纳，决定 T8）**：gradle 侧唯一改动=app defaultConfig `ndk.abiFilters
+  +=setOf("arm64-v8a","x86_64")`（ZIP 层 AGP 9.3.0 零配置已合规；ELF 层保留 ABI 全过；唯一违规 ML Kit 32 位
+  .so 无升级路径→裁 ABI）；**产品代价：32 位设备（armv7/x86）不可安装，minSdk 名义 23 的机型面收窄为 64 位
+  only——已采决策，显式登记**；省 ~23.1MiB；T8 终验判据须用官方两步法（zipalign -P 16 + check_elf_alignment.sh
+  含 RELRO 豁免）。
+- **R5 G5 自适应选题（提案，待用户裁定，不实现）**：选项 A（本地双端口：读装配器+proso 式 Elo 预测器，选择器
+  一行不改）先行 → 选项 C（A+NO_SAFE_CANDIDATE 生成补池+确认卡+受控探索额度）为 5B 终态；选项 B（走廊参数
+  透传 KNOWLEDGE_QUIZ）无开源先例且不可验证，不单独采用。三裁定要点呈用户裁定：A/C 取舍、Elo 状态取台账惰性
+  派生还是落表、探索额度数值。`AdaptiveQuestionSelector` 本批零改动。
+
+### 本批结果（增量）
+
+- **4E**：WG-02 转写源图证据（CAPTURE_PARSE 需图返回同型 proposal、严格白名单、`CapturedFigureReference`
+  绑定源页/裁切/草稿修订/源 SHA，@EncodeDefault(NEVER) 保旧文档指纹稳定）；WG-03 移除 TEXT_ONLY 冒充捷径
+  （NO_FIGURE 独立终态）、AWAITING_VERIFICATION 不盲目补发、类型化 FigureArtifactRef 挂接（canonical 即验
+  sha、挂接核对才绑修订、provenance 真实填写）、**AWAITING_VERIFICATION 服务层双分支修复**（修复环 F3：在途=
+  Accepted/执行者不在=如实 Rejected）；WG-10 三旁路收编独立复核 + HTTP transport 旁路观测测试（0 旁路断言）。
+- **JS 地基（T4 保守分支）**：core:domain `VisualExecutionEngine` 端口（沙箱白名单/双层终止/内存上限/单在飞/
+  熔断，纯 JVM）+ fake + 17 契约用例；零依赖引入、JS 方法不广告。
+- **beta 准备件**：T5 PRD-09 harness 半边（120 盲测+24 开发集 SHA-256 冻结、review_source 必填、预算清单费用
+  记未知、两后端配对框架、fake 端到端报告、18 项机制测试实跑全绿）；T6 本地诊断闭环（JSONL 环形账本三重封顶
+  6 文件×64KiB×300 条 + ApplicationExitInfo 对账 + SAF 导出 SHA-256 复读校验，设备端到端含飞行模式导出零外发
+  实证）；T7 G3 导出图注（PDF/DOCX 各三处逐图挂注）；T8 abiFilters 落地。
+- **算法/数据面**：T9 `LongRangeSampleLedger` 只读台账（判据逐字复用 predictableSampleCount 同口径+对拍用例；
+  零 UI 零启用零 schema 零投影触碰，400 门只引用常量）；T10 3E 设备仪器化用例（真 Room 种子直跑排计划器，
+  钉四面）。
+- **设备证据落盘**：设备轨五组命令+exit+用例数落盘批次记录 §3.12（52/52 生图链 fake 回归、备份/迁移 78 例、
+  T6 端到端、T10 1 绿 2 红、R8 冒烟、装配 exit=0；全程裸 am instrument 禁 connectedAndroidTest）。
+- **新缺陷 KD-64**（中）：`NewIntroductionPolicy` 全超尺寸死锁分支 granted slice 可为负→IllegalArgumentException
+  （T10 设备 2 红；JVM 未覆盖）；**KD-65**（低）：`OpenAiModelResponseParsers` KDoc 与 FIGURE_GENERATION_WIRE_KEYS
+  不符（"purpose"实际在白名单且有值校验，行为 fail-closed）——改注释不改行为。
+
+### 未闭合/保留（照实）
+
+- **强门未跑**（提交前置）；单测门修复环复跑 exit=0 但范围未注明；T4"独立编译 EXIT=0+JUnitCore 17 例全绿"
+  无仓内留痕（UNVERIFIED）；真实 QuickJS 引擎行为 UNVERIFIED（保守分支无库可测）。
+- **AWAITING_VERIFICATION 独立 UI 态 + "重新核实/放弃"路径**（feature/library 与 core/domain 热区，下批）。
+- **T7：G1/G2 P0 未落待下批，不声称完成/已合规**；隐式标识未按 TC260 XMP 规范；G3 形态对第四条第二款满足性
+  挂条件。
+- R1/R4 ABI 面（四 ABI vs abiFilters 裁两位）T4/T8 前对齐；ps16k 装载冒烟、API23/arm64 真机矩阵未覆盖；
+  32 位设备不可装已采。
+- 真实 Provider/PRD-09 真实质量 UNVERIFIED；JS 后端留桩；4E.2/4E.3 未做；G5 三裁定要点待用户裁；
+  `SmartMistakeBookRoot.kt` 与 feature/*、core/ui 他线在飞——提交排除。

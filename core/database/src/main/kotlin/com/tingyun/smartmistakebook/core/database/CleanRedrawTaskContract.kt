@@ -10,7 +10,9 @@ object CleanRedrawTaskStatus {
     /** 待做 / 在途：还没有终态。进程被杀留下的就是这一态，启动对账接手。 */
     const val PENDING = "PENDING"
 
-    /** 终态：作业做完了（含"分类判定为纯文字题，不需要重绘"——作业本身完成，不是挂了图）。 */
+    /**
+     * 终态：图已生成并挂上（4E WG-03 起不再覆盖"分类判纯文字"——那是 [NO_FIGURE]）。
+     */
     const val SUCCEEDED = "SUCCEEDED"
 
     /** 终态：最近一次尝试失败（原因见 `last_failure_code`；尝试次数未耗尽时对账仍会接手）。 */
@@ -19,11 +21,31 @@ object CleanRedrawTaskStatus {
     /** 终态：不再有可挂的目标（修订/源图已不在，或该身份的工作已由另一行完成）——不挂、不再付费。 */
     const val SUPERSEDED = "SUPERSEDED"
 
+    /**
+     * 终态（4E WG-03）：分类判定这道题**不需要生成图**——没有产图、没有挂接。
+     *
+     * **它消灭的失败**：改前 TEXT_ONLY 直接落 `SUCCEEDED`，与"图已产并挂上"不可区分——
+     * 读台账的一方（显式重绘的源图选择、对账的"已做完"判据、人工排查）会把"无需生成"
+     * 误读成"已产图"。`SUCCEEDED` 从此只表"图真的挂上了"。
+     */
+    const val NO_FIGURE = "NO_FIGURE"
+
+    /**
+     * 待核实（4E WG-03）：这一尝试的**生成请求已发出、结果未知**（进程死在生成轮）。
+     *
+     * 对领取与对账按终态处理（不可再领、`resumePending` 不接手）：**不盲目补发**——外部
+     * 调用不保证恰好一次，Provider 的幂等/查询能力**未经实际验证前不得拿来当重发的依据**
+     * （WG-03 边界）。宁可这一行停在待核实（用户看原图），也不赌一次可能重复付费的重发。
+     * 结果已知的正常路径不受影响：同一尝试在生成返回后用同一 finish CAS 覆写为
+     * `SUCCEEDED`/`FAILED`。
+     */
+    const val AWAITING_VERIFICATION = "AWAITING_VERIFICATION"
+
     /** 可被对账接手的两种状态（终态里只有 FAILED 允许再试，且次数上限另行判定）。 */
     val RESUMABLE = listOf(PENDING, FAILED)
 
-    /** 终态集合：写入终态之后的行走不到"再试"。 */
-    val TERMINAL = listOf(SUCCEEDED, FAILED, SUPERSEDED)
+    /** 终态集合：写入终态之后的行走不到"再试"（领取 CAS 只认 FAILED 与首领 PENDING）。 */
+    val TERMINAL = listOf(SUCCEEDED, FAILED, SUPERSEDED, NO_FIGURE, AWAITING_VERIFICATION)
 }
 
 /**
@@ -46,6 +68,28 @@ object CleanRedrawFailureCode {
     /** 挂接写入失败（引用写入抛错；修订是否还在由 SUPERSEDED 那一支判）。 */
     const val ATTACH_FAILED = "ATTACH_FAILED"
 }
+
+/**
+ * 用户显式重绘作业的 `clean_redraw_task.operation_id` 前缀（4E WG-06 T3）。
+ *
+ * **它消灭的具体失败**：保存期净化作业与用户在详情页发起的显式重绘共用同一张
+ * `clean_redraw_task` 表。若没有可区分的身份，启动对账会把显式重绘行当成保存期作业，
+ * 走"先分类、TEXT_ONLY 就不动作"的路径——用户明明点了重绘，行却被标成"完成"，题面
+ * 永远停在原图。
+ *
+ * 保存期净化行的 `operation_id` 保持 NULL（旧链逐位不变）；只有显式重绘行带这个前缀。
+ */
+const val EXPLICIT_REDRAW_OPERATION_ID_PREFIX: String = "explicit-redraw-op:"
+
+/** 一次显式重绘作业的操作 id（确定性：同一个 `task_id` 永远得到同一个操作 id）。 */
+fun explicitRedrawOperationId(taskId: String): String {
+    require(taskId.isNotBlank()) { "A clean redraw task id must not be blank" }
+    return EXPLICIT_REDRAW_OPERATION_ID_PREFIX + taskId
+}
+
+/** 这一行是不是用户显式重绘（而不是保存期自动净化）。NULL/其它前缀都是保存期作业。 */
+fun isExplicitRedrawOperation(operationId: String?): Boolean =
+    operationId != null && operationId.startsWith(EXPLICIT_REDRAW_OPERATION_ID_PREFIX)
 
 /**
  * 作业身份 → 任务 id：四个身份列（修订 / 源图资产 / 源图**字节** sha / 分类请求指纹）的
@@ -78,9 +122,18 @@ data class CleanRedrawTaskRecord(
     val lastFailureCode: String?,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+    /**
+     * 这次净化/重绘作业对应的图生成操作（4E WG-08，schema 69 可空列）。
+     * NULL = 保存期净化或历史作业；`explicit-redraw-op:` 前缀 = 用户显式重绘。
+     * 它只指向审计台账，**不是**预算：尝试上限仍看 [attemptCount]。
+     */
+    val operationId: String? = null,
 ) {
     init {
         require(taskId.isNotBlank()) { "A clean redraw task id must not be blank" }
+        require(operationId == null || operationId.isNotBlank()) {
+            "A clean redraw operation id must be null or non-blank"
+        }
         require(revisionId.isNotBlank()) { "A clean redraw revision id must not be blank" }
         require(sourceAssetId.isNotBlank()) { "A clean redraw source asset id must not be blank" }
         require(sourceImageSha256.length == 64) { "A clean redraw source sha must be sha256" }
@@ -118,9 +171,14 @@ data class CreateCleanRedrawTaskCommand(
     val requestFingerprint: String,
     val subjectId: String,
     val createdAtEpochMillis: Long,
+    /** 显式重绘传 `explicit-redraw-op:<taskId>`；保存期净化保持 null（旧链逐位不变）。 */
+    val operationId: String? = null,
 ) {
     init {
         require(taskId.isNotBlank()) { "A clean redraw task id must not be blank" }
+        require(operationId == null || operationId.isNotBlank()) {
+            "A clean redraw operation id must be null or non-blank"
+        }
         require(revisionId.isNotBlank()) { "A clean redraw revision id must not be blank" }
         require(sourceAssetId.isNotBlank()) { "A clean redraw source asset id must not be blank" }
         require(sourceImageSha256.length == 64) { "A clean redraw source sha must be sha256" }
@@ -150,6 +208,18 @@ data class ClaimCleanRedrawTaskAttemptCommand(
     val expectedAttemptCount: Int,
     val maxAttempts: Int,
     val occurredAtEpochMillis: Long,
+    /**
+     * 在途租约截止：`PENDING` + 已领取（`attempt_count > 0`）的行只有在
+     * `updated_at_epoch_millis <=` 本值时才能再次领取。
+     *
+     * `PENDING` 同时表示"待做"与"在途"。没有这道租约时，第二个并发请求会读到第一次领取
+     * 之后的 `attempt_count = n+1` 并以它为期望值再领取到 n+2——同一作业两个执行者同时
+     * 出网、重复付费，终态还可能互相覆盖。首次领取（`attempt_count == 0`）与 `FAILED`
+     * 后的重试不受此限；启动对账传"本进程启动时刻"，上一进程留下的在途行仍能被接手。
+     *
+     * 必填：新请求/`executeTask` 传 0（只领首次或 FAILED 重试），启动对账传进程启动时刻。
+     */
+    val staleBeforeEpochMillis: Long,
 ) {
     init {
         require(taskId.isNotBlank()) { "A clean redraw task id must not be blank" }
@@ -159,6 +229,9 @@ data class ClaimCleanRedrawTaskAttemptCommand(
         require(maxAttempts >= 1) { "A clean redraw attempt limit must be positive" }
         require(occurredAtEpochMillis >= 0) {
             "A clean redraw claim time must not be negative"
+        }
+        require(staleBeforeEpochMillis >= 0) {
+            "A clean redraw claim lease must not be negative"
         }
     }
 }
