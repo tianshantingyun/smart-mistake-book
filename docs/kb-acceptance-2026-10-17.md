@@ -605,3 +605,62 @@ python build/agent-batch19/a1/zero_drift.py
 ```
 
 > 引用格式：**「批次19：A1 采纳——包 v20（contentVersion `ebf477816c318704`，主包 sha `298f4c0c…`）+ dense `0536d0d1…`（44,041 行）为新基线；D-3 融合主集 117/129 = 0.9069767（首次 ≥0.90）、词面 102/129、MRR 0.7323、零漂移 PASS/PASS、显著性 +0.1318（CI [0.0769, 0.1926]，p=0.0001）、三规则成立；标题向量臂零漂移装置缺陷（symdiff=3）不判读、逐字回滚（21/21 核验）；dense-union 前置实测 go（K=64：3/4 absent 名次 1/2/7、对 A0 结构覆盖 28/29；A1 基线单独并集上限约 119/129、等和线 1 条转内容侧）；批次15 A2 证据补录 1033/1033。」**
+
+## 10. 最终验收标准 v1.0 与达成快照（批次20 终验，2026-10-25 落章）
+
+> 本节为**最终验收落章**，只追加不改写：§1–§9 的历史时点读数（v16/v18/v19、87.79% 旧覆盖口径等）全部保留原文。判据来源 = `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md`（五组：A 内容 / B 检索 / C 接线 / D 卫生 / E 边界；「达成时点状态」列已按快照刷新）。读数主体 = **终验快照轮 2026-10-25 实测/对拍**（`build/agent-batch20/acceptance-snapshot.md`；快照=done）：除 §10.7 如实登记的未重跑项外，全部为快照轮实跑或对拍；其中「收口轮复算」四项（覆盖重算、verify 脚本、包身份、锚单测 XML）为本落章文书员本轮**实跑**。基线：HEAD = `558185c9`（v20 基线提交），包 **v20**（contentVersion `ebf477816c318704`，主包 sha `298f4c0c…`）+ dense `0536d0d1…`（44,041 行）。
+>
+> **口径防混**：本节主线 426 分母 = `required-*` + `selective-*`（必修 + 选择性必修），与 §1 的 426 同分母但**状态为终审后新计数**（400/16/10 ≠ §1 的 374/43/9，差异 = 43 条 PARTIAL 终审 26 升 1 豁 16 维持）；选修 235 依旧单列。批报：`docs/kb-batch20-2026-10-25.md`（含 43 行去向与标题臂收束全记录）。
+
+### 10.1 A 组（内容完备与正确）——3/3 达标
+
+| 判据 | 标准 | 实测 | 证据 | 复算命令 |
+|---|---|---|---|---|
+| A1 结构与卫生门 | 425 主题 / 3,245 点 / 64,973 材料 / 25 侧车；乱码、残迹、漂移、切片、资产门全绿 | **八门 rc 全 0、overall red=0**（kb_checks / py_suite / promote_dry / slice / asset / alignment / transcripts / judgment_fp，2026-10-25 16:51–16:55 实跑） | `build/agent-batch20/gates/summary.txt` + 逐门 log ×8；脚本 `build/agent-batch20/scripts/run_gates_b20.sh` | `python tools/ci/run_kb_checks.py`（其余七门命令见 summary.txt 逐行头） |
+| A2 覆盖终态（主线 426 每条终态化） | 43 条 PARTIAL 逐条终审：升 COVERED（证据落库）/ 维持 PARTIAL（带注记）/ 转豁免（性质判定格式） | **applied**：43 行 = UPGRADE 26 / KEEP 16 / WAIVE 1；主线 426 = COVERED **400** / PARTIAL **16** / NOT_COVERED **10** / UNDECIDED **0**，覆盖 **0.9390**；分科 MATH 308/151/26/131/0 · PHYSICS 138/86/9/43/0 · CHEMISTRY 73/59/5/9/0 · BIOLOGY 142/120/6/16/0；选修 235 单列 16/30/189；全账 661 = 416/46/199（0.6293） | 台账 `knowledge-production/kb-coverage-alignment-2026-v2.json`（43 行 `finalReview`）；裁定 `build/agent-batch20/partial-review/decisions.json`；逐行表 `knowledge-production/coverage-final-review-2026-10-25.md`；独立重算 `build/agent-batch20/gates/coverage-recalc-r20.log`（三口径+四分科与书记员全 MATCH） | `python -c "import json,collections;d=json.load(open('knowledge-production/kb-coverage-alignment-2026-v2.json',encoding='utf-8'));print(dict(collections.Counter(r['status'] for s in d['subjects'] for r in s['statements'] if r['candidateRef'].rsplit('/',1)[-1].rsplit('-candidate',1)[0].startswith(('required-','selective-')))))"` → `{'COVERED': 400, 'PARTIAL': 16, 'NOT_COVERED': 10}`（收口轮实跑复现）；`python build/agent-batch20/scripts/final_review_verify_r20.py`（7 项断言，exit=0 收口实跑复现） |
+| A3 溯源诚实 | 豁免格式合规、19 条旧标签已修（v19 落地）、零伪造 provenance | **终审轮复验绿**：`f14-waivers.csv` 既有 9 行字节不动 + 新增 1 行 WAIVE（`required-chemistry-social-development-candidate-001`，reason=性质判定+无承载+登记豁免）= 10 行；verify 断言[3] 过；provenance 零伪造由 kb_checks（consistency/judgment_drift/judgment_fp rc=0）覆盖 | `knowledge-production/f14-waivers.csv`；`build/agent-batch20/scripts/final_review_verify_r20.py` 断言[3] | 同上 verify 脚本；`git status --porcelain -- core/data/src/main/resources/` = 空（包面零漂移） |
+
+### 10.2 B 组（检索质量）——4/4 达标（B4 为登记型判据）
+
+| 判据 | 标准 | 实测 | 证据 | 复算命令 |
+|---|---|---|---|---|
+| B1 设备融合主集 | Recall@5 ≥ 0.90（金标 `golden_queries_v2.json` 129 条，判官不改；读数经全部门） | **0.9069767（117/129）**，MRR 0.7322997416020672；`am instrument` OK (1 test) exit=0；装置同代核验 worktree=local=installed=`0536d0d1…` **MATCH**（首轮 SAMEGEN MISMATCH 已按处置重建重装后复核）；词面臂 102/129、MRR 0.6206718346253232（与 D2 词面锚逐位一致） | `build/agent-batch20/drill/device-metrics.txt:2-5`（融合）、`:32-35`（词面）；`drill/device-test-result.txt`；`drill/apk-samegen-check.log`；采纳依据（三规则/显著性/翻转分解）= 批次19 §9.2 + `build/agent-batch19/a1/significance-fused-vs-A0.json` | `adb shell am instrument -w com.tingyun.smartmistakebook.core.data.test/androidx.test.runner.AndroidJUnitRunner`（装置轮协议见 `build/agent-batch20/d3/step2_install_run_device.sh`） |
+| B2 同路零漂移 | device↔JVM 同路 MISS 对称差 = 0 | **PASS/PASS**：fused symdiff=**0**、lexical symdiff=**0**（12/12、27/27 common）；账本链 A0（batch15/d3 4 件）→ A1（batch19/a1 4 件）→ 快照轮（batch20/drill 4 件）在位 | `build/agent-batch20/drill/zero-drift.json`（gate 名「批次20 终验快照轮」）、`drill/{device,jvm}-{fused,lexical}-misses.txt` | `python build/agent-batch20/d3/zero_drift.py`（脚本在位；读数 JSON 即其落盘产物） |
+| B3 预算 | 融合 p95 ≤250ms / p50 ≤150ms、overBudgetSamples=0 | **p50=38 / p95=48 / max=116ms，overBudgetSamples=0**（预算行明示 p95Budget=250ms p50Budget=150ms；词面 p50=7 / p95=13） | `build/agent-batch20/drill/device-metrics.txt:2`（融合）、`:32`（词面） | 同 B1 装置轮；指标行即判读面 |
+| B4 剩余 MISS 登记为已知边界 | 9 条域内排序 + 2 条 absent（union 可救）+ 等和线词汇缺口逐条登记 | **已登记（快照轮续记）**：快照轮 fused MISS 12 条 = A1 采纳时 12 条同集、零新增；等和线 dense 全科名次 336、并集结构上限 ≈119/129 维持批 19 登记 | `build/agent-batch20/drill/device-fused-misses.txt`（12 条）；`build/agent-batch19/dense-union-estimate/dense-union-estimate.json`；批19 文书 §5/§7 | `python build/agent-batch19/scripts/dense_union_estimate.py`（内置对拍门） |
+
+### 10.3 C 组（生产接线）——2/2 达标
+
+| 判据 | 标准 | 实测 | 证据 | 复算命令 |
+|---|---|---|---|---|
+| C1 KNOWLEDGE_READ 512 深度 + top-5 + 2k 预算 | `KnowledgeReadRecallBudgetTest` 钉住；`:core:data` 全套单测绿 | **1033/1033 绿**（批次19/20 存档读数，0 失败 0 错误 0 跳过；**快照轮未重跑**，见 §10.7——如实登记） | `build/agent-batch19/a2-evidence-summary.md`；批19 文书 §2 | `./gradlew.bat :core:data:testDebugUnitTest --rerun --console=plain` |
+| C2 端侧融合在产 | denseLegLive=true | **true（快照轮实测）** | `build/agent-batch20/drill/device-metrics.txt:2` | 同 B1 装置轮 |
+
+### 10.4 D 组（工程卫生）——3/3 达标
+
+| 判据 | 标准 | 实测 | 证据 | 复算命令 |
+|---|---|---|---|---|
+| D1 八门全绿且全库无登记红（ULP 锚裁定后） | 八门 + 词面锚单测全绿 | **fixed-green**：`V1_D1_MRR` 重钉 `0.6206718346253232`（裁定：Kotlin 回读重算 + 设备实测两源一致；…229 为 Python④ stage3 外源单源）+ 裁定注释落码（`ProductionLexicalLegExportTest.kt:365-366`）；本轮 ProductionLexicalLegExportTest **1/1**、DenseAssetProvenanceTest **2/2** 全绿 0 skip；八门 rc 全 0 | `core/data/src/test/kotlin/.../knowledge/ProductionLexicalLegExportTest.kt:365-366`；XML `core/data/build/test-results/testDebugUnitTest/TEST-*{ProductionLexicalLegExportTest,DenseAssetProvenanceTest}.xml`；备份 `build/agent-batch20/backup/ProductionLexicalLegExportTest.kt.pre-ulp-2026-10-25`；`build/agent-batch20/gates/summary.txt` | `./gradlew.bat :core:data:testDebugUnitTest --tests ProductionLexicalLegExportTest --tests DenseAssetProvenanceTest --console=plain`（快照轮实跑 1/1+2/2）；`grep -n "V1_D1_MRR =" core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/ProductionLexicalLegExportTest.kt` |
+| D2 版本/钉值/账本一致 | manifest（v20，`ebf477816c318704`）、`VECTOR_ASSET_SHA256`（0536d0d1…）、词面锚、dense 夹具、A0/A1 账本链 | **快照轮逐项对拍 ✓**：manifest v20/`ebf477816c318704`（manifest:4–5）；`.vec` sha `0536d0d1cda99bd5614bc94d9176628d7ce999938db1c289b3b44600ae13b23a` 本轮实算 == `DenseRecallAssembly.kt:107` 钉值 == APK 内嵌（同代 MATCH）；词面锚 …232 与设备词面 MRR 逐位一致；A0/A1/快照轮账本链在位；包面卫生 porcelain = 空 | 快照 §6 逐项表；`core/data/src/main/resources/knowledge/moe-2025-update-manifest.json:4-5`；`DenseRecallAssembly.kt:107`；`drill/apk-samegen-check.log` | `python -c "import json; d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8')); print(d['version'], d['contentVersion'])"`；`sha256sum core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec`（收口轮实跑复现两值）；`python tools/dense_build/check_asset.py` |
+| D3 文书可复算 | 验收文书（含本节落章）、批报、预注册结果节，逐项附复算命令 | **本批落章**：判据 v1.0「达成时点状态」列按快照刷新；本节 §10；批报 `docs/kb-batch20-2026-10-25.md`（附录复算命令）；标题臂预注册 §7.11 收束 | `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md`；`docs/kb-batch20-2026-10-25.md`；`docs/research/2026-10-23-title-vector-arm-prereg.md` §7.11 | 人工复核 + 本表各复算命令 |
+
+### 10.5 E 组（边界与移交）——逐条登记终态，不挡验收
+
+- **E1** A 层 60,512 封层（批 14 预注册裁量）/ 选修 235 单列（无源）/ 84 空点撤回 / 91 容量历史关闭 / 3 条金标-绑定冲突接受为边界——**维持登记**。
+- **E2** 182 拆分提案（50 REJECT / 132 DEFER）、114 重开提案、402 同键分类 = AI 预裁完成，**用户复核开放中**；复核结果走后续维护版本——**维持登记**。
+- **E3** 验收后增强臂：dense-union 并集臂（结构上限 ≈119/129，待跨线施工）；**标题向量臂已于批次20 clean 重测收束**——同代装置出数 118/129、同路零漂移 PASS/PASS，预注册 §2 规则②否决（数学选必二第四章·数列 10/11→9/11 严格更低），裁定 adopted=false、逐字回滚 21/21，stateAfter = v20 + `0536d0d1…`（`build/agent-batch20/title-final-r20.md`；预注册 §7.11）；系统性别名扩充不针对金标定向——**登记为验收后维护/增强项**。
+- **E4** 等和线检索词汇缺口（内容不缺：23 别名 / 32 块材料挂对节点；dense 全科 336）+「灯被两绳吊」实例材料缺失（力的分解）——**维持登记**；补料列维护项（薄料 3 条评估见 `knowledge-production/coverage-final-review-2026-10-25.md`「薄料 3 条 thinAssessment」：07/26 已 UPGRADE、23 缺「电路元器件识别」半边现成料，只评估未写入）。
+
+### 10.6 快照轮未重跑项（如实登记，不构成达标缺口但有边界）
+
+1. **C1** `KnowledgeReadRecallBudgetTest` 与 `:core:data` 全套单测未在快照轮重跑：达标依据 = 批次19/20 存档读数 1033/1033（`build/agent-batch19/a2-evidence-summary.md`）。
+2. **E 组逐条复验**未在快照轮重跑：按判据文档 §E 的登记终态口径维持。
+3. **B1 无新开冷启轮**：快照读数采用同批 2026-10-25 16:35 drill 实测（zero-drift gate 名「批次20 终验快照轮」、同代 MATCH），快照员逐字复读原始 logcat/JSON 对拍锚值，未改判官、未改读数（快照 §8）。
+
+### 10.7 达成宣告
+
+按判据 v1.0「达成宣告条件」逐项核对：**A1–A3（3/3）、B1–B4（4/4）、C1–C2（2/2）、D1–D3（3/3）全部「实测达标 + 证据路径可复算」**，E 组（E1–E4）逐条登记终态——D1 的 ULP 锚已裁定落码转绿（fixed-green）、设备快照轮已实测落盘（快照=done），**无泊车项**。
+
+**宣告：知识库封装完毕（最终验收标准 v1.0 达成，2026-10-25）。** 基线定格：包 **v20**（contentVersion `ebf477816c318704`，主包 sha `298f4c0c…`）+ dense `0536d0d1…`（44,041 行）+ 检索基线 **117/129 = 0.9069767**（B1 判读）+ 覆盖终态主线 **400/426 = 0.9390**（A2 判读）。自此转入**维护态**：包零写（新增材料须走自产料池门 + 晋升，会使已测检索基线失效）；遗留边界（B4 的 12 条 MISS、选修 235、等和线词汇缺口、薄料补料）与增强臂（dense-union 并集、系统性别名扩充）按 §10.5 登记移交维护线；E2 用户复核开放中。
+
+> 引用格式：**「批次20 终验落章（2026-10-25）：最终验收标准 v1.0 五组判据全达标——A 八门全绿 + 43 条 PARTIAL 终审 applied（主线 426 = 400/16/10，覆盖 0.9390，UPGRADE 26/KEEP 16/WAIVE 1）；B1 融合主集 117/129 = 0.9069767（快照轮实测复现，同代 MATCH）+ B2 零漂移 PASS/PASS + B3 p50=38/p95=48ms 0 超预算 + B4 边界登记；C1 1033/1033（存档读数）+ C2 denseLegLive=true；D1 ULP 锚 fixed-green（重钉 …232，1/1+2/2 绿）+ D2 逐 sha 对拍一致 + D3 文书落章；E 组登记移交。标题向量臂批次20 clean 重测收束：规则②否决（数列 10/11→9/11）不采纳、逐字回滚，stateAfter = v20 + `0536d0d1…`（HEAD `558185c9`）。**封装完毕**，转入维护态。」**

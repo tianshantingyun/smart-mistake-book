@@ -137,3 +137,30 @@
 ### 7.10 结果节证据路径
 
 `build/agent-batch19/title-final.md`（回滚裁定与核验）；`title/{device-metrics.txt,zero-drift.out.txt,zero-drift.json,jvm-fused-metrics.txt,jvm-metrics.txt,significance-fused-vs-A1.txt,significance-lexical-vs-A1.txt,judge-files-record.md,step1_compile_and_assemble.log}`；`build/agent-batch19/{title-dryrun.log,title-export.log,title-pack.log,title-stage3.log,title-touched-files.txt,title-gate-probe.log,title-prereg-gate.log,title-rollback-*.log,backup/*.pre-title,title-sha/}`。
+
+### 7.11 批次20 clean 重测收束（终局裁定：adopted = false，规则②否决；2026-10-25）
+
+> 填写口径（批次20 结案文书员，2026-10-25）：§1–§6 与本 §7.1–§7.10（批次19 轮记录）一字未动；本节按预注册 §4「未来同代装置可按预注册复评」登记批次20 的复评终局。数字标注：**执行轮实读**（`build/agent-batch20/title*/`、`title-final-r20.md` 臂执行轮落盘产物）+ **收口实跑**（结案文书轮复核，逐处注明）。**本节为该预注册的结果终态：臂 settled——判读流程完整走完（与批次19 轮的「不判读」不同，本轮三规则已逐条求值），最终裁定不采纳。**
+
+**复评条件（预注册 §4 前提兑现）**：同代装置——批次20 冷启 wipe 实例（`title/emulator-coldstart.log`，15:05）+ 全链重出（`title-touched-files.txt` 21 行触碰 = 9 NORMAL + 12 PREM；`.vec` 44,041 → **104,959 行**、sha `9d9bf3f5…`、旁车 titleVectors=60,918、`VECTOR_ASSET_SHA256` 重指 `9d9bf3f5`；多件 sha 逐字节命中批次19 标题代快照 `title-sha/reroll-snapshot-*` / `final-shas.json`——确定性可复现）。装置门 GREEN（`title-gatetest.log`、`title-gate-recheck.log`）。
+
+**出数（执行轮实读，`title/device-metrics.txt:2-5`、`zero-drift.out.txt`、`significance-fused-vs-A1.{json,txt}`）**：
+
+- 设备融合主集 **118/129 = 0.9147286821705426**、MRR 0.7257105943152455、p50=48 / p95=60 / max=131ms、overBudgetSamples=0、denseLegLive=true——标题资产此轮**已进装置**（与批次19 轮 APK 内嵌 A1 代资产的本质差别）。
+- 设备词面 102/129、MRR 0.6206718346253232（词面不变式成立）；同路零漂移 **lexical symdiff=0 PASS、fused symdiff=0 PASS**（`verdict: lexical=PASS fused=PASS`）——批次19 的 FAIL 根因（装置两侧资产代际错配）已消解；§2 门「非 0 = 装置缺陷」**未触发**。
+- 显著性（reps=20000、seed=0，A=A1 基线、B=标题臂）：融合 B−A = **+0.0078**，95% CI（按章）[−0.0208, 0.0441]，双侧 p=0.9247；词面 delta=0.0000、p=1.0000。
+
+**三规则逐条（预注册 §2，本轮已求值；裁定依据 = `build/agent-batch20/title-final-r20.md` §1）**：
+
+| # | 规则 | 求值 | 依据 |
+|---|---|---|---|
+| 1 | 主集严格更高（≥118/129） | **成立**（118 ≥ 118） | `title/device-metrics.txt:3` |
+| 2 | 24 章逐章不劣（任一章严格更低即不采纳） | **否决**：数学选择性必修第二册·第四章·**数列 0.9090909…（10/11）→ 0.8181818…（9/11）严格更低**（json a 行 38 → b 行 84）；仅函数的概念与性质严格更高（0.6364→0.8182），其余 22 章相等 | `significance-fused-vs-A1.json`（收口实跑逐章比对复现） |
+| 3 | 负向守卫 CI 上界 ≥0 | **成立**（上界 0.0441 ≥ 0） | `significance-fused-vs-A1.txt` |
+| — | 零漂移一票否决 | 未触发（PASS/PASS） | `title/zero-drift.out.txt` |
+
+**裁定与回滚**：**adopted = false（唯一否决点 = 规则②；规则①③成立不改变否决）**。按预注册 §5 非采纳路径逐字回滚（`title-final-r20.md` §2–§3）：`git checkout --`（21 路径 EXIT=0）→ 8 件 EOL 表示差异（autocrlf/.gitattributes）→ 第二遍字节级复原（`.vec.json` 备份直拷、3 件 CRLF 变体、5 件 HEAD blob 原字节）→ 核验 porcelain 21/21 全空（3 次稳定）、`git diff` 空、零暂存、**21/21 sha256 == `title-sha/pre-sha.txt`**、`.vec`/`.vec.json` 与备份 cmp 一致、钉值回指 `0536d0d1`。
+
+**stateAfter：v20 + `0536d0d1…`（A1 基线，44,041 行）＝ HEAD `558185c9` + 资产 `0536d0d1` + 旁车 `4c911fc3…` + 清单 `7f1f6e8d…`**（收口实跑复核 sha256 前 16 全中）。标题向量**未采纳、非新基线**；标题代产物 sha 全录 `title-sha/post-sha-*.txt` 与 `title-rebuild.log`，内嵌 `9d9bf3f5` 的 androidTest APK 留档可回溯。§6 预期的「9 条域内理论可达面」实际兑现为翻转分解（收口实跑：`device-fused-misses.txt` A1↔标题两账本集合运算，symdiff=3 = 修 2 + 新 1）：**修复 2 条**（均在函数的概念与性质章：y=|f(x)| 图象、f(x)+f(−x)=2x+1 求解析式）、**新增 1 条**（数列章「S_n=n²+2n+1 求通项为何单独检验 n=1」——即规则②否决的那一题）；净 +1（117→118）。增量方向存在但按章分布不均匀，逐章不劣门按预注册否决——**不得记成「臂无效」或「臂有效」，只记「不采纳」**。
+
+**证据路径**：`build/agent-batch20/title-final-r20.md`（裁定与回滚核验）；`build/agent-batch20/title/{device-metrics.txt,zero-drift.out.txt,zero-drift.json,significance-fused-vs-A1.{json,txt},significance-lexical-vs-A1.{json,txt},emulator-coldstart.log,step2_run_device.log,step4_run_jvm.log}`；`build/agent-batch20/{title-touched-files.txt,title-rebuild.log,title-pack.log,title-export.log,title-dryrun.log,title-gatetest.log,title-gate-recheck.log,title-checkasset.log,title-dense-tests.log,title-kbchecks.log,title-stage3.log,title-sha/,backup/*.pre-titlerebuild}`。

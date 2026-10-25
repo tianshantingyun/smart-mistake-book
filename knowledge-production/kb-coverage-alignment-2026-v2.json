@@ -281,13 +281,20 @@
      "module": "必修：函数",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 22 页，必修：函数，原始编号 ②；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:函数的三要素",
      "evidencePhrase": "会根据不同的需要选择恰当的方法(如图象法、列表法、解析法等)表示函数",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "表示方法未单设节点"
+     "note": "表示方法未单设节点",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-80fe6c0ef5-001《函数的三要素与表示方法》（分册 moe-2025-teaching-support-v2-04）正文「### 二、常用表示方法：解析法、图象法、列表法。」；块 ext-mat-06e0e5a3ca-001《函数的概念、三要素与表示法》（分册 v2-10）「函数的表示法：解析法（用式子表示）、图象法、列表法，三种表示方法可以互相转化，解题时常把解析式与图象结合起来分析函数性质。」；另有块 ext-mat-397b9bb634-001（v2-06）「表示函数的方法：解析法、图象法和列表法」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/required-functions-candidate-003",
@@ -449,13 +456,20 @@
      "module": "必修：函数",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 23 页，必修：函数，原始编号 ③；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:对数函数的概念",
      "evidencePhrase": "知道对数函数与指数函数互为反函数(a>0,且a≠1)",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "反函数关系未单设节点"
+     "note": "反函数关系未单设节点",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-1544d7c08e-001《对数函数的概念与反函数》（分册 v2-08）正文「【反函数】：指数函数 y=a^x（a>0 且 a≠1）与对数函数 y=log_a x 互为反函数」；块 ext-mat-9677f16419-002d《对数函数的定义与性质（复习）》（v2-18）「同底的指数函数与对数函数互为反函数，图象关于直线 y=x 对称」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/required-functions-candidate-015",
@@ -595,7 +609,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "应用建模面未单设节点"
+     "note": "应用建模面未单设节点",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "5 处命中摘录均为单调性/周期/最值的公式应用话术（如 ext-mat-98e813b184-006「再【应用】公式 T=2π/|ω|」、ext-mat-847100604b-006「单调性的【应用】主要有两类：比较三角函数值大小…」、ext-mat-2452b5138b-012「导数方法的【应用】」），无一处讲授「用三角函数模型刻画周期变化的实际问题」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/required-functions-candidate-025",
@@ -687,13 +708,20 @@
      "module": "必修：几何与代数",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 28 页，必修：几何与代数，原始编号 ②；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量的概念",
      "evidencePhrase": "理解平面向量的几何表示和基本要素",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "几何表示(模/方向/零向量)未单设节点，另见 向量的模与夹角"
+     "note": "几何表示(模/方向/零向量)未单设节点，另见 向量的模与夹角",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-a5c8e4e572-001《向量的定义与模》（分册 v2-04）「①定义：既有大小又有【方向】的量叫做向量。②模长：向量的大小叫做向量的长度（或模），记作 |a|。③向量常用有向线段表示：线段长度表示模，箭头表示方向」；块 ext-mat-a5c8e4e572-003《特殊向量：零向量、单位向量、平行向量、相等向量》「①零向量：长度为 0 的向量，记作 0，其方向是任意的」；块 slug math-hj-xiangliang-dingyi《向量的定义与模》（v2-01）、ext-mat-a5c8e4e572-002《向量的几何表示》。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/required-geometry-algebra-candidate-003",
@@ -861,7 +889,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "力学面见 平面向量的数量积，几何共线见 向量共线定理"
+     "note": "力学面见 平面向量的数量积，几何共线见 向量共线定理",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "35 处命中均为坐标运算/基底法/数量积技巧块（如 ext-mat-7b46fb3adf-025《平面向量坐标运算的运算法则》、ext-mat-618a9e5fe2-004《平面向量的坐标表示与运算》、ext-mat-7b46fb3adf-021《基底法与坐标法的选用策略》），全部摘录中「力学」「实际问题」应用讲授 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/required-geometry-algebra-candidate-015",
@@ -1113,7 +1148,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "频率估计概率未单设节点"
+     "note": "频率估计概率未单设节点",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[频率估计概率] 在目标节点 21 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/required-probability-statistics-candidate-005",
@@ -1191,13 +1233,20 @@
      "module": "必修：概率与统计",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 34 页，必修：概率与统计，原始编号 ③；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:分层随机抽样",
      "evidencePhrase": "能根据实际问题的特点,设计恰当的抽样方法解决问题",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "抽样方法比选未单设"
+     "note": "抽样方法比选未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-c94bc82d48-003（分册 v2 内）正文「①特点：简单随机【抽样】从总体中逐个抽取；分层随机抽样先将总体分成互不交叉的层，再在各层中按同一比例抽样。②适用范围：总体个体数较少时用简[单随机抽样]…」；块 ext-mat-f1b122f33c-011「①依据一（差异）：各被调查单位的某个关键指标差异很大…简单随机【抽样】的样本容易偏离总体结构。②依据二（相关）：该关键指标与要估计的量有很强的正相关性，可用它当作分层的标志」；块 ext-mat-f53b1f065b-014「常见题型有三类：…比较分层【抽样】与简单随机抽样的方差差异；给出实际情境设计分层方案并评价其合理性」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/required-probability-statistics-candidate-011",
@@ -1443,13 +1492,20 @@
      "module": "选择性必修：函数",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 41 页，选择性必修：函数，原始编号 ②；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:导数定义在极限中的计算",
      "evidencePhrase": "体会极限思想,极限独立节点未设",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": ""
+     "note": "",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 math-kb-derivative-definition-limit《导数的定义（极限式）》（分册 v2-01）正文「f′(x0)=lim_{Δx→0}[f(x0+Δx)−f(x0)]/Δx，即函数在 x0 处的瞬时变化率」（侧车全文复读）；块 math-mo-daoshu-dingyi-jixian-banxing 系《导数定义中极限式的变形》（v2-01）「瞬时变化率的变形：lim[f(x0)−f(x0−Δx)]/Δx=…=f′(x0)」；块 ext-mat-510c066544-005《导数定义型问题的三类解法》（v2-06）「再化简，最后取 Δx 趋近于 0 的【极限】，即得 f′(x0)。类型二：变形匹配法。适用场景是题目给出的极限式与导数定义式形式不同…」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-functions-candidate-013",
@@ -1499,13 +1555,20 @@
      "module": "选择性必修：函数",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 41 页，选择性必修：函数，原始编号 ③；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:基本初等函数的导数",
      "evidencePhrase": "会使用导数公式表,公式表用法未单设",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": ""
+     "note": "",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-3cd410f924-003b《基本初等函数的导数公式》（分册 v2-09）「**基本初等函数的【导数】公式** 1. C′=0（C 为常数）；2. (x^n)′=nx^{n−1}…」；块 ext-mat-67879b3ebb-002「基本初等函数的【导数】公式是求导的起点，必须做到不混淆、不遗漏。常数函数：C′=0，几何意义是水平切线的斜率为零…」；另有 slug math-hj-jiben-hanshu-daoshu-gongshi（v2-01）与 53 清单十类公式块（ext-mat-289deb9ecd-020d）。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-functions-candidate-017",
@@ -1561,7 +1624,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "空间直角坐标系未单设"
+     "note": "空间直角坐标系未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[空间直角坐标系, 直角坐标系] 在目标节点 9 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-002",
@@ -1653,13 +1723,20 @@
      "module": "选择性必修：几何与代数",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 44 页，选择性必修：几何与代数，原始编号 ④；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:投影向量",
      "evidencePhrase": "了解空间向量投影的概念以及投影向量的意义,空间投影面未单设（现节点为平面投影向量）",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": ""
+     "note": "",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-e72ba411f6-004b《空间向量的投影向量（第05讲·知识点3）》（分册 v2-21）正文「在空间，向量向【向量投影】：由于它们是自由向量，可以先将它们平移到同一个平面 α 内，进而利用平面上向量的投影，得到与目标向量共线的投影向量」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-009",
@@ -1743,7 +1820,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "倾斜角/斜率未单设"
+     "note": "倾斜角/斜率未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "36 处命中摘录均为直线方程选用语境把斜率/倾斜角当已知量使用，如 ext-mat-ac5d633575-019「已知一点和【倾斜角】且倾斜角不为 90° 时优先用点斜式」、ext-mat-625c3a0cab-002「点斜式：已知直线过点 (x1,y1) 且【斜率】为 k…倾斜角为 90° 时斜率不存在」、ext-mat-7c29acc83e-005（两点式）；无一处讲授倾斜角定义、斜率定义（k=tanα）或过两点斜率公式 k=(y2−y1)/(x2−x1)。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-015",
@@ -1799,7 +1883,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "平面距离公式未单设"
+     "note": "平面距离公式未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[平面距离公式, 平面距离, 距离公式] 在目标节点 42 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-019",
@@ -1827,7 +1918,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "圆与圆位置关系未单设"
+     "note": "圆与圆位置关系未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[圆与圆位置关系, 圆与圆位置] 在目标节点 56 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-021",
@@ -1841,7 +1939,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": ""
+     "note": "",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "唯一命中块 ext-mat-45351bbbe7-012《圆上到直线距离为定值的点的个数》（v2-04）「**【应用】**：由『圆上有且只有 k 个点到直线距离为 m』列出 d 满足的不等式（组），再结合直线过定点、含参数等条[件求解]」——单一题型的应用方法句。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-022",
@@ -1855,7 +1960,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "三曲线分见 椭圆/双曲线/抛物线"
+     "note": "三曲线分见 椭圆/双曲线/抛物线",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "12 处命中均为技巧/结论块（如 math-hj-yuanzhui-changyong-jielun「常用结论：①【椭圆】、双曲线最短焦点弦为通径 2b²/a…」、math-mo-tuoyuan-shuangquxian-she-mn、math-mo-qiexian-fangcheng-qingdan），无一处讲授「圆锥曲线的实际背景/刻画现实世界的作用」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-023",
@@ -1911,7 +2023,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "焦半径应用另见 抛物线焦半径"
+     "note": "焦半径应用另见 抛物线焦半径",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "唯一命中块 ext-mat-0e56aad79f-053《圆锥曲线的定义与几何性质（背记手册）》（v2-18）摘录「双曲线有渐近线，抛物线有通径与【焦半径】」——性质清单式提及，无焦半径应用讲授。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-geometry-algebra-candidate-027",
@@ -2017,13 +2136,20 @@
      "module": "选择性必修：概率与统计",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 49 页，选择性必修：概率与统计，原始编号 ④；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:全概率",
      "evidencePhrase": "会利用全概率公式计算概率,了解贝叶斯公式",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "贝叶斯公式未单设"
+     "note": "贝叶斯公式未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 math-mo-quangailv-yu-beiyesi《全概率公式与贝叶斯公式》（分册 v2-01）「2.【贝叶斯公式】：P(B_j|A)=P(B_j)P(A|B_j)/ΣP(B_i)P(A|B_i)」；块 ext-mat-d04314ab0b-002d（v2-04）「### 三、【贝叶斯公式】 P(A_i|B)=P(A_i)P(B|A_i)/P(B)…」；块 ext-mat-0851e013ab-008（v2-08）「**配套工具**：当问题反过来需要『结果已知、追查原因』时，用【贝叶斯公式】…分母正是用全概率公式算出的 P(B)」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-probability-statistics-candidate-008",
@@ -2087,13 +2213,20 @@
      "module": "选择性必修：概率与统计",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 49 页，选择性必修：概率与统计，原始编号 ②；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:正态分布",
      "evidencePhrase": "了解正态分布的均值、方差及其含义",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "数字特征未单设"
+     "note": "数字特征未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-d04314ab0b-002h《正态密度函数、正态曲线与 3σ 原则》（分册 v2-04）正文「### 三、【数字特征】与标准正态：若 X∼N(μ,σ²)，则 E(X)=μ、D(X)=σ²…」并含 P(μ−3σ<X≤μ+3σ)≈0.9973 等 3σ 概率值。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-probability-statistics-candidate-013",
@@ -2101,13 +2234,20 @@
      "module": "选择性必修：概率与统计",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 50 页，选择性必修：概率与统计，原始编号 ①；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:回归分析",
      "evidencePhrase": "了解样本相关系数的统计含义,了解样本相关系数与标准化数据向量夹角的关系",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "相关系数未单设"
+     "note": "相关系数未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-914a1f50be-004《相关系数与散点图判断线性相关》（分册 v2-04）「**【相关系数】**：r=Σ(xi−x̄)(yi−ȳ)/[√Σ(xi−x̄)²·√Σ(yi−ȳ)²]」；块 ext-mat-d04314ab0b-010《线性回归中的相关系数与拟合效果》「### 二、【相关系数】 r：|r| 越接近 1，成对样本数据的线性相关程度越强；|r| 越接近 0 …越弱」；块 wusan-mat-v-eb4e55cd《样本相关系数与经验回归方程》（v2-05）。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-probability-statistics-candidate-014",
@@ -2115,13 +2255,20 @@
      "module": "选择性必修：概率与统计",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 50 页，选择性必修：概率与统计，原始编号 ②；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:回归分析",
      "evidencePhrase": "会通过相关系数比较多组成对数据的相关性",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "相关系数未单设"
+     "note": "相关系数未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-d04314ab0b-010（分册 v2-04）「|r| 越接近 1，成对样本数据的线性相关程度越强」；块 ext-mat-ec95317cfd-003d（v2-06）「会用线性【相关系数】 r 衡量两个变量之间线性相关关系的强弱：r>0 表示正相关，r<0 表示负相关，|r| 越接近 1 说[明越强]」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-probability-statistics-candidate-015",
@@ -2143,13 +2290,20 @@
      "module": "选择性必修：概率与统计",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 50 页，选择性必修：概率与统计，原始编号 ②；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:回归分析",
      "evidencePhrase": "会用一元线性回归模型进行预测",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "预测应用面未单设"
+     "note": "预测应用面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-mat-914a1f50be-004（分册 v2-04）「**方程的应用**：把 x 的值代入经验回归方程 ŷ=b̂x+â 可得 y 的【预测】值。例如由 ŷ=0.7501x+0.6105，当 x=7 时得 ŷ=5.8612」；块 wusan-mat-v-eb4e55cd（v2-05）「⑤【预测】的可靠性：由经验回归方程预测得到的是估计值，不一定是真实发生的值」；块 math-mo-huigui-zhixian-guozhongxin「解题步骤：…→写出回归直线方程→代值【预测】」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-probability-statistics-candidate-017",
@@ -2157,13 +2311,20 @@
      "module": "选择性必修：概率与统计",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:math:curriculum-text，PDF 第 50 页，选择性必修：概率与统计，原始编号 ①；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:math:atomic:独立性检验",
      "evidencePhrase": "理解2×2列联表的统计意义",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "列联表本身未单设"
+     "note": "列联表本身未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 math-hj-s94-contingency《分类变量与2×2列联表》（分册 v2-01）「【列联表】按两个分类变量的取值交叉统计频数，行和、列和与总和是基本约束」；块 math-hj-duiliebiao-chifang-jianyan「2×2【列联表】中 χ²=n(ad−bc)²/[(a+b)(c+d)(a+c)(b+d)]…」；块 ext-mat-b850815dc4-005（v2-04）「a、b、c、d 为 2×2【列联表】的四个实际频数。临界值表（部分）…」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:math:curriculum-text/selective-probability-statistics-candidate-018",
@@ -4324,13 +4485,13 @@
    ],
    "counts": {
     "total": 308,
-    "COVERED": 138,
-    "PARTIAL": 39,
+    "COVERED": 151,
+    "PARTIAL": 26,
     "NOT_COVERED": 131,
     "UNDECIDED": 0,
-    "coverageNumerator": 138,
+    "coverageNumerator": 151,
     "coverageDenominator": 308,
-    "coverage": 0.4481
+    "coverage": 0.4903
    }
   },
   {
@@ -4712,7 +4873,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "电路元器件识别另见 电路中的基本概念"
+     "note": "电路元器件识别另见 电路中的基本概念",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[电路中的基本概念, 电路中, 电路元器件识别, 电路元器件] 在目标节点 1 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/required-physics-3-candidate-008",
@@ -4796,7 +4964,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "史实与现代技术面未设"
+     "note": "史实与现代技术面未设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[史实, 现代技术面, 现代技术] 在目标节点 19 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/required-physics-3-candidate-014",
@@ -4846,13 +5021,20 @@
      "module": "必修3",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:physics:curriculum-text，PDF 第 22 页，必修3，原始编号 3.3.5；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波",
      "evidencePhrase": "通过实例,了解电磁波的应用及其带来的影响",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "应用面未单设"
+     "note": "应用面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-phy-91ff66998d-005《电磁波的特点与电磁波谱》（分册 v2-08）「**各波段的【应用】**：无线电波用于通信与广播；红外线有明显的热效应，用于遥感与测温；可见光引起视觉；紫外线具有荧光效应与杀菌作用；X 射线…」；块 ext-phy-0b2ace4bef-017/018《电磁波谱的分类与应用（一）（二）》（v2-14）「紫外线：…【应用】于医用消毒、防伪。X射线：穿透本领强，应用于检查、医用透视。γ射线：穿透本领最强，应用于工业探伤、医用治疗」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/required-physics-3-candidate-018",
@@ -5238,13 +5420,20 @@
      "module": "选择性必修2",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:physics:curriculum-text，PDF 第 31 页，选择性必修2，原始编号 2.3.1；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁说-麦克斯韦认为光是一种电磁波",
      "evidencePhrase": "初步了解麦克斯韦电磁场理论的基本思想,初步了解场的统一性与多样性",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "麦克斯韦理论全文未单设"
+     "note": "麦克斯韦理论全文未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 phys-kb-electromagnetic-wave-theory《麦克斯韦电磁场理论与电磁波》（分册 v2-02，PRIMARY 绑定本节点）正文「均匀变化的磁场产生恒定电场，不均匀变化的磁场产生变化的电场；反之亦然。电磁波是横波，真空中速度等于光速 c=3.0×10^8 m/s…」（rows.json 仅标题命中，侧车全文复读取证）；块 phys-fx-maxwell-em-wave-theory（同分册）正文「1. 电磁波是横波…2. 发射条件：足够高的振荡频率且电路开放。3. 接收：电谐振…4. 传播方式：天波、地波、空间波」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/selective-physics-2-candidate-011",
@@ -5266,13 +5455,20 @@
      "module": "选择性必修2",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:physics:curriculum-text，PDF 第 31 页，选择性必修2，原始编号 2.3.3；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:physics:atomic:无线电波的发射",
      "evidencePhrase": "知道电磁波的发射、传播和接收",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "传播/接收面未单设"
+     "note": "传播/接收面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-phy-392e36484a-008《无线电波的发射与接收》（分册 v2-04）「③【接收】原理：电磁波在【传播】过程中遇到导体会使导体中产生感应电流，空中的导体可以用来接收电磁波。④电谐振：当接收电路的固有频率跟收到的电磁波频率相同[时振荡电流最强]」；同题块 ext-phy-fffc8cde9c-003b（v2-08）、ext-phy-91ff66998d-005b（v2-09）、ext-phy-e14aad82a5-419（v2-12）均逐条讲授调制（调幅/调频）、接收过程与电谐振调谐。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/selective-physics-2-candidate-013",
@@ -5280,13 +5476,20 @@
      "module": "选择性必修2",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:physics:curriculum-text，PDF 第 32 页，选择性必修2，原始编号 2.3.4；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波",
      "evidencePhrase": "认识电磁波谱,知道各个波段的电磁波的名称、特征和典型应用",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "波谱波段未单设"
+     "note": "波谱波段未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-phy-fffc8cde9c-003c《电磁波谱的排列与特性》（分册 v2-09）「按照电磁波的波长大小或频率高低的顺序把它们排列成谱，叫做电磁【波谱】。按波长由长到短排列的顺序是：无线电波、红外线、可见光、紫外线、X 射线、γ 射线。谱中各波段的波[长特征]…」；块 ext-phy-1e9381a0e1-021（v2-08）「电磁【波谱】按波长由长到短为…波长越长越容易发生干涉与衍射，波长越短穿透能[力越强]」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/selective-physics-2-candidate-014",
@@ -5322,13 +5525,20 @@
      "module": "选择性必修2",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:physics:curriculum-text，PDF 第 32 页，选择性必修2，原始编号 2.4.3；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:physics:atomic:常见传感器的特点",
      "evidencePhrase": "列举传感器在生产生活中的应用",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "应用面未单设"
+     "note": "应用面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-phy-206fb04353-103《传感器的应用》（分册 v2-06）「传感器的【应用】（常见装置）：1. 门窗防盗报警装置：由干簧管、磁铁、LED 与电源组成，磁铁靠近时干簧管闭合。2. 加速度计：…」；块 ext-phy-e14aad82a5-428（v2-12）「光敏电阻…作用：把光照强弱这个非电学量转换为电阻这个电学量（【应用】于自动计数装置等）」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/selective-physics-3-candidate-001",
@@ -5524,7 +5734,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "加速器/粒子探测器面未单设"
+     "note": "加速器/粒子探测器面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[加速器, 粒子探测器面, 粒子探测器] 在目标节点 12 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:physics:curriculum-text/selective-physics-3-candidate-015",
@@ -6271,13 +6488,13 @@
    ],
    "counts": {
     "total": 138,
-    "COVERED": 81,
-    "PARTIAL": 14,
+    "COVERED": 86,
+    "PARTIAL": 9,
     "NOT_COVERED": 43,
     "UNDECIDED": 0,
-    "coverageNumerator": 81,
+    "coverageNumerator": 86,
     "coverageDenominator": 138,
-    "coverage": 0.587
+    "coverage": 0.6232
    }
   },
   {
@@ -6583,13 +6800,20 @@
      "module": "必修：化学与社会发展",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:chemistry:curriculum-text，PDF 第 26 页，必修：化学与社会发展，原始编号 5.1；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
-     "targetRef": "kb:moe-2025-four-subjects-v1:chemistry:atomic:绿色化学",
+     "status": "NOT_COVERED",
+     "targetRef": null,
      "evidencePhrase": "认识到化学科学与技术对我国走生产发展、生活富裕、生态良好的文明发展道路发挥的重要作用",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "可持续发展价值面"
+     "note": "可持续发展价值面",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "WAIVE",
+      "evidence": "性质判定：态度与价值观目标——本条要的是「形成人与自然和谐共生理念、树立建设美丽中国、为全球生态安全作出贡献的信念」等观念表述，无化学内容要求可挂，补成知识点没有教学意义；其可测事实面已由绿色化学等既有节点承载。无承载证据：检索词「可持续发展」在绿色化学节点 16 条绑定材料 0 命中（rows.json hit=False）；与 f14-waivers.csv 中 required-physics-3-candidate-022、required-chemistry-social-development-candidate-005 同性质。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:chemistry:curriculum-text/required-chemistry-social-development-candidate-002",
@@ -6603,7 +6827,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "药物另见 蛋白质"
+     "note": "药物另见 蛋白质",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[蛋白质, 药物] 在目标节点 24 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:chemistry:curriculum-text/required-chemistry-social-development-candidate-003",
@@ -6631,7 +6862,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "大气/废水防治面未单设"
+     "note": "大气/废水防治面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "大气防治半面有实质讲授：块 ext-che-813727c8d6-005《硫酸型酸雨的形成与危害》（分册 v2-07，侧车全文复读）「3. 防治措施：燃料脱硫（如燃煤中加入石灰石）、使用清洁能源、工业尾气经碱液吸收后排放」；块 ext-che-5c62da9e03-120《酸雨的概念、成因、类型与防治》（v2-12）「防治措施包括调整能源结构发展清洁能源、研究煤的脱硫技术、加强工厂废气回收处理、改进汽车尾气处理技术并严格规定排放标准」。但「废水处理」半面：检索词「废水防治」0 命中、3 块命中摘录均无废水处理内容。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:chemistry:curriculum-text/required-chemistry-social-development-candidate-005",
@@ -7093,7 +7331,14 @@
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "新材料/药物面未单设"
+     "note": "新材料/药物面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "KEEP",
+      "evidence": "rows.json hit=False：keywords=[新材料, 药物面, 药物] 在目标节点 18 条绑定材料 0 命中。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:chemistry:curriculum-text/selective-organic-foundations-candidate-008",
@@ -7309,8 +7554,8 @@
    "counts": {
     "total": 73,
     "COVERED": 59,
-    "PARTIAL": 6,
-    "NOT_COVERED": 8,
+    "PARTIAL": 5,
+    "NOT_COVERED": 9,
     "UNDECIDED": 0,
     "coverageNumerator": 59,
     "coverageDenominator": 73,
@@ -7872,13 +8117,20 @@
      "module": "必修：遗传与进化",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 21 页，必修：遗传与进化，原始编号 4.1.2；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:生物有共同祖先的证据",
      "evidencePhrase": "通过细胞生物学和分子生物学等知识,说明当今生物具有许多共同特征",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "分子水平共性面未单设"
+     "note": "分子水平共性面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 bio-kb-common-ancestor-other-evidences《共同祖先的其他证据（比较解剖学、胚胎学、细胞与分子水平）》（分册 v2-04）「3. 细胞水平：都有能代谢、生长、增殖的细胞，有共同的物质与结构基础。4.【分子水平】：不同生物 DNA 和蛋白质的共同点提示共同祖先，差异大小揭示亲缘关系远近和出现顺序」；块 bio-kb2-23-common-ancestor-evidence、bio-fj-23-other-evidence-common-ancestor（同分册）同授；块 ext-bio-c496a62e4c-003c（v2-01）「(3) 细胞和【分子水平】的证据：研究不同生物细胞、蛋白质、DNA 的共性等」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/required-genetics-evolution-candidate-018",
@@ -7928,13 +8180,20 @@
      "module": "必修：遗传与进化",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 21 页，必修：遗传与进化，原始编号 4.2.4；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:自然选择",
      "evidencePhrase": "现代生物进化理论以自然选择学说为核心,为地球上的生命进化史提供了科学的解释",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "理论体系节点未单设"
+     "note": "理论体系节点未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-bio-c496a62e4c-003d《现代生物进化理论的核心内容》（分册 v2-01）；块 wusan-bio-v-6a817433《自然选择与种群基因频率的定向改变》（v2-03）「②共同由来学说：地球上所有的生物都是由原始的共同祖先进化来的，最直接、最重要的证据是化石。③现代生物进化【理论】：种群是生物进化的基本单位，基因库是…」；块 ext-bio-5f510cdc4a-977《〈53知识清单〉…现代生物进化理论的五点内容》（v2-11）。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/required-genetics-evolution-candidate-022",
@@ -7984,13 +8243,20 @@
      "module": "选择性必修：稳态与调节",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 23 页，选择性必修：稳态与调节，原始编号 1.1.3；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:内环境",
      "evidencePhrase": "机体通过呼吸、消化、循环和泌尿等系统参与内、外环境间的物质交换",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "系统参与面未单设"
+     "note": "系统参与面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 bio-kb-cell-exchange-with-external-systems《细胞通过内环境与外界环境进行物质交换》（分册 v2-04）「2. 养料：外界食物→消化【系统】→循环系统→内环境→组织细胞。3. O2：外界空气→呼吸系统→循环系统→内环境→组织细胞。4. CO2 和废物：组织细[胞→…]」；块 ext-bio-9561124d9a-001（v2-17）「内环境是体内细胞生活的直接环境，细胞通过内环境与外界环境进行物质交换，需要体内各【系统参与】」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/selective-homeostasis-regulation-candidate-004",
@@ -8082,13 +8348,20 @@
      "module": "选择性必修：稳态与调节",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 24 页，选择性必修：稳态与调节，原始编号 1.3.5；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:神经系统的结构",
      "evidencePhrase": "中枢神经系统通过自主神经来调节内脏的活动",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "自主神经未单设"
+     "note": "自主神经未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-bio-812daccffe-001《神经系统的基本结构》（分册 v2-01）「传出神经（运动神经）…包括躯体运动神经（受意识支配）和内脏运动神经（【自主神经】系统）。## 三、自主神经系统：含义：支配内脏、血管和腺体的传出神经，它们的活动不受意识支配」；块 ext-bio-5f510cdc4a-1106《自主神经系统的概念、组成与意义》（v2-11）「由交感神经和副交感神经组成，二者对同一器官的作用通常是相反的…意义：可以使机体…」；另有易错辨析块 bio-fx-judge-autonomic-nerves（v2-05）。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/selective-homeostasis-regulation-candidate-011",
@@ -8306,13 +8579,20 @@
      "module": "选择性必修：生物与环境",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 27 页，选择性必修：生物与环境，原始编号 2.1.3；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:种群数量的变化",
      "evidencePhrase": "阳光、温度和水等非生物因素以及不同物种之间的相互作用都会影响生物的种群特征",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "影响因素面未单设"
+     "note": "影响因素面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-bio-c1f36a400a-002b《影响种群数量变化的因素》（分册 v2-01）表格「非生物因素（【影响】往往是综合性的）|阳光|森林中林下植物的种群密度主要取决于林冠层的郁闭度|温度|在温带和寒温带…」；块 ext-bio-524cba8aa4-002b「凡是能引起这些特征变化的生物因素和非生物因素 如光照、水分、温度、食物、年龄结构和性别比例等 都会影响种群的数量」；块 ext-bio-524cba8aa4-005「密度制约因素（如种内竞争、天敌）和非密度制约因素（如自然灾害、气候）都会对种群数量变化产生【影响】」。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/selective-biology-environment-candidate-004",
@@ -8404,13 +8684,20 @@
      "module": "选择性必修：生物与环境",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 28 页，选择性必修：生物与环境，原始编号 2.2.4；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:物质循环",
      "evidencePhrase": "利用物质循环和能量流动规律,人们能够更加科学、有效地利用生态系统中的资源",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "利用面未单设"
+     "note": "利用面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-bio-5f510cdc4a-1615《生态系统的物质循环及其特点与应用》（分册 v2-11）「3. 应用：种养结合模式如稻田养鸭养鱼，好处是动物的摄食、消化能促进物质循环，动物粪便中的氮、磷等可供[植物利用]…」；块 bio-mo-ecosystem-020（v2-05）「在物质循环过程中，非生物环境中的物质可以被生物群落反复【利用】」；块 ext-bio-cfff2e6c9b-003g（v2-03）。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/selective-biology-environment-candidate-011",
@@ -8726,13 +9013,20 @@
      "module": "选择性必修：生物技术与工程",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 31 页，选择性必修：生物技术与工程，原始编号 4.1.3；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:植物组织培养",
      "evidencePhrase": "植物细胞工程利用快速繁殖、脱毒、次生代谢产物生产、育种等方式有效提高了生产效率",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "快速繁殖/脱毒面未单设"
+     "note": "快速繁殖/脱毒面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-bio-c168f35dac-001《植物组织培养的流程与应用》（分册 v2-01）「## 四、植物细胞工程的应用：**【快速繁殖】**（植物繁殖的新途径）：优点是高效、快速地实现种苗的大量繁殖并保持优良品种的遗传特性。**作物【脱毒】**：植物顶端分生区附近（如茎尖）的病毒极少甚至无病毒，可用茎尖进行组织培养获得脱毒苗（如脱毒马铃薯、脱毒草莓…）」；块 ext-bio-320a959ba0-001/005b（脱毒苗获得与实质辨析、人参皂苷次生代谢物）；块 bio-mo-cell-engineering-005/011（v2-05）。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/selective-biotech-engineering-candidate-012",
@@ -8880,13 +9174,20 @@
      "module": "选择性必修：生物技术与工程",
      "scopeSummary": false,
      "sourceLocator": "candidate:moe:2025:biology:curriculum-text，PDF 第 32 页，选择性必修：生物技术与工程，原始编号 5.1.4；DRAFT_UNREVIEWED 机械提取候选，尚未完成人工细化与审校",
-     "status": "PARTIAL",
+     "status": "COVERED",
      "targetRef": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
      "evidencePhrase": "基因工程在农牧、食品及医药等行业的广泛应用改善了人类的生活品质",
      "reviewState": "AI_REVIEWED",
      "reviewer": "Qwen3.8-27B（用户指定语义判定通道，2026-09-16 决定）",
      "reviewedAt": "2026-10-19",
-     "note": "应用面未单设"
+     "note": "应用面未单设",
+     "finalReview": {
+      "date": "2026-10-25",
+      "reviewer": "kb-final-review-r20",
+      "method": "sidecar-content-evidence",
+      "decision": "UPGRADE",
+      "evidence": "块 ext-bio-5b6cb16a7f-013（分册 v2-01）「5 【应用】背景：乳糖不耐受症是人体小肠乳糖酶缺乏，导致无法消化乳糖而引起的胃肠不适。利用基因工程菌生产乳糖酶，进而制备低乳糖乳制品…」；块 bio-mo-genetic-engineering-030（v2-05）「对微生物的基因改造是基因工程中研究最早、最广泛和取得实际【应用】成果最多的领域，这是因为微生物具有生理结构和遗传物质简单、生长繁殖快…等优点」；块 bio-crispr-cas9-applications《CRISPR/Cas9 应用：基因敲除、定点插入、突变细胞筛选与疾病治疗》（v2-04）。"
+     }
     },
     {
      "candidateRef": "candidate:moe:2025:biology:curriculum-text/selective-biotech-engineering-candidate-023",
@@ -9311,22 +9612,22 @@
    ],
    "counts": {
     "total": 142,
-    "COVERED": 112,
-    "PARTIAL": 14,
+    "COVERED": 120,
+    "PARTIAL": 6,
     "NOT_COVERED": 16,
     "UNDECIDED": 0,
-    "coverageNumerator": 112,
+    "coverageNumerator": 120,
     "coverageDenominator": 142,
-    "coverage": 0.7887
+    "coverage": 0.8451
    }
   }
  ],
  "total": {
-  "COVERED": 390,
-  "PARTIAL": 73,
-  "NOT_COVERED": 198,
+  "COVERED": 416,
+  "PARTIAL": 46,
+  "NOT_COVERED": 199,
   "UNDECIDED": 0,
-  "coverageNumerator": 390,
+  "coverageNumerator": 416,
   "coverageDenominator": 661
  },
  "publishedRule": "覆盖率 = COVERED / (总数 − UNDECIDED)；分子、分母、UNDECIDED 绝对数同时公布"

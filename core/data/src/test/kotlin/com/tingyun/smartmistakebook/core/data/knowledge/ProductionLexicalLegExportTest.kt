@@ -208,7 +208,7 @@ class ProductionLexicalLegExportTest {
         // 判官仍是 v2 129 条；本轮 gradle 门实测：hits=102（round-1 失败信息
         // `expected:<89> but was:<102>`），主集/MRR 取同轮 `tools/dense_build/stage3_expectation.py`
         // 的"词面腿（生产 v1，D1 形）"判读（同一 TSV、同一判分口径；102/129 =
-        // 0.7906976744186046 / MRR 0.6206718346253229），并由下方"与 B 段逐行对账"断言交叉复核。
+        // 0.7906976744186046 / MRR 0.6206718346253232），并由下方"与 B 段逐行对账"断言交叉复核。
         // 上一代（2026-10-20 批次13 promote v16：原子点 3,210 → 3,245；金标 chapter-only 迁移 1 条）：
         // hits=89（round-1 失败信息 `expected:<87> but was:<89>`）/ 0.689922480620155 /
         // 0.534496124031008。
@@ -226,7 +226,7 @@ class ProductionLexicalLegExportTest {
         // 不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
         assertEquals("回读重算的生产 v1(D1 形) 主集命中数应为 102/129（判官 v2 + v20 包实测）", 102, hits)
         assertEquals("回读重算的生产 v1(D1 形) 主集 Recall@5 应为 0.7906976744186046", V1_D1_MAIN, main, 0.0)
-        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.6206718346253229", V1_D1_MRR, mrr, 0.0)
+        assertEquals("回读重算的生产 v1(D1 形) MRR 应为 0.6206718346253232", V1_D1_MRR, mrr, 0.0)
 
         // ---- 与 build/golden-jvm-metrics.txt 的 B-route-mirror 段逐行对账（含逐题 MISS 集合与 rank） ----
         val metricsFile = File(repoRoot, "build/golden-jvm-metrics.txt")
@@ -335,7 +335,7 @@ class ProductionLexicalLegExportTest {
          *
          * **2026-10-24 批次19 A1 别名臂（31 条 T/C-only 别名入库，promote v20，包
          * `f6098c41…` → `298f4c0c…`；dense 重打 44,010 → 44,041 行）重钉**：
-         * 命中集 → 主集 **102/129 = 0.7906976744186046**、MRR **0.6206718346253229**（净 +13 命中，
+         * 命中集 → 主集 **102/129 = 0.7906976744186046**、MRR **0.6206718346253232**（净 +13 命中，
          * 与 A1 预注册 `docs/research/2026-10-22-d3-round3-a1-prereg.md` §6 的 89 → 102 预测逐位兑现）。
          * 实测量源：本轮 round-1 失败信息报 hits = 102（`expected:<89> but was:<102>`）+ 同轮
          * `tools/dense_build/stage3_expectation.py` 的"词面腿（生产 v1，D1 形）"判读（同一 TSV、
@@ -362,7 +362,8 @@ class ProductionLexicalLegExportTest {
          */
         const val B_ROUTE = "B-route-mirror(v1-bare-B5, matched-first)"
         const val V1_D1_MAIN = 0.7906976744186046
-        const val V1_D1_MRR = 0.6206718346253229
+        // MRR 锚 ULP 两源口径裁定（2026-10-25）：…229 为 Python④ stage3 外源单源；Kotlin 重算与设备实测（build/agent-batch19/a1/device-metrics.txt 词面臂 MRR=0.6206718346253232）两源一致，故采纳 …232。
+        const val V1_D1_MRR = 0.6206718346253232
 
         /** 判分窗口（与生产 return 形态同口径：D1 形下前 5 名全在 matched 侧）。 */
         const val SCORED_TOP_K = 5
