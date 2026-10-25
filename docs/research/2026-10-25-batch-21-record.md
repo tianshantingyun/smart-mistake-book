@@ -369,3 +369,12 @@ grep -n 'declaresAigcNamespaceInScope' core/data/src/main/kotlin/com/tingyun/sma
 ```
 
 > 未执行：任何 `./gradlew`、`adb`、`am instrument`、`connectedAndroidTest`；任何 git 写命令。门禁/设备/研究结论均标注来源（工单材料/设备轨 evidence/修复环材料/研究文档），不冒充本记录员实跑。
+
+## 8. 主会话收口（2026-10-26 凌晨，实跑证据）
+
+- **单测门**（11 模块 `--continue`，主会话实跑）：**exit=0**（BUILD SUCCESSFUL，1 executed / 226 up-to-date——批次 21 修复环后的树未再变，core:data 测试任务重跑通过；本轮无他线红）。
+- **强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（BUILD SUCCESSFUL，82 executed / 189 up-to-date）。
+- **提交**：`1a6bf486`（41 文件，16,097 插入/2,203 删除），按 §7 的 14 块分块 add；排除项未触碰（Root、feature 四模块、core/ui、SecondaryScreens、settings.gradle.kts、docs/current 其余等）；`tmp/verify_batch21.py` 未入提交（临时复核脚本，69/69 为工单材料）。
+- **推送**：`2051748b..1a6bf486` 已上 origin/main（首次尝试成功）。
+- **本批不声称全绿**：设备轨 QuickJS 真引擎部分红（KD-66 issue #240 挂死、KD-70 OOM 分类），T3 维持 partial；KD-67/68/69/71 保持 open；T5 四仪器化用例与 16KB 新断言未设备执行；JS 仍不广告；真实 Provider UNVERIFIED。
+- Mimosa 提交仍无完整扫描结论（scanner_enobufs）——不宣称项目安全。
