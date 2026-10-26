@@ -357,3 +357,15 @@ ls tmp/ | grep -i batch25                                    # 4 脚本 + 3 产�
 - **补丁/空白检查**：`git diff --check` → **exit=0**（仅行尾 CRLF 提示，无空白错误；提示覆盖他线既有脏文件与本记录员四处文档改动）。
 - **记录员回填后的行号自洽**：`known-defects.md` 回填两段设备 Progress（:2612 区 +4 行）后，记录内 KD 标题锚已按现值书写（R9/R20/附录 A 注明回填前后双值）；T6 的 KD-68 `:2644` 保留 T6 时点值并括注现值 `:2646`。
 - **未执行**：Gradle、设备、git add/commit/push。
+
+## 9. 主会话收口（2026-10-27，实跑证据与裁定）
+
+- **单测门**（11 模块 `--continue`）：**exit=0**（4 executed / 224 up-to-date，R15 修复后的树）。
+- **强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（4 executed / 268 up-to-date）。
+- **主会话两项收口修复**（复核 R15/发现#13 的处置）：
+  1. **R15 旗标恢复竞态（裁定+修复）**：`handleDeath` 顶部无条件清零 `lastBindFailedOnLoading` 移到 ABANDONED 短路**之后**——loading 放弃的死亡（我们主动 terminate）不再清豁免，真实非预期死亡仍清；竞态确定性消除（不再依赖窄窗写序），`VisualJsClientEngine.kt` handleDeath 头注释已写明语义。
+  2. **A-14 夹具确认**：修复轮已把第三负向调用改为新开 pipe（树内在位），设备红例归因成立；复跑归批次 26 设备轨。
+- **提交**：`961c6a0e`（31 文件，4,979 插入/128 删除，含块 11 的 4 个 tmp 复算脚本与两个 00-index 勘误），按 §7 分块 add；13+1 个未跟踪锁未纳入。
+- **推送**：远端基线已被他线推进到 `25ddb602`（KB 批次 24），本批 `961c6a0e` 快进推送成功并 `ls-remote` 复核一致。
+- **本批不声称全绿**：设备 12 例隔离 11 绿 1 红（红=A-14 夹具缺陷，已修待复跑）；KD-66 hard+500ms 用例未写（E-02 如实 NOT-WRITTEN）；KD-76 ③④⑤ 设备判据未执行；锁文件未生成（他线已把批 23 的 13+1 陈旧锁 **git add 进暂存区**——原样提交将判红，见 R3 §0，跨线协调项）；arm64/16KB UNVERIFIED；真实 Provider UNVERIFIED；JS 仍不广告。
+- Mimosa 提交仍无完整扫描结论（scanner_enobufs）——不宣称项目安全。
