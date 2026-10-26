@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.core.database.dao
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Dao
+import androidx.room3.Embedded
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
@@ -64,6 +66,64 @@ internal interface KnowledgeTeachingMaterialDao {
         knowledgeNodeIds: Set<String>,
         limit: Int,
     ): List<KnowledgeTeachingMaterialEntity>
+
+    /**
+     * 教学用途的每节点取数：每个有绑定材料的节点恰好一条，按**教学优先**排序
+     * （`role` → `material_type` → `title` → `material_id`）。
+     *
+     * 与 [readForKnowledgeNodes] 的区别是**分配**：旧查询是全局限额，跨节点排序后截断，
+     * 有材料的节点可能一条都拿不到；这里按节点各自取最佳一条，无材料节点不返回。
+     * 类型顺序同样是教学顺序，**不是** `reTeachPriority` 的补救顺序——两套顺序各有消费方，
+     * 不得互相写回。
+     *
+     * `minSdk = 23` 下 SQLite 无窗口函数，故用相关子查询 + `LIMIT 1` 表达"每节点最佳"。
+     */
+    @Query(
+        """
+        SELECT
+          binding.knowledge_node_id AS knowledge_node_id,
+          material.*
+        FROM knowledge_teaching_material AS material
+        INNER JOIN knowledge_teaching_material_node_binding AS binding
+          ON binding.material_id = material.material_id
+        WHERE material.subject = :subject
+          AND material.status != 'RETIRED'
+          AND binding.knowledge_node_id IN (:knowledgeNodeIds)
+          AND material.material_id = (
+            SELECT m2.material_id
+            FROM knowledge_teaching_material AS m2
+            INNER JOIN knowledge_teaching_material_node_binding AS b2
+              ON b2.material_id = m2.material_id
+            WHERE b2.knowledge_node_id = binding.knowledge_node_id
+              AND m2.subject = :subject
+              AND m2.status != 'RETIRED'
+            ORDER BY
+              CASE b2.role
+                WHEN 'PRIMARY' THEN 0
+                WHEN 'SUPPORTING' THEN 1
+                ELSE 2
+              END ASC,
+              CASE m2.material_type
+                WHEN 'CONCEPT_EXPLANATION' THEN 0
+                WHEN 'METHOD_MODEL' THEN 1
+                WHEN 'DERIVATION' THEN 2
+                WHEN 'WORKED_EXAMPLE' THEN 3
+                WHEN 'REPRESENTATION_GUIDE' THEN 4
+                WHEN 'MISCONCEPTION_GUIDE' THEN 5
+                WHEN 'COMPLETE_SOLUTION' THEN 6
+                ELSE 7
+              END ASC,
+              m2.title ASC,
+              m2.material_id ASC
+            LIMIT 1
+          )
+        ORDER BY binding.knowledge_node_id ASC
+        """,
+    )
+    suspend fun readBestTeachingMaterialPerNode(
+        subject: String,
+        knowledgeNodeIds: Set<String>,
+    ): List<KnowledgeTeachingMaterialForNodeRow>
 
     @Query("SELECT * FROM knowledge_teaching_material WHERE material_id IN (:ids)")
     suspend fun readByIds(ids: Set<String>): List<KnowledgeTeachingMaterialEntity>
@@ -203,3 +263,11 @@ internal interface KnowledgeTeachingMaterialDao {
         const val SQLITE_ID_CHUNK_SIZE = 400
     }
 }
+
+/** [KnowledgeTeachingMaterialDao.readBestTeachingMaterialPerNode] 的一行：节点 id + 该节点的最佳材料。 */
+internal data class KnowledgeTeachingMaterialForNodeRow(
+    @ColumnInfo(name = "knowledge_node_id")
+    val knowledgeNodeId: String,
+    @Embedded
+    val material: KnowledgeTeachingMaterialEntity,
+)

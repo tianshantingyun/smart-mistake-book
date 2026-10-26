@@ -669,6 +669,15 @@ internal class RoomStudyDatabase(
         limit = limit,
     )
 
+    override suspend fun readBestKnowledgeTeachingMaterialPerNode(
+        subject: String,
+        knowledgeNodeIds: Set<String>,
+    ): Map<String, KnowledgeTeachingMaterialRecord> =
+        knowledgeBase.readBestKnowledgeTeachingMaterialPerNode(
+            subject = subject,
+            knowledgeNodeIds = knowledgeNodeIds,
+        )
+
     override suspend fun readKnowledgeTeachingMaterialsByIds(
         materialIds: Set<String>,
     ): List<KnowledgeTeachingMaterialRecord> =

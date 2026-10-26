@@ -715,3 +715,84 @@ python build/agent-batch19/a1/zero_drift.py
 - **边界**：设备为 emulator-5584（非真机）；C1 全套未重跑；无第二评测集；材料轨零写；单点 absent；ULP 两源（…229/…232）沿用；工作树 v21 改动未提交。
 - **使用面**：`KNOWLEDGE_READ` 模型可见面风险（R1–R6：材料摘要缺省/截断、标题正文缺失、boundary 截断、2k 名义预算、换行）已登记在 `docs/kb-outstanding-work-2026-09-20.md` §9 与 `docs/research/2026-10-26-kb-usage-surface-audit.md`；本批未改工具/契约，不构成 v1.0 达标缺口，但列交接项。
 - **复算**：批报 §9（身份/逐章/零漂移/显著性/46 条写面）；本 §11 各表证据路径。
+
+## 12. 使用面修复后验收（v1.1）
+
+> 本节为 **v1.1 使用面修复的验收落章**，只追加不改写 §1–§11。判据 = `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` **§F（v1.1 增补，2026-10-26）**；实现/读数 = `docs/kb-batch23-2026-10-26.md`；复测 = `build/agent-batch23/usage-r1/retest-r1.log`。v1.0 的 A–E 与 B1–B4 **保持原判**：本节不重判检索质量、不主张涨分、不撤销 v1.0 达成宣告。
+
+### 12.1 F1–F5 验收表（`KNOWLEDGE_READ` 材料分配/渲染）
+
+| # | 判据 | 实测值 | 判定 | 证据 |
+|---|---|---|---|---|
+| F1 | 每节点材料覆盖 ≥90% | **100.0%（645/645）** | **PASS** | `retest-r1.log:6`；预注册 §3.2 `:193` |
+| F2 | 期望节点有材料 ≥90% | **90.7%（117/129）**；= 召回命中上限（12 条 MISS 结构上不可能有材料；117/117 命中查询全覆盖；余量 0.70pp） | **PASS**（贴上限） | `retest-r1.log:8`；预注册 §3.3 `:203` |
+| F3 | 误区槽位 ≤20% | **1.24%（8/645）**；`CONCEPT_EXPLANATION 563 / METHOD_MODEL 74 / MISCONCEPTION_GUIDE 8` | **PASS** | `retest-r1.log:10-11` |
+| F4 | 无材料节点显式标注 | **金标 0/0（空真）**；单测夹具证明 `｜（该节点无材料）` 真实渲染 | **PASS（依赖夹具）** | `retest-r1.log:13`；`UsageMaterialAllocationTest.kt:181-233`；`KnowledgeReadRecallBudgetTest.kt:195-250` |
+| F5 | 预算与形态不变 | **5 条/查询（129/129）**；chars min/median/max **660 / 743 / 838**（max **41.9%** of 2,000 chars）；UTF-8 max **2,267 B**（**113.3%** of 2,000 B，R5 契约侧） | **PASS（字符口径）**；字节越界属 R5 未关 | `retest-r1.log:14-18`；`UsageMaterialAllocationTest.kt:287-389` |
+
+**逐条复算**：F1/F2/F3/F5 = `python "C:/Users/听云/AppData/Local/Temp/retest_r1_batch23.py"`；F4 = `./gradlew :core:data:testDebugUnitTest --tests '*UsageMaterialAllocationTest*' --tests '*KnowledgeReadRecallBudgetTest*'`（本文书轮实跑 retest，未重跑 Gradle）。
+
+**判读要点**：
+
+- **F2 是算术上限**：117/129 = 90.70% 是检索召回本身的天花板；本修复不可能把 F2 做到 100%。F2 只有 **0.70pp** 余量，必须逐条核对 117 条命中查询的期望节点都拿到材料；本批实测正是 117/117。
+- **F4 的金标 0/0 是空真，不是通过证据**：645 个金标节点行全部有材料，金标没有“无材料节点”。通过依据是单测夹具（无材料节点必须渲染 `｜（该节点无材料）`，且不得伪造 `｜材料：`）。
+- **F5 的 2k 是字符**：不是 UTF-8 字节。UTF-8 max **2,267 B > 2,000 B** 是 **R5 契约侧**的可见化，不能写成“2k 字节通过”；`summary.take(60)` 与 boundary `take(80)` 形态未变。
+- **不主张语义最优**：F3 下降是冻结教学序的排序结果；未做人工语义评分，不主张摘要质量/材料语义提升。
+
+### 12.2 与 v1.0 / B1–B4 的关系
+
+- **检索基线不变**：设备融合 **117/129 = 0.9069767441860465**、MRR **0.7322997416020672**；设备词面 **102/129 = 0.7906976744186046**、MRR **0.6206718346253232**；同路零漂移 lexical **27/27**、fused **12/12**，`zeroDriftBothRoutes=true`（`build/agent-batch23/device/device-metrics.txt:2-5,32-35`；`device/zero-drift.json`；`consistency.txt:72-78`）。B1–B4 **不因本节改判**。
+- **v1.1 不是涨分宣告**：本修复只改 `KNOWLEDGE_READ` 的材料选择/渲染，不动召回、dense 腿、金标、判官；检索读数只作无回归门。
+- **证据边界**：F1–F5 是**离线镜像 + SQLite 逐字 SQL**，不是设备端真实 Room 执行，也不是生产遥测；真 Room 仪器化测试未建（见 §12.4）。
+
+### 12.3 R2–R5 契约侧交接、R6 数据级维护项
+
+| ID | 内容 | 归属 | 处置 | 证据 |
+|---|---|---|---|---|
+| R2 | 材料标题/正文完全缺失，只给 ≤60 字摘要；正文 0 字 | **契约侧交接**：是否披露标题/正文、以什么预算披露，属工具结果形态与披露边界 | 不在本批；另立契约侧任务 | 审计 `docs/research/2026-10-26-kb-usage-surface-audit.md:83-112`，归属 `:98-100` |
+| R3 | `take(60)` 静默截断：27.2% 展示摘要被切、640 条 LaTeX 切口损坏 | **契约侧交接**：截断语义与提示；摘要生成侧的 ≤60 字/公式安全是配合项 | 不在本批 | 审计 `:113-147`，归属 `:133-135` |
+| R4 | boundary `take(80)`：82.3% 被切、58.7% 范围短语看不到 | **契约侧交接**：每行输出形态与截断；boundary 改写（范围/区分句前置）是配合项 | 不在本批 | 审计 `:148-179`，归属 `:165-167` |
+| R5 | 2k 名义值：`KNOWLEDGE_READ` 无运行时检查点；UTF-8 max 2,267 B > 2,000 B | **契约侧交接**：预算单位（chars vs bytes）、执行点、字节/字符口径 | 不在本批；F5 仍按**字符**判 | 审计 `:180-208`，归属 `:194-196` |
+| R6 | 数据级换行：13 条 summary / 6 条 boundary 含真实换行（LaTeX `\ne`、PHYSICS 结构换行） | **数据级维护项**：sidecar JSON 转义/换行归一 | 走维护版本；不影响 F1–F5 判据 | 审计 `:209-240`，归属 `:221` |
+
+**归属边界**：R1（本批）= 每节点一条 + 教学优先序 + 无材料显式标记 + 渲染形态；**R2–R5 不在本批修复范围**，按契约侧交接；**R6 不在本批修复范围**，按数据级维护项登记。不得把 F1–F5 达标外推为 R2–R6 已关闭。
+
+### 12.4 交付状态与未闭环（PARTIAL）
+
+- **R1 代码/读数**：完成并通过 F1–F5 冻结阈值；但代码**未提交**（7 个 tracked ` M` + `UsageMaterialAllocationTest.kt` `??`）；`RoomTutorToolRunner.kt` 还含他线 figure-role（18/6），提交须 hunk 级分拣。
+- **证据缺口**：预注册计划中的**真 Room 仪器化测试未创建**（`KnowledgeTeachingMaterialPerNodeQueryInstrumentedTest` 不存在）；**独立红测轮日志缺失**；F1–F5 是离线镜像；F4 依赖 JVM 夹具；F5 只按字符口径。
+- **运行边界**：设备为 emulator-5584（非真机）；API 23 真机未跑；生产侧无材料覆盖率/空材料率计数器（KB 主路径 19 处 Log、0 指标 SDK；`build/agent-batch23/obs-audit.md:13-16`）。
+- **状态**：**v1.1 判据已落章，交付状态 PARTIAL，不称 v1.1 全绿**。关闭条件：提交 R1、补真 Room 测试（或正式登记不覆盖）、复算脚本入仓、真机/API 23 冒烟、回写预注册 §7。
+
+### 12.5 复算命令（本文书轮实跑）
+
+```bash
+cd "D:/smart mistake book"
+
+# F1–F5 复测（只读；同 129 条金标 top-5 + 批次22 审计镜像 + SQLite 逐字新 DAO SQL）
+python "C:/Users/听云/AppData/Local/Temp/retest_r1_batch23.py"
+# 关键输出：
+# FUSED mirror Recall@5 117 / 129 = 0.907
+# base rows 645 with_material 645 summary 301 F1 46.67 | F2 65 / 129 50.39 | F3 491 / 645 76.12
+# rows 645 rows_with_material 645 py_summary_rows 645 F1 100.0 | sql_summary_rows 645 F1_sql 100.0
+# py 117 / 129 90.7 | sql 117 / 129 90.7 | recall hits 117
+# py slots 645 {... "MISCONCEPTION_GUIDE": 8} misconception 8 F3 1.24
+# no_material_rows 0 marked 0 fake_material_segments 0
+# rows/query py {"5": 129}
+# render chars(UTF-16) min/median/max 660 743 838 | max pct of 2000 chars 41.9
+# render utf8 bytes min/median/max 1707 1985 2267 | max pct of 2000 bytes 113.3
+# checked_sql_rows 645 mismatch_queries 0 mismatch_nodes 0
+
+# 夹具/定向测试（批次已跑；本文书轮未重跑 Gradle）
+# 完整 argv 未落盘；下列为 batch23-targeted.log:1 记录的任务/过滤
+:core:data:testDebugUnitTest :core:model:test :core:domain:test \
+  --tests *UsageMaterialAllocationTest* --tests *KnowledgeReadRecallBudgetTest* --tests *TutorTool*
+# 结果：batch23-targeted.end.txt EXIT_CODE=0；batch23-targeted.log:7095 BUILD SUCCESSFUL in 4m 21s
+
+# 原件
+cat build/agent-batch23/usage-r1/retest-r1.log
+cat build/agent-batch23/device/device-metrics.txt
+cat build/agent-batch23/device/zero-drift.json
+```
+
+**未跑声明**：本文书轮只实跑了 `retest_r1_batch23.py` 与只读 `git status`/文件读取；**未重跑** Gradle、`am instrument`、JVM 判官、零漂移脚本或八门。定向测试读数来自批次产物 `batch23-targeted.end.txt` / `batch23-targeted.log`，不能当作本文书轮实跑。

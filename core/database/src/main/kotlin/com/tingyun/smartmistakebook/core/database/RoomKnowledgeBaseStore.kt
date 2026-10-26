@@ -380,6 +380,20 @@ internal class RoomKnowledgeBaseStore(
             .map(KnowledgeTeachingMaterialEntity::toRecord)
     }
 
+    suspend fun readBestKnowledgeTeachingMaterialPerNode(
+        subject: String,
+        knowledgeNodeIds: Set<String>,
+    ): Map<String, KnowledgeTeachingMaterialRecord> {
+        require(subject.isNotBlank()) { "subject must not be blank" }
+        require(knowledgeNodeIds.size <= 256) {
+            "too many knowledge nodes were requested for teaching context"
+        }
+        if (knowledgeNodeIds.isEmpty()) return emptyMap()
+        return database.knowledgeTeachingMaterialDao()
+            .readBestTeachingMaterialPerNode(subject, knowledgeNodeIds)
+            .associate { row -> row.knowledgeNodeId to row.material.toRecord() }
+    }
+
     suspend fun readKnowledgeTeachingMaterialsByIds(
         materialIds: Set<String>,
     ): List<KnowledgeTeachingMaterialRecord> {

@@ -4,10 +4,8 @@ import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.CommitTutorSessionCommand
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtractor
-import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATES
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
-import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
 import com.tingyun.smartmistakebook.core.database.ProblemDraftRecord
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
@@ -27,7 +25,6 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.KnowledgeAnchorClass
-import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import com.tingyun.smartmistakebook.core.model.TutorAdvisoryKind
 import com.tingyun.smartmistakebook.core.model.TutorAdvisoryScope
@@ -357,7 +354,7 @@ internal class RoomTutorToolRunner(
             val boundary = node.boundaryMarkdown?.take(80)
             val material = materialSummaries[node.knowledgeNodeId]
                 ?.let { "｜材料：${it.take(KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS)}" }
-                .orEmpty()
+                ?: "｜$KNOWLEDGE_READ_NO_MATERIAL_MARKER"
             "$marker. ${node.displayName}${boundary?.let { "：$it" } ?: ""}$material"
         }
         val header = if (registry != null) {
@@ -376,34 +373,19 @@ internal class RoomTutorToolRunner(
     }
 
     /**
-     * 每个节点取一条**PRIMARY 绑定优先**的材料摘要（无 PRIMARY 取第一条），供 KNOWLEDGE_READ
-     * 结果内联。只读 summary 字段（材料全文走教学参考/材料卷通道），保持 2k 预算内。
+     * 每个节点取一条**教学优先序**（`role` → `material_type` → `title` → `material_id`）下的
+     * 最佳材料摘要，供 KNOWLEDGE_READ 结果内联；无绑定材料的节点不出现在返回值里，由渲染侧
+     * 输出显式标记。只读 summary 字段（材料全文走教学参考/材料卷通道），保持 2k 预算内。
      */
     private suspend fun nodeMaterialSummaries(
         subject: String,
         nodes: List<KnowledgeNodeSeedRecord>,
     ): Map<String, String> {
         val nodeIds = nodes.mapTo(linkedSetOf()) { it.knowledgeNodeId }
-        val materials = port.readKnowledgeTeachingMaterialsForNodes(
+        return port.readBestKnowledgeTeachingMaterialPerNode(
             subject = subject,
             knowledgeNodeIds = nodeIds,
-            limit = nodes.size,
-        )
-        if (materials.isEmpty()) return emptyMap()
-        val bindings = port.readKnowledgeTeachingMaterialNodeBindings(
-            materials.mapTo(linkedSetOf()) { it.materialId },
-        )
-        val primaryByNode = bindings
-            .filter { it.role == KnowledgeMaterialNodeRole.PRIMARY.name }
-            .groupBy(KnowledgeTeachingMaterialNodeBindingRecord::knowledgeNodeId)
-        val byNode = bindings.groupBy(KnowledgeTeachingMaterialNodeBindingRecord::knowledgeNodeId)
-        val materialById = materials.associateBy(KnowledgeTeachingMaterialRecord::materialId)
-        return nodes.mapNotNull { node ->
-            val materialId = primaryByNode[node.knowledgeNodeId]?.firstOrNull()?.materialId
-                ?: byNode[node.knowledgeNodeId]?.firstOrNull()?.materialId
-            materialId?.let { id -> materialById[id]?.summaryMarkdown }
-                ?.let { summary -> node.knowledgeNodeId to summary }
-        }.toMap()
+        ).mapValues { (_, material) -> material.summaryMarkdown }
     }
 
     private companion object {
@@ -415,6 +397,9 @@ internal class RoomTutorToolRunner(
          */
         const val KNOWLEDGE_READ_NODE_LIMIT = 5
         const val KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS = 60
+
+        /** 无绑定材料节点的显式标记：材料段不得静默省略（"无材料"与"未取到"必须可区分）。 */
+        const val KNOWLEDGE_READ_NO_MATERIAL_MARKER = "（该节点无材料）"
     }
 
     /**

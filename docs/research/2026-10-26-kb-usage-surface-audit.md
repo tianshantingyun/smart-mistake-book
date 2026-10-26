@@ -364,3 +364,60 @@ K5. 函数的极值：定位：数学选择性必修第二册 第五章·函数�
 | K5 | 138 | 399 | 函数的极值 | 80 / 116 | 44 / 44 |
 
 K3 的 boundary 在「确定最大最」处静默切断，紧接「｜材料：…」；K1/K2 的 boundary 同样断在句中。三处都没有省略号。
+
+---
+
+## §R1 复测（批次23）
+
+- 复测时点：2026-10-26（+08:00）。**只读复测**：未改源码、未提交。
+- 口径：与本文 §R1 完全同口径——同一份金标 129 条 top-5、同一检索/渲染镜像（`audit_knowledge_read.py`：`KnowledgeSearchFeatureExtractor` → 词面 512 → `DenseFusion` α=0.5/域内 min-max/缺失腿 0/并列 `node_id` 升序 → `take(5)` → runner 渲染）、同一 SQLite 逐字复刻 DAO SQL（**不是 DuckDB**）。唯一变量是材料取数：旧「全局 `LIMIT=nodes.size` + 补救类型序」→ 批次23 新「每节点 1 条 + 教学优先序」。
+- 新语义代码：`KnowledgeTeachingMaterialDao.kt:96-122`（`readBestTeachingMaterialPerNode`：相关子查询 + `LIMIT 1`，`role → material_type → title → material_id`）；`RoomTutorToolRunner.kt:345-372`（渲染：boundary `take(80)`、summary `take(60)`、无材料显式标记）、`:381-393`（改调新 port）、`:403`（`（该节点无材料）`）。
+
+### 复测命令（本轮实跑，exit=0）
+
+```text
+$ python C:/Users/听云/AppData/Local/Temp/audit_knowledge_read.py          # EXIT=0
+FUSED mirror Recall@5 117 / 129 = 0.907
+SUMMARY coverage over 129 top5: distribution {"0":0,"1":21,"2":56,"3":40,"4":12,"5":0} mean 2.333
+expected node got a summary 65 of 129
+MATERIAL SLOTS over 129: fetched 645 used 301 unused 344 (53.3%)
+
+$ python C:/Users/听云/AppData/Local/Temp/audit_material_sql.py            # EXIT=0（旧 SQL 基线复核）
+SQL selected 5
+nodes with summary 3 of 5
+missing ['对勾函数', '求函数最值的方法']
+
+$ python C:/Users/听云/AppData/Local/Temp/retest_r1_batch23.py             # EXIT=0（新语义复测）
+FUSED mirror Recall@5 117 / 129 = 0.907
+BASELINE recalibration: F1 46.67 | F2 65/129 50.39 | F3 491/645 76.12
+F1 py 645/645 100.0 | F1_sql 645/645 100.0
+F2 py 117/129 90.7 | F2_sql 117/129 90.7 (recall hits 117)
+F3 py 8/645 1.24 | F3_sql 8/645 1.24  types {"CONCEPT_EXPLANATION":563,"METHOD_MODEL":74,"MISCONCEPTION_GUIDE":8}
+F4 no_material_rows 0 marked 0 fake_material_segments 0
+F5 rows/query py {"5":129} | sql {"5":129}
+   render chars(UTF-16) min/median/max 660 743 838 (max 41.9% of 2000 chars)
+   render utf8 bytes min/median/max 1707 1985 2267 (max 113.3% of 2000 bytes)
+SQL vs Python mirror: checked_sql_rows 645 mismatch_queries 0 mismatch_nodes 0
+```
+
+`retest_r1_batch23.py` 复用冻结镜像的 `full_recall` / `bindings_by_node` / 材料包，只替换选材与渲染；SQLite 部分把同一份 sidecar 装入内存库，按 Room 展开的五参数逐字执行新 DAO SQL。645 行选材与 Python 镜像 **0 差异**。落盘日志：`build/agent-batch23/usage-r1/retest-r1.log`。
+
+### 与基线对拍
+
+| # | 判据 | 批次22 基线 | 批次23 复测（新语义） | 结论 |
+|---|---|---:|---:|---|
+| F1 | 有料节点获摘要比例 | 46.7%（301/645） | **100.0%（645/645）** | improved |
+| F2 | 期望节点有材料比例 | 50.4%（65/129） | **90.7%（117/129）** | improved |
+| F3 | 误区槽位占比 | 76.1%（491/645） | **1.24%（8/645）** | improved |
+| F4 | 无材料显式标注 | 无标注（静默省略） | 渲染器固定输出 `｜（该节点无材料）`；金标 0/0 行 | improved（机制） |
+| F5 | 单查询材料总数 / 预算 | 5 / 名义 2k | **5/查询（129/129）**；max 838 chars（41.9% of 2,000） | unchanged（条数）；字符预算内 |
+
+- **同口径校准**：同一脚本用旧语义重算得到 F1 46.67%、F2 50.39%、F3 76.12%，与冻结基线逐位一致，说明复测装置未漂移。
+- **召回无回归**：融合镜像仍为 117/129；F2 的 90.7% 就是 117/129 的天花板（12 条检索 MISS 的期望节点不在 top-5），117 条命中查询的期望节点全部拿到材料。
+- **F3 口径**：分母为 129 查询的 645 个被选材料槽（每查询 5 条，金标节点全部有材料）；分子为 `MISCONCEPTION_GUIDE` 8 条。类型分布从 `491/150/4` 变为 `563/74/8`（概念讲解/方法模型/误区）。
+
+### 边界与未验证
+
+- **F4 在金标上是空真**：645 个节点行全部有绑定材料，所以金标 0 行需要标记，不能据此判“标记已生效”。标记的实证是渲染分支与单测夹具：`RoomTutorToolRunner.kt:357-359`、`:403`；`KnowledgeReadRecallBudgetTest.kt:235`（`kc-1 无材料必须显式标注`）、`:241`（恰好 1 个标记）。**本轮未运行 Gradle 测试**，该两行是源码/断言文本，不是本轮实跑读数。
+- **F5 的 2k 单位**：按字符（UTF-16）max 838 ≤ 2,000；按 UTF-8 字节 max 2,267 B > 2,000 B（基线 2,079 B）。这是本文 R5 的契约侧问题在材料增多后的放大，不是本批复测判据，也不写成“2k 字节通过”。
+- **只读边界**：未跑设备端 Android 检索、未跑真实 Room 库、未跑 Gradle；检索读数来自 JVM 镜像，材料选择来自 SQLite 重放（`status='ACTIVE'` 全量，未覆盖真实库中的 RETIRED 行）。

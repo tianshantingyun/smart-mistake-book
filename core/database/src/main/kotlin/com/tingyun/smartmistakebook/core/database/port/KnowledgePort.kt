@@ -136,6 +136,18 @@ interface KnowledgeReadPort {
         limit: Int,
     ): List<KnowledgeTeachingMaterialRecord>
 
+    /**
+     * 教学用途：每个有绑定材料的节点**恰好一条**，键 = 节点 id；无材料节点不出现。
+     *
+     * 与 [readKnowledgeTeachingMaterialsForNodes] 并存而不是替换：旧口是全局限额、供讲题参考
+     * 与复习出题范围使用；这个口只按节点各取最佳一条，顺序为教学优先（`PRIMARY` → `SUPPORTING`
+     * → 其他；`CONCEPT_EXPLANATION` → … → `COMPLETE_SOLUTION`）。两套顺序不得互相写回。
+     */
+    suspend fun readBestKnowledgeTeachingMaterialPerNode(
+        subject: String,
+        knowledgeNodeIds: Set<String>,
+    ): Map<String, KnowledgeTeachingMaterialRecord>
+
     suspend fun readKnowledgeTeachingMaterialsByIds(
         materialIds: Set<String>,
     ): List<KnowledgeTeachingMaterialRecord>

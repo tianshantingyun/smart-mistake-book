@@ -1,9 +1,12 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
+import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATES
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
+import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
+import com.tingyun.smartmistakebook.core.model.KnowledgeTeachingMaterialType
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
@@ -52,19 +55,45 @@ class KnowledgeReadRecallBudgetTest {
             )
         }
 
-        override suspend fun readKnowledgeTeachingMaterialsForNodes(
+        override suspend fun readBestKnowledgeTeachingMaterialPerNode(
             subject: String,
             knowledgeNodeIds: Set<String>,
-            limit: Int,
-        ): List<KnowledgeTeachingMaterialRecord> {
+        ): Map<String, KnowledgeTeachingMaterialRecord> {
             materialNodeIdSets += knowledgeNodeIds
-            return super.readKnowledgeTeachingMaterialsForNodes(
+            return super.readBestKnowledgeTeachingMaterialPerNode(
                 subject = subject,
                 knowledgeNodeIds = knowledgeNodeIds,
-                limit = limit,
             )
         }
     }
+
+    private fun teachingMaterial(
+        id: String,
+        type: KnowledgeTeachingMaterialType,
+        summary: String,
+    ) = KnowledgeTeachingMaterialRecord(
+        materialId = id,
+        stableCode = "stable:$id",
+        subject = "MATH",
+        materialType = type.name,
+        title = "T-$id",
+        summaryMarkdown = summary,
+        applicabilityMarkdown = "",
+        contentMarkdown = "",
+        boundaryMarkdown = "",
+        derivationKind = "REVIEWED_SYNTHESIS",
+        sourceId = "source:$id",
+        sourceLocator = "source",
+        contentFingerprint = "A".repeat(64),
+        reviewedAtEpochMillis = 1_000,
+    )
+
+    private fun materialBinding(materialId: String, knowledgeNodeId: String) =
+        KnowledgeTeachingMaterialNodeBindingRecord(
+            materialId = materialId,
+            knowledgeNodeId = knowledgeNodeId,
+            role = KnowledgeMaterialNodeRole.PRIMARY.name,
+        )
 
     private fun node(index: Int) = KnowledgeNodeSeedRecord(
         knowledgeNodeId = "kc-$index",
@@ -160,6 +189,60 @@ class KnowledgeReadRecallBudgetTest {
         val lines = execution.outcome.summaryMarkdown.lines()
         assertEquals("知识点候选 2 个：", lines.first())
         assertEquals(2, lines.count { NUMBERED_LINE.containsMatchIn(it) })
+    }
+
+    @Test
+    fun everyRenderedNodeGetsItsOwnMaterialAndAMaterialslessNodeIsMarkedExplicitly() = runBlocking {
+        val port = RecordingPort()
+        repeat(3) { index -> port.recallCandidates += node(index) }
+        // kc-0 两条材料：教学序取概念讲解而不是误区；kc-1 无绑定材料；kc-2 一条材料。
+        port.teachingMaterials += teachingMaterial(
+            "m0-concept",
+            KnowledgeTeachingMaterialType.CONCEPT_EXPLANATION,
+            "N0-摘要",
+        )
+        port.teachingMaterials += teachingMaterial(
+            "m0-misconception",
+            KnowledgeTeachingMaterialType.MISCONCEPTION_GUIDE,
+            "N0-误区",
+        )
+        port.materialNodeBindings += materialBinding("m0-concept", "kc-0")
+        port.materialNodeBindings += materialBinding("m0-misconception", "kc-0")
+        port.teachingMaterials += teachingMaterial(
+            "m2-method",
+            KnowledgeTeachingMaterialType.METHOD_MODEL,
+            "N2-摘要",
+        )
+        port.materialNodeBindings += materialBinding("m2-method", "kc-2")
+
+        val execution = runner(port).runTraced(
+            knowledgeReadCall(terms = listOf("单调性")),
+            RoomTutorToolRunner.Context(subject = "MATH"),
+        )
+
+        assertEquals(3, execution.resultCount)
+        assertEquals(
+            "材料取数仍只碰截断后的节点集合",
+            listOf(setOf("kc-0", "kc-1", "kc-2")),
+            port.materialNodeIdSets,
+        )
+        val lines = execution.outcome.summaryMarkdown.lines()
+            .filter { NUMBERED_LINE.containsMatchIn(it) }
+        assertEquals(3, lines.size)
+
+        assertTrue("kc-0 应取教学优先的概念讲解：${lines[0]}", lines[0].contains("｜材料：N0-摘要"))
+        assertFalse("kc-0 不得取误区材料：${lines[0]}", lines[0].contains("N0-误区"))
+        assertTrue("kc-1 无材料必须显式标注：${lines[1]}", lines[1].contains("｜（该节点无材料）"))
+        assertFalse("kc-1 不得伪造材料段：${lines[1]}", lines[1].contains("｜材料："))
+        assertTrue("kc-2 应得到自己的材料：${lines[2]}", lines[2].contains("｜材料：N2-摘要"))
+
+        val markdown = execution.outcome.summaryMarkdown
+        assertEquals(2, Regex("｜材料：").findAll(markdown).count())
+        assertEquals(1, Regex("｜（该节点无材料）").findAll(markdown).count())
+        assertTrue(
+            "工具结果仍受单工具 2k 预算约束",
+            markdown.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
+        )
     }
 
     private companion object {

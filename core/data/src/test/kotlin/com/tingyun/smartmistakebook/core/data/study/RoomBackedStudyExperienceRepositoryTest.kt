@@ -2806,6 +2806,49 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         .take(limit)
         .toList()
 
+    override suspend fun readBestKnowledgeTeachingMaterialPerNode(
+        subject: String,
+        knowledgeNodeIds: Set<String>,
+    ): Map<String, KnowledgeTeachingMaterialRecord> {
+        val materialsById = teachingMaterials.associateBy { it.materialId }
+        return knowledgeNodeIds.mapNotNull { nodeId ->
+            materialNodeBindings
+                .asSequence()
+                .filter { it.knowledgeNodeId == nodeId }
+                .mapNotNull { binding ->
+                    materialsById[binding.materialId]
+                        ?.takeIf { it.subject == subject }
+                        ?.let { material -> binding to material }
+                }
+                .minWithOrNull(
+                    compareBy<Pair<KnowledgeTeachingMaterialNodeBindingRecord, KnowledgeTeachingMaterialRecord>>(
+                        {
+                            when (it.first.role) {
+                                "PRIMARY" -> 0
+                                "SUPPORTING" -> 1
+                                else -> 2
+                            }
+                        },
+                        {
+                            when (it.second.materialType) {
+                                "CONCEPT_EXPLANATION" -> 0
+                                "METHOD_MODEL" -> 1
+                                "DERIVATION" -> 2
+                                "WORKED_EXAMPLE" -> 3
+                                "REPRESENTATION_GUIDE" -> 4
+                                "MISCONCEPTION_GUIDE" -> 5
+                                "COMPLETE_SOLUTION" -> 6
+                                else -> 7
+                            }
+                        },
+                        { it.second.title },
+                        { it.second.materialId },
+                    ),
+                )
+                ?.let { (_, material) -> nodeId to material }
+        }.toMap()
+    }
+
     override suspend fun readKnowledgeTeachingMaterialsByIds(materialIds: Set<String>):
         List<KnowledgeTeachingMaterialRecord> =
         teachingMaterials.filter { it.materialId in materialIds }
