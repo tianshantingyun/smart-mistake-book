@@ -402,3 +402,13 @@ grep -n "mistake-export-v3" core/export/.../MistakePdfEligibility.kt  # :186
 - **提交/推送**：截至本记录时点，**未提交、未推送**；建议清单与排除项见 §7。提交由主会话执行；非快进 merge，不 rebase。
 - **本批不声称全绿**：T1 1/5 红（abandon 结构性缺陷）、KD-70 P2 红、锁文件 13/14 且未入库（KD-72）、T4 零代码（KD-75）、KD-74 未关闭、KD-73 未证、真实 Provider UNVERIFIED、JS 不广告。
 - Mimosa 提交仍无完整扫描结论，不宣称项目安全。
+
+## 8. 主会话收口（2026-10-26，实跑证据）
+
+- **单测门**（11 模块 `--continue`）：**exit=0**（BUILD SUCCESSFUL，1 executed / 227 up-to-date——批次 23 修复环后的树未再变）。
+- **强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（BUILD SUCCESSFUL，2 executed / 270 up-to-date）。
+- **提交**：`f8a362ee`（50 文件），按 §7 的 11 块分块 add；**13 个未跟踪 `gradle.lockfile` 与 `settings-gradle.lockfile` 均未纳入**（与 HEAD 不一致，KD-72 保持 open，待干净树重生成后单独提交）；热区文件未触碰。
+- **推送**：`f0a145f8..f8a362ee` 已上 origin/main（`ls-remote` 复核 = 本地 HEAD）。
+- **本批不声称全绿**：T1 隔离 4/5（client `abandon()` 死亡确认结构性失败，4 次复现）；KD-70 P2 仍红（mallocSize 177216≈1.06% 未达 90% 阈值）；KD-72/73/74/75 open；T4 只研究+登记未改导出链；真实 Provider UNVERIFIED；JS 仍不广告。
+- **主会话裁定（KD-74 证据等价性）**：`llvm-readobj --program-headers` 与官方判据所用 `llvm-readelf -l` 读取同一 ELF 程序头表；对"每 LOAD p_align≥2^14"与"RELRO 终点 mod 16K 及官方独占 LOAD 豁免"两项，字段级等价成立，接受为可复核证据（E-09 已附程序头原始字段）。KD-74 其余关闭项（记录回链）随本节成立。
+- Mimosa 提交仍无完整扫描结论（scanner_enobufs）——不宣称项目安全。
