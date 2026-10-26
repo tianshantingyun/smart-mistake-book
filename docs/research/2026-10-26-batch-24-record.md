@@ -392,3 +392,17 @@ sed -n '67p' docs/research/evidence/2026-10-26-batch-23/00-index.md          # �
 - **文档链接检查**：记录内 51 条 `docs/...md(:line)` 引用全部存在、行号在范围内，0 失败（脚本输出 `docs refs: 51 / problems: none`）。
 - **补丁/空白检查**：`git diff --check` → **exit=0**（仅行尾 CRLF 提示，无空白错误）。
 - **未执行**：Gradle、设备、git add/commit/push。
+
+## 9. 主会话收口（2026-10-27 凌晨，实跑证据与裁定）
+
+- **单测门**（11 模块 `--continue`）：**exit=0**（BUILD SUCCESSFUL，228 up-to-date，树未再变）。
+- **强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（4 executed / 268 up-to-date）。
+- **提交**：`aabae781`（29 文件，5,330 插入/74 删除），按 §7 的 10 块分块 add；13 个未跟踪锁与热区未纳入。
+- **推送**：`5bc8bdf8..aabae781` 已上 origin/main（`ls-remote` 复核一致）。
+- **主会话裁定（KD 状态）**：
+  - **KD-70 关闭**：E-02 设备 20/20、P2 转绿（reason=MEMORY_LIMIT + diagnostics 含 attributed by memoryUsage + PENDING_CALIBRATION），满足 reopen 条件；精确 mallocSize 未打印（断言已证 ≥15,099,495 = 90%×16MiB），超参仍 PENDING_CALIBRATION。剩余 ABI 覆盖（arm64/16KB）另立，不阻断本条关闭。
+  - **KD-69 关闭**：E-03 strictOffline release 冷启动 ×2 全绿、9 类崩溃签名 0，满足"release 冒烟不得回退"；生产签名另属发布链验证（一次性本地 key 已如实记录）。
+  - **KD-66 保持 open**：hard+500ms 设备用例仍未覆盖；隔离 6/6 与 watchdog 硬杀不等于该关闭门。
+  - **KD-74 已由 T3 关闭**（三条件齐备，记录回链 §8）。
+- **本批不声称全绿/全就绪**：T1/T2 的 Gradle/设备执行证据来自设备轨 E-file（工单转录，主会话未重跑设备）；4E.2 准入清单被复核判"MVA 不成立"且漏契约 §4 启动面/队列背压/6 派发预算等项（批次 25 补）；真实 Provider UNVERIFIED；JS 仍不广告。
+- Mimosa 提交仍无完整扫描结论（scanner_enobufs）——不宣称项目安全。
