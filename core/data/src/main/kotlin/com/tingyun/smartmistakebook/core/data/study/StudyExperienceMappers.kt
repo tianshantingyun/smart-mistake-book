@@ -219,6 +219,8 @@ internal fun ReviewPlanBundle.toOverview(
     currentLocalDay: Long,
     intakeBacklogCount: Int,
     intakeMedianEstimateSeconds: Int,
+    // KD-68：积压中"整日预算都装不下"的题数（快照读面的事实桶）。
+    intakeUnschedulableCount: Int,
 ): StudyReviewOverview {
     val visibleSession = activeSession ?: latestSession
     val effectiveCompletedDays = if (
@@ -252,6 +254,7 @@ internal fun ReviewPlanBundle.toOverview(
         ),
         intakeBacklogCount = intakeBacklogCount,
         intakeMedianEstimateSeconds = intakeMedianEstimateSeconds,
+        intakeUnschedulableCount = intakeUnschedulableCount,
     )
 }
 

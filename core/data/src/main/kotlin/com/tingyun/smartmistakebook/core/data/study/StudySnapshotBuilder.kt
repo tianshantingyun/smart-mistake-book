@@ -85,6 +85,14 @@ internal class StudySnapshotBuilder(
             projection.problemMemoryStates[mistake.practiceUnitId] == null &&
                 mistake.practiceUnitId !in plannedUnitIds
         }
+        // KD-68：把"永远进不了每日计划"的积压题从静默 deferred 变成读面事实。
+        // 与 createReviewPlan 的引入判定同一口径（同一时长模型/考试扩容预算）；
+        // 只读派生，不改引入集合、不写计划。
+        val intakeUnschedulableCount = plannerService.intakeUnschedulableCount(
+            intakeBacklog = intakeBacklog,
+            learnerSnapshot = projection,
+            planningContext = planningContext,
+        )
         val referencedKnowledgeNodeIds = buildSet {
             addAll(projection.knowledgeMasteryStates.keys)
             orderedMistakes.forEach { mistake -> addAll(mistake.knowledgeNodeIds) }
@@ -121,6 +129,7 @@ internal class StudySnapshotBuilder(
                 currentLocalDay = planningContext.localDate.toEpochDay(),
                 intakeBacklogCount = intakeBacklog.size,
                 intakeMedianEstimateSeconds = intakeBacklog.medianEstimateSeconds(),
+                intakeUnschedulableCount = intakeUnschedulableCount,
             ),
             profile = projection.toProfileOverview(
                 resolvedKnowledgeContexts = resolvedKnowledgeContexts,

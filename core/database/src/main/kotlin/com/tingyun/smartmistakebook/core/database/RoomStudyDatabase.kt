@@ -1576,6 +1576,31 @@ internal class RoomStudyDatabase(
         ?.toRecord()
 
     /**
+     * G5-A / KD-67：`verification_status` 单列 CAS（契约见
+     * `SeedAssessmentPort.compareAndSetAssessmentItemVerificationStatus`）。
+     *
+     * 只提交状态迁移：一条参数化 `UPDATE`，SET 只写 `verification_status`，WHERE 同时
+     * 限定 id 与调用方读到的当前状态；其余列原样。返回**真实受影响行数**（0/1），
+     * 不新增行、不做 upsert——行不存在与状态已变都如实回报 0。
+     */
+    override suspend fun compareAndSetAssessmentItemVerificationStatus(
+        assessmentItemSnapshotId: String,
+        expectedCurrentStatus: String,
+        newVerificationStatus: String,
+    ): Int {
+        DatabaseContractValidator.validateAssessmentItemVerificationStatusCas(
+            assessmentItemSnapshotId = assessmentItemSnapshotId,
+            expectedCurrentStatus = expectedCurrentStatus,
+            newVerificationStatus = newVerificationStatus,
+        )
+        return database.immutableLearningFactDao().compareAndSetAssessmentItemVerificationStatus(
+            assessmentItemSnapshotId = assessmentItemSnapshotId,
+            expectedCurrentStatus = expectedCurrentStatus,
+            newVerificationStatus = newVerificationStatus,
+        )
+    }
+
+    /**
      * KD-41：损坏行的原地修复口（契约见
      * `SeedAssessmentPort.overwriteAssessmentItemSnapshot`——只对"既有行解不开"用）。
      *

@@ -255,6 +255,77 @@ internal class StudyReviewPlannerService(
         }
     }
 
+    /**
+     * Single source for a NEW item's estimated duration (L1 bucket → L2 model
+     * tier baseline → L3 global prior). Used by the introduction decision and
+     * by the read-side schedulability preview so the promise and the actual
+     * scheduler can never drift apart on the same question (KD-68).
+     */
+    private fun expectedNewSeconds(
+        subjectId: String?,
+        itemType: String?,
+        difficulty: Double,
+        modelTier: TutorDifficultyTier?,
+    ): Int = durationModel.expectedSecondsForNew(
+        learnerId = learnerId,
+        subjectId = subjectId,
+        itemType = itemType,
+        difficulty = difficulty,
+        tierBaselineSeconds = IntakeDurationBaseline.secondsFor(
+            modelTier = modelTier,
+            fsrsDifficulty = difficulty,
+        ),
+    ).toInt().coerceAtLeast(1)
+
+    /**
+     * KD-68 honest read-side fact: how many CURRENT intake backlog items can
+     * NEVER be introduced by the daily policy (true duration > the whole daily
+     * budget → special session).
+     *
+     * Same accounting as the introduction decision inside [createReviewPlan]:
+     * the same duration model ([expectedNewSeconds]) and the same
+     * exam-expanded budget ([examCapacityBudgetSeconds]). This is the exact
+     * predicate `NewIntroductionPolicy.previewSchedulability` uses for its
+     * unschedulable bucket. Read-only: it reads the exam table and the
+     * difficulty-tier advisories, writes no plan and does not alter today's
+     * introduced set. Only a count is needed here — simulating the day-by-day
+     * coverage would put a 365-day backlog simulation on every snapshot build
+     * for a number that is O(n) to compute.
+     *
+     * Backlog entries are deduplicated by practice unit (the planner dedupes
+     * candidates the same way), so the returned count never exceeds
+     * `intakeBacklog.size` as stored on the snapshot.
+     */
+    internal suspend fun intakeUnschedulableCount(
+        intakeBacklog: List<MistakeRecord>,
+        learnerSnapshot: LearnerSnapshot,
+        planningContext: PlanningContext,
+    ): Int {
+        val distinctBacklog = intakeBacklog
+            .sortedBy(MistakeRecord::practiceUnitId)
+            .distinctBy(MistakeRecord::practiceUnitId)
+        if (distinctBacklog.isEmpty()) return 0
+        val exams = readExams()
+        val effectiveReviewBudgetSeconds = examCapacityBudgetSeconds(
+            exams = exams,
+            localDayEpochDay = planningContext.localDate.toEpochDay(),
+            baseBudgetSeconds = reviewTimeBudgetSeconds,
+        )
+        val tierByUnit = difficultyTierByUnit(distinctBacklog.map(MistakeRecord::practiceUnitId))
+        return distinctBacklog.count { mistake ->
+            // Intake backlog items have no memory state by definition; the
+            // planner resolves their difficulty to the same placeholder.
+            val difficulty = learnerSnapshot.problemMemoryStates[mistake.practiceUnitId]?.difficulty
+                ?: DEFAULT_CANDIDATE_DIFFICULTY
+            expectedNewSeconds(
+                subjectId = mistake.subject,
+                itemType = null,
+                difficulty = difficulty,
+                modelTier = tierByUnit[mistake.practiceUnitId],
+            ) > effectiveReviewBudgetSeconds
+        }
+    }
+
 
     suspend fun currentReviewPlan(
         planningContext: PlanningContext,
@@ -436,16 +507,12 @@ internal class StudyReviewPlannerService(
                     candidates = fresh.map { candidate ->
                         NewIntroductionPolicy.IntakeCandidate(
                             practiceUnitId = candidate.practiceUnitId,
-                            estimatedDurationSeconds = durationModel.expectedSecondsForNew(
-                                learnerId = learnerId,
+                            estimatedDurationSeconds = expectedNewSeconds(
                                 subjectId = candidate.subjectId,
                                 itemType = candidate.itemType,
                                 difficulty = candidate.difficulty,
-                                tierBaselineSeconds = IntakeDurationBaseline.secondsFor(
-                                    modelTier = tierByUnit[candidate.practiceUnitId],
-                                    fsrsDifficulty = candidate.difficulty,
-                                ),
-                            ).toInt().coerceAtLeast(1),
+                                modelTier = tierByUnit[candidate.practiceUnitId],
+                            ),
                             examPriority = candidate.examPriority,
                             confidenceAtError = confidenceAtError[candidate.practiceUnitId],
                             createdAtEpochMillis = candidate.eligibleSinceEpochMillis

@@ -485,6 +485,27 @@ AUD-17 校准结果互相替代。
 
 执行证据：`python tmp/verify_batch22_t4.py` 五类 60/60（4/9/12/21/14），`VisualJsFailureClassificationTest` XML 14/0/0（只读）；记录员未运行 Gradle。
 
+### 3.33 批次 23 · 零 bump 判据登记（2026-10-26）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动，本批无任何算法版本变更
+
+> 依据：批次 23 计划 T2/T3、批次记录 `docs/research/2026-10-26-batch-23-record.md` §3、`docs/known-defects.md` KD-67/KD-68。本批不 bump 任何版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：`core/database/schemas/.../69.json` 为最高，无 70.json；T2 只对既有 `verification_status` 列做单列 CAS |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546` 未动；JS 不广告、工具面/提示词零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | T3 只加只读派生计数，不改引入/顺延/切片算术 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `SELECTOR_COMPOSITE` | 未改 | T2 只改核验状态写侧输入；selector 的 `contentVerified` 判定与公式未动 |
+
+零 bump 判据（逐条）：
+
+1. T2 的单列 CAS 只改变 `assessment_item_snapshot.verification_status` 的写侧；无新表/新列/迁移，`introduced`/`deferred`/`grantedSliceSeconds` 与选择器输出不受影响；生产调用点仍为零（KD-67 open）。
+2. T3 的 `unschedulableCount`/`previewSchedulability`/`intakeUnschedulableCount` 是**只读派生事实**，不参与发放算术；`previewBacklog` 的旧取值按"不可调度 + 越界"合并后逐位不变（旧金样 `NewIntroductionPolicyTest` 13/13、`IntakePreviewAssemblyTest` 4/4 全绿）。
+3. 锁文件轨、T4（PDF 标识只研究/登记，未改导出字节）、T5（契约文档）均无算法面。
+4. 后续若把 `MODEL_DOCUMENT_PARSE` provenance 加进 `MistakePdfExportInput`，会改变 `inputSha256`（缓存指纹），但那不是算法版本串；落地时在 KD-75/本台账另记。
+
+执行证据（记录员只读核对，未运行 Gradle）：`tmp/verify-batch23-t2/green.log`（`KnowledgeQuizItemVerificationUpgraderTest` 11/11、`AdaptiveSelectionAssemblerTest` 12/12）；`tmp/verify-batch23-t3/run-with-snapshot-test.log`（`NewIntroductionPolicyTest` 19/19、`StudyReviewOverviewIntakeTest` 3/3、`StudyExperienceMappersIntakeTest` 2/2、`StudySnapshotIntakeUnschedulableTest` 1/1；旧金样 13/6/4/4）。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

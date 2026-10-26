@@ -48,6 +48,30 @@ interface SeedAssessmentPort {
     suspend fun findAssessmentItemSnapshot(assessmentItemSnapshotId: String): AssessmentItemSnapshotSeedRecord?
 
     /**
+     * G5-A / KD-67：`verification_status` 的**单列 CAS**（不新建行、不重写整行）。
+     *
+     * 消灭的失败：核验确认流要显式把一条 `UNKNOWN` 快照升为 `VERIFIED`/`USER_ASSERTED`，
+     * 但既有两个写口都不适用——[saveAssessmentItemSnapshot] 的不可变闸把"同身份不同载荷"
+     * 判冲突（升级必然撞），[overwriteAssessmentItemSnapshot] 是 KD-41 损坏行修复口
+     * （契约只允许"既有行解不开"）。没有本口，确认流只能整行覆盖：题面/揭示态/时间戳被
+     * 顺带重写，"首见即真"与修复口的边界一起失守。
+     *
+     * 语义（一条参数化 `UPDATE`，禁止拼接 SQL）：
+     * - `SET verification_status = :newVerificationStatus
+     *    WHERE assessment_item_snapshot_id = :id AND verification_status = :expectedCurrentStatus`；
+     * - 返回**真实受影响行数**（主键唯一，故只可能是 1 或 0）：1 = 已写入；0 = 行不存在
+     *   或当前状态已变，调用方重新读取后处置；
+     * - 只允许 `UNKNOWN` 作为 [expectedCurrentStatus]，目标只允许 `VERIFIED` /
+     *   `USER_ASSERTED`（已核验状态之间不得互换、不得降级）；非法输入抛契约异常；
+     * - 不触碰任何其他列（题干/选项/键载荷/揭示态/时间戳全部原样）。
+     */
+    suspend fun compareAndSetAssessmentItemVerificationStatus(
+        assessmentItemSnapshotId: String,
+        expectedCurrentStatus: String,
+        newVerificationStatus: String,
+    ): Int
+
+    /**
      * KD-41：**原地覆盖**一条已知损坏的呈现行（同 id 整行载荷重写，不新增行）。
      *
      * 为什么单开一口：损坏行**不可复用**——它身上没有"首见即真"要保护的题面，而

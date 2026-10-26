@@ -3205,6 +3205,34 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         assessmentItemSnapshotId: String,
     ): AssessmentItemSnapshotSeedRecord? = assessmentItemSnapshots[assessmentItemSnapshotId]
 
+    /**
+     * G5-A / KD-67：真 DAO 是参数化 `UPDATE ... SET verification_status = ?
+     * WHERE assessment_item_snapshot_id = ? AND verification_status = ?`，返回真实受影响行数
+     * （`ImmutableLearningFactDao.compareAndSetAssessmentItemVerificationStatus`）。
+     * 假库照此镜像：行不存在/当前状态不符 → 0；写入 → 1；并镜像 adapter 的状态对收紧
+     * （仅 `UNKNOWN → VERIFIED/USER_ASSERTED`），防止测试在非法迁移上变绿。
+     */
+    override suspend fun compareAndSetAssessmentItemVerificationStatus(
+        assessmentItemSnapshotId: String,
+        expectedCurrentStatus: String,
+        newVerificationStatus: String,
+    ): Int {
+        require(expectedCurrentStatus == StudyDbValue.VerificationStatus.UNKNOWN) {
+            "verificationStatus CAS expects UNKNOWN, got $expectedCurrentStatus"
+        }
+        require(
+            newVerificationStatus == StudyDbValue.VerificationStatus.VERIFIED ||
+                newVerificationStatus == StudyDbValue.VerificationStatus.USER_ASSERTED,
+        ) {
+            "verificationStatus CAS target must be VERIFIED or USER_ASSERTED"
+        }
+        val current = assessmentItemSnapshots[assessmentItemSnapshotId] ?: return 0
+        if (current.verificationStatus != expectedCurrentStatus) return 0
+        assessmentItemSnapshots[assessmentItemSnapshotId] =
+            current.copy(verificationStatus = newVerificationStatus)
+        return 1
+    }
+
     override suspend fun overwriteAssessmentItemSnapshot(item: AssessmentItemSnapshotSeedRecord) {
         // KD-41：真 DAO 是 `UPDATE ... WHERE assessment_item_snapshot_id = ?`——**只覆盖既有行、
         // 无行不新增**（`ImmutableLearningFactDao.overwriteAssessmentItem`）。假库照此镜像：

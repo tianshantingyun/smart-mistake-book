@@ -67,6 +67,29 @@ jobs:
         run: python3 tools/ci/run_kb_checks.py
       - name: Room schema drift check
         run: git diff --exit-code -- core/database/schemas
+      - name: Dependency lockfile manifest and coverage gate
+        # KD-72：DEFAULT 模式对"project 完全没有锁"放行，且 `dependencies` 报告任务
+        # 生成的锁缺 test/androidTest/runtime。脚本在锁尚未落地时只提示；一旦有第一个
+        # 项目锁被跟踪，就要求每个 included project 都有覆盖测试/运行面的锁。
+        run: python3 tools/ci/check_lockfiles.py
+      - name: Dependency lockfiles are up to date
+        # 锁文件存在时才跑；没有锁的提交由上一个 step 明确标记为"尚未落地"。
+        # --write-locks 后必须无 diff；不能用 git diff --exit-code（未跟踪文件看不见）。
+        if: ${{ hashFiles('**/gradle.lockfile') != '' }}
+        run: |
+          set -euo pipefail
+          ./gradlew --no-configuration-cache --no-parallel --console=plain \
+            lockAllDependencies --write-locks > /tmp/lockfiles.log 2>&1 || {
+              tail -n 200 /tmp/lockfiles.log
+              exit 1
+            }
+          changed=$(git status --porcelain -- '*.lockfile')
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            git diff -- '*.lockfile' | sed -n '1,200p'
+            echo "::error::gradle.lockfile 与解析结果不一致：请运行 ./gradlew --no-configuration-cache --no-parallel lockAllDependencies --write-locks 并提交锁文件"
+            exit 1
+          fi
       - name: Unit tests
         # The flavor-named tasks only exist in :app; every other module's
         # unit tests are listed explicitly or they never run in CI. Pure-JVM

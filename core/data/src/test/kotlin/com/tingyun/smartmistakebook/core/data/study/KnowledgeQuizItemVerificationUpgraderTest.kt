@@ -6,8 +6,14 @@ import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSource
 import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSourceVerifier
 import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationUpgradeRejection
 import com.tingyun.smartmistakebook.core.model.AnswerKeyVerification
+import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -23,9 +29,11 @@ import org.junit.Test
  * - 若用户确认来源缺失/来自别人，`USER_ASSERTED` 会变成无来源的信任标签。本用例钉住
  *   PRD-02 的来源语义与"不写库"。
  *
- * 说明：假写端口镜像生产 adapter 必须实现的单列 CAS 语义（行不存在/当前状态不符 → false）。
- * 真实 Room 单列 UPDATE adapter 尚未落地（core/database 不在本轨范围），因此本用例证明的是
- * API + 端口契约，不是 Room 端到端写入。
+ * 说明：写端口现在走**生产 adapter** [StudyDatabaseAssessmentItemVerificationStatusWriter]
+ *（批次 23 T2 接线）落到 `StudyDatabasePort.compareAndSetAssessmentItemVerificationStatus`；
+ * 假库镜像真 DAO 的单列 CAS 语义（行不存在/当前状态不符 → 0，写入 → 1）。Room 端到端
+ *（真实 SQL/列不变）由 `:core:database` 的 `AssessmentItemVerificationStatusInstrumentedTest`
+ * 覆盖，本文件证明的是 API + 端口契约 + 生产 adapter 委托。
  */
 class KnowledgeQuizItemVerificationUpgraderTest {
 
@@ -86,10 +94,14 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         }
     }
 
-    /** 生产 adapter 的契约镜像：只改 verification_status，且以 expected 做 CAS。 */
-    private class SingleColumnWriter(
-        private val database: FakeStudyDatabasePort,
+    /**
+     * 生产 adapter + 计数装饰：既走真实 [StudyDatabaseAssessmentItemVerificationStatusWriter]
+     * → 假库 CAS 口，又保留"拒绝路径不调用写口"的计数断言。
+     */
+    private class CountingWriter(
+        database: FakeStudyDatabasePort,
     ) : AssessmentItemVerificationStatusWriter {
+        private val delegate = StudyDatabaseAssessmentItemVerificationStatusWriter(database)
         var calls: Int = 0
             private set
         var lastExpected: String? = null
@@ -105,17 +117,17 @@ class KnowledgeQuizItemVerificationUpgraderTest {
             calls += 1
             lastExpected = expectedCurrentStatus
             lastNew = newVerificationStatus
-            val current = database.assessmentItemSnapshots[assessmentItemSnapshotId] ?: return false
-            if (current.verificationStatus != expectedCurrentStatus) return false
-            database.assessmentItemSnapshots[assessmentItemSnapshotId] =
-                current.copy(verificationStatus = newVerificationStatus)
-            return true
+            return delegate.compareAndSetVerificationStatus(
+                assessmentItemSnapshotId = assessmentItemSnapshotId,
+                expectedCurrentStatus = expectedCurrentStatus,
+                newVerificationStatus = newVerificationStatus,
+            )
         }
     }
 
     private fun upgrader(
         database: FakeStudyDatabasePort,
-        writer: SingleColumnWriter,
+        writer: CountingWriter,
         verifier: AnswerKeyVerificationSourceVerifier = sourceVerifier(),
     ) = KnowledgeQuizItemVerificationUpgrader(database, learnerId, writer, verifier)
 
@@ -124,7 +136,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         val database = FakeStudyDatabasePort()
         val id = snapshotId()
         val before = row().also { database.assessmentItemSnapshots[id] = it }
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
         val upgrader = upgrader(database, writer)
 
         val outcome = upgrader.upgrade(
@@ -163,7 +175,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         val database = FakeStudyDatabasePort()
         val id = snapshotId()
         val before = row().also { database.assessmentItemSnapshots[id] = it }
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
 
         val outcome = upgrader(database, writer).upgrade(
             sessionId = sessionId,
@@ -194,7 +206,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         val database = FakeStudyDatabasePort()
         val id = snapshotId()
         val before = row().also { database.assessmentItemSnapshots[id] = it }
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
 
         val outcome = upgrader(database, writer).upgrade(
             sessionId = sessionId,
@@ -218,7 +230,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         val database = FakeStudyDatabasePort()
         val id = snapshotId()
         val before = row().also { database.assessmentItemSnapshots[id] = it }
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
 
         val outcome = upgrader(database, writer).upgrade(
             sessionId = sessionId,
@@ -244,7 +256,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         database.assessmentItemSnapshots[id] = row(
             verificationStatus = StudyDbValue.VerificationStatus.VERIFIED,
         )
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
         val upgrader = upgrader(database, writer)
 
         // 重试同一个目标：幂等成功，不写库。
@@ -284,7 +296,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
     @Test
     fun `a missing snapshot is reported instead of creating a row`() = runBlocking {
         val database = FakeStudyDatabasePort()
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
 
         val outcome = upgrader(database, writer).upgrade(
             sessionId = sessionId,
@@ -303,7 +315,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         val database = FakeStudyDatabasePort()
         val id = snapshotId()
         val before = row(optionsSnapshot = "[not-json").also { database.assessmentItemSnapshots[id] = it }
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
 
         val outcome = upgrader(database, writer).upgrade(
             sessionId = sessionId,
@@ -322,7 +334,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         val database = FakeStudyDatabasePort()
         val id = snapshotId()
         val before = row().also { database.assessmentItemSnapshots[id] = it }
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
 
         // 复核发现 #13：只校验"非空"时，这条自造 id 会把 UNKNOWN 写成 USER_ASSERTED。
         val outcome = upgrader(database, writer).upgrade(
@@ -349,7 +361,7 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         database.assessmentItemSnapshots[id] = row(
             verificationStatus = StudyDbValue.VerificationStatus.VERIFIED,
         )
-        val writer = SingleColumnWriter(database)
+        val writer = CountingWriter(database)
 
         // 幂等出口以前在来源校验之前直接返回 AlreadyUpgraded，UI 会把"无回执重试"
         // 显示成"已确认"。现在同样必须先证明回执存在。
@@ -367,6 +379,104 @@ class KnowledgeQuizItemVerificationUpgraderTest {
             outcome,
         )
         assertEquals(0, writer.calls)
+    }
+
+    @Test
+    fun `the production writer maps the raw CAS row count and never creates a row`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val id = snapshotId()
+        database.assessmentItemSnapshots[id] = row()
+        val writer = StudyDatabaseAssessmentItemVerificationStatusWriter(database)
+
+        assertEquals(
+            1,
+            database.compareAndSetAssessmentItemVerificationStatus(
+                id,
+                StudyDbValue.VerificationStatus.UNKNOWN,
+                StudyDbValue.VerificationStatus.USER_ASSERTED,
+            ),
+        )
+        assertFalse(
+            "第二次 CAS 的 expected 已过期，必须如实返回 false",
+            writer.compareAndSetVerificationStatus(
+                id,
+                StudyDbValue.VerificationStatus.UNKNOWN,
+                StudyDbValue.VerificationStatus.USER_ASSERTED,
+            ),
+        )
+        assertEquals(
+            StudyDbValue.VerificationStatus.USER_ASSERTED,
+            database.assessmentItemSnapshots.getValue(id).verificationStatus,
+        )
+        assertEquals(
+            "行不存在必须如实返回 0 行，不得补一行",
+            0,
+            database.compareAndSetAssessmentItemVerificationStatus(
+                "snapshot-missing",
+                StudyDbValue.VerificationStatus.UNKNOWN,
+                StudyDbValue.VerificationStatus.VERIFIED,
+            ),
+        )
+        assertFalse(database.assessmentItemSnapshots.containsKey("snapshot-missing"))
+    }
+
+    /**
+     * KD-67 并发半边：两个调用方都读到 `UNKNOWN` 后才各自尝试 CAS——恰一个生效。
+     * 屏障放在 sourceVerifier 里，保证两条路径都完成"读行 → 验来源"之后才进写口；
+     * 输家 CAS 返回 0 行，重读发现已是本次目标，按幂等出口回报 [AlreadyUpgraded]。
+     */
+    @Test
+    fun `two concurrent upgrades of the same unknown row have exactly one winner`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val id = snapshotId()
+        database.assessmentItemSnapshots[id] = row()
+        val writer = CountingWriter(database)
+        val arrivals = AtomicInteger(0)
+        val bothVerified = CompletableDeferred<Unit>()
+        val barrierVerifier = AnswerKeyVerificationSourceVerifier { _, _, _ ->
+            if (arrivals.incrementAndGet() == 2) bothVerified.complete(Unit)
+            bothVerified.await()
+            true
+        }
+
+        val outcomes = coroutineScope {
+            List(2) {
+                async {
+                    KnowledgeQuizItemVerificationUpgrader(
+                        database,
+                        learnerId,
+                        writer,
+                        barrierVerifier,
+                    ).upgrade(
+                        sessionId = sessionId,
+                        knowledgeNodeId = nodeId,
+                        targetVerification = AnswerKeyVerification.USER_ASSERTED,
+                        source = userAssertion(),
+                    )
+                }
+            }.awaitAll()
+        }
+
+        assertEquals(
+            "并发同 id 两次必须恰一次生效",
+            1,
+            outcomes.count { it is KnowledgeQuizItemVerificationUpgradeOutcome.Upgraded },
+        )
+        assertEquals(
+            "输家按重读结果走幂等出口",
+            1,
+            outcomes.count {
+                it == KnowledgeQuizItemVerificationUpgradeOutcome.AlreadyUpgraded(
+                    assessmentItemSnapshotId = id,
+                    verificationStatus = StudyDbValue.VerificationStatus.USER_ASSERTED,
+                )
+            },
+        )
+        assertEquals("两条路径都应完成来源校验后才尝试 CAS", 2, writer.calls)
+        assertEquals(
+            StudyDbValue.VerificationStatus.USER_ASSERTED,
+            database.assessmentItemSnapshots.getValue(id).verificationStatus,
+        )
     }
 
     private companion object {

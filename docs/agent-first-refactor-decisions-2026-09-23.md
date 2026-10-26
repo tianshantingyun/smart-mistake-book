@@ -3397,3 +3397,23 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **feature/Room 生产接线未做**：没有 Room 版 source verifier、没有 feature 消费者、没有生产调用点；G5 仍不是产品可用，KD-67 保持 open。
 - 不得为接通放宽 selector 的 `contentVerified` 判据，也不得让 UI 直接构造"非空 confirmationId + 当前学习者 id"绕过 `sourceVerifier`。
 - 零版本 bump：升级只改变题面核验状态这一写侧输入；selector 公式/投影/账本语义未动（见算法台账 §3.32）。
+
+---
+
+## 批次 23 T2 生产落库边界（2026-10-26）：`verification_status` 单列 CAS 的存储契约
+
+> 依据：批次 23 计划 T2 / `core/database/.../port/LearningProjectionPort.kt:50-72`、`dao/LearningDao.kt:183-204`、`RoomStudyDatabase.kt:1578-1599`、`DatabaseContract.kt:612-633`、`core/data/.../study/KnowledgeQuizItemVerificationUpgrader.kt:47-67,141-154`。登记原因：批次 22 只落了 domain/core:data 的写方 API，批次 23 把写口落到真实 Room；存储层从此有一条能改 `verification_status` 的生产路径，必须把"只改哪一列、允许哪些状态对"钉死，防止后续被当成通用 update 口。
+
+### 存储契约
+
+- 一条参数化 `UPDATE assessment_item_snapshot SET verification_status = :new WHERE assessment_item_snapshot_id = :id AND verification_status = :expected`；返回**真实受影响行数**（0/1），无行不插入、不补行、不整行重写。
+- 允许的状态对只有 `UNKNOWN → VERIFIED` / `UNKNOWN → USER_ASSERTED`；已核验状态之间不得互换、不得降级，非法输入在写库前抛 `DatabaseContractViolationException`。
+- 不新增 schema：`verification_status` 在 v69 已存在（NOT NULL、无默认值），本批零迁移、零 `STUDY_DATABASE_VERSION` bump。
+- 生产 adapter 由 core:data 的 `StudyDatabaseAssessmentItemVerificationStatusWriter` 把 0/1 行数折成 Boolean；`KnowledgeQuizItemVerificationUpgrader` 的生产构造器自动走该口，顺序仍是"读行 → 领域判据 → sourceVerifier 回执校验 → CAS"。
+
+### 边界（不得越过）
+
+- `overwriteAssessmentItemSnapshot`（KD-41 损坏行修复口）仍能整行改写含 `verification_status` 的行；存储层没有强制"只对解不开的行"。**不得**把 CAS 失败当成损坏行去走覆盖口。
+- 并发输家的 `ConcurrentVerificationChange` 分支目前**没有测试覆盖**（`grep` 在 core/data、core/domain 测试中零命中）；JVM 用例只覆盖"两个写者改成同一目标"（输家 `AlreadyUpgraded`）。补测前不得把并发矩阵写成已全覆盖。
+- 产品面仍未接通：feature 消费者、确认流生产调用点、`sourceVerifier` 生产实现均无；KD-67 保持 open。
+- 设备证据：`AssessmentItemVerificationStatusInstrumentedTest` 5/5 PASS（`research/evidence/2026-10-26-batch-23/step07-kd67-cas.md:82`）。

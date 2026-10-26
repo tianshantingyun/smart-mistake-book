@@ -609,6 +609,29 @@ internal object DatabaseContractValidator {
         nonNegative(item.createdAtEpochMillis, "createdAtEpochMillis")
     }
 
+    /**
+     * G5-A / KD-67：`verification_status` 单列 CAS 的输入校验。
+     *
+     * 消灭的失败：一个"通用"状态 CAS 若允许任意状态对，就能把已核验行改成另一种核验来源
+     * （无新来源回执的二次升级），或把已核验行降回 `UNKNOWN`；两者都会让"已核验"失去
+     * 单一含义。这里把可迁移对收紧为 `UNKNOWN → VERIFIED/USER_ASSERTED`，非法输入在写库前
+     * 就抛契约异常，而不是静默返回 0 行。
+     */
+    fun validateAssessmentItemVerificationStatusCas(
+        assessmentItemSnapshotId: String,
+        expectedCurrentStatus: String,
+        newVerificationStatus: String,
+    ) {
+        id(assessmentItemSnapshotId, "assessmentItemSnapshotId")
+        requireContract(expectedCurrentStatus == StudyDbValue.VerificationStatus.UNKNOWN) {
+            "verificationStatus CAS expects UNKNOWN, got $expectedCurrentStatus"
+        }
+        known(newVerificationStatus, "newVerificationStatus", verificationStatuses)
+        requireContract(newVerificationStatus != StudyDbValue.VerificationStatus.UNKNOWN) {
+            "verificationStatus CAS target must be VERIFIED or USER_ASSERTED"
+        }
+    }
+
     fun validateAssessmentEvent(event: AssessmentEventSeedRecord) {
         id(event.assessmentEventId, "assessmentEventId")
         id(event.assessmentItemSnapshotId, "assessmentItemSnapshotId")

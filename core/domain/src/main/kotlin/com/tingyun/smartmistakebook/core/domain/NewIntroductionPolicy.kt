@@ -75,9 +75,26 @@ object NewIntroductionPolicy {
          * reports billed truth in every branch; never negative.
          */
         val grantedSliceSeconds: Int,
+        /**
+         * KD-68: how many [deferred] candidates can NEVER be introduced by
+         * this daily policy because their true duration exceeds the WHOLE
+         * daily budget (`decide`'s `timeBudgetSeconds`) — they need a special
+         * dedicated session, not a daily slot.
+         *
+         * This is a read-only fact derived at decision time (a count over
+         * [deferred]); it takes no part in the grant arithmetic and never
+         * changes [introduced], [deferred] or [grantedSliceSeconds]. It is
+         * zero for an ordinary backlog in which every item fits the budget,
+         * including items merely deferred because today's slice ran out.
+         */
+        val unschedulableCount: Int = 0,
     ) {
         init {
             require(grantedSliceSeconds >= 0) { "Granted slice must not be negative" }
+            require(unschedulableCount >= 0) { "Unschedulable count must not be negative" }
+            require(unschedulableCount <= deferred.size) {
+                "Unschedulable count must be a subset of the deferred candidates"
+            }
         }
     }
 
@@ -179,6 +196,13 @@ object NewIntroductionPolicy {
             // nothing fit (the KD-64 IllegalArgumentException), stale-slice
             // when something did.
             grantedSliceSeconds = introduced.sumOf { it.estimatedDurationSeconds },
+            // KD-68: the deadlock guard expands only up to `timeBudgetSeconds`,
+            // so a candidate whose TRUE duration exceeds the whole budget can
+            // never be introduced on ANY day. Surface that as a fact instead
+            // of leaving an eternal silent deferral — the read/snapshot side
+            // reports it as the "special session" bucket. Purely descriptive:
+            // the grant arithmetic above is untouched.
+            unschedulableCount = ordered.count { it.estimatedDurationSeconds > timeBudgetSeconds },
         )
     }
 
@@ -192,21 +216,9 @@ object NewIntroductionPolicy {
     }.thenBy(IntakeCandidate::createdAtEpochMillis)
 
     /**
-     * **粗略算术估计，不是排期承诺。** Complexity/duration outliers are invisible here:
-     * a backlog item larger than a whole daily budget can never be introduced by [decide],
-     * yet this function still divides its count by a per-day average and reports
-     * `unschedulableCount = 0`. A UI that renders "约 M 天安排完" from this promises
-     * coverage the scheduler cannot deliver (KD-64 复核：学生看到的承诺与真实引入不符).
-     *
-     * 需要可兑现的覆盖计划时必须用 [previewBacklog]（逐日模拟 [decide] 并单独报告
-     * [CoveragePreview.unschedulableCount]），不要用本函数生成对用户的覆盖承诺。
-     * 保留本函数只为既有调用点的兼容；生产 UI 的接线/改口是 feature 热区的遗留项。
-     *
-     * @param backlogCount questions still in the intake backlog.
-     * @param typicalItemSeconds the per-item duration estimate the daily
-     *   slice is computed from (e.g., the backlog's median estimate).
-     * @param timeBudgetSeconds the WHOLE daily review budget.
-     * @param daysLeftToExam 0/null = no exam pressure.
+     * Result of the legacy coverage previews ([preview] arithmetic and
+     * [previewBacklog] simulation). See [preview] for the arithmetic caveats;
+     * [SchedulabilityPreview] is the honest split.
      */
     data class CoveragePreview(
         val perDayItems: Int,
@@ -218,10 +230,42 @@ object NewIntroductionPolicy {
          * (a "special session" problem, never a daily-intake item) or the
          * horizon was exhausted. The UI must surface these separately
          * instead of claiming full coverage.
+         *
+         * Historical combined value: [previewSchedulability] reports the two
+         * causes separately — its [SchedulabilityPreview.unschedulableCount]
+         * counts ONLY the larger-than-a-whole-day items, while
+         * [SchedulabilityPreview.beyondHorizonCount] counts the schedulable
+         * leftovers. This field keeps the combined value so existing callers
+         * and tests stay bit-for-bit unchanged.
          */
         val unschedulableCount: Int = 0,
     )
 
+    /**
+     * **粗略算术估计，不是排期承诺。旧预览会隐藏超全预算项。**
+     * Complexity/duration outliers are invisible here: a backlog item larger
+     * than a whole daily budget can never be introduced by [decide], yet this
+     * function still divides its count by a per-day average and reports
+     * `unschedulableCount = 0`. A UI that renders "约 M 天安排完" from this
+     * promises coverage the scheduler cannot deliver (KD-64/KD-68 复核：学生看到
+     * 的承诺与真实引入不符).
+     *
+     * - 需要可兑现的覆盖计划：用 [previewBacklog]（逐日模拟 [decide] 并单独报告
+     *   [CoveragePreview.unschedulableCount]）。
+     * - 需要**可调度/不可调度分解**：用 [previewSchedulability]——
+     *   [SchedulabilityPreview.schedulableCount] 与
+     *   [SchedulabilityPreview.unschedulableCount] 之和恒等于 backlog 总数，
+     *   不再把"永远排不进"的题混进覆盖承诺。
+     *
+     * 不要用本函数生成对用户的覆盖承诺。保留本函数只为既有调用点的兼容；
+     * 生产 UI 的接线/改口是 feature 热区的遗留项（KD-68 保持 open 的剩余条件）。
+     *
+     * @param backlogCount questions still in the intake backlog.
+     * @param typicalItemSeconds the per-item duration estimate the daily
+     *   slice is computed from (e.g., the backlog's median estimate).
+     * @param timeBudgetSeconds the WHOLE daily review budget.
+     * @param daysLeftToExam 0/null = no exam pressure.
+     */
     fun preview(
         backlogCount: Int,
         typicalItemSeconds: Int,
@@ -250,16 +294,6 @@ object NewIntroductionPolicy {
     }
 
     /**
-     * Coverage-preview assembly over the ACTUAL intake backlog (spec §6 P3):
-     * the typical per-item estimate is the backlog's MEDIAN estimate — a
-     * median is robust to a few oversized outliers (a single 20-minute
-     * problem must not inflate the per-day count for everyone else). The
-     * median of an empty backlog is undefined, so callers should short-circuit
-     * on an empty backlog before invoking this.
-     *
-     * Pure and deterministic; the UI layer renders the returned preview.
-     */
-    /**
      * Coverage-preview assembly over the ACTUAL intake backlog (spec §6 P3).
      *
      * The preview SIMULATES the real introduction policy day by day: each day
@@ -274,6 +308,12 @@ object NewIntroductionPolicy {
      * [daysLeftToExam] shrinks by one each simulated day (the exam pressure
      * ramps exactly as it will in production); null keeps the fixed slice.
      *
+     * Historical contract (kept bit-for-bit so existing callers/tests are
+     * unaffected): [CoveragePreview.unschedulableCount] combines items that
+     * can NEVER be daily-introduced (true duration > whole daily budget) with
+     * items merely left beyond the simulation horizon. Use
+     * [previewSchedulability] when the caller needs the two causes separated.
+     *
      * Pure and deterministic; the UI layer renders the returned preview.
      */
     fun previewBacklog(
@@ -282,8 +322,72 @@ object NewIntroductionPolicy {
         daysLeftToExam: Int? = null,
         maxSimulatedDays: Int = MAX_SIMULATED_DAYS,
     ): CoveragePreview {
+        val honest = previewSchedulability(
+            backlog = backlog,
+            timeBudgetSeconds = timeBudgetSeconds,
+            daysLeftToExam = daysLeftToExam,
+            maxSimulatedDays = maxSimulatedDays,
+        )
+        return CoveragePreview(
+            perDayItems = honest.perDayItems,
+            daysToCover = honest.daysToCover,
+            backlogCount = honest.backlogCount,
+            unschedulableCount = honest.unschedulableCount + honest.beyondHorizonCount,
+        )
+    }
+
+    /**
+     * Honest backlog coverage (KD-68): every backlog item is classified
+     * exactly once, so a caller can no longer promise coverage for an item the
+     * daily policy will never introduce.
+     *
+     * - [SchedulabilityPreview.schedulableCount]: can be introduced by
+     *   [decide] on some day.
+     * - [SchedulabilityPreview.unschedulableCount]: true duration exceeds the
+     *   WHOLE daily budget — never a daily-intake item; needs a special
+     *   dedicated session.
+     * - [SchedulabilityPreview.beyondHorizonCount]: schedulable in principle,
+     *   but still pending after [maxSimulatedDays] (pathological backlog only).
+     *
+     * `schedulableCount + unschedulableCount == backlogCount` always holds.
+     * The simulation (per-day [decide], true-duration billing, exam ramp)
+     * is identical to [previewBacklog], so [SchedulabilityPreview.perDayItems]
+     * and [SchedulabilityPreview.daysToCover] agree with the legacy preview.
+     *
+     * Pure and deterministic.
+     */
+    data class SchedulabilityPreview(
+        val backlogCount: Int,
+        val schedulableCount: Int,
+        val unschedulableCount: Int,
+        val perDayItems: Int,
+        val daysToCover: Int,
+        val beyondHorizonCount: Int,
+    ) {
+        init {
+            require(backlogCount >= 0) { "Backlog must not be negative" }
+            require(schedulableCount >= 0) { "Schedulable count must not be negative" }
+            require(unschedulableCount >= 0) { "Unschedulable count must not be negative" }
+            require(perDayItems >= 0) { "Per-day items must not be negative" }
+            require(daysToCover >= 0) { "Days to cover must not be negative" }
+            require(beyondHorizonCount >= 0) { "Beyond-horizon count must not be negative" }
+            require(schedulableCount + unschedulableCount == backlogCount) {
+                "Schedulable and unschedulable counts must partition the backlog"
+            }
+            require(beyondHorizonCount <= schedulableCount) {
+                "Beyond-horizon items must be a subset of the schedulable backlog"
+            }
+        }
+    }
+
+    fun previewSchedulability(
+        backlog: List<IntakeCandidate>,
+        timeBudgetSeconds: Int,
+        daysLeftToExam: Int? = null,
+        maxSimulatedDays: Int = MAX_SIMULATED_DAYS,
+    ): SchedulabilityPreview {
         require(timeBudgetSeconds > 0) { "Time budget must be positive" }
-        if (backlog.isEmpty()) return CoveragePreview(0, 0, 0)
+        if (backlog.isEmpty()) return SchedulabilityPreview(0, 0, 0, 0, 0, 0)
 
         // Items larger than a whole daily budget can never be introduced by
         // the daily-intake policy — they need a special dedicated session.
@@ -309,11 +413,13 @@ object NewIntroductionPolicy {
             daysToExam?.let { if (it > 0) daysToExam = it - 1 }
         }
         val perDay = if (days == 0) 0 else totalIntroduced / days + if (totalIntroduced % days == 0) 0 else 1
-        return CoveragePreview(
+        return SchedulabilityPreview(
+            backlogCount = backlog.size,
+            schedulableCount = schedulable.size,
+            unschedulableCount = unschedulable.size,
             perDayItems = perDay,
             daysToCover = days,
-            backlogCount = backlog.size,
-            unschedulableCount = unschedulable.size + remaining.size,
+            beyondHorizonCount = remaining.size,
         )
     }
 

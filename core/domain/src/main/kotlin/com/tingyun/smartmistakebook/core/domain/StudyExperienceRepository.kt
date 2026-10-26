@@ -79,15 +79,32 @@ data class StudyReviewOverview(
      * yet introduced into any daily plan. They accrue no learning pressure;
      * the review surface renders them as a coverage promise
      * ("每天约 X 题新学，M 天覆盖").
+     *
+     * [intakeUnschedulableCount] is the subset that can never be covered by
+     * that daily promise (KD-68).
      */
     val intakeBacklogCount: Int = 0,
     /** Median estimated seconds of the backlog items (preview per-day math). */
     val intakeMedianEstimateSeconds: Int = 0,
+    /**
+     * KD-68 读面事实：积压中**时长超过整日复习预算**的题数——每日引入策略永远
+     * 排不进它们（需专项会话），与 [intakeBacklogCount] 同一口径（同一时长模型、
+     * 同一考试扩容预算、同一考试天数量，由 `StudySnapshotBuilder` 经排程服务派生）。
+     *
+     * 0 = 积压为空或每道题都装得进整日预算（含"今天切片用完了所以顺延"的题——
+     * 顺延不是不可调度）。消费方必须把这一桶单独呈现，不得把它计入
+     * "约 M 天安排完"的覆盖承诺。
+     */
+    val intakeUnschedulableCount: Int = 0,
 ) {
     init {
         require(completionStreakDays >= 0) { "Review completion streak must not be negative" }
         require(intakeBacklogCount >= 0) { "Intake backlog must not be negative" }
         require(intakeMedianEstimateSeconds >= 0) { "Intake estimate must not be negative" }
+        require(intakeUnschedulableCount >= 0) { "Intake unschedulable count must not be negative" }
+        require(intakeUnschedulableCount <= intakeBacklogCount) {
+            "Intake unschedulable count must be a subset of the intake backlog"
+        }
     }
 }
 

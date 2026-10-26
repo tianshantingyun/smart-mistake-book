@@ -218,6 +218,118 @@ class NewIntroductionPolicyTest {
         assertEquals(0, preview.daysToCover)
         assertEquals(0, preview.backlogCount)
     }
+
+    @Test
+    fun `all-over-budget backlog reports every candidate as unschedulable and no daily grant`() {
+        // KD-68: each candidate's TRUE duration (600s) exceeds the WHOLE
+        // daily budget (300s), so the daily policy can never introduce any of
+        // them on ANY day. Before this fact was exposed they simply vanished
+        // into `deferred` forever while the UI still promised coverage.
+        val backlog = listOf(
+            candidate("huge-1", 600),
+            candidate("huge-2", 600),
+            candidate("huge-3", 600),
+        )
+        val decision = NewIntroductionPolicy.decide(backlog, timeBudgetSeconds = 300)
+        assertEquals(3, decision.unschedulableCount)
+        assertEquals(emptyList<String>(), decision.introduced.map { it.practiceUnitId })
+        assertEquals(3, decision.deferred.size)
+        assertEquals(0, decision.grantedSliceSeconds)
+
+        val honest = NewIntroductionPolicy.previewSchedulability(backlog, timeBudgetSeconds = 300)
+        assertEquals(0, honest.schedulableCount)
+        assertEquals(3, honest.unschedulableCount)
+        assertEquals(3, honest.backlogCount)
+        assertEquals(0, honest.perDayItems)
+        assertEquals(0, honest.daysToCover)
+        assertEquals(0, honest.beyondHorizonCount)
+    }
+
+    @Test
+    fun `deferred because today's slice ran out is not unschedulable`() {
+        // 4 × 90s inside a 600s budget: two are deferred TODAY, but every item
+        // fits the whole budget and stays a daily-intake candidate tomorrow.
+        // "Deferred" must not be conflated with "never schedulable".
+        val decision = NewIntroductionPolicy.decide(
+            candidates = (1..4).map { candidate("u-$it", 90) },
+            timeBudgetSeconds = 600,
+        )
+        assertEquals(2, decision.deferred.size)
+        assertEquals(0, decision.unschedulableCount)
+    }
+
+    @Test
+    fun `unschedulable count is the over-whole-budget subset of deferred`() {
+        val decision = NewIntroductionPolicy.decide(
+            candidates = listOf(candidate("huge", 600), candidate("mid", 150), candidate("small", 90)),
+            timeBudgetSeconds = 300,
+        )
+        assertEquals(listOf("huge"), decision.deferred.map { it.practiceUnitId })
+        assertEquals(1, decision.unschedulableCount)
+        assertEquals(listOf("mid", "small"), decision.introduced.map { it.practiceUnitId })
+    }
+
+    @Test
+    fun `honest preview agrees with the legacy simulation on a normal backlog`() {
+        val backlog = listOf(
+            candidate("a", 90),
+            candidate("b", 120),
+            candidate("c", 150),
+        )
+        val honest = NewIntroductionPolicy.previewSchedulability(backlog, timeBudgetSeconds = 900)
+        val legacy = NewIntroductionPolicy.previewBacklog(backlog, timeBudgetSeconds = 900)
+
+        assertEquals(0, honest.unschedulableCount)
+        assertEquals(3, honest.schedulableCount)
+        assertEquals(3, honest.backlogCount)
+        assertEquals(0, honest.beyondHorizonCount)
+        assertEquals(honest.unschedulableCount, legacy.unschedulableCount)
+        assertEquals(honest.backlogCount, legacy.backlogCount)
+        assertEquals(honest.perDayItems, legacy.perDayItems)
+        assertEquals(honest.daysToCover, legacy.daysToCover)
+        assertEquals(
+            0,
+            NewIntroductionPolicy.decide(backlog, timeBudgetSeconds = 900).unschedulableCount,
+        )
+    }
+
+    @Test
+    fun `legacy preview golden values are unchanged by the honest split`() {
+        val backlog = listOf(
+            candidate("a", 90),
+            candidate("b", 90),
+            candidate("c", 90),
+            candidate("huge", 5_000),
+        )
+
+        // Golden for the old arithmetic UI path: the oversized item is counted
+        // into the coverage promise and unschedulableCount stays 0.
+        val arithmetic = NewIntroductionPolicy.preview(
+            backlogCount = backlog.size,
+            typicalItemSeconds = 90,
+            timeBudgetSeconds = 900,
+        )
+        assertEquals(NewIntroductionPolicy.CoveragePreview(3, 2, 4, 0), arithmetic)
+
+        // Golden for the legacy simulation: "never schedulable" (1) and
+        // "beyond the horizon" (0 here) stay merged into one count.
+        val legacy = NewIntroductionPolicy.previewBacklog(backlog, timeBudgetSeconds = 900)
+        assertEquals(NewIntroductionPolicy.CoveragePreview(3, 1, 4, 1), legacy)
+
+        // The honest split separates the same two schedulability causes.
+        val honest = NewIntroductionPolicy.previewSchedulability(backlog, timeBudgetSeconds = 900)
+        assertEquals(1, honest.unschedulableCount)
+        assertEquals(3, honest.schedulableCount)
+        assertEquals(0, honest.beyondHorizonCount)
+        assertEquals(legacy.unschedulableCount, honest.unschedulableCount + honest.beyondHorizonCount)
+    }
+
+    @Test
+    fun `legacy preview of an all-over-budget backlog keeps its golden merged count`() {
+        val backlog = (1..3).map { candidate("huge-$it", 600) }
+        val legacy = NewIntroductionPolicy.previewBacklog(backlog, timeBudgetSeconds = 300)
+        assertEquals(NewIntroductionPolicy.CoveragePreview(0, 0, 3, 3), legacy)
+    }
 }
 
 class AttemptConfidenceFluentErrorTest {

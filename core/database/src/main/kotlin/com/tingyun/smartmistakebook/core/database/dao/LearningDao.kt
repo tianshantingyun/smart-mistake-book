@@ -180,6 +180,30 @@ internal abstract class ImmutableLearningFactDao {
     @Update
     abstract suspend fun overwriteAssessmentItem(item: AssessmentItemSnapshotEntity): Int
 
+    /**
+     * G5-A / KD-67：`verification_status` 的**单列 CAS**（参数化 UPDATE，不拼 SQL）。
+     *
+     * 返回 SQLite **真实受影响行数**：1 = 已写入；0 = 该 id 无行或当前状态不等于
+     * [expectedCurrentStatus]（不新增行、不重写其他列）。主键唯一，行数不可能大于 1。
+     *
+     * 只由 `SeedAssessmentPort.compareAndSetAssessmentItemVerificationStatus` 的 Room
+     * adapter 调用；可迁移状态对（仅 `UNKNOWN → VERIFIED/USER_ASSERTED`）在 adapter 侧
+     * 经 `DatabaseContractValidator` 校验。
+     */
+    @Query(
+        """
+        UPDATE assessment_item_snapshot
+        SET verification_status = :newVerificationStatus
+        WHERE assessment_item_snapshot_id = :assessmentItemSnapshotId
+          AND verification_status = :expectedCurrentStatus
+        """,
+    )
+    abstract suspend fun compareAndSetAssessmentItemVerificationStatus(
+        assessmentItemSnapshotId: String,
+        expectedCurrentStatus: String,
+        newVerificationStatus: String,
+    ): Int
+
     @Transaction
     open suspend fun saveAssessmentEvent(event: AssessmentEventEntity): Boolean {
         if (insertAssessmentEvent(event) != -1L) return true
