@@ -463,6 +463,28 @@ AUD-17 校准结果互相替代。
 > 不许顺手调整；校准改值必须 bump `PREDICTOR_ELO`）。装配器的 `QUIZ_REVEAL_STATE_HIDDEN="HIDDEN"` 是既有列值字面，
 > `saved-question:` 前缀复用 `StudyReviewPlannerService` 既有映射，均非算法参数。
 
+### 3.32 批次 22 · 零 bump 判据登记（2026-10-26）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动，本批无任何算法版本变更
+
+> 依据：批次 22 计划 T2/T4/T6、批次记录 `docs/research/2026-10-26-batch-22-record.md` §3、`docs/known-defects.md` KD-67/KD-70/KD-71。本批不 bump 任何版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：`core/database/schemas/` 无 70.json（记录时点 git status 空）；T4 写方只改既有 `verification_status` 列 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告、工具面/提示词零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `SELECTOR_COMPOSITE` | 未改 | T4 只把 `unverifiedTargetCandidates` 抽成单一来源（等价重构），决策公式不变 |
+
+零 bump 判据（逐条）：
+
+1. T2 的 OOM 分类是**诊断/错误归因**层，只影响 `VisualExecutionRejection` 的映射与诊断文本，不进投影/排程/打分/校准输入；对外枚举零新增（`UNATTRIBUTED` 折 `INVALID_PROGRAM`）。
+2. T4 的核验升级写方只改变 `assessment_item_snapshot.verification_status` 这一既有列的写侧输入；selector 的 `contentVerified` 判定与公式未动（只抽出 `unverifiedTargetCandidates` 单一来源），且**生产零调用点**——固定账本/固定候选集的输出逐位不变。
+3. T6 只改 `QuickJsVisualExecutionEngine` 的 close/execute 线性化与生命周期，不进入任何学习算法输入。
+4. T1/T3/T5/T7 均为进程层/构建/供应链/文档，零算法面。
+5. 若后续把核验状态用于排程权重、或把 `UNATTRIBUTED` 新增为对外枚举并参与消费，必须重新评估 bump。
+
+执行证据：`python tmp/verify_batch22_t4.py` 五类 60/60（4/9/12/21/14），`VisualJsFailureClassificationTest` XML 14/0/0（只读）；记录员未运行 Gradle。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

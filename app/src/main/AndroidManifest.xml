@@ -60,6 +60,17 @@
             </intent-filter>
         </receiver>
 
+        <!-- 批次 22 T1（4E.2 前置）：不可信 JS 的隔离执行进程。
+             契约 visual-generation-contract.md §4：非导出、专用 :visual_js 进程、
+             isolatedProcess=true（无自己的权限、不挂载应用数据目录）。
+             硬终止只由服务进程自己 killProcess(myPid())；宿主没有可用的 kill API。
+             不声明 intent-filter（避免 exported 默认变 true）、不设 foregroundServiceType。 -->
+        <service
+            android:name=".visualjs.VisualJsService"
+            android:exported="false"
+            android:isolatedProcess="true"
+            android:process=":visual_js" />
+
     </application>
 
 </manifest>

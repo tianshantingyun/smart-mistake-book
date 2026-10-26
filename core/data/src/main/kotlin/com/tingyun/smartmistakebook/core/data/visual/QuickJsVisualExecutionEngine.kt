@@ -39,7 +39,9 @@ import java.nio.charset.StandardCharsets
 import java.util.Collections
 import java.util.Random
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
@@ -96,13 +98,42 @@ import java.util.concurrent.atomic.AtomicReference
  * 超时，不直跑断言）覆盖该场景；观察到的"不返回"是已知缺陷，不是终止成功。
  *
  * 错误面（契约 §4"超限不截断成正确图，返回有界诊断"）：一切失败以
- * [VisualExecutionResult.Rejected] 返回，不抛库异常穿透端口。JS 异常分类按消息启发式：
- * "out of memory" → [MEMORY_LIMIT]（QuickJS 原生 OOM 消息）；"not defined" →
- * [SANDBOX_VIOLATION]（ReferenceError：沙箱无 IO/网络/主机对象）；其余 → [INVALID_PROGRAM]。
- * 程序故意抛同文案错误可被误分类（仍是有界拒绝，无截断面），登记为已知边界。
+ * [VisualExecutionResult.Rejected] 返回，不抛库异常穿透端口。分类是纯函数
+ * [classifyVisualJsFailure] 的四级策略（R3 `docs/research/2026-10-26-quickjs-oom-semantics.md`
+ * §6.1）：
+ * 1. **类型优先**：[QuickJsInterruptedException] → [PHASE_TIMEOUT]；它必须先于消息匹配，
+ *    否则伪造/恰好同文案的中断会被误归堆上限。
+ * 2. **消息严格前缀**：只认 `InternalError: out of memory` → [MEMORY_LIMIT]；不认裸
+ *    `out of memory` 或 `RangeError: out of memory`（程序伪造面）。`string too long` /
+ *    `stack overflow` 不是堆上限 → [INVALID_PROGRAM]。
+ * 3. **消息丢失 + 堆证据**：quickjs-kt 在 Error 对象也分配不出来时只留下 `"null"`
+ *    （JS_NULL 链，KD-70 设备实测）；仅当 `memoryUsage.mallocSize >= 90% mallocLimit`
+ *    才归属 [MEMORY_LIMIT]。`"not defined"` → [SANDBOX_VIOLATION] 维持原判据。
+ * 4. **不可归属兜底**：丢失哨兵但堆不接近上限（如 `throw null`）→ 内部
+ *    [VisualJsFailureKind.UNATTRIBUTED]；对外枚举本批不新增 `UNKNOWN`，折成
+ *    [INVALID_PROGRAM]，诊断以 `[UNATTRIBUTED]` 开头供宿主区分（R3 §6.6 退化口径）。
+ * 分类纯函数由 JVM 单测覆盖（`VisualJsFailureClassificationTest`）；设备形态由仪器化
+ * 探针 P1–P5 钉住。程序故意抛同文案错误可被误分类（仍是有界拒绝，无截断面），登记为
+ * 已知边界。
  *
- * `close()` 幂等；关闭后 `execute()` 立即回 [ENGINE_CLOSED]。close 不等待引擎锁（可能被
- * #240 卡住的强弃走专用守护线程），可在任意线程调用。
+ * **close/execute 生命周期（批次 22 T6，KD-71）**：`closed` 与"当前在飞事务"由同一把
+ * `stateLock` 保护——登记时在同一临界区内先判 closed 再记 inFlight，close 也在同一临界区内
+ * 置 closed 并取走该事务。两种顺序因此只可能是二选一：close 先 → 登记被拒（[ENGINE_CLOSED]）；
+ * 登记先 → close 必能取到该事务并强弃它。不存在"close 读到 null、execute 随后执行成功"的窗口。
+ *
+ * - 强弃：close 对在飞事务置 `abandoned` 并强弃活引擎；阶段在创建活引擎前与登记活引擎后各查
+ *   一次 `abandoned`（close 的 set/getAndSet 与这里的 set/get 构成 Dekker 式握手，至少一侧
+ *   看见另一侧），保证不会留下"未被强弃且继续执行"的事务。
+ * - 有界等待：close 在强弃后等待该事务收尾，上界 `hardDeadlineMillis + 500ms`。正常事务在
+ *   强弃后毫秒级收尾；issue #240 的同步 JNI 阻塞无法被等待，超时后按 accept-the-leak 返回
+ *   （因此 close 仍可能在 #240 形状下先于 `execute()` 实际返回，但该 execute 永远不会成功）。
+ * - 线性化点：事务最终结果与 close 的 closed=true 在同一临界区内判定。close 先到 → 任何结果
+ *   （包括本可成功的渲染）折成 [ENGINE_CLOSED]；事务判定先到 → 结果在关闭前已成立。
+ * - 幂等：重复 close 在没有在飞事务时直接返回；并发 close 的后来者同样等待在飞事务收尾
+ *   （有界），不会让调用方误以为引擎已排空。关闭后 `execute()` 立即回 [ENGINE_CLOSED]。
+ *
+ * close 不等待引擎锁/`jsMutex`（可能被 #240 卡住的强弃走专用守护线程），可在任意线程调用；
+ * 但会等待在飞事务收尾（有界），因此不应在 Binder/主线程调用。
  */
 class QuickJsVisualExecutionEngine(
     private val measurer: VisualContentMeasurer,
@@ -115,18 +146,31 @@ class QuickJsVisualExecutionEngine(
     private val hardDeadlineMillis: Long = VisualExecutionBudget.SERVICE_HARD_DEADLINE_MILLIS,
 ) : VisualExecutionEngine {
 
-    private val closed = AtomicBoolean(false)
-    private val inFlight = AtomicBoolean(false)
+    /**
+     * 生命周期门（KD-71）：[closed] 与 [inFlight] 只在持有本锁时读写。
+     *
+     * 拆成两个原子量（closed AtomicBoolean + currentTransaction AtomicReference）时，
+     * close 可以落在"读到 closed=false"与"设置 currentTransaction"之间：close 取不到事务、
+     * shutdown 掉 watchdog，execute 却已登记并继续执行，最终在 close 之后返回成功。同一临界区
+     * 把两种顺序压成互斥的二选一，窗口消失。
+     */
+    private val stateLock = Any()
+
+    /** 持 [stateLock] 读写；true = 终态，不再登记任何事务。 */
+    private var closed = false
+
+    /** 持 [stateLock] 读写；非 null = 已登记、尚未收尾的唯一在飞事务。 */
+    private var inFlight: Transaction? = null
+
     private val fusedProgramDigests: MutableSet<String> =
         Collections.newSetFromMap(ConcurrentHashMap())
-    private val currentTransaction = AtomicReference<Transaction?>(null)
 
     private val watchdog = Executors.newSingleThreadScheduledExecutor { runnable ->
         Thread(runnable, "quickjs-visual-watchdog").apply { isDaemon = true }
     }
 
     override suspend fun execute(request: VisualExecutionRequest): VisualExecutionResult {
-        if (closed.get()) {
+        if (isClosed()) {
             return rejected(VisualExecutionRejection.ENGINE_CLOSED, "engine is closed")
         }
         val sourceBytes = figureUsageUtf8Bytes(request.sourceJs)
@@ -150,66 +194,108 @@ class QuickJsVisualExecutionEngine(
                 "program digest ${digest.take(12)} is fused until explicit user retry",
             )
         }
-        if (closed.get()) {
-            return rejected(VisualExecutionRejection.ENGINE_CLOSED, "engine is closed")
-        }
-        if (!inFlight.compareAndSet(false, true)) {
-            return rejected(
-                VisualExecutionRejection.BUSY,
-                "another visual transaction is already in flight",
+        val transaction = Transaction(request, digest)
+        // 判定 closed 与登记事务在同一临界区内（KD-71）：close 先则这里必见 closed；
+        // 登记先则 close 必能取到 inFlight。watchdog 的 shutdownNow() 与 closed=true 也在
+        // 同一临界区（见 close），因此登记成功时调度器必然仍接受任务。
+        synchronized(stateLock) {
+            if (closed) {
+                return rejected(VisualExecutionRejection.ENGINE_CLOSED, "engine is closed")
+            }
+            if (inFlight != null) {
+                return rejected(
+                    VisualExecutionRejection.BUSY,
+                    "another visual transaction is already in flight",
+                )
+            }
+            inFlight = transaction
+            transaction.hardTimer = watchdog.schedule(
+                { transaction.onHardDeadline() },
+                hardDeadlineMillis,
+                TimeUnit.MILLISECONDS,
             )
         }
-        val transaction = Transaction(request, digest)
-        currentTransaction.set(transaction)
-        val hardTimer = watchdog.schedule(
-            { transaction.onHardDeadline() },
-            hardDeadlineMillis,
-            TimeUnit.MILLISECONDS,
-        )
         try {
-            // 这个 withTimeout 只对可协作的挂起有效：issue #240 的同步 JNI 阻塞不可抢占，
-            // 此时本调用永不返回，下面的 catch/finally 都不执行（见类 KDoc）。真正的调用方
-            // 上界必须由调用方自己的线程/进程边界承担（R1 §2.4 观察形状）。
-            val result = withTimeout(hardDeadlineMillis + HOST_AWAIT_GRACE_MILLIS) {
-                runTransaction(transaction)
+            val result = try {
+                // 这个 withTimeout 只对可协作的挂起有效：issue #240 的同步 JNI 阻塞不可抢占，
+                // 此时本调用永不返回，下面的 catch/finally 都不执行（见类 KDoc）。真正的调用方
+                // 上界必须由调用方自己的线程/进程边界承担（R1 §2.4 观察形状）。
+                withTimeout(hardDeadlineMillis + HOST_AWAIT_GRACE_MILLIS) {
+                    runTransaction(transaction)
+                }
+            } catch (timeout: TimeoutCancellationException) {
+                // 可协作挂起的硬上界到点（#240 的同步 JNI 阻塞到不了这里，见类 KDoc）——强弃、
+                // 熔断、放弃该事务的执行线程（daemon，随进程回收）。
+                transaction.forceAbandon()
+                rejected(
+                    VisualExecutionRejection.HARD_DEADLINE_EXCEEDED,
+                    "transaction did not finish within the host hard deadline " +
+                        "(${hardDeadlineMillis} ms + ${HOST_AWAIT_GRACE_MILLIS} ms grace); " +
+                        "the program is fused and its worker abandoned",
+                )
+            } catch (cancel: CancellationException) {
+                transaction.forceAbandon()
+                throw cancel
             }
             if (result is VisualExecutionResult.Rejected &&
                 result.reason == VisualExecutionRejection.HARD_DEADLINE_EXCEEDED
             ) {
                 fusedProgramDigests.add(digest)
             }
-            return result
-        } catch (timeout: TimeoutCancellationException) {
-            // 可协作挂起的硬上界到点（#240 的同步 JNI 阻塞到不了这里，见类 KDoc）——强弃、
-            // 熔断、放弃该事务的执行线程（daemon，随进程回收）。
-            transaction.forceAbandon()
-            fusedProgramDigests.add(digest)
-            return rejected(
-                VisualExecutionRejection.HARD_DEADLINE_EXCEEDED,
-                "transaction did not finish within the host hard deadline " +
-                    "(${hardDeadlineMillis} ms + ${HOST_AWAIT_GRACE_MILLIS} ms grace); " +
-                    "the program is fused and its worker abandoned",
-            )
-        } catch (cancel: CancellationException) {
-            transaction.forceAbandon()
-            throw cancel
+            // 线性化点：与 close 的 closed=true 互斥。close 先到 → 本事务（哪怕已经算出可渲染
+            // 结果）一律折成 ENGINE_CLOSED；本判定先到 → 结果在关闭前已经成立，可以返回。
+            return synchronized(stateLock) {
+                if (closed) {
+                    rejected(
+                        VisualExecutionRejection.ENGINE_CLOSED,
+                        "engine closed before the transaction result was released",
+                    )
+                } else {
+                    result
+                }
+            }
         } finally {
-            hardTimer.cancel(false)
-            currentTransaction.compareAndSet(transaction, null)
-            inFlight.set(false)
+            transaction.hardTimer?.cancel(false)
+            synchronized(stateLock) {
+                if (inFlight === transaction) inFlight = null
+            }
+            // close 在该事务上最多等 hardDeadline + grace；取消/异常路径同样要放行。
+            transaction.markCompleted()
         }
     }
 
     override fun close() {
-        if (closed.getAndSet(true)) return
-        currentTransaction.get()?.forceAbandon()
-        watchdog.shutdownNow()
+        var transaction: Transaction? = null
+        synchronized(stateLock) {
+            // 并发 close 的后来者也要等同一个在飞事务收尾（inFlight 由该事务的 finally 清空），
+            // 不能因为 closed 已是 true 就提前返回、让调用方误以为引擎已排空。
+            transaction = inFlight
+            if (!closed) {
+                closed = true
+                // 与 execute 的登记同临界区：登记成功的 schedule 不可能撞上已 shutdown 的调度器。
+                watchdog.shutdownNow()
+            }
+        }
+        val draining = transaction ?: return
+        // 先强弃（幂等、不占 watchdog 线程），再有界等待它收尾。上界与事务自身的宿主期限一致；
+        // issue #240 的同步 JNI 阻塞无法被等待，超时后按 accept-the-leak 返回。
+        draining.forceAbandon()
+        draining.awaitCompletion(hardDeadlineMillis + HOST_AWAIT_GRACE_MILLIS)
     }
+
+    private fun isClosed(): Boolean = synchronized(stateLock) { closed }
 
     // ---------------------------------------------------------------- 事务
 
     private suspend fun runTransaction(transaction: Transaction): VisualExecutionResult {
         val request = transaction.request
+        if (transaction.abandoned.get()) {
+            // close 在登记后、coroutine 真正开跑前抢到了事务：连事务线程都不必建。
+            return rejected(
+                VisualExecutionRejection.ENGINE_CLOSED,
+                "transaction was abandoned before it started",
+            )
+        }
         // 每事务专用单线程 dispatcher：JS 同步执行发生在 evaluate() 调用者线程（上游
         // QuickJs.jni.kt evalAndAwait），这里把两个阶段都钉到本事务自己的线程上。issue #240
         // 卡死时泄漏的正是这条 daemon 线程，下一事务拿全新线程，引擎不连坐。
@@ -291,6 +377,10 @@ class QuickJsVisualExecutionEngine(
     /**
      * 一个 JS 阶段（prepare 或 render）：全新 QuickJs 实例 → 沙箱配置 → bootstrap → 用户源码 →
      * 调用点。返回该阶段 `JSON.stringify` 的结果字符串。
+     *
+     * 堆快照只在"消息丢失哨兵"路径上取（[isLostMessage]）：普通 TypeError 不会多拿一次
+     * `jsMutex`；读取发生在 `finally { js.close() }` 之前，且 `JS_ComputeMemoryUsage` 本身不分配
+     * （R3 §2.1.4）。取消/中断不读堆，也不改变既有终止层语义。
      */
     private suspend fun runPhase(
         transaction: Transaction,
@@ -309,9 +399,29 @@ class QuickJsVisualExecutionEngine(
                         ),
                     )
                 }
+                if (transaction.abandoned.get()) {
+                    // close 已强弃本事务（尚无活引擎可强弃）：不得再创建新上下文。
+                    throw PhaseRejection(
+                        rejected(
+                            VisualExecutionRejection.ENGINE_CLOSED,
+                            "phase $phaseName skipped: the engine is closed",
+                        ),
+                    )
+                }
                 val js = QuickJs.create(jobDispatcher)
                 transaction.liveEngine.set(js)
                 try {
+                    // 与 close 的 forceCloseLiveEngine 构成 Dekker 握手（abandoned.set →
+                    // liveEngine.getAndSet 对 liveEngine.set → abandoned.get）：至少一侧看到
+                    // 另一侧，所以不存在"close 没拿到引擎、这里也没看到 abandoned"的执行窗口。
+                    if (transaction.abandoned.get()) {
+                        throw PhaseRejection(
+                            rejected(
+                                VisualExecutionRejection.ENGINE_CLOSED,
+                                "phase $phaseName aborted: the engine is closed",
+                            ),
+                        )
+                    }
                     js.memoryLimit = VisualExecutionBudget.MAX_HEAP_BYTES
                     js.maxStackSize = VisualExecutionBudget.MAX_STACK_BYTES
                     js.evaluationTimeoutMillis = cooperativeTimeoutMillis
@@ -334,6 +444,23 @@ class QuickJsVisualExecutionEngine(
                             RENDER_FILENAME,
                         )
                     }
+                } catch (jsError: QuickJsException) {
+                    // 类型分支（QuickJsInterruptedException）不读堆：它不是 OOM 形态。
+                    val heap = if (jsError !is QuickJsInterruptedException &&
+                        isLostMessage(jsError.message)
+                    ) {
+                        runCatching {
+                            js.memoryUsage.let { usage ->
+                                HeapSnapshot(
+                                    mallocSize = usage.mallocSize,
+                                    mallocLimit = usage.mallocLimit,
+                                )
+                            }
+                        }.getOrNull()
+                    } else {
+                        null
+                    }
+                    throw ClassifiedJsFailure(jsError, heap)
                 } finally {
                     transaction.liveEngine.compareAndSet(js, null)
                     runCatching { js.close() }
@@ -360,20 +487,13 @@ class QuickJsVisualExecutionEngine(
                     "phase $phaseName was aborted by an engine close",
                 ),
             )
-        } catch (interrupted: QuickJsInterruptedException) {
-            // 协作层（evaluationTimeoutMillis / interruptEvaluation）。上游 close 路径不会
-            // 伪装成本类型（close 先抛 CancellationException），所以这里纯为协作层信号。
-            // 该 catch 必须在 QuickJsException 之前：Interrupted extends QuickJsException，
-            // 反序会把死循环误报成 INVALID_PROGRAM——catch 顺序由仪器化用例钉住。
-            throw PhaseRejection(
-                rejected(
-                    VisualExecutionRejection.PHASE_TIMEOUT,
-                    "phase $phaseName exceeded the cooperative timeout " +
-                        "($cooperativeTimeoutMillis ms); the cooperative layer is not a hard kill",
-                ),
-            )
+        } catch (failure: ClassifiedJsFailure) {
+            // 类型优先在分类器内部（QuickJsInterruptedException 先于任何消息匹配），
+            // 不再靠 catch 顺序把中断钉成 PHASE_TIMEOUT；仪器化死循环用例继续钉住该出口。
+            throw PhaseRejection(classifyJsException(phaseName, failure.error, failure.heap))
         } catch (jsError: QuickJsException) {
-            throw PhaseRejection(classifyJsException(phaseName, jsError))
+            // 阶段守卫之外（如 QuickJs.create 本身）抛出的库异常：同一分类器兜底，无堆快照。
+            throw PhaseRejection(classifyJsException(phaseName, jsError, heap = null))
         } catch (failure: Throwable) {
             // 阶段守卫之外炸出的实现缺陷：有界暴露，不吞成成功（与 fake 同型）。
             throw PhaseRejection(
@@ -404,31 +524,19 @@ class QuickJsVisualExecutionEngine(
         }
     }
 
+    /** 端口层落点：纯分类器给 kind + 诊断，这里只折 reason 并做有界截断。 */
     private fun classifyJsException(
         phaseName: String,
         error: QuickJsException,
+        heap: HeapSnapshot?,
     ): VisualExecutionResult.Rejected {
-        val message = error.message ?: error.javaClass.simpleName
-        val lowered = message.lowercase()
-        return when {
-            // QuickJS 原生堆超限（memoryLimit）的消息面；程序故意抛同文案错误会被误归此类，
-            // 仍是有界拒绝，无截断面（类边界登记在类 KDoc）。
-            lowered.contains("out of memory") -> rejected(
-                VisualExecutionRejection.MEMORY_LIMIT,
-                "js heap limit (${VisualExecutionBudget.MAX_HEAP_BYTES} bytes) exceeded " +
-                    "in phase $phaseName: ${message.take(120)}",
-            )
-            // 沙箱内不存在的全局（fetch/document/window/process/require/……）：ReferenceError。
-            lowered.contains("not defined") -> rejected(
-                VisualExecutionRejection.SANDBOX_VIOLATION,
-                "global is absent in phase $phaseName " +
-                    "(the sandbox has no IO/network/host objects): ${message.take(120)}",
-            )
-            else -> rejected(
-                VisualExecutionRejection.INVALID_PROGRAM,
-                "program failed in phase $phaseName: ${message.take(160)}",
-            )
-        }
+        val failure = classifyVisualJsFailure(
+            phaseName = phaseName,
+            error = error,
+            heap = heap,
+            cooperativeTimeoutMillis = cooperativeTimeoutMillis,
+        )
+        return rejected(failure.reason, failure.diagnostics)
     }
 
     // ---------------------------------------------------------------- 协议
@@ -591,6 +699,15 @@ class QuickJsVisualExecutionEngine(
     private class PhaseRejection(val outcome: VisualExecutionResult.Rejected) :
         RuntimeException(outcome.diagnostics)
 
+    /**
+     * 携带阶段堆快照的库异常包装。必须在 `close()` 之前取快照（关闭后实例不可读）；
+     * [heap] 只在消息丢失哨兵路径上非空，普通 JS 错误为 null。
+     */
+    private class ClassifiedJsFailure(
+        val error: QuickJsException,
+        val heap: HeapSnapshot?,
+    ) : RuntimeException(error.message, error)
+
     /** 一次渲染事务的两层终止状态（inner：迟到定时器要核对引擎的当前事务指针）。 */
     private inner class Transaction(
         val request: VisualExecutionRequest,
@@ -599,23 +716,47 @@ class QuickJsVisualExecutionEngine(
         /** 当前阶段活引擎；watchdog 强弃与阶段 finally 双路径竞争，getAndSet/CAS 清零。 */
         val liveEngine = AtomicReference<QuickJs?>(null)
 
+        /**
+         * close 置位；阶段在创建活引擎前与登记活引擎后各查一次（KD-71）。与 [liveEngine]
+         * 的 set/getAndSet 构成 Dekker 握手，见 runPhase。
+         */
+        val abandoned = AtomicBoolean(false)
+
+        /** 硬期限定时器句柄；仅 execute 协程在登记后与本事务收尾时读写。 */
+        var hardTimer: ScheduledFuture<*>? = null
+
         @Volatile
         var hardExpired: Boolean = false
             private set
 
-        @Volatile
-        private var finished: Boolean = false
+        /** close 等待本事务收尾；execute 的 finally 在成功/拒绝/取消路径都 countDown。 */
+        private val completed = CountDownLatch(1)
 
         /** 契约 §4：完成后迟到的 watchdog 不得杀下一任务——先核对本事务仍是当前事务。 */
         fun onHardDeadline() {
-            if (finished || currentTransaction.get() !== this) return
+            synchronized(stateLock) {
+                if (abandoned.get() || inFlight !== this) return
+            }
             hardExpired = true
             forceCloseLiveEngine()
         }
 
         fun forceAbandon() {
-            finished = true
+            abandoned.set(true)
             forceCloseLiveEngine()
+        }
+
+        fun markCompleted() {
+            completed.countDown()
+        }
+
+        /** close 的有界等待；被中断时恢复中断标志并按已尽力处理返回。 */
+        fun awaitCompletion(timeoutMillis: Long) {
+            try {
+                completed.await(timeoutMillis, TimeUnit.MILLISECONDS)
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
         }
 
         /**

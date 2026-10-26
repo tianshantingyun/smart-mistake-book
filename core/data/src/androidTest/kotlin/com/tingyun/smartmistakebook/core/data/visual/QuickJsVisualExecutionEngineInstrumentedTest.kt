@@ -19,11 +19,13 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.thread
 
 /**
@@ -32,15 +34,26 @@ import kotlin.concurrent.thread
  * 任务书用例清单（计划 T3 第 6 条）逐条映射：
  * - 正常渲染 → `a program renders...`（FrameInput 逐字段 + prepare/render 各恰一次的度量面）
  * - 死循环协作中断 → `an infinite loop is cooperatively interrupted...`（协作层→PHASE_TIMEOUT，
- *   不熔断；catch 顺序钉子之一）
- * - 内存超限 OOM 路径 → `memory over the heap budget...`（memoryLimit=16MiB 引擎层 OOM）
+ *   不熔断；类型优先分类的钉子之一）
+ * - 内存超限 OOM 路径 → R3 §5 的确定性探针（批次 22 T2 替换旧夹具）：
+ *   P1 `memoryOverTheHeapBudget...`（单次 64 MiB ArrayBuffer，message 可读的堆上限主路径）、
+ *   P2 `heapExhaustionWithLostErrorMessage...`（50 万小对象链表，`"null"` 由堆证据归属）、
+ *   P3 `stringLengthCapIsNotAHeapOutOfMemory`（rope 翻倍负控：`string too long` 不是堆上限）、
+ *   P4 `nullThrownAtLowMemoryIsUnattributedInvalidProgram`（`throw null` 低堆，内部
+ *   UNATTRIBUTED → 对外 INVALID_PROGRAM + `[UNATTRIBUTED]` 前缀；T2 裁定不新增 UNKNOWN）、
+ *   P5 `forgedOutOfMemoryMessageIsInvalidProgram`（伪造 OOM 文案不得误报）。
+ *   夹具选择依据 `docs/research/2026-10-26-quickjs-oom-semantics.md` §5：分配型、必然先撞堆、
+ *   单字符串长度远低于 `JS_STRING_LEN_MAX = 2^30-1`（P3 除外，故意越界作负控）。
  * - 无 IO 与网络 → `globals outside the sandbox do not exist`（JS 侧尝试即拒：裸 QuickJS
  *   无 fetch/document/window/process/require）
  * - 重复初始化与 close 幂等 → `closing is idempotent...`；批次 20 契约 17 例（core:domain
  *   JVM 契约测试，fake 承载）保持原样不动、全绿
- * - 异常类 catch 顺序 → 两枚钉子：死循环必须落在 QuickJsInterruptedException 分支
- *   （PHASE_TIMEOUT 而非 INVALID_PROGRAM），普通 JS 运行时错误必须落在 QuickJsException
- *   分支（INVALID_PROGRAM）——反序即红
+ * - close/execute 竞态（批次 22 T6，KD-71）→ `closeDuringAnInFlightTransactionWaitsAndRejectsIt`
+ *   （确定性：close 等在飞事务、事务被强弃后回 ENGINE_CLOSED）与
+ *   `concurrentCloseAndExecuteRoundsNeverReportAnUnexpectedOutcome`（32 轮无协调压测：
+ *   只允许 Rendered/ENGINE_CLOSED，close 后不得再执行）
+ * - 异常分类（类型优先） → 两枚钉子：死循环必须落在中断类型分支（PHASE_TIMEOUT 而非
+ *   INVALID_PROGRAM），普通 JS 运行时错误必须落 INVALID_PROGRAM（P5 钉住严格前缀）。
  * - issue 240 → `issue240SelfQueuingJobIsKnownOpen...`（R1 §2.4 观察形状：独立 daemon 线程 +
  *   join 超时，**不**在测试线程直跑 `engine.execute`，也不调用原始 QuickJs.close()）。1.0.15
  *   上预期"5s 内不返回"；若返回则说明上游已修，断言必须反转为抛中断。该用例记录的是
@@ -93,6 +106,38 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
                 },
             )
         }
+    }
+
+    /**
+     * 卡在度量阶段的 measurer（KD-71 并发用例）：`measure` 进入后立刻放行
+     * [awaitEntered]，然后阻塞到测试调用 [release]。由此得到一个**确定性的在飞事务**：
+     * 进入 measure 前登记已完成，且事务不可能自行结束——close 若不等它，就必然先返回。
+     * 5s 超时兜底，测试断言失败时也不会把执行线程永久挂住。
+     */
+    private class GatedMeasurer : VisualContentMeasurer {
+        private val entered = CountDownLatch(1)
+        private val gate = CountDownLatch(1)
+
+        override suspend fun measure(batch: VisualContentMeasureBatch): VisualContentMeasureResult {
+            entered.countDown()
+            gate.await(5, TimeUnit.SECONDS)
+            return VisualContentMeasureResult(
+                batch.entries.mapIndexed { index, entry ->
+                    VisualMeasuredContent(
+                        contentId = "content-$index",
+                        widthDu = 10f,
+                        heightDu = 12f,
+                        baselineDu = 9f,
+                        fontSizeSp = 16f,
+                        digest = entry.payload,
+                    )
+                },
+            )
+        }
+
+        fun awaitEntered(timeout: Long, unit: TimeUnit): Boolean = entered.await(timeout, unit)
+
+        fun release() = gate.countDown()
     }
 
     private fun engine(
@@ -185,8 +230,8 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
             val second = engine.execute(request(LOOP_SOURCE))
 
             val rejected = first as VisualExecutionResult.Rejected
-            // 协作层：QuickJsInterruptedException 分支（catch 顺序钉子——反序会落进
-            // QuickJsException 分支误报 INVALID_PROGRAM）。
+            // 协作层：类型优先分类（QuickJsInterruptedException → PHASE_TIMEOUT，先于任何
+            // 消息匹配）。若类型分支失效，消息面会把它折成 INVALID_PROGRAM——本用例即红。
             assertEquals(VisualExecutionRejection.PHASE_TIMEOUT, rejected.reason)
             // 协作层不是硬终止：不得熔断——同源重跑应再次真实执行（而非 PROGRAM_FUSED）。
             assertEquals(VisualExecutionRejection.PHASE_TIMEOUT, (second as VisualExecutionResult.Rejected).reason)
@@ -207,17 +252,108 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         val result = engine.execute(request(OOM_SOURCE))
 
         val rejected = result as VisualExecutionResult.Rejected
-        // 引擎层 OOM（memoryLimit=16MiB，QuickJS 原生 "out of memory"）。
-        // 失败时把实际 reason/diagnostics 带进断言消息（设备轨实测该断言曾红：
-        // x86_64 上实际为 INVALID_PROGRAM；诊断为 "InternalError: string too long"）。
-        // 根因是旧夹具反复翻倍字符串，先撞 QuickJS 的单字符串长度上限，根本没走到堆上限；
-        // OOM_SOURCE 已改为持续分配数组/对象（不触发 string too long），断言不放宽。
+        // P1（R3 §5.2）：单次 64 MiB ArrayBuffer。请求被拒后预算仍剩约 15 MiB，
+        // QuickJS 能构造出 OOM Error，message 应可读为 "InternalError: out of memory"。
+        // 设备轨历史上落 INVALID_PROGRAM 的是旧夹具（rope 翻倍先撞单字符串长度上限）；
+        // 本断言不放宽：若设备仍拿不到可读 message，说明 AAR 形态与源码推导不一致，
+        // 按 KD-70 记录 diagnostics，而不是把断言改成"有界拒绝即可"。
         assertEquals(
             "actual: ${rejected.reason}: ${rejected.diagnostics}",
             VisualExecutionRejection.MEMORY_LIMIT,
             rejected.reason,
         )
+        assertTrue(rejected.diagnostics.contains("16777216"))
+        assertTrue(rejected.diagnostics.contains("out of memory"))
         assertTrue(rejected.diagnostics.length <= FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
+    }
+
+    @Test
+    fun heapExhaustionWithLostErrorMessageIsAttributedByMemoryUsage() = runBlocking {
+        val measurer = CapturingMeasurer()
+        val engine = engine(
+            measurer,
+            cooperativeTimeoutMillis = 10_000L,
+            hardDeadlineMillis = 30_000L,
+        )
+
+        val result = engine.execute(request(HEAP_LIST_SOURCE))
+
+        val rejected = result as VisualExecutionResult.Rejected
+        // P2（R3 §5.3）：50 万个小对象、全部可达；失败分配只有 sizeof(JSObject) 量级，
+        // 余量连 OOM Error 都放不下 → quickjs-kt 只留下 "null"。分类必须靠
+        // memoryUsage.mallocSize >= 90% mallocLimit 归属堆上限，而不是把 "null" 当程序错。
+        assertEquals(
+            "actual: ${rejected.reason}: ${rejected.diagnostics}",
+            VisualExecutionRejection.MEMORY_LIMIT,
+            rejected.reason,
+        )
+        assertTrue(rejected.diagnostics.contains("attributed by memoryUsage"))
+        assertTrue(rejected.diagnostics.contains("mallocLimit=16777216"))
+        assertTrue(rejected.diagnostics.length <= FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
+    }
+
+    @Test
+    fun stringLengthCapIsNotAHeapOutOfMemory() = runBlocking {
+        val measurer = CapturingMeasurer()
+        val engine = engine(
+            measurer,
+            cooperativeTimeoutMillis = 10_000L,
+            hardDeadlineMillis = 30_000L,
+        )
+
+        val result = engine.execute(request(STRING_ROPE_SOURCE))
+
+        val rejected = result as VisualExecutionResult.Rejected
+        // P3（R3 §5.4）：rope 翻倍到 2^30-1 抛 "InternalError: string too long"；
+        // 堆几乎没涨。这条负控证明"消息里有 InternalError ≠ OOM"，
+        // 也钉住旧夹具红例的机制不再被归成 MEMORY_LIMIT。
+        assertEquals(
+            "actual: ${rejected.reason}: ${rejected.diagnostics}",
+            VisualExecutionRejection.INVALID_PROGRAM,
+            rejected.reason,
+        )
+        assertTrue(rejected.diagnostics.contains("string too long"))
+        assertFalse(rejected.diagnostics.contains("attributed by memoryUsage"))
+    }
+
+    @Test
+    fun nullThrownAtLowMemoryIsUnattributedInvalidProgram() = runBlocking {
+        val measurer = CapturingMeasurer()
+        val engine = engine(measurer)
+
+        val result = engine.execute(request(THROW_NULL_SOURCE))
+
+        val rejected = result as VisualExecutionResult.Rejected
+        // P4（R3 §5.5）：throw null 与真 OOM 的 message 同为 "null"，但堆很低。
+        // 对外枚举本批不新增 UNKNOWN（T2 裁定），折成 INVALID_PROGRAM，
+        // 以 [UNATTRIBUTED] 诊断前缀如实表达"原因不可归属"。
+        assertEquals(
+            "actual: ${rejected.reason}: ${rejected.diagnostics}",
+            VisualExecutionRejection.INVALID_PROGRAM,
+            rejected.reason,
+        )
+        assertTrue(rejected.diagnostics.startsWith("[UNATTRIBUTED]"))
+        assertFalse(rejected.diagnostics.contains("attributed by memoryUsage"))
+    }
+
+    @Test
+    fun forgedOutOfMemoryMessageIsInvalidProgram() = runBlocking {
+        val measurer = CapturingMeasurer()
+        val engine = engine(measurer)
+
+        val result = engine.execute(request(FORGED_OOM_SOURCE))
+
+        val rejected = result as VisualExecutionResult.Rejected
+        // P5（R3 §5.5）：旧实现 contains("out of memory") 会把这条误报成 MEMORY_LIMIT；
+        // 严格前缀只认引擎生成的 InternalError 文案。伪造后果仅是有界拒绝被标错类，
+        // 不是认证机制——但正向的误报必须被钉住。
+        assertEquals(
+            "actual: ${rejected.reason}: ${rejected.diagnostics}",
+            VisualExecutionRejection.INVALID_PROGRAM,
+            rejected.reason,
+        )
+        assertTrue(rejected.diagnostics.contains("RangeError: out of memory"))
+        assertFalse(rejected.diagnostics.startsWith("[UNATTRIBUTED]"))
     }
 
     @Test
@@ -270,8 +406,8 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         val result = engine.execute(request(TYPE_ERROR_SOURCE))
 
         val rejected = result as VisualExecutionResult.Rejected
-        // catch 顺序第二枚钉子：普通 JS 错误走 QuickJsException 分支（若 Interrupted 分支
-        // 反序吞掉它会变成 PHASE_TIMEOUT；若泛化 Throwable 吞掉则诊断丢失文案）。
+        // 分类第二枚钉子：普通 JS 错误不得走中断类型分支（否则会变成 PHASE_TIMEOUT），
+        // 也不得被泛化 Throwable 吞掉（否则诊断丢失文案）；必须保留程序文案并归 INVALID_PROGRAM。
         assertEquals(VisualExecutionRejection.INVALID_PROGRAM, rejected.reason)
         assertTrue(rejected.diagnostics.contains("boom-js"))
         assertTrue(rejected.diagnostics.length <= FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
@@ -342,8 +478,9 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         )
 
         // 本用例不调用原始 QuickJs.close()（会挂 jsMutex）；engine.close() 在 @After 走
-        // 专用守护线程强弃，立即返回。泄漏的 evaluate/force-close daemon 线程随用例进程
-        // 回收，是 R1 §2.3.4 的 accept-the-leak，不是通过项。
+        // 专用守护线程强弃，随后最多等 hardDeadline + 500ms（本用例 600 + 500）后返回——
+        // 不会被 #240 永久挂住，也不会把 @After 拖死。泄漏的 evaluate/force-close daemon
+        // 线程随用例进程回收，是 R1 §2.3.4 的 accept-the-leak，不是通过项。
     }
 
     @Test
@@ -392,6 +529,136 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         assertEquals(0, measurer.calls)
     }
 
+    /**
+     * KD-71 的确定性红例（批次 22 T6）：close 与一个**已登记且在飞**的事务并发。
+     *
+     * 旧实现里 close 只 `currentTransaction.get()?.forceAbandon()`：measure 期间活引擎为
+     * null（prepare 的上下文已关闭），强弃什么也没做；close 立即返回，事务随后照常 render
+     * 并返回 `Rendered`——即"关闭后仍执行成功"。新实现下：
+     * - close 在同一临界区取走已登记事务并置 closed；
+     * - close 强弃后**有界等待**事务收尾（gate 未放行前不可能完成，200ms 内不得返回）；
+     * - 事务在 render 阶段开始前看到 `abandoned`，返回 `ENGINE_CLOSED`。
+     * 若把新实现的 close 改回"不强弃/不等待"，本用例第一条断言即红；若阶段不做
+     * abandoned 检查，第二条断言会拿到 `Rendered` 而红。
+     */
+    @Test
+    fun closeDuringAnInFlightTransactionWaitsAndRejectsIt() {
+        val measurer = GatedMeasurer()
+        val engine = engine(
+            measurer,
+            cooperativeTimeoutMillis = 5_000L,
+            hardDeadlineMillis = 10_000L,
+        )
+        val outcome = AtomicReference<VisualExecutionResult?>(null)
+        val executeThread = thread(isDaemon = true, name = "close-race-execute") {
+            try {
+                outcome.set(runBlocking { engine.execute(request(ECHO_SOURCE)) })
+            } catch (failure: Throwable) {
+                outcome.set(
+                    VisualExecutionResult.Rejected(
+                        VisualExecutionRejection.INVALID_PROGRAM,
+                        "execute threw: ${failure.javaClass.simpleName}",
+                    ),
+                )
+            }
+        }
+        assertTrue(
+            "execute must reach the measurer before close is attempted",
+            measurer.awaitEntered(5, TimeUnit.SECONDS),
+        )
+
+        val closeReturned = CountDownLatch(1)
+        val closeThread = thread(isDaemon = true, name = "close-race-close") {
+            engine.close()
+            closeReturned.countDown()
+        }
+        // 事务被 gate 卡在 measure，close 若"立即返回"就说明它没有等这个在飞事务。
+        assertFalse(
+            "close must wait for the in-flight transaction; it returned before the gate was released",
+            closeReturned.await(200, TimeUnit.MILLISECONDS),
+        )
+
+        measurer.release()
+        executeThread.join(5_000)
+        assertFalse("execute must finish after the gate is released", executeThread.isAlive)
+        assertTrue(
+            "close must finish once the transaction drains",
+            closeReturned.await(5, TimeUnit.SECONDS),
+        )
+        closeThread.join(1_000)
+
+        val rejected = outcome.get() as VisualExecutionResult.Rejected
+        assertEquals(
+            "an execute that was in flight when close landed must be aborted, not rendered",
+            VisualExecutionRejection.ENGINE_CLOSED,
+            rejected.reason,
+        )
+
+        // close 返回后引擎是终态：后续 execute 立即拒绝，且不触达度量/JS。
+        val afterClose = runBlocking { engine.execute(request(ECHO_SOURCE)) }
+        assertEquals(
+            VisualExecutionRejection.ENGINE_CLOSED,
+            (afterClose as VisualExecutionResult.Rejected).reason,
+        )
+    }
+
+    /**
+     * KD-71 并发压测（批次 22 T6）：多轮让 close 与 execute 自然竞争登记窗口。
+     *
+     * 每轮不注入调度延迟，允许两种合法结果：
+     * - `Rendered`：事务在 close 之前完成（close 无需强弃，属于"execute 成功且 close 等其
+     *   结束"分支——close 的等待由 `closeDuringAnInFlightTransactionWaitsAndRejectsIt`
+     *   确定性钉住）；
+     * - `ENGINE_CLOSED`：close 先登记生效，事务被强弃/被拒。
+     * 其余任何结果（尤其 BUSY、库异常穿透）都视为回归。每轮 close 返回后再发一次 execute，
+     * 断言终态永不执行（KD-71 的核心"无关闭后仍执行成功"）。
+     */
+    @Test
+    fun concurrentCloseAndExecuteRoundsNeverReportAnUnexpectedOutcome() {
+        val rounds = 32
+        repeat(rounds) { round ->
+            val engine = engine(CapturingMeasurer())
+            val outcome = AtomicReference<VisualExecutionResult?>(null)
+            val started = CountDownLatch(1)
+            val executeThread = thread(isDaemon = true, name = "close-stress-execute-$round") {
+                started.countDown()
+                try {
+                    outcome.set(runBlocking { engine.execute(request(ECHO_SOURCE)) })
+                } catch (failure: Throwable) {
+                    outcome.set(
+                        VisualExecutionResult.Rejected(
+                            VisualExecutionRejection.INVALID_PROGRAM,
+                            "execute threw: ${failure.javaClass.simpleName}",
+                        ),
+                    )
+                }
+            }
+            assertTrue("round $round: execute did not start", started.await(5, TimeUnit.SECONDS))
+            engine.close()
+            executeThread.join(5_000)
+            assertFalse("round $round: execute leaked past close", executeThread.isAlive)
+
+            val result = outcome.get()
+            assertTrue("round $round: execute produced no result", result != null)
+            when (result) {
+                null -> fail("round $round: execute produced no result")
+                is VisualExecutionResult.Rendered -> Unit
+                is VisualExecutionResult.Rejected -> assertEquals(
+                    "round $round: only ENGINE_CLOSED may be reported once close landed",
+                    VisualExecutionRejection.ENGINE_CLOSED,
+                    result.reason,
+                )
+            }
+
+            val afterClose = runBlocking { engine.execute(request(ECHO_SOURCE)) }
+            assertEquals(
+                "round $round: a closed engine must never execute again",
+                VisualExecutionRejection.ENGINE_CLOSED,
+                (afterClose as VisualExecutionResult.Rejected).reason,
+            )
+        }
+    }
+
     private companion object {
         /** 正常程序：prepare 恰一批（带全 FrameInput 字段），render 恰一次并回显冻结 contentId。 */
         val ECHO_SOURCE = """
@@ -428,18 +695,67 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         """.trimIndent()
 
         /**
-         * 堆上限路径：持续把新分配的对象放进数组，直到 JS 堆超 16MiB。
-         * 旧夹具 `s = s + s` 会先触发 QuickJS 的 "string too long"（单字符串长度上限），
-         * 被分类为 INVALID_PROGRAM，未覆盖 memoryLimit——设备轨实测曾因此红。
+         * P1（R3 §5.2）：单次 64 MiB `ArrayBuffer`，确定性撞 16 MiB 堆上限。
+         * - 64 MiB < INT32_MAX，先过 `js_array_buffer_constructor3` 的长度检查；
+         * - 不产生字符串，不会先撞 `JS_STRING_LEN_MAX`（2^30-1）；
+         * - 请求被拒时仍剩约 15 MiB 预算，OOM Error 可构造（message 可读）。
+         * 旧夹具（rope 翻倍 / 1M-array.fill）已删：前者必然先撞单字符串长度上限，
+         * 后者依赖 fast-array 扩容、余量不可控（非确定性）。
          */
         val OOM_SOURCE = """
             const visual = {
               prepare: function () {
-                var keep = [];
-                while (true) {
-                  keep.push(new Array(1024 * 1024).fill(1));
-                }
+                var buffer = new ArrayBuffer(64 * 1024 * 1024);
+                return [];
               },
+              render: function () { return {}; },
+            };
+        """.trimIndent()
+
+        /**
+         * P2（R3 §5.3）：50 万个小对象链表，全部可达（GC 不回收），无大 realloc、无长字符串。
+         * 20 MB > 16 MiB；有界循环——memoryLimit 若失效，prepare 会正常返回 `[]`（测试红），
+         * 不会靠超时兜底。失败时余量小于一个 Error 对象 → message 为 `"null"`。
+         */
+        val HEAP_LIST_SOURCE = """
+            const visual = {
+              prepare: function () {
+                var head = null;
+                for (var i = 0; i < 500000; i++) { head = { next: head }; }
+                return [];
+              },
+              render: function () { return {}; },
+            };
+        """.trimIndent()
+
+        /**
+         * P3（R3 §5.4）：rope 翻倍。第 ~30 次长度超过 `JS_STRING_LEN_MAX = 2^30-1`，
+         * 抛 `InternalError: string too long`；堆只增加几十个 rope 节点。
+         * 这是单字符串长度上限，不是堆上限——负控。
+         */
+        val STRING_ROPE_SOURCE = """
+            const visual = {
+              prepare: function () {
+                var s = 'x';
+                for (var i = 0; i < 40; i++) { s = s + s; }
+                return [];
+              },
+              render: function () { return {}; },
+            };
+        """.trimIndent()
+
+        /** P4（R3 §5.5）：message 与真 OOM 同为 `"null"`，但堆很低。 */
+        val THROW_NULL_SOURCE = """
+            const visual = {
+              prepare: function () { throw null; },
+              render: function () { return {}; },
+            };
+        """.trimIndent()
+
+        /** P5（R3 §5.5）：伪造 OOM 文案；严格前缀必须把它留在 INVALID_PROGRAM。 */
+        val FORGED_OOM_SOURCE = """
+            const visual = {
+              prepare: function () { throw new RangeError('out of memory'); },
               render: function () { return {}; },
             };
         """.trimIndent()

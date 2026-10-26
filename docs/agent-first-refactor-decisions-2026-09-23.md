@@ -3349,3 +3349,51 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
    - 落地状态：本批未改 `app/build.gradle.kts`；机型面收窄继续在主线/记录显式化。
 4. **G7 未成年人叠加 = 按最严解释对齐**：面向中学生（大概率含未成年人），显式标识义务按最严口径执行（G1/G2 落地时一次到位）；隐式标识 TC260 规范映射（G4）本批研究+选型落地；登记台账。
    - 落地状态：G7 十项清单已登记（上一节）；G5 文案/G6 清单已落盘；G4 TC260 XMP 层已进图资产字节；**应用内嵌入与 G1/G2 仍待热区空出**，不得称"应用内已合规"。
+
+---
+
+## 批次 22 T1 架构偏差登记：`:visual_js` 进程层与服务落 app 模块（2026-10-26）
+
+> 依据：批次 22 计划 T1 / R1 `docs/research/2026-10-26-visualjs-isolated-process.md` §4.1；契约 `docs/current/visual-generation-contract.md` §5。登记原因：实际模块落点与契约 §5 的"组合 core:visual-js 客户端"不同，属于需留痕的架构偏差，不是实现细节。
+
+### 偏差
+
+- 契约 §5：「原生执行编排由 app 的 AndroidVisualExecutionEngine 实现 core:domain.VisualExecutionEngine 端口，**组合 core:visual-js 客户端**、core:visual 内容布局和纯 compiler。」仓库**不存在 `core:visual-js` 模块**。批次 22 T1 的实际落点：Service（L2）、AIDL、宿主 client（L3）全部在 **app 模块**（`app/src/main/kotlin/com/tingyun/smartmistakebook/visualjs/`、`app/src/main/aidl/com/tingyun/smartmistakebook/visualjs/`），未新增 Gradle 模块。
+- 批次 21 的另一处偏差继续有效：直接引擎 `QuickJsVisualExecutionEngine` 落 **core:data**（`core/data/.../visual/`）而非 app，类 KDoc 已登记；它不引用 AIDL/原生排版，契约给 core:data 划的两条红线未破。
+
+### 原因
+
+- `settings.gradle.kts` 是共享热区（他线在飞），批次 22 纪律禁止新增 Gradle 模块；建 `core:visual-js` 必须改该文件。落 app 是当前唯一既不动热区、又能让 Service 与 AIDL 同模块编译（`app/build.gradle.kts` `buildFeatures.aidl = true`）的形态。
+- AIDL 生成类只属于声明它的模块；L2 Service 与 L3 client 必须共享 `IVisualJsService`/`IVisualJsCallback` 与 wire 协议，同模块可避免复制第二套 stub 或改动模块图。**2026-10-26 复核**：`IVisualJsCallback.aidl` 曾被 `aidl.exe` 多输入调用误覆盖成 `IVisualJsService` 的生成 Java stub，导致 :app AIDL 编译红；已恢复为正确 `oneway` 回调源文件，两份 AIDL 单独编译均 exit=0（Gradle 全量构建未跑，UNVERIFIED）。共享接口的"已实现"指源文件存在且可编译，不等于设备/构建门已通过（T1 设备轨修复前 4/4 红，见 KD-66）。
+
+### 边界与未闭合
+
+- 端口不变：client 实现 `core:domain.VisualExecutionEngine`；core:data 的持久化/来源侧仍只经该端口做来源/幂等/持久化/CAS，**不引用 AIDL**（`IVisualJs`/`visualjs.` 在 core/data、core/domain 源码零命中）。`QuickJsVisualExecutionEngine` 本身是批次 21 已登记的直连引擎偏差，仍不引用 AIDL/原生排版。
+- core:ui/export 不依赖 JS worker（源码级 grep 无 `QuickJs`/`visualjs`/`VisualExecutionEngine` 引用）。
+- **JS 仍不广告、无生产装配点**（client 只被仪器化用例构造）；服务内内容度量未接线（`UnwiredVisualContentMeasurer`，只有纯几何程序可通）。偏差当前无产品面影响，但不得当作最终架构写进完成声明。
+- 归位条件：4E.2 真正开放 JS 前，把 Service/client/AIDL 迁入 `core:visual-js`（需改 `settings.gradle.kts`，须热区空出）；端口与 wire 协议保持不变。
+- 与批次 21 节的衔接：上文批次 21 裁定 2 的落地状态"4E.2 隔离进程层未做"由本节更新为"L2 代码已落、设备未证、无生产装配"（KD-66 保持 open）。
+
+---
+
+## 批次 22 T4 核验升级语义（2026-10-26）：UNKNOWN→VERIFIED/USER_ASSERTED 的写方判据、单列 CAS 与回执绑定
+
+> 依据：批次 22 计划 T4 / KD-67 Progress / `core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/AnswerKeyVerificationUpgrade.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/KnowledgeQuizItemVerificationUpgrader.kt`。登记原因：这是"生产题面 `verificationStatus` 恒 `UNKNOWN` → selector 恒 `CLARIFY_OR_CONFIRM`"死端的第一块核心侧解，需留痕语义边界，避免后续 UI 接线把它当作纯 UI 改动。
+
+### 判据与写口
+
+- 目标只允许 `VERIFIED`/`USER_ASSERTED`；当前行必须是 `UNKNOWN`（或已等于目标，走幂等）。
+- 来源形状由领域层判：`UserAssertion` 要求非空 `confirmationId`、`confirmedByLearnerId == learnerId`、`confirmedAtEpochMillis >= 0`；`IndependentVerification` 同理要求核验 id/时间。
+- **形状正确不够**：core:data 的写方先经 `AnswerKeyVerificationSourceVerifier`（由确认流实现）核对 `confirmationId`/核验 id 是否真的指向回执或核验记录；`AlreadyUpgraded` 幂等路径也先验来源，防止"没有回执的重试被显示成已确认"。
+- 落库是**单列 CAS**：`compareAndSetVerificationStatus(snapshotId, expectedCurrentStatus, newStatus)` 只提交 `verification_status` 一列，不覆盖题面内容/其他列；CAS 失败再读一次区分"并发已到目标"（幂等）与"被改成别的状态"（`ConcurrentVerificationChange`）。
+
+### CLARIFY 消费契约
+
+- `AdaptiveQuestionSelector` 与确认流共用 `unverifiedTargetCandidates(candidates, targetKnowledgeNodeIds)` 单一来源；选择器说"需要澄清"与界面列出"哪些题待确认"不再各写一遍过滤条件。
+- `AdaptiveSelectionAssembler.selectAndConsume` 只在决策为 `CLARIFY_OR_CONFIRM` 且确实命中未核验目标时调用注入的 `AdaptiveClarificationConsumer`；消费者不写库、只读返回待确认载荷。
+
+### 边界（不得越过）
+
+- **feature/Room 生产接线未做**：没有 Room 版 source verifier、没有 feature 消费者、没有生产调用点；G5 仍不是产品可用，KD-67 保持 open。
+- 不得为接通放宽 selector 的 `contentVerified` 判据，也不得让 UI 直接构造"非空 confirmationId + 当前学习者 id"绕过 `sourceVerifier`。
+- 零版本 bump：升级只改变题面核验状态这一写侧输入；selector 公式/投影/账本语义未动（见算法台账 §3.32）。

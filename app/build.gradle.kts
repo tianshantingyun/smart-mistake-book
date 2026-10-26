@@ -61,12 +61,18 @@ android {
             isProfileable = true
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
+            // 批次 22 T5 / KD-69：matchingFallbacks 不继承 proguardFiles；AGP 9.3 起
+            // strict full mode 不再隐式保留被 keep 类的无参构造器，缺项目规则会裁掉
+            // WorkDatabase_Impl 与 ML Kit registrar 的 <init>（启动 FATAL / OCR 崩溃）。
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         create("internal") {
             matchingFallbacks += listOf("release")
             isDebuggable = true
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
+            // 批次 22 T5 / KD-69：同 benchmark，规则集与 release 对齐。
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         release {
             // Signing is injected at evaluation time by configureReleaseSigningIfAvailable;
@@ -82,6 +88,11 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        // 批次 22 T1：:visual_js 进程层的 AIDL 在 app/src/main/aidl。AGP 8.0 起
+        // android.defaults.buildfeatures.aidl 默认 false，不显式开启则 AIDL 不编译
+        //（R1 §6.1；AGP 9.3 BuildFeatures 仍默认 false）。AIDL/Service 全部落 app 模块，
+        // 不新增 Gradle 模块（settings.gradle.kts 是共享热区）。
+        aidl = true
     }
 
     compileOptions {

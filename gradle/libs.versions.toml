@@ -50,9 +50,14 @@ litert-api-play-delivery = "0.1.1-alpha01"
 # （runtime，与项目同版）。绑定层 Apache-2.0；内嵌引擎 bellard/quickjs 为 MIT。
 quickjs-kt-android = "1.0.15"
 # quickjs-kt-android 1.0.15 的 POM 传递要求 kotlin-stdlib **2.4.10**（compile scope）。
-# 项目编译用 `kotlin = 2.3.21`，但 Gradle 解析按最高版本取 2.4.10——这是本 AAR 静默
-# 带入的运行时升级，不是项目主动选择。把它显式记账并纳入 `tools/ci/check_dependency_pins.py`
-# 的校验（AAR/POM/.module sha256 + 解析后的 kotlin-stdlib 版本）；未来任何一方漂移该门即红。
+# 这是**上游事实**，不是本项目选择：批次 22 T3 按 R2 路径 A 在根 build.gradle.kts 把运行时
+# 解析约束回 `kotlin = 2.3.21`（编译/运行同版；依据是 R2 §3.1 字节码扫描：AAR 的 88 条
+# stdlib 成员引用在 2.3.21/2.4.10 两个 jar 中全部可解析，2.3.21 编译器直接编译 AAR 探针
+# exit 0）。本条目只用于记录上游声明；`tools/ci/check_dependency_pins.py` 分别断言
+# "POM 声明 == 本条目" 与 "解析出的 kotlin-stdlib == kotlin"。回退判据：若 AAR 升级后
+# 字节码扫描 unresolved > 0，或设备轨 NoSuchMethodError/NoClassDefFoundError 归因 AAR，
+# 则按 R2 路径 B 评估升级（当前被 KSP 无 2.4 版本阻断）。2026-10-26 复核：该降级对
+# **完整解析图**的 API 兼容仍无证明（88 条扫描只覆盖 AAR），风险与关闭判据见 KD-73。
 quickjs-kotlin-stdlib = "2.4.10"
 desugar-jdk-libs = "2.0.3"
 okhttp = "5.4.0"

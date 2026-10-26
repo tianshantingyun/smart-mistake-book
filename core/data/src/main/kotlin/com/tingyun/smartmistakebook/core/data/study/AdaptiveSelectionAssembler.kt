@@ -5,11 +5,17 @@ import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.domain.AdaptiveClarificationConsumer
+import com.tingyun.smartmistakebook.core.domain.AdaptiveClarificationRequest
 import com.tingyun.smartmistakebook.core.domain.AdaptiveCorrectnessPredictor
+import com.tingyun.smartmistakebook.core.domain.AdaptiveDecision
 import com.tingyun.smartmistakebook.core.domain.AdaptiveQuestionCandidate
+import com.tingyun.smartmistakebook.core.domain.AdaptiveQuestionSelector
+import com.tingyun.smartmistakebook.core.domain.AdaptiveSelectionRequest
 import com.tingyun.smartmistakebook.core.domain.AdaptiveTargetKind
 import com.tingyun.smartmistakebook.core.domain.EloAnswerRecord
 import com.tingyun.smartmistakebook.core.domain.EloLearnerState
+import com.tingyun.smartmistakebook.core.domain.clarificationRequest
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
 import com.tingyun.smartmistakebook.core.model.EvidenceCorrectionKind
@@ -51,26 +57,35 @@ import kotlinx.coroutines.sync.withLock
  * 出口）；无候选时退化现状（不生成、不报错）。走廊 fail-closed 是默认行为，本类
  * 不放宽任何判据。
  *
- * **接线状态（如实登记，2026-10-26 复核修正）**：本类是 `internal`，feature/review 是另一个
- * Gradle 模块，**无法直接实例化**；全仓除本文件 KDoc 与测试外零引用，生产调用点不存在。
- * 计划 §5 的"唯一 seam 是热区 VM"只是风险描述，不是已落地的一行接线。要让 feature/review
- * 使用，必须先在本模块暴露 public 端口（或经 core/domain 接口 + 装配实现），再改热区 VM；
- * 本批不写热区，故 G5-A 保持**未接线（partial/blocked）**。
+ * **公开 seam 与调用方约束（批次 22 T4，KD-67）**：本类现在是跨模块可用的公开形态——
+ * 构造参数是三个既有端口/对象（数据库端口、学习者、预测器），无服务定位器、无 DI 框架；
+ * 新调用方直接 `AdaptiveSelectionAssembler(database, learnerId, EloCorrectnessPredictor())`
+ * 即可，或复用已装配好的预测器实例。约束：
+ * 1. 一个实例绑定一个 `(database, learnerId)`；`database` 在实例使用期间不得关闭。
+ * 2. 读方法可并发调用：水位缓存由 [stateMutex] 串行保护；`runCatching` 改为**放行协程
+ *    取消**的 fail-closed 读（见 [readOrNull]），取消不会被吞成 null/emptyList。
+ * 3. 一次 [select] 内的多张表读**不是同一事务快照**：并发更正/题面修复落在两次读之间时，
+ *    输出是这两次读的混合。决策仍 fail-closed（未核验/无预测的候选不会被放行），但不要把
+ *    本类当作跨表一致性读，也不要据此做"同一时刻"的审计断言。
+ * 4. [selectAndConsume] 只把 `CLARIFY_OR_CONFIRM` 转发给注入的 [AdaptiveClarificationConsumer]，
+ *    不写数据库；消费者实现（确认卡/补题入口）在 feature 侧，本批未落（KD-67 产品面遗留）。
  *
- * **生产候选的已知死端（fail-closed，不是可放宽项）**：唯一的生产题面写入方
- * `KnowledgeQuizItemStore.record` 固定 `verificationStatus = UNKNOWN`，本类只把
- * `VERIFIED`/`USER_ASSERTED` 置真，错题候选恒假；`AdaptiveQuestionSelector.safeBaseCandidates`
- * 要求 `contentVerified = true`，因此两个候选源都会落到 `CLARIFY_OR_CONFIRM`。当前
- * feature/app 没有该决策的消费者，也没有把快照行升级为 VERIFIED/USER_ASSERTED 的写方——
- * 即使按计划接线，G5-A 也到不了 ASK。解除死端需要"核验写方 + CLARIFY 消费者"两个产品件，
- * 不是本装配器可以单方面放宽的判据。测试
- * `assembled production candidates stay fail-closed to clarify until verified` 钉住该出口。
+ * **生产候选死端的状态（如实登记）**：唯一的生产题面写入方 `KnowledgeQuizItemStore.record`
+ * 仍固定 `verificationStatus = UNKNOWN`，本类只把 `VERIFIED`/`USER_ASSERTED` 置真，错题候选
+ * 恒假；`AdaptiveQuestionSelector.safeBaseCandidates` 要求 `contentVerified = true`，因此
+ * 未升级的候选仍落到 `CLARIFY_OR_CONFIRM`。批次 22 T4 已补上解除死端所需的两块**核心侧**
+ * 拼图：[KnowledgeQuizItemVerificationUpgrader]（UNKNOWN → VERIFIED/USER_ASSERTED 的显式
+ * 写方 API + 单列 CAS 端口）与 [AdaptiveClarificationConsumer]（domain 消费端口）+ 本类的
+ * [select]/[selectAndConsume] 输出接线位。**仍未接通**：确认流的生产调用点、Room 侧单列
+ * UPDATE adapter、feature 侧消费者实现——KD-67 保持 open。不得为接通而放宽
+ * `contentVerified` 判据。测试
+ * `assembled production candidates stay fail-closed to clarify until verified` 钉住未升级出口，
+ * `upgraded user asserted candidate enters the ask corridor with the existing elo predictor`
+ * 钉住升级后的可进 ASK 路径。
  *
- * 消费面：装配器实例是会话/仓库作用域；水位缓存由 [stateMutex] 串行保护，可并发调用；
- * 方法内所有 `runCatching` 已改为**放行协程取消**的 fail-closed 读（见 [readOrNull]），
- * 取消不会被吞成 null/emptyList。
+ * 消费面：装配器实例是会话/仓库作用域；水位缓存由 [stateMutex] 串行保护。
  */
-internal class AdaptiveSelectionAssembler(
+class AdaptiveSelectionAssembler(
     private val database: StudyDatabasePort,
     private val learnerId: String,
     private val predictor: AdaptiveCorrectnessPredictor,
@@ -232,6 +247,90 @@ internal class AdaptiveSelectionAssembler(
     }
 
     /**
+     * 生产选择入口（批次 22 T4）：候选装配 + 先修 join + 既有 [AdaptiveQuestionSelector]
+     * 的确定性决策，一次返回决策与**可消费的澄清载荷**。
+     *
+     * 为什么需要它：装配器此前只产出候选列表，选择器调用与 `CLARIFY_OR_CONFIRM` 的处理
+     * 没有任何 core/data 接线点——调用方要么自己重复拼 request（候选/先修/目标/时刻四个
+     * 输入容易漏），要么把澄清决策算出来就丢掉（KD-67 的第二个死端）。本方法把这条链
+     * 收敛到一处，并把澄清载荷放进 [AdaptiveSelectionOutcome.clarification]。
+     *
+     * 只读：不写数据库、不调用模型。选择器是纯函数；未核验/无预测的候选仍被既有判据拒绝，
+     * 本方法不放宽任何门槛。先修图读取失败**原样上抛**（不降级为"无先修"——那会绕过
+     * KF-16 的前置压制，把"读不到图"当成"没有前置"）。
+     *
+     * @param decisionAtEpochMillis 决策时刻；必须不早于 [learnerSnapshot] 的决策水位。
+     * @param selector 允许注入（测试/未来策略版本）；默认既有 `AdaptiveQuestionSelector()`。
+     */
+    suspend fun select(
+        sessionId: Long,
+        learnerSnapshot: LearnerSnapshot,
+        targetKnowledgeNodeIds: Set<String>,
+        requestedTargetKind: AdaptiveTargetKind,
+        decisionAtEpochMillis: Long,
+        userRequestedQuestion: Boolean = false,
+        recentItemFamilyIds: Set<String> = emptySet(),
+        selector: AdaptiveQuestionSelector = AdaptiveQuestionSelector(),
+    ): AdaptiveSelectionOutcome {
+        val candidates = assembleCandidates(
+            sessionId = sessionId,
+            targetKnowledgeNodeIds = targetKnowledgeNodeIds,
+            decisionAtEpochMillis = decisionAtEpochMillis,
+        )
+        val request = AdaptiveSelectionRequest(
+            learnerSnapshot = learnerSnapshot,
+            targetKnowledgeNodeIds = targetKnowledgeNodeIds,
+            requestedTargetKind = requestedTargetKind,
+            userRequestedQuestion = userRequestedQuestion,
+            candidates = candidates,
+            decisionAtEpochMillis = decisionAtEpochMillis,
+            recentItemFamilyIds = recentItemFamilyIds,
+            prerequisiteStabilityDaysByNode = assemblePrerequisiteStability(
+                targetKnowledgeNodeIds = targetKnowledgeNodeIds,
+                learnerSnapshot = learnerSnapshot,
+            ),
+        )
+        val decision = selector.select(request)
+        return AdaptiveSelectionOutcome(
+            decision = decision,
+            clarification = decision.clarificationRequest(request),
+        )
+    }
+
+    /**
+     * [select] + 澄清转发：仅当决策是 `CLARIFY_OR_CONFIRM` 时调用
+     * [clarificationConsumer]（其余决策不产生空回调）。转发发生在决策之后、返回之前；
+     * 消费者异常原样上抛（本方法不吞消费者故障，也不把已产生的决策改写成 ASK）。
+     *
+     * 本方法仍然只读数据库：消费者可以自行拉起确认卡/补题入口，但核验升级必须走
+     * [KnowledgeQuizItemVerificationUpgrader] 的显式来源校验，不能由消费者直接改状态。
+     */
+    suspend fun selectAndConsume(
+        sessionId: Long,
+        learnerSnapshot: LearnerSnapshot,
+        targetKnowledgeNodeIds: Set<String>,
+        requestedTargetKind: AdaptiveTargetKind,
+        decisionAtEpochMillis: Long,
+        clarificationConsumer: AdaptiveClarificationConsumer,
+        userRequestedQuestion: Boolean = false,
+        recentItemFamilyIds: Set<String> = emptySet(),
+        selector: AdaptiveQuestionSelector = AdaptiveQuestionSelector(),
+    ): AdaptiveSelectionOutcome {
+        val outcome = select(
+            sessionId = sessionId,
+            learnerSnapshot = learnerSnapshot,
+            targetKnowledgeNodeIds = targetKnowledgeNodeIds,
+            requestedTargetKind = requestedTargetKind,
+            decisionAtEpochMillis = decisionAtEpochMillis,
+            userRequestedQuestion = userRequestedQuestion,
+            recentItemFamilyIds = recentItemFamilyIds,
+            selector = selector,
+        )
+        outcome.clarification?.let { clarificationConsumer.onClarificationRequired(it) }
+        return outcome
+    }
+
+    /**
      * 台账前缀的有效 quiz 事件流。修正式语法的解析与
      * `LearningProjector.resolveEvidenceEffect`（core/domain，private）同语义：
      * 撤销 = 整条排除；替代 = 最后一条**未被撤销**的 REPLACE（该更正自己又被更正/撤销
@@ -366,3 +465,17 @@ internal class AdaptiveSelectionAssembler(
         const val QUIZ_REVEAL_STATE_HIDDEN = "HIDDEN"
     }
 }
+
+/**
+ * 一次生产选择的结果：选择器决策 + 可消费的澄清载荷。
+ *
+ * 对既有 [AdaptiveQuestionSelector]，[clarification] 非 null ⇔ [AdaptiveDecision.kind] ==
+ * `CLARIFY_OR_CONFIRM` 且目标上确有未核验候选；注入的选择器若返回"没有未核验目标"的
+ * CLARIFY，本类不编造载荷（返回 null）。调用方可以把它交给 [AdaptiveClarificationConsumer]
+ * （或直接用 [AdaptiveSelectionAssembler.selectAndConsume]），feature 侧的确认卡/补题入口
+ * 当前仍未实现（KD-67 产品面遗留）——但"算出来就丢掉"的死端已不复存在。
+ */
+data class AdaptiveSelectionOutcome(
+    val decision: AdaptiveDecision,
+    val clarification: AdaptiveClarificationRequest?,
+)

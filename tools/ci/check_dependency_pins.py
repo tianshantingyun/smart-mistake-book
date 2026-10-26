@@ -1,28 +1,34 @@
 #!/usr/bin/env python3
-"""Pin check for the quickjs-kt-android supply chain (批次 21 T3 复核).
+"""Pin check for the quickjs-kt-android supply chain (批次 21 新增，批次 22 T3 扩展).
 
 The catalog pins the *direct* coordinate and documents the AAR/POM sha256, but a
 comment is not a build gate. This script turns the facts the build already
-resolves into a checkable gate:
+resolves into a checkable gate with **two separate invariants** (批次 22 T3 按 R2
+路径 A 拆分；批次 21 的旧实现把两者混成一条，会在约束回 2.3.21 后误红):
 
-1. the cached AAR and POM must match the documented sha256;
-2. the POM's transitive ``kotlin-stdlib`` requirement must match the explicit
-   ``quickjs-kotlin-stdlib`` catalog entry;
-3. the resolved runtime graph (AGP ``artifact-dependencies.xml``) must contain
-   the same quickjs version and exactly the pinned ``kotlin-stdlib`` version.
+1. **上游事实**: the AAR's POM declares ``kotlin-stdlib 2.4.10`` and the catalog
+   records that requirement in ``quickjs-kotlin-stdlib``. Drift here means the
+   AAR changed upstream, so the bytecode scan in
+   ``docs/research/2026-10-26-dependency-governance.md`` §3.1 must be re-run.
+2. **本项目决定**: the resolved runtime graph must contain the *compile* stdlib
+   version (``kotlin``, 2.3.21), because the root build script constrains
+   ``org.jetbrains.kotlin:kotlin-stdlib`` back to that version (R2 路径 A).
+
+It also still pins the quickjs bytes (AAR/POM/.module sha256) and the resolved
+quickjs coordinate version, so an AAR bump cannot slip through unnoticed.
 
 Why this exists: quickjs-kt-android 1.0.15 pulls ``kotlin-stdlib 2.4.10`` while
-the project compiles with 2.3.21. Gradle silently resolves the higher runtime
-version; without a gate, the next AAR bump (or a resolution change) can move it
-again with no diff anywhere in this repository.
+the project compiles with 2.3.21. Gradle would silently resolve the higher
+runtime version; without a gate, the next AAR bump (or a resolution change) can
+move it again with no diff anywhere in this repository.
 
 Run after a Gradle build that produced lint/dependency artifacts:
     python3 tools/ci/check_dependency_pins.py
 
-Use ``--expect-kotlin-runtime`` to prove the gate is live (it should fail when
-given the compile version 2.3.21):
+Use ``--expect-kotlin-runtime`` as a negative-control knob (it should fail when
+given a version other than the one the graph really resolved):
 
-    python3 tools/ci/check_dependency_pins.py --expect-kotlin-runtime 2.3.21
+    python3 tools/ci/check_dependency_pins.py --expect-kotlin-runtime 2.4.10
 """
 
 from __future__ import annotations
@@ -32,6 +38,7 @@ import hashlib
 import re
 import sys
 import xml.etree.ElementTree as ET
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,9 +49,13 @@ AAR_SHA256 = "406c3efb80d5fa3495df4a7f2663be8cc30c974fe5c2368effa929de77cf0ed8"
 POM_SHA256 = "cc3ef4b3e8674771ef29d059c28935dd009e6dac7fb90765e497bd8414fe2bbc"
 MODULE_SHA256 = "4d1534e780ab999aaa757ffe4017ca3a533ed3df43438c4622fd76db1f69e465"
 
+# Python 的 ElementTree 本身不展开外部实体，但显式拒绝 DOCTYPE/ENTITY 声明可以让
+# "被污染的构建产物" 在解析前就失败，而不是依赖解析器的默认行为。
+FORBIDDEN_XML_MARKERS = ("<!DOCTYPE", "<!ENTITY")
 
-def catalog_version(name: str) -> str:
-    text = CATALOG.read_text(encoding="utf-8")
+
+def catalog_version(name: str, catalog: Path = CATALOG) -> str:
+    text = catalog.read_text(encoding="utf-8")
     match = re.search(rf'^{re.escape(name)}\s*=\s*"([^"]+)"', text, re.MULTILINE)
     if not match:
         raise SystemExit(f"catalog entry not found: {name}")
@@ -57,6 +68,16 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def checksum_errors(artifacts: Iterable[tuple[Path, str, str]]) -> list[str]:
+    """Compare each ``(path, expected_sha256, label)`` triple."""
+    errors: list[str] = []
+    for artifact, expected, label in artifacts:
+        actual = sha256(artifact)
+        if actual != expected:
+            errors.append(f"{label} sha256 mismatch: {artifact} -> {actual}")
+    return errors
 
 
 def find_quickjs_artifacts(version: str, suffix: str) -> list[Path]:
@@ -78,11 +99,10 @@ def find_quickjs_artifacts(version: str, suffix: str) -> list[Path]:
     return sorted(set(found))
 
 
-def pom_kotlin_stdlib_version(pom: Path) -> str | None:
-    text = pom.read_text(encoding="utf-8")
+def pom_kotlin_stdlib_version(pom_text: str) -> str | None:
     match = re.search(
         r"<artifactId>kotlin-stdlib</artifactId>\s*<version>([^<]+)</version>",
-        text,
+        pom_text,
     )
     return match.group(1) if match else None
 
@@ -110,8 +130,13 @@ def latest_dependency_artifact() -> Path:
     )
 
 
-def resolved_versions(xml_path: Path) -> tuple[set[str], set[str]]:
-    root = ET.parse(xml_path).getroot()
+def parse_resolved_versions(xml_text: str) -> tuple[set[str], set[str]]:
+    upper = xml_text.upper()
+    if any(marker in upper for marker in FORBIDDEN_XML_MARKERS):
+        raise SystemExit(
+            "artifact-dependencies.xml contains a DOCTYPE/ENTITY declaration; refusing to parse",
+        )
+    root = ET.fromstring(xml_text)
     quickjs: set[str] = set()
     stdlib: set[str] = set()
     for element in root.iter("package"):
@@ -129,56 +154,110 @@ def resolved_versions(xml_path: Path) -> tuple[set[str], set[str]]:
     return quickjs, stdlib
 
 
+def evaluate_pins(
+    *,
+    quickjs_version: str,
+    upstream_stdlib: str,
+    expected_runtime_stdlib: str,
+    compile_stdlib: str,
+    pom_stdlib: str | None,
+    resolved_quickjs: set[str],
+    resolved_stdlib: set[str],
+    artifact_errors: Sequence[str] = (),
+) -> list[str]:
+    """Pure decision table; every branch is covered by
+    ``tools/tests/test_check_dependency_pins.py`` (positive + negative)."""
+    errors = list(artifact_errors)
+
+    if pom_stdlib is None:
+        errors.append("POM does not declare a kotlin-stdlib dependency")
+    elif pom_stdlib != upstream_stdlib:
+        errors.append(
+            f"POM requires kotlin-stdlib {pom_stdlib}, catalog records upstream "
+            f"requirement {upstream_stdlib}",
+        )
+
+    if quickjs_version not in resolved_quickjs:
+        errors.append(
+            f"resolved quickjs version(s) {sorted(resolved_quickjs)} do not include "
+            f"{quickjs_version}",
+        )
+
+    if resolved_stdlib != {expected_runtime_stdlib}:
+        errors.append(
+            f"resolved kotlin-stdlib {sorted(resolved_stdlib)} != expected runtime "
+            f"{expected_runtime_stdlib} (compile catalog says {compile_stdlib}; "
+            f"upstream AAR requires {upstream_stdlib})",
+        )
+
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--expect-kotlin-runtime",
-        help="override the expected resolved kotlin-stdlib version (for proving the gate is live)",
+        help=(
+            "override the expected resolved kotlin-stdlib version (negative-control "
+            "knob; default: catalog `kotlin`)"
+        ),
     )
     args = parser.parse_args()
 
     quickjs_version = catalog_version("quickjs-kt-android")
-    pinned_stdlib = args.expect_kotlin_runtime or catalog_version("quickjs-kotlin-stdlib")
+    upstream_stdlib = catalog_version("quickjs-kotlin-stdlib")
     compile_stdlib = catalog_version("kotlin")
+    expected_runtime_stdlib = args.expect_kotlin_runtime or compile_stdlib
 
-    errors: list[str] = []
+    artifact_errors: list[str] = []
 
     aars = find_quickjs_artifacts(quickjs_version, ".aar")
     poms = find_quickjs_artifacts(quickjs_version, ".pom")
     modules = find_quickjs_artifacts(quickjs_version, ".module")
     if not aars:
-        errors.append(f"quickjs AAR {quickjs_version} not found in the Gradle cache")
+        artifact_errors.append(f"quickjs AAR {quickjs_version} not found in the Gradle cache")
     if not poms:
-        errors.append(f"quickjs POM {quickjs_version} not found in the Gradle cache")
+        artifact_errors.append(f"quickjs POM {quickjs_version} not found in the Gradle cache")
     if not modules:
-        errors.append(f"quickjs .module metadata {quickjs_version} not found in the Gradle cache")
-    for artifact, expected, label in (
-        *((path, AAR_SHA256, "AAR") for path in aars),
-        *((path, POM_SHA256, "POM") for path in poms),
-        *((path, MODULE_SHA256, ".module") for path in modules),
-    ):
-        actual = sha256(artifact)
-        if actual != expected:
-            errors.append(f"{label} sha256 mismatch: {artifact} -> {actual}")
-
-    pom_stdlib = pom_kotlin_stdlib_version(poms[0]) if poms else None
-    if pom_stdlib is not None and pom_stdlib != pinned_stdlib:
-        errors.append(
-            f"POM requires kotlin-stdlib {pom_stdlib}, pinned runtime is {pinned_stdlib}",
+        artifact_errors.append(
+            f"quickjs .module metadata {quickjs_version} not found in the Gradle cache",
         )
+
+    artifact_errors.extend(
+        checksum_errors(
+            [
+                *((path, AAR_SHA256, "AAR") for path in aars),
+                *((path, POM_SHA256, "POM") for path in poms),
+                *((path, MODULE_SHA256, ".module") for path in modules),
+            ],
+        ),
+    )
+
+    pom_stdlib = (
+        pom_kotlin_stdlib_version(poms[0].read_text(encoding="utf-8")) if poms else None
+    )
 
     xml_path = latest_dependency_artifact()
-    resolved_quickjs, resolved_stdlib = resolved_versions(xml_path)
-    if quickjs_version not in resolved_quickjs:
-        errors.append(f"resolved quickjs version(s) {sorted(resolved_quickjs)} do not include {quickjs_version}")
-    if resolved_stdlib != {pinned_stdlib}:
-        errors.append(
-            f"resolved kotlin-stdlib {sorted(resolved_stdlib)} != pinned {pinned_stdlib} "
-            f"(compile catalog says {compile_stdlib})",
-        )
+    resolved_quickjs, resolved_stdlib = parse_resolved_versions(
+        xml_path.read_text(encoding="utf-8", errors="replace"),
+    )
 
-    print(f"catalog: quickjs-kt-android={quickjs_version} kotlin(compile)={compile_stdlib} "
-          f"quickjs-kotlin-stdlib(runtime pin)={pinned_stdlib}")
+    errors = evaluate_pins(
+        quickjs_version=quickjs_version,
+        upstream_stdlib=upstream_stdlib,
+        expected_runtime_stdlib=expected_runtime_stdlib,
+        compile_stdlib=compile_stdlib,
+        pom_stdlib=pom_stdlib,
+        resolved_quickjs=resolved_quickjs,
+        resolved_stdlib=resolved_stdlib,
+        artifact_errors=artifact_errors,
+    )
+
+    print(
+        f"catalog: quickjs-kt-android={quickjs_version} "
+        f"kotlin(compile/expected runtime)={compile_stdlib}/{expected_runtime_stdlib} "
+        f"quickjs-kotlin-stdlib(upstream POM)={upstream_stdlib}",
+    )
     print(f"AAR matches: {[str(path) for path in aars]}")
     print(f"POM matches: {[str(path) for path in poms]}")
     print(f".module matches: {[str(path) for path in modules]}")
@@ -189,7 +268,7 @@ def main() -> int:
         for error in errors:
             print(f"FAIL: {error}", file=sys.stderr)
         return 1
-    print("OK: quickjs AAR/POM checksums and resolved runtime pins match")
+    print("OK: quickjs checksums, upstream POM requirement and resolved runtime pins match")
     return 0
 
 

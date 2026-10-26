@@ -8,21 +8,29 @@ import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.domain.AdaptiveClarificationConsumer
+import com.tingyun.smartmistakebook.core.domain.AdaptiveClarificationRequest
 import com.tingyun.smartmistakebook.core.domain.AdaptiveCorrectnessPredictor
 import com.tingyun.smartmistakebook.core.domain.AdaptiveDecisionKind
 import com.tingyun.smartmistakebook.core.domain.AdaptiveQuestionCandidate
 import com.tingyun.smartmistakebook.core.domain.AdaptiveQuestionSelector
 import com.tingyun.smartmistakebook.core.domain.AdaptiveSelectionRequest
 import com.tingyun.smartmistakebook.core.domain.AdaptiveTargetKind
+import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSource
+import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSourceVerifier
 import com.tingyun.smartmistakebook.core.domain.EloAnswerRecord
 import com.tingyun.smartmistakebook.core.domain.EloCorrectnessPredictor
 import com.tingyun.smartmistakebook.core.domain.EloLearnerState
+import com.tingyun.smartmistakebook.core.domain.LearningCoreVersions
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
 import com.tingyun.smartmistakebook.core.domain.PredictedCorrectnessInterval
+import com.tingyun.smartmistakebook.core.model.AnswerKeyVerification
+import com.tingyun.smartmistakebook.core.model.CalibrationSnapshot
 import com.tingyun.smartmistakebook.core.model.CalibrationSupport
 import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
 import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
 import com.tingyun.smartmistakebook.core.model.EvidenceCorrectionKind
+import com.tingyun.smartmistakebook.core.model.IndependentCorrectObservation
 import com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
@@ -387,6 +395,100 @@ class AdaptiveSelectionAssemblerTest {
         assertNull("未选中候选时不得编造预测器版本", decision.predictionModelVersion)
     }
 
+    // ---- KD-67 生产半边：CLARIFY 可消费出口 + 升级后可进 ASK ----
+
+    @Test
+    fun `unverified production candidates expose a consumable clarification request`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        database.assessmentItemSnapshots[
+            knowledgeQuizItemSnapshotId(learnerId, sessionId, "kc-a"),
+        ] = snapshotRow(sessionId = sessionId, nodeId = "kc-a")
+        val consumer = RecordingClarificationConsumer()
+
+        val outcome = assembler(database).selectAndConsume(
+            sessionId = sessionId,
+            learnerSnapshot = calibratedSnapshot(),
+            targetKnowledgeNodeIds = setOf("kc-a"),
+            requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
+            decisionAtEpochMillis = 2_000L,
+            clarificationConsumer = consumer,
+            userRequestedQuestion = true,
+        )
+
+        // 校准门通过（否则 CLARIFY 会因证据过期产生）；UNKNOWN 候选进不了走廊 → CLARIFY。
+        assertEquals(AdaptiveDecisionKind.CLARIFY_OR_CONFIRM, outcome.decision.kind)
+        assertNull(outcome.decision.selectedAssessmentItemId)
+        val clarification = requireNotNull(outcome.clarification)
+        assertEquals(
+            listOf("knowledge-quiz:item:kc-a"),
+            clarification.candidates.map { it.assessmentItemId },
+        )
+        assertEquals(setOf("kc-a"), clarification.targetKnowledgeNodeIds)
+        assertTrue("TARGET_CONTENT_NOT_VERIFIED" in clarification.reasonCodes)
+        assertEquals(
+            "CLARIFY 决策必须到达消费者，而不是算完就丢（KD-67 第二个死端）",
+            listOf(clarification),
+            consumer.requests,
+        )
+    }
+
+    @Test
+    fun `upgraded user asserted candidate enters the ask corridor with the existing elo predictor`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val snapshotId = knowledgeQuizItemSnapshotId(learnerId, sessionId, "kc-a")
+        database.assessmentItemSnapshots[snapshotId] = snapshotRow(sessionId = sessionId, nodeId = "kc-a")
+        database.projectionLedger = corridorLedger(sessionId)
+        val upgrader = KnowledgeQuizItemVerificationUpgrader(
+            database = database,
+            learnerId = learnerId,
+            statusWriter = SingleColumnVerificationWriter(database),
+            sourceVerifier = AnswerKeyVerificationSourceVerifier { source, _, _ ->
+                source is AnswerKeyVerificationSource.UserAssertion &&
+                    source.confirmationId == "key-correction:req-1:evidence-1"
+            },
+        )
+
+        val upgrade = upgrader.upgrade(
+            sessionId = sessionId,
+            knowledgeNodeId = "kc-a",
+            targetVerification = AnswerKeyVerification.USER_ASSERTED,
+            source = AnswerKeyVerificationSource.UserAssertion(
+                confirmationId = "key-correction:req-1:evidence-1",
+                confirmedByLearnerId = learnerId,
+                confirmedAtEpochMillis = 950_000L,
+            ),
+        )
+        assertTrue("$upgrade", upgrade is KnowledgeQuizItemVerificationUpgradeOutcome.Upgraded)
+        val consumer = RecordingClarificationConsumer()
+
+        val outcome = assembler(database).selectAndConsume(
+            sessionId = sessionId,
+            learnerSnapshot = calibratedSnapshot(ledgerHeadSequence = 12L),
+            targetKnowledgeNodeIds = setOf("kc-a"),
+            requestedTargetKind = AdaptiveTargetKind.FOUNDATION,
+            decisionAtEpochMillis = 961_000L,
+            clarificationConsumer = consumer,
+            userRequestedQuestion = true,
+        )
+
+        // 既有 Elo 预测器从 12 笔作答前缀重放：p≈0.7036、h≈0.1387 → [0.56496, 0.84231]，
+        // 落在 FOUNDATION 走廊 [0.55, 0.85] 内；升级把 contentVerified 置真后即可选中。
+        // 区间值也直接断言（不只依赖"最终 ASK"反推），把走廊入口的证据钉死。
+        val interval = EloCorrectnessPredictor().predictInterval(
+            state = requireNotNull(assembler(database).currentEloState()),
+            knowledgeNodeId = "kc-a",
+            optionsCount = 4,
+            decisionAtEpochMillis = 961_000L,
+        )
+        assertEquals(0.56496, interval.lowerBound, 1e-9)
+        assertEquals(0.84231, interval.upperBound, 1e-9)
+        assertEquals(AdaptiveDecisionKind.ASK, outcome.decision.kind)
+        assertEquals("knowledge-quiz:item:kc-a", outcome.decision.selectedAssessmentItemId)
+        assertEquals(LearningCoreVersions.PREDICTOR_ELO, outcome.decision.predictionModelVersion)
+        assertNull(outcome.clarification)
+        assertTrue("ASK 决策不得触发澄清消费者", consumer.requests.isEmpty())
+    }
+
     // ---- 水位缓存的透明性 ----
 
     @Test
@@ -548,6 +650,84 @@ class AdaptiveSelectionAssemblerTest {
             sourceLocator = "test-locator",
             reviewedAtEpochMillis = 1_000L,
         )
+
+    /**
+     * 校准门可通过的学习快照（选择器 `hasCurrentCalibration` 要求当前 SUPPORTED）。
+     * 没有这份校准，CLARIFY 会由"证据不新鲜"触发，而不是由"候选未核验"触发——
+     * 本组用例要钉的是后者。
+     */
+    private fun calibratedSnapshot(ledgerHeadSequence: Long = 1L) = LearnerSnapshot(
+        learnerId = learnerId,
+        knowledgeMasteryStates = mapOf(
+            "kc-a" to knowledgeState("kc-a", stabilityDays = 5.0).copy(
+                independentCorrectObservations = listOf(
+                    IndependentCorrectObservation(
+                        itemFamilyId = "family-a",
+                        studyDayEpochDay = 1,
+                        occurredAtEpochMillis = 100,
+                        evidenceWeight = 1.0,
+                        calibration = CalibrationSnapshot(
+                            CalibrationSupport.SUPPORTED,
+                            "calibration-source",
+                            "calibration-v1",
+                            0,
+                            100_000_000,
+                        ),
+                    ),
+                ),
+                calibrationSupport = CalibrationSupport.SUPPORTED,
+            ),
+        ),
+        checkpoint = ProjectionCheckpoint(ledgerHeadSequence, LearningProjector.VERSION, 500),
+        generatedAtEpochMillis = 500,
+    )
+
+    /**
+     * 12 笔、每笔间隔 80 秒的作答前缀（1/2/4 答对，其余答错）。按既有 Elo 预测器重放：
+     * 末笔技能 -0.5743，决策时刻 +80s 回升 1.0 → p=0.7036；n=12 → h=0.1387，
+     * 区间 [0.56496, 0.84231] 落在 FOUNDATION 走廊 [0.55, 0.85] 内。
+     * 用真实预测器（不是 stub 区间）证明升级后的 ASK 路径可达。
+     */
+    private fun corridorLedger(sessionId: Long): List<PersistedLearningLedgerEvent> {
+        val answers = listOf(true, true, false, true) + List(8) { false }
+        return answers.mapIndexed { index, correct ->
+            ledgerEvent(
+                quizEvidence(
+                    evidenceId = "knowledge-quiz:req-${index + 1}:kc-a",
+                    nodeId = "kc-a",
+                    sessionId = sessionId,
+                    direction = if (correct) POSITIVE else NEGATIVE,
+                    occurredAtEpochMillis = 1_000L + index * 80_000L,
+                    eventSequence = index + 1L,
+                ),
+            )
+        }
+    }
+
+    /** 生产 adapter 的契约镜像：只改 verification_status 的单列 CAS。 */
+    private class SingleColumnVerificationWriter(
+        private val database: FakeStudyDatabasePort,
+    ) : AssessmentItemVerificationStatusWriter {
+        override suspend fun compareAndSetVerificationStatus(
+            assessmentItemSnapshotId: String,
+            expectedCurrentStatus: String,
+            newVerificationStatus: String,
+        ): Boolean {
+            val current = database.assessmentItemSnapshots[assessmentItemSnapshotId] ?: return false
+            if (current.verificationStatus != expectedCurrentStatus) return false
+            database.assessmentItemSnapshots[assessmentItemSnapshotId] =
+                current.copy(verificationStatus = newVerificationStatus)
+            return true
+        }
+    }
+
+    private class RecordingClarificationConsumer : AdaptiveClarificationConsumer {
+        val requests = mutableListOf<AdaptiveClarificationRequest>()
+
+        override suspend fun onClarificationRequired(request: AdaptiveClarificationRequest) {
+            requests += request
+        }
+    }
 
     private fun knowledgeState(nodeId: String, stabilityDays: Double) = KnowledgeMasteryState(
         knowledgeNodeId = nodeId,

@@ -284,9 +284,10 @@ class AdaptiveQuestionSelector {
         request: AdaptiveSelectionRequest,
         reasons: Set<String> = emptySet(),
     ): AdaptiveDecision {
-        val hasUnverifiedTarget = request.candidates.any { candidate ->
-            !candidate.contentVerified && candidate.knowledgeNodeIds.any(request.targetKnowledgeNodeIds::contains)
-        }
+        val hasUnverifiedTarget = unverifiedTargetCandidates(
+            candidates = request.candidates,
+            targetKnowledgeNodeIds = request.targetKnowledgeNodeIds,
+        ).isNotEmpty()
         return decision(
             request,
             if (hasUnverifiedTarget) AdaptiveDecisionKind.CLARIFY_OR_CONFIRM else AdaptiveDecisionKind.NO_SAFE_CANDIDATE,
@@ -315,4 +316,22 @@ class AdaptiveQuestionSelector {
         private const val FNV_OFFSET_BASIS = -3750763034362895579L
         private const val FNV_PRIME = 1099511628211L
     }
+}
+
+/**
+ * 目标节点上**未核验**的候选——`CLARIFY_OR_CONFIRM` 判据与消费载荷的**单一来源**。
+ *
+ * 为什么抽出来：选择器的 `noCandidateDecision` 要判断"有没有未核验目标"，确认流消费者
+ * 也要知道"到底哪几道题等待确认"。两处各写一遍过滤条件，未来任一处的 target 匹配或
+ * `contentVerified` 语义调整都会让"选择器说该澄清"与"界面列出要确认的题"分叉。
+ *
+ * 与 `safeBaseCandidates` 的差别：本函数只看"未核验 + 命中目标"这一维，不看揭示态/
+ * 冷却/目标类型——它回答的是"为什么需要澄清"，不是"哪些候选可用"。
+ */
+internal fun unverifiedTargetCandidates(
+    candidates: List<AdaptiveQuestionCandidate>,
+    targetKnowledgeNodeIds: Set<String>,
+): List<AdaptiveQuestionCandidate> = candidates.filter { candidate ->
+    !candidate.contentVerified &&
+        candidate.knowledgeNodeIds.any(targetKnowledgeNodeIds::contains)
 }

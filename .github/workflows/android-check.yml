@@ -12,6 +12,9 @@ on:
       - "build.gradle.kts"
       - "settings.gradle.kts"
       - "gradle.properties"
+      # 批次 22 T3：dependency locking 的锁文件位于各 project 根目录（不在 gradle/ 下）。
+      # 只改锁文件（例如 --update-locks 定向更新）也必须触发构建，否则锁状态失配无人发现。
+      - "**/gradle.lockfile"
       # Gate scripts themselves: without this a PR that only edits a checker
       # would not run the workflow that executes it.
       - "tools/**"
@@ -111,11 +114,14 @@ jobs:
           :feature:profile:lintDebug :feature:review:lintDebug
           :feature:tutor:lintDebug
           --console=plain
-      - name: Dependency pin gate (quickjs AAR/POM/.module sha256 + resolved Kotlin runtime)
+      - name: Dependency pin gate (quickjs sha256 + upstream/resolved Kotlin pins)
         # `lintVitalAnalyzeLocalFirstRelease` above leaves artifact-dependencies.xml
-        # with the resolved runtime graph. The quickjs AAR POM silently raises
-        # kotlin-stdlib to 2.4.10 while the catalog compiles with 2.3.21; this gate
-        # makes that override explicit and fails on future drift.
+        # with the resolved runtime graph. 批次 22 T3 起脚本断言两条独立不变量：
+        #   - 上游事实：AAR POM 声明的 kotlin-stdlib == catalog 的 quickjs-kotlin-stdlib (2.4.10)；
+        #   - 本项目决定：解析出的运行时 stdlib == catalog 的 kotlin (2.3.21，根 build.gradle.kts
+        #     的路径 A 约束把 AAR 的软要求压回编译版本)。
+        # 同时校验 AAR/POM/.module 三个 sha256。Gradle dependency locking 的锁状态由本 workflow
+        # 的常规构建任务自动校验（锁文件存在时）；锁文件生成命令见根 build.gradle.kts 注释。
         run: python3 tools/ci/check_dependency_pins.py
       - name: Unit-test coverage reports (feed the status report)
         # JVM modules use Kover; Android libraries use the AGP+Jacoco report

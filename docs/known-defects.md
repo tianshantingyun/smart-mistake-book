@@ -2572,23 +2572,40 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 ## KD-66 (open, 2026-10-26 登记（批次 21 T3/复核发现 #1/#13/#21；高）) · QuickJS issue #240 使引擎硬期限不能返回：`execute()` 永不返回、`close()` 卡死、`inFlight` 不复位
 
-**Symptom（设备实跑 + 源码/上游源码核对）.** quickjs-kt-android 1.0.15（钉 commit `a081755`）的 issue #240：脚本用一个 job 先 `Promise.resolve().then(f)` 排队下一个再自旋时，`evaluate()` 在 `awaitEvaluateResult` 的排水循环内持 `jsMutex` 永不返回，另一线程的 `close()` 也抢同一把锁卡死；`evaluationTimeoutMillis`/`interruptEvaluation()` 都不能让队列排空。批次 21 设备轨真跑：单独 `issue240...` 用例 `timeout 60` → `Terminated`、`AM_EXIT=124`（`build/device-track-batch21/step2-quickjs-issue240-real.log`）；类级运行 7 个点后无 summary，线程栈显示 `quickjs-visual-js` 卡在 `executePendingJob←awaitEvaluateResult←evalAndAwait`、`quickjs-visual-force-close` 卡在 `QuickJs.close→yieldThread`（`step2-thread-dump.txt:458-560`）。`QuickJsVisualExecutionEngine` 的 `withTimeout(hard+500ms)` 无法抢占 `withContext(jsDispatcher)` 内的同步 JNI；`finally` 不执行 → `inFlight=true` 永久，后续 `execute()` 只回 BUSY。
+**Symptom（设备实跑 + 源码/上游源码核对）.** quickjs-kt-android 1.0.15（钉 commit `a081755`）的 issue #240：脚本用一个 job 先 `Promise.resolve().then(f)` 排队下一个再自旋时，`evaluate()` 在 `awaitEvaluateResult` 的排水循环内持 `jsMutex` 永不返回，另一线程的 `close()` 也抢同一把锁卡死；`evaluationTimeoutMillis`/`interruptEvaluation()` 都不能让队列排空。批次 21 设备轨真跑：单独 `issue240...` 用例 `timeout 60` → `Terminated`、`AM_EXIT=124`（`build/device-track-batch21/step2-quickjs-issue240-real.log`）；类级运行 7 个点后无 summary，线程栈显示 `quickjs-visual-js` 卡在 `executePendingJob←awaitEvaluateResult←evalAndAwait`、`quickjs-visual-force-close` 卡在 `QuickJs.close→yieldThread`（`step2-thread-dump.txt:458-560`）。`QuickJsVisualExecutionEngine` 的 `withTimeout(hard+500ms)` 无法抢占 `withContext(jsDispatcher)` 内的同步 JNI；`finally` 不执行 → `inFlight=true` 永久，后续 `execute()` 只回 BUSY（T6 已把 `inFlight` 改为在飞事务指针；#240 下 `finally` 仍不执行，指针同样不复位，行为不变）。
 
-**Impact.** high（调用方拿不到硬期限上界；任何不可信图程序可拖死一个引擎实例；当前契约 §4 的进程级硬终止未落地）。
+**Impact.** high（调用方拿不到 1500 ms 硬上界；任何不可信图程序可拖死一个引擎实例。批次 22 T1 已落 L2 进程级硬终止代码，但设备未验证，故本条维持 open）。
 
-**Fix direction.** ① 4E.2 落 `:visual_js` `isolatedProcess` + AIDL 控制通道 + `killProcess(myPid())` 进程级硬终止（唯一能终止任意循环的层）；② 上游发 >1.0.15 修复后升级并把观察型用例反转为"必须协作中断"断言；③ 引擎层维持 accept-the-leak：每事务独立 daemon dispatcher、强弃 close 放专用守护线程、失败即 fuse/BUSY，如实现 KDoc 所述。
+**Progress（2026-10-26 批次 22 T1，app 模块 + Application guard；非 Gradle、非设备）.** L2（唯一进程级硬终止层）代码已落，**KD-66 保持 open：无设备证据，JS 仍不可用/不广告**。
 
-**Reopen condition.** 4E.2 进程隔离落地或上游修复版升级后，以"issue #240 形状在 hard+500ms 内返回拒绝、且后续请求可用"的设备用例关闭；在此之前不得把 T3 标成运行时完成。
+- **落点**：`app/src/main/AndroidManifest.xml` 注册非导出 `VisualJsService`（`android:isolatedProcess="true"`、`android:process=":visual_js"`，无 intent-filter）；`app/src/main/aidl/.../visualjs/IVisualJsService.aidl`（`initialize`/`execute`/`terminate`/`protocolVersion`/`workerUid`/`currentGeneration`，源码与 JSON 走 `ParcelFileDescriptor` 有界管道）与 `IVisualJsCallback.aidl`（`oneway` 结果/致命回调）；`app/src/main/kotlin/.../visualjs/VisualJsService.kt` 的独立 watchdog（`ScheduledThreadPoolExecutor` + 令牌 CAS + `Process.killProcess(Process.myPid())`）、`terminate(generation)` 的 generation 核对与过期 no-op、正常完成先失效令牌、宿主 Binder 死亡观察；`VisualJsClientEngine.kt`（L3）实现 `VisualExecutionEngine` 端口。
+- **启动隔离**：`SmartMistakeBookApplication.onCreate` 在 `super.onCreate()` 后、任何初始化副作用之前用 `Process.myUid() != applicationInfo.uid`（API 28+ 叠加 `Process.isIsolated()`）短路，位置先于 Room/备份/维护/Provider；构造期字段审计结论（`by lazy` 不触达、协程作用域只分配）写在代码注释；**ContentProvider/AndroidX Startup 实际装配面未 `dumpsys` 审计**。
+- **调用方上界（如实）**：`VisualJsService` 的 watchdog 在 ~1500 ms SIGKILL；宿主 `VisualJsClientEngine` 的 2500 ms 只包住一次会话，`ensureConnected()` 的 5000 ms 连接预算在期限之外，期限到点后的死亡确认再等 ≤1000 ms → **最坏约 8.5 s，不是 1500/2500 ms 硬上界**；并发调用还会在 client 的 `executeMutex` 上无超时排队，排队方等待不设上界（与引擎端口的 BUSY 背压语义不同）。死亡未确认时不重建、后续请求回 ENGINE_CLOSED（防并发放大进程数）。
+- **验证状态（2026-10-26 复核更新）**：设备轨已执行（修复前）→ **4/4 红**。首例断言原文：`first execution: request pipe ended before a complete envelope arrived expected:<0> but was:<1>`（emulator-5554，`am instrument` 直跑 `workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater`，pre-fix APK）。根因经设备探针定位：`ParcelFileDescriptor.createReliablePipe()` 的 read end 带一条状态 comm 通道；宿主在 `execute()` 返回后立刻关闭自己那份 read end，服务端稍后读到 EOF 时 `AutoCloseInputStream.checkError()` 把这次正常关闭读成 `IOException: Remote side is dead`，**64 KiB 数据已完整缓冲仍抛**；服务端把该 IOException 折成 `RequestRead.Failed` → `ENGINE_CLOSED`。修复（本批复核 #2）：服务端在 Binder 线程先 `request.dup()`（dup 出的数据 fd 不带 comm 通道）再投递执行线程；宿主 client 与测试 harness 读结果 payload 前同样先 `dup()`。**修复后的设备复跑 UNVERIFIED（本轮禁跑 Gradle，无法重装 APK）**；`libquickjs.so` 装载、`killProcess` 权限、watchdog 杀进程与重建后无 BUSY 仍无绿证据。AIDL 源文件在复核中发现 `IVisualJsCallback.aidl` 被误覆盖为 `IVisualJsService` 的生成 Java stub（`aidl.exe` 双输入调用的输出覆盖了第二份输入）；已恢复为正确 `oneway` 回调接口，并用 `aidl.exe` 对两份 AIDL 分别编译（exit=0）验证。**2026-10-26 记录时点复核**：当前测试集为 5 例（新增 `theClientRebuildsAtMostOnceAfterConfirmedAbandons` 未设备执行）；记录员复跑 `aidl.exe` 时误用双位置参数（`INPUT [OUTPUT]`）再次覆盖该文件，已按 R1 §4.2 与生成 Java 签名恢复（1340 B，UTF-8），单文件 `--lang=java` 编译两份 AIDL 均 exit=0；后续禁止双输入调用。其 watchdog 用例以 ≤6 s 判死，**弱于本条 Reopen condition 的 hard+500 ms**，不能作为关闭证据。
+- **本轮新增用例（设备未执行）**：`theClientRebuildsAtMostOnceAfterConfirmedAbandons`（首次 `abandon` 确认死亡后允许一次重建；第二次确认死亡后不得再 bind），用新增 `VisualJsClientEngine.abandonForTest()` 走生产 `abandon` 路径。主源码与测试源码均用缓存 Kotlin 2.3.21 直接编译通过（`python tmp/verify_batch22_visualjs_compile.py` / `..._test_compile.py` → COMPILE_OK），设备执行待 Gradle/设备轨。
+- **未做**：生产装配点（JS 仍 UNAVAILABLE、工具面/提示词/能力快照零改动）、服务内内容度量（`UnwiredVisualContentMeasurer`，只有纯几何程序可通）、4E.2 交互图/4E.3、上游 issue #240 修复（仍 OPEN）。
+
+**Fix direction.** ①（批次 22 T1 已落代码，未关闭）`:visual_js` `isolatedProcess` + AIDL 控制通道 + `killProcess(myPid())` 进程级硬终止——唯一能终止任意循环的层；设备门见 Progress。② 上游发 >1.0.15 修复后升级并把观察型用例反转为"必须协作中断"断言。③ 引擎层维持 accept-the-leak：每事务独立 daemon dispatcher、强弃 close 放专用守护线程、失败即 fuse/BUSY，如实现 KDoc 所述。
+
+**Reopen condition.** 4E.2 进程隔离落地或上游修复版升级后，以"issue #240 形状在 hard+500ms 内返回拒绝、且后续请求可用"的设备用例关闭；在此之前不得把 T3 标成运行时完成。（T1 的仪器化用例现以 ≤6 s 判死 worker，弱于本条件；关闭时仍以 hard+500 ms 的用例为准。）
 
 ## KD-67 (open, 2026-10-26 登记（批次 21 T2/复核发现 #15；中）) · G5-A 生产候选全部 `contentVerified=false`：即使接线也到不了 ASK，CLARIFY_OR_CONFIRM 无消费者
 
-**Symptom（读码 + 用例）.** 唯一生产题面写入方 `KnowledgeQuizItemStore.record` 固定 `verificationStatus = UNKNOWN`（`KnowledgeQuizItemStore.kt:173-176`）；`AdaptiveSelectionAssembler` 只把 `VERIFIED`/`USER_ASSERTED` 置真（`:162-163`），错题候选恒 false（`:194`）；`AdaptiveQuestionSelector.safeBaseCandidates` 要求 `contentVerified=true`（`:241`），未核验目标返回 `CLARIFY_OR_CONFIRM`（`:288-292`）。feature/app 全仓没有 `CLARIFY_OR_CONFIRM` 的消费者，也没有把行升级为 VERIFIED/USER_ASSERTED 的写方；测试 `assembled production candidates stay fail-closed to clarify until verified` 钉住该出口。
+**Symptom（读码 + 用例）.** 唯一生产题面写入方 `KnowledgeQuizItemStore.record` 固定 `verificationStatus = UNKNOWN`（`KnowledgeQuizItemStore.kt:173-176`）；`AdaptiveSelectionAssembler` 只把 `VERIFIED`/`USER_ASSERTED` 置真（批次 21 实现时 `:162-163`，当前 `:177-178`），错题候选恒 false（当时 `:194`，当前 `:209`）；`AdaptiveQuestionSelector.safeBaseCandidates` 要求 `contentVerified=true`（`:241`），未核验目标返回 `CLARIFY_OR_CONFIRM`（批次 21 实现时 `:288-292`，当前 `:293-295`）。feature/app 全仓没有 `CLARIFY_OR_CONFIRM` 的消费者，也没有把行升级为 VERIFIED/USER_ASSERTED 的写方；测试 `assembled production candidates stay fail-closed to clarify until verified` 钉住该出口。
 
 **Impact.** medium（G5-A 代码落地但产品面不可用；不是回归，是 fail-closed 死端）。
 
-**Fix direction.** 产品侧补"题面核验写方"（谁在什么条件下把行升为 VERIFIED/USER_ASSERTED）与 `CLARIFY_OR_CONFIRM` 消费者（确认卡/补题入口）；不得为接通而放宽选择器 `contentVerified` 判据。接线时同时把 `AdaptiveSelectionAssembler` 从 `internal` 提升为跨模块可用端口（或在 core/domain 定义接口 + 实现），并改热区 VM。
+**Progress（2026-10-26 批次 22 T4，core/domain + core/data；非设备、非 Gradle）.** 核心侧三块已落，死端所需"写方 API / 消费契约 / 可注入 seam"具备；**产品面仍未接通，本条保持 open**。
 
-**Reopen condition.** 出现真实生产候选可被标为 VERIFIED/USER_ASSERTED 的写路径且 feature/review 消费 CLARIFY 决策后，以"生产候选能进 ASK、未核验候选仍 CLARIFY"的设备/集成用例关闭。
+- **核验写方 API**：`core/domain/.../AnswerKeyVerificationUpgrade.kt`——来源类型 `AnswerKeyVerificationSource.IndependentVerification` / `UserAssertion`（`confirmationId` + `confirmedByLearnerId` + 时间；PRD-02 来源语义）与纯函数 `decideAnswerKeyVerificationUpgrade`：目标只能是 VERIFIED/USER_ASSERTED；当前必须是 UNKNOWN（已核验行不改写/不二次升级）；来源必须与目标同型；USER_ASSERTED 的确认者必须等于本题面学习者。`core/data/.../KnowledgeQuizItemVerificationUpgrader.kt` 读行 → 领域判定 → 单列 CAS 端口 `AssessmentItemVerificationStatusWriter`，缺行/坏题面/并发状态变更均有可判别出口。**复核 #13 后补回执绑定**：新增 `AnswerKeyVerificationSourceVerifier` 端口与 `SOURCE_NOT_VERIFIED` 拒绝原因，`upgrade()` 在写库前（含 `AlreadyUpgraded` 幂等出口）要求 id 指向真实回执/核验记录；只校验"非空 id"的漏洞关闭。生产实现（查更正回执/独立核验记录）仍未落——见"仍未闭合"⑤。**生产 Room adapter 未落**：单列 UPDATE 是 core/database 的 `SeedAssessmentPort` 扩展，不在本轨可改范围（本轨只动 core/domain 与 core/data）；adapter 落地前确认流无法在生产路径完成写入。
+- **CLARIFY 消费契约**：domain 层 `AdaptiveClarificationConsumer` + `AdaptiveClarificationRequest`（未核验候选投影、原因码、选择器版本、决策时刻）；"未核验目标"过滤与选择器 `noCandidateDecision` 同源（`unverifiedTargetCandidates` 单处定义，避免两处判据漂移）。core:data 装配器新增 `select` / `selectAndConsume` 输出接线位：CLARIFY 决策携带可消费载荷；`selectAndConsume` 只在 CLARIFY 时调用消费者，其余决策不产生空回调。**feature 侧实现（确认卡/补题入口）登记遗留**——本批不建 UI；实现前产品上仍无确认入口。
+- **装配器 seam**：`AdaptiveSelectionAssembler` 由 `internal` 改为公开可注入形态（构造参数仍是既有端口/对象，不引入 DI 框架）；KDoc 写明实例作用域、并发安全、一次选择内的跨表读不是同一事务快照、消费者不写库等调用方约束。
+- **测试（JVM 直编 + JUnitCore，非 Gradle）**：`AnswerKeyVerificationUpgradePolicyTest` 4/4、`KnowledgeQuizItemVerificationUpgraderTest` **9/9**（原 7 例 + 复核 #13 新增"无回执 id 拒绝且不写库""已升级行的伪造回执不得回报 AlreadyUpgraded"）、`AdaptiveSelectionAssemblerTest` 12/12（新增"UNKNOWN 候选→CLARIFY 可消费出口"与"升级后进 ASK"两例；后者用既有 Elo 预测器重放 12 笔作答前缀，区间 [0.56496, 0.84231] 落在 FOUNDATION 走廊 [0.55, 0.85]）；既有 `AdaptiveQuestionSelectorTest` 21/21、`EloCorrectnessPredictorTest` 14/14 不回退。本轮复跑命令 `python tmp/verify_batch22_t4.py` → 五类全绿（4/9/12/21/14）。
+- **仍未闭合**：① 确认流的生产调用点（谁在什么 UX 条件下构造 `UserAssertion`）；② core/database 的单列 UPDATE adapter；③ feature 侧 `AdaptiveClarificationConsumer` 实现与 UI；④ 设备/集成用例"生产候选能进 ASK、未核验候选仍 CLARIFY"；⑤ `AnswerKeyVerificationSourceVerifier` 的生产实现（更正回执/独立核验记录查询）。五者全部落地前不得宣告"G5-A 生产可用"。
+
+**Fix direction.** 产品侧补"题面核验写方"（谁在什么条件下把行升为 VERIFIED/USER_ASSERTED）与 `CLARIFY_OR_CONFIRM` 消费者（确认卡/补题入口）；不得为接通而放宽选择器 `contentVerified` 判据。接线时同时把 `AdaptiveSelectionAssembler` 从 `internal` 提升为跨模块可用端口（或在 core/domain 定义接口 + 实现），并改热区 VM。**（批次 22 T4 已落 domain 判据 + core:data 写方 API/端口契约 + 公开 seam + CLARIFY 消费契约；Room adapter、feature 消费者与生产调用点仍待接线，见 Progress。）**
+
+**Reopen condition.** 出现真实生产候选可被标为 VERIFIED/USER_ASSERTED 的写路径且 feature/review 消费 CLARIFY 决策后，以"生产候选能进 ASK、未核验候选仍 CLARIFY"的设备/集成用例关闭。（批次 22 的 JVM 进展不改变本条件。）
 
 ## KD-68 (open, 2026-10-26 登记（批次 21 T1/复核发现 #16；中）) · 新题积压 UI 承诺不可调度项：用 `preview` 算术而非 `previewBacklog`，`unschedulableCount` 无生产消费者
 
@@ -2596,36 +2613,89 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **Impact.** medium（KD-64 崩溃已修，但产品承诺与实际调度不一致；用户被误导，不是数据损坏）。
 
+**Progress（2026-10-26 批次 22 核对；本批无代码变更）.** `feature/review` 仍是他线热区，本批未动；现状未变：`ReviewRoute.kt:529` 仍调 `NewIntroductionPolicy.preview`、`:558` 仍是固定 `900`，生产 main/feature/app 仍无 `previewBacklog`/`unschedulableCount` 消费者（grep 只命中 domain 定义与测试）。**本条保持 open，待 feature/review 热区空出。**
+
 **Fix direction.** feature/review 热区空出后，把 `ReviewRoute` 的积压预览改为 `previewBacklog(...)` 并消费 `unschedulableCount`（文案区分"可日引入"与"需专项会话"）；`StudySnapshotBuilder.intakeBacklogCount` 与计划器使用同一口径；保留 `preview` 仅作兼容/测试。
 
 **Reopen condition.** `ReviewIntakeBacklogPreviewInstrumentedTest` 覆盖"全超预算项显示为不可调度/专项会话"且真实计划不再承诺其日引入后关闭。
 
-## KD-69 (open, 2026-10-26 登记（批次 21 设备轨步五/复核发现 #12；低）) · `internal`/`benchmark` buildType minify=true 但无 proguardFiles：R8 剥掉 WorkManager/Room 生成类，启动 FATAL
+## KD-69 (open, 2026-10-26 登记（批次 21 设备轨步五/复核发现 #12；低）) · `internal`/`benchmark` buildType minify=true 但缺项目 proguardFiles：R8 strict full mode 剥掉生成类的无参构造器（WorkDatabase_Impl / ML Kit registrar），启动 FATAL
 
-**Symptom（设备实跑）.** `:app:assembleLocalFirstInternal`（minify=true、无 proguardFiles）装机启动崩溃：`java.lang.RuntimeException: Unable to get provider androidx.startup.InitializationProvider` ← `androidx.startup.StartupException: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init>` ← `Room.getGeneratedImplementation`（`build/device-track-batch21/step5-r8-logcat.txt:372-410`）。根因：`app/build.gradle.kts:58-70` 的 `benchmark`（`:58-64`）与 `internal`（`:65-70`）只设 `isMinifyEnabled = true`，没有 `proguardFiles(...)`；只有 release（`:71-80`）配了默认规则 + `proguard-rules.pro`。同批 release 冒烟：BUILD SUCCESSFUL 3m24s、装机启动 PID=13393、523 行 logcat 中 FATAL/ANR/ClassNotFound 等全 0（`step5-r8-release-logcat.txt`）。
+**Symptom（设备实跑 + R8 产物实证；批次 21，修复前）.** `:app:assembleLocalFirstInternal`（当时 minify=true、无 proguardFiles）装机启动崩溃：`java.lang.RuntimeException: Unable to get provider androidx.startup.InitializationProvider` ← `androidx.startup.StartupException: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init>` ← `Room.getGeneratedImplementation`（`build/device-track-batch21/step5-r8-logcat.txt:372-410`）。同批 release 冒烟：BUILD SUCCESSFUL 3m24s、装机启动 PID=13393、523 行 logcat 中 FATAL/ANR/ClassNotFound 等全 0（`step5-r8-release-logcat.txt`）。
+
+**根因（批次 22 R4 `docs/research/2026-10-26-r8-workmanager-room.md` §3/§4 修正原归因）.** AGP 9.3.0 起 `android.r8.strictFullModeForKeepRules` 默认 true（`BooleanOption.class` 字节码：ordinal 30 / `iconst_1`），R8 不再为被 keep 的类隐式保留无参构造器。WorkManager 2.10.5 传递的 `androidx.room:room-runtime:2.6.1` consumer rule 是无成员限定的 `-keep class * extends androidx.room.RoomDatabase`（`localFirstInternal/configuration.txt:1025-1026`，**规则已生效**），只保住类、保不住成员；`WorkDatabase_Impl.<init>()` 无直接调用点 → 被裁（`localFirstInternal/usage.txt:43128-43131` 把 `public void <init>()` 列为被移除）。原记录“没有 proguardFiles ⇒ 规则全没生效”不准确：真正缺的是本项目 `app/proguard-rules.pro` 的两组显式 keep。`benchmark`（修前 `app/build.gradle.kts:58-64`）与 `internal`（修前 `:65-70`）只设 `isMinifyEnabled = true`、无 `proguardFiles`，且 `matchingFallbacks += listOf("release")` **不继承** proguardFiles；release 因应用 `-keepclassmembers class * extends androidx.room.RoomDatabase { <init>(); }`（`localFirstRelease/configuration.txt:101`；规则源 `app/proguard-rules.pro:8-10`）而构造器保住（`localFirstRelease/usage.txt:45476-45479` 无 `<init>`）。同一缺陷还覆盖三个 ML Kit registrar：internal 被裁（`localFirstInternal/usage.txt:50717-50718 / 50955-50956 / 51010-51011` 各含 `public void <init>()`），release 因 `app/proguard-rules.pro:17-19` 保住；它们由 ComponentDiscovery 惰性反射实例化，只补 Room 一条则下一次中文 OCR 会以同样形状崩。
 
 **Impact.** low（仅内部/基准构建；不进 release 包，但会让 minified debug 冒烟假红/无法用于验证）。
 
-**Fix direction.** 给 `internal`/`benchmark` 补 `proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")`（或关闭其 minify）；补 `assembleLocalFirstInternal` 启动冒烟。改构建配置属共享文件/他线风险，先与主会话确认再动。
+**Progress（2026-10-26 批次 22 T5，`app/build.gradle.kts`；非 Gradle、非设备）.** 已按 R4 §5 方案 A 落最小补丁：`benchmark`（现 `:67`）与 `internal`（现 `:75`）各补一行 `proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")`，与 release（现 `:84`）同一规则集；未关 minify、未改 strict full mode、未动依赖版本。修前诊断按 R4 §8.1 只读复跑并复现：D-1 consumer rule 在 `localFirstInternal/configuration.txt:1025-1026`；D-2 internal 的 `WorkDatabase_Impl` 段含 `public void <init>()`；D-3 release 同段不含 `<init>()`；D-4 项目 Room keep 只命中 `localFirstRelease/configuration.txt:101`；D-5 `gradle.properties` 无 strict full mode 逃逸口（无输出）；D-6 internal 被裁无参构造器 351 个（与批次 21 基线一致）；三个 ML Kit registrar 的 internal/release 对照同样复现。**修复后的构建与设备判据未验证（纪律禁跑 Gradle，本条保持 open；批次 22 声称的 internal/benchmark/release 冒烟零崩溃亦无日志落盘，见 KD-74）**：静态断言 S1-S4 与设备冒烟 D1-D6 的命令见 R4 §8.2；`internal` 是唯一“可调试 + minify”变体，debug minified 冒烟应由设备轨执行（`./gradlew :app:assembleLocalFirstInternal` → 安装冷启动 → logcat 断言 → 一次中文 OCR → 一次导出 Worker）。
 
-**Reopen condition.** `internal` minified 构建装机启动无 `WorkDatabase_Impl`/Room/WorkManager 生成类缺失后关闭；release 冒烟不得回退。
+**Fix direction.** 已落：给 `internal`/`benchmark` 补与 release 相同的 `proguardFiles`；剩余：设备轨跑 `assembleLocalFirstInternal` 冷启动（含杀进程后二次冷启动）与中文 OCR 冒烟，并按 `usage.txt` 复查无第三个反射可达的被裁无参构造器。未采纳的备选：关闭其 minify（掩盖 R8 缺陷）、`android.r8.strictFullModeForKeepRules=false`（AGP 10 弃用/11 移除）、升级 room 2.7+（归 R2）。
+
+**Reopen condition.** `internal` minified 构建装机冷启动（含二次冷启动）无 `FATAL EXCEPTION`/`StartupException`/`NoSuchMethodException`/`ClassNotFoundException`/`NoClassDefFoundError`，且**一次中文 OCR** 无 `MlKitException`/`NoSuchMethodException` 后关闭；release 冒烟不得回退。
 
 ## KD-70 (open, 2026-10-26 登记（批次 21 T3/复核发现 #6/#21；中）) · QuickJS 内存上限路径在 x86_64 未成立：设备实际 `INVALID_PROGRAM`，契约要求的 `MEMORY_LIMIT` 未达
 
-**Symptom（设备实跑）.** `memoryOverTheHeapBudgetIsRejectedAsAMemoryLimit` 断言 `MEMORY_LIMIT`，设备实际 `INVALID_PROGRAM: program failed in phase prepare: InternalError: string too long`（旧夹具；`step2-quickjs-oom-detail.log:1-6`，独立复跑 3/3 同）；改用分配型探针（数组/对象持续增长）后仍 `INVALID_PROGRAM`，诊断 `program failed in phase prepare: null`（`step2-oom-attribution.log`）。`classifyJsException` 只按 `lowered.contains("out of memory")` 归类（`QuickJsVisualExecutionEngine.kt:416`），AAR 异常消息丢失/文案不同即落 INVALID_PROGRAM。断言未放宽（符合纪律），但契约 §4"内存超限不截断成正确图、返回有界诊断"的具体拒因未被设备证明。
+**Symptom（设备实跑）.** `memoryOverTheHeapBudgetIsRejectedAsAMemoryLimit` 断言 `MEMORY_LIMIT`，设备实际 `INVALID_PROGRAM: program failed in phase prepare: InternalError: string too long`（旧夹具；`step2-quickjs-oom-detail.log:1-6`，独立复跑 3/3 同）；改用分配型探针（数组/对象持续增长）后仍 `INVALID_PROGRAM`，诊断 `program failed in phase prepare: null`（`step2-oom-attribution.log`）。`classifyJsException` 只按 `lowered.contains("out of memory")` 归类（`QuickJsVisualExecutionEngine.kt` 批次 21 版本 `:416`；T2 已重写，见 Progress），AAR 异常消息丢失/文案不同即落 INVALID_PROGRAM。断言未放宽（符合纪律），但契约 §4"内存超限不截断成正确图、返回有界诊断"的具体拒因未被设备证明。
 
 **Impact.** medium（内存上限的**可观测拒因**未验证；引擎仍返回有界拒绝、不崩，故非安全洞；但测试门红、契约判据未落地）。
 
-**Fix direction.** ① 用能真实触达 QuickJS 堆上限的夹具（分阶段分配并在 OOM 前读 `memoryUsage` 记录）重跑设备用例；② 若 AAR 在 x86_64 的 OOM 必然先报 `string too long`/`prepare null`，则把契约/用例改为"有界拒绝 + 诊断保留原因"的可证判据，需先裁定（不得直接放宽断言）；③ `classifyJsException` 增加结构化诊断或明确已知边界。
+**Progress（2026-10-26 批次 22 T2，core/data + 仪器化用例；非 Gradle、非设备）.** 根因与探针已按 R3 源码级研究落定，代码与用例已改。**设备轨已执行（2026-10-26）：T2 全量 20 例仅 P2 红**——P2 `heapExhaustionWithLostErrorMessageIsAttributedByMemoryUsage` 的"丢失哨兵 + 堆证据"中央分支未在设备成立；P2 的实际 reason/diagnostics 未落盘，不能据此区分"消息仍是 null 但堆证据不足"与其它路径。**KD-70 保持 open：设备判据未达成。**
+
+- **根因（R3 `docs/research/2026-10-26-quickjs-oom-semantics.md` §0/§2/§3）.** ① 旧夹具 `s = s + s` 先撞 `JS_STRING_LEN_MAX = (1 << 30) - 1`（约 1 GiB，`quickjs.c:212`）的 rope 长度检查——堆几乎没涨，所以必然落 `INVALID_PROGRAM: InternalError: string too long`，与 16 MiB 堆上限无关。② 另一形态 `program failed in phase prepare: null` 是确定性链：堆耗尽到连 Error 对象都分配不出来时 `JS_ThrowError2` 抛 `JS_NULL`（`quickjs.c:7645-7655`）→ quickjs-kt 把 `JS_NULL` 映射为 Java `null` → `reason.toString()` 合成字符串 `"null"`（`QuickJs.jni.kt:837-843`）；旧分类器 `contains("out of memory")` 接不住。③ `throw null` / `Promise.reject(null)` / `throw 'null'` 产生同一 `"null"`，因此**不能**只凭消息判 OOM。
+- **分类修复.** 新增纯函数 `core/data/.../visual/VisualJsFailureClassification.kt`：类型优先（`QuickJsInterruptedException` → 协作超时，先于任何消息匹配）→ 消息严格前缀 `InternalError: out of memory` → `"not defined"` → 消息丢失哨兵（`null`/`"null"`/`Invalid evaluation handle: -1`）且 `memoryUsage.mallocSize >= 90% mallocLimit` 才归堆上限 → 否则内部 `UNATTRIBUTED`。90% 阈值与推导写入代码注释（R3 §6.3），不得为设备变绿下调。`QuickJsVisualExecutionEngine.runPhase` 只在丢失哨兵路径、`close()` 之前读取 `memoryUsage`（`JS_ComputeMemoryUsage` 不分配，R3 §2.1.4），普通 JS 错误不额外拿 `jsMutex`。**对外枚举未改**（T2 裁定）：`UNATTRIBUTED` 折成 `INVALID_PROGRAM`，诊断以 `[UNATTRIBUTED]` 开头供宿主/AIDL 区分（R3 §6.6 退化口径）——跨进程映射（T1 AIDL）需能保留该前缀或后续裁定加 `UNKNOWN`。
+- **探针替换（R3 §5，仪器化用例）.** `memoryOverTheHeapBudgetIsRejectedAsAMemoryLimit` 改用 **P1**：`prepare` 内单次 64 MiB `ArrayBuffer`（分配型、必然先撞 16 MiB 堆；64 MiB < INT32_MAX 且不产生长字符串）。新增 **P2** `heapExhaustionWithLostErrorMessageIsAttributedByMemoryUsage`（50 万小对象链表 → `"null"` + 堆证据归属）、**P3** `stringLengthCapIsNotAHeapOutOfMemory`（rope 翻倍负控）、**P4** `nullThrownAtLowMemoryIsUnattributedInvalidProgram`（低堆 `throw null` → `INVALID_PROGRAM` + `[UNATTRIBUTED]` 前缀；T2 裁定不新增 UNKNOWN）、**P5** `forgedOutOfMemoryMessageIsInvalidProgram`（`RangeError('out of memory')` 不得误报）。旧 1M-array 夹具已删（`fast-array` 扩容余量不可控，非确定性）。
+- **JVM 覆盖.** 新增 `core/data/src/test/.../visual/VisualJsFailureClassificationTest.kt`：类型分支、严格前缀、丢失哨兵+堆证据、UNATTRIBUTED 兜底、90% 边界、未设上限不归属。**本轨未运行任何 Gradle/设备命令**（门禁由脚本串行执行），结果记为待验证。
+- **设备轨结果（2026-10-26）.** 全量 20 例仅 **P2 红**；P1/P3/P4/P5 未报红（具体输出未落盘，只据任务书设备轨材料）。② P2 的判据仍未达成：`MEMORY_LIMIT` + `attributed by memoryUsage` 未在设备出现；该分支是"消息丢失 + 堆证据"的中央新逻辑，不能以其它四例绿替代。① P1 的 `MEMORY_LIMIT` 判据在设备是否成立，材料只给"仅 P2 红"，按未红处理但**无逐例日志**。命令见 R3 §7.2（`:core:data:assembleDebugAndroidTest` + 逐类 `am instrument`，不要加 `-e log true`）。若 P1 仍拿不到可读 message，按"诊断落盘 + 归因 AAR 构件"处理，不得放宽断言。
+
+**Fix direction.** ① 用能真实触达 QuickJS 堆上限的夹具（分阶段分配并在 OOM 前读 `memoryUsage` 记录）重跑设备用例；② 若 AAR 在 x86_64 的 OOM 必然先报 `string too long`/`prepare null`，则把契约/用例改为"有界拒绝 + 诊断保留原因"的可证判据，需先裁定（不得直接放宽断言）；③ `classifyJsException` 增加结构化诊断或明确已知边界。**（批次 22 T2 已按 ①/③ 落分类器与 P1–P5 探针；①的设备执行与 ②的裁定仍待设备轨/主会话，见 Progress。）**
 
 **Reopen condition.** 设备用例以 `MEMORY_LIMIT`（或经裁定的等价判据）转绿，且 `memoryUsage`/诊断证据落盘后关闭。
 
 ## KD-71 (open, 2026-10-26 登记（批次 21 T3 复核发现 #22；低）) · `QuickJsVisualExecutionEngine` close/execute 竞态：closed 检查与 `currentTransaction.set` 之间的窗口
 
-**Symptom（读码）.** `execute()` 先 `closed.get()` 检查，再 `inFlight.compareAndSet`，之后才 `currentTransaction.set(transaction)`（`QuickJsVisualExecutionEngine.kt:152-158`）；`close()` 只 `currentTransaction.get()?.forceAbandon()`（`:203-207`）。并发 close 恰好落在窗口内会读到 null，不强弃；随后 execute 仍会创建 QuickJs 并执行/返回成功，与"关闭后 execute 立即回 ENGINE_CLOSED"的终端语义不完全一致。
+**Symptom（读码，登记时）.** `execute()` 先 `closed.get()` 检查，再 `inFlight.compareAndSet`，之后才 `currentTransaction.set(transaction)`（`QuickJsVisualExecutionEngine.kt:152-158`）；`close()` 只 `currentTransaction.get()?.forceAbandon()`（`:203-207`）。并发 close 恰好落在窗口内会读到 null，不强弃；随后 execute 仍会创建 QuickJs 并执行/返回成功，与"关闭后 execute 立即回 ENGINE_CLOSED"的终端语义不完全一致。
 
 **Impact.** low（概率低；需要 close 与 execute 精确并发，且 close 后仍可能有一次执行）。
 
-**Fix direction.** 把 `currentTransaction.set` 提前到 `inFlight` CAS 成功之后立即执行，并在 set 后再次检查 `closed`（若已 closed 则 forceAbandon + 回 ENGINE_CLOSED）；或用一个原子状态对象同时承载 closed/inFlight/currentTransaction。补并发 close/execute 用例。
+**Progress（2026-10-26 批次 22 T6，core/data 引擎 + 仪器化用例；非 Gradle、非设备）.** 修复已落，**新用例未设备执行，本条保持 open**。
 
-**Reopen condition.** 新增并发用例证明 close 后不再有成功执行、且 in-flight 事务被强弃后关闭。
+- **单锁状态机（窗口本体）.** `closed` 与 `inFlight` 改为同一把 `stateLock` 保护：`execute` 在同一临界区内"判 closed → 判 BUSY → 登记 inFlight → schedule watchdog"（`QuickJsVisualExecutionEngine.kt:157-163`、`:201-217`）；`close()` 在同一临界区内"置 closed → 取走在飞事务 → `watchdog.shutdownNow()`"（`:267-284`）。两种顺序被压成二选一：close 先到 → 登记直接回 ENGINE_CLOSED；登记先到 → close 必能取到该事务。closed 判定与事务登记不再可分，原 `:152-158` 的窗口消失。对外错误枚举零改动。
+- **关闭语义补全（不只登记）.** 只修登记窗口仍留下第二种"关闭后成功"：close 取到事务时它可能尚未创建活引擎（例如卡在 `measurer.measure`），旧 `forceAbandon` 无引擎可强弃，事务随后照常 render。现在事务带 `abandoned` 标志，阶段在创建上下文前（`:402-410`）与登记活引擎后（`:417-424`）各查一次；`forceAbandon` 的 `abandoned.set → liveEngine.getAndSet` 与阶段的 `liveEngine.set → abandoned.get` 构成 Dekker 握手，至少一侧看见另一侧。`close()` 强弃后**有界等待**事务收尾（`:283`，上界 `hardDeadlineMillis + 500ms`；#240 的同步 JNI 卡死等不到，超时按 accept-the-leak 返回，不阻塞 @After）；并发 close 的后来者同样等在飞事务。事务最终结果与 `closed=true` 在同一临界区判定（`:247-256`）：close 先到 → 本可成功的渲染也折成 ENGINE_CLOSED；事务判定先到 → 结果在关闭前已成立。
+- **并发用例（`QuickJsVisualExecutionEngineInstrumentedTest`）.** ① 确定性红例 `closeDuringAnInFlightTransactionWaitsAndRejectsIt`（`:545`，批次 22 记录时点行号）：用 `GatedMeasurer`（`:115`）把事务卡在 measure（此时登记必已完成、prepare 上下文已关闭、`liveEngine=null`——正是旧实现强弃失效的形状）；close 在另一线程调用，断言 200ms 内不得返回（旧实现立即返回 = 红），放行后断言 execute 回 ENGINE_CLOSED（旧实现回 Rendered = 红）、close 返回后再 execute 仍 ENGINE_CLOSED。② 32 轮无协调压测 `concurrentCloseAndExecuteRoundsNeverReportAnUnexpectedOutcome`（`:617`，批次 22 记录时点行号）：只允许 Rendered（close 前已完成）或 ENGINE_CLOSED，任何 BUSY/库异常穿透/挂死均为红；每轮 close 返回后再 execute 必须 ENGINE_CLOSED。既有 issue #240 观察用例与 `closingIsIdempotentAndExecuteAfterCloseIsRejected` 保留不改。
+- **测试纪律.** 未运行任何 Gradle/设备命令（门禁由主会话脚本串行执行）；上述"旧实现红"是按旧代码路径（`finished` 不参与阶段判定、close 无等待）的确定性推演，**不是执行证据**。设备轨需跑 `:core:data:assembleDebugAndroidTest` + 逐类 `am instrument` 验证。
+
+**Fix direction.** 已落：`stateLock` 单临界区承载 closed/inFlight；close 强弃 + 有界等待；阶段 abandoned 双查 + 最终结果线性化判定。剩余：设备执行上述两条用例并落盘结果；若设备上 `closeDuringAnInFlightTransactionWaitsAndRejectsIt` 的 200ms 等待窗口与慢机调度冲突，应放宽的是"等待观察窗口"（时间常量），**不得**放宽"execute 必须 ENGINE_CLOSED"的断言。
+
+**Reopen condition.** 新增并发用例在设备上证明 close 后不再有成功执行、且 in-flight 事务被强弃后关闭（`closeDuringAnInFlightTransactionWaitsAndRejectsIt` + 压测 32 轮全绿，日志落盘）后关闭。
+
+## KD-72 (open, 2026-10-26 复核返修 #5/#10 登记；中) · dependency locking 已配置但仓库无任何锁文件：默认 LockMode 下锁门未生效
+
+**Symptom（读码 + 只读命令）.** 根 `build.gradle.kts:33-36` 对全部 subprojects 声明 `dependencyLocking { lockAllConfigurations() }`，注释也说明了 `--write-locks` 命令；但仓库内**没有任何 `gradle.lockfile`**（`find . -name "gradle.lockfile" -not -path "*/build/*"` → 0 命中；`git ls-files '*gradle.lockfile'` → 0）。默认 `LockMode.LENIENT` 下"无锁状态"不阻塞解析，因此新增/漂移的传递依赖不会经过锁门；`buildscript` / `pluginManagement` 也未锁。当前真正生效的只有 `tools/ci/check_dependency_pins.py` 对 quickjs 三构件的 sha256 与两条版本事实。
+
+**Evidence（本轮回跑）.** `python tools/ci/check_dependency_pins.py` → exit 0，`resolved: quickjs=['1.0.15'] kotlin-stdlib=['2.3.21']`；`python -m unittest discover -s tools/tests -p "test_check_dependency_pins.py" -t tools -v` → 14 tests OK。两者都只证明"钉版门"，不证明锁门。**注意解析图来源**：脚本读的是 `app/build/intermediates/incremental/lintVitalAnalyzeStrictOfflineRelease/strictOfflineRelease-artifact-dependencies.xml`（AIDL 修复前的旧构建产物）；本轮禁跑 Gradle，解析图未刷新，因此"resolved 2.3.21"是旧图事实，不是修复后重解析的证据。批次 22 T3 的"dependency locking 已启用"只能记为**部分属实**。
+
+**Impact.** medium（供应链：POM 静默抬版/新增传递依赖在解析期不会被拦；当前唯一的漂移被 sha256/版本门覆盖，但覆盖范围是定向的，不是全图）。
+
+**Fix direction.** 由允许跑 Gradle 的门禁轨执行根目录注释里的 14 个 `--write-locks` 目标，把生成的 `gradle.lockfile` 入库；随后再加一个"锁文件存在"检查（或 `LockMode.STRICT` 防新模块漏锁）。在锁文件入库前，不得把 T3 写成"依赖锁定已完成"。
+
+**Reopen condition.** 仓库内每个 subproject 都有 `gradle.lockfile`，且一次负控（人为抬高某个传递依赖版本）在解析期被锁状态判红后关闭。
+
+## KD-73 (open, 2026-10-26 复核返修 #11 登记；中) · 运行时 kotlin-stdlib 强制降回 2.3.21：字节码/API 兼容证据只覆盖 quickjs AAR，不是全解析图
+
+**Symptom（读码 + 研究文档）.** `build.gradle.kts:47-57` 用 `eachDependency + useVersion` 把全项目运行时 `kotlin-stdlib` 从 quickjs-kt-android 1.0.15 POM 要求的 2.4.10 压回编译期 2.3.21；`gradle/libs.versions.toml:52-60` 记录该选择。R2 `docs/research/2026-10-26-dependency-governance.md` §3.1 的 88 条成员引用扫描只覆盖该 AAR（加上缓存内 78 POM/54 module 的样本），**不是完整解析图的 API 兼容证明**；文档 §3.4 自己列明运行期降级可能以 `NoSuchMethodError`/`NoClassDefFoundError` 暴露，且元数据 `mv=[2,4,0]` 的向前兼容官方口径是 preferably/mostly。本批没有新的构建/设备/R8 证据；`check_dependency_pins.py` 只校验解析版本，不校验 API 兼容性；`useVersion` 是软覆盖（strict 约束仍可赢，届时门会红）。
+
+**Impact.** medium（若图中其它库引用了 2.4 才有的 stdlib 成员，编译期不报错、只在运行期崩；当前无证据表明存在，但也无证据排除）。
+
+**Fix direction.** 二选一并在门里固化：① 扩展现有扫描到完整解析图的每个 jar（对 2.3.21 stdlib 做成员引用解析，unresolved 必须为 0）；② 或按 R2 路径 B 全项目升到 2.4.10（当前被 KSP 无 2.4 兼容版本阻断）。无论哪条，都要有设备/R8 冒烟与 `NoSuchMethodError`/`NoClassDefFoundError` 的 logcat 断言，不得只靠版本门。
+
+**Reopen condition.** 完整解析图扫描 unresolved=0 且设备/R8 冒烟无 stdlib 归因崩溃，或升级到 2.4.10 的构建/设备证据落盘后关闭。
+
+## KD-74 (open, 2026-10-26 复核返修 #6 登记；中) · 批次 22 设备结论（16KB 3/3、R8 三变体冒烟、备份/迁移）无日志落盘
+
+**Symptom（只读文件系统）.** 任务书设备轨声称 16KB 3/3 全绿、R8 internal/benchmark/release 冒烟零崩溃、备份/迁移抽验全绿，但仓库内没有对应设备日志/结果：`find` 2026-10-26 08:00 之后无 device 日志（`build/device-track-batch21` 是上一批）；只能确认 `app/build/outputs/apk/strictOffline/{internal,benchmark,release}/*.apk`（09:34/09:35/09:43）与 mapping 产物存在。`NativeLibraryPageSizeInstrumentedTest.kt` 确有 3 个 `@Test`，但"在盘"不等于"设备已跑"。
+
+**Impact.** medium（release/16KB/备份这些高风险面的事实不可复核；把产物存在当成设备通过会重演 T1"未记录全红"的问题）。
+
+**Fix direction.** 设备轨重跑并把证据落到 `build/device-track-batch22/`：每条命令的 `am instrument` summary/`INSTRUMENTATION_CODE`、logcat 的 FATAL/ANR/NoSuchMethod/NoClassDef 全量 grep、16KB 的 `getprop ro.product.cpu.page.size` 与构建产物 `readelf -l` 页对齐、备份/迁移用例输出；同时记录 APK/mapping 的 sha256。
+
+**Reopen condition.** 上述四类结论各有可复跑命令与落盘结果，且 T1 修复后的设备复跑结果一并落盘后关闭。

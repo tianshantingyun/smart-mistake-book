@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook
 
 import android.app.Activity
 import android.app.Application
+import android.os.Build
+import android.os.Process
 import android.os.StrictMode
 import com.tingyun.smartmistakebook.core.data.capture.CaptureWorkflowRepositoryFactory
 import com.tingyun.smartmistakebook.core.data.capture.ConfiguredCleanImageGeneratorFactory
@@ -284,6 +286,22 @@ class SmartMistakeBookApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // 契约 visual-generation-contract.md §4（批次 22 T1）：`:visual_js` 是
+        // android:isolatedProcess="true" 的专用进程，UID 与应用 UID 不同；它不挂载应用数据
+        // 目录、也没有应用权限。必须在打开 Room、恢复备份、维护 filesDir、装配 Provider/密钥
+        // 工厂之前短路——只在 onCreate 末尾加 guard 等于让副作用先发生。
+        //
+        // 这是公开 API 写法（API 23 可用）；API 28+ 再叠加 Process.isIsolated() 作为
+        // 纵深防御（R1 §9.4：applicationInfo.uid 在隔离进程中的实际值未设备验证）。
+        // 字段初始化审计（R1 §7.2）：本类构造期的 applicationScope/dataStoreScope/
+        // startupState/tracker 只分配对象与协程作用域；capabilities/modelConfigurationStore
+        // 均为 by lazy，隔离进程不会触达。ContentProvider/AndroidX Startup 的实际装配面
+        // 仍待设备 `dumpsys activity providers` 审计（T1 登记为 UNVERIFIED）。
+        val isolatedWorker = Process.myUid() != applicationInfo.uid ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && Process.isIsolated())
+        if (isolatedWorker) {
+            return
+        }
         // T6 beta 反馈闭环：诊断装配先于一切初始化——启动最早的崩溃也要有记录。
         // 崩溃 handler 链回系统 previous（杀进程行为不变）；看门狗只记录不杀进程；
         // 启动对账（"上次异常退出"横幅文案）放后台协程，不阻塞启动。各环节内部吞错，
