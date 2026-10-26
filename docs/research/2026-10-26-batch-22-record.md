@@ -387,3 +387,13 @@ ls -d build/device-track-batch21 build/device-track-batch22
 ```
 
 > 未执行：任何 `./gradlew`、`adb`、`am instrument`、`connectedAndroidTest`；任何 git 写命令。门禁/设备/研究结论均标注来源（工单材料/设备轨 evidence/修复环材料/研究文档），不冒充本记录员实跑。
+
+## 8. 主会话收口（2026-10-26，实跑证据）
+
+- **单测门**（11 模块 `--continue`，主会话实跑）：**exit=0**（BUILD SUCCESSFUL，6 executed / 222 up-to-date）。
+- **AIDL 权威判据**：`:app:compileLocalFirstDebugAidl` 随单测门真实执行通过——重建的 `IVisualJsCallback.aidl` 语法与 import 均有效（记录员与主会话均曾误用 aidl.exe 双输入形式覆盖源文件；主会话已按 09:02 生成 Java 签名重建并验证，源文件 sha256 前后不变。**双输入形式属 aidl 的 INPUT+OUTPUT 用法，以后禁用，AIDL 一律以 Gradle 任务验证**）。
+- **强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（BUILD SUCCESSFUL，12 executed / 260 up-to-date）。
+- **提交**：`69e5f591`（37 文件，8,429 插入/210 删除），按 §7 的 11 块分块 add；排除项未触碰。
+- **推送**：GitHub 443 时段性不可达（连接重置 + 连接超时），重试后远端出现 `Everything up-to-date`——包大概率已在某次重试中上传成功；后台循环以 `ls-remote` 复核，最终以远端 hash 为准。
+- **本批不声称全绿**：T1 隔离进程设备功能门修复前 4/4 红（dup 修复后复跑 UNVERIFIED）；T2 设备 20 例仅 P2 红（KD-70 open）；T3 锁文件未生成（KD-72）；stdlib 下压未证（KD-73）；设备日志未落盘（KD-74）；KD-66/67/68/69/71 保持 open。
+- Mimosa 提交仍无完整扫描结论（scanner_enobfs）——不宣称项目安全。
