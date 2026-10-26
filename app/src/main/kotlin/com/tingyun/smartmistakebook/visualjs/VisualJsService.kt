@@ -51,7 +51,14 @@ import java.util.concurrent.atomic.AtomicLong
  * - 结果写入独立守护线程，避免大结果（≤256 KiB）占住 JS 线程或 Binder 线程。
  *
  * 保守分支登记（本批**不**宣称完成的能力）：
- * - 隔离进程内的 `libquickjs.so` 装载、系统字体/度量、`killProcess` 权限均未设备验证；
+ * - 批次 25 T2（KD-76 ①）已落 warm-up/ready **代码层**：[onCreate] 在任何请求之前经
+ *   jsExecutor 完成一次性装载 warm-up（`QuickJsVisualExecutionEngine.warmUpNativeRuntime`：
+ *   真实 `QuickJs.create` 装载 + 一次空程序 evaluate——修正 R1' §2.3-1"构造即装载"的错误
+ *   草图，见 docs/research/2026-10-27-visualjs-warmup-queue.md §8），完成置 [ready]（单调）；
+ *   `execute` 在 ready 前回 SHUTTING_DOWN、请求不排队——"ready 之前不 arm 程序 watchdog"
+ *   由该门**结构性保证**（进不了 [runRequest] 就没有 arm 点）。ready 等待预算由宿主承担
+ *   （AIDL `isReady()` 轮询，见 VisualJsClientEngine）；隔离进程内的 `libquickjs.so` 装载
+ *   实测成本、KD-76 ③④⑤ 设备判据仍未验证，JS 仍不广告；
  * - 文本/数学内容度量未接线（[UnwiredVisualContentMeasurer]），只有纯几何程序可通；
  * - ContentProvider/AndroidX Startup 在隔离进程的实际装配面未审计（见 Application guard）；
  * - JS 方法仍不广告，工具面/提示词/能力快照零改动。
@@ -59,6 +66,13 @@ import java.util.concurrent.atomic.AtomicLong
 class VisualJsService : Service() {
 
     private val killed = AtomicBoolean(false)
+
+    /**
+     * warm-up 完成标志（批次 25 T2，KD-76 ①）：单调量，false→true 后不回退。warm-up
+     * 失败不置位（进程随即自杀）。execute 在 false 时拒绝服务；能通过该门的请求，其
+     * 引擎装载必已完成，1500 ms watchdog 从真实 JS 工作起算的语义不变。
+     */
+    private val ready = AtomicBoolean(false)
 
     // 单线程 JS 执行器：一个请求一个任务；#240 挂死时泄漏的是这条 daemon 线程，
     // 由 L2 SIGKILL 回收整个进程。
@@ -86,6 +100,42 @@ class VisualJsService : Service() {
     private val initLock = Any()
 
     override fun onBind(intent: Intent?): IBinder = stub
+
+    /**
+     * 批次 25 T2（KD-76 ①）：bind 触发服务创建后，在任何请求之前主动 warm-up。
+     * warm-up 跑在 [jsExecutor]（单线程）上——它与后续请求天然串行，且 ready 置位前
+     * execute 根本不排队，不存在"warm-up 与请求并发执行 JS"的交错。Chromium
+     * ChildProcessService 同形（onCreate 起专用线程装载原生库→mLibraryInitialized，
+     * R1' §2.1 形状 C）；装载不在 Binder 线程、不在 watchdog 线程。
+     */
+    override fun onCreate() {
+        super.onCreate()
+        warmUpOnJsExecutor()
+    }
+
+    /**
+     * 一次性引擎装载 warm-up：真实 `QuickJs.create`（libquickjs.so 装载 + 运行时表
+     * 预热）+ 一次空程序 evaluate，完成置 [ready]。
+     *
+     * **它消灭的失败**：KD-76 的"冷启动首个 execute 的原生装载成本落在 1500 ms watchdog
+     * 预算内被误杀"（E-01d 设备形状）。warm-up 自身不 arm 程序 watchdog（装载不是被监视
+     * 的事务）；也不加独立装载期限——装载挂死由宿主 ready 预算兜底（超时 → terminate →
+     * killSelf），不加则少一层、两者都不放宽已 ready 后的 1500 ms 程序期限（KD-76 红线）。
+     * warm-up 失败（引擎都装载不出）= 进程不可信 → killSelf（与 [fatal] 同型的进程级
+     * 恢复），宿主走既有死亡→重建预算→fail-closed 路径，不新增第三条恢复路径。
+     */
+    private fun warmUpOnJsExecutor() {
+        jsExecutor.execute {
+            try {
+                QuickJsVisualExecutionEngine.warmUpNativeRuntime()
+                ready.set(true)
+                Log.i(TAG, "visual_js warm-up finished; worker ready for requests")
+            } catch (failure: Throwable) {
+                Log.w(TAG, "visual_js warm-up failed", failure)
+                killSelf("warm-up failed: ${failure.javaClass.simpleName}")
+            }
+        }
+    }
 
     /**
      * R1 §5.4：unbind 不是同步终止，但它是"移除重启理由"的配套动作。宿主已经不要我们时，
@@ -147,6 +197,16 @@ class VisualJsService : Service() {
             return activeGeneration.get()
         }
 
+        /**
+         * 批次 25 T2（KD-76 ①）：warm-up 完成查询。两路、只读原子量、照旧逐事务查宿主
+         * UID。ready 是单调量；宿主在握手后轮询本方法（独立预算），true 后才发首个
+         * execute。
+         */
+        override fun isReady(): Boolean {
+            requireHost()
+            return ready.get()
+        }
+
         override fun initialize(generation: Long): Int {
             requireHost()
             synchronized(initLock) {
@@ -176,6 +236,16 @@ class VisualJsService : Service() {
                 return VisualJsWire.STATUS_BAD_REQUEST
             }
             if (abandoned.get()) {
+                runCatching { request.close() }
+                return VisualJsWire.STATUS_SHUTTING_DOWN
+            }
+            if (!ready.get()) {
+                // 批次 25 T2（KD-76 ①/⑤）：ready 之前不接请求、也不进入 watchdog 路径
+                // （请求根本不会排队——"ready 之前不 arm 程序 watchdog"的结构性保证）。
+                // ready 是单调量，随批发布的宿主只在 isReady() 轮询为真后发首个请求，
+                // 正常流程到不了这里；到得了就说明对端违反 ready 协议，按既有
+                // STATUS_SHUTTING_DOWN fail-closed（R1' §2.3-3 保守分支：不新增
+                // STATUS_NOT_READY，不与 BUSY 背压语义混淆）。
                 runCatching { request.close() }
                 return VisualJsWire.STATUS_SHUTTING_DOWN
             }
@@ -302,6 +372,8 @@ class VisualJsService : Service() {
             if (!execution.active.get()) return
 
             // JS 阶段从这里开始：服务硬期限只覆盖引擎执行，不覆盖传输。
+            // 批次 25 T2（KD-76 ①）：能排进 runRequest 的请求都过了 execute 的 ready 门
+            // （ready 单调），装载必已完成——1500 ms 只计真实 JS 工作的语义不变。
             armWatchdog(execution)
 
             // 每请求一个全新引擎实例：引擎内部的 inFlight/fused 集合不跨请求，

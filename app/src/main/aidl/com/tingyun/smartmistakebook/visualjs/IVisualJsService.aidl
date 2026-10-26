@@ -10,6 +10,9 @@
 //
 // 返回码与 generation 语义见 Kotlin VisualJsWire（STATUS_ACCEPTED / STATUS_BUSY /
 // STATUS_STALE_GENERATION / STATUS_BAD_REQUEST / STATUS_SHUTTING_DOWN）。
+//
+// 批次 25 T2（KD-76）：新增 isReady()（PROTOCOL_VERSION 1→2）——warm-up 完成查询，
+// 宿主只在 true 后发首个 execute。
 package com.tingyun.smartmistakebook.visualjs;
 
 import android.os.ParcelFileDescriptor;
@@ -27,6 +30,12 @@ interface IVisualJsService {
 
     // 0 = 已初始化；重复 initialize 同 generation 幂等，不同 generation 回 STALE。
     int initialize(long generation);
+
+    // warm-up 完成标志（KD-76 ①）：服务在任何请求之前于专用后台任务完成一次性引擎
+    // 装载 + 一次空程序 evaluate，完成后置 true。单调量（false→true，不回退）；
+    // 两路只读、照旧逐事务查宿主 UID。宿主在握手后轮询它（独立预算），ready 前不发
+    // execute——execute 在 ready 前到达回 SHUTTING_DOWN。
+    boolean isReady();
 
     // 0 = ACCEPTED；1 = BUSY；2 = STALE_GENERATION；3 = BAD_REQUEST；4 = SHUTTING_DOWN。
     int execute(long generation, String requestId,

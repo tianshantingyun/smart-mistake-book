@@ -59,6 +59,24 @@ import java.util.concurrent.atomic.AtomicInteger
  *   `explicitUserRetry` 或源码改变（契约 §4:70）；
  * - 旧 generation 的回调、旧 requestId 的结果一律丢弃并关 fd（不把另一张图当旧帧）。
  *
+ * 契约 §64 队列/背压（批次 25 T3，[VisualJsFrameQueue]）：全局 1 在飞 + ≤2 待绘 +
+ * 同 program latest-wins（被顶掉/超容的调用方回 `BUSY` 背压拒绝）+ 跨 program FIFO。
+ * 会话在常驻消费者侧执行，调用方只 `waiter.await()`——排队上界由"1+2 帧 × 会话预算"
+ * 约束，不再是旧 `executeMutex` 的无上界挂起。worker 死亡时排队帧清空回 `ENGINE_CLOSED`
+ * （R1' §3.2 保守分支，待主会话确认）；调用方取消排队帧即出队，取消在飞帧不 abandon
+ * worker（会话按自身预算跑完，结果丢弃）。"由可见/交互生命周期限次重新调度"（§64 后半句）
+ * 属调用方生命周期层（P-04），不在本文件。
+ *
+ * 批次 25 T2（KD-76 ①/⑤，R1' §2.3-4）：**握手成功 ≠ 引擎可用**。服务在 onCreate 后
+ * 做一次性装载 warm-up，完成才置 ready（AIDL `isReady()`，单调量）。宿主在每次新进程
+ * 握手成功后轮询 ready（预算 [READY_TIMEOUT_MILLIS]，独立于 attach 预算与宿主 2500 ms
+ * 阶段期限），ready 后才把连接交给首个请求。attach/ready 预算超时是 **loading 形状**：
+ * 请求如实折 `ENGINE_CLOSED`（诊断说明 loading/not-ready），**不锁存** `unavailable`、
+ * 不消耗死亡重建预算（[lastBindFailedOnLoading] 旗标），下一次 execute 重新 bind +
+ * 等 ready——KD-76 ⑤"加载失败不得一次失败即永久 unavailable"；生命周期限次重试属
+ * P-04。死亡与结构性失败（bind 失败/协议不匹配/同 UID/死亡未确认）仍按既有语义
+ * fail-closed。close() 在首连/ready 等待中立即终结（markDead 完成两个等待点），不无限等。
+ *
  * 高危研究项的落点（docs/research/2026-10-26-visualjs-isolated-process.md 复核）：
  * 1. **请求管道死锁**：绝不"先写完整请求再 execute"。本实现先 `execute(...)` 拿到
  *    ACCEPTED，再在 IO 协程写信封；pipe 容量不足时服务端已在并发读，写不会阻塞到宿主
@@ -81,7 +99,13 @@ import java.util.concurrent.atomic.AtomicInteger
 class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val executeMutex = Mutex()
+
+    /**
+     * 契约 §64 队列/背压（批次 25 T3）：全局 1 在飞 + ≤2 待绘 + 同 program latest-wins +
+     * 满→BUSY 保帧 + 跨 program FIFO。会话体在消费者侧执行（[executeFrame]），调用方只
+     * `waiter.await()`；锁不再跨会话持有（旧 `executeMutex` 整段串行的根因）。
+     */
+    private val frameQueue = VisualJsFrameQueue(scope) { frame -> executeFrame(frame) }
     private val connectMutex = Mutex()
     private val linkLock = Any()
     private val closed = AtomicBoolean(false)
@@ -98,6 +122,25 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
 
     @Volatile
     private var rebuildConsumed: Boolean = false
+
+    /**
+     * 纯 loading 失败旗标（批次 25 T2，KD-76 ⑤）：上一次 bind 以 attach/ready 预算超时
+     * 结束（进程未死）时为真。它让"加载慢"**不消耗死亡重建预算、不锁存
+     * [unavailable]**——下次 bind 豁免 [rebuildConsumed] 的检查与扣减（R1' §2.3-4：
+     * loading 重试的语义落点；生命周期限次属 P-04）。死亡与结构性失败清零它，恢复既有
+     * 记账；握手/ready 成功也清零。消费点在 [ensureConnected] 与 [connectLocked]。
+     */
+    @Volatile
+    private var lastBindFailedOnLoading: Boolean = false
+
+    /**
+     * 最近一次 [ensureConnected] 失败的可读原因（诊断用途；只在它返回 null 后被读，
+     * 每个失败出口都先写它，不存在陈旧值被当成新失败依据的路径）。
+     * **它消灭的失败**：KD-76 ⑤ 要求 loading 失败与结构性失败对调用方可区分——只有
+     * reason（都是 ENGINE_CLOSED）无法表达，诊断文本承担区分。
+     */
+    @Volatile
+    private var lastConnectFailure: String? = null
 
     @Volatile
     private var activeCall: ActiveCall? = null
@@ -164,65 +207,102 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             )
         }
 
-        return executeMutex.withLock {
-            if (closed.get()) {
-                return@withLock rejected(
-                    VisualExecutionRejection.ENGINE_CLOSED,
-                    "the visual_js client is closed",
-                )
-            }
-            if (!request.explicitUserRetry && digest in fusedDigests) {
-                return@withLock rejected(
-                    VisualExecutionRejection.PROGRAM_FUSED,
-                    "program digest ${digest.take(12)} is fused until explicit user retry",
-                )
-            }
-            val connection = ensureConnected()
-                ?: return@withLock rejected(
-                    VisualExecutionRejection.ENGINE_CLOSED,
-                    "visual_js is unavailable (bind failed, or the previous worker's death was not confirmed)",
-                )
-            val requestId = UUID.randomUUID().toString()
-            val pending = CompletableDeferred<VisualExecutionResult>()
-            val call = ActiveCall(connection, digest, pending)
-            activeCall = call
-            val outcome: VisualExecutionResult = try {
-                try {
-                    withTimeout(VisualExecutionBudget.HOST_PHASE_DEADLINE_MILLIS) {
-                        runSession(connection, digest, requestId, envelope, pending)
-                    }
-                } catch (timeout: TimeoutCancellationException) {
-                    // 竞态：结果与超时同时到；已完成就不误熔断（R1 §4.5）。
-                    if (pending.isCompleted) {
-                        pending.await()
-                    } else {
-                        fusedDigests.add(digest)
-                        withContext(NonCancellable) { abandon(connection) }
-                        rejected(
-                            VisualExecutionRejection.HARD_DEADLINE_EXCEEDED,
-                            "host phase deadline " +
-                                "(${VisualExecutionBudget.HOST_PHASE_DEADLINE_MILLIS} ms) exceeded",
-                        )
-                    }
-                } catch (cancel: CancellationException) {
-                    // 调用方取消：与现有引擎一致，原样重抛，不折成拒绝；同时停掉服务里的工作。
-                    withContext(NonCancellable) { abandon(connection) }
-                    throw cancel
-                }
-            } finally {
-                if (activeCall === call) activeCall = null
-            }
-            // 契约 §4：熔断到"用户明确本地重试或源码改变"。一次成功的显式重试即解除熔断；
-            // 否则同一程序在成功后仍会被 PROGRAM_FUSED 永久挡住（除非每帧都标 explicitRetry）。
-            if (request.explicitUserRetry && outcome is VisualExecutionResult.Rendered) {
-                fusedDigests.remove(digest)
-            }
-            outcome
+        // 入队判定（1 在飞 / latest-wins / 满→BUSY）在队列的短临界区内完成；本协程只等
+        // 结果。调用方取消：排队帧出队不执行；在飞帧由消费者按自身预算跑完、结果丢弃
+        //（不再像旧实现那样 abandon worker——那会连坐顶掉全部排队帧，见 VisualJsFrameQueue KDoc）。
+        val waiter = CompletableDeferred<VisualExecutionResult>()
+        frameQueue.submit(
+            VisualJsFrameQueue.Frame(
+                programId = request.programId,
+                digest = digest,
+                envelope = envelope,
+                explicitUserRetry = request.explicitUserRetry,
+                waiter = waiter,
+            ),
+        )
+        return waiter.await()
+    }
+
+    /**
+     * 消费者侧会话体：从旧实现的 `executeMutex.withLock` 原样迁来（含 2500 ms 宿主阶段
+     * 期限、超时 abandon、`NonCancellable` 死亡确认全套），只有三点差异：
+     * 1. 出队后的**二次熔断复查**（排队期间同源码可能已被硬期限/死亡熔断）；
+     * 2. 会话结果走独立的 [sessionResult]：回调/死亡只完成它，调用方取消 waiter 不会
+     *    污染超时竞态判定（旧实现 pending 与调用方同生共死，消费者侧必须解耦）；
+     * 3. 每帧在会话开始时新取 `requestId`/连接——排队期间可能已经历死亡重建，generation
+     *    必须取当前 link 的，而不是入队时刻的。
+     */
+    private suspend fun executeFrame(frame: VisualJsFrameQueue.Frame) {
+        if (closed.get()) {
+            frame.waiter.complete(
+                rejected(VisualExecutionRejection.ENGINE_CLOSED, "the visual_js client is closed"),
+            )
+            return
         }
+        if (!frame.explicitUserRetry && frame.digest in fusedDigests) {
+            frame.waiter.complete(
+                rejected(
+                    VisualExecutionRejection.PROGRAM_FUSED,
+                    "program digest ${frame.digest.take(12)} is fused until explicit user retry",
+                ),
+            )
+            return
+        }
+        val connection = ensureConnected()
+            ?: run {
+                frame.waiter.complete(
+                    rejected(
+                        VisualExecutionRejection.ENGINE_CLOSED,
+                        "visual_js unavailable: " +
+                            (lastConnectFailure
+                                ?: "bind failed, or the previous worker's death was not confirmed"),
+                    ),
+                )
+                return
+            }
+        val requestId = UUID.randomUUID().toString()
+        val sessionResult = CompletableDeferred<VisualExecutionResult>()
+        val call = ActiveCall(connection, frame.digest, sessionResult)
+        activeCall = call
+        val outcome: VisualExecutionResult = try {
+            try {
+                withTimeout(VisualExecutionBudget.HOST_PHASE_DEADLINE_MILLIS) {
+                    runSession(connection, frame.digest, requestId, frame.envelope, sessionResult)
+                }
+            } catch (timeout: TimeoutCancellationException) {
+                // 竞态：结果与超时同时到；已完成就不误熔断（R1 §4.5）。
+                if (sessionResult.isCompleted) {
+                    sessionResult.await()
+                } else {
+                    fusedDigests.add(frame.digest)
+                    withContext(NonCancellable) { abandon(connection) }
+                    rejected(
+                        VisualExecutionRejection.HARD_DEADLINE_EXCEEDED,
+                        "host phase deadline " +
+                            "(${VisualExecutionBudget.HOST_PHASE_DEADLINE_MILLIS} ms) exceeded",
+                    )
+                }
+            } catch (cancel: CancellationException) {
+                // 消费者协程被取消（scope 级；调用方取消不再到达这里）：原样重抛，同时停掉
+                // 服务里的工作。
+                withContext(NonCancellable) { abandon(connection) }
+                throw cancel
+            }
+        } finally {
+            if (activeCall === call) activeCall = null
+        }
+        // 契约 §4：熔断到"用户明确本地重试或源码改变"。一次成功的显式重试即解除熔断。
+        if (frame.explicitUserRetry && outcome is VisualExecutionResult.Rendered) {
+            fusedDigests.remove(frame.digest)
+        }
+        frame.waiter.complete(outcome)
     }
 
     override fun close() {
         if (!closed.compareAndSet(false, true)) return
+        // 队列先闩死并清空：排队中的等待者立即回 ENGINE_CLOSED，不再等 link 拆卸。
+        // 在飞帧的 waiter 由下方 markDead → handleDeath → activeCall 路径完成（既有行为）。
+        frameQueue.close("the visual_js client is closed")
         val current = link
         if (current != null) {
             current.markAbandoned()
@@ -381,11 +461,16 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             diagnostics: String?,
         ) {
             // 旧 generation / 旧请求 / 非 worker UID 的结果：丢弃并关 fd（不误当旧帧）。
-            if (generation != connection.generation || callbackRequestId != requestId) {
-                runCatching { payload?.close() }
-                return
-            }
-            if (Binder.getCallingUid() != connection.workerUid) {
+            // 三重身份核对抽成 [VisualJsResultFrameFilter]（可 JVM 负向单测，R1' §4 A-12/A-13）。
+            if (!VisualJsResultFrameFilter.accepts(
+                    frameGeneration = generation,
+                    frameRequestId = callbackRequestId,
+                    callerUid = Binder.getCallingUid(),
+                    linkGeneration = connection.generation,
+                    requestId = requestId,
+                    workerUid = connection.workerUid,
+                )
+            ) {
                 runCatching { payload?.close() }
                 return
             }
@@ -417,8 +502,17 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             code: Int,
             diagnostics: String?,
         ) {
-            if (generation != connection.generation || callbackRequestId != requestId) return
-            if (Binder.getCallingUid() != connection.workerUid) return
+            if (!VisualJsResultFrameFilter.accepts(
+                    frameGeneration = generation,
+                    frameRequestId = callbackRequestId,
+                    callerUid = Binder.getCallingUid(),
+                    linkGeneration = connection.generation,
+                    requestId = requestId,
+                    workerUid = connection.workerUid,
+                )
+            ) {
+                return
+            }
             fusedDigests.add(digest)
             if (!pending.isCompleted) {
                 pending.complete(
@@ -484,16 +578,28 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
     // ---------------------------------------------------------------- 连接与死亡
 
     private suspend fun ensureConnected(): Link? = connectMutex.withLock {
-        if (closed.get() || unavailable) return@withLock null
+        if (closed.get()) {
+            lastConnectFailure = "the visual_js client is closed"
+            return@withLock null
+        }
+        if (unavailable) {
+            lastConnectFailure =
+                "the engine was latched unavailable by an earlier structural failure " +
+                    "(bind failed, protocol mismatch, same UID, or an unconfirmed death)"
+            return@withLock null
+        }
         val existing = link
         if (existing != null && existing.state == LinkState.CONNECTED) {
             return@withLock existing
         }
         // 预算已用尽而 link 为空（超时 abandon / 死亡清空）时不得再 bind：否则连续宿主阶段
         // 超时可以无限新建隔离进程，契约"确认旧实例终结后最多重建一次"不成立。
-        if (rebuildConsumed) {
+        // 纯 loading 超时（attach/ready 预算、进程未死）是唯一豁免：不消耗重建预算、不锁存
+        //（KD-76 ⑤ / R1' §2.3-4），由 lastBindFailedOnLoading 表达。
+        if (rebuildConsumed && !lastBindFailedOnLoading) {
             if (existing != null) dispose(existing)
             unavailable = true
+            lastConnectFailure = "the single rebuild budget was already consumed by an earlier death"
             return@withLock null
         }
         if (existing != null) {
@@ -514,13 +620,26 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
      * 在同一临界区内，不会两个路径同时各 bind 一个进程。
      */
     private suspend fun connectLocked(): Link? {
-        if (closed.get() || unavailable) return null
+        if (closed.get()) {
+            lastConnectFailure = "the visual_js client is closed"
+            return null
+        }
+        if (unavailable) {
+            lastConnectFailure =
+                "the engine was latched unavailable by an earlier structural failure"
+            return null
+        }
         if (connections.get() > 0) {
-            if (rebuildConsumed) {
+            if (rebuildConsumed && !lastBindFailedOnLoading) {
                 unavailable = true
+                lastConnectFailure = "the single rebuild budget was already consumed by an earlier death"
                 return null
             }
-            rebuildConsumed = true
+            // loading 超时后的重试 bind 不扣重建预算（批次 25 T2，KD-76 ⑤）——否则第二次
+            // loading 超时就会把引擎永久锁存，与 R1' §2.3-4 的重试语义矛盾。
+            if (!lastBindFailedOnLoading) {
+                rebuildConsumed = true
+            }
         }
         val generation = newGeneration()
         val candidate = Link(generation)
@@ -536,6 +655,7 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             candidate.state = LinkState.DEAD
             synchronized(linkLock) { if (link === candidate) link = null }
             unavailable = true
+            lastConnectFailure = "bindService returned false for :visual_js"
             return null
         }
         // 首连与重建用不同预算：冷启动要把隔离进程 fork 起来并装载 libquickjs，设备实测
@@ -552,15 +672,55 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         } catch (cancel: CancellationException) {
             throw cancel
         }
+        // 死亡优先于超时判定：markDead 会提前完成 connected=false，不能把"握手期间死亡"
+        // 记成 attach 预算超时（两者的收尾与后续记账完全不同）。
+        if (!connected && candidate.death.isCompleted) {
+            // 握手期间死亡：markDead/handleDeath 已按死亡语义处理（可能已排重建）。
+            candidate.markAbandoned()
+            candidate.service = null
+            runCatching { context.unbindService(candidate.connection) }
+            unlinkDeath(candidate)
+            synchronized(linkLock) { if (link === candidate) link = null }
+            lastBindFailedOnLoading = false
+            unavailable = true
+            lastConnectFailure = "the visual_js worker died during the handshake"
+            return null
+        }
+        if (!connected) {
+            // attach 预算内未连上（E-01d 形状）：loading，不是结构性失败。批次 24 曾把
+            // 该形状永久锁存；批次 25 T2 起如实 FAILED、不锁存、不扣重建预算。解绑会触发
+            // 服务 onDestroy→killSelf，不留孤儿进程；下一次 execute 重新 bind + 等 ready。
+            // 晚到的 attach 由 Link.abandonedForLoading 分支收尾，不锁存。
+            // 写序敏感（复核 1 轮 TOCTOU 修复）：先置 abandonedForLoading 再 markAbandoned。
+            // 两者是不同 volatile 变量、读侧（onServiceConnected 的 ABANDONED 分支）不持
+            // stateLock 且读序固定先 state 后 flag；若写序反置，晚到 attach 可读到 ABANDONED
+            // 却见 flag=false，按 markDead(unexpected=false) 收尾——handleDeath 在 ABANDONED
+            // 短路之前就置 unavailable=true，首连 loading 超时后的重试被永久锁存（KD-76 ⑤
+            // 回归形状，正是 onServiceConnected 注释声称已消灭的失败）。volatile 写序保证：
+            // 读者见到 ABANDONED 时必已见到 flag=true；flag 先行不引入新害——state 仍为
+            // CONNECTING 的晚到 attach 落入正常握手，由 markConnected 锁内复查 ABANDONED 拒收。
+            candidate.abandonedForLoading = true
+            candidate.markAbandoned()
+            candidate.service = null
+            runCatching { context.unbindService(candidate.connection) }
+            unlinkDeath(candidate)
+            synchronized(linkLock) { if (link === candidate) link = null }
+            lastBindFailedOnLoading = true
+            lastConnectFailure =
+                "visual_js attach did not complete within $connectBudget ms (still loading); " +
+                    "the request failed without latching the engine"
+            return null
+        }
         // isConnected() 在同一把锁内复查 dead：即使 connected.complete(true) 后死亡通知
         // 立刻到达，也不会把 DEAD link 当连接返回（见 Link.markConnected）。
-        if (!connected || !candidate.isConnected()) {
+        if (!candidate.isConnected()) {
             candidate.markAbandoned()
             candidate.service = null
             runCatching { context.unbindService(candidate.connection) }
             unlinkDeath(candidate)
             synchronized(linkLock) { if (link === candidate) link = null }
             unavailable = true
+            lastConnectFailure = "the visual_js worker died during the handshake"
             return null
         }
         if (closed.get()) {
@@ -572,10 +732,81 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             runCatching { context.unbindService(candidate.connection) }
             unlinkDeath(candidate)
             synchronized(linkLock) { if (link === candidate) link = null }
+            lastConnectFailure = "the visual_js client was closed during the handshake"
             return null
         }
+        // 批次 25 T2（KD-76 ①/⑤）：握手成功 ≠ 引擎可用——服务在新进程里做一次性装载
+        // warm-up，完成才置 ready（单调）。宿主在此轮询 isReady()，预算独立于 attach
+        // 预算与 2500 ms 宿主阶段期限。
+        if (!awaitWorkerReady(candidate)) {
+            if (closed.get()) {
+                // close() 在 ready 等待中到达：markDead(unexpected=false) 已收尾（terminate/
+                // unbind/两个等待点），这里补清引用即可。
+                synchronized(linkLock) { if (link === candidate) link = null }
+                lastConnectFailure = "the visual_js client was closed while waiting for worker ready"
+                return null
+            }
+            if (candidate.death.isCompleted) {
+                // warm-up 失败等自杀：handleDeath 已按死亡语义处理（重建预算照常记账）。
+                // 不算 loading、不豁免下一次 bind 的预算检查。
+                synchronized(linkLock) { if (link === candidate) link = null }
+                lastBindFailedOnLoading = false
+                lastConnectFailure = "the visual_js worker died before it became ready (warm-up failure?)"
+                return null
+            }
+            // 纯 loading 超时：进程活着但 warm-up 未在预算内完成。terminate + unbind（服务
+            // 自杀）→ 复用 abandon 的死亡确认（≤2 s；未确认才按既有 fail-closed）。不锁存
+            // unavailable、不扣重建预算：下一次 execute 重新 bind + 等 ready（KD-76 ⑤）。
+            // 旗标必须在 abandon **之后**置位：abandon 内部经 markDead 触发 handleDeath，
+            // 后者会清零本旗标（死亡 invalidate 豁免）——而这里的死亡是我们主动 terminate
+            // 的结果，整体 bind 的分类仍是 loading，豁免必须保留到下一次 bind。
+            abandon(candidate)
+            lastBindFailedOnLoading = true
+            lastConnectFailure =
+                "visual_js worker did not become ready within ${readyBudgetMillis()} ms " +
+                    "(warm-up still loading); the request failed without latching the engine"
+            return null
+        }
+        lastBindFailedOnLoading = false
+        lastConnectFailure = null
         return candidate
     }
+
+    /**
+     * 服务端引擎 ready 等待（批次 25 T2，KD-76 ①/⑤）：轮询 AIDL `isReady()` 直到翻转或
+     * 预算到点。返回 false 时的三种事实由调用方区分：[closed]（客户端已关）、
+     * `candidate.death`（warm-up 失败自杀等）、纯超时（loading，进程仍活）。
+     *
+     * ready 是单调量（服务进程内 false→true 不回退），因此"已连接 link 复用"路径不需要
+     * 复查——只有本函数（每次新进程 bind 后恰一次）等待它。
+     */
+    private suspend fun awaitWorkerReady(candidate: Link): Boolean {
+        val service = candidate.service ?: return false
+        val deadline = SystemClock.uptimeMillis() + readyBudgetMillis()
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (closed.get() || candidate.death.isCompleted) return false
+            val readyNow = try {
+                service.isReady()
+            } catch (_: RemoteException) {
+                return false
+            } catch (_: RuntimeException) {
+                return false
+            }
+            if (readyNow) return true
+            delay(READY_POLL_INTERVAL_MILLIS)
+        }
+        // 预算边界最后一次判定：到点瞬间翻转不算超时（不放宽预算，只是不做时钟截断）。
+        if (closed.get() || candidate.death.isCompleted) return false
+        return try {
+            service.isReady()
+        } catch (_: RemoteException) {
+            false
+        } catch (_: RuntimeException) {
+            false
+        }
+    }
+
+    private fun readyBudgetMillis(): Long = readyTimeoutOverrideForTest ?: READY_TIMEOUT_MILLIS
 
     private suspend fun abandon(link: Link) {
         if (link.state == LinkState.ABANDONED) return
@@ -591,13 +822,13 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             // 契约 §4：死亡未确认时展示 fallback，不能并发放大进程数。
             link.state = LinkState.DEATH_UNCONFIRMED
             unavailable = true
-            // 明确记录策略：未确认即 fail-closed，随后解注册；迟到的 death 会被丢弃，
-            // **永不据此重建**。这不是"已确认"，只是不再并发放大进程数。
+            // 明确记录策略：未确认即 fail-closed（不是"已确认"，只是不再并发放大进程数），随后解注册；
+            // 迟到的死亡不被"丢弃"——仍走 markDead/handleDeath 补完等待者，重建被 fail-closed 门挡下。
             Log.w(
                 TAG,
                 "visual_js death was not confirmed within " +
-                    "${DEATH_CONFIRM_TIMEOUT_MILLIS} ms; fail-closed (a late death is dropped " +
-                    "and never used to rebuild)",
+                    "${DEATH_CONFIRM_TIMEOUT_MILLIS} ms; fail-closed (a late death is still " +
+                    "processed but cannot trigger a rebuild)",
             )
         }
         // 确认后事件已到；未确认时已 fail-closed，保留注册只会让迟到的 markDead 在
@@ -656,6 +887,21 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
     }
 
     private fun handleDeath(deadLink: Link, cause: String, unexpected: Boolean) {
+        // 死亡 invalidate "上一次是纯 loading 超时"的豁免：下一次 bind 恢复既有重建预算
+        // 记账（批次 25 T2——死亡是危险事实，loading 豁免只属于"进程未死"的加载超时）。
+        // 批次 25 主会话收口（R15 裁定）：清零从本函数顶部移到 ABANDONED 短路**之后**——
+        // connectLocked 的 loading 超时路径是"abandon() → 置位豁免"两步，若清零留在顶部，
+        // binder 线程并发的 handleDeath 可在置位之后执行并把豁免清掉，重建 warm-up 再超时
+        // 时命中 rebuildConsumed && !flag → 永久锁存（复核 R15）。ABANDONED 死亡是我们
+        // 主动 terminate 的 loading 收尾，豁免必须保留；真实（非预期）死亡在短路之后仍会
+        // 清零，预算记账语义不变。volatile 单变量无写序问题：清零只剩这一个写点。
+        // R1' §3.2 保守分支（待主会话确认）：worker 死亡时清空待绘队列，全部 ENGINE_CLOSED，
+        // 不把排队帧留给不确定性未收敛的重建窗口；在飞帧由 activeCall 路径收尾。
+        // dropPending 不闩死队列：重建成功后新帧照常入队。
+        frameQueue.dropPending(
+            VisualExecutionRejection.ENGINE_CLOSED,
+            "visual_js worker died ($cause); the queued frame was dropped",
+        )
         synchronized(linkLock) {
             if (link === deadLink) link = null
         }
@@ -680,6 +926,8 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             return
         }
         if (closed.get() || deadLink.state == LinkState.ABANDONED) return
+        // 真实（非预期）死亡：到这里才清 loading 豁免（R15 裁定，见本函数头注释）。
+        lastBindFailedOnLoading = false
         // 非预期死亡：熔断当前程序，并在确认死亡后最多重建一次。
         if (rebuildConsumed) {
             // 重建预算已用完：直接在死亡线程上 fail-closed，避免"等待重建协程再置
@@ -743,6 +991,16 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         @Volatile
         var workerUid: Int = -1
 
+        /**
+         * 本 link 因 **loading 超时**（attach/ready 预算、进程未死）被主动放弃（批次 25 T2，
+         * KD-76 ⑤）。晚到的 onServiceConnected 据此区分两类放弃：loading 放弃后的晚到连接
+         * 不是"坏配置"（重试正是本设计语义）→ 按 markDead(unexpected=true) 收尾，
+         * handleDeath 在 ABANDONED 上短路，**不锁存 unavailable、不触发重建**；其余放弃
+         * （close/结构失败）保持既有 unexpected=false → 锁存语义。
+         */
+        @Volatile
+        var abandonedForLoading: Boolean = false
+
         private val dead = AtomicBoolean(false)
         private val stateLock = Any()
 
@@ -758,10 +1016,22 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
                 }
                 if (dead.get() || state == LinkState.ABANDONED || closed.get()) {
                     // ABANDONED 之后到达的连接不得采纳：立刻终止并解绑（R1 §4.5）。
+                    // loading 放弃（attach/ready 超时）后的晚到连接不是"坏配置"：unexpected=true
+                    // 让 handleDeath 在 ABANDONED 上短路，不锁存 unavailable（批次 25 T2，
+                    // KD-76 ⑤——否则首连超时的重试会被 1 s 后的晚到 attach 锁存）。
                     val late = IVisualJsService.Stub.asInterface(binder)
                     runCatching { late.terminate(generation) }
                     runCatching { context.unbindService(this) }
-                    markDead("a late connection arrived after abandonment", unexpected = false)
+                    markDead(
+                        if (abandonedForLoading) {
+                            "a late connection arrived after a loading abandonment"
+                        } else {
+                            "a late connection arrived after abandonment"
+                        },
+                        // unexpected=true + ABANDONED → handleDeath 在 ABANDONED 上短路：
+                        // 不锁存、不重建。非 loading 放弃保持既有 unexpected=false → 锁存。
+                        unexpected = abandonedForLoading,
+                    )
                     return
                 }
                 try {
@@ -895,6 +1165,22 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
 
     internal fun connectionCountForTest(): Int = connections.get()
 
+    /**
+     * 测试 seam：观测结构性失败锁存位。**它消灭的失败**：KD-76 ⑤"loading 超时不得锁存
+     * unavailable"在黑盒断言里只能靠时序推断（未锁存 = 下一次 execute 重新等满预算），
+     * 仪器化用例可以直接断言锁存位本身。
+     */
+    internal fun unavailableForTest(): Boolean = unavailable
+
+    /**
+     * 测试 seam：覆盖 ready 预算（毫秒；null = 生产常量 [READY_TIMEOUT_MILLIS]）。
+     * **它消灭的失败**：ready 超时分支在真实服务上无法确定性触达（真实 warm-up 总会完成），
+     * 其"如实 FAILED + 不锁存"语义只能靠读码；夹具注入永不上报 ready 的本地 fake binder
+     * 与短预算后，用例可确定性走到该分支并断言行为。
+     */
+    @Volatile
+    internal var readyTimeoutOverrideForTest: Long? = null
+
     internal fun workerUidForTest(): Int? = link?.workerUid?.takeIf { it > 0 }
 
     internal fun generationForTest(): Long? = link?.generation
@@ -934,5 +1220,43 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
 
         /** `isBinderAlive` 轮询间隔；1 s 预算内至少 20 个判定点。 */
         const val DEATH_POLL_INTERVAL_MILLIS: Long = 50L
+
+        /**
+         * 服务端 warm-up ready 预算（批次 25 T2，KD-76 ①/⑤）：attach 预算之上的**独立**
+         * 第二段预算——握手成功后服务仍在做一次性 `QuickJs.create` 装载 + 空程序 warm-up。
+         * 10 s 是 R1' §2.3-4 的待设备校准起点值（设备实测冷启动 attach 4.6–7.5 s 叠加装载
+         * 的总成本无实测），不是实测上界。超时按 loading 如实失败（不锁存、不扣重建预算）。
+         */
+        const val READY_TIMEOUT_MILLIS: Long = 10_000L
+
+        /** `isReady()` 轮询间隔；10 s 预算内 100 个判定点（R1' §2.3-4 的 ~100 ms 间隔）。 */
+        const val READY_POLL_INTERVAL_MILLIS: Long = 100L
     }
+}
+
+/**
+ * 结果帧消费者身份校验（契约 §64 末句"消费者须验证服务调用身份"；批次 25 T3 抽出）。
+ *
+ * **它消灭的失败**：三重核对原先内联在 [VisualJsClientEngine.newCallback] 的 Binder Stub
+ * 里，伪造 generation/requestId/UID 的拒绝分支无法脱离真进程做 JVM 负向断言（R1' §4
+ * A-12/A-13 判定"旧 requestId 帧丢弃的独立负向用例未见"）。抽成纯函数后，伪造帧被拒
+ * 可直接单测；Binder 侧的 `Binder.getCallingUid()` 取值仍留在调用点，语义零改动。
+ *
+ * 核对项（全部命中才接受，任何一项伪造即丢弃帧并关 fd）：
+ * - generation 必须等于当前 link 的 generation（旧实例的迟到帧）；
+ * - requestId 必须等于本会话的 requestId（另一请求的结果帧）；
+ * - 调用 UID 必须等于 worker 隔离 UID（宿主自己/第三方进程伪造的回调）。
+ */
+internal object VisualJsResultFrameFilter {
+    fun accepts(
+        frameGeneration: Long,
+        frameRequestId: String?,
+        callerUid: Int,
+        linkGeneration: Long,
+        requestId: String,
+        workerUid: Int,
+    ): Boolean =
+        frameGeneration == linkGeneration &&
+            frameRequestId == requestId &&
+            callerUid == workerUid
 }

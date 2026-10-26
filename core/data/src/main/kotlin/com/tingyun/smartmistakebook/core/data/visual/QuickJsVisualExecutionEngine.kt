@@ -24,6 +24,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.SerializationException
@@ -787,16 +788,53 @@ class QuickJsVisualExecutionEngine(
         }
     }
 
-    private companion object {
-        const val HOST_AWAIT_GRACE_MILLIS: Long = 500L
-        const val SCENE_SCHEMA_VERSION: Int = 1
-        const val PHASE_PREPARE = "prepare"
-        const val PHASE_RENDER = "render"
-        const val BOOTSTRAP_FILENAME = "visual-bootstrap.js"
-        const val PROGRAM_FILENAME = "visual-program.js"
-        const val SHAPE_FILENAME = "visual-shape.js"
-        const val PREPARE_FILENAME = "visual-prepare.js"
-        const val RENDER_FILENAME = "visual-render.js"
+    companion object {
+        private const val HOST_AWAIT_GRACE_MILLIS: Long = 500L
+        private const val SCENE_SCHEMA_VERSION: Int = 1
+        private const val PHASE_PREPARE = "prepare"
+        private const val PHASE_RENDER = "render"
+        private const val BOOTSTRAP_FILENAME = "visual-bootstrap.js"
+        private const val PROGRAM_FILENAME = "visual-program.js"
+        private const val SHAPE_FILENAME = "visual-shape.js"
+        private const val PREPARE_FILENAME = "visual-prepare.js"
+        private const val RENDER_FILENAME = "visual-render.js"
+
+        /**
+         * 服务进程 warm-up（批次 25 T2，KD-76 ①）：真实触达原生装载点并执行一次空程序。
+         *
+         * **它消灭的失败**：KD-76 的"冷启动首个 execute 在装载竞争下被 1500 ms watchdog
+         * 误杀"（E-01d 形状）——装载成本移出任何请求的 watchdog 预算。R1'
+         * （docs/research/2026-10-27-visualjs-warmup-queue.md §2.3-1）的草图曾写"构造
+         * [QuickJsVisualExecutionEngine] 即触发 QuickJs.create"，经 T2 读码复核**不成立**：
+         * 本类构造函数只初始化 measurer/期限、stateLock/fused 集合与 watchdog 线程池，
+         * 不引用 QuickJs 类型；`QuickJs.create` 全文件唯一调用点在 [runPhase] 的事务路径内
+         * （本文件 `val js = QuickJs.create(jobDispatcher)` 一行）。因此 warm-up 必须
+         * **直接调用 [QuickJs.create]**——修正登记见该研究文档 §8。
+         *
+         * "空程序" = 一次 `void 0;` evaluate（KD-76 ①"libquickjs.so 装载 + 一次空程序
+         * warm-up"的原文口径）。不预热每事务的 prepare/render 全路径：那是引擎事务自身的
+         * JS 工作，合法占用 1500 ms 程序预算，不是一次性装载成本。
+         *
+         * 线程与期限：任意线程可调（服务端在专用单线程 executor 上调用）；**不 arm 任何
+         * watchdog**——装载不是被监视的"事务"（AOSP Watchdog 只监视已注册对象的形状，
+         * R1' §2.1 形状 B），装载期限由调用方/宿主 ready 预算兜底。失败向上抛出
+         * （UnsatisfiedLinkError/QuickJsException/…），由调用方决定 fatal 语义。
+         * [QuickJs.close] 在无用户 job 的全新实例上不经过 issue #240 的排水循环
+         * （warm-up 不 evaluate 任何用户程序），不会卡死。
+         */
+        fun warmUpNativeRuntime() {
+            // 上游 evaluate 是 suspend（排水循环按挂起协作取消），warm-up 不在协程上下文，
+            // 用 runBlocking 在调用线程（服务端：jsExecutor 专用线程）内完成；warm-up 只
+            // evaluate 一次空程序，无用户 job，阻塞有界。
+            runBlocking {
+                val js = QuickJs.create(Dispatchers.Default)
+                try {
+                    js.evaluate<Unit>("void 0;", "visual-warmup.js")
+                } finally {
+                    runCatching { js.close() }
+                }
+            }
+        }
 
         /**
          * bootstrap（按 R1 §4.1 配方，两处最小硬化，均登记）：

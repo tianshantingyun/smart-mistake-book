@@ -74,7 +74,7 @@
 
 ## 4. KD-74 覆盖（四类 + T1 + 产物身份）
 
-KD-74 已于 2026-10-26 批次 24 T3 关闭：条目标题见 `docs/known-defects.md:2768`，关闭 Progress 见同文件 `:2778`。三条件可逐项复核——① 记录回链 = `docs/research/2026-10-26-batch-23-record.md:202`（"KD-74 closed" 补记）与 `:415`（主会话等价裁定）；② 证据 = 批次 23 `docs/research/evidence/2026-10-26-batch-23/` 的 15 个 `.md`（`git ls-files docs/research/evidence/ | wc -l` = 15，E-00…E-09）；③ 主会话裁定 = 上述 `:415`。**本批 8 个 step 是对同一审计面的增量覆盖，不是关闭的必要条件，也不代表重开**；本批记录已生成（`docs/research/2026-10-26-batch-24-record.md`），其 §4 设备回链已补齐，见 §9。
+KD-74 已于 2026-10-26 批次 24 T3 关闭：条目标题见 `docs/known-defects.md` KD-74（记录时点 `:2768`，2026-10-27 批次 25 T5 台账同步插入 KD-69/70 收口 Progress 后实读复核为 `:2774`），关闭 Progress 见同文件（记录时点 `:2778`，现 `:2784`）。三条件可逐项复核——① 记录回链 = `docs/research/2026-10-26-batch-23-record.md:202`（"KD-74 closed" 补记）与 `:415`（主会话等价裁定）；② 证据 = 批次 23 `docs/research/evidence/2026-10-26-batch-23/` 的 15 个 `.md`（`git ls-files docs/research/evidence/ | wc -l` = 15，E-00…E-09）；③ 主会话裁定 = 上述 `:415`。**本批 8 个 step 是对同一审计面的增量覆盖，不是关闭的必要条件，也不代表重开**；本批记录已生成（`docs/research/2026-10-26-batch-24-record.md`），其 §4 设备回链已补齐，见 §9。
 
 | KD-74 要求 | E-ID | 状态 | 备注 |
 |---|---|---|---|
@@ -127,8 +127,8 @@ du -sk "$E"
 ## 7. 回链检查
 
 - [x] 每个设备数字都有 `E-ID + path:line`（§3、§3.1；落盘员已逐条核对 §3 的 8 个 `step:line` 均指向各 step 的判定节）
-- [x] KD-74 关闭回链：`docs/known-defects.md:2768`/`:2778` + `docs/research/2026-10-26-batch-23-record.md:202`/`:415` + 批次 23 的 15 个已跟踪 `.md`（结论见 §4；行号按 2026-10-26 记录时点复核）
-- [x] `docs/known-defects.md` 的 **KD-66/69/70** Progress 引用本索引——已回填（KD-66 批次 24 设备轨 Progress、KD-70 批次 24 设备轨 Progress、KD-69 的 E-03 release 冒烟），见 `docs/known-defects.md:2607`/`:2676`/`:2705`（记录员可再按最新行号复核）
+- [x] KD-74 关闭回链：`docs/known-defects.md` KD-74 标题/关闭 Progress（记录时点 `:2768`/`:2778`；2026-10-27 批次 25 T5 台账同步后复核为 `:2774`/`:2784`） + `docs/research/2026-10-26-batch-23-record.md:202`/`:415` + 批次 23 的 15 个已跟踪 `.md`（结论见 §4；行号按 2026-10-26 记录时点复核）
+- [x] `docs/known-defects.md` 的 **KD-66/69/70** Progress 引用本索引——已回填（KD-66 批次 24 设备轨 Progress、KD-70 批次 24 设备轨 Progress、KD-69 的 E-03 release 冒烟）；**行号勘误（2026-10-27 批次 25 T5 台账同步时实读复核）**：本行原写 `:2607`/`:2676`/`:2705`，其中 `:2676`/`:2705` 与 KD-70/KD-69 错位（`:2676` 是 KD-69 的 E-03 回填、`:2705` 是 KD-70 的批次 24 Progress）——正确对应：KD-66 → `:2607`（未漂移）、KD-70 → `:2709`、KD-69 → `:2678`（后两者因批次 25 T5 在 KD-69 条目内插入收口 Progress 各 +4 行）
 - [x] 批次 24 记录 §4 的每个设备数字回链本索引——记录已生成（`docs/research/2026-10-26-batch-24-record.md`），§4 的 8 个设备数字（E-00…E-06）均带 `E-ID + evidence/2026-10-26-batch-24/<step>.md:<line>`
 - [x] 每个 E-file 有 `sanitized` 字段且扫描 0 命中（§6；唯一 home-path 命中是扫描正则自身）
 - [x] 没有把 `build/` 路径当作关闭证据（只出现在 `raw-log`）

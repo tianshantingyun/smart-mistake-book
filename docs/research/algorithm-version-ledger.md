@@ -528,6 +528,29 @@ AUD-17 校准结果互相替代。
 
 执行证据：批次 24 E-01/E-01b（隔离 6/6）、E-02（引擎 20/20）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
 
+### 3.35 批次 25 · 零 bump 判据登记（2026-10-27）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动；本批唯一协议面变更是 `VisualJsWire.PROTOCOL_VERSION` 1→2（KD-76 warm-up/ready，非算法版本串）
+
+> 依据：批次 25 计划 §1、批次记录 `docs/research/2026-10-27-batch-25-record.md` §1.3/§2.5、`docs/current/visual-generation-contract.md:72`、`docs/known-defects.md` KD-76。本批不 bump 任何算法版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：本批零 DB 改动 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告，工具面/提示词零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | **1→2（wire 协议面，非算法版本）** | AIDL 新增 `isReady()`（KD-76 warm-up/ready，批次 25 T2，`VisualJsProtocol.kt:35`）；两端同 APK 发布、旧/新组合在握手处 fail-closed 解绑（既有语义）；不改变任何算法输入/输出语义 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（沿用裁定，本批零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. T1 只补竞态交错用例与措辞改正（行为本体 `aabae781` 已定），零算法面。
+2. T2 warm-up/ready 是进程连接层状态机（服务 ready 门 + 客户端 loading 语义），不进投影/排程/打分/校准输入；`PROTOCOL_VERSION` 1→2 是传输面版本，不是算法版本串。
+3. T3 队列只改客户端请求调度（排队/合并/背压），单帧执行语义与预算不变。
+4. T4/T5/T6 为清单/台账/登记，零生产算法面。
+5. 后续若把 ready 预算、队列容量或 watchdog 预算写进算法口径（如影响生成质量分类），必须重新评估登记（当前无）。
+
+执行证据：设备 E-01（隔离 11/12 + Race 2/2）、E-03（引擎 20/20 @ 16KB×x86_64）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

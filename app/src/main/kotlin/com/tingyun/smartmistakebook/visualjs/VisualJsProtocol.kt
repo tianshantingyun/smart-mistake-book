@@ -27,8 +27,12 @@ import java.nio.charset.StandardCharsets
  * 收成一处，并让仪器化用例直接引用同一常量。
  */
 internal object VisualJsWire {
-    /** 协议版本；宿主在 onServiceConnected 里不等即解绑（fail-closed）。 */
-    const val PROTOCOL_VERSION: Int = 1
+    /**
+     * 协议版本；宿主在 onServiceConnected 里不等即解绑（fail-closed）。
+     * 批次 25 T2（KD-76）：1→2——新增 `isReady()` ready 查询。两端同 APK 发布，
+     * 旧/新组合在握手处 fail-closed 解绑（既有语义）。
+     */
+    const val PROTOCOL_VERSION: Int = 2
 
     // IVisualJsService.execute / initialize 的同步返回码。
     const val STATUS_ACCEPTED: Int = 0

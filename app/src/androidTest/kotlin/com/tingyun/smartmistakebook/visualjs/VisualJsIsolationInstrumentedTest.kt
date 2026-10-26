@@ -59,7 +59,18 @@ import java.util.concurrent.CopyOnWriteArrayList
  * 4. 宿主阶段超时（abandon）确认死亡后最多重建一次，重建实例可直接执行
  *    （[theClientRebuildsAtMostOnceAfterConfirmedAbandons]）；
  * 5. 冷启动 attach 超过旧 5 s 预算时首次执行仍成功
- *    （[aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram]）。
+ *    （[aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram]）；
+ * 6. 契约 §64 消费者校验负向（批次 25 T3，A-2①/A-5①/A-14）：畸形调用参数 BAD_REQUEST、
+ *    超 256 KiB 信封有界拒绝、并发第二请求单在飞 BUSY
+ *    （[aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot]、
+ *    [anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead]、
+ *    [aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight]）；
+ * 7. warm-up/ready（批次 25 T2，KD-76 ①/④/⑤）：ready 前后的 acquire 都有界且不误杀
+ *    （[anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled]）、首连
+ *    超时如实 FAILED 不锁存且有界重试
+ *    （[aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching]）、
+ *    ready 超时不锁存并重新 bind（[aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds]）。
+ *    KD-76 ③④⑤ 的设备判据（冷启动+CPU 竞争、日志无 watchdog 签名）仍以设备轨为准。
  *
  * 关键：**同进程单测不算隔离验证**（`Stub.asInterface` 在同进程返回本地对象）。这些用例必须
  * 起真实 `:visual_js` 进程：`workerUid != Process.myUid()`、watchdog SIGKILL 后 binder death、
@@ -101,6 +112,8 @@ class VisualJsIsolationInstrumentedTest {
     fun workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater() = runBlocking {
         val harness = harness()
         val service = harness.connect()
+        // 批次 25 T2（KD-76）：真实 execute 前等 warm-up ready；ready 前服务回 SHUTTING_DOWN。
+        assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
 
         assertEquals(VisualJsWire.PROTOCOL_VERSION, service.protocolVersion())
         assertNotEquals(
@@ -146,6 +159,9 @@ class VisualJsIsolationInstrumentedTest {
     fun aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp() = runBlocking {
         val harness = harness()
         val service = harness.connect()
+        // 批次 25 T2：ready 门在 generation 核对之前——ready 前的 execute 回 SHUTTING_DOWN
+        // 而不是 STALE，因此 stale 用例也必须先等 warm-up。
+        assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
 
         val generation = 202L
         assertEquals(VisualJsWire.STATUS_ACCEPTED, service.initialize(generation))
@@ -171,6 +187,8 @@ class VisualJsIsolationInstrumentedTest {
     fun theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState() = runBlocking {
         val first = harness()
         val service = first.connect()
+        // 批次 25 T2：warm 服务上的挂死负控（KD-76 ④）——ready 完成后 1500 ms 硬杀不变。
+        assertTrue("the worker never became ready (warm-up failed or hung)", first.awaitReady())
         val generation = 303L
         assertEquals(VisualJsWire.STATUS_ACCEPTED, service.initialize(generation))
 
@@ -197,6 +215,7 @@ class VisualJsIsolationInstrumentedTest {
         val second = harness()
         try {
             val freshService = second.connect()
+            assertTrue("the fresh worker never became ready", second.awaitReady())
             val freshGeneration = 304L
             assertEquals(VisualJsWire.STATUS_ACCEPTED, freshService.initialize(freshGeneration))
 
@@ -319,6 +338,249 @@ class VisualJsIsolationInstrumentedTest {
         )
     }
 
+    // ---------------------------------------------------------------- 消费者校验负向（批次 25 T3）
+
+    /**
+     * 契约 §64 末句"消费者须验证……不暴露宿主通用 RPC"的参数面负向用例（A-14）：缺失
+     * requestId / 缺失请求描述符 / 缺失回调一律 `STATUS_BAD_REQUEST`，且**不占**单在飞槽
+     * ——后续合法请求必须照常执行。
+     */
+    @Test
+    fun aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot() = runBlocking {
+        val harness = harness()
+        val service = harness.connect()
+        // 批次 25 T2：末尾的合法 execute 需要 warm-up ready（畸形参数检查在 ready 门之前，
+        // 上面的 BAD_REQUEST 断言不受影响）。
+        assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
+        val generation = 401L
+        assertEquals(VisualJsWire.STATUS_ACCEPTED, service.initialize(generation))
+
+        val pipe = ParcelFileDescriptor.createReliablePipe()
+        val sink = sinkCallback()
+        assertEquals(
+            "a null requestId must be rejected",
+            VisualJsWire.STATUS_BAD_REQUEST,
+            service.execute(generation, null, pipe[0], sink),
+        )
+        runCatching { pipe[0].close() }
+        runCatching { pipe[1].close() }
+        assertEquals(
+            "a null request descriptor must be rejected",
+            VisualJsWire.STATUS_BAD_REQUEST,
+            service.execute(generation, "no-descriptor", null, sink),
+        )
+        // 复核 1 轮修复（A-14 设备红例）：pipe[0]/pipe[1] 已在上面关闭，本负向调用必须
+        // 新开 pipe——复用已关闭描述符会在 binder 客户端编组期抛 Bad file descriptor，
+        // 事务到不了服务端，null-回调子断言拿不到设备证据。断言与期望值不放宽。
+        val callbackPipe = ParcelFileDescriptor.createReliablePipe()
+        assertEquals(
+            "a null callback must be rejected",
+            VisualJsWire.STATUS_BAD_REQUEST,
+            service.execute(generation, "no-callback", callbackPipe[0], null),
+        )
+        runCatching { callbackPipe[0].close() }
+        runCatching { callbackPipe[1].close() }
+
+        val good = harness.execute(generation, "after-malformed", pureGeometryRequest())
+        assertEquals(
+            "the worker must stay usable after malformed calls: ${good.diagnostics}",
+            VisualJsWire.RESULT_OK,
+            good.status,
+        )
+    }
+
+    /**
+     * A-2① 负向：超过 256 KiB 事务预算的信封必须被服务端**流式有界读**拒绝
+     * （`INPUT_OVER_BUDGET`），不先无界读入再拒绝；worker 仍可用。
+     */
+    @Test
+    fun anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead() = runBlocking {
+        val harness = harness()
+        val service = harness.connect()
+        // 批次 25 T2：超预算信封的有界读拒绝在 ready 门之后才发生——先等 warm-up。
+        assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
+        val generation = 402L
+        assertEquals(VisualJsWire.STATUS_ACCEPTED, service.initialize(generation))
+
+        val oversized = pureGeometryRequest().copy(stateJson = "x".repeat(300 * 1024))
+        val outcome = harness.execute(generation, "over-budget", oversized)
+        assertEquals(VisualJsWire.RESULT_REJECTED, outcome.status)
+        assertEquals(
+            VisualExecutionRejection.INPUT_OVER_BUDGET,
+            (outcome.asResult() as VisualExecutionResult.Rejected).reason,
+        )
+
+        val good = harness.execute(generation, "after-over-budget", pureGeometryRequest())
+        assertEquals(
+            "the worker must stay usable after an over-budget request: ${good.diagnostics}",
+            VisualJsWire.RESULT_OK,
+            good.status,
+        )
+    }
+
+    /**
+     * A-5① 负向（批次 24 复核确认缺失的直接覆盖）：并发第二请求在服务端单在飞 CAS 上
+     * 立即 `STATUS_BUSY`。确定性依据：第一请求经 `execute` 返回 ACCEPTED 时已占住槽位，
+     * issue-240 形状的自旋至少持续到 1500 ms watchdog SIGKILL；BUSY 分支不依赖时序。
+     */
+    @Test
+    fun aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight() = runBlocking {
+        val harness = harness()
+        val service = harness.connect()
+        // 批次 25 T2：单在飞 BUSY 检查在 ready 门之后——ready 前 execute 回 SHUTTING_DOWN。
+        assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
+        val generation = 403L
+        assertEquals(VisualJsWire.STATUS_ACCEPTED, service.initialize(generation))
+
+        val envelope = VisualJsProtocol.encodeRequest(issue240Request())
+        val pipe = ParcelFileDescriptor.createReliablePipe()
+        val accepted = service.execute(generation, "in-flight-1", pipe[0], sinkCallback())
+        runCatching { pipe[0].close() }
+        assertEquals("the in-flight request must be accepted", VisualJsWire.STATUS_ACCEPTED, accepted)
+        // 先 execute 后写信封（R1 高危项）；hung worker 由 watchdog 在 1500 ms 后 SIGKILL。
+        launch(Dispatchers.IO) {
+            runCatching {
+                ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).use { it.write(envelope) }
+            }
+        }
+
+        val second = harness.execute(generation, "concurrent-2", pureGeometryRequest())
+        assertEquals(
+            "a second concurrent request must hit the single-flight BUSY, got status=${second.status}",
+            VisualJsWire.STATUS_BUSY,
+            second.status,
+        )
+
+        assertTrue(
+            "the watchdog should kill the hung worker within 6 s",
+            withTimeoutOrNull(6_000L) { harness.deathSignal().await() } != null,
+        )
+    }
+
+    // ---------------------------------------------------------------- warm-up/ready（批次 25 T2）
+
+    /**
+     * KD-76 ①的服务端门 + ③的前置（直连 AIDL）：连接建立后**不等 ready** 直接 acquire，
+     * 无论落在 warm-up 前还是后都必须有界返回（SHUTTING_DOWN 或正常结果），绝不 fatal /
+     * 进程死亡——"ready 之前不 arm 程序 watchdog"由 execute 门结构性保证；ready 之后的
+     * 同一 worker 必须可用（warm-up 窗口没有任何 watchdog 误杀痕迹）。
+     */
+    @Test
+    fun anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled() = runBlocking {
+        val harness = harness()
+        val service = harness.connect()
+        val generation = 404L
+        assertEquals(VisualJsWire.STATUS_ACCEPTED, service.initialize(generation))
+
+        val racing = harness.execute(generation, "warm-up-race", pureGeometryRequest())
+        assertTrue(
+            "a pre-ready acquire must be bounded (SHUTTING_DOWN or a normal result), never " +
+                "fatal or a worker death: status=${racing.status} diagnostics=${racing.diagnostics}",
+            racing.status == VisualJsWire.STATUS_SHUTTING_DOWN ||
+                racing.status == VisualJsWire.RESULT_OK ||
+                racing.status == VisualJsWire.RESULT_REJECTED,
+        )
+        assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
+        assertTrue(
+            "the worker must survive the warm-up window (a watchdog misfire kills the process)",
+            !harness.deathSignal().isCompleted,
+        )
+        val after = harness.execute(generation, "after-ready", pureGeometryRequest())
+        assertEquals(
+            "status=${after.status} diagnostics=${after.diagnostics}",
+            VisualJsWire.RESULT_OK,
+            after.status,
+        )
+    }
+
+    /**
+     * KD-76 ⑤ / P-04 的核心行为（真实进程、真实 attach 推迟）：attach 预算内未连上是
+     * **loading**，不是结构性失败——请求如实 FAILED（ENGINE_CLOSED + loading 诊断）、
+     * **不锁存** `unavailable`、连接计数保持 0；下一次 execute 重新 bind（再次完整等待，
+     * 有界重试的语义落点；生命周期限次属 P-04）。旧实现一次失败即永久 unavailable。
+     */
+    @Test
+    fun aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching() = runBlocking {
+        val delayed = DelayedAttachContext(context, CONNECT_TIMEOUT_DELAY_MILLIS)
+        val engine = VisualJsClientEngine(delayed).also { clients.add(it) }
+
+        val first = engine.execute(pureGeometryRequest())
+        assertTrue("expected a bounded rejection, got $first", first is VisualExecutionResult.Rejected)
+        assertEquals(
+            VisualExecutionRejection.ENGINE_CLOSED,
+            (first as VisualExecutionResult.Rejected).reason,
+        )
+        assertTrue(
+            "the attach timeout must be reported as loading, got: ${first.diagnostics}",
+            first.diagnostics.contains("loading"),
+        )
+        assertFalse(
+            "a first-connect loading timeout must not latch the engine unavailable",
+            engine.unavailableForTest(),
+        )
+        assertEquals("the attach never completed; no connection may be counted", 0, engine.connectionCountForTest())
+
+        // 有界重试：第二次 execute 重新 bind（DelayedAttach 对每次 bind 重新推迟 attach），
+        // 再次如实 FAILED；锁存位仍必须是 false——"最终 FAILED"不是"永久 unavailable"。
+        val second = engine.execute(pureGeometryRequest())
+        assertTrue(
+            "the retry must also fail honestly (final FAILED), got $second",
+            second is VisualExecutionResult.Rejected &&
+                (second as VisualExecutionResult.Rejected).reason == VisualExecutionRejection.ENGINE_CLOSED,
+        )
+        assertFalse(
+            "repeated loading timeouts must not latch the engine unavailable",
+            engine.unavailableForTest(),
+        )
+        assertEquals(0, engine.connectionCountForTest())
+    }
+
+    /**
+     * KD-76 ⑤ 的 ready 超时分支（确定性）：真实 warm-up 总会完成，无法在真服务上触达
+     * ready 超时；夹具注入"永不上报 ready"的本地 fake binder + 短 ready 预算（测试 seam）。
+     * 断言：请求如实 FAILED（ENGINE_CLOSED + not-ready 诊断）、不锁存 unavailable、
+     * 重试真的重新握手（connectionCount 增长）、terminate 后死亡确认走本地事实分支
+     * （isBinderAlive 翻假），不触发 fail-closed。
+     */
+    @Test
+    fun aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds() = runBlocking {
+        val faked = NotReadyWorkerContext(context)
+        val engine = VisualJsClientEngine(faked).also { clients.add(it) }
+        engine.readyTimeoutOverrideForTest = 250L
+
+        val first = engine.execute(pureGeometryRequest())
+        assertTrue("expected a bounded rejection, got $first", first is VisualExecutionResult.Rejected)
+        assertEquals(
+            VisualExecutionRejection.ENGINE_CLOSED,
+            (first as VisualExecutionResult.Rejected).reason,
+        )
+        assertTrue(
+            "the ready timeout must be reported as not ready/loading: ${first.diagnostics}",
+            first.diagnostics.contains("not become ready") || first.diagnostics.contains("loading"),
+        )
+        assertFalse(
+            "a ready timeout must not latch the engine unavailable",
+            engine.unavailableForTest(),
+        )
+        assertEquals(
+            "the first bind's handshake succeeded once (a ready timeout does not un-count the handshake)",
+            1,
+            engine.connectionCountForTest(),
+        )
+
+        // 有界重试：重新 bind + 重新等 ready（假 worker 仍不 ready）→ 再次如实 FAILED。
+        val second = engine.execute(pureGeometryRequest())
+        assertTrue(
+            "the retry must re-bind and fail honestly again, got $second",
+            second is VisualExecutionResult.Rejected,
+        )
+        assertFalse(
+            "repeated ready timeouts must not latch the engine unavailable",
+            engine.unavailableForTest(),
+        )
+        assertEquals(2, engine.connectionCountForTest())
+    }
+
     // ---------------------------------------------------------------- 夹具
 
     private fun pureGeometryRequest(explicitUserRetry: Boolean = false) =
@@ -376,6 +638,26 @@ class VisualJsIsolationInstrumentedTest {
         theme = "light",
     )
 
+    /** 只吞结果/致命通知的回调桩：负向用例（BAD_REQUEST / 并发 BUSY）不关心结果载荷。 */
+    private fun sinkCallback(): IVisualJsCallback = object : IVisualJsCallback.Stub() {
+        override fun onResult(
+            generation: Long,
+            callbackRequestId: String?,
+            status: Int,
+            payload: ParcelFileDescriptor?,
+            diagnostics: String?,
+        ) {
+            runCatching { payload?.close() }
+        }
+
+        override fun onFatal(
+            generation: Long,
+            callbackRequestId: String?,
+            code: Int,
+            diagnostics: String?,
+        ) = Unit
+    }
+
     private companion object {
         /**
          * 设备实测冷启动 attach 4.6–7.5 s（E-01d）。取 7.6 s（实测上界 + 100 ms），
@@ -383,6 +665,12 @@ class VisualJsIsolationInstrumentedTest {
          * `bindService`，避免把"延迟"与"真实进程 fork"串行相加。
          */
         const val COLD_START_ATTACH_DELAY_MILLIS: Long = 7_600L
+
+        /**
+         * 首连超时夹具的 attach 推迟量：超过生产首连预算 15 s（bind + 16 s 交付 attach），
+         * 客户端必在预算内超时 → loading 分支。1 s 余量覆盖调度抖动。
+         */
+        const val CONNECT_TIMEOUT_DELAY_MILLIS: Long = 16_000L
     }
 }
 
@@ -442,6 +730,66 @@ private class DelayedAttachContext(
         attachDeadlines.remove(conn)
         val delegate = delegates.remove(conn) ?: conn
         baseContext.unbindService(delegate)
+    }
+}
+
+/**
+ * ready 超时夹具（批次 25 T2，KD-76 ⑤）：拦截 [bindService]，不启动真实 `:visual_js`，
+ * 立即在主线程回一个"永不 ready"的本地 fake binder。与 [DelayedAttachContext] 的差异：
+ * 这里握手照常完成（attach 无延迟），卡的是握手**之后**的 warm-up ready——真实服务上
+ * warm-up 总会完成，该分支只有假 binder 才能确定性触达。
+ *
+ * 平台前提（AOSP `android-14.0.0_r1` `Binder.java` 本轮实读）：本地 binder 的
+ * `linkToDeath`/`unlinkToDeath` 是 no-op 不抛；`isBinderAlive()` 本地恒 true 且非 final，
+ * 可覆写。terminate 后翻假 → 客户端死亡确认走 `awaitDeathConfirmation` 的本地事实分支
+ * （markDead）→ 确认成功，不触发 fail-closed。同进程直连不产生任何远端调用。
+ */
+private class NotReadyWorkerContext(base: Context) : ContextWrapper(base) {
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    override fun bindService(service: Intent, conn: ServiceConnection, flags: Int): Boolean {
+        handler.post { conn.onServiceConnected(null, NeverReadyWorkerStub()) }
+        return true
+    }
+
+    // 未发生真实 binding，无可解绑；客户端拆卸路径的 unbindService 全部 no-op。
+    override fun unbindService(conn: ServiceConnection) = Unit
+}
+
+/** 永不上报 ready 的本地 fake worker（批次 25 T2 ready 超时夹具的唯一 fake）。 */
+private class NeverReadyWorkerStub : IVisualJsService.Stub() {
+
+    @Volatile
+    private var alive = true
+
+    /** 本地 binder 恒真 → 覆写：terminate 后翻假，供死亡确认的 isBinderAlive 轮询读取。 */
+    override fun isBinderAlive(): Boolean = alive
+
+    override fun protocolVersion(): Int = VisualJsWire.PROTOCOL_VERSION
+
+    // != 宿主 UID：通过隔离检查（真实值不重要，隔离断言由真进程用例覆盖）。
+    override fun workerUid(): Int = 990_001
+
+    override fun currentGeneration(): Long = 0L
+
+    override fun initialize(generation: Long): Int = VisualJsWire.STATUS_ACCEPTED
+
+    override fun isReady(): Boolean = false
+
+    override fun execute(
+        generation: Long,
+        requestId: String?,
+        request: ParcelFileDescriptor?,
+        callback: IVisualJsCallback?,
+    ): Int {
+        // ready 恒假：客户端在 ready 等待里就会放弃，正常流程到不了这里。
+        runCatching { request?.close() }
+        return VisualJsWire.STATUS_SHUTTING_DOWN
+    }
+
+    override fun terminate(generation: Long) {
+        alive = false
     }
 }
 
@@ -522,6 +870,23 @@ internal class VisualJsServiceHarness(private val context: Context) {
         }
         withTimeout(CONNECT_TIMEOUT_MILLIS) { connected.await() }
         return checkNotNull(service) { "onServiceConnected never supplied a binder" }
+    }
+
+    /**
+     * 轮询服务端 ready（批次 25 T2，KD-76 ①：warm-up 完成标志）。新协议下直连用例必须在
+     * 真实 execute 前等 ready——服务端 execute 在 ready 前回 SHUTTING_DOWN（结构性保证：
+     * "ready 之前不 arm 程序 watchdog"）。attach 与 ready 是两个独立事实：连接建立时
+     * warm-up 可能仍在跑。
+     */
+    suspend fun awaitReady(timeoutMillis: Long = READY_WAIT_MILLIS): Boolean {
+        val target = checkNotNull(service) { "the harness is not connected" }
+        val deadline = SystemClock.uptimeMillis() + timeoutMillis
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (died.isCompleted) return false
+            if (target.isReady()) return true
+            delay(READY_POLL_MILLIS)
+        }
+        return !died.isCompleted && target.isReady()
     }
 
     fun deathSignal(): CompletableDeferred<Unit> = died
@@ -623,6 +988,13 @@ internal class VisualJsServiceHarness(private val context: Context) {
 
     private companion object {
         const val CONNECT_TIMEOUT_MILLIS: Long = 10_000L
+
+        /** harness ready 轮询预算：真实 warm-up 含原生装载，冷启动下可能秒级——给足上界。 */
+        const val READY_WAIT_MILLIS: Long = 30_000L
+
+        /** harness ready 轮询间隔。 */
+        const val READY_POLL_MILLIS: Long = 100L
+
         const val EXECUTION_WAIT_MILLIS: Long =
             VisualExecutionBudget.HOST_PHASE_DEADLINE_MILLIS + 8_000L
     }
