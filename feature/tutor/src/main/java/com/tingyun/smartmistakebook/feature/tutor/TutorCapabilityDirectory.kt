@@ -2,7 +2,19 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
+import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
+import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -14,7 +26,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
 
 /**
  * 空态里的一条能力（它能干什么）。
@@ -52,7 +65,7 @@ internal fun agentCapabilityDirectory(
     TutorCapability(
         id = "explain",
         title = "讲一道题",
-        detail = "把题面、截图或一段推导发来，它一步一步讲；卡在哪一步就直接说。",
+        detail = "发送题目、截图或推导过程，告诉我哪一步没懂。",
         examples = listOf(
             TutorCapabilityExample("函数单调性怎么判断？", "tutor_example_monotonicity"),
             TutorCapabilityExample("帮我看看错题本里最近常错什么", "tutor_example_notebook"),
@@ -61,7 +74,7 @@ internal fun agentCapabilityDirectory(
     TutorCapability(
         id = "capture",
         title = "录入并讲解",
-        detail = "拍照或从相册选一道题，题面准备好后直接开始讲这道题。",
+        detail = "拍照或选图，整理题面后开始讲解。",
         examples = listOf(
             TutorCapabilityExample(
                 "我想拍一道题，你先说说这类题一般从哪下手",
@@ -75,7 +88,7 @@ internal fun agentCapabilityDirectory(
     TutorCapability(
         id = "pick-from-notebook",
         title = "从错题本挑一道",
-        detail = "在错题本里选一道，这一轮就讲它。",
+        detail = "选择一道已保存的题，继续讲解。",
         examples = listOf(
             TutorCapabilityExample(
                 "从我错题本里挑一道最该复习的，讲讲它的思路",
@@ -89,7 +102,7 @@ internal fun agentCapabilityDirectory(
     TutorCapability(
         id = "open-notebook",
         title = "去错题本看看",
-        detail = "需要查以前的题、或者核对某道题的记录时，从那里进。",
+        detail = "查看已保存的题和学习记录。",
         examples = listOf(
             TutorCapabilityExample(
                 "我的错题本里现在大概有些什么？",
@@ -109,6 +122,7 @@ internal fun agentCapabilityDirectory(
  * 不是它的替代品。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun TutorCapabilityDirectory(
     capabilities: List<TutorCapability>,
     modifier: Modifier = Modifier,
@@ -120,19 +134,23 @@ internal fun TutorCapabilityDirectory(
             .fillMaxWidth()
             .padding(top = 4.dp)
             .testTag(TUTOR_CAPABILITY_DIRECTORY_TAG),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            text = "把题目、推导或困惑发来。你也可以直接拍题，或从错题本选一道题。",
+            text = "也可以从这里开始。",
             modifier = Modifier.testTag("tutor_empty_state"),
             color = InkSecondary,
-            style = MaterialTheme.typography.bodyMedium,
+            style = ClaudeLayout.ControlText,
         )
-        Text(
-            text = "它能做什么",
-            color = Ink,
-            style = MaterialTheme.typography.titleSmall,
-        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            capabilities.forEach { capability ->
+                val label = capability.actionLabel
+                val action = capability.onAction
+                if (label != null && action != null) {
+                    TutorSuggestionChip(label, action, capability.actionTestTag ?: "tutor_capability_action_${capability.id}")
+                }
+            }
+        }
         capabilities.forEach { capability ->
             Column(
                 modifier = Modifier
@@ -140,43 +158,30 @@ internal fun TutorCapabilityDirectory(
                     .testTag("tutor_capability_${capability.id}"),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                Text(
-                    text = capability.title,
-                    color = Ink,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = capability.detail,
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
                 if (capability.examples.isNotEmpty()) {
-                    Row(
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                        itemVerticalAlignment = Alignment.CenterVertically,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         capability.examples.forEach { example ->
-                            OutlineActionChip(
-                                text = example.text,
-                                onClick = { onExample(example.text) },
-                                modifier = Modifier.testTag(example.testTag),
-                            )
+                            TutorSuggestionChip(example.text, { onExample(example.text) }, example.testTag)
                         }
                     }
                 }
-                val actionLabel = capability.actionLabel
-                val onAction = capability.onAction
-                if (actionLabel != null && onAction != null) {
-                    OutlineActionChip(
-                        text = actionLabel,
-                        onClick = onAction,
-                        modifier = Modifier.testTag(
-                            capability.actionTestTag ?: "tutor_capability_action_${capability.id}",
-                        ),
-                    )
-                }
             }
         }
+    }
+}
+
+@Composable
+private fun TutorSuggestionChip(text: String, onClick: () -> Unit, testTag: String) {
+    val shape = RoundedCornerShape(12.dp)
+    Box(Modifier.heightIn(min = 48.dp).background(ContentSurface, shape)
+        .border(1.dp, Ink.copy(alpha = .1f), shape)
+        .claudeInteractiveRow(onClick, shape = shape).padding(horizontal = 12.dp, vertical = 10.dp).testTag(testTag),
+        contentAlignment = Alignment.CenterStart) {
+        Text(text, color = InkSecondary, style = ClaudeLayout.ControlText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

@@ -11,7 +11,11 @@ import com.tingyun.smartmistakebook.core.database.port.MistakeRevisionWritePort
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemCommand
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemResult
 import com.tingyun.smartmistakebook.core.database.port.RevisedProblemRevisionRecord
+import com.tingyun.smartmistakebook.core.data.capture.ExplicitRedrawService
 import com.tingyun.smartmistakebook.core.domain.ArchivedMistakeRef
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawRequestResult
+import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawState
 import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
@@ -89,6 +93,16 @@ internal fun interface MistakeRevisionWriter {
     suspend fun revise(command: ReviseCommittedProblemCommand): ReviseCommittedProblemResult
 }
 
+/** 显式重绘命令口（4E WG-06 T3）：没有接线的仓库默认[ExplicitRedrawRequestResult.NotSupported]。 */
+internal fun interface ExplicitRedrawRequester {
+    suspend fun request(command: ExplicitRedrawCommand): ExplicitRedrawRequestResult
+}
+
+/** 显式重绘状态观察口：只读，观察不派发。 */
+internal fun interface ExplicitRedrawObserver {
+    fun observe(problemRevisionId: String): Flow<ExplicitRedrawState>
+}
+
 internal class RoomMistakeDetailRepository(
     private val recordReader: MistakeDetailRecordReader,
     private val exactRecordReader: ExactMistakeDetailRecordReader,
@@ -107,7 +121,26 @@ internal class RoomMistakeDetailRepository(
     private val archivedObserver: ArchivedObserver =
         ArchivedObserver { kotlinx.coroutines.flow.flowOf(emptyList()) },
     private val revisionWriter: MistakeRevisionWriter? = null,
+    /** 4E WG-06 T3：没有接线的装配不显示重绘入口（默认 NotSupported/Idle）。 */
+    private val explicitRedrawRequester: ExplicitRedrawRequester? = null,
+    private val explicitRedrawObserver: ExplicitRedrawObserver? = null,
 ) : MistakeDetailRepository {
+    override fun supportsExplicitRedraw(): Boolean =
+        explicitRedrawRequester != null && explicitRedrawObserver != null
+
+    override fun observeExplicitRedraw(problemRevisionId: String): Flow<ExplicitRedrawState> {
+        require(problemRevisionId.isNotBlank()) {
+            "An explicit redraw revision id must not be blank"
+        }
+        return explicitRedrawObserver?.observe(problemRevisionId)
+            ?: kotlinx.coroutines.flow.flowOf(ExplicitRedrawState.Idle)
+    }
+
+    override suspend fun requestExplicitRedraw(
+        command: ExplicitRedrawCommand,
+    ): ExplicitRedrawRequestResult =
+        explicitRedrawRequester?.request(command) ?: ExplicitRedrawRequestResult.NotSupported
+
     override suspend fun archiveEntry(entryId: String, at: Long): Boolean {
         require(entryId.isNotBlank()) { "entryId must not be blank" }
         require(at >= 0) { "at must not be negative" }
@@ -443,9 +476,14 @@ internal class RoomMistakeDetailRepository(
 }
 
 object MistakeDetailRepositoryFactory {
+    /**
+     * @param explicitRedraw 用户显式重绘服务（4E WG-06 T3）。null = 本装配没有这条链：
+     *   详情页不显示重绘入口，仓库对命令如实回 `NotSupported`（不假装接受）。
+     */
     fun create(
         context: Context,
         database: StudyDatabasePort,
+        explicitRedraw: ExplicitRedrawService? = null,
     ): MistakeDetailRepository {
         val assetVault = AndroidCanonicalAssetVault(context.applicationContext)
         return RoomMistakeDetailRepository(
@@ -482,6 +520,12 @@ object MistakeDetailRepositoryFactory {
             // as NotSupported instead of pretending they were saved.
             revisionWriter = (database as? MistakeRevisionWritePort)?.let { port ->
                 MistakeRevisionWriter { command -> port.reviseCommittedProblem(command) }
+            },
+            explicitRedrawRequester = explicitRedraw?.let { service ->
+                ExplicitRedrawRequester { command -> service.request(command) }
+            },
+            explicitRedrawObserver = explicitRedraw?.let { service ->
+                ExplicitRedrawObserver { revisionId -> service.observe(revisionId) }
             },
         )
     }

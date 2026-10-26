@@ -27,7 +27,7 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     // Markdown rendering
-    implementation(libs.richtext.commonmark)
+    implementation(project(":core:markdown"))
     implementation(libs.richtext.ui.material3)
 
     testImplementation(libs.junit)

@@ -31,7 +31,6 @@ import com.tingyun.smartmistakebook.core.model.AppFailure
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
@@ -51,6 +50,7 @@ import com.tingyun.smartmistakebook.core.ui.studentLabel
 internal fun LearningMasteryScreen(
     overview: StudyProfileOverview,
     onBack: () -> Unit,
+    onOpenLibrary: () -> Unit = onBack,
     nowEpochMillis: Long = System.currentTimeMillis(),
     failure: AppFailure? = null,
     onRetry: (() -> Unit)? = null,
@@ -74,7 +74,7 @@ internal fun LearningMasteryScreen(
             title = "还没有学习记录",
             supportingText = "你做过并保存的题会自动整理到相应科目和知识点，不需要手动填写。",
             actionLabel = "去错题本看看",
-            onAction = onBack,
+            onAction = onOpenLibrary,
         )
         else -> null
     }
@@ -189,7 +189,7 @@ private fun LearningMasterySummary(
                 "已根据现有作答记录整理"
             },
             modifier = Modifier.padding(top = 12.dp),
-            color = InkMuted,
+            color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
         )
     }
@@ -246,7 +246,7 @@ private fun RecentLearningChanges(
                 }
                 Text(
                     text = recentActivityLabel(occurredAt, nowEpochMillis),
-                    color = InkMuted,
+                    color = InkSecondary,
                     style = MaterialTheme.typography.labelMedium,
                 )
             }

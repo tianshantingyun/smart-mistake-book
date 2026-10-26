@@ -32,6 +32,7 @@ import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome
 import com.tingyun.smartmistakebook.core.model.TutorTurnToolTrace
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 确认卡的三条执行路径落在哪里（A4）：**装配处注入**，界面层只负责路由与呈现。
@@ -83,6 +84,7 @@ internal class TutorPendingRequestCommands(
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     private val consent = TutorConsentRequests(requests)
+    private val decidingRequestIds = ConcurrentHashMap.newKeySet<String>()
 
     /**
      * 把一条**已准入**的动作挂成一张落库的卡（行先落库，相位才推进）。
@@ -118,6 +120,20 @@ internal class TutorPendingRequestCommands(
      * @return 裁决后的回合相位与回喂行；行不存在 / 落库未接上时返回 null。
      */
     suspend fun decide(
+        state: TutorSendState,
+        requestId: String,
+        decision: AgentPendingRequestDecision,
+    ): TutorPendingDecision? {
+        // Terminal settlement happens after the landing. Guard that whole interval, per card.
+        if (!decidingRequestIds.add(requestId)) return null
+        try {
+            return decideOnce(state, requestId, decision)
+        } finally {
+            decidingRequestIds.remove(requestId)
+        }
+    }
+
+    private suspend fun decideOnce(
         state: TutorSendState,
         requestId: String,
         decision: AgentPendingRequestDecision,

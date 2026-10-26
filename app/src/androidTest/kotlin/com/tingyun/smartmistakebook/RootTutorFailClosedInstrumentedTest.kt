@@ -30,6 +30,10 @@ import com.tingyun.smartmistakebook.core.domain.StudyReviewChoiceSubmissionResul
 import com.tingyun.smartmistakebook.core.domain.StudyReviewOverview
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionProgress
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
+import com.tingyun.smartmistakebook.core.domain.ReviewSelfReportKey
+import com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer
+import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewSubmission
+import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewResult
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlement
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementResult
 import com.tingyun.smartmistakebook.core.domain.TutorJudgedReviewSettlementStatus
@@ -91,6 +95,7 @@ class RootTutorFailClosedInstrumentedTest {
 
     @Before
     fun requireTutorTeachingCapability() {
+        DestructiveDeviceTestGuard.requireExplicitOptIn()
         val application = InstrumentationRegistry.getInstrumentation()
             .targetContext
             .applicationContext as SmartMistakeBookApplication
@@ -145,7 +150,7 @@ class RootTutorFailClosedInstrumentedTest {
         // 不许把刚刚那一道（A）的产物、题干或选项当作 B 的题面顶上。
         waitUntil { SECOND_PRACTICE_UNIT_ID in repository.artifactRequests }
         waitForText(LOADING_ARTIFACT_COPY)
-        composeRule.onAllNodesWithTag("review_session_root").assertCountEquals(0)
+        composeRule.onAllNodesWithTag("review_self_report_root").assertCountEquals(0)
         composeRule.onAllNodesWithText(TUTOR_TITLE, substring = false).assertCountEquals(0)
         composeRule.onAllNodesWithTag("review_choice_A").assertCountEquals(0)
         composeRule.onAllNodesWithTag("review_choice_B").assertCountEquals(0)
@@ -154,7 +159,7 @@ class RootTutorFailClosedInstrumentedTest {
         repository.releaseArtifact(SECOND_PRACTICE_UNIT_ID)
         waitForText(SECOND_TITLE)
         waitForText("第 2 / 2 题")
-        waitForTag("review_session_root")
+        waitForTag("review_self_report_root")
         waitForTag("review_choice_B")
         composeRule.onAllNodesWithText(TUTOR_TITLE, substring = false).assertCountEquals(0)
 
@@ -181,17 +186,17 @@ class RootTutorFailClosedInstrumentedTest {
         )
         assertEquals(
             listOf(TUTOR_PRACTICE_UNIT_ID),
-            repository.submissions.map(StudyChoiceSubmission::practiceUnitId),
+            repository.selfReports.map(StudySelfReportedReviewSubmission::practiceUnitId),
         )
         submitChoiceOnTheDisplayedUnit()
         assertEquals(
             listOf(TUTOR_PRACTICE_UNIT_ID, SECOND_PRACTICE_UNIT_ID),
-            repository.submissions.map(StudyChoiceSubmission::practiceUnitId),
+            repository.selfReports.map(StudySelfReportedReviewSubmission::practiceUnitId),
         )
         assertEquals(
             "两次作答是两个呈现，不许共用一个 presentationId",
             2,
-            repository.submissions.map(StudyChoiceSubmission::presentationId).distinct().size,
+            repository.selfReports.map(StudySelfReportedReviewSubmission::presentationId).distinct().size,
         )
     }
 
@@ -202,28 +207,24 @@ class RootTutorFailClosedInstrumentedTest {
         )
         startReviewSession()
         waitForText(TUTOR_TITLE)
-        waitForTag("review_reveal_answer")
-
-        composeRule.onNodeWithTag("review_reveal_answer").performScrollTo().performClick()
+        // The current self-report flow exposes the stored answer only after an actual report.
+        submitChoiceOnTheDisplayedUnit()
         waitUntil { repository.revealRequests.size == 1 }
-        waitForTag("review_explanation")
+        waitForTag("review_stored_answer")
         assertEquals(
             TUTOR_PRACTICE_UNIT_ID,
             repository.revealRequests.single().practiceUnitId,
         )
 
-        submitChoiceOnTheDisplayedUnit()
         advanceToTheNextUnitInTheQueue()
         waitForText(SECOND_TITLE)
 
-        // 上一单元的"已揭示"不许跟过来：讲解面不在，按钮回到未揭示的措辞。
-        composeRule.onAllNodesWithTag("review_explanation").assertCountEquals(0)
-        composeRule.onAllNodesWithText(REVEAL_OPEN_COPY).assertCountEquals(0)
-        composeRule.onNodeWithText(REVEAL_HIDDEN_COPY).assertExists()
-
-        composeRule.onNodeWithTag("review_reveal_answer").performScrollTo().performClick()
+        // The next question must start unreported, without the previous answer panel or receipt.
+        composeRule.onAllNodesWithTag("review_stored_answer").assertCountEquals(0)
+        composeRule.onAllNodesWithTag("review_self_report_receipt").assertCountEquals(0)
+        submitChoiceOnTheDisplayedUnit()
         waitUntil { repository.revealRequests.size == 2 }
-        waitForTag("review_explanation")
+        waitForTag("review_stored_answer")
 
         val first = repository.revealRequests[0]
         val second = repository.revealRequests[1]
@@ -243,7 +244,7 @@ class RootTutorFailClosedInstrumentedTest {
         waitForTag("nav_library")
         composeRule.onNodeWithTag("nav_library").performClick()
         waitForTag("library_empty_state")
-        waitForText("还没有错题")
+        waitForText("暂无错题")
         composeRule.onAllNodesWithTag("library_capture_button").assertCountEquals(1)
         composeRule.onAllNodesWithTag("library_search_field").assertCountEquals(0)
         composeRule.onAllNodesWithText(TUTOR_TITLE, substring = false).assertCountEquals(0)
@@ -307,7 +308,7 @@ class RootTutorFailClosedInstrumentedTest {
         // 否则可能点在还没启用（scheduledCount = 0）的按钮上，什么都不发生。
         waitForText(REVIEW_START_COPY)
         composeRule.onNodeWithTag("review_start_button").performScrollTo().performClick()
-        waitForTag("review_session_root")
+        waitForTag("review_self_report_root")
     }
 
     /**
@@ -315,10 +316,11 @@ class RootTutorFailClosedInstrumentedTest {
      * 所以这一次作答落在哪一道上，就是这个断言要钉的"配对"。
      */
     private fun submitChoiceOnTheDisplayedUnit() {
-        val submittedBefore = repository.submissions.size
+        val submittedBefore = repository.selfReports.size
         composeRule.onNodeWithTag("review_choice_A").performScrollTo().performClick()
-        composeRule.onNodeWithTag("review_submit_answer").performScrollTo().performClick()
-        waitUntil { repository.submissions.size == submittedBefore + 1 }
+        composeRule.onNodeWithTag("review_key_good").performScrollTo().performClick()
+        waitUntil { repository.selfReports.size == submittedBefore + 1 }
+        waitForTag("review_self_report_receipt")
     }
 
     /** 真实学生的推进路径：提交结果里的 `nextPracticeUnitId` 决定下一道，点的是那次推进的按钮。 */
@@ -348,8 +350,13 @@ class RootTutorFailClosedInstrumentedTest {
     }
 
     private fun waitForTag(tag: String) {
-        waitUntil {
-            composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        try {
+            waitUntil {
+                composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+            }
+        } catch (failure: Throwable) {
+            throw AssertionError("Waiting for $tag; review=${repository.snapshot.value.review}\n" +
+                composeRule.onRoot(useUnmergedTree = true).printToString(), failure)
         }
     }
 
@@ -431,6 +438,7 @@ private class ControllableStudyExperienceRepository : StudyExperienceRepository 
     val artifactRequests = CopyOnWriteArrayList<String>()
     val completedArtifactRequests = CopyOnWriteArrayList<String>()
     val submissions = CopyOnWriteArrayList<StudyChoiceSubmission>()
+    val selfReports = CopyOnWriteArrayList<StudySelfReportedReviewSubmission>()
     val settleCalls = CopyOnWriteArrayList<TutorJudgedReviewSettlement>()
     val revealRequests = CopyOnWriteArrayList<StudyAnswerRevealRequest>()
 
@@ -695,6 +703,40 @@ private class ControllableStudyExperienceRepository : StudyExperienceRepository 
             outcomeId = "reveal:${request.requestId}",
             created = true,
             explanationMarkdown = requireArtifact(request.practiceUnitId).explanationMarkdown,
+        )
+    }
+
+    override suspend fun storedReviewAnswer(practiceUnitId: String): ReviewStoredAnswer? {
+        // This captured-source fixture deliberately has no trusted stored answer or teaching artifact.
+        if (practiceUnitId == RootTutorFailClosedInstrumentedTest.CAPTURED_PRACTICE_UNIT_ID) return null
+        val artifact = requireArtifact(practiceUnitId)
+        val item = artifact.assessmentItems.single()
+        return ReviewStoredAnswer(
+            answerMarkdown = item.choices.single { it.id == item.correctChoiceId }.markdown,
+            explanationMarkdown = artifact.explanationMarkdown,
+        )
+    }
+
+    override suspend fun submitReviewSelfReport(
+        submission: StudySelfReportedReviewSubmission,
+    ): StudySelfReportedReviewResult {
+        selfReports += submission
+        // Reuse this fake's queue advancement, while retaining the actual self-report request.
+        val advanced = submitReviewChoice(submission.sessionId, submission.expectedStateVersion,
+            StudyChoiceSubmission(
+                requestId = submission.requestId, presentationId = submission.presentationId,
+                practiceUnitId = submission.practiceUnitId,
+                selectedChoiceId = requireNotNull(submission.selectedChoiceId),
+                responseOrdinal = submission.responseOrdinal, durationSeconds = submission.durationSeconds,
+                occurredAtEpochMillis = submission.occurredAtEpochMillis,
+            ))
+        return StudySelfReportedReviewResult(
+            attemptId = advanced.attempt.attemptId, created = advanced.attempt.created,
+            evidenceReason = if (submission.key == ReviewSelfReportKey.AGAIN) {
+                LearningEvidenceReason.SELF_REPORTED_STUCK
+            } else LearningEvidenceReason.SELF_REPORTED_RECALL,
+            objectiveChoiceCorrect = advanced.attempt.isCorrect,
+            progress = advanced.progress, nextPracticeUnitId = advanced.nextPracticeUnitId,
         )
     }
 

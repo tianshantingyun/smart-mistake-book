@@ -24,11 +24,10 @@ class MistakeDetailUiPolicyTest {
             MistakeSourceSet.Present(listOf(asset)).displayAssets(),
         )
         assertEquals(
-            "原图记录存在，但本机文件当前不可用。",
+            "图片文件暂时无法读取。",
             sourceStatusText(
                 hasLocalLocation = false,
                 loadState = LocalImageLoadState.UNAVAILABLE,
-                expanded = false,
             ),
         )
     }
@@ -36,11 +35,10 @@ class MistakeDetailUiPolicyTest {
     @Test
     fun failedLocalDecodeDoesNotClaimThatTheImageWasShown() {
         assertEquals(
-            "原图文件暂时打不开。",
+            "图片暂时无法显示。",
             sourceStatusText(
                 hasLocalLocation = true,
                 loadState = LocalImageLoadState.UNAVAILABLE,
-                expanded = false,
             ),
         )
     }

@@ -1,5 +1,10 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
+
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -70,6 +75,29 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class MistakeOrganizationInstrumentedTest {
+    @Test fun classificationRowsStayLockedWhileSaving() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val organization = FakeOrganizationRepository().apply { confirmGate = gate }
+        composeRule.setContent { SmartMistakeBookTheme {
+            MistakeDetailContent(state = readyState(), onBack = {}, onExport = {},
+                organizationRepository = organization, modelTasks = successfulModelTasks(), profile = StudyProfileOverview())
+        } }
+        waitForTag("mistake_organization_applied")
+        composeRule.onNodeWithTag("mistake_organization_correct_toggle").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_classification_0").assertIsOn()
+        composeRule.onNodeWithTag("mistake_organization_confirm").performScrollTo().performClick()
+        composeRule.waitUntil(10_000) { organization.confirmCallCount == 1 }
+        try {
+            val row = composeRule.onNodeWithTag("mistake_classification_0")
+            row.performScrollTo().assertIsNotEnabled().assertIsOn()
+            row.performTouchInput { click(center) }
+            row.assertIsOn()
+            composeRule.runOnIdle {
+                assertEquals(1, organization.confirmCallCount)
+                assertEquals(setOf(0, 1), requireNotNull(organization.lastSelection).classificationIndexes)
+            }
+        } finally { gate.complete(Unit) }
+    }
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -674,6 +702,7 @@ class MistakeOrganizationInstrumentedTest {
         ),
     ) : MistakeOrganizationRepository {
         var lastSelection: ProblemOrganizationSelection? = null
+        var confirmGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
         var appliedRequestId: String? = null
         var applyCallCount: Int = 0
         var prepareCallCount: Int = 0
@@ -800,6 +829,7 @@ class MistakeOrganizationInstrumentedTest {
         ): ProblemOrganizationConfirmation {
             lastSelection = selection
             confirmCallCount += 1
+            confirmGate?.await()
             userCorrected = true
             // 与真实现一致：保存后确认集合 = 勾选的模型建议 + 用户补充/树选择（USER_CORRECTED）。
             confirmed.value = ConfirmedMistakeOrganization(

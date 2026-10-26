@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,11 +13,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -204,7 +205,7 @@ fun CapturedReviewSessionScreen(
             trackColor = SmartColors.Track,
         )
         Spacer(Modifier.height(12.dp))
-        LocalModeLine(text = "第 $safeQueuePosition / $safeQueueSize 题 · 复做你保存的原题")
+        LocalModeLine(text = "第 $safeQueuePosition / $safeQueueSize 题 · 重做已保存的原题")
         PaperDivider(Modifier.padding(vertical = 18.dp))
         SectionHeader(title = entry.title)
         Spacer(Modifier.height(12.dp))
@@ -264,9 +265,9 @@ fun CapturedReviewSessionScreen(
                 if (revealWriteFailed) {
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "已存答案的曝光记录没有写下来；撤销后重评可能被当成未看过答案。",
+                        text = "未能确认答案查看记录；撤销后重答，可能被误记为未看过答案。",
                         style = MaterialTheme.typography.bodySmall,
-                        color = SmartColors.ErrorWarm,
+                        color = SmartColors.ErrorText,
                         modifier = Modifier.testTag("review_reveal_write_failed"),
                     )
                 }
@@ -332,8 +333,8 @@ fun CapturedReviewSessionScreen(
                 if (selfReportViewModel.undoStatus == SelfReportUndoStatus.UNDONE) {
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        text = "已回到本题。曝光/看过答案的事实仍保留；重新作答会记为第 " +
-                            "${selfReportViewModel.currentAttemptOrdinal()} 次响应。",
+                        text = "已回到本题，看过答案的记录仍保留。重新作答计为第 " +
+                            "${selfReportViewModel.currentAttemptOrdinal()} 次作答。",
                         style = MaterialTheme.typography.bodySmall,
                         color = SmartColors.InkSecondary,
                         modifier = Modifier.testTag("review_undo_reattempt_notice"),
@@ -363,7 +364,7 @@ fun CapturedReviewSessionScreen(
                 onClick = onOpenTutorJudge,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .heightIn(min = 52.dp)
                     .testTag("captured_review_tutor_judged_button"),
                 contentDescription = "去讲题里完成这道题的检查",
             )
@@ -384,7 +385,7 @@ fun CapturedReviewSessionScreen(
                 text = notice.message,
                 modifier = Modifier.testTag("captured_review_settlement_notice"),
                 style = MaterialTheme.typography.bodyMedium,
-                color = SmartColors.ErrorWarm,
+                color = SmartColors.ErrorText,
             )
             onRetrySettlement?.let { retry ->
                 Spacer(Modifier.height(4.dp))

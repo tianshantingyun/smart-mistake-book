@@ -14,13 +14,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material3.AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,10 +38,16 @@ import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.domain.TutorConversationStatus
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
+import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
 
 @Composable
 fun TutorHistoryRoute(
@@ -64,30 +70,8 @@ fun TutorHistoryRoute(
             .background(Paper)
             .testTag("tutor_history_screen"),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.testTag("tutor_history_back"),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "返回讲题",
-                    tint = Ink,
-                )
-            }
-            Text(
-                text = "讲题历史",
-                modifier = Modifier.weight(1f),
-                color = Ink,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
+        ClaudePageHeader("讲题历史", Modifier.padding(horizontal = 8.dp), onBack,
+            backModifier = Modifier.testTag("tutor_history_back"))
         PaperDivider()
         if (visible.isEmpty()) {
             Column(
@@ -104,7 +88,7 @@ fun TutorHistoryRoute(
                 )
                 Text(
                     text = "从拍题或选择一道错题开始",
-                    color = InkMuted,
+                    color = InkSecondary,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 8.dp),
                 )
@@ -112,6 +96,7 @@ fun TutorHistoryRoute(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             ) {
                 items(
                     items = visible,
@@ -144,8 +129,9 @@ fun TutorHistoryRoute(
     deleteTarget?.let { conversationId ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
+            dangerConfirm = true,
             title = { Text("删除这条讲题记录？") },
-            text = { Text("只会删除这条对话，题目、修订和错题本内容会保留。") },
+            text = { Text("仅删除这条对话，题目及其历史版本、错题本内容都会保留。") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -175,31 +161,32 @@ private fun TutorHistoryRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clickable(onClick = onClick)
+            .padding(vertical = 2.dp)
+            .claudeInteractiveRow(onClick)
             .testTag("tutor_history_row_${conversation.conversationId}"),
-        color = Paper,
+        color = Color.Transparent,
         shape = MaterialTheme.shapes.small,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.padding(start = 10.dp).size(18.dp), tint = InkSecondary)
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(12.dp),
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
             ) {
                 Text(
                     text = tutorConversationTitle(conversation),
                     color = Ink,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = ClaudeLayout.HeaderText,
                     maxLines = 2,
                 )
                 Text(
                     text = historySubtitle(conversation),
                     color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = ClaudeLayout.ControlText,
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }

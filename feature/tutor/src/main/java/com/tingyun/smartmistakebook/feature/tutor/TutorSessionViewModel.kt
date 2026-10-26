@@ -141,8 +141,8 @@ internal class TutorSessionViewModel(
             } catch (_: Exception) {
                 _saveError.value = appFailure(
                     code = AppFailureCode.DATABASE_WRITE_FAILED,
-                    title = "还没有保存完成",
-                    message = "还没有保存完成，请直接重试；不会重复加入错题本。",
+                    title = "保存未完成",
+                    message = "保存未完成，请直接重试；不会重复加入错题本。",
                     dataPreserved = true,
                     retryability = Retryability.RETRYABLE,
                     primaryAction = ActionType.RETRY,
@@ -182,8 +182,8 @@ internal class TutorSessionViewModel(
             } catch (_: Exception) {
                 _endError.value = appFailure(
                     code = AppFailureCode.DATABASE_WRITE_FAILED,
-                    title = "还没有结束成功",
-                    message = "还没有结束成功，这道临时题仍保留；你可以直接重试。",
+                    title = "结束未完成",
+                    message = "结束操作未完成，临时题仍保留。请重试。",
                     dataPreserved = true,
                     retryability = Retryability.RETRYABLE,
                     primaryAction = ActionType.RETRY,

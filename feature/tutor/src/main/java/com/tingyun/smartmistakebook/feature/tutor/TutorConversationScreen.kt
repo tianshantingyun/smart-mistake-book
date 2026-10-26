@@ -120,6 +120,8 @@ internal fun TutorConversationScreen(
                 liveAnswerTestTag = config.liveAnswerTestTag,
                 liveTurnStopAction = liveTurnStopAction,
                 liveTurnStopTestTag = liveTurnStopTestTag,
+                autoFollowEnabled = !emptyStateVisible,
+                composerInList = emptyStateVisible,
                 composer = {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         attachments?.invoke()

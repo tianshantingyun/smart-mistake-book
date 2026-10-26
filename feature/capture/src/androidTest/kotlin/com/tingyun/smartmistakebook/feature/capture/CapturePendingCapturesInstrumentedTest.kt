@@ -78,7 +78,7 @@ class CapturePendingCapturesInstrumentedTest {
         }
 
         composeRule.onNodeWithText("待处理题目").performScrollTo().assertExists()
-        composeRule.onNodeWithText("3 道临时题记录保留在本机").assertExists()
+        composeRule.onNodeWithText("共 3 道待处理题，保存在本机").assertExists()
         composeRule.onNodeWithText("正在整理 1 道 · 等你继续 1 道 · 需要处理 1 道")
             .assertExists()
         composeRule.onNodeWithText("正在整理题目，可稍后再来").assertExists()
@@ -197,7 +197,7 @@ class CapturePendingCapturesInstrumentedTest {
         composeRule.onNodeWithTag("capture_pending_discard_draft-ready")
             .performScrollTo()
             .performClick()
-        composeRule.onNodeWithText("不再保留这道题？").assertExists()
+        composeRule.onNodeWithText("移出待处理列表？").assertExists()
         composeRule.onNodeWithTag("capture_pending_discard_confirm").performClick()
 
         composeRule.waitUntil(timeoutMillis = 20_000) {
@@ -208,7 +208,7 @@ class CapturePendingCapturesInstrumentedTest {
         assertEquals(1, abandoned.second)
         assertTrue(abandoned.third > 0)
         composeRule.onNodeWithText("已从待处理里移除，这道题不会进入错题本。").assertExists()
-        // 废弃不等于打开：点"不再保留"不会触发恢复。
+        // 废弃不等于打开：点"移出待处理"不会触发恢复。
         assertEquals(null, openedDraftId)
     }
 
@@ -245,7 +245,7 @@ class CapturePendingCapturesInstrumentedTest {
             repository.abandonedDrafts.isNotEmpty()
         }
         composeRule.onNodeWithText(
-            "这次没有移除成功：这道题可能刚有更新或已处理，请稍后再试。",
+            "未能移除，题目可能已更新或处理完。请稍后重试。",
         ).assertExists()
         assertTrue(repository.abandonedDrafts.single().first == "draft-ready")
     }
@@ -270,7 +270,7 @@ class CapturePendingCapturesInstrumentedTest {
         }
 
         composeRule.onNodeWithTag("capture_pending_empty").performScrollTo().assertExists()
-        composeRule.onNodeWithText("没有待处理题目").assertExists()
+        composeRule.onNodeWithText("暂无待处理题目").assertExists()
     }
 
     private fun pendingItem(

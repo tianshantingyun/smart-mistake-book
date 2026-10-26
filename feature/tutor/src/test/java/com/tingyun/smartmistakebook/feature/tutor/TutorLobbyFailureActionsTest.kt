@@ -81,8 +81,8 @@ class TutorLobbyFailureActionsTest {
     fun theFailureThatActuallyHappenedExplainsItself() {
         val reason = lobbyFailureReasonText(ModelFailureCode.EGRESS_AUTHORIZATION_INVALID)
 
-        assertTrue("原因必须点出授权失效", reason!!.contains("授权"))
-        assertTrue("并且要告诉学生怎么走出去", reason.contains("重新发送"))
+        assertTrue("原因必须说明发送确认已过期", reason!!.contains("发送确认已过期"))
+        assertTrue("并且要告诉学生怎么走出去", reason.contains("重新点击发送"))
     }
 
     @Test

@@ -187,7 +187,41 @@ class TutorExportModelEditTest {
 
     // ---- fixtures ----
 
+    @Test
+    fun candidateChangesCannotRaceLocalPaperPreparation() = runTest(dispatcher.scheduler) {
+        val layout = MistakePdfLayout()
+        val paper = twoQuestionPaper(layout)
+        val ready = CompletableDeferred<MistakePdfPaperEdit>()
+        val viewModel = viewModel(paper, null, readPaper = { _, _ -> ready.await() })
+        openSelectionSheet(this, viewModel, layout)
+        viewModel.onExportCandidateToggle("entry-a", true)
+        val selectedBefore = requireNotNull(viewModel.uiState.value.exportSheet).selectedEntryIds
+        viewModel.onExportEditRequest(listOf("entry-a"))
+        runCurrent()
+        assertTrue(viewModel.uiState.value.exportSheet?.editLoading == true)
+        viewModel.onExportCandidateToggle("entry-b", true)
+        viewModel.onExportCandidateToggle("entry-a", false)
+        assertEquals(selectedBefore, viewModel.uiState.value.exportSheet?.selectedEntryIds)
+        ready.complete(paper)
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.exportSheet?.editLoading == true)
+        assertSame(paper, viewModel.uiState.value.exportSheet?.paperEdit)
+        viewModel.onExportCandidateToggle("entry-b", true)
+        assertTrue("entry-b" in requireNotNull(viewModel.uiState.value.exportSheet).selectedEntryIds)
+    }
+
     private suspend fun openEditSheet(
+        scope: TestScope,
+        viewModel: TutorConversationViewModel,
+        layout: MistakePdfLayout,
+    ) {
+        openSelectionSheet(scope, viewModel, layout)
+        viewModel.onExportEditRequest(listOf("entry-a", "entry-b"))
+        scope.advanceUntilIdle()
+        requireNotNull(viewModel.uiState.value.exportSheet?.paperEdit)
+    }
+
+    private suspend fun openSelectionSheet(
         scope: TestScope,
         viewModel: TutorConversationViewModel,
         layout: MistakePdfLayout,
@@ -206,9 +240,6 @@ class TutorExportModelEditTest {
         pendingRequests.seed(listOf(request))
         viewModel.onDecidePendingRequest(request, AgentPendingRequestDecision.ACCEPT)
         scope.advanceUntilIdle()
-        viewModel.onExportEditRequest(listOf("entry-a", "entry-b"))
-        scope.advanceUntilIdle()
-        requireNotNull(viewModel.uiState.value.exportSheet?.paperEdit)
     }
 
     private val pendingRequests = FakeAgentPendingRequestRepository()
@@ -216,12 +247,13 @@ class TutorExportModelEditTest {
     private fun viewModel(
         paper: MistakePdfPaperEdit,
         assistant: TutorPaperEditAssistant?,
+        readPaper: suspend (List<String>, MistakePdfLayout) -> MistakePdfPaperEdit? = { _, _ -> paper },
     ) = TutorConversationViewModel(
         savedStateHandle = SavedStateHandle(),
         conversations = FakeConversationRepository(),
         modelTasks = FailingLobbyModelTasks(),
         pendingRequests = pendingRequests,
-        readExportPaperEdit = { _, _ -> paper },
+        readExportPaperEdit = readPaper,
         paperEditAssistant = assistant,
     )
 

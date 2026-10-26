@@ -2,6 +2,16 @@ package com.tingyun.smartmistakebook
 
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.Row
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.platform.LocalDensity
+import com.tingyun.smartmistakebook.core.ui.ClaudeMotion
+import com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled
 
 import android.app.Activity
 import android.content.Context
@@ -416,9 +426,35 @@ internal fun SmartMistakeBookRoot(
                 },
             )
             StudyDataStatusLine(experience.status)
+            val motionEnabled = LocalClaudeMotionEnabled.current
+            val pageOffset = with(LocalDensity.current) { 16.dp.roundToPx() }
             NavHost(
                 navController = navController,
                 startDestination = Routes.Review,
+                enterTransition = {
+                    if (!motionEnabled) EnterTransition.None
+                    else if (isRootDestination(initialState.destination.route) && isRootDestination(targetState.destination.route))
+                        fadeIn(tween(ClaudeMotion.SnapMillis, easing = ClaudeMotion.Enter))
+                    else fadeIn(tween(ClaudeMotion.PageMillis, easing = ClaudeMotion.Enter)) +
+                        slideInHorizontally(tween(ClaudeMotion.PageMillis, easing = ClaudeMotion.Enter)) { pageOffset }
+                },
+                exitTransition = {
+                    if (!motionEnabled) ExitTransition.None else fadeOut(tween(ClaudeMotion.SnapMillis))
+                },
+                popEnterTransition = {
+                    if (!motionEnabled) EnterTransition.None
+                    else if (isRootDestination(initialState.destination.route) && isRootDestination(targetState.destination.route))
+                        fadeIn(tween(ClaudeMotion.SnapMillis, easing = ClaudeMotion.Enter))
+                    else fadeIn(tween(ClaudeMotion.PressMillis, easing = ClaudeMotion.Enter)) +
+                        slideInHorizontally(tween(ClaudeMotion.PressMillis, easing = ClaudeMotion.Out)) { -pageOffset }
+                },
+                popExitTransition = {
+                    if (!motionEnabled) ExitTransition.None
+                    else if (isRootDestination(initialState.destination.route) && isRootDestination(targetState.destination.route))
+                        fadeOut(tween(ClaudeMotion.SnapMillis))
+                    else fadeOut(tween(ClaudeMotion.SnapMillis)) +
+                        slideOutHorizontally(tween(ClaudeMotion.SnapMillis, easing = ClaudeMotion.Out)) { pageOffset }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -920,9 +956,9 @@ internal fun SmartMistakeBookRoot(
                                                         "答案键已改正：这次作答会按新答案重新判定" +
                                                             "并计入掌握度。"
                                                     AnswerKeyCorrectionStatus.REPLAYED ->
-                                                        "这次改正已经记过，没有重复写入。"
+                                                        "这次改正已记录，不会重复保存。"
                                                     AnswerKeyCorrectionStatus.CONFLICT ->
-                                                        "答案键在别处已更新，这次没有写入。" +
+                                                        "答案已在别处更新，本次修改未保存。" +
                                                             "请返回后重新进入再试。"
                                                     AnswerKeyCorrectionStatus.REJECTED ->
                                                         "这次改正没有写下来：" +
@@ -1488,6 +1524,8 @@ private fun SmartBottomBar(
         }
     }
 }
+
+private fun isRootDestination(route: String?): Boolean = rootDestinations.any { it.route == route }
 
 internal fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this

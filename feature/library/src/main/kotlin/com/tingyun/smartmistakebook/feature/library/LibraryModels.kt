@@ -73,7 +73,7 @@ internal enum class MasteryState(
     val id: String,
     val label: String,
 ) {
-    UNKNOWN("unknown", "暂无学习记录"),
+    UNKNOWN("unknown", "待评估"),
     LEARNING("learning", "学习中"),
     MASTERED("mastered", "已掌握"),
     CONFLICTED("conflicted", "需巩固"),
@@ -81,9 +81,10 @@ internal enum class MasteryState(
     ;
 
     companion object {
-        fun normalizeStoredValue(value: String?): String? = entries
-            .firstOrNull { it.id == value || it.label == value }
-            ?.id
+        fun normalizeStoredValue(value: String?): String? =
+            if (value == "暂无学习记录") UNKNOWN.id else entries
+                .firstOrNull { it.id == value || it.label == value }
+                ?.id
 
         fun fromId(value: String?): MasteryState =
             entries.firstOrNull { it.id == value } ?: UNKNOWN
@@ -203,16 +204,16 @@ internal enum class LibraryEmptyState(
     val supportingText: String,
 ) {
     CATALOG_EMPTY(
-        title = "还没有错题",
-        supportingText = "录入第一道错题：拍照、相册或整卷/PDF 都可以，整理好后会出现在这里。",
+        title = "暂无错题",
+        supportingText = "可通过拍照、相册或整卷/PDF录入错题。",
     ),
     SEARCH_EMPTY(
-        title = "没找到相关内容",
-        supportingText = "试试题干或知识点。",
+        title = "未找到相关题目",
+        supportingText = "可搜索题干或知识点。",
     ),
     FILTERED_EMPTY(
         title = "当前筛选下没有错题",
-        supportingText = "换一个关键词，或清除当前筛选。",
+        supportingText = "请调整搜索或清除筛选。",
     ),
 }
 
@@ -220,8 +221,9 @@ internal fun resolveLibraryEmptyState(
     totalMistakeCount: Int,
     visibleMistakeCount: Int,
     hasActiveSearch: Boolean,
+    hasActiveFilters: Boolean = hasActiveSearch,
 ): LibraryEmptyState? = when {
-    totalMistakeCount == 0 -> LibraryEmptyState.CATALOG_EMPTY
+    totalMistakeCount == 0 && !hasActiveFilters -> LibraryEmptyState.CATALOG_EMPTY
     visibleMistakeCount == 0 && hasActiveSearch -> LibraryEmptyState.SEARCH_EMPTY
     visibleMistakeCount == 0 -> LibraryEmptyState.FILTERED_EMPTY
     else -> null

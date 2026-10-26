@@ -158,13 +158,13 @@ internal fun CapabilityScreen(
     RootPageColumn(modifier = Modifier.testTag("capability_screen")) {
         val committing = operation == CapabilityOperation.SAVING || operation == CapabilityOperation.CLEARING
         androidx.activity.compose.BackHandler(enabled = committing) { }
-        SecondaryHeader(title = "大模型设置", onBack = { if (!committing) onBack() })
+        SecondaryHeader(title = "模型设置", onBack = { if (!committing) onBack() })
 
         if (capabilities.networkRequestsAllowed && configurationStore != null) {
             PaperDivider(Modifier.padding(vertical = 16.dp))
-            SectionHeader("大模型 API")
+            SectionHeader("模型服务")
             Text(
-                text = "本机直接连接你选择的服务商，不经过本应用云端；调用费用由你的服务商账户承担。",
+                text = "应用直接连接你选择的服务商，不经过本应用云端。费用由你的服务商账户承担。",
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .testTag("capability_direct_connection_notice"),
@@ -180,7 +180,7 @@ internal fun CapabilityScreen(
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                text = "接口协议（按服务商选择；选错协议会连不通）",
+                text = "接口协议（须与服务商一致）",
                 modifier = Modifier
                     .padding(bottom = 6.dp)
                     .testTag("capability_protocol_label"),
@@ -258,7 +258,7 @@ internal fun CapabilityScreen(
                 text = if (operation == CapabilityOperation.SAVING) {
                     "正在保存"
                 } else {
-                    "安全保存配置"
+                    "保存配置"
                 },
                 onClick = {
                     val submittedProvider = provider
@@ -282,7 +282,7 @@ internal fun CapabilityScreen(
                                 apiKey = secret,
                             )
                             operationMessage = result.toUserMessage(
-                                successMessage = "配置已安全保存在本机；请继续测试图片与讲解能力。",
+                                successMessage = "配置已保存在本机，请继续测试模型。",
                             )
                             if (result is ModelConfigurationMutationResult.Success) apiKey = ""
                         } catch (cancelled: CancellationException) {
@@ -304,7 +304,7 @@ internal fun CapabilityScreen(
                     baseUrl.isNotBlank() && modelId.isNotBlank() && apiKey.isNotBlank(),
             )
             Text(
-                text = "能力测试只使用内置合成样例，不发送真实题目或学习记录。",
+                text = "测试仅发送内置样例，不发送你的题目或学习记录。",
                 modifier = Modifier.padding(top = 12.dp),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
@@ -342,7 +342,7 @@ internal fun CapabilityScreen(
                     if (operation == CapabilityOperation.TESTING) {
                         "正在测试"
                     } else {
-                        "测试图片与讲解能力"
+                        "测试模型能力"
                     },
                 )
             }
@@ -384,7 +384,7 @@ internal fun CapabilityScreen(
         }
         if (calibrationReportProvider != null) {
             PaperDivider(Modifier.padding(vertical = 16.dp))
-            SectionHeader("学习模型校准")
+            SectionHeader("学习预测效果")
             val report = calibrationReport
             when {
                 calibrationUnavailable -> Text(
@@ -406,7 +406,7 @@ internal fun CapabilityScreen(
                 )
 
                 report.resolvedPredictions == 0 -> Text(
-                    text = "还没有已验证的预测样本。完成复习后，影子预测会与真实结果对比，并在这里生成校准指标。",
+                    text = "暂无可对比的预测。完成复习后，将在这里显示预测与实际作答的对比结果。",
                     modifier = Modifier
                         .padding(top = 8.dp)
                         .testTag("capability_calibration_empty"),
@@ -480,7 +480,7 @@ internal fun CapabilityScreen(
             title = { Text("清除本机配置与密钥？") },
             text = {
                 Text(
-                    "会删除本机保存的 Provider、服务地址、模型名与 API Key，且无法撤销——" +
+                    "将删除本机保存的服务商、地址、模型名和 API Key，且无法撤销。" +
                         "密钥需要重新输入。已保存的错题与学习记录不受影响。",
                 )
             },
@@ -525,16 +525,16 @@ internal fun CapabilityScreen(
 
 internal fun capabilityVerificationSummary(configuration: ModelConfigurationSnapshot): String {
     val verification = configuration.currentCapabilityVerification()
-        ?: return "配置已安全保存在本机。使用前请测试图片与讲解能力；配置好模型后，拍照与讲题会直接交给模型。"
+        ?: return "配置已保存在本机，请先测试模型能力。使用拍照或讲题时，相关内容会直接发送给所选模型。"
     return when {
         verification.authenticationFailed ->
-            "上次测试没有通过鉴权：API Key 可能无效或已失效，请更新后重试。"
+            "上次验证未通过，请检查或更新 API Key 后重试。"
         verification.supportsImageInput && verification.supportsStructuredOutput ->
-            "能力已测试：可以读取题图并稳定整理讲解。发送即处理，不再逐次询问。"
+            "测试通过：可识别题图并讲解。点击发送即交给模型处理，不再另行确认。"
         verification.supportsStructuredOutput ->
-            "能力已测试：文字讲解可用，当前模型暂不能可靠读取题图。"
+            "文字讲解可用，题图识别未通过测试。"
         verification.supportsImageInput ->
-            "能力已测试：能读取合成题图，但返回格式不稳定，暂不启用智能任务。"
+            "模型能识别测试图片，但回复格式不符合要求，暂不能使用 AI 功能。"
         else -> "能力测试未通过，当前模型暂不兼容。"
     }
 }
@@ -544,12 +544,12 @@ internal fun ModelCapabilityTestResult.toCapabilityTestMessage(): String = when 
         verification.supportsImageInput && verification.supportsStructuredOutput ->
             "测试通过：图片读取和讲解都可用。"
         verification.supportsStructuredOutput ->
-            "测试完成：文字讲解可用，当前模型暂不能可靠读取题图。"
+            "文字讲解可用，题图识别未通过测试。"
         verification.supportsImageInput ->
-            "测试完成：能读取图片，但返回格式不稳定，暂不启用智能任务。"
+            "模型能识别图片，但回复格式不符合要求，暂不能使用 AI 功能。"
         else -> "测试未通过：当前模型暂不兼容。"
     }
-    ModelCapabilityTestResult.NotConfigured -> "请先安全保存配置，再开始测试。"
+    ModelCapabilityTestResult.NotConfigured -> "请先保存配置，再测试。"
     ModelCapabilityTestResult.ConfigurationChanged -> "配置刚刚发生变化，请重新测试。"
     ModelCapabilityTestResult.AuthenticationFailed -> "API Key 无效或已失效，请更新后重试。"
     ModelCapabilityTestResult.ConnectionFailed -> "暂时无法连接服务商，请检查网络后重试。"
@@ -802,7 +802,7 @@ internal fun StorageScreen(
             try {
                 val ledger = DiagnosticsBootstrap.ledger
                 diagnosticsMessage = if (ledger == null) {
-                    "本机还没有诊断记录。"
+                    "本机暂无诊断记录。"
                 } else {
                     val savedDigest = withContext(Dispatchers.IO) {
                         val bundle = DiagnosticsBundleExporter.bundleText(
@@ -815,7 +815,7 @@ internal fun StorageScreen(
                         DiagnosticsBundleExporter.writeAndVerify(context, uri, bundle)
                     }
                     if (savedDigest != null) {
-                        "诊断包已导出，并通过保存后复读校验。"
+                        "诊断包已导出并校验通过。"
                     } else {
                         "无法写入所选位置，导出未完成。"
                     }
@@ -931,14 +931,14 @@ internal fun StorageScreen(
         PaperDivider(Modifier.padding(vertical = 18.dp))
         SectionHeader("备份内容")
         Text(
-            "下方勾选的内容会随包带走：学习数据和规范题图；不包含 API Key、授权租约或临时文件。" +
-                "恢复会先校验、再让确认包内类别，最后分阶段替换；失败时回滚原数据。",
+            "仅备份下方所选内容，不含 API Key、发送授权和临时文件。" +
+                "恢复前会校验文件并请你确认内容，再替换本机数据；失败时尝试恢复原数据。",
             modifier = Modifier.padding(top = 10.dp),
             color = InkSecondary,
         )
         if (backupActivity != BackupActivity.Idle) {
             Text(
-                "正在生成备份快照；其它保存会短暂排队，等快照完成后继续。",
+                "正在创建备份，其他保存操作会在备份完成后继续。",
                 modifier = Modifier
                     .padding(top = 6.dp)
                     .testTag("storage_backup_activity"),
@@ -961,7 +961,7 @@ internal fun StorageScreen(
                 .testTag("storage_validate_backup"),
             enabled = !operationBusy,
         ) {
-            Text("校验一个备份文件")
+            Text("检查备份文件")
         }
         OutlinedButton(
             onClick = {
@@ -998,9 +998,9 @@ internal fun StorageScreen(
                             backupRepository.cleanupOrphanAssets()
                         }
                         operationMessage = if (removed == 0) {
-                            "没有需要清理的孤立题图。"
+                            "没有可清理的未使用题图。"
                         } else {
-                            "已清理 $removed 张不再被任何题面引用的题图。"
+                            "已清理 $removed 张未使用的题图。"
                         }
                         inventory = withContext(Dispatchers.IO) {
                             backupRepository.inspect()
@@ -1021,7 +1021,7 @@ internal fun StorageScreen(
                 .testTag("storage_cleanup_orphans"),
             enabled = !operationBusy,
         ) {
-            Text("清理孤立题图")
+            Text("清理未使用的题图")
         }
         orphanGcStatus?.let { message ->
             Text(
@@ -1059,8 +1059,8 @@ internal fun StorageScreen(
             )
         }
         Text(
-            "应用只把崩溃与无响应记录保存在本机（总量自动封顶，不会自动上传）。" +
-                "导出的诊断包含最近的事件与应用版本，供反馈问题时附带。",
+            "崩溃和无响应记录仅保存在本机，有容量上限，不会自动上传。" +
+                "诊断包含最近的问题记录和应用版本，可用于反馈问题。",
             modifier = Modifier.padding(top = 10.dp),
             color = InkSecondary,
         )
@@ -1125,8 +1125,8 @@ internal fun BackupContentSelectionSection(
 
     Column(modifier = modifier.testTag("backup_selection_section")) {
         Text(
-            "选择这次要带走的内容。题图随错题本一起备份；掌握库依赖讲题会话。" +
-                "未勾选的类别不会随包带走，恢复时会按替换语义清空。",
+            "选择要备份的内容。题图随错题本保存；学习进度需同时包含讲题记录。" +
+                "未勾选的内容不进入备份，恢复时会清空本机对应内容。",
             modifier = Modifier.padding(top = 6.dp),
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
@@ -1241,23 +1241,23 @@ internal fun toggleBackupCategory(
 
 internal fun backupCategoryLabel(category: BackupContentCategory): String = when (category) {
     BackupContentCategory.ISSUE_BOOK -> "错题本"
-    BackupContentCategory.MASTERY -> "掌握库"
-    BackupContentCategory.SESSIONS -> "会话"
+    BackupContentCategory.MASTERY -> "学习进度"
+    BackupContentCategory.SESSIONS -> "讲题记录"
     BackupContentCategory.IMAGES -> "图片"
 }
 
 private fun backupCategoryDescription(category: BackupContentCategory): String = when (category) {
-    BackupContentCategory.ISSUE_BOOK -> "题目、题面修订、练习单元、草稿、标签与关系。"
-    BackupContentCategory.MASTERY -> "学习证据、复习计划与队列、预测与教学建议。"
-    BackupContentCategory.SESSIONS -> "讲题会话、消息与消息附图。"
-    BackupContentCategory.IMAGES -> "规范题图与图片字节；随错题本一起备份。"
+    BackupContentCategory.ISSUE_BOOK -> "题目及历史版本、练习、草稿、标签和关联题。"
+    BackupContentCategory.MASTERY -> "作答记录、复习计划、学习预测和建议。"
+    BackupContentCategory.SESSIONS -> "讲题对话、消息和附图。"
+    BackupContentCategory.IMAGES -> "已保存的题图，随错题本一起备份。"
 }
 
 private fun backupCategoryLockReason(category: BackupContentCategory): String = when (category) {
     BackupContentCategory.ISSUE_BOOK -> "错题本和题图是备份的基础，至少保留。"
     BackupContentCategory.IMAGES -> "题图随错题本一起备份，不能单独取消。"
-    BackupContentCategory.SESSIONS -> "有已选类别依赖讲题会话，不能单独取消。"
-    BackupContentCategory.MASTERY -> "有已选类别依赖掌握库，不能单独取消。"
+    BackupContentCategory.SESSIONS -> "其他已选内容需要讲题记录，不能单独取消。"
+    BackupContentCategory.MASTERY -> "其他已选内容需要学习进度，不能单独取消。"
 }
 
 internal fun backupCategoriesLabel(categories: Iterable<BackupContentCategory>): String =
@@ -1293,7 +1293,7 @@ internal fun backupSelectionSummaryText(selection: BackupSelection): String {
     return if (selection.isFull) {
         label
     } else {
-        label + "未勾选的类别不会随包带走，恢复时会被清空。"
+        label + "未勾选的内容不进入备份，恢复时会清空本机对应内容。"
     }
 }
 
@@ -1315,13 +1315,13 @@ internal fun backupManifestSelectionSentence(manifest: BackupManifestSummary): S
     val label = "备份内容：${backupSelectionContentLabel(selection.categories)}；" +
         backupAssetPolicyPhrase(selection.assetPolicy) + "。"
     if (selection.isFull) return label
-    return label + "未包含的类别恢复时会被清空。"
+    return label + "恢复时，备份中不含的内容也会从本机清空。"
 }
 
 /** 恢复前确认框正文：包内容 + 替换语义 + "当前数据不会自动备份"。 */
 internal fun backupRestoreConfirmationText(manifest: BackupManifestSummary): String =
     backupManifestSelectionSentence(manifest) +
-        "恢复会替换当前全部数据；当前数据不会自动备份。"
+        "恢复将替换本机全部数据，且不会自动备份。请先创建备份。"
 
 /** 已通过校验、等待用户确认的恢复目标。 */
 private data class PendingRestore(
@@ -1362,7 +1362,7 @@ internal fun storageRestoreCompletionMessage(
     } else {
         // 恢复是替换语义：没勾的类别已被清空，回执必须如实说明（T1 RestoreReceipt.selection）。
         // 批次 19 T2-2/T2-6：与恢复前确认、创建回执同口径——点名不含的类别 + 转述资产策略。
-        val replacedNote = if (selection.isFull) "" else "未包含的类别已按替换语义清空。"
+        val replacedNote = if (selection.isFull) "" else "备份中未包含的内容已从本机清空。"
         "备份内容：${backupSelectionContentLabel(selection.categories)}；" +
             backupAssetPolicyPhrase(selection.assetPolicy) + "。$replacedNote"
     }

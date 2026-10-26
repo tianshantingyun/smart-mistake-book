@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -91,9 +92,9 @@ fun ReviewRoute(
         modifier = modifier.testTag("review_root"),
     ) {
         ReviewGreeting()
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
         SectionHeader(title = "今日复习")
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(8.dp))
         if (surfaceState == ReviewSurfaceState.NORMAL) {
             ReviewSummary(overview)
         } else {
@@ -113,7 +114,7 @@ fun ReviewRoute(
                 )
             }
         }
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(16.dp))
         // 双复习入口（spec dual-review-entry §3.1）：知识点复习与错题复习并列、学生自由选，
         // 建议先巩固概念再做错题。入口只在今天真有可复习知识点（count>0）时出现——count 由
         // app 层经 currentKnowledgeReviewPlan 实算（含"有讲解材料可出题"过滤），首页不猜测；
@@ -136,7 +137,7 @@ fun ReviewRoute(
             onClick = onStartReview,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(58.dp)
+                .heightIn(min = 58.dp)
                 .testTag("review_start_button"),
             icon = Icons.AutoMirrored.Outlined.MenuBook,
             enabled = overview.scheduledCount > 0 && !overview.completedToday,
@@ -150,7 +151,7 @@ fun ReviewRoute(
         ) {
             Spacer(Modifier.height(12.dp))
             OutlineActionChip(
-                text = "继续处理 $pendingFailedTaskCount 道待处理题目",
+                text = "继续处理 $pendingFailedTaskCount 道题",
                 onClick = requireNotNull(onContinuePendingTasks),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -275,22 +276,22 @@ internal fun reviewStateCopy(
     ReviewSurfaceState.EMPTY_LIBRARY -> ReviewStateCopy(
         // 只说"没有可复习的题"：已移出的题不在复习池里，不能断言整个错题本为空。
         title = "还没有可复习的题",
-        supportingText = "先录入第一道题。没有照片也可以手动输入题面，之后这里会安排复习。",
+        supportingText = "先录入一道题，再开始复习。没有照片也可手动输入题面。",
         actionLabel = "录入第一道题",
     )
     ReviewSurfaceState.NO_DUE_QUESTIONS -> ReviewStateCopy(
         title = "今天没有到期的题",
-        supportingText = "到期安排会出现在这里；已保存的内容可以到错题本查看。",
+        supportingText = "到期的题会显示在这里，也可到错题本查看已保存的题。",
     )
     ReviewSurfaceState.PENDING_FAILED_TASKS -> ReviewStateCopy(
         title = "还有题目没有处理完",
-        supportingText = "还有 $pendingFailedTaskCount 道录入没有处理完，记录保存在本机；" +
-            "可从待处理列表继续。",
+        supportingText = "还有 $pendingFailedTaskCount 道题未完成录入，已保存在本机。" +
+            "可到待处理列表继续。",
         actionLabel = "继续处理",
     )
     ReviewSurfaceState.UNKNOWN -> ReviewStateCopy(
         title = "暂无学习记录",
-        supportingText = "学习记录生成后会显示在这里。",
+        supportingText = "完成作答后，可在这里查看学习记录。",
     )
 }
 
@@ -418,9 +419,7 @@ private fun ReviewGreeting() {
         Text(
             text = greeting,
             color = SmartColors.Ink,
-            fontSize = 29.sp,
-            lineHeight = 38.sp,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.headlineSmall,
         )
         Spacer(Modifier.height(4.dp))
         Text(
@@ -461,9 +460,9 @@ private fun SummaryValue(value: String, label: String) {
         Text(
             text = value,
             color = SmartColors.Ink,
-            fontSize = 42.sp,
-            lineHeight = 46.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 28.sp,
+            lineHeight = 36.sp,
+            fontWeight = FontWeight.SemiBold,
         )
         Text(
             text = label,
@@ -545,9 +544,9 @@ private fun IntakeBacklogPreview(
     ) {
         Text(
             text = if (preview.daysToCover <= 0) {
-                "还有 $backlogCount 道新题待引入"
+                "还有 $backlogCount 道新题待学"
             } else {
-                "还有 $backlogCount 道新题待学：每天约 ${preview.perDayItems} 题，约 ${preview.daysToCover} 天覆盖"
+                "还有 $backlogCount 道新题待学：每天约 ${preview.perDayItems} 题，约 ${preview.daysToCover} 天安排完"
             },
             style = MaterialTheme.typography.bodyMedium,
             color = SmartColors.Ink,

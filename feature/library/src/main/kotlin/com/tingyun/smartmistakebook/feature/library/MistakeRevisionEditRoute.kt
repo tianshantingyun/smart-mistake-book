@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -13,16 +14,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +44,8 @@ import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
-import com.tingyun.smartmistakebook.core.ui.RootPageColumn
+import com.tingyun.smartmistakebook.core.ui.ReferenceEditorPage
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 
 /**
@@ -72,13 +74,15 @@ fun MistakeRevisionEditRoute(
     }
     BackHandler { leave() }
 
-    RootPageColumn(
+    ReferenceEditorPage(
         modifier = modifier.testTag("mistake_revision_edit_screen"),
+        imageUris = if (state.loading || state.unavailableReason != null) emptyList() else
+            state.source.detailAssets().question.mapNotNull { (it.location as? MistakeSourceLocation.Available)?.localUri },
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(58.dp),
+                .heightIn(min = 58.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(
@@ -107,7 +111,7 @@ fun MistakeRevisionEditRoute(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.testTag("mistake_revision_edit_unavailable"),
             )
-            return@RootPageColumn
+            return@ReferenceEditorPage
         }
         if (state.loading) {
             Column(
@@ -121,12 +125,12 @@ fun MistakeRevisionEditRoute(
                 Spacer(Modifier.height(10.dp))
                 Text("正在读取当前题面…", color = InkSecondary)
             }
-            return@RootPageColumn
+            return@ReferenceEditorPage
         }
 
         if (state.hasInProgressOldConversation) {
             RevisionNotice(
-                text = "这道题有一轮绑定当前版本的讲解。保存后，旧讲解与草稿会保留在旧版本里，" +
+                text = "这道题已有讲解。保存修改后，原讲解和草稿会留在旧版，" +
                     "不会带入新版本；新版讲解需要重新开始。",
                 tag = "mistake_revision_edit_old_session_notice",
             )
@@ -230,7 +234,7 @@ fun MistakeRevisionEditRoute(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "图形本身不在这里重画。需要新图时走统一生图（本批未接）；" +
+                        text = "这里只能修改图形的文字说明，不能重画图形。" +
                             "旧版图形与解析保留在旧版本，不会被新版覆盖。",
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
@@ -238,7 +242,7 @@ fun MistakeRevisionEditRoute(
                     )
                 }
                 RevisionEditBlockKind.UNKNOWN -> Text(
-                    text = "未识别的内容块保持原样，不在这里修改。",
+                    text = "暂不支持编辑的内容会保留原样。",
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -265,29 +269,14 @@ fun MistakeRevisionEditRoute(
                         text = if (state.savedRevisionNumber != null) {
                             "已保存为第 ${state.savedRevisionNumber} 版。"
                         } else {
-                            "还没有修改。"
+                            "暂无修改。"
                         },
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else {
                     state.diff.forEach { row ->
-                        Text(
-                            text = row.label,
-                            color = Ink,
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                        Text(
-                            text = "修改前：${row.before?.takeIf(String::isNotBlank) ?: "（无）"}",
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        Text(
-                            text = "修改后：${row.after?.takeIf(String::isNotBlank) ?: "（无）"}",
-                            color = Ink,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+                        com.tingyun.smartmistakebook.core.ui.ClaudeRevisionDiff(row.label, row.before, row.after)
                     }
                 }
             }
@@ -365,7 +354,8 @@ fun MistakeRevisionEditRoute(
     if (confirmDiscard) {
         AlertDialog(
             onDismissRequest = { confirmDiscard = false },
-            title = { Text("放弃还没保存的修改？") },
+            dangerConfirm = true,
+            title = { Text("放弃未保存的修改？") },
             text = { Text("这道题的已保存版本不会受影响；只有这次尚未保存的修改会丢失。") },
             confirmButton = {
                 TextButton(

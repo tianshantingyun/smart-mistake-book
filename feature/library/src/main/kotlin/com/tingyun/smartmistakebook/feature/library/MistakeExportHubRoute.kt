@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.foundation.layout.heightIn
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -24,7 +26,7 @@ import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material.icons.outlined.SaveAlt
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -56,7 +58,6 @@ import com.tingyun.smartmistakebook.core.export.PreparedMistakePdfToken
 import com.tingyun.smartmistakebook.core.export.PreparedPdfPrintAdapter
 import com.tingyun.smartmistakebook.core.export.deliveryFormat
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
@@ -76,7 +77,7 @@ import kotlinx.coroutines.withContext
 const val MAX_LIBRARY_BATCH_EXPORT_QUESTIONS = MistakePdfBatchEligibility.MAX_QUESTIONS
 
 /**
- * 「导出成果」入口（阶段 4A 批 4 · L7，A 形态的落点）。
+ * 「已导出的文件」入口（阶段 4A 批 4 · L7，A 形态的落点）。
  *
  * 列表读 [MistakeExportRecord]（文件名 / 时间 / 状态）：进行中如实说"正在整理"，失败照抄
  * worker 写下的人类原因；成功行提供 保存 / 分享 / 打印——**复用既有交付链**
@@ -138,7 +139,7 @@ fun MistakeExportHubRoute(
             return@rememberLauncherForActivityResult
         }
         if (token == null || format == null) {
-            actionMessage = ExportHubMessage("保存所需的文件状态已失效，请重新打开后再保存。", true)
+            actionMessage = ExportHubMessage("文件状态已变化，请重新打开后保存。", true)
             actionInProgress = false
             return@rememberLauncherForActivityResult
         }
@@ -188,7 +189,7 @@ fun MistakeExportHubRoute(
                     .testTag("export_hub_edit_paper"),
             )
             Text(
-                text = "只改这份卷面，不改错题本里的题目；确认后重新生成文件。",
+                text = "仅修改这份卷面，不影响错题本。确认后会重新生成文件。",
                 modifier = Modifier.testTag("export_hub_edit_paper_notice"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
@@ -197,7 +198,7 @@ fun MistakeExportHubRoute(
         }
         if (records.isEmpty()) {
             Text(
-                text = "还没有导出成果。在错题详情或错题本列表发起导出，整理完成后就会出现在这里。",
+                text = "暂无导出文件。可从错题详情或错题本列表导出，完成后在这里查看。",
                 modifier = Modifier.testTag("mistake_export_hub_empty"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodyMedium,
@@ -294,7 +295,7 @@ fun MistakeExportHubRoute(
                             actionMessage = when {
                                 shareIntent != null -> runCatching {
                                     context.startActivity(
-                                        Intent.createChooser(shareIntent, "分享这份导出"),
+                                        Intent.createChooser(shareIntent, "分享文件"),
                                     )
                                     ExportHubMessage("已打开分享方式。", false)
                                 }.getOrElse {
@@ -343,7 +344,7 @@ fun MistakeExportHubRoute(
                 Text(
                     text = message.text,
                     modifier = Modifier.testTag("export_hub_action_message"),
-                    color = if (message.isError) ErrorWarm else JadeActive,
+                    color = if (message.isError) ErrorText else JadeActive,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                 )
@@ -358,7 +359,7 @@ private fun MistakeExportHubHeader(onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(58.dp),
+            .heightIn(min = 58.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
@@ -375,7 +376,7 @@ private fun MistakeExportHubHeader(onBack: () -> Unit) {
         }
         Spacer(Modifier.size(4.dp))
         Text(
-            text = "导出成果",
+            text = "已导出的文件",
             color = Ink,
             style = MaterialTheme.typography.headlineSmall,
         )
@@ -457,7 +458,7 @@ private fun ExportRecordRow(
                 Text(
                     text = record.failureMessage.orEmpty(),
                     modifier = Modifier.testTag("export_hub_failure_${record.exportId}"),
-                    color = ErrorWarm,
+                    color = ErrorText,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -519,23 +520,23 @@ internal fun formatExportTime(epochMillis: Long): String =
     SimpleDateFormat("MM-dd HH:mm", Locale.CHINA).format(Date(epochMillis))
 
 private fun MistakePdfSaveResult.toActionMessage(): ExportHubMessage = when (this) {
-    MistakePdfSaveResult.SAVED -> ExportHubMessage("PDF 已保存，并已重新核对完整。", false)
+    MistakePdfSaveResult.SAVED -> ExportHubMessage("PDF 已保存并校验通过。", false)
     MistakePdfSaveResult.INVALID_PREPARED_FILE ->
         ExportHubMessage("文件状态已经变化，请重新导出后再保存。", true)
     MistakePdfSaveResult.DESTINATION_UNAVAILABLE ->
         ExportHubMessage("没有完成保存，请换一个位置后再试。", true)
     MistakePdfSaveResult.DESTINATION_INTEGRITY_MISMATCH ->
-        ExportHubMessage("保存后的文件没有通过核对，请换一个位置后再试。", true)
+        ExportHubMessage("保存的文件校验未通过，请换个位置重试。", true)
 }
 
 private fun MistakeDocxSaveResult.toActionMessage(): ExportHubMessage = when (this) {
-    MistakeDocxSaveResult.SAVED -> ExportHubMessage("Word 文件已保存，并已重新核对完整。", false)
+    MistakeDocxSaveResult.SAVED -> ExportHubMessage("Word 文件已保存并校验通过。", false)
     MistakeDocxSaveResult.INVALID_PREPARED_FILE ->
         ExportHubMessage("文件状态已经变化，请重新导出后再保存。", true)
     MistakeDocxSaveResult.DESTINATION_UNAVAILABLE ->
         ExportHubMessage("没有完成保存，请换一个位置后再试。", true)
     MistakeDocxSaveResult.DESTINATION_INTEGRITY_MISMATCH ->
-        ExportHubMessage("保存后的文件没有通过核对，请换一个位置后再试。", true)
+        ExportHubMessage("保存的文件校验未通过，请换个位置重试。", true)
 }
 
 private data class ExportHubMessage(

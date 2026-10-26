@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -18,18 +19,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.FileDownload
-import androidx.compose.material.icons.outlined.PictureAsPdf
+import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.outlined.ExpandMore
+import com.tingyun.smartmistakebook.core.ui.ClaudeButton as Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
@@ -41,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.studentLabel
+import com.tingyun.smartmistakebook.core.ui.ClaudeMotion
+import com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled
 
 @Composable
 internal fun LibraryPageHeader(
@@ -50,39 +60,54 @@ internal fun LibraryPageHeader(
 ) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val showFileLabel = maxWidth >= 320.dp && LocalDensity.current.fontScale <= 1.2f
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "错题本",
-                modifier = Modifier.weight(1f),
-                color = SmartColors.Ink,
-                style = MaterialTheme.typography.headlineSmall,
-            )
-            TextButton(
-                onClick = onOpenResults,
-                modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_export_results")
-                    .semantics { contentDescription = "导出成果" },
-                contentPadding = PaddingValues(horizontal = 10.dp),
-                colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.Ink),
-            ) {
-                Icon(Icons.Outlined.PictureAsPdf, contentDescription = null, modifier = Modifier.size(20.dp))
-                if (showFileLabel) {
-                    Spacer(Modifier.width(4.dp))
-                    Text("文件", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-                }
+        val stackTitle = maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f
+        Column(Modifier.padding(bottom = 12.dp).drawBehind {
+            drawRect(SmartColors.Jade, topLeft = Offset(0f, size.height - 3.dp.toPx()),
+                size = Size(32.dp.toPx(), 3.dp.toPx()))
+        }) {
+            if (stackTitle) {
+                Text("错题本", color = SmartColors.Ink, style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold)
             }
-            if (showCapture) {
-                Spacer(Modifier.width(4.dp))
-                Button(
-                    onClick = onCapture,
-                    modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_capture_button"),
-                    shape = MaterialTheme.shapes.large,
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Jade, contentColor = SmartColors.OnJade),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if (!stackTitle) {
+                Text(
+                    "错题本",
+                    modifier = Modifier.weight(1f),
+                    color = SmartColors.Ink,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                } else {
+                    Spacer(Modifier.weight(1f))
+                }
+                TextButton(
+                    onClick = onOpenResults,
+                    modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_export_results")
+                        .semantics { contentDescription = "查看已导出的文件" },
+                    contentPadding = PaddingValues(horizontal = 10.dp),
+                    colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.Ink),
                 ) {
-                    Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Outlined.FolderOpen, contentDescription = null, modifier = Modifier.size(20.dp))
+                    if (showFileLabel) {
+                        Spacer(Modifier.width(4.dp))
+                        Text("已导出", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+                if (showCapture) {
                     Spacer(Modifier.width(4.dp))
-                    Text("录入", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                    Button(
+                        onClick = onCapture,
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_capture_button"),
+                        shape = MaterialTheme.shapes.large,
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Jade, contentColor = SmartColors.OnJade),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                    ) {
+                        Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("录入", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
         }
@@ -91,7 +116,7 @@ internal fun LibraryPageHeader(
 
 @Composable
 internal fun LibraryResultToolbar(
-    count: Int,
+    count: Int?,
     sortLabel: String?,
     filterCount: Int,
     expanded: Boolean,
@@ -99,11 +124,15 @@ internal fun LibraryResultToolbar(
     onToggleFilters: () -> Unit,
     onExport: () -> Unit,
 ) {
+    val motion = LocalClaudeMotionEnabled.current
+    val targetRotation = if (expanded) 180f else 0f
+    val rotation by animateFloatAsState(targetRotation,
+        animationSpec = ClaudeMotion.spec(motion), label = "library-filter-disclosure")
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text("$count 道题", modifier = Modifier.testTag("library_result_count"),
-                style = MaterialTheme.typography.labelMedium, color = SmartColors.Ink)
-            if (sortLabel != null) Text(sortLabel, style = MaterialTheme.typography.labelMedium, color = SmartColors.Ink)
+            Text(count?.let { "$it 道题" } ?: "错题列表", modifier = Modifier.testTag("library_result_count"),
+                style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Medium, color = SmartColors.Ink)
+            if (sortLabel != null) Text(sortLabel, style = MaterialTheme.typography.labelSmall, color = SmartColors.InkSecondary)
         }
         TextButton(onClick = onToggleFilters,
             modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_filter_toggle")
@@ -118,6 +147,8 @@ internal fun LibraryResultToolbar(
             Spacer(Modifier.width(4.dp))
             Text(if (expanded) "收起" else if (filterCount > 0) "筛选 $filterCount" else "筛选",
                 style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+            Icon(Icons.Outlined.ExpandMore, null,
+                modifier = Modifier.size(16.dp).rotate(if (motion) rotation else targetRotation))
         }
         if (canExport) {
             TextButton(onClick = onExport,

@@ -17,7 +17,7 @@ class TutorCapabilitySubtitleTest {
         )
 
         assertEquals(
-            "讲题功能暂不可用 · 查看当前能力",
+            "讲题暂不可用 · 查看设置",
             tutorCapabilitySubtitle(capabilities),
         )
     }
@@ -27,7 +27,7 @@ class TutorCapabilitySubtitleTest {
         val capabilities = localFirstCapabilities(remoteModelConfigured = true)
 
         assertEquals(
-            "模型配置已保存 · 请完成能力测试",
+            "配置已保存 · 请测试模型",
             tutorCapabilitySubtitle(capabilities),
         )
     }
@@ -41,7 +41,7 @@ class TutorCapabilitySubtitleTest {
         )
 
         assertEquals(
-            "智能讲题已就绪 · 图片读取暂不可用",
+            "文字讲题可用 · 图片识别暂不可用",
             tutorCapabilitySubtitle(capabilities),
         )
     }

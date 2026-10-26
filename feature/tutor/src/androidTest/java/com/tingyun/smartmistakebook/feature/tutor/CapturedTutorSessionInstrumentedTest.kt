@@ -883,7 +883,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
     }
 
     /**
-     * 加号菜单里的「从错题库选择」只在题面读取器接线时出现。
+     * 加号菜单里的「从错题本选择」只在题面读取器接线时出现。
      *
      * 同 [theSessionOffersTheImageEntryOnlyWhenAnIntakeIsWired] 一条纪律：接线（app → 路由
      * → 面板）漏掉任何一层，入口都会静默消失，学生看到的是"功能不见了"而不是报错。
@@ -924,7 +924,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
 
         composeRule.onNodeWithTag("tutor_chat_attach").performClick()
         composeRule.onNodeWithTag("session_attach_library").assertExists()
-        composeRule.onNodeWithText("从错题库选择").assertExists()
+        composeRule.onNodeWithText("从错题本选择").assertExists()
     }
 
     /**
@@ -1360,7 +1360,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
     }
 
     @Test
-    fun uncertaintyEscapeSendsAnExactHintRequestWithoutWritingChoiceEvidence() {
+    fun uncertaintyEscapeKeepsOriginalChoicesUsableAfterTheHintSucceeds() {
         val session = session()
         val modelTasks = ChatModelTaskRepository(session)
         val interactions = RecordingTutorInteractions()
@@ -1394,6 +1394,79 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             assertEquals(emptyList<TutorTurnResponse>(), interactions.responses.value)
             assertEquals(null, interactions.moveCommand)
             assertEquals(null, interactions.revealCommand)
+        }
+
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
+            .performScrollTo()
+            .assertIsEnabled()
+            .performClick()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            interactions.responses.value.singleOrNull()?.selectedChoiceId == "choice-2"
+        }
+        composeRule.runOnIdle {
+            val response = interactions.responses.value.single()
+            assertEquals(session.sessionId, response.sessionId)
+            assertEquals(1, response.cycleOrdinal)
+            assertEquals(1, response.turnOrdinal)
+            assertEquals(1, interactions.choiceCommands.size)
+        }
+    }
+
+    @Test
+    fun uncertaintyEscapeKeepsOriginalChoicesUsableAfterFailureAndRetry() {
+        val session = session()
+        val modelTasks = ChatModelTaskRepository(session, failFirstRespondExecution = true)
+        val interactions = RecordingTutorInteractions()
+        composeRule.setContent {
+            MaterialTheme {
+                ReadyCapturedSession(
+                    session = session,
+                    clock = { 10_000L },
+                    saveInProgress = false,
+                    saveError = null,
+                    onSave = {},
+                    modelTasks = modelTasks,
+                    interactions = interactions,
+                    profile = StudyProfileOverview(),
+                    onOpenModelSettings = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("captured_tutor_request_hint")
+            .performScrollTo()
+            .performClick()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            modelTasks.respondTasks.value.singleOrNull()?.status == ModelTaskStatus.RETRYABLE_FAILURE
+        }
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
+            .performScrollTo()
+            .assertIsEnabled()
+        composeRule.runOnIdle {
+            assertEquals(emptyList<TutorTurnResponse>(), interactions.responses.value)
+        }
+
+        composeRule.onNodeWithTag("tutor_chat_retry").performScrollTo().performClick()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            modelTasks.respondTasks.value.any { it.status == ModelTaskStatus.SUCCEEDED }
+        }
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
+            .performScrollTo()
+            .assertIsEnabled()
+            .performClick()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            interactions.responses.value.singleOrNull()?.selectedChoiceId == "choice-2"
+        }
+        composeRule.runOnIdle {
+            assertEquals(2, modelTasks.executeRespondCalls)
+            assertTrue(modelTasks.respondRequests.all { request ->
+                (request.input as TutorRespondInput).studentMessage == "我不确定，请给我一点提示"
+            })
+            val response = interactions.responses.value.single()
+            assertEquals(session.sessionId, response.sessionId)
+            assertEquals(1, response.cycleOrdinal)
+            assertEquals(1, response.turnOrdinal)
+            assertEquals(1, interactions.choiceCommands.size)
         }
     }
 

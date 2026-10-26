@@ -1,9 +1,32 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.border
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.outlined.ArrowUpward
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.style.TextOverflow
+import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
+import com.tingyun.smartmistakebook.core.ui.Ink
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,24 +49,34 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.model.ModelLiveKind
@@ -57,6 +90,10 @@ import com.tingyun.smartmistakebook.core.model.TutorToolTraceDisplay
 import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
 import com.tingyun.smartmistakebook.core.model.tutorToolTraceDisplay
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+import com.tingyun.smartmistakebook.core.ui.InkMuted
+import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
@@ -424,10 +461,9 @@ private const val TUTOR_TAIL_FOLLOW_ATTEMPTS = 3
  */
 private fun LazyListState.isAtTail(): Boolean {
     val layout = layoutInfo
-    if (layout.totalItemsCount == 0) return true
-    val last = layout.visibleItemsInfo.lastOrNull() ?: return false
-    return last.index == layout.totalItemsCount - 1 &&
-        last.offset + last.size <= layout.viewportEndOffset
+    val last = layout.visibleItemsInfo.lastOrNull()
+    return isTutorTailVisible(last?.index, layout.totalItemsCount,
+        last?.let { it.offset + it.size }, layout.viewportEndOffset)
 }
 
 /**
@@ -444,6 +480,12 @@ private suspend fun followTutorTail(listState: LazyListState) {
             .first { it > 0 }
         listState.scrollToItem(itemCount - 1)
         withFrameNanos { }
+        val layout = listState.layoutInfo
+        val last = layout.visibleItemsInfo.lastOrNull()
+        if (last?.index == itemCount - 1) {
+            val remaining = last.offset + last.size - layout.viewportEndOffset + layout.afterContentPadding
+            if (remaining > 0) listState.scrollBy(remaining.toFloat())
+        }
         if (listState.isAtTail()) return
     }
 }
@@ -476,38 +518,53 @@ internal fun TutorConversationFrame(
     liveTurnStopAction: (() -> Unit)? = null,
     liveTurnStopTestTag: String = "tutor_live_stop",
     composer: (@Composable () -> Unit)? = null,
+    autoFollowEnabled: Boolean = true,
+    composerInList: Boolean = false,
     content: LazyListScope.() -> Unit,
 ) {
     var initialTailPositioned by remember(listState) { mutableStateOf(false) }
     var followsTail by remember(listState) { mutableStateOf(true) }
     var handledForceToken by remember(listState) { mutableStateOf<Any?>(null) }
     var handledBlockToken by remember(listState) { mutableStateOf<Any?>(null) }
+    var programmaticFollow by remember(listState) { mutableStateOf(false) }
+    var composerHeightPx by remember { mutableStateOf(0) }
+    var viewportHeightPx by remember { mutableStateOf(0) }
+    val userDragging by listState.interactionSource.collectIsDraggedAsState()
+    val density = LocalDensity.current
 
     LaunchedEffect(listState) {
         snapshotFlow {
-            val layout = listState.layoutInfo
-            val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index
-            val atEnd = layout.totalItemsCount == 0 || lastVisible == layout.totalItemsCount - 1
-            listState.isScrollInProgress to atEnd
-        }.collect { (scrolling, atEnd) ->
+            Triple(listState.isScrollInProgress || userDragging, listState.isAtTail(), programmaticFollow)
+        }.collect { (scrolling, atEnd, following) ->
+            if (following) return@collect
             if (scrolling) {
-                followsTail = atEnd
+                followsTail = atEnd && !userDragging
             } else if (atEnd) {
                 followsTail = true
             }
         }
     }
-    LaunchedEffect(autoScrollVersion, forceFollowToken, blockAutoFollowToken, listState) {
+    LaunchedEffect(autoScrollVersion, forceFollowToken, blockAutoFollowToken, listState, viewportHeightPx, autoFollowEnabled) {
+        if (!autoFollowEnabled) {
+            initialTailPositioned = false
+            followsTail = true
+            return@LaunchedEffect
+        }
         val forceFollow = forceFollowToken != null && forceFollowToken != handledForceToken
         val blockAutoFollow = initialTailPositioned &&
             blockAutoFollowToken != null &&
             blockAutoFollowToken != handledBlockToken
-        val shouldFollow = !initialTailPositioned ||
-            !blockAutoFollow && (followsTail || forceFollow)
         withFrameNanos { }
+        val shouldFollow = !userDragging && !listState.isScrollInProgress &&
+            (!initialTailPositioned || !blockAutoFollow && (followsTail || forceFollow))
         if (shouldFollow) {
-            followTutorTail(listState)
-            followsTail = true
+            programmaticFollow = true
+            try {
+                followTutorTail(listState)
+                followsTail = true
+            } finally {
+                programmaticFollow = false
+            }
         } else if (blockAutoFollow) {
             followsTail = false
         }
@@ -517,23 +574,36 @@ internal fun TutorConversationFrame(
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val currentComposer by rememberUpdatedState(composer)
+    val renderComposer = remember { movableContentOf { currentComposer?.invoke() } }
 
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(Paper),
+            .background(Paper)
+            .imePadding(),
         contentAlignment = Alignment.TopCenter,
     ) {
+        val inputLineHeight = with(density) { ClaudeLayout.ComposerText.lineHeight.toDp() }
+        val visibleInputLines = ((maxHeight.value * .35f - 32f) / inputLineHeight.value)
+            .toInt().coerceIn(1, 4)
+        val startPageTopPadding = if (maxHeight > 600.dp) 56.dp else 16.dp
+        val composerBlock: @Composable () -> Unit = {
+            Surface(color = Paper, modifier = Modifier.onSizeChanged { composerHeightPx = it.height }) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = if (composerInList) 0.dp else SmartDimens.ContentHorizontalPadding, vertical = 8.dp)) {
+                    CompositionLocalProvider(LocalTutorInputMaxLines provides visibleInputLines) { renderComposer() }
+                }
+            }
+        }
         Column(
             modifier = Modifier
                 .widthIn(max = SmartDimens.MaximumContentWidth)
-                .fillMaxSize()
-                .imePadding(),
+                .fillMaxSize(),
         ) {
             Column(
                 modifier = Modifier.padding(
                     start = SmartDimens.ContentHorizontalPadding,
-                    top = 8.dp,
+                    top = 0.dp,
                     end = SmartDimens.ContentHorizontalPadding,
                 ),
             ) {
@@ -543,6 +613,7 @@ internal fun TutorConversationFrame(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
+                    .onSizeChanged { viewportHeightPx = it.height }
                     .testTag("tutor_conversation_list")
                     .then(listViewportModifier),
                 state = listState,
@@ -554,6 +625,15 @@ internal fun TutorConversationFrame(
                 ),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
+                if (composerInList && composer != null) {
+                    item("tutor_start_composer") {
+                        Column(Modifier.fillMaxWidth().padding(top = startPageTopPadding)) {
+                            Text("今天想学点什么？", Modifier.padding(start = 4.dp, bottom = 20.dp),
+                                color = Ink, style = MaterialTheme.typography.headlineSmall)
+                            composerBlock()
+                        }
+                    }
+                }
                 content()
                 if (liveTurn != null) {
                     item("tutor_live_turn") {
@@ -568,20 +648,7 @@ internal fun TutorConversationFrame(
                     }
                 }
             }
-            composer?.let {
-                Surface(color = Paper, shadowElevation = 4.dp) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = SmartDimens.ContentHorizontalPadding,
-                                vertical = 8.dp,
-                            ),
-                    ) {
-                        it()
-                    }
-                }
-            }
+            if (!composerInList && composer != null) composerBlock()
         }
         if (!followsTail && initialTailPositioned) {
             ScrollToBottomButton(
@@ -589,11 +656,14 @@ internal fun TutorConversationFrame(
                     followsTail = true
                     forceFollowToken?.let { handledForceToken = it }
                     // 同一个贴尾助手：点「回到最新」也要真的到最新，而不是停在估算落点上。
-                    coroutineScope.launch { followTutorTail(listState) }
+                    coroutineScope.launch {
+                        programmaticFollow = true
+                        try { followTutorTail(listState) } finally { programmaticFollow = false }
+                    }
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 80.dp)
+                    .padding(end = 16.dp, bottom = with(density) { composerHeightPx.toDp() } + 12.dp)
                     .testTag("tutor_scroll_to_bottom"),
             )
         }
@@ -625,6 +695,8 @@ private fun ScrollToBottomButton(
  * （`value.isNotBlank()` 才可点），而两边的发送入口本来就都允许纯图发送；同一个页面里"能不能
  * 发出去"取决于学生从哪个状态进来。
  */
+private val LocalTutorInputMaxLines = staticCompositionLocalOf { 4 }
+
 @Composable
 internal fun TutorChatComposer(
     value: String,
@@ -645,68 +717,104 @@ internal fun TutorChatComposer(
      * 学生可以先打字，但不会出现"按下去什么也不发生"的假按钮。
      */
     sendBlocked: Boolean = false,
+    tools: (@Composable () -> Unit)? = null,
 ) {
-    val canSend = !sendBlocked && enabled && !sending && (value.isNotBlank() || attachmentCount > 0)
-    Column(modifier = modifier.fillMaxWidth()) {
+    var focused by remember { mutableStateOf(false) }
+    val sendInteraction = remember { MutableInteractionSource() }
+    val sendPressed by sendInteraction.collectIsPressedAsState()
+    val motionEnabled = com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled.current
+    val sendScale by animateFloatAsState(if (sendPressed && motionEnabled) .95f else 1f,
+        com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled,
+            com.tingyun.smartmistakebook.core.ui.ClaudeMotion.PressMillis), label = "composer_send_press")
+    var editorValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(value, TextRange(value.length)))
+    }
+    var lastPublishedText by remember { mutableStateOf(value) }
+    LaunchedEffect(value) {
+        if (value != lastPublishedText) {
+            editorValue = TextFieldValue(value, TextRange(value.length))
+            lastPublishedText = value
+        }
+    }
+    val canSend = !sendBlocked && enabled && !sending && editorValue.composition == null &&
+        (editorValue.text.isNotBlank() || attachmentCount > 0)
+    val sendIfReady: () -> Unit = {
+        // The IME can commit and send in one event, before Compose renders the new enabled state.
+        if (!sendBlocked && enabled && !sending && editorValue.composition == null &&
+            (editorValue.text.isNotBlank() || attachmentCount > 0)
+        ) onSend()
+    }
+    val shape = RoundedCornerShape(ClaudeLayout.ComposerRadius)
+    Column(modifier = modifier.fillMaxWidth()
+        .shadow(4.dp, shape, ambientColor = Color.Black.copy(alpha = .035f), spotColor = Color.Black.copy(alpha = .035f))
+        .background(if (enabled) ContentSurface else SubtleSurface, shape)
+        .border(1.dp, Ink.copy(alpha = if (focused) .2f else .1f), shape)
+        .padding(ClaudeLayout.ComposerPadding)) {
         attachmentPreview?.invoke()
-        OutlinedTextField(
-            value = value,
+        BasicTextField(
+            value = editorValue,
             onValueChange = { changed ->
-                onValueChange(changed.take(TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS))
+                val bounded = boundedTutorInput(changed, TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS)
+                editorValue = bounded
+                if (bounded.text.length <= TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS && bounded.text != lastPublishedText) {
+                    lastPublishedText = bounded.text
+                    onValueChange(bounded.text)
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .onFocusChanged { focused = it.isFocused }
                 .testTag("tutor_chat_composer"),
             enabled = enabled,
-            placeholder = { Text(placeholder) },
+            textStyle = ClaudeLayout.ComposerText.copy(color = Ink),
+            cursorBrush = SolidColor(JadeActive),
             minLines = 1,
-            maxLines = 4,
-            leadingIcon = onOpenAttachMenu?.let { openAttachMenu ->
-                {
-                    IconButton(
-                        onClick = openAttachMenu,
-                        enabled = enabled,
-                        modifier = Modifier.testTag("tutor_chat_attach"),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Add,
-                            contentDescription = "添加图片",
-                            tint = JadeActive,
-                        )
-                    }
-                }
-            },
+            maxLines = LocalTutorInputMaxLines.current,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
             keyboardActions = KeyboardActions(
-                onSend = { if (canSend) onSend() },
+                onSend = { sendIfReady() },
             ),
-            trailingIcon = {
-                IconButton(
-                    onClick = onSend,
-                    enabled = canSend,
-                    modifier = Modifier.testTag("tutor_chat_send"),
-                ) {
-                    if (sending) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = JadeActive,
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.Send,
-                            contentDescription = "发送这条消息",
-                            tint = JadeActive,
-                        )
-                    }
+            decorationBox = { input ->
+                Box(Modifier.padding(start = 6.dp, top = 4.dp)) {
+                    if (editorValue.text.isEmpty()) Text(placeholder, color = InkSecondary,
+                        style = ClaudeLayout.ComposerText, maxLines = LocalTutorInputMaxLines.current.coerceAtMost(2),
+                        overflow = TextOverflow.Ellipsis)
+                    input()
                 }
             },
-            supportingText = if (value.length >= 1_000) {
-                { Text("${value.length}/${TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS}") }
-            } else {
-                null
-            },
-            shape = RoundedCornerShape(14.dp),
         )
+        Spacer(Modifier.height(ClaudeLayout.ComposerGap))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                onOpenAttachMenu?.let { openAttachMenu ->
+                    IconButton(onClick = openAttachMenu, enabled = enabled,
+                        modifier = Modifier.size(48.dp).testTag("tutor_chat_attach")) {
+                        Icon(Icons.Outlined.Add, "添加图片", Modifier.size(20.dp),
+                            tint = if (enabled) InkSecondary else InkMuted)
+                    }
+                }
+                tools?.invoke()
+                if (value.length >= 1_000) Text("${value.length}/${TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS}",
+                    style = ClaudeLayout.ControlText, color = InkSecondary)
+            }
+            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                IconButton(
+                    onClick = sendIfReady,
+                    enabled = canSend,
+                    interactionSource = sendInteraction,
+                    modifier = Modifier.size(48.dp).testTag("tutor_chat_send"),
+                ) {
+                    Box(Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
+                        .graphicsLayer { scaleX = sendScale; scaleY = sendScale }
+                        .background(if (canSend || sending) JadeActive else JadeActive.copy(alpha = .3f)),
+                        contentAlignment = Alignment.Center) {
+                        if (sending) CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
+                        else Icon(Icons.Outlined.ArrowUpward, "发送这条消息", Modifier.size(18.dp), tint = Color.White)
+                    }
+                }
+            }
+        }
     }
 }

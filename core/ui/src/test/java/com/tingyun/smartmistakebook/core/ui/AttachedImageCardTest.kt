@@ -100,7 +100,7 @@ class AttachedImageCardTest {
             AttachedImageResolution.Unavailable(AttachedImageUnavailableReason.NOT_GENERATED),
         ) as AttachedImageRenderState.Failed
 
-        assertEquals("未就绪", attachedImageStatusHint(state))
+        assertEquals("暂不可用", attachedImageStatusHint(state))
         assertTrue(attachedImageFailureMessage(state).contains("不会自动"))
         assertTrue(attachedImageCanRegenerate(state))
         assertEquals("重新生成", ATTACHED_IMAGE_REGENERATE_LABEL)

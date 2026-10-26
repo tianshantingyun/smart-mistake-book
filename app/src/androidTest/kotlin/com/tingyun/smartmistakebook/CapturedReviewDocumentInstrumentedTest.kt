@@ -43,6 +43,25 @@ class CapturedReviewDocumentInstrumentedTest {
         compose.onNodeWithTag("captured_review_source_open").assertDoesNotExist()
     }
 
+    @Test fun zoomingTheSecondOriginalReturnsToItsExistingPlaceInThePageList() {
+        show(ready(withImages = true))
+        compose.onNodeWithTag("captured_review_source_open").performClick()
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithContentDescription("复习原图 2").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithContentDescription("复习原图 2").performScrollTo().performClick()
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithContentDescription("复习原图 2 / 2").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("复习原图 2 / 2").assertIsDisplayed()
+        compose.onNodeWithContentDescription("放大图片").performClick()
+        compose.onNodeWithTag("image_viewer_scale").assertTextContains("125%")
+        compose.onNodeWithContentDescription("关闭图片查看").performClick()
+        compose.onNodeWithContentDescription("复习原图 2").assertIsDisplayed()
+        compose.onNodeWithText("关闭原图").performClick()
+        compose.onNodeWithTag("captured_review_source_open").assertIsDisplayed()
+    }
+
     @Test fun unavailableOriginalsAreExplainedWithoutHidingTheFormalQuestion() {
         show(ready(withImages = false))
         compose.onNodeWithText("这里是正式题面").assertIsDisplayed()

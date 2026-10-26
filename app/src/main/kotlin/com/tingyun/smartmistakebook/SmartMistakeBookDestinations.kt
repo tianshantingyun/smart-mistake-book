@@ -555,7 +555,7 @@ internal fun tutorSettlementNoticeFor(
     tutorVisitedForItem: Boolean,
 ): ReviewTutorSettlementNotice? = when {
     failed -> ReviewTutorSettlementNotice(
-        message = "这次判定没有结算成功，复习记录没有写入。可以重新判定再试一次。",
+        message = "本次判定未保存，复习记录未更新。可重新判定后重试。",
         retryLabel = SETTLEMENT_RETRY_LABEL,
     )
     status == TutorJudgedReviewSettlementStatus.NO_VERDICT && tutorVisitedForItem ->

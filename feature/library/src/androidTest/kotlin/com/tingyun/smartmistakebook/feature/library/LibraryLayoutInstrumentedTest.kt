@@ -59,7 +59,7 @@ class LibraryLayoutInstrumentedTest {
     @Test fun emptySearchStillShowsRecoveryAndPageActions() {
         show()
         compose.onNodeWithTag("library_search_field").performTextInput("找不到的关键词")
-        compose.onNodeWithText("没找到相关内容").assertIsDisplayed()
+        compose.onNodeWithText("未找到相关题目").assertIsDisplayed()
         compose.onNodeWithTag("library_export_visible").assertDoesNotExist()
         compose.onNodeWithTag("library_export_results").assertIsDisplayed()
         compose.onNodeWithTag("library_search_clear").performClick()

@@ -201,7 +201,7 @@ fun SavedMistakeTutorRoute(
                             onBack = onBack,
                         )
                     },
-                    composerPlaceholder = "这道题还没有打开",
+                    composerPlaceholder = "尚未打开题目",
                     liveAnswerTestTag = "saved_mistake_non_ready_reply",
                 ),
                 composer = {
@@ -213,7 +213,7 @@ fun SavedMistakeTutorRoute(
                             providerReady = true,
                             questionNotReady = true,
                         ).block(),
-                        placeholder = "这道题还没有打开",
+                        placeholder = "尚未打开题目",
                         reasonTestTag = "saved_mistake_non_ready_reason",
                     )
                 },
@@ -262,7 +262,7 @@ fun SavedMistakeTutorRoute(
                         onBack = onBack,
                     )
                 },
-                composerPlaceholder = "这道题还没有打开",
+                composerPlaceholder = "尚未打开题目",
                 liveAnswerTestTag = "saved_mistake_non_ready_reply",
             ),
             composer = {
@@ -274,7 +274,7 @@ fun SavedMistakeTutorRoute(
                         providerReady = true,
                         questionNotReady = true,
                     ).block(),
-                    placeholder = "这道题还没有打开",
+                    placeholder = "尚未打开题目",
                     reasonTestTag = "saved_mistake_non_ready_reason",
                 )
             },
@@ -296,7 +296,7 @@ fun SavedMistakeTutorRoute(
                     )
                     MistakeDetailState.NotFound -> TutorQuestionUnavailable(
                         title = "没有找到这道错题",
-                        detail = "它可能已归档、删除或切换到了新的修订。",
+                        detail = "题目可能已移出、删除或更新，请返回错题本查看。",
                         onRetry = onBack,
                     )
                     is MistakeDetailState.Ready -> Unit
@@ -496,7 +496,7 @@ internal fun SavedMistakeTutorContent(
                     onBack = onBack,
                 )
             },
-            composerPlaceholder = "问这道题，或说出你卡住的步骤",
+            composerPlaceholder = "输入问题或需要讲解的步骤",
             // 这一条**不自动开首轮**（与拍照入口相反）：错题本这条路的合同是"入库后不自动讲题、
             // 由学生显式发起"（`docs/product-information-architecture.md` §错题本、
             // `docs/m1-exhaustive-product-contract.md` 的"自动开始讲题"一栏）。学生进来看到的是

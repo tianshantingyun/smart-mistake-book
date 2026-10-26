@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,7 +65,7 @@ internal fun TutorStoredChoiceFeedback(
                 } else {
                     "这里暴露了关键分叉"
                 },
-                color = if (response.selectionWasCorrect == true) JadeActive else ErrorWarm,
+                color = if (response.selectionWasCorrect == true) JadeActive else ErrorText,
                 style = MaterialTheme.typography.labelLarge,
             )
             SafeMarkdownText(

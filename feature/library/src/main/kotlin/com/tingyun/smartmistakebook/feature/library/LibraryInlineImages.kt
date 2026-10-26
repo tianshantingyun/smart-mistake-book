@@ -1,12 +1,23 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.HideImage
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -14,8 +25,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
@@ -23,17 +40,28 @@ import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
 import com.tingyun.smartmistakebook.core.ui.LocalImageLoadState
+import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.ClaudeQuietDots
 import kotlinx.coroutines.CancellationException
 
-/** Only composed list items read their saved local pictures; there is no generation or write port. */
+/** Visible pages read their saved local pictures; there is no generation or write port. */
 @Composable
 internal fun LibraryInlineImages(
     mistake: LibraryMistake,
     repository: MistakeDetailRepository?,
     modifier: Modifier = Modifier,
+    captionContent: @Composable (String) -> Unit = { SourceCaption(it) },
+    fallbackContent: @Composable () -> Unit = {},
 ) {
-    if (repository == null) return
+    if (repository == null) {
+        Column(modifier) {
+            MistakeModuleHeader { captionContent("") }
+            fallbackContent()
+        }
+        return
+    }
     val preview by key(repository, mistake.id, mistake.imageVersionKey) {
         produceState<InlineImagesState>(InlineImagesState.Loading) {
             try {
@@ -46,15 +74,29 @@ internal fun LibraryInlineImages(
         }
     }
     val current = preview
-    if (current is InlineImagesState.Images && current.assets.isEmpty()) return
     Column(modifier) {
         when (current) {
-            InlineImagesState.Loading -> PreviewMessage("正在加载题图…")
-            InlineImagesState.Unavailable -> PreviewMessage("题图暂时无法显示")
-            is InlineImagesState.Images -> current.assets.forEachIndexed { index, asset ->
-                key(asset.sourceAssetId) {
-                    if (current.assets.size > 1) PreviewMessage("题图 · ${index + 1}/${current.assets.size}")
-                    InlineImage(asset, "${mistake.title}，第${index + 1}张题图")
+            InlineImagesState.Loading -> {
+                MistakeModuleHeader { captionContent("") }
+                fallbackContent()
+                PreviewMessage("正在加载题图…", loading = true)
+            }
+            InlineImagesState.Unavailable -> {
+                MistakeModuleHeader { captionContent("") }
+                PreviewMessage("题图暂时无法显示")
+                fallbackContent()
+            }
+            is InlineImagesState.Images -> {
+                if (current.assets.isEmpty()) {
+                    MistakeModuleHeader { captionContent("") }
+                    fallbackContent()
+                }
+                current.assets.forEachIndexed { index, asset ->
+                    key(asset.sourceAssetId) {
+                        InlineImage(asset, "${mistake.title}，第${index + 1}张题图", index + 1, current.assets.size,
+                            captionContent = { source -> if (index == 0) captionContent(source) else SourceCaption(source) },
+                            fallbackContent = if (index == 0) fallbackContent else ({}))
+                    }
                 }
             }
         }
@@ -62,31 +104,83 @@ internal fun LibraryInlineImages(
 }
 
 @Composable
-private fun InlineImage(asset: MistakeSourceAsset, description: String) {
+private fun InlineImage(asset: MistakeSourceAsset, description: String, position: Int, total: Int,
+    captionContent: @Composable (String) -> Unit,
+    fallbackContent: @Composable () -> Unit) {
+    val sourceTitle = sourceAssetDisplayTitle(asset.role, 1, 1, isHistorical = false, isExplanation = false)
+    val caption = if (total > 1) "$sourceTitle · $position/$total" else sourceTitle
     val uri = (asset.location as? MistakeSourceLocation.Available)?.localUri
     if (uri == null) {
+        MistakeModuleHeader {
+            Box(Modifier.padding(start = 16.dp, end = 12.dp)) { captionContent(caption) }
+        }
         PreviewMessage("题图暂时无法显示")
+        fallbackContent()
         return
     }
     var loadState by remember(asset.sourceAssetId, uri) { mutableStateOf(LocalImageLoadState.LOADING) }
-    BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 6.dp)) {
-        val imageHeight = (maxWidth * (asset.height.toFloat() / asset.width)).coerceIn(80.dp, 480.dp)
-        BoundedLocalImage(
-            imageUri = uri,
-            contentDescription = description,
-            expanded = true,
-            expandedMaxHeight = 480.dp,
-            modifier = Modifier.fillMaxWidth().height(imageHeight).clip(MaterialTheme.shapes.small),
-            onLoadStateChange = { loadState = it },
-        )
+    var inViewport by remember(asset.sourceAssetId, uri) { mutableStateOf(false) }
+    var viewing by rememberSaveable(asset.sourceAssetId, uri) { mutableStateOf(false) }
+    // A single lazy item may contain many pages. Composition alone does not bound its decodes.
+    // Include the caption so its preview action remains usable at the viewport edge.
+    Column(Modifier.fillMaxWidth().onGloballyPositioned { coordinates ->
+        val visible = coordinates.boundsInWindow()
+        inViewport = visible.width > 0f && visible.height > 0f
+    }) {
+        MistakeModuleHeader {
+            Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Box(Modifier.weight(1f)) { captionContent(caption) }
+                InlineActionButton("放大", { viewing = true }, enabled = inViewport && loadState == LocalImageLoadState.AVAILABLE,
+                    contentDescription = "放大$description")
+            }
+        }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val imageHeight = (maxWidth * (asset.height.toFloat() / asset.width)).coerceIn(80.dp, 480.dp)
+            val imageModifier = Modifier.fillMaxWidth().height(imageHeight).clip(MaterialTheme.shapes.small)
+            val frameModifier = if (loadState == LocalImageLoadState.UNAVAILABLE)
+                Modifier.fillMaxWidth().heightIn(min = imageHeight).clip(MaterialTheme.shapes.small) else imageModifier
+            Box(frameModifier.background(SmartColors.SubtleSurface), contentAlignment = Alignment.Center) {
+                if (loadState == LocalImageLoadState.UNAVAILABLE) {
+                    PreviewMessage("题图暂时无法显示")
+                }
+                if (inViewport) {
+                    BoundedLocalImage(
+                        imageUri = uri,
+                        contentDescription = description,
+                        expanded = true,
+                        expandedMaxHeight = 480.dp,
+                        modifier = imageModifier,
+                        onLoadStateChange = { loadState = it },
+                    )
+                } else {
+                    // Retain geometry and the scroll target without retaining a bitmap offscreen.
+                    Box(imageModifier.semantics { contentDescription = description })
+                }
+            }
+        }
+        if (loadState == LocalImageLoadState.UNAVAILABLE) fallbackContent()
+        if (viewing) LocalImageViewer(uri, "$sourceTitle · $description", onDismiss = { viewing = false })
     }
-    if (loadState == LocalImageLoadState.UNAVAILABLE) PreviewMessage("题图暂时无法显示")
 }
 
 @Composable
-private fun PreviewMessage(message: String) {
-    Text(message, color = SmartColors.Ink, style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier.padding(top = 6.dp, bottom = 6.dp))
+private fun SourceCaption(text: String) {
+    if (text.isNotBlank()) Text(text, color = SmartColors.InkSecondary, style = MaterialTheme.typography.labelMedium)
+}
+
+@Composable
+private fun PreviewMessage(message: String, loading: Boolean = false) {
+    Surface(color = SmartColors.SubtleSurface, shape = MaterialTheme.shapes.small,
+        modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.defaultMinSize(minHeight = if (loading) 40.dp else 64.dp)
+            .padding(horizontal = 16.dp, vertical = if (loading) 8.dp else 12.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (loading) ClaudeQuietDots() else Icon(Icons.Outlined.HideImage, null,
+                modifier = Modifier.size(20.dp), tint = SmartColors.InkSecondary)
+            Text(message, color = SmartColors.Ink, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
 }
 
 private sealed interface InlineImagesState {

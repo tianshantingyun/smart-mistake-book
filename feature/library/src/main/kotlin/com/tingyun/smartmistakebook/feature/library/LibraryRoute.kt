@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -20,15 +21,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.LibraryAdd
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,15 +41,19 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.AnimatedVisibility
+import com.tingyun.smartmistakebook.core.ui.ClaudeDisclosure as AnimatedVisibility
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -55,6 +62,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import androidx.paging.LoadState
 import com.tingyun.smartmistakebook.core.domain.ArchivedMistakeRef
 import com.tingyun.smartmistakebook.core.domain.LibrarySort
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
@@ -64,6 +72,12 @@ import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageLazyColumn
 import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.ClaudeSegment
+import com.tingyun.smartmistakebook.core.ui.ClaudeSegmentedControl
+import com.tingyun.smartmistakebook.core.ui.ClaudeMotion
+import com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled
+import com.tingyun.smartmistakebook.core.ui.PageState
+import com.tingyun.smartmistakebook.core.ui.PageStateFrame
 import kotlinx.coroutines.launch
 
 @Composable
@@ -147,12 +161,16 @@ private fun LibraryContent(
     val scope = rememberCoroutineScope()
     val pagingItems = if (usePaging) viewModel.pagingData.collectAsLazyPagingItems() else null
     val visibleMistakeCount = if (usePaging) uiState.totalCount else uiState.visibleMistakes.size
-    val loading = usePaging && !uiState.loaded
+    val refresh = pagingItems?.loadState?.refresh
+    val loading = usePaging && (!uiState.loaded || refresh is LoadState.Loading)
+    val listState = if (usePaging) libraryListState(uiState.loaded, refresh, pagingItems?.itemCount ?: 0)
+        else LibraryListState.CONTENT
     var filtersExpanded by rememberSaveable { mutableStateOf(false) }
-    val emptyState = resolveLibraryEmptyState(
-        totalMistakeCount = mistakeCount,
+    val emptyState = if (loading || listState != LibraryListState.CONTENT) null else resolveLibraryEmptyState(
+        totalMistakeCount = if (usePaging && !uiState.hasActiveFilters) uiState.totalCount else mistakeCount,
         visibleMistakeCount = if (loading) 1 else visibleMistakeCount,
         hasActiveSearch = uiState.query.isNotBlank(),
+        hasActiveFilters = uiState.hasActiveFilters,
     )
     RootPageLazyColumn(
         modifier = modifier.testTag("library_root"),
@@ -206,12 +224,13 @@ private fun LibraryContent(
                     )
                     Spacer(Modifier.height(4.dp))
                     LibraryResultToolbar(
-                        count = visibleMistakeCount,
+                        count = if (loading) null else visibleMistakeCount,
                         sortLabel = if (usePaging) sortLabel(uiState.sort) else null,
                         filterCount = LibraryFacet.entries.count { uiState.selections.selectedOptionId(it) != null } +
                             if (uiState.timeRange != LibraryTimeRange.ALL) 1 else 0,
                         expanded = filtersExpanded,
-                        canExport = (pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0,
+                        canExport = !loading && visibleMistakeCount > 0 &&
+                            (pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0,
                         onToggleFilters = { filtersExpanded = !filtersExpanded },
                         onExport = {
                             // Export the full current query, including pages not loaded on screen.
@@ -246,18 +265,28 @@ private fun LibraryContent(
                     // 收藏开关的写失败必须看得见（默默回弹会把"没写进去"说成"写进去了"）。
                     uiState.favoriteNotice?.let { notice ->
                         Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = notice,
-                            modifier = Modifier.testTag("library_favorite_notice"),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = SmartColors.ErrorWarm,
-                        )
+                        Row(Modifier.testTag("library_favorite_notice").semantics(mergeDescendants = true) {
+                            liveRegion = LiveRegionMode.Polite
+                        }, verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Icon(Icons.Outlined.ErrorOutline, null, tint = SmartColors.ErrorText, modifier = Modifier.size(18.dp))
+                            Text(notice, style = MaterialTheme.typography.labelMedium, color = SmartColors.ErrorText)
+                        }
                     }
                     Spacer(Modifier.height(8.dp))
                 }
             }
         }
-        if (emptyState == LibraryEmptyState.FILTERED_EMPTY || emptyState == LibraryEmptyState.SEARCH_EMPTY) {
+        if (listState != LibraryListState.CONTENT) {
+            item(key = "library_load_state") {
+                PageStateFrame(
+                    state = if (listState == LibraryListState.LOADING) PageState.Loading else PageState.Error(
+                        title = "错题加载失败",
+                        onRetry = { pagingItems?.retry() },
+                    ),
+                ) {}
+            }
+        } else if (emptyState == LibraryEmptyState.FILTERED_EMPTY || emptyState == LibraryEmptyState.SEARCH_EMPTY) {
             item(key = "library_empty") {
                 EmptyLibraryResult(
                     state = emptyState,
@@ -297,6 +326,16 @@ private fun LibraryContent(
                         onToggleFavorite(mistake.id, favorite)
                     },
                 )
+            }
+        }
+        if (listState == LibraryListState.CONTENT && pagingItems != null &&
+            (refresh is LoadState.Error || pagingItems.loadState.append is LoadState.Error)) {
+            item(key = "library_more_error") {
+                PageStateFrame(PageState.Error(
+                    title = if (refresh is LoadState.Error) "更新失败" else "后续题目加载失败",
+                    supportingText = "已显示的题目仍可查看。",
+                    onRetry = pagingItems::retry,
+                )) {}
             }
         }
         item(key = "library_footer") {
@@ -362,40 +401,11 @@ private fun FacetTabs(
     activeFacet: LibraryFacet,
     onSelect: (LibraryFacet) -> Unit,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        LibraryFacet.entries.forEach { facet ->
-            val selected = facet == activeFacet
-            Column(
-                modifier = Modifier
-                    .defaultMinSize(minHeight = 48.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .semantics { role = Role.Tab; this.selected = selected }
-                    .clickable { onSelect(facet) }
-                    .padding(horizontal = 10.dp, vertical = 8.dp)
-                    .testTag("library_facet_${facet.id}"),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = facet.label,
-                    color = SmartColors.Ink,
-                    fontSize = 14.sp,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                    maxLines = 1,
-                )
-                Spacer(Modifier.height(6.dp))
-                Box(
-                    modifier = Modifier
-                        .width(if (selected) 34.dp else 0.dp)
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(if (selected) SmartColors.Jade else SmartColors.Paper),
-                )
-            }
-        }
-    }
+    ClaudeSegmentedControl(
+        segments = LibraryFacet.entries.map { ClaudeSegment(it.id, it.label, "library_facet_${it.id}") },
+        selectedId = activeFacet.id,
+        onSelect = { id -> onSelect(LibraryFacet.entries.first { it.id == id }) },
+    )
 }
 
 @Composable
@@ -418,10 +428,12 @@ private fun FacetOptions(
             selected = selectedOptionId == null,
         )
         options.forEach { option ->
+            val label = if (facet == LibraryFacet.MASTERY)
+                MasteryState.entries.firstOrNull { it.id == option.id }?.label ?: option.label else option.label
             val displayText = if (option.count > 0) {
-                "${option.label} (${option.count})"
+                "$label (${option.count})"
             } else {
-                option.label
+                label
             }
             OutlineActionChip(
                 text = displayText,
@@ -571,11 +583,20 @@ private fun ArchivedEntriesSection(
         repository.observeArchived().collect { value = it }
     }
     if (archived.isEmpty()) return
+    val motion = LocalClaudeMotionEnabled.current
+    val targetRotation = if (expanded) 180f else 0f
+    val rotation by animateFloatAsState(targetRotation,
+        animationSpec = ClaudeMotion.spec(motion), label = "library-archive-disclosure")
     Column(Modifier.fillMaxWidth()) {
         TextButton(
             onClick = { expanded = !expanded },
-            modifier = Modifier.testTag("library_archived_toggle"),
+            modifier = Modifier.testTag("library_archived_toggle").semantics {
+                stateDescription = if (expanded) "已展开" else "已收起"
+            },
         ) {
+            Icon(Icons.Outlined.ExpandMore, null,
+                modifier = Modifier.size(18.dp).rotate(if (motion) rotation else targetRotation))
+            Spacer(Modifier.width(4.dp))
             Text("已移出的题（${archived.size}）", style = MaterialTheme.typography.labelMedium)
         }
         AnimatedVisibility(visible = expanded) {
@@ -605,7 +626,7 @@ private fun ArchivedEntriesSection(
                     }
                 }
                 Text(
-                    text = "恢复后这道题会回到错题本列表和复习计划。",
+                    text = "恢复后将返回错题本和复习计划。",
                     color = SmartColors.InkSecondary,
                     style = MaterialTheme.typography.labelSmall,
                 )
@@ -622,7 +643,7 @@ internal fun libraryPendingTasksEntryVisible(count: Int, hasContinue: Boolean): 
     count > 0 && hasContinue
 
 internal fun libraryPendingTasksEntryLabel(count: Int): String =
-    "继续处理 $count 道待处理题目"
+    "继续处理 $count 道题"
 
 /** 首装空态补充说明：指向本地手动建题（不需要照片或模型）。 */
-internal const val LIBRARY_EMPTY_MANUAL_HINT = "没有照片也可以：在录入页选择「手动建题」。"
+internal const val LIBRARY_EMPTY_MANUAL_HINT = "也可在录入页选择「手动建题」。"

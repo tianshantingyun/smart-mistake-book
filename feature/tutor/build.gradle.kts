@@ -29,6 +29,8 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
     implementation(project(":core:ui"))
+    // 6B-2：卷面编辑模型与草稿类型（core:export 是 PDF/docx 共用文档模型所在模块）。
+    implementation(project(":core:export"))
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     testImplementation(libs.junit)

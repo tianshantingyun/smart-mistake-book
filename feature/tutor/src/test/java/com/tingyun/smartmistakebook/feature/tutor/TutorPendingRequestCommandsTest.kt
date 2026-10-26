@@ -26,6 +26,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -45,6 +48,7 @@ class TutorPendingRequestCommandsTest {
     private var savedCaptureSessions = mutableListOf<String>()
     private var openedProblems = mutableListOf<String?>()
     private var intakeCalls = mutableListOf<List<String>>()
+    private var beforeIntake: (suspend () -> Unit)? = null
     private var intakeResult: TutorAttachedImageIntakeResult? =
         TutorAttachedImageIntakeResult(landed = true, detail = "已经加入录入队列（2 页）。")
 
@@ -59,6 +63,7 @@ class TutorPendingRequestCommandsTest {
             openLibraryProblem = { problemId -> openedProblems += problemId },
             intakeAttachedImages = { assetIds, _ ->
                 intakeCalls += assetIds
+                beforeIntake?.invoke()
                 intakeResult
             },
         ),
@@ -107,6 +112,40 @@ class TutorPendingRequestCommandsTest {
     }
 
     // ---- 五 kind 各一条：建卡 → 裁决 → 执行 → 回喂 ----
+
+    @Test(timeout = 5_000)
+    fun repeatedAcceptAndDeclineCannotRaceTheSameRealLanding() = runBlocking {
+        val gate = CompletableDeferred<Unit>()
+        beforeIntake = { gate.await() }
+        val commands = commands()
+        val suspended = requireNotNull(suspendAction(commands, TutorLocalAction.SAVE_TO_NOTEBOOK,
+            TutorLocalActionContext(attachedImageAssetIds = listOf("asset-a"))))
+        val request = repository.readPendingRequests("AGENT").single()
+        val first = async(start = CoroutineStart.UNDISPATCHED) {
+            commands.decide(suspended.state, request.requestId, AgentPendingRequestDecision.ACCEPT)
+        }
+        assertEquals(1, intakeCalls.size)
+        assertNull(commands.decide(suspended.state, request.requestId, AgentPendingRequestDecision.ACCEPT))
+        assertNull(commands.decide(suspended.state, request.requestId, AgentPendingRequestDecision.DECLINE))
+        assertEquals(1, intakeCalls.size)
+        gate.complete(Unit)
+        assertNotNull(first.await())
+        assertEquals(AgentPendingRequestStatus.ACCEPTED, repository.readResolvedRequests("AGENT").single().status)
+    }
+
+    @Test
+    fun saveConfirmationDescribesTheActualLanding() {
+        val draft = pendingRequestCopy(AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
+            """{"captureSessionId":"capture-a"}""")
+        val images = pendingRequestCopy(AgentPendingRequestKind.NOTEBOOK_WRITE,
+            """{"imageAssetIds":["asset-a"]}""")
+        val library = pendingRequestCopy(AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
+            """{"libraryProblemId":"problem-a"}""")
+        assertTrue(draft.detail.contains("草稿"))
+        assertTrue(images.detail.contains("录入队列"))
+        assertTrue(library.detail.contains("打开它的详情"))
+        assertFalse(library.detail.contains("图片"))
+    }
 
     @Test
     fun theNotebookWriteSpellingHangsTheSameCardAndRunsTheIntake() = runBlocking {
@@ -297,7 +336,7 @@ class TutorPendingRequestCommandsTest {
         assertTrue(
             "旧卡文案必须明说现在还不能自动做",
             pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, legacy.payloadJson)
-                .detail.contains("还不能自动做"),
+                .detail.contains("暂不支持自动调整复习计划"),
         )
 
         val decision = commands.decide(

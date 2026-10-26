@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
+import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -68,12 +71,13 @@ fun MistakeExportFormatSheet(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = onDismiss),
             contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
                 modifier = modifier
                     .fillMaxWidth()
+                    .claudeModalEntrance()
                     .testTag("mistake_export_format_sheet"),
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),

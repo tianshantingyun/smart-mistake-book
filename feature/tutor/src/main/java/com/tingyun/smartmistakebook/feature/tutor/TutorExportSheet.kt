@@ -1,11 +1,17 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
+import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
+
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -146,7 +152,7 @@ internal fun resolveExportCandidates(
 
 /**
  * 版式的一句话摘要（确认卡与 sheet 共用；如"练习卷 · 双栏 · 字号大 · 含答案 · 边距 60pt ·
- * 图 80% · 块序 段落→选择题"）。
+ * 图 80% · 内容顺序 段落→选择题"）。
  *
  * 非默认的 marginPt / imageScale / blockOrder 也进摘要：模型提议了"图小一点""边距宽一点"
  * 这类要求时，学生在确认卡上必须看得到——只报模板/栏数/字号会让提议悄悄消失。
@@ -185,7 +191,7 @@ internal fun exportLayoutSummary(layout: MistakePdfLayout): String {
         }
         if (layout.blockOrder.isNotEmpty()) {
             add(
-                "块序 " + layout.blockOrder.joinToString(separator = "→") { token ->
+                "内容顺序 " + layout.blockOrder.joinToString(separator = "→") { token ->
                     exportBlockKindLabel(token)
                 },
             )
@@ -214,7 +220,7 @@ internal fun exportSkipNotice(layout: MistakePdfLayout): String? {
     val features = layout.unsupportedRequestedFeatures()
     return buildList {
         if (MistakePdfLayoutFeature.SOLUTION_SECTION in features) {
-            add("解析区只排讲解过程图：没有讲解图的题会跳过解析区；文字解析暂不提供。")
+            add("解析区仅包含讲解图；没有讲解图的题将跳过此区，暂不支持文字解析。")
         }
         val otherFeatures = features - MistakePdfLayoutFeature.SOLUTION_SECTION
         if (otherFeatures.isNotEmpty()) {
@@ -235,7 +241,7 @@ internal fun exportSkipNotice(layout: MistakePdfLayout): String? {
 internal fun exportFormatNotice(format: MistakeExportFormat): String? = when (format) {
     MistakeExportFormat.PDF -> null
     MistakeExportFormat.DOCX ->
-        "Word 版式：图形以文字说明呈现，暂不含作答空白区；打印请用 Word 打开后进行。"
+        "Word 文件用文字说明代替图形，不含作答空白区；可用 Word 打开并打印。"
 }
 
 /**
@@ -284,6 +290,7 @@ internal fun TutorExportSheetState.submittableEntryIds(
  * ③ 确认后交给后台导出管线（装配处入队 + 导航到「导出成果」）。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun TutorExportSheet(
     state: TutorExportSheetState,
     catalogEntries: List<StudyCatalogEntry>,
@@ -349,13 +356,14 @@ internal fun TutorExportSheet(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = onDismiss),
             contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 640.dp)
+                    .claudeModalEntrance()
                     .testTag("tutor_export_sheet"),
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
@@ -424,7 +432,7 @@ internal fun TutorExportSheet(
                     }
 
                     SheetSectionLabel("栏数与字号")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(1 to "单栏", 2 to "双栏").forEach { (count, label) ->
                             OutlineActionChip(
                                 text = label,
@@ -444,7 +452,7 @@ internal fun TutorExportSheet(
                     }
 
                     SheetSectionLabel("页边距与图形缩放")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         StepperChip(
                             label = "页边距 ${state.layout.marginPt}pt",
                             canDecrease = state.layout.marginPt > MistakePdfLayout.MIN_MARGIN_PT,
@@ -492,7 +500,7 @@ internal fun TutorExportSheet(
                     }
 
                     SheetSectionLabel("附加内容")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlineActionChip(
                             text = if (state.layout.includeAnswer) "含答案区" else "不含答案区",
                             onClick = {
@@ -534,10 +542,10 @@ internal fun TutorExportSheet(
                     }
 
                     // ---- ② 候选题目（本轮本地留痕） ----
-                    SheetSectionLabel("本轮查到的题（勾选要导出的）")
+                    SheetSectionLabel("选择要导出的题")
                     if (resolution.candidates.isEmpty()) {
                         Text(
-                            text = "这一轮没有从错题本里查到题。可以从错题本再选一道。",
+                            text = "本次未找到错题，可从错题本重新选择。",
                             modifier = Modifier.testTag("tutor_export_sheet_candidates_empty"),
                             color = InkSecondary,
                             style = MaterialTheme.typography.bodySmall,
@@ -547,6 +555,7 @@ internal fun TutorExportSheet(
                             CandidateRow(
                                 candidate = candidate,
                                 checked = candidate.entryId in selectedIds,
+                                enabled = !state.editLoading,
                                 onCheckedChange = { checked ->
                                     onToggleCandidate(candidate.entryId, checked)
                                 },
@@ -563,6 +572,7 @@ internal fun TutorExportSheet(
                     }
                     OutlineActionChip(
                         text = "从错题本再选",
+                        enabled = !state.editLoading,
                         onClick = { pickerOpen = true },
                         modifier = Modifier.testTag("tutor_export_sheet_pick_more"),
                     )
@@ -586,7 +596,7 @@ internal fun TutorExportSheet(
                         )
                     }
                     PrimaryActionButton(
-                        text = "下一步：编辑卷面（已勾 ${selectedIds.size} 道）",
+                        text = "编辑卷面（已选 ${selectedIds.size} 道）",
                         onClick = { onEditRequest(selectedIds) },
                         enabled = selectedIds.isNotEmpty() && !state.editLoading,
                         modifier = Modifier
@@ -649,7 +659,7 @@ private fun StepperChip(
     onIncrease: () -> Unit,
     testTagPrefix: String,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.widthIn(max = 300.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlineActionChip(
             text = "−",
             onClick = onDecrease,
@@ -658,7 +668,7 @@ private fun StepperChip(
         )
         Text(
             text = label,
-            modifier = Modifier.testTag("${testTagPrefix}_label"),
+            modifier = Modifier.weight(1f).testTag("${testTagPrefix}_label"),
             color = Ink,
             style = MaterialTheme.typography.bodySmall,
         )
@@ -675,6 +685,7 @@ private fun StepperChip(
 private fun CandidateRow(
     candidate: TutorExportCandidate,
     checked: Boolean,
+    enabled: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
@@ -685,6 +696,7 @@ private fun CandidateRow(
     ) {
         Checkbox(
             checked = checked,
+            enabled = enabled,
             onCheckedChange = onCheckedChange,
             modifier = Modifier.testTag("tutor_export_sheet_candidate_check_${candidate.entryId}"),
         )

@@ -931,6 +931,7 @@ abstract class CapturedTutorSessionTestBase {
         externalProvider: Boolean = false,
         currentCapabilities: ProviderCapabilitySnapshot? = null,
         private val holdRespondExecution: Boolean = false,
+        private val failFirstRespondExecution: Boolean = false,
         /**
          * 会话替身（K1a）：**恢复出来的轮次**在真实世界里早就有自己的消息行，替身按生产的
          * 派生式把它们补上——正文 / 思考块 / 学生气泡只有消息行这一个来源，替身不给行，
@@ -1162,6 +1163,17 @@ abstract class CapturedTutorSessionTestBase {
                     upsert(running)
                     emit(running)
                     if (holdRespondExecution) awaitCancellation()
+                    if (failFirstRespondExecution && executeRespondCalls == 1) {
+                        val failed = responseSnapshot(
+                            request = request,
+                            status = ModelTaskStatus.RETRYABLE_FAILURE,
+                            output = null,
+                            stateVersion = 3,
+                        )
+                        upsert(failed)
+                        emit(failed)
+                        return@flow
+                    }
                     val succeeded = responseSnapshot(
                         request = request,
                         status = ModelTaskStatus.SUCCEEDED,
@@ -1292,6 +1304,7 @@ abstract class CapturedTutorSessionTestBase {
 
     protected class RecordingTutorInteractions : TutorInteractionRepository {
         val responses = MutableStateFlow<List<TutorTurnResponse>>(emptyList())
+        val choiceCommands = mutableListOf<RecordTutorChoiceCommand>()
         var moveCommand: RecordTutorMoveCommand? = null
         var revealCommand: RevealTutorSolutionCommand? = null
         val revealCommands = mutableListOf<RevealTutorSolutionCommand>()
@@ -1318,6 +1331,7 @@ abstract class CapturedTutorSessionTestBase {
                 submittedAtEpochMillis = command.occurredAtEpochMillis,
                 updatedAtEpochMillis = command.occurredAtEpochMillis,
             ).also { response ->
+                choiceCommands += command
                 responses.value = listOf(response)
             }
 

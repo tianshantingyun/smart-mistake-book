@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,12 +15,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -352,7 +353,7 @@ private fun ReviewSessionContent(
         } else if (sessionViewModel.submissionStatus == ReviewSubmissionStatus.FAILED) {
             Text(
                 text = reviewRetryError(ReviewRetryReason.SUBMISSION_RECORDING).message,
-                color = SmartColors.ErrorWarm,
+                color = SmartColors.ErrorText,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -362,7 +363,7 @@ private fun ReviewSessionContent(
             )
             Spacer(Modifier.height(10.dp))
         }
-        androidx.compose.material3.TextButton(
+        com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(
             onClick = {
                 sessionViewModel.requestReveal(
                     assessmentItem = assessmentItem,
@@ -388,7 +389,7 @@ private fun ReviewSessionContent(
         if (sessionViewModel.revealStatus == ReviewRevealStatus.FAILED) {
             Text(
                 text = reviewRetryError(ReviewRetryReason.REVEAL_RECORDING).message,
-                color = SmartColors.ErrorWarm,
+                color = SmartColors.ErrorText,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -397,7 +398,7 @@ private fun ReviewSessionContent(
             Spacer(Modifier.height(10.dp))
         }
         if (reviewSubmissionResult != null) {
-            androidx.compose.material3.TextButton(
+            com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(
                 onClick = { onContinue(reviewSubmissionResult) },
                 modifier = Modifier.testTag("review_next_item"),
             ) {
@@ -517,7 +518,7 @@ private fun ReviewSelfReportSessionContent(
         SectionHeader(title = artifact.title)
         Spacer(Modifier.height(12.dp))
         Text(
-            text = "先按自己的思路作答，再按你的真实感受选一个键；本题不依赖模型判定。",
+            text = "先独立作答，再按回忆情况自评；无需模型判分。",
             style = MaterialTheme.typography.bodyMedium,
             color = SmartColors.InkSecondary,
         )
@@ -587,7 +588,7 @@ private fun ReviewSelfReportSessionContent(
         if (assessmentItem != null && selectedChoice == null && recorded == null) {
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "先选择一个答案，再按三键自评。",
+                text = "先选择答案，再进行自评。",
                 style = MaterialTheme.typography.bodySmall,
                 color = SmartColors.InkSecondary,
                 modifier = Modifier.testTag("review_self_report_need_choice"),
@@ -605,9 +606,9 @@ private fun ReviewSelfReportSessionContent(
             if (objectiveFeedback != null) {
                 Text(
                     text = if (objectiveFeedback) {
-                        "本机核对：选择正确（本次证据仍按你的自评记录）"
+                        "本机核对：选择正确。复习结果仍按你的自评记录。"
                     } else {
-                        "本机核对：选择不正确（本次证据仍按你的自评记录）"
+                        "本机核对：选择不正确。复习结果仍按你的自评记录。"
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = SmartColors.InkSecondary,
@@ -619,9 +620,9 @@ private fun ReviewSelfReportSessionContent(
             if (revealWriteFailed) {
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "已存答案的曝光记录没有写下来；撤销后重评可能被当成未看过答案。",
+                    text = "未能确认答案查看记录；撤销后重答，可能被误记为未看过答案。",
                     style = MaterialTheme.typography.bodySmall,
-                    color = SmartColors.ErrorWarm,
+                    color = SmartColors.ErrorText,
                     modifier = Modifier.testTag("review_reveal_write_failed"),
                 )
             }
@@ -661,8 +662,8 @@ private fun ReviewSelfReportSessionContent(
         } else if (selfReportViewModel.undoStatus == SelfReportUndoStatus.UNDONE) {
             Spacer(Modifier.height(10.dp))
             Text(
-                text = "已回到本题。曝光/看过答案的事实仍保留；重新作答会记为第 " +
-                    "${selfReportViewModel.currentAttemptOrdinal()} 次响应。",
+                text = "已回到本题，看过答案的记录仍保留。重新作答计为第 " +
+                    "${selfReportViewModel.currentAttemptOrdinal()} 次作答。",
                 style = MaterialTheme.typography.bodySmall,
                 color = SmartColors.InkSecondary,
                 modifier = Modifier.testTag("review_undo_reattempt_notice"),
@@ -715,7 +716,7 @@ private fun ReviewSessionPretestTutorRoute(
         Spacer(Modifier.height(12.dp))
         PaperDivider(Modifier.padding(vertical = 18.dp))
         Text(
-            text = "这道题需要先试做再由讲解判定——去讲题里完成首次作答。",
+            text = "请先独立试做，再到讲题页完成检查。",
             modifier = Modifier.testTag("review_pretest_tutor_hint"),
             color = SmartColors.InkSecondary,
             style = MaterialTheme.typography.bodyLarge,
@@ -726,7 +727,7 @@ private fun ReviewSessionPretestTutorRoute(
             onClick = onRequestTutorPretest,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .heightIn(min = 52.dp)
                 .testTag("review_pretest_tutor_button"),
         )
         // KD-36：结算没有形成判定 / 没有写成功时不再是无声的——在这里说清楚，
@@ -736,7 +737,7 @@ private fun ReviewSessionPretestTutorRoute(
             Text(
                 text = notice.message,
                 modifier = Modifier.testTag("review_pretest_settlement_notice"),
-                color = SmartColors.ErrorWarm,
+                color = SmartColors.ErrorText,
                 style = MaterialTheme.typography.bodyMedium,
             )
             onRetrySettlement?.let { retry ->
@@ -795,15 +796,12 @@ private fun SessionHeader(onBack: () -> Unit, subject: String = "GENERAL") {
             Text(
                 text = "复习中",
                 color = SmartColors.Ink,
-                fontSize = 28.sp,
-                lineHeight = 36.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
             )
         }
         SubjectIcon(
             subject = runCatching { SubjectKind.valueOf(subject) }
                 .getOrDefault(SubjectKind.GENERAL),
-            contentDescription = subject,
             modifier = Modifier.size(42.dp),
         )
     }
@@ -828,7 +826,7 @@ private fun RecordedAttemptFeedback(
         Column(Modifier.padding(16.dp)) {
             Text(
                 text = if (correct) "选择正确" else "这次选择还差一步",
-                color = if (correct) SmartColors.JadeDark else SmartColors.ErrorWarm,
+                color = if (correct) SmartColors.JadeDark else SmartColors.ErrorText,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium,
             )
@@ -908,14 +906,14 @@ private fun PrerequisiteRemediationCard(remediation: PrerequisiteRemediation) {
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(
-                text = "先补前置：${remediation.prerequisiteName}",
+                text = "相关基础：${remediation.prerequisiteName}",
                 color = SmartColors.Ink,
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.testTag("review_prereq_name"),
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "这道题用得上它。看完再作答也行，直接作答也行。",
+                text = "这道题会用到它。可先复习，也可直接作答。",
                 color = SmartColors.InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )

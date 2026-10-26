@@ -5,15 +5,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,57 +42,74 @@ import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Translate
-import androidx.compose.material3.Button
+import com.tingyun.smartmistakebook.core.ui.ClaudeButton as Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import androidx.compose.material3.Text
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
     action: (@Composable () -> Unit)? = null,
 ) {
-    Row(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 40.dp),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            modifier = Modifier
-                .width(5.dp)
-                .height(24.dp)
-                .clip(RoundedCornerShape(3.dp))
-                .background(JadeActive),
-        )
-        Spacer(Modifier.width(12.dp))
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            color = Ink,
-            style = MaterialTheme.typography.titleLarge,
-        )
-        if (action != null) {
-            Spacer(Modifier.width(8.dp))
-            action()
+        if (action != null && (maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, color = Ink, style = MaterialTheme.typography.titleMedium)
+                action()
+            }
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(title, Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleMedium)
+                action?.invoke()
+            }
         }
+    }
+}
+
+@Composable
+fun InlineActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    contentDescription: String = text,
+) {
+    TextButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier
+            .defaultMinSize(minHeight = SmartDimens.MinimumTouchTarget, minWidth = SmartDimens.MinimumTouchTarget)
+            .semantics { this.contentDescription = contentDescription },
+        colors = ButtonDefaults.textButtonColors(contentColor = Ink, disabledContentColor = InkMuted),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp),
+    ) {
+        Text(text, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -185,7 +206,7 @@ fun PrimaryActionButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .defaultMinSize(minHeight = 56.dp)
+            .defaultMinSize(minHeight = 48.dp)
             .semantics {
                 this.contentDescription = contentDescription
                 role = Role.Button
@@ -205,15 +226,15 @@ fun PrimaryActionButton(
             hoveredElevation = 0.dp,
             disabledElevation = 0.dp,
         ),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
     ) {
         if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(20.dp),
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(8.dp))
         }
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
@@ -225,7 +246,7 @@ fun OutlineActionChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    selected: Boolean = false,
+    selected: Boolean? = null,
     enabled: Boolean = true,
     contentDescription: String = text,
 ) {
@@ -236,16 +257,14 @@ fun OutlineActionChip(
             .semantics {
                 this.contentDescription = contentDescription
                 role = Role.Button
+                selected?.let { this.selected = it }
             },
         enabled = enabled,
         shape = RoundedCornerShape(SmartDimens.ChipRadius),
-        border = ButtonDefaults.outlinedButtonBorder(enabled).copy(
-            width = 1.dp,
-            brush = androidx.compose.ui.graphics.SolidColor(if (selected) JadeActive else Outline),
-        ),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = if (selected) JadeSoft else Color.Transparent,
-            contentColor = if (selected) JadeActive else Jade,
+        border = null,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected == true) JadeSoft else Ink.copy(alpha = .06f),
+            contentColor = if (selected == true) JadeActive else InkSecondary,
             disabledContentColor = InkMuted,
         ),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
@@ -293,13 +312,13 @@ fun SubjectIcon(
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = JadeSoft,
-    tint: Color = JadeActive,
+    containerColor: Color = SubtleSurface,
+    tint: Color = InkSecondary,
 ) {
     Box(
         modifier = modifier
-            .size(56.dp)
-            .clip(CircleShape)
+            .size(36.dp)
+            .clip(RoundedCornerShape(8.dp))
             .background(containerColor)
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
@@ -307,7 +326,7 @@ fun SubjectIcon(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(30.dp),
+            modifier = Modifier.size(20.dp),
             tint = tint,
         )
     }
@@ -340,6 +359,7 @@ fun RootPageColumn(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .imePadding()
             .background(Paper),
         contentAlignment = Alignment.TopCenter,
     ) {
@@ -370,6 +390,7 @@ fun RootPageLazyColumn(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .imePadding()
             .background(Paper),
         contentAlignment = Alignment.TopCenter,
     ) {

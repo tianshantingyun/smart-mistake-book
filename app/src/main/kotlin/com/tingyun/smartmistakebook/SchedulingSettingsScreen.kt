@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +34,7 @@ import java.time.ZoneId
 import kotlin.math.roundToInt
 
 /**
- * 复习排程设置（spec mastery-scheduling §2.17/§8-B4）：期望保持率、考试日历。
+ * 复习安排设置（spec mastery-scheduling §2.17/§8-B4）：记忆目标、考试日历。
  * 审计 2026-09-09 发现这三个写入路径此前全仓无调用方——`setOptions` /
  * `declareExam` / `removeExam` 只有接口与实现，学生改不了任何排程参数。
  * KF-11（2026-10-01）：FSRS 开关已随 kill-switch 退场（FSRS 唯一化）。
@@ -53,7 +53,7 @@ internal fun SchedulingSettingsScreen(
     retentionHint: OptimalRetention.Recommendation? = null,
 ) {
     RootPageColumn(modifier = Modifier.testTag("root_scheduling_settings")) {
-        SecondaryHeader(title = "复习排程", onBack = onBack)
+        SecondaryHeader(title = "复习安排", onBack = onBack)
         Text(
             text = "改动在下次启动应用时生效。",
             color = InkSecondary,
@@ -62,9 +62,9 @@ internal fun SchedulingSettingsScreen(
         )
         Spacer(Modifier.height(12.dp))
 
-        SectionHeader(title = "期望保持率")
+        SectionHeader(title = "记忆目标")
         Text(
-            text = "目标回忆概率 ${(options.desiredRetention * 100).roundToInt()}%",
+            text = "目标回忆成功率：${(options.desiredRetention * 100).roundToInt()}%",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.testTag("scheduling_retention_label"),
         )
@@ -95,7 +95,7 @@ internal fun SchedulingSettingsScreen(
 
         SectionHeader(title = "考试日历")
         Text(
-            text = "申报考试日后，考前两周会自动加大相关科目的复习权重。",
+            text = "添加考试日期后，考前两周会优先安排相关科目的复习。",
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
         )

@@ -931,7 +931,7 @@ class TutorModelTaskPolicyTest {
         assertEquals(8, input.toolDeclarations.size)
     }
 
-    // ---- 学生显式添加的题（加号「从错题库选择」）成为本轮题锚 ----
+    // ---- 学生显式添加的题（加号「从错题本选择」）成为本轮题锚 ----
 
     /**
      * 附加题轮次的请求对齐：**讲的题**跟随附加题，**会话身份**不动。

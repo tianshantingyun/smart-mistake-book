@@ -50,7 +50,6 @@ import com.tingyun.smartmistakebook.core.model.AppCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.NetworkMode
 import com.tingyun.smartmistakebook.core.ui.Divider
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
@@ -59,6 +58,8 @@ import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SubjectIcon
 import com.tingyun.smartmistakebook.core.ui.Track
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+import com.tingyun.smartmistakebook.core.ui.ClaudeSettingsRow
 
 @Composable
 fun ProfileRoute(
@@ -76,17 +77,13 @@ fun ProfileRoute(
     RootPageColumn(
         modifier = modifier.testTag("profile_screen"),
         contentPadding = PaddingValues(
-            start = 26.dp,
+            start = 16.dp,
             top = 0.dp,
-            end = 26.dp,
+            end = 16.dp,
             bottom = 12.dp,
         ),
     ) {
-        Text(
-            text = "我的",
-            color = Ink,
-            style = MaterialTheme.typography.headlineLarge,
-        )
+        ClaudePageHeader("我的")
         if (overview.hasLearningEvidence) {
             WeeklyLearningSection(overview, review, Modifier.padding(top = 8.dp))
             PaperDivider(Modifier.padding(top = 8.dp))
@@ -263,7 +260,7 @@ private fun WeaknessSection(
             WeaknessRow(
                 title = weakness.displayName,
                 // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同源的唯一文案函数）。
-                detail = "${weakness.status.displayLabel()} · 根据多次独立作答估计 · " +
+                detail = "${weakness.status.displayLabel()} · 以独立作答为参考 · " +
                     com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
                         weakness.conservativeMasteryScore,
                         weakness.masteryIntervalUpper,
@@ -277,7 +274,7 @@ private fun WeaknessSection(
 }
 
 private fun MasteryStatus.displayLabel(): String = when (this) {
-    MasteryStatus.UNKNOWN -> "暂无学习记录"
+    MasteryStatus.UNKNOWN -> "待确认"
     MasteryStatus.LEARNING -> "正在学习"
     MasteryStatus.MASTERED -> "已掌握"
     MasteryStatus.CONFLICTED -> "表现不稳定"
@@ -302,7 +299,7 @@ private fun WeaknessRow(
             .defaultMinSize(minHeight = 64.dp)
             .padding(vertical = 4.dp)
             .semantics(mergeDescendants = true) {
-                contentDescription = "$title，$detail，掌握$masteryLabel"
+                contentDescription = "$title，$detail，掌握情况估计为$masteryLabel"
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -327,14 +324,14 @@ private fun WeaknessRow(
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = "掌握$masteryLabel",
+                    text = "估计$masteryLabel",
                     color = JadeActive,
                     style = MaterialTheme.typography.labelMedium,
                 )
             }
             Text(
                 text = detail,
-                color = InkMuted,
+                color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
             LinearProgressIndicator(
@@ -363,13 +360,13 @@ private fun SettingsSection(
     val capabilitySubtitle = tutorCapabilitySubtitle(capabilities)
     val privacySubtitle = when (capabilities.networkMode) {
         NetworkMode.STRICT_OFFLINE -> "当前版本未启用联网智能服务"
-        NetworkMode.LOCAL_FIRST -> "学习记录留在本机 · 智能任务才联网"
+        NetworkMode.LOCAL_FIRST -> "学习记录保存在本机 · 使用 AI 时才联网"
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
         SectionHeader(title = "设置")
         SettingsRow(
-            title = "大模型设置",
+            title = "模型设置",
             subtitle = capabilitySubtitle,
             icon = Icons.Outlined.Memory,
             onClick = onOpenCapability,
@@ -377,7 +374,6 @@ private fun SettingsSection(
                 .padding(top = 4.dp)
                 .testTag("profile_capability_setting"),
         )
-        PaperDivider(Modifier.padding(start = 52.dp))
         SettingsRow(
             title = "数据与隐私",
             subtitle = privacySubtitle,
@@ -385,7 +381,6 @@ private fun SettingsSection(
             onClick = onOpenDataPrivacy,
             modifier = Modifier.testTag("profile_privacy_setting"),
         )
-        PaperDivider(Modifier.padding(start = 52.dp))
         SettingsRow(
             title = "提醒与复习偏好",
             subtitle = "每日提醒时间与通知权限",
@@ -393,18 +388,16 @@ private fun SettingsSection(
             onClick = onOpenReminder,
             modifier = Modifier.testTag("profile_reminder_setting"),
         )
-        PaperDivider(Modifier.padding(start = 52.dp))
         SettingsRow(
-            title = "复习排程",
-            subtitle = "期望保持率、FSRS 开关与考试日历",
+            title = "复习安排",
+            subtitle = "记忆目标、复习算法与考试日期",
             icon = Icons.Outlined.Tune,
             onClick = onOpenScheduling,
             modifier = Modifier.testTag("profile_scheduling_setting"),
         )
-        PaperDivider(Modifier.padding(start = 52.dp))
         SettingsRow(
             title = "存储与导出",
-            subtitle = "管理本机原图与 PDF 导出",
+            subtitle = "管理题图、备份与导出文件",
             icon = Icons.Outlined.Backup,
             onClick = onOpenStorage,
             modifier = Modifier.testTag("profile_storage_setting"),
@@ -414,7 +407,7 @@ private fun SettingsSection(
 
 internal fun learningMasterySubtitle(overview: StudyProfileOverview): String {
     val summaries = overview.weaknesses + overview.strengths
-    if (summaries.isEmpty()) return "做过题后，这里会自动形成你的学习情况"
+    if (summaries.isEmpty()) return "完成作答后，可在这里查看学习情况"
     val subjectCount = summaries.map(StudyKnowledgeSummary::subject)
         .filterNot { it == com.tingyun.smartmistakebook.core.model.SubjectKind.GENERAL }
         .distinct()
@@ -427,21 +420,21 @@ internal fun tutorCapabilitySubtitle(capabilities: AppCapabilitySnapshot): Strin
     when {
         !capabilities.tutorTeachingEnabled ||
             capabilities.networkMode == NetworkMode.STRICT_OFFLINE ->
-            "讲题功能暂不可用 · 查看当前能力"
+            "讲题暂不可用 · 查看设置"
         capabilities.remoteModelAvailable ->
             if (capabilities.remoteModelImageInputVerified) {
-                "图片读取与智能讲题已就绪"
+                "图片识别与讲题可用"
             } else {
-                "智能讲题已就绪 · 图片读取暂不可用"
+                "文字讲题可用 · 图片识别暂不可用"
             }
         capabilities.remoteModelAuthenticationFailed ->
             "API Key 可能已失效 · 查看测试结果"
         capabilities.remoteModelCapabilitiesTested ->
             "当前模型暂不兼容 · 查看测试结果"
         capabilities.remoteModelConfigured ->
-            "模型配置已保存 · 请完成能力测试"
+            "配置已保存 · 请测试模型"
         else ->
-            "配置大模型 API · 仅发送当次已说明的内容"
+            "设置模型服务 · 仅发送本次操作所需的内容"
     }
 
 @Composable
@@ -452,49 +445,5 @@ private fun SettingsRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics(mergeDescendants = true) {
-                role = Role.Button
-                contentDescription = "$title，$subtitle"
-            }
-            .padding(vertical = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(26.dp),
-            tint = InkSecondary,
-        )
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 14.dp),
-        ) {
-            Text(
-                text = title,
-                color = Ink,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = subtitle,
-                color = InkMuted,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-            tint = InkSecondary,
-        )
-    }
+    ClaudeSettingsRow(title, subtitle, icon, onClick, modifier)
 }

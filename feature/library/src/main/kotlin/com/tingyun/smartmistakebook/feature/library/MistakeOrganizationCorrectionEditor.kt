@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,17 +10,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import com.tingyun.smartmistakebook.core.ui.ClaudeButton as Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import com.tingyun.smartmistakebook.core.ui.ClaudeDropdownMenu as DropdownMenu
+import com.tingyun.smartmistakebook.core.ui.ClaudeDropdownMenuItem as DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -133,6 +135,7 @@ internal fun OrganizationCorrectionEditor(
             val suggestion = output.plan.classifications[index]
             SuggestionCheckRow(
                 checked = index in classifications,
+                enabled = !isSaving,
                 title = "${suggestion.dimension.contentLabel()} · ${suggestion.displayName}",
                 rationale = suggestion.rationaleMarkdown,
                 onToggle = {
@@ -330,6 +333,7 @@ internal fun OrganizationCorrectionEditor(
                 }?.title ?: "候选题"
                 SuggestionCheckRow(
                     checked = index in relations,
+                    enabled = !isSaving,
                     title = "${suggestion.kind.relationLabel()} · $targetTitle",
                     rationale = suggestion.rationaleMarkdown,
                     onToggle = {
@@ -504,6 +508,7 @@ internal fun canSaveOrganizationCorrection(
 @Composable
 private fun SuggestionCheckRow(
     checked: Boolean,
+    enabled: Boolean,
     title: String,
     rationale: String,
     onToggle: () -> Unit,
@@ -512,12 +517,12 @@ private fun SuggestionCheckRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onToggle)
+            .toggleable(checked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() })
             .padding(vertical = 4.dp)
             .testTag(testTag),
         verticalAlignment = Alignment.Top,
     ) {
-        Checkbox(checked = checked, onCheckedChange = { onToggle() })
+        Checkbox(checked = checked, enabled = enabled, onCheckedChange = null)
         Column(Modifier.padding(start = 6.dp, top = 10.dp)) {
             Text(title, color = Ink, style = MaterialTheme.typography.bodyMedium)
             SafeMarkdownText(

@@ -1,11 +1,35 @@
 package com.tingyun.smartmistakebook
 
+import android.os.Bundle
+import android.os.Parcel
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.enableSavedStateHandles
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuizFeedbackResult
 import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizLoadResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
@@ -127,5 +151,153 @@ class KnowledgeReviewSessionInstrumentedTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText("函数单调性的判定？").assertIsDisplayed()
         assertTrue(attempts >= 2)
+    }
+
+    @Test
+    fun skippingTheOnlyNodeShowsAFinishActionWithoutRecordingAVerdict() {
+        var finished = false
+        var submissions = 0
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                KnowledgeReviewSessionScreen(
+                    plan = KnowledgeReviewSessionPlan(listOf(node)),
+                    onBack = {},
+                    restoreQuiz = { _, _ -> KnowledgeQuizLoadResult.Unavailable },
+                    loadQuiz = { _, _ -> KnowledgeQuizLoadResult.NoMaterial },
+                    submitAnswer = { _, _, _, _, _, _ ->
+                        submissions += 1
+                        KnowledgeQuizFeedbackResult(true, true)
+                    },
+                    onFinished = { finished = true },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("knowledge_review_skip").performClick()
+        composeRule.onNodeWithText("本次知识点复习已结束").assertIsDisplayed()
+        composeRule.onNodeWithText("跳过的知识点没有记录本次结果，之后仍可复习。")
+            .assertIsDisplayed()
+        composeRule.onNodeWithTag("knowledge_review_finish").assertIsDisplayed().performClick()
+        assertTrue(finished)
+        assertEquals(0, submissions)
+    }
+
+    @Test
+    fun savedStateParcelRoundTripRestoresTheOriginalNodeAndChoiceWithAnEmptyNewPlan() {
+        val nextNode = node.copy(knowledgeNodeId = "kc-limit", displayName = "函数极限")
+        val nextQuiz = quizItem.copy(
+            id = "knowledge-quiz:kc-limit:1",
+            stemMarkdown = "函数极限如何判断？",
+            knowledgeNodeIds = setOf(nextNode.knowledgeNodeId),
+        )
+        lateinit var initialOwner: ReviewSessionOwner
+        composeRule.runOnIdle { initialOwner = ReviewSessionOwner() }
+        var owner by mutableStateOf(initialOwner)
+        var currentPlan by mutableStateOf(KnowledgeReviewSessionPlan(listOf(node, nextNode)))
+        var generations = 0
+        val restoredNodes = mutableListOf<String>()
+        var submission: Pair<String, String>? = null
+        composeRule.setContent {
+            key(owner) {
+                CompositionLocalProvider(
+                    LocalLifecycleOwner provides owner,
+                    LocalViewModelStoreOwner provides owner,
+                    LocalSavedStateRegistryOwner provides owner,
+                ) {
+                    SmartMistakeBookTheme {
+                        KnowledgeReviewSessionScreen(
+                            plan = currentPlan,
+                            onBack = {},
+                            restoreQuiz = { entry, _ ->
+                                restoredNodes += entry.knowledgeNodeId
+                                KnowledgeQuizLoadResult.Ready(nextQuiz)
+                            },
+                            loadQuiz = { entry, _ ->
+                                generations += 1
+                                if (entry.knowledgeNodeId == node.knowledgeNodeId) {
+                                    KnowledgeQuizLoadResult.NoMaterial
+                                } else {
+                                    KnowledgeQuizLoadResult.Ready(nextQuiz)
+                                }
+                            },
+                            submitAnswer = { _, nodeId, _, choiceId, _, _ ->
+                                submission = nodeId to choiceId
+                                KnowledgeQuizFeedbackResult(false, true)
+                            },
+                            onFinished = {},
+                        )
+                    }
+                }
+            }
+        }
+        composeRule.onNodeWithTag("knowledge_review_skip").performClick()
+        composeRule.onNodeWithText("函数极限如何判断？").assertIsDisplayed()
+        composeRule.onNodeWithTag("knowledge_review_choice_B").performClick()
+
+        composeRule.runOnIdle {
+            val previousOwner = owner
+            val savedState = previousOwner.parcelledSavedState()
+            currentPlan = KnowledgeReviewSessionPlan()
+            owner = ReviewSessionOwner(savedState)
+            previousOwner.destroy()
+        }
+
+        composeRule.onNodeWithText("函数极限").assertIsDisplayed()
+        composeRule.onNodeWithText("函数极限如何判断？").assertIsDisplayed()
+        composeRule.onNodeWithTag("knowledge_review_submit").assertIsEnabled().performClick()
+        composeRule.runOnIdle {
+            assertEquals(listOf(nextNode.knowledgeNodeId), restoredNodes)
+            assertEquals(2, generations)
+            assertEquals(nextNode.knowledgeNodeId to "B", submission)
+        }
+    }
+}
+
+/** 独立 ViewModelStore + 经 Parcel 的 registry Bundle，覆盖真正的保存/重建边界。 */
+private class ReviewSessionOwner(restoredState: Bundle? = null) :
+    SavedStateRegistryOwner,
+    ViewModelStoreOwner,
+    HasDefaultViewModelProviderFactory {
+    private val registry = LifecycleRegistry(this)
+    private val controller = SavedStateRegistryController.create(this)
+    override val lifecycle: Lifecycle = registry
+    override val savedStateRegistry: SavedStateRegistry = controller.savedStateRegistry
+    override val viewModelStore = ViewModelStore()
+    override val defaultViewModelProviderFactory = ViewModelProvider.NewInstanceFactory()
+    override val defaultViewModelCreationExtras: CreationExtras
+        get() = MutableCreationExtras().apply {
+            this[SAVED_STATE_REGISTRY_OWNER_KEY] = this@ReviewSessionOwner
+            this[VIEW_MODEL_STORE_OWNER_KEY] = this@ReviewSessionOwner
+        }
+
+    init {
+        controller.performAttach()
+        enableSavedStateHandles()
+        controller.performRestore(restoredState)
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    fun parcelledSavedState(): Bundle {
+        val state = Bundle()
+        controller.performSave(state)
+        val output = Parcel.obtain()
+        val input = Parcel.obtain()
+        return try {
+            output.writeBundle(state)
+            val bytes = output.marshall()
+            input.unmarshall(bytes, 0, bytes.size)
+            input.setDataPosition(0)
+            requireNotNull(input.readBundle(javaClass.classLoader))
+        } finally {
+            output.recycle()
+            input.recycle()
+        }
+    }
+
+    fun destroy() {
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        viewModelStore.clear()
     }
 }

@@ -24,7 +24,7 @@ class CapturePendingCapturesPolicyTest {
                 PendingCaptureStage.RECAPTURE_REQUIRED to "关键内容看不清，请重新拍摄",
                 PendingCaptureStage.MODEL_WORKING to "正在整理题目，可稍后再来",
                 PendingCaptureStage.RETRY_OR_MANUAL to "上次没有完成，点此继续",
-                PendingCaptureStage.MANUAL_REVIEW_REQUIRED to "题面还没整理完整，点此继续",
+                PendingCaptureStage.MANUAL_REVIEW_REQUIRED to "题面待补全，继续编辑",
                 PendingCaptureStage.READY_TO_REVIEW to "题面已整理，可继续",
                 PendingCaptureStage.READY_TO_CONTINUE to "已保存原图，点此继续",
             ),

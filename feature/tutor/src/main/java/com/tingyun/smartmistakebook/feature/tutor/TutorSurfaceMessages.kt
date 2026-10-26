@@ -2,28 +2,31 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
+import com.tingyun.smartmistakebook.core.ui.ClaudeCopyButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeQuietDots
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorMessage
@@ -32,14 +35,13 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.model.ModelFailureCode
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.ui.Ink
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.ThinkingCollapsibleCard
 import com.tingyun.smartmistakebook.core.ui.TutorToolTraceLine
 import com.tingyun.smartmistakebook.core.ui.rememberTutorToolTraceDisplay
-import kotlinx.coroutines.delay
 
 /**
  * 交互面唯一的失败卡出口文案（三套重试文案 ——「重新发送」「重试」「重新生成」—— 统一成这一套）。
@@ -66,10 +68,11 @@ internal const val TUTOR_SURFACE_COPIED_LABEL = "已复制"
  * "重试"、生成中根本没有任何出口），学生得先猜哪个按钮是同一个意思。现在它们是同一条动作条，
  * 出现条件只由"这一轮有没有那个动作"决定。
  *
- * 复制走 Compose 剪贴板（[LocalClipboardManager]），复制的是消息行里的原始 markdown
+ * 复制通过 [ClaudeCopyButton] 写入原生剪贴板，复制的是消息行里的原始 markdown
  * （不是渲染后的文本）——学生粘到别处时格式不丢。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun TutorMessageActionBar(
     modifier: Modifier = Modifier,
     /** 可复制的内容（助手正文原文）；null = 这条消息没有可复制的正文。 */
@@ -85,19 +88,12 @@ internal fun TutorMessageActionBar(
     testTagPrefix: String = "tutor_message_actions",
 ) {
     if (copyText == null && retryLabel == null && stopLabel == null && stoppedLabel == null) return
-    val clipboard = LocalClipboardManager.current
-    var copied by remember(copyText) { mutableStateOf(false) }
-    LaunchedEffect(copied) {
-        if (copied) {
-            delay(TUTOR_COPIED_FEEDBACK_MILLIS)
-            copied = false
-        }
-    }
-    Row(
+    FlowRow(
         modifier = modifier
             .fillMaxWidth()
             .testTag(testTagPrefix),
-        verticalAlignment = Alignment.CenterVertically,
+        itemVerticalAlignment = Alignment.CenterVertically,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         stoppedLabel?.let { label ->
@@ -109,24 +105,20 @@ internal fun TutorMessageActionBar(
             )
         }
         copyText?.let { text ->
-            OutlineActionChip(
-                text = if (copied) TUTOR_SURFACE_COPIED_LABEL else TUTOR_SURFACE_COPY_LABEL,
-                onClick = {
-                    clipboard.setText(AnnotatedString(text))
-                    copied = true
-                },
+            ClaudeCopyButton(
+                text = text,
                 modifier = Modifier.testTag("${testTagPrefix}_copy"),
             )
         }
         stopLabel?.let { label ->
-            OutlineActionChip(
+            InlineActionButton(
                 text = label,
                 onClick = onStop,
                 modifier = Modifier.testTag("${testTagPrefix}_stop"),
             )
         }
         retryLabel?.let { label ->
-            OutlineActionChip(
+            InlineActionButton(
                 text = label,
                 onClick = onRetry,
                 modifier = Modifier.testTag("${testTagPrefix}_retry"),
@@ -134,9 +126,6 @@ internal fun TutorMessageActionBar(
         }
     }
 }
-
-/** 「已复制」这一行小字停留多久：够看见，不干扰下一次点击。 */
-private const val TUTOR_COPIED_FEEDBACK_MILLIS = 1_600L
 
 /**
  * 这条助手消息的「重试」目标：**任何状态**都能重试**最后一轮**（成功 / 已停止 / 失败共用
@@ -255,18 +244,18 @@ internal fun TutorSurfaceStudentBubble(
     modifier: Modifier = Modifier,
     testTag: String = "tutor_surface_student_message",
 ) {
-    Row(
+    BoxWithConstraints(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
+        contentAlignment = Alignment.CenterEnd,
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth(0.86f)
+                .widthIn(max = maxWidth * ClaudeLayout.MessageWidthFraction)
                 .testTag(testTag),
-            color = JadeSoft.copy(alpha = 0.72f),
-            shape = RoundedCornerShape(14.dp, 14.dp, 4.dp, 14.dp),
+            color = SubtleSurface,
+            shape = RoundedCornerShape(ClaudeLayout.MessageRadius),
         ) {
-            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp)) {
+            Column(modifier = Modifier.padding(horizontal = ClaudeLayout.MessagePaddingX, vertical = ClaudeLayout.MessagePaddingY)) {
                 if (imageAssetIds.isNotEmpty() && imageIntake != null) {
                     MessageImagesRow(
                         assetIds = imageAssetIds,
@@ -341,12 +330,10 @@ internal fun TutorSurfaceAssistantReply(
                 ) {
                     if (line.spinning) {
                         val spinnerModifier = Modifier.size(20.dp)
-                        CircularProgressIndicator(
+                        ClaudeQuietDots(
                             modifier = line.spinnerTestTag
                                 ?.let { tag -> spinnerModifier.testTag(tag) }
                                 ?: spinnerModifier,
-                            color = JadeActive,
-                            strokeWidth = 2.dp,
                         )
                     }
                     Text(

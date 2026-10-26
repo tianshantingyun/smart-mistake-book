@@ -22,6 +22,8 @@ import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.LocalImageLoadState
+import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import com.tingyun.smartmistakebook.core.ui.Outline
 
 @Composable
@@ -31,6 +33,7 @@ internal fun CaptureSourceImagePreview(
     modifier: Modifier = Modifier,
 ) {
     var expanded by rememberSaveable(imageUri) { mutableStateOf(false) }
+    var viewing by rememberSaveable(imageUri) { mutableStateOf(false) }
     var previewState by rememberSaveable(imageUri) {
         mutableStateOf(LocalImageLoadState.LOADING)
     }
@@ -83,5 +86,9 @@ internal fun CaptureSourceImagePreview(
                 style = MaterialTheme.typography.bodySmall,
             )
         }
+        if (previewState == LocalImageLoadState.AVAILABLE) {
+            InlineActionButton("查看大图", { viewing = true })
+        }
     }
+    if (viewing) LocalImageViewer(imageUri, "题目原图", { viewing = false })
 }

@@ -410,7 +410,7 @@ private const val DEFAULT_CAPTURE_SUBJECT = "GENERAL"
 private val CAPTURE_PLACEHOLDER_TITLES = setOf("新拍题目", "待校对题目")
 
 
-internal const val CAPTURE_WORKSPACE_SAVE_ERROR = "这次修改还没保存好，请重试后再离开。"
+internal const val CAPTURE_WORKSPACE_SAVE_ERROR = "修改尚未保存，请重试后再离开。"
 
 internal enum class CaptureWorkspaceLeaveDecision {
     LEAVE_NOW,

@@ -76,13 +76,13 @@ class StorageRestoreFeedbackTest {
         val panelSummary = backupSelectionSummaryText(backupSelectionOfMask(9))
         assertTrue(
             "创建面板摘要必须点名不含的类别：$panelSummary",
-            panelSummary.contains("错题本、图片（不含掌握库、会话）"),
+            panelSummary.contains("错题本、图片（不含学习进度、讲题记录）"),
         )
 
         val createReceipt = backupSelectionSentence(9)
         assertTrue(
             "创建回执必须与恢复前确认同口径（点名不含类别）：$createReceipt",
-            createReceipt.contains("错题本、图片（不含掌握库、会话）"),
+            createReceipt.contains("错题本、图片（不含学习进度、讲题记录）"),
         )
 
         val restoreReceipt = storageRestoreCompletionMessage(
@@ -94,14 +94,14 @@ class StorageRestoreFeedbackTest {
         )
         assertTrue(
             "恢复回执必须点名不含的类别：$restoreReceipt",
-            restoreReceipt.contains("错题本、图片（不含掌握库、会话）"),
+            restoreReceipt.contains("错题本、图片（不含学习进度、讲题记录）"),
         )
     }
 
     /** 全选文案不点名排除（没有可排除的），也不带"会被清空"的警告。 */
     @Test fun fullSelectionCopyStaysClean() {
         val full = backupSelectionSentence(15)
-        assertTrue(full.contains("错题本、掌握库、会话、图片"))
+        assertTrue(full.contains("错题本、学习进度、讲题记录、图片"))
         assertFalse("全选没有不含类别，不该出现括注", full.contains("不含"))
 
         val panelSummary = backupSelectionSummaryText(backupSelectionOfMask(15))

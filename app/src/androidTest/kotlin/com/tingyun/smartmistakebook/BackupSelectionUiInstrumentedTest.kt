@@ -64,7 +64,7 @@ class BackupSelectionUiInstrumentedTest {
         composeRule.onNodeWithTag("backup_category_lock_ISSUE_BOOK").assertExists()
         composeRule.onNodeWithTag("backup_category_lock_IMAGES").assertExists()
         composeRule.onNodeWithTag("backup_selection_summary")
-            .assertTextContains("错题本、掌握库、会话、图片", substring = true)
+            .assertTextContains("错题本、学习进度、讲题记录、图片", substring = true)
 
         composeRule.onNodeWithTag("storage_create_backup").performClick()
         assertEquals(15, created?.mask)
@@ -83,7 +83,7 @@ class BackupSelectionUiInstrumentedTest {
         composeRule.onNodeWithTag(categoryTag(ISSUE_BOOK)).assertIsOn()
         composeRule.onNodeWithTag(categoryTag(IMAGES)).assertIsOn()
         composeRule.onNodeWithTag("backup_selection_summary")
-            .assertTextContains("错题本、会话、图片", substring = true)
+            .assertTextContains("错题本、讲题记录、图片", substring = true)
 
         composeRule.onNodeWithTag("storage_create_backup").performClick()
         assertEquals(13, created?.mask)
@@ -243,15 +243,15 @@ class BackupSelectionUiInstrumentedTest {
         assertTrue(subset.contains("恢复完成：2 道题、1 张题图"))
         assertTrue(subset.contains("错题本"))
         assertTrue(subset.contains("图片"))
-        assertTrue("替换语义下没勾的类别会被清空，回执必须说明", subset.contains("未包含的类别已按替换语义清空"))
+        assertTrue("替换语义下没勾的类别会被清空，回执必须说明", subset.contains("备份中未包含的内容已从本机清空"))
         // 批次 19 T2-6：子集回执必须**点名**不含的类别（括注口径），且是"不含"而非声称带上；
         // 同时转述 manifest 的资产策略（assetPolicy=INCLUDED → 题图随包）。
         assertTrue(
             "回执必须点名不含的类别",
-            subset.contains("（不含掌握库、会话）"),
+            subset.contains("（不含学习进度、讲题记录）"),
         )
         assertTrue("回执必须与创建/确认同口径转述资产策略", subset.contains("题图随包"))
-        assertFalse("子集回执不能声称带了全部类别", subset.contains("错题本、掌握库、会话、图片"))
+        assertFalse("子集回执不能声称带了全部类别", subset.contains("错题本、学习进度、讲题记录、图片"))
 
         val full = storageRestoreCompletionMessage(
             problemCount = 2,
@@ -263,7 +263,7 @@ class BackupSelectionUiInstrumentedTest {
                 categories = BackupContentCategory.ALL,
             ),
         )
-        assertTrue(full.contains("错题本、掌握库、会话、图片"))
+        assertTrue(full.contains("错题本、学习进度、讲题记录、图片"))
 
         val legacy = storageRestoreCompletionMessage(
             problemCount = 0,
@@ -296,10 +296,10 @@ class BackupSelectionUiInstrumentedTest {
         val subsetText = backupRestoreConfirmationText(subset)
         assertTrue(subsetText.contains("错题本"))
         assertTrue(subsetText.contains("图片"))
-        assertTrue("未包含的掌握库必须点名", subsetText.contains("掌握库"))
-        assertTrue("未包含的会话必须点名", subsetText.contains("会话"))
-        assertTrue("必须说明未包含类别会被清空", subsetText.contains("恢复时会被清空"))
-        assertTrue("必须说明是替换语义", subsetText.contains("替换当前全部数据"))
+        assertTrue("未包含的掌握库必须点名", subsetText.contains("学习进度"))
+        assertTrue("未包含的会话必须点名", subsetText.contains("讲题记录"))
+        assertTrue("必须说明未包含类别会被清空", subsetText.contains("备份中不含的内容也会从本机清空"))
+        assertTrue("必须说明是替换语义", subsetText.contains("替换本机全部数据"))
         assertFalse("子集不能说成旧版全量", subsetText.contains("旧版备份"))
 
         val fullText = backupRestoreConfirmationText(
@@ -310,7 +310,7 @@ class BackupSelectionUiInstrumentedTest {
                 ),
             ),
         )
-        assertTrue(fullText.contains("错题本、掌握库、会话、图片"))
+        assertTrue(fullText.contains("错题本、学习进度、讲题记录、图片"))
         assertFalse("全选没有未包含类别，不该说会清空", fullText.contains("会被清空"))
 
         val legacyText = backupRestoreConfirmationText(subset.copy(selection = null))

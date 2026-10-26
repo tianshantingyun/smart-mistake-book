@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -252,35 +253,43 @@ internal fun TutorModelPanel(
         candidate.executionLocation != ModelExecutionLocation.UNAVAILABLE &&
             candidate.supports(ModelTaskKind.TUTOR_PLAN)
     }
+    /**
+     * 计划任务的**当前**那一份（KD-35）。
+     *
+     * `tutorTasks` 是组合作用域的值：`planTasks` 回调若直接读它，读到的就是构造这个回调时的那
+     * 一份——首次组合（Room 首帧之前）几乎是空列表，于是每一次重试都被算成"第 0 次尝试"、
+     * 复用同一个 requestId，而重试的时间戳必然不同：写入路径按"同标识、不同载荷"拒绝，
+     * 异常从组合作用域的协程直达主线程（失败卡上的「重试」= 崩溃）。
+     * `rememberUpdatedState` 把"读哪一份"定在回调自己身上：拿住的是那个 **State**（每次重组都会
+     * 被写成最新值），而不是它此刻的值——与上面 `provider` 回调读 backing state
+     * （`viewModel.uiState.value.provider`）同一个理由：异步回调里的值必须是**调用那一刻**的。
+     */
+    val latestPlanTasks by rememberUpdatedState(tutorTasks)
 
-    val planCommands = remember(question.sessionId) {
-        TutorPlanCommands(
-            scope = scope,
-            sink = TutorPlanSink(
-                // Must read the backing state, not the composition-scoped
-                // `executablePlanProvider` val: this lambda is captured once
-                // by remember and would otherwise see the provider as it was
-                // during the FIRST composition (null), silently killing every
-                // auto-started turn (KD-1, docs/known-defects.md). 状态现在在
-                // ViewModel 里，读它当前那一份（同一个理由，同一个读法）。
-                provider = {
-                    viewModel.uiState.value.provider?.takeIf { candidate ->
-                        candidate.executionLocation != ModelExecutionLocation.UNAVAILABLE &&
-                            candidate.supports(ModelTaskKind.TUTOR_PLAN)
-                    }
-                },
-                question = { question },
-                profile = { profile },
-                clock = clock,
-                planTasks = { tutorTasks },
-                modelTasks = modelTasks,
-                setPlanStartError = viewModel::onPlanStartError,
-                // 讲题轮的正文写进会话消息行（K1a）；会话行按需创建（K1b），所以这里给的是
-                // 会话仓库本身而不是某一条已经建好的会话。
-                conversations = conversations,
-            ),
-        )
-    }
+    // 命令本身无状态，随重组绑定当前任务与计划，避免冻结首次组合的快照。
+    val planCommands = TutorPlanCommands(
+        scope = scope,
+        sink = TutorPlanSink(
+            // 异步派发时读当前能力，避免沿用页面进入时尚未加载的模型配置。
+            provider = {
+                viewModel.uiState.value.provider?.takeIf { candidate ->
+                    candidate.executionLocation != ModelExecutionLocation.UNAVAILABLE &&
+                        candidate.supports(ModelTaskKind.TUTOR_PLAN)
+                }
+            },
+            question = { question },
+            profile = { profile },
+            clock = clock,
+            planTasks = { latestPlanTasks },
+            modelTasks = modelTasks,
+            // 派发没能开始（同标识不同载荷的冲突）时给出的可见交代（KD-35）：界面据此
+            // 在输入区上方报错，并保留可重试的出口。
+            setPlanStartError = viewModel::onPlanStartError,
+            // 讲题轮的正文写进会话消息行（K1a）；会话行按需创建（K1b），所以这里给的是
+            // 会话仓库本身而不是某一条已经建好的会话。
+            conversations = conversations,
+        ),
+    )
 
     fun executeTurn(
         cycleOrdinal: Int,
@@ -443,6 +452,7 @@ internal fun TutorModelPanel(
             modifier = modifier,
         ) {
             item("tutor_model_entry") {
+                val planStartError = state.planStartError
                 when {
                     currentProvider == null -> TutorModelStatusCard(
                         title = if (state.providerLoadFailed) "暂时没准备好" else "正在准备这道题",
@@ -460,6 +470,16 @@ internal fun TutorModelPanel(
                         detail = "题目已经保存，配置完成后可以从这里继续。",
                         actionLabel = "去设置",
                         onAction = onOpenModelSettings,
+                    )
+
+                    // 这一轮**没能开始**（KD-35）：冲突被接住之后，界面上说的是"没派出去 + 怎么办"，
+                    // 而不是"正在准备"——后者在这里是一句假话，什么都没在进行中。
+                    // 出口与输入区上方那个「重试」是同一个动作、同一条派发路径。
+                    planStartError != null -> TutorModelStatusCard(
+                        title = planStartError.title,
+                        detail = planStartError.message,
+                        actionLabel = TUTOR_SURFACE_RETRY_LABEL,
+                        onAction = ::startFirstTutorTurn,
                     )
 
                     else -> TutorModelStatusCard(
@@ -534,52 +554,49 @@ internal fun TutorModelPanel(
         )
     }
 
-    val respondCommands = remember(question.sessionId) {
-        TutorRespondCommands(
-            scope = scope,
-            sink = TutorRespondSink(
-                currentProvider = { currentProvider },
-                question = { question },
-                profile = { profile },
-                clock = clock,
-                chatSubmitPending = { state.sending },
-                setChatSubmitPending = viewModel::onSendPending,
-                tutorSendState = { state.sendState },
-                setTutorSendState = viewModel::onTutorSendState,
-                setChatStartError = viewModel::onSendError,
-                setLocallyStartedRespondRequestId = viewModel::onLocallyStartedRequestId,
-                setChatDraft = viewModel::onDraftChange,
-                currentPlanOutput = { currentPlanOutput },
-                currentResponse = { currentResponse },
-                currentInput = { currentInput },
-                observedTask = { observedTask },
-                tutorRespondTasks = { tutorRespondTasks },
-                // 与上面一行是两个口径：上面是"这道题聊过什么"，这里是"这个会话走到第几轮"。
-                // 轮次号必须按会话分配，否则同一会话换题会撞 model_task/tutor_message 的唯一槽。
-                sessionRespondTasks = { persistedRespondTasks },
-                answerExposureKeys = { answerExposureKeys },
-                chatSending = { chatSending },
-                modelTasks = modelTasks,
-                conversations = conversations,
-                // 提示词历史从消息流装配（K1a）。读的是 backing state 而不是组合期的快照：
-                // 这个 lambda 由 remember 捕获一次，组合期的列表会永远停在第一帧。
-                sessionMessages = { state.messages },
-                // 回合收尾（A4）：这一轮成功之后，模型申请过的本地动作挂成一张落库的卡。
-                // 拍照入口把 captureSessionId 交进这条链（见 TutorConversationWiring），
-                // 那张卡执行的就是"把这次拍照的草稿存进错题本"。
-                onTurnRecorded = { request, _ ->
-                    viewModel.onTutoringTurnSucceeded(
-                        requestId = request.requestId,
-                        conversationId = TutorConversationIds.captured(question.sessionId),
-                        // 学生这条消息附带的图片（规范资产 id）——存题的第二条落点靠它。
-                        attachedImageAssetIds = (request.input as? TutorRespondInput)
-                            ?.studentImageAssetRefs
-                            .orEmpty(),
-                    )
-                },
-            ),
-        )
-    }
+    val respondCommands = TutorRespondCommands(
+        scope = scope,
+        sink = TutorRespondSink(
+            currentProvider = { currentProvider },
+            question = { question },
+            profile = { profile },
+            clock = clock,
+            chatSubmitPending = { state.sending },
+            setChatSubmitPending = viewModel::onSendPending,
+            tutorSendState = { state.sendState },
+            setTutorSendState = viewModel::onTutorSendState,
+            setChatStartError = viewModel::onSendError,
+            setLocallyStartedRespondRequestId = viewModel::onLocallyStartedRequestId,
+            setChatDraft = viewModel::onDraftChange,
+            currentPlanOutput = { currentPlanOutput },
+            currentResponse = { currentResponse },
+            currentInput = { currentInput },
+            observedTask = { observedTask },
+            tutorRespondTasks = { tutorRespondTasks },
+            // 与上面一行是两个口径：上面是"这道题聊过什么"，这里是"这个会话走到第几轮"。
+            // 轮次号必须按会话分配，否则同一会话换题会撞 model_task/tutor_message 的唯一槽。
+            sessionRespondTasks = { persistedRespondTasks },
+            answerExposureKeys = { answerExposureKeys },
+            chatSending = { chatSending },
+            modelTasks = modelTasks,
+            conversations = conversations,
+            // 提示词历史从消息流当前状态装配（K1a）。
+            sessionMessages = { state.messages },
+            // 回合收尾（A4）：这一轮成功之后，模型申请过的本地动作挂成一张落库的卡。
+            // 拍照入口把 captureSessionId 交进这条链（见 TutorConversationWiring），
+            // 那张卡执行的就是"把这次拍照的草稿存进错题本"。
+            onTurnRecorded = { request, _ ->
+                viewModel.onTutoringTurnSucceeded(
+                    requestId = request.requestId,
+                    conversationId = TutorConversationIds.captured(question.sessionId),
+                    // 学生这条消息附带的图片（规范资产 id）——存题的第二条落点靠它。
+                    attachedImageAssetIds = (request.input as? TutorRespondInput)
+                        ?.studentImageAssetRefs
+                        .orEmpty(),
+                )
+            },
+        ),
+    )
 
     fun collectTutorRespondRequest(
         request: ModelTaskRequest,
@@ -729,31 +746,29 @@ internal fun TutorModelPanel(
         }
     }
 
-    val interactionCommands = remember(question.sessionId) {
-        TutorInteractionCommands(
-            scope = scope,
-            sink = TutorInteractionSink(
-                currentPlanOutput = { currentPlanOutput },
-                currentInput = { currentInput },
-                question = { question },
-                clock = clock,
-                interactionBusy = { state.interactionBusy },
-                setInteractionBusy = viewModel::onInteractionBusy,
-                setInteractionError = viewModel::onInteractionError,
-                hasExecutableProvider = { executablePlanProvider != null },
-                openModelSettings = onOpenModelSettings,
-                currentCycleResponses = { currentCycleResponses },
-                tutorResponses = { tutorResponses },
-                tutorRespondTasks = { tutorRespondTasks },
-                answerExposureKeys = { answerExposureKeys },
-                currentCycle = { currentCycle },
-                executeTurn = { cycle, memory, messages, turns ->
-                    executeTurn(cycle, memory, messages, turns)
-                },
-                interactions = interactions,
-            ),
-        )
-    }
+    val interactionCommands = TutorInteractionCommands(
+        scope = scope,
+        sink = TutorInteractionSink(
+            currentPlanOutput = { currentPlanOutput },
+            currentInput = { currentInput },
+            question = { question },
+            clock = clock,
+            interactionBusy = { state.interactionBusy },
+            setInteractionBusy = viewModel::onInteractionBusy,
+            setInteractionError = viewModel::onInteractionError,
+            hasExecutableProvider = { executablePlanProvider != null },
+            openModelSettings = onOpenModelSettings,
+            currentCycleResponses = { currentCycleResponses },
+            tutorResponses = { tutorResponses },
+            tutorRespondTasks = { tutorRespondTasks },
+            answerExposureKeys = { answerExposureKeys },
+            currentCycle = { currentCycle },
+            executeTurn = { cycle, memory, messages, turns ->
+                executeTurn(cycle, memory, messages, turns)
+            },
+            interactions = interactions,
+        ),
+    )
 
     fun submitCurrentChoice(choiceId: String) {
         interactionCommands.submitChoice(choiceId)
@@ -885,11 +900,12 @@ internal fun TutorModelPanel(
                         solutionRevealPreviewed = timelineItem.task.toPlanSolutionPreviewKey()
                             ?.let { it in planSolutionPreviewKeys } == true,
                         awaitingContinuation = false,
-                        interactionEnabled = isTail && isCurrentTurn,
+                        // 提示和追问只是追加消息，不会结束当前诊断轮。
+                        interactionEnabled = isCurrentTurn && !chatSending,
                         executionMatchesCurrentProvider = executionMatches,
                         splitChoiceFeedback = true,
                         interactionBusy = state.interactionBusy,
-                        interactionError = state.interactionError.takeIf { isTail && isCurrentTurn },
+                        interactionError = state.interactionError.takeIf { isCurrentTurn },
                         onRetry = ::retryCurrentPlan,
                         onSubmitChoice = ::submitCurrentChoice,
                         onRequestHint = if (
@@ -924,9 +940,9 @@ internal fun TutorModelPanel(
                             solutionRevealPreviewed = timelineItem.planTask
                                 .toPlanSolutionPreviewKey()
                                 ?.let { it in planSolutionPreviewKeys } == true,
-                            interactionEnabled = isTail && isCurrentTurn,
+                            interactionEnabled = isCurrentTurn && !chatSending,
                             interactionBusy = state.interactionBusy,
-                            interactionError = state.interactionError.takeIf { isTail && isCurrentTurn },
+                            interactionError = state.interactionError.takeIf { isCurrentTurn },
                             onContinue = ::continueCurrentTurn,
                             onRevealSolution = { revealCurrentSolution() },
                             onRestartCycle = ::restartCurrentCycle,

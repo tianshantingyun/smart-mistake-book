@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 
 /**
  * 导出通知的两态（阶段 4A 批 4 · L7）：**授权 → 两态都如实**；
- * **未授权（Android 13+）→ 不硬要权限、不发通知**，结果仍落在「导出成果」的应用内入口。
+ * **未授权（Android 13+）→ 不硬要权限、不发通知**，结果仍落在「已导出的文件」的应用内入口。
  */
 @RunWith(AndroidJUnit4::class)
 class MistakeExportNotificationsInstrumentedTest {

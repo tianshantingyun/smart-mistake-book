@@ -18,6 +18,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 /**
  * 知识点复习会话单元（spec dual-review-entry §3.3/§3.4）：单知识点展示单元——进入后向模型
@@ -65,9 +69,171 @@ class KnowledgeReviewSessionViewModelTest {
         assertFalse(viewModel.completed)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun processRestoreKeepsTheOriginalQueueAndChoiceWhenTheNewPlanIsReordered() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        try {
+            val handle = SavedStateHandle()
+            val original = KnowledgeReviewSessionViewModel(handle, plan)
+            original.skipCurrentNode()
+            original.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
+            advanceUntilIdle()
+            original.select("B")
+
+            val restored = KnowledgeReviewSessionViewModel(
+                processRestoredHandle(handle),
+                KnowledgeReviewSessionPlan(plan.queue.reversed()),
+            )
+            val restoredNodes = mutableListOf<String>()
+            restored.restoreCurrentQuiz { entry, _ ->
+                restoredNodes += entry.knowledgeNodeId
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
+            advanceUntilIdle()
+
+            assertEquals("kc-fresh", restored.currentEntry?.knowledgeNodeId)
+            assertEquals("无证据知识点", restored.currentEntry?.displayName)
+            assertEquals(listOf("kc-fresh"), restoredNodes)
+            assertEquals("B", restored.selectedChoice)
+            assertEquals(2, restored.queueSize)
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun processRestoreKeepsTheVerdictBoundToItsNodeWhenTheNewPlanShrinksOrIsEmpty() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        try {
+            val handle = SavedStateHandle()
+            val original = KnowledgeReviewSessionViewModel(handle, plan)
+            original.skipCurrentNode()
+            original.loadCurrentQuiz { entry, _ ->
+                KnowledgeQuizLoadResult.Ready(quizItem(entry.knowledgeNodeId))
+            }
+            advanceUntilIdle()
+            original.select("B")
+            original.submitAnswer(1_000) { _, _, _, _, _, _ ->
+                KnowledgeQuizFeedbackResult(isCorrect = false, evidenceRecorded = true)
+            }
+            advanceUntilIdle()
+
+            listOf(plan.queue.take(1), emptyList()).forEach { newQueue ->
+                val restored = KnowledgeReviewSessionViewModel(
+                    processRestoredHandle(handle),
+                    KnowledgeReviewSessionPlan(newQueue),
+                )
+                assertEquals("kc-fresh", restored.currentEntry?.knowledgeNodeId)
+                assertEquals("B", restored.submittedChoice)
+                assertEquals(false, restored.feedbackResult?.isCorrect)
+                assertEquals(2, restored.queueSize)
+                assertTrue(restored.completed)
+            }
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    @Test
+    fun skippingAllNodesRestoresACompletedSessionEvenWhenTheCurrentPlanIsEmpty() {
+        val handle = SavedStateHandle()
+        val original = KnowledgeReviewSessionViewModel(handle, plan)
+        original.skipCurrentNode()
+        original.skipCurrentNode()
+
+        assertTrue(original.completed)
+        val restored = KnowledgeReviewSessionViewModel(
+            processRestoredHandle(handle),
+            KnowledgeReviewSessionPlan(),
+        )
+        assertTrue(restored.completed)
+        assertEquals(2, restored.queueSize)
+        assertNull(restored.currentEntry)
+        assertNull(restored.submittedChoice)
+    }
+
+    /** 独立序列化后新建 handle；只接受 Android SavedState 可保存的标量和字符串列表。 */
+    private fun processRestoredHandle(handle: SavedStateHandle): SavedStateHandle {
+        val state = handle.keys().associateWith { key ->
+            val value = handle.get<Any>(key)
+            assertTrue(
+                "会话快照不能依赖只在内存中可用的对象：$key",
+                value == null || value is String || value is Int || value is Long ||
+                    value is ArrayList<*> && value.all { it is String },
+            )
+            value
+        }
+        val bytes = ByteArrayOutputStream().use { output ->
+            ObjectOutputStream(output).use { it.writeObject(state) }
+            output.toByteArray()
+        }
+        @Suppress("UNCHECKED_CAST")
+        val restored = ObjectInputStream(ByteArrayInputStream(bytes)).use {
+            it.readObject() as Map<String, Any?>
+        }
+        return SavedStateHandle(restored)
+    }
+
+    private fun sessionHandle(): SavedStateHandle = SavedStateHandle().also {
+        KnowledgeReviewSessionViewModel(it, plan)
+    }
+
+    @Test
+    fun legacyProgressWithoutQueueIdentityCannotBeAppliedToANewPlan() {
+        val handle = SavedStateHandle(
+            mapOf(
+                KnowledgeReviewSessionViewModel.CURRENT_INDEX_KEY to 1,
+                KnowledgeReviewSessionViewModel.SELECTED_CHOICE_KEY to "B",
+                KnowledgeReviewSessionViewModel.SUBMITTED_CHOICE_KEY to "B",
+                KnowledgeReviewSessionViewModel.FEEDBACK_RESULT_KEY to "0:1:",
+            ),
+        )
+        val restored = KnowledgeReviewSessionViewModel(handle, plan)
+
+        assertTrue(restored.sessionRestoreFailed)
+        assertNull(restored.currentEntry)
+        assertNull(restored.selectedChoice)
+        assertNull(restored.submittedChoice)
+        assertNull(restored.feedbackResult)
+        assertFalse(restored.completed)
+    }
+
+    @Test
+    fun aDamagedQueueSnapshotUsesTheRecoveryExitInsteadOfGuessingANode() {
+        val handle = sessionHandle().apply {
+            set(KnowledgeReviewSessionViewModel.SESSION_QUEUE_KEY, arrayListOf("kc-fresh"))
+            set(KnowledgeReviewSessionViewModel.SELECTED_CHOICE_KEY, "B")
+        }
+        val restored = KnowledgeReviewSessionViewModel(handle, plan)
+
+        assertTrue(restored.sessionRestoreFailed)
+        assertNull(restored.currentEntry)
+        assertNull(restored.selectedChoice)
+        assertEquals(KnowledgeQuizLoadStatus.IDLE, restored.loadStatus)
+    }
+
+    @Test
+    fun anOutOfRangeRestoredIndexIsClampedAndCannotKeepAnUnrelatedChoice() {
+        val handle = sessionHandle().apply {
+            set(KnowledgeReviewSessionViewModel.CURRENT_INDEX_KEY, 99)
+            set(KnowledgeReviewSessionViewModel.SELECTED_CHOICE_KEY, "B")
+        }
+        val restored = KnowledgeReviewSessionViewModel(processRestoredHandle(handle), plan)
+
+        assertFalse(restored.sessionRestoreFailed)
+        assertEquals(2, restored.currentIndex)
+        assertNull(restored.currentEntry)
+        assertNull(restored.selectedChoice)
+        assertTrue(restored.completed)
+    }
+
     @Test
     fun restoreFromProcessDeathKeepsNodeIndex() {
-        val handle = SavedStateHandle().apply {
+        val handle = sessionHandle().apply {
             set(KnowledgeReviewSessionViewModel.CURRENT_INDEX_KEY, 1)
         }
         val viewModel = KnowledgeReviewSessionViewModel(
@@ -129,7 +295,7 @@ class KnowledgeReviewSessionViewModelTest {
 
     @Test
     fun skippingAFailedNodeAdvancesWithoutRecordingAnything() {
-        val handle = SavedStateHandle().apply {
+        val handle = sessionHandle().apply {
             set(
                 KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
                 KnowledgeQuizLoadStatus.FAILED.name,
@@ -153,7 +319,7 @@ class KnowledgeReviewSessionViewModelTest {
 
     @Test
     fun skippingTheLastNodeEndsTheSessionWithoutAVerdict() {
-        val handle = SavedStateHandle().apply {
+        val handle = sessionHandle().apply {
             set(KnowledgeReviewSessionViewModel.CURRENT_INDEX_KEY, 1)
         }
         val viewModel = KnowledgeReviewSessionViewModel(
@@ -165,6 +331,7 @@ class KnowledgeReviewSessionViewModelTest {
 
         assertNull(viewModel.currentEntry)
         assertNull(viewModel.submittedChoice)
+        assertTrue(viewModel.completed)
     }
 
     /**
@@ -178,7 +345,7 @@ class KnowledgeReviewSessionViewModelTest {
             KnowledgeQuizLoadStatus.LOADING,
             KnowledgeQuizLoadStatus.LOADED,
         ).forEach { restored ->
-            val handle = SavedStateHandle().apply {
+            val handle = sessionHandle().apply {
                 set(
                     KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
                     restored.name,
@@ -207,7 +374,7 @@ class KnowledgeReviewSessionViewModelTest {
     @Test
     fun aRestoredSessionReadsTheQuizBackWithoutGeneratingAgain() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val handle = SavedStateHandle().apply {
+        val handle = sessionHandle().apply {
             set(KnowledgeReviewSessionViewModel.SESSION_STARTED_AT_KEY, 7_000L)
             set(
                 KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
@@ -273,7 +440,7 @@ class KnowledgeReviewSessionViewModelTest {
                 KnowledgeQuizLoadResult.NoMaterial,
                 KnowledgeQuizLoadResult.KnowledgePreparing,
             ).forEach { unreadable ->
-                val handle = SavedStateHandle().apply {
+                val handle = sessionHandle().apply {
                     set(
                         KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
                         KnowledgeQuizLoadStatus.LOADED.name,
@@ -307,7 +474,7 @@ class KnowledgeReviewSessionViewModelTest {
         val nextSessionStartedAt = sessionStartedAt + 24 * 60 * 60 * 1_000L
 
         try {
-            val handle = SavedStateHandle().apply {
+            val handle = sessionHandle().apply {
                 set(KnowledgeReviewSessionViewModel.SESSION_STARTED_AT_KEY, sessionStartedAt)
             }
             val viewModel = KnowledgeReviewSessionViewModel(
@@ -354,7 +521,7 @@ class KnowledgeReviewSessionViewModelTest {
             )
 
             // 隔日再来（另一场会话）：身份必须不同，否则第二笔会被幂等键吞掉。
-            val nextHandle = SavedStateHandle().apply {
+            val nextHandle = sessionHandle().apply {
                 set(KnowledgeReviewSessionViewModel.SESSION_STARTED_AT_KEY, nextSessionStartedAt)
             }
             val nextSessionViewModel = KnowledgeReviewSessionViewModel(
@@ -422,7 +589,7 @@ class KnowledgeReviewSessionViewModelTest {
      */
     @Test
     fun restoredKnowledgePreparingReopensTheLoadPath() {
-        val handle = SavedStateHandle().apply {
+        val handle = sessionHandle().apply {
             set(
                 KnowledgeReviewSessionViewModel.LOAD_STATUS_KEY,
                 KnowledgeQuizLoadStatus.KNOWLEDGE_PREPARING.name,
@@ -542,7 +709,7 @@ class KnowledgeReviewSessionViewModelTest {
     @Test
     fun recordingTheLastAnswerCompletesTheSession() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val handle = SavedStateHandle().apply {
+        val handle = sessionHandle().apply {
             set(KnowledgeReviewSessionViewModel.CURRENT_INDEX_KEY, 1)
         }
         val viewModel = KnowledgeReviewSessionViewModel(

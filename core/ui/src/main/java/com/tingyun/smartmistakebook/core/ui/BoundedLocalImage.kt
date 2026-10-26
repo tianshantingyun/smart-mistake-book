@@ -57,6 +57,7 @@ fun BoundedLocalImage(
     expandedMaxHeight: Dp = 520.dp,
     sourceRegion: NormalizedSourceRegion? = null,
     onLoadStateChange: (LocalImageLoadState) -> Unit = {},
+    onImageSizeChanged: (IntSize) -> Unit = {},
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -77,6 +78,9 @@ fun BoundedLocalImage(
     }
     LaunchedEffect(imageUri, sourceRegion, loadState) {
         onLoadStateChange(loadState)
+        (preview as? LocalImagePreview.Available)?.bitmap?.let {
+            onImageSizeChanged(IntSize(it.width, it.height))
+        }
     }
     if (preview == LocalImagePreview.Loading) {
         val placeholderSize = if (lastImageSize != IntSize.Zero) {

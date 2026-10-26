@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -20,7 +21,6 @@ import androidx.core.content.FileProvider
 import com.tingyun.smartmistakebook.core.domain.MAX_TUTOR_MESSAGE_IMAGES
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
@@ -195,6 +195,7 @@ internal fun TutorSessionAttachmentArea(
             TutorPendingRequestCard(
                 request = request,
                 enabled = !chatSending,
+                busy = request.requestId in state.decidingPendingRequestIds,
                 onDecide = { decision -> viewModel.onDecidePendingRequest(request, decision) },
             )
         }
@@ -254,7 +255,7 @@ internal fun TutorSessionAttachmentArea(
             Text(
                 text = failure,
                 style = MaterialTheme.typography.bodySmall,
-                color = ErrorWarm,
+                color = ErrorText,
                 modifier = Modifier.testTag("session_attach_failed"),
             )
         }

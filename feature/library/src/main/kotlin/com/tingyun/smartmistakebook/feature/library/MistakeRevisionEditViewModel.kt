@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionChangeKind
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionDiff
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionReceipt
@@ -69,6 +70,7 @@ data class MistakeRevisionEditUiState(
     val invalidationSummary: String? = null,
     /** True when a tutoring conversation is anchored to the revision being edited. */
     val hasInProgressOldConversation: Boolean = false,
+    val source: MistakeSourceSet = MistakeSourceSet.Missing,
 )
 
 /**
@@ -173,6 +175,7 @@ class MistakeRevisionEditViewModel(
                     entryId = detail.identity.errorBookEntryId,
                     title = draftTitle,
                     blocks = draftBlocks,
+                    source = detail.source,
                     conflict = null,
                     message = "已重新载入第 ${detail.identity.revisionNumber} 版，请核对差异后再保存。",
                     savedRevisionNumber = null,
@@ -279,7 +282,7 @@ class MistakeRevisionEditViewModel(
                     _state.update {
                         it.copy(
                             saving = false,
-                            message = "这次保存与之前使用的命令不一致，未写入任何内容。请重新保存。",
+                            message = "保存信息已变化，本次未保存。请重新保存。",
                         )
                     }
                 }
@@ -305,7 +308,7 @@ class MistakeRevisionEditViewModel(
                     _state.update {
                         it.copy(
                             saving = false,
-                            message = "当前版本不支持修改题面，未写入任何内容。",
+                            message = "当前版本暂不支持修改题面，本次未保存。",
                         )
                     }
                 }
@@ -342,6 +345,7 @@ class MistakeRevisionEditViewModel(
                     entryId = detail.identity.errorBookEntryId,
                     title = initialTitle,
                     blocks = document.document.blocks.map { block -> block.toDraft() },
+                    source = detail.source,
                     message = null,
                     conflict = null,
                     savedRevisionNumber = null,
