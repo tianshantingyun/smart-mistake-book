@@ -57,14 +57,14 @@
 - **T1（KD-66）**：dup 修复成立——隔离 UID 成立、AIDL 往返 `RESULT_OK`、过期 generation no-op、watchdog 在 1500 ms 硬期限 SIGKILL 且新进程/新 generation 无 BUSY、死亡后 client 重建一次成功。**但 5 例仍 1 红**：`abandon()` 在 `unlinkDeath` 之后才等 `link.death`（`VisualJsClientEngine.kt:570-571`），服务已 SIGKILL 而客户端 1 s 内收不到 death → `unavailable=true`。单方法稳定复现（E-01c），并在 4 次独立运行中稳定出现（E-01b/E-01c/E-01d/E-01e）。冷启动对照：重启后立即跑 5/5 红（隔离进程 attach 4.6–7.5 s > 5 s 客户端超时、JS 1.5 s 硬期限被加载态触发，E-01d），沉降约 2 min 后回到 1/5 红（E-01e）——加载态超时与结构性失败已分离。**设备功能门仍红，JS 继续不广告。**
 - **KD-70**：P1 在设备成立（`MEMORY_LIMIT` + `16777216` + `out of memory`）；P2 实际 `INVALID_PROGRAM: [UNATTRIBUTED] (raw=null, mallocSize=177216, mallocLimit=16777216)`，堆证据不足，**KD-70 判据仍未达成**。
 - **KD-69**：`strictOffline internal`（minify=true，设备 APK sha 与产物一致）两次冷启动 ok/COLD、零崩溃签名；`BatchImportDriverWorker` 与 `OrphanAssetGcWorker` 真实执行 SUCCESS；一次中文 OCR 真实完成（Dynamite 本地中文模块、Hani 模型、`OCR process succeeded`）并把 `LOCAL_OCR` revision 写入 Room。**Reopen condition 满足。**
-- **16KB**：真实 16384 内核上 3/3 通过，`PAGE_SIZE=16384` 打印；`zipalign -c -P 16 -v 4` exit 0；生产 APK 的 64 位 `.so` 按官方 ELF 判据（含 RELRO 独占 LOAD 豁免）全部 PASS。**官方工具补证（E-09）**：`llvm-readobj` LLVM 22.1.8，debug/internal 各 14 个 64 位 `.so` 全 PASS（5 个 RELRO 整倍数、9 个按官方豁免），与 E-03 §5 的 Python 结果逐值一致；`llvm-readelf` 别名二进制仍缺，等价性待主会话裁定。arm64 运行时未测。
+- **16KB**：真实 16384 内核上 3/3 通过，`PAGE_SIZE=16384` 打印；`zipalign -c -P 16 -v 4` exit 0；生产 APK 的 64 位 `.so` 按官方 ELF 判据（含 RELRO 独占 LOAD 豁免）全部 PASS。**官方工具补证（E-09）**：`llvm-readobj` LLVM 22.1.8，debug/internal 各 14 个 64 位 `.so` 全 PASS（5 个 RELRO 整倍数、9 个按官方豁免），与 E-03 §5 的 Python 结果逐值一致；`llvm-readelf` 别名二进制仍缺，等价性待主会话裁定（2026-10-26 批次 24 T3 已裁定等价并关闭 KD-74）。arm64 运行时未测。
 - **签名全量（E-08）**：17/17 logcat、12×17=204 格；仅 `step01d` 2 条（GMS `ANR in` PID 2538、Primes `UnsatisfiedLinkError` PID 3289），均发生在测试开始前且非被测进程；旧 `signature-matrix.txt` 只覆盖 13 个文件，未覆盖 01d/01e/06d/06e，已由 E-08 补齐。
 - **备份/迁移**：备份 34/34；迁移演练（opt-in）5/6（1 个 kill-stage 按参数跳过）；全迁移矩阵 15/15；kill-stage 设计内 `Process crashed.`。
 - **KD-67**：新仪器化用例 5/5（CAS 单列、真实行数、缺行不插入、状态收紧、并发唯一赢家）。
 
 ## 4. KD-74 覆盖（四类 + T1 + 产物身份）
 
-| KD-74 要求（`docs/known-defects.md:2709` 条目，`:2715` Fix direction） | E-ID | 状态 | 备注 |
+| KD-74 要求（`docs/known-defects.md:2744` 条目，`:2750` Fix direction） | E-ID | 状态 | 备注 |
 |---|---|---|---|
 | 每条命令的 `am instrument` summary / `INSTRUMENTATION_CODE` | E-01…E-09 | 有 | 每个 step §3/§4 均含 summary 与 `INSTRUMENTATION_CODE` |
 | logcat 12 类签名全量 grep（含 0 命中） | E-08（E-01…E-07 各自记录） | **有（17/17）** | 旧 `signature-matrix.txt` 只覆盖 13 个文件；E-08 补齐 01d/01e/06d/06e，2 条命中均为测试前 GMS/Primes 系统组件 |
@@ -73,11 +73,11 @@
 | T1 修复后设备复跑 | E-01、E-01b、E-01c、E-01d、E-01e | 有 | dup 修复路径绿；剩余 abandon 红已单方法复现；冷启动/沉降对照齐全 |
 | APK/mapping sha256 | E-00（E-09 复核） | 有 | 五个 APK + mapping；本轮 6 个产物哈希逐项重算一致；mapping 本体不提交 |
 
-**KD-74 结论（证据落盘轨，2026-10-26）**：C1/C2/C3/C5 的证据已落盘（C1③ 的"`llvm-readobj` 等价 `llvm-readelf`"待主会话一句裁定）。C1③ 由 E-09 的官方 LLVM `llvm-readobj` 补证；`llvm-readelf` 别名二进制仍缺，按 R4 §6.4 其等价性需主会话裁定。**C4/C6 目前不可能满足**：`docs/research/2026-10-26-batch-23-record.md` 尚未生成，无法在记录 §4 回链，也无法在记录写 "KD-74 closed"。**结论：KD-74 保持 open，本文件与 KD 条目都不写 closed**；待记录落地、C4/C6 勾满后再由主会话关闭。设备红绿与本条无关：T1 仍 1/5 红（abandon 结构性缺陷）、KD-70 P2 仍红（E-01b/E-01c、E-02）。
+**KD-74 结论（证据落盘轨，2026-10-26）**：C1/C2/C3/C5 的证据已落盘（C1③ 的"`llvm-readobj` 等价 `llvm-readelf`"待主会话一句裁定）。C1③ 由 E-09 的官方 LLVM `llvm-readobj` 补证；`llvm-readelf` 别名二进制仍缺，按 R4 §6.4 其等价性需主会话裁定。**C4/C6 在证据落盘时点不可能满足**（批次记录尚未生成，无法在记录 §4 回链，也无法在记录写 "KD-74 closed"）。**2026-10-26 批次 24 T3 更新：批次记录 §4 已为每个设备数字回链 E-ID + `path:line`，§8 第二块 `:415` 主会话裁定 `llvm-readobj --program-headers` 与 `llvm-readelf -l` 字段级等价，记录 §4 末已补记 "KD-74 closed"，KD 条目已同步关闭。** 设备红绿与本条无关：T1 仍 1/5 红（abandon 结构性缺陷）、KD-70 P2 仍红（E-01b/E-01c、E-02）。
 
 ## 5. 缺口与未落盘
 
-1. **官方 ELF 判据**：`llvm-readelf` 别名与 NDK 均不存在（E-00 §1）；E-09 用同发行版 LLVM 22.1.8 的 `llvm-readobj --program-headers` 重做，debug/internal 各 14/14 PASS。→ 只剩"`llvm-readobj` 是否等价 `llvm-readelf`"的主会话一句裁定；不等价则需补装别名或 NDK。
+1. **官方 ELF 判据**：`llvm-readelf` 别名与 NDK 均不存在（E-00 §1）；E-09 用同发行版 LLVM 22.1.8 的 `llvm-readobj --program-headers` 重做，debug/internal 各 14/14 PASS。→ 只剩"`llvm-readobj` 是否等价 `llvm-readelf`"的主会话一句裁定；不等价则需补装别名或 NDK。（2026-10-26 批次 24 T3：主会话已裁定字段级等价，KD-74 已关闭；arm64 运行时缺口仍由 16KB 启用门跟踪。）
 2. **arm64 16KB 运行时**：ps16k AVD 是 x86_64；arm64 设备的 16KB 装载/RELRO 未执行。→ 需要 arm64 16KB AVD/真机。
 3. **T1 abandon 缺陷**：本轨只验证，不修；建议主会话登记新 KD（`VisualJsClientEngine.abandon()` 在 `unlinkDeath` 后等待 death → 宿主阶段超时路径永久 fail-closed），并决定是改代码还是改契约/测试 seam。
 4. **KD-70 P2**：需要能稳定推满 16 MiB 堆的夹具，或按 Fix direction ② 先裁定等价判据；本批不得放宽 90%。
@@ -86,7 +86,7 @@
 7. **测试 APK 的 32 位 ML Kit `.so`**：`armeabi-v7a`/`x86` 的 `libmlkit_google_ocr_pipeline.so` `LOAD align=0x1000`；生产 App 已用 `abiFilters` 裁掉，若放开 ABI 会重新引入。
 8. **构建日志编码异常**：Windows 非 ASCII 用户名使 `aidl.exe` 生成的 Java 头注释含 GBK 字节，javac 打印 8 条不可映射字符错误但构建仍成功；未改构建文件，建议主会话决定是否在 `app/build.gradle.kts` 固定 javac 编码/清理 AIDL 注释。
 9. **他线设备**：`emulator-5562`、`emulator-5584` 本轨未使用。
-10. **记录文件缺失（KD-74 C4/C6 的硬阻塞）**：`docs/research/2026-10-26-batch-23-record.md` 不存在。R4 §6.2 C4 要求"record 的每个设备数字都有 E-ID + path:line"、C6 要求"记录写明 KD-74 closed 并链接本索引"，两项都必须有记录才能勾。→ 由记录员/主会话在记录落地后补；在此之前 KD-74 不得关闭。
+10. **记录文件缺失（KD-74 C4/C6 的硬阻塞）**：`docs/research/2026-10-26-batch-23-record.md` 不存在。R4 §6.2 C4 要求"record 的每个设备数字都有 E-ID + path:line"、C6 要求"记录写明 KD-74 closed 并链接本索引"，两项都必须有记录才能勾。→ 由记录员/主会话在记录落地后补；在此之前 KD-74 不得关闭。（2026-10-26 批次 24 T3：记录已落地，§4 回链 + §8 裁定 + §4 末 "KD-74 closed" 补记齐备，本条已关闭；此条为落盘时点状态。）
 11. **旧矩阵覆盖缺 4 个文件**：`build/device-track-batch23/signature-matrix.txt` 只有 13 个 logcat（缺 01d/01e/06d/06e）。E-08 已补齐为 17/17；旧矩阵本身是 `build/` 材料，不复改。
 
 ## 6. 脱敏与去噪
@@ -112,11 +112,11 @@ grep -RInE 'C:.Users.[^ ]+|/home/[^/ ]+|/Users/[^/ ]+' "$E" || echo "0 hits: hom
 ## 7. 回链检查
 
 - [x] 每个设备数字都有 `E-ID + path:line`（§3、§3.1）
-- [x] `docs/known-defects.md` 的 KD-74 Progress 引用本索引（2026-10-26 由证据落盘轨写入；**状态保持 open**，不写 closed）
+- [x] `docs/known-defects.md` 的 KD-74 Progress 引用本索引（2026-10-26 由证据落盘轨写入；2026-10-26 批次 24 T3 已补 closed 并引用 E-ID）
 - [x] 每个 E-file 有 `sanitized` 字段；扫描结果见 §6
 - [x] 没有把 `build/` 路径当作关闭证据（只出现在 `raw-log` 字段）
 - [x] 文件均在 `docs/research/evidence/` 下，`git check-ignore -v` 无输出（15/15 可跟踪）
-- [ ] 记录 §4 的设备行引用本索引（**阻塞**：`docs/research/2026-10-26-batch-23-record.md` 尚未生成，C4 不能勾）
+- [x] 记录 §4 的设备行引用本索引（批次 23 记录已生成；§4 为每个设备数字回链 E-ID + `path:line`，C4 已勾；2026-10-26 批次 24 T3 复核）
 
 ## 8. 复跑入口（最小）
 

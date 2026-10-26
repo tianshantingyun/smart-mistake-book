@@ -51,7 +51,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * 契约 §4 的 L3（宿主阶段期限，旧文献"第三层"）在本文件：
  * - **不杀任何进程**（宿主对隔离 UID 没有 kill API，R1 §2.3）：期限到只做
  *   `abandon()`（标记 ABANDONED → `terminate(generation)` oneway → `unbindService` →
- *   等 Binder death ≤1 s）；
+ *   **保留 death 注册**，以 binder death 事实 + 轮询 `isBinderAlive` 组合确认 ≤2 s）；
+ * - 只有确认旧实例终结后才清空 link，由下一次执行扣唯一一次重建预算；死亡未确认才
+ *   fail-closed（`unavailable`），不并发放大进程数；
  * - 死亡确认后最多重建一次；重建后的实例再死 → 熔断并不再 bind；
  * - 重建只恢复运行环境，**不重跑**刚才超时/崩溃的源码；`programHash` 熔断到
  *   `explicitUserRetry` 或源码改变（契约 §4:70）；
@@ -223,15 +225,17 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         if (!closed.compareAndSet(false, true)) return
         val current = link
         if (current != null) {
-            current.state = LinkState.ABANDONED
+            current.markAbandoned()
             runCatching { current.service?.terminate(current.generation) }
             current.service = null
             runCatching { context.unbindService(current.connection) }
-            unlinkDeath(current)
-            // 死亡确认只做诊断；close 不阻塞调用方（端口允许 close 幂等且不等引擎锁）。
-            scope.launch {
-                withTimeoutOrNull(DEATH_CONFIRM_TIMEOUT_MILLIS) { current.death.await() }
-            }
+            // close 必须完成 link 的两个等待点，不能只解绑：
+            // ① 首连/重建中的 connectLocked 正等 connected.await()（预算 15 s/10 s），
+            //    不完成就要一直等到预算耗尽才回 ENGINE_CLOSED；
+            // ② 在飞请求的 runSession 正等结果/死亡，不完成只能等宿主 2500 ms 期限。
+            // markDead(unexpected=false) 是既有幂等死亡路径：完成 death/connected、
+            // 终结 activeCall、解注册并解绑；closed=true 保证不会触发重建。
+            current.markDead("the client was closed", unexpected = false)
         }
         synchronized(linkLock) { link = null }
     }
@@ -534,13 +538,25 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             unavailable = true
             return null
         }
+        // 首连与重建用不同预算：冷启动要把隔离进程 fork 起来并装载 libquickjs，设备实测
+        // 4.6–7.5 s（E-01d）；重建时原生库已在页缓存里（E-01b 0.6–0.9 s），但"已连接过、
+        // 之后系统再次进入重负载"没有实测，R1 §6.2 建议给重建留 10 s。统一 5 s 会在冷启动
+        // 把加载态误判成结构性失败；统一 15 s 又会让真正卡死的重建拖太久。
+        val connectBudget = if (connections.get() == 0) {
+            FIRST_CONNECT_TIMEOUT_MILLIS
+        } else {
+            RECONNECT_TIMEOUT_MILLIS
+        }
         val connected = try {
-            withTimeoutOrNull(CONNECT_TIMEOUT_MILLIS) { candidate.connected.await() } ?: false
+            withTimeoutOrNull(connectBudget) { candidate.connected.await() } ?: false
         } catch (cancel: CancellationException) {
             throw cancel
         }
-        if (!connected || candidate.state != LinkState.CONNECTED) {
-            candidate.state = LinkState.ABANDONED
+        // isConnected() 在同一把锁内复查 dead：即使 connected.complete(true) 后死亡通知
+        // 立刻到达，也不会把 DEAD link 当连接返回（见 Link.markConnected）。
+        if (!connected || !candidate.isConnected()) {
+            candidate.markAbandoned()
+            candidate.service = null
             runCatching { context.unbindService(candidate.connection) }
             unlinkDeath(candidate)
             synchronized(linkLock) { if (link === candidate) link = null }
@@ -550,7 +566,7 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         if (closed.get()) {
             // close() 与握手竞态：close 先看到 link==null（死亡已清空）而不会再解绑这个
             // 新实例；这里补上，避免关闭后泄漏一条 binding/进程。
-            candidate.state = LinkState.ABANDONED
+            candidate.markAbandoned()
             runCatching { candidate.service?.terminate(candidate.generation) }
             candidate.service = null
             runCatching { context.unbindService(candidate.connection) }
@@ -563,22 +579,75 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
 
     private suspend fun abandon(link: Link) {
         if (link.state == LinkState.ABANDONED) return
-        link.state = LinkState.ABANDONED
+        link.markAbandoned()
+        // death 注册必须保留到确认完成：markDead 是 link.death 的唯一完成点，先 unlinkDeath
+        // 会把 binderDied 从确认路径上摘掉（批次 23 E-01c 的结构性红）。unbindService 只
+        // 移除 AMS 的重启理由、不是同步终止，也不会撤销已注册的 death 通知。
         runCatching { link.service?.terminate(link.generation) }
         link.service = null
         runCatching { context.unbindService(link.connection) }
-        unlinkDeath(link)
-        val confirmed = withTimeoutOrNull(DEATH_CONFIRM_TIMEOUT_MILLIS) { link.death.await() } != null
+        val confirmed = awaitDeathConfirmation(link)
         if (!confirmed) {
             // 契约 §4：死亡未确认时展示 fallback，不能并发放大进程数。
             link.state = LinkState.DEATH_UNCONFIRMED
             unavailable = true
+            // 明确记录策略：未确认即 fail-closed，随后解注册；迟到的 death 会被丢弃，
+            // **永不据此重建**。这不是"已确认"，只是不再并发放大进程数。
+            Log.w(
+                TAG,
+                "visual_js death was not confirmed within " +
+                    "${DEATH_CONFIRM_TIMEOUT_MILLIS} ms; fail-closed (a late death is dropped " +
+                    "and never used to rebuild)",
+            )
         }
+        // 确认后事件已到；未确认时已 fail-closed，保留注册只会让迟到的 markDead 在
+        // unavailable 状态下再跑一次 handleDeath。两条路径都在此解注册，避免接收器泄漏。
+        unlinkDeath(link)
         synchronized(linkLock) { if (this.link === link) this.link = null }
     }
 
+    /**
+     * 旧实例终结的组合判据（R1 推荐）：**死亡事实优先**（[Link.death] 由 [Link.markDead]
+     * 完成，含 `binderDied`/`onServiceDisconnected`），**轮询 [IBinder.isBinderAlive] 兜底**
+     * 回调丢失，最后以 [DEATH_CONFIRM_TIMEOUT_MILLIS] 为界。
+     *
+     * **它消灭的失败**：只听 `link.death` 时，死亡通知偶发丢失会让客户端在服务已 SIGKILL
+     * 后仍判"未确认"并永久 fail-closed；只轮询而不保留注册则可能永远读到 `mAlive=true`
+     * （R1 §4.2：未注册 death 且没有失败事务时，缓存位不会因远端进程死亡自动清零）。
+     * 组合判据让两条独立事实互为兜底，仍不并发新建进程（未确认不重建）。
+     *
+     * 预算 2 s 是产品选择，不是平台 SLA：AOSP 不承诺 `binderDied` 的延迟上界
+     * （仓库也无毫秒级 death 延迟实测；E-01b 的 16 ms 是 attach→SIGKILL，不是 death 延迟）。
+     */
+    private suspend fun awaitDeathConfirmation(link: Link): Boolean {
+        if (link.death.isCompleted) return true
+        val binder = link.binder
+        // 竞态：markDead 可能在上面两个读之间完成 death 并让 handleDeath 清空 binder。
+        // 这里补一次死亡事实判定，不能把"已确认死亡但注册已摘除"误判成未确认。
+        if (binder == null) return link.death.isCompleted
+        val deadline = SystemClock.uptimeMillis() + DEATH_CONFIRM_TIMEOUT_MILLIS
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (link.death.isCompleted) return true
+            if (!binder.isBinderAlive) {
+                // 死亡通知丢失时的本地事实。走同一个 markDead（CAS 幂等）：完成 death、
+                // 关掉在飞请求；state 已是 ABANDONED，handleDeath 不会为 abandon 自动重建。
+                link.markDead("binder is no longer alive", unexpected = true)
+                return true
+            }
+            delay(DEATH_POLL_INTERVAL_MILLIS)
+        }
+        if (link.death.isCompleted) return true
+        if (!binder.isBinderAlive) {
+            // 最后一刻翻转也必须先记死亡事实，否则 link.death/activeCall 可能永远不完成
+            //（R1 §4.4 待收口点 1）。
+            link.markDead("binder is no longer alive", unexpected = true)
+            return true
+        }
+        return false
+    }
+
     private fun dispose(dead: Link) {
-        dead.state = LinkState.ABANDONED
+        dead.markAbandoned()
         runCatching { dead.service?.terminate(dead.generation) }
         dead.service = null
         runCatching { context.unbindService(dead.connection) }
@@ -675,6 +744,7 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         var workerUid: Int = -1
 
         private val dead = AtomicBoolean(false)
+        private val stateLock = Any()
 
         val deathRecipient = IBinder.DeathRecipient {
             markDead("binder died", unexpected = true)
@@ -721,16 +791,12 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
                         )
                         return
                     }
-                    if (dead.get() || state == LinkState.ABANDONED) {
+                    if (!markConnected(candidate, uid)) {
+                        // 握手期间已死亡/被 close/被 abandon：不得把 dead link 发布成
+                        // CONNECTED（旧实现会在这里无条件覆盖 handleDeath 写入的 DEAD）。
                         markDead("connection died during the handshake", unexpected = true)
                         return
                     }
-                    workerUid = uid
-                    service = candidate
-                    state = LinkState.CONNECTED
-                    // 与 state 同时记账：awaitConnectedForTest 看到 CONNECTED 时计数已包含本次。
-                    connections.incrementAndGet()
-                    if (!connected.isCompleted) connected.complete(true)
                 } catch (_: RemoteException) {
                     markDead("handshake failed with RemoteException", unexpected = true)
                 } catch (failure: RuntimeException) {
@@ -755,10 +821,51 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             }
         }
 
+        /**
+         * 把一次成功握手发布成 CONNECTED，并与 [markDead] 串行化。
+         *
+         * **它消灭的失败**：旧实现先读 `dead`/`state`、再无条件写 `state = CONNECTED`。
+         * 如果 `markDead` 恰好在这两步之间赢（binderDied/onServiceDisconnected 可能在握手
+         * 返回后立即到达），`handleDeath` 已把 link 清空并写 DEAD，随后仍被覆盖成 CONNECTED；
+         * `connectLocked` 只看 `state`，会把已死 link 当连接返回，导致一次有界 HARD_DEADLINE
+         * 拒绝和一次多余重建。这里让"检查死亡 → 发布连接"在同一把锁内完成，`markDead`
+         * 先把 `dead` CAS 置真再拿同一把锁，因此只有一方能赢。
+         *
+         * @return true 表示已发布；false 表示 link 已死/已 abandon/客户端已 close，调用方
+         * 必须走 [markDead] 清理，不能把服务当作可用连接。
+         */
+        fun markConnected(candidate: IVisualJsService, uid: Int): Boolean =
+            synchronized(stateLock) {
+                if (dead.get() || state == LinkState.ABANDONED || closed.get()) {
+                    return@synchronized false
+                }
+                workerUid = uid
+                service = candidate
+                state = LinkState.CONNECTED
+                // 与 state 同时记账：awaitConnectedForTest 看到 CONNECTED 时计数已包含本次。
+                connections.incrementAndGet()
+                if (!connected.isCompleted) connected.complete(true)
+                true
+            }
+
+        /** 与 [markConnected] 使用同一把锁，杜绝"检查后写 ABANDONED"与发布 CONNECTED 交错。 */
+        fun markAbandoned() {
+            synchronized(stateLock) { state = LinkState.ABANDONED }
+        }
+
+        /** 与 [markDead] 的 state 写入互斥，避免读到"已死但 state 仍是 CONNECTED"的瞬间。 */
+        fun isConnected(): Boolean = synchronized(stateLock) {
+            !dead.get() && state == LinkState.CONNECTED
+        }
+
         fun markDead(cause: String, unexpected: Boolean) {
             if (!dead.compareAndSet(false, true)) return
-            if (state != LinkState.ABANDONED) state = LinkState.DEAD
-            service = null
+            // dead 先置真，再拿 stateLock 改写 state/service：markConnected 在锁内复查
+            // dead，看到 true 就不会发布连接。
+            synchronized(stateLock) {
+                if (state != LinkState.ABANDONED) state = LinkState.DEAD
+                service = null
+            }
             if (!death.isCompleted) death.complete(Unit)
             if (!connected.isCompleted) connected.complete(false)
             handleDeath(this, cause, unexpected)
@@ -776,9 +883,9 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
     internal suspend fun connectForTest(): Boolean = ensureConnected() != null
 
     /**
-     * 测试 seam：走生产 [abandon] 路径（terminate → unbind → 等 Binder death ≤1 s），
-     * 返回死亡是否在期限内确认。它消灭的失败是"宿主阶段超时路径的重建预算只能靠猜"：
-     * 连续 abandon 后是否还会 bind 由设备用例直接断言。
+     * 测试 seam：走生产 [abandon] 路径（terminate → unbind → 死亡事实/`isBinderAlive`
+     * 组合确认 ≤2 s），返回死亡是否在期限内确认。它消灭的失败是"宿主阶段超时路径的重建
+     * 预算只能靠猜"：连续 abandon 后是否还会 bind 由设备用例直接断言。
      */
     internal suspend fun abandonForTest(): Boolean {
         val current = link ?: return false
@@ -805,7 +912,27 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
 
     private companion object {
         const val TAG = "VisualJsClientEngine"
-        const val CONNECT_TIMEOUT_MILLIS: Long = 5_000L
-        const val DEATH_CONFIRM_TIMEOUT_MILLIS: Long = 1_000L
+
+        /**
+         * 首连（冷启动）预算：设备实测隔离进程 attach 4.6–7.5 s（E-01d），再加握手。
+         * 旧值 5_000 会把加载态误判成结构性失败；这里覆盖实测上界并留余量。
+         */
+        const val FIRST_CONNECT_TIMEOUT_MILLIS: Long = 15_000L
+
+        /**
+         * 重建预算：worker 已装载过原生库（E-01b 实测 0.6–0.9 s），但系统再次进入重负载
+         * 时没有实测；R1 §6.2 建议 10 s，避免把"慢但会到"的重建永久判死。
+         */
+        const val RECONNECT_TIMEOUT_MILLIS: Long = 10_000L
+
+        /**
+         * 旧实例死亡确认上界；死亡事实 + `isBinderAlive` 轮询共用这一预算。
+         * 2 s 是产品选择（与 R1 §6.2 / nextvol 对齐），不是平台 SLA：AOSP 不承诺
+         * `binderDied` 的延迟上界。
+         */
+        const val DEATH_CONFIRM_TIMEOUT_MILLIS: Long = 2_000L
+
+        /** `isBinderAlive` 轮询间隔；1 s 预算内至少 20 个判定点。 */
+        const val DEATH_POLL_INTERVAL_MILLIS: Long = 50L
     }
 }

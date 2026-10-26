@@ -37,7 +37,8 @@ import kotlin.concurrent.thread
  *   不熔断；类型优先分类的钉子之一）
  * - 内存超限 OOM 路径 → R3 §5 的确定性探针（批次 22 T2 替换旧夹具）：
  *   P1 `memoryOverTheHeapBudget...`（单次 64 MiB ArrayBuffer，message 可读的堆上限主路径）、
- *   P2 `heapExhaustionWithLostErrorMessage...`（50 万小对象链表，`"null"` 由堆证据归属）、
+ *   P2 `heapExhaustionWithLostErrorMessage...`（50 万小对象链表，头节点钉在 `globalThis`
+ *   上作根引用，`"null"` 由堆证据归属；见用例 KDoc 与 R2 记账研究）、
  *   P3 `stringLengthCapIsNotAHeapOutOfMemory`（rope 翻倍负控：`string too long` 不是堆上限）、
  *   P4 `nullThrownAtLowMemoryIsUnattributedInvalidProgram`（`throw null` 低堆，内部
  *   UNATTRIBUTED → 对外 INVALID_PROGRAM + `[UNATTRIBUTED]` 前缀；T2 裁定不新增 UNKNOWN）、
@@ -267,6 +268,34 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         assertTrue(rejected.diagnostics.length <= FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
     }
 
+    /**
+     * P2：消息丢失的堆耗尽必须由 `memoryUsage` 比值归属为 `MEMORY_LIMIT`。
+     *
+     * **批次 23 设备形状（E-02）与本批修复.** 旧夹具是"50 万节点链表只挂在
+     * `prepare` 的局部变量上"，设备读到 `[UNATTRIBUTED] … raw=null, mallocSize=177216,
+     * mallocLimit=16777216`（1.06%，批次 22/23 两次同值）。R2
+     * （`docs/research/2026-10-26-quickjs-memory-accounting.md` §2）给出主机制：OOM 以
+     * JS_NULL 抛出后，`JS_CallInternal` 的异常出口先释放该帧所有局部变量与栈值
+     * （`quickjs.c:20690`、`:20699-20709`）；引用计数归零的对象立即释放并级联释放
+     * `next` 属性（`:6474-6485`、`:6341-6353`、`:6097-6117`）。旧夹具的链只由局部 `head`
+     * 与节点 `next` 属性持有 → 局部释放即整链同步释放，发生在 `JS_Eval` 返回前；引擎
+     * 随后读到的只是回落水位（次要机制：分配前 `js_trigger_gc` 与 job 排水中的 GC，
+     * `quickjs.c:5619`、`QuickJs.jni.kt:590`，同向）。因此旧形状**不可能**产生比值证据；
+     * 换夹具是唯一出路，**不得下调 90% 阈值**。
+     *
+     * **本批新形状（预期形态，设备复跑归设备轨）**：
+     * - 每次迭代把最新头节点写到 `globalThis.__visualHeapProbeHead`，链表始终有根引用；
+     * - 失败仍发生在分配 `sizeof(JSObject)` 量级时 → Error 对象放不下 → 消息丢失
+     *   （`raw` 为 `"null"` 或 Java null）；
+     * - 读快照时 `mallocSize` 应 ≥ 90% × 16777216（≥ 15099495），`mallocLimit=16777216`；
+     * - reason=`MEMORY_LIMIT`，诊断含 `attributed by memoryUsage` 与
+     *   `PENDING_CALIBRATION`（比值主证据尚未在设备校准成功，R2 §4）。
+     * 若设备复跑仍读到约 177216：说明锚定未生效或该 AAR 另有回收路径，把实际数字落盘并按
+     * KD-70 继续跟踪——不得改成"有界拒绝即可"，也不得调低阈值。
+     *
+     * **本批（批次 24 T2）未运行 Gradle/设备命令**（门禁由脚本串行执行、设备复跑归设备轨）；
+     * 下面的断言是设备轨要执行的判据，不是已通过的结果。
+     */
     @Test
     fun heapExhaustionWithLostErrorMessageIsAttributedByMemoryUsage() = runBlocking {
         val measurer = CapturingMeasurer()
@@ -279,9 +308,10 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         val result = engine.execute(request(HEAP_LIST_SOURCE))
 
         val rejected = result as VisualExecutionResult.Rejected
-        // P2（R3 §5.3）：50 万个小对象、全部可达；失败分配只有 sizeof(JSObject) 量级，
-        // 余量连 OOM Error 都放不下 → quickjs-kt 只留下 "null"。分类必须靠
-        // memoryUsage.mallocSize >= 90% mallocLimit 归属堆上限，而不是把 "null" 当程序错。
+        // P2（R3 §5.3 + R2 §2）：链表全部可达（钉在 globalThis 上，OOM 后的 GC 也收不走），
+        // 失败分配只有 sizeof(JSObject) 量级，余量连 OOM Error 都放不下 → quickjs-kt 只留下
+        // "null"。分类必须靠 memoryUsage.mallocSize >= 90% mallocLimit 归属堆上限，
+        // 并把"比值尚未校准"如实标成 PENDING_CALIBRATION。
         assertEquals(
             "actual: ${rejected.reason}: ${rejected.diagnostics}",
             VisualExecutionRejection.MEMORY_LIMIT,
@@ -289,6 +319,9 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         )
         assertTrue(rejected.diagnostics.contains("attributed by memoryUsage"))
         assertTrue(rejected.diagnostics.contains("mallocLimit=16777216"))
+        assertTrue(rejected.diagnostics.contains("PENDING_CALIBRATION"))
+        // -1 = 快照没取到（heap == null）；这条形状要求真的读到水位。
+        assertFalse(rejected.diagnostics.contains("mallocSize=-1"))
         assertTrue(rejected.diagnostics.length <= FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
     }
 
@@ -713,15 +746,26 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         """.trimIndent()
 
         /**
-         * P2（R3 §5.3）：50 万个小对象链表，全部可达（GC 不回收），无大 realloc、无长字符串。
-         * 20 MB > 16 MiB；有界循环——memoryLimit 若失效，prepare 会正常返回 `[]`（测试红），
-         * 不会靠超时兜底。失败时余量小于一个 Error 对象 → message 为 `"null"`。
+         * P2（R3 §5.3 + R2 §2）：50 万个小对象链表，**每次迭代把最新头节点钉到
+         * `globalThis` 上**，整条链在 OOM 之后仍持有根引用。
+         *
+         * 旧形状（只存局部变量 `head`）在设备上被证明不成立：OOM 抛出后，`JS_CallInternal`
+         * 的异常出口会释放该帧局部变量（`quickjs.c:20699-20709`），引用计数归零的链被
+         * 同步级联释放（`:6474-6485`、`:6341-6353`、`:6097-6117`）→ 引擎读到 177216（1.06%）。
+         * 锚定到 `globalThis` 后，局部释放不会让引用计数归零，读数才代表失败时的存活水位。
+         *
+         * 其余约束不变：20 MB > 16 MiB；单轮只分配 `sizeof(JSObject)` 量级，无大 realloc、
+         * 无长字符串（否则会先撞 `JS_STRING_LEN_MAX` 或留下大余量）；有界循环——memoryLimit
+         * 若失效，prepare 会正常返回 `[]`（测试红），不会靠超时兜底。
          */
         val HEAP_LIST_SOURCE = """
             const visual = {
               prepare: function () {
                 var head = null;
-                for (var i = 0; i < 500000; i++) { head = { next: head }; }
+                for (var i = 0; i < 500000; i++) {
+                  head = { next: head };
+                  globalThis.__visualHeapProbeHead = head;
+                }
                 return [];
               },
               render: function () { return {}; },

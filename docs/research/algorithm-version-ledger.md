@@ -506,6 +506,28 @@ AUD-17 校准结果互相替代。
 
 执行证据（记录员只读核对，未运行 Gradle）：`tmp/verify-batch23-t2/green.log`（`KnowledgeQuizItemVerificationUpgraderTest` 11/11、`AdaptiveSelectionAssemblerTest` 12/12）；`tmp/verify-batch23-t3/run-with-snapshot-test.log`（`NewIntroductionPolicyTest` 19/19、`StudyReviewOverviewIntakeTest` 3/3、`StudyExperienceMappersIntakeTest` 2/2、`StudySnapshotIntakeUnschedulableTest` 1/1；旧金样 13/6/4/4）。
 
+### 3.34 批次 24 · 零 bump 判据登记（2026-10-26）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动，本批无任何算法版本变更
+
+> 依据：批次 24 计划 §1、批次记录 `docs/research/2026-10-26-batch-24-record.md` §3、`docs/known-defects.md` KD-66/KD-70。本批不 bump 任何版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：`core/database/schemas/.../69.json` 为最高，无 70.json；本批零 DB 改动 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 仍不广告，工具面/提示词零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `SELECTOR_COMPOSITE` | 未改 | 本批未改选择器 |
+| `VisualJsCalibration` | **内部枚举，不是算法版本串** | 只标记"比值证据未设备校准"，不改 `reason` 映射/阈值；对外枚举未新增 |
+
+零 bump 判据（逐条）：
+
+1. T1 只改 app `visualjs` 的 Binder death 确认顺序、首连/重建/死亡确认预算与 `close()` 终结路径，属进程连接层，不进投影/排程/打分/校准输入。
+2. T2 只改 QuickJS OOM 的诊断归因与证据状态（`PENDING_CALIBRATION`），90% 阈值与 `MEMORY_LIMIT` 映射不变；`globalThis` 锚定只改仪器化夹具，不改生产算法。
+3. T3/T4/T5 为台账/契约/准入清单/产品排序与 KD-76 登记，零生产算法面。
+4. 后续若把比值分支升为"已校准"、调整 90% 阈值，或让 `[UNATTRIBUTED]` 参与宿主决策，必须重新评估是否登记算法版本/口径变更（当前无）。
+
+执行证据：批次 24 E-01/E-01b（隔离 6/6）、E-02（引擎 20/20）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

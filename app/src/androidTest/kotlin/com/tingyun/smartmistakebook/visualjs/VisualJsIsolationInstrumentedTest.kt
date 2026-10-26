@@ -2,12 +2,16 @@ package com.tingyun.smartmistakebook.visualjs
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.os.Process
 import android.os.RemoteException
+import android.os.SystemClock
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget
@@ -35,27 +39,36 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * 批次 22 T1（4E.2 前置）的隔离进程仪器化用例（设备轨执行）。2026-10-26 修复前设备实跑
  * **4/4 红**：隔离 UID 断言成立，但首个 `execute` 被服务端判成 `request pipe ended before a
  * complete envelope arrived`（reliable-pipe comm 通道误报，见 `VisualJsService.execute` 的
- * `dup()` 修复）；修复后的设备复跑仍 UNVERIFIED（本轮禁跑 Gradle）。
+ * `dup()` 修复）。dup 修复后批次 23 设备复跑 **5 例 4 绿 1 红**（唯一红为 abandon 结构性
+ * 缺陷）；批次 24 已修该缺陷与冷启动首连预算，设备轨 E-01/E-01b 在两代 debug APK 上均
+ * **6/6**（`OK (6 tests)`，见 `docs/research/evidence/2026-10-26-batch-24/`）；本类仍以
+ * ≤6 s 判死，不能作为 KD-66 hard+500 ms 关闭门。
  *
  * 覆盖任务书 T1 第四条：
  * 1. AIDL 往返 + generation 校验（[workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater]、
  *    [aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp]）；
  * 2. 超期终止不泄漏后续 BUSY——新进程新状态（[theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState]）；
- * 3. client 在服务进程死亡后重建一次（[theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy]）。
+ * 3. client 在服务进程死亡后重建一次（[theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy]）；
+ * 4. 宿主阶段超时（abandon）确认死亡后最多重建一次，重建实例可直接执行
+ *    （[theClientRebuildsAtMostOnceAfterConfirmedAbandons]）；
+ * 5. 冷启动 attach 超过旧 5 s 预算时首次执行仍成功
+ *    （[aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram]）。
  *
  * 关键：**同进程单测不算隔离验证**（`Stub.asInterface` 在同进程返回本地对象）。这些用例必须
  * 起真实 `:visual_js` 进程：`workerUid != Process.myUid()`、watchdog SIGKILL 后 binder death、
  * 新进程的 generation/引擎状态都是真进程行为。
  *
- * 设备前置（2026-10-26 修复前设备轨只验证到"隔离 UID 成立"；pipe 误判挡住了后续路径）：
- * - 隔离进程能 `System.loadLibrary("quickjs")`（AAR 的 libquickjs.so 从 APK 映射）——UNVERIFIED；
- * - `Process.killProcess(myPid())` 在 isolated UID 下允许——UNVERIFIED；
+ * 设备前置（批次 22 修复前设备轨只验证到"隔离 UID 成立"；批次 23 设备轨已用往返/watchdog
+ * 用例证明下列两项，见 E-01b）：
+ * - 隔离进程能 `System.loadLibrary("quickjs")`（AAR 的 libquickjs.so 从 APK 映射）——绿；
+ * - `Process.killProcess(myPid())` 在 isolated UID 下允许——watchdog 硬杀用例绿；
  * - Process.myUid() != applicationInfo.uid 在隔离进程中的实际值已由首例断言通过（R1 §9.4）。
  *
  * 本文件不调用 `QuickJs.close()` 的挂死路径：issue #240 由服务 watchdog 直接 SIGKILL，
@@ -211,6 +224,14 @@ class VisualJsIsolationInstrumentedTest {
         assertTrue("the client did not rebuild after the first confirmed abandon", engine.connectForTest())
         assertEquals(2, engine.connectionCountForTest())
 
+        // 重建后的实例必须能直接接活：BUSY 说明旧实例的在飞槽位/进程状态泄漏到了新进程。
+        val rebuilt = engine.execute(pureGeometryRequest())
+        assertTrue(
+            "the rebuilt worker is not usable after a confirmed abandon (BUSY means the old " +
+                "instance leaked state): $rebuilt",
+            rebuilt is VisualExecutionResult.Rendered,
+        )
+
         // 第二次确认死亡后不得再 bind：连续超时不能无限放大隔离进程数。
         assertTrue("the second abandon did not confirm death", engine.abandonForTest())
         assertFalse(
@@ -218,6 +239,27 @@ class VisualJsIsolationInstrumentedTest {
             engine.connectForTest(),
         )
         assertEquals(2, engine.connectionCountForTest())
+    }
+
+    /**
+     * 冷启动加载态：设备实测隔离进程 attach 4.6–7.5 s（E-01d），旧 5 s 首连预算会把
+     * "进程 fork + `libquickjs.so` 装载"误判成结构性失败，首个 `execute` 直接
+     * `ENGINE_CLOSED`。本用例把真实 attach 回调推迟到实测上界（7.6 s），钉住"首次执行
+     * 必须成功"这一用户可见结果；断言的是行为，不是超时常量本身。
+     */
+    @Test
+    fun aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram() = runBlocking {
+        val delayed = DelayedAttachContext(context, COLD_START_ATTACH_DELAY_MILLIS)
+        val engine = VisualJsClientEngine(delayed).also { clients.add(it) }
+
+        // 不先 connectForTest()：这条用例钉的正是冷启动的第一次 execute。
+        val first = engine.execute(pureGeometryRequest())
+        assertTrue(
+            "the first execution after a ${COLD_START_ATTACH_DELAY_MILLIS} ms cold-start attach " +
+                "was misclassified as a structural failure: $first",
+            first is VisualExecutionResult.Rendered,
+        )
+        assertEquals(1, engine.connectionCountForTest())
     }
 
     @Test
@@ -333,6 +375,74 @@ class VisualJsIsolationInstrumentedTest {
         seed = 9L,
         theme = "light",
     )
+
+    private companion object {
+        /**
+         * 设备实测冷启动 attach 4.6–7.5 s（E-01d）。取 7.6 s（实测上界 + 100 ms），
+         * 旧 5 s 首连预算下必红；新预算 15 s 留出握手余量。只推迟 attach 回调、不推迟
+         * `bindService`，避免把"延迟"与"真实进程 fork"串行相加。
+         */
+        const val COLD_START_ATTACH_DELAY_MILLIS: Long = 7_600L
+    }
+}
+
+/**
+ * 冷启动加载态夹具：真实 `bindService` 立即执行，但把 `onServiceConnected` 推迟
+ * [attachDelayMillis]，复现"隔离进程 attach 超过旧 5 s 预算"的时间形状。
+ *
+ * `unbindService` 必须用 `bindService` 时注册的那个 [ServiceConnection] 实例，因此这里
+ * 维护"客户端连接 → 包装连接"的映射；客户端提前放弃（旧实现 5 s 超时）时仍能正确解绑，
+ * 不会残留 binding 或泄漏隔离进程。
+ */
+private class DelayedAttachContext(
+    base: Context,
+    private val attachDelayMillis: Long,
+) : ContextWrapper(base) {
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val delegates = ConcurrentHashMap<ServiceConnection, ServiceConnection>()
+    private val attachDeadlines = ConcurrentHashMap<ServiceConnection, Long>()
+
+    override fun bindService(service: Intent, conn: ServiceConnection, flags: Int): Boolean {
+        // 期限从 bindService 起算，而不是从 onServiceConnected 起算：真实 attach 无论多快，
+        // 客户端看到回调的时刻都稳定在 bind + attachDelayMillis，夹具不受进程启动快慢影响。
+        attachDeadlines[conn] = SystemClock.uptimeMillis() + attachDelayMillis
+        val delayed = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                val remaining = (attachDeadlines.remove(conn) ?: 0L) - SystemClock.uptimeMillis()
+                if (remaining <= 0L) {
+                    conn.onServiceConnected(name, binder)
+                } else {
+                    handler.postDelayed({ conn.onServiceConnected(name, binder) }, remaining)
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                conn.onServiceDisconnected(name)
+            }
+
+            override fun onBindingDied(name: ComponentName?) {
+                conn.onBindingDied(name)
+            }
+
+            override fun onNullBinding(name: ComponentName?) {
+                conn.onNullBinding(name)
+            }
+        }
+        delegates[conn] = delayed
+        val bound = baseContext.bindService(service, delayed, flags)
+        if (!bound) {
+            delegates.remove(conn)
+            attachDeadlines.remove(conn)
+        }
+        return bound
+    }
+
+    override fun unbindService(conn: ServiceConnection) {
+        attachDeadlines.remove(conn)
+        val delegate = delegates.remove(conn) ?: conn
+        baseContext.unbindService(delegate)
+    }
 }
 
 /** 一次直接 AIDL 调用的结果；status 为 [VisualJsWire] 返回码或本类的本地哨兵。 */

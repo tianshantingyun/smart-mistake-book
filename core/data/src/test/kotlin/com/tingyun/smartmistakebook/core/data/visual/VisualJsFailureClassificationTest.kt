@@ -9,7 +9,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * [classifyVisualJsFailure] 的 JVM 纯函数用例（批次 22 T2；矩阵来自 R3 §6.4）。
+ * [classifyVisualJsFailure] 的 JVM 纯函数用例（批次 22 T2；批次 24 T2 增补 R2 证据标记）。
  *
  * **不变量**：本类不实例化 [com.dokar.quickjs.QuickJs]，不触发 `System.loadLibrary("quickjs")`。
  * 只构造库的异常值类型（[QuickJsException]/[QuickJsInterruptedException]，纯 Kotlin 类），
@@ -18,6 +18,13 @@ import org.junit.Test
  * 覆盖三层：类型分支（中断优先于消息）、消息分支（严格前缀/沙箱/程序错误）、
  * UNKNOWN 兜底（消息丢失且无堆证据 → 内部 UNATTRIBUTED，对外折 INVALID_PROGRAM + 前缀）。
  * 阈值边界与 `unlimited` 上限也在本类钉住，防止有人为让设备变绿而下调 90%。
+ *
+ * **批次 24 T2 增补（R2 `docs/research/2026-10-26-quickjs-memory-accounting.md`）**：
+ * 以 `mallocSize >= 90% mallocLimit` 比值作**主证据**的归因必须带
+ * [VisualJsCalibration.PENDING_CALIBRATION]，因为该比值在设备上尚未校准成功——E-02 的
+ * 未锚定夹具只读到 `mallocSize=177216`（1.06%）。直接由引擎原文
+ * `InternalError: out of memory` 支撑的归因不带此标记。这里同时固化 E-02 的数值形状，
+ * 防止后续把"读到基线"误读成阈值问题。
  */
 class VisualJsFailureClassificationTest {
 
@@ -62,6 +69,9 @@ class VisualJsFailureClassificationTest {
         assertEquals(VisualExecutionRejection.MEMORY_LIMIT, failure.reason)
         assertTrue(failure.diagnostics.contains("16777216"))
         assertTrue(failure.diagnostics.contains("out of memory"))
+        // 引擎原文是直接证据，不依赖未校准的堆比值。
+        assertEquals(VisualJsCalibration.NONE, failure.calibration)
+        assertFalse(failure.diagnostics.contains("PENDING_CALIBRATION"))
     }
 
     @Test
@@ -89,6 +99,7 @@ class VisualJsFailureClassificationTest {
 
         assertEquals(VisualJsFailureKind.INVALID_PROGRAM, failure.kind)
         assertTrue(failure.diagnostics.contains("string too long"))
+        assertEquals(VisualJsCalibration.NONE, failure.calibration)
     }
 
     @Test
@@ -119,6 +130,9 @@ class VisualJsFailureClassificationTest {
         assertTrue(failure.diagnostics.contains("attributed by memoryUsage"))
         assertTrue(failure.diagnostics.contains("mallocSize=16700000"))
         assertTrue(failure.diagnostics.contains("mallocLimit=16777216"))
+        // 比值是主证据：设备尚未校准成功，必须带 PENDING_CALIBRATION 标记。
+        assertEquals(VisualJsCalibration.PENDING_CALIBRATION, failure.calibration)
+        assertTrue(failure.diagnostics.contains("PENDING_CALIBRATION"))
     }
 
     @Test
@@ -127,6 +141,8 @@ class VisualJsFailureClassificationTest {
 
         assertEquals(VisualJsFailureKind.MEMORY_LIMIT, failure.kind)
         assertTrue(failure.diagnostics.contains("attributed by memoryUsage"))
+        assertEquals(VisualJsCalibration.PENDING_CALIBRATION, failure.calibration)
+        assertTrue(failure.diagnostics.contains("PENDING_CALIBRATION"))
     }
 
     @Test
@@ -134,6 +150,7 @@ class VisualJsFailureClassificationTest {
         val failure = classify(null, nearLimitHeap())
 
         assertEquals(VisualJsFailureKind.MEMORY_LIMIT, failure.kind)
+        assertEquals(VisualJsCalibration.PENDING_CALIBRATION, failure.calibration)
     }
 
     // ------------------------------------------------------------ UNKNOWN 兜底
@@ -148,6 +165,21 @@ class VisualJsFailureClassificationTest {
         assertTrue(failure.diagnostics.startsWith(UNATTRIBUTED_DIAGNOSTIC_PREFIX))
         assertTrue(failure.diagnostics.contains("mallocSize=1000000"))
         assertTrue(failure.diagnostics.contains("mallocLimit=16777216"))
+        // 不做堆归因，也就没有"待校准的比值证据"。
+        assertEquals(VisualJsCalibration.NONE, failure.calibration)
+    }
+
+    @Test
+    fun `the batch23 unattributed witness is below the attribution bar`() {
+        // E-02 设备实读（批次 23）：未锚定的 50 万节点链表在 OOM 后读到
+        // mallocSize=177216（1.06% of 16 MiB），两批设备轨同值。该形状不可能产生
+        // MEMORY_LIMIT——换夹具是唯一出路，不是下调 90% 阈值。
+        val failure = classify("null", HeapSnapshot(mallocSize = 177_216L, mallocLimit = 16_777_216L))
+
+        assertEquals(VisualJsFailureKind.UNATTRIBUTED, failure.kind)
+        assertEquals(VisualExecutionRejection.INVALID_PROGRAM, failure.reason)
+        assertTrue(failure.diagnostics.contains("mallocSize=177216"))
+        assertEquals(VisualJsCalibration.NONE, failure.calibration)
     }
 
     @Test
@@ -157,6 +189,7 @@ class VisualJsFailureClassificationTest {
         assertEquals(VisualJsFailureKind.UNATTRIBUTED, failure.kind)
         assertEquals(VisualExecutionRejection.INVALID_PROGRAM, failure.reason)
         assertTrue(failure.diagnostics.startsWith(UNATTRIBUTED_DIAGNOSTIC_PREFIX))
+        assertEquals(VisualJsCalibration.NONE, failure.calibration)
     }
 
     // ------------------------------------------------------------ 90% 阈值与上限
@@ -169,6 +202,12 @@ class VisualJsFailureClassificationTest {
 
         assertTrue(atThreshold.isNearLimit())
         assertFalse(justBelow.isNearLimit())
+        // 边界内的归属仍是比值证据，带 PENDING_CALIBRATION；边界外落 UNATTRIBUTED。
+        assertEquals(
+            VisualJsCalibration.PENDING_CALIBRATION,
+            classify("null", atThreshold).calibration,
+        )
+        assertEquals(VisualJsCalibration.NONE, classify("null", justBelow).calibration)
     }
 
     @Test

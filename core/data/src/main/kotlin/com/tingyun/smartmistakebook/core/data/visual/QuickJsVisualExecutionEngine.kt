@@ -109,6 +109,8 @@ import java.util.concurrent.atomic.AtomicReference
  * 3. **消息丢失 + 堆证据**：quickjs-kt 在 Error 对象也分配不出来时只留下 `"null"`
  *    （JS_NULL 链，KD-70 设备实测）；仅当 `memoryUsage.mallocSize >= 90% mallocLimit`
  *    才归属 [MEMORY_LIMIT]。`"not defined"` → [SANDBOX_VIOLATION] 维持原判据。
+ *    **比值是未校准的主证据**（R2 `docs/research/2026-10-26-quickjs-memory-accounting.md`）：
+ *    该分支的诊断带 `PENDING_CALIBRATION`，直到设备用 GC 锚定夹具复跑并落盘；阈值不变。
  * 4. **不可归属兜底**：丢失哨兵但堆不接近上限（如 `throw null`）→ 内部
  *    [VisualJsFailureKind.UNATTRIBUTED]；对外枚举本批不新增 `UNKNOWN`，折成
  *    [INVALID_PROGRAM]，诊断以 `[UNATTRIBUTED]` 开头供宿主区分（R3 §6.6 退化口径）。
@@ -381,6 +383,13 @@ class QuickJsVisualExecutionEngine(
      * 堆快照只在"消息丢失哨兵"路径上取（[isLostMessage]）：普通 TypeError 不会多拿一次
      * `jsMutex`；读取发生在 `finally { js.close() }` 之前，且 `JS_ComputeMemoryUsage` 本身不分配
      * （R3 §2.1.4）。取消/中断不读堆，也不改变既有终止层语义。
+     *
+     * **快照可信度**（R2 §2）：OOM 的 JS_NULL 抛出后，`JS_CallInternal` 的异常出口会先释放
+     * 该帧所有局部变量与栈值（`quickjs.c:20690`、`:20699-20709`）；引用计数归零的对象立即
+     * 释放并级联释放 `next` 属性（`:6474-6485`、`:6341-6353`、`:6097-6117`）。只挂在局部
+     * 变量上的链表因此在 `JS_Eval` 返回前就被清空，快照读到回落水位——E-02 的未锚定夹具
+     * 因此读到 177216（1.06%）。探针必须给链一个根引用（仪器化 P2 用 `globalThis`），否则
+     * 比值证据不成立。
      */
     private suspend fun runPhase(
         transaction: Transaction,

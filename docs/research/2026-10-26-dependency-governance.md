@@ -7,6 +7,8 @@
 > 探针脚本与解包产物在系统临时目录（`%TEMP%\qjs\`），不属仓库，复现命令见 §5。
 
 > **2026-10-26 复核返修补记（批次 22 修复轮）。** 仓库仍无任何 `gradle.lockfile`（`find` 0 命中；`git ls-files` 0），默认 `LockMode.LENIENT` 下 dependency locking **实际未生效**——本文推荐的"locking（主）"只有声明、没有锁状态，T3 只能记为部分属实（KD-72）。路径 A 的 stdlib 降级仍只有 quickjs AAR 的 88 条成员引用扫描与缓存 POM 样本，**不是完整解析图的 API 兼容证明**；`check_dependency_pins.py` 只校版本，不校 API（KD-73）。本轮回跑 `python tools/ci/check_dependency_pins.py` → exit 0（`resolved: quickjs=['1.0.15'] kotlin-stdlib=['2.3.21']`），`test_check_dependency_pins.py` 14/14 绿；这两项不改变上面的缺口结论。
+>
+> **2026-10-26 批次 24 T3 更正：上面的"仓库仍无任何 gradle.lockfile / 默认 LENIENT"是批次 22 修复轮的状态，已过时。** 当前工作树有 **13 条 git 可见的未跟踪锁条目**（`git status --porcelain | grep -i lockfile`），盘上实为 **14 个** `gradle.lockfile`（`core/markdown/gradle.lockfile` 被未跟踪目录折叠）；`git ls-files '*gradle.lockfile'` → 0；`:benchmark` 缺锁。锁模式是默认 **`DEFAULT`**（不是 `LENIENT`；根 `build.gradle.kts:19-33`）。这批锁生成于他线未提交的构建改动、与 HEAD 不一致，**不得原样提交**；须等干净树用 `lockAllDependencies --write-locks` 重生成。KD-72 保持 open。
 
 ---
 
