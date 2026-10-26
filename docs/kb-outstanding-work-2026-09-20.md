@@ -176,3 +176,134 @@ W-4（攒一批真机跑一次）→ W-5（独立）。W-3 旧块池已归档舍
 | **薄料（补/登记）** | **blocked——本批零写；专版维护项** | 薄料 3 条终审结论维持：行 07（导数定义在极限中的计算）、行 26（电磁说-麦克斯韦）已 UPGRADE；行 23（必备实验仪器的原理及使用）KEEP——仍有 1 条 PRIMARY 材料 `phy-basic-instruments-principle-use`（不是错挂），缺的「电路元器件识别」半边仍在 `电路中的基本概念`。全包 **0 待执行 REBIND / 0 未绑 / 全 PRIMARY / 无 SUPPORTING 现行通道**。补料会使已测 117/129 基线失效，须走自产料池门 + 晋升（2027 版《53》源登记流程不变）。证据：`build/agent-batch22/material-touched-files.txt:1-15`；预注册 §1.2；批报 §8.2 |
 | **使用面（交接项）** | **R1–R6 风险登记；本批未修复** | R1 P1 材料摘要非每节点一条（53.3% 节点无材料段；6.1% 误区材料占 76.1% 槽位）；R2 P1 材料标题/正文缺失（只 ≤60 字摘要）；R3 P1 `take(60)` 静默截断（27.2% 被切、640 条 LaTeX 损伤）；R4 P2 boundary `take(80)`（82.3% 被切、58.7% 范围短语在 80 字后）；R5 P2 2k 预算名义化（最大 2,079 B > 2,000 B）；R6 P3 13 条 summary / 6 条 boundary 含换行。归属：R1/R6 本线可改；R2/R5 智能体面契约侧；R3/R4 两侧。交接下一步：契约侧决定正文/标题披露与 2k 单位/执行点；本线侧改每节点材料取数、摘要 ≤60 字公式安全、boundary 范围前置、换行归一。本批未改 `RoomTutorToolRunner`、未改契约。证据：`docs/research/2026-10-26-kb-usage-surface-audit.md:13-40,46-233,333-339`；批报 §7 |
 | **验收状态（v21）** | **验收 §11 已追加；判据状态已刷新；v1.0 达成宣告维持（不撤销）** | B1 **117/129 = 0.9069767441860465 ≥ 0.90**；B2 PASS/PASS；B3 p50=40 / p95=57 / max=164、overBudget=0；B4 单点 absent 登记；A/C/D/E 状态见验收 §11 与判据刷新节。v21 为内容更新后新基线，**不构成涨分宣告**。dense-union 批次21 仍不采纳、已回滚；标题向量臂已收束；E2 用户复核开放。C1 全套未重跑（仅定向 JVM 4 类 + 判官），沿用批次19/20 存档 1033/1033，不写成“v21 全套绿”。证据：`docs/kb-acceptance-2026-10-17.md` §11；`docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` 刷新节；批报 §6/§8 |
+
+## 10. 批次23 R1 使用面修复行（2026-10-26：F1–F5 达标，交付 PARTIAL）
+
+> 数字来源：`build/agent-batch23/` 产物实读 + 批报 `docs/kb-batch23-2026-10-26.md` + 验收 §12 + 判据 §F + 预注册 `docs/research/2026-10-26-kb-usage-r1-prereg.md` + `build/agent-batch23/usage-r1/retest-r1.log`。本行**取代 §9「使用面（交接项）」中 R1 的“未修复”状态**；R2–R6 仍按 §9/本节交接。基线不变：包 **v21**（contentVersion `9f9e99ceec47cf8c`，主包 `a7192484…`）+ dense **`79a22270…`** + 检索 **117/129**；本批零内容/零资产写入。
+
+### 10.1 R1 修复结果（F1–F5 新数字）
+
+| # | 判据 | 基线（旧语义，同装置重算） | 批次23 实测 | 判定 | 证据 |
+|---|---|---:|---:|---|---|
+| F1 | 每节点材料覆盖 ≥90% | 46.67%（301/645） | **100.0%（645/645）** | **PASS** | `retest-r1.log:4,6` |
+| F2 | 期望节点有材料 ≥90% | 50.39%（65/129） | **90.7%（117/129）**；= 召回命中上限（12 条 MISS 结构上不可能有材料；117/117 命中查询全覆盖；余量 0.70pp） | **PASS**（贴上限） | `retest-r1.log:4,8` |
+| F3 | 误区槽位 ≤20% | 76.12%（491/645） | **1.24%（8/645）**；`CONCEPT_EXPLANATION 563 / METHOD_MODEL 74 / MISCONCEPTION_GUIDE 8` | **PASS** | `retest-r1.log:4,10-11` |
+| F4 | 无材料节点显式标注 | 无标注（静默省略） | **金标 0/0（空真）**；单测夹具证明 `｜（该节点无材料）` 真实渲染 | **PASS（依赖夹具）** | 审计 `:78`；`retest-r1.log:13`；`UsageMaterialAllocationTest.kt:181-233`；`KnowledgeReadRecallBudgetTest.kt:195-250` |
+| F5 | 预算与形态不变 | 5/查询 / 名义 2k | **5 条/查询（129/129）**；chars min/median/max **660 / 743 / 838**（max **41.9%** of 2,000 chars）；UTF-8 max **2,267 B**（**113.3%** of 2,000 B，R5 契约侧）；`summary.take(60)`、boundary `take(80)` 形态不变 | **PASS（字符口径）**；字节越界属 R5 未关 | 审计 `:29,37`；`retest-r1.log:14-18` |
+
+**复算**：`python "C:/Users/听云/AppData/Local/Temp/retest_r1_batch23.py"`（复算命令；本轮只读引用 `retest-r1.log`，未重跑该脚本）。关键读数 = `F1 100.0`、`F2 117/129 90.7`、`F3 1.24`、`F4 0/0/0`、`F5 5/查询 / max 838 chars / UTF-8 2267 B`、`mismatch 0`；完整输出见批报 §4.3 / 验收 §12.5。
+
+**结果要点**：
+
+- **R1 实现**：旧 `KNOWLEDGE_READ` 使用“跨节点合计 `LIMIT=nodes.size` + 补救序”，导致 53.3% 节点静默无材料；本批新增专用 DAO/port/store/db 方法，按**节点各自取 1 条**、教学优先序（`CONCEPT_EXPLANATION → … → COMPLETE_SOLUTION`），runner 只切 `KNOWLEDGE_READ`；旧 SQL / 旧 port / 旧 store / 旧补救消费方 **零改**（批报 §2/§4.2）。
+- **无回归**：设备融合 **117/129 = 0.9069767441860465**、MRR **0.7322997416020672**；词面 **102/129 = 0.7906976744186046**；同路零漂移 lexical 27/27、fused 12/12、symdiff 0；JVM 同；八门 8/8 rc=0；consistency 6/6 PASS；`py_suite` 808 tests OK（`build/agent-batch23/device/device-metrics.txt:2-5,32-35`；`device/zero-drift.json`；`gates/summary.txt`；`consistency.txt:136-143`）。
+- **交付 PARTIAL，不称全绿**：R1 代码 **7 tracked ` M` + 1 个新测试 `??` 未提交**；预注册计划中的**真 Room 仪器化测试未创建**（`KnowledgeTeachingMaterialPerNodeQueryInstrumentedTest` 不存在）；**独立红测轮日志缺失**；F1–F5 是**离线镜像 + SQLite 逐字 SQL**，不是生产遥测；设备为 emulator，真机/API 23 未跑（批报 §9；验收 §12.4）。
+
+### 10.2 R2–R6 交接 / 维护
+
+| ID | 内容 | 归属 | 批次23 状态 |
+|---|---|---|---|
+| R2 | 材料标题/正文完全缺失，只给 ≤60 字摘要 | **契约侧交接** | 不在本批；另立契约侧任务（审计 `:83-112`，归属 `:98-100`） |
+| R3 | `take(60)` 静默截断（27.2% 被切、640 条 LaTeX 损伤） | **契约侧交接**；摘要生成侧 ≤60 字/公式安全为配合项 | 不在本批（审计 `:113-147`，归属 `:133-135`） |
+| R4 | boundary `take(80)`（82.3% 被切、58.7% 范围短语看不到） | **契约侧交接**；boundary 改写为配合项 | 不在本批（审计 `:148-179`，归属 `:165-167`） |
+| R5 | 2k 名义值；`KNOWLEDGE_READ` 无运行时检查点；UTF-8 max 2,267 B > 2,000 B | **契约侧交接**（单位/执行点/口径） | 不在本批；F5 仍按字符判（审计 `:180-208`，归属 `:194-196`） |
+| R6 | 13 条 summary / 6 条 boundary 含真实换行（LaTeX `\ne`、PHYSICS 结构换行） | **数据级维护项**（sidecar JSON 转义/换行归一） | 走维护版本；不影响 F1–F5（审计 `:209-240`，归属 `:221`） |
+
+**归属边界**：R1 实现完成（未提交：每节点一条 + 教学序 + 无材料显式标记 + 渲染形态）；**R2–R5 属契约侧交接，R6 属数据级维护项**；不得把 F1–F5 达标外推为 R2–R6 已关闭（验收 §12.3）。
+
+### 10.3 观测缺口
+
+- KB 主路径共 **19 处 `Log.*` 调用**，全部是可读文本，无结构化字段/采样/聚合；**0 个指标/遥测 SDK**；KF-29 只覆盖“题→知识点绑定正确性”，且唯一聚合消费面是 debug 复核 Activity，release 无出口（`build/agent-batch23/obs-audit.md:13-16,85-97`）。
+- **G1 材料覆盖率**（全库/跨设备需指标面）、**G2 空材料率**、**G3 检索延迟分布**、**G4 零命中率（分入口）**、**G5 版本分布**、**G6 索引健康/检索质量**：现状与归属见 `obs-audit.md:126-200`。
+- **R1 修复本身未新增任何日志/指标**；F1–F5 是离线镜像读数，生产侧仍无法计数“材料覆盖率/空材料率”。这是 v1.1 交付 PARTIAL 的观测面缺口，不是 F1–F5 数值不达标（批报 §8；验收 §12.4）。
+
+### 10.4 Runbook 落点
+
+- 设备七段：`build/agent-batch23/device/step0_samegen_check.sh`（工作树/本地 APK/已装 APK 同代）→ `step1_coldstart_emulator.sh`（`emulator-5584` / `kb_test_device` / `-wipe-data`）→ `step2_gate_and_build.sh`（编译门 + assemble）→ `step3_install_run_device.sh`（install + 同代复核 + `am instrument`）→ `step4_pull_ledgers.sh`（MISS 账本 stamp 校验）→ `step5_run_jvm.sh`（JVM 判官）→ `step6_zero_drift.sh`（同路零漂移）。
+- 门与快照：`build/agent-batch23/scripts/run_gates_b23.sh`（八门，任一门 rc≠0 退出 1）；`build/agent-batch23/scripts/consistency_check.py`（六项一致性，会重写 `consistency.txt`）。
+- 停止条件与回滚程序见批报 §6.1/§6.4；本批是代码轨，`docs/ops/kb-release-runbook.md` 的内容发布链（别名/材料/promote/dense 重打）**不适用**（零内容/零资产写入）。
+
+### 10.5 演练读数
+
+| 步骤 | 读数 | 证据 |
+|---|---|---|
+| 干净安装 + 冷启（app `com.tingyun.smartmistakebook.localfirst`，APK `2c3ceb76…`） | `install exit=0`；冷启 `TotalTime=4201ms`；`install finished in 186574ms (full path: parse + reconcile)`；全量解析 26,875ms | `build/agent-batch23/prod-drill/step1_clean_install_launch.log` |
+| 首查（`GoldenRetrievalInstrumentedTest`） | **`OK (1 test)`，`Time: 220.766`**；融合 **117/129**、MRR **0.7322997416020672**；p50 43 / p95 69 / max 293ms，**`overBudgetSamples=1`**；词面 102/129 | `prod-drill/step2_first_query.log` |
+| 二次冷启（force-stop 后） | 冷启 `TotalTime=2949ms`；`install finished in 446 ms (fast path: content stamp matches, no parse, no reconcile)` | `prod-drill/step3_second_launch_fastpath.log` |
+| 安装器 JVM 测试 | **`gradle exit=0`；`BUILD SUCCESSFUL in 35s`** | `prod-drill/step4_installer_jvm_tests.log` |
+
+**边界**：演练是 emulator、非真实学生数据；首查 `overBudgetSamples=1` 与主设备跑 0（max 170ms）不同，属模拟器波动，不据此改预算口径，也不归因 R1（R1 不动召回）。`uninstall` 的 `DELETE_FAILED_INTERNAL_ERROR` 不影响 `install exit=0` / `pre_installed=no`（`step1_clean_install_launch.log:15-18`）。
+
+### 10.6 182/114/402 待复核
+
+- **仍待复核，本批未处理**：182 拆分提案（50 REJECT / 132 DEFER）、114 重开提案、402 同键分类 = AI 预裁完成；用户复核未完成，走后续维护版本。证据：`docs/kb-batch20-2026-10-25.md:175`；`docs/kb-acceptance-2026-10-17.md` §10.5；本节 §8/§9 同项。
+- **不因 R1 修复改变**：F1–F5 是使用面材料分配验收，与 182/114/402 的内容复核队列无交集；不得把 F1–F5 达标当作 E2 复核完成。
+
+### 10.7 验收状态
+
+- **v1.1 判据已落章**：判据 §F（`docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md`）与验收 §12（`docs/kb-acceptance-2026-10-17.md`）已追加；F1–F5 按上表判定，**v1.0 的 A–E / B1–B4 保持原判**（B1 117/129、MRR 0.7322997、词面 102/129、零漂移 symdiff 0），**不主张涨分**。
+- **交付状态 PARTIAL**：判据达标，但 R1 代码未提交、真 Room 测试未建、红测日志缺失、F1–F5 为离线镜像、真机/API 23 未跑、生产遥测缺失；**不称 v1.1 全绿**。关闭条件见验收 §12.4（提交 R1、补真 Room 测试或登记不覆盖、复算脚本入仓、真机/API 23 冒烟、回写预注册 §7）。
+
+## 11. 批次24 R1 证据闭环行（2026-10-27：02/06 关闭，03/15/16 保持 open）
+
+> 数字来源：`docs/kb-batch24-2026-10-26.md`（下称“批24 报”）、`build/agent-batch24/` 产物实读、预注册 §7（`docs/research/2026-10-26-kb-usage-r1-prereg.md:315-418`）。本行**取代 §10.7 的 PARTIAL 状态**；§10 保留为批次23 时点。基线不变：HEAD `d783ae846526b2da3fbe0a041a3695bf23188820` + 包 **v21**（`9f9e99ceec47cf8c` / 主包 `a7192484…`）+ dense **`79a22270…`** + 检索 **117/129**；本批**零内容/零资产写入**；八门 **8/8 rc=0**、一致性 **4/4 PASS**、`promote --dry-run` **rc=0（version→22，未写盘）**。
+
+### 11.1 PARTIAL 项逐条新状态
+
+| ID | 批次23 时点（§10.7） | 批次24 新状态 | 依据 / 边界 |
+|---|---|---|---|
+| `KB23-R1-02` 真实 Room 仪器化测试 | 未创建 | **关闭（验证面）** | 真 Room `TeachingMaterialAllocationInstrumentedTest` **4/4、0 failed、0 ignored**（批24 报 §3；`build/agent-batch24/device/teaching-material-allocation-result.txt`：`OK (4 tests)`、`am_instrument_shell_rc=0`）。设备 `emulator-5584`、API 34。**提交面未闭**：测试文件当前 `??`，须列入显式提交清单；测试钉的是 port 可观测语义，不是 DAO 物理行数/性能门（批24 报 §3.3） |
+| `KB23-R1-03` 独立红测轮日志 | 缺失 | **保留 UNVERIFIED** | 旧实现已被新实现替换，当前工作树**无法重建旧实现**；测试文件 mtime/“先写测试”的时序**不能**当红跑证据。因此不声称“先红后绿”，只保留 `UNVERIFIED`（预注册 §7.4；`docs/kb-batch23-2026-10-26.md:197,394`） |
+| `KB23-R1-06` 预注册 §7 | 未追加 | **关闭** | §7 已回写：**+107 / −0**，§1–§6 前 311 行逐字节相同（`git diff --numstat` = `107 0`；`cmp` 核验 `FIRST_311_IDENTICAL`）。内容含 F1–F5、真 Room、设备无回归、02/03/06/15/16 状态、API23 段、观测交接（批24 报 §4；预注册 `:315-418`） |
+| `KB23-R1-15` 真机 / API 23 | 未跑 | **open（已登记 KD-77）** | `docs/known-defects.md:2831-2839`：本机无 `platforms;android-23` / `system-images;android-23*`，无 `api23_smoke` AVD，未安装 v21 APK、未做最小冒烟。**API 34 结果不能替代 API 23**；关闭条件见 KD-77（装机+冷启动+最小冒烟+logcat 四类崩溃签名 0） |
+| `KB23-R1-16` 生产遥测 | 缺失 | **open（已交接）** | `docs/ops/kb-observability-handoff.md:6-7,223-239`：四项生产指标（M1 材料覆盖率、M2 空材料率、M3 检索延迟分布、M4 版本分布）均未落地；`KB23-R1-16` **保持 open**，交接单是凭证不是关闭证据。关闭条件 = 交接单 §5.3 的 C1–C4 四项全过 |
+
+**相邻状态（不改 02/03/06/15/16 的判定）**：
+
+- `KB23-R1-01`（R1 实现）：**已随 `8bb79efd` 入库**（`git show --stat 8bb79efd`）；本批只验证，不重复提交。§10.7 的“R1 代码未提交”是批次23 时点文本。
+- `KB23-R1-14`（复算脚本入仓）：**部分关闭**。驱动 `tools/kb_coverage/retest_usage_r1.py` 已纳入索引（`A`，未提交），逻辑与原临时脚本从 docstring 起逐字节相同；但 `audit_knowledge_read.py` 仍在 `C:/Users/听云/AppData/Local/Temp/`，换机不可复跑（批24 报 §5.1）。
+
+### 11.2 R6 结论（评估完成，不施工）
+
+- **R6 仍归 `KB23-R1-11` open**；本批只评估，未改任何 sidecar/pack。
+- 计数（批24 报 §9；`build/agent-batch24/r6-assessment.md:9-40`）：node boundary 含换行 14 条（前 80 字内 **6**）；summary 含换行 **13** 条（前 60 字内 12）；材料 64,973；相邻发现 material boundary 另有 10 条含换行（9 条 `\ne`），**不并入 R6 的 13+6**。
+- **检索结论**（`build/agent-batch24/r6-assessment.md:99-137,157-183`）：
+  - 13 条 `summaryMarkdown` **不进词面特征表、不进 dense、不参与 recall/rerank**；修 `\ne` 属**纯形态**，不改变检索。
+  - 6 条 node `boundary` **进词面特征**（`KnowledgeSearchFeatureExtractor.fromNode`），但“换行→空格/分号”是**分隔符等价替换**（`[^\p{L}\p{N}]+`），特征集不变；dense 只吃 `canonicalName + aliases`，不含 boundary。**不得删除换行直接拼接**（会合并词片段）。
+  - 材料**不进 FTS**：知识召回走 `knowledge_search_feature` 特征表（不是 FTS）；全仓唯一 FTS 是错题本库 `library_search_fts`。
+- **金标影响**（`build/agent-batch24/r6-assessment.md:314-333`）：13 条受影响 summary **均未被** 129 条金标 top-5 选中；6 条受影响 node boundary 中 **1 条**（`电源的内阻-...`）被选中，换行→空格只改渲染形态、字符数不变。因此 v21 金标的 F1–F5/117–129/838 chars 理论不变，但这是静态推导，不是新包读数。
+- **发布结论：需 v22 整链**（`build/agent-batch24/r6-assessment.md:184-246`）。sidecar 正文进 `contentVersion`；不改戳会被安装器快路径跳过；主包改动使 dense 旁车 `packSha256` 失配；runbook 明写任何材料/sidecar 正文写入都会使 117/129 基线失效；漂移门要求 device/JVM 同新包重跑。
+- **本批不施工**。若未来做：另立 v22 预注册，只做“JSON 转义修正（`\n`→`\\n`）”与“换行→空格/分号”，不与其他内容变更混批。
+
+### 11.3 Runbook 校验引用
+
+- `docs/ops/kb-release-runbook.md:130`：**任何材料/sidecar 正文写入都会使已测 117/129 基线失效**，必须走“自产料池门 + 晋升”并另立预注册；不得在同一批里拿“补料”解释分数变化。
+- `docs/ops/kb-release-runbook.md:144`：manifest 的 `version` 与 `contentVersion` **只在 promote 落盘这一刻刷新**（`tools/kb_build/promote.py:1-24`）。
+- `docs/ops/kb-release-runbook.md:250`：**零改项复核**——判官两件、零漂移镜像、金标、**25 sidecar 正文**、模型资产跑前跑后 sha 必须相同。
+- 批次24 对上述规则的校验读数：
+  - `build/agent-batch24/gates/promote_dry.log:31-36`：`promote --dry-run` **rc=0**，`version→22`，**未写盘**；这是 `build/kb-staging` 干跑，**不是 v22 发布**。
+  - `build/agent-batch24/consistency.txt:10-11,84-85`：manifest 仍是 **v21**（`9f9e99ceec47cf8c`），一致性 **4/4 PASS**、`EXIT=0`。
+  - `build/agent-batch24/gates/summary.txt:3-18`：八门 **8/8 rc=0**、`overall red=0`。
+- 因此：R6 **不能**作为“纯形态”直接改在 v21 上发布；检索理论上不变，但任何实际写入都必须走 v22 整链并重跑 device/JVM/zero-drift，不能沿用 117/129 作为新包证据。
+
+### 11.4 最小复核命令
+
+```bash
+cd "D:/smart mistake book"
+
+# F1–F5（只读；rc=0 表示脚本自身跑通，不是设备读数）
+python tools/kb_coverage/retest_usage_r1.py
+
+# 真 Room（device=emulator-5584；本轮实测 OK (4 tests)）
+adb -s emulator-5584 logcat -c
+adb -s emulator-5584 shell am instrument -w \
+  -e class com.tingyun.smartmistakebook.core.data.knowledge.TeachingMaterialAllocationInstrumentedTest \
+  com.tingyun.smartmistakebook.core.data.test/androidx.test.runner.AndroidJUnitRunner
+
+# API23 边界（No such file = 未安装，不得当通过）
+ls -d /c/Android/Sdk/platforms/android-23 /c/Android/Sdk/system-images/android-23
+adb -s emulator-5584 shell getprop ro.build.version.sdk   # 34
+
+# 发布链干跑（只读检查；本批落盘 rc=0、version→22、未写盘）
+PYTHONPATH=tools python tools/kb_build/promote.py --dry-run
+```

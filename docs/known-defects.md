@@ -2819,3 +2819,13 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Reopen condition.** 设备证据证明冷启动（含 CPU 竞争）首个 `execute` 成功且不是靠放宽 1500 ms 程序期限获得；warm 服务的挂死负控仍在 1500 ms 内被杀；R3/契约的广告门文本已包含该用例并回链证据。在此之前 JS 继续不广告（本批纪律，计划 `.zcode/plans/plan-2026-10-26-batch-24-isolation-final-kd70.md:15`、`:17`）。
 
 **交叉引用.** KD-66 跟踪 issue #240 的 hard+500 ms 关闭门；本条只跟踪"冷启动首个 execute 不被一次性装载误杀"的 warm-up/ready 缺口，不代替 KD-66，也不改变其关闭门。批次 24 T1 的 `abandon()` 修复与首连预算属另一失败形状，设备复跑见批次 24 E-01/E-01b（6/6），与本条的 warm-up/ready 门无关。
+
+## KD-77 (open, 2026-10-27 登记（API 23 冒烟评估；中）) · API 23 运行时未验证：本机无 android-23 平台/系统镜像，未执行 v21 APK 冒烟
+
+**Symptom（本机实测，2026-10-27）.** `C:/Android/Sdk/cmdline-tools/latest/bin/sdkmanager.bat --list_installed` 的 Installed packages 为：build-tools 34.0.0/36.0.0/37.0.0、emulator 37.1.11、platform-tools 37.0.1、`platforms;android-34`、`platforms;android-37.0`、`system-images;android-34;google_apis;x86_64`、`system-images;android-36;google_apis_ps16k;arm64-v8a`、`system-images;android-36;google_apis_ps16k;x86_64`——**无 `platforms;android-23`，也无任何 `system-images;android-23*`**。磁盘交叉核对：`/c/Android/Sdk/platforms` 仅 `android-34`、`android-37.0`；`/c/Android/Sdk/system-images` 仅 `android-34`、`android-36`；`ls -d /c/Android/Sdk/platforms/android-23 /c/Android/Sdk/system-images/android-23` 两者均 `No such file or directory`。`emulator -list-avds` 无 `api23_smoke`。按本轮纪律**不下载镜像**，因此未创建临时 AVD、未安装 v21 APK、未起服务/最小冒烟。
+
+**Impact.** `app/build.gradle.kts:21` 声明 `minSdk = 23`；`docs/current/release-gates.md:38` 与 `docs/research/2026-10-26-batch-24-4e2-admission-checklist.md:216`（R-01）把 API 23 运行时列为发布矩阵门。现有设备结论（API 34/4 KB、x86_64 16 KB）均不能覆盖 API 23：任何 API 24+ 符号、SQLite/Resources 行为差异或 native 装载差异只会在 API 23 设备暴露；补证据前，API 23 只能标记为未验证，不能计入发布门。
+
+**Fix direction.** 在有网络/可安装 SDK 的机器上安装 API 23 平台与系统镜像（例如 `system-images;android-23;google_apis;x86_64`，tag 以当时可用清单为准），建临时 AVD `api23_smoke`，安装 v21 APK（记录 APK sha256 与版本），执行最小冒烟：冷启动、服务/核心路径启动、适用的隔离/引擎装载，并按 R4 设备证据规范落盘 logcat 与 `am instrument`/`dumpsys` 输出。不得用 API 34 结果替代，也不得把"镜像未安装"写成"已验证"。
+
+**Reopen condition（关闭条件）.** API 23 AVD 或真机上 v21 APK 完成装机 + 冷启动 + 最小冒烟，证据落盘且 logcat 无 `FATAL EXCEPTION`、`ANR`、`NoSuchMethodError`、`NoClassDefFoundError`（若有命中须有明确的非本应用归因说明）；同时记录设备/镜像/APK 指纹与命令。镜像仍不可得时本条保持 open，发布矩阵的 API 23 项不得标绿。
