@@ -551,6 +551,29 @@ AUD-17 校准结果互相替代。
 
 执行证据：设备 E-01（隔离 11/12 + Race 2/2）、E-03（引擎 20/20 @ 16KB×x86_64）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
 
+### 3.36 批次 26 · 零 bump 判据登记（2026-10-27）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动；`VisualJsWire.PROTOCOL_VERSION` 维持 2，本批零协议面变更
+
+> 依据：批次 26 计划 §1/§2、批次记录 `docs/research/2026-10-27-batch-26-record.md` §1.3/§2/§3、基线 `docs/research/2026-10-27-batch-26-baseline.md` §1。本批不 bump 任何算法版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：本批零 DB 改动 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告，工具面/提示词零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2**（本批零协议面变更） | 批次 25 T2 已升 2（isReady），本批 T1 只新增仪器化测试用例，不触 wire 面 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（`python tools/ci/check_dependency_pins.py` exit 0，记录员复跑同值；沿用裁定，本批零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. T1 只新增仪器化计时用例（androidTest 测试面，断言引用既有 `SERVICE_HARD_DEADLINE_MILLIS` 的相对形式），零生产算法面。
+2. T4 为评测工具面（`tools/split_golden/` 门脚本/导出器/文档），不进任何生成/打分/校准路径；门阈值 0.9/0.05 沿 stage1「立项自定」，非算法版本串。
+3. 锁文件轨零改动（T0 判定窗口不可行，分支 B 只登记）；T5 为清单/台账登记，零生产算法面。
+4. 设备轨 E-01…E-05 是行为证据；KD-66 关闭是缺陷台账状态变化，不涉算法版本。
+5. 后续若把 ready 预算、队列容量或 watchdog 预算写进算法口径（如影响生成质量分类），必须重新评估登记（当前无）。
+
+执行证据：设备 E-01（隔离 13/13 + Race 2/2）、E-02（KD-66 门三轮独立绿）、E-03（KD-76 ③④⑤ PARTIAL）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

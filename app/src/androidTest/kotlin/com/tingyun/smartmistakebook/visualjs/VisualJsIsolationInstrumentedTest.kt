@@ -48,8 +48,9 @@ import java.util.concurrent.CopyOnWriteArrayList
  * complete envelope arrived`（reliable-pipe comm 通道误报，见 `VisualJsService.execute` 的
  * `dup()` 修复）。dup 修复后批次 23 设备复跑 **5 例 4 绿 1 红**（唯一红为 abandon 结构性
  * 缺陷）；批次 24 已修该缺陷与冷启动首连预算，设备轨 E-01/E-01b 在两代 debug APK 上均
- * **6/6**（`OK (6 tests)`，见 `docs/research/evidence/2026-10-26-batch-24/`）；本类仍以
- * ≤6 s 判死，不能作为 KD-66 hard+500 ms 关闭门。
+ * **6/6**（`OK (6 tests)`，见 `docs/research/evidence/2026-10-26-batch-24/`）；watchdog
+ * 观察用例仍以 ≤6 s 判死；KD-66 hard+500 ms 关闭门由
+ * [aHungWorkerReleasesTheCallerWithinHardPlus500ms] 承担（批次 26 T1，设备执行归设备轨）。
  *
  * 覆盖任务书 T1 第四条：
  * 1. AIDL 往返 + generation 校验（[workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater]、
@@ -71,6 +72,9 @@ import java.util.concurrent.CopyOnWriteArrayList
  *    （[aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching]）、
  *    ready 超时不锁存并重新 bind（[aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds]）。
  *    KD-76 ③④⑤ 的设备判据（冷启动+CPU 竞争、日志无 watchdog 签名）仍以设备轨为准。
+ * 8. KD-66 关闭门（批次 26 T1）：#240 形状从调用方提交到返回有界拒绝 ≤ 服务硬期限
+ *    + 500 ms，拒绝归因 worker 死亡路径且后续请求可用
+ *    （[aHungWorkerReleasesTheCallerWithinHardPlus500ms]；与 6 s 观察用例共存，R1 §6 裁定）。
  *
  * 关键：**同进程单测不算隔离验证**（`Stub.asInterface` 在同进程返回本地对象）。这些用例必须
  * 起真实 `:visual_js` 进程：`workerUid != Process.myUid()`、watchdog SIGKILL 后 binder death、
@@ -335,6 +339,98 @@ class VisualJsIsolationInstrumentedTest {
         assertEquals(
             VisualExecutionRejection.ENGINE_CLOSED,
             (after as VisualExecutionResult.Rejected).reason,
+        )
+    }
+
+    // ---------------------------------------------------------------- KD-66 关闭门（批次 26 T1）
+
+    /**
+     * KD-66 关闭门（`docs/known-defects.md` Reopen condition）：issue #240 形状必须让
+     * **调用方**在服务硬期限 + 500 ms 内拿到有界拒绝，且后续请求可用。500 ms 是门自带的
+     * 余量（watchdog 调度与 binder death 均无平台 SLA），本用例在其上**不追加任何容差**；
+     * hard+500 ms 严格紧于宿主自己的 2500 ms 阶段期限，超时兜底路径（诊断不含 "died"）
+     * 不可能蒙混过关。
+     *
+     * 计时面是生产调用路径 `VisualExecutionEngine.execute`（client 引擎），不是 harness
+     * 直连：门的主体是调用方可见延迟（队列派发 + AIDL + 硬期限等待 + 死亡传播 + 拒绝映射）。
+     * 计时端到端、不扣除任何段；起止同用 `SystemClock.uptimeMillis()` 单钟相减，服务端
+     * 时刻只进 logcat 诊断、不进断言。
+     *
+     * `connectForTest()` 返回 true 蕴含 worker ready（连接发布前已过 ready 门），warm-up
+     * 装载耗时结构性排除在计时外；其前的预热 execute（断言 `Rendered`）双职责——负控
+     * "worker 注入前功能正常"（否则门红会被误读为 L2 损坏），并压低 submit→arm 开销。
+     *
+     * 与既有用例的关系（R1 §6 裁定：**共存**）：[theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState]
+     * 与 [aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight] 的 6 s 死亡观察
+     * 保留原样，是 L2 kill 的服务级回归观察、**非本门证据**；
+     * [theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy] 共享死亡→拒绝→重建→可用
+     * 四拍但无计时，保留为状态机回归。
+     *
+     * 执行边界（如实）：本用例由批次 26 T1 落码，非 Gradle 直编仅证可编译；设备执行与
+     * 两轮独立绿证据归设备轨（关闭判据 = 用例绿 + known-defects 记录回链，计划 §2）。
+     */
+    @Test
+    fun aHungWorkerReleasesTheCallerWithinHardPlus500ms() = runBlocking {
+        val engine = client()
+        assertTrue("initial connect failed", engine.connectForTest())
+
+        // 预热（非计时）：顺序执行，不占服务单在飞槽、不与 #240 帧并发。
+        val warm = engine.execute(pureGeometryRequest())
+        assertTrue(
+            "the worker must render before the hang is injected (otherwise the gate below " +
+                "would be misread as an L2 failure when the worker never worked): $warm",
+            warm is VisualExecutionResult.Rendered,
+        )
+
+        // ── 计时段：t_submit → t_return，端到端，不扣除 ──
+        val submittedAt = SystemClock.uptimeMillis()
+        val outcome = engine.execute(issue240Request())
+        val returnedAt = SystemClock.uptimeMillis()
+        val elapsed = returnedAt - submittedAt
+
+        // A1：#240 形状不得产出成功结果。
+        assertTrue("expected a bounded rejection, got $outcome", outcome is VisualExecutionResult.Rejected)
+        val rejection = outcome as VisualExecutionResult.Rejected
+        // A2：端口语义映射必须是硬期限拒绝（不是 BUSY/PROGRAM_FUSED 等其他理由）。
+        assertEquals(
+            "the #240 shape must map to the hard-deadline rejection, got ${rejection.diagnostics}",
+            VisualExecutionRejection.HARD_DEADLINE_EXCEEDED,
+            rejection.reason,
+        )
+        // A4（先于计时断言）：拒绝必须来自 worker 死亡路径（"visual_js worker died: …"），
+        // 不是宿主 2500 ms 阶段超时兜底（诊断 "host phase deadline (2500 ms) exceeded"
+        // 不含 "died"）——归因断言把两种失败形状在计时之前分开。
+        assertTrue(
+            "the rejection must come from the worker death, not the host phase timeout: " +
+                rejection.diagnostics,
+            rejection.diagnostics.contains("died"),
+        )
+        // A5：KD-66 关闭门本体。500 ms 是门自带余量，不追加容差；环境慢到吃穿余量即真红，
+        // 按 logcat watchdog 行归因，不是改大门常数。
+        assertTrue(
+            "the caller was released in $elapsed ms; the KD-66 gate is " +
+                "$HARD_PLUS_500_GATE_MILLIS ms (hard " +
+                "${VisualExecutionBudget.SERVICE_HARD_DEADLINE_MILLIS} + 500). " +
+                "reason=${rejection.reason} diagnostics=${rejection.diagnostics}",
+            elapsed <= HARD_PLUS_500_GATE_MILLIS,
+        )
+
+        // A6+A7：门第二句——后续请求可用（非预期死亡路径自动重建一次，新程序可执行；
+        // `Rendered` 传递性证明旧进程真死——否则 #240 线程仍占服务单在飞槽，新请求必 BUSY）。
+        assertTrue(
+            "the client did not rebuild after the hard-deadline death",
+            engine.awaitConnectedForTest(10_000L),
+        )
+        assertEquals(
+            "exactly one rebuild is expected after the death",
+            2,
+            engine.connectionCountForTest(),
+        )
+        val fresh = engine.execute(pureGeometryRequest())
+        assertTrue(
+            "a fresh program must render on the rebuilt worker (BUSY would mean the hung " +
+                "engine's in-flight slot leaked into the new process): $fresh",
+            fresh is VisualExecutionResult.Rendered,
         )
     }
 
@@ -671,6 +767,14 @@ class VisualJsIsolationInstrumentedTest {
          * 客户端必在预算内超时 → loading 分支。1 s 余量覆盖调度抖动。
          */
         const val CONNECT_TIMEOUT_DELAY_MILLIS: Long = 16_000L
+
+        /**
+         * KD-66 关闭门（docs/known-defects.md Reopen condition）：#240 形状须在服务硬期限
+         * + 500 ms 内从调用方返回有界拒绝。相对形式——hard 值改动自动跟随，门语义保持
+         * "hard+500"；500 ms 是门自带余量，测试不追加任何容差。
+         */
+        const val HARD_PLUS_500_GATE_MILLIS: Long =
+            VisualExecutionBudget.SERVICE_HARD_DEADLINE_MILLIS + 500L
     }
 }
 
