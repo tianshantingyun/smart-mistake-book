@@ -302,3 +302,12 @@ grep -n "批次 27 主会话队列裁定确认" docs/agent-first-refactor-decisi
 - **补丁/空白检查**：`git diff --check` → 见下方实跑结果（含本记录员七处文档改动的空白检查）。
 - **回填后锚自洽**：known-defects 插入 1 块后 KD-77 标题锚由 `:2853` 下移 2 行（实测现值 `:2855`）；契约 :72 行内替换不改变行数（实测 220 行前后一致）；证据索引插入三测注记 +5 行（实测现值 161 行，体量读数以记录步三测为准）。
 - **未执行**：Gradle、设备、git add/commit/push；设备用例与门禁门未由本记录员复跑（口径见 §4 保留与 §6 #1/#2）；T3 本地断言台与 JVM 单测未复跑（记录员核验限于 Node 编译器台与只读核对）。
+
+## 9. 主会话收口（2026-10-28，实跑证据）
+
+- **单测门**（11 模块 `--continue`）：**exit=0**（228 up-to-date，修复环后的树未再变）；**强门**（六 androidTest 编译 + `:app:assembleLocalFirstDebug`）：**exit=0**（8 executed / 264 up-to-date）。
+- **复核两条非低的处置确认**：① 高（compile 接线 `$` 直插）——修复轮已落 `jsStringLiteral()` 编码（:1034，反斜杠/引号/控制字符全转义；:756 三实参全部经编码），主会话读码核验编码器实现正确；② 中（原型链逃逸）——修复轮已落 `nullProtoTable`（FILL_RULES/CAPS/JOINS/H_ALIGNS/V_ALIGNS 全部 null-proto）+ `checkKeys` 改自有键判定（`ObjectProtoHasOwn.call`）+ 危险键拒绝（:270）+ 负向用例在库。设备复跑归批次 28。
+- **提交**：`a7b28a47`（37 文件，7,466 插入/128 删除），按 §7 的 11 块分块 add；锁文件与热区未纳入。
+- **推送**：`405c8373..a7b28a47` 已上 origin/main（`ls-remote` 复核一致）。
+- **本批不声称全绿/全就绪**：设备隔离 13 例 10 红/引擎套件 26 例 9 红是**接线缺陷修复前**的运行（修复后设备复跑归批次 28）；4E.2 MVA 仍不成立（painter/PDF 回放/持久化/双后端/质量门未做）；KD-72/75/76 open；arm64/真机/生产签名 UNVERIFIED；真实 Provider UNVERIFIED；JS 仍不广告。
+- Mimosa 提交仍无完整扫描结论（scanner_enobufs）——不宣称项目安全。
