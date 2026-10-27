@@ -1,8 +1,5 @@
 package com.tingyun.smartmistakebook.visualjs
 
-import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureBatch
-import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureResult
-import com.tingyun.smartmistakebook.core.domain.VisualContentMeasurer
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
@@ -78,7 +75,9 @@ internal class VisualJsLimitsMismatchException(message: String) : Exception(mess
  *              maxHeapBytes, maxStackBytes, cooperativePhaseTimeoutMillis,
  *              serviceHardDeadlineMillis, hostPhaseDeadlineMillis} }
  * ```
- * 结果信封（OK）：`{sceneJson, sceneSchemaVersion, contentIds[]}`。
+ * 结果信封（OK）：`{sceneJson, sceneSchemaVersion, contentIds[], drawCommandsJson|null,
+ * drawSchemaVersion}`（批次 27 T1：DrawOps 指令序列随行——契约 §8 快照"验证后的场景与
+ * RenderScene/SHA"两者都存；读取侧对缺省按 null/1 兼容）。
  * 结果信封（REJECTED）：`{reason, diagnostics}`。
  *
  * **它消灭的具体失败**：不用 org.json 之外的序列化依赖时，源码/state 里的引号、反斜杠、
@@ -95,6 +94,8 @@ internal object VisualJsProtocol {
     private const val KEY_SCENE = "sceneJson"
     private const val KEY_SCENE_SCHEMA = "sceneSchemaVersion"
     private const val KEY_CONTENT_IDS = "contentIds"
+    private const val KEY_DRAW_COMMANDS = "drawCommandsJson"
+    private const val KEY_DRAW_SCHEMA = "drawSchemaVersion"
     private const val KEY_REASON = "reason"
     private const val KEY_DIAGNOSTICS = "diagnostics"
 
@@ -213,6 +214,8 @@ internal object VisualJsProtocol {
                 .put(KEY_SCENE, result.sceneJson)
                 .put(KEY_SCENE_SCHEMA, result.sceneSchemaVersion)
                 .put(KEY_CONTENT_IDS, JSONArray(result.contentIds.sorted()))
+                .put(KEY_DRAW_COMMANDS, result.drawCommandsJson ?: JSONObject.NULL)
+                .put(KEY_DRAW_SCHEMA, result.drawSchemaVersion)
 
             is VisualExecutionResult.Rejected -> JSONObject()
                 .put(KEY_REASON, result.reason.name)
@@ -277,6 +280,13 @@ internal object VisualJsProtocol {
                 sceneJson = root.getString(KEY_SCENE),
                 sceneSchemaVersion = root.getInt(KEY_SCENE_SCHEMA),
                 contentIds = contentIds,
+                // 批次 27 T1：DrawOps 随行字段；缺省（旧形态信封）按 null/1 兼容读。
+                drawCommandsJson = if (root.isNull(KEY_DRAW_COMMANDS)) {
+                    null
+                } else {
+                    root.optString(KEY_DRAW_COMMANDS, "").ifEmpty { null }
+                },
+                drawSchemaVersion = root.optInt(KEY_DRAW_SCHEMA, 1),
             )
         } catch (failure: JSONException) {
             VisualExecutionResult.Rejected(
@@ -383,28 +393,3 @@ internal object VisualJsProtocol {
     fun boundedDiagnostics(message: String): String =
         message.take(FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
 }
-
-/**
- * 服务进程内的内容度量实现（批次 22 T1 保守分支）。
- *
- * **为什么不是假度量**：契约 §3.2 的 text/math 度量必须给出真实宽/高/baseline；在隔离进程
- * 里凭空返回常量会把错误排版伪装成"正确图"（契约 §4"超限不截断成正确图"）。T1 只落进程层
- * 骨架，不接 4E.2 的原生字形/公式 lowering：纯几何程序（prepare 返回空批次）可以跑通，
- * 任何内容度量请求 fail-closed 成有界拒绝。
- *
- * **它消灭的具体失败**：没有这个 seam 时，服务会用一个"看起来成功"的常量度量让文本场景
- * 带着错误宽度通过校验，错误在 4E.2 才暴露且无法归因。这里把"未接线"变成可观测的拒绝。
- */
-internal object UnwiredVisualContentMeasurer : VisualContentMeasurer {
-    override suspend fun measure(batch: VisualContentMeasureBatch): VisualContentMeasureResult {
-        if (batch.entries.isEmpty()) {
-            return VisualContentMeasureResult(emptyList())
-        }
-        throw VisualMeasurementUnavailableException(
-            "native text/math measurement is not wired into :visual_js yet (4E.2); " +
-                "${batch.entries.size} content request(s) were rejected",
-        )
-    }
-}
-
-internal class VisualMeasurementUnavailableException(message: String) : Exception(message)

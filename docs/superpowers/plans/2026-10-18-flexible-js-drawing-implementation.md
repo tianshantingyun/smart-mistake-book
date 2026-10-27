@@ -95,6 +95,7 @@
 - [ ] 锁定坐标、矩阵顺序、clip、alpha、线型、填充、弧误差与 du/sp 规则；拒绝未知字段、重复 JSON 键、恶意原型键、重复 ID、非法引用、非有限数、越界派生 bounds、过深树及超字节预算。展开回放也计路径预算；字体、bitmap/累计像素与在飞 artifact 按契约设限。
 - [ ] core:visual 新增 AndroidContentLayout.kt、MathContentLowering.kt、AndroidScenePainter.kt、SceneSvgWriter.kt；字体来自原生白名单，真实 glyph metrics，布局在后台。公式复用 parser/AST，修正明确的上/下标坐标与宽度，未知语法走文字替代。
 - [ ] 一次 prepare 返回完整批量内容；render 只引用冻结 contentId。内容摘要和字体/排版版本进入缓存；Compose draw 不进行 JS/度量；相同 RenderScene 由 PDF/屏幕同 painter 回放。
+  - 2026-10-27 批次 27 T2 部分落地（:visual_js 服务内）：prepare→批量度量→render 只引用冻结 contentId 的事务在隔离服务内真实度量（`AndroidVisualContentMeasurer`：text=Paint 内蕴度量、math=core:model 盒布局链+契约降级；contentId/digest 确定性且环境快照（density/fontScale/字体/locale/sizeSp）参与摘要；JVM 判据 `VisualContentMeasuringTest`，Gradle 门由批次脚本执行）。“内容摘要和字体/排版版本进入缓存”的缓存面、同 painter PDF/屏幕回放未做（painter/持久化属后续批次）；设备轨（隔离进程 text 度量往返，R2 `2026-10-27-content-measurement.md` §6-6/假设 A1）UNVERIFIED。
 - [ ] 新增 app/src/main/kotlin/.../visual/AndroidVisualExecutionEngine.kt 与 core:domain.VisualExecutionEngine 端口：平台编排负责 prepare/原生measure/render/compile/取消；core:data 仅注入该端口，不直接依赖 core:visual-js 或 core:visual。以 gradle 依赖与架构测试验证 core:export/core:ui 不导入 JS 执行器，避免跨层循环。
 
 - [ ] V1 字体资源清单和可复用 artifact 有明确版本；未知系统 fallback/emoji 使用受像素预算限制的文字栅格或整图预览。字体名不当作版本指纹；12sp 最小字号随 fontScale 排版，未知 renderSchema 不交 painter。

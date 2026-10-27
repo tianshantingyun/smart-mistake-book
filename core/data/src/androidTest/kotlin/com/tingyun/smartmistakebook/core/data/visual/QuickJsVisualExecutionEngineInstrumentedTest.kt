@@ -59,6 +59,24 @@ import kotlin.concurrent.thread
  *   join 超时，**不**在测试线程直跑 `engine.execute`，也不调用原始 QuickJs.close()）。1.0.15
  *   上预期"5s 内不返回"；若返回则说明上游已修，断言必须反转为抛中断。该用例记录的是
  *   **T3 部分/阻塞**的已知缺陷，不是硬终止成功；泄漏 daemon 线程为已登记的 accept-the-leak。
+ * - input/metrics 深冻结（批次 27 T3，契约 §3.2:58"每次调用的 input 与 metrics 深冻结"）→
+ *   `mutatingFrozenFrameInputSilentlyFailsAndReadsBackOriginalValues`（sloppy 改写/增/删
+ *   静默失败、宿主读回原值 + `Object.isFrozen` 探针）、
+ *   `mutatingFrozenMetricsSilentlyFailsAndContentIdGateStaysGreen`（metrics 改写不生效；
+ *   若改写生效会被宿主引用冻结检查判 INVALID_SCENE——双重证词）、
+ *   `strictModeRewriteOfFrozenFrameInputThrowsATypeError` /
+ *   `strictModeRewriteOfFrozenMetricsThrowsATypeError`（strict 改写抛 TypeError →
+ *   INVALID_PROGRAM）、`rebindingObjectFreezeCannotDefeatTheDeepFreeze`（bootstrap 冻结
+ *   Object 钉死 freeze 原语，重绑攻击无效）、`frozenInputCoexistsWithSeededPrngAndClosedDate`
+ *   （批次 21 Date 封闭/种子 PRNG 配方与深冻结共存、同 seed 序列重放不回归）。
+ *   冻结语义本体（sloppy 静默/strict TypeError/IIFE 递归名不可劫持）已在本地 ES 语义
+ *   验证（Node 26，21 项断言红→绿）钉住；本文件设备轨在真 QuickJS 上复验同一判据。
+ * - SceneV1 编译接入（批次 27 T1，契约 §3.2 第 4 步"原生严格校验、共享 compiler 编译"）→
+ *   compile 成为必经阶段：**所有 Rendered 断言的场景必须是 SceneV1 合法形状**（非合法形状
+ *   在编译层 fail-closed 为 INVALID_SCENE）。为此本文件全部"render 成功"夹具升级为
+ *   SceneV1 场景（ECHO 带 label；T3 夹具的探针读回值移入 fallbackMarkdown——深冻结判据
+ *   不变，登记见各夹具注）；编译专属正向/负向/确定性/预算上限用例在
+ *   `QuickJsSceneCompilerInstrumentedTest`。
  *
  *
  * 方法名刻意用无空格标识符：D8 在 DEX version < 040（minSdk 23 ⇒ dex 035）下拒绝
@@ -180,13 +198,35 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
 
             val rendered = result as VisualExecutionResult.Rendered
             // render 只引用本事务冻结的 contentId（契约 §3.2 第 3 步）。
+            // 批次 27 T1：场景面升级为 SceneV1 合法形状——compile 第三上下文是必经阶段
+            // （契约 §3.2 第 4 步"原生严格校验、共享 compiler 编译"），非 SceneV1 场景在
+            // 编译层 fail-closed；键序 = JS 字面量插入序（JSON.stringify 保序）。
             assertEquals(
                 """{"schemaVersion":1,"sceneId":"scene-1","revision":1,""" +
-                    """"label":{"contentId":"content-0"}}""",
+                    """"viewBox":{"x":0,"y":0,"width":360,"height":240},"paths":[],""" +
+                    """"root":{"type":"label","contentId":"content-0","anchor":{"x":120,"y":60},""" +
+                    """"hAlign":"center","vAlign":"middle","color":"#26354a"},"controls":[],"hitRegions":[]}""",
                 rendered.sceneJson,
             )
             assertEquals(1, rendered.sceneSchemaVersion)
             assertEquals(setOf("content-0"), rendered.contentIds)
+            // 批次 27 T1：DrawOps 指令序列随行（编译器产出、宿主校验器复验）。标签位置由
+            // 编译器一次算定：anchor(120,60) 居中，metrics w=10,h=12,baseline=9 → x=115,y=63。
+            assertEquals(1, rendered.drawSchemaVersion)
+            assertTrue(rendered.drawCommandsJson != null)
+            val document = (
+                VisualDrawOpsValidator.validate(
+                    rendered.drawCommandsJson!!,
+                    rendered.contentIds,
+                    VisualViewport(360, 240),
+                ) as VisualDrawOpsValidation.Valid
+                ).document
+            assertEquals(1, document.ops.size)
+            val label = document.ops[0] as VisualDrawOp.Label
+            assertEquals("content-0", label.contentId)
+            assertEquals(115.0, label.x, 0.0)
+            assertEquals(63.0, label.y, 0.0)
+            assertEquals(1, document.stats.labels)
             // 契约 §3.2：每事务至多一次 prepare（度量恰一批）、一次 render。
             assertEquals(1, measurer.calls)
             // FrameInput 逐字段冻结（契约 §3.2 FrameInput；state 为原文内嵌 JSON）。
@@ -219,6 +259,178 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
             assertEquals(firstPayload, secondPayload)
             // 不同 seed 派生不同序列。
             assertTrue(measurer.payloads.first() != firstPayload)
+        }
+
+    /**
+     * 批次 27 T3：注入的 FrameInput 深冻结（契约 §3.2:58）——sloppy 语义。
+     *
+     * 程序依次尝试：嵌套对象字段改写（state.answer）、根字段改写（programId）、嵌套视口
+     * 改写（viewport.widthDu）、新增属性（newField）、删除（delete seed）、render 阶段的
+     * timeMs 改写。冻结语义钉死为：sloppy 下全部静默失败，宿主读回的全是注入原值；
+     * `Object.isFrozen` 探针证实整图冻透（根与 state 子对象）。若冻结缺失，prepare 回显
+     * 的伪造值（999/forged-id/1）立即使第一条断言变红。
+     */
+    @Test
+    fun mutatingFrozenFrameInputSilentlyFailsAndReadsBackOriginalValues() =
+        runBlocking {
+            val measurer = CapturingMeasurer()
+            val engine = engine(measurer)
+
+            val result = engine.execute(
+                request(MUTATE_INPUT_SOURCE, stateJson = """{"answer":3}"""),
+            )
+
+            val rendered = result as VisualExecutionResult.Rendered
+            assertEquals(
+                """{"answer":3,"programId":"program-1","width":360,"newField":false,""" +
+                    """"hasSeed":true,"rootFrozen":true,"stateFrozen":true}""",
+                measurer.payloads.first(),
+            )
+            // render 拿到的是同源注入的另一份冻结图：timeMs 改写静默失败，读回 1000。
+            // 批次 27 T1 接线适配：探针读回值经 fallbackMarkdown 携带（SceneV1 合法形状）。
+            assertEquals(
+                """{"schemaVersion":1,"sceneId":"scene-1","revision":1,""" +
+                    """"viewBox":{"x":0,"y":0,"width":360,"height":240},"paths":[],"root":null,""" +
+                    """"controls":[],"hitRegions":[],"fallbackMarkdown":"timeMs=1000 contentId=content-0"}""",
+                rendered.sceneJson,
+            )
+        }
+
+    /**
+     * 批次 27 T3：metrics 深冻结——sloppy 语义 + 宿主侧双重证词。
+     *
+     * 程序改写 `metrics[0].contentId = 'ghost-1'` 并尝试扩展数组（索引赋值；不用
+     * `Array.prototype.push`——push 以 throw-on-fail 写 length，对冻结数组在 sloppy 下
+     * 也抛 TypeError，那是规范的另一条路径）。若改写生效，回显的 ghost-1 会被宿主
+     * "引用冻结检查"判 INVALID_SCENE——本用例 Rendered 即 metrics 冻结的宿主侧证词，
+     * scene 内的 isFrozen 探针与 contentId 原值是程序侧证词。
+     */
+    @Test
+    fun mutatingFrozenMetricsSilentlyFailsAndContentIdGateStaysGreen() =
+        runBlocking {
+            val measurer = CapturingMeasurer()
+            val engine = engine(measurer)
+
+            val result = engine.execute(request(MUTATE_METRICS_SOURCE))
+
+            val rendered = result as VisualExecutionResult.Rendered
+            // 批次 27 T1 接线适配：isFrozen/contentId 探针经 fallbackMarkdown 携带。
+            assertEquals(
+                """{"schemaVersion":1,"sceneId":"scene-1","revision":1,""" +
+                    """"viewBox":{"x":0,"y":0,"width":360,"height":240},"paths":[],"root":null,""" +
+                    """"controls":[],"hitRegions":[],"fallbackMarkdown":""" +
+                    """"frozen=true entryFrozen=true contentId=content-0 extra=absent"}""",
+                rendered.sceneJson,
+            )
+        }
+
+    /**
+     * 批次 27 T3：strict 改写冻结 input 必须抛 TypeError（ES 冻结语义）。
+     *
+     * TypeError 从 prepare 内抛出 → 引擎分类器落 INVALID_PROGRAM，诊断保留引擎文案
+     * （含 "TypeError"）；`measurer.calls == 0` 钉住失败发生在度量之前。
+     */
+    @Test
+    fun strictModeRewriteOfFrozenFrameInputThrowsATypeError() =
+        runBlocking {
+            val measurer = CapturingMeasurer()
+            val engine = engine(measurer)
+
+            val result = engine.execute(
+                request(STRICT_MUTATE_INPUT_SOURCE, stateJson = """{"answer":3}"""),
+            )
+
+            val rejected = result as VisualExecutionResult.Rejected
+            assertEquals(
+                "actual: ${rejected.reason}: ${rejected.diagnostics}",
+                VisualExecutionRejection.INVALID_PROGRAM,
+                rejected.reason,
+            )
+            // 断言 "TypeError" 而非引擎具体措辞：ES 规范保证 strict 冻结赋值抛 TypeError，
+            // 措辞是引擎实现细节（P5 已实证 quickjs-kt 诊断含错误类名前缀）。
+            assertTrue(rejected.diagnostics.contains("TypeError"))
+            assertEquals(0, measurer.calls)
+        }
+
+    /** 批次 27 T3：strict 改写冻结 metrics 必须抛 TypeError（render 阶段）。 */
+    @Test
+    fun strictModeRewriteOfFrozenMetricsThrowsATypeError() =
+        runBlocking {
+            val measurer = CapturingMeasurer()
+            val engine = engine(measurer)
+
+            val result = engine.execute(request(STRICT_MUTATE_METRICS_SOURCE))
+
+            val rejected = result as VisualExecutionResult.Rejected
+            assertEquals(
+                "actual: ${rejected.reason}: ${rejected.diagnostics}",
+                VisualExecutionRejection.INVALID_PROGRAM,
+                rejected.reason,
+            )
+            assertTrue(rejected.diagnostics.contains("TypeError"))
+            // prepare 正常返回并已度量恰一批，失败只在 render——钉住失败位置。
+            assertEquals(1, measurer.calls)
+        }
+
+    /**
+     * 批次 27 T3：重绑 `Object.freeze` 不得拆掉深冻结。
+     *
+     * 注入点冻结发生在用户源码求值**之后**，若 bootstrap 未把 Object 构造器冻住，程序
+     * `Object.freeze = function (v) { return v; }` 一行即可让深冻结整体空转（本地 RED
+     * 基线实证）。bootstrap 的 `Object.freeze(Object)` 使该重绑在 sloppy 下静默失败，
+     * 深冻结照常生效——读回原值 3。若有人移除该 bootstrap 硬化，本用例变红。
+     */
+    @Test
+    fun rebindingObjectFreezeCannotDefeatTheDeepFreeze() =
+        runBlocking {
+            val measurer = CapturingMeasurer()
+            val engine = engine(measurer)
+
+            val result = engine.execute(
+                request(REBIND_FREEZE_SOURCE, stateJson = """{"answer":3}"""),
+            )
+
+            val rendered = result as VisualExecutionResult.Rendered
+            assertEquals("""{"answer":3}""", measurer.payloads.first())
+            // 批次 27 T1 接线适配：render 返回最小 SceneV1 合法场景（原 "{}" 会在编译层
+            // 被拒；本用例判据是 prepare 读回 3，不受场景形状影响）。
+            assertEquals(
+                """{"schemaVersion":1,"sceneId":"scene-1","revision":1,""" +
+                    """"viewBox":{"x":0,"y":0,"width":360,"height":240},"paths":[],"root":null,""" +
+                    """"controls":[],"hitRegions":[]}""",
+                rendered.sceneJson,
+            )
+        }
+
+    /**
+     * 批次 27 T3：深冻结与批次 21 配方（Date 封闭 + 种子 PRNG）共存、不回归。
+     *
+     * 同一程序内既尝试改写 input.seed（静默失败，读回注入值）又消费 `typeof Date` 与
+     * `Math.random()`：Date 仍封闭、同 seed 两事务序列逐位重放、异 seed 序列不同——
+     * bootstrap 追加 `Object.freeze(Object)` 与注入点深冻结都没有扰动 PRNG/Date 面。
+     */
+    @Test
+    fun frozenInputCoexistsWithSeededPrngAndClosedDate() =
+        runBlocking {
+            val measurer = CapturingMeasurer()
+            val engine = engine(measurer)
+
+            val first = engine.execute(request(FREEZE_PRNG_SOURCE, seed = 42L))
+            val firstPayload = measurer.payloads.removeAt(0)
+            val second = engine.execute(request(FREEZE_PRNG_SOURCE, seed = 42L))
+            val secondPayload = measurer.payloads.removeAt(0)
+            engine.execute(request(FREEZE_PRNG_SOURCE, seed = 43L))
+
+            assertTrue(first is VisualExecutionResult.Rendered)
+            // Date 已封闭；seed 改写静默失败，读回注入原值 42/43。
+            assertTrue(firstPayload.startsWith("undefined|"))
+            assertTrue(firstPayload.endsWith("|42"))
+            // 同 seed 序列重放；异 seed 序列不同（java.util.Random 重放语义不变）。
+            assertEquals(firstPayload, secondPayload)
+            val thirdPayload = measurer.payloads.first()
+            assertTrue(thirdPayload.startsWith("undefined|"))
+            assertTrue(thirdPayload.endsWith("|43"))
+            assertTrue(firstPayload != thirdPayload)
         }
 
     @Test
@@ -693,7 +905,11 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
     }
 
     private companion object {
-        /** 正常程序：prepare 恰一批（带全 FrameInput 字段），render 恰一次并回显冻结 contentId。 */
+        /**
+         * 正常程序：prepare 恰一批（带全 FrameInput 字段），render 恰一次并回显冻结 contentId。
+         * 批次 27 T1：render 返回 SceneV1 合法场景（compile 第三上下文必经）——label 引用
+         * content-0、anchor(120,60) 居中，DrawOps 期望 x=115,y=63（见正向用例）。
+         */
         val ECHO_SOURCE = """
             const visual = {
               prepare: function (input) {
@@ -705,9 +921,29 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
               },
               render: function (input, metrics) {
                 return { schemaVersion: 1, sceneId: 'scene-1', revision: input.revision,
-                         label: { contentId: metrics[0].contentId } };
+                         viewBox: { x: 0, y: 0, width: input.viewport.widthDu,
+                                    height: input.viewport.heightDu },
+                         paths: [],
+                         root: { type: 'label', contentId: metrics[0].contentId,
+                                 anchor: { x: 120, y: 60 }, hAlign: 'center',
+                                 vAlign: 'middle', color: '#26354a' },
+                         controls: [],
+                         hitRegions: [] };
               },
             };
+        """.trimIndent()
+
+        /**
+         * 批次 27 T1：最小 SceneV1 合法场景（root null → 零 op DrawOps）。
+         * 与隔离门夹具 `pureGeometryRequest` 同构（跨模块同形状，一处升级两处对齐）。
+         */
+        val MINIMAL_SCENE_RENDER = """
+            render: function (input, metrics) {
+              return { schemaVersion: 1, sceneId: 'scene-1', revision: input.revision,
+                       viewBox: { x: 0, y: 0, width: input.viewport.widthDu,
+                                  height: input.viewport.heightDu },
+                       paths: [], root: null, controls: [], hitRegions: [] };
+            }
         """.trimIndent()
 
         /** bootstrap 验证：Date 封闭 + Math.random 走注入 PRNG。 */
@@ -716,7 +952,121 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
               prepare: function (input) {
                 return [{ kind: 'text', payload: typeof Date + '|' + Math.random() + '|' + Math.random() }];
               },
-              render: function (input, metrics) { return { label: { contentId: metrics[0].contentId } }; },
+              $MINIMAL_SCENE_RENDER,
+            };
+        """.trimIndent()
+
+        /**
+         * 批次 27 T3：input 深冻结 sloppy 夹具——改写/增/删后回显 + isFrozen 探针。
+         * 与本地语义验证同文：预期读回全为注入原值（见
+         * `mutatingFrozenFrameInputSilentlyFailsAndReadsBackOriginalValues`）。
+         * 批次 27 T1 接线适配：render 的 timeMs/metrics 回显探针移入 fallbackMarkdown
+         * （场景面必须为 SceneV1 合法形状——未知字段在编译层拒绝）；深冻结判据不变。
+         */
+        val MUTATE_INPUT_SOURCE = """
+            const visual = {
+              prepare: function (input) {
+                input.state.answer = 999;
+                input.programId = 'forged-id';
+                input.viewport.widthDu = 1;
+                input.newField = 'x';
+                delete input.seed;
+                return [{ kind: 'text', payload: JSON.stringify({
+                  answer: input.state.answer, programId: input.programId,
+                  width: input.viewport.widthDu, newField: ('newField' in input),
+                  hasSeed: ('seed' in input),
+                  rootFrozen: Object.isFrozen(input), stateFrozen: Object.isFrozen(input.state) }) }];
+              },
+              render: function (input, metrics) {
+                input.timeMs = 7;
+                return { schemaVersion: 1, sceneId: 'scene-1', revision: input.revision,
+                         viewBox: { x: 0, y: 0, width: input.viewport.widthDu,
+                                    height: input.viewport.heightDu },
+                         paths: [], root: null, controls: [], hitRegions: [],
+                         fallbackMarkdown: 'timeMs=' + input.timeMs +
+                                           ' contentId=' + metrics[0].contentId };
+              },
+            };
+        """.trimIndent()
+
+        /**
+         * 批次 27 T3：metrics 深冻结 sloppy 夹具。扩展尝试用索引赋值而不用
+         * `Array.prototype.push`——push 以 throw-on-fail 写 length，对冻结数组在 sloppy
+         * 下也抛 TypeError（规范特例，本地 V8 实证）；索引/属性赋值才是 sloppy 静默失败
+         * 的语义本体。批次 27 T1 接线适配：isFrozen/contentId 探针移入 fallbackMarkdown。
+         */
+        val MUTATE_METRICS_SOURCE = """
+            const visual = {
+              prepare: function () { return [{ kind: 'text', payload: 'x' }]; },
+              render: function (input, metrics) {
+                metrics[0].contentId = 'ghost-1';
+                metrics[1] = { contentId: 'ghost-2' };
+                return { schemaVersion: 1, sceneId: 'scene-1', revision: input.revision,
+                         viewBox: { x: 0, y: 0, width: input.viewport.widthDu,
+                                    height: input.viewport.heightDu },
+                         paths: [], root: null, controls: [], hitRegions: [],
+                         fallbackMarkdown: 'frozen=' + Object.isFrozen(metrics) +
+                                           ' entryFrozen=' + Object.isFrozen(metrics[0]) +
+                                           ' contentId=' + metrics[0].contentId +
+                                           ' extra=' + (metrics[1] === undefined
+                                                        ? 'absent' : metrics[1].contentId) };
+              },
+            };
+        """.trimIndent()
+
+        /** 批次 27 T3：strict 改写冻结 input——抛 TypeError（ES 冻结语义）。 */
+        val STRICT_MUTATE_INPUT_SOURCE = """
+            const visual = {
+              prepare: function (input) {
+                'use strict';
+                input.state.answer = 4;
+                return [];
+              },
+              render: function () { return {}; },
+            };
+        """.trimIndent()
+
+        /** 批次 27 T3：strict 改写冻结 metrics——render 阶段抛 TypeError。 */
+        val STRICT_MUTATE_METRICS_SOURCE = """
+            const visual = {
+              prepare: function () { return [{ kind: 'text', payload: 'x' }]; },
+              render: function (input, metrics) {
+                'use strict';
+                metrics[0].contentId = 'ghost-1';
+                return {};
+              },
+            };
+        """.trimIndent()
+
+        /**
+         * 批次 27 T3：重绑 Object.freeze 攻击夹具。bootstrap 未冻 Object 时此重绑成功、
+         * 深冻结空转、读回 999（本地 RED 实证）；`Object.freeze(Object)` 硬化在场时重绑
+         * 静默失败、读回原值 3。批次 27 T1 接线适配：render 返回 SceneV1 合法场景。
+         */
+        val REBIND_FREEZE_SOURCE = """
+            const visual = {
+              prepare: function (input) {
+                Object.freeze = function (v) { return v; };
+                input.state.answer = 999;
+                return [{ kind: 'text', payload: JSON.stringify({ answer: input.state.answer }) }];
+              },
+              $MINIMAL_SCENE_RENDER,
+            };
+        """.trimIndent()
+
+        /**
+         * 批次 27 T3：深冻结与 Date 封闭/种子 PRNG 共存夹具（改写 + 随机数同程序）。
+         * 批次 27 T1 接线适配：render 返回 SceneV1 合法场景（用例只断言 Rendered 与
+         * payload 序列，场景形状不承载判据）。
+         */
+        val FREEZE_PRNG_SOURCE = """
+            const visual = {
+              prepare: function (input) {
+                input.seed = 1;
+                return [{ kind: 'text',
+                          payload: typeof Date + '|' + Math.random() + '|' + input.seed }];
+              },
+              $MINIMAL_SCENE_RENDER,
             };
         """.trimIndent()
 
@@ -821,7 +1171,7 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         val WRITER_SOURCE = """
             const visual = {
               prepare: function () { globalThis.injected = 'leaked'; return []; },
-              render: function () { return {}; },
+              $MINIMAL_SCENE_RENDER,
             };
         """.trimIndent()
 

@@ -9,6 +9,7 @@ import android.os.ParcelFileDescriptor
 import android.os.Process
 import android.util.Log
 import com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngine
+import com.tingyun.smartmistakebook.core.domain.VisualContentMeasurer
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
@@ -24,6 +25,7 @@ import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * `:visual_js` 隔离进程里的执行服务（批次 22 T1，4E.2 前置）。
@@ -59,7 +61,10 @@ import java.util.concurrent.atomic.AtomicLong
  *   由该门**结构性保证**（进不了 [runRequest] 就没有 arm 点）。ready 等待预算由宿主承担
  *   （AIDL `isReady()` 轮询，见 VisualJsClientEngine）；隔离进程内的 `libquickjs.so` 装载
  *   实测成本、KD-76 ③④⑤ 设备判据仍未验证，JS 仍不广告；
- * - 文本/数学内容度量未接线（[UnwiredVisualContentMeasurer]），只有纯几何程序可通；
+ * - 文本/数学内容度量已接线（批次 27 T2，[AndroidVisualContentMeasurer]：text=Paint 内蕴
+ *   度量、math=core:model 盒布局链 + 契约降级；warm-up 探针把字体子系统首初始化移出
+ *   1500 ms 请求窗口，R2 D6）；隔离进程内字体/资源面（R2 假设 A1）的设备验证、行级
+ *   artifact 的 painter 复用未做，JS 仍不广告；
  * - ContentProvider/AndroidX Startup 在隔离进程的实际装配面未审计（见 Application guard）；
  * - JS 方法仍不广告，工具面/提示词/能力快照零改动。
  */
@@ -73,6 +78,15 @@ class VisualJsService : Service() {
      * 引擎装载必已完成，1500 ms watchdog 从真实 JS 工作起算的语义不变。
      */
     private val ready = AtomicBoolean(false)
+
+    /**
+     * 服务级内容度量器（批次 27 T2，替换批次 22 的 `UnwiredVisualContentMeasurer`）。
+     * warm-up 在 [jsExecutor] 上构造（环境快照来自本进程 `resources` + 探针一次）成功后
+     * 置入，随后才置 [ready]；[runRequest] 消费。warm-up 与请求由同一单线程执行器串行化，
+     * 度量器及其 `Paint` **线程独占**（R2 §1.4/D5：官方对 Paint 无线程安全声明，按非
+     * 线程安全对待；单线程使并发共享不成立，不引入 Paint 池）。
+     */
+    private val contentMeasurer = AtomicReference<VisualContentMeasurer?>(null)
 
     // 单线程 JS 执行器：一个请求一个任务；#240 挂死时泄漏的是这条 daemon 线程，
     // 由 L2 SIGKILL 回收整个进程。
@@ -128,6 +142,13 @@ class VisualJsService : Service() {
         jsExecutor.execute {
             try {
                 QuickJsVisualExecutionEngine.warmUpNativeRuntime()
+                // 批次 27 T2（R2 D6）：在 ready 之前构造内容度量器并探针一次——字体子系统
+                // 首初始化成本与隔离进程资源可用性（假设 A1）都在这里暴露，失败走下方
+                // 既有 killSelf 路径，不留到请求期被 1500 ms watchdog 误杀/误归程序错。
+                // 置序：先 set 度量器再置 ready（runRequest 的非 null 前提）。
+                val measurer = visualContentMeasurerForService(resources)
+                measurer.warmUpProbe()
+                contentMeasurer.set(measurer)
                 ready.set(true)
                 Log.i(TAG, "visual_js warm-up finished; worker ready for requests")
             } catch (failure: Throwable) {
@@ -378,8 +399,21 @@ class VisualJsService : Service() {
 
             // 每请求一个全新引擎实例：引擎内部的 inFlight/fused 集合不跨请求，
             // #240 挂死的影响面被进程边界截断。
+            // 批次 27 T2：内容度量走服务级真实度量器（warm-up 已构造并探针；ready 单调
+            // 量 + 单线程置序保证非 null）。null 只可能意味着 warm-up 置序被破坏——给
+            // 精确诊断并 fail-closed，不把 NPE 误归"引擎不可用"。
+            val measurer = contentMeasurer.get()
+            if (measurer == null) {
+                fatal(
+                    execution,
+                    callback,
+                    VisualJsWire.FATAL_INTERNAL,
+                    "content measurer missing past the ready gate",
+                )
+                return
+            }
             val engine = try {
-                QuickJsVisualExecutionEngine(measurer = UnwiredVisualContentMeasurer)
+                QuickJsVisualExecutionEngine(measurer = measurer)
             } catch (failure: Throwable) {
                 fatal(
                     execution,

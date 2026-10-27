@@ -14,6 +14,7 @@ import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.domain.VisualMeasuredContent
+import com.tingyun.smartmistakebook.core.domain.VisualViewport
 import com.tingyun.smartmistakebook.core.model.FigureGenerationOutcome
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
@@ -60,17 +61,30 @@ import java.util.concurrent.atomic.AtomicReference
  * 哪个模块"。4E.2 把 JS 编排搬进 `:visual_js` 隔离进程 + core:visual-js 客户端时，本类整体迁移，
  * 端口不变。
  *
- * 事务编排（契约 §3.2 逐步）：
- * 1. prepare 上下文：新建 QuickJs 实例 → bootstrap（封闭 Date、注入种子 PRNG、冻结 Math）→
- *    求值用户源码 → `visual.prepare(input)` → JSON.stringify 取回批量内容度量请求 → close。
+ * 事务编排（契约 §3.2 逐步；批次 27 T1 起为每事务三 JS 上下文）：
+ * 1. prepare 上下文：新建 QuickJs 实例 → bootstrap（封闭 Date、注入种子 PRNG、冻结
+ *    Math/Object）→ visualSdk 资产 → 求值用户源码 → `visual.prepare(input)` → JSON.stringify
+ *    取回批量内容度量请求 → close。input 在注入瞬间经 [DEEP_FREEZE_JS] 深冻结（契约 §3.2:58）。
  * 2. 原生度量：经 [VisualContentMeasurer] 恰一批。
- * 3. render 上下文：**新建** QuickJs 实例重走 bootstrap + 同一源码 →
- *    `visual.render(input, metrics)` → JSON.stringify 取回场景 JSON → close。
- * 4. 输出校验：字节预算 + 引用冻结检查（扫描场景 JSON 的 `contentId` 值，拒绝本事务未冻结的
- *    引用）。完整 SceneV1 严格校验归 4E.2 共享 compiler，这里只做可观测的保守面。
+ * 3. render 上下文：**新建** QuickJs 实例重走 bootstrap + visualSdk + 同一源码 →
+ *    `visual.render(input, metrics)` → JSON.stringify 取回场景 JSON → close。input 与
+ *    metrics 在注入瞬间各自深冻结（契约 §3.2:58）。
+ * 4. 场景保守校验：字节预算 + 引用冻结检查（扫描场景 JSON 的 `contentId` 值，拒绝本事务
+ *    未冻结的引用）。冻结检查**先于**编译（悬空引用的诊断以"引用未冻结"为准）。
+ * 5. compile 上下文（批次 27 T1 新增，R1 §2 第三上下文）：**新建** QuickJs 实例 →
+ *    bootstrap → 编译器资产（**无用户源码、无 SDK**——编译器完整性是结构性的，无需
+ *    深冻结注入图：上下文里没有可改动它的代码）→ `__visualCompile(sceneJson, metricsJson,
+ *    expect)` → DrawOps V1 JSON 文本 → close。编译错误面（SCENE_* 令牌）经分类器折
+ *    [VisualExecutionRejection.INVALID_SCENE]（类型化拒绝，不进 INVALID_PROGRAM 泛化）。
+ * 6. DrawOps 原生严格校验：[VisualDrawOpsValidator] 以与编译器同一套不变量复验
+ *    （词表/预算/有限性/配平/冻结引用）——"编译器可信但不免检"。
+ * 7. 原子提交：[VisualExecutionResult.Rendered] 携带 sceneJson（保留）与
+ *    drawCommandsJson/drawSchemaVersion（批次 27 T1 新增）。
  *
- * 每事务新上下文：prepare/render 各用全新实例（脚本全局不跨事务、也不跨阶段复用）——
- * 契约 §3.2"程序不能依赖跨调用全局变量"由结构保证，不靠脚本自觉。
+ * 每事务新上下文：prepare/render/compile 各用全新实例（脚本全局不跨事务、也不跨阶段复用）——
+ * 契约 §3.2"程序不能依赖跨调用全局变量"由结构保证，不靠脚本自觉。每上下文各受一次
+ * [VisualExecutionBudget.COOPERATIVE_PHASE_TIMEOUT_MILLIS] 协作期限约束；watchdog/1500ms
+ * 硬期限/队列/终止语义零改动（共享纪律：客户端/协议不动引擎终止语义）。
  *
  * **终止层数（任务三：三层落两层；对 issue #240 只有协作层对普通循环有效）**：
  * - 协作层：`evaluationTimeoutMillis`（每个 root evaluate 各一次；QuickJS 原生 interrupt handler
@@ -328,8 +342,16 @@ class QuickJsVisualExecutionEngine(
                 transaction,
                 jsDispatcher,
                 PHASE_PREPARE,
-                inputJson,
-            )
+            ) { js ->
+                js.evaluate<Unit>(VisualJsAssets.sdkJs, SDK_FILENAME)
+                js.evaluate<Unit>(transaction.request.sourceJs, PROGRAM_FILENAME)
+                requireVisualShape(js)
+                // 深冻结（契约 §3.2:58）：input 在注入瞬间冻透，见 [DEEP_FREEZE_JS]。
+                js.evaluate<String>(
+                    "JSON.stringify(visual.prepare($DEEP_FREEZE_JS($inputJson)))",
+                    PREPARE_FILENAME,
+                )
+            }
             val entries = parseContentRequests(preparedJson)
             val batch = VisualContentMeasureBatch(
                 programId = request.programId,
@@ -347,13 +369,22 @@ class QuickJsVisualExecutionEngine(
                 )
             }
             val contentIds = measured.entries.map { it.contentId }.toSet()
+            val metricsJsonText = metricsJson(measured.entries)
             val sceneJson = runPhase(
                 transaction,
                 jsDispatcher,
                 PHASE_RENDER,
-                inputJson,
-                metricsJsonText = metricsJson(measured.entries),
-            )
+            ) { js ->
+                js.evaluate<Unit>(VisualJsAssets.sdkJs, SDK_FILENAME)
+                js.evaluate<Unit>(transaction.request.sourceJs, PROGRAM_FILENAME)
+                requireVisualShape(js)
+                // 深冻结（契约 §3.2:58）：input 与 metrics 在注入瞬间各自冻透。
+                js.evaluate<String>(
+                    "JSON.stringify(visual.render(" +
+                        "$DEEP_FREEZE_JS($inputJson), $DEEP_FREEZE_JS($metricsJsonText)))",
+                    RENDER_FILENAME,
+                )
+            }
             if (transaction.hardExpired) {
                 // 渲染完成但硬期限在收尾窗口到点：结果作废（契约 §4"线程中已开始的同步工作
                 // 可能晚于期限结束，只能废弃结果"），不截断成"正确图"。
@@ -362,7 +393,17 @@ class QuickJsVisualExecutionEngine(
                     "transaction result discarded: the hard deadline fired during the render phase",
                 )
             }
-            return validateScene(sceneJson, contentIds)
+            // 保守面（字节预算 / JSON / 冻结引用）先于编译：悬空引用的诊断以"引用未冻结"
+            // 为准，且不合法场景不进编译上下文。
+            val checkedSceneJson = validateSceneJson(sceneJson, contentIds)
+            val drawCommandsJson = runCompilePhase(transaction, jsDispatcher, checkedSceneJson, metricsJsonText, request)
+            if (transaction.hardExpired) {
+                return rejected(
+                    VisualExecutionRejection.HARD_DEADLINE_EXCEEDED,
+                    "transaction result discarded: the hard deadline fired during the compile phase",
+                )
+            }
+            return commitRendered(checkedSceneJson, contentIds, drawCommandsJson, request.viewport)
         } catch (outcome: PhaseRejection) {
             return outcome.outcome
         } catch (budget: IllegalArgumentException) {
@@ -378,8 +419,9 @@ class QuickJsVisualExecutionEngine(
     }
 
     /**
-     * 一个 JS 阶段（prepare 或 render）：全新 QuickJs 实例 → 沙箱配置 → bootstrap → 用户源码 →
-     * 调用点。返回该阶段 `JSON.stringify` 的结果字符串。
+     * 一个 JS 上下文（prepare / render / compile）：全新 QuickJs 实例 → 沙箱配置 →
+     * bootstrap → [evaluateInContext]（各阶段在此求值自己的资产与调用点）→ 返回
+     * `JSON.stringify` 的结果字符串。
      *
      * 堆快照只在"消息丢失哨兵"路径上取（[isLostMessage]）：普通 TypeError 不会多拿一次
      * `jsMutex`；读取发生在 `finally { js.close() }` 之前，且 `JS_ComputeMemoryUsage` 本身不分配
@@ -396,8 +438,7 @@ class QuickJsVisualExecutionEngine(
         transaction: Transaction,
         jsDispatcher: CoroutineDispatcher,
         phaseName: String,
-        inputJson: String,
-        metricsJsonText: String? = null,
+        evaluateInContext: suspend (QuickJs) -> String?,
     ): String? {
         return try {
             withContext(jsDispatcher) {
@@ -441,19 +482,9 @@ class QuickJsVisualExecutionEngine(
                     val prng = Random(transaction.request.seed)
                     js.function("__ktRandomNext") { _ -> prng.nextDouble() }
                     js.evaluate<Unit>(BOOTSTRAP_JS, BOOTSTRAP_FILENAME)
-                    js.evaluate<Unit>(transaction.request.sourceJs, PROGRAM_FILENAME)
-                    requireVisualShape(js)
-                    if (phaseName == PHASE_PREPARE) {
-                        js.evaluate<String>(
-                            "JSON.stringify(visual.prepare($inputJson))",
-                            PREPARE_FILENAME,
-                        )
-                    } else {
-                        js.evaluate<String>(
-                            "JSON.stringify(visual.render($inputJson, $metricsJsonText))",
-                            RENDER_FILENAME,
-                        )
-                    }
+                    // 各阶段资产与调用点由调用方注入（prepare/render：SDK + 源码 + 协议门；
+                    // compile：编译器资产 + __visualCompile，无用户源码）。
+                    evaluateInContext(js)
                 } catch (jsError: QuickJsException) {
                     // 类型分支（QuickJsInterruptedException）不读堆：它不是 OOM 形态。
                     val heap = if (jsError !is QuickJsInterruptedException &&
@@ -642,47 +673,125 @@ class QuickJsVisualExecutionEngine(
     }
 
     /**
-     * render 输出校验：字节预算 → JSON 可解析 → `contentId` 引用冻结检查（保守面：扫描全部
-     * `contentId` 键值，超出本事务冻结集合即拒）。完整 SceneV1 严格校验归 4E.2 共享 compiler。
+     * render 输出的保守校验（先于编译）：字节预算 → JSON 可解析 → `contentId` 引用冻结检查。
+     * 冻结检查在这里先行、[VisualDrawOpsValidator] 在编译后再复验一次——悬空引用的诊断
+     * 以本函数的"引用未冻结"文案为准（仪器化 DANGLING 用例钉住），不合法场景不进编译上下文。
      */
-    private fun validateScene(
+    private fun validateSceneJson(
         sceneJson: String?,
         contentIds: Set<String>,
-    ): VisualExecutionResult {
+    ): String {
         if (sceneJson == null) {
-            return rejected(VisualExecutionRejection.INVALID_PROGRAM, "render returned no JSON")
+            throw PhaseRejection(
+                rejected(VisualExecutionRejection.INVALID_PROGRAM, "render returned no JSON"),
+            )
         }
         val bytes = figureUsageUtf8Bytes(sceneJson)
         if (bytes > VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES) {
-            return rejected(
-                VisualExecutionRejection.INVALID_PROGRAM,
-                "rendered scene is $bytes bytes, over the " +
-                    "${VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES}-byte transaction budget",
+            throw PhaseRejection(
+                rejected(
+                    VisualExecutionRejection.INVALID_PROGRAM,
+                    "rendered scene is $bytes bytes, over the " +
+                        "${VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES}-byte transaction budget",
+                ),
             )
         }
         val scene = try {
             Json.parseToJsonElement(sceneJson)
         } catch (error: SerializationException) {
-            return rejected(
-                VisualExecutionRejection.INVALID_PROGRAM,
-                "render output is not valid JSON",
+            throw PhaseRejection(
+                rejected(
+                    VisualExecutionRejection.INVALID_PROGRAM,
+                    "render output is not valid JSON",
+                ),
             )
         }
         val referenced = mutableSetOf<String>()
         collectContentIds(scene, referenced)
         val unknown = referenced - contentIds
         if (unknown.isNotEmpty()) {
-            return rejected(
-                VisualExecutionRejection.INVALID_SCENE,
-                "render referenced content not frozen in this transaction: " +
-                    unknown.sorted().joinToString(",").take(64),
+            throw PhaseRejection(
+                rejected(
+                    VisualExecutionRejection.INVALID_SCENE,
+                    "render referenced content not frozen in this transaction: " +
+                        unknown.sorted().joinToString(",").take(64),
+                ),
             )
         }
-        return VisualExecutionResult.Rendered(
-            sceneJson = sceneJson,
-            sceneSchemaVersion = SCENE_SCHEMA_VERSION,
-            contentIds = contentIds,
-        )
+        return sceneJson
+    }
+
+    /**
+     * compile 第三上下文（批次 27 T1，R1 §2）：bootstrap → 编译器资产 →
+     * `__visualCompile(sceneJson, metricsJson, expect)` → DrawOps JSON 文本。
+     *
+     * 无用户源码、无 SDK 原语——编译器完整性是结构性的；注入图不深冻结（上下文里没有
+     * 可改动它的代码）。错误面：SceneCompileError（SCENE_* 令牌）经分类器折 INVALID_SCENE；
+     * OOM/协作中断仍走各自层（MEMORY_LIMIT / PHASE_TIMEOUT）——编译不豁免预算。
+     */
+    private suspend fun runCompilePhase(
+        transaction: Transaction,
+        jsDispatcher: CoroutineDispatcher,
+        sceneJson: String,
+        metricsJsonText: String,
+        request: VisualExecutionRequest,
+    ): String {
+        // expect（R1 §3.1 + 本批钉定扩展）：场景回显核对项。viewport 供编译器执行
+        // "viewBox == viewport" 的 V1 MVA 不变量（R1 §3.2）。
+        val expectJson = buildJsonObject {
+            put("sceneRevision", request.sceneRevision)
+            put("viewport", buildJsonObject {
+                put("widthDu", request.viewport.widthDu)
+                put("heightDu", request.viewport.heightDu)
+            })
+        }.toString()
+        val drawJson = runPhase(transaction, jsDispatcher, PHASE_COMPILE) { js ->
+            js.evaluate<Unit>(VisualJsAssets.compilerJs, COMPILER_FILENAME)
+            // 编译器唯一暴露面收三个 JSON 文本（visual-compiler.js strictParseJson 与
+            // typeof 门只收 string）——文本必须经 [jsStringLiteral] 编码为 JS 字符串
+            // 字面量传入；`$` 原样插值会把实参变成 JS 对象值，每笔事务先抛
+            // SCENE_FIELD_TYPE（批次 27 复核修复，设备轨隔离 10 红/引擎套件 9 红）。
+            js.evaluate<String>(
+                "__visualCompile(" +
+                    "${jsStringLiteral(sceneJson)}, ${jsStringLiteral(metricsJsonText)}, ${jsStringLiteral(expectJson)})",
+                COMPILE_FILENAME,
+            )
+        }
+        if (drawJson == null) {
+            throw PhaseRejection(
+                rejected(VisualExecutionRejection.INVALID_SCENE, "compiler returned no draw ops"),
+            )
+        }
+        return drawJson
+    }
+
+    /**
+     * DrawOps 原生严格校验（第二道门）+ 原子提交。校验器拒绝 = INVALID_SCENE +
+     * DRAWOPS_* 码；通过 = [VisualExecutionResult.Rendered]（sceneJson 保留、
+     * drawCommandsJson/drawSchemaVersion 随行——契约 §8 快照两者都存）。
+     */
+    private fun commitRendered(
+        sceneJson: String,
+        contentIds: Set<String>,
+        drawCommandsJson: String,
+        viewport: VisualViewport,
+    ): VisualExecutionResult {
+        return when (val validation = VisualDrawOpsValidator.validate(drawCommandsJson, contentIds, viewport)) {
+            is VisualDrawOpsValidation.Invalid ->
+                rejected(
+                    VisualExecutionRejection.INVALID_SCENE,
+                    "${validation.code}: ${validation.message}",
+                )
+
+            is VisualDrawOpsValidation.Valid ->
+                VisualExecutionResult.Rendered(
+                    sceneJson = sceneJson,
+                    sceneSchemaVersion = SCENE_SCHEMA_VERSION,
+                    contentIds = contentIds,
+                    drawCommandsJson = drawCommandsJson,
+                    drawSchemaVersion = DRAW_SCHEMA_VERSION,
+                )
+        }
     }
 
     private fun collectContentIds(element: JsonElement, into: MutableSet<String>) {
@@ -791,13 +900,20 @@ class QuickJsVisualExecutionEngine(
     companion object {
         private const val HOST_AWAIT_GRACE_MILLIS: Long = 500L
         private const val SCENE_SCHEMA_VERSION: Int = 1
+
+        /** DrawOps V1（批次 27 T1；与 `visual-compiler.js` 的 drawSchemaVersion 同值）。 */
+        private const val DRAW_SCHEMA_VERSION: Int = 1
         private const val PHASE_PREPARE = "prepare"
         private const val PHASE_RENDER = "render"
+        private const val PHASE_COMPILE = "compile"
         private const val BOOTSTRAP_FILENAME = "visual-bootstrap.js"
+        private const val SDK_FILENAME = "visual-sdk.js"
         private const val PROGRAM_FILENAME = "visual-program.js"
         private const val SHAPE_FILENAME = "visual-shape.js"
         private const val PREPARE_FILENAME = "visual-prepare.js"
         private const val RENDER_FILENAME = "visual-render.js"
+        private const val COMPILER_FILENAME = "visual-compiler.js"
+        private const val COMPILE_FILENAME = "visual-compile.js"
 
         /**
          * 服务进程 warm-up（批次 25 T2，KD-76 ①）：真实触达原生装载点并执行一次空程序。
@@ -837,18 +953,108 @@ class QuickJsVisualExecutionEngine(
         }
 
         /**
-         * bootstrap（按 R1 §4.1 配方，两处最小硬化，均登记）：
+         * bootstrap（按 R1 §4.1 配方，三处最小硬化，均登记）：
          * 1. `Math.random` 闭包捕获 `__ktRandom` **值**（配方是按名查全局 `__ktRandomNext()`）——
          *    防程序重绑 `globalThis.__ktRandomNext` 后经 Math.random 间接换掉 PRNG；
          * 2. 尾句 `void 0;` 把脚本完成值钉为 undefined——上游 `evaluate<Unit>` 对 undefined
          *    走 `null as T` 快路径（castValueOr.jvm.kt），对对象完成值会落进通用 converter
          *    （行为引擎相关），钉住 undefined 避开该面。
+         * 3. `Object.freeze(Object)`（批次 27 T3）——**它消灭的失败**：注入点深冻结
+         *    （[DEEP_FREEZE_JS]）在用户源码求值**之后**才执行，若 `Object.freeze` 与
+         *    `Object.getOwnPropertyNames` 仍可写，程序先重绑它们（如
+         *    `Object.freeze = function (v) { return v; }`）即可让深冻结整体空转。冻结
+         *    Object 构造器把两个原语钉为不可写不可配置：重绑在 sloppy 下静默失败、strict
+         *    下抛 TypeError（本地 ES 语义实证，仪器化 `rebindingObjectFreezeCannotDefeatTheDeepFreeze`
+         *    在设备轨钉住）。`Object.freeze(Math)` 在此之前已执行——冻结 Object 不影响调用
+         *    已冻结对象上的既有方法。
          */
         const val BOOTSTRAP_JS: String =
             "globalThis.Date = undefined;\n" +
                 "const __ktRandom = __ktRandomNext;\n" +
                 "Math.random = function () { return __ktRandom(); };\n" +
                 "Object.freeze(Math);\n" +
+                "Object.freeze(Object);\n" +
                 "void 0;\n"
+
+        /**
+         * 注入点深冻结函数表达式（批次 27 T3；契约 §3.2:58"每次调用的 input 与 metrics
+         * 深冻结"）。调用点以 `DEEP_FREEZE_JS(inputJson)` IIFE 形式包住注入字面量。
+         *
+         * **它消灭的失败**：注入的 input/metrics JSON 图以 JS 字面量进入调用点后是普通
+         * 可变对象，程序可改写任意嵌套字段（`input.viewport.widthDu`、`metrics[0].contentId`、
+         * `input.state.answer`）再回显，宿主据回显做的判读即被输入伪造逃逸（本地 RED 基线
+         * 与仪器化用例实证）。此表达式在**注入瞬间**递归 `Object.freeze` 整图（含数组与其
+         * 元素），冻结语义按 ES 规范钉死：普通属性/元素赋值在 sloppy 下静默失败（宿主读回
+         * 原值）、strict 下抛 TypeError；`Array.prototype.push` 是规范特例——它以
+         * throw-on-fail 写 `length`，对冻结数组在 sloppy 下也抛 TypeError。
+         *
+         * **为什么是内联函数表达式而不是 bootstrap 全局函数**：调用点 evaluate 在用户源码
+         * **之后**执行，期间程序可重绑任何 `globalThis.*`（WRITER 用例实证全局可写）——
+         * 全局名在调用点不可信；具名函数表达式的递归名 `df` 绑定在表达式自身作用域，
+         * 不受外层/全局同名重绑影响（本地 g9 实证）。配合 [BOOTSTRAP_JS] 的
+         * `Object.freeze(Object)`，`Object.freeze` 与 `Object.getOwnPropertyNames` 两个
+         * 原语在调用点同样不可被程序替换。
+         *
+         * 先冻容器再走子节点对纯 JSON 数据与 MDN 先子后父配方等价：字面量图无 getter，
+         * 遍历期间没有用户代码可执行。递归深度 = JSON 嵌套深度，受
+         * [VisualExecutionBudget.MAX_STACK_BYTES] 兜底（溢出 → `stack overflow` →
+         * INVALID_PROGRAM，有界拒绝，与分类器既有判据一致）。
+         *
+         * **登记边界**：冻结只覆盖注入图自身的属性写/增/删；共享原型（`Object.prototype`）
+         * 未冻——程序污染原型只能"伪造 input 缺失字段的读取值"，而对自有字段的读取
+         * （宿主判据所在）原型无法劫持，且程序本就控制自身代码，未获新增伪造能力；
+         * `JSON.stringify`/`JSON.parse` 未冻（输出侧完整性属另一硬化面，不在本项）。
+         */
+        private const val DEEP_FREEZE_JS: String =
+            "(function df(v) { if (v !== null && typeof v === 'object') { Object.freeze(v); " +
+                "var ks = Object.getOwnPropertyNames(v); " +
+                "for (var i = 0; i < ks.length; i++) { df(v[ks[i]]); } } return v; })"
+
+        /**
+         * 宿主侧 JSON 文本 → JS 双引号字符串字面量（批次 27 复核修复）。
+         *
+         * **它消灭的失败**：`__visualCompile(sceneText, metricsText, expectText)` 的三参数
+         * 契约是 JSON **文本**（visual-compiler.js `strictParseJson` 只收字符串，
+         * `globalThis.__visualCompile` 的 typeof 门逐字要求三实参皆 string）。此前
+         * [runCompilePhase] 把三个文本以 `$` 原样插值进 JS 源——实参成了 JS 对象值，
+         * 每笔事务先抛 `SCENE_FIELD_TYPE: __visualCompile expects three JSON text
+         * arguments`，全部 render 事务折 INVALID_SCENE，MVA 编译路径全死（设备轨隔离
+         * 套件 10 红 / 引擎套件 9 红，step05 §3；修复前复现与修复后编译通过已在 Node
+         * 台对真实资产实证）。
+         *
+         * 转义集：反斜杠、双引号与 C0 控制字符（`\b` `\f` `\n` `\r` `\t` 具名，其余
+         * `\u00XX`）——合法 JSON 文本中可能出现的全部需转义字符；结构字符与空白在
+         * 双引号字面量内无需转义，单引号/斜杠亦然；U+2028/U+2029 在 ES2019+ 字符串
+         * 字面量中合法（QuickJS 按 ES2020+ 实现），不转义。
+         *
+         * 调用面只有 [runCompilePhase]：prepare/render 的 `$inputJson`/`$metricsJsonText`
+         * 插值是**对象表达式注入**（SDK 契约收对象图、[DEEP_FREEZE_JS] 吃对象），与
+         * 编译器的文本契约不同面，不经这里。
+         */
+        private fun jsStringLiteral(text: String): String {
+            val builder = StringBuilder(text.length + 2)
+            builder.append('"')
+            for (ch in text) {
+                when (ch) {
+                    '\\' -> builder.append("\\\\")
+                    '"' -> builder.append("\\\"")
+                    '\b' -> builder.append("\\b")
+                    '\u000C' -> builder.append("\\f")
+                    '\n' -> builder.append("\\n")
+                    '\r' -> builder.append("\\r")
+                    '\t' -> builder.append("\\t")
+                    else -> {
+                        if (ch < ' ') {
+                            builder.append("\\u")
+                            builder.append(ch.code.toString(16).padStart(4, '0'))
+                        } else {
+                            builder.append(ch)
+                        }
+                    }
+                }
+            }
+            builder.append('"')
+            return builder.toString()
+        }
     }
 }

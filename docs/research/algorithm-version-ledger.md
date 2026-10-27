@@ -574,6 +574,30 @@ AUD-17 校准结果互相替代。
 
 执行证据：设备 E-01（隔离 13/13 + Race 2/2）、E-02（KD-66 门三轮独立绿）、E-03（KD-76 ③④⑤ PARTIAL）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
 
+### 3.37 批次 27 · 零 bump 判据登记（2026-10-27）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动；`VisualJsWire.PROTOCOL_VERSION` 维持 2——结果信封新增 `drawCommandsJson`/`drawSchemaVersion` 为加法字段（读取侧 `optString`/`optInt` 兜底兼容旧信封，不升协议版本）
+
+> 依据：批次 27 计划 §1/§2、批次记录 `docs/research/2026-10-27-batch-27-record.md` §1/§3、基线 `docs/research/2026-10-27-batch-27-baseline.md` §1。本批不 bump 任何既有算法版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：本批零 DB 改动 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告，工具面/提示词/能力快照零改动（T1 footprint 核实） |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | T4：结果信封加 `drawCommandsJson`/`drawSchemaVersion` 为**加法变更**，读取侧 `optString`/`optInt` 缺省 null/1 兼容旧信封，握手门不涉加法字段（批次 25 已升 2） |
+| **DrawOps V1（新增产物面版本）** | `drawSchemaVersion = 1`（首版钉定） | T1 新增的绘制指令序列版本串——属**新增**版本面（非既有串 bump）：词表=save/concat/restore+clip/path/label 六 op、Q→C 精确提升、弧按 κ 拆 ≤90° 三次段；误差算法随 SDK/编译器版本固定（契约 §5"误差算法随 SDK 版本固定"的落点） |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（沿用裁定，本批零构建脚本改动；引擎/AAR 终止语义不变） |
+
+零 bump 判据（逐条）：
+
+1. T1 编译器为场景 JSON→DrawOps 的纯计算（契约 §3.2 第三上下文），无模型/生成/打分口径变更；`drawSchemaVersion=1` 是新产物面的首版钉定，不是对既有版本串的 bump。
+2. T2 度量器为既有 `VisualContentMeasurer` 端口实现替换（Unwired fail-closed 桩→真实度量），度量数字来自 `Paint.measureText`/core:model 既有共享 lowering，端口五字段零改动；math 解析/预算失败按契约降级为可读文本（非占位），无算法口径变更。
+3. T3 深冻结为执行面硬化（注入图冻结 + `Object.freeze(Object)` 防重绑），不改任何输入/输出语义与判定边界。
+4. T4 队列"取消不 abandon 在飞"为主会话裁定的并发语义定稿，非算法面；§64 phase/软期限两开口项列主会话待裁，定谳前不写断言、不加字段。
+5. 后续若把编译器误差算法（κ 分段）、度量环境指纹或 DrawOps 词表升级写进算法口径，必须重新评估登记（`drawSchemaVersion`/SDK 版本即为其载体，当前 1）。
+
+执行证据：Node 测试台 89/89 passed EXIT=0（批次记录员复跑 `node tools/visual_compiler/run_tests.mjs`，含修复环后 +5 原型链负向）；设备 E-01…E-05 是行为证据；单测门第 3 轮/强门第 2 轮 exit=0 为工单给定，记录员未运行 Gradle。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

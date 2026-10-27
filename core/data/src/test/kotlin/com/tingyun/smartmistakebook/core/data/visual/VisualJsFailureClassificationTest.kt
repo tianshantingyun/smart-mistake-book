@@ -210,16 +210,56 @@ class VisualJsFailureClassificationTest {
         assertEquals(VisualJsCalibration.NONE, classify("null", justBelow).calibration)
     }
 
+    // ------------------------------------------------------------ SceneV1 编译器/SDK 类型化错误面（批次 27 T1）
+
     @Test
-    fun `an unlimited or zero heap limit is never attributed`() {
-        // mallocLimit <= 0 表示未设上限（bellard 默认 -1）：不能用"接近上限"的证据。
-        assertEquals(
-            VisualJsFailureKind.UNATTRIBUTED,
-            classify("null", HeapSnapshot(mallocSize = 16_000_000L, mallocLimit = 0L)).kind,
+    fun `a scene compiler error code is an invalid scene`() {
+        // 任务书裁定：非法场景 fail-closed 为类型化拒绝，不进 INVALID_PROGRAM 泛化。
+        val failure = classify("SceneCompileError: SCENE_FIELD_UNKNOWN: scene: unknown field \"foo\"")
+
+        assertEquals(VisualJsFailureKind.INVALID_SCENE, failure.kind)
+        assertEquals(VisualExecutionRejection.INVALID_SCENE, failure.reason)
+        assertTrue(failure.diagnostics.contains("SCENE_FIELD_UNKNOWN"))
+        assertTrue(failure.diagnostics.length <= 512)
+    }
+
+    @Test
+    fun `a scene sdk error code is an invalid scene`() {
+        val failure = classify("SceneSdkError: SCENE_SDK_ARG: r must be within (0, 100000]")
+
+        assertEquals(VisualJsFailureKind.INVALID_SCENE, failure.kind)
+        assertEquals(VisualExecutionRejection.INVALID_SCENE, failure.reason)
+        assertTrue(failure.diagnostics.contains("SCENE_SDK_ARG"))
+    }
+
+    @Test
+    fun `a scene error mentioning a missing definition is not a sandbox violation`() {
+        // 编译器诊断刻意避开 "not defined"，但同类措辞（"no definition in scene.paths"）
+        // 仍须先命中 SCENE_* 令牌，不得被沙箱分支截走。
+        val failure = classify(
+            "SceneCompileError: SCENE_PATH_REF: scene.root: pathId \"p\" has no definition in scene.paths",
         )
-        assertEquals(
-            VisualJsFailureKind.UNATTRIBUTED,
-            classify("null", HeapSnapshot(mallocSize = 16_000_000L, mallocLimit = -1L)).kind,
+
+        assertEquals(VisualJsFailureKind.INVALID_SCENE, failure.kind)
+    }
+
+    @Test
+    fun `an interrupt carrying a scene code stays a phase timeout`() {
+        // 类型优先不变量对新增分支同样成立。
+        val failure = classify(
+            message = "SceneCompileError: SCENE_FIELD_UNKNOWN: x",
+            error = QuickJsInterruptedException("SceneCompileError: SCENE_FIELD_UNKNOWN: x"),
         )
+
+        assertEquals(VisualJsFailureKind.COOPERATIVE_TIMEOUT, failure.kind)
+        assertEquals(VisualExecutionRejection.PHASE_TIMEOUT, failure.reason)
+    }
+
+    @Test
+    fun `program prose that merely mentions scene vocabulary without a code stays invalid program`() {
+        // 无 SCENE_<族>_<码> 令牌的普通程序错误不换类别（严格令牌匹配，不是宽松关键词）。
+        val failure = classify("TypeError: cannot read SCENE of undefined")
+
+        assertEquals(VisualJsFailureKind.INVALID_PROGRAM, failure.kind)
     }
 }

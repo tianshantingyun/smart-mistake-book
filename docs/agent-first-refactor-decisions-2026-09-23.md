@@ -3417,3 +3417,20 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - 并发输家的 `ConcurrentVerificationChange` 分支目前**没有测试覆盖**（`grep` 在 core/data、core/domain 测试中零命中）；JVM 用例只覆盖"两个写者改成同一目标"（输家 `AlreadyUpgraded`）。补测前不得把并发矩阵写成已全覆盖。
 - 产品面仍未接通：feature 消费者、确认流生产调用点、`sourceVerifier` 生产实现均无；KD-67 保持 open。
 - 设备证据：`AssessmentItemVerificationStatusInstrumentedTest` 5/5 PASS（`research/evidence/2026-10-26-batch-23/step07-kd67-cas.md:82`）。
+
+---
+
+## 批次 27 主会话队列裁定确认（2026-10-27）：§64 取消语义——调用方取消在飞帧不再 abandon worker
+
+> 依据：批次 25 记录 §3.3 ② 登记的待确认项 + 批次 27 计划 T4（`.zcode/plans/plan-2026-10-27-batch-27-4e2-mva-static.md`）；主会话本批裁定**确认采纳**。契约 `docs/current/visual-generation-contract.md:72` 已按此定稿（批次 27 T4，标注"主会话已裁定确认采纳——批次 25 记录 §3.3 ②，批次 27 T4 定稿"）；实现与 KDoc 同步于 `VisualJsFrameQueue.kt:40-43`/`:111-117`、`VisualJsClientEngine.kt:66-68`/`:212-213`（T4 核对：KDoc diff 非注释行=0、三方一致）。
+
+### 裁定内容
+
+- 调用方取消只出队**自己的等待帧**（排队帧出队即不执行）；对**在飞帧**的取消**不再**触发 `abandon()`、不打断在飞执行——会话按自身预算跑完，完成后按取消态丢弃结果（`invokeOnCompletion` 只 remove 自己的帧；在飞帧 waiter 被取消时会话照常执行、`complete` 返回 false）。
+- **它消灭的具体失败**：取消风暴/快速滚动场景把一次正常取消升级成 worker 死亡与整链重建——重建预算被无谓消耗、在飞会话被误杀、调用方看到比不取消更差的结果形态。
+
+### 边界（不得越过 / 仍待裁）
+
+- **死亡清队语义未经裁定**：worker 死亡时排队帧清空回 `ENGINE_CLOSED`（§3.3 ① 保守分支）的"待主会话确认"标注原样保留（契约 :72 三处），本裁定不覆盖。
+- §64 另两开口项（`phase` 字段两读法、`:70` 软期限落门）已由批次 27 T4 在契约 :72 列"主会话待裁"，定谳前不写断言、不加字段。
+- 服务端单在飞 `STATUS_BUSY` 保留为纵深防御；"满队列回 BUSY 后由可见/交互生命周期限次重新调度"仍属调用方生命周期层（P-04），未落地。
