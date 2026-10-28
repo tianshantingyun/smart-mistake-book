@@ -130,6 +130,45 @@ class VisualDrawOpsPainterPureTest {
         assertEquals(PAINTER_ALPHA, failureOf { drawOpsAlpha255(Double.NaN) }.code)
     }
 
+    // ------------------------------------------------------------ KD-78 ③ 8 位色 alpha 乘法
+
+    @Test
+    fun `an eight digit color alpha multiplies with the op alpha`() {
+        // 批次 29 计划 §1.2 裁定：effectiveAlpha = floor(colorA × op.alpha)。
+        // 词表是 #RRGGBBAA（alpha 在**末两位**，契约/校验器/编译器/painter 四处一致；不是
+        // CSS 的 #AARRGGBB）——`#ff000080` 无组透明 = floor(0x80 × 1.0) = 128（0x80）。
+        // 这正是缺口症状"8 位色 alpha 永远失效"的正面钉子（旧实现 setAlpha(255) 画成 0xFF）。
+        assertEquals(0x80, effectiveDrawOpsAlpha255(parseDrawOpsColor("#ff000080"), 1.0))
+        // 组 alpha 再乘：0x80=128 → floor(128 × 0.5) = 64。
+        assertEquals(64, effectiveDrawOpsAlpha255(parseDrawOpsColor("#ff000080"), 0.5))
+        assertEquals(0, effectiveDrawOpsAlpha255(parseDrawOpsColor("#ff000080"), 0.0))
+        // 负控：alpha 字节为 0 的 8 位色乘任何组 alpha 仍是 0（不会"补成不透明"）。
+        assertEquals(0, effectiveDrawOpsAlpha255(parseDrawOpsColor("#80ff0000"), 1.0))
+        // 6 位色（colorA=255）退回既有 floor(alpha×255) 口径——语义单点，不是两条公式。
+        assertEquals(127, effectiveDrawOpsAlpha255(parseDrawOpsColor("#ff0000"), 0.5))
+        assertEquals(255, effectiveDrawOpsAlpha255(parseDrawOpsColor("#ff0000"), 1.0))
+        // 与 drawOpsAlpha255 的关系钉死（后者是前者的 colorA=255 特例）。
+        assertEquals(drawOpsAlpha255(0.5), effectiveDrawOpsAlpha255(parseDrawOpsColor("#ff0000"), 0.5))
+    }
+
+    @Test
+    fun `the multiplied alpha still fails closed outside the op alpha range`() {
+        val argb = parseDrawOpsColor("#80ff0000")
+        assertEquals(PAINTER_ALPHA, failureOf { effectiveDrawOpsAlpha255(argb, 1.5) }.code)
+        assertEquals(PAINTER_ALPHA, failureOf { effectiveDrawOpsAlpha255(argb, -0.001) }.code)
+        assertEquals(PAINTER_ALPHA, failureOf { effectiveDrawOpsAlpha255(argb, Double.NaN) }.code)
+    }
+
+    // ------------------------------------------------------------ KD-78 ④ 回放 flags
+
+    @Test
+    fun `the replay text paint flags constant is the measure fingerprint default`() {
+        // 度量环境 `VisualMeasureEnvironment.paintFlags` 默认值同为 0（app 侧 JVM 测钉指纹
+        // 字面 `paintFlags=0`、设备侧测钉度量 Paint 与回放 textPaint 同 flags）；本侧钉常量，
+        // 防回放侧单边改 flags 而指纹不变。
+        assertEquals(0, REPLAY_TEXT_PAINT_FLAGS)
+    }
+
     // ------------------------------------------------------------ 诊断口径
 
     @Test

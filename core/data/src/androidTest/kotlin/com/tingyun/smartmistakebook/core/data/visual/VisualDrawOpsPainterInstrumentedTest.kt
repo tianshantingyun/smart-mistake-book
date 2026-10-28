@@ -128,6 +128,41 @@ class VisualDrawOpsPainterInstrumentedTest {
             error
         }
 
+    /**
+     * hand-built 文档（批次 29 T5）：KD-78 ①② 收口后 `stroke-only`/奇数/空 dash 在两道
+     * 生成门即被拒，`validatedDocument` 不再收这些夹具——回放侧兜底（painter 仍拒
+     * 绕过生成门的文档）改用本构造器直接给类型化文档。
+     */
+    private fun handBuiltPathDocument(
+        ops: List<VisualDrawOp>,
+        pathCommands: Int,
+    ): VisualDrawOpsDocument = VisualDrawOpsDocument(
+        drawSchemaVersion = 1,
+        viewBox = VisualDrawOpsViewBox(0.0, 0.0, 48.0, 32.0),
+        background = null,
+        ops = ops,
+        hitRegions = emptyList(),
+        stats = VisualDrawOpsStats(0, pathCommands, 0, ops.size),
+    )
+
+    /** 设备 (4,4)-(20,12) du 的闭合矩形（与 DOC_STROKE_ONLY/文档夹具同一几何）。 */
+    private fun rectPath(): List<VisualPathCommand> = listOf(
+        VisualPathCommand.MoveTo(4.0, 4.0),
+        VisualPathCommand.LineTo(20.0, 4.0),
+        VisualPathCommand.LineTo(20.0, 12.0),
+        VisualPathCommand.LineTo(4.0, 12.0),
+        VisualPathCommand.Close,
+    )
+
+    private fun strokeSpec(dash: List<Double>?): VisualStrokeSpec =
+        VisualStrokeSpec(
+            width = 2.0,
+            cap = VisualStrokeCap.BUTT,
+            join = VisualStrokeJoin.MITER,
+            miterLimit = 4.0,
+            dash = dash,
+        )
+
     // ------------------------------------------------------------ 判据 1：同设备确定性
 
     @Test
@@ -181,9 +216,10 @@ class VisualDrawOpsPainterInstrumentedTest {
         // 组内 label（朴素回放必错场景 2，R1 §2.2）：label(x=15,y=20) 在 concat(+5du,0)
         // 生效下发射，但坐标已是根空间投影——舞步下墨迹左缘在设备 x=30。
         // 朴素回放（label 随组矩阵双乘）会把墨迹右移 +10px：右界断言必红。
-        // parity 钉（R1 §3.5）：用与度量链同构的 Paint（textSize=sizeSp×density×fontScale，
-        // density 以 pxPerDu=2 代用）量 "H" 的 advance——回放设备墨迹带宽必须与之同量级。
-        val measurePaint = Paint()
+        // parity 钉（R1 §3.5）：用与度量链同构的 Paint（flags=REPLAY_TEXT_PAINT_FLAGS=0，
+        // textSize=sizeSp×density×fontScale，density 以 pxPerDu=2 代用）量 "H" 的 advance
+        // ——回放设备墨迹带宽必须与之同量级。
+        val measurePaint = Paint().apply { flags = REPLAY_TEXT_PAINT_FLAGS }
         measurePaint.textSize = 16f * 2f * 1f
         val advancePx = measurePaint.measureText("H")
         assertTrue("font advance sanity", advancePx > 0f)
@@ -211,6 +247,29 @@ class VisualDrawOpsPainterInstrumentedTest {
         val pixels = pixelsOf(render(validatedDocument(DOC_ALPHA), pxPerDu = 2f))
         assertEquals(0xFFFF8080.toInt(), pixelAt(pixels, 96, 24, 16))
         assertEquals(0xFFFFFFFF.toInt(), pixelAt(pixels, 96, 1, 1))
+    }
+
+    @Test
+    fun anEightDigitColorAlphaMultipliesWithTheOpAlphaInsteadOfBeingOverwritten() {
+        // KD-78 ③ 设备面正例（批次 29 T5 裁定）：effectiveAlpha = floor(colorA × op.alpha)。
+        // fill "#ff000080"（词表 #RRGGBBAA，colorA=0x80=128）+ 无组透明 → setAlpha(128)，
+        // 白底混色手算：r=(255×128+255×127)/255=255、g=b=(0+255×127)/255=127 → 0xFFFF7F7F。
+        // 旧实现 setAlpha(op.alpha=1→255) 会画成 0xFFFF0000，本断言必红（静默错画钉子）。
+        val pixels = pixelsOf(render(validatedDocument(DOC_ALPHA8), pxPerDu = 2f))
+        assertEquals(0xFFFF7F7F.toInt(), pixelAt(pixels, 96, 24, 16))
+        assertEquals(0xFFFFFFFF.toInt(), pixelAt(pixels, 96, 1, 1))
+    }
+
+    @Test
+    fun theReplayTextPaintKeepsTheExplicitlyPinnedFlagsMirroredByTheMeasureFingerprint() {
+        // KD-78 ④ 回放侧观测面（批次 29 T5；设备证据 R1 后修正）：真实用于绘制的
+        // textPaint 的 flags 必须等于纯层常量（=0），而度量环境指纹的 paintFlags 默认值
+        // 同为 0（app 侧 JVM/设备测各钉）。平台 `Paint()` 默认是 1283，不是 0——painter
+        // 在构造时**显式** `flags = REPLAY_TEXT_PAINT_FLAGS`；本断言同时钉住"常量仍是 0"
+        // 与"实际 Paint 已按常量装配"。有人给回放 Paint 加 AA/locale 时本断言红，
+        // 而不是等到像素级度量失配才发现。
+        assertEquals(REPLAY_TEXT_PAINT_FLAGS, VisualDrawOpsPainter().textPaintFlagsForTest())
+        assertEquals(0, REPLAY_TEXT_PAINT_FLAGS)
     }
 
     @Test
@@ -301,40 +360,90 @@ class VisualDrawOpsPainterInstrumentedTest {
     }
 
     @Test
-    fun aStrokeOnlyPathFailsClosed() {
-        // R1 §5-① 缺口的运行时面：两道生成门都放行 stroke-only，painter 拒。
-        val document = validatedDocument(DOC_STROKE_ONLY)
+    fun aStrokeOnlyPathStillFailsClosedInTheReplayFallback() {
+        // KD-78 ① 收口后（批次 29 T5）：stroke-only 在两道生成门即被拒，本用例保留
+        // **回放侧兜底**——绕过生成门的 hand-built 文档 painter 仍拒，不默认色。
+        val document = handBuiltPathDocument(
+            ops = listOf(VisualDrawOp.DrawPath(rectPath(), fill = null, stroke = strokeSpec(null), alpha = 1.0)),
+            pathCommands = 5,
+        )
         val failure = paintingFailureOf { render(document, pxPerDu = 2f) }
         assertEquals(PAINTER_STROKE_WITHOUT_FILL, failure.code)
         assertTrue(failure.message!!.contains("ops[0]"))
     }
 
     @Test
-    fun anOddDashFailsClosedEvenThoughValidationAcceptsIt() {
-        // R1 §5-② 缺口的运行时面：dash=[2,4,2] 过校验器（值域/条数均合法），painter 按
-        // DashPathEffect 契约（偶数 interval）拒——本用例同时是缺口存在的证据，移交 T3。
-        val document = validatedDocument(DOC_DASH_ODD)
+    fun anOddDashStillFailsClosedInTheReplayFallback() {
+        // KD-78 ② 收口后：奇数 dash 生成侧即拒；painter 的 DashPathEffect 契约门（偶数
+        // interval）保留为回放兜底。
+        val document = handBuiltPathDocument(
+            ops = listOf(
+                VisualDrawOp.DrawPath(rectPath(), fill = "#ff0000", stroke = strokeSpec(listOf(2.0, 4.0, 2.0)), alpha = 1.0),
+            ),
+            pathCommands = 5,
+        )
         val failure = paintingFailureOf { render(document, pxPerDu = 2f) }
         assertEquals(PAINTER_DASH_ODD, failure.code)
         assertTrue(failure.message!!.contains("ops[0]"))
     }
 
     @Test
-    fun anEmptyDashFailsClosedEvenThoughValidationAcceptsIt() {
-        // 复核修复回归（2026-10-28）：两道生成门都放行 dash=[]（validator :424-442 循环零项、
-        // compiler requireStroke 空数组原样返回），painter 曾把 FloatArray(0) 直接交
-        // DashPathEffect——AOSP 构造器对 length<2 抛**无码** ArrayIndexOutOfBoundsException
-        //（aosp-mirror DashPathEffect.java:34-39，本日 gh api 实读），破坏"全部折进有码异常
-        // 族"；最小 2 项下界已并入前置形状门（与奇数门同码同相位，fill 上墨前拒绝）。
-        val failure = paintingFailureOf { render(validatedDocument(DOC_DASH_EMPTY), pxPerDu = 2f) }
+    fun anEmptyDashStillFailsClosedInTheReplayFallback() {
+        // 复核修复回归 + KD-78 ② 收口：空 dash 生成侧即拒；回放侧最小 2 项下界保留
+        //（AOSP 构造器对 length<2 抛**无码** ArrayIndexOutOfBoundsException）。
+        val emptyOnly = handBuiltPathDocument(
+            ops = listOf(
+                VisualDrawOp.DrawPath(rectPath(), fill = "#ff0000", stroke = strokeSpec(emptyList()), alpha = 1.0),
+            ),
+            pathCommands = 5,
+        )
+        val failure = paintingFailureOf { render(emptyOnly, pxPerDu = 2f) }
         assertEquals(PAINTER_DASH_ODD, failure.code)
         assertTrue(failure.message!!.contains("ops[0]"))
         // 跟在实 dash 后的空 dash（同文档第二 op）同样被拒于 ops[1]——修复前它整条复用
         // 旧 pattern 静默错画（奇数门对 0 放行、缓冲只扩不缩）。
-        val afterRealDash =
-            paintingFailureOf { render(validatedDocument(DOC_DASH_DONOR_THEN_EMPTY), pxPerDu = 2f) }
+        val donorThenEmpty = handBuiltPathDocument(
+            ops = listOf(
+                VisualDrawOp.DrawPath(
+                    listOf(VisualPathCommand.MoveTo(4.0, 2.0), VisualPathCommand.LineTo(44.0, 2.0)),
+                    fill = "#ff0000",
+                    stroke = strokeSpec(listOf(6.0, 6.0, 6.0, 6.0, 6.0, 6.0)),
+                    alpha = 1.0,
+                ),
+                VisualDrawOp.DrawPath(
+                    listOf(VisualPathCommand.MoveTo(4.0, 28.0), VisualPathCommand.LineTo(44.0, 28.0)),
+                    fill = "#ff0000",
+                    stroke = strokeSpec(emptyList()),
+                    alpha = 1.0,
+                ),
+            ),
+            pathCommands = 4,
+        )
+        val afterRealDash = paintingFailureOf { render(donorThenEmpty, pxPerDu = 2f) }
         assertEquals(PAINTER_DASH_ODD, afterRealDash.code)
         assertTrue(afterRealDash.message!!.contains("ops[1]"))
+    }
+
+    @Test
+    fun aStrokeOnlyPathWithAnOddDashReportsTheSameFirstGateAsTheGenerators() {
+        // 复核第 1 轮 R3：生成侧（compiler `requireStroke` → 原生 `parseStroke`）先判
+        // dash 形状、后判 stroke-only；回放侧必须**同码同序**。同一"无 fill + 奇数 dash"
+        // 输入，若 painter 先判 stroke-only 会报 PAINTER_STROKE_WITHOUT_FILL，与生成侧
+        // 的 PAINTER_DASH_ODD 不一致（两条都是 fail-closed，但诊断码漂移）。
+        val document = handBuiltPathDocument(
+            ops = listOf(
+                VisualDrawOp.DrawPath(
+                    rectPath(),
+                    fill = null,
+                    stroke = strokeSpec(listOf(2.0, 4.0, 2.0)),
+                    alpha = 1.0,
+                ),
+            ),
+            pathCommands = 5,
+        )
+        val failure = paintingFailureOf { render(document, pxPerDu = 2f) }
+        assertEquals(PAINTER_DASH_ODD, failure.code)
+        assertTrue(failure.message!!.contains("ops[0]"))
     }
 
     @Test
@@ -372,6 +481,60 @@ class VisualDrawOpsPainterInstrumentedTest {
         assertEquals(PAINTER_BOUNDS, paintingFailureOf { render(document, pxPerDu = 0f, bitmapPxPerDu = 2f) }.code)
         assertEquals(PAINTER_BOUNDS, paintingFailureOf { render(document, pxPerDu = Float.NaN, bitmapPxPerDu = 2f) }.code)
         assertEquals(PAINTER_BOUNDS, paintingFailureOf { render(document, pxPerDu = Float.POSITIVE_INFINITY, bitmapPxPerDu = 2f) }.code)
+    }
+
+    // ------------------------------------------------------------ Rendered 衔接层（T2 / R10）
+
+    @Test
+    fun drawRenderedReplaysTheFrozenCommandSequence() {
+        // 复核第 1 轮 R10：`drawRendered` 此前零调用/零判据。本用例把"Rendered →
+        // 解析 → painter"整条链接上：同一份生产 JSON 经 validatedDocument 与经
+        // drawRendered 回放必须逐像素一致（衔接层不复制也不放宽任何门）。
+        val expected = pixelsOf(render(validatedDocument(DOC_FILL_RECT), pxPerDu = 2f))
+        val rendered = VisualExecutionResult.Rendered(
+            sceneJson = "{}",
+            sceneSchemaVersion = 1,
+            contentIds = emptySet(),
+            drawCommandsJson = DOC_FILL_RECT,
+        )
+        val bitmap = Bitmap.createBitmap(96, 64, Bitmap.Config.ARGB_8888)
+        val actual = try {
+            VisualDrawOpsPainter().drawRendered(rendered, Canvas(bitmap), 2f) { null }
+            pixelsOf(bitmap)
+        } finally {
+            bitmap.recycle()
+        }
+        assertTrue("drawRendered must replay the frozen commands", Arrays.equals(expected, actual))
+    }
+
+    @Test
+    fun drawRenderedFailsClosedOnMissingOrInvalidCommands() {
+        // `Rendered.drawCommandsJson == null`（fake/旧形态）不得被当成空文档静默画白图；
+        // 解析拒绝时内嵌原始 DRAWOPS_* 码，外码统一 PAINTER_DRAW_COMMANDS。
+        val missingCommands = VisualExecutionResult.Rendered(
+            sceneJson = "{}",
+            sceneSchemaVersion = 1,
+            contentIds = emptySet(),
+            drawCommandsJson = null,
+        )
+        val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        try {
+            val missing = paintingFailureOf {
+                VisualDrawOpsPainter().drawRendered(missingCommands, canvas, 2f) { null }
+            }
+            assertEquals(PAINTER_DRAW_COMMANDS, missing.code)
+            assertTrue(missing.message!!.contains(VisualDrawOpsParser.CODE_MISSING_COMMANDS))
+
+            val truncated = missingCommands.copy(drawCommandsJson = """{"drawSchemaVersion":1}""")
+            val invalid = paintingFailureOf {
+                VisualDrawOpsPainter().drawRendered(truncated, canvas, 2f) { null }
+            }
+            assertEquals(PAINTER_DRAW_COMMANDS, invalid.code)
+            assertTrue(invalid.message!!.contains(VisualDrawOpsParser.CODE_MISSING_FIELD))
+        } finally {
+            bitmap.recycle()
+        }
     }
 
     // ------------------------------------------------------------ 判据 4：合法场景端到端
@@ -492,6 +655,11 @@ class VisualDrawOpsPainterInstrumentedTest {
             """"background":"#ffffff","ops":[{"op":"path","path":[["M",4,4],["L",20,4],["L",20,12],["L",4,12],["Z"]],""" +
             """"fill":"#ff0000","stroke":null,"alpha":0.5}],"hitRegions":[],"stats":{"nodes":0,"pathCommands":5,"labels":0,"ops":1}}"""
 
+        /** 白底 8 位色（#RRGGBBAA，A=0x80）红矩形、无组透明：中心 = 0xFFFF7F7F（KD-78 ③）。 */
+        val DOC_ALPHA8 = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +
+            """"background":"#ffffff","ops":[{"op":"path","path":[["M",4,4],["L",20,4],["L",20,12],["L",4,12],["Z"]],""" +
+            """"fill":"#ff000080","stroke":null,"alpha":1}],"hitRegions":[],"stats":{"nodes":0,"pathCommands":5,"labels":0,"ops":1}}"""
+
         val DOC_BG_SET = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +
             """"background":"#123456","ops":[],"hitRegions":[],"stats":{"nodes":0,"pathCommands":0,"labels":0,"ops":0}}"""
 
@@ -512,18 +680,6 @@ class VisualDrawOpsPainterInstrumentedTest {
             """"fill":"#00aa00","stroke":{"width":4,"cap":"butt","join":"miter","miterLimit":4,"dash":null},"alpha":1}],""" +
             """"hitRegions":[],"stats":{"nodes":0,"pathCommands":5,"labels":0,"ops":1}}"""
 
-        /** stroke-only（校验器放行、painter 拒——R1 §5-① 缺口运行时面）。 */
-        val DOC_STROKE_ONLY = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +
-            """"background":null,"ops":[{"op":"path","path":[["M",4,4],["L",20,4],["L",20,12],["L",4,12],["Z"]],""" +
-            """"fill":null,"stroke":{"width":2,"cap":"butt","join":"miter","miterLimit":4,"dash":null},"alpha":1}],""" +
-            """"hitRegions":[],"stats":{"nodes":0,"pathCommands":5,"labels":0,"ops":1}}"""
-
-        /** 奇数 dash（校验器放行、painter 拒——R1 §5-② 缺口运行时面）。 */
-        val DOC_DASH_ODD = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +
-            """"background":null,"ops":[{"op":"path","path":[["M",4,4],["L",20,4],["L",20,12],["L",4,12],["Z"]],""" +
-            """"fill":"#ff0000","stroke":{"width":2,"cap":"butt","join":"miter","miterLimit":4,"dash":[2,4,2]},"alpha":1}],""" +
-            """"hitRegions":[],"stats":{"nodes":0,"pathCommands":5,"labels":0,"ops":1}}"""
-
         /**
          * dash 残尾 donor（6 项，白底，du y=2 横线）：同实例先画，曾把 dash 复用缓冲扩到
          * 6 项——复核失败 (a) 的残尾载体（2026-10-28 复核修复回归夹具）。
@@ -538,20 +694,6 @@ class VisualDrawOpsPainterInstrumentedTest {
             """"background":"#ffffff","ops":[{"op":"path","path":[["M",4,28],["L",44,28]],""" +
             """"fill":"#ff0000","stroke":{"width":1,"cap":"butt","join":"miter","miterLimit":4,"dash":[2,2]},"alpha":1}],""" +
             """"hitRegions":[],"stats":{"nodes":0,"pathCommands":2,"labels":0,"ops":1}}"""
-
-        /** 空 dash（两道生成门都放行、painter 拒——复核 2026-10-28 缺口运行时面：失败 (b)）。 */
-        val DOC_DASH_EMPTY = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +
-            """"background":null,"ops":[{"op":"path","path":[["M",4,4],["L",20,4],["L",20,12],["L",4,12],["Z"]],""" +
-            """"fill":"#ff0000","stroke":{"width":2,"cap":"butt","join":"miter","miterLimit":4,"dash":[]},"alpha":1}],""" +
-            """"hitRegions":[],"stats":{"nodes":0,"pathCommands":5,"labels":0,"ops":1}}"""
-
-        /** 实 dash 后跟空 dash（同文档）：修复前整条复用 donor pattern 静默错画（失败 (c)）。 */
-        val DOC_DASH_DONOR_THEN_EMPTY = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +
-            """"background":null,"ops":[{"op":"path","path":[["M",4,2],["L",44,2]],""" +
-            """"fill":"#ff0000","stroke":{"width":1,"cap":"butt","join":"miter","miterLimit":4,"dash":[6,6,6,6,6,6]},"alpha":1},""" +
-            """{"op":"path","path":[["M",4,28],["L",44,28]],""" +
-            """"fill":"#ff0000","stroke":{"width":1,"cap":"butt","join":"miter","miterLimit":4,"dash":[]},"alpha":1}],""" +
-            """"hitRegions":[],"stats":{"nodes":0,"pathCommands":4,"labels":0,"ops":2}}"""
 
         /** 冻结引用 label（resolver null → UNKNOWN_LABEL；resolver 给 Math → LABEL_MATH）。 */
         val DOC_LABEL_FROZEN = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +

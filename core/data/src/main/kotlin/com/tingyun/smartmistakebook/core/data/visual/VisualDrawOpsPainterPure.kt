@@ -37,16 +37,17 @@ internal const val PAINTER_BALANCE = "PAINTER_BALANCE"
 // 两道不同时刻的门，R1 §3.6）。
 internal const val PAINTER_UNKNOWN_LABEL = "PAINTER_UNKNOWN_LABEL"
 
-// 描边颜色门：消灭"stroke-only 路径无颜色来源仍被画"（R1 §5-① 契约缺口：validator
-// `:340-342` 放行、`VisualStrokeSpec` 无 color——painter 宁可拒不可默认色；V1.1 收口建议
-// 归 T3 登记）。
+// 描边颜色门：消灭"stroke-only 路径无颜色来源仍被画"（`VisualStrokeSpec` 无 color，
+// stroke 色取 fill 色是 V1 过渡裁定）。**批次 29 T5（KD-78 ①）起两道生成门
+// （`visual-compiler.js` 与 `VisualDrawOpsParser`）前置同码拒绝**；本门保留为回放侧兜底
+// （hand-built / 绕过生成门的文档仍拒，不自愈、不默认色）。
 internal const val PAINTER_STROKE_WITHOUT_FILL = "PAINTER_STROKE_WITHOUT_FILL"
 
 // dash 形状门（偶数且 ≥2）：消灭"奇数/不足 2 项 dash 进 DashPathEffect"（AOSP javadoc
 // 契约要求偶数个 interval，奇数进 native 行为无规约；length<2 被构造器直接抛**无码**
 // ArrayIndexOutOfBoundsException——aosp-mirror DashPathEffect.java:34-39，2026-10-28 复核
-// gh api 实读；两道生成门都未钉形状——R1 §5-② 缺口，归 T3/KD-78 登记。2026-10-28 复核
-// 修复把最小 2 项下界收进本门，码面不变）。
+// gh api 实读。2026-10-28 复核修复把最小 2 项下界收进本门）。**批次 29 T5（KD-78 ②）起
+// 两道生成门前置同码拒绝**；本门保留为回放侧兜底。
 internal const val PAINTER_DASH_ODD = "PAINTER_DASH_ODD"
 
 // math 内容门：消灭"math 盒被当 text 画（几何错乱）或被静默跳过（内容消失）"（本批未实现
@@ -64,6 +65,26 @@ internal const val PAINTER_COLOR = "PAINTER_COLOR"
 // alpha 范围门（本批增补）：消灭"bypass 校验器的文档 alpha>1 被截进 255 或 Paint.setAlpha
 // 抛无码 IAE"——统一折进本异常族，带 op 上下文。
 internal const val PAINTER_ALPHA = "PAINTER_ALPHA"
+
+// 快照回放衔接外码（批次 29 T2，定义在 VisualDrawOpsPainterRendered.kt）：把
+// "Rendered.drawCommandsJson 缺失 / 解析拒绝"折成有码族，消息内嵌原始 DRAWOPS_* 码；
+// 设备判据见 VisualDrawOpsPainterInstrumentedTest 的 drawRendered 两例（R10）。
+// 不在此处重复声明常量——单一来源在 Rendered 文件。
+
+/**
+ * 回放 textPaint 的**显式** flags（批次 29 T5；KD-78 ④ / 批次 29 计划 §1.5 裁定）。
+ *
+ * **它消灭的具体失败**：度量 Paint 与回放 textPaint 的 flags 各自演化时，内容摘要不变、
+ * 度量与回放静默失配（advance/字形与冻结布局不同）。本常量是**回放侧**的单一来源，
+ * 由 `VisualDrawOpsPainter.textPaint` 在构造时显式装配（`flags = REPLAY_TEXT_PAINT_FLAGS`）。
+ *
+ * **不是平台 `Paint()` 的构造默认**：API 34 实测默认 1283（`ANTI_ALIAS|FILTER_BITMAP|
+ * DEV_KERN|EMBEDDED_BITMAP`，批次 29 设备证据 R1）；只写常量不显式赋值会让本侧保持 1283，
+ * 与度量指纹 `paintFlags=0` 失配。度量侧 `VisualMeasureEnvironment.DEFAULT_PAINT_FLAGS`
+ * 同为 0（两侧 KDoc 互指，app 侧 JVM 测钉指纹字面、本侧 JVM 测钉常量，设备侧由
+ * `VisualDrawOpsPainter.textPaintFlagsForTest` 读真实回放 Paint 的 flags 钉死）。
+ */
+internal const val REPLAY_TEXT_PAINT_FLAGS = 0
 
 /** 工厂：消息带码前缀（引擎折叠诊断的 "CODE: message" 同形）并截到诊断预算。 */
 internal fun paintingFailure(code: String, message: String): VisualDrawOpsPaintingException =
@@ -132,17 +153,37 @@ internal fun parseDrawOpsColor(color: String): Int {
 }
 
 /**
+ * 8 位色 alpha 与 op.alpha 的**乘法**语义（批次 29 T5；KD-78 ③ 收口 / 批次 29 计划 §1.2
+ * 裁定）：`effectiveAlpha = floor(colorA × op.alpha)`，其中 `colorA` 是 `#RRGGBBAA` 末两位
+ * （6 位色取 255）。等价于 `floor((colorA/255) × op.alpha × 255)`——先归一再量化在数学上
+ * 同一结果，但直接算整数乘法避免中间浮点两次取整。
+ *
+ * **它消灭的具体失败**：`bindPathPaint`/`bindTextPaint` 先 `setColor`（带 8 位色 alpha 字节）
+ * 后 `setAlpha(op.alpha)`，而 AOSP `Paint.setAlpha` 只替换 alpha 通道——8 位色的 alpha 字节
+ * 在回放侧**永远失效**（`#ff000080` 无组透明按不透明画，无任何诊断，KD-78 ③ 静默错画）。
+ * 乘法语义让色内 alpha 与组 alpha 都生效：`#ff000080` + `op.alpha=1` → 128。
+ *
+ * floor 取整与 [drawOpsAlpha255] 同口径（R1 §3.2 / lottie `BaseLayer.java:264` 截断）；
+ * 越界/非有限仍先折 [PAINTER_ALPHA]（守 bypass 文档）。
+ */
+internal fun effectiveDrawOpsAlpha255(colorArgb: Int, alpha: Double): Int {
+    if (!alpha.isFinite() || alpha < 0.0 || alpha > 1.0) {
+        throw paintingFailure(PAINTER_ALPHA, "alpha $alpha is outside [0, 1]")
+    }
+    val colorAlpha = (colorArgb ushr 24) and 0xFF
+    return floor(colorAlpha * alpha).toInt()
+}
+
+/**
  * DrawOps alpha（Double [0,1]）→ Paint alpha（Int [0,255]）的**floor** 取整（R1 §3.2：
  * 与 lottie `BaseLayer.java:264` 的 `(int)` 截断同口径——Java 截断对正值即 floor）。
  * 冒烟判据要求 round 实现者必红：0.5 → **127** 而非 128（R1 §4-判据 2 的手算基准）。
  * 越界/非有限 → [PAINTER_ALPHA]（校验器钉 [0,1]，此门守 bypass 文档）。
+ *
+ * 本函数是 [effectiveDrawOpsAlpha255] 在"无色内 alpha"（6 位色 → colorA=255）时的特例；
+ * 回放路径统一走后者，保留本函数作纯层既有判据与语义单点。
  */
-internal fun drawOpsAlpha255(alpha: Double): Int {
-    if (!alpha.isFinite() || alpha < 0.0 || alpha > 1.0) {
-        throw paintingFailure(PAINTER_ALPHA, "alpha $alpha is outside [0, 1]")
-    }
-    return floor(alpha * 255.0).toInt()
-}
+internal fun drawOpsAlpha255(alpha: Double): Int = effectiveDrawOpsAlpha255(0xFF000000.toInt(), alpha)
 
 /**
  * label 内容解析结果 DTO（R1 §3.6）：painter 不重推断行/分段规则，由冻结度量 artifact

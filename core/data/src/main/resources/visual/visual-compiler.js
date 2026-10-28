@@ -482,6 +482,14 @@
         }
         dash.push(entry);
       }
+      // KD-78 ② 形状门（批次 29 T5）：DashPathEffect 契约要求偶数个 interval，且
+      // length<2（含空数组）被 AOSP 构造器直接抛**无码** ArrayIndexOutOfBoundsException
+      //（aosp-mirror DashPathEffect.java:34-39）。生成侧前置拒绝，码面与回放 painter 同词
+      //（PAINTER_DASH_ODD）；回放侧兜底保留。它消灭"合法生成 → 回放时才拒/才无码崩"的
+      // 预算浪费与诊断丢失。
+      if (dash.length < 2 || dash.length % 2 !== 0) {
+        fail('PAINTER_DASH_ODD', at + '.dash must have an even number of entries (at least 2), got ' + dash.length);
+      }
     }
     return { width: width, cap: cap, join: join, miterLimit: miterLimit, dash: dash };
   }
@@ -880,6 +888,12 @@
           }
           if (fill === null && stroke === null) {
             fail('SCENE_STYLE_NO_PAINT', at + ': path needs a fill or a stroke');
+          }
+          // KD-78 ① 颜色源门（批次 29 T5）：DrawOps V1 的 stroke 无 color 字段，stroke-only
+          // 在回放侧无颜色可画（回放裁定"stroke 色取 fill 色"要求 fill 必填）。生成侧前置
+          // 拒绝，码面与 painter 同词（PAINTER_STROKE_WITHOUT_FILL）；回放侧兜底保留。
+          if (fill === null && stroke !== null) {
+            fail('PAINTER_STROKE_WITHOUT_FILL', at + ': stroke-only path has no color source in DrawOps V1 (fill is required)');
           }
           ops.push({ op: 'path', path: promoted, fill: fill, stroke: stroke, alpha: opacity });
         }

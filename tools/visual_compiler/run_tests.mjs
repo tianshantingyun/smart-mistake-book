@@ -190,7 +190,7 @@ function testLegalScenes() {
         opacity: 0.5,
         clip: { path: [['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['Z']], rule: 'evenodd' },
         children: [
-          { type: 'path', pathId: 'dot', stroke: { width: 1 } },
+          { type: 'path', pathId: 'dot', fill: '#ff0000', stroke: { width: 1 } },
           {
             type: 'label',
             contentId: 'c1',
@@ -429,6 +429,37 @@ function testIllegalShapes() {
     paths: [{ id: 'p', commands: [['M', 0, 0]] }],
     root: { type: 'path', pathId: 'p', stroke: { width: 1, miterLimit: 0.5 } },
   }), 'SCENE_STYLE_MITER_LIMIT');
+
+  // KD-78 ①③ 生成门（批次 29 T5）：回放侧 painter 的 fail-closed 面在生成侧前置，码面与
+  // painter 同词（PAINTER_STROKE_WITHOUT_FILL / PAINTER_DASH_ODD）——"合法生成、绘制时被拒"
+  // 的预算浪费路径在两道生成门即被拒。
+  expectReject('reject/style/stroke-without-fill', viewportScene(null, {
+    paths: [{ id: 'p', commands: [['M', 0, 0], ['L', 10, 0]] }],
+    root: { type: 'path', pathId: 'p', stroke: { width: 1 } },
+  }), 'PAINTER_STROKE_WITHOUT_FILL');
+  expectReject('reject/style/dash-odd', viewportScene(null, {
+    paths: [{ id: 'p', commands: [['M', 0, 0], ['L', 10, 0]] }],
+    root: { type: 'path', pathId: 'p', fill: '#000000', stroke: { width: 1, dash: [2, 4, 2] } },
+  }), 'PAINTER_DASH_ODD');
+  expectReject('reject/style/dash-single-entry', viewportScene(null, {
+    paths: [{ id: 'p', commands: [['M', 0, 0], ['L', 10, 0]] }],
+    root: { type: 'path', pathId: 'p', fill: '#000000', stroke: { width: 1, dash: [2] } },
+  }), 'PAINTER_DASH_ODD');
+  expectReject('reject/style/dash-empty', viewportScene(null, {
+    paths: [{ id: 'p', commands: [['M', 0, 0], ['L', 10, 0]] }],
+    root: { type: 'path', pathId: 'p', fill: '#000000', stroke: { width: 1, dash: [] } },
+  }), 'PAINTER_DASH_ODD');
+  // 负控：偶数 ≥2 的 dash 与 fill+stroke 组合仍合法（门不是"一律拒 dash"）。
+  {
+    const out = JSON.parse(compile(context, viewportScene(null, {
+      paths: [{ id: 'p', commands: [['M', 0, 0], ['L', 10, 0]] }],
+      root: { type: 'path', pathId: 'p', fill: '#000000', stroke: { width: 1, dash: [2, 2, 4, 4] } },
+    })));
+    check(
+      'legal/style/even-dash-compiles',
+      out.ops.length === 1 && JSON.stringify(out.ops[0].stroke.dash) === JSON.stringify([2, 2, 4, 4]),
+    );
+  }
 
   // 原型链逃逸负向（批次 27 复核修复）：查表改 null-proto、allowed 改自有键判定后，
   // 继承键名（constructor/toString/valueOf）不再能绕过任何 fail-closed 门。修复前

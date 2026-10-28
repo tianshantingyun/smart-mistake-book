@@ -48,7 +48,10 @@ internal class VisualDrawOpsPainter {
     // intervals.length 全量消费（aosp-mirror DashPathEffect.java:34-39，本日 gh api 实读）；
     // 改为每个 dash op 按 dash.size 精确分配）。
     private val pathPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val textPaint = Paint()
+    // 平台 `Paint()` 默认 flags = 1283（AA|FILTER_BITMAP|DEV_KERN|EMBEDDED_BITMAP），
+    // **不是** [REPLAY_TEXT_PAINT_FLAGS]=0（批次 29 设备证据 R1）。必须显式装配，否则
+    // 度量环境指纹（paintFlags=0）与真实回放 Paint 不一致（KD-78 ④ 跨侧钉会红）。
+    private val textPaint = Paint().apply { flags = REPLAY_TEXT_PAINT_FLAGS }
     private val path = Path()
     private val scratchMatrix = Matrix()
     private val rootMatrix = Matrix()
@@ -135,12 +138,11 @@ internal class VisualDrawOpsPainter {
     }
 
     private fun playDrawPath(at: String, op: VisualDrawOp.DrawPath, canvas: Canvas) {
-        if (op.fill == null && op.stroke != null) {
-            throw paintingFailure(
-                PAINTER_STROKE_WITHOUT_FILL,
-                "$at: stroke-only path has no color source in DrawOps V1 (contract gap, R1 §5-①)",
-            )
-        }
+        // 门序与两道生成门**同码同序**：dash 形状门先于 stroke-only 门。
+        // `visual-compiler.js` 先在 `requireStroke` 内拒 dash 形状、再在 path 节点查
+        // stroke-only；`VisualDrawOpsParser` 同样先 `parseStroke`（内含 dash 门）再查
+        // stroke-only。回放侧必须同序，否则同一"无 fill + 奇数 dash"输入在生成侧报
+        // PAINTER_DASH_ODD、在回放侧报 PAINTER_STROKE_WITHOUT_FILL（复核第 1 轮 R3）。
         // dash 形状门（偶数且 ≥2）提前到任何相位之前——拒绝时不留"fill 相位已上墨"的半相位
         // 画布。下界消灭两个 AOSP 构造器层面的失败（复核 2026-10-28）：奇数进 native 行为
         // 无规约；length<2（含两道生成门都放行的空数组）会被 DashPathEffect 构造器直接抛
@@ -152,19 +154,27 @@ internal class VisualDrawOpsPainter {
                 "$at: dash must have an even number of entries (at least 2) for DashPathEffect, got ${dash.size}",
             )
         }
-        val alpha255 = drawOpsAlpha255(op.alpha)
-        // stroke 相位的颜色来源：DrawOps V1 的 VisualStrokeSpec 无 color（R1 §5-① 缺口），
-        // 唯一可用色源是同 op 的 fill（过渡裁定"stroke 色取 fill 色"；V1.1 收口归 T3）。
+        if (op.fill == null && op.stroke != null) {
+            throw paintingFailure(
+                PAINTER_STROKE_WITHOUT_FILL,
+                "$at: stroke-only path has no color source in DrawOps V1 (contract gap, R1 §5-①)",
+            )
+        }
+        // stroke 相位的颜色来源：DrawOps V1 的 VisualStrokeSpec 无 color（KD-78 ①，生成侧已
+        // 前置拒绝 stroke-only），唯一色源是同 op 的 fill（过渡裁定"stroke 色取 fill 色"）。
         val fillColor = op.fill?.let(::parseDrawOpsColor)
         rebuildPath(op.path, Path.FillType.WINDING)
         if (fillColor != null) {
-            bindPathPaint(fillColor, alpha255, stroke = null)
+            // 批次 29 T5（KD-78 ③）：alpha 取 colorA 与 op.alpha 的乘法（纯层公式单点），
+            // 不再用 op.alpha 覆盖色内 alpha——`#ff000080`（末两位=alpha）→ 128/255，非不透明。
+            bindPathPaint(fillColor, effectiveDrawOpsAlpha255(fillColor, op.alpha), stroke = null)
             canvas.drawPath(path, pathPaint)
         }
         val stroke = op.stroke
         if (stroke != null) {
             // 到此 stroke 非空 ⟹ fill 非空（上方 PAINTER_STROKE_WITHOUT_FILL 已拒）。
-            bindPathPaint(fillColor!!, alpha255, stroke)
+            val strokeColor = fillColor!!
+            bindPathPaint(strokeColor, effectiveDrawOpsAlpha255(strokeColor, op.alpha), stroke)
             canvas.drawPath(path, pathPaint)
         }
     }
@@ -189,7 +199,8 @@ internal class VisualDrawOpsPainter {
             is VisualLabelContent.Text -> content
         }
         val colorArgb = parseDrawOpsColor(op.color)
-        val alpha255 = drawOpsAlpha255(op.alpha)
+        // KD-78 ③：label 同为 8 位色 × op.alpha 的乘法语义（与 path 相位同一纯函数）。
+        val alpha255 = effectiveDrawOpsAlpha255(colorArgb, op.alpha)
         // label 舞步（R1 §3.4）：(x,y) 已是编译器一次算定的最终左缘 + baseline（金样
         // `run_tests.mjs:221-223`），hAlign/vAlign 是回显元数据，**不重放对齐偏移**
         //（双重偏移即错位）；rotation 绕 (x,y)。save/restore 自包含，不触碰组状态栈。
@@ -252,9 +263,21 @@ internal class VisualDrawOpsPainter {
     }
 
     /**
+     * 回放 textPaint 的实际 flags（批次 29 T5；KD-78 ④ 跨侧钉的观测面）。
+     *
+     * **它消灭的具体失败**：`textPaint` 是私有字段，跨侧测试只能看到"渲染出来的像素"——
+     * 有人给回放 Paint 加 ANTI_ALIAS/locale 后，指纹侧测试仍全绿，度量-回放失配静默发生。
+     * 本访问器让设备侧测试直接读**实际用于绘制**的那只 Paint 的 flags，与
+     * [REPLAY_TEXT_PAINT_FLAGS] 及度量环境指纹的 `paintFlags` 比对。
+     */
+    internal fun textPaintFlagsForTest(): Int = textPaint.flags
+
+    /**
      * textPaint binder：**度量 parity**（R1 §3.2/§2.3）。flags 与度量 Paint 同构——
-     * 默认 flags、不设 AA/locale/subpixel（R1 §3.2"AA 关闭是 MVA 视觉取舍，升级须两侧
-     * 同步 + 进环境指纹"）；color/alpha 不影响 advance 宽，可安全设置。
+     * 构造时显式 `flags = REPLAY_TEXT_PAINT_FLAGS`（0；平台 `Paint()` 默认 1283 不是本仓
+     * 语义，批次 29 设备证据 R1），**不**设 AA/locale/subpixel（R1 §3.2"AA 关闭是 MVA 视觉
+     * 取舍，升级须两侧同步 + 进环境指纹"）；本 binder 不动 flags。
+     * color/alpha 不影响 advance 宽，可安全设置（alpha 走 [effectiveDrawOpsAlpha255]）。
      *
      * textSize 取 **du 空间值 `sizeSp × fontScale`**：label 在 rootMatrix（scale pxPerDu）
      * 生效下绘制，设备字号 = (sizeSp×fontScale)×pxPerDu px——即 R1 §3.5 的"回放目标 px"；
