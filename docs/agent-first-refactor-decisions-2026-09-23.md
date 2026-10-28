@@ -3479,3 +3479,32 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **S3 范围矛盾仍待裁**：度量环境身份载体在 app（`VisualContentMeasuring.kt`），与计划落点清单（core/data visual、tools、docs）不一致；修复轮已按计划 §1.5 授权改 app 度量侧三文件，但"把 app visualjs 并入落点"与"只在 core:data 定义回放环境值"两条路线未由主会话正式择一（R3 §2 S3）。
 - **修复后设备绿轮 UNVERIFIED**：painter 24 / 隔离 13 / flags 2 / PDF 13 / 一致门 11 均需重建重装重跑；KD-78 ④ 与 KD-79 的关闭条件都以该轮为准。
 - **R-04 未执行**：R3 只给 b1>b2>a>c 的**建议**；AGP 9.3 `testProguardFiles` 语义已核，但本仓端到端未验证。
+
+---
+
+## 批次 30 视觉持久化四表/身份与 CAS/冷恢复 + PDF 写安全裁定（2026-10-29）
+
+> 依据：批次 30 计划 §1（`.zcode/plans/plan-2026-10-29-batch-30-device-persist-fixes.md:12-34`）、R1 `docs/research/2026-10-29-visual-persistence-design.md` §0–§4、R2 `docs/research/2026-10-29-pdf-write-safety.md` §0/§5/§6、T2–T6 落码与设备证据 `docs/research/evidence/2026-10-29-batch-30/`、批次记录 `docs/research/2026-10-29-batch-30-record.md`。**记录步零 Gradle/零设备；设备结论见记录 §4。**
+
+### 裁定内容
+
+- **D-01 四表 = 纯非破坏 v69→70**：`tutor_visual_program` / `tutor_visual_snapshot` / `tutor_message_visual` / `problem_revision_visual`，迁移只 `CREATE TABLE/INDEX`（4 表 + 11 索引）、零 `ALTER`/`UPDATE`/回填，旧行零改动；升级后四表为空，不伪造历史快照（`VisualSnapshotMigration_69_70.kt`）。`StudyDatabase.kt:139` version = 70；导出 `70.json` 只能由 KSP 生成，**禁止手工伪造 identityHash**。
+- **`programId = visualId` 内容派生且行永不 UPDATE**：`deriveProgramId` 用 sourceJs / initial state / basis / api / sdk / role 六段 u32be 长度前缀 SHA-256（`TutorVisualIdentity.kt:46-100`；role 进哈希为设计建议、本批落码采纳）；写库前重新派生并 `require` 相等（`RoomStudyDatabase.kt:2122`）。
+- **快照 `STAGING → LIVE` 单向**：没有 `LIVE→*`；首张可见图与 assistant message/trace/link 在**同一个 `@Transaction`** 提交（`RoomStudyDatabase.kt:1970-1990`）；link 用 `INSERT…SELECT…WHERE snapshot_id=? AND status='LIVE'` 做 SQL 级结构门（`TutorVisualDao.kt:278-303`），题面 pin 同形且加同 program 条件（`:409-470`）；指针 CAS 以**命中行数**判赢，不回读 `revision`（`:328-350`）。
+- **对账只删 STAGING**：`deleteStaleStagingSnapshots` 只删 STAGING + 过期 + 未被 link/题面引用（`:184-205`）；LIVE 是终态，对账不碰。
+- **冷恢复结构性不执行 JS**：恢复 DTO 结构上不含 `sourceJs`/运行时/编译器/API/SDK；判定序 = 非 LIVE→只读、scene/render schema 未知→只读（先于解析）、renderer 版本不符→只读、字体清单未验证→只读、全过后用真实 parser 重校验→Replay（`VisualSnapshotRestore.kt:193-240`）。三档兼容：① 再执行（用户明确要求）/ ② 重放矢量 / ③ 只读；未知版本绝不交给 painter。
+- **字体清单空集 = 保守只读**：`VERIFIED_FONT_MANIFESTS = emptySet()`（`:125`），默认策略恒走只读，**不承诺像素一致**；符合契约"不能只存 Typeface 名称便称字体版本精确匹配"。
+- **checkpoint 保留 = INITIAL + LATEST 两份 + 配额拒提交**：首个 LIVE 写 INITIAL、之后 LATEST；`plan()` 计算 demote/evict、每 program 4 MiB / 全局 32 MiB、磁盘可用字节边界；超限返回有码 Rejected，**不删任何用户事实**（`VisualCheckpointRetention.kt:137-199`）；已在 03:47 接进 `TutorVisualCommitRepository.stageSnapshot`/`commitAssistantTurnWithVisual` 与 `RoomStudyDatabase`（`:2027-2040`）。
+- **资产引用面五→六站点**：新增 `tutor_visual_snapshot.preview_asset_id`，单源常量 `CanonicalAssetReferenceSites.kt:14/52-53` 一处改、孤儿清理与备份裁剪两侧同变；漏加会让 GC 删掉消息正在显示的预览字节。
+- **备份机器清单同步**：86 表/78 裁剪项/20 软引用/SPLIT 5 → **90/82/21/7**，`CLOSURE_VERSION` 2→3、identityHash = 70.json 的 `11a8a701…`（`SmbkSelectionPlan.kt:40/43/46/538-554`）。
+- **PDF 写成功判定 = D1∧D2（流目标）∧D3（文件目标）**：D1 无首失败（跟踪流捕获面放宽到 `Throwable`）、D2 接受字节>0 且 1024 B 尾窗含 `%%EOF`、D3 `fd.sync` + 长度/尾标回读 + `PdfRenderer` 页数 + `renameTo` 返回 true；D0（`writeTo` 不抛）单独不成立。不引入任何外部库（androidx `AtomicFile` 吞 rename 失败、okio/commons-io 需 API 26+）。
+- **一致性门 P07 红 = 原型门未标定阈值（A 类），零改动**：KD-78 ④ 的 AA-off 修复使屏文本掩膜 1434→1224、PDF 1431 不变，质心 0.5181 > 0.5；阈值是 R2 §4.2 初始未标定值，**把期望改成实测值即放宽，禁止**；交 R2 门所有者裁定后重跑。
+
+### 边界（不得越过 / 仍待裁）
+
+- **不做**：core/export 集成与 PDF `/AIGC`（KD-75）；双后端装配（批次 31）；V-01 全链（批次 32）；JS 广告；真实 Provider；锁文件生成（KD-72）。
+- **生产装配仍缺**：`TutorVisualPort` 只有测试引用，coordinator/UI 未接；checkpoint 接线也只到 port 层。
+- **设备绿轮与现树不同源**：备份同步（03:35）、备份测试期望（03:42）、迁移断言（03:43）、checkpoint 接线（03:47）均在设备轨（02:25–02:41）之后落树，**全部未复跑**；冷恢复设备用例 0。
+- **D3 四缺口**：ENOSPC / 静默短写（设备面）/ 页数回读不符 / `renameTo` 失败无设备用例，不得写成已覆盖。
+- **身份口径已收敛（现树）**：`sameSnapshotPayload` 不再比较 `rendererVersion`/`fontManifestVersion`（`TutorVisualCommit.kt:336-361`），身份 = 唯一键 = 内容三列；版本差异由恢复侧的重放/像素门按既有行版本判定（不匹配则只读/预览）。早期"bump renderer 后同内容再提交会冲突"的口径作废。**仍待裁**：LIVE LATEST 的淘汰语义（保留策略行投影无 status）；DAO SQL 已重查 link/题面引用，被引用 LIVE 不会被删，仅"曾 LIVE 且后来失去全部引用"的行可被淘汰。
+- **KD 裁决**：KD-78 ④ 关闭、整条 open；KD-79 关闭（台账最低口径，D3 残留）；KD-71/72/73/77 open。

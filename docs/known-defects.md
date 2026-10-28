@@ -2952,12 +2952,12 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **裁决：KD-79 关闭（2026-10-29 批次 30）。** 依据 = 本条 Reopen/关闭条件 79-P1 + 79-P2 + 79-L1 + 79-L2 全满足；计划 C.6 口径另需 79-P3 + 79-N2 亦满足。**残留（不得读成已覆盖）**：79-N3 磁盘满（ENOSPC）模拟、79-N4 静默短写（设备面；仅 JVM `PdfWriteIntegrityTest` 16 例覆盖，本批未跑）、79-N5 页数回读不符注入、79-N6 的 `renameTo` 失败注入**均无设备用例 → UNVERIFIED**；计划任务 6 的"磁盘满模拟"未做。若该 painter 未来进入生产装配，另需"部分写后进程被杀/流关闭"的恢复语义裁定。现树 `VisualDrawOpsPdfPainter.kt` 已 **258 行**（T5 追加 `writeFile` + `PdfWriteIntegrity` 接入；上文 T12 块记的 154 行是 T5 落码前时点）。证据回链 `docs/research/2026-10-29-batch-30-record.md` §3.5/§4.2。
 
-## KD-80 (open, 2026-10-29 批次 30 记录员/复核登记；高) · schema 70 已落但备份机器清单仍停在 69：`SmbkSelectionPlan` 版本门使 v70 库的备份/恢复全路径 fail-closed（设备 34 例 8 红）
+## KD-80 (open, 2026-10-29 批次 30 登记；高) · schema 70 落地后备份机器清单一度仍停在 69：v70 库备份/恢复 fail-closed（设备实测 34 例 8 红；修复已落树，设备绿轮未跑）
 
-**Symptom（设备实测 + 读码，2026-10-29 批次 30）. `StudyDatabase` 已升到 70（`StudyDatabase.kt:139`），但 `SmbkSelectionPlan` 仍写 `SCHEMA_VERSION = 69`（`:39`）、`allTables.size == 86`（`:511`）、`SPLIT = 5`（`:519`）、软引用 20（`:527`）、旧 `IDENTITY_HASH = 6633b7c2fe223041c4a2927203853f4f`（`:42`）；`BackupSnapshotTrimmer` 在裁剪前要求 `database.version == SmbkSelectionPlan.SCHEMA_VERSION`（`:267-271`），不等即 fail。设备 `BackupRestoreInstrumentedTest` → `Tests run: 34, Failures: 8`：7 条 `BackupSnapshotTrimException: 快照 schema=70，裁剪器只支持 schema=69`，1 条 `schema68ArchiveRestoresAndMigratesTo69 expected:<69> but was:<70>`（`docs/research/evidence/2026-10-29-batch-30/step06-backup.md`）。
+**Symptom（设备实测 + 读码，2026-10-29 批次 30）. `StudyDatabase` 升到 70（`StudyDatabase.kt`）后，`SmbkSelectionPlan` 当时仍写 `SCHEMA_VERSION = 69`、`allTables.size == 86`、`SPLIT = 5`、软引用 20、旧 `IDENTITY_HASH = 6633b7c2fe223041c4a2927203853f4f`；`BackupSnapshotTrimmer` 在裁剪前要求 `database.version == SmbkSelectionPlan.SCHEMA_VERSION`，不等即 fail。设备 `BackupRestoreInstrumentedTest` → `Tests run: 34, Failures: 8`：7 条 `BackupSnapshotTrimException: 快照 schema=70，裁剪器只支持 schema=69`，1 条 `schema68ArchiveRestoresAndMigratesTo69 expected:<69> but was:<70>`（`docs/research/evidence/2026-10-29-batch-30/step06-backup.md`）。
 
-**Impact.** v70 库上备份/恢复不可用（fail-closed，不会产生损坏数据，但功能整体不可用）。这是批次 30 D-01 明确列出的交付项（计划任务 3「备份资产枚举同步」），T2/T3/T4 三轨互相推给对方，当前无人完成。
+**Impact.** 该窗口内 v70 库的备份/恢复全路径不可用（fail-closed：不会产生损坏数据，但功能整体不可用）。属批次 30 D-01「备份资产枚举同步」交付项。
 
-**Fix direction.** 按 70.json 实测（`version=70`、`identityHash=11a8a701bae767a8a3c5bc810e4743a4`、90 张实体）把 `SmbkSelectionPlan` 的 `SCHEMA_VERSION`/`IDENTITY_HASH`/`allTables`/`SPLIT`/软引用与 `CLOSURE_VERSION`（2→3）同步到 90/82/21 口径；`BackupRestoreInstrumentedTest` 的「迁移到 69」期望改为 70；同步裁剪器与备份选择测试。**不得只改版本号而不补表清单**——版本门放行后裁剪器会按 86 表清单取出不存在的表或漏掉新表。
+**Fix direction / Progress（已落树，零设备证据）.** 现树 `SmbkSelectionPlan.kt:40` 已是 `SCHEMA_VERSION = 70`、`:538` 已是 `require(allTables.size == 90)`（注释 90 张表：类别 74 + ALWAYS 7 + DERIVED 2 + SPLIT 7）；`BackupSnapshotTrimmer` 的版本门改为跟随该常量（`:268-271`）；`BackupRestoreInstrumentedTest` 的用例已由 `…MigratesTo69` 改名为 `schema68ArchiveRestoresAndMigratesToCurrentVersion`（`git diff` 5 增 5 删）。**但这些改动发生在设备轨之后**，34/34 绿轮**没有跑过**。
 
-**Reopen/关闭条件.** `BackupRestoreInstrumentedTest` 34/34 在 v70 库上绿；`SmbkSelectionPlan` 的表清单与 70.json 的 90 张实体逐名一致（可复跑的比对命令）；`BackupSnapshotTrimmer` 与选择计划单测绿；备份/恢复后旧行与视觉四表引用关系保持。
+**Reopen/关闭条件.** `BackupRestoreInstrumentedTest` 34/34 在 v70 库上绿；`SmbkSelectionPlan` 表清单与 `70.json` 的 90 张实体逐名一致（附可复跑比对命令）；`BackupSnapshotTrimmer` 与选择计划单测绿；备份/恢复后旧行与视觉四表引用关系保持。**验证状态**：设备绿轮 UNVERIFIED，不得以"代码已改"读成已关闭。

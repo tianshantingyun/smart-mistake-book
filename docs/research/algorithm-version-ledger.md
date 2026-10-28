@@ -645,6 +645,33 @@ AUD-17 校准结果互相替代。
 
 执行证据：Node 测试台 `94 passed, 0 failed` EXIT=0（批次记录员本轮实跑 `node tools/visual_compiler/run_tests.mjs`）；仓内 JVM 结果 XML 实测 core 69 例（13+15+6+35）与 app 16 例均 0 失败（只读产物，记录员未复跑 Gradle）；设备轨为行为证据（修复后绿轮 UNVERIFIED）；单测门第 2 轮/修复环复跑/强门第 1 轮 exit=0 为工单给定。
 
+### 3.40 批次 30 · `STUDY_DATABASE_VERSION` 69 → 70（视觉持久化四表）；请求 schema 18 / `drawSchemaVersion` 1 / `PROTOCOL_VERSION` 2 维持
+
+> 依据：批次 30 计划 §1 任务 3（`.zcode/plans/plan-2026-10-29-batch-30-device-persist-fixes.md:19`）、R1 设计 `docs/research/2026-10-29-visual-persistence-design.md` §2/§2.8（DDL 草案）、T2 落码、批次记录 `docs/research/2026-10-29-batch-30-record.md` §3.2、基线 `docs/research/2026-10-29-batch-30-baseline.md` §1。
+
+| 项 | 旧值 → 新值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | **69 → 70** | `StudyDatabase.kt:139`；v69→70 为**纯非破坏**迁移：只 `CREATE TABLE`/`CREATE INDEX`（4 表 + 11 索引），零 `ALTER`/`UPDATE`/回填，旧行零改动；新表升级后为空（不伪造历史快照） |
+| 四表 | 新增 | `tutor_visual_program` / `tutor_visual_snapshot` / `tutor_message_visual` / `problem_revision_visual`（`TutorVisualEntities.kt`、`VisualSnapshotMigration_69_70.kt`） |
+| 备份机器清单 | **86 表 / 78 裁剪项 / 20 软引用 / SPLIT 5 / CLOSURE 2 → 90 / 82 / 21 / 7 / 3** | `SmbkSelectionPlan.kt:40/43/46/538/546/547/554`；identityHash 随 70.json 变为 `11a8a701bae767a8a3c5bc810e4743a4` |
+| 资产引用站点 | **5 类 → 6 类** | `CanonicalAssetReferenceSites.kt:14/52-53` 新增 `tutor_visual_snapshot.preview_asset_id`；孤儿清理与备份裁剪两侧同变 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546`；设计 C8：`TutorVisualContext` 已在 18 携带源码/state，只有把 visual 引用真正塞进模型请求时才 bump |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | 本批 T6 只收紧解析严格度（serialize 同门/元数门/重复键），wire 词表零增删 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | 未改 AIDL/信封字段 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（零构建文件改动） |
+
+**bump 判据（逐条）**：
+
+1. **为什么必须 bump**：新增 4 张持久化表并进入备份/恢复/资产引用面；按本清单 §1 纪律 2"动 Room schema → bump + 非破坏迁移 + 导出新 JSON"，不 bump 会让既有 v69 库在 Room 身份校验处被拒。
+2. **为什么是非破坏**：迁移常量 15 条 `execSQL` 全为 `CREATE TABLE/INDEX`；`FullMigrationMatrixInstrumentedTest` 1..70 设备 **`OK (15 tests)`**（E-07）；69→70 带数据用例设备 **1/2 红**，根因是测试断言（`sqlite_master` 的 DDL 已无 `IF NOT EXISTS`），迁移本体与 UNIQUE 三列键实际正确；现树断言已修（`startsWith` + 三列 `contains`），**未复跑**。
+3. **为什么请求 schema 不 bump**：本批不改 `TutorVisualContext` 的 wire 形态；visual 引用尚未进入模型请求。设计 C8 明确"无条件 bump 会让旧请求指纹与 encodeDefaults 语义无谓变更"。
+4. **为什么 `drawSchemaVersion` 不 bump**：T6 的"serialize 回喂同一 parse""路径元数门""重复键拒绝"是**解析严格度**，不是词表变更；契约 §4 已写"严格拒绝重复键"，本批只是让实现追平契约。
+5. **70.json**：由 KSP 构建产物生成（378,885 B / version=70 / identityHash `11a8…` / 90 entities），**当前未被 git 跟踪**；同目录 `70.json.NOT_EXPORTED.md` 是 T2 早期占位说明，已与盘上产物矛盾，提交前必须删除或改写。schema 身份只能由 KSP 生成，**禁止手工伪造**（`ExportedSchemaContractTest` 纪律）。
+
+**测试证据**：设备 `FullMigrationMatrixInstrumentedTest` `OK (15)`、`TutorVisualCommitInstrumentedTest` `OK (8)`、`TutorVisualCommitRepositoryInstrumentedTest` `OK (3)`（E-07）；`TutorVisualSnapshotMigration_69_70InstrumentedTest` 设备 1 红为 A 类测试断言（现树已修，绿轮 UNVERIFIED）；JVM `TutorVisualSchemaContractTest` 8 例、`TutorVisualIdentityTest` 5 例**未跑**（本批禁 Gradle）。
+
+**archive 是否已落**：本轮非投影变更，不涉及 `projection_archive`；schema 旧值以 `69.json`（已跟踪）为归档。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；
