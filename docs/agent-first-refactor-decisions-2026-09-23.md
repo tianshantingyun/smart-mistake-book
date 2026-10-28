@@ -3434,3 +3434,23 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **死亡清队语义未经裁定**：worker 死亡时排队帧清空回 `ENGINE_CLOSED`（§3.3 ① 保守分支）的"待主会话确认"标注原样保留（契约 :72 三处），本裁定不覆盖。
 - §64 另两开口项（`phase` 字段两读法、`:70` 软期限落门）已由批次 27 T4 在契约 :72 列"主会话待裁"，定谳前不写断言、不加字段。
 - 服务端单在飞 `STATUS_BUSY` 保留为纵深防御；"满队列回 BUSY 后由可见/交互生命周期限次重新调度"仍属调用方生命周期层（P-04），未落地。
+
+---
+
+## 批次 28 T2 painter 落位与 DrawOps V1 回放语义缺口登记（2026-10-28）
+
+> 依据：批次 28 计划 T2（`.zcode/plans/plan-2026-10-28-batch-28-scenev1-device-painter.md:14`）、R1 设计研究 `docs/research/2026-10-28-painter-design.md` §3.1/§5、T2 落码（4 个新文件、零既有文件改动）、设备轨 E-03（`docs/research/evidence/2026-10-28-batch-28/step03-painter-smoke.md`，17/17 绿）、复核第 1 轮（dash 缓冲串状态【高】修复 + `#RRGGBBAA` alpha 覆盖【中】登记）。契约 §5.1 已按此加注（`:115` 现状行 + `:119` 归位段）。
+
+### 裁定内容
+
+- **painter 落位 = `core:data` `visual` 包过渡态**（`VisualDrawOpsPainter.kt` `internal`，纯计算层 `VisualDrawOpsPainterPure.kt` 与 `android.graphics` 应用层分离）。**不新建 `core:visual` 模块**（需改 `settings.gradle.kts`，属热区）；模块归位与 Service/client/AIDL 迁入同一热区窗口，归位条件不变。
+- **回放语义 = 坐标空间二分 + 根空间舞步**：`path` 局部坐标随 `concat` 回放；`clip`/`label` 携带根空间坐标，painter 自维护矩阵镜像，对二者走 `setMatrix(root)→应用→setMatrix(mirror)`（`Canvas.setMatrix` 非 deprecated，`getMatrix` 不用）。`label` 不重放对齐偏移（编译器已折进 x,y）；fill 先画 stroke 后画，stroke 色取 fill 色（V1 无 stroke 颜色源）。
+- **它消灭的具体失败**：嵌套变换组内 clip 双乘、任何变换组内 label 双乘（朴素顺序回放必错）；跨 op 的 Paint 残留（DashPathEffect/style/xfermode）错画；JVM 门覆盖不到矩阵列序/颜色/alpha 三个错位陷阱。
+- **DrawOps V1 四缺口登记为 KD-78**（① stroke-only 无颜色源、② dash 形状门未钉偶数/最小条数、③ 8 位色 alpha 被 `op.alpha` 静默覆盖、④ measure/replay flags 不在环境指纹）：生成侧维持放行、painter 侧 fail-closed，**V1.1 收口（拒绝或定义语义）+ 词表两侧同改**后关闭；③ 是唯一静默错画项。
+
+### 边界（不得越过 / 仍待裁）
+
+- **PDF 回放不做**：同一 DrawOps 打 `PdfDocument` page.canvas（`ptPerDu` 替换 `pxPerDu`）留批次 29；持久化/导出不做（R2 排序批次 30/31/32）。
+- **修复轮新增的两例**（残尾 dash strip 逐位一致、空 dash 有码拒）设备复跑 **UNVERIFIED**（设备 17/17 为修复轮前产物）；不得以"17/17 绿"读成 dash 缺口已关。
+- **math label 本批 fail-closed**（`PAINTER_LABEL_MATH`）；盒走查须与 core/ui Compose lowering 几何对齐后再落，不得新增第三套公式/坐标逻辑。
+- 契约词表升级（`drawSchemaVersion`）须按算法台账重新登记；当前维持 1。

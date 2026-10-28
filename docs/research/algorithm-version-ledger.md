@@ -598,6 +598,29 @@ AUD-17 校准结果互相替代。
 
 执行证据：Node 测试台 89/89 passed EXIT=0（批次记录员复跑 `node tools/visual_compiler/run_tests.mjs`，含修复环后 +5 原型链负向）；设备 E-01…E-05 是行为证据；单测门第 3 轮/强门第 2 轮 exit=0 为工单给定，记录员未运行 Gradle。
 
+### 3.38 批次 28 · 零 bump 判据登记（2026-10-28）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions / `VisualJsWire.PROTOCOL_VERSION`=2 / `drawSchemaVersion`=1 全部未动
+
+> 依据：批次 28 计划 §1/§2、批次记录 `docs/research/2026-10-28-batch-28-record.md` §1/§3、基线 `docs/research/2026-10-28-batch-28-baseline.md` §1。本批不 bump 任何既有算法版本串；painter 是**消费方**，不新增版本面。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 本批零 DB 改动（T2/T3/T4 均不触持久化；R2 排序把四表 v70+ 归批次 30） |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告、工具面/提示词/能力快照零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 无选择器/投影/证据/账本版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | 本批零协议面改动（painter 只消费 `drawCommandsJson`；E-01/E-02 设备证据在同版本上取得） |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | painter 按 R1 设计消费同一 V1 词表；**不升版**（无词表增删）；KD-78 的四缺口属 V1.1 收口建议，未落地前不动词表 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（本批零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. T2 painter 为 DrawOps V1 → Canvas 的纯回放映射（矩阵列序/颜色/alpha/clip/label），无模型、生成、打分口径变更；`PAINTER_*` 码族是运行期 fail-closed 诊断面，不改任何输入/输出语义与算法边界。
+2. T1 设备复跑与两处先红后绿（编译器 dot alpha 期望 1.0→0.5、painter 夹具 `bitmapPxPerDu`）均为**测试层**更正：前者按契约 :98/编译器/Node 台四源证据把期望改回契约值（delta 仍 0.0、非放宽），后者只改夹具位图尺寸与回放比例解耦（默认值不变）；产品源与算法零改动。
+3. 修复环 F1（dash 缓冲按 `dash.size` 精确装配 + 形状门前置）为回放实现缺陷修复，不改词表与算法口径；KD-78 ①②③④ 均维持"生成侧放行、painter fail-closed"，未改契约条文。
+4. 后续若把 KD-78 任一缺口收口（stroke color 字段 / dash 形状门 / 8 位色语义 / flags 指纹）落地，必须按词表升级重新评估登记（`drawSchemaVersion` 即为载体，当前 1）。
+
+执行证据：Node 测试台 89/89 passed EXIT=0（批次记录员本轮复跑 `node tools/visual_compiler/run_tests.mjs`，EXIT=0）；设备 E-01…E-05 为行为证据；单测门第 1 轮/修复环复跑/强门第 1 轮 exit=0 为工单给定，记录员未运行 Gradle。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；
