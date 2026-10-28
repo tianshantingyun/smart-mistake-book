@@ -1,8 +1,13 @@
 package com.tingyun.smartmistakebook.core.data.visual
 
 import android.graphics.pdf.PdfDocument
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.util.UUID
 
 /**
  * DrawOps V1 → `PdfDocument` 页画布的**回放包装**（批次 29 T3；R1
@@ -23,11 +28,12 @@ import java.io.OutputStream
  * 2. **页几何**：页尺寸是 int pt，`PageInfo.Builder` 对非正尺寸抛**无码**
  *    `IllegalArgumentException`；取整与边界规则折进 [PAINTER_PDF_PAGE_BOUNDS]
  *    （纯层 [visualPdfPageSize]）。
- * 3. **I/O 归类**：`writeTo` 的写侧异常折进 [PAINTER_PDF_IO]，调用方才能按码分类。
- *    注意平台行为：API 34 的 native `SkJavaOutputStream::write` 会把 OutputStream 的
- *    Java 异常 `ExceptionDescribe/ExceptionClear` 后返回 false，异常**不会**逃回 Java
- *    （KD-79）。故本类用 [PdfWriteFailureTrackingStream] 在异常离开 Java 前记录，
- *    `writeTo` 返回后复验——否则写盘失败静默截断 PDF 并报成功（fail-open）。
+ * 3. **I/O 归类与写成功判定**：`writeTo` 的写侧失败折进 [PAINTER_PDF_IO]；且不能只信
+ *    "`writeTo` 正常返回"——API 34 的 native `SkJavaOutputStream::write` 会把 OutputStream 的
+ *    Java 失败 `ExceptionDescribe/ExceptionClear` 后返回 false，异常**不会**逃回 Java
+ *    （KD-79）。故写侧用 [PdfWriteFailureTrackingStream]（纯层
+ *    `PdfWriteIntegrity.kt`）记录首失败 + 字节数/尾标，`writeTo` 返回后按
+ *    [pdfWriteFailureReason] 复验——否则写盘失败静默截断 PDF 并报成功（fail-open）。
  *
  * ## PDF 特有差异（R1 §2/§4/§5 清单；显式处置，不静默改语义）
  *
@@ -56,6 +62,10 @@ internal class VisualDrawOpsPdfPainter {
      * 页宽高由 [visualPdfPageSize] 从 `document.viewBox` × [ptPerDu] 取 ceil；内容矩形缺省
      * 即整页（`PdfDocument.java:369-375`），不平移。
      *
+     * 写成功判据 = **D1 ∧ D2**（R2 §5）：`writeTo` 返回后要求跟踪流无首失败、接受字节 > 0、
+     * 尾窗含 `%%EOF`；任一不成立即 [PAINTER_PDF_IO]。**流目标不主张 D3**——`OutputStream`
+     * 不可 seek，无法回读页数/文件长度；需要完整判据的调用方用 [writeFile]。
+     *
      * @param ptPerDu 根变换比例（点数/du）；非有限/非正或页尺寸越界即
      *   [PAINTER_PDF_PAGE_BOUNDS]（先于任何 PDF 对象创建）。
      * @param labelContent contentId → 内容解析器；返回 null = 绘制时内容不可达
@@ -71,7 +81,116 @@ internal class VisualDrawOpsPdfPainter {
     ) {
         // 先于 PdfDocument 创建做页几何门：坏比例不能留下一个半开的文档对象。
         val pageSize = visualPdfPageSize(document.viewBox.w, document.viewBox.h, ptPerDu)
+        writeTracked(document, out, pageSize, ptPerDu, labelContent)
+    }
+
+    /**
+     * 文件目标的完整写成功判据（R2 §5 的 **D1 ∧ D2 ∧ D3**）：同目录临时件 → 写 → `flush` +
+     * `fd.sync` → 长度/尾标回读 → `PdfRenderer` 页数回读 → `renameTo` 发布。
+     *
+     * **它消灭的具体失败**（每一条都是流目标看不见的）：
+     * 1. 写成功但只进 page cache（掉电后为空/残缺）→ `fd.sync()` 失败折 [PAINTER_PDF_IO]；
+     * 2. 委托写路径静默少收字节 / 尾部截断（[pdfFileFailureReason] 的长度与尾标回读）；
+     * 3. 结构性损坏（失 xref/trailer、页丢失）→ 重开 `PdfRenderer` 的页数回读；
+     * 4. `renameTo` 返回 false 却被当成功 → 显式查返回值；
+     * 5. 目标目录只读/不存在 → 临时件 open 失败折 [PAINTER_PDF_IO]（裸 `FileNotFoundException`
+     *    会逃出有码族，调用方无法按码分类）。
+     *
+     * **落点理由（不复用 `core:export`）**：`MistakePdfExporter.prepare/validatedPageCount/publish`
+     * 是同一序列的成熟实现，但 `validatedPageCount`/`publish`/`PreparedPdfStore` 均 private，
+     * `core:data` 不依赖 `core:export`，而 `core:export` 是本批禁改热区——故按该序列在本包
+     * 复制（R2 §3.6 + 研究复核高危⑥的保守分支），不新增依赖、不改热区。
+     *
+     * @param target 最终 PDF 路径；父目录必须存在且可写（同目录临时件 + `renameTo` 的语义）。
+     * @throws VisualDrawOpsPaintingException 同 [write]；失败时保证不发布半成品（临时件删除，
+     *   已存在的 `target` 不被本方法破坏）。
+     */
+    fun writeFile(
+        document: VisualDrawOpsDocument,
+        target: File,
+        ptPerDu: Float,
+        labelContent: (String) -> VisualLabelContent?,
+    ) {
+        // 同 [write]：页几何门先于任何文件创建。
+        val pageSize = visualPdfPageSize(document.viewBox.w, document.viewBox.h, ptPerDu)
+        val directory = target.absoluteFile.parentFile
+            ?: throw paintingFailure(
+                PAINTER_PDF_IO,
+                "pdf target has no parent directory: ${target.name}",
+            )
+        val pending = File(directory, "${target.name}.pending-${UUID.randomUUID()}")
+        var published = false
+        try {
+            val fileOutput = try {
+                FileOutputStream(pending)
+            } catch (failure: Exception) {
+                // 只读目录 / 不存在目录 / EACCES：open 失败先于 writeTo，必须折进有码族。
+                throw paintingFailure(
+                    PAINTER_PDF_IO,
+                    "pdf target is not writable: ${pending.name}: ${failure.pdfWriteFailureText()}",
+                )
+            }
+            val sink = try {
+                fileOutput.use { raw ->
+                    val tracked = writeTracked(document, raw, pageSize, ptPerDu, labelContent)
+                    try {
+                        raw.flush()
+                        raw.fd.sync()
+                    } catch (failure: Exception) {
+                        throw paintingFailure(
+                            PAINTER_PDF_IO,
+                            "pdf sync failed: ${failure.pdfWriteFailureText()}",
+                        )
+                    }
+                    tracked
+                }
+            } catch (coded: VisualDrawOpsPaintingException) {
+                throw coded
+            } catch (failure: Exception) {
+                // close() 等收口失败同样是写侧失败（不得静默当成功）。
+                throw paintingFailure(
+                    PAINTER_PDF_IO,
+                    "pdf file write failed: ${failure.pdfWriteFailureText()}",
+                )
+            }
+            pdfFileFailureReason(pending, sink.telemetry.acceptedBytes)?.let { reason ->
+                throw paintingFailure(PAINTER_PDF_IO, reason)
+            }
+            val pageCount = readPdfPageCount(pending)
+            if (pageCount != PDF_PAGE_COUNT) {
+                throw paintingFailure(
+                    PAINTER_PDF_IO,
+                    "pdf readback expected $PDF_PAGE_COUNT page, got $pageCount",
+                )
+            }
+            if (!pending.renameTo(target)) {
+                throw paintingFailure(
+                    PAINTER_PDF_IO,
+                    "pdf publish failed: rename ${pending.name} -> ${target.name} returned false",
+                )
+            }
+            published = true
+        } finally {
+            if (!published) {
+                // 失败不得留下半成品（临时件与本方法新建的目标文件都不发布）。
+                pending.delete()
+            }
+        }
+    }
+
+    /**
+     * 共享的写路径：页几何 → `PdfDocument` 生命周期 → 跟踪流写入 → D1/D2 复验。
+     * 返回跟踪流，供文件目标读取 [PdfWriteTelemetry.acceptedBytes]。
+     */
+    private fun writeTracked(
+        document: VisualDrawOpsDocument,
+        out: OutputStream,
+        pageSize: VisualPdfPageSize,
+        ptPerDu: Float,
+        labelContent: (String) -> VisualLabelContent?,
+    ): PdfWriteFailureTrackingStream {
         val pdf = PdfDocument()
+        val sink = PdfWriteFailureTrackingStream(out)
         try {
             val pageInfo = PdfDocument.PageInfo.Builder(pageSize.widthPt, pageSize.heightPt, 1).create()
             val page = pdf.startPage(pageInfo)
@@ -90,20 +209,19 @@ internal class VisualDrawOpsPdfPainter {
             }
             pdf.finishPage(page)
             // PdfDocument.writeTo 在 API 34 由 native `SkJavaOutputStream::write` 捕获
-            // OutputStream 抛出的 Java 异常后 `ExceptionDescribe()` + `ExceptionClear()`
+            // OutputStream 抛出的 Java 失败后 `ExceptionDescribe()` + `ExceptionClear()`
             // 并返回 false（android-14.0.0_r1 CreateJavaOutputStreamAdaptor.cpp），Java
             // 侧**看不到**异常——`catch (IOException)` 在此不可达，写盘失败会静默截断
-            // PDF 并报成功（fail-open，批次 29 设备证据 R2 / KD-79）。包装层在异常离开
-            // Java 时先记录再重抛；writeTo 正常返回后再按记录发 PAINTER_PDF_IO。
-            val sink = PdfWriteFailureTrackingStream(out)
+            // PDF 并报成功（fail-open，批次 29 设备证据 R2 / KD-79）。包装层在失败离开
+            // Java 时先记录再重抛；writeTo 正常返回后再按记录与字节/尾标复验。
             try {
                 pdf.writeTo(sink)
             } catch (io: IOException) {
                 // 保留原 catch 作双重兜底：若未来平台版本改为让异常逃回 Java，仍按码归类。
-                throw paintingFailure(PAINTER_PDF_IO, "pdf write failed: ${io.describe()}")
+                throw paintingFailure(PAINTER_PDF_IO, "pdf write failed: ${io.pdfWriteFailureText()}")
             }
-            sink.firstFailure?.let { failure ->
-                throw paintingFailure(PAINTER_PDF_IO, "pdf write failed: ${failure.describe()}")
+            pdfWriteFailureReason(sink)?.let { reason ->
+                throw paintingFailure(PAINTER_PDF_IO, reason)
             }
         } finally {
             try {
@@ -112,43 +230,29 @@ internal class VisualDrawOpsPdfPainter {
                 // close() 的收口异常（如页未 finish）不得掩盖上方已上抛的原始有码异常。
             }
         }
+        return sink
+    }
+
+    /**
+     * D3 的页数回读：`PdfRenderer` 只吃可 seek 的 fd（`PdfRenderer.java:162-168`）。
+     *
+     * 必须 `catch (Exception)` 而不是只接 `IOException`：`PdfUtils.cpp:45-80`
+     * `forwardPdfiumError` 对 `FPDF_ERR_UNKNOWN` 抛受检 `java.lang.Exception`，
+     * `openPage` 失败抛 `IllegalStateException`（R2 §3.4）。
+     */
+    private fun readPdfPageCount(file: File): Int = try {
+        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+            PdfRenderer(descriptor).use { renderer -> renderer.pageCount }
+        }
+    } catch (failure: Exception) {
+        throw paintingFailure(
+            PAINTER_PDF_IO,
+            "pdf readback failed: ${failure.pdfWriteFailureText()}",
+        )
+    }
+
+    private companion object {
+        /** 本 painter 恒写单页（`PdfDocument.PageInfo.Builder(..., 1)`），回读页数只认 1。 */
+        const val PDF_PAGE_COUNT = 1
     }
 }
-
-/**
- * 记录**在异常离开 Java 之前**的写侧失败（KD-79 的核心 seam）。
- *
- * `PdfDocument.writeTo` 的 native 写适配器会 `ExceptionDescribe()` + `ExceptionClear()`
- * 掉 OutputStream 抛出的 Java 异常并返回 false（android-14.0.0_r1
- * `CreateJavaOutputStreamAdaptor.cpp` `SkJavaOutputStream::write`），因此调用方拿不到
- * 异常、也拿不到返回值（`writeTo` 是 void）。本包装在每个写入口先记录首个失败再**重抛**
- * ——重抛保证 native 仍按"这次写失败"处理，记录保证 `writeTo` 返回后能据此 fail-closed。
- *
- * 只记录、不吞：`close()`/`flush()` 也原样转发，行为与直接传 [delegate] 一致。
- */
-private class PdfWriteFailureTrackingStream(
-    private val delegate: OutputStream,
-) : OutputStream() {
-
-    /** 首个从 Java 侧逃出的写异常；无失败为 null。 */
-    var firstFailure: Exception? = null
-        private set
-
-    private fun <T> recordOnFailure(block: () -> T): T =
-        try {
-            block()
-        } catch (failure: Exception) {
-            if (firstFailure == null) firstFailure = failure
-            throw failure
-        }
-
-    override fun write(b: Int) = recordOnFailure { delegate.write(b) }
-
-    override fun write(b: ByteArray, off: Int, len: Int) = recordOnFailure { delegate.write(b, off, len) }
-
-    override fun flush() = recordOnFailure { delegate.flush() }
-
-    override fun close() = recordOnFailure { delegate.close() }
-}
-
-private fun Exception.describe(): String = message ?: javaClass.simpleName

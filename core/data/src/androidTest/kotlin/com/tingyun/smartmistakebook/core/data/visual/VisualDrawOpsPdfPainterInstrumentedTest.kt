@@ -22,6 +22,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.nio.charset.StandardCharsets
 import java.util.Arrays
 import kotlin.math.abs
 import kotlin.math.max
@@ -454,6 +455,75 @@ class VisualDrawOpsPdfPainterInstrumentedTest {
     }
 
     @Test
+    fun pdfWriteFailureMidStreamKeepsTheFirstFailureText() {
+        // N-PDF-02：首块之后才开始抛。native 会继续尝试后续块（E-04 logcat 230 次），
+        // 我们的记录必须停在**首个**失败，且失败前已接受的字节不回退（证明是"中途"而非首写）。
+        val document = validatedDocument(DOC_FILL_RECT)
+        val out = MidStreamFailingOutputStream(chunksBeforeFailure = 1)
+        val failure = paintingFailureOf {
+            VisualDrawOpsPdfPainter().write(document, out, 1f, { null })
+        }
+        assertEquals(PAINTER_PDF_IO, failure.code)
+        assertTrue(
+            "first failure must be the mid-stream IOException, got ${failure.message}",
+            failure.message!!.contains(MID_STREAM_WRITE_FAILURE),
+        )
+        assertTrue("failure must happen after the first chunk, accepted=${out.acceptedBytes}", out.acceptedBytes > 0)
+    }
+
+    // ------------------------------------------------------------ 文件目标（D1 ∧ D2 ∧ D3）
+
+    @Test
+    fun pdfFileWriteRoundTripsThroughReadback() {
+        // P-PDF-01：真文件目标 → 长度/尾标回读 + PdfRenderer 页数回读 + renameTo 发布。
+        val document = validatedDocument(DOC_NESTED_CLIP)
+        val target = File(context.cacheDir, "visual-pdf-file-${System.nanoTime()}.pdf")
+        createdFiles.add(target)
+        VisualDrawOpsPdfPainter().writeFile(document, target, 1f, { null })
+        assertTrue("target must exist", target.isFile)
+        assertTrue("target must be non-empty", target.length() > 0)
+        val bytes = target.readBytes()
+        assertTrue(
+            "published file must end with the %%EOF trailer",
+            String(bytes, StandardCharsets.ISO_8859_1).contains("%%EOF"),
+        )
+        // 回读页尺寸与流目标一致（同一份 PDF 字节的契约面）。
+        assertEquals(48 to 32, pdfPageSize(bytes))
+        val leftovers = context.cacheDir.listFiles { file ->
+            file.name.startsWith("${target.name}.pending-")
+        }.orEmpty()
+        assertTrue("publish must not leave a pending file", leftovers.isEmpty())
+    }
+
+    @Test
+    fun pdfReadOnlyTargetFailsClosedBeforeAnyWrite() {
+        // N-PDF-06 的落地形态：目标目录 0555 → 临时件 open 失败（EACCES）先于 writeTo，
+        // 必须折成有码 PAINTER_PDF_IO，而不是裸 FileNotFoundException 逃出族外。
+        val directory = File(context.cacheDir, "visual-pdf-readonly-${System.nanoTime()}")
+        assertTrue("read-only fixture dir must be created", directory.mkdirs())
+        try {
+            assertTrue(
+                "cache dir must accept chmod 0555 for this fixture",
+                directory.setWritable(false, false),
+            )
+            val document = validatedDocument(DOC_FILL_RECT)
+            val target = File(directory, "out.pdf")
+            val failure = paintingFailureOf {
+                VisualDrawOpsPdfPainter().writeFile(document, target, 1f, { null })
+            }
+            assertEquals(PAINTER_PDF_IO, failure.code)
+            assertTrue(
+                "open failure must name the unwritable target, got ${failure.message}",
+                failure.message!!.contains("not writable"),
+            )
+            assertTrue("no half-written target may be published", !target.exists())
+        } finally {
+            directory.setWritable(true, true)
+            directory.deleteRecursively()
+        }
+    }
+
+    @Test
     fun pdfReplayFailuresKeepTheScreenPainterCodeFamily() {
         // 例外面同码族（任务四）：共享 painter 的码原样穿过 PDF 包装，不被生命周期收口异常
         // （close() 的 IllegalStateException）掩盖。手建文档 = 生成门收紧后回放侧仍须兜底。
@@ -486,7 +556,35 @@ class VisualDrawOpsPdfPainterInstrumentedTest {
         }
     }
 
+    /**
+     * 接受前 [chunksBeforeFailure] 块、其后每块都抛（N-PDF-02 夹具）。
+     * `acceptedBytes` 用来证明失败发生在"中途"而不是首块（首块已被 native 顺利交出）。
+     */
+    private class MidStreamFailingOutputStream(
+        private val chunksBeforeFailure: Int,
+    ) : OutputStream() {
+
+        var acceptedBytes: Long = 0L
+            private set
+
+        private var chunksAccepted = 0
+
+        override fun write(b: Int) {
+            throw IOException(MID_STREAM_WRITE_FAILURE)
+        }
+
+        override fun write(b: ByteArray, off: Int, len: Int) {
+            if (chunksAccepted >= chunksBeforeFailure) {
+                throw IOException(MID_STREAM_WRITE_FAILURE)
+            }
+            chunksAccepted += 1
+            acceptedBytes += len.toLong()
+        }
+    }
+
     private companion object {
+        const val MID_STREAM_WRITE_FAILURE = "simulated mid-stream write failure"
+
         val DOC_FILL_RECT = """{"drawSchemaVersion":1,"viewBox":{"x":0,"y":0,"w":48,"h":32},""" +
             """"background":"#ffffff","ops":[{"op":"path","path":[["M",4,2],["L",22,2],["L",22,14],["L",4,14],["Z"]],""" +
             """"fill":"#ff0000","stroke":null,"alpha":1}],"hitRegions":[],"stats":{"nodes":0,"pathCommands":5,"labels":0,"ops":1}}"""
