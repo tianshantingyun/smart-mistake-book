@@ -1,11 +1,18 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.OnJade
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.RowScope
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.History
@@ -49,14 +55,11 @@ import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.Jade
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
-import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.text.style.TextOverflow
 
 /**
  * 智能体栏的**公开入口**（一条交互面的外层壳）：App 层只认这一个名字，内部一律走
@@ -156,55 +159,44 @@ internal fun TutorPageHeader(
     /** 由别的页面推进来时（错题详情、历史、拍照流程）给一个返回；大厅这种标签根页传 null。 */
     onBack: (() -> Unit)? = null,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (onBack != null) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .testTag("tutor_page_back"),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "返回",
-                        tint = Ink,
-                    )
-                }
-                Spacer(Modifier.size(4.dp))
-            }
-            Text(
-                text = "讲题",
-                modifier = Modifier.weight(1f),
-                color = Ink,
-                style = ClaudeLayout.HeaderText,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (onOpenHistory != null) {
-                IconButton(
-                    onClick = onOpenHistory,
-                    modifier = Modifier.testTag("tutor_history_button"),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.History,
-                        contentDescription = "讲题历史",
-                        tint = InkSecondary,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
+    val rootHeader = onBack == null
+    val iconTint = if (rootHeader) OnJade else InkSecondary
+    val iconColors = IconButtonDefaults.iconButtonColors(
+        containerColor = if (rootHeader) SmartColors.Forest else Color.Transparent,
+        contentColor = iconTint,
+    )
+    val actions: @Composable RowScope.() -> Unit = {
+        if (onOpenHistory != null) {
             IconButton(
-                onClick = onOpenCapabilitySettings,
-                modifier = Modifier.testTag("tutor_capability_settings_button"),
+                onClick = onOpenHistory,
+                modifier = Modifier.testTag("tutor_history_button"),
+                colors = iconColors,
             ) {
-                Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = InkSecondary, modifier = Modifier.size(20.dp))
+                Icon(
+                    imageVector = Icons.Outlined.History,
+                    contentDescription = "讲题历史",
+                    tint = iconTint,
+                    modifier = Modifier.size(20.dp),
+                )
             }
         }
-        PaperDivider()
+        IconButton(
+            onClick = onOpenCapabilitySettings,
+            modifier = Modifier.testTag("tutor_capability_settings_button"),
+            colors = iconColors,
+        ) {
+            Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = iconTint, modifier = Modifier.size(20.dp))
+        }
+    }
+    if (rootHeader) {
+        WorkspacePageHeader(
+            title = "讲题", modifier = Modifier.padding(vertical = 8.dp), actions = actions,
+        )
+    } else {
+        ClaudePageHeader(
+            title = "讲题", onBack = onBack,
+            backModifier = Modifier.testTag("tutor_page_back"), actions = actions,
+        )
     }
 }
 
@@ -218,9 +210,9 @@ internal fun TutorPrompt(text: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().padding(start = ClaudeLayout.AssistantInset),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Box(Modifier.size(20.dp).clip(RoundedCornerShape(6.dp)).background(JadeActive),
+            Box(Modifier.size(24.dp).clip(RoundedCornerShape(8.dp)).background(JadeSoft),
                 contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.AutoStories, "智能讲题助手", Modifier.size(14.dp), tint = Paper)
+                Icon(Icons.Outlined.AutoStories, "智能讲题助手", Modifier.size(15.dp), tint = JadeActive)
             }
             Text("讲题助手", color = Ink, style = ClaudeLayout.ControlText)
         }
@@ -300,7 +292,7 @@ internal fun TutorComposer(
                     )
                 }
             },
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(20.dp),
         )
     }
 }

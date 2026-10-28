@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.ui
 
 // Native adaptations of ClaudeDesktopHeader / DraggableSessionList (Caho1, c1f923ae, MIT).
 import androidx.compose.foundation.background
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,8 +22,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,13 +47,19 @@ fun ClaudeNavigationItem(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.defaultMinSize(minHeight = 64.dp).clip(RoundedCornerShape(8.dp))
-        .claudeInteractiveRow(onClick, selected, role = Role.Tab)
+        .claudeInteractiveRow(onClick, selected, role = Role.Tab, selectedFill = Color.Transparent)
         .semantics { this.selected = selected }.padding(horizontal = 6.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, null, Modifier.size(20.dp), tint = if (selected) JadeActive else InkSecondary)
-        Text(label, color = if (selected) Ink else InkSecondary, style = ClaudeLayout.ControlText,
-            fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal)
+        val motion = LocalClaudeMotionEnabled.current
+        val target = if (selected) JadeSoft else Color.Transparent
+        val animated by animateColorAsState(target, ClaudeMotion.spec(motion), label = "navigation-capsule")
+        Box(Modifier.width(52.dp).height(28.dp).clip(RoundedCornerShape(14.dp))
+            .background(if (motion) animated else target), contentAlignment = Alignment.Center) {
+            Icon(icon, null, Modifier.size(20.dp), tint = if (selected) JadeActive else InkSecondary)
+        }
+        Text(label, color = if (selected) JadeDark else InkSecondary, style = MaterialTheme.typography.labelMedium,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
     }
 }
 
@@ -57,14 +69,17 @@ fun ClaudePageHeader(
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
     backModifier: Modifier = Modifier,
+    backLabel: String = "返回",
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    Row(modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
+    Row(modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(ContentSurface)
+        .padding(horizontal = 6.dp, vertical = 6.dp).defaultMinSize(minHeight = 48.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         if (onBack != null) ClaudeIconButton(onBack, backModifier) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, "返回", Modifier.size(20.dp), tint = Ink)
+            Icon(Icons.AutoMirrored.Outlined.ArrowBack, backLabel, Modifier.size(20.dp), tint = Ink)
         }
-        Text(title, Modifier.weight(1f), color = Ink, style = ClaudeLayout.HeaderText)
+        Text(title, Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold)
         actions()
     }
 }
@@ -76,16 +91,21 @@ fun ClaudeSettingsRow(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    iconContainerColor: Color = JadeSoft,
+    iconTint: Color = JadeDark,
 ) {
-    Row(modifier.fillMaxWidth().defaultMinSize(minHeight = 64.dp).clip(RoundedCornerShape(8.dp))
+    Row(modifier.fillMaxWidth().defaultMinSize(minHeight = 72.dp).clip(RoundedCornerShape(16.dp))
         .claudeInteractiveRow(onClick).semantics(mergeDescendants = true) {}
-        .padding(horizontal = 10.dp, vertical = 10.dp),
+        .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Icon(icon, null, Modifier.size(20.dp), tint = InkSecondary)
+        Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(iconContainerColor),
+            contentAlignment = Alignment.Center) {
+            Icon(icon, null, Modifier.size(20.dp), tint = iconTint)
+        }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(title, color = Ink, style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium)
-            Text(subtitle, color = InkSecondary, style = ClaudeLayout.ControlText)
+            Text(subtitle, color = InkSecondary, style = MaterialTheme.typography.bodySmall)
         }
         Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(16.dp), tint = InkSecondary)
     }

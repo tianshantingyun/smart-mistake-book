@@ -13,18 +13,15 @@ import androidx.compose.material3.MaterialTheme
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -33,6 +30,7 @@ import com.tingyun.smartmistakebook.core.ui.LocalModeLine
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftSummary
 import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
 import com.tingyun.smartmistakebook.core.domain.CaptureInputSource
@@ -43,7 +41,6 @@ import com.tingyun.smartmistakebook.core.domain.CaptureWritingLayer
 import com.tingyun.smartmistakebook.core.domain.PendingCaptureItem
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.SplitImportCommitReceipts
-import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.CaptureDraftEditorMode
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentDecision
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentInput
@@ -51,7 +48,6 @@ import com.tingyun.smartmistakebook.core.model.CaptureAssessmentOutput
 import com.tingyun.smartmistakebook.core.model.CaptureParseOutput
 import com.tingyun.smartmistakebook.core.model.MAX_CAPTURE_USER_HINT_CHARS
 import com.tingyun.smartmistakebook.core.model.ModelExecutionLocation
-import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocumentMarkdownProjection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.NonCancellable
@@ -739,7 +735,7 @@ fun CaptureScreen(
             onBack = ::requestBackWithFlush,
         )
         LocalModeLine(
-            text = capturePrivacyLine(
+            text = if (manualTranscriptionDraft) "题面仅保存在本机" else capturePrivacyLine(
                 snapshot = state.assessmentSnapshot,
                 parseSnapshot = state.parseSnapshot,
                 sourcePersisted = state.draftId != null,
@@ -748,25 +744,23 @@ fun CaptureScreen(
             contentDescription = "拍题隐私状态",
         )
 
-        Text(
-            text = when (activeEntryOrigin) {
-                CaptureEntryOrigin.TUTOR -> "题面准备好后直接进入讲题；是否加入错题本由你决定"
-                CaptureEntryOrigin.LIBRARY -> "题面准备好后直接存入错题本，不会自动开始讲解"
-            },
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        SectionHeader(
-            title = when {
-                state.committedEntryId != null -> "已存入错题本"
-                manualTranscriptionDraft -> "手动建题"
-                state.draftId != null -> "整理题目"
-                state.receivedImageUri != null -> "已收到图片"
-                else -> "录入方式"
-            },
-            modifier = Modifier.padding(top = 18.dp),
-        )
+        val completionLine = when (activeEntryOrigin) {
+            CaptureEntryOrigin.TUTOR -> "题面准备好后直接进入讲题；是否加入错题本由你决定"
+            CaptureEntryOrigin.LIBRARY -> "题面准备好后直接存入错题本，不会自动开始讲解"
+        }
+        val stageTitle = when {
+            state.committedEntryId != null -> "已存入错题本"
+            manualTranscriptionDraft -> "手动建题"
+            state.draftId != null -> "整理题目"
+            state.receivedImageUri != null -> "已收到图片"
+            else -> "录入方式"
+        }
+        if (state.draftId == null && state.receivedImageUri == null && state.committedEntryId == null) {
+            WorkspacePageHeader(stageTitle, subtitle = completionLine, modifier = Modifier.padding(top = 12.dp))
+        } else {
+            Text(completionLine, color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+            SectionHeader(stageTitle, modifier = Modifier.padding(top = 18.dp))
+        }
 
         if (state.committedEntryId != null && activeEntryOrigin == CaptureEntryOrigin.LIBRARY) {
             CaptureCommittedCard(
@@ -1071,24 +1065,26 @@ private fun CaptureUserHintField(
             )
             return@Column
         }
-        OutlinedTextField(
-            value = hint,
-            onValueChange = { updated -> if (updated.length <= MAX_CAPTURE_USER_HINT_CHARS) onHintChange(updated) },
-            placeholder = { Text("例如：只要第 2、3 题；只录左半页的题") },
-            supportingText = { Text("可说明要录入哪些题；这段说明会随图片发送给模型。") },
-            singleLine = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("capture_user_hint_field"),
-        )
-        if (evaluatedTerminal && evaluatedHint != hint.trim().takeIf { it.isNotEmpty() }) {
-            OutlineActionChip(
-                text = "按说明重新整理",
-                onClick = onReassess,
+        CapturePanel {
+            OutlinedTextField(
+                value = hint,
+                onValueChange = { updated -> if (updated.length <= MAX_CAPTURE_USER_HINT_CHARS) onHintChange(updated) },
+                placeholder = { Text("例如：只要第 2、3 题；只录左半页的题") },
+                supportingText = { Text("可说明要录入哪些题；这段说明会随图片发送给模型。") },
+                singleLine = false,
                 modifier = Modifier
-                    .padding(top = 8.dp)
-                    .testTag("capture_user_hint_reassess"),
+                    .fillMaxWidth()
+                    .testTag("capture_user_hint_field"),
             )
+            if (evaluatedTerminal && evaluatedHint != hint.trim().takeIf { it.isNotEmpty() }) {
+                OutlineActionChip(
+                    text = "按说明重新整理",
+                    onClick = onReassess,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .testTag("capture_user_hint_reassess"),
+                )
+            }
         }
     }
 }

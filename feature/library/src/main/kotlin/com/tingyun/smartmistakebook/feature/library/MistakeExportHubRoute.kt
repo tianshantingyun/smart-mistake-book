@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import android.app.Activity
@@ -356,31 +358,8 @@ fun MistakeExportHubRoute(
 
 @Composable
 private fun MistakeExportHubHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("mistake_export_hub_back"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回",
-                tint = Ink,
-            )
-        }
-        Spacer(Modifier.size(4.dp))
-        Text(
-            text = "已导出的文件",
-            color = Ink,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-    }
+    ClaudePageHeader("已导出的文件", onBack = onBack,
+        backModifier = Modifier.testTag("mistake_export_hub_back"))
 }
 
 @Composable
@@ -393,8 +372,8 @@ private fun ExportHubNotice(
             .fillMaxWidth()
             .testTag("mistake_export_hub_notice"),
         color = JadeSoft.copy(alpha = 0.38f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        shape = RoundedCornerShape(12.dp),
+        shadowElevation = 1.dp,
     ) {
         Row(
             modifier = Modifier.padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
@@ -436,8 +415,8 @@ private fun ExportRecordRow(
             .fillMaxWidth()
             .testTag("export_hub_record_${record.exportId}"),
         color = JadeSoft.copy(alpha = 0.24f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        shape = RoundedCornerShape(12.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(

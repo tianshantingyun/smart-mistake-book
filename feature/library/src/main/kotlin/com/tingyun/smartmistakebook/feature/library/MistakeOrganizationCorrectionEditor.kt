@@ -176,9 +176,9 @@ internal fun OrganizationCorrectionEditor(
         if (customEditorVisible) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(20.dp),
                 color = JadeSoft.copy(alpha = 0.28f),
-                border = BorderStroke(1.dp, Outline),
+                shadowElevation = 1.dp,
             ) {
                 Column(
                     modifier = Modifier.padding(12.dp),

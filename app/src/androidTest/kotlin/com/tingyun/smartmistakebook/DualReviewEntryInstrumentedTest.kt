@@ -40,6 +40,8 @@ class DualReviewEntryInstrumentedTest {
         }
 
         composeRule.onNodeWithTag("review_start_knowledge_review").assertIsDisplayed()
+        composeRule.waitForIdle()
+        captureReviewForestScreenshot("review-plan")
         composeRule.onNodeWithTag("review_start_knowledge_review").performClick()
         assertTrue(knowledgeStarted)
     }

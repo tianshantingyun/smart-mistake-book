@@ -1,21 +1,21 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.tingyun.smartmistakebook.feature.capture
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,8 +35,8 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 @Composable
 internal fun CaptureModelTaskCard(
@@ -56,38 +56,51 @@ internal fun CaptureModelTaskCard(
     modifier: Modifier = Modifier,
 ) {
     val activeSnapshot = parseSnapshot ?: snapshot
+    val assessmentDecision = (snapshot?.output as? CaptureAssessmentOutput)?.assessment?.decision
     val failed = activeSnapshot?.status == ModelTaskStatus.RETRYABLE_FAILURE ||
         activeSnapshot?.status == ModelTaskStatus.PERMANENT_FAILURE
     val cancelled = activeSnapshot?.status == ModelTaskStatus.CANCELLED
     val needsAttention = failed || cancelled || splitError != null
-    val succeeded = activeSnapshot?.status == ModelTaskStatus.SUCCEEDED
+    val succeeded = parseSnapshot?.status == ModelTaskStatus.SUCCEEDED && parseSnapshot.provider?.isDemo != true
+    val awaitingInput = !splitInProgress && activeSnapshot?.status == ModelTaskStatus.SUCCEEDED &&
+        (activeSnapshot.provider?.isDemo == true || (parseSnapshot == null &&
+            (assessmentDecision in setOf(CaptureAssessmentDecision.NEED_MORE_IMAGE,
+                CaptureAssessmentDecision.RECAPTURE) ||
+                (assessmentDecision == CaptureAssessmentDecision.SPLIT && splitPendingChoice))))
     val accent = when {
         needsAttention -> ErrorText
         succeeded -> JadeActive
-        else -> InkSecondary
+        awaitingInput -> SmartColors.PendingAccent
+        else -> SmartColors.LearningAccent
     }
-    val title = captureModelTaskTitle(snapshot, parseSnapshot)
+    val title = when {
+        awaitingInput && !needsAttention && activeSnapshot?.provider?.isDemo != true -> when (assessmentDecision) {
+            CaptureAssessmentDecision.NEED_MORE_IMAGE -> "等待补拍题目"
+            CaptureAssessmentDecision.RECAPTURE -> "请重新拍摄题目"
+            CaptureAssessmentDecision.SPLIT -> "请选择拆分方式"
+            else -> captureModelTaskTitle(snapshot, parseSnapshot)
+        }
+        else -> captureModelTaskTitle(snapshot, parseSnapshot)
+    }
     val icon = when {
         needsAttention -> Icons.Outlined.ErrorOutline
         succeeded -> Icons.Outlined.CheckCircle
         else -> Icons.Outlined.Schedule
     }
-    val assessmentDecision = (snapshot?.output as? CaptureAssessmentOutput)?.assessment?.decision
     val multipleQuestionsDetected = (snapshot?.output as? CaptureAssessmentOutput)
         ?.assessment
         ?.issues
         ?.any { it.code == CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS } == true
     val recoveryAction = captureModelRecoveryAction(snapshot, parseSnapshot)
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, accent.copy(alpha = 0.55f), RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.32f), RoundedCornerShape(8.dp))
-            .padding(14.dp)
             .testTag("capture_model_task_card"),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
+            if (!needsAttention && !succeeded && !awaitingInput) CircularProgressIndicator(
+                modifier = Modifier.size(22.dp), color = accent, strokeWidth = 2.dp,
+            ) else Icon(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(23.dp),
@@ -95,7 +108,7 @@ internal fun CaptureModelTaskCard(
             )
             Text(
                 text = title,
-                modifier = Modifier.padding(start = 8.dp),
+                modifier = Modifier.weight(1f).padding(start = 8.dp),
                 color = Ink,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
@@ -105,6 +118,8 @@ internal fun CaptureModelTaskCard(
             text = when {
                 splitError != null -> splitError
                 splitInProgress -> "正在拆分本页题目，原图已保存。"
+                awaitingInput && assessmentDecision == CaptureAssessmentDecision.SPLIT ->
+                    "原图已保存，选择拆分方式后继续。"
                 else -> modelPipelineDetail(snapshot, parseSnapshot)
             },
             modifier = Modifier.padding(top = 8.dp),
@@ -154,15 +169,15 @@ internal fun CaptureModelTaskCard(
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
-            Row(
+            FlowRow(
                 modifier = Modifier.padding(top = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 PrimaryActionButton(
                     text = "自动拆分",
                     onClick = onAutoSplit,
                     modifier = Modifier
-                        .weight(1f)
                         .heightIn(min = 48.dp)
                         .testTag("capture_split_auto_button"),
                 )
@@ -170,7 +185,6 @@ internal fun CaptureModelTaskCard(
                     text = "手动框选",
                     onClick = onManualSplit,
                     modifier = Modifier
-                        .weight(1f)
                         .heightIn(min = 48.dp)
                         .testTag("capture_split_manual_button"),
                 )

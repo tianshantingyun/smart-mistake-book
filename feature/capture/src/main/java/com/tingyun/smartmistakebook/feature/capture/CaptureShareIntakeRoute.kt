@@ -4,32 +4,25 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.Icon
-import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -40,6 +33,9 @@ import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -184,32 +180,28 @@ fun CaptureShareIntakeRoute(
         modifier = modifier.testTag("share_intake_root"),
     ) {
         CaptureShareHeader(onBack = { abandonShare(onDismiss) })
-        Text(
-            text = "从其他应用分享进来的图片或 PDF 会直接进入录入。",
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        WorkspacePageHeader("分享录入", subtitle = "从其他应用分享进来的图片或 PDF 会直接进入录入。")
         Spacer(Modifier.height(14.dp))
         when (val current = routeState) {
             CaptureShareRouteState.Working -> {
-                Text(
-                    text = "正在接收分享的文件…",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = SmartColors.Ink,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.testTag("share_intake_progress"),
-                )
-                Spacer(Modifier.height(10.dp))
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = SmartColors.Jade,
-                )
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    text = "文件只在本机读取和保存，不会上传。",
-                    color = SmartColors.InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
+                WorkspacePanel {
+                    Text(
+                        text = "正在接收分享的文件…",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = SmartColors.Ink,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.testTag("share_intake_progress"),
+                    )
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = SmartColors.Jade,
+                    )
+                    Text(
+                        text = "文件只在本机读取和保存，不会上传。",
+                        color = SmartColors.InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
             CaptureShareRouteState.Expired -> CaptureShareFailureCard(
                 message = CAPTURE_SHARE_EXPIRED_MESSAGE,
@@ -265,15 +257,16 @@ private fun CaptureShareFailureCard(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("share_intake_rejected"),
-        color = SmartColors.ErrorWarm.copy(alpha = 0.10f),
-        shape = RoundedCornerShape(10.dp),
+        color = SmartColors.ContentSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
         border = androidx.compose.foundation.BorderStroke(
             1.dp,
-            SmartColors.ErrorWarm.copy(alpha = 0.45f),
+            SmartColors.ErrorText.copy(alpha = 0.25f),
         ),
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
@@ -298,7 +291,7 @@ private fun CaptureShareFailureCard(
                     onClick = onRetry,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .heightIn(min = 48.dp)
                         .testTag("share_intake_retry"),
                 )
             }
@@ -307,7 +300,7 @@ private fun CaptureShareFailureCard(
                 onClick = onManualEntry,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .heightIn(min = 48.dp)
                     .testTag("share_intake_manual"),
             )
             OutlineActionChip(
@@ -315,7 +308,7 @@ private fun CaptureShareFailureCard(
                 onClick = onDismiss,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .heightIn(min = 48.dp)
                     .testTag("share_intake_close"),
             )
         }
@@ -324,16 +317,5 @@ private fun CaptureShareFailureCard(
 
 @Composable
 private fun CaptureShareHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回")
-        }
-        Spacer(Modifier.size(4.dp))
-        Text("接收分享", style = MaterialTheme.typography.headlineSmall)
-    }
+    ClaudePageHeader("接收分享", onBack = onBack)
 }

@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.JadeActive
+import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +21,6 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.Icon
 import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
@@ -40,11 +42,9 @@ import com.tingyun.smartmistakebook.core.domain.TutorConversationStatus
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.Paper
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+import com.tingyun.smartmistakebook.core.ui.ClaudeCard
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
-import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -70,9 +70,8 @@ fun TutorHistoryRoute(
             .background(Paper)
             .testTag("tutor_history_screen"),
     ) {
-        ClaudePageHeader("讲题历史", Modifier.padding(horizontal = 8.dp), onBack,
+        ClaudePageHeader("讲题历史", Modifier.padding(horizontal = 16.dp, vertical = 8.dp), onBack,
             backModifier = Modifier.testTag("tutor_history_back"))
-        PaperDivider()
         if (visible.isEmpty()) {
             Column(
                 modifier = Modifier
@@ -96,7 +95,8 @@ fun TutorHistoryRoute(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 items(
                     items = visible,
@@ -158,29 +158,30 @@ private fun TutorHistoryRow(
     onArchive: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    Surface(
+    ClaudeCard(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp)
-            .claudeInteractiveRow(onClick)
             .testTag("tutor_history_row_${conversation.conversationId}"),
-        color = Color.Transparent,
-        shape = MaterialTheme.shapes.small,
+        shape = RoundedCornerShape(20.dp),
+        bordered = false,
+        elevation = 1.dp,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.padding(start = 10.dp).size(18.dp), tint = InkSecondary)
+            Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.padding(start = 16.dp).size(20.dp),
+                tint = JadeActive)
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                    .padding(horizontal = 12.dp, vertical = 16.dp),
             ) {
                 Text(
                     text = tutorConversationTitle(conversation),
                     color = Ink,
-                    style = ClaudeLayout.HeaderText,
+                    style = MaterialTheme.typography.titleSmall,
                     maxLines = 2,
                 )
                 Text(

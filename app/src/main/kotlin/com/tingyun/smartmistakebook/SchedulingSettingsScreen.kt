@@ -29,6 +29,7 @@ import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
@@ -62,49 +63,57 @@ internal fun SchedulingSettingsScreen(
         )
         Spacer(Modifier.height(12.dp))
 
-        SectionHeader(title = "记忆目标")
-        Text(
-            text = "目标回忆成功率：${(options.desiredRetention * 100).roundToInt()}%",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.testTag("scheduling_retention_label"),
-        )
-        Slider(
-            value = options.desiredRetention.toFloat(),
-            onValueChange = { value ->
-                onSetOptions(options.copy(desiredRetention = value.toDouble()))
-            },
-            valueRange = 0.7f..0.97f,
-            steps = 26,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("scheduling_retention_slider"),
-        )
-        // CMRR-style recommendation (研究 2026-09-09 §5): a reference value from
-        // the learner's own memory states, never applied automatically.
-        retentionHint?.let { hint ->
-            Text(
-                text = "参考值 ${(hint.desiredRetention * 100).roundToInt()}%（实验性，" +
-                    "由你自己的记忆状态模拟得出，仅供参考）",
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.testTag("scheduling_retention_hint"),
-            )
+        WorkspacePanel {
+            Column {
+                SectionHeader(title = "记忆目标")
+                Text(
+                    text = "目标回忆成功率：${(options.desiredRetention * 100).roundToInt()}%",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag("scheduling_retention_label"),
+                )
+                Slider(
+                    value = options.desiredRetention.toFloat(),
+                    onValueChange = { value ->
+                        onSetOptions(options.copy(desiredRetention = value.toDouble()))
+                    },
+                    valueRange = 0.7f..0.97f,
+                    steps = 26,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("scheduling_retention_slider"),
+                )
+                // CMRR-style recommendation (研究 2026-09-09 §5): a reference value from
+                // the learner's own memory states, never applied automatically.
+                retentionHint?.let { hint ->
+                    Text(
+                        text = "参考值 ${(hint.desiredRetention * 100).roundToInt()}%（实验性，" +
+                            "由你自己的记忆状态模拟得出，仅供参考）",
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.testTag("scheduling_retention_hint"),
+                    )
+                }
+
+            }
         }
+        Spacer(Modifier.height(16.dp))
 
-        PaperDivider(modifier = Modifier.padding(vertical = 12.dp))
-
-        SectionHeader(title = "考试日历")
-        Text(
-            text = "添加考试日期后，考前两周会优先安排相关科目的复习。",
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
-        Spacer(Modifier.height(8.dp))
-        ExamCalendarEditor(
-            exams = exams,
-            onAddExam = onAddExam,
-            onRemoveExam = onRemoveExam,
-        )
+        WorkspacePanel {
+            Column {
+                SectionHeader(title = "考试日历")
+                Text(
+                    text = "添加考试日期后，考前两周会优先安排相关科目的复习。",
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Spacer(Modifier.height(8.dp))
+                ExamCalendarEditor(
+                    exams = exams,
+                    onAddExam = onAddExam,
+                    onRemoveExam = onRemoveExam,
+                )
+            }
+        }
     }
 }
 

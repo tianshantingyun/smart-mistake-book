@@ -226,9 +226,9 @@ private fun OrganizationTreeOptionRow(
             .fillMaxWidth()
             .clickable(enabled = !selected, onClick = onClick)
             .testTag(testTag),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         color = if (selected) JadeSoft.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, Outline),
+        shadowElevation = 1.dp,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),

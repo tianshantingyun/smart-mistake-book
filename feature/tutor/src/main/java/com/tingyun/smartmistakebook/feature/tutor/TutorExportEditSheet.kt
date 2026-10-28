@@ -1,19 +1,23 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.Paper
+
 import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
 import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +41,6 @@ import com.tingyun.smartmistakebook.core.export.MistakePdfPaperQuestion
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 
@@ -76,7 +79,7 @@ internal fun TutorExportEditSheet(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = onDismiss),
+            modifier = Modifier.fillMaxSize().imePadding().padding(top = 24.dp).claudeDismissOnEscape(onDismiss = onDismiss),
             contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
@@ -85,21 +88,21 @@ internal fun TutorExportEditSheet(
                     .heightIn(max = 700.dp)
                     .claudeModalEntrance()
                     .testTag("tutor_export_edit_sheet"),
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
-                border = BorderStroke(1.dp, Outline),
+                color = Paper,
+                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                shadowElevation = 4.dp,
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         text = "编辑卷面",
                         color = Ink,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
@@ -251,6 +254,7 @@ internal fun TutorExportEditSheet(
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun PaperQuestionEditor(
     index: Int,
     question: MistakePdfPaperQuestion,
@@ -266,24 +270,19 @@ private fun PaperQuestionEditor(
     includeNote: Boolean,
     onNoteChange: (String) -> Unit,
 ) {
-    Column(
+    WorkspacePanel(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("tutor_export_edit_question_${question.entryId}"),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Row(
+        Text(
+            text = "第 ${index + 1} 题",
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(
-                text = "第 ${index + 1} 题",
-                modifier = Modifier.weight(1f),
-                color = Ink,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium,
-            )
+            color = Ink,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Medium,
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlineActionChip(
                 text = "上移",
                 onClick = { onMove(-1) },

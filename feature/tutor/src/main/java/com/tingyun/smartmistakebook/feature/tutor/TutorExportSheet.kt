@@ -1,10 +1,15 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.JadeSoft
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+import com.tingyun.smartmistakebook.core.ui.Paper
+import com.tingyun.smartmistakebook.core.ui.JadeDark
+
 import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
 import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,7 +56,6 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import kotlin.math.roundToInt
@@ -356,7 +361,7 @@ internal fun TutorExportSheet(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = onDismiss),
+            modifier = Modifier.fillMaxSize().imePadding().padding(top = 24.dp).claudeDismissOnEscape(onDismiss = onDismiss),
             contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
@@ -365,21 +370,21 @@ internal fun TutorExportSheet(
                     .heightIn(max = 640.dp)
                     .claudeModalEntrance()
                     .testTag("tutor_export_sheet"),
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
-                border = BorderStroke(1.dp, Outline),
+                color = Paper,
+                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                shadowElevation = 4.dp,
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         text = "导出练习卷",
                         color = Ink,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
@@ -391,7 +396,7 @@ internal fun TutorExportSheet(
 
                     // ---- ① 版式参数表单（预填模型提议值） ----
                     SheetSectionLabel("模板")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(
                             MistakePdfLayout.TEMPLATE_PRACTICE_SHEET to "练习卷",
                             MistakePdfLayout.TEMPLATE_COMPACT to "紧凑版",
@@ -410,7 +415,7 @@ internal fun TutorExportSheet(
 
                     // 交付格式（6B-1）：与模板同区；选择随任务进 worker，成果入口按扩展名分流。
                     SheetSectionLabel("文件格式")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         MistakeExportFormat.entries.forEach { format ->
                             OutlineActionChip(
                                 text = format.studentLabel,
@@ -644,9 +649,10 @@ internal fun TutorExportSheet(
 private fun SheetSectionLabel(text: String) {
     Text(
         text = text,
-        color = Ink,
+        modifier = Modifier.padding(top = 8.dp),
+        color = JadeDark,
         style = MaterialTheme.typography.labelLarge,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
     )
 }
 
@@ -691,6 +697,9 @@ private fun CandidateRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(if (checked) JadeSoft else ContentSurface,
+                RoundedCornerShape(16.dp))
+            .padding(horizontal = 8.dp, vertical = 6.dp)
             .testTag("tutor_export_sheet_candidate_${candidate.entryId}"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -700,7 +709,7 @@ private fun CandidateRow(
             onCheckedChange = onCheckedChange,
             modifier = Modifier.testTag("tutor_export_sheet_candidate_check_${candidate.entryId}"),
         )
-        Column(modifier = Modifier.padding(start = 4.dp)) {
+        Column(modifier = Modifier.weight(1f).padding(start = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = candidate.title,
                 color = Ink,

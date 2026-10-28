@@ -12,12 +12,16 @@ import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 
 @Composable
 internal fun DatabaseRestartRequiredScreen(message: String, onClose: () -> Unit) {
     BackHandler { }
     RootPageColumn(modifier = Modifier.testTag("database_restart_required")) {
-        SectionHeader("需要重新打开应用")
+        WorkspacePageHeader("需要重新打开应用")
+        androidx.compose.foundation.layout.Spacer(Modifier.padding(top = 16.dp))
+        WorkspacePanel {
         Text(message, modifier = Modifier.padding(top = 16.dp))
         Text("请先关闭应用，再从桌面打开，以使用更新后的本机数据。", modifier = Modifier.padding(top = 12.dp))
         PrimaryActionButton(
@@ -25,6 +29,7 @@ internal fun DatabaseRestartRequiredScreen(message: String, onClose: () -> Unit)
             onClick = onClose,
             modifier = Modifier.padding(top = 24.dp).testTag("database_close_app"),
         )
+        }
     }
 }
 

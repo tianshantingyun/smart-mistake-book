@@ -1,9 +1,12 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+
 import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
 import androidx.compose.ui.graphics.Color
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -131,16 +134,18 @@ private fun MistakePickerRow(
 ) {
     Surface(
         color = Color.Transparent,
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .claudeInteractiveRow(onClick)
+            .background(SubtleSurface, RoundedCornerShape(16.dp))
+            .claudeInteractiveRow(onClick, shape = RoundedCornerShape(16.dp))
             .testTag(testTag),
     ) {
-        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = entry.title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleSmall,
                 color = Ink,
                 maxLines = 2,
             )

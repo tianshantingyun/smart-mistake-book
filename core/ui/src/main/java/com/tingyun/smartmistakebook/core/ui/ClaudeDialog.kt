@@ -1,7 +1,6 @@
 package com.tingyun.smartmistakebook.core.ui
 
 // Native port of Caho1/open-claude-ui ConfirmationDialog.tsx, c1f923ae; MIT, Copyright 2026 Caho1.
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -55,7 +54,7 @@ fun ClaudeAlertDialog(
     icon: (@Composable () -> Unit)? = null,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(24.dp),
     containerColor: Color = ContentSurface,
     iconContentColor: Color = JadeActive,
     titleContentColor: Color = Ink,
@@ -72,14 +71,14 @@ fun ClaudeAlertDialog(
             Surface(modifier.widthIn(max = 520.dp).fillMaxWidth().heightIn(max = maxHeight)
                 .claudeModalEntrance(),
                 shape = shape, color = containerColor, tonalElevation = tonalElevation,
-                shadowElevation = 16.dp, border = BorderStroke(1.dp, Ink.copy(alpha = .1f))) {
+                shadowElevation = 12.dp) {
                 Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         if (icon != null) CompositionLocalProvider(LocalContentColor provides iconContentColor, content = icon)
                         Column(Modifier.weight(1f).padding(top = 8.dp)) {
                             if (title != null) CompositionLocalProvider(LocalContentColor provides titleContentColor) {
-                                ProvideTextStyle(MaterialTheme.typography.titleMedium, title)
+                                ProvideTextStyle(MaterialTheme.typography.titleLarge, title)
                             }
                         }
                         if (properties.dismissOnBackPress || properties.dismissOnClickOutside) {

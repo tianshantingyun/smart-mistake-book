@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.sp
 /** Receives the parser's original literal; presentation never trims or rewrites copied code. */
 @Composable
 fun ClaudeCodeBlock(literal: String, language: String, modifier: Modifier = Modifier) {
-    val foreground = Color(0xFFD4D4D4)
-    val shape = RoundedCornerShape(12.dp)
+    val foreground = SmartColors.OnCode
+    val shape = RoundedCornerShape(16.dp)
     Column(modifier.fillMaxWidth().testTag("claude_code_block").clip(shape)
-        .background(Color(0xFF0D0D0C)).border(1.dp, Color(0xFF262626), shape)) {
-        Row(Modifier.fillMaxWidth().background(Color(0xFF0A0A0A)).padding(start = 14.dp, end = 4.dp),
+        .background(SmartColors.CodeSurface)) {
+        Row(Modifier.fillMaxWidth().background(SmartColors.CodeHeader).padding(start = 14.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("</>", color = foreground, style = ClaudeLayout.ControlText)
             Text(language.trim().substringBefore(' ').ifBlank { "代码" }, Modifier.weight(1f),

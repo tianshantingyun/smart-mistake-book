@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,8 @@ import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.SubjectIcon
+import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -93,55 +97,59 @@ fun ReviewRoute(
     ) {
         ReviewGreeting()
         Spacer(Modifier.height(12.dp))
-        SectionHeader(title = "今日复习")
-        Spacer(Modifier.height(8.dp))
-        if (surfaceState == ReviewSurfaceState.NORMAL) {
-            ReviewSummary(overview)
-        } else {
-            reviewStateCopy(surfaceState, pendingFailedTaskCount)?.let { copy ->
-                ReviewStateNotice(
-                    copy = copy,
-                    action = when (surfaceState) {
-                        ReviewSurfaceState.EMPTY_LIBRARY -> onCapture
-                        ReviewSurfaceState.PENDING_FAILED_TASKS -> onContinuePendingTasks
-                        else -> null
+        WorkspacePanel {
+            Column {
+                SectionHeader(title = "今日复习")
+                Spacer(Modifier.height(8.dp))
+                if (surfaceState == ReviewSurfaceState.NORMAL) {
+                    ReviewSummary(overview)
+                } else {
+                    reviewStateCopy(surfaceState, pendingFailedTaskCount)?.let { copy ->
+                        ReviewStateNotice(
+                            copy = copy,
+                            action = when (surfaceState) {
+                                ReviewSurfaceState.EMPTY_LIBRARY -> onCapture
+                                ReviewSurfaceState.PENDING_FAILED_TASKS -> onContinuePendingTasks
+                                else -> null
+                            },
+                            actionTestTag = when (surfaceState) {
+                                ReviewSurfaceState.EMPTY_LIBRARY -> "review_capture_button"
+                                ReviewSurfaceState.PENDING_FAILED_TASKS -> "review_continue_pending_tasks"
+                                else -> "review_state_action"
+                            },
+                        )
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+                // 双复习入口（spec dual-review-entry §3.1）：知识点复习与错题复习并列、学生自由选，
+                // 建议先巩固概念再做错题。入口只在今天真有可复习知识点（count>0）时出现——count 由
+                // app 层经 currentKnowledgeReviewPlan 实算（含"有讲解材料可出题"过滤），首页不猜测；
+                // 错题复习是否完成不影响该入口（两者独立，自由选）。
+                if (knowledgeReviewEntryVisible(knowledgeReviewCount, onStartKnowledgeReview != null)) {
+                    KnowledgeReviewEntryCard(
+                        knowledgeCount = requireNotNull(knowledgeReviewCount),
+                        onClick = requireNotNull(onStartKnowledgeReview),
+                        modifier = Modifier.testTag("review_start_knowledge_review"),
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
+                PrimaryActionButton(
+                    text = when {
+                        overview.completedToday -> "今日复习已完成"
+                        overview.activeSessionId != null -> "继续今日复习"
+                        overview.scheduledCount > 0 -> "开始今日复习"
+                        else -> "暂无待复习题"
                     },
-                    actionTestTag = when (surfaceState) {
-                        ReviewSurfaceState.EMPTY_LIBRARY -> "review_capture_button"
-                        ReviewSurfaceState.PENDING_FAILED_TASKS -> "review_continue_pending_tasks"
-                        else -> "review_state_action"
-                    },
+                    onClick = onStartReview,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 58.dp)
+                        .testTag("review_start_button"),
+                    icon = Icons.AutoMirrored.Outlined.MenuBook,
+                    enabled = overview.scheduledCount > 0 && !overview.completedToday,
                 )
             }
         }
-        Spacer(Modifier.height(16.dp))
-        // 双复习入口（spec dual-review-entry §3.1）：知识点复习与错题复习并列、学生自由选，
-        // 建议先巩固概念再做错题。入口只在今天真有可复习知识点（count>0）时出现——count 由
-        // app 层经 currentKnowledgeReviewPlan 实算（含"有讲解材料可出题"过滤），首页不猜测；
-        // 错题复习是否完成不影响该入口（两者独立，自由选）。
-        if (knowledgeReviewEntryVisible(knowledgeReviewCount, onStartKnowledgeReview != null)) {
-            KnowledgeReviewEntryCard(
-                knowledgeCount = requireNotNull(knowledgeReviewCount),
-                onClick = requireNotNull(onStartKnowledgeReview),
-                modifier = Modifier.testTag("review_start_knowledge_review"),
-            )
-            Spacer(Modifier.height(12.dp))
-        }
-        PrimaryActionButton(
-            text = when {
-                overview.completedToday -> "今日复习已完成"
-                overview.activeSessionId != null -> "继续今日复习"
-                overview.scheduledCount > 0 -> "开始今日复习"
-                else -> "暂无待复习题"
-            },
-            onClick = onStartReview,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 58.dp)
-                .testTag("review_start_button"),
-            icon = Icons.AutoMirrored.Outlined.MenuBook,
-            enabled = overview.scheduledCount > 0 && !overview.completedToday,
-        )
         // 失败待处理任务在正常计划态下也要保留入口：它属于录入任务，不是复习队列的一部分。
         if (surfaceState != ReviewSurfaceState.PENDING_FAILED_TASKS &&
             reviewPendingTasksEntryVisible(
@@ -177,7 +185,7 @@ fun ReviewRoute(
                     .fillMaxWidth()
                     .background(
                         color = SmartColors.JadeSoft.copy(alpha = 0.55f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(16.dp),
                     )
                     .padding(horizontal = 14.dp, vertical = 12.dp)
                     .semantics(mergeDescendants = true) {}
@@ -198,28 +206,32 @@ fun ReviewRoute(
             }
         }
         if (profile.hasLearningEvidence && profile.weaknesses.isNotEmpty()) {
-            PaperDivider(Modifier.padding(vertical = 26.dp))
-            SectionHeader(title = "薄弱知识点")
-            Spacer(Modifier.height(10.dp))
-            profile.weaknesses.take(2).forEachIndexed { index, weakness ->
-                WeakPointRow(
-                    title = weakness.displayName,
-                    // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同一文案函数）。
-                    detail = "独立作答把握：" +
-                        com.tingyun.smartmistakebook.core.ui.masteryBandLabel(
-                            weakness.conservativeMasteryScore,
-                        ) + "（" +
-                        com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
-                            weakness.conservativeMasteryScore,
-                            weakness.masteryIntervalUpper,
-                        ) + "）",
-                    icon = if (index == 0) {
-                        Icons.AutoMirrored.Outlined.ShowChart
-                    } else {
-                        Icons.Outlined.Bolt
-                    },
-                    testTag = "review_weakness_$index",
-                )
+            Spacer(Modifier.height(20.dp))
+            WorkspacePanel {
+                Column {
+                    SectionHeader(title = "薄弱知识点")
+                    Spacer(Modifier.height(10.dp))
+                    profile.weaknesses.take(2).forEachIndexed { index, weakness ->
+                        WeakPointRow(
+                            title = weakness.displayName,
+                            // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同一文案函数）。
+                            detail = "独立作答把握：" +
+                                com.tingyun.smartmistakebook.core.ui.masteryBandLabel(
+                                    weakness.conservativeMasteryScore,
+                                ) + "（" +
+                                com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
+                                    weakness.conservativeMasteryScore,
+                                    weakness.masteryIntervalUpper,
+                                ) + "）",
+                            icon = if (index == 0) {
+                                Icons.AutoMirrored.Outlined.ShowChart
+                            } else {
+                                Icons.Outlined.Bolt
+                            },
+                            testTag = "review_weakness_$index",
+                        )
+                    }
+                }
             }
         }
     }
@@ -326,7 +338,7 @@ private fun ReviewStateNotice(
                 onClick = action,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp)
+                    .heightIn(min = 54.dp)
                     .testTag(actionTestTag),
             )
         }
@@ -356,9 +368,8 @@ private fun KnowledgeReviewEntryCard(
     Surface(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        color = SmartColors.JadeSoft.copy(alpha = 0.45f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Jade.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(16.dp),
+        color = SmartColors.LearningSurface,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
@@ -368,6 +379,8 @@ private fun KnowledgeReviewEntryCard(
                 icon = Icons.AutoMirrored.Outlined.ShowChart,
                 contentDescription = "知识点复习",
                 modifier = Modifier.size(44.dp),
+                containerColor = SmartColors.ContentSurface,
+                tint = SmartColors.LearningAccent,
             )
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
@@ -386,7 +399,7 @@ private fun KnowledgeReviewEntryCard(
             }
             Text(
                 text = "开始",
-                color = SmartColors.JadeDark,
+                color = SmartColors.LearningAccent,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -415,53 +428,36 @@ private fun ReviewGreeting() {
     val dateLabel = remember(now) {
         SimpleDateFormat("M月d日 · EEEE", Locale.SIMPLIFIED_CHINESE).format(now)
     }
-    Column(Modifier.fillMaxWidth()) {
-        Text(
-            text = greeting,
-            color = SmartColors.Ink,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = dateLabel,
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.InkSecondary,
-        )
-    }
+    WorkspacePageHeader(title = "复习", subtitle = "$greeting · $dateLabel")
 }
 
 @Composable
 private fun ReviewSummary(overview: StudyReviewOverview) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SummaryValue(
-            value = overview.scheduledCount.toString(),
-            label = if (overview.completedToday) "道今日已完成" else "道计划复习",
-        )
-        Box(
-            modifier = Modifier
-                .width(1.dp)
-                .height(48.dp)
-                .background(SmartColors.Divider),
-        )
-        SummaryValue(
-            value = ((overview.estimatedSeconds + 59) / 60).toString(),
-            label = "预计用时（分钟）",
-        )
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth < 260.dp || LocalDensity.current.fontScale > 1.3f) {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                SummaryValue(overview.scheduledCount.toString(),
+                    if (overview.completedToday) "道今日已完成" else "道计划复习", Modifier.fillMaxWidth())
+                PaperDivider()
+                SummaryValue(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）", Modifier.fillMaxWidth())
+            }
+        } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            SummaryValue(overview.scheduledCount.toString(),
+                if (overview.completedToday) "道今日已完成" else "道计划复习", Modifier.weight(1f))
+            Box(Modifier.width(1.dp).height(48.dp).background(SmartColors.Divider))
+            SummaryValue(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）", Modifier.weight(1f))
+        }
     }
 }
 
 @Composable
-private fun SummaryValue(value: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun SummaryValue(value: String, label: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
             color = SmartColors.Ink,
-            fontSize = 28.sp,
-            lineHeight = 36.sp,
+            fontSize = 30.sp,
+            lineHeight = 38.sp,
             fontWeight = FontWeight.SemiBold,
         )
         Text(
@@ -532,25 +528,20 @@ private fun IntakeBacklogPreview(
             timeBudgetSeconds = DEFAULT_INTAKE_DAILY_BUDGET_SECONDS,
         )
     }
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                color = SmartColors.JadeSoft.copy(alpha = 0.35f),
-                shape = RoundedCornerShape(12.dp),
+    WorkspacePanel(modifier = modifier) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("新题安排", color = SmartColors.Ink,
+                style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = if (preview.daysToCover <= 0) {
+                    "还有 $backlogCount 道新题待学"
+                } else {
+                    "还有 $backlogCount 道新题待学：每天约 ${preview.perDayItems} 题，约 ${preview.daysToCover} 天安排完"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = SmartColors.Ink,
             )
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = if (preview.daysToCover <= 0) {
-                "还有 $backlogCount 道新题待学"
-            } else {
-                "还有 $backlogCount 道新题待学：每天约 ${preview.perDayItems} 题，约 ${preview.daysToCover} 天安排完"
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.Ink,
-        )
+        }
     }
 }
 

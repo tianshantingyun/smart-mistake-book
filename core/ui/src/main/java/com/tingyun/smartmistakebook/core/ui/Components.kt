@@ -63,6 +63,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 
@@ -126,21 +127,27 @@ fun ScreenStatePanel(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 96.dp)
-            .padding(vertical = 18.dp),
+            .clip(RoundedCornerShape(20.dp))
+            .background(ContentSurface)
+            .padding(horizontal = 20.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Box(Modifier.size(52.dp).clip(RoundedCornerShape(16.dp)).background(JadeSoft),
+            contentAlignment = Alignment.Center) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(42.dp),
-            tint = InkMuted,
+            modifier = Modifier.size(26.dp),
+            tint = JadeDark,
         )
+        }
         Spacer(Modifier.height(10.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             color = Ink,
             fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
         )
         if (supportingText != null) {
             Spacer(Modifier.height(4.dp))
@@ -148,6 +155,7 @@ fun ScreenStatePanel(
                 text = supportingText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = InkSecondary,
+                textAlign = TextAlign.Center,
             )
         }
         if (actionLabel != null && onAction != null) {
@@ -300,10 +308,19 @@ fun SubjectIcon(
     modifier: Modifier = Modifier,
     contentDescription: String = "${subject.studentLabel()}学科",
 ) {
+    val (surface, accent) = when (subject) {
+        SubjectKind.CHINESE, SubjectKind.HISTORY, SubjectKind.POLITICS ->
+            SmartColors.ReadingSurface to SmartColors.ReadingAccent
+        SubjectKind.MATH, SubjectKind.PHYSICS, SubjectKind.CHEMISTRY, SubjectKind.ENGLISH ->
+            SmartColors.LearningSurface to SmartColors.LearningAccent
+        else -> JadeSoft to JadeDark
+    }
     SubjectIcon(
         icon = subject.icon(),
         contentDescription = contentDescription,
         modifier = modifier,
+        containerColor = surface,
+        tint = accent,
     )
 }
 
@@ -318,7 +335,7 @@ fun SubjectIcon(
     Box(
         modifier = modifier
             .size(36.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(containerColor)
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,

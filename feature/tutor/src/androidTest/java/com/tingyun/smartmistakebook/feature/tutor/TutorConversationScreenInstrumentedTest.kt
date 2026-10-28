@@ -121,6 +121,7 @@ class TutorConversationScreenInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag(TUTOR_CAPABILITY_DIRECTORY_TAG).assertExists()
         composeRule.onNodeWithTag("tutor_capability_explain").assertExists()
         composeRule.onNodeWithTag("tutor_capability_capture").assertExists()
+        captureTutorFullUiEvidence("tutor-lobby.png", composeRule::waitForIdle)
     }
 
     // ---- A3：计划阶段也有流 ----

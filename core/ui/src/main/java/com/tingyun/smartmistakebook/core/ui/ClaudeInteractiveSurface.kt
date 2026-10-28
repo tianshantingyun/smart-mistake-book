@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 
 /** Neutral interactive paint without scaling text, image bounds, or hit targets. */
 @Composable
@@ -35,6 +36,7 @@ fun Modifier.claudeInteractiveRow(
     role: Role = Role.Button,
     onClickLabel: String? = null,
     shape: Shape = RoundedCornerShape(8.dp),
+    selectedFill: Color = Ink.copy(alpha = .06f),
 ): Modifier {
     val source = remember { MutableInteractionSource() }
     val pressed by source.collectIsPressedAsState()
@@ -43,7 +45,7 @@ fun Modifier.claudeInteractiveRow(
     val fill by animateColorAsState(when {
         !enabled -> Color.Transparent
         pressed -> Ink.copy(alpha = .10f)
-        selected -> Ink.copy(alpha = .06f)
+        selected -> selectedFill
         hovered -> Ink.copy(alpha = .05f)
         else -> Color.Transparent
     }, ClaudeMotion.spec(LocalClaudeMotionEnabled.current), label = "cds-row-fill")
@@ -57,7 +59,9 @@ fun Modifier.claudeInteractiveRow(
 fun ClaudeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(12.dp),
+    shape: Shape = RoundedCornerShape(20.dp),
+    bordered: Boolean = false,
+    elevation: Dp = 1.dp,
     content: @Composable () -> Unit,
 ) {
     val source = remember { MutableInteractionSource() }
@@ -68,8 +72,9 @@ fun ClaudeCard(
         ClaudeMotion.spec(LocalClaudeMotionEnabled.current), label = "cds-card-fill")
     CompositionLocalProvider(LocalRippleConfiguration provides null) {
         Surface(onClick = onClick, modifier = modifier, shape = shape, color = fill,
-            border = BorderStroke(if (focused) 2.dp else 1.dp,
-                if (focused) claudeFocusIndicatorColor(fill) else Ink.copy(alpha = .1f)),
+            border = if (focused) BorderStroke(2.dp, claudeFocusIndicatorColor(fill))
+                else if (bordered) BorderStroke(1.dp, Ink.copy(alpha = .1f)) else null,
+            shadowElevation = elevation,
             interactionSource = source, content = content)
     }
 }

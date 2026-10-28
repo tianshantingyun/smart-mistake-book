@@ -1,9 +1,9 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -25,10 +26,10 @@ import com.tingyun.smartmistakebook.core.domain.tutorLocalActionTarget
 import com.tingyun.smartmistakebook.core.domain.TutorLocalActionTarget
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestDecision
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestKind
-import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
+import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 /**
  * 确认卡（A4 / 插眼 5）：**本地动作的确认**——学生点了才会执行。
@@ -42,6 +43,7 @@ import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
  * 同一张卡，裁决后行落终态（不在界面上留一份会漂的状态）。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun TutorPendingRequestCard(
     request: AgentPendingRequest,
     modifier: Modifier = Modifier,
@@ -56,18 +58,18 @@ internal fun TutorPendingRequestCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag(testTagPrefix),
-        color = JadeActive.copy(alpha = 0.06f),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, JadeActive.copy(alpha = 0.32f)),
+        color = SmartColors.PendingSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = copy.title,
-                color = Ink,
-                style = MaterialTheme.typography.titleSmall,
+                color = SmartColors.PendingAccent,
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 text = copy.detail,
@@ -78,8 +80,9 @@ internal fun TutorPendingRequestCard(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("${testTagPrefix}_busy")
                     .semantics { liveRegion = LiveRegionMode.Polite })
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlineActionChip(
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
+                maxItemsInEachRow = if (LocalDensity.current.fontScale > 1.3f) 1 else 2) {
+                PrimaryActionButton(
                     text = copy.acceptLabel,
                     onClick = { if (canDecide) onDecide(AgentPendingRequestDecision.ACCEPT) },
                     enabled = canDecide,

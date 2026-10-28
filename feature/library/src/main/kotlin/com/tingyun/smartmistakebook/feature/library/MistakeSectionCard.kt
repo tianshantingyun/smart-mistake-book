@@ -1,6 +1,5 @@
 package com.tingyun.smartmistakebook.feature.library
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,14 +10,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
@@ -29,10 +28,12 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeDisclosure
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 @Composable
-internal fun MistakeModuleHeader(showDivider: Boolean = true, content: @Composable () -> Unit) {
-    Column(Modifier.fillMaxWidth().background(SmartColors.JadeSoft.copy(alpha = 0.38f)).drawBehind {
-        drawRect(SmartColors.Jade, size = Size(3.dp.toPx(), size.height))
-    }) {
+internal fun MistakeModuleHeader(
+    showDivider: Boolean = true,
+    background: Color = SmartColors.ContentSurface,
+    content: @Composable () -> Unit,
+) {
+    Column(Modifier.fillMaxWidth().background(background)) {
         content()
         if (showDivider) HorizontalDivider(color = SmartColors.Divider)
     }
@@ -45,16 +46,17 @@ internal fun MistakeSectionCard(
     expanded: Boolean = true,
     action: (@Composable () -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    headerColor: Color = SmartColors.SubtleSurface,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = RoundedCornerShape(20.dp),
         color = SmartColors.ContentSurface,
-        border = BorderStroke(1.dp, SmartColors.Divider),
+        shadowElevation = 1.dp,
     ) {
         Column {
-            MistakeModuleHeader(showDivider = expanded) {
+            MistakeModuleHeader(showDivider = expanded, background = headerColor) {
                 BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
                     @Composable
                     fun Title(modifier: Modifier = Modifier) {

@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -55,9 +57,7 @@ import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.LocalModeLine
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer
 import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
@@ -511,19 +511,23 @@ internal fun SavedMistakeTutorContent(
             leadingContent = {
                 // A1：进入即新会话，不再接管上一次。文案跟着改——旧文案承诺"再次打开会接着
                 // 上次讲题"，而那正是被删掉的行为。
-                LocalModeLine("已存入错题本 · 这一轮从这道题开始")
-                SectionHeader(question.title, modifier = Modifier.padding(top = 10.dp))
-                Text(
-                    text = question.subject.studentSubjectLabel(),
-                    modifier = Modifier.padding(top = 4.dp),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Spacer(Modifier.height(14.dp))
-                StructuredContentRenderer(
-                    document = question.questionDocument.document,
-                    choicesEnabled = false,
-                )
+                WorkspacePanel {
+                    Column {
+                        LocalModeLine("已存入错题本 · 这一轮从这道题开始")
+                        SectionHeader(question.title, modifier = Modifier.padding(top = 10.dp))
+                        Text(
+                            text = question.subject.studentSubjectLabel(),
+                            modifier = Modifier.padding(top = 4.dp),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        StructuredContentRenderer(
+                            document = question.questionDocument.document,
+                            choicesEnabled = false,
+                        )
+                    }
+                }
                 learningMemory?.let { memory ->
                     TutorQuestionMemoryCard(
                         memory = memory,
@@ -611,13 +615,13 @@ internal fun TutorQuestionMemoryCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("saved_mistake_learning_memory"),
-        color = JadeSoft.copy(alpha = 0.34f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        color = ContentSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = "这道题的学习记忆",

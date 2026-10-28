@@ -60,11 +60,11 @@ fun ClaudeTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(14.dp),
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = Ink, unfocusedTextColor = Ink,
         focusedContainerColor = ContentSurface, unfocusedContainerColor = ContentSurface,
-        focusedBorderColor = Ink.copy(alpha = .2f), unfocusedBorderColor = Ink.copy(alpha = .1f),
+        focusedBorderColor = Jade, unfocusedBorderColor = Outline,
         cursorColor = Jade, focusedLabelColor = InkSecondary, unfocusedLabelColor = InkSecondary,
     ),
 ) {
@@ -94,12 +94,12 @@ fun ClaudeTextField(
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (label != null) {
                     CompositionLocalProvider(LocalContentColor provides InkSecondary) {
-                        ProvideTextStyle(MaterialTheme.typography.labelMedium, label)
+                        ProvideTextStyle(MaterialTheme.typography.bodySmall, label)
                     }
                 }
                 Row(
                     Modifier.defaultMinSize(minWidth = 120.dp, minHeight = 48.dp)
-                        .background(background, shape).border(1.dp, outline, shape)
+                        .background(background, shape).border(if (focused) 2.dp else 1.dp, outline, shape)
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

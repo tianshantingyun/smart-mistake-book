@@ -1,32 +1,33 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.tingyun.smartmistakebook.feature.capture
 
 import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
 
-import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -39,9 +40,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 /** 框选区域的最小尺寸阈值，与 SplitCaptureDraftRequest 的校验一致。 */
 internal const val REGION_MIN_WIDTH = 0.08
@@ -127,14 +129,14 @@ internal fun RegionBoxSelectorDialog(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xE6121412))
+                .background(SmartColors.Forest.copy(alpha = .98f))
                 .claudeDismissOnEscape(onDismiss = onDismiss)
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text(
                 text = "在图上拖拽，框出每道题的范围（2 到 12 道）",
-                color = Color.White,
+                color = SmartColors.OnJade,
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.testTag("region_box_selector_hint"),
             )
@@ -220,7 +222,7 @@ internal fun RegionBoxSelectorDialog(
                                         ((region.right - region.left) * size.width).toFloat(),
                                         ((region.bottom - region.top) * size.height).toFloat(),
                                     ),
-                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()),
                                 )
                             }
                             val start = dragStart
@@ -233,7 +235,7 @@ internal fun RegionBoxSelectorDialog(
                                         kotlin.math.abs(end.x - start.x),
                                         kotlin.math.abs(end.y - start.y),
                                     ),
-                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()),
                                 )
                             }
                         }
@@ -262,50 +264,52 @@ internal fun RegionBoxSelectorDialog(
             hint?.let {
                 Text(
                     text = it,
-                    color = Color(0xFFFFC9A3),
+                    color = SmartColors.OnJade,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.testTag("region_box_hint"),
                 )
             }
             val canConfirm = regions.size in 2..12 && !regionsOverlapBeyondLimit(regions)
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                OutlineActionChip(
-                    text = "取消",
+                ClaudeSecondaryButton(
                     onClick = onDismiss,
                     modifier = Modifier.testTag("region_box_cancel"),
-                )
-                OutlineActionChip(
-                    text = "撤销上一框",
+                    colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Forest, contentColor = SmartColors.OnJade),
+                    border = BorderStroke(1.dp, SmartColors.OnJade.copy(alpha = .35f)),
+                ) { Text("取消") }
+                ClaudeSecondaryButton(
                     onClick = {
                         regions = regions.dropLast(1)
                         hint = null
                     },
                     enabled = regions.isNotEmpty(),
                     modifier = Modifier.testTag("region_box_undo"),
-                )
-                Box(Modifier.weight(1f))
+                    colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Forest, contentColor = SmartColors.OnJade,
+                        disabledContainerColor = SmartColors.Forest, disabledContentColor = SmartColors.OnJade.copy(alpha = .45f)),
+                    border = BorderStroke(1.dp, SmartColors.OnJade.copy(alpha = .35f)),
+                ) { Text("撤销上一框") }
                 PrimaryActionButton(
                     text = "完成（已框 ${regions.size}）",
                     onClick = { onConfirm(regions) },
                     enabled = canConfirm,
                     modifier = Modifier
-                        .weight(1.4f)
                         .testTag("region_box_confirm"),
                 )
             }
             if (regions.size >= 2 && regionsOverlapBeyondLimit(regions)) {
                 Text(
                     text = "有两个框重叠得太多，请调整后再完成。",
-                    color = Color(0xFFFFC9A3),
+                    color = SmartColors.OnJade,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
             Text(
                 text = "框会按题目在页面上的阅读顺序编号",
-                color = InkSecondary,
+                color = SmartColors.OnJade.copy(alpha = .8f),
                 style = MaterialTheme.typography.labelSmall,
             )
         }

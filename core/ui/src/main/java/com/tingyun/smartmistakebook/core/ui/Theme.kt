@@ -13,25 +13,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** The single, paper-like palette used by the visual references. */
+/** Quiet green surfaces with strong, readable ink. */
 object SmartColors {
-    val Paper = Color(0xFFF7F6F2)
-    val Ink = Color(0xFF151515)
-    val InkSecondary = Color(0xFF525252)
-    val InkMuted = Color(0xFF87919B)
-    val Jade = Color(0xFF23704A)
-    val JadeDark = Color(0xFF286647)
-    val JadeActive = Color(0xFF087046)
-    val JadeSoft = Color(0xFFDDE7E0)
+    val Paper = Color(0xFFF6F7F2)
+    val Ink = Color(0xFF182A24)
+    val InkSecondary = Color(0xFF55655C)
+    val InkMuted = Color(0xFF5D7063)
+    val Forest = Color(0xFF103C2C)
+    val Jade = Color(0xFF176B51)
+    val JadeDark = Color(0xFF15553F)
+    val JadeActive = Color(0xFF176B51)
+    val JadeSoft = Color(0xFFE8F2EC)
     val JadeMuted = Color(0xFF83B39A)
-    val Divider = Color(0xFFD8DAD8)
-    val Outline = Color(0xFFC8CED1)
-    val Track = Color(0xFFE2E0DE)
+    val Divider = Color(0xFFE0E7E2)
+    val Outline = Color(0xFFC6D2CA)
+    val Track = Color(0xFFE1E9E3)
     val ErrorWarm = Color(0xFFE36F27)
     val ErrorText = Color(0xFFA23E24)
     val OnJade = Color(0xFFFFFDFC)
     val ContentSurface = Color.White
-    val SubtleSurface = Color(0xFFF0EFEC)
+    val SubtleSurface = Color(0xFFEFF4F0)
+    val ReadingSurface = Color(0xFFF6F0E4)
+    val ReadingAccent = Color(0xFF765632)
+    val LearningSurface = Color(0xFFEAF0F6)
+    val LearningAccent = Color(0xFF3E5F7C)
+    val PendingSurface = Color(0xFFFBF1DE)
+    val PendingAccent = Color(0xFF805D23)
+    val CodeSurface = Color(0xFF10271F)
+    val CodeHeader = Color(0xFF19392D)
+    val OnCode = Color(0xFFE0EAE3)
 }
 
 val Paper = SmartColors.Paper
@@ -55,9 +65,9 @@ val SubtleSurface = SmartColors.SubtleSurface
 object SmartDimens {
     val ContentHorizontalPadding = 16.dp
     val MinimumTouchTarget = 48.dp
-    val CallToActionRadius = 12.dp
-    val SurfaceRadius = 12.dp
-    val ChipRadius = 8.dp
+    val CallToActionRadius = 16.dp
+    val SurfaceRadius = 20.dp
+    val ChipRadius = 12.dp
     val MaximumContentWidth = 600.dp
 }
 
@@ -71,16 +81,16 @@ val SmartTypography = Typography(
     ),
     headlineLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
         letterSpacing = (-0.2).sp,
     ),
     headlineMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 28.sp,
-        lineHeight = 36.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
     ),
     headlineSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -109,8 +119,8 @@ val SmartTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
-        lineHeight = 22.sp,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -146,10 +156,10 @@ val SmartTypography = Typography(
 
 val SmartShapes = Shapes(
     extraSmall = RoundedCornerShape(SmartDimens.ChipRadius),
-    small = RoundedCornerShape(SmartDimens.SurfaceRadius),
+    small = RoundedCornerShape(12.dp),
     medium = RoundedCornerShape(SmartDimens.SurfaceRadius),
     large = RoundedCornerShape(SmartDimens.CallToActionRadius),
-    extraLarge = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(24.dp),
 )
 
 private val SmartLightColorScheme = lightColorScheme(

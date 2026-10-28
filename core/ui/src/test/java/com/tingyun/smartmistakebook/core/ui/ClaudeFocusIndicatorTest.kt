@@ -8,7 +8,7 @@ import org.junit.Test
 
 class ClaudeFocusIndicatorTest {
     @Test fun focusContrastsWithTheActualOpaqueOrTintedControlSurface() {
-        val surfaces = listOf(Paper, ContentSurface, SubtleSurface, Jade, JadeActive, JadeSoft,
+        val surfaces = listOf(Paper, ContentSurface, SubtleSurface, SmartColors.Forest, Jade, JadeActive, JadeSoft,
             ErrorText, Color.Black, Color.Gray, Jade.copy(alpha = .5f), Ink.copy(alpha = .06f))
         for (surface in surfaces) {
             val foreground = claudeFocusIndicatorColor(surface).luminance()

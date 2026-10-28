@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -49,6 +53,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawFailureReason
@@ -322,31 +327,8 @@ private fun HistoricalRevisionRecovery(
 
 @Composable
 private fun MistakeDetailHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("mistake_detail_back"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回",
-                tint = Ink,
-            )
-        }
-        Spacer(Modifier.size(4.dp))
-        Text(
-            text = "错题详情",
-            color = Ink,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-    }
+    ClaudePageHeader("错题详情", onBack = onBack,
+        backModifier = Modifier.testTag("mistake_detail_back"))
 }
 
 @Composable
@@ -446,7 +428,8 @@ private fun ReadyDetail(
             )
         }
         Spacer(Modifier.height(16.dp))
-        MistakeSectionCard("题面", modifier = Modifier.testTag("mistake_detail_question_module")) {
+        MistakeSectionCard("题面", modifier = Modifier.testTag("mistake_detail_question_module"),
+            headerColor = SmartColors.ReadingSurface) {
             StructuredContentRenderer(
                 document = state.questionDocument.document.let { document ->
                     if (document.title?.trim() == state.detail.identity.title.trim()) document.copy(title = null)
@@ -1015,8 +998,8 @@ private fun IdentityBlock(
     Text(
         text = identity.title,
         color = Ink,
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
+        fontWeight = FontWeight.SemiBold,
     )
     Spacer(Modifier.height(8.dp))
     Text(
@@ -1166,6 +1149,7 @@ private fun SourceAssetSection(
         title = if (assets.size > 1) "$title · ${assets.size} 张" else title,
         modifier = Modifier.testTag("${tag}_section"),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+        headerColor = if (isExplanation) SmartColors.LearningSurface else SmartColors.ReadingSurface,
     ) {
         Column(
             Modifier.fillMaxWidth().testTag("${tag}_content"),

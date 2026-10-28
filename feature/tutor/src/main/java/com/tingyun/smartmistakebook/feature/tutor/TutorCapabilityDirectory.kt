@@ -3,16 +3,13 @@ package com.tingyun.smartmistakebook.feature.tutor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
-import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
-import com.tingyun.smartmistakebook.core.ui.ContentSurface
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,10 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 
 /**
  * 空态里的一条能力（它能干什么）。
@@ -140,24 +140,26 @@ internal fun TutorCapabilityDirectory(
             text = "也可以从这里开始。",
             modifier = Modifier.testTag("tutor_empty_state"),
             color = InkSecondary,
-            style = ClaudeLayout.ControlText,
+            style = MaterialTheme.typography.bodySmall,
         )
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             capabilities.forEach { capability ->
                 val label = capability.actionLabel
                 val action = capability.onAction
                 if (label != null && action != null) {
-                    TutorSuggestionChip(label, action, capability.actionTestTag ?: "tutor_capability_action_${capability.id}")
+                    TutorSuggestionChip(label, action, capability.actionTestTag ?: "tutor_capability_action_${capability.id}", emphasized = true)
                 }
             }
         }
         capabilities.forEach { capability ->
-            Column(
+            WorkspacePanel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("tutor_capability_${capability.id}"),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
+                Text(capability.title, color = Ink, style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold)
+                Text(capability.detail, color = InkSecondary, style = MaterialTheme.typography.bodySmall)
                 if (capability.examples.isNotEmpty()) {
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -176,12 +178,13 @@ internal fun TutorCapabilityDirectory(
 }
 
 @Composable
-private fun TutorSuggestionChip(text: String, onClick: () -> Unit, testTag: String) {
-    val shape = RoundedCornerShape(12.dp)
-    Box(Modifier.heightIn(min = 48.dp).background(ContentSurface, shape)
-        .border(1.dp, Ink.copy(alpha = .1f), shape)
+private fun TutorSuggestionChip(text: String, onClick: () -> Unit, testTag: String, emphasized: Boolean = false) {
+    val shape = RoundedCornerShape(14.dp)
+    Box(Modifier.heightIn(min = 48.dp).background(if (emphasized) SmartColors.JadeSoft else SubtleSurface, shape)
         .claudeInteractiveRow(onClick, shape = shape).padding(horizontal = 12.dp, vertical = 10.dp).testTag(testTag),
         contentAlignment = Alignment.CenterStart) {
-        Text(text, color = InkSecondary, style = ClaudeLayout.ControlText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text, color = if (emphasized) SmartColors.JadeDark else Ink,
+            style = MaterialTheme.typography.bodySmall, fontWeight = if (emphasized) FontWeight.Medium else FontWeight.Normal,
+            maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }

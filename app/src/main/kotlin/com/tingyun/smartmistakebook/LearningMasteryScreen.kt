@@ -22,6 +22,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
@@ -155,19 +157,19 @@ private fun LearningMasterySummary(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp)
-            .background(JadeSoft.copy(alpha = 0.52f), RoundedCornerShape(12.dp))
+            .background(SmartColors.Forest, RoundedCornerShape(20.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ShowChart,
                 contentDescription = null,
-                tint = JadeActive,
+                tint = SmartColors.OnJade,
             )
             Text(
                 text = "你的学习情况",
                 modifier = Modifier.padding(start = 8.dp),
-                color = Ink,
+                color = SmartColors.OnJade,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -178,9 +180,9 @@ private fun LearningMasterySummary(
                 .padding(top = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            MasterySummaryValue("掌握较稳", mastered)
-            MasterySummaryValue("正在巩固", consolidating)
-            MasterySummaryValue("有记录科目", subjectCount)
+            MasterySummaryValue("掌握较稳", mastered, Modifier.weight(1f))
+            MasterySummaryValue("正在巩固", consolidating, Modifier.weight(1f))
+            MasterySummaryValue("有记录科目", subjectCount, Modifier.weight(1f))
         }
         Text(
             text = if (projectionIsCurrent) {
@@ -189,7 +191,7 @@ private fun LearningMasterySummary(
                 "已根据现有作答记录整理"
             },
             modifier = Modifier.padding(top = 12.dp),
-            color = InkSecondary,
+            color = SmartColors.OnJade.copy(alpha = .85f),
             style = MaterialTheme.typography.bodySmall,
         )
     }
@@ -211,7 +213,9 @@ private fun RecentLearningChanges(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 18.dp)
+            .padding(top = 16.dp)
+            .background(SmartColors.ContentSurface, RoundedCornerShape(20.dp))
+            .padding(16.dp)
             .testTag("learning_mastery_recent"),
     ) {
         SectionHeader("最近变化")
@@ -255,17 +259,17 @@ private fun RecentLearningChanges(
 }
 
 @Composable
-private fun MasterySummaryValue(label: String, value: Int) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun MasterySummaryValue(label: String, value: Int, modifier: Modifier = Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value.toString(),
-            color = JadeActive,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
+            color = SmartColors.OnJade,
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 28.sp, lineHeight = 36.sp),
+            fontWeight = FontWeight.SemiBold,
         )
         Text(
             text = label,
-            color = InkSecondary,
+            color = SmartColors.OnJade.copy(alpha = .85f),
             style = MaterialTheme.typography.bodySmall,
         )
     }
@@ -285,7 +289,7 @@ private fun SubjectMasterySection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(JadeSoft.copy(alpha = 0.28f), RoundedCornerShape(12.dp))
+            .background(SmartColors.ContentSurface, RoundedCornerShape(20.dp))
             .padding(horizontal = 14.dp, vertical = 13.dp)
             .testTag("learning_mastery_subject:${subject.name}"),
     ) {

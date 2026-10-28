@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -79,30 +83,8 @@ fun MistakeRevisionEditRoute(
         imageUris = if (state.loading || state.unavailableReason != null) emptyList() else
             state.source.detailAssets().question.mapNotNull { (it.location as? MistakeSourceLocation.Available)?.localUri },
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 58.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(
-                onClick = { leave() },
-                modifier = Modifier
-                    .size(48.dp)
-                    .testTag("mistake_revision_edit_back"),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "返回详情",
-                    tint = Ink,
-                )
-            }
-            Text(
-                text = "修改这道题",
-                color = Ink,
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        }
+        ClaudePageHeader("修改这道题", onBack = { leave() },
+            backModifier = Modifier.testTag("mistake_revision_edit_back"), backLabel = "返回详情")
         Spacer(Modifier.height(8.dp))
         state.unavailableReason?.let { reason ->
             Text(
@@ -137,118 +119,122 @@ fun MistakeRevisionEditRoute(
             Spacer(Modifier.height(10.dp))
         }
 
-        OutlinedTextField(
-            value = state.title,
-            onValueChange = viewModel::onTitleChanged,
-            label = { Text("标题") },
-            singleLine = true,
-            enabled = !state.saving,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("mistake_revision_edit_title"),
-        )
-
-        state.blocks.forEachIndexed { index, block ->
-            Spacer(Modifier.height(14.dp))
-            when (block.kind) {
-                RevisionEditBlockKind.STEM -> OutlinedTextField(
-                    value = block.text,
-                    onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                    label = { Text("题干") },
-                    minLines = 3,
-                    maxLines = 12,
+        WorkspacePanel {
+            Column {
+                OutlinedTextField(
+                    value = state.title,
+                    onValueChange = viewModel::onTitleChanged,
+                    label = { Text("标题") },
+                    singleLine = true,
                     enabled = !state.saving,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag("mistake_revision_edit_block_$index"),
+                        .testTag("mistake_revision_edit_title"),
                 )
-                RevisionEditBlockKind.FORMULA -> {
-                    OutlinedTextField(
-                        value = block.text,
-                        onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                        label = { Text("公式 LaTeX") },
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_formula_$index"),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = block.secondaryText,
-                        onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
-                        label = { Text("公式的文字说明") },
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_formula_alt_$index"),
-                    )
-                }
-                RevisionEditBlockKind.CHOICE -> {
-                    OutlinedTextField(
-                        value = block.text,
-                        onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                        label = { Text("选项题干") },
-                        minLines = 2,
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_choices_prompt_$index"),
-                    )
-                    block.choices.forEachIndexed { choiceIndex, choice ->
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = choice.markdown,
-                            onValueChange = {
-                                viewModel.onChoiceChanged(block.id, choiceIndex, it)
-                            },
-                            label = { Text("选项 ${choiceLabel(choiceIndex)}") },
+
+                state.blocks.forEachIndexed { index, block ->
+                    Spacer(Modifier.height(14.dp))
+                    when (block.kind) {
+                        RevisionEditBlockKind.STEM -> OutlinedTextField(
+                            value = block.text,
+                            onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                            label = { Text("题干") },
+                            minLines = 3,
+                            maxLines = 12,
                             enabled = !state.saving,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .testTag(
-                                    "mistake_revision_edit_choice_${block.id}_$choiceIndex",
-                                ),
+                                .testTag("mistake_revision_edit_block_$index"),
+                        )
+                        RevisionEditBlockKind.FORMULA -> {
+                            OutlinedTextField(
+                                value = block.text,
+                                onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                                label = { Text("公式 LaTeX") },
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_formula_$index"),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = block.secondaryText,
+                                onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
+                                label = { Text("公式的文字说明") },
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_formula_alt_$index"),
+                            )
+                        }
+                        RevisionEditBlockKind.CHOICE -> {
+                            OutlinedTextField(
+                                value = block.text,
+                                onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                                label = { Text("选项题干") },
+                                minLines = 2,
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_choices_prompt_$index"),
+                            )
+                            block.choices.forEachIndexed { choiceIndex, choice ->
+                                Spacer(Modifier.height(8.dp))
+                                OutlinedTextField(
+                                    value = choice.markdown,
+                                    onValueChange = {
+                                        viewModel.onChoiceChanged(block.id, choiceIndex, it)
+                                    },
+                                    label = { Text("选项 ${choiceLabel(choiceIndex)}") },
+                                    enabled = !state.saving,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag(
+                                            "mistake_revision_edit_choice_${block.id}_$choiceIndex",
+                                        ),
+                                )
+                            }
+                        }
+                        RevisionEditBlockKind.FIGURE -> {
+                            OutlinedTextField(
+                                value = block.secondaryText,
+                                onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
+                                label = { Text("图形标题") },
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_figure_title_$index"),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = block.text,
+                                onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                                label = { Text("图形的文字含义") },
+                                minLines = 2,
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_figure_alt_$index"),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "这里只能修改图形的文字说明，不能重画图形。" +
+                                    "旧版图形与解析保留在旧版本，不会被新版覆盖。",
+                                color = InkSecondary,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.testTag("mistake_revision_edit_figure_notice_$index"),
+                            )
+                        }
+                        RevisionEditBlockKind.UNKNOWN -> Text(
+                            text = "暂不支持编辑的内容会保留原样。",
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
-                RevisionEditBlockKind.FIGURE -> {
-                    OutlinedTextField(
-                        value = block.secondaryText,
-                        onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
-                        label = { Text("图形标题") },
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_figure_title_$index"),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = block.text,
-                        onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                        label = { Text("图形的文字含义") },
-                        minLines = 2,
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_figure_alt_$index"),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "这里只能修改图形的文字说明，不能重画图形。" +
-                            "旧版图形与解析保留在旧版本，不会被新版覆盖。",
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.testTag("mistake_revision_edit_figure_notice_$index"),
-                    )
-                }
-                RevisionEditBlockKind.UNKNOWN -> Text(
-                    text = "暂不支持编辑的内容会保留原样。",
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
+
             }
         }
-
         Spacer(Modifier.height(18.dp))
         SectionHeader("将保存的修改")
         Spacer(Modifier.height(8.dp))
@@ -256,9 +242,9 @@ fun MistakeRevisionEditRoute(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("mistake_revision_edit_diff"),
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(20.dp),
             color = JadeSoft.copy(alpha = 0.35f),
-            border = BorderStroke(1.dp, Outline),
+            shadowElevation = 1.dp,
         ) {
             Column(
                 modifier = Modifier.padding(14.dp),
@@ -288,7 +274,7 @@ fun MistakeRevisionEditRoute(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("mistake_revision_edit_conflict"),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.errorContainer,
             ) {
                 Column(Modifier.padding(14.dp)) {
@@ -379,9 +365,9 @@ private fun RevisionNotice(text: String, tag: String) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag(tag),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(20.dp),
         color = JadeSoft.copy(alpha = 0.45f),
-        border = BorderStroke(1.dp, Outline),
+        shadowElevation = 1.dp,
     ) {
         Text(
             text = text,

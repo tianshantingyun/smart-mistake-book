@@ -65,8 +65,8 @@ fun ThinkingCollapsibleCard(
     }
     val thinkingBody = thinkingMarkdown?.takeIf { it.isNotBlank() }
     Column(
-        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-            .background(Paper).border(1.dp, Ink.copy(alpha = .1f), RoundedCornerShape(12.dp)),
+        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
+            .background(SubtleSurface),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -111,7 +111,7 @@ fun ThinkingCollapsibleCard(
             visible = expanded && thinkingBody != null,
         ) {
             Column {
-            PaperDivider(color = Ink.copy(alpha = .1f))
+            PaperDivider(color = Divider)
             SafeMarkdownText(
                 markdown = thinkingBody.orEmpty(),
                 style = MaterialTheme.typography.bodyMedium,

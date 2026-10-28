@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.clickable
@@ -96,44 +98,16 @@ fun SplitImportReviewRoute(
 
     RootPageLazyColumn(modifier = modifier.testTag("split_review_list")) {
         item(key = "split_review_header") {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 52.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onFinished) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "返回",
-                        tint = Ink,
-                    )
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        "录入整份题目",
-                        color = Ink,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        "切分完成，勾选要录入的题目",
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                if (reviewableJob != null) {
-                    Text(
-                        text = "${reviewableJob.questions.filter { it.selected }.size}/" +
-                            "${reviewableJob.questions.size}",
-                        color = JadeActive,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.testTag("split_review_count"),
-                    )
-                }
-            }
-            PaperDivider()
+            ClaudePageHeader("录入整份题目", onBack = onFinished, actions = {
+                if (reviewableJob != null) Text(
+                    text = "${reviewableJob.questions.filter { it.selected }.size}/${reviewableJob.questions.size}",
+                    color = JadeActive, style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.testTag("split_review_count"),
+                )
+            })
+            Text("切分完成，勾选要录入的题目", color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp))
+            Spacer(Modifier.height(4.dp))
         }
         if (reviewableJob == null) {
             item(key = "split_review_empty") {
@@ -244,12 +218,12 @@ private fun SplitQuestionCard(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("split_question_$ordinal"),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(20.dp),
         color = if (selected) JadeSoft.copy(alpha = 0.28f) else ContentSurface,
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .toggleable(selected, role = Role.Checkbox, onValueChange = { onToggle() })
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -302,7 +276,7 @@ private fun SplitSourceImage(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("split_review_source_image"),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(20.dp),
         color = ContentSurface,
     ) {
         Column(Modifier.padding(12.dp)) {
@@ -332,7 +306,7 @@ private fun SplitRegionThumb(
         modifier = Modifier
             .size(width = 72.dp, height = 96.dp)
             .testTag("split_question_thumb_${question.questionOrdinal}"),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         color = SubtleSurface,
     ) {
         Box(Modifier.fillMaxSize()) {

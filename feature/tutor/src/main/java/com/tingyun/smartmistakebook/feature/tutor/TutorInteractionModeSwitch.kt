@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.Divider
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -66,7 +68,7 @@ internal fun TutorInteractionModeSwitch(
         modifier = modifier
             .widthIn(max = 180.dp)
             .heightIn(min = 48.dp)
-            .claudeInteractiveRow(onClick = { expanded = true }, onClickLabel = "选择回答方式")
+            .claudeInteractiveRow(onClick = { expanded = true }, onClickLabel = "选择回答方式", shape = RoundedCornerShape(12.dp))
             .padding(horizontal = 8.dp)
             .testTag(TUTOR_MODE_SWITCH_TAG)
             .semantics(mergeDescendants = true) { contentDescription = mode.displayDescription },
@@ -94,8 +96,8 @@ internal fun TutorInteractionModeSwitch(
         Icon(Icons.Outlined.ExpandMore, null, Modifier.size(14.dp), tint = InkSecondary)
     }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false },
-        containerColor = ContentSurface, shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Ink.copy(alpha = .1f))) {
+        containerColor = ContentSurface, shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Divider)) {
         TutorInteractionMode.entries.forEach { option ->
             DropdownMenuItem(text = { Text(option.displayLabel, style = ClaudeLayout.ControlText, color = Ink) },
                 onClick = { expanded = false; if (option != mode) onSwitch() },

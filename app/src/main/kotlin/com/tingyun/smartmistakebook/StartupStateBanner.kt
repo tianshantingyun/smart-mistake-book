@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
@@ -62,8 +64,10 @@ private fun StartupFailureCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(if (recoverable) ErrorWarm.copy(alpha = 0.1f) else ErrorWarm)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(ErrorWarm.copy(alpha = if (recoverable) 0.1f else 0.18f))
+            .padding(horizontal = 16.dp, vertical = 14.dp)
             .testTag("startup_state_banner"),
     ) {
         Text(

@@ -59,7 +59,7 @@ fun ReferenceEditorPage(
 private fun EditorReferenceImage(uri: String, index: Int) {
     var viewing by remember(uri) { mutableStateOf(false) }
     var state by remember(uri) { mutableStateOf(LocalImageLoadState.LOADING) }
-    Column {
+    WorkspacePanel(contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)) {
         BoundedLocalImage(uri, "参考图 ${index + 1}", expanded = true,
             modifier = Modifier.fillMaxWidth(), onLoadStateChange = { state = it })
         if (state == LocalImageLoadState.UNAVAILABLE) {

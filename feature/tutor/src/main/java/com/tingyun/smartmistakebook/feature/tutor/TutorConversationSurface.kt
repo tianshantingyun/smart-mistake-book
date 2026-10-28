@@ -397,10 +397,10 @@ internal fun TutorTurnFailureCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = ErrorWarm.copy(alpha = 0.08f),
-        shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, ErrorWarm.copy(alpha = 0.36f)),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, ErrorWarm.copy(alpha = 0.18f)),
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = detail,
                 color = InkSecondary,
@@ -587,7 +587,7 @@ internal fun TutorConversationFrame(
         val inputLineHeight = with(density) { ClaudeLayout.ComposerText.lineHeight.toDp() }
         val visibleInputLines = ((maxHeight.value * .35f - 32f) / inputLineHeight.value)
             .toInt().coerceIn(1, 4)
-        val startPageTopPadding = if (maxHeight > 600.dp) 56.dp else 16.dp
+        val startPageTopPadding = if (maxHeight > 600.dp) 32.dp else 8.dp
         val composerBlock: @Composable () -> Unit = {
             Surface(color = Paper, modifier = Modifier.onSizeChanged { composerHeightPx = it.height }) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = if (composerInList) 0.dp else SmartDimens.ContentHorizontalPadding, vertical = 8.dp)) {
@@ -680,6 +680,7 @@ private fun ScrollToBottomButton(
         modifier = modifier,
         containerColor = JadeActive,
         contentColor = Paper,
+        shape = RoundedCornerShape(18.dp),
     ) {
         Icon(
             imageVector = Icons.Filled.KeyboardArrowDown,
@@ -746,9 +747,9 @@ internal fun TutorChatComposer(
     }
     val shape = RoundedCornerShape(ClaudeLayout.ComposerRadius)
     Column(modifier = modifier.fillMaxWidth()
-        .shadow(4.dp, shape, ambientColor = Color.Black.copy(alpha = .035f), spotColor = Color.Black.copy(alpha = .035f))
+        .shadow(2.dp, shape, ambientColor = Color.Black.copy(alpha = .035f), spotColor = Color.Black.copy(alpha = .035f))
         .background(if (enabled) ContentSurface else SubtleSurface, shape)
-        .border(1.dp, Ink.copy(alpha = if (focused) .2f else .1f), shape)
+        .border(if (focused) 2.dp else 1.dp, if (focused) JadeActive else Outline, shape)
         .padding(ClaudeLayout.ComposerPadding)) {
         attachmentPreview?.invoke()
         BasicTextField(
@@ -806,7 +807,7 @@ internal fun TutorChatComposer(
                     interactionSource = sendInteraction,
                     modifier = Modifier.size(48.dp).testTag("tutor_chat_send"),
                 ) {
-                    Box(Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
+                    Box(Modifier.size(36.dp).clip(RoundedCornerShape(18.dp))
                         .graphicsLayer { scaleX = sendScale; scaleY = sendScale }
                         .background(if (canSend || sending) JadeActive else JadeActive.copy(alpha = .3f)),
                         contentAlignment = Alignment.Center) {

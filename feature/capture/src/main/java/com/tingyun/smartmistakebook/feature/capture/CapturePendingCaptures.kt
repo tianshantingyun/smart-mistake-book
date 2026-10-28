@@ -1,9 +1,8 @@
 package com.tingyun.smartmistakebook.feature.capture
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,8 +39,11 @@ import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.ScreenStatePanel
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
+import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -163,6 +165,7 @@ internal fun CapturePendingCapturesSection(
             )
             Spacer(Modifier.height(6.dp))
             items.forEach { item ->
+                Spacer(Modifier.height(10.dp))
                 PendingCaptureRow(
                     item = item,
                     discardEnabled = !discardInProgress,
@@ -197,9 +200,8 @@ private fun PendingCaptureSummaryCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("capture_pending_summary"),
-        shape = RoundedCornerShape(10.dp),
-        color = JadeSoft.copy(alpha = 0.45f),
-        border = BorderStroke(1.dp, Outline),
+        shape = RoundedCornerShape(16.dp),
+        color = JadeSoft,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
@@ -234,30 +236,35 @@ private fun PendingCaptureRow(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("capture_pending_${item.draftId}"),
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, Outline),
+        shape = RoundedCornerShape(20.dp),
+        color = SmartColors.ContentSurface,
+        shadowElevation = 1.dp,
     ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 68.dp)
-                    .clickable(onClick = onClick)
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .claudeInteractiveRow(onClick = onClick, shape = RoundedCornerShape(20.dp))
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector = when {
-                        needsAttention -> Icons.Outlined.WarningAmber
-                        item.stage == PendingCaptureStage.TUTOR_SESSION_READY ->
-                            Icons.AutoMirrored.Outlined.Chat
-                        else -> Icons.Outlined.Schedule
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = if (needsAttention) ErrorWarm else JadeActive,
-                )
+                Surface(shape = RoundedCornerShape(14.dp),
+                    color = if (needsAttention) ErrorWarm.copy(alpha = .10f) else JadeSoft) {
+                    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = when {
+                                needsAttention -> Icons.Outlined.WarningAmber
+                                item.stage == PendingCaptureStage.TUTOR_SESSION_READY ->
+                                    Icons.AutoMirrored.Outlined.Chat
+                                else -> Icons.Outlined.Schedule
+                            },
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = if (needsAttention) ErrorWarm else JadeActive,
+                        )
+                    }
+                }
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -269,7 +276,7 @@ private fun PendingCaptureRow(
                         color = Ink,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
@@ -284,7 +291,7 @@ private fun PendingCaptureRow(
                     )
                     Text(
                         text = listOfNotNull(
-                            item.subject,
+                            item.subject?.studentSubjectLabel(),
                             pendingCaptureOriginLabel(item.origin),
                             formatPendingTime(item.updatedAtEpochMillis),
                         ).joinToString(" · "),
@@ -322,17 +329,9 @@ private fun PendingCaptureRow(
 
 @Composable
 private fun PendingCaptureEmpty() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 28.dp)
-            .testTag("capture_pending_empty"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Text("暂无待处理题目", color = Ink, style = MaterialTheme.typography.titleMedium)
-        Text("未完成录入的题会显示在这里。", color = InkSecondary)
-    }
+    ScreenStatePanel(icon = Icons.Outlined.Schedule, title = "暂无待处理题目",
+        supportingText = "未完成录入的题会显示在这里。",
+        modifier = Modifier.padding(top = 12.dp).testTag("capture_pending_empty"))
 }
 
 @Composable

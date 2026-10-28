@@ -1,9 +1,9 @@
 package com.tingyun.smartmistakebook.feature.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Backup
@@ -33,14 +32,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
@@ -58,8 +57,10 @@ import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SubjectIcon
 import com.tingyun.smartmistakebook.core.ui.Track
-import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import com.tingyun.smartmistakebook.core.ui.ClaudeSettingsRow
+import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 @Composable
 fun ProfileRoute(
@@ -78,26 +79,23 @@ fun ProfileRoute(
         modifier = modifier.testTag("profile_screen"),
         contentPadding = PaddingValues(
             start = 16.dp,
-            top = 0.dp,
+            top = 8.dp,
             end = 16.dp,
             bottom = 12.dp,
         ),
     ) {
-        ClaudePageHeader("我的")
+        WorkspacePageHeader("我的", subtitle = "学习记录与应用设置")
         if (overview.hasLearningEvidence) {
-            WeeklyLearningSection(overview, review, Modifier.padding(top = 8.dp))
-            PaperDivider(Modifier.padding(top = 8.dp))
+            WeeklyLearningSection(overview, review, Modifier.padding(top = 16.dp))
         }
         if (overview.weaknesses.isNotEmpty()) {
-            WeaknessSection(overview.weaknesses, Modifier.padding(top = 8.dp))
-            PaperDivider(Modifier.padding(top = 8.dp))
+            WeaknessSection(overview.weaknesses, Modifier.padding(top = 16.dp))
         }
         LearningMasteryEntry(
             overview = overview,
             onClick = onOpenLearningMastery,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = 16.dp),
         )
-        PaperDivider(Modifier.padding(top = 8.dp))
         SettingsSection(
             capabilities = capabilities,
             onOpenCapability = onOpenCapability,
@@ -105,7 +103,7 @@ fun ProfileRoute(
             onOpenReminder = onOpenReminder,
             onOpenScheduling = onOpenScheduling,
             onOpenStorage = onOpenStorage,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = 16.dp),
         )
     }
 }
@@ -118,15 +116,17 @@ private fun LearningMasteryEntry(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         SectionHeader(title = "学习掌握")
-        SettingsRow(
-            title = "查看全部知识点",
-            subtitle = learningMasterySubtitle(overview),
-            icon = Icons.Outlined.AccountTree,
-            onClick = onClick,
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .testTag("profile_learning_mastery"),
-        )
+        Spacer(Modifier.height(8.dp))
+        WorkspacePanel(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)) {
+            SettingsRow(
+                title = "查看全部知识点",
+                subtitle = learningMasterySubtitle(overview),
+                icon = Icons.Outlined.AccountTree,
+                onClick = onClick,
+                modifier = Modifier
+                    .testTag("profile_learning_mastery"),
+            )
+        }
     }
 }
 
@@ -136,55 +136,47 @@ private fun WeeklyLearningSection(
     review: StudyReviewOverview,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().testTag("profile_weekly_learning")) {
-        SectionHeader(title = "当前学习情况")
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            WeeklyStat(
-                label = "学习次数",
-                value = overview.recordedAttemptCount.toString(),
-                unit = "次",
-                modifier = Modifier.weight(1f),
-            )
-            StatDivider()
-            WeeklyStat(
-                label = "已掌握",
-                value = overview.newlyMasteredCount.toString(),
-                unit = "个知识点",
-                modifier = Modifier.weight(1.18f),
-            )
-            StatDivider()
-            WeeklyStat(
-                label = "连续复习",
-                value = review.completionStreakDays.toString(),
-                unit = "天",
-                modifier = Modifier.weight(1f),
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .background(JadeSoft.copy(alpha = 0.48f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ShowChart,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = JadeActive,
-            )
-            Column(Modifier.padding(start = 10.dp)) {
-                Text(
-                    text = profileLearningStatus(overview, review),
-                    color = Ink,
-                    style = MaterialTheme.typography.bodyMedium,
+    WorkspacePanel(modifier = modifier.testTag("profile_weekly_learning")) {
+        Column {
+            SectionHeader(title = "当前学习情况")
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                if (maxWidth < 260.dp || LocalDensity.current.fontScale > 1.3f) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        WeeklyStat("学习次数", overview.recordedAttemptCount.toString(), "次", Modifier.fillMaxWidth())
+                        PaperDivider()
+                        WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.fillMaxWidth())
+                        PaperDivider()
+                        WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.fillMaxWidth())
+                    }
+                } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    WeeklyStat("学习次数", overview.recordedAttemptCount.toString(), "次", Modifier.weight(1f))
+                    StatDivider()
+                    WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.weight(1f))
+                    StatDivider()
+                    WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.weight(1f))
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+                    .background(JadeSoft, RoundedCornerShape(14.dp))
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ShowChart,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = JadeActive,
                 )
+                Column(Modifier.padding(start = 10.dp)) {
+                    Text(
+                        text = profileLearningStatus(overview, review),
+                        color = Ink,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
         }
     }
@@ -218,23 +210,19 @@ private fun WeeklyStat(
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
         )
-        Row(
-            modifier = Modifier.padding(top = 6.dp),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Text(
-                text = value,
-                color = JadeActive,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = unit,
-                modifier = Modifier.padding(start = 3.dp, bottom = 3.dp),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = value,
+            color = JadeActive,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = unit,
+            color = InkSecondary,
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -253,22 +241,24 @@ private fun WeaknessSection(
     weaknesses: List<StudyKnowledgeSummary>,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().testTag("profile_weaknesses")) {
-        SectionHeader(title = "当前薄弱点")
-        weaknesses.forEachIndexed { index, weakness ->
-            if (index > 0) PaperDivider(Modifier.padding(start = 64.dp))
-            WeaknessRow(
-                title = weakness.displayName,
-                // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同源的唯一文案函数）。
-                detail = "${weakness.status.displayLabel()} · 以独立作答为参考 · " +
-                    com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
-                        weakness.conservativeMasteryScore,
-                        weakness.masteryIntervalUpper,
-                    ),
-                mastery = weakness.conservativeMasteryScore.toFloat(),
-                icon = if (index % 2 == 0) Icons.Outlined.Functions else Icons.Outlined.Bolt,
-                modifier = if (index == 0) Modifier.padding(top = 10.dp) else Modifier,
-            )
+    WorkspacePanel(modifier = modifier.testTag("profile_weaknesses")) {
+        Column {
+            SectionHeader(title = "当前薄弱点")
+            weaknesses.forEachIndexed { index, weakness ->
+                if (index > 0) PaperDivider(Modifier.padding(start = 64.dp))
+                WeaknessRow(
+                    title = weakness.displayName,
+                    // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同源的唯一文案函数）。
+                    detail = "${weakness.status.displayLabel()} · 以独立作答为参考 · " +
+                        com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
+                            weakness.conservativeMasteryScore,
+                            weakness.masteryIntervalUpper,
+                        ),
+                    mastery = weakness.conservativeMasteryScore.toFloat(),
+                    icon = if (index % 2 == 0) Icons.Outlined.Functions else Icons.Outlined.Bolt,
+                    modifier = if (index == 0) Modifier.padding(top = 10.dp) else Modifier,
+                )
+            }
         }
     }
 }
@@ -313,21 +303,17 @@ private fun WeaknessRow(
                 .weight(1f)
                 .padding(start = 12.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = title,
-                    modifier = Modifier.weight(1f),
-                    color = Ink,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Text(
-                    text = "估计$masteryLabel",
-                    color = JadeActive,
-                    style = MaterialTheme.typography.labelMedium,
-                )
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                if (maxWidth < 200.dp || LocalDensity.current.fontScale > 1.3f) {
+                    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(title, color = Ink, style = MaterialTheme.typography.titleMedium)
+                        Text("估计$masteryLabel", color = JadeActive, style = MaterialTheme.typography.labelMedium)
+                    }
+                } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(title, Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleMedium)
+                    Text("估计$masteryLabel", color = JadeActive, style = MaterialTheme.typography.labelMedium)
+                }
             }
             Text(
                 text = detail,
@@ -365,43 +351,59 @@ private fun SettingsSection(
 
     Column(modifier = modifier.fillMaxWidth()) {
         SectionHeader(title = "设置")
-        SettingsRow(
-            title = "模型设置",
-            subtitle = capabilitySubtitle,
-            icon = Icons.Outlined.Memory,
-            onClick = onOpenCapability,
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .testTag("profile_capability_setting"),
-        )
-        SettingsRow(
-            title = "数据与隐私",
-            subtitle = privacySubtitle,
-            icon = Icons.Outlined.Shield,
-            onClick = onOpenDataPrivacy,
-            modifier = Modifier.testTag("profile_privacy_setting"),
-        )
-        SettingsRow(
-            title = "提醒与复习偏好",
-            subtitle = "每日提醒时间与通知权限",
-            icon = Icons.Outlined.NotificationsNone,
-            onClick = onOpenReminder,
-            modifier = Modifier.testTag("profile_reminder_setting"),
-        )
-        SettingsRow(
-            title = "复习安排",
-            subtitle = "记忆目标、复习算法与考试日期",
-            icon = Icons.Outlined.Tune,
-            onClick = onOpenScheduling,
-            modifier = Modifier.testTag("profile_scheduling_setting"),
-        )
-        SettingsRow(
-            title = "存储与导出",
-            subtitle = "管理题图、备份与导出文件",
-            icon = Icons.Outlined.Backup,
-            onClick = onOpenStorage,
-            modifier = Modifier.testTag("profile_storage_setting"),
-        )
+        Spacer(Modifier.height(8.dp))
+        WorkspacePanel(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)) {
+            Column {
+                SettingsRow(
+                    title = "模型设置",
+                    subtitle = capabilitySubtitle,
+                    icon = Icons.Outlined.Memory,
+                    iconContainerColor = SmartColors.LearningSurface,
+                    iconTint = SmartColors.LearningAccent,
+                    onClick = onOpenCapability,
+                    modifier = Modifier
+                        .testTag("profile_capability_setting"),
+                )
+                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
+                SettingsRow(
+                    title = "数据与隐私",
+                    subtitle = privacySubtitle,
+                    icon = Icons.Outlined.Shield,
+                    onClick = onOpenDataPrivacy,
+                    modifier = Modifier.testTag("profile_privacy_setting"),
+                )
+                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
+                SettingsRow(
+                    title = "提醒与复习偏好",
+                    subtitle = "每日提醒时间与通知权限",
+                    icon = Icons.Outlined.NotificationsNone,
+                    iconContainerColor = SmartColors.PendingSurface,
+                    iconTint = SmartColors.PendingAccent,
+                    onClick = onOpenReminder,
+                    modifier = Modifier.testTag("profile_reminder_setting"),
+                )
+                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
+                SettingsRow(
+                    title = "复习安排",
+                    subtitle = "记忆目标、复习算法与考试日期",
+                    icon = Icons.Outlined.Tune,
+                    iconContainerColor = SmartColors.LearningSurface,
+                    iconTint = SmartColors.LearningAccent,
+                    onClick = onOpenScheduling,
+                    modifier = Modifier.testTag("profile_scheduling_setting"),
+                )
+                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
+                SettingsRow(
+                    title = "存储与导出",
+                    subtitle = "管理题图、备份与导出文件",
+                    icon = Icons.Outlined.Backup,
+                    iconContainerColor = SmartColors.ReadingSurface,
+                    iconTint = SmartColors.ReadingAccent,
+                    onClick = onOpenStorage,
+                    modifier = Modifier.testTag("profile_storage_setting"),
+                )
+            }
+        }
     }
 }
 
@@ -444,6 +446,8 @@ private fun SettingsRow(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    iconContainerColor: Color = JadeSoft,
+    iconTint: Color = SmartColors.JadeDark,
 ) {
-    ClaudeSettingsRow(title, subtitle, icon, onClick, modifier)
+    ClaudeSettingsRow(title, subtitle, icon, onClick, modifier, iconContainerColor, iconTint)
 }

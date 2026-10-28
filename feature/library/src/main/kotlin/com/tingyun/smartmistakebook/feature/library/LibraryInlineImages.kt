@@ -52,12 +52,14 @@ internal fun LibraryInlineImages(
     mistake: LibraryMistake,
     repository: MistakeDetailRepository?,
     modifier: Modifier = Modifier,
-    captionContent: @Composable (String) -> Unit = { SourceCaption(it) },
+    captionContent: @Composable (String, (@Composable () -> Unit)?) -> Unit = { text, action ->
+        SourceCaption(text, action)
+    },
     fallbackContent: @Composable () -> Unit = {},
 ) {
     if (repository == null) {
         Column(modifier) {
-            MistakeModuleHeader { captionContent("") }
+            MistakeModuleHeader { captionContent("", null) }
             fallbackContent()
         }
         return
@@ -77,24 +79,26 @@ internal fun LibraryInlineImages(
     Column(modifier) {
         when (current) {
             InlineImagesState.Loading -> {
-                MistakeModuleHeader { captionContent("") }
+                MistakeModuleHeader { captionContent("", null) }
                 fallbackContent()
                 PreviewMessage("正在加载题图…", loading = true)
             }
             InlineImagesState.Unavailable -> {
-                MistakeModuleHeader { captionContent("") }
+                MistakeModuleHeader { captionContent("", null) }
                 PreviewMessage("题图暂时无法显示")
                 fallbackContent()
             }
             is InlineImagesState.Images -> {
                 if (current.assets.isEmpty()) {
-                    MistakeModuleHeader { captionContent("") }
+                    MistakeModuleHeader { captionContent("", null) }
                     fallbackContent()
                 }
                 current.assets.forEachIndexed { index, asset ->
                     key(asset.sourceAssetId) {
                         InlineImage(asset, "${mistake.title}，第${index + 1}张题图", index + 1, current.assets.size,
-                            captionContent = { source -> if (index == 0) captionContent(source) else SourceCaption(source) },
+                            captionContent = { source, action ->
+                                if (index == 0) captionContent(source, action) else SourceCaption(source, action)
+                            },
                             fallbackContent = if (index == 0) fallbackContent else ({}))
                     }
                 }
@@ -105,14 +109,14 @@ internal fun LibraryInlineImages(
 
 @Composable
 private fun InlineImage(asset: MistakeSourceAsset, description: String, position: Int, total: Int,
-    captionContent: @Composable (String) -> Unit,
+    captionContent: @Composable (String, (@Composable () -> Unit)?) -> Unit,
     fallbackContent: @Composable () -> Unit) {
     val sourceTitle = sourceAssetDisplayTitle(asset.role, 1, 1, isHistorical = false, isExplanation = false)
     val caption = if (total > 1) "$sourceTitle · $position/$total" else sourceTitle
     val uri = (asset.location as? MistakeSourceLocation.Available)?.localUri
     if (uri == null) {
         MistakeModuleHeader {
-            Box(Modifier.padding(start = 16.dp, end = 12.dp)) { captionContent(caption) }
+            Box(Modifier.padding(start = 16.dp, end = 12.dp)) { captionContent(caption, null) }
         }
         PreviewMessage("题图暂时无法显示")
         fallbackContent()
@@ -128,11 +132,11 @@ private fun InlineImage(asset: MistakeSourceAsset, description: String, position
         inViewport = visible.width > 0f && visible.height > 0f
     }) {
         MistakeModuleHeader {
-            Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween) {
-                Box(Modifier.weight(1f)) { captionContent(caption) }
-                InlineActionButton("放大", { viewing = true }, enabled = inViewport && loadState == LocalImageLoadState.AVAILABLE,
-                    contentDescription = "放大$description")
+            Box(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp)) {
+                captionContent(caption) {
+                    InlineActionButton("放大", { viewing = true }, enabled = inViewport && loadState == LocalImageLoadState.AVAILABLE,
+                        contentDescription = "放大$description")
+                }
             }
         }
         BoxWithConstraints(Modifier.fillMaxWidth()) {
@@ -165,8 +169,12 @@ private fun InlineImage(asset: MistakeSourceAsset, description: String, position
 }
 
 @Composable
-private fun SourceCaption(text: String) {
-    if (text.isNotBlank()) Text(text, color = SmartColors.InkSecondary, style = MaterialTheme.typography.labelMedium)
+private fun SourceCaption(text: String, action: (@Composable () -> Unit)? = null) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        if (text.isNotBlank()) Text(text, modifier = Modifier.weight(1f),
+            color = SmartColors.InkSecondary, style = MaterialTheme.typography.labelMedium)
+        action?.invoke()
+    }
 }
 
 @Composable

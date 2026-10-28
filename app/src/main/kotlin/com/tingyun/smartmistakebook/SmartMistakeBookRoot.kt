@@ -1501,7 +1501,7 @@ private fun SmartBottomBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Paper),
+            .background(com.tingyun.smartmistakebook.core.ui.ContentSurface),
     ) {
         PaperDivider()
         Row(

@@ -32,11 +32,11 @@ fun ClaudeDropdownMenu(
     offset: DpOffset = DpOffset.Zero,
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
-    shape: Shape = RoundedCornerShape(12.dp),
+    shape: Shape = RoundedCornerShape(20.dp),
     containerColor: Color = ContentSurface,
     tonalElevation: Dp = 0.dp,
     shadowElevation: Dp = 8.dp,
-    border: BorderStroke? = BorderStroke(1.dp, Ink.copy(alpha = .1f)),
+    border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) = MaterialDropdownMenu(expanded, onDismissRequest, modifier, offset, scrollState, properties,
     shape, containerColor, tonalElevation, shadowElevation, border, content)
@@ -51,7 +51,7 @@ fun ClaudeDropdownMenuItem(
     enabled: Boolean = true,
     colors: MenuItemColors = MenuDefaults.itemColors(textColor = Ink,
         leadingIconColor = InkSecondary, trailingIconColor = InkSecondary),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
     interactionSource: MutableInteractionSource? = null,
 ) {
     ProvideTextStyle(ClaudeLayout.ControlText) {

@@ -67,7 +67,7 @@ fun ClaudeFilterChip(
     enabled: Boolean = true,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(12.dp),
     colors: SelectableChipColors = FilterChipDefaults.filterChipColors(
         containerColor = Ink.copy(alpha = .04f), labelColor = InkSecondary,
         selectedContainerColor = JadeSoft, selectedLabelColor = JadeActive,
@@ -116,8 +116,7 @@ fun ClaudeSegmentedControl(
                 val boundedOffset = thumbOffset.coerceIn(0.dp, cellWidth * (segments.size - 1))
                 if (selectedIndex >= 0) Box(Modifier.matchParentSize().padding(start = boundedOffset,
                     end = cellWidth * (segments.size - 1) - boundedOffset)
-                    .shadow(2.dp, CircleShape).background(ContentSurface, CircleShape)
-                    .border(.5.dp, Ink.copy(alpha = .08f), CircleShape))
+                    .shadow(1.dp, CircleShape).background(ContentSurface, CircleShape))
                 Row(Modifier.selectableGroup()) {
                     segments.forEachIndexed { index, segment ->
                         val selected = segment.id == selectedId
@@ -151,9 +150,9 @@ fun ClaudeSegmentedControl(
                                 if (!selected) onSelect(segment.id)
                             }.testTag(segment.testTag).padding(horizontal = 12.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center) {
-                            Text(segment.label, color = if (selected) Ink else InkSecondary,
+                            Text(segment.label, color = if (selected) JadeDark else InkSecondary,
                                 style = ClaudeLayout.ControlText,
-                                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal)
+                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
                         }
                     }
                 }

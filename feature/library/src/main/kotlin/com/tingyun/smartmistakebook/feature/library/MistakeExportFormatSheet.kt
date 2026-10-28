@@ -3,16 +3,21 @@ package com.tingyun.smartmistakebook.feature.library
 import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
 import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -57,6 +62,7 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
  * 版式与内容能力仍由 core:export 的既有渲染器决定，本 sheet 不重写、不预览。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun MistakeExportFormatSheet(
     onDismiss: () -> Unit,
     onConfirm: (MistakeExportFormat) -> Unit,
@@ -70,30 +76,34 @@ fun MistakeExportFormatSheet(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = onDismiss),
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize().imePadding().padding(top = 24.dp)
+                .claudeDismissOnEscape(onDismiss = onDismiss),
             contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
                 modifier = modifier
+                    .widthIn(max = 600.dp)
                     .fillMaxWidth()
+                    .heightIn(max = maxHeight)
                     .claudeModalEntrance()
                     .testTag("mistake_export_format_sheet"),
                 color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
-                border = BorderStroke(1.dp, Outline),
+                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                shadowElevation = 12.dp,
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
                         text = "选择导出格式",
                         modifier = Modifier.testTag("mistake_export_format_title"),
                         color = Ink,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                     subtitle?.let { text ->
@@ -111,7 +121,8 @@ fun MistakeExportFormatSheet(
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Medium,
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         MistakeExportFormat.entries.forEach { format ->
                             val isSelected = format == selected
                             OutlineActionChip(

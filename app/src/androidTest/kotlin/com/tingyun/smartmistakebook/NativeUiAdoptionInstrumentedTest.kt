@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
@@ -33,11 +34,29 @@ class NativeUiAdoptionInstrumentedTest {
         }
         compose.onNodeWithTag("profile_capability_setting").performScrollTo().performClick()
         await("capability_screen")
+        capture("model-settings")
         compose.onNodeWithTag("capability_protocol_group").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("capability_model_id").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("capability_save").performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("返回").performScrollTo().performClick()
         await("root_profile")
+        compose.onNodeWithTag("profile_privacy_setting").performScrollTo().performClick()
+        compose.onNodeWithText("本机数据清单").assertIsDisplayed()
+        capture("privacy")
+        compose.onNodeWithContentDescription("返回").performScrollTo().performClick()
+        await("root_profile")
+        for ((entry, marker) in listOf(
+            "profile_reminder_setting" to "reminder_enabled_switch",
+            "profile_scheduling_setting" to "root_scheduling_settings",
+            "profile_storage_setting" to "storage_screen",
+            "profile_learning_mastery" to "learning_mastery_screen",
+        )) {
+            compose.onNodeWithTag(entry).performScrollTo().performClick()
+            await(marker)
+            capture(entry.removePrefix("profile_"))
+            compose.onNodeWithContentDescription("返回").performScrollTo().performClick()
+            await("root_profile")
+        }
     }
 
     private fun await(tag: String) {

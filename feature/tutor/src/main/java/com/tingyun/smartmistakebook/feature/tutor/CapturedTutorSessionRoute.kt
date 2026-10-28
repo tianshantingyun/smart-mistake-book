@@ -1,7 +1,10 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+import com.tingyun.smartmistakebook.core.ui.Paper
+
 import com.tingyun.smartmistakebook.core.ui.ErrorText
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -101,10 +104,8 @@ import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.LocalImageLoadState
 import com.tingyun.smartmistakebook.core.ui.LocalModeLine
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
@@ -235,7 +236,7 @@ fun CapturedTutorSessionRoute(
                     Text("继续讲题", color = JadeActive)
                 }
             },
-            containerColor = com.tingyun.smartmistakebook.core.ui.Paper,
+            containerColor = Paper,
         )
     }
 }
@@ -514,55 +515,59 @@ internal fun ReadyCapturedSession(
             // 执行的就是"把这次拍照的草稿存进错题本"（生产里唯一给得出这个 id 的入口）。
             captureSessionId = session.sessionId,
             leadingContent = {
-                LocalModeLine(text = tutorSessionStatusLine(session))
-                SectionHeader(
-                    title = session.title,
-                    modifier = Modifier.padding(top = 10.dp),
-                    action = if (session.disposition == TutorSessionDisposition.ENDED_WITHOUT_SAVE) {
-                        null
-                    } else {
-                        {
-                            OutlineActionChip(
-                                text = if (longTermWritesBlocked) {
-                                    "本次不记录"
-                                } else {
-                                    tutorSessionSaveLabel(
-                                        session.isSaved,
-                                        saveInProgress,
-                                        saveError != null,
+                WorkspacePanel {
+                    Column {
+                        LocalModeLine(text = tutorSessionStatusLine(session))
+                        SectionHeader(
+                            title = session.title,
+                            modifier = Modifier.padding(top = 10.dp),
+                            action = if (session.disposition == TutorSessionDisposition.ENDED_WITHOUT_SAVE) {
+                                null
+                            } else {
+                                {
+                                    OutlineActionChip(
+                                        text = if (longTermWritesBlocked) {
+                                            "本次不记录"
+                                        } else {
+                                            tutorSessionSaveLabel(
+                                                session.isSaved,
+                                                saveInProgress,
+                                                saveError != null,
+                                            )
+                                        },
+                                        onClick = { onSave(session) },
+                                        enabled = session.disposition == TutorSessionDisposition.ACTIVE &&
+                                            !saveInProgress && !endInProgress && !longTermWritesBlocked,
+                                        icon = Icons.Outlined.LibraryAddCheck,
+                                        contentDescription = when {
+                                            longTermWritesBlocked -> "本次不会存入错题本"
+                                            session.isSaved -> "本题已存入错题本"
+                                            else -> "将本题存入错题本"
+                                        },
+                                        modifier = Modifier.testTag("captured_tutor_save"),
                                     )
-                                },
-                                onClick = { onSave(session) },
-                                enabled = session.disposition == TutorSessionDisposition.ACTIVE &&
-                                    !saveInProgress && !endInProgress && !longTermWritesBlocked,
-                                icon = Icons.Outlined.LibraryAddCheck,
-                                contentDescription = when {
-                                    longTermWritesBlocked -> "本次不会存入错题本"
-                                    session.isSaved -> "本题已存入错题本"
-                                    else -> "将本题存入错题本"
-                                },
-                                modifier = Modifier.testTag("captured_tutor_save"),
-                            )
-                        }
-                    },
-                )
-                Text(
-                    text = session.subject.studentSubjectLabel(),
-                    modifier = Modifier.padding(top = 4.dp),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Spacer(Modifier.height(14.dp))
-                StructuredContentRenderer(
-                    document = session.questionDocument.document,
-                    choicesEnabled = false,
-                )
-                InlineSourceImage(
-                    imageUri = session.sourceImageUri,
-                    onClick = { sourceExpanded = true },
-                    modifier = Modifier.padding(top = 14.dp),
-                )
-                if (session.isEndedWithoutSave) EndedTutorSessionNotice()
+                                }
+                            },
+                        )
+                        Text(
+                            text = session.subject.studentSubjectLabel(),
+                            modifier = Modifier.padding(top = 4.dp),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        StructuredContentRenderer(
+                            document = session.questionDocument.document,
+                            choicesEnabled = false,
+                        )
+                        InlineSourceImage(
+                            imageUri = session.sourceImageUri,
+                            onClick = { sourceExpanded = true },
+                            modifier = Modifier.padding(top = 14.dp),
+                        )
+                        if (session.isEndedWithoutSave) EndedTutorSessionNotice()
+                    }
+                }
             },
             trailingContent = {
                 saveError?.let { message ->
@@ -626,7 +631,7 @@ private fun InlineSourceImage(
             onLoadStateChange = { loadState = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .clickable(onClick = onClick)
                 .testTag("captured_tutor_source_image"),
         )
@@ -654,12 +659,11 @@ private fun EndedTutorSessionNotice() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 18.dp),
-        color = JadeSoft.copy(alpha = 0.45f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        color = SubtleSurface,
+        shape = RoundedCornerShape(16.dp),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(

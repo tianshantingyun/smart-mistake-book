@@ -40,9 +40,9 @@ fun MessageBubble(
                     if (isUser) {
                         MaterialTheme.colorScheme.primaryContainer
                     } else {
-                        MaterialTheme.colorScheme.secondaryContainer
+                        ContentSurface
                     },
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(20.dp)
                 ),
         ) {
             if (isUser) {
@@ -58,7 +58,7 @@ fun MessageBubble(
 private fun UserMessageContent(text: String) {
     Text(
         text = text,
-        fontSize = 15.sp,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onPrimaryContainer,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         textAlign = TextAlign.Start,

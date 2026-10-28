@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.ClaudeCopyButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeQuietDots
-import com.tingyun.smartmistakebook.core.ui.SubtleSurface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -252,8 +251,9 @@ internal fun TutorSurfaceStudentBubble(
             modifier = Modifier
                 .widthIn(max = maxWidth * ClaudeLayout.MessageWidthFraction)
                 .testTag(testTag),
-            color = SubtleSurface,
-            shape = RoundedCornerShape(ClaudeLayout.MessageRadius),
+            color = JadeSoft,
+            shape = RoundedCornerShape(topStart = ClaudeLayout.MessageRadius, topEnd = ClaudeLayout.MessageRadius,
+                bottomStart = ClaudeLayout.MessageRadius, bottomEnd = 6.dp),
         ) {
             Column(modifier = Modifier.padding(horizontal = ClaudeLayout.MessagePaddingX, vertical = ClaudeLayout.MessagePaddingY)) {
                 if (imageAssetIds.isNotEmpty() && imageIntake != null) {

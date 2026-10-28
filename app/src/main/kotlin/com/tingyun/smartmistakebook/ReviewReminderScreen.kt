@@ -45,6 +45,7 @@ import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -135,147 +136,156 @@ internal fun ReminderScreen(
 
     RootPageColumn {
         SecondaryHeader(title = "复习提醒", onBack = onBack)
-        SectionHeader("复习节奏")
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text("每天提醒我复习", style = MaterialTheme.typography.titleMedium, color = Ink)
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SectionHeader("复习节奏")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("每天提醒我复习", style = MaterialTheme.typography.titleMedium, color = Ink)
+                        Text(
+                            if (preferences.enabled) {
+                                "当前计划：${formatReminderTime(preferences.minutesAfterMidnight)}"
+                            } else {
+                                "关闭后仍可随时从“复习”栏开始"
+                            },
+                            color = InkSecondary,
+                        )
+                        if (suggestedMinute != null) {
+                            Text(
+                                "根据近期记录，建议在 ${formatReminderTime(suggestedMinute)} 前后复习，可自行调整",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = InkSecondary,
+                            )
+                        }
+                    }
+                    Switch(
+                        checked = preferences.enabled,
+                        onCheckedChange = { enabled ->
+                            statusMessage = null
+                            when {
+                                !enabled -> saveEnabled(false)
+                                permissionGranted -> saveEnabled(true)
+                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                                    !context.hasPostNotificationsPermission() ->
+                                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                else -> {
+                                    statusMessage = "系统通知已关闭，请在系统设置中允许后再开启。"
+                                    openNotificationSettings()
+                                }
+                            }
+                        },
+                        modifier = Modifier.testTag("reminder_enabled_switch"),
+                    )
+                }
+
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SectionHeader("提醒时间")
                 Text(
-                    if (preferences.enabled) {
-                        "当前计划：${formatReminderTime(preferences.minutesAfterMidnight)}"
-                    } else {
-                        "关闭后仍可随时从“复习”栏开始"
-                    },
-                    color = InkSecondary,
+                    formatReminderTime(preferences.minutesAfterMidnight),
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .testTag("reminder_time_value"),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Ink,
                 )
-                if (suggestedMinute != null) {
+                Text("选一个符合日常节奏的时间，也可以自定义。", color = InkSecondary)
+                Text(
+                    "提醒由系统发送，省电模式下可能延迟。",
+                    modifier = Modifier.padding(top = 2.dp),
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.labelSmall,
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                ) {
+                    ReminderTimePreset(
+                        label = "放学后",
+                        minutes = 18 * 60 + 30,
+                        selectedMinutes = preferences.minutesAfterMidnight,
+                        onSelect = ::saveTime,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    ReminderTimePreset(
+                        label = "晚自习",
+                        minutes = 20 * 60 + 30,
+                        selectedMinutes = preferences.minutesAfterMidnight,
+                        onSelect = ::saveTime,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    ReminderTimePreset(
+                        label = "睡前",
+                        minutes = 22 * 60,
+                        selectedMinutes = preferences.minutesAfterMidnight,
+                        onSelect = ::saveTime,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                OutlinedButton(
+                    onClick = {
+                        val hour = preferences.minutesAfterMidnight / 60
+                        val minute = preferences.minutesAfterMidnight % 60
+                        TimePickerDialog(
+                            context,
+                            { _, selectedHour, selectedMinute ->
+                                saveTime(selectedHour * 60 + selectedMinute)
+                            },
+                            hour,
+                            minute,
+                            true,
+                        ).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                        .heightIn(min = 48.dp)
+                        .testTag("reminder_custom_time"),
+                ) {
+                    Text("自定义时间")
+                }
+
+                if (preferences.enabled && !permissionGranted) {
                     Text(
-                        "根据近期记录，建议在 ${formatReminderTime(suggestedMinute)} 前后复习，可自行调整",
-                        style = MaterialTheme.typography.bodySmall,
+                        "提醒偏好已保留，但系统通知权限已关闭，所以当前不会弹出提醒。",
+                        modifier = Modifier.padding(top = 16.dp),
+                        color = InkSecondary,
+                    )
+                    OutlinedButton(
+                        onClick = openNotificationSettings,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .heightIn(min = 48.dp)
+                            .testTag("reminder_open_system_settings"),
+                    ) {
+                        Text("打开系统通知设置")
+                    }
+                }
+
+                statusMessage?.let { message ->
+                    Text(
+                        message,
+                        modifier = Modifier.padding(top = 12.dp),
                         color = InkSecondary,
                     )
                 }
-            }
-            Switch(
-                checked = preferences.enabled,
-                onCheckedChange = { enabled ->
-                    statusMessage = null
-                    when {
-                        !enabled -> saveEnabled(false)
-                        permissionGranted -> saveEnabled(true)
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            !context.hasPostNotificationsPermission() ->
-                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        else -> {
-                            statusMessage = "系统通知已关闭，请在系统设置中允许后再开启。"
-                            openNotificationSettings()
-                        }
-                    }
-                },
-                modifier = Modifier.testTag("reminder_enabled_switch"),
-            )
-        }
 
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("提醒时间")
-        Text(
-            formatReminderTime(preferences.minutesAfterMidnight),
-            modifier = Modifier
-                .padding(top = 12.dp)
-                .testTag("reminder_time_value"),
-            style = MaterialTheme.typography.headlineMedium,
-            color = Ink,
-        )
-        Text("选一个符合日常节奏的时间，也可以自定义。", color = InkSecondary)
-        Text(
-            "提醒由系统发送，省电模式下可能延迟。",
-            modifier = Modifier.padding(top = 2.dp),
-            color = InkSecondary,
-            style = MaterialTheme.typography.labelSmall,
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp),
-        ) {
-            ReminderTimePreset(
-                label = "放学后",
-                minutes = 18 * 60 + 30,
-                selectedMinutes = preferences.minutesAfterMidnight,
-                onSelect = ::saveTime,
-                modifier = Modifier.weight(1f),
-            )
-            Spacer(Modifier.width(8.dp))
-            ReminderTimePreset(
-                label = "晚自习",
-                minutes = 20 * 60 + 30,
-                selectedMinutes = preferences.minutesAfterMidnight,
-                onSelect = ::saveTime,
-                modifier = Modifier.weight(1f),
-            )
-            Spacer(Modifier.width(8.dp))
-            ReminderTimePreset(
-                label = "睡前",
-                minutes = 22 * 60,
-                selectedMinutes = preferences.minutesAfterMidnight,
-                onSelect = ::saveTime,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        OutlinedButton(
-            onClick = {
-                val hour = preferences.minutesAfterMidnight / 60
-                val minute = preferences.minutesAfterMidnight % 60
-                TimePickerDialog(
-                    context,
-                    { _, selectedHour, selectedMinute ->
-                        saveTime(selectedHour * 60 + selectedMinute)
-                    },
-                    hour,
-                    minute,
-                    true,
-                ).show()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-                .heightIn(min = 48.dp)
-                .testTag("reminder_custom_time"),
-        ) {
-            Text("自定义时间")
-        }
-
-        if (preferences.enabled && !permissionGranted) {
-            Text(
-                "提醒偏好已保留，但系统通知权限已关闭，所以当前不会弹出提醒。",
-                modifier = Modifier.padding(top = 16.dp),
-                color = InkSecondary,
-            )
-            OutlinedButton(
-                onClick = openNotificationSettings,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-                    .heightIn(min = 48.dp)
-                    .testTag("reminder_open_system_settings"),
-            ) {
-                Text("打开系统通知设置")
             }
         }
-
-        statusMessage?.let { message ->
-            Text(
-                message,
-                modifier = Modifier.padding(top = 12.dp),
-                color = InkSecondary,
-            )
-        }
-
-        PaperDivider(Modifier.padding(vertical = 18.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
             "提醒不会改变复习安排。锁屏不显示具体题目，也不会在后台调用模型。",
             color = InkSecondary,

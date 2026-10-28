@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.ErrorOutline
 import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.Icon
-import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
@@ -41,9 +39,11 @@ import com.tingyun.smartmistakebook.core.domain.KnowledgeQuizFeedbackResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.ClaudeQuietDots
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
@@ -174,23 +174,11 @@ fun KnowledgeReviewSessionScreen(
     RootPageColumn(modifier = modifier.testTag("knowledge_review_session_root")) {
         KnowledgeSessionHeader(onBack = onBack)
         Spacer(Modifier.height(10.dp))
-        LinearProgressIndicator(
-            progress = {
-                (progressIndex + 1).toFloat() / viewModel.queueSize.toFloat()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp),
-            color = SmartColors.Jade,
-            trackColor = SmartColors.Track,
+        ReviewSessionProgress(
+            label = "第 ${progressIndex + 1} / ${viewModel.queueSize} 个知识点",
+            progress = (progressIndex + 1).toFloat() / viewModel.queueSize.toFloat(),
         )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = "第 ${progressIndex + 1} / ${viewModel.queueSize} 个知识点",
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.labelMedium,
-        )
-        PaperDivider(Modifier.padding(vertical = 18.dp))
+        Spacer(Modifier.height(16.dp))
         if (entry == null && viewModel.completed) {
             SectionHeader(title = "本次知识点复习已结束")
             Spacer(Modifier.height(10.dp))
@@ -218,12 +206,18 @@ fun KnowledgeReviewSessionScreen(
             Spacer(Modifier.height(16.dp))
         }
         when (viewModel.loadStatus) {
-            KnowledgeQuizLoadStatus.LOADING -> Text(
-                text = "正在为这个知识点出题…",
-                modifier = Modifier.testTag("knowledge_review_loading"),
-                color = SmartColors.InkSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            KnowledgeQuizLoadStatus.LOADING -> WorkspacePanel {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ClaudeQuietDots()
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = "正在为这个知识点出题…",
+                        modifier = Modifier.weight(1f).testTag("knowledge_review_loading"),
+                        color = SmartColors.InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
             KnowledgeQuizLoadStatus.FAILED -> KnowledgeQuizLoadFailure(
                 message = "未能生成知识点练习题，请重试。",
                 onRetry = {
@@ -295,29 +289,12 @@ fun KnowledgeReviewSessionScreen(
 
 @Composable
 private fun KnowledgeSessionHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier.testTag("knowledge_review_back"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回复习首页",
-                tint = SmartColors.Ink,
-            )
-        }
-        Spacer(Modifier.width(4.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                text = "知识点复习",
-                color = SmartColors.Ink,
-                style = MaterialTheme.typography.titleLarge,
-            )
-        }
-    }
+    ClaudePageHeader(
+        title = "知识点复习",
+        onBack = onBack,
+        backModifier = Modifier.testTag("knowledge_review_back"),
+        backLabel = "返回复习首页",
+    )
 }
 
 @Composable
@@ -345,27 +322,32 @@ private fun KnowledgeQuizContent(
     // 改正对话框打开时按当前题面现读的键版本（题面切换时重置，避免把上一题的版本带过来）。
     var loadedKeyVersion by remember(item.id) { mutableStateOf<Long?>(null) }
     val keyVersionScope = rememberCoroutineScope()
-    SafeMarkdownText(
-        markdown = item.stemMarkdown,
-        color = SmartColors.Ink,
-        style = MaterialTheme.typography.bodyLarge.copy(
-            fontSize = 18.sp,
-            lineHeight = 29.sp,
-        ),
-    )
-    Spacer(Modifier.height(20.dp))
-    item.choices.forEach { choice ->
-        ReviewChoiceRow(
-            choice = choice,
-            isCorrect = item.evaluateChoice(choice.id).isCorrect,
-            selectedChoice = viewModel.selectedChoice,
-            submittedChoice = viewModel.submittedChoice,
-            enabled = viewModel.submitStatus != KnowledgeQuizSubmitStatus.RECORDING,
-            onSelect = viewModel::select,
-            testTag = "knowledge_review_choice_${choice.id}",
-        )
-        Spacer(Modifier.height(10.dp))
+    WorkspacePanel {
+        Column {
+            SafeMarkdownText(
+                markdown = item.stemMarkdown,
+                color = SmartColors.Ink,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 18.sp,
+                    lineHeight = 29.sp,
+                ),
+            )
+            Spacer(Modifier.height(20.dp))
+            item.choices.forEach { choice ->
+                ReviewChoiceRow(
+                    choice = choice,
+                    isCorrect = item.evaluateChoice(choice.id).isCorrect,
+                    selectedChoice = viewModel.selectedChoice,
+                    submittedChoice = viewModel.submittedChoice,
+                    enabled = viewModel.submitStatus != KnowledgeQuizSubmitStatus.RECORDING,
+                    onSelect = viewModel::select,
+                    testTag = "knowledge_review_choice_${choice.id}",
+                )
+                Spacer(Modifier.height(10.dp))
+            }
+        }
     }
+    Spacer(Modifier.height(16.dp))
     if (viewModel.submittedChoice == null) {
         Spacer(Modifier.height(6.dp))
         PrimaryActionButton(
@@ -620,19 +602,16 @@ private fun KnowledgeQuizVerdict(result: KnowledgeQuizFeedbackResult) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("knowledge_review_verdict"),
-        color = if (correct) SmartColors.JadeSoft else SmartColors.Paper,
-        shape = RoundedCornerShape(8.dp),
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            if (correct) SmartColors.Jade else SmartColors.ErrorWarm,
-        ),
+        color = if (correct) SmartColors.JadeSoft else SmartColors.ErrorWarm.copy(alpha = 0.08f),
+        shape = RoundedCornerShape(20.dp),
+
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = Icons.Outlined.CheckCircle,
+                imageVector = if (correct) Icons.Outlined.CheckCircle else Icons.Outlined.ErrorOutline,
                 contentDescription = null,
                 tint = if (correct) SmartColors.JadeDark else SmartColors.ErrorWarm,
             )
@@ -667,39 +646,41 @@ private fun KnowledgeQuizLoadFailure(
     onSkip: () -> Unit,
     onBack: () -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth()) {
-        Text(
-            text = message,
-            modifier = Modifier.testTag("knowledge_review_load_failed"),
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        if (onRetry != null) {
-            Spacer(Modifier.height(16.dp))
-            PrimaryActionButton(
-                text = "重试出题",
-                onClick = onRetry,
-                modifier = Modifier.fillMaxWidth().testTag("knowledge_review_retry"),
+    WorkspacePanel {
+        Column(Modifier.fillMaxWidth()) {
+            Text(
+                text = message,
+                modifier = Modifier.testTag("knowledge_review_load_failed"),
+                color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.bodyLarge,
             )
-        }
-        Spacer(Modifier.height(8.dp))
-        OutlinedButton(
-            onClick = onSkip,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("knowledge_review_skip"),
-        ) {
-            Text("跳过这个知识点")
-        }
-        Text(
-            text = "跳过不会记录本次结果，这个知识点保持到期，之后还会再遇到。",
-            modifier = Modifier.padding(top = 6.dp),
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.labelSmall,
-        )
-        Spacer(Modifier.height(8.dp))
-        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("返回复习首页")
+            if (onRetry != null) {
+                Spacer(Modifier.height(16.dp))
+                PrimaryActionButton(
+                    text = "重试出题",
+                    onClick = onRetry,
+                    modifier = Modifier.fillMaxWidth().testTag("knowledge_review_retry"),
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = onSkip,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("knowledge_review_skip"),
+            ) {
+                Text("跳过这个知识点")
+            }
+            Text(
+                text = "跳过不会记录本次结果，这个知识点保持到期，之后还会再遇到。",
+                modifier = Modifier.padding(top = 6.dp),
+                color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.labelSmall,
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+                Text("返回复习首页")
+            }
         }
     }
 }
@@ -712,11 +693,13 @@ private fun EmptyKnowledgeReviewScreen(
     RootPageColumn(modifier = modifier.testTag("knowledge_review_empty")) {
         KnowledgeSessionHeader(onBack = onBack)
         Spacer(Modifier.height(12.dp))
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        Text(
-            text = "今天没有需要复习的知识点——错题里涉及的知识点都已掌握或尚未到期。",
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.bodyLarge,
-        )
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Text(
+                text = "今天没有需要复习的知识点——错题里涉及的知识点都已掌握或尚未到期。",
+                color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
     }
 }
