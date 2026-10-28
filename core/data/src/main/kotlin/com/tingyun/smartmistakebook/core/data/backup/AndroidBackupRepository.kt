@@ -387,7 +387,7 @@ class AndroidBackupRepository(
 
     /**
      * v3 manifest 的 `selection` 块（6C-2）。digest 用 §9.7 的 v2 算法；`rowCounts` 必须
-     * 覆盖 86 表，`assetPolicy` 只能是 `INCLUDED`（本批合法 mask 都含图片）。
+     * 覆盖 90 表，`assetPolicy` 只能是 `INCLUDED`（本批合法 mask 都含图片）。
      */
     private fun selectionRecord(
         mask: Int,
@@ -1221,7 +1221,7 @@ class AndroidBackupRepository(
      * Phase 2c.1（6C-2 T5）：清单的 selection 声明 vs **包内库实测**。
      *
      * 两件事都在交换前做，权威判据始终是包内库（清单是包自己带的，可以撒谎）：
-     * 1. **逐表行数对拍**：manifest `rowCounts` 的 86 个键必须与包内库 `COUNT(*)` 逐表相等。
+     * 1. **逐表行数对拍**：manifest `rowCounts` 的 90 个键必须与包内库 `COUNT(*)` 逐表相等。
      *    这覆盖了 mask=15（没有未选类别可查）的情形——一份只有题/图的子集包被改写成
      *    「全量」时，声明行数与包内实际行数必然漂开；digest/rowCounts 的自洽只能证明
      *    清单内部一致，不能证明载荷是那份清单描述的内容。

@@ -3,21 +3,22 @@ package com.tingyun.smartmistakebook.core.data.backup
 import java.security.MessageDigest
 
 /**
- * 6C-2 内容选择备份的 **schema 69 机器清单**（v2）。
+ * 6C-2 内容选择备份的 **schema 70 机器清单**（v3）。
  *
  * 唯一数据源：`docs/research/2026-10-17-6c2-content-selection-design.md` §9.11 的
- * `<!-- 6c2-plan-v2:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
- * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/69.json`
- * （`database.version=69`、`identityHash=6633b7c2…`）。本文件不新增规则：类别、闭包、
+ * `<!-- 6c2-plan-v3:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
+ * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/70.json`
+ * （`database.version=70`、`identityHash=11a8a701…`）。本文件不新增规则：类别、闭包、
  * 裁剪顺序、软引用、资产根、kind 谓词全部逐项对应机器块，`SmbkSelectionPlanTest`
- * 反向解析机器块与 `69.json` 断言两处同源。
+ * 反向解析机器块与 `70.json` 断言两处同源。
  *
- * 86 张表的归属（每表恰好一次）：
- * - [SmbkSelectionCategory] 四类：30 + 35 + 6 + 1；
+ * 90 张表的归属（每表恰好一次）：
+ * - [SmbkSelectionCategory] 四类：31 + 35 + 7 + 1；
  * - [alwaysTables] 7 张恒随包；
  * - [derivedTables] 2 张派生索引（本批裁定恒裁，恢复完成后按科后台重建）；
- * - [splitTables] 5 张按行筛选（`model_task*` 按 `task_kind`，`figure_generation_*` 按来源类别 +
- *   存活根引用，见 [modelTaskKindCategory] / [figureOperationSourceKindCategory]）。
+ * - [splitTables] 7 张按行筛选（`model_task*` 按 `task_kind`，`figure_generation_*` 按来源类别 +
+ *   存活根引用，`tutor_visual_program` / `tutor_visual_snapshot` 按存活 link/题面引用 +
+ *   INITIAL 基线，见 [modelTaskKindCategory] / [figureOperationSourceKindCategory]）。
  *
  * 两项视图（[views]）没有行也不参与裁剪；`library_search_fts` 是 FTS4 外部内容虚拟表，
  * 归在 ISSUE_BOOK 类别下，但**不进入** [trimOrder]，由删除后的 `rebuild` 收尾（[rebuildTables]）。
@@ -30,22 +31,22 @@ import java.security.MessageDigest
  * 因此 [allowedMasks] 只有 9（题+图）、13（题+会话+图）、15（全选）；0、8 与
  * 1–7、10–12、14 一律拒绝，**不静默补齐**。全选也走裁剪器，但只裁派生索引。
  *
- * [closureDigest] 是 §9.7 定稿的 v2 算法，只用于同构对拍与第三方重裁的粗筛；权威始终是
+ * [closureDigest] 是 §9.7 定稿的 v3 算法，只用于同构对拍与第三方重裁的粗筛；权威始终是
  * 包内库实测。
  */
 object SmbkSelectionPlan {
 
-    /** 机器块 `schemaVersion`，同时是 `69.json` 的 `database.version`。 */
-    const val SCHEMA_VERSION: Int = 69
+    /** 机器块 `schemaVersion`，同时是 `70.json` 的 `database.version`。 */
+    const val SCHEMA_VERSION: Int = 70
 
-    /** 机器块 `identityHash`，必须与 `69.json` 的 `database.identityHash` 相等。 */
-    const val IDENTITY_HASH: String = "6633b7c2fe223041c4a2927203853f4f"
+    /** 机器块 `identityHash`，必须与 `70.json` 的 `database.identityHash` 相等。 */
+    const val IDENTITY_HASH: String = "11a8a701bae767a8a3c5bc810e4743a4"
 
     /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名。 */
-    const val CLOSURE_VERSION: Int = 2
+    const val CLOSURE_VERSION: Int = 3
 
-    /** digest 前缀，与 closureVersion=2 绑定。 */
-    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v2"
+    /** digest 前缀，与 closureVersion=3 绑定。 */
+    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v3"
 
     /** 四项用户类别全选。 */
     const val FULL_MASK: Int = 15
@@ -56,7 +57,7 @@ object SmbkSelectionPlan {
     /** 其余 13 个 mask 全部拒绝（含闭包自洽但产品裁定的 0/8）。 */
     val rejectedMasks: Set<Int> = (0..FULL_MASK).toSet() - allowedMasks
 
-    /** v2 合法 mask 都含 IMAGES，资产策略只能是 INCLUDED（无图子集不实现）。 */
+    /** v3 合法 mask 都含 IMAGES，资产策略只能是 INCLUDED（无图子集不实现）。 */
     const val ASSET_POLICY_INCLUDED: String = "INCLUDED"
 
     /** 两项视图：无行、不裁剪。 */
@@ -78,6 +79,7 @@ object SmbkSelectionPlan {
             "problem_organization_receipt",
             "practice_unit_knowledge_binding",
             "problem_revision_source_asset",
+            "problem_revision_visual",
             "problem_draft",
             "problem_draft_source_asset",
             "problem_draft_revision",
@@ -139,6 +141,7 @@ object SmbkSelectionPlan {
         SmbkSelectionCategory.SESSIONS to listOf(
             "tutor_conversation",
             "tutor_message",
+            "tutor_message_visual",
             "tutor_message_source_asset",
             "agent_pending_request",
             "tutor_answer_exposure",
@@ -166,30 +169,36 @@ object SmbkSelectionPlan {
         "knowledge_search_index_state",
     )
 
-    /** 5 张按行筛选的表；具体谓词见两个 kind 映射与 `*RowFilterTables`。 */
+    /** 7 张按行筛选的表；具体谓词见两个 kind 映射、`*RowFilterTables` 与视觉引用闭包。 */
     val splitTables: List<String> = listOf(
         "model_task_event",
         "model_task",
         "model_task_operation",
         "figure_generation_attempt",
         "figure_generation_operation",
+        "tutor_visual_snapshot",
+        "tutor_visual_program",
     )
 
     /** FTS 外部内容表：不删行，删除结束后 `INSERT INTO …('rebuild')`。 */
     val rebuildTables: List<String> = listOf("library_search_fts")
 
-    /** 86 张表（类别 72 + ALWAYS 7 + DERIVED 2 + SPLIT 5），也是 rowCounts 的键集合。 */
+    /** 90 张表（类别 74 + ALWAYS 7 + DERIVED 2 + SPLIT 7），也是 rowCounts 的键集合。 */
     val allTables: List<String> =
         categoryTables.values.flatten() + alwaysTables + derivedTables + splitTables
 
-    /** `rowCounts` 必须覆盖的 86 个键（值为 0 也写）。 */
+    /** `rowCounts` 必须覆盖的 90 个键（值为 0 也写）。 */
     val rowCountKeys: Set<String> = allTables.toSet()
 
     /**
-     * 78 项裁剪顺序（子表先于父表）。= 86 − 7 ALWAYS − 1 `library_search_fts`；
-     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `69.json` 的真实 FK 图校验。
+     * 82 项裁剪顺序（子表先于父表）。= 90 − 7 ALWAYS − 1 `library_search_fts`；
+     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `70.json` 的真实 FK 图校验。
      */
     val trimOrder: List<String> = listOf(
+        "tutor_message_visual",
+        "problem_revision_visual",
+        "tutor_visual_snapshot",
+        "tutor_visual_program",
         "tutor_message_source_asset",
         "tutor_message",
         "split_import_question",
@@ -280,7 +289,7 @@ object SmbkSelectionPlan {
     )
 
     /**
-     * 20 条软引用（无外键的引用列）。v2 的检查口径是 **no-new-dangling**：
+     * 21 条软引用（无外键的引用列）。v3 的检查口径是 **no-new-dangling**：
      * 只要求裁剪后悬空集合 ⊆ 裁剪前悬空集合；`check=informational` 不参与该断言，
      * `check=rebuild-consistency` 以 FTS rebuild 后的 docid 孤儿数为核对。
      *
@@ -450,6 +459,14 @@ object SmbkSelectionPlan {
             check = "none",
             strength = "informational",
         ),
+        SmbkSoftReference(
+            table = "tutor_visual_program",
+            column = "basis_revision_id",
+            targetTable = "problem_revision",
+            kind = "cross-category",
+            check = "no-new-dangling",
+            strength = "strong",
+        ),
     )
 
     /** 资产根（4 张根引用表）：选中对应类别时，其存活行指向的资产进入 R。 */
@@ -471,6 +488,16 @@ object SmbkSelectionPlan {
     val figureRowFilterTables: List<String> = listOf(
         "figure_generation_attempt",
         "figure_generation_operation",
+    )
+
+    /**
+     * 两张视觉表的行级规则（批次 30 / D-01）：`tutor_visual_snapshot` 先于 `tutor_visual_program`
+     * 删除（snapshot.program_id → program 的 RESTRICT）。保留集合由裁剪器的存活 link/题面引用
+     * 与 `checkpoint_kind='INITIAL'` 基线共同决定（`BackupSnapshotTrimmer`）。
+     */
+    val visualRowFilterTables: List<String> = listOf(
+        "tutor_visual_snapshot",
+        "tutor_visual_program",
     )
 
     /** `task_kind` → 类别；未在映射内的 kind 在真子集必须 fail-closed。 */
@@ -508,30 +535,31 @@ object SmbkSelectionPlan {
 
     init {
         require(allTables.size == allTables.toSet().size) { "表被重复归类：$allTables" }
-        require(allTables.size == 86) { "schema 69 应有 86 张表，实际 ${allTables.size}" }
-        require(views.size == 2) { "schema 69 应有 2 个视图，实际 ${views.size}" }
-        require(categoryTables[SmbkSelectionCategory.ISSUE_BOOK]?.size == 30) { "ISSUE_BOOK 应为 30 张表" }
+        require(allTables.size == 90) { "schema 70 应有 90 张表，实际 ${allTables.size}" }
+        require(views.size == 2) { "schema 70 应有 2 个视图，实际 ${views.size}" }
+        require(categoryTables[SmbkSelectionCategory.ISSUE_BOOK]?.size == 31) { "ISSUE_BOOK 应为 31 张表" }
         require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 35) { "MASTERY 应为 35 张表" }
-        require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 6) { "SESSIONS 应为 6 张表" }
+        require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 7) { "SESSIONS 应为 7 张表" }
         require(categoryTables[SmbkSelectionCategory.IMAGES]?.size == 1) { "IMAGES 应为 1 张表" }
         require(alwaysTables.size == 7) { "ALWAYS 应为 7 张表" }
         require(derivedTables.size == 2) { "DERIVED 应为 2 张表" }
-        require(splitTables.size == 5) { "SPLIT 应为 5 张表" }
-        require(trimOrder.size == 78) { "裁剪顺序应为 78 项，实际 ${trimOrder.size}" }
+        require(splitTables.size == 7) { "SPLIT 应为 7 张表" }
+        require(trimOrder.size == 82) { "裁剪顺序应为 82 项，实际 ${trimOrder.size}" }
         require(trimOrder.size == trimOrder.toSet().size) { "裁剪顺序有重复项" }
         require(
             trimOrder.toSet() == allTables.toSet() - alwaysTables.toSet() - rebuildTables.toSet(),
-        ) { "裁剪顺序必须恰好覆盖 86 表 − ALWAYS − FTS" }
+        ) { "裁剪顺序必须恰好覆盖 90 表 − ALWAYS − FTS" }
         require(derivedTables.all { it in trimOrder }) { "派生表按本批裁定必须恒裁" }
         require(expectedClosure.size == 5) { "类别闭包应为 5 条边" }
-        require(softReferences.size == 20) { "软引用应为 20 条" }
+        require(softReferences.size == 21) { "软引用应为 21 条" }
         require(
-            splitTables.toSet() == (modelTaskRowFilterTables + figureRowFilterTables).toSet(),
-        ) { "split 表与 kind 谓词表集合必须一致" }
+            splitTables.toSet() ==
+                (modelTaskRowFilterTables + figureRowFilterTables + visualRowFilterTables).toSet(),
+        ) { "split 表与 kind/视觉谓词表集合必须一致" }
         require(allowedMasks == setOf(9, 13, 15)) { "本批只允许 9/13/15" }
     }
 
-    /** 表 → 归属桶；未知表返回 null（调用方对 `69.json` 漂移 fail-closed）。 */
+    /** 表 → 归属桶；未知表返回 null（调用方对 `70.json` 漂移 fail-closed）。 */
     fun bucketOf(table: String): SmbkTableBucket? = tableBucketIndex[table]
 
     /** 用户类别表的类别；ALWAYS/DERIVED/SPLIT 或未知表返回 null。 */
@@ -592,14 +620,14 @@ object SmbkSelectionPlan {
     }
 
     /**
-     * §9.7 的 v2 digest：
+     * §9.7 的 v3 digest：
      * ```
-     * sha256("smbk-selection-v2\n" + "closureVersion=2\n"
+     * sha256("smbk-selection-v3\n" + "closureVersion=3\n"
      *      + "categories=" + sorted.joinToString(",") + "\n"
      *      + "assetPolicy=" + assetPolicy + "\n"
      *      + rowCounts.keys.sorted().joinToString("") { "$it=${rowCounts[it]}\n" })
      * ```
-     * [rowCounts] 必须恰好覆盖 86 个键（漏键/多键会抛出，避免摘要不可比）。
+     * [rowCounts] 必须恰好覆盖 90 个键（漏键/多键会抛出，避免摘要不可比）。
      */
     fun closureDigest(
         categories: Collection<SmbkSelectionCategory>,
@@ -609,7 +637,7 @@ object SmbkSelectionPlan {
         require(rowCounts.keys == rowCountKeys) {
             val missing = (rowCountKeys - rowCounts.keys).sorted()
             val extra = (rowCounts.keys - rowCountKeys).sorted()
-            "rowCounts 必须覆盖 86 张表：missing=$missing extra=$extra"
+            "rowCounts 必须覆盖 90 张表：missing=$missing extra=$extra"
         }
         val categoryNames = categories.map { it.name }.distinct().sorted()
         val payload = buildString {

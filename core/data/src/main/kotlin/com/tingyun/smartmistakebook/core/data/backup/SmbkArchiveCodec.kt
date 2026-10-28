@@ -132,7 +132,7 @@ internal data class SmbkSelectionRecord(
     /** `SmbkSelectionPlan.closureDigest` 的 v2 摘要（原始小写 hex，无前缀）。 */
     @SerialName("closureDigest")
     val closureDigest: String,
-    /** 裁剪后快照的逐表行数；必须覆盖 86 张表（值为 0 也写）。 */
+    /** 裁剪后快照的逐表行数；必须覆盖 90 张表（值为 0 也写）。 */
     @SerialName("rowCounts")
     val rowCounts: Map<String, Long>,
     /** 实际删除过数据行的表数（不含 FTS rebuild）；全选只裁派生索引时通常 ≤2，无删除为 0。 */
@@ -286,7 +286,7 @@ internal object SmbkArchiveCodec {
      * 生产装配两者都在，见 `BackupRepositoryFactory`）。
      *
      * [selection] 是 v3 的内容选择块（6C-2）。**在写任何字节之前**校验：mask 只能是
-     * 9/13/15、`categories` 必须与 mask 一致、`rowCounts` 必须覆盖 86 表、digest 必须与
+     * 9/13/15、`categories` 必须与 mask 一致、`rowCounts` 必须覆盖 90 表、digest 必须与
      * 同输入重算的一致。非法选择在这里抛 `IllegalArgumentException`，`archive` 保持为空
      * ——绝不写出半包。
      *
@@ -429,7 +429,7 @@ internal object SmbkArchiveCodec {
      *
      * 与 `BackupSelection.requireCreatable` 同一口径的**第二道**（仓储已先拒一次）：
      * 9/13/15 之外（含 0/8 与未闭合组合）一律抛；`categories` 必须与 mask 位和一致；
-     * `rowCounts` 必须恰好覆盖 86 表；`closureDigest` 必须能由同输入重算出来。
+     * `rowCounts` 必须恰好覆盖 90 表；`closureDigest` 必须能由同输入重算出来。
      * 不做任何补齐或缩水。
      */
     private fun requireWritableSelection(selection: SmbkSelectionRecord) {
@@ -464,7 +464,7 @@ internal object SmbkArchiveCodec {
         require(selection.rowCounts.keys == SmbkSelectionPlan.rowCountKeys) {
             val missing = (SmbkSelectionPlan.rowCountKeys - selection.rowCounts.keys).sorted()
             val extra = (selection.rowCounts.keys - SmbkSelectionPlan.rowCountKeys).sorted()
-            "备份内容选择的 rowCounts 必须覆盖 86 表：missing=$missing extra=$extra"
+            "备份内容选择的 rowCounts 必须覆盖 90 表：missing=$missing extra=$extra"
         }
         // 批次 19 T2-1：与读侧（readableSelection）同规同文案——读侧拒负数的包，
         // 写侧不能自己产出来。
@@ -1050,7 +1050,7 @@ internal object SmbkArchiveCodec {
         // 不能猜成全量——那会把一份被剥掉选择块的子集/残缺包按全量恢复并清空本机数据。
         // 只要清单带了 selection，它就必须与本机规则表版本完全自洽。这里在解包/恢复的
         // Phase 1 就拒绝——仍在交换之前，原库一个字节都不动。
-        // 声明 vs 包内库实测（未勾选类别 0 行、86 表逐表行数）在恢复的 Phase 2b 之后另行核对。
+        // 声明 vs 包内库实测（未勾选类别 0 行、90 表逐表行数）在恢复的 Phase 2b 之后另行核对。
         val declaredSelection = parsed.selection
         val selectionSummary = if (declaredSelection == null) {
             if (parsed.formatVersion >= SmbkSelectionRecord.INTRODUCED_FORMAT_VERSION) {
@@ -1136,7 +1136,7 @@ internal object SmbkArchiveCodec {
 
     /**
      * 读侧的 selection 判定（T5）。**所有**字段都在交换前判定：格式版本、记录版本、
-     * 闭包规则版本、mask、categories、资产策略、86 表 rowCounts、trimmedTableCount 与
+     * 闭包规则版本、mask、categories、资产策略、90 表 rowCounts、trimmedTableCount 与
      * closureDigest。任何一项不符都返回可读拒因，调用方把它变成
      * [BackupValidation.Invalid]（`validate` 与 `unpack` 共用同一道门）。
      *
@@ -1196,7 +1196,7 @@ internal object SmbkArchiveCodec {
             val missing = (SmbkSelectionPlan.rowCountKeys - record.rowCounts.keys).sorted()
             val extra = (record.rowCounts.keys - SmbkSelectionPlan.rowCountKeys).sorted()
             return SelectionRead.Invalid(
-                "备份内容选择的 rowCounts 必须覆盖 86 表：missing=$missing extra=$extra",
+                "备份内容选择的 rowCounts 必须覆盖 90 表：missing=$missing extra=$extra",
             )
         }
         if (record.rowCounts.values.any { count -> count < 0L }) {
