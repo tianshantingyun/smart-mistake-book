@@ -259,6 +259,64 @@ class VisualDrawOpsValidatorTest {
         )
     }
 
+    // ------------------------------------------------------------ KD-78 生成门（批次 29 T5）
+
+    @Test
+    fun `a stroke only path is rejected at the generation gate`() {
+        // KD-78 ①：DrawOps V1 的 stroke 无 color 字段，stroke-only 在回放侧无颜色源。
+        // 生成侧（本解析器）前置拒绝，码面与 painter 同词；回放侧兜底保留（painter 仍拒
+        // hand-built 文档）。它消灭"合法生成 → 回放时 FAIL-CLOSED 才拒"的预算浪费路径。
+        assertEquals(
+            PAINTER_STROKE_WITHOUT_FILL,
+            invalidCode(
+                validate(
+                    emptyDoc(
+                        ops = """{"op":"path","path":[["M",0,0],["L",10,0]],"fill":null,""" +
+                            """"stroke":{"width":1,"cap":"butt","join":"miter","miterLimit":4,"dash":null},"alpha":1}""",
+                        pathCommands = 2,
+                    ),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun `odd short and empty dashes are rejected at the generation gate`() {
+        // KD-78 ②：DashPathEffect 契约要求偶数 interval；length<2（含空数组）被 AOSP
+        // 构造器抛**无码** ArrayIndexOutOfBoundsException。生成侧前置拒绝，码面与 painter
+        // 同词（PAINTER_DASH_ODD），回放侧兜底保留。
+        fun dashOp(dash: String): String =
+            """{"op":"path","path":[["M",0,0],["L",10,0]],"fill":"#000000",""" +
+                """"stroke":{"width":1,"cap":"butt","join":"miter","miterLimit":4,"dash":[$dash]},"alpha":1}"""
+        assertEquals(
+            PAINTER_DASH_ODD,
+            invalidCode(validate(emptyDoc(ops = dashOp("2,4,2"), pathCommands = 2))),
+        )
+        assertEquals(
+            PAINTER_DASH_ODD,
+            invalidCode(validate(emptyDoc(ops = dashOp("2"), pathCommands = 2))),
+        )
+        assertEquals(
+            PAINTER_DASH_ODD,
+            invalidCode(validate(emptyDoc(ops = dashOp(""), pathCommands = 2))),
+        )
+        // 负控：偶数 ≥2 的 dash 仍合法（门不是"一律拒 dash"）。
+        val valid = validate(emptyDoc(ops = dashOp("2,2,4,4"), pathCommands = 2))
+        val document = (valid as VisualDrawOpsValidation.Valid).document
+        assertEquals(listOf(2.0, 2.0, 4.0, 4.0), (document.ops[0] as VisualDrawOp.DrawPath).stroke?.dash)
+    }
+
+    @Test
+    fun `an eight digit fill color stays in the typed document for the replay alpha rule`() {
+        // KD-78 ③：8 位色仍被词表接受（裁定的乘法语义在回放侧，不在解析侧收紧词表）。
+        val text = emptyDoc(
+            ops = """{"op":"path","path":[["M",0,0]],"fill":"#ff000080","stroke":null,"alpha":1}""",
+            pathCommands = 1,
+        )
+        val document = (validate(text) as VisualDrawOpsValidation.Valid).document
+        assertEquals("#ff000080", (document.ops[0] as VisualDrawOp.DrawPath).fill)
+    }
+
     @Test
     fun `a miter limit below one is rejected`() {
         assertEquals(
@@ -330,7 +388,9 @@ class VisualDrawOpsValidatorTest {
     @Test
     fun `a draw schema version other than one is rejected`() {
         val text = emptyDoc().replace("\"drawSchemaVersion\":1", "\"drawSchemaVersion\":2")
-        assertEquals("DRAWOPS_TYPE", invalidCode(validate(text)))
+        // 批次 29 T2：版本错从 DRAWOPS_TYPE 独立成 DRAWOPS_SCHEMA_VERSION（行为仍是拒绝；
+        // 码面分离让调用方能按"版本升级/坏文档"分流，见 VisualDrawOpsParser KDoc）。
+        assertEquals("DRAWOPS_SCHEMA_VERSION", invalidCode(validate(text)))
     }
 
     @Test
