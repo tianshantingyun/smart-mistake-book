@@ -141,7 +141,14 @@ class QuickJsSceneCompilerInstrumentedTest {
         assertEquals(6, dotPath.path.size)
         assertTrue(dotPath.path[1] is VisualPathCommand.CubicTo)
         assertEquals(VisualPathCommand.Close, dotPath.path[5])
-        assertEquals(1.0, dotPath.alpha, 0.0)
+        // 批次 28 设备轨更正（先红后绿：原 1.0 期望与契约/编译器/Node 台三处权威矛盾，
+        // 设备首曝红 `expected:<1.0> but was:<0.5>`）：契约 §"矩阵/组"明文"group alpha
+        // 乘到子节点"（visual-generation-contract.md:98），编译器按 opacity*groupOpacity
+        // 合成后对所有叶子统一发 alpha（visual-compiler.js:860/:884/:937，KDoc :29
+        // "group alpha 乘入"），Node 台同形状断言 label.alpha===0.5（run_tests.mjs:219），
+        // V8 探针同场景 q/dot/label 三者皆 0.5、设备 QuickJS 同值——0.5 是契约值。
+        // 非 CSS 隔离透明组语义（契约同句）。
+        assertEquals(0.5, dotPath.alpha, 0.0)
         val label = document.ops[5] as VisualDrawOp.Label
         // anchor(100,60) 过矩阵(+5,+5) → (105,65)；offset(+2,+3) → (107,68)；
         // 居中(10du 宽) → x=102；middle(12du 高) + baseline 9 → y=71。
