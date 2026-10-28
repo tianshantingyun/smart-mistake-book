@@ -41,6 +41,7 @@ import com.tingyun.smartmistakebook.core.database.dao.SplitImportDao
 import com.tingyun.smartmistakebook.core.database.dao.TutorInteractionDao
 import com.tingyun.smartmistakebook.core.database.dao.TutorExposureDao
 import com.tingyun.smartmistakebook.core.database.dao.TutorConversationDao
+import com.tingyun.smartmistakebook.core.database.dao.TutorVisualDao
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.BindingAuditSampleEntity
 import com.tingyun.smartmistakebook.core.database.entity.AssessmentEvidenceAttributionEntity
@@ -130,8 +131,12 @@ import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSearchIndexSta
 import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorMessageVisualEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionVisualEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorVisualProgramEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 
-internal const val STUDY_DATABASE_VERSION = 69
+internal const val STUDY_DATABASE_VERSION = 70
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -229,6 +234,10 @@ internal object SplitImportLedgerStrings {
         CleanRedrawTaskEntity::class,
         FigureGenerationOperationEntity::class,
         FigureGenerationAttemptEntity::class,
+        TutorVisualProgramEntity::class,
+        TutorVisualSnapshotEntity::class,
+        TutorMessageVisualEntity::class,
+        ProblemRevisionVisualEntity::class,
     ],
     version = STUDY_DATABASE_VERSION,
     exportSchema = true,
@@ -305,6 +314,9 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun figureGenerationDao(): FigureGenerationDao
 
     abstract fun figureGenerationReconcileDao(): FigureGenerationReconcileDao
+
+    /** D-01（schema 70）：视觉程序/快照/消息引用/题面引用的原始读写口。 */
+    abstract fun tutorVisualDao(): TutorVisualDao
 }
 
 object StudyDatabaseFactory {
@@ -394,6 +406,7 @@ object StudyDatabaseFactory {
             FAVORITE_AND_MANUAL_DRAFT_MIGRATION_66_67,
             ANSWER_KEY_CORRECTION_MIGRATION_67_68,
             FIGURE_GENERATION_MIGRATION_68_69,
+            VISUAL_SNAPSHOT_MIGRATION_69_70,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()
