@@ -16,8 +16,10 @@ import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
+import com.tingyun.smartmistakebook.core.database.dao.TutorVisualDao
 import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationAttemptEntity
 import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperationEntity
+import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
@@ -1945,6 +1947,265 @@ internal class RoomStudyDatabase(
         reviewedAtEpochMillis: Long,
     ): BindingAuditSampleRow? =
         database.bindingAuditSampleDao().review(sampleId, verdict, reviewedAtEpochMillis)
+
+    // ---- D-02（批次 30）：视觉身份不可变 + STAGING→LIVE + 正文/trace/link 同事务 ----
+
+    override suspend fun stageTutorVisualSnapshot(
+        command: StageTutorVisualSnapshotCommand,
+    ): TutorVisualSnapshotRecord = database.withWriteTransaction {
+        val dao = database.tutorVisualDao()
+        ensureTutorVisualProgram(dao, command.program)
+        ensureTutorVisualSnapshot(dao, command.snapshot, command.ownerRequestId).toRecord()
+    }
+
+    /**
+     * S4 的**唯一**落点：program/snapshot 的复用或创建、assistant 消息（正文/trace）、
+     * `STAGING → LIVE`、link 全部在 `withWriteTransaction` 内完成。任何一步抛错 →
+     * Room 回滚整个事务（消息、link、program/snapshot 都不留）。
+     *
+     * 顺序是"先确保快照 = LIVE，再插 link"：link 的 SQL 门只认 LIVE（与设计的
+     * `INSERT … SELECT … WHERE status='LIVE'` 同一道结构门），把提升放在 link 之前只是让
+     * 这道门在同事务内可满足，不是放宽它。
+     */
+    override suspend fun commitTutorTurnWithVisual(
+        command: CommitTutorTurnWithVisualCommand,
+    ): TutorVisualTurnCommitRecord = database.withWriteTransaction {
+        val dao = database.tutorVisualDao()
+        ensureTutorVisualProgram(dao, command.program)
+        var snapshot = ensureTutorVisualSnapshot(dao, command.snapshot, command.ownerRequestId)
+
+        // 正文 + thinking + tool trace 是同一条消息行；它和下面的提升/link 共处一个事务。
+        val message = database.tutorConversationDao().appendAssistantMessage(command.message)
+
+        if (snapshot.status != TutorVisualStatus.LIVE) {
+            val promotedAt = maxOf(
+                snapshot.createdAtEpochMillis,
+                command.message.createdAtEpochMillis,
+            )
+            val changed = dao.promoteSnapshot(
+                snapshotId = snapshot.snapshotId,
+                stagingStatus = TutorVisualStatus.STAGING,
+                liveStatus = TutorVisualStatus.LIVE,
+                promotedAtEpochMillis = promotedAt,
+            )
+            snapshot = if (changed == 1) {
+                snapshot.copy(
+                    status = TutorVisualStatus.LIVE,
+                    ownerRequestId = null,
+                    promotedAtEpochMillis = promotedAt,
+                )
+            } else {
+                // 被另一个提交先提升了：LIVE 是终态，复用它；仍是 STAGING 才是冲突。
+                val raced = dao.findSnapshot(snapshot.snapshotId)
+                    ?: throw ImmutablePayloadConflictException(
+                        "tutor_visual_snapshot",
+                        snapshot.snapshotId,
+                    )
+                if (raced.status != TutorVisualStatus.LIVE) {
+                    throw ImmutablePayloadConflictException(
+                        "tutor_visual_snapshot",
+                        snapshot.snapshotId,
+                    )
+                }
+                raced
+            }
+        }
+
+        val link = dao.linkMessageVisual(
+            messageId = message.messageId,
+            ordinal = command.visualOrdinal,
+            programId = command.program.programId,
+            snapshotId = snapshot.snapshotId,
+            uiStateJson = command.uiStateJson,
+            formDigest = command.formDigest,
+            nowEpochMillis = message.createdAtEpochMillis,
+        )
+
+        // checkpoint 保留策略的同事务落点（批次 30 / D-05）：先降级旧 LATEST，再淘汰
+        // "仍未固定且非 INITIAL"的候选。两条 SQL 都在事务内，任一步失败整体回滚；
+        // 淘汰 SQL 在事务内**重查** pin/kind（策略在事务外算，引用可能并发变化）。
+        if (command.demoteCheckpointSnapshotIds.isNotEmpty()) {
+            dao.demoteLatestCheckpoints(
+                programId = command.program.programId,
+                snapshotIds = command.demoteCheckpointSnapshotIds,
+                latestKind = TutorVisualCheckpointKind.LATEST,
+            )
+        }
+        if (command.evictCheckpointSnapshotIds.isNotEmpty()) {
+            dao.evictUnpinnedCheckpoints(
+                snapshotIds = command.evictCheckpointSnapshotIds,
+                latestKind = TutorVisualCheckpointKind.LATEST,
+            )
+        }
+
+        TutorVisualTurnCommitRecord(
+            message = message,
+            snapshot = snapshot.toRecord(),
+            link = link.toRecord(),
+        )
+    }
+
+    override suspend fun repointTutorMessageVisual(
+        command: RepointTutorMessageVisualCommand,
+    ): Boolean = database.tutorVisualDao().repointMessageVisual(
+        messageId = command.messageId,
+        ordinal = command.ordinal,
+        expectedRevision = command.expectedRevision,
+        nextSnapshotId = command.nextSnapshotId,
+        nowEpochMillis = command.nowEpochMillis,
+        liveStatus = TutorVisualStatus.LIVE,
+    ) == 1
+
+    override suspend fun reconcileStaleTutorVisualStaging(staleBeforeEpochMillis: Long): Int {
+        require(staleBeforeEpochMillis >= 0L) {
+            "A visual staging reconcile threshold must not be negative"
+        }
+        return database.withWriteTransaction {
+            database.tutorVisualDao().deleteStaleStagingSnapshots(
+                stagingStatus = TutorVisualStatus.STAGING,
+                staleBeforeEpochMillis = staleBeforeEpochMillis,
+            )
+        }
+    }
+
+    override suspend fun readTutorVisualProgram(programId: String): TutorVisualProgramRecord? {
+        require(programId.isNotBlank()) { "A visual program id must not be blank" }
+        return database.tutorVisualDao().findProgram(programId)?.toRecord()
+    }
+
+    override suspend fun readTutorVisualSnapshot(snapshotId: String): TutorVisualSnapshotRecord? {
+        require(snapshotId.isNotBlank()) { "A visual snapshot id must not be blank" }
+        return database.tutorVisualDao().findSnapshot(snapshotId)?.toRecord()
+    }
+
+    override suspend fun readTutorMessageVisual(
+        messageId: String,
+        ordinal: Int,
+    ): TutorMessageVisualRecord? {
+        require(messageId.isNotBlank()) { "A visual message id must not be blank" }
+        require(ordinal >= 0) { "A visual ordinal must not be negative" }
+        return database.tutorVisualDao().findMessageVisual(messageId, ordinal)?.toRecord()
+    }
+
+    override suspend fun countTutorVisualProgramsForTest(programId: String): Int {
+        require(programId.isNotBlank()) { "A visual program id must not be blank" }
+        return database.tutorVisualDao().countPrograms(programId)
+    }
+
+    override suspend fun readVisualCheckpointSummaries(
+        programId: String,
+    ): List<TutorVisualCheckpointSummary> {
+        require(programId.isNotBlank()) { "A visual program id must not be blank" }
+        return database.tutorVisualDao().checkpointSummaries(programId).map { row ->
+            TutorVisualCheckpointSummary(
+                snapshotId = row.snapshotId,
+                checkpointKind = row.checkpointKind,
+                pinned = row.pinned != 0,
+                storedBytes = row.storedBytes,
+            )
+        }
+    }
+
+    override suspend fun readGlobalVisualCheckpointStoredBytes(): Long =
+        database.tutorVisualDao().totalCheckpointStoredBytes()
+
+    /**
+     * 同 id 不同载荷 ⇒ 冲突；同 id 同载荷 ⇒ 幂等成功（`created_at` 是元数据，不参与比较）。
+     *
+     * 写库前**重新派生身份**并比对：`visualId = programId` 不是调用方可以自己声明的值——
+     * 一个与内容不符的 id 在这里是 `IllegalArgumentException`，不会落成"身份与内容脱钩"的行。
+     */
+    private suspend fun ensureTutorVisualProgram(
+        dao: TutorVisualDao,
+        write: TutorVisualProgramWrite,
+    ) {
+        val derivedProgramId = TutorVisualIdentity.deriveProgramId(
+            sourceJs = write.sourceJs,
+            initialStateJson = write.initialStateJson,
+            basisFingerprint = write.basisFingerprint,
+            apiVersion = write.apiVersion,
+            sdkVersion = write.sdkVersion,
+            role = write.role,
+        )
+        require(write.programId == derivedProgramId) {
+            "A visual program id must be derived from its content (visualId = programId)"
+        }
+        dao.insertProgram(write.toEntity())
+        val stored = dao.findProgram(write.programId)
+            ?: throw ImmutablePayloadConflictException("tutor_visual_program", write.programId)
+        if (!TutorVisualWriteChecks.sameProgramPayload(stored, write)) {
+            throw ImmutablePayloadConflictException("tutor_visual_program", write.programId)
+        }
+    }
+
+    /**
+     * S3 的重复提交分支（研究复核高危：LIVE 命中/同 owner/他 owner/无行 四分支）：
+     * 1. 同内容快照已 **LIVE** → 直接复用（重复提交第二次返回既有 LIVE 快照）；
+     * 2. 同内容快照是 **STAGING 且 owner 相同** → 复用；
+     * 3. 同内容快照是 **STAGING 且 owner 不同** → CAS 转租约，0 行命中即冲突；
+     * 4. 无既有行 → 插入（`INSERT OR IGNORE` + 回读；并发输家回读赢家行）。
+     *
+     * 唯一键只覆盖 `(program, state, draw)`，所以复用前还要逐列比对内容载荷：同键不同
+     * scene/版本/视口/预览绝不能静默复用。
+     */
+    private suspend fun ensureTutorVisualSnapshot(
+        dao: TutorVisualDao,
+        write: TutorVisualSnapshotWrite,
+        ownerRequestId: String,
+    ): TutorVisualSnapshotEntity {
+        val existing = dao.findSnapshotByContent(
+            programId = write.programId,
+            stateSha256 = write.stateSha256,
+            drawCommandsSha256 = write.drawCommandsSha256,
+        )
+        if (existing != null) {
+            requireSameVisualSnapshotPayload(existing, write)
+            return claimStagingOwner(dao, existing, ownerRequestId)
+        }
+
+        dao.insertSnapshot(write.toEntity(ownerRequestId))
+        val stored = dao.findSnapshotByContent(
+            programId = write.programId,
+            stateSha256 = write.stateSha256,
+            drawCommandsSha256 = write.drawCommandsSha256,
+        ) ?: dao.findSnapshot(write.snapshotId)
+            ?: throw ImmutablePayloadConflictException("tutor_visual_snapshot", write.snapshotId)
+        requireSameVisualSnapshotPayload(stored, write)
+        return claimStagingOwner(dao, stored, ownerRequestId)
+    }
+
+    private suspend fun claimStagingOwner(
+        dao: TutorVisualDao,
+        snapshot: TutorVisualSnapshotEntity,
+        ownerRequestId: String,
+    ): TutorVisualSnapshotEntity {
+        if (snapshot.status == TutorVisualStatus.LIVE) return snapshot
+        if (snapshot.ownerRequestId == ownerRequestId) return snapshot
+        val changed = dao.reassignStagingOwner(
+            snapshotId = snapshot.snapshotId,
+            stagingStatus = TutorVisualStatus.STAGING,
+            expectedOwnerRequestId = snapshot.ownerRequestId,
+            nextOwnerRequestId = ownerRequestId,
+        )
+        if (changed == 1) return snapshot.copy(ownerRequestId = ownerRequestId)
+        // CAS 输了：只有"被提升为 LIVE"或"已经转给本 owner"可以继续，其余按冲突放弃。
+        val raced = dao.findSnapshot(snapshot.snapshotId)
+            ?: throw ImmutablePayloadConflictException("tutor_visual_snapshot", snapshot.snapshotId)
+        return when {
+            raced.status == TutorVisualStatus.LIVE -> raced
+            raced.ownerRequestId == ownerRequestId -> raced
+            else -> throw ImmutablePayloadConflictException("tutor_visual_snapshot", snapshot.snapshotId)
+        }
+    }
+
+    private fun requireSameVisualSnapshotPayload(
+        entity: TutorVisualSnapshotEntity,
+        write: TutorVisualSnapshotWrite,
+    ) {
+        if (!TutorVisualWriteChecks.sameSnapshotPayload(entity, write)) {
+            throw ImmutablePayloadConflictException("tutor_visual_snapshot", entity.snapshotId)
+        }
+    }
 
     override fun close() = database.close()
 
