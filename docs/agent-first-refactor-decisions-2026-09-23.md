@@ -3454,3 +3454,28 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **修复轮新增的两例**（残尾 dash strip 逐位一致、空 dash 有码拒）设备复跑 **UNVERIFIED**（设备 17/17 为修复轮前产物）；不得以"17/17 绿"读成 dash 缺口已关。
 - **math label 本批 fail-closed**（`PAINTER_LABEL_MATH`）；盒走查须与 core/ui Compose lowering 几何对齐后再落，不得新增第三套公式/坐标逻辑。
 - 契约词表升级（`drawSchemaVersion`）须按算法台账重新登记；当前维持 1。
+
+---
+
+## 批次 29 DrawOps V1.1 生成门/回放语义 + PDF 回放半场 + 一致门原型裁定（2026-10-28）
+
+> 依据：批次 29 计划 §1（`.zcode/plans/plan-2026-10-28-batch-29-pdf-replay-kd78.md:11-19`，主会话七条裁定）、R1 `docs/research/2026-10-28-pdf-replay-differences.md`、R2 `docs/research/2026-10-28-screen-pdf-parity-gate.md`、T2–T5 落码与设备/修复证据、契约 §5/§5.1、批次记录 `docs/research/2026-10-28-batch-29-record.md`。**零 Gradle/零设备（记录步），设备结论见记录 §4。**
+
+### 裁定内容
+
+- **hitRegions = 可非空、不绘制、交互层消费**：编译器与解析器只做数组 + 预算校验并透传；屏与 PDF painter 都不读 `hitRegions`。旧"`hitRegions[]` 必须为空/不存在"口径作废（准入清单 S-05 与契约 §5 已改）。
+- **8 位色 alpha = 乘法**：`#RRGGBBAA` 末两位是色内 alpha，回放有效 alpha = `floor(colorA × op.alpha)`（0..255 域）；painter 在 `setColor` 后以该值 `setAlpha`。计划 §1.2 的字面 `floor(colorA/255 × op.alpha)` 与落码/契约**不同形但同义**，以代码与契约为权威源（记录 §5 #11 已登记，计划文本不回改）。
+- **dash 形状门**：`dash` 必须偶数项且 ≥2；奇数或空数组在两道生成门（`visual-compiler.js`、`VisualDrawOpsParser`）即以 `PAINTER_DASH_ODD` 拒绝，回放侧同码兜底；回放门序与生成侧对齐为 **dash → stroke-only**（复核修复轮）。
+- **stroke-only 拒绝**：`VisualStrokeSpec` 无 color 字段，路径必须有 `fill`（stroke 色取 fill 色）；`fill=null && stroke!=null` 在两道生成门以 `PAINTER_STROKE_WITHOUT_FILL` 拒绝，回放侧兜底保留。
+- **度量/回放 Paint flags = 显式 0**：指纹含 `paintFlags`，值固定 0；两侧在构造后**显式**装配（`DEFAULT_PAINT_FLAGS`/`REPLAY_TEXT_PAINT_FLAGS`），`forEnvironment` 对实际 Paint 校验并 fail-closed。**平台 `Paint()` 默认是 1283 不是 0**（批次 29 设备证据；修复轮据此把"保持默认"改为"显式装配"，常量未变）。
+- **PDF 回放 = `core:data` `visual` 包的生命周期包装**：`VisualDrawOpsPdfPainter` 组合共享 `VisualDrawOpsPainter.draw`，`ptPerDu` 只替换 `pxPerDu`，不写第二套 `when(op)`；页尺寸 `ceil(viewBox × ptPerDu)` 整数 pt、contentRect 整页、背景覆盖 ceil 余条；新增 `PAINTER_PDF_PAGE_BOUNDS`/`PAINTER_PDF_IO`；draw 失败先 finishPage 再 close 防掩盖原始有码异常；**不进 core/export**（KD-75 热区）。
+- **PDF 写失败必须 fail-closed**：API 34 `writeTo` 的 native 写适配器 `ExceptionDescribe/ExceptionClear` 吞掉 OutputStream Java 异常，直接 `catch (IOException)` 不可达；故用 `PdfWriteFailureTrackingStream` 记录并重抛，`writeTo` 返回后按首失败发 `PAINTER_PDF_IO`（KD-79）。
+- **屏/PDF 一致性门 = 原型门**：同一 `VisualDrawOpsDocument` 双回放、归一网格、IoU/内部色差/文本剖面/整像素位移判决、F1–F5 分类、N01–N07 负控；**不接 CI、不作产品门/发版门**，阈值是未标定初始值，F5 每轮上限 2 且两批到期。
+
+### 边界（不得越过 / 仍待裁）
+
+- **不做**：core/export 集成与 PDF `/AIGC`（KD-75）；持久化四表/CAS/冷恢复（批次 30）；双后端装配（批次 31）；V-01 全链（批次 32）；JS 广告；真实 Provider。
+- **`drawSchemaVersion` 维持 1**：本批是约束收紧 + 语义定谳，wire 词表零增删；语义收紧不升版的失效形态 = 旧 stroke-only/奇数 dash 文档改为生成侧有码拒（fail-closed，不静默）。算法台账 §3.39 已登记，未来词表变更必须升版并重新登记。
+- **S3 范围矛盾仍待裁**：度量环境身份载体在 app（`VisualContentMeasuring.kt`），与计划落点清单（core/data visual、tools、docs）不一致；修复轮已按计划 §1.5 授权改 app 度量侧三文件，但"把 app visualjs 并入落点"与"只在 core:data 定义回放环境值"两条路线未由主会话正式择一（R3 §2 S3）。
+- **修复后设备绿轮 UNVERIFIED**：painter 24 / 隔离 13 / flags 2 / PDF 13 / 一致门 11 均需重建重装重跑；KD-78 ④ 与 KD-79 的关闭条件都以该轮为准。
+- **R-04 未执行**：R3 只给 b1>b2>a>c 的**建议**；AGP 9.3 `testProguardFiles` 语义已核，但本仓端到端未验证。

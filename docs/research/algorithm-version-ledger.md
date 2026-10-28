@@ -621,6 +621,30 @@ AUD-17 校准结果互相替代。
 
 执行证据：Node 测试台 89/89 passed EXIT=0（批次记录员本轮复跑 `node tools/visual_compiler/run_tests.mjs`，EXIT=0）；设备 E-01…E-05 为行为证据；单测门第 1 轮/修复环复跑/强门第 1 轮 exit=0 为工单给定，记录员未运行 Gradle。
 
+### 3.39 批次 29 · 零 bump 判据登记（2026-10-28）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions / `VisualJsWire.PROTOCOL_VERSION`=2 / `drawSchemaVersion`=1 全部未动
+
+> 依据：批次 29 计划 §1/§2（`.zcode/plans/plan-2026-10-28-batch-29-pdf-replay-kd78.md:11-30`）、批次记录 `docs/research/2026-10-28-batch-29-record.md` §1/§3、基线 `docs/research/2026-10-28-batch-29-baseline.md` §1。本批不 bump 任何既有版本串；PDF 回放与一致门是**消费方/仪器**，painter 与解析器是回放实现，均不新增持久化或协议版本面。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 本批零 DB 改动（T2/T3/T4/T5 均不触持久化；批次 30 的 D-01 四表才取 70+） |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546` 未动；JS 不广告、工具面/提示词/能力快照零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 无选择器/投影/证据/账本版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | T5 只改度量指纹内容与两侧 Paint 装配，未改 AIDL/信封字段；设备轨在协议 2 上取得 |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | 见下"零 bump 判据"第 3 条：本批是**约束收紧 + 语义定谳**，未增删 op/字段/词表，wire 形态不变；计划 §1 亦未授权升版 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. **T2 解析器重构**（结构解析下沉到 `VisualDrawOpsParser`、`VisualDrawOpsValidator` 转薄委托、`serialize` 固定键序）：接受/拒绝的**词表与预算**不变，只把同一份实现的两个入口统一；新增 `DRAWOPS_SCHEMA_VERSION`/`DRAWOPS_MISSING_FIELD`/`DRAWOPS_MISSING_COMMANDS`/`DRAWOPS_UNKNOWN_OP`/`DRAWOPS_UNKNOWN_FIELD` 是**诊断码面**，不改输入/输出语义。canonical 文本形态是"同一文档的确定性写法"，不是新 schema。
+2. **T3 PDF 回放 + T4 一致性门**：纯消费方与新测试仪器。`PAINTER_PDF_PAGE_BOUNDS`/`PAINTER_PDF_IO` 属运行期有码异常族（与既有 `PAINTER_*` 同型）；一致门阈值/IoU/容差只存在于 `androidTest`，**不进产品版本面**。
+3. **T5 DrawOps V1.1 语义（唯一需要说明的一项）**：生成侧新增"拒 stroke-only""dash 偶数且 ≥2"两条门，8 位色 alpha 从"被覆盖"改为 `floor(colorA × op.alpha)` 乘法，度量指纹加 `paintFlags`——**结果是可接受文档集合收紧、部分旧文档从"静默错画/回放兜底拒"变为"生成侧有码拒"**；但 wire 词表（op 集合、字段名、数值域）零增删，引擎 `Rendered`/AIDL 信封字段不变，因此按计划 §1 维持 `drawSchemaVersion=1`。这是本批登记的一处**语义收紧不升版**风险：若外部生产者仍在发 stroke-only/奇数 dash，将收到 `PAINTER_STROKE_WITHOUT_FILL`/`PAINTER_DASH_ODD`（fail-closed，不静默）；若未来需要同时接受两种语义，必须升版并按本表重新登记。
+4. **flags 指纹**：`VisualMeasureEnvironment.paintFlags` 是 app 侧**运行环境身份**字段，不持久化进 Room、不进 wire；其常量值仍为 0（批次 29 修复轮把"平台默认即 0"改为"显式装配 0"，常量未变）。
+5. **JS 不广告、真实 Provider 未调用**：无模型/提示词/评分口径变更。
+
+执行证据：Node 测试台 `94 passed, 0 failed` EXIT=0（批次记录员本轮实跑 `node tools/visual_compiler/run_tests.mjs`）；仓内 JVM 结果 XML 实测 core 69 例（13+15+6+35）与 app 16 例均 0 失败（只读产物，记录员未复跑 Gradle）；设备轨为行为证据（修复后绿轮 UNVERIFIED）；单测门第 2 轮/修复环复跑/强门第 1 轮 exit=0 为工单给定。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；
