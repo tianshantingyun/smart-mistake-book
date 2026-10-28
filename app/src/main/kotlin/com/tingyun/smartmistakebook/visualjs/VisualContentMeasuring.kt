@@ -127,6 +127,21 @@ internal data class VisualMeasureEnvironment(
     val localeTag: String,
     /** 规范字号（契约 §4：sizeSp 限 12..48；MVA 用单一规范字号，见 [CANONICAL_SIZE_SP]）。 */
     val sizeSp: Float,
+    /**
+     * 度量 Paint 的 `flags`（批次 29 T5；KD-78 ④ 收口）。
+     *
+     * **它消灭的具体失败**：度量 Paint 的 flags 与回放 textPaint 的 flags 各自演化时，
+     * 内容摘要不变 → 度量与回放静默失配（advance/字形与冻结布局不同，跨环境恢复尤其
+     * 危险）。flags 进环境指纹后，flag 一变 digest 就变、旧快照不再被当命中。
+     *
+     * 值 0 是**显式钉死的度量/回放共享配置**（AA/locale/subpixel 全关的 MVA 取舍），
+     * **不是**平台 `Paint()` 的构造默认——API 34 实测构造默认为 1283
+     * （`ANTI_ALIAS|FILTER_BITMAP|DEV_KERN|EMBEDDED_BITMAP`，批次 29 设备证据 R1）。
+     * 两侧构造后都必须显式置 0（本侧 [PaintVisualTextMeasureBackend.forEnvironment]、
+     * 回放侧 `VisualDrawOpsPainter` 的 `textPaint`）；[forEnvironment] 再校验实际度量
+     * Paint 的 flags 与该环境值一致（不一致即 fail-closed，不写"声称"值）。
+     */
+    val paintFlags: Int = DEFAULT_PAINT_FLAGS,
 ) {
     init {
         // fail-closed（R2 假设 A1 处置）：隔离进程内环境读数不可信时在此显式拒绝，
@@ -142,19 +157,39 @@ internal data class VisualMeasureEnvironment(
         require(sizeSp.isFinite() && sizeSp in MIN_SIZE_SP..MAX_SIZE_SP) {
             "A visual measure environment sizeSp must be within $MIN_SIZE_SP..$MAX_SIZE_SP, got $sizeSp"
         }
+        require(paintFlags >= 0) { "A visual measure environment paintFlags must be non-negative, got $paintFlags" }
     }
 
     /** 规范字号的像素值：`sizeSp × density × fontScale`。 */
     fun fontSizePx(): Float = sizeSp * density * fontScale
 
-    /** 环境指纹：进入内容摘要（同环境逐字符一致，跨环境不同）。 */
+    /**
+     * 环境指纹：进入内容摘要（同环境逐字符一致，跨环境不同）。
+     *
+     * 批次 29 T5（KD-78 ④）起包含 `paintFlags`——度量/回放 Paint 的 flags 差异必须改变
+     * digest（否则换 flag 后旧快照仍命中、回放与冻结布局静默失配）。
+     */
     fun fingerprint(): String =
-        "$typefaceId|sizeSp=$sizeSp|density=$density|fontScale=$fontScale|locale=$localeTag"
+        "$typefaceId|sizeSp=$sizeSp|density=$density|fontScale=$fontScale|locale=$localeTag" +
+            "|paintFlags=$paintFlags"
 
     companion object {
         /** 契约 §4：sizeSp 限 12..48。 */
         const val MIN_SIZE_SP: Float = 12f
         const val MAX_SIZE_SP: Float = 48f
+
+        /**
+         * 度量 Paint 的 flags 固定值 0（AA/locale/subpixel 全关的 MVA 取舍）。
+         *
+         * **不是** `Paint()` 的构造默认：平台 `Paint()` 默认 1283（批次 29 设备实测，
+         * KD-78 ④），构造后必须**显式** `flags = DEFAULT_PAINT_FLAGS`。[forEnvironment]
+         * 以本值装配并校验实际度量 Paint；回放侧 `REPLAY_TEXT_PAINT_FLAGS`
+         * （`core/data/.../visual/VisualDrawOpsPainterPure.kt`，同为 0）由
+         * `VisualDrawOpsPainter` 的 `textPaint` 显式装配——改一侧必须两侧同改，并由
+         * 「环境指纹 `paintFlags=0`」JVM 测与设备侧「度量 Paint flags == 回放 textPaint
+         * flags」测各自钉住。
+         */
+        const val DEFAULT_PAINT_FLAGS: Int = 0
 
         /** 本批度量字体标识：系统默认字体（字体白名单/字体身份随 painter 批次落地）。 */
         const val SYSTEM_DEFAULT_TYPEFACE_ID: String = "system-default"
@@ -389,6 +424,16 @@ internal class PaintVisualTextMeasureBackend(
     override fun advancePx(payload: String, start: Int, endExclusive: Int): Float =
         paint.measureText(payload, start, endExclusive)
 
+    /**
+     * 实际度量 Paint 的 flags（批次 29 T5；KD-78 ④ 跨侧钉的观测面）。
+     *
+     * **它消灭的具体失败**：后端把 Paint 藏在私有字段里，跨侧测试只能验指纹字面——
+     * 真实度量 Paint 被改成另一套 flags 时无人发现。本访问器让设备侧测试直接读实际
+     * Paint 的 flags，与 `VisualMeasureEnvironment.paintFlags` 和回放侧显式装配的
+     * `REPLAY_TEXT_PAINT_FLAGS`（0）比对。
+     */
+    internal fun paintFlagsForTest(): Int = paint.flags
+
     override fun lineMetricsPx(payload: String): VisualTextLineMetricsPx {
         val metrics = Paint.FontMetricsInt()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -408,13 +453,30 @@ internal class PaintVisualTextMeasureBackend(
 
     companion object {
         /**
-         * 构造度量 Paint：textSize = 规范字号的像素值。**不**显式设 locale/subpixel 等
-         * 可变 flag——度量与（未来的）重放必须用同一常量配置（R2 §1.5-4）；在只有一个
-         * 配置常量的本批，这些量不参与摘要，一旦将来可变必须先加入环境指纹再改值。
+         * 构造度量 Paint：`flags = DEFAULT_PAINT_FLAGS`（显式 0；平台 `Paint()` 默认
+         * 1283 不是本仓语义），textSize = 规范字号的像素值。**不**显式设 locale/subpixel
+         * 等可变 flag——度量与回放必须用同一常量配置（R2 §1.5-4）。批次 29 T5（KD-78 ④）
+         * 起 flags 已进环境指纹（`VisualMeasureEnvironment.paintFlags`），本函数校验实际
+         * Paint 的 flags 与指纹声明值一致；改 flags 必须同时改指纹与回放侧
+         * `REPLAY_TEXT_PAINT_FLAGS`。
          */
         fun forEnvironment(environment: VisualMeasureEnvironment): PaintVisualTextMeasureBackend {
             val paint = Paint()
+            // 平台 Paint() 默认 flags = 1283（AA|FILTER_BITMAP|DEV_KERN|EMBEDDED_BITMAP），
+            // 不是 0（批次 29 设备证据 R1）。显式置为钉死值：这既是"AA 关"的 MVA 取舍，
+            // 也是指纹 paintFlags=0 的真实来源。必须置**常量**而非 environment.paintFlags
+            // ——否则下面的校验恒真，坏指纹再也拦不住。
+            paint.flags = VisualMeasureEnvironment.DEFAULT_PAINT_FLAGS
             paint.textSize = environment.fontSizePx()
+            // KD-78 ④（批次 29 T5）：环境指纹声明了 paintFlags，实际度量 Paint 必须与之一致
+            // ——否则 digest 记的是"声称值"、真实度量用的是另一套 flags，指纹形同虚设。
+            // 不一致时 fail-closed（环境异常族），由 warm-up 探针/引擎有界拒绝暴露。
+            if (paint.flags != environment.paintFlags) {
+                throw VisualMeasurementEnvironmentException(
+                    "measure paint flags ${paint.flags} do not match the environment fingerprint " +
+                        "paintFlags=${environment.paintFlags}",
+                )
+            }
             return PaintVisualTextMeasureBackend(paint)
         }
     }

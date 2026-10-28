@@ -274,7 +274,7 @@ class QuickJsSceneCompilerInstrumentedTest {
                                          rule: 'evenodd' },
                                  children: [
                                    { type: 'path', pathId: 'q', fill: '#336699' },
-                                   { type: 'path', pathId: 'dot', stroke: { width: 1 } },
+                                   { type: 'path', pathId: 'dot', fill: '#ff0000', stroke: { width: 1 } },
                                    { type: 'label', contentId: metrics[0].contentId,
                                      anchor: { x: 100, y: 60 }, offset: { x: 2, y: 3 },
                                      hAlign: 'center', vAlign: 'middle', color: '#26354a' } ] },

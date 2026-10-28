@@ -265,6 +265,32 @@ class VisualContentMeasuringTest {
     }
 
     @Test
+    fun `the environment fingerprint pins the replay paint flags`() {
+        // KD-78 ④（批次 29 T5）：指纹字面钉死 paintFlags=0——该 0 与回放侧
+        // `REPLAY_TEXT_PAINT_FLAGS`（core:data visual 纯层，JVM 测钉同值）是同一常量语义。
+        // 任一侧单边改 flags 而未改另一侧/指纹，本断言或 core 侧常量断言必红。
+        assertEquals(
+            "system-default|sizeSp=16.0|density=2.0|fontScale=1.0|locale=zh-CN|paintFlags=0",
+            environment.fingerprint(),
+        )
+        assertEquals(
+            environment.fingerprint(),
+            environment.copy().fingerprint(),
+        )
+    }
+
+    @Test
+    fun `changing the paint flags changes the digest`() {
+        // flags 必须参与摘要：否则换 flag 后旧快照仍被当命中，度量与回放静默失配。
+        val flagged = environment.copy(paintFlags = 1)
+        val entry = VisualContentMeasureEntry(VisualContentKind.TEXT, "abc")
+        val base = runBlocking { AndroidVisualContentMeasurer(environment, RecordingBackend()).measure(batch(entry)) }
+        val other = runBlocking { AndroidVisualContentMeasurer(flagged, RecordingBackend()).measure(batch(entry)) }
+        assertNotEquals(base.entries[0].digest, other.entries[0].digest)
+        assertNotEquals(base.entries[0].contentId, other.entries[0].contentId)
+    }
+
+    @Test
     fun `the same payload at a different batch position gets a different content id`() {
         val entry = VisualContentMeasureEntry(VisualContentKind.TEXT, "abc")
         val result = measure(RecordingBackend(), entry, entry)
@@ -297,6 +323,8 @@ class VisualContentMeasuringTest {
         assertThrowsIllegalArgument { VisualMeasureEnvironment(2f, 1f, "t", "zh-CN", 64f) }
         assertThrowsIllegalArgument { VisualMeasureEnvironment(2f, 1f, " ", "zh-CN", 16f) }
         assertThrowsIllegalArgument { VisualMeasureEnvironment(2f, 1f, "t", "", 16f) }
+        // KD-78 ④：负数 flags 不是合法 Paint flags 口径，构造即拒。
+        assertThrowsIllegalArgument { VisualMeasureEnvironment(2f, 1f, "t", "zh-CN", 16f, -1) }
     }
 
     private fun assertThrowsIllegalArgument(block: () -> Unit) {
