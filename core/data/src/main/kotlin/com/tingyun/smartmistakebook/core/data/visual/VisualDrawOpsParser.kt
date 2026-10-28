@@ -31,9 +31,15 @@ import kotlin.math.abs
  *    hitRegion 三元组；值可为 null 的根字段只有 `background`。）
  * 3. **版本漂移静默错画**——`drawSchemaVersion != 1` 折 [CODE_SCHEMA_VERSION]（不再与其他
  *    类型错误共用 `DRAWOPS_TYPE`，使调用方可按码做版本升级/拒绝分流）。
- * 4. **序列化往返不可证**——[serialize] 以固定键序输出编译器同形的 DrawOps V1 文本；
- *    配合 `VisualDrawOpsParserTest` 的逐位（`Double.toRawBits`）往返断言，"文本 → 类型化
- *    → 文本"的可逆性成为可执行判据（此前只有编译器 JS 侧输出，没有 Kotlin 回写）。
+ * 4. **序列化往返不可证**——[serialize] 以固定键序输出编译器同形的 DrawOps V1 文本；批次 30 T8
+ *    起它先发射再走 [parse] 的**同一套生成门**（stroke-only / 奇数 dash / stats 复算 /
+ *    有限性 / 版本…），再逐字段比对解析回来的文档。配合 `VisualDrawOpsParserTest` 的逐位
+ *    （`Double.toRawBits`）往返断言，"文本 → 类型化 → 文本"的可逆性成为可执行判据
+ *    （此前只有编译器 JS 侧输出，没有 Kotlin 回写，也没有"产物必可被自身解析"的门）。
+ *
+ * **重复 JSON 键**（批次 30 T8）：树解析前先做一次解码级扫描（`DRAWOPS_DUP_KEY`）——
+ * kotlinx 的树解析器对重复键静默保留后者（1.9.0 字节码实证），而契约 §4:90 与 JS 编译器
+ * （`SCENE_PARSE_DUP_KEY`）都要求拒绝；扫描实现见 [findDuplicateDrawOpsKey]。
  *
  * **严格性边界**：解析器只做**结构 + 值域**判定（与 [VisualDrawOpsValidator] 同一套不变量：
  * 词表/预算/有限性/配平/contentId 冻结/stats 复算）。它不判断 viewBox 是否回显视口，
@@ -46,13 +52,18 @@ internal object VisualDrawOpsParser {
     /** DrawOps V1 版本（与引擎 `DRAW_SCHEMA_VERSION`、painter 门同值镜像，改值必须三侧同改）。 */
     const val DRAW_SCHEMA_VERSION = 1
 
-    // 码面（新增两码 + 一码专用于 Rendered 入口；其余沿用批 27 词表）。
+    // 码面（批次 29 增两码 + 一码专用于 Rendered 入口；批次 30 T8 增重复键/往返两码；
+    // 其余沿用批 27 词表）。
     /** 结构键缺失（用于区分"缺字段"与"字段类型错"）。 */
     const val CODE_MISSING_FIELD = "DRAWOPS_MISSING_FIELD"
     /** 文档版本不是 [DRAW_SCHEMA_VERSION]。 */
     const val CODE_SCHEMA_VERSION = "DRAWOPS_SCHEMA_VERSION"
     /** `Rendered.drawCommandsJson` 为 null（fake/旧形态构造点把回放责任交给了不存在的文本）。 */
     const val CODE_MISSING_COMMANDS = "DRAWOPS_MISSING_COMMANDS"
+    /** 同一对象内出现重复键（契约 §4:90"严格拒绝重复 JSON 键"）。 */
+    const val CODE_DUP_KEY = "DRAWOPS_DUP_KEY"
+    /** 序列化文本能被自身解析，但解析回来的文档与输入不等（发射器丢/改信息）。 */
+    const val CODE_ROUND_TRIP = "DRAWOPS_ROUND_TRIP"
 
     private const val MAX_COORD = 100000.0
     private const val MIN_ABS_DETERMINANT = 1e-12
@@ -88,6 +99,19 @@ internal object VisualDrawOpsParser {
         val bytes = figureUsageUtf8Bytes(text)
         if (bytes > VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES) {
             return invalid("DRAWOPS_BUDGET_BYTES", "draw ops are $bytes bytes, over the transaction JSON budget")
+        }
+        // 契约 §4:90"严格拒绝重复 JSON 键"。**先于树解析**：kotlinx 的树解析器把对象成员
+        // 收进 LinkedHashMap（1.9.0 字节码 `JsonTreeReader.readObject` → `Map.put`），重复
+        // 键的**后者静默覆盖前者**、不报错——`VisualDrawOpsParserTest` 的
+        // `the pinned kotlinx json tree parser silently keeps the last duplicate key` 钉住该行为。
+        // 若只看解析结果，`{"alpha":1,"alpha":0.2}` 与 `{"alpha":0.2}` 不可区分，同一份
+        // 文本在 JS 严格编译器（`SCENE_PARSE_DUP_KEY`）与 Kotlin 消费门之间会得到不同结论
+        // ——这里拒绝歧义文档，保持两道门同严格度。扫描实现见 [findDuplicateDrawOpsKey]。
+        findDuplicateDrawOpsKey(text)?.let { key ->
+            return invalid(
+                CODE_DUP_KEY,
+                "draw ops contain a duplicate object key \"${key.take(48)}\"",
+            )
         }
         val root = try {
             json.parseToJsonElement(text)
@@ -316,13 +340,10 @@ internal object VisualDrawOpsParser {
             if (!seen.add(id)) {
                 return HitRegionsParse.Failure(invalid("DRAWOPS_DUP_ID", "$at: duplicate id \"$id\""))
             }
-            val path = parseCommands(regionObject["path"])
-                ?: return HitRegionsParse.Failure(
-                    invalid(
-                        "DRAWOPS_PATH",
-                        "$at.path must be a non-empty M/L/C/Z command array starting with M",
-                    ),
-                )
+            val path = when (val parsed = parseCommands(regionObject["path"], "$at.path")) {
+                is CommandsParse.Failure -> return HitRegionsParse.Failure(parsed.failure)
+                is CommandsParse.Parsed -> parsed.commands
+            }
             val rule = parseFillRule(regionObject["rule"])
                 ?: return HitRegionsParse.Failure(
                     invalid("DRAWOPS_TYPE", "$at.rule must be \"nonzero\" or \"evenodd\""),
@@ -378,10 +399,10 @@ internal object VisualDrawOpsParser {
             "clip" -> {
                 op.checkKeys(setOf("op", "path", "rule"), at)?.let { return OpParse.Failure(it) }
                 op.requireKeys(setOf("op", "path", "rule"), at)?.let { return OpParse.Failure(it) }
-                val path = parseCommands(op["path"])
-                    ?: return OpParse.Failure(
-                        invalid("DRAWOPS_PATH", "$at: path must be a non-empty M/L/C/Z command array starting with M"),
-                    )
+                val path = when (val parsed = parseCommands(op["path"], "$at.path")) {
+                    is CommandsParse.Failure -> return OpParse.Failure(parsed.failure)
+                    is CommandsParse.Parsed -> parsed.commands
+                }
                 val rule = parseFillRule(op["rule"])
                     ?: return OpParse.Failure(
                         invalid("DRAWOPS_TYPE", "$at: rule must be \"nonzero\" or \"evenodd\""),
@@ -394,10 +415,10 @@ internal object VisualDrawOpsParser {
                     ?.let { return OpParse.Failure(it) }
                 op.requireKeys(setOf("op", "path", "fill", "stroke", "alpha"), at)
                     ?.let { return OpParse.Failure(it) }
-                val path = parseCommands(op["path"])
-                    ?: return OpParse.Failure(
-                        invalid("DRAWOPS_PATH", "$at: path must be a non-empty M/L/C/Z command array starting with M"),
-                    )
+                val path = when (val parsed = parseCommands(op["path"], "$at.path")) {
+                    is CommandsParse.Failure -> return OpParse.Failure(parsed.failure)
+                    is CommandsParse.Parsed -> parsed.commands
+                }
                 val fill = when (val field = op["fill"]) {
                     is JsonNull -> null
                     is JsonPrimitive -> {
@@ -553,14 +574,28 @@ internal object VisualDrawOpsParser {
 
     /**
      * 路径命令解析（M/L/C/Z；**Q/A 在 DrawOps 词表中不存在**——Q 由编译器提升、A 由 SDK
-     * 拆段，出现即拒绝：这是"编译器可信但不免检"的复验点）。null = 结构非法。
+     * 拆段，出现即拒绝：这是"编译器可信但不免检"的复验点）。
+     *
+     * **精确元数门（批次 30 T8）**：`["M",1,2]` 恰 3 项、`["C",…]` 恰 7 项、`["Z"]` 恰 1 项。
+     * 旧实现用 `getOrNull(i)` 按需取值，`["M",1,2,3]` 的尾巴被静默丢弃、`["Z",0]` 的 0 也
+     * 被忽略——一份形状坏掉的文档被画成"相近的另一条路径"，与"缺字段即拒"的同一条严格性
+     * 原则相悖（对比同文件 `concat.m` 的 `size != 6` 硬门）。元数不符一律
+     * `DRAWOPS_PATH`（与 Q/A、首条非 M 的码面一致，不扩新码）。
      */
-    private fun parseCommands(element: JsonElement?): List<VisualPathCommand>? {
-        val array = element as? JsonArray ?: return null
+    private fun parseCommands(element: JsonElement?, at: String): CommandsParse {
+        val array = element as? JsonArray
+            ?: return CommandsParse.Failure(
+                invalid("DRAWOPS_PATH", "$at must be a non-empty M/L/C/Z command array starting with M"),
+            )
         val commands = ArrayList<VisualPathCommand>(array.size)
         for (index in array.indices) {
-            val command = array[index] as? JsonArray ?: return null
-            val code = (command.firstOrNull() as? JsonPrimitive)?.content ?: return null
+            val commandAt = "$at[$index]"
+            val command = array[index] as? JsonArray
+                ?: return CommandsParse.Failure(invalid("DRAWOPS_PATH", "$commandAt must be an array"))
+            val code = (command.firstOrNull() as? JsonPrimitive)?.content
+                ?: return CommandsParse.Failure(
+                    invalid("DRAWOPS_PATH", "$commandAt must start with a command code"),
+                )
             fun coordinate(i: Int): Double? {
                 val value = command.getOrNull(i)?.primitiveDoubleOrNull() ?: return null
                 if (!value.isFinite() || value > MAX_COORD || value < -MAX_COORD) {
@@ -568,27 +603,65 @@ internal object VisualDrawOpsParser {
                 }
                 return value
             }
+            fun coordinateFailure(i: Int): CommandsParse = CommandsParse.Failure(
+                invalid(
+                    "DRAWOPS_PATH",
+                    "$commandAt: \"$code\" component $i must be a finite number within ±$MAX_COORD",
+                ),
+            )
+            val expectedEntries = when (code) {
+                "M", "L" -> 3
+                "C" -> 7
+                "Z" -> 1
+                else -> return CommandsParse.Failure(
+                    invalid("DRAWOPS_PATH", "$commandAt: unknown path command \"$code\""),
+                )
+            }
+            if (command.size != expectedEntries) {
+                return CommandsParse.Failure(
+                    invalid(
+                        "DRAWOPS_PATH",
+                        "$commandAt: command \"$code\" takes exactly $expectedEntries entries, " +
+                            "got ${command.size}",
+                    ),
+                )
+            }
             val parsed: VisualPathCommand = when (code) {
-                "M" -> VisualPathCommand.MoveTo(coordinate(1) ?: return null, coordinate(2) ?: return null)
-                "L" -> VisualPathCommand.LineTo(coordinate(1) ?: return null, coordinate(2) ?: return null)
-                "C" -> VisualPathCommand.CubicTo(
-                    coordinate(1) ?: return null,
-                    coordinate(2) ?: return null,
-                    coordinate(3) ?: return null,
-                    coordinate(4) ?: return null,
-                    coordinate(5) ?: return null,
-                    coordinate(6) ?: return null,
+                "M" -> VisualPathCommand.MoveTo(
+                    coordinate(1) ?: return coordinateFailure(1),
+                    coordinate(2) ?: return coordinateFailure(2),
                 )
 
-                "Z" -> VisualPathCommand.Close
-                else -> return null
+                "L" -> VisualPathCommand.LineTo(
+                    coordinate(1) ?: return coordinateFailure(1),
+                    coordinate(2) ?: return coordinateFailure(2),
+                )
+
+                "C" -> VisualPathCommand.CubicTo(
+                    coordinate(1) ?: return coordinateFailure(1),
+                    coordinate(2) ?: return coordinateFailure(2),
+                    coordinate(3) ?: return coordinateFailure(3),
+                    coordinate(4) ?: return coordinateFailure(4),
+                    coordinate(5) ?: return coordinateFailure(5),
+                    coordinate(6) ?: return coordinateFailure(6),
+                )
+
+                // 上面的元数 when 已把未知码拒掉，这里只剩 Z。
+                else -> VisualPathCommand.Close
             }
             commands.add(parsed)
         }
         if (commands.isEmpty() || commands.first() !is VisualPathCommand.MoveTo) {
-            return null
+            return CommandsParse.Failure(
+                invalid("DRAWOPS_PATH", "$at must be a non-empty M/L/C/Z command array starting with M"),
+            )
         }
-        return commands
+        return CommandsParse.Parsed(commands)
+    }
+
+    private sealed interface CommandsParse {
+        data class Parsed(val commands: List<VisualPathCommand>) : CommandsParse
+        data class Failure(val failure: VisualDrawOpsValidation.Invalid) : CommandsParse
     }
 
     private fun parseFillRule(element: JsonElement?): VisualFillRule? {
@@ -613,11 +686,54 @@ internal object VisualDrawOpsParser {
     /**
      * 类型化文档 → DrawOps V1 文本（固定键序，与 `visual-compiler.js serialize()` 同形）。
      *
+     * **生成门 + 往返门（批次 30 T8）**：发射后立刻把同一段文本交回 [parse]（同一份严格
+     * 解析实现，不另写一套不变量），并把解析回来的文档与输入逐字段比较。**它消灭的失败**：
+     * 旧 `serialize()` 只发射不校验，`fill=null, stroke!=null`（stroke-only）、奇数 `dash`、
+     * stats 与 ops 不符、viewBox 越界的类型化文档都会被写成语义上有毒的 JSON，调用方要到
+     * painter 回放才炸；非有限数还会以 `IllegalArgumentException` 穿透（同一入口两种失败
+     * 形态）。现在这些全部折成 [VisualDrawOpsSerialization.Rejected]（码面与 parse 完全
+     * 一致：`PAINTER_STROKE_WITHOUT_FILL` / `PAINTER_DASH_ODD` / `DRAWOPS_STATS` /
+     * `DRAWOPS_BOUNDS` / `DRAWOPS_SCHEMA_VERSION` …）。往返比较用 `data class` 相等
+     * （Double 的 `equals` 区分 `-0.0`/`0.0`、末位差 1 ULP，配合 `Double.toString` 的
+     * 往返保证）；发射器若丢/改任一字段即 [CODE_ROUND_TRIP]。
+     *
+     * label 的 frozen 引用集合取自文档自身——serialize 没有外部事务上下文；"引用是否冻结"
+     * 属于 [parse] 的调用方语义（`parse(rendered)` / 引擎提交门），不在发射器职责内。
+     *
      * 数字经 `Double.toString()`（Java 规范保证 `toDouble(toString(d)) == d`——这正是
-     * 往返测试能要求"逐位相等"而不是 epsilon 相等的根据）；非有限值直接拒绝（JSON 无法
-     * 表达 NaN/Infinity，静默写成 `NaN` 会让下游 JSON 解析器读到非 JSON）。
+     * 往返测试能要求"逐位相等"而不是 epsilon 相等的根据）；非有限值仍由 [num] 在写前
+     * 拒绝，但拒绝形态是上述有界结果而不是异常。
      */
-    fun serialize(document: VisualDrawOpsDocument): String {
+    fun serialize(document: VisualDrawOpsDocument): VisualDrawOpsSerialization {
+        val text = try {
+            emit(document)
+        } catch (notSerializable: IllegalArgumentException) {
+            return VisualDrawOpsSerialization.Rejected(
+                invalid(
+                    "DRAWOPS_BOUNDS",
+                    notSerializable.message ?: "draw ops contain a value that cannot be serialized",
+                ),
+            )
+        }
+        val referencedContentIds = document.ops
+            .filterIsInstance<VisualDrawOp.Label>()
+            .mapTo(mutableSetOf<String>()) { it.contentId }
+        val reparsed = when (val parsed = parse(text, referencedContentIds, expectedViewBox = null)) {
+            is VisualDrawOpsValidation.Invalid -> return VisualDrawOpsSerialization.Rejected(parsed)
+            is VisualDrawOpsValidation.Valid -> parsed.document
+        }
+        if (reparsed != document) {
+            return VisualDrawOpsSerialization.Rejected(
+                invalid(
+                    CODE_ROUND_TRIP,
+                    "serialized draw ops do not parse back to the same document",
+                ),
+            )
+        }
+        return VisualDrawOpsSerialization.Text(text)
+    }
+
+    private fun emit(document: VisualDrawOpsDocument): String {
         val sb = StringBuilder(256)
         sb.append("{\"drawSchemaVersion\":").append(document.drawSchemaVersion)
         sb.append(",\"viewBox\":{\"x\":").append(num(document.viewBox.x))

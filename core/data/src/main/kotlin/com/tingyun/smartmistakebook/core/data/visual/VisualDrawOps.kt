@@ -176,3 +176,17 @@ internal sealed interface VisualDrawOpsValidation {
     data class Valid(val document: VisualDrawOpsDocument) : VisualDrawOpsValidation
     data class Invalid(val code: String, val message: String) : VisualDrawOpsValidation
 }
+
+/**
+ * [VisualDrawOpsParser.serialize] 的结果（批次 30 T8）：通过同一生成门与往返门的文本，
+ * 或带码拒绝。
+ *
+ * 返回类型从 `String` 改成 sealed 结果，**它消灭的失败**：旧序列化器只做发射，遇到
+ * stroke-only / 奇数 dash / stats 不符 / 非有限数的类型化文档仍会吐出一段文本，调用方
+ * 拿到的是"看起来合法的 JSON"，要等到回放门才炸；且旧 `num()` 对非有限值直接抛
+ * `IllegalArgumentException`，同一入口混用"返回文本"和"抛异常"两种失败形态。
+ */
+internal sealed interface VisualDrawOpsSerialization {
+    data class Text(val text: String) : VisualDrawOpsSerialization
+    data class Rejected(val failure: VisualDrawOpsValidation.Invalid) : VisualDrawOpsSerialization
+}

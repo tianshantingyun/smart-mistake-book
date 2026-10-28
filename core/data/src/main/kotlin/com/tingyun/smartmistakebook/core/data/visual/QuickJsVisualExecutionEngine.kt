@@ -179,6 +179,22 @@ class QuickJsVisualExecutionEngine(
     /** 持 [stateLock] 读写；非 null = 已登记、尚未收尾的唯一在飞事务。 */
     private var inFlight: Transaction? = null
 
+    /**
+     * KD-71 的**确定性红测缝**（批次 30 T7）：在"关闭态预检"之后、登记临界区之前调用。
+     *
+     * **它消灭的失败**：登记窗口的回归没有离设备、确定性的红测。既有确定性用例
+     * `closeDuringAnInFlightTransactionWaitsAndRejectsIt` 只能把事务卡在 measure（登记已
+     * 完成之后）——它钉的是"强弃+等待"半边；32 轮压测是概率性的。若有人把登记重新拆回
+     * "`isClosed()` 预检 → 非原子登记"，在原生库缺席的 JVM 上没有任何用例能稳定地踩中窗口。
+     * 本缝让测试把 close 精确地落在预检与登记之间：**修复前的代码会继续登记并执行**（JVM
+     * 上表现为 `INVALID_PROGRAM`，设备上会真的渲染成功），修复后必在临界区内看见
+     * `closed=true` 并回 [VisualExecutionRejection.ENGINE_CLOSED]。
+     *
+     * 只允许测试赋值；生产路径恒为 null（一次可空读，不改变任何临界区语义）。
+     */
+    @Volatile
+    internal var beforeRegistrationHookForTest: (() -> Unit)? = null
+
     private val fusedProgramDigests: MutableSet<String> =
         Collections.newSetFromMap(ConcurrentHashMap())
 
@@ -212,6 +228,10 @@ class QuickJsVisualExecutionEngine(
             )
         }
         val transaction = Transaction(request, digest)
+        // KD-71 确定性红测缝（仅测试赋值；生产为 null）：把 close 精确地放进"预检之后、
+        // 登记之前"的窗口。修复前的实现会在这里之后继续登记并执行；现实现进入下一临界区
+        // 时必然看见 closed=true 并拒绝。
+        beforeRegistrationHookForTest?.invoke()
         // 判定 closed 与登记事务在同一临界区内（KD-71）：close 先则这里必见 closed；
         // 登记先则 close 必能取到 inFlight。watchdog 的 shutdownNow() 与 closed=true 也在
         // 同一临界区（见 close），因此登记成功时调度器必然仍接受任务。
