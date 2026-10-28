@@ -297,3 +297,45 @@ grep -n "toAndroidValues\|PAINTER_BOUNDS\|PAINTER_DASH_ODD\|setMatrix(rootMatrix
 # 未执行：任何 ./gradlew、adb、am instrument、connectedAndroidTest；任何 git 写命令；
 #          JVM 单测、painter 19 例设备复跑、门判定器。
 ```
+
+## 10. 主会话收口（2026-10-28，提交与推送执行者实跑）
+
+> 本节由主会话在记录落盘后追加；上文 §1–§9 为记录员产物，未代改。
+
+### 10.1 双门实跑（主会话本轮执行，日志落 `build/main-session-gate-batch28/`）
+
+- **单测门**：`./gradlew.bat :core:model:test :core:domain:test :core:data:testDebugUnitTest :core:database:testDebugUnitTest :core:export:testDebugUnitTest :core:ui:testDebugUnitTest :feature:review:testDebugUnitTest :feature:library:testDebugUnitTest :feature:capture:testDebugUnitTest :feature:tutor:testDebugUnitTest :app:testLocalFirstDebugUnitTest --continue` → **`UNIT_EXIT=0`**、`BUILD SUCCESSFUL in 2s`、`228 actionable tasks: 228 up-to-date`（交付轮与修复轮已用同输入跑过，Gradle 判 UP-TO-DATE）。
+- **UP-TO-DATE 的排除性核对**（避免把"未执行"读成"通过"）：`core/data/build/test-results/testDebugUnitTest/TEST-...VisualDrawOpsPainterPureTest.xml` 实测 `tests="10" skipped="0" failures="0" errors="0"`、mtime `2026-10-28T19:40:41`——本批新增 painter 纯层 10 例**确有执行产物且零失败**，非空跑。
+- **强门**：`./gradlew.bat :core:data:compileDebugAndroidTestKotlin :core:database:compileDebugAndroidTestKotlin :feature:library:compileDebugAndroidTestKotlin :feature:capture:compileDebugAndroidTestKotlin :feature:tutor:compileDebugAndroidTestKotlin :core:export:compileDebugAndroidTestKotlin :app:compileLocalFirstDebugAndroidTestKotlin :app:assembleLocalFirstDebug` → **`STRONG_EXIT=0`**、`BUILD SUCCESSFUL in 21s`、`272 actionable tasks: 7 executed, 265 up-to-date`、无 `FAILED`/`error:` 行。
+- **结论口径**：双门 exit=0 成立；`exit=0` 覆盖的是"本批改动可编译 + 既有 JVM 用例集合无回归"，**不覆盖**修复轮新增 2 例 painter 设备用例（仍 UNVERIFIED，见 §6 #1）与 R-04 阻塞。
+
+### 10.2 复核项（高/中）在树的实读确认（主会话，非转录）
+
+- **R1【高】dash 缓冲串状态已修**：`core/data/src/main/kotlin/.../visual/VisualDrawOpsPainter.kt:245` 为 `val buffer = FloatArray(dash.size)`（精确分配，`ensureDashCapacity`/`dashBuffer` 全仓零命中）；形状门前置在 `:149`（`it.size % 2 != 0 || it.size < 2`，空数组与奇数同折 `PAINTER_DASH_ODD`）；回归例 `aShorterDashAfterALongerDashOnTheSamePainterKeepsItsOwnPattern`（`:251`）与 `anEmptyDashFailsClosedEvenThoughValidationAcceptsIt`（`:323`）在树，`grep -c "@Test"` 实测 **19**。
+- **R2/R3【中】已并入 KD-78**：`docs/known-defects.md:2869` 起为 `## KD-78 (open, 2026-10-28 …)`，标题即四缺口（stroke-only 无颜色源 / dash 形状门未钉 / `#RRGGBB(AA)` 与 `op.alpha` 优先级未定义 / measure-replay flags 不在环境指纹）；全文 2882 行。**open 维持，生成侧仍放行**。
+- **R4【低】台账时点句已刷新**：记录员在 §8 声明的两处刷新（KD-76 设备轨 Progress 块、契约 painter 现状行）已随块 6 入库。
+
+### 10.3 提交（7 块、20 个路径，全部显式路径 add；无目录 add）
+
+| 提交 | 内容 | 路径数 |
+|---|---|---|
+| `df7ee1d9` | painter 纯计算层 + 应用层 + JVM 测试 | 3 |
+| `d5b7ec71` | painter 设备套件 19 例 + 编译器测试 dot alpha 更正 | 2 |
+| `f1465e71` | 两份研究文档 + 基线 | 3 |
+| `ec2a0ebe` | 证据前半（索引/环境/隔离+Race/编译器+引擎） | 4 |
+| `f52477be` | 证据后半（painter/备份/R-04）+ 本记录 | 4 |
+| `3e1762e5` | known-defects / 契约 / 准入清单 / MASTER-LINE（整文件纳入，含本批多轨改动） | 4 |
+| `c93241d5` | 算法台账 §3.38 零 bump + 决策台账 | 2 |
+
+- **排除核对**（`git log --name-only 8116ad98..HEAD` 逐行实读）：20 个路径全部落在 `core/data/.../visual/` 与 `docs/` 声明面；**零 `*/gradle.lockfile`、零 `settings.gradle.kts`/`.gitignore`、零 feature 五模块、零 core/ui·export·database·markdown、零 app 热区、零 `build/`、零证据目录内 `.mimosa/` 产物**。
+- 提交前 `git status --porcelain` 实测 689 行（208 M + 481 ??），本批 20 路径提交后剩余脏项全部为他线在飞（含 13+ 锁文件），未触碰。
+
+### 10.4 推送
+
+- 首次 5 连试全部 `Failed to connect to github.com:443`（21107/21093/21048/21080/21066 ms 超时，GitHub 侧连接故障，非认证问题）；转后台 20 次重试（60 s 间隔）。**推送最终结果见下方追加行；本节写作时点未确认远端已前进。**
+
+### 10.5 收口不改动的既有判定
+
+- KD-76 保持 **open**（③ 产品面 / 29.5 s 链 / READY_TIMEOUT 校准 / arm64）；KD-72/75/77/78 **open**；KD-66/70 **closed 维持**（本批设备证据只作复验，未发现 reopen 条件）。
+- **4E.2 MVA 不成立维持**；JS 仍 `UNAVAILABLE`、不广告；arm64/真机、生产 release 签名、真实 Provider/模型质量 **UNVERIFIED**。
+- Mimosa 仍 `scanner_enobufs`、无完整扫描结论——**不宣称项目安全**。
