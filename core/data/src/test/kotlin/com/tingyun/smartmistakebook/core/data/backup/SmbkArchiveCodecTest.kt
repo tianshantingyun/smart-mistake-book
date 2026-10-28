@@ -928,7 +928,11 @@ class SmbkArchiveCodecTest {
             "rowCounts" to validateWith(
                 baseSelection.copy(rowCounts = baseSelection.rowCounts - "problem"),
             ),
-            "trimmedTableCount" to validateWith(baseSelection.copy(trimmedTableCount = 79)),
+            "trimmedTableCount" to validateWith(
+                baseSelection.copy(
+                    trimmedTableCount = SmbkSelectionPlan.trimOrder.size + 1,
+                ),
+            ),
             "closureDigest" to validateWith(
                 baseSelection.copy(closureDigest = "0".repeat(64)),
             ),
@@ -1387,7 +1391,7 @@ class SmbkArchiveCodecTest {
         reviewReminderMinutesAfterMidnight = 18 * 60 + 30,
     )
 
-    /** `rowCounts` 的 86 表全零底稿（manifest 摘要必须覆盖全部表，0 也写）。 */
+    /** `rowCounts` 的 90 表全零底稿（manifest 摘要必须覆盖全部表，0 也写）。 */
     private fun emptyRowCounts(): Map<String, Long> =
         SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
 
