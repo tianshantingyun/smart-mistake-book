@@ -13,35 +13,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Quiet green surfaces with strong, readable ink. */
+/** Neutral reading surfaces, a teal brand, and distinct semantic accents. */
 object SmartColors {
-    val Paper = Color(0xFFF6F7F2)
-    val Ink = Color(0xFF182A24)
-    val InkSecondary = Color(0xFF55655C)
-    val InkMuted = Color(0xFF5D7063)
-    val Forest = Color(0xFF103C2C)
-    val Jade = Color(0xFF176B51)
-    val JadeDark = Color(0xFF15553F)
-    val JadeActive = Color(0xFF176B51)
-    val JadeSoft = Color(0xFFE8F2EC)
-    val JadeMuted = Color(0xFF83B39A)
-    val Divider = Color(0xFFE0E7E2)
-    val Outline = Color(0xFFC6D2CA)
-    val Track = Color(0xFFE1E9E3)
-    val ErrorWarm = Color(0xFFE36F27)
-    val ErrorText = Color(0xFFA23E24)
-    val OnJade = Color(0xFFFFFDFC)
+    val Paper = Color(0xFFF6F7F9)
+    val Ink = Color(0xFF242A32)
+    val InkSecondary = Color(0xFF56616F)
+    val InkMuted = Color(0xFF5E6874)
+    val Forest = Color(0xFF123D35)
+    val Jade = Color(0xFF087F70)
+    val JadeDark = Color(0xFF125D54)
+    val JadeActive = Color(0xFF06695F)
+    val JadeSoft = Color(0xFFE5F2EE)
+    val JadeMuted = Color(0xFF7EACA2)
+    val HeaderSurface = Color(0xFFEAF2EF)
+    val HeaderInk = Color(0xFF174E46)
+    val HeaderSecondary = Color(0xFF46675F)
+    val Divider = Color(0xFFE2E6EB)
+    val Outline = Color(0xFF7F8994)
+    val Track = Color(0xFFE6EAEE)
+    val ErrorWarm = Color(0xFFC9543D)
+    val ErrorText = Color(0xFFAC3D32)
+    val ErrorSurface = Color(0xFFFBF0ED)
+    val OnJade = Color.White
     val ContentSurface = Color.White
-    val SubtleSurface = Color(0xFFEFF4F0)
-    val ReadingSurface = Color(0xFFF6F0E4)
-    val ReadingAccent = Color(0xFF765632)
-    val LearningSurface = Color(0xFFEAF0F6)
-    val LearningAccent = Color(0xFF3E5F7C)
-    val PendingSurface = Color(0xFFFBF1DE)
-    val PendingAccent = Color(0xFF805D23)
-    val CodeSurface = Color(0xFF10271F)
-    val CodeHeader = Color(0xFF19392D)
-    val OnCode = Color(0xFFE0EAE3)
+    val SubtleSurface = Color(0xFFF0F2F5)
+    val ReadingSurface = Color(0xFFF7F2E9)
+    val ReadingAccent = Color(0xFF765C3B)
+    val LearningSurface = Color(0xFFEDF2FA)
+    val LearningAccent = Color(0xFF435F88)
+    val PendingSurface = Color(0xFFFCF3E3)
+    val PendingAccent = Color(0xFF805A18)
+    val CodeSurface = Color(0xFF20262F)
+    val CodeHeader = Color(0xFF2B333F)
+    val OnCode = Color(0xFFE6EBF1)
 }
 
 val Paper = SmartColors.Paper
@@ -162,17 +166,19 @@ val SmartShapes = Shapes(
     extraLarge = RoundedCornerShape(24.dp),
 )
 
-private val SmartLightColorScheme = lightColorScheme(
+internal val SmartLightColorScheme = lightColorScheme(
     primary = Jade,
     onPrimary = OnJade,
     primaryContainer = JadeSoft,
     onPrimaryContainer = Ink,
-    secondary = JadeDark,
+    secondary = SmartColors.LearningAccent,
     onSecondary = OnJade,
-    secondaryContainer = JadeSoft,
-    onSecondaryContainer = Ink,
-    tertiary = JadeMuted,
-    onTertiary = Ink,
+    secondaryContainer = SmartColors.LearningSurface,
+    onSecondaryContainer = SmartColors.LearningAccent,
+    tertiary = SmartColors.ReadingAccent,
+    onTertiary = OnJade,
+    tertiaryContainer = SmartColors.ReadingSurface,
+    onTertiaryContainer = SmartColors.ReadingAccent,
     background = Paper,
     onBackground = Ink,
     surface = ContentSurface,
@@ -180,13 +186,19 @@ private val SmartLightColorScheme = lightColorScheme(
     surfaceVariant = SubtleSurface,
     onSurfaceVariant = InkSecondary,
     surfaceContainerLowest = ContentSurface,
-    surfaceContainerLow = Paper,
+    surfaceContainerLow = Color(0xFFFAFBFC),
     surfaceContainer = SubtleSurface,
-    surfaceContainerHigh = ContentSurface,
-    surfaceContainerHighest = SubtleSurface,
+    surfaceContainerHigh = Color(0xFFEBEEF2),
+    surfaceContainerHighest = Color(0xFFE3E8EE),
+    surfaceBright = ContentSurface,
+    surfaceDim = Color(0xFFE1E6EC),
+    surfaceTint = Jade,
+    inverseSurface = Color(0xFF26323A),
+    inverseOnSurface = Color(0xFFF5F7FA),
+    inversePrimary = Color(0xFF91D8CA),
     error = ErrorText,
     onError = OnJade,
-    errorContainer = Color(0xFFFBEAE4),
+    errorContainer = SmartColors.ErrorSurface,
     onErrorContainer = ErrorText,
     outline = Outline,
     outlineVariant = Divider,

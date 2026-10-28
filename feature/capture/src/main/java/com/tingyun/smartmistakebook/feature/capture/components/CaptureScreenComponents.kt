@@ -320,7 +320,7 @@ private fun CaptureModeOption(
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(text, color = foreground, style = MaterialTheme.typography.titleMedium)
-                Text(supportingText, color = if (primary) SmartColors.OnJade.copy(alpha = .85f) else InkSecondary,
+                Text(supportingText, color = if (primary) SmartColors.OnJade else InkSecondary,
                     style = MaterialTheme.typography.bodySmall)
             }
             Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(18.dp), tint = foreground)

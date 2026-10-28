@@ -33,13 +33,13 @@ fun WorkspacePageHeader(
     actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
     Surface(modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp),
-        color = SmartColors.Forest, contentColor = OnJade) {
+        color = SmartColors.HeaderSurface, contentColor = SmartColors.HeaderInk) {
         BoxWithConstraints(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
             @Composable fun Identity(modifier: Modifier = Modifier) {
                 Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(title, color = OnJade, style = MaterialTheme.typography.headlineMedium,
+                    Text(title, color = SmartColors.HeaderInk, style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.semantics { heading() })
-                    if (!subtitle.isNullOrBlank()) Text(subtitle, color = OnJade.copy(alpha = .85f),
+                    if (!subtitle.isNullOrBlank()) Text(subtitle, color = SmartColors.HeaderSecondary,
                         style = MaterialTheme.typography.bodySmall)
                 }
             }

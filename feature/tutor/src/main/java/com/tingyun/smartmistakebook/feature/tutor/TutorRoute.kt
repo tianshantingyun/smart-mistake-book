@@ -2,7 +2,6 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
-import com.tingyun.smartmistakebook.core.ui.OnJade
 import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.graphics.Color
@@ -160,9 +159,9 @@ internal fun TutorPageHeader(
     onBack: (() -> Unit)? = null,
 ) {
     val rootHeader = onBack == null
-    val iconTint = if (rootHeader) OnJade else InkSecondary
+    val iconTint = if (rootHeader) SmartColors.HeaderInk else InkSecondary
     val iconColors = IconButtonDefaults.iconButtonColors(
-        containerColor = if (rootHeader) SmartColors.Forest else Color.Transparent,
+        containerColor = Color.Transparent,
         contentColor = iconTint,
     )
     val actions: @Composable RowScope.() -> Unit = {

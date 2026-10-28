@@ -58,13 +58,13 @@ internal fun LibraryPageHeader(
     onCapture: () -> Unit,
     onOpenResults: () -> Unit,
 ) {
-    Surface(shape = RoundedCornerShape(24.dp), color = SmartColors.Forest) {
+    Surface(shape = RoundedCornerShape(24.dp), color = SmartColors.HeaderSurface) {
         BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
             val showFileLabel = maxWidth >= 280.dp && LocalDensity.current.fontScale <= 1.2f
             val stackTitle = maxWidth < 260.dp || LocalDensity.current.fontScale > 1.3f
             Column {
                 if (stackTitle) {
-                    Text("错题本", color = SmartColors.OnJade,
+                    Text("错题本", color = SmartColors.HeaderInk,
                         style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
                         fontWeight = FontWeight.SemiBold)
                 }
@@ -73,7 +73,7 @@ internal fun LibraryPageHeader(
                         Text(
                             "错题本",
                             modifier = Modifier.weight(1f),
-                            color = SmartColors.OnJade,
+                            color = SmartColors.HeaderInk,
                             style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -86,7 +86,7 @@ internal fun LibraryPageHeader(
                             .semantics { contentDescription = "查看已导出的文件" },
                         contentPadding = PaddingValues(horizontal = 10.dp),
                         colors = ButtonDefaults.textButtonColors(
-                            containerColor = SmartColors.Forest, contentColor = SmartColors.OnJade),
+                            containerColor = SmartColors.HeaderSurface, contentColor = SmartColors.HeaderInk),
                     ) {
                         Icon(Icons.Outlined.FolderOpen, contentDescription = null, modifier = Modifier.size(20.dp))
                         if (showFileLabel) {
@@ -101,7 +101,7 @@ internal fun LibraryPageHeader(
                             modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_capture_button"),
                             shape = RoundedCornerShape(16.dp),
                             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = SmartColors.OnJade, contentColor = SmartColors.Forest),
+                            colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Jade, contentColor = SmartColors.OnJade),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
                         ) {
                             Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(18.dp))
