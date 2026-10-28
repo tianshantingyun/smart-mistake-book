@@ -2,7 +2,7 @@
 
 > **性质**：只写文档，零代码、零 Gradle、零设备执行、零 git 写操作。**本表不是广告许可**：JS 仍 `UNAVAILABLE`、不广告；任何一行“过”都必须另有当前命令/用例输出与落盘证据，不能拿本表的“已落”或 R3 的研究结论当门已通过。
 >
-> **版本与时点**：**v3**（2026-10-27，批次 26 T5 复判合并；版本与时点以本节为准）。v1 = 批次 24 T4（2026-10-26 落盘，随 `aabae781` 提交，63 行）。v2 = 批次 25 T4（2026-10-27）并入 R2 审计（`docs/research/2026-10-27-contract-admission-gap.md`，下称 **R2**）第四部分增量表：**6 条新增行**（S-09、P-12、A-11、A-12、A-13、D-06）与 **14 处改判据**（P-04、P-05、P-08、P-09、A-07、A-10〔含现状改写〕、R-01、R-02、R-03、R-04、R-05、S-06、E-05、Q-04），合并后 69 行。**v3 = 批次 26 T5（2026-10-27）**并入 R2 复判（`docs/research/2026-10-27-mva-reeval.md`，下称**复判**）§1 增量表：只刷新 **P-04/P-07/P-09/P-12** 四行现状（含 P-12"未落"勘误）与总体判定句的理由表述、§6 一条半步、§0 记号一行；**不新增行、不重复建行（仍 69 行），MVA 不成立的结论维持**（复判 §2），0 项转"通过"。合并红线（R2 §四）不变：不重复建 P-08/P-09/P-10/P-11/A-10 行；不动 §0 勾选规则与 X-04；全部判据仍是**待执行定义**（R2 G-1..G-13），v3 本轮零 Gradle/零设备/零 git 写。**v3 补记（批次 27 T5 状态同步，2026-10-27）**：批次 26 设备证据已落盘（`docs/research/evidence/2026-10-27-batch-26/`，E-01…E-05：隔离 13+2、KD-66 关闭门三轮绿、KD-76 ③④⑤ PARTIAL、R8 release + 备份 PASS），本补记只刷新 P-07/P-12/R-02/R-04 四行现状与 §0 记号行、新增附录 D 核对；不新增行（仍 69 行）、0 项转"通过"、MVA 不成立维持、KD-76 open 维持（JS 不广告）；契约 :72 的 KD-76 状态句同步刷新（队列"待主会话确认"标注未动，归 T4）。
+> **版本与时点**：**v3**（2026-10-27，批次 26 T5 复判合并；版本与时点以本节为准）。v1 = 批次 24 T4（2026-10-26 落盘，随 `aabae781` 提交，63 行）。v2 = 批次 25 T4（2026-10-27）并入 R2 审计（`docs/research/2026-10-27-contract-admission-gap.md`，下称 **R2**）第四部分增量表：**6 条新增行**（S-09、P-12、A-11、A-12、A-13、D-06）与 **14 处改判据**（P-04、P-05、P-08、P-09、A-07、A-10〔含现状改写〕、R-01、R-02、R-03、R-04、R-05、S-06、E-05、Q-04），合并后 69 行。**v3 = 批次 26 T5（2026-10-27）**并入 R2 复判（`docs/research/2026-10-27-mva-reeval.md`，下称**复判**）§1 增量表：只刷新 **P-04/P-07/P-09/P-12** 四行现状（含 P-12"未落"勘误）与总体判定句的理由表述、§6 一条半步、§0 记号一行；**不新增行、不重复建行（仍 69 行），MVA 不成立的结论维持**（复判 §2），0 项转"通过"。合并红线（R2 §四）不变：不重复建 P-08/P-09/P-10/P-11/A-10 行；不动 §0 勾选规则与 X-04；全部判据仍是**待执行定义**（R2 G-1..G-13），v3 本轮零 Gradle/零设备/零 git 写。**v3 补记（批次 27 T5 状态同步，2026-10-27）**：批次 26 设备证据已落盘（`docs/research/evidence/2026-10-27-batch-26/`，E-01…E-05：隔离 13+2、KD-66 关闭门三轮绿、KD-76 ③④⑤ PARTIAL、R8 release + 备份 PASS），本补记只刷新 P-07/P-12/R-02/R-04 四行现状与 §0 记号行、新增附录 D 核对；不新增行（仍 69 行）、0 项转"通过"、MVA 不成立维持、KD-76 open 维持（JS 不广告）；契约 :72 的 KD-76 状态句同步刷新（队列"待主会话确认"标注未动，归 T4）。**v3 补记 2（批次 28 T3 状态同步，2026-10-28）**：按 R2 剩余项排序（`docs/research/2026-10-28-mva-remaining-order.md`，下称 **R2 排序**）与批次 28 计划（`.zcode/plans/plan-2026-10-28-batch-28-scenev1-device-painter.md`）刷新 painter/PDF 回放/持久化/双后端四组行——S-04/S-05/S-06 现状按批次 27/28 落层刷新（DrawOps DTO 已立、painter 过渡落点已裁定 `core:data` `visual` 包、hitRegions 口径差登记待裁），E-05/R-05/§2 行 6 行内注记，D 组与 A 组表后组级排序注记，§0 责任轨五行归属注记；**批次 28 T1（设备复跑）与 T2（painter 落码）在飞未出数，本补记只登记设计落盘（`docs/research/2026-10-28-painter-design.md`）与排序建议，不预填设备/落码判定**；0 项转"通过"、行数 69 不变、MVA 不成立维持、KD-76 open 维持（JS 不广告）；核对见附录 E。
 >
 > **输入**：R3 `docs/research/2026-10-26-4e2-entry-checklist.md`（下称 **R3**）；计划 `.zcode/plans/plan-2026-10-26-batch-24-isolation-final-kd70.md`（下称 **计划**）；契约 `docs/current/visual-generation-contract.md` §4/§5；4E 计划 `docs/superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md`；批次 23 设备证据 `docs/research/evidence/2026-10-26-batch-23/`；批次 24 基线 `docs/research/2026-10-26-batch-24-baseline.md`；KD 台账（含批次 24 T5 本轮新增的 **KD-76**）；本轮只读 grep（附录 A）；v2 增量合并核对（附录 B，2026-10-27）。
 >
@@ -28,13 +28,13 @@
 | `24-设备` | 本批设备证据轨（Gradle/am instrument/E-file） | 计划内 |
 | `26-T1`/`26-T2`/`26-T5` | 批次 26 计划任务：KD-66 hard+500 ms 用例（T1，已落码登记 KD-66）/隔离套件 12+2 复跑 + KD-76 ③④⑤ 设备判据（T2）/台账契约同步（T5，即本 v3 合并） | 计划 `.zcode/plans/plan-2026-10-27-batch-26-kd66-gate-lockfiles.md:14`；T1 落码且三轮独立绿（KD-66 已于批次 26 关闭）；设备轨已出数（E-01…E-05：隔离 13+2、KD-76 ③④⑤ PARTIAL、R8 release + 备份 PASS）——v3 补记（批次 27 T5） |
 | `后续-C` | SceneV1 类型/validator/compiler/state codec（core:model） | 未立项 |
-| `后续-L` | 真实度量/排版/painter/回放（core:visual） | 未立项；模块不存在 |
+| `后续-L` | 真实度量/排版/painter/回放（core:visual） | 未立项；模块不存在（批次 28 T3 注记：R2 排序——painter 屏半边归批次 28 T2（在飞），PDF 回放半场 + S-04 序列化往返 + 屏/PDF 一致门雏形归批次 29，模块归位归热区解锁批挂起） |
 | `后续-U` | UI 显示消费（core:ui + feature/tutor） | 未立项；热区 |
-| `后续-P` | 持久化/迁移/备份/GC（core:database + core:data） | 未立项 |
-| `后续-E` | PDF/DOCX/print/share 导出（core/export） | 未立项；热区 |
-| `后续-W` | 双后端接线（coordinator/tool/parser/schema/prompt/capability） | 未立项 |
-| `后续-Q` | 保真/质量门（PRD-09 冻结任务集） | 未立项 |
-| `后续-R` | 发布矩阵（API 23/arm64/16 KB/release R8） | 未立项 |
+| `后续-P` | 持久化/迁移/备份/GC（core:database + core:data） | 未立项（批次 28 T3 注记：R2 排序——持久化核心 D-01/D-02/D-05 + D-03 checkpoint 半场建议归批次 30，与批次 31 可换序；core/database 8 M 开工即脏为边界；D-04/D-06 随 30/31 能力自然补齐） |
+| `后续-E` | PDF/DOCX/print/share 导出（core/export） | 未立项；热区（批次 28 T3 注记：R2 排序——E-01～E-04 与 KD-75 归热区解锁批挂起，core/export 空出后整批落地） |
+| `后续-W` | 双后端接线（coordinator/tool/parser/schema/prompt/capability） | 未立项（批次 28 T3 注记：R2 排序——双后端执行装配建议归批次 31，与批次 30 可换序；广告开关不动，`availableMethods` 加 JS 是全部门绿后的最后动作；A-09/V-01/V-02/Q-04 归批次 32 设备轮） |
+| `后续-Q` | 保真/质量门（PRD-09 冻结任务集） | 未立项（批次 28 T3 注记：R2 排序——Q-04 六类 fixture 建议归批次 32；Q-01 建议归批次 31；Q-05 真实 Provider 凭据 UNVERIFIED 维持） |
+| `后续-R` | 发布矩阵（API 23/arm64/16 KB/release R8） | 未立项（批次 28 T3 注记：R2 排序——发布矩阵批挂起：R-04 解除路径三选一、R-01 需可装镜像机器、R-02/R-03 本机原理性不可采证，均归主会话裁定/硬件窗口；R-05 载体建议批次 29 零成本并轨） |
 | `后续-A` | 架构归位（`core:visual-js` + `AndroidVisualExecutionEngine`） | 未立项；需改 settings |
 | `主会话` | 只能由主会话作出的裁定 | 见 §5 |
 
@@ -104,7 +104,7 @@
 | 3 | 真实 `VisualContentMeasurer` 的 text/math 设备用例（含 `inkBounds`） | 设备 | **新增**：服务仍注入 `UnwiredVisualContentMeasurer` | `VisualJsService.kt:310`；`VisualJsProtocol.kt:394-406`；R3 §1.2/§4.2 | `后续-L` |
 | 4 | `SceneValidatorTest` / `SceneCompilerTest` / `VisualStateCodecTest` / `VisualSdkContractTest` | JVM（设备金样另列） | **新增**；类型零命中 | 计划 `:101`；R3 §4.3；附录 A 的零命中类扫描 | `后续-C` |
 | 5 | `NativeContentLayoutInstrumentedTest` / `MathContentLoweringTest` | 设备 | **新增** | 计划 `:101`；R3 §4.3 | `后续-L` |
-| 6 | `AndroidScenePainter` 同一 `RenderScene` 在屏幕与 PDF 的结构/位置一致 | 设备 + 导出 | **新增**；painter 零命中 | 契约 §5 `:102`；计划 `:97`；R3 §4.3 | `后续-L` + `后续-E` |
+| 6 | `AndroidScenePainter` 同一 `RenderScene` 在屏幕与 PDF 的结构/位置一致 | 设备 + 导出 | **新增**；painter 零命中（v3 补记 2 注记：painter 屏半边批次 28 T2 在飞，落点 `core:data` `visual` 包过渡态；PDF 半边——同一 DrawOps 渲染器打 `PdfDocument` page.canvas、零分支差异——R2 排序建议批次 29） | 契约 §5 `:102`；计划 `:97`；R3 §4.3 | `后续-L` + `后续-E` |
 | 7 | 六类 fixture 的静态子集：截图 1 比例条、2 F-x 面积、5 受力图、6 拔塞阶段 + 新组合（波叠加/轨迹采样），带独立预期 | 设备 | **新增** | 计划 `:156-168`；R3 §4.3 | `后续-Q` |
 | 8 | JS 静态纵向链：tool proposal → coordinator → 隔离引擎 → 真实度量 → compiler → UI 卡片 → 保存/重启 → PDF/DOCX，全程 0 Provider 派发 | 设备 | **新增** | R3 §4.4；计划 `:23`/`:172-176` | `后续-W` + `24-设备` |
 | 9 | 迁移/备份/导出含 JS 程序/快照/预览行：旧行不动、缺字节拒绝完整包、导出 0 JS 执行 | 设备 | **新增**；当前只有 `figure_generation_*` 两张审计表（v69） | 契约 §8 `:161-190`；计划 `:126-136`/`:148-150`；R3 §4.5 | `后续-P` + `后续-E` |
@@ -141,9 +141,9 @@
 | S-01 | `VisualProgram/VisualScene/VisualSceneValidator/VisualSceneCompiler/VisualStateCodec` 落地，`ValidatedScene` 只能由 validator 产生 | **未落**：五个类零命中 | 全部类型与受控构造 | 计划 `:93`；契约 §5 `:94`；附录 A 的零命中类扫描 | `SceneValidatorTest`/`SceneCompilerTest`/`VisualStateCodecTest`（新增 JVM） | `后续-C` |
 | S-02 | `visual-sdk-v1.js` 静态子集：`prepare/render` + `line/arrow/circle/arc/axes/polyline`；无 `reduce`、无 Date/random/import/host | **未落**：无 `.js` 资产；bootstrap 只封闭 Date/替换 Math.random | SDK 资产与契约 | 计划 `:94`；契约 §3.2 `:47`；`QuickJsVisualExecutionEngine.kt:809-814`；附录 A 的 SDK 资产检查 | `VisualSdkContractTest`（新增 JVM）+ 隔离内执行（设备） | `后续-C` |
 | S-03 | 严格拒绝：未知字段/重复 JSON 键/原型污染键/悬空引用/NaN/Infinity/越界/树深/字节/展开路径预算 | **部分落**：引擎只做字节→JSON→contentId 保守校验 | 完整 validator | 契约 §4 `:90`、§5 `:95`；`QuickJsVisualExecutionEngine.kt:647-684`（KDoc `:643-645` 自认归 4E.2） | `SceneValidatorTest` 负向套件（新增 JVM） | `后续-C` |
-| S-04 | `RenderScene` 为不可变序列化显示列表，不含函数/脚本/回调；屏幕与 PDF 同 painter | **未落** | DTO、序列化、painter | 契约 §5 `:102`；计划 `:97`；附录 A 的零命中类扫描 | 编译金样 + 序列化往返 + 无函数断言（JVM/设备） | `后续-C` + `后续-L` |
-| S-05 | MVA 静态子集对 `controls[]/hitRegions[]/form?` 非空直接拒绝 | **未落**：无 DTO，自然无拒绝 | validator 的静态子集硬拒绝 | R3 §3.1；契约 §3.2 `:58`、§5 `:94` | `SceneValidatorTest` 三条负向（新增 JVM） | `后续-C` |
-| S-06 | `core:visual` 模块 + `AndroidScenePainter` 共用 Compose/PDF | **未落**：模块与类零命中 | 模块、真实布局、painter | `settings.gradle.kts:19-34`（无 visual 模块）；契约 §5.1 `:115`；计划 `:54`/`:96`；附录 A 的零命中类/模块检查 | 同 `RenderScene` 屏幕/PDF 结构位置一致（设备+导出）；v2 比较机制（R2 §三）：同一 `RenderScene` 输入经 Compose 与 PDF 两 painter，比较画布指令序列序列化相等，或金样像素 diff（阈值先金样固定） | `后续-L` |
+| S-04 | `RenderScene` 为不可变序列化显示列表，不含函数/脚本/回调；屏幕与 PDF 同 painter | **部分落（v3 补记 2，批次 28 T3 按 R2 排序 §1.1 A2 刷新）**：DTO 语义已立——`VisualDrawOps.kt` sealed 六原语（Save/Concat/Clip/DrawPath/Label/Restore）+ `VisualDrawOpsValidator.kt`（词表/预算/有限性/配平/stats 复算，批次 27 落码）+ `Rendered` 增 `drawCommandsJson`/`drawSchemaVersion`（`core/domain/.../VisualExecutionEngine.kt:245-246`，本轮实测锚）；**序列化往返（drawCommandsJson → 结构化 → 再序列化一致）无测试**；无函数断言由 sealed 词表结构性保证、无专项用例行；painter 屏半边批次 28 T2 在飞（设计 `2026-10-28-painter-design.md`），本注记时点 painter 类名 grep 0 | 序列化往返测试、无函数专项断言、painter（DTO 已落） | 契约 §5 `:102`；计划 `:97`；`VisualDrawOps.kt:95-140`；R2 排序 §1.1 A2 | 编译金样 + 序列化往返 + 无函数断言（JVM/设备） | `后续-C` + `后续-L`（R2 排序：序列化往返 JVM 半场归批次 29；painter 屏半边批次 28 T2） |
+| S-05 | MVA 静态子集对 `controls[]/hitRegions[]/form?` 非空直接拒绝 | **部分落 + 一处口径差待裁（v3 补记 2，批次 28 T3 按 R2 排序 §1.1 A4 刷新——旧"未落：无 DTO"已过时）**：编译器已拒非空 `controls`（`visual-compiler.js:732` `SCENE_FIELD_CONTROLS` "must be an empty array in V1"）与整体拒 `form`（`:738` `SCENE_FIELD_UNAVAILABLE`，本轮实测锚）；**hitRegions 按编译器现状允许非空**（`:950-975` 只做数组+预算校验、非空不拒，并经 `:1077-1088` 序列化进 DrawOps 输出）——与本表 §1.1 "`controls[]`、`hitRegions[]`、`form?` 必须为空/不存在"存在口径差（hit-region 命中测试本属交互面），S-05 第三条负向（hitRegions）待主会话对齐口径后落（R2 排序：批次 29 或 31 顺手） | hitRegions 口径裁定 + 对应负向 | R3 §3.1；契约 §3.2 `:58`、§5 `:94`；`visual-compiler.js:732`/`:738`/`:950-975`/`:1077-1088`（本轮实测）；R2 排序 §1.1 A4 | `SceneValidatorTest` 三条负向（新增 JVM） | `后续-C` |
+| S-06 | `core:visual` 模块 + `AndroidScenePainter` 共用 Compose/PDF | **未落**：模块与类零命中（v3 补记 2 维持"未落"，补落点注记：painter 屏半边落点已裁定 `core:data` `visual` 包过渡态——`VisualDrawOpsPainter.kt` `internal`、纯计算/应用层分离，设计 `2026-10-28-painter-design.md` §3.1；不新建 `core:visual` 模块（`settings.gradle.kts` 热区），模块归位条件不变；落码批次 28 T2 在飞、本注记时点类名 grep 0） | 模块、真实布局、painter | `settings.gradle.kts:19-34`（无 visual 模块）；契约 §5.1 `:115`；计划 `:54`/`:96`；附录 A 的零命中类/模块检查 | 同 `RenderScene` 屏幕/PDF 结构位置一致（设备+导出）；v2 比较机制（R2 §三）：同一 `RenderScene` 输入经 Compose 与 PDF 两 painter，比较画布指令序列序列化相等，或金样像素 diff（阈值先金样固定） | `后续-L`（R2 排序：模块归位归热区解锁批挂起；painter 屏半边批次 28 T2） |
 | S-07 | UI 消费：`core:ui/VisualSceneCard`、feature 从持久 link 显示 | **未落**：`VisualSceneCard/VisualControls/VisualSemantics` 零命中；feature/tutor 对 `visualId` 零引用 | UI 组件与生产消费点 | 计划 `:142`；契约 §10 `:216`；附录 A 的 UI/feature 引用检查 | 仪器化：静态场景卡片从 DB link 显示（设备） | `后续-U` |
 | S-08 | 数学真实 lowering：复用 `MathBudget` parser/AST，未知 TeX 回可读文本，不增第三套公式/坐标逻辑 | **未落**：`MathContentLowering` 零命中 | lowering 与金样 | 契约 §5 `:123`；计划 `:96`/`:100`；附录 A 的零命中类扫描 | `MathContentLoweringTest`（新增 JVM/设备） | `后续-L` |
 | S-09 | **input/metrics 深冻结（契约 §3.2:58）**：bootstrap 在把 `input`/`metrics` 交给用户源码前对对象图深 `Object.freeze`；JS 程序在 prepare/render 内改写（严格模式）抛 `TypeError`、该请求按裁定分类拒绝、渲染输出不含被改值；Kotlin 度量端口返回类型无 mutable 访问器 | **未落**：bootstrap 仅 `Object.freeze(Math)`（`QuickJsVisualExecutionEngine.kt:813`；`:810` `Date = undefined`、`:812` `Math.random` 替换之外无 input/metrics 冻结，v2 附录 B 复核）；`:676` 的 contentId 检查是事务引用白名单，不是对象深冻结 | 深冻结实现 + 程序内改写负向 + 端口类型审计 | 契约 §3.2 `:58`；R2 G-4/1A#4；`QuickJsVisualExecutionEngine.kt:809-814`；`VisualExecutionEngine.kt:196-213`（度量端口接口） | JVM 隔离引擎用例（R2 G-4）：程序内 `input.viewport.w = 1`、向 `metrics` push → `TypeError`、请求拒绝、输出不含被改值；度量端口无 mutable 访问器的接口审计记录落盘（JVM+文档） | `后续-C` + `24-T1` |
@@ -168,6 +168,8 @@
 | D-05 | 冷恢复不执行 JS；字体/renderer 不匹配读预览/文字；未知版本只读 | **未落** | 恢复分支与版本门 | 契约 §5 `:121`、§8 `:190`；计划 `:129` | 进程重建/版本不匹配（设备） | `后续-P` |
 | D-06 | **旧 attachedImages cache-only resolver 与“打开旧消息不出网”（契约 §8:188）**：打开含旧 attachedImages 的历史消息仅查本地缓存；缺失映射 UI 呈现显式再生成动作；打开动作 0 网络派发、0 计费 | **部分落**：显式再生成接线已测（WG-05：`AttachedImageRegenerationWiringTest.kt:24` 旧 attachedImages 的显式重新生成走真实生产协调器；入口 `AttachedImageGenerator.kt:155`，R2 L-3）；cache-only resolver 与“打开旧消息 0 派发”无行、无门 | cache-only resolver + 打开旧消息 0 派发观测 | 契约 §8 `:188`；R2 G-9/L-3 | JVM/设备（R2 G-9）：复用 `FigureHttpTransportBypassObservationTest` 的 0 派发观测模式——离线打开旧消息成功且 0 派发/0 计费；缺失映射时显式再生成动作存在（JVM/设备） | `后续-P` + `后续-W` |
 
+> **批次 28 T3 排序注记（v3 补记 2，2026-10-28；R2 排序 §0/§2）**：D-01/D-02/D-05 与 D-03（checkpoint 初始+最新两份 + 磁盘不足拒提交为下界；每 program 4 MiB/全局 32 MiB GC 可随 V-03 批次补）建议归**批次 30**（持久化快照/引用核心，依赖 S-04 的可序列化 DTO）；**D-01 落表须 DB 70+/请求 schema 19+**（现 69/18 已占用，`StudyDatabase.kt:134` 本轮实测 69）；**core/database 8 文件开工即脏为边界**——按共享纪律整文件纳入并注明或停项登记，若他线短期不收敛本批可与批次 31 换序或停项登记（R2 排序 §2）。D-04/D-06 随批次 30/31 能力自然补齐（热区解锁批窗口）。本组行现状本补记未逐行刷新；0 项转"通过"。
+
 ### 3.5 E：导出（PDF/DOCX/print/share）
 
 | ID | 检查项 | 现状 | 缺口 | 证据位置 | 验收用例（类型） | 责任人轨 |
@@ -176,7 +178,7 @@
 | E-02 | role/revision 过滤：题目区仅当前 revision 的 `QUESTION_DIAGRAM`，`TUTOR_EXPLANATION` 仅 `includeSolution` 解析区，默认练习卷不泄答案 | 旧图有 role 测试，JS 无载体 | JS 版过滤 | 契约 §8 `:194`；计划 `:150` | 含答案过程图的默认卷/显式解析区（设备） | `后续-E` |
 | E-03 | `exportFingerprint` 覆盖快照 SHA/字体/renderer/布局/time/seed；版本升级使旧缓存失效 | **未落** | 指纹字段 | 计划 `:148`；契约 §8 `:192` | JVM 指纹测试 + 缓存失效（JVM） | `后续-E` |
 | E-04 | PDF/DOCX/打印/分享 0 模型派发、0 JS 执行；重复导出不新增 attempt | **未落**（JS 无载体） | 观测用例 | 契约 §8 `:192`；计划 `:148`/`:281` | 导出观测 0 派发（设备） | `后续-E` |
-| E-05 | 同一快照屏幕/PDF 结构/位置一致，不重采样曲线/标签；布局宽度变化生成新快照 | **未落** | 同 painter 与金样 | 契约 §8 `:192`；计划 `:166` | 同快照双端金样（设备+导出）；v2 比较机制同 S-06（R2 §三）：画布指令序列序列化相等或金样像素 diff，阈值先金样固定 | `后续-E` |
+| E-05 | 同一快照屏幕/PDF 结构/位置一致，不重采样曲线/标签；布局宽度变化生成新快照 | **未落**（v3 补记 2 注记：R2 排序建议批次 29——判据雏形 = 同一 `Rendered` 双端跑 painter、画布指令序列序列化相等，金样像素 diff 备选、阈值先金样固定；依赖 painter 屏半边批次 28 T2） | 同 painter 与金样 | 契约 §8 `:192`；计划 `:166` | 同快照双端金样（设备+导出）；v2 比较机制同 S-06（R2 §三）：画布指令序列序列化相等或金样像素 diff，阈值先金样固定 | `后续-E` |
 
 > 登记项（不阻断 MVA，但不得声称合规）：KD-75 的 PDF `/AIGC` 隐式标识仍 open（`docs/known-defects.md:2774`），`core/export` 是热区，本批只登记。广告/导出文案不得把“有显式图注”说成“已满足隐式标识”。
 
@@ -197,6 +199,8 @@
 | A-11 | **Route B 三协议 sourceJs 保真负向套件（契约 §7:151）**：`AnthropicMessagesProtocol`/`GeminiGenerateContentProtocol`/`OpenAiResponsesProtocol` 各自 normalize/reconstructedBody 对 sourceJs 的原始换行、反斜杠、中文/emoji、空 content、截断、取消逐协议测试，不得只测 OpenAI 的两个 parser | **未落**：三协议文件在 `core/data/.../model/wire/`（`supportsNativeTools = false` 实证，v2 附录 B）；A-02 只写“native/Route B 两路同果”，无逐协议保真向量；**批次 27 T4 口径注记**：批次 27 计划/工单把"隔离进程网络/filesDir 负向"标注为 A-11（`.zcode/plans/plan-2026-10-27-batch-27-4e2-mva-static.md:12` 设备轨）——按本表行义该面属 **P-08 验收列 ④**（随批次 27 设备轨）；本行（Route B 三协议 sourceJs 保真）按行义属 JVM 参数化轨（`后续-W`），不随批次 27 设备轨转状态，维持"未落" | 三协议 × 7 向量参数化套件 | 契约 §7 `:151`；R2 G-8/L-2 | JVM 参数化（R2 G-8）：三协议各喂 7 类向量（原始换行/反斜杠/中文/emoji/空 content/截断/取消）——前 5 类 sourceJs **UTF-8 逐字节相等**；截断/取消显式拒绝、绝不进入执行；21 向量全绿才可声称“Provider 已支持”（JVM） | `后续-W` |
 | A-12 | **旧请求/逻辑操作指纹兼容门（契约 §8:186、§9:202）**：新增可空上下文字段（首个即 TutorVisualContext 进请求）必须 `EncodeDefault.NEVER` 或精确旧 schema 投影；扩真实旧请求 golden + 逻辑操作指纹向量——旧 payload 解码语义等价、当前代码对旧输入的编码输出与 golden **逐字节一致**（新可空字段为 null 时不出现新键）；`ModelTasks.kt:1106` 旧 v9 语义回归保留 | **部分落**：基础件已有——`ModelTasks.kt:738-739` `encodeDefaults/explicitNulls`、`:832-842` `logicalOperationJson`/`legacyFingerprintJson`、`ModelTaskFingerprintStabilityTest`（v2 附录 B grep 42 个 `@Test`）；但无“新增可空上下文必须 NEVER/投影 + golden 扩测”行 | visual 上下文扩测行与 golden 载体 | 契约 §8 `:186`、§9 `:202`；R2 G-5/1A#5；`ModelTasks.kt:736-742`/`:832-842`/`:1106` | `./gradlew :core:model:test --tests "*ModelTaskFingerprintStability*"` + 相关 `:core:data:test`（由脚本串行执行）：既有 golden 全绿且 golden 文件 diff 为零；新字段仅在新值非 null 时出现于编码输出（JVM） | `后续-W` |
 | A-13 | **全入口同管线（契约 §3.1:35、§1:7）**：不各维护一套方法路由——三个 `FigureGenerationRequest(` 构造点（净化/attachedImages 再生成/讲题）全部经同一 `FigureGenerationCoordinator` 端口与同一 policyVersion/proposal 校验，无入口私有 method 路由分支 | **部分落**：三入口均走 coordinator 建链，但无逐入口断言行，架构 grep 门未立 | 架构 grep 门 + 逐入口同果断言 | 契约 §3.1 `:35`、§1 `:7`；R2 G-10/L-4；`ConfiguredCleanImageGenerator.kt:100`、`AttachedImageGenerator.kt:155`、`TutorFigureGenerator.kt:377`（v2 附录 B 复核恰 3 处） | ① 主机 grep 门：`grep -rn "FigureGenerationRequest(" core/data/src/main` → 恰 3 处，出现第 4 处即失败；② JVM（R2 G-10）：三入口 + IMAGE_PIPELINE_CLASSIFY 各构造 JS proposal，fake 引擎断言同一 policyVersion/proposal 校验、同果（JVM+主机） | `后续-W` |
+
+> **批次 28 T3 排序注记（v3 补记 2，2026-10-28；R2 排序 §0/§2）**：A-01～A-08、A-10（JVM 半）、A-11、A-12、A-13 与 P-11 前缀消费、P-12 ②③、M-04、Q-01 建议归**批次 31**（双后端执行装配；**广告开关不动**——仍 fail-closed，`availableMethods` 加 JS 是全部门绿后的最后动作，沿 §0 勾选规则 5；能力快照/prompt/契约广告文本零改动直到全门绿）；A-10 设备半边与 A-09/V-01/V-02/Q-04 建议归**批次 32**（纵向链与质量门设备轮）；批次 30（持久化）与 31 互不依赖、可换序，但都在 V-01 全链（32）之前（R2 排序）。两处待主会话：**A-01 装配形态**（X-01 归位前装配点——§5 #5 不允许"先在 app 模块广告静态、后归位"）、**Q-02 映射裁定**。本组行现状本补记未逐行刷新；0 项转"通过"。
 
 ### 3.7 Q：保真、质量与负向门
 
@@ -226,7 +230,7 @@
 | R-02 | arm64 运行时加载/执行/终止 | **未测**（v3 补记·批次 27 T5：批次 27 计划把"R8 下隔离往返"标注为 R-02（`.zcode/plans/plan-2026-10-27-batch-27-4e2-mva-static.md:12` 设备轨）——按本表行义该面属 **R-04**（release 变体 QuickJS JNI 面）；本行仍为 arm64 运行时，且本机 x86_64 宿主对 arm64 镜像原理性拒载（批次 25 R4 定论），本机不可采证） | 设备证据；**"R8 隔离往返"证据归批次 27 设备轨**（R-04 行已同步登记承接） | R3 §4.8；批次 23 记录 `:164`；批次 27 基线 §7.1/§10.1（标签失配裁定："按清单行义同步，不按计划 §0:6 的括注"） | arm64 设备（设备）；v2 套件集口径同 R-01（隔离 6/6 + KD-70 20/20） | `后续-R` |
 | R-03 | arm64 16 KB 运行时（**v2 口径修订，R2 G-6**）：AVD/真机须 **API ≥ 35 且 arm64 且页大小 16384**（先 `adb shell getconf PAGE_SIZE` 确认）；套件集 = ① `VisualJsIsolationInstrumentedTest` 6/6 + ② `QuickJsVisualExecutionEngineInstrumentedTest` 20/20（含 P2）+ ③ `runtimePageSizeIs16KB` 装载断言；证据按 R4 规范落 E-file | **未测**：现行 16 KB 证据仅批 24 E-04（ps16k_x86_64/API 36/16384 页/3/3，**仅装载断言**）；隔离 6/6 与 KD-70 20/20 全部跑在 API 34/x86_64/4 KB（step02 头表），从未在任何 16 KB 设备执行（v2 附录 B 复核） | 16 KB 设备上的隔离与 P2 套件执行证据 | 批 24 E-04 `evidence/2026-10-26-batch-24/step04-page-size-16k.md:10`/`:16-19`；E-03 `:113`；E-09 `:119`；批次 24 基线 §7 | ③ 在 API ≥ 35/arm64/16384 设备返回 16384 且 ①② 全绿（设备） | `后续-R` + `24-设备` |
 | R-04 | release R8 冒烟（internal R8 绿不等于 release）；**v2 补 QuickJS JNI 面（契约 §2:22；R2 G-11/L-8）**：release（R8）变体 APK 上跑 `VisualJsIsolationInstrumentedTest` 至少“往返 + watchdog”两例，且 `unzip -l <release.apk> \| grep libquickjs.so` 非空 | 批 24 E-03 release 冷启动冒烟 PASS（`am start` ×2，x86_64，一次性本地 key 签名）；KD-69 open；**无 QuickJS/visualjs 执行面**（v2 附录 B 复核）；批次 26 E-04 同型复跑 PASS（`assembleStrictOfflineRelease` exit=0 + 两次冷启动 ok/COLD + 备份 34/34，仍无 QuickJS/visualjs 执行面） | QuickJS JNI 面的 release 证据；E-03 不能充当本门；**批次 27 设备轨承接 release 变体隔离往返两例**（批次 27 计划"R-02 R8 隔离往返"按本表行义归本行，`.zcode/plans/plan-2026-10-27-batch-27-4e2-mva-static.md:12`） | KD-69 `:2674-2693`；E-04 `:142`；批 24 E-03 `evidence/2026-10-26-batch-24/step03-r8-release-smoke.md:10`/`:18`；契约 §2 `:22` | release 变体冷启动/Worker/OCR（设备）；v2：release 下 AIDL 往返返回 `Rendered` 且 watchdog 硬杀路径可用（两例绿） | `后续-R` + `24-设备` |
-| R-05 | AAR 钉版与 kotlin-stdlib 2.3.21 不变；16 KB ELF 证据保持；**v2 补许可证载体门（契约 §2:22/§9:202；R2 G-12/L-7）**：quickjs-kt（MIT）/QuickJS 许可文本须有仓库载体（资产文件或 NOTICE 汇总，载体位置可由主会话裁定）；钉版 commit/sha256 回归核对不漂移 | 已裁定并记录；E-09 14/14×2；但 quickjs-kt/QuickJS 许可文本**当前 0 命中（真缺载体）**——app assets 仅 compose-richtext/open-claude-ui、core/data assets 仅 dense 模型（v2 附录 B 复核） | 许可证载体；sha 漂移核对 | 契约 §2 `:22`；E-09 `:119`；KD-73 `:2748`；R2 G-12 | 回归构建/ELF 扫描（主机）；v2（R2 G-12）：`find app/src/main/assets core/*/src/main/assets -type f \| grep -i licen` 应含 quickjs-kt（MIT）/QuickJS 条目；`2026-10-25-16kb-arm64-api23-build.md` 的 sha 记录未漂移 | `后续-R` |
+| R-05 | AAR 钉版与 kotlin-stdlib 2.3.21 不变；16 KB ELF 证据保持；**v2 补许可证载体门（契约 §2:22/§9:202；R2 G-12/L-7）**：quickjs-kt（MIT）/QuickJS 许可文本须有仓库载体（资产文件或 NOTICE 汇总，载体位置可由主会话裁定）；钉版 commit/sha256 回归核对不漂移 | 已裁定并记录；E-09 14/14×2；但 quickjs-kt/QuickJS 许可文本**当前 0 命中（真缺载体）**——app assets 仅 compose-richtext/open-claude-ui、core/data assets 仅 dense 模型（v2 附录 B 复核）（v3 补记 2 注记：R2 排序建议批次 29 零成本并轨——许可文本落仓内 assets/NOTICE，载体位置主会话裁定） | 许可证载体；sha 漂移核对 | 契约 §2 `:22`；E-09 `:119`；KD-73 `:2748`；R2 G-12 | 回归构建/ELF 扫描（主机）；v2（R2 G-12）：`find app/src/main/assets core/*/src/main/assets -type f \| grep -i licen` 应含 quickjs-kt（MIT）/QuickJS 条目；`2026-10-25-16kb-arm64-api23-build.md` 的 sha 记录未漂移 | `后续-R` |
 
 ### 3.10 X：横切、架构与源证据
 
@@ -482,3 +486,40 @@ git diff --check                                                  # exit=0（仅
 - 批次 26 记录 §3.5 步三行所引 5 条 kill 归因锚（`:387`/`:533`/`:298`/`:327`/`:201`）经源码实测全部现值成立（其 `:298`/`:327` 已带”§9 更正后”标注）。
 
 **v3 补记未执行**：任何 Gradle/adb/dumpsys/am instrument；R2/复判判据的任何执行；任何 git 写命令。设备绿一律转录批次 26 E-file（`docs/research/evidence/2026-10-27-batch-26/`），不是本轮实跑。
+
+---
+
+## 附录 E：批次 28 T3 状态同步核对（v3 补记 2，2026-10-28；只读）
+
+> **范围**：批次 28 计划 T3（`.zcode/plans/plan-2026-10-28-batch-28-scenev1-device-painter.md:14`）四项——① KD-76 状态按批次 27 装载成本证据与剩余解锁条件刷新（`docs/known-defects.md` KD-76 节内新增批次 28 T3 Progress 块）；② 本表 painter/PDF 回放/持久化/双后端四组行按 R2 排序（`docs/research/2026-10-28-mva-remaining-order.md`，下称 R2 排序）刷新（§0 责任轨六行、S-04/S-05/S-06 行现状刷新、§2 行 6/E-05/R-05 行内注记、§3.4/§3.6 组级排序注记）；③ 契约 §5/§5.1 painter 落层状态同步（`docs/current/visual-generation-contract.md` 三处：§5.1 表头时点、`core:visual` 回放行现状、归位段注记）；④ 本附录即核对清单。**零代码、零 Gradle、零设备、零 git 写。0 项转"通过"、行数 69 不变、MVA 不成立维持、KD-76 open 维持（JS 不广告）。**批次 28 T1（设备复跑）与 T2（painter 落码）在飞未出数，本补记只登记设计落盘与排序建议，不预填设备/落码判定。下列为本轮**实际执行**的只读核对命令与关键输出。
+
+```bash
+git rev-parse HEAD                                                # 8116ad98f6d0a7b6...（= origin/main，批次 27 收口提交）
+git status --porcelain -- docs/known-defects.md docs/current/visual-generation-contract.md \
+  docs/research/2026-10-26-batch-24-4e2-admission-checklist.md     # 编辑前 0 行（三文件干净）；编辑后 3 个 M（本补记 2）
+grep -cE '^\| [PSMDEAQVRX]-[0-9]+ \|' docs/research/2026-10-26-batch-24-4e2-admission-checklist.md   # 69（不新增行）
+# painter 落码未发生（批次 28 T2 在飞；S-04/S-06/契约 :115 的"未出数"表述据此）：
+grep -rn "class AndroidScenePainter\|class VisualDrawOpsPainter\|object VisualDrawOpsPainter" --include=*.kt core app | wc -l   # 0
+ls core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/visual/ | wc -l   # 10（批次 27 收口态，无 Painter 文件）
+# 批次 27 E-04 数字对源（KD-76 新块引用源）：
+grep -n "p50\|p95" docs/research/evidence/2026-10-27-batch-27/step04-warmup-cost.md
+#   → :10 出数 p50=686/p95=725/max 738、16+10 全部 ready、arm64/真机/低内存 UNVERIFIED；:66-68 样本/分位数表；:123-124 PASS（出数）
+# 契约 painter 锚全量与 §6 面核对：
+grep -n "AndroidScenePainter\|painter" docs/current/visual-generation-contract.md
+#   → :102（§5 处方，未动）、:110/:115/:119（§5.1，本补记三处更新）、:190/:192（§8，不在任务命名节，未动）；
+#     §6（:125-141）painter 零锚——任务命题"契约 §5/§6"中 §6 无 painter 状态可同步，如实登记
+# S-05 刷新引用源（编译器现状，本轮实读）：
+grep -n "SCENE_FIELD_CONTROLS\|SCENE_FIELD_UNAVAILABLE\|hitRegions" core/data/src/main/resources/visual/visual-compiler.js
+#   → :732 controls 空数组门 / :738 form 拒绝 / :950-975 hitRegions 数组+预算校验非空不拒 / :1077-1088 序列化进 DrawOps 输出
+# D 组注记引用源：
+grep -n "STUDY_DATABASE_VERSION" core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabase.kt   # :134 = 69
+grep -n "^## KD-76\|^## KD-77" docs/known-defects.md              # :2819（KD-76 标题锚不变）/ :2857（KD-77 因本补记块插入行移 +2）
+git diff --check                                                  # exit=0（仅既有 CRLF 提示，同附录 D 口径）
+```
+
+**漂移登记（本补记引起/本轮发现，如实登记且未改）**：
+- **KD-77 标题锚行移**：known-defects.md 在 KD-76 节内插入批次 28 T3 块（2 行）后，KD-77 标题 `:2855` → 现 `:2857`；R2 排序文档所引 `KD-77 :2855-2863` 随之行移（按标题定位不受影响）。R2 排序文档属同批他任务产物，本任务不改。
+- **S-02 现状已过时（超出本补记四组范围，未改）**：S-02 现状"无 `.js` 资产"已因批次 27 落地 `core/data/src/main/resources/visual/visual-compiler.js` 与 `visual-sdk.js`（本轮 `find` 实测两文件在盘）而失真；S-01 所列五个类名本轮 grep 仍 0 命中（按类名口径其"未落"仍成立）。S-01/S-02 与 `后续-C` 行的全面刷新留后续清单复核轨。
+- **批次 27 E-04 "26/26" 口径注**：E-file 原文为"16+10 全部到达 ready"（套件 churn 组 16 + 控制组 10）；KD-76 批次 27 设备轨块作"26/26"，本补记新块作"16+10=26/26"，三处语义一致。
+
+**附录 E 未执行**：任何 Gradle/adb/dumpsys/am instrument；R2 排序判据的任何执行；任何 git 写命令。设备绿与装载成本数字一律转录批次 27 E-file（`docs/research/evidence/2026-10-27-batch-27/step04-warmup-cost.md`），不是本轮实跑；painter 落码/设备复跑（批次 28 T1/T2）在飞未出数，本补记不预填判定。
