@@ -17,9 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -192,7 +192,7 @@ fun AttachedImageCard(
                 .padding(vertical = 2.dp),
         ) {
             Icon(
-                imageVector = Icons.Filled.Image,
+                imageVector = Icons.Outlined.Image,
                 contentDescription = accessibilityText,
                 tint = InkSecondary,
                 modifier = Modifier.size(16.dp),
@@ -207,7 +207,7 @@ fun AttachedImageCard(
                 modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
             )
             Icon(
-                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                 contentDescription = if (expanded) "收起图" else "展开图",
                 tint = InkSecondary,
                 modifier = Modifier.size(16.dp),
@@ -325,7 +325,7 @@ fun GeneratedFigureCard(
                 .padding(vertical = 2.dp),
         ) {
             Icon(
-                imageVector = Icons.Filled.Image,
+                imageVector = Icons.Outlined.Image,
                 contentDescription = "本轮生成的配图",
                 tint = InkSecondary,
                 modifier = Modifier.size(16.dp),
@@ -337,7 +337,7 @@ fun GeneratedFigureCard(
                 modifier = Modifier.padding(horizontal = 6.dp),
             )
             Icon(
-                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                 contentDescription = if (expanded) "收起图" else "展开图",
                 tint = InkSecondary,
                 modifier = Modifier.size(16.dp),

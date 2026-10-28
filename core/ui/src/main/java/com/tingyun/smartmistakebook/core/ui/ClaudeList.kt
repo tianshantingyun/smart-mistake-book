@@ -56,7 +56,7 @@ fun ClaudeNavigationItem(
         val animated by animateColorAsState(target, ClaudeMotion.spec(motion), label = "navigation-capsule")
         Box(Modifier.width(52.dp).height(28.dp).clip(RoundedCornerShape(14.dp))
             .background(if (motion) animated else target), contentAlignment = Alignment.Center) {
-            Icon(icon, null, Modifier.size(20.dp), tint = if (selected) JadeActive else InkSecondary)
+            Icon(icon, null, Modifier.size(SmartIconSizes.Large), tint = if (selected) JadeActive else InkSecondary)
         }
         Text(label, color = if (selected) JadeDark else InkSecondary, style = MaterialTheme.typography.labelMedium,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
@@ -76,7 +76,7 @@ fun ClaudePageHeader(
         .padding(horizontal = 6.dp, vertical = 6.dp).defaultMinSize(minHeight = 48.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         if (onBack != null) ClaudeIconButton(onBack, backModifier) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, backLabel, Modifier.size(20.dp), tint = Ink)
+            Icon(Icons.AutoMirrored.Outlined.ArrowBack, backLabel, Modifier.size(SmartIconSizes.Large), tint = Ink)
         }
         Text(title, Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold)
@@ -100,13 +100,13 @@ fun ClaudeSettingsRow(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(iconContainerColor),
             contentAlignment = Alignment.Center) {
-            Icon(icon, null, Modifier.size(20.dp), tint = iconTint)
+            Icon(icon, null, Modifier.size(SmartIconSizes.Standard), tint = iconTint)
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(title, color = Ink, style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium)
             Text(subtitle, color = InkSecondary, style = MaterialTheme.typography.bodySmall)
         }
-        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(16.dp), tint = InkSecondary)
+        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(SmartIconSizes.Small), tint = InkSecondary)
     }
 }

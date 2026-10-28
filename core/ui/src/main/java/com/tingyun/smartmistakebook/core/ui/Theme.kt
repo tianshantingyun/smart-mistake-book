@@ -75,6 +75,12 @@ object SmartDimens {
     val MaximumContentWidth = 600.dp
 }
 
+object SmartIconSizes {
+    val Small = 16.dp
+    val Standard = 20.dp
+    val Large = 24.dp
+}
+
 val SmartTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,

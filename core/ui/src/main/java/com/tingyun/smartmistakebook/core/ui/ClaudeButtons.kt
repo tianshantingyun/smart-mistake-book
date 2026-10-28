@@ -26,11 +26,15 @@ import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.TextButton as MaterialTextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -107,9 +111,12 @@ private fun Modifier.claudeActionFeedback(
     val pressed by source.collectIsPressedAsState()
     val focused by source.collectIsFocusedAsState()
     val motion = LocalClaudeMotionEnabled.current
-    val scale by animateFloatAsState(if (pressed && enabled && motion) .95f else 1f,
+    val density = LocalDensity.current.density
+    var longestEdgeDp by remember { mutableFloatStateOf(0f) }
+    val scale by animateFloatAsState(if (pressed && enabled && motion) ClaudeMotion.pressedScale(longestEdgeDp) else 1f,
         ClaudeMotion.spec(motion, ClaudeMotion.PressMillis), label = "cds-button-press")
-    return graphicsLayer { scaleX = scale; scaleY = scale }
+    return onSizeChanged { longestEdgeDp = maxOf(it.width, it.height) / density }
+        .graphicsLayer { scaleX = scale; scaleY = scale }
         .then(if (focused && enabled) Modifier.border(2.dp, claudeFocusIndicatorColor(containerColor), shape) else Modifier)
 }
 

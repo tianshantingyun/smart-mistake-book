@@ -240,7 +240,7 @@ fun PrimaryActionButton(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(SmartIconSizes.Standard),
             )
             Spacer(Modifier.width(8.dp))
         }
@@ -281,7 +281,7 @@ fun OutlineActionChip(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(21.dp),
+                modifier = Modifier.size(SmartIconSizes.Standard),
             )
             Spacer(Modifier.width(7.dp))
         }
@@ -343,7 +343,7 @@ fun SubjectIcon(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(SmartIconSizes.Standard),
             tint = tint,
         )
     }

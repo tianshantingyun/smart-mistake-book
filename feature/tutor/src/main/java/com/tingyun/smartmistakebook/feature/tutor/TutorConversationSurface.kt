@@ -44,7 +44,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -683,7 +683,7 @@ private fun ScrollToBottomButton(
         shape = RoundedCornerShape(18.dp),
     ) {
         Icon(
-            imageVector = Icons.Filled.KeyboardArrowDown,
+            imageVector = Icons.Outlined.KeyboardArrowDown,
             contentDescription = "回到最新",
         )
     }

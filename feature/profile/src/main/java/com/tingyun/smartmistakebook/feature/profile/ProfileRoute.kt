@@ -19,14 +19,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Backup
-import androidx.compose.material.icons.outlined.Bolt
-import androidx.compose.material.icons.outlined.Functions
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
+import com.tingyun.smartmistakebook.core.ui.MasteryEstimateBar
+import com.tingyun.smartmistakebook.core.ui.masteryEstimateColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -142,14 +141,14 @@ private fun WeeklyLearningSection(
             BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                 if (maxWidth < 260.dp || LocalDensity.current.fontScale > 1.3f) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        WeeklyStat("学习次数", overview.recordedAttemptCount.toString(), "次", Modifier.fillMaxWidth())
+                        WeeklyStat("累计作答", overview.recordedAttemptCount.toString(), "次", Modifier.fillMaxWidth())
                         PaperDivider()
                         WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.fillMaxWidth())
                         PaperDivider()
                         WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.fillMaxWidth())
                     }
                 } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    WeeklyStat("学习次数", overview.recordedAttemptCount.toString(), "次", Modifier.weight(1f))
+                    WeeklyStat("累计作答", overview.recordedAttemptCount.toString(), "次", Modifier.weight(1f))
                     StatDivider()
                     WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.weight(1f))
                     StatDivider()
@@ -255,7 +254,8 @@ private fun WeaknessSection(
                             weakness.masteryIntervalUpper,
                         ),
                     mastery = weakness.conservativeMasteryScore.toFloat(),
-                    icon = if (index % 2 == 0) Icons.Outlined.Functions else Icons.Outlined.Bolt,
+                    subject = weakness.subject,
+                    hasEvidence = weakness.masteryIntervalUpper != null,
                     modifier = if (index == 0) Modifier.padding(top = 10.dp) else Modifier,
                 )
             }
@@ -276,13 +276,16 @@ private fun WeaknessRow(
     title: String,
     detail: String,
     mastery: Float,
-    icon: ImageVector,
+    subject: com.tingyun.smartmistakebook.core.model.SubjectKind,
+    hasEvidence: Boolean,
     modifier: Modifier = Modifier,
 ) {
     // Qualitative bands only: precise probabilities require a
     // calibrated model (audit section 6.4), aligned with ReviewRoute.
-    val masteryLabel =
-        com.tingyun.smartmistakebook.core.ui.masteryBandLabel(mastery.toDouble())
+    val masteryLabel = if (hasEvidence)
+        com.tingyun.smartmistakebook.core.ui.masteryBandLabel(mastery.toDouble()) else "证据还少"
+    val estimateText = if (hasEvidence) "估计$masteryLabel" else masteryLabel
+    val estimateColor = if (hasEvidence) masteryEstimateColor(mastery.toDouble()) else SmartColors.InkMuted
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -294,8 +297,8 @@ private fun WeaknessRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SubjectIcon(
-            icon = icon,
-            contentDescription = "$title 图标",
+            subject = subject,
+            contentDescription = "$title 所属学科",
             modifier = Modifier.size(44.dp),
         )
         Column(
@@ -307,12 +310,12 @@ private fun WeaknessRow(
                 if (maxWidth < 200.dp || LocalDensity.current.fontScale > 1.3f) {
                     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                         Text(title, color = Ink, style = MaterialTheme.typography.titleMedium)
-                        Text("估计$masteryLabel", color = JadeActive, style = MaterialTheme.typography.labelMedium)
+                        Text(estimateText, color = estimateColor, style = MaterialTheme.typography.labelMedium)
                     }
                 } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(title, Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleMedium)
-                    Text("估计$masteryLabel", color = JadeActive, style = MaterialTheme.typography.labelMedium)
+                    Text(estimateText, color = estimateColor, style = MaterialTheme.typography.labelMedium)
                 }
             }
             Text(
@@ -320,15 +323,8 @@ private fun WeaknessRow(
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
-            LinearProgressIndicator(
-                progress = { mastery },
-                modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 5.dp)
-                .height(5.dp),
-                color = JadeActive,
-                trackColor = Track,
-            )
+            MasteryEstimateBar(value = mastery, color = estimateColor,
+                modifier = Modifier.padding(top = 5.dp), hasEvidence = hasEvidence)
         }
     }
 }

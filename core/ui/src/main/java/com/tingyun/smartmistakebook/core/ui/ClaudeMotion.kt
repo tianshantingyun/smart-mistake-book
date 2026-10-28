@@ -48,6 +48,12 @@ object ClaudeMotion {
 
     fun <T> spec(enabled: Boolean, duration: Int = SnapMillis): FiniteAnimationSpec<T> =
         if (enabled) tween(duration, easing = Swift) else snap()
+
+    /** Keep total travel within 2dp, including wide buttons and entry cards. */
+    internal fun pressedScale(longestEdgeDp: Float): Float =
+        if (longestEdgeDp.isFinite() && longestEdgeDp > 0f) {
+            (1f - 2f / longestEdgeDp).coerceIn(.96f, 1f)
+        } else 1f
 }
 
 /** A caller can reduce motion further, but cannot re-enable animations disabled by the system. */

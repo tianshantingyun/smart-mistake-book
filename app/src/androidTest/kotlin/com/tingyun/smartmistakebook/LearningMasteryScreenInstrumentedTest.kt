@@ -10,6 +10,8 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ApplicationProvider
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
@@ -65,11 +67,16 @@ class LearningMasteryScreenInstrumentedTest {
         }
 
         composeRule.onNodeWithText("学习掌握").assertIsDisplayed()
-        composeRule.onNodeWithTag("learning_mastery_subject:MATH").assertIsDisplayed()
+        composeRule.onNodeWithTag("learning_mastery_distribution").assertExists()
+        captureReviewForestScreenshot("mastery-distribution")
+        composeRule.onNodeWithTag("learning_mastery_subject:MATH").performScrollTo().assertIsDisplayed()
         composeRule.onAllNodesWithText("函数单调性").assertCountEquals(2)
-        composeRule.onNodeWithTag("learning_mastery_subject:PHYSICS").assertIsDisplayed()
+        composeRule.onNodeWithTag("learning_mastery_subject:PHYSICS").performScrollTo().assertIsDisplayed()
         composeRule.onAllNodesWithText("牛顿第二定律").assertCountEquals(2)
-        composeRule.onNodeWithTag("learning_mastery_recent").assertIsDisplayed()
+        captureReviewForestScreenshot("mastery-subjects")
+        composeRule.onNodeWithTag("learning_mastery_recent").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("最近活动").assertExists()
+        composeRule.onNodeWithText("最近变化").assertDoesNotExist()
         composeRule.onNodeWithText("今天").assertIsDisplayed()
         composeRule.onNodeWithText("昨天").assertIsDisplayed()
         // 批次 2 / P8（规格 §1.4 锚 4）：两行各出现自己的粗粒度区间文案
@@ -80,6 +87,28 @@ class LearningMasteryScreenInstrumentedTest {
             composeRule.onAllNodesWithText(term, substring = true).assertCountEquals(0)
         }
         saveAuditScreenshot()
+    }
+
+    @Test
+    fun unknownEvidenceIsKeptSeparateFromMasteredKnowledge() {
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                LearningMasteryScreen(
+                    overview = StudyProfileOverview(hasLearningEvidence = true,
+                        weaknesses = listOf(StudyKnowledgeSummary(
+                            knowledgeNodeId = "new", displayName = "新记录知识点",
+                            status = MasteryStatus.UNKNOWN, conservativeMasteryScore = 0.0,
+                            masteryIntervalUpper = null, subject = SubjectKind.MATH))),
+                    onBack = {},
+                )
+            }
+        }
+        composeRule.onNodeWithContentDescription("刚开始记录 1 个", substring = true).assertExists()
+        composeRule.onNodeWithContentDescription("掌握较稳 0 个", substring = true).assertExists()
+        composeRule.onNodeWithTag("learning_mastery_point:new").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("证据还少").assertExists()
+        composeRule.onNodeWithText("平均掌握估计 · 证据还少").assertExists()
+        captureReviewForestScreenshot("mastery-no-evidence")
     }
 
     private fun saveAuditScreenshot() {
