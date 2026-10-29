@@ -49,6 +49,19 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
 /**
+ * 度量设施失败的稳定诊断标记（M-04 案 B，2026-10-30）。
+ *
+ * **它消灭的具体失败**：宿主度量设施（服务级度量器，批次 27 起非程序代码）运行时抛出被折成
+ * `INVALID_PROGRAM` 后，协调器按"程序错"回喂，模型反复修一个没有错的 program（R3 §6.6
+ * 同型退化，批次 22 记录行 22/遗留 #10 的收口）。端口枚举 `VisualExecutionRejection` 归
+ * core/domain（本批热区禁改），无法新增 `MEASUREMENT_UNAVAILABLE`——保守分支：折编排侧
+ * [VisualExecutionRejection.ENGINE_CLOSED]（协调器唯一映射 UNAVAILABLE 的拒绝类）+ 本标记。
+ * "引擎已关"与"度量设施失败"两类宿主设施故障凭它在诊断/审计里可区分（清单 M-04
+ * "单独分类"的保守分支口径）；设备断言只认这个字面量。
+ */
+internal const val MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER: String = "MEASUREMENT_UNAVAILABLE"
+
+/**
  * [VisualExecutionEngine] 的真实引擎实现（批次 21 T3，主会话裁定 2）：quickjs-kt-android
  * 1.0.15 发布 AAR（钉版，sha256 见 `gradle/libs.versions.toml`）上的契约 §3.2/§4 承担者。
  * API 面全部读自钉 commit `a081755bcdb18ee6afa7ffee25b8fa976f06d31f` 上游源码（QuickJs.kt、
@@ -383,9 +396,15 @@ class QuickJsVisualExecutionEngine(
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (failure: Throwable) {
+                // M-04（案 B）：measurer 是**宿主侧**原生度量设施，它运行时抛 = 设施失败，
+                // 不是程序的错。折 INVALID_PROGRAM 会把"该稍后重排"回喂成"程序无效"（见
+                // [MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER] KDoc）。程序侧近邻——度量
+                // 批次/条目构造器的预算强制（条目来自程序 prepare 输出）——在下面的
+                // IllegalArgumentException 分支仍折 INVALID_PROGRAM，分界就是异常来源。
                 return rejected(
-                    VisualExecutionRejection.INVALID_PROGRAM,
-                    "content measurement failed: ${failure.javaClass.simpleName}",
+                    VisualExecutionRejection.ENGINE_CLOSED,
+                    "content measurement failed: ${failure.javaClass.simpleName}; " +
+                        MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER,
                 )
             }
             val contentIds = measured.entries.map { it.contentId }.toSet()

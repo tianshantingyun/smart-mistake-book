@@ -241,7 +241,9 @@ class DefaultFigureGenerationCoordinator internal constructor(
      * 2. 审计：operation PENDING → RUNNING，本地 attempt（`reservation_id=NULL`，序号由持久层
      *    在写事务里分配）→ 引擎执行；
      * 3. 结果映射：Rendered → GENERATED + [FigureArtifact.Program]；其余 Rejected / 异常 →
-     *    有界诊断 FAILED（ENGINE_CLOSED 是"本机没有引擎"，如实回 UNAVAILABLE）；
+     *    有界诊断 FAILED。两类例外折设施类 UNAVAILABLE（不是程序错、不回喂修 program）：
+     *    ENGINE_CLOSED（本机没有引擎）与 INVALID_PROGRAM + `[UNATTRIBUTED]` 前缀（引擎失败
+     *    原因不可归属，P-11 消费点）；
      * 4. **不调用 `ledger.reserve`**：JS 没有端点/模型配置指纹，伪造一个并给
      *    `dispatch_count` +1 正是契约禁止的"本地执行占远程派发"。
      */
@@ -300,6 +302,11 @@ class DefaultFigureGenerationCoordinator internal constructor(
                         timeMs = frame.timeMs,
                         seed = frame.seed,
                         theme = frame.theme,
+                        // P-12②（批次 35）：显式重试位透传给本地引擎。生产 true 调用点=
+                        // [FigureGenerationRequest.explicitUserRetry] 的 KDoc 契约；JS 熔断
+                        // 的恒等物是 program 摘要，只有这里能解除。远程路径不消费该位
+                        // （IMAGE_MODEL 的重试预算由账本管理），dispatchWithReservation 不读它。
+                        explicitUserRetry = request.explicitUserRetry,
                     ),
                 )
             } catch (cancelled: CancellationException) {
@@ -338,10 +345,22 @@ class DefaultFigureGenerationCoordinator internal constructor(
                     outcome(
                         request = request,
                         proposal = proposal,
-                        status = if (execution.reason == VisualExecutionRejection.ENGINE_CLOSED) {
-                            FigureGenerationStatus.UNAVAILABLE
-                        } else {
-                            FigureGenerationStatus.FAILED
+                        status = when {
+                            // 引擎已关 = 本机没有可用引擎，与"未接通"同一语义。
+                            execution.reason == VisualExecutionRejection.ENGINE_CLOSED ->
+                                FigureGenerationStatus.UNAVAILABLE
+                            // P-11 消费点（批次 35）：引擎失败但原因不可归属（分类器"丢失哨兵
+                            // + 低堆"兜底，诊断以 [UNATTRIBUTED] 开头）。它不是"程序错"——
+                            // 折 FAILED 会把设施类失败回喂成"去修 program"（R3 §6.6 退化
+                            // 口径从登记变生效）。折设施类 UNAVAILABLE（与 ENGINE_CLOSED
+                            // 同出口）；诊断原文带前缀逐字保留，审计/trace 仍可回看真实原因，
+                            // 两类设施故障凭诊断前缀（ENGINE_CLOSED: vs INVALID_PROGRAM:
+                            // [UNATTRIBUTED]）可区分。
+                            execution.reason == VisualExecutionRejection.INVALID_PROGRAM &&
+                                execution.diagnostics.startsWith(UNATTRIBUTED_DIAGNOSTIC_PREFIX) ->
+                                FigureGenerationStatus.UNAVAILABLE
+
+                            else -> FigureGenerationStatus.FAILED
                         },
                         diagnostics = diagnostics,
                         attemptId = state.attemptId,
@@ -615,8 +634,9 @@ class DefaultFigureGenerationCoordinator internal constructor(
          * 行纠正为 FAILED 待核实，因此不会永久留下假成功。
          *
          * **本地 JS 成功是例外**：它的产物是 `FigureArtifact.Program`（内存画布指令），
-         * 按设计没有 `canonical_source_asset` 可回填；对账第二段因此只扫
-         * `method <> 'JS'` 的尝试，不会把一条真实的 JS 成功改判为"失败待核实"。
+         * 按设计没有 `canonical_source_asset` 可回填；对账第二段因此不把
+         * `method = 'JS' AND reservation_id IS NULL`（本地写径的唯一形状）当假成功候选，
+         * 不会把一条真实的 JS 成功改判为"失败待核实"。
          */
         suspend fun succeed() {
             finishAttempt(FigureGenerationAuditOutcome.SUCCEEDED, outputAssetId = null, diagnostics = null)

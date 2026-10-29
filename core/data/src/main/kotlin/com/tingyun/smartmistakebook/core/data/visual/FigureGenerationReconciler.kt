@@ -28,8 +28,10 @@ const val FIGURE_GENERATION_RUNNING_TIMEOUT_MILLIS: Long = 30L * 60L * 1_000L
  * - **只碰两类行**：`RUNNING` 僵尸，以及 `SUCCEEDED` 但 `output_asset_id IS NULL` 的
  *   假成功（协调器先写成功、入口随后才落盘；落盘失败时行会永远"成功但没产物"）。`PENDING`
  *   不在这里处理（还没开始跑、也没有在途结论）；已回填产物的终态行不会被改写。
- *   **本地方法（`method = 'JS'`）的成功不在"假成功"候选内**：它的产物是内存 program，
- *   按设计没有资产 id 可回填（否则每次启动都会把真实成功改写成失败待核实）。
+ *   **本地方法（`method = 'JS'` 且 `reservation_id IS NULL`）的真实成功不在"假成功"候选内**：
+ *   它的产物是内存 program，按设计没有资产 id 可回填（否则每次启动都会把真实成功改写成
+ *   失败待核实）。判据带 `reservation_id IS NULL` 连词（不可伪造）：一条 method='JS' 但带
+ *   账本预留的行不是本地成功形状，仍在候选内、会被改判（批次 35 修复环收紧）。
  *
  * 租约口径：`staleBefore = max(本进程启动时刻, 现在 - 超时窗口)`。
  * - 启动时：截止 = 本进程启动时刻，上一进程留下的 RUNNING 立刻被收尾（进程都换了，
