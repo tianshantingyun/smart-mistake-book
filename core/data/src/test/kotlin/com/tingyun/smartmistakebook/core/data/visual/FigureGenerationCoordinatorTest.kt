@@ -429,6 +429,176 @@ class FigureGenerationCoordinatorTest {
         assertEquals(FigureGenerationAuditOutcome.FAILED, recorder.attemptFinishes.single().second)
     }
 
+    /**
+     * P-11 消费点（批次 35）：引擎失败但原因不可归属（分类器"丢失哨兵 + 低堆"兜底，诊断以
+     * `[UNATTRIBUTED]` 前缀开头——与设备 P4 用例同形）时，出口走设施类 UNAVAILABLE，与程序错
+     * FAILED 区分；不折"程序错"回喂模型去修 program（R3 §6.6 退化口径从登记变生效）。
+     * 对照臂（防过拒）：无前缀的 INVALID_PROGRAM 仍 FAILED
+     * （[aRejectedJavascriptExecutionRecordsAFailedAttemptAndZeroDispatches]）。
+     */
+    @Test
+    fun anUnattributedEngineFailureIsNotFedBackAsAProgramError() = runBlocking {
+        val ledger = RecordingLedger()
+        val recorder = RecordingAuditRecorder()
+        val engine = RecordingVisualEngine(
+            result = VisualExecutionResult.Rejected(
+                reason = VisualExecutionRejection.INVALID_PROGRAM,
+                // 字面量是跨进程契约：协调器消费的常量与它漂移时，本用例立红。
+                diagnostics = "[UNATTRIBUTED] phase render failed with a message-less " +
+                    "engine error (raw=null, mallocSize=1000000, mallocLimit=16777216)",
+            ),
+        )
+        val coordinator = DefaultFigureGenerationCoordinator(
+            ledger = ledger,
+            openBackend = { null },
+            audit = recorder,
+            visualEngine = engine,
+            visualFrameInputs = frameInputs(),
+        )
+
+        val request = jsRequest()
+        val outcome = coordinator.generate(request, jsProposal(request))
+
+        assertEquals(FigureGenerationStatus.UNAVAILABLE, outcome.status)
+        // 保留半边：前缀在 boundedRejection 之后逐字存活进 outcome。
+        val diagnostics = requireNotNull(outcome.diagnostics)
+        assertTrue(
+            "the [UNATTRIBUTED] prefix must survive boundedRejection: $diagnostics",
+            diagnostics.startsWith("INVALID_PROGRAM: [UNATTRIBUTED]"),
+        )
+        assertTrue(diagnostics.length <= FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
+        // 审计 attempt 终态诊断同样保留前缀（boundedRejection 不吃掉它）。
+        assertTrue(
+            requireNotNull(recorder.attemptFinishes.single().third)
+                .startsWith("INVALID_PROGRAM: [UNATTRIBUTED]"),
+        )
+        assertTrue(ledger.requests.isEmpty())
+        assertEquals(0, recorder.operationFinishes.single().reservedRemoteDispatches)
+        assertEquals(0, recorder.operationFinishes.single().usedRemoteDispatches)
+    }
+
+    /**
+     * M-04 案 B 的协调器侧半边：度量设施失败的稳定标记（MEASUREMENT_UNAVAILABLE）经
+     * boundedRejection 存活进 outcome 与 attempt 审计诊断；状态折设施类 UNAVAILABLE。
+     * 引擎折点本身（measurer 抛 → ENGINE_CLOSED + 标记，而非 INVALID_PROGRAM）由设备
+     * 用例 QuickJsVisualExecutionEngineInstrumentedTest 钉住——QuickJs 原生库不在 JVM。
+     */
+    @Test
+    fun aMeasurementFacilityFailureMarkerSurvivesIntoOutcomeAndAudit() = runBlocking {
+        val recorder = RecordingAuditRecorder()
+        val engine = RecordingVisualEngine(
+            result = VisualExecutionResult.Rejected(
+                reason = VisualExecutionRejection.ENGINE_CLOSED,
+                diagnostics = "content measurement failed: IllegalStateException; " +
+                    MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER,
+            ),
+        )
+        val coordinator = DefaultFigureGenerationCoordinator(
+            ledger = RecordingLedger(),
+            openBackend = { null },
+            audit = recorder,
+            visualEngine = engine,
+            visualFrameInputs = frameInputs(),
+        )
+
+        val request = jsRequest()
+        val outcome = coordinator.generate(request, jsProposal(request))
+
+        assertEquals(FigureGenerationStatus.UNAVAILABLE, outcome.status)
+        val diagnostics = requireNotNull(outcome.diagnostics)
+        assertTrue(diagnostics.startsWith("ENGINE_CLOSED: content measurement failed"))
+        assertTrue(
+            "the measurement-unavailable marker must survive into the outcome: $diagnostics",
+            diagnostics.contains(MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER),
+        )
+        assertTrue(
+            requireNotNull(recorder.attemptFinishes.single().third)
+                .contains(MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER),
+        )
+    }
+
+    /**
+     * P-12② 预算承继（正向）：同一逻辑操作（同一 operationId）的显式重试承继同一操作身份
+     * 与预算形状——JS 不预留（账本零触碰）、本地 attempt 负序号链延续（-1 → -2）、两次终态
+     * 都是 0/0 远程派发；重试位透传给引擎（第一次 false 是现状钉死，第二次 true）。
+     * 真库侧"同 id insertOperation IGNORE 压成一行"由设备真库用例钉（fake 如实记录每次 begin）。
+     */
+    @Test
+    fun anExplicitRetryOfTheSameOperationInheritsTheLocalAttemptChain() = runBlocking {
+        val ledger = RecordingLedger()
+        val recorder = RecordingAuditRecorder()
+        val engine = RecordingVisualEngine()
+        val coordinator = DefaultFigureGenerationCoordinator(
+            ledger = ledger,
+            openBackend = { null },
+            audit = recorder,
+            visualEngine = engine,
+            visualFrameInputs = frameInputs(),
+        )
+
+        val request = jsRequest()
+        coordinator.generate(request, jsProposal(request, PROGRAM))
+        val retry = request.copy(explicitUserRetry = true)
+        val outcome = coordinator.generate(retry, jsProposal(retry, PROGRAM))
+
+        assertEquals(FigureGenerationStatus.GENERATED, outcome.status)
+        assertTrue(ledger.requests.isEmpty())
+        assertEquals(listOf("op-1", "op-1"), recorder.operations.map { it.operationId })
+        assertEquals(listOf(-1, -2), recorder.attempts.map { it.attemptOrdinal })
+        assertTrue(recorder.attempts.all { it.reservationId == null })
+        assertEquals(2, recorder.operationFinishes.size)
+        assertTrue(
+            recorder.operationFinishes.all {
+                it.reservedRemoteDispatches == 0 && it.usedRemoteDispatches == 0
+            },
+        )
+        assertEquals(listOf(false, true), engine.requests.map { it.explicitUserRetry })
+    }
+
+    /** P-12② 承继的反面：换 operationId 的"重试"是新逻辑操作——各开各的负序号链。 */
+    @Test
+    fun aRetryUnderADifferentOperationIdIsANewLogicalOperation() = runBlocking {
+        val recorder = RecordingAuditRecorder()
+        val engine = RecordingVisualEngine()
+        val coordinator = DefaultFigureGenerationCoordinator(
+            ledger = RecordingLedger(),
+            openBackend = { null },
+            audit = recorder,
+            visualEngine = engine,
+            visualFrameInputs = frameInputs(),
+        )
+
+        val first = jsRequest()
+        coordinator.generate(first, jsProposal(first, PROGRAM))
+        val second = jsRequest().copy(operationId = "op-2", explicitUserRetry = true)
+        val outcome = coordinator.generate(second, jsProposal(second, PROGRAM))
+
+        assertEquals(FigureGenerationStatus.GENERATED, outcome.status)
+        assertEquals(listOf("op-1", "op-2"), recorder.operations.map { it.operationId })
+        // 两条独立负序号链各从 -1 起（不是 -2）——承继不成立。
+        assertEquals(listOf(-1, -1), recorder.attempts.map { it.attemptOrdinal })
+    }
+
+    /** P-12② 的远程半边：重试位不产生任何豁免——零余额 + flag=true 仍被 policy 预算门拒。 */
+    @Test
+    fun anExplicitRetryFlagDoesNotExemptTheRemoteBudgetGate() = runBlocking {
+        val ledger = RecordingLedger()
+        val channel = RecordingChannel(ledger.events)
+        val coordinator = coordinator(ledger, channel) {}
+
+        val request = request(
+            budget = FigureGenerationBudget(
+                remainingRemoteDispatches = 0,
+                reserveChatFinalAnswer = false,
+            ),
+        ).copy(explicitUserRetry = true)
+        val outcome = coordinator.generate(request, imageProposal(request))
+
+        assertEquals(FigureGenerationStatus.REJECTED, outcome.status)
+        assertTrue("flag=true 不得跳过远程预算门", ledger.requests.isEmpty())
+        assertEquals(0, channel.generateCalls)
+    }
+
     @Test
     fun anImageModelProposalIsUnaffectedByTheEngineInjection() = runBlocking {
         val ledger = RecordingLedger(attemptOrdinal = 2)
@@ -582,7 +752,8 @@ class FigureGenerationCoordinatorTest {
     private class RecordingAuditRecorder : FigureGenerationAuditRecorder {
         val operations = mutableListOf<FigureGenerationAuditOperation>()
         val attempts = mutableListOf<FigureGenerationAuditAttempt>()
-        val attemptFinishes = mutableListOf<Pair<String, FigureGenerationAuditOutcome>>()
+        /** (attemptId, outcome, diagnostics)：诊断原文随行（批次 35 P-11/M-04 审计保留断言）。 */
+        val attemptFinishes = mutableListOf<Triple<String, FigureGenerationAuditOutcome, String?>>()
         val operationFinishes = mutableListOf<OperationFinish>()
         private val localOrdinals = mutableMapOf<String, Int>()
 
@@ -631,7 +802,8 @@ class FigureGenerationCoordinatorTest {
             diagnostics: String?,
             endedAtEpochMillis: Long,
         ): Boolean {
-            attemptFinishes += attemptId to outcome
+            // Triple：诊断随行（P-11/M-04 的"审计保留"断言要读 attempt 终态诊断原文）。
+            attemptFinishes += Triple(attemptId, outcome, diagnostics)
             return true
         }
 
