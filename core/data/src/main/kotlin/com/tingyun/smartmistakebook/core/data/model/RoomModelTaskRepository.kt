@@ -958,6 +958,11 @@ class RoomModelTaskRepository internal constructor(
             .withDependencies(
                 imageBackendReady = figureGenerator != null && declaredProvider.supportsImageInput,
                 knowledgeMaterialReady = knowledgeBaseAvailability.value.isReady,
+                // A-05：JS 双就绪位（引擎 ready + 度量 ready）的**生产装配值尚未接线**——
+                // 真实引擎/度量器由 L3 引擎装配批注入（与 availableMethods 接通同批裁定）。
+                // 显式 false = 现状逐位不变：没接引擎/度量器时 JS 不进广告面；接线时只改这里。
+                jsEngineReady = false,
+                jsMeasurementReady = false,
             )
             .tools
     }

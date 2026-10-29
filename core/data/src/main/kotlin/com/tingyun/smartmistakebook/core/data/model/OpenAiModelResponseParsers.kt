@@ -616,8 +616,10 @@ internal fun JsonObject.toTutorToolCall(tool: TutorToolName): TutorToolCall {
         // 契约校验兜底：缺 kind/超长 description/带 terms 都在构造层拒）。
         figureKind = optionalString("kind")?.let { enumValue<TutorFigureKind>(it) },
         figureDescription = optionalString("description"),
-        // 4E WG-04b：方法/操作/提示词按枚举逐字解析；TutorToolCall 的构造器拒绝
-        // JS 与 program（本构建没有运行库），并把"只有操作没有提示词"判成不完整载荷。
+        // 4E WG-04b：方法/操作/提示词按枚举逐字解析。A-02（批次 34）起 TutorToolCall 的
+        // 构造器**接受** method=JS + 独立 program 字段（JS 载荷与图像载荷互斥、program
+        // 非空/预算在构造层校验）；JS 的 fail-closed 在轮次层（isJavascriptFigureCall）与
+        // 执行器层两道门，不在这里。"只有操作没有提示词"的不完整载荷仍在构造层拒。
         figureMethod = optionalString("method")?.let { enumValue<FigureGenerationMethod>(it) },
         figureProgram = optionalString("program"),
         figureImageOperation = optionalString("imageOperation")
