@@ -7,8 +7,17 @@ package com.tingyun.smartmistakebook.core.model
  * prompt/工具参数"（D5）直接矛盾，审计断链 P2 之一就是它。
  *
  * 现在两处文案都从这里出：改一个工具的契约措辞，只改这一份。
+ *
+ * A-06（批次 35）：[figureMethods] 参数让 `GENERATE_FIGURE` 的描述按**真实能力集合**派生
+ * （`method=JS` 时指名独立 program 字段、删去"本地未配置可用的图像模型时也不会生成"的
+ * 旧句）。默认（生产）只含 IMAGE_MODEL，返回值与 A-06 之前**逐字节相同**；生产消费点
+ * （`OpenAiModelProtocol.kt` / `OpenAiModelTaskAdapters.kt`）本批不传参 → 广告文本零改动，
+ * 接通时由与 A-03 schema 相同的 figureMethods 集合喂两处（描述与 method 枚举同源，消灭
+ * "schema 广告了 JS、描述还说只有图像模型"的漂移）。非 GENERATE_FIGURE 工具不读该参数。
  */
-fun TutorToolName.purposeDescription(): String = when (this) {
+fun TutorToolName.purposeDescription(
+    figureMethods: Set<FigureGenerationMethod> = setOf(FigureGenerationMethod.IMAGE_MODEL),
+): String = when (this) {
     TutorToolName.KNOWLEDGE_READ ->
         "读取这道题相关知识点讲解材料（返回**代号**+名称+边界+绑定材料摘要；代号本会话有效，" +
             "可直接作为 MASTERY_UPDATE 的 terms）"
@@ -53,7 +62,17 @@ fun TutorToolName.purposeDescription(): String = when (this) {
             "DIFFICULTY_TIER}，DIFFICULTY_TIER 的 payload 只能是 EASY/MEDIUM/HARD 且只能用" +
             "PROBLEM 作用域；payload 是一条简短共识（上限 " +
             "${TutorToolCall.MAX_ADVISORY_PAYLOAD_CHARS} 字符）。"
-    TutorToolName.GENERATE_FIGURE ->
+    TutorToolName.GENERATE_FIGURE -> generateFigureDescription(figureMethods)
+}
+
+/**
+ * `GENERATE_FIGURE` 长描述按能力集合派生（A-06）。默认（只 IMAGE_MODEL）返回与 A-06 之前
+ * 逐字节相同的现文本；能力集合含 JS 时把"本地未配置可用的图像模型时也不会生成"替换为
+ * 按方法表述：program 只进独立字段（工具环契约层对 JS 调用仍要求 kind/description，
+ * 见 `TutorToolLoop` 的 GENERATE_FIGURE 校验）、未接通的方法不得输出其载荷。
+ */
+private fun generateFigureDescription(figureMethods: Set<FigureGenerationMethod>): String {
+    val head =
         "生成一张当前题的配图（只画与当前题相关的图形、数轴、步骤标注，不改写题面文字）。" +
             "kind 二选一：REDRAW_PROBLEM＝把当前题的题面图去手写重绘成干净题面" +
             "（源图由本地自动取自当前题的规范资产，你不得也不能提供图片）；" +
@@ -63,13 +82,22 @@ fun TutorToolName.purposeDescription(): String = when (this) {
             "仅当图能实质降低当前题当前小问的理解负担时才申请；" +
             "生成结果只回图的 id 与状态：**有当前题并生成成功时**，图会保存到本地并作为本轮" +
             "回复下方的一张可展开配图（学生点开可见），不要让学生去找别处的图，也不要声称自己" +
-            "看到了图的内容。" +
-            "没有当前题（如大厅轮次）时不会生成；本地未配置可用的图像模型时也不会生成" +
+            "看到了图的内容。"
+    val tail = if (FigureGenerationMethod.JS in figureMethods) {
+        "没有当前题（如大厅轮次）时不会生成；本机未接通的方法不得输出其载荷。" +
+            "method=JS 时在 program 字段给出完整结构化程序（不要把程序写进 description）；" +
+            "返回不可用时不要反复申请。"
+    } else {
+        "没有当前题（如大厅轮次）时不会生成；本地未配置可用的图像模型时也不会生成" +
             "（返回不可用，不要反复申请）。"
+    }
+    return head + tail
 }
 
 /** 原生 function schema 用的短描述（与 [purposeDescription] 同一来源，措辞收紧）。 */
-fun TutorToolName.nativePurposeDescription(): String = when (this) {
+fun TutorToolName.nativePurposeDescription(
+    figureMethods: Set<FigureGenerationMethod> = setOf(FigureGenerationMethod.IMAGE_MODEL),
+): String = when (this) {
     TutorToolName.KNOWLEDGE_READ -> "读取当前题相关知识点讲解材料（返回代号+名称+边界+材料摘要）"
     TutorToolName.NOTEBOOK_READ ->
         "检索错题本中匹配的错题（只查错题库，不含掌握情况）。本轮披露范围不含别的题时只回条数（至多6条）" +
@@ -86,9 +114,20 @@ fun TutorToolName.nativePurposeDescription(): String = when (this) {
     TutorToolName.ADVISORY_WRITE ->
         "写入一条教学咨询（只写跨会话的持久共识，不写一次性闲聊；scope/kinds 本地限枚举，" +
             "同一目标同一 kind 更新已有记录、不堆积）"
-    TutorToolName.GENERATE_FIGURE ->
+    TutorToolName.GENERATE_FIGURE -> generateFigureNativeDescription(figureMethods)
+}
+
+/** `GENERATE_FIGURE` 短描述按能力集合派生（A-06）；默认与 A-06 之前逐字节相同。 */
+private fun generateFigureNativeDescription(figureMethods: Set<FigureGenerationMethod>): String {
+    val head =
         "生成当前题的配图（kind=REDRAW_PROBLEM 重绘干净题面，源图本地自动取、不接受模型供图；" +
             "kind=GENERATE_PROCESS 按 description 文生图；terms 留空，" +
-            "description≤${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符；" +
-            "结果只回 id+状态，有当前题且生成成功时作为本轮回复下方的可展开配图展示）"
+            "description≤${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符；"
+    val tail = "结果只回 id+状态，有当前题且生成成功时作为本轮回复下方的可展开配图展示）"
+    return if (FigureGenerationMethod.JS in figureMethods) {
+        head + "method=JS 时在 program 字段给出完整结构化程序（不写进 description），" +
+            "只使用宿主声明为可用的方法，未接通的方法不得输出其载荷；" + tail
+    } else {
+        head + tail
+    }
 }

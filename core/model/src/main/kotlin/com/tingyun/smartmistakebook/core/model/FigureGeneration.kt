@@ -327,6 +327,18 @@ data class FigureGenerationRequest(
      * coordinator 按 operationId + 源图 sha + imagePrompt 派生（见 [figureBasisFingerprint]）。
      */
     val basisFingerprint: String? = null,
+    /**
+     * 用户明确本地重试（4E.2 P-12②）。仅当用户对**同一逻辑操作**显式触发重试时为 true，
+     * 且宿主必须复用同一 [operationId]——重试承继同一操作身份与预算，不复制新操作；
+     * 不同 operationId 的"重试"是新逻辑操作，不得带此位。默认 false 对既有生产构造点
+     * 逐位零变化。
+     *
+     * 只被 JS 本地路径消费（熔断的恒等物是 program 摘要，只存在于 JS 引擎；没有生产 true
+     * 调用点时，看门狗硬杀/引擎崩溃后的同 program 重发永远 PROGRAM_FUSED，熔断从保护变
+     * 死锁）。IMAGE_MODEL 的重试预算由持久账本管理，远程路径**不读**该字段——此位不产生
+     * 任何 policy/预算豁免。
+     */
+    val explicitUserRetry: Boolean = false,
 ) {
     init {
         require(operationId.isNotBlank()) { "A figure operation id must not be blank" }
@@ -534,7 +546,13 @@ enum class FigureGenerationStatus {
     /** 源证据不足，需先准备（未执行后端）。 */
     NEED_SOURCE,
 
-    /** 没有可用方法/能力（未执行后端）。 */
+    /**
+     * 没有可用方法/能力（未执行后端）。JS 本地路径的**设施类失败**也落这里（M-04/P-11，
+     * 2026-10-30）：引擎已关、宿主度量设施失败、或引擎失败原因不可归属（诊断带
+     * `[UNATTRIBUTED]` 前缀）。共同语义：不是"程序错了去修"、不是"有产物可等"，而是
+     * "本机执行设施此刻不可用/不可判定"——不回喂修 program。具体是哪一类凭诊断前缀
+     * 区分（`ENGINE_CLOSED: …` vs `INVALID_PROGRAM: [UNATTRIBUTED] …`），原文保留在诊断里。
+     */
     UNAVAILABLE,
 
     /** 请求/proposal 不合法（未预留、未执行后端）。 */
