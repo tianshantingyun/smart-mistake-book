@@ -368,3 +368,5 @@ print(len(r),collections.Counter((x['track'],x['final_decision']) for x in r))
 PY
 # FINAL_ADJUDICATED 182；516 Counter({('402','KEEP_ALL'):402,('114','REOPEN_NOW'):68,('114','NOT_APPLIED'):46})
 ```
+
+**批次25 收口结算（主循环，2026-10-30）**：**v22 → ROLLED_BACK**（离线参考净负向：词面 102→101、融合 117→114、逐章最小 0.5→0.0；18 文件逐字回滚，v21/9f9e99ce + 矢量资产 79a22270 恢复）；**S3 符号别名判负关闭**（262 条/174 节点；重开需新规则+独立理由）；**R6 延期**（与 S3 解耦后单走 v22 链）；**KD-77 关闭**（API 23：干净 v21 树重建 APK `1593b25a…` 装机冷启动、四类崩溃签名 0；DAO 仪器化 4/4 1.237s）；**KB25-01 open**（发布包在打包后被未知写者改写，release e5dc3303 vs staging 1db011e1；先验 `promote --dry-run` 写盘行为）；staging 看待清理。详见 `docs/kb-batch25-2026-10-29.md` 收口补记。
