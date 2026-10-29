@@ -37,7 +37,7 @@ class TutorVisualCommitInstrumentedTest {
             store.createTutorConversation(conversationCommand())
 
             val program = programWrite()
-            val snapshot = snapshotWrite(SNAPSHOT_ONE)
+            val snapshot = snapshotWrite()
             val committed = store.commitTutorTurnWithVisual(
                 CommitTutorTurnWithVisualCommand(
                     message = assistantCommand(messageId = MESSAGE_ONE),
@@ -71,7 +71,7 @@ class TutorVisualCommitInstrumentedTest {
                     CommitTutorTurnWithVisualCommand(
                         message = assistantCommand(messageId = MESSAGE_ONE),
                         program = forged,
-                        snapshot = snapshotWrite(SNAPSHOT_ONE).copy(programId = forged.programId),
+                        snapshot = snapshotWrite().copy(programId = forged.programId),
                         ownerRequestId = OWNER_ONE,
                     ),
                 )
@@ -88,6 +88,80 @@ class TutorVisualCommitInstrumentedTest {
     }
 
     @Test
+    fun snapshotIdThatIsNotDerivedFromContentIsRejectedBeforeAnyWrite() = runBlocking {
+        withDatabase { store, dao ->
+            store.createTutorConversation(conversationCommand())
+            val forged = snapshotWrite().copy(snapshotId = "visual-snapshot-forged")
+
+            val failure = runCatching {
+                store.stageTutorVisualSnapshot(
+                    StageTutorVisualSnapshotCommand(
+                        program = programWrite(),
+                        snapshot = forged,
+                        ownerRequestId = OWNER_ONE,
+                    ),
+                )
+            }
+
+            assertTrue(
+                "快照 id 必须由 program+内容派生；与内容不符的 id 必须被拒：${failure.exceptionOrNull()}",
+                failure.exceptionOrNull() is IllegalArgumentException,
+            )
+            assertEquals(
+                "复派生门在任何写入之前：不许留下 program 行",
+                0,
+                dao.countPrograms(PROGRAM_ID),
+            )
+            assertEquals(
+                "复派生门在任何写入之前：不许留下 snapshot 行",
+                0,
+                dao.countSnapshots(PROGRAM_ID),
+            )
+        }
+    }
+
+    @Test
+    fun snapshotDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite() = runBlocking {
+        withDatabase { store, dao ->
+            store.createTutorConversation(conversationCommand())
+            // id 与"声明的 digest"自洽（旧门只比这一条，会放行），但 stateSha256 与 stateJson
+            // 内容不符：这正是"身份派生放宽后内容与身份脱钩 / 同内容不同 digest 产生重复行"
+            // 的入口。批次 31 复核修复后必须被 IllegalArgumentException 拒绝。
+            val declaredStateSha256 = "e".repeat(64)
+            val declaredDrawCommandsSha256 =
+                TutorVisualIdentity.sha256Hex(snapshotWrite().drawCommandsJson)
+            val forged = snapshotWrite().copy(
+                stateSha256 = declaredStateSha256,
+                snapshotId = TutorVisualIdentity.deriveSnapshotId(
+                    programId = PROGRAM_ID,
+                    stateSha256 = declaredStateSha256,
+                    drawCommandsSha256 = declaredDrawCommandsSha256,
+                ),
+            )
+
+            val failure = runCatching {
+                store.stageTutorVisualSnapshot(
+                    StageTutorVisualSnapshotCommand(
+                        program = programWrite(),
+                        snapshot = forged,
+                        ownerRequestId = OWNER_ONE,
+                    ),
+                )
+            }
+
+            assertTrue(
+                "digest 必须与持久化 JSON 一致；只有 id 自洽不够：${failure.exceptionOrNull()}",
+                failure.exceptionOrNull() is IllegalArgumentException,
+            )
+            assertEquals(
+                "内容/digest 门在任何写入之前：不许留下 snapshot 行",
+                0,
+                dao.countSnapshots(PROGRAM_ID),
+            )
+        }
+    }
+
+    @Test
     fun sameDerivedProgramIdWithDifferentNonHashedPayloadIsAConflict() = runBlocking {
         withDatabase { store, dao ->
             store.createTutorConversation(conversationCommand())
@@ -96,7 +170,7 @@ class TutorVisualCommitInstrumentedTest {
                 CommitTutorTurnWithVisualCommand(
                     message = assistantCommand(messageId = MESSAGE_ONE),
                     program = program,
-                    snapshot = snapshotWrite(SNAPSHOT_ONE),
+                    snapshot = snapshotWrite(),
                     ownerRequestId = OWNER_ONE,
                 ),
             )
@@ -109,7 +183,7 @@ class TutorVisualCommitInstrumentedTest {
                     CommitTutorTurnWithVisualCommand(
                         message = assistantCommand(messageId = MESSAGE_TWO),
                         program = conflicting,
-                        snapshot = snapshotWrite(SNAPSHOT_ONE),
+                        snapshot = snapshotWrite(),
                         ownerRequestId = OWNER_TWO,
                     ),
                 )
@@ -132,7 +206,7 @@ class TutorVisualCommitInstrumentedTest {
     fun failedMessageWriteRollsBackProgramSnapshotAndLink() = runBlocking {
         withDatabase { store, dao ->
             val program = programWrite()
-            val snapshot = snapshotWrite(SNAPSHOT_ONE)
+            val snapshot = snapshotWrite()
             // 不存在的会话：消息行的外键立刻失败，整个 @Transaction 必须回滚。
             val failure = runCatching {
                 store.commitTutorTurnWithVisual(
@@ -160,7 +234,7 @@ class TutorVisualCommitInstrumentedTest {
         withDatabase { store, dao ->
             store.createTutorConversation(conversationCommand())
             val program = programWrite()
-            val snapshot = snapshotWrite(SNAPSHOT_ONE)
+            val snapshot = snapshotWrite()
 
             val first = store.commitTutorTurnWithVisual(
                 CommitTutorTurnWithVisualCommand(
@@ -204,7 +278,7 @@ class TutorVisualCommitInstrumentedTest {
         withDatabase { store, dao ->
             store.createTutorConversation(conversationCommand())
             val program = programWrite()
-            val snapshot = snapshotWrite(SNAPSHOT_ONE)
+            val snapshot = snapshotWrite()
 
             store.stageTutorVisualSnapshot(
                 StageTutorVisualSnapshotCommand(
@@ -256,7 +330,7 @@ class TutorVisualCommitInstrumentedTest {
             assertEquals(1, committed.link.revision)
 
             // 第二张快照（内容不同）作为换图目标。
-            val next = snapshotWrite(SNAPSHOT_TWO, drawTag = "b")
+            val next = snapshotWrite(drawTag = "b")
             store.stageTutorVisualSnapshot(
                 StageTutorVisualSnapshotCommand(
                     program = program,
@@ -309,7 +383,7 @@ class TutorVisualCommitInstrumentedTest {
         withDatabase { store, dao ->
             store.createTutorConversation(conversationCommand())
             val program = programWrite()
-            val live = snapshotWrite(SNAPSHOT_ONE)
+            val live = snapshotWrite()
             store.commitTutorTurnWithVisual(
                 CommitTutorTurnWithVisualCommand(
                     message = assistantCommand(messageId = MESSAGE_ONE),
@@ -320,7 +394,7 @@ class TutorVisualCommitInstrumentedTest {
             )
 
             // S3 之后被取消：只有 STAGING 行，没有消息/link。
-            val cancelled = snapshotWrite(SNAPSHOT_TWO, drawTag = "b").copy(createdAtEpochMillis = 9_000)
+            val cancelled = snapshotWrite(drawTag = "b").copy(createdAtEpochMillis = 9_000)
             store.stageTutorVisualSnapshot(
                 StageTutorVisualSnapshotCommand(
                     program = program,
@@ -354,7 +428,7 @@ class TutorVisualCommitInstrumentedTest {
         withDatabase { store, dao ->
             store.createTutorConversation(conversationCommand())
             val program = programWrite()
-            val first = snapshotWrite(SNAPSHOT_ONE)
+            val first = snapshotWrite()
             store.commitTutorTurnWithVisual(
                 CommitTutorTurnWithVisualCommand(
                     message = assistantCommand(messageId = MESSAGE_ONE),
@@ -364,7 +438,7 @@ class TutorVisualCommitInstrumentedTest {
                 ),
             )
 
-            val second = snapshotWrite(SNAPSHOT_TWO, drawTag = "b")
+            val second = snapshotWrite(drawTag = "b")
             val failure = runCatching {
                 store.commitTutorTurnWithVisual(
                     CommitTutorTurnWithVisualCommand(
@@ -456,36 +530,54 @@ class TutorVisualCommitInstrumentedTest {
         createdAtEpochMillis = 1_000,
     )
 
+    /**
+     * 快照写入载荷。`snapshotId` **不再由测试随手给**：批次 31 起 DB 层会在写库前重新派生
+     * 并 `require` 相等（`RoomStudyDatabase.ensureTutorVisualSnapshot`），伪造 id 会被
+     * `IllegalArgumentException` 拒绝。**digest 列也不再是任意常量**（批次 31 复核修复）：
+     * DB 层现在同时校验 `stateSha256 == sha256Hex(stateJson)` 与
+     * `drawCommandsSha256 == sha256Hex(drawCommandsJson)`，所以这里与生产同源计算。
+     * `drawTag` 不同 = 内容不同 = 另一张快照。
+     */
     private fun snapshotWrite(
-        snapshotId: String,
         drawTag: String = "a",
-    ) = TutorVisualSnapshotWrite(
-        snapshotId = snapshotId,
-        programId = PROGRAM_ID,
-        stateJson = "{}",
-        stateSha256 = "c".repeat(64),
-        sceneSchemaVersion = 1,
-        sceneJson = """{"scene":true}""",
-        sceneSha256 = "d".repeat(64),
-        renderSchemaVersion = 1,
-        drawCommandsJson = """{"ops":["$drawTag"]}""",
-        drawCommandsSha256 = drawTag.repeat(64).take(64),
-        contentIdsJson = "[]",
-        viewportWidthDu = 360,
-        viewportHeightDu = 640,
-        fontScaleMilli = 1_000,
-        theme = "LIGHT",
-        timeMs = 0,
-        seed = 0,
-        runtimeVersion = "quickjs-test",
-        compilerVersion = "visual-compiler-v1",
-        rendererVersion = "visual-renderer-v1",
-        fontManifestVersion = "font-manifest-v1",
-        questionVerificationStatus = "NOT_CHECKED",
-        previewAssetId = null,
-        checkpointKind = TutorVisualCheckpointKind.INITIAL,
-        createdAtEpochMillis = 1_000,
-    )
+        createdAtEpochMillis: Long = 1_000,
+    ): TutorVisualSnapshotWrite {
+        val stateJson = "{}"
+        val drawCommandsJson = """{"ops":["$drawTag"]}"""
+        val stateSha256 = TutorVisualIdentity.sha256Hex(stateJson)
+        val drawCommandsSha256 = TutorVisualIdentity.sha256Hex(drawCommandsJson)
+        return TutorVisualSnapshotWrite(
+            snapshotId = TutorVisualIdentity.deriveSnapshotId(
+                programId = PROGRAM_ID,
+                stateSha256 = stateSha256,
+                drawCommandsSha256 = drawCommandsSha256,
+            ),
+            programId = PROGRAM_ID,
+            stateJson = stateJson,
+            stateSha256 = stateSha256,
+            sceneSchemaVersion = 1,
+            sceneJson = """{"scene":true}""",
+            sceneSha256 = "d".repeat(64),
+            renderSchemaVersion = 1,
+            drawCommandsJson = drawCommandsJson,
+            drawCommandsSha256 = drawCommandsSha256,
+            contentIdsJson = "[]",
+            viewportWidthDu = 360,
+            viewportHeightDu = 640,
+            fontScaleMilli = 1_000,
+            theme = "LIGHT",
+            timeMs = 0,
+            seed = 0,
+            runtimeVersion = "quickjs-test",
+            compilerVersion = "visual-compiler-v1",
+            rendererVersion = "visual-renderer-v1",
+            fontManifestVersion = "font-manifest-v1",
+            questionVerificationStatus = "NOT_CHECKED",
+            previewAssetId = null,
+            checkpointKind = TutorVisualCheckpointKind.INITIAL,
+            createdAtEpochMillis = createdAtEpochMillis,
+        )
+    }
 
     private companion object {
         const val CONVERSATION_ID = "conversation-batch30-commit"
@@ -502,8 +594,6 @@ class TutorVisualCommitInstrumentedTest {
         )
         const val MESSAGE_ONE = "message-batch30-one"
         const val MESSAGE_TWO = "message-batch30-two"
-        const val SNAPSHOT_ONE = "visual-snapshot-batch30-one"
-        const val SNAPSHOT_TWO = "visual-snapshot-batch30-two"
         const val OWNER_ONE = "request-batch30-one"
         const val OWNER_TWO = "request-batch30-two"
         const val OWNER_THREE = "request-batch30-three"
