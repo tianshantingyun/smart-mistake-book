@@ -300,6 +300,15 @@ class TutorToolTraceTest {
         assertEquals("没有完成", tutorToolRefusalText("something_new"))
     }
 
+    /** 批次 35：`figure_method_unavailable`（A-02 两道门共用的 JS fail-closed 码）有自己的学生话，不再落通用"没有完成"。 */
+    @Test
+    fun theJavascriptFigureMethodUnavailableCodeHasItsOwnSentence() {
+        assertEquals(
+            "本机没有接通本地绘图通道，没有生成",
+            tutorToolRefusalText("figure_method_unavailable"),
+        )
+    }
+
     @Test
     fun theRunningLineNamesToolsInStudentWords() {
         assertEquals(

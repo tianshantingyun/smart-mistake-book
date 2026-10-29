@@ -1,0 +1,154 @@
+package com.tingyun.smartmistakebook.core.model
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+/**
+ * A-06（批次 35）：`GENERATE_FIGURE` 工具描述按能力集合（figureMethods）派生。判据：
+ * JVM 描述快照测试。三个证据形态（R1 §2.4）：
+ *
+ * ① **默认参数 × 8 工具 × 长/短两版 = 现文本全等快照**（不是"包含某词"，是全等；
+ *    期望文本逐段抄自批次 35 之前的实现——生产默认仍 IMAGE_MODEL-only 的 JVM 证据）；
+ * ② **含 JS × GENERATE_FIGURE = 动态句**：含 `method=JS` 与 `program` 字段说明，
+ *    不再出现"本地未配置可用的图像模型时也不会生成"的旧句；
+ * ③ **其余 7 枚工具在含 JS 集合下与默认逐字节相同**（参数对它们无行为分叉）。
+ *
+ * 消费点（`OpenAiModelProtocol.kt:268` / `OpenAiModelTaskAdapters.kt:658`）本批**不传参** →
+ * 生产广告文本零改动；后续接通时由与 A-03 schema 相同的 figureMethods 集合喂两处
+ * （描述与 method 枚举同源，消灭"schema 广告了 JS、描述还说只有图像模型"的漂移）。
+ *
+ * 传整个 `TutorCapabilitySnapshot` 的备选被拒（R1 §2.4）：描述层只需要"方法集合"一个事实。
+ */
+class TutorToolDescriptionsSnapshotTest {
+
+    private val jsAndImage = setOf(FigureGenerationMethod.JS, FigureGenerationMethod.IMAGE_MODEL)
+    private val jsOnly = setOf(FigureGenerationMethod.JS)
+
+    @Test
+    fun theDefaultImageModelOnlyDescriptionsAreByteIdenticalSnapshots() {
+        TutorToolName.entries.forEach { tool ->
+            assertEquals(
+                "长描述快照漂移：${tool.name}",
+                DEFAULT_LONG_DESCRIPTIONS.getValue(tool.name),
+                tool.purposeDescription(),
+            )
+            assertEquals(
+                "短描述快照漂移：${tool.name}",
+                DEFAULT_SHORT_DESCRIPTIONS.getValue(tool.name),
+                tool.nativePurposeDescription(),
+            )
+        }
+    }
+
+    @Test
+    fun aJavascriptCapabilityRewritesTheFigureDescriptionPerMethod() {
+        listOf(jsAndImage, jsOnly).forEach { methods ->
+            val longText = TutorToolName.GENERATE_FIGURE.purposeDescription(methods)
+            assertTrue("必须按方法表述：含 method=JS：$longText", longText.contains("method=JS"))
+            assertTrue("必须指名独立 program 字段：$longText", longText.contains("program 字段"))
+            assertTrue(
+                "必须禁止把程序写进 description：$longText",
+                longText.contains("不要把程序写进 description"),
+            )
+            assertFalse(
+                "JS 可用时不得再写图像模型缺省旧句：$longText",
+                longText.contains("本地未配置可用的图像模型时也不会生成"),
+            )
+            assertTrue(
+                "无当前题不生成的语义必须保留：$longText",
+                longText.contains("没有当前题（如大厅轮次）时不会生成"),
+            )
+
+            val shortText = TutorToolName.GENERATE_FIGURE.nativePurposeDescription(methods)
+            assertTrue("短版必须按方法表述：含 method=JS：$shortText", shortText.contains("method=JS"))
+            assertTrue("短版必须指名 program 字段：$shortText", shortText.contains("program 字段"))
+            assertFalse(
+                "JS 可用时短版不得出现图像模型缺省语义：$shortText",
+                shortText.contains("未配置") && shortText.contains("图像模型"),
+            )
+        }
+    }
+
+    @Test
+    fun theOtherSevenToolsIgnoreTheFigureMethodsParameter() {
+        // 参数对非 GENERATE_FIGURE 工具是死参数（R1 §2.4）：含 JS 集合下与默认逐字节相同。
+        TutorToolName.entries.filter { it != TutorToolName.GENERATE_FIGURE }.forEach { tool ->
+            assertEquals(tool.purposeDescription(), tool.purposeDescription(jsAndImage))
+            assertEquals(tool.nativePurposeDescription(), tool.nativePurposeDescription(jsAndImage))
+        }
+    }
+
+    @Test
+    fun theDefaultArgumentEqualsAnExplicitImageModelOnlySet() {
+        TutorToolName.entries.forEach { tool ->
+            assertEquals(
+                tool.purposeDescription(setOf(FigureGenerationMethod.IMAGE_MODEL)),
+                tool.purposeDescription(),
+            )
+            assertEquals(
+                tool.nativePurposeDescription(setOf(FigureGenerationMethod.IMAGE_MODEL)),
+                tool.nativePurposeDescription(),
+            )
+        }
+    }
+
+    private companion object {
+        /** 默认参数下 8 枚工具的长描述现文本（逐段抄自批次 35 之前的实现）。 */
+        private val DEFAULT_LONG_DESCRIPTIONS: Map<String, String> = mapOf(
+            "KNOWLEDGE_READ" to (
+                "读取这道题相关知识点讲解材料（返回**代号**+名称+边界+绑定材料摘要；代号本会话有效，可直接作为 MASTERY_UPDATE 的 terms）"
+            ),
+            "NOTEBOOK_READ" to (
+                "检索错题本中匹配的错题（只查错题库：返回条目本身；掌握情况不在这里，要了解某知识点掌握得怎样用 MASTERY_READ）。返回形态随本轮的披露范围：本轮没有题锚、披露范围也不含别的题时只回条数与检索词，不列任何条目标题（这时不要臆造或复述题目标题）。"
+            ),
+            "MASTERY_READ" to (
+                "读取学生对相关知识的掌握情况（限当前科目；只查掌握情况，不含错题条目本身——要找题用 NOTEBOOK_READ）。terms 留空＝返回本科目全部有学习证据的知识点，按最弱优先，每行含名称、粒度、保守掌握度、区间（下界~上界）、证据量、状态、最近证据与最近独立错误的时间档位、绑定错题数；terms 填知识点关键词＝聚焦解析到的知识点，并额外给出结构化历史聚合（独立答对次数及跨几个题目族/学习日、独立错误次数、讲题与测验证据的接受与被拒条数）与记忆行（稳定度天数/上次作答时间；仅在知识点已产生作答证据时给出）。结果超出字符预算会被截断并注明；确实需要一次拿更多时，把 extendedResult 置 true（本地决定实际上限，且每轮只放一次）。"
+            ),
+            "NOTEBOOK_WRITE" to (
+                "写入错题本（需学生明确命令，随后由本地确认）"
+            ),
+            "MASTERY_UPDATE" to (
+                "提交一条学习证据：terms=[**代号**]（本会话已披露知识点的代号 K1..Kn，只能来自知识点代号表或 KNOWLEDGE_READ 的返回——绝不编造代号、绝不用原始 id）、direction∈{POSITIVE,NEGATIVE}（学生这次是掌握还是卡住）、understanding∈{STRUGGLING,UNCERTAIN,CONFIDENT,MASTERED}（你对学生理解程度的判断）、confidence∈[0,1]（你判断的置信度，低于 0.7 本地拒写）。写不写由你按语义判定：学生对已披露知识点给出理解性陈述或可观察行为时写；纯寒暄不写。rationale 必须用引号逐字引用学生原话或可观察行为（引文锚底线：POSITIVE≥1 条、MASTERED≥2 条，本地逐条比对，编造引文不算证据）。判断必须基于学生在本对话中表现出的可观察行为，不得凭学生口头声称或你的整体印象；学生说\"我懂了\"不算掌握证据，只能当作待验证的线索。"
+            ),
+            "ADVISORY_READ" to (
+                "读取该学生的教学咨询记录（本会话科目的典型误区/有效讲法/难度判断；只读文本记录，不含错题条目与掌握数值）。作用域三选一：scope=NODE 时 terms[0] 填本会话已披露的知识点代号（K1..Kn，绝不编造代号、绝不用原始 id）；scope=PROBLEM 读当前这道题的记录；scope=SUBJECT 读本科目记录；省略 scope 时 terms 空＝本科目、terms 非空＝按知识点代号。只返回最近若干条（本地有上限，超出预算会截断并注明）。"
+            ),
+            "ADVISORY_WRITE" to (
+                "写入一条教学咨询（该生典型误区/有效讲法/这道题的难度判断），供以后讲题参考。只写持久共识：值得跨会话保留的典型误区或确实有效的讲法；一次性闲聊、对学生状态的临时印象、重复已有记录都不写；同一目标同一 kind 会**更新**已有记录，不会堆积。scope 必填且三选一：NODE（terms[0]＝本会话已披露知识点代号，须真实存在）、PROBLEM（当前这道题）、SUBJECT（本科目）；kind∈{TEACHING_FOCUS,MISCONCEPTION,DIFFICULTY_TIER}，DIFFICULTY_TIER 的 payload 只能是 EASY/MEDIUM/HARD 且只能用PROBLEM 作用域；payload 是一条简短共识（上限 600 字符）。"
+            ),
+            "GENERATE_FIGURE" to (
+                "生成一张当前题的配图（只画与当前题相关的图形、数轴、步骤标注，不改写题面文字）。kind 二选一：REDRAW_PROBLEM＝把当前题的题面图去手写重绘成干净题面（源图由本地自动取自当前题的规范资产，你不得也不能提供图片）；GENERATE_PROCESS＝按 description 生成一张解析过程图。description 用平实中文写清这张图要表达什么（上限 200 字符），terms 必须留空。仅当图能实质降低当前题当前小问的理解负担时才申请；生成结果只回图的 id 与状态：**有当前题并生成成功时**，图会保存到本地并作为本轮回复下方的一张可展开配图（学生点开可见），不要让学生去找别处的图，也不要声称自己看到了图的内容。没有当前题（如大厅轮次）时不会生成；本地未配置可用的图像模型时也不会生成（返回不可用，不要反复申请）。"
+            ),
+        )
+
+        /** 默认参数下 8 枚工具的短描述现文本（逐段抄自批次 35 之前的实现）。 */
+        private val DEFAULT_SHORT_DESCRIPTIONS: Map<String, String> = mapOf(
+            "KNOWLEDGE_READ" to (
+                "读取当前题相关知识点讲解材料（返回代号+名称+边界+材料摘要）"
+            ),
+            "NOTEBOOK_READ" to (
+                "检索错题本中匹配的错题（只查错题库，不含掌握情况）。本轮披露范围不含别的题时只回条数（至多6条）与检索词，不列条目标题——那时不要臆造或复述题目标题"
+            ),
+            "MASTERY_READ" to (
+                "读取学生对相关知识的掌握情况（terms 留空＝本科目全部清单，填关键词＝聚焦并附历史聚合；不含错题条目）"
+            ),
+            "MASTERY_UPDATE" to (
+                "提交一条学习证据（terms[0]＝本会话已披露知识点的代号；模型判 direction/understanding/confidence，权重与门控本地定）"
+            ),
+            "NOTEBOOK_WRITE" to (
+                "写入错题本（需学生明确命令，随后由本地确认）"
+            ),
+            "ADVISORY_READ" to (
+                "读取该学生的教学咨询记录（本会话科目的典型误区/有效讲法/难度判断；scope＝NODE 配代号、PROBLEM 读当前题、SUBJECT 读本科目；只回最近若干条）"
+            ),
+            "ADVISORY_WRITE" to (
+                "写入一条教学咨询（只写跨会话的持久共识，不写一次性闲聊；scope/kinds 本地限枚举，同一目标同一 kind 更新已有记录、不堆积）"
+            ),
+            "GENERATE_FIGURE" to (
+                "生成当前题的配图（kind=REDRAW_PROBLEM 重绘干净题面，源图本地自动取、不接受模型供图；kind=GENERATE_PROCESS 按 description 文生图；terms 留空，description≤200 字符；结果只回 id+状态，有当前题且生成成功时作为本轮回复下方的可展开配图展示）"
+            ),
+        )
+    }
+}

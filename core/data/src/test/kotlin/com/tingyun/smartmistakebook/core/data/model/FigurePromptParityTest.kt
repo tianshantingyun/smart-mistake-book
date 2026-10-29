@@ -53,29 +53,91 @@ class FigurePromptParityTest {
         assertTrue("必须声明 IMAGE_MODEL 可用", prompt.body.contains("IMAGE_MODEL"))
     }
 
+    /**
+     * A-04（批次 35）**语义翻转登记**（清单判据行明文"去掉 JS fail-closed"）：
+     * 原用例 `advertisingJsIsRefusedInThisWave` 断言"能力集合含 JS 即抛"（4E.1 波次 1
+     * 没有 JS 运行库契约时的 fail-closed）。A-04 落地后该失败被消灭——JS 显式进入能力
+     * 集合时组装成功并注入静态程序契约（形状/SDK 签名/最小样例）。这不是放宽断言：
+     * 两条负向**原样保留**——`jsIsNotAdvertisedWhenItIsNotAvailable`（IMAGE_MODEL_ONLY
+     * 输入下正文不出现 JS/QuickJS/sourceJs/program，守"未接通时不广告"）与
+     * `noAvailableMethodIsRefused`（空方法集合仍拒绝）。JS 校验的保留负向另见
+     * [aJavascriptCapabilityReportsTheParametricInteractionBitHonestly]。
+     */
     @Test
-    fun advertisingJsIsRefusedInThisWave() {
-        val capabilities = FigureGenerationCapabilities(
-            availableMethods = setOf(
-                FigureGenerationMethod.JS,
-                FigureGenerationMethod.IMAGE_MODEL,
+    fun aJavascriptCapabilityAssemblesAndInjectsTheStaticContract() {
+        val prompt = FigurePromptAssembler.assemble(
+            purpose = FigureGenerationPurpose.EXPLANATION,
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(
+                    FigureGenerationMethod.JS,
+                    FigureGenerationMethod.IMAGE_MODEL,
+                ),
+                supportsImageEditing = true,
+                supportsImageGeneration = true,
+                supportsParametricInteraction = true,
             ),
-            supportsImageEditing = true,
-            supportsImageGeneration = true,
-            supportsParametricInteraction = true,
+            budget = FigureGenerationBudget(),
         )
 
-        val result = runCatching {
-            FigurePromptAssembler.assemble(
-                purpose = FigureGenerationPurpose.EXPLANATION,
-                capabilities = capabilities,
-                budget = FigureGenerationBudget(),
-            )
-        }
-
+        assertEquals(
+            listOf(FigureGenerationMethod.JS, FigureGenerationMethod.IMAGE_MODEL),
+            prompt.availableMethods,
+        )
         assertTrue(
-            "本波次没有 JS 运行库契约，装配器必须 fail-closed",
-            result.exceptionOrNull() is IllegalArgumentException,
+            "JS 可用时正文必须注入程序形状：${prompt.body}",
+            prompt.body.contains("const visual = { prepare(input), render(input, metrics) }"),
+        )
+        assertTrue(
+            "JS 可用时正文必须注入 SDK 签名：${prompt.body}",
+            prompt.body.contains("visualSdk.circle(cx, cy, r)"),
+        )
+        assertTrue(
+            "JS 可用时正文必须注入最小样例（SDK 原语直取）：${prompt.body}",
+            prompt.body.contains("visualSdk.circle(160, 84, 26)"),
+        )
+    }
+
+    /**
+     * 保留负向（R1 §2.2）：删掉"含 JS 即抛"的装配期 fail-closed 后，JS 能力行仍必须按
+     * [FigureGenerationCapabilities.supportsParametricInteraction] 如实渲染参数交互位——
+     * 防"删 require 顺手删掉全部 JS 校验"。
+     */
+    @Test
+    fun aJavascriptCapabilityReportsTheParametricInteractionBitHonestly() {
+        val withoutInteraction = FigurePromptAssembler.assemble(
+            purpose = FigureGenerationPurpose.EXPLANATION,
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(
+                    FigureGenerationMethod.JS,
+                    FigureGenerationMethod.IMAGE_MODEL,
+                ),
+                supportsImageEditing = true,
+                supportsImageGeneration = true,
+                supportsParametricInteraction = false,
+            ),
+            budget = FigureGenerationBudget(),
+        )
+        assertTrue(
+            "JS 静态后端的参数交互位必须如实写不支持：${withoutInteraction.body}",
+            withoutInteraction.body.contains("JS：本机结构化程序绘图（静态后端：prepare(input) + render(input, metrics)）；参数交互=不支持"),
+        )
+
+        val withInteraction = FigurePromptAssembler.assemble(
+            purpose = FigureGenerationPurpose.EXPLANATION,
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(
+                    FigureGenerationMethod.JS,
+                    FigureGenerationMethod.IMAGE_MODEL,
+                ),
+                supportsImageEditing = true,
+                supportsImageGeneration = true,
+                supportsParametricInteraction = true,
+            ),
+            budget = FigureGenerationBudget(),
+        )
+        assertTrue(
+            "宿主声明参数交互可用时 JS 能力行必须如实写支持：${withInteraction.body}",
+            withInteraction.body.contains("JS：本机结构化程序绘图（静态后端：prepare(input) + render(input, metrics)）；参数交互=支持"),
         )
     }
 
