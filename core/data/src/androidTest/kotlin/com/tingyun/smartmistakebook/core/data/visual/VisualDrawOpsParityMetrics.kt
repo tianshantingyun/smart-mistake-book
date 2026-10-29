@@ -18,8 +18,25 @@ import kotlin.math.max
  * 单一分数会把"内容缺失"平均掉。这里用两个正交量——`iou`（错几个像素）与 `chanDist`
  * （差几级）——外加文本的 bbox/质心/墨量/剖面，每一个都能手算复核。
  *
- * 判据来源与阈值版本见 [THRESHOLD_VERSION]；所有阈值都是 R2 §4.2 的**初始值**，未在设备上
- * 标定，读数必须与版本号一起进证据（R2 §4.3）。
+ * 判据来源与阈值版本见 [THRESHOLD_VERSION]。批次 31 T4 按
+ * `docs/research/2026-10-29-parity-calibration.md` 把 TEXT 类标定为 `calibrated-r1`：
+ *
+ * - **这是标定第一轮**（`calibrated-r1`），依据是**同设备同夹具的设备读数**，不是第一原理推导：
+ *   P07 `centroid=0.5181329158118464 / bboxDev=1 / maskS=1224 maskP=1431`（两轮逐位同值）、
+ *   AA 开对照 `centroid=0.44`。批次 31 设备否证了"1 px 整块平移信号 = `1.000`（平移不变性）"：
+ *   `centroidDeltaPx` 是屏↔PDF 的**跨栅格欧氏距离**，平移 t 后读 |v + t|（v = 基线质心偏移），
+ *   方向相关（P06 +1 px 实测 `1.2624767812258337`；P07 反解应约 0.608 < 0.75）。1 px 位移
+ *   由 bbox / `bestShift` 抓，不是质心。
+ *   解析上界在本例是 `(1431−1224)/1224 × 35 ≈ 5.9 px`，比实测大 11 倍——**不能**拿它定阈值。
+ * - **不可外推**：只对"同一设备 + 同一 AA 状态（KD-78 ④ `flags=0`）+ 字形位置整像素"的
+ *   192×128 夹具成立。跨 API / 跨设备 / 跨 fontScale / 其它字形必须先重基线
+ *   （`PARITY_ENV_DRIFT`），**不得**把 0.75 px 当普适常数。
+ * - **已知盲区（批次 31 设备更正）**：质心对 1 px 位移的分辨力**方向相关**——它是跨栅格欧氏
+ *   距离，整块平移 t 读 |v + t|，不是同侧位移差；1 px 位移可能读 1.2625（P06）也可能读
+ *   约 0.608（P07 反解）。因此不再宣称单一标量窗口 "(0, 0.76) px 不可分辨"；质心仍保留为
+ *   硬护栏（N11 旋转实测 1.1665），但 1 px 的抓取路径是 bbox / `bestShift`。要分辨亚像素
+ *   位移必须另配亚像素仪器，**不得**再动质心阈值。
+ * - 本门仍是**原型门**：不得引用为产品门 / 发版门 / "PDF 可用"的证据。
  */
 
 /** 一张已渲染的栅格（ARGB_8888，行主序）。两侧必须是同一像素网格。 */
@@ -162,6 +179,38 @@ internal data class ParityDecision(
     val reasons: List<String>,
 )
 
+/**
+ * TEXT 类的判决阈值（`calibrated-r1`）。单独成对象而不是散落的 `private const`：
+ * 判决、证据日志（`PARITY … thr=`）与设备断言必须读**同一份**数值，否则日志会写一个
+ * 代码已不再执行的阈值——那样的证据无法复核（R2 §4.3-4 / §4.5）。
+ *
+ * 变更依据（设备读数出处 `build/device-track-batch30/step05-parity-logcat.txt:119-122`）：
+ * - `maxCentroidDeltaPx` 0.5 → 0.75：噪声实测 0.518（CJK / AA 关），N11 旋转实测 1.1665；
+ *   1 px 平移**不是**质心信号（跨栅格欧氏距离，方向相关；P06 +1 px 读 1.2625、P07 反解约
+ *   0.608），故 0.75 的依据是"噪声上侧余量 + N11 形状错"，不是"1 px 信号 1.000"。
+ *   上余量 0.232、下余量 0.250（R2 §4.3-1 的双侧绝对余量口径）。
+ * - `minMassRatio`/`maxMassRatio` 0.95/1.05 → 0.93/1.07：AA 结构摆幅 4.9 pp
+ *   （P07 0.957 ↔ 1.006 两端都要落在界内）；真实覆盖率缺陷 ≥10%。
+ * - `maxBboxDeviationPx` 与 `maxProfileTv` **不变**：整数指标没有可调空间；TV 实测 0.042，
+ *   最弱真缺陷 0.480（6×），上调只会把无证据区间变成盲区。
+ */
+internal data class TextThresholds(
+    val version: String,
+    val maxBboxDeviationPx: Int,
+    val maxCentroidDeltaPx: Double,
+    val minMassRatio: Double,
+    val maxMassRatio: Double,
+    val maxProfileTv: Double,
+    val reportedIouLimit: Double,
+) {
+    /** 证据日志用的阈值摘要（与判决读同一份数值）。 */
+    fun summary(): String = "bbox<=${maxBboxDeviationPx}px,centroid<=${format(maxCentroidDeltaPx)}px," +
+        "mass[${format(minMassRatio)},${format(maxMassRatio)}],tv<=${format(maxProfileTv)}," +
+        "shift=(0,0),iou=reported-only,f5=none"
+
+    private fun format(value: Double): String = String.format(java.util.Locale.US, "%.2f", value)
+}
+
 /** 前置门失败（R2 §3.3）：**没有判决**，不是"失败"；测试以该码报红。 */
 internal class ParityGateException(
     val code: String,
@@ -181,8 +230,30 @@ internal enum class ParityChannel { RED, GREEN, BLUE }
 
 internal object VisualDrawOpsParityMetrics {
 
-    /** R2 §4.2 的初始阈值版本；读数必须与它一起落证据（R2 §4.3-4）。 */
-    const val THRESHOLD_VERSION = "R2-2026-10-28/§4.2-initial-uncalibrated"
+    /**
+     * 阈值版本（R2 §4.3-4：读数必须与版本号一起进证据）。
+     *
+     * `calibrated-r1` = **标定第一轮**（批次 31 任务 7）：只重标 TEXT 类，其余夹具类逐字不变
+     * （V/A/G/D/G-c 的 IoU 下限、`interiorMax≤2`、`frac2` 上限、`bestShift` 规则、`τ_bg=6` 全部不动）。
+     * 前身 `R2-2026-10-28/§4.2-initial-uncalibrated` 的 0.5 px 质心阈值在 AA 关的结构下
+     * 从落地起就不可能被正例满足（噪声上界 0.518 > 阈值 0.5）。
+     * 不可外推边界见文件头 KDoc。
+     */
+    const val THRESHOLD_VERSION = "calibrated-r1"
+
+    /**
+     * `calibrated-r1` 的 TEXT 阈值（**唯一事实源**）：判决、证据日志与设备断言都读这里。
+     * 数值依据见 [TextThresholds] 的 KDoc。
+     */
+    val TEXT_THRESHOLDS = TextThresholds(
+        version = THRESHOLD_VERSION,
+        maxBboxDeviationPx = 1,
+        maxCentroidDeltaPx = 0.75,
+        minMassRatio = 0.93,
+        maxMassRatio = 1.07,
+        maxProfileTv = 0.08,
+        reportedIouLimit = 0.99,
+    )
 
     /** R2 §4.1：非背景掩膜阈值（噪声带 ≤2，2.4% 覆盖率 ≈6）。 */
     const val MASK_BACKGROUND_DISTANCE = 6
@@ -450,6 +521,32 @@ internal object VisualDrawOpsParityMetrics {
         return ParityRaster(source.width, source.height, out)
     }
 
+    /**
+     * 诊断通道旋转（N11）：把 [band] 内墨迹的**包围盒**绕自身中心旋转 180°。
+     *
+     * 这是"位置与墨量都对、只有形状错"的最小对抗构造（R2 §2.3 N11）：包围盒内的像素做
+     * 整数置换（`x → left+right−x`、`y → top+bottom−y`，不插值），因此
+     * **bbox 与带内墨量逐位不变**，`bbox`/`mass` 两条防线都抓不住；出口只剩质心 / 剖面 TV / IoU。
+     * 带内无墨时原样返回（空掩膜由前置门 [PARITY_EMPTY_MASK] 处理）。
+     */
+    fun rotate180WithinBand(source: ParityRaster, backdrop: Int, band: PixelBand): ParityRaster {
+        val width = source.width
+        val opaque = compositeOver(source, backdrop)
+        val mask = BooleanArray(opaque.pixels.size) {
+            backgroundDistance(opaque.pixels[it], backdrop) > MASK_BACKGROUND_DISTANCE
+        }
+        val box = bbox(mask, band, width) ?: return source
+        val out = source.pixels.copyOf()
+        for (y in box.top..box.bottom) {
+            for (x in box.left..box.right) {
+                val sourceX = box.left + box.right - x
+                val sourceY = box.top + box.bottom - y
+                out[y * width + x] = source.pixels[sourceY * width + sourceX]
+            }
+        }
+        return ParityRaster(source.width, source.height, out)
+    }
+
     /** 诊断通道加值（N02）：只改目标通道，α 不变；越界夹到 0..255。 */
     fun addToChannel(source: ParityRaster, channel: ParityChannel, delta: Int): ParityRaster {
         val shift = when (channel) {
@@ -546,32 +643,76 @@ internal object VisualDrawOpsParityMetrics {
         return ParityVerdict.PASS
     }
 
+    /**
+     * TEXT 类判决（`calibrated-r1`）：**带硬几何护栏的 AA/字体归因优先**。
+     *
+     * 计划任务 7 的字面形态（把 `edgeMean >= EDGE_SIGNIFICANT_MEAN → F2_AA` 提到 bbox/质心
+     * 之前）会**当场关掉门**：N04（label x +1 du）实测 `edgeMean=127.79`，字面换序后判
+     * `F2_AA`（不红）（`build/device-track-batch30/step05-parity-logcat.txt:66-68`）。
+     * 因此实现为 R2 §2.4 的护栏形态——语义上仍实现"护栏内的 AA/字体差异不再被算成几何错"：
+     *
+     * 0. 硬几何护栏（任一条成立 → `F4_GEOMETRY`，不允许被 F1/F2 抢占）
+     *    a. 任一侧带内无墨（内容缺失 / 整页错画）
+     *    b. `bboxDev > 1`
+     *    c. `centroid > 0.75`（含 `NaN`）
+     *    d. `bestShift != (0,0)` 且 `gain > 0.02`
+     * 1. 字体 / 覆盖率面（红）→ `F1_FONT`
+     * 2. AA 面（不红）→ `F2_AA`
+     * 3. 全过 → `PASS`
+     *
+     * `F3` 不在 TEXT 类出现：它要求 `interiorMax∈1..2`，而文本的 AA 边缘使 P07
+     * `interiorMax=58`，永远不命中；故本轮不搬 F3（R2 §2.4）。
+     */
     private fun rawTextVerdict(metrics: ParityMetrics, reasons: MutableList<String>): ParityVerdict {
         val text = metrics.text
             ?: throw IllegalArgumentException("TEXT fixtures must supply a text band for measure()")
+        // 0a. 带内无墨 = 内容缺失 / 整页错画；先于一切归因（N10）。
         if (text.screenBox == null || text.pdfBox == null) {
             reasons.add("text ink missing on one side (screen=${text.screenBox}, pdf=${text.pdfBox})")
             return ParityVerdict.F4_GEOMETRY
         }
-        if (text.bboxDeviationPx > MAX_TEXT_BBOX_DEVIATION_PX ||
-            !(text.centroidDeltaPx <= MAX_TEXT_CENTROID_DELTA_PX)
-        ) {
+        // 0b. bbox 是整数指标：AA 边界带只允许 1 px，2 px 已是真缺陷（N04=5、N05=11）。
+        if (text.bboxDeviationPx > TEXT_THRESHOLDS.maxBboxDeviationPx) {
             reasons.add(
-                "text bboxDev=${text.bboxDeviationPx}px centroid=${text.centroidDeltaPx}px",
+                "text bboxDev=${text.bboxDeviationPx}px > ${TEXT_THRESHOLDS.maxBboxDeviationPx}px",
             )
             return ParityVerdict.F4_GEOMETRY
         }
-        if (!(text.massRatio in MIN_TEXT_MASS_RATIO..MAX_TEXT_MASS_RATIO) ||
-            text.columnTv > MAX_TEXT_PROFILE_TV ||
-            text.rowTv > MAX_TEXT_PROFILE_TV
+        // 0c. 质心：跨栅格欧氏距离；阈值 0.75 由噪声 0.518 与 N11 旋转 1.1665 夹住。
+        //     注意 1 px 整块平移**不保证**超过 0.75（|v + t| 方向相关；P07 反解约 0.608），
+        //     1 px 的抓取路径是 0b（bbox）与 0d（bestShift）。
+        if (!(text.centroidDeltaPx <= TEXT_THRESHOLDS.maxCentroidDeltaPx)) {
+            reasons.add(
+                "text centroid=${text.centroidDeltaPx}px > ${TEXT_THRESHOLDS.maxCentroidDeltaPx}px",
+            )
+            return ParityVerdict.F4_GEOMETRY
+        }
+        // 0d. 整像素位移的第二出口：带边缘裁切会让质心位移小于实际平移（墨量随平移离开统计带），
+        //     此时整像素位移面仍然能看见（N09 的补充锚；P06/P07 正例实测 bestShift=(0,0)）。
+        val shiftGain = metrics.bestShiftIou - metrics.iou
+        if ((metrics.bestShiftX != 0 || metrics.bestShiftY != 0) &&
+            (shiftGain.isNaN() || shiftGain > MIN_SHIFT_SENSITIVITY_GAIN)
+        ) {
+            reasons.add(
+                "text bestShift=(${metrics.bestShiftX},${metrics.bestShiftY}) gain=$shiftGain",
+            )
+            return ParityVerdict.F4_GEOMETRY
+        }
+        // 1. 字体 / 覆盖率面：同一字形下覆盖率差 >7% 或剖面形状差 >0.08 = 真缺陷
+        //    （N05 实测 mass=1.492 / tvColumn=0.480；N04 实测 0.558）。
+        if (!(text.massRatio in TEXT_THRESHOLDS.minMassRatio..TEXT_THRESHOLDS.maxMassRatio) ||
+            text.columnTv > TEXT_THRESHOLDS.maxProfileTv ||
+            text.rowTv > TEXT_THRESHOLDS.maxProfileTv
         ) {
             reasons.add(
                 "text massRatio=${text.massRatio} tvColumn=${text.columnTv} tvRow=${text.rowTv}",
             )
             return ParityVerdict.F1_FONT
         }
+        // 2. AA 面：护栏内的边缘差异只分类、不判红。P07 的归因就在这里落定
+        //    （AA 关 + hinting 开 → 屏掩膜 −14.6%，edgeMean=28.11、iou=0.8412 只报不判）。
         if (metrics.edgeMean >= EDGE_SIGNIFICANT_MEAN ||
-            (!metrics.iou.isNaN() && metrics.iou < TEXT_REPORTED_IOU_LIMIT)
+            (!metrics.iou.isNaN() && metrics.iou < TEXT_THRESHOLDS.reportedIouLimit)
         ) {
             reasons.add("text AA band only: edgeMean=${metrics.edgeMean} iou=${metrics.iou}")
             return ParityVerdict.F2_AA
@@ -583,27 +724,17 @@ internal object VisualDrawOpsParityMetrics {
      * R2 §5.3：只有**全部**越界读数都落在隔离带内时才允许 F5。
      * 任何不带隔离带的越界（位移、质心、剖面 TV）都保持红——"不可归因 ≠ 忽略"。
      *
+     * `calibrated-r1`：**TEXT 类的隔离带已删除（F5 恒 0）**。旧带允许 `bboxDev=2` 与
+     * `mass∈[0.90,0.93)` 降级成 F5（F5 不红、只计数）；质心放宽到 0.75 后，
+     * "bboxDev=2 + 质心 0.7" 会变成新的静默通过窗口——这是放宽本身引入的失败，
+     * 必须在同一轮堵掉（R2 §2.6-4）。非文本类的隔离带保持不变。
+     *
      * 色差面另加**占比**条件：`interiorMax` 在 `(2, 8]` 只是必要条件，超容差像素还必须
      * 不超过该夹具类自己的 `interiorFracOver2Limit`。否则"整块统一偏 3~8 级"会被当成
      * 孤立噪声降级成 F5（复核第 1 轮 R8）。
      */
     private fun isolationBandOnly(fixtureClass: ParityFixtureClass, metrics: ParityMetrics): Boolean {
-        if (fixtureClass == ParityFixtureClass.TEXT) {
-            val text = metrics.text ?: return false
-            val bboxViolated = text.bboxDeviationPx > MAX_TEXT_BBOX_DEVIATION_PX
-            val bboxInBand = text.bboxDeviationPx <= 2
-            val centroidViolated = !(text.centroidDeltaPx <= MAX_TEXT_CENTROID_DELTA_PX)
-            val massViolated = !(text.massRatio in MIN_TEXT_MASS_RATIO..MAX_TEXT_MASS_RATIO)
-            val massInBand = (text.massRatio >= 0.90 && text.massRatio < MIN_TEXT_MASS_RATIO) ||
-                (text.massRatio > MAX_TEXT_MASS_RATIO && text.massRatio <= 1.10)
-            val tvViolated = text.columnTv > MAX_TEXT_PROFILE_TV || text.rowTv > MAX_TEXT_PROFILE_TV
-            val anyViolation = bboxViolated || centroidViolated || massViolated || tvViolated
-            return anyViolation &&
-                !centroidViolated &&
-                !tvViolated &&
-                (!bboxViolated || bboxInBand) &&
-                (!massViolated || massInBand)
-        }
+        if (fixtureClass == ParityFixtureClass.TEXT) return false
         val iouFloor = fixtureClass.iouFloor
         val iouViolated = iouFloor != null && (metrics.iou.isNaN() || metrics.iou < iouFloor)
         val iouInBand = iouFloor != null && !metrics.iou.isNaN() && metrics.iou >= iouFloor - 0.01
@@ -843,11 +974,4 @@ internal object VisualDrawOpsParityMetrics {
         }
         return out
     }
-
-    private const val MAX_TEXT_BBOX_DEVIATION_PX = 1
-    private const val MAX_TEXT_CENTROID_DELTA_PX = 0.5
-    private const val MIN_TEXT_MASS_RATIO = 0.95
-    private const val MAX_TEXT_MASS_RATIO = 1.05
-    private const val MAX_TEXT_PROFILE_TV = 0.08
-    private const val TEXT_REPORTED_IOU_LIMIT = 0.99
 }
