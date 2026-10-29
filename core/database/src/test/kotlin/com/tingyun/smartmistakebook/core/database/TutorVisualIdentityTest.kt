@@ -18,6 +18,11 @@ import org.junit.Test
  *
  * 同时钉住一个**黄金向量**：长度前缀的字节布局一旦改动，已落库的 programId 就不再匹配
  * （等于所有历史程序身份漂移），所以它必须是显式变更，不能悄悄漂。
+ *
+ * **快照身份（schema 71 / S1）**：`deriveSnapshotId` 自 v71 起是
+ * `sha256(lp(programId) ‖ lp(stateSha) ‖ lp(drawSha) ‖ lp(rendererVersion) ‖ lp(fontVersion))`。
+ * 这里同样钉黄金向量，并额外钉住"渲染/字体版本变化必须换 id"——版本不进派生式时，painter
+ * 升级后的同内容提交会撞上旧行 id，`INSERT OR IGNORE` 把它吞掉，历史图从此只能只读恢复。
  */
 class TutorVisualIdentityTest {
 
@@ -67,26 +72,53 @@ class TutorVisualIdentityTest {
     }
 
     @Test
-    fun `snapshot id is content addressed under the program`() {
-        val state = TutorVisualIdentity.sha256Hex("""{"n":1}""")
-        val draw = TutorVisualIdentity.sha256Hex("""{"ops":[]}""")
-        val otherState = TutorVisualIdentity.sha256Hex("""{"n":2}""")
-        val otherDraw = TutorVisualIdentity.sha256Hex("""{"ops":[1]}""")
+    fun `snapshot id is content and render-version addressed under the program`() {
+        val first = snapshotId()
 
-        val first = TutorVisualIdentity.deriveSnapshotId(PROGRAM_ID, state, draw)
         assertEquals(
-            "同 program 同 state 同 draw 必须同一快照 id（重复提交幂等的基础）",
+            "同 program 同内容同版本必须同一快照 id（重复提交幂等的基础）",
             first,
-            TutorVisualIdentity.deriveSnapshotId(PROGRAM_ID, state, draw),
+            snapshotId(),
         )
-        assertNotEquals(first, TutorVisualIdentity.deriveSnapshotId(PROGRAM_ID, otherState, draw))
-        assertNotEquals(first, TutorVisualIdentity.deriveSnapshotId(PROGRAM_ID, state, otherDraw))
+        assertEquals(
+            "黄金向量：五段 u32be 长度前缀 + SHA-256 截断 32 位；改布局等于让历史快照身份漂移",
+            GOLDEN_SNAPSHOT_ID,
+            first,
+        )
+        assertTrue("快照身份前缀固定", first.startsWith(TutorVisualIdentity.SNAPSHOT_ID_PREFIX))
+        assertEquals(
+            "前缀 + 32 位十六进制截断",
+            TutorVisualIdentity.SNAPSHOT_ID_PREFIX.length + 32,
+            first.length,
+        )
+
+        assertNotEquals("state 变化必须换 id", first, snapshotId(stateJson = """{"n":2}"""))
+        assertNotEquals("draw 变化必须换 id", first, snapshotId(drawCommandsJson = """{"ops":[1]}"""))
         assertNotEquals(
             "不同 program 的快照身份必须分开",
             first,
-            TutorVisualIdentity.deriveSnapshotId("visual-program-other", state, draw),
+            snapshotId(programId = "visual-program-other"),
         )
-        assertTrue(first.startsWith(TutorVisualIdentity.SNAPSHOT_ID_PREFIX))
+        // schema 71 / S1 的核心：版本是身份的一部分。
+        assertNotEquals(
+            "渲染器版本变化必须产生另一个快照 id（否则新版本会撞旧行 id 被静默复用）",
+            first,
+            snapshotId(rendererVersion = "visual-renderer-v2"),
+        )
+        assertNotEquals(
+            "字体清单版本变化必须产生另一个快照 id（否则像素门升级后历史图永久只读）",
+            first,
+            snapshotId(fontManifestVersion = "font-manifest-v2"),
+        )
+    }
+
+    @Test
+    fun `snapshot length prefixes keep adjacent version fields unambiguous`() {
+        // 无长度前缀的朴素拼接会把这两组输入摘要成同一串。
+        val left = snapshotId(rendererVersion = "a", fontManifestVersion = "bc")
+        val right = snapshotId(rendererVersion = "ab", fontManifestVersion = "c")
+
+        assertNotEquals("长度前缀必须消除相邻版本字段的拼接歧义", left, right)
     }
 
     @Test
@@ -118,6 +150,20 @@ class TutorVisualIdentityTest {
         role = role,
     )
 
+    private fun snapshotId(
+        programId: String = PROGRAM_ID,
+        stateJson: String = SNAPSHOT_STATE_JSON,
+        drawCommandsJson: String = SNAPSHOT_DRAW_COMMANDS_JSON,
+        rendererVersion: String = RENDERER_VERSION,
+        fontManifestVersion: String = FONT_MANIFEST_VERSION,
+    ): String = TutorVisualIdentity.deriveSnapshotId(
+        programId = programId,
+        stateSha256 = TutorVisualIdentity.sha256Hex(stateJson),
+        drawCommandsSha256 = TutorVisualIdentity.sha256Hex(drawCommandsJson),
+        rendererVersion = rendererVersion,
+        fontManifestVersion = fontManifestVersion,
+    )
+
     private companion object {
         const val SOURCE_JS = "draw();"
         const val INITIAL_STATE_JSON = "{}"
@@ -126,6 +172,17 @@ class TutorVisualIdentityTest {
         const val SDK_VERSION = "visual-sdk-v1"
         const val ROLE = "QUESTION_DIAGRAM"
         const val PROGRAM_ID = "visual-program-batch30"
+        const val SNAPSHOT_STATE_JSON = """{"n":1}"""
+        const val SNAPSHOT_DRAW_COMMANDS_JSON = """{"ops":[]}"""
+        const val RENDERER_VERSION = "visual-renderer-v1"
+        const val FONT_MANIFEST_VERSION = "font-manifest-v1"
+
+        /**
+         * 由外部脚本按文档布局独立算出（u32be(len) ‖ bytes，五段）：
+         * `sha256(lp("visual-program-batch30") lp(sha256('{"n":1}'))
+         *  lp(sha256('{"ops":[]}')) lp("visual-renderer-v1") lp("font-manifest-v1"))[:32]`。
+         */
+        const val GOLDEN_SNAPSHOT_ID = "visual-snapshot-1f055235820cba524d912db1488b1174"
 
         /**
          * 由外部脚本按文档布局独立算出（u32be(len) ‖ bytes，六段）：

@@ -22,7 +22,8 @@ import org.junit.runner.RunWith
  * `for (version in 1..STUDY_DATABASE_VERSION)`）用的是空库，看不出"旧行还在不在、新表是不是
  * 空的、约束真不真"，所以这里用真库、真驱动实测：
  *
- * 1. 四张新表与 11 条索引按迁移建出来（列序/索引名/外键形态与实体声明逐位同形）。
+ * 1. 四张新表与索引按迁移建出来（列序/索引名/外键形态与实体声明逐位同形）。快照表的索引形状
+ *    按**当前版本**（v71）判定：v69→70 建的三列键会被 70→71 换成五列键（见下方"版本边界"）。
  *    **形状判定只读结构读数，不读 `sqlite_master.sql` 的 DDL 文本**：列序来自 `PRAGMA
  *    table_info`，索引名/唯一性来自 `PRAGMA index_list`，索引键列序来自 `PRAGMA
  *    index_info`，外键来自 `PRAGMA foreign_key_list`。SQLite 存进 `sqlite_master.sql`
@@ -32,9 +33,12 @@ import org.junit.runner.RunWith
  * 4. **外键负向**：缺父行写不进、被引用的父行删不掉（RESTRICT）、消息删了 link 级联走；
  * 5. 再开一次（迁移已是 no-op）形态与行不变——迁移幂等。
  *
- * 版本边界：本用例从导出的 v69 库打开到 `STUDY_DATABASE_VERSION`（当前 70）。schema 71
- * 落地后这条路径会连跑 70→71；若 70→71 改动快照身份/唯一键（同批任务 6），索引期望必须
- * 由那一轨按新契约更新，**不得在这里放宽断言**来迁就。
+ * 版本边界：本用例把导出的 v69 库打开到 `STUDY_DATABASE_VERSION`（当前 71），因此实际连跑
+ * 69→70 **与** 70→71。schema 71（批次 32 / S1）把快照唯一键从三列换成五列，所以"活库形状"
+ * 的期望在本文件已同步为 **v71 形状**（[CURRENT_INDEX_KEYS]）：旧三列索引必须消失、新五列
+ * 唯一索引必须在。`indexExpectationsStayInSyncWithTheMigrationDdlConstants` 仍只对 v69→70 的
+ * `TUTOR_VISUAL_*_DDL_69_70` 常量做同源核对（那批 DDL 是历史事实，不改写）。
+ * **不得**为了让套件变绿而把这里的索引期望放宽回三列。
  *
  * 另有一条 DAO 用例钉"只有 LIVE 快照可被消息引用"的 **SQL 级结构门**与指针 CAS 的
  * "命中行数判赢"（`TutorVisualDao` KDoc 的三条门）。
@@ -75,14 +79,14 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
             // 形状断言，结果外键负向与旧行保持一条都没跑到——现在行为证据先落袋。
             inspectV70DataPreservation(context, databaseName)
             assertV70ForeignKeyBehaviour(context, databaseName)
-            inspectV70Shape(context, databaseName)
+            inspectCurrentShape(context, databaseName)
 
             // 幂等：同一库再开一次（迁移已是 no-op）不得改变形态、旧行或新表的空态。
             val reopened = StudyDatabaseFactory.open(context, databaseName)
             assertEquals(STUDY_DATABASE_VERSION, reopened.readDatabaseVersion())
             reopened.close()
             inspectV70DataPreservation(context, databaseName)
-            inspectV70Shape(context, databaseName)
+            inspectCurrentShape(context, databaseName)
         } finally {
             context.deleteDatabase(databaseName)
         }
@@ -117,8 +121,14 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
             val staging = snapshotEntity(snapshotId = SNAPSHOT_STAGING, status = TutorVisualSnapshotStatus.STAGING)
             assertTrue("STAGING 快照必须写进去", dao.insertSnapshot(staging) > 0)
             assertNotNull(
-                "同内容再写一次回读的是既有行（INV-6：唯一索引幂等）",
-                dao.findSnapshotByContent(PROGRAM_ID, staging.stateSha256, staging.drawCommandsSha256),
+                "同内容同版本再写一次回读的是既有行（INV-6：唯一索引幂等）",
+                dao.findSnapshotByContent(
+                    PROGRAM_ID,
+                    staging.stateSha256,
+                    staging.drawCommandsSha256,
+                    staging.rendererVersion,
+                    staging.fontManifestVersion,
+                ),
             )
             dao.insertSnapshot(staging.copy(snapshotId = "$SNAPSHOT_STAGING-dup"))
             assertEquals(
@@ -251,7 +261,7 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
 
     /**
      * **断言自身可失败（负控）**。在临时库里造三种"看起来像、其实不是"的索引，用与
-     * [inspectV70Shape] 完全相同的读取器与判定比较：
+     * [inspectCurrentShape] 完全相同的读取器与判定比较：
      *
      * - 列序错位（`state_sha256, program_id`）必须判不等；
      * - 非唯一索引不得冒充唯一；
@@ -335,7 +345,7 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
 
     // ---- 真库形状 ----
 
-    private fun inspectV70Shape(context: Context, databaseName: String) {
+    private fun inspectCurrentShape(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
         try {
             val tables = tableNames(connection)
@@ -348,7 +358,8 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
 
             // 索引：名字集合（PRAGMA index_list）、键列序（PRAGMA index_info）、唯一性
             // （PRAGMA index_list 的 unique 列）。三者都是结构读数，不碰 sqlite_master.sql。
-            VISUAL_INDEX_KEYS.forEach { (table, expectedIndexKeys) ->
+            // 期望是**当前**（v71）形状：v69→70 建的三列唯一键已被 70→71 换掉。
+            CURRENT_INDEX_KEYS.forEach { (table, expectedIndexKeys) ->
                 assertEquals(
                     "$table 的索引一条不少、不多一条",
                     expectedIndexKeys.keys,
@@ -361,12 +372,17 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
                         indexKeyColumns(connection, indexName),
                     )
                     assertEquals(
-                        "索引 $indexName 的唯一性（UNIQUE 索引只该有一条：内容唯一键）",
-                        indexName in UNIQUE_INDICES,
+                        "索引 $indexName 的唯一性（UNIQUE 索引只该有一条：内容+版本唯一键）",
+                        indexName in CURRENT_UNIQUE_INDICES,
                         indexIsUnique(connection, table, indexName),
                     )
                 }
             }
+
+            assertFalse(
+                "v70 的三列内容键必须被 70→71 删除（留着会让新版本撞旧键）",
+                SNAPSHOT_CONTENT_INDEX_V70 in indexNames(connection, SNAPSHOT_TABLE),
+            )
 
             assertEquals(
                 "program 无外键（basis_revision_id 是软引用）",
@@ -949,6 +965,13 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
         const val SNAPSHOT_CONTENT_INDEX =
             "index_tutor_visual_snapshot_program_id_state_sha256_draw_commands_sha256"
 
+        /** v71 的五列内容+版本唯一键（`TutorVisualSnapshotEntity` 的显式索引名）。 */
+        const val SNAPSHOT_CONTENT_RENDER_INDEX =
+            "index_tutor_visual_snapshot_content_render_identity"
+
+        /** v70 的三列内容键名（70→71 必须 DROP 掉它）。 */
+        const val SNAPSHOT_CONTENT_INDEX_V70 = SNAPSHOT_CONTENT_INDEX
+
         const val LEARNER_ID = "learner-batch30"
         const val PROGRAM_ID = "visual-program-batch30"
         const val MESSAGE_ID = "message-batch30"
@@ -990,11 +1013,26 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
             ),
         )
 
-        /** 内容唯一键的三列（唯一键的匹配顺序，不可交换）。 */
+        /** 内容唯一键的三列（v69→70 DDL 的匹配顺序，不可交换）。 */
         val CONTENT_INDEX_COLUMNS = listOf("program_id", "state_sha256", "draw_commands_sha256")
 
-        /** 11 条索引里唯一带 UNIQUE 的一条：同 program 同内容只存一份。 */
+        /** v71 的内容+渲染版本键五列（顺序不可交换）。 */
+        val CONTENT_RENDER_INDEX_COLUMNS = listOf(
+            "program_id",
+            "state_sha256",
+            "draw_commands_sha256",
+            "renderer_version",
+            "font_manifest_version",
+        )
+
+        /**
+         * 11 条 **v69→70** 索引里唯一带 UNIQUE 的一条：同 program 同内容只存一份。
+         * 只服务 `indexExpectationsStayInSyncWithTheMigrationDdlConstants`（历史 DDL 同源核对）。
+         */
         val UNIQUE_INDICES = setOf(SNAPSHOT_CONTENT_INDEX)
+
+        /** 迁移到当前版本后快照表的唯一索引：v71 的五列键。 */
+        val CURRENT_UNIQUE_INDICES = setOf(SNAPSHOT_CONTENT_RENDER_INDEX)
 
         /**
          * 每条索引的期望键列序（= 实体 `@Index` 声明顺序 = 迁移 DDL 的列元组顺序）。
@@ -1024,6 +1062,22 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
                 "index_problem_revision_visual_program_id" to listOf("program_id"),
                 "index_problem_revision_visual_snapshot_id" to listOf("snapshot_id"),
             ),
+        )
+
+        /**
+         * 迁移到当前版本（v71）后的索引期望：快照表那组换成 70→71 之后的四条（五列唯一键 +
+         * 三条查询索引）；其余三张表不受 70→71 影响。活库形状判定用这一份，
+         * `VISUAL_INDEX_KEYS` 只留给 v69→70 的 DDL 同源核对。
+         */
+        val CURRENT_INDEX_KEYS = VISUAL_INDEX_KEYS + (
+            SNAPSHOT_TABLE to linkedMapOf(
+                SNAPSHOT_CONTENT_RENDER_INDEX to CONTENT_RENDER_INDEX_COLUMNS,
+                "index_tutor_visual_snapshot_program_id_promoted_at_epoch_millis" to
+                    listOf("program_id", "promoted_at_epoch_millis"),
+                "index_tutor_visual_snapshot_preview_asset_id" to listOf("preview_asset_id"),
+                "index_tutor_visual_snapshot_status_created_at_epoch_millis" to
+                    listOf("status", "created_at_epoch_millis"),
+            )
         )
 
         /**

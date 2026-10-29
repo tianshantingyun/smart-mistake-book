@@ -25,7 +25,12 @@ import java.io.File
  *    （message→link），其余被固定的事实一律 RESTRICT。
  *
  * 与仪器测试的分工：这里管"DDL 与 schema 文件一致 + 语句形状"，真库迁移/旧行/外键负向由
- * `TutorVisualSnapshotMigration_69_70InstrumentedTest` 管。
+ * `TutorVisualSnapshotMigration_69_70InstrumentedTest` 与
+ * `TutorVisualSnapshotIdentityMigration_70_71InstrumentedTest` 管。
+ *
+ * **schema 71（批次 32 / S1）**：v70 的四表断言**原样冻结**（历史事实不改写），另加一层
+ * "快照唯一键在 v71 换成五列"的断言——见
+ * `the snapshot identity key gains render and font versions only in 71`。
  *
  * 注：`70.json` 是 Room 编译器（KSP）在构建时写进 `schemas/` 的导出物，**不手工维护**；
  * 本批次没有运行 Gradle，所以它随首次构建出现（见同目录 `70.json.NOT_EXPORTED.md`）。
@@ -374,6 +379,57 @@ class TutorVisualSchemaContractTest {
         assertEquals("单图 = 第 0 张：DEFAULT 0 与 v69 先例同形", "0", ordinal.defaultValue)
     }
 
+    @Test
+    fun `the snapshot identity key gains render and font versions only in 71`() {
+        val v70 = exportedTable(SNAPSHOT_TABLE, 70)
+        val v71 = exportedTable(SNAPSHOT_TABLE, 71)
+
+        // v70 侧保持冻结：三列内容键是历史事实，迁移必须从它出发。
+        assertTrue(
+            "70 里必须还是三列内容键（否则这条迁移没有意义）",
+            v70.indices.any { it.name == SNAPSHOT_CONTENT_INDEX && it.unique },
+        )
+        assertTrue(
+            "71 里不许再有 v70 的三列唯一键（Room 会因'实际索引集合多一个'在真机升级时失败）",
+            v71.indices.none { it.name == SNAPSHOT_CONTENT_INDEX },
+        )
+
+        val identity = v71.indices.single { it.name == SNAPSHOT_CONTENT_RENDER_INDEX }
+        assertTrue("内容+渲染版本唯一键必须 unique=true", identity.unique)
+        assertEquals(
+            "五列与实体声明逐位一致（顺序即唯一键的匹配顺序）",
+            "CREATE UNIQUE INDEX IF NOT EXISTS `$SNAPSHOT_CONTENT_RENDER_INDEX` ON " +
+                "`$SNAPSHOT_TABLE` (`program_id`, `state_sha256`, `draw_commands_sha256`, " +
+                "`renderer_version`, `font_manifest_version`)",
+            identity.createSql.replace(TABLE_PLACEHOLDER, SNAPSHOT_TABLE),
+        )
+        assertEquals(
+            "迁移 DDL 必须与 71.json 的 createSql 逐字一致（真机升级按它校验）",
+            identity.createSql.replace(TABLE_PLACEHOLDER, SNAPSHOT_TABLE),
+            VISUAL_SNAPSHOT_IDENTITY_INDEX_DDL_70_71,
+        )
+        assertEquals(
+            "快照表索引集合：新唯一键 + 三条原样保留的查询索引",
+            setOf(
+                SNAPSHOT_CONTENT_RENDER_INDEX,
+                "index_tutor_visual_snapshot_program_id_promoted_at_epoch_millis",
+                "index_tutor_visual_snapshot_preview_asset_id",
+                "index_tutor_visual_snapshot_status_created_at_epoch_millis",
+            ),
+            v71.indices.map { it.name }.toSet(),
+        )
+        assertEquals(
+            "71 相对 70 只换索引：列一列不增不减",
+            v70.fields.map { it.columnName },
+            v71.fields.map { it.columnName },
+        )
+        assertTrue(
+            "旧三列索引必须被显式 DROP（同名 CREATE … IF NOT EXISTS 不会改列）",
+            DROP_VISUAL_SNAPSHOT_CONTENT_INDEX_70_71.startsWith("DROP INDEX IF EXISTS ") &&
+                DROP_VISUAL_SNAPSHOT_CONTENT_INDEX_70_71.contains(SNAPSHOT_CONTENT_INDEX),
+        )
+    }
+
     // ---- fixtures ----
 
     private fun exportedTable(tableName: String, version: Int): TutorVisualSchemaEntity =
@@ -397,6 +453,10 @@ class TutorVisualSchemaContractTest {
         const val REVISION_VISUAL_TABLE = "problem_revision_visual"
         const val SNAPSHOT_CONTENT_INDEX =
             "index_tutor_visual_snapshot_program_id_state_sha256_draw_commands_sha256"
+
+        /** v71 的五列内容+渲染版本唯一键（`TutorVisualSnapshotEntity` 的显式索引名）。 */
+        const val SNAPSHOT_CONTENT_RENDER_INDEX =
+            "index_tutor_visual_snapshot_content_render_identity"
         const val TABLE_PLACEHOLDER = "\${TABLE_NAME}"
 
         val NEW_TABLES = listOf(PROGRAM_TABLE, SNAPSHOT_TABLE, MESSAGE_VISUAL_TABLE, REVISION_VISUAL_TABLE)
