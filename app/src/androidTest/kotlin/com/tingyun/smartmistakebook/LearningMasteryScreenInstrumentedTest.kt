@@ -7,6 +7,9 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.pinch
@@ -25,6 +28,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
+import com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled
 import java.io.File
 import java.io.FileOutputStream
 import org.junit.Assert.assertFalse
@@ -116,6 +120,11 @@ class LearningMasteryScreenInstrumentedTest {
         composeRule.onNodeWithTag("learning_mastery_point:new").assertTextContains("证据还少")
         composeRule.onNodeWithText("平均掌握估计 · 证据还少").assertExists()
         captureReviewForestScreenshot("mastery-no-evidence")
+        composeRule.onNodeWithTag("star_local_mode").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithContentDescription("知识星图，1 个知识点，0 条已确认的前置关系。", substring = true).assertExists()
+        composeRule.onNodeWithText("该知识暂无已记录的直接关联，可在知识总览查看其他知识。").assertExists()
+        composeRule.onNodeWithTag("knowledge_star_observatory").performScrollTo()
+        saveChartScreenshot("knowledge-local-no-relations")
     }
 
     @Test
@@ -156,14 +165,176 @@ class LearningMasteryScreenInstrumentedTest {
             click(Offset(width * target.x, height * target.y))
         }
         composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数应用")
+        composeRule.onNodeWithTag("knowledge_star_observatory").performScrollTo()
         saveChartScreenshot("knowledge-constellation")
-        composeRule.onNodeWithTag("star_select:m2").performScrollTo().performClick()
+        saveStarFieldScreenshot("knowledge-star-field")
+        selectKnowledge("m2")
         composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数应用")
-        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("已记录的前置知识：函数")
+        composeRule.onNodeWithTag("star_relation:before:m").assertExists()
+        composeRule.onNodeWithTag("star_relation:before:m").performScrollTo().performClick()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数")
+        composeRule.onNodeWithTag("star_relation:after:m2").assertExists()
         composeRule.onNodeWithTag("mastery_radar_chart").performScrollTo().assertIsDisplayed()
         saveChartScreenshot("knowledge-radar")
         composeRule.onNodeWithTag("knowledge_constellation").assertExists()
         composeRule.onNodeWithTag("mastery_axis_chart").assertDoesNotExist()
+    }
+
+    @Test
+    fun relationSelectionRevealsHiddenGroupsAndSubjectFilteringResetsTheCamera() {
+        val records = (0..20).map { i -> summary("m${i.toString().padStart(2, '0')}", "函数知识$i",
+            SubjectKind.MATH, "函数", MasteryStatus.LEARNING, .58, 0L) }
+        val physics = summary("p", "牛顿第二定律", SubjectKind.PHYSICS, "力学", MasteryStatus.MASTERED, .88, 0L)
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                LearningMasteryScreen(overview = StudyProfileOverview(hasLearningEvidence = true,
+                    weaknesses = records, strengths = listOf(physics),
+                    knowledgePrerequisites = mapOf("m20" to setOf("m00"), "p" to setOf("m20"))), onBack = {})
+            }
+        }
+        composeRule.onNodeWithTag("star_relation:after:m20").performScrollTo().performClick()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数知识20")
+        composeRule.onNodeWithText("2 / 2").assertExists()
+        selectSubject("MATH")
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数知识0")
+        composeRule.onNodeWithTag("star_relation:after:m20").performScrollTo().performClick()
+        composeRule.onNodeWithTag("star_relation:after:p").performScrollTo().performClick()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("牛顿第二定律")
+        composeRule.onNodeWithTag("star_next_page").assertDoesNotExist()
+        composeRule.onNodeWithTag("star_zoom_in").performScrollTo().performClick()
+        composeRule.onNodeWithText("125%").assertExists()
+        selectSubject("MATH")
+        composeRule.onNodeWithText("100%").assertExists()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数知识0")
+        composeRule.onNodeWithTag("star_next_page").performScrollTo().performClick()
+        selectKnowledge("m20")
+        composeRule.onNodeWithTag("knowledge_star_observatory").performScrollTo()
+        saveChartScreenshot("knowledge-star-second-group")
+    }
+
+    @Test
+    fun denseStarsRemainUsableWithLargeTextAndReducedMotion() {
+        val records = (0..17).map { i -> summary("k${i.toString().padStart(2, '0')}", "函数与方程的综合应用知识$i",
+            SubjectKind.MATH, "函数", MasteryStatus.entries[i % MasteryStatus.entries.size], .58, 0L) }
+        composeRule.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, 1.6f),
+                LocalClaudeMotionEnabled provides false) {
+                SmartMistakeBookTheme {
+                    LearningMasteryScreen(overview = StudyProfileOverview(hasLearningEvidence = true,
+                        weaknesses = records, knowledgePrerequisites = (1..17).associate {
+                            "k${it.toString().padStart(2, '0')}" to setOf("k${(it - 1).toString().padStart(2, '0')}") }), onBack = {})
+                }
+            }
+        }
+        composeRule.onNodeWithTag("knowledge_star_observatory").performScrollTo()
+        saveChartScreenshot("knowledge-star-large-text")
+        saveStarFieldScreenshot("knowledge-star-dense-field")
+        composeRule.onNodeWithTag("star_zoom_in").performScrollTo().performClick()
+        composeRule.onNodeWithText("125%").assertExists()
+        composeRule.onNodeWithTag("star_zoom_out").performClick()
+        composeRule.onNodeWithText("100%").assertExists()
+        selectKnowledge("k17")
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数与方程的综合应用知识17")
+        composeRule.onNodeWithTag("star_relation:before:k16").performScrollTo().performClick()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数与方程的综合应用知识16")
+    }
+
+    @Test
+    fun starNameLabelsCanBeTappedBeyondTheSmallStarTouchCircle() {
+        val records = listOf(summary("a", "函数", SubjectKind.MATH, "函数", MasteryStatus.LEARNING, .58, 0L),
+            summary("b", "函数应用", SubjectKind.MATH, "函数", MasteryStatus.LEARNING, .68, 0L))
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                LearningMasteryScreen(overview = StudyProfileOverview(hasLearningEvidence = true,
+                    weaknesses = records), onBack = {})
+            }
+        }
+        val target = constellationStars(records, emptyList()).single { it.knowledge.knowledgeNodeId == "b" }
+        val density = ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.density
+        composeRule.onNodeWithTag("knowledge_star_field").performScrollTo().assertIsDisplayed().performTouchInput {
+            click(Offset(width * target.x, height * target.y + 28f * density))
+        }
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数应用")
+    }
+
+    @Test
+    fun localGraphRevealsCrossGroupNeighborsAndRecentersOnlyWhenRequested() {
+        val records = (0..20).map { i -> summary("m${i.toString().padStart(2, '0')}",
+            when (i) { 0 -> "函数"; 20 -> "函数应用"; else -> "函数知识$i" },
+            SubjectKind.MATH, "函数", MasteryStatus.LEARNING, .58, 0L) }
+        val physics = summary("p", "位移与速度关系", SubjectKind.PHYSICS, "运动", MasteryStatus.MASTERED, .88, 0L)
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                LearningMasteryScreen(overview = StudyProfileOverview(hasLearningEvidence = true,
+                    weaknesses = records, strengths = listOf(physics),
+                    knowledgePrerequisites = mapOf("m20" to setOf("m00"), "p" to setOf("m20"))), onBack = {})
+            }
+        }
+        composeRule.onNodeWithTag("star_view_relations").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithTag("star_local_anchor").assertTextContains("围绕：函数")
+        composeRule.onNodeWithContentDescription("知识星图，2 个知识点，1 条已确认的前置关系。", substring = true).assertExists()
+        composeRule.onNodeWithTag("star_next_page").assertDoesNotExist()
+        selectKnowledge("m20")
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数应用")
+        composeRule.onNodeWithTag("star_local_anchor").assertTextContains("围绕：函数")
+        composeRule.onNodeWithTag("star_view_relations").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithTag("star_local_anchor").assertTextContains("围绕：函数应用")
+        composeRule.onNodeWithContentDescription("知识星图，3 个知识点，2 条已确认的前置关系。", substring = true).assertExists()
+        composeRule.onNodeWithTag("star_subject_selector").assertDoesNotExist()
+        composeRule.onNodeWithTag("knowledge_star_observatory").performScrollTo()
+        saveChartScreenshot("knowledge-local-relations")
+        saveStarFieldScreenshot("knowledge-local-field")
+        composeRule.onNodeWithTag("star_overview_mode").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithTag("star_local_anchor").assertDoesNotExist()
+        composeRule.onNodeWithText("2 / 2").assertExists()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数应用")
+    }
+
+    @Test
+    fun localGraphPaginationAlwaysKeepsTheCenterKnowledgeVisible() {
+        val records = (0..20).map { i -> summary("m${i.toString().padStart(2, '0')}", "函数知识$i",
+            SubjectKind.MATH, "函数", MasteryStatus.LEARNING, .58, 0L) }
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                LearningMasteryScreen(overview = StudyProfileOverview(hasLearningEvidence = true,
+                    weaknesses = records, knowledgePrerequisites = (0..19).associate {
+                        "m${it.toString().padStart(2, '0')}" to setOf("m20") }), onBack = {})
+            }
+        }
+        composeRule.onNodeWithTag("star_relation:before:m20").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithTag("star_local_mode").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithContentDescription("知识星图，18 个知识点，17 条已确认的前置关系。", substring = true).assertExists()
+        composeRule.onNodeWithTag("star_next_page").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithContentDescription("知识星图，4 个知识点，3 条已确认的前置关系。", substring = true).assertExists()
+        composeRule.onNodeWithTag("star_select:m20").assertExists()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数知识20")
+        composeRule.onNodeWithTag("star_overview_mode").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithText("2 / 2").assertExists()
+        composeRule.onNodeWithTag("knowledge_star_details").assertTextContains("函数知识20")
+    }
+
+    private fun selectSubject(name: String) {
+        composeRule.onNodeWithTag("star_subject_selector").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithTag("star_subject:$name").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.waitForIdle()
+    }
+
+    private fun selectKnowledge(id: String) {
+        composeRule.onNodeWithTag("star_knowledge_selector").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithTag("star_select:$id").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.waitForIdle()
+    }
+
+    private fun saveStarFieldScreenshot(name: String) {
+        composeRule.waitForIdle()
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val directory = requireNotNull(context.getExternalFilesDir("full-ui-forest"))
+        directory.mkdirs()
+        File(directory, "$name.png").outputStream().use { output ->
+            composeRule.onNodeWithTag("knowledge_star_field").captureToImage().asAndroidBitmap()
+                .compress(Bitmap.CompressFormat.PNG, 100, output)
+        }
     }
 
     private fun saveChartScreenshot(name: String) {
