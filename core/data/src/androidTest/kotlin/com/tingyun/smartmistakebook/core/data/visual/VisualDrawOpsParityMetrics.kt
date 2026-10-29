@@ -18,24 +18,37 @@ import kotlin.math.max
  * 单一分数会把"内容缺失"平均掉。这里用两个正交量——`iou`（错几个像素）与 `chanDist`
  * （差几级）——外加文本的 bbox/质心/墨量/剖面，每一个都能手算复核。
  *
- * 判据来源与阈值版本见 [THRESHOLD_VERSION]。批次 31 T4 按
- * `docs/research/2026-10-29-parity-calibration.md` 把 TEXT 类标定为 `calibrated-r1`：
+ * 判据来源与阈值版本见 [THRESHOLD_VERSION]。批次 32 T2 按
+ * `docs/research/2026-10-29-parity-metric-correction.md` 把 TEXT 类判据记为 `calibrated-r2`：
+ * **数值一个不动**（沿用 r1 的设备读数依据），改的是判据声明与 N09 期望——旧版本号曾同时
+ * 承载标量窗口与新文案，按版本引用会读到错的那套（研究文档 §3.6）。
  *
- * - **这是标定第一轮**（`calibrated-r1`），依据是**同设备同夹具的设备读数**，不是第一原理推导：
- *   P07 `centroid=0.5181329158118464 / bboxDev=1 / maskS=1224 maskP=1431`（两轮逐位同值）、
- *   AA 开对照 `centroid=0.44`。批次 31 设备否证了"1 px 整块平移信号 = `1.000`（平移不变性）"：
- *   `centroidDeltaPx` 是屏↔PDF 的**跨栅格欧氏距离**，平移 t 后读 |v + t|（v = 基线质心偏移），
- *   方向相关（P06 +1 px 实测 `1.2624767812258337`；P07 反解应约 0.608 < 0.75）。1 px 位移
- *   由 bbox / `bestShift` 抓，不是质心。
+ * - **度量定义**：`centroidDeltaPx` 是屏栅格与 PDF 栅格之间的**跨栅格欧氏距离**
+ *   `d(t) = ‖v + t‖`（v = 基线质心偏移，t = 对 PDF 侧的整块平移），**不是**同一侧平移
+ *   前后的质心差 `‖t‖`。两者只在 v 与 t 同向时相等；本门夹具的 AA/字体结构差使 `‖v‖ > 0`
+ *   （P07 = 0.5181，P06 = 0.32）。设备读数：P06 `(+1,0)` 实测 `1.2624767812258337`；
+ *   P07 由 N12 的 `(+4,0)` 读数 `3.56014654994809` 反解 `v = (−0.4492, ±0.2582)`，
+ *   `(+1,0)` 预测 `0.608282`——批次 32 E-02 已在设备上实测同值
+ *   `0.608282132824767`（`build/device-track-batch32/step08-parity-logcat.txt`），不再是未上设备的预测。
  *   解析上界在本例是 `(1431−1224)/1224 × 35 ≈ 5.9 px`，比实测大 11 倍——**不能**拿它定阈值。
+ * - **位移检测责任（主 / 辅 / 护栏）**：`bestShift` 是**主**判据（带符号、不看基线；搜索
+ *   半径 3，`|t| ≥ 4` 饱和成"非零"）；`bboxDeviationPx` 是**辅**整数判据（1 px 的命中依赖
+ *   基线偏移方向，最坏只保证每轴 ≥ 3 px）；质心**不是**位移判据，只作形状 / 权重分布护栏
+ *   （N11 旋转实测 1.1665）。三者保证不同，不得互相顶替，也不得写成"质心 + bbox 双保险抓
+ *   1 px"。
+ * - **阈值语义**：0.75 = 跨栅格噪声上界（P07 0.5181）+ 绝对余量（0.232），抓形状粗差。
+ *   **保证**：本夹具上整像素位移 ≥ 2 px 必红（`‖v‖ + τ = 1.268 < 2`）；1 px **不保证**——
+ *   P07 `(+1,0)` 反解 0.608、`(−1,0)` 反解 1.472，同一操作结论随方向翻转。
+ * - **盲区是集合，不是标量窗口**：判据 `d ≤ τ_c` 的通过集 = 闭圆盘 `B(−v, τ_c)`；P07 圆心
+ *   `(0.4492, −0.2582)`、半径 0.75，沿 `−v̂` 覆盖到 `‖t‖ ≤ 1.268`，沿 `+v̂` 只有 0.232。
+ *   `vy` 的符号不能由 x 向读数确定，盲盘在 x 轴两侧镜像等价（不影响模长结论）。
  * - **不可外推**：只对"同一设备 + 同一 AA 状态（KD-78 ④ `flags=0`）+ 字形位置整像素"的
  *   192×128 夹具成立。跨 API / 跨设备 / 跨 fontScale / 其它字形必须先重基线
  *   （`PARITY_ENV_DRIFT`），**不得**把 0.75 px 当普适常数。
- * - **已知盲区（批次 31 设备更正）**：质心对 1 px 位移的分辨力**方向相关**——它是跨栅格欧氏
- *   距离，整块平移 t 读 |v + t|，不是同侧位移差；1 px 位移可能读 1.2625（P06）也可能读
- *   约 0.608（P07 反解）。因此不再宣称单一标量窗口 "(0, 0.76) px 不可分辨"；质心仍保留为
- *   硬护栏（N11 旋转实测 1.1665），但 1 px 的抓取路径是 bbox / `bestShift`。要分辨亚像素
- *   位移必须另配亚像素仪器，**不得**再动质心阈值。
+ * - **证据状态**：批次 32 E-02 已在本设备跑完全套件 **`OK (16 tests)`**，15 条负控全部为红
+ *   （`build/device-track-batch32/step08-parity.log:1`、`…-logcat.txt`）；因此 `calibrated-r2`
+ *   **在本设备/本夹具上已验证**。任何后续 `Tests run … Failures>0` 的一轮都**不得**描述为
+ *   "calibrated 已验证"——验证结论只属于对应的那一轮源码/设备。
  * - 本门仍是**原型门**：不得引用为产品门 / 发版门 / "PDF 可用"的证据。
  */
 
@@ -123,7 +136,10 @@ internal data class TextParityMetrics(
     val pdfBox: InkBox?,
     /** 四边最大偏离；任一侧无墨 → `Int.MAX_VALUE`（按红处理，不降级 F5）。 */
     val bboxDeviationPx: Int,
-    /** 墨量加权质心的欧氏距离（px）；任一侧墨量为 0 → `NaN`。 */
+    /**
+     * 屏↔PDF **跨栅格**墨量加权质心的欧氏距离 `‖c_P − c_S‖`（px）；不是同侧平移前后的质心差，
+     * 平移 t 后读 `‖v + t‖`（方向相关）。任一侧墨量为 0 → `NaN`。
+     */
     val centroidDeltaPx: Double,
     /** `Σmass_P / Σmass_S`；屏侧墨量为 0 → `NaN`。 */
     val massRatio: Double,
@@ -180,14 +196,18 @@ internal data class ParityDecision(
 )
 
 /**
- * TEXT 类的判决阈值（`calibrated-r1`）。单独成对象而不是散落的 `private const`：
+ * TEXT 类的判决阈值（`calibrated-r2`）。单独成对象而不是散落的 `private const`：
  * 判决、证据日志（`PARITY … thr=`）与设备断言必须读**同一份**数值，否则日志会写一个
  * 代码已不再执行的阈值——那样的证据无法复核（R2 §4.3-4 / §4.5）。
  *
+ * `calibrated-r2` **不改数值**，只纠正判据声明与 N09 期望（跨栅格欧氏距离，见文件头）；
+ * 版本号随"声明"变而不只随"数字"变，否则同一标识会同时承载两套互相矛盾的说明。
+ *
  * 变更依据（设备读数出处 `build/device-track-batch30/step05-parity-logcat.txt:119-122`）：
- * - `maxCentroidDeltaPx` 0.5 → 0.75：噪声实测 0.518（CJK / AA 关），N11 旋转实测 1.1665；
- *   1 px 平移**不是**质心信号（跨栅格欧氏距离，方向相关；P06 +1 px 读 1.2625、P07 反解约
- *   0.608），故 0.75 的依据是"噪声上侧余量 + N11 形状错"，不是"1 px 信号 1.000"。
+ * - `maxCentroidDeltaPx` 0.5 → 0.75（r1）：噪声实测 0.518（CJK / AA 关），N11 旋转实测 1.1665。
+ *   0.75 的依据是"噪声上侧余量 + N11 形状错"，**不是** 1 px 平移信号：跨栅格读数
+ *   `‖v + t‖` 方向相关（P06 +1 px 读 1.2625、P07 反解 0.608），质心的保证分辨力只有
+ *   "整像素 ≥ 2 px 必红"，1 px 由 `bestShift`（主）与 `bboxDev`（辅）承担。
  *   上余量 0.232、下余量 0.250（R2 §4.3-1 的双侧绝对余量口径）。
  * - `minMassRatio`/`maxMassRatio` 0.95/1.05 → 0.93/1.07：AA 结构摆幅 4.9 pp
  *   （P07 0.957 ↔ 1.006 两端都要落在界内）；真实覆盖率缺陷 ≥10%。
@@ -233,17 +253,21 @@ internal object VisualDrawOpsParityMetrics {
     /**
      * 阈值版本（R2 §4.3-4：读数必须与版本号一起进证据）。
      *
-     * `calibrated-r1` = **标定第一轮**（批次 31 任务 7）：只重标 TEXT 类，其余夹具类逐字不变
-     * （V/A/G/D/G-c 的 IoU 下限、`interiorMax≤2`、`frac2` 上限、`bestShift` 规则、`τ_bg=6` 全部不动）。
-     * 前身 `R2-2026-10-28/§4.2-initial-uncalibrated` 的 0.5 px 质心阈值在 AA 关的结构下
-     * 从落地起就不可能被正例满足（噪声上界 0.518 > 阈值 0.5）。
-     * 不可外推边界见文件头 KDoc。
+     * `calibrated-r2` = **标定第二轮**（批次 32 T2）：**数值一个不动**
+     * （0.75 / [0.93,1.07] / bbox 1 / TV 0.08），改的是判据声明与 N09 期望——
+     * `centroidDeltaPx` 按跨栅格欧氏距离 `‖v + t‖` 解释、盲区写成闭圆盘 `B(−v, τ_c)`、
+     * 位移责任写明 `bestShift` 主 / `bboxDev` 辅 / 质心只作形状护栏。
+     * 上一版 `calibrated-r1` 的数值依据仍然有效（P07 噪声 0.5181、N11 旋转 1.1665）；
+     * 升级理由是"声明变了就升版本"（`docs/research/2026-10-29-parity-metric-correction.md`
+     * §3.6）：r1 的同一标识曾同时印出旧的 `(0,0.76)` 标量窗口与新的方向相关文案。
+     * 不可外推边界见文件头 KDoc；批次 32 E-02 已在本设备跑出 `OK (16 tests)` 且 15 条负控全红，
+     * `calibrated-r2` 在该设备/夹具上已验证（仍不构成跨设备/跨 API 声明，见文件头）。
      */
-    const val THRESHOLD_VERSION = "calibrated-r1"
+    const val THRESHOLD_VERSION = "calibrated-r2"
 
     /**
-     * `calibrated-r1` 的 TEXT 阈值（**唯一事实源**）：判决、证据日志与设备断言都读这里。
-     * 数值依据见 [TextThresholds] 的 KDoc。
+     * `calibrated-r2` 的 TEXT 阈值（**唯一事实源**）：判决、证据日志与设备断言都读这里。
+     * 数值与 r1 相同；数值依据见 [TextThresholds] 的 KDoc。
      */
     val TEXT_THRESHOLDS = TextThresholds(
         version = THRESHOLD_VERSION,
@@ -644,7 +668,7 @@ internal object VisualDrawOpsParityMetrics {
     }
 
     /**
-     * TEXT 类判决（`calibrated-r1`）：**带硬几何护栏的 AA/字体归因优先**。
+     * TEXT 类判决（`calibrated-r2`）：**带硬几何护栏的 AA/字体归因优先**。
      *
      * 计划任务 7 的字面形态（把 `edgeMean >= EDGE_SIGNIFICANT_MEAN → F2_AA` 提到 bbox/质心
      * 之前）会**当场关掉门**：N04（label x +1 du）实测 `edgeMean=127.79`，字面换序后判
@@ -653,9 +677,10 @@ internal object VisualDrawOpsParityMetrics {
      *
      * 0. 硬几何护栏（任一条成立 → `F4_GEOMETRY`，不允许被 F1/F2 抢占）
      *    a. 任一侧带内无墨（内容缺失 / 整页错画）
-     *    b. `bboxDev > 1`
-     *    c. `centroid > 0.75`（含 `NaN`）
-     *    d. `bestShift != (0,0)` 且 `gain > 0.02`
+     *    b. `bboxDev > 1`（**辅**整数判据：1 px 的命中依赖基线偏移方向，最坏保证 ≥3 px/轴）
+     *    c. `centroid > 0.75`（含 `NaN`）。**形状护栏，不是位移计**：跨栅格读数 `‖v + t‖`
+     *       方向相关，只保证整像素 ≥2 px 位移必红；1 px 不保证（P07 `(+1,0)` 读 0.608）
+     *    d. `bestShift != (0,0)` 且 `gain > 0.02`（**主**位移判据：带符号、不看基线）
      * 1. 字体 / 覆盖率面（红）→ `F1_FONT`
      * 2. AA 面（不红）→ `F2_AA`
      * 3. 全过 → `PASS`
@@ -679,16 +704,17 @@ internal object VisualDrawOpsParityMetrics {
             return ParityVerdict.F4_GEOMETRY
         }
         // 0c. 质心：跨栅格欧氏距离；阈值 0.75 由噪声 0.518 与 N11 旋转 1.1665 夹住。
-        //     注意 1 px 整块平移**不保证**超过 0.75（|v + t| 方向相关；P07 反解约 0.608），
-        //     1 px 的抓取路径是 0b（bbox）与 0d（bestShift）。
+        //     它**不是**位移计：只保证整像素 ≥2 px 位移必红，1 px 由方向决定（P07 反解 0.608），
+        //     1 px 的抓取路径是 0b（bbox，辅）与 0d（bestShift，主）。
         if (!(text.centroidDeltaPx <= TEXT_THRESHOLDS.maxCentroidDeltaPx)) {
             reasons.add(
                 "text centroid=${text.centroidDeltaPx}px > ${TEXT_THRESHOLDS.maxCentroidDeltaPx}px",
             )
             return ParityVerdict.F4_GEOMETRY
         }
-        // 0d. 整像素位移的第二出口：带边缘裁切会让质心位移小于实际平移（墨量随平移离开统计带），
-        //     此时整像素位移面仍然能看见（N09 的补充锚；P06/P07 正例实测 bestShift=(0,0)）。
+        // 0d. 整像素位移的**主**判据：带符号、不看基线；搜索半径 3，|t|≥4 饱和成"非零"。
+        //     质心不可靠时（方向不利，如 P07 的 +1 px）位移只由本条与 0b 看见。
+        //     P06/P07 正例实测 bestShift=(0,0)。
         val shiftGain = metrics.bestShiftIou - metrics.iou
         if ((metrics.bestShiftX != 0 || metrics.bestShiftY != 0) &&
             (shiftGain.isNaN() || shiftGain > MIN_SHIFT_SENSITIVITY_GAIN)
@@ -724,10 +750,10 @@ internal object VisualDrawOpsParityMetrics {
      * R2 §5.3：只有**全部**越界读数都落在隔离带内时才允许 F5。
      * 任何不带隔离带的越界（位移、质心、剖面 TV）都保持红——"不可归因 ≠ 忽略"。
      *
-     * `calibrated-r1`：**TEXT 类的隔离带已删除（F5 恒 0）**。旧带允许 `bboxDev=2` 与
-     * `mass∈[0.90,0.93)` 降级成 F5（F5 不红、只计数）；质心放宽到 0.75 后，
-     * "bboxDev=2 + 质心 0.7" 会变成新的静默通过窗口——这是放宽本身引入的失败，
-     * 必须在同一轮堵掉（R2 §2.6-4）。非文本类的隔离带保持不变。
+     * `calibrated-r2`：**TEXT 类的隔离带已删除（F5 恒 0）**。旧带允许 `bboxDev=2` 与
+     * `mass∈[0.90,0.93)` 降级成 F5（F5 不红、只计数）；质心阈值 0.75 下，"bboxDev=2 + 质心 0.7"
+     * 会变成新的静默通过窗口——这是阈值放宽引入的失败，必须在同一轮堵掉（R2 §2.6-4）。
+     * 非文本类的隔离带保持不变。
      *
      * 色差面另加**占比**条件：`interiorMax` 在 `(2, 8]` 只是必要条件，超容差像素还必须
      * 不超过该夹具类自己的 `interiorFracOver2Limit`。否则"整块统一偏 3~8 级"会被当成

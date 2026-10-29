@@ -33,14 +33,21 @@ import kotlin.math.roundToInt
  *
  * - **不接产品门**：不进入 `docs/current/release-gates.md`，不改变任何产品行为。
  * - **不接 CI 门禁**：本类只在设备轨手工 `am instrument` 执行；没有 Gradle 任务依赖它。
- * - **不得宣传为发版门 / "PDF 可用"的证据**：阈值是 `calibrated-r1`（**标定第一轮**，
- *   依据 `build/device-track-batch30/step05-parity-logcat.txt:119-122` 的设备读数，
- *   不是第一原理推导）。**不可外推**到别的设备 / API / fontScale / AA 状态 / 字形；
- *   跨这些维度必须先重基线（R2 §3.3 `PARITY_ENV_DRIFT`）。**已知盲区（批次 31 设备更正）**：
- *   `centroidDeltaPx` 是屏↔PDF 的跨栅格欧氏距离，整块平移 t 读 |v + t|（v = 基线质心偏移），
- *   方向相关；1 px 位移由 bbox（基线 bboxDev=1 时 +1 → 2）与 `bestShift` 分支抓，**不由质心保证**
- *   （P06 +1 px 实测 1.2625；P07 反解应约 0.608 < 0.75）。因此不再宣称 "文本亚像素几何在
- *   (0,0.76) px 不可分辨" 这一标量窗口——质心对 1 px 位移的分辨力取决于方向。
+ * - **不得宣传为发版门 / "PDF 可用"的证据**：阈值是 `calibrated-r2`（**标定第二轮**：数值
+ *   沿用 r1 的设备读数依据 `build/device-track-batch30/step05-parity-logcat.txt:119-122`；
+ *   r2 只纠正判据声明与 N09 期望，见 `docs/research/2026-10-29-parity-metric-correction.md`）。
+ *   **不可外推**到别的设备 / API / fontScale / AA 状态 / 字形；跨这些维度必须先重基线
+ *   （R2 §3.3 `PARITY_ENV_DRIFT`）。
+ * - **度量的真实定义**：`centroidDeltaPx` 是屏↔PDF 的**跨栅格欧氏距离** `d(t)=‖v+t‖`
+ *   （v = 基线质心偏移，t = 对 PDF 侧的整块平移），**不是**同侧平移前后的质心差 `‖t‖`；
+ *   两者只在 v 与 t 同向时相等，而本门夹具的 AA/字体结构差使 `‖v‖ > 0`（P07 = 0.5181）。
+ *   因此读数**方向相关**：P06 `(+1,0)` 实测 1.2625；P07 `(+1,0)` 反解 0.608、`(−1,0)` 反解 1.472。
+ * - **位移检测责任**：`bestShift` 主（带符号、不看基线；`|t| ≥ 4` 饱和为"非零"），`bboxDev`
+ *   辅（整数；1 px 命中依赖基线偏移方向，最坏保证 ≥3 px/轴），质心只作形状护栏（本夹具保证
+ *   整像素 ≥2 px 必红，**1 px 不保证**）。盲区是集合：`d ≤ τ` 的通过集 = 闭圆盘
+ *   `B(−v, τ_c)`（P07 心 (0.4492,−0.2582)、r=0.75，沿 −v̂ 覆盖到 ‖t‖≤1.268）。
+ * - **证据状态**：`calibrated-r2` 在设备全套件（N09–N13；N10/N11/N12 必须仍红）跑绿前是
+ *   **UNVERIFIED**。任何一轮 `Tests run … Failures>0` 都**不得**描述为 "calibrated 已验证"。
  * - **相对门**：只证"PDF 路径相对屏路径没有引入新偏差"；屏侧本身的正确性由 painter 套件
  *   （设备 19 例 + JVM 10 例）负责。
  *
@@ -61,15 +68,16 @@ import kotlin.math.roundToInt
  * - 度量（R2 §4）：掩膜 IoU、内部逐通道色差分位/超阈占比、边缘带均值、文本 bbox/质心/
  *   墨量比/剖面 TV、`[-3,3]²` 最优整像素位移。
  * - 分类（R2 §5）：F1 字体 / F2 抗锯齿 / F3 alpha 取整 / F4 几何/颜色/语义 / F5 不可归因。
- *   TEXT 类按 `calibrated-r1` 走"带硬几何护栏的 AA/字体归因优先"（见
+ *   TEXT 类按 `calibrated-r2` 走"带硬几何护栏的 AA/字体归因优先"（见
  *   `VisualDrawOpsParityMetrics.rawTextVerdict` 的 KDoc）：P07 归因 AA/字体类（F2），
  *   但 1 px 位移 / 2 px bbox / 无墨仍然先判红。**TEXT 无隔离带（F5 恒 0）**。
- * - 负控（R2 §6.2 N01–N08 + `calibrated-r1` 新增 N09–N12）：每条都必须在同一套件里红；
+ * - 负控（R2 §6.2 N01–N08 + `calibrated-r2` 新增 N09–N13）：每条都必须在同一套件里红；
  *   绿了 = 门失去分辨力（`PARITY_GATE_DESENSITIZED`），不是"更稳了"。
- *   N09（1 px 整块平移）是**门级**灵敏度负控，N12（4 px 整块平移）是质心放宽到 0.75 的
- *   读数锚（P07 实测 3.56、bboxDev=5）；1 px 位移的抓取路径是 bbox / `bestShift`，不是质心
- *   （见 N09 用例注释）。N10（整页换成别的文档）与 N11（绕包围盒中心旋转 180°，bbox/墨量
- *   逐位不变）证明"整体错画仍会红"。
+ *   N09（1 px 整块平移）断言**跨栅格读数**（P06 实测 1.2625、P07 反解 0.6083）且必须
+ *   F4_GEOMETRY；N12（4 px 整块平移）是质心阈值 0.75 的读数锚（P07 实测 3.56、bboxDev=5）；
+ *   N13（合成栅格：质心差 0、墨量比 1.0）证明**质心不可靠时由 bbox/shift 兜底**。
+ *   N10（整页换成别的文档）与 N11（绕包围盒中心旋转 180°，bbox/墨量逐位不变）证明
+ *   "整体错画仍会红"。
  *
  * ## 不主张（R2 §0/§8）
  *
@@ -91,8 +99,11 @@ class VisualDrawOpsParityInstrumentedTest {
             TAG,
             "PARITY_GATE scope=PROTOTYPE product-gate=no ci-gate=no release-gate=no " +
                 "thresholds=${VisualDrawOpsParityMetrics.THRESHOLD_VERSION} " +
-                "calibration=first-round extrapolation=device+aa-state+integer-origin-only " +
-                "blindWindow=text-centroid(direction-dependent)",
+                "calibration=r2-criterion-corrected(numerics=r1) " +
+                "extrapolation=device+aa-state+integer-origin-only " +
+                "blindSet=text-centroid B(-v,tau_c) per-fixture (direction-dependent) " +
+                "displacement-exits=bestShift(main)+bboxDev(aux) " +
+                "verification=only-from-suite-run-results",
         )
         Log.i(TAG, "PARITY_ENV ${environmentFingerprint()}")
     }
@@ -123,7 +134,7 @@ class VisualDrawOpsParityInstrumentedTest {
                 )
             }
             if (judgment.decision.verdict == ParityVerdict.F5_UNATTRIBUTED) {
-                // `calibrated-r1`：TEXT 无隔离带，F5 必须为 0（旧带会把 bboxDev=2 + 质心 0.7
+                // `calibrated-r2`：TEXT 无隔离带，F5 必须为 0（旧带会把 bboxDev=2 + 质心 0.7
                 // 静默放行，见 VisualDrawOpsParityMetrics.isolationBandOnly 的 KDoc）。
                 if (fixture.cls == ParityFixtureClass.TEXT) {
                     writeDiagnostics(fixture, pair)
@@ -292,46 +303,149 @@ class VisualDrawOpsParityInstrumentedTest {
         assertTrue(decision.verdict.isRed)
     }
 
-    // ------------------------------------------------------------ 标定负控（calibrated-r1）
+    // ------------------------------------------------------------ 标定负控（calibrated-r2）
 
     @Test
     fun n09OnePixelTextShiftIsCaught() {
-        // `calibrated-r1` 的**门级**负控（R2 §2.3 N09）：质心阈值 0.5 → 0.75 后，
-        // 1 px 整块平移必须仍然**判红**。
+        // `calibrated-r2` 的**门级**负控（R2 §2.3 N09）：1 px 整块平移必须仍然**判红**。
         //
-        // 原"整块平移 t 使质心恰好变化 |t| ⇒ centroid=1.000"的等式已撤（批次 31 设备否证）：
-        // `centroidDeltaPx` 是**屏栅格与 PDF 栅格之间的质心欧氏距离**
-        // （`VisualDrawOpsParityMetrics.measureText`），不是同一侧平移前后的质心差。
-        // 把 PDF 侧平移 t 后读数是 |v + t|（v = 基线屏↔PDF 质心偏移），**方向相关**：
-        // - P06 设备实测 |v|=0.32 → +1 px 读 1.2624767812258337（`step08-parity-logcat.txt:125`）；
-        // - P07 由同轮 N12 的 +4 读数 3.56014654994809 反解 v=(-0.4492,0.2582)，+1 px 应读
-        //   ≈0.608 < 0.75 —— 即**质心不是 1 px 的抓取路径**。N09-P07 因 P06 断言中止未执行。
+        // 期望按**跨栅格欧氏距离**写：`centroidDeltaPx` 是屏栅格与 PDF 栅格之间的质心距离
+        // （`VisualDrawOpsParityMetrics.measureText`），PDF 侧平移 t 后读 `d(t) = ‖v + t‖`
+        // （v = 基线屏↔PDF 质心偏移），**不是**同侧平移前后的质心差 `‖t‖`。旧"整块平移 t 使
+        // 质心恰好变化 |t|"的等式已撤（批次 31 设备否证；推导见
+        // `docs/research/2026-10-29-parity-metric-correction.md` §1.2–§1.3）。
+        // - P06：设备实测 `d(+1) = 1.2624767812258337`（`step08-parity-logcat.txt:125`）；
+        //   2 位打印即 1.26。该值与基线精度无关（b² = a² + 2·vx + 1 ⇒ d(+1) = b）。
+        // - P07：由同轮 N12 的 +4 px 读数 `3.56014654994809` 反解 v = (−0.4492, ±0.2582)，
+        //   `d(+1) = 0.608282`；批次 32 E-02 已在设备上实测 `0.608282132824767`
+        //   （`build/device-track-batch32/step08-parity-logcat.txt`），容差 0.02 覆盖基线只有
+        //   2 位印刷值的不确定性。
+        //   0.608 < 0.75 ⇒ 质心**看不见**这次 1 px——这正是"质心不是位移判据"的证据。
         //
-        // 设备上真正抓住 1 px 的是几何护栏：P06 的理由为 `text bboxDev=2px > 1px`
-        // （`step08-parity-logcat.txt:126`；基线 bboxDev=1），同轮 `bestShift=(1,0)`、
-        // gain=0.8846−0.6897≈0.195 > 0.02（方向无关分支同样成立）。
-        // 因此本用例只断言"1 px 平移必须红、且归类 F4_GEOMETRY"，质心读数只进证据日志；
-        // 不再把未获设备证明的 `centroid=1.000` 当作许可证。
-        for (id in listOf("P06", "P07")) {
-            val fixture = fixture(id)
+        // 断言两件事：跨栅格读数落在模型值上；判决为 F4_GEOMETRY。
+        // P06 的出口可以是质心 / bbox / bestShift 任一；P07 只能由 bbox 或 bestShift 抓住
+        // （N13 另用合成栅格把"质心恒为 0 的位移仍被抓"钉死）。
+        val cases = listOf(
+            N09Case("P06", N09_P06_CENTROID_PX, N09_P06_CENTROID_TOLERANCE_PX),
+            N09Case("P07", N09_P07_CENTROID_PX, N09_P07_CENTROID_TOLERANCE_PX),
+        )
+        for (case in cases) {
+            val fixture = fixture(case.id)
             val pair = renderPair(fixture)
             val shifted = pair.copy(pdf = VisualDrawOpsParityMetrics.shift(pair.pdf, dx = 1, dy = 0))
-            val judgment = assertRed(fixture, shifted, "N09-$id")
+            val judgment = assertRed(fixture, shifted, "N09-${case.id}")
             val text = judgment.metrics.text
-                ?: error("N09-$id: TEXT fixture must carry text metrics")
+                ?: error("N09-${case.id}: TEXT fixture must carry text metrics")
             assertEquals(
-                "N09-$id: a whole-block 1 px shift must be caught by a geometry guard",
+                "N09-${case.id}: the cross-raster centroid must follow d(+1)=‖v+(1,0)‖ " +
+                    "(the withdrawn same-side model would predict 1.0)",
+                case.expectedCentroidPx,
+                text.centroidDeltaPx,
+                case.tolerancePx,
+            )
+            if (case.id == "P07") {
+                assertTrue(
+                    "N09-P07: the centroid must be blind to this 1 px shift " +
+                        "(${text.centroidDeltaPx} > ${VisualDrawOpsParityMetrics.TEXT_THRESHOLDS.maxCentroidDeltaPx}), " +
+                        "so the red verdict must come from bbox/bestShift",
+                    text.centroidDeltaPx <= VisualDrawOpsParityMetrics.TEXT_THRESHOLDS.maxCentroidDeltaPx,
+                )
+            }
+            assertEquals(
+                "N09-${case.id}: a whole-block 1 px shift must be caught by a geometry guard",
                 ParityVerdict.F4_GEOMETRY,
                 judgment.decision.verdict,
             )
             Log.i(
                 TAG,
-                "PARITY_CONTROL_DETAIL N09-$id centroid=${text.centroidDeltaPx} " +
+                "PARITY_CONTROL_DETAIL N09-${case.id} centroid=${text.centroidDeltaPx} " +
                     "bboxDev=${text.bboxDeviationPx} mass=${text.massRatio} " +
                     "bestShift=(${judgment.metrics.bestShiftX},${judgment.metrics.bestShiftY}) " +
                     "verdict=${judgment.decision.verdict}",
             )
         }
+    }
+
+    @Test
+    fun n13CentroidBlindSpotIsCoveredByBboxOrShift() {
+        // `calibrated-r2` 新增：**质心不可靠时由 bbox/shift 兜底**（研究文档 §3.2 的出口分工）。
+        // 合成栅格（不经过屏/PDF 渲染器，故没有 AA/字体噪声，读数可手算）：
+        // - 屏侧：实心块 (60,40)-(99,59)，带内墨量 800、质心 (79.5, 49.5)；
+        // - PDF 侧：同一块整体右移 2 px，再①在块外补 100 px 墨条（列 59..68，行 35..39 与
+        //   60..64，质心 (63.5, 49.5)），②把块内 10×10 的 (75..84, 45..54) 挖空
+        //   （质心 (79.5, 49.5)）。两项质心相同、墨量一加一减 ⇒ **总墨量与总质心都不变**。
+        // 于是质心（0）与墨量比（1.0）都看不见这次位移；bboxDev=5 先判红，
+        // bestShift=(2,0)（gain≈0.0757 > 0.02）同向成立。
+        // 剖面 TV 也会看到分布差（列 0.15 / 行 0.125 > 0.08），但判决在几何护栏先返回——本用例
+        // 钉住的是"红必须由 bbox/shift 给出并归类 F4_GEOMETRY"；删掉几何护栏会退成 F1_FONT，
+        // 本用例随即失败。把质心当成唯一位移出口时，这种位移不会被归到几何面。
+        val width = 192
+        val height = 128
+        val backdrop = 0xFFFFFFFF.toInt()
+        val ink = 0xFF000000.toInt()
+        val band = PixelBand(left = 40, top = 20, rightInclusive = 120, bottomInclusive = 80)
+
+        val screenPixels = IntArray(width * height) { backdrop }
+        for (y in 40..59) {
+            for (x in 60..99) screenPixels[y * width + x] = ink
+        }
+
+        val pdfPixels = IntArray(width * height) { backdrop }
+        // 块整体 +2 px（bbox 因此偏离 2 px）。
+        for (y in 40..59) {
+            for (x in 62..101) pdfPixels[y * width + x] = ink
+        }
+        // 块外的补偿墨条：100 px，质心 (63.5, 49.5)，把整体 x 矩拉回。
+        for (x in 59..68) {
+            for (y in 35..39) pdfPixels[y * width + x] = ink
+            for (y in 60..64) pdfPixels[y * width + x] = ink
+        }
+        // 块内挖空：100 px，质心 (79.5, 49.5)，把墨量抵消回 800。
+        for (y in 45..54) {
+            for (x in 75..84) pdfPixels[y * width + x] = backdrop
+        }
+
+        val metrics = VisualDrawOpsParityMetrics.measure(
+            ParityRaster(width, height, screenPixels),
+            ParityRaster(width, height, pdfPixels),
+            backdrop,
+            band,
+        )
+        val text = metrics.text ?: error("N13: the synthetic band must carry text metrics")
+        assertEquals(
+            "N13: the construction must leave the cross-raster centroid at zero",
+            0.0,
+            text.centroidDeltaPx,
+            1e-9,
+        )
+        assertEquals("N13: the construction must keep the band ink mass", 1.0, text.massRatio, 1e-9)
+        assertTrue(
+            "N13: bbox must expose the displacement, got ${text.bboxDeviationPx}px",
+            text.bboxDeviationPx > VisualDrawOpsParityMetrics.TEXT_THRESHOLDS.maxBboxDeviationPx,
+        )
+        assertTrue(
+            "N13: bestShift must expose the displacement, got " +
+                "(${metrics.bestShiftX},${metrics.bestShiftY}) " +
+                "gain=${metrics.bestShiftIou - metrics.iou}",
+            (metrics.bestShiftX != 0 || metrics.bestShiftY != 0) &&
+                metrics.bestShiftIou - metrics.iou > VisualDrawOpsParityMetrics.MIN_SHIFT_SENSITIVITY_GAIN,
+        )
+        val decision = VisualDrawOpsParityMetrics.classify(ParityFixtureClass.TEXT, metrics)
+        assertEquals(
+            "N13: the integer-geometry guard must judge red while the centroid is blind",
+            ParityVerdict.F4_GEOMETRY,
+            decision.verdict,
+        )
+        assertTrue(
+            "N13: reasons must name the integer-geometry exit, got ${decision.reasons}",
+            decision.reasons.any { it.startsWith("text bboxDev=") || it.startsWith("text bestShift=") },
+        )
+        Log.i(
+            TAG,
+            "PARITY_CONTROL_DETAIL N13 centroid=${text.centroidDeltaPx} mass=${text.massRatio} " +
+                "bboxDev=${text.bboxDeviationPx} bestShift=(${metrics.bestShiftX},${metrics.bestShiftY}) " +
+                "bestIou=${metrics.bestShiftIou} iou=${metrics.iou} verdict=${decision.verdict}",
+        )
     }
 
     @Test
@@ -761,6 +875,13 @@ class VisualDrawOpsParityInstrumentedTest {
 
     private data class Judgment(val metrics: ParityMetrics, val decision: ParityDecision)
 
+    /** N09 的每条 fixture 期望：跨栅格质心读数 + 容差（见 [N09_P06_CENTROID_PX] 等）。 */
+    private data class N09Case(
+        val id: String,
+        val expectedCentroidPx: Double,
+        val tolerancePx: Double,
+    )
+
     private companion object {
         const val TAG = "VisualDrawOpsParity"
         const val LABEL_CONTENT_ID = "c1"
@@ -770,6 +891,21 @@ class VisualDrawOpsParityInstrumentedTest {
         val BACKDROP = 0xFFFFFFFF.toInt()
         val BLACK = 0xFF000000.toInt()
         val WHITE = 0xFFFFFFFF.toInt()
+
+        /**
+         * N09 的跨栅格质心期望（`d(+1) = ‖v + (1,0)‖`）。
+         *
+         * - P06：批次 31 设备实测 `1.2624767812258337`（`build/device-track-batch31/
+         *   step08-parity-logcat.txt:125`）。同设备两轮逐位相同，容差只留给浮点求和顺序。
+         * - P07：由同轮 N12 的 `+4` px 读数 `3.56014654994809` 与基线 `0.5181329158118464`
+         *   反解 `v = (−0.4492, ±0.2582)`；批次 32 E-02 设备实测 `0.608282132824767`
+         *   （`build/device-track-batch32/step08-parity-logcat.txt`）。容差 0.02 覆盖"基线只有
+         *   2 位印刷值"带来的区间（0.515..0.525 ⇒ 0.6063..0.6127）。
+         */
+        const val N09_P06_CENTROID_PX = 1.2624767812258337
+        const val N09_P06_CENTROID_TOLERANCE_PX = 1e-6
+        const val N09_P07_CENTROID_PX = 0.608282132823731
+        const val N09_P07_CENTROID_TOLERANCE_PX = 0.02
 
         val NO_LABELS: (String) -> VisualLabelContent? = { null }
 
