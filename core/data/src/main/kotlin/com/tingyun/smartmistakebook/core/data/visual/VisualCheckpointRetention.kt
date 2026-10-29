@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.visual
 
+import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointBudget
 import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointKind
 import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
 import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
@@ -48,9 +49,9 @@ internal data class VisualCheckpointRow(
  */
 internal data class VisualCheckpointRetentionPolicy(
     /** 每 program 的可回收派生缓存上限（契约 §8.1：4 MiB）。 */
-    val perProgramBudgetBytes: Long = 4L * 1024 * 1024,
+    val perProgramBudgetBytes: Long = TutorVisualCheckpointBudget.PER_PROGRAM_BYTES,
     /** 全局可回收视觉缓存上限（契约 §8.1：32 MiB）。 */
-    val globalBudgetBytes: Long = 32L * 1024 * 1024,
+    val globalBudgetBytes: Long = TutorVisualCheckpointBudget.GLOBAL_BYTES,
 ) {
     init {
         require(perProgramBudgetBytes > 0L) { "The per-program budget must be positive" }
@@ -74,13 +75,18 @@ internal sealed interface VisualCheckpointPlan {
     /**
      * @param incomingKind 新 checkpoint 的 `checkpoint_kind`（首个 = INITIAL，之后 = LATEST）。
      * @param demoteToIntermediate 旧 `LATEST` 行（标记只有一个，新 checkpoint 接手）；被固定的
-     *   旧 LATEST 也在内——它只是不再是最新标记，行仍因 pinned 保留。
+     *   旧 LATEST 也在内——它只是不再是最新标记，行仍因 pinned 保留。**可淘汰的旧 LATEST
+     *   同时也出现在 [evictUnpinnedSnapshotIds] 里**：先清标记、再删行是幂等且正确的，
+     *   命令层不再禁止两个清单重叠（`CommitTutorTurnWithVisualCommand` 的注释）。
      * @param evictUnpinnedSnapshotIds 可回收的未固定行（`null` kind 或旧 LATEST，且仍为
      *   STAGING；LIVE 永不入列）。
-     *   **本轨不执行删除**：由 T3 在同一写入事务/既有 GC 里落地，且淘汰集必须在提交时重查
-     *   （pin/status 是并发可变的）。
+     *   **本轨不执行删除**：由 T3 在同一写入事务（`commitTutorTurnWithVisual` 与
+     *   `stageTutorVisualSnapshot`）或既有 GC 里落地，且淘汰集必须在提交时重查
+     *   （pin/status/owner 租约都是并发可变的）。因此这里的候选**可能被 SQL 拒绝删除**
+     *   （pin/status/租约任一不符）；事务内重判会以实际留存的字节重新判预算并可能回滚。
      * @param retainedBytesAfterEviction 扣除淘汰候选后本 program 仍保留的字节数
-     *   （INITIAL + pinned + 未知 kind + 本行）。
+     *   （INITIAL + pinned + 未知 kind + 本行）。**不包含 SQL 层因租约拒绝删除的行**——那
+     *   部分由写入事务的重判兜底。
      */
     data class Retained(
         val incomingKind: String,
@@ -116,16 +122,22 @@ internal sealed interface VisualCheckpointPlan {
  * 压力下正确的行为是**拒绝本次提交并说明**，而不是删历史事实。代价是 LIVE 中间态会占用
  * 预算（fail-closed 的已知代价），由调用方的有界拒绝暴露出来。
  *
- * **与写入方的边界（批次 30 复核修复后已接线）**：
+ * **与写入方的边界（批次 30 复核修复后已接线；批次 32 事务内重判 + stage 同口径）**：
  * - 本对象**只判定**，不触 DB、不删行、不改 status；`demote`/`evict` 的 SQL 由
  *   `TutorVisualCommitRepository.planCheckpoint` + `TutorVisualPort.commitTutorTurnWithVisual`
  *   在同一事务里执行（`UPDATE … checkpoint_kind` 与淘汰删除在事务内，且淘汰 SQL 重查
- *   pin/kind/status）。
+ *   pin/kind/status/owner 租约）。`stageSnapshot` 消费同一份 plan 的**淘汰集**（不带 demote：
+ *   新行仍是 STAGING，不能抢旧 LATEST 的角色），使事务内按全量字节重判的口径与这里的
+ *   "淘汰后净值"一致。
  * - 仓储层在**写库前**调用本函数：`stageSnapshot` / `commitAssistantTurnWithVisual` 都用
  *   [nextCheckpointKind] 决定落库 kind，并用 `plan(...)` 做磁盘/配额门；
  *   [VisualCheckpointPlan.Rejected] 映射成 `TutorVisualCommitRejectedException`
  *   （含 `PER_PROGRAM_BUDGET` / `GLOBAL_BUDGET`）。两边字节口径一致
  *   （`utf8Size(state)+utf8Size(scene)+utf8Size(draw)`；SQL 侧 `length(CAST(x AS BLOB))`）。
+ * - **事务前的预算判定只是快速预检，不是最终门**：淘汰候选可能因并发 pin/租约被 SQL 拒绝
+ *   删除，两个并发提交也可能各自读到旧总量。写入事务在执行完 demote/evict 后会用
+ *   `TutorVisualDao.programCheckpointStoredBytes` / `totalCheckpointStoredBytes` **重读并重判**，
+ *   超限即回滚（批次 32）。因此同一份规则在两层执行，但最终裁决权在事务内。
  * - `pinned` 的"导出冻结集"（E-01）属 `core/export` 热区，本批不做，接导出时补入参；
  * - demote/evict 的 SQL 在提交事务内执行，且淘汰 SQL 会**重查** `status`（只删 STAGING）；
  *   策略判定与 SQL 的双重过滤是同一条规则的两层，不是两套口径。

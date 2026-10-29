@@ -3,14 +3,18 @@ package com.tingyun.smartmistakebook.core.data.backup
 import java.security.MessageDigest
 
 /**
- * 6C-2 内容选择备份的 **schema 70 机器清单**（v3）。
+ * 6C-2 内容选择备份的 **schema 71 机器清单**（v3）。
  *
  * 唯一数据源：`docs/research/2026-10-17-6c2-content-selection-design.md` §9.11 的
  * `<!-- 6c2-plan-v3:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
- * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/70.json`
- * （`database.version=70`、`identityHash=11a8a701…`）。本文件不新增规则：类别、闭包、
+ * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/71.json`
+ * （`database.version=71`、`identityHash=714c0ecb…`）。本文件不新增规则：类别、闭包、
  * 裁剪顺序、软引用、资产根、kind 谓词全部逐项对应机器块，`SmbkSelectionPlanTest`
- * 反向解析机器块与 `70.json` 断言两处同源。
+ * 反向解析机器块与 `71.json` 断言两处同源。
+ *
+ * schema 71 相对 70 只把 `renderer_version` / `font_manifest_version` 并入
+ * `tutor_visual_snapshot` 的唯一键（`VisualSnapshotIdentityMigration_70_71`），不增删表/视图/FK，
+ * 因此类别、SPLIT、软引用、闭包与 90 表清单全部不变；`identityHash` 随索引变化而变。
  *
  * 90 张表的归属（每表恰好一次）：
  * - [SmbkSelectionCategory] 四类：31 + 35 + 7 + 1；
@@ -36,11 +40,15 @@ import java.security.MessageDigest
  */
 object SmbkSelectionPlan {
 
-    /** 机器块 `schemaVersion`，同时是 `70.json` 的 `database.version`。 */
-    const val SCHEMA_VERSION: Int = 70
+    /** 机器块 `schemaVersion`，同时是 `71.json` 的 `database.version`。 */
+    const val SCHEMA_VERSION: Int = 71
 
-    /** 机器块 `identityHash`，必须与 `70.json` 的 `database.identityHash` 相等。 */
-    const val IDENTITY_HASH: String = "11a8a701bae767a8a3c5bc810e4743a4"
+    /**
+     * 机器块 `identityHash`，必须与 `71.json` 的 `database.identityHash` 相等。
+     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `71.json` 同值），
+     * 不得估算或手写。
+     */
+    const val IDENTITY_HASH: String = "714c0ecb85ee5edf74f0013740148138"
 
     /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名。 */
     const val CLOSURE_VERSION: Int = 3
@@ -192,7 +200,7 @@ object SmbkSelectionPlan {
 
     /**
      * 82 项裁剪顺序（子表先于父表）。= 90 − 7 ALWAYS − 1 `library_search_fts`；
-     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `70.json` 的真实 FK 图校验。
+     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `71.json` 的真实 FK 图校验。
      */
     val trimOrder: List<String> = listOf(
         "tutor_message_visual",
@@ -535,8 +543,8 @@ object SmbkSelectionPlan {
 
     init {
         require(allTables.size == allTables.toSet().size) { "表被重复归类：$allTables" }
-        require(allTables.size == 90) { "schema 70 应有 90 张表，实际 ${allTables.size}" }
-        require(views.size == 2) { "schema 70 应有 2 个视图，实际 ${views.size}" }
+        require(allTables.size == 90) { "schema 71 应有 90 张表，实际 ${allTables.size}" }
+        require(views.size == 2) { "schema 71 应有 2 个视图，实际 ${views.size}" }
         require(categoryTables[SmbkSelectionCategory.ISSUE_BOOK]?.size == 31) { "ISSUE_BOOK 应为 31 张表" }
         require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 35) { "MASTERY 应为 35 张表" }
         require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 7) { "SESSIONS 应为 7 张表" }
@@ -559,7 +567,7 @@ object SmbkSelectionPlan {
         require(allowedMasks == setOf(9, 13, 15)) { "本批只允许 9/13/15" }
     }
 
-    /** 表 → 归属桶；未知表返回 null（调用方对 `70.json` 漂移 fail-closed）。 */
+    /** 表 → 归属桶；未知表返回 null（调用方对 `71.json` 漂移 fail-closed）。 */
     fun bucketOf(table: String): SmbkTableBucket? = tableBucketIndex[table]
 
     /** 用户类别表的类别；ALWAYS/DERIVED/SPLIT 或未知表返回 null。 */

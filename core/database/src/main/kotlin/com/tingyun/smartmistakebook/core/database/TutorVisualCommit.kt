@@ -25,6 +25,43 @@ object TutorVisualCheckpointKind {
 }
 
 /**
+ * checkpoint 配额的两个数字（契约 §8.1：每 program 4 MiB、全库 32 MiB）。
+ *
+ * **唯一数值来源**：`core:data` 的 `VisualCheckpointRetentionPolicy` 默认值引用这里，写入
+ * 事务内的重判也用同一对常量。改前策略常量只在 `core:data`，事务层若要重判就得再抄一遍
+ * 数字——两套口径漂移后，事务内会放行策略层已拒绝的提交（或反过来），"预算门"变成两个
+ * 互相矛盾的门。
+ */
+object TutorVisualCheckpointBudget {
+    const val PER_PROGRAM_BYTES: Long = 4L * 1024 * 1024
+    const val GLOBAL_BYTES: Long = 32L * 1024 * 1024
+}
+
+/** 事务内预算重判失败的两条轴（与 `VisualCheckpointRejection` 的两种预算原因一一对应）。 */
+enum class TutorVisualCheckpointBudgetAxis {
+    PER_PROGRAM,
+    GLOBAL,
+}
+
+/**
+ * **写入事务内**重读已用字节后判定的预算拒绝。
+ *
+ * 它消灭的具体失败：预算判定此前只在仓储层、事务**之前**做（`planCheckpoint`）。两个并发
+ * 提交可以各自读到"还没超"的旧总量、各自通过判定、然后都写入——超出部分没有任何门拦；
+ * 进程内 `Mutex` 只覆盖同一 repository 实例，挡不住第二个实例/第二个进程。把判定放进
+ * 写入事务、基于事务内已写入的行重读总量后，第二个事务必然看到第一个事务的结果，因而只能
+ * 有一个通过。
+ *
+ * 抛出它会让 Room 回滚整个写事务（消息/link/program/snapshot 一起不成立），仓储层再把它
+ * 翻译成对外的 `TutorVisualCommitRejectedException`（含 `PER_PROGRAM_BUDGET` /
+ * `GLOBAL_BUDGET`）。
+ */
+class TutorVisualCheckpointBudgetExceededException(
+    val axis: TutorVisualCheckpointBudgetAxis,
+    message: String,
+) : IllegalStateException(message)
+
+/**
  * 程序行的一次**不可变**写入载荷（D-02 身份层 → DB 层）。
  *
  * [programId] 由内容派生（`TutorVisualIdentity`），并且**等于对外 visualId**。DB 层在写入时
@@ -72,10 +109,12 @@ data class TutorVisualProgramWrite(
  * 快照行的一次写入载荷。内容是**回放的唯一输入**，因此每一列都必须由调用方显式给出：
  * 状态/场景/DrawOps/视口/字体缩放/版本/核对状态/预览资产。
  *
- * [snapshotId] 由 `(programId, stateSha256, drawCommandsSha256)` 内容派生（见
- * `TutorVisualIdentity.deriveSnapshotId`）：同内容重复提交落到同一行，是 INV-6 幂等的基础。
+ * [snapshotId] 由 `(programId, stateSha256, drawCommandsSha256, rendererVersion,
+ * fontManifestVersion)` 内容+版本派生（见 `TutorVisualIdentity.deriveSnapshotId`）：同内容同版本
+ * 重复提交落到同一行，是 INV-6 幂等的基础；**版本变化是另一行**（schema 71 / S1）。
  * [checkpointKind] 只表达角色，不参与唯一键（唯一键是 DB 的
- * `UNIQUE(program_id, state_sha256, draw_commands_sha256)`）。
+ * `UNIQUE(program_id, state_sha256, draw_commands_sha256, renderer_version,
+ * font_manifest_version)`）。
  */
 data class TutorVisualSnapshotWrite(
     val snapshotId: String,
@@ -143,12 +182,43 @@ data class StageTutorVisualSnapshotCommand(
     val program: TutorVisualProgramWrite,
     val snapshot: TutorVisualSnapshotWrite,
     val ownerRequestId: String,
+    /**
+     * 事务内预算重判前要回收的 checkpoint 候选（批次 32 复核修复）。
+     *
+     * 它消灭的具体失败：`VisualCheckpointRetention.plan` 在事务前按"淘汰后的净值"判预算
+     * （`retainedBytes`/`globalAfter` 已扣除可回收行），而 `stageTutorVisualSnapshot` 的
+     * 事务内重判读的是**全量**字节。stage 路径若只写 `incomingKind`、把 plan 的淘汰集丢掉，
+     * 就会在"总量超限、净值不超"时预检放行、事务拒绝——与契约 §8.1"超限只淘汰中间态，
+     * 淘汰后仍超才不提交"的方向相反（不淘汰就拒）。
+     *
+     * stage 只带**淘汰**集，不带 demote：新行仍是 STAGING（尚未被用户看到），不能抢走旧
+     * LATEST 的角色；淘汰只作用于"未固定、STAGING、kind ∈ {NULL, LATEST}"的缓存行，
+     * SQL 仍会重查 pin/kind/status/租约。默认空列表 = 不做回收。
+     */
+    val evictCheckpointSnapshotIds: List<String> = emptyList(),
+    /**
+     * STAGING 租约的时间判据（与 `CommitTutorTurnWithVisualCommand` 同名同义）：
+     * `created_at_epoch_millis <= 此值` 视为租约过期，才允许回收**其他 owner** 的行。
+     * `Long.MIN_VALUE`（默认）= 不按时间淘汰，只允许回收本 owner 的行。
+     */
+    val stagingLeaseExpiredBeforeEpochMillis: Long = Long.MIN_VALUE,
+    /**
+     * 本次事务内预算重判的两个上界（默认契约 §8.1 的 4 MiB / 32 MiB）。
+     * 仓储层传入自己的策略值；直接调端口的调用方拿到默认值。
+     */
+    val perProgramBudgetBytes: Long = TutorVisualCheckpointBudget.PER_PROGRAM_BYTES,
+    val globalBudgetBytes: Long = TutorVisualCheckpointBudget.GLOBAL_BYTES,
 ) {
     init {
         require(ownerRequestId.isNotBlank()) { "A staging snapshot needs its owner request id" }
         require(program.programId == snapshot.programId) {
             "A snapshot must belong to the program being staged"
         }
+        require(evictCheckpointSnapshotIds.none { it.isBlank() }) {
+            "An evicted checkpoint snapshot id must not be blank"
+        }
+        require(perProgramBudgetBytes > 0L) { "The per-program checkpoint budget must be positive" }
+        require(globalBudgetBytes > 0L) { "The global checkpoint budget must be positive" }
     }
 }
 
@@ -173,10 +243,25 @@ data class CommitTutorTurnWithVisualCommand(
      */
     val demoteCheckpointSnapshotIds: List<String> = emptyList(),
     /**
-     * checkpoint 保留策略的**同事务**淘汰集：只删"仍未固定且 kind ∈ {NULL, LATEST}"的行。
-     * SQL 会重查 pin/kind（plan 在事务外算，pin 并发可变），INITIAL 永不淘汰。
+     * checkpoint 保留策略的**同事务**淘汰集：只删"仍未固定、kind ∈ {NULL, LATEST}、仍为
+     * STAGING、且租约已过期或为本 owner 的"行。SQL 会重查 pin/kind/status/租约（plan 在事务
+     * 外算，引用、可见性与 owner 都可能并发变化），INITIAL 与 LIVE 永不淘汰。
      */
     val evictCheckpointSnapshotIds: List<String> = emptyList(),
+    /**
+     * STAGING 租约的时间判据：`created_at_epoch_millis <= 此值` 视为租约过期。
+     *
+     * 它消灭的具体失败：淘汰 SQL 只看 pin/kind/status 时，会删掉**另一个仍在飞的请求刚
+     * stage 的** STAGING 行（owner 是别人、created_at 是刚刚）。被删方提交时只能重建行或
+     * 失败，已发出的 `(programId, snapshotId)` 短暂失效。现在不同 owner 的 STAGING 行只有在
+     * 租约过期后才可删；`Long.MIN_VALUE`（默认）= 不按时间淘汰，只允许本 owner 的行。
+     */
+    val stagingLeaseExpiredBeforeEpochMillis: Long = Long.MIN_VALUE,
+    /**
+     * 事务内预算重判的两个上界（默认契约 §8.1 的 4 MiB / 32 MiB）。仓储层传入自己的策略值。
+     */
+    val perProgramBudgetBytes: Long = TutorVisualCheckpointBudget.PER_PROGRAM_BYTES,
+    val globalBudgetBytes: Long = TutorVisualCheckpointBudget.GLOBAL_BYTES,
 ) {
     init {
         require(ownerRequestId.isNotBlank()) { "A visual commit needs its owner request id" }
@@ -190,11 +275,13 @@ data class CommitTutorTurnWithVisualCommand(
         require(evictCheckpointSnapshotIds.none { it.isBlank() }) {
             "An evicted checkpoint snapshot id must not be blank"
         }
-        require(
-            demoteCheckpointSnapshotIds.toSet()
-                .intersect(evictCheckpointSnapshotIds.toSet())
-                .isEmpty(),
-        ) { "A snapshot cannot be both demoted and evicted" }
+        require(perProgramBudgetBytes > 0L) { "The per-program checkpoint budget must be positive" }
+        require(globalBudgetBytes > 0L) { "The global checkpoint budget must be positive" }
+        // 刻意**不**要求 demote 与 evict 互斥：保留策略对"旧 LATEST 且可淘汰"的行同时产出
+        // 两个清单——先清标记、再删行是幂等且正确的；反过来禁止重叠会让 S3→S4 常规路径在
+        // 构造命令时抛 IllegalArgumentException（`VisualCheckpointRetentionTest` 的
+        // `a new checkpoint demotes the previous latest...` 与 plan→command 端到端用例都依赖
+        // 这个重叠）。demote 只改角色列，对随后被删除的行没有副作用。
     }
 }
 
@@ -331,23 +418,21 @@ internal object TutorVisualWriteChecks {
             entity.requestSnapshot == write.requestSnapshot
 
     /**
-     * 快照的内容载荷比对。唯一键只有 `(program, state, draw)`；若 scene/内容/视口/预览不同
-     * 却被当作"同内容"静默复用，恢复时就会画出与初次显示不一致的图——所以这些**内容列**
-     * 必须比对。状态/租约/checkpoint/时间不参与比较（它们是角色与生命周期，不是内容）。
+     * 快照的内容载荷比对。唯一键是 `(program, state, draw, renderer, font)`；若 scene/内容/
+     * 视口/预览不同却被当作"同内容"静默复用，恢复时就会画出与初次显示不一致的图——所以这些
+     * **内容列**必须比对。状态/租约/checkpoint/时间不参与比较（它们是角色与生命周期，不是内容）。
      *
-     * **环境版本列不参与比较**（批次 30 复核修复）：`runtime_version` / `compiler_version` /
-     * `renderer_version` / `font_manifest_version` 是"重放/像素门的环境身份"，被设计成随
-     * 应用或 painter 升级独立 bump，**不会改变 DrawOps 文本**。此前把它们并入载荷比对，导致
-     * 同一 program + state + draw 在升级后再次提交时命中既有行却因版本不同抛
-     * `ImmutablePayloadConflictException`——而唯一键/派生 `snapshotId` 又不含版本，绕过也比
-     * 主键冲突。两套口径只能留一套：身份 = 唯一键 = 内容三列；版本差异由恢复侧的重放/像素
-     * 门按既有行上的版本判定（不匹配则只读/预览），而不是制造"同内容第二行"。
+     * **环境版本列参与比较**（schema 71 / S1 后翻转）：`renderer_version` /
+     * `font_manifest_version` 自 v71 起进入唯一键与派生 id，"同键不同版本"在结构上已不可能；
+     * 把它们留在比对之外会让**比对口径与身份口径再次分叉**——将来若唯一键/查重被改回三列，
+     * 这里不会红，S1 就会静默复发。`runtime_version` / `compiler_version` 不进身份：它们只是
+     * "能否再执行"的判据，不参与矢量重放（重放不需要运行时），所以仍不参与比较。
      */
     fun sameSnapshotPayload(
         entity: com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity,
         write: TutorVisualSnapshotWrite,
     ): Boolean =
-        // snapshot_id 是宿主标识，不是内容：同内容不同 id 由唯一索引收敛到既有行。
+        // snapshot_id 是宿主标识，不是内容：同内容同版本不同 id 由唯一索引收敛到既有行。
         entity.programId == write.programId &&
             entity.stateJson == write.stateJson &&
             entity.stateSha256 == write.stateSha256 &&
@@ -364,6 +449,8 @@ internal object TutorVisualWriteChecks {
             entity.theme == write.theme &&
             entity.timeMs == write.timeMs &&
             entity.seed == write.seed &&
+            entity.rendererVersion == write.rendererVersion &&
+            entity.fontManifestVersion == write.fontManifestVersion &&
             entity.questionVerificationStatus == write.questionVerificationStatus &&
             entity.previewAssetId == write.previewAssetId
 }

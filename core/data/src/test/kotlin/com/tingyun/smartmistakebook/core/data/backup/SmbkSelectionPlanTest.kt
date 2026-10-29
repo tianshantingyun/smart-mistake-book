@@ -21,15 +21,15 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
- * **6C-2 schema 70 机器清单的同源契约**。
+ * **6C-2 schema 71 机器清单的同源契约**。
  *
  * 三份事实互相钉住：
- * 1. `70.json`（Room 导出物）：90 表 / 2 视图 / 100 条 FK 边；
+ * 1. `71.json`（Room 导出物）：90 表 / 2 视图 / 100 条 FK 边；
  * 2. 设计 §9.11 的 `<!-- 6c2-plan-v3:begin -->` 机器块（唯一数据源）；
  * 3. [SmbkSelectionPlan]（实施读的那份数据）。
  *
  * 这里断言的是**结构性同源**：每张表恰好归类一次、裁剪顺序是真实 FK 图上的合法拓扑序、
- * 闭包能从 70 的 FK 边折叠出 5 条、软引用 21 条且不误把硬 FK 当软引用、空库全选 digest
+ * 闭包能从 71 的 FK 边折叠出 5 条、软引用 21 条且不误把硬 FK 当软引用、空库全选 digest
  * 逐字命中 golden、非法 mask（含产品裁定拒绝的 0/8）不静默补齐。
  *
  * 本批产品裁定覆盖机器块里仍标 `OPEN` 的两项：mask=8/0 拒绝；派生索引恒裁。
@@ -38,11 +38,11 @@ import java.nio.file.Paths
  */
 class SmbkSelectionPlanTest {
 
-    // ---- 1. schema 70 的事实 ----
+    // ---- 1. schema 71 的事实 ----
 
     @Test
-    fun `schema 70 exports 90 tables 2 views and 100 foreign keys matching the plan identity`() {
-        assertEquals("schema 版本", 70, database.int("version"))
+    fun `schema 71 exports 90 tables 2 views and 100 foreign keys matching the plan identity`() {
+        assertEquals("schema 版本", 71, database.int("version"))
         assertEquals(SmbkSelectionPlan.SCHEMA_VERSION, database.int("version"))
         assertEquals(SmbkSelectionPlan.IDENTITY_HASH, database.string("identityHash"))
         assertEquals("Room entity 数", 90, entities.size)
@@ -63,7 +63,7 @@ class SmbkSelectionPlanTest {
 
         assertEquals("归类总数", 90, classified.size)
         assertEquals("不允许一张表落在两个桶里", classified.size, classified.toSet().size)
-        assertEquals("归类集合必须与 70.json 的表集合相等", schemaTables.toSet(), classified.toSet())
+        assertEquals("归类集合必须与 71.json 的表集合相等", schemaTables.toSet(), classified.toSet())
         assertEquals("rowCounts 键集合 = 90 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
         assertEquals(90, SmbkSelectionPlan.rowCountKeys.size)
 
@@ -140,7 +140,7 @@ class SmbkSelectionPlanTest {
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.ISSUE_BOOK),
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.IMAGES),
         )
-        assertEquals("从 70.json FK 边折叠出的类别闭包", expected, folded)
+        assertEquals("从 71.json FK 边折叠出的类别闭包", expected, folded)
         assertEquals("机器块的 5 条边", expected, SmbkSelectionPlan.expectedClosure.toSet())
         assertEquals(5, folded.size)
     }
@@ -170,7 +170,7 @@ class SmbkSelectionPlanTest {
     // ---- 5. 软引用 ----
 
     @Test
-    fun `twenty one soft references resolve against schema 70 and never shadow a hard foreign key`() {
+    fun `twenty one soft references resolve against schema 71 and never shadow a hard foreign key`() {
         val refs = SmbkSelectionPlan.softReferences
         assertEquals("v3 软引用 21 条", 21, refs.size)
         assertEquals("同一 (table,column) 不能列两次", 21, refs.map { it.table to it.column }.toSet().size)
@@ -193,10 +193,10 @@ class SmbkSelectionPlanTest {
         }.toSet()
 
         refs.forEach { ref ->
-            assertTrue("软引用源表不存在于 70.json：${ref.table}", ref.table in schemaTables)
+            assertTrue("软引用源表不存在于 71.json：${ref.table}", ref.table in schemaTables)
             if (!ref.virtual) {
                 assertTrue(
-                    "软引用源列不存在于 70.json：${ref.table}.${ref.column}",
+                    "软引用源列不存在于 71.json：${ref.table}.${ref.column}",
                     ref.column in columnsByTable.getValue(ref.table),
                 )
                 assertFalse(
@@ -562,7 +562,7 @@ class SmbkSelectionPlanTest {
     }
 
     private val schemaDatabase: JsonObject by lazy {
-        Json.parseToJsonElement(Files.readString(repoFile(SCHEMA_70_PATH)))
+        Json.parseToJsonElement(Files.readString(repoFile(SCHEMA_71_PATH)))
             .jsonObject.getValue("database").jsonObject
     }
 
@@ -607,8 +607,8 @@ class SmbkSelectionPlanTest {
     private companion object {
         const val GRADLE_ROOT_MARKER = "settings.gradle.kts"
         const val PARENT_SEGMENT = "." + "."
-        const val SCHEMA_70_PATH =
-            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/70.json"
+        const val SCHEMA_71_PATH =
+            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/71.json"
         const val DESIGN_PATH = "docs/research/2026-10-17-6c2-content-selection-design.md"
 
         /** §9.7 空库、全选、assetPolicy=INCLUDED 的 golden。 */

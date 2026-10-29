@@ -1955,7 +1955,32 @@ internal class RoomStudyDatabase(
     ): TutorVisualSnapshotRecord = database.withWriteTransaction {
         val dao = database.tutorVisualDao()
         ensureTutorVisualProgram(dao, command.program)
-        ensureTutorVisualSnapshot(dao, command.snapshot, command.ownerRequestId).toRecord()
+        val snapshot = ensureTutorVisualSnapshot(dao, command.snapshot, command.ownerRequestId)
+        // 与 plan 的"淘汰后净值"口径对齐（批次 32 复核修复）：事务前的 plan 已把可回收行
+        // 从预算里扣除，若这里不执行同一份淘汰集，就会在"总量超、净值不超"时把本可提交的
+        // stage 拒掉（与契约 §8.1 的方向相反）。SQL 仍重查 pin/kind/status/租约；stage 不
+        // demote——新行还是 STAGING，不能抢旧 LATEST 的角色。
+        if (command.evictCheckpointSnapshotIds.isNotEmpty()) {
+            dao.evictUnpinnedCheckpoints(
+                snapshotIds = command.evictCheckpointSnapshotIds,
+                latestKind = TutorVisualCheckpointKind.LATEST,
+                stagingStatus = TutorVisualStatus.STAGING,
+                committingOwnerRequestId = command.ownerRequestId,
+                leaseExpiredBeforeEpochMillis = command.stagingLeaseExpiredBeforeEpochMillis,
+            )
+        }
+        // 事务内预算重判（批次 32）：已在事务外 `planCheckpoint` 判过一次，但那次读到的总量
+        // 可能已被并发提交抬高。这里在**写完本行之后**重读，超了就让 Room 回滚本行。
+        // 既有 LIVE 行是幂等回放（本次不新增任何字节），不重判，避免把"重放已存在的图"拒掉。
+        if (snapshot.status != TutorVisualStatus.LIVE) {
+            enforceVisualCheckpointBudget(
+                dao = dao,
+                programId = command.program.programId,
+                perProgramBudgetBytes = command.perProgramBudgetBytes,
+                globalBudgetBytes = command.globalBudgetBytes,
+            )
+        }
+        snapshot.toRecord()
     }
 
     /**
@@ -1973,6 +1998,8 @@ internal class RoomStudyDatabase(
         val dao = database.tutorVisualDao()
         ensureTutorVisualProgram(dao, command.program)
         var snapshot = ensureTutorVisualSnapshot(dao, command.snapshot, command.ownerRequestId)
+        // 幂等回放（行本来就是 LIVE）不新增字节，不参与本次重判；否则见事务末尾的预算门。
+        val snapshotWasAlreadyLive = snapshot.status == TutorVisualStatus.LIVE
 
         // 正文 + thinking + tool trace 是同一条消息行；它和下面的提升/link 共处一个事务。
         val message = database.tutorConversationDao().appendAssistantMessage(command.message)
@@ -2021,10 +2048,11 @@ internal class RoomStudyDatabase(
             nowEpochMillis = message.createdAtEpochMillis,
         )
 
-        // checkpoint 保留策略的同事务落点（批次 30 / D-05，批次 31 收紧）：先降级旧 LATEST，
-        // 再淘汰"仍未固定、非 INITIAL 且仍为 STAGING"的中间态。两条 SQL 都在事务内，任一步
-        // 失败整体回滚；淘汰 SQL 在事务内**重查** pin/kind/status（策略在事务外算，引用与
-        // 可见性都可能并发变化）。LIVE 是用户已见事实，即使未被引用也不当缓存删。
+        // checkpoint 保留策略的同事务落点（批次 30 / D-05，批次 31 收紧，批次 32 加租约）：
+        // 先降级旧 LATEST，再淘汰"仍未固定、非 INITIAL、仍为 STAGING 且租约已过期/属于本
+        // owner"的中间态。两条 SQL 都在事务内，任一步失败整体回滚；淘汰 SQL 在事务内**重查**
+        // pin/kind/status/租约（策略在事务外算，引用、可见性与 owner 都可能并发变化）。
+        // LIVE 是用户已见事实，即使未被引用也不当缓存删。
         if (command.demoteCheckpointSnapshotIds.isNotEmpty()) {
             dao.demoteLatestCheckpoints(
                 programId = command.program.programId,
@@ -2037,6 +2065,20 @@ internal class RoomStudyDatabase(
                 snapshotIds = command.evictCheckpointSnapshotIds,
                 latestKind = TutorVisualCheckpointKind.LATEST,
                 stagingStatus = TutorVisualStatus.STAGING,
+                committingOwnerRequestId = command.ownerRequestId,
+                leaseExpiredBeforeEpochMillis = command.stagingLeaseExpiredBeforeEpochMillis,
+            )
+        }
+
+        // 事务内预算重判（批次 32）：必须放在 demote/evict 之后、以事务内刚写完的字节总量为准。
+        // 两个并发提交各自在事务外读到"没超"的旧总量时，第二个事务在这里看到第一个事务的
+        // 结果 → 超限即抛，Room 回滚消息/link/program/snapshot，杜绝"双过"。
+        if (!snapshotWasAlreadyLive) {
+            enforceVisualCheckpointBudget(
+                dao = dao,
+                programId = command.program.programId,
+                perProgramBudgetBytes = command.perProgramBudgetBytes,
+                globalBudgetBytes = command.globalBudgetBytes,
             )
         }
 
@@ -2113,6 +2155,48 @@ internal class RoomStudyDatabase(
         database.tutorVisualDao().totalCheckpointStoredBytes()
 
     /**
+     * **写入事务内**的 checkpoint 预算重判（批次 32 任务 7）。
+     *
+     * 它消灭的具体失败：预算只在 `TutorVisualCommitRepository.planCheckpoint` 里、事务**之前**
+     * 判。两次并发提交各自读到未被对方抬高的总量，都能通过；随后两次写入都成功，最终占用
+     * 超过 4 MiB / 32 MiB 且没有任何门拦。进程内 `Mutex` 只挡同一 repository 实例，第二个
+     * 实例/进程仍可双过。
+     *
+     * 这里在事务内、**在本事务已经写入并执行完 demote/evict 之后**读取：
+     * - 本 program 的字节总量（[TutorVisualDao.programCheckpointStoredBytes]）；
+     * - 全库字节总量（[TutorVisualDao.totalCheckpointStoredBytes]）。
+     *
+     * SQLite 的写事务是串行的：后开始的事务要么看到前一个事务已提交的行，要么在写锁竞争时
+     * 失败/重试，不存在"两边都读到旧总量并都提交"。超限抛
+     * [TutorVisualCheckpointBudgetExceededException]，Room 回滚本事务的全部写入。
+     *
+     * 判定顺序与 `VisualCheckpointRetention.plan` 一致：先 per-program，再 global。
+     */
+    private suspend fun enforceVisualCheckpointBudget(
+        dao: TutorVisualDao,
+        programId: String,
+        perProgramBudgetBytes: Long,
+        globalBudgetBytes: Long,
+    ) {
+        val programBytes = dao.programCheckpointStoredBytes(programId)
+        if (programBytes > perProgramBudgetBytes) {
+            throw TutorVisualCheckpointBudgetExceededException(
+                axis = TutorVisualCheckpointBudgetAxis.PER_PROGRAM,
+                message = "The visual checkpoint cache for this program holds $programBytes bytes, " +
+                    "above the per-program budget $perProgramBudgetBytes",
+            )
+        }
+        val globalBytes = dao.totalCheckpointStoredBytes()
+        if (globalBytes > globalBudgetBytes) {
+            throw TutorVisualCheckpointBudgetExceededException(
+                axis = TutorVisualCheckpointBudgetAxis.GLOBAL,
+                message = "The visual checkpoint cache holds $globalBytes bytes across all programs, " +
+                    "above the global budget $globalBudgetBytes",
+            )
+        }
+    }
+
+    /**
      * 同 id 不同载荷 ⇒ 冲突；同 id 同载荷 ⇒ 幂等成功（`created_at` 是元数据，不参与比较）。
      *
      * 写库前**重新派生身份**并比对：`visualId = programId` 不是调用方可以自己声明的值——
@@ -2148,8 +2232,9 @@ internal class RoomStudyDatabase(
      * 3. 同内容快照是 **STAGING 且 owner 不同** → CAS 转租约，0 行命中即冲突；
      * 4. 无既有行 → 插入（`INSERT OR IGNORE` + 回读；并发输家回读赢家行）。
      *
-     * 唯一键只覆盖 `(program, state, draw)`，所以复用前还要逐列比对内容载荷：同键不同
-     * scene/版本/视口/预览绝不能静默复用。
+     * 唯一键覆盖 `(program, state, draw, renderer, font)`（schema 71 / S1），所以复用前还要
+     * 逐列比对内容载荷：同键不同 scene/视口/预览绝不能静默复用；而**版本不同的再提交根本不会
+     * 命中这个查重**——它是一行新快照。
      *
      * **写库前重新派生 `snapshotId` 并比对**（批次 31）：与 [ensureTutorVisualProgram] 同形。
      * 改前这里是"调用方给什么 id 就落什么 id"——一个与内容不符的 id 会落成"身份与内容脱钩"
@@ -2158,11 +2243,11 @@ internal class RoomStudyDatabase(
      * 并发/重复 = `ImmutablePayloadConflictException`。
      *
      * **digest 列本身也必须与 JSON 内容一致**（批次 31 复核修复）：只比对
-     * `snapshotId == derive(programId, stateSha256, drawCommandsSha256)` 是循环论证——那两个
-     * digest 是调用方传入的；若不同时校验 `stateSha256 == sha256Hex(stateJson)` 与
-     * `drawCommandsSha256 == sha256Hex(drawCommandsJson)`，直接经 `TutorVisualPort.stage/commit`
-     * 的写者仍可落"内容与 digest/身份脱钩"的行；同一段内容配不同 digest 字符串还会被唯一键
-     * `(program_id, state_sha256, draw_commands_sha256)` 当成不同内容而重复入库。生产调用点
+     * `snapshotId == derive(programId, stateSha256, drawCommandsSha256, renderer, font)` 是
+     * 循环论证——那两个 digest 是调用方传入的；若不同时校验
+     * `stateSha256 == sha256Hex(stateJson)` 与 `drawCommandsSha256 == sha256Hex(drawCommandsJson)`，
+     * 直接经 `TutorVisualPort.stage/commit` 的写者仍可落"内容与 digest/身份脱钩"的行；同一段
+     * 内容配不同 digest 字符串还会被唯一键当成不同内容而重复入库。生产调用点
      * （`TutorVisualCommitRepository`）本就从 JSON 计算 digest，因此这条门挡的是直接调用 DB
      * 端口的写者——正是 DB 契约的职责。
      */
@@ -2181,14 +2266,18 @@ internal class RoomStudyDatabase(
             programId = write.programId,
             stateSha256 = write.stateSha256,
             drawCommandsSha256 = write.drawCommandsSha256,
+            rendererVersion = write.rendererVersion,
+            fontManifestVersion = write.fontManifestVersion,
         )
         require(write.snapshotId == derivedSnapshotId) {
-            "A visual snapshot id must be derived from its program and content"
+            "A visual snapshot id must be derived from its program, content and render versions"
         }
         val existing = dao.findSnapshotByContent(
             programId = write.programId,
             stateSha256 = write.stateSha256,
             drawCommandsSha256 = write.drawCommandsSha256,
+            rendererVersion = write.rendererVersion,
+            fontManifestVersion = write.fontManifestVersion,
         )
         if (existing != null) {
             requireSameVisualSnapshotPayload(existing, write)
@@ -2200,6 +2289,8 @@ internal class RoomStudyDatabase(
             programId = write.programId,
             stateSha256 = write.stateSha256,
             drawCommandsSha256 = write.drawCommandsSha256,
+            rendererVersion = write.rendererVersion,
+            fontManifestVersion = write.fontManifestVersion,
         ) ?: dao.findSnapshot(write.snapshotId)
             ?: throw ImmutablePayloadConflictException("tutor_visual_snapshot", write.snapshotId)
         requireSameVisualSnapshotPayload(stored, write)

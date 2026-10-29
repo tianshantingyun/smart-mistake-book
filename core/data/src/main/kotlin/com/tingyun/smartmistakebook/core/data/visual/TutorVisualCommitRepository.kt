@@ -4,6 +4,9 @@ import com.tingyun.smartmistakebook.core.database.AppendTutorAssistantMessageDat
 import com.tingyun.smartmistakebook.core.database.CommitTutorTurnWithVisualCommand
 import com.tingyun.smartmistakebook.core.database.RepointTutorMessageVisualCommand
 import com.tingyun.smartmistakebook.core.database.StageTutorVisualSnapshotCommand
+import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointBudget
+import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointBudgetAxis
+import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointBudgetExceededException
 import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointKind
 import com.tingyun.smartmistakebook.core.database.TutorVisualIdentity
 import com.tingyun.smartmistakebook.core.database.TutorVisualProgramWrite
@@ -19,6 +22,20 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import java.nio.charset.StandardCharsets
+
+/**
+ * STAGING 租约的默认窗口（60 分钟）。
+ *
+ * **它消灭的具体失败**：淘汰 SQL 若不看租约，A 请求刚 `stage` 的 STAGING 中间态会被 B 请求
+ * 的提交当缓存删掉；A 手里已发出的 `(programId, snapshotId)` 短暂失效。
+ *
+ * 数值取 60 分钟与仓内既有"预备产物/孤儿宽限"口径一致（`BatchImportSourceStaging.kt:14`
+ * 与 `AndroidBackupRepository.kt:137` 的 60/30 分钟宽限），取向是**宁可让废弃的 STAGING
+ * 行多占一会儿预算、也不删可能仍在飞的行**：预算压力下的正确结果是拒绝本次提交并说明
+ * （fail-closed），而不是删掉别人正在用的预备行。租约到期后由淘汰 SQL 或
+ * [TutorVisualCommitRepository.reconcileStaleStaging] 回收。
+ */
+internal const val DEFAULT_VISUAL_STAGING_LEASE_MILLIS: Long = 60L * 60L * 1_000L
 
 /**
  * 一个可重放视觉程序的**内容输入**（身份派生的唯一来源）。
@@ -117,10 +134,10 @@ enum class TutorVisualCommitRejection {
     /** 磁盘可用空间不足以落下这条快照的派生内容（state + scene + draw）。 */
     DISK_SPACE_INSUFFICIENT,
 
-    /** 淘汰未固定旧快照后，本 program 的可回收缓存仍超 4 MiB（契约 §8.1）。 */
+    /** 淘汰未固定旧快照后，本 program 的可回收缓存仍超 4 MiB（契约 §8.1；事务前预检或事务内重判）。 */
     PER_PROGRAM_BUDGET,
 
-    /** 淘汰未固定旧快照后，全库可回收视觉缓存仍超 32 MiB（契约 §8.1）。 */
+    /** 淘汰未固定旧快照后，全库可回收视觉缓存仍超 32 MiB（契约 §8.1；事务前预检或事务内重判）。 */
     GLOBAL_BUDGET,
 }
 
@@ -129,7 +146,10 @@ enum class TutorVisualCommitRejection {
  * 调用方无法区分"这次图没提交"与"库坏了"，也没有任何可读原因；更糟的是把异常当成
  * "消息也没写"，而实际上消息可能已经落库。
  *
- * 拒绝发生在**任何数据库写之前**（S0），因此"拒绝"= DB 零新增行，语义是干净的。
+ * 拒绝发生在两处，语义都相同（**DB 零新增行**）：
+ * - S0（任何数据库写之前）：预算确定超限 / 磁盘不足；
+ * - 写入事务内（批次 32 的预算重判）：并发提交把总量抬过线后，Room 回滚整个事务。
+ * 调用方只需要按 `reason` 处理，不需要知道拒绝发生在事务前还是事务中。
  */
 class TutorVisualCommitRejectedException(
     val reason: TutorVisualCommitRejection,
@@ -149,23 +169,52 @@ class TutorVisualCommitRejectedException(
  * - 源码 64 KiB / state 16 KiB / 事务 JSON 256 KiB 的预算在 S0 拒绝；
  * - 磁盘可用空间 < 本条快照的派生字节 ⇒ [TutorVisualCommitRejectedException]。
  *
+ * **checkpoint 4 MiB / 32 MiB 预检不是最终门**（批次 32）：[planCheckpoint] 仍做一次
+ * 事务前预检（快速拒绝），但事务内会以刚写入的字节总量**重判**一次
+ * （`RoomStudyDatabase.enforceVisualCheckpointBudget`）。并发提交各自读到旧总量时，第二个
+ * 事务必然看到第一个的结果并回滚——这是"双过"的结构性终结；[checkpointPlanLock] 只是
+ * 进程内的快速串行，不再是正确性依据。
+ *
  * [freeSpaceBytes] 是注入式读口（默认足够大）：生产注入 `File.usableSpace`，测试注入 0
  * 覆盖"存储满"路径——与 `BackupSnapshotTrimmer` 的 `freeSpaceProvider` 同型。
+ *
+ * [perProgramBudgetBytes] / [globalBudgetBytes] / [stagingLeaseMillis] 是可注入的策略参数
+ * （默认契约 §8.1 的 4 MiB / 32 MiB / 60 分钟租约）。测试用极小值精确覆盖拒绝与租约分支，
+ * 不必写入 4 MiB 级数据。
  */
 class TutorVisualCommitRepository(
     private val database: TutorVisualPort,
     private val freeSpaceBytes: () -> Long = { Long.MAX_VALUE },
     private val clock: () -> Long = System::currentTimeMillis,
+    perProgramBudgetBytes: Long = TutorVisualCheckpointBudget.PER_PROGRAM_BYTES,
+    globalBudgetBytes: Long = TutorVisualCheckpointBudget.GLOBAL_BYTES,
+    private val stagingLeaseMillis: Long = DEFAULT_VISUAL_STAGING_LEASE_MILLIS,
 ) {
 
+    init {
+        require(perProgramBudgetBytes > 0L) { "The per-program checkpoint budget must be positive" }
+        require(globalBudgetBytes > 0L) { "The global checkpoint budget must be positive" }
+        require(stagingLeaseMillis >= 0L) { "A staging lease must not be negative" }
+        require(stagingLeaseMillis <= Long.MAX_VALUE / 2L) { "A staging lease is unreasonably large" }
+    }
+
+    /** 与默认值同源的策略对象；事务前的快速预检与 `plan` 的预算口径都由它给出。 */
+    private val retentionPolicy = VisualCheckpointRetentionPolicy(
+        perProgramBudgetBytes = perProgramBudgetBytes,
+        globalBudgetBytes = globalBudgetBytes,
+    )
+
     /**
-     * checkpoint 预算的"读—判—写"临界区（批次 31 复核修复）。
+     * checkpoint 预算的进程内快速串行（批次 31；批次 32 起**不再是正确性依据**）。
      *
-     * 消灭的具体失败：[planCheckpoint] 在 [TutorVisualPort] 的写事务**之外**读
-     * `readVisualCheckpointSummaries` / `readGlobalVisualCheckpointStoredBytes` 并判 4 MiB /
-     * 32 MiB；两个并发提交可以同时通过预算门、然后都写入，超出部分没有任何门拦。
-     * 这把锁把 plan 与随后的 stage/commit 串成一次临界区（进程内；本库无跨进程写者）。
-     * 它**不替代**淘汰 SQL 在 DB 事务内对 pin/kind/status 的重查——那是另一道结构门。
+     * 它消灭的具体失败（历史）：[planCheckpoint] 在写事务之外读总量并判 4 MiB / 32 MiB，
+     * 同一 repository 实例的两次并发提交可以同时通过预检。锁把"预检—写"串起来，减少
+     * 无谓的回滚。
+     *
+     * 但锁只覆盖本实例、本进程；真正的正确性在写入事务内：`RoomStudyDatabase` 在
+     * demote/evict 之后**重读**事务内的字节总量并重判，超限即回滚（批次 32）。因此删掉或
+     * 绕过这把锁，只会多一次"事务内拒绝 + 重试"，不会造成超额写入。
+     * 它也不替代淘汰 SQL 在事务内对 pin/kind/status/租约的重查——那是另一道结构门。
      */
     private val checkpointPlanLock = Mutex()
 
@@ -180,6 +229,12 @@ class TutorVisualCommitRepository(
             role = program.role,
         )
 
+    /**
+     * 派生快照 id（schema 71 / S1）：**内容 + 渲染/字体版本**五段长度前缀。
+     *
+     * 版本不进派生式时，painter 升级后同内容再提交会拿到旧行的 id，`INSERT OR IGNORE` 把它
+     * 吞掉——新版本快照永远补不出来，恢复侧只能把历史图长期判为只读。
+     */
     fun snapshotIdFor(
         programId: String,
         snapshot: TutorVisualSnapshotInput,
@@ -187,6 +242,8 @@ class TutorVisualCommitRepository(
         programId = programId,
         stateSha256 = TutorVisualIdentity.sha256Hex(snapshot.stateJson),
         drawCommandsSha256 = TutorVisualIdentity.sha256Hex(snapshot.drawCommandsJson),
+        rendererVersion = snapshot.rendererVersion,
+        fontManifestVersion = snapshot.fontManifestVersion,
     )
 
     /**
@@ -216,6 +273,13 @@ class TutorVisualCommitRepository(
                     program = programWrite,
                     snapshot = snapshotWrite,
                     ownerRequestId = ownerRequestId,
+                    // 与 commit 路径同一份 plan 消费方式（批次 32 复核修复）：事务内预算重判读
+                    // 全量字节，因此"预检按淘汰后净值放行"必须同时把淘汰集带进事务；否则净值
+                    // 不超而总量超时会事务拒绝（与契约 §8.1 的淘汰方向相反）。stage 不 demote。
+                    evictCheckpointSnapshotIds = checkpointPlan.evictUnpinnedSnapshotIds,
+                    stagingLeaseExpiredBeforeEpochMillis = now - stagingLeaseMillis,
+                    perProgramBudgetBytes = retentionPolicy.perProgramBudgetBytes,
+                    globalBudgetBytes = retentionPolicy.globalBudgetBytes,
                 ),
             )
         }
@@ -264,6 +328,11 @@ class TutorVisualCommitRepository(
                     formDigest = formDigest,
                     demoteCheckpointSnapshotIds = checkpointPlan.demoteToIntermediate,
                     evictCheckpointSnapshotIds = checkpointPlan.evictUnpinnedSnapshotIds,
+                    // 租约截止与本次提交使用同一个时钟读数：本事务写入的新行 created_at = now，
+                    // 因而不会被自己的淘汰误删；别人刚写、尚未过期的行也不会被删。
+                    stagingLeaseExpiredBeforeEpochMillis = now - stagingLeaseMillis,
+                    perProgramBudgetBytes = retentionPolicy.perProgramBudgetBytes,
+                    globalBudgetBytes = retentionPolicy.globalBudgetBytes,
                 ),
             )
         }
@@ -382,6 +451,7 @@ class TutorVisualCommitRepository(
             existing = existing.filterNot { it.snapshotId == snapshotId },
             availableDiskBytes = freeSpaceBytes(),
             globalStoredBytes = globalStoredBytes,
+            policy = retentionPolicy,
         )
         return when (plan) {
             is VisualCheckpointPlan.Retained -> {
@@ -430,6 +500,8 @@ class TutorVisualCommitRepository(
                 programId = programId,
                 stateSha256 = stateSha256,
                 drawCommandsSha256 = drawCommandsSha256,
+                rendererVersion = rendererVersion,
+                fontManifestVersion = fontManifestVersion,
             ),
             programId = programId,
             stateJson = stateJson,
@@ -464,6 +536,10 @@ class TutorVisualCommitRepository(
      * S0 之外的第二道兜底：预检与真实写入之间磁盘仍可能被填满。此时 Room 已回滚事务
      * （没有半条记录），把库异常翻译成**有界拒绝**，而不是让 `SQLiteFullException` 穿透成
      * "调用方以为库坏了/消息可能写了"。
+     *
+     * 同时把**事务内**预算重判的拒绝（[TutorVisualCheckpointBudgetExceededException]）翻译成
+     * 同一个对外类型：调用方只看到"这次没提交 + 有码原因"，不需要知道拒绝发生在事务前还是
+     * 事务中。两边语义一致：DB 零新增行。
      */
     private suspend fun <T> translateFullDisk(block: suspend () -> T): T =
         try {
@@ -473,6 +549,17 @@ class TutorVisualCommitRepository(
                 TutorVisualCommitRejection.DISK_SPACE_INSUFFICIENT,
                 "The database ran out of space while committing a visual snapshot",
                 full,
+            )
+        } catch (budget: TutorVisualCheckpointBudgetExceededException) {
+            throw TutorVisualCommitRejectedException(
+                reason = when (budget.axis) {
+                    TutorVisualCheckpointBudgetAxis.PER_PROGRAM ->
+                        TutorVisualCommitRejection.PER_PROGRAM_BUDGET
+                    TutorVisualCheckpointBudgetAxis.GLOBAL ->
+                        TutorVisualCommitRejection.GLOBAL_BUDGET
+                },
+                message = budget.message ?: "Visual checkpoint budget exceeded",
+                cause = budget,
             )
         }
 
