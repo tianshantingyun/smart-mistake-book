@@ -136,7 +136,7 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionVisualEn
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualProgramEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 
-internal const val STUDY_DATABASE_VERSION = 70
+internal const val STUDY_DATABASE_VERSION = 71
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -407,6 +407,8 @@ object StudyDatabaseFactory {
             ANSWER_KEY_CORRECTION_MIGRATION_67_68,
             FIGURE_GENERATION_MIGRATION_68_69,
             VISUAL_SNAPSHOT_MIGRATION_69_70,
+            // 批次 32 / S1：渲染器与字体清单版本并入快照唯一键（DROP 旧三列键 + CREATE 五列键）。
+            VISUAL_SNAPSHOT_IDENTITY_MIGRATION_70_71,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

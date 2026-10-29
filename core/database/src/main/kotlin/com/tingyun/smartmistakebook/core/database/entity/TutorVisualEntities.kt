@@ -84,8 +84,20 @@ internal data class TutorVisualProgramEntity(
  * - `LIVE`：**终态**（[promotedAtEpochMillis] 非空）。没有 `LIVE → *` 的回退——回退等于
  *   用户看到过的图"消失"。
  *
- * 唯一索引 `(program_id, state_sha256, draw_commands_sha256)` 让**同内容快照只存一份**
+ * 唯一索引 **`(program_id, state_sha256, draw_commands_sha256, renderer_version,
+ * font_manifest_version)`**（schema 71 / S1）让**同内容 + 同渲染/字体版本的快照只存一份**
  * （重复 checkpoint 是幂等读回，不是新行）。
+ *
+ * **为什么版本必须进唯一键**（v70 的三列键是本批要消灭的失败）：painter 或字体实现升级后，
+ * 同一 `(program, state, draw)` 的再提交会被三列键**静默复用旧行**；恢复侧看到
+ * `rendererVersion != CURRENT` → `RENDERER_VERSION_MISMATCH` → 只读
+ * （`VisualSnapshotRestore` 的既有分支），而**没有任何写路径能补出一行新版本快照** ⇒ 一次
+ * 版本 bump 把历史图不可逆降级为只读。把两个版本并入唯一键后，"同内容、新版本"是另一行，
+ * 恢复侧能拿到与当前 painter 匹配的可重放快照。
+ *
+ * 派生身份（`TutorVisualIdentity.deriveSnapshotId`）、这条唯一键、DAO 的内容查重
+ * （`findSnapshotByContent`）三者**必须同源**：任何一处漏掉版本，新版本会撞上旧行的 id 或
+ * 查到旧行，S1 原样复发。
  *
  * 列的口径：
  * - `scene_schema_version` / `render_schema_version` / `renderer_version`：矢量重放门的三个
@@ -118,7 +130,20 @@ internal data class TutorVisualProgramEntity(
         ),
     ],
     indices = [
-        Index(value = ["program_id", "state_sha256", "draw_commands_sha256"], unique = true),
+        // 显式名（schema 71）：默认名会把五列拼成约 100 字符的可读性极差的标识。显式名仍以
+        // `index_` 开头，Room 的宽松名比较（只要求对方也以 `index_` 开头）不依赖全名，
+        // 但列/唯一性/排序仍逐项严格校验——所以迁移 DDL 必须与这里逐列一致。
+        Index(
+            name = "index_tutor_visual_snapshot_content_render_identity",
+            value = [
+                "program_id",
+                "state_sha256",
+                "draw_commands_sha256",
+                "renderer_version",
+                "font_manifest_version",
+            ],
+            unique = true,
+        ),
         Index(value = ["program_id", "promoted_at_epoch_millis"]),
         Index(value = ["preview_asset_id"]),
         Index(value = ["status", "created_at_epoch_millis"]),

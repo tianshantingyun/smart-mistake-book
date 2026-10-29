@@ -35,12 +35,7 @@ object TutorVisualIdentity {
 
     const val PROGRAM_ID_PREFIX = "visual-program-"
 
-    /**
-     * 快照标识：`"visual-snapshot-" + sha256(programId ‖ stateSha256 ‖ drawSha256)[:32]`。
-     *
-     * 与 [TutorVisualSnapshotWrite] 的唯一键 `(program, state, draw)` 同源：同内容重复提交
-     * 落到同一个 id，重试天然幂等。
-     */
+    /** 快照标识前缀；派生式见 [deriveSnapshotId]。 */
     const val SNAPSHOT_ID_PREFIX = "visual-snapshot-"
 
     fun deriveProgramId(
@@ -68,16 +63,48 @@ object TutorVisualIdentity {
         return PROGRAM_ID_PREFIX + digest.digest().toHex()
     }
 
+    /**
+     * 快照标识（schema 71 / S1）：
+     *
+     * ```
+     * "visual-snapshot-" + sha256(
+     *     lp(programId) ‖ lp(stateSha256) ‖ lp(drawCommandsSha256)
+     *   ‖ lp(rendererVersion) ‖ lp(fontManifestVersion)
+     * )[:32]
+     * ```
+     *
+     * 与 `TutorVisualSnapshotEntity` 的唯一键
+     * `(program_id, state_sha256, draw_commands_sha256, renderer_version, font_manifest_version)`
+     * **同源**：同内容 + 同版本的重复提交落到同一个 id（重试天然幂等），而**版本变化产生另一个
+     * id**。
+     *
+     * **为什么版本必须进派生式**（v70 的三参版本是缺陷）：派生 id 只含内容三列时，painter 或
+     * 字体升级后同内容的再提交会落到**旧行的 id**，`INSERT OR IGNORE` + 唯一键把它吞掉，
+     * 恢复侧按 `rendererVersion != CURRENT` 判只读——历史图从此不可逆降级。派生式、唯一键、
+     * DAO 查重三者必须同时含版本，任何一处漏掉都会让 S1 复发。
+     *
+     * 五段全部长度前缀（沿用 [deriveProgramId] 的写法）：`("ab","c")` 与 `("a","bc")` 是两组
+     * 不同输入，无前缀拼接会把它们摘要成同一串。
+     */
     fun deriveSnapshotId(
         programId: String,
         stateSha256: String,
         drawCommandsSha256: String,
+        rendererVersion: String,
+        fontManifestVersion: String,
     ): String {
         require(programId.isNotBlank()) { "A visual snapshot needs its program id" }
         require(stateSha256.isNotBlank()) { "A visual snapshot needs a state digest" }
         require(drawCommandsSha256.isNotBlank()) { "A visual snapshot needs a draw digest" }
-        val digest = sha256Hex(programId + stateSha256 + drawCommandsSha256)
-        return SNAPSHOT_ID_PREFIX + digest.take(32)
+        require(rendererVersion.isNotBlank()) { "A visual snapshot needs a renderer version" }
+        require(fontManifestVersion.isNotBlank()) { "A visual snapshot needs a font manifest version" }
+        val digest = MessageDigest.getInstance(SHA_256)
+        digest.updateLengthPrefixed(programId)
+        digest.updateLengthPrefixed(stateSha256)
+        digest.updateLengthPrefixed(drawCommandsSha256)
+        digest.updateLengthPrefixed(rendererVersion)
+        digest.updateLengthPrefixed(fontManifestVersion)
+        return SNAPSHOT_ID_PREFIX + digest.digest().toHex().take(32)
     }
 
     fun sha256Hex(value: String): String =

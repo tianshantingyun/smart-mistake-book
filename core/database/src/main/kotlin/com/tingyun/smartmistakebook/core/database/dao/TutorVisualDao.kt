@@ -48,8 +48,9 @@ internal data class TutorVisualCheckpointProjection(
  *    不是 LIVE。**不**靠回读 `revision == expected + 1` 判成功——并发下输家也会读到 +1
  *    （`CleanRedrawTaskDao` 已记载同一陷阱，`CleanRedrawTaskDao.kt:281-287`）。
  *
- * 重复提交的幂等靠**快照唯一索引** `(program_id, state_sha256, draw_commands_sha256)`：
- * 同内容 checkpoint 的 `INSERT OR IGNORE` 不动行数，调用方回读已有行。
+ * 重复提交的幂等靠**快照唯一索引** `(program_id, state_sha256, draw_commands_sha256,
+ * renderer_version, font_manifest_version)`（schema 71）：同内容 **且同渲染/字体版本** 的
+ * checkpoint 的 `INSERT OR IGNORE` 不动行数，调用方回读已有行；版本变化是**另一行**。
  */
 @Dao
 internal abstract class TutorVisualDao {
@@ -70,13 +71,22 @@ internal abstract class TutorVisualDao {
     @Query("SELECT * FROM tutor_visual_snapshot WHERE snapshot_id = :snapshotId LIMIT 1")
     abstract suspend fun findSnapshot(snapshotId: String): TutorVisualSnapshotEntity?
 
-    /** 内容幂等键（`UNIQUE(program_id, state_sha256, draw_commands_sha256)`）的回读口。 */
+    /**
+     * 内容幂等键（`UNIQUE(program_id, state_sha256, draw_commands_sha256, renderer_version,
+     * font_manifest_version)`）的回读口。
+     *
+     * **五列缺一不可**（schema 71 / S1）：只按内容三列查会**查到旧版本的既有行**，调用方
+     * 因而把它当"同内容重复提交"静默复用——恢复侧看到 `rendererVersion != CURRENT` 后只读，
+     * 而新版本快照永远补不出来。WHERE 的列集必须与唯一键逐列同形。
+     */
     @Query(
         """
         SELECT * FROM tutor_visual_snapshot
         WHERE program_id = :programId
           AND state_sha256 = :stateSha256
           AND draw_commands_sha256 = :drawCommandsSha256
+          AND renderer_version = :rendererVersion
+          AND font_manifest_version = :fontManifestVersion
         LIMIT 1
         """,
     )
@@ -84,6 +94,8 @@ internal abstract class TutorVisualDao {
         programId: String,
         stateSha256: String,
         drawCommandsSha256: String,
+        rendererVersion: String,
+        fontManifestVersion: String,
     ): TutorVisualSnapshotEntity?
 
     /** 幂等/回滚断言用：一个 program 下应只有内容唯一的快照行。 */
@@ -140,6 +152,25 @@ internal abstract class TutorVisualDao {
     abstract suspend fun totalCheckpointStoredBytes(): Long
 
     /**
+     * 本 program 的派生字节总量（与 [checkpointSummaries] 同口径）。
+     *
+     * 写入事务内的预算重判用它，而不是把 [checkpointSummaries] 的 `pinned` 相关 EXISTS
+     * 子查询也跑一遍：重判只关心字节，不关心引用形状。与 `core:data` 侧
+     * `visualCheckpointStoredBytes` 同口径（三列 UTF-8 字节和，不是字符数）。
+     */
+    @Query(
+        """
+        SELECT COALESCE(SUM(
+                   length(CAST(state_json AS BLOB))
+                 + length(CAST(scene_json AS BLOB))
+                 + length(CAST(draw_commands_json AS BLOB))), 0)
+        FROM tutor_visual_snapshot
+        WHERE program_id = :programId
+        """,
+    )
+    abstract suspend fun programCheckpointStoredBytes(programId: String): Long
+
+    /**
      * 旧 `LATEST` 降为可回收中间态（NULL）。**只改角色列**，不动内容、状态与引用；
      * `INITIAL` 永不降级（WHERE 已把 `LATEST` 写死，且调用方传的集合来自策略的 demote 列表）。
      */
@@ -159,12 +190,20 @@ internal abstract class TutorVisualDao {
     ): Int
 
     /**
-     * 淘汰未固定、非 INITIAL 的**中间态**派生缓存（批次 30 / D-05；批次 31 收紧 LIVE）。
+     * 淘汰未固定、非 INITIAL 的**中间态**派生缓存（批次 30 / D-05；批次 31 收紧 LIVE；
+     * 批次 32 增加 STAGING 租约）。
      *
-     * **SQL 侧重查三件事**：pin、kind、status。策略在事务外算出候选集，pin/status 可能并发
-     * 变化；这里再按"仍未被消息/题面引用、kind ∈ {NULL, LATEST}、且仍为 STAGING"过滤一次。
+     * **SQL 侧重查四件事**：pin、kind、status、租约。策略在事务外算出候选集，pin/status/owner
+     * 都可能并发变化；这里再按"仍未被消息/题面引用、kind ∈ {NULL, LATEST}、仍为 STAGING、
+     * 且（无 owner / owner 是本次提交者 / created_at 已过租约截止）"过滤一次。
      * `INITIAL` 与任何被固定行一行都不删；**LIVE 行也不删**——LIVE 是用户已经看到的图，
      * 不是"没人引用的缓存"（批次 31 裁定；`kind` 只表达 checkpoint 角色，与是否可见是两轴）。
+     *
+     * 租约条件消灭的具体失败：没有它时，A 请求刚 `stage` 的 STAGING 中间态会被 B 请求的提交
+     * 当缓存删掉——A 手里已经发出的 `(programId, snapshotId)` 短暂失效，A 的提交要么重建行、
+     * 要么失败。`owner_request_id IS NULL` 覆盖历史库/绕过写入方的无主行（无主 = 无人可能仍
+     * 在飞）；`owner_request_id = :committingOwnerRequestId` 只允许本次提交回收自己的旧预备行；
+     * 其余 owner 的行必须等 `created_at_epoch_millis <= :leaseExpiredBeforeEpochMillis`。
      */
     @Query(
         """
@@ -172,6 +211,11 @@ internal abstract class TutorVisualDao {
         WHERE snapshot_id IN (:snapshotIds)
           AND (checkpoint_kind IS NULL OR checkpoint_kind = :latestKind)
           AND status = :stagingStatus
+          AND (
+              owner_request_id IS NULL
+              OR owner_request_id = :committingOwnerRequestId
+              OR created_at_epoch_millis <= :leaseExpiredBeforeEpochMillis
+          )
           AND NOT EXISTS (
               SELECT 1 FROM tutor_message_visual AS link
               WHERE link.current_snapshot_id = tutor_visual_snapshot.snapshot_id
@@ -186,6 +230,8 @@ internal abstract class TutorVisualDao {
         snapshotIds: List<String>,
         latestKind: String,
         stagingStatus: String,
+        committingOwnerRequestId: String,
+        leaseExpiredBeforeEpochMillis: Long,
     ): Int
 
     /**
