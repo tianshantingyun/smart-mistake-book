@@ -9,10 +9,13 @@ import com.tingyun.smartmistakebook.core.database.TutorVisualIdentity
 import com.tingyun.smartmistakebook.core.database.TutorVisualProgramWrite
 import com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotRecord
 import com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotWrite
+import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
 import android.database.sqlite.SQLiteFullException
 import com.tingyun.smartmistakebook.core.database.TutorVisualTurnCommitRecord
 import com.tingyun.smartmistakebook.core.database.port.TutorVisualPort
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import java.nio.charset.StandardCharsets
@@ -155,6 +158,17 @@ class TutorVisualCommitRepository(
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
 
+    /**
+     * checkpoint 预算的"读—判—写"临界区（批次 31 复核修复）。
+     *
+     * 消灭的具体失败：[planCheckpoint] 在 [TutorVisualPort] 的写事务**之外**读
+     * `readVisualCheckpointSummaries` / `readGlobalVisualCheckpointStoredBytes` 并判 4 MiB /
+     * 32 MiB；两个并发提交可以同时通过预算门、然后都写入，超出部分没有任何门拦。
+     * 这把锁把 plan 与随后的 stage/commit 串成一次临界区（进程内；本库无跨进程写者）。
+     * 它**不替代**淘汰 SQL 在 DB 事务内对 pin/kind/status 的重查——那是另一道结构门。
+     */
+    private val checkpointPlanLock = Mutex()
+
     /** 对外 visualId 与落库 `program_id` 的**同一个值**。 */
     fun programIdFor(program: TutorVisualProgramInput): String =
         TutorVisualIdentity.deriveProgramId(
@@ -183,7 +197,7 @@ class TutorVisualCommitRepository(
         program: TutorVisualProgramInput,
         snapshot: TutorVisualSnapshotInput,
         ownerRequestId: String,
-    ): TutorVisualSnapshotRecord {
+    ): TutorVisualSnapshotRecord = checkpointPlanLock.withLock {
         requireS0(program, snapshot)
         val now = clock()
         val programWrite = program.toWrite(now)
@@ -196,7 +210,7 @@ class TutorVisualCommitRepository(
         val snapshotWrite = baseSnapshotWrite.copy(
             checkpointKind = checkpointPlan.incomingKind,
         )
-        return translateFullDisk {
+        translateFullDisk {
             database.stageTutorVisualSnapshot(
                 StageTutorVisualSnapshotCommand(
                     program = programWrite,
@@ -225,7 +239,7 @@ class TutorVisualCommitRepository(
         visualOrdinal: Int = 0,
         uiStateJson: String? = null,
         formDigest: String? = null,
-    ): TutorVisualTurnCommitRecord {
+    ): TutorVisualTurnCommitRecord = checkpointPlanLock.withLock {
         requireS0(program, snapshot)
         val now = clock()
         val programWrite = program.toWrite(now)
@@ -238,7 +252,7 @@ class TutorVisualCommitRepository(
         val snapshotWrite = baseSnapshotWrite.copy(
             checkpointKind = checkpointPlan.incomingKind,
         )
-        return translateFullDisk {
+        translateFullDisk {
             database.commitTutorTurnWithVisual(
                 CommitTutorTurnWithVisualCommand(
                     message = message,
@@ -313,14 +327,19 @@ class TutorVisualCommitRepository(
     }
 
     /**
-     * checkpoint 保留/配额策略的**生产接线**（批次 30 / D-05）。
+     * checkpoint 保留/配额策略的**生产接线**（批次 30 / D-05；批次 31 补齐 stage→commit）。
      *
      * 它消灭的具体失败：`VisualCheckpointRetention` 此前只有纯策略与测试，写入方永远写
      * `INITIAL`、从不降级/淘汰、从不按 4 MiB / 32 MiB 拒提交——预算门在真实写入上等于不存在。
      *
-     * 语义：
-     * - 快照行**已存在**（重复提交/幂等回放）→ 不重跑策略、不改既有行；`incomingKind` 取既有
-     *   行的 kind（DB 的复用路径本来也不会 UPDATE 它）。
+     * 语义（**按既有行的 status 分流**，这是批次 31 补的第三分支）：
+     * - 快照行已存在且 **LIVE**（真正的重复提交/幂等回放）→ 不重跑策略、不改既有行；
+     *   `incomingKind` 取既有行的 kind（DB 的复用路径本来也不会 UPDATE 它）。
+     * - 快照行已存在但仍是 **STAGING**（先 `stageSnapshot` 后 `commitAssistantTurnWithVisual`
+     *   的常规路径）→ 本次提交会把它提升为 LIVE，所以 demote/evict 的副作用**必须照算**；
+     *   把本行从 `existing` 里排除后再跑 [VisualCheckpointRetention.plan]，`incomingKind` 沿用
+     *   落库时已经定下的 kind。改前这里也走"已存在 → 不重跑策略"，于是 S3→S4 路径上
+     *   demote/evict 永远不发生——这正是"保留策略零生产调用"的真身。
      * - 新快照 → 调 [VisualCheckpointRetention.plan]；[VisualCheckpointPlan.Rejected] 映射成
      *   [TutorVisualCommitRejectedException]（在**任何数据库写之前**抛出）。
      */
@@ -333,11 +352,13 @@ class TutorVisualCommitRepository(
             VisualCheckpointRow(
                 snapshotId = row.snapshotId,
                 kind = row.checkpointKind,
+                status = row.status,
                 pinned = row.pinned,
                 storedBytes = row.storedBytes,
             )
         }
-        existing.firstOrNull { it.snapshotId == snapshotId }?.let { stored ->
+        val stored = existing.firstOrNull { it.snapshotId == snapshotId }
+        if (stored != null && stored.status == TutorVisualStatus.LIVE) {
             return VisualCheckpointPlan.Retained(
                 incomingKind = stored.kind ?: TutorVisualCheckpointKind.INITIAL,
                 demoteToIntermediate = emptyList(),
@@ -345,19 +366,28 @@ class TutorVisualCommitRepository(
                 retainedBytesAfterEviction = existing.sumOf { it.storedBytes },
             )
         }
+        val incomingBytes = visualCheckpointStoredBytes(
+            stateJson = snapshot.stateJson,
+            sceneJson = snapshot.sceneJson,
+            drawCommandsJson = snapshot.drawCommandsJson,
+        )
+        // STAGING 的既有行已经计入全库总量；本行同时作为 `incoming` 传入，若不再扣除就会
+        // 在全局门上**重复计数**本行字节，把"刚好放得下"的提交误判为超限。
+        val globalStoredBytes = database.readGlobalVisualCheckpointStoredBytes() -
+            (if (stored != null) incomingBytes else 0L)
         val plan = VisualCheckpointRetention.plan(
             incomingSnapshotId = snapshotId,
-            incomingStoredBytes = visualCheckpointStoredBytes(
-                stateJson = snapshot.stateJson,
-                sceneJson = snapshot.sceneJson,
-                drawCommandsJson = snapshot.drawCommandsJson,
-            ),
-            existing = existing,
+            incomingStoredBytes = incomingBytes,
+            // STAGING 的既有行就是本次要提升的同一行：它不能同时出现在 incoming 与 existing 里。
+            existing = existing.filterNot { it.snapshotId == snapshotId },
             availableDiskBytes = freeSpaceBytes(),
-            globalStoredBytes = database.readGlobalVisualCheckpointStoredBytes(),
+            globalStoredBytes = globalStoredBytes,
         )
         return when (plan) {
-            is VisualCheckpointPlan.Retained -> plan
+            is VisualCheckpointPlan.Retained -> {
+                val storedKind = stored?.kind
+                if (storedKind != null) plan.copy(incomingKind = storedKind) else plan
+            }
             is VisualCheckpointPlan.Rejected -> throw TutorVisualCommitRejectedException(
                 reason = when (plan.reason) {
                     VisualCheckpointRejection.PER_PROGRAM_BUDGET ->

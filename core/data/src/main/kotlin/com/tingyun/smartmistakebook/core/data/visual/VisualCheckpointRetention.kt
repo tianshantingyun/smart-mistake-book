@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.visual
 
 import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointKind
+import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
 import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
 
 /**
@@ -9,6 +10,11 @@ import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
  * [kind] 的取值来自 `core/database` 的 [TutorVisualCheckpointKind]（`INITIAL`/`LATEST`；
  * `null` = 可回收中间态）——**不在这里另立一套字面量**：写侧（T3 的 D-02 提交）与保留
  * 策略必须共用同一个来源，否则拼错一次就会让"初始基线"退化成可淘汰的中间态。
+ *
+ * [status] 来自 `core/database` 的 [TutorVisualStatus]。批次 31 起它是**独立的淘汰轴**：
+ * `LIVE` = 用户已经看到过的图，即使当前没有 link/题面指针固定它，也不作为"可回收派生缓存"
+ * 删除（`kind` 只表达 checkpoint 角色，与是否可见是两件事）。投影缺这一列时，LIVE 的未固定
+ * 行会静默进入淘汰候选——这正是本次补上的原因。
  *
  * **未知 kind（既非 INITIAL 也非 LATEST 的非空字符串）按 fail-closed 处理**：不淘汰。
  * 宁可让坏数据占着预算并照常拒绝提交，也不把一条含义不明的行当成"可以删"。
@@ -22,11 +28,13 @@ import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
 internal data class VisualCheckpointRow(
     val snapshotId: String,
     val kind: String?,
+    val status: String,
     val pinned: Boolean,
     val storedBytes: Long,
 ) {
     init {
         require(snapshotId.isNotBlank()) { "A checkpoint row needs a snapshot id" }
+        require(status.isNotBlank()) { "A checkpoint row needs its status" }
         require(storedBytes >= 0L) { "Checkpoint stored bytes must not be negative" }
     }
 }
@@ -67,9 +75,10 @@ internal sealed interface VisualCheckpointPlan {
      * @param incomingKind 新 checkpoint 的 `checkpoint_kind`（首个 = INITIAL，之后 = LATEST）。
      * @param demoteToIntermediate 旧 `LATEST` 行（标记只有一个，新 checkpoint 接手）；被固定的
      *   旧 LATEST 也在内——它只是不再是最新标记，行仍因 pinned 保留。
-     * @param evictUnpinnedSnapshotIds 可回收的未固定行（`null` kind 或旧 LATEST）。
+     * @param evictUnpinnedSnapshotIds 可回收的未固定行（`null` kind 或旧 LATEST，且仍为
+     *   STAGING；LIVE 永不入列）。
      *   **本轨不执行删除**：由 T3 在同一写入事务/既有 GC 里落地，且淘汰集必须在提交时重查
-     *   （pin 是并发可变的）。
+     *   （pin/status 是并发可变的）。
      * @param retainedBytesAfterEviction 扣除淘汰候选后本 program 仍保留的字节数
      *   （INITIAL + pinned + 未知 kind + 本行）。
      */
@@ -95,24 +104,31 @@ internal sealed interface VisualCheckpointPlan {
  * 规则（契约 §8.1 原文的落码）：
  * 1. 新 checkpoint 的 kind：本 program 没有 `INITIAL` 行 → [TutorVisualCheckpointKind.INITIAL]；
  *    否则 [TutorVisualCheckpointKind.LATEST]（`INITIAL` 行永不改写）；
- * 2. **可淘汰 = 未固定且（`kind == null` 或 `LATEST`）**；被固定的事实（消息当前指针、
- *    保存题引用）一律保留；未知 kind fail-closed 保留；
+ * 2. **可淘汰 = 未被固定、仍为 STAGING、且（`kind == null` 或 `LATEST`）**；被固定的事实
+ *    （消息当前指针、保存题引用）一律保留；`INITIAL` 永不淘汰；**LIVE 永不淘汰**——它是
+ *    用户已经看到过的图，不是"没人引用的缓存"；未知 kind / 未知 status 一律 fail-closed 保留；
  * 3. 预算按**淘汰后**的保留字节数判定（per-program），全局按"全局总量 − 本 program 淘汰量
  *    + 本行"判定；仍超限 → 拒绝提交；
  * 4. 磁盘可用空间不足（本行字节 > 可用字节）→ 拒绝提交，**不删任何用户事实**。
  *
+ * 规则 2 中 LIVE 的收紧是批次 31 的裁定：`kind` 只表达 checkpoint 角色，与"用户是否已经
+ * 看到这张图"是两条轴。把 LIVE 的未固定行当缓存删掉，等于让用户已见的图无声消失；在配额
+ * 压力下正确的行为是**拒绝本次提交并说明**，而不是删历史事实。代价是 LIVE 中间态会占用
+ * 预算（fail-closed 的已知代价），由调用方的有界拒绝暴露出来。
+ *
  * **与写入方的边界（批次 30 复核修复后已接线）**：
  * - 本对象**只判定**，不触 DB、不删行、不改 status；`demote`/`evict` 的 SQL 由
  *   `TutorVisualCommitRepository.planCheckpoint` + `TutorVisualPort.commitTutorTurnWithVisual`
- *   在同一事务里执行（`UPDATE … checkpoint_kind` 与淘汰删除在事务内，且淘汰 SQL 重查 pin/kind）。
+ *   在同一事务里执行（`UPDATE … checkpoint_kind` 与淘汰删除在事务内，且淘汰 SQL 重查
+ *   pin/kind/status）。
  * - 仓储层在**写库前**调用本函数：`stageSnapshot` / `commitAssistantTurnWithVisual` 都用
  *   [nextCheckpointKind] 决定落库 kind，并用 `plan(...)` 做磁盘/配额门；
  *   [VisualCheckpointPlan.Rejected] 映射成 `TutorVisualCommitRejectedException`
  *   （含 `PER_PROGRAM_BUDGET` / `GLOBAL_BUDGET`）。两边字节口径一致
  *   （`utf8Size(state)+utf8Size(scene)+utf8Size(draw)`；SQL 侧 `length(CAST(x AS BLOB))`）。
  * - `pinned` 的"导出冻结集"（E-01）属 `core/export` 热区，本批不做，接导出时补入参；
- * - 对 LIVE 行的删除**不是降级**：契约 §8.1 明确允许"淘汰未固定快照/预览"；"LIVE 不可回退"
- *   约束的是 status 语义（不得 LIVE→STAGING、不得改写内容），两件事分开。
+ * - demote/evict 的 SQL 在提交事务内执行，且淘汰 SQL 会**重查** `status`（只删 STAGING）；
+ *   策略判定与 SQL 的双重过滤是同一条规则的两层，不是两套口径。
  */
 internal object VisualCheckpointRetention {
 
@@ -157,7 +173,10 @@ internal object VisualCheckpointRetention {
         }
 
         val evictable = existing.filter { row ->
-            !row.pinned && (row.kind == null || row.kind == TutorVisualCheckpointKind.LATEST)
+            !row.pinned &&
+                // 正向条件而非 `!= LIVE`：未知 status 与未知 kind 一样 fail-closed 保留。
+                row.status == TutorVisualStatus.STAGING &&
+                (row.kind == null || row.kind == TutorVisualCheckpointKind.LATEST)
         }
         val evictableBytes = evictable.sumOf { it.storedBytes }
         val retainedBytes = existingBytes - evictableBytes + incomingStoredBytes

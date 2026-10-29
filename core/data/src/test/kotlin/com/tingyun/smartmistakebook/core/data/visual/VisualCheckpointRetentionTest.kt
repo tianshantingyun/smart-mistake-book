@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.visual
 
 import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointKind
+import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -19,18 +20,21 @@ import org.junit.Test
  * 2. **只有"未被固定且可淘汰"的行才进淘汰集**；被 `tutor_message_visual.current_snapshot_id`
  *    或 `problem_revision_visual.snapshot_id` 固定（`pinned = true`）的行一律保留；未知
  *    `checkpoint_kind` fail-closed 保留；
- * 3. **配额只做提交门，不做静默删除**：淘汰候选从预算里扣除后仍超限 → 返回
+ * 3. **LIVE 永不淘汰**（批次 31）：`status = LIVE` 是用户已经看到过的图，即使当前没有引用
+ *    固定它，也不是"可回收派生缓存"。投影缺 `status` 时它会被静默删掉——本组用例钉住这条；
+ * 4. **配额只做提交门，不做静默删除**：淘汰候选从预算里扣除后仍超限 → 返回
  *    [VisualCheckpointPlan.Rejected]（有界原因），**不删任何用户事实**（契约 §8.1）。
  *
  * 语义裁定（登记给 T3）：
  * - `LATEST` 是"当前最新 checkpoint"的**可变标记**，同一 program 至多一个；新 checkpoint
  *   到来时旧标记行一律 demote 为 `NULL`（无论是否被固定——被固定的旧行仍因 pinned 保留）；
  * - "LIVE 不可回退"约束的是 **status 语义**（不得把 LIVE 改回 STAGING、不得改写内容），
- *   **不是"LIVE 行不可删除"**；契约 §8.1 原文允许"淘汰未固定快照/预览"。两者是不同轴。
+ *   而批次 31 进一步裁定：LIVE 行也不作为**可回收缓存**删除。配额压力下正确的行为是
+ *   **拒绝本次提交并说明**，代价是 LIVE 中间态占用预算（fail-closed 的已知代价）。
  *
  * 设备/集成面（本环境不运行 Gradle/adb）：demote/淘汰的 SQL 落点是 T3 的 D-02 写入事务
  * （`UPDATE … checkpoint_kind` + 删除未固定行），本轨只给判定；设备用例见 T3 的 DAO 仪器化
- * 矩阵（设计 §3.6"重复提交/取消"两行）。本文件执行结果登记为 UNVERIFIED。
+ * 矩阵（`TutorVisualStructureGatesInstrumentedTest`）。本文件执行结果登记为 UNVERIFIED。
  */
 class VisualCheckpointRetentionTest {
 
@@ -39,9 +43,11 @@ class VisualCheckpointRetentionTest {
         kind: String? = null,
         pinned: Boolean = false,
         bytes: Long = 100L,
+        status: String = TutorVisualStatus.STAGING,
     ): VisualCheckpointRow = VisualCheckpointRow(
         snapshotId = id,
         kind = kind,
+        status = status,
         pinned = pinned,
         storedBytes = bytes,
     )
@@ -156,6 +162,54 @@ class VisualCheckpointRetentionTest {
     }
 
     @Test
+    fun `an unpinned live latest is demoted but never evicted`() {
+        val existing = listOf(
+            row("snap-initial", TutorVisualCheckpointKind.INITIAL, bytes = 100),
+            row(
+                "snap-live-latest",
+                TutorVisualCheckpointKind.LATEST,
+                bytes = 200,
+                status = TutorVisualStatus.LIVE,
+            ),
+        )
+        val plan = retained(
+            VisualCheckpointRetention.plan(
+                incomingSnapshotId = "snap-latest-new",
+                incomingStoredBytes = 300,
+                existing = existing,
+                availableDiskBytes = 10_000,
+                globalStoredBytes = 300,
+            ),
+        )
+        // 标记只有一个：旧 LATEST 必须让位；但 LIVE 是用户已见事实，不能当缓存删。
+        assertEquals(listOf("snap-live-latest"), plan.demoteToIntermediate)
+        assertTrue(
+            "LIVE 行不得进入淘汰集（与是否被引用无关）",
+            plan.evictUnpinnedSnapshotIds.isEmpty(),
+        )
+        assertEquals(600L, plan.retainedBytesAfterEviction)
+    }
+
+    @Test
+    fun `an unpinned live intermediate is retained`() {
+        val existing = listOf(
+            row("snap-initial", TutorVisualCheckpointKind.INITIAL, bytes = 100),
+            row("snap-live-middle", kind = null, bytes = 800, status = TutorVisualStatus.LIVE),
+        )
+        val plan = retained(
+            VisualCheckpointRetention.plan(
+                incomingSnapshotId = "snap-new",
+                incomingStoredBytes = 200,
+                existing = existing,
+                availableDiskBytes = 10_000,
+                globalStoredBytes = 900,
+            ),
+        )
+        assertTrue(plan.evictUnpinnedSnapshotIds.isEmpty())
+        assertEquals(1100L, plan.retainedBytesAfterEviction)
+    }
+
+    @Test
     fun `an unknown checkpoint kind is retained fail closed`() {
         val existing = listOf(
             row("snap-initial", TutorVisualCheckpointKind.INITIAL, bytes = 100),
@@ -177,6 +231,28 @@ class VisualCheckpointRetentionTest {
         assertEquals(1100L, plan.retainedBytesAfterEviction)
     }
 
+    @Test
+    fun `an unknown status is retained fail closed`() {
+        val existing = listOf(
+            row("snap-initial", TutorVisualCheckpointKind.INITIAL, bytes = 100),
+            row("snap-unknown-status", kind = null, bytes = 800, status = "ABANDONED"),
+        )
+        val plan = retained(
+            VisualCheckpointRetention.plan(
+                incomingSnapshotId = "snap-new",
+                incomingStoredBytes = 200,
+                existing = existing,
+                availableDiskBytes = 10_000,
+                globalStoredBytes = 900,
+            ),
+        )
+        assertTrue(
+            "unknown status must not be treated as an evictable intermediate",
+            plan.evictUnpinnedSnapshotIds.isEmpty(),
+        )
+        assertEquals(1100L, plan.retainedBytesAfterEviction)
+    }
+
     // ------------------------------------------------------------ 配额门
 
     @Test
@@ -193,6 +269,30 @@ class VisualCheckpointRetentionTest {
         )
         assertEquals(VisualCheckpointRejection.PER_PROGRAM_BUDGET, plan.reason)
         assertTrue(plan.diagnostic.isNotBlank())
+    }
+
+    @Test
+    fun `the per-program budget rejects instead of evicting unpinned live rows`() {
+        // LIVE 的未固定行不可回收：预算压力下唯一正确的行为是有界拒绝并说明，
+        // 而不是删掉用户已经看到过的图。
+        val plan = rejected(
+            VisualCheckpointRetention.plan(
+                incomingSnapshotId = "snap-new",
+                incomingStoredBytes = 200,
+                existing = listOf(
+                    row("snap-initial", TutorVisualCheckpointKind.INITIAL, bytes = 300),
+                    row("snap-live", kind = null, bytes = 900, status = TutorVisualStatus.LIVE),
+                ),
+                availableDiskBytes = 10_000,
+                globalStoredBytes = 1_200,
+                policy = VisualCheckpointRetentionPolicy(perProgramBudgetBytes = 1_000),
+            ),
+        )
+        assertEquals(VisualCheckpointRejection.PER_PROGRAM_BUDGET, plan.reason)
+        assertTrue(
+            "拒绝诊断必须带上有码原因",
+            plan.diagnostic.startsWith(VisualCheckpointRejection.PER_PROGRAM_BUDGET.code),
+        )
     }
 
     @Test
