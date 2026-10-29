@@ -5,10 +5,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.database.AppendTutorAssistantMessageDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.CreateTutorConversationDatabaseCommand
+import com.tingyun.smartmistakebook.core.database.StageTutorVisualSnapshotCommand
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointSummary
 import com.tingyun.smartmistakebook.core.database.TutorVisualIdentity
+import com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotRecord
 import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
 import com.tingyun.smartmistakebook.core.database.port.TutorVisualPort
 import kotlinx.coroutines.runBlocking
@@ -33,7 +35,23 @@ import org.junit.runner.RunWith
  * 批次 32 E-08 已在设备上实跑 **8 例**：`OK (8 tests)`（`build/device-track-batch32/step07-visual-repo.log`），
  * 含 plan→command evict、租约保留、per-program/global 事务内重判。复核修复轮新增第 **9** 例
  * （`stagingIntoAnOverBudgetProgramEvictsAnExpiredUnpinnedStagingIntermediate`，stage 路径同一份
- * 淘汰口径），该例**尚未上设备**——不得把 8 例绿读成 9 例绿。
+ * 淘汰口径）；批次 33 T3 再新增第 **10/11** 例（`stagingWhenEvictionIsRefusedByAnInFlightLeaseStillRejectsWithACode`
+ * 与 `commitIntoAnOverBudgetProgramEvictsAnExpiredUnpinnedStagingIntermediate`，把"总量超、净值不超
+ * ⇒ 必须成功"与"淘汰后仍超 ⇒ 有码拒绝"分别钉在 stage/commit 两条路径上）。第 9–11 例已随批次 33
+ * 设备轨在最终 data APK `36f79b19…` 上执行：**`OK (11 tests)`**
+ * （`build/device-track-batch33/step09-visual-repo-final.log`；`sha256sum -c
+ * build/device-track-batch33/src-sha-before-c4c.txt` 对现树全 OK，证明该绿轮对应的源与现树一致）。
+ * 不得把批次 32 的 8 例绿当作本批读数。
+ *
+ * **本文件现为 12 例**（2026-10-29 复核修复轮新增第 12 例
+ * `stagingWhenRetainedBytesStillExceedTheBudgetRejectsBeforeAnyWrite`，并把第 10 例的断言补到
+ * 「plan 淘汰集含在飞行（预检放行）」）。这两处改动发生在批次 33 设备绿轮**之后**，12 例复跑
+ * **UNVERIFIED**（本会话不运行 Gradle/设备）；不得把 `OK (11 tests)` 读成 12 例绿。
+ *
+ * **批次 33 T3 的预算口径（选定方案 A，见 `docs/research/2026-10-29-checkpoint-budget-accounting.md`）**：
+ * stage 与 commit 消费同一份 `VisualCheckpointRetention.plan` 的淘汰集；plan 只是按"淘汰后净值"
+ * 的快速预检，最终裁决在写入事务内——先执行 demote/evict，再按实测全量字节重判。stage 不 demote
+ * （新行仍是 STAGING，不能抢旧 LATEST 的角色；且 demote 不改变字节与可淘汰成员资格）。
  */
 @RunWith(AndroidJUnit4::class)
 class TutorVisualCommitRepositoryInstrumentedTest {
@@ -486,6 +504,262 @@ class TutorVisualCommitRepositoryInstrumentedTest {
         }
     }
 
+    @Test
+    fun stagingWhenEvictionIsRefusedByAnInFlightLeaseStillRejectsWithACode() = runBlocking {
+        // 批次 33 T3 消灭的具体失败（"净值"被当成最终判决）：plan 在事务外算出的淘汰集 E 是
+        // **乐观**的——它看不到 STAGING 租约。事务内 SQL 因"另一个 owner 的行仍在租约内"拒绝
+        // 删除，实际删除集 E' = ∅，此时实际字节 87 > 70。若没有"淘汰后按实测字节重判"，本次
+        // stage 就会把 87 > 70 的超额行落库（契约 §8.1"淘汰后仍超才不提交"失效）。
+        // 本用例同时钉死：拒绝必须有码、本次行必须回滚、在飞 owner 的行不得被误删。
+        withDatabase { store ->
+            store.createTutorConversation(conversationCommand())
+            val now = 9_000L
+            val looseRepository = TutorVisualCommitRepository(
+                database = store,
+                freeSpaceBytes = { Long.MAX_VALUE },
+                clock = { now },
+                stagingLeaseMillis = LEASE_MILLIS,
+            )
+            val program = programInput()
+            val baseline = looseRepository.commitAssistantTurnWithVisual(
+                message = assistantCommand(messageId = "message-refused-budget-1"),
+                program = program,
+                snapshot = snapshotInput(drawTag = "a"),
+                ownerRequestId = "owner-refused-budget-1",
+            )
+            val inFlight = looseRepository.stageSnapshot(
+                program = program,
+                snapshot = snapshotInput(drawTag = "b"),
+                ownerRequestId = "owner-refused-budget-2",
+            )
+            assertEquals(
+                "另一请求的预备行仍在租约内",
+                TutorVisualStatus.STAGING,
+                store.readTutorVisualSnapshot(inFlight.snapshotId)?.status,
+            )
+
+            // 同一时刻（未过租约）：总量 29×3 = 87 > 70，但 plan 把在飞行算作可淘汰 ⇒ 净值 58 ≤ 70。
+            // 记录端口只为读回 plan→command 的淘汰集：若 plan 层就把本次 stage 拒了，端口不会收到
+            // 命令；本用例要证明的恰恰是"预检放行、拒绝来自事务内按实测字节重判"。
+            val recordingPort = RecordingStageVisualPort(store)
+            val tightRepository = TutorVisualCommitRepository(
+                database = recordingPort,
+                freeSpaceBytes = { Long.MAX_VALUE },
+                clock = { now },
+                perProgramBudgetBytes = 70L,
+                stagingLeaseMillis = LEASE_MILLIS,
+            )
+            val incoming = snapshotInput(drawTag = "c")
+            val incomingId = tightRepository.snapshotIdFor(
+                tightRepository.programIdFor(program),
+                incoming,
+            )
+
+            val failure = runCatching {
+                tightRepository.stageSnapshot(
+                    program = program,
+                    snapshot = incoming,
+                    ownerRequestId = "owner-refused-budget-3",
+                )
+            }
+
+            val rejection = failure.exceptionOrNull()
+            assertTrue(
+                "淘汰被租约拒绝后实际仍超限，必须有界拒绝而不是提交：$rejection",
+                rejection is TutorVisualCommitRejectedException,
+            )
+            assertEquals(
+                "拒绝原因必须是 per-program 预算码（净值放行、实测超限）",
+                TutorVisualCommitRejection.PER_PROGRAM_BUDGET,
+                (rejection as TutorVisualCommitRejectedException).reason,
+            )
+            assertNull(
+                "事务回滚：本次 stage 的行不留",
+                store.readTutorVisualSnapshot(incomingId),
+            )
+            assertEquals(
+                "在飞 owner 的预备行不得被本次 stage 当缓存删除",
+                TutorVisualStatus.STAGING,
+                store.readTutorVisualSnapshot(inFlight.snapshotId)?.status,
+            )
+            assertEquals(
+                "LIVE 基线不受影响",
+                TutorVisualStatus.LIVE,
+                store.readTutorVisualSnapshot(baseline.snapshot.snapshotId)?.status,
+            )
+            val stageCommands = recordingPort.stageCommands
+            assertEquals(
+                "plan 层必须放行并真的调用数据库端口（否则本用例退化为事务外拒绝）：$failure",
+                1,
+                stageCommands.size,
+            )
+            assertTrue(
+                "预检淘汰集必须包含在飞行 owner 的行（证明拒绝来自事务内重判，而不是 plan 层提前拒绝）：" +
+                    "${stageCommands.single().evictCheckpointSnapshotIds}",
+                inFlight.snapshotId in stageCommands.single().evictCheckpointSnapshotIds,
+            )
+        }
+    }
+
+    @Test
+    fun stagingWhenRetainedBytesStillExceedTheBudgetRejectsBeforeAnyWrite() = runBlocking {
+        // 批次 33 复核修复：与上例成对的另一半（"净值也超"）。上例证明"净值不超、租约拒绝后
+        // 实测超 ⇒ 事务内拒绝"；本例如只剩它，就分不清仓库是否真的先淘汰再判。这里预算 40 <
+        // 淘汰后净值 58（29 LIVE 基线 + 29 本次），plan 必须在任何数据库写之前拒绝：
+        // 拒绝有码、本次快照零新增、program/快照行集合不变、message/link 不出现。
+        withDatabase { store ->
+            store.createTutorConversation(conversationCommand())
+            var now = 9_000L
+            val looseRepository = TutorVisualCommitRepository(
+                database = store,
+                freeSpaceBytes = { Long.MAX_VALUE },
+                clock = { now },
+                stagingLeaseMillis = LEASE_MILLIS,
+            )
+            val program = programInput()
+            val baseline = looseRepository.commitAssistantTurnWithVisual(
+                message = assistantCommand(messageId = "message-net-budget-1"),
+                program = program,
+                snapshot = snapshotInput(drawTag = "a"),
+                ownerRequestId = "owner-net-budget-1",
+            )
+            val abandoned = looseRepository.stageSnapshot(
+                program = program,
+                snapshot = snapshotInput(drawTag = "b"),
+                ownerRequestId = "owner-net-budget-2",
+            )
+
+            now += LEASE_MILLIS + 1L
+            val tightRepository = TutorVisualCommitRepository(
+                database = store,
+                freeSpaceBytes = { Long.MAX_VALUE },
+                clock = { now },
+                perProgramBudgetBytes = 40L,
+                stagingLeaseMillis = LEASE_MILLIS,
+            )
+            val programId = tightRepository.programIdFor(program)
+            val before = store.readVisualCheckpointSummaries(programId).map { it.snapshotId }.toSet()
+            val incoming = snapshotInput(drawTag = "c")
+            val incomingId = tightRepository.snapshotIdFor(programId, incoming)
+
+            val failure = runCatching {
+                tightRepository.stageSnapshot(
+                    program = program,
+                    snapshot = incoming,
+                    ownerRequestId = "owner-net-budget-3",
+                )
+            }
+
+            val rejection = failure.exceptionOrNull()
+            assertTrue(
+                "淘汰后净值 58 > 40 必须在写库前有界拒绝：$rejection",
+                rejection is TutorVisualCommitRejectedException,
+            )
+            assertEquals(
+                "拒绝原因必须是 per-program 预算码（plan 层判定，不靠事务回滚）",
+                TutorVisualCommitRejection.PER_PROGRAM_BUDGET,
+                (rejection as TutorVisualCommitRejectedException).reason,
+            )
+            assertNull("写库前拒绝：本次快照零新增", store.readTutorVisualSnapshot(incomingId))
+            assertEquals(
+                "写库前拒绝：program 行不新增",
+                1,
+                store.countTutorVisualProgramsForTest(programId),
+            )
+            assertEquals(
+                "写库前拒绝：既有快照行集合不变（LIVE 基线 + 被放弃的 STAGING）",
+                before,
+                store.readVisualCheckpointSummaries(programId).map { it.snapshotId }.toSet(),
+            )
+            assertNull(
+                "stage 路径不写 message/link",
+                store.readTutorMessageVisual("message-net-budget-3", 0),
+            )
+            assertEquals(
+                "被放弃的 STAGING 仍未被删（plan 拒绝时事务尚未发生）",
+                TutorVisualStatus.STAGING,
+                store.readTutorVisualSnapshot(abandoned.snapshotId)?.status,
+            )
+            assertEquals(
+                "LIVE 基线不受影响",
+                TutorVisualStatus.LIVE,
+                store.readTutorVisualSnapshot(baseline.snapshot.snapshotId)?.status,
+            )
+        }
+    }
+
+    @Test
+    fun commitIntoAnOverBudgetProgramEvictsAnExpiredUnpinnedStagingIntermediate() = runBlocking {
+        // 批次 33 T3：与 stage 正例同口径，但走 S4 提交路径。总量 29×3 = 87 > 70、淘汰后
+        // 净值 58 ≤ 70，提交必须成功。它消灭的具体失败：commit 若把事务内预算重判放在
+        // demote/evict 之前（或丢掉 plan 的淘汰集），一张本可提交的首张可见图会被误拒——
+        // 与契约 §8.1"超限只淘汰中间态"方向相反。与 stage 正例合起来，证明两条路径消费
+        // 同一份 plan 淘汰集、并按同一"淘汰后实测"集合判定。
+        withDatabase { store ->
+            store.createTutorConversation(conversationCommand())
+            var now = 9_000L
+            val looseRepository = TutorVisualCommitRepository(
+                database = store,
+                freeSpaceBytes = { Long.MAX_VALUE },
+                clock = { now },
+                stagingLeaseMillis = LEASE_MILLIS,
+            )
+            val program = programInput()
+            val baseline = looseRepository.commitAssistantTurnWithVisual(
+                message = assistantCommand(messageId = "message-commit-budget-1"),
+                program = program,
+                snapshot = snapshotInput(drawTag = "a"),
+                ownerRequestId = "owner-commit-budget-1",
+            )
+            val abandoned = looseRepository.stageSnapshot(
+                program = program,
+                snapshot = snapshotInput(drawTag = "b"),
+                ownerRequestId = "owner-commit-budget-2",
+            )
+            assertEquals(
+                "被放弃的预备行此刻仍是 STAGING",
+                TutorVisualStatus.STAGING,
+                store.readTutorVisualSnapshot(abandoned.snapshotId)?.status,
+            )
+
+            now += LEASE_MILLIS + 1L
+            val tightRepository = TutorVisualCommitRepository(
+                database = store,
+                freeSpaceBytes = { Long.MAX_VALUE },
+                clock = { now },
+                perProgramBudgetBytes = 70L,
+                stagingLeaseMillis = LEASE_MILLIS,
+            )
+            val committed = tightRepository.commitAssistantTurnWithVisual(
+                message = assistantCommand(messageId = "message-commit-budget-3"),
+                program = program,
+                snapshot = snapshotInput(drawTag = "c"),
+                ownerRequestId = "owner-commit-budget-3",
+            )
+
+            assertEquals(
+                "淘汰后净值 58 ≤ 70，本次提交必须成功而不是被全量重判误拒",
+                TutorVisualStatus.LIVE,
+                committed.snapshot.status,
+            )
+            assertEquals("新快照接手 LATEST 标记", "LATEST", committed.snapshot.checkpointKind)
+            assertNull(
+                "过期、未固定、非 INITIAL 的 STAGING 中间态必须在同一事务内被回收",
+                store.readTutorVisualSnapshot(abandoned.snapshotId),
+            )
+            assertEquals(
+                "LIVE 基线（INITIAL）不受淘汰影响",
+                TutorVisualStatus.LIVE,
+                store.readTutorVisualSnapshot(baseline.snapshot.snapshotId)?.status,
+            )
+            assertEquals(
+                "淘汰后只保留初始与最新两份",
+                2,
+                store.readVisualCheckpointSummaries(tightRepository.programIdFor(program)).size,
+            )
+        }
+    }
+
     // ---- 夹具 ----
 
     /**
@@ -611,5 +885,26 @@ class TutorVisualCommitRepositoryInstrumentedTest {
         ): List<TutorVisualCheckpointSummary> = emptyList()
 
         override suspend fun readGlobalVisualCheckpointStoredBytes(): Long = 0L
+    }
+
+    /**
+     * 记录**plan→command** 交给数据库端口的 stage 命令（批次 33 复核修复）。
+     *
+     * 它消灭的具体失败：租约拒绝负例只断言"有码拒绝 + 回滚"时，无法区分
+     * ① plan 在事务外提前拒绝（淘汰集可能根本没算对）与 ② plan 放行、事务内按实测字节重判拒绝。
+     * 本类只多记一个命令、其余全部委托，断言 `evictCheckpointSnapshotIds` 含在飞行行，即可把
+     * ②钉死；若将来 plan 改成 lease-aware 而提前拒绝，命令数为 0，用例立刻红。
+     */
+    private class RecordingStageVisualPort(
+        private val delegate: TutorVisualPort,
+    ) : TutorVisualPort by delegate {
+        val stageCommands = mutableListOf<StageTutorVisualSnapshotCommand>()
+
+        override suspend fun stageTutorVisualSnapshot(
+            command: StageTutorVisualSnapshotCommand,
+        ): TutorVisualSnapshotRecord {
+            stageCommands += command
+            return delegate.stageTutorVisualSnapshot(command)
+        }
     }
 }

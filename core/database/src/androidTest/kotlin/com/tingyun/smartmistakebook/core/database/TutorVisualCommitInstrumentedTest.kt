@@ -33,6 +33,13 @@ import org.junit.runner.RunWith
  * 现树测试方法计数 11）已由批次 32 E-08 在设备上同轮执行：**`OK (11 tests)`**
  * （`build/device-track-batch32/step06-visual-commit.log`）。不得用批次 31 的 9 例绿替代本批
  * 11 例的结论——两者是不同源码轮的读数。
+ *
+ * 批次 33 新增第 12 例（`sceneDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite`，
+ * 现树测试方法计数 12），同时给 state/draw 两个负向例补 `countPrograms == 0`（证明整事务
+ * 回滚）。批次 33 设备轨已在最终 database APK `a4696041…` 上实跑 **`OK (12 tests)`**
+ * （`build/device-track-batch33/step08-visual-commit.log`；`sha256sum -c
+ * build/device-track-batch33/src-sha-before-c4c.txt` 对现树全 OK）。不得用批次 32 的
+ * `OK (11 tests)` 替代本轮的 12 例结论。2026-10-29 复核修复轮只改本 KDoc、未改用例。
  */
 @RunWith(AndroidJUnit4::class)
 class TutorVisualCommitInstrumentedTest {
@@ -161,6 +168,13 @@ class TutorVisualCommitInstrumentedTest {
                 "digest 必须与持久化 JSON 一致；只有 id 自洽不够：${failure.exceptionOrNull()}",
                 failure.exceptionOrNull() is IllegalArgumentException,
             )
+            // program 行在快照校验之前就已写入（`ensureTutorVisualProgram` 先 insert），
+            // 所以只有 countPrograms == 0 才能证明**整个事务**回滚，而不是"快照那一步没写"。
+            assertEquals(
+                "整事务回滚：digest 门失败后不许留下 program 行",
+                0,
+                dao.countPrograms(PROGRAM_ID),
+            )
             assertEquals(
                 "内容/digest 门在任何写入之前：不许留下 snapshot 行",
                 0,
@@ -202,6 +216,58 @@ class TutorVisualCommitInstrumentedTest {
             assertTrue(
                 "draw digest 必须与持久化 DrawOps 一致；只有 id 自洽不够：${failure.exceptionOrNull()}",
                 failure.exceptionOrNull() is IllegalArgumentException,
+            )
+            // 同 state 轴：program 行先落，只有它为 0 才说明回滚覆盖了整个写事务。
+            assertEquals(
+                "整事务回滚：digest 门失败后不许留下 program 行",
+                0,
+                dao.countPrograms(PROGRAM_ID),
+            )
+            assertEquals(
+                "内容/digest 门在任何写入之前：不许留下 snapshot 行",
+                0,
+                dao.countSnapshots(PROGRAM_ID),
+            )
+        }
+    }
+
+    @Test
+    fun sceneDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite() = runBlocking {
+        withDatabase { store, dao ->
+            store.createTutorConversation(conversationCommand())
+            // 第三轴（批次 33）。scene 与 state/draw 不同：它**不在**派生 id 里（schema 71 的
+            // 唯一键是 program+state+draw+renderer+font），所以"id 自洽"这一层根本覆盖不到
+            // scene——只修 state/draw 两轴的实现在这里会原样落库一行"scene 内容与 digest 脱钩"
+            // 的快照。它不参与身份，但 `sameSnapshotPayload` 会逐列比对 scene，落库即把错误
+            // 固化进不可变行（没有 UPDATE 路径）。
+            val declaredSceneSha256 = "c".repeat(64)
+            val realSceneSha256 =
+                TutorVisualIdentity.sha256Hex(snapshotWrite().sceneJson)
+            assertFalse(
+                "夹具必须真的与真实 digest 不同，否则本用例证明不了门存在",
+                declaredSceneSha256 == realSceneSha256,
+            )
+            val forged = snapshotWrite().copy(sceneSha256 = declaredSceneSha256)
+
+            val failure = runCatching {
+                store.stageTutorVisualSnapshot(
+                    StageTutorVisualSnapshotCommand(
+                        program = programWrite(),
+                        snapshot = forged,
+                        ownerRequestId = OWNER_ONE,
+                    ),
+                )
+            }
+
+            assertTrue(
+                "scene digest 必须与持久化 scene JSON 一致；它不在身份派生式里，必须单独校验：" +
+                    "${failure.exceptionOrNull()}",
+                failure.exceptionOrNull() is IllegalArgumentException,
+            )
+            assertEquals(
+                "整事务回滚：digest 门失败后不许留下 program 行",
+                0,
+                dao.countPrograms(PROGRAM_ID),
             )
             assertEquals(
                 "内容/digest 门在任何写入之前：不许留下 snapshot 行",
@@ -583,9 +649,11 @@ class TutorVisualCommitInstrumentedTest {
     /**
      * 快照写入载荷。`snapshotId` **不再由测试随手给**：批次 31 起 DB 层会在写库前重新派生
      * 并 `require` 相等（`RoomStudyDatabase.ensureTutorVisualSnapshot`），伪造 id 会被
-     * `IllegalArgumentException` 拒绝。**digest 列也不再是任意常量**（批次 31 复核修复）：
-     * DB 层现在同时校验 `stateSha256 == sha256Hex(stateJson)` 与
-     * `drawCommandsSha256 == sha256Hex(drawCommandsJson)`，所以这里与生产同源计算。
+     * `IllegalArgumentException` 拒绝。**三条 digest 列也不再是任意常量**（批次 31 修 state/
+     * draw，批次 33 补 scene）：DB 层现在校验 `stateSha256 == sha256Hex(stateJson)`、
+     * `drawCommandsSha256 == sha256Hex(drawCommandsJson)` 与
+     * `sceneSha256 == sha256Hex(sceneJson)`，所以这里与生产
+     * （`TutorVisualCommitRepository.kt:496-511`）同源计算。
      * `drawTag` 不同 = 内容不同 = 另一张快照。
      */
     private fun snapshotWrite(
@@ -594,6 +662,7 @@ class TutorVisualCommitInstrumentedTest {
     ): TutorVisualSnapshotWrite {
         val stateJson = "{}"
         val drawCommandsJson = """{"ops":["$drawTag"]}"""
+        val sceneJson = """{"scene":true}"""
         val stateSha256 = TutorVisualIdentity.sha256Hex(stateJson)
         val drawCommandsSha256 = TutorVisualIdentity.sha256Hex(drawCommandsJson)
         return TutorVisualSnapshotWrite(
@@ -608,8 +677,8 @@ class TutorVisualCommitInstrumentedTest {
             stateJson = stateJson,
             stateSha256 = stateSha256,
             sceneSchemaVersion = 1,
-            sceneJson = """{"scene":true}""",
-            sceneSha256 = "d".repeat(64),
+            sceneJson = sceneJson,
+            sceneSha256 = TutorVisualIdentity.sha256Hex(sceneJson),
             renderSchemaVersion = 1,
             drawCommandsJson = drawCommandsJson,
             drawCommandsSha256 = drawCommandsSha256,

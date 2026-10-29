@@ -35,9 +35,10 @@ import org.junit.runner.RunWith
  * 4. **checkpoint 的 demote/evict 只在策略层正确、SQL 层没有 status 谓词**：改前 LIVE 的
  *    未固定行会被当缓存删掉。本文件在真库上钉住"只删 STAGING、INITIAL 与 LIVE 一行不动"，
  *    并验证提交事务真的执行了 demote/evict（改前 S3→S4 路径上这两条 SQL 根本不发生）。
- * 5. **仓储 plan→command 的 pin 分辨力**（批次 32）：直接调 DAO 的用例绕过了仓储层；
+ * 5. **仓储 plan→command 的 pin 端到端路径**（批次 32）：直接调 DAO 的用例绕过了仓储层；
  *    `repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned` 用真 Room 走完整链路，
- *    让两条候选行除 pin 外形状完全相同——没有 pin 谓词时两条都会被删。
+ *    让两条候选行除 pin 外形状完全相同。注意它是黑盒：plan 层 pin 过滤的分辨力由 JVM
+ *    `VisualCheckpointRetentionTest` 单独覆盖，SQL 层由 DAO 用例覆盖（见该用例 KDoc 的边界说明）。
  * 6. **淘汰 SQL 的 STAGING 租约**（批次 32）：仓库用例覆盖"过租约才删 / 未过租约保留"，
  *    直接 DAO 用例覆盖 owner/created_at 谓词不破坏 pin/kind/status 的既有语义。
  *
@@ -47,8 +48,12 @@ import org.junit.runner.RunWith
  * `evictionDeletesOnlyUnpinnedStagingIntermediates` 在 `:221` 读取一条已在 `:205` 断言删除的行
  * （用例自身矛盾，`docs/research/evidence/2026-10-29-batch-32/step13-red-attribution.md`）。
  * 复核修复轮把读侧断言改读一条**未列入淘汰候选**的 STAGING 行（`snap-staging-keeper`），
- * 保留"无引用 = pinned 0"的原意、不放宽任何断言；修复后的绿轮仍需设备轨重跑，重跑前本套件
- * 不得写成 5/5。
+ * 保留"无引用 = pinned 0"的原意、不放宽任何断言。批次 33 设备轨已重跑：**`OK (5 tests)`**
+ * （`build/device-track-batch33/step02-structure-gates.log`；`sha256sum -c
+ * build/device-track-batch33/src-sha-before-c4c.txt` 对现树全 OK）。2026-10-29 复核修复轮只改了
+ * 本文 KDoc 与下面第 5 例的分辨力表述，**未改任何断言**；KDoc 不进入编译产物，故绿轮的行为口径
+ * 不变，但源文件 sha 已变——若要求「证据 APK sha 与提交源逐字节对应」，须在串行门禁中重建重跑
+ * （本会话不运行 Gradle）。
  */
 @RunWith(AndroidJUnit4::class)
 class TutorVisualStructureGatesInstrumentedTest {
@@ -272,9 +277,16 @@ class TutorVisualStructureGatesInstrumentedTest {
      * 这条行会被放进 command 的淘汰集，SQL 再正确地"只删 STAGING"——于是**被题面固定的
      * 未提交图仍然消失**。本用例用真 Room + 真 SQL 走完整链路，并让两条候选行形状完全相同
      * （STAGING + LATEST + 别人 owner + 租约已过期），唯一差别是 pin：
-     * - 被 pin 的行留在库里（plan 层把它排除出 evict，SQL 的 pin 谓词是第二道）；
+     * - 被 pin 的行留在库里；
      * - 未被引用的行按候选被删除。
-     * 没有 pin 谓词时两条都会被删，断言立刻红——这就是"仅因 pinned 才保留"的分辨力。
+     *
+     * **分辨力边界（2026-10-29 复核修复）**：本用例是端到端黑盒，只断言最终库状态，**不能单独**
+     * 区分保留是 plan 层还是 SQL 层做的。若只删掉 `VisualCheckpointRetention.plan` 的 `!pinned`
+     * 而保留 SQL 的 `NOT EXISTS (problem_revision_visual…)` 谓词，`snap-pinned-staging` 仍会
+     * 因 SQL 谓词保留、未被引用的行仍会被删，本用例继续绿——所以它**不证明 plan 层有 pin 分辨力**。
+     * plan 层由 JVM 用例 `VisualCheckpointRetentionTest`（`pinned intermediate is retained and not
+     * evicted`）覆盖，SQL 层由 DAO 用例 `evictionDeletesOnlyUnpinnedStagingIntermediates`
+     * （把 pinned 行放进候选集）覆盖；三者合起来才是"仅因 pinned 才保留"的完整证据。
      */
     @Test
     fun repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned() = runBlocking {

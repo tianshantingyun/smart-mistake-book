@@ -2242,14 +2242,26 @@ internal class RoomStudyDatabase(
      * 缺陷。`require`（而非冲突异常）沿用 program 层分流：调用方构造错误 = 参数错误，
      * 并发/重复 = `ImmutablePayloadConflictException`。
      *
-     * **digest 列本身也必须与 JSON 内容一致**（批次 31 复核修复）：只比对
+     * **digest 列本身也必须与 JSON 内容一致**（批次 31 复核修复 state/draw，批次 33 补 scene）：
+     * 只比对
      * `snapshotId == derive(programId, stateSha256, drawCommandsSha256, renderer, font)` 是
      * 循环论证——那两个 digest 是调用方传入的；若不同时校验
      * `stateSha256 == sha256Hex(stateJson)` 与 `drawCommandsSha256 == sha256Hex(drawCommandsJson)`，
      * 直接经 `TutorVisualPort.stage/commit` 的写者仍可落"内容与 digest/身份脱钩"的行；同一段
      * 内容配不同 digest 字符串还会被唯一键当成不同内容而重复入库。生产调用点
-     * （`TutorVisualCommitRepository`）本就从 JSON 计算 digest，因此这条门挡的是直接调用 DB
+     * （`TutorVisualCommitRepository`）本就从 JSON 计算 digest，因此这条门挡的是直接调 DB
      * 端口的写者——正是 DB 契约的职责。
+     *
+     * `sceneSha256` 是**第三条**轴，且处境与前两条不同：scene 既不进身份派生式，也不进唯一键
+     * （schema 71 的键是 program+state+draw+renderer+font），所以"id 自洽"这一层根本覆盖不到
+     * 它——一个与 `sceneJson` 不符的 scene digest 会被原样写进**不可变**行（本类没有 UPDATE
+     * 路径），而 [TutorVisualWriteChecks.sameSnapshotPayload] 逐列比对 scene 时只会把这个错误
+     * 当作"内容"，之后既发现不了也改不掉。`scene_sha256` 当前也**没有读取方**（冷恢复的
+     * `VisualSnapshotRestoreRecord` 连 scene 字段都不携带；`scene_json` 只被预算按字节统计），
+     * 正因如此更该在写入端绑死：一旦将来有读取方按 digest 判断"这份 scene 是否就是我编译过的
+     * 那份"，错误值会变成静默的错误答案。三条 digest 的校验位置刻意保持一致（都在写库前的
+     * 复派生门里，而不是各 `init`），这样负向用例才能构造出"载荷合法、内容与 digest 脱钩"的
+     * 输入来打这道门。
      */
     private suspend fun ensureTutorVisualSnapshot(
         dao: TutorVisualDao,
@@ -2261,6 +2273,9 @@ internal class RoomStudyDatabase(
         }
         require(write.drawCommandsSha256 == TutorVisualIdentity.sha256Hex(write.drawCommandsJson)) {
             "A visual snapshot draw-commands digest must match its persisted draw commands JSON"
+        }
+        require(write.sceneSha256 == TutorVisualIdentity.sha256Hex(write.sceneJson)) {
+            "A visual snapshot scene digest must match its persisted scene JSON"
         }
         val derivedSnapshotId = TutorVisualIdentity.deriveSnapshotId(
             programId = write.programId,
