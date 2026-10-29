@@ -676,3 +676,294 @@ adb shell am instrument -w -e class ...GoldenRetrievalInstrumentedTest ...
 ## 附录 B：一句话给实现者
 
 **不要把“正文里出现过的词”直接当别名。** 先把正文切成“能作答的 section”，只收“重复出现的短句 / 作者加粗的标题 / 能被中文转述的记号”，再用“学科 df <2% + 全局互斥 + 分词器友好”三道硬门筛一遍；每节点最多 6 条，先冻结 hash 再测。正文派生是低收益补充，不是 0.90 的结构杠杆。
+
+---
+
+## S3 冻结（批次25）：数学记号 span 别名 `body-alias-v1/S3@1`
+
+> **口径**：本节只把父文档 §3.3 的 **S3 记号 span** 这一半冻结成可复算规则（产 `kind=S3_NOTATION`）；父文档 §3.3 的“记号 ±50 字正文转述”（`S3_PARAPHRASE`）**不在本次冻结范围**，按父文档 §5.6「S3 作为独立开关、单独预注册、单独测量」继续留空。本节不修改上文任何一条，只做追加与收紧。
+>
+> **读数来源**：本代理 2026-10-29 在 `moe-2025-four-subjects-v1`（`moe-2025-update-manifest.json`：`packId=moe-2025-four-subjects-v1`、`version=21`、`contentVersion=9f9e99ceec47cf8c`；25 份 `moe-2025-teaching-support-v2-*.json`、64,973 份材料、3,245 个节点、绑定 64,973/64,973 全为 `PRIMARY`）上实跑的 10 个探针脚本，命令与关键输出见 §S3.4。**未跑 Gradle/JVM/设备，未生成 `body_alias_candidates.csv`，未改 `alias_exceptions.csv`、未 promote、未重打 dense**；凡“通常/合理”的判断均按未验证处理，列在 §S3.7。
+
+### S3.0 一句话与它消灭的三个失败
+
+记号别名成立的理由不是“记号常见”，而是：学生把 `F=kx`、`ΔG=ΔH-TΔS`、`CuSO_4` 这类串直接敲进搜索框时，节点现有别名（标题派生的中文短语）一个也对不上。S3 只做一件事：**从节点自己绑定材料的正文里，抽出“能进词面索引的记号串”作候选**。
+
+它必须同时防住三个可指名的失败：
+
+| # | 失败 | 具体形状 | 本节对应的门 |
+|---|---|---|---|
+| F1 | **进不去**：记号的词面形态被分词器吃掉 | `x+y`/`λ+μ`/`x^2+y^2` 在查询侧产 0 特征（父文档 §1.3；生产实现 `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeSearchFeatureExtractor.kt:95-102,117`） | S3-I2 词面友好门：不友好 → 不产别名 |
+| F2 | **进得去但不是名字**：几何标签/元素符号/参数下标/实例值通胀 | 实跑（§S3.4）中 `MB`、`MO`、`Ni`、`Pb`、`Sn`、`x_0`、`2p'`、`1aabb`、`_24Cr`、`^14_7N` 都能过“长度+字母+重复”的朴素门 | S3-S1…S3-S5 形状门（长度/首字符/运算符/小数点/通用标签） |
+| F3 | **写不进包**：归一不彻底导致例外条目被生产写入链直接拒 | `rebuild_aliases.title_usable` 明确拒 `$` 与 `\`（`tools/kb_build/rebuild_aliases.py:93-94`）、拒逗号与句末标点（`:61,85`）、拒括号不配对（`:91`）、限 24 字（`:57,83`）；例外条目同样要过这把门（`:157`） | S3-N1…S3-N4 + S3-I1：归一后必须无定界符、无残 `\`/`{}` |
+
+### S3.1 输入白名单（与父文档 §3.1 一致，S3 更窄）
+
+**只读**：
+
+- 节点：`subject`、`slug`、`name`、`aliases`（仅用于去重，不参与候选生成）；
+- 该节点绑定材料：`slug`、`title`（仅 provenance）、`type`、`bindings[].role`、**`contentMarkdown`**；
+- 只取 `role ∈ {PRIMARY, SUPPORTING}`；`PREREQUISITE` 材料的正文属于别的节点，排除（当前包该通道为空）。
+
+**显式不读**：`summaryMarkdown`/`applicabilityMarkdown`/`boundaryMarkdown`；`golden_queries*`、`*-misses.txt`、`build/agent-*`、用户提问日志、检索失败清单、章节分布；任何网络/模型/外部词典。S3 的**唯一**候选来源是 `contentMarkdown` 里的数学定界符 span。
+
+### S3.2 冻结参数表
+
+参数序列化与 hash 见 §S3.6。下表每一行都给出“它消掉的哪一次实测剔除”，便于审计时逐条对账。
+
+#### A. span 形态
+
+| ID | 参数 | 冻结值 | 实测依据 / 消灭的失败 |
+|---|---|---|---|
+| **S3-P1** | span 形态（闭集，仅这四种） | `$...$`（行内，排除 `$$`）、`$$...$$`（行间）、`\(...\)`、`\[...\]` | 全包实测：`$...$` **106,256**、`$$...$$` **868**、`\(...\)` **0**、`\[...\]` **0**。后两种写进规则是为了闭集完整，不是当前包有数据 |
+| **S3-P2** | 纯文本记号串 | **不接受**（正文里没有定界符的 `F=kx`、`Fe3+`、`mol·L` 一律不抽） | 实测：把 `$...$` 掩掉后按“字母数字+运算符”扫连续串，得 **21,556** 个不同串 / **77,875** 次出现，其中最高频是 **`n-` 8,534 次**（Markdown 列表符 `\n- ` 被当成记号）、`mol·L` 351、`v-t` 349、`1/2` 240。不做切分上下文可信的边界，纯文本通道会把列表符、单位、题号一起收进来 |
+| **S3-P3** | 跨行 span | 允许（`$$` 常跨行），但归一后仍要过全部形状门 | 抽样的 8 条 `$$` span 全部是 `\dfrac`/`\text{}` 长公式或超 12 字（`\Pi_n^m`、`b=\text{价电子总数}-\text{…}`、`K_x=\dfrac{…}` 等）。**未对 868 条逐条统计过门率**，这是抽样结论，登记在 §S3.7-V11 |
+
+#### B. 归一化
+
+| ID | 参数 | 冻结值 | 实测依据 / 消灭的失败 |
+|---|---|---|---|
+| **S3-N1** | Unicode 归一 | `NFKC`（`unicodedata.normalize('NFKC')`；生产侧须用同一套 JVM 归一，见 §S3.7-V6） | 父文档 §2.6：NFKC 统一 `＋→+`、`²→2`、`ₓ→x`、`𝑥→x`、`µ→μ`、`Å→Å`，但**不**统一 `×/·/*`、`−/-/–`、`λ/μ` |
+| **S3-N2** | 定界符与排版命令 | 去 `$`、`\(`、`\)`、`\[`、`\]`；去 `\left`、`\right`、`\,`、`\;`、`\!`、`\quad`、`\qquad` | 无定界符残留是 S3-I1 的前提（`rebuild_aliases.py:93-94` 直接拒 `$`/`\`） |
+| **S3-N3** | LaTeX 命令映射（**闭集，33 条**） | `\lambda→λ`、`\mu→μ`、`\times→×`、`\cdot→·`、`\le/\leq→≤`、`\ge/\geq→≥`、`\neq/\ne→≠`、`\in→∈`、`\sum→∑`、`\sqrt→√`、`\to→→`、`\Rightarrow→⇒`、`\Leftrightarrow→⇔`、`\pm→±`、`\infty→∞`、`\subset→⊂`、`\subseteq→⊆`、`\cup→∪`、`\cap→∩`、`\Delta→Δ`、`\alpha→α`、`\beta→β`、`\theta→θ`、`\pi→π`、`\omega→ω`、`\angle→∠`、`\perp→⊥`、`\parallel→∥`、`\cong→≅`、`\approx→≈`。**映射后仍含 `\`、`{`、`}` 即整条丢弃** | 实测：残 `\` 丢 **31,824** 条、残花括号丢 **2,303** 条（`\dfrac`、`\text{}`、`\mathrm{}` 等闭集外命令）。不做“尽量还原”：`\mathrm{O}_2` 曾归一成 `rm{O}_2` 这种既不是 LaTeX 也不是名字的残片 |
+| **S3-N4** | 上下标花括号 | `_{X}`/`^{X}`，`X` 为 1–3 个 `[A-Za-z0-9+-]` → `_X`/`^X`；其它花括号按 S3-N3 丢弃 | 让 `Aat^{100}→Aat^100`、`Fe^{3+}→Fe^3+` 可读；不展开多字符上标（`x^{n+1}` 保留 `{n+1}`，随后被 S3-N3 整条丢弃，属保守取舍） |
+| **S3-N5** | 空白 | **去掉全部空白**（空格、换行、制表） | 实测 **16,783** 个 span 含空格（`x + y`、`F = kx`）。生产匹配层只把连续空白压成一个空格（`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/mistake/RoomMistakeOrganizationRepository.kt:1694-1695`），不删空格，所以 `x + y` 与 `x+y` 在组织面并不等价；别名取无空白形态是唯一稳定写法 |
+| **S3-N6** | 大小写 | **不折叠**（保留原材料大小写） | 实测 **23,486** 个 span 不是全小写。理由三条：① 词面索引对全部文本 `lowercase(Locale.ROOT)`（`KnowledgeSearchFeatureExtractor.kt:67`），折叠对召回无增量；② 组织面同样先小写（`RoomMistakeOrganizationRepository.kt:1694-1695`，用在 `:1711` 的别名包含判断）；③ 折叠会抹掉 `Fe`/`fe`、`N`(牛顿)/`n`、`F`/`f` 的区别，让证据 span 不可回读。外部支持：Unicode UAX #31「Case folding」——`UAX31-R5` 要求实现显式声明折叠形式，且“the folding of distinctions (using case mapping or NFKC) **must be delayed until after parsing has located the identifiers**”，即折叠属于匹配层、不是存储层（本节获取，来源见 §S3.6） |
+
+#### C. 形状过滤
+
+| ID | 参数 | 冻结值 | 实测依据 / 消灭的失败 |
+|---|---|---|---|
+| **S3-S1** | 长度 | 归一后 **2–12** 字符（含） | 实测长度直方（过前序归一、未过本组门）：2 字 3,538 / 3 字 13,239 / 4 字 5,827 / 5 字 4,630 / 6 字 4,340 / 7 字 4,423 / 8 字 2,130 / 9 字 2,009 / 10 字 1,410 / 11 字 1,361 / 12 字 894；**>12 丢 6,361**。抽样看 >12 的多为带 `\text{}` 的长公式或整段等式（“把一道题的解答当名字”）。与父文档 S1 的 2–24 不同：记号串信息密度高，12 字已能容纳 `ΔG=ΔH-TΔS`(11)、`x_1<x_0<x_2`(11)、`a_n+1-a_n>0`(12) |
+| **S3-S2** | 至少一个字母 | 必须有 `\p{L}`；纯数字、纯运算符、纯单位一律丢 | 丢 `no_letter` **1,374**（如 `1+2`、`=0`）；纯单位另用闭集正则丢 **6**（`N/m`、`m/s`、`kg·m/s^2` 这类，规则：`^(?:[kMGmunpμ]?(?:m\|g\|s\|A\|K\|mol\|cd\|Hz\|N\|J\|W\|V\|F\|C\|Pa\|Ω\|L)(?:\^\d\|\d)?)(?:/[A-Za-z°]+)?$`）。单位不是概念名，且学科内高频，写进别名只会和主名抢片段 |
+| **S3-S3** | 首字符 | 必须是字母 | 丢 **3,934** 条：`_24Cr`、`^14_7N`、`1aabb`、`0≤a≤13`、`2p'`、`1/2`。下标/同位素/系数开头的串是“某个量的实例”，不是名字；这一条同时挡住归一未覆盖的核素写法 |
+| **S3-S4** | 必须含运算符 | 至少一个字符 ∈ `= + - − × · ÷ / < > ≤ ≥ ≠ ∈ ∉ ⊂ ⊆ ∪ ∩ → ⇒ ⇔ ^ _ ± ∞ √` | 丢 **6,441** 条：`MB`、`MO`、`AB`、`Ni`、`Pb`、`Sn`、`HD`、`AAbb`。这些是几何线段标签或单个元素符号——词面能进，但没有区分度，且极易被多节点同时 claim。注意集合里**含 `_` 与 `^`**，所以 `CuSO_4`、`a_n`、`3s^23p^3` 不被误杀 |
+| **S3-S5** | 小数点 | 含 `.` 即丢 | 丢 **174** 条：`v_1=7.9`、`n(H_2)=0.6`、`n(H_2O)=0.2`。带小数的等式是**算例数值**，不是记号定义 |
+| **S3-S5b** | 通用标签 | 正则命中即丢：`^[A-Za-z]$`、`^[A-Za-z][_^][A-Za-z0-9]{1,2}$`、`^[0-9]+[A-Za-z]$` | 丢 **6,567** 条：`x_0`、`a_n`、`F_1`、`v_0`、`2a`、`b_n`。这类“单字母+下标”在任何节点都成立，等于给索引加通用 gram（与父文档 §4.6 的 `函数/反应/细胞` 同型失败，但不靠 df 也能量化拦下） |
+| **S3-S6** | CJK | 归一后含 CJK/全角标点即丢 | 丢 **1,337** 条：`\text{价电子总数}-…`、`同化量=呼吸作用散失的能量+…`。数学模式里的中文是正文转述，属于 `S3_PARAPHRASE` 面（本次不冻结）；放进词面别名会把一句话当记号 |
+
+#### D. 与生产链的互操作门
+
+| ID | 参数 | 冻结值 | 实测依据 / 消灭的失败 |
+|---|---|---|---|
+| **S3-I1** | 形状门镜像 | 必须通过 **生产** `tools/kb_build/rebuild_aliases.title_usable()` 本体（不是重写一份） | 按 S3@1 的门序（结构门在前）实测剔除 **453** 条；换成“结构门关掉、门序不同”的对照（`s3probe5.py`）同一函数剔除 **641** 条，其中含逗号/句末标点 **566**、括号不配对 **75**。数字不同是因为两个口径的门序不同，不是函数行为不同。这一步保证“候选表里的每一行都能原样写进 `alias_exceptions.csv`”，否则会在 `:157` 被拒成 `例外条目形状不合格` |
+| **S3-I2** | 词面友好（父文档 G7） | 照抄查询侧算法：`lowercase` → 按 `[^\p{L}\p{N}]+` 切 → 任一片段长度 2–48 即算友好（`KnowledgeSearchFeatureExtractor.kt:30-34,59-70,95-102,117`） | 丢 **10,619** 条：`x+y`、`λ+μ`、`a-b`、`p=q` 这类“单字母 + 运算符 + 单字母”。这正是 F1：写进别名也不会产生任何查询特征。**注意**：不友好 = 不产别名（登记 `notation_only` 供 dense/展示层），**不**改写成去运算符形态（那会把 `x+y`/`x-y` 压成同一个 `xy`，父文档 §1.3 已实测） |
+
+#### E. 证据门、互斥与配额
+
+| ID | 参数 | 冻结值 | 实测依据 / 消灭的失败 |
+|---|---|---|---|
+| **S3-E1** | 节点内证据 | `df_node ≥ 2`（在 ≥2 份**不同**绑定材料里出现该记号）**或** `tf_node ≥ 3`（该节点材料里原始 span 共出现 ≥3 次） | `df_node` 分布（**结构门关闭的朴素口径**，`s3probe2.py`，截到 5）：1→11,628、2→1,765、3→665、4→345、5+→548；S3@1 口径下的分布未单独统计。`tf≥3` 兜底贡献 **21** 条（占过证据门候选 428 条的 4.9%）。**它救不了薄节点**：205 个单材料节点里 S3 候选数 **0**（§S3.4），所以 `tf≥3` 的实际作用是“同一份材料里反复出现的公式”（如 `CuSO_4` 8 次），不是“单材料回退” |
+| **S3-U1** | 同学科互斥（父文档 G6） | ① 不得等于同学科另一节点主名；② 同一 `(subject, alias)` 被 ≥2 个节点 claim → **全部丢弃**。**`claim_scope = pre_evidence`**：claim 在“过形状门、未过证据门（df/tf）”的每节点候选集上统计（取保守口径：只要某节点的材料里出现过该记号，同科其它节点就不能独占它）。口径与 `rebuild_aliases._validate_exceptions`（`:166-179`）一致，因为例外表只能把同一个名字登记给一个节点 | 实测漏斗：过形状门 **8,369** → 过证据门 **2,019** → claim 互斥后 **428**（砍掉 1,591，是全链最大的一刀）→ 主名碰撞 0 → 截断后 **349**。被砍的典型是 `Δv`、`x_0`、`AB` 这类跨节点共享量。**这一道同时替代了父文档 G5**：实测记号候选的学科 df 最高只有 MATH `AB` 0.968%、PHYSICS `Δt` 0.681%、CHEMISTRY `OH^-`/`CO_2` 0.688%、BIOLOGY `CO_2` 0.124%，**全部 < 2%**，2% 上限对 S3 是空门；加一条不删任何东西的机制属于 §12.2 的“多余机制”，故 S3 明确不设学科 df 门 |
+| **S3-C1** | 配额 | 每节点 **≤3** 条（父文档是 ≤6，S3 取一半，因 S3 在父文档 §3.5 排序里最低） | 实测：428 条候选 / 220 个节点 → 截到 3 条后 **349** 条（砍 79 条）；**26 个节点**超 3 条（4 条 11 个、≥5 条 15 个），另有 17 个节点正好 3 条、43 个正好 2 条、134 个 1 条 |
+| **S3-C2** | 排序键（字典序） | ① `df_node` 降序 ② `tf_node` 降序 ③ 长度升序 ④ Unicode 码点升序 | 无随机项；实测两次运行输出 sha256 相同（§S3.4） |
+| **S3-C3** | 配额之外 | 不补空；`alias` 重复命中多来源时合并证据，只占一个额度；`S3` 不挤占父文档 §3.5 的跨类 ≤6 总额 | 索引侧只有 16 片段/192 特征（`KnowledgeSearchFeatureExtractor.kt:10,36-56`；KD-24），多写一条就可能把主名挤出索引 |
+
+### S3.3 算法（可执行规格）
+
+```text
+输入：节点集合 N（subject, slug, name, aliases）；每节点的绑定材料集合 M(n)（role ∈ {PRIMARY, SUPPORTING}）
+输出：candidates[(n, alias)] = {df_node, tf_node, source_material_slug, evidence_span(raw), rank}
+
+for n in sorted(N, key=(subject, slug)):
+    acc = {}                                   # alias -> {materials:set, tf:int, raw_spans:set}
+    for m in sorted(M(n), key=slug):
+        for raw in find_spans(m.contentMarkdown):      # S3-P1 四种定界符，闭集
+            a, why = normalize(raw)                     # S3-N1..N5；失败即计入 drop_reason
+            if why: continue
+            if not shape_ok(a): continue                # S3-S1..S3-S6
+            if title_usable(a): continue                # S3-I1（生产函数本体）
+            if not tokenizer_safe(a): log_notation_only(n, a, m.slug); continue   # S3-I2
+            rec = acc.setdefault(a, {materials:set(), tf:0, raws:set()})
+            rec.materials.add(m.slug); rec.tf += 1; rec.raws.add(raw)
+    shape_passing[n] = acc                         # 供全局 claim 统计（claim_scope=pre_evidence）
+
+# 全局阶段（一次遍历全部节点后，按这个顺序；顺序即 §S3-U1 的“pre_evidence”口径）
+claim = Counter((n.subject, a) for n in N for a in shape_passing[n])   # 不看 df/tf
+for n in N:
+    # S3-E1 证据门
+    keep = {a: rec for a, rec in shape_passing[n].items()
+            if len(rec.materials) >= 2 or rec.tf >= 3}
+    # 去重：等于本节点主名/现有别名 → 丢
+    keep = {a: rec for a, rec in keep.items() if a != n.name and a not in n.aliases}
+    # S3-U1：同学科一名字只归一个节点
+    keep = {a: rec for a, rec in keep.items() if claim[(n.subject, a)] == 1}
+    keep = {a: rec for a, rec in keep.items() if a not in names_of_other_nodes(n.subject)}
+    ordered = sort(keep, key=(-df_node, -tf_node, len(alias), codepoint(alias)))   # S3-C2
+    emit_candidates(n, ordered[:3])                # S3-C1
+
+normalize(raw):
+    t = NFKC(raw)
+    t = strip_delims(t)                       # $ \( \) \[ \]
+    t = strip_layout(t)                       # \left \right \, \; \! \quad \qquad
+    t = apply_closed_latex_map(t)             # S3-N3 的 33 条
+    t = expand_subsup_1_3(t)                  # S3-N4
+    t = remove_all_whitespace(t)              # S3-N5
+    if "\\" in t or "{" in t or "}" in t: return t, "residual_tex"
+    if has_cjk(t): return t, "cjk"
+    if not (2 <= len(t) <= 12): return t, "length"
+    if not any(isalpha(ch) for ch in t): return t, "no_letter"
+    return t, None
+```
+
+**证据锚定（G2 的 S3 变体）**：S3 的别名**不是** `contentMarkdown` 的逐字子串（`\le→≤`、`_{2}→_2` 都会改变字面）。所以 S3 的逐字门写成两条、都要成立：① `evidence_span`（原始 span，含定界符）必须逐字出现在 `contentMarkdown`；② `alias == normalize(evidence_span)` 必须可复算。§S3.4 的 6 项断言里，这两条对 349 行全部成立。
+
+**候选表列**：沿用父文档 §3.1 的 13 列，`kind=S3_NOTATION`；追加 `tf_node`、`raw_span` 两列（`evidence_span` 存原始 span）。写入包仍走批次22 的既有链：`alias_exceptions.csv`（`:157` 门）→ `rebuild_aliases --write` → `promote` → dense 重打；S3 **不直接改** `alias_map.csv`。
+
+### S3.4 实跑读数（本代理 2026-10-29，可复算）
+
+**命令**（脚本在系统临时目录，不入仓库；每个脚本都只读包与 sidecar）：
+
+```text
+python -u C:/Users/听云/AppData/Local/Temp/s3probe1.py   # span 形态计数
+python -u C:/Users/听云/AppData/Local/Temp/s3probe2.py   # 归一/长度/大小写/df 分布
+python -u C:/Users/听云/AppData/Local/Temp/s3probe3.py   # 学科 df 校准（证明 2% 门对 S3 是空门）
+python -u C:/Users/听云/AppData/Local/Temp/s3probe4.py   # 纯文本记号串（S3-P2 的反证）
+python -u C:/Users/听云/AppData/Local/Temp/s3probe5.py   # 生产 title_usable 直调 + 641 拆分口径
+python -u C:/Users/听云/AppData/Local/Temp/s3probe6.py   # 结构门开/关对比
+python -u C:/Users/听云/AppData/Local/Temp/s3probe7.py   # 全链 + 确定性 sha
+python -u C:/Users/听云/AppData/Local/Temp/s3probe8.py   # 6 项断言 + 证据回读
+python -u C:/Users/听云/AppData/Local/Temp/s3probe9.py   # 标题/section 覆盖（用于 G3 裁定）
+python -u C:/Users/听云/AppData/Local/Temp/s3funnel.py   # 漏斗逐级归属（8,369→2,019→428→349）
+```
+
+**A. 规模与形态**
+
+```text
+nodes 3245  sidecars 25  materials 64973  roles {'PRIMARY': 64973}
+materials_per_node median 13 max 145  single_material_nodes 205
+span_counts {'d1': 106256, 'd2': 868}          # d1=$...$, d2=$$...$$；\( 与 \[ 各 0
+spans_total 107124  distinct_normalized 10144
+space_spans 16783  case_change_spans 23486
+```
+
+**B. 逐门剔除（全包 107,124 个 span，最终 15,136 条过门 → 428 条候选 → 349 条写入）**
+
+| 门 | 剔除条数 | 门 | 剔除条数 |
+|---|---|---|---|
+| 残 `\`（S3-N3） | 31,824 | 首字符非字母（S3-S3） | 3,934 |
+| 长度 <2（S3-S1） | 20,595 | 残花括号（S3-N3） | 2,303 |
+| 词面不友好（S3-I2） | 10,619 | 无字母（S3-S2） | 1,374 |
+| 通用标签（S3-S5b） | 6,567 | 含 CJK（S3-S6） | 1,337 |
+| 无运算符（S3-S4） | 6,441 | `title_usable`（S3-I1） | 453 |
+| 长度 >12（S3-S1） | 6,361 | 含小数点（S3-S5） | 174 |
+| 纯单位（S3-S2） | 6 | **过门** | **15,136** |
+
+合计校验：31,824+20,595+10,619+6,567+6,441+6,361+3,934+2,303+1,374+1,337+453+174+6+15,136 = **107,124**，与 span 总数逐条对齐（无遗漏、无双计）。“过门 15,136”是 **node-agnostic 的 span 条数**；同一个归一别名在多个节点重复出现时会各算一次，节点内还会按 `(node, alias)` 去重，所以它远大于 §S3.4-C 的 8,369 个 `(node, alias)` 对。
+
+**C. 产出与覆盖**
+
+```text
+after_shape_gates 8369   (node, alias) 对
+after_E1(df>=2 or tf>=3) 2019
+after_claim(pre_evidence) 428
+after_dedup(name/aliases) 428   after_name_collision 428
+pre_cap_aliases 428   nodes 220   post_cap_aliases 349   nodes_truncated 26
+per_node(截到 5) {1:134, 2:43, 3:17, 4:11, 5+:15}
+nodes_by_subject {'math': 80, 'physics': 92, 'chemistry': 39, 'biology': 9}
+final_nodes_by_material_count {3:3, 4:2, 5+:215}       # 全部 ≥3 份材料
+tf_fallback_aliases(df=1,tf>=3) 21   单材料节点候选数 0
+```
+
+**两道门在这份包上是空门（如实登记）**：`name/aliases` 去重从 2,019→2,019（删 0 条）、主名碰撞从 428→428（删 0 条）。它们没有产生任何剔除，但必须保留——`rebuild_aliases` 在 `:162-171` 会对例外条目做同样的判定，缺了它们，候选表会出现“写进去必然被拒”的行；保留是互操作要求，不是增值机制。
+
+覆盖率 220/3,245 = **6.8%**（math 80/834=9.6%、physics 92/889=10.3%、chemistry 39/1,011=3.9%、biology 9/511=1.8%）。这是一个**保守**的产出面：S3 不负责覆盖全库，只给“记号本身就是检索入口”的节点补一条通道。
+
+**D. 抽样（结构门开启后的真实候选，格式：别名(df/tf)）**
+
+| 学科 | 节点 | 前 3 条 |
+|---|---|---|
+| MATH | 极值点偏移问题 | `x_1<x_0<x_2`(13/13)、`x_1+x_2>2`(4/9)、`f(2x_0-x)`(4/4) |
+| MATH | 导数构造法解函数不等式 | `g(x)=xf(x)`(2/2)、`h(x)=xf(x)`(2/2)、`F(x)=f(x)-kx`(2/2) |
+| MATH | 数列的单调性与最值问题 | `a_n+1-a_n>0`(3/4)、`a_n≤a_n+1`(3/3)、`a_n≤a_n-1`(3/3) |
+| PHYSICS | 弹性碰撞 | `v_1'=0`(10/10)、`v_2'=v_1`(10/10)、`v_1'<0`(7/7) |
+| PHYSICS | 板块模型 | `a_1=μ_1g`(4/5)、`μ_2`(3/3)、`μ_1<μ_2`(3/3) |
+| CHEMISTRY | 自由能与化学反应的方向 | `ΔS>0`(5/10)、`ΔG<0`(4/7)、`ΔG=ΔH-TΔS`(4/5) |
+| CHEMISTRY | 气体摩尔体积 | `n=V/V_m`(4/4)、`V_m=V/n`(2/2)、`L·mol^-1`(1/4) |
+| CHEMISTRY | 配位化合物 | `Ni(CO)_4`(3/4)、`Fe(CO)_5`(2/3) |
+| BIOLOGY | 实验-检测生物组织中的糖类-脂肪和蛋白质 | `CuSO_4`(5/8)、`Cu(OH)_2`(5/8) |
+| BIOLOGY | 自由组合定律中的特殊分离比问题分析 | `AAbb×aaBB`(3/5)、`AABB×aabb`(3/3) |
+
+**E. 结构门的增量证据（开/关对比，同一输入）**
+
+| 口径 | 节点数 | 候选数（≤3 后） | 典型噪声 |
+|---|---|---|---|
+| 除 S3-S3/S3-S4/S3-S5 之外全开（P/N/I/E/U/C 全按本节） | 267 | 467 | `MB`、`MO`、`Ni`、`Pb`、`Sn`、`HD`、`3p_0`、`2p'`、`1aabb`、`_24Cr`、`^14_7N`、`0≤a≤13` |
+| 再加 S3-S3/S3-S4/S3-S5（= 本节冻结口径） | 220 | 349 | 上述全部消失；仍留 `f(1)=2f(1)`、`b=v_0`、`SA=2`、`FE=2`、`C_2^2=1`、`Aat^100`、`AA_2` |
+
+代价是 −47 个节点、−118 条候选（−25%）。这也是本节唯一一次“用同一份数据比较两个口径”，两个口径都在看到任何检索读数之前跑出，未用金标。
+
+**F. 6 项断言（对 349 行逐行检查，全部 0 违反）与大表 sha**
+
+```text
+rows 349
+violations: dollar_or_backslash 0  punct 0  len 0  tokenizer 0  verbatim 0  recompute 0
+sha256 ff25f6727bedee297ab4a2875ad28967e2efaa7337482c6aa4b0a23289782910   # 8 列（subject|slug|alias|df|tf|rank|src|raw），两次运行相同
+```
+
+6 项断言 = ① 别名不含 `$`/`\`；② 不含 `。！？；;，,`；③ 长度 2–12；④ 词面友好；⑤ 原始 span 在来源材料 `contentMarkdown` 中逐字存在；⑥ `normalize(raw_span) == alias`。
+
+> 第一次跑 `s3probe8.py` 有 40 行报 `verbatim`，原因是探针把“含任意 raw 的第一份材料”当来源、却用 `raws[0]` 去核对（探针 bug，不是规则违反）；改成“取含 `raws[0]` 的材料”后归零。这一偏差保留在此，供复核者识别。
+
+### S3.5 与“题干反推”的界线（S3 专属声明）
+
+**允许（S3 的全部输入）**
+
+- 节点自己的 `contentMarkdown` 里的定界符 span；
+- 记号在节点材料内的重复（`df_node`）与频次（`tf_node`）、材料 slug 作 provenance；
+- 用主名/现有别名做**排除**（去重），不用它们做候选生成。
+
+**禁止（任一条出现即视为该条候选作废、整轮复算作废）**
+
+- 读 `golden_queries_v2.json`、`*-misses.txt`、`build/agent-*`、用户提问日志、检索失败清单、章节分布；
+- 用“这道题期望命中哪个节点”挑记号，或按某条 MISS 给节点补记号（父文档 §5.3；批次16 Q 类 +24 已按此纪律判为不可采用）；
+- 用金标反复调 2–12 长度、`tf≥3`、运算符闭集、`rule_hash` 覆盖的任何参数；
+- 在**看过设备/JVM 检索结果之后**改上述任一参数仍沿用 `S3@1` 的名字（父文档 §3.6「先冻结、后测量」）。
+
+**S3 特有的三条边界情形**
+
+1. **CJK 门已挡住“把题干文字当别名”**：S3-S6 使任何含中文的 span 出局，因此 S3 在结构上不可能产出中文题干别名（父文档 G3 要防的那一类）。**正因如此，S3@1 不设 G3“同 section 含 cue”门**：实测 62,536/64,973（96.3%）材料没有任何 Markdown 标题（`materials_with_headings 2437`、`heading_counts {0: 62536, 1: 2437}`），`section` 退化成整份材料，cue 门会变成“材料里有没有 `方法/注意/因此`”这种 61% 材料都过的空门（`sections_with_cue 41352`）。这是与父文档 G3 的**显式偏离**，登记在 §S3.7-V4。
+2. **例题里的公式可以进来，但不是因为“题”**：`f(1)=2f(1)`、`SA=2` 这类确实活到了候选表。它们靠的是“在本节点材料里重复”，不是任何题干线索；候选表不自动进包，由例外表人工定稿层复核（父文档 §3.1 的链）。
+3. **不做“符号同义”**：`x+y` 与 `y+x`、`x+5` 与 `5+x`、`x_1` 与 `x` 都不互认（父文档 §5.4）；S3 只做编码变体与闭集命令映射。
+
+**审计建议**：先发布 `rule_hash`（§S3.6），再在任何设备臂上测；候选表保留 `raw_span + source_material_slug`，任一条能回到原文一行；换包/换学科必须在**未看过结果**的前提下复算一次。
+
+### S3.6 冻结与复算
+
+- **版本**：`RULE_VERSION = body-alias-v1/S3@1`；任何参数变化即 `@2`，不得复用本节的 hash 与读数。
+- **排序/确定性**：节点按 `(subject, slug)`、材料按 `slug`、span 按出现顺序、候选按 S3-C2；无随机、无网络、无模型、无时间戳。
+- **rule_hash**：把下表参数序列化后取 sha256。
+
+```python
+import json, hashlib
+blob = json.dumps(params, sort_keys=True, separators=(',', ':'), ensure_ascii=True)
+rule_hash = hashlib.sha256(blob.encode('utf-8')).hexdigest()
+```
+
+本节的参数块（`params`，即上表 A–E 的可机读形态；**这就是被 hash 的原文**）：
+
+```json
+{"bare_text_notation":false,"cap_per_node":3,"claim_scope":"pre_evidence","df_min_materials":2,"df_or_tf":true,"drop_cmds":["\\left","\\right","\\,","\\;","\\!","\\quad","\\qquad"],"generic_label_patterns":["^[A-Za-z]$","^[A-Za-z][_^][A-Za-z0-9]{1,2}$","^[0-9]+[A-Za-z]$"],"latex_map":{"\\Delta":"\u0394","\\Leftrightarrow":"\u21d4","\\Rightarrow":"\u21d2","\\alpha":"\u03b1","\\angle":"\u2220","\\approx":"\u2248","\\beta":"\u03b2","\\cap":"\u2229","\\cdot":"\u00b7","\\cong":"\u2245","\\cup":"\u222a","\\ge":"\u2265","\\geq":"\u2265","\\in":"\u2208","\\infty":"\u221e","\\lambda":"\u03bb","\\le":"\u2264","\\leq":"\u2264","\\mu":"\u03bc","\\ne":"\u2260","\\neq":"\u2260","\\omega":"\u03c9","\\parallel":"\u2225","\\perp":"\u22a5","\\pi":"\u03c0","\\pm":"\u00b1","\\sqrt":"\u221a","\\subset":"\u2282","\\subseteq":"\u2286","\\sum":"\u2211","\\theta":"\u03b8","\\times":"\u00d7","\\to":"\u2192"},"len_max":12,"len_min":2,"lowercase":false,"nfkc":true,"operator_chars":"=+-\u2212\u00d7\u00b7\u00f7/<>\u2264\u2265\u2260\u2208\u2209\u2282\u2286\u222a\u2229\u2192\u21d2\u21d4^_\u00b1\u221e\u221a","order":["df_node_desc","tf_node_desc","len_asc","codepoint_asc"],"reject_cjk":true,"reject_decimal_point":true,"reject_residual_backslash":true,"reject_residual_brace":true,"require_letter":true,"require_letter_initial":true,"require_operator":true,"reuse_title_usable":true,"span_forms":["dollar_inline","dollar_display","paren_inline","bracket_display"],"strip_whitespace":true,"subject_unique":true,"subsup_expand":{"pattern":"([_^])\\{([A-Za-z0-9+\\-]{1,3})\\}","replacement":"\\1\\2"},"tf_min_occurrences":3,"tokenizer_safe":"any(lowercase(s).split(non_letter_or_digit) fragment with 2<=len<=48)","unit_pattern":"^(?:[kMGmunp\u03bc]?(?:m|g|s|A|K|mol|cd|Hz|N|J|W|V|F|C|Pa|\u03a9|L)(?:\\^\\d|\\d)?)(?:/[A-Za-z\u00b0]+)?$","version":"body-alias-v1/S3@1"}
+```
+
+**`rule_hash = 938e2026c93f0aa6f60e8bb01c6d2079decf1e51bdb0c56b5f97bb462617ae10`**（本代理 2026-10-29 实算）。复算方式：把上面这行 JSON 原样喂给 `sha256` 即可；任何键/值/空格改动都会改变结果。
+
+- **复算命令（建议实现，未实现）**：`PYTHONPATH=tools python -m kb_build.derive_body_aliases --pack <pack> --sidecars <dir> --kind S3 --out <csv>`；同一输入两次运行，输出文件 sha256 必须相同（本节的等价探针已做到两次同 sha）。
+- **输出头**：`rule_version=body-alias-v1/S3@1`、`rule_hash=938e2026…`、`pack_content_version=9f9e99ceec47cf8c`。
+- **本节新增的来源（1 条）**：Unicode UAX #31《Unicode Identifier and Pattern Syntax》（<https://www.unicode.org/reports/tr31/>，本代理 2026-10-29 获取）——`UAX31-R5` 要求实现显式声明 simple/full case folding，且“the folding of distinctions (using case mapping or NFKC) must be delayed until after parsing has located the identifiers”；该条支撑 S3-N6「折叠属于匹配层、存储层保留原形」。其余外部依据沿用父文档 §2.6/§6（UAX #15、UAX #29、S19–S22 的数学检索归一）。**InChI/IUPAC 关于元素符号大小写敏感（`Co` vs `CO`）的原文未取到**（inchi-trust.org 连接超时、IUPAC Red Book PDF 返回 403），该论点在本节只由本地实测支撑（23,486 个非全小写 span），按未验证处理。
+
+### S3.7 风险与未验证项
+
+| # | 项 | 状态 / 证据 | 影响 |
+|---|---|---|---|
+| V1 | **规则未实现** | 只有规格 + 等价探针；`body_alias_candidates.csv` 不存在，`tools/kb_build` 下无 `derive_body_aliases` | 后续批次必须先落地实现，再谈测量 |
+| V2 | **未接设备/JVM** | 零 Gradle、零 `adb`、零 `am instrument`；349 条对词面/融合 Recall@5、MRR、p50/p95 的影响**完全未知** | 不得把本节的产出写成“会涨分”；父文档 §1.4 的历史上界（T/C +4、A1 +13）仍是唯一量级参考 |
+| V3 | **候选仍有噪声** | 仍留 `f(1)=2f(1)`、`b=v_0`、`SA=2`、`FE=2`、`C_2^2=1`、`Aat^100`、`AA_2` 这类“实例/代换”串（§S3.4-E） | 每节点 3 条上限 + 例外表人工定稿 + 互斥门是唯一缓冲；不得自动批量写入 |
+| V4 | **偏离父文档 G3** | 96.3% 材料无标题、cue 门实测为空门（§S3.5-1） | 若未来材料补标题，应重开 G3 并重算 `@2`；本偏离必须在批次记录里显式登记 |
+| V5 | **薄节点无覆盖** | 205 个单材料节点 S3 候选 **0**；`tf≥3` 只在多材料节点生效（21 条） | S3 不能当“补薄料节点”的手段；父文档 §5.2 的判断未被推翻 |
+| V6 | **NFKC 实现差异** | 探针用 Python `unicodedata`（Unicode 版本随解释器）；生产是 JVM `java.text.Normalizer` | 落地时必须用 JVM 路径并加一致性用例；否则同一包在两套归一化下可产出不同别名 |
+| V7 | **下标/上标语义丢失** | ① S3-N4 只展开 1–3 字符的 `_{}`/`^{}`，`x^{n+1}` 因此保留花括号、再被 S3-N3 整条丢弃；② 12 字上限使较长的表达式类记号（如 `f(x_1)<f(x_2)`，13 字）系统性缺席；③ `Fe^{3+}` 保留为 `Fe^3+`，但下标/上标语义（MIaS 刻意区分的 `x1` vs `x`）在词面层已被压平 | 保守取舍，不是 bug：S3 只服务“短记号就是检索入口”的节点；表达式检索属另一条规则 |
+| V8 | **组织面空白敏感** | 存储 `F=kx`，学生输入 `F = kx` 在 `RoomMistakeOrganizationRepository.kt:1694-1695` 归一后仍不等（只压空格、不删） | 属于既有消费面的行为，S3 不改；若要提升组织面命中，需另立消费者侧改造 |
+| V9 | **学科 df 门被移除** | 实测最大 0.968% < 2%（§S3.2-E/S3-U1） | 若换包后记号变得跨节点高频，互斥门（S3-U1）先兜住；届时应重算并考虑恢复 |
+| V10 | **未做人工审计** | 349 条没有双人标注/一致性检验；`title_usable` 在本节是**被调用**（`s3probe5/6/7/8` 直接 import 生产函数），但 `rebuild_aliases --write` 未跑 | 候选表质量只到“机械门全过”，未到“语义正确” |
+| V11 | **`$$` 只做了抽样** | 868 条 `$$...$$` 只抽读 8 条（全是 `\dfrac`/`\text{}` 长公式），**没有逐条统计过门率** | §S3-P3 的结论是抽样级的；若要断言“`$$` 通道几乎无产出”，必须先跑全量统计 |

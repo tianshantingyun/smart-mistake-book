@@ -307,3 +307,64 @@ adb -s emulator-5584 shell getprop ro.build.version.sdk   # 34
 # 发布链干跑（只读检查；本批落盘 rc=0、version→22、未写盘）
 PYTHONPATH=tools python tools/kb_build/promote.py --dry-run
 ```
+
+## 12. 三件终裁落账（2026-10-29/30：182 / 114 / 402 → FINAL_ADJUDICATED）
+
+> 委托来源：用户 2026-10-29「不需要我来复核，你直接判断」。裁决人：`zcode-principal(delegated-by-user)`。
+> 性质：**文书/台账终裁，零写包**；未建点、未重绑、未改判定源、未 promotion。单一跨引用入口：`docs/research/2026-10-29-kb-final-adjudications.md`。
+
+| 项 | 终态 | 读数与证据 |
+|---|---|---|
+| **182 拆分提案（E2）** | **FINAL_ADJUDICATED——REJECT 50 维持 / DEFER 132 NOT_APPLIED / ACT_NOW 0** | 50 REJECT 证据复核仍成立（contentId 23/23、节点 43/43、对齐表 11/11）；132 DEFER 三条件不齐（② 弱章诊断内容/绑定缺口 0；③ `promotionAllowed=false` 25/25 模块）。决策文件 `reviewState=FINAL_ADJUDICATED`，182 行均含 `finalDecision`。证据：`build/agent-batch25/adjudication/182-final.json`、`182-final-summary.md`；`knowledge-production/curriculum-warning-human-review-decisions-2025-v1.json` |
+| **114 重开提案** | **FINAL_ADJUDICATED——REOPEN_NOW 68 / NOT_APPLIED 46**（BUILD 35/1、MERGE 33/3、REJECT 0/42） | 114 chunk 在输入与判定源 114/114；BUILD 36 规格齐、精确 name/alias 0 命中、parent 35/36；MERGE 目标 36/36（字面别名 25、语义 11）；REJECT 42 现包 slug 0 命中。`REOPEN_NOW` 仅为批准标记，本批零写包；执行触发见 CSV `trigger`。证据：`build/agent-batch25/adjudication/114-402-final.csv`、`114-402-final-summary.md` |
+| **402 同键分类** | **FINAL_ADJUDICATED——KEEP_ALL 402 / DUPLICATE 0** | 402 组 / 827 行；去重载荷 + 归一化 content/summary/boundary/note + 同节点 title 四口径重复 0；判定源 sha256 `57aa7614…3cb3f` 未变，不改判定源。证据：`build/agent-batch18/scripts/verify_multi_midx.py`（`PASS`, rc=0）；`build/agent-batch25/adjudication/114-402-final.csv` |
+
+- 原「E2 用户复核开放中」状态**自此由主控委托终裁取代**；三件均有终态计数与逐条去向，不再作为待用户复核项。
+- 本批**不执行** 182 的 ACT_NOW（0 条）与 114 的 68 条 REOPEN_NOW：零写包边界未开；114 的执行条件（判定源改判 + 建点/重绑 + 重建包/晋升）已逐行写入 `trigger`。
+
+## 13. 批次25 v22 写入链与终裁行（2026-10-29/30：v22 written-not-adopted；API23 smoke+DAO passed；三件终裁 FINAL_ADJUDICATED）
+
+> 数字来源：`build/agent-batch25/` 产物实读 + 批报 `docs/kb-batch25-2026-10-29.md` + `build/kd77-api23-smoke/` 设备证据 + 本文书轮只读复算。基线：HEAD **`902d7acc`**（origin 同步 0/0）；HEAD 提交基线仍是 **v21**（manifest `9f9e99ceec47cf8c` / 主包 `a7192484…` / dense `79a22270…` 44,043）。工作树曾到达 **v22 检查点**（manifest `22` / `efda0a366fecc1ac`、主包 `1db011e1…`、dense `f2c4e68d…` / 44,305），但**未采纳**；验收基线仍为 **A1 117/129 = 0.9069767441860465**。本行不改变 §12 的三件终裁终态，只补批次25 的 v22/API23/S3/薄料与残留。
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **v22 写入链（R6 + S3 + promote + dense）** | **written-not-adopted** | R6 **29 条**（13 summary + 6 node boundary within80 + 10 material boundary）；S3 **262 行 / 174 节点**；`promote` **24 项自检 0 失败 / roundtrip 28-0 / version 22 / contentVersion `efda0a366fecc1ac`**；dense **44,305 向量 / 26,196,311 B / `f2c4e68d…`**，旁车 `d94ff211…`、packSha `1db011e1…`、aliasVectors 41,060；tracked 写入 16 个、post-sha 16/16。证据：`build/agent-batch25/content-write.log:22-128,134-163`；`promote-post-verify.json:29-40`；`dense.log:246-248`；`content-touched-files.txt:1-74` |
+| **v22 读数 / 非劣裁定** | **NOT_MEASURED / NOT_ADJUDICATED** | 设备融合、JVM 双臂、24 章逐章均未测；零漂移 **NOT_COMPUTABLE**；显著性 **NOT_RUN**；四条非劣判据无法求值，不能判 PASS/FAIL。离线 expectation 词面 **101/129**、dense **104/129**、融合 **114/129**、MRR **0.718475…** 只作风险登记（114 < A1 117），不是设备读数。证据：`dense.log:253-258,281-286`；预注册 `docs/research/2026-10-29-kb-v22-content-update-prereg.md:118-129` |
+| **v22 最终门 / 重钉 / 漂移** | **blocked（2 门红 + 重钉缺失 + 包漂移）** | 八门 **6/8 rc=0**；`py_suite` rc=1（3 failures：alias_map 与包不一致、contentVersion 复算 `ebf03c9…` ≠ manifest `efda0a36…`、dense 资产门）；`asset` rc=1（当前包 `e5dc3303…` vs 旁车 `1db011e1…`；layout 44,305 vs 44,304）。当前主包 `e5dc3303…` 在别名结构上比 staging **少 1 条别名 `AABB×aabb`**（BIOLOGY/自由组合定律中的特殊分离比问题分析；未逐字段比较其他字段），mtime 02:06:07，**不在本批 16 个 tracked 写入清单内**；写入者未登记。重钉未做：`VECTOR_ASSET_SHA256` 仍 `79a22270…`（实包 `f2c4e68d…`）、词面测试仍钉 102（实测 101）、reranker 仍钉 1,074（新 1,064）。dense export `int8_docs` cosine **0.997438788 < 0.999**（EXIT=1）；端到端 min 0.997334（记录非硬门）；量化还原 0.999746 > 0.999。证据：`gates/summary.txt:1-62`；`consistency.txt:12-44`；`dense.log:281-286`；`dense-export.log:199-211`；`dense-pack.log:5-9` |
+| **S3 别名轨** | **applied（262/174），随 v22 未采纳** | 规则 `body-alias-v1/S3@1`、rule_hash `938e2026…ae10`；候选 262 行/174 节点（MATH 88/58、PHYSICS 117/73、CHEMISTRY 45/35、BIOLOGY 12/8）；cap 3 / max 3 / violations 0；span **107,127**（d1 106,262 / d2 **865**，不采用 86）；dry-run 冲突 0、applied 262/262；别名 **40,798→41,060**；`alias_exceptions` **35→297**；`alias_map` **37,553→37,815**；`alias_dropped` 22,559 不变。证据：`gen_s3_aliases.out.txt:3-7`；`validate_s3.out.txt:1-4`；`dryrun_s3.out.txt:7-15`；`s3-verify.out.txt:1-16` |
+| **薄料轨** | **blocked / 零写** | 行 23「必备实验仪器的原理及使用」维持；运行时/写入链**支持** SUPPORTING 第二绑定（schema 复合主键、契约 1..16 且恰一 PRIMARY、DAO 角色序、调和器整组替换），但作者工具链**不能产出**（`build.py` 只写单元素 PRIMARY、`:583-588` 拒绝 `>1`、`tables.py` 一材料一目标、`rebind_materials` 是改指+去重）；全库 **64,973 条材料全 1 条绑定、全 PRIMARY、SUPPORTING 0**。需扩三处（`build.py` 规则、绑定表单目标模型、追加绑定命令）。证据：`build/agent-batch25/baseline/identity.md:233-375`；`content-write.log:89-93`；本文书轮成品 25 sidecar 复算 `64973 / {1:64973} / {'PRIMARY':64973}` |
+| **KD-77（API23）** | **open / partial——smoke+DAO passed；融合 golden 红** | API23 `api23_smoke`（Android 6.0 / google_apis x86_64）：`com.tingyun.smartmistakebook.offline` 冷启动 `Displayed ... +2s873ms`；6 份 logcat 四类崩溃签名（FATAL/ANR/NoSuchMethod/NoClassDef/UnsatisfiedLink）均 **0**；`TeachingMaterialAllocationInstrumentedTest` **OK (4 tests)**（API23 1.237/1.169；API34 `emulator-5584` 5.177/4.634）。但 `GoldenRetrievalInstrumentedTest` API23 **1/1 红**：`dense asset sha256 mismatch f2c4e68d… != 79a22270…`（重钉缺失，不是 API23 平台差异；API34 融合本批未复测）。KD-77 不得整体标绿；关闭仍需重钉后在 API23 复跑融合判官并落盘。证据：`logcat-coldstart.txt:261`；`am-instrument-teaching-allocation.txt:4-6`；`5584/am-instrument-teaching-allocation-5584.txt:4-6`；`logcat-golden.txt:807-810`；`docs/known-defects.md:2899-2919` |
+| **182 拆分提案终裁** | **FINAL_ADJUDICATED** | **REJECT 50 维持 / 0 推翻；DEFER 132 → ACT_NOW 0 / NOT_APPLIED 132**；182 行均含 `finalDecision`；c1 形态 **91 / 35 / 5 / 1**；reviewState=FINAL_ADJUDICATED。证据：`build/agent-batch25/adjudication/182-final-summary.md:14-55`；`docs/research/2026-10-29-kb-final-adjudications.md:10-20,43-54` |
+| **114 重开提案终裁** | **FINAL_ADJUDICATED** | **REOPEN_NOW 68 / NOT_APPLIED 46**（BUILD **35/1**、MERGE **33/3**、REJECT **0/42**）；114/114 chunk 在位；BUILD 36 规格齐、精确 name/alias 0 命中、parent 35/36；MERGE 目标 36/36；REJECT 42 现包 0 命中。`REOPEN_NOW` 仅为批准标记，本批零写包、未执行；执行触发见 CSV `trigger`。证据：`114-402-final-summary.md:14-40`；`docs/research/2026-10-29-kb-final-adjudications.md:79-106` |
+| **402 同键分类终裁** | **FINAL_ADJUDICATED** | **KEEP_ALL 402 / DUPLICATE 0**；402 组 / 827 行；四口径重复 0；判定源 sha256 `57aa7614…3cb3f` 未变。证据：`114-402-final-summary.md:42-50`；`docs/research/2026-10-29-kb-final-adjudications.md:119-138` |
+| **验收文书 v22 小节** | **未追加（条件不成立）** | v22 未采纳、读数未测得；按 ask“若采纳”条件不成立。E2 终裁跨引用已在 `docs/kb-acceptance-2026-10-17.md:650,707` 存在（本批未改）。 |
+
+**批次25 最终残留清单（按阻塞程度）**：
+
+1. **重钉缺失**：`DenseRecallAssembly.VECTOR_ASSET_SHA256`（`79a22270…`→`f2c4e68d…`）、`ProductionLexicalLegExportTest`（102→101 等）、`DenseRecallRerankerTest`（1,074→1,064）、Stage1/Stage2 锚点；不重钉则设备融合腿回退纯词面（`logcat-golden.txt:807`）。
+2. **post-promote 包漂移**：当前主包 `e5dc3303…` 少 `AABB×aabb`，导致 `asset` 门 `packSha256`/`layout` 红与 `py_suite` 表/戳红；需查明写入者并恢复/重跑 promote。
+3. **八门红**：`py_suite` 3 failures、`asset` 2 FAIL、`overall red=1`（`gates/summary.txt:62`）。
+4. **dense export 门**：`int8_docs` cosine 0.997438 < 0.999（EXIT=1）；端到端 min 0.997334 < 0.999（记录非硬门）。
+5. **读数缺失**：设备/JVM 融合/词面/逐章/MRR 未测；零漂移 `NOT_COMPUTABLE`；显著性 `NOT_RUN`；非劣 `NOT_ADJUDICATED`。
+6. **API23 融合**：smoke/DAO 过，融合 golden 红；重钉后需在 API23 复跑并落盘。
+7. **R2–R6 / 观测面**：R2–R5 契约侧、R6 已修但随 v22 未采纳；生产遥测 M1–M4 未落地。
+8. **114 执行**：68 条 `REOPEN_NOW` 未执行；需改判定源、建点/重绑、重建包/晋升。
+9. **薄料工具链**：需扩 `build.py` 的 `>1` 规则、绑定表单目标模型、追加绑定命令；本批零写。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD                     # 902d7acc…
+python tools/dense_build/check_asset.py # RC=1；packSha/layout 两条 FAIL
+python build/agent-batch18/scripts/verify_multi_midx.py   # PASS；KEEP_ALL 402
+python build/agent-batch18/verify_reopen_decisions.py     # rows 114；RC=0
+python - <<'PY'
+import json,csv,collections
+d=json.load(open('knowledge-production/curriculum-warning-human-review-decisions-2025-v1.json',encoding='utf-8'))
+print(d['reviewState'],len(d['decisions']))
+r=list(csv.DictReader(open('build/agent-batch25/adjudication/114-402-final.csv',encoding='utf-8-sig')))
+print(len(r),collections.Counter((x['track'],x['final_decision']) for x in r))
+PY
+# FINAL_ADJUDICATED 182；516 Counter({('402','KEEP_ALL'):402,('114','REOPEN_NOW'):68,('114','NOT_APPLIED'):46})
+```
