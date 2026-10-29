@@ -10,8 +10,12 @@
 # obfuscation surface is still governed by app/proguard-rules.pro alone.
 #
 # This file must NEVER disable obfuscation: that would cancel the very scenario
-# R-04 verifies (R8 renaming of the release build). The R-04 gate greps the
-# proguard rule files for that directive and requires 0 hits in each.
+# R-04 verifies (R8 renaming of the release build). The claimed gate is real and
+# re-runnable since batch 35 (批次 35 T3):
+#     python tools/ci/check_r04_keep_rules.py
+# It greps the app module's proguard rule files (app/proguard-rules.pro and this
+# file) for the `-dontobfuscate` directive in *rule text* (comments excluded) and
+# requires 0 hits in each; any hit or a missing rule file exits non-zero.
 
 # 1) Instrumentation loads test classes reflectively by name
 #    (`am instrument -e class <fqcn>#<method>`), so test class names must survive.
