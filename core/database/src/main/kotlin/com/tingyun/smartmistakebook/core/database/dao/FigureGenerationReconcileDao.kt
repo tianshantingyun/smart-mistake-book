@@ -112,6 +112,11 @@ internal abstract class FigureGenerationReconcileDao {
     /**
      * 终态 SUCCEEDED、但入口从未回填产物（`output_asset_id IS NULL`）的尝试。
      *
+     * **本地方法（`method = 'JS'`）不在候选内**：JS 的产物是 `FigureArtifact.Program`
+     * （内存里的画布指令），没有、也不该有 `canonical_source_asset` 行可回填；把它当
+     * "假成功"会在每次进程启动时把一条真实的 JS 成功改写成 FAILED 待核实（反向虚报）。
+     * 只有"成功必须落到资产表"的方法（当前即 IMAGE_MODEL）才适用本段对账。
+     *
      * 结束时刻必须早于租约截止：本进程刚生成、入口还在落盘的行不能被同一轮对账误杀。
      */
     @Query(
@@ -120,6 +125,7 @@ internal abstract class FigureGenerationReconcileDao {
         FROM figure_generation_attempt
         WHERE status = 'SUCCEEDED'
           AND output_asset_id IS NULL
+          AND method <> 'JS'
           AND ended_at_epoch_millis IS NOT NULL
           AND ended_at_epoch_millis <= :staleBeforeEpochMillis
         ORDER BY ended_at_epoch_millis ASC, attempt_id ASC
@@ -147,11 +153,11 @@ internal abstract class FigureGenerationReconcileDao {
     ): Int
 
     /**
-     * 操作仍显示 SUCCEEDED，但名下没有任何"已回填产物"的 SUCCEEDED 尝试 → 落 FAILED。
+     * 操作仍显示 SUCCEEDED，但名下没有任何"已确认成功"的尝试 → 落 FAILED。
      *
-     * 两个**不更新**条件：有任一确认产物（同一操作的另一次尝试已成功落盘），或还有
-     * RUNNING/PENDING 尝试在途（重试可能马上回填产物，不能先把它判死；那次尝试自己的
-     * 终态/僵尸对账会收尾）。
+     * 两个**不更新**条件：有任一确认成功（同一操作的另一次尝试已成功落盘，或本地 JS
+     * 尝试已成功——它的产物是 program、按设计没有资产 id），或还有 RUNNING/PENDING
+     * 尝试在途（重试可能马上回填产物，不能先把它判死；那次尝试自己的终态/僵尸对账会收尾）。
      */
     @Query(
         """
@@ -164,7 +170,7 @@ internal abstract class FigureGenerationReconcileDao {
               SELECT 1 FROM figure_generation_attempt AS confirmed
               WHERE confirmed.operation_id = :operationId
                 AND confirmed.status = 'SUCCEEDED'
-                AND confirmed.output_asset_id IS NOT NULL
+                AND (confirmed.output_asset_id IS NOT NULL OR confirmed.method = 'JS')
           )
           AND NOT EXISTS (
               SELECT 1 FROM figure_generation_attempt AS in_flight

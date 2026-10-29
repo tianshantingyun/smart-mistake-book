@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.Transaction
 import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationAttemptEntity
 import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperationEntity
 
@@ -101,6 +102,50 @@ internal interface FigureGenerationDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertAttempt(entity: FigureGenerationAttemptEntity)
+
+    /** 该操作已占用的最小本地序号（负数区间）；null = 还没有本地尝试。 */
+    @Query(
+        """
+        SELECT MIN(attempt_ordinal) FROM figure_generation_attempt
+        WHERE operation_id = :operationId AND attempt_ordinal < 0
+        """,
+    )
+    suspend fun minLocalAttemptOrdinal(operationId: String): Int?
+
+    /**
+     * 本地方法（JS）尝试的**序号分配 + 建行**，同一个写事务。
+     *
+     * 序号取负数区间（-1、-2、…）：远程预留序号来自账本 `dispatchCount`/`attemptCount`，
+     * 恒为正，两条序列在 `(operation_id, attempt_ordinal)` 唯一索引上不会撞。这正是
+     * `MAX(attempt_ordinal)+1` 那种"本地与远程共用一个正数序列"写法的缺陷——本地先占 1
+     * 之后，同一操作的下一次 IMAGE_MODEL 拿到账本的 1 就会 ABORT，审计行被 recorder 静默丢掉。
+     *
+     * `reservation_id` 为 NULL：本地执行不占远程派发。`attempt_id` 与序号同源（含 method）。
+     */
+    @Transaction
+    suspend fun insertLocalAttempt(
+        operationId: String,
+        method: String,
+        status: String,
+        sourceSha256: String?,
+        inputFingerprint: String,
+        startedAtEpochMillis: Long,
+    ): FigureGenerationAttemptEntity {
+        val ordinal = (minLocalAttemptOrdinal(operationId) ?: 0) - 1
+        val entity = FigureGenerationAttemptEntity(
+            attemptId = "figure-attempt:$operationId:$ordinal:$method",
+            operationId = operationId,
+            attemptOrdinal = ordinal,
+            method = method,
+            status = status,
+            sourceSha256 = sourceSha256,
+            inputFingerprint = inputFingerprint,
+            reservationId = null,
+            startedAtEpochMillis = startedAtEpochMillis,
+        )
+        insertAttempt(entity)
+        return entity
+    }
 
     @Query("SELECT * FROM figure_generation_attempt WHERE attempt_id = :attemptId LIMIT 1")
     suspend fun findAttempt(attemptId: String): FigureGenerationAttemptEntity?

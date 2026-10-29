@@ -22,8 +22,10 @@ import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperati
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.BeginLocalFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.FigureGenerationAttemptIdentity
 import com.tingyun.smartmistakebook.core.database.port.FigureGenerationReconcileCounts
 import com.tingyun.smartmistakebook.core.database.port.StudentModelPredictionRecord
 import com.tingyun.smartmistakebook.core.database.port.ResolvedStudentModelPredictionRecord
@@ -1376,6 +1378,27 @@ internal class RoomStudyDatabase(
             ),
         )
         return true
+    }
+
+    /**
+     * 本地方法（JS）尝试：序号由 DAO 的 `@Transaction` 方法在同一个写事务里分配
+     * （负数区间，与账本远程序号不相交）；`reservation_id` 为 NULL。
+     */
+    override suspend fun beginLocalFigureGenerationAttempt(
+        command: BeginLocalFigureGenerationAttemptCommand,
+    ): FigureGenerationAttemptIdentity? {
+        val entity = database.figureGenerationDao().insertLocalAttempt(
+            operationId = command.operationId,
+            method = command.method,
+            status = command.status,
+            sourceSha256 = command.sourceSha256,
+            inputFingerprint = command.inputFingerprint,
+            startedAtEpochMillis = command.startedAtEpochMillis,
+        )
+        return FigureGenerationAttemptIdentity(
+            attemptId = entity.attemptId,
+            attemptOrdinal = entity.attemptOrdinal,
+        )
     }
 
     override suspend fun finishFigureGenerationAttempt(

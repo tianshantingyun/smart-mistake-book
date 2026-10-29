@@ -87,8 +87,10 @@ internal data class FigureGenerationOperationEntity(
  * 列的口径：
  * - `attempt_id`：含 method 与 ordinal 的内容寻址身份；同一操作换方法/重试是不同 attempt。
  * - `operation_id`：父操作（RESTRICT：删父行不许抹掉尝试证据）。
- * - `attempt_ordinal`：从 0 起，同一操作内唯一；领取一次占一个序号。
- * - `method`：IMAGE_MODEL（当前唯一可执行方法）/ JS（保留名，当前不广告不执行）。
+ * - `attempt_ordinal`：同一操作内唯一；领取一次占一个序号。**两条序列互不相交**：
+ *   远程方法（IMAGE_MODEL）的正整数来自账本 `dispatchCount`/`attemptCount`；本地方法
+ *   （JS）用负数区间（-1、-2、…），避免"本地先占 1、远程拿到 1"撞唯一索引后丢审计行。
+ * - `method`：IMAGE_MODEL / JS（JS 为本地引擎执行，不占远程派发）。
  * - `status`：RUNNING → SUCCEEDED / FAILED / CANCELLED（终态不再变）。
  * - `provider_snapshot` / `model_snapshot`：这次实际用的 Provider/模型快照，未知时 NULL。
  * - `source_sha256`：输入源图的字节哈希；纯文字生成（无源图）时为 NULL。
