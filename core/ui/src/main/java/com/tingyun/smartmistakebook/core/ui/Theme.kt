@@ -46,6 +46,11 @@ object SmartColors {
     val CodeSurface = Color(0xFF20262F)
     val CodeHeader = Color(0xFF2B333F)
     val OnCode = Color(0xFFE6EBF1)
+    val StarMastered = Color(0xFF82DFBB)
+    val StarLearning = Color(0xFFA9C5F0)
+    val StarConflicted = Color(0xFFF4CD83)
+    val StarStale = Color(0xFFDAB999)
+    val StarUnknown = Color(0xFFB1BAC6)
 }
 
 val Paper = SmartColors.Paper

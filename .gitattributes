@@ -12,3 +12,8 @@
 *.jpeg binary
 *.webp binary
 *.zip binary
+# Retrieval reference text has byte-level hashes and LF-delimited numeric fields.
+core/data/src/main/resources/knowledge/dense/*vocab.txt text eol=lf
+core/data/src/test/resources/dense/*.txt text eol=lf
+core/data/src/test/resources/dense/golden-query-vectors.i8 text eol=lf
+tools/dense_build/vocab/*vocab.txt text eol=lf

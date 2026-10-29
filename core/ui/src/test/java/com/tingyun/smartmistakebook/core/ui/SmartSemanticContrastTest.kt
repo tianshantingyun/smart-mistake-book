@@ -6,6 +6,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SmartSemanticContrastTest {
+    @Test fun constellationColorsRemainVisibleOnTheDarkStarField() {
+        val stars = listOf(SmartColors.StarMastered, SmartColors.StarLearning, SmartColors.StarConflicted,
+            SmartColors.StarStale, SmartColors.StarUnknown, SmartColors.OnCode)
+        for (star in stars) for (background in listOf(SmartColors.CodeSurface, SmartColors.Forest)) {
+            assertTrue("Stars and labels must remain readable", contrast(star, background) >= 4.5f)
+        }
+    }
+
     @Test fun normalSemanticTextHasAtLeastFourPointFiveContrast() {
         val backgrounds = listOf(SmartColors.Paper, SmartColors.ContentSurface, SmartColors.SubtleSurface,
             SmartColors.ReadingSurface, SmartColors.LearningSurface, SmartColors.PendingSurface,

@@ -1468,6 +1468,7 @@ class RoomBackedStudyExperienceRepositoryTest {
             repository.initialize()
 
             val profile = repository.snapshot.value.profile
+            assertEquals(setOf(PREREQ_NODE_ID), profile.knowledgePrerequisites[PREREQ_DEPENDENT_KNOWLEDGE_NODE_ID])
             assertEquals(
                 "只有自身达标且无先修的点留在 strengths，实际：${profile.strengths.map { it.knowledgeNodeId }}",
                 listOf(strongId),

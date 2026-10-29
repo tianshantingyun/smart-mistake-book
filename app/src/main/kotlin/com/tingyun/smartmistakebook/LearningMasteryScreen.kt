@@ -99,6 +99,8 @@ internal fun LearningMasteryScreen(
             summaries = summaries,
             projectionIsCurrent = overview.projectionIsCurrent,
         )
+        KnowledgeConstellation(summaries, overview.knowledgePrerequisites)
+        SubjectMasteryChart(summaries)
         RecentLearningActivity(
             summaries = summaries,
             nowEpochMillis = nowEpochMillis,
@@ -427,7 +429,7 @@ private fun KnowledgeMasteryRow(
     }
 }
 
-private fun MasteryStatus.studentLabel(): String = when (this) {
+internal fun MasteryStatus.studentLabel(): String = when (this) {
     MasteryStatus.UNKNOWN -> "刚开始记录"
     MasteryStatus.LEARNING -> "正在学习"
     MasteryStatus.MASTERED -> "掌握较稳"

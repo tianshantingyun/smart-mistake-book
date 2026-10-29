@@ -99,9 +99,8 @@ internal class StudySnapshotBuilder(
         }
         // 裁决 28（KF-16 读侧接线）：把先修图解析一次，供 catalog / profile 两处现算
         // "此刻是否已掌握（含先修压制）"。图里查不到 = 无已知先修（"未知 ≠ 缺失"）。
-        val prerequisiteStabilityDaysByNode = knowledgePrerequisites
-            .graphFor(referencedKnowledgeNodeIds)
-            .prerequisitesByDependent
+        val prerequisiteGraph = knowledgePrerequisites.graphFor(referencedKnowledgeNodeIds)
+        val prerequisiteStabilityDaysByNode = prerequisiteGraph.prerequisitesByDependent
             .mapValues { (_, prerequisiteIds) ->
                 prerequisiteIds.map { prerequisiteId ->
                     projection.knowledgeMasteryStates[prerequisiteId]?.memoryStabilityDays
@@ -137,7 +136,7 @@ internal class StudySnapshotBuilder(
                 atEpochMillis = planningContext.planningAtEpochMillis,
                 decay = forgettingCurve.decay,
                 prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
-            ),
+            ).copy(knowledgePrerequisites = prerequisiteGraph.prerequisitesByDependent),
             knowledgeCoverage = knowledgeCoverage,
             // D-M M1：curated tutor fixture 退场，"导师示例已保存"不再有任何来源，恒 false
             //（字段保留以维持读模型契约；UI 侧无消费者）。
