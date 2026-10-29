@@ -22,14 +22,34 @@ import org.junit.runner.RunWith
  * `for (version in 1..STUDY_DATABASE_VERSION)`）用的是空库，看不出"旧行还在不在、新表是不是
  * 空的、约束真不真"，所以这里用真库、真驱动实测：
  *
- * 1. 四张新表与 11 条索引按迁移建出来（列序/索引名/外键形态与实体声明逐位同形）；
+ * 1. 四张新表与 11 条索引按迁移建出来（列序/索引名/外键形态与实体声明逐位同形）。
+ *    **形状判定只读结构读数，不读 `sqlite_master.sql` 的 DDL 文本**：列序来自 `PRAGMA
+ *    table_info`，索引名/唯一性来自 `PRAGMA index_list`，索引键列序来自 `PRAGMA
+ *    index_info`，外键来自 `PRAGMA foreign_key_list`。SQLite 存进 `sqlite_master.sql`
+ *    的文本会去掉 `IF NOT EXISTS`（批次 30 设备实测），拿它做文本比较必然假红；
  * 2. **旧行一行不动**：v69 的资产/题/修订/修订附图/会话/消息/消息附图原样读回；
  * 3. **新表为空**——迁移不回填历史程序/快照（"无快照可考"如实呈现，不编造）；
  * 4. **外键负向**：缺父行写不进、被引用的父行删不掉（RESTRICT）、消息删了 link 级联走；
  * 5. 再开一次（迁移已是 no-op）形态与行不变——迁移幂等。
  *
+ * 版本边界：本用例从导出的 v69 库打开到 `STUDY_DATABASE_VERSION`（当前 70）。schema 71
+ * 落地后这条路径会连跑 70→71；若 70→71 改动快照身份/唯一键（同批任务 6），索引期望必须
+ * 由那一轨按新契约更新，**不得在这里放宽断言**来迁就。
+ *
  * 另有一条 DAO 用例钉"只有 LIVE 快照可被消息引用"的 **SQL 级结构门**与指针 CAS 的
  * "命中行数判赢"（`TutorVisualDao` KDoc 的三条门）。
+ *
+ * **断言与迁移常量的同源关系**：索引名、键列序、唯一性不是另抄一份期望就完事——
+ * `indexExpectationsStayInSyncWithTheMigrationDdlConstants` 把期望集合与
+ * `TUTOR_VISUAL_*_DDL_69_70` 常量（`VISUAL_SNAPSHOT_MIGRATION_69_70` 真正执行的 15 条
+ * 语句）双向对齐：迁移改了索引而期望没跟、或期望多写/少写一条，这条先红。表列序的权威
+ * 侧是实体 `@Entity` 声明，由 JVM 的 `TutorVisualSchemaContractTest` 与导出的 `70.json`
+ * 逐字比对钉住，本用例只负责真库读数与之同形。
+ *
+ * **断言自身可失败（负控）**：`indexShapeAssertionsCanFailOnWrongColumnOrderAndNonUniqueIndex`
+ * 在临时库里造"列序错位 / 非唯一 / 不存在"三种索引，断言同一组读取器与判定对它们给假；
+ * 若判定退化成恒真，这条负控先红。这里**不提交一条故意写错的红色用例**：那会让套件
+ * 永久红，且无法区分"断言确实能红"与"产品坏了"两种红，故以通过的负控表达同一事实。
  */
 @RunWith(AndroidJUnit4::class)
 class TutorVisualSnapshotMigration_69_70InstrumentedTest {
@@ -51,13 +71,17 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
             )
             migrated.close()
 
-            inspectV70Shape(context, databaseName)
+            // 执行顺序 = 证据优先级：先数据保全、再外键行为、最后形状。批次 30 的红发生在
+            // 形状断言，结果外键负向与旧行保持一条都没跑到——现在行为证据先落袋。
+            inspectV70DataPreservation(context, databaseName)
             assertV70ForeignKeyBehaviour(context, databaseName)
+            inspectV70Shape(context, databaseName)
 
             // 幂等：同一库再开一次（迁移已是 no-op）不得改变形态、旧行或新表的空态。
             val reopened = StudyDatabaseFactory.open(context, databaseName)
             assertEquals(STUDY_DATABASE_VERSION, reopened.readDatabaseVersion())
             reopened.close()
+            inspectV70DataPreservation(context, databaseName)
             inspectV70Shape(context, databaseName)
         } finally {
             context.deleteDatabase(databaseName)
@@ -190,39 +214,160 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
         }
     }
 
+    /**
+     * **断言与迁移常量的同源关系（可执行版）**。形状用例读的是真库的 `PRAGMA` 结构读数，
+     * 但"应该长什么样"不是凭记忆抄的：索引名、键列序、唯一性必须与迁移真正执行的
+     * [MIGRATION_INDEX_DDL] 双向对齐。迁移改了索引而这里没跟 → 先红；这里多写/少写一条
+     * 索引 → 也红（两个方向都关死）。
+     *
+     * 只解析迁移常量（源码里的 DDL 字符串是 `VISUAL_SNAPSHOT_MIGRATION_69_70` 直接执行的
+     * 对象），**不解析 `sqlite_master.sql`**——那是数据库运行后的归一化副本，正是批次 30
+     * 假红的来源。
+     */
+    @Test
+    fun indexExpectationsStayInSyncWithTheMigrationDdlConstants() {
+        assertEquals("迁移恰好执行 11 条索引 DDL", 11, MIGRATION_INDEX_DDL.size)
+        assertEquals(
+            "声明的索引名集合与迁移常量逐名一致（少一条/多一条都红）",
+            MIGRATION_INDEX_DDL.map { indexNameInDdl(it) }.toSet(),
+            VISUAL_INDEX_KEYS.values.flatMap { it.keys }.toSet(),
+        )
+        MIGRATION_INDEX_DDL.forEach { ddl ->
+            val indexName = indexNameInDdl(ddl)
+            val table = tableNameInDdl(ddl)
+            val expectedColumns = VISUAL_INDEX_KEYS.getValue(table).getValue(indexName)
+            assertEquals(
+                "索引 $indexName 的期望键列序必须与迁移 DDL 的列元组逐位一致；DDL=$ddl",
+                expectedColumns,
+                columnsInDdl(ddl),
+            )
+            assertEquals(
+                "索引 $indexName 的唯一性必须与 DDL 的 UNIQUE 关键字一致；DDL=$ddl",
+                ddl.startsWith("CREATE UNIQUE INDEX IF NOT EXISTS "),
+                indexName in UNIQUE_INDICES,
+            )
+        }
+    }
+
+    /**
+     * **断言自身可失败（负控）**。在临时库里造三种"看起来像、其实不是"的索引，用与
+     * [inspectV70Shape] 完全相同的读取器与判定比较：
+     *
+     * - 列序错位（`state_sha256, program_id`）必须判不等；
+     * - 非唯一索引不得冒充唯一；
+     * - 不存在的索引读出来是空列，必须判不等；
+     * - 索引集合多一条/少一条都必须判不等。
+     *
+     * 若任一判定退化成恒真，这条负控先红。**故意写错列序的红色用例没有提交**：套件会因此
+     * 永久红，且分不清"断言确实能红"与"产品坏了"，所以用这条通过的负控表达同一事实。
+     */
+    @Test
+    fun indexShapeAssertionsCanFailOnWrongColumnOrderAndNonUniqueIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "batch31-visual-index-negative-control-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            connection.execSQL(
+                "CREATE TABLE `shape_probe` (" +
+                    "`program_id` TEXT NOT NULL, `state_sha256` TEXT NOT NULL, " +
+                    "`draw_commands_sha256` TEXT NOT NULL)",
+            )
+            connection.execSQL(
+                "CREATE UNIQUE INDEX `shape_probe_matching` ON `shape_probe` " +
+                    "(`program_id`, `state_sha256`, `draw_commands_sha256`)",
+            )
+            connection.execSQL(
+                "CREATE UNIQUE INDEX `shape_probe_wrong_order` ON `shape_probe` " +
+                    "(`state_sha256`, `program_id`)",
+            )
+            connection.execSQL(
+                "CREATE INDEX `shape_probe_not_unique` ON `shape_probe` " +
+                    "(`program_id`, `state_sha256`, `draw_commands_sha256`)",
+            )
+
+            // 正例：同一组读取器/判定对"对的形状"必须给真（否则负控没有意义）。
+            assertEquals(CONTENT_INDEX_COLUMNS, indexKeyColumns(connection, "shape_probe_matching"))
+            assertTrue(indexIsUnique(connection, "shape_probe", "shape_probe_matching"))
+
+            // 负控 1：错列序必须判不等（列序是唯一键的匹配顺序，交换后语义不同）。
+            assertFalse(
+                "错列序不得被判绿；实际=" + indexKeyColumns(connection, "shape_probe_wrong_order"),
+                CONTENT_INDEX_COLUMNS == indexKeyColumns(connection, "shape_probe_wrong_order"),
+            )
+            // 负控 2：非唯一索引不得被判成 UNIQUE。
+            assertFalse(indexIsUnique(connection, "shape_probe", "shape_probe_not_unique"))
+            // 负控 3：不存在的索引读出来是空列，绝不能被当成"列都对"。
+            assertTrue(indexKeyColumns(connection, "shape_probe_missing").isEmpty())
+            assertFalse(
+                "缺失索引不得被判绿",
+                CONTENT_INDEX_COLUMNS == indexKeyColumns(connection, "shape_probe_missing"),
+            )
+            // 负控 4：索引集合逐个名字比，多一条也不算相等。
+            assertFalse(
+                "索引集合必须逐名判定；实际=" + indexNames(connection, "shape_probe"),
+                indexNames(connection, "shape_probe") ==
+                    setOf("shape_probe_matching", "shape_probe_wrong_order"),
+            )
+        } finally {
+            connection.close()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    // ---- 真库数据保全（排在最前：形状断言红了也不能掩盖“旧行还在吗”） ----
+
+    private fun inspectV70DataPreservation(context: Context, databaseName: String) {
+        val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
+        try {
+            assertOldV69RowsPreserved(connection)
+            VISUAL_COLUMNS.keys.forEach { table ->
+                assertEquals(
+                    "迁移不回填历史：$table 必须是空的",
+                    0L,
+                    tableRowCount(connection, table),
+                )
+            }
+        } finally {
+            connection.close()
+        }
+    }
+
     // ---- 真库形状 ----
 
     private fun inspectV70Shape(context: Context, databaseName: String) {
         val connection = AndroidSQLiteDriver().open(context.getDatabasePath(databaseName).absolutePath)
         try {
             val tables = tableNames(connection)
+
+            // 形状：表 + 列序（PRAGMA table_info，按实体声明顺序）。
             VISUAL_COLUMNS.forEach { (table, columns) ->
                 assertTrue("迁移必须把 $table 建出来", table in tables)
                 assertEquals("$table 列与实体声明逐位同形", columns, columnNames(connection, table))
             }
-            VISUAL_INDICES.forEach { (table, names) ->
-                assertEquals("$table 的索引一条不少", names, indexNames(connection, table))
+
+            // 索引：名字集合（PRAGMA index_list）、键列序（PRAGMA index_info）、唯一性
+            // （PRAGMA index_list 的 unique 列）。三者都是结构读数，不碰 sqlite_master.sql。
+            VISUAL_INDEX_KEYS.forEach { (table, expectedIndexKeys) ->
+                assertEquals(
+                    "$table 的索引一条不少、不多一条",
+                    expectedIndexKeys.keys,
+                    indexNames(connection, table),
+                )
+                expectedIndexKeys.forEach { (indexName, expectedColumns) ->
+                    assertEquals(
+                        "索引 $indexName 的键列序必须与实体声明逐位一致（index_info 的 seqno 顺序）",
+                        expectedColumns,
+                        indexKeyColumns(connection, indexName),
+                    )
+                    assertEquals(
+                        "索引 $indexName 的唯一性（UNIQUE 索引只该有一条：内容唯一键）",
+                        indexName in UNIQUE_INDICES,
+                        indexIsUnique(connection, table, indexName),
+                    )
+                }
             }
-            // SQLite 存进 sqlite_master 的 DDL 已去掉 `IF NOT EXISTS`（设备实测），所以
-            // 不能用 `substringBefore(" IF NOT EXISTS")` 当前缀比——那会把整条 DDL 留下，
-            // 与裸前缀 `CREATE UNIQUE INDEX` 必然不等（批次 30 设备红因）。
-            // 断言语义不放宽：索引必须存在、必须以 CREATE UNIQUE INDEX 开头、必须钉三列。
-            val snapshotContentIndexSql = indexSql(connection, SNAPSHOT_CONTENT_INDEX)
-            assertNotNull(
-                "(program_id, state_sha256, draw_commands_sha256) 的唯一索引必须存在",
-                snapshotContentIndexSql,
-            )
-            assertTrue(
-                "内容唯一索引必须是 UNIQUE（同内容只存一份）；实际 DDL=$snapshotContentIndexSql",
-                snapshotContentIndexSql!!.startsWith("CREATE UNIQUE INDEX"),
-            )
-            assertTrue(
-                "内容唯一索引必须钉 (program_id, state_sha256, draw_commands_sha256)；" +
-                    "实际 DDL=$snapshotContentIndexSql",
-                snapshotContentIndexSql.contains(
-                    "(`program_id`, `state_sha256`, `draw_commands_sha256`)",
-                ),
-            )
+
             assertEquals(
                 "program 无外键（basis_revision_id 是软引用）",
                 emptySet<Triple<String, String, String>>(),
@@ -254,51 +399,45 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
                 ),
                 foreignKeys(connection, REVISION_VISUAL_TABLE).toSet(),
             )
-
-            // 旧行一行不动。
-            val message = connection.prepare(
-                "SELECT `body_markdown` FROM `tutor_message` WHERE `message_id` = '$MESSAGE_ID'",
-            )
-            try {
-                assertTrue("旧消息行必须一行不丢", message.step())
-                assertEquals("旧消息正文原样", "v69 学生附图", message.getText(0))
-                assertFalse("旧行只有这一条", message.step())
-            } finally {
-                message.close()
-            }
-            val revision = connection.prepare(
-                "SELECT `title`, `problem_markdown` FROM `problem_revision` " +
-                    "WHERE `revision_id` = '$REVISION_ID'",
-            )
-            try {
-                assertTrue("旧题面修订行必须一行不丢", revision.step())
-                assertEquals("v69 题面", revision.getText(0))
-                assertEquals("题面正文", revision.getText(1))
-                assertFalse("旧行只有这一条", revision.step())
-            } finally {
-                revision.close()
-            }
-            val asset = connection.prepare(
-                "SELECT `content_sha256` FROM `canonical_source_asset` " +
-                    "WHERE `source_asset_id` = '$ASSET_ID'",
-            )
-            try {
-                assertTrue("旧资产行必须一行不丢", asset.step())
-                assertEquals("a".repeat(64), asset.getText(0))
-                assertFalse("旧行只有这一条", asset.step())
-            } finally {
-                asset.close()
-            }
-
-            VISUAL_COLUMNS.keys.forEach { table ->
-                assertEquals(
-                    "迁移不回填历史：$table 必须是空的",
-                    0L,
-                    tableRowCount(connection, table),
-                )
-            }
         } finally {
             connection.close()
+        }
+    }
+
+    /** 旧行一行不动：v69 的资产/题面修订/消息原样读回（多一行少一行都红）。 */
+    private fun assertOldV69RowsPreserved(connection: SQLiteConnection) {
+        val message = connection.prepare(
+            "SELECT `body_markdown` FROM `tutor_message` WHERE `message_id` = '$MESSAGE_ID'",
+        )
+        try {
+            assertTrue("旧消息行必须一行不丢", message.step())
+            assertEquals("旧消息正文原样", "v69 学生附图", message.getText(0))
+            assertFalse("旧行只有这一条", message.step())
+        } finally {
+            message.close()
+        }
+        val revision = connection.prepare(
+            "SELECT `title`, `problem_markdown` FROM `problem_revision` " +
+                "WHERE `revision_id` = '$REVISION_ID'",
+        )
+        try {
+            assertTrue("旧题面修订行必须一行不丢", revision.step())
+            assertEquals("v69 题面", revision.getText(0))
+            assertEquals("题面正文", revision.getText(1))
+            assertFalse("旧行只有这一条", revision.step())
+        } finally {
+            revision.close()
+        }
+        val asset = connection.prepare(
+            "SELECT `content_sha256` FROM `canonical_source_asset` " +
+                "WHERE `source_asset_id` = '$ASSET_ID'",
+        )
+        try {
+            assertTrue("旧资产行必须一行不丢", asset.step())
+            assertEquals("a".repeat(64), asset.getText(0))
+            assertFalse("旧行只有这一条", asset.step())
+        } finally {
+            asset.close()
         }
     }
 
@@ -721,15 +860,13 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
         }
     }
 
+    /** 表上的显式索引名（`PRAGMA index_list`；排除主键/唯一约束自建的 `sqlite_autoindex_*`）。 */
     private fun indexNames(connection: SQLiteConnection, table: String): Set<String> {
-        val statement = connection.prepare(
-            "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = ?",
-        )
+        val statement = connection.prepare("PRAGMA index_list(`$table`)")
         try {
-            statement.bindText(1, table)
             val names = mutableSetOf<String>()
             while (statement.step()) {
-                val name = statement.getText(0)!!
+                val name = statement.getText(1)!!
                 if (!name.startsWith("sqlite_autoindex")) names += name
             }
             return names
@@ -738,17 +875,45 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
         }
     }
 
-    private fun indexSql(connection: SQLiteConnection, indexName: String): String? {
-        val statement = connection.prepare(
-            "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = ?",
-        )
+    /** 索引的键列（`PRAGMA index_info` 的 seqno 顺序）；索引不存在时为空列表。 */
+    private fun indexKeyColumns(connection: SQLiteConnection, indexName: String): List<String> {
+        val statement = connection.prepare("PRAGMA index_info(`$indexName`)")
         try {
-            statement.bindText(1, indexName)
-            return if (statement.step()) statement.getText(0) else null
+            val columns = mutableListOf<String>()
+            while (statement.step()) columns += statement.getText(2)!!
+            return columns
         } finally {
             statement.close()
         }
     }
+
+    /** 索引是否 UNIQUE（`PRAGMA index_list` 的 unique 列）；索引不存在时 false。 */
+    private fun indexIsUnique(
+        connection: SQLiteConnection,
+        table: String,
+        indexName: String,
+    ): Boolean {
+        val statement = connection.prepare("PRAGMA index_list(`$table`)")
+        try {
+            while (statement.step()) {
+                if (statement.getText(1) == indexName) return statement.getLong(2) == 1L
+            }
+            return false
+        } finally {
+            statement.close()
+        }
+    }
+
+    // ---- 迁移常量解析（同源核对；只解析源码常量，不解析 sqlite_master） ----
+
+    private fun indexNameInDdl(ddl: String): String =
+        ddl.substringAfter("INDEX IF NOT EXISTS `").substringBefore('`')
+
+    private fun tableNameInDdl(ddl: String): String =
+        ddl.substringAfter(" ON `").substringBefore('`')
+
+    private fun columnsInDdl(ddl: String): List<String> =
+        ddl.substringAfterLast('(').removeSuffix(")").split(", ").map { it.trim('`') }
 
     private fun foreignKeys(
         connection: SQLiteConnection,
@@ -825,26 +990,58 @@ class TutorVisualSnapshotMigration_69_70InstrumentedTest {
             ),
         )
 
-        val VISUAL_INDICES = linkedMapOf(
-            PROGRAM_TABLE to setOf(
-                "index_tutor_visual_program_learner_id_created_at_epoch_millis",
-                "index_tutor_visual_program_basis_revision_id",
-                "index_tutor_visual_program_source_sha256",
+        /** 内容唯一键的三列（唯一键的匹配顺序，不可交换）。 */
+        val CONTENT_INDEX_COLUMNS = listOf("program_id", "state_sha256", "draw_commands_sha256")
+
+        /** 11 条索引里唯一带 UNIQUE 的一条：同 program 同内容只存一份。 */
+        val UNIQUE_INDICES = setOf(SNAPSHOT_CONTENT_INDEX)
+
+        /**
+         * 每条索引的期望键列序（= 实体 `@Index` 声明顺序 = 迁移 DDL 的列元组顺序）。
+         * 与 [MIGRATION_INDEX_DDL] 由 `indexExpectationsStayInSyncWithTheMigrationDdlConstants`
+         * 双向对齐：这里是"期望"，那里是迁移真正执行的语句。
+         */
+        val VISUAL_INDEX_KEYS = linkedMapOf(
+            PROGRAM_TABLE to linkedMapOf(
+                "index_tutor_visual_program_learner_id_created_at_epoch_millis" to
+                    listOf("learner_id", "created_at_epoch_millis"),
+                "index_tutor_visual_program_basis_revision_id" to listOf("basis_revision_id"),
+                "index_tutor_visual_program_source_sha256" to listOf("source_sha256"),
             ),
-            SNAPSHOT_TABLE to setOf(
-                SNAPSHOT_CONTENT_INDEX,
-                "index_tutor_visual_snapshot_program_id_promoted_at_epoch_millis",
-                "index_tutor_visual_snapshot_preview_asset_id",
-                "index_tutor_visual_snapshot_status_created_at_epoch_millis",
+            SNAPSHOT_TABLE to linkedMapOf(
+                SNAPSHOT_CONTENT_INDEX to CONTENT_INDEX_COLUMNS,
+                "index_tutor_visual_snapshot_program_id_promoted_at_epoch_millis" to
+                    listOf("program_id", "promoted_at_epoch_millis"),
+                "index_tutor_visual_snapshot_preview_asset_id" to listOf("preview_asset_id"),
+                "index_tutor_visual_snapshot_status_created_at_epoch_millis" to
+                    listOf("status", "created_at_epoch_millis"),
             ),
-            MESSAGE_VISUAL_TABLE to setOf(
-                "index_tutor_message_visual_program_id",
-                "index_tutor_message_visual_current_snapshot_id",
+            MESSAGE_VISUAL_TABLE to linkedMapOf(
+                "index_tutor_message_visual_program_id" to listOf("program_id"),
+                "index_tutor_message_visual_current_snapshot_id" to listOf("current_snapshot_id"),
             ),
-            REVISION_VISUAL_TABLE to setOf(
-                "index_problem_revision_visual_program_id",
-                "index_problem_revision_visual_snapshot_id",
+            REVISION_VISUAL_TABLE to linkedMapOf(
+                "index_problem_revision_visual_program_id" to listOf("program_id"),
+                "index_problem_revision_visual_snapshot_id" to listOf("snapshot_id"),
             ),
+        )
+
+        /**
+         * 迁移真正执行的 11 条索引 DDL（`VISUAL_SNAPSHOT_MIGRATION_69_70` 里的原文引用）。
+         * 期望值同源核对的另一侧就是它——不是手抄的索引清单。
+         */
+        val MIGRATION_INDEX_DDL = listOf(
+            TUTOR_VISUAL_PROGRAM_INDEX_LEARNER_DDL_69_70,
+            TUTOR_VISUAL_PROGRAM_INDEX_BASIS_DDL_69_70,
+            TUTOR_VISUAL_PROGRAM_INDEX_SOURCE_DDL_69_70,
+            TUTOR_VISUAL_SNAPSHOT_INDEX_CONTENT_DDL_69_70,
+            TUTOR_VISUAL_SNAPSHOT_INDEX_LATEST_DDL_69_70,
+            TUTOR_VISUAL_SNAPSHOT_INDEX_PREVIEW_DDL_69_70,
+            TUTOR_VISUAL_SNAPSHOT_INDEX_STATUS_DDL_69_70,
+            TUTOR_MESSAGE_VISUAL_INDEX_PROGRAM_DDL_69_70,
+            TUTOR_MESSAGE_VISUAL_INDEX_SNAPSHOT_DDL_69_70,
+            PROBLEM_REVISION_VISUAL_INDEX_PROGRAM_DDL_69_70,
+            PROBLEM_REVISION_VISUAL_INDEX_SNAPSHOT_DDL_69_70,
         )
     }
 }
