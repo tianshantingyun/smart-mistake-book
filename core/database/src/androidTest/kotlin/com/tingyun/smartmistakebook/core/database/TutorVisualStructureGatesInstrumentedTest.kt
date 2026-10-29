@@ -6,6 +6,9 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualCommitRepository
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualProgramInput
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualSnapshotInput
 import com.tingyun.smartmistakebook.core.database.dao.TutorVisualDao
 import com.tingyun.smartmistakebook.core.database.dao.TutorVisualSnapshotStatus
 import kotlinx.coroutines.runBlocking
@@ -32,10 +35,20 @@ import org.junit.runner.RunWith
  * 4. **checkpoint 的 demote/evict 只在策略层正确、SQL 层没有 status 谓词**：改前 LIVE 的
  *    未固定行会被当缓存删掉。本文件在真库上钉住"只删 STAGING、INITIAL 与 LIVE 一行不动"，
  *    并验证提交事务真的执行了 demote/evict（改前 S3→S4 路径上这两条 SQL 根本不发生）。
+ * 5. **仓储 plan→command 的 pin 分辨力**（批次 32）：直接调 DAO 的用例绕过了仓储层；
+ *    `repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned` 用真 Room 走完整链路，
+ *    让两条候选行除 pin 外形状完全相同——没有 pin 谓词时两条都会被删。
+ * 6. **淘汰 SQL 的 STAGING 租约**（批次 32）：仓库用例覆盖"过租约才删 / 未过租约保留"，
+ *    直接 DAO 用例覆盖 owner/created_at 谓词不破坏 pin/kind/status 的既有语义。
  *
  * 本轨按批次纪律**不运行 Gradle**；门禁脚本串行执行
  * `assembleDebugAndroidTest` + `adb install -r -t` + `am instrument`（不用 connectedAndroidTest）。
- * 因此本文件在提交时是**未执行**状态：判据已写清，绿轮由设备轨产生。
+ * 批次 32 E-07 已在设备上实跑本套件：**5 例、4 绿 1 红**，红例是
+ * `evictionDeletesOnlyUnpinnedStagingIntermediates` 在 `:221` 读取一条已在 `:205` 断言删除的行
+ * （用例自身矛盾，`docs/research/evidence/2026-10-29-batch-32/step13-red-attribution.md`）。
+ * 复核修复轮把读侧断言改读一条**未列入淘汰候选**的 STAGING 行（`snap-staging-keeper`），
+ * 保留"无引用 = pinned 0"的原意、不放宽任何断言；修复后的绿轮仍需设备轨重跑，重跑前本套件
+ * 不得写成 5/5。
  */
 @RunWith(AndroidJUnit4::class)
 class TutorVisualStructureGatesInstrumentedTest {
@@ -168,6 +181,10 @@ class TutorVisualStructureGatesInstrumentedTest {
             // 同理，link 的 NOT EXISTS 也需要一条"仅靠消息指针保住"的 STAGING 行。
             rawSnapshot(context, databaseName, "snap-linked-staging", P1, "STAGING", "f", kind = null)
             rawMessageLink(context, databaseName, MESSAGE_ID, "snap-linked-staging")
+            // 读侧"无引用 = pinned 0"必须读一条**仍存在**的行：被淘汰的行已在上面的
+            // assertNull 中证明删除，checkpointSummaries 不会再返回它（E-13 的 A 类红因）。
+            // 本行不在 evict 候选集里，既保留 STAGING 形状，也不会被本用例的 DELETE 碰掉。
+            rawSnapshot(context, databaseName, "snap-staging-keeper", P1, "STAGING", "h", kind = null)
 
             assertEquals(
                 "旧 LATEST 降级命中 1 行",
@@ -187,6 +204,10 @@ class TutorVisualStructureGatesInstrumentedTest {
                 ),
                 latestKind = "LATEST",
                 stagingStatus = TutorVisualSnapshotStatus.STAGING,
+                // 本用例的焦点是 pin/kind/status；所有种子行的 owner 都是同一个，传同一 owner
+                // 让租约条件不参与判定（租约本身的负向由 repositoryPlanRetains... 用例覆盖）。
+                committingOwnerRequestId = "owner-batch31",
+                leaseExpiredBeforeEpochMillis = Long.MIN_VALUE,
             )
 
             assertEquals("只有未固定、非 INITIAL、STAGING 的中间态被删", 1, deleted)
@@ -206,7 +227,7 @@ class TutorVisualStructureGatesInstrumentedTest {
             val summaries = dao.checkpointSummaries(P1).associateBy { it.snapshotId }
             assertEquals("pinned 读侧：题面引用 = 1", 1, summaries.getValue("snap-pinned-staging").pinned)
             assertEquals("pinned 读侧：消息引用 = 1", 1, summaries.getValue("snap-linked-staging").pinned)
-            assertEquals("pinned 读侧：无引用 = 0", 0, summaries.getValue("snap-staging-middle").pinned)
+            assertEquals("pinned 读侧：无引用 = 0", 0, summaries.getValue("snap-staging-keeper").pinned)
         }
     }
 
@@ -230,6 +251,9 @@ class TutorVisualStructureGatesInstrumentedTest {
                     demoteCheckpointSnapshotIds = listOf("snap-old-latest"),
                     // 故意把 LIVE 行也列进候选：SQL 层的 status 谓词必须拒删它。
                     evictCheckpointSnapshotIds = listOf("snap-old-staging", "snap-old-live"),
+                    // 种子行 created_at = NOW，committing owner 不同；截止取 NOW 让租约过期，
+                    // 这样本用例验证的仍是 kind/status 谓词（租约负向见专用用例）。
+                    stagingLeaseExpiredBeforeEpochMillis = NOW,
                 ),
             )
 
@@ -237,6 +261,56 @@ class TutorVisualStructureGatesInstrumentedTest {
             assertNull("旧 LATEST 在提交事务里被降级", dao.findSnapshot("snap-old-latest")?.checkpointKind)
             assertNull("STAGING 中间态在提交事务里被回收", dao.findSnapshot("snap-old-staging"))
             assertNotNull("LIVE 行即使出现在候选集里也不得被删", dao.findSnapshot("snap-old-live"))
+        }
+    }
+
+    /**
+     * **仓库 plan → command → SQL 三层同一次提交**：只因为题面 pin 才留下的 STAGING 行。
+     *
+     * 改前会怎么坏：`evictionDeletesOnlyUnpinnedStagingIntermediates` 直接调 DAO，绕过了
+     * 仓储层；而仓储层的 `planCheckpoint` 若漏掉 `pinned`（或把 pinned 的 STAGING 当可淘汰），
+     * 这条行会被放进 command 的淘汰集，SQL 再正确地"只删 STAGING"——于是**被题面固定的
+     * 未提交图仍然消失**。本用例用真 Room + 真 SQL 走完整链路，并让两条候选行形状完全相同
+     * （STAGING + LATEST + 别人 owner + 租约已过期），唯一差别是 pin：
+     * - 被 pin 的行留在库里（plan 层把它排除出 evict，SQL 的 pin 谓词是第二道）；
+     * - 未被引用的行按候选被删除。
+     * 没有 pin 谓词时两条都会被删，断言立刻红——这就是"仅因 pinned 才保留"的分辨力。
+     */
+    @Test
+    fun repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned() = runBlocking {
+        withDatabase { context, store, dao, databaseName ->
+            seedPrograms(context, databaseName)
+            seedMessage(context, databaseName)
+            // 两条候选的形状相同：STAGING + LATEST + 同一个（非本次提交的）owner + created_at=NOW。
+            rawSnapshot(context, databaseName, "snap-pinned-staging", P1, "STAGING", "e", kind = "LATEST")
+            rawSnapshot(context, databaseName, "snap-abandoned-staging", P1, "STAGING", "g", kind = "LATEST")
+            rawRevisionPin(context, databaseName, "snap-pinned-staging")
+
+            val leaseMillis = 60L * 60L * 1_000L
+            val repository = TutorVisualCommitRepository(
+                database = store,
+                // 租约截止 = (NOW + lease + 1) - lease = NOW + 1 ⇒ 两条种子行的租约都已过期，
+                // 因而唯一能把 pinned 行留下来的原因就是 pin 本身。
+                clock = { NOW + leaseMillis + 1L },
+                stagingLeaseMillis = leaseMillis,
+            )
+            val committed = repository.commitAssistantTurnWithVisual(
+                // MESSAGE_ID 已被 seedMessage 占用；本次提交用另一条消息（会话外键仍存在）。
+                message = assistantCommand(messageId = "message-repository-plan"),
+                program = programInput(),
+                snapshot = snapshotInput("f"),
+                ownerRequestId = "owner-repository-plan",
+            )
+
+            assertEquals(TutorVisualStatus.LIVE, committed.snapshot.status)
+            assertNotNull(
+                "仅因题面 pinned 才保留的 STAGING 行必须仍在（plan 层排除 + SQL 层 pin 谓词）",
+                dao.findSnapshot("snap-pinned-staging"),
+            )
+            assertNull(
+                "同形状但未被引用的 STAGING 行必须被淘汰（证明 pin 谓词不是恒真）",
+                dao.findSnapshot("snap-abandoned-staging"),
+            )
         }
     }
 
@@ -413,6 +487,38 @@ class TutorVisualStructureGatesInstrumentedTest {
             NULL, '$basis', NULL, $NOW)
     """.trimIndent()
 
+    /** 与 [programInsertSql]/[programWrite] 同一份内容的仓储输入（身份派生源相同）。 */
+    private fun programInput() = TutorVisualProgramInput(
+        learnerId = LEARNER_ID,
+        role = "QUESTION_DIAGRAM",
+        sourceJs = P1_SOURCE_JS,
+        initialStateJson = "{}",
+        basisFingerprint = P1_BASIS,
+        apiVersion = 1,
+        sdkVersion = "visual-sdk-v1",
+    )
+
+    /** 与 [snapshotWrite] 同一份内容的仓储输入；`drawTag` 不同 = 内容不同 = 另一张快照。 */
+    private fun snapshotInput(drawTag: String) = TutorVisualSnapshotInput(
+        stateJson = "{}",
+        sceneSchemaVersion = 1,
+        sceneJson = """{"scene":true}""",
+        renderSchemaVersion = 1,
+        drawCommandsJson = """{"ops":["$drawTag"]}""",
+        contentIds = emptySet(),
+        viewportWidthDu = 360,
+        viewportHeightDu = 640,
+        fontScaleMilli = 1_000,
+        theme = "LIGHT",
+        timeMs = 0,
+        seed = 0,
+        runtimeVersion = "quickjs-test",
+        compilerVersion = "visual-compiler-v1",
+        rendererVersion = "visual-renderer-v1",
+        fontManifestVersion = "font-manifest-v1",
+        questionVerificationStatus = "NOT_CHECKED",
+    )
+
     private fun programWrite() = TutorVisualProgramWrite(
         programId = TutorVisualIdentity.deriveProgramId(
             sourceJs = P1_SOURCE_JS,
@@ -448,7 +554,13 @@ class TutorVisualStructureGatesInstrumentedTest {
         val stateSha256 = TutorVisualIdentity.sha256Hex("{}")
         val drawCommandsSha256 = TutorVisualIdentity.sha256Hex("""{"ops":["$drawTag"]}""")
         return TutorVisualSnapshotWrite(
-            snapshotId = TutorVisualIdentity.deriveSnapshotId(programId, stateSha256, drawCommandsSha256),
+            snapshotId = TutorVisualIdentity.deriveSnapshotId(
+                programId,
+                stateSha256,
+                drawCommandsSha256,
+                rendererVersion = "visual-renderer-v1",
+                fontManifestVersion = "font-manifest-v1",
+            ),
             programId = programId,
             stateJson = "{}",
             stateSha256 = stateSha256,

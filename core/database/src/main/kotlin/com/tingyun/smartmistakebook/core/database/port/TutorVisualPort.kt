@@ -28,6 +28,12 @@ interface TutorVisualPort {
      * 失败语义：同 programId 不同载荷 → `ImmutablePayloadConflictException`；
      * 同内容快照已 LIVE → 直接复用（返回 LIVE 行）；同内容快照仍是 STAGING → 按
      * `owner_request_id` 做 CAS 转租约，命中 0 行即冲突。
+     *
+     * **事务内预算重判**（批次 32）：新写入/提升的 STAGING 行落库后，用事务内字节总量重判
+     * per-program / global 两条预算；超限抛 `TutorVisualCheckpointBudgetExceededException`
+     * 并回滚（既有 LIVE 的幂等回放不重判）。重判前先执行命令携带的淘汰集（与 `plan` 的
+     * "淘汰后净值"同口径；stage 不 demote），超限方向遵循契约 §8.1：先回收可回收中间态，
+     * 回收后仍超才拒绝。
      */
     suspend fun stageTutorVisualSnapshot(
         command: StageTutorVisualSnapshotCommand,
@@ -38,9 +44,13 @@ interface TutorVisualPort {
 
     /**
      * S4：**一个事务**内完成 program/snapshot 落库（或复用）、assistant 消息正文/trace、
-     * `STAGING → LIVE` 与 link 插入。任一步抛错 → 整体回滚。
+     * `STAGING → LIVE` 与 link 插入。任一步抛错 → 整个事务回滚。
      *
-     * 重复提交（同 content、同 message/ordinal）是幂等读回；同 `(message_id, ordinal)`
+     * **预算在事务内重判**（批次 32）：demote/evict 执行后，用事务内刚写入的字节总量重读
+     * per-program / global 两条预算；超限抛 `TutorVisualCheckpointBudgetExceededException`，
+     * 事务整体回滚。这是"两次并发提交各自读到旧总量后都写入"的结构性终结。
+     *
+     * 重复提交（同内容同版本、同 message/ordinal）是幂等读回；同 `(message_id, ordinal)`
      * 指向另一张快照 → `ImmutablePayloadConflictException`（换图只能走指针 CAS）。
      */
     suspend fun commitTutorTurnWithVisual(

@@ -25,8 +25,14 @@ import org.junit.runner.RunWith
  * 4. **取消/对账**：S3 之后被取消的 STAGING 快照只由对账删除，LIVE 与被引用行一律不动；
  * 5. **同 (message, ordinal) 指向另一张快照**不是"重复提交"而是冲突，不许静默换图。
  *
- * 说明：本轨按批次纪律**不运行 Gradle**，因此本文件在提交时是**未执行**状态；门禁脚本
- * 串行执行 `./gradlew :core:database:connectedDebugAndroidTest`（或定向 `-Pandroid.testInstrumentationRunnerArguments.class=…`）。
+ * 说明：本轨按批次纪律**不运行 Gradle**；设备侧只用 `assembleDebugAndroidTest` + `adb install -r -t`
+ * + `am instrument`（**禁用 `connectedAndroidTest`**）。批次 31 E-09 已在该套件上实跑 **9 例**
+ * （`docs/research/evidence/2026-10-29-batch-31/step09-persistence-structure.md:10/:74`）；批次 31 之后
+ * 新增的第 10 例（`snapshotDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite`）与批次 32
+ * 新增的第 11 例（`drawCommandsDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite`；
+ * 现树测试方法计数 11）已由批次 32 E-08 在设备上同轮执行：**`OK (11 tests)`**
+ * （`build/device-track-batch32/step06-visual-commit.log`）。不得用批次 31 的 9 例绿替代本批
+ * 11 例的结论——两者是不同源码轮的读数。
  */
 @RunWith(AndroidJUnit4::class)
 class TutorVisualCommitInstrumentedTest {
@@ -136,6 +142,8 @@ class TutorVisualCommitInstrumentedTest {
                     programId = PROGRAM_ID,
                     stateSha256 = declaredStateSha256,
                     drawCommandsSha256 = declaredDrawCommandsSha256,
+                    rendererVersion = "visual-renderer-v1",
+                    fontManifestVersion = "font-manifest-v1",
                 ),
             )
 
@@ -151,6 +159,48 @@ class TutorVisualCommitInstrumentedTest {
 
             assertTrue(
                 "digest 必须与持久化 JSON 一致；只有 id 自洽不够：${failure.exceptionOrNull()}",
+                failure.exceptionOrNull() is IllegalArgumentException,
+            )
+            assertEquals(
+                "内容/digest 门在任何写入之前：不许留下 snapshot 行",
+                0,
+                dao.countSnapshots(PROGRAM_ID),
+            )
+        }
+    }
+
+    @Test
+    fun drawCommandsDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite() = runBlocking {
+        withDatabase { store, dao ->
+            store.createTutorConversation(conversationCommand())
+            // 与 state 轴对称：id 用"声明的 draw digest"派生因而自洽，但 drawCommandsSha256
+            // 与 drawCommandsJson 内容不符。只校验 state 的实现会放行这一行，随后同一段
+            // DrawOps 配不同 digest 会被唯一键当成不同内容，重放/幂等同时失效。
+            val declaredDrawCommandsSha256 = "f".repeat(64)
+            val realStateSha256 = TutorVisualIdentity.sha256Hex(snapshotWrite().stateJson)
+            val forged = snapshotWrite().copy(
+                drawCommandsSha256 = declaredDrawCommandsSha256,
+                snapshotId = TutorVisualIdentity.deriveSnapshotId(
+                    programId = PROGRAM_ID,
+                    stateSha256 = realStateSha256,
+                    drawCommandsSha256 = declaredDrawCommandsSha256,
+                    rendererVersion = "visual-renderer-v1",
+                    fontManifestVersion = "font-manifest-v1",
+                ),
+            )
+
+            val failure = runCatching {
+                store.stageTutorVisualSnapshot(
+                    StageTutorVisualSnapshotCommand(
+                        program = programWrite(),
+                        snapshot = forged,
+                        ownerRequestId = OWNER_ONE,
+                    ),
+                )
+            }
+
+            assertTrue(
+                "draw digest 必须与持久化 DrawOps 一致；只有 id 自洽不够：${failure.exceptionOrNull()}",
                 failure.exceptionOrNull() is IllegalArgumentException,
             )
             assertEquals(
@@ -551,6 +601,8 @@ class TutorVisualCommitInstrumentedTest {
                 programId = PROGRAM_ID,
                 stateSha256 = stateSha256,
                 drawCommandsSha256 = drawCommandsSha256,
+                rendererVersion = "visual-renderer-v1",
+                fontManifestVersion = "font-manifest-v1",
             ),
             programId = PROGRAM_ID,
             stateJson = stateJson,
