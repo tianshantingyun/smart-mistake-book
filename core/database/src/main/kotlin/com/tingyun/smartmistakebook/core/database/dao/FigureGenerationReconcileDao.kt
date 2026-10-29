@@ -112,10 +112,16 @@ internal abstract class FigureGenerationReconcileDao {
     /**
      * 终态 SUCCEEDED、但入口从未回填产物（`output_asset_id IS NULL`）的尝试。
      *
-     * **本地方法（`method = 'JS'`）不在候选内**：JS 的产物是 `FigureArtifact.Program`
-     * （内存里的画布指令），没有、也不该有 `canonical_source_asset` 行可回填；把它当
-     * "假成功"会在每次进程启动时把一条真实的 JS 成功改写成 FAILED 待核实（反向虚报）。
-     * 只有"成功必须落到资产表"的方法（当前即 IMAGE_MODEL）才适用本段对账。
+     * **本地方法（`method = 'JS'`）的真实成功不在候选内**：JS 的产物是
+     * `FigureArtifact.Program`（内存里的画布指令），没有、也不该有 `canonical_source_asset`
+     * 行可回填；把它当"假成功"会在每次进程启动时把一条真实的 JS 成功改写成 FAILED 待核实
+     * （反向虚报）。只有"成功必须落到资产表"的方法（当前即 IMAGE_MODEL）才适用本段对账。
+     *
+     * **判据不可伪造**（批次 35 修复环收紧）："本地 JS 成功"必须同时满足
+     * `method = 'JS' AND reservation_id IS NULL`——这正是 `insertLocalAttempt` 写出的唯一形状
+     * （`reservationId` 恒 null）。裸 `method = 'JS'` 会把一条"JS 名义但带账本预留"的行
+     * （生产写径不可达，只可能出自上游回归）永久排除在对账外，假成功无法被改判；带连词后
+     * 这种行仍是候选、会被落 FAILED 待核实，判据不依赖上游护栏自证。
      *
      * 结束时刻必须早于租约截止：本进程刚生成、入口还在落盘的行不能被同一轮对账误杀。
      */
@@ -125,7 +131,7 @@ internal abstract class FigureGenerationReconcileDao {
         FROM figure_generation_attempt
         WHERE status = 'SUCCEEDED'
           AND output_asset_id IS NULL
-          AND method <> 'JS'
+          AND NOT (method = 'JS' AND reservation_id IS NULL)
           AND ended_at_epoch_millis IS NOT NULL
           AND ended_at_epoch_millis <= :staleBeforeEpochMillis
         ORDER BY ended_at_epoch_millis ASC, attempt_id ASC
@@ -158,6 +164,10 @@ internal abstract class FigureGenerationReconcileDao {
      * 两个**不更新**条件：有任一确认成功（同一操作的另一次尝试已成功落盘，或本地 JS
      * 尝试已成功——它的产物是 program、按设计没有资产 id），或还有 RUNNING/PENDING
      * 尝试在途（重试可能马上回填产物，不能先把它判死；那次尝试自己的终态/僵尸对账会收尾）。
+     *
+     * "本地 JS 已确认成功"用与候选查询同一条**不可伪造判据**：
+     * `method = 'JS' AND reservation_id IS NULL`（`insertLocalAttempt` 的唯一形状）。
+     * 裸 `method = 'JS'` 会把"JS 名义但带账本预留"的行当本地成功，让操作级漏判。
      */
     @Query(
         """
@@ -170,7 +180,8 @@ internal abstract class FigureGenerationReconcileDao {
               SELECT 1 FROM figure_generation_attempt AS confirmed
               WHERE confirmed.operation_id = :operationId
                 AND confirmed.status = 'SUCCEEDED'
-                AND (confirmed.output_asset_id IS NOT NULL OR confirmed.method = 'JS')
+                AND (confirmed.output_asset_id IS NOT NULL
+                     OR (confirmed.method = 'JS' AND confirmed.reservation_id IS NULL))
           )
           AND NOT EXISTS (
               SELECT 1 FROM figure_generation_attempt AS in_flight
