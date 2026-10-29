@@ -3530,3 +3530,26 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **不做**：core/export 集成与 PDF `/AIGC`（KD-75）；JS 广告（MVA 未过）；真实 Provider（无凭据）；锁文件提交（KD-72）；AIDL 之外的接口变更。
 - **设备绿轮不等于现树绿**：设备构建后现树另有 7 个源文件改动（提交/仓库/结构门/parity 四套件覆盖其中），新增用例未上设备；`calibrated-r1` 绿轮 UNVERIFIED。
 - **KD 裁决**：KD-80 80-C1/C2 核销、C3 PARTIAL、C4 零断言 → 保持 open；KD-71/72/73/77 open。
+
+---
+
+## 批次 32 一致门标定纠正 + schema 71 生成回填 + 持久化原子性裁定（2026-10-29）
+
+> 依据：批次 32 计划 `.zcode/plans/plan-2026-10-29-batch-32-parity-schema71.md` §1–§3、R1 `docs/research/2026-10-29-parity-metric-correction.md` §0–§3、R2 `docs/research/2026-10-29-schema-generation-flow.md` §0–§3、T1 判据 `docs/research/2026-10-29-batch-32-device-criteria.md`、设备证据 `docs/research/evidence/2026-10-29-batch-32/`、批次记录 `docs/research/2026-10-29-batch-32-record.md`。**记录步零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **`centroidDeltaPx` 的定义纠正**：它是屏栅格与 PDF 栅格各自墨量加权质心的**跨栅格欧氏距离** `d(t)=‖v+t‖`，不是同侧平移量 `‖t‖`；旧"1 px 平移 = 1.000"期望作废。设备实测 P06 `1.2624767812258337`、P07 `0.608282132824767`（反解预测 `0.608282`）。**任何阈值都不可能在 P07 上同时接受正例并保证识别全部 1 px 位移**（`2‖v‖=1.036 > 1`），正确说法是"质心保证分辨力 > 2·max‖v‖ ≈ 1.04 px，1 px 交给别的出口"。
+- **判据形态 = `bestShift` 主 / `bboxDev` 辅 / 质心只作形状护栏**：阈值版本升 **`calibrated-r2`（数值一个不动：0.75 / [0.93,1.07] / bbox 1 / TV 0.08）**，因为断言与文案已变、旧版本号不再标识判据。阈值写法 = **语义 + 保证 + 盲区集合**：0.75 = 噪声上界 + 绝对余量；保证整像素 ≥2 px 必红、1 px 不保证；盲区 = 闭圆盘 `B(−v,τ)`（P07 心 `(0.4492,−0.2582)`、r=0.75）。N10/N11/N12 用例体逐字未动，新增 N13 合成栅格证明"质心/墨量都看不见的 2 px 位移仍被判 F4_GEOMETRY"。
+- **schema 71 的身份只能由 KSP 生成**：`identityHash = md5Hex(SchemaIdentityKey(entities+views))`，从 70.json 反算 192 组参数组合 0 命中；真值来自带 KSP 的构建，写进 `71.json` 与 `StudyDatabase_Impl.kt` 两处，必须同值。本批三处（JSON / Impl / `SmbkSelectionPlan`）逐字同值 `714c0ecb85ee5edf74f0013740148138`。
+- **70→71 只改索引**：`DROP INDEX` 旧三列唯一键 + `CREATE UNIQUE INDEX` 五列键；两列 v70 已存在，**无需 `ALTER TABLE`**；新键是旧键严格超集 ⇒ 存量行不可能冲突。三处必须同源：唯一索引、`deriveSnapshotId` 五参五段长度前缀、`findSnapshotByContent` 五列 WHERE。备份清单数字不变（90/82/21/SPLIT 7/CLOSURE 3），只回填 `SCHEMA_VERSION=71` 与 `IDENTITY_HASH`。
+- **触发器 backstop 本批不加（登记待裁）**：三条具体理由——会改既有 `ImmutablePayloadConflictException` 契约（4 条结构门断言）、会删一条"指向 STAGING 的 link"有分辨力用例、fresh install 不会自动建（需独立 `Callback/ensure` 与用例）。本批不声称 DB 级触发器生效，DAO 结构门仍是唯一执行面。
+- **持久化原子性**：预算门移入 stage/commit 事务并在 demote/evict 后重读全量字节；stage 路径必须把 plan 的淘汰集带进同一事务（否则"总量超、净值不超"会被事务拒绝，与契约 §8.1 方向相反）；evict SQL 加 `owner_request_id`/`created_at` 租约三选一；`stateSha256`/`drawCommandsSha256` 必须等于 `sha256(json)`（`sceneSha256` 仍未校验，登记为低危残留）。
+
+### 边界（不得越过 / 仍待验证）
+
+- **不做**：core/export 集成与 PDF `/AIGC`（KD-75）；JS 广告（MVA 未过）；真实 Provider（无凭据）；锁文件提交（KD-72）；AIDL 之外的接口变更；触发器 backstop。
+- **设备绿轮不等于现树绿**：设备 APK 构建于 11:14–11:17，现树 12:26–12:28 另有 **11 个源文件**改动（850/861 相同），提交/仓库/parity/70→71/结构门五套件不对应当前源码；修复轮新增的 stage 修复、仓库第 9 例、结构门 keeper 修复从未编译/上设备；结构门设备仍 `Tests run: 5, Failures: 1`（A 类）；强门对当前树 UNVERIFIED。
+- **计划偏差（需接受）**：schema 71 的"生成与回填同轨"硬约束未遵守（T3/T4 分轨）；结果自洽，但属偏差。
+- **KD 裁决**：KD-80 保持 open（C1/C2 有 S=71 绿轮、C3 PARTIAL、C4 零断言）；KD-71/72/73/77 open；KD-81 新开（AUD-08 的 `source.db.sha256` 不含 `-wal`/`-shm`）。
+- **一致性门仍是原型门**：`product-gate=no`，不得引用为产品/发版结论。

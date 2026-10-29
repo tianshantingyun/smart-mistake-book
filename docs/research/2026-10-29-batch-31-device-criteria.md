@@ -14,6 +14,11 @@
 > DB schema **70**（`StudyDatabase.kt:139`），`core/database/schemas/.../` 最高 **70.json**，无 71.json。
 > **工作树正在被 T3/T4 改写**（69→70 套件、parity 测试/阈值均为 ` M`），本文的套件计数是**该时点复读值**；
 > 设备轨必须以"构建前最后一次复读"的计数为准（§1.3），不得把本文件的数字当成冻结常量。
+>
+> **2026-10-29 10:10 现树漂移（批次 32 T2，本轨复读）**：parity 套件 **16 例**（+`n13CentroidBlindSpotIsCoveredByBboxOrShift`）、
+> 阈值版本名改为 **`calibrated-r2`（数值一个不动）**、N09 改为**跨栅格模型断言**（P06 `1.2625` / P07 `0.608282`，
+> 容差 1e-6/0.02）；`TutorVisualSnapshotMigration_69_70InstrumentedTest` 的行锚随落码移动（`onlyLive…` 现 `:102`）。
+> 下表与 §2 的行锚已按 10:00 复读；并行轨仍在改，**使用前必须重跑 §1.2 的 `grep -c`/`grep -n`**。
 
 ---
 
@@ -28,13 +33,13 @@
 | 隔离 `VisualJsIsolationInstrumentedTest`（`app`） | 13 | **13** | `OK (13 tests)` |
 | flags `VisualMeasureReplayPaintFlagsInstrumentedTest`（`app`） | 2 | **2** | `OK (2 tests)` |
 | PDF `VisualDrawOpsPdfPainterInstrumentedTest`（`core/data`） | 16 | **16** | `OK (16 tests)` |
-| 一致性门 `VisualDrawOpsParityInstrumentedTest`（`core/data`） | 11（批次 30） | **15**（` M`，T4 +N09–N12） | `OK (15 tests)`（以最终落码为准） |
+| 一致性门 `VisualDrawOpsParityInstrumentedTest`（`core/data`） | 11（批次 30） | **15**（` M`，T4 +N09–N12；10:10 现树 **16**，批次 32 T2 +N13） | 批次 31 为 `OK (15 tests)`；现树 16 例以构建前复读为准 |
 
 **结论**：
 
-1. **计划/工单里的"一致门 11"和"69→70 套件 2"已被在飞落码超越**：现树分别是 **15** 与 **4**。
-   设备轨若一致性门跑出 `OK (11 tests)`、或 69→70 套件跑出 `OK (2 tests)`，判 **D（旧包）**，
-   不是"少几例也算过"（flags 的 `OK (2 tests)` 是正常目标，不在此列）。
+1. **计划/工单里的"一致门 11"和"69→70 套件 2"已被在飞落码超越**：本快照分别是 **15** 与 **4**
+   （10:10 现树 parity 已 **16**，+N13）。设备轨若一致性门跑出 `OK (11 tests)`、或 69→70 套件跑出
+   `OK (2 tests)`，判 **D（旧包）**，不是"少几例也算过"（flags 的 `OK (2 tests)` 是正常目标，不在此列）。
 2. **KD-80 的修复代码在树但未提交**（`BackupRestoreInstrumentedTest.kt` ` M`，5 增 5 删；
    `SmbkSelectionPlan` 已是 70/90/21/CLOSURE 3）。**设备绿轮已跑：`OK (34 tests)`**（E-01，
    2026-10-29 06:31），批次 30 的 8 条红例逐条转绿；KD-80 仍 **open**，但原因已不是"34/34 未跑"，
@@ -42,12 +47,17 @@
 3. **KD-80 台账的第四项（备份/恢复后视觉四表引用关系保持）当前 34 例并不覆盖**：
    `grep -rln "tutor_visual" core/data/src/androidTest/.../backup/` = 0 命中（§3.4）。34/34 + 表清单
    两项不足以按台账原文关闭；需补断言或如实记 UNVERIFIED。
-4. **P07 阈值已改为 `calibrated-r1`（在飞）**：质心 0.5→0.75、墨量比 0.95–1.05→0.93–1.07，
-   依据是**同设备同夹具的 AA 关读数 0.518…**，不是"为了变绿"。设备绿轮必须同时证明
-   N01–N08、N09–N12 仍全红（§2.8、§5.5）。**设备实跑结果（E-08/E-08b）**：`Tests run: 15,
-   Failures: 1`——N01–N08、N10–N12 全红；唯一红是 N09-P06 的旧等式 `centroid=1.000`
-   （实测 1.2625，门级已 `red=true`、理由 `bboxDev=2px > 1px`），归因 **A（负控期望值算错）**，
-   N09-P07 中止未执行；`calibrated-r1` 绿轮仍 **UNVERIFIED**。
+4. **P07 阈值已改为 `calibrated-r1`（批次 31）；现树改名为 `calibrated-r2`（批次 32 T2，数值一个不动）**：
+   质心 0.5→0.75、墨量比 0.95–1.05→0.93–1.07，依据是**同设备同夹具的 AA 关读数 0.518…**，不是"为了变绿"。
+   设备绿轮必须同时证明 N01–N08、N09–N13 仍全红（§2.8、§5.5；现树 16 例）。**设备实跑结果（E-08/E-08b，当时 r1 / 15 例）**：
+   `Tests run: 15, Failures: 1`——N01–N08、N10–N12 全红；唯一红是 N09-P06 的旧等式
+   `centroid=1.000`（实测 1.2625，门级已 `red=true`、理由 `bboxDev=2px > 1px`），归因
+   **A（负控期望值算错）**，N09-P07 中止未执行；`calibrated-r1` 绿轮仍 **UNVERIFIED**。
+   **`1.000` 是旧源期望**：批次 31 设备轨后先撤成"只断言必须红 + `F4_GEOMETRY`"，批次 32 T2 现树
+   又改为**跨栅格模型断言**（P06 `1.2625` / P07 `0.608282`，容差 1e-6 / 0.02，
+   `VisualDrawOpsParityInstrumentedTest.kt:309-365/:902-905`），并新增 N13。原期望错在把
+   `centroidDeltaPx` 当同侧平移量，实际是屏↔PDF 跨栅格欧氏距离（`VisualDrawOpsParityMetrics.kt:830-831`
+   的 `hypot`），P06 +1 px 读数 = |v+(1,0)| = 1.2625，不是 1.000。
 
 ---
 
@@ -75,19 +85,20 @@ grep -c '@Test' core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/co
 grep -c '@Test' app/src/androidTest/kotlin/com/tingyun/smartmistakebook/visualjs/VisualJsIsolationInstrumentedTest.kt                  # 13
 grep -c '@Test' app/src/androidTest/kotlin/com/tingyun/smartmistakebook/visualjs/VisualMeasureReplayPaintFlagsInstrumentedTest.kt      # 2
 grep -c '@Test' core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/visual/VisualDrawOpsPdfPainterInstrumentedTest.kt # 16
-grep -c '@Test' core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/visual/VisualDrawOpsParityInstrumentedTest.kt  # 15 (M；批次 30 为 11)
+grep -c '@Test' core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/visual/VisualDrawOpsParityInstrumentedTest.kt  # 15 (M；批次 30 为 11；10:10 现树 16)
 ```
 
 **计数来源的差异（必须登记）**：
 
 - 69→70 套件：` M`（在飞）；新增
-  `indexExpectationsStayInSyncWithTheMigrationDdlConstants`（`:228`）与
-  `indexShapeAssertionsCanFailOnWrongColumnOrderAndNonUniqueIndex`（`:265`），用于证明 DDL 断言
+  `indexExpectationsStayInSyncWithTheMigrationDdlConstants`（批次 31 `:228`；10:10 现树 `:238`）与
+  `indexShapeAssertionsCanFailOnWrongColumnOrderAndNonUniqueIndex`（批次 31 `:265`；10:10 现树 `:275`），用于证明 DDL 断言
   修复不是"把断言改松"，而是"期望与迁移常量同源 + 反例能红"。
-- parity 套件：` M`（在飞）；新增 `n09OnePixelTextShiftIsCaught`（现树 `:298`）、
-  `n10WholePageMisdrawIsCaught`（`:338`）、`n11ShapeWrongButPositionAndMassRightIsCaught`（`:354`）、
-  `n12WholeBlockShiftBeyondToleranceIsCaught`（`:388`）。这是 `calibrated-r1` 的"放宽许可证"。
-  **复核修复轮后行锚已回改**（N09 的伪等式删除后函数变长，旧锚 `:294/:323/:339/:373` 作废）。
+- parity 套件：` M`（在飞）；新增 `n09OnePixelTextShiftIsCaught`（10:10 现树 `:309`）、
+  `n13CentroidBlindSpotIsCoveredByBboxOrShift`（`:368`，批次 32 T2）、`n10WholePageMisdrawIsCaught`（`:450`）、
+  `n11ShapeWrongButPositionAndMassRightIsCaught`（`:466`）、`n12WholeBlockShiftBeyondToleranceIsCaught`（`:500`）。
+  这是 `calibrated-r1/r2` 的"放宽许可证"；现树阈值版本名 `calibrated-r2`（数值不动）。
+  **行锚随落码漂移，使用前重跑 `grep -n "fun n"`**（旧锚 `:294/:323/:339/:373`、批次 31 的 `:298/:338/:354/:388` 均已作废）。
 
 ### 1.3 计数冻结规则（设备轨强制）
 
@@ -154,16 +165,22 @@ grep -c "裁剪器只支持 schema="         build/device-track-batch31/step01-b
 
 **目标**：`OK (4 tests)`（批次 30 为 2；T3 已加 2 条元用例，最终复读为准）。
 
-| # | 用例（行） | 本轮必须成立 |
+| # | 用例（行，批次 31 时点） | 本轮必须成立（批次 31 语义） |
 |---|---|---|
 | 1 | `visualTablesAreCreatedEmptyWithoutTouchingV69RowsAndIdempotent`（`:58`） | 从 69 库打开后迁到 `STUDY_DATABASE_VERSION`；**执行顺序**是数据保全（`:76` → `inspectV70DataPreservation` `:320`）→ 外键负向（`:77` → `assertV70ForeignKeyBehaviour` `:446`）→ 形状（`:78` → `inspectV70Shape` `:338`）；四表建出且为空；旧消息/题面/资产行一行不丢；再次打开幂等 |
-| 2 | `onlyLiveSnapshotsCanBeLinkedAndCasUsesChangedRowCounts`（`:90`） | STAGING 快照写不进消息引用；`STAGING→LIVE` 以命中行数判赢；过期 revision 的 CAS 命中 0 行 |
-| 3 | `indexExpectationsStayInSyncWithTheMigrationDdlConstants`（`:228`） | 迁移恰好 11 条索引 DDL；索引名集合、键列序、UNIQUE 关键字与测试期望逐位一致 |
-| 4 | `indexShapeAssertionsCanFailOnWrongColumnOrderAndNonUniqueIndex`（`:265`） | 负控：错列序 / 非唯一 / 不存在索引 / 多一条少一条都必须判不等；证明形状断言仍有分辨力 |
+| 2 | `onlyLiveSnapshotsCanBeLinkedAndCasUsesChangedRowCounts`（`:102`，10:10 现树） | STAGING 快照写不进消息引用；`STAGING→LIVE` 以命中行数判赢；过期 revision 的 CAS 命中 0 行 |
+| 3 | `indexExpectationsStayInSyncWithTheMigrationDdlConstants`（`:228`；10:10 现树 `:238`） | 迁移恰好 11 条索引 DDL；索引名集合、键列序、UNIQUE 关键字与测试期望逐位一致 |
+| 4 | `indexShapeAssertionsCanFailOnWrongColumnOrderAndNonUniqueIndex`（`:265`；10:10 现树 `:275`） | 负控：错列序 / 非唯一 / 不存在索引 / 多一条少一条都必须判不等；证明形状断言仍有分辨力 |
 
-**DDL 断言的语义（不得放宽）**：本批已把形状断言从 `sqlite_master.sql` 文本比较改为
+> **10:10 现树漂移（批次 32，必须读）**：现树第 1 例只调用 `inspectV70DataPreservation`（`:80`）
+> 与 `assertV70ForeignKeyBehaviour`（`:81`），**`inspectV70Shape` 已不在文件中**；行锚现为
+> `inspectV70DataPreservation :330`、`assertV70ForeignKeyBehaviour :462`。上表与下段 DDL 语义
+> **只对批次 31 快照成立**，现树用例结构已由批次 32 轨改写——不得把旧顺序/旧 `:338-369` 断言
+> 当现树判据；重跑前请按符号复读源码。
+
+**DDL 断言的语义（不得放宽；批次 31 时点）**：本批已把形状断言从 `sqlite_master.sql` 文本比较改为
 **PRAGMA 结构读数**——表列序读 `PRAGMA table_info`，索引名集合读 `PRAGMA index_list`，键列序读
-`PRAGMA index_info`，唯一性读 `index_list.unique`（`inspectV70Shape` `:338-369`）。这样既避开
+`PRAGMA index_info`，唯一性读 `index_list.unique`（批次 31 时点 `inspectV70Shape` `:338-369`；10:10 现树该函数已不在）。这样既避开
 设备侧 `sqlite_master` 去掉 `IF NOT EXISTS` 的文本差异（批次 30 的 A 类红因），又没有放宽
 "存在 + 唯一 + 三列"的语义。第 3 例把迁移 DDL 常量（含 `CREATE UNIQUE INDEX IF NOT EXISTS …`，
 `:246`）与测试期望对齐；第 4 例用临时库证明读取器能抓住错列序/非唯一。**两例都必须绿**；
@@ -266,7 +283,7 @@ git ls-files --error-unmatch \
 
 | 用例（行） | 必须成立 |
 |---|---|
-| `pdfWriteFailureIsCoded`（`:447`） | 失败流 → 有码 `PAINTER_PDF_IO`（不是裸 `IOException`，也不是无异常） |
+| `pdfWriteFailureIsCoded`（`:448`） | 失败流 → 有码 `PAINTER_PDF_IO`（不是裸 `IOException`，也不是无异常） |
 | `pdfWriteFailureMidStreamKeepsTheFirstFailureText`（`:458`） | 首块后抛 → `PAINTER_PDF_IO`，消息含 `MID_STREAM_WRITE_FAILURE`，`acceptedBytes > 0` |
 | `pdfFileWriteRoundTripsThroughReadback`（`:477`） | 目标存在/非空/含 `%%EOF`；`PdfRenderer` 回读 48×32；无 `.pending-` 残留 |
 | `pdfReadOnlyTargetFailsClosedBeforeAnyWrite`（`:499`） | 目录 0555 → `PAINTER_PDF_IO` 且含 `not writable`；目标未发布 |
@@ -282,20 +299,22 @@ git ls-files --error-unmatch \
 类：`com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest`。
 
 **定位**：`PARITY_GATE scope=PROTOTYPE product-gate=no ci-gate=no release-gate=no`
-（`VisualDrawOpsParityInstrumentedTest.kt:88`）。**不得**引用为产品门/发版结论。
+（`VisualDrawOpsParityInstrumentedTest.kt:100`，10:10 现树）。**不得**引用为产品门/发版结论。
 
-**目标**：`OK (15 tests)`（批次 30 为 11；T4 已加 N09–N12 四例，最终复读为准）。
+**目标**：批次 31 设备轨为 `OK (15 tests)`（批次 30 为 11；T4 加 N09–N12 四例）；**10:10 现树 16 例**
+（批次 32 T2 加 `n13CentroidBlindSpotIsCoveredByBboxOrShift`），最终以构建前复读为准。
 
-**当前阈值（在飞 `calibrated-r1`，`VisualDrawOpsParityMetrics.kt`）**：
+**当前阈值（批次 31 设备轨为 `calibrated-r1`；10:10 现树改名 `calibrated-r2`，数值一个不动，
+`VisualDrawOpsParityMetrics.kt`）**：
 
-| 项 | 值 | 行 |
+| 项 | 值 | 行（10:10 现树） |
 |---|---|---|
-| `THRESHOLD_VERSION` | `"calibrated-r1"` | `:234` |
-| `maxBboxDeviationPx` | 1 | `:242` |
-| `maxCentroidDeltaPx` | **0.75**（原 0.5） | `:243` |
-| `minMassRatio` / `maxMassRatio` | **0.93 / 1.07**（原 0.95/1.05） | `:244-245` |
-| `maxProfileTv` | 0.08 | `:246` |
-| TEXT 判决顺序 | 硬几何护栏（缺墨 / bbox>1 / 质心>0.75 / bestShift）→ F4_GEOMETRY；再 F1_FONT；再 F2_AA | `:658-710` |
+| `THRESHOLD_VERSION` | `"calibrated-r2"`（批次 31 设备轨为 `"calibrated-r1"`） | `:262` |
+| `maxBboxDeviationPx` | 1 | `:270` |
+| `maxCentroidDeltaPx` | **0.75**（原 0.5） | `:271` |
+| `minMassRatio` / `maxMassRatio` | **0.93 / 1.07**（原 0.95/1.05） | `:272-273` |
+| `maxProfileTv` | 0.08 | `:274` |
+| TEXT 判决顺序 | 硬几何护栏（缺墨 / bbox>1 / 质心>0.75 / bestShift）→ F4_GEOMETRY；再 F1_FONT；再 F2_AA | `:687-742` |
 
 **阈值调整的合法性（本批红线）**：
 
@@ -306,28 +325,31 @@ git ls-files --error-unmatch \
    一手 logcat `build/device-track-batch30/step05-parity-logcat.txt:121-122`）。
 2. 归因必须是 **AA/字体（S1+S2）而非几何**：屏侧 AA 关 + hinting + 整像素吸附；PDF 侧 AA 开 +
    hinting 关 + 浮点位置（`parity-calibration.md:13-14`、`:21-31`、`:44-49`）。
-3. 放宽必须同步收紧：TEXT 的 F5 隔离带删除，F5 恒 0（`VisualDrawOpsParityMetrics.kt:717-719`）；
+3. 放宽必须同步收紧：TEXT 的 F5 隔离带删除，F5 恒 0（`VisualDrawOpsParityMetrics.kt:749/:759`）；
    **盲区文案已回改**：旧 `blindWindow=text-centroid(0,0.76)px` 建立在"1 px 平移 = 1.000"
-   的错误模型上，现树改为 `blindWindow=text-centroid(direction-dependent)`
-   （`VisualDrawOpsParityInstrumentedTest.kt:95`）；不得再引用 `(0,0.76)` 标量窗口。
-4. **放宽许可证 = N09–N12 必须全红**（现树 `VisualDrawOpsParityInstrumentedTest.kt:298/338/354/388`）：
+   的错误模型上，现树改为方向相关表述（`VisualDrawOpsParityInstrumentedTest.kt:95-105`，
+   `blindSet=text-centroid B(-v,tau_c) per-fixture (direction-dependent)`）；不得再引用 `(0,0.76)` 标量窗口。
+4. **放宽许可证 = N09–N13 必须全红**（10:10 现树函数：`:309/:368/:450/:466/:500`）：
    - N09：PDF 整块 +1 px → **必须红**。设备实测 P06 由 `bboxDev=2 > 1` 抓（理由
      `text bboxDev=2px > 1px`），同轮 `bestShift=(1,0)`、gain≈0.195；**质心读 1.2625 而非 1.000**
      （跨栅格欧氏距离，|v|=0.32）；P07 反解应约 0.608 < 0.75、**未执行**。旧"质心必须抓 / bbox 抓不住"作废；
+     批次 32 T2 现树把这两组读数写成模型断言（P06 1e-6 容差、P07 0.02 容差）。
    - N10：整页错画 → 带内无墨 → F4_GEOMETRY（设备实测 `text ink missing on one side`）；
    - N11：180° 旋转，bbox/墨量不变，设备实测质心 1.1665 / TV 0.371 / IoU 0.233 → 必须红；
-   - N12：整块 +4 px，设备实测 bboxDev=5、质心 3.56 → 必须红。
+   - N12：整块 +4 px，设备实测 bboxDev=5、质心 3.56 → 必须红；
+   - N13（批次 32 T2 新增）：合成栅格让质心/墨量都不变、只有 bbox/bestShift 可见 → 必须红且
+     **不得**退成 F1_FONT；删几何护栏即失败。
    任一条绿 = `PARITY_GATE_DESENSITIZED`，判 **A（门失去分辨力）**，本轮标定作废，不得调阈值让它绿。
 
 **套件级 logcat 判据（全部成立才算原型门当轮有效）**：
 
 ```bash
 grep -c "PARITY_GATE scope=PROTOTYPE product-gate=no ci-gate=no release-gate=no" \
-  build/device-track-batch31/step08-parity-logcat.txt          # == 测试数（每例 @Before 一次；现树 15）
+  build/device-track-batch31/step08-parity-logcat.txt          # == 测试数（每例 @Before 一次；批次 31 时点 15；现树 16）
 grep -c "thresholds=calibrated-r1" \
-  build/device-track-batch31/step08-parity-logcat.txt          # == 测试数（现树 15）
+  build/device-track-batch31/step08-parity-logcat.txt          # == 测试数（批次 31 证据 15；现树 r2，新跑改 calibrated-r2）
 grep -c "PARITY_CONTROL " build/device-track-batch31/step08-parity-logcat.txt
-# 现树 15：N01×4 + N02–N07×6 + N09×2 + N10 + N11 + N12；N08 不打印
+# 批次 31 时点 15：N01×4 + N02–N07×6 + N09×2 + N10 + N11 + N12；N08 不打印。现树 16（+N13）
 # 注意尾随空格：N11 另打 PARITY_CONTROL_DETAIL，不能用无空格的 "PARITY_CONTROL" 计数
 grep "PARITY_CONTROL " build/device-track-batch31/step08-parity-logcat.txt \
   | grep -vc "red=true"                                        # 0
@@ -338,14 +360,14 @@ grep "PARITY_ENV" build/device-track-batch31/step08-parity-logcat.txt | tail -1 
 grep "PARITY_F5"  build/device-track-batch31/step08-parity-logcat.txt | grep -c "class=TEXT"  # 0
 ```
 
-- `PARITY_F5` 总数 ≤2（非 TEXT 类）；TEXT 类 F5 必须为 0（`calibrated-r1`）。
-- **15/15 绿不等于产品门通过**；它只证明"PDF 路径相对屏路径未引入新偏差"。
+- `PARITY_F5` 总数 ≤2（非 TEXT 类）；TEXT 类 F5 必须为 0（批次 31 `calibrated-r1`；现树 `calibrated-r2` 同义）。
+- **15/15 绿不等于产品门通过**；它只证明"PDF 路径相对屏路径未引入新偏差"。现树 16 例同理。
 
 ---
 
 ## 3. KD-80 关闭判据
 
-KD-80 台账原文（`docs/known-defects.md:2963`）有四项：34/34 绿、表清单与 schema 逐名一致、
+KD-80 台账原文（`docs/known-defects.md:2977`）有四项：34/34 绿、表清单与 schema 逐名一致、
 trimmer/选择计划单测绿、备份/恢复后旧行与视觉四表引用关系保持。工单口径只点名前两项；本判据
 把四项全列出，**不拿前两项冒充全关闭**。
 
@@ -441,7 +463,7 @@ EXIT=0
 
 ### 3.4 80-C4：旧行与视觉四表引用关系（**当前缺口**）
 
-- 台账要求"备份/恢复后旧行与视觉四表引用关系保持"（`docs/known-defects.md:2963`）。
+- 台账要求"备份/恢复后旧行与视觉四表引用关系保持"（`docs/known-defects.md:2977`）。
 - 实读：`grep -rln "tutor_visual" core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/backup/`
   = **0 命中**；`BackupRestoreInstrumentedTest.kt` 只有 `insertFigureGenerationAuditFixture` 的 import
   （`:22`），没有对 `tutor_visual_program/snapshot/message_visual/revision_visual` 的行或引用断言。
@@ -565,7 +587,7 @@ need app/build/outputs/apk/androidTest/strictOffline/debug/app-strictOffline-deb
   aFingerprintThatDisagreesWithTheActualPaintFailsClosed \
   anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled
 
-# core:data 测试包：备份 34 + painter 24 + PDF 16 + parity 15 + 仓库 4
+# core:data 测试包：备份 34 + painter 24 + PDF 16 + parity 16（现树）+ 仓库 8（现树）
 need core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk \
   BackupRestoreInstrumentedTest \
   schema68ArchiveRestoresAndMigratesToCurrentVersion \
@@ -575,6 +597,7 @@ need core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk \
   drawRenderedReplaysTheFrozenCommandSequence \
   drawRenderedFailsClosedOnMissingOrInvalidCommands \
   n09OnePixelTextShiftIsCaught \
+  n13CentroidBlindSpotIsCoveredByBboxOrShift \
   n10WholePageMisdrawIsCaught \
   n11ShapeWrongButPositionAndMassRightIsCaught \
   n12WholeBlockShiftBeyondToleranceIsCaught \
@@ -584,9 +607,14 @@ need core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk \
   pdfReadOnlyTargetFailsClosedBeforeAnyWrite \
   PdfWriteFailureTrackingStream PdfWriteTelemetry \
   TutorVisualCommitRepositoryInstrumentedTest \
-  stageThenCommitStillDemotesThePreviousLatestCheckpoint
+  stageThenCommitStillDemotesThePreviousLatestCheckpoint \
+  commitEvictsAnUnreferencedStagingIntermediateThroughPlanToCommand \
+  freshForeignStagingLeaseIsNotEvictedByAnotherRequest \
+  perProgramBudgetIsReenforcedInsideTheTransactionAfterAStaleRead \
+  globalBudgetIsReenforcedInsideTheTransactionAfterAStaleRead \
+  snapshotOverSourceBudgetIsRejectedBeforeAnyWrite
 
-# core:database 测试包：69→70 4 + 迁移矩阵 15 + 结构门 4 + 提交 9
+# core:database 测试包：69→70 4 + 迁移矩阵 15 + 结构门 5（10:07 现树）+ 提交 11（10:07 现树）
 need core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk \
   FullMigrationMatrixInstrumentedTest \
   everyExportedSchemaVersionMigratesToCurrentWithoutDestructiveFallback \
@@ -600,8 +628,11 @@ need core/database/build/outputs/apk/androidTest/debug/database-debug-androidTes
   revisionPinRejectsStagingAndForeignKeyProgramButAcceptsSameProgramLive \
   evictionDeletesOnlyUnpinnedStagingIntermediates \
   commitTransactionExecutesDemoteAndEvict \
+  repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned \
   TutorVisualCommitInstrumentedTest \
-  snapshotIdThatIsNotDerivedFromContentIsRejectedBeforeAnyWrite
+  snapshotIdThatIsNotDerivedFromContentIsRejectedBeforeAnyWrite \
+  snapshotDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite \
+  drawCommandsDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite
 ```
 
 **通过**：三个 `DEX OK`；任一 `MISSING` = 旧包/漏装，**停**，重建重装，不得继续跑。
@@ -713,10 +744,10 @@ done
 计划任务 3–6 触碰 `TutorVisualCommitRepository`、checkpoint 保留、身份门与 schema；下列套件是
 这些落点的设备面。批次 30 曾跑：`TutorVisualCommitInstrumentedTest` **8/8**、
 `TutorVisualCommitRepositoryInstrumentedTest` **3/3**（含磁盘满拒提交）
-（`step07-persistence-migration.md:43-44`）。**批次 31 现树计数已复读**（集成接线，2026-10-29）：
-`TutorVisualCommitInstrumentedTest` **9**（+`snapshotIdThatIsNotDerivedFromContentIsRejectedBeforeAnyWrite`）、
-`TutorVisualCommitRepositoryInstrumentedTest` **4**（+`stageThenCommitStillDemotesThePreviousLatestCheckpoint`），
-并新增 `TutorVisualStructureGatesInstrumentedTest` **4 例**（消息 link 跨 program/STAGING、题面 pin STAGING/跨 program、
+（`step07-persistence-migration.md:43-44`）。**批次 31 现树计数已复读**（集成接线，2026-10-29；10:05 现树刷新）：
+`TutorVisualCommitInstrumentedTest` **11**（批次 31 为 9；+`snapshotDigest…`、`drawCommandsDigest…`）、
+`TutorVisualCommitRepositoryInstrumentedTest` **8**（批次 31 为 4；+`commitEvictsAnUnreferencedStagingIntermediateThroughPlanToCommand`、租约保留、per-program/global 事务内重判、超源预算 4 例），
+并新增 `TutorVisualStructureGatesInstrumentedTest` **5 例（10:07 现树；批次 31 为 4）**（消息 link 跨 program/STAGING、题面 pin STAGING/跨 program、
 跨 program CAS、demote/evict 在提交事务内真的执行）。三套件都必须跑；类名与方法名已同步进 §4.3 的 data/database dex 门：
 
 ```bash
@@ -767,7 +798,7 @@ grep -c "ComparisonFailure"           build/device-track-batch31/step02-migratio
 - 69→70 绿 = 第 1 例按 `:76 → :77 → :78` 的顺序先跑数据保全、再跑外键负向、最后跑形状；
   批次 30"形状先红导致后面一条没跑到"的形态已被执行顺序消除。若只看 summary 不放心，可加
   `-e class Class#method` 单方法复跑并保留 log。
-- 套件必须是 **4 例**；只跑 2 例 = 旧包（D），说明两个元用例（`:228`、`:265`）没进 APK。
+- 套件必须是 **4 例**；只跑 2 例 = 旧包（D），说明两个元用例（批次 31 `:228`、`:265`；10:10 现树 `:238`、`:275`）没进 APK。
 - 迁移矩阵绿 = 循环内每个 1..V 都建库并升到当前；任一版本异常会使该例红。
 
 ### 5.3 隔离 worker 生命周期
@@ -801,12 +832,12 @@ grep -c "java.io.IOException: simulated write failure" \
 
 见 §2.8 的命令块。额外要求：
 
-- `PARITY_CONTROL `（带尾随空格）行数必须等于当轮 `assertRed` 执行数；本快照 15 例 → **15**。
+- `PARITY_CONTROL `（带尾随空格）行数必须等于当轮 `assertRed` 执行数；批次 31 快照 15 例 → **15**（现树 16 → 16）。
   `PARITY_CONTROL_DETAIL` 是附加明细（N09/N11/N12），不得计进控制数。
 - 每个 `PARITY_CONTROL ` 必须 `red=true`；`PARITY_GATE_DESENSITIZED`=0、`PARITY_SYSTEMATIC_DRIFT`=0
   （两者是 `fail()` 消息，查 `step08-parity.log`，不是 logcat）。
-- `PARITY_GATE` 行数 = 测试数（每例 `@Before` 一次；现树 15）；每行都必须 `product-gate=no` 且
-  `thresholds=calibrated-r1`。
+- `PARITY_GATE` 行数 = 测试数（每例 `@Before` 一次；批次 31 时点 15，现树 16）；每行都必须 `product-gate=no` 且
+  `thresholds=calibrated-r1`（批次 31 证据；现树 r2，新跑改 `calibrated-r2`）。
 - `PARITY_F5` 中 `class=TEXT` 必须为 0；非 TEXT ≤2。
 - `PARITY_DIAGNOSTIC_WRITTEN` 绿轮为 0（PNG 只在失败时写）。
 - **原型门**：`product-gate=no` 行必须在；任何"PDF 可用/发版通过"的结论都不得引用本门。
@@ -854,9 +885,9 @@ grep -c "java.io.IOException: simulated write failure" \
 | 69→70 红 `expected:<CREATE UNIQUE INDEX[]> but was:<…>` | **D**（旧包/旧断言） | 当前断言已是 PRAGMA 结构读数（§2.2），不会打印该消息；按旧包重建重装，不得改产品 |
 | 69→70 只跑 2 例 | **D** | 旧包；现树 4 例（T3 元用例），重建 |
 | 迁移矩阵在某版本红 | C（迁移/schema 缺失）或 D（assets 缺失） | 先查 §4.3 资产门与 `V`；再查该版本迁移注册 |
-| parity 11 绿但现树 15 | **D** | 旧包；N09–N12 未跑不能作为 `calibrated-r1` 证据 |
-| parity 正例红 / N09–N12 任一绿 | **A**（门失去分辨力） | 不得调阈值；`PARITY_GATE_DESENSITIZED` 即证据；标定作废 |
-| P07 仍红 `F4_GEOMETRY centroid≈0.518` 且 N09 红 | 先 A/B（阈值标定）后 C | 检查 `calibrated-r1` 是否进 APK（dex/`thresholds=calibrated-r1`）；阈值调整必须有设备读数与 AA/字体归因 |
+| parity 11/15 绿但现树 16 | **D** | 旧包；N09–N13 未跑不能作为 `calibrated-r2` 证据 |
+| parity 正例红 / N09–N13 任一绿 | **A**（门失去分辨力） | 不得调阈值；`PARITY_GATE_DESENSITIZED` 即证据；标定作废 |
+| P07 仍红 `F4_GEOMETRY centroid≈0.518` 且 N09 红 | 先 A/B（阈值标定）后 C | 检查 `calibrated-r2` 是否进 APK（dex/`thresholds=calibrated-r2`）；阈值调整必须有设备读数与 AA/字体归因 |
 | PDF `PAINTER_PDF_IO` 不出现 | 先 D（旧包）→ C | dex 门查 `PdfWriteFailureTrackingStream`/新方法；logcat native IOException 必须 >0 |
 | 隔离 12 红且 `paintFlags 1283` | 先 D → C | 新包仍 1283 = 修复未生效；旧包 = D |
 | 跨设备像素差 | **D** | 只在同设备内比较；不得判产品缺陷 |
@@ -872,15 +903,18 @@ grep -c "java.io.IOException: simulated write failure" \
 
 - **UNVERIFIED**：八套件均**未**在本轮执行；本文件只给判据与命令，`OK (…)` 是目标字符串，
   不是已通过结果。
-- **UNVERIFIED**：备份 34/34、KD-80 关闭、P07 `calibrated-r1` 绿轮、N09–N12 负控设备面。
+- **UNVERIFIED**：备份 34/34、KD-80 关闭、P07 `calibrated-r1`/`calibrated-r2` 绿轮、N09–N13 负控设备面。
 - **UNVERIFIED**：KD-80 80-C4（视觉四表引用关系）——现 34 例无 `tutor_visual` 断言（§3.4）。
-- **UNVERIFIED**：schema 71 分支（`71.json`、70→71 迁移、1→71 矩阵、KD-80 S=71）——当前树无 71。
-- **在飞计数**：69→70 套件 4（T3）、parity 15（T4）；本文数字为快照，构建前必须复读（§1.3）。
-- **已核（只读）**：八套件 `@Test` 计数 34/4/15/24/13/2/16/15（`grep -c` 实跑）；
-  schema 70 / 70 个 json / `71.json` 缺失；`SmbkSelectionPlan` 70/90/21/CLOSURE 3 与 70.json
+- **UNVERIFIED**：schema 71 分支——**10:10 现树** `STUDY_DATABASE_VERSION = 71` 且 `VisualSnapshotIdentityMigration_70_71.kt:53`
+  已注册 `Migration(70, 71)`，但 **`71.json` 缺失**、`SmbkSelectionPlan` 仍 70；1→71 矩阵、备份 34/34（S=71）、
+  KD-80 S=71 分支均未跑。
+- **在飞计数**：69→70 套件 4（T3）、parity **15**（批次 31 快照；10:10 现树 **16**，批次 32 T2 +N13）；本文数字为快照，构建前必须复读（§1.3）。
+- **已核（只读）**：八套件 `@Test` 计数 34/4/15/24/13/2/16/15（批次 31 快照；10:10 现树 parity 16）；
+  schema 70（批次 31 快照；10:10 现树 71、`71.json` 缺失）；`SmbkSelectionPlan` 70/90/21/CLOSURE 3 与 70.json
   逐名一致（§3.2 脚本 `RESULT=PASS`）；备份测试期望读 `SmbkSelectionPlan.SCHEMA_VERSION`（`:590`）；
-  69→70 形状断言已改为 PRAGMA 结构读数（`:338-369`）+ 两个元用例（`:228`、`:265`）；parity 阈值 `calibrated-r1`
-  （`VisualDrawOpsParityMetrics.kt:234-248`）与设备读数出处（`parity-calibration.md:73-76`）。
+  69→70 形状断言已改为 PRAGMA 结构读数（批次 31 时点 `:338-369`；10:10 现树 `inspectV70Shape` 已不在）
+  + 两个元用例（批次 31 `:228`、`:265`；10:10 现树 `:238`、`:275`）；parity 阈值 `calibrated-r1`
+  （批次 31）→ 现树 `calibrated-r2`（`VisualDrawOpsParityMetrics.kt:262-275`，数值不动）与设备读数出处（`parity-calibration.md:73-76`）。
 - **不在本判据面**：编译器/引擎/Node 台、R8 往返、arm64/真机/16 KB 页、生产签名、
   真实 Provider（无凭据 → 模型质量 UNVERIFIED）；一致性门仍是原型门。
 - **设备依赖**：`emulator-5562` 在线；若掉线，先按 §4.0 重新登记。
@@ -895,7 +929,7 @@ grep -c "java.io.IOException: simulated write failure" \
   painter **`OK (24 tests)`**（E-04）、隔离 **`OK (13 tests)`**（E-05）、flags **`OK (2 tests)`**（E-06）、
   PDF **`OK (16 tests)`**（E-07）、结构门三套 **17/17**（E-09）。
 - 一致性门 **FAIL 14/15**（E-08/E-08b）：唯一失败是 N09-P06 的旧 `centroid=1.000` 等式（实测
-  1.2625）；门级已 `red=true`（`bboxDev=2px > 1px`），归因 A，N09-P07 中止未执行，
-  **`calibrated-r1` 绿轮仍 UNVERIFIED**。
+  1.2625；**旧源期望，现树已改为跨栅格模型断言，见 §0-4**）；门级已 `red=true`（`bboxDev=2px > 1px`），归因 A，
+  N09-P07 中止未执行，**`calibrated-r1` 绿轮仍 UNVERIFIED**（现树 `calibrated-r2` 同样 UNVERIFIED）。
 - **仍 UNVERIFIED**：KD-80 80-C3 的 JVM 仓内执行（E-12 记未跑；本机 XML 12/0 与 17/0 属 `build/`
   本地产物，命令归属未验证）、KD-80 80-C4（零断言）、schema 71 分支、跨 API/真机。

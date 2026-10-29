@@ -2880,9 +2880,11 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **交叉引用.** KD-66 跟踪 issue #240 的 hard+500 ms 关闭门；本条只跟踪"冷启动首个 execute 不被一次性装载误杀"的 warm-up/ready 缺口，不代替 KD-66，也不改变其关闭门。批次 24 T1 的 `abandon()` 修复与首连预算属另一失败形状，设备复跑见批次 24 E-01/E-01b（6/6），与本条的 warm-up/ready 门无关。
 
-## KD-77 (open, 2026-10-27 登记（API 23 冒烟评估；中）) · API 23 运行时未验证：本机无 android-23 平台/系统镜像，未执行 v21 APK 冒烟
+## KD-77 (open, 2026-10-27 登记（API 23 冒烟评估；中）；2026-10-29 批次 32 T6 标题回改：android-23 镜像已装盘，旧包冒烟 logcat 未落仓、修复后 APK 未跑) · API 23 运行时未验证：修复后 APK 未在 API 23 完成装机/冷启动/最小冒烟
 
 **Symptom（本机实测，2026-10-27）.** `C:/Android/Sdk/cmdline-tools/latest/bin/sdkmanager.bat --list_installed` 的 Installed packages 为：build-tools 34.0.0/36.0.0/37.0.0、emulator 37.1.11、platform-tools 37.0.1、`platforms;android-34`、`platforms;android-37.0`、`system-images;android-34;google_apis;x86_64`、`system-images;android-36;google_apis_ps16k;arm64-v8a`、`system-images;android-36;google_apis_ps16k;x86_64`——**无 `platforms;android-23`，也无任何 `system-images;android-23*`**。磁盘交叉核对：`/c/Android/Sdk/platforms` 仅 `android-34`、`android-37.0`；`/c/Android/Sdk/system-images` 仅 `android-34`、`android-36`；`ls -d /c/Android/Sdk/platforms/android-23 /c/Android/Sdk/system-images/android-23` 两者均 `No such file or directory`。`emulator -list-avds` 无 `api23_smoke`。按本轮纪律**不下载镜像**，因此未创建临时 AVD、未安装 v21 APK、未起服务/最小冒烟。
+
+**标题/Symptom 前提回改（2026-10-29 批次 32 T6）.** 上一段的"本机无 android-23 平台/系统镜像 / 未执行 v21 APK 冒烟"只对**登记时点（2026-10-27）**成立，**不是现树事实**，不得再被读成"API 23 运行时没有任何证据"。批次 30 T7 自述并已由记录员实盘核对：`/c/Android/Sdk/platforms/android-23`、`/c/Android/Sdk/system-images/android-23`、`~/.android/avd/api23_smoke{32,64}.avd` 均在盘；T7 在该镜像上装过**旧 APK**（`strictOffline` debug，sha256 `05a5b8bd…`，versionCode 2 / 0.2.0-offline）并跑了一次冷启动/隔离套件（12 红，`measure paint flags 1280`），但**冒烟 logcat 未落仓 → 该运行时结论未复核**；现盘 APK 已被批次 30 设备轨覆盖（`1429ee0e…`）。因此本条标题改为"**修复后 APK 未完成 API 23 冒烟**"，反向表述（"无镜像 / 未执行冒烟"）作废；仍不能标绿，关闭条件见下（证据回填见本条 2026-10-29 批次 30 T7 / 批次 31 T5 两段 Progress）。
 
 **Impact.** `app/build.gradle.kts:21` 声明 `minSdk = 23`；`docs/current/release-gates.md:38` 与 `docs/research/2026-10-26-batch-24-4e2-admission-checklist.md:216`（R-01）把 API 23 运行时列为发布矩阵门。现有设备结论（API 34/4 KB、x86_64 16 KB）均不能覆盖 API 23：任何 API 24+ 符号、SQLite/Resources 行为差异或 native 装载差异只会在 API 23 设备暴露；补证据前，API 23 只能标记为未验证，不能计入发布门。
 
@@ -2984,3 +2986,54 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 - **80-C4 = UNVERIFIED**：`grep -rln "tutor_visual" core/data/src/androidTest/.../backup/` = 0 命中，34 例对视觉四表引用关系零断言。
 - **结论**：`80-C1 ∧ 80-C2 ∧ 80-C3 ∧ 80-C4` 未满足 → **KD-80 保持 open**；可写"80-C1/80-C2 已核销"，不得写 closed，也不得再写"34/34 未跑 / 证据目录不存在"。
 - **记录回链（2026-10-29 记录员）**：设备轨与现树存在 **7 个源文件差**（提交/仓库/结构门/parity 的新内容未上设备；设备 34/34 绿仍有效，但它对应的是 06:20 的源），详见 `docs/research/2026-10-29-batch-31-record.md` §4.4/§5.2 #1。
+
+**Progress（2026-10-29 批次 32 T6 状态核对；只读，零 Gradle/零设备/零 git 写；状态保持 open）.** 本轨逐句清点"反向虚报"（把已有证据写成"目录不存在/未跑"）：上列批次 30 T12 与批次 31 T5 的"证据目录不存在 / 34/34 未跑"均已被其后设备轨块显式取代（E-01 34/34 绿、E-12 80-C2 PASS）；本块不改写历史块，只把**现树**与**KD-80 状态**钉住：
+
+- **schema 常量的现树事实（本轨 10:05 快照实读，未运行 Gradle/KSP）**：`core/database/.../StudyDatabase.kt:139` 已是 `STUDY_DATABASE_VERSION = 71`（工作树未提交，属批次 32 schema 轨）；`VisualSnapshotIdentityMigration_70_71.kt:52-53` 已有 `object : Migration(70, 71)` 并注册于 `StudyDatabase.kt:411`；但 **`71.json` 仍不存在**（`ls core/database/schemas/.../ | sort -n | tail` 最高 70），`SmbkSelectionPlan.kt:40` 仍是 `SCHEMA_VERSION = 70`、`:43` 仍是 `IDENTITY_HASH = "11a8a701bae767a8a3c5bc810e4743a4"`、`:538` 90 表、`:554` 21 条软引用；`VisualSnapshotIdentityMigration_70_71.kt` 为 `??`（未跟踪）。
+- **对 KD-80 的直接后果**：`BackupSnapshotTrimmer` 的版本门跟随 `SmbkSelectionPlan.SCHEMA_VERSION`（`:268-271`）。一旦本轨之后 v71 库被创建而常量/清单未回填，备份/恢复会**原形复现** `快照 schema=71，裁剪器只支持 schema=70` 的 fail-closed（即 KD-80 本体的失败形态，不是新缺陷）。因此 **KD-80 继续 open**：现有 80-C1/80-C2 的绿是 **S=70** 口径，**不得**拿来关闭 S=71；S=71 必须在 `71.json` 生成、`SmbkSelectionPlan` 常量回填后，按 T1 判据 §3.2 的 `S=71` 脚本重跑（80-C2）+ 备份 34/34 重跑（80-C1）。
+- **不变项**：80-C3 仍 PARTIAL（JVM 仓内执行缺命令归属）、80-C4 仍 UNVERIFIED（34 例对视觉四表引用零断言）；关闭规则 `80-C1 ∧ 80-C2 ∧ 80-C3 ∧ 80-C4` 不变。**本块不得读成 schema 71 已交付或 KD-80 已关闭。**
+
+**Progress（2026-10-29 批次 32 集成接线；只读，零 Gradle/零设备/零 git 写；状态保持 open）.** 上块"`71.json` 仍不存在 / `SCHEMA_VERSION = 70`"是 **10:05 时点**，已被 T3 生成 + T4 回填取代；本块只钉现树事实，不改关闭判定：`core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/71.json` **已存在**（`database.version=71`、`identityHash=714c0ecb85ee5edf74f0013740148138`、90 entities / 2 views、378,961 B，mtime 2026-10-29 10:13；仍 `??` 未跟踪，提交必须纳入），`SmbkSelectionPlan.kt` 已回填 `SCHEMA_VERSION = 71` 且 `IDENTITY_HASH = "714c0ecb85ee5edf74f0013740148138"`；三处同值（`71.json` / 生成的 `StudyDatabase_Impl.kt` `RoomOpenDelegate(71, "714c…", …)` / 常量），`BackupSnapshotTrimmer.kt:268-283` 的版本与身份两门随常量自动对齐 71。**但这不等于 KD-80 可关闭**：80-C1 的 34/34 与 80-C2 的清单比对都是 **S=70 口径**；S=71 的备份 34/34、1→71 迁移矩阵、`SmbkSelectionPlanTest`/`BackupSnapshotTrimmerInstrumentedTest` 与设备结构门均**未在本批执行 → UNVERIFIED**。故 80-C1/80-C2 的 S=71 复跑仍是关闭前置，KD-80 保持 open。
+
+**Progress（2026-10-29 批次 32 设备轨回填 + 复核修复轮；只读，零 Gradle/零设备；git 仅 `add` 三条交付物；状态保持 open）.** 上块末句"…均**未在本批执行 → UNVERIFIED**"是 **10:13 接线时点**，已被同日 **11:19–11:35** 的设备轨取代；本块只回填执行事实，不改关闭判定：
+
+- **S=71 设备证据（实跑）**：70→71 专用 `OK (3 tests)`（E-04，`build/device-track-batch32/step04-migration-70-71.log`，11:19）；1→71 矩阵 `OK (15 tests)`（E-05，`step03-migration-matrix.log`，11:19–11:26）；备份/恢复 `OK (34 tests)`（E-06，`step01-backup.log`，11:26），其判据明写"schema68 快照恢复后读到的库版本必须是 `SmbkSelectionPlan.SCHEMA_VERSION`（现 71）"，且 `BackupSnapshotTrimException`/`expected:<70>`/`expected:<71>` 均 0；裁剪器 `OK (9 tests)`（E-09，`step09-trimmer.log`）。**不得再把这几项写成"未在本批执行"。**
+- **结构门仍非全绿**：E-07 `Tests run: 5, Failures: 1`（`step05-structure-gates.log`）；红因是用例自身在 `:221` 读取已在 `:205` 断言删除的行（E-13，A 类）。复核修复轮已把读侧改读未列入淘汰候选的 STAGING 行（`snap-staging-keeper`），**修复后的绿轮尚未重跑**；重跑前不得写"结构门全绿"。
+- **仍 UNVERIFIED**：JVM `SmbkSelectionPlanTest`（12 例）、`VisualCheckpointRetentionTest`（17 例）等纯函数门在本轮**未执行**（设备轨只跑 `assemble*`，无任何 `testDebugUnitTest` 记录）；触发器 backstop 未落，本批不声称 DB 级触发器生效。
+- **交付链**：`71.json`、`VisualSnapshotIdentityMigration_70_71.kt`、`TutorVisualSnapshotIdentityMigration_70_71InstrumentedTest.kt` 已由复核修复轮 `git add` 纳入索引（此前 `??`；文件内容未改）。
+- **KD-80 判定不变**：80-C1（S=71 备份 34/34）与 80-C2（S=71 清单比对 `RESULT=PASS`/`EXIT=0`）的设备面已有绿轮；80-C3 的 JVM 半边与 80-C4（视觉四表引用零断言）仍不满足 → `80-C1 ∧ 80-C2 ∧ 80-C3 ∧ 80-C4` 未全满足，**保持 open**，不得写 closed。
+
+**记录回链（2026-10-29 批次 32 记录员；只读核对，零 Gradle/零设备/零 git 写；状态保持 open）.** 上块"JVM `SmbkSelectionPlanTest`/`VisualCheckpointRetentionTest` 未执行"是 **11:35 设备轨时点**；复核修复轮之后本机 `build/` 下有这两套件的 JUnit XML（mtime **12:36–12:38**，`SmbkSelectionPlanTest` 12/0、`VisualCheckpointRetentionTest` 17/0、`TutorVisualIdentityTest` 6/0、`TutorVisualSchemaContractTest` 9/0、`KernelWave0SchemaContractTest` 8/0），但属 **build/ 旁证、非仓内命令日志**，80-C3 仍记 **PARTIAL**。**设备绿轮的源边界**：设备 APK 构建于 **11:14–11:17**，现树在 **12:26–12:28** 另有 **11 个源文件**改动（`src-sha-before.txt` 对现树：850/861 相同 / 11 不同，清单见 `docs/research/2026-10-29-batch-32-record.md` §4.4），其中包含 `RoomStudyDatabase`/`TutorVisualCommitRepository` 的 stage 淘汰集修复与仓库第 9 例；因此 80-C1 的 34/34 与 80-C2 的清单 PASS 仍只对 11:14 的源成立，**当前树复跑 UNVERIFIED**。80-C4 仍零断言。**KD-80 保持 open，关闭判定不变。**
+
+## KD-81 (open, 2026-10-29 批次 32 T6 登记（AUD-08 溯源缺口；中）) · 切分评估快照的 `source.db.sha256` 只覆盖主库字节、不含 `-wal`/`-shm`：同一主库 + 不同 WAL 会得到不同导出却报同一快照身份
+
+**Symptom（读码 + 受控实验复读，2026-10-29）.** `tools/split_golden/export_split_eval.py:72-73` 的 `_sha256(path) = hashlib.sha256(path.read_bytes()).hexdigest()` 与 `:221-222` 的 `source.db = {file, sha256, bytes}` 只读主库文件；全文 `grep -in "wal"` = **0 命中**。设备库默认 WAL 模式，未 checkpoint 的已提交行只在 `-wal` 内。受控实验（`tools/split_golden/README.md:86-89`）：两个快照主库 sha 同为 `946b896c…`，带 WAL 导出 1 页 2 框、无 WAL 导出 0 页。**本轨对批次 31 设备快照复跑（sha256/stat 实跑）**：`tmp/aud08-db-5562/smart-mistake-book.db` = `eb4d327147afa075ce28d143be5bc5aaf791eb59d202ca3ce8697b6351d8f4dc`（12,775,424 B，mtime 2026-10-29 05:26:18），`-wal` = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`（**0 B**，mtime 05:38:47），`-shm` = `fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb`（32,768 B，mtime 08:26:14）——三件 mtime 不同（不是同一时刻取），WAL 为空。
+
+**Impact.** 报告里的 `source.db.sha256` 不能单独充当快照身份：同一主库 + 不同 WAL 会得到不同的 `pages`/门值，却报同一个 db sha。AUD-08 的门值复现与"设备库无分题数据"的判断都依赖该身份；批次 31 记录的"导出 0 页、门 0.2857 FAIL"建立在一个 WAL 为 0 B、且三件非同一时刻取得的快照上（设备数据度量 UNVERIFIED，`docs/research/2026-10-29-batch-31-record.md` §5.2 #6）。
+
+**Fix direction（二选一；本轨只登记，未改工具）.** ① 把 `-wal`/`-shm` 纳入快照身份：manifest 为每个存在的边车记 `{file, sha256, bytes}`，身份 = 主库 + 边车排序后的摘要；或 ② 取库前显式 `PRAGMA wal_checkpoint(TRUNCATE)` 并校验结果（busy/log/checkpointed），把"无 WAL 帧"变成可验证前提。两条都必须保留"三件同一时刻取自同一设备"的取库纪律（`tools/split_golden/README.md` 步骤 1）。
+
+**Detection（本轨已执行；可直接作为复跑门）.**
+
+```bash
+SNAP=tmp/aud08-db-5562/smart-mistake-book.db
+for f in "$SNAP" "$SNAP-wal" "$SNAP-shm"; do
+  [ -e "$f" ] && sha256sum "$f" && stat -c '%n %s %y' "$f"
+done
+# FAIL 判据：-wal 存在且 size>0，而报告 source.db 只有主库 sha（或三件 mtime 不同）
+```
+
+本轨输出（2026-10-29，逐行）：
+
+```text
+eb4d327147afa075ce28d143be5bc5aaf791eb59d202ca3ce8697b6351d8f4dc  tmp/aud08-db-5562/smart-mistake-book.db
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  tmp/aud08-db-5562/smart-mistake-book.db-wal
+fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb  tmp/aud08-db-5562/smart-mistake-book.db-shm
+smart-mistake-book.db 12775424 2026-10-29 05:26:18.701635400 +0800
+smart-mistake-book.db-wal 0 2026-10-29 05:38:47.396713600 +0800
+smart-mistake-book.db-shm 32768 2026-10-29 08:26:14.163243400 +0800
+```
+
+→ 该快照 WAL 为空但三件 mtime 不同，**不能**据此声明"设备库确无分题数据"；检测门在 WAL 非空时必须判"快照身份不完整"。
+
+**关闭条件.** 工具侧 manifest 覆盖 `-wal`/`-shm`（或 checkpoint 完成证据），并用受控实验证明"同主库 + 不同 WAL 必得不同身份/可区分导出"；AUD-08 设备库复跑使用同一时刻三件快照并落盘。未满足前，报告 `source.db.sha256` 只能读作"主库字节摘要"，不得读作完整快照身份。**工具未改、设备未复跑，本条保持 open。**

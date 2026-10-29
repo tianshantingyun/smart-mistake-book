@@ -187,7 +187,7 @@ JS源码独立存，PNG预览可用LOCAL_VISUAL_PREVIEW技术标签；图像模�
 
 动画 Frame 是最多两份内存对象，逐帧 render 不写 Room、不生成 canonical PNG、不触发备份或 Provider。只在初次成功、range/drag 结束、播放暂停/进入后台、明确保存/导出时提交 checkpoint；连续输入合并，未完成的一次手势在进程死亡后可回到最近已提交 checkpoint，不能承诺每一帧恢复。
 
-每 program 仅保留初始与最新两个未被其他对象固定的 checkpoint；消息/保存题/导出固定的历史快照不得回收。每 program 的可回收派生缓存≤4 MiB，全局可回收视觉缓存≤32 MiB（原始程序和被固定事实不计作可删缓存）。超限只淘汰**未被固定、kind ∈ {NULL, LATEST}、且仍为 STAGING 的中间态**快照/预览；**LIVE（用户已经看到的图）永不淘汰**——它不是"没人引用的缓存"，`checkpoint_kind` 只表达角色，与是否可见是两轴（批次 31 裁定，`TutorVisualDao.evictUnpinnedCheckpoints` / `VisualCheckpointRetention` 的 `evictable` 均以 `status = STAGING` 为正向条件，未知 status/kind fail-closed 保留）。全部固定或磁盘不足则本次不提交并说明，不通过删用户事实腾空间。状态与 snapshot pointer 使用 program+basis+expectedRevision CAS，迟到 checkpoint 不覆盖新状态。
+每 program 仅保留初始与最新两个未被其他对象固定的 checkpoint；消息/保存题/导出固定的历史快照不得回收。每 program 的可回收派生缓存≤4 MiB，全局可回收视觉缓存≤32 MiB（原始程序和被固定事实不计作可删缓存）。超限只淘汰**未被固定、kind ∈ {NULL, LATEST}、且仍为 STAGING 的中间态**快照/预览；**LIVE（用户已经看到的图）永不淘汰**——它不是"没人引用的缓存"，`checkpoint_kind` 只表达角色，与是否可见是两轴（批次 31 裁定，`TutorVisualDao.evictUnpinnedCheckpoints` / `VisualCheckpointRetention` 的 `evictable` 均以 `status = STAGING` 为正向条件，未知 status/kind fail-closed 保留）。全部固定或磁盘不足则本次不提交并说明，不通过删用户事实腾空间。状态与 snapshot pointer 使用 program+basis+expectedRevision CAS，迟到 checkpoint 不覆盖新状态。（批次 32 T6 复核：现树与上文同词——`TutorVisualDao.kt:210-235` 的 evict SQL 以 `status = :stagingStatus`（`:213`）为正向条件、并二次 `NOT EXISTS` 消息/题面引用；`checkpoint_kind ∈ {NULL, LATEST}` 同时把 `INITIAL` 排除在候选集外。批次 32 T3 另补 **STAGING 租约**：`owner_request_id IS NULL`（无主历史行）、`owner_request_id = :committingOwnerRequestId`（只回收本次提交自己的旧预备行）或 `created_at_epoch_millis <= :leaseExpiredBeforeEpochMillis`（租约过期）三选一，其余在飞 owner 的行不删。）
 
 首张可见图随 assistant message/trace/visual link 在同一事务提交，事务前准备程序/快照或资产仅作为 staging；记录 ownerRequestId 与 STAGING/LIVE 生命周期，活动 owner 的预备产物不得被 GC。失败、取消或进程租约失效时先持久化 owner 状态并对账，确认未被消息/题目/导出引用后才清理；恢复中的操作不能因进程死亡被直接当无主。预览文件先安全写入并校验 SHA，再在 DB 事务注册 canonical/snapshot 引用；失败遗留文件由既有孤儿清理处理。保存题只增加精确 revision/role 引用；删除会话不删保存题/导出固定的快照。
 
@@ -205,7 +205,7 @@ JS源码独立存，PNG预览可用LOCAL_VISUAL_PREVIEW技术标签；图像模�
 
 图题核对未通过时不替换原题/原图，不编造缺失标注。语义重建、照片净化、文字识别、切分各有独立冻结数据和质量门。普通生图的“成功”不是数学正确证据。
 
-切分门（AUD-08）2026-10-27 登记工具面闭环：冻结金标 v1（7 页/16 框，**模型标注代理金标，无人工专家**）与可复跑判门（`tools/split_golden/`：validate / export / measure / check_split_gate + 门说明 GATE.md）。门值 ①≥0.9 且 ③≤0.05（“立项自定”建议值）；当前实测门 **FAIL**（① 0.5714，4C 存量设备导出复算）→ **门后自动化不启用**，切残不得自动入库红线不变。错误合并/重复率指标未立项未实现，训练/开发/验收切分未做，设备与真实模型重测 UNVERIFIED——逐项如实登记于 GATE.md，不以工具面交付触发任何门后自动化。
+切分门（AUD-08）2026-10-27 登记工具面闭环：冻结金标 v1（7 页/16 框，**模型标注代理金标，无人工专家**）与可复跑判门（`tools/split_golden/`：validate / export / measure / check_split_gate + 门说明 GATE.md）。门值 ①≥0.9 且 ③≤0.05（"立项自定"建议值）；当前实测门 **FAIL**（① 0.5714，4C 存量设备导出复算）→ **门后自动化不启用**，切残不得自动入库红线不变。错误合并/重复率指标未立项未实现，训练/开发/验收切分未做，设备与真实模型重测 UNVERIFIED——逐项如实登记于 GATE.md，不以工具面交付触发任何门后自动化。**快照身份边界（2026-10-29 批次 32 T6 登记 KD-81）**：`export_split_eval.py` 的 `source.db.sha256` 只覆盖主库文件字节（`_sha256` 在 `:72-73`、manifest 在 `:221-222`），**不含 `-wal`/`-shm`**；设备库默认 WAL 模式，同一主库 + 不同 WAL 会得到不同导出却报同一 sha（受控实验见 `tools/split_golden/README.md:86-89`）。取库/复现必须三件同一时刻保存并比对，或先显式 checkpoint 并校验完成；未覆盖前，该 sha 只能读作"主库字节摘要"，不得读作完整快照身份。
 
 ## 9. 启用与退出门
 

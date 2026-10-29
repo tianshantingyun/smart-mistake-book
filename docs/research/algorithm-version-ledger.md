@@ -672,6 +672,34 @@ AUD-17 校准结果互相替代。
 
 **archive 是否已落**：本轮非投影变更，不涉及 `projection_archive`；schema 旧值以 `69.json`（已跟踪）为归档。
 
+### 3.41 批次 32 · `STUDY_DATABASE_VERSION` 70 → 71（快照唯一键并入渲染器/字体清单版本）；请求 schema 18 / `drawSchemaVersion` 1 / `PROTOCOL_VERSION` 2 维持
+
+> 依据：批次 32 计划 `.zcode/plans/plan-2026-10-29-batch-32-parity-schema71.md:18-21`、R2 `docs/research/2026-10-29-schema-generation-flow.md` §0/§2–§3、T3/T4 落码、批次记录 `docs/research/2026-10-29-batch-32-record.md` §3.3/§3.4。**记录步零 Gradle/零设备/零 git 写**；设备读数只复读 `build/device-track-batch32/` 既有日志。
+
+| 项 | 旧值 → 新值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | **70 → 71** | `StudyDatabase.kt:139`；迁移 `VisualSnapshotIdentityMigration_70_71.kt` 注册于 `:411`；v70→71 **只碰索引**：`DROP INDEX` 旧三列唯一键 + `CREATE UNIQUE INDEX` 五列键，零 `ALTER`/`UPDATE`/回填，旧行零改动 |
+| 快照唯一键 | **`(program_id, state_sha256, draw_commands_sha256)` → 五列 + `renderer_version, font_manifest_version`** | 实体 `TutorVisualEntities.kt:132-155`；派生 `TutorVisualIdentity.deriveSnapshotId` 五参五段长度前缀（`:89-113`）；查重 `TutorVisualDao.findSnapshotByContent` 五列 WHERE（`:82-101`）——三处必须同源 |
+| `identityHash` | `11a8a701bae767a8a3c5bc810e4743a4` → **`714c0ecb85ee5edf74f0013740148138`** | 只由 KSP 生成；`71.json` / `StudyDatabase_Impl.kt:264` `RoomOpenDelegate(71, "714c…", …)` / `SmbkSelectionPlan.kt:51` 三处逐字同值（记录员实读） |
+| 备份机器清单 | **数字不变**：90 表 / 2 视图 / 100 FK 边 / 82 裁剪项 / 21 软引用 / SPLIT 7 / `CLOSURE_VERSION` 3 | 只换索引，不增删表/列/FK/视图；`SmbkSelectionPlan.kt:44` `SCHEMA_VERSION=71`、`:54` `CLOSURE_VERSION=3` |
+| 请求 schema | 维持 **18** | 本批不改 `TutorVisualContext` wire 形态，visual 引用仍未进入模型请求 |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | 本批只改一致门（androidTest）与持久化索引，wire 词表零增删 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | 未改 AIDL/信封字段 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（零构建脚本改动） |
+
+**bump 判据（逐条）**：
+
+1. **为什么必须 bump**：唯一键/索引形状改变会改变 Room 的 schema 身份与 `room_master_table` 校验；不 bump 会让 v70 库在升级/打开时被拒（`Migration didn't properly handle` 或 identity mismatch）。
+2. **为什么是非破坏**：迁移只有两条 `execSQL`（DROP 旧索引 + CREATE 新索引），无 `ALTER`/`UPDATE`、无表重建、无存量回填；两列 v70 已存在；新键是旧键的**严格超集** ⇒ 存量行不可能冲突。设备 `70→71` 专用 `OK (3 tests)`（E-04，11:19）与 `1→71` 矩阵 `OK (15 tests)`（E-05，11:19–11:26）。
+3. **为什么 `identityHash` 不能手写/反算**：R2 §1.3 从 room3-compiler 3.0.0 字节码还原公式后对 `70.json` 跑 192 组参数组合，0 命中；JSON 是编译器模型的有损投影。真值只来自一次带 KSP 的构建；`71.json` 378,961 B / mtime 10:13。
+4. **为什么请求 schema 不 bump**：本批不改 `TutorVisualContext` 的 wire 形态；无条件 bump 会让旧请求指纹无谓漂移。
+5. **为什么 `drawSchemaVersion` 不 bump**：一致门阈值/断言只存在于 `androidTest`，不进产品版本面；DrawOps wire 词表未动。
+6. **备份清单为什么"数字不变"**：记录员 python 实跑 70↔71 结构 diff：90 entities、表名集合相同，只有 `tutor_visual_snapshot` 的索引从三列变五列；`fields`/`foreignKeys`/`createSql`/2 视图全同。S=71 清单门实跑 `RESULT=PASS`/`EXIT=0`（90/90/90、双向差集空、version/hash 同源）。
+
+**测试证据**：设备 `BackupRestoreInstrumentedTest` `OK (34)`（E-06，11:26，S=71 判据）、`TutorVisualSnapshotIdentityMigration_70_71InstrumentedTest` `OK (3)`（E-04）、`FullMigrationMatrixInstrumentedTest` `OK (15)`（E-05）。JVM XML 旁证（`build/`，非仓内命令日志）：`SmbkSelectionPlanTest` 12/0、`TutorVisualIdentityTest` 6/0、`TutorVisualSchemaContractTest` 9/0、`KernelWave0SchemaContractTest` 8/0，mtime 12:36–12:38。**源边界**：设备 APK 构建于 11:14–11:17，现树 12:26–12:28 另有 11 个源文件改动；备份/迁移套件的设备绿只对 11:14 源成立，当前树复跑 UNVERIFIED（批次记录 §4.4）。
+
+**archive 是否已落**：本轮是**索引变更**，不涉及投影输出；schema 旧值以已跟踪的 `70.json` 为归档（`version=70` / identityHash `11a8…` / 90 实体），新值 `71.json` 提交时必须纳入。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；
