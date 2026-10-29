@@ -16,6 +16,9 @@ package com.tingyun.smartmistakebook.core.model
  *   预算未预读（`remainingRemoteDispatches == null`）时策略门放行，由账本做真门；
  *   账本拒绝会把真实已派发次数回给诊断（KD-60）。**预算门只对 IMAGE_MODEL 生效**：
  *   JS 在本地引擎执行、不占远程派发，不得被远程余额拒掉。
+ * - 宿主显式传了 basis 指纹、却与 proposal 方法的真实输入摘要冲突（A-08 入口侧约束：
+ *   program 摘要是权威）。audit 的 `basis_fingerprint` 必须能回答"这次尝试的输入变过没有"，
+ *   冲突时静默采信显式值等于把宿主 bug 写进审计证据——这里按方法一致复核，冲突即拒。
  *
  * 只做校验，不做路由：它不按 purpose 选 method，也不替入口改选。
  */
@@ -183,10 +186,16 @@ object FigureGenerationPolicy {
                 "proposal 的保真档低于宿主目标（$proposedFidelity < ${request.target.fidelity}）",
             )
         }
-        return when (method) {
+        val payloadCheck = when (method) {
             FigureGenerationMethod.JS -> validateJsProposal(request, proposal)
             FigureGenerationMethod.IMAGE_MODEL -> validateImageModelProposal(request, proposal)
         }
+        if (payloadCheck is FigureGenerationValidation.Rejected) {
+            return payloadCheck
+        }
+        // A-08 入口侧约束在载荷校验之后追加：program/imagePrompt 的非空不变量已由
+        // 载荷校验建立，这里只做"显式 basis == 方法一致摘要"的复核。
+        return validateBasisFingerprint(request, proposal, method)
     }
 
     private fun validateJsProposal(
@@ -220,6 +229,17 @@ object FigureGenerationPolicy {
             return reject(
                 FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
                 "目标要求参数交互，但本机 JS 运行库不支持交互",
+            )
+        }
+        // Q-01（批次 35）：与 IMAGE 分支的 pixel 门恰成镜像、但方向相反——参数交互 JS
+        // **能给**（按能力位查），原像素保真 JS **结构上给不了**：参数化重绘从 canvas 指令
+        // 重建画面，从不触原像素，任何能力位都改变不了这一点。所以这道门无条件拒，不看
+        // 能力位；放行一个 requiresPixelFidelity=true 目标的 JS proposal，就是让 JS 冒充
+        // 它兑现不了的保真承诺。
+        if (request.target.requiresPixelFidelity) {
+            return reject(
+                FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
+                "目标要求原像素保真，JS 参数化重绘不能冒充完成",
             )
         }
         return FigureGenerationValidation.Accepted
@@ -314,6 +334,53 @@ object FigureGenerationPolicy {
         return FigureGenerationValidation.Accepted
     }
 
+    /**
+     * A-08 入口侧约束：**program 摘要是权威；宿主显式 basis 必须过方法一致复核；冲突 fail-closed**。
+     *
+     * 消灭的具体失败：三入口显式传的是 IMAGE 语义 basis（[figureBasisFingerprint]，imagePrompt
+     * 进规范化串），而 coordinator 对显式值无条件采信（`basisFingerprint ?: 推导`）。一旦
+     * method=JS 的 proposal 到达带 IMAGE 语义显式 basis 的 request（A-02 工具环接线后的默认形态），
+     * 两个不同的 program 就共享同一 `input_fingerprint`，"两个不同 program 不得同指纹"从入口侧复活。
+     * 这里在放行前按 proposal 的真实方法重算摘要（JS → program 字节哈希；IMAGE_MODEL → imagePrompt），
+     * 与显式值不一致即拒绝，不静默覆盖、不静默重算——冲突说明宿主算错了指纹，第一次就拒比写脏审计好。
+     *
+     * 源段口径与三入口的构造一致：取 [FigureSourceEvidence.contentSha256]（三入口都以
+     * `figureSha256Hex(bytes)` 派生它）。显式值为 null = 旧调用（A-12 兼容口径），本门不介入，
+     * coordinator 照旧自行推导。
+     */
+    private fun validateBasisFingerprint(
+        request: FigureGenerationRequest,
+        proposal: FigureGenerationProposal,
+        method: FigureGenerationMethod,
+    ): FigureGenerationValidation {
+        val declared = request.basisFingerprint ?: return FigureGenerationValidation.Accepted
+        val expected = when (method) {
+            FigureGenerationMethod.JS -> figureJsBasisFingerprint(
+                operationId = request.operationId,
+                sourceSha256 = request.source?.contentSha256,
+                program = requireNotNull(proposal.program) {
+                    "payload validation accepted a JS proposal without a program"
+                },
+            )
+
+            FigureGenerationMethod.IMAGE_MODEL -> figureBasisFingerprint(
+                operationId = request.operationId,
+                sourceSha256 = request.source?.contentSha256,
+                imagePrompt = requireNotNull(proposal.imagePrompt) {
+                    "payload validation accepted an IMAGE_MODEL proposal without an imagePrompt"
+                },
+            )
+        }
+        if (declared != expected) {
+            return reject(
+                FigureGenerationRejectionCode.BASIS_FINGERPRINT_MISMATCH,
+                "宿主显式 basis 指纹与 ${method.name} 方法的输入摘要不一致" +
+                    "（program 摘要是权威，冲突值不得写进审计）",
+            )
+        }
+        return FigureGenerationValidation.Accepted
+    }
+
     private fun validateNonGenerating(
         proposal: FigureGenerationProposal,
     ): FigureGenerationValidation {
@@ -377,4 +444,5 @@ enum class FigureGenerationRejectionCode {
     CONSTRAINT_BUDGET_EXCEEDED,
     BUDGET_INSUFFICIENT,
     DISPATCH_UNBOUND,
+    BASIS_FINGERPRINT_MISMATCH,
 }

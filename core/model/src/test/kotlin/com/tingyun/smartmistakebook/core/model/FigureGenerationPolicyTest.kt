@@ -15,7 +15,9 @@ import org.junit.Test
  * - EDIT 必须有已授权源图字节，且声明的 sha 必须与实际字节一致；
  * - 讲题预算必须给终答留位；
  * - 没有持久父操作不得出网；
- * - 宿主约束不得被 proposal 丢掉，保真档不得被降低。
+ * - 宿主约束不得被 proposal 丢掉，保真档不得被降低；
+ * - 宿主显式 basis 必须与 proposal 方法的输入摘要**方法一致**（A-08 入口侧）：IMAGE 语义
+ *   basis 遇 JS proposal 即拒，两个不同 program 不得共享同一显式指纹，冲突 fail-closed。
  */
 class FigureGenerationPolicyTest {
 
@@ -365,7 +367,174 @@ class FigureGenerationPolicyTest {
         assertEquals(FigureGenerationPolicyVersion.VALUE, FigureGenerationPolicy.POLICY_VERSION)
     }
 
+    // ----------------- A-08 入口侧约束（显式 basis 的方法一致复核） -----------------
+
+    /** 三入口的现形态：显式值 = IMAGE 语义推导（同 operationId/源 sha/imagePrompt）→ 复核恒过。 */
+    @Test
+    fun anImageModelProposalWithAMatchingExplicitBasisIsAccepted() {
+        val prompt = "基于已授权原图重建干净题面，保留全部标注。"
+        val source = defaultSource()
+        val request = request(source = source).copy(
+            basisFingerprint = figureBasisFingerprint(
+                operationId = "op-1",
+                sourceSha256 = source.contentSha256,
+                imagePrompt = prompt,
+            ),
+        )
+
+        assertTrue(
+            FigureGenerationPolicy.validate(request, imageProposal(request, prompt = prompt))
+                is FigureGenerationValidation.Accepted,
+        )
+    }
+
+    /** 显式 basis 与 proposal 的 imagePrompt 不一致（第 4 个入口算错指纹的形态）→ 第一次就拒。 */
+    @Test
+    fun anImageModelProposalWithAMismatchedExplicitBasisIsRejected() {
+        val request = request().copy(
+            basisFingerprint = figureBasisFingerprint(
+                operationId = "op-1",
+                sourceSha256 = defaultSource().contentSha256,
+                imagePrompt = "另一个入口算错的图像指令",
+            ),
+        )
+
+        assertEquals(
+            FigureGenerationRejectionCode.BASIS_FINGERPRINT_MISMATCH,
+            rejectCode(request, imageProposal(request)),
+        )
+    }
+
+    /** A-02 工具环接线后的默认风险形态：IMAGE 语义显式 basis + method=JS proposal → 拒。 */
+    @Test
+    fun aJsProposalUnderAnImageSemanticsExplicitBasisIsRejected() {
+        val source = defaultSource()
+        val request = request(
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(FigureGenerationMethod.JS),
+            ),
+            source = source,
+        ).copy(
+            basisFingerprint = figureBasisFingerprint(
+                operationId = "op-1",
+                sourceSha256 = source.contentSha256,
+                imagePrompt = "图像语义的指令",
+            ),
+        )
+
+        assertEquals(
+            FigureGenerationRejectionCode.BASIS_FINGERPRINT_MISMATCH,
+            rejectCode(request, jsProposal("const visual = { prepare() { return {} } }")),
+        )
+    }
+
+    /** 工具环未来形态：显式值 = program 摘要（方法一致）→ 过。 */
+    @Test
+    fun aJsProposalWithTheProgramDigestBasisIsAccepted() {
+        val source = defaultSource()
+        val program = "const visual = { prepare() { return {} } }"
+        val request = request(
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(FigureGenerationMethod.JS),
+            ),
+            source = source,
+        ).copy(
+            basisFingerprint = figureJsBasisFingerprint(
+                operationId = "op-1",
+                sourceSha256 = source.contentSha256,
+                program = program,
+            ),
+        )
+
+        assertTrue(
+            FigureGenerationPolicy.validate(request, jsProposal(program))
+                is FigureGenerationValidation.Accepted,
+        )
+    }
+
+    /** A-08 判据的入口侧形态：同一显式 basis 下出现第二个不同 program → 第二次拒绝。 */
+    @Test
+    fun aSecondProgramUnderTheSameExplicitBasisIsRejected() {
+        val source = defaultSource()
+        val capabilities = FigureGenerationCapabilities(
+            availableMethods = setOf(FigureGenerationMethod.JS),
+        )
+        val firstProgram = "const visual = { prepare() { return {} } }"
+        val secondProgram = "const visual = { prepare() { return { bars: [1, 2] } } }"
+        val explicitBasis = figureJsBasisFingerprint(
+            operationId = "op-1",
+            sourceSha256 = source.contentSha256,
+            program = firstProgram,
+        )
+
+        assertTrue(
+            FigureGenerationPolicy.validate(
+                request(capabilities = capabilities, source = source)
+                    .copy(basisFingerprint = explicitBasis),
+                jsProposal(firstProgram),
+            ) is FigureGenerationValidation.Accepted,
+        )
+        assertEquals(
+            FigureGenerationRejectionCode.BASIS_FINGERPRINT_MISMATCH,
+            rejectCode(
+                request(capabilities = capabilities, source = source)
+                    .copy(basisFingerprint = explicitBasis),
+                jsProposal(secondProgram),
+            ),
+        )
+    }
+
+    // ----------------- Q-01：JS 分支的 pixel 保真门（无条件拒） -----------------
+
+    /**
+     * Q-01（批次 35）：JS 结构上给不了原像素保真——参数化重绘从 canvas 指令重建画面，
+     * 从不触原像素，任何能力位都改变不了这一点。JS 分支此前只查参数交互（IMAGE 分支才查
+     * pixel），会放行一个 requiresPixelFidelity=true 目标的 JS proposal——真实 policy 漏洞。
+     */
+    @Test
+    fun aJavascriptProposalCannotPromisePixelFidelity() {
+        val request = request(
+            target = FigureGenerationTarget(
+                fidelity = FigureFidelity.FAITHFUL,
+                requiresPixelFidelity = true,
+            ),
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(FigureGenerationMethod.JS),
+            ),
+        )
+
+        assertEquals(
+            FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
+            rejectCode(request, jsProposal("const visual = { prepare() { return {} } }")),
+        )
+    }
+
+    /** 对照臂（防过拒）：不要求像素保真的 JS proposal 照常 Accepted——门只对 pixel 目标生效。 */
+    @Test
+    fun aJavascriptProposalWithoutPixelFidelityIsAccepted() {
+        val request = request(
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(FigureGenerationMethod.JS),
+            ),
+        )
+
+        assertTrue(
+            FigureGenerationPolicy.validate(
+                request,
+                jsProposal("const visual = { prepare() { return {} } }"),
+            ) is FigureGenerationValidation.Accepted,
+        )
+    }
+
     // -----------------------------------------------------------------
+
+    private fun jsProposal(program: String): FigureGenerationProposal = FigureGenerationProposal(
+        decision = FigureGenerationDecision.GENERATE,
+        purpose = FigureGenerationPurpose.SOURCE_RECONSTRUCTION,
+        method = FigureGenerationMethod.JS,
+        reason = "测试",
+        program = program,
+    )
 
     private fun rejectCode(
         request: FigureGenerationRequest,
