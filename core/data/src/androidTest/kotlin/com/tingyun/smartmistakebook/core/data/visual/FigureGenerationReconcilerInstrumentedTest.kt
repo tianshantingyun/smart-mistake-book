@@ -222,6 +222,147 @@ class FigureGenerationReconcilerInstrumentedTest {
     }
 
     /**
+     * A-01 本地 JS 成功（`output_asset_id` 恒为 NULL，因为 program 没有资产 id）不得被
+     * 第二段对账当成"假成功"：否则每次进程启动都会把一条真实成功改写成 FAILED 待核实。
+     */
+    @Test
+    fun succeededJavascriptAttemptWithoutAssetIsNotReconciledAsFalseSuccess() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "figure-reconcile-js-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            val processStartedAtEpochMillis = System.currentTimeMillis() - 1_000L
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-js-success",
+                attemptId = "attempt-js-success",
+                operationStatus = "SUCCEEDED",
+                attemptStatus = "SUCCEEDED",
+                outputAssetId = null,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                startedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+                attemptMethod = "JS",
+                attemptOrdinal = -1,
+            )
+
+            val report = FigureGenerationReconciler(database).reconcileStaleRunning(
+                processStartedAtEpochMillis = processStartedAtEpochMillis,
+            )
+
+            assertEquals("本地 JS 成功不是假成功：不落任何操作", 0, report.failedOperations)
+            assertEquals("本地 JS 成功不是假成功：不落任何尝试", 0, report.failedAttempts)
+            database.close()
+
+            openReadOnly(context, databaseName).use { db ->
+                assertEquals(
+                    "JS 尝试必须保持 SUCCEEDED",
+                    "SUCCEEDED",
+                    db.string(
+                        "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                        "attempt-js-success",
+                    ),
+                )
+                assertEquals(
+                    "JS 操作必须保持 SUCCEEDED",
+                    "SUCCEEDED",
+                    db.string(
+                        "SELECT status FROM figure_generation_operation WHERE operation_id = ?",
+                        "op-js-success",
+                    ),
+                )
+            }
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 同一操作里"IMAGE_MODEL 成功但无产物"+"JS 成功"：只纠正 IMAGE_MODEL 那次尝试，
+     * 父操作仍算成功（JS 的 program 是真实产物，只是没有资产 id）。
+     */
+    @Test
+    fun javascriptSuccessKeepsItsOperationSucceededWhileImageAttemptIsReconciled() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "figure-reconcile-mixed-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            val processStartedAtEpochMillis = System.currentTimeMillis() - 1_000L
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-mixed-success",
+                attemptId = "attempt-mixed-image",
+                operationStatus = "SUCCEEDED",
+                attemptStatus = "SUCCEEDED",
+                outputAssetId = null,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                startedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+                attemptMethod = "IMAGE_MODEL",
+                attemptOrdinal = 1,
+            )
+            insertFigureGenerationAttemptFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-mixed-success",
+                attemptId = "attempt-mixed-js",
+                attemptStatus = "SUCCEEDED",
+                outputAssetId = null,
+                startedAtEpochMillis = 2_500,
+                endedAtEpochMillis = 2_500,
+                attemptMethod = "JS",
+                attemptOrdinal = -1,
+            )
+
+            val report = FigureGenerationReconciler(database).reconcileStaleRunning(
+                processStartedAtEpochMillis = processStartedAtEpochMillis,
+            )
+
+            assertEquals("IMAGE_MODEL 假成功那次尝试必须被纠正", 1, report.failedAttempts)
+            assertEquals("父操作有 JS 真实成功，不得被判失败", 0, report.failedOperations)
+            database.close()
+
+            openReadOnly(context, databaseName).use { db ->
+                assertEquals(
+                    "IMAGE_MODEL 无产物尝试落 FAILED",
+                    "FAILED",
+                    db.string(
+                        "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                        "attempt-mixed-image",
+                    ),
+                )
+                assertEquals(
+                    "JS 尝试保持 SUCCEEDED",
+                    "SUCCEEDED",
+                    db.string(
+                        "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                        "attempt-mixed-js",
+                    ),
+                )
+                assertEquals(
+                    "操作因 JS 成功保持 SUCCEEDED",
+                    "SUCCEEDED",
+                    db.string(
+                        "SELECT status FROM figure_generation_operation WHERE operation_id = ?",
+                        "op-mixed-success",
+                    ),
+                )
+            }
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
      * 断言用的第二条只读口。用 `OPEN_READWRITE` 而不是 `OPEN_READONLY`：Room 刚关库时若还有
      * WAL/SHM 残留，只读连接在部分设备上打不开；这里只是读，写入权限不会改变断言含义。
      */
