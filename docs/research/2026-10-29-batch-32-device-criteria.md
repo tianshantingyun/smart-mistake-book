@@ -344,7 +344,7 @@ JVM 半边 `SmbkSelectionPlanTest` **12** 例，目标 12/12；`SCHEMA_70_PATH` 
 
 ### 5.1 结构门（`TutorVisualStructureGatesInstrumentedTest`）
 
-**目标**：`OK (4 tests)`。4 条方法（本会话实读）：
+**目标**：`OK (5 tests)`（**批次 33 T6 回改**：本行原写 `OK (4 tests)` / 4 条，是批次 32 09:58 快照；批次 32 复核修复轮已加入第 5 例 `repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned`，现树 `grep -c '@Test'` = **5**）。5 条方法：
 
 | 用例 | 必须成立 |
 |---|---|
@@ -352,8 +352,9 @@ JVM 半边 `SmbkSelectionPlanTest` **12** 例，目标 12/12；`SCHEMA_70_PATH` 
 | `revisionPinRejectsStagingAndForeignKeyProgramButAcceptsSameProgramLive` | 题面 pin 拒 STAGING/跨 program，接受同 program LIVE |
 | `evictionDeletesOnlyUnpinnedStagingIntermediates` | 只删未 pin 的 STAGING 中间态；pinned/被引用行保留 |
 | `commitTransactionExecutesDemoteAndEvict` | demote/evict 在提交事务内真的执行 |
+| `repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned` | 仓储 plan→command→SQL 全链路：两条同形状候选仅 pin 不同，被 pin 者保留、未 pin 者被淘汰（**pin 分辨力本体，不得删/放宽**） |
 
-- 本批**不新增触发器**（§5.4），这 4 条仍是 DAO 层唯一执行面；不得因为“计划写了触发器”而把这 4 条降级为辅助。
+- 本批**不新增触发器**（§5.4），这 5 条仍是 DAO 层唯一执行面；不得因为“计划写了触发器”而把这 5 条降级为辅助。
 - 若 v71 迁移改了唯一索引，本套件的 link/pin/CAS 用例必须仍绿；红 → 先 D（旧包）再 C（迁移/DAO）。
 
 ### 5.2 提交 / 仓库两套（本批必须一起跑）
@@ -362,19 +363,34 @@ JVM 半边 `SmbkSelectionPlanTest` **12** 例，目标 12/12；`SCHEMA_70_PATH` 
   `snapshotDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite`，`:124`）。
 - `TutorVisualCommitRepositoryInstrumentedTest` **5** `@Test`（批次 31 设备跑 4；新增
   `snapshotOverSourceBudgetIsRejectedBeforeAnyWrite`，`:229`）。
+- **批次 33 T6 计数回改（本行以上是批次 32 09:58 快照，不再代表现树）**：T6 `grep -c '@Test'`
+  实测 `TutorVisualCommitInstrumentedTest` = **12**、`TutorVisualCommitRepositoryInstrumentedTest`
+  = **11**（T3 新增第 10/11 例、T4 新增 digest/scene 负向，均为批次 33 并行落码）；设备轨构建前
+  必须按 §1.3 复读，不得把 10/5 或设备轨的 11/8 当现树计数。
 - 关键新增必须绿：`snapshotDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite`（digest==sha256(json)
   的负向）、`snapshotOverSourceBudgetIsRejectedBeforeAnyWrite`（源码超 64 KiB 写库前拒绝）、
   `commitEvictsAnUnreferencedStagingIntermediateThroughPlanToCommand`（plan→command 端到端）、
   `stageThenCommitStillDemotesThePreviousLatestCheckpoint`。
 - 这 4 条**从未上过设备**（批次 31 只跑 9/4）；本批是首次执行，红例按 §8 归因，不得删用例。
+  **（批次 33 T6 时点）** 批次 32 设备轨已实跑提交 11 / 仓库 8；批次 33 又新增用例（现树 12/11），
+  这些新增例在批次 33 设备轨执行前仍**未上设备**；不得把批次 32 的 11/8 绿读成现树 12/11 绿。
 
 ### 5.3 预算 / evict / pin 三处证据（计划验收）
 
 | 面 | 现有证据 | 缺口（如实登记） |
 |---|---|---|
 | 预算 | `snapshotOverSourceBudgetIsRejectedBeforeAnyWrite`（单源码 64 KiB 上限）+ E-08 的 per-program/global 陈旧读用例 | **设备轨后记（2026-10-29 11:19–11:35）**：本行原写"预算门移入事务**未落**"是 09:58 快照，现树已落码——`RoomStudyDatabase.enforceVisualCheckpointBudget` 在 `commitTutorTurnWithVisual` 的 demote/evict 之后重读 `programCheckpointStoredBytes`/`totalCheckpointStoredBytes`（现树 `:2162-2184`）；`stageTutorVisualSnapshot` 同样重判，复核修复轮又把 plan 的淘汰集带进 stage 事务（此前只写 `incomingKind`）。E-08 实跑 `OK (11 tests)`/`OK (8 tests)` |
-| evict | `commitEvictsAnUnreferencedStagingIntermediateThroughPlanToCommand`（端到端）+ 结构门 4 条 | **设备轨后记**：STAGING 租约条件**已加**——`evictUnpinnedCheckpoints` 带 `owner_request_id IS NULL OR = 本次 owner OR created_at <= 租约截止`（现树 `TutorVisualDao.kt:208-235`），E-08 的 `freshForeignStagingLeaseIsNotEvictedByAnotherRequest` 绿；E-07 该例的红因是测试自身读已删行（E-13），复核修复轮已改读未入候选的行，绿轮待重跑 |
+| evict | `commitEvictsAnUnreferencedStagingIntermediateThroughPlanToCommand`（端到端）+ 结构门 5 条 | **设备轨后记**：STAGING 租约条件**已加**——`evictUnpinnedCheckpoints` 带 `owner_request_id IS NULL OR = 本次 owner OR created_at <= 租约截止`（现树 `TutorVisualDao.kt:208-235`），E-08 的 `freshForeignStagingLeaseIsNotEvictedByAnotherRequest` 绿；E-07 该例的红因是测试自身读已删行（E-13），复核修复轮已改读未入候选的行，绿轮待重跑 |
 | pin | 结构门 `evictionDeletesOnlyUnpinnedStagingIntermediates` + JVM `VisualCheckpointRetentionTest` | 设备面已有；红因是测试自身矛盾（E-13），非 pin 谓词失效；JVM 例本批未执行 |
+
+**批次 33 T6 回改（上表内的设备计数与现树已不同源，按此为准）**：
+- 结构门现树 **5 例**（第 5 例 `repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned`，§5.1），
+  不是 4 条；E-07 的 `Tests run: 5, Failures: 1` 对应修复前源，修复后的 5/5 绿轮在批次 33 设备轨
+  执行前仍 **UNVERIFIED**。
+- E-08 的仓库 `OK (8 tests)` 对应 11:14 旧源；T6 `grep -c '@Test'` 实测现树仓库 **11** 例、提交 **12** 例
+  （§5.2）。批次 33 设备轨须重跑，不得把 8 当现树计数。
+- JVM `VisualCheckpointRetentionTest` 在批次 32 设备轨时点未执行；其后本机 build/ XML 有 17/0
+  旁证（mtime 12:38:58），但非仓内命令日志，仍记 **UNVERIFIED**（§9）。
 
 ### 5.4 计划与现树的两处偏差（必须由主会话裁定，不得静默接受）
 
@@ -386,6 +402,9 @@ JVM 半边 `SmbkSelectionPlanTest` **12** 例，目标 12/12；`SCHEMA_70_PATH` 
    事务内（`:2162-2184`），evict SQL 带租约谓词（`TutorVisualDao.kt:208-235`），E-08 两套件
    `OK (11 tests)`/`OK (8 tests)`。仍属偏差的只有第 1 项（触发器 backstop）；本批不得声称
    DB 级触发器生效。
+   **（批次 33 T6 回改）** `OK (8 tests)` 是仓库套件旧源计数，T6 实测现树为 **11** 例
+   （提交套件 **12** 例）；`OK (11 tests)` 的提交套件现树也已增至 12。批次 33 设备轨须在新源上
+   重跑，不得把 E-08 的 11/8 当现树绿轮；触发器 backstop 仍未落，结论不变。
 
 ---
 
@@ -852,11 +871,15 @@ done   # 期望全 0
 - **已执行（设备轨 2026-10-29 11:19–11:35，不是本文件轮次）**：E-02 一致门 `OK (16 tests)`
   （15 负控红，N09-P07 实测 `0.608282132824767`）；E-03 69→70 `OK (4 tests)`；E-04 70→71
   `OK (3 tests)`；E-05 1→71 `OK (15 tests)`；E-06 备份 `OK (34 tests)`；E-08 提交/仓库
-  `OK (11 tests)`/`OK (8 tests)`；E-09 裁剪器 `OK (9 tests)`；E-10 painter/PDF `OK (24)`/`OK (16)`；
+  `OK (11 tests)`/`OK (8 tests)`（**仓库 8 例是 11:14 旧源；批次 33 T6 现树为 11 例，提交套件 12 例**）；E-09 裁剪器 `OK (9 tests)`；E-10 painter/PDF `OK (24)`/`OK (16)`；
   E-11 隔离/flags `OK (13)`/`OK (2)`。逐项回链 `docs/research/evidence/2026-10-29-batch-32/00-index.md` §3。
-- **UNVERIFIED（仍未执行）**：JVM 单测（`SmbkSelectionPlanTest` 12、`VisualCheckpointRetentionTest` 17、
-  `TutorVisualIdentityTest` 6、schema contract 例）——本批无任何 `testDebugUnitTest` 记录；
-  结构门 E-07 仍 4/5（红例已修、绿轮未重跑）；触发器 backstop 未落（§5.4 第 1 项）。
+- **UNVERIFIED（设备轨时点仍未执行；批次 33 T6 回改）**：JVM 单测（`SmbkSelectionPlanTest` 12、
+  `VisualCheckpointRetentionTest` 17、`TutorVisualIdentityTest` 6、schema contract 9）——设备轨时点
+  无任何 `testDebugUnitTest` 记录；其后本机 `build/test-results/testDebugUnitTest/` 有 JUnit XML
+  旁证（mtime **2026-10-29 12:36–12:38**：12/0、17/0、6/0、9/0），但属 **build/ 旁证、非仓内命令
+  日志**，命令归属 UNVERIFIED，故仍不得记作已执行门。结构门 E-07 在设备轨时点仍 **4/5**（红例已修、
+  绿轮未重跑）；批次 33 T6 时点批次 33 设备轨尚未执行，该结论不变，且现树套件已为 **5 例**（§5.1）。
+  触发器 backstop 未落（§5.4 第 1 项）。
 - **已核（只读）**：§1.1/§1.2 的常量与计数、§1.4 的 APK/源 mtime、§4.2 的 8 条用例名、§5.1/§5.2 的方法名、
   `70.json` 的 70/`11a8a701…`/90/2、迁移注册最高 70→71。
 - **在飞状态更新**：T3（schema 71）与 T4（parity r2/N13）已交付；本文件计数仍是 09:58 快照，
