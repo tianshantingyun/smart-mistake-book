@@ -2021,9 +2021,10 @@ internal class RoomStudyDatabase(
             nowEpochMillis = message.createdAtEpochMillis,
         )
 
-        // checkpoint 保留策略的同事务落点（批次 30 / D-05）：先降级旧 LATEST，再淘汰
-        // "仍未固定且非 INITIAL"的候选。两条 SQL 都在事务内，任一步失败整体回滚；
-        // 淘汰 SQL 在事务内**重查** pin/kind（策略在事务外算，引用可能并发变化）。
+        // checkpoint 保留策略的同事务落点（批次 30 / D-05，批次 31 收紧）：先降级旧 LATEST，
+        // 再淘汰"仍未固定、非 INITIAL 且仍为 STAGING"的中间态。两条 SQL 都在事务内，任一步
+        // 失败整体回滚；淘汰 SQL 在事务内**重查** pin/kind/status（策略在事务外算，引用与
+        // 可见性都可能并发变化）。LIVE 是用户已见事实，即使未被引用也不当缓存删。
         if (command.demoteCheckpointSnapshotIds.isNotEmpty()) {
             dao.demoteLatestCheckpoints(
                 programId = command.program.programId,
@@ -2035,6 +2036,7 @@ internal class RoomStudyDatabase(
             dao.evictUnpinnedCheckpoints(
                 snapshotIds = command.evictCheckpointSnapshotIds,
                 latestKind = TutorVisualCheckpointKind.LATEST,
+                stagingStatus = TutorVisualStatus.STAGING,
             )
         }
 
@@ -2100,6 +2102,7 @@ internal class RoomStudyDatabase(
             TutorVisualCheckpointSummary(
                 snapshotId = row.snapshotId,
                 checkpointKind = row.checkpointKind,
+                status = row.status,
                 pinned = row.pinned != 0,
                 storedBytes = row.storedBytes,
             )
@@ -2147,12 +2150,41 @@ internal class RoomStudyDatabase(
      *
      * 唯一键只覆盖 `(program, state, draw)`，所以复用前还要逐列比对内容载荷：同键不同
      * scene/版本/视口/预览绝不能静默复用。
+     *
+     * **写库前重新派生 `snapshotId` 并比对**（批次 31）：与 [ensureTutorVisualProgram] 同形。
+     * 改前这里是"调用方给什么 id 就落什么 id"——一个与内容不符的 id 会落成"身份与内容脱钩"
+     * 的行，而 program 层的同类输入早已被 `require` 拒绝；同一模块两条身份规则不一致本身就是
+     * 缺陷。`require`（而非冲突异常）沿用 program 层分流：调用方构造错误 = 参数错误，
+     * 并发/重复 = `ImmutablePayloadConflictException`。
+     *
+     * **digest 列本身也必须与 JSON 内容一致**（批次 31 复核修复）：只比对
+     * `snapshotId == derive(programId, stateSha256, drawCommandsSha256)` 是循环论证——那两个
+     * digest 是调用方传入的；若不同时校验 `stateSha256 == sha256Hex(stateJson)` 与
+     * `drawCommandsSha256 == sha256Hex(drawCommandsJson)`，直接经 `TutorVisualPort.stage/commit`
+     * 的写者仍可落"内容与 digest/身份脱钩"的行；同一段内容配不同 digest 字符串还会被唯一键
+     * `(program_id, state_sha256, draw_commands_sha256)` 当成不同内容而重复入库。生产调用点
+     * （`TutorVisualCommitRepository`）本就从 JSON 计算 digest，因此这条门挡的是直接调用 DB
+     * 端口的写者——正是 DB 契约的职责。
      */
     private suspend fun ensureTutorVisualSnapshot(
         dao: TutorVisualDao,
         write: TutorVisualSnapshotWrite,
         ownerRequestId: String,
     ): TutorVisualSnapshotEntity {
+        require(write.stateSha256 == TutorVisualIdentity.sha256Hex(write.stateJson)) {
+            "A visual snapshot state digest must match its persisted state JSON"
+        }
+        require(write.drawCommandsSha256 == TutorVisualIdentity.sha256Hex(write.drawCommandsJson)) {
+            "A visual snapshot draw-commands digest must match its persisted draw commands JSON"
+        }
+        val derivedSnapshotId = TutorVisualIdentity.deriveSnapshotId(
+            programId = write.programId,
+            stateSha256 = write.stateSha256,
+            drawCommandsSha256 = write.drawCommandsSha256,
+        )
+        require(write.snapshotId == derivedSnapshotId) {
+            "A visual snapshot id must be derived from its program and content"
+        }
         val existing = dao.findSnapshotByContent(
             programId = write.programId,
             stateSha256 = write.stateSha256,

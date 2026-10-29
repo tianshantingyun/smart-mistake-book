@@ -89,9 +89,9 @@ interface TutorVisualPort {
         )
 
     /**
-     * checkpoint 保留策略的读侧（批次 30 / D-05）：本 program 全部快照行的
-     * `(snapshotId, checkpointKind, pinned, storedBytes)`。`storedBytes` 是
-     * state+scene+draw 的 UTF-8 字节和。
+     * checkpoint 保留策略的读侧（批次 30 / D-05；批次 31 补 status）：本 program 全部快照行的
+     * `(snapshotId, checkpointKind, status, pinned, storedBytes)`。`storedBytes` 是
+     * state+scene+draw 的 UTF-8 字节和。`status = LIVE` 的行是用户已见事实，不得被当缓存淘汰。
      */
     suspend fun readVisualCheckpointSummaries(programId: String): List<TutorVisualCheckpointSummary> =
         throw UnsupportedOperationException(

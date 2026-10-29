@@ -26,6 +26,8 @@ internal object TutorVisualSnapshotStatus {
 internal data class TutorVisualCheckpointProjection(
     val snapshotId: String,
     val checkpointKind: String?,
+    /** STAGING / LIVE：LIVE 是用户已见事实，保留策略不得把它当可回收缓存。 */
+    val status: String,
     /** 0/1：被消息当前指针或保存题引用即为 1。 */
     val pinned: Int,
     val storedBytes: Long,
@@ -90,7 +92,12 @@ internal abstract class TutorVisualDao {
 
     /**
      * checkpoint 保留策略的读侧（批次 30 / D-05）：本 program 全部快照行的
-     * `(snapshot_id, checkpoint_kind, pinned, stored_bytes)`。
+     * `(snapshot_id, checkpoint_kind, status, pinned, stored_bytes)`。
+     *
+     * `status` 是批次 31 补上的**淘汰轴**：LIVE = 用户已经看到过的图，即使当前没有任何
+     * link/题面指针固定它，也不得作为"可回收派生缓存"删掉（见 `VisualCheckpointRetention`）。
+     * 旧投影缺这一列时，保留策略只能看到 `kind`/`pinned`，LIVE 的未固定行会进淘汰候选——
+     * 这正是本次要消灭的具体失败。
      *
      * `stored_bytes` 与 Kotlin 侧 `visualCheckpointStoredBytes` 同口径：三列 JSON 的 **UTF-8
      * 字节和**，所以用 `length(CAST(x AS BLOB))` 而不是 `length(x)`（后者数的是字符）。
@@ -100,6 +107,7 @@ internal abstract class TutorVisualDao {
         """
         SELECT snapshot_id AS snapshotId,
                checkpoint_kind AS checkpointKind,
+               status AS status,
                CASE WHEN EXISTS (
                         SELECT 1 FROM tutor_message_visual AS link
                         WHERE link.current_snapshot_id = tutor_visual_snapshot.snapshot_id
@@ -151,15 +159,19 @@ internal abstract class TutorVisualDao {
     ): Int
 
     /**
-     * 淘汰未固定、非 INITIAL 的派生缓存（批次 30 / D-05）。**SQL 侧重查** pin 与 kind：
-     * 策略在事务外算出候选集，pin 可能并发变化；这里再按"仍未被消息/题面引用且 kind ∈
-     * {NULL, LATEST}"过滤一次。`INITIAL` 与任何被固定行一行都不删。
+     * 淘汰未固定、非 INITIAL 的**中间态**派生缓存（批次 30 / D-05；批次 31 收紧 LIVE）。
+     *
+     * **SQL 侧重查三件事**：pin、kind、status。策略在事务外算出候选集，pin/status 可能并发
+     * 变化；这里再按"仍未被消息/题面引用、kind ∈ {NULL, LATEST}、且仍为 STAGING"过滤一次。
+     * `INITIAL` 与任何被固定行一行都不删；**LIVE 行也不删**——LIVE 是用户已经看到的图，
+     * 不是"没人引用的缓存"（批次 31 裁定；`kind` 只表达 checkpoint 角色，与是否可见是两轴）。
      */
     @Query(
         """
         DELETE FROM tutor_visual_snapshot
         WHERE snapshot_id IN (:snapshotIds)
           AND (checkpoint_kind IS NULL OR checkpoint_kind = :latestKind)
+          AND status = :stagingStatus
           AND NOT EXISTS (
               SELECT 1 FROM tutor_message_visual AS link
               WHERE link.current_snapshot_id = tutor_visual_snapshot.snapshot_id
@@ -173,6 +185,7 @@ internal abstract class TutorVisualDao {
     abstract suspend fun evictUnpinnedCheckpoints(
         snapshotIds: List<String>,
         latestKind: String,
+        stagingStatus: String,
     ): Int
 
     /**
@@ -270,10 +283,18 @@ internal abstract class TutorVisualDao {
     ): Int
 
     /**
-     * **SQL 级结构门**：只有 LIVE 快照能被消息引用。
+     * **SQL 级结构门**：只有 LIVE 快照能被消息引用，且该快照必须属于 link 行声明的同一个
+     * program。
      *
-     * `INSERT … SELECT … WHERE status = 'LIVE'` —— 非 LIVE 时一行也写不进；命中与否由
-     * [linkMessageVisual] 回读判定。`revision` 从 1 起（指针 CAS 的期望版本）。
+     * `INSERT … SELECT … WHERE status = 'LIVE' AND program_id = :programId` —— 非 LIVE 或
+     * 跨 program 时一行也写不进；命中与否由 [linkMessageVisual] 回读判定。`revision` 从 1 起
+     * （指针 CAS 的期望版本）。
+     *
+     * `program_id` 谓词是批次 31 补的：批次 30 的指针 CAS（[repointMessageVisual]）与题面 pin
+     * （[insertRevisionVisualIfLive]）都已有同形条件，唯独初次插入没有。后果不是"图画错"，
+     * 而是**另一个 program 的快照被永久 pin**（pin/evict 只按 `snapshot_id` 关联），既回收
+     * 不了也解释不了。SQLite 无法在单列外键上表达 `(program_id, snapshot_id)` 复合约束，
+     * 所以把这条一致性写进 INSERT 本身。
      */
     @Query(
         """
@@ -283,7 +304,9 @@ internal abstract class TutorVisualDao {
         SELECT :messageId, :ordinal, :programId, snapshot_id, 1,
                :uiStateJson, :formDigest, :nowEpochMillis, :nowEpochMillis
         FROM tutor_visual_snapshot
-        WHERE snapshot_id = :snapshotId AND status = :liveStatus
+        WHERE snapshot_id = :snapshotId
+          AND status = :liveStatus
+          AND program_id = :programId
         """,
     )
     abstract suspend fun insertMessageVisualIfLive(

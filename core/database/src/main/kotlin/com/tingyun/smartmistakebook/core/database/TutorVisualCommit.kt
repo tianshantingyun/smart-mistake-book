@@ -285,17 +285,24 @@ data class TutorVisualTurnCommitRecord(
 )
 
 /**
- * 一个 program 的既有快照在 checkpoint 保留策略中的最小投影（批次 30 / D-05）。
+ * 一个 program 的既有快照在 checkpoint 保留策略中的最小投影（批次 30 / D-05；批次 31 补
+ * `status`）。
  *
  * 跨层原因：保留策略（`core:data` 的 `VisualCheckpointRetention`）需要"本 program 有哪些
- * 快照、哪些被消息/题面固定、各占多少字节"，而读取只能走 `core:database` 的 SQL。这个 DTO
- * 只承载策略需要的四列；`storedBytes` 与 `visualCheckpointStoredBytes` 同口径
- * （state+scene+draw 的 UTF-8 字节和，SQL 侧用 `length(CAST(x AS BLOB))`）。
+ * 快照、哪些被消息/题面固定、哪些是用户已见（LIVE）、各占多少字节"，而读取只能走
+ * `core:database` 的 SQL。这个 DTO 只承载策略需要的五列；`storedBytes` 与
+ * `visualCheckpointStoredBytes` 同口径（state+scene+draw 的 UTF-8 字节和，SQL 侧用
+ * `length(CAST(x AS BLOB))`）。
+ *
+ * [status] 缺位时 LIVE 的未固定行会被当作"可回收缓存"删掉（用户已见的图消失）；它不参与
+ * kind 判断（kind 只表达 INITIAL/LATEST 角色），两者是独立的轴。
  */
 data class TutorVisualCheckpointSummary(
     val snapshotId: String,
     /** `checkpoint_kind`；NULL = 可回收中间态。 */
     val checkpointKind: String?,
+    /** `status`：STAGING / LIVE。LIVE 永不进淘汰候选。 */
+    val status: String,
     /** 被 `tutor_message_visual.current_snapshot_id` 或 `problem_revision_visual.snapshot_id` 引用。 */
     val pinned: Boolean,
     val storedBytes: Long,
