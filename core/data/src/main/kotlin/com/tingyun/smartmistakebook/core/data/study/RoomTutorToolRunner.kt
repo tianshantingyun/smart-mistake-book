@@ -12,6 +12,8 @@ import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
+import com.tingyun.smartmistakebook.core.data.model.FIGURE_METHOD_UNAVAILABLE
+import com.tingyun.smartmistakebook.core.data.model.JS_FIGURE_UNAVAILABLE_SUMMARY
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
@@ -40,6 +42,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import com.tingyun.smartmistakebook.core.model.defaultImageOperation
 import com.tingyun.smartmistakebook.core.model.figureGenerationPurpose
+import com.tingyun.smartmistakebook.core.model.visualRole
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.isReady
 import kotlinx.coroutines.CancellationException
@@ -943,6 +946,20 @@ internal class RoomTutorToolRunner(
      * 下一轮换着法再试），通道缺失或生成失败才回错误结果。
      */
     private suspend fun generateFigure(call: TutorToolCall, context: Context): TutorToolExecution {
+        // A-02 第二道门（执行器层）：本构建没有 JS 执行通道，method=JS 一律 fail-closed。
+        // 生产唯一调用点已过轮次层同名门；这道门保护直调 `runTraced` 的调用者（测试、
+        // 未来接线），否则 JS 会落进图像生成器 = 一次真实远程 IMAGE_MODEL 派发 +
+        // 一条 method=IMAGE_MODEL 的假痕迹。
+        if (call.figureMethod == FigureGenerationMethod.JS) {
+            return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = call.tool,
+                    ok = false,
+                    summaryMarkdown = JS_FIGURE_UNAVAILABLE_SUMMARY,
+                    errorKind = FIGURE_METHOD_UNAVAILABLE,
+                ),
+            )
+        }
         // TutorToolCall.init 已强制 GENERATE_FIGURE 必带 kind + description；此处按
         // "宁拒不猜"防御：缺字段时不生成而不是默认一种图。
         val kind = requireNotNull(call.figureKind) {
@@ -952,7 +969,8 @@ internal class RoomTutorToolRunner(
             "GENERATE_FIGURE description is contract-enforced"
         }
         // 4E WG-04b：模型显式选择的图像操作；旧调用按 kind 取旧默认（REDRAW→EDIT、
-        // PROCESS→GENERATE）。kind 只映射 purpose，方法在本构建恒为 IMAGE_MODEL。
+        // PROCESS→GENERATE）。kind 只映射 purpose；能走到这里的调用方法恒为 IMAGE_MODEL
+        // （上面的 A-02 门已把 JS 拦下）。
         val operation = call.figureImageOperation ?: kind.defaultImageOperation()
         val purpose = kind.figureGenerationPurpose()
         val generator = figureGenerator
@@ -1043,14 +1061,15 @@ internal class RoomTutorToolRunner(
             TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
         }
         // A2：REDRAW 的图若落在一道**已保存**的题上（会话有 commit receipt），补一条
-        // CLEAN_IMAGE 引用——这是"题重绘 → problem_revision_source_asset"那条去向，导出取图
-        // （B6）按它就能看见这张重绘；未保存的会话没有 revision，跳过（消息引用仍然成立）。
+        // 视觉引用（角色由 kind 单源派生 = CLEAN_IMAGE）——这是"题重绘 →
+        // problem_revision_source_asset"那条去向，导出取图（B6）按它就能看见这张重绘；
+        // 未保存的会话没有 revision，跳过（消息引用仍然成立）。
         if (
             result.status == TutorFigureStatus.GENERATED &&
             kind == TutorFigureKind.REDRAW_PROBLEM &&
             result.figureId != null
         ) {
-            attachGeneratedRedrawToRevision(context, result.figureId)
+            attachGeneratedRedrawToRevision(context, result.figureId, kind)
         }
         // 4E WG-04b：痕迹记录**实际执行**的方法/用途/逻辑操作与终态；旧行（null）由
         // TutorToolFigureTrace 的默认值保持逐字不变。
@@ -1142,20 +1161,30 @@ internal class RoomTutorToolRunner(
     }
 
     /**
-     * A2：把这次重绘登记到当前会话已提交的题面修订上（role=CLEAN_IMAGE）。
+     * A2：把这次重绘登记的图挂到当前会话已提交的题面修订上（角色由 trace kind 单源派生）。
      *
      * 使用场景很窄：会话**已经保存**（commit receipt 在）之后学生继续让智能体重绘题面——那
      * 张图应当和采集链的重绘一样被导出取图看见。没有 receipt（绝大多数：讲完才保存）或
      * 引用写入失败时**什么都不做**：附加引用是"最好也有"，绝不能把已经成功、已经付费的
      * 生成结果改判成失败。
+     *
+     * 挂接口在事务里做 current-revision CAS：题面已被改版时返回 false，晚到图不污染新题面。
      */
-    private suspend fun attachGeneratedRedrawToRevision(context: Context, figureId: String) {
+    private suspend fun attachGeneratedRedrawToRevision(
+        context: Context,
+        figureId: String,
+        kind: TutorFigureKind,
+    ) {
         val sessionId = context.tutorSessionId?.takeIf(String::isNotBlank) ?: return
         try {
             val revisionId = port.readTutorSession(sessionId)?.commitReceipt?.problemRevisionId
                 ?: return
             val record = port.readCanonicalSourceAsset(figureId) ?: return
-            port.attachCleanRedrawAsset(revisionId = revisionId, asset = record)
+            port.attachCleanRedrawAsset(
+                revisionId = revisionId,
+                asset = record,
+                role = kind.visualRole().name,
+            )
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

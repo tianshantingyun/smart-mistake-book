@@ -15,6 +15,10 @@ import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchKind
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchLedger
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchRequest
 import com.tingyun.smartmistakebook.core.domain.RemoteModelDispatchReservation
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.model.FigureArtifact
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.FigureGenerationDecision
@@ -28,7 +32,9 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationValidation
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.figureBasisFingerprint
+import com.tingyun.smartmistakebook.core.model.figureJsBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
+import java.nio.charset.StandardCharsets
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
@@ -121,6 +127,10 @@ internal suspend fun openGuardedFigureImageBackend(
  *
  * `openBackend` 是**装配缝**：生产注入 [openGuardedFigureImageBackend]，测试注入 fake
  * （fake 也必须经过同一预留顺序）。
+ *
+ * **双后端（批次 34 / A-01）**：上面 2–5 步是 IMAGE_MODEL 的路径。JS 走
+ * [generateLocalJs]——不打开图像后端、不向 [RemoteModelDispatchLedger] 预留，只在本地
+ * [VisualExecutionEngine] 上执行；引擎与宿主帧输入默认不注入（生产仍回 UNAVAILABLE）。
  */
 class DefaultFigureGenerationCoordinator internal constructor(
     private val ledger: RemoteModelDispatchLedger,
@@ -131,6 +141,21 @@ class DefaultFigureGenerationCoordinator internal constructor(
      * 旧调用（测试/未接审计的装配）不产生任何持久写入，结果与改前逐位一致。
      */
     private val audit: FigureGenerationAuditRecorder = FigureGenerationAuditRecorder.Noop,
+    /**
+     * 4E 双后端装配（A-01）：JS 的本地执行引擎。**默认 null = 生产现状**——没有引擎时
+     * JS 仍回 UNAVAILABLE，能力快照/广告面一字不动。本参数消灭的具体失败：policy 已能校验
+     * JS，协调器却永远回 UNAVAILABLE，于是"本地方法可执行"无法达成，也无法用 JVM 用例
+     * 证明"JS 不占远程派发"。
+     *
+     * 引擎生命周期归装配方：协调器**不**调用 [VisualExecutionEngine.close]（同一引擎可被
+     * 多次生成复用，关闭它属于宿主退出/重建环境）。
+     */
+    private val visualEngine: VisualExecutionEngine? = null,
+    /**
+     * JS 执行所需的宿主帧输入（viewport/theme/seed/timeMs）。默认 null——与 [visualEngine]
+     * 成对注入；没有它协调器不自己编帧，如实回 UNAVAILABLE。
+     */
+    private val visualFrameInputs: VisualFrameInputs? = null,
 ) : FigureGenerationCoordinator {
 
     override suspend fun generate(
@@ -179,15 +204,18 @@ class DefaultFigureGenerationCoordinator internal constructor(
         val method = requireNotNull(proposal.method) {
             "policy accepted a GENERATE proposal without a method"
         }
-        if (method != FigureGenerationMethod.IMAGE_MODEL) {
-            // 本波次只接通图像方法；JS 运行库未过门，不执行、不假成功（也不广告）。
-            return outcome(
-                request = request,
-                proposal = proposal,
-                status = FigureGenerationStatus.UNAVAILABLE,
-                diagnostics = "本波次没有可用的 JS 运行库，未执行",
-            )
+        return when (method) {
+            // 图像方法：原来的一行不动（预留 → 通道 → 产物）。
+            FigureGenerationMethod.IMAGE_MODEL -> generateImageViaModel(request, proposal)
+            // 本地方法：新分支，**绝不**经过账本预留。
+            FigureGenerationMethod.JS -> generateLocalJs(request, proposal)
         }
+    }
+
+    private suspend fun generateImageViaModel(
+        request: FigureGenerationRequest,
+        proposal: FigureGenerationProposal,
+    ): FigureGenerationOutcome {
         val backend = try {
             openBackend()
         } catch (cancelled: CancellationException) {
@@ -204,6 +232,126 @@ class DefaultFigureGenerationCoordinator internal constructor(
             return generateWithBackend(request, proposal, backend)
         } finally {
             backend.close()
+        }
+    }
+
+    /**
+     * JS 本地执行（A-01）。顺序与红线：
+     * 1. 没有引擎/没有帧 → 现状 UNAVAILABLE（**不建 attempt、不碰账本**，与"未接通"逐位一致）；
+     * 2. 审计：operation PENDING → RUNNING，本地 attempt（`reservation_id=NULL`，序号由持久层
+     *    在写事务里分配）→ 引擎执行；
+     * 3. 结果映射：Rendered → GENERATED + [FigureArtifact.Program]；其余 Rejected / 异常 →
+     *    有界诊断 FAILED（ENGINE_CLOSED 是"本机没有引擎"，如实回 UNAVAILABLE）；
+     * 4. **不调用 `ledger.reserve`**：JS 没有端点/模型配置指纹，伪造一个并给
+     *    `dispatch_count` +1 正是契约禁止的"本地执行占远程派发"。
+     */
+    private suspend fun generateLocalJs(
+        request: FigureGenerationRequest,
+        proposal: FigureGenerationProposal,
+    ): FigureGenerationOutcome {
+        val engine = visualEngine ?: return outcome(
+            request = request,
+            proposal = proposal,
+            status = FigureGenerationStatus.UNAVAILABLE,
+            diagnostics = "本波次没有可用的 JS 运行库，未执行",
+        )
+        val frame = try {
+            visualFrameInputs?.forGeneration(request, proposal)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            return outcome(
+                request = request,
+                proposal = proposal,
+                status = FigureGenerationStatus.FAILED,
+                diagnostics = boundedFailure(failure),
+            )
+        }
+        if (frame == null) {
+            return outcome(
+                request = request,
+                proposal = proposal,
+                status = FigureGenerationStatus.UNAVAILABLE,
+                diagnostics = "本机没有冻结的宿主帧输入，未执行本地 JS",
+            )
+        }
+        val program = requireNotNull(proposal.program) {
+            "policy accepted a JS proposal without a program"
+        }
+        val sourceSha = request.source?.imageBytes()?.let(::figureSha256Hex)
+        val state = FigureGenerationAuditState(
+            operation = request.auditOperation(proposal, sourceSha, now()),
+            finalAnswerReserved = request.finalAnswerReserved(),
+            audit = audit,
+            now = now,
+        )
+        try {
+            state.begin()
+            state.beginLocalAttempt(FigureGenerationMethod.JS, sourceSha)
+            val programId = visualProgramId(request.operationId, program)
+            val execution = try {
+                engine.execute(
+                    VisualExecutionRequest(
+                        programId = programId,
+                        sourceJs = program,
+                        sceneRevision = VISUAL_SCENE_REVISION,
+                        stateJson = null,
+                        viewport = frame.viewport,
+                        timeMs = frame.timeMs,
+                        seed = frame.seed,
+                        theme = frame.theme,
+                    ),
+                )
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                // 端口承诺不抛；防御性兜底，仍按"这次执行失败"记账。
+                val diagnostics = boundedFailure(failure)
+                state.failAttempt(diagnostics)
+                return outcome(
+                    request = request,
+                    proposal = proposal,
+                    status = FigureGenerationStatus.FAILED,
+                    diagnostics = diagnostics,
+                    attemptId = state.attemptId,
+                )
+            }
+            return when (execution) {
+                is VisualExecutionResult.Rendered -> {
+                    state.succeed()
+                    outcome(
+                        request = request,
+                        proposal = proposal,
+                        status = FigureGenerationStatus.GENERATED,
+                        artifact = FigureArtifact.Program(
+                            purpose = request.purpose,
+                            programId = programId,
+                            sourceJs = program,
+                        ),
+                        attemptId = state.attemptId,
+                    )
+                }
+
+                is VisualExecutionResult.Rejected -> {
+                    val diagnostics = boundedRejection(execution)
+                    state.failAttempt(diagnostics)
+                    outcome(
+                        request = request,
+                        proposal = proposal,
+                        status = if (execution.reason == VisualExecutionRejection.ENGINE_CLOSED) {
+                            FigureGenerationStatus.UNAVAILABLE
+                        } else {
+                            FigureGenerationStatus.FAILED
+                        },
+                        diagnostics = diagnostics,
+                        attemptId = state.attemptId,
+                    )
+                }
+            }
+        } catch (cancelled: CancellationException) {
+            // 与图像路径同一收尾：账本没动，attempt/operation 如实落 CANCELLED。
+            withContext(NonCancellable) { state.cancel() }
+            throw cancelled
         }
     }
 
@@ -431,6 +579,31 @@ class DefaultFigureGenerationCoordinator internal constructor(
             attemptRecorded = auditWrite { audit.beginAttempt(row) } ?: false
         }
 
+        /**
+         * 本地方法（JS）尝试：没有预留，`reservedRemoteDispatches` 保持 0——本地执行不占
+         * 远程派发，终态 operation 写 0/0 就是"0 远程派发"的正向证据。
+         *
+         * 序号不在这里决定：持久层在同一个写事务里分配（负数区间）。若台账写不进
+         * （Noop/无库/写失败），`attemptRecorded=false` → `attemptId=null`，生成照常继续。
+         */
+        suspend fun beginLocalAttempt(
+            method: FigureGenerationMethod,
+            sourceSha256: String?,
+        ) {
+            auditWrite { audit.markOperationRunning(operation.operationId, now()) }
+            val row: FigureGenerationAuditAttempt? = auditWrite {
+                audit.beginLocalAttempt(
+                    operationId = operation.operationId,
+                    method = method,
+                    inputFingerprint = operation.basisFingerprint,
+                    sourceSha256 = sourceSha256,
+                    startedAtEpochMillis = now(),
+                )
+            }
+            attempt = row
+            attemptRecorded = row != null
+        }
+
         fun markDispatched() {
             usedRemoteDispatches = 1
         }
@@ -440,6 +613,10 @@ class DefaultFigureGenerationCoordinator internal constructor(
          * 资产 id）。若入口 persist/attach 失败，这一行会短暂地"成功但无产物"；启动对账
          * （`FigureGenerationReconciler`）会把结束时刻早于进程启动、仍无 output 的 SUCCEEDED
          * 行纠正为 FAILED 待核实，因此不会永久留下假成功。
+         *
+         * **本地 JS 成功是例外**：它的产物是 `FigureArtifact.Program`（内存画布指令），
+         * 按设计没有 `canonical_source_asset` 可回填；对账第二段因此只扫
+         * `method <> 'JS'` 的尝试，不会把一条真实的 JS 成功改判为"失败待核实"。
          */
         suspend fun succeed() {
             finishAttempt(FigureGenerationAuditOutcome.SUCCEEDED, outputAssetId = null, diagnostics = null)
@@ -515,8 +692,21 @@ class DefaultFigureGenerationCoordinator internal constructor(
                 is FigureDispatchParent.ModelTask -> parent.requestId
                 is FigureDispatchParent.CleanRedrawTask -> parent.taskId
             },
-            basisFingerprint = basisFingerprint
-                ?: figureBasisFingerprint(operationId, sourceSha256, proposal.imagePrompt),
+            basisFingerprint = basisFingerprint ?: when (proposal.method) {
+                // A-08：JS 的 imagePrompt 恒为 null，旧回退会让两个不同 program 得到同一
+                // input_fingerprint；JS 一律用 program 参与规范化（源码即输入）。
+                FigureGenerationMethod.JS -> figureJsBasisFingerprint(
+                    operationId = operationId,
+                    sourceSha256 = sourceSha256,
+                    program = requireNotNull(proposal.program) {
+                        "policy accepted a JS proposal without a program"
+                    },
+                )
+
+                FigureGenerationMethod.IMAGE_MODEL,
+                null,
+                -> figureBasisFingerprint(operationId, sourceSha256, proposal.imagePrompt)
+            },
             purpose = purpose,
             policyVersion = proposal.policyVersion,
             createdAtEpochMillis = createdAtEpochMillis,
@@ -546,6 +736,30 @@ class DefaultFigureGenerationCoordinator internal constructor(
     private fun boundedFailure(failure: Exception): String =
         "${failure::class.simpleName}: ${failure.message ?: "无详细信息"}"
             .take(FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
+
+    /**
+     * 引擎拒绝 → 有界诊断。保留 reject 分类名：宿主据此区分"该改输入"（INVALID_PROGRAM 等）
+     * 与"该稍后重排"（BUSY/HARD_DEADLINE_EXCEEDED）；不截断成一句"生成失败"。
+     */
+    private fun boundedRejection(rejection: VisualExecutionResult.Rejected): String =
+        "${rejection.reason.name}: ${rejection.diagnostics}"
+            .take(FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
+
+    /**
+     * 程序身份：`visual:{operationId}:{sha256(program) 前 16 位}`。契约 §8"源码改变即新 program"，
+     * 不需要读库就能稳定复算；同一个 program 的 programId 与 [figureJsBasisFingerprint] 同源。
+     */
+    private fun visualProgramId(operationId: String, program: String): String {
+        val digest = figureSha256Hex(program.toByteArray(StandardCharsets.UTF_8))
+        return "visual:$operationId:${digest.take(VISUAL_PROGRAM_ID_DIGEST_CHARS)}"
+    }
+
+    private companion object {
+        /** 契约 §8：宿主分配的场景修订号从 1 起；本批不恢复历史场景，首次执行恒为 1。 */
+        const val VISUAL_SCENE_REVISION: Int = 1
+
+        const val VISUAL_PROGRAM_ID_DIGEST_CHARS: Int = 16
+    }
 }
 
 /**
@@ -569,10 +783,16 @@ private suspend fun <T> auditWrite(block: suspend () -> T): T? =
  * 不读预算；数据库端口不可用时（测试替身/旧库）默认实现"做不到"，生成路径不受影响。
  */
 object FigureGenerationCoordinationFactory {
+    /**
+     * 生产装配口。**JS 的两个参数默认 null**：生产继续走 UNAVAILABLE，能力快照/广告面
+     * 一字不动；测试或后续批次可显式注入引擎与帧输入（不经过任何可变全局开关）。
+     */
     fun create(
         database: StudyDatabasePort,
         configurationStore: ModelConfigurationStore,
         networkRequestsAllowed: Boolean,
+        visualEngine: VisualExecutionEngine? = null,
+        visualFrameInputs: VisualFrameInputs? = null,
     ): FigureGenerationCoordinator = DefaultFigureGenerationCoordinator(
         ledger = RoomFigureDispatchLedger(database),
         openBackend = {
@@ -582,5 +802,7 @@ object FigureGenerationCoordinationFactory {
             )
         },
         audit = RoomFigureGenerationAuditRecorder(database),
+        visualEngine = visualEngine,
+        visualFrameInputs = visualFrameInputs,
     )
 }

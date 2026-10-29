@@ -80,6 +80,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -118,6 +119,16 @@ internal object OpenAiModelProtocol {
         images: List<ApprovedImage>,
         stream: Boolean = false,
         enableNativeTools: Boolean = false,
+        /**
+         * A-03：`GENERATE_FIGURE` 的 `method.enum` 广告面。
+         *
+         * 默认只广告**本机真实接通**的 IMAGE_MODEL——生产调用点不传，线上请求体与本批之前
+         * 逐字节相同（能力快照 / prompt / 广告文本零改动）。JVM 用例显式传含 JS 的集合，
+         * 证明 schema 能同时广告两种方法、且 `program` 是独立字段。JS 执行器接线到工具环
+         * 之前，生产装配**不得**传这个参数。
+         */
+        figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
+            setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
     ): String = encodeRequestBody(
         modelId = modelId,
         input = input,
@@ -126,6 +137,7 @@ internal object OpenAiModelProtocol {
         },
         stream = stream,
         enableNativeTools = enableNativeTools,
+        figureMethods = figureMethods,
     )
 
     /** Exact UTF-8 size of the JSON shell, using the longest approved MIME type and no Base64. */
@@ -147,6 +159,8 @@ internal object OpenAiModelProtocol {
         images: List<EncodedImage>,
         stream: Boolean = false,
         enableNativeTools: Boolean = false,
+        figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
+            setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
     ): String {
         val taskPrompt = OpenAiModelTaskAdapters.prompt(input)
         val content = buildJsonArray {
@@ -171,7 +185,7 @@ internal object OpenAiModelProtocol {
                 }
             }
         }
-        val toolSchemas = if (enableNativeTools) nativeToolSchemas(input) else null
+        val toolSchemas = if (enableNativeTools) nativeToolSchemas(input, figureMethods) else null
         val payload = buildJsonObject {
             put("model", modelId)
             put("temperature", 0.1)
@@ -226,6 +240,8 @@ internal object OpenAiModelProtocol {
 
     private fun nativeToolSchemas(
         input: com.tingyun.smartmistakebook.core.model.ModelTaskInput,
+        figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
+            setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
     ): JsonArray? {
         // 单一能力快照（PRD-06）：工具与本地动作都从这一份出。生成方已经把"配置/依赖
         // 就绪"折进本轮的声明集（没就绪的工具根本不在 input.toolDeclarations 里）；
@@ -252,7 +268,7 @@ internal object OpenAiModelProtocol {
                                 put("description", tool.nativePurposeDescription())
                                 put(
                                     "parameters",
-                                    strictFunctionSchema(tool, disclosedCodes),
+                                    strictFunctionSchema(tool, disclosedCodes, figureMethods),
                                 )
                             },
                         )
@@ -351,16 +367,26 @@ internal object OpenAiModelProtocol {
      * 写工具**不再**带逐次题锚字段（problemId/problemRevisionId/anchorTerms）：
      * 2026-09-21 裁定（D6）废除"无题轮结构性拒写"之后，题锚不再是写准入事实；
      * 轮次绑定仍走最终回答信封的 boundQuestion（F3 答案暴露守卫的基底，原样保留）。
+     *
+     * A-03：[figureMethods] 决定 GENERATE_FIGURE 的 `method.enum`。默认（生产）只广告
+     * IMAGE_MODEL，本函数输出与 A-03 之前逐字节相同；显式包含 JS 时才增加 JS 枚举、
+     * `program` 属性，并把图像字段改为可空（strict 口径下 required 必须覆盖全部属性）。
      */
     private fun strictFunctionSchema(
         tool: com.tingyun.smartmistakebook.core.model.TutorToolName,
         disclosedKnowledgeCodes: List<String>,
+        figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
+            setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
     ): JsonObject {
         val masterySemantics = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.MASTERY_UPDATE
         val extendedResult = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.MASTERY_READ
         val advisoryRead = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_READ
         val advisoryWrite = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_WRITE
         val figureGeneration = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.GENERATE_FIGURE
+        // A-03：只有广告面含 JS 时才出现 JS 的枚举值与 `program` 属性。默认（生产）路径
+        // 走 false 分支，生成的 schema 与本批之前逐字节相同。
+        val jsAdvertised = figureGeneration &&
+            (com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS in figureMethods)
         return buildJsonObject {
             put("type", "object")
             put(
@@ -441,45 +467,87 @@ internal object OpenAiModelProtocol {
                         )
                     }
                     if (figureGeneration) {
-                        // 4E WG-04b：模型显式选择方法/图像操作/具体提示词。本构建
-                        // availableMethods 只有 IMAGE_MODEL——schema 里**只广告**这一个值，
-                        // 未接通的 JS 不出现（解析层仍会拒绝越界值，不靠广告当门）。
+                        // 4E WG-04b / A-03：模型显式选择方法/图像操作/具体提示词。
+                        //
+                        // 广告面由 [figureMethods] 决定：生产默认只有真实接通的 IMAGE_MODEL，
+                        // 这一段与 A-03 之前**逐字节相同**（零广告改动）。只有显式把 JS 放进
+                        // 能力集合时才广告 JS，并追加独立的 `program` 字段；同时把图像字段改
+                        // 为可空——strict schema 要求 required 覆盖全部 properties 且
+                        // additionalProperties=false，若图像字段仍是必填字符串，模型就**结构
+                        // 性地产不出**合法的 JS 调用（无法表达"本次不带图像载荷"）。
                         put(
                             "method",
                             buildJsonObject {
                                 put("type", "string")
                                 put(
                                     "enum",
-                                    buildJsonArray { add(JsonPrimitive("IMAGE_MODEL")) },
+                                    buildJsonArray {
+                                        add(JsonPrimitive("IMAGE_MODEL"))
+                                        if (jsAdvertised) add(JsonPrimitive("JS"))
+                                    },
                                 )
                                 put(
                                     "description",
-                                    "生图方法；本构建只接通图像模型。未列出的方法不可用，" +
-                                        "不得输出其载荷",
+                                    if (jsAdvertised) {
+                                        "生图方法：IMAGE_MODEL＝远程图像模型" +
+                                            "（需 imageOperation + imagePrompt）；" +
+                                            "JS＝本机结构化程序（只填 program，" +
+                                            "imageOperation/imagePrompt 留 null）。" +
+                                            "未列出的方法不可用，不得输出其载荷"
+                                    } else {
+                                        "生图方法；本构建只接通图像模型。未列出的方法不可用，" +
+                                            "不得输出其载荷"
+                                    },
                                 )
                             },
                         )
                         put(
                             "imageOperation",
                             buildJsonObject {
-                                put("type", "string")
+                                if (jsAdvertised) {
+                                    put(
+                                        "type",
+                                        buildJsonArray {
+                                            add(JsonPrimitive("string"))
+                                            add(JsonPrimitive("null"))
+                                        },
+                                    )
+                                } else {
+                                    put("type", "string")
+                                }
                                 put(
                                     "enum",
                                     buildJsonArray {
                                         add(JsonPrimitive("EDIT"))
                                         add(JsonPrimitive("GENERATE"))
+                                        if (jsAdvertised) add(JsonNull)
                                     },
                                 )
                                 put(
                                     "description",
-                                    "EDIT＝基于已授权的当前题原图编辑；GENERATE＝按 imagePrompt 生成",
+                                    if (jsAdvertised) {
+                                        "EDIT＝基于已授权的当前题原图编辑；" +
+                                            "GENERATE＝按 imagePrompt 生成；method=JS 时为 null"
+                                    } else {
+                                        "EDIT＝基于已授权的当前题原图编辑；GENERATE＝按 imagePrompt 生成"
+                                    },
                                 )
                             },
                         )
                         put(
                             "imagePrompt",
                             buildJsonObject {
-                                put("type", "string")
+                                if (jsAdvertised) {
+                                    put(
+                                        "type",
+                                        buildJsonArray {
+                                            add(JsonPrimitive("string"))
+                                            add(JsonPrimitive("null"))
+                                        },
+                                    )
+                                } else {
+                                    put("type", "string")
+                                }
                                 put(
                                     "maxLength",
                                     com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
@@ -487,11 +555,42 @@ internal object OpenAiModelProtocol {
                                 )
                                 put(
                                     "description",
-                                    "具体生图提示词：说明画什么、保留什么、禁止改变什么；" +
-                                        "不含路径、URL 或数据指令",
+                                    if (jsAdvertised) {
+                                        "具体生图提示词：说明画什么、保留什么、禁止改变什么；" +
+                                            "不含路径、URL 或数据指令；method=JS 时为 null"
+                                    } else {
+                                        "具体生图提示词：说明画什么、保留什么、禁止改变什么；" +
+                                            "不含路径、URL 或数据指令"
+                                    },
                                 )
                             },
                         )
+                        // A-02/A-03：JS 源码是**独立字段**，只随 JS 的广告一起出现
+                        // （IMAGE_MODEL 调用必须留 null；互斥由 TutorToolCall.init 与
+                        // FigureGenerationPolicy 双门兜底，不靠广告）。
+                        if (jsAdvertised) {
+                            put(
+                                "program",
+                                buildJsonObject {
+                                    put(
+                                        "type",
+                                        buildJsonArray {
+                                            add(JsonPrimitive("string"))
+                                            add(JsonPrimitive("null"))
+                                        },
+                                    )
+                                    put(
+                                        "maxLength",
+                                        com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
+                                            .MAX_PROGRAM_UTF8_BYTES,
+                                    )
+                                    put(
+                                        "description",
+                                        "method=JS 时的完整程序源码；IMAGE_MODEL 时为 null",
+                                    )
+                                },
+                            )
+                        }
                         // A1：kind 二选一 + description 有硬上限（本地仍兜底校验；
                         // Route B 信封路由的同名字段由 TUTOR_TOOL_CALL_WIRE_KEYS 收口）。
                         put(
@@ -640,6 +739,9 @@ internal object OpenAiModelProtocol {
                             add(JsonPrimitive("method"))
                             add(JsonPrimitive("imageOperation"))
                             add(JsonPrimitive("imagePrompt"))
+                            // A-03：广告了 JS 才有 program 这个属性，它同样必须进 required
+                            // （strict 口径）；"哪一方法填哪个载荷"由类型可空 + 本地双门表达。
+                            if (jsAdvertised) add(JsonPrimitive("program"))
                         }
                     }
                 },
