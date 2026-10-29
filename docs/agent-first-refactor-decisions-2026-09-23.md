@@ -3508,3 +3508,25 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **D3 四缺口**：ENOSPC / 静默短写（设备面）/ 页数回读不符 / `renameTo` 失败无设备用例，不得写成已覆盖。
 - **身份口径已收敛（现树）**：`sameSnapshotPayload` 不再比较 `rendererVersion`/`fontManifestVersion`（`TutorVisualCommit.kt:336-361`），身份 = 唯一键 = 内容三列；版本差异由恢复侧的重放/像素门按既有行版本判定（不匹配则只读/预览）。早期"bump renderer 后同内容再提交会冲突"的口径作废。**仍待裁**：LIVE LATEST 的淘汰语义（保留策略行投影无 status）；DAO SQL 已重查 link/题面引用，被引用 LIVE 不会被删，仅"曾 LIVE 且后来失去全部引用"的行可被淘汰。
 - **KD 裁决**：KD-78 ④ 关闭、整条 open；KD-79 关闭（台账最低口径，D3 残留）；KD-71/72/73/77 open。
+
+---
+
+## 批次 31 持久化语义收口 + 一致性门标定裁定（2026-10-29）
+
+> 依据：批次 31 计划 §1–§3（`.zcode/plans/plan-2026-10-29-batch-31-persistence-hardening.md`）、R1 `docs/research/2026-10-29-snapshot-identity.md` §0/§2–§5/§9、R2 `docs/research/2026-10-29-parity-calibration.md` §0/§4、T1 判据 `docs/research/2026-10-29-batch-31-device-criteria.md`、设备证据 `docs/research/evidence/2026-10-29-batch-31/`、批次记录 `docs/research/2026-10-29-batch-31-record.md`。**记录步零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **schema 71 = 本批不做，整体推迟批次 32（主会话裁定）**：`STUDY_DATABASE_VERSION` 保持 70，不新增 70→71 迁移、不写 `71.json`、不动 `SmbkSelectionPlan`/`BackupSnapshotTrimmer` 常量。理由：`identityHash` 只能由带 KSP 的构建生成，本批没有回填环节；伪造/估算哈希会让备份裁剪器在真机升级库上 fail-closed，并把失败伪装成"备份坏了"。批次 32 顺序硬要求：带 KSP 构建导出 `71.json` → 同批回填 `SCHEMA_VERSION=71` 与生成值 `IDENTITY_HASH` → 备份 34/34 与迁移 1→71 → 设备轨。
+- **快照身份 S1 方向成立、留作批次 32 输入**：`renderer_version` + `font_manifest_version` 必须**同时**进①唯一键②`snapshotId` 派生式③`findSnapshotByContent` 查重键（三处同源）；只改一处会退化成"两套口径"。70→71 只需 `DROP INDEX`（旧三列唯一键）+ `CREATE UNIQUE INDEX`（新五列键），新键是旧键的严格超集，对存量行不可能失败；**不得**用同名 `CREATE ... IF NOT EXISTS` 覆盖旧索引（SQLite 会静默保留旧定义）。
+- **复合外键否决**：Room 迁移在 `BEGIN EXCLUSIVE` 事务内，`PRAGMA foreign_keys` 在事务内是 no-op，且存量违规行会让子表重建的 `INSERT…SELECT` 直接失败（升级中断）。改为：写入侧 EXISTS 谓词**必做**；触发器只作 schema 71 的 DB 级 backstop（迁移内建 + `onOpen` 幂等补建，沿用 `LibrarySearchFtsMigration`/`RoomLibrarySearchStore` 先例；触发器不进 schema JSON）。
+- **checkpoint 保留语义 = LIVE 永不淘汰**：只淘汰"未被消息/题面引用、kind ∈ {NULL, LATEST}、且仍为 STAGING"的中间态；`evictUnpinnedCheckpoints` 的 SQL 以 `status = STAGING` 为正向条件。未知 status/kind fail-closed 保留。`checkpointPlanLock` 只覆盖进程内预算读—判—写（本库无跨进程写者），不替代淘汰 SQL 在 DB 事务内对 pin/kind/status 的重查。
+- **一致性门 `calibrated-r1`（仅 TEXT 类）**：质心 0.5→0.75 px、墨量比 0.95/1.05→0.93/1.07、bbox ≤1 px 与剖面 TV ≤0.08 不变、TEXT 的 F5 隔离带删除（恒 0）、新增文本 `bestShift=(0,0)` 硬护栏；`THRESHOLD_VERSION="calibrated-r1"`。**门仍是原型门**（`product-gate=no`），不得引用为产品/发版结论。
+- **计划字面的"F2/F3 先于 F4"不予字面实现**：N04 的 `edgeMean=127.79` 会在字面换序后被判 F2（不红），门当场失去分辨力；正确形态是"带硬几何护栏的归因优先"（带内无墨 / bboxDev>1 / 质心>0.75 / bestShift≠(0,0) 且 gain>0.02 先判 F4，护栏内才允许 F1/F2）。这是对计划文字的有依据偏离，不是放宽。
+- **1 px 文本位移的抓取路径不是质心**：`centroidDeltaPx` 是屏↔PDF 跨栅格欧氏距离、方向相关；设备实测 P06 +1 px 读 1.2625（旧 `centroid=1.000` 等式作废），P07 反解约 0.608 < 0.75。1 px 由 bbox 与文本 `bestShift` 抓，N09 只断言"必须红 + F4_GEOMETRY"。
+
+### 边界（不得越过 / 仍待验证）
+
+- **不做**：core/export 集成与 PDF `/AIGC`（KD-75）；JS 广告（MVA 未过）；真实 Provider（无凭据）；锁文件提交（KD-72）；AIDL 之外的接口变更。
+- **设备绿轮不等于现树绿**：设备构建后现树另有 7 个源文件改动（提交/仓库/结构门/parity 四套件覆盖其中），新增用例未上设备；`calibrated-r1` 绿轮 UNVERIFIED。
+- **KD 裁决**：KD-80 80-C1/C2 核销、C3 PARTIAL、C4 零断言 → 保持 open；KD-71/72/73/77 open。
