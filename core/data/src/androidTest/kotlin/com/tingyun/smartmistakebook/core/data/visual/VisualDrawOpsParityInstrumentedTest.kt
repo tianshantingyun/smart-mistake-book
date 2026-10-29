@@ -49,7 +49,7 @@ import kotlin.math.roundToInt
  * - **证据状态**：`calibrated-r2` 在设备全套件（N09–N13；N10/N11/N12 必须仍红）跑绿前是
  *   **UNVERIFIED**。任何一轮 `Tests run … Failures>0` 都**不得**描述为 "calibrated 已验证"。
  * - **相对门**：只证"PDF 路径相对屏路径没有引入新偏差"；屏侧本身的正确性由 painter 套件
- *   （设备 19 例 + JVM 10 例）负责。
+ *   （设备 24 例 + JVM 10 例）负责。
  *
  * ## 对照方法（R2 §3.1）
  *
@@ -75,7 +75,10 @@ import kotlin.math.roundToInt
  *   绿了 = 门失去分辨力（`PARITY_GATE_DESENSITIZED`），不是"更稳了"。
  *   N09（1 px 整块平移）断言**跨栅格读数**（P06 实测 1.2625、P07 反解 0.6083）且必须
  *   F4_GEOMETRY；N12（4 px 整块平移）是质心阈值 0.75 的读数锚（P07 实测 3.56、bboxDev=5）；
- *   N13（合成栅格：质心差 0、墨量比 1.0）证明**质心不可靠时由 bbox/shift 兜底**。
+ *   N13（合成栅格：**2 px** 位移、质心差 0、墨量比 1.0）证明**质心不可靠时由 bbox/shift
+ *   兜底**，结论**仅覆盖 ≥2 px 位移**；它**不覆盖 1 px 盲集**——1 px 盲集由 N09 的 P07 在
+ *   真实夹具上覆盖（P07 的 `(+1,0)` 方向；批次 32 E-02 设备实测 centroid 0.6083、
+ *   bboxDev=2、bestShift=(1,0)、F4_GEOMETRY）。
  *   N10（整页换成别的文档）与 N11（绕包围盒中心旋转 180°，bbox/墨量逐位不变）证明
  *   "整体错画仍会红"。
  *
@@ -315,7 +318,10 @@ class VisualDrawOpsParityInstrumentedTest {
         // 质心恰好变化 |t|"的等式已撤（批次 31 设备否证；推导见
         // `docs/research/2026-10-29-parity-metric-correction.md` §1.2–§1.3）。
         // - P06：设备实测 `d(+1) = 1.2624767812258337`（`step08-parity-logcat.txt:125`）；
-        //   2 位打印即 1.26。该值与基线精度无关（b² = a² + 2·vx + 1 ⇒ d(+1) = b）。
+        //   2 位打印即 1.26。这是**直接测量**的全精度读数，不依赖 2 位印刷的基线。
+        //   旧注的 `b² = a² + 2·vx + 1 ⇒ d(+1) = b` 不成立：`b` 就是 `d(+1)`，等式是循环定义；
+        //   且 `vx` 未知时它不能由基线 `a` 推出读数。受基线精度限制的是反解出的 `v_P06`
+        //   区间（研究文档 §2.4），不是 `d(+1)` 本身。
         // - P07：由同轮 N12 的 +4 px 读数 `3.56014654994809` 反解 v = (−0.4492, ±0.2582)，
         //   `d(+1) = 0.608282`；批次 32 E-02 已在设备上实测 `0.608282132824767`
         //   （`build/device-track-batch32/step08-parity-logcat.txt`），容差 0.02 覆盖基线只有
@@ -324,7 +330,8 @@ class VisualDrawOpsParityInstrumentedTest {
         //
         // 断言两件事：跨栅格读数落在模型值上；判决为 F4_GEOMETRY。
         // P06 的出口可以是质心 / bbox / bestShift 任一；P07 只能由 bbox 或 bestShift 抓住
-        // （N13 另用合成栅格把"质心恒为 0 的位移仍被抓"钉死）。
+        // （N13 另用 **2 px** 合成栅格把"质心恒为 0 的位移仍被抓"钉死；**1 px 盲集由本用例
+        // 的 P07 覆盖**，N13 不覆盖 1 px）。
         val cases = listOf(
             N09Case("P06", N09_P06_CENTROID_PX, N09_P06_CENTROID_TOLERANCE_PX),
             N09Case("P07", N09_P07_CENTROID_PX, N09_P07_CENTROID_TOLERANCE_PX),
@@ -369,6 +376,17 @@ class VisualDrawOpsParityInstrumentedTest {
     @Test
     fun n13CentroidBlindSpotIsCoveredByBboxOrShift() {
         // `calibrated-r2` 新增：**质心不可靠时由 bbox/shift 兜底**（研究文档 §3.2 的出口分工）。
+        //
+        // **覆盖边界（批次 33 诚实化，结论降级为"仅覆盖 ≥2 px 位移"）**：本用例的位移是
+        // **2 px**，只证明"质心被完全抵消时，≥2 px 的整块位移仍由 bbox/shift 抓住"。
+        // 它**不覆盖 1 px 盲集**：真正的 1 px 盲集（P07 `(+1,0)` 方向，`d(+1) = 0.608 < 0.75`，
+        // 质心看不见）由 N09-P07 在**真实夹具**上覆盖——批次 32 E-02 设备实测
+        // `centroid=0.608282132824767`、`bboxDev=2`、`bestShift=(1,0)`、`F4_GEOMETRY`
+        // （`build/device-track-batch32/step08-parity-logcat.txt:96-97`）。
+        // 不另造 1 px 合成用例的理由：那会把套件从 16 例变 17 例，使批次 32 的 `OK (16 tests)`
+        // 证据不再覆盖现树，而新增的分辨力与 N09-P07 重复；本用例保留为"质心恰好为 0"的
+        // ≥2 px 最坏形态。
+        //
         // 合成栅格（不经过屏/PDF 渲染器，故没有 AA/字体噪声，读数可手算）：
         // - 屏侧：实心块 (60,40)-(99,59)，带内墨量 800、质心 (79.5, 49.5)；
         // - PDF 侧：同一块整体右移 2 px，再①在块外补 100 px 墨条（列 59..68，行 35..39 与

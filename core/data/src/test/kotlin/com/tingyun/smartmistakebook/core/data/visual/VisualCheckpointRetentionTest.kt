@@ -34,7 +34,12 @@ import org.junit.Test
  *
  * 设备/集成面（本环境不运行 Gradle/adb）：demote/淘汰的 SQL 落点是 T3 的 D-02 写入事务
  * （`UPDATE … checkpoint_kind` + 删除未固定行），本轨只给判定；设备用例见 T3 的 DAO 仪器化
- * 矩阵（`TutorVisualStructureGatesInstrumentedTest`）。本文件执行结果登记为 UNVERIFIED。
+ * 矩阵（`TutorVisualStructureGatesInstrumentedTest`）。本文件是 **JVM 门**：批次 33 设备轨
+ * （`step02`/`step08`/`step09` 等）只跑 `am instrument`，**不执行 `testDebugUnitTest`**，
+ * 因此其设备绿轮不构成本文件的执行证据。本文件仍 **UNVERIFIED**（无仓内命令日志）。本机
+ * `core/data/build/test-results/testDebugUnitTest/TEST-…VisualCheckpointRetentionTest.xml`
+ * mtime **2026-10-29 14:40:45** 记 `tests="17" skipped="0" failures="0" errors="0"`，属
+ * build/ 旁证，命令归属未复核；不得把它写成 80-C3 的仓内执行证据。
  */
 class VisualCheckpointRetentionTest {
 
