@@ -26,11 +26,11 @@ import org.junit.runner.RunWith
  * 3. 行不存在时 0 行且**不新增行**（不是 upsert）；
  * 4. 状态对收紧：只有 `UNKNOWN → VERIFIED/USER_ASSERTED` 可执行，其余在写库前抛契约异常。
  *
- * 设备轨命令（本轨不跑 Gradle，结果 UNVERIFIED）：
- * `D:/smart mistake book/gradlew.bat -p "D:/smart mistake book"
- *  :core:database:connectedDebugAndroidTest
- *  -Pandroid.testInstrumentationRunnerArguments.class=com.tingyun.smartmistakebook.core.database.AssessmentItemVerificationStatusInstrumentedTest
- *  --console=plain`
+ * 设备轨命令（本轨不跑 Gradle，结果 UNVERIFIED；**禁用 `connectedAndroidTest`**）：
+ * `./gradlew :core:database:assembleDebugAndroidTest` → `adb install -r -t` 测试 APK →
+ * `adb shell am instrument -w -r -e class
+ *  com.tingyun.smartmistakebook.core.database.AssessmentItemVerificationStatusInstrumentedTest
+ *  com.tingyun.smartmistakebook.core.database.test/androidx.test.runner.AndroidJUnitRunner`
  */
 @RunWith(AndroidJUnit4::class)
 class AssessmentItemVerificationStatusInstrumentedTest {
