@@ -38,7 +38,9 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.json.JSONObject
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -157,6 +159,53 @@ class VisualJsIsolationInstrumentedTest {
             VisualJsWire.RESULT_OK,
             later.status,
         )
+    }
+
+    /**
+     * P-11（批次 35）：`[UNATTRIBUTED]` 前缀经**真实 AIDL + PFD + org.json 信封**跨进程存活。
+     * 程序在低堆（远离 16 MiB 上限）下 `throw null`：丢失哨兵 + 无堆证据 → 服务端分类器归
+     * 内部 UNATTRIBUTED、对外 INVALID_PROGRAM + 前缀诊断（与引擎侧设备用例
+     * `nullThrownAtLowMemoryIsUnattributedInvalidProgram` 同形——同一引擎代码，本用例补的
+     * 是传输半边）。宿主侧断言：reason 仍是 INVALID_PROGRAM（对外枚举不变），诊断以前缀
+     * 开头；且 AIDL `diagnostics` 参数与 payload 信封的 `diagnostics` 字段逐字一致
+     * （VisualJsService.deliver 双路传同一 summary）。前缀是跨进程契约字面量：改它必须
+     * 同步 core:data 分类器与本断言。
+     */
+    @Test
+    fun anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire() = runBlocking {
+        val harness = harness()
+        val service = harness.connect()
+        assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
+
+        val generation = 401L
+        assertEquals(VisualJsWire.STATUS_ACCEPTED, service.initialize(generation))
+
+        val outcome = harness.execute(
+            generation,
+            "unattributed-wire",
+            requestWithSource(THROW_NULL_SOURCE),
+        )
+        assertEquals(
+            "a lost-message failure must come back as a bounded rejection: " +
+                "status=${outcome.status} diagnostics=${outcome.diagnostics}",
+            VisualJsWire.RESULT_REJECTED,
+            outcome.status,
+        )
+        val rejected = outcome.asResult() as VisualExecutionResult.Rejected
+        assertEquals(
+            "actual: ${rejected.reason}: ${rejected.diagnostics}",
+            VisualExecutionRejection.INVALID_PROGRAM,
+            rejected.reason,
+        )
+        assertTrue(
+            "the [UNATTRIBUTED] prefix must survive the AIDL wire: ${rejected.diagnostics}",
+            rejected.diagnostics.startsWith("[UNATTRIBUTED]"),
+        )
+        // 双路一致：payload 信封与 AIDL diagnostics 参数逐字相同（同一 summary，两条通道）。
+        val envelope = JSONObject(String(outcome.payload!!, StandardCharsets.UTF_8))
+        assertEquals("INVALID_PROGRAM", envelope.getString("reason"))
+        assertEquals(outcome.diagnostics, envelope.getString("diagnostics"))
+        assertTrue(envelope.getString("diagnostics").startsWith("[UNATTRIBUTED]"))
     }
 
     @Test
@@ -755,6 +804,14 @@ class VisualJsIsolationInstrumentedTest {
     }
 
     private companion object {
+        /**
+         * P-11：丢失哨兵形状（`throw null`，堆远离 16 MiB 上限）——跨进程前缀保留用例的
+         * 程序。分类形状与引擎侧 P4 用例的 THROW_NULL_SOURCE 同源。
+         */
+        private const val THROW_NULL_SOURCE: String =
+            "const visual = { prepare: function () { throw null; }, " +
+                "render: function () { return {}; } };"
+
         /**
          * 设备实测冷启动 attach 4.6–7.5 s（E-01d）。取 7.6 s（实测上界 + 100 ms），
          * 旧 5 s 首连预算下必红；新预算 15 s 留出握手余量。只推迟 attach 回调、不推迟

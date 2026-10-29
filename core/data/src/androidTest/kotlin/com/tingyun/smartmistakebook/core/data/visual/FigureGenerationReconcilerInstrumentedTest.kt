@@ -363,6 +363,331 @@ class FigureGenerationReconcilerInstrumentedTest {
     }
 
     /**
+     * 不可伪造判据（批次 35 修复环收紧）："本地已确认成功"必须是
+     * `method='JS' AND reservation_id IS NULL`——这正是 `insertLocalAttempt` 写出的唯一形状
+     * （`FigureGenerationDao.insertLocalAttempt` 恒 `reservationId = null`）。一条
+     * **method='JS' 但带账本预留** 的行在生产写径上不可达（派发预留处恒 IMAGE_MODEL、
+     * 本地路径恒无预留），但判据不得依赖那两道上游护栏自证：这种行一旦出现（只可能出自
+     * 上游回归）会被 `method = 'JS'` 当"本地确认成功"，且被候选排除、永久逃逸改判。
+     * 改前本用例红：`method <> 'JS'` 把它整体排除，行永远停在 SUCCEEDED。
+     */
+    @Test
+    fun reservedJavascriptNamedSuccessIsStillReconciledAsFalseSuccess() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "figure-reconcile-js-reserved-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            val database = StudyDatabaseFactory.open(context, databaseName)
+            val processStartedAtEpochMillis = System.currentTimeMillis() - 1_000L
+            insertFigureGenerationAuditFixture(
+                context = context,
+                database = database,
+                databaseName = databaseName,
+                operationId = "op-js-reserved",
+                attemptId = "attempt-js-reserved",
+                operationStatus = "SUCCEEDED",
+                attemptStatus = "SUCCEEDED",
+                outputAssetId = null,
+                createdAtEpochMillis = 1_000,
+                updatedAtEpochMillis = 2_000,
+                startedAtEpochMillis = 2_000,
+                endedAtEpochMillis = 2_000,
+                attemptMethod = "JS",
+                attemptOrdinal = 1,
+                reservationId = "reservation-js-x",
+            )
+
+            val report = FigureGenerationReconciler(database).reconcileStaleRunning(
+                processStartedAtEpochMillis = processStartedAtEpochMillis,
+            )
+
+            assertEquals(
+                "JS 名义预留行的假成功必须被改判（不得因 method='JS' 逃逸）",
+                1,
+                report.failedAttempts,
+            )
+            assertEquals(
+                "操作名下没有任何可核验成功，必须一并落 FAILED",
+                1,
+                report.failedOperations,
+            )
+            database.close()
+
+            openReadOnly(context, databaseName).use { db ->
+                assertEquals(
+                    "JS 名义预留行必须落 FAILED 待核实",
+                    "FAILED",
+                    db.string(
+                        "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                        "attempt-js-reserved",
+                    ),
+                )
+                db.rawQuery(
+                    "SELECT diagnostics FROM figure_generation_attempt WHERE attempt_id = ?",
+                    arrayOf("attempt-js-reserved"),
+                ).use { cursor ->
+                    assertTrue(cursor.moveToFirst())
+                    assertTrue(
+                        "改判诊断必须是假成功前缀而不是僵尸 RUNNING 前缀",
+                        cursor.getString(0).orEmpty().contains("RECONCILED_UNCONFIRMED_SUCCESS"),
+                    )
+                }
+                assertEquals(
+                    "父操作必须落 FAILED",
+                    "FAILED",
+                    db.string(
+                        "SELECT status FROM figure_generation_operation WHERE operation_id = ?",
+                        "op-js-reserved",
+                    ),
+                )
+            }
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * 同一操作里"JS 名义预留行的假成功"与"真 JS 成功"（`reservation_id IS NULL`）并存：
+     * 只纠正带预留的那条；真 JS 成功（program 是真实产物）保住操作不落 FAILED。
+     * 操作级确认谓词必须用同一条不可伪造判据，而不是裸 `method = 'JS'`。
+     */
+    @Test
+    fun genuineJavascriptSuccessKeepsOperationSucceededWhileReservedJavascriptRowIsCorrected() =
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val databaseName = "figure-reconcile-js-mixed-${System.nanoTime()}.db"
+            context.deleteDatabase(databaseName)
+            try {
+                val database = StudyDatabaseFactory.open(context, databaseName)
+                val processStartedAtEpochMillis = System.currentTimeMillis() - 1_000L
+                insertFigureGenerationAuditFixture(
+                    context = context,
+                    database = database,
+                    databaseName = databaseName,
+                    operationId = "op-js-mixed-authenticity",
+                    attemptId = "attempt-js-mixed-reserved",
+                    operationStatus = "SUCCEEDED",
+                    attemptStatus = "SUCCEEDED",
+                    outputAssetId = null,
+                    createdAtEpochMillis = 1_000,
+                    updatedAtEpochMillis = 2_000,
+                    startedAtEpochMillis = 2_000,
+                    endedAtEpochMillis = 2_000,
+                    attemptMethod = "JS",
+                    attemptOrdinal = 1,
+                    reservationId = "reservation-js-y",
+                )
+                insertFigureGenerationAttemptFixture(
+                    context = context,
+                    database = database,
+                    databaseName = databaseName,
+                    operationId = "op-js-mixed-authenticity",
+                    attemptId = "attempt-js-mixed-genuine",
+                    attemptStatus = "SUCCEEDED",
+                    outputAssetId = null,
+                    startedAtEpochMillis = 2_500,
+                    endedAtEpochMillis = 2_500,
+                    attemptMethod = "JS",
+                    attemptOrdinal = -1,
+                )
+
+                val report = FigureGenerationReconciler(database).reconcileStaleRunning(
+                    processStartedAtEpochMillis = processStartedAtEpochMillis,
+                )
+
+                assertEquals(
+                    "只有带预留的 JS 名义行被改判",
+                    1,
+                    report.failedAttempts,
+                )
+                assertEquals(
+                    "真 JS 成功（无预留）保住操作不落 FAILED",
+                    0,
+                    report.failedOperations,
+                )
+                database.close()
+
+                openReadOnly(context, databaseName).use { db ->
+                    assertEquals(
+                        "带预留的 JS 名义行落 FAILED",
+                        "FAILED",
+                        db.string(
+                            "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                            "attempt-js-mixed-reserved",
+                        ),
+                    )
+                    assertEquals(
+                        "真 JS 成功保持 SUCCEEDED",
+                        "SUCCEEDED",
+                        db.string(
+                            "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                            "attempt-js-mixed-genuine",
+                        ),
+                    )
+                    assertEquals(
+                        "操作因真 JS 成功保持 SUCCEEDED",
+                        "SUCCEEDED",
+                        db.string(
+                            "SELECT status FROM figure_generation_operation WHERE operation_id = ?",
+                            "op-js-mixed-authenticity",
+                        ),
+                    )
+                }
+            } finally {
+                context.deleteDatabase(databaseName)
+            }
+        }
+
+    /**
+     * JS 的失败/取消路径在对账里是**终态**：FAILED / CANCELLED（含父操作）不被任何段改写，
+     * 诊断与结束时刻原样保留；而卡在 RUNNING 的 JS 行仍走僵尸段（与方法无关）落 FAILED。
+     * 判据收紧只改"假成功"候选与操作级确认谓词，不得波及这些路径。
+     */
+    @Test
+    fun terminalJavascriptAttemptsSurviveReconcileUnchangedWhileStaleRunningIsStillFailed() =
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val databaseName = "figure-reconcile-js-terminal-${System.nanoTime()}.db"
+            context.deleteDatabase(databaseName)
+            try {
+                val database = StudyDatabaseFactory.open(context, databaseName)
+                val processStartedAtEpochMillis = System.currentTimeMillis() - 1_000L
+                // 生产 failAttempt 的形状：attempt 与 operation 同落 FAILED，诊断有界。
+                insertFigureGenerationAuditFixture(
+                    context = context,
+                    database = database,
+                    databaseName = databaseName,
+                    operationId = "op-js-failed",
+                    attemptId = "attempt-js-failed",
+                    operationStatus = "FAILED",
+                    attemptStatus = "FAILED",
+                    outputAssetId = null,
+                    createdAtEpochMillis = 1_000,
+                    updatedAtEpochMillis = 2_000,
+                    startedAtEpochMillis = 2_000,
+                    endedAtEpochMillis = 2_000,
+                    attemptMethod = "JS",
+                    attemptOrdinal = -1,
+                    attemptDiagnostics = "JS 执行失败（有界诊断）",
+                )
+                // 生产 cancel() 的形状：attempt 与 operation 同落 CANCELLED，诊断"已取消"。
+                insertFigureGenerationAuditFixture(
+                    context = context,
+                    database = database,
+                    databaseName = databaseName,
+                    operationId = "op-js-cancelled",
+                    attemptId = "attempt-js-cancelled",
+                    operationStatus = "CANCELLED",
+                    attemptStatus = "CANCELLED",
+                    outputAssetId = null,
+                    createdAtEpochMillis = 1_000,
+                    updatedAtEpochMillis = 2_000,
+                    startedAtEpochMillis = 2_000,
+                    endedAtEpochMillis = 2_000,
+                    attemptMethod = "JS",
+                    attemptOrdinal = -1,
+                    attemptDiagnostics = "已取消",
+                )
+                // 上一进程留下的 JS RUNNING：僵尸段与方法无关，仍必须收尾。
+                insertFigureGenerationAuditFixture(
+                    context = context,
+                    database = database,
+                    databaseName = databaseName,
+                    operationId = "op-js-stale-running",
+                    attemptId = "attempt-js-stale-running",
+                    operationStatus = "RUNNING",
+                    attemptStatus = "RUNNING",
+                    outputAssetId = null,
+                    createdAtEpochMillis = 1_000,
+                    updatedAtEpochMillis = 2_000,
+                    startedAtEpochMillis = 2_000,
+                    attemptMethod = "JS",
+                    attemptOrdinal = -1,
+                )
+
+                val report = FigureGenerationReconciler(database).reconcileStaleRunning(
+                    processStartedAtEpochMillis = processStartedAtEpochMillis,
+                )
+
+                assertEquals(
+                    "只有僵尸 RUNNING 那一对被收尾",
+                    1,
+                    report.failedOperations,
+                )
+                assertEquals(1, report.failedAttempts)
+                database.close()
+
+                openReadOnly(context, databaseName).use { db ->
+                    assertEquals(
+                        "JS FAILED 尝试是对账终态，不得被改写",
+                        "FAILED",
+                        db.string(
+                            "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                            "attempt-js-failed",
+                        ),
+                    )
+                    assertEquals(
+                        "JS CANCELLED 尝试是对账终态，不得被改写",
+                        "CANCELLED",
+                        db.string(
+                            "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                            "attempt-js-cancelled",
+                        ),
+                    )
+                    db.rawQuery(
+                        "SELECT diagnostics, ended_at_epoch_millis FROM figure_generation_attempt" +
+                            " WHERE attempt_id = ?",
+                        arrayOf("attempt-js-cancelled"),
+                    ).use { cursor ->
+                        assertTrue(cursor.moveToFirst())
+                        assertEquals(
+                            "取消原因必须原样保留",
+                            "已取消",
+                            cursor.getString(0),
+                        )
+                        assertFalse("终态结束时刻不得被对账刷新", cursor.isNull(1))
+                    }
+                    assertEquals(
+                        "JS FAILED 操作保持 FAILED",
+                        "FAILED",
+                        db.string(
+                            "SELECT status FROM figure_generation_operation WHERE operation_id = ?",
+                            "op-js-failed",
+                        ),
+                    )
+                    assertEquals(
+                        "JS CANCELLED 操作保持 CANCELLED",
+                        "CANCELLED",
+                        db.string(
+                            "SELECT status FROM figure_generation_operation WHERE operation_id = ?",
+                            "op-js-cancelled",
+                        ),
+                    )
+                    assertEquals(
+                        "僵尸 RUNNING 的 JS 行仍被僵尸段收尾（与方法无关）",
+                        "FAILED",
+                        db.string(
+                            "SELECT status FROM figure_generation_attempt WHERE attempt_id = ?",
+                            "attempt-js-stale-running",
+                        ),
+                    )
+                    db.rawQuery(
+                        "SELECT diagnostics FROM figure_generation_attempt WHERE attempt_id = ?",
+                        arrayOf("attempt-js-stale-running"),
+                    ).use { cursor ->
+                        assertTrue(cursor.moveToFirst())
+                        assertTrue(
+                            "僵尸收尾诊断必须是 RUNNING 前缀",
+                            cursor.getString(0).orEmpty().contains("RECONCILED_STALE_RUNNING"),
+                        )
+                    }
+                }
+            } finally {
+                context.deleteDatabase(databaseName)
+            }
+        }
+
+    /**
      * 断言用的第二条只读口。用 `OPEN_READWRITE` 而不是 `OPEN_READONLY`：Room 刚关库时若还有
      * WAL/SHM 残留，只读连接在部分设备上打不开；这里只是读，写入权限不会改变断言含义。
      */

@@ -18,6 +18,8 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
  *
  * 拆成 operation / attempt 两个入口，是为了让同一 operation 下的**多次尝试**
  * （例如 IMAGE_MODEL 假成功 + 本地 JS 成功）能在同一个用例里落库。
+ * `reservationId` / `attemptDiagnostics` 可选：对账的不可伪造判据用例需要落出
+ * "method='JS' 但带预留"这种生产写径不可达、只能由夹具构造的形状。
  */
 internal suspend fun insertFigureGenerationAuditFixture(
     context: Context,
@@ -34,6 +36,8 @@ internal suspend fun insertFigureGenerationAuditFixture(
     endedAtEpochMillis: Long? = null,
     attemptMethod: String = "IMAGE_MODEL",
     attemptOrdinal: Int = 0,
+    reservationId: String? = null,
+    attemptDiagnostics: String? = null,
 ) {
     insertFigureGenerationOperationFixture(
         context = context,
@@ -56,6 +60,8 @@ internal suspend fun insertFigureGenerationAuditFixture(
         endedAtEpochMillis = endedAtEpochMillis,
         attemptMethod = attemptMethod,
         attemptOrdinal = attemptOrdinal,
+        reservationId = reservationId,
+        attemptDiagnostics = attemptDiagnostics,
     )
 }
 
@@ -108,6 +114,8 @@ internal suspend fun insertFigureGenerationAttemptFixture(
     endedAtEpochMillis: Long? = null,
     attemptMethod: String = "IMAGE_MODEL",
     attemptOrdinal: Int = 0,
+    reservationId: String? = null,
+    attemptDiagnostics: String? = null,
 ) {
     database.readDatabaseVersion()
     withSqlite(context, databaseName) { sqlite ->
@@ -127,8 +135,12 @@ internal suspend fun insertFigureGenerationAttemptFixture(
                 if (outputAssetId == null) putNull("output_asset_id") else {
                     put("output_asset_id", outputAssetId)
                 }
-                putNull("reservation_id")
-                putNull("diagnostics")
+                if (reservationId == null) putNull("reservation_id") else {
+                    put("reservation_id", reservationId)
+                }
+                if (attemptDiagnostics == null) putNull("diagnostics") else {
+                    put("diagnostics", attemptDiagnostics)
+                }
                 put("started_at_epoch_millis", startedAtEpochMillis)
                 if (endedAtEpochMillis == null) putNull("ended_at_epoch_millis") else {
                     put("ended_at_epoch_millis", endedAtEpochMillis)

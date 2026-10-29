@@ -159,6 +159,14 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         fun release() = gate.countDown()
     }
 
+    /** M-04 恒抛的度量设施 stub：宿主设施失败与程序错误的分界用例（批次 35）。 */
+    private class ThrowingMeasurer(
+        private val failure: Throwable,
+    ) : VisualContentMeasurer {
+        override suspend fun measure(batch: VisualContentMeasureBatch): VisualContentMeasureResult =
+            throw failure
+    }
+
     private fun engine(
         measurer: VisualContentMeasurer,
         cooperativeTimeoutMillis: Long = 100L,
@@ -599,6 +607,37 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
         )
         assertTrue(rejected.diagnostics.contains("RangeError: out of memory"))
         assertFalse(rejected.diagnostics.startsWith("[UNATTRIBUTED]"))
+    }
+
+    /**
+     * M-04（案 B，批次 35）：宿主**度量设施**运行时抛出不是程序的错。折 INVALID_PROGRAM 会把
+     * "该稍后重排"回喂成"程序无效"，模型反复修一个没有错的 program（R3 §6.6 同型退化）。
+     * 端口枚举归 core/domain（本批热区禁改），"单独分类"由稳定标记承载：折 ENGINE_CLOSED
+     * （协调器唯一映射 UNAVAILABLE 的拒绝类）+ [MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER]。
+     * 修复前本用例红：折点曾返回 INVALID_PROGRAM（"content measurement failed: …"）。
+     * 程序侧近邻（度量批次构造器预算越界）仍 INVALID_PROGRAM，由既有
+     * `prepareOverTheContentRequestBudgetIsRejected` 钉住——分界 = 异常来源在程序还是设施。
+     * 协调器侧的存活半边（标记进 outcome/审计、状态 UNAVAILABLE）由 JVM
+     * FigureGenerationCoordinatorTest 钉住。
+     */
+    @Test
+    fun aMeasurementFacilityFailureFoldsToEngineClosedWithAStableMarker() = runBlocking {
+        val engine = engine(ThrowingMeasurer(IllegalStateException("measure facility down")))
+
+        val result = engine.execute(request(ECHO_SOURCE))
+
+        val rejected = result as VisualExecutionResult.Rejected
+        assertEquals(
+            "a host-side measurer failure must not be reported as a program error: " +
+                "${rejected.reason}: ${rejected.diagnostics}",
+            VisualExecutionRejection.ENGINE_CLOSED,
+            rejected.reason,
+        )
+        assertTrue(
+            "the stable marker must be present: ${rejected.diagnostics}",
+            rejected.diagnostics.contains(MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER),
+        )
+        assertTrue(rejected.diagnostics.contains("IllegalStateException"))
     }
 
     @Test
