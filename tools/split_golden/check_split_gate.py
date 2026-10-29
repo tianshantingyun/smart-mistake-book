@@ -19,6 +19,13 @@
 按**闭边界** ①≥0.9 且 ③≤0.05 判定（与度量脚本常量逐字一致，阈值出处随报告落盘），
 最后产出确定性 JSON 报告（--report-json）与 R4 模板精神的证据文件（--evidence-out）。
 
+## 逐页裁定与来源（只记录，不进口径）
+
+证据 §5 逐页表写 file / 来源 / 金标题数 / 应用框数 / ①一致 / IoU≥0.5 / 切残。"来源"取自
+应用导出的页级 `nameSource`+`jobId`（`export_split_eval.py` 写入）；导出没有溯源块时写
+`UNVERIFIED（导出无溯源块）`（4C 历史导出即此形态），**不以文件名反推来源**。来源字段
+不参与任何分子/分母/阈值。
+
 ## 自动化裁定（本脚本不切任何产品开关）
 
 裁定 37 / 4C③：**门不过不允许自动入库（门后自动化不启用），切残不得自动入库**。
@@ -232,6 +239,7 @@ def run(golden: Path, sidecar: Path, app: Path,
                       "fragment": {"value": fragment_value, "threshold": FRAGMENT_GATE,
                                    "comparison": "<=", "met": fragment_met}}
     report["perPage"] = measure_report.get("pages") or []
+    report["appSource"] = (measure_report.get("app") or {}).get("source")
     report["measure"] = {"reportSchemaVersion": measure_report.get("reportSchemaVersion"),
                          "caliber": measure_report.get("caliber"),
                          "missingAppPages": measure_report.get("missingAppPages"),
@@ -240,6 +248,21 @@ def run(golden: Path, sidecar: Path, app: Path,
 
 
 # ---------------------------------------------------------------- 证据落盘（R4 模板精神）
+
+def _page_source_cell(row: dict) -> str:
+    """逐页来源：有 nameSource 写来源+job 定位；缺页/无溯源如实标注，不用文件名冒充。"""
+    if row.get("appPageMissing"):
+        return "应用缺页（0 框计入）"
+    name_source = row.get("appNameSource")
+    if not isinstance(name_source, str) or not name_source:
+        return "UNVERIFIED（导出无溯源块）"
+    job = row.get("appJobId")
+    index = row.get("appPageIndex")
+    if isinstance(job, str) and job and isinstance(index, int) \
+            and not isinstance(index, bool):
+        return f"{name_source}（`{job}#p{index}`）"
+    return name_source
+
 
 def render_evidence(report: dict, generated_at_utc: str) -> str:
     """R4 模板精神：E-ID 表 + 产物 sha + 命令/exit + 判定 + UNVERIFIED + 体积自查。"""
@@ -284,6 +307,16 @@ def render_evidence(report: dict, generated_at_utc: str) -> str:
         lines.append(f"| 应用导出 {app['file']} | `{app['path']}` | {app['bytes']} | `{app['sha256']}` |")
     else:
         lines.append(f"| 应用导出 | `{app['path']}` | **缺失** | — |")
+    source = report.get("appSource")
+    if app["exists"]:
+        if isinstance(source, dict) and source.get("present"):
+            counts = json.dumps(source.get("nameSourceCounts"), ensure_ascii=False,
+                                sort_keys=True)
+            lines.append(f"| 应用导出 source 块 | 有（db sha256 `{source.get('dbSha256')}`；"
+                         f"页名来源 {counts}） | — | — |")
+        else:
+            lines.append("| 应用导出 source 块 | **缺失**（页名/设备来源 UNVERIFIED，"
+                         "不由文件名反推） | — | — |")
     lines.append("")
     lines.append("## 3. 命令与退出码（可复跑）")
     lines.append("")
@@ -323,10 +356,11 @@ def render_evidence(report: dict, generated_at_utc: str) -> str:
     lines.append("## 5. 逐页裁定")
     lines.append("")
     if report["perPage"]:
-        lines.append("| file | 金标题数 | 应用框数 | ①一致 | IoU≥0.5 达标 | 切残 |")
-        lines.append("|---|---|---|---|---|---|")
+        lines.append("| file | 来源 | 金标题数 | 应用框数 | ①一致 | IoU≥0.5 达标 | 切残 |")
+        lines.append("|---|---|---|---|---|---|---|")
         for row in report["perPage"]:
-            lines.append(f"| {row['file']} | {row['goldQuestions']} | {row['appBoxes']} |"
+            lines.append(f"| {row['file']} | {_page_source_cell(row)} |"
+                         f" {row['goldQuestions']} | {row['appBoxes']} |"
                          f" {'一致' if row['consistent'] else '不一致'} | {row['iouOk']} |"
                          f" {row['fragmentedCount']} |")
     else:
@@ -344,8 +378,12 @@ def render_evidence(report: dict, generated_at_utc: str) -> str:
         lines.append(f"- 度量失败：{report['measureError'][:300]}")
     lines.append("- 金标证据等级：`model-labeled, no human expert`（代理金标，两名标注员一致、"
                  "无人工专家）——真实人工正确率 **UNVERIFIED**，不得当作人工金标引用")
-    lines.append("- 应用导出与设备/DB 版本的绑定：以导出文件内 `source` 溯源块为准；"
-                 "缺溯源块的导出，其设备来源 **UNVERIFIED**")
+    if isinstance(source, dict) and source.get("present"):
+        lines.append(f"- 应用导出来源块：present（db sha256 `{source.get('dbSha256')}`）；"
+                     "逐页 nameSource 见 §5")
+    else:
+        lines.append("- 应用导出来源块：**缺失**——逐页来源与设备/DB 版本绑定 "
+                     "**UNVERIFIED**（不以文件名反推）")
     lines.append("- 门后自动化：始终未启用（仓内无门控开关；开启属 4C③ 产品裁定，不在工具职责内）")
     lines.append("")
     text = "\n".join(lines) + "\n"

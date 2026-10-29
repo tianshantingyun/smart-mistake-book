@@ -17,12 +17,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import sqlite3
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO = Path(__file__).resolve().parents[2]
 SPLIT_TOOLS = REPO / "tools" / "split_golden"
@@ -67,6 +69,105 @@ def write_app(path: Path, pages: list[tuple[str, list[dict]]]) -> None:
     path.write_text(json.dumps(
         {"pages": [{"file": name, "questions": boxes} for name, boxes in pages]},
         ensure_ascii=False), encoding="utf-8", newline="")
+
+
+def write_json(path: Path, doc: dict) -> None:
+    path.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8", newline="")
+
+
+def make_split_db(path: Path, with_batch: bool = True) -> None:
+    """应用侧分题表的最小真实形状（列名与 SplitImportEntities.kt / BatchImportEntities.kt 一致）。"""
+    conn = sqlite3.connect(path)
+    conn.executescript("""
+    CREATE TABLE split_import_job (job_id TEXT PRIMARY KEY, source_kind TEXT,
+        source_fingerprint TEXT, source_uri TEXT, page_count INTEGER,
+        question_count INTEGER, status TEXT, created_at_epoch_millis INTEGER,
+        updated_at_epoch_millis INTEGER);
+    CREATE TABLE split_import_question (job_id TEXT, question_ordinal INTEGER,
+        page_index INTEGER, region_left REAL, region_top REAL, region_right REAL,
+        region_bottom REAL, selected INTEGER, confirm_state TEXT, split_draft_id TEXT,
+        PRIMARY KEY (job_id, question_ordinal));
+    """)
+    if with_batch:
+        conn.executescript("""
+        CREATE TABLE batch_import_job (job_id TEXT PRIMARY KEY, request_id TEXT,
+            request_fingerprint TEXT, status TEXT, created_at_epoch_millis INTEGER,
+            updated_at_epoch_millis INTEGER);
+        CREATE TABLE batch_import_page (job_id TEXT, page_index INTEGER, source_uri TEXT,
+            status TEXT, result_draft_id TEXT, failure_code TEXT, attempt_count INTEGER,
+            created_at_epoch_millis INTEGER, updated_at_epoch_millis INTEGER,
+            boundary_after_status TEXT DEFAULT 'PENDING',
+            split_after_status TEXT DEFAULT 'PENDING',
+            PRIMARY KEY (job_id, page_index));
+        """)
+    conn.commit()
+    conn.close()
+
+
+def seed_split_db(db: Path) -> None:
+    """两页：IMG_1001（2 题）、IMG_1002（1 题）；job id 形如 split:<batch_job>:<page>。"""
+    conn = sqlite3.connect(db)
+    conn.execute("INSERT INTO batch_import_job VALUES ('B1','r1','f1','DONE',1,2)")
+    conn.execute("INSERT INTO batch_import_page VALUES "
+                 "('B1',0,'file:///dcim/IMG_1001.jpg','DONE',NULL,NULL,1,1,2,'NEXT_QUESTION','NEXT_QUESTION')")
+    conn.execute("INSERT INTO batch_import_page VALUES "
+                 "('B1',1,'file:///dcim/IMG_1002.jpg','DONE',NULL,NULL,1,1,2,'NEXT_QUESTION','NEXT_QUESTION')")
+    conn.execute("INSERT INTO split_import_job VALUES "
+                 "('split:B1:0','BATCH','fp0','file:///dcim/IMG_1001.jpg',1,2,'READY',1,2)")
+    conn.execute("INSERT INTO split_import_question VALUES "
+                 "('split:B1:0',0,0,0.05,0.05,0.9,0.4,1,'PENDING',NULL)")
+    conn.execute("INSERT INTO split_import_question VALUES "
+                 "('split:B1:0',1,0,0.05,0.5,0.9,0.95,1,'CONFIRMED','d1')")
+    conn.execute("INSERT INTO split_import_job VALUES "
+                 "('split:B1:1','BATCH','fp1','file:///dcim/IMG_1002.jpg',1,1,'READY',1,2)")
+    conn.execute("INSERT INTO split_import_question VALUES "
+                 "('split:B1:1',0,0,0.05,0.05,0.9,0.3,0,'PENDING',NULL)")
+    conn.commit()
+    conn.close()
+
+
+def make_wal_snapshot_pair(tmp: Path) -> tuple[Path, Path]:
+    """两份 WAL 快照：**主库字节相同、`-wal` 不同**（1 题 vs 2 题）。
+
+    这就是 KD-81 受控实验（`docs/research/2026-10-29-snapshot-identity-wal-and-r8.md`
+    §1.2 / §4.2）的可复用形态：schema 与 job 行先 `wal_checkpoint(TRUNCATE)` 落进主库，
+    之后两次插入都只留在 `-wal` 里，每次插入后各拷一次 `db` + `db-wal`。
+
+    它消灭的具体失败：没有这个夹具时，"身份是否覆盖 WAL"只能靠会话外手工造库判断，
+    回归用例无从落地（同一主库 + 不同 WAL 同 sha 的缺陷会再次静默回来）。
+
+    只拷 `db`+`wal`、**不拷 `-shm`**：`-shm` 是共享内存索引（只读打开时由 SQLite
+    重建/改写），把它当输入既无意义，也会让"同一快照跑两遍"不再逐字节一致。
+    写连接全程不关——关闭会触发末次 checkpoint 并删除 WAL，两份快照就退化成同一形态。
+    """
+    live = tmp / "live.db"
+    conn = sqlite3.connect(live, isolation_level=None)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA wal_autocheckpoint=0")
+    make_split_db(live)  # 短连接建表；本连接仍开着，故不会 checkpoint 掉 WAL
+    conn.execute("INSERT INTO batch_import_job VALUES ('B1','r1','f1','DONE',1,2)")
+    conn.execute("INSERT INTO batch_import_page VALUES "
+                 "('B1',0,'file:///dcim/IMG_1001.jpg','DONE',NULL,NULL,1,1,2,"
+                 "'NEXT_QUESTION','NEXT_QUESTION')")
+    conn.execute("INSERT INTO split_import_job VALUES "
+                 "('split:B1:0','BATCH','fp0','file:///dcim/IMG_1001.jpg',1,2,'READY',1,2)")
+    # 结构必须先进主库：否则"只拷主库"会以缺表失败，T1 的前提（主库字节相同）也没了。
+    conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+
+    def snapshot(tag: str) -> Path:
+        dst = tmp / f"snap{tag}.db"
+        shutil.copyfile(live, dst)
+        shutil.copyfile(str(live) + "-wal", str(dst) + "-wal")
+        return dst
+
+    conn.execute("INSERT INTO split_import_question VALUES "
+                 "('split:B1:0',0,0,0.05,0.05,0.9,0.4,1,'PENDING',NULL)")
+    snap_one = snapshot("one")
+    conn.execute("INSERT INTO split_import_question VALUES "
+                 "('split:B1:0',1,0,0.05,0.5,0.9,0.95,1,'CONFIRMED',NULL)")
+    snap_two = snapshot("two")
+    conn.close()
+    return snap_one, snap_two
 
 
 def two_question_page(name: str) -> dict:
@@ -411,51 +512,10 @@ class MeasureJsonTest(SplitGateTestBase):
 
 class ExportSplitEvalTest(SplitGateTestBase):
     def _make_db(self, path: Path, with_batch: bool = True) -> None:
-        conn = sqlite3.connect(path)
-        conn.executescript("""
-        CREATE TABLE split_import_job (job_id TEXT PRIMARY KEY, source_kind TEXT,
-            source_fingerprint TEXT, source_uri TEXT, page_count INTEGER,
-            question_count INTEGER, status TEXT, created_at_epoch_millis INTEGER,
-            updated_at_epoch_millis INTEGER);
-        CREATE TABLE split_import_question (job_id TEXT, question_ordinal INTEGER,
-            page_index INTEGER, region_left REAL, region_top REAL, region_right REAL,
-            region_bottom REAL, selected INTEGER, confirm_state TEXT, split_draft_id TEXT,
-            PRIMARY KEY (job_id, question_ordinal));
-        """)
-        if with_batch:
-            conn.executescript("""
-            CREATE TABLE batch_import_job (job_id TEXT PRIMARY KEY, request_id TEXT,
-                request_fingerprint TEXT, status TEXT, created_at_epoch_millis INTEGER,
-                updated_at_epoch_millis INTEGER);
-            CREATE TABLE batch_import_page (job_id TEXT, page_index INTEGER, source_uri TEXT,
-                status TEXT, result_draft_id TEXT, failure_code TEXT, attempt_count INTEGER,
-                created_at_epoch_millis INTEGER, updated_at_epoch_millis INTEGER,
-                boundary_after_status TEXT DEFAULT 'PENDING',
-                split_after_status TEXT DEFAULT 'PENDING',
-                PRIMARY KEY (job_id, page_index));
-            """)
-        conn.commit()
-        conn.close()
+        make_split_db(path, with_batch)
 
     def _seed(self, db: Path) -> None:
-        conn = sqlite3.connect(db)
-        conn.execute("INSERT INTO batch_import_job VALUES ('B1','r1','f1','DONE',1,2)")
-        conn.execute("INSERT INTO batch_import_page VALUES "
-                     "('B1',0,'file:///dcim/IMG_1001.jpg','DONE',NULL,NULL,1,1,2,'NEXT_QUESTION','NEXT_QUESTION')")
-        conn.execute("INSERT INTO batch_import_page VALUES "
-                     "('B1',1,'file:///dcim/IMG_1002.jpg','DONE',NULL,NULL,1,1,2,'NEXT_QUESTION','NEXT_QUESTION')")
-        conn.execute("INSERT INTO split_import_job VALUES "
-                     "('split:B1:0','BATCH','fp0','file:///dcim/IMG_1001.jpg',1,2,'READY',1,2)")
-        conn.execute("INSERT INTO split_import_question VALUES "
-                     "('split:B1:0',0,0,0.05,0.05,0.9,0.4,1,'PENDING',NULL)")
-        conn.execute("INSERT INTO split_import_question VALUES "
-                     "('split:B1:0',1,0,0.05,0.5,0.9,0.95,1,'CONFIRMED','d1')")
-        conn.execute("INSERT INTO split_import_job VALUES "
-                     "('split:B1:1','BATCH','fp1','file:///dcim/IMG_1002.jpg',1,1,'READY',1,2)")
-        conn.execute("INSERT INTO split_import_question VALUES "
-                     "('split:B1:1',0,0,0.05,0.05,0.9,0.3,0,'PENDING',NULL)")
-        conn.commit()
-        conn.close()
+        seed_split_db(db)
 
     def test_export_is_deterministic_and_consumable_by_measure(self):
         """导出→同 sha 复跑→measure.load_app 可消费；页名取 batch_import_page.source_uri。"""
@@ -583,6 +643,397 @@ class ExportSplitEvalTest(SplitGateTestBase):
         code, out_text = self._export(db, self.tmp / "o.json")
         self.assertEqual(2, code)
         self.assertIn("split_import_job", out_text)
+
+
+class SnapshotIdentityWalTest(SplitGateTestBase):
+    """KD-81：产物身份必须覆盖 `-wal`，`-shm` 不得进身份，读事务必须钉住一个快照。
+
+    它消灭的具体失败（R2 §2.4 推荐组合，缺一项的失败面）：
+      ① 身份只吃主库字节 → 同主库 + 不同 WAL 报同一个"快照身份"（KD-81 原文症状）；
+      ② `-shm` 进身份 → 导出自己改写它，同一快照跑两遍得到两个身份、两份不同字节的导出；
+      ③ autocommit 下两条语句跨快照 → 一次导出内部混合两个状态，任何身份都描述不了它；
+      ④ 导出期间输入漂移无人察觉 → 报告声称的快照与实际度量对象不是同一个。
+    """
+
+    def _export(self, db: Path, out: Path) -> tuple[int, str]:
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = X.main(["--db", str(db), "--out", str(out)])
+        return code, buffer.getvalue()
+
+    def _doc(self, out: Path) -> dict:
+        return json.loads(out.read_text(encoding="utf-8"))
+
+    def test_same_main_db_different_wal_yields_different_identity(self):
+        """受控实验：主库字节相同 + WAL 不同 ⇒ 身份必须不同（旧字段 db.sha256 仍相同）。"""
+        snap_one, snap_two = make_wal_snapshot_pair(self.tmp)
+        out_one, out_two = self.tmp / "one.json", self.tmp / "two.json"
+        code_one, text_one = self._export(snap_one, out_one)
+        code_two, text_two = self._export(snap_two, out_two)
+        self.assertEqual(0, code_one, text_one)
+        self.assertEqual(0, code_two, text_two)
+        doc_one, doc_two = self._doc(out_one), self._doc(out_two)
+
+        # 前提：正是 KD-81 的形态——两份快照的主库字节相同。
+        self.assertEqual(snap_one.read_bytes(), snap_two.read_bytes())
+        self.assertEqual(doc_one["source"]["db"]["sha256"],
+                         doc_two["source"]["db"]["sha256"],
+                         "旧字段 db.sha256 相同是缺陷形态，不是身份")
+
+        snapshot_one = doc_one["source"]["snapshot"]
+        snapshot_two = doc_two["source"]["snapshot"]
+        self.assertEqual("inputs-v1", snapshot_one["identityKind"])
+        self.assertTrue(snapshot_one["walPresent"])
+        self.assertTrue(snapshot_two["walPresent"])
+        self.assertNotEqual(snapshot_one["inputs"]["wal"]["sha256"],
+                            snapshot_two["inputs"]["wal"]["sha256"])
+        self.assertNotEqual(snapshot_one["identitySha256"],
+                            snapshot_two["identitySha256"],
+                            "同主库 + 不同 WAL 必须得到不同快照身份")
+        self.assertNotEqual(doc_one["source"]["payload"]["sha256"],
+                            doc_two["source"]["payload"]["sha256"],
+                            "载荷（内容身份）也必须不同：1 框 vs 2 框")
+        self.assertEqual([1, 2], [doc_one["pages"][0]["questionCount"],
+                                  doc_two["pages"][0]["questionCount"]])
+
+    def test_same_wal_snapshot_exported_twice_is_byte_identical(self):
+        """同一 WAL 快照连导两次必须逐字节一致：身份/输出都不得吃 `-shm` 或 mtime。
+
+        只读导出本身会创建/改写 `-shm`（R2 §1.3 P2b 实测），所以任何落进输出的
+        `shm` 摘要/大小/mtime 都会让第二次导出与第一次不同字节——这条用例把
+        "新字段仍是确定性的"钉住。
+        """
+        snap_one, _snap_two = make_wal_snapshot_pair(self.tmp)
+        out_one, out_two = self.tmp / "a.json", self.tmp / "b.json"
+        code_one, text_one = self._export(snap_one, out_one)
+        code_two, text_two = self._export(snap_one, out_two)
+        self.assertEqual(0, code_one, text_one)
+        self.assertEqual(0, code_two, text_two)
+        self.assertEqual(out_one.read_bytes(), out_two.read_bytes(),
+                         "同一 WAL 快照复跑必须同字节（身份不得吃 -shm/mtime）")
+        snapshot = self._doc(out_one)["source"]["snapshot"]
+        self.assertTrue(snapshot["walPresent"])
+        self.assertEqual({"db", "wal"}, set(snapshot["inputs"]),
+                         "-shm 不得出现在身份输入清单里")
+
+    def test_absent_wal_is_recorded_as_absent(self):
+        """已 checkpoint 的库（无 `-wal`）：如实记 wal=null / walPresent=false，不编。"""
+        db = self.tmp / "snapshot.db"
+        make_split_db(db)
+        seed_split_db(db)
+        out = self.tmp / "o.json"
+        code, text = self._export(db, out)
+        self.assertEqual(0, code, text)
+        snapshot = self._doc(out)["source"]["snapshot"]
+        self.assertFalse(snapshot["walPresent"])
+        self.assertIsNone(snapshot["inputs"]["wal"])
+        self.assertEqual(hashlib.sha256(db.read_bytes()).hexdigest(),
+                         snapshot["inputs"]["db"]["sha256"])
+
+    def test_empty_wal_sidecar_from_own_read_is_not_drift(self):
+        """WAL 模式但无 `-wal` 的快照：只读打开会**自建 0 字节 `-wal`**，不得判成漂移。
+
+        实测（本会话探针）：只读 `mode=ro` 打开一个 WAL 模式的库后，目录里多出
+        `<db>-wal` = 0 B、`<db>-shm` = 32768 B。若把"存在但 0 字节"的 `-wal` 当输入，
+        第一次导出就会自己触发 `快照一致性`（exit 2），且同一快照的第二次导出换身份。
+        0 字节 WAL 不含任何帧（`wal_checkpoint(TRUNCATE)` 后正是这个形态），按"无 WAL"归一。
+        """
+        snap_one, _snap_two = make_wal_snapshot_pair(self.tmp)
+        main_only = self.tmp / "main-only.db"
+        shutil.copyfile(snap_one, main_only)  # 只拷主库：丢掉真正的 -wal
+        self.assertFalse(main_only.with_name(main_only.name + "-wal").exists())
+
+        out_one, out_two = self.tmp / "a.json", self.tmp / "b.json"
+        code_one, text_one = self._export(main_only, out_one)
+        code_two, text_two = self._export(main_only, out_two)
+        self.assertEqual(0, code_one, text_one)
+        self.assertEqual(0, code_two, text_two)
+        self.assertTrue(main_only.with_name(main_only.name + "-wal").is_file(),
+                        "前提：只读打开确实自建了 0 字节 -wal（本用例要覆盖的就是它）")
+        self.assertEqual(0, main_only.with_name(main_only.name + "-wal").stat().st_size)
+        snapshot = self._doc(out_one)["source"]["snapshot"]
+        self.assertFalse(snapshot["walPresent"], "0 字节 -wal 必须按无 WAL 归一")
+        self.assertIsNone(snapshot["inputs"]["wal"])
+        self.assertEqual(out_one.read_bytes(), out_two.read_bytes(),
+                         "同一快照复跑必须同字节（自建的 0 字节 -wal 不得改变身份）")
+        self.assertEqual(0, sum(page["questionCount"] for page in self._doc(out_one)["pages"]),
+                         "只拷主库：已提交的题仍在 WAL 里，导出必须如实为 0 框（不是静默补回）")
+
+
+    def test_export_rejects_input_change_during_export(self):
+        """导出期间 db/-wal 变了：exit 2 + `快照一致性`，且 `--out` 不落盘（校验先于写盘）。"""
+        snap_one, _snap_two = make_wal_snapshot_pair(self.tmp)
+        out = self.tmp / "o.json"
+        real_manifest = X._input_manifest
+        calls = {"count": 0}
+
+        def manifest_with_drift(db_path):
+            calls["count"] += 1
+            if calls["count"] == 2:  # 第 2 次 = 读连接关闭之后的"后比对"
+                writer = sqlite3.connect(str(db_path))
+                writer.execute(
+                    "INSERT INTO split_import_question VALUES "
+                    "('split:B1:0',1,0,0.05,0.5,0.9,0.95,1,'CONFIRMED',NULL)")
+                writer.commit()
+                writer.close()
+            return real_manifest(db_path)
+
+        with mock.patch.object(X, "_input_manifest", manifest_with_drift, create=True):
+            code, text = self._export(snap_one, out)
+        self.assertEqual(2, code, text)
+        self.assertIn("快照一致性", text)
+        self.assertFalse(out.exists(), "后比对必须先于写盘：坏导出不得已落盘")
+
+    def test_reads_are_pinned_to_one_snapshot(self):
+        """读事务钉住快照：导出期间另一个连接的已提交写入不得混进本次导出。
+
+        插入点选在页名解析的**首次调用**（主查询之后、仍在读事务内）：没有显式
+        `BEGIN` 时该 INSERT 会被后续 SELECT 看见（混合导出），有读事务时看不见。
+        后比对被打成常量以关掉"检测"，只测"钉住"——两件事分开证明。
+        """
+        snap_one, _snap_two = make_wal_snapshot_pair(self.tmp)
+        out = self.tmp / "o.json"
+        real_manifest = X._input_manifest
+        cached: dict = {}
+
+        def frozen_manifest(db_path):
+            if not cached:
+                cached.update(real_manifest(db_path))
+            return dict(cached)
+
+        real_resolve = X._resolve_page_name
+        fired = {"count": 0}
+
+        def resolve_with_write(conn, job_id, page_index, page_map):
+            if fired["count"] == 0:
+                fired["count"] += 1
+                writer = sqlite3.connect(str(snap_one))
+                writer.execute(
+                    "UPDATE batch_import_page SET source_uri='file:///dcim/IMG_9999.jpg'"
+                    " WHERE job_id='B1' AND page_index=0")
+                writer.commit()
+                writer.close()
+            return real_resolve(conn, job_id, page_index, page_map)
+
+        with mock.patch.object(X, "_input_manifest", frozen_manifest, create=True), \
+                mock.patch.object(X, "_resolve_page_name", resolve_with_write):
+            code, text = self._export(snap_one, out)
+        self.assertEqual(0, code, text)
+        pages = self._doc(out)["pages"]
+        self.assertEqual(["IMG_1001.jpg"], [page["file"] for page in pages],
+                         "读事务必须钉住快照：导出期间提交的改名不得混进来")
+        self.assertEqual("batch_page_source_uri", pages[0]["nameSource"])
+
+    def test_export_rejects_wal_change_inside_transaction(self):
+        """T5b：读事务**内**发生的已提交写入，后比对仍必须 exit 2（且校验先于写盘）。
+
+        与 `test_reads_are_pinned_to_one_snapshot` 的分工：那条把后比对钉成常量，只证明
+        "读事务钉住快照"；这条**不冻结**清单，只证明"事务内漂移仍被检出"。两件事必须
+        同时成立才是完整门——只钉住不检测 = 静默导出旧状态；只检测不钉住 = 导出内部
+        混合两个状态。
+        """
+        snap_one, _snap_two = make_wal_snapshot_pair(self.tmp)
+        out = self.tmp / "o.json"
+        real_resolve = X._resolve_page_name
+        fired = {"count": 0}
+
+        def resolve_with_write(conn, job_id, page_index, page_map):
+            if fired["count"] == 0:
+                fired["count"] += 1
+                writer = sqlite3.connect(str(snap_one))
+                writer.execute(
+                    "UPDATE batch_import_page SET source_uri='file:///dcim/IMG_9999.jpg'"
+                    " WHERE job_id='B1' AND page_index=0")
+                writer.commit()
+                writer.close()
+            return real_resolve(conn, job_id, page_index, page_map)
+
+        with mock.patch.object(X, "_resolve_page_name", resolve_with_write):
+            code, text = self._export(snap_one, out)
+        self.assertEqual(2, code, text)
+        self.assertIn("快照一致性", text)
+        self.assertFalse(out.exists(), "后比对必须先于写盘：坏导出不得已落盘")
+
+
+
+# ---------------------------------------------------------------- 生产者溯源 → 逐页裁定
+
+class ProvenanceFlowTest(SplitGateTestBase):
+    """导出器的 nameSource/jobId 必须活到 measure --json 逐页行与门证据里。
+
+    它消灭的具体失败：逐页裁定只写 file/框数，读者无法区分"库里真有这个文件名"与
+    "页名是映射/合成来的"，也无法区分"导出带溯源"与"4C 历史导出无溯源"——两者
+    只能靠打开 JSON 或翻会话记录判断，证据文件自我不完整。
+    """
+
+    def _golden_doc(self) -> dict:
+        return {"pages": [
+            {"file": "IMG_1001.jpg", "questionCount": 2,
+             "boxes": [_box(0.05, 0.05, 0.9, 0.4), _box(0.05, 0.5, 0.9, 0.95)]},
+            {"file": "IMG_1002.jpg", "questionCount": 1,
+             "boxes": [_box(0.05, 0.05, 0.9, 0.3)]},
+        ]}
+
+    def _golden(self) -> Path:
+        golden = self.tmp / "g.json"
+        write_json(golden, self._golden_doc())
+        return golden
+
+    def _export(self) -> tuple[Path, Path]:
+        db = self.tmp / "snapshot.db"
+        make_split_db(db)
+        seed_split_db(db)
+        out = self.tmp / "app.json"
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = X.main(["--db", str(db), "--out", str(out)])
+        self.assertEqual(0, code, buffer.getvalue())
+        return db, out
+
+    def _measure_json(self, app: Path) -> tuple[int, dict]:
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = M.main(["--golden", str(self._golden()), "--app", str(app), "--json"])
+        return code, json.loads(buffer.getvalue())
+
+    def test_export_is_consumed_with_provenance_intact(self):
+        """导出格式被度量脚本直接消费，且每页来源随行透传（不是只写 file/框数）。"""
+        db, app = self._export()
+        code, report = self._measure_json(app)
+        self.assertEqual(0, code)
+        rows = {row["file"]: row for row in report["pages"]}
+        self.assertEqual({"IMG_1001.jpg", "IMG_1002.jpg"}, set(rows))
+        first = rows["IMG_1001.jpg"]
+        self.assertEqual(2, first["appBoxes"])
+        self.assertEqual("batch_page_source_uri", first["appNameSource"])
+        self.assertEqual("split:B1:0", first["appJobId"])
+        self.assertEqual(0, first["appPageIndex"])
+        self.assertTrue(first["appProvenance"])
+        source = report["app"]["source"]
+        self.assertTrue(source["present"])
+        self.assertEqual(hashlib.sha256(db.read_bytes()).hexdigest(), source["dbSha256"])
+        self.assertEqual({"batch_page_source_uri": 2}, source["nameSourceCounts"])
+        self.assertFalse(report["automation"]["enabled"])
+
+    def test_export_without_source_block_is_marked_unverified(self):
+        """无溯源块的导出（4C 形态）：逐页来源为 null、文件级 source.present=false，不猜。"""
+        app = self.tmp / "plain.json"
+        write_json(app, {"pages": [
+            {"file": "IMG_1001.jpg", "questions": [
+                _box(0.05, 0.05, 0.9, 0.4), _box(0.05, 0.5, 0.9, 0.95)]},
+            {"file": "IMG_1002.jpg", "questions": [_box(0.05, 0.05, 0.9, 0.3)]},
+        ]})
+        code, report = self._measure_json(app)
+        self.assertEqual(0, code)
+        for row in report["pages"]:
+            self.assertIsNone(row["appNameSource"])
+            self.assertFalse(row["appProvenance"])
+        self.assertFalse(report["app"]["source"]["present"])
+        self.assertIsNone(report["app"]["source"]["dbSha256"])
+        self.assertFalse(report["automation"]["enabled"])
+
+    def test_exporter_output_is_consumed_by_gate(self):
+        """门脚本直接吃导出器输出：页名/框数/来源齐全，门照常按数值判（不为溯源改口径）。"""
+        _db, app = self._export()
+        pages = [_page("IMG_1001.jpg",
+                       [_box(0.05, 0.05, 0.9, 0.4), _box(0.05, 0.5, 0.9, 0.95)]),
+                 _page("IMG_1002.jpg", [_box(0.05, 0.05, 0.9, 0.3)])]
+        # C6 要求金标 ≥7 页；其余 5 页应用缺页（按 0 框计入，不伪造输出）。
+        pages += [_page(f"IMG_{index:04d}.jpg", [_box(0.05, 0.05, 0.9, 0.3)])
+                  for index in range(1003, 1008)]
+        golden = self.frozen(pages)
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = G.main(["--golden", str(golden),
+                           "--sidecar", str(golden.with_name(golden.name + ".sha256")),
+                           "--app", str(app)])
+        # 单题金标页不允许 1 块（v2 口径：单题页被拆即不一致）——本夹具 1002 就是这样，
+        # 所以门如实 FAIL；这里验证的是格式消费与溯源透传，不是把门拉绿。
+        self.assertEqual(1, code, buffer.getvalue())
+        self.assertFalse(G.LAST_REPORT["gate"]["passed"])
+        self.assertEqual("FAIL", G.LAST_REPORT["gate"]["state"])
+        self.assertEqual(6, G.LAST_REPORT["metrics"]["countExact"]["successes"])
+        rows = {row["file"]: row for row in G.LAST_REPORT["perPage"]}
+        self.assertEqual(7, len(rows))
+        for name in ("IMG_1001.jpg", "IMG_1002.jpg"):
+            self.assertTrue(rows[name]["appProvenance"])
+            self.assertEqual("batch_page_source_uri", rows[name]["appNameSource"])
+        for name in ("IMG_1003.jpg", "IMG_1007.jpg"):
+            self.assertFalse(rows[name]["appProvenance"])
+            self.assertTrue(rows[name]["appPageMissing"])
+        self.assertTrue(G.LAST_REPORT["appSource"]["present"])
+
+    def test_gate_evidence_per_page_shows_source_or_unverified(self):
+        """证据 §5 逐页表必须写来源：有溯源写 nameSource+job，无溯源写 UNVERIFIED。"""
+        pages = [_page("IMG_1001.jpg", [_box(0.05, 0.05, 0.9, 0.4)])]
+        pages += [_page(f"IMG_{index:04d}.jpg", [_box(0.05, 0.05, 0.9, 0.3)])
+                  for index in range(1002, 1008)]
+        golden = self.frozen(pages)
+        sidecar = str(golden.with_name(golden.name + ".sha256"))
+        import io
+        from contextlib import redirect_stdout
+
+        provenance_app = self.tmp / "prov.json"
+        write_json(provenance_app, {
+            "source": {"db": {"file": "snap.sqlite", "sha256": "ab" * 32, "bytes": 1},
+                       "nameSourceCounts": {"page_map": 1}},
+            "pages": [{"file": "IMG_1001.jpg",
+                       "questions": [_box(0.05, 0.05, 0.9, 0.4)],
+                       "nameSource": "page_map", "jobId": "split:B1:0", "pageIndex": 0}],
+        })
+        evidence = self.tmp / "evidence-prov.md"
+        with redirect_stdout(io.StringIO()):
+            code = G.main(["--golden", str(golden), "--sidecar", sidecar,
+                           "--app", str(provenance_app), "--evidence-out", str(evidence)])
+        self.assertEqual(1, code)  # 单题页被拆 1 块 = 不一致 → 门 FAIL；证据照样落盘
+        text = evidence.read_text(encoding="utf-8")
+        self.assertIn("来源", text)
+        self.assertIn("page_map", text)
+        self.assertIn("split:B1:0", text)
+
+        plain_app = self.tmp / "plain.json"
+        write_json(plain_app, {"pages": [{"file": "IMG_1001.jpg",
+                                          "questions": [_box(0.05, 0.05, 0.9, 0.4)]}]})
+        evidence2 = self.tmp / "evidence-plain.md"
+        with redirect_stdout(io.StringIO()):
+            code = G.main(["--golden", str(golden), "--sidecar", sidecar,
+                           "--app", str(plain_app), "--evidence-out", str(evidence2)])
+        self.assertEqual(1, code)
+        text2 = evidence2.read_text(encoding="utf-8")
+        self.assertIn("UNVERIFIED（导出无溯源块）", text2)
+        self.assertNotIn("page_map", text2)
+
+
+class HistoricalAppExportTest(SplitGateTestBase):
+    """4C 历史设备导出：门值维持 FAIL（4/7）且自动化恒关；无溯源块 → 来源 UNVERIFIED。"""
+
+    def test_gate_value_and_automation_ruling_unchanged(self):
+        app = REPO / "build" / "split-eval" / "app-split.json"
+        if not app.is_file():
+            self.skipTest("历史设备导出不在树（build/ 被忽略；只在本机有快照时执行）")
+        import io
+        from contextlib import redirect_stdout
+        with redirect_stdout(io.StringIO()):
+            code = G.main(["--app", str(app)])
+        report = G.LAST_REPORT
+        self.assertEqual(1, code)
+        self.assertEqual("FAIL", report["gate"]["state"])
+        self.assertEqual(4, report["metrics"]["countExact"]["successes"])
+        self.assertEqual(7, report["metrics"]["countExact"]["denominator"])
+        self.assertEqual(0, report["metrics"]["fragment"]["successes"])
+        self.assertEqual(16, report["metrics"]["fragment"]["denominator"])
+        self.assertFalse(report["automation"]["enabled"])
+        self.assertEqual(7, len(report["perPage"]))
+        self.assertTrue(all(not row["appProvenance"] for row in report["perPage"]),
+                        "4C 导出没有 nameSource：逐页来源必须如实标 UNVERIFIED，不得编造")
 
 
 # ---------------------------------------------------------------- 子进程冒烟（真实入口）

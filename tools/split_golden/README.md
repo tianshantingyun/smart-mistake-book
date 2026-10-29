@@ -9,7 +9,7 @@
 |---|---|
 | `tables/split_golden_v1.json` + `.sha256` | **冻结金标 v1**：7 页 / 16 框；代理金标（模型标注、两标注员一致、无人工专家）；sha `f9e92c47…` |
 | `validate_split_golden.py` | 冻结字节与 schema 机械校验 C1–C6（sha 旁车、canonical 逐字节、CRLF=0、框合法、页不重复、页数≥7、evidenceGrade 冻结常量） |
-| `export_split_eval.py` | 设备 DB 快照 → `build/split-eval/app-split.json`（R4 §3.7 指名的生产者；只读 DB、同快照同 sha、页名三级解析逐页标 `nameSource`、拒重复页名/非法框） |
+| `export_split_eval.py` | 设备 DB 快照 → `build/split-eval/app-split.json`（R4 §3.7 指名的生产者；只读 DB、**快照身份覆盖 `-wal`**、读事务钉住一个快照、导出期间 db/`-wal` 漂移即 exit 2、页名三级解析逐页标 `nameSource`、拒重复页名/非法框） |
 | `measure_split_accuracy.py` | 度量（口径 v2）：①题数完全一致率 ②IoU≥0.5 ③切残率 + 逐页表；`--json` 机器口径（逐页行透传 `appNameSource`/`appJobId`/`appPageIndex`，文件级 `app.source`）；同输入重跑逐字节一致 |
 | `check_split_gate.py` | **门判定器**：冻结校验 → 度量 → 0.9/0.05 闭边界判定 → 报告/证据落盘；证据 §5 逐页表含"来源"列；exit 0/1/2/3；不切任何产品开关 |
 | `GATE.md` | 门说明（独立载体） |
@@ -78,18 +78,35 @@ python tools/split_golden/check_split_gate.py    # exit 1 = 门 FAIL（① 4/7�
        cat databases/smart-mistake-book.db-shm > snapshot.db-shm
    ```
 
-2. `export_split_eval.py --db <快照>` 导出（主库只读打开、sha 不变；同快照复跑逐字节一致）。
+2. `export_split_eval.py --db <快照>` 导出（主库与 `-wal` 只读打开、字节不变；`-shm` 由
+   SQLite 重建/改写、不进身份；同一快照复跑逐字节一致）。
 3. 页名配对：DB 内 split 表**不含原始页文件名**（4C 实测，stage1 §4：页名靠
    `files/source-assets` 图片与原数据集的会话外感知匹配得出）。把匹配结果写成
    `--page-map` 映射文件（`{"<job_id>": {"<page_index>": "<IMG....jpg>"}}`）再导出；
    无映射时页名落到 `job:<id>#p<page>` 合成名，不会与金标配对（如实标记，不猜）。
-4. **已知限制（2026-10-29 实测，未修；批次 32 T6 登记 KD-81）**：`source.db.sha256` 只覆盖主库字节，
-   **不覆盖 WAL**。同一主库 + 不同 WAL 内容会得到不同的导出，却报告同一个
-   `source.db.sha256`（受控实验：两快照主库 sha 同为 `946b896c…`，带 WAL 导出 1 页 2 框、
-   无 WAL 导出 0 页）。设备库默认 WAL 模式，故该 sha 不能单独充当"快照身份"；
-   复现时应把 `-wal`/`-shm` 与主库一起保存/比对，或先显式 checkpoint 再取库。
-   **检测（复跑前必跑）**：对主库与存在的边车一起记账；`-wal` 非空却未进 manifest（或三件
-   mtime 不同）即判"快照身份不完整"，此时报告里的 `source.db.sha256` 只能读作主库字节摘要：
+4. **快照身份（KD-81 已修；2026-10-29 批次 34 T5）**。导出文档现在有两条身份，**不许互相顶替**
+   （口径与实测见 `docs/research/2026-10-29-snapshot-identity-wal-and-r8.md` §2–§4）：
+
+   | 字段 | 口径 | 覆盖 | 不覆盖 |
+   |---|---|---|---|
+   | `source.db.sha256` | **旧字段，保留原位原义**：主库字节摘要 | 主库文件字节 | `-wal`、物理布局 |
+   | `source.snapshot.identitySha256` | 产物身份 `inputs-v1` = `sha256(canon({db, wal}))` | 主库与 `-wal` 的字节 + 存在性 | `-shm`、mtime、路径名 |
+   | `source.payload.sha256` | 内容身份 = `sha256(canon(pages))` | 被度量的每一页每一框 | DB 物理布局/`page_size`/是否 checkpoint |
+
+   - 同一主库 + 不同 `-wal` ⇒ **`identitySha256` 必不同**（受控实验：主库 sha 同为
+     `01c6125b…`，一次 1 框、一次 2 框，身份分别 `10b99adc…` / `b095ae9c…`）。
+     `source.db.sha256` 仍会相同——它**不是**快照身份，只能读作"主库字节摘要"。
+   - `-shm` **不进身份也不进输出**：只读导出本身会创建/改写它（实测：导出前不存在，
+     第一次导出后出现，sha `663f9609…`），把它写进输出会让"同一快照跑两遍"不再逐字节一致。
+   - **0 字节 `-wal` 按"无 WAL"归一**：只读打开一个 WAL 模式的库会自建 `<db>-wal`（0 B）
+     与 `<db>-shm`；不归一的话第一次导出会被自己的读副作用判成 `快照一致性`（exit 2）。
+     0 字节 WAL 不含帧，`wal_checkpoint(TRUNCATE)` 之后就是该形态。
+   - 导出内部是**一个读事务**（显式 `BEGIN`），主查询与逐页页名查询不会跨 WAL 快照；
+     导出前后各取一次输入清单，`db`/`-wal` 变了就 `exit 2`（stdout `快照一致性`），
+     且该校验**先于写盘**，坏导出不会落盘。
+   - 工具**不能**证明"曾经有 `-wal` 被漏拷"：`walPresent=false` 只如实记录"此刻没有
+     含帧的 `-wal`"（缺失或 0 字节）。所以步骤 1 的取库纪律（三件同一时刻）仍然必须遵守。
+   - 复跑前的手工检测仍可跑（现在只作旁证，不再是唯一防线）：
 
    ```bash
    SNAP=snapshot.db
@@ -97,6 +114,7 @@ python tools/split_golden/check_split_gate.py    # exit 1 = 门 FAIL（① 4/7�
      [ -e "$f" ] && sha256sum "$f" && stat -c '%n %s %y' "$f"
    done
    ```
+
 
 ## 冻结与版本纪律
 

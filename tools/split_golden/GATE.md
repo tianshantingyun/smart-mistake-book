@@ -95,9 +95,11 @@
 
 - 判门：`python tools/split_golden/check_split_gate.py`（先冻结校验 C1–C6，再度量，
   再按 0.9/0.05 闭边界判定；exit 0 过 / 1 不过 / 2 冻结或数据不可用 / 3 应用导出缺失）。
-- 报告：`--report-json`（确定性 JSON：sha、命令、exit、阈值+出处、wilson95、逐页裁定）；
-  `--evidence-out`（R4 模板精神 md：E-ID 表 / 产物身份 / 命令与退出码 / 指标与门 /
-  逐页表 / UNVERIFIED 清单 / 体积自查 ≤400 行 ≤64 KiB，已存在拒绝覆盖）。
+- 报告：`--report-json`（确定性 JSON：sha、命令、exit、阈值+出处、wilson95、逐页裁定、
+  `appSource` 来源摘要）；`--evidence-out`（R4 模板精神 md：E-ID 表 / 产物身份 / 命令与
+  退出码 / 指标与门 / 逐页表（含"来源"列）/ UNVERIFIED 清单 / 体积自查 ≤400 行 ≤64 KiB，
+  已存在拒绝覆盖）。逐页"来源"取自应用导出的 `nameSource`+`jobId`；无溯源块（4C 历史
+  导出）写 `UNVERIFIED（导出无溯源块）`，不以文件名反推。
 - 度量机器口径：`python tools/split_golden/measure_split_accuracy.py --json`。
 - 数据生产：`python tools/split_golden/export_split_eval.py --db <设备DB快照>
   [--page-map <map.json>]`（只读 DB、同快照同 sha、页名三级解析并逐页标 `nameSource`）。

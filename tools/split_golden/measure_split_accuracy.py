@@ -43,6 +43,14 @@ build/split-eval/app-split.json（设备 DB 快照，非现场重跑）。
 同输入重跑输出逐字节一致（2026-10-27 起仅在门判定后追加一行"自动化："裁定说明，
 指标、逐页表与门式一字未动）。
 
+## 逐页来源（透传，不猜，不参与口径）
+
+导出器（`export_split_eval.py`）在每页写 `nameSource`/`jobId`/`pageIndex`，文件级写
+`source` 块。`--json` 的逐页行透传为 `appNameSource`/`appJobId`/`appPageIndex`/
+`appProvenance`，文件级摘要进 `app.source`（db sha256、页名来源计数、pageMap 元数据）。
+**导出没有溯源块时这些字段为 null/false**（4C 历史导出即此形态）——不得由文件名反推
+来源。来源只做记录，不进入任何分子/分母/阈值。
+
 纯读：不写任何文件、不联网，结果只打印到 stdout。
 """
 
@@ -63,6 +71,8 @@ FRAGMENT_THRESHOLDS = (0.3, 0.4, 0.5, 0.6)
 COUNT_GATE = 0.9
 FRAGMENT_GATE = 0.05
 BOX_KEYS = ("left", "top", "right", "bottom")
+# 应用导出可携带的页级溯源键（export_split_eval.py 写出）；缺省一律记 null，不猜。
+PROVENANCE_KEYS = ("nameSource", "jobId", "pageIndex", "sourceUri", "jobStatus", "pageCount")
 
 # 自动化裁定（既有裁定 37 / 4C③，本脚本只声明、不执行——没有任何产品开关可切）。
 AUTOMATION_RULING = ("门后自动化不启用（裁定 37 / 4C③：门不过不允许自动入库，切残不得自动入库）。"
@@ -138,8 +148,8 @@ def load_golden(path: Path) -> list[dict]:
     return pages
 
 
-def load_app(path: Path) -> list[dict]:
-    """-> [{file, boxes}]，顺序即文件内页序（应用导出无题数字段，框数即题数）。"""
+def _load_app_document(path: Path) -> tuple[list[dict], dict[str, dict], dict | None]:
+    """-> (pages, 每页溯源, 文件级 source 块)。溯源缺失时为空，绝不猜。"""
     doc = _read_json(path, "应用导出")
     if not isinstance(doc, dict):
         raise DataError(f"应用导出根不是 JSON 对象：{type(doc).__name__}")
@@ -147,6 +157,7 @@ def load_app(path: Path) -> list[dict]:
     if not isinstance(raw_pages, list):
         raise DataError("应用导出缺少 pages 数组")
     pages: list[dict] = []
+    provenance: dict[str, dict] = {}
     seen: set[str] = set()
     for index, raw in enumerate(raw_pages):
         where = f"应用导出 pages[{index}]"
@@ -165,7 +176,14 @@ def load_app(path: Path) -> list[dict]:
         boxes = [parse_box(box, f"应用导出 {name!r}.questions[{j}]")
                  for j, box in enumerate(questions)]
         pages.append({"file": name, "boxes": boxes})
-    return pages
+        provenance[name] = {key: raw[key] for key in PROVENANCE_KEYS if key in raw}
+    raw_source = doc.get("source")
+    return pages, provenance, raw_source if isinstance(raw_source, dict) else None
+
+
+def load_app(path: Path) -> list[dict]:
+    """-> [{file, boxes}]，顺序即文件内页序（应用导出无题数字段，框数即题数）。"""
+    return _load_app_document(path)[0]
 
 
 # ---------------------------------------------------------------- 几何
@@ -278,8 +296,13 @@ def format_iou_column(gold_boxes: list[dict], matched: dict[int, float]) -> str:
 
 # ---------------------------------------------------------------- 口径计算（人读与 --json 单一事实源）
 
-def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool) -> dict:
-    """单页 ①②③ 计算（唯一实现；人读逐页行与 --json 报告都消费它）。"""
+def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool,
+                 app_provenance: dict | None = None) -> dict:
+    """单页 ①②③ 计算（唯一实现；人读逐页行与 --json 报告都消费它）。
+
+    `app_provenance` 只透传导出器写的来源（nameSource/jobId/...）；缺失即 null/False，
+    不让"文件名看起来像真的"冒充"库里有这个页名"。
+    """
     gold_boxes = page["boxes"]
     gold_count = page["questionCount"]
     weights = [[iou(gold_box, app_box) for app_box in app_boxes] for gold_box in gold_boxes]
@@ -295,6 +318,7 @@ def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool) -> d
     }
     ok, reason = count_verdict(gold_count, len(app_boxes))
     legacy_ok = (gold_count == len(app_boxes))
+    provenance = app_provenance or {}
     return {
         "file": page["file"],
         "goldQuestions": gold_count,
@@ -308,6 +332,10 @@ def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool) -> d
         "fragmentedByThreshold": {str(threshold): count
                                   for threshold, count in threshold_counts.items()},
         "appPageMissing": app_page_missing,
+        "appNameSource": provenance.get("nameSource"),
+        "appJobId": provenance.get("jobId"),
+        "appPageIndex": provenance.get("pageIndex"),
+        "appProvenance": bool(provenance),
     }
 
 
@@ -372,13 +400,27 @@ def _describe_golden(golden_path: Path, golden_pages: list[dict]) -> dict:
             "questionCount": sum(len(page["boxes"]) for page in golden_pages)}
 
 
-def _describe_app(app_path: Path, app_pages: list[dict] | None) -> dict:
+def _describe_app_source(source: dict | None) -> dict:
+    """文件级溯源摘要（导出器写的 `source` 块）。缺失即 present=false，不补默认值。"""
+    if not isinstance(source, dict):
+        return {"present": False, "dbSha256": None, "nameSourceCounts": None,
+                "pageMap": None}
+    db = source.get("db") if isinstance(source.get("db"), dict) else {}
+    counts = source.get("nameSourceCounts")
+    return {"present": True, "dbSha256": db.get("sha256"),
+            "nameSourceCounts": counts if isinstance(counts, dict) else None,
+            "pageMap": source.get("pageMap")}
+
+
+def _describe_app(app_path: Path, app_pages: list[dict] | None,
+                  app_source: dict | None = None) -> dict:
     exists = app_pages is not None
     return {"file": app_path.name, "exists": exists,
             "sha256": hashlib.sha256(app_path.read_bytes()).hexdigest() if exists else None,
             "bytes": app_path.stat().st_size if exists else None,
             "pageCount": len(app_pages) if exists else None,
-            "boxCount": (sum(len(page["boxes"]) for page in app_pages) if exists else None)}
+            "boxCount": (sum(len(page["boxes"]) for page in app_pages) if exists else None),
+            "source": _describe_app_source(app_source)}
 
 
 def build_report(golden_path: Path, golden_pages: list[dict], app_path: Path) -> dict:
@@ -396,12 +438,13 @@ def build_report(golden_path: Path, golden_pages: list[dict], app_path: Path) ->
                        "legacyCountExact": None, "changedPages": [],
                        "missingAppPages": [], "extraAppPages": []})
         return report
-    app_pages = load_app(app_path)
+    app_pages, app_provenance, app_source = _load_app_document(app_path)
     app_by_file = {page["file"]: page["boxes"] for page in app_pages}
     rows = [_page_metric(page, app_by_file.get(page["file"], []),
-                         page["file"] not in app_by_file)
+                         page["file"] not in app_by_file,
+                         app_provenance.get(page["file"]))
             for page in golden_pages]
-    report["app"] = _describe_app(app_path, app_pages)
+    report["app"] = _describe_app(app_path, app_pages, app_source)
     report["pages"] = rows
     agg = _aggregate(rows, app_pages)
     report["metrics"] = {"countExact": agg["countExact"], "iou": agg["iou"],
