@@ -2,8 +2,10 @@ package com.tingyun.smartmistakebook.core.data.visual
 
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.BeginLocalFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.FigureGenerationAttemptIdentity
 import com.tingyun.smartmistakebook.core.database.port.FigureGenerationRecorderPort
 import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
 import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
@@ -11,6 +13,7 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationSourceKind
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -148,6 +151,50 @@ class RoomFigureGenerationAuditRecorderTest {
         recorder.attachOutputAsset("attempt-missing", "asset-missing")
     }
 
+    @Test
+    fun aLocalAttemptIsAllocatedThroughThePortWithoutAReservation() = runBlocking {
+        val port = RecordingLocalAttemptPort()
+        val recorder = RoomFigureGenerationAuditRecorder(port)
+
+        val row = recorder.beginLocalAttempt(
+            operationId = "op-9",
+            method = FigureGenerationMethod.JS,
+            inputFingerprint = "a".repeat(64),
+            sourceSha256 = null,
+            startedAtEpochMillis = 31,
+        )
+
+        val command = requireNotNull(port.localAttempt)
+        assertEquals("op-9", command.operationId)
+        assertEquals("JS", command.method)
+        assertEquals("RUNNING", command.status)
+        assertNull(command.sourceSha256)
+        assertEquals("a".repeat(64), command.inputFingerprint)
+        assertEquals(31, command.startedAtEpochMillis)
+
+        val recorded = requireNotNull(row)
+        assertEquals("figure-attempt:op-9:-1:JS", recorded.attemptId)
+        assertEquals(-1, recorded.attemptOrdinal)
+        assertEquals(FigureGenerationMethod.JS, recorded.method)
+        assertNull("本地尝试没有远程预留", recorded.reservationId)
+        assertEquals("a".repeat(64), recorded.inputFingerprint)
+    }
+
+    @Test
+    fun aPortThatCannotWriteALocalAttemptReportsItAsNotRecorded() = runBlocking {
+        val recorder = RoomFigureGenerationAuditRecorder(UnavailableAuditPort())
+
+        assertNull(
+            recorder.beginLocalAttempt(
+                operationId = "op-10",
+                method = FigureGenerationMethod.JS,
+                inputFingerprint = "b".repeat(64),
+                sourceSha256 = null,
+                startedAtEpochMillis = 41,
+            ),
+        )
+    }
+
     private class RecordingAuditPort : FigureGenerationRecorderPort {
         var beginOperation: BeginFigureGenerationOperationCommand? = null
         val runningMarks = mutableListOf<Pair<String, Long>>()
@@ -202,4 +249,19 @@ class RoomFigureGenerationAuditRecorderTest {
     }
 
     private class UnavailableAuditPort : FigureGenerationRecorderPort
+
+    /** 只实现本地尝试写口的替身：返回持久层"分配"的负数序号。 */
+    private class RecordingLocalAttemptPort : FigureGenerationRecorderPort {
+        var localAttempt: BeginLocalFigureGenerationAttemptCommand? = null
+
+        override suspend fun beginLocalFigureGenerationAttempt(
+            command: BeginLocalFigureGenerationAttemptCommand,
+        ): FigureGenerationAttemptIdentity {
+            localAttempt = command
+            return FigureGenerationAttemptIdentity(
+                attemptId = "figure-attempt:${command.operationId}:-1:${command.method}",
+                attemptOrdinal = -1,
+            )
+        }
+    }
 }

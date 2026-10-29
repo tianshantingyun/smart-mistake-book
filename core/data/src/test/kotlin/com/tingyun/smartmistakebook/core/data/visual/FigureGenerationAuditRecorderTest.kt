@@ -432,6 +432,28 @@ class FigureGenerationAuditRecorderTest {
             return true
         }
 
+        override suspend fun beginLocalAttempt(
+            operationId: String,
+            method: FigureGenerationMethod,
+            inputFingerprint: String,
+            sourceSha256: String?,
+            startedAtEpochMillis: Long,
+        ): FigureGenerationAuditAttempt {
+            val row = FigureGenerationAuditAttempt(
+                attemptId = "figure-attempt:$operationId:-1:$method",
+                operationId = operationId,
+                attemptOrdinal = -1,
+                method = method,
+                reservationId = null,
+                inputFingerprint = inputFingerprint,
+                sourceSha256 = sourceSha256,
+                startedAtEpochMillis = startedAtEpochMillis,
+            )
+            attempts += row
+            events += "attempt:RUNNING"
+            return row
+        }
+
         override suspend fun finishAttempt(
             attemptId: String,
             outcome: FigureGenerationAuditOutcome,
@@ -479,6 +501,14 @@ class FigureGenerationAuditRecorderTest {
 
         override suspend fun beginAttempt(attempt: FigureGenerationAuditAttempt): Boolean =
             error("audit unavailable")
+
+        override suspend fun beginLocalAttempt(
+            operationId: String,
+            method: FigureGenerationMethod,
+            inputFingerprint: String,
+            sourceSha256: String?,
+            startedAtEpochMillis: Long,
+        ): FigureGenerationAuditAttempt? = error("audit unavailable")
 
         override suspend fun finishAttempt(
             attemptId: String,
