@@ -14,7 +14,8 @@ package com.tingyun.smartmistakebook.core.model
  * - 没有持久父操作/显式已知预算不足时仍出网。这里在预留之前就拒绝，与 core:domain 的
  *   `RemoteModelDispatchLedger` 的 durable 判定形成两道门（策略门 + 账本门）。
  *   预算未预读（`remainingRemoteDispatches == null`）时策略门放行，由账本做真门；
- *   账本拒绝会把真实已派发次数回给诊断（KD-60）。
+ *   账本拒绝会把真实已派发次数回给诊断（KD-60）。**预算门只对 IMAGE_MODEL 生效**：
+ *   JS 在本地引擎执行、不占远程派发，不得被远程余额拒掉。
  *
  * 只做校验，不做路由：它不按 purpose 选 method，也不替入口改选。
  */
@@ -140,7 +141,13 @@ object FigureGenerationPolicy {
                 "GENERATE 必须回显宿主用途",
             )
         }
-        if (!request.budget.allowsOneRemoteDispatch()) {
+        // 预算门只约束**远程**派发：JS 在本地引擎执行，不占远程预算（视觉契约"JS 本地执行
+        // 不占远程派发"）。把同一道门也压在 JS 上，会让零余额的纯本地渲染被
+        // BUDGET_INSUFFICIENT 拒掉——本地方法替远程预算买单，正是契约禁止的错配。
+        if (
+            method == FigureGenerationMethod.IMAGE_MODEL &&
+            !request.budget.allowsOneRemoteDispatch()
+        ) {
             return reject(
                 FigureGenerationRejectionCode.BUDGET_INSUFFICIENT,
                 "剩余远程派发预算不足以再执行一次生图" +

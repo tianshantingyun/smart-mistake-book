@@ -180,6 +180,52 @@ class FigureGenerationPolicyTest {
         )
     }
 
+    /**
+     * JS 在本地引擎执行，不占远程派发：远程余额为 0 时仍必须放行（A-01）。
+     * 把同一道预算门压在 JS 上，会让纯本地渲染替远程预算买单。
+     */
+    @Test
+    fun aLocalJavascriptProposalIsNotBlockedByTheRemoteBudget() {
+        val request = request(
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(FigureGenerationMethod.JS),
+            ),
+            budget = FigureGenerationBudget(
+                remainingRemoteDispatches = 0,
+                reserveChatFinalAnswer = true,
+            ),
+        )
+        val proposal = FigureGenerationProposal(
+            decision = FigureGenerationDecision.GENERATE,
+            purpose = request.purpose,
+            method = FigureGenerationMethod.JS,
+            program = "const visual = {}",
+        )
+
+        assertTrue(
+            "本地方法不得因远程余额为 0 被拒：${
+                FigureGenerationPolicy.validate(request, proposal)
+            }",
+            FigureGenerationPolicy.validate(request, proposal) is FigureGenerationValidation.Accepted,
+        )
+    }
+
+    /** 同一份零余额预算下，IMAGE_MODEL 仍必须被预算门拒掉（对照臂，不是放宽）。 */
+    @Test
+    fun anImageModelProposalStillNeedsARemoteDispatch() {
+        val request = request(
+            budget = FigureGenerationBudget(
+                remainingRemoteDispatches = 0,
+                reserveChatFinalAnswer = false,
+            ),
+        )
+
+        assertEquals(
+            FigureGenerationRejectionCode.BUDGET_INSUFFICIENT,
+            rejectCode(request, imageProposal(request)),
+        )
+    }
+
     @Test
     fun aRequestWithoutAPersistentParentCannotGenerate() {
         val request = request(parent = null)

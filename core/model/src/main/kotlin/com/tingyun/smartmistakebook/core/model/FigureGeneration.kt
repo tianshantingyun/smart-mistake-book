@@ -629,3 +629,36 @@ fun figureBasisFingerprint(
     }
     return figureSha256Hex(canonical.toByteArray(StandardCharsets.UTF_8))
 }
+
+/**
+ * JS 方法**冻结输入**的稳定指纹（4E WG-08 audit 的 `basis_fingerprint`；A-08）。
+ *
+ * 口径：`sha256("figure-basis-v1-js|operationId|sourceSha|sha256(program)")`（缺省段用 `-`）。
+ *
+ * **它消灭的具体失败**：JS proposal 按 policy 必须 `imagePrompt == null`，而
+ * [figureBasisFingerprint] 的规范化串只含 `imagePrompt`——同一操作下两个**不同的** JS
+ * program 会得到同一个 `input_fingerprint`，attempt 表再也无法回答"这次尝试的输入变过没有"，
+ * 也会让 A-08"两个不同 program 不得同指纹"直接不成立。这里把 program 的字节哈希放进
+ * 规范化串（源码即输入），其余段与图像方法保持同一口径。
+ *
+ * 与 [figureBasisFingerprint] 一样：带 operationId 但**不带 method**；同一操作重试命中同一值。
+ */
+fun figureJsBasisFingerprint(
+    operationId: String,
+    sourceSha256: String?,
+    program: String,
+): String {
+    require(operationId.isNotBlank()) { "A figure basis needs an operation id" }
+    require(sourceSha256 == null || sourceSha256.length == SHA_256_HEX_CHARS) {
+        "A figure basis source sha must be SHA-256"
+    }
+    require(program.isNotEmpty()) { "A JS figure basis needs its program" }
+    val programSha = figureSha256Hex(program.toByteArray(StandardCharsets.UTF_8))
+    val canonical = buildString {
+        append("figure-basis-v1-js")
+        append('|').append(operationId)
+        append('|').append(sourceSha256 ?: "-")
+        append('|').append(programSha)
+    }
+    return figureSha256Hex(canonical.toByteArray(StandardCharsets.UTF_8))
+}
