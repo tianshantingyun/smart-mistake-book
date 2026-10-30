@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +23,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 
 /** A shared landing-page identity, with actions that move below large text. */
@@ -32,15 +34,16 @@ fun WorkspacePageHeader(
     subtitle: String? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    Surface(modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp),
-        color = SmartColors.HeaderSurface, contentColor = SmartColors.HeaderInk) {
-        BoxWithConstraints(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+    Surface(modifier.fillMaxWidth(), color = Color.Transparent, contentColor = SmartColors.Ink) {
+        BoxWithConstraints(Modifier.padding(horizontal = 4.dp, vertical = 14.dp)) {
+            val showNotebook = actions == null && maxWidth >= 300.dp &&
+                LocalDensity.current.fontScale <= 1.3f && subtitle.orEmpty().length <= 16
             @Composable fun Identity(modifier: Modifier = Modifier) {
                 Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(title, color = SmartColors.HeaderInk, style = MaterialTheme.typography.headlineMedium,
+                    Text(title, color = SmartColors.Ink, style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.semantics { heading() })
-                    if (!subtitle.isNullOrBlank()) Text(subtitle, color = SmartColors.HeaderSecondary,
-                        style = MaterialTheme.typography.bodySmall)
+                    if (!subtitle.isNullOrBlank()) Text(subtitle, color = SmartColors.InkSecondary,
+                        style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Paragraph))
                 }
             }
             if (actions != null && (maxWidth < 280.dp || LocalDensity.current.fontScale > 1.3f)) {
@@ -53,6 +56,7 @@ fun WorkspacePageHeader(
                 Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 40.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Identity(Modifier.weight(1f))
+                    if (showNotebook) StudioNotebookMark()
                     actions?.invoke(this)
                 }
             }
@@ -68,8 +72,8 @@ fun WorkspacePanel(
     containerColor: Color = ContentSurface,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Surface(modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), color = containerColor,
-        contentColor = Ink, shadowElevation = 1.dp) {
+    Surface(modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp), color = containerColor,
+        contentColor = Ink, border = BorderStroke(1.dp, SmartColors.Divider), shadowElevation = 0.dp) {
         Column(Modifier.fillMaxWidth().padding(contentPadding),
             verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
     }

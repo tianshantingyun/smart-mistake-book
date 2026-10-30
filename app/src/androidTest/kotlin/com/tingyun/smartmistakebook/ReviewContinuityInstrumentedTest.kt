@@ -4,6 +4,13 @@ import android.graphics.Bitmap
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -47,12 +54,15 @@ class ReviewContinuityInstrumentedTest {
         composeRule.onNodeWithTag("review_capture_button").assertDoesNotExist()
         composeRule.onNodeWithTag("review_capture_shortcut").assertDoesNotExist()
         composeRule.waitForIdle()
-        captureReviewForestScreenshot("review-completed")
+        captureStudioScreenshot("review-completed")
     }
 
     @Test
     fun learningDataShowsTheSameContinuityWithoutAnotherCheckInControl() {
+        val largeText = mutableStateOf(false)
         composeRule.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, if (largeText.value) 1.6f else density.fontScale)) {
             SmartMistakeBookTheme {
                 ProfileRoute(
                     overview = StudyProfileOverview(
@@ -78,14 +88,30 @@ class ReviewContinuityInstrumentedTest {
                     onOpenStorage = {},
                 )
             }
+            }
         }
 
         composeRule.onNodeWithContentDescription("连续复习，3天").assertExists()
         composeRule.waitForIdle()
-        captureReviewForestScreenshot("profile-overview")
+        captureStudioScreenshot("profile-overview")
+        composeRule.runOnIdle { largeText.value = true }
+        composeRule.onNodeWithContentDescription("连续复习，3天").performScrollTo().assertIsDisplayed()
+        captureStudioScreenshot("profile-large-type")
+        composeRule.runOnIdle { largeText.value = false }
         composeRule.onNodeWithTag("profile_storage_setting").performScrollTo().assertIsDisplayed()
         composeRule.waitForIdle()
-        captureReviewForestScreenshot("profile-settings")
+        captureStudioScreenshot("profile-settings")
+    }
+
+    private fun captureStudioScreenshot(name: String) {
+        if (InstrumentationRegistry.getArguments().getString("uiEvidence") != "true") return
+        composeRule.waitForIdle()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = checkNotNull(context.getExternalFilesDir("full-ui-forest"))
+        directory.mkdirs()
+        File(directory, "$name.png").outputStream().use {
+            composeRule.onRoot().captureToImage().asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
     }
 }
 

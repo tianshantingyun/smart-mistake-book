@@ -52,11 +52,13 @@ fun ClaudeNavigationItem(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally) {
         val motion = LocalClaudeMotionEnabled.current
-        val target = if (selected) JadeSoft else Color.Transparent
+        val target = if (selected) Jade else Color.Transparent
         val animated by animateColorAsState(target, ClaudeMotion.spec(motion), label = "navigation-capsule")
+        val targetInk = if (selected) OnJade else InkSecondary
+        val animatedInk by animateColorAsState(targetInk, ClaudeMotion.spec(motion), label = "navigation-ink")
         Box(Modifier.width(52.dp).height(28.dp).clip(RoundedCornerShape(14.dp))
             .background(if (motion) animated else target), contentAlignment = Alignment.Center) {
-            Icon(icon, null, Modifier.size(SmartIconSizes.Large), tint = if (selected) JadeActive else InkSecondary)
+            Icon(icon, null, Modifier.size(SmartIconSizes.Large), tint = if (motion) animatedInk else targetInk)
         }
         Text(label, color = if (selected) JadeDark else InkSecondary, style = MaterialTheme.typography.labelMedium,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)

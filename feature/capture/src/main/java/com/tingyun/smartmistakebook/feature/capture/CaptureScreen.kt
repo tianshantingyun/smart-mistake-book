@@ -759,7 +759,7 @@ fun CaptureScreen(
             WorkspacePageHeader(stageTitle, subtitle = completionLine, modifier = Modifier.padding(top = 12.dp))
         } else {
             Text(completionLine, color = InkSecondary, style = MaterialTheme.typography.bodySmall)
-            SectionHeader(stageTitle, modifier = Modifier.padding(top = 18.dp))
+            WorkspacePageHeader(stageTitle, modifier = Modifier.padding(top = 12.dp))
         }
 
         if (state.committedEntryId != null && activeEntryOrigin == CaptureEntryOrigin.LIBRARY) {

@@ -59,6 +59,7 @@ import com.tingyun.smartmistakebook.core.ui.Track
 import com.tingyun.smartmistakebook.core.ui.ClaudeSettingsRow
 import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.StudioMetricTile
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 @Composable
@@ -135,7 +136,7 @@ private fun WeeklyLearningSection(
     review: StudyReviewOverview,
     modifier: Modifier = Modifier,
 ) {
-    WorkspacePanel(modifier = modifier.testTag("profile_weekly_learning")) {
+    Column(modifier = modifier.fillMaxWidth().testTag("profile_weekly_learning")) {
         Column {
             SectionHeader(title = "当前学习情况")
             BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -143,24 +144,26 @@ private fun WeeklyLearningSection(
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         WeeklyStat("累计作答", overview.recordedAttemptCount.toString(), "次", Modifier.fillMaxWidth())
                         PaperDivider()
-                        WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.fillMaxWidth())
+                        WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.fillMaxWidth(),
+                            SmartColors.LearningSurface, SmartColors.LearningAccent)
                         PaperDivider()
-                        WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.fillMaxWidth())
+                        WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.fillMaxWidth(),
+                            SmartColors.ReadingSurface, SmartColors.ReadingAccent)
                     }
-                } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     WeeklyStat("累计作答", overview.recordedAttemptCount.toString(), "次", Modifier.weight(1f))
-                    StatDivider()
-                    WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.weight(1f))
-                    StatDivider()
-                    WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.weight(1f))
+                    WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.weight(1f),
+                        SmartColors.LearningSurface, SmartColors.LearningAccent)
+                    WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.weight(1f),
+                        SmartColors.ReadingSurface, SmartColors.ReadingAccent)
                 }
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
-                    .background(JadeSoft, RoundedCornerShape(14.dp))
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                    .padding(horizontal = 2.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
@@ -197,42 +200,10 @@ private fun WeeklyStat(
     value: String,
     unit: String,
     modifier: Modifier = Modifier,
+    containerColor: androidx.compose.ui.graphics.Color = JadeSoft,
+    accentColor: androidx.compose.ui.graphics.Color = JadeActive,
 ) {
-    Column(
-        modifier = modifier.semantics(mergeDescendants = true) {
-            contentDescription = "$label，$value$unit"
-        },
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = label,
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = value,
-            color = JadeActive,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Text(
-            text = unit,
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-private fun StatDivider() {
-    Box(
-        modifier = Modifier
-            .width(1.dp)
-            .height(48.dp)
-            .background(Divider),
-    )
+    StudioMetricTile(value, label, unit, modifier, containerColor, accentColor)
 }
 
 @Composable

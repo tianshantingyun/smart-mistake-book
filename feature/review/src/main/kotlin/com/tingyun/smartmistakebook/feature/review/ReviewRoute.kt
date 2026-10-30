@@ -46,6 +46,7 @@ import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.SubjectIcon
 import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.StudioMetricTile
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -97,7 +98,7 @@ fun ReviewRoute(
     ) {
         ReviewGreeting()
         Spacer(Modifier.height(12.dp))
-        WorkspacePanel {
+        Column(Modifier.fillMaxWidth()) {
             Column {
                 SectionHeader(title = "今日复习")
                 Spacer(Modifier.height(8.dp))
@@ -439,33 +440,22 @@ private fun ReviewSummary(overview: StudyReviewOverview) {
                 SummaryValue(overview.scheduledCount.toString(),
                     if (overview.completedToday) "道今日已完成" else "道计划复习", Modifier.fillMaxWidth())
                 PaperDivider()
-                SummaryValue(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）", Modifier.fillMaxWidth())
+                StudioMetricTile(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）",
+                    modifier = Modifier.fillMaxWidth(), containerColor = SmartColors.LearningSurface, accentColor = SmartColors.LearningAccent)
             }
-        } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SummaryValue(overview.scheduledCount.toString(),
                 if (overview.completedToday) "道今日已完成" else "道计划复习", Modifier.weight(1f))
-            Box(Modifier.width(1.dp).height(48.dp).background(SmartColors.Divider))
-            SummaryValue(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）", Modifier.weight(1f))
+            StudioMetricTile(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）",
+                modifier = Modifier.weight(1f), containerColor = SmartColors.LearningSurface, accentColor = SmartColors.LearningAccent)
         }
     }
 }
 
 @Composable
 private fun SummaryValue(value: String, label: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = value,
-            color = SmartColors.Ink,
-            fontSize = 30.sp,
-            lineHeight = 38.sp,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.InkSecondary,
-        )
-    }
+    StudioMetricTile(value, label, modifier = modifier)
 }
 
 @Composable

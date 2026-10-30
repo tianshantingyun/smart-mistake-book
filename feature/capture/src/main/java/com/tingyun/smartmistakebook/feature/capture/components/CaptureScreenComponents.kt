@@ -319,7 +319,7 @@ private fun CaptureModeOption(
                 }
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(text, color = foreground, style = MaterialTheme.typography.titleMedium)
+                Text(text, color = foreground, style = if (primary) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleMedium)
                 Text(supportingText, color = if (primary) SmartColors.OnJade else InkSecondary,
                     style = MaterialTheme.typography.bodySmall)
             }
@@ -328,11 +328,11 @@ private fun CaptureModeOption(
     }
     val target = modifier.fillMaxWidth().semantics { this.contentDescription = contentDescription }
     if (primary) {
-        ClaudeButton(onClick, target, shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Jade, contentColor = SmartColors.OnJade),
-            contentPadding = PaddingValues(16.dp)) { Content() }
+        ClaudeButton(onClick, target, shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Forest, contentColor = SmartColors.OnJade),
+            contentPadding = PaddingValues(20.dp)) { Content() }
     } else {
-        ClaudeCard(onClick, target, shape = RoundedCornerShape(20.dp), bordered = false, elevation = 1.dp) {
+        ClaudeCard(onClick, target, shape = RoundedCornerShape(18.dp), bordered = true, elevation = 0.dp) {
             Box(Modifier.padding(16.dp)) { Content() }
         }
     }

@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -51,9 +52,10 @@ internal fun MistakeSectionCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(18.dp),
         color = SmartColors.ContentSurface,
-        shadowElevation = 1.dp,
+        border = BorderStroke(1.dp, SmartColors.Divider),
+        shadowElevation = 0.dp,
     ) {
         Column {
             MistakeModuleHeader(showDivider = expanded, background = headerColor) {

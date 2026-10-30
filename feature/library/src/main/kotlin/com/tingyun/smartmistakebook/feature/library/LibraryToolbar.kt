@@ -58,60 +58,37 @@ internal fun LibraryPageHeader(
     onCapture: () -> Unit,
     onOpenResults: () -> Unit,
 ) {
-    Surface(shape = RoundedCornerShape(24.dp), color = SmartColors.HeaderSurface) {
-        BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-            val showFileLabel = maxWidth >= 280.dp && LocalDensity.current.fontScale <= 1.2f
-            val stackTitle = maxWidth < 260.dp || LocalDensity.current.fontScale > 1.3f
-            Column {
-                if (stackTitle) {
-                    Text("错题本", color = SmartColors.HeaderInk,
-                        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
-                        fontWeight = FontWeight.SemiBold)
-                }
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    if (!stackTitle) {
-                        Text(
-                            "错题本",
-                            modifier = Modifier.weight(1f),
-                            color = SmartColors.HeaderInk,
-                            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    } else {
-                        Spacer(Modifier.weight(1f))
-                    }
-                    TextButton(
-                        onClick = onOpenResults,
-                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_export_results")
-                            .semantics { contentDescription = "查看已导出的文件" },
-                        contentPadding = PaddingValues(horizontal = 10.dp),
-                        colors = ButtonDefaults.textButtonColors(
-                            containerColor = SmartColors.HeaderSurface, contentColor = SmartColors.HeaderInk),
-                    ) {
-                        Icon(Icons.Outlined.FolderOpen, contentDescription = null, modifier = Modifier.size(20.dp))
-                        if (showFileLabel) {
-                            Spacer(Modifier.width(4.dp))
-                            Text("已导出", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                    if (showCapture) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val showFileLabel = maxWidth >= 320.dp && LocalDensity.current.fontScale <= 1.2f
+        com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader(
+            title = "错题本", subtitle = "原题、笔记与复习记录", actions = {
+                TextButton(
+                    onClick = onOpenResults,
+                    modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_export_results")
+                        .semantics { contentDescription = "查看已导出的文件" },
+                    contentPadding = PaddingValues(horizontal = 10.dp),
+                    colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.InkSecondary),
+                ) {
+                    Icon(Icons.Outlined.FolderOpen, null, Modifier.size(20.dp))
+                    if (showFileLabel) {
                         Spacer(Modifier.width(4.dp))
-                        Button(
-                            onClick = onCapture,
-                            modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_capture_button"),
-                            shape = RoundedCornerShape(16.dp),
-                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Jade, contentColor = SmartColors.OnJade),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-                        ) {
-                            Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text("录入", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-                        }
+                        Text("已导出", style = MaterialTheme.typography.labelMedium)
                     }
                 }
-            }
-        }
+                if (showCapture) {
+                    Button(onClick = onCapture,
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_capture_button"),
+                        shape = RoundedCornerShape(14.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Jade, contentColor = SmartColors.OnJade),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)) {
+                        Icon(Icons.Outlined.Add, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("录入", style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+            },
+        )
     }
 }
 
