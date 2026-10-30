@@ -19,6 +19,7 @@ import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.domain.VisualViewport
+import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,10 @@ import java.util.concurrent.CopyOnWriteArrayList
  * 8. KD-66 关闭门（批次 26 T1）：#240 形状从调用方提交到返回有界拒绝 ≤ 服务硬期限
  *    + 500 ms，拒绝归因 worker 死亡路径且后续请求可用
  *    （[aHungWorkerReleasesTheCallerWithinHardPlus500ms]；与 6 s 观察用例共存，R1 §6 裁定）。
+ * 9. P-12③ 解除半边（批次 36）：注入熔断态下"成功显式重试解除熔断"的检查位/解除位/
+ *    解除持久三拍
+ *    （[anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse]；注入理由=
+ *    真实触发与解除结构性矛盾，见用例 KDoc）。
  *
  * 关键：**同进程单测不算隔离验证**（`Stub.asInterface` 在同进程返回本地对象）。这些用例必须
  * 起真实 `:visual_js` 进程：`workerUid != Process.myUid()`、watchdog SIGKILL 后 binder death、
@@ -388,6 +393,58 @@ class VisualJsIsolationInstrumentedTest {
         assertEquals(
             VisualExecutionRejection.ENGINE_CLOSED,
             (after as VisualExecutionResult.Rejected).reason,
+        )
+    }
+
+    // ---------------------------------------------------------------- P-12③ 解除半边（批次 36）
+
+    /**
+     * P-12③（批次 36，R2 `2026-10-30-v01-chain-seams.md` §3.3 方案 B）："成功显式重试
+     * 解除熔断"（契约 §4，`VisualJsClientEngine.executeFrame` 的 `fusedDigests.remove`
+     * 分支）的设备断言。
+     *
+     * 为什么用注入态而不是真实触发：熔断**置位**只发生在真实故障路径（宿主阶段超时/硬期限/
+     * worker 死亡），而触发程序必然挂死或崩溃，同一 digest 的显式重试只会再次挂死——
+     * "触发"与"解除"在真实路径下结构性矛盾（批次 35 判定，准入清单 :135）。置位半边已由
+     * [theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy] 的 PROGRAM_FUSED 基线
+     * （真死亡→真置位）钉住；本用例预置 digest（[VisualJsClientEngine.fuseDigestForTest]，
+     * digest 口径与 execute 同源：sourceJs UTF-8 字节的 sha-256），把检查位与解除位在
+     * 零进程死亡、零时序标定下直测：
+     * 1. 注入后无重试 → [VisualExecutionRejection.PROGRAM_FUSED]（execute 入队前检查位对
+     *    注入态的真路径响应，请求不触达服务）；
+     * 2. 同源码 `explicitUserRetry = true` → 真渲染（真 `:visual_js` 隔离进程真 QuickJS）→
+     *    Rendered 触发解除（remove）；
+     * 3. 同源码再无重试 → Rendered（解除持久化的证明——若解除缺失，这一步必是 PROGRAM_FUSED）。
+     *
+     * 基线不回退：[theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy] 等 14 例
+     * 保持原样（批次 35 判据 §1.4）；本例计入隔离套件（判据预期 14→15）。
+     */
+    @Test
+    fun anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse() = runBlocking {
+        val engine = client()
+        assertTrue("initial connect failed", engine.connectForTest())
+
+        val request = pureGeometryRequest()
+        val digest = figureSha256Hex(request.sourceJs.toByteArray(StandardCharsets.UTF_8))
+        engine.fuseDigestForTest(digest)
+
+        val fused = engine.execute(pureGeometryRequest())
+        assertEquals(
+            "the injected fuse must be enforced at the pre-dispatch check, got $fused",
+            VisualExecutionRejection.PROGRAM_FUSED,
+            (fused as VisualExecutionResult.Rejected).reason,
+        )
+
+        val retried = engine.execute(pureGeometryRequest(explicitUserRetry = true))
+        assertTrue(
+            "the explicit retry must render through the isolated worker, got $retried",
+            retried is VisualExecutionResult.Rendered,
+        )
+
+        val after = engine.execute(pureGeometryRequest())
+        assertTrue(
+            "the fuse must stay released after a successful explicit retry, got $after",
+            after is VisualExecutionResult.Rendered,
         )
     }
 

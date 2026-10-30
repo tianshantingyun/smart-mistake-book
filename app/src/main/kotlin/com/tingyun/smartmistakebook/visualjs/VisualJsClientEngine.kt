@@ -1182,6 +1182,26 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
     @Volatile
     internal var readyTimeoutOverrideForTest: Long? = null
 
+    /**
+     * 测试 seam：预置一条熔断记录（P-12③，批次 36）。
+     *
+     * **它消灭的具体失败**：契约 §4 的"成功显式重试解除熔断"（[executeFrame] 尾部的
+     * `fusedDigests.remove` 分支）在真实触发路径下不可确定性构造——熔断只由真实故障路径
+     * 置位（宿主阶段超时、结果层硬期限、worker onFatal/死亡），而触发熔断的程序必然挂死
+     * 或崩溃，对同一 digest 的显式重试只会再次挂死，永远到不了解除分支（批次 35 判定，
+     * 准入清单 :135）。预置 digest 让检查位（[execute] 入队前 + [executeFrame] 出队后）
+     * 与解除位在零进程死亡、零时序标定下直测；熔断**置位**半边不受本 seam 影响，仍由
+     * 真实死亡路径的既有用例钉住。
+     *
+     * digest 口径与 [execute] 同源：`figureSha256Hex(sourceJs 的 UTF-8 字节)`。
+     *
+     * 回滚：删除本函数与唯一消费者（`VisualJsIsolationInstrumentedTest` 的 P-12③ 用例）
+     * 即完整回退；[fusedDigests] 本体与全部生产路径零改动。
+     */
+    internal fun fuseDigestForTest(digest: String) {
+        fusedDigests.add(digest)
+    }
+
     internal fun workerUidForTest(): Int? = link?.workerUid?.takeIf { it > 0 }
 
     internal fun generationForTest(): Long? = link?.generation
