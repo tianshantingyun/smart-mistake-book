@@ -3630,3 +3630,29 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **其余 UNVERIFIED**：生产签名（一次性本地 key）；arm64 真机面；P-12③ 设备例未落树；`PROGRAM_FUSED` 行号现值核对（记录员已补：`:367`）；他线 dense 14 文件功能正确性归 dense 轨。
 - **共享脏文件（提交须整文件纳入并注明）**：`FigureGenerationPolicy.kt`/`FigureGenerationPolicyTest.kt`（A-08 轨 + T6 轨两轨来源）；`DefaultFigureGenerationCoordinator.kt`（对账轨 + T6 轨 + 他线 P-11/P-12② hunks）；`VisualFrameInputs.kt`（untracked 但 HEAD 已引用 → 已暂存，不纳入则新 checkout 编译不过）。
 - **不做**：JS 广告；锁文件提交（KD-72）；`docs/current/*` 热区（`visual-generation-contract.md:208` 过时句留契约轨回改）；`tmp/`（含设备库副本）绝不 `git add`。
+
+
+---
+
+## 批次 36 纵向链 V-01 + R-04 keep 解除 + A-10~A-12 边界裁定（2026-10-30/31）
+
+> 依据：批次 36 计划 `.zcode/plans/plan-2026-10-30-batch-36-v01-r04-k6.md`、R1 `docs/research/2026-10-30-r04-k6-keep-rules.md`（217 行，mapping/dex/POM 一手取证）、R2 `docs/research/2026-10-30-v01-chain-seams.md`（250 行）、设备证据 `docs/research/evidence/2026-10-30-batch-36/`（E-00…E-05）、批次记录 `docs/research/2026-10-30-batch-36-record.md`。**记录步零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **R-04 keep 结构性修正**：计划任务 1 原表述"对 `androidx.tracing.Trace` 与 `j$/util/g` 扩 `app/r04-test-keep.pro`"一半不成立——`androidx.tracing.Trace` 半边**结构性必须落 `app/proguard-rules.pro`**（该类不在测试 R8 输入，keep 不能造类；`r04-test-keep.pro` 任何 keep 都修不了）。最小修复 = 两文件两规则：`r04-test-keep.pro` 加 `-keep class j$.** { *; }`（测试 dex 让出全部改名 j$ 名 + 同名遮蔽变超集，消灭 `NoSuchMethodError j$/util/g <init>(Ljava/util/Map;)V` 改名碰撞）；`proguard-rules.pro` 保 `androidx.tracing.Trace` 被引用的三个静态签名（消灭悬空 CNFE/NCDFE）。两条均纯追加、逐条注释"消灭哪个具体失败"；回滚 = 还原追加块，无 schema/请求 schema/能力面/lockfile 影响。K6 机制勘正：4 条 `j$/util/g` 日志是同一次失败经 4 条日志通道渲染，非 4 个调用点。
+- **P-12③ 采纳方案 B（状态注入 seam）**：`VisualJsClientEngine.internal fun fuseDigestForTest(digest)`（约 3 行 + KDoc 逐条给消灭的失败/回滚）——解除位与检查位走真路径直测、零时序依赖；方案 A（时钟/预算注入）不推荐（三窗口仅 ~2x 余量 + 每次熔断走 10s 重连/10s ready 的进程重建，脆且慢）。
+- **R-04 裁决（E-04 §5）**：**不关闭、按"阻塞"登记（K6 无执行证据）**——keep 规则写了不等于 K6 绿了；准确状态 = K1–K4 绿、K5 未按判据执行（仅 so 双 ABI 半边补查，dex 计数未跑）、K6 无执行证据 → 阻塞（UNVERIFIED），不是新红也不是绿。解除条件 = 判据原文两例 `OK (2 tests)` + 三类崩溃签名 grep=0 + 两条产物级预检（主 mapping 仍含 `DesugarCollections$SynchronizedMap -> j$.util.g`、测试 mapping ` -> j$.util.g:` =0、主包 dex 按名存在 `androidx/tracing/Trace`）+ 补 K5 dex 计数；明确禁止删例、换 internal 变体、加 `-dontobfuscate`、以 K1–K4 绿替代 K6。
+- **A-10 缺口五常量落位**：`FigureGenerationLocalJsBudget`（core/model，128 KiB 累计源码/6 布局尝试/10 s 累计墙钟/2 份最终图）+ `FigureOperationLocalBudgets` 执行器（per-operation 进程内累计器）+ 协调器四道门；REJECTED 不执行、未预留、不建 attempt 行 = 设计（诊断有界可审计）。逐条"新增指认消灭的失败"见 R2 §二与 T3 工单。
+- **V-01 用例落 core/data androidTest、测试内装配**：不接生产装配点（工厂 4/5 参既有公共缝）；UI 卡片段按计划原文以测试内最小渲染替代并标注降级（`VisualSceneCard` 全仓 0 命中）。
+
+### 边界（不得越过 / 仍待裁定 / UNVERIFIED）
+
+- **V-01 语义底线未满足（待主会话裁定）**：设备套件注入进程内 `QuickJsVisualExecutionEngine` 非 app 侧隔离 `VisualJsClientEngine`（`com.tingyun.smartmistakebook.visualjs` import 计数 0）——判据"真 `VisualJsClientEngine`（`:visual_js` 隔离进程）"即使两红例修复转绿也未满足；套件迁 app 模块 or 明示降级口径，二选一归主会话。两红例（冻结重放/PDF）= 夹具度量器累积缺陷，修复后须新增 step02b/step03b 复跑，不覆盖旧证据。
+- **A-10"耗尽→文字降级"编排半边未落**（RoomTutorToolRunner 轮次协议，归属登记）；跨 method 合计最终图无直接协调器级测试（覆盖缺口登记）。
+- **P-12③ internal seam 与 release 轨**：隔离套件若进 release 轨套件单，按名引用的 internal 成员须逐条补成员 keep 并给理由（现 `r04-test-keep.pro` 无 test-seam 成员 keep）——套件单不在树，移交项。
+- **M-04 案 A / P-11 errorKind 半边维持登记不落**：core/domain 热区未清空（4 文件 M）；`RoomTutorToolRunner.kt` 虽 git 干净但 runner 无 JS 生产调用点，落类型化 errorKind 指认不出它消灭的现实失败。
+- **KD-77 关闭裁决不代裁**：API 23 最小冒烟证据已齐（5596=api23_smoke64、批次 35 绿绑定包、四签名 0），但 KB 线跨账本分歧 + 批次 35"API 23 项不得标绿"口径 → 处置归台账 owner。
+- **记录员产物级预检实测（2026-10-31，批次记录 §4.5/§10）——机制①最小修复未按 R1 §4.1 预测生效**：对 08:57/08:59 K2 窗口产物对实跑三条预检——① 主 mapping 仍含 `SynchronizedMap -> j$.util.g`（满足）；③ 主包 dex 按名含 `androidx/tracing/Trace`=1、批次 35 为 0（满足，**tracing 半边 keep 已真实落类**）；**② 测试 mapping 仍含 `Comparators$NaturalOrderComparator -> j$.util.g:`=1（预期 0，不满足）**——j$ keep 已进 R8 配置（`configuration.txt:75`）但仅部分让名（`j$.time.Clock` 恒等 vs `DesugarUnsafe`/`DesugarCollections` 仍改名），机制①名称碰撞在当前产物对中依旧存在。按判据 §5.5"任一不满足不上设备"，**K6 在查清 keep 真生效前不得上设备**；R-04 阻塞加重（预检不满足+无执行证据）；机制①解锁路径需重估（applymapping 改名协调 / slackhq-Keeper / 主包侧保名等），归主会话裁定。
+- **UNVERIFIED**：R-04 K6 设备往返/生产签名/arm64；A-10/A-11/A-12 的 JVM 绿=批次构建轮报告 XML 读值（E-05，门禁串行）；步 5 回归与步 6 恢复 debug 态半边未发生。
+- **不做**：JS 广告（`availableMethods` 未动）；真实 Provider；锁文件提交（KD-72 窗口仍不满足）；`docs/current/*` 热区（`:208` 过时句登记待热区清空）；`tmp/` 证据不提交（`tmp/` 不在 .gitignore，惯例非规则）。
