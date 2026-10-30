@@ -29,7 +29,6 @@
 from __future__ import annotations
 
 import copy
-import csv
 import sys
 import unicodedata
 from collections import Counter
@@ -113,11 +112,13 @@ def check_contract(pack: dict) -> tuple[list[str], Counter]:
 # ---------------------------------------------------------------------------
 
 def _read_rows(tables_dir: Path, name: str) -> list[dict[str, str]]:
-    path = tables_dir / name
-    if not path.exists():
-        return []
-    with path.open(encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f))
+    """读表行。**行尾归一化只有一处口径**：`tables.read_rows`。
+
+    KB25-01：Windows 检出（`* text=auto` + core.autocrlf）把引号内多行别名的
+    `\n` 一并转成 `\r\n`，与包侧 `\n` 逐字比较就出现 alias_map×4 伪不一致。
+    修的是读入口，不是表、也不是比对口径——表（git 对象）与包本就 0 差异。
+    """
+    return tables.read_rows(tables_dir, name)
 
 
 def _alias_map_check(pack: dict, tables_dir: Path) -> list[str]:

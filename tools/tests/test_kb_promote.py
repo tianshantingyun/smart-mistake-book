@@ -11,11 +11,13 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from kb_build import pack_io, promote, tables, update_manifest as um
 
@@ -93,10 +95,13 @@ class PromoteGreenTest(PromoteTestBase):
 
     def test_dry_run_writes_nothing(self):
         root, release = self._fresh("dry")
-        before = self._bytes(release)
+        before_release = self._bytes(release)
+        before_staging = self._bytes(root)
         code, result = promote.promote(root, release, dry_run=True)
         self.assertEqual(0, code)
-        self.assertEqual(before, self._bytes(release), "dry-run 不得写盘")
+        # 真晋升现在会同步 staging；dry-run 必须连这一步都不做（零写盘）。
+        self.assertEqual(before_release, self._bytes(release), "dry-run 不得写盘")
+        self.assertEqual(before_staging, self._bytes(root), "dry-run 不得同步 staging")
 
     def test_version_never_decreases_across_promotes(self):
         root, release = self._fresh("mono")
@@ -236,6 +241,57 @@ class PromoteFlattenTest(PromoteTestBase):
         for e in out["retired"]:
             if e["kind"] == "MERGE":
                 self.assertNotIn(e["supersededBy"], retired_ids, "成品台账不得含链跳")
+
+
+class PromotePackSyncInvariantTest(PromoteTestBase):
+    """KB25-01：promote 返回前必须断言 staging 主包 sha == release 主包 sha。
+
+    2026-10-29 的失败形态是 promote 落盘后被未知写者改写（release `e5dc3303…`、
+    staging `1db011e1…`），当时没有任何门发现。这里正反两侧都钉住：
+    两侧不等必须抛 PromoteError，而不是静默返回成功。
+    """
+
+    def _dirs_with_pack(self, staging_bytes: bytes,
+                        release_bytes: bytes) -> tuple[Path, Path]:
+        root = self._mkdir("kb-promote-sync-root-")
+        release = self._mkdir("kb-promote-sync-rel-")
+        (root / pack_io.PACK_NAME).write_bytes(staging_bytes)
+        (release / pack_io.PACK_NAME).write_bytes(release_bytes)
+        return root, release
+
+    def test_assert_pack_sync_rejects_staging_release_mismatch(self):
+        root, release = self._dirs_with_pack(b'{"pack":"staging"}',
+                                             b'{"pack":"release"}')
+        with self.assertRaises(promote.PromoteError):
+            promote._assert_pack_sync(root, release)
+
+    def test_assert_pack_sync_accepts_equal_bytes(self):
+        payload = b'{"pack":"same"}'
+        root, release = self._dirs_with_pack(payload, payload)
+        self.assertEqual(hashlib.sha256(payload).hexdigest(),
+                         promote._assert_pack_sync(root, release))
+
+    def test_promote_raises_when_mirror_write_diverges(self):
+        """镜像同步把 staging 主包写成另一份字节 → promote 抛错，不静默返回。
+
+        只验证**写路径**的断言接线：门本身由其它用例与 run_kb_checks 覆盖，
+       这里 patch 成绿以把失败面压缩到"写后 staging≠release"一处。
+        """
+        root, release = self._fresh("sync")
+        real_copy2 = shutil.copy2
+
+        def corrupt(src, dst, *args, **kwargs):
+            if Path(src).name == pack_io.PACK_NAME:
+                Path(dst).write_bytes(b'{"tampered":true}')
+                return dst
+            return real_copy2(src, dst, *args, **kwargs)
+
+        green = {"ok": True, "root": str(root), "sections": {}}
+        with mock.patch.object(promote, "run_checks", return_value=green), \
+                mock.patch.object(promote.shutil, "copy2", side_effect=corrupt):
+            with self.assertRaises(promote.PromoteError) as ctx:
+                promote.promote(root, release)
+        self.assertIn("staging/release 主包不一致", str(ctx.exception))
 
 
 if __name__ == "__main__":

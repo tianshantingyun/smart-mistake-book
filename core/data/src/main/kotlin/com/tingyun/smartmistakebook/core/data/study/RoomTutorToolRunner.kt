@@ -72,6 +72,96 @@ private const val MASTERY_FOCUS_RESOLUTION_LIMIT = 24
  */
 private const val TRUNCATION_NOTE_RESERVE_CHARS = 240
 
+/** 可作为安全截断点的句界：句号与分号（R4 的范围/区分句以它们收尾）。 */
+private const val SAFE_SENTENCE_BOUNDARIES = "。；"
+
+/**
+ * 截断 markdown 文本到 [limit] 个字符，但**不制造错误的语义**
+ * （`docs/research/2026-10-26-kb-usage-surface-audit.md` R3/R4）：
+ *
+ * 1. 切口落在数学公式（`$$...$$`、`$...$`、`\(...\)`、`\[...\]`）内部时，退到公式起点，
+ *    整段公式下沉——模型看到的公式要么完整，要么不出现（R3：切断 `$...$` 会把语法损坏的
+ *    数学表达式交给模型）。
+ * 2. 否则退到 [limit] 之前、且不在任何公式内部的最后一个句号/分号，保留完整句子，半句
+ *    整句下沉（R4：`take(80)` 把范围/区分句切成半句，模型无法判断边界）。
+ * 3. 两者都没有安全点（例：公式从第 0 个字符开始）时原样回退 `take(limit)`，保持旧行为。
+ *
+ * 纯函数：不改写、不 trim、不加省略号——结果形态仍由调用方的预算常量决定。
+ */
+internal fun safeTruncateMarkdown(text: String, limit: Int): String {
+    if (limit <= 0) return ""
+    if (text.length <= limit) return text
+    val spans = mathSpans(text)
+    val enclosing = spans.firstOrNull { limit > it.first && limit < it.last + 1 }
+    if (enclosing != null) {
+        val formulaStart = enclosing.first
+        // 公式从第 0 个字符开始（前面没有任何可展示前缀）：没有安全点，回退旧行为。
+        if (formulaStart <= 0) return text.take(limit)
+        return text.substring(0, formulaStart)
+    }
+    val sentenceEnd = (limit - 1 downTo 0).firstOrNull { index ->
+        text[index] in SAFE_SENTENCE_BOUNDARIES && spans.none { index in it }
+    }
+    return if (sentenceEnd != null) text.substring(0, sentenceEnd + 1) else text.take(limit)
+}
+
+/** [text] 里所有数学公式的区间（`start until endExclusive`），未闭合的公式延伸到文本末尾。 */
+private fun mathSpans(text: String): List<IntRange> {
+    val spans = ArrayList<IntRange>()
+    var index = 0
+    while (index < text.length) {
+        val open: String
+        val close: String
+        when {
+            text.startsWith("$$", index) -> {
+                open = "$$"
+                close = "$$"
+            }
+            text[index] == '$' && !text.isEscapedAt(index) -> {
+                open = "$"
+                close = "$"
+            }
+            text.startsWith("\\(", index) && !text.isEscapedAt(index) -> {
+                open = "\\("
+                close = "\\)"
+            }
+            text.startsWith("\\[", index) && !text.isEscapedAt(index) -> {
+                open = "\\["
+                close = "\\]"
+            }
+            else -> {
+                index++
+                continue
+            }
+        }
+        val closeAt = text.indexOfUnescaped(close, index + open.length)
+        val endExclusive = if (closeAt < 0) text.length else closeAt + close.length
+        spans += index until endExclusive
+        index = endExclusive
+    }
+    return spans
+}
+
+/** [index] 前面的反斜杠个数为奇数 = 该字符被转义（`\$` 不是公式定界符）。 */
+private fun String.isEscapedAt(index: Int): Boolean {
+    var backslashes = 0
+    var cursor = index - 1
+    while (cursor >= 0 && this[cursor] == '\\') {
+        backslashes++
+        cursor--
+    }
+    return backslashes % 2 == 1
+}
+
+private fun String.indexOfUnescaped(needle: String, from: Int): Int {
+    var index = from
+    while (index <= length - needle.length) {
+        if (startsWith(needle, index) && !isEscapedAt(index)) return index
+        index++
+    }
+    return -1
+}
+
 /**
  * 一次工具执行的本地结果：**模型可见的**那半（[outcome]）与**只在本地用的**那半（[resultCount]）。
  *
@@ -354,9 +444,9 @@ internal class RoomTutorToolRunner(
                 ),
             )
             val marker = code ?: "${index + 1}"
-            val boundary = node.boundaryMarkdown?.take(80)
+            val boundary = node.boundaryMarkdown?.let { safeTruncateMarkdown(it, 80) }
             val material = materialSummaries[node.knowledgeNodeId]
-                ?.let { "｜材料：${it.take(KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS)}" }
+                ?.let { "｜材料：${safeTruncateMarkdown(it, KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS)}" }
                 ?: "｜$KNOWLEDGE_READ_NO_MATERIAL_MARKER"
             "$marker. ${node.displayName}${boundary?.let { "：$it" } ?: ""}$material"
         }

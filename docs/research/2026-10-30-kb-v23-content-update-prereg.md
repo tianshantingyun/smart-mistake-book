@@ -424,3 +424,73 @@ midx: SKIP '' 41 / MATERIAL '' 25 / MATERIAL 'b' 2
 ## 7. 结果
 
 （留空。执行轮在本节**只追加**实测结果，§1–§6 一字不动。）
+
+---
+
+## 8. 口径修正（2026-10-31，出数前冻结）
+
+> 本节是对 §1–§6 的**唯一追加修正**，不回改任何既有条文。修正范围只限“68 条在运行时判定源里究竟改几行 / 几块”；判读（§2）与回滚（§5）不变（§8.4）。
+
+### 8.1 修正后的期望（行级为准）
+
+**68 条 REOPEN_NOW = 41 行新增 MATERIAL + 27 条已存在。**
+
+| 项 | 值 | 说明 |
+|---|---:|---|
+| 68 的构成 | **BUILD 35 + MERGE 33** | `114-402-final.csv`（`track=114 & final_decision=REOPEN_NOW`，本会话实算） |
+| 41 flip（`SKIP→MATERIAL`） | **MATH 24 / CHEMISTRY 8 / PHYSICS 5 / BIOLOGY 4** | 按五片**行级**实算；构成 = BUILD 35 + MERGE 6 |
+| 27 no-op（已 `MATERIAL`） | **PHYSICS 13 / MATH 9 / CHEMISTRY 3 / BIOLOGY 2** | **按 chunk** 实算；材料已在包，`materialize` 幂等跳过 |
+| 27 个 no-op chunk 对应的 MATERIAL 行 | **29 行** | `289deb9ecd-1134`、`cb623abc4b-005` 两个多行块各多 1 行**非目标**；目标行按 `midx='b'` 取（§1.2.2） |
+| 五片判定表数据行 | **135,085** | `csv.DictReader` 实算：BIOLOGY 24,398 + CHEMISTRY 28,179 + MATH 44,423 + PHYSICS 38,085 + UNASSIGNED 0 |
+| 五片写前 action | **MATERIAL 53,531 / SKIP 81,554** | 实算，与 §6.2 基线同值 |
+| 41 行 flip 后（算术） | **MATERIAL 53,572 / SKIP 81,513** | +41 / −41；行级增量与 §6.2 一致 |
+
+### 8.2 作废：批次26 的 chunk 级 “68” 期望
+
+`build/agent-batch26/exec-plan.md` §8.1 的“68 条 REOPEN_NOW 内 MATERIAL **27 → 68**”是**chunk 级 after 值**，与五片的**行级**计数混写，**作废**。以行级为准：
+
+| 口径 | 写前 | 写后 | 用途 |
+|---|---:|---:|---|
+| chunk 级 | SKIP 41 / MATERIAL 27 | MATERIAL 68 / SKIP 0 | **仅**用于对齐 27 条 no-op；不得写入五片期望 |
+| 行级（五片实算口径） | SKIP 41 / MATERIAL **29** | MATERIAL **70** / SKIP 0 | 执行轮唯一计数口径 |
+
+- **作废原因 = 行级 vs chunk 级口径混淆**：68 个 chunk 映射 **70 行**（2 个 chunk 各有 `midx=''` 与 `'b'` 两行）；chunk 数 68 ≠ 行数 70，不能把 chunk 级 after 值当行级期望。
+- 证据：本会话五片 join 实算 `matched rows 70 / matched chunks 68 / action SKIP 41 / MATERIAL 29`；`docs/kb-batch26-2026-10-30.md` §2.2 已并列两行；`build/agent-batch26/flip-touched-files.txt:28-29` 双口径分记。
+
+### 8.3 执行面、重建工具与 R6
+
+- **执行面 = 五片判定表**：`tools/kb_coverage/tables/material_judgments/{MATH,PHYSICS,CHEMISTRY,BIOLOGY,UNASSIGNED}.csv`。**不是** `knowledge-production/judgment-verdicts/reopen-2026-10-17.jsonl.csv`。后者是被 gitignore 的审阅快照：41 行已是 `MATERIAL`（sha `57aa7614…`〔§4.2 登记值〕→ 本会话实算 `53abc841…`），但只有 `action/content`，`node_slug/type/title/summary/applicability/boundary` 六字段 **0/41**，且 `materialize` 不读它。
+- **重建 = HEAD 版 merge 工具**：以 `git cat-file -p HEAD:tools/kb_build/merge_candidate_verdicts.py` 的逐字节副本执行（批26 落为 `tools/kb_build/merge_head_b26.py`；本会话实算该副本与 HEAD blob 的 sha256 同为 `42836faf…`）；**不采用**工作树 `M` 版本（`git status` 现为 `M`）未提交的“跨批同源重复去重”改动。
+  - 边界（批26 已核）：该工具 dry 的 `材料 29 / 新点 0` 输入是 2026-09-30 旧批 `candidate-merge/verdicts/`，**不是本批 68 的候选**；本批落包仍只能经五片 → `materialize` / `create_points`（`rebuild-summary.md` §2、§7#1）。
+- **R6 = 0 改动（批26 已核）**：29 条清单与修复规则不重定义、不增删（§1.3；`r6-items.json` sha `cbfdfb48…` 不变）。批26 `verify_r6.py` 在 staging v22 上 `total=29 ok=29 bad=0`；当前 release/staging 现读为 0/29，重建若 `seed_staging()` 仍须按 §1.3 重放——本节不改规则，只登记现状。
+
+### 8.4 判读与回滚不变
+
+- **判读**：仍按 §2.1 四条非劣（主集 ≥117/129、24 章逐章不劣、零漂移 symdiff 0、bootstrap 95% CI 上界 ≥0）；本节不新增、不放宽任何判据，不以行级/块级口径变化影响采纳结论。
+- **回滚**：仍按 §5 全表——触碰清单与 pre-sha（§5.1 A–F）、零触碰（§5.2）、写前备份/核验（§5.3）、回滚/采纳程序（§5.4）一律不变。41 flip 的学科分布 **24/5/8/4** 与 §5.1 A 已登记值逐字一致，无需改表；五片 pre-sha 仍是 `MATH 027ee7e8…` / `PHYSICS bc574d22…` / `CHEMISTRY 7f14c7e8…` / `BIOLOGY 4448d5fa…` / `UNASSIGNED 28ed802b…`。
+
+### 8.5 本会话实算与写前守卫（2026-10-31）
+
+```bash
+git status --porcelain -- docs/research/2026-10-30-kb-v23-content-update-prereg.md   # 空（写前）
+git status --porcelain -- tools/kb_coverage/tables/material_judgments/              # 空
+sha256sum tools/kb_coverage/tables/material_judgments/*.csv
+# 五片 sha 与 §5.1 A pre-sha 逐字相同（未 flip）
+```
+
+```text
+# 114-402-final.csv（utf-8-sig，DictReader）
+total 516 / track=114 114
+REOPEN_NOW 68 = BUILD 35 + MERGE 33
+# 五片 join（chunk_id）
+matched rows 70 / matched chunks 68
+action: SKIP 41 / MATERIAL 29
+chunk 级: SKIP 41 / MATERIAL 27
+SKIP 行 subject: MATH 24 / CHEMISTRY 8 / PHYSICS 5 / BIOLOGY 4
+MATERIAL chunk subject: PHYSICS 13 / MATH 9 / CHEMISTRY 3 / BIOLOGY 2
+material rows 29, material chunks 27, 多行块: 289deb9ecd-1134 / cb623abc4b-005（各 2 行）
+五片 action 总计: MATERIAL 53,531 / SKIP 81,554 / sum 135,085
+```
+
+- 本文件写前 sha256 `6be17178c35ecc853b46e34fac9bc69aa0f1aa493071c61ec4f279849c767355`；写入本节后按“只追加”纪律不回改 §1–§7。
+- 本会话**未跑** Gradle / 设备 / 判官 / 重建链；本节数字均为只读实算或明确转引（HEAD merge 工具 sha 已实算；R6 `29/29` 为 `rebuild-summary.md` 转引，未重算）。

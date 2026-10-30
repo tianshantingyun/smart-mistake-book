@@ -36,12 +36,26 @@ PREREQ_MAP = "prereq_map.csv"
 MATERIAL_BINDINGS = "material_bindings.csv"
 
 
-def _read(name: str) -> list[dict[str, str]]:
-    path = TABLES_DIR / name
+def read_rows(directory: Path, name: str) -> list[dict[str, str]]:
+    """读一张权威表，返回行字典；**行尾一律归一化为 `\\n`**。
+
+    消灭的失败（KB25-01）：Windows 检出（`* text=auto` + core.autocrlf）会把
+    引号内多行别名的 `\\n` 一并转成 `\\r\\n`，而包侧（`*.json eol=lf`）是 `\\n`。
+    不归一化时 `build.py` 会用带 `\\r` 的别名重建包（把检出伪影写进成品），
+    `check_pack_contract` 也会把表↔包误报成不一致（alias_map×4）。
+    只改行尾，不改字段语义；表在 git 对象里本就是 LF，与包逐字相等。
+    """
+    path = directory / name
     if not path.exists():
         return []
-    with path.open(encoding="utf-8", newline="") as fh:
-        return [row for row in csv.DictReader(fh)]
+    with path.open(encoding="utf-8-sig", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    return [{key: value.replace("\r\n", "\n") if isinstance(value, str) else value
+             for key, value in row.items()} for row in rows]
+
+
+def _read(name: str) -> list[dict[str, str]]:
+    return read_rows(TABLES_DIR, name)
 
 
 def _require_columns(name: str, rows: list[dict[str, str]], required: Iterable[str]) -> None:
