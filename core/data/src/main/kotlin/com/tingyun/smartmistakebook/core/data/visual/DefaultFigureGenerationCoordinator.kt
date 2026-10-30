@@ -131,6 +131,10 @@ internal suspend fun openGuardedFigureImageBackend(
  * **双后端（批次 34 / A-01）**：上面 2–5 步是 IMAGE_MODEL 的路径。JS 走
  * [generateLocalJs]——不打开图像后端、不向 [RemoteModelDispatchLedger] 预留，只在本地
  * [VisualExecutionEngine] 上执行；引擎与宿主帧输入默认不注入（生产仍回 UNAVAILABLE）。
+ *
+ * **A-10 本地预算（批次 36）**：JS 分支与最终图另有 [FigureOperationLocalBudgets] 的
+ * per-operation 门（布局尝试/累计源码/累计墙钟/两份最终图）——这些是远程账本挡不住的
+ * 本地面，拒绝走 REJECTED（未执行、未预留、不建 attempt 行）。
  */
 class DefaultFigureGenerationCoordinator internal constructor(
     private val ledger: RemoteModelDispatchLedger,
@@ -156,6 +160,13 @@ class DefaultFigureGenerationCoordinator internal constructor(
      * 成对注入；没有它协调器不自己编帧，如实回 UNAVAILABLE。
      */
     private val visualFrameInputs: VisualFrameInputs? = null,
+    /**
+     * 4E.2 A-10：同一逻辑操作的本地 JS / 最终图预算累计器（[FigureOperationLocalBudgets]）。
+     * 默认即真实现——生产与测试共用同一道门。它挡的是远程账本挡不住的三类无界面
+     * （JS 布局尝试 ≤6、累计源码 ≤128 KiB、累计墙钟 ≤10 s）与"同一操作最多两份最终图"；
+     * 状态边界（进程内、有界键窗口）见该类 KDoc。
+     */
+    private val localBudgets: FigureOperationLocalBudgets = FigureOperationLocalBudgets(),
 ) : FigureGenerationCoordinator {
 
     override suspend fun generate(
@@ -201,6 +212,16 @@ class DefaultFigureGenerationCoordinator internal constructor(
         request: FigureGenerationRequest,
         proposal: FigureGenerationProposal,
     ): FigureGenerationOutcome {
+        // A-10：同一逻辑操作最多两份最终图——第 3 次生成在打开后端/进引擎/预留之前就拒
+        // （REJECTED：不建 attempt 行、不预留、不付费、不计入计数）。
+        localBudgets.admitFinalFigure(request.operationId)?.let { reason ->
+            return outcome(
+                request = request,
+                proposal = proposal,
+                status = FigureGenerationStatus.REJECTED,
+                diagnostics = reason,
+            )
+        }
         val method = requireNotNull(proposal.method) {
             "policy accepted a GENERATE proposal without a method"
         }
@@ -280,6 +301,25 @@ class DefaultFigureGenerationCoordinator internal constructor(
         val program = requireNotNull(proposal.program) {
             "policy accepted a JS proposal without a program"
         }
+        // A-10 本地 JS 预算门（累计墙钟 → 布局/累计源码）：通过即记账（布局/源码在
+        // admitJsAttempt 内记录），拒绝则这次尝试未执行、未进引擎、不建 attempt 行——
+        // 与 policy 拒绝同形的 REJECTED。
+        localBudgets.admitJsWallClock(request.operationId)?.let { reason ->
+            return outcome(
+                request = request,
+                proposal = proposal,
+                status = FigureGenerationStatus.REJECTED,
+                diagnostics = reason,
+            )
+        }
+        localBudgets.admitJsAttempt(request.operationId, program)?.let { reason ->
+            return outcome(
+                request = request,
+                proposal = proposal,
+                status = FigureGenerationStatus.REJECTED,
+                diagnostics = reason,
+            )
+        }
         val sourceSha = request.source?.imageBytes()?.let(::figureSha256Hex)
         val state = FigureGenerationAuditState(
             operation = request.auditOperation(proposal, sourceSha, now()),
@@ -291,6 +331,10 @@ class DefaultFigureGenerationCoordinator internal constructor(
             state.begin()
             state.beginLocalAttempt(FigureGenerationMethod.JS, sourceSha)
             val programId = visualProgramId(request.operationId, program)
+            // A-10：JS 阶段墙钟按"execute 前后两次 now 读数差"记账——两次读数之间只有
+            // engine.execute（审计写入在两侧），注入 now 时该差值是确定性的。取消路径
+            // 不记账（操作正在被拆除），如实登记为边界。
+            val executionStartedAt = now()
             val execution = try {
                 engine.execute(
                     VisualExecutionRequest(
@@ -313,6 +357,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
                 throw cancelled
             } catch (failure: Exception) {
                 // 端口承诺不抛；防御性兜底，仍按"这次执行失败"记账。
+                localBudgets.recordJsWallClock(request.operationId, now() - executionStartedAt)
                 val diagnostics = boundedFailure(failure)
                 state.failAttempt(diagnostics)
                 return outcome(
@@ -323,8 +368,10 @@ class DefaultFigureGenerationCoordinator internal constructor(
                     attemptId = state.attemptId,
                 )
             }
+            localBudgets.recordJsWallClock(request.operationId, now() - executionStartedAt)
             return when (execution) {
                 is VisualExecutionResult.Rendered -> {
+                    localBudgets.recordFinalFigure(request.operationId)
                     state.succeed()
                     outcome(
                         request = request,
@@ -545,6 +592,8 @@ class DefaultFigureGenerationCoordinator internal constructor(
             imageBytes = generated.imageBytes,
         )
         state.succeed()
+        // A-10：最终图在此刻真正产出（REJECTED/FAILED 不占名额）。
+        localBudgets.recordFinalFigure(request.operationId)
         return outcome(
             request = request,
             proposal = proposal,

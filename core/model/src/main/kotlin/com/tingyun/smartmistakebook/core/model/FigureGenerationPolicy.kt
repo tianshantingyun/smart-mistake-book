@@ -416,6 +416,35 @@ object FigureGenerationPolicy {
     ): FigureGenerationValidation = FigureGenerationValidation.Rejected(code, message)
 }
 
+/**
+ * 4E.2 A-10 的**本地 JS / 最终图**预算常量（视觉契约 §7.1"每个逻辑操作……累计接收源码≤128KiB、
+ * 新布局尝试≤6、累计 JS 阶段墙钟≤10s"与"单逻辑操作最多提交两份最终图"）。
+ *
+ * 与 [ModelTaskRemoteDispatchPolicy] 的分工：那里管**远程**派发的持久账本（≤6 次、讲题留终答）；
+ * 这里管账本**挡不住**的三类无界面——JS 本地执行不占远程派发（零付费路径），没有这组常量时：
+ * - 失败尝试可无限重试，每次 ≤ [MAX_PROGRAM_UTF8_BYTES] 但累计无界（账本的 6 次上限管不到
+ *   JS，6 × 64 KiB = 384 KiB 也照样烧）；
+ * - 引擎只有单事务期限（服务侧 1500 ms），跨尝试的挂死-重建循环可以无限烧墙钟；
+ * - 同一逻辑操作可以反复产出第 3 份最终图（IMAGE_MODEL 有派发账本间接挡，JS 完全没有门）。
+ *
+ * 常量只放数值与语义；**执行点在协调器**（唯一能看见"同一 operationId 的多次尝试"的位置，
+ * `DefaultFigureGenerationCoordinator` 的 per-operation 累计器）。策略校验
+ * [FigureGenerationPolicy.validate] 是无状态纯函数，不承载累计预算。
+ */
+object FigureGenerationLocalJsBudget {
+    /** 单逻辑操作累计接收（含失败尝试）的 JS 源码 UTF-8 预算。恰好在预算内放行，+1 字节拒。 */
+    const val MAX_CUMULATIVE_SOURCE_UTF8_BYTES: Int = 128 * 1_024
+
+    /** 单逻辑操作的 JS 源码布局尝试上限（每次真实进引擎的尝试计 1，含失败）。第 7 次拒。 */
+    const val MAX_LAYOUT_ATTEMPTS: Int = 6
+
+    /** 单逻辑操作累计 JS 阶段墙钟（宿主侧实测 `engine.execute` 前后耗时之和）。 */
+    const val MAX_CUMULATIVE_WALL_CLOCK_MILLIS: Long = 10_000L
+
+    /** 单逻辑操作最多产出（提交）的最终图份数。第 3 份拒，两种方法合计计数。 */
+    const val MAX_FINAL_FIGURES_PER_OPERATION: Int = 2
+}
+
 /** policy 校验结论。[Accepted] 仍不代表预算/预留已落实——那是 ledger 的门。 */
 sealed interface FigureGenerationValidation {
     data object Accepted : FigureGenerationValidation
