@@ -4,6 +4,7 @@ import androidx.room3.withWriteTransaction
 import android.util.Log
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeGroundingSummaryRow
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeRecallCandidateRow
+import com.tingyun.smartmistakebook.core.database.dao.KnowledgeTeachingMaterialForNodeRow
 import com.tingyun.smartmistakebook.core.database.dao.ReviewedKnowledgeCoverageRow
 import com.tingyun.smartmistakebook.core.database.entity.ContentInstallStateEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeGroundingRequestEntity
@@ -389,9 +390,21 @@ internal class RoomKnowledgeBaseStore(
             "too many knowledge nodes were requested for teaching context"
         }
         if (knowledgeNodeIds.isEmpty()) return emptyMap()
-        return database.knowledgeTeachingMaterialDao()
+        val rows = database.knowledgeTeachingMaterialDao()
             .readBestTeachingMaterialPerNode(subject, knowledgeNodeIds)
-            .associate { row -> row.knowledgeNodeId to row.material.toRecord() }
+        // M1a 最小生产可观测点：一行计数，就在取数返回之后（不为遥测多打一次库）。
+        // 口径见 `KnowledgeMaterialCoverageTelemetry`：分母 = 本次请求的节点集，分子 = 真的返回了
+        // 材料的节点（SQL 已过滤 RETIRED 与跨科）。入口归因不在这里——本层拿不到 `entry`。
+        KnowledgeMaterialCoverageTelemetry.record(
+            subject = subject,
+            queriedNodeIds = knowledgeNodeIds,
+            nodeIdsWithMaterial = rows.mapTo(
+                linkedSetOf(),
+                KnowledgeTeachingMaterialForNodeRow::knowledgeNodeId,
+            ),
+            returnedMaterials = rows.size,
+        )
+        return rows.associate { row -> row.knowledgeNodeId to row.material.toRecord() }
     }
 
     suspend fun readKnowledgeTeachingMaterialsByIds(

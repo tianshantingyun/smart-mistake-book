@@ -370,3 +370,50 @@ PY
 ```
 
 **批次25 收口结算（主循环，2026-10-30）**：**v22 → ROLLED_BACK**（离线参考净负向：词面 102→101、融合 117→114、逐章最小 0.5→0.0；18 文件逐字回滚，v21/9f9e99ce + 矢量资产 79a22270 恢复）；**S3 符号别名判负关闭**（262 条/174 节点；重开需新规则+独立理由）；**R6 延期**（与 S3 解耦后单走 v22 链）；**KD-77 关闭**（API 23：干净 v21 树重建 APK `1593b25a…` 装机冷启动、四类崩溃签名 0；DAO 仪器化 4/4 1.237s）；**KB25-01 open**（发布包在打包后被未知写者改写，release e5dc3303 vs staging 1db011e1；先验 `promote --dry-run` 写盘行为）；staging 看待清理。详见 `docs/kb-batch25-2026-10-29.md` 收口补记。
+
+## 14. 批次26 REOPEN 执行 / R1-03 / 遥测 / KB25-01 守卫 / CI 归属（2026-10-30/31：运行时 0 flip、重建 blocked；三项独立成果落地）
+
+> 数字来源：`build/agent-batch26/` 产物实读 + 批报 `docs/kb-batch26-2026-10-30.md` + 本文书轮只读复算。基线：HEAD **`1912180a`**（origin 同步 0/0；批次26 身份文件写作时 `4f11cd54`）；HEAD 提交基线仍是 **v21**（manifest `9f9e99ceec47cf8c` / 主包 `a7192484…` / dense `79a22270…` 44,043）；验收基线仍为 **A1 117/129 = 0.9069767441860465**。本行不改变 §12 三件终裁与 §13 批次25 的终态；v23 **未产生、未采纳**。
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **68 条 REOPEN** | **PARTIAL / blocked——flip 只落快照，运行时 0 flip** | 68 = BUILD 35 + MERGE 33；FLIP_MATERIAL **41**（BUILD 35 + MERGE 6）、NOOP_APPLIED **27**、CREATE_POINT **35**、REBIND **0**。快照 `reopen-2026-10-17.jsonl.csv` 恰 **41 行** `SKIP→MATERIAL` + content，sha `57aa7614…`→**`53abc841…`**，MATERIAL 5,954→5,995、SKIP 25,318→25,277，非目标行逐字节不变。**运行时五片完全未动**：135,085 行 MATERIAL 53,531 / SKIP 81,554（pre=post），41 条 SKIP 行六字段齐全 **0/41**；`materialize` 只读五片，故看不到任何 flip。证据：`build/agent-batch26/flip-touched-files.txt:6,20-33`；`rebuild-summary.md:56-79`；本文书轮 `verify_rebuild_inputs.py`（RC=0）与 41 行对拍 |
+| **建点 / 重绑 / 重建增量** | **0 / 0 / 0** | 建点 0/35：`new_points_manual.csv` 1,940 行，Table A 命中 34/35，缺 `MATH/抽屉原理`；表内另有 419 行不在包，直接跑 CLI 会越界。重绑 0：27/27 MATERIAL 已在包且绑定正确（2 条 `midx='b'`）。重建实际 after = 节点 3,245、材料 64,973、别名 40,798（37,553+3,245）、manifest 21，41 条预期 `ext-*` 命中 0/41；相对 exec-plan 为 −35 节点 / −41 材料 / −6 别名。证据：`rebuild-summary.md:95-113,119-130`；`exec-plan.md:209-225`；`prereg:104-110` |
+| **promote / 八门** | **拒绝写盘；4/8 绿、overall red=1** | `promote --dry-run` **EXIT=1**：`ghost_aliases=174`、`consistency alias_map×10`、roundtrip OK，目标 version 23（00:09 时点）未写；dry 前后 61 个 `.json` 逐字节未变（KB25-01 疑点本轮未复现）。八门：`kb_checks` rc=1（alias_map×4）、`py_suite` rc=1（888 tests / 6 failures）、`promote_dry` rc=1、`slice` rc=1（快照 `52d6492d23-017` 六字段缺失）；`asset`/`alignment`/`transcripts`/`judgment_fp` rc=0；**overall red=1**。证据：`promote.log:4-26,65-70`；`gates/summary.txt:2-34,35-114,123` |
+| **R6 29 条** | **仅 v22 备份持有；当前 release/staging 均 0/29** | 23:51 `r6.log` 在 staging v22 上 `total=29 ok=29 written=0`；本文书轮现读 release 与 staging 各 summary **13/13**、material boundary **10/10**、node boundary **6/6** 仍含换行 → **0/29** 修复。v22 形态只在 `backup/r6/*.bak`；继续重建必须先 `seed_staging()` 再按 `r6-items.json`（sha `cbfdfb48…`）重放。证据：`r6.log:104-110`；`rebuild-summary.md:113,172`；本文书轮扫描 |
+| **薄料入口** | **blocked / 零写** | 行 23「必备实验仪器的原理及使用」维持；未加 SUPPORTING、未改材料/绑定。作者工具链仍不能产出第二绑定：`build.py:587`（`len(bindings)>1` 即红）、`tables.py:171`（同材料第二条 `ValueError`）、`build.py:219-260`（整体覆盖单元素 PRIMARY）。证据：`prereg:122-133`；`rebuild-summary.md:150-160` |
+| **读数与裁定** | **NOT_MEASURED / NOT_COMPUTABLE / NOT_RUN / NOT_ADJUDICATED** | 无 v23 设备/JVM/24 章读数；零漂移 `NOT_COMPUTABLE`；显著性 `NOT_RUN`；四条非劣判据无法求值。三个单点未用新包重出。证据：`prereg:145-157,180` |
+| **R1-03 红日志** | **red-obtained** | `OldRunnerMaterialRedTest` 旧实现下 `1 test completed, 1 failed`、`AssertionError at OldRunnerMaterialRedTest.kt:31`、`BUILD FAILED in 1m 23s`；当前实现绿对照 `BUILD SUCCESSFUL in 22s`。测试为临时件、当前不在源码树、未提交；红跑与 R1 提交 `8bb79efd` 反向补丁的配对来自测试注释/`r1-reverse.patch`，日志未自证。证据：`red-run.log:7348-7352,7372`；`scripts/green-control.log:68`；`scripts/r1-reverse.patch:1-8` |
+| **生产遥测（M1a）** | **implemented（untracked）** | 新增 `KnowledgeMaterialCoverageTelemetry`：取数返回后一行 `v=1 metric=material_coverage subject=… queriedNodes=… returnedMaterials=… nodesWithMaterial=… nodesWithoutMaterial=… emptyNodeIds=[…]`（分母=请求节点，分子与请求集求交，明细排序截断 10，捕获抛错吞掉）；调用点 `RoomKnowledgeBaseStore.kt:398`（`readBestKnowledgeTeachingMaterialPerNode`，DAO 读在 `:394`）。本文书轮 `testDebugUnitTest --tests …KnowledgeMaterialCoverageTelemetryTest --rerun-tasks`：**5/5 OK**（XML tests=5 failures=0）。范围仅 **M1a（渲染侧覆盖率一行日志）**，不含 M1b/M2/M3/M4；无采样/聚合/指标 SDK；实现与测试 untracked，调用点未提交，未在设备核 logcat。证据：`KnowledgeMaterialCoverageTelemetry.kt:5-90`；`RoomKnowledgeBaseStore.kt:384-407` |
+| **KB25-01 守卫** | **implemented（untracked，未接 CI）** | 新增 `tools/ci/check_pack_sync.py`（137 行）：`release 主包 sha == staging 主包 sha == 旁车 packSha256`，缺任一侧 exit 2，纯只读；批次调用点 `build/agent-batch26/scripts/check_pack_sync.py`。本文书轮 unittest **4/4 OK、RC=0**；实仓运行六项全 OK、`PASS 三方一致 (a7192484…)`、RC=0（00:57 `pack-sync-after.json` 同结论）。**未接入 CI**（`android-check.yml` 与 `run_kb_checks.py` 均无引用）；工具/测试均 `??`。KB25-01 本身仍是 open 的“谁改写 2026-10-29 成品包”问题，守卫只防复发。证据：`tools/ci/check_pack_sync.py:1-30,107-130`；`promote.log:65-70` |
+| **CI 归属** | **kb-green（KB 两步绿；红属他线）** | run `41092668333`（HEAD `1912180a`，conclusion failure）。`check` job 内 `Knowledge build toolchain tests` 与 `Knowledge pack gate and table-pack consistency`（`python3 tools/ci/run_kb_checks.py`）均 **success**，Room schema drift/锁文件门亦 success；唯一失败 step 是 **Unit tests**：`:core:export:compileDebugKotlin FAILED`、`MistakePaperDraftStore.kt:9-13 Unresolved reference 'serialization'` 等。`instrumented` job 在 emulator 步骤失败，同一 `core:export` 编译错误。**口径差异**：同一 `tools/tests` unittest 本地为 888 tests / 6 failures（`test_kb_promote.*` 5 + `test_current_tables_agree_with_pack` 1），CI 为 success；差异未定位（本地含他线未提交 `promote.py`/`test_kb_promote.py`，CI 干净检出且无 staging）。**不得外推为整条 CI 绿**；基线 HEAD `4f11cd54` 的 run `40956219818` 也因他线编译双 job failure。证据：`gh run view 41092668333 --json jobs`、`--log-failed`；`gates/summary.txt:43-45`；`gates/py_suite.log:785-830`；`baseline/identity.md:257-281` |
+| **staging 跨时态漂移** | **registered / 未归因** | 00:06–00:09 记录 staging v22（`1db011e1…` / manifest `6f7a2d50…`）；00:57 起 `pack-sync-after.json` 与 01:34 `consistency.txt` 均显示 staging == release v21（`a7192484…` / `c4d38750…`）。重建成因未记录（“记录过期还是批次后回种”不判定）；后果是 R6 现为 0/29。证据：`rebuild-summary.md:103-108`；`consistency.txt:98,111,146`；`_work/pack-sync-after.json` |
+| **验收文书 v23 小节** | **未追加（条件不成立）** | v23 未产生、未采纳、读数未测得；按 ask“若采纳”条件不成立。`docs/kb-acceptance-2026-10-17.md` 本批零改 |
+
+**批次26 残留（按阻塞程度）**：
+
+1. **运行时 41 行未 flip**：五片仍需 `SKIP→MATERIAL` 并补齐 `node_slug/type/title/summary/applicability/content/boundary`（现 0/41）；`summary/applicability` 无权威来源，属作者步骤。
+2. **建点缺 1 行**：`new_points_manual.csv` 缺 `MATH,抽屉原理`；必须过滤到 35 个键，直接跑 CLI 会建 419 点。
+3. **staging 已回 v21**：继续重建必须重放 R6 29 条；当前 release/staging 修复 0/29。
+4. **门红**：`kb_checks`（alias_map×4）、`py_suite`（888/6 failures）、`promote_dry`（ghost 174 / alias_map×10）、`slice`（快照六字段缺失）；`ghost_aliases=174` 与 alias_map 不可见字符差异未定位。
+5. **读数缺失**：设备融合/词面、JVM、24 章、MRR 未测；零漂移 `NOT_COMPUTABLE`；显著性 `NOT_RUN`；非劣 `NOT_ADJUDICATED`。
+6. **薄料工具链**：`tables.py`/`build.py`/`run_checks` 四处未改；SUPPORTING 仍不可产出。
+7. **遥测面**：仅 M1a；M1b/M2/M3/M4 未落地；实现/调用点未提交、未在设备核 logcat。
+8. **KB25-01**：守卫未接 CI；2026-10-29 成品包写者仍未指认。
+9. **CI**：KB 侧绿，但整条 `android-check` 仍红（他线 `core:export` 序列化编译）。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD                     # 1912180a…
+python -I -X utf8 build/agent-batch26/scripts/verify_rebuild_inputs.py
+# REOPEN 68 BUILD 35 / MERGE 33；五片 SKIP 41 / MATERIAL 29；六字段 0/41；
+# new_points_manual 1940 / 34-35（缺 MATH/抽屉原理）；release/staging 3245/64973；ext 0/41
+./gradlew :core:database:testDebugUnitTest \
+  --tests "com.tingyun.smartmistakebook.core.database.KnowledgeMaterialCoverageTelemetryTest" \
+  --rerun-tasks --console=plain        # BUILD SUCCESSFUL；XML 5 tests / 0 failures
+python -m unittest discover -s tools/tests -t tools -p "test_ci_check_pack_sync.py"   # 4 tests OK
+python -I build/agent-batch26/scripts/check_pack_sync.py                              # PASS / RC=0
+gh run view 41092668333 --json jobs    # KB 两步 success；Unit tests / emulator 步骤 failure
+```
