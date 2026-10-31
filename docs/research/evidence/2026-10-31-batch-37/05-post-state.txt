@@ -1,0 +1,4 @@
+== 2026-10-30T06:54:28+08:00 post-smoke state restore ==
+    mResumedActivity: ActivityRecord{9e3d2cd u0 com.android.launcher3/.Launcher t3}
+-- host-side APK sha256 (provenance = batch-35 green-bound, step-device-track.md:69,127):
+1593b25ae33d10dc64f0c8bd179620eca4d87a6f83aa3342334666da42773dab *app/build/outputs/apk/strictOffline/debug/app-strictOffline-debug.apk

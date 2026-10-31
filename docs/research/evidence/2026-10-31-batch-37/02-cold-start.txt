@@ -1,0 +1,15 @@
+== 2026-10-30T06:53:27+08:00 cold start ==
+Starting: Intent { cmp=com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+Activity: com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity
+ThisTime: 1611
+TotalTime: 1611
+WaitTime: 1708
+Complete
+AM_START_EXIT=0
+-- post-start top activity:
+    mResumedActivity: ActivityRecord{55cc9ad u0 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity t5}
+-- installed version:
+    versionCode=2 targetSdk=36
+    versionName=0.2.0-offline
+    firstInstallTime=2026-10-29 22:52:44

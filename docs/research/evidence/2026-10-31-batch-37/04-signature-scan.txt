@@ -1,0 +1,12 @@
+== 2026-10-30T06:54:02+08:00 four-signature scan ==
+-- FATAL EXCEPTION:
+0 hits
+-- ANR:
+0 hits
+-- NoSuchMethodError:
+0 hits
+-- NoClassDefFoundError:
+0 hits
+-- extra: UnsatisfiedLinkError / FATAL in any form:
+-- app pid activity:
+10

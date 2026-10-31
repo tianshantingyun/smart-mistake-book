@@ -1,0 +1,12 @@
+== 2026-10-30T06:52:02+08:00 KD-77 API23 smoke pre-state ==
+-- serial: emulator-5596
+23
+6.0
+x86_64,x86
+Android/sdk_phone_x86_64/generic_x86_64:6.0/MASTER/4174734:userdebug/test-keys
+-- image sysdir (host): image.sysdir.1=system-images\android-23\default\x86_64\
+-- pre-installed tingyun packages:
+package:com.tingyun.smartmistakebook.core.data.test
+package:com.tingyun.smartmistakebook.offline
+-- resumed activity:
+    mResumedActivity: ActivityRecord{9e3d2cd u0 com.android.launcher3/.Launcher t3}
