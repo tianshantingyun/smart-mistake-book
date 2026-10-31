@@ -19,6 +19,10 @@ package com.tingyun.smartmistakebook.core.model
  * - 宿主显式传了 basis 指纹、却与 proposal 方法的真实输入摘要冲突（A-08 入口侧约束：
  *   program 摘要是权威）。audit 的 `basis_fingerprint` 必须能回答"这次尝试的输入变过没有"，
  *   冲突时静默采信显式值等于把宿主 bug 写进审计证据——这里按方法一致复核，冲突即拒。
+ * - 冻结的 [VisualSourceBasis]（X-02 源证据基准）与实际出网字节脱钩：基准未授权披露原图
+ *   （allowsImageDisclosure = false）时，任何会把源图字节送出网的 IMAGE_MODEL 派发一律
+ *   拒绝（授权不足）；基准的 canonical 引用/SHA 与实际源证据不一致（错图/SHA 变化）
+ *   fail-closed。basis = null 的旧调用不介入，逐位零变化。
  *
  * 只做校验，不做路由：它不按 purpose 选 method，也不替入口改选。
  */
@@ -198,6 +202,29 @@ object FigureGenerationPolicy {
         return validateBasisFingerprint(request, proposal, method)
     }
 
+    /**
+     * Q-02（批次 38，2026-11-01 主会话预裁）：PIXEL_CLEANUP 的 purpose→target **有效位**映射。
+     *
+     * 该用途的语义由枚举与提示词双面钉死（[FigureGenerationPurpose.PIXEL_CLEANUP] =
+     * "保留原像素的编辑/去污"；prompt 用途段明文"不得把重新绘制称为像素修复"），不存在
+     * 合法"可重绘"语义分支；因此 PIXEL_CLEANUP 的原像素保真要求一律成立，等于宿主显式
+     * 位 ∨ purpose 映射，**不接受宿主声明降级**。
+     *
+     * 它消灭的具体失败：净化入口把 target 位传成 `requiresPixelFidelity=false`
+     * （`ConfiguredCleanImageGenerator` 旧值），而 policy 的两道 pixel 门只看宿主位——
+     * 一旦广告 JS，一个 purpose=PIXEL_CLEANUP、target 位=false 的请求即可让 JS proposal
+     * 逃过像素门。映射收进 policy 后，同一请求无论宿主传什么都不可能放行 JS；IMAGE 侧
+     * 仍按原语义要求 EDIT + supportsPixelEditing（生产净化链不变）。
+     *
+     * 边界：这是 target 语义规整，**不是用途→方法路由**——它不替入口选 method，只把
+     * "该用途必然要求原像素保真"钉成校验输入，与本文件头"不按 purpose 选 method"一致。
+     */
+    private fun effectiveRequiresPixelFidelity(
+        request: FigureGenerationRequest,
+    ): Boolean =
+        request.target.requiresPixelFidelity ||
+            request.purpose == FigureGenerationPurpose.PIXEL_CLEANUP
+
     private fun validateJsProposal(
         request: FigureGenerationRequest,
         proposal: FigureGenerationProposal,
@@ -236,7 +263,10 @@ object FigureGenerationPolicy {
         // 重建画面，从不触原像素，任何能力位都改变不了这一点。所以这道门无条件拒，不看
         // 能力位；放行一个 requiresPixelFidelity=true 目标的 JS proposal，就是让 JS 冒充
         // 它兑现不了的保真承诺。
-        if (request.target.requiresPixelFidelity) {
+        // Q-02（批次 38，主会话预裁）：pixel 保真要求取**有效位**（宿主显式位 ∨ PIXEL_CLEANUP
+        // 映射）——只看宿主位时，入口把 PIXEL_CLEANUP 的 target 位传成 false 就等于这道门
+        // 不存在（`ConfiguredCleanImageGenerator` 的旧值正是如此）。
+        if (effectiveRequiresPixelFidelity(request)) {
             return reject(
                 FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
                 "目标要求原像素保真，JS 参数化重绘不能冒充完成",
@@ -316,14 +346,47 @@ object FigureGenerationPolicy {
                 }
             }
         }
+        // X-02 源证据门（契约 §3.1"允许披露范围"）：冻结基准与实际出网字节绑定。
+        // 顺序在能力/源字节门之后——授权不足与错图/SHA 变化是比"能力缺失"更具体的失败，
+        // 诊断优先报前者；basis = null 的旧调用整段跳过（逐位零变化）。
+        request.visualSourceBasis?.let { basis ->
+            if (sourceBytes != null && !basis.allowsImageDisclosure) {
+                return reject(
+                    FigureGenerationRejectionCode.SOURCE_DISCLOSURE_UNAUTHORIZED,
+                    "源图字节将随派发出网，但冻结的源证据基准未授权披露原图（allowsImageDisclosure=false）",
+                )
+            }
+            val sourceAssetId = request.source?.assetId
+            if (
+                sourceAssetId != null &&
+                basis.canonicalAssetId != null &&
+                sourceAssetId != basis.canonicalAssetId
+            ) {
+                return reject(
+                    FigureGenerationRejectionCode.SOURCE_EVIDENCE_MISMATCH,
+                    "源图资产（$sourceAssetId）与冻结基准的 canonical 引用" +
+                        "（${basis.canonicalAssetId}）不一致（错图）",
+                )
+            }
+            val frozenSha = basis.contentSha256
+            if (frozenSha != null && sourceBytes != null && frozenSha != figureSha256Hex(sourceBytes)) {
+                return reject(
+                    FigureGenerationRejectionCode.SOURCE_EVIDENCE_MISMATCH,
+                    "源图字节与冻结基准的 SHA 不一致（错图或 SHA 变化）",
+                )
+            }
+        }
         if (request.target.requiresParametricInteraction) {
             return reject(
                 FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
                 "目标要求参数交互，图像模型方法不能冒充完成",
             )
         }
+        // Q-02（批次 38）：同 JS 分支，pixel 保真门取**有效位**——PIXEL_CLEANUP 用途无条件
+        // 要求原像素保真，只能走支持该能力的 EDIT（生产净化链=EDIT+IMAGE_MODEL_ONLY
+        // [supportsPixelEditing=true]，不受影响；GENERATE 冒充清理被拒）。
         if (
-            request.target.requiresPixelFidelity &&
+            effectiveRequiresPixelFidelity(request) &&
             (operation != FigureImageOperation.EDIT || !request.capabilities.supportsPixelEditing)
         ) {
             return reject(
@@ -467,6 +530,8 @@ enum class FigureGenerationRejectionCode {
     IMAGE_OPERATION_UNAVAILABLE,
     SOURCE_REQUIRED,
     SOURCE_EVIDENCE_MISMATCH,
+    /** X-02：冻结的源证据基准未授权披露原图，但本次派发会把源图字节送出网。 */
+    SOURCE_DISCLOSURE_UNAUTHORIZED,
     TARGET_UNSATISFIABLE,
     TARGET_DOWNGRADED,
     CONSTRAINT_DROPPED,

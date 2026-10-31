@@ -102,7 +102,11 @@ internal class ConfiguredCleanImageGenerator(
             purpose = FigureGenerationPurpose.PIXEL_CLEANUP,
             target = FigureGenerationTarget(
                 fidelity = FigureFidelity.FAITHFUL,
-                requiresPixelFidelity = false,
+                // Q-02（批次 38，主会话预裁）：PIXEL_CLEANUP 的语义是"保留原像素的编辑/去污"
+                //（枚举与 prompt 用途段双面钉死），target 位必须如实为 true；policy 侧另有
+                // purpose→有效位映射兜底（宿主传什么都不可能放行 JS），此处是声明面归位，
+                // 不是行为开关。
+                requiresPixelFidelity = true,
                 requiresCompleteLabels = true,
             ),
             capabilities = capabilities,

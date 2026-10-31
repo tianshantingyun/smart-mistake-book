@@ -339,6 +339,17 @@ data class FigureGenerationRequest(
      * 任何 policy/预算豁免。
      */
     val explicitUserRetry: Boolean = false,
+    /**
+     * X-02：宿主冻结的**源证据基准**（[VisualSourceBasis]：subject/revision、canonical
+     * 引用/SHA、允许披露范围）。null = 旧调用，策略门不介入（逐位零变化）。
+     *
+     * 非空时策略门做两件事（contract §3.1）：把基准的 canonical 引用/SHA 与
+     * [FigureSourceEvidence] 的实际字节绑定核对（错图/SHA 变化 fail-closed）；未授权披露
+     * 原图（`allowsImageDisclosure = false`）时拒绝任何会把源图字节送出网的 IMAGE_MODEL
+     * 派发（授权不足）。"已发送"的证据不走本字段——那是 [FigureGenerationOutcome.sourceSeen]，
+     * 只在源图字节真的出网后由派发路径产出。
+     */
+    val visualSourceBasis: VisualSourceBasis? = null,
 ) {
     init {
         require(operationId.isNotBlank()) { "A figure operation id must not be blank" }
@@ -581,12 +592,25 @@ data class FigureGenerationOutcome(
      * `figure_generation_attempt.output_asset_id`；它只是审计身份，不是预算句柄。
      */
     val attemptId: String? = null,
+    /**
+     * X-02："源图字节真的随这次派发出网了"的记录（[VisualSourceSeenRecord]）。
+     *
+     * 只在派发路径真实把源图字节送出网之后存在（与账本 used=1 的记账点同一语义；发送后
+     * 失败也如实保留——字节出网是事实，与产物成败无关）；没带源字节的派发为 null，不得
+     * 冒充"模型已看图"。持久孪生 = attempt 行的 `reservation_id` + `source_sha256`，
+     * 台账没写成（[attemptId] 为 null）时协调器不产出本记录。
+     */
+    val sourceSeen: VisualSourceSeenRecord? = null,
 ) {
     init {
         require(operationId.isNotBlank()) { "A figure outcome needs an operation id" }
         require(attemptId == null || attemptId.isNotBlank()) {
             "A figure outcome attempt id must be null or non-blank"
         }
+        require(
+            sourceSeen == null ||
+                (attemptId != null && sourceSeen.sourceSeenDispatchId == attemptId),
+        ) { "A source seen record must reference this outcome's attempt" }
         require(
             (artifact == null) ||
                 (status == FigureGenerationStatus.GENERATED || status == FigureGenerationStatus.CACHED),
