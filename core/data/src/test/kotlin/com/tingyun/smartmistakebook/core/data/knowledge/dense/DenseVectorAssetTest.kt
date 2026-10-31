@@ -54,6 +54,8 @@ class DenseVectorAssetTest {
         // 2026-10-31 批次28 promote v23 再重钉：3,245 → 3,280（成品包原子点 +35；资产按新包
         // 重打 44,119 行）。量源 = 旁车 corpus.atomicNodes 实测 3,280、资产头 count 44,119
         // 三方一致（批次28 dense.log 的 post-sha 表）。上一代（批次13 v16）为 3,245。
+        // 2026-10-31 批次30 promote v24：节点数不变（3,280），资产按新包重打 44,121 行
+        // （3,280 + 40,841 别名；v24 只改内容/别名，未增删节点）——本断言值不变。
         assertEquals(3280, asset.nodeCount)
     }
 

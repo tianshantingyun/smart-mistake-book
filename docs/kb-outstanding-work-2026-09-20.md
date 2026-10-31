@@ -550,3 +550,61 @@ tail -20 build/agent-batch29/consistency.txt                # 14 门 12 PASS / 2
   --tests "com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureImportEquivalenceTest" \
   --rerun-tasks --console=plain                             # 1 test / 0 failures；digest d4f2d318…
 ```
+
+## 18. 批次30 渲染 v2 + v24 双采纳 / 配额臂 park / v25 blocked / W 组（2026-10-31）
+
+> 数字来源：`build/agent-batch30/`（`baseline/identity.md`、`render-final.md`、`v24-final.md`、`v24-dense.log`、`quota/SUMMARY.md`、`quota-touched-files.txt`、`a-layer-extract.md`、`v25.log`、`gates/summary.txt`、`consistency.txt`、`v24/`、`render/`、`quota/`、`v25/`、`dense25/`、`backup-v25-dense/`）＋ `build/ps16k-smoke-2026-11-01/` ＋ `build/upgrade-drill-20261031/` ＋ `build/telemetry-verify/logcat-kbobs.txt` ＋ `core/model/build/test-results/test/TEST-…TutorToolRoundBudgetTest.xml` ＋ 本文书轮只读复算（v24 家族 28 文件/10 夹具/4 钉值 sha256、结构计数、FATAL 计数）。基线：HEAD **`dcfdc5b5`**（origin 同步 0/0；批次起点 691 = 212 `M` + 479 `??`，门/一致性时点与本文书轮落笔前均 **786** = 268 `M` + 518 `??`；写入本批报 + 本行后 **789** = 269 `M` + 520 `??`）。本行不改变 §12–§17 的终态；v23 adopted 仍成立。**批次30 的采纳内容基线是 v24；但落笔时工作树 release = v25（未提交、未采纳、未回滚），见残留 1。**
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **渲染 v2** | **adopted** | 设备融合 **117/129 = 0.9069767441860465**、MRR `0.7239018087855298`、p50 57 / p95 103 / max 294 ms（`overBudgetSamples=1`）；词面 101/129、MRR `0.6178294573643413`；同路零漂移 lexical 28/28、fused 12/12 均 **0**（PASS/PASS）；写面 7 `M`。契约改为「材料《title》＋正文节选≤120」，`summaryMarkdown` 不再进结果。证据：`render-final.md:1,69`；`render/device-metrics.txt:2-5,32-34`；`render/zero-drift.json` |
+| **v24 内容更新** | **adopted（四条判据全过）** | 融合 **117/129 = 0.9069767441860465**（=渲染 v2 基线）、MRR `0.7239018087855298`；24 章 **24/24 逐字相同**（lower 0 / higher 0 / equal 24）；零漂移 lexical 28/28、fused 12/12 **0**；bootstrap（20k/seed0，A=v24、B=渲染 v2）融合 `delta=0.0`、CI **[0.0,0.0]**、p=**1.0**，词面同值。**新基线**：manifest `version=24` / `schemaVersion=2` / `contentVersion=9664896aeba22e86` / `packId=moe-2025-four-subjects-v1` / `retired=1,222`，manifest sha `2aa5e5e5…`（581,672 B）；主包 `96246c78…`（4,538,352 B）；25 sidecar（v2-02 `ba443288…`、v2-25 `d132dd68…`，其余同 v23）；索引 `2da0b9c5…`；release==staging 28/28；`.vec 70329115…`（26,087,046 B / dim 512 / 44,121 = 3,280 canonical + 40,841 aliasVectors）+ 旁车 `5cbbcb6f…` + `model-manifest b3896531…`；10 夹具 **6 改 / 4 未变**；钉值 **2 改 / 4 未变**；5 张内容表改（MATH `d1d68d61…`、PHYSICS `37e0adbc…`、extraction_state `dff4ca17…`、material_rebind `b8d16b91…`、alias_map `5e8ed8ba…` / 37,561 行）。结构：节点 **3,280** / 材料 **65,016** / 未绑 0 / 悬空 0。证据：`v24-final.md` §一–§二；`v24-dense.log:44,58-60`；本文书轮对 `backup-v25-dense/release/` 的独立 sha256 复算 |
+| **薄料与错挂** | **错挂关闭；薄料 1/3 闭合** | 错挂：`phys-hj3-multimeter-structure` 改绑 `多用电表的结构与刻度盘`（绑定 13→14）。薄料：`必备实验仪器的原理及使用` 1→2（v25 再→3）；另 2 条仍薄（`导数定义在极限中的计算` SKIP、`电磁说-麦克斯韦…` NOT_FOUND）；`等和线` 32→33（边界单点仍 absent，只报不判）。预注册 §5 明写不把 9 条兄弟材料上移、不修 boundary 28 字截断。证据：`v24-final.md:50-51`；`v24-touched-files.txt` §E；`a-layer-extract.md:47-57,6.1-6.2` |
+| **配额臂** | **parked（未采纳；ask 记 blocked/未实施）** | 设备融合 **114/129 = 0.8837209302325582**、MRR `0.719250645994832`（v24 117/129，−3）；词面 101/129；24 章 lower **4** / equal 19 / higher 1；bootstrap `delta_recall_b_minus_a=+0.0232558`、CI **[−0.008, 0.057377]**、p=**0.2337**；**同路 fused 零漂移 5 ≠ 0**（device 15 / jvm 12），按预注册 §2.2 规则 2 **parked**；规则 1（≥118）与规则 2（24 章不劣）亦红。实现 7 件（`quota-touched-files.txt` §1；`DenseRecallReranker.kt 355f1686…`、`DenseRecallAssembly.kt db043099…`、`DenseRecallOrdering.kt 1a09e870…`、`RoomKnowledgeBaseStore.kt 7d71cd20…`、`KnowledgePort.kt d18dd074…`、两测试 15/5 例），**未回滚**；I10 不满足、逐查询救援表 NOT_AVAILABLE。**“未实施”与证据不符：臂已实现、已编译、已在设备跑（APK `513b9084…`）**。证据：`quota/SUMMARY.md` §0–§6；`quota/zero-drift.json` |
+| **A 层定向抽取 v25** | **blocked（未采纳；已写盘）** | 22 子面（16 KEEP PARTIAL + 3 薄料 + 3 边界）→ **MATERIAL 3 / SKIP 15 / NOT_FOUND 4**；HEAD 副本 merge 135,085→135,088 行（MATERIAL +3，MATH +2 / PHYSICS +1，六字段 3/3）。v25 链：staging v2-25 `d132dd68…`→**`a1400dd1…`**（材料 154→157）、主包不变 `96246c78…`、材料 **65,019**、`必备实验仪器` 绑定 2→3；promote `已晋升 28 个文件`、`内容戳 → e57db8806ec4e2ae`、`version → 25`、manifest `02f94acf…`；dense 链全绿、10 夹具/6 钉值 0 改、词面 TSV 与 v24 逐字节同。**blocked 原因**：设备回测 114/129 的 fused/lexical MISS 账本与配额臂**逐字节相同**（`9074bf7e…` / `d6fd7290…`），24 章 lower 集合相同，同路 fused 零漂移 5 ⇒ 读数不可归因（APK 01:28 构建时工作树已含配额臂代码，samegen 只比资产不比代码）。证据：`a-layer-extract.md` §0,§5；`v25.log` §1–§8；`v25/zero-drift.json`；`v25.log:196-197` |
+| **封层/选修/PARTIAL 边界** | **重申，不重开** | A 层 **60,512 块封层**（批14 SEAL：point 1,053.3<1,500、Wilson lower 326.9<800、genuine 5/5）；**选修 235 单列（无源）**；**PARTIAL 46 行，其中 16 KEEP**（UPGRADE 26 / WAIVE 1；另 3 行 `finalReview=null` 不在 16 内）。**定向抽取 ≠ 重开封层**：抽取以 22 个具名子面从块池召回、逐块读原文、只落 3 条 MATERIAL，不改 `finalReview`、不建点、不重判全量块池；封层是对 60,512 块的判定覆盖面终态。证据：`docs/kb-acceptance-2026-10-17.md:452,649`；`docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md:47,74`；`a-layer-extract.md:24-26,§7` |
+| **W1 16KB 页** | **measured（green）** | `ps16k_smoke` 系统镜像 `android-36/google_apis_ps16k/x86_64`；`TeachingMaterialAllocationInstrumentedTest`（真 Room 仪器化）**OK (4 tests)**；冷启 1,653 行、`packs fully parsed 12,763 ms`、MATH 1,245 / CHEMISTRY 1,568 ms；`FATAL EXCEPTION`/`AndroidRuntime.*FATAL` **0 / 0**。边界：冷启日志在 CHEMISTRY 重建处截断（未等全量导入完成）；未直接读 `PAGE_SIZE`（5602 已停，`adb -s emulator-5602 …` 失败）。证据：`ps16k-smoke-2026-11-01/emulator-5602.log:3`、`am-instrument-teaching-allocation.txt:6`、两份 logcat |
+| **W2 升级** | **green（v21 口径）** | 覆盖安装 `Success`（wall 9,366 ms）、冷启 COLD `TotalTime 7,855 ms`；数据 before==after（节点 3,698 / 材料 64,975 / 特征 542,092）；损坏包 `INSTALL_PARSE_FAILED_NO_CERTIFICATES` 且旧 APK 仍冷启 7,909 ms。**边界：`content_install_state=9f9e99ceec47cf8c` = v21，早于 v24 promote；不证明 v24/v25 内容升级。** 证据：`upgrade-drill-20261031/`；`docs/kb-batch27-2026-10-31.md` §6 |
+| **W3 遥测** | **green（14 条）** | `build/telemetry-verify/logcat-kbobs.txt` 含 **14 条** `v=1 metric=material_coverage`（tag `kbobs`，10-31 18:11），字段 subject/queriedNodes/returnedMaterials/nodesWithMaterial/nodesWithoutMaterial/emptyNodeIds；生产点 `KnowledgeMaterialCoverageTelemetry`（`TAG="kbobs"`、`LINE_PREFIX="v=1 metric=material_coverage"`）。边界：目录只落 logcat，产生命令未落盘。证据：`logcat-kbobs.txt:1-15`；`KnowledgeMaterialCoverageTelemetry.kt:17-43`；`docs/kb-batch27-2026-10-31.md` §7 |
+| **W4 轮预算** | **green（10/10）** | `TutorToolRoundBudgetTest` XML `tests=10 failures=0 errors=0`（`2026-10-31T19:46:17.539Z`），覆盖截断注记、静默消失禁止、整轮总量封顶、扩展轮更大总量。证据：`core/model/build/test-results/test/TEST-…TutorToolRoundBudgetTest.xml` |
+| **门** | **8/8 rc=0、red=0** | `kb_checks`（boundary_map 18/18、material_bindings 598/598）、`py_suite`（`Ran 902 tests / OK`）、`promote_dry`（零写盘，**目标 version→26**）、`slice`（235 文件 / 118,848 块；MATERIAL 37,965 / SKIP 80,883 / NEW 358）、`asset`（10/10，44,121 vectors）、`alignment`（308/138/73/142）、`transcripts`（1205/1205）、`judgment_fp`（135,090 行 / 186,635 键 / 0 问题）。门在含 v25+配额臂的混合树上执行；runner 为批次29 逐字移植。证据：`gates/summary.txt`、逐门日志 |
+| **一致性** | **3 门 2 PASS / 1 FAIL** | C01 提交态身份 PASS；C03 写面 porcelain PASS（34 项 = 33 `M` + 1 `??`，post sha 全命中）；**C02 FAIL**：JVM 判官 `GoldenRetrievalJvmTest.kt`（diff 3/3）与镜像 `RetrievalBenchmark.kt`（diff 31/2）未提交，device 判官 `c2280255…`/镜像 post `87b4893d…`/新测 `35ef09ce…` 三项 sha 本身命中。未改期望值/未放宽。证据：`consistency.txt` |
+| **验收标准 v1.3（F8–F12）** | **F11/F12 绿；F8/F9 仅夹具；F10 N/A** | F8（title 必现+节选>60）：JVM `SafeTruncationTest` 13/0（含 `longTitleIsKeptVerbatimWithExcerptsOverSixtyChars…`），129 条镜像 F8a/F8b 读数**不存在**、预注册文末**无 §7** ⇒ 全量 UNVERIFIED。F9（真实 2k）：`KnowledgeReadRecallBudgetTest` 6/0（≤`MAX_TOOL_RESULT_CHARS=2,000`），F9a max / F9b–d 计数**未落盘** ⇒ 全量 UNVERIFIED。F10：臂未采纳 ⇒ N/A（读数 114/129 已登记）。F11 绿（§W1）。F12 绿（§W3）。⇒ **v1.3 不能称全绿**。证据：`docs/research/2026-10-31-kb-knowledge-read-render-v2-prereg.md:204-228`；两份 XML |
+| **提交** | **未提交** | HEAD 仍 `dcfdc5b5`；v24 20 `M`、渲染 v2 7 `M`、配额臂 7 `M`、v25 2 release + 2 表均在工作树（落笔前整树 786 = 268 `M` + 518 `??`；写入本批报 + 本行后 789 = 269 `M` + 520 `??`）。 |
+
+**批次30 残留（按阻塞程度）**：
+
+1. **现树 release = v25，裁定基线 = v24**：实读 `version=25` / `contentVersion=e57db8806ec4e2ae` / manifest `02f94acf…` / v2-25 `a1400dd1…`。v25 已判 blocked 但**未回滚**；后续按 v24 口径的构建会被 v25 内容污染。需裁定回滚到 v24（`backup-v25-dense/release/` + 5 张表的 v24 字节）或改写基线并重跑。
+2. **配额臂代码仍在树内**（6 `M` + 1 既有 `M`），已使 `DenseRecallAssembly.kt`（`db043099…`）与 `DenseRecallRerankerTest.kt`（`8a7026c2…`）偏离 v24 登记 sha（`c654d988…`/`c45add86…`）；回滚前任何设备构建都带救援配额分支。
+3. **F8/F9 全量未验**：渲染 v2 预注册 §7 未追加；只有 JVM 夹具（13/0 + 6/0），不能替代 129 条逐条 ≤2,000 / 标题必现 / 节选 >60。
+4. **v25 读数不可归因**：MISS 账本与配额臂逐字节相同（`9074bf7e…`/`d6fd7290…`）；要判 v25 须先把配额臂代码移出构建再重跑。
+5. **配额臂装置缺陷未修**：JVM 镜像未复刻“强制第 5 槽”，修复需独立预注册；本批未落盘。
+6. **升级演练不是 v24 口径**：`content_install_state=9f9e99ceec47cf8c`（v21）；v23→v24/v24→v25 升级未测。
+7. **16KB 只到冒烟**：DAO 4/4 + 0 FATAL 成立，但冷启日志中途截断、未直接读 `PAGE_SIZE`、x86_64 镜像不外推 arm64 真机。
+8. **遥测证据链不完整**：14 条 logcat 在，产生命令/测试类与 per-subject 聚合报告未在本批重跑。
+9. **门/一致性在混合树上执行**：8/8 与 2 PASS/1 FAIL 反映 v24+v25+配额臂+他线在飞件；C02 FAIL 为提交态不可复现；提交/回滚后须复跑。
+10. **薄料未全清**：只闭合 `必备实验仪器的原理及使用`；`导数定义在极限中的计算`（SKIP）与 `电磁说-麦克斯韦…`（NOT_FOUND）仍薄；`等和线` 边界单点仍 absent。
+11. **跨线 JVM 失败未归因**：最新 XML 聚合（03:20–03:52）为 `core/data` **1,455 tests / 1 failure**、`core/database` 241/0、`core/model` 574/0、`core/domain` 708/0；失败点是 untracked 的 4e.2 视觉线 `VisualSnapshotRestoreReadSideTest`（`expected null, but was:<asset-preview>`），测试源 03:54 又被编辑、当前源无复跑 ⇒ **UNVERIFIED**。KB 面未见失败，但不得写“JVM 全绿”。
+12. **未提交**：全部改动未提交；HEAD `dcfdc5b5`，落笔前工作树 786（268 `M` + 518 `??`），写入本批报 + 本行后 789（269 `M` + 520 `??`）。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD && git status --porcelain | wc -l        # dcfdc5b5…；786 落笔前 / 789 文书后（269 M / 520 ??）
+B=build/agent-batch30/backup-v25-dense/release
+sha256sum "$B"/moe-2025-{four-subjects-v1,update-manifest}.json \
+          "$B"/moe-2025-teaching-support-v2-{02,25,index}.json
+# 96246c78… / 2aa5e5e5… / ba443288… / d132dd68… / 2da0b9c5…
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"
+# 25 e57db8806ec4e2ae —— 现树已是 v25（未采纳），v24 需看 backup-v25-dense/release
+sed -n '8,12p;53,60p' build/agent-batch30/quota/SUMMARY.md   # parked；fused symdiff 5
+sha256sum build/agent-batch30/quota/device-fused-misses.txt build/agent-batch30/v25/device-fused-misses.txt
+# 两文件同 sha 9074bf7e… —— v25 读数=配额臂读数
+grep -c "FATAL EXCEPTION\|AndroidRuntime.*FATAL" \
+  build/ps16k-smoke-2026-11-01/logcat-{coldstart,dao-test}.txt    # 0 / 0
+grep -c "metric=material_coverage" build/telemetry-verify/logcat-kbobs.txt   # 14
+head -2 core/model/build/test-results/test/TEST-*TutorToolRoundBudgetTest.xml  # tests=10 failures=0
+cat build/agent-batch30/gates/summary.txt                   # 8/8 rc=0；red=0
+tail -12 build/agent-batch30/consistency.txt                # 3 门 2 PASS / 1 FAIL（C02）
+```

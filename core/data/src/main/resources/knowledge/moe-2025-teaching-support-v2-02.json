@@ -31781,7 +31781,7 @@
    "contentId": "phys-hj3-multimeter-structure",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:原子结构与波粒二象性",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:多用电表的结构与刻度盘",
      "role": "PRIMARY"
     }
    ]

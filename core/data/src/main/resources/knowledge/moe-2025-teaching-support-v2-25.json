@@ -129,6 +129,22 @@
    "licenseExpression": null,
    "licenseUri": null,
    "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-7b2647b433:math",
+   "subject": "MATH",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 27版五三",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "1959862E778D2A1D7D2EE9090A0A63B43B58107476639538E7E8AC1B178E0645",
+   "importedAtEpochMillis": 1789743702720,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
   }
  ],
  "materials": [
@@ -3624,6 +3640,52 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:泛素-蛋白酶体途径",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-e99f917373-005b",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "等和线的几何意义与平行关系",
+   "summaryMarkdown": "x+y 为定值时点 P 在一条与 BC 平行的直线上，这条直线就是等和线。",
+   "applicabilityMarkdown": "理解等和线的几何意义、判断 x+y 改变时点 P 所在直线的平移方向时使用。",
+   "contentMarkdown": "设 AP=xAB+yAC，其中 x、y 是实数。x+y=1 时点 P 在直线 BC 上；x+y=k（k 为定值）时点 P 在一条与 BC 平行的直线上，这条直线就是等和线。x+y 的值改变，等和线沿着从 A 到 BC 的方向平移：x+y=1/2 在 A 与 BC 之间，x+y=2 在 BC 的另一侧。求系数和 x+y 的范围，就是看 P 所在直线平移到哪两条等和线之间。",
+   "boundaryMarkdown": "必须先把 AP 写成同一组不共线基底 AB、AC 的线性组合才能谈系数和；等和线要与 BC 平行。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:math",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.数学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/重难突破/专题五 平面向量与复数/题型透析/讲解册PDF/专题五　平面向量与复数.pdf（块 e99f917373-005）",
+   "reviewedAtEpochMillis": 1793453818940,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-e99f917373-005b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等和线",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-phy-d72ac5caec-007b",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "多用电表要点",
+   "summaryMarkdown": "表盘三行刻度、红黑表笔插孔、机械调零与欧姆调零的分工，以及电流/电压/电阻测量端的量程对应。",
+   "applicabilityMarkdown": "复习多用电表的结构与使用要点时。",
+   "contentMarkdown": "表盘有三行刻度：最上行测电阻（左 ∞ 右 0，不均匀，从右向左越来越密），中间行测直流电流、直流电压和交变电压（均匀），最下行是交流 2.5 V 专用（不均匀）；选择开关周围标出测量功能与量程；红表笔插「＋」插孔、黑表笔插「－」插孔；机械调零用指针定位螺丝，使不接入电路时的指针指在左端 0 刻线，欧姆调零在测电阻前进行，两者不能混用；内部由小量程电流表与若干元件组成，电流测量端接 1 为大量程，电压测量端接 6 为大量程，电阻测量端接 4 为大倍率。",
+   "boundaryMarkdown": "机械零点在左端 0、欧姆零点在右端 0；测电阻前必须欧姆调零，换挡后重新调零。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-48689b61de:physics",
+   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第36讲 重点实验：用多用电表测量电学中的物理量（复习讲义）（安徽专用）（学生版）.docx（块 d72ac5caec-007）",
+   "reviewedAtEpochMillis": 1793453818940,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-phy-d72ac5caec-007b",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:必备实验仪器的原理及使用",
      "role": "PRIMARY"
     }
    ]

@@ -27,8 +27,8 @@ import org.junit.Test
  *    退到句号/分号，完整句子才留下，半句整句下沉。
  * 3. 没有公式、也没有句界可退时，行为必须与旧的 `take(limit)` 完全一致（保底，不改变形态）。
  *
- * 预算与结果形态冻结：仍是最多 5 行、每行 boundary ≤ 80 字、材料摘要 ≤ 60 字，整条结果
- * 仍受 `TutorToolOutcome.MAX_TOOL_RESULT_CHARS`（2,000 字符）约束。
+ * 预算与结果形态冻结：仍是最多 5 行、每行 boundary ≤ 80 字、材料正文节选 ≤ 120 字（标题原样），
+ * 整条结果仍受 `TutorToolOutcome.MAX_TOOL_RESULT_CHARS`（2,000 字符）约束。
  */
 class SafeTruncationTest {
 
@@ -53,16 +53,18 @@ class SafeTruncationTest {
         id: String,
         nodeId: String,
         summary: String,
+        content: String = "材料正文 $id。",
+        title: String = "T-$id",
     ) {
         teachingMaterials += KnowledgeTeachingMaterialRecord(
             materialId = id,
             stableCode = "stable:$id",
             subject = "MATH",
             materialType = KnowledgeTeachingMaterialType.CONCEPT_EXPLANATION.name,
-            title = "T-$id",
+            title = title,
             summaryMarkdown = summary,
             applicabilityMarkdown = "适用于当前知识点。",
-            contentMarkdown = "材料正文 $id。",
+            contentMarkdown = content,
             boundaryMarkdown = "只在题意满足时使用。",
             derivationKind = "REVIEWED_SYNTHESIS",
             sourceId = "source:$id",
@@ -244,22 +246,16 @@ class SafeTruncationTest {
         assertFalse("半句补充内容不得展示：$segment", segment.contains("补充："))
     }
 
-    // ---- 集成：材料摘要渲染走安全截断 -------------------------------------------------------
+    // ---- 集成：材料正文节选渲染走安全截断 ---------------------------------------------------
 
     @Test
-    fun materialDigestRetreatsBeforeAFormulaAndStillHonorsTheSixtyCharShapeAndTwoKBudget() = runBlocking {
-        val formula = "\$x^2+y^2=r^2\$"
-        val summary = "定位：教材第 12 页。推导过程如下：" + "讲解".repeat(15) +
-            formula + "，后续步骤不再展示。"
-        val formulaStart = summary.indexOf(formula)
-        assertTrue(
-            "夹具必须让 60 字切口落在公式内（formulaStart=$formulaStart）",
-            formulaStart < 60 && formulaStart + formula.length > 60,
-        )
+    fun lineBreaksInBoundaryAndContentAreFlattenedSoEachNodeStaysOnePhysicalLine() = runBlocking {
+        val boundary = "定位：教材第 12 页。\n范围：只讨论标准形式。"
+        val content = "第一行\r\n第二行\n第三行\r第四行。"
 
         val port = FakeStudyDatabasePort()
-        port.recallCandidates += node(0)
-        port.seedMaterial("m-formula", "kc-0", summary)
+        port.recallCandidates += node(0, boundary)
+        port.seedMaterial("m-flat", "kc-0", "扁平化摘要", content = content)
 
         val execution = runner(port).runTraced(
             knowledgeReadCall(),
@@ -267,19 +263,105 @@ class SafeTruncationTest {
         )
 
         val markdown = execution.outcome.summaryMarkdown
-        val digest = markdown.nodeLine(0).substringAfter("｜材料：")
-        assertEquals(
-            "材料摘要切口落在公式内时必须退到公式起点，整段公式下沉",
-            summary.substring(0, formulaStart),
-            digest,
-        )
-        assertTrue("材料摘要仍不得超过 60 字：${digest.length}", digest.length <= 60)
-        assertFalse("不得留下半个公式：$digest", digest.contains("$"))
-
-        // ④ 2k **字符**预算不变（TutorToolOutcome.MAX_TOOL_RESULT_CHARS = 2_000）。
-        assertEquals(2_000, TutorToolOutcome.MAX_TOOL_RESULT_CHARS)
+        assertFalse("结果里不得残留 \\r：$markdown", markdown.contains('\r'))
+        assertEquals("CR/LF 各归一为一个空格后仍是一条节点行", 2, markdown.lines().size)
+        val line = markdown.lines().single { it.startsWith("1. 知识点0") }
         assertTrue(
-            "工具结果必须仍在 2k 字符预算内，实际 ${markdown.length} 字符",
+            "边界与正文的换行都必须归一成半角空格：$line",
+            line.contains("：定位：教材第 12 页。 范围：只讨论标准形式。｜材料《T-m-flat》第一行 第二行 第三行 第四行。"),
+        )
+    }
+
+    @Test
+    fun materialExcerptRetreatsBeforeAFormulaAndStillHonorsTheHundredTwentyCharShapeAndTwoKBudget() =
+        runBlocking {
+            val formula = "\$x^2+y^2=r^2\$"
+            // 让 120 字切口落在公式内：公式起点 112、终点 126。
+            val content = "定位：教材第 12 页。推导过程如下：" + "讲解".repeat(50) +
+                formula + "，后续步骤不再展示。"
+            val formulaStart = content.indexOf(formula)
+            assertTrue(
+                "夹具必须让 120 字切口落在公式内（formulaStart=$formulaStart）",
+                formulaStart < 120 && formulaStart + formula.length > 120,
+            )
+
+            val port = FakeStudyDatabasePort()
+            port.recallCandidates += node(0)
+            port.seedMaterial("m-formula", "kc-0", "公式材料摘要", content = content)
+
+            val execution = runner(port).runTraced(
+                knowledgeReadCall(),
+                RoomTutorToolRunner.Context(subject = "MATH"),
+            )
+
+            val markdown = execution.outcome.summaryMarkdown
+            val excerpt = markdown.nodeLine(0).substringAfter("｜材料《T-m-formula》")
+            assertEquals(
+                "正文节选切口落在公式内时必须退到公式起点，整段公式下沉",
+                content.substring(0, formulaStart),
+                excerpt,
+            )
+            assertTrue("正文节选仍不得超过 120 字：${excerpt.length}", excerpt.length <= 120)
+            assertFalse("不得留下半个公式：$excerpt", excerpt.contains("$"))
+            assertFalse("summaryMarkdown 不再进结果：$markdown", markdown.contains("公式材料摘要"))
+
+            // ④ 2k **字符**预算不变（TutorToolOutcome.MAX_TOOL_RESULT_CHARS = 2_000）。
+            assertEquals(2_000, TutorToolOutcome.MAX_TOOL_RESULT_CHARS)
+            assertTrue(
+                "工具结果必须仍在 2k 字符预算内，实际 ${markdown.length} 字符",
+                markdown.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
+            )
+        }
+
+    /**
+     * F8/F9 的渲染侧最小闭环：标题逐字必现、正常节选 > 60 字、超预算时仍 ≤ 2k 且带裁剪注。
+     *
+     * 为什么这不是放宽：旧形态只断言摘要 `take(60)` 与「≤60」；新契约把下界也写死——
+     * 正文够长时节选必须真的超过 60 字（防止实现退回 60 字摘要），标题必须是完整原文
+     * （防止截断标题），发生裁剪时 footer 与裁剪计数一一对应（防止静默丢弃）。
+     */
+    @Test
+    fun longTitleIsKeptVerbatimWithExcerptsOverSixtyCharsAndOverBudgetTrimCarriesTheFooter() = runBlocking {
+        // 140 字标题：前 4 行全量，第 5 行只缩节选（算术：1760 − 11 − 4×354 − 233 − 1 = 99）。
+        val title = "题".repeat(140)
+        assertEquals(140, title.length)
+        val content = "正".repeat(2_000)
+
+        val port = FakeStudyDatabasePort()
+        repeat(5) { index ->
+            port.recallCandidates += node(index, "边".repeat(80))
+            port.seedMaterial("m-title-$index", "kc-$index", "摘要$index", content = content, title = title)
+        }
+
+        val execution = runner(port).runTraced(
+            knowledgeReadCall(),
+            RoomTutorToolRunner.Context(subject = "MATH"),
+        )
+        val markdown = execution.outcome.summaryMarkdown
+        val nodeLines = markdown.lines().filter { it.contains(". 知识点") }
+
+        assertEquals("裁剪只缩节选，不得丢节点：$markdown", 5, nodeLines.size)
+        val titleSegment = "｜材料《$title》"
+        nodeLines.forEachIndexed { index, line ->
+            assertTrue(
+                "节点 $index 的标题必须逐字出现且不被截断：$line",
+                line.contains(titleSegment),
+            )
+            val excerpt = line.substringAfter(titleSegment)
+            assertTrue("节点 $index 的正常节选必须 > 60 字（实际 ${excerpt.length}）：$line", excerpt.length > 60)
+        }
+        assertEquals(
+            "前 4 行节选满 120 字；第 5 行按预算缩到 99 字",
+            listOf(120, 120, 120, 120, 99),
+            nodeLines.map { it.substringAfter(titleSegment).length },
+        )
+        assertEquals(
+            "裁剪注必须与计数一致：0 项丢弃、1 行节选缩短",
+            "已截断：0 项未显示，1 行节选缩短。",
+            markdown.lines().last(),
+        )
+        assertTrue(
+            "裁剪后整条仍必须 ≤ 2k，实际 ${markdown.length}",
             markdown.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
         )
     }

@@ -19,8 +19,9 @@ fun TutorToolName.purposeDescription(
     figureMethods: Set<FigureGenerationMethod> = setOf(FigureGenerationMethod.IMAGE_MODEL),
 ): String = when (this) {
     TutorToolName.KNOWLEDGE_READ ->
-        "读取这道题相关知识点讲解材料（返回**代号**+名称+边界+绑定材料摘要；代号本会话有效，" +
-            "可直接作为 MASTERY_UPDATE 的 terms）"
+        "读取这道题相关知识点讲解材料（返回**代号**+名称+边界（≤80字）+绑定材料《标题》与" +
+            "正文节选（≤120字，公式/句界安全截断）；无材料节点显式标注「（该节点无材料）」；" +
+            "代号本会话有效，可直接作为 MASTERY_UPDATE 的 terms）"
     TutorToolName.NOTEBOOK_READ ->
         "检索错题本中匹配的错题（只查错题库：返回条目本身；掌握情况不在这里，" +
             "要了解某知识点掌握得怎样用 MASTERY_READ）。返回形态随本轮的披露范围：" +
@@ -98,7 +99,8 @@ private fun generateFigureDescription(figureMethods: Set<FigureGenerationMethod>
 fun TutorToolName.nativePurposeDescription(
     figureMethods: Set<FigureGenerationMethod> = setOf(FigureGenerationMethod.IMAGE_MODEL),
 ): String = when (this) {
-    TutorToolName.KNOWLEDGE_READ -> "读取当前题相关知识点讲解材料（返回代号+名称+边界+材料摘要）"
+    TutorToolName.KNOWLEDGE_READ ->
+        "读取当前题相关知识点讲解材料（返回代号+名称+边界+材料《标题》与正文节选≤120字；无材料显式标注）"
     TutorToolName.NOTEBOOK_READ ->
         "检索错题本中匹配的错题（只查错题库，不含掌握情况）。本轮披露范围不含别的题时只回条数（至多6条）" +
             "与检索词，不列条目标题——那时不要臆造或复述题目标题"

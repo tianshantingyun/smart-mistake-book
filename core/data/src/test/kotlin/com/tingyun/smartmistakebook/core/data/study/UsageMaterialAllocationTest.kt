@@ -63,6 +63,7 @@ class UsageMaterialAllocationTest {
         summary: String,
         role: KnowledgeMaterialNodeRole = KnowledgeMaterialNodeRole.PRIMARY,
         title: String = "T-$id",
+        content: String = "材料正文 $id。",
     ) {
         teachingMaterials += KnowledgeTeachingMaterialRecord(
             materialId = id,
@@ -72,7 +73,7 @@ class UsageMaterialAllocationTest {
             title = title,
             summaryMarkdown = summary,
             applicabilityMarkdown = "适用于当前知识点。",
-            contentMarkdown = "材料正文 $id。",
+            contentMarkdown = content,
             boundaryMarkdown = "只在题意满足时使用。",
             derivationKind = "REVIEWED_SYNTHESIS",
             sourceId = "source:$id",
@@ -101,14 +102,15 @@ class UsageMaterialAllocationTest {
         lines().first { it.startsWith("${index + 1}. 知识点$index") }
 
     private fun String.materialSegmentCount(): Int =
-        Regex("｜材料：").findAll(this).count()
+        Regex("｜材料《").findAll(this).count()
 
+    /** (材料标题, materialId)——标题可能相同（node4 的两条同为「00 表征」），id 用正文区分。 */
     private val expectedPerNodeMaterial = listOf(
-        "N0-concept",
-        "N1-method",
-        "N2-derivation-preferred",
-        "N3-misconception",
-        "N4-representation-a",
+        "02 概念讲解" to "m0-concept",
+        "zz 方法" to "m1-method",
+        "00 推导" to "m2-derivation",
+        "T-m3-misconception" to "m3-misconception",
+        "00 表征" to "m4-rep-a",
     )
 
     // ---- 1) 5 个有材料节点 → 各 1 条，且是教学优先序下的最佳那条 ------------------------------
@@ -165,12 +167,12 @@ class UsageMaterialAllocationTest {
             markdown.contains("（该节点无材料）"),
         )
 
-        expectedPerNodeMaterial.forEachIndexed { index, expected ->
+        expectedPerNodeMaterial.forEachIndexed { index, (title, materialId) ->
             val line = markdown.nodeLine(index)
             assertEquals("节点 $index 只应有 1 个材料段：$line", 1, line.materialSegmentCount())
             assertTrue(
-                "节点 $index 必须取教学优先序下的最佳材料 $expected，实际行：$line",
-                line.contains("｜材料：$expected"),
+                "节点 $index 必须取教学优先序下的最佳材料《$title》($materialId)，实际行：$line",
+                line.contains("｜材料《$title》材料正文 $materialId。"),
             )
         }
     }
@@ -202,14 +204,17 @@ class UsageMaterialAllocationTest {
                 "节点 $index 没有绑定材料，必须显式渲染「（该节点无材料）」，实际行：$line",
                 line.contains("｜（该节点无材料）"),
             )
-            assertFalse("无材料节点不得伪造材料段：$line", line.contains("｜材料："))
+            assertFalse("无材料节点不得伪造材料段：$line", line.contains("｜材料《"))
         }
         assertEquals("恰好两个无材料节点带标记：$markdown", 2, Regex("（该节点无材料）").findAll(markdown).count())
 
         // 有料节点不受无材料节点影响，仍各得其 1 条。
-        listOf(0 to "N0-material", 2 to "N2-material", 4 to "N4-material").forEach { (index, summary) ->
+        listOf(0 to "m0", 2 to "m2", 4 to "m4").forEach { (index, materialId) ->
             val line = markdown.nodeLine(index)
-            assertTrue("节点 $index 的材料不得丢失：$line", line.contains("｜材料：$summary"))
+            assertTrue(
+                "节点 $index 的材料不得丢失：$line",
+                line.contains("｜材料《T-$materialId》材料正文 $materialId。"),
+            )
             assertFalse("有材料节点不得出现无材料标记：$line", line.contains("（该节点无材料）"))
         }
 
@@ -218,7 +223,7 @@ class UsageMaterialAllocationTest {
         assertEquals(5, nodeLines.size)
         assertTrue(
             "每个节点行都必须带材料或显式标记：$markdown",
-            nodeLines.all { it.contains("｜材料：") || it.contains("｜（该节点无材料）") },
+            nodeLines.all { it.contains("｜材料《") || it.contains("｜（该节点无材料）") },
         )
     }
 
@@ -277,51 +282,61 @@ class UsageMaterialAllocationTest {
         )
     }
 
-    // ---- 4) 渲染（c）：take(60) 与 2k 字符预算不变 -------------------------------------------
+    // ---- 4) 渲染（c）：正文节选 take(120)、正常路径不写截断注、整条仍在 2k 内 -----------------
 
-    /** 长度 > 60 的摘要：前 60 个字符是渲染上界，尾部标记用于证明"第 61 字符起没有进工具结果"。 */
-    private fun longSummary(index: Int): String =
-        "材料摘要$index " + "讲解内容".repeat(20) + "末尾标记$index"
+    /** 长度 > 120 的正文：前 120 个字符是渲染上界，尾部标记证明"第 121 字符起没有进工具结果"。 */
+    private fun longContent(index: Int): String =
+        "材料正文$index " + "讲解内容".repeat(30) + "末尾标记$index"
 
     @Test
-    fun materialDigestStillTakesSixtyCharsAndTheResultStaysWithinTwoThousandChars() = runBlocking {
-        val port = FakeStudyDatabasePort()
-        repeat(5) { index -> port.recallCandidates += node(index) }
-        val summaries = (0 until 5).map { index ->
-            val summary = longSummary(index)
-            port.seedMaterial("long-$index", "kc-$index", KnowledgeTeachingMaterialType.CONCEPT_EXPLANATION, summary)
-            summary
+    fun materialExcerptStillTakesOneHundredTwentyCharsWithoutTruncationNoteAndStaysWithinTwoThousandChars() =
+        runBlocking {
+            val port = FakeStudyDatabasePort()
+            repeat(5) { index -> port.recallCandidates += node(index) }
+            val contents = (0 until 5).map { index ->
+                val content = longContent(index)
+                port.seedMaterial(
+                    "long-$index",
+                    "kc-$index",
+                    KnowledgeTeachingMaterialType.CONCEPT_EXPLANATION,
+                    "摘要$index",
+                    content = content,
+                )
+                content
+            }
+
+            val execution = runner(port).runTraced(
+                knowledgeReadCall(),
+                RoomTutorToolRunner.Context(subject = "MATH"),
+            )
+
+            val markdown = execution.outcome.summaryMarkdown
+            assertEquals(5, execution.resultCount)
+            // ② 单查询材料总条数 = 5（5 个有材料节点各 1 条；不是候选域，也不是旧的跨节点合计）。
+            assertEquals(
+                "单查询 5 个节点 → 材料段必须恰好 5 条：$markdown",
+                5,
+                markdown.materialSegmentCount(),
+            )
+
+            contents.forEachIndexed { index, content ->
+                val line = markdown.nodeLine(index)
+                val excerpt = line.substringAfter("｜材料《T-long-$index》")
+                assertEquals("节点 $index 的节选必须仍是 contentMarkdown.take(120)", content.take(120), excerpt)
+                assertEquals("节选段长度必须是 120 字符", 120, excerpt.length)
+                assertFalse("第 121 个字符起不得进工具结果：$line", excerpt.contains("末尾标记"))
+            }
+
+            // 正常路径（5 行放得下）不写"已截断"注：footer 只在真实裁剪时出现。
+            assertFalse("未裁剪时不得出现截断注：$markdown", markdown.contains("已截断"))
+
+            // ④ 2k **字符**预算保留（TutorToolOutcome.MAX_TOOL_RESULT_CHARS = 2_000）。
+            assertEquals(2_000, TutorToolOutcome.MAX_TOOL_RESULT_CHARS)
+            assertTrue(
+                "工具结果必须仍在 2k 字符预算内，实际 ${markdown.length} 字符",
+                markdown.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
+            )
         }
-
-        val execution = runner(port).runTraced(
-            knowledgeReadCall(),
-            RoomTutorToolRunner.Context(subject = "MATH"),
-        )
-
-        val markdown = execution.outcome.summaryMarkdown
-        assertEquals(5, execution.resultCount)
-        // ② 单查询材料总条数 = 5（5 个有材料节点各 1 条；不是候选域，也不是旧的跨节点合计）。
-        assertEquals(
-            "单查询 5 个节点 → 材料段必须恰好 5 条：$markdown",
-            5,
-            markdown.materialSegmentCount(),
-        )
-
-        summaries.forEachIndexed { index, summary ->
-            val line = markdown.nodeLine(index)
-            val digest = line.substringAfter("｜材料：")
-            assertEquals("节点 $index 的摘要必须仍是 summaryMarkdown.take(60)", summary.take(60), digest)
-            assertEquals("摘要段长度必须是 60 字符", 60, digest.length)
-            assertFalse("第 61 个字符起不得进工具结果：$line", digest.contains("末尾标记"))
-        }
-
-        // ④ 2k **字符**预算保留（TutorToolOutcome.MAX_TOOL_RESULT_CHARS = 2_000）。
-        assertEquals(2_000, TutorToolOutcome.MAX_TOOL_RESULT_CHARS)
-        assertTrue(
-            "工具结果必须仍在 2k 字符预算内，实际 ${markdown.length} 字符",
-            markdown.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
-        )
-    }
 
     // ---- 5) 10 个召回节点：仍每节点 1 条，总材料预算 = 渲染节点数 -----------------------------
 
@@ -371,7 +386,7 @@ class UsageMaterialAllocationTest {
             assertEquals("节点 $index 必须恰好 1 条材料：$line", 1, line.materialSegmentCount())
             assertTrue(
                 "节点 $index 必须取教学优先的讲解而不是误区：$line",
-                line.contains("｜材料：N$index-concept"),
+                line.contains("｜材料《01 讲解》材料正文 ten-$index-concept。"),
             )
         }
         assertFalse(

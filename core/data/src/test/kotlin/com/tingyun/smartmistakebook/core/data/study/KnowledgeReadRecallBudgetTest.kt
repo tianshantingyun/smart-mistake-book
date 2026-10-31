@@ -79,7 +79,7 @@ class KnowledgeReadRecallBudgetTest {
         title = "T-$id",
         summaryMarkdown = summary,
         applicabilityMarkdown = "",
-        contentMarkdown = "",
+        contentMarkdown = "正文：$id",
         boundaryMarkdown = "",
         derivationKind = "REVIEWED_SYNTHESIS",
         sourceId = "source:$id",
@@ -230,18 +230,187 @@ class KnowledgeReadRecallBudgetTest {
             .filter { NUMBERED_LINE.containsMatchIn(it) }
         assertEquals(3, lines.size)
 
-        assertTrue("kc-0 应取教学优先的概念讲解：${lines[0]}", lines[0].contains("｜材料：N0-摘要"))
+        assertTrue(
+            "kc-0 应取教学优先的概念讲解（标题 + 正文节选）：${lines[0]}",
+            lines[0].contains("｜材料《T-m0-concept》正文：m0-concept"),
+        )
         assertFalse("kc-0 不得取误区材料：${lines[0]}", lines[0].contains("N0-误区"))
+        assertFalse("summaryMarkdown 不再进结果：${lines[0]}", lines[0].contains("N0-摘要"))
         assertTrue("kc-1 无材料必须显式标注：${lines[1]}", lines[1].contains("｜（该节点无材料）"))
-        assertFalse("kc-1 不得伪造材料段：${lines[1]}", lines[1].contains("｜材料："))
-        assertTrue("kc-2 应得到自己的材料：${lines[2]}", lines[2].contains("｜材料：N2-摘要"))
+        assertFalse("kc-1 不得伪造材料段：${lines[1]}", lines[1].contains("｜材料《"))
+        assertTrue(
+            "kc-2 应得到自己的材料：${lines[2]}",
+            lines[2].contains("｜材料《T-m2-method》正文：m2-method"),
+        )
 
         val markdown = execution.outcome.summaryMarkdown
-        assertEquals(2, Regex("｜材料：").findAll(markdown).count())
+        assertEquals(2, Regex("｜材料《").findAll(markdown).count())
         assertEquals(1, Regex("｜（该节点无材料）").findAll(markdown).count())
         assertTrue(
             "工具结果仍受单工具 2k 预算约束",
             markdown.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
+        )
+    }
+
+    /**
+     * 无材料标记是**沿用**的契约（预注册 §1.1：标记文本不变），不随本次“标题 + 节选”改版漂移。
+     *
+     * 为什么这不是放宽：旧测试只 `contains` 标记；这里把节点行的尾巴逐字锁成
+     * `｜（该节点无材料）`，并同时断言没有材料段——标记既不能改字，也不能被材料段顶替。
+     */
+    @Test
+    fun aMaterialslessNodeKeepsTheUnchangedExplicitMarkerAndHasNoMaterialSegment() = runBlocking {
+        val port = RecordingPort()
+        port.recallCandidates += node(0)
+        port.recallCandidates += node(1)
+        port.teachingMaterials += teachingMaterial(
+            "m0",
+            KnowledgeTeachingMaterialType.CONCEPT_EXPLANATION,
+            "N0-摘要",
+        )
+        port.materialNodeBindings += materialBinding("m0", "kc-0")
+
+        val execution = runner(port).runTraced(
+            knowledgeReadCall(terms = listOf("单调性")),
+            RoomTutorToolRunner.Context(subject = "MATH"),
+        )
+
+        val lines = execution.outcome.summaryMarkdown.lines()
+            .filter { NUMBERED_LINE.containsMatchIn(it) }
+        assertEquals(2, lines.size)
+        assertTrue("有材料节点仍渲染材料段：${lines[0]}", lines[0].contains("｜材料《T-m0》正文：m0"))
+
+        val marker = "｜（该节点无材料）"
+        assertEquals(
+            "无材料节点的尾巴必须逐字等于沿用标记：${lines[1]}",
+            marker,
+            lines[1].substringAfter("知识点1"),
+        )
+        assertFalse("无材料节点不得出现材料段：${lines[1]}", lines[1].contains("｜材料"))
+        assertEquals(
+            "标记全条只出现一次，且没有改名：${execution.outcome.summaryMarkdown}",
+            1,
+            Regex(Regex.escape(marker)).findAll(execution.outcome.summaryMarkdown).count(),
+        )
+    }
+
+    // ---- 2k 渲染门：预算不足先缩节选、缩不下才丢行，且两种裁剪都写进尾部注 --------------------
+
+    /** 极值夹具：24 字节点名、80 字边界、标题与正文长度由测试指定。 */
+    private fun budgetNode(index: Int) = KnowledgeNodeSeedRecord(
+        knowledgeNodeId = "kc-b$index",
+        stableCode = "kc-b$index",
+        subject = "MATH",
+        displayName = "点".repeat(24),
+        parentKnowledgeNodeId = null,
+        taxonomyVersion = "taxonomy-v1",
+        createdAtEpochMillis = 1_000,
+        canonicalName = "点".repeat(24),
+        nodeKind = "CONCEPT",
+        granularity = "ATOMIC",
+        boundaryMarkdown = "边".repeat(80),
+        verificationStatus = "CURATED",
+    )
+
+    private fun RecordingPort.seedBudgetMaterial(
+        nodeId: String,
+        materialId: String,
+        title: String,
+        content: String,
+    ) {
+        teachingMaterials += KnowledgeTeachingMaterialRecord(
+            materialId = materialId,
+            stableCode = "stable:$materialId",
+            subject = "MATH",
+            materialType = KnowledgeTeachingMaterialType.CONCEPT_EXPLANATION.name,
+            title = title,
+            summaryMarkdown = "摘要",
+            applicabilityMarkdown = "",
+            contentMarkdown = content,
+            boundaryMarkdown = "",
+            derivationKind = "REVIEWED_SYNTHESIS",
+            sourceId = "source",
+            sourceLocator = "source",
+            contentFingerprint = "A".repeat(64),
+            reviewedAtEpochMillis = 1_000,
+        )
+        materialNodeBindings += materialBinding(materialId, nodeId)
+    }
+
+    private fun fiveBudgetNodes(
+        port: RecordingPort,
+        title: String,
+        content: String,
+    ) {
+        repeat(5) { index ->
+            port.recallCandidates += budgetNode(index)
+            port.seedBudgetMaterial("kc-b$index", "mb$index", title, content)
+        }
+    }
+
+    private fun runBudgetRead(port: RecordingPort): TutorToolExecution = runBlocking {
+        runner(port).runTraced(
+            knowledgeReadCall(terms = listOf("单调性")),
+            RoomTutorToolRunner.Context(
+                subject = "MATH",
+                knowledgeCodeRegistry = TutorKnowledgeCodeRegistry(),
+            ),
+        )
+    }
+
+    @Test
+    fun anOverBudgetNodeShortensOnlyItsExcerptAndSaysSoInTheFooter() {
+        val port = RecordingPort()
+        fiveBudgetNodes(port, title = "题".repeat(120), content = "正".repeat(2_000))
+
+        val text = runBudgetRead(port).outcome.summaryMarkdown
+        val nodeLines = text.lines().filter { it.startsWith("K") }
+
+        // 头与行首逐字：代号通道开启时 header 固定，行首即已分配的 K 代号。
+        assertEquals(
+            "知识点候选 5 个（代号 K1..Kn 本会话有效，写掌握度时 terms 填代号）：",
+            text.lines().first(),
+        )
+        assertTrue("首行必须以 K1 代号开头：${nodeLines.first()}", nodeLines.first().startsWith("K1. "))
+        assertTrue("末行必须以 K5 代号开头：${nodeLines.last()}", nodeLines.last().startsWith("K5. "))
+
+        // 前 4 行全量：`K1. ` 4 + 名称 24 + `：` 1 + 边界 80 + `｜材料《` 4 + 标题 120 + `》` 1 + 节选 120。
+        assertEquals("5 个节点都必须出现（第 5 个只缩节选、不丢行）：$text", 5, nodeLines.size)
+        assertEquals(354, nodeLines.first().length)
+        assertEquals(354, nodeLines[3].length)
+        // 第 5 行：skeleton 234 + 节选缩到 avail = 1760 - 1464 - 234 - 1 = 61。
+        assertEquals(234 + 61, nodeLines[4].length)
+        assertTrue("第 5 行必须保住节点、标题与边界，只缩节选：${nodeLines[4]}", nodeLines[4].endsWith("正".repeat(61)))
+        assertEquals(
+            "footer 必须与裁剪一一对应：0 行丢弃、1 行节选缩短",
+            "已截断：0 项未显示，1 行节选缩短。",
+            text.lines().last(),
+        )
+        assertTrue(
+            "裁剪后整条仍必须 ≤ 2k，实际 ${text.length}",
+            text.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
+        )
+    }
+
+    @Test
+    fun aNodeWhoseSkeletonNoLongerFitsIsCountedAsDroppedInsteadOfVanishingSilently() {
+        val port = RecordingPort()
+        fiveBudgetNodes(port, title = "题".repeat(183), content = "正".repeat(2_000))
+
+        val text = runBudgetRead(port).outcome.summaryMarkdown
+        val nodeLines = text.lines().filter { it.startsWith("K") }
+
+        // 单行 417（成本 418）：4 行后余 44 < skeleton 297，第 5 行整行丢弃但计数。
+        assertEquals("前 4 行全量、第 5 行丢弃：$text", 4, nodeLines.size)
+        assertEquals(4 + 1, nodeLines.size + 1) // displayed + dropped = 5，0 静默丢失
+        assertEquals(
+            "footer 必须报告被丢的那 1 项",
+            "已截断：1 项未显示，0 行节选缩短。",
+            text.lines().last(),
+        )
+        assertTrue(
+            "裁剪后整条仍必须 ≤ 2k，实际 ${text.length}",
+            text.length <= TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
         )
     }
 

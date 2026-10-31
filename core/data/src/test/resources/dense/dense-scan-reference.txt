@@ -3,7 +3,7 @@
 # 节点分口径：该节点全部向量 cosine 的 max；cosine = scale[r] * Σ_i int8[r][i] * query[i]（float64）
 # 查询向量：build/dense-model/int8-queries.npy（同一 int8 ONNX 输出）的 L2 归一化值
 # 端侧只要求与 scoreKm 在 1e-5 内一致（差值是累加顺序）；scoreBlas 是同数据的 fp32 对照
-[asset]	sha256=bbcae9ecaedc5d6da868447e793b3ef7b6f16070478288aaba59626443bb527b	magic=SMBV	version=1	dim=512	count=44119	dtypeCode=1	idsBytesLength=3320445	expectedBytes=26085873
+[asset]	sha256=70329115240fe6beafcb88e6fd85d80585fd64f8b22dbe284730f742b0a2a1a5	magic=SMBV	version=1	dim=512	count=44121	dtypeCode=1	idsBytesLength=3320586	expectedBytes=26087046
 [quantize]	simple	0.5 -0.25 0.125 -1.0	64.0 -32.0 16.0 -127.0	0.007874015718698502	极值 -1.0 ⇒ scale=1/127
 [quantize]	zero_vector	0.0 0.0 0.0	0.0 0.0 0.0	1.0	退化：max=0 ⇒ scale=1.0、q 全 0（不产生 NaN）
 [quantize]	rounding	0.9 0.1 -0.7	127.0 14.0 -99.0	0.007086614146828651	四舍五入到最近整数格
@@ -3140,7 +3140,7 @@
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:实验基础知识	0.35124571303158414	0.35124571303158414
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:常见的导出单位	0.2663162583732922	0.2663162583732922
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:系统误差	0.49716487975737816	0.4971648797573781
-[node]	kb:moe-2025-four-subjects-v1:physics:atomic:必备实验仪器的原理及使用	0.2662468277831047	0.26624682778310466
+[node]	kb:moe-2025-four-subjects-v1:physics:atomic:必备实验仪器的原理及使用	0.35942160367469433	0.35942160367469433
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:电表的改装	0.3951019180435585	0.39510191804355854
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:电表改装问题的两点提醒	0.356528934996009	0.356528934996009
 [node]	kb:moe-2025-four-subjects-v1:physics:atomic:逐差法原理	0.5348860504005296	0.5348860504005297

@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.CommitTutorSessionCommand
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtractor
+import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATES
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
@@ -104,6 +105,15 @@ internal fun safeTruncateMarkdown(text: String, limit: Int): String {
     }
     return if (sentenceEnd != null) text.substring(0, sentenceEnd + 1) else text.take(limit)
 }
+
+/**
+ * 把 `\r\n` / `\r` / `\n` 各归一成**一个半角空格**，其余字符不动。
+ *
+ * KNOWLEDGE_READ 要求每节点恰好一条物理行（12% 的材料正文含真实换行）；必须先归一、再走
+ * [safeTruncateMarkdown]，否则 120 字的切口会把换行留在行内。
+ */
+private fun flattenLineBreaks(text: String): String =
+    text.replace("\r\n", " ").replace('\r', ' ').replace('\n', ' ')
 
 /** [text] 里所有数学公式的区间（`start until endExclusive`），未闭合的公式延伸到文本末尾。 */
 private fun mathSpans(text: String): List<IntRange> {
@@ -277,8 +287,8 @@ internal class RoomTutorToolRunner(
         val roundDisclosesQuestionCandidates: Boolean = false,
         /**
          * 会话代号注册表（单一代号通道，D5）：
-         * - KNOWLEDGE_READ 对新发现节点追加披露（分配/复用代号），输出只给代号+名称+摘要，
-         *   原始 id 不进结果文本；
+         * - KNOWLEDGE_READ 对新发现节点追加披露（分配/复用代号），输出只给代号+名称+边界+
+         *   材料《标题》与正文节选，原始 id 不进结果文本；
          * - MASTERY_UPDATE 的 `terms[0]` 是代号，由此解析回原始 id 后才进门（anchor_class
          *   按角色机械确立，非 CONFIRMED 的权重减半在写入时施加）。
          * null = 直调/无会话（大厅）：KNOWLEDGE_READ 无代号可发（回退序号形态），
@@ -370,7 +380,9 @@ internal class RoomTutorToolRunner(
         )
 
     /**
-     * 读知识点（KNOWLEDGE_READ）：检索 → 返回**代号 + 名称 + 边界前 80 字 + 绑定材料摘要**。
+     * 读知识点（KNOWLEDGE_READ）：检索 → 返回**代号 + 名称 + 边界（≤80 字）+ 绑定材料
+     * 《标题》与正文节选（≤120 字）**。整条结果按 [TutorToolOutcome.MAX_TOOL_RESULT_CHARS]
+     * 逐行裁剪；预算不足时先缩节选、缩不下才丢行，并注明裁剪计数。
      *
      * 路由 = **A2：金标/设备融合臂同构的 B512 融合**（`limit = MAX_KNOWLEDGE_RECALL_CANDIDATES`
      * + 原始题面给稠密腿，`RoomKnowledgeBaseStore` 在 512 候选域内重排），**查询后立刻
@@ -387,8 +399,8 @@ internal class RoomTutorToolRunner(
      * 单一代号通道（D5，关审计断链 E-03）：此前只回"名字+边界"，模型没有任何渠道拿到可写入的
      * 知识点标识，MASTERY_UPDATE 因此在聊天路径结构性不可达。现在每个返回节点都带本会话代号
      * （新发现节点在此**追加披露**——注册表分配 K(n+1) 起的新码，仓库把追加集写回下一轮输入
-     * 的映射表），原始 id 不进结果文本。材料摘要让模型"知道这个知识点讲什么"而不必再发一轮
-     * 查询，单条预算内（总结果仍受 2k 轮工具结果预算约束）。
+     * 的映射表），原始 id 不进结果文本。材料《标题》与正文节选让模型"知道这个知识点讲什么"
+     * 而不必再发一轮查询，单条预算内（总结果仍受 2k 轮工具结果预算约束）。
      */
     private suspend fun knowledgeRead(
         subject: String,
@@ -434,8 +446,15 @@ internal class RoomTutorToolRunner(
             )
         }
         val registry = context.knowledgeCodeRegistry
-        val materialSummaries = nodeMaterialSummaries(subject, nodes)
-        val lines = nodes.mapIndexed { index, node ->
+        val materials = nodeMaterialRecords(subject, nodes)
+        val header = if (registry != null) {
+            "知识点候选 ${nodes.size} 个（代号 K1..Kn 本会话有效，写掌握度时 terms 填代号）："
+        } else {
+            "知识点候选 ${nodes.size} 个："
+        }
+        val body = BudgetedLines(TutorToolOutcome.MAX_TOOL_RESULT_CHARS - TRUNCATION_NOTE_RESERVE_CHARS)
+        body.add(header)
+        nodes.forEachIndexed { index, node ->
             val code = registry?.assign(
                 TutorKnowledgeCode(
                     knowledgeNodeId = node.knowledgeNodeId,
@@ -444,22 +463,31 @@ internal class RoomTutorToolRunner(
                 ),
             )
             val marker = code ?: "${index + 1}"
-            val boundary = node.boundaryMarkdown?.let { safeTruncateMarkdown(it, 80) }
-            val material = materialSummaries[node.knowledgeNodeId]
-                ?.let { "｜材料：${safeTruncateMarkdown(it, KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS)}" }
-                ?: "｜$KNOWLEDGE_READ_NO_MATERIAL_MARKER"
-            "$marker. ${node.displayName}${boundary?.let { "：$it" } ?: ""}$material"
-        }
-        val header = if (registry != null) {
-            "知识点候选 ${nodes.size} 个（代号 K1..Kn 本会话有效，写掌握度时 terms 填代号）："
-        } else {
-            "知识点候选 ${nodes.size} 个："
+            val boundary = node.boundaryMarkdown?.let { safeTruncateMarkdown(flattenLineBreaks(it), 80) }
+            val prefix = "$marker. ${node.displayName}${boundary?.let { "：$it" } ?: ""}"
+            val material = materials[node.knowledgeNodeId]
+            if (material == null) {
+                body.add("$prefix｜$KNOWLEDGE_READ_NO_MATERIAL_MARKER")
+            } else {
+                // 标题原样（不截断、不改写）；只让正文节选参与预算收缩。
+                body.addWithTrimmableExcerpt(
+                    skeleton = "$prefix｜材料《${material.title}》",
+                    excerpt = safeTruncateMarkdown(
+                        flattenLineBreaks(material.contentMarkdown),
+                        KNOWLEDGE_READ_MATERIAL_EXCERPT_CHARS,
+                    ),
+                    maxExcerptChars = KNOWLEDGE_READ_MATERIAL_EXCERPT_CHARS,
+                )
+            }
         }
         return TutorToolExecution(
             outcome = TutorToolOutcome(
                 tool = TutorToolName.KNOWLEDGE_READ,
                 ok = true,
-                summaryMarkdown = "$header\n${lines.joinToString("\n")}",
+                summaryMarkdown = body.render(
+                    truncationNote = "已截断：${body.droppedCount} 项未显示，" +
+                        "${body.trimmedCount} 行节选缩短。",
+                ),
             ),
             resultCount = nodes.size,
         )
@@ -467,18 +495,18 @@ internal class RoomTutorToolRunner(
 
     /**
      * 每个节点取一条**教学优先序**（`role` → `material_type` → `title` → `material_id`）下的
-     * 最佳材料摘要，供 KNOWLEDGE_READ 结果内联；无绑定材料的节点不出现在返回值里，由渲染侧
-     * 输出显式标记。只读 summary 字段（材料全文走教学参考/材料卷通道），保持 2k 预算内。
+     * 最佳材料；无绑定材料的节点不出现在返回值里，由渲染侧输出显式标记。选择语义零改
+     * （仍走 `readBestKnowledgeTeachingMaterialPerNode`），本函数只负责把 record 交给渲染。
      */
-    private suspend fun nodeMaterialSummaries(
+    private suspend fun nodeMaterialRecords(
         subject: String,
         nodes: List<KnowledgeNodeSeedRecord>,
-    ): Map<String, String> {
+    ): Map<String, KnowledgeTeachingMaterialRecord> {
         val nodeIds = nodes.mapTo(linkedSetOf()) { it.knowledgeNodeId }
         return port.readBestKnowledgeTeachingMaterialPerNode(
             subject = subject,
             knowledgeNodeIds = nodeIds,
-        ).mapValues { (_, material) -> material.summaryMarkdown }
+        )
     }
 
     private companion object {
@@ -489,7 +517,9 @@ internal class RoomTutorToolRunner(
          * 512 个候选绝不进结果文本（单工具结果仍受 2k 预算约束）。
          */
         const val KNOWLEDGE_READ_NODE_LIMIT = 5
-        const val KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS = 60
+
+        /** 正文节选的字符上限；预算不足时只在 [1, 该值] 内继续缩短（标题原样不动）。 */
+        const val KNOWLEDGE_READ_MATERIAL_EXCERPT_CHARS = 120
 
         /** 无绑定材料节点的显式标记：材料段不得静默省略（"无材料"与"未取到"必须可区分）。 */
         const val KNOWLEDGE_READ_NO_MATERIAL_MARKER = "（该节点无材料）"
@@ -879,6 +909,8 @@ internal class RoomTutorToolRunner(
         private var usedChars = 0
         var droppedCount = 0
             private set
+        var trimmedCount = 0
+            private set
 
         fun add(line: String) {
             val cost = line.length + 1
@@ -890,9 +922,34 @@ internal class RoomTutorToolRunner(
             usedChars += cost
         }
 
+        /**
+         * 预算不足时先缩短 [excerpt]（仍走 [safeTruncateMarkdown]，不切坏公式/半句），
+         * 缩不下才整行丢弃；两种裁剪都计数。
+         *
+         * 消灭的失败：整行丢弃会让模型把被丢的节点当成"不存在"（静默缺失）。所以优先保住
+         * `skeleton`（节点存在、绑的是哪份材料），只让正文节选让步。
+         */
+        fun addWithTrimmableExcerpt(skeleton: String, excerpt: String, maxExcerptChars: Int) {
+            val full = skeleton + excerpt
+            if (usedChars + full.length + 1 <= budgetChars) {
+                lines += full
+                usedChars += full.length + 1
+                return
+            }
+            val available = budgetChars - usedChars - skeleton.length - 1
+            if (available >= 1) {
+                val shortened = safeTruncateMarkdown(excerpt, minOf(maxExcerptChars, available))
+                lines += skeleton + shortened
+                usedChars += skeleton.length + shortened.length + 1
+                trimmedCount += 1
+            } else {
+                droppedCount += 1
+            }
+        }
+
         fun render(truncationNote: String): String = buildString {
             append(lines.joinToString("\n"))
-            if (droppedCount > 0) {
+            if (droppedCount + trimmedCount > 0) {
                 append('\n')
                 append(truncationNote)
             }
