@@ -79,6 +79,9 @@ internal class RoomStudyDatabase(
 
     /** 内容调和是独立关注点，与读取/导入分开（见 `RoomKnowledgeContentReconciler` 的 KDoc）。 */
     private val contentReconciler = RoomKnowledgeContentReconciler(database, searchIndexCompleteness)
+
+    /** F6：导入期 pragma 调优与特征表二级索引窗口（见 `RoomKnowledgeImportMaintenance`）。 */
+    private val knowledgeImportMaintenance = RoomKnowledgeImportMaintenance(database)
     private val backupSupport = RoomBackupSupportStore(database)
     private val studentModel = RoomStudentModelStore(database)
     private val pendingCaptures = RoomPendingCaptureStore(database)
@@ -736,6 +739,15 @@ internal class RoomStudyDatabase(
 
     override suspend fun recordContentInstallState(record: ContentInstallStateRecord) =
         contentReconciler.recordContentInstallState(record)
+
+    override suspend fun <R> withKnowledgeImportTuning(block: suspend () -> R): R =
+        knowledgeImportMaintenance.withImportTuning(block)
+
+    override suspend fun ensureKnowledgeSearchFeatureIndexes() =
+        knowledgeImportMaintenance.ensureFeatureIndexes()
+
+    override suspend fun <R> withDeferredKnowledgeSearchFeatureIndexes(block: suspend () -> R): R =
+        knowledgeImportMaintenance.withDeferredFeatureIndexes(block)
 
     override suspend fun applyReviewedKnowledgePack(
         command: ApplyReviewedKnowledgePackCommand,

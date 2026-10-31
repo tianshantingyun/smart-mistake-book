@@ -816,3 +816,14 @@ cat build/agent-batch23/device/zero-drift.json
 - **门**：八门 **8/8 rc=0、overall red=0**；批次27 仍红的 `kb_checks` / `slice` / `py_suite` 本批全绿；设备仪器化 `OK (1 test)`、JVM `BUILD SUCCESSFUL`（`gates/summary.txt`；`v23/device-test-result.txt`；`v23/step5_run_jvm.log`）。判据/阈值/判官/金标未改；v23 基线常量按 adopted 结果登记，不是放宽门槛。
 - **F6**：v23 本轮首启全量 **127,014 ms**（`v23/device-logcat.txt:1609`），仍 **>60 s ⇒ NOT_MET**；F7 仍为 JVM 11/11 PASS、设备端 UNVERIFIED。因此 **v1.2 未全部达标**，不得写成“性能已达标”。
 - **词面观测**：101/129（A1 102/129，数列章 6/11 vs 7/11）；预注册只对融合设门槛，该 −1 记录为观测，不构成回滚依据（`v23-final.md:28`）。
+
+## 15. 批次29 状态（F6 达成；内容包仍 v23，不刷新内容基线）
+
+> 本节只追加不改写 §1–§14。依据：`build/agent-batch29/`（`baseline/identity.md`、`gates/summary.txt`、`consistency.txt`）、`build/f6-retest-20261031/`、`docs/kb-batch29-2026-10-31.md`。
+
+- **F6 = MET（绿）**：导入路径优化后，三次同口径冷装（同 APK `2c9227b6…` / 同 `emulator-5584` / API 34 / 同 v23 内容包）`install finished in` **47,504 / 51,775 / 51,646 ms**，中位 51,646、最大 51,775，**三次全部 ≤60 s**（`build/f6-retest-20261031/run{1,2,3}/install-finished.txt`）。四科索引段 88,913 → 5,436–5,928 ms（−93.3% ~ −93.9%）。
+- **内容基线不变**：APK 内主包 `051141e2…`、`.vec` `bbcae9ec…`、manifest `14fe7b3a…`、25 sidecar 与 §14 v23 登记逐字相同（本文书轮 `unzip -p | sha256sum`）；本批只改导入期代码，不改包/材料/别名/判定表。
+- **等价性**：`KnowledgeSearchFeatureImportEquivalenceTest` 在真 SQLite 三臂对拍（逐行 / 批量 VALUES / 批量+索引后置+pragma）：3,733 节点、547,582 特征行、129 条金标查询，内容指纹 `d4f2d318…` 三臂相同、命中序列逐条相同、`integrity_check=ok`、索引补建后与 Room schema 同义；本文书轮 `--rerun-tasks` 重跑 **1 test / 0 failures**（BUILD SUCCESSFUL 2m20s）。
+- **门与一致性**：八门 **8/8 rc=0、red=0**（`py_suite Ran 902 / OK`）；一致性 **14 门 12 PASS / 2 FAIL**——C13（提交态复算不出他线判官路径注的登记 sha）与 C14（F6 改动未提交 + 同一路径注）均**原样登记、未改期望值**；提交后需复跑。
+- **回归**：`core:data` JVM **1,360 tests / 0 failures**（159 XML，含 `GoldenRetrievalJvmTest` 2/2）；设备三次冷装 + 冷启 `TotalTime 2,970 / 2,829 / 3,014 ms`。**未跑**：`am instrument`、设备端检索指标、快路径、真机。
+- **边界**：F6 最大读数距门槛仅 **8,225 ms（13.7%）**；装置为 emulator；解析（20.7–21.2 s）与残差（20.8–25.2 s）成为新主段；崩溃窗口与 pragma 恢复失败分支未做故障注入。F7 状态不变（JVM 11/11 PASS，设备端 UNVERIFIED），故 **v1.2 仍不能称全绿**。

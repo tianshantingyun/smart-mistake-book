@@ -300,6 +300,46 @@ interface KnowledgeWritePort {
         subject: String,
         atEpochMillis: Long,
     ): KnowledgeNodeSeedRecord? = null
+
+    /**
+     * 导入期 SQLite 调优（性能剖析 2026-10-31，F6 分段：四科索引重建 88,913 ms =
+     * 首次导入 127,014 ms 的 70.0%）。
+     *
+     * 只在 [block] 执行期间修改**写连接**的 `synchronous` / `cache_size` 两个会话级
+     * pragma，返回前恢复原值；不碰 `journal_mode`（那是数据库级、会持久化，且与 WAL
+     * 冲突），也不碰 `temp_store`（建索引排序可能占大量原生内存），更不改任何表/索引/行。
+     * 两个 pragma 都只影响页缓存与 fsync 时机，**不改变任何一条 SQL 的逻辑结果**——
+     * 等价性论证与回滚点见实现注释。
+     *
+     * 默认实现直接执行 [block]：测试替身与历史适配器保持既有行为（无 pragma 覆盖）。
+     */
+    suspend fun <R> withKnowledgeImportTuning(block: suspend () -> R): R = block()
+
+    /**
+     * 确保 `knowledge_search_feature` 的两条二级索引存在（幂等）。
+     *
+     * 导入期会临时移除这两条索引（见 [withDeferredKnowledgeSearchFeatureIndexes]）；
+     * 本方法在**每次 install 的起点**调用，作为崩溃窗口的自愈点：`CREATE INDEX IF NOT
+     * EXISTS` 在索引已在时是 O(1) 元数据检查，不重排数据。
+     */
+    suspend fun ensureKnowledgeSearchFeatureIndexes() {}
+
+    /**
+     * 在「`knowledge_search_feature` 二级索引暂时移除」的窗口内执行 [block]，退出
+     * （含失败/取消）时**无条件**把两条索引按 Room schema 的原 DDL 建回。
+     *
+     * 为什么允许这个窗口：首次导入的四科重建要往特征表写 547k 行，每行都要维护
+     * 主键 + 两条二级索引；`create index` 的批量排序远快于逐行维护。窗口内表内容与
+     * 主键索引始终不变，查询结果不变（二级索引只是访问路径），窗口结束后的 schema
+     * 与 Room 期望逐字相同。
+     *
+     * 崩溃窗口（如实登记）：若进程在 drop 之后、create 之前死亡，库里会缺两条二级索引；
+     * 下一次 `install()` 起点的 [ensureKnowledgeSearchFeatureIndexes] 会补建。窗口内
+     * 并发读仍然正确，只是可能走全表扫描。
+     *
+     * 默认实现直接执行 [block]：测试替身与历史适配器不受影响。
+     */
+    suspend fun <R> withDeferredKnowledgeSearchFeatureIndexes(block: suspend () -> R): R = block()
 }
 
 /**

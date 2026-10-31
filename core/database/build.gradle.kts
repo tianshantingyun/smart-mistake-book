@@ -19,6 +19,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    testOptions {
+        // F6 JVM 等价门：真 SQLite（sqlite-jdbc）跑导入路径对拍；包加载器会打
+        // android.util.Log.d，JVM 单测按既有先例取默认返回值（不执行 Android 实现）。
+        unitTests.isReturnDefaultValues = true
+    }
     buildTypes {
         getByName("debug") {
             enableUnitTestCoverage = true
@@ -37,6 +42,12 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.serialization.json)
+    // F6 JVM 等价门（2026-10-31）：用真 SQLite（sqlite-jdbc）对拍「逐行插入 vs 批量 VALUES」
+    // 与同一查询集合的命中集合；只进测试运行时，不进 APK。
+    testImplementation(libs.sqlite.jdbc)
+    // 包加载器/特征抽取复用生产实现（`BundledKnowledgePackResources` / 提取器），
+    // 避免测试自造一份语料。只进测试类路径，生产依赖方向不变。
+    testImplementation(project(":core:data"))
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.kotlinx.coroutines.android)

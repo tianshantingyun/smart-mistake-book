@@ -504,3 +504,49 @@ cat build/agent-batch28/gates/summary.txt           # 8/8 rc=0；red=0
 grep -n "install finished\|rebuild subject=\(MATH\|PHYSICS\|CHEMISTRY\|BIOLOGY\)" \
   build/agent-batch28/v23/device-logcat.txt         # 127,014 ms；CHEMISTRY 27,042 ms
 ```
+
+## 17. 批次29 F6 剖析 / 导入路径优化 / 三次冷装复测（2026-10-31：**F6 MET**；内容包仍 v23、未提交）
+
+> 数字来源：`build/agent-batch29/`（`baseline/identity.md`、`gates/summary.txt` 与逐门日志、`consistency.txt`/`.stderr.txt`、`backup/f6-opt/`）＋ `build/f6-retest-20261031/`（`cold-install-3x.log`、`run{1,2,3}/`、`build.log`）＋ `build/agent-batch28/v23/device-logcat.txt`（127,014 ms 轮）＋ 本文书轮只读复算/定向实跑。基线：HEAD **`b1d59757`**（origin 同步 0/0；本文书轮落笔前 **696** 脏项 = 217 tracked `M` + 479 untracked，写入本批报/文书后 **699** = 219 `M` + 480 `??`；批次29 起点快照 688）。本行不改变 §12 三件终裁、§13–§16 的终态；v23 **adopted 不变、未回滚**，**内容基线不刷新**。
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **F6 剖析（127,014 ms 分解）** | **完成；索引段 70.0%** | 解析 2 packs **20,270 ms / 15.96%**（`:485`）；2020 包九科 **492 ms / 0.39%**（`:488-502`）；2025 包四科 **88,913 ms / 70.00%**（MATH 23,608 / PHYSICS 23,940 / CHEMISTRY 27,042 / BIOLOGY 14,323；`:802,1116,1244,1608`）；残差 **17,339 ms / 13.65%**（含小包结束到 MATH 起约 16,925 ms）。四科串行（同 tid 4842、首尾相接）。该轮无 `insertMs`（分段字段 09:55 才落盘，晚于日志 08:11），只能到 `tookMs` 粒度。证据：`baseline/identity.md:40-78`；`v23/device-logcat.txt:1609`；本文书轮复算 |
+| **优化（四处，均不改行集）** | **implemented（未提交）** | ① 多行 `VALUES` 批量写（300 行 × 3 参数 = 900 < 999；`KnowledgeSearchFeatureBatchInsert.kt:29,44-80`）；② 两条二级索引后置 + 补建（`RoomKnowledgeImportMaintenance.kt:95-110`；`BundledKnowledgeBaseInstaller.kt:56-66`）；③ 会话 pragma `synchronous=OFF` / `cache_size=-32768`，`finally` 恢复，不碰 `journal_mode`/`temp_store`（`:44-76`）；④ 解析移出索引窗口（`BundledKnowledgeBaseInstaller.kt:56-66`）+ 起点幂等补索引（`:31-35`）。写面 **5 `M` + 3 `??`**：`KnowledgeSearchIndexBuilder.kt` 3/1、`BundledKnowledgeBaseInstaller.kt` 14/3、`KnowledgePort.kt` 40/0、`RoomStudyDatabase.kt` 12/0、`core/database/build.gradle.kts` 11/0，新增 `KnowledgeSearchFeatureBatchInsert.kt` 80 行 / `RoomKnowledgeImportMaintenance.kt` 123 行 / `KnowledgeSearchFeatureImportEquivalenceTest.kt` 483 行 |
+| **等价性（三臂真 SQLite）** | **PASS；本文书轮重跑 1/1** | A 逐行 / B 批量 / C 批量+索引后置+pragma：3,733 节点、547,582 特征行、129 金标查询；内容指纹 `d4f2d318…` 三臂相同、命中序列逐条相同、补建后索引集合 = Room schema、`integrity_check=ok`。本文书轮 `--rerun-tasks`：**BUILD SUCCESSFUL 2m20s**、XML `tests=1 failures=0 time=29.437`、digest 与 13:05 落盘一致。边界：JVM sqlite-jdbc 不经 Room Android driver；材料表/`library_search_fts` 不在路径上 |
+| **复测（三次同口径冷装）** | **F6 MET** | 同 APK sha `2c9227b6…` / 同 `emulator-5584` / API 34 / 同 v23 内容包：`install finished in` **47,504 / 51,775 / 51,646 ms**（中位 **51,646**，最大 **51,775**；距 60 s 余 **8,225 ms / 13.7%**），三次全部 ≤60 s。四科索引 **5,436 / 5,809 / 5,928 ms**（88,913 → −93.3% ~ −93.9%，占比 70.00% → 11.4%–11.5%）；解析 **21,155 / 20,684 / 20,845 ms**（39.9–44.5%）；残差 **20,827 / 25,194 / 24,787 ms**（含索引后置 `CREATE INDEX`，推断未计时）。墙钟（Start proc→finished）49.05 / 53.13 / 53.00 s。证据：`run{1,2,3}/install-finished.txt,segments.txt,logcat.txt`；`cold-install-3x.log` |
+| **同包校验（只换代码）** | **同 v23** | APK 内 `knowledge/moe-2025-four-subjects-v1.json` `051141e2…`、`bge-small-zh-int8.vec` `bbcae9ec…`、`moe-2025-update-manifest.json` `14fe7b3a…`、sidecar **25**，与 §16 v23 登记逐字相同（本文书轮 `unzip -p | sha256sum`） |
+| **门** | **8/8 rc=0、overall red=0** | `kb_checks/py_suite/promote_dry/slice/asset/alignment/transcripts/judgment_fp` 全 rc=0；`py_suite Ran 902 tests / OK`；`slice` 118,848 块不过 0；`promote_dry` 门全绿零写盘（目标 version 24）。runner 为批次28 逐字移植（`scripts/run_gates_b29.sh`） |
+| **一致性（补充门）** | **14 门 12 PASS / 2 FAIL** | C13 FAIL：工作树 JVM 判官 sha `62c232fc…` 命中登记，但相对 HEAD 有 **3/3** 行路径注（`agent-batch13/d3`→`agent-batch14/d3`），HEAD 复算不出登记值；该文件 mtime **10-23 21:49**、diff 3/3，早于批次29、本批未动。C14 FAIL：`KnowledgeSearchIndexBuilder.kt`/`BundledKnowledgeBaseInstaller.kt` 为本批未提交改动 + 同一路径注。**未改期望值、未放宽口径**，提交后需复跑。证据：`consistency.txt` §C13/C14；`consistency.stderr.txt` |
+| **回归** | **JVM 1,360/0；设备冷装 3/3** | `core:data` 159 XML / **1,360 tests / 0 failures / 0 errors**（13:22–13:23，含 `GoldenRetrievalJvmTest` 2/2，A-route 词面 77/129、MRR 0.4186）；设备三轮 `am start -W` COLD、`TotalTime` 2,970 / 2,829 / 3,014 ms、`force_stop_exit=0`。**未跑**：`am instrument`、设备端检索指标、快路径、真机 |
+| **验收文书** | **已追加（只追加）** | `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` §F.5 追加批次29 复测与 **F6 MET** 标记（原表行/批次28 追记保留）；`docs/kb-acceptance-2026-10-17.md` 追加 **§15**。批报 = `docs/kb-batch29-2026-10-31.md` |
+
+**批次29 残留（按阻塞程度）**：
+
+1. **F6 余量薄**：最大 51,775 ms，距 60 s 仅 8,225 ms（13.7%）；emulator / API 34，非真机，不外推低端真机。
+2. **新主段未再拆**：解析 20.7–21.2 s（39.9–44.5%）+ 残差 20.8–25.2 s（43.8–48.7%）；残差内 `CREATE INDEX` 为**推断**，本批未计时。
+3. **崩溃窗口未故障注入**：drop 后、create 前进程死亡 → 两条二级索引缺失到下一次 `install()` 起点；期间读结果正确但可能全扫。
+4. **pragma 恢复失败分支未实测**：`finally` 恢复失败仅 `Log.w`，写连接保持 `synchronous=OFF` 到进程结束（连接级）。
+5. **等价门与回归边界**：JVM sqlite-jdbc 不经 Room Android driver；**设备端检索指标本轮未重测**；`am instrument` 与快路径未跑。
+6. **一致性 C13/C14 FAIL**：C13 他线 3/3 判官路径注（提交态复算不出登记 sha）、C14 本批未提交改动；未改期望值，提交后复跑。
+7. **优化代码未提交**：5 `M` + 3 `??`；HEAD 仍 `b1d59757`，工作树落笔前 **696** 项、写入本批文书后 **699** 项（219 M / 480 ??）。
+8. **单一 AVD / 单一 API**：未跑 API 23 低端形态，未复测升级安装路径（本批只 uninstall → install）。
+9. **备份含未采用文件**：`backup/f6-opt/` 的 `ProblemOrganizationDao.kt`、`StudyDatabase.kt`、`core-database-build.gradle.kts` 未进入最终写面；回滚须以批报 §3.1 八路径为准。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD && git status --porcelain | wc -l        # b1d59757…；696（217 M / 479 ??）
+unzip -p app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk \
+  knowledge/moe-2025-four-subjects-v1.json | sha256sum      # 051141e2…
+grep -h "install finished in" build/f6-retest-20261031/run{1,2,3}/install-finished.txt
+# 47,504 / 51,775 / 51,646 ms —— 三次 ≤60 s ⇒ F6 MET
+grep -h "rebuild subject=MATH\|rebuild subject=CHEMISTRY" build/f6-retest-20261031/run1/segments.txt
+# MATH 1,392 ms；CHEMISTRY 1,655 ms（索引段合计 5,436 ms）
+cat build/agent-batch29/gates/summary.txt                   # 8/8 rc=0；red=0
+tail -20 build/agent-batch29/consistency.txt                # 14 门 12 PASS / 2 FAIL（C13/C14）
+./gradlew :core:database:testDebugUnitTest \
+  --tests "com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureImportEquivalenceTest" \
+  --rerun-tasks --console=plain                             # 1 test / 0 failures；digest d4f2d318…
+```

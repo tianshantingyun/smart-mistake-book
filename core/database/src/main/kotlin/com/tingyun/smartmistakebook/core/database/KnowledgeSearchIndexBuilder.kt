@@ -153,7 +153,9 @@ internal class KnowledgeSearchIndexBuilder(
                 extractNano += System.nanoTime() - extractStartedNano
 
                 val chunkStartedNano = System.nanoTime()
-                database.withWriteTransaction { dao.insertKnowledgeSearchFeatures(features) }
+                database.withWriteTransaction {
+                    insertKnowledgeSearchFeaturesBatched(features)
+                }
                 insertNano += System.nanoTime() - chunkStartedNano
                 featureCount += features.size
                 insertChunks++
