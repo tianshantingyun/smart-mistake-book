@@ -68,10 +68,14 @@ internal fun OrganizationCorrectionEditor(
     output: ProblemOrganizationOutput,
     confirmed: ConfirmedMistakeOrganization,
     organizationRepository: MistakeOrganizationRepository,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     onConfirmed: () -> Unit,
     onFailure: (String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    var catalogSelections by remember(requestId, confirmed.classifications) {
+        mutableStateOf(confirmedCatalogHits(confirmed))
+    }
     var classifications by remember(requestId, confirmed.classifications) {
         mutableStateOf(confirmedClassificationIndexes(output.plan, confirmed))
     }
@@ -119,10 +123,10 @@ internal fun OrganizationCorrectionEditor(
         output.plan.classifications[index].dimension in PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS
     }
     val visibleRelationIndexes = unconfirmedRelationIndexes(output.plan, confirmed)
-    val hasKnowledge = classifications.any { index ->
+    val hasKnowledge = catalogSelections.isNotEmpty() || classifications.any { index ->
         output.plan.classifications[index].dimension == ClassificationDimension.KNOWLEDGE
     } || userClassifications.any { it.dimension == ClassificationDimension.KNOWLEDGE }
-    val hasChapter = classifications.any { index ->
+    val hasChapter = catalogSelections.isNotEmpty() || classifications.any { index ->
         output.plan.classifications[index].dimension == ClassificationDimension.CHAPTER
     } || userClassifications.any { it.dimension == ClassificationDimension.CHAPTER }
 
@@ -285,6 +289,12 @@ internal fun OrganizationCorrectionEditor(
                 ) { Text("移除") }
             }
         }
+        catalogSelections.forEach { hit ->
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("知识点 · ${hit.name}", Modifier.weight(1f), color = Ink)
+                TextButton(onClick = { catalogSelections = catalogSelections.filterNot { it.node.nodeId == hit.node.nodeId } }, enabled = !isSaving) { Text("移除") }
+            }
+        }
         if (confirmed.relations.isNotEmpty()) {
             Text("现有题目关系", color = Ink, fontWeight = FontWeight.SemiBold)
             confirmed.relations.forEachIndexed { index, relation ->
@@ -370,6 +380,7 @@ internal fun OrganizationCorrectionEditor(
                                     classificationIndexes = classifications,
                                     relationIndexes = if (relationsEdited) relations else emptySet(),
                                     userClassifications = userClassifications,
+                                    knowledgeSelections = catalogSelections.mapTo(linkedSetOf()) { it.node },
                                     relationRemovals = relationRemovals,
                                 ),
                                 acceptedAtEpochMillis = System.currentTimeMillis(),
@@ -393,14 +404,22 @@ internal fun OrganizationCorrectionEditor(
                     hasKnowledge = hasKnowledge,
                     hasChapter = hasChapter,
                     selectedModelClassificationCount = classifications.size,
-                    userClassificationCount = userClassifications.size,
+                    userClassificationCount = userClassifications.size + catalogSelections.size,
                     isSaving = isSaving,
                 ),
                 colors = ButtonDefaults.buttonColors(containerColor = JadeActive),
                 modifier = Modifier.testTag("mistake_organization_confirm"),
             ) { Text(if (isSaving) "正在保存" else "保存修改") }
         }
-        if (treePickerVisible) {
+        if (treePickerVisible && knowledgeCatalog != null) {
+            KnowledgeCatalogPickerSheet(
+                catalog = knowledgeCatalog, subject = input.subject.name,
+                initialSelection = catalogSelections, available = true,
+                selectionLimit = (32 - classifications.size - userClassifications.size).coerceAtLeast(catalogSelections.size),
+                onDone = { catalogSelections = it; treePickerVisible = false },
+                onDismiss = { treePickerVisible = false },
+            )
+        } else if (treePickerVisible) {
             OrganizationTreePickerDialog(
                 options = organizationOptions,
                 selectedKeys = selectedClassificationKeys,
@@ -443,7 +462,7 @@ internal fun confirmedClassificationIndexes(
 ): Set<Int> = plan.classifications.indices.filterTo(linkedSetOf()) { index ->
     val suggestion = plan.classifications[index]
     confirmed.classifications.any { accepted ->
-        accepted.dimension == suggestion.dimension &&
+        !accepted.labelId.startsWith("catalog:") && accepted.dimension == suggestion.dimension &&
             accepted.displayName.equals(suggestion.displayName.trim(), ignoreCase = true)
     }
 }
@@ -459,7 +478,7 @@ internal fun unmappedConfirmedClassifications(
             suggestion.dimension == accepted.dimension &&
                 suggestion.displayName.trim().equals(accepted.displayName, ignoreCase = true)
         }
-        if (appearsInPlan || accepted.dimension !in CONTENT_EDITABLE_DIMENSIONS) {
+        if (accepted.labelId.startsWith("catalog:") || appearsInPlan || accepted.dimension !in CONTENT_EDITABLE_DIMENSIONS) {
             null
         } else {
             runCatching {
@@ -561,4 +580,63 @@ internal fun ProblemRelationKind.confirmedRelationLabel(): String? = when (this)
     ProblemRelationKind.SAME_FIGURE_PATTERN -> "相同图形结构"
     ProblemRelationKind.POSSIBLE_DUPLICATE -> "可能与它重复"
     else -> null
+}
+
+internal fun confirmedCatalogHits(confirmed: ConfirmedMistakeOrganization): List<com.tingyun.smartmistakebook.core.model.CatalogHit> =
+    confirmed.classifications.filter { it.dimension == ClassificationDimension.KNOWLEDGE && it.labelId.startsWith("catalog:") }
+        .mapNotNull { row -> row.taxonomyVersion?.let { version ->
+            com.tingyun.smartmistakebook.core.model.CatalogHit(
+                com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection(row.labelId.removePrefix("catalog:"), version),
+                row.subject.orEmpty(), emptyList(), row.displayName, "", emptyList(),
+            )
+        } }
+
+/** Manual organization remains available without an online classification task. */
+@Composable
+internal fun ManualCatalogCorrectionAction(
+    key: MistakeRevisionKey,
+    subject: String,
+    organizationRepository: MistakeOrganizationRepository,
+    catalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository,
+    available: Boolean,
+) {
+    val scope = rememberCoroutineScope()
+    val confirmed by remember(key, organizationRepository) { organizationRepository.observeConfirmed(key) }
+        .collectAsStateWithLifecycle(ConfirmedMistakeOrganization())
+    var choosing by rememberSaveable(key) { mutableStateOf(false) }
+    var draft by remember(key) { mutableStateOf<List<com.tingyun.smartmistakebook.core.model.CatalogHit>?>(null) }
+    var saving by remember(key) { mutableStateOf(false) }
+    var message by remember(key) { mutableStateOf<String?>(null) }
+    val legacy = remember(confirmed.classifications) {
+        confirmed.classifications.filter { !it.labelId.startsWith("catalog:") && it.dimension in CONTENT_EDITABLE_DIMENSIONS }
+            .map { UserProblemClassification(it.dimension, it.displayName) }
+    }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = { choosing = true }, enabled = !saving, modifier = Modifier.testTag("mistake_catalog_correct")) { Text("修改知识点关联") }
+        draft?.let { selections ->
+            Text("待保存 · ${selections.joinToString("、") { it.name }.ifEmpty { "未选择知识点" }}", color = Ink, style = MaterialTheme.typography.bodyMedium)
+            Text("现有板块和手动分类保留，知识点关联以本次选择为准", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    scope.launch {
+                        saving = true; message = null
+                        try {
+                            val result = organizationRepository.correctConfirmedOrganization(key,
+                                ProblemOrganizationSelection(emptySet(), emptySet(), userClassifications = legacy,
+                                    knowledgeSelections = selections.mapTo(linkedSetOf()) { it.node }), System.currentTimeMillis())
+                            if (result.applied) { draft = null; message = "已保存知识点关联" }
+                            else message = "题目或分类已变化，请重新打开后保存"
+                        } catch (cancelled: CancellationException) { throw cancelled }
+                        catch (_: Exception) { message = "未能保存，请检查目录是否更新后重新选择" }
+                        finally { saving = false }
+                    }
+                }, enabled = !saving && (selections.isNotEmpty() || legacy.any { it.dimension == ClassificationDimension.KNOWLEDGE }) &&
+                    selections.size + legacy.size <= 32, modifier = Modifier.testTag("catalog_manual_save")) { Text(if (saving) "正在保存" else "保存修改") }
+                TextButton(onClick = { draft = null }, enabled = !saving) { Text("取消") }
+            }
+        }
+        message?.let { Text(it, color = InkSecondary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("catalog_save_message")) }
+    }
+    if (choosing) KnowledgeCatalogPickerSheet(catalog, subject, draft ?: confirmedCatalogHits(confirmed), available,
+        (32 - legacy.size).coerceAtLeast(0), onDone = { draft = it; choosing = false }, onDismiss = { choosing = false })
 }

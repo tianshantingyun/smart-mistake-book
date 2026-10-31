@@ -104,6 +104,7 @@ fun MistakeDetailRoute(
     errorBookEntryId: String,
     repository: MistakeDetailRepository,
     organizationRepository: MistakeOrganizationRepository,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry>,
@@ -185,6 +186,7 @@ fun MistakeDetailRoute(
         onTutor = onTutor,
         repository = repository,
         organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
         modelTasks = modelTasks,
         profile = profile,
         catalogEntries = catalogEntries,
@@ -211,6 +213,7 @@ internal fun MistakeDetailContent(
     onTutor: (MistakeRevisionKey) -> Unit = {},
     repository: MistakeDetailRepository? = null,
     organizationRepository: MistakeOrganizationRepository? = null,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository? = null,
     profile: StudyProfileOverview = StudyProfileOverview(),
     catalogEntries: List<StudyCatalogEntry> = emptyList(),
@@ -268,6 +271,7 @@ internal fun MistakeDetailContent(
                 onBack = onBack,
                 repository = repository,
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 modelTasks = modelTasks,
                 profile = profile,
                 catalogEntries = catalogEntries,
@@ -362,6 +366,7 @@ private fun ReadyDetail(
     onBack: () -> Unit,
     repository: MistakeDetailRepository?,
     organizationRepository: MistakeOrganizationRepository?,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository?,
     modelTasks: ModelTaskRepository?,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry>,
@@ -495,10 +500,18 @@ private fun ReadyDetail(
         ExplanationSourceSection(
             source = state.detail.source,
         )
+        if (!isViewingHistoricalRevision && organizationRepository != null && knowledgeCatalog != null) {
+            ManualCatalogCorrectionAction(
+                key = checkNotNull(state.exportRevisionKeyOrNull()), subject = state.detail.identity.subject,
+                organizationRepository = organizationRepository, catalog = knowledgeCatalog,
+                available = knowledgeBaseAvailability is KnowledgeBaseAvailability.Ready,
+            )
+        }
         if (!isViewingHistoricalRevision && organizationRepository != null && modelTasks != null) {
             MistakeOrganizationSection(
                 key = checkNotNull(state.exportRevisionKeyOrNull()),
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 modelTasks = modelTasks,
                 profile = profile,
                 catalogEntries = catalogEntries,

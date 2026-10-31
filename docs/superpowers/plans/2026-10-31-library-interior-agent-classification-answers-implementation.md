@@ -158,8 +158,8 @@ Invoke-SmbGradle -TaskArguments @(':core:domain:test', ':core:database:testDebug
 
 **修改：** `feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/` 下的 `feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeOrganizationTreePicker.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeOrganizationState.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeOrganizationSection.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeOrganizationCorrectionEditor.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeDetailRoute.kt`；`app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookApplication.kt`、`app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt`；现有 `feature/library/src/test/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeOrganizationTreePickerTest.kt` 与 `feature/library/src/androidTest/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeOrganizationInstrumentedTest.kt`。
 
-- [ ] VM 失败用例：快速输入 A/B 后只接受 B；上一页查询完成晚到不覆盖新查询；相同 query 加载下一页只请求一次；切换目录版本清空游标但保留已选稳定节点；空态与错误态可以返回选择列表。
-- [ ] 将输入接到 `debounce(250)`、`distinctUntilChanged()`、`flatMapLatest`，数据库工作不在主线程；结果携带查询身份，合并页按 node id 去重。新 VM 依赖 T1 端口，不依赖全局 Application 或数据库具体类。
+- [x] VM 失败用例：快速输入 A/B 后只接受 B；上一页查询完成晚到不覆盖新查询；相同 query 加载下一页只请求一次；切换目录版本清空游标但保留已选稳定节点；空态与错误态可以返回选择列表。
+- [x] 将输入接到 `debounce(250)`、`distinctUntilChanged()`、`flatMapLatest`，数据库工作不在主线程；结果携带查询身份，合并页按 node id 去重。新 VM 依赖 T1 端口，不依赖全局 Application 或数据库具体类。
 
 ```kotlin
 val pages = queryText.debounce(250).distinctUntilChanged().flatMapLatest { text ->
@@ -168,9 +168,9 @@ val pages = queryText.debounce(250).distinctUntilChanged().flatMapLatest { text 
 // 下一页必须沿用当前 CatalogPage.next；过期 cursor 返回“目录已更新”并重新查询。
 ```
 
-- [ ] 原生底部面板展示全库范围、当前题目学科、关键词模块、学科/章节分组、匹配段落及已选状态。关键词负责筛选，结果负责选择；重复已选项不可再次加入。保留键盘关闭、独立内容滚动与固定「完成」操作。
-- [ ] 在应用中注入 `RoomKnowledgeCatalogRepository`，将选中节点送回已有纠正草稿，再由已有确认命令提交。用真库验证搜索首批目录之外节点和跨科重开结果；用例继续保留兼容的现有 testTag。
-- [ ] 提交 `feat(ui): 接通全知识库分类选择面板`。
+- [x] 原生底部面板展示全库范围、当前题目学科、关键词模块、学科/章节分组、匹配段落及已选状态。关键词负责筛选，结果负责选择；重复已选项不可再次加入。保留键盘关闭、独立内容滚动与固定「完成」操作。
+- [x] 在应用中注入 `RoomKnowledgeCatalogRepository`，将选中节点送回已有纠正草稿，再由已有确认命令提交。用真库验证搜索首批目录之外节点和跨科重开结果；用例继续保留兼容的现有 testTag。
+- [x] 提交 `feat(ui): 接通全知识库分类选择面板`。
 
 ```powershell
 Invoke-SmbGradle -TaskArguments @(':feature:library:testDebugUnitTest', ':feature:library:assembleDebugAndroidTest', ':app:assembleLocalFirstDebug')
@@ -501,7 +501,7 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 
 执行计划时逐项勾选，任务完成须有本轮实际命令输出和文件证据。纯视觉调整复用已有检查；新增业务协议/版本写入/持久作业/导出文件必须运行本计划列出的有意义测试。
 
-本计划当前状态：**实施中；T0、T1、T2 已验证，下一任务为 T3；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
+本计划当前状态：**实施中；T0、T1、T2、T3 已验证，下一任务为 T4；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
 
 
 ### T0 本轮证据
@@ -537,3 +537,13 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 - `:core:domain:test :core:database:testDebugUnitTest :core:data:testDebugUnitTest :core:data:assembleDebugAndroidTest` 成功；分类真库最终 **16/16** 通过，覆盖跨科、同名、重开、幂等、目录退役/待审/版本不符、事务中目录变化和真实题目换版。
 - 测试包暴露的两处旧拆分夹具空类型编译缺口仅补 `requireNotNull`；新分类夹具补合法已确认题面，未放宽正式读取校验。
 - 证据：`.jez/artifacts/library-interior-implementation-2026-10-31/t2-verification.json`。T3 原生面板接线正在进行；T5/T11 两项图像角色旧失败仍未关闭。
+
+
+### T3 完成记录（2026-11-01）
+
+- 原生全库面板接到应用级真实目录仓储，输入防抖与查询身份隔离；目录变化重置游标，已选身份保留；翻页去重并拒绝晚到旧页。检索结果按真实学科/章节分组，新查询回到顶部。
+- 面板展示句子/关键词检索、关键词模块、匹配片段和已选项；底部完成固定，关闭丢弃本次面板选择。完成返回纠正草稿，保存才提交；无在线分类任务时同样可手动关联。重开读回真实 node id、taxonomy 和学科，不降格成同名字符串。
+- `:feature:library:testDebugUnitTest :feature:library:assembleDebugAndroidTest :app:assembleLocalFirstDebug` 成功；最后补充的身份保护回归后错题本 JVM **80/80**，目录 VM **6/6**（计入 80），数据层整理相关回归 **36/36**。
+- 原生 `MistakeOrganizationInstrumentedTest` 最终 **18/18**。新增真实 Room 场景在 300+ 节点中搜索第 299 项及物理同名项，完成后无写入、保存后精确两条关联，重开学科正确，题目仍为数学。另验面板关闭丢弃选择和旧交互兼容。
+- 已实际查看设备截图 `t3-catalog-picker-verified.png`；整机深色/大字体/无障碍与全部内页验收仍归 T11，不以该截图替代全量验收。
+- 证据：`.jez/artifacts/library-interior-implementation-2026-10-31/t3-verification.json`。下一任务 T4；全量实施仍未完成。

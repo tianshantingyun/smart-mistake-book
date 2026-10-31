@@ -1266,6 +1266,7 @@ internal fun SmartMistakeBookRoot(
                     errorBookEntryId = entry.arguments?.getString("itemId").orEmpty(),
                     repository = application.mistakeDetailRepository,
                     organizationRepository = application.mistakeOrganizationRepository,
+                    knowledgeCatalog = application.knowledgeCatalogRepository,
                     modelTasks = application.modelTaskRepository,
                     profile = experience.profile,
                     catalogEntries = experience.catalog,

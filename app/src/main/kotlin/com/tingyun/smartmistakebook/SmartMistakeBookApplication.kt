@@ -197,6 +197,9 @@ class SmartMistakeBookApplication : Application() {
     lateinit var mistakeOrganizationRepository: MistakeOrganizationRepository
         private set
 
+    lateinit var knowledgeCatalogRepository: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository
+        private set
+
     lateinit var modelTaskRepository: ModelTaskRepository
         private set
 
@@ -405,6 +408,7 @@ class SmartMistakeBookApplication : Application() {
             tutorAttachedQuestionReader = TutorAttachedQuestionReaderFactory.create(
                 mistakeDetailRepository,
             )
+            knowledgeCatalogRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomKnowledgeCatalogRepository(database, applicationScope)
             mistakeOrganizationRepository = MistakeOrganizationRepositoryFactory.create(
                 database = database,
                 knowledgeBaseAvailability = knowledgeBaseAvailability,

@@ -99,6 +99,7 @@ data class ConfirmedProblemClassification(
     val labelId: String,
     val displayName: String,
     val taxonomyVersion: String? = null,
+    val subject: String? = null,
 )
 
 data class ConfirmedProblemRelation(

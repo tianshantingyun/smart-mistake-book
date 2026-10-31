@@ -75,6 +75,7 @@ import kotlinx.coroutines.launch
 internal fun MistakeOrganizationSection(
     key: MistakeRevisionKey,
     organizationRepository: MistakeOrganizationRepository,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry> = emptyList(),
@@ -566,6 +567,7 @@ internal fun MistakeOrganizationSection(
                 output = output,
                 confirmed = confirmed,
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 onConfirmed = {
                     correctionVisible = false
                     message = "已保存分类修改"
@@ -589,6 +591,7 @@ internal fun MistakeOrganizationSection(
                 output = output,
                 confirmed = confirmed,
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 onConfirmed = {
                     correctionVisible = false
                     message = "已保存分类修改"
@@ -632,6 +635,7 @@ private fun OrganizationCorrectionPanel(
     output: ProblemOrganizationOutput?,
     confirmed: ConfirmedMistakeOrganization,
     organizationRepository: MistakeOrganizationRepository,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     onConfirmed: () -> Unit,
     onFailure: (String) -> Unit,
 ) {
@@ -649,6 +653,7 @@ private fun OrganizationCorrectionPanel(
             output = checkNotNull(output),
             confirmed = confirmed,
             organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
             onConfirmed = onConfirmed,
             onFailure = onFailure,
         )

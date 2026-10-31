@@ -352,13 +352,17 @@ internal class RoomMistakeOrganizationRepository(
     override fun observeConfirmed(key: MistakeRevisionKey): Flow<ConfirmedMistakeOrganization> =
         database.observeConfirmedProblemOrganization(key.problemId, key.problemRevisionId)
             .map { record ->
+                val catalogIds = record.classifications.filter { it.labelId.startsWith("catalog:") }
+                    .mapTo(linkedSetOf()) { it.labelId.removePrefix("catalog:") }
+                val catalogSubjects = if (catalogIds.isEmpty()) emptyMap() else
+                    database.readKnowledgeNodesByIds(catalogIds).associate { it.knowledgeNodeId to it.subject }
                 ConfirmedMistakeOrganization(
                     classifications = record.classifications.mapNotNull { binding ->
                         val dimension = runCatching {
                             ClassificationDimension.valueOf(binding.dimension)
                         }.getOrNull()?.takeIf { it in PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS }
                             ?: return@mapNotNull null
-                        ConfirmedProblemClassification(dimension, binding.labelId, binding.displayName, binding.taxonomyVersion)
+                        ConfirmedProblemClassification(dimension, binding.labelId, binding.displayName, binding.taxonomyVersion, catalogSubjects[binding.labelId.removePrefix("catalog:")])
                     },
                     relations = record.relations.mapNotNull { relation ->
                         val kind = runCatching {
