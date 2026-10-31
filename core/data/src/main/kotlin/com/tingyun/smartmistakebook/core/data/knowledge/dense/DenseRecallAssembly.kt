@@ -87,9 +87,12 @@ object DenseRecallAssembly {
      * （`DenseAssetProvenanceTest` 钉住"这里的常量 == 旁车 == 实际文件"三处一致）。
      * 不匹配 ⇒ 判不可用：宁可没有稠密腿，也不用一份来路不明的向量表排序。
      *
-     * 2026-10-26 随批次22 v21 别名更新（MATH/等和线 23 → 25 别名入库，主包 sha `298f4c0c…` →
+     * 2026-10-31 随批次28 v23 重建（35 建点 + 41 条 MATERIAL + R6；主包 `a7192484…` →
+     * `051141e2…`）+ dense 重打：44,043 → **44,119 行**（3,280 原子节点 + 40,839 别名），
+     * sha `79a22270…` → 本值。
+     * 上一代：2026-10-26 批次22 v21 别名更新（MATH/等和线 23 → 25 别名入库，主包 sha `298f4c0c…` →
      * `a7192484…`）+ dense 重打：44,041 → **44,043 行**（3,245 原子节点 + 40,798 别名），
-     * sha `0536d0d1…` → 本值。
+     * sha `0536d0d1…` → `79a22270…`。
      * 量源 = 新 `.vec` 的实测 sha256（`sha256sum core/data/src/main/resources/knowledge/dense/
      * bge-small-zh-int8.vec` 独立复算 79a22270…）与旁车 `…vec.json` 记录逐位一致；
      * 旁车 `packSha256`（a7192484…）亦等于现行成品包实测 sha256（三方同源，`DenseAssetProvenanceTest` 复核）。
@@ -105,7 +108,7 @@ object DenseRecallAssembly {
      * 批次 7 的 41,157 行 / `a68d6ed5…`；批次 5 的 41,126 行 / `28a14ec1…`；
      * 再旧：批次 3 的 41,117 行 / `8dbc0d54…`。
      */
-    const val VECTOR_ASSET_SHA256 = "79a22270b54180f6ba5346a4f56d87eb16e5f335107ac9877cbb142fd4515446"
+    const val VECTOR_ASSET_SHA256 = "bbcae9ecaedc5d6da868447e793b3ef7b6f16070478288aaba59626443bb527b"
 
     /** 生产装配：不可用（未启用）时返回 `null`。 */
     fun reranker(context: Context): DenseRecallReranker? {

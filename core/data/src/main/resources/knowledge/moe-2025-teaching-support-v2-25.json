@@ -49,6 +49,86 @@
    "licenseExpression": null,
    "licenseUri": null,
    "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-48689b61de:physics",
+   "subject": "PHYSICS",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 2026年新高考资料(1)",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "76E45DFAA54E87666698DBFB15E71C331C3C7336A9F486CD7BD1E6E4FE13483D",
+   "importedAtEpochMillis": 1789739786865,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "subject": "CHEMISTRY",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 2026年新高考资料(3)",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "D45C35EA10D42D32A8A0A578557911B78B313C048345E31D7AB2381426DFFAA0",
+   "importedAtEpochMillis": 1789732926467,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-d8b718d85a:biology",
+   "subject": "BIOLOGY",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 2026年新高考资料(4)",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "35F0C03E99DD5E9D9DB8814B589AAB6804DCE7A5B4A35BC2E6DA76A4311544B7",
+   "importedAtEpochMillis": 1789733218691,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-e35c96096a:math",
+   "subject": "MATH",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 2026年新高考资料",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "DA44D7822E4E91D760B228E72495E4CE137101298124C0695FF0474FDFBE032B",
+   "importedAtEpochMillis": 1789669590286,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-7b2647b433:physics",
+   "subject": "PHYSICS",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 27版五三",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "F83BAF108E49BAA3F0129CF8C6CCA6E7A107B6BE0DAD86FF2EE1409CF4C40DF1",
+   "importedAtEpochMillis": 1789739800974,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
   }
  ],
  "materials": [
@@ -2601,6 +2681,949 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:噬菌体侵染细菌实验",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-phy-52d6492d23-017",
+   "subject": "PHYSICS",
+   "type": "METHOD_MODEL",
+   "title": "两段反向电场中的往复运动与水平出射条件",
+   "summaryMarkdown": "粒子在两段反向电场中竖直方向做周期性往复运动、水平方向匀速直线运动；恰好沿水平方向飞离电场要求飞行时间为竖直方向往返周期的整数倍。",
+   "applicabilityMarkdown": "带电粒子在两段反向（交变）电场中往复运动与水平出射的周期条件问题。",
+   "contentMarkdown": "① 粒子在两段反向电场中，竖直方向先匀加速到 v，再匀减速到 0，然后反向匀加速、匀减速，做周期性往复运动。\\n② 水平方向不受力，一直做匀速直线运动。\\n③ 粒子恰好沿水平方向飞离电场，要求飞行时间为竖直方向往返周期的整数倍，即 t总 = n(t1+t2)，n = 1,2,3,…；金属板长度随之取离散系列值。\\n④ 只处理两段反向电场中竖直往复、水平匀速且恰好水平出射的周期性条件，不含一般偏转与离开电场后的运动。",
+   "boundaryMarkdown": "只处理两段反向电场中竖直方向往复、水平匀速且恰好水平出射的周期性条件；不含一般偏转与离开电场后的运动。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-48689b61de:physics",
+   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书配套课件/第九章　静电场/第九章　第47课时　专题强化：带电粒子在电场中的偏转.pptx（块 52d6492d23-017）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-phy-52d6492d23-017",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:带电粒子在交变电磁场中的运动",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-phy-40c2c629c7-041",
+   "subject": "PHYSICS",
+   "type": "METHOD_MODEL",
+   "title": "循环运动稳定速度的能量分析",
+   "summaryMarkdown": "多次循环运动达到稳定速度时，对单个循环应用动能定理：稳定条件是单循环净能量收支为零，即电场在一个循环内做的功等于粒子被吸收或损耗的能量。",
+   "applicabilityMarkdown": "多次循环加速/回旋运动中稳定速度的能量分析。",
+   "contentMarkdown": "① 多次循环运动达到稳定速度时，对单个循环应用动能定理：电场在一个循环内做的功等于粒子被吸收或损耗的能量。\\n② 稳定条件是单循环净能量收支为零，即加速段获得的动能与插入体等损耗的能量相等。\\n③ 只适用于已进入周期循环、各循环净收支相等的阶段；起始加速阶段不能用该条件。",
+   "boundaryMarkdown": "多次循环运动速度趋于稳定时对单个循环用动能定理：稳定条件是单循环净能量收支为零（电场做功等于被吸收/损耗的能量）；只适用于已进入周期循环、各循环净收支相等的阶段。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-48689b61de:physics",
+   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书配套课件/第十一章　磁场/第十一章　第62课时　专题强化：带电粒子在组合场中的运动.pptx（块 40c2c629c7-041）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-phy-40c2c629c7-041",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:循环运动稳定速度的能量分析",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-phy-8e35447735-027",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "一般曲线运动的曲率半径",
+   "summaryMarkdown": "把一般曲线分割成许多很短的小段，每小段可看作圆周运动的一部分，该小段圆弧的半径即该处的曲率半径。",
+   "applicabilityMarkdown": "一般曲线运动在某点的曲率半径与向心力分析。",
+   "contentMarkdown": "① 研究一般曲线运动时，可把曲线分割成许多很短的小段，质点在每一小段的运动都可看作圆周运动的一部分。\\n② 该小段圆弧的半径称为该处的曲率圆半径，小段取得越短，圆周近似越准确。\\n③ 只在足够短的小段内近似成立，不能把抛体最高点等特例的曲率半径结论直接推广到整条曲线。",
+   "boundaryMarkdown": "把一般曲线分割为许多很短的小段，每小段可看作圆周运动的一部分，该小段圆的半径即该点的曲率半径；只在足够短的小段内近似成立，与抛体最高点等特例结论相区分。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-48689b61de:physics",
+   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书配套课件/第十一章　磁场/第十一章　第64课时　专题强化：复合场中的摆线问题　动量定理在磁场中的应用.pptx（块 8e35447735-027）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-phy-8e35447735-027",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:一般曲线运动的曲率半径",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-phy-a0d0498ecf-060",
+   "subject": "PHYSICS",
+   "type": "METHOD_MODEL",
+   "title": "半偏法测电阻",
+   "summaryMarkdown": "半偏法测电阻：先短路被测支路使电表满偏，再接入被测支路并调节电阻箱使电表半偏，由电阻箱读数推算被测电阻；因支路电压略升，测量值偏大。",
+   "applicabilityMarkdown": "半偏法测量电表内阻及误差方向分析。",
+   "contentMarkdown": "① 半偏法测电阻：先使被测支路短路，调节使电表满偏；再接入被测支路，调节电阻箱使电表半偏。\\n② 半偏时该支路总电阻近似为原来的 2 倍，可由电阻箱读数推算被测电阻。\\n③ 由于接入支路后总电阻增加，支路电压略有升高，电阻箱读数略大于真实总电阻，故测量值偏大。\\n④ 只说明半偏法测电阻的误差方向，不展开电表改装与校准。",
+   "boundaryMarkdown": "只说明半偏法测电阻的误差方向（支路电阻增加→分压略升→电阻箱读数偏大）；不展开电表改装与校准。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-48689b61de:physics",
+   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书配套课件/第十章　恒定电流/第十章　第54课时　专题强化：测电阻的其他几种方法.pptx（块 a0d0498ecf-060）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-phy-a0d0498ecf-060",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:半偏法测电表内阻",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-8cf8ecefc2-049",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "净反应速率与反应方向判断",
+   "summaryMarkdown": "净反应速率等于正、逆反应速率之差，即 v净 = v正 − v逆；v正 > v逆 时反应正向进行，v正 = v逆 时达到平衡。",
+   "applicabilityMarkdown": "由速率—时间或浓度—时间图像判断反应方向与平衡状态。",
+   "contentMarkdown": "① 净反应速率等于正、逆反应速率之差，即 v净 = v正 − v逆。\\n② v正 > v逆 时 v净 > 0，反应正向进行；v正 = v逆 时 v净 = 0，反应达到平衡。\\n③ 可由速率—时间或浓度—时间图像取同一时刻比较正、逆速率判断方向；净反应速率不是某一种物质的浓度变化率。",
+   "boundaryMarkdown": "v净=v正−v逆：v正>v逆 时正向进行、v净>0，平衡时 v正=v逆、v净=0；由速率—时间或浓度—时间图像取同一时刻比较正逆速率判方向；净反应速率不是某物质的浓度变化率。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第七章 化学反应速率与化学平衡/第05讲 化学反应速率与化学平衡图像（复习课件）（全国通用）.pptx（块 8cf8ecefc2-049）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-8cf8ecefc2-049",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:净反应速率与反应方向判断",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-e10749660f-027",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "快离子导体",
+   "summaryMarkdown": "β-Al2O3 等快离子导体中，导电的主要是半径较小的阳离子（如 K+、Na+），而不是 Al3+ 与 O2− 构成的刚性骨架；迁移离子半径越小，导电效率越高。",
+   "applicabilityMarkdown": "快离子导体的导电机理与迁移离子判断。",
+   "contentMarkdown": "① β-Al2O3 等快离子导体中，导电的主要是半径较小的阳离子（如 K+、Na+），而不是 Al3+ 与 O2− 构成的刚性骨架。\\n② 刚性骨架本身不参与导电，只提供结构支撑和离子迁移通道。\\n③ 迁移离子半径越小，迁移越快，导电效率越高；该材料属离子导体而非电子导体。",
+   "boundaryMarkdown": "β-Al2O3 等快离子导体中导电的主要是半径较小的阳离子（K⁺/Na⁺），而非 Al3⁺ 与 O2− 构成的刚性骨架；迁移离子半径越小导电效率越高；属离子导体而非电子导体，不含晶胞计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第五章 物质结构与性质 元素周期律/第04讲 晶体结构与性质（复习讲义）（全国通用）（教师版）.docx（块 e10749660f-027）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-e10749660f-027",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:快离子导体",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-0a9bb4de11-035",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "逆流萃取与单级萃取的比较",
+   "summaryMarkdown": "逆流萃取使萃取剂与料液逆向多次接触，较单级萃取提高萃取效率并减少萃取剂用量；萃取率还受相比（O/W）与搅拌速度等操作条件影响。",
+   "applicabilityMarkdown": "萃取方式（逆流与单级）的比较与操作条件分析。",
+   "contentMarkdown": "① 逆流萃取使萃取剂与料液逆向多次接触，可增大接触面积，提高萃取效率并减少萃取剂用量。\\n② 萃取率还受萃取相比（O/W）和搅拌速度等操作条件影响，需按实验数据选取较优条件。\\n③ 只比较萃取方式与操作条件，不展开分配系数与萃取平衡计算。",
+   "boundaryMarkdown": "逆流萃取使萃取剂与料液逆向多次接触，较单级萃取提高萃取效率并减少萃取剂用量；萃取率还受相比（O/W）与搅拌速度影响；只比较方式与操作条件，不展开分配系数与萃取平衡计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第04讲 碳、硅及无机非金属材料（复习讲义）（四川专用）（教师版）.docx（块 0a9bb4de11-035）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-0a9bb4de11-035",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:逆流萃取与单级萃取的比较",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-2ed99a4658-034",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "常见气体的定量吸收剂",
+   "summaryMarkdown": "定量吸收特定气体组分须选择只与该组分反应且吸收完全的试剂：连苯三酚碱性溶液吸收 O2，醋酸二氨合亚铜溶液吸收 CO。",
+   "applicabilityMarkdown": "混合气体定量测定中吸收剂的选择与吸收顺序设计。",
+   "contentMarkdown": "① 定量吸收特定气体组分时，须选择只与该组分反应且能吸收完全的试剂。\\n② 连苯三酚碱性溶液可定量吸收 O2，醋酸二氨合亚铜溶液可定量吸收 CO。\\n③ 吸收剂须专一且定量，并注意吸收顺序与末端保护，避免空气中的 CO、H2O 等干扰。",
+   "boundaryMarkdown": "定量吸收特定组分须选只与该组分反应且吸收完全的试剂：连苯三酚碱性溶液吸收 O2、醋酸二氨合亚铜溶液吸收 CO，由装置质量差算含量；吸收剂须专一且定量，注意吸收顺序与末端保护。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第04讲 综合实验题型探究（复习讲义）（湖南专用）（教师版）.docx（块 2ed99a4658-034）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-2ed99a4658-034",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见气体的定量吸收剂",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-044d85b5d2-009",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "酮式-烯醇式互变异构",
+   "summaryMarkdown": "含羰基的酮式结构可发生互变异构转化为烯醇式；能形成可互变烯醇式的结构要求与羟基相连的碳原子有双键连接（C=C—OH）。",
+   "applicabilityMarkdown": "判断有机物能否发生酮式-烯醇式互变及写互变异构体。",
+   "contentMarkdown": "① 含羰基的酮式结构可发生互变异构，转化为烯醇式。\\n② 能形成可互变烯醇式的结构要求：与羟基相连的碳原子必须有双键连接（C=C—OH）。\\n③ 只判断能否互变及互变异构体的写法，不展开平衡常数，也与官能团异构不同。",
+   "boundaryMarkdown": "含羰基的酮式可互变异构为烯醇式；能形成可互变烯醇式的结构要求与羟基相连的碳有双键（C=C—OH）；只判能否互变及互变异构体写法，不展开平衡常数，与官能团异构不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习/资料/第九章 第4讲 醛  酮（讲义及教师版） .docx（块 044d85b5d2-009）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-044d85b5d2-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酮式-烯醇式互变异构",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-66e4ec63d1-019",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "溶剂对酸强度的影响",
+   "summaryMarkdown": "酸的表观强度取决于溶剂接受质子的能力：在水中完全电离的 HClO4、H2SO4、HCl、HNO3，在冰醋酸中均不能完全电离，换溶剂后强弱顺序可能改变。",
+   "applicabilityMarkdown": "不同溶剂中比较酸的强弱。",
+   "contentMarkdown": "① 酸的表观强度取决于溶剂接受质子的能力：在水中完全电离的 HClO4、H2SO4、HCl、HNO3，在冰醋酸中均不能完全电离。\\n② 换溶剂后酸的强弱顺序可能改变，比较酸性时必须注明所用溶剂。\\n③ 不能把水中的酸性顺序直接搬到冰醋酸等其他溶剂中。",
+   "boundaryMarkdown": "酸的表观强度取决于溶剂接受质子的能力：水中完全电离的 HClO4/H2SO4/HCl/HNO3 在冰醋酸中不完全电离且强弱顺序改变；换溶剂须注明溶剂，不能把水中的顺序直接搬到其他溶剂。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习/资料/第八章 第1讲 电离平衡（讲义及教师版） .docx（块 66e4ec63d1-019）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-66e4ec63d1-019",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶剂对酸强度的影响",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-e043032ef4-032",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "分子筛的硅铝比与孔径筛分作用",
+   "summaryMarkdown": "调节硅铝比可以改变分子筛的空间结构从而改变稳定性，也可以调节孔径，按孔径大小筛分不同大小的分子。",
+   "applicabilityMarkdown": "分子筛的结构、孔径与筛分作用分析。",
+   "contentMarkdown": "① 调节硅铝比可以改变分子筛的空间结构，从而改变分子筛的稳定性。\\n② 调节硅铝比还可以调节分子筛的孔径，根据孔径大小筛分不同大小的分子。\\n③ 只讲硅铝比与结构、孔径、筛分作用的关系，不含晶胞计算。",
+   "boundaryMarkdown": "调节硅铝比可改变分子筛的空间结构与稳定性，也可调节孔径，从而筛分不同大小的分子；只讲硅铝比与结构、孔径、筛分的关系，不含晶胞计算。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习/资料/第四章 第4讲 碳、硅及无机非金属材料（讲义及教师版） .docx（块 e043032ef4-032）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-e043032ef4-032",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子筛的硅铝比与孔径筛分作用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-che-caef9344d6-009",
+   "subject": "CHEMISTRY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "动力学同位素效应",
+   "summaryMarkdown": "直接参与化学键变化的元素被更重的同位素取代时，反应速率会变慢；只有参与键断裂或形成的元素被取代才有显著效应。",
+   "applicabilityMarkdown": "由同位素取代判断反应速率变化与决速步骤。",
+   "contentMarkdown": "① 直接参与化学键变化的元素被更重的同位素取代时，反应速率会变慢。\\n② 判断时先确定反应中涉及该元素成键或断键变化的步骤。\\n③ 只有参与键断裂或形成的元素被同位素取代，才有显著的动力学同位素效应。",
+   "boundaryMarkdown": "直接参与化学键变化的元素被更重的同位素取代时反应速率变慢；判断时先确定涉及该元素成键变化的步骤；只有参与键断裂/形成的元素被取代才有显著效应。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-c099d2d6fc:chemistry",
+   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学大一轮复习卓越讲义重难点/资料/（重点·方法·点拨）第44讲 常考化学反应速率和化学平衡图像的分析- （教师版）.docx（块 caef9344d6-009）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-che-caef9344d6-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:动力学同位素效应",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-6522315ec7-013",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "疼痛的闸门控制学说",
+   "summaryMarkdown": "粗纤维与细纤维的传入信号在脊髓后角竞争「闸门」，粗纤维兴奋可关闭闸门，阻断细纤维向大脑传递痛觉信号；电刺激粗纤维（如 TENS）可镇痛。",
+   "applicabilityMarkdown": "疼痛调制机制（脊髓层面闸门调控）的解释。",
+   "contentMarkdown": "① 粗纤维与细纤维的传入信号在脊髓后角竞争「闸门」，粗纤维兴奋可关闭闸门。\\n② 闸门关闭后，细纤维向大脑传递痛觉信号的通路被阻断，从而减轻疼痛。\\n③ 电刺激皮肤使粗纤维兴奋（如 TENS）可镇痛；该学说只解释脊髓层面的闸门调控，与牵涉痛的会聚学说不同。",
+   "boundaryMarkdown": "粗纤维与细纤维的传入信号在脊髓后角竞争「闸门」：粗纤维兴奋可关闭闸门、阻断细纤维向大脑传递痛觉信号；电刺激粗纤维（TENS）可镇痛；只解释脊髓层面的闸门调控，与牵涉痛的会聚学说不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-d8b718d85a:biology",
+   "sourceLocator": "桌面资料 2026年新高考资料(4) / 2026年新高考资料(4)/一轮复习/2026年高考生物一轮复习知识清单（全国通用）/2026版/第25讲 神经调节（知识清单）（全国通用）（解析版）.docx（块 6522315ec7-013）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-6522315ec7-013",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:疼痛的闸门控制学说",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-f125731a77-011",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "椭圆的仿射变换",
+   "summaryMarkdown": "通过仿射变换可把椭圆化为圆，变换保持点、斜率比、面积比以及平行、相交、中点、相切等位置关系不变，但斜率本身会改变。",
+   "applicabilityMarkdown": "可化为圆的椭圆问题。",
+   "contentMarkdown": "① 通过仿射变换可把椭圆化为圆，例如令 x' = x，y' = (a/b)y，椭圆变为圆 x'^2 + y'^2 = a^2。\\n② 变换保持点、斜率比、面积比以及平行、相交、中点、相切等位置关系不变，但斜率本身会改变。\\n③ 只适用于可化为圆的椭圆问题；圆中的角度结论不能直接搬回椭圆。",
+   "boundaryMarkdown": "化椭为圆：仿射变换保持点、斜率比、面积比与位置关系（平行/相交/中点/相切）不变，斜率本身改变；只适用于可化为圆的椭圆问题，圆中的角度结论不能直接搬回椭圆。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书Word版文档/第一章　§1.5　基本不等式的综合应用.docx（块 f125731a77-011）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-f125731a77-011",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:椭圆的仿射变换",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-1c1ce65ac5-027",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "函数零点的求积问题",
+   "summaryMarkdown": "分段函数多零点之积：先分段求零点，二次段用韦达定理得两根之积、指对段反解，合并为参数表达式后在参数范围内求值域。",
+   "applicabilityMarkdown": "分段函数多个零点的积或组合式的取值范围问题。",
+   "contentMarkdown": "① 分段函数多零点之积：先分段求零点，二次段可用韦达定理得两根之积，指对段可反解。\\n② 把各段零点用参数表示后合并为参数表达式，再在参数允许范围内求其值域。\\n③ 不能照搬零点和的对称性结论，须先确认各段零点存在且互异。",
+   "boundaryMarkdown": "分段函数多零点之积：分段求零点（二次段用韦达得两根之积、指对段反解），合并为参数表达式后在参数范围内求值域；不能照搬零点和的对称性结论，须先确认各段零点存在且互异。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书配套课件/第二章　§2.13　函数与方程的综合应用.pptx（块 1c1ce65ac5-027）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-1c1ce65ac5-027",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数零点的求积问题",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-770ea359d0-052",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "点与直线的位置关系",
+   "summaryMarkdown": "把点坐标代入直线方程，所得值的符号可判断点与直线的位置关系：同号同侧、异号异侧。",
+   "applicabilityMarkdown": "判断点与直线的位置关系，或由两点位于直线两侧求含参点位于指定侧的参数范围。",
+   "contentMarkdown": "① 把点坐标代入直线方程，所得值的符号可判断点与直线的位置关系：同号同侧，异号异侧。\\n② 已知两点位于直线两侧时，可据此列不等式求含参点位于指定侧的参数范围。\\n③ 只判断点与直线的位置关系，不判断两条直线或直线与圆锥曲线的位置关系。",
+   "boundaryMarkdown": "把点坐标代入直线方程：同号同侧、异号异侧；可用于判断位置与求含参点位于指定侧的参数范围。只判点与直线，不判两直线或直线与圆锥曲线。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书配套课件/第八章　§8.2　两条直线的位置关系.pptx（块 770ea359d0-052）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-770ea359d0-052",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的位置关系",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-a66468915c-047",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "数列的有界性及其判定",
+   "summaryMarkdown": "若存在正数 M，使 |a_n| ≤ M 对一切正整数 n 成立，则数列有界，否则无界；可由通项或递推关系寻找统一的界再按定义判断。",
+   "applicabilityMarkdown": "判断数列是否有界。",
+   "contentMarkdown": "① 若存在正数 M，使 |a_n| ≤ M 对一切正整数 n 成立，则数列有界，否则无界。\\n② 可由通项或递推关系寻找对所有 n 统一的界，再按定义判断。\\n③ 有界不要求最值一定可取到；有界性与单调性、收敛性不是同一概念。",
+   "boundaryMarkdown": "存在正数 M 使 |a_n|≤M 对一切 n 成立则有界，否则无界；由通项或递推找统一的界。有界不要求最值可取到；与单调性、收敛性不是同一概念。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书配套课件/第六章　培优点6　新情境、新定义下的数列问题.pptx（块 a66468915c-047）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-a66468915c-047",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的有界性及其判定",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-bd8e3d603a-052",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "敏感性问题调查的随机化回答法",
+   "summaryMarkdown": "用摸球等随机装置让被调查者在敏感问题与无关问题之间随机作答，由两类问题被选中的已知概率与回答「是」的总比例，扣除无关问题所占部分后反推敏感问题的比例。",
+   "applicabilityMarkdown": "敏感性问题中估计总体比例的调查。",
+   "contentMarkdown": "① 用摸球等随机装置，让被调查者在敏感问题与无关问题之间随机作答，以保护隐私。\\n② 由两类问题被选中的已知概率，以及回答「是」的总比例，扣除无关问题所占部分，反推敏感问题的比例。\\n③ 只适用于总体比例估计，不能据此推断某个个体的真实情况。",
+   "boundaryMarkdown": "用摸球等随机装置让被调查者在敏感问题与无关问题间随机作答，由两类问题被选中的概率与回答「是」的总比例扣除无关问题后反推敏感问题比例；只适用于比例估计，不能推断个体。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书配套课件/第十章　§10.3　随机事件与概率.pptx（块 bd8e3d603a-052）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-bd8e3d603a-052",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:敏感性问题调查的随机化回答法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-0b7d959106-013",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "二次函数双重最值问题",
+   "summaryMarkdown": "二次函数最大值的最小值问题，常用分类讨论、三点控制、四点控制等方法：先按对称轴与区间的位置关系分类求最大值，再把最大值看作参数的函数求其最小值。",
+   "applicabilityMarkdown": "二次函数最大值的最小值（双重最值）问题。",
+   "contentMarkdown": "① 二次函数最大值的最小值问题，常用分类讨论、三点控制、四点控制等方法。\\n② 先按对称轴与区间的位置关系分类，求出给定参数下函数的最大值。\\n③ 再把最大值看作参数的函数，在参数范围内求其最小值；也可借助函数图象上点的纵向距离理解。\\n④ 只归纳二次函数最大值的最小值问题的处理方法，不复述具体题目与解答。",
+   "boundaryMarkdown": "只归纳二次函数最大值的最小值问题的分类讨论/三点控制/四点控制方法；不复述具体题目与答案。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年新高考数学大一轮复习讲义之技巧精讲与题型全归纳（新高考专用）/资料/2.5　二次函数与幂函数（2大考点+9大题型）（讲义+精练）（教师版）.docx（块 0b7d959106-013）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-0b7d959106-013",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平口单峰函数",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-a7b2307c11-004",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "数阵分组问题",
+   "summaryMarkdown": "第 n 组含 n 个数时，前 n−1 组共有 n(n−1)/2 项，故第 n 组首项是原数列第 n(n−1)/2+1 项，再用通项公式与前 n 项和公式定位求和。",
+   "applicabilityMarkdown": "按固定分组规则排列的数阵（分组数列）问题。",
+   "contentMarkdown": "① 第 n 组含 n 个数时，前 n−1 组共有 n(n−1)/2 项，故第 n 组首项是原数列第 n(n−1)/2 + 1 项。\\n② 确定首项后，用通项公式与前 n 项和公式定位并求和。\\n③ 先明确分组规则；本方法与对给定分组直接求和的「分组求和」不同。",
+   "boundaryMarkdown": "第 n 组含 n 个数时前 n−1 组共 n(n−1)/2 项，故第 n 组首项为原数列第 n(n−1)/2+1 项，再用通项与前 n 项和定位求和；先明确分组规则，与分组求和（对给定分组直接求和）不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习之一题多变系列讲义/资料/第6数阵寻源数列分组问题（解透一题）  教师版.docx（块 a7b2307c11-004）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-a7b2307c11-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数阵分组问题",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-ed0cdb9e41-014",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "向量积的模",
+   "summaryMarkdown": "|a×b| = |a||b|sinθ（θ 为 a、b 的夹角），几何意义是以 a、b 为邻边的平行四边形面积；可由 cosθ = (a·b)/(|a||b|) 求 sinθ 再代入。",
+   "applicabilityMarkdown": "求向量积的模或以两向量为邻边的平行四边形面积。",
+   "contentMarkdown": "① 定义 |a×b| = |a||b|sinθ，其中 θ 为向量 a 与 b 的夹角，θ∈[0,π]。\\n② 几何意义：|a×b| 等于以 a、b 为邻边的平行四边形的面积。\\n③ 可由 cosθ = (a·b)/(|a||b|) 先求 sinθ 再代入；它是向量积的模（面积），不是数量积。",
+   "boundaryMarkdown": "|a×b|=|a||b|sinθ，几何意义为以 a、b 为邻边的平行四边形面积；由 cosθ=(a·b)/(|a||b|) 求 sinθ 再代入。是向量积的模（面积），不是数量积；θ∈[0,π]。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮备考·学霸培优练习（新高考通用）/资料/第五章 §5.3 平面向量的数量积（教师版）.docx（块 ed0cdb9e41-014）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-ed0cdb9e41-014",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:向量积的模",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-a84f6a6f06-006",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "鳖臑",
+   "summaryMarkdown": "《九章算术》中四个面都是直角三角形的三棱锥称为鳖臑，判定时须逐面证明三角形为直角三角形。",
+   "applicabilityMarkdown": "四面体（三棱锥）的命名与直角面判定。",
+   "contentMarkdown": "① 《九章算术》中，四个面都是直角三角形的三棱锥称为鳖臑。\\n② 判定时须逐面证明三角形为直角三角形，常由线面垂直推出线线垂直。\\n③ 鳖臑只作四面体的一种特称，不含外接球半径等结论。",
+   "boundaryMarkdown": "《九章算术》中四个面都是直角三角形的三棱锥，判定时逐面证明直角（常由线面垂直推出）；只作四面体特称，不含外接球半径结论。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习一隅三反（新高考新题型）/资料/2026版/6.3 空间几何中的垂直（精讲）（教师版）.docx（块 a84f6a6f06-006）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-a84f6a6f06-006",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:鳖臑",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-e91c4fc655-004",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "阳马",
+   "summaryMarkdown": "《九章算术》中底面为矩形且有一条侧棱垂直于底面的四棱锥称为阳马，判定时须同时满足这两个条件。",
+   "applicabilityMarkdown": "四棱锥的命名与结构特征判定。",
+   "contentMarkdown": "① 《九章算术》中，底面为矩形且有一条侧棱垂直于底面的四棱锥称为阳马。\\n② 判定时须同时满足底面是矩形、有一条侧棱垂直于底面两个条件。\\n③ 只作四棱锥的一种特称，不把其他四棱锥混称为阳马。",
+   "boundaryMarkdown": "《九章算术》中底面为矩形且有一条侧棱垂直于底面的四棱锥；须同时满足底面矩形与一侧棱垂直底面两个条件。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习一隅三反（新高考新题型）/资料/2026版/6.4 空间几何体空间角与空间距离（精讲）（教师版）.docx（块 e91c4fc655-004）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-e91c4fc655-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:阳马",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-3073f5ec16-010",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "函数的不动点与稳定点",
+   "summaryMarkdown": "满足 f(x0) = x0 的 x0 为不动点，满足 f(f(x0)) = x0 的为稳定点（二阶不动点）；不动点一定是稳定点，反之不然，单调递增时 f(x)=x 与 f(f(x))=x 同解。",
+   "applicabilityMarkdown": "函数迭代意义下的不动点、稳定点（二阶不动点）问题。",
+   "contentMarkdown": "① 若 f(x0) = x0，则 x0 为函数的不动点；若 f(f(x0)) = x0，则 x0 为函数的稳定点（二阶不动点）。\\n② 不动点一定是稳定点，但稳定点不一定是不动点；若函数不存在不动点，则也不存在稳定点。\\n③ 若函数单调递增，则方程 f(x) = x 与 f(f(x)) = x 同解，不动点与稳定点完全一致。\\n④ 这里讨论的是函数迭代意义下的不动点与稳定点，区别于数列的不动点法与倍值函数。",
+   "boundaryMarkdown": "x0 使 f(x0)=x0 为不动点，使 f(f(x0))=x0 为稳定点（二阶不动点）；不动点一定是稳定点，反之不然；单调递增时 f(x)=x 与 f(f(x))=x 同解。本点为函数迭代意义，区别于数列不动点法与倍值函数。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习知识清单（全国通用）/2026版/专题03 集合培优归类（题型清单）（教师版）.docx（块 3073f5ec16-010）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-3073f5ec16-010",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的不动点与稳定点",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-ab2173ce7f-003",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "曲率",
+   "summaryMarkdown": "曲率是表示曲线在某一点弯曲程度的数值，可理解为平均曲率在弧长趋于零时的极限；曲率圆的半径等于曲率的倒数，曲率越大曲率圆越小。",
+   "applicabilityMarkdown": "可导光滑曲线的弯曲程度与曲率圆半径问题。",
+   "contentMarkdown": "① 曲率是表示曲线在某一点弯曲程度的数值，可理解为平均曲率在弧长趋于零时的极限。\\n② 曲率圆的半径等于曲率的倒数；曲率越大，曲率圆越小。\\n③ 只研究可导光滑曲线，曲率与切线斜率、凹凸性不是同一概念。",
+   "boundaryMarkdown": "曲率刻画曲线在某点的弯曲程度（平均曲率取弧长趋于零的极限）；曲率圆的半径等于曲率的倒数，曲率越大曲率圆越小；只研究可导光滑曲线，与切线斜率、凹凸性不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第三章 一元函数的导数及其应用/重难点培优14 导数中的新定义问题（复习讲义）（全国通用）（教师版）.docx（块 ab2173ce7f-003）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-ab2173ce7f-003",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:曲率",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-ab2173ce7f-018",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "拉格朗日乘数法",
+   "summaryMarkdown": "求约束条件下的可能极值点：先构造拉格朗日辅助函数，再对各变量求偏导并令其为零，解方程组所得的点即可能极值点。",
+   "applicabilityMarkdown": "含约束条件的多变量最值（条件极值）问题。",
+   "contentMarkdown": "① 求二元函数在约束条件下的可能极值点，先构造拉格朗日辅助函数，其中引入拉格朗日系数。\\n② 分别对辅助函数中的变量求偏导并令其为零，得到方程组；解方程组所得的点就是可能极值点。\\n③ 求偏导时把不求导的变量视为常数；该方法只用于含约束的多变量最值问题。",
+   "boundaryMarkdown": "构造拉格朗日辅助函数，对各变量求偏导并令其为零解方程组得条件极值候选点；只用于含约束的多变量最值，计算时把不求导的变量视为常数。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第三章 一元函数的导数及其应用/重难点培优14 导数中的新定义问题（复习讲义）（全国通用）（教师版）.docx（块 ab2173ce7f-018）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-ab2173ce7f-018",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:拉格朗日乘数法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-ab2173ce7f-019",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "偏导数",
+   "summaryMarkdown": "二元函数在一点对 x 的偏导数是固定 y 后关于 x 的导数，计算时把 y 视为常数；若区域内每点都存在则得到偏导函数，三元函数可类推。",
+   "applicabilityMarkdown": "求二元（或三元）函数的偏导数与偏导函数。",
+   "contentMarkdown": "① 二元函数在一点对 x 的偏导数，是固定 y 后关于 x 的导数，计算时把 y 视为常数。\\n② 若在区域内每一点对 x 的偏导数都存在，则得到关于 x 的偏导函数；三元函数可类推。\\n③ 偏导数存在不保证函数连续，也不展开全微分与方向导数。",
+   "boundaryMarkdown": "二元函数在一点对 x 的偏导数是固定 y 后关于 x 的导数，计算时把另一变量视为常数，三元类推；偏导存在不保证连续，不展开全微分与方向导数。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第三章 一元函数的导数及其应用/重难点培优14 导数中的新定义问题（复习讲义）（全国通用）（教师版）.docx（块 ab2173ce7f-019）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-ab2173ce7f-019",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:偏导数",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-ab2173ce7f-025",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "曲线的上切线与下切线",
+   "summaryMarkdown": "与曲线相切且对一切 x 有 f(x) ≥ l(x)（或 ≤）的直线称为下（上）切线，兼具切线与全局界的双重身份，须分别证明相切与恒成立。",
+   "applicabilityMarkdown": "切线兼具全局界（上界/下界）的双重身份问题。",
+   "contentMarkdown": "① 若直线 l 与曲线相切，且对一切 x 有 f(x) ≥ l(x)，则称 l 为曲线的下切线。\\n② 若直线 l 与曲线相切，且对一切 x 有 f(x) ≤ l(x)，则称 l 为曲线的上切线。\\n③ 上、下切线兼具切线与全局界的双重身份，须分别证明相切与恒成立两个条件。",
+   "boundaryMarkdown": "与曲线相切且对一切 x 有 f(x)≥l(x)（或 ≤）的直线称为下（上）切线，兼具切线与全局界双重身份；须分别证明相切与恒成立两个条件。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第三章 一元函数的导数及其应用/重难点培优14 导数中的新定义问题（复习讲义）（全国通用）（教师版）.docx（块 ab2173ce7f-025）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-ab2173ce7f-025",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:曲线的上切线与下切线",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-625c3a0cab-030",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "直线划分平面区域",
+   "summaryMarkdown": "三条直线把平面分成六个部分的充要条件：两条直线平行且第三条与二者都相交，或三条直线交于同一点。",
+   "applicabilityMarkdown": "三条直线划分平面区域的个数与求参数问题。",
+   "contentMarkdown": "① 三条直线把平面分成六个部分的充要条件：两条直线平行，且第三条与这两条平行线都相交；或三条直线交于同一点。\\n② 求参数时按两线平行与三线共点分类讨论。\\n③ 讨论后须检验各直线互异，排除重合等退化情形。",
+   "boundaryMarkdown": "三条直线把平面分成六部分的充要条件：两条平行且第三条与二者都相交，或三线共点；求参按平行与共点分类并检验互异，排除重合等退化。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/【4】2026年高考数学一轮复习直线方程模块讲义（新高考通用）/第02讲 直线方程解答题讲义（思维导图+知识要点+解题技巧+题型归纳+巩固提升）教师版.docx（块 625c3a0cab-030）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-625c3a0cab-030",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线划分平面区域",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-85f4a70f9e-042",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "切线的平行与垂直条件",
+   "summaryMarkdown": "两条切线互相平行应满足切点处的导数值相等；互相垂直应满足交点处的导数乘积为 −1，可据此建立等式。",
+   "applicabilityMarkdown": "由切线平行或垂直条件求参数的问题。",
+   "contentMarkdown": "① 两条切线互相平行，应先满足在切点处的导数值相等。\\n② 两条切线互相垂直，应满足在交点处的导数乘积为 −1，可据此建立等式。\\n③ 切线问题常设交点坐标，利用导数几何意义列式，再转化为基本不等式等求最值。\\n④ 只归纳切线平行与垂直的判定，不含切线方程求解全过程。",
+   "boundaryMarkdown": "只归纳切线平行（切点导数相等）与垂直（导数乘积为 −1）的判定；不含切线方程求解全过程。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【10】2026年高考数学二轮复习导数专题讲义（新高考通用）/第03讲 曲线的切线方程讲义（思维导图+知识要点+解题技巧+题型归纳+巩固提升）（新高考通用）-教师版.docx（块 85f4a70f9e-042）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-85f4a70f9e-042",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数的几何意义",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-e8be315383-058",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "零点差问题",
+   "summaryMarkdown": "把函数零点转化为方程的根并分离参数，通过放缩构造二次函数把两个零点夹在其零点之间，再用韦达定理与判别式推出零点差的范围。",
+   "applicabilityMarkdown": "函数两零点之差（零点差）的取值范围问题。",
+   "contentMarkdown": "① 把函数零点转化为方程的根，并分离参数，构造新的函数研究其性态。\\n② 通过放缩构造二次函数，使目标函数的图象位于二次函数图象的一侧，从而把两个零点夹在二次函数的两个零点之间。\\n③ 再用韦达定理与判别式推出零点差的范围；放缩方向须与待证关系一致。",
+   "boundaryMarkdown": "把零点转为方程的根并分离参数，放缩构造二次函数使目标函数图象在其一侧，把两零点夹在二次函数零点之间，再用韦达与判别式推零点差范围；放缩方向须与待证关系一致。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【10】2026年高考数学二轮复习导数专题讲义（新高考通用）/第11讲 导数与函数零点专题讲义（思维导图+知识要点+解题技巧+题型归纳+巩固提升）（新高考通用）-教师版.docx（块 e8be315383-058）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-e8be315383-058",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点差问题",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-d22990b76f-004",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "抽屉原理",
+   "summaryMarkdown": "把 n+1 个物体放入 n 个抽屉，至少有一个抽屉里不少于 2 个物体；一般形式为至少数 = ⌈物体数/抽屉数⌉。",
+   "applicabilityMarkdown": "存在性证明与计数中的抽屉构造问题。",
+   "contentMarkdown": "① 把 n+1 个物体放入 n 个抽屉，至少有一个抽屉里不少于 2 个物体。\\n② 一般形式：物体数不能被抽屉数整除时，至少有一个抽屉中的物体数为商加 1，即至少数 = ⌈物体数/抽屉数⌉。\\n③ 抽屉原理只保证存在性，不指出具体是哪一个抽屉；使用前须先构造抽屉并确认物体与抽屉的对应关系。",
+   "boundaryMarkdown": "把 n+1 个物体放入 n 个抽屉，至少有一个抽屉不少于 2 个；一般形式为至少数=⌈物体数/抽屉数⌉；只保证存在性、不指出哪个抽屉，须先构造抽屉并确认对应关系。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【15】2026年高考数学二轮复习举一反三讲义（北京专用）/解答题第21题 数列新定义及集合新定义（讲练测）（教师版）.docx（块 d22990b76f-004）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-d22990b76f-004",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抽屉原理",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-a3d2384411-038",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "伯努利不等式",
+   "summaryMarkdown": "当 x > −1 且 n 为正整数时，(1+x)^n ≥ 1+nx，当且仅当 x = 0 或 n = 1 时取等号。",
+   "applicabilityMarkdown": "数列、函数单调性及其他不等式证明中的放缩。",
+   "contentMarkdown": "① 当 x > −1 且 n 为正整数时，(1+x)^n ≥ 1+nx，当且仅当 x = 0 或 n = 1 时取等号。\\n② 该不等式常用于放缩，可处理数列、函数单调性及其他不等式的证明。\\n③ 使用时须满足 x > −1 与 n 为正整数；它与均值不等式、柯西不等式不是同一工具。",
+   "boundaryMarkdown": "x>−1 且 n 为正整数时 (1+x)^n≥1+nx，当且仅当 x=0（或 n=1）取等；用于放缩；须满足 x>−1 与 n 为正整数，与均值、柯西不等式不是同一工具。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【1】2026年高考数学二轮专题复习讲义（新高考通用）/第11讲 放缩法与数列讲义 （思维导图+知识要点+解题技巧+题型归纳+巩固提升）（新高考通用）-教师版.docx（块 a3d2384411-038）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-a3d2384411-038",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:伯努利不等式",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-50d5094802-067",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "两数列归并后的项定位与求和",
+   "summaryMarkdown": "两个递增数列的所有项按从小到大归并成新数列后求前 n 项和：先比较相邻项确定两列交界，统计两列各占项数，再分别求和相加。",
+   "applicabilityMarkdown": "两个递增数列归并后的项定位与前 n 项和问题。",
+   "contentMarkdown": "① 两个递增数列的所有项按从小到大归并成新数列后，求新数列前 n 项和：先比较相邻项确定两列的交界。\\n② 统计新数列前 n 项中两列各占多少项，再分别用各自的求和公式求和后相加。\\n③ 只适用于两列各自递增、项可比较的情形；与求两数列公共项（共有项）的问题不同。",
+   "boundaryMarkdown": "两递增数列所有项归并成新数列后求前 n 项和：先比较相邻项定交界、统计两列各占项数，再分别求和相加；只适用于两列各自递增、项可比较，与公共项问题（共有项）不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【1】2026年高考数学二轮专题复习讲义（新高考通用）/第13讲 数列解答题归纳（新高考通用）-学生版.docx（块 50d5094802-067）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-50d5094802-067",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两数列归并后的项定位与求和",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-448abf5558-010",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "反证法",
+   "summaryMarkdown": "反证法先否定结论，把结论的反面作为条件推理，由所得矛盾说明原结论成立。",
+   "applicabilityMarkdown": "直接证明困难时的存在性、唯一性或否定性命题证明。",
+   "contentMarkdown": "① 反证法必须先否定结论，把结论的反面作为条件，并根据这一条件进行推理。\\n② 由推理得出矛盾，从而说明原结论成立；矛盾可与已知条件、假设、定义、公理、定理、公认事实相矛盾，或自相矛盾。\\n③ 仅否定结论而不从结论的反面出发推理，不算反证法；否定形式要写完整。",
+   "boundaryMarkdown": "先否定结论、以结论的反面为条件推理，由矛盾（与已知、假设、定义/公理/定理、公认事实矛盾或自相矛盾）说明原结论成立；仅否定结论而不从其反面推理不算反证法，否定形式要写完整。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【1】2026年高考数学二轮专题复习讲义（新高考通用）/第14讲 高考数列压轴题之新定义专题（新高考通用）-教师版.docx（块 448abf5558-010）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-448abf5558-010",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:反证法",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-448abf5558-029",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "欧拉函数",
+   "summaryMarkdown": "对任意正整数 n，欧拉函数 φ(n) 是不超过 n 且与 n 互素的正整数个数；φ(p) = p−1，φ(pq) = (p−1)(q−1)（p、q 为不同素数）。",
+   "applicabilityMarkdown": "计数中统计互素个数及 RSA 密钥生成等应用。",
+   "contentMarkdown": "① 对任意正整数 n，欧拉函数 φ(n) 是不超过 n 且与 n 互素的正整数个数。\\n② 若 p 为素数，则 φ(p) = p−1；若 p、q 为两个不同的素数，则 φ(pq) = (p−1)(q−1)。\\n③ 欧拉函数可用于 RSA 密钥生成；它只统计互素个数，与多面体欧拉定理无关。",
+   "boundaryMarkdown": "φ(n) 为不超过 n 且与 n 互素的正整数个数；φ(p)=p−1，φ(pq)=(p−1)(q−1)；用于 RSA 密钥生成；只统计互素个数，与多面体欧拉定理无关。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【1】2026年高考数学二轮专题复习讲义（新高考通用）/第14讲 高考数列压轴题之新定义专题（新高考通用）-教师版.docx（块 448abf5558-029）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-448abf5558-029",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:欧拉函数",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-de151e7d39-037",
+   "subject": "MATH",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "错排问题",
+   "summaryMarkdown": "n 个元素的全排列中每个元素都不在原位的排列称为错排，可用间接法或容斥原理计数。",
+   "applicabilityMarkdown": "元素全部不在原位的排列计数问题。",
+   "contentMarkdown": "① n 个元素的全排列中，每个元素都不在原位的排列称为错排。\\n② 可用间接法：全排列数减去至少有一个元素在原位的排列数；也可用容斥原理计数。\\n③ 错排要求所有元素都不在原位；元素有重复时不能直接套用错排公式。",
+   "boundaryMarkdown": "n 个元素全排列中每个元素都不在原位的排列；用间接法（全排列减去有元素在原位的情形）或容斥计数；错排要求全部不在原位，元素有重复时不能直接套公式。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/二轮复习/【5】2026年高考数学二轮复习讲义（新高考通用）/第01讲 计数原理讲义（思维导图+知识要点+解题技巧+题型归纳+巩固提升）（新高考通用）-教师版.docx（块 de151e7d39-037）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-de151e7d39-037",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:错排问题",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-phy-526388500e-074",
+   "subject": "PHYSICS",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "力与速度垂直时不做功",
+   "summaryMarkdown": "当力的方向始终垂直于速度方向时，该力不做功；例如弹力方向始终垂直于速度方向，此种情况下弹力做功为 0。",
+   "applicabilityMarkdown": "力与速度始终垂直（如向心力、弹力）时的做功判断。",
+   "contentMarkdown": "① 当力的方向始终垂直于速度方向时，该力不做功，做功为零。\\n② 例如弹力方向始终垂直于速度方向，此种情况下弹力做功为 0。\\n③ 只说明力与速度始终垂直时该力不做功；不扩展到变力做功与路径依赖的一般讨论。",
+   "boundaryMarkdown": "只说明力与速度始终垂直时该力不做功；不扩展到变力做功与路径依赖的一般讨论。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:physics",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.物理.5·3A版/一、本书精品电子资源/第七章动量守恒定律/1_专题资料包/4_精讲册PPT 07_第七章　动量守恒定律.pptx（块 526388500e-074）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-phy-526388500e-074",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:功",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-a9a2f4c2c2-014",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "反义RNA药物",
+   "summaryMarkdown": "反义 RNA 药物是短片段 RNA，递送到细胞后与目标基因的 mRNA 互补结合形成部分双链，影响蛋白质翻译，从而达到治疗目的。",
+   "applicabilityMarkdown": "反义 RNA 药物的作用机制分析。",
+   "contentMarkdown": "① 反义 RNA 药物是一种短片段 RNA，递送到细胞中后能与目标基因的 mRNA 互补结合，形成部分双链。\\n② 互补结合后影响蛋白质翻译，最终达到治疗目的。\\n③ 选择目标基因时，应针对与疾病相关的基因；只说明反义 RNA 的作用机制，不写系谱题设与解答。",
+   "boundaryMarkdown": "只说明反义RNA短片段与靶mRNA互补结合、影响翻译的药物机制；不写系谱题设与答案。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第八章伴性遗传和人类遗传病/1_专题资料包/2_第八章 伴性遗传和人类遗传病  精练册PDF.pdf（块 a9a2f4c2c2-014）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-a9a2f4c2c2-014",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因表达与性状的关系",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-85e02e27c3-008",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "牵涉痛与会聚学说",
+   "summaryMarkdown": "内脏疾病可引起体表特定部位疼痛（如心肌缺血时左肩或左上臂疼痛），称为牵涉痛；会聚学说认为内脏与体表的痛觉信号会聚到同一中枢通路，大脑误认为痛觉来自体表。",
+   "applicabilityMarkdown": "牵涉痛现象及其会聚学说解释。",
+   "contentMarkdown": "① 内脏疾病可引起体表特定部位疼痛，如心肌缺血时常感到左肩或左上臂疼痛，这种现象称为牵涉痛。\\n② 会聚学说认为，内脏与体表的痛觉信号会聚到同一中枢通路，大脑误认为痛觉来自体表。\\n③ 须写清「会聚于同一通路」这一关键；该学说与疼痛的闸门控制学说不同。",
+   "boundaryMarkdown": "内脏疾病引起体表特定部位疼痛（心肌缺血→左肩/左上臂痛）；会聚学说认为内脏与体表痛觉信号会聚到同一中枢通路而被误认为来自体表；须写清会聚于同一通路，与闸门控制不同。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-7b2647b433:biology",
+   "sourceLocator": "桌面资料 27版五三 / 27版五三/【01】2027版53 A版新高考一轮复习（PDF+word）/2027版.新高考版.选考总复习.生物学.5·3A版/本书电子教参/第十四章神经调节/1_专题资料包/0_第十四章 神经调节  精练册PDF.pdf（块 85e02e27c3-008）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-85e02e27c3-008",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:牵涉痛与会聚学说",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-bio-0f22c4f1fa-021",
+   "subject": "BIOLOGY",
+   "type": "CONCEPT_EXPLANATION",
+   "title": "泛素-蛋白酶体途径",
+   "summaryMarkdown": "泛素激活酶 E1 激活泛素并交给泛素结合酶 E2，在泛素连接酶 E3 指引下泛素被转移到靶蛋白上完成标记，被标记的靶蛋白随后被蛋白酶体降解成短肽。",
+   "applicabilityMarkdown": "蛋白质的泛素-蛋白酶体降解途径。",
+   "contentMarkdown": "① 泛素激活酶 E1 激活泛素分子，然后把泛素交给泛素结合酶 E2。\\n② 在泛素连接酶 E3 的指引下，泛素被转移到靶蛋白上，标记靶蛋白。\\n③ 被标记的靶蛋白随后被蛋白酶体降解成短肽；泛素化是标记步骤，蛋白酶体是降解场所，不能混为一步。\\n④ 该途径与溶酶体降解途径相区分。",
+   "boundaryMarkdown": "E1 激活泛素→E2 结合→E3 指引标记靶蛋白→蛋白酶体降解为短肽；泛素化是标记、蛋白酶体是降解场所，不能混为一步；与溶酶体降解途径相区分。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-2452b2cbe4:biology",
+   "sourceLocator": "桌面资料 6. 2026生物总复习 / 6. 2026生物总复习/2027年新高考资料【上新中】/2027年高考生物一轮/2027年高考生物一轮课件+讲义+练习（黑吉辽蒙专用）-G330/2027版/第04讲 蛋白质和核酸（教师版）.docx（块 0f22c4f1fa-021）",
+   "reviewedAtEpochMillis": 1793402571122,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-bio-0f22c4f1fa-021",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:泛素-蛋白酶体途径",
      "role": "PRIMARY"
     }
    ]

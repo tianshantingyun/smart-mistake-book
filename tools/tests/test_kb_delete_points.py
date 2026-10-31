@@ -105,8 +105,12 @@ class RealPackTest(unittest.TestCase):
         # new_points_manual 重建」、1 点并入近义 survivor 落 point_merge.csv，见各表行内理由）
         # + 删 3 残点 + 窗口② 建 7 点 → 成品实点 3210 + 116 − 85 − 3 + 7 = 3245
         # （量源 = 成品包实跑 _point_count 与本用例 round-1 失败信息 `3210 != 3245`）。
+        # 2026-10-31 批次27 v23 重钉（成品实测）：41 行 REOPEN 中 35 条 BUILD 新建 35 个节点
+        # （6 条 MERGE 指向既有节点，不新增）→ 3245 + 35 = 3280；同步证据 = new_points_manual
+        # 1940 → 1941（抽屉原理）、point_delete 283 → 249（撤销 34 行空点撤回）。
+        # 量源 = 成品/staging 实跑 _point_count 与本用例 round-1 失败信息 `3245 != 3280`。
         # 点数随入库/结构清理轮次变化，由执行轮在提交里维护本 pin。
-        self.assertEqual(3245, dp._point_count(pack))
+        self.assertEqual(3280, dp._point_count(pack))
 
     def test_purge_table_refs_is_clean_on_shipped(self):
         """成品已删过点、外部表已清过——再 purge 必须 0（无悬空引用残留）。"""

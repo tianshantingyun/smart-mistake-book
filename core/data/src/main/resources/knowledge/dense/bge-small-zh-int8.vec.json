@@ -1,16 +1,16 @@
 {
-  "bytes": 26041347,
+  "bytes": 26085873,
   "corpus": {
-    "aliasVectors": 40798,
-    "atomicNodes": 3245,
-    "canonicalVectors": 3245,
+    "aliasVectors": 40839,
+    "atomicNodes": 3280,
+    "canonicalVectors": 3280,
     "includeTopics": false,
     "layoutSource": "spec §2.2；与离线臂 stage2_common.build_vector_layout 同序",
     "nodeScore": "max over the node's vectors (canonicalName + aliases) cosine",
-    "vectorCount": 44043
+    "vectorCount": 44119
   },
   "format": {
-    "count": 44043,
+    "count": 44119,
     "dim": 512,
     "dtype": "int8-per-vector-f32-scale",
     "dtypeCode": 1,
@@ -49,12 +49,12 @@
   },
   "packId": "moe-2025-four-subjects-v1",
   "packPath": "core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json",
-  "packSha256": "a719248448f314d1a6e6bfc74e3a101f07960d08d6985ade3d1c97f3efe6da36",
+  "packSha256": "051141e2a05cecc821931bba139cd919b3a205cabfb99439bebc0be0867b1be7",
   "productionLexicalLeg": {
     "note": "生产 v1 词面腿（COUNT(DISTINCT feature)，行序 = 生产排序）",
     "path": "build/production-lexical-leg.tsv",
-    "rows": 39022,
-    "sha256": "1b5638079f5f167f29e91f0c5cee209b9215ca414205d74e03f66c34ebf64557"
+    "rows": 39465,
+    "sha256": "021c6b99e2544e3adfa23de279b8517c07f4b79a57243db42774fc26565de9be"
   },
   "quantization": {
     "endToEndCosineMedianVsFp32Reference": 0.9992826581001282,
@@ -64,11 +64,11 @@
     "roundtripCosineMedianVsInt8Model": 0.9998918175697327,
     "roundtripCosineMinVsInt8Model": 0.9997469782829285,
     "scaleRule": "scale[r] = max(abs(v_r))/127 ; value = int8 * scale[r]",
-    "scalesBytes": 176172,
+    "scalesBytes": 176476,
     "vsFp32ReferencePath": "build/dense-model/fp32-docs.npy"
   },
   "regeneratedFrom": "python tools/dense_build/export_bge_int8.py --model bge-small-zh-v1.5",
-  "sha256": "79a22270b54180f6ba5346a4f56d87eb16e5f335107ac9877cbb142fd4515446",
+  "sha256": "bbcae9ecaedc5d6da868447e793b3ef7b6f16070478288aaba59626443bb527b",
   "vocab": {
     "note": "词表冻结副本两档共享：bge-base-zh-v1.5 与 bge-small-zh-v1.5 的 vocab.txt 逐字节相同（sha256 45bbac6b…，实测 2026-09-25），逐条 token id 亦相同（export 侧对 333 条冻结 fixture 当场对拍）",
     "path": "tools/dense_build/vocab/bge-small-zh-v1.5-vocab.txt",

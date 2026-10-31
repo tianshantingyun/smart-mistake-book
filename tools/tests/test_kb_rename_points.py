@@ -89,7 +89,10 @@ class RealPackTest(unittest.TestCase):
         # 按「空点收口」撤回：84 行记删 point_delete.csv、1 点并入近义 survivor）→ 删 3 残点
         # → 窗口② 建 7 点 → 成品实点 3210 + 116 − 85 − 3 + 7 = 3245（量源 = 成品包实跑
         # _point_count 与本用例 round-1 失败信息 `3210 != 3245`）。
-        self.assertEqual(3245, dp._point_count(pack))
+        # 2026-10-31 批次27 v23 重钉（成品实测）：41 行 REOPEN 中 35 条 BUILD 新建 35 个节点
+        # → 3245 + 35 = 3280（量源 = 成品/staging 实跑 _point_count 与本用例 round-1 失败信息
+        # `3245 != 3280`；同批 new_points_manual +1、point_delete −34）。
+        self.assertEqual(3280, dp._point_count(pack))
 
 
 if __name__ == "__main__":

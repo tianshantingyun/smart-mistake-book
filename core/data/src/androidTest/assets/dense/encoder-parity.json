@@ -10,7 +10,7 @@
   },
   "textSource": {
     "path": "core\\data\\src\\test\\resources\\dense\\tokenizer-parity-cases.txt",
-    "sha256": "e6cb53a367637376ec3809da8ae8e7afdf6839c34c12fa56738ac48fa1ed9f0b",
+    "sha256": "6cbae2a71b14965cc8839e4c731849fff9d59e1c94a9e77eaebfce53f6973bba",
     "note": "query 行含 BGE 查询前缀；surface 行是向量集原文（节点名/别名）"
   },
   "referenceVectors": {
@@ -20,7 +20,7 @@
     },
     "docs": {
       "path": "build\\dense-model\\int8-docs.npy",
-      "sha256": "ca63f6de4e87707e590bffae92295f87fa2a6918aef89380b2d3c7dc5f000f73"
+      "sha256": "33461f2564dda4950197202d083ad4481ab5eb395f682203c2a220a21b64c15e"
     },
     "producer": "onnxruntime 1.28.0 on build\\dense-model\\bge-small-zh-v1.5-int8.onnx",
     "modelSha256": "4d3b31355a3df4ff923db83bc76181f8581592de10f67502be825f519d2fa213"
@@ -37,14 +37,14 @@
   },
   "casesFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-cases.tsv",
-    "sha256": "c101c39c33d237a5b463e047d481443c33154883530befd006666a3a3545b584"
+    "sha256": "9b7a3594b3e058da3cdc4fd72df667bb6b6db5d357675c3c038d801770f2373c"
   },
   "vectorsFile": {
     "path": "core\\data\\src\\androidTest\\assets\\dense\\encoder-parity-vectors.f32",
-    "sha256": "b0550446214616284a6578d84517a49be911abd14f54bb14c5ffe9e7fa78458e",
+    "sha256": "af99dcdbe0cf19de97a8bbb1a0edf0750aed8fb2f2191571aef0868749bf7fe8",
     "layout": "little-endian float32, row-major, N×512",
     "l2NormRange": [
-      0.999999463558197,
+      0.9999994039535522,
       1.0000004768371582
     ]
   }

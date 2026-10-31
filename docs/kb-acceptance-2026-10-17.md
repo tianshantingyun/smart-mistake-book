@@ -796,3 +796,23 @@ cat build/agent-batch23/device/zero-drift.json
 ```
 
 **未跑声明**：本文书轮只实跑了 `retest_r1_batch23.py` 与只读 `git status`/文件读取；**未重跑** Gradle、`am instrument`、JVM 判官、零漂移脚本或八门。定向测试读数来自批次产物 `batch23-targeted.end.txt` / `batch23-targeted.log`，不能当作本文书轮实跑。
+
+## 13. 批次27 状态（v23 blocked；不追加 v23 后基线）
+
+> 本节只追加不改写 §1–§12。判据增补见 `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` **§F.5（v1.2，2026-10-31）**；批报 = `docs/kb-batch27-2026-10-31.md`。
+
+- **v23 = blocked，未产生、未采纳**：41 行 `SKIP→MATERIAL` 已写入运行时五片，但六字段 41/41 仍空，`materialize` 41 条非法 type 拒绝落盘；建点 34/35（缺 `MATH/抽屉原理`），别名 +0。按 ask“若采纳才追加 v23 后基线”，**本批不追加**；验收基线仍为 **v21**（manifest `9f9e99ceec47cf8c` / 主包 `a7192484…` / `.vec 79a22270…`）与 **A1 117/129 = 0.9069767441860465**。
+- **门的状态**：守卫、alias_map、promote dry-run（RC=0、零写盘）、`py_suite` 902/902 归绿；但 `kb_checks` judgment_drift **418**（194 content + 183 boundary + 41 missing）与 `slice` RC=1（41 行六字段）仍在，`overall red=1`。不得称八门归绿。
+- **v1.2 增补**：F6 首启导入 **≤60 s → NOT_MET**（186,574 ms / 256,398 ms）；F7 截断安全 **JVM 11/11 PASS，设备端 UNVERIFIED**。因此 v1.2 **未全部达标**；F1–F5 的 v1.1 PARTIAL 状态不变。
+- **独立成果（不改变上述结论）**：R3/R4 安全截断（11/11）、升级演练（计数幂等 + 损坏包拒装）、遥测聚合（11/11 + 真实 logcat 14 事件）、API23/34 回归（各 4/4）。证据与复算命令见批报 §5–§10。
+
+## 14. 批次28 状态（v23 adopted；验收基线刷新为 v23）
+
+> 本节只追加不改写 §1–§13。依据：`build/agent-batch28/v23-final.md`、`build/agent-batch28/rebuild-report.md`、`build/agent-batch28/consistency.txt`、`build/agent-batch28/gates/summary.txt`；批报 = `docs/kb-batch28-2026-10-31.md`。
+
+- **v23 = adopted=true**：四条预注册判据全部通过（融合 Recall@5 **117/129 = 0.9069767441860465**，与 A1 相同；24 章 **0 lower / 0 higher / 24 eq**；同路零漂移 **PASS/PASS**，lexical symdiff 0 / fused symdiff 0；bootstrap CI 上界 ≥0），**未回滚**（`v23-final.md:7,18-23,149-152`）。
+- **物化与建点**：41 行 `SKIP→MATERIAL` 的六字段 **41/41 落料**（`MATERIAL_six_all_empty 41→0`、`MATERIAL_type_empty 41→0`、`changed_rows=41`）；建点 **35/35**；材料 **64,973→65,014（+41）**、节点 **3,245→3,280（+35）**、额外别名 **+6**、别名总量 **40,839**、`retired 1,222`（`build/agent-batch28/materialize.log:2,69`；`rebuild-report.md:17-27,34-42`）。
+- **新基线（stateAfter）**：manifest **v23 / `868a177d1de4f97a`**；主包 **`051141e2…` / 4,538,271 B**；`.vec` **`bbcae9ec…` / 26,085,873 B / 44,119 vectors**；release == staging **28/28**（`consistency.txt` G02–G06；`v23-final.md:11,32-54`）。
+- **门**：八门 **8/8 rc=0、overall red=0**；批次27 仍红的 `kb_checks` / `slice` / `py_suite` 本批全绿；设备仪器化 `OK (1 test)`、JVM `BUILD SUCCESSFUL`（`gates/summary.txt`；`v23/device-test-result.txt`；`v23/step5_run_jvm.log`）。判据/阈值/判官/金标未改；v23 基线常量按 adopted 结果登记，不是放宽门槛。
+- **F6**：v23 本轮首启全量 **127,014 ms**（`v23/device-logcat.txt:1609`），仍 **>60 s ⇒ NOT_MET**；F7 仍为 JVM 11/11 PASS、设备端 UNVERIFIED。因此 **v1.2 未全部达标**，不得写成“性能已达标”。
+- **词面观测**：101/129（A1 102/129，数列章 6/11 vs 7/11）；预注册只对融合设门槛，该 −1 记录为观测，不构成回滚依据（`v23-final.md:28`）。

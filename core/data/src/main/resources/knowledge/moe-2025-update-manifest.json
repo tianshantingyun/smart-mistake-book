@@ -1,8 +1,8 @@
 {
  "schemaVersion": 2,
  "packId": "moe-2025-four-subjects-v1",
- "version": 21,
- "contentVersion": "9f9e99ceec47cf8c",
+ "version": 23,
+ "contentVersion": "868a177d1de4f97a",
  "retired": [
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA分子的多样性与特异性",
@@ -359,12 +359,6 @@
    "reason": "两节点同一知识点（细胞中水的存在形式、理化性质与代谢/抗逆关系）。survivor 取教材小节名 `细胞中的水`（别名逐条覆盖本节点 r5–r14：水的性质、自由水/结合水比值曲线、水的产生与利用），本节点 14 条并入后统一去重。注：survivor 84 条本身超配，合并须与去重、并按所属 kit 的裁决一并处理。反馈：本批只提案，不建点/不删点。；复核 AGREE；批次9 超配 2026-10-12"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:泛素-蛋白酶体途径",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:流动镶嵌模型",
    "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:膜的流动镶嵌模型",
    "kind": "MERGE",
@@ -393,12 +387,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:物质出入细胞的方式",
    "kind": "MERGE",
    "reason": "survivor 的别名已把「四种方式的比较」登记为自身内容，本点 14 条无越出者；survivor 现 59 条已超配，需在同一轮由所属 kit-002 派生处置。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:牵涉痛与会聚学说",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:特异性免疫-x1",
@@ -465,12 +453,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:biology:atomic:有氧呼吸",
    "kind": "MERGE",
    "reason": "同点判据：本点名为「三步定位法」，材料族实为「有氧呼吸三阶段的场所与物质变化＋电子传递链与氧化磷酸化」，该内容已在 survivor「有氧呼吸」的 boundary 与别名中逐条列出（「电子传递与氧化磷酸化」「有氧呼吸·第三阶段」「糖酵解的过程与特点」）；包内另有「有氧呼吸的过程分析」（别名含「电子传递链与氧化磷酸化」「三羧酸循环的场所与产物来源」）与「atp的合成和利用」（别名含「H+ 经 ATP 合成酶回流驱动 ATP 合成」）分挂同族材料，survivor 取上一级规范名「有氧呼吸」，不另立「三步定位法」方法名节点。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:疼痛的闸门控制学说",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:病毒-x1",
@@ -1541,12 +1523,6 @@
    "reason": "题干/答案标记"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:净反应速率与反应方向判断",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分别对稀溶液进行下列操作-一定可使增大的是",
    "supersededBy": null,
    "kind": "DELETE",
@@ -1569,12 +1545,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:手性分子",
    "kind": "MERGE",
    "reason": "同点重复并入 survivor：两节点是同一知识点（手性碳原子判定与手性分子概念），边界几乎同句，同主题下重复建点；保留名称最规范的概念点「手性分子」，其余手性节点应随之合并。；批次11 超配 2026-10-14"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子筛的硅铝比与孔径筛分作用",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分散系的分类",
@@ -1623,12 +1593,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验室制取氯气装置的改进",
    "kind": "MERGE",
    "reason": "同一知识点（制取 Cl2 的装置改进）。survivor 为包内既有节点；本点借「拓展」名义收进的通用装置材料（蒸发、过滤、分离提纯、集气）属他点，改绑。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:动力学同位素效应",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:劳动创造美好生活-下列关于劳动项目的做法或对应化学知识的描述错误的是",
@@ -2183,12 +2147,6 @@
    "reason": "同点判据：survivor（CONCEPT，跨册综合·实验与方案设计）边界就是「检验试剂与方法的选取 + 干扰的排除」，本点材料《物质检验和鉴别的原则与检验方法》《物质检验的基本要求与检验步骤》标题即「物质检验和鉴别的原则与检验方法」「物质检验的基本要求与检验步骤」，《有机物鉴别表：不饱和烃、苯的同系物与卤代烃（《53知识清单·化学》印刷页398）》《有机物鉴别表：含羧基物质、醇、羧酸、酚、淀粉与蛋白质（《53知识清单·化学》印刷页398）》《鉴别有机化合物的溶解性法与密度法（《53知识清单·化学》印刷页397-398）》《鉴别有机化合物的燃烧法与官能团法（《53知识清单·化学》印刷页398）》为有机物鉴别表；唯《酸式盐与溶度积比较的实验设计》为溶度积比较实验设计，另按沉淀溶解平衡改绑。；复核 AGREE；批次9 超配 2026-10-12"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见气体的定量吸收剂",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见的易混淆物质变化",
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物理变化与化学变化的两种判断方法",
    "kind": "MERGE",
@@ -2253,12 +2211,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒浓度大小的比较",
    "kind": "MERGE",
    "reason": "同点重复并入 survivor：同一知识点：本节点（电离理论/水解理论、粒子浓度顺序反转）是目标边界声明的内容，目标材料 43 条 > 本节点 10 条，宜并入。；批次11 超配 2026-10-14"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:快离子导体",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:恒温线或恒压线图像",
@@ -2703,12 +2655,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的分类",
    "kind": "MERGE",
    "reason": "B 3 条（ext-che-aa83e6fece-007「从组成、熔沸点、性质区分纯净物和混合物」等）与 A 边界「从组成、熔沸点与性质角度区分纯净物与混合物」及同题材料一行之差（ext-che-394d61720c-008）；并入 A。（复核 AGREE 2026-10-03）"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶剂对酸强度的影响",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶剂的自偶电离",
@@ -3431,12 +3377,6 @@
    "reason": "B 边界残缺（仅「从元素化合价角度分析Na2O2的性质」一句），材料为 Na2O2 与水/CO2 的反应机理与电子转移（ext-che-a8915bbd80-010 两步机理、ext-che-5c62da9e03-2038/2039/2040），全在 A 边界「与水和二氧化碳的反应、强氧化性」内；并入 A（37 条）。（复核 AGREE 2026-10-03）"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:逆流萃取与单级萃取的比较",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:通过对比物理变化和化学变化的不同-回答下列问题",
    "supersededBy": null,
    "kind": "DELETE",
@@ -3507,12 +3447,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:chemistry:atomic:苯酚的化学性质",
    "kind": "MERGE",
    "reason": "本点 boundary 的两条（(1)脂肪醇、芳香醇、酚类性质的比较；(2)从苯环与羟基相互影响角度认识酚类化学性质）与 13 条材料，正是 survivor「苯酚的化学性质」的界与别名所覆盖的同一 kp（r7 与其名互为整名包含关系，r2/r10/r11 与其别名「苯酚的弱酸性」「酚羟基的反应与苯酚的取代、检验」同题）；同族在包内已有 5 枚节点（酚／酚的结构和性质／酚的概念和物理性质／苯酚的化学性质／醇和酚的结构和性质易混易错点），本点属重复节点。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酮式-烯醇式互变异构",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酯化反应实验探究",
@@ -4427,12 +4361,6 @@
    "reason": "近重复节点：错绑嫌疑改绑后该节点已无材料，其同名节点承担全部内容（2026-09-19 错绑审计）。"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两数列归并后的项定位与求和",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:中心对称与轴对称的坐标关系",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的对称问题",
    "kind": "MERGE",
@@ -4475,18 +4403,6 @@
    "reason": "同点重复并入 survivor：本节点定型定参/模型确定/解题步骤/三个条件各条与上述目标材料同题，属同点双份；目标 33 条 > 10 条，宜由目标吸收本节点。；批次11 超配 2026-10-14"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:伯努利不等式",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:偏导数",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:充要条件",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:充分条件与必要条件的判断",
    "kind": "MERGE",
@@ -4517,12 +4433,6 @@
    "reason": "两节点同指「函数定义域的定义、常见限制与具体/抽象求法」；保留材料更多的 函数的定义域（39 条），本节点（29 条）并入。；复核 AGREE；批次9 超配 2026-10-12"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的不动点与稳定点",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的单调性与导数",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:导数与函数的单调性的关系",
    "kind": "MERGE",
@@ -4551,12 +4461,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:导数与函数零点问题",
    "kind": "MERGE",
    "reason": "两节点同指「导数视角下零点个数判断与由零点求参」；保留材料更全的「导数与函数零点问题」（24 条），本节点 7 条并入（r2 先改绑到必修一求参节点）。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数零点的求积问题",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:分式不等式及其解法",
@@ -4631,22 +4535,10 @@
    "reason": "同指「导数双变量问题（整体代换/比值代换/韦达消元/构造函数）」一考点；保留材料更全的「导数中的双变量问题」（8 条 vs 7 条），本节点余 6 条并入，r1 先改绑到双变量存在性/任意性节点。；复核 AGREE；批次9 超配 2026-10-12"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:反证法",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法求数列通项",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:取倒数法-an-1-p-q-r是常数-可变形为",
    "kind": "MERGE",
    "reason": "同点重复并入 survivor：两者同为分式型递推取倒数后的两条路径（成等差 / 转化为 an＋1＝san＋t 型待定系数构造），属同一知识点；survivor_slug 已存在于现包（数学选择性必修第二册·数列）。另：节点内「同除…」「取对数…」约 6 条材料另属构造法族（「构造法求数列通项」边界含「两边同除或取倒数」），merge 后应随之改绑。；批次11 超配 2026-10-14"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:向量积的模",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:周期函数的定义",
@@ -4877,12 +4769,6 @@
    "reason": "同点重复并入 survivor：同一知识点：扇形弧长/面积公式及其弧度前提与取值范围。；批次11 超配 2026-10-14"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:拉格朗日乘数法",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:拼凑角思想",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:角的变换技巧",
    "kind": "MERGE",
@@ -4919,12 +4805,6 @@
    "reason": "survivor 取「证明不等式」（18 条，边界与已绑材料已含切线放缩/指对放缩的化归策略）；本点 9 条放缩法材料（含 r7 数列放缩模型，包内无「数列放缩」独立节点）并入同一知识点；r10 另按改绑归「指对幂比较大小的常用方法」。；复核 AGREE；批次9 超配 2026-10-12"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:敏感性问题调查的随机化回答法",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列与函数的关系",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
    "kind": "MERGE",
@@ -4947,12 +4827,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
    "kind": "MERGE",
    "reason": "同点判据：本点即 4.1「数列的概念」（定义/表示/分类/通项），survivor 的 boundary 与别名「数列及相关概念与分类（4.1 数列的概念）」「数列的定义与三种表示法」逐条对应；「数列的递推公式」（12 条）管递推公式与 Sn 关系，为下游专点，不混并。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的有界性及其判定",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数学的周期美",
@@ -4991,24 +4865,6 @@
    "reason": "同点判据：survivor 的别名逐条对应本点材料（「数量积的两种运算方法」「数量积常用变形公式」「数量积运算的常用公式与夹角结论」「数量积的运算律与性质」），两节点同为「平面向量数量积的定义/性质/运算方法/变形公式」，并入后按「定义—性质—运算方法—变形」重排；节点 boundary 的「数学必修第一册 第三章」是错误章节标注，不影响知识点归属（材料全为必修二第六章内容）。；复核 AGREE；批次9 超配 2026-10-12"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数阵分组问题",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:曲率",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:曲线的上切线与下切线",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:极值点偏移的对称化构造法",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:极值点偏移问题",
    "kind": "MERGE",
@@ -5033,19 +4889,7 @@
    "reason": "同概念双节点（边界同讲切点在棱上、与内切球/外接球区分），同题材料分挂（A 池 ext-mat-a80a28ae22-018《棱切球的存在条件与常见半径》对 B 池 ext-mat-b6e979f79a-005《棱切球：与几何体各条棱都相切的球》）；并入 A（名即规范术语，3 条对 3 条）。（复核 AGREE 2026-10-03）"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:椭圆的仿射变换",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:椭圆的实际应用问题",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:欧拉函数",
    "supersededBy": null,
    "kind": "DELETE",
    "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
@@ -5075,12 +4919,6 @@
    "reason": "同知识点双节点（A 名与 B 名同指离心率求法，同章同节），A 池含《求离心率方法一：由条件列方程组求 a、c》《求圆锥曲线离心率的两种方法》，B 材料《求圆锥曲线离心率的四步法》同为「条件转化到 e=c/a」的通用步骤；并入 A（4 条）。（双遍复核 AGREE 2026-10-11）"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的位置关系",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:狄利克雷函数",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:狄利克雷函数与高斯函数",
    "kind": "MERGE",
@@ -5103,12 +4941,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:点与直线的对称问题",
    "kind": "MERGE",
    "reason": "两节点同指「点/直线关于点、关于直线的对称求法（两点法与到角法、平行情形）」；保留材料更全的「点与直线的对称问题」（14 条），本节点 7 条并入。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线划分平面区域",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线被圆截得的弦长",
@@ -5273,28 +5105,10 @@
    "reason": "同物重复：别名取证改绑后「递推数列」零材料，与「数列的递推公式」同义"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:错排问题",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:阳马",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零次幂的底数不能为零-即中",
    "supersededBy": null,
    "kind": "DELETE",
    "reason": "公式被剥离"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点差问题",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:频率的稳定性（用频率估计概率）",
@@ -5315,12 +5129,6 @@
    "reason": "本节点吸收对端（复核 AGREE）：survivor 即本节点（7 条）；并入对象「高次不等式及其解法」边界（系数化正、奇穿偶回、端点取舍）与序轴标根别名同题，7 条大于其 2 条。；批次11 超配 2026-10-14"
   },
   {
-   "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:鳖臑",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
-  },
-  {
    "nodeId": "kb:moe-2025-four-subjects-v1:math:atomic:齐次式的处理",
    "supersededBy": "kb:moe-2025-four-subjects-v1:math:atomic:齐次式与切弦互化",
    "kind": "MERGE",
@@ -5337,12 +5145,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:v-t图像（速度—时间图像）",
    "kind": "MERGE",
    "reason": "survivor 取教材规范名『v-t图像（速度—时间图像）』：两点 boundary 互述同一读数规则（“图线与时间轴围成的面积表示位移…斜率表示加速度…判断加速还是减速要看加速度方向与速度方向是否一致”），8+8 条材料全部落在“面积=位移、斜率=加速度、加速减速看方向”这一知识点；本点 8 条材料并入。；复核 AGREE；批次9 超配 2026-10-12"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:一般曲线运动的曲率半径",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:万有引力定律的科学成就（发现未知天体）",
@@ -6213,12 +6015,6 @@
    "supersededBy": "kb:moe-2025-four-subjects-v1:physics:atomic:刹车类与双向可逆类问题对比",
    "kind": "MERGE",
    "reason": "本节点吸收对端（复核 AGREE）：survivor 即本节点（5 条）；并入对象「往返类与刹车类问题」边界（速度减零后若无外力不会自动反向、对称类可整体用公式）与判据同旨，5 条大于其 4 别名。；批次11 超配 2026-10-14"
-  },
-  {
-   "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:循环运动稳定速度的能量分析",
-   "supersededBy": null,
-   "kind": "DELETE",
-   "reason": "批次13 空点撤回：判定表无任何 MATERIAL 行指向该节点（待后续配材后按 new_points_manual 重建）；批次13 空点收口 2026-10-19"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:必须估读的仪器-这类仪器是大多数-其读数需要包含一位可靠的估计值",

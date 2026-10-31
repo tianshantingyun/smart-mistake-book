@@ -139,3 +139,17 @@ cat build/agent-batch23/usage-r1/retest-r1.log
   - **R5** 2k 名义值、`KNOWLEDGE_READ` 无运行时检查点、UTF-8 max 2,267 B > 2,000 B——审计 `:180-208`，归属 `:194-196`。
 - **R6 属数据级维护项**：13 条 `summaryMarkdown` / 6 条 boundary 含真实换行（LaTeX `\ne` 转义、PHYSICS 结构换行）——审计 `:209-240`，归属 `:221`；修 sidecar，不改本批 F1–F5 判据。
 - **R1 本身**（本批修复）只覆盖「每节点一条 + 教学序 + 无材料显式标记 + 渲染形态」；不把 R2–R6 算作已修，也不把 F1–F5 达标外推为 R2–R6 关闭。
+
+### F.5 性能门与交付门（v1.2 增补，2026-10-31）
+
+> 本节把**首启导入性能**与 **R3/R4 截断安全**纳入验收；A–E 与 F1–F5 判据文字**原文不动**，本节使标准从 v1.1 升为 **v1.2**。F6 是**新增红门**（旧基线从未满足 60 s 门槛），F7 是 R3/R4 的交付判据。判据来源与读数 = `docs/kb-batch27-2026-10-31.md` §4–§5；证据 = `build/kb-perf/`、`build/agent-batch23/prod-drill/`、`core/data/.../SafeTruncationTest.kt`。本节不重判 B1–B4、不主张检索涨分、不撤销 v1.0/v1.1 的已落章结论。
+
+| # | 判据（v1.2） | 测量 / 口径 | 实测值 | 判定 | 证据 / 复算 |
+|---|---|---|---|---|---|
+| F6 | **首启导入 ≤60 s**（冷装全量路径） | `KnowledgeInstall: install finished in … ms (full path: parse + reconcile)`；同一装置、干净安装 | 批次23 存档 **186,574 ms**；10-31 冷装演练 **256,398 ms**（墙钟 **264,438 ms**）；快路径仅 **446 / 1,378 ms** | **NOT_MET（红）** | `build/agent-batch23/prod-drill/step1_clean_install_launch.log:60`；`build/kb-perf/cold-install-drill.log:22,38,53`；复算见批报 §4 |
+| F7 | **截断安全**（R3/R4） | `safeTruncateMarkdown`：公式内切口退到公式起点；否则退到句号/分号；无安全点回退旧 `take`；形态仍 5 行 / boundary 80 / 摘要 60 / 2k 字符 | `SafeTruncationTest` **11 tests / 0 failures**（JVM）；设备端真实 `KNOWLEDGE_READ` 截断抽验**未做** | **PASS（JVM）**；设备端 **UNVERIFIED** | `core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/SafeTruncationTest.kt`；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomTutorToolRunner.kt:91,447,449`；`./gradlew :core:data:testDebugUnitTest --tests "*SafeTruncationTest"` |
+
+- **F6 是性能事实的显式化，不是回归**：旧读数 149–178 s（批次20–22）本就高于 60 s；本门槛首次把“首启导入慢”判红。搜索索引重建占 59.8%（186,574 ms 轮）至 67.1%（256,398 ms 轮）。
+- **F7 的绿只覆盖纯函数 + JVM 夹具**：公式回退、句界回退、保底 `take`、2k 字符预算均有断言；未在设备上用真实 `KNOWLEDGE_READ` 结果抽验，也未覆盖 R2（标题/正文缺失）与 R5（2k 字节越界）。
+- **v1.2 状态**：F6 红、F7 JVM 绿 ⇒ **v1.2 未全部达标**；F1–F5 的 v1.1 PARTIAL 状态不变。不得把本节写成“性能已达标”。
+- **批次28 v23 复测（2026-10-31，只追加）**：v23 首启全量 **127,014 ms**（`build/agent-batch28/v23/device-logcat.txt:1609`），仍 >60 s ⇒ **F6 维持 NOT_MET**；本轮四科索引重建合计 **88,913 ms（70.0%）**，其中 CHEMISTRY 1,126 节点 / 169,652 特征行 / 18 插 / 1 删 / **27,042 ms**（`:1244`）。批次23 device-logcat 轮 install **163,334 ms**（`:677`），CHEMISTRY 分段 1,118 / 168,290 / 18 / 1 / **28,447 ms**（`:643`）。这些读数不是同一轮，不作跨轮性能结论。

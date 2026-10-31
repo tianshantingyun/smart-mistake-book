@@ -140,7 +140,7 @@
 | 16 | `CapturedTutorSession` | W | `feature/tutor/src/main/java/.../CapturedTutorSessionRoute.kt:456` | `teaching references load failed: <t>` | 拍照讲题材料加载失败 | 零命中、合法空集（不打点） |
 | 17 | `CapturedTutorSession` | W | `CapturedTutorSessionRoute.kt:470` | `knowledge context load failed: <t>` | 知识上下文加载失败 | 同上 |
 | 18 | `KnowledgeRecall` | W | `core/database/src/main/kotlin/.../RoomKnowledgeBaseStore.kt:219`（tag 定义 `:44`） | `dense rerank threw for subject=<s>: <t>` | 稠密重排抛错 | 召回成功/条数/耗时——本 tag 在正常路径**一条都不打** |
-| 19 | `KnowledgeIndexRebuild` | D | `core/database/src/main/kotlin/.../KnowledgeSearchIndexBuilder.kt:152` | `rebuild subject=<s> nodes=<n> features=<n> deleteChunks=<n> insertChunks=<n> tookMs=<n>` | 某科**发生重建**时的规模与耗时 | 触发原因、未重建时的缓存命中/只补缺 |
+| 19 | `KnowledgeIndexRebuild` | D | `core/database/src/main/kotlin/.../KnowledgeSearchIndexBuilder.kt:166` | `rebuild subject=<s> nodes=<n> features=<n> deleteChunks=<n> insertChunks=<n> tookMs=<n> readMs=<n> extractMs=<n> insertMs=<n> deleteMs=<n> anchorMs=<n>` | 某科**发生重建**时的规模与分段耗时（残差 `tookMs − Σ` = 块边界/让出/等写连接） | 触发原因、未重建时的缓存命中/只补缺 |
 
 **应用层另 3 条（不在上面 19 处内；其中 1 条是静默分支，无日志）**
 

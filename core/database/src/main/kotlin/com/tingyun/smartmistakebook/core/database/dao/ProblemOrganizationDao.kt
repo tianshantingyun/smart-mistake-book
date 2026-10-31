@@ -101,8 +101,25 @@ internal interface ProblemOrganizationDao {
         bindings: List<KnowledgeNodeSourceBindingEntity>,
     ): List<Long>
 
+    /**
+     * 特征行批量写入（整科重建与只补缺共用）。
+     *
+     * **返回 `Unit` 是性能决定，不是风格**（性能剖析 2026-10-31）：此前声明 `List<Long>`
+     * 会让 room3 选 `EntityInsertAdapter.insertAndReturnIdsList`，它的循环体对**每一行**
+     * 都调一次 `getLastInsertedRowId` —— 每次先 `prepare("SELECT changes()")`、再
+     * `prepare("SELECT last_insert_rowid()")`，各带一次 `step`（反汇编
+     * `room3-runtime-android:3.0.0` 的 `EntityInsertAdapter` 与 `SQLiteConnectionUtil` 可见，
+     * 调用点位于循环体内）。而全部三个调用方（[importKnowledgeBase]、
+     * `KnowledgeSearchIndexBuilder.rebuildSubject`、`RoomKnowledgeBaseStore` 的只补缺分支）
+     * 都丢弃返回值，于是这些编译与执行纯属空转：整科重建一科 168,290 行，就是 336,580 次
+     * 多余的语句编译。
+     *
+     * 返回 `Unit` 时 room3 走 `EntityInsertAdapter.insert(Iterable)` 的 void 路径（每行只剩
+     * bind → step → reset）。**SQL 文本、绑定顺序、`OR IGNORE` 冲突策略、事务边界与写入
+     * 行集全部不变**——变的是"不再问数据库要一个没人用的 rowid"。
+     */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertKnowledgeSearchFeatures(features: List<KnowledgeSearchFeatureEntity>): List<Long>
+    suspend fun insertKnowledgeSearchFeatures(features: List<KnowledgeSearchFeatureEntity>)
 
     @Transaction
     suspend fun importKnowledgeBase(

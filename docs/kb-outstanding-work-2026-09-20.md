@@ -417,3 +417,90 @@ python -m unittest discover -s tools/tests -t tools -p "test_ci_check_pack_sync.
 python -I build/agent-batch26/scripts/check_pack_sync.py                              # PASS / RC=0
 gh run view 41092668333 --json jobs    # KB 两步 success；Unit tests / emulator 步骤 failure
 ```
+
+## 15. 批次27 v23 运行时 flip / 门半边归绿 / 性能 / R3R4 / 升级演练 / 遥测聚合（2026-10-31：v23 blocked；守卫/dry-run/alias_map/py_suite 归绿，八门仍红）
+
+> 数字来源：`build/agent-batch27/` 产物实读（`v23-exec.log`、`flip-result.json`、`consistency.txt`、`gates/summary.txt` 与逐门日志、`baseline/identity.md`）＋ `build/kb-perf/`、`build/upgrade-drill-20261031/`、`build/regression-20261031/` ＋ 本文书轮只读复算/定向实跑。基线：HEAD **`a7d41f45`**（origin 同步 0/0；写前 698 → 写后 702 → 当前 704 脏项，225 M / 478 ?? / 1 A）；包仍 **v21**（manifest `9f9e99ceec47cf8c` / 主包 `a7192484…` / `.vec 79a22270…` 44,043）；staging == release v21。本行不改变 §12 三件终裁、§13 批次25、§14 批次26 的终态；v23 **blocked、未采纳**。
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **68 条 REOPEN 真口径** | **68 = BUILD 35 + MERGE 33；41 flip / 27 no-op** | 本文书轮复算 `114-402-final.csv`：`REOPEN_NOW` 68；BUILD 35 / MERGE 33；分科 MATH 33 / PHYSICS 18 / CHEMISTRY 11 / BIOLOGY 6。41 flip 分科 = MATH 24 / CHEMISTRY 8 / PHYSICS 5 / BIOLOGY 4；27 no-op = **MATH 9 / PHYSICS 13 / CHEMISTRY 3 / BIOLOGY 2**（chunk 级 27；行级 29，含 2 个 `midx='b'`）。证据：`build/agent-batch27/flip-result.json`；`v23-exec.log:43-75`；本文书轮五片备份逐条对拍 |
+| **41 行运行时 flip** | **applied（只改 action/content）** | 五片 135,085 行：MATERIAL **53,531→53,572（+41）**、SKIP **81,554→81,513（−41）**；41 行 `content` 非空；六字段 **41/41 仍空**；改动列 ⊆ `{action,content}`，键列不动。与批次26 不同：本次落在**运行时五片**（4 个 tracked `M`），不是只落快照。证据：`v23-exec.log:46-75`；`consistency.txt` §5；`flip-result.json` |
+| **v23 写链** | **blocked（停在第一次写盘之前）** | `materialize --dry-run`：材料 53,572 / 跳过 81,513 / **错误 41（非法 type）**，`write()` 因 errors 拒绝落盘；过滤建点 **34/35**（缺 `MATH/抽屉原理`）；`rebuild_aliases` **+0**（alias 表 pre/post sha 相同）；HEAD merge 工具只产旧批 29 材料 / 0 新点（与 41/35 无交集）。未执行 `create_points/materialize/rebuild_aliases/rebind/promote --write`、dense，也未在 v23 包上跑 Gradle/设备/判官。证据：`v23-exec.log:6,141-200`；`candidate-merge-out/summary.json` |
+| **门（守卫 / alias_map / dry-run）** | **局部归绿** | 守卫 `PromotePackSyncInvariantTest` **3/3** + `CrlfCheckoutRegressionTest` **3/3**（本文书轮合并跑 **6/6 OK**）；alias_map 根因 = Windows CRLF 检出伪差异，修在读入口 `tables.read_rows`（`tables.py:39-55`）与 `check_pack_contract` 改走该入口（`:114-123`）；`promote --dry-run` **RC=0、门全绿、零写盘**（前后主包 `a7192484…` 不变；目标 version 22，不是 v23）。证据：本文书轮实跑；`tools/tests/test_kb_promote.py:246`；`tools/tests/test_kb_table_consistency.py:78` |
+| **八门整体** | **仍红（6/8 rc=0，overall red=1）** | `kb_checks` **RC=1**：`judgment_drift 418` = content 194 + boundary 183 + missing 41（41 即目标 chunk，node_slug 空；content/boundary 与目标 overlap 均 0）；`slice` **RC=1**：`reopen-2026-10-17.jsonl.csv` 41 行缺节点/type/title/summary/applicability/boundary；`py_suite` **902 tests OK**；`asset/alignment/transcripts/judgment_fp` rc=0；`overall red=1`。不得写“八门归绿”。证据：`gates/summary.txt:2-61`；`gates/kb_checks.log:36-37`；`gates/judgment_drift_attribution.json`；本文书轮重跑两门 RC=1 |
+| **导入性能（首启全量）** | **F6 未达标（红）** | 批次23 存档：install() **186,574 ms**、快路径 **446 ms**（`emulator-5584`；`step1_clean_install_launch.log:60`、`step3_second_launch_fastpath.log:12`）；分段 = 解析 26,875 + 四科索引 28,286/30,437/33,000/19,843 = **111,566 ms（59.8%）**。10-31 冷装演练：install() **256,398 ms**、快路径 **1,378 ms**、墙钟 **264,438 ms**（20:27:52.240→20:32:16.678）、索引 172,075 ms（**67.1%**）。两轮均远高于新增 F6 的 **≤60 s**；不是回归（旧基线 149–178 s），是门槛首次显式化。证据：`build/kb-perf/cold-install-drill.log:22-53`；`build/agent-batch23/prod-drill/…`；本文书轮时间戳/占比复算 |
+| **R3/R4 截断安全** | **implemented；JVM 11/11（F7 PASS，设备端未验）** | `RoomTutorToolRunner.safeTruncateMarkdown`（`:91`）：公式内切口退到公式起点（`$…$`/`$$…$$`/`\(…\)`/`\[…\]`），否则退到句号/分号；无安全点回退旧 `take(limit)`。调用点 boundary `:447`、材料摘要 `:449`。本文书轮 `SafeTruncationTest` **11 tests / 0 failures**（XML），形态仍 5 行 / boundary 80 / 摘要 60 / 2k 字符。证据：`core/data/src/test/.../SafeTruncationTest.kt`；`core/data/.../RoomTutorToolRunner.kt:80-110,447,449` |
+| **升级演练** | **PASS（幂等 + 损坏包拒装）** | 覆盖安装 `Success`（`install_wall_ms=9366`）；升级后冷启 `TotalTime 7855`、快路径 **951 ms**；`knowledge_node 3698 / material 64975 / binding 64977 / search_feature 542092 / index_state 9 / content_install_state 2` **前后逐项不变**；内容戳 `9f9e99ceec47cf8c`。损坏 APK 被拒：`INSTALL_PARSE_FAILED_NO_CERTIFICATES … SHA-256 digest … did not verify`；拒装后仍可启动 `TotalTime 7909`、快路径 **882 ms**。证据：`build/upgrade-drill-20261031/{install_output,install_wall,am_start,kb_counts_before,kb_counts_after,install_corrupted,am_start_after_failed_install}.txt`；`logcat_startup.txt:342`；`logcat_after_failed_install.txt:338` |
+| **遥测聚合（M1a）** | **implemented；11/11 + 真实 logcat 14 事件** | 新增 `tools/kb_coverage/material_coverage_report.py`：按事件累加 per-subject `queriedNodes/nodesWithMaterial/nodesWithoutMaterial`，`returnedMaterials` 不冒充节点数，写坏行记 malformed、0 事件明确 WARNING。本文书轮单测 **11/11 OK**；真实 API34 仪器化 logcat 聚合 **14 事件**：MATH queried **31** / with **26** / without **5** / coverage **83.87%** / emptyRate **16.13%**。该 14 事件来自测试夹具查询，不是生产覆盖率。证据：`tools/kb_coverage/material_coverage_report.py`；`tools/tests/test_material_coverage_report.py`；`build/regression-20261031/api34-logcat-instrument.txt:138` |
+| **回归** | **API23/API34 各 4/4；定向 JVM 绿** | API23 `OK (4 tests)` Time **1.518**、API34 `OK (4 tests)` Time **9.253**（`TeachingMaterialAllocationInstrumentedTest`）；API23 冷启动 `Displayed +1s609ms`；定向 JVM（UsageMaterialAllocation / KnowledgeReadRecallBudget / SafeTruncation）`BUILD SUCCESSFUL in 6s`；`py_suite` 902 OK。设备 4 例**不是** R3/R4 截断测试。证据：`build/regression-20261031/{api23-instrument,api34-instrument,api23-logcat-coldstart,unit-tests}.txt`；`gates/py_suite.log:792` |
+| **验收文书 v23 小节** | **未追加（条件不成立）** | v23 blocked、未采纳、读数未测得；`docs/kb-acceptance-2026-10-17.md` 只加 §13 状态说明，不追加 v23 后基线。F6/F7 已增补到验收标准 v1.2（`docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` §F.5） |
+
+**批次27 残留（按阻塞程度）**：
+
+1. **v23 输入链**：41 行六字段 0/41；`materialize` 41 条非法 type；建点缺 `MATH/抽屉原理`；别名 +0。未写主包/manifest/别名表/建点表。
+2. **八门红**：`judgment_drift 418`（377 既有 content/boundary + 41 目标 missing）、`slice` 41 行缺字段、`overall red=1`。
+3. **R6 0/29**：release/staging 均 v21；继续重建必须先 `seed_staging()` + 重放 R6 29 条。
+4. **F6 未达标**：186.574 s / 256.398 s >> 60 s；索引重建 59.8%–67.1%。
+5. **F7 仅 JVM**：11/11，无设备端真实 `KNOWLEDGE_READ` 截断抽验；R2/R5 仍契约侧。
+6. **代码未提交**：守卫 `+57`、`tables.py`/`check_pack_contract.py`、CRLF/守卫测试、R3/R4（`RoomTutorToolRunner.kt` 92/2 含他线）、遥测工具均未提交；`SafeTruncationTest` 为 staged `A`。
+7. **旁车文本 sha 跨批冲突**：`82c5906a…`（提交物）vs `68ed524a…`（v21 预注册/batch22 记录）；内部身份一致，来源未定。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD                                   # a7d41f45…
+python -I -X utf8 tools/kb_build/promote.py --dry-run  # RC=0；门全绿；version→22；零写盘
+python -I -X utf8 tools/ci/run_kb_checks.py            # RC=1；judgment_drift 418
+python -I -X utf8 tools/kb_coverage/check_slice_verdicts.py --dir knowledge-production/judgment-verdicts  # RC=1
+PYTHONPATH=tools python -X utf8 -m unittest tests.test_kb_promote.PromotePackSyncInvariantTest tests.test_kb_table_consistency.CrlfCheckoutRegressionTest  # 6 OK
+./gradlew :core:data:testDebugUnitTest --tests "com.tingyun.smartmistakebook.core.data.study.SafeTruncationTest" --console=plain  # 11/0/0
+python -I -X utf8 tools/kb_coverage/material_coverage_report.py build/regression-20261031/api34-logcat-instrument.txt  # 14 events
+grep -n "Ran 902" build/agent-batch27/gates/py_suite.log
+```
+
+## 16. 批次28 v23 物化 / 建点 / 双路非劣 / 裁定 adopted（2026-10-31：v23 adopted；八门 8/8；F6 仍红）
+
+> 数字来源：`build/agent-batch28/` 产物实读（`materialize.log`、`rebuild-report.md`、`v23-final.md`、`consistency.txt`、`gates/summary.txt` 与逐门日志、`v23/device-*`、`v23/step*`）+ `build/agent-batch19/a1/device-metrics.txt` + `build/agent-batch23/device/device-logcat.txt` + 本文书轮只读复算/计数。基线：HEAD **`d1bacec5`**（origin 同步 0/0；当前 **729** 脏项 = 251 tracked + 478 untracked（含本批报），较 `v23-final.md:5` 的 722 快照多 6 项他线改动）。本行不改变 §12 三件终裁、§13 批次25、§14 批次26、§15 批次27 的终态；v23 **adopted=true、未回滚**。
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **v23 物化（41 行六字段）** | **filled 41/41** | `MATERIAL_six_all_empty 41→0`、`MATERIAL_type_empty 41→0`；`rows_updated=41 changed_rows=41 changed_columns=applicability,boundary,node_slug,summary,title,type`；`content_untouched=41/41`。写前 41 见 `baseline/identity.md:81`；写后本文书轮逐行核对 **41/41**，全表 53,572 条 MATERIAL 六字段缺失均 0。五片 135,085 行：MATERIAL **53,572** / SKIP **81,513**。证据：`materialize.log:2,3,69`；`consistency.txt` G08 |
+| **建点** | **35/35** | `selected 35 / created 35 / skipped 0 / errors []`；节点 **3,245→3,280（+35）**；分科 MATH 856 / PHYSICS 891 / CHEMISTRY 1,019 / BIOLOGY 514；`new_points_manual` 1,941 行。证据：`rebuild-report.md:17-18,34,36`；本文书轮遍历主包 |
+| **重建计数** | **materials 65,014 / aliases 40,839 / retired 1,222** | 材料 **64,973→65,014（+41）**；额外别名 **37,553→37,559（+6）**；别名总量 **40,839**（3,280 主名 + 37,559 额外）；`alias_map 37,559` / `alias_dropped 22,560` / `alias_exceptions 35`；`point_delete 283→249`；`retired 1,256→1,222`；promote **28 文件**、release==staging **28/28**；R6 重放 **29 条**。证据：`rebuild-report.md:21-27,35-42`；`materialize.log:74-82`；`consistency.txt` G05-G07 |
+| **双路 v23 设备融合臂** | **117/129 = 0.9069767441860465（与 A1 相同）** | 融合 Recall@5 **117/129**、MRR 0.7239018087855298；A1 同为 **117/129**；24 章 **0 lower / 0 higher / 24 equal**（本文书轮 `diff` 退出码 0）；零漂移 lexical **28/28 symdiff 0**、fused **12/12 symdiff 0**、PASS/PASS；bootstrap 融合 CI [0,0]、词面 A−B 上界 0。词面 **101/129 vs A1 102/129**（数列 6/11 vs 7/11）为观测，不构成回滚依据。装置 `kb_test_device` / `emulator-5584` / API 34，同代 MATCH。证据：`v23/device-metrics.txt:3-5`；`build/agent-batch19/a1/device-metrics.txt`（sha `a332e2aa…`）；`v23/zero-drift-recheck.log`；`v23/significance-*.json`；`v23-final.md:18-29` |
+| **裁定** | **adopted=true；未回滚** | 四条预注册判据全过；stateAfter = v23（manifest `23` / `868a177d1de4f97a`，主包 `051141e2…` / 4,538,271 B，3,280 节点 / 65,014 材料 / 40,839 别名 / retired 1,222）+ `.vec bbcae9ec…`（44,119 vectors）+ dense 夹具 10 件（8 改 2 未变）与 6 个钉值文件。判据/阈值/判官/金标未改；基线常量按 adopted 结果登记，不是放宽门槛。证据：`v23-final.md:7,11,18-23,147-152`；`consistency.txt` G01-G16 |
+| **门** | **8/8 rc=0、overall red=0** | 批次27 仍红的 **`kb_checks` / `slice` / `py_suite`** 本批全绿；其余 `promote_dry/asset/alignment/transcripts/judgment_fp` 亦 rc=0；`py_suite Ran 902 tests / OK`。门 runner 为批次27 逐字移植（同命令、同口径）。证据：`gates/summary.txt`；`gates/py_suite.log:792-794`；`scripts/run_gates_b28.sh:2-4` |
+| **F6 首启导入** | **NOT_MET（红）** | v23 本轮 `install finished in 127014 ms (full path: parse + reconcile)`，仍 >60 s；四科索引 88,913 ms（**70.0%**）：MATH 23,608 / PHYSICS 23,940 / **CHEMISTRY 27,042（1,126 节点 / 169,652 特征行 / 18 插 / 1 删）** / BIOLOGY 14,323。批次23 存档：install **163,334 ms**，CHEMISTRY **1,118 / 168,290 / 18 / 1 / 28,447 ms**；prod-drill **186,574 ms**。各轮不可混算，F6 维持红。证据：`v23/device-logcat.txt:802,1116,1244,1608,1609`；`build/agent-batch23/device/device-logcat.txt:512,593,643,676,677` |
+| **验收文书** | **v23 小节已追加** | `docs/kb-acceptance-2026-10-17.md` **§14** 登记 v23 adopted 新基线；`docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` §F.5 追加批次28 F6 复测说明（F6 维持 NOT_MET，F7 状态不变）。批报 = `docs/kb-batch28-2026-10-31.md` |
+
+**批次28 残留（按阻塞程度）**：
+
+1. **F6 未达标**：v23 127,014 ms >> 60 s；四科索引占 70.0%（88,913/127,014）。
+2. **词面 −1**：v23 101/129 vs A1 102/129（数列 6/11 vs 7/11）；融合 MRR −0.0083979。判据只对融合设门槛，记录为观测。
+3. **`materialize` 整表写不可用**：存量 slug 撞车 `ext-mat-e1f6626956-002` 未修；本批只做 41 行过滤写。
+4. **`alias_dropped` +1**：新节点标题以「和」结尾被判截断残片；主名保留，规则未改。
+5. **别名总量 40,839 ≠ 预注册 40,804**：差 35 = 新增节点主名；额外别名增量仍 +6。
+6. **三个边界单点 absent**：`等和线`、`活结与死结模型`、`力的分解`，只报不判。
+7. **设备为 emulator**：非真机；读数不外推。
+8. **未提交**：v23 包/`.vec`/dense 夹具/6 钉值/五片均在 **729** 项脏工作树（含本批报与台账/验收文书改动）；HEAD 仍 `d1bacec5`。
+9. **回滚文件名缺失**：ask 所列 `build/agent-batch28/dense-touched-files.txt` 不存在；实际触碰面以 `rebuild-touched-files.txt` §C 与 `dense.log` §2 为准。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD                     # d1bacec5…
+git status --porcelain | wc -l         # 729
+python -I -X utf8 - <<'PY'
+import csv,glob
+print(sum(1 for p in glob.glob('tools/kb_coverage/tables/material_judgments/*.csv')
+          for r in csv.DictReader(open(p,encoding='utf-8-sig',newline='')) if (r.get('action') or '')=='MATERIAL'))
+PY
+diff <(sed -n '7,30p' build/agent-batch28/v23/device-metrics.txt | sed 's/^.*System.out: //') \
+     <(sed -n '7,30p' build/agent-batch19/a1/device-metrics.txt | sed 's/^.*System.out: //')  # rc=0
+cat build/agent-batch28/gates/summary.txt           # 8/8 rc=0；red=0
+grep -n "install finished\|rebuild subject=\(MATH\|PHYSICS\|CHEMISTRY\|BIOLOGY\)" \
+  build/agent-batch28/v23/device-logcat.txt         # 127,014 ms；CHEMISTRY 27,042 ms
+```

@@ -60,6 +60,17 @@ import kotlin.coroutines.coroutineContext
  * **观测**（KD-51 证据）：每科重建结束打一行 [TAG] 日志（节点数/特征行数/块数/耗时），
  * 与 `KnowledgeInstall` 的 `packs fully parsed in … ms`、`install finished in … ms` 一起
  * 把「全量安装 1,133,477ms」拆成 **JSON 解析 / 整科重建 / 其余调和** 三段可复跑读数。
+ *
+ * **分段计时**（性能剖析 2026-10-31）：`tookMs` 之后追加 `readMs` / `extractMs` /
+ * `insertMs` / `deleteMs` / `anchorMs` 五个字段——此前只有总耗时，"重建为什么慢"只能靠
+ * 推断。口径与用途：
+ * - `readMs` = ① 整段（一个读事务内三条查询）；`deleteMs`/`insertMs` = 各自**写事务本身**
+ *   的墙钟之和（不含 `onWriteCommitted` 与 [chunkBoundary]）；`extractMs` = 事务外抽取
+ *   （`flatMap`）之和；`anchorMs` = ④ 锚点事务。
+ * - **残差 `tookMs − (五者之和)` 就是块边界、`yield()` 让出与等写连接的时间**：它大而
+ *   `insertMs` 小，说明慢在争用/调度，不是 SQL。
+ * - 采集本身只加每块两次 `nanoTime()`（一科 ≤ 18 块），不改写入内容、块边界、锚点顺序，
+ *   也不进任何事务；日志仍是**前缀兼容**的（`tookMs=` 之前逐字未变）。
  */
 internal class KnowledgeSearchIndexBuilder(
     private val database: StudyDatabase,
@@ -104,6 +115,7 @@ internal class KnowledgeSearchIndexBuilder(
             // ① 读相（一个**读**事务，不占写连接）：审校计数、召回候选集、已索引节点 id 集。
             //    三者同一快照——候选集的 LIMIT 就是计数（改前靠写事务隔离，分块后没有那层
             //    隔离，靠读事务保住"计数与读取一致"的口径）。
+            val readPhaseStartedNano = System.nanoTime()
             val readPhase = database.withReadTransaction {
                 val reviewedCount = dao.countReviewedKnowledgeNodesBySubject(subject)
                 if (reviewedCount == 0) {
@@ -115,12 +127,16 @@ internal class KnowledgeSearchIndexBuilder(
                     )
                 }
             }
+            val readNano = System.nanoTime() - readPhaseStartedNano
 
             // ② 删相：整科换血（旧特征行必须清掉，否则改名节点的旧特征会留在库里），
             //    但按节点 id 分块，一块一个短写事务。
             var deleteChunks = 0
+            var deleteNano = 0L
             for (batch in readPhase.indexedNodeIds.chunked(REBUILD_NODE_CHUNK_SIZE)) {
+                val chunkStartedNano = System.nanoTime()
                 database.withWriteTransaction { dao.deleteSearchFeaturesForNodes(batch.toSet()) }
+                deleteNano += System.nanoTime() - chunkStartedNano
                 deleteChunks++
                 onWriteCommitted(KnowledgeSearchIndexRebuildWrite.DELETE)
                 chunkBoundary()
@@ -129,9 +145,16 @@ internal class KnowledgeSearchIndexBuilder(
             // ③ 插相：抽取（CPU 主体）在事务外算，事务里只留这一块的特征行。
             var featureCount = 0
             var insertChunks = 0
+            var extractNano = 0L
+            var insertNano = 0L
             for (batch in readPhase.candidates.chunked(REBUILD_NODE_CHUNK_SIZE)) {
+                val extractStartedNano = System.nanoTime()
                 val features = batch.flatMap(KnowledgeNodeEntity::toSearchFeatures)
+                extractNano += System.nanoTime() - extractStartedNano
+
+                val chunkStartedNano = System.nanoTime()
                 database.withWriteTransaction { dao.insertKnowledgeSearchFeatures(features) }
+                insertNano += System.nanoTime() - chunkStartedNano
                 featureCount += features.size
                 insertChunks++
                 onWriteCommitted(KnowledgeSearchIndexRebuildWrite.INSERT)
@@ -139,6 +162,7 @@ internal class KnowledgeSearchIndexBuilder(
             }
 
             // ④ 锚点最后写（自己的短事务）：所有块都提交之后才推进"这次跑完了"。
+            val anchorStartedNano = System.nanoTime()
             database.withWriteTransaction {
                 stateDao.replace(
                     KnowledgeSearchIndexStateEntity(
@@ -147,13 +171,17 @@ internal class KnowledgeSearchIndexBuilder(
                     ),
                 )
             }
+            val anchorNano = System.nanoTime() - anchorStartedNano
             onWriteCommitted(KnowledgeSearchIndexRebuildWrite.ANCHOR)
 
             Log.d(
                 TAG,
                 "rebuild subject=$subject nodes=${readPhase.candidates.size} features=$featureCount " +
                     "deleteChunks=$deleteChunks insertChunks=$insertChunks " +
-                    "tookMs=${(System.nanoTime() - startedAtNano) / 1_000_000}",
+                    "tookMs=${(System.nanoTime() - startedAtNano) / 1_000_000} " +
+                    "readMs=${readNano / 1_000_000} extractMs=${extractNano / 1_000_000} " +
+                    "insertMs=${insertNano / 1_000_000} " +
+                    "deleteMs=${deleteNano / 1_000_000} anchorMs=${anchorNano / 1_000_000}",
             )
         } finally {
             searchIndexCompleteness.invalidate(subject)
