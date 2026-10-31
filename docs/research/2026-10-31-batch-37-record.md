@@ -345,3 +345,9 @@ git status --porcelain | wc -l                       # 738（多线在飞滚动�
 - **V-01 裁定：PARTIAL（3/4 子项）**——app 版真隔离引擎 3 例设备绿、夹具缺陷根治（按键取断言）、零派发四断言位保持；④ PDF/painter/restore 腿因 core:data internal 跨模块不可达留降级变体，本批无设备证据。台账不得写 V-01 关闭。
 - **A-10**：夹具修复走生产链路（createModelTask→transitionModelTask QUEUED），3 例设备绿 + 终答位子门两道新增断言，加强非放宽。
 - **提交**：6 块（V-01 app 版+降级标注 / A-10 夹具 / KD-82 / 研究判据 / 证据 / 记录+台账），全部显式路径，提交前验暂存区。
+
+### 10.1 暂存区卷入事件（2026-10-31，主会话登记）
+
+`1912180a..HEAD` 实际提交 **91 个路径**，其中约 75 个为 KB 线（另一会话）已暂存未提交的成果：知识包资产（`core/data/src/main/resources/knowledge/*`、dense 向量）、`tools/kb_build`/`tools/kb_coverage`/`tools/ci/check_pack_sync.py`、`core/data`+`core/database` 的 knowledge 面（含 `RoomStudyDatabase.kt`）、`docs/kb-batch26~29` 等。归因：KB 会话先暂存未提交，本会话逐块 `git add 显式路径` 后 `git commit` 把整个暂存区一并提交。
+**处置=保留不回滚**：这批文件互相引用且整体在工作树状态通过批次 37 全部门禁（单测/强门/设备 20 步）；部分剥离会在 origin/main 制造破损树。KB 批次 26–29 的成果已随本批到达 origin/main，但**提交归属误记在本线提交信息下**——KB 会话后续提交时请以本节为准核对，其自有提交说明缺口由本节弥合。
+**流程加固（本会话即刻生效）**：此后每次 `git commit` 前必须 `git diff --cached --name-only` 对照申报清单，发现申报外路径立即 `git reset` 该路径（不 reset 整个暂存区，避免破坏他线暂存意图）再提交；已在本会话后续批次执行。
