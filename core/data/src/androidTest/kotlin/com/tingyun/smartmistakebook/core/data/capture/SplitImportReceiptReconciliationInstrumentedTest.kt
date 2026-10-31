@@ -238,7 +238,7 @@ class SplitImportReceiptReconciliationInstrumentedTest : CaptureWorkflowTestBase
                 draftId = original.draftId,
                 expectedRevisionNumber = original.revisionNumber,
                 assessmentRequestId = "capture-assess:split-three-questions",
-                sourceAssetId = original.sourceAssetId,
+                sourceAssetId = requireNotNull(original.sourceAssetId),
                 regions = listOf(
                     NormalizedSourceRegion(0.05, 0.02, 0.95, 0.30),
                     NormalizedSourceRegion(0.05, 0.35, 0.95, 0.63),

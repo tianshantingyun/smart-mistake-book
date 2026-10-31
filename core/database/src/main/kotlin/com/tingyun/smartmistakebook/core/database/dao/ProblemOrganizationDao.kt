@@ -111,6 +111,9 @@ internal interface ProblemOrganizationDao {
     )
     fun observeReviewedKnowledgeCoverage(): Flow<List<ReviewedKnowledgeCoverageRow>>
 
+    @Query("SELECT COUNT(*) FROM error_book_entry WHERE problem_id = :problemId AND current_revision_id = :revisionId AND status = 'ACTIVE'")
+    suspend fun currentCatalogTargetCount(problemId: String, revisionId: String): Int
+
     @Query(
         """
         SELECT COUNT(*) FROM practice_unit

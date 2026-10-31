@@ -130,9 +130,9 @@ Invoke-SmbGradle -TaskArguments @(':core:domain:test', ':core:database:testDebug
 - `core/domain/src/test/kotlin/com/tingyun/smartmistakebook/core/domain/MistakeOrganizationRepositoryTest.kt`。
 - `core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/mistake/MistakeOrganizationRepositoryInstrumentedTest.kt`。
 
-- [ ] 真库失败用例：数学题绑定物理节点后，节点 id/真实学科保留，题目仍为数学；两个同名不同 id 节点均保留；重复请求幂等；退役、taxonomy 不符和题目版本变化拒绝且不部分写入。
-- [ ] 在 `ProblemOrganizationSelection` 增加 `knowledgeSelections: Set<KnowledgeNodeSelection> = emptySet()`，旧字段仍按原语义处理。新选择以节点 id 解析，不经 `displayName.lowercase()` 去重或降格为本学科自由标签。
-- [ ] 写入事务逐一读取并验证已审、有效的 node id/version，沿用现有分类/知识绑定写口。跨科节点的章节路径保留真实来源。人工路径允许跨科；自动分类、讲题数据披露边界、节点掌握证据的所属学科均不随之扩大。沿用既有纠正分类确认，不把在 picker 点选等同于数据库提交。
+- [x] 真库失败用例：数学题绑定物理节点后，节点 id/真实学科保留，题目仍为数学；两个同名不同 id 节点均保留；重复请求幂等；退役、taxonomy 不符和题目版本变化拒绝且不部分写入。
+- [x] 在 `ProblemOrganizationSelection` 增加 `knowledgeSelections: Set<KnowledgeNodeSelection> = emptySet()`，旧字段仍按原语义处理。新选择以节点 id 解析，不经 `displayName.lowercase()` 去重或降格为本学科自由标签。
+- [x] 写入事务逐一读取并验证已审、有效的 node id/version，沿用现有分类/知识绑定写口。跨科节点的章节路径保留真实来源。人工路径允许跨科；自动分类、讲题数据披露边界、节点掌握证据的所属学科均不随之扩大。沿用既有纠正分类确认，不把在 picker 点选等同于数据库提交。
 
 ```kotlin
 // 新字段同时进入命令内容身份；不同节点不能因重名而得到同一确认指纹。
@@ -142,8 +142,8 @@ assertEquals(2, setOf(a, b).size)
 // 真库用例还必须分别断言 problem.subject 与两条 knowledge_node_id 绑定。
 ```
 
-- [ ] 跑现有分类协议/确认/证据隔离回归和新增设备用例；检查重开页面仍保留跨科关联，而旧模型建议不能覆盖人工纠正。
-- [ ] 提交 `feat(library): 保留节点身份的跨学科分类`。
+- [x] 跑现有分类协议/确认/证据隔离回归和新增设备用例；检查重开页面仍保留跨科关联，而旧模型建议不能覆盖人工纠正。
+- [x] 提交 `feat(library): 保留节点身份的跨学科分类`。
 
 ```powershell
 Invoke-SmbGradle -TaskArguments @(':core:domain:test', ':core:database:testDebugUnitTest', ':core:data:testDebugUnitTest', ':core:data:assembleDebugAndroidTest')
@@ -501,7 +501,7 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 
 执行计划时逐项勾选，任务完成须有本轮实际命令输出和文件证据。纯视觉调整复用已有检查；新增业务协议/版本写入/持久作业/导出文件必须运行本计划列出的有意义测试。
 
-本计划当前状态：**实施中；T0、T1 已验证，下一任务为 T2；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
+本计划当前状态：**实施中；T0、T1、T2 已验证，下一任务为 T3；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
 
 
 ### T0 本轮证据
@@ -527,3 +527,13 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 #### T5 / T11 必须关闭的已知失败
 
 额外运行旧 `TutorSessionVisualRoleDatabaseInstrumentedTest` 时 4 项中 2 项失败：`savingCopiesAssistantFigureRolesFromTheToolTrace` 的角色仍为 null，`deletingTheTutorConversationKeepsTheCommittedRevisionLinks` 缺少已生成题面图。原失败保留在 `t1-native-catalog.log`。T5 接线时必须调查写入/提交链，并以可信生成结果和规范资产身份写入角色；不得仅信任模型自报 toolTrace 的角色字符串，也不得给未知旧图乱填角色。修复后重跑这两项，T11 最终验收不得遗漏。
+
+
+### T2 完成记录（2026-11-01）
+
+- 人工目录选择以 node id + taxonomy 保存，跨科同名节点保留各自身份；章节来自真实父节点，题目主学科不改。旧模型建议不能覆盖人工纠正。
+- 事务内重新核对节点有效状态、审核、taxonomy、章节与当前在册版本；目录变化或题目换版整笔拒绝。重复命令保持幂等。
+- 32 项选择预算包含旧字段与目录节点；目录自动派生的章节标签不占第二份选择名额，持久分类最多 64 行；旧自动路径原限制保留。
+- `:core:domain:test :core:database:testDebugUnitTest :core:data:testDebugUnitTest :core:data:assembleDebugAndroidTest` 成功；分类真库最终 **16/16** 通过，覆盖跨科、同名、重开、幂等、目录退役/待审/版本不符、事务中目录变化和真实题目换版。
+- 测试包暴露的两处旧拆分夹具空类型编译缺口仅补 `requireNotNull`；新分类夹具补合法已确认题面，未放宽正式读取校验。
+- 证据：`.jez/artifacts/library-interior-implementation-2026-10-31/t2-verification.json`。T3 原生面板接线正在进行；T5/T11 两项图像角色旧失败仍未关闭。
