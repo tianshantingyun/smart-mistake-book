@@ -1020,50 +1020,28 @@ private fun RevisionHistorySection(
     val viewed = ordered.firstOrNull { it.problemRevisionId == viewedRevisionId } ?: return
     var expanded by rememberSaveable(viewedRevisionId, ordered.size) { mutableStateOf(false) }
 
-    Spacer(Modifier.height(18.dp))
-    SectionHeader(
-        title = "题面版本",
-        action = if (ordered.size > 1) {
-            {
-                OutlineActionChip(
-                    text = if (expanded) "收起" else "查看 ${ordered.size} 个版本",
+    Spacer(Modifier.height(12.dp))
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("mistake_revision_summary"),
+        shape = RoundedCornerShape(14.dp),
+        color = SmartColors.SubtleSurface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Divider),
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("题面版本", Modifier.weight(1f), color = InkSecondary,
+                    style = MaterialTheme.typography.labelLarge)
+                if (ordered.size > 1) TextButton(
                     onClick = { expanded = !expanded },
                     modifier = Modifier.testTag("mistake_revision_history_toggle"),
-                    selected = expanded,
-                )
+                ) { Text(if (expanded) "收起" else "查看 ${ordered.size} 个版本") }
             }
-        } else {
-            null
-        },
-    )
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp)
-            .testTag("mistake_revision_summary"),
-        shape = RoundedCornerShape(10.dp),
-        color = JadeSoft.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Outline),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-        ) {
-            Text(
-                text = "正在查看第 ${viewed.revisionNumber} 版${if (viewed.isCurrent) " · 当前" else " · 历史只读"}",
-                color = Ink,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = if (ordered.size == 1) {
-                    "当前只有 1 个已保存题面版本"
-                } else {
-                    "共保留 ${ordered.size} 个已保存版本，旧版不会被后续修改覆盖"
-                },
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            Text("正在查看第 ${viewed.revisionNumber} 版${if (viewed.isCurrent) " · 当前" else " · 历史只读"}",
+                color = Ink, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text(if (ordered.size == 1) "当前只有 1 个已保存题面版本"
+                else "共保留 ${ordered.size} 个已保存版本，旧版不会被后续修改覆盖",
+                color = InkSecondary, style = MaterialTheme.typography.bodySmall)
         }
     }
     if (expanded) {

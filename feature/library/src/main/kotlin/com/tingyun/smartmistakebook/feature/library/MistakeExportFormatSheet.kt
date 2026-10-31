@@ -30,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -62,7 +64,6 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
  * 版式与内容能力仍由 core:export 的既有渲染器决定，本 sheet 不重写、不预览。
  */
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun MistakeExportFormatSheet(
     onDismiss: () -> Unit,
     onConfirm: (MistakeExportFormat) -> Unit,
@@ -71,108 +72,37 @@ fun MistakeExportFormatSheet(
 ) {
     var selectedToken by rememberSaveable { mutableStateOf(MistakeExportFormat.PDF.token) }
     val selected = mistakeExportFormatSelection(selectedToken)
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+    com.tingyun.smartmistakebook.core.ui.WorkspaceSheet(
+        title = "选择导出格式", onDismiss = onDismiss, subtitle = subtitle,
+        modifier = modifier.testTag("mistake_export_format_sheet"),
+        titleModifier = Modifier.testTag("mistake_export_format_title"),
+        subtitleModifier = Modifier.testTag("mistake_export_format_subtitle"),
+        actions = {
+            PrimaryActionButton("开始导出", onClick = { onConfirm(selected) },
+                modifier = Modifier.fillMaxWidth().testTag("mistake_export_format_confirm"))
+            com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth().testTag("mistake_export_format_cancel")) { Text("取消") }
+        },
     ) {
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxSize().imePadding().padding(top = 24.dp)
-                .claudeDismissOnEscape(onDismiss = onDismiss),
-            contentAlignment = Alignment.BottomCenter,
-        ) {
-            Surface(
-                modifier = modifier
-                    .widthIn(max = 600.dp)
-                    .fillMaxWidth()
-                    .heightIn(max = maxHeight)
-                    .claudeModalEntrance()
-                    .testTag("mistake_export_format_sheet"),
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                shadowElevation = 12.dp,
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        text = "选择导出格式",
-                        modifier = Modifier.testTag("mistake_export_format_title"),
-                        color = Ink,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    subtitle?.let { text ->
-                        Text(
-                            text = text,
-                            modifier = Modifier.testTag("mistake_export_format_subtitle"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    Text(
-                        text = "文件格式",
-                        color = Ink,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        MistakeExportFormat.entries.forEach { format ->
-                            val isSelected = format == selected
-                            OutlineActionChip(
-                                text = format.studentLabel,
-                                onClick = { selectedToken = format.token },
-                                selected = isSelected,
-                                contentDescription = mistakeExportFormatOptionDescription(
-                                    format = format,
-                                    selected = isSelected,
-                                ),
-                                modifier = Modifier.testTag(
-                                    "mistake_export_format_option_${format.token}",
-                                ),
-                            )
-                        }
-                    }
-
-                    if (selected == MistakeExportFormat.DOCX) {
-                        Text(
-                            text = mistakeExportFormatDocxNotice,
-                            modifier = Modifier.testTag("mistake_export_format_docx_notice"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    // 默认不含答案区：格式选择不改变导出内容与版式（与既有 DEFAULT 一致）。
-                    Text(
-                        text = "导出内容默认不含答案区；这里只选择文件格式，不改动版式。",
-                        modifier = Modifier.testTag("mistake_export_format_answer_note"),
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-
-                    Spacer(Modifier.height(2.dp))
-                    PrimaryActionButton(
-                        text = "开始导出",
-                        onClick = { onConfirm(selected) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_export_format_confirm"),
-                    )
-                    OutlineActionChip(
-                        text = "取消",
-                        onClick = onDismiss,
-                        modifier = Modifier.testTag("mistake_export_format_cancel"),
-                    )
-                }
-            }
+        MistakeExportFormat.entries.forEach { format ->
+            val isSelected = format == selected
+            com.tingyun.smartmistakebook.core.ui.WorkspaceChoiceRow(
+                label = format.studentLabel,
+                description = if (format == MistakeExportFormat.PDF) "适合打印与直接分享" else "适合在 Word 中继续编辑",
+                selected = isSelected, onClick = { selectedToken = format.token },
+                modifier = Modifier.testTag("mistake_export_format_option_${format.token}")
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = mistakeExportFormatOptionDescription(format, isSelected)
+                    },
+            )
         }
+        if (selected == MistakeExportFormat.DOCX) {
+            Text(mistakeExportFormatDocxNotice, Modifier.testTag("mistake_export_format_docx_notice"),
+                color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+        }
+        Text("导出内容默认不含答案区；这里只选择文件格式，不改动版式。",
+            Modifier.testTag("mistake_export_format_answer_note"),
+            color = InkSecondary, style = MaterialTheme.typography.bodySmall)
     }
 }
 

@@ -25,7 +25,7 @@
 | C · 详细答案 | T7–T10 | 正确复用或补全解答，PDF/Word 形成单独可验证的答案文件 |
 | 共享收口 | T0、T11 | 接续已有修改，按 A 布局统一原生交互与验证 |
 
-本轮只编写文档，所有任务框初始均为空。所有进入网关或持久 JSON 的新 DTO 使用 kotlinx.serialization；默认空字段遵循旧指纹兼容规则。下文“新增”是未来的源码、迁移和测试文件清单，尚未创建；执行前逐批弹窗列出新增路径并取得用户同意。不得把两份文档的路径授权扩大为任意源码路径授权。修改已存在的文件在获准执行任务后按任务范围进行。
+文档阶段已完成；用户已于实施启动弹窗授权计划列明的 42 个新源码/测试文件、3 个生成 schema 及实施证据目录。现按任务记录实际实施进度。所有进入网关或持久 JSON 的新 DTO 使用 kotlinx.serialization；默认空字段遵循旧指纹兼容规则。下文“新增”是未来的源码、迁移和测试文件清单，尚未创建；执行前逐批弹窗列出新增路径并取得用户同意。不得把两份文档的路径授权扩大为任意源码路径授权。修改已存在的文件在获准执行任务后按任务范围进行。
 
 既有未提交文件必须保留：`core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/ClaudeDialog.kt`、`core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/WorkspaceSheet.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeDetailRoute.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeRevisionEditRoute.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeExportFormatSheet.kt`。不能用 checkout/reset 清理它们，也不能在文档提交中夹带这些代码。
 
@@ -56,10 +56,10 @@ function Invoke-SmbGradle {
 
 **文件：** 上述五个既有未提交文件；`core/ui/src/test/java/com/tingyun/smartmistakebook/core/ui/` 与 `feature/library/src/test/kotlin/com/tingyun/smartmistakebook/feature/library/` 的现有测试。此任务不增加为了匹配排版实现而编写的测试。
 
-- [ ] 阅读当前 diff，确认共享弹层、版本区、编辑区和格式面板的真实调用方；记录未完成接线。新的 AI/答案按钮暂不显示可用状态。
-- [ ] 运行既有相关测试和编译，失败时先确认原始失败；只修复这五个文件引入的最小编译/接口问题，不将旧业务问题包装成视觉改造。
-- [ ] 核对导出默认 PDF、取消不导出、格式辅助说明、历史版本只读和既有 testTag；保留原图自然比例。
-- [ ] 通过后提交界面基线，标题 `refactor(ui): 统一错题内页容器与操作层次`，新功能仍保持未完成。
+- [x] 阅读当前 diff，确认共享弹层、版本区、编辑区和格式面板的真实调用方；记录未完成接线。新的 AI/答案按钮暂不显示可用状态。
+- [x] 运行既有相关测试和编译，失败时先确认原始失败；只修复这五个文件引入的最小编译/接口问题，不将旧业务问题包装成视觉改造。
+- [x] 核对导出默认 PDF、取消不导出、格式辅助说明、历史版本只读和既有 testTag；保留原图自然比例。
+- [x] 通过后提交界面基线，标题 `refactor(ui): 统一错题内页容器与操作层次`，新功能仍保持未完成。
 
 ```powershell
 Invoke-SmbGradle -TaskArguments @(':core:ui:testDebugUnitTest', ':feature:library:testDebugUnitTest', ':feature:library:compileDebugKotlin', ':app:compileLocalFirstDebugKotlin')
@@ -500,4 +500,9 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 
 执行计划时逐项勾选，任务完成须有本轮实际命令输出和文件证据。纯视觉调整复用已有检查；新增业务协议/版本写入/持久作业/导出文件必须运行本计划列出的有意义测试。
 
-本计划当前状态：**未开始实施**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
+本计划当前状态：**实施中；T0 已通过单元测试与应用编译，T1 开始；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
+
+
+### T0 本轮证据
+
+2026-10-31：`core:ui:testDebugUnitTest`、`feature:library:testDebugUnitTest`、`feature:library:compileDebugKotlin`、`app:compileLocalFirstDebugKotlin` 一次构建通过，`BUILD SUCCESSFUL in 59s`。测试 XML 的统计与本轮命令摘要位于 `.jez/artifacts/library-interior-implementation-2026-10-31/t0-verification.json`。已有编译告警仍保留；此记录不代表原生视觉验收或三个新增功能完成。

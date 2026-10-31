@@ -119,7 +119,7 @@ fun MistakeRevisionEditRoute(
             Spacer(Modifier.height(10.dp))
         }
 
-        WorkspacePanel {
+        MistakeSectionCard("题目内容", headerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.ReadingSurface) {
             Column {
                 OutlinedTextField(
                     value = state.title,
@@ -133,7 +133,8 @@ fun MistakeRevisionEditRoute(
                 )
 
                 state.blocks.forEachIndexed { index, block ->
-                    Spacer(Modifier.height(14.dp))
+                    if (index == 0) Spacer(Modifier.height(14.dp))
+                    else com.tingyun.smartmistakebook.core.ui.PaperDivider(Modifier.padding(vertical = 16.dp))
                     when (block.kind) {
                         RevisionEditBlockKind.STEM -> OutlinedTextField(
                             value = block.text,
@@ -242,9 +243,10 @@ fun MistakeRevisionEditRoute(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("mistake_revision_edit_diff"),
-            shape = RoundedCornerShape(20.dp),
-            color = JadeSoft.copy(alpha = 0.35f),
-            shadowElevation = 1.dp,
+            shape = RoundedCornerShape(16.dp),
+            color = com.tingyun.smartmistakebook.core.ui.SmartColors.SubtleSurface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
+            shadowElevation = 0.dp,
         ) {
             Column(
                 modifier = Modifier.padding(14.dp),

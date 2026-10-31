@@ -4,6 +4,7 @@ package com.tingyun.smartmistakebook.core.ui
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -71,12 +72,12 @@ fun ClaudeAlertDialog(
             Surface(modifier.widthIn(max = 520.dp).fillMaxWidth().heightIn(max = maxHeight)
                 .claudeModalEntrance(),
                 shape = shape, color = containerColor, tonalElevation = tonalElevation,
-                shadowElevation = 12.dp) {
-                Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
+                border = BorderStroke(1.dp, SmartColors.Divider), shadowElevation = 12.dp) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         if (icon != null) CompositionLocalProvider(LocalContentColor provides iconContentColor, content = icon)
-                        Column(Modifier.weight(1f).padding(top = 8.dp)) {
+                        Column(Modifier.weight(1f)) {
                             if (title != null) CompositionLocalProvider(LocalContentColor provides titleContentColor) {
                                 ProvideTextStyle(MaterialTheme.typography.titleLarge, title)
                             }
@@ -95,6 +96,7 @@ fun ClaudeAlertDialog(
                             }
                         }
                     }
+                    PaperDivider()
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                         verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         CompositionLocalProvider(LocalClaudeDialogButtonKind provides ClaudeDialogButtonKind.CANCEL) {
