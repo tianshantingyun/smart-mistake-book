@@ -2,18 +2,19 @@ package com.tingyun.smartmistakebook.visualjs
 
 import android.content.res.Resources
 import android.graphics.Paint
+import android.graphics.Rect
 import android.os.Build
 import androidx.core.os.ConfigurationCompat
+import com.tingyun.smartmistakebook.core.data.visual.VisualMeasuredLayoutArtifact
 import com.tingyun.smartmistakebook.core.domain.VisualContentKind
 import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureBatch
 import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureEntry
 import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureResult
 import com.tingyun.smartmistakebook.core.domain.VisualContentMeasurer
 import com.tingyun.smartmistakebook.core.domain.VisualMeasuredContent
-import com.tingyun.smartmistakebook.core.model.MathBoxBuilder
-import com.tingyun.smartmistakebook.core.model.MathMetrics
+import com.tingyun.smartmistakebook.core.model.MathBox
+import com.tingyun.smartmistakebook.core.model.MathContentLowering
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
-import com.tingyun.smartmistakebook.core.model.parseAndBuildBox
 import java.nio.charset.StandardCharsets
 
 /**
@@ -23,10 +24,10 @@ import java.nio.charset.StandardCharsets
  *
  * **它消灭的具体失败**（对照批次 22 的 `UnwiredVisualContentMeasurer` fail-closed 桩）：
  * 1. "任何含文本/公式的图都不可用"——桩对非空批次一律拒绝；本实现给出真实宽/高/baseline；
- * 2. "服务侧另起一套公式解析与 UI 渲染不一致"——math 复用 core:model 的
- *    `parseAndBuildBox`/`MathBoxBuilder` 同一条共享 lowering（契约 §5："不得继续增加第三套
- *    公式/坐标绘制逻辑"），解析/预算失败按契约降级为可读文本（度量为原文 payload），
- *    不做占位框；
+ * 2. "服务侧另起一套公式解析与 UI 渲染不一致"——math 复用 core:model 的共享 lowering
+ *    `MathContentLowering`（批次 38 S-08 起；parse → AST → budget → box 唯一入口，契约 §5：
+ *    "不得继续增加第三套公式/坐标绘制逻辑"），解析/预算失败按契约降级为可读文本（度量为
+ *    原文 payload），不做占位框；
  * 3. "度量环境漂移无法归因"——环境快照（density/fontScale/字体/locale/sizeSp）参与内容
  *    摘要（契约 §3.2："缓存只在内容摘要和布局环境完全一致时命中"）。
  *
@@ -61,19 +62,30 @@ internal class AndroidVisualContentMeasurer(
         if (batch.entries.isEmpty()) {
             return VisualContentMeasureResult(emptyList())
         }
+        // M-01（批次 38）：先产出完整布局 artifact（契约 §3.2"保留不可变布局 artifact"），
+        // 端口五字段是它的投影——单一事实来源，端口与 artifact 不可能漂移。artifact 的
+        // 构造即校验（`VisualMeasuredLayoutArtifact.init` 的 lines/ink 不变式），每次度量
+        // 都执行；artifact 的**保留**（持久化/回放消费）归持久化与回放批（R2 §3.3 消费表），
+        // 本批经由测试观测（`VisualMeasuredLayoutInkBoundsTest`）。
+        val artifacts = batch.entries.map { entry ->
+            val layout = measureContentEntry(entry, environment, backend)
+            layout.toArtifact(
+                // "实际字号" = 实际使用的规范字号（R2 §4.3-5）；MVA 条目协议不携带 per-entry
+                // size（D3），度量为环境单一规范字号。
+                fontSizeSp = environment.sizeSp,
+                digest = contentDigest(layout.kind, entry.payload, environment, layout.degraded),
+            )
+        }
         return VisualContentMeasureResult(
-            batch.entries.mapIndexed { index, entry ->
-                val layout = measureContentEntry(entry, environment, backend)
-                val digest = contentDigest(layout.kind, entry.payload, environment, layout.degraded)
+            artifacts.mapIndexed { index, artifact ->
                 VisualMeasuredContent(
-                    contentId = CONTENT_ID_PREFIX + index + "-" + digest.take(CONTENT_ID_DIGEST_CHARS),
-                    widthDu = layout.widthDu,
-                    heightDu = layout.heightDu,
-                    baselineDu = layout.baselineDu,
-                    // "实际字号" = 实际使用的规范字号（R2 §4.3-5）；MVA 条目协议不携带 per-entry
-                    // size（D3），度量为环境单一规范字号。
-                    fontSizeSp = environment.sizeSp,
-                    digest = digest,
+                    contentId = CONTENT_ID_PREFIX + index + "-" +
+                        artifact.digest.take(CONTENT_ID_DIGEST_CHARS),
+                    widthDu = artifact.widthDu,
+                    heightDu = artifact.heightDu,
+                    baselineDu = artifact.baselineDu,
+                    fontSizeSp = artifact.fontSizeSp,
+                    digest = artifact.digest,
                 )
             },
         )
@@ -223,12 +235,31 @@ internal interface VisualTextMeasureBackend {
      * "足以绘制所有字体"的 metrics；分隔符走默认字体，不改变结果集。
      */
     fun lineMetricsPx(payload: String): VisualTextLineMetricsPx
+
+    /**
+     * [payload] 的 [start, endExclusive) 区段墨迹边界（批次 38 M-01；`Paint.getTextBounds`
+     * 官方口径："smallest rectangle that encloses all of the characters, with an implied
+     * origin at (0,0)"，且 styles ignored——R2 §3.2-2 的度量口径）。
+     *
+     * 坐标约定：**隐式原点 (0,0) = 绘制左缘 + 基线**——`top ≤ 0` 在基线之上、`bottom ≥ 0`
+     * 在基线之下（字形伸出基线下方为正）；`left ≥ 0` 自绘制左缘（斜体/悬挂字形可为负，
+     * 实现如实返回，联合计算与"无包含不变式"消费面据此成立）。
+     */
+    fun textInkBoundsPx(payload: String, start: Int, endExclusive: Int): VisualTextInkBoundsPx
 }
 
 /** 行 metrics（px）：`ascentPx ≤ 0`，`descentPx ≥ 0`（字体坐标约定）。 */
 internal data class VisualTextLineMetricsPx(
     val ascentPx: Float,
     val descentPx: Float,
+)
+
+/** 墨迹边界（px，[VisualTextMeasureBackend.textInkBoundsPx] 口径；见其坐标约定）。 */
+internal data class VisualTextInkBoundsPx(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float,
 )
 
 /** 一行显式段（`\n` 切分并做 `\r` 归一后的段）：字符区间与该段 advance 宽（du）。 */
@@ -239,9 +270,10 @@ internal data class VisualMeasuredLine(
 )
 
 /**
- * 内部完整布局 artifact（R2 §4.2 seam）：端口五字段之上的行结构，供未来 painter/lowering
- * 复用（同一 seam、同一数字）。本批不进端口、不序列化（契约 §5 持久化段："冻结的行范围与
- * run 位置"随 painter/PDF 回放批次经同一 seam 重导出）。
+ * 内部完整布局形状（R2 §4.2 seam；批次 38 M-01 起携带 [inkBounds]）：端口五字段之上的
+ * 行结构，由 [toArtifact] 折成跨模块 artifact `VisualMeasuredLayoutArtifact`
+ * （core:data `visual`，public；构造即校验消费不变式）——度量管线的内在形状与跨模块
+ * artifact 的单一折算点，消灭"端口/artifact 双处计算漂移"。
  *
  * 形状对 R2 §4.2 草图的一处收敛（登记）：草图为 sealed interface，本实现收敛为单一 data
  * class——草图两个子类型的成员集完全相同，唯一差异（text 有 lines、math 无）已被降级路径
@@ -259,6 +291,13 @@ internal data class VisualMeasuredLayout(
     val lines: List<VisualMeasuredLine>?,
     /** math 解析/预算失败按契约降级为可读文本时 true（参与摘要，R2 §6-2）。 */
     val degraded: Boolean,
+    /**
+     * 墨迹边界（du，盒顶原点、y 向下；批次 38 M-01 新增）：text = 各段
+     * `Paint.getTextBounds` 矩形折算到盒顶原点后的联合；math 第一版 = 盒自身。
+     * **与布局盒无包含不变式**（斜体悬挂/fallback 大字形可越出盒甚至负坐标），语义与
+     * 消费点枚举见 `VisualMeasuredLayoutArtifact.inkBounds` KDoc。
+     */
+    val inkBounds: VisualMeasuredLayoutArtifact.InkRect,
 )
 
 /**
@@ -266,6 +305,13 @@ internal data class VisualMeasuredLayout(
  * 协议携带可用宽度，属契约变更；能力上下文不广告 wrap）。确定性归一：段尾单个 `\r` 去除。
  * 内蕴宽 = 各段 advance 最大值；高 = 段数 × 行高（行 metrics 对整段载荷取一次）；
  * baseline = 首行自顶偏移（`-ascent`）。
+ *
+ * 墨迹（批次 38 M-01，R2 §3.2-2）：逐**非空**段取 `Paint.getTextBounds`（origin (0,0)、
+ * 基线 y=0 口径），折算到盒顶原点：段 i 的基线自顶 y = `-ascent + i × 行高`，故
+ * `top_i = -ascent + i×行高 + bounds.top`、`bottom_i` 同式、`left/right` 自盒左缘原样；
+ * 整体 = 各段矩形**联合**（LTR 假定与 measureText/painter 现行 isRtl=false 同款）。
+ * 空段（段尾 `\n` 产生的空行）无墨迹、不参与联合；全部段为空时墨迹 = (0,0,0,0)。
+ * 输出允许越出布局盒甚至负坐标（无包含不变式，`VisualMeasuredLayoutArtifact.inkBounds`）。
  */
 internal fun measureTextIntrinsic(
     payload: String,
@@ -291,6 +337,45 @@ internal fun measureTextIntrinsic(
         if (widthPx > maxWidthPx) maxWidthPx = widthPx
         VisualMeasuredLine(range.start, range.endExclusive, widthPx / environment.density)
     }
+    var inkLeftPx = Float.POSITIVE_INFINITY
+    var inkTopPx = Float.POSITIVE_INFINITY
+    var inkRightPx = Float.NEGATIVE_INFINITY
+    var inkBottomPx = Float.NEGATIVE_INFINITY
+    var hasInk = false
+    segments.forEachIndexed { lineIndex, range ->
+        if (range.start >= range.endExclusive) {
+            return@forEachIndexed // 空段无墨迹（尾 `\n` 产生的空行），不参与联合。
+        }
+        val bounds = backend.textInkBoundsPx(payload, range.start, range.endExclusive)
+        val valid = bounds.left.isFinite() && bounds.top.isFinite() &&
+            bounds.right.isFinite() && bounds.bottom.isFinite() &&
+            bounds.left <= bounds.right && bounds.top <= bounds.bottom
+        if (!valid) {
+            throw VisualMeasurementEnvironmentException(
+                "text ink bounds are broken: [${range.start},${range.endExclusive}) -> $bounds",
+            )
+        }
+        // 段 lineIndex 的基线自盒顶 y（px）：首行 baselineDu 的像素口径逐行下移。
+        val baselineTopPx = -lineMetrics.ascentPx + lineIndex * lineHeightPx
+        hasInk = true
+        if (bounds.left < inkLeftPx) inkLeftPx = bounds.left
+        if (bounds.right > inkRightPx) inkRightPx = bounds.right
+        val topPx = baselineTopPx + bounds.top
+        val bottomPx = baselineTopPx + bounds.bottom
+        if (topPx < inkTopPx) inkTopPx = topPx
+        if (bottomPx > inkBottomPx) inkBottomPx = bottomPx
+    }
+    val density = environment.density
+    val inkBounds = if (hasInk) {
+        VisualMeasuredLayoutArtifact.InkRect(
+            left = inkLeftPx / density,
+            top = inkTopPx / density,
+            right = inkRightPx / density,
+            bottom = inkBottomPx / density,
+        )
+    } else {
+        VisualMeasuredLayoutArtifact.InkRect(left = 0f, top = 0f, right = 0f, bottom = 0f)
+    }
     return VisualMeasuredLayout(
         kind = VisualContentKind.TEXT,
         widthDu = maxWidthPx / environment.density,
@@ -298,27 +383,39 @@ internal fun measureTextIntrinsic(
         baselineDu = -lineMetrics.ascentPx / environment.density,
         lines = lines,
         degraded = false,
+        inkBounds = inkBounds,
     )
 }
 
 /**
- * MATH 度量（R2 案A）：复用 core:model 纯 Kotlin 盒布局链——`parseAndBuildBox`（预算内建）
- * + `MathBoxBuilder.buildBox(node, MathMetrics.of(fontSizePx))`；返回 null = 解析/预算失败
- * （调用方按契约降级为可读文本，见 [measureContentEntry]）。纯 Kotlin，JVM 可测
- * （R2 §6-1 公式金样）。
+ * MATH 度量（R2 案A；批次 38 S-08 起经由共享 lowering [MathContentLowering.lower]——
+ * "parse → AST → budget → box"与"失败 → 原文透传"的唯一 public 入口，契约 §5"不得继续
+ * 增加第三套公式/坐标绘制逻辑"）：返回 null = 解析/预算失败（调用方按契约降级为可读文本，
+ * 见 [measureContentEntry]）。纯 Kotlin，JVM 可测（R2 §6-1 公式金样）。
  *
- * 预算行为如实登记：`parseAndBuildBox` 的解析器对未知 TeX 极度宽容（未知命令降级为字面
- * atom），真实失败面是**预算越界**（输入 >2000 字符、token/节点/深度/盒尺寸上限）——降级
- * 路径因此主要覆盖超预算与超长公式（契约"第一版支持范围须由公式金样限定"）。
+ * 预算行为如实登记：解析器对未知 TeX 极度宽容（未知命令降级为字面 atom），真实失败面是
+ * **预算越界**（输入 >2000 字符、token/节点/深度/盒尺寸上限）——降级路径因此主要覆盖超
+ * 预算与超长公式（契约"第一版支持范围须由公式金样限定"）。
  */
 internal fun measureMathBox(
     payload: String,
     environment: VisualMeasureEnvironment,
-): VisualMeasuredLayout? {
-    val parsed = parseAndBuildBox(payload)
-    if (!parsed.isSuccess) return null
-    val node = parsed.node ?: return null
-    val box = MathBoxBuilder.buildBox(node, MathMetrics.of(environment.fontSizePx()))
+): VisualMeasuredLayout? = when (
+    val lowered = MathContentLowering.lower(payload, environment.fontSizePx())
+) {
+    is MathContentLowering.Result.Box -> mathLayoutFromBox(lowered.box, environment)
+    is MathContentLowering.Result.FallbackText -> null
+}
+
+/**
+ * 成功盒 → 内部布局形状的共享折算（[measureMathBox] 与 [measureContentEntry] 的 Box 分支
+ * 共用；破度量检查 fail-closed 语义不变）。math 墨迹第一版 = 盒自身（盒顶原点全盒，
+ * R2 §3.2-3；墨迹级细化随"真实字形度量"共享 lowering 演进）。
+ */
+private fun mathLayoutFromBox(
+    box: MathBox,
+    environment: VisualMeasureEnvironment,
+): VisualMeasuredLayout {
     if (
         !box.width.isFinite() || box.width < 0f ||
         !box.height.isFinite() || box.height < 0f ||
@@ -335,14 +432,21 @@ internal fun measureMathBox(
         baselineDu = box.baseline / environment.density,
         lines = null,
         degraded = false,
+        inkBounds = VisualMeasuredLayoutArtifact.InkRect(
+            left = 0f,
+            top = 0f,
+            right = box.width / environment.density,
+            bottom = box.height / environment.density,
+        ),
     )
 }
 
 /**
- * 单条内容度量（案A 组合，R2 §4.3 流程）：TEXT → 内蕴度量；MATH → 盒度量，失败 →
- * **契约降级**：用 text 路径度量**原文 payload**，`degraded=true`（与 UI 侧
- * `fallbackText ?: formula` 同语义，即契约 §5"未知 TeX 回可读文本"，不做占位框）。
- * 降级 math 保留 MATH kind（摘要按 kind 区分）与降级文本段列表（artifact 可复现）。
+ * 单条内容度量（案A 组合，R2 §4.3 流程）：TEXT → 内蕴度量；MATH → 共享 lowering，成功 →
+ * 盒布局，失败 → **契约降级**：用 text 路径度量 **lowering 透传的原文**，`degraded=true`
+ * （即契约 §5"未知 TeX 回可读文本"，不做占位框）。降级 math 保留 MATH kind（摘要按 kind
+ * 区分）与降级文本段列表（artifact 可复现）。MATH 分支只 lower 一次（Box 与 Fallback 共享
+ * 同一次解析，消灭双解析的重复计算面）。
  */
 internal fun measureContentEntry(
     entry: VisualContentMeasureEntry,
@@ -351,15 +455,44 @@ internal fun measureContentEntry(
 ): VisualMeasuredLayout = when (entry.kind) {
     VisualContentKind.TEXT -> measureTextIntrinsic(entry.payload, environment, backend)
     VisualContentKind.MATH -> {
-        val box = measureMathBox(entry.payload, environment)
-        if (box != null) {
-            box
-        } else {
-            val fallback = measureTextIntrinsic(entry.payload, environment, backend)
-            fallback.copy(kind = VisualContentKind.MATH, degraded = true)
+        when (
+            val lowered = MathContentLowering.lower(entry.payload, environment.fontSizePx())
+        ) {
+            is MathContentLowering.Result.Box -> mathLayoutFromBox(lowered.box, environment)
+            is MathContentLowering.Result.FallbackText ->
+                // readable == 原文透传（MathContentLowering KDoc）——度量的文本与未来回放
+                // 绘制的文本是同一份（单一事实来源，度量/回放不可能失配）。
+                measureTextIntrinsic(lowered.readable, environment, backend)
+                    .copy(kind = VisualContentKind.MATH, degraded = true)
         }
     }
 }
+
+/**
+ * 内部布局形状 → 跨模块完整布局 artifact 的唯一折算点（批次 38 M-01；`measure()` 的
+ * 生产路径，消费点枚举见 `VisualMeasuredLayoutArtifact` KDoc）。digest/fontSizeSp 由
+ * 调用方注入（它们是条目级/环境级量，不在内蕴度量里）。
+ */
+internal fun VisualMeasuredLayout.toArtifact(
+    fontSizeSp: Float,
+    digest: String,
+): VisualMeasuredLayoutArtifact = VisualMeasuredLayoutArtifact(
+    kind = kind,
+    widthDu = widthDu,
+    heightDu = heightDu,
+    baselineDu = baselineDu,
+    fontSizeSp = fontSizeSp,
+    digest = digest,
+    lines = lines?.map { line ->
+        VisualMeasuredLayoutArtifact.Line(
+            start = line.start,
+            endExclusive = line.endExclusive,
+            widthDu = line.widthDu,
+        )
+    },
+    degraded = degraded,
+    inkBounds = inkBounds,
+)
 
 /**
  * 内容摘要（R2 §4.3-4）：`sha256(kind + payload + 环境指纹 + 降级态)`，带版本前缀。
@@ -423,6 +556,26 @@ internal class PaintVisualTextMeasureBackend(
 
     override fun advancePx(payload: String, start: Int, endExclusive: Int): Float =
         paint.measureText(payload, start, endExclusive)
+
+    /**
+     * `Paint.getTextBounds` 官方口径："smallest rectangle that encloses all of the
+     * characters, with an implied origin at (0,0)"，styles ignored（R2 §3.2-2 引文）。
+     * 返回值如实透传（含负 left/top——斜体悬挂/基线上方字形），联合与包含判定归度量核心。
+     */
+    override fun textInkBoundsPx(
+        payload: String,
+        start: Int,
+        endExclusive: Int,
+    ): VisualTextInkBoundsPx {
+        val bounds = Rect()
+        paint.getTextBounds(payload, start, endExclusive, bounds)
+        return VisualTextInkBoundsPx(
+            left = bounds.left.toFloat(),
+            top = bounds.top.toFloat(),
+            right = bounds.right.toFloat(),
+            bottom = bounds.bottom.toFloat(),
+        )
+    }
 
     /**
      * 实际度量 Paint 的 flags（批次 29 T5；KD-78 ④ 跨侧钉的观测面）。
