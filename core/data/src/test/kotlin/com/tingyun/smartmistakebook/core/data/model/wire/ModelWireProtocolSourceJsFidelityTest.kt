@@ -1,17 +1,23 @@
 package com.tingyun.smartmistakebook.core.data.model.wire
 
 import com.tingyun.smartmistakebook.core.data.model.IncompleteModelOutputException
+import com.tingyun.smartmistakebook.core.data.model.OpenAiModelTaskAdapters
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicyVersion
+import com.tingyun.smartmistakebook.core.model.ModelTaskInput
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
+import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
+import com.tingyun.smartmistakebook.core.model.TutorVisualContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -36,10 +42,11 @@ import org.junit.Test
  * - **取消**：流被切断（无终帧）时，半段 JSON 由 strict 解析层整条拒绝——半段 program
  *   绝不进入执行。
  *
- * **登记的边界（如实，不冒充已覆盖）**：请求侧"sourceJs 进 prompt"的载体
- * （TutorVisualContext → prompt 渲染）本构建尚未接线（A-07：类型在生产零构造；
- * `OpenAiModelTaskAdapters` 无 visualContext 渲染点，grep 实证）——请求半边的逐字节断言
- * 在载体接线后按同一张向量表补。
+ * **请求半边（批次 38 接线，A-11 载体落点）**：`TutorVisualContext → prompt 渲染`已落
+ * `OpenAiModelTaskAdapters`（Plan/Respond 两半的 toolLoopPromptSuffix；null 时零字节追加，
+ * prompt 与接线前逐字节相同）。请求侧逐字节断言按**同一张向量表**补：三协议 `requestBody`
+ * 出线后从 prompt 文本里按 `===TUTOR_VISUAL_PROGRAM_BEGIN===/END` 信标取区域，与向量
+ * program 做 UTF-8 逐字节比较；Respond 半边、有界字节声明与 null 不落块各有专项。
  */
 class ModelWireProtocolSourceJsFidelityTest {
 
@@ -308,6 +315,167 @@ class ModelWireProtocolSourceJsFidelityTest {
         }
     }
 
+    // ---- 请求半边（A-11 载体批次 38 接线后的逐字节断言，同一张向量表）----
+
+    @Test
+    fun anthropicRequestSideCarrierSurvivesTheTextVectorsByteForByte() {
+        requestSideVectors(::anthropicRequestBody)
+    }
+
+    @Test
+    fun geminiRequestSideCarrierSurvivesTheTextVectorsByteForByte() {
+        requestSideVectors(::geminiRequestBody)
+    }
+
+    @Test
+    fun responsesRequestSideCarrierSurvivesTheTextVectorsByteForByte() {
+        requestSideVectors(::responsesRequestBody)
+    }
+
+    /** Respond 半边走同一渲染点（toolLoopPromptSuffix 的 Respond 调用位），逐字节同口径。 */
+    @Test
+    fun theRespondHalfRendersTheSameCarrierByteForByte() {
+        textVectors.forEach { (label, program) ->
+            val body = anthropicRequestBody(respondInput(visualContext(program)))
+
+            assertUtf8BytesEqual(
+                "[$label] request-side (respond) sourceJs",
+                program,
+                carriedSourceJs(body),
+            )
+        }
+    }
+
+    @Test
+    fun aNullVisualContextLandsNoCarrierBlockOnTheWire() {
+        // 新可空字段为 null 时不出现新块（prompt 面的"新键缺席"口径）：
+        // 现行生产全部 null（A-07 零构造），出线请求必须与接线前逐字节同形。
+        val body = anthropicRequestBody(planInput())
+
+        assertFalse(body.contains(OpenAiModelTaskAdapters.VISUAL_CONTEXT_HEADER))
+        assertFalse(body.contains(OpenAiModelTaskAdapters.VISUAL_SOURCE_BEGIN))
+        assertFalse(body.contains(OpenAiModelTaskAdapters.VISUAL_STATE_BEGIN))
+    }
+
+    @Test
+    fun theCarrierRendersStateDiagnosticsCapabilityVersionAndBoundedByteCounts() {
+        val program = "const visual = {};"
+        val state = "{\"step\":1}"
+        val context = TutorVisualContext(
+            capabilityVersion = FigureGenerationPolicyVersion.VALUE,
+            sourceJs = program,
+            stateJson = state,
+            diagnostics = "上一份程序在 measure 阶段被截断",
+        )
+        val prompt = carriedPrompt(anthropicRequestBody(planInput(context)))
+
+        assertTrue(
+            "能力版本必须原样渲染：$prompt",
+            prompt.contains("capabilityVersion：${FigureGenerationPolicyVersion.VALUE}"),
+        )
+        assertUtf8BytesEqual("state region", state, carriedRegion(prompt, STATE_BEGIN, STATE_END))
+        assertTrue(
+            "state 有界字节声明必须与实际一致：$prompt",
+            prompt.contains("共 ${state.toByteArray(Charsets.UTF_8).size} UTF-8 字节"),
+        )
+        assertTrue(
+            "截断诊断必须原样渲染：$prompt",
+            prompt.contains("上一份程序在 measure 阶段被截断"),
+        )
+    }
+
+    /** 三协议共用的请求半边向量循环：出线请求里 program 区域 UTF-8 逐字节相等。 */
+    private fun requestSideVectors(requestBody: (TutorPlanInput) -> String) {
+        textVectors.forEach { (label, program) ->
+            val body = requestBody(planInput(visualContext(program)))
+            val prompt = carriedPrompt(body)
+
+            assertUtf8BytesEqual("[$label] request-side sourceJs", program, carriedSourceJs(body))
+            assertTrue(
+                "[$label] 有界字节声明必须与实际一致",
+                prompt.contains("共 ${program.toByteArray(Charsets.UTF_8).size} UTF-8 字节"),
+            )
+        }
+    }
+
+    private fun visualContext(program: String): TutorVisualContext =
+        TutorVisualContext(
+            capabilityVersion = FigureGenerationPolicyVersion.VALUE,
+            sourceJs = program,
+        )
+
+    private fun anthropicRequestBody(input: ModelTaskInput): String =
+        AnthropicMessagesProtocol.requestBody(
+            modelId = "test-model",
+            input = input,
+            images = emptyList(),
+            stream = false,
+            enableNativeTools = false,
+        )
+
+    private fun geminiRequestBody(input: ModelTaskInput): String =
+        GeminiGenerateContentProtocol.requestBody(
+            modelId = "test-model",
+            input = input,
+            images = emptyList(),
+            stream = false,
+            enableNativeTools = false,
+        )
+
+    private fun responsesRequestBody(input: ModelTaskInput): String =
+        OpenAiResponsesProtocol.requestBody(
+            modelId = "test-model",
+            input = input,
+            images = emptyList(),
+            stream = false,
+            enableNativeTools = false,
+        )
+
+    /** Respond 半边夹具：修复回合形状（带 visualContext 的 Respond 输入）。 */
+    private fun respondInput(context: TutorVisualContext? = null) = TutorRespondInput(
+        sessionId = "session-sourcejs-respond",
+        draftRevisionNumber = 1,
+        subject = "数学",
+        questionDocument = QuestionDocument(
+            id = "question-respond-fidelity",
+            blocks = listOf(ContentBlock.Paragraph("stem", "画出抛物线的图像")),
+        ),
+        relevantLearningEvidence = emptyList(),
+        projectionIsCurrent = true,
+        responseOrdinal = 1,
+        cycleOrdinal = 1,
+        turnOrdinal = 1,
+        studentMessage = "上一张图挂了，帮我修一下",
+        priorMessages = emptyList(),
+        requestedMove = null,
+        visualContext = context,
+    )
+
+    /** 递归收集请求体 JSON 里的全部字符串值，取携带视觉上下文信标的那份 prompt 文本。 */
+    private fun carriedPrompt(requestBody: String): String =
+        jsonStringValues(Json.parseToJsonElement(requestBody))
+            .single { it.contains(OpenAiModelTaskAdapters.VISUAL_SOURCE_BEGIN) }
+
+    private fun carriedSourceJs(requestBody: String): String =
+        carriedRegion(carriedPrompt(requestBody), SOURCE_BEGIN, SOURCE_END)
+
+    private fun carriedRegion(prompt: String, begin: String, end: String): String {
+        val beginIndex = prompt.indexOf(begin)
+        check(beginIndex >= 0) { "carrier begin marker lost" }
+        val start = beginIndex + begin.length + 1
+        val stop = prompt.indexOf("\n$end", start)
+        check(stop >= 0) { "carrier end marker lost" }
+        return prompt.substring(start, stop)
+    }
+
+    private fun jsonStringValues(element: kotlinx.serialization.json.JsonElement): List<String> =
+        when (element) {
+            is kotlinx.serialization.json.JsonPrimitive ->
+                if (element.isString) listOf(element.content) else emptyList()
+            is kotlinx.serialization.json.JsonObject -> element.values.flatMap { jsonStringValues(it) }
+            is kotlinx.serialization.json.JsonArray -> element.flatMap { jsonStringValues(it) }
+        }
+
     // ---- 夹具 ----
 
     /** Route B 工具轮输出信封：一条 method=JS 的 GENERATE_FIGURE 请求，program=载荷。 */
@@ -454,7 +622,7 @@ class ModelWireProtocolSourceJsFidelityTest {
             },
         ) + "\n\n"
 
-    private fun planInput() = TutorPlanInput(
+    private fun planInput(context: TutorVisualContext? = null) = TutorPlanInput(
         sessionId = "session-sourcejs-fidelity",
         draftRevisionNumber = 1,
         subject = "数学",
@@ -465,7 +633,14 @@ class ModelWireProtocolSourceJsFidelityTest {
         relevantLearningEvidence = emptyList(),
         projectionIsCurrent = true,
         toolDeclarations = listOf(TutorToolName.GENERATE_FIGURE),
+        visualContext = context,
     )
+
+    /** 信标别名（与 [OpenAiModelTaskAdapters] 的载体常量同一来源）。 */
+    private val SOURCE_BEGIN = OpenAiModelTaskAdapters.VISUAL_SOURCE_BEGIN
+    private val SOURCE_END = OpenAiModelTaskAdapters.VISUAL_SOURCE_END
+    private val STATE_BEGIN = OpenAiModelTaskAdapters.VISUAL_STATE_BEGIN
+    private val STATE_END = OpenAiModelTaskAdapters.VISUAL_STATE_END
 
     /** 清单口径：UTF-8 逐字节相等（不是 equals 的字面复述——字节级断言防规范化漂移）。 */
     private fun assertUtf8BytesEqual(label: String, expected: String, actual: String) {
