@@ -1,0 +1,38 @@
+{
+  "name": "screenshot2-fx-area",
+  "note": "独立渲染结构预期：面积梯形四角由 F(x)=F0(1-x/h) 与映射 (origin 40,200; 1du=1unit) 独立推导；label 位置按公式独立推导",
+  "drawSchemaVersion": 1,
+  "viewBox": { "x": 0, "y": 0, "w": 360, "h": 240 },
+  "background": "#ffffff",
+  "hitRegionCount": 0,
+  "opSequence": ["path", "path", "path", "label", "label", "label"],
+  "stats": { "nodes": 7, "pathCommands": 13, "labels": 3, "ops": 6 },
+  "ops": [
+    {
+      "kind": "path", "fill": "#26354a", "alpha": 1,
+      "stroke": { "width": 1, "cap": "butt", "join": "miter", "miterLimit": 4, "dash": null },
+      "commands": [["M", 40, 200], ["L", 320, 200], ["M", 90, 197], ["L", 90, 203], ["M", 140, 197], ["L", 140, 203]]
+    },
+    {
+      "kind": "path", "fill": "#26354a", "alpha": 1,
+      "stroke": { "width": 1, "cap": "butt", "join": "miter", "miterLimit": 4, "dash": null },
+      "commands": [["M", 40, 200], ["L", 40, 150]]
+    },
+    {
+      "kind": "path", "fill": "#ff8800", "stroke": null, "alpha": 1,
+      "commands": [["M", 40, 200], ["L", 40, 160], ["L", 90, 180], ["L", 90, 200], ["Z"]]
+    },
+    {
+      "kind": "label", "contentId": "lbl-f", "x": 30, "y": 164, "rotationDeg": 0,
+      "hAlign": "left", "vAlign": "top", "color": "#26354a", "alpha": 1
+    },
+    {
+      "kind": "label", "contentId": "lbl-half", "x": 80, "y": 224, "rotationDeg": 0,
+      "hAlign": "center", "vAlign": "top", "color": "#26354a", "alpha": 1
+    },
+    {
+      "kind": "label", "contentId": "lbl-h", "x": 135, "y": 224, "rotationDeg": 0,
+      "hAlign": "center", "vAlign": "top", "color": "#26354a", "alpha": 1
+    }
+  ]
+}

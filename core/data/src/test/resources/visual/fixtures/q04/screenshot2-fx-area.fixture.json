@@ -1,0 +1,48 @@
+{
+  "name": "screenshot2-fx-area",
+  "category": "截图 2 F-x 面积",
+  "planSource": "docs/superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md:160（人工渲染 fixture 定义 F(x)=F0(1-x/h)，x=h/2 时面积=3F0h/8；函数绘图 oracle，不假设真实拔塞题总拉力终点为 0）",
+  "viewport": { "widthDu": 360, "heightDu": 240 },
+  "scene": {
+    "schemaVersion": 1,
+    "sceneId": "q04-screenshot2-fx-area",
+    "revision": 1,
+    "viewBox": { "x": 0, "y": 0, "width": 360, "height": 240 },
+    "background": "#ffffff",
+    "paths": [
+      { "id": "axis-x", "commands": [["M", 40, 200], ["L", 320, 200], ["M", 90, 197], ["L", 90, 203], ["M", 140, 197], ["L", 140, 203]] },
+      { "id": "axis-y", "commands": [["M", 40, 200], ["L", 40, 150]] },
+      { "id": "area-fx", "commands": [["M", 40, 200], ["L", 40, 160], ["L", 90, 180], ["L", 90, 200], ["Z"]] }
+    ],
+    "root": {
+      "type": "group",
+      "children": [
+        { "type": "path", "pathId": "axis-x", "fill": "#26354a", "stroke": { "width": 1 } },
+        { "type": "path", "pathId": "axis-y", "fill": "#26354a", "stroke": { "width": 1 } },
+        { "type": "path", "pathId": "area-fx", "fill": "#ff8800" },
+        { "type": "label", "contentId": "lbl-f", "anchor": { "x": 30, "y": 155 }, "hAlign": "left", "vAlign": "top", "color": "#26354a" },
+        { "type": "label", "contentId": "lbl-half", "anchor": { "x": 90, "y": 215 }, "hAlign": "center", "vAlign": "top", "color": "#26354a" },
+        { "type": "label", "contentId": "lbl-h", "anchor": { "x": 140, "y": 215 }, "hAlign": "center", "vAlign": "top", "color": "#26354a" }
+      ]
+    },
+    "controls": [],
+    "hitRegions": []
+  },
+  "metrics": [
+    { "contentId": "lbl-f", "widthDu": 10, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s2-f" },
+    { "contentId": "lbl-half", "widthDu": 20, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s2-half" },
+    { "contentId": "lbl-h", "widthDu": 10, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s2-h" }
+  ],
+  "labels": {
+    "lbl-f": "F",
+    "lbl-half": "h/2",
+    "lbl-h": "h"
+  },
+  "subject": {
+    "kind": "fx-area",
+    "mapping": { "originDu": [40, 200], "duPerUnitX": 1.0, "duPerUnitY": 1.0, "F0": 40.0, "h": 100.0 },
+    "areaPathIndex": 2,
+    "areaCornersUnit": [[0.0, 0.0], [0.0, 40.0], [50.0, 20.0], [50.0, 0.0]],
+    "expect": { "areaAtHalfH": 1500.0, "tolerance": 1e-6 }
+  }
+}

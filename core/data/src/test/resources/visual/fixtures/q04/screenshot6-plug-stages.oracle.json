@@ -1,0 +1,43 @@
+{
+  "name": "screenshot6-plug-stages",
+  "note": "独立渲染结构预期：阶段线 x=70/140/210 由映射 x0=70du、1.4du/unit 独立推导；虚线规格 [4,4]；label 位置按公式独立推导",
+  "drawSchemaVersion": 1,
+  "viewBox": { "x": 0, "y": 0, "w": 360, "h": 240 },
+  "background": "#ffffff",
+  "hitRegionCount": 0,
+  "opSequence": ["path", "path", "path", "path", "label", "label", "label"],
+  "stats": { "nodes": 8, "pathCommands": 14, "labels": 3, "ops": 7 },
+  "ops": [
+    {
+      "kind": "path", "fill": "#f2f2f2", "alpha": 1,
+      "stroke": { "width": 1, "cap": "butt", "join": "miter", "miterLimit": 4, "dash": null },
+      "commands": [["M", 60, 80], ["L", 260, 80], ["L", 260, 140], ["L", 60, 140], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#26354a", "stroke": null, "alpha": 1,
+      "commands": [["M", 60, 70], ["L", 80, 70], ["L", 80, 150], ["L", 60, 150], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#336699", "alpha": 1,
+      "stroke": { "width": 1, "cap": "butt", "join": "miter", "miterLimit": 4, "dash": [4, 4] },
+      "commands": [["M", 140, 70], ["L", 140, 150]]
+    },
+    {
+      "kind": "path", "fill": "#336699", "alpha": 1,
+      "stroke": { "width": 1, "cap": "butt", "join": "miter", "miterLimit": 4, "dash": [4, 4] },
+      "commands": [["M", 210, 70], ["L", 210, 150]]
+    },
+    {
+      "kind": "label", "contentId": "lbl-0", "x": 55, "y": 177, "rotationDeg": 0,
+      "hAlign": "center", "vAlign": "top", "color": "#26354a", "alpha": 1
+    },
+    {
+      "kind": "label", "contentId": "lbl-half", "x": 120, "y": 177, "rotationDeg": 0,
+      "hAlign": "center", "vAlign": "top", "color": "#26354a", "alpha": 1
+    },
+    {
+      "kind": "label", "contentId": "lbl-h", "x": 195, "y": 177, "rotationDeg": 0,
+      "hAlign": "center", "vAlign": "top", "color": "#26354a", "alpha": 1
+    }
+  ]
+}

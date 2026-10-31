@@ -1,0 +1,46 @@
+{
+  "name": "screenshot5-force-diagram",
+  "note": "独立渲染结构预期：箭头=杆四边形(半宽2)+头三角(头长10/半头宽5)，坐标由声明的 tail/tip 独立推导；杆角顺序 tail-a,head-a,head-b,tail-b",
+  "drawSchemaVersion": 1,
+  "viewBox": { "x": 0, "y": 0, "w": 360, "h": 240 },
+  "background": "#ffffff",
+  "hitRegionCount": 0,
+  "opSequence": ["path", "path", "path", "path", "path", "label", "label", "label"],
+  "stats": { "nodes": 9, "pathCommands": 34, "labels": 3, "ops": 8 },
+  "ops": [
+    {
+      "kind": "path", "fill": "#dddddd", "alpha": 1,
+      "stroke": { "width": 1, "cap": "butt", "join": "miter", "miterLimit": 4, "dash": null },
+      "commands": [["M", 140, 90], ["L", 200, 90], ["L", 200, 150], ["L", 140, 150], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#c0392b", "stroke": null, "alpha": 1,
+      "commands": [["M", 168, 120], ["L", 172, 120], ["L", 172, 170], ["L", 168, 170], ["Z"], ["M", 165, 170], ["L", 170, 180], ["L", 175, 170], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#2e86de", "stroke": null, "alpha": 1,
+      "commands": [["M", 168, 120], ["L", 172, 120], ["L", 172, 70], ["L", 168, 70], ["Z"], ["M", 165, 70], ["L", 170, 60], ["L", 175, 70], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#7f8c8d", "stroke": null, "alpha": 1,
+      "commands": [["M", 190, 158], ["L", 130, 158], ["L", 130, 162], ["L", 190, 162], ["Z"], ["M", 140, 155], ["L", 130, 160], ["L", 140, 165], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#26354a", "alpha": 1,
+      "stroke": { "width": 2, "cap": "butt", "join": "miter", "miterLimit": 4, "dash": null },
+      "commands": [["M", 100, 190], ["L", 260, 190]]
+    },
+    {
+      "kind": "label", "contentId": "lbl-g", "x": 180, "y": 181, "rotationDeg": 0,
+      "hAlign": "left", "vAlign": "top", "color": "#c0392b", "alpha": 1
+    },
+    {
+      "kind": "label", "contentId": "lbl-n", "x": 180, "y": 71, "rotationDeg": 0,
+      "hAlign": "left", "vAlign": "top", "color": "#2e86de", "alpha": 1
+    },
+    {
+      "kind": "label", "contentId": "lbl-f", "x": 115, "y": 174, "rotationDeg": 0,
+      "hAlign": "left", "vAlign": "top", "color": "#7f8c8d", "alpha": 1
+    }
+  ]
+}
