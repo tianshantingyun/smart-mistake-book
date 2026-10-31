@@ -608,3 +608,5 @@ head -2 core/model/build/test-results/test/TEST-*TutorToolRoundBudgetTest.xml  #
 cat build/agent-batch30/gates/summary.txt                   # 8/8 rc=0；red=0
 tail -12 build/agent-batch30/consistency.txt                # 3 门 2 PASS / 1 FAIL（C02）
 ```
+
+**批次30 收口结算（主循环，2026-11-01）**：**配额臂测负关闭**（设备 114/129 回归 3 条 → 6 文件逐字回滚；救援配额在本融合口径下为负向，与批次18/21 并集结论一致）；**v25（A 层定向抽取 3 材料）不可判读回滚**（读数被配额臂污染；抽取证据留 `build/agent-batch30/a-layer-extract.md` 待干净重测）；**正向遗留入库**（升级逻辑用例 +85 行、DenseTestFixtures CRLF 修复、验收 v1.3 数值修正）；最终态 **v24/9664896a + 96246c78 + .vec 70329115**，渲染 v2 与 v24 为当前基线、检索 117/129。配额臂重开条件：仅当新的缺腿归一化口径或槽位策略有独立预注册与外部依据（禁金标调参）。

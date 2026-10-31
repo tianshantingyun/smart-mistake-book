@@ -647,7 +647,7 @@ python build/agent-batch19/a1/zero_drift.py
 ### 10.5 E 组（边界与移交）——逐条登记终态，不挡验收
 
 - **E1** A 层 60,512 封层（批 14 预注册裁量）/ 选修 235 单列（无源）/ 84 空点撤回 / 91 容量历史关闭 / 3 条金标-绑定冲突接受为边界——**维持登记**。
-- **E2** 182 拆分提案（50 REJECT / 132 DEFER）、114 重开提案、402 同键分类 = AI 预裁完成，**用户复核开放中**；复核结果走后续维护版本——**维持登记**。
+- **E2** 182 拆分提案（50 REJECT / 132 DEFER）、114 重开提案、402 同键分类 = **已由主控委托终裁（2026-10-29/30，`zcode-principal(delegated-by-user)`；用户 2026-10-29「不需要我来复核，你直接判断」）**：182 = REJECT 50 维持 / DEFER 132 NOT_APPLIED（ACT_NOW 0）；114 = REOPEN_NOW 68 / NOT_APPLIED 46；402 = KEEP_ALL 402 / DUPLICATE 0。逐条去向与执行触发见 `docs/research/2026-10-29-kb-final-adjudications.md` 与 `build/agent-batch25/adjudication/114-402-final.csv`。
 - **E3** 验收后增强臂：dense-union 并集臂（结构上限 ≈119/129，待跨线施工）；**标题向量臂已于批次20 clean 重测收束**——同代装置出数 118/129、同路零漂移 PASS/PASS，预注册 §2 规则②否决（数学选必二第四章·数列 10/11→9/11 严格更低），裁定 adopted=false、逐字回滚 21/21，stateAfter = v20 + `0536d0d1…`（`build/agent-batch20/title-final-r20.md`；预注册 §7.11）；系统性别名扩充不针对金标定向——**登记为验收后维护/增强项**。
 - **E4** 等和线检索词汇缺口（内容不缺：23 别名 / 32 块材料挂对节点；dense 全科 336）+「灯被两绳吊」实例材料缺失（力的分解）——**维持登记**；补料列维护项（薄料 3 条评估见 `knowledge-production/coverage-final-review-2026-10-25.md`「薄料 3 条 thinAssessment」：07/26 已 UPGRADE、23 缺「电路元器件识别」半边现成料，只评估未写入）。
 
@@ -704,7 +704,7 @@ python build/agent-batch19/a1/zero_drift.py
 - **D1**：八门 rc=0；`ProductionLexicalLegExportTest` 钉值未漂（`102 / 0.7906976744186046 / 0.6206718346253232`），`DenseRecallRerankerTest` 等 4 类定向绿；**全库单测未重跑**（不得由定向测试推出全库绿）。
 - **D2**：v21 身份见 §11.1；`DenseRecallAssembly.kt:108` 常量 `79a22270…`；`DenseRecallRerankerTest.kt` 候选总数 1,075→1,074（实测重钉）；判官/金标/镜像本批零改（JVM 判官保留既存 ` M`：batch13→14 注释，sha 未变）。
 - **D3**：本 §11 + 批报 `docs/kb-batch22-2026-10-26.md` + 预注册 §7.10 + 判据刷新节；复算命令见批报 §9。
-- **E1/E2**：维持登记（A 层封层 / 选修 235 / 84 空点 / 91 容量 / 3 条冲突；182/114/402 用户复核开放中）。
+- **E1/E2**：维持登记（A 层封层 / 选修 235 / 84 空点 / 91 容量 / 3 条冲突；182/114/402 已于 2026-10-29/30 由主控委托终裁，见 `docs/research/2026-10-29-kb-final-adjudications.md`）。
 - **E3**：dense-union 并集臂批次21 **终裁不采纳、已逐字回滚**（`docs/kb-batch21-2026-10-26.md:280-285`）；标题向量臂批次20 已收束；**v21 内容更新不属于增强臂**，不得用本批非劣口径替代机制臂的严格更高。
 - **E4**：`等和线` 别名结果 = 新增 2 条（节点 23→25 含主名），单点四路仍 `absent`、只报不判；32 块材料不变；剩余 4 条候选不写入/不测量/不判读；薄料行 23 仍 KEEP、本批零写（批报 §3/§8）。
 
