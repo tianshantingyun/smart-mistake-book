@@ -63,13 +63,18 @@ internal class OpenAiCompatibleModelCapabilityTester(
                 // 协议解析是穷尽 when：全部协议都有实现，不存在"未实现协议"的运行期分支。
                 val protocol = protocolFor(credential.configuration.protocol)
 
+                var supportsMistakeEdit = false
                 val structured = runProbe(
                     baseUrl = credential.configuration.baseUrl,
                     modelId = credential.configuration.modelId,
                     protocol = protocol,
                     apiKey = keyChars,
                     probe = ModelProbeKind.STRUCTURED,
-                    accepts = ::acceptsStructuredOutput,
+                    accepts = { wire, body ->
+                        val accepted = acceptsStructuredOutput(wire, body)
+                        supportsMistakeEdit = accepted && acceptsMistakeEditPatch(wire, body)
+                        accepted
+                    },
                 )
                 if (structured == ProbeOutcome.AUTHENTICATION_FAILED) {
                     return@use recordAuthenticationFailure(
@@ -123,6 +128,7 @@ internal class OpenAiCompatibleModelCapabilityTester(
                     supportsImageInput = image == ProbeOutcome.PASSED,
                     supportsStructuredOutput = structured == ProbeOutcome.PASSED,
                     supportsFunctionCalling = functionCalling,
+                    supportsMistakeEdit = supportsMistakeEdit,
                     testedAtEpochMillis = clock().coerceAtLeast(1L),
                     testStartSequence = testStartSequence,
                 )
@@ -248,6 +254,28 @@ internal class OpenAiCompatibleModelCapabilityTester(
         return payload[ModelProbeSpec.STRUCTURED_TOKEN_FIELD]?.jsonPrimitive?.contentOrNull ==
             ModelProbeSpec.STRUCTURED_TOKEN
     }
+
+    private fun acceptsMistakeEditPatch(protocol: ModelWireProtocol, body: String): Boolean = runCatching {
+        val text = protocol.probeResponseText(body) ?: return false
+        val patch = JSON.parseToJsonElement(text).jsonObject["mistakeEdit"] as? kotlinx.serialization.json.JsonObject ?: return false
+        val block = com.tingyun.smartmistakebook.core.model.ContentBlock.Paragraph("probe-block", "x")
+        val document = com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument(
+            document = com.tingyun.smartmistakebook.core.model.QuestionDocument("probe-document", blocks = listOf(block)),
+            blockEvidence = listOf(com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence(
+                blockId = block.id, sourceAssetId = "", sourceRegion = null,
+                writingLayer = com.tingyun.smartmistakebook.core.model.WritingLayer.UNKNOWN,
+                provenance = com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance.USER_TRANSCRIPTION,
+                confidence = null, reviewStatus = com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus.USER_CONFIRMED,
+                producerVersion = null,
+            )),
+        )
+        val input = com.tingyun.smartmistakebook.core.model.MistakeEditInput(
+            com.tingyun.smartmistakebook.core.model.EditBasis("probe-entry", "probe-revision", com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint.of(document)),
+            document, setOf(block.id), "Replace x with x^2",
+        )
+        val result = OpenAiMistakeEditProtocol.parse(patch, input, "synthetic-probe")
+        (result.suggestion.changes.singleOrNull() as? com.tingyun.smartmistakebook.core.model.MistakeEditChange.ReplaceBlock)?.block == block.copy(markdown = "x^2")
+    }.getOrDefault(false)
 
     /** 图片探测通过 = 回复正文就是合成图里的四字符码。 */
     private fun acceptsImageInput(protocol: ModelWireProtocol, body: String): Boolean {

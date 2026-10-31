@@ -708,6 +708,12 @@ class RoomModelTaskRepository internal constructor(
                 nextStatus = ModelTaskStatus.SUCCEEDED,
                 stage = ModelTaskStage.COMPLETE,
                 userMessage = when (current.request.input) {
+                    is com.tingyun.smartmistakebook.core.model.MistakeEditInput -> when ((event.output as? com.tingyun.smartmistakebook.core.model.MistakeEditOutput)?.suggestion?.decision) {
+                        com.tingyun.smartmistakebook.core.model.MistakeEditDecision.NO_CHANGE -> "当前无需修改"
+                        com.tingyun.smartmistakebook.core.model.MistakeEditDecision.NEED_SOURCE -> "需要补充原图后继续"
+                        com.tingyun.smartmistakebook.core.model.MistakeEditDecision.UNAVAILABLE -> "这次修改暂时无法完成"
+                        else -> "修改建议已准备好，请审阅后采用"
+                    }
                     is CaptureAssessmentInput -> "图片检查已完成，可以继续转写题面"
                     is CaptureParseInput -> "题面已准备好"
                     is ImagePipelineClassifyInput -> "题面分类已完成"

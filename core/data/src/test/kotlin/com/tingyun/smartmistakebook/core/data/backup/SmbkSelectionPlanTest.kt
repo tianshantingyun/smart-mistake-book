@@ -41,6 +41,13 @@ class SmbkSelectionPlanTest {
     // ---- 1. schema 69 的事实 ----
 
     @Test
+    fun `mistake edit tasks follow the issue book in selective backups`() {
+        assertEquals(SmbkSelectionCategory.ISSUE_BOOK, SmbkSelectionPlan.modelTaskKindCategory["MISTAKE_EDIT"])
+        assertTrue("MISTAKE_EDIT" in SmbkSelectionPlan.deletedModelTaskKinds(14))
+        assertFalse("MISTAKE_EDIT" in SmbkSelectionPlan.deletedModelTaskKinds(1))
+    }
+
+    @Test
     fun `schema 69 exports 86 tables 2 views and 92 foreign keys matching the plan identity`() {
         assertEquals("schema 版本", 69, database.int("version"))
         assertEquals(SmbkSelectionPlan.SCHEMA_VERSION, database.int("version"))
@@ -247,7 +254,7 @@ class SmbkSelectionPlanTest {
             (SmbkSelectionPlan.modelTaskRowFilterTables + SmbkSelectionPlan.figureRowFilterTables).toSet(),
         )
 
-        assertEquals("12 个已知 task_kind", 12, SmbkSelectionPlan.modelTaskKindCategory.size)
+        assertEquals("13 个已知 task_kind", 13, SmbkSelectionPlan.modelTaskKindCategory.size)
         assertEquals("4 个已知 figure source_kind", 4, SmbkSelectionPlan.figureOperationSourceKindCategory.size)
         assertEquals(
             "全选时没有要删的 kind",

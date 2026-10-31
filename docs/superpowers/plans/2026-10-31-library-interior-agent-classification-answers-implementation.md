@@ -190,8 +190,8 @@ Invoke-SmbGradle -TaskArguments @(':feature:library:testDebugUnitTest', ':featur
 
 **修改：** `core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasks.kt`、`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgress.kt`、`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/CapturedQuestionDocument.kt`；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelTaskAdapters.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGateway.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelCapabilityTester.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt`；`core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/ModelConfigurationStore.kt` 与 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/settings/DataStoreModelConfigurationStore.kt` 的新增任务角色映射。
 
-- [ ] 写失败用例：同一要求键相同，换要求或源图键不同；模型新增题目/块 id、任意 URI、额外字段、超长指令拒绝；旧序列化与空字段指纹完全不变；停止和缺能力返回既有准确失败状态。
-- [ ] 声明精确基准和 host 分配身份。请求携带当前结构化草稿与选中目标；图建议只允许 `FigureGenerationProposal`，不可将源码塞入正文。解析器按现有 id 白名单校验所有修改。
+- [x] 写失败用例：同一要求键相同，换要求或源图键不同；模型新增题目/块 id、任意 URI、额外字段、超长指令拒绝；旧序列化与空字段指纹完全不变；停止和缺能力返回既有准确失败状态。
+- [x] 声明精确基准和 host 分配身份。请求携带当前结构化草稿与选中目标；图建议只允许 `FigureGenerationProposal`，不可将源码塞入正文。解析器按现有 id 白名单校验所有修改。
 
 ```kotlin
 data class EditBasis(val entryId: String, val revisionId: String, val draftSha256: String)
@@ -215,8 +215,14 @@ fun editOperationKey(basis: EditBasis, targetBlockId: String, sourceSha256: Stri
 }
 ```
 
-- [ ] 注册 `ModelTaskKind.MISTAKE_EDIT`、`MistakeEditInput` 和对应 typed output，补齐 sealed 分支、数据库任务合法形状、能力探测、设置路由、备份读回和 ModelEgressPolicy。外发开关传真实值，不绕过现有策略；旧 Provider 快照未验证新任务时明确提示配置/测试能力，不静默宣称支持。
-- [ ] MockWebServer 覆盖请求携带正确原图、异常/截断结果、取消与零能力零 HTTP；旧请求 golden 指纹回归通过后提交 `feat(model): 增加可审阅的智能体修改协议`。
+- [x] 注册 `ModelTaskKind.MISTAKE_EDIT`、`MistakeEditInput` 和对应 typed output，补齐 sealed 分支、数据库任务合法形状、能力探测、设置路由、备份读回和 ModelEgressPolicy。外发开关传真实值，不绕过现有策略；旧 Provider 快照未验证新任务时明确提示配置/测试能力，不静默宣称支持。
+接线核验补充的现有文件：`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/KnowledgeQuizTasks.kt`（任务完成校验）、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelProtocol.kt`（图片编码）、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/wire/ModelProbeSpec.kt`（合成探测）、`core/data/src/debug/kotlin/com/tingyun/smartmistakebook/core/data/model/FakeModelGateway.kt`（演示分支）、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/SmbkSelectionPlan.kt` 与 `docs/research/2026-10-17-6c2-content-selection-design.md`（备份类别及同源机器块）、`app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt`（模型设置能力说明）。对应既有网关、能力测试、备份契约和原生配置测试同步扩充。
+
+当前代码使用统一模型配置，未设独立的任务角色路由；新编辑能力写入现有能力验证和同一网关，不新增模型配置入口。沿用同一次合成结构化探测，额外用真实编辑解析器核对合成 patch；旧验证缺少新能力位时保持不可用。
+
+模型明确返回 `NO_CHANGE`、`NEED_SOURCE` 或 `UNAVAILABLE` 时保留其原因且不产生可采用差异；不得把这种合法结果误报成空修改成功。只有明确的修改建议可以进入采用流程。
+
+- [x] MockWebServer 覆盖请求携带正确原图、异常/截断结果、取消与零能力零 HTTP；旧请求 golden 指纹回归通过后提交 `feat(model): 增加可审阅的智能体修改协议`。
 
 ```powershell
 Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':core:data:testDebugUnitTest', ':core:database:testDebugUnitTest')
@@ -237,7 +243,7 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 **修改：** `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabase.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabasePort.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomStudyDatabase.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/port/MistakeRevisionWritePort.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/MistakeDetailDao.kt`；`core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/MistakeDetailRepository.kt`；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/mistake/RoomMistakeDetailRepository.kt`；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/visual/DefaultFigureGenerationCoordinator.kt` 的来源/审计关联；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/SmbkSelectionPlan.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/AndroidBackupRepository.kt` 的新表清单与恢复验证。
 
 - [ ] 写失败用例：作业重开恢复；同一次点击不重复出网；不同指令不误复用；取消/晚到结果不采用；图和文字一起采用；保存冲突后原图/原题不变；新版本只挂经验证资产，重试不重复挂图。
-- [ ] 迁移 69→70 新建 `mistake_edit_job`，主键 operation id，保存 entry/revision/draft/target/source/instruction 摘要、模型 request id、请求与建议 JSON、状态和时间。状态集合为 `QUEUED/RUNNING/PROPOSED/ADOPTED/CANCELLED/FAILED/STALE`，状态推进用数据库条件更新；作业存在不等于已采用。使用应用级作用域收集模型执行，离开页面不等于用户取消。启动恢复只调度已授权的未完成作业，PROPOSED 不重新生成；T6 应用装配注册恢复入口。生成资产写入既有资产存储，不创建 UI 临时 URI 权威。
+- [ ] 迁移 69→70 新建 `mistake_edit_job`，主键 operation id，保存 entry/revision/draft/target/source/instruction 摘要、模型 request id、请求与建议 JSON、状态和时间。状态集合与 T4 领域类型一致：`QUEUED/REQUESTING/GENERATING_FIGURES/READY/NO_CHANGE/NEED_SOURCE/UNAVAILABLE/ADOPTED/FAILED/CANCELLED/SUPERSEDED`，状态推进用数据库条件更新；作业存在不等于已采用，非修改结果不可采用。使用应用级作用域收集模型执行，离开页面不等于用户取消。启动恢复只调度已授权的未完成作业，READY 和非修改结果不重新生成；T6 应用装配注册恢复入口。生成资产写入既有资产存储，不创建 UI 临时 URI 权威。
 - [ ] 经 `ModelTaskRepository` 发起修改任务，绘图统一调用 `FigureGenerationCoordinator.generate(request, proposal)`。合法 JS proposal 在当前未装配状态返回不可用；不得直接调用 QuickJS、在主进程执行脚本、默认改为远程生图或重复建一套后端选择器。引用 `docs/current/figure-generation-prompt-policy.md` 与 `docs/current/visual-generation-contract.md`；仅在既有视觉专项通过共享场景验证、原生渲染及隔离引擎装配后，统一开放 JS 能力。
 
 ```kotlin
@@ -501,7 +507,7 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 
 执行计划时逐项勾选，任务完成须有本轮实际命令输出和文件证据。纯视觉调整复用已有检查；新增业务协议/版本写入/持久作业/导出文件必须运行本计划列出的有意义测试。
 
-本计划当前状态：**实施中；T0、T1、T2、T3 已验证，下一任务为 T4；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
+本计划当前状态：**实施中；T0、T1、T2、T3、T4 已验证，下一任务为 T5；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
 
 
 ### T0 本轮证据
@@ -547,3 +553,14 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 - 原生 `MistakeOrganizationInstrumentedTest` 最终 **18/18**。新增真实 Room 场景在 300+ 节点中搜索第 299 项及物理同名项，完成后无写入、保存后精确两条关联，重开学科正确，题目仍为数学。另验面板关闭丢弃选择和旧交互兼容。
 - 已实际查看设备截图 `t3-catalog-picker-verified.png`；整机深色/大字体/无障碍与全部内页验收仍归 T11，不以该截图替代全量验收。
 - 证据：`.jez/artifacts/library-interior-implementation-2026-10-31/t3-verification.json`。下一任务 T4；全量实施仍未完成。
+
+
+### T4 完成记录（2026-11-01）
+
+- 注册 `MISTAKE_EDIT` 与严格的宿主别名修改协议；基准绑定 entry/revision/draft SHA，逻辑键使用 UTF-8 长度前缀并包含修改要求及源图 SHA。模型不能新增题目、块或选项身份，不能更改宿主控制的选项交互标记。
+- 新已采用图引用在空值时不序列化；全量模型 golden/旧序列化回归通过。图建议只使用统一 `FigureGenerationProposal`，JS 源码不能进入普通文本；实际执行与资产准入留给 T5。
+- `NO_CHANGE/NEED_SOURCE/UNAVAILABLE` 保留原因且没有可采用差异；T5 状态词汇与领域类型同步。普通数学不等式可正常保留，图片链接、URI 和可执行标签拒绝。
+- 合成编辑 patch 纳入现有结构化探测且复用实际解析器，旧能力记录默认不可用；能力位持久化、重开和换密钥失效通过原生测试。设置页区分讲解/图片识别/智能修改能力。
+- 原图经过同一受限资产与请求编码链，出网前核对冻结 SHA/尺寸/体积；MockWebServer 验真实图片请求、额外字段拒绝、截断状态以及缺能力和取消均零 HTTP。新任务归入 ISSUE_BOOK 备份类别，并同步备份机器块及选择性备份回归。
+- 最终命令 `:core:model:test :core:domain:test :core:database:testDebugUnitTest :core:data:testDebugUnitTest :core:data:assembleDebugAndroidTest :app:compileLocalFirstDebugKotlin` 成功：模型 **519**、领域 **714**、数据库 **211** 全通过；数据层 **1177** 无失败/错误，其中 **1 项既有 staging 基准跳过**。原生配置 **2/2** 通过。新模型专测 8 项、新协议 5 项计入上述总数。
+- 证据：`.jez/artifacts/library-interior-implementation-2026-10-31/t4-verification.json`，测试 APK 已归档。下一任务为 T5；智能体编辑 UI/持久作业/详细答案仍未完成，两项旧图像角色失败仍待 T5/T11 关闭。

@@ -83,6 +83,7 @@ object ModelPromptPolicyVersions {
     const val TUTOR_LOBBY = "tutor-lobby-v17-export-layout-proposal"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
+    const val MISTAKE_EDIT = "mistake-edit-v1-host-bound-patches"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"
 
     fun currentFor(kind: ModelTaskKind): String? = when (kind) {
@@ -95,6 +96,7 @@ object ModelPromptPolicyVersions {
         ModelTaskKind.TUTOR_LOBBY -> TUTOR_LOBBY
         ModelTaskKind.LEARNING_SUMMARIZE -> LEARNING_SUMMARIZE
         ModelTaskKind.PROBLEM_CLASSIFY -> PROBLEM_ORGANIZATION
+        ModelTaskKind.MISTAKE_EDIT -> MISTAKE_EDIT
         ModelTaskKind.KNOWLEDGE_QUIZ -> KNOWLEDGE_QUIZ
         ModelTaskKind.PROBLEM_RELATE,
         ModelTaskKind.TUTOR_EVALUATE,
@@ -585,6 +587,17 @@ object ModelEgressPolicy {
         -> ModelGatewayExecution(request, ModelExecutionPermit.LocalOnly)
 
         ModelExecutionLocation.EXTERNAL_PROVIDER -> {
+            if (request.input is MistakeEditInput) {
+                if (!provider.supports(ModelTaskKind.MISTAKE_EDIT) || !provider.supportsStructuredOutput ||
+                    (request.input.requestsImageBytes && !provider.supportsImageInput)) {
+                    throw ModelEgressAuthorizationException(ModelFailureCode.PROVIDER_CAPABILITY_MISSING,
+                        "当前模型尚未验证这项修改能力，请到设置重新测试")
+                }
+                if (!request.agentConsentGranted) {
+                    throw ModelEgressAuthorizationException(ModelFailureCode.EGRESS_AUTHORIZATION_REQUIRED,
+                        "请先允许智能体使用当前模型")
+                }
+            }
             // Global-consent path: when the user enabled model-agent consent and this
             // is an agent-eligible round, the request may egress to the configured
             // provider without a per-item manifest. Image-bearing kinds additionally

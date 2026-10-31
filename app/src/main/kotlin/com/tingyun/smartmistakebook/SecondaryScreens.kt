@@ -540,9 +540,9 @@ internal fun capabilityVerificationSummary(configuration: ModelConfigurationSnap
         verification.authenticationFailed ->
             "上次验证未通过，请检查或更新 API Key 后重试。"
         verification.supportsImageInput && verification.supportsStructuredOutput ->
-            "测试通过：可识别题图并讲解。点击发送即交给模型处理，不再另行确认。"
+            "测试通过：可识别题图并讲解。${verification.editCapabilityDescription()}点击发送即交给模型处理，不再另行确认。"
         verification.supportsStructuredOutput ->
-            "文字讲解可用，题图识别未通过测试。"
+            "文字讲解可用，题图识别未通过测试。${verification.editCapabilityDescription()}"
         verification.supportsImageInput ->
             "模型能识别测试图片，但回复格式不符合要求，暂不能使用 AI 功能。"
         else -> "能力测试未通过，当前模型暂不兼容。"
@@ -552,9 +552,9 @@ internal fun capabilityVerificationSummary(configuration: ModelConfigurationSnap
 internal fun ModelCapabilityTestResult.toCapabilityTestMessage(): String = when (this) {
     is ModelCapabilityTestResult.Completed -> when {
         verification.supportsImageInput && verification.supportsStructuredOutput ->
-            "测试通过：图片读取和讲解都可用。"
+            "测试通过：图片读取和讲解都可用。${verification.editCapabilityDescription()}"
         verification.supportsStructuredOutput ->
-            "文字讲解可用，题图识别未通过测试。"
+            "文字讲解可用，题图识别未通过测试。${verification.editCapabilityDescription()}"
         verification.supportsImageInput ->
             "模型能识别图片，但回复格式不符合要求，暂不能使用 AI 功能。"
         else -> "测试未通过：当前模型暂不兼容。"
@@ -1486,4 +1486,10 @@ private fun ModelProviderProtocol.baseUrlHint(): String = when (this) {
     ModelProviderProtocol.OPENAI_RESPONSES -> "例如 https://api.openai.com/v1"
     ModelProviderProtocol.ANTHROPIC_MESSAGES -> "例如 https://api.anthropic.com"
     ModelProviderProtocol.GEMINI_GENERATE_CONTENT -> "例如 https://generativelanguage.googleapis.com"
+}
+
+private fun com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification.editCapabilityDescription(): String = when {
+    !supportsMistakeEdit -> "智能修改暂不可用，可重新测试或更换模型。"
+    supportsImageInput -> "智能修改可用。"
+    else -> "文字修改可用，图像修改需支持题图识别。"
 }

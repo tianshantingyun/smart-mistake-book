@@ -22,6 +22,7 @@ enum class ModelTaskKind {
     LEARNING_SUMMARIZE,
     IMAGE_PIPELINE_CLASSIFY,
     KNOWLEDGE_QUIZ,
+    MISTAKE_EDIT,
 }
 
 @Serializable

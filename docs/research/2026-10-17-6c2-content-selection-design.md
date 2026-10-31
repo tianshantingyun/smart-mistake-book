@@ -93,7 +93,7 @@ FK 抓不到这些列，但它们是真实的引用（删了目标就会留下�
 
 `model_task` 家族是特殊的行级分裂（一张表两种归属），按各 kind 输入的 `subjectId` 定宿主
 （**一手证据**，见附录 F）：`CAPTURE_ASSESS`/`CAPTURE_PARSE` = draftId → 错题本；
-`PROBLEM_CLASSIFY`/`PROBLEM_RELATE` = problemRevisionId → 错题本；
+`PROBLEM_CLASSIFY`/`PROBLEM_RELATE`/`MISTAKE_EDIT` = problemRevisionId → 错题本；
 `IMAGE_PIPELINE_CLASSIFY` = `subjectIdOverride ?: sourceAssetId` → 资产域（生产者是采集/重绘）；
 `TUTOR_LOBBY` = conversationId、`TUTOR_PLAN`/`TUTOR_RESPOND` = `tutor-conv:captured:<会话>`、
 `LEARNING_SUMMARIZE` = sessionId → 会话；`KNOWLEDGE_QUIZ` = 知识点域 → 掌握库。
@@ -645,6 +645,7 @@ digest = SHA-256(  "smbk-selection-v1\n"
     "CAPTURE_ASSESS": "ISSUE_BOOK",
     "CAPTURE_PARSE": "ISSUE_BOOK",
     "PROBLEM_CLASSIFY": "ISSUE_BOOK",
+    "MISTAKE_EDIT": "ISSUE_BOOK",
     "PROBLEM_RELATE": "ISSUE_BOOK",
     "IMAGE_PIPELINE_CLASSIFY": "ISSUE_BOOK",
     "TUTOR_PLAN": "SESSIONS",
@@ -841,7 +842,7 @@ WHERE task_kind IN ('CAPTURE_ASSESS','CAPTURE_PARSE')
 
 -- 整理类：宿主是题面修订
 SELECT task_id, task_kind, subject_id FROM model_task
-WHERE task_kind IN ('PROBLEM_CLASSIFY','PROBLEM_RELATE')
+WHERE task_kind IN ('PROBLEM_CLASSIFY','PROBLEM_RELATE','MISTAKE_EDIT')
   AND NOT EXISTS (SELECT 1 FROM problem_revision r WHERE r.revision_id = subject_id);
 
 -- 图像分类类：宿主是源图资产（subjectIdOverride 有值时另说，实施时按真机采样钉死）
@@ -957,7 +958,7 @@ PRAGMA integrity_check;                                    -- 期望 'ok'
 
 | # | 脚本 | 命令 | 断言 |
 | --- | --- | --- | --- |
-| 1 | `check_selection_plan.py` | `python .zcode/tmp/check_selection_plan.py --doc docs/research/2026-10-17-6c2-content-selection-design.md --list-selections` | 84 表覆盖唯一；FK 推导的闭包 == `expectedClosure`；`trimOrder` 覆盖 76 张且是合法拓扑序；软引用清单的表/列/目标存在；`model_task` 分派覆盖 12 个 kind；枚举合法组合 |
+| 1 | `check_selection_plan.py` | `python .zcode/tmp/check_selection_plan.py --doc docs/research/2026-10-17-6c2-content-selection-design.md --list-selections` | 84 表覆盖唯一；FK 推导的闭包 == `expectedClosure`；`trimOrder` 覆盖 76 张且是合法拓扑序；软引用清单的表/列/目标存在；`model_task` 分派覆盖 13 个 kind；枚举合法组合 |
 | 2 | `dryrun_trim.py` | `python .zcode/tmp/dryrun_trim.py` | 用 schema 真实 DDL 建内存库 + 一表一行种子，5 组合法组合全部裁净（`foreign_key_check` 空、勾选表留 1 行、未勾选表 0 行、FTS 无孤儿 docid）；非法组合 `{错题本}` 被 FK 挡下（反证） |
 | 3 | `probe_fts_rebuild.py` / `probe_free_pages.py` | 同名命令 | FTS4 外部内容表 `rebuild` 在显式事务内可用/可回滚；DELETE 后哨兵文本仍在文件里、VACUUM 后消失 |
 
@@ -1782,6 +1783,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "CAPTURE_ASSESS": "ISSUE_BOOK",
     "CAPTURE_PARSE": "ISSUE_BOOK",
     "PROBLEM_CLASSIFY": "ISSUE_BOOK",
+    "MISTAKE_EDIT": "ISSUE_BOOK",
     "PROBLEM_RELATE": "ISSUE_BOOK",
     "IMAGE_PIPELINE_CLASSIFY": "ISSUE_BOOK",
     "TUTOR_PLAN": "SESSIONS",

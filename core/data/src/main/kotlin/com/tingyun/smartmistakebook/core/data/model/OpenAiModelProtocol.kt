@@ -99,6 +99,7 @@ internal object OpenAiModelProtocol {
 
     /** Inputs that may carry approved image attachments. */
     private fun com.tingyun.smartmistakebook.core.model.ModelTaskInput.acceptsImages(): Boolean = when (this) {
+        is com.tingyun.smartmistakebook.core.model.MistakeEditInput,
         is com.tingyun.smartmistakebook.core.model.CaptureAssessmentInput,
         is com.tingyun.smartmistakebook.core.model.CaptureParseInput,
         // Tutor plan/respond may attach the problem image when an egress

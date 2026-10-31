@@ -478,6 +478,7 @@ object SmbkSelectionPlan {
         "CAPTURE_ASSESS" to SmbkSelectionCategory.ISSUE_BOOK,
         "CAPTURE_PARSE" to SmbkSelectionCategory.ISSUE_BOOK,
         "PROBLEM_CLASSIFY" to SmbkSelectionCategory.ISSUE_BOOK,
+        "MISTAKE_EDIT" to SmbkSelectionCategory.ISSUE_BOOK,
         "PROBLEM_RELATE" to SmbkSelectionCategory.ISSUE_BOOK,
         "IMAGE_PIPELINE_CLASSIFY" to SmbkSelectionCategory.ISSUE_BOOK,
         "TUTOR_PLAN" to SmbkSelectionCategory.SESSIONS,
