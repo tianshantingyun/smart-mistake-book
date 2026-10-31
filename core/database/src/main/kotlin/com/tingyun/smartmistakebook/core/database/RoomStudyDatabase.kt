@@ -605,6 +605,15 @@ internal class RoomStudyDatabase(
         limit: Int,
     ): List<KnowledgeNodeSeedRecord> = knowledgeBase.readSubjectKnowledgeNodes(subject, limit)
 
+    override suspend fun readKnowledgeCatalogPage(
+        terms: List<String>, after: com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition?, limit: Int,
+    ): List<com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord> =
+        knowledgeBase.readKnowledgeCatalogPage(terms, after, limit)
+
+    override suspend fun readKnowledgeCatalogPhrases(): List<String> = knowledgeBase.readKnowledgeCatalogPhrases()
+
+    override fun observeKnowledgeCatalogChanges(): Flow<Unit> = knowledgeBase.observeKnowledgeCatalogChanges()
+
     /**
      * 6C-2 T5：恢复后派生索引按科重建的窄端口（`KnowledgeSearchIndexRebuildPort`）。
      *

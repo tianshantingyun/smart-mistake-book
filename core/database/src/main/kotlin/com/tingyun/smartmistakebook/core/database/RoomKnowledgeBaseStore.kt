@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.database
 
 import androidx.room3.withWriteTransaction
+import androidx.room3.RoomRawQuery
 import android.util.Log
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeGroundingSummaryRow
 import com.tingyun.smartmistakebook.core.database.dao.KnowledgeRecallCandidateRow
@@ -64,6 +65,89 @@ internal class RoomKnowledgeBaseStore(
 ) {
     /** S21（2026-10-02）：整科重建与内容安装期共用（安装期预热见 `RoomKnowledgeContentReconciler`）。 */
     private val searchIndexBuilder = KnowledgeSearchIndexBuilder(database, searchIndexCompleteness)
+
+    fun observeKnowledgeCatalogChanges(): Flow<Unit> =
+        database.problemOrganizationDao().observeKnowledgeCatalogChanges().map { Unit }
+
+    suspend fun readKnowledgeCatalogPhrases(): List<String> =
+        database.problemOrganizationDao().readKnowledgeCatalogPhrases().flatMap { row ->
+            listOf(row.name, row.displayName) + row.aliases.split('\u001F')
+        }.filter(String::isNotBlank).distinct()
+
+    suspend fun readKnowledgeCatalogPage(
+        terms: List<String>,
+        after: com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition?,
+        limit: Int,
+    ): List<com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord> {
+        require(limit in 1..65)
+        require(terms.size <= 512 && terms.all { it.isNotBlank() && it.length <= 512 })
+        val patterns = terms.distinct().map { term ->
+            "%" + term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        }
+        val bindings = mutableListOf<Any>()
+        bindings.addAll(patterns)
+        val termRows = if (patterns.isEmpty()) "SELECT NULL WHERE 0" else patterns.joinToString(",") { "(?)" }
+        val materialText = "m.title || char(10) || m.summary_markdown || char(10) || " +
+            "m.applicability_markdown || char(10) || m.boundary_markdown || char(10) || m.content_markdown"
+        val materialFrom = """
+            FROM knowledge_teaching_material m
+            JOIN knowledge_teaching_material_node_binding b ON b.material_id = m.material_id
+            JOIN knowledge_source s ON s.source_id = m.source_id
+            WHERE b.knowledge_node_id = node.knowledge_node_id AND m.status = 'ACTIVE'
+              AND m.reviewed_at_epoch_millis >= 0
+              AND ((m.derivation_kind = 'REVIEWED_SYNTHESIS'
+                    AND s.content_use_policy IN ('REVIEWED_SYNTHESIS_ONLY','EXCERPT_ALLOWED','ADAPTATION_ALLOWED'))
+                OR (m.derivation_kind IN ('PUBLIC_OFFICIAL_EXCERPT','LICENSED_EXCERPT')
+                    AND s.content_use_policy IN ('EXCERPT_ALLOWED','ADAPTATION_ALLOWED'))
+                OR (m.derivation_kind = 'LICENSED_ADAPTATION' AND s.content_use_policy = 'ADAPTATION_ALLOWED'))
+        """.trimIndent()
+        val materialMatch = "lower($materialText) LIKE term.pattern ESCAPE '\\'"
+        val nodeText = "node.canonical_name || char(10) || node.display_name || char(10) || " +
+            "node.aliases_text || char(10) || COALESCE(node.boundary_markdown, '')"
+        val materialSnippet = if (patterns.isEmpty()) "NULL" else
+            "(SELECT $materialText $materialFrom AND EXISTS " +
+                "(SELECT 1 FROM terms term WHERE $materialMatch) ORDER BY m.material_id LIMIT 1)"
+        val afterClause = if (after == null) "" else {
+            bindings.addAll(listOf(after.score, after.score, after.subject, after.subject,
+                after.name, after.name, after.nodeId))
+            """AND (matchCount < ? OR (matchCount = ? AND
+                (subject > ? OR (subject = ? AND
+                (sortName > ? OR (sortName = ? AND knowledge_node_id > ?))))))"""
+        }
+        bindings += limit
+        val sql = """
+            WITH terms(pattern) AS (${if (patterns.isEmpty()) termRows else "VALUES $termRows"}),
+            candidates AS (
+                SELECT node.*,
+                  COALESCE(NULLIF(node.canonical_name, ''), node.display_name) AS sortName,
+                  (SELECT COUNT(*) FROM terms term WHERE
+                     lower($nodeText) LIKE term.pattern ESCAPE '\'
+                     OR EXISTS (SELECT 1 $materialFrom AND $materialMatch)) AS matchCount,
+                  COALESCE($materialSnippet, $nodeText) AS matchedSnippet
+                FROM knowledge_node node
+                WHERE node.status = 'ACTIVE'
+                  AND node.verification_status IN ('CURATED','SOURCE_GROUNDED','USER_CONFIRMED')
+                  AND TRIM(node.taxonomy_version) != ''
+            )
+            SELECT * FROM candidates
+            WHERE ${if (patterns.isEmpty()) "1=1" else "matchCount > 0"} $afterClause
+            ORDER BY matchCount DESC, subject, sortName, knowledge_node_id LIMIT ?
+        """.trimIndent()
+        val query = RoomRawQuery(sql) { statement ->
+            bindings.forEachIndexed { index, value ->
+                if (value is Int) statement.bindLong(index + 1, value.toLong())
+                else statement.bindText(index + 1, value as String)
+            }
+        }
+        return database.problemOrganizationDao().readKnowledgeCatalogPage(query).map { row ->
+            com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord(
+                row.node.toSeedRecord(), row.matchedSnippet,
+                com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition(
+                    row.matchCount, row.node.subject, row.sortName, row.node.knowledgeNodeId,
+                ),
+            )
+        }
+    }
 
     /**
      * 插眼 8：确保伪节点存在（幂等）。与 [ensurePseudoKnowledgeBinding] 共用同一实现——

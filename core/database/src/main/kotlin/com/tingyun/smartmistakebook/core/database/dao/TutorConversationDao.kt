@@ -97,6 +97,8 @@ internal abstract class TutorConversationDao {
                     messageId = row.messageId,
                     sourceAssetId = row.sourceAssetId,
                     ordinal = row.ordinal,
+                    role = row.role,
+                    basisRevisionId = row.basisRevisionId,
                 )
             }
         }

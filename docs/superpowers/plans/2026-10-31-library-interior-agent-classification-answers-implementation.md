@@ -75,6 +75,7 @@ Invoke-SmbGradle -TaskArguments @(':core:ui:testDebugUnitTest', ':feature:librar
 - `core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/KnowledgeCatalogRepository.kt`：目录查询端口与本地词组提取。
 - `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/mistake/RoomKnowledgeCatalogRepository.kt`：数据库结果到领域目录的适配。
 - `core/domain/src/test/kotlin/com/tingyun/smartmistakebook/core/domain/KnowledgeCatalogKeywordsTest.kt`。
+- `core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/mistake/RoomKnowledgeCatalogRepositoryTest.kt`（实施中发现清单遗漏，用户已在弹窗单独授权）。
 - `core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeCatalogSearchInstrumentedTest.kt`。
 
 **修改：**
@@ -83,9 +84,9 @@ Invoke-SmbGradle -TaskArguments @(':core:ui:testDebugUnitTest', ':feature:librar
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/ProblemOrganizationDao.kt`：完整字段参数化查询。
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomKnowledgeBaseStore.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomStudyDatabase.kt`：查询实现与转发。
 
-- [ ] 写关键词和真库分页失败用例：300 个已审节点中第 299 个仅在尾部别名命中；教学段落命中；同名跨科节点；空查询多页不重不漏；退役/未审核/不可展示材料不进入结果；知识库更新后旧游标失效。
-- [ ] 运行领域测试确认新提取函数尚不存在，或断言仍受 256 项截断而失败。
-- [ ] 实现下面契约。`catalogRevision` 采用仓储初始化时的一次会话代号与 Room 节点、材料、材料绑定/生命周期表失效序号构成的 generation；只在这些表变化或库重开时推进。该值在未变更期间稳定，不逐键重算全库摘要，也不每次查询生成新随机数。游标在仓储内编码并校验查询摘要和 generation。每页采用一致读；这不是跨写事务的长期快照，失效事件到达后丢弃旧页并重查，最终选择写入时再核对节点有效性。
+- [x] 写关键词和真库分页失败用例：300 个已审节点中第 299 个仅在尾部别名命中；教学段落命中；同名跨科节点；空查询多页不重不漏；退役/未审核/不可展示材料不进入结果；知识库更新后旧游标失效。
+- [x] 运行领域测试确认新提取函数尚不存在，或断言仍受 256 项截断而失败。
+- [x] 实现下面契约。`catalogRevision` 采用仓储初始化时的一次会话代号与 Room 节点、材料、材料绑定/生命周期表失效序号构成的 generation；只在这些表变化或库重开时推进。该值在未变更期间稳定，不逐键重算全库摘要，也不每次查询生成新随机数。游标在仓储内编码并校验查询摘要和 generation。每页采用一致读；这不是跨写事务的长期快照，失效事件到达后丢弃旧页并重查，最终选择写入时再核对节点有效性。
 
 ```kotlin
 data class KnowledgeNodeSelection(val nodeId: String, val taxonomyVersion: String)
@@ -110,8 +111,8 @@ fun extractCatalogKeywords(sentence: String, approvedPhrases: List<String>): Lis
 
 查询搜索名称、完整别名、知识描述和允许展示教学段落。以已审可见词组词典提取整句里的最长有意义词组；去重并按句中位置排列，不展示内部 n-gram。词典无命中时保留规范化输入作字面查询。多个词组按 OR 找候选、匹配词组数优先，再按学科/路径/节点 id 稳定排序；显示真实片段及完整路径。完整字段匹配决定集合，现有有损索引最多辅助排序，不作为候选白名单。SQLite 的 `%`、`_`、反斜线转义，值只通过绑定参数传入。空查询按目录顺序分页。
 
-- [ ] 在后台查询并验证边界；不得 `readSubjectKnowledgeNodes(..., 256)` 后在 UI 里过滤，也不得每键扫描加载全库到主线程。新增分页端口不得修改既有讲题召回排序或 KD-24 的索引版本。用 10,000 节点/50,000 可展示段落记录设备耗时；若查询连续造成可见卡顿，先修复本读侧查询再交付，不通过改回截断候选规避。
-- [ ] 领域和设备测试通过后提交 `feat(library): 支持全库关键词目录检索`。
+- [x] 在后台查询并验证边界；不得 `readSubjectKnowledgeNodes(..., 256)` 后在 UI 里过滤，也不得每键扫描加载全库到主线程。新增分页端口不得修改既有讲题召回排序或 KD-24 的索引版本。用 10,000 节点/50,000 可展示段落记录设备耗时；若查询连续造成可见卡顿，先修复本读侧查询再交付，不通过改回截断候选规避。
+- [x] 领域和设备测试通过后提交 `feat(library): 支持全库关键词目录检索`。
 
 ```powershell
 Invoke-SmbGradle -TaskArguments @(':core:domain:test', ':core:database:testDebugUnitTest', ':core:data:testDebugUnitTest', ':core:database:assembleDebugAndroidTest')
@@ -500,9 +501,29 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 
 执行计划时逐项勾选，任务完成须有本轮实际命令输出和文件证据。纯视觉调整复用已有检查；新增业务协议/版本写入/持久作业/导出文件必须运行本计划列出的有意义测试。
 
-本计划当前状态：**实施中；T0 已通过单元测试与应用编译，T1 开始；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
+本计划当前状态：**实施中；T0、T1 已验证，下一任务为 T2；其余任务未完成**。推荐使用 executing-plans 在当前工作区按 T0→T1–T3→T4–T6→T7–T10→T11 内联执行，分段审阅。用户明确选择分工时才切换子代理驱动；不能因为计划头部列出该选项就擅自启动代理。
 
 
 ### T0 本轮证据
 
 2026-10-31：`core:ui:testDebugUnitTest`、`feature:library:testDebugUnitTest`、`feature:library:compileDebugKotlin`、`app:compileLocalFirstDebugKotlin` 一次构建通过，`BUILD SUCCESSFUL in 59s`。测试 XML 的统计与本轮命令摘要位于 `.jez/artifacts/library-interior-implementation-2026-10-31/t0-verification.json`。已有编译告警仍保留；此记录不代表原生视觉验收或三个新增功能完成。
+
+
+### T1 初始阶段记录（由下面完成记录取代）
+
+已新增计划列明的 KnowledgeCatalog.kt、KnowledgeCatalogRepository.kt 和 KnowledgeCatalogKeywordsTest.kt。关键词 5 项红灯记录确认缺失函数，随后绿灯通过；core:model 与 core:domain 全量回归通过，统计见同一实施证据目录的 progress.json。这是初始阶段的范围记录；目录查询的最终结果见下面完成记录，分类原生 UI 由 T3 负责。
+
+
+### T1 完成记录
+
+2026-10-31：目录查询与应用级仓储已实现，真库设备用例 7 项、仓储用例 5 项、关键词用例 5 项通过。最终数据库测试包与数据库/数据层回归构建为 `BUILD SUCCESSFUL in 14s`。core:model 511、core:domain 713、core:database 211 项均无失败/错误；core:data 1167 项中 1 项 staging benchmark 跳过，其他无失败/错误，不将跳过项计为通过。
+
+10,000 节点 / 50,000 教学段落的全字段查询正确找到最后一条材料，两轮耗时为 719 ms 和 512 ms（本机专用 API 34 模拟器，不外推为所有设备性能）。分页 keyset 按匹配数、学科、名称、节点 id 排序；目录路径在每页批量追溯用于界面分组，避免对全库递归生成路径。目录变化后游标失效，输入取消不会污染后续查询。
+
+本任务还补齐了已有消息附图读取 DTO 的角色/基准版本字段，并同步已有 FTS 测试中漏掉的收藏条件 SQL 副本与绑定；保留全部断言和旧 JOIN 对照，不改生产收藏过滤。真实目录查询不使用这些 FTS 副本或旧召回索引。
+
+证据位于 `.jez/artifacts/library-interior-implementation-2026-10-31/t1-verification.json` 及同目录构建/设备日志；已归档实际测试 APK 和 SHA。分类界面尚未接入此仓储，不能将 T1 等同于 T1–T3 全部完成。
+
+#### T5 / T11 必须关闭的已知失败
+
+额外运行旧 `TutorSessionVisualRoleDatabaseInstrumentedTest` 时 4 项中 2 项失败：`savingCopiesAssistantFigureRolesFromTheToolTrace` 的角色仍为 null，`deletingTheTutorConversationKeepsTheCommittedRevisionLinks` 缺少已生成题面图。原失败保留在 `t1-native-catalog.log`。T5 接线时必须调查写入/提交链，并以可信生成结果和规范资产身份写入角色；不得仅信任模型自报 toolTrace 的角色字符串，也不得给未知旧图乱填角色。修复后重跑这两项，T11 最终验收不得遗漏。
