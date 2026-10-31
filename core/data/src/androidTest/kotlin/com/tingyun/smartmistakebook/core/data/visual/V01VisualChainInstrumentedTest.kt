@@ -108,6 +108,19 @@ import kotlin.math.roundToInt
  * **本轨纪律**：不运行 Gradle/设备命令（门禁由脚本串行执行）；以下判据是设备轨要执行的
  * 断言，不是已通过的结果（同 `TutorVisualCommitRepositoryInstrumentedTest` 先红后绿登记法）。
  * 方法名无空格（D8 SimpleName 约束，批次 21 设备轨实证）。
+ *
+ * **降级口径登记（批次 37，计划任务 4 / 裁定 1：标注不删）**：真隔离语义（真
+ * `VisualJsClientEngine` + `:visual_js` 隔离进程 + 服务进程内真实
+ * `AndroidVisualContentMeasurer` 度量）自批次 37 起由 app 模块
+ * `com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest` 承担。依赖方向
+ * 决定分工：core:data androidTest 依赖不到 app 模块，本套件的引擎只能是进程内
+ * [QuickJsVisualExecutionEngine]；反过来，本套件的屏栅格/PDF/restore 策略腿依赖 core:data
+ * internal 符号（`VisualDrawOpsPainter`/`VisualDrawOpsPdfPainter`/`VisualSnapshotRestore`/
+ * `REPLAY_TEXT_PAINT_FLAGS`），app androidTest 跨模块不可达——这些腿只有这里能测。
+ * 已知 2/4 夹具红（[DeviceTextMeasurer] 被整链复用两次致 `singleOrNull()==null`，
+ * 批次 36 设备证据）仍按夹具归因挂账；R1 `docs/research/2026-10-31-v01-isolated-wiring.md`
+ * §3.3 的"本文件同步按方案 B 按键取修（3 行级）"选项待主会话裁定，裁定前本文件测试逻辑
+ * 零改动（本批只加本段标注）。
  */
 @RunWith(AndroidJUnit4::class)
 class V01VisualChainInstrumentedTest {

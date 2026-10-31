@@ -579,10 +579,17 @@ internal object OpenAiModelProtocol {
                                             add(JsonPrimitive("null"))
                                         },
                                     )
+                                    // KD-82：JSON Schema 的 maxLength 按 Unicode 码点计，本地
+                                    // 执行门按 UTF-8 字节计（MAX_PROGRAM_UTF8_BYTES = 65536，
+                                    // 字节门不动）。非 ASCII 最坏 4 字节/码点 ⇒ 码点广告面取
+                                    // ⌊65536/4⌋ = 16384：16384 码点最坏恰 65536 字节（含边界
+                                    // 在门内），"schema 合法 ⇒ 必过本地字节门"恒成立，本地门
+                                    // 拒绝的串码点必超面。ProgramSchemaMaxLengthAlignmentTest
+                                    // 钉住该派生关系。
                                     put(
                                         "maxLength",
                                         com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
-                                            .MAX_PROGRAM_UTF8_BYTES,
+                                            .MAX_PROGRAM_UTF8_BYTES / 4,
                                     )
                                     put(
                                         "description",
