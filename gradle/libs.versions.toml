@@ -60,7 +60,7 @@ quickjs-kt-android = "1.0.15"
 # **完整解析图**的 API 兼容仍无证明（88 条扫描只覆盖 AAR），风险与关闭判据见 KD-73。
 quickjs-kotlin-stdlib = "2.4.10"
 desugar-jdk-libs = "2.0.3"
-okhttp = "5.4.0"
+okhttp = "5.5.0"
 work = "2.10.5"
 richtext = "0.17.0"
 
