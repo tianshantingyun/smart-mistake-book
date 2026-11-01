@@ -833,3 +833,36 @@ python -I -X utf8 build/agent-batch31a/scripts/f13_f14_dual.py                 #
 **批次31A 批报终版结算（文书员，2026-11-01 17:58）**：**v25 adopted**（22 子面 3/15/4；117/129；65,019/157；判据 4 NOT_RUN）／**v26 adopted**（39 子面 2/4/33；117/129；65,021/159；bootstrap 0/[0,0]/1.0）／**v27 rolled-back（已执行并核验）**／**审计 done（来源不可发布）**。回归：**八门 7/8**（`judgment_drift` 518）、**py_suite 902 OK**、**JVM 金标 2/2 + 定向 15/15**、**一致性 8/8**。验收 v1.4：**F13 红 / F14 红 / F15 只读数 52.2677% / F16 来源 PASS、子串 2 条例外 ⇒ 不达标**。最高下一步（未执行）：**先归因 518；再以 v26 为基线、冻结 F13/F14 归一键后另立卫生批；F16 两条例外补出处；来源元数据与超集守卫各自立项**；提交由主循环裁定。
 
 **§22 收尾复跑（17:59；18:02 复核）**：porcelain **492（78 `M` + 414 `??`）**；写前 490（76 `M` + 414 `??`），增量恰为本节与批报两份 docs。`git diff --numstat` = **`244/0`**（批报）与 **`56/0`**（本台账）——**纯追加，0 删除**。sha 不在本节硬编码（后续校订会改变它）：核对方式是 `git diff --numstat` 删除数为 0、且与追加前备份 `build/agent-batch31a/backup/*.pre-append-1752.md`（`f53ca354…` / `51251f5d…`）逐字前缀一致。未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。本节唯二写入为两份 docs；新增脚本仅落 `build/agent-batch31a/scripts/{run_gates_b31a3.sh,f13_f14_dual.py}`（`build/` 被 gitignore）。
+
+## 23. 批次32A judgment_drift 518 归因修复 + L1/L2/L3 blocked + 验收 v1.5（2026-11-02 01:36 追加）
+
+> **只追加**：§19–§22 原文未改；本节接 §22 之后追加。追加前备份：本文件 `build/agent-batch32a/backup/kb-outstanding-work.pre-append-20261102.md`（835 行，sha256 `94c55c226dcecdc2866bfe4f988b821e073fd7f1eae5a9cb23a241a951cb9deb`）。数字来源：`docs/kb-batch32a-2026-11-01.md`、`build/agent-batch32a/{drift-report.md,baseline/identity.md,baseline/judgment-drift-518.csv,_drift_before.json,_drift_after.json,gates/,l1-device/,l1-touched-files.txt}`、`docs/research/2026-11-01-kb-l1-bm25-lexical-prereg.md`；本会话 01:30–01:50 实跑 `kb_checks`、漂移单测、BM25 单测、518 复算。
+
+| 批次 | 主题 | 结论 | 门 | 验收 v1.5 | 残留 |
+|---|---|---|---|---|---|
+| **32A** | judgment_drift 518 归因与修复；L1/L2/L3 三臂 | **518 = 377 + 141**：377 已登记存量真漂移（content **194** + boundary **183**）+ 141 行尾 CR 假漂移；未登记新增 **0**（missing 0、unlocatable 0、重复 slug 0）。修复只归一换行，基线仍 377，门转绿 | **8/8 rc=0**；`OK judgment_drift`（value 377 = 基线） | **F17 blocked**：L1 融合 **115/129**（B v26 **117/129**）、24 章 **2 lower/22 equal/0 higher**、零漂移 **9/2 ≠0**、bootstrap NOT_RUN ⇒ `PARKED_GATE_RED`；**F18 blocked/NOT_RUN**（L2 无预注册/代码/读数）；**F19 blocked/NOT_RUN**（L3 无线索表/代码/对照）；`judgment_drift` **绿** | L1 15 `M`+5 `A` **未回滚**（DB schema 72）；377 条「谁先改」方向未定；L2/L3 未起；B 记录 `vec.json` sha 与当前树不同（`5cbbcb6f…` vs `6612a28d…`，UNVERIFIED） |
+
+**逐项证据（本会话实跑/实读）**：
+
+1. **漂移归因**：修前 `content 335 + boundary 183 = 518`；修后 `content 194 + boundary 183 = 377`；移除 **141**、新增 **0**；141 条全部满足 `norm(expected)==norm(actual)` 且 `\r` 只在判定侧、包侧 0。377 条与 `build/agent-batch14/a/judgment-drift-baseline.csv` **逐键 0/0、sha256 0 mismatch**。根因：`core.autocrlf=true` + `* text=auto` 把 CSV 引号内多行字段的 LF 也转成 CRLF（git 索引 blob CR 0 / 工作树 CR 44,451 = LF 44,451）。
+2. **门**：`python tools/ci/run_kb_checks.py` → **EXIT=0**，`OK judgment_drift`；其余 7 门引用 `gates/summary.txt`（01:21，`overall red=0`），本会话未重跑。
+3. **单测**：`test_kb_judgment_drift.py` **17 tests OK**；`Bm25LexicalScoreTest` **7 tests / 0 failures / 0 errors**（`./gradlew :core:database:testDebugUnitTest --tests "*Bm25LexicalScoreTest*"` BUILD SUCCESSFUL）。
+4. **L1 读数**（批内设备产物，未重跑）：融合 115/129 / MRR 0.7135658915；词面 100/129 / MRR 0.6257105943；B v26 融合 117/129 / MRR 0.7239018088；lower 2 章 = `数学必修第一册·第三章·函数的概念与性质`、`数学必修第二册·第六章·平面向量`；同路零漂移 lexical 9 / fused 2；导入 47,470 ms（≤60 s，但属 L1 不属 L2）；samegen `SAME_GENERATION_OK`。
+5. **F18/F19 无对象**：`docs/research/` 无 L2/L3 预注册；树内无材料 title/summary 特征、无查询类型路由代码；`baseline/identity.md` 只有落点分析与代价外推（L2 +31% 行、约 +44 s，未实测），§7 明记未跑。
+
+**批次32A 结算（文书员，2026-11-02 01:36）**：**drift 518 已归因并修复**（377 真 + 141 CR 假；未登记新增 0；`judgment_drift` 绿，八门 8/8）。**L1 blocked**（`PARKED_GATE_RED`：115/129 < B 117/129；2 章 lower；零漂移 9/2；bootstrap NOT_RUN；**未回滚**）。**L2/L3 blocked**（无对象，NOT_RUN）。**验收 v1.5 F17–F19 未达标**。最高下一步（未执行）：① 先按预注册 §4 回滚 L1（逐文件，禁整树 checkout；设备清库后装 v26）；② 377 条判方向后再决定是否回填并下调基线；③ L2/L3 各自另立预注册。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD   # f10a1e4e…；0 0
+python tools/ci/run_kb_checks.py ; echo "EXIT=$?"                         # EXIT=0；OK judgment_drift
+PYTHONPATH=tools python -m unittest discover -s tools/tests -t tools -p "test_kb_judgment_drift.py" -v   # 17 tests OK
+./gradlew :core:database:testDebugUnitTest --tests "*Bm25LexicalScoreTest*" --console=plain            # BUILD SUCCESSFUL；7/0/0
+PYTHONPATH=tools python -X utf8 -m kb_coverage.judgment_drift --json       # value 377；脚本按差异 rc=1，不套基线
+cat build/agent-batch32a/l1-device/l1-device-summary.json                  # 115/129；2 lower；zero 9/2；PARKED_GATE_RED
+cat build/agent-batch32a/gates/summary.txt                                 # overall red=0
+```
+
+**§23 记账**：本文件为纯追加（写前 835 行）；未改 §19–§22；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。

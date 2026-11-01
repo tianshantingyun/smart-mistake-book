@@ -81,6 +81,36 @@ class CompareTest(unittest.TestCase):
             [_material(contentMarkdown="正文内容", boundaryMarkdown="边界内容")])
         self.assertEqual(0, result["value"], result)
 
+    def test_crlf_in_quoted_field_is_not_drift(self):
+        # Windows 检出把判定表 CSV 的换行（含引号内多行字段）转成 CRLF，包是 LF。
+        # 行尾是存储形态、不是材料内容：归一后逐字相等，不记漂移。
+        result = judgment_drift.compare(
+            [_row(content="第一行\r\n第二行", boundary="边界一\r\n边界二")],
+            [_material(contentMarkdown="第一行\n第二行",
+                       boundaryMarkdown="边界一\n边界二")])
+        self.assertEqual(0, result["value"], result)
+
+    def test_lone_cr_is_normalized_too(self):
+        result = judgment_drift.compare(
+            [_row(content="第一行\r第二行")],
+            [_material(contentMarkdown="第一行\n第二行")])
+        self.assertEqual(0, result["value"], result)
+
+    def test_crlf_in_pack_side_is_normalized_symmetrically(self):
+        result = judgment_drift.compare(
+            [_row(content="第一行\n第二行")],
+            [_material(contentMarkdown="第一行\r\n第二行")])
+        self.assertEqual(0, result["value"], result)
+
+    def test_line_ending_normalization_does_not_hide_content_differences(self):
+        # 归一必须只吃行尾：换行后的内容不同，仍然是漂移。
+        result = judgment_drift.compare(
+            [_row(content="第一行\r\n第二行")],
+            [_material(contentMarkdown="第一行\n第三行")])
+        self.assertEqual(1, result["value"])
+        self.assertEqual(1, len(result["content_diffs"]))
+        self.assertEqual("第一行\n第二行", result["content_diffs"][0]["expected"])
+
     def test_content_and_boundary_differences_are_counted_separately(self):
         result = judgment_drift.compare(
             [_row(content="判定源正文", boundary="判定源边界")],

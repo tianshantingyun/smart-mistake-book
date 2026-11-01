@@ -12,12 +12,18 @@ sidecar 是**实际分发**的文本。两者是同一条材料的两份拷贝�
 本检查按**同一个键**（material slug，生成公式见 `judgments.material_slug`，
 与 `materialize.write` 同源）把两份文本逐字对齐：
 
-- `content`（strip 后）↔ `material.contentMarkdown`（strip 后）
-- `boundary`（strip 后；空则回退 `summary.strip()`，与 materialize 的写入规则一致）
-  ↔ `material.boundaryMarkdown`
+- `content`（strip 后、行尾归一为 LF）↔ `material.contentMarkdown`（行尾归一为 LF）
+- `boundary`（strip 后；空则回退 `summary.strip()`，与 materialize 的写入规则一致，
+  行尾归一为 LF）↔ `material.boundaryMarkdown`（行尾归一为 LF）
 
 `strip` 不是放宽：materialize 落盘时本来就调用 `.strip()`，比较的是**落盘后的
 同一形态**；strip 之后仍逐字比较（含标点、空白、Markdown 标记）。
+
+**行尾归一同样不是放宽**：判定表是 CSV（git 规范形态 LF，Windows 检出为 CRLF），
+包是 JSON（`.gitattributes` 固定 `eol=lf`）。Git 的换行转换不识别 CSV 引号，会把多行
+字段**内部**的换行也转成 CRLF；`pack_io.dump_json` 已声明「工作树里出现的 CRLF 只是
+Windows 检出产物，不属于规范形态」。行尾是存储形态、不是材料内容；不归一就会让同一
+提交在 Windows 与 Linux 上得到不同读数（实测 141 条假漂移）。归一后仍逐字比较，不放宽。
 
 ## 读数口径
 
@@ -52,6 +58,16 @@ from kb_coverage import judgments  # noqa: E402
 SLUG_PREFIXES = tuple(f"ext-{subj3}-" for subj3 in judgments.SUBJ3.values())
 
 
+def normalize_line_endings(text: str) -> str:
+    """把 CRLF / 裸 CR 统一为 LF。
+
+    判定表（CSV）与包（JSON）的规范换行形态不同，且 Windows 检出会把 CSV 引号内
+    多行字段的换行一并转成 CRLF（Git 不识别 CSV 引号）。行尾是存储编码，不是材料
+    内容；此处只归一换行，空白/标点/Markdown 标记仍逐字比较。
+    """
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
 def load_rows() -> list[dict]:
     """判定表全部行（5 片拼接；与 materialize / check_exam_leak 同一读法）。"""
     return judgments.load_all()
@@ -67,7 +83,7 @@ def expected_text(row: dict) -> tuple[str, str]:
     summary = (row.get("summary") or "").strip()
     content = (row.get("content") or "").strip()
     boundary = (row.get("boundary") or "").strip() or summary
-    return content, boundary
+    return (normalize_line_endings(content), normalize_line_endings(boundary))
 
 
 def compare(rows: list[dict], materials: list[dict]) -> dict:
@@ -121,8 +137,8 @@ def compare(rows: list[dict], materials: list[dict]) -> dict:
             })
             continue
         expected_content, expected_boundary = expected_text(r)
-        actual_content = material.get("contentMarkdown") or ""
-        actual_boundary = material.get("boundaryMarkdown") or ""
+        actual_content = normalize_line_endings(material.get("contentMarkdown") or "")
+        actual_boundary = normalize_line_endings(material.get("boundaryMarkdown") or "")
         if expected_content != actual_content:
             content_diffs.append({
                 "slug": slug, "node_slug": r.get("node_slug") or "",
