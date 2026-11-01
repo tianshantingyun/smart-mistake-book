@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +34,7 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,6 +58,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -358,7 +361,7 @@ private fun LibrarySearchField(
             .testTag("library_search_field"),
         singleLine = true,
         placeholder = { Text("搜索题目、板块或知识点", style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium, color = SmartColors.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            color = SmartColors.InkSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
         leadingIcon = {
             Icon(
@@ -381,7 +384,7 @@ private fun LibrarySearchField(
         } else {
             null
         },
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = RoundedCornerShape(18.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = SmartColors.Jade,
             unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -509,61 +512,71 @@ private fun EmptyLibraryResult(
     onCapture: () -> Unit,
     onClear: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 34.dp)
-            .testTag("library_empty_state"),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = SmartColors.ContentSurface,
     ) {
-        Icon(
-            imageVector = when (state) {
-                LibraryEmptyState.CATALOG_EMPTY -> Icons.Outlined.LibraryAdd
-                LibraryEmptyState.FILTERED_EMPTY -> Icons.Outlined.Search
-                LibraryEmptyState.SEARCH_EMPTY -> Icons.Outlined.SearchOff
-            },
-            contentDescription = null,
-            modifier = Modifier.size(42.dp),
-            tint = SmartColors.InkMuted,
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = state.title,
-            style = MaterialTheme.typography.titleMedium,
-            color = SmartColors.Ink,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = state.supportingText,
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.InkSecondary,
-        )
-        if (state == LibraryEmptyState.CATALOG_EMPTY) {
-            // 首装没有照片也能起步：录入页有本地「手动建题」入口，不依赖模型能力。
-            Spacer(Modifier.height(6.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 32.dp)
+                .testTag("library_empty_state"),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (state == LibraryEmptyState.CATALOG_EMPTY) {
+                LibraryEmptyIllustration()
+            } else Icon(
+                imageVector = when (state) {
+                    LibraryEmptyState.CATALOG_EMPTY -> Icons.Outlined.LibraryAdd
+                    LibraryEmptyState.FILTERED_EMPTY -> Icons.Outlined.Search
+                    LibraryEmptyState.SEARCH_EMPTY -> Icons.Outlined.SearchOff
+                },
+                contentDescription = null,
+                modifier = Modifier.size(42.dp),
+                tint = SmartColors.InkMuted,
+            )
+            Spacer(Modifier.height(10.dp))
             Text(
-                text = LIBRARY_EMPTY_MANUAL_HINT,
-                style = MaterialTheme.typography.bodySmall,
+                text = state.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = SmartColors.Ink,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = state.supportingText,
+                style = MaterialTheme.typography.bodyMedium,
                 color = SmartColors.InkSecondary,
-                modifier = Modifier.testTag("library_empty_manual_hint"),
+                textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(16.dp))
-            PrimaryActionButton(
-                text = "录入",
-                onClick = onCapture,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("library_capture_button"),
-                icon = Icons.Outlined.LibraryAdd,
-            )
-        } else if (canClear) {
-            Spacer(Modifier.height(16.dp))
-            OutlineActionChip(
-                text = "清除搜索与筛选",
-                onClick = onClear,
-                modifier = Modifier.testTag("library_clear_filters"),
-            )
+            if (state == LibraryEmptyState.CATALOG_EMPTY) {
+                // 首装没有照片也能起步：录入页有本地「手动建题」入口，不依赖模型能力。
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = LIBRARY_EMPTY_MANUAL_HINT,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = SmartColors.InkSecondary,
+                    modifier = Modifier.testTag("library_empty_manual_hint"),
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(16.dp))
+                PrimaryActionButton(
+                    text = "录入",
+                    onClick = onCapture,
+                    modifier = Modifier
+                        .widthIn(min = 160.dp)
+                        .testTag("library_capture_button"),
+                    icon = Icons.Outlined.LibraryAdd,
+                )
+            } else if (canClear) {
+                Spacer(Modifier.height(16.dp))
+                OutlineActionChip(
+                    text = "清除搜索与筛选",
+                    onClick = onClear,
+                    modifier = Modifier.testTag("library_clear_filters"),
+                )
+            }
         }
     }
 }

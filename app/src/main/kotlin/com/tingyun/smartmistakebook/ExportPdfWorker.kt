@@ -131,6 +131,24 @@ class ExportPdfWorker(
             runCatching { request.editedDraftId?.let(app.mistakePaperDraftStore::delete) }
             return Result.failure()
         }
+        val expectedGroup = when (request) {
+            is MistakeExportJobRequest.Edited -> request.groupId
+            is MistakeExportJobRequest.DetailedAnswers -> request.groupId
+            else -> null
+        }
+        val expectedRole = if (request is MistakeExportJobRequest.DetailedAnswers) com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS else com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS
+        if (existing.groupId != expectedGroup || existing.artifactRole != expectedRole) {
+            if (existing.status != MistakeExportStatus.RUNNING) return Result.failure()
+            return giveUpNow(app, repository, request.exportId, "这份导出记录与任务不一致，请重新发起导出。", request.editedDraftId)
+        }
+        if (expectedGroup != null) {
+            val group = repository.readGroup(expectedGroup)
+            val groupExportId = if (expectedRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS) group?.questionsExportId else group?.answersExportId
+            if (groupExportId != request.exportId) {
+                if (existing.status != MistakeExportStatus.RUNNING) return Result.failure()
+                return giveUpNow(app, repository, request.exportId, "这份配对导出记录已不可用，请重新发起导出。", request.editedDraftId)
+            }
+        }
         // 已有终态 = 这次导出早已落定（进程重建后的重跑）：幂等返回，不写第二份结果、不发第二次通知。
         if (existing.status != MistakeExportStatus.RUNNING) {
             runCatching { request.editedDraftId?.let(app.mistakePaperDraftStore::delete) }
@@ -153,11 +171,12 @@ class ExportPdfWorker(
                         displayName = outcome.displayName,
                         // B3-4：请求了但被 fail-closed 跳过的版式功能如实说一句——计数不许蒸发
                         // （与分页器的 PdfPlan.skipped、导出 sheet 的"会跳过"提示同一判据）。
-                        skippedNotice = mistakeExportSkippedNotice(
+                        skippedNotice = if (request is MistakeExportJobRequest.DetailedAnswers) null else mistakeExportSkippedNotice(
                             layout = request.layout,
                             solutionSectionRendered = outcome.solutionSectionRendered,
                         ),
                         format = MistakeExportFormat.PDF,
+                        artifactRole = existing.artifactRole,
                     )
                 }
                 is MistakeExportJobOutcome.RenderedDocx -> {
@@ -175,11 +194,12 @@ class ExportPdfWorker(
                     app.mistakeExportNotifications.postSucceeded(
                         exportId = request.exportId,
                         displayName = outcome.displayName,
-                        skippedNotice = mistakeExportSkippedNotice(
+                        skippedNotice = if (request is MistakeExportJobRequest.DetailedAnswers) null else mistakeExportSkippedNotice(
                             layout = request.layout,
                             solutionSectionRendered = outcome.solutionSectionRendered,
                         ),
                         format = MistakeExportFormat.DOCX,
+                        artifactRole = existing.artifactRole,
                     )
                 }
                 is MistakeExportJobOutcome.Blocked -> {
@@ -191,6 +211,7 @@ class ExportPdfWorker(
                     app.mistakeExportNotifications.postFailed(
                         exportId = request.exportId,
                         failureMessage = outcome.message,
+                        artifactRole = existing.artifactRole,
                     )
                 }
                 is MistakeExportJobOutcome.Failed -> {
@@ -202,6 +223,7 @@ class ExportPdfWorker(
                     app.mistakeExportNotifications.postFailed(
                         exportId = request.exportId,
                         failureMessage = outcome.message,
+                        artifactRole = existing.artifactRole,
                     )
                 }
             }
@@ -270,6 +292,7 @@ class ExportPdfWorker(
         app.mistakeExportNotifications.postFailed(
             exportId = exportId,
             failureMessage = failureMessage,
+            artifactRole = repository.readRecord(exportId)?.artifactRole ?: com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS,
         )
         return Result.failure()
     }
@@ -300,6 +323,9 @@ internal object MistakeExportJobCodec {
     const val REVISION_ID_KEY = "revisionId"
     /** 6B-2：编辑后卷面的草稿 id（块序列在应用私有目录，不进 WorkManager Data）。 */
     const val DRAFT_ID_KEY = "draftId"
+    const val GROUP_ID_KEY = "groupId"
+    const val MANIFEST_SHA_KEY = "manifestSha256"
+    const val SOLUTIONS_SHA_KEY = "solutionsSha256"
 
     const val LAYOUT_TEMPLATE_ID_KEY = "layoutTemplateId"
     const val LAYOUT_MARGIN_PT_KEY = "layoutMarginPt"
@@ -326,6 +352,7 @@ internal object MistakeExportJobCodec {
     private const val KIND_SINGLE = "single"
     private const val KIND_BATCH = "batch"
     private const val KIND_EDITED = "edited"
+    private const val KIND_DETAILED_ANSWERS = "detailedAnswers"
     private const val ENTRY_ID_SEPARATOR = "\n"
     private const val BLOCK_ORDER_SEPARATOR = ","
 
@@ -356,6 +383,12 @@ internal object MistakeExportJobCodec {
             EXPORT_ID_KEY to request.exportId,
             KIND_KEY to KIND_EDITED,
             DRAFT_ID_KEY to request.draftId,
+        ) + layoutEntries(request.layout) + formatEntry(request.format) +
+            (request.groupId?.let { mapOf(GROUP_ID_KEY to it, MANIFEST_SHA_KEY to request.manifestSha256) } ?: emptyMap())
+        is MistakeExportJobRequest.DetailedAnswers -> mapOf(
+            EXPORT_ID_KEY to request.exportId, KIND_KEY to KIND_DETAILED_ANSWERS,
+            GROUP_ID_KEY to request.groupId, MANIFEST_SHA_KEY to request.manifestSha256,
+            SOLUTIONS_SHA_KEY to request.solutionsSha256,
         ) + layoutEntries(request.layout) + formatEntry(request.format)
     }
 
@@ -396,12 +429,22 @@ internal object MistakeExportJobCodec {
             KIND_EDITED -> {
                 val draftId = (values[DRAFT_ID_KEY] as? String)?.takeIf { it.isNotBlank() }
                     ?: return null
-                MistakeExportJobRequest.Edited(
+                val groupId = if (GROUP_ID_KEY in values) (values[GROUP_ID_KEY] as? String)?.takeIf { it.isNotBlank() } ?: return null else null
+                val manifestSha = if (MANIFEST_SHA_KEY in values) values[MANIFEST_SHA_KEY] as? String ?: return null else null
+                runCatching { MistakeExportJobRequest.Edited(
                     exportId = exportId,
                     draftId = draftId,
                     layout = layout,
                     format = format,
-                )
+                    groupId = groupId,
+                    manifestSha256 = manifestSha,
+                ) }.getOrNull()
+            }
+            KIND_DETAILED_ANSWERS -> {
+                val groupId = values[GROUP_ID_KEY] as? String ?: return null
+                val manifestSha = values[MANIFEST_SHA_KEY] as? String ?: return null
+                val solutionsSha = values[SOLUTIONS_SHA_KEY] as? String ?: return null
+                runCatching { MistakeExportJobRequest.DetailedAnswers(exportId, groupId, manifestSha, solutionsSha, format, layout) }.getOrNull()
             }
             else -> null
         }

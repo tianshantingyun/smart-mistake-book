@@ -25,8 +25,13 @@ data class ProblemOrganizationSelection(
      * explicit "remove existing relations" action and replaces the complete outgoing set.
      */
     val replaceRelations: Boolean = false,
+    /** Reviewed catalog identities, explicitly chosen by the user, including other subjects. */
+    val knowledgeSelections: Set<com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection> = emptySet(),
 ) {
     init {
+        require(knowledgeSelections.map { it.nodeId }.distinct().size == knowledgeSelections.size) {
+            "Select only one taxonomy version for each knowledge node"
+        }
         require(classificationIndexes.all { it >= 0 })
         require(relationIndexes.all { it >= 0 })
         require(relationRemovals.size <= MAX_RELATION_REMOVALS) {
@@ -38,7 +43,7 @@ data class ProblemOrganizationSelection(
         require(userClassifications.size <= MAX_USER_CLASSIFICATIONS) {
             "Too many user classifications were added at once"
         }
-        require(classificationIndexes.size + userClassifications.size <= MAX_TOTAL_CLASSIFICATIONS) {
+        require(classificationIndexes.size + userClassifications.size + knowledgeSelections.size <= MAX_TOTAL_CLASSIFICATIONS) {
             "Too many classifications were selected at once"
         }
         require(
@@ -93,6 +98,8 @@ data class ConfirmedProblemClassification(
     val dimension: ClassificationDimension,
     val labelId: String,
     val displayName: String,
+    val taxonomyVersion: String? = null,
+    val subject: String? = null,
 )
 
 data class ConfirmedProblemRelation(

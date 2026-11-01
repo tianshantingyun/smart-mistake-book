@@ -1,6 +1,6 @@
 package com.tingyun.smartmistakebook.feature.capture
 
-import androidx.compose.material3.MaterialTheme
+import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -47,7 +47,7 @@ class CaptureScreenInstrumentedTest {
     @Test
     fun freshTutorCaptureScreenComposesEntryModeChooser() {
         composeRule.setContent {
-            MaterialTheme {
+            SmartMistakeBookTheme {
                 CaptureScreen(
                     entryOrigin = CaptureEntryOrigin.TUTOR,
                     repository = FakeCaptureRepository(),
@@ -77,7 +77,7 @@ class CaptureScreenInstrumentedTest {
     fun freshLibraryCaptureScreenComposesAllThreeModesAndOpensTheFileStep() {
         var fileImportOpened = 0
         composeRule.setContent {
-            MaterialTheme {
+            SmartMistakeBookTheme {
                 CaptureScreen(
                     entryOrigin = CaptureEntryOrigin.LIBRARY,
                     repository = FakeCaptureRepository(),
@@ -100,6 +100,7 @@ class CaptureScreenInstrumentedTest {
         composeRule.onNodeWithTag("capture_mode_files").assertExists()
         // A8：错题本来源提供「手动建题」（无照片建题）。
         composeRule.onNodeWithTag("capture_mode_manual").assertExists()
+        composeRule.captureCaptureVisualEvidence("capture-entry.png")
         composeRule.onNodeWithTag("capture_mode_files").performClick()
         composeRule.runOnIdle {
             assertEquals(1, fileImportOpened)
@@ -109,7 +110,7 @@ class CaptureScreenInstrumentedTest {
     @Test
     fun manualTranscriptionResumeShowsEditableFormWithoutSourceImage() {
         composeRule.setContent {
-            MaterialTheme {
+            SmartMistakeBookTheme {
                 CaptureScreen(
                     entryOrigin = CaptureEntryOrigin.LIBRARY,
                     repository = FakeCaptureRepository(resumable = manualResumableDraft()),
@@ -134,6 +135,9 @@ class CaptureScreenInstrumentedTest {
         composeRule.onNodeWithTag("capture_correction_form").assertExists()
         composeRule.onNodeWithTag("capture_transcription_input").assertExists()
         composeRule.onNodeWithTag("capture_mode_chooser").assertDoesNotExist()
+        composeRule.onNodeWithText("题面仅保存在本机").assertExists()
+        composeRule.onNodeWithText("原图已保存在本机").assertDoesNotExist()
+        composeRule.captureCaptureVisualEvidence("capture-manual.png")
     }
 }
 

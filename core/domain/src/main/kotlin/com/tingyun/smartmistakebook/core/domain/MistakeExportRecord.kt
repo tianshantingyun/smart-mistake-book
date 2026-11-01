@@ -2,6 +2,9 @@ package com.tingyun.smartmistakebook.core.domain
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
+import com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval
 
 /** 一次导出的对象形态：单题（详情页）或当前筛选（错题本列表）。 */
 enum class MistakeExportKind {
@@ -59,6 +62,8 @@ data class MistakeExportRecord(
     val failureMessage: String?,
     val createdAtEpochMillis: Long,
     val finishedAtEpochMillis: Long?,
+    val groupId: String? = null,
+    val artifactRole: MistakeExportArtifactRole = MistakeExportArtifactRole.QUESTIONS,
 ) {
     init {
         require(exportId.isNotBlank()) { "An export record needs an id" }
@@ -96,6 +101,11 @@ data class MistakeExportRecord(
  * 渲染请求本身不在这里——它在 WorkManager 输入里，记录表只承载"结果"。
  */
 interface MistakeExportRepository {
+    suspend fun createGroup(groupId: String, manifestId: String, manifestSha256: String, format: MistakeExportFormat, atEpochMillis: Long): MistakeExportGroup = throw UnsupportedOperationException("Paired export is unavailable")
+    suspend fun readGroup(groupId: String): MistakeExportGroup? = null
+    fun observeGroups(limit: Int = 30): Flow<List<MistakeExportGroup>> = flowOf(emptyList())
+    suspend fun confirmAnswerPreview(groupId: String, approval: AnswerPreviewApproval): Boolean = false
+    suspend fun recordGroupedStarted(groupId: String, artifactRole: MistakeExportArtifactRole, atEpochMillis: Long, retryFailed: Boolean = false): MistakeExportRecord? = null
     /** 「导出成果」入口的数据源：新的在前。 */
     fun observeRecords(): Flow<List<MistakeExportRecord>> = flowOf(emptyList())
 
@@ -139,3 +149,16 @@ interface MistakeExportRepository {
         atEpochMillis: Long,
     ): Int = 0
 }
+
+data class MistakeExportGroup(
+    val groupId: String,
+    val manifestId: String,
+    val manifestSha256: String,
+    val format: MistakeExportFormat,
+    val requestedAnswers: Boolean,
+    val questionsExportId: String?,
+    val answersExportId: String?,
+    val previewSha256: String?,
+    val solutionsSha256: String?,
+    val createdAtEpochMillis: Long,
+)

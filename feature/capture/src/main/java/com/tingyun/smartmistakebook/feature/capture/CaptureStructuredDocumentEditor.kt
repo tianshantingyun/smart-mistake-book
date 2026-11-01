@@ -1,8 +1,8 @@
 package com.tingyun.smartmistakebook.feature.capture
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -15,8 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.Outline
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 @Composable
 internal fun CaptureStructuredDocumentEditor(
@@ -27,8 +26,8 @@ internal fun CaptureStructuredDocumentEditor(
 ) {
     Column(
         modifier = modifier
-            .border(1.dp, Outline, RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.18f), RoundedCornerShape(8.dp))
+            .fillMaxWidth()
+            .background(SmartColors.SubtleSurface, RoundedCornerShape(16.dp))
             .padding(14.dp)
             .testTag("capture_structured_editor"),
     ) {
@@ -113,6 +112,7 @@ private fun StructuredField(
         minLines = 1,
         maxLines = 6,
         modifier = Modifier
+            .fillMaxWidth()
             .padding(top = 10.dp)
             .testTag(tag),
     )

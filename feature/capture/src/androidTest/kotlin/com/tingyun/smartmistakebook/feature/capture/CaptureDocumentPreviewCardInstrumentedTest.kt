@@ -1,6 +1,6 @@
 package com.tingyun.smartmistakebook.feature.capture
 
-import androidx.compose.material3.MaterialTheme
+import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -22,7 +22,7 @@ class CaptureDocumentPreviewCardInstrumentedTest {
     @Test
     fun structuredCandidateShowsBlocksAndWritingLayerBoundary() {
         composeRule.setContent {
-            MaterialTheme {
+            SmartMistakeBookTheme {
                 CaptureDocumentPreviewCard(candidate())
             }
         }
@@ -32,6 +32,7 @@ class CaptureDocumentPreviewCardInstrumentedTest {
         composeRule.onNodeWithText("2 处题面内容 · 印刷 1 · 手写 1").assertExists()
         composeRule.onNodeWithText("已知函数 f(x)=x²。").assertExists()
         composeRule.onNodeWithText("保存时会同时保留原图和这份题面。").assertExists()
+        composeRule.captureCaptureVisualEvidence("capture-document.png")
     }
 
     private fun candidate() = CapturedQuestionDocument(
