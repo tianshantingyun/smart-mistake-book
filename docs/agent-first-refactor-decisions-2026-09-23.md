@@ -3676,3 +3676,46 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **KD-82 残余**：imagePrompt 半边（OpenAiModelProtocol.kt:552）未对齐，"任何文档/证据不得把现 schema 写成与本地门同一口径"的禁令继续有效；是否另立条目由台账 owner 定。
 - **UNVERIFIED**：生产签名/arm64 真机/16KB release 面/API 23 全套件；release 窗口三项 raw 缺口（装机与设备侧 sha、K6 `-e class` 命令行、step14 设备负载实测——runner 摘要声明，落盘员 UNVERIFIED-raw）；KD-82 JVM 出数=门禁轮报告 XML 读值（记录员未复跑 Gradle，口径同批次 36 先例）。
 - **不做**：JS 广告（`availableMethods` 未动）；core/data 降级变体修复未落（只标注）；真实 Provider；锁文件提交（KD-72 窗口仍不满足）；`docs/current` 热区正文；`tmp/` 证据不提交。
+
+## 批次 38 三倍任务量批——Q-02 预裁落地 + V-02 调用侧编排与 M-03×V-02 开放裁定点 + KD-82 imagePrompt 半边 + R-04 Keeper 预研（2026-11-01）
+
+> 依据：批次 38 计划 `.zcode/plans/plan-2026-11-01-batch-38-triple.md`（25 项→13 轨，主会话预裁含 Q-02）、三研究 `docs/research/2026-11-01-method-switching-and-transactions.md`（R1，330 行）`2026-11-01-measure-artifact-and-budget.md`（R2，293 行）`2026-11-01-preview-source-evidence.md`（R3，160 行）、三预研（KD-76 判据 134 行 / V-01④ PDF 腿 112 行 / R-04 Keeper 87 行）、设备证据 `docs/research/evidence/2026-11-01-batch-38/`（E-00…E-13）、批次记录 `docs/research/2026-11-01-batch-38-record.md`。**记录步零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **Q-02 按主会话预裁落地、未停项（计划预裁的执行登记）**：语义三面钉死（枚举文 `FigureGeneration.kt:55-56`、prompt 用途段 `FigurePromptAssembler.kt:302-303`、R3 §1.4）——研究未证明存在合法"可重绘"语义，故"语义'保留原像素'的 PIXEL_CLEANUP 一律 requiresPixelFidelity=true、policy 无条件拒绝"落地：policy 新增 `effectiveRequiresPixelFidelity`=宿主显式位∨(purpose==PIXEL_CLEANUP)，JS/IMAGE 两道 pixel 门同收（不接收宿主声明降级——target 语义规整而非用途→方法路由）；入口声明面归位 `ConfiguredCleanImageGenerator.kt:109` true。红→绿构造性钉子：修复前 policy 只看 target 位+入口 false 时 PIXEL_CLEANUP+JS proposal 会被放行，新测试第 1 例正钉该旧漏洞形状（修复后 TARGET_UNSATISFIABLE）；净化链（EDIT+supportsPixelEditing）不受影响，`requiresPixelFidelity` 契约语义="只能走支持该能力的 EDIT"非逐位相同。
+- **V-02 方法切换=R1 §2.2 候选 B 调用侧编排**：`FigureMethodSwitchRunner`（core/data internal）单方法 `generateWithMethodFallback`——一次切换=同 request（同 operationId）第二次 coordinator.generate，协调器/policy/审计/账本/DAO 零改动（审计 insertOperation=IGNORE/attempt ABORT 唯一/终态最后尝试覆写天然支持；账本 per-operation 跨方法累计 MAX_DISPATCHES=6 不重置）。切换判据 fail-closed（可归属程序错五类+HARD_DEADLINE_EXCEEDED 才切；UNAVAILABLE/[UNATTRIBUTED]/账本 Denied/最终图上限不触发；REJECTED+JS 专面预算文案允许转 IMAGE 一次）；IMAGE→JS（"图像不佳"）不做机械回退，经有界 TutorVisualContext 模型回合驱动（A-07 生产零构造，接线归 X-01）。**生产接线无调用方**（全仓 grep 仅 runner+测试；KDoc"前置依赖"如实登记）——X-01 归位裁定待主会话，四个生产 coordinator.generate 调用点中 RoomTutorToolRunner 为他线热区 M。
+- **M-03×V-02 跨特性交互=登记分支（行为裁定开放）**：4MP 排版预算超限折 `INVALID_PROGRAM`（引擎度量结算接线）恰落入 V-02 可归属切换集→现行为=切换+远程预留（远程账本 6 上限不重置）；语义上更接近排除项 INPUT_OVER_BUDGET 的"输入侧修输入"（IMAGE 产物不经 4MP 布局门）。处置=双侧 KDoc 登记（`FigureMethodSwitchRunner` §2.4 表 M-03×V-02 行 + `VisualLayoutBudget` 执行点登记段），**"程序侧确定性超限 vs 输入侧越量"开放裁定点归主会话（X-01 生产接线前裁定）**；改裁定须同步两处注记；LAYOUT_PIXEL_BUDGET 场景专项用例随行为裁定同批落，不预钉未裁行为（修复环第 2 轮处置）。
+- **KD-82 imagePrompt 残余 Fix direction ① 半边**：`OpenAiModelProtocol.kt:561` maxLength=⌊4096/4⌋=1024 码点（协议 schema 数值对齐，非能力广告面；本地 4096 字节门三执行点零改动）；对齐测试改钉 1024+4B 恰边界正例+1025 码点负例 fail-closed。**KD-82 open 维持**：JVM 出数缺当日 XML（记录员普查唯一当日红=FusedRecallSupersetTest，KB 线域）+ 关闭裁决另一半（广告解冻批）未发生；最坏 4× 过度广告已消除，"不得把 schema 写成与本地门同一口径"禁令继续有效。
+- **R-04 维持阻塞 + Keeper 预研结论**：上游 slackhq/Keeper 0.16.1 在 AGP 9 结构性不可用（issue #152；孤儿化）；可行对象=活跃 fork **usefulness/keeper v0.19.0**（Apache-2.0、AGP 9.0→9.5.0 连续 CI MERGED 证据、SDK 37 命中本仓 compileSdk；L8 双机制+mapping 分支经源码 gh api 实读确认）——AGP 9.3.0 兼容性获上游 CI 级强证据，**本仓最终验证仍须沙盒+K2+三值预检+K6 全链（UNVERIFIED 显式）**；勘误候选：最小接入不需编辑 settings.gradle.kts（pluginManagement 已含双仓），实际触面=3 个构建文件+settings-gradle.lockfile+KD-72 锁窗口——台账表述更正归主会话采纳与否。R-04 阻塞不因预研改变。
+- **设备与门禁事实**：24 套件 223 例全绿（emulator-5562；首跑 3 红归因 D 环境同 APK 复跑取代；源快照 1220 文件两窗口 diff 0；T2 两文件编译错误经授权两处机械修复解锁）；**V-03/V-04 三套件编译进 dex 未执行**；KD-76 校准判据未就绪未执行（E-13，KD-76 open）；强门 exit=0 ×2、**单测门 exit=1 ×2 未归因**（收口前主会话须取得失败清单——当日 XML 普查唯一红=FusedRecallSupersetTest 2/3，core/data knowledge 面 KB 线域）。
+
+### 边界（不得越权 / 仍待裁定 / UNVERIFIED）
+
+- **M-03×V-02 行为裁定点开放**：切换 vs 归 INPUT_OVER_BUDGET 排除——主会话在 X-01 生产接线前裁定；专项用例不预钉未裁行为。
+- **V-02/X-01 生产接线待裁**：runner 是归位后的自然落点；不抢接（RoomTutorToolRunner 为他线热区）。
+- **载体已落、执行未出数**：V-03/V-04 三设备套件与批次 38 core/data 侧 11 个 JVM 套件全部 UNVERIFIED（设备执行归该轨判据；JVM 无当日 XML）；M-03 16MiB 分配前置门无生产执行点（接线归预览分配点）；D-04 写侧无生产调用方（previewAssetId 恒 null，快照提交接线归后续批）。
+- **A-10 编排半边**："耗尽→文字降级"编排半边登记维持（清单行不转"通过"）；协调器级"IMAGE+JS 混合合计第 3 份拒绝"直接向量仍缺（FigureMethodSwitchTest + E-11 设备位共同守卫）。
+- **UNVERIFIED**：R-04 Keeper 接入（预研≠实施）；单测门 exit=1 构成；生产签名/arm64/16KB/真机；KD-76 校准；Q-04 设备截图臂与 oracle 学科重算逐字段复核。
+- **不做**：JS 广告（`availableMethods` 未动、生产装配恒三参）；R-04 实施（触构建面，预研先行）；锁文件提交（KD-72 分支 B）；`docs/current` 热区正文（:208 登记不落笔）；`tmp/` 证据不提交；任何 git 写。
+
+## 批次 39 接线与设备校准批——D-04 预览接线缝与有界降级 + M-03 16MiB 分配前门 + V-01④ 公开测试缝 + KD-76 计时 seam（2026-11-01）
+
+> 依据：批次 39 计划 `.zcode/plans/plan-2026-11-01-batch-39-wiring-calibration.md`（16 项→10 轨）、两研究 `docs/research/2026-11-01-preview-wiring.md`（R1，366 行）/`2026-11-01-kd76-timing-calibration.md`（R2，252 行）、批次 39 基线（165 行）、设备证据 `docs/research/evidence/2026-11-01-batch-39/`（E-00…E-08）、批次记录 `docs/research/2026-11-01-batch-39-record.md`。**记录步零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **D-04 预览接线=R1 §2 八步管线，落独立可接线单元、生产装配零调用方如实登记**：渲染输入=Rendered.drawCommandsJson→`VisualDrawOpsParser.parse` 恢复级复检→`VisualDrawOpsPainter.draw`（pxPerDu=min(1f,1600/maxDu)，不取设备 density 保内容寻址幂等）→PNG→`TutorVisualPreviewAssetPersister.persist`（字节→行原子）→record.sourceAssetId 填 previewAssetId→仓储提交；仅 commitAssistantTurnWithVisual 路径（stageSnapshot 不做——STAGING 行 60 分钟租约回收）；失败语义=有界降级（门拒/绘制拒/persist 拒→previewAssetId=null+有界诊断≤512+快照照常提交；CancellationException 重抛；OOM 兜底折码）——依据：预览是③档显示缓存（VERIFIED_FONT_MANIFESTS 空集 `VisualSnapshotRestore.kt:125` 使冷恢复恒 ReadOnly），快照完整性靠 drawCommands 不靠预览；未引用资产行由六站点谓词 GC 自愈；"文字+预览合计≤4MP"在预览生成侧判（不在引擎结算处并入——4096² 合法画布否则被显示缓存问题连杀整图）。生产装配点（`SmartMistakeBookApplication.kt:364-368` 恒三参/`DefaultFigureGenerationCoordinator` 他线在飞）不可自行落——接 visualEngine 会翻转 JS 能力广告；唯一真实插入点=app ④ 设备例 commit 路径（T2 已接线演示）。
+- **M-03 16MiB 分配前门接线**：`requireBitmapBytesWithinBudget` 接在预览渲染 createBitmap 前（`TutorVisualPreviewRenderer.kt:332`，IAE→BITMAP_BYTE_BUDGET、分配不发生）——M-03 两门全接线（4MP=引擎结算处批 38、16MiB=预览分配点本批）；N5（du 累计）/N6（单次分配）两门独立判、向量分开写（防发现等价设备镜像）。
+- **V-01④=方案 A 单新文件公开缝 `VisualChainTestSeams`**：restoreDecision/writeSnapshotPdf 两公共操作、不透 internal 类型；KDoc 三硬约束（仅 androidTest 引用 grep 门=`tools/ci/check_visual_test_seams.py` 机检〔0 main/test 引用+1 androidTest 引用，负控有效〕/R-04 keep/不透 internal）；回滚=删 1 新文件+还用例增量。**keep 行未落**（`r04-test-keep.pro` 零命中）——缝/渲染器 keep 义务移交 R-04 批，此前引用两者的 release 轨用例不得进 R-04 清单。
+- **KD-76 计时 seam=R2 §2 四阶段 5 时刻戳**：`ConnectStageTimestamps` 挂 Link 按 generation 记账（S-bind/S-warmup/S-ready-gap/S-firstbyte）、@Volatile 单写者零新增锁、6 打点行/5 语义写点全在引擎一文件、零生产行为改动；访问器 `connectStageTimestampsForTest(generation?)`；回滚=删类+6 打点+1 访问器。READY_TIMEOUT=10s 校准判据（p95≤5s 维持、超线只动单常量 :1251 并回写契约 :72、1500ms/2500ms/loading 语义红线零触碰）与 29.5s 分段实测相加方案（否决单例端到端故障链）入档；**校准出数 UNVERIFIED**（设备校准用例未落码、androidTest 0 引用）→ READY_TIMEOUT 维持 10s、KD-76 open 维持。
+- **P-11/P-12③ errorKind runner 半边**：runner 开工实测干净→按计划条件分支落（独立结果码 `figure_engine_unattributed` + UNAVAILABLE 分支按 `UNATTRIBUTED_DIAGNOSTIC_PREFIX` 判别〔前缀同源 `VisualJsFailureClassification.kt:141` internal const〕+ 学生句"本机绘图引擎这次出了故障，没有生成"+2 新用例先红后绿登记）；不混 figure_failed（不诱导修 program）、不混 figure_unavailable（不谎称通道未配置）；prompt/能力快照对现网可达路径逐字节不变（新码生产暂不可达——防御位保护直调 runTraced 调用者与 X-01 接线后路径）。
+- **设备与门禁事实**：28 套件 236 例执行、绿终判 26 套件 220 例（新例 12 首证：N 4+X-02 6+A-10 协调器级 1+V-01④ 1）；源快照 1227 文件 diff=0；keep/S=71/dex/资产门全过；单测门/强门 exit=0（修复环后，工单给定）；复核 10 条（5 中 5 低），非低 5 条处置 5/5。**isolation 三窗 15 例红未收敛**（D 环境主导、T4 关联不可证伪→R2 §7.6 seam 设备绿绑定不成立，裁定请求三选项上报主会话）；**X-03 0/1 红=A 类夹具缺陷**（两 id 空间错配，修复+复跑归落码批）。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **D-04 生产装配待裁**：端口+设备向量绿、生产装配零调用方（previewAssetId 生产恒 null）——不构成关闭建议；装配点归位批裁定，接线不得翻转广告开关。
+- **isolation 三窗红 + T4 绑定**：低负载窗重跑 / T4-reverted 控制轮 / 接受 D 归因——主会话裁定；KD-76 校准与 V-01④ 关闭建议的绑定前提受牵制。
+- **V-01 状态判定**归主会话（④ 设备证据已取得，严格口径维持 PARTIAL 至裁定）；**X-03 修复+复跑**归落码批同窗。
+- **UNVERIFIED**：KD-76 校准出数（校准用例未落码）；seam 访问器过滤逻辑零测试覆盖（复核 #10）；本批新增 JVM 套件逐套件出数（门级 exit=0 工单给定）；生产签名/arm64/16KB/真机；Q-04 设备半边（真机渲染金样）；M-04 度量失败标记 runner 半边（candidate 登记）。
+- **不做**：JS 广告（`availableMethods` 未动、生产装配恒三参）；R-04 keep 登记（义务移交 R-04 批）；生产装配接线（热区+广告红线）；锁文件提交（KD-72 分支 B 维持）；`docs/current` 热区正文（:208 登记不落笔）；`tmp/` 证据不提交；任何 git 写。
